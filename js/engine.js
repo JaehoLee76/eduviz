@@ -220,9 +220,11 @@
     // 키보드 ← → 로 이전·다음 (슬라이더/입력 포커스 시엔 그쪽이 우선)
     global.addEventListener('keydown',function(e){
       var t=e.target;
-      if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
+      if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='BUTTON'||t.isContentEditable)) return;
       if(e.key==='ArrowRight'){ next(); e.preventDefault(); }
       else if(e.key==='ArrowLeft'){ prev(); e.preventDefault(); }
+      // Space/Enter = 현재 장면 한 단계 실행(tap) — 캔버스 클릭이 막힌 환경(일부 미리보기)용 대체 입력
+      else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // 학습 패널: 꺽쇠 펼침 + 풀이 토글
