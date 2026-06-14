@@ -1,0 +1,167 @@
+{
+  "ch3_01": {
+    "ch": "제3장 방정식",
+    "sec": "3.1 방정식과 해법",
+    "title": "방정식은 저울 — 양변에 똑같이",
+    "narr": "식을 다뤘으니, 이제 <b>=</b>로 묶인 <b>방정식</b>을 풀어봅시다. 방정식은 <b>양팔저울</b> — 좌변 = 우변으로 균형 잡힌 상태예요. 균형을 지키려면 양변에 똑같은 일을 해야 하죠. 눌러서 한 단계씩 x를 구해봐요.",
+    "hint": "화면을 눌러 다음 단계",
+    "more": "<b>방정식</b>은 등호(=) 양쪽이 같다는 약속이에요. 양팔저울처럼 균형 잡힌 상태죠.<br><br>균형을 깨지 않으려면 <b>양변에 똑같은 연산</b>을 해야 해요. 더하기·빼기·곱하기·나누기(0 제외)를 양쪽에 똑같이 하며 x만 남기면 그게 해입니다.",
+    "problem": {
+      "q": "5x = 3x + 8 을 풀면?",
+      "solution": "양변에서 3x를 빼면 2x = 8, 양변을 2로 나누면 <b>x = 4</b>.",
+      "q_en": "Solve 5x = 3x + 8.",
+      "sol_en": "Subtract 3x: 2x = 8; divide by 2: <b>x = 4</b>."
+    },
+    "more_en": "An <b>equation</b> says both sides of the = sign are equal, like a balance scale. To keep the balance, do the <b>same operation to both sides</b> (+, −, ×, ÷ by nonzero) until x is alone; that value is the <b>solution</b>."
+  },
+  "ch3_02": {
+    "ch": "제3장 방정식",
+    "sec": "3.1 방정식과 해법",
+    "title": "직접 풀어보기",
+    "narr": "같은 원리로 풀어볼까요? 양변에 똑같은 일을 해서 x만 남기면 됩니다.",
+    "hint": "정답을 골라보세요",
+    "more": "일차방정식은 결국 <b>x = (숫자)</b> 꼴로 만드는 게 목표예요. 순서: ① 괄호 풀기 → ② x항은 좌변, 숫자는 우변으로 이항 → ③ 양변을 x의 계수로 나누기.<br><br>이항은 \"양변에 같은 연산\"을 줄여 쓴 거예요(넘어가면 부호가 바뀜).",
+    "problem": {
+      "q": "2(x − 1) = x + 5 를 풀면?",
+      "solution": "2x − 2 = x + 5 → 2x − x = 5 + 2 → <b>x = 7</b>.",
+      "q_en": "Solve 2(x − 1) = x + 5.",
+      "sol_en": "2x − 2 = x + 5 → 2x − x = 5 + 2 → <b>x = 7</b>."
+    },
+    "more_en": "A linear equation is solved by reaching <b>x = (number)</b>: ① remove parentheses ② move x-terms to the left and numbers to the right (<b>transpose</b>, the sign flips) ③ divide by the coefficient of x."
+  },
+  "ch3_03": {
+    "ch": "제3장 방정식",
+    "sec": "3.2 이차방정식",
+    "title": "완전제곱식 — 정사각형 완성하기",
+    "narr": "일차방정식은 저울로 풀었죠(#19~20). 그런데 x²이 들어간 <b>이차방정식</b>은 그렇게 안 돼요. 핵심 도구가 <b>완전제곱식</b>이에요. x² + 6x 에 모서리 9를 채우면 (x+3)²인 <b>완전한 정사각형</b>이 됩니다.",
+    "hint": "화면을 눌러 모서리 채우기",
+    "more": "<b>완전제곱식</b>은 (x+a)² 처럼 제곱 하나로 묶이는 식이에요. x² + bx 에 <b>(b/2)²</b>를 더하면 (x + b/2)² 로 완성되죠 — 정사각형의 빈 모서리를 채우는 것과 같아요.<br><br>이 방법으로 모든 이차방정식을 풀 수 있고, 근의 공식도 여기서 나옵니다.<br><br>또한 y = x² + bx + c 를 완전제곱식 y = (x + b/2)² + k 로 바꾸면 <b>포물선의 꼭짓점</b>이 바로 보여요 — 꼭짓점의 x좌표는 <b>−b/2</b>. (이 꼭짓점을 바로 다음 #22에서 활용합니다.)",
+    "problem": {
+      "q": "x² + 8x 를 완전제곱식으로 만들려면 무엇을 더해야 할까요?",
+      "solution": "(8/2)² = 4² = <b>16</b>. 그러면 x² + 8x + 16 = (x + 4)².",
+      "q_en": "What must you add to x² + 8x to complete the square?",
+      "sol_en": "(8/2)² = <b>16</b>, giving x²+8x+16 = (x+4)²."
+    },
+    "more_en": "A <b>perfect square</b> is a single squared expression like (x+a)². Adding <b>(b/2)²</b> to x²+bx <b>completes the square</b> into (x+b/2)². This solves any quadratic and yields the quadratic formula. Writing y = (x+b/2)²+k also reveals the <b>vertex</b> of the parabola at x = <b>−b/2</b>."
+  },
+  "ch3_04": {
+    "ch": "제3장 방정식",
+    "sec": "3.2 이차방정식",
+    "title": "계수를 바꾸면 — 포물선이 미끄러진다",
+    "narr": "<b>잠깐, 추가로 봅시다.</b> 앞 #21에서 완전제곱식으로 꼭짓점(x = −b/2)을 찾았죠. 그 꼭짓점이 계수 <b>b</b>를 바꾸면 어떻게 움직일까요? 신기하게도 <b>또 하나의 포물선(꼭짓점의 자취)</b>을 따라 미끄러져요. (포물선 그래프 자체는 <b>5장 함수</b>에서 본격적으로 배웁니다.)",
+    "hint": "계수 b를 바꿔보세요",
+    "more": "이 장면은 본 흐름의 <b>곁다리(심화)</b>예요. y = x² + bx + c 에서 b를 바꾸면 포물선이 좌우로 미끄러지며 꼭짓점(x = −b/2)이 또 다른 곡선을 그리고, c를 바꾸면 위아래로 평행이동해요.<br><br>포물선·그래프의 정식 개념은 <b>5장 함수</b>에서 다룹니다 — 여기선 \"계수가 그래프를 움직인다\"는 직관만 즐기세요.",
+    "problem": {
+      "q": "y = x² − 6x + 5 의 꼭짓점의 x좌표는?",
+      "solution": "#21에서 본 꼭짓점 공식 <b>x = −b/2</b> 를 쓰면, −(−6)/2 = <b>3</b>. (대입하면 꼭짓점은 (3, −4).)",
+      "q_en": "Find the x-coordinate of the vertex of y = x² − 6x + 5.",
+      "sol_en": "Using x = −b/2 (from #21): −(−6)/2 = <b>3</b>. The vertex is (3, −4)."
+    },
+    "more_en": "This is a <b>bonus aside</b>. In y = x²+bx+c, changing b slides the parabola sideways while its <b>vertex</b> (x = −b/2) traces another curve; changing c shifts it up and down. Parabolas and graphs are covered properly in <b>Chapter 5 (Functions)</b>."
+  },
+  "ch3_05": {
+    "ch": "제3장 방정식",
+    "sec": "3.2 이차방정식",
+    "title": "판별식 — 근의 개수와 복소수",
+    "narr": "완전제곱식으로 이차방정식을 풀면 근이 나와요. 그런데 <b>근이 몇 개인지</b>는 미리 알 수 있어요 — 포물선이 <b>x축과 만나는 횟수</b>로요. c를 올려 포물선을 들어올려보세요 (2개 → 1개 → 0개).",
+    "hint": "c를 움직여보세요",
+    "more": "이차방정식 ax² + bx + c = 0 의 실근 개수는 <b>판별식 D = b² − 4ac</b> 의 부호로 알아요.<br><br>D > 0 → 서로 다른 실근 2개, D = 0 → 중근 1개, D < 0 → 실근 없음(복소수 허근 2개). 포물선이 x축과 만나는 횟수와 같아요.",
+    "problem": {
+      "q": "x² + 2x + 5 = 0 의 실근은 몇 개일까요?",
+      "solution": "D = 2² − 4·1·5 = 4 − 20 = −16 < 0 이므로 <b>실근 없음</b>(복소수 허근 2개).",
+      "q_en": "How many real roots does x² + 2x + 5 = 0 have?",
+      "sol_en": "D = 2² − 4·1·5 = −16 < 0, so there are <b>no real roots</b> (two complex roots)."
+    },
+    "more_en": "The number of real roots of ax²+bx+c=0 comes from the <b>discriminant D = b² − 4ac</b>: D>0 gives two real roots, D=0 one (double) root, D<0 no real roots (two <b>complex</b> roots). This equals how many times the parabola meets the x-axis."
+  },
+  "ch3_06": {
+    "ch": "제3장 방정식",
+    "sec": "3.2 이차방정식",
+    "title": "복소수 — 해가 평면으로 간다",
+    "narr": "제곱해서 음수가 되는 실수는 없어요. 그래서 <b>i² = −1</b>인 새 수 <b>i (허수단위)</b>를 만들죠. x²−2x+c=0 의 두 해를 <b>복소평면</b>(가로=실수부 Re, 세로=허수부 Im)에 찍어볼게요. c를 올려 D<0이 되면, 두 실근이 만났다가 <b>위아래(허수축)로 갈라져</b> 허근이 됩니다.",
+    "hint": "c를 움직여 — 해가 평면으로",
+    "more": "제곱해서 −1이 되는 수를 <b>허수단위 i</b>라 해요(i² = −1). 실수 a, b로 만든 <b>a + bi</b> 꼴이 <b>복소수</b>죠.<br><br>실수가 수직선의 점이라면, 복소수는 <b>평면</b>의 점(가로 = 실수부, 세로 = 허수부)이에요. 실근이 없을 때 해는 이 평면 위에 있습니다.",
+    "problem": {
+      "q": "(1 + 2i) + (3 − 5i) 를 계산하면?",
+      "solution": "실수부끼리, 허수부끼리 더해요: (1+3) + (2−5)i = <b>4 − 3i</b>.",
+      "q_en": "Compute (1 + 2i) + (3 − 5i).",
+      "sol_en": "Add real parts and imaginary parts: (1+3) + (2−5)i = <b>4 − 3i</b>."
+    },
+    "more_en": "The <b>imaginary unit i</b> satisfies i² = −1. A <b>complex number</b> has the form <b>a + bi</b>. If real numbers live on a line, complex numbers live on a <b>plane</b> (horizontal = real part, vertical = imaginary part). When there are no real roots, the solutions sit on this plane."
+  },
+  "ch3_07": {
+    "ch": "제3장 방정식",
+    "sec": "3.3 고차방정식",
+    "title": "왜 두 번 꺾일까 — 차수의 비밀",
+    "narr": "이차(포물선)를 넘어 <b>삼차·고차</b>로 가봅시다. 곡선이 두 번 꺾이는 건 <b>차수가 3</b>이라서예요. 인수를 하나씩 곱해보면 보입니다: 일차(직선) → 이차(한 번) → 삼차(두 번). (정확한 꺾임 위치는 <b>미분</b>에서 배워요.)",
+    "hint": "화면을 눌러 인수 추가",
+    "more": "다항함수 그래프가 <b>방향을 바꾸는(꺾이는) 횟수</b>는 차수보다 하나 작아요(최대 n−1번). 일차는 0번(직선), 이차는 1번(포물선), 삼차는 2번.<br><br>인수를 하나 곱할 때마다 근이 하나 늘고, 그만큼 곡선이 더 굽이쳐요. (정확한 꺾임 위치는 나중에 미분으로 구해요.)",
+    "problem": {
+      "q": "사차함수(4차)의 그래프는 최대 몇 번 꺾일 수 있나요?",
+      "solution": "차수 − 1 = 4 − 1 = <b>최대 3번</b>.",
+      "q_en": "How many times can a quartic (degree 4) graph turn at most?",
+      "sol_en": "Degree − 1 = 4 − 1 = <b>at most 3 times</b>."
+    },
+    "more_en": "A polynomial graph turns at most <b>degree − 1</b> times: a line 0, a parabola 1, a cubic 2. Each factor adds a root, so the curve waves more. The exact turning points come from <b>differentiation</b>, studied later."
+  },
+  "ch3_08": {
+    "ch": "제3장 방정식",
+    "sec": "3.3 고차방정식",
+    "title": "고차방정식 — 근은 x절편",
+    "narr": "고차방정식도 마찬가지예요. y = (x+2)(x−1)(x−3) 곡선이 <b>x축과 만나는 점</b>이 근이에요. 인수 하나가 0이 되는 곳이죠 → x = −2, 1, 3. 직접 풀어볼까요?",
+    "hint": "정답을 골라보세요",
+    "more": "고차방정식도 <b>인수분해</b>해서 풀어요. 곱이 0이면 인수 중 하나는 반드시 0이니까(곱셈의 성질), 각 인수가 0이 되는 값이 근이죠.<br><br>그래프로 보면 근은 곡선이 <b>x축과 만나는 점(x절편)</b>이에요.",
+    "problem": {
+      "q": "x(x − 2)(x + 5) = 0 의 해는?",
+      "solution": "각 인수가 0: x = 0, x − 2 = 0 → 2, x + 5 = 0 → −5. ∴ <b>x = 0, 2, −5</b>.",
+      "q_en": "Solve x(x − 2)(x + 5) = 0.",
+      "sol_en": "Each factor is 0: x = 0, x = 2, x = −5 → <b>x = 0, 2, −5</b>."
+    },
+    "more_en": "Higher-degree equations are solved by <b>factoring</b>: if a product is 0, one factor must be 0. Each factor equal to 0 gives a <b>root</b>, where the curve meets the x-axis (an <b>x-intercept</b>)."
+  },
+  "ch3_09": {
+    "ch": "제3장 방정식",
+    "sec": "3.3 고차방정식",
+    "title": "계수가 모양을 바꾼다 — 꺾임의 생성·소멸",
+    "narr": "삼차곡선 y = x³ <b>+ bx</b> 에서 계수 <b>b</b>를 바꿔보세요. b가 <b>음수</b>면 곡선이 <b>S자로 두 번 꺾이고</b>(봉우리·골이 생김) x축과 세 번 만나요. b가 0 이상이면 꺾임이 사라져 <b>한 방향으로만</b> 올라가 근이 하나죠. 미분을 배우기 전에도, 계수만 바꿔 모양 변화를 눈으로 알 수 있어요.",
+    "hint": "계수 b를 바꿔보세요",
+    "more": "같은 삼차식이라도 계수에 따라 모양이 확 달라져요. y = x³ + bx 에서 <b>b가 음수</b>면 봉우리·골이 생겨 S자로 굽이치고(근 3개 가능), <b>b가 0 이상</b>이면 꺾임 없이 한 방향으로 올라가요(근 1개).<br><br>이렇게 계수는 그래프의 \"성격\"을 결정해요.",
+    "problem": {
+      "q": "y = x³ + bx 가 봉우리·골을 가지려면 b는 어떤 값이어야 할까요?",
+      "solution": "<b>b < 0</b> (음수)일 때만 두 번 꺾여요. b ≥ 0 이면 단조증가라 꺾임이 없습니다.",
+      "q_en": "For y = x³ + bx to have a peak and a valley, what must b be?",
+      "sol_en": "<b>b < 0</b> (negative). For b ≥ 0 it is monotonic with no turns."
+    },
+    "more_en": "Coefficients decide the shape of a curve. In y = x³ + bx, <b>b < 0</b> makes an S-curve with a peak and a valley (up to 3 roots); <b>b ≥ 0</b> rises steadily (1 root)."
+  },
+  "ch3_10": {
+    "ch": "제3장 방정식",
+    "sec": "3.4 연립방정식",
+    "title": "연립방정식 — 두 직선의 교점",
+    "narr": "지금까진 식 하나를 풀었죠. 이제 <b>두 식을 동시에</b> 만족하는 해 — <b>연립방정식</b>이에요. 두 직선이 <b>만나는 점</b>이 해죠. 파란 직선 기울기를 바꿔 교점을 따라가보세요. (기울기 −1이면 평행 → 해 없음!)",
+    "hint": "기울기 m을 바꿔보세요",
+    "more": "연립방정식은 <b>여러 방정식을 동시에 만족</b>하는 미지수 값을 구하는 거예요. 미지수가 2개면 보통 식도 2개가 필요하죠.<br><br>",
+    "problem": {
+      "q": "두 직선 y = 2x − 1 과 y = −x + 5 의 <b>교점</b>의 좌표를 구하시오.",
+      "solution": "두 직선이 만나는 점에서는 y가 같으므로<br><b>2x − 1 = −x + 5</b><br>3x = 6 → <b>x = 2</b><br>y = 2·2 − 1 = <b>3</b><br>∴ 교점은 <b>(2, 3)</b>. 그래프에서 두 직선이 (2, 3)에서 만나는 것과 같아요.",
+      "q_en": "Find the intersection of y = 2x − 1 and y = −x + 5.",
+      "sol_en": "2x − 1 = −x + 5 → 3x = 6 → x = 2, y = 3 → <b>(2, 3)</b>."
+    },
+    "more_en": "A <b>system of equations</b> seeks values satisfying several equations at once. Graphically the solution is where the lines <b>intersect</b>. One intersection means one solution; parallel lines mean none; identical lines mean infinitely many."
+  },
+  "ch3_11": {
+    "ch": "제3장 방정식",
+    "sec": "3.5 등식의 증명",
+    "title": "(a+b)² 를 정사각형으로 증명",
+    "narr": "<b>#16에서 본 곱셈공식</b> (a+b)² = a² + 2ab + b², 이번엔 <b>정사각형 넓이로 증명</b>해봅시다. 한 변 (a+b)인 정사각형을 눌러 네 칸으로 나누면 a²·ab·ab·b²가 보여요 — 가운데 두 칸이 2ab죠.",
+    "hint": "화면을 눌러 네 칸으로",
+    "more": "<b>(a+b)² = a² + 2ab + b²</b>. 한 변이 (a+b)인 정사각형을 네 칸으로 나누면 a², ab, ab, b² 가 나와요 — 가운데 두 칸이 합쳐서 2ab죠.<br><br>마찬가지로 (a−b)² = a² − 2ab + b². 부호만 다릅니다.",
+    "problem": {
+      "q": "(x + 3)² 를 전개하면?",
+      "solution": "x² + 2·x·3 + 3² = <b>x² + 6x + 9</b>.",
+      "q_en": "Expand (x + 3)².",
+      "sol_en": "x² + 2·x·3 + 3² = <b>x² + 6x + 9</b>."
+    },
+    "more_en": "<b>(a+b)² = a² + 2ab + b²</b>. A square of side (a+b) splits into a², ab, ab, b² — the two middle cells make 2ab. Similarly (a−b)² = a² − 2ab + b²."
+  }
+}

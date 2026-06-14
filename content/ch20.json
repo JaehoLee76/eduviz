@@ -1,0 +1,77 @@
+{
+  "ch20_01": {
+    "ch": "제20장 적분의 응용",
+    "sec": "20.1 넓이",
+    "title": "두 곡선 사이의 넓이",
+    "narr": "한 곡선 아래 넓이를 알았으니, <b>두 곡선 사이</b> 넓이도 쉬워요 — <b>위 곡선에서 아래 곡선을 뺀 것</b>을 적분하면 돼요! 두 곡선이 만나는 교점을 적분 구간으로 잡고요. ∫(위 − 아래) = 사이 넓이.",
+    "hint": "위 − 아래 를 적분",
+    "more": "<b>두 곡선 사이 넓이 = ∫ₐᵇ [위 함수 − 아래 함수] dx</b> (a, b는 교점). 각 가는 세로 막대의 높이가 (위−아래)이고, 그걸 다 더한 거예요. 어느 쪽이 위인지 구간마다 확인해야 하죠(바뀌면 나눠서). 예) y=2x와 y=x²는 0, 2에서 만나고 사이 넓이 = ∫₀²(2x−x²)dx = [x²−x³/3]₀² = 4 − 8/3 = 4/3. 부호 있는 넓이(19장)를 다룰 때처럼, \"무엇에서 무엇을 빼는가\"가 핵심이에요. 이게 평균값·확률밀도·경제잉여 계산의 기초예요.",
+    "more_en": "<b>Area between two curves = ∫ₐᵇ [upper − lower] dx</b> (a, b are intersection points). Each thin vertical strip has height (upper−lower), summed up. Check which is on top per interval (split if it switches). E.g. y=2x and y=x² meet at 0 and 2, area = ∫₀²(2x−x²)dx = [x²−x³/3]₀² = 4 − 8/3 = 4/3. As with signed area (Ch.19), \"what minus what\" is the key. This underlies averages, probability densities, and economic surplus.",
+    "problem": {
+      "q": "y = x 와 y = x² 사이의 넓이(0 ≤ x ≤ 1)는?",
+      "solution": "∫₀¹(x − x²)dx = [x²/2 − x³/3]₀¹ = 1/2 − 1/3 = <b>1/6</b>.",
+      "q_en": "Find the area between y = x and y = x² for 0 ≤ x ≤ 1.",
+      "sol_en": "∫₀¹(x − x²)dx = [x²/2 − x³/3]₀¹ = 1/2 − 1/3 = <b>1/6</b>."
+    }
+  },
+  "ch20_02": {
+    "ch": "제20장 적분의 응용",
+    "sec": "20.2 부피",
+    "title": "회전체의 부피 — 원판 쌓기",
+    "narr": "곡선을 <b>축 둘레로 빙 돌리면</b> 입체(회전체)가 생겨요 — 꽃병, 그릇, 팽이처럼요. 그 부피는? <b>얇은 원판으로 잘라서 쌓으면</b> 돼요! 각 원판은 반지름 f(x)인 동전 모양, 넓이 πf². 그걸 적분해요.",
+    "hint": "얇은 원판(반지름 f(x))을 쌓아요",
+    "more": "<b>회전체의 부피(원판법)</b>: 곡선 y=f(x)를 x축 둘레로 돌리면, 위치 x에서 단면은 반지름 f(x)인 <b>원판</b>이에요(넓이 π[f(x)]²). 두께 dx인 원판들을 다 쌓으면 <b>V = π ∫ₐᵇ [f(x)]² dx</b>. \"넓이를 쌓아 부피\"라는 발상은 19장 \"길이를 쌓아 넓이\"의 한 차원 위 버전이죠. 구·원뿔·회전포물면의 부피가 다 이렇게 나와요(예: 반구, 깔때기). 단면을 적분하는 이 아이디어로 어떤 입체의 부피든 구할 수 있어요(원기둥껍질법·단면법 등).",
+    "more_en": "<b>Volume of revolution (disk method)</b>: rotating y=f(x) about the x-axis, the cross-section at x is a <b>disk</b> of radius f(x) (area π[f(x)]²). Stacking disks of thickness dx gives <b>V = π ∫ₐᵇ [f(x)]² dx</b>. \"Stack areas to get volume\" is the dimension-up version of Ch.19's \"stack lengths to get area.\" Spheres, cones, and paraboloids all come out this way. Integrating cross-sections lets you find any solid's volume (shells, slices, etc.).",
+    "problem": {
+      "q": "y = x (0 ≤ x ≤ 1)를 x축 둘레로 돌린 원뿔의 부피는?",
+      "solution": "V = π∫₀¹ x² dx = π[x³/3]₀¹ = <b>π/3</b>. (밑면 반지름1·높이1 원뿔 공식과 일치!)",
+      "q_en": "Find the volume of the cone from rotating y = x (0 ≤ x ≤ 1) about the x-axis.",
+      "sol_en": "V = π∫₀¹ x² dx = π[x³/3]₀¹ = <b>π/3</b> (matches the cone formula for radius 1, height 1!)."
+    }
+  },
+  "ch20_03": {
+    "ch": "제20장 적분의 응용",
+    "sec": "20.3 곡선의 길이",
+    "title": "곡선의 길이 — 잘게 펴서 재기",
+    "narr": "구불구불한 곡선의 길이는 어떻게 잴까요? <b>아주 짧은 직선 토막으로 쪼개서</b> 각 토막 길이를 더하면 돼요! 각 토막은 작은 직각삼각형의 빗변 √(Δx²+Δy²) — <b>1장의 피타고라스</b>가 또 나오네요. 토막을 잘게(n↑) 할수록 정확해져요. n을 키워보세요.",
+    "hint": "n을 키워 곡선에 가까워지는 걸 보세요",
+    "more": "<b>곡선의 길이(호의 길이)</b>: 곡선을 작은 선분들로 근사하면, 각 선분 길이는 <b>√(Δx² + Δy²)</b>(피타고라스, 6장 거리공식). 다 더하고 잘게 쪼개는 극한을 취하면 <b>L = ∫ₐᵇ √(1 + (f'(x))²) dx</b>(Δy/Δx → f' 이용). 넓이·부피처럼 길이도 \"잘게 쪼개 더하는\" 적분이에요. 미분(f')과 적분(∫), 피타고라스가 한 식에 모두 모였죠! 다만 √ 안의 식 때문에 실제 적분은 어려운 경우가 많아 수치적분을 쓰기도 해요. GPS 경로 거리, 케이블 길이 계산 등에 쓰여요.",
+    "more_en": "<b>Arc length</b>: approximate the curve by small segments, each of length <b>√(Δx² + Δy²)</b> (Pythagoras, Ch.6 distance). Summing and taking the fine limit gives <b>L = ∫ₐᵇ √(1 + (f'(x))²) dx</b> (using Δy/Δx → f'). Like area and volume, length is a \"slice-and-add\" integral. Differentiation (f'), integration (∫), and Pythagoras all meet in one formula! The √ often makes the integral hard, so numerical methods are common. Used for GPS path distances, cable lengths, and more.",
+    "problem": {
+      "q": "곡선 길이를 구하는 식에 √(1+(f')²) 가 나오는 이유는?",
+      "solution": "각 미소 선분이 직각삼각형의 빗변 √(Δx²+Δy²)이고, Δy=f'Δx 라서 √(1+(f')²)Δx. <b>피타고라스</b>!",
+      "q_en": "Why does √(1+(f')²) appear in the arc length formula?",
+      "sol_en": "Each tiny segment is a hypotenuse √(Δx²+Δy²), and Δy=f'Δx gives √(1+(f')²)Δx — <b>Pythagoras</b>!"
+    }
+  },
+  "ch20_04": {
+    "ch": "제20장 적분의 응용",
+    "sec": "20.4 미분방정식",
+    "title": "미분방정식 — 변화의 법칙",
+    "narr": "자연의 법칙은 대개 \"<b>지금 변하는 속도</b>\"로 표현돼요. 인구는 \"<b>현재 인구에 비례해</b> 늘고\", 뜨거운 커피는 \"<b>온도차에 비례해</b> 식어요\". 이런 \"변화율 = ⋯\" 식이 <b>미분방정식</b>이에요. y'=ky 의 답은 <b>지수함수</b>! k를 바꿔보세요.",
+    "hint": "k의 부호로 성장·감쇠가 갈려요",
+    "more": "<b>미분방정식</b>은 함수와 그 도함수(변화율) 사이의 관계식이에요. 가장 기본 <b>y' = ky</b>(\"변화율이 자기 크기에 비례\")의 해는 <b>y = y₀·e^(kx)</b> — k>0이면 <b>지수 성장</b>(인구·복리·전염 초기), k<0이면 <b>지수 감쇠</b>(방사성붕괴·약물대사·뉴턴냉각)예요. 7·14장의 e와 지수함수가 \"왜 그렇게 중요한가\"의 답이 여기 있어요(eˣ가 자기 미분이라!). 물리·생물·경제·공학의 거의 모든 동역학이 미분방정식으로 쓰여요 — 뉴턴 운동방정식 F=ma도 미분방정식이죠. 미적분의 최종 응용 무대예요.",
+    "more_en": "A <b>differential equation</b> relates a function to its derivative (rate of change). The simplest, <b>y' = ky</b> (\"rate proportional to size\"), has solution <b>y = y₀·e^(kx)</b> — k>0 gives <b>exponential growth</b> (populations, compound interest, early epidemics), k<0 gives <b>exponential decay</b> (radioactivity, drug metabolism, Newton's cooling). Here is why e and the exponential (Ch.7/14) matter so much (eˣ is its own derivative!). Nearly all dynamics in physics, biology, economics, and engineering are differential equations — even Newton's F=ma. It is the ultimate stage of calculus.",
+    "problem": {
+      "q": "y' = 2y 이고 y(0) = 1 일 때 해 y는?",
+      "solution": "변화율이 자기 크기의 2배 → y = <b>e^(2x)</b>. (y(0)=e⁰=1 만족)",
+      "q_en": "Solve y' = 2y with y(0) = 1.",
+      "sol_en": "Rate is twice the size → y = <b>e^(2x)</b> (satisfies y(0)=e⁰=1)."
+    }
+  },
+  "ch20_05": {
+    "ch": "제20장 적분의 응용",
+    "sec": "20.4 미분방정식",
+    "title": "속도와 거리 — 미적분이 한 바퀴",
+    "narr": "미분과 적분이 어떻게 한 몸인지 보여주는 멋진 예: <b>거리를 미분하면 속도, 속도를 적분하면 거리</b>! <b>속도 그래프 아래 넓이가 곧 이동 거리</b>예요. 시간 t까지의 넓이를 보세요.",
+    "hint": "속도 아래 넓이 = 이동 거리",
+    "more": "물리에서 <b>위치 → (미분) → 속도 → (미분) → 가속도</b>이고, 거꾸로 <b>가속도 → (적분) → 속도 → (적분) → 위치</b>예요. 즉 <b>이동 거리 = ∫ v(t) dt</b> = 속도 그래프 아래 넓이! 17장(거리를 미분해 속도)과 19장(속도를 적분해 거리)이 정확히 역연산으로 만나는 거죠(기본정리의 실제 예). 예) v(t)=t로 t=3까지 가면 거리 = ∫₀³ t dt = 9/2. 자동차 주행거리계, 로켓 궤도, 적분기 회로가 다 이 원리예요. 미적분 전체가 \"변화율 ↔ 누적\"이라는 한 쌍의 춤이라는 걸 이 장면이 요약해요.",
+    "more_en": "In physics, <b>position → (differentiate) → velocity → (differentiate) → acceleration</b>, and conversely <b>acceleration → (integrate) → velocity → (integrate) → position</b>. So <b>distance traveled = ∫ v(t) dt</b> = the area under the velocity graph! Ch.17 (differentiate position to get velocity) and Ch.19 (integrate velocity to get distance) meet exactly as inverses (a concrete fundamental theorem). E.g. v(t)=t to t=3 gives distance ∫₀³ t dt = 9/2. Odometers, rocket trajectories, and integrator circuits all use this. This scene sums up calculus as one dance of \"rate ↔ accumulation.\"",
+    "problem": {
+      "q": "속도 v(t) = 2t 로 0초부터 3초까지 이동한 거리는?",
+      "solution": "∫₀³ 2t dt = [t²]₀³ = <b>9</b>. (속도 그래프 아래 삼각형 넓이)",
+      "q_en": "With velocity v(t) = 2t, find the distance traveled from t=0 to t=3.",
+      "sol_en": "∫₀³ 2t dt = [t²]₀³ = <b>9</b> (the area under the velocity graph)."
+    }
+  }
+}

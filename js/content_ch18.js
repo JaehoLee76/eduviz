@@ -1,0 +1,94 @@
+/* 제18장 미분의 응용 — 평균값정리·요철·개형·최적화·테일러
+   동작(behavior)만. 텍스트는 content/ch18.json */
+(function(){
+  function fact(n){ var f=1; for(var i=2;i<=n;i++) f*=i; return f; }
+  function tline(P,ctx,a,fa,slope,col,dash){ ctx.strokeStyle=col; ctx.lineWidth=2; if(dash)ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(P.X(P.xmin),P.Y(fa+slope*(P.xmin-a))); ctx.lineTo(P.X(P.xmax),P.Y(fa+slope*(P.xmax-a))); ctx.stroke(); if(dash)ctx.setLineDash([]); }
+
+  var scenes=[
+
+  // ══════════ 18.1 평균값 정리 ══════════
+  { id:'ch18_01',
+    enter:function(E){ this.s={b:3}; E.Plot.range(-0.5,4,-1,9);
+      E.controls('<div class="ctrl"><label>끝점 b</label><input type="range" id="bb" min="1.5" max="3.5" step="0.5" value="3"><output id="bbo">3</output></div>');
+      var self=this; E.bind('#bb','input',function(e){ self.s.b=+e.target.value; document.getElementById('bbo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx, a=0, fa=0, fb=b*b, sl=(fb-fa)/(b-a), c=b/2; P.axes();
+      P.curve(function(x){return x*x;}, '#7ab8ff');
+      // 할선(평균기울기)
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fb)); ctx.stroke();
+      P.dot(a,fa,'#ffb27a'); P.dot(b,fb,'#ffb27a');
+      // c에서 접선(할선과 평행)
+      tline(P,ctx,c,c*c,sl,'#8fe3b5');
+      ctx.globalAlpha=E.blink(); P.dot(c,c*c,'#8fe3b5','c='+c); ctx.globalAlpha=1;
+      E.big('평균기울기 = '+sl.toFixed(2)+' = f\'(c),  c = '+c, '평균값 정리 — 평균기울기(주황)와 똑같은 접선(초록)을 갖는 점 c가 반드시 존재'); }
+  },
+
+  // ══════════ 18.2 요철·변곡점 (2계도함수) ══════════
+  { id:'ch18_02',
+    enter:function(E){ this.s={x:-1}; E.Plot.range(-2.5,2.5,-4,4);
+      E.controls('<div class="ctrl"><label>점 x</label><input type="range" id="xx" min="-2" max="2" step="0.25" value="-1"><output id="xxo">-1</output></div>');
+      var self=this; E.bind('#xx','input',function(e){ self.s.x=+e.target.value; document.getElementById('xxo').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, x=this.s.x, ctx=E.ctx; P.axes();
+      function f(t){return t*t*t;} var f2=6*x;
+      P.curve(f, '#7ab8ff');
+      P.dot(0,0,'rgba(255,178,122,0.7)','변곡점');
+      tline(P,ctx,x,f(x),3*x*x,'#8fe3b5');
+      P.dot(x,f(x),'#fff');
+      var st = Math.abs(f2)<0.01?"f''=0 → 변곡점(휨 방향 바뀜)" : f2>0?"f''>0 → 아래로 볼록 (∪)" : "f''<0 → 위로 볼록 (∩)";
+      E.big("f(x)=x³,  f''("+x+") = "+f2.toFixed(1), st+' · 2계도함수 부호 = 곡선의 휨(요철)'); }
+  },
+
+  // ══════════ 18.3 곡선의 개형 ══════════
+  { id:'ch18_03',
+    enter:function(E){ this.s={}; E.Plot.range(-2.5,2.5,-4,4); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
+      function f(t){return t*t*t-3*t;}
+      P.curve(f, '#7ab8ff');
+      // 극대·극소·변곡
+      P.dot(-1,2,'#ffb27a','극대'); P.dot(1,-2,'#8fe3b5','극소'); P.dot(0,0,'rgba(244,160,192,0.8)','변곡');
+      // 증감 화살표
+      ctx.font='18px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#9b99a3';
+      ctx.fillText('↗', P.X(-1.7), P.Y(3.4)); ctx.fillText('↘', P.X(0), P.Y(1.2)); ctx.fillText('↗', P.X(1.7), P.Y(-3.4));
+      E.big('f(x) = x³ − 3x 의 개형', '미분 종합 — f\'으로 증감(극대·극소), f\'\'으로 요철(변곡)을 알면 그래프 완성!'); }
+  },
+
+  // ══════════ 18.4 최적화 ══════════
+  { id:'ch18_04',
+    enter:function(E){ this.s={w:3}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>가로 w (둘레 20 고정)</label><input type="range" id="ww" min="1" max="9" step="1" value="3"><output id="wwo">3</output></div>');
+      var self=this; E.bind('#ww','input',function(e){ self.s.w=+e.target.value; document.getElementById('wwo').textContent=e.target.value; E.blip(440,0.1); }); },
+    draw:function(E){ var ctx=E.ctx, w=this.s.w, h=10-w, area=w*h, scale=18, cx=E.W*0.30, cy=E.H*0.46;
+      // 직사각형
+      var pw=w*scale, ph=h*scale;
+      ctx.fillStyle='rgba(122,184,255,0.2)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2;
+      ctx.fillRect(cx-pw/2,cy-ph/2,pw,ph); ctx.strokeRect(cx-pw/2,cy-ph/2,pw,ph);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('w='+w, cx, cy+ph/2+18); ctx.save(); ctx.translate(cx-pw/2-14,cy); ctx.rotate(-Math.PI/2); ctx.fillText('h='+h,0,0); ctx.restore();
+      // 넓이-w 그래프(작게)
+      var gx=E.W*0.62, gy0=E.H*0.62, gw=E.W*0.28, gh=E.H*0.32;
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx,gy0); ctx.lineTo(gx+gw,gy0); ctx.moveTo(gx,gy0); ctx.lineTo(gx,gy0-gh); ctx.stroke();
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath();
+      for(var ww=0;ww<=10;ww+=0.2){ var ar=ww*(10-ww), px=gx+(ww/10)*gw, py=gy0-(ar/25)*gh; if(ww===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); } ctx.stroke();
+      var px=gx+(w/10)*gw, py=gy0-(area/25)*gh; ctx.fillStyle=(w===5)?'#ffb27a':'#fff'; ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fill();
+      ctx.fillStyle='#9b99a3'; ctx.textAlign='center'; ctx.fillText('넓이 vs w', gx+gw/2, gy0+18);
+      E.big('넓이 = w(10−w) = '+area+(w===5?'  ← 최대!':''), '최적화 — 둘레 고정시 넓이 최대는 정사각형(w=5). f\'=10−2w=0 → w=5'); }
+  },
+
+  // ══════════ 18.5 테일러 근사 ══════════
+  { id:'ch18_05',
+    enter:function(E){ this.s={N:1}; E.Plot.range(-4,4,-2.5,2.5);
+      E.controls('<div class="ctrl"><label>항 개수 N</label><input type="range" id="tn" min="1" max="5" step="1" value="1"><output id="tno">1</output></div>');
+      var self=this; E.bind('#tn','input',function(e){ self.s.N=+e.target.value; document.getElementById('tno').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, N=this.s.N, ctx=E.ctx; P.axes();
+      // 진짜 sin
+      P.curve(Math.sin, 'rgba(255,255,255,0.4)');
+      // 테일러 다항식 (sin: x - x³/6 + x⁵/120 - ...)
+      P.curve(function(x){ var s=0; for(var k=0;k<N;k++){ var p=2*k+1, sign=(k%2===0)?1:-1; s+= sign*Math.pow(x,p)/fact(p); } return s; }, '#7ab8ff');
+      var degs=[1,3,5,7,9];
+      ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('진짜 sin x', P.X(2.2), P.Y(1.3));
+      E.big('sin x ≈ '+N+'항 (최고차 '+degs[N-1]+'차)', '테일러 근사 — 다항식으로 곡선 흉내! 항을 더할수록 더 넓게 sin과 겹쳐요 (17장 접선근사의 확장)'); }
+  }
+
+  ];
+  if(window.Engine) window.Engine.addScenes(scenes);
+})();

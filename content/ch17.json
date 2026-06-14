@@ -1,0 +1,92 @@
+{
+  "ch17_01": {
+    "ch": "제17장 미분",
+    "sec": "17.1 평균변화율과 순간변화율",
+    "title": "순간의 기울기 — 미분의 탄생",
+    "narr": "드디어 <b>미분</b>! <b>14장의 0/0 극한(#84)</b>이 여기서 빛을 발해요. 두 점을 잇는 <b>할선의 기울기</b>(평균변화율)에서, 두 점을 <b>한없이 가까이</b>(h→0) 붙이면 — 할선이 <b>접선</b>이 되고, 그 기울기가 <b>순간변화율</b>이에요! h를 0으로 줄여보세요.",
+    "hint": "h를 0으로 줄여 할선→접선을 보세요",
+    "more": "<b>평균변화율</b> = Δy/Δx = (f(a+h)−f(a))/h 는 두 점을 잇는 <b>할선의 기울기</b>예요. 여기서 <b>h→0</b> 극한을 취하면 <b>순간변화율(미분계수) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = 그 점에서의 <b>접선의 기울기</b>죠. f(x)=x²이면 (1+h)²−1)/h = 2+h → <b>2</b>. 14장에서 본 0/0 극한이 바로 이거예요(분자·분모 모두 0으로). 속도(위치의 순간변화율)·한계비용 등 \"순간의 변화\"가 모두 미분이에요.",
+    "more_en": "The <b>average rate of change</b> Δy/Δx = (f(a+h)−f(a))/h is the slope of the <b>secant line</b> through two points. Taking the limit <b>h→0</b> gives the <b>instantaneous rate (derivative) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = the slope of the <b>tangent line</b> there. For f(x)=x²: ((1+h)²−1)/h = 2+h → <b>2</b>. This is exactly the 0/0 limit from Ch.14 (numerator and denominator both → 0). Velocity (instantaneous rate of position), marginal cost, and any \"instantaneous change\" is a derivative.",
+    "problem": {
+      "q": "f(x) = x² 에서 x = 3 일 때의 순간변화율 f'(3) 은?",
+      "solution": "((3+h)²−9)/h = (6h+h²)/h = 6+h → h→0: <b>6</b>. (또는 f'=2x, 2·3=6)",
+      "q_en": "Find the instantaneous rate f'(3) for f(x) = x².",
+      "sol_en": "((3+h)²−9)/h = (6h+h²)/h = 6+h → h→0: <b>6</b> (or f'=2x, 2·3=6)."
+    }
+  },
+  "ch17_02": {
+    "ch": "제17장 미분",
+    "sec": "17.2 연속성",
+    "title": "연속 — 끊김 없이 이어짐",
+    "narr": "미분을 하려면 먼저 <b>연속</b>이어야 해요. 연속은 \"<b>한 붓으로 그릴 수 있다</b>\"는 뜻 — 점프도, 구멍도 없죠. 끊긴 곳(점프·구멍)에서는 접선의 기울기를 말할 수 없어요. 화면을 눌러 연속·점프·구멍을 비교해보세요.",
+    "hint": "▶ 연속 / 점프 / 구멍 비교",
+    "more": "함수가 한 점에서 <b>연속</b>이려면 — ① 그 점에서 함숫값이 있고 ② 극한값이 존재하며 ③ <b>극한값 = 함숫값</b> 이어야 해요(14장 극한 위에 세워진 정의). 끊기는 경우: <b>점프</b>(좌극한≠우극한), <b>구멍</b>(극한은 있으나 값이 없거나 다름). 핵심: <b>미분가능하면 반드시 연속</b>이에요(역은 거짓 — 뾰족점 |x|는 연속이나 미분 불가). 연속은 미분의 전제 조건이자, 사잇값 정리 같은 정리들의 토대예요.",
+    "more_en": "A function is <b>continuous</b> at a point if ① the value exists, ② the limit exists, and ③ <b>limit = value</b> (built on Ch.14's limits). Breaks: a <b>jump</b> (left limit ≠ right limit) or a <b>hole</b> (limit exists but value missing or different). Key: <b>differentiable ⟹ continuous</b> (but not the reverse — the corner |x| is continuous yet not differentiable). Continuity is the prerequisite for differentiation and the basis of theorems like the Intermediate Value Theorem.",
+    "problem": {
+      "q": "연속이면 항상 미분가능할까?",
+      "solution": "아니요. y = |x| 는 x=0에서 <b>연속이지만</b> 뾰족점이라 <b>미분 불가</b>. (미분가능 → 연속은 성립)",
+      "q_en": "Does continuity always imply differentiability?",
+      "sol_en": "No. y = |x| is <b>continuous</b> at x=0 but has a corner, so it is <b>not differentiable</b> (the converse, differentiable → continuous, does hold)."
+    }
+  },
+  "ch17_03": {
+    "ch": "제17장 미분",
+    "sec": "17.3 도함수",
+    "title": "도함수 — 기울기들의 함수",
+    "narr": "한 점의 기울기가 아니라, <b>모든 점의 기울기</b>를 모으면? 그게 새로운 함수 <b>도함수 f'(x)</b>예요! f(x)=x²의 각 점 접선 기울기는 2x — 그래서 <b>f'(x) = 2x</b>. 접점 a를 움직이면, 접선 기울기(주황)가 그대로 초록 함수의 높이가 돼요!",
+    "hint": "a를 움직여 기울기가 f'이 되는 걸 보세요",
+    "more": "<b>도함수 f'(x)</b> 는 각 x에서의 순간변화율(접선 기울기)을 값으로 갖는 <b>새로운 함수</b>예요 — f'(x) = lim(h→0) (f(x+h)−f(x))/h. f(x)=x²이면 모든 점에서 기울기가 2x이므로 <b>f'(x)=2x</b>. 그림에서 접점의 접선 기울기(주황)가 곧 초록 곡선 f'의 높이죠. \"함수를 미분하면 또 다른 함수가 나온다\"는 게 핵심 — 이 도함수를 또 미분하면 <b>2계도함수 f''</b>(가속도·곡선의 볼록성, 18장)가 돼요. 미분은 함수를 함수로 보내는 연산이에요.",
+    "more_en": "The <b>derivative f'(x)</b> is a <b>new function</b> whose value at each x is the instantaneous rate (tangent slope) there — f'(x) = lim(h→0) (f(x+h)−f(x))/h. For f(x)=x², the slope is 2x everywhere, so <b>f'(x)=2x</b>. In the picture, the tangent slope (orange) equals the height of the green curve f'. The key idea: \"differentiating a function yields another function.\" Differentiating again gives the <b>second derivative f''</b> (acceleration, concavity — Ch.18). Differentiation is an operation sending functions to functions.",
+    "problem": {
+      "q": "f(x) = x² 의 도함수 f'(x) 는, 그리고 f'(−2) 는?",
+      "solution": "f'(x) = <b>2x</b>. f'(−2) = 2·(−2) = <b>−4</b> (x=−2에서 기울기 음수 = 감소).",
+      "q_en": "Find the derivative f'(x) of f(x)=x², and f'(−2).",
+      "sol_en": "f'(x) = <b>2x</b>. f'(−2) = 2·(−2) = <b>−4</b> (negative slope at x=−2 means decreasing)."
+    }
+  },
+  "ch17_04": {
+    "ch": "제17장 미분",
+    "sec": "17.4 여러 미분법",
+    "title": "멱법칙 — xⁿ 미분하기",
+    "narr": "매번 극한을 계산하면 번거롭죠. 다행히 <b>공식(미분법)</b>이 있어요! 가장 기본은 <b>멱법칙</b>: xⁿ을 미분하면 <b>지수를 앞으로 내리고, 지수를 1 줄여요</b> → (xⁿ)' = n·xⁿ⁻¹. n을 바꿔 f와 f'을 비교해보세요.",
+    "hint": "n을 바꿔 f와 f'을 비교하세요",
+    "more": "<b>멱법칙: (xⁿ)' = n·xⁿ⁻¹</b> — 지수 n을 계수로 내리고 지수를 1 낮춰요. 예) (x³)'=3x², (x)'=1, (상수)'=0. 함께 쓰는 규칙들 — <b>상수배</b>: (c·f)'=c·f', <b>합</b>: (f+g)'=f'+g', <b>곱</b>: (fg)'=f'g+fg', <b>몫</b>·<b>합성(연쇄법칙)</b>: (f(g(x)))'=f'(g)·g'. 이 규칙들로 다항식·분수·합성 어떤 함수든 극한 없이 미분해요. 삼각·지수·로그도 각자 공식이 있죠((sin x)'=cos x, (eˣ)'=eˣ, (ln x)'=1/x — eˣ가 자기 자신인 게 14장 e의 특별함!).",
+    "more_en": "<b>Power rule: (xⁿ)' = n·xⁿ⁻¹</b> — bring the exponent down as a coefficient and lower it by one. E.g. (x³)'=3x², (x)'=1, (constant)'=0. Companion rules — <b>constant multiple</b>: (c·f)'=c·f'; <b>sum</b>: (f+g)'=f'+g'; <b>product</b>: (fg)'=f'g+fg'; plus quotient and the <b>chain rule</b>: (f(g(x)))'=f'(g)·g'. With these, any polynomial, rational, or composite function differentiates without limits. Trig, exponential, and log have their own: (sin x)'=cos x, (eˣ)'=eˣ, (ln x)'=1/x — eˣ being its own derivative is why e (Ch.14) is special!",
+    "problem": {
+      "q": "f(x) = x⁴ 의 도함수는?",
+      "solution": "멱법칙: 4를 내리고 지수 1 줄임 → f'(x) = <b>4x³</b>.",
+      "q_en": "Find the derivative of f(x) = x⁴.",
+      "sol_en": "Power rule: bring down 4, lower the exponent → f'(x) = <b>4x³</b>."
+    }
+  },
+  "ch17_05": {
+    "ch": "제17장 미분",
+    "sec": "17.5 미분의 활용",
+    "title": "극대·극소 — 기울기가 0인 곳",
+    "narr": "미분의 가장 강력한 쓸모! <b>도함수 = 기울기의 부호</b>가 함수의 오르내림을 알려줘요. <b>f'>0이면 증가, f'<0이면 감소</b>, 그리고 <b>f'=0인 곳에서 봉우리(극대)·골짜기(극소)</b>가 생겨요. 점을 움직여 접선 기울기와 증감을 확인하세요.",
+    "hint": "점을 움직여 기울기 부호를 보세요",
+    "more": "<b>미분으로 함수의 모양을 읽어요</b>: f'(x) > 0인 구간은 <b>증가</b>, f'(x) < 0인 구간은 <b>감소</b>. 증가→감소로 바뀌는 곳이 <b>극대</b>, 감소→증가로 바뀌는 곳이 <b>극소</b>이고, 그 점에서 <b>접선이 수평(f'=0)</b>이에요(필요조건). 예) f=x³−3x → f'=3x²−3=3(x−1)(x+1) → x=±1에서 극값. 이렇게 \"최댓값·최솟값 찾기(최적화)\"가 미분의 핵심 응용이에요 — 비용 최소화, 이익 최대화, 최단 경로 등. 곡선의 볼록·요철과 변곡점은 <b>18장(2계도함수)</b>에서 더 깊이 봐요.",
+    "more_en": "<b>Read a function's shape from its derivative</b>: where f'(x) > 0 it <b>increases</b>, where f'(x) < 0 it <b>decreases</b>. A switch increase→decrease is a <b>local maximum</b>, decrease→increase a <b>local minimum</b>, and there the <b>tangent is horizontal (f'=0)</b> (a necessary condition). E.g. f=x³−3x → f'=3x²−3=3(x−1)(x+1) → extrema at x=±1. Finding maxima and minima (optimization) is the key application — minimizing cost, maximizing profit, shortest paths. Concavity and inflection points come via the <b>second derivative (Ch.18)</b>.",
+    "problem": {
+      "q": "f(x) = x² − 4x 의 극소가 되는 x는?",
+      "solution": "f'(x) = 2x − 4 = 0 → x = <b>2</b>. (그 점에서 최소, f(2)=−4)",
+      "q_en": "At what x does f(x) = x² − 4x have its minimum?",
+      "sol_en": "f'(x) = 2x − 4 = 0 → x = <b>2</b> (minimum there, f(2)=−4)."
+    }
+  },
+  "ch17_06": {
+    "ch": "제17장 미분",
+    "sec": "17.5 미분의 활용",
+    "title": "접선의 방정식",
+    "narr": "미분계수 f'(a)는 <b>접선의 기울기</b>죠. 그러면 <b>6장의 직선 방정식(#43)</b>으로 접선을 바로 쓸 수 있어요: 점 (a, f(a))를 지나고 기울기 f'(a)인 직선! 접점 a를 옮겨 접선이 곡선을 스치며 따라가는 걸 보세요.",
+    "hint": "접점 a를 옮겨보세요",
+    "more": "곡선 y=f(x) 위의 점 (a, f(a))에서의 <b>접선의 방정식</b>은 — 기울기 = f'(a) 이므로 <b>y − f(a) = f'(a)(x − a)</b> (6장의 점-기울기 꼴!). 예) f=x², a=1 → f'(1)=2, 접선 y−1=2(x−1) → y=2x−1. 접선은 그 점 근처에서 곡선을 가장 잘 흉내 내는 직선이라(<b>선형근사</b>), f(a+h) ≈ f(a) + f'(a)h 로 어림셈에 써요. 이 \"곡선을 직선으로 근사\"가 뉴턴법(근 찾기)·물리 근사·테일러 정리(18장)의 출발점이에요. 미분이 6장 좌표기하와 한 바퀴 돌아 만나죠.",
+    "more_en": "At a point (a, f(a)) on y=f(x), the <b>tangent line</b> has slope f'(a), so its equation is <b>y − f(a) = f'(a)(x − a)</b> (Ch.6's point-slope form!). E.g. f=x², a=1 → f'(1)=2, tangent y−1=2(x−1) → y=2x−1. The tangent is the line that best imitates the curve nearby (<b>linear approximation</b>), giving f(a+h) ≈ f(a) + f'(a)h for estimates. This \"approximate a curve by a line\" begins Newton's method (root-finding), physics approximations, and Taylor's theorem (Ch.18). Differentiation comes full circle back to Ch.6's coordinate geometry.",
+    "problem": {
+      "q": "곡선 y = x² 위의 점 (2, 4) 에서의 접선의 방정식은?",
+      "solution": "f'(x)=2x → f'(2)=4. y−4 = 4(x−2) → y = <b>4x − 4</b>.",
+      "q_en": "Find the tangent line to y = x² at the point (2, 4).",
+      "sol_en": "f'(x)=2x → f'(2)=4. y−4 = 4(x−2) → y = <b>4x − 4</b>."
+    }
+  }
+}

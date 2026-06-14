@@ -1,0 +1,77 @@
+{
+  "ch13_01": {
+    "ch": "제13장 수열",
+    "sec": "13.1 수열과 그 합",
+    "title": "등차수열 — 일정하게 더하기",
+    "narr": "<b>수열</b>은 규칙에 따라 늘어선 수들이에요. 가장 단순한 규칙: <b>일정한 양 d를 계속 더하기</b> → <b>등차수열</b>! 2, 4, 6, 8… 처럼요. 막대들이 일정한 기울기로 올라가죠(직선과 닮았어요!). 공차 d를 바꿔보세요.",
+    "hint": "공차 d를 바꿔보세요",
+    "more": "<b>등차수열</b>은 이웃한 항의 차가 일정한 수열이에요 — 그 일정한 차를 <b>공차 d</b>라 하죠. 일반항은 <b>aₙ = a₁ + (n−1)d</b>. 막대 높이가 일정하게 변해 \"계단\"을 이루는데, 이는 <b>5장 일차함수(직선)</b>와 같은 구조예요(n에 대해 일차식). d > 0이면 증가, d < 0이면 감소하죠. 다음은 \"더하기\" 대신 \"곱하기\" 규칙인 등비수열이에요.",
+    "more_en": "An <b>arithmetic sequence</b> has a constant difference between neighboring terms — the <b>common difference d</b>. Its general term is <b>aₙ = a₁ + (n−1)d</b>. The bar heights change steadily, forming a \"staircase\" with the same structure as a <b>linear function (Ch.5)</b> (it is linear in n). If d > 0 it increases; if d < 0 it decreases. Next comes the geometric sequence, whose rule is \"multiply\" instead of \"add.\"",
+    "problem": {
+      "q": "첫째항 3, 공차 4 인 등차수열의 제5항은?",
+      "solution": "a₅ = 3 + (5−1)·4 = 3 + 16 = <b>19</b>.",
+      "q_en": "Find the 5th term of the arithmetic sequence with first term 3 and common difference 4.",
+      "sol_en": "a₅ = 3 + (5−1)·4 = 3 + 16 = <b>19</b>."
+    }
+  },
+  "ch13_02": {
+    "ch": "제13장 수열",
+    "sec": "13.1 수열과 그 합",
+    "title": "등비수열 — 일정하게 곱하기",
+    "narr": "이번엔 더하기 대신 <b>일정한 배율 r을 계속 곱하기</b> → <b>등비수열</b>이에요! 1, 2, 4, 8, 16… <b>7장의 지수함수</b>가 수열로 나타난 거죠. r이 1보다 크면 폭발적으로 커지고(복리·세포분열), 1보다 작으면 줄어들어요. 공비 r을 바꿔보세요.",
+    "hint": "공비 r을 바꿔보세요",
+    "more": "<b>등비수열</b>은 이웃한 항의 비가 일정한 수열이에요 — 그 비가 <b>공비 r</b>이죠. 일반항은 <b>aₙ = a₁·rⁿ⁻¹</b>. n에 대해 지수식이라 <b>7장 지수함수</b>와 같은 구조고, 그래서 r > 1이면 폭발 성장, 0 < r < 1이면 감쇠해요. 복리이자·인구·방사성 붕괴가 모두 등비수열이에요. 이 수열을 무한히 더하면(공비 |r|<1) 놀랍게도 유한한 값에 수렴하는데, 곧 보게 돼요.",
+    "more_en": "A <b>geometric sequence</b> has a constant ratio between neighboring terms — the <b>common ratio r</b>. Its general term is <b>aₙ = a₁·rⁿ⁻¹</b>. Being exponential in n, it shares the structure of the <b>exponential function (Ch.7)</b>: explosive growth when r > 1, decay when 0 < r < 1. Compound interest, populations, and radioactive decay are all geometric. Summed infinitely (with |r| < 1) it converges to a finite value — coming up next.",
+    "problem": {
+      "q": "첫째항 1, 공비 3 인 등비수열의 제4항은?",
+      "solution": "a₄ = 1·3⁴⁻¹ = 3³ = <b>27</b>.",
+      "q_en": "Find the 4th term of the geometric sequence with first term 1 and common ratio 3.",
+      "sol_en": "a₄ = 1·3⁴⁻¹ = 3³ = <b>27</b>."
+    }
+  },
+  "ch13_03": {
+    "ch": "제13장 수열",
+    "sec": "13.1 수열과 그 합",
+    "title": "수열의 합 — 가우스의 짝짓기",
+    "narr": "1부터 n까지 다 더하면? 어린 가우스가 찾은 멋진 방법: <b>오름 계단과 내림 계단을 붙이면 완벽한 직사각형</b>이 돼요! 직사각형은 n×(n+1), 우리가 원한 합은 그 <b>절반</b>이죠. n을 바꿔보세요.",
+    "hint": "n을 바꿔 직사각형을 보세요",
+    "more": "<b>등차수열의 합</b>: 1 + 2 + … + n 을 거꾸로 한 번 더 써서 짝지으면, 각 짝의 합이 모두 (n+1)이고 그런 짝이 n개 → 합의 2배가 n(n+1). 따라서 <b>합 = n(n+1)/2</b>예요(그림: 오름+내림 계단 = n×(n+1) 직사각형, 합은 절반). 일반 등차수열은 <b>Sₙ = n(a₁ + aₙ)/2</b> (\"첫항과 끝항의 평균 × 개수\"). 이 \"짝지어 단순화\"가 수열 합의 핵심 아이디어예요.",
+    "more_en": "<b>Sum of an arithmetic sequence</b>: write 1 + 2 + … + n again in reverse and pair them — each pair sums to (n+1), and there are n pairs, so twice the sum is n(n+1). Hence <b>sum = n(n+1)/2</b> (picture: up-staircase + down-staircase = an n×(n+1) rectangle, the sum is half). In general, <b>Sₙ = n(a₁ + aₙ)/2</b> (\"average of first and last, times the count\"). This \"pair-and-simplify\" trick is the heart of sequence sums.",
+    "problem": {
+      "q": "1 + 2 + 3 + … + 100 의 합은?",
+      "solution": "100·(100+1)/2 = 100·101/2 = <b>5050</b>. (가우스가 순식간에!)",
+      "q_en": "What is 1 + 2 + 3 + … + 100?",
+      "sol_en": "100·(100+1)/2 = 100·101/2 = <b>5050</b> (as young Gauss found instantly)."
+    }
+  },
+  "ch13_04": {
+    "ch": "제13장 수열",
+    "sec": "13.1 수열과 그 합",
+    "title": "무한등비급수 — 끝없이 더해도 끝이 있다",
+    "narr": "끝없이 더하면 무한대가 될까요? 꼭 그렇진 않아요! <b>1/2 + 1/4 + 1/8 + …</b> 처럼 점점 반씩 줄여 더하면, 막대가 1을 <b>넘지 않고 한없이 가까워져요</b>. 무한히 더해도 합은 딱 1! 화면을 눌러 항을 더해보세요.",
+    "hint": "눌러서 항을 더해보세요",
+    "more": "공비 <b>|r| < 1</b> 인 <b>무한등비급수</b>는 유한한 값에 <b>수렴</b>해요: <b>a + ar + ar² + … = a/(1−r)</b>. 예) 1/2 + 1/4 + 1/8 + … = (1/2)/(1−1/2) = <b>1</b>. 매번 남은 빈칸의 절반을 채우니 1을 절대 넘지 않으면서 무한히 다가가죠(제논의 역설의 해답!). \"무한히 더하는데 합이 유한\"이라는 게 어떻게 가능한지를 엄밀히 다루는 게 <b>14장 극한</b>이에요. 미적분으로 가는 문이 여기서 열려요.",
+    "more_en": "An <b>infinite geometric series</b> with <b>|r| < 1</b> <b>converges</b> to a finite value: <b>a + ar + ar² + … = a/(1−r)</b>. E.g. 1/2 + 1/4 + 1/8 + … = (1/2)/(1−1/2) = <b>1</b>. Each step fills half the remaining gap, so it never exceeds 1 yet approaches it forever (the resolution of Zeno's paradox!). Making rigorous sense of \"summing infinitely yet getting a finite total\" is the job of <b>limits (Ch.14)</b> — the doorway to calculus opens here.",
+    "problem": {
+      "q": "무한등비급수 1 + 1/3 + 1/9 + 1/27 + … 의 합은?",
+      "solution": "a = 1, r = 1/3 → a/(1−r) = 1/(1−1/3) = 1/(2/3) = <b>3/2</b>.",
+      "q_en": "Sum the infinite series 1 + 1/3 + 1/9 + 1/27 + …",
+      "sol_en": "a = 1, r = 1/3 → a/(1−r) = 1/(1−1/3) = <b>3/2</b>."
+    }
+  },
+  "ch13_05": {
+    "ch": "제13장 수열",
+    "sec": "13.2 수학적 귀납법",
+    "title": "수학적 귀납법 — 도미노 원리",
+    "narr": "\"모든 자연수 n에 대해 참\"을 어떻게 증명할까요? 무한히 많은데! <b>도미노</b>가 답이에요: ①<b>첫 도미노가 넘어진다</b>(P(1) 참) ②<b>어떤 도미노가 넘어지면 다음도 넘어진다</b>(P(k)→P(k+1)). 이 둘이면 <b>전부 넘어가요</b>! 첫 도미노를 밀어보세요.",
+    "hint": "첫 도미노를 밀어보세요",
+    "more": "<b>수학적 귀납법</b>은 자연수 전체에 대한 명제 P(n)을 두 단계로 증명해요 — ①<b>기초(base)</b>: P(1)이 참. ②<b>귀납(step)</b>: P(k)가 참이라 가정하면 P(k+1)도 참. 이 둘이 성립하면 <b>모든 자연수 n에서 P(n)이 참</b>이죠. 도미노와 똑같아요: 첫 개를 넘기고(①), \"하나 넘어지면 다음도 넘어진다\"는 규칙(②)이면 끝없이 줄줄이 넘어가요. 무한히 많은 경우를 단 두 줄로 증명하는 이 힘이, 앞에서 본 합 공식들(가우스 합 등)의 엄밀한 증명 도구예요.",
+    "more_en": "<b>Mathematical induction</b> proves a statement P(n) for all natural numbers in two steps — ① <b>base</b>: P(1) is true; ② <b>step</b>: assuming P(k) is true, P(k+1) is also true. Together these make <b>P(n) true for every n</b>. Exactly like dominoes: knock over the first (①), and with the rule \"if one falls the next falls\" (②), they all topple in turn. This power to prove infinitely many cases in just two lines is the rigorous tool behind the sum formulas (like Gauss's) seen earlier.",
+    "problem": {
+      "q": "귀납법에서 \"P(k)가 참이면 P(k+1)도 참\"만 보이면 충분한가?",
+      "solution": "아니요. <b>출발점 P(1)이 참</b>임도 반드시 보여야 해요(첫 도미노). 둘 다 있어야 전부 성립.",
+      "q_en": "In induction, is showing \"if P(k) then P(k+1)\" alone enough?",
+      "sol_en": "No. You must also show the <b>base case P(1)</b> is true (the first domino). Both are required."
+    }
+  }
+}

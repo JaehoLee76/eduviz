@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>이해의 세계</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #0d0d12; color: #f4f3ee; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #stage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+  .menu { position: relative; z-index: 2; text-align: center; }
+  .menu .hi { font-size: 15px; letter-spacing: 0.3em; color: #6f6e7a; margin-bottom: 38px; text-transform: uppercase; }
+  .choices { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
+  .choice {
+    width: 230px; height: 230px; border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.015);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, background .35s;
+    text-decoration: none; color: inherit;
+  }
+  .choice:hover { transform: translateY(-6px) scale(1.02); border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.04); }
+  .choice .glyph { font-size: 64px; font-weight: 200; margin-bottom: 18px; opacity: .9; }
+  .choice .name { font-size: 26px; font-weight: 500; letter-spacing: 0.04em; }
+  .choice .en { font-size: 12px; color: #6f6e7a; margin-top: 6px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .choice.math .glyph { color: #ffb27a; }
+  .choice.algo .glyph { color: #7ab8ff; }
+  .choice.soon { opacity: .45; }
+  .choice.soon:hover { transform: none; }
+  .foot { position: fixed; bottom: 22px; left: 0; right: 0; text-align: center; color: #4a4955; font-size: 12px; z-index: 2; letter-spacing: .08em; }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div class="menu">
+  <div class="hi">호기심만 있으면 충분합니다</div>
+  <div class="choices">
+    <a class="choice math" href="math.html">
+      <div class="glyph">∫</div>
+      <div class="name">수학</div>
+      <div class="en">mathematics</div>
+    </a>
+    <a class="choice algo" href="algo.html">
+      <div class="glyph">{ }</div>
+      <div class="name">알고리즘</div>
+      <div class="en">algorithms</div>
+    </a>
+  </div>
+</div>
+
+<div class="foot">하나를 선택하면, 완성된 학습의 세계가 펼쳐집니다</div>
+
+<script>
+(function(){
+  var cv=document.getElementById('stage'), ctx=cv.getContext('2d'), W,H,DPR;
+  function fit(){ DPR=window.devicePixelRatio||1; W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  fit(); addEventListener('resize',fit);
+  var N=70, p=[];
+  for(var i=0;i<N;i++) p.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.6+.6});
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<N;i++){ var a=p[i]; a.x+=a.vx; a.y+=a.vy;
+      if(a.x<0||a.x>W)a.vx*=-1; if(a.y<0||a.y>H)a.vy*=-1;
+      ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,7); ctx.fill();
+    }
+    for(var i=0;i<N;i++) for(var j=i+1;j<N;j++){ var dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,d=dx*dx+dy*dy;
+      if(d<11000){ ctx.strokeStyle='rgba(255,255,255,'+(0.06*(1-d/11000))+')'; ctx.lineWidth=.5; ctx.beginPath(); ctx.moveTo(p[i].x,p[i].y); ctx.lineTo(p[j].x,p[j].y); ctx.stroke(); } }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>

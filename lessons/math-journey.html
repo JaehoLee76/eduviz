@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수학의 세계</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: radial-gradient(120% 120% at 50% 0%, #15151d 0%, #0b0b10 60%);
+    color: #f4f3ee; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+    user-select: none; touch-action: none;
+  }
+  #stage { position: fixed; inset: 0; z-index: 1; }
+
+  /* 캐릭터 + 말풍선 */
+  .guide { position: fixed; left: 28px; bottom: 26px; z-index: 5; display: flex; align-items: flex-end; gap: 14px; max-width: 70%; }
+  .guide .ch { width: 60px; height: 60px; flex: 0 0 60px; animation: bob 3.2s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-7px); } }
+  .bubble {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; border-bottom-left-radius: 4px; padding: 13px 17px;
+    font-size: 16px; line-height: 1.6; color: #ece9e0; backdrop-filter: blur(6px);
+    transition: opacity .4s; max-width: 460px;
+  }
+  .bubble.fade { opacity: 0; }
+
+  /* 상단 진행 표시 */
+  .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; }
+  .home-link { color: #6f6e7a; font-size: 14px; text-decoration: none; letter-spacing: .04em; }
+  .home-link:hover { color: #cfcdc6; }
+  .scene-title { font-size: 14px; color: #8a8893; letter-spacing: .18em; text-transform: uppercase; }
+  .dots { display: flex; gap: 8px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); transition: background .3s, transform .3s; }
+  .dots i.active { background: #ffb27a; transform: scale(1.35); }
+
+  /* 하단 내비 */
+  .nav { position: fixed; bottom: 26px; right: 28px; z-index: 6; display: flex; gap: 10px; align-items: center; }
+  .nav .hint { color: #6f6e7a; font-size: 13px; margin-right: 8px; }
+  .btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); color: #f4f3ee;
+    padding: 9px 18px; border-radius: 10px; font-size: 15px; cursor: pointer; font-family: inherit; transition: background .2s, opacity .2s; }
+  .btn:hover { background: rgba(255,255,255,0.12); }
+  .btn.primary { background: #d8814a; border-color: #d8814a; }
+  .btn.primary:hover { background: #e6915a; }
+  .btn:disabled { opacity: .3; cursor: default; }
+
+  /* 큰 숫자 표시 */
+  .bignum { position: fixed; top: 18%; left: 0; right: 0; text-align: center; z-index: 4; pointer-events: none; }
+  .bignum .n { font-size: 92px; font-weight: 200; color: #ffb27a; line-height: 1; transition: opacity .3s; }
+  .bignum .w { font-size: 22px; color: #8a8893; margin-top: 8px; letter-spacing: .1em; }
+  .bignum.hidden { opacity: 0; }
+
+  /* 더하기 슬라이더 */
+  .addpanel { position: fixed; top: 16%; left: 0; right: 0; z-index: 4; display: none; flex-direction: column; align-items: center; gap: 14px; }
+  .addpanel.show { display: flex; }
+  .eqline { font-size: 40px; font-weight: 300; letter-spacing: .03em; }
+  .eqline b { color: #ffb27a; font-weight: 400; }
+  .eqline .bb { color: #7ab8ff; }
+  .eqline .sum { color: #8fe3b5; }
+  .sliders { display: flex; gap: 30px; }
+  .sl { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #b9b7b0; }
+  input[type=range] { width: 130px; accent-color: #d8814a; }
+  .sl.b input { accent-color: #4a8fd8; }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div class="topbar">
+  <a class="home-link" href="../home.html">← 홈</a>
+  <div class="scene-title" id="sceneTitle">수의 세계</div>
+  <div class="dots" id="dots"></div>
+</div>
+
+<div class="bignum hidden" id="bignum"><div class="n" id="bigN">1</div><div class="w" id="bigW">하나</div></div>
+
+<div class="addpanel" id="addpanel">
+  <div class="eqline"><b id="ea">3</b> + <span class="bb" id="eb">2</span> = <span class="sum" id="es">5</span></div>
+  <div class="sliders">
+    <div class="sl a"><span style="color:#ffb27a">a</span><input type="range" id="sa" min="0" max="5" step="1" value="3"></div>
+    <div class="sl b"><span style="color:#7ab8ff">b</span><input type="range" id="sb" min="0" max="5" step="1" value="2"></div>
+  </div>
+</div>
+
+<div class="guide">
+  <svg class="ch" viewBox="0 0 60 60" aria-hidden="true">
+    <path d="M30 6 L54 50 Q56 54 50 54 L10 54 Q4 54 6 50 Z" fill="#ffb27a"/>
+    <circle id="eyeL" cx="23" cy="40" r="3.4" fill="#1a1a22"/>
+    <circle id="eyeR" cx="37" cy="40" r="3.4" fill="#1a1a22"/>
+  </svg>
+  <div class="bubble" id="bubble">…</div>
+</div>
+
+<div class="nav">
+  <span class="hint" id="hint"></span>
+  <button class="btn" id="prev" disabled>◂ 이전</button>
+  <button class="btn primary" id="next">다음 ▸</button>
+</div>
+
+<script>
+(function(){
+  var cv=document.getElementById('stage'), ctx=cv.getContext('2d'), W,H,DPR;
+  function fit(){ DPR=window.devicePixelRatio||1; W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  fit();
+
+  // ---- 소리 (듣고) ----
+  var actx=null;
+  function blip(f,dur){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+    var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime;
+    o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.09,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.25)); o.start(t); o.stop(t+(dur||0.25)+0.02);
+  }catch(e){} }
+  addEventListener('pointerdown',function(){ if(actx&&actx.state==='suspended')actx.resume(); },{once:false});
+
+  // ---- 입자 (morph의 핵심) ----
+  var MAX=16, P=[];
+  for(var i=0;i<MAX;i++) P.push({x:W/2,y:H/2,tx:W/2,ty:H/2,on:false,r:7,col:'#ffb27a',a:0,ta:0});
+  function spawnAt(){ return {x:W/2+(Math.random()-.5)*40, y:H*0.55+(Math.random()-.5)*40}; }
+  function setOn(list, col){   // list: [{x,y}] 좌표 배열
+    for(var i=0;i<MAX;i++){
+      if(i<list.length){ if(!P[i].on){ var s=spawnAt(); P[i].x=s.x; P[i].y=s.y; } P[i].on=true; P[i].ta=1; P[i].tx=list[i].x; P[i].ty=list[i].y; if(col)P[i].col=(typeof col==='function'?col(i):col); }
+      else { P[i].on=false; P[i].ta=0; P[i].tx=W/2; P[i].ty=H*0.6; }
+    }
+  }
+
+  // ---- 장면 정의 ----
+  var S={}; // 장면-로컬 상태
+  var bignum=document.getElementById('bignum'), bigN=document.getElementById('bigN'), bigW=document.getElementById('bigW');
+  var addpanel=document.getElementById('addpanel');
+  var KO=['영','하나','둘','셋','넷','다섯','여섯','일곱','여덟','아홉','열'];
+
+  function showBig(n,w){ bignum.classList.remove('hidden'); bigN.textContent=n; bigW.textContent=w; }
+  function hideBig(){ bignum.classList.add('hidden'); }
+
+  var lineY, spacing, cx0;
+  function lineGeom(){ lineY=H*0.52; spacing=Math.min(64,(W-140)/10); cx0=W/2; }
+  function valX(v){ return cx0 + v*spacing; }
+
+  var scenes=[
+    { title:'수의 세계',
+      narr:'안녕하세요! 저는 <b>도형이</b>예요. 함께 수학의 세계로 들어가 볼까요? 여기선 읽기만 하지 않아요 — 보고, 듣고, 직접 만져봅니다. 준비됐으면 <b>다음 ▸</b>',
+      hint:'',
+      enter:function(){ hideBig(); addpanel.classList.remove('show'); S={};
+        var L=[]; for(var i=0;i<9;i++){ L.push({x:W/2+Math.cos(i/9*6.28)*Math.min(160,W*0.22), y:H*0.5+Math.sin(i/9*6.28)*Math.min(160,W*0.22)}); }
+        setOn(L,'rgba(255,255,255,0.5)'); },
+      layout:function(){ this.enter(); },
+      draw:null, mode:null },
+
+    { title:'하나',
+      narr:'모든 수학은 여기서 시작해요. <b>하나.</b> 점 하나가 곧 숫자 <b>1</b>이에요. 점을 톡 건드려 보세요.',
+      hint:'점을 눌러보세요',
+      enter:function(){ S={pulse:0}; addpanel.classList.remove('show'); showBig(1,'하나'); setOn([{x:W/2,y:H*0.5}],'#ffb27a'); },
+      layout:function(){ setOn([{x:W/2,y:H*0.5}],'#ffb27a'); },
+      draw:function(){ var g=P[0]; if(g.on){ var rr=g.r+6+Math.sin(S.pulse)*3; ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(g.x,g.y,rr+8,0,7); ctx.stroke(); } S.pulse+=0.05; },
+      tap:function(x,y){ blip(523,0.3); S.ring=14; } },
+
+    { title:'세어보기',
+      narr:'화면을 톡톡 건드릴 때마다 수가 하나씩 늘어나요. 최대 <b>열</b>까지, 직접 세어 볼까요?',
+      hint:'빈 곳을 눌러 수를 늘려보세요',
+      enter:function(){ S={n:1}; addpanel.classList.remove('show'); this.layout(); },
+      layout:function(){ var n=S.n, L=[], sp=Math.min(58,(W-120)/Math.max(1,n-1>0?n-1:1)); var startX=W/2-(n-1)*sp/2;
+        for(var i=0;i<n;i++) L.push({x:(n===1?W/2:startX+i*sp), y:H*0.5}); setOn(L,'#ffb27a'); showBig(n,KO[n]); },
+      draw:null,
+      tap:function(x,y){ if(S.n<10){ S.n++; blip(440+S.n*40,0.22); this.layout(); } else blip(220,0.2); } },
+
+    { title:'수직선',
+      narr:'이제 수들을 한 줄로 세워볼게요 — <b>수직선</b>이에요. 가운데가 <b>0</b>, 오른쪽은 양수, 왼쪽은 <b>음수</b>. 주황 동그라미를 좌우로 끌어보세요.',
+      hint:'동그라미를 드래그',
+      enter:function(){ S={val:0,drag:false}; addpanel.classList.remove('show'); hideBig(); this.layout(); },
+      layout:function(){ lineGeom(); var L=[]; for(var v=-5;v<=5;v++) L.push({x:valX(v),y:lineY}); setOn(L,'rgba(230,228,220,0.85)'); },
+      draw:function(){ lineGeom();
+        ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(valX(-5.4),lineY); ctx.lineTo(valX(5.4),lineY); ctx.stroke();
+        ctx.fillStyle='#7c7a85'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+        for(var v=-5;v<=5;v++) ctx.fillText(v, valX(v), lineY+26);
+        var mx=valX(S.val); ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(mx,lineY,13,0,7); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(mx,lineY,13,0,7); ctx.stroke();
+        ctx.fillStyle='#ffb27a'; ctx.font='600 26px sans-serif'; ctx.fillText(S.val, mx, lineY-26);
+      },
+      down:function(x,y){ lineGeom(); if(Math.abs(x-valX(S.val))<28 && Math.abs(y-lineY)<40){ S.drag=true; } },
+      move:function(x,y){ if(S.drag){ var v=Math.round((x-cx0)/spacing); v=Math.max(-5,Math.min(5,v)); if(v!==S.val){ S.val=v; blip(330+v*30,0.15); } } },
+      up:function(){ S.drag=false; } },
+
+    { title:'더하기',
+      narr:'수직선 위에서 <b>더하기</b>는 “오른쪽으로 걷기”예요. <b style="color:#ffb27a">a</b>에서 출발해 <b style="color:#7ab8ff">b</b>칸 걸어가면 합이 보여요. 아래 슬라이더를 움직여 보세요.',
+      hint:'a, b를 바꿔보세요',
+      enter:function(){ S={a:3,b:2}; hideBig(); addpanel.classList.add('show'); document.getElementById('sa').value=3; document.getElementById('sb').value=2; this.upd(); this.layout(); },
+      upd:function(){ document.getElementById('ea').textContent=S.a; document.getElementById('eb').textContent=S.b; document.getElementById('es').textContent=S.a+S.b; },
+      layout:function(){ lineGeom(); var L=[]; for(var v=0;v<=5;v++) L.push({x:valX(v),y:lineY}); setOn(L,'rgba(230,228,220,0.7)'); },
+      draw:function(){ lineGeom();
+        ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(valX(-0.4),lineY); ctx.lineTo(valX(5.4),lineY); ctx.stroke();
+        ctx.fillStyle='#7c7a85'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+        for(var v=0;v<=5;v++) ctx.fillText(v, valX(v), lineY+26);
+        // a 구간(주황), b 구간(파랑) 아치
+        function arc(x1,x2,col){ var r=(valX(x2)-valX(x1))/2, mid=(valX(x1)+valX(x2))/2; ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(mid,lineY,Math.abs(r),Math.PI,0,false); ctx.stroke(); }
+        if(S.a>0) arc(0,S.a,'#ffb27a');
+        if(S.b>0) arc(S.a,Math.min(5,S.a+S.b),'#7ab8ff');
+        var sum=Math.min(5,S.a+S.b); var mx=valX(sum);
+        ctx.fillStyle='#8fe3b5'; ctx.beginPath(); ctx.arc(mx,lineY,11,0,7); ctx.fill();
+        if(S.a+S.b>5){ ctx.fillStyle='#7c7a85'; ctx.font='12px sans-serif'; ctx.fillText('(이 수직선은 5까지만 보여요)', W/2, lineY+58); }
+      },
+      slider:true },
+
+    { title:'이건 시작일 뿐',
+      narr:'잘했어요! 점 하나에서 출발해 수직선과 더하기까지 왔어요. 같은 방식으로 곧 <b>분수·그래프·미분·적분·통계</b>까지 펼쳐질 거예요. 이게 우리가 만들 세계예요. 🙂',
+      hint:'',
+      enter:function(){ S={t:0}; hideBig(); addpanel.classList.remove('show');
+        var L=[]; for(var i=0;i<14;i++) L.push({x:W/2+Math.cos(i/14*6.28)*Math.min(150,W*0.2), y:H*0.5+Math.sin(i/14*6.28)*Math.min(150,W*0.2)*0.6}); setOn(L,'#ffb27a'); },
+      layout:function(){ this.enter(); },
+      draw:null }
+  ];
+
+  // ---- 엔진 ----
+  var cur=0, ring=0;
+  var bubble=document.getElementById('bubble'), hintEl=document.getElementById('hint'),
+      titleEl=document.getElementById('sceneTitle'), dotsEl=document.getElementById('dots'),
+      prevB=document.getElementById('prev'), nextB=document.getElementById('next');
+
+  for(var i=0;i<scenes.length;i++){ var d=document.createElement('i'); dotsEl.appendChild(d); }
+  function paintDots(){ var ds=dotsEl.children; for(var i=0;i<ds.length;i++) ds[i].className=(i===cur?'active':''); }
+
+  function goTo(i){
+    if(i<0||i>=scenes.length) return;
+    cur=i; var sc=scenes[i];
+    bubble.classList.add('fade');
+    setTimeout(function(){ bubble.innerHTML=sc.narr; bubble.classList.remove('fade'); },180);
+    titleEl.textContent=sc.title; hintEl.textContent=sc.hint||'';
+    prevB.disabled=(i===0); nextB.textContent=(i===scenes.length-1?'처음으로 ↺':'다음 ▸');
+    paintDots(); sc.enter();
+  }
+  nextB.onclick=function(){ if(cur===scenes.length-1) goTo(0); else goTo(cur+1); blip(660,0.18); };
+  prevB.onclick=function(){ goTo(cur-1); };
+
+  // 입력
+  cv.addEventListener('pointerdown',function(e){ var sc=scenes[cur]; if(sc.down)sc.down(e.clientX,e.clientY); if(sc.tap)sc.tap(e.clientX,e.clientY); });
+  cv.addEventListener('pointermove',function(e){ var sc=scenes[cur]; if(sc.move)sc.move(e.clientX,e.clientY); });
+  cv.addEventListener('pointerup',function(e){ var sc=scenes[cur]; if(sc.up)sc.up(); });
+  document.getElementById('sa').addEventListener('input',function(e){ var sc=scenes[cur]; if(sc.slider){ S.a=+e.target.value; sc.upd(); blip(440+S.a*40,0.14); } });
+  document.getElementById('sb').addEventListener('input',function(e){ var sc=scenes[cur]; if(sc.slider){ S.b=+e.target.value; sc.upd(); blip(440+S.b*40,0.14); } });
+
+  addEventListener('resize',function(){ fit(); var sc=scenes[cur]; if(sc.layout)sc.layout(); });
+
+  // 눈 깜빡임
+  var eyeL=document.getElementById('eyeL'), eyeR=document.getElementById('eyeR');
+  setInterval(function(){ eyeL.setAttribute('ry','0.6'); eyeR.setAttribute('ry','0.6'); setTimeout(function(){ eyeL.removeAttribute('ry'); eyeR.removeAttribute('ry'); },140); }, 3600);
+
+  // 렌더 루프
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    var sc=scenes[cur];
+    if(sc.draw) sc.draw();
+    for(var i=0;i<MAX;i++){ var a=P[i]; a.x+=(a.tx-a.x)*0.12; a.y+=(a.ty-a.y)*0.12; a.a+=(a.ta-a.a)*0.12;
+      if(a.a>0.02){ ctx.globalAlpha=a.a; ctx.fillStyle=a.col; ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,7); ctx.fill();
+        ctx.globalAlpha=a.a*0.25; ctx.beginPath(); ctx.arc(a.x,a.y,a.r+5,0,7); ctx.fill(); ctx.globalAlpha=1; } }
+    if(S.ring){ ctx.globalAlpha=S.ring/40; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(P[0].x,P[0].y,(40-S.ring)*1.4+10,0,7); ctx.stroke(); ctx.globalAlpha=1; S.ring-=1.2; if(S.ring<0)S.ring=0; }
+    requestAnimationFrame(loop);
+  }
+  loop(); goTo(0);
+})();
+</script>
+</body>
+</html>

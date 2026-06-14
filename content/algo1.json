@@ -1,0 +1,77 @@
+{
+  "algo1_01": {
+    "ch": "알고리즘 제1장 알고리즘과 복잡도",
+    "sec": "1.1 알고리즘이란",
+    "title": "알고리즘 — 문제를 푸는 명확한 단계",
+    "narr": "알고리즘의 세계에 온 걸 환영해요! <b>알고리즘</b>은 요리 레시피처럼 <b>문제를 푸는 분명한 단계들</b>이에요. 예로 \"리스트에서 최댓값 찾기\"는 — 하나씩 보며 <b>지금까지 가장 큰 값을 기억</b>하면 끝! 화면을 눌러 한 단계씩 실행해보세요.",
+    "hint": "눌러서 한 단계씩 실행하세요",
+    "more": "<b>알고리즘</b>은 입력을 출력으로 바꾸는 <b>명확하고 유한한 단계들의 모음</b>이에요. 좋은 알고리즘의 조건: ① <b>명확성</b>(각 단계가 모호하지 않음) ② <b>유한성</b>(언젠가 끝남) ③ <b>입력·출력</b>이 정의됨 ④ <b>효과성</b>(실제로 수행 가능). \"최댓값 찾기\"는 max를 첫 값으로 두고, 나머지를 훑으며 더 크면 갱신해요 — 딱 n번 비교(O(n)). 컴퓨터가 하는 모든 일이 이런 단계의 조합이고, 같은 문제도 <b>더 적은 단계로 푸는 법</b>을 찾는 게 이 여정의 핵심이에요.",
+    "more_en": "An <b>algorithm</b> is a <b>clear, finite sequence of steps</b> that turns input into output. Good algorithms are ① <b>unambiguous</b> (each step is precise), ② <b>finite</b> (they terminate), ③ have defined <b>input and output</b>, and ④ are <b>effective</b> (actually executable). \"Find the maximum\" sets max to the first value and scans the rest, updating when larger — exactly n comparisons (O(n)). Everything a computer does is a combination of such steps, and finding ways to solve the same problem in <b>fewer steps</b> is the heart of this journey.",
+    "problem": {
+      "q": "리스트 [4, 9, 1, 6] 에서 최댓값을 찾을 때 비교는 몇 번?",
+      "solution": "첫 값을 max로 두고 나머지 3개와 비교 → <b>3번</b> (일반적으로 n−1번, O(n)).",
+      "q_en": "How many comparisons to find the max of [4, 9, 1, 6]?",
+      "sol_en": "Set the first as max, compare the other 3 → <b>3</b> (in general n−1, i.e. O(n))."
+    }
+  },
+  "algo1_02": {
+    "ch": "알고리즘 제1장 알고리즘과 복잡도",
+    "sec": "1.2 효율성",
+    "title": "효율성 — 같은 답, 다른 비용",
+    "narr": "같은 문제도 <b>푸는 방법에 따라 비용이 천차만별</b>이에요. 1부터 n까지 더하기: ① 하나씩 더하면 <b>n번</b> 계산, ② <b>가우스 공식 n(n+1)/2</b>면 단 <b>1번</b>! 답은 같은데 비용은 완전히 달라요. n을 키워보세요 — 차이가 벌어져요.",
+    "hint": "n을 키워 두 방법의 비용 차이를 보세요",
+    "more": "<b>효율성</b>은 알고리즘이 자원(시간·메모리)을 얼마나 쓰는지예요. 1+2+…+n 을 — 반복문으로 하나씩 더하면 <b>n번 덧셈(O(n))</b>, <b>수학 13장의 가우스 합 공식 n(n+1)/2</b>를 쓰면 곱셈·덧셈·나눗셈 <b>딱 3번(O(1))</b>! n이 백만이면 백만 번 vs 3번 — 어마어마한 차이죠. 핵심 통찰: <b>더 똑똑한 방법(수학·자료구조)이 반복을 없앤다</b>. 효율을 정확히 비교하려면 \"n이 커질 때\"의 행동을 봐야 하고, 그 언어가 다음의 <b>빅오 표기법</b>이에요.",
+    "more_en": "<b>Efficiency</b> is how much resource (time, memory) an algorithm uses. To compute 1+2+…+n: a loop adds one at a time — <b>n additions (O(n))</b> — while <b>Gauss's formula n(n+1)/2 (math Ch.13)</b> needs just <b>3 operations (O(1))</b>! For n = a million that's a million vs 3 — an enormous gap. Key insight: <b>a smarter method (math, data structures) eliminates the loop</b>. To compare efficiency precisely we study behavior \"as n grows,\" and that language is <b>Big-O notation</b>, next.",
+    "problem": {
+      "q": "1부터 1000까지의 합을 가우스 공식으로 구하면 계산은 몇 번?",
+      "solution": "1000·1001/2 — 곱·합·나눗셈 약 <b>3번(O(1))</b>. (반복은 1000번 = O(n))",
+      "q_en": "Using Gauss's formula for 1+…+1000, how many operations?",
+      "sol_en": "1000·1001/2 — about <b>3 operations (O(1))</b> (a loop would take 1000, O(n))."
+    }
+  },
+  "algo1_03": {
+    "ch": "알고리즘 제1장 알고리즘과 복잡도",
+    "sec": "1.3 빅오 표기법",
+    "title": "빅오 표기법 — 성장의 속도",
+    "narr": "알고리즘의 효율을 <b>한 가지 언어</b>로 말하는 게 <b>빅오(Big-O)</b>예요. 입력 n이 커질 때 <b>계산량이 자라는 속도</b>를 나타내죠. O(1)은 평평하고, O(n)은 직선, O(n²)은 가파른 포물선! 곡선의 기울기가 곧 좋고 나쁨이에요.",
+    "hint": "곡선이 가파를수록 느린 알고리즘",
+    "more": "<b>빅오 표기법 O(·)</b>는 입력 크기 n에 따른 <b>계산량의 성장률</b>을 나타내요(상수·낮은 차수는 무시 — 큰 그림만!). 빠른 순서: <b>O(1)</b>(상수, n과 무관) < <b>O(log n)</b>(로그, 7장) < <b>O(n)</b>(선형) < <b>O(n log n)</b> < <b>O(n²)</b>(제곱, 5장 포물선) < <b>O(2ⁿ)</b>(지수, 7장). n이 작을 땐 다 비슷해도, n이 커지면 <b>차이가 폭발</b>해요(O(n²)는 n=1000에서 백만 번!). 그래서 알고리즘을 고를 땐 \"최악의 경우 n이 커지면?\"을 봐요. 수학의 함수 성장(5·7장)이 그대로 복잡도가 된 거예요.",
+    "more_en": "<b>Big-O notation O(·)</b> expresses the <b>growth rate</b> of computation as input size n grows (ignoring constants and lower-order terms — the big picture!). Fastest to slowest: <b>O(1)</b> (constant) < <b>O(log n)</b> (logarithmic, Ch.7) < <b>O(n)</b> (linear) < <b>O(n log n)</b> < <b>O(n²)</b> (quadratic, the parabola of math Ch.5) < <b>O(2ⁿ)</b> (exponential, Ch.7). For small n they look alike, but as n grows the <b>differences explode</b> (O(n²) is a million at n=1000!). So we judge algorithms by \"what happens as n grows, worst case?\" Math's function growth (Ch.5/7) becomes complexity directly.",
+    "problem": {
+      "q": "두 배열의 모든 쌍을 비교하는 이중 반복문의 복잡도는?",
+      "solution": "n개 × n개 = n² 번 → <b>O(n²)</b> (제곱, 가파른 성장).",
+      "q_en": "What is the complexity of a double loop comparing all pairs of an array?",
+      "sol_en": "n × n = n² operations → <b>O(n²)</b> (quadratic, steep growth)."
+    }
+  },
+  "algo1_04": {
+    "ch": "알고리즘 제1장 알고리즘과 복잡도",
+    "sec": "1.3 빅오 표기법",
+    "title": "O(log n)의 마법 — 절반씩 버리기",
+    "narr": "가장 아름다운 복잡도 중 하나, <b>O(log n)</b>! 매 단계마다 <b>후보를 절반씩 버리면</b>, 백만 개도 단 <b>20단계</b>면 끝나요. \"업/다운\" 숫자 맞히기 게임의 비밀이죠. n을 키워도 단계 수는 아주 천천히 늘어요. n을 바꿔보세요.",
+    "hint": "n을 키워도 단계는 천천히 늘어요",
+    "more": "<b>O(log n)</b>은 매 단계 <b>입력을 일정 비율(보통 절반)로 줄이는</b> 알고리즘의 복잡도예요. n을 절반씩 줄여 1이 될 때까지의 횟수 = <b>log₂n</b>(수학 7장 로그의 정의!). n=1,000,000도 약 20단계, n=10억도 ~30단계뿐 — 거의 안 늘죠. 핵심 조건: <b>버릴 절반을 확신할 수 있어야</b> 함(예: 정렬된 데이터). 이게 <b>이분 탐색(4장)·이진 탐색 트리(5장)·병합 정렬(3장)</b>의 심장이에요. \"문제를 반으로 쪼개기(분할정복)\"가 효율의 핵심 전략 중 하나라는 첫 신호예요.",
+    "more_en": "<b>O(log n)</b> is the complexity of algorithms that <b>shrink the input by a constant factor (usually half) each step</b>. The number of halvings until you reach 1 is <b>log₂n</b> (math Ch.7's definition of log!). n=1,000,000 takes about 20 steps, n=a billion only ~30 — it barely grows. The key requirement: <b>you must be sure which half to discard</b> (e.g. sorted data). This is the heart of <b>binary search (Ch.4), binary search trees (Ch.5), and merge sort (Ch.3)</b>. It's the first sign that \"splitting a problem in half (divide and conquer)\" is a key strategy for efficiency.",
+    "problem": {
+      "q": "1024개 중 이분 탐색으로 찾으려면 최대 몇 단계?",
+      "solution": "log₂1024 = 10 → 최대 <b>10단계</b>. (절반씩: 1024→512→…→1)",
+      "q_en": "Binary search among 1024 items takes at most how many steps?",
+      "sol_en": "log₂1024 = 10 → at most <b>10 steps</b> (halving: 1024→512→…→1)."
+    }
+  },
+  "algo1_05": {
+    "ch": "알고리즘 제1장 알고리즘과 복잡도",
+    "sec": "1.3 빅오 표기법",
+    "title": "복잡도 등급 — 한눈에 비교",
+    "narr": "지금까지 만난 복잡도를 <b>빠른 순서로 줄 세워</b> 봐요. n=1000일 때 실제 계산 횟수를 보면 충격적이에요 — O(1)은 1번, O(n²)은 백만 번, O(2ⁿ)은 우주의 시간으로도 못 끝내요! 좋은 알고리즘이란 곧 <b>위쪽 등급</b>을 쓰는 거예요.",
+    "hint": "위로 갈수록 빠른 알고리즘",
+    "more": "복잡도 등급(빠른 순): <b>O(1)</b> 상수 → <b>O(log n)</b> 로그 → <b>O(n)</b> 선형 → <b>O(n log n)</b> 선형로그(좋은 정렬!) → <b>O(n²)</b> 제곱 → <b>O(2ⁿ)</b>·<b>O(n!)</b> 지수·계승(사실상 불가). n=1000 기준 대략 1 / 10 / 1,000 / 10,000 / 1,000,000 / (천문학적). 실무 감각: O(n²)는 수만 개까지, O(n log n)는 수백만 개, O(log n)·O(1)은 사실상 무한대까지 견뎌요. 그래서 \"한 등급만 낮춰도\"(O(n²)→O(n log n)) 다루는 데이터 규모가 수천 배 커지죠. 이 표가 앞으로 배울 모든 자료구조·정렬·탐색을 평가하는 잣대예요.",
+    "more_en": "Complexity classes (fast to slow): <b>O(1)</b> constant → <b>O(log n)</b> logarithmic → <b>O(n)</b> linear → <b>O(n log n)</b> linearithmic (good sorts!) → <b>O(n²)</b> quadratic → <b>O(2ⁿ)</b>, <b>O(n!)</b> exponential/factorial (practically impossible). At n=1000: roughly 1 / 10 / 1,000 / 10,000 / 1,000,000 / astronomical. Rule of thumb: O(n²) handles tens of thousands, O(n log n) handles millions, O(log n) and O(1) handle essentially unlimited sizes. Dropping just one class (O(n²)→O(n log n)) multiplies the data you can handle thousandfold. This table is the yardstick for every data structure, sort, and search ahead.",
+    "problem": {
+      "q": "O(n²) 와 O(n log n) 중 큰 데이터에 적합한 것은?",
+      "solution": "<b>O(n log n)</b>. n이 커질수록 O(n²)보다 훨씬 적게 자라요(좋은 정렬이 이 등급).",
+      "q_en": "For large data, which is better: O(n²) or O(n log n)?",
+      "sol_en": "<b>O(n log n)</b>. It grows far slower than O(n²) as n increases (good sorts are this class)."
+    }
+  }
+}

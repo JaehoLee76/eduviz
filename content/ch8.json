@@ -1,0 +1,77 @@
+{
+  "ch8_01": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.1 일반각·삼각함수",
+    "title": "단위원 — sin과 cos는 좌표다",
+    "narr": "삼각함수의 정체는 <b>원 위 점의 좌표</b>예요! 반지름 1인 <b>단위원</b>에서 각 θ만큼 돌면, 그 점의 좌표가 바로 <b>(cos θ, sin θ)</b>죠. 가로가 cos, 세로가 sin! 각 θ를 돌려보세요.",
+    "hint": "각 θ를 돌려보세요",
+    "more": "반지름 1인 <b>단위원</b> 위에서 x축으로부터 각 θ만큼 회전한 점의 좌표가 <b>(cos θ, sin θ)</b>예요. 그래서 <b>cos는 가로(x), sin은 세로(y)</b> 길이죠. 피타고라스 정리에서 <b>sin²θ + cos²θ = 1</b>이 바로 나와요(반지름이 1이니까!). tan θ = sin θ / cos θ는 기울기예요. 1·6장의 좌표·원이 여기서 하나로 만나요.",
+    "more_en": "On the <b>unit circle</b> (radius 1), the point rotated by angle θ from the x-axis has coordinates <b>(cos θ, sin θ)</b>. So <b>cos is the horizontal (x), sin is the vertical (y)</b>. The Pythagorean theorem gives <b>sin²θ + cos²θ = 1</b> directly (the radius is 1!). And tan θ = sin θ / cos θ is a slope. The coordinates and circles of Ch.1 and Ch.6 meet here.",
+    "problem": {
+      "q": "cos 0° 와 sin 90° 의 값은?",
+      "solution": "각 0°의 점은 (1, 0) → cos 0° = <b>1</b>. 각 90°의 점은 (0, 1) → sin 90° = <b>1</b>.",
+      "q_en": "Find cos 0° and sin 90°.",
+      "sol_en": "At 0° the point is (1, 0) → cos 0° = <b>1</b>. At 90° it is (0, 1) → sin 90° = <b>1</b>."
+    }
+  },
+  "ch8_02": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.1 일반각·삼각함수",
+    "title": "사인 곡선 — 원이 펴지면 파동",
+    "narr": "단위원을 돌 때 점의 <b>높이(sin θ)</b>만 따로 펼치면 — 부드러운 <b>파동(사인 곡선)</b>이 그려져요! 원운동이 곧 진동이에요. 빛·소리·전기·계절… 세상의 반복은 모두 이 곡선이죠. θ를 키워 파동이 그려지는 걸 보세요.",
+    "hint": "θ를 키워 파동을 그려보세요",
+    "more": "단위원 위 점의 높이를 각 θ에 따라 펼치면 <b>y = sin θ</b> 곡선, 가로 길이를 펼치면 <b>y = cos θ</b> 곡선이 돼요(cos는 sin을 90° 옮긴 모양). 둘 다 −1과 1 사이를 <b>주기 2π(=360°)</b>로 반복하죠. 이렇게 <b>회전 = 진동</b>이라는 연결이 물리의 파동·진자·교류전류, 그리고 푸리에 분석의 출발점이에요.",
+    "more_en": "Unrolling the height of the point versus θ gives the curve <b>y = sin θ</b>; unrolling the horizontal gives <b>y = cos θ</b> (cos is sin shifted by 90°). Both oscillate between −1 and 1 with <b>period 2π (= 360°)</b>. This link — <b>rotation = oscillation</b> — underlies waves, pendulums, alternating current, and is the starting point of Fourier analysis.",
+    "problem": {
+      "q": "y = sin θ 의 최댓값과 그때의 각 θ는? (0°~360°)",
+      "solution": "최댓값 <b>1</b>, θ = <b>90°</b> (단위원에서 가장 높은 점).",
+      "q_en": "What is the maximum of y = sin θ and at what angle (0°–360°)?",
+      "sol_en": "Maximum <b>1</b> at θ = <b>90°</b> (the highest point on the unit circle)."
+    }
+  },
+  "ch8_03": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.1 일반각·삼각함수",
+    "title": "라디안 — 호의 길이로 각을 재다",
+    "narr": "각을 \"도(°)\" 말고 <b>호의 길이</b>로 잴 수도 있어요. 반지름 1인 원에서 <b>호의 길이가 그대로 각</b>이 되는 게 <b>라디안</b>이에요. 한 바퀴(360°)는 원 둘레 2π, 그래서 <b>360° = 2π rad</b>! 각을 돌려 호(주황)가 길어지는 걸 보세요.",
+    "hint": "각을 돌려 호의 길이를 보세요",
+    "more": "<b>라디안(radian)</b>은 <b>호의 길이 ÷ 반지름</b>으로 정의한 각이에요. 단위원(반지름 1)에서는 <b>각 = 호의 길이</b>가 되죠. 한 바퀴 = 둘레 2πr / r = <b>2π rad = 360°</b>, 따라서 <b>180° = π</b>, 1 rad ≈ 57.3°예요. 왜 라디안을 쓸까요? <b>17장 미분</b>에서 (sin x)′ = cos x 같은 깔끔한 공식이 라디안일 때만 성립하기 때문이에요.",
+    "more_en": "A <b>radian</b> is an angle defined as <b>arc length ÷ radius</b>. On the unit circle (radius 1), the <b>angle equals the arc length</b>. One full turn = circumference 2πr / r = <b>2π rad = 360°</b>, so <b>180° = π</b> and 1 rad ≈ 57.3°. Why use radians? Because clean calculus formulas like (sin x)′ = cos x hold only in radians — important in <b>differentiation (Ch.17)</b>.",
+    "problem": {
+      "q": "90° 는 몇 라디안인가?",
+      "solution": "180° = π 이므로 90° = <b>π/2 ≈ 1.571 rad</b>.",
+      "q_en": "How many radians is 90°?",
+      "sol_en": "Since 180° = π, 90° = <b>π/2 ≈ 1.571 rad</b>."
+    }
+  },
+  "ch8_04": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.2 덧셈정리",
+    "title": "덧셈정리 — 각을 더하면",
+    "narr": "두 각을 더한 sin은 어떻게 될까요? <b>sin(α+β) = sin α cos β + cos α sin β</b> — 이게 <b>덧셈정리</b>예요. 단순히 sin α + sin β가 아니죠! α, β를 바꿔도 왼쪽(직접 계산)과 오른쪽(공식)이 항상 같음을 확인해보세요.",
+    "hint": "α, β를 바꿔 양변이 같은지 보세요",
+    "more": "<b>삼각함수의 덧셈정리</b>예요 — <b>sin(α+β) = sin α cos β + cos α sin β</b>, <b>cos(α+β) = cos α cos β − sin α sin β</b>. 단위원의 회전을 합성하면 나와요. 여기서 <b>2배각 공식</b>(sin 2θ = 2 sin θ cos θ)도 따라 나오죠. 이 회전 합성은 <b>9장 벡터의 회전</b>과 <b>10장 복소수 곱셈</b>(각도가 더해진다!)에서 같은 원리로 다시 등장해요.",
+    "more_en": "These are the <b>angle addition formulas</b>: <b>sin(α+β) = sin α cos β + cos α sin β</b> and <b>cos(α+β) = cos α cos β − sin α sin β</b>. They come from composing rotations on the unit circle, and yield the <b>double-angle formula</b> (sin 2θ = 2 sin θ cos θ). The same rotation-composition reappears in <b>rotating vectors (Ch.9)</b> and <b>multiplying complex numbers (Ch.10)</b>, where angles add.",
+    "problem": {
+      "q": "sin 75° 를 덧셈정리로 구하면? (75° = 45° + 30°)",
+      "solution": "sin45cos30 + cos45sin30 = (√2/2)(√3/2) + (√2/2)(1/2) = <b>(√6 + √2)/4 ≈ 0.966</b>.",
+      "q_en": "Use the addition formula to find sin 75° (75° = 45° + 30°).",
+      "sol_en": "sin45cos30 + cos45sin30 = (√2/2)(√3/2) + (√2/2)(1/2) = <b>(√6 + √2)/4 ≈ 0.966</b>."
+    }
+  },
+  "ch8_05": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.3 삼각함수와 삼각형",
+    "title": "사인법칙 — 변과 각을 잇다",
+    "narr": "삼각함수는 다시 <b>삼각형</b>으로 돌아와요. 어떤 삼각형이든 <b>변 ÷ 마주보는 각의 sin</b>은 항상 일정하고, 그 값이 <b>외접원의 지름(2R)</b>이에요: <b>a/sin A = b/sin B = c/sin C = 2R</b>. 측량·천문에서 거리를 재는 핵심 도구죠.",
+    "hint": "변과 마주보는 각의 sin 비율은 일정",
+    "more": "<b>사인법칙</b>: <b>a/sin A = b/sin B = c/sin C = 2R</b> (R은 외접원 반지름). 한 변과 두 각을 알면 나머지 변을 구할 수 있어요(삼각측량). 짝꿍인 <b>코사인법칙</b> <b>c² = a² + b² − 2ab·cos C</b>는 피타고라스 정리(1장)를 직각이 아닌 삼각형까지 일반화한 거예요(C = 90°이면 cos C = 0 → 피타고라스!). 도형과 수가 삼각함수로 완전히 연결돼요.",
+    "more_en": "The <b>Law of Sines</b>: <b>a/sin A = b/sin B = c/sin C = 2R</b> (R is the circumradius). Knowing one side and two angles lets you find the rest (triangulation). Its partner, the <b>Law of Cosines</b> <b>c² = a² + b² − 2ab·cos C</b>, generalizes the Pythagorean theorem (Ch.1) to non-right triangles (if C = 90°, cos C = 0 → Pythagoras!). Geometry and number are fully linked through trigonometry.",
+    "problem": {
+      "q": "a = 6, sin A = 0.5 인 삼각형의 외접원 지름 2R 은?",
+      "solution": "a/sin A = 2R → 6/0.5 = <b>12</b>. (반지름 R = 6)",
+      "q_en": "For a triangle with a = 6 and sin A = 0.5, find the circumdiameter 2R.",
+      "sol_en": "a/sin A = 2R → 6/0.5 = <b>12</b> (radius R = 6)."
+    }
+  }
+}

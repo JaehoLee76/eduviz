@@ -1,0 +1,62 @@
+{
+  "ch24_01": {
+    "ch": "제24장 집합론",
+    "sec": "24.1 기수(농도)",
+    "title": "일대일 대응 — 세지 않고 비교하기",
+    "narr": "두 집합의 크기가 같은지 어떻게 알까요? <b>세지 않고도</b> 알 수 있어요 — <b>빠짐없이·겹침없이 짝지을 수 있으면(일대일 대응)</b> 같은 크기! 양치기가 양과 돌멩이를 짝지어 세던 것처럼요. 이 단순한 발상이 <b>무한</b>을 비교하는 열쇠가 돼요.",
+    "hint": "짝지을 수 있으면 = 같은 크기",
+    "more": "집합의 크기를 <b>농도(기수, cardinality)</b>라 해요. 두 집합 A, B 사이에 <b>일대일 대응(전단사, bijection)</b>이 있으면 |A| = |B|예요 — 원소를 세지 않고도! 유한집합에선 당연하지만(원소 개수 같음), 진짜 위력은 <b>무한집합</b>에서 나와요. \"무한은 다 같은 무한 아닌가?\"라는 직관을 칸토어가 일대일 대응으로 정밀하게 깨뜨리거든요(다음 장면들). 4장의 집합 언어가 \"크기\"라는 새 차원으로 확장돼요.",
+    "more_en": "The size of a set is its <b>cardinality</b>. If a <b>one-to-one correspondence (bijection)</b> exists between A and B, then |A| = |B| — without counting! Obvious for finite sets (equal element counts), its real power is for <b>infinite sets</b>. The intuition \"isn't all infinity the same?\" is precisely shattered by Cantor using bijections (next scenes). The set language of Ch.4 expands into the new dimension of \"size.\"",
+    "problem": {
+      "q": "두 집합의 크기가 같다는 것을 세지 않고 보이려면?",
+      "solution": "원소들을 <b>일대일로 짝지으면(전단사)</b> 돼요. 짝이 빠지거나 겹치지 않으면 같은 크기.",
+      "q_en": "How can you show two sets have the same size without counting?",
+      "sol_en": "Pair their elements <b>one-to-one (a bijection)</b>. If nothing is left out or doubled, they are equal in size."
+    }
+  },
+  "ch24_02": {
+    "ch": "제24장 집합론",
+    "sec": "24.2 가산집합",
+    "title": "가산무한 — 부분이 전체와 같다",
+    "narr": "충격적인 사실! <b>짝수는 자연수의 절반</b>일 것 같지만 — 자연수와 짝수는 <b>크기가 똑같아요</b>! n을 2n에 짝지으면 빠짐없이 일대일 대응이 되거든요. 무한에서는 <b>부분이 전체와 같을 수 있어요</b>. 이게 무한의 첫 번째 역설이에요.",
+    "hint": "n ↔ 2n : 빠짐없는 짝짓기",
+    "more": "자연수 ℕ과 짝지을 수 있는 무한집합을 <b>가산무한(countably infinite)</b>이라 하고, 그 농도를 <b>ℵ₀(알레프 영)</b>으로 써요. ℕ ↔ 짝수(n↔2n), ℕ ↔ 정수, ℕ ↔ 홀수 모두 ℵ₀로 같은 크기죠! <b>힐베르트의 무한 호텔</b>: 방이 무한히 찬 호텔도 모두를 n→n+1 방으로 옮기면 새 손님을 받아요. 유한의 직관(\"부분 < 전체\")이 무한에선 깨지는 거예요 — 사실 이게 무한집합의 정의예요(자기 부분집합과 일대일 대응 가능). 다음: 유리수도 셀 수 있을까?",
+    "more_en": "An infinite set that can be paired with ℕ is <b>countably infinite</b>, with cardinality <b>ℵ₀ (aleph-null)</b>. ℕ ↔ even numbers (n↔2n), ℕ ↔ integers, ℕ ↔ odd numbers are all ℵ₀ — the same size! <b>Hilbert's infinite hotel</b>: a full hotel with infinitely many rooms still fits a new guest by moving everyone n→n+1. The finite intuition \"part < whole\" breaks for infinity — indeed that is the definition of an infinite set (it bijects with a proper subset). Next: are the rationals countable too?",
+    "problem": {
+      "q": "자연수와 짝수 중 어느 쪽이 더 많을까?",
+      "solution": "<b>같아요</b>! n↔2n 일대일 대응이 되므로 둘 다 농도 ℵ₀ (가산무한).",
+      "q_en": "Are there more natural numbers or more even numbers?",
+      "sol_en": "<b>The same</b>! The bijection n↔2n shows both have cardinality ℵ₀ (countably infinite)."
+    }
+  },
+  "ch24_03": {
+    "ch": "제24장 집합론",
+    "sec": "24.3 농도의 대소",
+    "title": "유리수도 셀 수 있다",
+    "narr": "분수(유리수)는 수직선에 <b>무한히 빽빽하게</b> 들어차 있어요(어떤 두 분수 사이에도 또 분수가!). 그런데도 — <b>유리수는 셀 수 있어요</b>! 분수를 격자로 늘어놓고 <b>대각선으로 지그재그</b> 훑으면 자연수와 일대일 대응이 되거든요.",
+    "hint": "대각선 지그재그로 번호 매기기",
+    "more": "<b>유리수 ℚ는 가산무한(ℵ₀)</b>이에요 — 자연수만큼 \"셀 수 있다\". 증명(칸토어): 분수 p/q를 p행 q열 격자에 놓고, <b>대각선을 따라 지그재그</b>로 1번, 2번, 3번… 번호를 매기면 모든 분수가 빠짐없이 자연수와 짝지어져요(중복은 건너뛰며). 수직선에 빈틈없이 빽빽한데도 ℕ과 같은 크기라니, 또 한 번 직관을 깨죠. 그렇다면 \"모든 무한은 ℵ₀로 같은 크기\"일까요? 다음 장면에서 칸토어가 \"아니다\"를 증명해요 — 실수는 차원이 다른 무한이에요.",
+    "more_en": "The <b>rationals ℚ are countably infinite (ℵ₀)</b> — as countable as the naturals. Cantor's proof: place each fraction p/q in a grid (row p, column q) and number them <b>1, 2, 3, … along zigzag diagonals</b>, so every fraction pairs with a natural number (skipping duplicates). Even though they pack the number line densely, they match ℕ in size — another broken intuition. So is every infinity ℵ₀? In the next scene, Cantor proves \"no\" — the reals are an infinity of a different order.",
+    "problem": {
+      "q": "유리수(분수)의 농도는?",
+      "solution": "<b>ℵ₀ (가산무한)</b>. 대각선 나열로 자연수와 일대일 대응됨.",
+      "q_en": "What is the cardinality of the rationals?",
+      "sol_en": "<b>ℵ₀ (countably infinite)</b>; the diagonal enumeration bijects them with ℕ."
+    }
+  },
+  "ch24_04": {
+    "ch": "제24장 집합론",
+    "sec": "24.4 비가산·연속의 농도",
+    "title": "실수는 셀 수 없다 — 더 큰 무한",
+    "narr": "마지막 충격! <b>실수는 자연수로 다 셀 수가 없어요</b> — 훨씬 더 큰 무한이에요. 칸토어의 천재적 증명(<b>대각선논법</b>): 실수를 아무리 목록으로 늘어놓아도, <b>대각선 숫자를 하나씩 바꾼 새 수</b>는 그 목록 어디에도 없어요! 무한에도 여러 크기가 있는 거예요.",
+    "hint": "대각선을 바꾼 새 수 = 목록에 없음",
+    "more": "<b>실수 ℝ는 비가산(uncountable)</b> — ℕ보다 진짜로 큰 무한이에요. <b>칸토어의 대각선논법</b>: 0과 1 사이 실수를 모두 목록에 넣었다고 가정. 첫째 수의 첫째 자리, 둘째 수의 둘째 자리… <b>대각선 숫자를 각각 다르게 바꿔</b> 새 수를 만들면, 이 수는 n번째 수와 n번째 자리가 다르니 <b>목록의 어떤 수와도 같지 않아요</b> → 모순! 그래서 실수는 셀 수 없어요. 그 농도를 <b>연속체 농도(𝔠)</b>라 하고 ℵ₀ < 𝔠. 무한이 끝없이 큰 무한들의 위계를 이룬다는 발견은 수학사의 혁명이었어요(거듭제곱집합으로 무한히 큰 무한이 계속 만들어져요). \"전부 셀 수 있다\"는 환상을 깬, 인간 사고의 정점이에요.",
+    "more_en": "The <b>reals ℝ are uncountable</b> — a genuinely larger infinity than ℕ. <b>Cantor's diagonal argument</b>: suppose all reals in [0,1] are listed. Take the 1st digit of the 1st number, the 2nd of the 2nd, … and <b>change each diagonal digit</b> to build a new number; it differs from the n-th number at the n-th digit, so it <b>matches no number on the list</b> → contradiction! Hence the reals are uncountable, with the <b>cardinality of the continuum (𝔠)</b>, and ℵ₀ < 𝔠. The discovery that infinities form an endless hierarchy (power sets give ever-larger infinities) revolutionized mathematics — a peak of human thought that shattered the illusion that \"everything can be counted.\"",
+    "problem": {
+      "q": "실수와 자연수 중 어느 쪽 무한이 더 큰가?",
+      "solution": "<b>실수</b>가 더 큼. 대각선논법으로 실수는 비가산(ℵ₀ < 𝔠) 증명됨.",
+      "q_en": "Which is the larger infinity, the reals or the naturals?",
+      "sol_en": "The <b>reals</b>. The diagonal argument proves them uncountable (ℵ₀ < 𝔠)."
+    }
+  }
+}

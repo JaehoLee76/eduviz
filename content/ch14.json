@@ -1,0 +1,77 @@
+{
+  "ch14_01": {
+    "ch": "제14장 극한",
+    "sec": "14.1 수렴·발산",
+    "title": "수렴 — 한없이 가까워지다",
+    "narr": "<b>13장의 무한급수(#80)</b>에서 \"한없이 다가간다\"를 봤죠. 그 아이디어를 제대로 다루는 게 <b>극한</b>이에요. 수열 1+1/n 은 n이 커질수록 <b>1에 한없이 가까워져요</b> — 절대 정확히 1은 아니지만 원하는 만큼 가깝게! 이걸 \"1로 <b>수렴</b>한다\"고 해요. N을 키워보세요.",
+    "hint": "N을 키워 점들이 1에 다가가는 걸 보세요",
+    "more": "<b>수렴</b>이란 n이 커질수록 항 aₙ이 어떤 값 <b>L(극한)</b>에 한없이 가까워지는 거예요 — <b>lim(n→∞) aₙ = L</b>. 핵심은 \"<b>아무리 좁은 띠(ε)</b>를 둘러도, 충분히 큰 n부터는 모든 항이 그 띠 안에 들어온다\"는 거죠(그림의 주황 ε밴드). 이 ε 개념을 엄밀하게 정의하는 게 <b>25장 ε-N 논법</b>이에요. 극한은 \"무한\"을 다루는 안전한 언어이고, 미적분 전체의 토대예요.",
+    "more_en": "<b>Convergence</b> means aₙ gets arbitrarily close to a value <b>L (the limit)</b> as n grows — <b>lim(n→∞) aₙ = L</b>. The key idea: \"no matter how narrow a band (ε) you draw, from some large n on, every term lies inside it\" (the orange ε-band). Making ε precise is the job of the <b>ε-N definition (Ch.25)</b>. Limits are the safe language for handling \"infinity\" and the foundation of all calculus.",
+    "problem": {
+      "q": "수열 aₙ = 2 + 1/n 의 극한 lim(n→∞) aₙ 은?",
+      "solution": "n이 커지면 1/n → 0 이므로 극한은 <b>2</b>.",
+      "q_en": "Find lim(n→∞) of aₙ = 2 + 1/n.",
+      "sol_en": "As n grows, 1/n → 0, so the limit is <b>2</b>."
+    }
+  },
+  "ch14_02": {
+    "ch": "제14장 극한",
+    "sec": "14.1 수렴·발산",
+    "title": "발산과 진동 — 극한이 없을 때",
+    "narr": "모든 수열이 한 값에 다가가진 않아요. <b>n/3</b>처럼 끝없이 커지면 <b>발산</b>(→∞), <b>(−1)ⁿ</b>처럼 두 값을 오가면 <b>진동</b>해서 극한이 <b>없어요</b>. 화면을 눌러 두 경우를 비교해보세요.",
+    "hint": "눌러서 발산·진동을 비교하세요",
+    "more": "수렴하지 않는 수열은 <b>발산</b>한다고 해요. 두 종류가 있죠 — ① <b>무한대로 발산</b>: aₙ = n/3 처럼 한없이 커지거나 작아짐(lim = ±∞). ② <b>진동</b>: aₙ = (−1)ⁿ 처럼 두 값(또는 여러 값) 사이를 오가 어느 한 값에도 정착하지 못함 → 극한 없음. 수렴/발산을 구별하는 것이 급수(무한합)가 의미 있는지 판단하는 첫걸음이에요(13장 무한등비급수가 |r|<1에서만 수렴한 이유).",
+    "more_en": "A sequence that doesn't converge is said to <b>diverge</b>. Two kinds: ① <b>diverges to infinity</b>: aₙ = n/3 grows without bound (lim = ±∞); ② <b>oscillates</b>: aₙ = (−1)ⁿ swings between values and never settles → no limit. Distinguishing convergence from divergence is the first step in deciding whether an infinite sum is meaningful (why Ch.13's geometric series converges only for |r| < 1).",
+    "problem": {
+      "q": "수열 aₙ = (−1)ⁿ (즉 −1, 1, −1, 1, …) 은 수렴할까?",
+      "solution": "두 값 사이를 진동하며 한 값에 정착하지 않으므로 <b>극한 없음(발산)</b>.",
+      "q_en": "Does aₙ = (−1)ⁿ (i.e. −1, 1, −1, 1, …) converge?",
+      "sol_en": "It oscillates between two values and never settles, so <b>no limit (it diverges)</b>."
+    }
+  },
+  "ch14_03": {
+    "ch": "제14장 극한",
+    "sec": "14.2 극한의 계산",
+    "title": "함수의 극한 — 0/0의 비밀",
+    "narr": "함수에서도 극한을 생각해요. (x²−1)/(x−1) 에 x=1을 넣으면 <b>0/0</b>… 값이 없어요(그래프에 구멍!). 그런데 <b>x를 1에 가까이 보내면</b> 양쪽 모두 <b>2로 다가가요</b>. \"그 점의 값\"이 아니라 \"<b>다가가는 값</b>\"이 극한이에요.",
+    "hint": "x=1 양쪽에서 2로 다가가요",
+    "more": "함수의 극한 <b>lim(x→a) f(x) = L</b> 은 \"x를 a에 가까이(단, x≠a) 보낼 때 f(x)가 다가가는 값\"이에요. <b>(x²−1)/(x−1)</b>은 x=1에서 0/0(정의 안 됨, 구멍)이지만, 약분하면 x+1이라 <b>극한은 2</b>죠. 핵심: <b>극한은 그 점의 함숫값과 무관</b> — 구멍이 있어도, 값이 달라도 극한은 존재할 수 있어요. 이 \"0/0 꼴 극한\"이 바로 다음에 배울 <b>미분(순간변화율)</b>의 정체예요. 양쪽 극한(좌·우)이 같아야 극한이 존재해요.",
+    "more_en": "The limit <b>lim(x→a) f(x) = L</b> is \"the value f(x) approaches as x nears a (with x ≠ a).\" <b>(x²−1)/(x−1)</b> is 0/0 at x=1 (undefined, a hole), but it factors to x+1, so the <b>limit is 2</b>. Key: <b>the limit is independent of the value at the point</b> — it can exist even with a hole or a different value. This \"0/0 limit\" is exactly the <b>derivative (instantaneous rate)</b> coming next. Left and right limits must agree for the limit to exist.",
+    "problem": {
+      "q": "lim(x→2) (x²−4)/(x−2) 는?",
+      "solution": "(x²−4)/(x−2) = (x+2)(x−2)/(x−2) = x+2 → x=2 대입: <b>4</b>.",
+      "q_en": "Find lim(x→2) (x²−4)/(x−2).",
+      "sol_en": "(x²−4)/(x−2) = (x+2)(x−2)/(x−2) = x+2 → at x=2: <b>4</b>."
+    }
+  },
+  "ch14_04": {
+    "ch": "제14장 극한",
+    "sec": "14.2 극한의 계산",
+    "title": "무한대에서의 극한",
+    "narr": "x를 한 점이 아니라 <b>무한히 크게</b> 보내면? <b>1/x</b>는 x가 커질수록 <b>0에 한없이 가까워져요</b>(7장의 점근선!). 닿지는 않지만 다가가죠. 이것도 극한이에요: lim(x→∞) 1/x = 0.",
+    "hint": "x가 커지면 1/x → 0",
+    "more": "<b>x → ∞</b> 에서의 극한은 \"x가 한없이 커질 때 f(x)가 다가가는 값\"이에요. <b>lim(x→∞) 1/x = 0</b> 이고, 이 0이 곧 <b>수평 점근선 y = 0</b>이죠(5·7장의 점근선이 극한으로 정의돼요). 분수함수의 극한은 분자·분모의 <b>최고차항</b>으로 판단해요(예: (2x²+1)/(x²−3) → 2). 이렇게 \"무한히 멀리서의 행동\"을 보는 것이 곡선의 개형(18장)과 적분의 넓이(19·20장)에서 중요해져요.",
+    "more_en": "The limit as <b>x → ∞</b> is \"the value f(x) approaches as x grows without bound.\" <b>lim(x→∞) 1/x = 0</b>, and that 0 is the <b>horizontal asymptote y = 0</b> (the asymptotes of Ch.5/7, now defined by limits). For rational functions, compare the <b>highest-degree terms</b> of numerator and denominator (e.g. (2x²+1)/(x²−3) → 2). This \"behavior far away\" matters for curve sketching (Ch.18) and areas via integration (Ch.19/20).",
+    "problem": {
+      "q": "lim(x→∞) (3x + 1)/x 는?",
+      "solution": "(3x+1)/x = 3 + 1/x → 1/x → 0 이므로 극한은 <b>3</b>.",
+      "q_en": "Find lim(x→∞) (3x + 1)/x.",
+      "sol_en": "(3x+1)/x = 3 + 1/x; since 1/x → 0, the limit is <b>3</b>."
+    }
+  },
+  "ch14_05": {
+    "ch": "제14장 극한",
+    "sec": "14.3 무한급수",
+    "title": "자연상수 e — 극한이 만든 수",
+    "narr": "극한은 새로운 <b>수</b>도 만들어요. (1 + 1/n)ⁿ 에서 n을 무한히 키우면, 신기하게도 <b>e ≈ 2.71828…</b> 이라는 특별한 수에 수렴해요! 복리이자를 \"무한히 잘게\" 나눌 때 나오는 수죠. n을 키워 e에 다가가는 걸 보세요.",
+    "hint": "n을 키워 e에 다가가는 걸 보세요",
+    "more": "<b>자연상수 e = lim(n→∞) (1 + 1/n)ⁿ ≈ 2.71828…</b> 는 원주율 π처럼 수학 곳곳에 나타나는 무리수예요. 유래: 연이율 100%를 1년에 n번 복리로 나눠 받으면 (1+1/n)ⁿ 배가 되는데, n→∞(연속복리)이면 e배! 이 e가 특별한 이유는 <b>지수함수 eˣ의 미분이 자기 자신</b>(17장)이고, <b>로그의 자연스러운 밑</b>(7장 ln)이기 때문이에요. 극한이 π·e 같은 \"새 수\"를 엄밀히 정의해 주죠 — 극한 없이는 무리수도, 미적분도 없어요.",
+    "more_en": "The natural constant <b>e = lim(n→∞) (1 + 1/n)ⁿ ≈ 2.71828…</b> is an irrational number appearing throughout math, like π. Origin: at 100% annual interest compounded n times a year you get (1+1/n)ⁿ times your money; as n→∞ (continuous compounding) it becomes e times! e is special because <b>the exponential eˣ is its own derivative</b> (Ch.17) and it is <b>the natural base of logarithms</b> (Ch.7, ln). Limits rigorously define \"new numbers\" like π and e — without limits there are no irrationals and no calculus.",
+    "problem": {
+      "q": "(1 + 1/n)ⁿ 에서 n을 무한히 크게 하면 어떤 수에 가까워지는가?",
+      "solution": "자연상수 <b>e ≈ 2.71828…</b> 에 수렴해요.",
+      "q_en": "What does (1 + 1/n)ⁿ approach as n → ∞?",
+      "sol_en": "It converges to the natural constant <b>e ≈ 2.71828…</b>"
+    }
+  }
+}

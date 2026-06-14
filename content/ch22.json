@@ -1,0 +1,77 @@
+{
+  "ch22_01": {
+    "ch": "제22장 일차변환",
+    "sec": "22.2 평면의 일차변환",
+    "title": "회전변환 — 행렬로 돌리다",
+    "narr": "<b>21장에서 행렬이 변환(#120)</b>임을 봤죠. 그중 가장 멋진 게 <b>회전변환</b>이에요. 평면 전체를 원점 둘레로 θ만큼 돌리는 행렬 — <b>10장의 복소수 곱(각의 합)</b>과 정확히 같은 일이에요! θ를 바꿔 삼각형을 돌려보세요.",
+    "hint": "θ를 바꿔 회전시켜보세요",
+    "more": "<b>회전변환</b>의 행렬은 <b>[[cos θ, −sin θ], [sin θ, cos θ]]</b> 예요. 기저 e₁=(1,0)이 (cos θ, sin θ)로, e₂=(0,1)이 (−sin θ, cos θ)로 가는 것(단위원 위의 점!)이라 이렇게 나오죠(8장 삼각함수·21장 기저). 핵심: 이 행렬을 곱하는 것 = <b>10장 복소수에 e^(iθ)를 곱하는 것</b>과 같은 회전이에요(두 표현이 같은 기하!). 회전변환은 길이·각도·넓이를 보존해요(det = cos²+sin² = 1). 게임·로봇·CG의 모든 회전이 이 행렬이에요.",
+    "more_en": "The <b>rotation matrix</b> is <b>[[cos θ, −sin θ], [sin θ, cos θ]]</b>. It comes from sending e₁=(1,0) to (cos θ, sin θ) and e₂=(0,1) to (−sin θ, cos θ) (points on the unit circle! Ch.8, Ch.21). Key: multiplying by this matrix is the same rotation as multiplying a complex number by e^(iθ) (Ch.10) — two descriptions of one geometry! Rotation preserves length, angle, and area (det = cos²+sin² = 1). Every rotation in games, robotics, and CG is this matrix.",
+    "problem": {
+      "q": "90° 회전변환의 행렬은? (cos90°=0, sin90°=1)",
+      "solution": "[[0, −1], [1, 0]]. 점 (1,0)은 (0,1)로 가요(반시계 90°).",
+      "q_en": "What is the matrix for a 90° rotation? (cos90°=0, sin90°=1)",
+      "sol_en": "[[0, −1], [1, 0]]. The point (1,0) maps to (0,1) (90° counterclockwise)."
+    }
+  },
+  "ch22_02": {
+    "ch": "제22장 일차변환",
+    "sec": "22.2 평면의 일차변환",
+    "title": "대칭변환 — 거울에 비추다",
+    "narr": "<b>대칭(반사)변환</b>은 도형을 거울에 비춘 듯 <b>뒤집어요</b>. 어떤 축(거울)에 대해 뒤집느냐에 따라 x축·y축·y=x 대칭이 있죠. 회전과 달리 도형의 <b>방향(시계/반시계)이 바뀌어요</b>. 화면을 눌러 세 대칭을 비교해보세요.",
+    "hint": "▶ x축 / y축 / y=x 대칭",
+    "more": "<b>대칭변환(반사)</b> 행렬 — <b>x축 대칭 [[1,0],[0,−1]]</b>(y부호 반전), <b>y축 대칭 [[−1,0],[0,1]]</b>, <b>y=x 대칭 [[0,1],[1,0]]</b>(x·y 교환 = 역함수!, 7장 로그-지수 대칭). 반사는 <b>방향(orientation)을 뒤집어</b> det = −1이에요(거울상은 왼손↔오른손). 길이·각도는 보존하죠(합동변환). 회전·대칭·평행이동처럼 \"모양·크기를 그대로 두는\" 변환을 합동변환이라 해요. 결정 함수(eigen)·물리 대칭성·결정학에서 핵심이에요.",
+    "more_en": "<b>Reflection</b> matrices — <b>across the x-axis [[1,0],[0,−1]]</b> (flip y), <b>across the y-axis [[−1,0],[0,1]]</b>, <b>across y=x [[0,1],[1,0]]</b> (swap x and y = inverse function!, Ch.7 log-exp symmetry). A reflection <b>reverses orientation</b>, so det = −1 (a mirror swaps left and right hands). It preserves length and angle (a rigid motion). Rotations, reflections, and translations that keep shape and size are congruence transformations — central to symmetry in physics and crystallography.",
+    "problem": {
+      "q": "점 (3, 2)를 x축에 대해 대칭이동하면?",
+      "solution": "y의 부호만 바뀜: <b>(3, −2)</b>.",
+      "q_en": "Reflect the point (3, 2) across the x-axis.",
+      "sol_en": "Only the sign of y flips: <b>(3, −2)</b>."
+    }
+  },
+  "ch22_03": {
+    "ch": "제22장 일차변환",
+    "sec": "22.2 평면의 일차변환",
+    "title": "확대·축소 변환",
+    "narr": "<b>확대·축소 변환</b>은 도형을 원점 기준으로 <b>k배 키우거나 줄여요</b>. k>1이면 커지고, 0<k<1이면 작아지죠. 모양(닮음)은 그대로! 넓이는 k의 <b>제곱</b>만큼 변해요(가로·세로 둘 다 k배니까). k를 바꿔보세요.",
+    "hint": "k를 바꿔 확대·축소해보세요",
+    "more": "<b>확대변환 [[k,0],[0,k]]</b> 는 모든 점을 원점에서 k배 멀리(또는 가까이) 옮겨요 — <b>닮음변환</b>(모양 유지, 크기만 변함). 길이는 k배, <b>넓이는 k²배</b>(행렬식 det = k·k = k²; 21장 넓이배율). x·y를 다른 비율로 늘이면(예 [[2,0],[0,0.5]]) 모양이 찌그러지죠. 지도 축척, 이미지 리사이즈, 프랙탈의 자기닮음이 모두 확대변환이에요. 회전·대칭·확대를 합성하면 평면의 거의 모든 일차변환을 만들 수 있어요(다음 장면).",
+    "more_en": "<b>Scaling [[k,0],[0,k]]</b> moves every point k times farther from (or nearer) the origin — a <b>similarity transformation</b> (shape preserved, size changes). Lengths scale by k and <b>area by k²</b> (det = k·k = k²; Ch.21 area factor). Scaling x and y by different amounts (e.g. [[2,0],[0,0.5]]) distorts the shape. Map scales, image resizing, and the self-similarity of fractals are all scalings. Composing rotations, reflections, and scalings builds nearly any linear transformation of the plane (next scene).",
+    "problem": {
+      "q": "2배 확대변환을 하면 도형의 넓이는 몇 배가 되나?",
+      "solution": "가로·세로 각 2배 → 넓이 2² = <b>4배</b> (행렬식 = 4).",
+      "q_en": "Under a scaling by 2, by what factor does a figure's area change?",
+      "sol_en": "Width and height each ×2 → area 2² = <b>4×</b> (determinant = 4)."
+    }
+  },
+  "ch22_04": {
+    "ch": "제22장 일차변환",
+    "sec": "22.3 도형의 상",
+    "title": "합성변환 — 순서가 중요하다",
+    "narr": "변환을 <b>연달아 적용</b>하면(예: 회전한 뒤 대칭) 그게 <b>합성변환</b>이에요. 그리고 합성은 <b>행렬의 곱</b>으로 계산되죠! 중요한 건 <b>순서</b> — 회전 먼저냐 대칭 먼저냐에 따라 결과가 완전히 달라요. 화면을 눌러 순서를 바꿔보세요.",
+    "hint": "▶ 순서 바꾸기 (결과가 달라요!)",
+    "more": "두 변환을 이어서 하면 <b>합성변환</b>이고, 그 행렬은 <b>두 행렬의 곱</b>이에요(나중에 하는 변환을 왼쪽에). 21장에서 본 <b>AB ≠ BA</b>가 여기서 생생해져요 — \"회전 후 대칭\"과 \"대칭 후 회전\"은 다른 도형을 만들죠(직접 해보면 분명!). 이래서 행렬 곱이 교환되지 않는 거예요(추상적 규칙이 아니라 기하학적 사실). 변환의 합성은 군(group) 구조를 이루고, 이것이 대칭성을 다루는 <b>군론</b>과 물리(보존법칙)의 토대예요.",
+    "more_en": "Applying two transformations in succession is a <b>composition</b>, and its matrix is the <b>product of the two matrices</b> (the later transformation on the left). The fact <b>AB ≠ BA</b> from Ch.21 becomes vivid here — \"rotate then reflect\" and \"reflect then rotate\" produce different figures (try it!). This is why matrix multiplication isn't commutative (a geometric fact, not an abstract rule). Compositions of transformations form a group, the foundation of <b>group theory</b> for symmetry and of conservation laws in physics.",
+    "problem": {
+      "q": "합성변환에서 순서를 바꾸면(AB vs BA) 결과는 항상 같을까?",
+      "solution": "아니요. 일반적으로 <b>달라요</b> (행렬 곱은 교환법칙 불성립, AB ≠ BA).",
+      "q_en": "In a composition, does swapping the order (AB vs BA) always give the same result?",
+      "sol_en": "No. In general it <b>differs</b> (matrix multiplication is not commutative, AB ≠ BA)."
+    }
+  },
+  "ch22_05": {
+    "ch": "제22장 일차변환",
+    "sec": "22.3 도형의 상",
+    "title": "고유벡터 — 변하지 않는 방향",
+    "narr": "대부분의 벡터는 변환되면 방향이 바뀌어요. 그런데 어떤 변환에는 <b>방향이 안 변하는 특별한 축</b>이 있어요 — 단지 늘어나거나 줄어들 뿐! 이걸 <b>고유벡터</b>라고 해요. 벡터를 돌려, 변환해도 방향이 그대로인 순간을 찾아보세요.",
+    "hint": "방향을 돌려 변하지 않는 축을 찾으세요",
+    "more": "<b>고유벡터(eigenvector)</b>는 변환 M을 적용해도 <b>방향이 변하지 않는 벡터</b>예요 — <b>Mv = λv</b> (λ는 그 방향으로 늘어나는 배율 = <b>고유값</b>). 즉 변환의 \"뼈대 방향\"이죠. 예) [[2,1],[1,2]]는 (1,1)방향에서 3배(λ=3), (1,−1)방향에서 1배(λ=1)로 늘어요. 고유벡터를 알면 복잡한 변환이 \"각 축으로 그냥 늘이기\"로 단순해져요(대각화). 이 개념이 <b>구글 페이지랭크, 양자역학(에너지=고유값), 주성분분석(PCA), 진동의 공명</b> 등 현대 과학·공학의 핵심 도구예요. 선형대수의 정점이죠.",
+    "more_en": "An <b>eigenvector</b> is a vector whose <b>direction is unchanged</b> by a transformation M — <b>Mv = λv</b> (λ, the <b>eigenvalue</b>, is how much it stretches along that direction). It is the transformation's \"skeleton direction.\" E.g. [[2,1],[1,2]] stretches the (1,1) direction by 3 (λ=3) and the (1,−1) direction by 1 (λ=1). Knowing eigenvectors turns a complex transformation into \"just stretch along each axis\" (diagonalization). This idea powers <b>Google's PageRank, quantum mechanics (energy = eigenvalue), principal component analysis (PCA), and resonance</b> — a pinnacle of linear algebra and modern science.",
+    "problem": {
+      "q": "고유벡터 v가 'Mv = 3v'를 만족할 때 고유값은?",
+      "solution": "<b>3</b>. (그 방향으로 3배 늘어나고 방향은 그대로)",
+      "q_en": "If an eigenvector v satisfies Mv = 3v, what is the eigenvalue?",
+      "sol_en": "<b>3</b> (it stretches 3× along that direction, keeping its direction)."
+    }
+  }
+}

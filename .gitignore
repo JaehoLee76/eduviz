@@ -1,0 +1,11 @@
+# 대용량 원본 자료(수학독본 docx·미적분/물리 PDF·알고리즘 PDF, ~1.8GB) — 저작권+용량으로 커밋 제외
+_content/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# 에디터/임시
+*.swp
+*~
+.vscode/

@@ -1,0 +1,92 @@
+{
+  "ch2_01": {
+    "ch": "제2장 식",
+    "sec": "2.1 다항식",
+    "title": "다항식 — 항·차수·계수",
+    "narr": "지금까지 <b>수</b>를 봤어요. 이제 문자 x가 섞인 <b>식</b>으로 넘어갑니다. 문자와 수의 곱을 더한 게 <b>다항식</b>이에요 — 각 덩어리가 항, 곱해진 수가 계수, 가장 높은 지수가 차수죠. 계수를 바꿔보세요.",
+    "hint": "계수 a, b, c를 바꿔보세요",
+    "more": "<b>다항식</b>은 수와 문자의 곱(항)을 더한 식이에요. 2x²+3x+1 에서 2x², 3x, 1 이 <b>항</b>, 각 항의 숫자(2, 3)가 <b>계수</b>, 가장 높은 지수(2)가 <b>차수</b>죠.<br><br>같은 문자·차수끼리(동류항)만 더하고 뺄 수 있어요: 3x + 2x = 5x. 하지만 3x² + 2x 는 더 못 합쳐요.",
+    "problem": {
+      "q": "다항식 5x³ − 2x + 7 의 차수와 항의 개수는?",
+      "solution": "가장 높은 지수가 3이니 <b>차수 3</b>, 항은 5x³ · (−2x) · 7 로 <b>3개</b>예요.",
+      "q_en": "For 5x³ − 2x + 7, give the degree and the number of terms.",
+      "sol_en": "Highest power is 3 → <b>degree 3</b>; terms 5x³, −2x, 7 → <b>3 terms</b>."
+    },
+    "more_en": "A <b>polynomial</b> is a sum of terms, each a product of a number and a power of x. In 2x²+3x+1, each chunk is a <b>term</b>, the number (2, 3) is the <b>coefficient</b>, and the highest power is the <b>degree</b>. Only <b>like terms</b> (same power) can be combined."
+  },
+  "ch2_02": {
+    "ch": "제2장 식",
+    "sec": "2.1 다항식",
+    "title": "다항식의 곱셈 — 넓이로 보기",
+    "narr": "두 식의 <b>곱</b>은 <b>직사각형의 넓이</b>예요. 가로 (x+a)·세로 (x+b) 직사각형을 <b>화면을 눌러</b> 네 칸으로 펼치면, 각 칸이 곱의 한 항이 됩니다. a, b도 바꿔보세요.",
+    "hint": "화면을 눌러 펼치기 · a,b 바꾸기",
+    "more": "두 다항식의 곱은 <b>직사각형의 넓이</b>로 볼 수 있어요. (x+a)(x+b)를 가로·세로로 두면 넓이가 네 칸으로 갈라지고, 각 칸이 곱의 한 항이 되죠.<br><br>이걸 식으로는 <b>분배법칙</b>이라 해요: 모든 항을 빠짐없이 곱해서 더하면 됩니다.",
+    "problem": {
+      "q": "(x + 4)(x + 2) 를 전개하면?",
+      "solution": "x·x + x·2 + 4·x + 4·2 = <b>x² + 6x + 8</b>. (넓이 네 칸: x², 2x, 4x, 8)",
+      "q_en": "Expand (x + 4)(x + 2).",
+      "sol_en": "x·x + x·2 + 4·x + 4·2 = <b>x² + 6x + 8</b>."
+    },
+    "more_en": "The <b>product</b> of two expressions equals the <b>area</b> of a rectangle. Splitting (x+a)(x+b) into four cells gives the terms of the product. This is the <b>distributive law</b>: multiply every term and add."
+  },
+  "ch2_03": {
+    "ch": "제2장 식",
+    "sec": "2.2 인수분해",
+    "title": "인수분해 — 넓이를 직사각형으로",
+    "narr": "<b>인수분해</b>는 곱셈의 반대예요. x²+5x+6 은 넓이가 같은 <b>하나의 직사각형</b>이죠. 화면을 누르면 점선으로 네 칸(x²·2x·3x·6)으로 나뉘고, 실선으로 굳어 <b>분리</b>돼요. 가로·세로가 바로 인수 (x+2)(x+3)입니다.",
+    "hint": "화면을 눌러 조각 모으기",
+    "more": "<b>인수분해</b>는 전개(곱셈)의 <b>반대</b>예요. x²+5x+6 같은 식을 곱의 형태 (x+2)(x+3)으로 되돌리는 거죠.<br><br>x² + (합)x + (곱) 꼴이면, <b>더해서 가운데 계수, 곱해서 상수항</b>이 되는 두 수를 찾으면 돼요(여기선 2와 3).",
+    "problem": {
+      "q": "x² + 7x + 12 를 인수분해하면?",
+      "solution": "더해서 7, 곱해서 12인 두 수는 3과 4. ∴ <b>(x+3)(x+4)</b>.",
+      "q_en": "Factor x² + 7x + 12.",
+      "sol_en": "Two numbers adding to 7 and multiplying to 12 are 3 and 4 → <b>(x+3)(x+4)</b>."
+    },
+    "more_en": "<b>Factoring</b> is the reverse of multiplying. For x² + (sum)x + (product), find two numbers that <b>add to the middle coefficient and multiply to the constant</b>. The two sides of the rectangle are the <b>factors</b>."
+  },
+  "ch2_04": {
+    "ch": "제2장 식",
+    "sec": "2.2 인수분해",
+    "title": "곱셈 공식 — 합·차의 곱",
+    "narr": "<b>a² − b² = (a+b)(a−b)</b>. 지금 화면은 큰 정사각형에서 b²를 떼어낸 <b>파란 L자</b>예요. 먼저 모양을 천천히 본 뒤, <b>화면을 누르면</b> 이 L자가 잘려 (a+b)(a−b) 직사각형으로 합쳐집니다.",
+    "hint": "화면을 눌러 변형 시작 · 아래 문제 풀기",
+    "more": "자주 나오는 곱셈은 공식으로 외워두면 빨라요. <b>(a+b)(a−b) = a² − b²</b> (합·차의 곱), <b>(a±b)² = a² ± 2ab + b²</b> (완전제곱).<br><br>특히 제곱의 차 a² − b² 꼴은 보자마자 (a+b)(a−b)로 인수분해할 수 있어요.",
+    "problem": {
+      "q": "x² − 25 를 인수분해하면?",
+      "solution": "25 = 5² 이므로 제곱의 차. <b>(x+5)(x−5)</b>.",
+      "q_en": "Factor x² − 25.",
+      "sol_en": "25 = 5², a difference of squares → <b>(x+5)(x−5)</b>."
+    },
+    "more_en": "Memorize key products: <b>(a+b)(a−b) = a² − b²</b> (difference of squares) and <b>(a±b)² = a² ± 2ab + b²</b> (perfect square). A difference of squares factors instantly."
+  },
+  "ch2_05": {
+    "ch": "제2장 식",
+    "sec": "2.3 나눗셈·분수식",
+    "title": "다항식의 나눗셈 — 넓이의 거꾸로",
+    "narr": "나눗셈은 곱셈의 반대죠. 넓이 x²+5x+6 과 한 <b>변 (x+2)</b>를 알 때, <b>나머지 변</b>을 찾는 게 나눗셈이에요. <b>화면을 누르면</b> 숨은 변이 드러납니다. 곱셈·인수분해·나눗셈은 같은 그림의 다른 방향입니다.",
+    "hint": "화면을 눌러 나머지 변 찾기",
+    "more": "다항식 나눗셈은 곱셈의 반대예요. 넓이(전개식)와 한 변(나누는 식)을 알 때 <b>나머지 변(몫)</b>을 찾는 거죠.<br><br>x²+5x+6 을 (x+2)로 나누면, \"(x+2)에 무엇을 곱하면 x²+5x+6 이 될까?\"를 묻는 것과 같아요 → x+3.",
+    "problem": {
+      "q": "(x² + 7x + 12) ÷ (x + 3) 의 몫은?",
+      "solution": "x²+7x+12 = (x+3)(x+4) 이므로 (x+3)으로 나누면 <b>x + 4</b>.",
+      "q_en": "Find the quotient of (x² + 7x + 12) ÷ (x + 3).",
+      "sol_en": "x²+7x+12 = (x+3)(x+4), so dividing by (x+3) gives <b>x + 4</b>."
+    },
+    "more_en": "Polynomial <b>division</b> is the reverse of multiplication: given the area (x²+5x+6) and one side (x+2), find the other side (the <b>quotient</b>). Reading the cells, the quotient is x+3."
+  },
+  "ch2_06": {
+    "ch": "제2장 식",
+    "sec": "2.3 나눗셈·분수식",
+    "title": "분수식 — 약분하기",
+    "narr": "분자와 분모를 <b>인수분해</b>하면 공통 인수를 <b>약분</b>할 수 있어요. 예: (x²−1)/(x+1) = (x+1)(x−1)/(x+1) = <b>x−1</b>. 직접 약분해볼까요?",
+    "hint": "정답을 골라보세요",
+    "more": "<b>분수식</b>은 분자·분모가 다항식인 분수예요. 숫자 분수처럼, 분자·분모를 <b>인수분해해서 공통 인수를 약분</b>하면 간단해져요.<br><br>단, 분모를 0으로 만드는 값은 제외해야 해요(정의되지 않음).",
+    "problem": {
+      "q": "(x² − 9)/(x + 3) 를 간단히 하면? (단 x ≠ −3)",
+      "solution": "x² − 9 = (x+3)(x−3) 이므로 (x+3) 약분 → <b>x − 3</b>.",
+      "q_en": "Simplify (x² − 9)/(x + 3), for x ≠ −3.",
+      "sol_en": "x² − 9 = (x+3)(x−3); cancel (x+3) → <b>x − 3</b>."
+    },
+    "more_en": "A <b>rational expression</b> is a fraction of polynomials. Factor the numerator and denominator, then <b>cancel</b> common factors. Exclude any value that makes the denominator 0."
+  }
+}

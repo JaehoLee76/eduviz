@@ -1,0 +1,77 @@
+{
+  "ch7_01": {
+    "ch": "제7장 지수·로그",
+    "sec": "7.1 지수의 확장",
+    "title": "지수의 확장 — 음수·0·분수 지수",
+    "narr": "<b>1장에서 거듭제곱(2³ = 8)</b>을 배웠죠. 그런데 지수가 <b>음수, 0, 분수</b>면 무슨 뜻일까요? 규칙이 끊기지 않게 자연스럽게 늘리면 — 음수는 역수, 0은 1, 분수는 거듭제곱근이 돼요! 지수 n을 움직여보세요.",
+    "hint": "지수 n을 움직여보세요",
+    "more": "거듭제곱의 규칙(aᵐ·aⁿ = aᵐ⁺ⁿ)이 끊기지 않게 지수를 확장해요. <b>a⁰ = 1</b>, <b>a⁻ⁿ = 1/aⁿ</b>(역수), <b>a^(1/n) = ⁿ√a</b>(거듭제곱근, 1장 회수), <b>a^(m/n) = ⁿ√(aᵐ)</b>. 예: 2^(1/2) = √2 ≈ 1.414, 2⁻¹ = 0.5. 이렇게 지수를 실수 전체로 늘리면 다음의 <b>지수함수</b>가 완성돼요.",
+    "more_en": "We extend exponents so the rule aᵐ·aⁿ = aᵐ⁺ⁿ never breaks. <b>a⁰ = 1</b>, <b>a⁻ⁿ = 1/aⁿ</b> (reciprocal), <b>a^(1/n) = ⁿ√a</b> (the nth root, from Ch.1), <b>a^(m/n) = ⁿ√(aᵐ)</b>. E.g. 2^(1/2) = √2 ≈ 1.414, 2⁻¹ = 0.5. Extending exponents to all real numbers gives the <b>exponential function</b> next.",
+    "problem": {
+      "q": "2^(−2) 의 값은?",
+      "solution": "음의 지수 = 역수: 2⁻² = 1/2² = <b>1/4 = 0.25</b>.",
+      "q_en": "What is 2^(−2)?",
+      "sol_en": "Negative exponent = reciprocal: 2⁻² = 1/2² = <b>1/4 = 0.25</b>."
+    }
+  },
+  "ch7_02": {
+    "ch": "제7장 지수·로그",
+    "sec": "7.2 지수·로그함수",
+    "title": "지수함수 y = aˣ",
+    "narr": "지수를 변수로 만들면 <b>지수함수 y = aˣ</b>예요. 밑 a가 1보다 크면 <b>폭발적으로 증가</b>(복리·세포분열·전염), 1보다 작으면 <b>감소</b>(방사성 붕괴)하죠. 어떤 a든 <b>(0, 1)을 항상 지나요</b>(a⁰ = 1). 밑 a를 바꿔보세요.",
+    "hint": "밑 a를 바꿔보세요",
+    "more": "<b>지수함수 y = aˣ</b> (a > 0, a ≠ 1)는 — a > 1이면 <b>증가</b>(오른쪽으로 폭발), 0 < a < 1이면 <b>감소</b>해요. 정의역은 실수 전체, 치역은 y > 0(항상 양수). x축(y = 0)이 <b>점근선</b>이죠. 모든 지수함수는 <b>(0, 1)</b>을 지나요. 특별한 밑 <b>e ≈ 2.718</b>의 지수함수 eˣ는 미분해도 자기 자신이라 <b>17장 미분</b>의 주인공이 돼요.",
+    "more_en": "The <b>exponential function y = aˣ</b> (a > 0, a ≠ 1): if a > 1 it <b>increases</b> (explosive growth), if 0 < a < 1 it <b>decreases</b>. Its domain is all reals, its range is y > 0 (always positive), and the x-axis (y = 0) is an <b>asymptote</b>. Every exponential passes through <b>(0, 1)</b>. The special base <b>e ≈ 2.718</b> gives eˣ, which is its own derivative — a star of <b>differentiation (Ch.17)</b>.",
+    "problem": {
+      "q": "지수함수 y = 3ˣ 는 점 (0, ?) 를 지난다. ?는?",
+      "solution": "3⁰ = 1 이므로 <b>(0, 1)</b>. 모든 지수함수의 공통점이에요.",
+      "q_en": "The exponential y = 3ˣ passes through (0, ?). What is ?",
+      "sol_en": "3⁰ = 1, so <b>(0, 1)</b> — common to every exponential function."
+    }
+  },
+  "ch7_03": {
+    "ch": "제7장 지수·로그",
+    "sec": "7.2 지수·로그함수",
+    "title": "로그 — 지수의 역함수",
+    "narr": "\"2를 몇 제곱하면 8이 될까?\" 그 <b>몇 제곱</b>을 찾는 게 <b>로그</b>예요. log₂8 = 3 이죠. 로그는 지수함수를 거꾸로 돌린 <b>역함수</b>라서, 그래프가 <b>y = x에 대칭</b>이에요. 파란선(지수)과 초록선(로그)이 거울처럼 마주봐요.",
+    "hint": "지수와 로그는 y = x 에 대칭",
+    "more": "<b>로그 log_a x</b>는 \"a를 몇 번 곱해야 x가 되는가\"예요 — 즉 <b>y = log_a x ⟺ x = aʸ</b>. 지수함수 y = aˣ의 <b>역함수</b>죠. 역함수의 그래프는 원래 함수를 <b>직선 y = x에 대칭</b>시킨 것이고요. 그래서 지수가 지나는 (0, 1)이 로그에서는 <b>(1, 0)</b>으로 뒤바뀌어요. 역함수 개념은 5장 함수의 자연스러운 확장이에요.",
+    "more_en": "A <b>logarithm log_a x</b> asks \"how many times must we multiply a to get x?\" — that is, <b>y = log_a x ⟺ x = aʸ</b>. It is the <b>inverse function</b> of y = aˣ. The graph of an inverse is the original <b>reflected across the line y = x</b>. So the point (0, 1) on the exponential becomes <b>(1, 0)</b> on the logarithm. Inverse functions extend the function idea from Ch.5.",
+    "problem": {
+      "q": "log₂ 8 의 값은?",
+      "solution": "2를 몇 제곱하면 8? 2³ = 8 이므로 <b>3</b>.",
+      "q_en": "What is log₂ 8?",
+      "sol_en": "2 to what power is 8? 2³ = 8, so <b>3</b>."
+    }
+  },
+  "ch7_04": {
+    "ch": "제7장 지수·로그",
+    "sec": "7.2 지수·로그함수",
+    "title": "로그함수 y = logₐ x",
+    "narr": "<b>로그함수 y = logₐ x</b>의 그래프는 천천히, 끝없이 오르는 곡선이에요. x가 0에 다가가면 아래로 한없이 떨어지죠 — <b>y축이 점근선</b>! 그리고 밑이 무엇이든 <b>항상 (1, 0)을 지나요</b>(logₐ1 = 0). 밑 a를 바꿔보세요.",
+    "hint": "밑 a를 바꿔보세요",
+    "more": "<b>로그함수 y = logₐ x</b> (a > 1)는 — <b>정의역 x > 0</b>(양수만), 치역은 실수 전체, <b>y축(x = 0)이 점근선</b>이에요. 항상 <b>(1, 0)</b>을 지나고(logₐ1 = 0), 밑 a가 클수록 더 완만하게 올라가죠. 지수함수의 거울상이라 \"천천히 커지는\" 성질이 있어요 — 큰 수를 다루기 좋아서, 곱셈을 덧셈으로 바꾸는 다음 성질이 강력해져요.",
+    "more_en": "The <b>logarithmic function y = logₐ x</b> (a > 1): its <b>domain is x > 0</b> (positive only), its range is all reals, and the <b>y-axis (x = 0) is an asymptote</b>. It always passes through <b>(1, 0)</b> (logₐ1 = 0), and larger a makes it rise more gently. As the mirror image of the exponential, it grows slowly — which makes the next property (turning multiplication into addition) so powerful.",
+    "problem": {
+      "q": "로그함수 y = log₅ x 가 반드시 지나는 점은?",
+      "solution": "logₐ1 = 0 이므로 <b>(1, 0)</b>. 모든 로그함수의 공통점이에요.",
+      "q_en": "Through which point must y = log₅ x always pass?",
+      "sol_en": "logₐ1 = 0, so <b>(1, 0)</b> — common to every logarithmic function."
+    }
+  },
+  "ch7_05": {
+    "ch": "제7장 지수·로그",
+    "sec": "7.3 로그의 성질",
+    "title": "로그의 마법 — 곱셈을 덧셈으로",
+    "narr": "로그의 가장 강력한 성질! <b>곱셈이 덧셈이 돼요</b>: log(xy) = log x + log y. 두 막대(log x, log y)를 이어붙이면 곱(xy)의 로그 막대와 정확히 같아요. 옛날 천문학·항해 계산을 혁명적으로 바꾼 도구죠. x, y를 바꿔보세요.",
+    "hint": "x, y를 바꿔 합 = 곱 확인",
+    "more": "로그의 핵심 성질이에요 — <b>log(xy) = log x + log y</b> (곱 → 합), <b>log(x/y) = log x − log y</b> (나눗셈 → 뺄셈), <b>log(xⁿ) = n·log x</b> (거듭제곱 → 곱셈). 어려운 연산을 한 단계 쉬운 연산으로 내려주죠. 지수법칙 aᵐ·aⁿ = aᵐ⁺ⁿ을 거꾸로 읽은 거예요. 계산자(slide rule)와 로그표가 이 원리로 만들어졌고, 지금도 데시벨·pH·리히터 규모 같은 <b>로그 스케일</b>에 쓰여요.",
+    "more_en": "The key properties of logarithms: <b>log(xy) = log x + log y</b> (product → sum), <b>log(x/y) = log x − log y</b> (quotient → difference), <b>log(xⁿ) = n·log x</b> (power → product). They lower a hard operation by one level. This is just the exponent law aᵐ·aⁿ = aᵐ⁺ⁿ read backwards. Slide rules and log tables were built on it, and it still powers <b>logarithmic scales</b> like decibels, pH, and the Richter scale.",
+    "problem": {
+      "q": "log₂ 8 + log₂ 4 의 값은?",
+      "solution": "곱으로 합치면 log₂(8×4) = log₂32 = <b>5</b>. (또는 3 + 2 = 5)",
+      "q_en": "What is log₂ 8 + log₂ 4?",
+      "sol_en": "Combine into a product: log₂(8×4) = log₂32 = <b>5</b> (or 3 + 2 = 5)."
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "ch25_01": {
+    "ch": "제25장 엄밀한 극한",
+    "sec": "25.1 수열의 극한 (ε-N)",
+    "title": "ε-N 논법 — 극한을 정밀하게",
+    "narr": "<b>14장에서 \"한없이 가까워진다\"(#82)</b>고 했죠. 그런데 \"한없이\"가 정확히 뭘까요? 19세기 수학자들이 이걸 <b>오차 ε와 단계 N</b>으로 못 박았어요: \"<b>아무리 작은 오차 ε를 줘도, 어떤 N 이후로는 모든 항이 ε 안에 든다</b>\". ε를 줄여보세요 — N이 커져요.",
+    "hint": "ε를 줄이면 N이 커져요",
+    "more": "<b>ε-N 논법</b>(코시·바이어슈트라스): 수열의 극한을 <b>lim aₙ = L ⟺ ∀ε>0, ∃N, (n>N ⟹ |aₙ−L|<ε)</b> 로 정의해요. 풀이: \"<b>어떤</b> 작은 오차 ε를 상대가 요구해도, <b>나는</b> 그에 맞는 단계 N을 찾아 그 후 모든 항을 ε 안에 가둘 수 있다\"는 게임이에요. \"무한히\", \"점점\" 같은 모호한 말을 완전히 추방한, 해석학을 엄밀 학문으로 만든 정의죠(미적분의 논리적 기초). 다음은 함수 버전(ε-δ)이에요.",
+    "more_en": "The <b>ε-N definition</b> (Cauchy, Weierstrass): <b>lim aₙ = L ⟺ ∀ε>0, ∃N, (n>N ⟹ |aₙ−L|<ε)</b>. Reading: \"for <b>any</b> tiny error ε an opponent demands, <b>I</b> can find a stage N beyond which every term stays within ε of L\" — a game. It banishes vague words like \"infinitely\" and \"gradually,\" making analysis rigorous (the logical foundation of calculus). Next is the function version (ε-δ).",
+    "problem": {
+      "q": "ε-N 정의에서 ε이 작아지면 N은 보통 어떻게 되나?",
+      "solution": "<b>커져요</b>(더 뒤까지 가야 좁은 띠에 들어옴). ε마다 그에 맞는 N이 존재하면 수렴.",
+      "q_en": "In the ε-N definition, as ε gets smaller, what typically happens to N?",
+      "sol_en": "It <b>grows</b> (you must go further to enter the narrow band). If an N exists for every ε, it converges."
+    }
+  },
+  "ch25_02": {
+    "ch": "제25장 엄밀한 극한",
+    "sec": "25.2 함수의 극한",
+    "title": "ε-δ 논법 — 함수 극한의 정의",
+    "narr": "함수의 극한도 정밀하게! \"x가 a에 가까우면 f(x)가 L에 가깝다\"를 <b>두 개의 띠</b>로 표현해요: 출력 오차 <b>ε(가로 띠)</b>를 정하면, 그걸 보장하는 입력 폭 <b>δ(세로 띠)</b>가 있어요. ε를 바꿔 δ가 따라 정해지는 걸 보세요.",
+    "hint": "ε(출력)을 정하면 δ(입력)가 결정돼요",
+    "more": "<b>ε-δ 논법</b>: <b>lim(x→a) f(x) = L ⟺ ∀ε>0, ∃δ>0, (0<|x−a|<δ ⟹ |f(x)−L|<ε)</b>. 그림: 목표(L) 둘레에 <b>가로 ε띠</b>를 그으면, a 둘레에 <b>세로 δ띠</b>를 잡아 \"δ띠 안의 x는 모두 ε띠 안의 f(x)\"가 되게 할 수 있어요. ε를 좁히면 δ도 좁혀야 하죠. 17장의 미분(순간변화율)도 결국 이 ε-δ 위에 세워진 극한이에요. 모호함을 완전히 제거한 이 정의가, 미적분의 모든 정리(중간값·평균값·기본정리)에 엄밀한 증명을 줘요.",
+    "more_en": "The <b>ε-δ definition</b>: <b>lim(x→a) f(x) = L ⟺ ∀ε>0, ∃δ>0, (0<|x−a|<δ ⟹ |f(x)−L|<ε)</b>. Picture: draw a <b>horizontal ε-band</b> around the target L; you can choose a <b>vertical δ-band</b> around a so that every x in the δ-band has f(x) in the ε-band. Narrowing ε forces narrowing δ. Even Ch.17's derivative is a limit built on this. Removing all vagueness, this definition gives rigorous proofs to every calculus theorem (intermediate value, mean value, fundamental theorem).",
+    "problem": {
+      "q": "ε-δ에서 ε(출력오차)와 δ(입력폭) 중 누가 먼저 주어지나?",
+      "solution": "<b>ε이 먼저</b> 주어지고, 그에 맞는 <b>δ를 찾아야</b> 해요. (출력 보장 → 입력 폭 결정)",
+      "q_en": "In ε-δ, which is given first, ε (output error) or δ (input width)?",
+      "sol_en": "<b>ε is given first</b>, then you must <b>find a δ</b> that works (guarantee the output, then choose the input width)."
+    }
+  },
+  "ch25_03": {
+    "ch": "제25장 엄밀한 극한",
+    "sec": "25.2 연속함수",
+    "title": "연속의 엄밀한 정의",
+    "narr": "<b>17장에서 연속(#98)</b>을 \"한 붓으로 그리기\"라고 했죠. 이제 엄밀하게: 함수가 점 a에서 연속이려면 <b>극한값이 함숫값과 정확히 같아야</b> 해요 — lim(x→a) f(x) = f(a). 구멍도, 점프도 없이 극한과 값이 만나는 거예요.",
+    "hint": "극한값 = 함숫값",
+    "more": "점 a에서 <b>연속</b>의 엄밀한 정의: <b>lim(x→a) f(x) = f(a)</b> (ε-δ로 풀면: ∀ε ∃δ, |x−a|<δ ⟹ |f(x)−f(a)|<ε). 세 조건 — ①f(a)가 정의됨 ②극한 존재 ③둘이 일치 — 이 모두 충족돼야 해요. 구간 전체에서 연속이면 <b>중간값 정리</b>(연속함수는 두 값 사이 모든 값을 가짐), <b>최대·최소 정리</b>(닫힌구간 연속함수는 최대·최소를 가짐) 같은 강력한 결과가 따라와요 — 18장 최적화의 근거죠. 이 엄밀한 토대 위에서 비로소 미적분 전체가 논리적으로 안전해져요. 25장은 1~24장이 \"왜 옳은가\"를 떠받치는 주춧돌이에요.",
+    "more_en": "The rigorous definition of <b>continuity</b> at a: <b>lim(x→a) f(x) = f(a)</b> (in ε-δ: ∀ε ∃δ, |x−a|<δ ⟹ |f(x)−f(a)|<ε). Three conditions — ① f(a) defined, ② the limit exists, ③ they agree — must all hold. Continuity on an interval yields powerful results: the <b>Intermediate Value Theorem</b> (a continuous function takes every value between two of its values) and the <b>Extreme Value Theorem</b> (a continuous function on a closed interval attains a max and min) — the basis of Ch.18's optimization. On this rigorous foundation, all of calculus becomes logically safe. Ch.25 is the cornerstone holding up why Ch.1–24 are correct.",
+    "problem": {
+      "q": "함수가 한 점에서 연속이기 위한 핵심 조건은?",
+      "solution": "그 점에서 <b>극한값 = 함숫값</b> (lim(x→a) f(x) = f(a)). 구멍·점프 없음.",
+      "q_en": "What is the key condition for a function to be continuous at a point?",
+      "sol_en": "At that point, <b>limit = value</b> (lim(x→a) f(x) = f(a)) — no hole, no jump."
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "algo7_01": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.1 메모이제이션",
+    "title": "피보나치 — 순진한 재귀의 함정",
+    "narr": "<b>수학 13장의 피보나치</b> 기억나죠? F(n) = F(n−1) + F(n−2). 정의를 그대로 재귀로 짜면 깔끔해 보이지만 — <b>같은 값을 수없이 다시 계산</b>해요! F(2)가 벌써 두 번 등장하죠. 이 중복이 눈덩이처럼 불어나 O(2ⁿ) 폭발이에요.",
+    "hint": "분홍 = 중복 계산되는 부분 문제",
+    "more": "피보나치를 정의대로 재귀하면 <b>fib(n) = fib(n−1) + fib(n−2)</b>인데, 이 호출 트리는 <b>같은 부분 문제를 지수적으로 반복</b>해요(fib(2)가 트리 곳곳에 중복). 호출 수가 대략 피보나치 수만큼 늘어 <b>O(2ⁿ)</b> — fib(50)이면 수백억 번 호출, 사실상 멈춰요. 13장에서 수열을 \"공식·반복\"으로 빠르게 구한 것과 달리, 순진한 재귀는 끔찍하게 느리죠. 문제의 본질: <b>겹치는 부분 문제(overlapping subproblems)</b>를 매번 새로 푸는 낭비. 해결책은 단순하면서 강력해요 — \"<b>한 번 푼 건 저장해두자</b>\"(다음 장면, 메모이제이션). 이것이 동적 계획법(DP)의 출발이에요.",
+    "more_en": "Recursing on the definition <b>fib(n) = fib(n−1) + fib(n−2)</b> produces a call tree that <b>repeats the same subproblems exponentially</b> (fib(2) appears all over). The number of calls grows like the Fibonacci numbers themselves — <b>O(2ⁿ)</b>, so fib(50) means tens of billions of calls and effectively hangs. Unlike Ch.13, where sequences were computed fast by formula or iteration, naive recursion is terribly slow. The core issue: re-solving <b>overlapping subproblems</b> from scratch. The fix is simple yet powerful — \"<b>save what you've already solved</b>\" (memoization, next), the start of dynamic programming (DP).",
+    "problem": {
+      "q": "순진한 재귀 피보나치의 시간복잡도는?",
+      "solution": "중복 계산이 지수적으로 늘어 <b>O(2ⁿ)</b> (사실상 사용 불가).",
+      "q_en": "What is the time complexity of naive recursive Fibonacci?",
+      "sol_en": "Repeated computation grows exponentially → <b>O(2ⁿ)</b> (practically unusable)."
+    }
+  },
+  "algo7_02": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.1 메모이제이션",
+    "title": "메모이제이션 — 한 번만 계산하기",
+    "narr": "해결책은 의외로 단순해요: <b>한 번 계산한 답을 메모(저장)해두고 재사용</b>하기! 이미 구한 F(2)를 다시 만나면, 계산 대신 <b>저장값을 꺼내</b> 써요. 중복 가지가 통째로 사라지죠. O(2ⁿ)이 단숨에 <b>O(n)</b>이 돼요!",
+    "hint": "저장된 값은 다시 계산 안 함",
+    "more": "<b>메모이제이션(memoization)</b>은 재귀(위에서 아래로, top-down)는 그대로 두되, <b>각 부분 문제의 답을 표(캐시)에 저장</b>하고, 다음에 같은 문제를 만나면 계산 없이 꺼내 쓰는 기법이에요. 피보나치는 서로 다른 부분 문제가 fib(0)~fib(n) <b>n개뿐</b>이라, 각각 한 번씩만 계산 → <b>O(n)</b>! (2장의 해시·배열로 캐시 구현.) 핵심은 \"공간을 써서 시간을 산다\"는 <b>시간-공간 트레이드오프</b>. 재귀의 우아함을 유지하면서 폭발을 막죠. 같은 일을 반복문으로 아래에서부터 쌓는 방식이 다음의 타뷸레이션이에요 — 둘 다 동적 계획법의 두 얼굴이에요.",
+    "more_en": "<b>Memoization</b> keeps the recursion (top-down) but <b>stores each subproblem's answer in a table (cache)</b>, returning the stored value when the same problem recurs. Fibonacci has only <b>n distinct subproblems</b> (fib(0)…fib(n)), each computed once → <b>O(n)</b>! (Cache via a hash or array, Ch.2.) The idea is a <b>time-space trade-off</b>: spend memory to save time. It preserves the elegance of recursion while killing the blow-up. Doing the same bottom-up with a loop is tabulation (next) — both are two faces of dynamic programming.",
+    "problem": {
+      "q": "메모이제이션으로 피보나치의 시간복잡도는 어떻게 바뀌나?",
+      "solution": "O(2ⁿ) → <b>O(n)</b>. 부분 문제 n개를 각 한 번씩만 계산(저장·재사용).",
+      "q_en": "How does memoization change Fibonacci's time complexity?",
+      "sol_en": "O(2ⁿ) → <b>O(n)</b>. The n subproblems are each computed once (stored and reused)."
+    }
+  },
+  "algo7_03": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.1 메모이제이션",
+    "title": "타뷸레이션 — 아래에서 위로 쌓기",
+    "narr": "메모이제이션이 \"위에서 아래로(재귀+저장)\"라면, <b>타뷸레이션</b>은 <b>아래에서 위로</b>예요. 작은 답부터 표에 차곡차곡 채워 큰 답을 만들죠. dp[i] = dp[i−1] + dp[i−2]. 재귀 없이 반복문 하나면 끝! 칸 수를 늘려 표를 채워보세요.",
+    "hint": "칸을 늘려 표가 채워지는 걸 보세요",
+    "more": "<b>타뷸레이션(tabulation, bottom-up DP)</b>은 <b>가장 작은 부분 문제부터 표(dp 배열)를 채워</b> 큰 문제로 올라가요. 피보나치: dp[0]=0, dp[1]=1, 그 뒤 dp[i]=dp[i−1]+dp[i−2]를 반복문으로 채움 → <b>O(n)</b>. 재귀 호출 비용(스택, 2장)이 없어 메모이제이션보다 보통 빠르고, <b>필요한 이전 값만 기억</b>하면 메모리도 O(1)로 줄일 수 있어요(피보나치는 직전 2개만!). 메모이제이션 vs 타뷸레이션은 같은 DP의 두 방향 — 떠올리기 쉬운 건 재귀+메모, 효율은 보통 타뷸레이션이에요. 다음: 어떤 문제에 DP를 쓸 수 있을까?(두 조건)",
+    "more_en": "<b>Tabulation (bottom-up DP)</b> fills a table (dp array) <b>from the smallest subproblem upward</b>. For Fibonacci: dp[0]=0, dp[1]=1, then dp[i]=dp[i−1]+dp[i−2] via a loop → <b>O(n)</b>. With no recursion overhead (the stack, Ch.2) it is usually faster than memoization, and by <b>keeping only the needed previous values</b> memory can drop to O(1) (Fibonacci needs only the last two!). Memoization vs tabulation are two directions of the same DP — recursion+memo is easier to derive, tabulation is usually more efficient. Next: which problems admit DP? (two conditions)",
+    "problem": {
+      "q": "피보나치를 타뷸레이션으로 풀 때 메모리를 O(1)로 줄일 수 있을까?",
+      "solution": "<b>가능</b>. 직전 두 값만 기억하면 되므로 전체 배열 없이 변수 2개로 충분.",
+      "q_en": "Can tabulated Fibonacci run in O(1) memory?",
+      "sol_en": "<b>Yes</b>. Only the last two values are needed, so two variables suffice (no full array)."
+    }
+  },
+  "algo7_04": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.2 최적 부분 구조",
+    "title": "DP가 통하는 두 조건",
+    "narr": "모든 문제에 DP를 쓸 수 있는 건 아니에요. <b>두 가지 조건</b>이 맞아야 하죠 — ① <b>겹치는 부분 문제</b>(같은 작은 문제가 반복) ② <b>최적 부분 구조</b>(작은 최적해를 합쳐 큰 최적해). 이 둘이 있으면 지수 시간이 다항 시간이 돼요!",
+    "hint": "겹치는 부분문제 + 최적 부분구조",
+    "more": "<b>동적 계획법(DP)</b>이 적용되려면 — ① <b>겹치는 부분 문제(overlapping subproblems)</b>: 같은 부분 문제를 여러 번 풀게 됨 → 저장(메모)으로 절약. ② <b>최적 부분 구조(optimal substructure)</b>: 큰 문제의 최적해가 작은 문제들의 최적해로 구성됨(예: 최단 경로의 부분 경로도 최단). 둘 다 있으면 작은 답을 한 번씩만 구해 재사용하므로 <b>지수 → 다항 시간</b>. DP = <b>분할정복(8장) + 저장</b>이라고 볼 수 있어요(분할정복은 부분 문제가 안 겹치지만, DP는 겹치는 걸 저장으로 해결). 대표 DP 문제: 피보나치, 최단 경로, 배낭, 최장 공통 부분수열(LCS), 편집 거리, 동전 거스름돈. 다음 장면에서 격자 DP로 직접 봐요.",
+    "more_en": "For <b>dynamic programming (DP)</b> to apply — ① <b>overlapping subproblems</b>: the same subproblem is solved repeatedly → saved by memoization; ② <b>optimal substructure</b>: a big problem's optimum is built from subproblems' optima (e.g. a subpath of a shortest path is itself shortest). With both, each small answer is computed once and reused, turning <b>exponential into polynomial time</b>. DP can be seen as <b>divide-and-conquer (Ch.8) + storage</b> (divide-and-conquer has non-overlapping subproblems; DP handles overlapping ones by saving). Classic DP problems: Fibonacci, shortest paths, knapsack, longest common subsequence (LCS), edit distance, coin change. The next scene shows grid DP directly.",
+    "problem": {
+      "q": "분할정복과 동적계획법의 핵심 차이는?",
+      "solution": "DP는 부분 문제가 <b>겹쳐서 저장·재사용</b>; 분할정복은 부분 문제가 안 겹쳐 저장 불필요.",
+      "q_en": "What's the key difference between divide-and-conquer and DP?",
+      "sol_en": "DP has <b>overlapping subproblems that it stores and reuses</b>; divide-and-conquer's subproblems don't overlap, so no storage is needed."
+    }
+  },
+  "algo7_05": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.2 최적 부분 구조",
+    "title": "격자 DP — 표로 푸는 문제",
+    "narr": "DP의 진가는 <b>2차원 표</b>에서 빛나요. 격자의 왼쪽 위에서 오른쪽 아래까지, <b>오른쪽·아래로만</b> 가는 경로는 몇 가지일까요? 각 칸 = <b>위 칸 + 왼쪽 칸</b>의 합! 화면을 눌러 표를 채워보세요. (사실 이건 수학 15장 파스칼 삼각형이에요!)",
+    "hint": "▶ 눌러 칸 채우기 (위+왼쪽)",
+    "more": "<b>격자 경로 DP</b>: m×n 격자에서 오른쪽·아래로만 이동해 끝까지 가는 경로 수를 구해요. 점화식 <b>dp[i][j] = dp[i−1][j] + dp[i][j−1]</b>(그 칸에 오는 길 = 위에서 오거나 왼쪽에서 오거나), 첫 행·열은 1. 표를 한 번 채우면 O(m·n)에 답! 이 \"<b>표를 점화식으로 채우기</b>\"가 DP의 전형이에요 — 배낭(무게-가치 표), LCS(두 문자열 표), 편집 거리가 모두 같은 패턴. 재밌는 연결: 이 경로 수는 사실 <b>조합 C(m+n, m)</b>이고, 표를 채우는 모양이 <b>수학 15장 파스칼 삼각형</b> 그 자체예요(각 수=위 두 수의 합)! 알고리즘과 수학이 같은 구조에서 만나요. 이제 마지막 장 — 알고리즘 설계 전략 전체를 조망합니다.",
+    "more_en": "<b>Grid path DP</b>: count paths from top-left to bottom-right of an m×n grid moving only right and down. Recurrence <b>dp[i][j] = dp[i−1][j] + dp[i][j−1]</b> (arrivals come from above or from the left), with first row and column equal to 1. Filling the table once gives the answer in O(m·n)! This \"<b>fill a table by a recurrence</b>\" is the archetype of DP — knapsack (weight–value table), LCS (two-string table), and edit distance share the pattern. A fun link: this path count is actually the combination <b>C(m+n, m)</b>, and the table is exactly <b>Pascal's triangle (math Ch.15)</b> (each value = sum of the two above)! Algorithms and mathematics meet in the same structure. Now the final chapter — a survey of algorithm design strategies.",
+    "problem": {
+      "q": "격자 DP의 각 칸 값은 어떻게 정해지나?",
+      "solution": "<b>위 칸 + 왼쪽 칸</b> (dp[i][j]=dp[i−1][j]+dp[i][j−1]). 파스칼 삼각형과 같은 규칙!",
+      "q_en": "How is each cell determined in grid path DP?",
+      "sol_en": "<b>Cell above + cell to the left</b> (dp[i][j]=dp[i−1][j]+dp[i][j−1]) — the same rule as Pascal's triangle!"
+    }
+  }
+}

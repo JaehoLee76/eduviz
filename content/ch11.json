@@ -1,0 +1,77 @@
+{
+  "ch11_01": {
+    "ch": "제11장 공간도형",
+    "sec": "11.1 점·직선·평면",
+    "title": "공간좌표 — 차원을 하나 더",
+    "narr": "이제 평면을 벗어나 <b>공간(3차원)</b>으로! 평면에선 좌표가 (x, y) 둘이었죠. 공간에선 <b>높이 z</b> 하나가 더 붙어 <b>(x, y, z)</b> 세 개예요. 우리가 사는 세상이 바로 3차원이죠. z(높이)를 바꿔 점이 떠오르는 걸 보세요.",
+    "hint": "높이 z를 바꿔보세요",
+    "more": "<b>공간좌표</b>는 서로 수직인 세 축 <b>x, y, z</b>로 점의 위치를 <b>(x, y, z)</b> 세 수로 나타내요. 평면(2장)에 \"높이\" 한 축을 더한 거죠. 두 점 사이 거리도 그대로 확장돼요: <b>d = √(Δx² + Δy² + Δz²)</b>(6장 거리공식 + z항). 화면은 3차원을 비스듬히 본 <b>등각투영</b>으로 그린 거예요. 입체를 평면 화면에 그리는 이 투영이 컴퓨터그래픽의 기본이에요.",
+    "more_en": "<b>Space coordinates</b> locate a point with three numbers <b>(x, y, z)</b> along three mutually perpendicular axes x, y, z — the plane (Ch.2) plus one \"height\" axis. The distance formula extends directly: <b>d = √(Δx² + Δy² + Δz²)</b> (Ch.6's formula plus a z-term). The screen shows 3D in an <b>isometric projection</b> — drawing solids on a flat screen, the basis of computer graphics.",
+    "problem": {
+      "q": "원점 O와 점 (2, 3, 6) 사이의 거리는?",
+      "solution": "√(2² + 3² + 6²) = √(4 + 9 + 36) = √49 = <b>7</b>.",
+      "q_en": "Find the distance between the origin O and (2, 3, 6).",
+      "sol_en": "√(2² + 3² + 6²) = √(4 + 9 + 36) = √49 = <b>7</b>."
+    }
+  },
+  "ch11_02": {
+    "ch": "제11장 공간도형",
+    "sec": "11.2 공간벡터",
+    "title": "공간벡터 — 9장 그대로, z 하나 추가",
+    "narr": "<b>9장의 평면벡터</b>를 공간으로 올리면 <b>공간벡터</b>예요. 놀랍게도 바뀌는 게 거의 없어요 — 성분이 <b>(x, y, z)</b>로 하나 늘고, 크기는 <b>√(x²+y²+z²)</b>! 덧셈도, 실수배도, 내적도 전부 z 항만 추가하면 돼요. z 성분을 바꿔보세요.",
+    "hint": "z 성분을 바꿔보세요",
+    "more": "<b>공간벡터 v = (x, y, z)</b>는 평면벡터에 성분 하나가 더해진 거예요 — <b>크기 |v| = √(x² + y² + z²)</b>, <b>덧셈·실수배는 성분별</b>로, <b>내적 a·b = aₓbₓ + a_yb_y + a_zb_z</b> (역시 z항만 추가). 9장에서 배운 모든 규칙이 차원만 올려 그대로 통해요. 다만 3차원에는 평면에 없던 <b>외적(cross product)</b>이 추가되는데, 두 벡터에 수직인 새 벡터를 만들어 평면의 법선을 구하는 데 써요.",
+    "more_en": "A <b>space vector v = (x, y, z)</b> just adds one component to a plane vector — <b>magnitude |v| = √(x² + y² + z²)</b>, <b>addition and scaling componentwise</b>, and <b>dot product a·b = aₓbₓ + a_yb_y + a_zb_z</b> (again just a z-term). Every rule from Ch.9 carries over, only one dimension higher. New in 3D is the <b>cross product</b>, which builds a vector perpendicular to two others — useful for finding a plane's normal.",
+    "problem": {
+      "q": "공간벡터 (2, 3, 6) 의 크기는?",
+      "solution": "√(2² + 3² + 6²) = √49 = <b>7</b>.",
+      "q_en": "Find the magnitude of the space vector (2, 3, 6).",
+      "sol_en": "√(2² + 3² + 6²) = √49 = <b>7</b>."
+    }
+  },
+  "ch11_03": {
+    "ch": "제11장 공간도형",
+    "sec": "11.2 공간벡터",
+    "title": "공간에서의 수직 — 내적",
+    "narr": "<b>내적도 그대로예요</b>: 성분곱의 합. 공간에서도 <b>내적이 0이면 두 벡터는 수직</b>이죠. 그림으로 각도를 보기 어려운 3차원에서, 계산만으로 수직을 알 수 있다는 게 진짜 강력해요. 직접 확인해보세요.",
+    "hint": "내적 = 0 이면 공간에서도 수직",
+    "more": "공간벡터의 <b>내적 a·b = aₓbₓ + a_yb_y + a_zb_z = |a||b|cos θ</b> — 평면(9장)에 z항만 더한 거예요. <b>a·b = 0 ⟺ 수직</b>도 그대로죠. 3차원은 눈으로 각도를 가늠하기 어렵지만, 좌표 계산은 차원에 상관없이 정확해요. 이것이 \"기하를 계산으로\" 바꾸는 벡터·좌표의 힘이에요 — 4차원 이상으로도 똑같이 확장돼서, 데이터·기계학습의 고차원 공간을 다루는 언어가 돼요.",
+    "more_en": "The space dot product <b>a·b = aₓbₓ + a_yb_y + a_zb_z = |a||b|cos θ</b> just adds a z-term to the plane case (Ch.9). The rule <b>a·b = 0 ⟺ perpendicular</b> still holds. In 3D the eye struggles to judge angles, but coordinate computation is exact at any dimension. This is the power of vectors and coordinates — \"geometry as computation\" — and it extends to 4D and beyond, becoming the language of high-dimensional data and machine learning.",
+    "problem": {
+      "q": "a = (1, 2, 2), b = (2, 0, −1) 은 수직인가?",
+      "solution": "a·b = 1·2 + 2·0 + 2·(−1) = 2 − 2 = <b>0 → 수직</b>.",
+      "q_en": "Are a = (1, 2, 2) and b = (2, 0, −1) perpendicular?",
+      "sol_en": "a·b = 1·2 + 2·0 + 2·(−1) = 2 − 2 = <b>0 → yes, perpendicular</b>."
+    }
+  },
+  "ch11_04": {
+    "ch": "제11장 공간도형",
+    "sec": "11.3 직선·평면·구의 방정식",
+    "title": "구의 방정식 — 원의 3차원판",
+    "narr": "<b>6장의 원</b>을 공간으로 올리면 <b>구(球)</b>예요. 원이 \"중심에서 거리가 일정한 평면 위 점들\"이었듯, 구는 \"중심에서 거리가 일정한 <b>공간</b>의 점들\"이죠. 식도 z 하나만 추가돼요! 반지름 r을 바꿔보세요.",
+    "hint": "반지름 r을 바꿔보세요",
+    "more": "<b>구의 방정식</b>: 중심 (a, b, c), 반지름 r인 구는 <b>(x−a)² + (y−b)² + (z−c)² = r²</b> — 6장 원의 방정식에 z항만 더한 거예요. \"중심에서 거리 r\"이라는 거리 공식의 자취죠. 화면에서 구의 <b>윤곽은 원</b>(파랑), z=0 단면인 <b>적도는 타원</b>(초록)으로 보여요. 평면을 자르면 원이 나오고(단면), 직선과는 0·1·2점에서 만나요(접선·할선) — 6장 원의 성질이 3차원으로 그대로 올라가요.",
+    "more_en": "The <b>equation of a sphere</b> with center (a, b, c) and radius r is <b>(x−a)² + (y−b)² + (z−c)² = r²</b> — Ch.6's circle equation plus a z-term. It is the locus of points at distance r from the center. On screen the sphere's <b>silhouette is a circle</b> (blue), while the z=0 <b>equator appears as an ellipse</b> (green). Slicing it by a plane gives a circle; a line meets it in 0, 1, or 2 points — the circle facts of Ch.6, lifted into 3D.",
+    "problem": {
+      "q": "중심 (1, −2, 3), 반지름 4 인 구의 방정식은?",
+      "solution": "(x−1)² + (y+2)² + (z−3)² = <b>16</b>.",
+      "q_en": "Write the equation of the sphere with center (1, −2, 3) and radius 4.",
+      "sol_en": "(x−1)² + (y+2)² + (z−3)² = <b>16</b>."
+    }
+  },
+  "ch11_05": {
+    "ch": "제11장 공간도형",
+    "sec": "11.3 직선·평면·구의 방정식",
+    "title": "평면의 방정식 — 법선이 결정한다",
+    "narr": "공간의 <b>평면</b>은 어떻게 식으로 쓸까요? 비밀은 <b>법선벡터</b>(평면에 수직인 화살표)예요. 법선 n = (a, b, c) 하나면 평면의 기울기가 완전히 정해져서 <b>ax + by + cz = d</b>가 되죠. 내적 = 0(수직)이 핵심 도구예요.",
+    "hint": "법선벡터가 평면의 방향을 정해요",
+    "more": "<b>평면의 방정식 ax + by + cz = d</b> 에서 계수 <b>(a, b, c)가 바로 법선벡터 n</b>이에요. 원리: 평면 위 임의의 두 점을 잇는 벡터는 법선과 <b>수직</b>(내적 0)이어야 한다 → 그 조건을 풀면 위 식이 나와요. 그래서 \"점 하나 + 법선 하나\"면 평면이 유일하게 정해지죠(9·11장 내적의 직접 응용). 점과 평면 사이 거리, 두 평면이 이루는 각도도 모두 법선의 내적으로 구해요. 직선은 <b>방향벡터</b>로, 평면은 <b>법선벡터</b>로 — 벡터가 공간 도형의 언어예요.",
+    "more_en": "In the <b>plane equation ax + by + cz = d</b>, the coefficients <b>(a, b, c) are exactly the normal vector n</b>. Why: any vector between two points on the plane must be <b>perpendicular</b> to the normal (dot product 0); solving that condition yields the equation. So \"one point + one normal\" fixes a plane uniquely (a direct use of the dot product, Ch.9/11). Distance from a point to a plane, and the angle between two planes, also come from normals via the dot product. A line is given by a <b>direction vector</b>, a plane by a <b>normal vector</b> — vectors are the language of solid geometry.",
+    "problem": {
+      "q": "평면 2x − y + 3z = 5 의 법선벡터는?",
+      "solution": "계수가 곧 법선: <b>(2, −1, 3)</b>.",
+      "q_en": "What is the normal vector of the plane 2x − y + 3z = 5?",
+      "sol_en": "The coefficients are the normal: <b>(2, −1, 3)</b>."
+    }
+  }
+}
