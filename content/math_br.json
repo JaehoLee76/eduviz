@@ -59,6 +59,96 @@
       "sol_en": "<b>2 sin θ cos θ</b> (addition formula with α=β=θ)."
     }
   },
+  "math_br_coslaw": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.3 삼각함수와 삼각형 (자세히)",
+    "title": "코사인법칙 — 피타고라스의 일반화",
+    "narr": "<b>1장의 피타고라스 정리</b>는 직각삼각형에서만 c²=a²+b²였죠. 직각이 아닌 삼각형은? <b>코사인법칙</b>이 답이에요: <b>c² = a² + b² − 2ab·cos C</b>. 보정항 −2ab cosC가 각도를 반영하죠. C가 90°면 cos C=0이라 피타고라스로 돌아가요!",
+    "hint": "C=90°면 피타고라스로 환원",
+    "more": "<b>코사인법칙</b>: 삼각형의 세 변 a, b, c와 c의 대각 C에 대해 <b>c² = a² + b² − 2ab·cos C</b>. 피타고라스 정리(1장)를 <b>모든 삼각형</b>으로 확장한 것 — C=90°이면 cos90°=0이라 c²=a²+b²로 환원! 쓰임: <b>두 변과 낀 각</b>으로 나머지 변 구하기(SAS), 세 변으로 각 구하기(cos C = (a²+b²−c²)/2ab). 사인법칙(#56)이 \"변/sin(대각) 일정\"이라면, 코사인법칙은 \"한 각과 세 변\"을 직접 잇죠 — 둘이 삼각형 풀이의 양대 도구예요. 측량·내비게이션·물리(벡터 합의 크기 |a+b|²=|a|²+|b|²+2|a||b|cosθ)에서 핵심이에요. 9장 벡터 내적(a·b=|a||b|cosθ)으로 증명하면 한 줄이에요.",
+    "more_en": "<b>Law of Cosines</b>: for a triangle with sides a, b, c and angle C opposite c, <b>c² = a² + b² − 2ab·cos C</b>. It extends the Pythagorean theorem (Ch.1) to <b>any triangle</b> — when C=90°, cos90°=0 reduces it to c²=a²+b²! Uses: find a side from <b>two sides and the included angle</b> (SAS), or find an angle from three sides (cos C = (a²+b²−c²)/2ab). While the Law of Sines (#56) gives \"side/sin(opposite) is constant,\" the Law of Cosines directly links one angle to all three sides — the two main tools for solving triangles. Central to surveying, navigation, and physics (the magnitude of a vector sum |a+b|²=|a|²+|b|²+2|a||b|cosθ). Proved in one line via the dot product (Ch.9, a·b=|a||b|cosθ).",
+    "problem": {
+      "q": "a=3, b=4, 낀 각 C=90°일 때 c는? (코사인법칙으로)",
+      "solution": "c²=9+16−2·3·4·cos90°=25−0=25 → c=<b>5</b> (피타고라스와 동일).",
+      "q_en": "With a=3, b=4, included angle C=90°, find c (using the Law of Cosines).",
+      "sol_en": "c²=9+16−2·3·4·cos90°=25−0=25 → c=<b>5</b> (same as Pythagoras)."
+    }
+  },
+  "math_br_demoivre": {
+    "ch": "제10장 복소평면",
+    "sec": "10.2 복소수와 평면기하 (자세히)",
+    "title": "드무아브르 정리 — 거듭제곱은 회전",
+    "narr": "<b>복소수 곱셈은 회전+확대(#65)</b>였죠. 그럼 같은 복소수를 n번 곱하면(거듭제곱)? <b>크기는 n제곱, 각은 n배</b>가 돼요! z = r∠θ → zⁿ = rⁿ∠nθ. 이게 <b>드무아브르 정리</b>예요. n을 바꿔 각이 배가되는 걸 보세요.",
+    "hint": "크기 rⁿ, 각 nθ",
+    "more": "<b>드무아브르 정리</b>: 극형식 z = r(cos θ + i sin θ)에 대해 <b>zⁿ = rⁿ(cos nθ + i sin nθ)</b>. 곱셈에서 \"크기는 곱, 각은 합\"(#65)을 n번 반복한 결과 — 거듭제곱이 곧 회전의 반복! 강력한 응용: <b>1의 n제곱근</b>(zⁿ=1의 해)은 복소평면 단위원에 <b>정n각형 꼭짓점</b>으로 균등 배치돼요(각 2πk/n). 이 단위근이 <b>FFT(알고리즘)</b>·신호처리·다항식 근의 핵심이죠. 또 (cosθ+isinθ)ⁿ을 전개하면 cos nθ·sin nθ를 cosθ·sinθ로 표현하는 <b>다배각 공식</b>이 한꺼번에 나와요(2배각·3배각…). 복소수가 삼각함수와 거듭제곱을 하나로 묶는 우아함이에요. 오일러 공식 e^(iθ)로 쓰면 (e^(iθ))ⁿ=e^(inθ)로 당연해지죠.",
+    "more_en": "<b>De Moivre's theorem</b>: for z = r(cos θ + i sin θ), <b>zⁿ = rⁿ(cos nθ + i sin nθ)</b>. It is \"multiply magnitudes, add angles\" (#65) repeated n times — a power is repeated rotation! A powerful use: the <b>n-th roots of unity</b> (solutions of zⁿ=1) sit on the unit circle as the <b>vertices of a regular n-gon</b> (angles 2πk/n). These roots of unity are central to the <b>FFT (algorithms)</b>, signal processing, and polynomial roots. Also, expanding (cosθ+isinθ)ⁿ yields the <b>multiple-angle formulas</b> at once (double-, triple-angle…). The elegance of complex numbers uniting trigonometry and powers. With Euler's formula e^(iθ), it's obvious: (e^(iθ))ⁿ=e^(inθ).",
+    "problem": {
+      "q": "z의 크기 2, 편각 30°일 때 z³의 크기와 편각은?",
+      "solution": "크기 2³=<b>8</b>, 편각 3·30°=<b>90°</b> (드무아브르).",
+      "q_en": "If z has modulus 2 and argument 30°, find the modulus and argument of z³.",
+      "sol_en": "Modulus 2³=<b>8</b>, argument 3·30°=<b>90°</b> (De Moivre)."
+    }
+  },
+  "math_br_geomsum": {
+    "ch": "제13장 수열",
+    "sec": "13.1 수열과 그 합 (자세히)",
+    "title": "등비수열의 합 — 밀어서 빼기",
+    "narr": "등비수열 a + ar + ar² + … + arⁿ⁻¹ 을 어떻게 한 방에 더할까요? 멋진 트릭: <b>전체에 r을 곱한 식(rS)을 원래 식(S)에서 빼면</b> 가운데 항이 전부 상쇄돼요! 남는 건 깔끔한 공식 하나. 그리고 무한히 가면 <b>#80 무한등비급수</b>가 나오죠.",
+    "hint": "S − rS 로 가운데를 상쇄",
+    "more": "<b>등비수열 합 공식 유도</b>: S = a + ar + ar² + … + arⁿ⁻¹ 라 두고, 양변에 r을 곱하면 rS = ar + ar² + … + arⁿ. 두 식을 빼면(S − rS) 겹치는 항이 모두 상쇄돼 <b>S(1−r) = a − arⁿ</b> → <b>S = a(1−rⁿ)/(1−r)</b> (r≠1). 이 \"한 칸 밀어서 빼기(telescoping)\"가 핵심 트릭이에요. 여기서 <b>|r|<1이고 n→∞</b>이면 rⁿ→0(14장 극한)이라 <b>S = a/(1−r)</b> — 13장 #80 무한등비급수 공식이 바로 나와요! 쓰임: 복리·연금 계산, 0.999…=1 증명, 프랙탈 길이, 컴퓨터과학의 분할상환 분석(동적배열 1+2+4+…). 유한합과 무한합이 하나의 유도로 연결돼요.",
+    "more_en": "<b>Deriving the geometric series sum</b>: let S = a + ar + ar² + … + arⁿ⁻¹; multiply by r to get rS = ar + ar² + … + arⁿ. Subtract (S − rS) and the overlapping terms cancel, leaving <b>S(1−r) = a − arⁿ</b> → <b>S = a(1−rⁿ)/(1−r)</b> (r≠1). This \"shift and subtract (telescoping)\" is the key trick. If <b>|r|<1 and n→∞</b>, then rⁿ→0 (Ch.14 limits), giving <b>S = a/(1−r)</b> — exactly Ch.13's infinite geometric series (#80)! Uses: compound interest and annuities, proving 0.999…=1, fractal lengths, and amortized analysis in CS (dynamic arrays 1+2+4+…). Finite and infinite sums connect through one derivation.",
+    "problem": {
+      "q": "2 + 2·3 + 2·3² + … + 2·3⁴ 의 합은? (a=2, r=3, n=5)",
+      "solution": "S = 2(1−3⁵)/(1−3) = 2(1−243)/(−2) = <b>242</b>.",
+      "q_en": "Sum 2 + 2·3 + 2·3² + … + 2·3⁴ (a=2, r=3, n=5).",
+      "sol_en": "S = 2(1−3⁵)/(1−3) = 2(1−243)/(−2) = <b>242</b>."
+    }
+  },
+  "math_br_logbase": {
+    "ch": "제7장 지수·로그",
+    "sec": "7.3 로그의 성질 (자세히)",
+    "title": "로그의 밑변환 & 자연로그",
+    "narr": "log₂7 을 계산기로 어떻게 구할까요? 계산기엔 보통 ln(밑 e)이나 log(밑 10)만 있어요. <b>밑변환 공식</b>으로 어떤 밑이든 바꿀 수 있어요: <b>logₐ x = ln x / ln a</b>. 그리고 미적분에서 가장 자연스러운 밑은 <b>e</b>예요 — 그래서 '자연'로그 ln!",
+    "hint": "logₐ x = ln x / ln a",
+    "more": "<b>밑변환 공식</b>: <b>logₐ x = (log_b x)/(log_b a)</b> — 어떤 밑 a의 로그도 다른 밑 b로 환산해요(계산기는 ln·log만 있어도 충분). <b>자연로그 ln</b>은 밑이 <b>e≈2.718</b>(#86 자연상수)인 로그예요. 왜 e가 '자연'스러울까? <b>(ln x)′ = 1/x</b>, <b>(eˣ)′ = eˣ</b> 처럼 미적분 공식이 가장 깔끔해지기 때문이에요(다른 밑은 ln a 같은 군더더기 상수가 붙음). 그래서 과학·공학·통계·정보이론(엔트로피)·복잡도 분석의 기본 밑이 e죠. 로그 자체의 위력(곱→합 #51)에 더해, '어떤 밑이든 자유롭게 오간다 + e가 미적분의 본거지'라는 게 로그를 완성해요. 14장에서 본 e가 7장 로그와 17장 미분을 잇는 다리예요.",
+    "more_en": "<b>Change of base</b>: <b>logₐ x = (log_b x)/(log_b a)</b> — convert a logarithm of any base a into another base b (a calculator with only ln and log suffices). The <b>natural log ln</b> has base <b>e≈2.718</b> (#86, the natural constant). Why is e \"natural\"? Because calculus formulas become cleanest: <b>(ln x)′ = 1/x</b>, <b>(eˣ)′ = eˣ</b> (other bases carry an extra constant like ln a). So e is the default base in science, engineering, statistics, information theory (entropy), and complexity analysis. Beyond logs' power (product→sum #51), \"move freely between bases + e is calculus's home\" completes the picture. The e of Ch.14 bridges Ch.7 logs and Ch.17 differentiation.",
+    "problem": {
+      "q": "log₂ 8 을 자연로그로 표현하면?",
+      "solution": "밑변환: log₂8 = ln8/ln2 = <b>3</b> (8=2³이므로).",
+      "q_en": "Express log₂ 8 using natural logarithms.",
+      "sol_en": "Change of base: log₂8 = ln8/ln2 = <b>3</b> (since 8=2³)."
+    }
+  },
+  "math_br_cross": {
+    "ch": "제11장 공간도형",
+    "sec": "11.2 공간벡터 (자세히)",
+    "title": "벡터의 외적 — 평면 밖으로",
+    "narr": "<b>내적(#60)</b>은 두 벡터로 '수(스칼라)'를 만들었죠. 3차원에는 또 다른 곱 <b>외적</b>이 있어요 — 두 벡터에 <b>동시에 수직인 새 벡터</b>를 만들죠! 그 크기는 두 벡터가 만드는 <b>평행사변형의 넓이</b>(|a||b|sinθ)예요. 법선·회전력·3D 그래픽의 핵심이에요.",
+    "hint": "결과는 두 벡터에 수직인 벡터",
+    "more": "<b>벡터의 외적(cross product) a×b</b>는 (3차원 전용) 두 벡터에 <b>모두 수직인 벡터</b>예요. 방향은 오른손 법칙, 크기는 <b>|a×b| = |a||b|sin θ = 평행사변형 넓이</b>. 내적(a·b=|a||b|cosθ, 스칼라, 평행도)과 짝을 이루죠 — 내적은 cos(나란함), 외적은 sin(직교성·넓이). 성분으로는 행렬식(21장)으로 계산해요: a×b = |i j k; a₁a₂a₃; b₁b₂b₃|. 핵심 성질: <b>a×b = −b×a</b>(순서 바꾸면 방향 반대), 평행하면 0. 쓰임: <b>평면의 법선벡터(#71)</b> 구하기, 물리의 <b>토크·각운동량·로런츠 힘</b>, 3D 그래픽의 면 방향·조명 계산, 삼각형 넓이. 내적+외적이 공간 기하의 두 곱셈이에요(2차원엔 외적이 스칼라로 축약).",
+    "more_en": "The <b>cross product a×b</b> (3D only) is a vector <b>perpendicular to both</b> a and b. Its direction follows the right-hand rule, and its magnitude is <b>|a×b| = |a||b|sin θ = the area of the parallelogram</b>. It pairs with the dot product (a·b=|a||b|cosθ, a scalar, measuring alignment) — dot uses cos (parallelism), cross uses sin (perpendicularity, area). In components it's a determinant (Ch.21): a×b = |i j k; a₁a₂a₃; b₁b₂b₃|. Key properties: <b>a×b = −b×a</b> (swapping reverses direction), and it is 0 for parallel vectors. Uses: finding a plane's <b>normal vector (#71)</b>, physics' <b>torque, angular momentum, Lorentz force</b>, surface orientation and lighting in 3D graphics, and triangle areas. Dot and cross are the two products of space geometry (in 2D the cross reduces to a scalar).",
+    "problem": {
+      "q": "두 벡터가 평행할 때 외적 a×b 는?",
+      "solution": "<b>영벡터(0)</b>. sinθ=sin0°=0 → |a×b|=0 (평행사변형 넓이 0).",
+      "q_en": "What is a×b when the two vectors are parallel?",
+      "sol_en": "The <b>zero vector</b>. sinθ=sin0°=0 → |a×b|=0 (zero parallelogram area)."
+    }
+  },
+  "math_br_inttech": {
+    "ch": "제19장 적분",
+    "sec": "19.2 부정적분 (자세히)",
+    "title": "치환적분 & 부분적분",
+    "narr": "미분은 규칙대로 기계적이지만, <b>적분은 \"기술\"</b>이 필요해요. 두 핵심 도구: <b>치환적분</b>(연쇄법칙을 거꾸로)과 <b>부분적분</b>(곱의 미분을 거꾸로). 둘 다 <b>미분 법칙(#100.1)을 뒤집은 것</b>이에요 — 미분을 알면 적분의 절반을 안 셈!",
+    "hint": "미분 법칙을 거꾸로",
+    "more": "적분의 두 핵심 기법(미분 법칙의 역) — <b>① 치환적분</b>: <b>∫ f(g(x))·g′(x) dx = ∫ f(u) du</b> (u=g(x)). 연쇄법칙(#100.1)의 역연산으로, '안쪽 함수의 미분이 곱해져 있을 때' 변수를 바꿔 단순화. 예) ∫2x·cos(x²)dx → u=x² → ∫cos u du = sin(x²)+C. <b>② 부분적분</b>: <b>∫ u dv = uv − ∫ v du</b>. 곱의 미분 (uv)′=u′v+uv′을 적분해 정리한 것 — '곱으로 된 적분'을 더 쉬운 적분으로 옮김. 예) ∫x·eˣdx → u=x, dv=eˣdx → x·eˣ−∫eˣdx=(x−1)eˣ+C. 어느 걸 u로 둘지는 LIATE 순서(로그·역삼각·다항·삼각·지수) 요령. 적분이 미분보다 어려운 이유: 미분은 항상 되지만 적분은 초등함수로 안 되는 경우도 많음(예 ∫eˣ²dx). 그래서 적분은 '패턴 인식 기술'이에요 — 그 토대가 바로 미분 법칙을 거꾸로 읽는 것이죠.",
+    "more_en": "Two core integration techniques (inverses of differentiation rules) — <b>① Substitution</b>: <b>∫ f(g(x))·g′(x) dx = ∫ f(u) du</b> (u=g(x)). The reverse of the chain rule (#100.1): when an inner function's derivative is present, change variables to simplify. E.g. ∫2x·cos(x²)dx → u=x² → ∫cos u du = sin(x²)+C. <b>② Integration by parts</b>: <b>∫ u dv = uv − ∫ v du</b>. Obtained by integrating the product rule (uv)′=u′v+uv′ — it trades a product-integral for an easier one. E.g. ∫x·eˣdx → u=x, dv=eˣdx → x·eˣ−∫eˣdx=(x−1)eˣ+C. Which factor to call u follows the LIATE heuristic (log, inverse-trig, algebraic, trig, exponential). Why integration is harder than differentiation: differentiation always works, but many integrals have no elementary form (e.g. ∫eˣ²dx). So integration is a \"pattern-recognition craft\" — founded on reading the differentiation rules backwards.",
+    "problem": {
+      "q": "∫ 2x·(x²+1)³ dx 를 치환적분으로 풀면?",
+      "solution": "u=x²+1, du=2x dx → ∫u³du = u⁴/4 = <b>(x²+1)⁴/4 + C</b>.",
+      "q_en": "Use substitution to evaluate ∫ 2x·(x²+1)³ dx.",
+      "sol_en": "u=x²+1, du=2x dx → ∫u³du = u⁴/4 = <b>(x²+1)⁴/4 + C</b>."
+    }
+  },
   "math_br_difrules": {
     "ch": "제17장 미분",
     "sec": "17.4 여러 미분법 (자세히)",
