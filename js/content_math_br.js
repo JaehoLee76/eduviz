@@ -275,8 +275,119 @@
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('= (cos'+this.s.deg+'°, sin'+this.s.deg+'°)', E.W/2, E.H*0.16);
       if(this.s.deg===180){ ctx.fillStyle='#f4a0c0'; ctx.font='600 16px sans-serif'; ctx.fillText('θ=π → e^(iπ) = −1 → e^(iπ) + 1 = 0  ★', E.W/2, E.H*0.82); }
       E.big('오일러 공식:  e^(iθ) = cos θ + i sin θ', '지수·삼각·복소수를 하나로 묶는 마법! 복소수 극형식(#64)의 정수. θ=π면 e^(iπ)+1=0 — 수학에서 가장 아름다운 등식(5대 상수 e·i·π·1·0). 드무아브르·FFT가 여기서'); }
+  },
+
+  // ══════ 함수란(ch5_01) ▸ 합성함수와 역함수 ══════
+  { id:'math_br_compinv', branchOf:'ch5_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cy=E.H*0.36;
+      function box(cx,t,sub,col){ var w=E.W*0.13,h=58; ctx.fillStyle='rgba(122,184,255,0.08)'; ctx.strokeStyle=col; ctx.lineWidth=2; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(cx-w/2,cy-h/2,w,h,12);ctx.fill();ctx.stroke();}else ctx.strokeRect(cx-w/2,cy-h/2,w,h); ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(t,cx,cy-2); ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText(sub,cx,cy+18); }
+      ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('합성함수 f∘g : g를 먼저, f를 나중에', E.W/2, E.H*0.20);
+      box(E.W*0.2,'x','입력','#cfcdc6'); box(E.W*0.42,'g','×2','#8fe3b5'); box(E.W*0.64,'f','+1','#7ab8ff'); box(E.W*0.84,'f(g(x))','=2x+1','#ffb27a');
+      AV_arrow(ctx,E.W*0.27,cy,E.W*0.355,cy); AV_arrow(ctx,E.W*0.49,cy,E.W*0.575,cy); AV_arrow(ctx,E.W*0.71,cy,E.W*0.775,cy);
+      ctx.fillStyle='#8fe3b5'; ctx.font='14px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('역함수 f⁻¹ : f가 한 일을 거꾸로 되돌림 (y=x에 대칭, 7장 로그-지수!)', E.W/2, E.H*0.62);
+      E.big('합성함수 f∘g & 역함수 f⁻¹', '함수를 이어 붙이면 합성(g→f), 거꾸로 되돌리면 역함수! 역함수 그래프는 y=x 대칭(7장 로그=지수 역함수). 연쇄법칙(#100.1)·암복호화가 이 구조예요'); }
+  },
+
+  // ══════ 평행과 수직(ch6_04) ▸ 점과 직선 사이의 거리 ══════
+  { id:'math_br_ptline', branchOf:'ch6_04',
+    enter:function(E){ this.s={px:1,py:3}; E.Plot.range(-3,5,-2,5);
+      E.controls('<div class="ctrl"><label>점 x</label><input type="range" id="qx" min="-2" max="4" step="1" value="1"><output id="qxo">1</output><label style="margin-left:14px">점 y</label><input type="range" id="qy" min="-1" max="4" step="1" value="3"><output id="qyo">3</output></div>');
+      var self=this; E.bind('#qx','input',function(e){ self.s.px=+e.target.value; document.getElementById('qxo').textContent=e.target.value; E.blip(440,0.1); });
+      E.bind('#qy','input',function(e){ self.s.py=+e.target.value; document.getElementById('qyo').textContent=e.target.value; E.blip(420,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, px=this.s.px, py=this.s.py; P.axes();
+      // 직선 x - y + 1 = 0  (y = x+1), a=1,b=-1,c=1
+      P.curve(function(x){return x+1;}, '#7ab8ff');
+      // 수선의 발
+      var a=1,b=-1,c=1, t=(a*px+b*py+c)/(a*a+b*b), fx=px-a*t, fy=py-b*t, d=Math.abs(a*px+b*py+c)/Math.sqrt(a*a+b*b);
+      ctx.strokeStyle='rgba(244,160,192,0.7)'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(fx),P.Y(fy)); ctx.stroke(); ctx.setLineDash([]);
+      P.dot(px,py,'#ffb27a','P('+px+','+py+')');
+      ctx.fillStyle='#8fe3b5'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('거리 = |1·'+px+' −1·'+py+' +1| / √2 = '+d.toFixed(2), E.W/2, E.H*0.80);
+      E.big('점과 직선 사이 거리 = |ax₀+by₀+c|/√(a²+b²)', '점에서 직선까지 가장 짧은(수직) 거리 공식. 직선 ax+by+c=0과 점 (x₀,y₀). 정사영(#60.1)·법선벡터로 유도. 충돌·최적화·회귀의 기본'); }
+  },
+
+  // ══════ 포물선(ch12_01) ▸ 반사 성질 ══════
+  { id:'math_br_parabref', branchOf:'ch12_01',
+    enter:function(E){ E.setOn([]); E.Plot.range(-4,4,-0.5,6); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
+      P.curve(function(x){return x*x/4;}, '#7ab8ff'); // 초점 (0,1)
+      P.dot(0,1,'#ffb27a','초점 F');
+      // 평행 광선(아래로) → 포물선 → 초점
+      [-3,-2,-1,1,2,3].forEach(function(x0){ var y0=x0*x0/4;
+        ctx.strokeStyle='rgba(143,227,181,0.6)'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(P.X(x0),P.Y(6)); ctx.lineTo(P.X(x0),P.Y(y0)); ctx.stroke(); // 수직 입사
+        ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.beginPath(); ctx.moveTo(P.X(x0),P.Y(y0)); ctx.lineTo(P.X(0),P.Y(1)); ctx.stroke(); }); // 초점으로 반사
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('축에 평행한 빛(초록) → 포물면 반사 → 모두 초점 F로(주황)', E.W/2, E.H*0.82);
+      E.big('포물선의 반사 성질 — 빛을 한 점에', '축에 평행하게 들어온 모든 빛·전파가 반사되면 정확히 초점에 모여요! 위성 안테나·반사망원경·자동차 헤드라이트(거꾸로: 초점 광원→평행빔)의 원리. 포물선 정의(초점·준선, #72)의 선물'); }
+  },
+
+  // ══════ 순열(ch15_02) ▸ 비둘기집 원리 ══════
+  { id:'math_br_pigeon', branchOf:'ch15_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, holes=4, hw=90, gap=24, total=holes*hw+(holes-1)*gap, x0=E.W/2-total/2, y=E.H*0.5;
+      for(var i=0;i<holes;i++){ var x=x0+i*(hw+gap);
+        ctx.fillStyle='rgba(122,184,255,0.08)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(x,y,hw,70); ctx.strokeRect(x,y,hw,70);
+        ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('상자 '+(i+1),x+hw/2,y+88); }
+      // 비둘기 5마리: 상자1에 2마리
+      var pigeons=[[0,0.3],[0,0.7],[1,0.5],[2,0.5],[3,0.5]];
+      pigeons.forEach(function(p){ var x=x0+p[0]*(hw+gap)+hw*p[1], on=(p[0]===0); ctx.font='26px sans-serif'; ctx.textAlign='center'; ctx.fillText('🐦',x,y+44); });
+      ctx.fillStyle='#ffb27a'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText('비둘기 5 > 상자 4 → 적어도 한 상자엔 2마리 이상!', E.W/2, E.H*0.30);
+      E.big('비둘기집 원리 — 너무 당연해서 강력한', 'n+1마리를 n개 상자에 넣으면 반드시 한 상자엔 2마리 이상. 너무 뻔하지만 강력한 증명 도구! 예) 서울에 머리카락 수 같은 두 사람 존재, 생일 같은 사람(15장 확률의 생일문제). 존재성 증명의 마법'); }
+  },
+
+  // ══════ 평균값정리(ch18_01) ▸ 뉴턴법 ══════
+  { id:'math_br_newton', branchOf:'ch18_01',
+    enter:function(E){ this.s={step:1}; E.Plot.range(-0.5,3,-3,7);
+      E.controls('<div class="ctrl"><label>반복 횟수</label><input type="range" id="nt" min="1" max="5" step="1" value="1"><output id="nto">1</output></div>');
+      var self=this; E.bind('#nt','input',function(e){ self.s.step=+e.target.value; document.getElementById('nto').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, k=this.s.step; P.axes();
+      function f(x){return x*x-2;} function df(x){return 2*x;}
+      P.curve(f, '#7ab8ff');
+      P.dot(Math.sqrt(2),0,'rgba(143,227,181,0.5)','√2');
+      var x=2; // x0
+      for(var i=0;i<k;i++){ var fx=f(x), slope=df(x), xn=x-fx/slope;
+        // 접선
+        ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(fx)); ctx.lineTo(P.X(xn),P.Y(0)); ctx.stroke();
+        ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(fx)); ctx.lineTo(P.X(x),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
+        P.dot(x,fx,'#ffb27a'); x=xn; }
+      P.dot(x,0,'#ffb27a','x'+k+'≈'+x.toFixed(3));
+      E.big('뉴턴법:  xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)  →  '+x.toFixed(4), '방정식 f(x)=0의 근을 접선(#102)으로 빠르게! 접선이 x축과 만나는 점을 새 추정값으로 반복. √2를 몇 번 만에 정밀하게 — 컴퓨터의 √·나눗셈 계산법'); }
+  },
+
+  // ══════ 두 곡선 사이 넓이(ch20_01) ▸ 적분의 평균값 정리 ══════
+  { id:'math_br_intmean', branchOf:'ch20_01',
+    enter:function(E){ E.setOn([]); E.Plot.range(-0.5,3.5,-0.5,5); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, a=0,b=3; P.axes();
+      function f(x){return 0.4*x*x+0.5;}
+      var y0=P.Y(0);
+      // 곡선 아래 넓이
+      ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.beginPath(); ctx.moveTo(P.X(a),y0); for(var i=0;i<=60;i++){var t=a+(b-a)*i/60;ctx.lineTo(P.X(t),P.Y(f(t)));} ctx.lineTo(P.X(b),y0); ctx.closePath(); ctx.fill();
+      // 평균 높이 직사각형
+      var avg=0,N=200; for(var j=0;j<N;j++){avg+=f(a+(b-a)*(j+0.5)/N);} avg/=N;
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,3]); ctx.strokeRect(P.X(a),P.Y(avg),P.X(b)-P.X(a),y0-P.Y(avg)); ctx.setLineDash([]);
+      P.curve(f, '#7ab8ff');
+      ctx.fillStyle='#ffb27a'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('평균 높이 f(c) = '+avg.toFixed(2)+' (직사각형 넓이 = 곡선 아래 넓이)', E.W/2, E.H*0.82);
+      E.big('적분의 평균값 정리', '곡선 아래 넓이를 같은 밑변의 직사각형으로 바꾸면 그 높이가 함수의 "평균값" f(c)=(1/(b−a))∫f. 그 평균과 같아지는 점 c가 반드시 존재(연속이면). 평균속도·평균기온의 적분판'); }
+  },
+
+  // ══════ 거듭제곱 주기(ch23_04) ▸ 페르마 소정리 ══════
+  { id:'math_br_fermat', branchOf:'ch23_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
+      steps(E, [
+        {t:'페르마 소정리:  p가 소수이고 a가 p의 배수가 아니면', c:'#cfcdc6', fs:16},
+        {t:'a^(p−1) ≡ 1  (mod p)', c:'#ffb27a', b:true, fs:24},
+        {t:'예) p=7, a=2:  2⁶ = 64 = 7×9 + 1  →  64 ≡ 1 (mod 7) ✓', c:'#7ab8ff'},
+        {t:'활용: 거대한 거듭제곱의 나머지를 한순간에', c:'#8fe3b5'},
+        {t:'→ RSA 복호화(#10.2)·소수 판정의 핵심 정리', c:'#9b99a3', fs:15}
+      ], {y0:E.H*0.28, lh:E.H*0.09});
+      E.big('페르마 소정리 — 합동의 황금률', '소수 p에 대해 a^(p−1)≡1 (mod p)! #84 거듭제곱 주기의 이유를 설명하는 정리. RSA가 cᵈ≡m으로 복원되는 근거이자, 빠른 소수 판정(밀러-라빈)의 토대 — 현대 암호의 수학적 심장'); }
   }
 
   ];
   if(window.Engine) window.Engine.addScenes(scenes);
+
+  // 화살표 헬퍼(합성함수 도식용)
+  function AV_arrow(ctx,x1,y,x2,y2){ y2=y2||y; ctx.strokeStyle='#9b99a3'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y2); ctx.stroke(); ctx.fillStyle='#9b99a3'; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-9,y2-5); ctx.lineTo(x2-9,y2+5); ctx.fill(); }
 })();

@@ -254,6 +254,111 @@
       "sol_en": "e^(iπ)=cosπ+i sinπ=−1 → <b>e^(iπ) + 1 = 0</b> (Euler's identity)."
     }
   },
+  "math_br_compinv": {
+    "ch": "제5장 함수",
+    "sec": "5.1 함수와 그래프 (자세히)",
+    "title": "합성함수와 역함수",
+    "narr": "함수를 <b>이어 붙이거나(합성)</b> <b>거꾸로 돌릴(역함수)</b> 수 있어요. g로 처리한 결과를 f에 다시 넣으면 <b>합성함수 f∘g</b>, f가 한 일을 되돌리는 게 <b>역함수 f⁻¹</b>이에요. 역함수 그래프는 y=x에 대칭이죠(7장 로그=지수의 역함수!).",
+    "hint": "합성=이어붙이기, 역함수=되돌리기",
+    "more": "<b>합성함수 (f∘g)(x) = f(g(x))</b>: g를 먼저 적용하고 그 결과에 f를 적용(순서 중요!). 예) g(x)=2x, f(x)=x+1이면 f(g(x))=2x+1. <b>역함수 f⁻¹</b>: f(x)=y를 거꾸로 x=f⁻¹(y)로 되돌리는 함수, f∘f⁻¹=항등(원래대로). 존재 조건: f가 <b>일대일대응(전단사)</b>일 것. 핵심 성질 — 역함수 그래프는 원함수를 <b>y=x에 대칭</b>(7장 로그함수가 지수함수의 역함수인 이유!), 정의역·치역이 맞바뀜. 미분에선 <b>연쇄법칙(#100.1)</b>이 합성함수의 미분 도구이고, 역함수 미분 (f⁻¹)′=1/f′. 쓰임: 암호화↔복호화(역함수), 좌표변환, 신경망의 층 합성. 함수를 \"조립하고 분해하는\" 두 연산이에요.",
+    "more_en": "<b>Composition (f∘g)(x) = f(g(x))</b>: apply g first, then f to the result (order matters!). E.g. g(x)=2x, f(x)=x+1 gives f(g(x))=2x+1. <b>Inverse f⁻¹</b>: undoes f, turning f(x)=y back into x=f⁻¹(y), with f∘f⁻¹ = identity. Existence requires f to be a <b>bijection</b>. Key property — the inverse's graph is the original <b>reflected across y=x</b> (why log is the inverse of exp, Ch.7!), with domain and range swapped. In calculus the <b>chain rule (#100.1)</b> differentiates compositions, and (f⁻¹)′=1/f′. Uses: encryption↔decryption (inverses), coordinate changes, composing neural-network layers. The two operations for \"assembling and disassembling\" functions.",
+    "problem": {
+      "q": "g(x)=x+3, f(x)=x² 일 때 (f∘g)(2) 는?",
+      "solution": "g(2)=5 먼저 → f(5)=25. (f∘g)(2)=<b>25</b>. (순서 주의: f(g(x)))",
+      "q_en": "With g(x)=x+3, f(x)=x², find (f∘g)(2).",
+      "sol_en": "g(2)=5 first → f(5)=25. So (f∘g)(2)=<b>25</b> (order matters: f(g(x)))."
+    }
+  },
+  "math_br_ptline": {
+    "ch": "제6장 도형과 식",
+    "sec": "6.2 직선 (자세히)",
+    "title": "점과 직선 사이의 거리",
+    "narr": "한 점에서 직선까지 <b>가장 짧은(수직) 거리</b>는 얼마일까요? 깔끔한 공식이 있어요: 직선 ax+by+c=0과 점 (x₀,y₀)의 거리 = <b>|ax₀+by₀+c| / √(a²+b²)</b>. 점을 움직여 거리가 변하는 걸 보세요.",
+    "hint": "|ax₀+by₀+c| / √(a²+b²)",
+    "more": "<b>점과 직선 사이의 거리</b>: 직선 ax+by+c=0 과 점 P(x₀,y₀) 사이 최단(수직) 거리 = <b>|ax₀+by₀+c| / √(a²+b²)</b>. 유도: 직선의 <b>법선벡터(a,b)</b> 방향으로 P에서 직선까지의 정사영(#60.1) 길이. 분자 |ax₀+by₀+c|는 \"점을 직선식에 대입한 값\"의 절댓값(직선 위 점이면 0), 분모는 법선 크기로 정규화. 6장의 직선 방정식(#43)과 9장 정사영이 만나는 공식이에요. 쓰임: <b>충돌·접촉 판정</b>(원과 직선: 거리 vs 반지름), 최소제곱 회귀(점들과 직선의 거리 최소화), 컴퓨터그래픽 클리핑, 로봇 경로. 3차원으로 확장하면 점과 평면 거리 |ax₀+by₀+cz₀+d|/√(a²+b²+c²)(11장 #71 법선)이에요.",
+    "more_en": "<b>Distance from a point to a line</b>: between line ax+by+c=0 and point P(x₀,y₀), the shortest (perpendicular) distance = <b>|ax₀+by₀+c| / √(a²+b²)</b>. Derivation: the projection (#60.1) from P to the line along the line's <b>normal vector (a,b)</b>. The numerator |ax₀+by₀+c| is the absolute value of \"plugging the point into the line equation\" (zero if on the line); the denominator normalizes by the normal's length. It unites Ch.6's line equation (#43) with Ch.9's projection. Uses: <b>collision/contact tests</b> (circle vs line: distance vs radius), least-squares regression, graphics clipping, robot paths. In 3D it extends to point-plane distance |ax₀+by₀+cz₀+d|/√(a²+b²+c²) (Ch.11 #71 normal).",
+    "problem": {
+      "q": "직선 3x+4y−10=0 과 원점(0,0) 사이의 거리는?",
+      "solution": "|3·0+4·0−10|/√(9+16) = 10/5 = <b>2</b>.",
+      "q_en": "Find the distance from the origin to the line 3x+4y−10=0.",
+      "sol_en": "|3·0+4·0−10|/√(9+16) = 10/5 = <b>2</b>."
+    }
+  },
+  "math_br_parabref": {
+    "ch": "제12장 이차곡선",
+    "sec": "12.1 포물선 (자세히)",
+    "title": "포물선의 반사 성질",
+    "narr": "포물선엔 마법 같은 성질이 있어요 — <b>축에 평행하게 들어온 모든 빛(전파)이 반사되면 정확히 한 점, 초점에 모여요</b>! 위성 안테나·반사망원경이 왜 포물선 모양인지의 이유죠. 거꾸로 초점에 광원을 두면 평행 빔이 나가요(헤드라이트).",
+    "hint": "평행 입사 → 모두 초점으로",
+    "more": "<b>포물선의 반사 성질</b>: 포물선 축에 평행하게 입사한 광선은 곡면에서 반사된 뒤 <b>모두 초점 F를 지나요</b>(반대로 초점에서 나온 빛은 평행 빔으로). 증명: 포물선의 \"초점까지 거리 = 준선까지 거리\"(#72 정의)와 반사 법칙(입사각=반사각)으로 따라와요. 응용: <b>위성·전파 안테나·반사망원경</b>(약한 평행 신호를 초점의 수신기에 집광), <b>태양열 집열기</b>(빛을 모아 가열), <b>자동차 헤드라이트·손전등</b>(초점 광원 → 평행 빔), 마이크(파라볼릭 마이크). 이차곡선마다 고유한 광학 성질이 있어요 — 타원은 한 초점의 빛이 다른 초점에 모임(속삭이는 회랑·결석 파쇄술), 쌍곡선도 마찬가지. 기하 정의(초점)가 곧 물리적 쓸모로 이어지는 아름다운 예예요.",
+    "more_en": "<b>Reflective property of the parabola</b>: rays entering parallel to the axis reflect off the surface and <b>all pass through the focus F</b> (and conversely, light from the focus leaves as a parallel beam). Proof: it follows from the parabola's \"distance to focus = distance to directrix\" definition (#72) and the law of reflection (angle in = angle out). Applications: <b>satellite/radio antennas and reflecting telescopes</b> (concentrate faint parallel signals onto a receiver at the focus), <b>solar collectors</b>, <b>car headlights and flashlights</b> (focus source → parallel beam), and parabolic microphones. Each conic has its own optical property — an ellipse focuses light from one focus to the other (whispering galleries, lithotripsy), as does a hyperbola. A beautiful case of a geometric definition (the focus) becoming physical utility.",
+    "problem": {
+      "q": "위성 안테나가 포물면인 이유는?",
+      "solution": "축에 평행한 약한 전파가 반사 후 <b>모두 초점에 모여</b>(집광) 수신기를 초점에 두면 신호가 세짐.",
+      "q_en": "Why is a satellite dish a paraboloid?",
+      "sol_en": "Parallel incoming waves reflect and <b>all converge at the focus</b>, so a receiver at the focus gets a strong signal."
+    }
+  },
+  "math_br_pigeon": {
+    "ch": "제15장 순열·조합",
+    "sec": "15.1 경우의 수 (자세히)",
+    "title": "비둘기집 원리",
+    "narr": "너무 당연해서 오히려 강력한 원리! <b>비둘기 n+1마리를 상자 n개에 넣으면, 반드시 어느 한 상자엔 2마리 이상</b>이 들어가요. 이 뻔한 사실이 \"존재한다\"를 증명하는 마법의 도구가 됩니다.",
+    "hint": "n+1을 n칸에 → 한 칸은 2개+",
+    "more": "<b>비둘기집 원리(pigeonhole principle)</b>: n개의 상자에 n+1개의 물건을 넣으면 <b>적어도 한 상자에는 2개 이상</b>이 들어간다. 일반형: kn+1개면 한 상자에 k+1개 이상. 너무 단순하지만 <b>존재성 증명</b>의 강력한 무기예요 — 구체적으로 어디인지 몰라도 \"반드시 있다\"를 보장. 유명한 예: ① <b>서울에 머리카락 수가 정확히 같은 두 사람</b>이 존재(머리카락 수 < 인구). ② 23명만 모여도 <b>생일 같은 두 사람</b>이 있을 확률 50%↑(생일의 역설, 15·16장). ③ 임의의 6명 중 \"서로 아는 3명 또는 모르는 3명\"이 존재(램지 이론). ④ 정수론·근사(연분수)에서도 핵심. 셈(15장)의 가장 단순한 사실이 깊은 정리들의 증명 엔진이 되는 — 수학의 우아한 역설이에요.",
+    "more_en": "<b>The pigeonhole principle</b>: placing n+1 objects into n boxes forces <b>at least one box to hold 2 or more</b>. General form: kn+1 objects force some box to hold k+1+. Trivial yet a powerful tool for <b>existence proofs</b> — it guarantees \"there must be one\" without saying where. Famous examples: ① in Seoul, <b>two people with exactly the same number of hairs</b> exist (hair counts < population); ② just 23 people give a >50% chance of <b>a shared birthday</b> (the birthday paradox, Ch.15/16); ③ among any 6 people, three mutual acquaintances or three mutual strangers exist (Ramsey theory); ④ it's key in number theory and approximation (continued fractions). The simplest fact of counting (Ch.15) becomes the proof engine of deep theorems — an elegant paradox of mathematics.",
+    "problem": {
+      "q": "367명이 모이면 생일(366가지)이 같은 두 사람이 반드시 있을까?",
+      "solution": "<b>반드시 있다</b>. 367 > 366 → 비둘기집 원리로 한 날짜에 2명 이상.",
+      "q_en": "Among 367 people, must two share a birthday (366 possible)?",
+      "sol_en": "<b>Yes</b>. 367 > 366 → by the pigeonhole principle, some date has 2+ people."
+    }
+  },
+  "math_br_newton": {
+    "ch": "제18장 미분의 응용",
+    "sec": "18.2 최적화 (자세히)",
+    "title": "뉴턴법 — 접선으로 근 찾기",
+    "narr": "방정식 f(x)=0의 근을 <b>접선(#102)</b>으로 빠르게 찾는 법! 추정값에서 접선을 그어 x축과 만나는 점을 새 추정값으로 삼고 반복하면, 놀랍도록 빨리 근에 수렴해요. √2를 단 몇 번 만에! 반복 횟수를 늘려보세요.",
+    "hint": "접선이 x축 만나는 점 → 반복",
+    "more": "<b>뉴턴법(뉴턴-랩슨)</b>: f(x)=0의 근을 반복으로 구해요 — <b>xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</b>. 기하적 의미: 현재 추정값에서 <b>접선(#102, 17장)</b>을 긋고, 그 접선이 x축과 만나는 점을 다음 추정값으로. 접선이 곡선을 잘 근사하므로(선형근사) 빠르게 근으로 수렴 — <b>이차 수렴</b>(맞는 자릿수가 매 단계 약 2배!). 예) √2는 f(x)=x²−2의 근, x₀=2 → 1.5 → 1.4166… → 1.41421… 몇 번 만에 정밀. 주의: 시작점이 나쁘거나 f′=0 근처면 발산할 수 있음. 쓰임: <b>컴퓨터의 √·나눗셈·역수 계산</b>(하드웨어가 내부적으로 뉴턴법!), 최적화(f′=0 찾기), 머신러닝(손실 최소화). 미분(접선)이 \"방정식을 푸는\" 도구가 되는 — 17·18장 미분의 강력한 실전 응용이에요.",
+    "more_en": "<b>Newton's method (Newton-Raphson)</b> finds a root of f(x)=0 iteratively — <b>xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</b>. Geometric meaning: draw the <b>tangent (#102, Ch.17)</b> at the current guess and take where it crosses the x-axis as the next guess. Since the tangent approximates the curve well (linear approximation), it converges fast — <b>quadratic convergence</b> (correct digits roughly double each step!). E.g. √2 is the root of f(x)=x²−2: x₀=2 → 1.5 → 1.4166… → 1.41421… precise in a few steps. Caution: a bad start or f′≈0 can diverge. Uses: <b>computing √, division, and reciprocals in hardware</b> (which uses Newton internally!), optimization (finding f′=0), and machine learning (minimizing loss). Differentiation (the tangent) becomes a tool for solving equations — a powerful application of Ch.17/18.",
+    "problem": {
+      "q": "f(x)=x²−2 에 뉴턴법, x₀=2일 때 다음 추정값 x₁은?",
+      "solution": "x₁ = 2 − (2²−2)/(2·2) = 2 − 2/4 = <b>1.5</b> (√2≈1.414로 접근).",
+      "q_en": "Newton's method on f(x)=x²−2 with x₀=2: find x₁.",
+      "sol_en": "x₁ = 2 − (2²−2)/(2·2) = 2 − 2/4 = <b>1.5</b> (approaching √2≈1.414)."
+    }
+  },
+  "math_br_intmean": {
+    "ch": "제20장 적분의 응용",
+    "sec": "20.1 넓이 (자세히)",
+    "title": "적분의 평균값 정리",
+    "narr": "들쭉날쭉한 함수의 <b>평균값</b>은 얼마일까요? 곡선 아래 넓이를 <b>같은 밑변의 직사각형</b>으로 바꿨을 때 그 높이가 함수의 평균이에요! 그리고 함수가 그 평균값과 정확히 같아지는 점 c가 반드시 존재해요(연속이면).",
+    "hint": "넓이 = 평균높이 × 밑변",
+    "more": "<b>적분의 평균값 정리</b>: 구간 [a,b]에서 f가 연속이면 <b>(1/(b−a))∫ₐᵇ f dx = f(c)</b>인 점 c가 (a,b)에 존재. 좌변이 함수의 <b>평균값</b>(곡선 아래 넓이를 밑변으로 나눔 = 같은 넓이의 직사각형 높이). 미분의 평균값정리(#103)의 적분판이에요 — \"평균이 곧 어떤 점의 실제값\". 쓰임: <b>평균 속도·평균 기온·평균 전력</b>(순간값의 적분 평균), 물리의 무게중심·관성모멘트, 확률의 기댓값(연속분포: E[X]=∫x·p(x)dx). RMS(실효값) 같은 다양한 평균도 적분으로 정의돼요. 적분이 단순히 \"넓이\"를 넘어 \"연속적인 양의 평균·총합\"을 다루는 도구임을 보여주는 정리예요.",
+    "more_en": "<b>The Mean Value Theorem for integrals</b>: if f is continuous on [a,b], there exists c in (a,b) with <b>(1/(b−a))∫ₐᵇ f dx = f(c)</b>. The left side is the function's <b>average value</b> (area under the curve divided by the base = the height of an equal-area rectangle). It is the integral analog of the differential MVT (#103) — \"the average equals the actual value at some point.\" Uses: <b>average velocity, temperature, power</b> (the integral average of instantaneous values), centers of mass and moments of inertia in physics, and expected values in probability (continuous: E[X]=∫x·p(x)dx). Various means like RMS are also defined via integrals. The theorem shows integration handles \"averages and totals of continuous quantities,\" beyond mere area.",
+    "problem": {
+      "q": "f(x)=x² 의 [0,3]에서의 평균값은?",
+      "solution": "(1/3)∫₀³ x²dx = (1/3)(9) = <b>3</b>. (f(c)=3 → c=√3)",
+      "q_en": "Find the average value of f(x)=x² on [0,3].",
+      "sol_en": "(1/3)∫₀³ x²dx = (1/3)(9) = <b>3</b> (f(c)=3 → c=√3)."
+    }
+  },
+  "math_br_fermat": {
+    "ch": "제23장 수론",
+    "sec": "23.2 합동식 (자세히)",
+    "title": "페르마 소정리 — 합동의 황금률",
+    "narr": "<b>거듭제곱의 나머지(#84)</b>가 왜 주기를 갖는지, 그 비밀을 푸는 정리예요. <b>p가 소수면 a^(p−1) ≡ 1 (mod p)</b>! 예로 2⁶=64를 7로 나누면 나머지 1. 거대한 거듭제곱의 나머지를 한순간에 구하게 해주고, RSA 암호의 수학적 근거예요.",
+    "hint": "소수 p: a^(p−1) ≡ 1 (mod p)",
+    "more": "<b>페르마 소정리</b>: <b>p가 소수이고 a가 p의 배수가 아니면 a^(p−1) ≡ 1 (mod p)</b>. 예) p=7: 2⁶=64≡1, 3⁶=729≡1 (mod 7) 모두 성립. #84에서 본 \"거듭제곱 나머지의 주기성\"의 근본 이유예요. 활용: ① <b>거대 거듭제곱의 나머지</b>를 지수를 (p−1)로 나눈 나머지만으로 계산. ② <b>모듈러 역원</b>: a⁻¹ ≡ a^(p−2) (mod p)(확장 유클리드의 대안). ③ <b>RSA 복호화(#10.2)</b>가 cᵈ≡m으로 정확히 복원되는 수학적 근거(오일러 정리로 일반화). ④ <b>소수 판정</b>(밀러-라빈, 페르마 검정): a^(n−1)≢1이면 n은 합성수. 합동(#83)과 거듭제곱(#84)을 잇는 정수론의 황금률이자, 현대 암호의 심장이에요. 작은 패턴(주기)이 깊은 정리로, 다시 인터넷 보안으로 이어져요.",
+    "more_en": "<b>Fermat's little theorem</b>: <b>if p is prime and a is not a multiple of p, then a^(p−1) ≡ 1 (mod p)</b>. E.g. p=7: 2⁶=64≡1, 3⁶=729≡1 (mod 7). It is the root cause of the \"periodicity of power remainders\" seen in #84. Uses: ① compute <b>remainders of huge powers</b> using only the exponent mod (p−1); ② <b>modular inverse</b>: a⁻¹ ≡ a^(p−2) (mod p) (an alternative to extended Euclid); ③ the mathematical basis for <b>RSA decryption (#10.2)</b> recovering cᵈ≡m exactly (generalized by Euler's theorem); ④ <b>primality testing</b> (Miller-Rabin, Fermat test): if a^(n−1)≢1 then n is composite. The golden rule of number theory linking congruence (#83) and powers (#84), and the heart of modern cryptography. A small pattern (periodicity) leads to a deep theorem and back to internet security.",
+    "problem": {
+      "q": "페르마 소정리로 3⁶ 을 7로 나눈 나머지는?",
+      "solution": "p=7 소수, 3은 7의 배수 아님 → 3⁶ ≡ <b>1</b> (mod 7).",
+      "q_en": "By Fermat's little theorem, what is 3⁶ mod 7?",
+      "sol_en": "p=7 is prime and 3 is not a multiple of 7 → 3⁶ ≡ <b>1</b> (mod 7)."
+    }
+  },
   "math_br_difrules": {
     "ch": "제17장 미분",
     "sec": "17.4 여러 미분법 (자세히)",
