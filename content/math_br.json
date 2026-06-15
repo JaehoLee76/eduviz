@@ -149,6 +149,111 @@
       "sol_en": "u=x²+1, du=2x dx → ∫u³du = u⁴/4 = <b>(x²+1)⁴/4 + C</b>."
     }
   },
+  "math_br_factortheorem": {
+    "ch": "제2장 식",
+    "sec": "2.2 인수분해 (자세히)",
+    "title": "인수정리 & 조립제법",
+    "narr": "<b>2장에서 이차식 인수분해(#17)</b>를 했죠. 3차·4차 같은 고차식은 어떻게 인수분해할까요? <b>인수정리</b>가 열쇠예요 — <b>P(a)=0이면 (x−a)가 인수</b>! 그 a를 찾은 뒤 <b>조립제법</b>으로 빠르게 나눠 몫을 구하면 차수가 하나씩 내려가요.",
+    "hint": "P(a)=0 → (x−a)가 인수",
+    "more": "<b>인수정리</b>: 다항식 P(x)에 대해 <b>P(a)=0 ⟺ (x−a)가 P(x)의 인수</b>(나머지정리 P(x)=(x−a)Q(x)+P(a)의 특수한 경우). 활용: 고차방정식의 근을 ±(상수항 약수/최고차 약수)에서 시도(유리근 정리)해 P(a)=0인 a를 찾고, <b>조립제법(synthetic division)</b>으로 (x−a)로 나눠 몫 Q(x)를 구함 → 차수가 1 내려가 반복하면 완전히 인수분해돼요. 예) x³−2x²−5x+6: P(1)=0 → 조립제법 → 몫 x²−x−6=(x−3)(x+2) → P=(x−1)(x−3)(x+2). 조립제법은 계수만으로 나눗셈을 표 한 줄로 끝내는 효율적 알고리즘이에요(긴 나눗셈의 단축). 3·4차방정식(26장), 부분분수 분해, 다항식 평가(호너의 방법)로 이어져요. 인수분해와 나눗셈이 한 도구로 만나요.",
+    "more_en": "<b>Factor theorem</b>: for a polynomial P(x), <b>P(a)=0 ⟺ (x−a) is a factor</b> (a special case of the remainder theorem P(x)=(x−a)Q(x)+P(a)). Use: try roots from ±(divisors of constant / divisors of leading coeff) (rational root theorem) to find a with P(a)=0, then use <b>synthetic division</b> to divide by (x−a) and get the quotient Q(x) → the degree drops by one; repeat to fully factor. E.g. x³−2x²−5x+6: P(1)=0 → synthetic division → quotient x²−x−6=(x−3)(x+2) → P=(x−1)(x−3)(x+2). Synthetic division is an efficient algorithm doing the division in one row using only coefficients (a shortcut for long division). It leads to cubics/quartics (Ch.26), partial fractions, and polynomial evaluation (Horner's method). Factoring and division meet in one tool.",
+    "problem": {
+      "q": "P(x)=x³−7x+6 에서 P(1)은? 그래서 어떤 인수를 갖나?",
+      "solution": "P(1)=1−7+6=<b>0</b> → 인수정리로 <b>(x−1)</b>이 인수.",
+      "q_en": "For P(x)=x³−7x+6, find P(1). What factor does that give?",
+      "sol_en": "P(1)=1−7+6=<b>0</b> → by the factor theorem, <b>(x−1)</b> is a factor."
+    }
+  },
+  "math_br_amgm": {
+    "ch": "제4장 부등식",
+    "sec": "4.2 부등식의 해법 (자세히)",
+    "title": "산술평균 ≥ 기하평균 (AM-GM)",
+    "narr": "두 양수 a, b의 <b>산술평균 (a+b)/2</b> 와 <b>기하평균 √(ab)</b> 중 어느 게 클까요? 항상 <b>산술평균이 크거나 같아요</b> — 등호는 <b>a=b일 때만</b>! a를 바꿔 두 평균을 비교해보세요. 최솟값 찾기의 강력한 무기예요.",
+    "hint": "a=b일 때만 등호",
+    "more": "<b>산술-기하 평균 부등식(AM-GM)</b>: 양수 a, b에 대해 <b>(a+b)/2 ≥ √(ab)</b>, 등호는 <b>a=b</b>일 때만. 증명: (√a−√b)² ≥ 0 전개 → a+b ≥ 2√(ab). 기하적으로는 반원(지름 a+b)의 반지름 (a+b)/2 ≥ 수선 √(ab). n개로 일반화돼요(산술평균 ≥ 기하평균 ≥ 조화평균). ★강력한 쓰임: <b>최솟값 찾기</b> — 미분 없이! 예) x>0에서 x + 1/x ≥ 2√(x·1/x)=2 (등호 x=1), 즉 최솟값 2. 둘레 고정 직사각형 넓이 최대(정사각형), 코시-슈바르츠와 함께 부등식 증명의 양대 도구. 18장 최적화를 \"부등식만으로\" 푸는 우아한 방법이에요.",
+    "more_en": "<b>AM-GM inequality</b>: for positive a, b, <b>(a+b)/2 ≥ √(ab)</b>, with equality only when <b>a=b</b>. Proof: expand (√a−√b)² ≥ 0 → a+b ≥ 2√(ab). Geometrically, the radius (a+b)/2 of a semicircle (diameter a+b) ≥ the altitude √(ab). It generalizes to n terms (arithmetic ≥ geometric ≥ harmonic mean). Powerful use: <b>finding minimums without calculus!</b> E.g. for x>0, x + 1/x ≥ 2√(x·1/x)=2 (equality at x=1), so the minimum is 2. Maximizing a fixed-perimeter rectangle's area (a square), and with Cauchy-Schwarz, one of the two main tools for inequality proofs. An elegant way to solve Ch.18 optimization \"with inequalities alone.\"",
+    "problem": {
+      "q": "x>0 일 때 x + 9/x 의 최솟값은? (AM-GM)",
+      "solution": "x + 9/x ≥ 2√(x·9/x) = 2√9 = <b>6</b> (등호 x=3).",
+      "q_en": "For x>0, find the minimum of x + 9/x (by AM-GM).",
+      "sol_en": "x + 9/x ≥ 2√(x·9/x) = 2√9 = <b>6</b> (equality at x=3)."
+    }
+  },
+  "math_br_proj": {
+    "ch": "제9장 평면벡터",
+    "sec": "9.2 벡터의 응용 (자세히)",
+    "title": "정사영 — 그림자의 길이",
+    "narr": "햇빛이 수직으로 비출 때 벡터 a가 벡터 b 위에 만드는 <b>그림자</b>가 <b>정사영</b>이에요. 그 길이는 <b>|a|cos θ</b> — 바로 <b>내적(#60)의 기하학적 의미</b>죠! a의 방향을 바꿔 정사영이 변하는 걸 보세요.",
+    "hint": "a의 b방향 그림자 = |a|cosθ",
+    "more": "<b>정사영(projection)</b>: 벡터 a를 b 방향으로 \"수직으로 비춘\" 성분. 길이는 <b>|a|cos θ = (a·b)/|b|</b>, 벡터로는 <b>proj_b a = (a·b/|b|²) b</b>. 내적 a·b=|a||b|cosθ를 |b|로 나눈 게 정사영 길이라, <b>내적(#60)의 기하학적 정체</b>가 바로 이 그림자예요! 핵심 분해: 임의의 a는 \"b방향 성분(정사영) + b수직 성분\"으로 유일하게 나뉘어요. 쓰임: 물리의 <b>일 W=F·d</b>(힘의 이동방향 성분), <b>최소제곱법</b>(데이터에 가장 가까운 직선 = 정사영), <b>그램-슈미트 직교화</b>(벡터를 직교 기저로), 컴퓨터그래픽 조명. \"한 방향으로의 성분 추출\"이라는 정사영이 내적의 진짜 쓸모예요.",
+    "more_en": "<b>Projection</b>: the component of vector a cast perpendicularly onto b's direction. Its length is <b>|a|cos θ = (a·b)/|b|</b>, and as a vector <b>proj_b a = (a·b/|b|²) b</b>. Since this is the dot product a·b=|a||b|cosθ divided by |b|, the projection is the <b>geometric meaning of the dot product (#60)</b>! Key decomposition: any a splits uniquely into \"a component along b (the projection) + a component perpendicular to b.\" Uses: physics' <b>work W=F·d</b> (force component along motion), <b>least squares</b> (the closest line to data is a projection), <b>Gram-Schmidt orthogonalization</b>, and lighting in computer graphics. Extracting \"the component along one direction\" is the real utility of the dot product.",
+    "problem": {
+      "q": "a=(3,4) 를 x축 방향에 정사영하면 길이는?",
+      "solution": "x축 방향 성분 = <b>3</b> (= a·(1,0) = |a|cosθ). 그림자가 x좌표!",
+      "q_en": "Projecting a=(3,4) onto the x-axis, what is the length?",
+      "sol_en": "The x-component = <b>3</b> (= a·(1,0) = |a|cosθ). The shadow is the x-coordinate!"
+    }
+  },
+  "math_br_squeeze": {
+    "ch": "제14장 극한",
+    "sec": "14.2 극한의 계산 (자세히)",
+    "title": "샌드위치 정리 — 낀 함수의 극한",
+    "narr": "어떤 함수가 너무 복잡해 극한을 직접 못 구할 때, <b>위아래로 더 단순한 두 함수 사이에 가두면</b> 돼요! 두 함수가 같은 값으로 가면 낀 함수도 그리로 — 이게 <b>샌드위치(압착) 정리</b>예요. 이걸로 0/0이던 <b>lim(sinx/x)=1</b>을 증명해요.",
+    "hint": "cos x ≤ sin x/x ≤ 1, 양쪽 →1",
+    "more": "<b>샌드위치 정리(압착 정리)</b>: a 근처에서 <b>g(x) ≤ f(x) ≤ h(x)</b> 이고 <b>lim g = lim h = L</b> 이면 <b>lim f = L</b>. 가운데 함수가 위아래에 \"압착\"돼 같은 극한으로 끌려가요. ★대표 응용: <b>lim(x→0) sin x / x = 1</b> — 0/0 꼴이라 직접 못 구하지만, 단위원 넓이 비교로 <b>cos x ≤ sin x/x ≤ 1</b>을 보이면 양 끝이 x→0에서 1이므로 가운데도 1! 이 극한이 <b>(sin x)′ = cos x</b>(삼각함수 미분, 17장)의 출발점이에요. 또 x²sin(1/x)처럼 진동하는 함수의 극한(−x²≤·≤x²→0)에도 써요. \"직접 못 풀면 가둬서 푼다\"는 극한의 강력한 우회 전략이에요.",
+    "more_en": "<b>Squeeze (sandwich) theorem</b>: if near a, <b>g(x) ≤ f(x) ≤ h(x)</b> and <b>lim g = lim h = L</b>, then <b>lim f = L</b>. The middle function is squeezed to the same limit. Key use: <b>lim(x→0) sin x / x = 1</b> — a 0/0 form, but comparing areas in the unit circle shows <b>cos x ≤ sin x/x ≤ 1</b>, and since both ends →1 as x→0, so does the middle! This limit is the starting point of <b>(sin x)′ = cos x</b> (trig differentiation, Ch.17). It also handles oscillating limits like x²sin(1/x) (−x²≤·≤x²→0). \"If you can't solve it directly, trap it\" — a powerful detour strategy for limits.",
+    "problem": {
+      "q": "−x² ≤ x²·sin(1/x) ≤ x² 이고 x→0 이면 가운데 함수의 극한은?",
+      "solution": "양 끝 −x², x² 모두 →0 → 샌드위치 정리로 <b>0</b>.",
+      "q_en": "If −x² ≤ x²·sin(1/x) ≤ x² and x→0, what is the limit of the middle?",
+      "sol_en": "Both ends −x², x² →0 → by the squeeze theorem, <b>0</b>."
+    }
+  },
+  "math_br_bayes": {
+    "ch": "제16장 확률",
+    "sec": "16.2 조건부확률 (자세히)",
+    "title": "베이즈 정리 — 증거로 믿음을 갱신",
+    "narr": "조건부확률(#95)을 <b>거꾸로</b> 뒤집으면? \"결과(B)를 보고 원인(A)의 확률\"을 구하는 <b>베이즈 정리</b>가 나와요. 충격적 예: 유병률 1% 병을 99% 정확한 검사로 양성 판정받아도, <b>진짜 병일 확률은 겨우 ~50%</b>! 직관이 크게 빗나가죠.",
+    "hint": "P(A|B) = P(B|A)P(A)/P(B)",
+    "more": "<b>베이즈 정리</b>: <b>P(A|B) = P(B|A)·P(A) / P(B)</b>. 조건부확률(#95)을 뒤집어 \"증거 B가 주어졌을 때 가설 A의 확률\"을 계산해요 — <b>사전확률 P(A)</b>를 증거로 갱신해 <b>사후확률 P(A|B)</b>로. ★유명한 의료검사 역설: 병 유병률 1%, 검사 정확도 99%(민감도·특이도)일 때 양성이 나오면? P(병|양성) = (0.99×0.01)/(0.99×0.01 + 0.01×0.99) = <b>0.5</b>! 병이 드물어서 \"건강한데 양성(거짓양성)\"이 \"진짜 병\"만큼 많기 때문. 직관(99% 정확하니 병이겠지)이 크게 틀리죠. 쓰임: <b>의료진단, 스팸필터, A/B 테스트, 베이지안 추론·머신러닝</b>(증거로 모델 갱신). \"데이터로 믿음을 합리적으로 바꾸는\" 현대 통계·AI의 사고틀이에요.",
+    "more_en": "<b>Bayes' theorem</b>: <b>P(A|B) = P(B|A)·P(A) / P(B)</b>. It inverts conditional probability (#95) to compute \"the probability of hypothesis A given evidence B\" — updating a <b>prior P(A)</b> with evidence into a <b>posterior P(A|B)</b>. The famous medical-test paradox: with disease prevalence 1% and a 99%-accurate test, a positive result gives P(disease|positive) = (0.99×0.01)/(0.99×0.01 + 0.01×0.99) = <b>0.5</b>! Because the disease is rare, \"healthy but positive (false positives)\" are as common as true positives. Intuition (99% accurate, so surely diseased) is badly wrong. Uses: <b>medical diagnosis, spam filters, A/B testing, Bayesian inference and machine learning</b> (updating models with evidence). The thinking framework of modern statistics and AI: rationally revising belief from data.",
+    "problem": {
+      "q": "드문 병(유병률 1%)을 99% 정확한 검사로 양성 판정 시 실제 병일 확률이 낮은 이유는?",
+      "solution": "건강인이 훨씬 많아 <b>거짓양성 수가 진짜 양성만큼 많기</b> 때문 (베이즈로 ≈50%).",
+      "q_en": "Why is the true-disease probability low for a positive 99%-accurate test on a rare (1%) disease?",
+      "sol_en": "The healthy majority produces <b>as many false positives as there are true positives</b> (Bayes gives ≈50%)."
+    }
+  },
+  "math_br_eigen": {
+    "ch": "제21장 행렬",
+    "sec": "21.2 행렬식 (자세히)",
+    "title": "고유값·고유벡터 구하기",
+    "narr": "<b>22장에서 고유벡터(#127)</b> — 변환해도 방향이 안 변하는 축 — 를 봤죠. 그걸 <b>어떻게 계산</b>할까요? 비밀은 <b>행렬식(#121)</b>이에요: <b>det(A − λI) = 0</b> 을 풀면 고유값 λ가 나와요! 이게 \"특성방정식\"이에요.",
+    "hint": "det(A−λI)=0 으로 λ를",
+    "more": "<b>고유값·고유벡터 계산</b>: Av=λv (v≠0)를 변형하면 (A−λI)v=0. v가 영벡터가 아니려면 A−λI가 <b>역행렬이 없어야</b>(차원 붕괴) → <b>det(A−λI)=0</b>(특성방정식). 이 방정식(λ의 다항식)을 풀어 고유값 λ를 얻고, 각 λ를 (A−λI)v=0에 넣어 고유벡터 v를 구해요. 예) A=[[2,1],[1,2]] → det([[2−λ,1],[1,2−λ]])=(2−λ)²−1=0 → λ=3, 1. λ=3 → v=(1,1), λ=1 → v=(1,−1). 행렬식(#121, 넓이 배율)이 \"변환이 한 차원을 0으로 만드는(det=0) 지점\"을 찾아 고유값을 잡아내는 거예요. 쓰임: <b>주성분분석(PCA)·구글 페이지랭크·양자역학(에너지 고유값)·진동의 공명·미분방정식</b>. 행렬식→고유값→고유벡터로 선형대수의 정점에 도달해요.",
+    "more_en": "<b>Computing eigenvalues/eigenvectors</b>: Av=λv (v≠0) rearranges to (A−λI)v=0. For v to be nonzero, A−λI must be <b>non-invertible</b> (collapsing a dimension) → <b>det(A−λI)=0</b> (the characteristic equation). Solve this polynomial in λ for the eigenvalues, then plug each λ into (A−λI)v=0 to find the eigenvector v. E.g. A=[[2,1],[1,2]] → det([[2−λ,1],[1,2−λ]])=(2−λ)²−1=0 → λ=3, 1. λ=3 → v=(1,1), λ=1 → v=(1,−1). The determinant (#121, the area factor) pinpoints \"where the transformation collapses a dimension (det=0),\" capturing the eigenvalues. Uses: <b>PCA, Google PageRank, quantum mechanics (energy eigenvalues), resonance, differential equations</b>. Determinant → eigenvalues → eigenvectors reaches the summit of linear algebra.",
+    "problem": {
+      "q": "A=[[2,0],[0,3]] 의 고유값은?",
+      "solution": "det([[2−λ,0],[0,3−λ]])=(2−λ)(3−λ)=0 → λ = <b>2, 3</b> (대각행렬은 대각원소가 고유값).",
+      "q_en": "Find the eigenvalues of A=[[2,0],[0,3]].",
+      "sol_en": "det([[2−λ,0],[0,3−λ]])=(2−λ)(3−λ)=0 → λ = <b>2, 3</b> (diagonal entries are the eigenvalues)."
+    }
+  },
+  "math_br_euler": {
+    "ch": "제10장 복소평면",
+    "sec": "10.2 복소수와 평면기하 (자세히)",
+    "title": "오일러 공식 — 가장 아름다운 식",
+    "narr": "지수함수와 삼각함수가 복소수를 통해 하나가 돼요: <b>e^(iθ) = cos θ + i sin θ</b>! 복소평면 단위원 위의 점이죠. θ=π를 넣으면 — <b>e^(iπ) + 1 = 0</b>, 수학의 다섯 상수(e, i, π, 1, 0)가 한 줄에! 인류 최고의 등식이에요. θ를 바꿔보세요.",
+    "hint": "θ=180°에서 e^(iπ)+1=0",
+    "more": "<b>오일러 공식</b>: <b>e^(iθ) = cos θ + i sin θ</b>. 지수함수(7장)·삼각함수(8장)·복소수(10장)를 하나로 묶는 다리예요. 유도: eˣ, sin, cos의 테일러 급수(18장)에 x=iθ를 넣으면 실수부=cosθ, 허수부=sinθ로 정확히 갈라져요! 의미: 복소수의 극형식(#64) r(cosθ+isinθ)이 <b>re^(iθ)</b>로 간결해지고, 곱셈(#65)·드무아브르(#65.1)가 지수법칙 e^(iα)·e^(iβ)=e^(i(α+β))로 당연해져요. ★특수값 θ=π: e^(iπ)=−1 → <b>e^(iπ) + 1 = 0</b> — e(자연상수), i(허수), π(원주율), 1, 0 다섯 상수와 +, ×, =, 거듭제곱이 한 식에! \"수학에서 가장 아름다운 등식\"으로 불려요. 쓰임: 신호처리(푸리에·FFT), 교류회로, 양자역학, 제어이론. 떨어져 있던 수학의 큰 줄기들이 한 점에서 만나는 경이예요.",
+    "more_en": "<b>Euler's formula</b>: <b>e^(iθ) = cos θ + i sin θ</b>. It bridges the exponential (Ch.7), trigonometric (Ch.8), and complex numbers (Ch.10). Derivation: substitute x=iθ into the Taylor series (Ch.18) of eˣ, sin, cos — the real part becomes cosθ and the imaginary part sinθ exactly! Meaning: a complex number's polar form (#64) r(cosθ+isinθ) compresses to <b>re^(iθ)</b>, and multiplication (#65) and De Moivre (#65.1) become obvious from exponent laws e^(iα)·e^(iβ)=e^(i(α+β)). The special value θ=π: e^(iπ)=−1 → <b>e^(iπ) + 1 = 0</b> — uniting the five constants e, i, π, 1, 0 with +, ×, =, and exponentiation in one line! Often called \"the most beautiful equation in mathematics.\" Uses: signal processing (Fourier, FFT), AC circuits, quantum mechanics, control theory. The wonder of mathematics' great branches meeting at a single point.",
+    "problem": {
+      "q": "오일러 공식에 θ=π 를 넣으면 어떤 유명한 등식이 나오나?",
+      "solution": "e^(iπ)=cosπ+i sinπ=−1 → <b>e^(iπ) + 1 = 0</b> (오일러 등식).",
+      "q_en": "Substituting θ=π into Euler's formula gives what famous identity?",
+      "sol_en": "e^(iπ)=cosπ+i sinπ=−1 → <b>e^(iπ) + 1 = 0</b> (Euler's identity)."
+    }
+  },
   "math_br_difrules": {
     "ch": "제17장 미분",
     "sec": "17.4 여러 미분법 (자세히)",

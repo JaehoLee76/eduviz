@@ -162,6 +162,119 @@
       {t:'예) ∫ x·eˣ dx = x·eˣ − ∫ eˣ dx = (x−1)eˣ + C', c:'#9b99a3', fs:15}
     ], {y0:E.H*0.24, lh:E.H*0.082});
       E.big('적분의 기술 — 치환 & 부분적분', '미분은 규칙대로지만 적분은 "기술"이 필요해요. 치환적분=연쇄법칙(#100.1) 거꾸로, 부분적분=곱 미분 거꾸로. 미분 법칙을 뒤집으면 적분 도구가 돼요!'); }
+  },
+
+  // ══════ 인수분해(ch2_03) ▸ 인수정리·조립제법 ══════
+  { id:'math_br_factortheorem', branchOf:'ch2_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
+      steps(E, [
+        {t:'인수정리:  P(a) = 0  ⟺  (x − a)는 P(x)의 인수', c:'#ffb27a', b:true, fs:18},
+        {t:'예) P(x) = x³ − 2x² − 5x + 6,  P(1)=0 → (x−1) 인수', c:'#cfcdc6', fs:16}
+      ], {y0:E.H*0.22, lh:E.H*0.07});
+      // 조립제법 표
+      var x0=cx-180, y=E.H*0.42, cw=70;
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 16px sans-serif'; ctx.textAlign='center';
+      var row1=['1','−2','−5','6'], row2=['','1','−1','−6'], row3=['1','−1','−6','0'];
+      ctx.fillStyle='#ffb27a'; ctx.fillText('1', x0-30, y+10);
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.moveTo(x0-10,y-16); ctx.lineTo(x0-10,y+70); ctx.stroke();
+      for(var i=0;i<4;i++){ ctx.fillStyle='#cfcdc6'; ctx.fillText(row1[i], x0+i*cw, y); ctx.fillStyle='#8fe3b5'; ctx.fillText(row2[i], x0+i*cw, y+30); }
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.moveTo(x0-20,y+44); ctx.lineTo(x0+3.3*cw,y+44); ctx.stroke();
+      for(var i=0;i<4;i++){ ctx.fillStyle=i===3?'#ffb27a':'#dfeefb'; ctx.font='600 17px sans-serif'; ctx.fillText(row3[i], x0+i*cw, y+66); }
+      ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif'; ctx.fillText('몫 = x²−x−6 = (x−3)(x+2),  나머지 0 → P=(x−1)(x−3)(x+2)', cx, E.H*0.72);
+      E.big('인수정리 & 조립제법', '고차식 인수분해의 열쇠! P(a)=0인 a를 찾으면 (x−a)가 인수. 조립제법으로 빠르게 나눠 몫을 구해요 — 3차·4차방정식 풀이의 출발점'); }
+  },
+
+  // ══════ 이차부등식(ch4_03) ▸ 산술-기하 평균 부등식 ══════
+  { id:'math_br_amgm', branchOf:'ch4_03',
+    enter:function(E){ this.s={a:1}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>a (b=4 고정)</label><input type="range" id="aa" min="0.5" max="8" step="0.5" value="1"><output id="aao">1</output></div>');
+      var self=this; E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, a=this.s.a, b=4, am=(a+b)/2, gm=Math.sqrt(a*b), cx=E.W/2, base=E.H*0.7, unit=22;
+      function bar(x,h,col,lab,val){ ctx.fillStyle=col.replace? 'rgba(122,184,255,0.3)':col; ctx.fillStyle=col+'44'; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.fillRect(x-40,base-h*unit,80,h*unit); ctx.strokeRect(x-40,base-h*unit,80,h*unit); ctx.fillStyle=col; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,x,base+20); ctx.fillText(val.toFixed(2),x,base-h*unit-8); }
+      bar(cx-120,am,'#ffb27a','산술평균 (a+b)/2',am);
+      bar(cx+120,gm,'#8fe3b5','기하평균 √(ab)',gm);
+      ctx.fillStyle=Math.abs(a-b)<0.01?'#8fe3b5':'#cfcdc6'; ctx.font='600 16px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(Math.abs(a-b)<0.01?'a=b → 등호 성립!':'(a+b)/2 ≥ √(ab)  항상 산술 ≥ 기하', cx, E.H*0.80);
+      E.big('산술평균 ≥ 기하평균 (AM-GM)', '두 양수의 (a+b)/2 ≥ √(ab), 등호는 a=b일 때만! 최솟값 찾기의 강력 도구(예 x+1/x≥2). 반원의 지름·수선으로 기하 증명, 최적화·부등식 증명의 핵심'); }
+  },
+
+  // ══════ 내적(ch9_04) ▸ 벡터의 정사영 ══════
+  { id:'math_br_proj', branchOf:'ch9_04',
+    enter:function(E){ this.s={deg:55}; E.Plot.range(-1,7,-1,5);
+      E.controls('<div class="ctrl"><label>a의 방향</label><input type="range" id="pd" min="10" max="80" step="5" value="55"><output id="pdo">55°</output></div>');
+      var self=this; E.bind('#pd','input',function(e){ self.s.deg=+e.target.value; document.getElementById('pdo').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, t=this.s.deg*Math.PI/180, ra=4, ax=ra*Math.cos(t), ay=ra*Math.sin(t), bx=6, by=0; P.axes();
+      // b는 x축 방향, a의 b 위로의 정사영 = (a·b/|b|²)b
+      var k=(ax*bx+ay*by)/(bx*bx+by*by), px=k*bx, py=k*by;
+      function vec(x,y,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke(); ctx.fillStyle=col; ctx.font='600 14px sans-serif'; ctx.fillText(lab,P.X(x)+6,P.Y(y)-4); }
+      vec(bx,by,'#8fe3b5','b'); vec(ax,ay,'#7ab8ff','a');
+      // 수선
+      ctx.strokeStyle='rgba(244,160,192,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(P.X(ax),P.Y(ay)); ctx.lineTo(P.X(px),P.Y(py)); ctx.stroke(); ctx.setLineDash([]);
+      // 정사영
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(px),P.Y(py)); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('정사영 길이 = |a|cosθ = '+(ra*Math.cos(t)).toFixed(2), E.W/2, E.H*0.80);
+      E.big('정사영 — a를 b 위에 비추기', 'a의 b방향 그림자 = (a·b/|b|²)b, 길이 |a|cosθ. 내적(#60)의 기하 의미! 물리의 일(힘의 성분), 최소제곱법, 그램-슈미트 직교화의 토대'); }
+  },
+
+  // ══════ 함수의 극한(ch14_03) ▸ 샌드위치 정리 ══════
+  { id:'math_br_squeeze', branchOf:'ch14_03',
+    enter:function(E){ E.setOn([]); E.Plot.range(-2,2,-0.1,1.4); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
+      P.curve(function(x){return 1;}, 'rgba(244,160,192,0.7)');                 // 위 h=1
+      P.curve(function(x){return Math.cos(x);}, 'rgba(143,227,181,0.7)');       // 아래 g=cosx
+      P.curve(function(x){ return Math.abs(x)<0.001?1:Math.sin(x)/x; }, '#ffb27a', 3); // f=sinx/x
+      P.dot(0,1,'#ffb27a','(0, 1)');
+      ctx.fillStyle='#f4a0c0'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('h=1', P.X(1.5), P.Y(1.05));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('g=cos x', P.X(1.2), P.Y(Math.cos(1.2))-6);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('f = sin x / x', P.X(-1.9), P.Y(0.5));
+      E.big('샌드위치 정리:  cos x ≤ sin x/x ≤ 1  →  극한 1', '두 함수 사이에 낀 함수는 양쪽이 같은 값으로 가면 똑같이 그리로! 0/0이던 lim(sinx/x)=1을 이렇게 증명 — 삼각함수 미분((sinx)′=cosx)의 출발점'); }
+  },
+
+  // ══════ 조건부확률(ch16_04) ▸ 베이즈 정리 ══════
+  { id:'math_br_bayes', branchOf:'ch16_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
+      steps(E, [
+        {t:'베이즈 정리:  P(A|B) = P(B|A)·P(A) / P(B)', c:'#ffb27a', b:true, fs:20},
+        {t:'증거 B로 믿음을 갱신: 사전확률 P(A) → 사후확률 P(A|B)', c:'#7ab8ff', fs:16}
+      ], {y0:E.H*0.24, lh:E.H*0.08});
+      ctx.fillStyle='#cfcdc6'; ctx.font='15px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('예) 유병률 1% 병, 검사 정확도 99%. 양성이면 진짜 병일 확률은?', cx, E.H*0.50);
+      ctx.fillStyle='#f4a0c0'; ctx.font='600 18px sans-serif'; ctx.fillText('겨우 ≈ 50%! (직관: 90%+ 라고 착각)', cx, E.H*0.58);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+      ctx.fillText('병 0.99% 양성 + 건강인데 양성(거짓양성) 0.99% → 절반은 거짓양성', cx, E.H*0.66);
+      E.big('베이즈 정리 — 증거로 믿음을 갱신', '조건부확률(#95)을 뒤집어 "결과로 원인의 확률"을 구해요. 드문 병은 양성이어도 실제 확률이 낮은 직관 반전! 의료진단·스팸필터·AI 추론의 심장'); }
+  },
+
+  // ══════ 행렬식(ch21_04) ▸ 고유값·고유벡터 (계산) ══════
+  { id:'math_br_eigen', branchOf:'ch21_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
+      steps(E, [
+        {t:'고유값: A v = λ v 를 만족 (변환해도 방향 유지, 22장 #127)', c:'#cfcdc6', fs:16},
+        {t:'(A − λI) v = 0,  v≠0 이려면  det(A − λI) = 0', c:'#7ab8ff', b:true},
+        {t:'예) A = [[2,1],[1,2]] → (2−λ)² − 1 = 0', c:'#cfcdc6'},
+        {t:'→ λ = 3  또는  λ = 1  (특성방정식의 해)', c:'#ffb27a', b:true, fs:19},
+        {t:'고유벡터: λ=3 → (1,1) 방향,  λ=1 → (1,−1) 방향', c:'#8fe3b5', b:true}
+      ], {y0:E.H*0.26, lh:E.H*0.085});
+      E.big('고유값·고유벡터 구하기', 'det(A−λI)=0 (특성방정식)으로 고유값 λ를, 각 λ로 고유벡터를 구해요. 행렬식(#121)이 "변하지 않는 축(22장)"을 찾는 열쇠! PCA·구글 페이지랭크·양자역학·진동 해석'); }
+  },
+
+  // ══════ 극형식(ch10_03) ▸ 오일러 공식 ══════
+  { id:'math_br_euler', branchOf:'ch10_03',
+    enter:function(E){ this.s={deg:60}; E.Plot.range(-2.2,2.2,-1.5,1.5);
+      E.controls('<div class="ctrl"><label>θ</label><input type="range" id="eu" min="0" max="180" step="15" value="60"><output id="euo">60°</output></div>');
+      var self=this; E.bind('#eu','input',function(e){ self.s.deg=+e.target.value; document.getElementById('euo').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, t=this.s.deg*Math.PI/180; P.axes();
+      var g=P.geom(), sx=g.w/(P.xmax-P.xmin), sy=g.h/(P.ymax-P.ymin);
+      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),sx,sy,0,0,Math.PI*2); ctx.stroke();
+      var x=Math.cos(t),y=Math.sin(t);
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke();
+      P.dot(x,y,'#ffb27a','e^(iθ)');
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('= (cos'+this.s.deg+'°, sin'+this.s.deg+'°)', E.W/2, E.H*0.16);
+      if(this.s.deg===180){ ctx.fillStyle='#f4a0c0'; ctx.font='600 16px sans-serif'; ctx.fillText('θ=π → e^(iπ) = −1 → e^(iπ) + 1 = 0  ★', E.W/2, E.H*0.82); }
+      E.big('오일러 공식:  e^(iθ) = cos θ + i sin θ', '지수·삼각·복소수를 하나로 묶는 마법! 복소수 극형식(#64)의 정수. θ=π면 e^(iπ)+1=0 — 수학에서 가장 아름다운 등식(5대 상수 e·i·π·1·0). 드무아브르·FFT가 여기서'); }
   }
 
   ];
