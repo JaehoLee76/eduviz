@@ -419,6 +419,51 @@
       "sol_en": "<b>Sorting (by angle, Ch.3)</b> and a <b>stack (Ch.2)</b> — popping points that turn inward, in O(n log n)."
     }
   },
+  "algo_br_lp": {
+    "ch": "알고리즘 제8장 설계 패러다임",
+    "sec": "8.3 계산의 한계 (자세히)",
+    "title": "선형계획법 — 제약 속 최적화",
+    "narr": "여러 <b>일차 부등식(제약)</b>을 만족하면서 <b>일차 목적함수를 최대/최소화</b>하는 문제예요. 제약들이 만드는 다각형 영역에서 최적값을 찾죠. 놀라운 사실: <b>최적해는 항상 영역의 꼭짓점</b>에 있어요! NP-난해와 달리 다항시간에 풀려요.",
+    "hint": "최적해는 영역의 꼭짓점에",
+    "more": "<b>선형계획법(Linear Programming, LP)</b>(CLRS 29): 일차 제약식 Ax ≤ b, x ≥ 0 아래 일차 목적함수 cᵀx를 최적화. 실행가능영역은 <b>볼록 다각형(다면체)</b>이고, 선형 목적함수의 최적값은 <b>반드시 꼭짓점(vertex)</b>에서 나와요(볼록성!). 풀이: <b>심플렉스법</b>(꼭짓점을 따라 더 좋은 쪽으로 이동, 실전 매우 빠름), <b>내부점법</b>(다항시간 보장). LP는 <b>다항시간에 풀리는</b>(P에 속함) 최적화의 대표 — NP-난해 정수계획법(ILP)과 대조돼요(변수를 정수로 제한하면 갑자기 어려워짐!). 최대 플로우(#29.4)·이분 매칭도 LP의 특수 경우예요. 쓰임: <b>생산 계획, 물류·운송, 식단 최적화, 포트폴리오, 자원 배분</b> — 산업 최적화의 토대. \"연속이면 쉽고(LP), 정수면 어렵다(ILP)\"는 복잡도의 미묘한 경계를 보여줘요.",
+    "more_en": "<b>Linear Programming (LP)</b> (CLRS 29): optimize a linear objective cᵀx subject to linear constraints Ax ≤ b, x ≥ 0. The feasible region is a <b>convex polygon (polytope)</b>, and a linear objective's optimum always occurs at a <b>vertex</b> (by convexity!). Solvers: the <b>simplex method</b> (move vertex to vertex toward better values, very fast in practice) and <b>interior-point methods</b> (polynomial-time guaranteed). LP is the flagship of <b>polynomial-time</b> optimization (in P), contrasting with NP-hard integer programming (ILP) — restricting variables to integers suddenly makes it hard! Max-flow (#29.4) and bipartite matching are special cases of LP. Uses: <b>production planning, logistics, diet optimization, portfolios, resource allocation</b> — the foundation of industrial optimization. It reveals the subtle complexity boundary: \"continuous is easy (LP), integer is hard (ILP).\"",
+    "problem": {
+      "q": "선형계획법에서 최적해는 실행가능영역의 어디에서 나오나?",
+      "solution": "항상 <b>꼭짓점(vertex)</b>에서. 볼록 영역 + 일차 목적함수이기 때문(심플렉스가 이를 이용).",
+      "q_en": "Where does the optimum of a linear program occur in the feasible region?",
+      "sol_en": "Always at a <b>vertex</b>. Because the region is convex and the objective is linear (simplex exploits this)."
+    }
+  },
+  "algo_br_extgcd": {
+    "ch": "알고리즘 제2장 자료구조",
+    "sec": "2.4 해시 테이블 (자세히)",
+    "title": "확장 유클리드 & 모듈러 역원",
+    "narr": "유클리드 호제법(1장)이 gcd만 구했다면, <b>확장 유클리드</b>는 한 걸음 더 — <b>ax + by = gcd(a,b)</b>를 만족하는 정수 x, y까지 구해요! 이게 <b>모듈러 역원</b>(나눗셈을 곱셈으로)을 주고, RSA 비밀키 계산의 핵심이 됩니다.",
+    "hint": "ax + by = gcd 의 x, y",
+    "more": "<b>확장 유클리드 알고리즘</b>: gcd(a,b)를 구하는 과정을 거꾸로 따라가며 <b>ax + by = gcd(a,b)</b>를 만족하는 정수 x, y를 찾아요(<b>베주 항등식</b>). 핵심 응용 <b>모듈러 역원</b>: gcd(a,m)=1이면 ax + my = 1 → <b>ax ≡ 1 (mod m)</b>이므로 x가 a의 \"mod m 역원\"(나눗셈에 해당). 예) 3·(−2)+7·1=1 → 3⁻¹ ≡ −2 ≡ 5 (mod 7). 왜 중요? mod 세계엔 나눗셈이 없어 \"역원 곱하기\"로 대신하는데, 그 역원을 이게 구해줘요. <b>RSA</b>의 비밀키 d = e의 모듈러 역원(#10.2)이 바로 이걸로 계산되고, <b>중국인의 나머지 정리(CRT)</b>·암호·해시에도 쓰여요. 1장의 가장 오래된 알고리즘(유클리드)이 현대 암호의 심장으로 이어지는 우아한 연결이에요.",
+    "more_en": "<b>The extended Euclidean algorithm</b> retraces the gcd computation to find integers x, y with <b>ax + by = gcd(a,b)</b> (<b>Bézout's identity</b>). Key application — the <b>modular inverse</b>: if gcd(a,m)=1, then ax + my = 1 → <b>ax ≡ 1 (mod m)</b>, so x is the \"inverse of a mod m\" (playing the role of division). E.g. 3·(−2)+7·1=1 → 3⁻¹ ≡ −2 ≡ 5 (mod 7). Why it matters: the mod world has no division, so we multiply by an inverse instead, and this finds it. <b>RSA's</b> private key d = the modular inverse of e (#10.2) is computed this way, and it's used in the <b>Chinese Remainder Theorem (CRT)</b>, cryptography, and hashing. An elegant link from the oldest algorithm (Euclid, Ch.1) to the heart of modern cryptography.",
+    "problem": {
+      "q": "확장 유클리드로 3x + 7y = 1 의 x를 구하면 (mod 7에서 3의 역원)?",
+      "solution": "3·(−2)+7·1=1 → x=−2 ≡ <b>5</b> (mod 7). 즉 3⁻¹ ≡ 5 (3·5=15≡1).",
+      "q_en": "Use extended Euclid for 3x + 7y = 1 to find x (the inverse of 3 mod 7).",
+      "sol_en": "3·(−2)+7·1=1 → x=−2 ≡ <b>5</b> (mod 7). So 3⁻¹ ≡ 5 (3·5=15≡1)."
+    }
+  },
+  "algo_br_closest": {
+    "ch": "알고리즘 제8장 설계 패러다임",
+    "sec": "8.2 분할 정복 (자세히)",
+    "title": "가장 가까운 점 쌍 — O(n log n)",
+    "narr": "평면에 흩어진 점들 중 <b>가장 가까운 두 점</b>을 찾으려면? 모든 쌍의 거리를 재면 O(n²)로 느려요. <b>분할정복</b>으로 좌우로 쪼개 각각 풀고 경계만 영리하게 검사하면 <b>O(n log n)</b>! 계산기하의 대표 결과예요.",
+    "hint": "좌우 분할 + 경계 띠만 검사",
+    "more": "<b>가장 가까운 점 쌍(closest pair)</b>(CLRS 33.4): 평면의 n개 점 중 거리가 최소인 두 점 찾기. 무식하게는 모든 쌍 C(n,2)≈n²/2 비교 = O(n²). <b>분할정복</b>: ① x좌표로 정렬해 <b>좌우 절반으로 분할</b> ② 각 절반에서 재귀로 최소거리 d 구함 ③ <b>병합(결합)</b>: 분할선 양쪽 폭 d인 \"띠(strip)\" 안의 점들만 검사 — 이 띠에선 각 점이 <b>상수 개(≤7~8개)</b>의 이웃만 보면 됨(기하학적 논증!) → 결합도 O(n). 점화식 T(n)=2T(n/2)+O(n) → <b>O(n log n)</b>(마스터 정리!). \"경계 영역만 영리하게\"가 핵심 — 무한해 보이는 교차 비교를 상수로 줄이는 기하적 통찰이에요. 쓰임: <b>충돌 감지(게임·시뮬레이션), 군집화, 지도/배달 서비스, 패턴 인식</b>. 분할정복이 정렬·곱셈을 넘어 기하 문제까지 정복하는 예예요.",
+    "more_en": "<b>Closest pair of points</b> (CLRS 33.4): find the two nearest points among n in the plane. Brute force compares all C(n,2)≈n²/2 pairs = O(n²). <b>Divide and conquer</b>: ① sort by x and <b>split into left/right halves</b>; ② recurse to get each half's minimum distance d; ③ <b>combine</b>: only check points within a <b>strip</b> of width d around the dividing line — within it each point needs to compare with just a <b>constant number (≤7–8)</b> of neighbors (a geometric argument!) → the combine is O(n). The recurrence T(n)=2T(n/2)+O(n) → <b>O(n log n)</b> (Master Theorem!). \"Be clever only at the boundary\" is the key — a geometric insight reducing seemingly infinite cross-comparisons to a constant. Uses: <b>collision detection (games, simulation), clustering, map/delivery services, pattern recognition</b>. An example of divide-and-conquer conquering geometry, beyond sorting and multiplication.",
+    "problem": {
+      "q": "가장 가까운 점 쌍을 분할정복으로 풀 때, 결합 단계에서 검사하는 영역은?",
+      "solution": "분할선 양쪽으로 폭 d인 <b>경계 띠(strip)</b>만 (각 점은 상수 개 이웃만 검사) → O(n).",
+      "q_en": "In the divide-and-conquer closest-pair, which region is checked during the combine step?",
+      "sol_en": "Only the <b>strip</b> of width d around the dividing line (each point checks a constant number of neighbors) → O(n)."
+    }
+  },
   "algo_br_master": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
     "sec": "1.3 빅오 (자세히)",
