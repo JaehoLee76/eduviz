@@ -4,7 +4,7 @@
 (function(){
   var TAU=Math.PI*2;
   // arr: 값 배열(null=빈 자리). hl(i)→{fill,stroke,text} | null
-  function drawTree(E, arr, hl, opts){ opts=opts||{}; var ctx=E.ctx, top=opts.top||E.H*0.20, levelGap=opts.lg||E.H*0.135,
+  function drawTree(E, arr, hl, opts){ opts=opts||{}; var ctx=E.ctx, top=opts.top||E.H*0.30, levelGap=opts.lg||E.H*0.13,
       W=E.W, r=opts.r||22, left=opts.left||W*0.12, right=opts.right||W*0.88;
     function pos(i){ var L=Math.floor(Math.log2(i+1)), cnt=Math.pow(2,L), pil=i-(cnt-1);
       var x=left+(right-left)*((pil+0.5)/cnt), y=top+L*levelGap; return [x,y]; }
@@ -69,7 +69,7 @@
   { id:'algo5_04',
     enter:function(E){ this.heap=[42,28,35,12,18,9,30]; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, H=this.heap;
-      drawTree(E, H, function(i){ if(i===0) return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'최대=루트'}; return null; }, {top:E.H*0.18,lg:E.H*0.13});
+      drawTree(E, H, function(i){ if(i===0) return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'최대=루트'}; return null; }, {top:E.H*0.28,lg:E.H*0.12});
       // 배열 표현
       AV.arr(E, H, { y:E.H*0.66, bw:44, idx:true, hl:function(i){ return i===0?{fill:'rgba(255,178,122,0.25)',stroke:'#ffb27a',text:'#ffb27a'}:null; } });
       ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('배열로 저장: 노드 i의 자식 = 2i+1, 2i+2', E.W/2, E.H*0.62);
@@ -81,9 +81,9 @@
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       // 균형 트리 (왼쪽)
-      drawTree(E, [4,2,6,1,3,5,7], function(){ return {fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5'}; }, {top:E.H*0.20,lg:E.H*0.12,left:E.W*0.04,right:E.W*0.48,r:18});
+      drawTree(E, [4,2,6,1,3,5,7], function(){ return {fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5'}; }, {top:E.H*0.30,lg:E.H*0.12,left:E.W*0.04,right:E.W*0.48,r:18});
       // 편향 트리 (오른쪽) — 일렬
-      drawTree(E, [1,null,2,null,null,null,3,null,null,null,null,null,null,null,4], function(){ return {fill:'rgba(244,160,192,0.2)',stroke:'#f4a0c0',text:'#f4a0c0'}; }, {top:E.H*0.20,lg:E.H*0.11,left:E.W*0.52,right:E.W*0.96,r:18});
+      drawTree(E, [1,null,2,null,null,null,3,null,null,null,null,null,null,null,4], function(){ return {fill:'rgba(244,160,192,0.2)',stroke:'#f4a0c0',text:'#f4a0c0'}; }, {top:E.H*0.30,lg:E.H*0.11,left:E.W*0.52,right:E.W*0.96,r:18});
       ctx.font='600 14px sans-serif'; ctx.textAlign='center';
       ctx.fillStyle='#8fe3b5'; ctx.fillText('균형 트리 → 깊이 log n → O(log n)', E.W*0.26, E.H*0.74);
       ctx.fillStyle='#f4a0c0'; ctx.fillText('편향 트리 → 깊이 n → O(n) ✗', E.W*0.74, E.H*0.74);

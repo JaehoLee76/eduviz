@@ -15,7 +15,7 @@
     cv = canvas; ctx = cv.getContext('2d'); resize();
     global.addEventListener('resize', function(){ resize(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
   }
-  function resize(){ DPR=global.devicePixelRatio||1; W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  function resize(){ DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
   function layoutOnly(s){ if(s.layout) s.layout(E); }
 
   // ---------- Sound (듣고) ----------
@@ -187,6 +187,7 @@
       var lastBranch=(sc.branchOf!=null); // 분기 안에서는 '다음'이 다음 분기/뼈대 복귀
       nb.textContent=lastSpine?'처음으로 ↺':'다음 ▸'; }
     controls(''); big(null); setStudy(sc);
+    setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(sc.enter) sc.enter(E);
     paintTOC(); progress(); blip(660,0.14);
   }
@@ -204,13 +205,44 @@
   function enterBranch(){ var sc=SM.scenes[SM.cur]; if(sc._isSpine && sc._branches && sc._branches.length) goTo(sc._branches[0]); }
   function exitBranch(){ var sc=SM.scenes[SM.cur]; if(sc.branchOf!=null) goTo(sc._parentIdx); }
 
+  // ---------- VIZ MODE: 코드 + 애니메이션 + 단계 컨트롤 (알고리즘 트랙) ----------
+  // 장면이 .code(코드 줄 배열) + .build(V)→frames 를 가지면 viz 장면.
+  // 각 frame = {line:코드줄(또는 배열), cap:설명HTML, ...상태}. draw(V, frame)로 렌더.
+  // 코드 패널/스텝바 DOM이 없는 페이지(math.html)나 코드 없는 장면은 전혀 영향 없음(레거시 풀스크린).
+  var codeBodyEl, codeHeadEl, stepStpEl, stepCapEl, sbPrev, sbNext, sbAuto, sbReset;
+  var _steps=null, _stepI=0, _autoT=null;
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function renderCode(sc){ if(!codeBodyEl) return; var h='';
+    for(var i=0;i<sc.code.length;i++){ h+='<div class="cl" data-i="'+i+'"><span class="ln">'+i+'</span><span class="ct">'+escHtml(sc.code[i])+'</span></div>'; }
+    codeBodyEl.innerHTML=h; }
+  function paintStep(){ if(!_steps) return; var f=_steps[_stepI]||{};
+    if(codeBodyEl){ var cls=codeBodyEl.querySelectorAll('.cl'); for(var i=0;i<cls.length;i++) cls[i].classList.remove('on');
+      var lines=(f.line!=null)?(Array.isArray(f.line)?f.line:[f.line]):[];
+      lines.forEach(function(ln){ var el=codeBodyEl.querySelector('.cl[data-i="'+ln+'"]'); if(el){ el.classList.add('on'); el.scrollIntoView({block:'nearest'}); } }); }
+    if(stepStpEl) stepStpEl.textContent='STEP '+(_stepI+1)+' / '+_steps.length;
+    if(stepCapEl) stepCapEl.innerHTML=f.cap||'';
+    if(sbPrev) sbPrev.disabled=(_stepI<=0);
+    if(sbNext) sbNext.disabled=(_stepI>=_steps.length-1); }
+  function stepNext(){ if(_steps&&_stepI<_steps.length-1){ _stepI++; paintStep(); blip(560,0.06); } else stopAuto(); }
+  function stepPrev(){ if(_steps&&_stepI>0){ _stepI--; paintStep(); blip(420,0.06); } }
+  function stepReset(){ if(_steps){ _stepI=0; paintStep(); stopAuto(); blip(340,0.1); } }
+  function stopAuto(){ if(_autoT){ clearInterval(_autoT); _autoT=null; if(sbAuto) sbAuto.textContent='▶ 자동 재생'; } }
+  function toggleAuto(){ if(_autoT){ stopAuto(); return; } if(!_steps) return; if(_stepI>=_steps.length-1){ _stepI=0; paintStep(); }
+    if(sbAuto) sbAuto.textContent='⏸ 정지'; _autoT=setInterval(function(){ if(_stepI>=_steps.length-1){ stopAuto(); return; } stepNext(); }, 820); }
+  function setVizMode(sc){ var viz=!!(sc.code&&sc.build); sc._viz=viz;
+    if(document.body) document.body.classList.toggle('viz',viz);
+    stopAuto(); resize();
+    if(viz){ setOn([]); if(codeHeadEl) codeHeadEl.textContent='📌 '+(sc.title||'CODE');
+      renderCode(sc); _steps=sc.build(E)||[]; _stepI=0; paintStep(); }
+    else { _steps=null; } }
+
   // ---------- main loop ----------
   var frameN=0;
   function loop(){ frameN++; ctx.clearRect(0,0,W,H);
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
-    if(sc&&sc.draw) sc.draw(E,ctx);     // 전경
+    if(sc&&sc.draw){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달
     requestAnimationFrame(loop);
   }
 
@@ -274,17 +306,22 @@
       else if(e.key==='ArrowLeft'){ prev(); e.preventDefault(); }
       else if(e.key==='ArrowDown'){ enterBranch(); e.preventDefault(); }   // ↓ 분기(자세히)로 들어가기
       else if(e.key==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 뼈대로 나오기
-      // Space/Enter = 현재 장면 한 단계 실행(tap) — 캔버스 클릭이 막힌 환경(일부 미리보기)용 대체 입력
-      else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
+      // Space/Enter = 한 단계 진행 (viz면 다음 스텝, 레거시면 tap). 캔버스 클릭 막힌 환경 대체 입력
+      else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s._viz){ stepNext(); e.preventDefault(); } else if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
+    // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
+    codeBodyEl=document.getElementById('codeBody'); codeHeadEl=document.getElementById('codeHead');
+    stepStpEl=document.getElementById('stepStp'); stepCapEl=document.getElementById('stepCap');
+    sbPrev=document.getElementById('sbPrev'); sbNext=document.getElementById('sbNext'); sbAuto=document.getElementById('sbAuto'); sbReset=document.getElementById('sbReset');
+    if(sbPrev)sbPrev.onclick=stepPrev; if(sbNext)sbNext.onclick=stepNext; if(sbAuto)sbAuto.onclick=toggleAuto; if(sbReset)sbReset.onclick=stepReset;
     // 학습 패널: 꺽쇠 펼침 + 풀이 토글
     studyEl=document.getElementById('study'); studyMore=document.getElementById('studyMore'); studyProb=document.getElementById('studyProblem'); chevLabel=document.getElementById('chevLabel');
     var chevBtn=document.getElementById('chevBtn');
     if(chevBtn) chevBtn.onclick=function(){ var open=studyEl.classList.toggle('open'); if(chevLabel)chevLabel.textContent=open?'접기':'자세히 보기'; };
     if(studyProb) studyProb.addEventListener('click',function(e){ if(e.target&&e.target.classList&&e.target.classList.contains('sol-toggle')){ var s=studyProb.querySelector('.prob-sol'); var op=s.classList.toggle('show'); e.target.textContent=op?'풀이 숨기기 ▴':'풀이 보기 ▾'; } });
     // pointer routing
-    cv.addEventListener('pointerdown',function(e){ var s=SM.scenes[SM.cur]; if(s){ if(s.down)s.down(E,e.clientX,e.clientY); if(s.tap)s.tap(E,e.clientX,e.clientY);} });
+    cv.addEventListener('pointerdown',function(e){ var s=SM.scenes[SM.cur]; if(s){ if(s._viz){ stepNext(); return; } if(s.down)s.down(E,e.clientX,e.clientY); if(s.tap)s.tap(E,e.clientX,e.clientY);} });
     cv.addEventListener('pointermove',function(e){ var s=SM.scenes[SM.cur]; if(s&&s.move)s.move(E,e.clientX,e.clientY); });
     cv.addEventListener('pointerup',function(e){ var s=SM.scenes[SM.cur]; if(s&&s.up)s.up(E); });
     // 눈 깜빡임
