@@ -383,6 +383,66 @@
         {t:'→ RSA 복호화(#10.2)·소수 판정의 핵심 정리', c:'#9b99a3', fs:15}
       ], {y0:E.H*0.28, lh:E.H*0.09});
       E.big('페르마 소정리 — 합동의 황금률', '소수 p에 대해 a^(p−1)≡1 (mod p)! #84 거듭제곱 주기의 이유를 설명하는 정리. RSA가 cᵈ≡m으로 복원되는 근거이자, 빠른 소수 판정(밀러-라빈)의 토대 — 현대 암호의 수학적 심장'); }
+  },
+
+  // ══════ 회전변환(ch22_01) ▸ 회전행렬의 합성 ══════
+  { id:'math_br_rotcompose', branchOf:'ch22_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ steps(E, [
+      {t:'R(α)·R(β) = R(α+β)  — 두 회전을 이으면 각이 더해진다', c:'#ffb27a', b:true, fs:19},
+      {t:'행렬 곱 [[cosα,−sinα],[sinα,cosα]] · [[cosβ,−sinβ],[sinβ,cosβ]]', c:'#cfcdc6', fs:15},
+      {t:'(1,1) 성분: cosα cosβ − sinα sinβ = cos(α+β)', c:'#7ab8ff'},
+      {t:'(2,1) 성분: sinα cosβ + cosα sinβ = sin(α+β)', c:'#7ab8ff'},
+      {t:'= [[cos(α+β),−sin(α+β)],[…]]  =  R(α+β)', c:'#8fe3b5', b:true, fs:18},
+      {t:'★행렬 곱셈을 전개하면 8장 덧셈정리(#55)가 튀어나온다!', c:'#f4a0c0', fs:15}
+    ], {y0:E.H*0.26, lh:E.H*0.085});
+      E.big('회전의 합성 = 각의 덧셈', '두 회전행렬을 곱하면 회전각이 더해진 회전행렬! 그 곱을 전개하면 삼각함수 덧셈정리(#55)가 그대로 나와요. 기하(회전)·대수(행렬)·삼각(덧셈정리)·복소수(#65)가 한 사실의 네 얼굴'); }
+  },
+
+  // ══════ 실수 비가산(ch24_04) ▸ 칸토어의 정리(무한의 위계) ══════
+  { id:'math_br_cantor', branchOf:'ch24_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
+      steps(E, [
+        {t:'칸토어의 정리:  |P(A)| > |A|  (멱집합은 항상 더 크다)', c:'#ffb27a', b:true, fs:19},
+        {t:'어떤 집합이든 그 부분집합 전체의 모임이 더 크다 (대각선 논법)', c:'#cfcdc6', fs:15}
+      ], {y0:E.H*0.24, lh:E.H*0.07});
+      // 무한의 위계
+      ctx.font='600 17px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('ℵ₀  <  𝔠 = 2^ℵ₀  <  2^𝔠  <  …', cx, E.H*0.50);
+      ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif';
+      ctx.fillText('자연수 < 실수 < 실수의 부분집합들 < … 끝없이 큰 무한들', cx, E.H*0.58);
+      ctx.fillStyle='#f4a0c0'; ctx.font='13px sans-serif';
+      ctx.fillText('연속체 가설: ℵ₀와 𝔠 사이에 다른 무한이 있는가? → "증명도 반증도 불가"(괴델·코언)', cx, E.H*0.68);
+      E.big('칸토어의 정리 — 무한에도 끝없는 위계', '멱집합 P(A)는 늘 A보다 크다(|P(A)|=2^|A|>|A|). 그래서 무한은 하나가 아니라 ℵ₀<𝔠<2^𝔠<… 끝없이 큰 무한의 사다리! 실수 비가산(#135)의 일반화 — 수학에 "가장 큰 무한"은 없어요'); }
+  },
+
+  // ══════ 연속의 엄밀한 정의(ch25_03) ▸ 코시 수열·완비성 ══════
+  { id:'math_br_cauchy', branchOf:'ch25_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ steps(E, [
+      {t:'코시 수열: 항들이 서로 한없이 가까워지는 수열', c:'#ffb27a', b:true, fs:18},
+      {t:'(∀ε>0, 충분히 뒤의 두 항 거리 < ε — 극한값을 몰라도 판정!)', c:'#9b99a3', fs:14},
+      {t:'실수의 완비성: 모든 코시 수열은 실수 안에서 수렴한다', c:'#7ab8ff', b:true},
+      {t:'유리수엔 "구멍"이: √2로 가는 코시 수열이 유리수 안엔 극한이 없음', c:'#f4a0c0'},
+      {t:'→ 실수 = 유리수의 구멍을 메워 완비하게 만든 수 체계', c:'#8fe3b5', b:true, fs:17}
+    ], {y0:E.H*0.28, lh:E.H*0.09});
+      E.big('코시 수열 & 실수의 완비성', '극한값을 미리 몰라도 "항들이 서로 가까워지면" 수렴을 판정(코시). ★실수는 코시 수열이 항상 수렴하는 "완비"한 체계 — 1장 √2(#5)가 만든 유리수의 구멍을 메운 결과. 미적분이 실수 위에서만 안전한 이유'); }
+  },
+
+  // ══════ 정규분포(ch26_03) ▸ 기댓값과 분산 ══════
+  { id:'math_br_expvar', branchOf:'ch26_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, vals=[1,2,3,4,5,6], baseY=E.H*0.6, bw=54, gap=16, total=6*bw+5*gap, x0=cx-total/2, h=E.H*0.16;
+      // 주사위 균등분포 막대
+      for(var i=0;i<6;i++){ var x=x0+i*(bw+gap); ctx.fillStyle='rgba(122,184,255,0.3)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.fillRect(x,baseY-h,bw,h); ctx.strokeRect(x,baseY-h,bw,h);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(vals[i],x+bw/2,baseY+20); ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('1/6',x+bw/2,baseY-h-8); }
+      // 평균선
+      var mx=x0+3*(bw+gap)-gap/2; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(mx,baseY-h-20); ctx.lineTo(mx,baseY+4); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.fillText('평균 μ = 3.5', mx, baseY-h-26);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('E[X] = Σ x·p(x) = 3.5   ·   분산 Var = E[(X−μ)²] ≈ 2.92', cx, E.H*0.78);
+      E.big('기댓값과 분산 — 분포의 중심과 퍼짐', '기댓값 E[X]=Σx·p(x)는 "평균적으로 기대되는 값"(무게중심), 분산은 평균에서 얼마나 퍼졌는지. 정규분포(#141)는 (μ, σ²)로 완전히 결정! 통계·투자위험·머신러닝의 기본 측도'); }
   }
 
   ];

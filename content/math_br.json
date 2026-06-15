@@ -359,6 +359,66 @@
       "sol_en": "p=7 is prime and 3 is not a multiple of 7 → 3⁶ ≡ <b>1</b> (mod 7)."
     }
   },
+  "math_br_rotcompose": {
+    "ch": "제22장 일차변환",
+    "sec": "22.2 평면의 일차변환 (자세히)",
+    "title": "회전의 합성 = 각의 덧셈",
+    "narr": "두 회전을 연달아 하면? 당연히 <b>각이 더해진</b> 회전이죠. 행렬로 보면 <b>R(α)·R(β) = R(α+β)</b>. 그런데 이 행렬 곱을 직접 전개하면 — 놀랍게도 <b>8장의 덧셈정리(#55)가 그대로 튀어나와요</b>! 기하·대수·삼각이 하나로 만나요.",
+    "hint": "회전행렬 곱 = 각의 합",
+    "more": "<b>회전행렬의 합성</b>: 각 α 회전 후 각 β 회전 = 각 (α+β) 회전, 즉 <b>R(α)·R(β) = R(α+β)</b>(22장 #123). 회전행렬 R(θ)=[[cosθ,−sinθ],[sinθ,cosθ]]를 곱해 (1,1)·(2,1) 성분을 계산하면 cosα cosβ − sinα sinβ, sinα cosβ + cosα sinβ가 나오는데, 이게 정확히 <b>cos(α+β), sin(α+β)</b>(8장 덧셈정리 #55)! 즉 \"회전을 잇는다\"는 기하적 사실이 행렬 곱(대수)으로, 또 삼각함수 덧셈정리로, 그리고 복소수 곱(#65, e^(iα)e^(iβ)=e^(i(α+β)))로 — <b>한 진리의 네 얼굴</b>이에요. 이래서 회전은 행렬·복소수·삼각함수 어느 언어로도 표현돼요. 3D 회전(쿼터니언)·로봇·그래픽스의 토대이고, 군(group) 구조(회전들의 합성이 군을 이룸)로 이어져요.",
+    "more_en": "<b>Composition of rotations</b>: rotating by α then β equals rotating by (α+β), i.e. <b>R(α)·R(β) = R(α+β)</b> (Ch.22 #123). Multiplying R(θ)=[[cosθ,−sinθ],[sinθ,cosθ]] and computing the (1,1) and (2,1) entries gives cosα cosβ − sinα sinβ and sinα cosβ + cosα sinβ — exactly <b>cos(α+β), sin(α+β)</b> (Ch.8 addition formulas #55)! So the geometric fact \"compose rotations\" appears as matrix multiplication (algebra), as the trig addition formula, and as complex multiplication (#65, e^(iα)e^(iβ)=e^(i(α+β))) — <b>four faces of one truth</b>. This is why rotation can be expressed in matrices, complex numbers, or trig. It underlies 3D rotation (quaternions), robotics, and graphics, and leads to group structure (rotations form a group under composition).",
+    "problem": {
+      "q": "30° 회전 후 60° 회전하면 전체 회전각은? 행렬로는?",
+      "solution": "30°+60° = <b>90° 회전</b>. R(30°)·R(60°) = R(90°) (각이 더해짐).",
+      "q_en": "Rotating by 30° then 60° gives what total rotation? As matrices?",
+      "sol_en": "30°+60° = <b>90° rotation</b>. R(30°)·R(60°) = R(90°) (angles add)."
+    }
+  },
+  "math_br_cantor": {
+    "ch": "제24장 집합론",
+    "sec": "24.4 비가산·연속의 농도 (자세히)",
+    "title": "칸토어의 정리 — 무한의 끝없는 위계",
+    "narr": "<b>실수가 자연수보다 큰 무한(#135)</b>임을 봤죠. 그럼 가장 큰 무한이 있을까요? <b>없어요!</b> 칸토어의 정리: 어떤 집합이든 그 <b>부분집합 전체의 모임(멱집합)이 항상 더 크다</b>. 그래서 무한은 끝없이 더 큰 무한으로 올라가는 사다리예요.",
+    "hint": "멱집합 |P(A)| > |A| 항상",
+    "more": "<b>칸토어의 정리</b>: 임의의 집합 A에 대해 <b>|P(A)| > |A|</b> (멱집합 = A의 모든 부분집합의 집합, 크기 2^|A|). 증명은 대각선 논법(#135)의 일반화 — A에서 P(A)로의 어떤 대응도 \"빠지는 부분집합\"을 만들 수 있어 전단사 불가. 결과: 무한은 하나가 아니라 <b>ℵ₀(자연수) < 𝔠=2^ℵ₀(실수) < 2^𝔠 < …</b> 끝없이 큰 무한들의 위계! \"가장 큰 무한\"은 존재하지 않아요. 관련 난제 <b>연속체 가설</b>: ℵ₀와 𝔠 사이에 다른 무한이 있는가? → 괴델·코언이 \"현 공리계(ZFC)로는 증명도 반증도 불가능\"함을 증명(독립성). 유한의 직관을 완전히 초월한 무한의 세계 — 칸토어가 연 현대 수학의 가장 깊은 영역이에요. (24·25장 엄밀화의 정점.)",
+    "more_en": "<b>Cantor's theorem</b>: for any set A, <b>|P(A)| > |A|</b> (the power set = all subsets of A, of size 2^|A|). The proof generalizes the diagonal argument (#135) — any map from A to P(A) misses a constructible subset, so no bijection exists. Result: infinity is not single but a hierarchy <b>ℵ₀ (naturals) < 𝔠=2^ℵ₀ (reals) < 2^𝔠 < …</b> of ever-larger infinities! There is no \"largest infinity.\" The related open problem, the <b>Continuum Hypothesis</b> (is there an infinity strictly between ℵ₀ and 𝔠?), was shown by Gödel and Cohen to be <b>independent of the standard axioms (ZFC)</b> — neither provable nor disprovable. A world of infinity utterly beyond finite intuition — the deepest realm of modern mathematics opened by Cantor. (The summit of Ch.24/25 rigor.)",
+    "problem": {
+      "q": "원소 3개인 집합의 멱집합(부분집합 전체)의 크기는?",
+      "solution": "2³ = <b>8</b>개 (각 원소를 넣거나 빼거나 → 2×2×2). 항상 원집합(3)보다 큼.",
+      "q_en": "How many subsets does a 3-element set have (its power set size)?",
+      "sol_en": "2³ = <b>8</b> (each element in or out → 2×2×2). Always larger than the original (3)."
+    }
+  },
+  "math_br_cauchy": {
+    "ch": "제25장 엄밀한 극한",
+    "sec": "25.2 함수의 극한 (자세히)",
+    "title": "코시 수열과 실수의 완비성",
+    "narr": "극한값을 <b>미리 모르고도</b> 수렴을 판정할 수 있을까요? <b>코시 수열</b>이면 돼요 — 항들이 자기들끼리 한없이 가까워지면 수렴! 그리고 실수는 \"코시 수열이 항상 수렴하는\" <b>완비</b>한 체계예요. 1장 √2가 만든 유리수의 구멍을 메운 결과죠.",
+    "hint": "항들이 서로 가까워짐 = 수렴",
+    "more": "<b>코시 수열</b>: 충분히 뒤로 가면 임의의 두 항의 거리가 ε보다 작아지는 수열(∀ε>0 ∃N, m,n>N → |aₘ−aₙ|<ε). 핵심: <b>극한값 L을 몰라도</b> 항들끼리의 거리만으로 수렴 여부를 판정! <b>실수의 완비성</b>: 실수에서는 \"모든 코시 수열이 수렴한다\". 하지만 <b>유리수엔 구멍</b>이 있어요 — 1, 1.4, 1.41, 1.414…처럼 √2로 가는 코시 수열은 유리수 안에선 수렴할 곳(√2)이 없죠(1장 #5 무리수!). 그래서 <b>실수 = 유리수의 모든 구멍을 메워(코시 수열의 극한을 다 추가해) 완비하게 만든 수 체계</b>로 정의할 수 있어요(데데킨트 절단·코시 완비화). 미적분의 극한·연속·적분이 실수 위에서만 안전한 근본 이유 — 25장 엄밀 극한의 토대이자, 1장에서 시작한 \"수의 완성\" 여정의 결말이에요.",
+    "more_en": "<b>Cauchy sequence</b>: a sequence whose terms get arbitrarily close to each other far enough out (∀ε>0 ∃N, m,n>N → |aₘ−aₙ|<ε). Key: you can decide convergence from the terms' mutual closeness <b>without knowing the limit L</b>! <b>Completeness of the reals</b>: in ℝ, \"every Cauchy sequence converges.\" But the <b>rationals have gaps</b> — a Cauchy sequence like 1, 1.4, 1.41, 1.414… heading to √2 has nowhere to converge within ℚ (Ch.1 #5, irrationality!). So <b>the reals can be defined as the rationals completed by filling all gaps</b> (adding all Cauchy-sequence limits; Dedekind cuts / Cauchy completion). This is the fundamental reason calculus' limits, continuity, and integrals are safe only over ℝ — the foundation of Ch.25's rigorous limits and the finale of the \"completing number\" journey begun in Ch.1.",
+    "problem": {
+      "q": "1, 1.4, 1.41, 1.414, … 코시 수열은 유리수 안에서 수렴할까?",
+      "solution": "<b>아니요</b>. 극한 √2가 무리수라 유리수엔 없음 → 유리수는 불완비. 실수에선 수렴(완비).",
+      "q_en": "Does the Cauchy sequence 1, 1.4, 1.41, 1.414, … converge within the rationals?",
+      "sol_en": "<b>No</b>. Its limit √2 is irrational, absent from ℚ → the rationals are incomplete. In ℝ it converges (complete)."
+    }
+  },
+  "math_br_expvar": {
+    "ch": "제26장 종합",
+    "sec": "26.4 확률분포와 평균 (자세히)",
+    "title": "기댓값과 분산 — 분포의 중심과 퍼짐",
+    "narr": "확률분포를 두 숫자로 요약하면? <b>기댓값(평균)</b>은 중심이 어디인지, <b>분산</b>은 얼마나 퍼졌는지예요. 주사위의 기댓값은 3.5! 정규분포(#141)는 이 (평균, 분산) 단 둘로 완전히 결정돼요. 통계와 위험 측정의 기본이에요.",
+    "hint": "기댓값=중심, 분산=퍼짐",
+    "more": "<b>기댓값(expected value) E[X] = Σ x·p(x)</b> (연속이면 ∫x·p(x)dx): 각 값을 그 확률로 가중한 평균 = 분포의 <b>무게중심</b>, \"수없이 반복하면 평균적으로 나오는 값\"(큰수의 법칙 #93). 예) 공정한 주사위 E[X]=(1+…+6)/6=3.5. <b>분산 Var(X)=E[(X−μ)²]</b>: 평균에서 떨어진 정도의 제곱 평균 = <b>퍼짐</b>의 측도(주사위 ≈2.92), 그 제곱근이 <b>표준편차 σ</b>. 정규분포(#141)는 (μ, σ²) 단 둘로 완전히 결정되죠. 성질: E는 선형(E[aX+b]=aE[X]+b), 독립이면 Var 합. 쓰임: <b>투자 위험(기대수익 vs 변동성), 보험·도박의 기댓값, 머신러닝 손실(평균제곱오차=분산), 신뢰구간</b>. 16장 확률에서 시작해 통계·금융·AI로 이어지는 핵심 측도예요 — 불확실성을 두 숫자로 길들이는 법.",
+    "more_en": "<b>Expected value E[X] = Σ x·p(x)</b> (or ∫x·p(x)dx if continuous): the probability-weighted average = the distribution's <b>center of mass</b>, the value you get on average over many repeats (law of large numbers #93). E.g. a fair die: E[X]=(1+…+6)/6=3.5. <b>Variance Var(X)=E[(X−μ)²]</b>: the mean squared distance from the average = a measure of <b>spread</b> (≈2.92 for a die), and its square root is the <b>standard deviation σ</b>. The normal distribution (#141) is fully determined by just (μ, σ²). Properties: E is linear (E[aX+b]=aE[X]+b); variances add for independent variables. Uses: <b>investment risk (expected return vs volatility), expected value in insurance and gambling, ML loss (mean squared error = variance), confidence intervals</b>. Starting from Ch.16 probability, it extends to statistics, finance, and AI — taming uncertainty with two numbers.",
+    "problem": {
+      "q": "공정한 동전(앞=1, 뒤=0)의 기댓값 E[X]는?",
+      "solution": "1·(1/2) + 0·(1/2) = <b>0.5</b>. (평균적으로 0.5)",
+      "q_en": "For a fair coin (heads=1, tails=0), what is E[X]?",
+      "sol_en": "1·(1/2) + 0·(1/2) = <b>0.5</b> (0.5 on average)."
+    }
+  },
   "math_br_difrules": {
     "ch": "제17장 미분",
     "sec": "17.4 여러 미분법 (자세히)",
