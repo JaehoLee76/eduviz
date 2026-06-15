@@ -119,6 +119,81 @@
       "sol_en": "<b>O(n)</b> (not O(n log n)). Bottom nodes are numerous but sift down only a little, summing to linear."
     }
   },
+  "algo_br_topo": {
+    "ch": "알고리즘 제6장 그래프",
+    "sec": "6.2 그래프 탐색 (자세히)",
+    "title": "위상 정렬 — 순서 있는 작업 줄세우기",
+    "narr": "옷 입는 순서처럼, \"A를 끝내야 B를 할 수 있는\" 작업들이 있어요. 이런 <b>의존 관계(방향 그래프)</b>를 어기지 않게 일렬로 줄 세우는 게 <b>위상 정렬</b>이에요. \"속옷→바지→벨트\"는 지키되 독립 작업은 자유롭게! DFS 한 번이면 끝납니다.",
+    "hint": "모든 화살표가 앞→뒤가 되게 줄세우기",
+    "more": "<b>위상 정렬(topological sort)</b>(CLRS 20.4): <b>방향 비순환 그래프(DAG)</b>의 정점을, 모든 간선 u→v에 대해 <b>u가 v보다 앞</b>에 오도록 일렬로 나열해요. 구현: <b>DFS</b>를 돌려 각 정점이 \"완료(끝)\"되는 순서의 <b>역순</b>이 위상 순서(스택에 쌓기). O(V+E). 사이클이 있으면 위상 정렬 불가(순환 의존 = 닭과 달걀). 쓰임: <b>빌드 시스템</b>(파일 컴파일 순서), <b>작업 스케줄링</b>, <b>스프레드시트 셀 계산 순서</b>, <b>선수과목</b>, 패키지 의존성 해결. 유효한 순서가 여러 개일 수 있어요(독립 작업끼리는 순서 무관). DFS(6장)의 대표 응용이고, 다음의 SCC와 짝을 이뤄요.",
+    "more_en": "<b>Topological sort</b> (CLRS 20.4): order the vertices of a <b>directed acyclic graph (DAG)</b> so that for every edge u→v, <b>u comes before v</b>. Implementation: run <b>DFS</b> and take the <b>reverse</b> of the order in which vertices finish (push onto a stack). O(V+E). If there's a cycle, no topological order exists (circular dependency). Uses: <b>build systems</b> (compile order), <b>task scheduling</b>, <b>spreadsheet recalculation order</b>, <b>course prerequisites</b>, package dependency resolution. Multiple valid orders may exist (independent tasks are unordered). A flagship application of DFS (Ch.6), paired with SCC next.",
+    "problem": {
+      "q": "위상 정렬이 불가능한 그래프는?",
+      "solution": "<b>사이클(순환)이 있는 그래프</b> — A→B→A 같은 순환 의존은 줄세울 수 없어요(DAG여야 함).",
+      "q_en": "On what graph is topological sort impossible?",
+      "sol_en": "A graph <b>with a cycle</b> — circular dependencies like A→B→A can't be linearized (must be a DAG)."
+    }
+  },
+  "algo_br_scc": {
+    "ch": "알고리즘 제6장 그래프",
+    "sec": "6.2 그래프 탐색 (자세히)",
+    "title": "강연결요소(SCC) — 서로 오가는 덩어리",
+    "narr": "방향 그래프에서 <b>서로 오갈 수 있는</b> 정점들의 그룹을 <b>강연결요소(SCC)</b>라 해요. \"나→너, 너→나\"가 가능한 최대 묶음이죠. SNS에서 서로 영향 주는 무리, 웹의 상호 링크 군집을 찾는 데 써요. DFS 두 번이면 O(V+E)에 찾습니다!",
+    "hint": "서로 도달 가능한 최대 그룹",
+    "more": "<b>강연결요소(Strongly Connected Component)</b>(CLRS 20.5): 방향 그래프에서 <b>임의의 두 정점 u, v가 서로에게 도달 가능한</b> 최대 정점 집합. SCC들을 하나로 묶으면 그래프가 <b>DAG(SCC 그래프)</b>가 돼요. 찾는 법(코사라주 알고리즘): ① 원그래프에서 <b>DFS</b>로 완료 순서 기록 ② 모든 간선을 뒤집은 <b>역그래프</b>에서 완료 역순으로 <b>DFS</b> → 각 DFS 트리가 하나의 SCC. O(V+E)(타잔 알고리즘은 DFS 한 번). 쓰임: SNS 커뮤니티 탐지, 웹 페이지 군집, 2-SAT 풀이, 데드락 탐지. 위상 정렬과 함께 DFS의 깊은 응용 — \"방향 그래프의 구조를 꿰뚫어 보는\" 도구예요.",
+    "more_en": "<b>Strongly Connected Component (SCC)</b> (CLRS 20.5): a maximal set of vertices where <b>every pair u, v can reach each other</b> in a directed graph. Contracting each SCC turns the graph into a <b>DAG (the component graph)</b>. Finding them (Kosaraju): ① <b>DFS</b> the original graph recording finish times; ② <b>DFS</b> the <b>transpose</b> (all edges reversed) in reverse finish order → each DFS tree is one SCC. O(V+E) (Tarjan does it in a single DFS). Uses: social-network community detection, web page clustering, 2-SAT solving, deadlock detection. With topological sort, a deep application of DFS — a tool for seeing the structure of directed graphs.",
+    "problem": {
+      "q": "A→B, B→C, C→A 인 그래프의 SCC는 몇 개?",
+      "solution": "셋이 서로 오갈 수 있으므로 <b>1개</b> {A,B,C} (하나의 큰 강연결요소).",
+      "q_en": "How many SCCs in a graph with A→B, B→C, C→A?",
+      "sol_en": "All three reach each other, so <b>1</b> SCC {A,B,C}."
+    }
+  },
+  "algo_br_bellman": {
+    "ch": "알고리즘 제6장 그래프",
+    "sec": "6.3 최단 경로 (자세히)",
+    "title": "벨만-포드 — 음수 간선도 다루기",
+    "narr": "다익스트라(6장)는 빠르지만 <b>음수 간선</b>이 있으면 틀려요(그리디라 한 번 확정한 걸 안 바꿈). <b>벨만-포드</b>는 더 느리지만 <b>음수 가중치도 정확히</b> 다루고, <b>음수 사이클</b>까지 탐지해요. 모든 간선을 V−1번 반복 완화하는 우직함의 힘!",
+    "hint": "분홍=음수 간선 (다익스트라 불가)",
+    "more": "<b>벨만-포드 알고리즘</b>(CLRS 22.1): 출발점에서 모든 정점까지 최단 거리를 구하되 <b>음수 간선을 허용</b>해요. 방법: 모든 간선에 대해 \"더 짧은 길 있으면 갱신\"(완화, relaxation)을 <b>V−1번 반복</b>. 왜 V−1번? 최단 경로는 간선을 최대 V−1개 쓰므로, 매 라운드 최소 한 정점의 거리가 확정돼요. <b>O(VE)</b>(다익스트라 O(E log V)보다 느림). 핵심 보너스: V−1번 후에도 <b>또 완화되면 음수 사이클 존재</b> → 탐지 가능(다익스트라엔 없는 기능). 쓰임: 환율 차익거래 탐지(음수 사이클=무한 이득), 네트워크 라우팅(거리 벡터). 다익스트라(그리디)와 벨만-포드(완화 반복)는 음수 간선 유무로 갈라지는 최단경로의 두 축이에요.",
+    "more_en": "<b>Bellman-Ford</b> (CLRS 22.1): shortest paths from a source, but <b>allowing negative-weight edges</b>. Method: <b>relax all edges V−1 times</b> (\"update if a shorter path exists\"). Why V−1? A shortest path uses at most V−1 edges, so each round finalizes at least one vertex. <b>O(VE)</b> (slower than Dijkstra's O(E log V)). Key bonus: if any edge can <b>still be relaxed after V−1 rounds, a negative cycle exists</b> → detectable (Dijkstra can't). Uses: currency arbitrage detection (a negative cycle = infinite gain), network routing (distance vector). Dijkstra (greedy) and Bellman-Ford (iterative relaxation) are the two pillars of shortest paths, split by whether negative edges occur.",
+    "problem": {
+      "q": "음수 간선이 있을 때 다익스트라 대신 무엇을 쓰나?",
+      "solution": "<b>벨만-포드</b> (음수 간선 허용 + 음수 사이클 탐지). 다익스트라는 음수에서 틀림.",
+      "q_en": "With negative edges, what do you use instead of Dijkstra?",
+      "sol_en": "<b>Bellman-Ford</b> (allows negative edges and detects negative cycles); Dijkstra is incorrect with negatives."
+    }
+  },
+  "algo_br_floyd": {
+    "ch": "알고리즘 제6장 그래프",
+    "sec": "6.3 최단 경로 (자세히)",
+    "title": "플로이드-워셜 — 모든 쌍 최단경로",
+    "narr": "한 출발점이 아니라 <b>모든 정점 쌍</b> 사이의 최단 거리를 한 번에 구하려면? <b>플로이드-워셜</b>! 거리표(행렬)를 두고, <b>\"k를 거쳐 가면 더 짧은가?\"</b>를 모든 k에 대해 확인해 갱신해요. k를 늘려보세요.",
+    "hint": "k를 늘려 거리표가 짧아지는 걸 보세요",
+    "more": "<b>플로이드-워셜 알고리즘</b>(CLRS 23.2): <b>모든 쌍 최단 경로(All-Pairs Shortest Path)</b>를 동적계획법(7장)으로 풀어요. dist[i][j]를 거리 행렬에 두고, 중간 경유 정점을 0~k까지 하나씩 늘리며 <b>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</b>로 갱신. 삼중 반복(k, i, j)이라 <b>O(V³)</b>. 음수 간선 OK(음수 사이클은 안 됨). 다익스트라를 모든 정점에서 V번 돌리는 것(O(VE log V))과 비교해, 조밀한 그래프나 작은 V에 단순·효율적이죠. 코드가 단 3중 for문으로 놀랍도록 짧아요. \"중간 정점을 하나씩 허용\"이라는 DP 점화식이 핵심 — 알고리즘 설계의 우아함을 보여줘요.",
+    "more_en": "<b>Floyd-Warshall</b> (CLRS 23.2): solves <b>All-Pairs Shortest Paths</b> with dynamic programming (Ch.7). Keep dist[i][j] in a matrix and, allowing intermediate vertices 0..k one at a time, update <b>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</b>. The triple loop (k, i, j) gives <b>O(V³)</b>. Negative edges are fine (no negative cycles). Compared to running Dijkstra from every vertex (O(VE log V)), it's simpler and efficient for dense graphs or small V. Its code is astonishingly short — three nested loops. The DP recurrence \"allow one more intermediate vertex\" is the key idea, showcasing the elegance of algorithm design.",
+    "problem": {
+      "q": "플로이드-워셜의 시간복잡도와 핵심 점화식의 의미는?",
+      "solution": "<b>O(V³)</b>. dist[i][j]=min(직접, i→k→j) — k를 경유하면 더 짧은지 모든 k에 확인.",
+      "q_en": "Floyd-Warshall's complexity and the meaning of its recurrence?",
+      "sol_en": "<b>O(V³)</b>. dist[i][j]=min(direct, i→k→j) — check if routing through k is shorter, for all k."
+    }
+  },
+  "algo_br_mst": {
+    "ch": "알고리즘 제6장 그래프",
+    "sec": "6.3 최단 경로 (자세히)",
+    "title": "최소 신장 트리(MST) — 가장 싸게 연결하기",
+    "narr": "도시들을 도로로 모두 연결하되 <b>총 건설비를 최소</b>로 하려면? 답은 <b>최소 신장 트리(MST)</b> — 모든 정점을 <b>사이클 없이</b> 잇는 가장 싼 간선 집합이에요. 신기하게도 \"매번 가장 싼 간선\"을 고르는 <b>그리디</b>가 최적을 줍니다!",
+    "hint": "초록 = 선택된 최소비용 간선들",
+    "more": "<b>최소 신장 트리(Minimum Spanning Tree)</b>(CLRS 21): 가중 무방향 그래프에서 <b>모든 정점을 연결하면서 간선 가중치 합이 최소</b>인 트리(간선 V−1개, 사이클 없음). 두 그리디 알고리즘 — <b>크루스칼</b>: 간선을 가중치 오름차순 정렬해, 사이클을 만들지 않는 것만 차례로 추가(사이클 판정에 <b>union-find</b>(5장 관련)). O(E log E). <b>프림</b>: 한 정점에서 시작해, 트리에 닿는 가장 싼 간선을 <b>우선순위 큐(힙, 5장)</b>로 골라 키워감(다익스트라와 거의 동일!). O(E log V). 둘 다 \"지금 가장 싼 선택\"이 전체 최적이 되는(그리디 선택 속성·절단 정리로 증명) 대표 사례예요(8장 그리디). 쓰임: 네트워크·전력망·도로 설계, 군집화(클러스터링). 그리디·union-find·우선순위큐가 한 문제에서 만나요.",
+    "more_en": "<b>Minimum Spanning Tree (MST)</b> (CLRS 21): in a weighted undirected graph, a tree connecting <b>all vertices with minimum total edge weight</b> (V−1 edges, no cycle). Two greedy algorithms — <b>Kruskal</b>: sort edges by weight and add each that doesn't form a cycle (cycle check via <b>union-find</b>, related to Ch.5). O(E log E). <b>Prim</b>: start from a vertex and grow by repeatedly picking the cheapest edge leaving the tree, using a <b>priority queue (heap, Ch.5)</b> (nearly identical to Dijkstra!). O(E log V). Both are flagship cases where \"the cheapest choice now\" yields the global optimum (proved by the greedy-choice property and cut theorem; Ch.8 greedy). Uses: network, power-grid, and road design, plus clustering. Greedy, union-find, and priority queues meet in one problem.",
+    "problem": {
+      "q": "크루스칼 알고리즘이 사이클을 피하는 데 쓰는 자료구조는?",
+      "solution": "<b>union-find(서로소 집합)</b> — 두 정점이 이미 연결됐는지 빠르게 판정해 사이클을 막아요.",
+      "q_en": "What data structure does Kruskal's algorithm use to avoid cycles?",
+      "sol_en": "<b>Union-find (disjoint sets)</b> — quickly tests whether two vertices are already connected, preventing cycles."
+    }
+  },
   "algo_br_master": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
     "sec": "1.3 빅오 (자세히)",
