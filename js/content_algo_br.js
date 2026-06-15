@@ -341,6 +341,57 @@
         ctx.fillStyle=on?'#8fe3b5':'#cfcdc6'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('물건 '+(k+1), x+bw/2, y+24);
         ctx.font='13px sans-serif'; ctx.fillText(it[k][0]+'kg / ₩'+it[k][1], x+bw/2, y+46); if(on){ ctx.fillStyle='#8fe3b5'; ctx.fillText('✓ 담음', x+bw/2, y+64); } }
       E.big('최대 가치 = ₩'+dp[n][cap]+' (용량 '+cap+'kg)', '0/1 배낭 — 각 물건을 담거나 말거나, 무게 한도 내 가치 최대화. dp[i][w] 표를 채워 해결(7장 격자 DP). 자원 배분의 대표 문제'); }
+  },
+
+  // ══════ 복잡도 등급표(algo1_05) ▸ 분할상환 분석 (CLRS 16) ══════
+  { id:'algo_br_amort', branchOf:'algo1_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, N=16, x0=E.W*0.16, w=E.W*0.68, bw=w/N, baseY=E.H*0.66, unit=E.H*0.034;
+      // push 비용: 보통 1, 용량(1,2,4,8) 꽉찰때 복사
+      var cost=[]; for(var i=1;i<=N;i++){ cost[i]= (i>1 && (i-1 & (i-2))===0 && (i-1)>=1)?(i-1):1; }
+      // 간단화: i가 2의 거듭제곱+1 일 때 복사비용 i-1
+      var total=0;
+      for(var i=1;i<=N;i++){ var c=1; if(i===2||i===3||i===5||i===9){ c=i-1; } // 복사 시점 근사
+        total+=c; var h=c*unit, x=x0+(i-1)*bw;
+        ctx.fillStyle=c>1?'rgba(244,160,192,0.4)':'rgba(122,184,255,0.3)'; ctx.strokeStyle=c>1?'#f4a0c0':'#7ab8ff'; ctx.lineWidth=1;
+        ctx.fillRect(x,baseY-h,bw-2,h); ctx.strokeRect(x,baseY-h,bw-2,h); }
+      // 평균선
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(x0,baseY-3*unit); ctx.lineTo(x0+w,baseY-3*unit); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('분할상환 평균 ≈ 3 = O(1)', x0+w-160, baseY-3*unit-6);
+      ctx.fillStyle='#f4a0c0'; ctx.textAlign='center'; ctx.fillText('분홍 = 배열 꽉 참 → 2배로 복사(가끔 비쌈)', E.W/2, E.H*0.74);
+      E.big('분할상환 분석 — 가끔 비싸도 평균은 싸다', '동적 배열 push는 보통 O(1)이지만 꽉 차면 2배 복사(O(n)). 그래도 n번 총비용 = n+(1+2+4+…) ≈ 3n → 1번당 평균 O(1)! 최악 1회가 아닌 "긴 안목"의 분석(CLRS 16)'); }
+  },
+
+  // ══════ 선형 탐색(algo4_01) ▸ 문자열 매칭 KMP (CLRS 32) ══════
+  { id:'algo_br_kmp', branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); this.T='ABABABCABAB'; this.P='ABABC'; },
+    draw:function(E){ var ctx=E.ctx, T=this.T, P=this.P, cell=Math.min(48,E.W*0.06), x0=E.W/2-T.length*cell/2, y=E.H*0.34;
+      // 텍스트
+      for(var i=0;i<T.length;i++){ var x=x0+i*cell;
+        ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(T[i],x+cell/2,y+cell/2); ctx.textBaseline='alphabetic'; }
+      // 패턴 (offset 2에 정렬, 4번째서 불일치 예시)
+      var off=2, y2=y+cell+10;
+      for(var j=0;j<P.length;j++){ var x=x0+(off+j)*cell, match=(off+j<T.length && T[off+j]===P[j]), mis=(j===4);
+        ctx.fillStyle=mis?'rgba(226,75,74,0.25)':(match?'rgba(143,227,181,0.22)':'rgba(255,255,255,0.06)'); ctx.strokeStyle=mis?'#e24b4a':(match?'#8fe3b5':'#9b99a3'); ctx.lineWidth=1.5; ctx.fillRect(x,y2,cell-3,cell-3); ctx.strokeRect(x,y2,cell-3,cell-3);
+        ctx.fillStyle=mis?'#f0a0a0':'#dfeefb'; ctx.font='600 17px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(P[j],x+cell/2,y2+cell/2); ctx.textBaseline='alphabetic'; }
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('불일치! 순진하면 1칸 뒤로 재시작 — KMP는 이미 맞은 "ABAB"를 활용해 점프', E.W/2, E.H*0.58);
+      E.big('문자열 매칭(KMP) — O(n+m)', '긴 텍스트에서 패턴 찾기. 순진한 방법은 불일치마다 처음부터(O(nm)). KMP는 "실패 함수"로 이미 일치한 접두사를 활용해 안 돌아가 O(n+m)! 검색·DNA·grep'); }
+  },
+
+  // ══════ P vs NP(algo8_04) ▸ 근사 알고리즘 (CLRS 35) ══════
+  { id:'algo_br_approx', branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.26;
+      ctx.font='15px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#f4a0c0'; ctx.fillText('NP-난해 문제(외판원 TSP 등) — 최적해를 빠르게 못 구함', cx, y0);
+      ctx.fillStyle='#cfcdc6'; ctx.font='600 17px sans-serif'; ctx.fillText('그럼 포기? 아니, "충분히 좋은" 답을!', cx, y0+40);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('근사 알고리즘: 다항시간 + 최적의 c배 이내 보장', cx, y0+76);
+      ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif';
+      ctx.fillText('예) TSP(삼각부등식) — MST 기반 2-근사 (최적의 2배 이내)', cx, y0+112);
+      ctx.fillText('예) 정점 커버 — 간선 양끝 모두 선택, 2-근사', cx, y0+138);
+      E.big('근사 알고리즘 — 최적은 못 풀어도', 'P≠NP라면 NP-난해 문제의 최적해는 사실상 불가. 대신 "최적의 c배 이내"를 다항시간에 보장하는 근사 알고리즘으로 현실 문제를 풀어요(CLRS 35). 휴리스틱과 함께 실전의 답'); }
   }
 
   ];
