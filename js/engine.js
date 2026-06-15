@@ -124,36 +124,85 @@
     }
   }
 
-  // ---------- Scene Manager ----------
+  // ---------- Scene Manager (계층형: 뼈대 spine + 분기 branch) ----------
+  // 분기 장면은 content에서 sc.branchOf='<부모 뼈대 id>' 로 표시. 같은 branchOf끼리 순서대로 그룹.
   var SM={ scenes:[], cur:null };
   function addScenes(arr){ for(var i=0;i<arr.length;i++) SM.scenes.push(arr[i]); }
   var S={}; // 현재 장면 로컬 상태
+  var HR={ spine:[], byId:{} }; // 계층 인덱스 (주의: 캔버스 높이 H와 이름 충돌 금지)
+
+  function buildHierarchy(){
+    var sc=SM.scenes; HR.spine=[]; HR.byId={};
+    for(var i=0;i<sc.length;i++){ sc[i]._idx=i; sc[i]._branches=null; if(sc[i].id) HR.byId[sc[i].id]=i; }
+    var spineNo=0;
+    for(i=0;i<sc.length;i++){ if(!sc[i].branchOf){ spineNo++; sc[i]._isSpine=true; sc[i]._spineNo=spineNo; sc[i]._spinePos=HR.spine.length; sc[i]._num=''+spineNo; HR.spine.push(i); } }
+    var bc={};
+    for(i=0;i<sc.length;i++){ var b=sc[i].branchOf; if(b!=null){ var pIdx=HR.byId[b]; sc[i]._isSpine=false; sc[i]._parentIdx=pIdx;
+      bc[b]=(bc[b]||0)+1; var pNo=(pIdx!=null&&sc[pIdx])?sc[pIdx]._spineNo:'?'; sc[i]._num=pNo+'.'+bc[b];
+      if(pIdx!=null&&sc[pIdx]){ if(!sc[pIdx]._branches) sc[pIdx]._branches=[]; sc[pIdx]._branches.push(i); } } }
+  }
+  function crumbOf(sc){ var a=[];
+    if(sc.branchOf!=null){ var p=SM.scenes[sc._parentIdx]; if(p){ if(p.ch)a.push({t:p.ch,i:null}); a.push({t:p.title,i:p._idx}); } a.push({t:sc.title,i:sc._idx,cur:true}); }
+    else { if(sc.ch)a.push({t:sc.ch,i:null}); a.push({t:sc.title,i:sc._idx,cur:true}); }
+    return a;
+  }
 
   function buildTOC(){
     var toc=document.getElementById('toc'); if(!toc) return; toc.innerHTML='';
     var lastSec=null;
-    SM.scenes.forEach(function(sc,i){
+    HR.spine.forEach(function(idx){ var sc=SM.scenes[idx];
       if(sc.sec!==lastSec){ var h=document.createElement('div'); h.className='toc-sec'; h.textContent=sc.sec; toc.appendChild(h); lastSec=sc.sec; }
-      var a=document.createElement('div'); a.className='toc-item'; a.textContent=sc.title; a.dataset.i=i;
+      var a=document.createElement('div'); a.className='toc-item'; a.textContent='#'+sc._num+'  '+sc.title; a.dataset.i=idx;
       a.onclick=function(){ goTo(+this.dataset.i); toggleTOC(false); }; toc.appendChild(a);
+      if(sc._branches){ sc._branches.forEach(function(bi){ var b=SM.scenes[bi];
+        var s=document.createElement('div'); s.className='toc-item toc-sub'; s.textContent='↳ #'+b._num+'  '+b.title; s.dataset.i=bi;
+        s.onclick=function(){ goTo(+this.dataset.i); toggleTOC(false); }; toc.appendChild(s); }); }
     });
   }
   function paintTOC(){ var items=document.querySelectorAll('.toc-item'); items.forEach(function(el){ el.classList.toggle('active', +el.dataset.i===SM.cur); }); }
   function toggleTOC(force){ var p=document.getElementById('toc-panel'); if(!p)return; var open=(force!=null)?force:!p.classList.contains('open'); p.classList.toggle('open',open); }
 
-  function progress(){ var b=document.getElementById('bar'); if(b) b.style.width=((SM.cur+1)/SM.scenes.length*100)+'%'; }
+  function progress(){ var b=document.getElementById('bar'); if(!b||!HR.spine.length) return; var sc=SM.scenes[SM.cur];
+    var pos=(sc._isSpine?sc._spinePos:SM.scenes[sc._parentIdx]._spinePos); b.style.width=((pos+1)/HR.spine.length*100)+'%'; }
+
+  function renderCrumb(sc){ var cb=document.getElementById('crumb'); if(!cb) return; cb.innerHTML='';
+    var parts=crumbOf(sc);
+    parts.forEach(function(p,k){ if(k>0){ var sep=document.createElement('span'); sep.className='crumb-sep'; sep.textContent='▸'; cb.appendChild(sep); }
+      var el=document.createElement(p.i!=null?'span':'span'); el.className='crumb-seg'+(p.cur?' cur':'')+(sc.branchOf!=null&&p.cur?' branch':''); el.textContent=p.t;
+      if(p.i!=null&&!p.cur){ el.classList.add('clk'); el.onclick=function(){ goTo(p.i); }; } cb.appendChild(el); });
+  }
+  function updateBranchBtn(sc){ var bb=document.getElementById('branchBtn'); if(!bb) return;
+    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.textContent='🔍 자세히 ('+sc._branches.length+'갈래)'; bb.className='btn branch-in'; bb.onclick=enterBranch; }
+    else if(sc.branchOf!=null){ bb.style.display='inline-flex'; bb.textContent='↩ 뼈대로'; bb.className='btn branch-out'; bb.onclick=exitBranch; }
+    else { bb.style.display='none'; }
+  }
 
   function goTo(i){ if(i<0||i>=SM.scenes.length) return; SM.cur=i; var sc=SM.scenes[i]; S={};
     say(sc.narr||''); if(hintEl)hintEl.textContent=sc.hint||''; if(titleEl)titleEl.textContent=sc.title||''; if(secEl)secEl.textContent=(sc.ch?sc.ch+' · ':'')+(sc.sec||'');
-    var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent='#'+(i+1);
+    var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent='#'+(sc._num||(i+1));
+    renderCrumb(sc); updateBranchBtn(sc);
     var pb=document.getElementById('prev'), nb=document.getElementById('next');
-    if(pb)pb.disabled=(i===0); if(nb)nb.textContent=(i===SM.scenes.length-1?'처음으로 ↺':'다음 ▸');
+    if(pb) pb.disabled=(sc._isSpine && sc._spinePos===0);
+    if(nb){ var lastSpine=(sc._isSpine && sc._spinePos===HR.spine.length-1);
+      var lastBranch=(sc.branchOf!=null); // 분기 안에서는 '다음'이 다음 분기/뼈대 복귀
+      nb.textContent=lastSpine?'처음으로 ↺':'다음 ▸'; }
     controls(''); big(null); setStudy(sc);
     if(sc.enter) sc.enter(E);
     paintTOC(); progress(); blip(660,0.14);
   }
-  function next(){ if(SM.cur===SM.scenes.length-1) goTo(0); else goTo(SM.cur+1); }
-  function prev(){ goTo(SM.cur-1); }
+  // 뼈대 위에서만 선형 이동(분기는 건너뜀). 분기 안에서는 분기 내 이동 후 뼈대 복귀.
+  function next(){ var sc=SM.scenes[SM.cur];
+    if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur);
+      if(pos<sibs.length-1) goTo(sibs[pos+1]); else { var sp=SM.scenes[sc._parentIdx]._spinePos; goTo(sp<HR.spine.length-1?HR.spine[sp+1]:HR.spine[0]); }
+    } else { var sp2=sc._spinePos; goTo(sp2<HR.spine.length-1?HR.spine[sp2+1]:HR.spine[0]); }
+  }
+  function prev(){ var sc=SM.scenes[SM.cur];
+    if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur);
+      if(pos>0) goTo(sibs[pos-1]); else goTo(sc._parentIdx);
+    } else { if(sc._spinePos>0) goTo(HR.spine[sc._spinePos-1]); }
+  }
+  function enterBranch(){ var sc=SM.scenes[SM.cur]; if(sc._isSpine && sc._branches && sc._branches.length) goTo(sc._branches[0]); }
+  function exitBranch(){ var sc=SM.scenes[SM.cur]; if(sc.branchOf!=null) goTo(sc._parentIdx); }
 
   // ---------- main loop ----------
   var frameN=0;
@@ -223,6 +272,8 @@
       if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='BUTTON'||t.isContentEditable)) return;
       if(e.key==='ArrowRight'){ next(); e.preventDefault(); }
       else if(e.key==='ArrowLeft'){ prev(); e.preventDefault(); }
+      else if(e.key==='ArrowDown'){ enterBranch(); e.preventDefault(); }   // ↓ 분기(자세히)로 들어가기
+      else if(e.key==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 뼈대로 나오기
       // Space/Enter = 현재 장면 한 단계 실행(tap) — 캔버스 클릭이 막힌 환경(일부 미리보기)용 대체 입력
       else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
     });
@@ -240,7 +291,7 @@
     var eL=document.getElementById('eyeL'), eR=document.getElementById('eyeR');
     if(eL) setInterval(function(){ eL.setAttribute('ry','0.6'); eR.setAttribute('ry','0.6'); setTimeout(function(){ eL.removeAttribute('ry'); eR.removeAttribute('ry'); },140); },3600);
     function relayout(){ resize(); var s=SM.scenes[SM.cur]; if(s&&s.layout) s.layout(E); }
-    function boot(){ buildTOC(); loop(); goTo(0);
+    function boot(){ buildHierarchy(); buildTOC(); loop(); goTo(0);
       global.addEventListener('load', relayout); setTimeout(relayout,200); setTimeout(relayout,600); }
     // ── 콘텐츠(텍스트)는 content/*.json 에서 로드 → 동작(코드)과 분리. 편집은 JSON만 하면 반영 ──
     var cfiles=(opts.content||['content/ch1.json','content/ch2.json','content/ch3.json','content/ch4.json','content/ch5.json']);
@@ -253,5 +304,5 @@
       .catch(function(e){ console.warn('[content] merge fail', e); boot(); });
   }
 
-  global.Engine = { start:start, addScenes:addScenes, NumberLine:NumberLine, goTo:goTo };
+  global.Engine = { start:start, addScenes:addScenes, NumberLine:NumberLine, goTo:goTo, enterBranch:enterBranch, exitBranch:exitBranch };
 })(window);

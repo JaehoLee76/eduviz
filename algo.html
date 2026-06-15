@@ -80,6 +80,20 @@
   .toc-item { font-size: 14.5px; color: #cfcdc6; padding: 9px 16px; border-radius: 8px; cursor: pointer; }
   .toc-item:hover { background: rgba(255,255,255,0.06); }
   .toc-item.active { background: rgba(79,147,214,0.18); color: #7ab8ff; }
+  .toc-sub { padding-left: 30px; font-size: 13.5px; color: #9b99a3; }
+  .toc-sub:hover { background: rgba(255,255,255,0.05); }
+
+  /* 위치 breadcrumb (현재 어디에 있는지 + 분기 계층) */
+  .crumb { position: fixed; top: 74px; left: 20px; z-index: 8; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 72vw; font-size: 12px; line-height: 1.4; }
+  .crumb-seg { color: var(--text-3); }
+  .crumb-seg.clk { cursor: pointer; color: var(--text-2); }
+  .crumb-seg.clk:hover { color: var(--accent-light); text-decoration: underline; }
+  .crumb-seg.cur { color: var(--accent-light); font-weight: 600; }
+  .crumb-seg.branch { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 7px; padding: 1px 8px; }
+  .crumb-sep { color: var(--text-3); opacity: .55; }
+  /* 분기 진입/복귀 버튼 */
+  .btn.branch-in { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-light); }
+  .btn.branch-out { background: rgba(255,255,255,0.06); border-color: var(--accent); color: var(--accent-light); }
 
   #study { position: fixed; left: 26px; bottom: 108px; z-index: 7; display: none; flex-direction: column; align-items: flex-start; width: min(460px, 44vw); }
   .study-body { max-height: 0; overflow: hidden; opacity: 0; width: 100%;
@@ -130,6 +144,7 @@
   <div class="titles"><div class="sec" id="sceneSec">알고리즘 제1장</div><div class="ttl" id="sceneTitle">알고리즘의 세계</div></div>
   <button class="toc-toggle" id="toc-toggle" aria-label="목차">≡</button>
 </div>
+<div class="crumb" id="crumb"></div>
 
 <div class="bignum hidden" id="bignum"><div id="bigN"></div><div id="bigW"></div></div>
 
@@ -163,6 +178,7 @@
 
 <div class="nav">
   <span class="hint" id="hint"></span>
+  <button class="btn" id="branchBtn" style="display:none"></button>
   <button class="btn" id="prev" disabled>◂ 이전</button>
   <button class="btn primary" id="next">다음 ▸</button>
 </div>
@@ -171,11 +187,11 @@
 
 <script>
   (function(){ var v='?v='+Date.now();
-    ['js/engine.js','js/algo_helpers.js','js/content_algo1.js','js/content_algo2.js','js/content_algo3.js','js/content_algo4.js','js/content_algo5.js','js/content_algo6.js','js/content_algo7.js','js/content_algo8.js'].forEach(function(s){ document.write('<scr'+'ipt src="'+s+v+'"></scr'+'ipt>'); });
+    ['js/engine.js','js/algo_helpers.js','js/content_algo1.js','js/content_algo2.js','js/content_algo3.js','js/content_algo4.js','js/content_algo5.js','js/content_algo6.js','js/content_algo7.js','js/content_algo8.js','js/content_algo_br.js'].forEach(function(s){ document.write('<scr'+'ipt src="'+s+v+'"></scr'+'ipt>'); });
   })();
 </script>
 <script>
-  Engine.start({ canvas: 'stage', content: ['content/algo1.json','content/algo2.json','content/algo3.json','content/algo4.json','content/algo5.json','content/algo6.json','content/algo7.json','content/algo8.json'] });
+  Engine.start({ canvas: 'stage', content: ['content/algo1.json','content/algo2.json','content/algo3.json','content/algo4.json','content/algo5.json','content/algo6.json','content/algo7.json','content/algo8.json','content/algo_br.json'] });
 </script>
 </body>
 </html>
