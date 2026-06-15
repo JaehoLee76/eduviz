@@ -329,6 +329,96 @@
       "sol_en": "A polynomial-time solution <b>within 2× the optimal</b> (not optimal, but within a proven bound)."
     }
   },
+  "algo_br_strassen": {
+    "ch": "알고리즘 제8장 설계 패러다임",
+    "sec": "8.2 분할 정복 (자세히)",
+    "title": "스트라센 행렬곱 — 8번을 7번으로",
+    "narr": "n×n 행렬 두 개를 곱하면 보통 <b>O(n³)</b>이에요. 분할정복으로 2×2 블록으로 쪼개도 곱셈이 8번이라 여전히 O(n³). 그런데 <b>스트라센</b>은 영리한 조합으로 <b>곱셈을 7번</b>으로 줄여 <b>O(n^2.81)</b>을 달성했어요 — \"불가능해 보이던 하한\"을 깬 충격적 결과!",
+    "hint": "곱셈 8 → 7이 지수를 바꾼다",
+    "more": "<b>스트라센 알고리즘</b>(CLRS 4.2): 행렬을 2×2 블록으로 나눠 곱하면 8개의 부분 곱이 필요(T(n)=8T(n/2)+O(n²)=O(n³)). 스트라센은 <b>덧셈·뺄셈을 더 쓰는 대신 부분 곱을 7개(P1~P7)로</b> 재구성해요 → <b>T(n)=7T(n/2)+O(n²)</b> → 마스터 정리(case 1) → <b>O(n^log₂7) ≈ O(n^2.81)</b>. \"곱셈 한 번을 줄였을 뿐\"인데 지수가 3→2.81로 바뀌어 큰 n에서 큰 차이! 이 발견(1969)은 \"행렬곱은 O(n³)이 당연\"이라는 통념을 깨고 빠른 행렬곱 연구를 열었어요(현재 이론적 최선 ≈ O(n^2.37)). 분할정복에서 \"부분 문제 개수(a)를 줄이는 것\"이 복잡도를 바꾼다는 마스터 정리의 생생한 예예요. 단, 상수가 커서 실전엔 큰 행렬에만 이득.",
+    "more_en": "<b>Strassen's algorithm</b> (CLRS 4.2): splitting matrices into 2×2 blocks needs 8 sub-products (T(n)=8T(n/2)+O(n²)=O(n³)). Strassen reorganizes these into <b>just 7 sub-products (P1–P7)</b> using extra additions/subtractions → <b>T(n)=7T(n/2)+O(n²)</b> → Master Theorem (case 1) → <b>O(n^log₂7) ≈ O(n^2.81)</b>. Removing one multiplication shifts the exponent 3→2.81, a big difference for large n! This 1969 discovery broke the belief that matrix multiplication \"must be O(n³)\" and launched fast matrix-multiply research (current theoretical best ≈ O(n^2.37)). A vivid example of the Master Theorem: reducing the number of subproblems (a) changes the complexity. (Large constants mean it pays off only for big matrices.)",
+    "problem": {
+      "q": "스트라센이 2×2 블록 곱을 몇 번의 곱셈으로 하나? 그 결과 복잡도는?",
+      "solution": "<b>7번</b> → T(n)=7T(n/2)+O(n²) → <b>O(n^2.81)</b> (순진한 8번은 O(n³)).",
+      "q_en": "How many multiplications does Strassen use for a 2×2 block product, and the resulting complexity?",
+      "sol_en": "<b>7</b> → T(n)=7T(n/2)+O(n²) → <b>O(n^2.81)</b> (the naive 8 give O(n³))."
+    }
+  },
+  "algo_br_fft": {
+    "ch": "알고리즘 제8장 설계 패러다임",
+    "sec": "8.2 분할 정복 (자세히)",
+    "title": "FFT — 곱셈을 O(n log n)으로",
+    "narr": "두 다항식(또는 아주 큰 수)을 곱하면 항끼리 다 곱해 <b>O(n²)</b>예요. <b>고속 푸리에 변환(FFT)</b>은 표현을 바꿔 <b>O(n log n)</b>에 곱해요! 분할정복 + <b>복소수(수학 10장)</b>의 마법이 만나는, 20세기 가장 중요한 알고리즘 중 하나예요.",
+    "hint": "계수 → 점값 표현으로 바꿔 곱하기",
+    "more": "<b>고속 푸리에 변환(FFT)</b>: 다항식 곱셈의 핵심 통찰은 두 가지 표현이에요 — <b>계수 표현</b>(곱셈 O(n²))과 <b>점값 표현</b>(여러 점에서의 값; 곱셈은 점별 곱 O(n)). FFT는 계수↔점값 변환을 <b>O(n log n)</b>에 해줘요. 방법: 다항식을 <b>짝수 차수·홀수 차수 계수로 분할</b>(분할정복!)하고, 평가점으로 <b>복소수 단위근(수학 10장 복소평면·회전!)</b>을 써서 절반의 계산을 재활용 → T(n)=2T(n/2)+O(n) → O(n log n). 그래서 다항식 곱·<b>큰 수 곱셈</b>·<b>합성곱(convolution)</b>이 모두 O(n log n). 쓰임: <b>신호처리·오디오·이미지 압축(JPEG)·통신</b>의 근간, 빠른 정수 곱셈. 분할정복과 수학(복소수)이 결합해 \"표현을 바꾸면 어려운 연산이 쉬워진다\"는 깊은 아이디어를 보여줘요.",
+    "more_en": "<b>Fast Fourier Transform (FFT)</b>: the key insight for polynomial multiplication is two representations — <b>coefficient form</b> (multiply in O(n²)) and <b>point-value form</b> (values at points; multiply pointwise in O(n)). FFT converts between them in <b>O(n log n)</b>. Method: split the polynomial into <b>even- and odd-degree coefficients</b> (divide and conquer!) and evaluate at <b>complex roots of unity (Ch.10 complex plane and rotation!)</b> to reuse half the work → T(n)=2T(n/2)+O(n) → O(n log n). So polynomial products, <b>big-number multiplication</b>, and <b>convolution</b> all become O(n log n). Uses: the backbone of <b>signal processing, audio, image compression (JPEG), communications</b>, and fast integer multiplication. Combining divide-and-conquer with math (complex numbers), it shows the deep idea that \"changing representation makes a hard operation easy.\"",
+    "problem": {
+      "q": "FFT가 다항식 곱셈을 O(n²)에서 O(n log n)으로 줄이는 핵심은?",
+      "solution": "계수↔<b>점값 표현</b> 변환을 분할정복+복소수 단위근으로 O(n log n)에 수행(점값에선 곱이 O(n)).",
+      "q_en": "What lets FFT reduce polynomial multiplication from O(n²) to O(n log n)?",
+      "sol_en": "Converting coefficient↔<b>point-value</b> form in O(n log n) via divide-and-conquer + complex roots of unity (multiplication is O(n) in point-value form)."
+    }
+  },
+  "algo_br_maxflow": {
+    "ch": "알고리즘 제6장 그래프",
+    "sec": "6.3 최단 경로 (자세히)",
+    "title": "최대 플로우 — 최대 유량 = 최소 컷",
+    "narr": "수도관 네트워크에서 출발지 s부터 도착지 t까지 <b>물을 최대한 흘려보내려면</b>? 각 관에는 용량(한계)이 있어요. <b>최대 플로우</b> 문제죠. 놀라운 정리: <b>최대로 흘릴 수 있는 양 = 가장 약한 병목(최소 컷)의 용량</b>!",
+    "hint": "간선 라벨 = 흐름/용량",
+    "more": "<b>최대 플로우(max-flow)</b>(CLRS 24): 용량이 있는 방향 그래프(플로우 네트워크)에서 source s → sink t로 보낼 수 있는 최대 유량. <b>포드-풀커슨 방법</b>: s에서 t로 여유가 남은 <b>증가 경로(augmenting path)</b>를 찾아 흐름을 늘리길 반복(잔여 그래프에서 BFS로 찾으면 에드몬드-카프, O(VE²)). ★핵심 정리 <b>최대 유량 = 최소 컷(max-flow min-cut)</b>: 흘릴 수 있는 최대량은 네트워크를 s쪽·t쪽으로 가르는 <b>가장 작은 절단(병목 간선들의 용량 합)</b>과 정확히 같아요! 쓰임: <b>이분 매칭</b>(작업 배정·결혼 문제), 네트워크 신뢰도, 이미지 분할(그래프 컷), 스포츠 리그 우승 가능성. 그래프 최적화의 깊은 정점 — 다익스트라·MST와 함께 그래프 알고리즘의 3대 기둥이에요.",
+    "more_en": "<b>Maximum flow</b> (CLRS 24): the most flow you can push from source s to sink t in a directed graph with edge capacities. <b>Ford-Fulkerson method</b>: repeatedly find an <b>augmenting path</b> with spare capacity from s to t and increase the flow (finding it by BFS in the residual graph is Edmonds-Karp, O(VE²)). The key theorem <b>max-flow = min-cut</b>: the maximum flow equals the capacity of the <b>smallest cut</b> separating s from t (the bottleneck edges)! Uses: <b>bipartite matching</b> (job assignment, stable marriage), network reliability, image segmentation (graph cuts), sports-league elimination. A deep peak of graph optimization — with Dijkstra and MST, one of the three pillars of graph algorithms.",
+    "problem": {
+      "q": "최대 플로우와 최소 컷의 관계는?",
+      "solution": "<b>최대 유량 = 최소 컷</b> 용량 (max-flow min-cut 정리). 최대로 흘리는 양 = 가장 약한 병목.",
+      "q_en": "What is the relationship between max-flow and min-cut?",
+      "sol_en": "<b>Max-flow = min-cut</b> capacity (the max-flow min-cut theorem). The most you can push equals the weakest bottleneck."
+    }
+  },
+  "algo_br_openaddr": {
+    "ch": "알고리즘 제2장 자료구조",
+    "sec": "2.4 해시 테이블 (자세히)",
+    "title": "개방 주소법 — 충돌을 테이블 안에서",
+    "narr": "<b>2장에서 해시 충돌</b>을 봤죠. 같은 칸에 연결리스트로 묶는 게 체이닝이었어요. 또 다른 방법 <b>개방 주소법</b>은 <b>테이블 안에서</b> 해결해요 — 칸이 차 있으면 <b>다음 빈칸을 찾아</b>(탐사) 넣어요. 포인터 없이 배열만 써서 빠르고 캐시 친화적이죠.",
+    "hint": "차면 다음 빈칸으로(탐사)",
+    "more": "<b>개방 주소법(open addressing)</b>(CLRS 11.4): 충돌을 별도 리스트가 아니라 <b>테이블 자체의 다른 빈 칸</b>에 저장해요. 탐사(probing) 방식 — <b>선형 탐사</b>(다음 칸: h, h+1, h+2…; 군집 문제), <b>이차 탐사</b>(h+1², h+2²…), <b>이중 해싱</b>(두 번째 해시로 간격 결정; 가장 균일). 조회: 해시 위치부터 같은 규칙으로 탐사하며 찾음. 장점: <b>포인터 없음 → 메모리 절약·캐시 친화적</b>(배열 연속 접근). 단점: <b>부하율(채워진 비율)이 높으면 급격히 느려짐</b> → 보통 70% 넘으면 리해싱. 삭제가 까다로움(빈칸 표시 필요). 체이닝 vs 개방주소법은 \"메모리·캐시 vs 부하율 견딤\"의 트레이드오프 — 자료구조 선택은 늘 트레이드오프예요(2장 배열 vs 리스트와 같은 교훈).",
+    "more_en": "<b>Open addressing</b> (CLRS 11.4): resolve collisions in <b>another empty slot of the table itself</b>, not a separate list. Probing schemes — <b>linear probing</b> (next slots h, h+1, h+2…; suffers clustering), <b>quadratic probing</b> (h+1², h+2²…), <b>double hashing</b> (a second hash sets the step; most uniform). Lookup: probe from the hash slot by the same rule until found. Pros: <b>no pointers → saves memory, cache-friendly</b> (contiguous array access). Cons: <b>performance degrades sharply at high load factor</b> → typically rehash above ~70%; deletion is tricky (needs tombstones). Chaining vs open addressing is a trade-off of \"memory/cache vs load tolerance\" — choosing a data structure is always a trade-off (same lesson as Ch.2 array vs list).",
+    "problem": {
+      "q": "개방 주소법에서 부하율(load factor)이 높아지면?",
+      "solution": "빈칸이 적어 탐사가 길어져 <b>급격히 느려짐</b> → 보통 임계값(예 70%)에서 테이블을 키워 리해싱.",
+      "q_en": "What happens in open addressing as the load factor rises?",
+      "sol_en": "Few empty slots make probing long and it <b>slows sharply</b> → rehash to a bigger table past a threshold (e.g. 70%)."
+    }
+  },
+  "algo_br_rsa": {
+    "ch": "알고리즘 제2장 자료구조",
+    "sec": "2.4 해시 테이블 (자세히)",
+    "title": "RSA — 어려움이 지켜주는 암호",
+    "narr": "인터넷 보안의 토대 <b>RSA</b>! \"<b>두 소수를 곱하긴 쉽지만, 곱을 다시 소인수분해하긴 어렵다</b>\"는 비대칭을 이용해요. 누구나 잠글 수 있는 <b>공개키</b>와, 본인만 푸는 <b>비밀키</b>로 메시지를 안전하게 주고받죠. 수학(합동·거듭제곱)이 곧 보안이에요.",
+    "hint": "곱하긴 쉽고 인수분해는 어렵다",
+    "more": "<b>RSA</b>(CLRS 31, 정수론): <b>공개키 암호</b>의 대표. 키 생성 — ① 큰 소수 p, q를 골라 n=pq ② 공개 지수 e, 비밀 지수 d를 (e·d ≡ 1 mod (p−1)(q−1))로 계산. <b>공개키 (e, n)</b>은 공개, <b>비밀키 d</b>는 본인만. 암호화 <b>c = mᵉ mod n</b>, 복호화 <b>m = cᵈ mod n</b>(페르마 소정리로 성립 — 수학·알고리즘 1장 합동·거듭제곱 주기!). 안전성: n을 알아도 <b>소인수분해(p,q 찾기)가 사실상 불가능</b>(현재 알고리즘으로 수백 자리 수는 수천 년) → d를 못 구함. 핵심 알고리즘: <b>빠른 거듭제곱 mod</b>(O(log e), 제곱-곱), <b>유클리드 호제법</b>(역원 d 계산), <b>소수 판정</b>(밀러-라빈, 확률적). \"풀기 어려운 문제\"를 무기로 삼는다는 점에서 P vs NP·계산 복잡도와 깊이 연결돼요. 알고리즘이 일상 보안(HTTPS·전자서명)을 떠받치는 가장 극적인 예예요.",
+    "more_en": "<b>RSA</b> (CLRS 31, number theory): the flagship <b>public-key cryptosystem</b>. Key generation — ① pick large primes p, q, set n=pq; ② choose public exponent e and private exponent d with (e·d ≡ 1 mod (p−1)(q−1)). The <b>public key (e, n)</b> is shared, the <b>private key d</b> is secret. Encrypt <b>c = mᵉ mod n</b>, decrypt <b>m = cᵈ mod n</b> (works by Fermat's little theorem — modular exponentiation and cycles from Ch.1!). Security: even knowing n, <b>factoring it (finding p, q) is practically impossible</b> (hundreds-of-digit numbers would take millennia) → d can't be recovered. Core algorithms: <b>fast modular exponentiation</b> (O(log e), square-and-multiply), the <b>Euclidean algorithm</b> (computing the inverse d), and <b>primality testing</b> (Miller-Rabin, probabilistic). Using a \"hard problem\" as a weapon ties it deeply to P vs NP and complexity. It is the most dramatic example of algorithms underpinning everyday security (HTTPS, digital signatures).",
+    "problem": {
+      "q": "RSA의 안전성이 의존하는 '어려운 문제'는?",
+      "solution": "<b>큰 수의 소인수분해</b>. 곱(n=pq)은 쉽지만 거꾸로 p,q를 찾기가 사실상 불가능.",
+      "q_en": "What 'hard problem' does RSA's security rely on?",
+      "sol_en": "<b>Factoring large numbers</b>. Computing n=pq is easy, but recovering p and q is practically impossible."
+    }
+  },
+  "algo_br_hull": {
+    "ch": "알고리즘 제2장 자료구조",
+    "sec": "2.3 스택과 큐 (자세히)",
+    "title": "볼록 껍질 — 점들을 감싸기",
+    "narr": "흩어진 점들을 <b>고무줄로 감싸면</b> 나오는 바깥 경계가 <b>볼록 껍질</b>이에요. 계산기하의 기본 문제죠. <b>그레이엄 스캔</b>은 점들을 각도순으로 정렬(3장)한 뒤, <b>스택(2장)</b>으로 \"안쪽으로 꺾이는\" 점을 빼내며 경계를 만들어요!",
+    "hint": "바깥 점들을 잇는 최소 다각형",
+    "more": "<b>볼록 껍질(convex hull)</b>(CLRS 33, 계산기하): 평면 위 점 집합을 모두 포함하는 <b>가장 작은 볼록 다각형</b>. <b>그레이엄 스캔</b>: ① 가장 아래 점을 기준으로 나머지를 <b>각도순 정렬</b>(3장 정렬) ② 차례로 보며 <b>스택</b>에 쌓되, 새 점이 \"오른쪽(시계방향)으로 꺾으면\" 스택에서 빼냄(볼록성 위반 제거) → O(n log n)(정렬이 지배). 다른 방법: 자비스 행진(O(nh)), 분할정복. 핵심: <b>스택이 \"되돌아가 고치는\" 구조</b>로 쓰여 볼록성을 유지(2장 스택의 우아한 응용). 쓰임: <b>충돌 감지(게임·로봇)</b>, 패턴 인식, 지리정보(영역), 이미지 처리, 통계(이상치). 정렬(3장)+스택(2장)이라는 기본 도구가 기하 문제를 푸는 — 자료구조·알고리즘이 협력하는 또 하나의 예예요. 계산기하는 컴퓨터그래픽·CAD·로보틱스의 토대고요.",
+    "more_en": "<b>Convex hull</b> (CLRS 33, computational geometry): the <b>smallest convex polygon</b> containing a set of points. <b>Graham scan</b>: ① <b>sort the points by angle</b> around the lowest point (Ch.3 sorting); ② push them onto a <b>stack</b>, popping whenever a new point turns \"clockwise\" (removing a convexity violation) → O(n log n) (sorting dominates). Other methods: Jarvis march (O(nh)), divide and conquer. Key: the <b>stack's \"go back and fix\" structure</b> maintains convexity (an elegant use of Ch.2's stack). Uses: <b>collision detection (games, robots)</b>, pattern recognition, GIS regions, image processing, outlier detection in statistics. Basic tools — sorting (Ch.3) and a stack (Ch.2) — solve a geometry problem: another case of data structures and algorithms cooperating. Computational geometry underpins computer graphics, CAD, and robotics.",
+    "problem": {
+      "q": "그레이엄 스캔이 볼록 껍질을 만들 때 쓰는 두 도구는?",
+      "solution": "<b>정렬(각도순, 3장)</b> + <b>스택(2장)</b> — 안쪽으로 꺾이는 점을 스택에서 빼며 O(n log n).",
+      "q_en": "What two tools does Graham scan use to build the convex hull?",
+      "sol_en": "<b>Sorting (by angle, Ch.3)</b> and a <b>stack (Ch.2)</b> — popping points that turn inward, in O(n log n)."
+    }
+  },
   "algo_br_master": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
     "sec": "1.3 빅오 (자세히)",
