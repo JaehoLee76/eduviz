@@ -135,7 +135,10 @@
 
   /* ════ VIZ 모드: 왼쪽 애니메이션 + 오른쪽 코드(현재 줄 하이라이트) + 하단 스텝 컨트롤 ════ */
   body.viz #stage { width: 58vw; }                 /* 캔버스 = 왼쪽 컬럼 */
-  body.viz .guide, body.viz .bignum, body.viz #study { display: none !important; }  /* 캐릭터·big·학습패널 숨김(겹침 제거) */
+  body.viz .guide, body.viz .bignum { display: none !important; }  /* 캐릭터·big 숨김(겹침 제거) */
+  /* 자세히 보기(학습패널): 코드 장면에선 복원(스텝 캡션 위로 올려 겹침 회피), 개념 장면은 이미 우측 패널에 있으니 숨김 */
+  body.viz #study { left: 26px; bottom: 172px; width: min(420px, 50vw); }
+  body.viz-concept #study { display: none !important; }
 
   #codepanel { position: fixed; top: 0; right: 0; width: 42vw; height: 100%; z-index: 5; display: none; flex-direction: column;
     background: rgba(14,14,20,0.97); border-left: 1px solid var(--border); padding: 56px 0 0; }
