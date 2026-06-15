@@ -29,6 +29,96 @@
       "sol_en": "Random pivots make the worst case depend on <b>luck, not a specific input</b> → expected O(n log n)."
     }
   },
+  "algo_br_lb": {
+    "ch": "알고리즘 제3장 정렬",
+    "sec": "3.2 병합 정렬 (자세히)",
+    "title": "정렬의 하한 — 왜 O(n log n)이 벽인가",
+    "narr": "버블·병합·퀵… 모두 <b>원소를 비교</b>해 정렬했죠. 그런데 비교만으로는 <b>O(n log n)보다 빠를 수 없어요</b>. 왜일까요? 비교 정렬은 사실 <b>결정 트리</b>이고, n개의 가능한 순서(n!)를 구분하려면 트리 높이가 최소 log₂(n!)이거든요!",
+    "hint": "n!개 결과 → 트리 높이 ≥ log₂(n!)",
+    "more": "<b>비교 정렬의 하한</b>(CLRS 8.1): 비교만 사용하는 정렬은 \"a < b?\" 분기로 이뤄진 <b>결정 트리</b>로 모형화돼요. 입력 n개의 가능한 정렬 결과는 <b>n!가지</b>(모든 순열)이고, 각 결과는 트리의 서로 다른 <b>잎</b>이어야 해요. 높이 h인 이진트리의 잎은 최대 2^h개니까 <b>n! ≤ 2^h → h ≥ log₂(n!) = Θ(n log n)</b>(스털링 근사). 즉 <b>어떤 비교 정렬도 최악의 경우 Ω(n log n)</b> — 병합·힙 정렬이 이 하한에 도달하는 \"최적\" 비교 정렬이에요. 이 하한은 \"비교\"라는 도구의 한계일 뿐, 비교를 안 쓰면(다음: 계수·기수 정렬) 더 빠를 수도 있어요. 알고리즘에 \"이보다 빠를 수 없다\"는 하한을 증명하는 것도 중요한 이론이에요.",
+    "more_en": "<b>Lower bound for comparison sorting</b> (CLRS 8.1): any sort using only comparisons can be modeled as a <b>decision tree</b> of \"a < b?\" branches. The n inputs have <b>n! possible orderings</b> (permutations), each of which must be a distinct <b>leaf</b>. A binary tree of height h has at most 2^h leaves, so <b>n! ≤ 2^h → h ≥ log₂(n!) = Θ(n log n)</b> (Stirling's approximation). Thus <b>any comparison sort is Ω(n log n) in the worst case</b> — merge and heap sort are \"optimal\" comparison sorts that reach this bound. This limit applies only to the tool of \"comparison\"; avoiding comparisons (next: counting/radix sort) can be faster. Proving that \"nothing can be faster\" (a lower bound) is itself important theory.",
+    "problem": {
+      "q": "원소 3개를 비교 정렬하려면 최악의 경우 최소 몇 번 비교?",
+      "solution": "3!=6 결과 → 높이 ≥ ⌈log₂6⌉ = <b>3번</b>.",
+      "q_en": "Worst-case minimum comparisons to comparison-sort 3 elements?",
+      "sol_en": "3!=6 outcomes → height ≥ ⌈log₂6⌉ = <b>3</b>."
+    }
+  },
+  "algo_br_count": {
+    "ch": "알고리즘 제3장 정렬",
+    "sec": "3.2 병합 정렬 (자세히)",
+    "title": "계수 정렬 — 비교 없이 O(n+k)",
+    "narr": "비교의 벽(O(n log n))을 어떻게 넘을까요? <b>비교를 아예 안 하면</b> 돼요! 값의 범위가 작을 때(예: 0~5), <b>각 값이 몇 개인지 세서</b> 그 개수대로 펼치면 정렬 끝. 비교 0번, <b>O(n + k)</b>!",
+    "hint": "세어서(count) 펼치면 정렬",
+    "more": "<b>계수 정렬(counting sort)</b>(CLRS 8.2): 원소가 <b>0~k 범위의 정수</b>일 때, 각 값의 <b>출현 횟수를 세고(count 배열)</b>, 누적합으로 각 값의 위치를 정해 출력해요. 비교를 전혀 안 하므로 <b>하한 Ω(n log n)이 적용되지 않고</b>, 시간은 <b>O(n + k)</b>(k가 n에 비례하면 선형!). 단점: k(값의 범위)가 크면 메모리·시간 낭비(예: 값이 0~10억이면 못 씀). 장점: <b>안정 정렬</b>이라 같은 값의 순서를 유지 → 다음의 기수 정렬의 부품으로 쓰여요. \"문제의 특수 구조(작은 정수 범위)를 활용하면 일반 하한을 우회한다\"는 중요한 교훈이에요.",
+    "more_en": "<b>Counting sort</b> (CLRS 8.2): when elements are <b>integers in range 0..k</b>, count how many times each value appears (a count array), use prefix sums to place each value, and output. It uses no comparisons, so <b>the Ω(n log n) bound doesn't apply</b>, and it runs in <b>O(n + k)</b> (linear if k is proportional to n!). Downside: a large k (value range) wastes memory/time (useless if values span 0..billions). Upside: it is a <b>stable</b> sort, preserving the order of equal keys → used as a building block of radix sort next. The lesson: exploiting special structure (small integer range) bypasses the general lower bound.",
+    "problem": {
+      "q": "계수 정렬이 비교 정렬의 하한 O(n log n)을 깰 수 있는 이유는?",
+      "solution": "<b>비교를 전혀 하지 않기 때문</b>. 하한은 '비교' 정렬에만 적용돼요(값을 직접 셈).",
+      "q_en": "Why can counting sort beat the O(n log n) comparison lower bound?",
+      "sol_en": "Because it makes <b>no comparisons</b>; the bound applies only to comparison sorts (it counts values directly)."
+    }
+  },
+  "algo_br_radix": {
+    "ch": "알고리즘 제3장 정렬",
+    "sec": "3.2 병합 정렬 (자세히)",
+    "title": "기수 정렬 — 자릿수별로",
+    "narr": "큰 수들은 어떻게 비교 없이 정렬할까요? <b>자릿수 하나씩</b>! <b>1의 자리 → 10의 자리 → 100의 자리</b> 순으로 각 자리를 (안정) 정렬하면, 마지막엔 전체가 정렬돼요. 옛 천공카드 기계가 쓰던 방법이에요. 화면을 눌러 자릿수별 정렬을 보세요.",
+    "hint": "▶ 낮은 자리부터 차례로 정렬",
+    "more": "<b>기수 정렬(radix sort)</b>(CLRS 8.3): 여러 자리 수를 <b>가장 낮은 자리(LSD)부터</b> 한 자리씩, <b>안정 정렬</b>(보통 계수 정렬)로 반복 정렬해요. 핵심: 각 자리를 정렬할 때 <b>안정성</b>이 보장돼야 앞서 정렬한 결과가 유지됨. d자리 수 n개를 정렬하면 <b>O(d(n + k))</b> — 자릿수 d가 상수면 사실상 <b>선형 O(n)</b>! 정수·고정길이 문자열·날짜 정렬에 강해요. 비교 정렬이 아니라 하한을 우회하지만, 키가 \"자릿수로 분해 가능\"해야 한다는 조건이 있죠. 계수 정렬(부품)→기수 정렬(조합)처럼 단순 도구를 쌓아 강력한 알고리즘을 만드는 전형이에요.",
+    "more_en": "<b>Radix sort</b> (CLRS 8.3): sorts multi-digit numbers one digit at a time, <b>from least significant digit (LSD)</b>, using a <b>stable sort</b> (usually counting sort) at each pass. Key: stability at each digit keeps earlier passes' order intact. For n numbers of d digits it runs in <b>O(d(n + k))</b> — effectively <b>linear O(n)</b> when d is constant! Great for integers, fixed-length strings, and dates. It bypasses the comparison lower bound, but requires keys decomposable into digits. Counting sort (component) → radix sort (composition) exemplifies stacking simple tools into a powerful algorithm.",
+    "problem": {
+      "q": "기수 정렬에서 각 자리 정렬이 '안정 정렬'이어야 하는 이유는?",
+      "solution": "앞 자리에서 맞춰둔 순서를 <b>다음 자리 정렬이 흩뜨리지 않도록</b>(같은 값은 순서 유지) 하기 위해.",
+      "q_en": "Why must each digit pass in radix sort use a stable sort?",
+      "sol_en": "So a later digit pass <b>doesn't disturb the order</b> already established by earlier digits (equal keys keep order)."
+    }
+  },
+  "algo_br_select": {
+    "ch": "알고리즘 제3장 정렬",
+    "sec": "3.3 퀵 정렬 (자세히)",
+    "title": "순서 통계 — k번째 값을 O(n)에",
+    "narr": "\"전체를 정렬\"하지 않고 <b>k번째로 작은 값</b>(예: 중앙값)만 빠르게 찾을 수 있어요. 퀵정렬의 분할을 쓰되, <b>k가 있는 한쪽만 재귀</b>하면 돼요. 양쪽 다 도는 정렬(O(n log n))과 달리 한쪽만 버리며 내려가 <b>평균 O(n)</b>!",
+    "hint": "분할 후 k가 있는 쪽만 재귀",
+    "more": "<b>순서 통계(selection)</b>(CLRS 9): n개 중 <b>k번째로 작은 값</b>을 찾는 문제(k=중간이면 중앙값). <b>quickselect</b>: 퀵정렬처럼 피벗으로 분할하면 피벗의 최종 위치를 알게 돼요 → k가 피벗보다 왼쪽이면 왼쪽만, 오른쪽이면 오른쪽만 재귀(반대쪽은 통째로 버림). 평균 점화식 T(n)=T(n/2)+O(n) → <b>평균 O(n)</b>(마스터 정리 case 3!). 최악은 O(n²)지만 랜덤 피벗으로 회피. 더 나아가 <b>중앙값의 중앙값(median-of-medians)</b> 피벗을 쓰면 <b>최악도 O(n) 보장</b>(CLRS 9.3) — 정렬(O(n log n)) 없이 중앙값을 선형에 찾는 우아한 결과. \"필요한 것만 계산\"하는 전형이에요.",
+    "more_en": "<b>Order statistics (selection)</b> (CLRS 9): find the <b>k-th smallest</b> of n elements (median if k is the middle). <b>Quickselect</b>: partition by a pivot as in quicksort to learn the pivot's final position → recurse only into the side containing k (discard the other entirely). Average recurrence T(n)=T(n/2)+O(n) → <b>average O(n)</b> (Master Theorem case 3!). Worst case is O(n²), avoided with a random pivot. Going further, the <b>median-of-medians</b> pivot gives <b>guaranteed worst-case O(n)</b> (CLRS 9.3) — finding the median in linear time without sorting. A model of \"compute only what you need.\"",
+    "problem": {
+      "q": "quickselect가 퀵정렬보다 빠른(평균 O(n)) 이유는?",
+      "solution": "분할 후 <b>한쪽만 재귀</b>(반대쪽 버림)하기 때문. 퀵정렬은 양쪽 다 재귀(O(n log n)).",
+      "q_en": "Why is quickselect faster (average O(n)) than quicksort?",
+      "sol_en": "It recurses into <b>only one side</b> after partitioning (discarding the other); quicksort recurses both (O(n log n))."
+    }
+  },
+  "algo_br_heapsort": {
+    "ch": "알고리즘 제5장 트리",
+    "sec": "5.3 힙 (자세히)",
+    "title": "힙 정렬 — 힙으로 정렬하기",
+    "narr": "<b>힙</b>은 최댓값이 항상 루트죠. 이걸로 정렬해봐요! <b>루트(최댓값)를 맨 끝과 바꾸고</b> 힙 크기를 1 줄인 뒤 다시 힙으로 정리(sift-down). 반복하면 큰 값이 뒤에서부터 쌓여 정렬 완료. 추가 메모리 없이 O(n log n)! 화면을 눌러보세요.",
+    "hint": "▶ 최댓값(루트)을 끝으로 빼기",
+    "more": "<b>힙 정렬(heapsort)</b>(CLRS 6.4): ① 배열을 <b>최대 힙</b>으로 만든다(build-heap, O(n)) ② <b>루트(최댓값)와 마지막 원소를 교환</b>하고 힙 크기를 1 줄인다(최댓값이 제자리에 확정) ③ 루트에서 <b>sift-down</b>으로 힙 속성 회복(O(log n)) ④ 힙 크기가 1이 될 때까지 반복. 총 <b>O(n log n)</b>이고, 병합 정렬과 달리 <b>추가 배열이 필요 없는 제자리(in-place) 정렬</b>! 비교 정렬의 하한 O(n log n)에 도달하는 최적 정렬 중 하나죠. 다만 캐시 지역성이 나빠 실전 속도는 퀵정렬보다 느린 편. 자료구조(힙, 5장)가 곧 알고리즘(정렬)이 되는 좋은 예 — \"최댓값을 O(1)에 보고 O(log n)에 빼는\" 힙의 성질을 그대로 활용해요.",
+    "more_en": "<b>Heapsort</b> (CLRS 6.4): ① build a <b>max-heap</b> from the array (build-heap, O(n)); ② <b>swap the root (max) with the last element</b> and shrink the heap by one (the max is now fixed in place); ③ restore the heap property by <b>sift-down</b> from the root (O(log n)); ④ repeat until the heap size is 1. Total <b>O(n log n)</b>, and unlike merge sort it is <b>in-place</b> (no extra array)! It is an optimal sort reaching the O(n log n) comparison bound. However, poor cache locality makes it slower than quicksort in practice. A great example of a data structure (the heap, Ch.5) becoming an algorithm (sorting), directly using the heap's \"see max in O(1), remove in O(log n)\" property.",
+    "problem": {
+      "q": "힙 정렬이 병합 정렬보다 메모리 면에서 유리한 점은?",
+      "solution": "<b>제자리(in-place) 정렬</b> — 추가 배열 O(n)이 필요 없음(병합은 O(n) 추가 메모리 필요).",
+      "q_en": "What is heapsort's memory advantage over merge sort?",
+      "sol_en": "It is <b>in-place</b> — no O(n) extra array (merge sort needs O(n) extra memory)."
+    }
+  },
+  "algo_br_buildheap": {
+    "ch": "알고리즘 제5장 트리",
+    "sec": "5.3 힙 (자세히)",
+    "title": "힙 만들기 — 왜 O(n)인가",
+    "narr": "n개를 힙으로 만드는 데 얼마나 걸릴까요? \"각 원소를 O(log n)에 넣으니 O(n log n)\"이라 생각하기 쉽지만 — 놀랍게도 <b>O(n)</b>이에요! 비밀은 <b>대부분의 노드가 트리 바닥 근처</b>라 이동 거리가 짧다는 데 있어요.",
+    "hint": "바닥 노드가 많고 이동거리는 짧다",
+    "more": "<b>build-heap의 O(n) 분석</b>(CLRS 6.3): 배열을 힙으로 만들 땐 <b>마지막 부모 노드(인덱스 n/2)부터 거꾸로</b> sift-down을 적용해요. 순진한 상한은 n개 × O(log n) = O(n log n)이지만, 실제로는 더 빠릅니다. 핵심 통찰: sift-down의 비용은 노드의 <b>높이</b>에 비례하는데, 높이 h인 노드는 약 <b>n/2^(h+1)개</b>밖에 없어요(바닥 노드가 압도적으로 많음). 총비용 = Σ_h (n/2^(h+1))·O(h) = O(n·Σ h/2^h) = <b>O(n)</b>(급수 Σ h/2^h가 상수로 수렴 — 13장 무한급수!). 즉 힙 정렬의 build 단계는 선형이라, 전체는 추출 반복의 O(n log n)이 지배해요. \"느슨한 상한\"과 \"정밀한 분석\"의 차이를 보여주는 고전적 예예요.",
+    "more_en": "<b>O(n) analysis of build-heap</b> (CLRS 6.3): to heapify an array, apply sift-down <b>from the last parent (index n/2) backward</b>. The naive bound is n × O(log n) = O(n log n), but it's actually faster. Key insight: a sift-down costs proportional to a node's <b>height</b>, and there are only about <b>n/2^(h+1) nodes</b> of height h (the bottom level dominates in count). Total = Σ_h (n/2^(h+1))·O(h) = O(n·Σ h/2^h) = <b>O(n)</b> (the series Σ h/2^h converges to a constant — Ch.13 infinite series!). So heapsort's build phase is linear, and the repeated extractions' O(n log n) dominates overall. A classic example of the gap between a loose bound and a tight analysis.",
+    "problem": {
+      "q": "n개로 힙을 만드는 build-heap의 정확한 시간복잡도는?",
+      "solution": "<b>O(n)</b> (O(n log n) 아님). 바닥 노드가 많고 그들의 sift-down 거리가 짧아 합이 선형.",
+      "q_en": "What is the tight time complexity of build-heap on n elements?",
+      "sol_en": "<b>O(n)</b> (not O(n log n)). Bottom nodes are numerous but sift down only a little, summing to linear."
+    }
+  },
   "algo_br_master": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
     "sec": "1.3 빅오 (자세히)",
