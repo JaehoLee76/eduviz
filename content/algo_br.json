@@ -239,6 +239,51 @@
       "sol_en": "<b>Union by rank</b> (attach smaller tree under larger) and <b>path compression</b> (find points nodes directly to the root) → nearly O(1)."
     }
   },
+  "algo_br_rod": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.2 최적 부분 구조 (자세히)",
+    "title": "막대 자르기 — DP의 고전",
+    "narr": "길이 n인 막대를 잘라 파는데, 길이별 가격이 정해져 있어요. <b>어떻게 잘라야 수익이 최대</b>일까요? 통째로 팔까, 여러 토막으로 자를까? 모든 자르는 방법을 표로 따지는 게 <b>동적 계획법</b>이에요. 길이를 바꿔 최적 절단을 보세요.",
+    "hint": "길이 n을 바꿔 최적 절단·수익 확인",
+    "more": "<b>막대 자르기(rod cutting)</b>(CLRS 14.1)는 DP를 소개하는 고전 문제예요. 길이 n 막대를 잘라 각 토막을 길이별 가격표대로 팔 때 최대 수익을 구해요. 점화식: <b>r[n] = max over j (가격[j] + r[n−j])</b> — 첫 토막을 길이 j로 자르고, 나머지 n−j는 같은 문제(최적 부분 구조!). 순진한 재귀는 같은 부분 문제를 반복해 O(2ⁿ)이지만(7장 피보나치처럼), 메모이제이션/타뷸레이션으로 <b>O(n²)</b>. 핵심 통찰: \"첫 번째 자르기 위치\"로 경우를 나누면 나머지가 더 작은 같은 문제가 돼요. 이 \"선택 → 나머지는 부분 문제\" 패턴이 모든 DP의 뼈대예요(다음: LCS·배낭).",
+    "more_en": "<b>Rod cutting</b> (CLRS 14.1) is the classic problem introducing DP. Given a rod of length n and a price for each length, maximize revenue by cutting it. Recurrence: <b>r[n] = max over j (price[j] + r[n−j])</b> — cut a first piece of length j, then the remaining n−j is the same problem (optimal substructure!). Naive recursion repeats subproblems in O(2ⁿ) (like Fibonacci in Ch.7), but memoization/tabulation give <b>O(n²)</b>. Key insight: splitting cases by \"where to make the first cut\" leaves a smaller copy of the same problem. This \"choose → the rest is a subproblem\" pattern is the skeleton of all DP (next: LCS, knapsack).",
+    "problem": {
+      "q": "막대 자르기 점화식 r[n] = max_j ( ? )의 빈칸은?",
+      "solution": "<b>가격[j] + r[n−j]</b> — 길이 j 토막의 값 + 나머지 n−j의 최적 수익.",
+      "q_en": "Fill the blank in the rod-cutting recurrence r[n] = max_j ( ? ).",
+      "sol_en": "<b>price[j] + r[n−j]</b> — value of a length-j piece plus the optimal revenue of the remaining n−j."
+    }
+  },
+  "algo_br_lcs": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.2 최적 부분 구조 (자세히)",
+    "title": "최장 공통 부분수열(LCS)",
+    "narr": "두 문자열에 <b>공통으로(순서를 지키며) 나타나는 가장 긴 수열</b>은? \"ABCB\"와 \"BDCB\"의 공통 부분수열 중 가장 긴 건 \"BCB\"(길이 3)예요. 격자 표를 채워 찾아요 — <b>7장의 격자 DP</b>가 문자열에 적용된 거죠. DNA 비교·파일 diff의 핵심이에요!",
+    "hint": "같으면 ↖+1, 다르면 max(↑,←)",
+    "more": "<b>최장 공통 부분수열(LCS)</b>(CLRS 14.4): 두 수열 X, Y에서 순서를 유지하되 연속일 필요는 없는 가장 긴 공통 수열. 격자 DP — <b>dp[i][j]</b>를 X의 앞 i글자와 Y의 앞 j글자의 LCS 길이로 두고, <b>X[i]=Y[j]면 dp[i][j]=dp[i−1][j−1]+1</b>(대각선+1), <b>다르면 max(dp[i−1][j], dp[i][j−1])</b>. 표를 채우면 O(mn). 역추적으로 실제 LCS 문자열도 복원해요. 7장의 격자 경로 DP와 똑같은 구조(각 칸이 이웃 칸으로 정해짐)! 쓰임: <b>DNA·단백질 서열 정렬(생물정보학)</b>, <b>git/파일 diff</b>(바뀐 줄 찾기), 맞춤법 교정(편집 거리의 사촌), 표절 검사. \"두 수열을 표로 비교\"가 DP의 대표 응용이에요.",
+    "more_en": "<b>Longest Common Subsequence (LCS)</b> (CLRS 14.4): the longest sequence appearing in both X and Y in order (not necessarily contiguous). Grid DP — let <b>dp[i][j]</b> be the LCS length of X's first i and Y's first j characters; <b>if X[i]=Y[j], dp[i][j]=dp[i−1][j−1]+1</b> (diagonal +1), <b>else max(dp[i−1][j], dp[i][j−1])</b>. Filling the table is O(mn), and backtracking recovers the actual LCS string. It is exactly the structure of Ch.7's grid-path DP (each cell determined by neighbors)! Uses: <b>DNA/protein sequence alignment (bioinformatics)</b>, <b>git/file diff</b> (finding changed lines), spell correction (cousin of edit distance), plagiarism detection. \"Compare two sequences in a table\" is a flagship DP application.",
+    "problem": {
+      "q": "LCS에서 두 글자가 같을 때 dp 값은 어떻게 정해지나?",
+      "solution": "<b>대각선 왼쪽위 + 1</b> (dp[i][j]=dp[i−1][j−1]+1). 공통 글자 하나를 이어붙임.",
+      "q_en": "In LCS, how is dp set when two characters match?",
+      "sol_en": "<b>Upper-left diagonal + 1</b> (dp[i][j]=dp[i−1][j−1]+1), extending by one common character."
+    }
+  },
+  "algo_br_knap": {
+    "ch": "알고리즘 제7장 동적 계획법",
+    "sec": "7.2 최적 부분 구조 (자세히)",
+    "title": "0/1 배낭 — 무엇을 담을까",
+    "narr": "무게 한도가 있는 배낭에, 무게·가치가 다른 물건들 중 <b>가치 합이 최대가 되게</b> 담으려면? 각 물건은 <b>담거나 안 담거나</b>(0/1). 그리디(비싼 것부터)는 틀릴 수 있어서, <b>표를 채우는 DP</b>로 진짜 최적을 찾아요. 자원 배분의 대표 문제죠.",
+    "hint": "초록 = 담은 물건 (가치 최대 조합)",
+    "more": "<b>0/1 배낭 문제(knapsack)</b>: 용량 W인 배낭에, 무게 wᵢ·가치 vᵢ인 물건들을 (쪼개지 않고) 담아 가치 합 최대화. DP — <b>dp[i][w]</b>를 \"앞 i개 물건, 용량 w일 때 최대 가치\"로 두고: <b>물건 i를 안 담으면 dp[i−1][w]</b>, <b>담으면 dp[i−1][w−wᵢ]+vᵢ</b>, 둘 중 max. 표 크기 n×W라 <b>O(nW)</b>(의사 다항 — W가 크면 느림). 왜 그리디가 안 되나? \"가치/무게 비율 큰 것부터\"는 분할 가능 배낭(fractional)엔 최적이지만, 0/1에선 틀려요(8장 그리디의 함정과 같은 이유) → DP가 모든 조합을 표로 따져 보장. 쓰임: 예산 배분, 투자 선택, 화물 적재, 자원 스케줄링. \"담는다/뺀다\" 결정의 최적화 = DP의 전형이에요.",
+    "more_en": "<b>0/1 knapsack</b>: with capacity W, choose items (each weight wᵢ, value vᵢ) — taken whole or not — to maximize total value. DP — let <b>dp[i][w]</b> be \"max value using the first i items with capacity w\": <b>skip item i → dp[i−1][w]</b>, <b>take it → dp[i−1][w−wᵢ]+vᵢ</b>, take the max. The table is n×W, so <b>O(nW)</b> (pseudo-polynomial — slow for large W). Why doesn't greedy work? \"Highest value/weight first\" is optimal for the fractional knapsack but wrong for 0/1 (same trap as Ch.8 greedy) → DP guarantees it by tabulating all combinations. Uses: budget allocation, investment selection, cargo loading, resource scheduling. Optimizing take/leave decisions is a hallmark of DP.",
+    "problem": {
+      "q": "0/1 배낭에 그리디(가치/무게 비율 순)를 쓰면 왜 최적이 아닐 수 있나?",
+      "solution": "물건을 <b>쪼갤 수 없어</b> 한 번의 선택이 남은 용량을 낭비할 수 있음 → 모든 조합을 따지는 <b>DP</b> 필요.",
+      "q_en": "Why can greedy (by value/weight ratio) fail for 0/1 knapsack?",
+      "sol_en": "Items <b>can't be split</b>, so one choice may waste remaining capacity → need <b>DP</b> over all combinations."
+    }
+  },
   "algo_br_master": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
     "sec": "1.3 빅오 (자세히)",

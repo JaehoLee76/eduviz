@@ -289,6 +289,58 @@
       nd(A[0],A[1],'A',true); nd(B[0],B[1],'B'); nd(C[0],C[1],'C'); nd(D[0],D[1],'D'); nd(F[0],F[1],'F');
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.fillText('find(D) → 루트 A. 경로압축: 거쳐온 노드를 루트에 직접 연결 → 거의 O(1)', E.W/2, E.H*0.82);
       E.big('union-find — 집합 합치고·찾기', '"이 둘이 같은 그룹?"을 거의 O(1)에. 각 원소가 부모를 가리키는 트리 숲 + 두 기법(union by rank, path compression)으로 초고속. MST 크루스칼·네트워크 연결성·이미지 분할'); }
+  },
+
+  // ══════ DP 두 조건(algo7_04) ▸ 막대 자르기 (CLRS 14.1) ══════
+  { id:'algo_br_rod', branchOf:'algo7_04',
+    enter:function(E){ this.p=[0,1,5,8,9,10,17,17,20]; this.s={n:4}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>막대 길이 n</label><input type="range" id="nn" min="1" max="8" step="1" value="4"><output id="nno">4</output></div>');
+      var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.1); }); },
+    draw:function(E){ var ctx=E.ctx, p=this.p, n=this.s.n;
+      var r=[0], cut=[[]]; for(var i=1;i<=n;i++){ var best=-1,bj=0; for(var j=1;j<=i;j++){ if(p[j]+r[i-j]>best){best=p[j]+r[i-j];bj=j;} } r[i]=best; cut[i]=[bj].concat(cut[i-bj]); }
+      // 막대 그리기
+      var pieces=cut[n], total=n, x0=E.W/2-E.W*0.3, w=E.W*0.6, y=E.H*0.40, px=x0;
+      for(var k=0;k<pieces.length;k++){ var pw=w*pieces[k]/total;
+        ctx.fillStyle='rgba(122,184,255,0.2)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(px,y,pw-3,44); ctx.strokeRect(px,y,pw-3,44);
+        ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('길이'+pieces[k], px+pw/2, y+20); ctx.fillStyle='#8fe3b5'; ctx.fillText('₩'+p[pieces[k]], px+pw/2, y+38); px+=pw; }
+      // 가격표
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('길이별 가격: '+p.slice(1,9).map(function(v,i){return (i+1)+'→'+v;}).join('  '), E.W/2, E.H*0.62);
+      E.big('막대 '+n+' = '+pieces.join('+')+' 자르기 → 최대 ₩'+r[n], '막대 자르기 — DP의 고전. r[n]=max over j (가격[j] + r[n−j]). 자르는 모든 방법을 표로 따져 최대 수익! (안 자른 통짜보다 이득일 때가 많음)'); }
+  },
+
+  // ══════ 격자 DP(algo7_05) ▸ 최장 공통 부분수열 LCS (CLRS 14.4) ══════
+  { id:'algo_br_lcs', branchOf:'algo7_05',
+    enter:function(E){ this.X='ABCB'; this.Y='BDCB'; E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, X=this.X, Y=this.Y, m=X.length, n=Y.length;
+      var dp=[]; for(var i=0;i<=m;i++){ dp[i]=[]; for(var j=0;j<=n;j++){ if(i===0||j===0)dp[i][j]=0; else if(X[i-1]===Y[j-1])dp[i][j]=dp[i-1][j-1]+1; else dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]); } }
+      var cell=Math.min(56,E.H*0.085), x0=E.W/2-(n+1)*cell/2+cell*0.5, y0=E.H*0.26;
+      // 헤더 (Y)
+      ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+      for(var j=0;j<n;j++){ ctx.fillStyle='#8fe3b5'; ctx.fillText(Y[j], x0+(j+1)*cell+cell/2, y0-6); }
+      for(var i=0;i<m;i++){ ctx.fillStyle='#ffb27a'; ctx.fillText(X[i], x0-cell/2, y0+(i+1)*cell+cell/2+4); }
+      for(var i=0;i<=m;i++)for(var j=0;j<=n;j++){ var x=x0+j*cell,y=y0+i*cell, match=(i>0&&j>0&&X[i-1]===Y[j-1]);
+        ctx.fillStyle=match?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.08)'; ctx.strokeStyle=match?'#8fe3b5':'rgba(122,184,255,0.3)'; ctx.lineWidth=1; ctx.fillRect(x,y,cell-2,cell-2); ctx.strokeRect(x,y,cell-2,cell-2);
+        ctx.fillStyle=(i===m&&j===n)?'#ffb27a':'#dfeefb'; ctx.font=(i===m&&j===n?'600 18px':'14px')+' sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(dp[i][j], x+cell/2-1, y+cell/2-1); ctx.textBaseline='alphabetic'; }
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('글자가 같으면 ↖+1, 다르면 max(↑, ←)', E.W/2, y0+(m+1)*cell+24);
+      E.big('LCS("'+X+'", "'+Y+'") = '+dp[m][n]+'  ("BCB")', '최장 공통 부분수열 — 두 문자열에 공통으로(순서대로) 나타나는 가장 긴 수열. 격자 DP(7장). DNA 비교·diff·맞춤법 교정의 핵심'); }
+  },
+
+  // ══════ 격자 DP(algo7_05) ▸ 0/1 배낭 (CLRS 부록/고전 DP) ══════
+  { id:'algo_br_knap', branchOf:'algo7_05',
+    enter:function(E){ this.items=[[2,3],[3,4],[4,5],[5,6]]; this.cap=5; E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, it=this.items, cap=this.cap, n=it.length;
+      var dp=[]; for(var i=0;i<=n;i++){ dp[i]=[]; for(var w=0;w<=cap;w++){ if(i===0)dp[i][w]=0; else if(it[i-1][0]>w)dp[i][w]=dp[i-1][w]; else dp[i][w]=Math.max(dp[i-1][w], dp[i-1][w-it[i-1][0]]+it[i-1][1]); } }
+      // 선택된 아이템 역추적
+      var sel={}, w=cap; for(var i=n;i>0;i--){ if(dp[i][w]!==dp[i-1][w]){ sel[i-1]=true; w-=it[i-1][0]; } }
+      ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('배낭 용량 '+cap+'kg — 가치 합을 최대로', E.W/2, E.H*0.24);
+      var bw=120, gap=18, total=n*bw+(n-1)*gap, x0=E.W/2-total/2, y=E.H*0.34;
+      for(var k=0;k<n;k++){ var x=x0+k*(bw+gap), on=sel[k];
+        ctx.fillStyle=on?'rgba(143,227,181,0.22)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=on?'#8fe3b5':'rgba(255,255,255,0.25)'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,72,10);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,72);
+        ctx.fillStyle=on?'#8fe3b5':'#cfcdc6'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('물건 '+(k+1), x+bw/2, y+24);
+        ctx.font='13px sans-serif'; ctx.fillText(it[k][0]+'kg / ₩'+it[k][1], x+bw/2, y+46); if(on){ ctx.fillStyle='#8fe3b5'; ctx.fillText('✓ 담음', x+bw/2, y+64); } }
+      E.big('최대 가치 = ₩'+dp[n][cap]+' (용량 '+cap+'kg)', '0/1 배낭 — 각 물건을 담거나 말거나, 무게 한도 내 가치 최대화. dp[i][w] 표를 채워 해결(7장 격자 DP). 자원 배분의 대표 문제'); }
   }
 
   ];
