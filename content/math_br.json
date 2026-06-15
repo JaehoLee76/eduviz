@@ -1,0 +1,77 @@
+{
+  "math_br_sqrt2": {
+    "ch": "제1장 실수",
+    "sec": "1.1 실수의 분류 (자세히)",
+    "title": "√2 가 무리수임의 증명",
+    "narr": "<b>1장에서 √2가 무리수(#5)</b>라고 했죠. 정말 분수로 못 쓸까요? <b>귀류법</b>으로 증명해요 — \"분수로 쓸 수 있다\"고 가정하면 모순이 나옵니다! 고대 그리스를 뒤흔든 증명이에요.",
+    "hint": "분수라고 가정 → 모순 → 무리수",
+    "more": "<b>√2가 무리수임의 증명(귀류법)</b>: ① √2 = p/q (p, q는 더 약분 안 되는 기약분수)라 <b>가정</b>. ② 제곱하면 2 = p²/q² → <b>p² = 2q²</b> → p²은 짝수 → <b>p도 짝수</b>(홀수²=홀수이므로) → p = 2k. ③ 대입: 2q² = 4k² → <b>q² = 2k²</b> → 같은 논리로 <b>q도 짝수</b>. ④ p와 q가 둘 다 짝수면 2로 약분 가능 → \"기약분수\"라는 가정에 <b>모순</b>! ⑤ 따라서 √2는 분수로 쓸 수 없다 = <b>무리수</b>. ∎ 이 증명은 \"수직선이 분수만으로는 빈틈없이 채워지지 않는다\"는 충격적 사실을 보여줘요(피타고라스 학파의 위기). 같은 방법으로 √3, √5, 소수의 제곱근이 모두 무리수임을 증명할 수 있어요. <b>귀류법</b>(모순을 이끌어내 부정)은 수학 증명의 강력한 무기예요.",
+    "more_en": "<b>Proof that √2 is irrational (by contradiction)</b>: ① Assume √2 = p/q with p, q a fully reduced fraction. ② Squaring: 2 = p²/q² → <b>p² = 2q²</b> → p² is even → <b>p is even</b> (since odd² is odd) → p = 2k. ③ Substitute: 2q² = 4k² → <b>q² = 2k²</b> → by the same logic <b>q is even</b>. ④ If both p and q are even, they share a factor 2 → <b>contradiction</b> with \"fully reduced\"! ⑤ Hence √2 cannot be a fraction = it is <b>irrational</b>. ∎ This proof reveals the shocking fact that fractions alone leave gaps on the number line (the crisis of the Pythagoreans). The same method shows √3, √5, and roots of primes are all irrational. <b>Proof by contradiction</b> is a powerful weapon of mathematical reasoning.",
+    "problem": {
+      "q": "√2 무리수 증명에서 'p²이 짝수면 p도 짝수'인 이유는?",
+      "solution": "<b>홀수의 제곱은 홀수</b>이기 때문. 대우로 'p²이 짝수 → p는 홀수가 아님 → 짝수'.",
+      "q_en": "In the proof, why does 'p² even imply p even'?",
+      "sol_en": "Because <b>an odd number squared is odd</b>; contrapositive: p² even → p not odd → p even."
+    }
+  },
+  "math_br_quadformula": {
+    "ch": "제3장 방정식",
+    "sec": "3.2 이차방정식 (자세히)",
+    "title": "근의 공식은 어디서 왔나 — 유도",
+    "narr": "이차방정식의 근의 공식 x = (−b±√(b²−4ac))/2a, 그냥 외우셨나요? 이 공식은 <b>완전제곱식(#21)</b>에서 나와요! ax²+bx+c=0을 완전제곱식으로 \"x를 가둬\" 풀면 그대로 유도됩니다. 외우지 말고 이해하세요.",
+    "hint": "완전제곱식으로 x를 가둔다",
+    "more": "<b>근의 공식 유도</b>: ① ax²+bx+c=0 → 양변 ÷ a → x² + (b/a)x + c/a = 0. ② <b>완전제곱식(#21)</b> 만들기: (x + b/2a)² = (b/2a)² − c/a = b²/4a² − c/a. ③ 우변 통분: (x + b/2a)² = <b>(b²−4ac)/4a²</b>. ④ 양변 제곱근: x + b/2a = ±√(b²−4ac)/2a. ⑤ 정리: <b>x = (−b ± √(b²−4ac)) / 2a</b>. 여기서 √ 안의 <b>b²−4ac가 바로 판별식(#22)</b> — 양수면 근 2개, 0이면 1개, 음수면 복소근(#23). 완전제곱식이라는 한 도구가 \"모든 이차방정식을 푸는 공식\"을 낳은 거예요. 공식의 유래를 알면 잊어버려도 다시 만들 수 있어요 — 그게 진짜 이해예요.",
+    "more_en": "<b>Deriving the quadratic formula</b>: ① ax²+bx+c=0 → divide by a → x² + (b/a)x + c/a = 0. ② Complete the square (#21): (x + b/2a)² = (b/2a)² − c/a = b²/4a² − c/a. ③ Combine the right side: (x + b/2a)² = <b>(b²−4ac)/4a²</b>. ④ Take square roots: x + b/2a = ±√(b²−4ac)/2a. ⑤ Solve: <b>x = (−b ± √(b²−4ac)) / 2a</b>. The <b>b²−4ac under the root is the discriminant (#22)</b> — positive gives two roots, zero one, negative complex roots (#23). One tool, completing the square, yields a formula for every quadratic. Knowing a formula's origin lets you rebuild it even if you forget — that is real understanding.",
+    "problem": {
+      "q": "근의 공식의 √ 안에 있는 b²−4ac를 무엇이라 부르나?",
+      "solution": "<b>판별식</b> — 부호로 실근 2개/1개/복소근을 가른다(#22).",
+      "q_en": "What is b²−4ac (under the root in the quadratic formula) called?",
+      "sol_en": "The <b>discriminant</b> — its sign determines two/one real roots or complex roots (#22)."
+    }
+  },
+  "math_br_vieta": {
+    "ch": "제3장 방정식",
+    "sec": "3.2 이차방정식 (자세히)",
+    "title": "근과 계수의 관계 (비에트)",
+    "narr": "이차방정식의 <b>두 근을 직접 구하지 않고도</b>, 근의 <b>합과 곱</b>을 계수만으로 알 수 있어요! x²+bx+c=0의 두 근 α, β는 <b>α+β = −b, αβ = c</b>. 신기하죠? b, c를 바꿔 직접 확인해보세요.",
+    "hint": "합 = −b, 곱 = c",
+    "more": "<b>근과 계수의 관계(비에트 정리)</b>: ax²+bx+c=0의 두 근 α, β에 대해 <b>α+β = −b/a, αβ = c/a</b> (그림은 a=1). 왜? 근이 α, β면 ax²+bx+c = a(x−α)(x−β) = a(x² −(α+β)x + αβ). 전개해 계수를 비교하면 바로 나와요(3장 인수분해의 역방향!). 활용: 근을 안 구하고 α²+β²=(α+β)²−2αβ 같은 식을 계산, 두 근으로 방정식 세우기(x²−(합)x+(곱)=0), 근의 부호 판정. 3차 이상에서도 일반화돼요(대칭함수). \"근 ↔ 계수\"라는 다리는 갈루아 이론(26장)으로 이어지는 깊은 구조예요. 인수분해와 전개가 사실 같은 동전의 양면임을 보여줘요.",
+    "more_en": "<b>Vieta's formulas (roots and coefficients)</b>: for ax²+bx+c=0 with roots α, β, <b>α+β = −b/a and αβ = c/a</b> (the figure uses a=1). Why? If the roots are α, β, then ax²+bx+c = a(x−α)(x−β) = a(x² −(α+β)x + αβ); expanding and matching coefficients gives it (the reverse of factoring, Ch.3!). Uses: compute expressions like α²+β²=(α+β)²−2αβ without finding the roots, build an equation from two roots (x²−(sum)x+(product)=0), and determine root signs. It generalizes to higher degrees (symmetric functions). The bridge \"roots ↔ coefficients\" leads to the deep structure of Galois theory (Ch.26). It shows factoring and expansion are two sides of one coin.",
+    "problem": {
+      "q": "x² − 5x + 6 = 0 의 두 근의 합과 곱은? (근을 구하지 말고)",
+      "solution": "합 = −(−5) = <b>5</b>, 곱 = <b>6</b>. (실제 근 2, 3 → 합5·곱6 일치)",
+      "q_en": "For x² − 5x + 6 = 0, find the sum and product of the roots (without solving).",
+      "sol_en": "Sum = −(−5) = <b>5</b>, product = <b>6</b> (roots 2, 3 confirm: sum 5, product 6)."
+    }
+  },
+  "math_br_double": {
+    "ch": "제8장 삼각함수",
+    "sec": "8.2 덧셈정리 (자세히)",
+    "title": "2배각 공식 — 덧셈정리의 선물",
+    "narr": "<b>덧셈정리(#55)</b>에서 두 각을 같게(α=β=θ) 두면 어떻게 될까요? <b>sin 2θ = 2 sin θ cos θ</b>라는 멋진 공식이 나와요! θ를 바꿔 sin 2θ와 2 sin θ cos θ가 항상 같음을 확인하세요.",
+    "hint": "덧셈정리에 α=β=θ 대입",
+    "more": "<b>2배각 공식</b>은 덧셈정리(#55)의 특수한 경우예요 — α=β=θ로 두면: <b>sin 2θ = sin(θ+θ) = sinθcosθ + cosθsinθ = 2 sinθ cosθ</b>. 코사인은 <b>cos 2θ = cos²θ − sin²θ = 1 − 2sin²θ = 2cos²θ − 1</b>(피타고라스 항등식 sin²+cos²=1 사용). 여기서 <b>반각 공식</b>(sin²θ = (1−cos2θ)/2 등)도 따라 나와요. 쓰임: <b>적분</b>(sin²·cos² 적분은 2배각으로 차수를 낮춰서!), 물리(진동·파동), 회전 합성. 하나의 정리(덧셈정리)에서 2배각·반각·곱-합 공식이 줄줄이 파생되는 게 삼각함수의 아름다움이에요. 외울 게 많아 보여도 뿌리는 덧셈정리 하나예요.",
+    "more_en": "The <b>double-angle formulas</b> are a special case of the addition formula (#55): set α=β=θ to get <b>sin 2θ = sin(θ+θ) = sinθcosθ + cosθsinθ = 2 sinθ cosθ</b>. For cosine, <b>cos 2θ = cos²θ − sin²θ = 1 − 2sin²θ = 2cos²θ − 1</b> (using the identity sin²+cos²=1). From these follow the <b>half-angle formulas</b> (e.g. sin²θ = (1−cos2θ)/2). Uses: <b>integration</b> (integrate sin²/cos² by lowering the power via double angle!), physics (oscillation, waves), composing rotations. The beauty of trigonometry: double-, half-, and product-to-sum formulas all cascade from one addition theorem. It looks like much to memorize, but the root is a single formula.",
+    "problem": {
+      "q": "sin 2θ 를 sin θ, cos θ 로 나타내면?",
+      "solution": "<b>2 sin θ cos θ</b> (덧셈정리에 α=β=θ).",
+      "q_en": "Express sin 2θ in terms of sin θ and cos θ.",
+      "sol_en": "<b>2 sin θ cos θ</b> (addition formula with α=β=θ)."
+    }
+  },
+  "math_br_difrules": {
+    "ch": "제17장 미분",
+    "sec": "17.4 여러 미분법 (자세히)",
+    "title": "미분의 법칙 — 곱·몫·연쇄",
+    "narr": "<b>멱법칙(#100)</b>만으론 sin(x²)이나 x²·eˣ 같은 복잡한 함수를 못 미분해요. 다행히 <b>곱·몫·연쇄법칙</b>으로 어떤 함수든 잘게 분해해 미분할 수 있어요. 특히 <b>연쇄법칙</b>은 \"겹친 함수\"의 핵심 도구예요.",
+    "hint": "복잡한 함수를 법칙으로 분해",
+    "more": "<b>미분의 법칙</b>(CLRS 아닌 미적분 표준): <b>상수배</b> (cf)′=cf′, <b>합·차</b> (f±g)′=f′±g′, <b>곱</b> <b>(fg)′ = f′g + fg′</b>, <b>몫</b> (f/g)′ = (f′g − fg′)/g², <b>연쇄법칙</b> <b>(f(g(x)))′ = f′(g(x))·g′(x)</b>. 곱의 미분이 (fg)′=f′g′가 <b>아닌</b> 게 핵심 함정! 연쇄법칙은 \"바깥 함수 미분 × 안쪽 함수 미분\" — 예 (sin(x²))′ = cos(x²)·2x. 이 법칙들로 다항·삼각·지수·로그·합성 어떤 함수든 기계적으로 미분해요. ★연쇄법칙은 <b>신경망의 역전파(backpropagation)</b> 그 자체 — 여러 층 합성함수의 기울기를 연쇄적으로 곱해 계산하는 게 딥러닝 학습의 심장이에요. 미분 한 도구가 AI까지 닿아요.",
+    "more_en": "<b>Rules of differentiation</b> (standard calculus): <b>constant multiple</b> (cf)′=cf′, <b>sum/difference</b> (f±g)′=f′±g′, <b>product</b> <b>(fg)′ = f′g + fg′</b>, <b>quotient</b> (f/g)′ = (f′g − fg′)/g², <b>chain rule</b> <b>(f(g(x)))′ = f′(g(x))·g′(x)</b>. A key trap: the product rule is <b>not</b> (fg)′=f′g′! The chain rule is \"derivative of the outer × derivative of the inner\" — e.g. (sin(x²))′ = cos(x²)·2x. With these, any polynomial, trig, exponential, log, or composite function differentiates mechanically. The chain rule <b>is backpropagation in neural networks</b> — multiplying gradients through layers of composed functions is the heart of deep-learning training. One tool, differentiation, reaches all the way to AI.",
+    "problem": {
+      "q": "(x · sin x)′ 를 곱의 법칙으로 구하면?",
+      "solution": "f=x, g=sin x → f′g+fg′ = <b>1·sin x + x·cos x = sin x + x cos x</b>.",
+      "q_en": "Use the product rule to find (x · sin x)′.",
+      "sol_en": "f=x, g=sin x → f′g+fg′ = <b>sin x + x cos x</b>."
+    }
+  }
+}
