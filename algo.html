@@ -161,6 +161,20 @@
 
   #stepbar { position: fixed; left: 0; bottom: 24px; width: 58vw; z-index: 6; display: none; justify-content: center; gap: 10px; }
   body.viz #stepbar { display: flex; }
+  body.viz-concept #stepbar, body.viz-concept #stepcap { display: none !important; }  /* 개념 장면=스텝 없음 */
+  body.viz #controls { left: 0; right: 42vw; }   /* 슬라이더를 왼쪽 컬럼 중앙으로 */
+  /* 개념 핵심 요약 패널 (오른쪽) */
+  .concept { padding: 8px 22px 36px; font-size: 14.5px; line-height: 1.72; color: var(--text-2); }
+  .cpt-intro { color: #dfeefb; margin-bottom: 16px; line-height: 1.7; }
+  .cpt-intro b { color: #bfe0ff; font-weight: 600; }
+  .cpt-sec { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .cpt-h { color: var(--accent-light); font-weight: 700; font-size: 12.5px; letter-spacing: .05em; margin-bottom: 8px; }
+  .concept b { color: var(--text-1); font-weight: 600; }
+  .cpt-sec.en, .concept .en { color: var(--text-3); font-size: 13.5px; }
+  .cpt-sec.en b, .concept .en b { color: var(--text-2); }
+  .cpt-sol { margin-top: 10px; }
+  .cpt-sol summary { cursor: pointer; color: var(--accent-light); font-size: 13.5px; }
+  .cpt-sol b { color: var(--accent-light); }
   .sbtn { background: var(--accent-soft); border: 1px solid var(--accent); color: #dceeff; padding: 9px 18px; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
   .sbtn:hover { background: rgba(79,147,214,0.3); }
   .sbtn:disabled { opacity: .3; cursor: default; }

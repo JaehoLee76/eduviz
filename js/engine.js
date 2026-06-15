@@ -215,6 +215,15 @@
   function renderCode(sc){ if(!codeBodyEl) return; var h='';
     for(var i=0;i<sc.code.length;i++){ h+='<div class="cl" data-i="'+i+'"><span class="ln">'+i+'</span><span class="ct">'+escHtml(sc.code[i])+'</span></div>'; }
     codeBodyEl.innerHTML=h; }
+  // 개념 장면(실행 코드 없음): 오른쪽 패널에 핵심 요약(narr+more+문제, 기존 한·영 콘텐츠 재활용)
+  function renderConcept(sc){ if(!codeBodyEl) return; var h='<div class="concept">';
+    if(sc.narr) h+='<div class="cpt-intro">'+sc.narr+'</div>';
+    if(sc.more) h+='<div class="cpt-sec"><div class="cpt-h">핵심 요약</div>'+sc.more+'</div>';
+    if(sc.more_en) h+='<div class="cpt-sec en"><div class="cpt-h">IN ENGLISH</div>'+sc.more_en+'</div>';
+    if(sc.problem){ var p=sc.problem; h+='<div class="cpt-sec"><div class="cpt-h">연습 문제</div><div>'+p.q+'</div>'
+      +(p.q_en?'<div class="en">'+p.q_en+'</div>':'')
+      +'<details class="cpt-sol"><summary>풀이 보기</summary>'+p.solution+(p.sol_en?'<div class="en" style="margin-top:6px">'+p.sol_en+'</div>':'')+'</details></div>'; }
+    h+='</div>'; codeBodyEl.innerHTML=h; }
   function paintStep(){ if(!_steps) return; var f=_steps[_stepI]||{};
     if(codeBodyEl){ var cls=codeBodyEl.querySelectorAll('.cl'); for(var i=0;i<cls.length;i++) cls[i].classList.remove('on');
       var lines=(f.line!=null)?(Array.isArray(f.line)?f.line:[f.line]):[];
@@ -229,11 +238,12 @@
   function stopAuto(){ if(_autoT){ clearInterval(_autoT); _autoT=null; if(sbAuto) sbAuto.textContent='▶ 자동 재생'; } }
   function toggleAuto(){ if(_autoT){ stopAuto(); return; } if(!_steps) return; if(_stepI>=_steps.length-1){ _stepI=0; paintStep(); }
     if(sbAuto) sbAuto.textContent='⏸ 정지'; _autoT=setInterval(function(){ if(_stepI>=_steps.length-1){ stopAuto(); return; } stepNext(); }, 820); }
-  function setVizMode(sc){ var viz=!!(sc.code&&sc.build); sc._viz=viz;
-    if(document.body) document.body.classList.toggle('viz',viz);
+  function setVizMode(sc){ var hasCode=!!(sc.code&&sc.build), concept=!!sc.concept&&!hasCode, viz=hasCode||concept; sc._viz=viz;
+    if(document.body){ document.body.classList.toggle('viz',viz); document.body.classList.toggle('viz-concept',concept); }
     stopAuto(); resize();
-    if(viz){ setOn([]); if(codeHeadEl) codeHeadEl.textContent='📌 '+(sc.title||'CODE');
+    if(hasCode){ setOn([]); if(codeHeadEl) codeHeadEl.textContent='📌 '+(sc.title||'CODE');
       renderCode(sc); _steps=sc.build(E)||[]; _stepI=0; paintStep(); }
+    else if(concept){ if(codeHeadEl) codeHeadEl.textContent='💡 '+(sc.title||''); renderConcept(sc); _steps=null; }
     else { _steps=null; } }
 
   // ---------- main loop ----------
