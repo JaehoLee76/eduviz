@@ -918,6 +918,80 @@
       AV.arrow(ctx, cx-E.W*0.11, cy, cx+E.W*0.11, cy, '#8fe3b5', 3);
       ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('다항시간 변환 A→B', cx, cy-E.H*0.12);
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('B를 빠르게 풀면 A도 빠르게 풀림  ⇔  A가 어려우면 B도 어렵다', cx, cy+E.H*0.16); }
+  },
+
+  // ══════ O(log n)(algo1_04) ▸ 빠른 거듭제곱 (코드+스텝) ══════
+  { id:'algo_br_fastpow', branchOf:'algo1_04',
+    code:[
+      'POWER(a, n) {                  // a^n in O(log n)',
+      '  result = 1',
+      '  while (n > 0) {',
+      '    if (n is odd) result *= a   // 비트가 1이면 곱',
+      '    a *= a                      // 밑을 제곱',
+      '    n = n >> 1                  // 지수 비트 한 칸',
+      '  }',
+      '  return result',
+      '}'
+    ],
+    build:function(V){ var a0=3,n0=13, a=a0,n=n0,result=1, st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap,a:a,n:n,result:result,a0:a0,n0:n0}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(1,'3^13 계산 시작. result = 1.');
+      while(n>0){
+        if(n&1){ result*=a; snap(3,'n='+n+' 홀수(비트 1) → result ×= a = '+result); }
+        else snap(3,'n='+n+' 짝수(비트 0) → 곱셈 건너뜀.');
+        a*=a; n=n>>1;
+        if(n>0) snap(5,'밑을 제곱(a='+a+'), 지수 절반(n='+n+').');
+      }
+      snap(7,'<b>완료!</b> 3^13 = <b>'+result+'</b>. 곱셈 ~log₂13 ≈ 4번뿐 = O(log n)!',{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx, cx=V.W/2; ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 26px sans-serif'; ctx.fillText('result = '+f.result, cx, V.H*0.34);
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 19px sans-serif'; ctx.fillText('현재 밑 a = '+f.a, cx, V.H*0.46);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('남은 지수 n = '+f.n+'  (이진수 '+f.n.toString(2)+')', cx, V.H*0.56);
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('지수를 이진수로 보고, 비트마다 제곱 + (비트가 1이면) 곱셈', cx, V.H*0.66); }
+  },
+
+  // ══════ 탐색(algo4_01) ▸ 투 포인터 (코드+스텝) ══════
+  { id:'algo_br_twoptr', branchOf:'algo4_01',
+    code:[
+      'TWO-SUM-SORTED(A, target) {    // A는 정렬됨',
+      '  lo = 0;  hi = n-1',
+      '  while (lo < hi) {',
+      '    s = A[lo] + A[hi]',
+      '    if (s == target) return (lo, hi)',
+      '    else if (s < target) lo++   // 합이 작으면 왼쪽↑',
+      '    else hi--                    // 합이 크면 오른쪽↓',
+      '  }',
+      '}'
+    ],
+    build:function(V){ var A=[1,3,4,6,8,11], target=10, lo=0, hi=A.length-1, st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap,A:A,lo:lo,hi:hi,target:target}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(1,'정렬된 배열에서 합이 '+target+'인 두 수 찾기. lo=양끝.');
+      while(lo<hi){ var s=A[lo]+A[hi];
+        snap(3,'A['+lo+']='+A[lo]+' + A['+hi+']='+A[hi]+' = <b>'+s+'</b>');
+        if(s===target){ snap(4,'합 '+target+' 일치! 두 수 = '+A[lo]+', '+A[hi],{found:[lo,hi]}); return st; }
+        else if(s<target){ snap(5,s+' < '+target+' → 합을 키우려 lo 오른쪽으로.'); lo++; }
+        else { snap(6,s+' > '+target+' → 합을 줄이려 hi 왼쪽으로.'); hi--; }
+      }
+      snap(7,'없음.',{done:true}); return st; },
+    draw:function(V,f){ var ctx=V.ctx;
+      var info=AV.arr(V, f.A, { y:V.H*0.4, bw:56, gap:10, idx:true, hl:function(k){
+        if(f.found&&(k===f.found[0]||k===f.found[1]))return {fill:'rgba(143,227,181,0.35)',stroke:'#8fe3b5',text:'#8fe3b5',tag:'합 일치!'};
+        if(k===f.lo)return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'lo'};
+        if(k===f.hi)return {fill:'rgba(244,160,192,0.3)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'hi'};
+        if(k>f.lo&&k<f.hi)return null; return {fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.12)',text:'#4a4955'}; } });
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('두 포인터를 안쪽으로 좁혀가며 합을 맞춤 → O(n)', V.W/2, info.y+info.bw+34); }
+  },
+
+  // ══════ 분할정복(algo8_03) ▸ 백트래킹: N-퀸 (concept) ══════
+  { id:'algo_br_nqueens', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, N=4, cell=Math.min(72,E.H*0.15), x0=E.W/2-N*cell/2, y0=E.H*0.22, sol=[1,3,0,2];
+      for(var r=0;r<N;r++)for(var c=0;c<N;c++){ var x=x0+c*cell,y=y0+r*cell, dark=(r+c)%2;
+        ctx.fillStyle=dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.02)'; ctx.fillRect(x,y,cell,cell);
+        ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.strokeRect(x,y,cell,cell);
+        if(sol[r]===c){ ctx.fillStyle='#ffb27a'; ctx.font=Math.round(cell*0.5)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('♛',x+cell/2,y+cell/2); ctx.textBaseline='alphabetic'; } }
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('4-퀸 해 하나 — 같은 행·열·대각선에 두 퀸이 없음', E.W/2, y0+N*cell+26); }
   }
 
   ];

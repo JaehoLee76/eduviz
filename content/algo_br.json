@@ -733,5 +733,50 @@
    "q_en": "To show your problem A is NP-hard, which way do you reduce?",
    "sol_en": "Reduce a <b>known NP-hard problem B to A</b> (B ≤ₚ A). Then solving A fast would solve B too — so A is NP-hard. (Reducing the other way proves nothing.)"
   }
+ },
+ "algo_br_fastpow": {
+  "ch": "알고리즘 제1장 알고리즘과 복잡도",
+  "sec": "1.3 빅오 (자세히)",
+  "title": "빠른 거듭제곱 — O(log n) 지수",
+  "narr": "3을 13번 곱하면 12번의 곱셈이 필요해요. 하지만 지수를 <b>이진수</b>로 보면 '제곱하며 절반씩' 줄여 단 ~4번으로 끝나요! a^n을 <b>O(log n)</b>에 — 큰 수 모듈러 거듭제곱(RSA)의 핵심이에요.",
+  "hint": "제곱하며 절반씩",
+  "more": "<b>빠른 거듭제곱</b>(이진/분할 거듭제곱): a^n을 단순 반복하면 O(n)이지만, 지수 n을 이진법으로 보면 O(log n)에 계산돼요. <b>원리</b>: a^n = (a²)^(n/2) (n 짝수), a^n = a·(a²)^((n−1)/2) (n 홀수). 반복판은 result=1에서 시작해, n의 비트를 끝에서부터 보며 비트가 1이면 result에 현재 a를 곱하고, 매 단계 a를 제곱(a→a²→a⁴…)하고 n을 오른쪽으로 1비트 시프트. 곱셈 횟수 = n의 비트 수 ≈ <b>log₂n</b>. ★응용: <b>모듈러 거듭제곱</b> a^n mod m (매 곱셈 뒤 mod) → RSA 암복호화의 심장(31장). 행렬 거듭제곱으로 피보나치도 O(log n)에. 분할정복의 간결한 예.",
+  "more_en": "<b>Fast exponentiation</b> (binary/exponentiation by squaring): computing a^n naively is O(n), but viewing n in binary makes it O(log n). <b>Principle</b>: a^n = (a²)^(n/2) for even n, a^n = a·(a²)^((n−1)/2) for odd n. The iterative form starts result=1, scans n's bits from the low end: if a bit is 1, multiply result by the current a; each step square a (a→a²→a⁴…) and shift n right by one bit. Multiplications = number of bits of n ≈ <b>log₂n</b>. ★Application: <b>modular exponentiation</b> a^n mod m (take mod after each multiply) → the heart of RSA encryption (Ch.31). Matrix power gives Fibonacci in O(log n) too. A neat divide-and-conquer.",
+  "problem": {
+   "q": "3^13 을 빠른 거듭제곱으로 계산하면 곱셈이 대략 몇 번 필요한가요?",
+   "solution": "13 = 1101₂ (4비트) → 제곱 약 4번 + 비트가 1인 곳(3곳) 곱셈 → 단순 12번 대신 <b>약 7번</b>. 일반적으로 O(log n).",
+   "q_en": "Using fast exponentiation for 3^13, roughly how many multiplications?",
+   "sol_en": "13 = 1101₂ (4 bits) → ~4 squarings + 3 multiplies (bits that are 1) → about <b>7</b> instead of 12. Generally O(log n)."
+  }
+ },
+ "algo_br_twoptr": {
+  "ch": "알고리즘 제4장 탐색",
+  "sec": "4.2 탐색 전략 (자세히)",
+  "title": "투 포인터 — 양끝에서 좁히기",
+  "narr": "<b>정렬된</b> 배열에서 합이 목표인 두 수를 찾으려면? 모든 쌍을 보면 O(n²)이지만, 양 끝에 포인터를 두고 <b>합이 작으면 왼쪽을 올리고, 크면 오른쪽을 내려</b> 안쪽으로 좁히면 단 한 번 훑어 O(n)!",
+  "hint": "작으면 lo↑, 크면 hi↓",
+  "more": "<b>투 포인터</b>(two pointers): 정렬된 배열에서 두 인덱스 lo(왼쪽 끝)·hi(오른쪽 끝)를 안쪽으로 움직이며 푸는 기법. <b>두 수의 합</b> 예: s=A[lo]+A[hi]가 target과 같으면 정답, s<target이면 더 큰 합이 필요하니 lo++(왼쪽을 키움), s>target이면 hi−−(오른쪽을 줄임). 각 포인터가 한 방향으로만 움직여 <b>O(n)</b>(정렬돼 있다는 전제 — 정렬 비용 O(n log n)은 별도). 왜 맞나: lo를 올리면 그보다 작은 합은 다시 볼 필요가 없고, hi를 내리면 그보다 큰 합은 불필요 → 후보를 안전히 버림. 슬라이딩 윈도우·정렬 배열 병합·회문 검사·삼중수 합 등 광범위하게 응용.",
+  "more_en": "<b>Two pointers</b>: on a sorted array, move two indices lo (left end) and hi (right end) inward. <b>Two-sum</b> example: with s=A[lo]+A[hi], if s==target you're done; if s<target you need a bigger sum so lo++ (raise the left); if s>target, hi−− (lower the right). Each pointer moves one way only → <b>O(n)</b> (assuming sorted; the O(n log n) sort is separate). Why correct: raising lo means smaller sums need never be revisited, lowering hi means larger sums are unneeded → candidates are safely discarded. Widely used in sliding windows, merging sorted arrays, palindrome checks, 3-sum, etc.",
+  "problem": {
+   "q": "정렬 배열 [1,3,4,6,8,11]에서 합이 10인 두 수를 투 포인터로 찾으면?",
+   "solution": "1+11=12>10(hi↓) → 1+8=9<10(lo↑) → 3+8=11>10(hi↓) → 3+6=9<10(lo↑) → 4+6=<b>10</b> 찾음.",
+   "q_en": "In sorted [1,3,4,6,8,11], find two numbers summing to 10 with two pointers.",
+   "sol_en": "1+11=12>10(hi↓) → 1+8=9<10(lo↑) → 3+8=11>10(hi↓) → 3+6=9<10(lo↑) → 4+6=<b>10</b>, found."
+  }
+ },
+ "algo_br_nqueens": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.2 분할정복·백트래킹 (자세히)",
+  "title": "백트래킹 — N-퀸과 되돌아가기",
+  "narr": "체스판에 퀸 N개를 <b>서로 공격 못 하게</b> 놓으려면? 한 줄씩 퀸을 놓아보다가 충돌하면 <b>되돌아가(backtrack)</b> 다른 칸을 시도해요. 가망 없는 가지는 일찍 쳐내(가지치기) 전수 탐색보다 훨씬 빠릅니다.",
+  "hint": "막히면 되돌아가 다시",
+  "more": "<b>백트래킹</b>(backtracking): 해를 한 조각씩 만들어 가다, 제약을 어기면 <b>마지막 선택을 취소하고 되돌아가</b> 다른 후보를 시도하는 체계적 완전 탐색. <b>N-퀸</b>: N×N 판에 퀸 N개를 같은 행·열·대각선이 겹치지 않게 배치. 한 행에 하나씩 퀸을 놓되, 놓기 전 '이미 놓인 퀸들과 충돌하는가'를 검사 → 충돌하면 그 칸을 건너뛰고, 그 행에서 놓을 곳이 없으면 이전 행으로 되돌아가 옮김. 가능성 없는 부분 해를 일찍 버리는 <b>가지치기(pruning)</b>가 핵심이라, 모든 배치 N^N을 다 보지 않아요. 미로 탐색·스도쿠·부분집합 합·순열 생성·제약 충족 문제(CSP)의 일반 틀. 더 똑똑한 한정(bound)을 더하면 분기 한정(branch & bound)이 됩니다.",
+  "more_en": "<b>Backtracking</b>: build a solution piece by piece, and when a constraint is violated, <b>undo the last choice and go back</b> to try another candidate — a systematic exhaustive search with pruning. <b>N-queens</b>: place N queens on an N×N board so no two share a row, column, or diagonal. Place one queen per row, but before placing check 'does it conflict with already-placed queens?' → skip conflicting squares, and if a row has no valid square, backtrack to the previous row and move its queen. The key is <b>pruning</b> hopeless partial solutions early, so you don't examine all N^N placements. A general framework for maze solving, Sudoku, subset sum, permutation generation, and constraint satisfaction (CSP). Adding smarter bounds yields branch & bound.",
+  "problem": {
+   "q": "백트래킹이 단순 완전 탐색(brute force)보다 빠를 수 있는 이유는?",
+   "solution": "부분 해가 이미 제약을 어기면 그 아래 모든 경우를 <b>통째로 가지치기</b>(건너뜀)해요. 그래서 전체 경우를 다 만들어 검사하는 brute force보다 탐색 공간이 훨씬 줄어듭니다.",
+   "q_en": "Why can backtracking beat plain brute force?",
+   "sol_en": "When a partial solution already violates a constraint, it <b>prunes</b> (skips) all cases below it. So the search space shrinks far below generating and checking every full case."
+  }
  }
 }
