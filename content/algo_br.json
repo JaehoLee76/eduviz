@@ -673,5 +673,65 @@
    "q_en": "When deleting a node with two children, why replace it with the successor?",
    "sol_en": "The successor (minimum of the right subtree) is the <b>smallest</b> value larger than the node, so placing it keeps all left descendants smaller and right ones larger — <b>BST order stays valid</b>."
   }
+ },
+ "algo_br_kadane": {
+  "ch": "알고리즘 제7장 동적 계획법",
+  "sec": "7.1 동적 계획법 (자세히)",
+  "title": "최대 부분 배열 — 카데인 알고리즘",
+  "narr": "음수가 섞인 수열에서 <b>연속</b>한 구간의 합이 최대가 되는 곳은? 각 위치에서 '여기서 끝나는 최대 합'만 들고 가요 — 이전 합에 <b>이어붙일지, 새로 시작할지</b> 둘 중 큰 쪽! 단 한 번 훑어 O(n).",
+  "hint": "잇기 vs 새로 시작",
+  "more": "<b>최대 부분 배열</b>(maximum subarray, Kadane): 연속 부분 배열 중 원소 합이 가장 큰 것을 찾습니다. <b>핵심 통찰</b>: i에서 끝나는 최대 합 cur는 'A[i] 하나로 새로 시작' 또는 'cur+A[i]로 이어붙이기' 중 큰 값 — cur = max(A[i], cur+A[i]). 전역 답 best는 매 단계 cur로 갱신. 한 번만 훑어 <b>O(n)</b>(분할정복 O(n log n)·완전탐색 O(n²)보다 우월). 음수가 누적되면 버리고 새로 시작하는 게 DP의 '최적 부분 구조'. 주식 최대 이익(하루 등락 합)·신호 처리·이미지 밝기 구간 등에 응용. CLRS는 분할정복 버전을 본문, 카데인을 연습문제로 다뤄요.",
+  "more_en": "<b>Maximum subarray</b> (Kadane): find the contiguous subarray with the largest sum. <b>Key insight</b>: the max sum ending at i, cur, is the larger of 'start fresh at A[i]' or 'extend with cur+A[i]' — cur = max(A[i], cur+A[i]). The global answer best is updated with cur each step. One pass → <b>O(n)</b> (better than divide-and-conquer O(n log n) or brute force O(n²)). Dropping accumulated negatives and restarting is the DP's optimal substructure. Used in max stock profit (sum of daily changes), signal processing, image brightness ranges. CLRS covers the divide-and-conquer version in text and Kadane as an exercise.",
+  "problem": {
+   "q": "[−2, 1, −3, 4, −1, 2, 1] 의 최대 연속 부분합은?",
+   "solution": "4, −1, 2, 1 의 합 = <b>6</b>. (앞의 음수 누적은 버리고 4에서 새로 시작)",
+   "q_en": "What is the maximum contiguous subarray sum of [−2, 1, −3, 4, −1, 2, 1]?",
+   "sol_en": "4 + (−1) + 2 + 1 = <b>6</b> (drop the leading negatives, restart at 4)."
+  }
+ },
+ "algo_br_coinchange": {
+  "ch": "알고리즘 제7장 동적 계획법",
+  "sec": "7.1 동적 계획법 (자세히)",
+  "title": "동전 교환 — 그리디가 틀리는 곳",
+  "narr": "동전 [1, 3, 4]로 6원을 만드는 <b>최소 동전 수</b>는? 그리디(큰 것부터: 4+1+1=3개)는 틀려요! 정답은 3+3=<b>2개</b>. 작은 금액부터 dp[a]=a원 최소 동전 수를 채우는 DP가 진짜 최적을 보장합니다.",
+  "hint": "작은 금액부터 dp 채우기",
+  "more": "<b>동전 교환 문제</b>(coin change): 동전 종류로 목표 금액을 만드는 최소 동전 수. <b>DP 정의</b>: dp[a] = a원을 만드는 최소 동전 수 = min over c ( dp[a−c] + 1 ) (c는 a 이하 동전). dp[0]=0에서 시작해 1원부터 차례로 채워요. 시간 <b>O(amount × 종류수)</b>. ★중요: 한국 동전(10·50·100·500)처럼 '정규(canonical)' 체계에선 그리디가 맞지만, [1,3,4] 같은 임의 체계에선 <b>그리디가 최적이 아님</b>(#36 그리디 함정) → DP가 필요. 이는 '언제 그리디가 통하고 언제 DP가 필요한가'를 보여주는 대표 대조 사례. 같은 dp 골격으로 '만드는 방법의 수'도 셀 수 있어요.",
+  "more_en": "<b>Coin change</b>: the minimum number of coins to make a target amount. <b>DP</b>: dp[a] = min coins for amount a = min over c ( dp[a−c] + 1 ) (coin c ≤ a). Start from dp[0]=0 and fill 1, 2, …, amount. Time <b>O(amount × #coins)</b>. ★Key: for 'canonical' systems (like 10/50/100/500) greedy works, but for arbitrary systems like [1,3,4] <b>greedy is not optimal</b> (#36 greedy trap) → DP is needed. A flagship contrast for 'when greedy works vs when DP is required.' The same DP skeleton also counts the number of ways to make the amount.",
+  "problem": {
+   "q": "동전 [1, 3, 4]로 6원을 만들 때, 그리디와 DP의 답이 다른 이유는?",
+   "solution": "그리디는 큰 4부터 골라 4+1+1=3개. DP는 모든 조합을 따져 3+3=<b>2개</b>를 찾음. 이 동전 체계는 '정규'가 아니라 그리디가 최적을 보장하지 못해요.",
+   "q_en": "For coins [1, 3, 4] making 6, why do greedy and DP differ?",
+   "sol_en": "Greedy picks 4 first → 4+1+1 = 3 coins. DP checks all combos → 3+3 = <b>2 coins</b>. This coin system isn't 'canonical', so greedy isn't guaranteed optimal."
+  }
+ },
+ "algo_br_heapins": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.3 힙 (자세히)",
+  "title": "힙 삽입 — 위로 올리기(sift-up)",
+  "narr": "최대 힙에 새 값을 넣으려면? 일단 <b>맨 끝</b>에 붙인 뒤, 부모보다 크면 <b>부모와 교환하며 위로</b> 올라가요(sift-up). 부모 ≥ 자식 규칙을 회복할 때까지. 트리 높이만큼만 올라가니 O(log n)!",
+  "hint": "끝에 추가 후 부모와 교환",
+  "more": "<b>최대 힙 삽입</b>(CLRS 6.5): 완전 이진 트리 형태를 유지하려고 새 키를 <b>배열 맨 끝</b>(트리의 마지막 자리)에 추가합니다. 그러면 부모보다 클 수 있어 힙 성질이 깨질 수 있으니, <b>부모 H[(i−1)/2]보다 크면 교환</b>하며 위로(sift-up/bubble-up) 이동 — 부모가 더 크거나 루트에 닿으면 멈춤. 교환 경로는 잎→루트라 최대 트리 높이 = <b>O(log n)</b>. 삭제(최댓값 추출)는 반대로 루트를 빼고 마지막 원소를 루트에 올린 뒤 아래로 내리는 sift-down(heapify). 이 두 연산으로 <b>우선순위 큐</b>가 완성되고, 다익스트라·허프만·이벤트 시뮬레이션의 심장이 됩니다.",
+  "more_en": "<b>Max-heap insert</b> (CLRS 6.5): to keep the complete-binary-tree shape, append the new key to the <b>end of the array</b> (the last tree slot). It may exceed its parent and violate the heap property, so <b>swap with the parent H[(i−1)/2] while it is larger</b>, moving up (sift-up/bubble-up) until the parent is bigger or you reach the root. The swap path runs leaf→root, at most the tree height = <b>O(log n)</b>. Deletion (extract-max) is the reverse: remove the root, move the last element to the root, then sift it down (heapify). Together these give a <b>priority queue</b>, the heart of Dijkstra, Huffman, and event simulation.",
+  "problem": {
+   "q": "최대 힙에 새 원소를 넣을 때 왜 맨 끝에 추가한 뒤 위로 올리나요?",
+   "solution": "맨 끝에 넣어야 <b>완전 이진 트리</b> 모양(빈틈 없음)이 유지돼요. 그 자리에선 부모와의 대소만 어긋날 수 있으니, 부모와 교환하며 위로 올려 부모 ≥ 자식 규칙을 O(log n)에 복구합니다.",
+   "q_en": "When inserting into a max-heap, why append at the end then sift up?",
+   "sol_en": "Appending at the end preserves the <b>complete binary tree</b> shape (no gaps). Only the parent relation can be wrong there, so swapping up with parents restores parent ≥ child in O(log n)."
+  }
+ },
+ "algo_br_reduction": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.3 P vs NP (자세히)",
+  "title": "환원 — 어려움을 옮기는 기술",
+  "narr": "어떤 문제가 <b>어렵다</b>는 걸 어떻게 증명할까요? 이미 어렵다고 알려진 문제 B를 우리 문제 A로 <b>다항시간에 바꿀</b> 수 있으면, A도 최소한 B만큼 어려워요. 이 '환원'이 NP-완비 이론의 핵심 도구예요.",
+  "hint": "어려운 B를 A로 변환",
+  "more": "<b>환원</b>(reduction, CLRS 34.3): 문제 A를 문제 B로 <b>다항시간에 변환</b>(A ≤ₚ B)한다는 건, A의 입력을 B의 입력으로 바꿔 'B의 답이 곧 A의 답'이 되게 만드는 것. 의미: <b>B를 빠르게 풀 수 있으면 A도 빠르게 풀린다</b>. 대우로 <b>A가 어려우면 B도 어렵다</b>. NP-하드 증명은 이 방향으로 써요 — 이미 NP-하드인 문제(예: 3-SAT)를 내 문제로 환원하면, 내 문제도 NP-하드. <b>NP-완비</b> = NP에 속하면서 NP의 모든 문제가 그것으로 환원되는 '가장 어려운' 문제. 쿡-레빈 정리가 SAT를 첫 NP-완비로 세운 뒤, 수천 문제가 환원 사슬로 NP-완비임이 밝혀졌어요. 환원은 '바퀴를 다시 만들지 않고 어려움을 물려받는' 영리한 논증입니다.",
+  "more_en": "<b>Reduction</b> (CLRS 34.3): to reduce problem A to problem B in <b>polynomial time</b> (A ≤ₚ B) means transforming A's input into B's so that 'B's answer is A's answer.' Meaning: <b>if B is solvable fast, so is A</b>. Contrapositive: <b>if A is hard, B is hard too</b>. NP-hardness proofs go this way — reduce a known NP-hard problem (e.g. 3-SAT) to yours, and yours is NP-hard too. <b>NP-complete</b> = in NP and every NP problem reduces to it (the 'hardest'). After the Cook–Levin theorem made SAT the first NP-complete problem, thousands were shown NP-complete via reduction chains. Reduction is a clever way to inherit hardness without reinventing the wheel.",
+  "problem": {
+   "q": "내 문제 A가 NP-하드임을 보이려면 어느 방향으로 환원하나요?",
+   "solution": "<b>이미 NP-하드인 문제 B를 A로</b> 환원해요(B ≤ₚ A). 그러면 A를 빠르게 풀 수 있으면 B도 풀려 모순 → A도 NP-하드. (방향을 거꾸로 하면 증명이 안 됩니다.)",
+   "q_en": "To show your problem A is NP-hard, which way do you reduce?",
+   "sol_en": "Reduce a <b>known NP-hard problem B to A</b> (B ≤ₚ A). Then solving A fast would solve B too — so A is NP-hard. (Reducing the other way proves nothing.)"
+  }
  }
 }

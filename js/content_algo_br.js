@@ -818,6 +818,106 @@
       drawTreeB(E, T, function(j){ if(j===0) return {fill:'rgba(244,160,192,0.3)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'삭제'}; if(j===2) return {fill:'rgba(143,227,181,0.3)',stroke:'#8fe3b5',text:'#8fe3b5',tag:'후속자'}; return null; }, {lg:E.H*0.16,r:20});
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('자식 둘인 8 삭제 → 오른쪽 서브트리 최솟값(후속자 10)으로 교체', E.W/2, E.H*0.84); }
+  },
+
+  // ══════ DP(algo7_03) ▸ 최대 부분 배열 (카데인, 코드+스텝) ══════
+  { id:'algo_br_kadane', branchOf:'algo7_03',
+    code:[
+      'MAX-SUBARRAY(A) {                // 카데인',
+      '  best = cur = A[0]',
+      '  for i = 1 to n-1:',
+      '    cur = max(A[i], cur + A[i])  // 잇기 vs 새로 시작',
+      '    best = max(best, cur)',
+      '  return best',
+      '}'
+    ],
+    build:function(V){ var A=[-2,1,-3,4,-1,2,1,-5,4], n=A.length, cur=A[0], best=A[0], st=[];
+      function snap(line,cap,i,extra){ var f={line:line,cap:cap,A:A,cur:cur,best:best,i:i==null?-1:i}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(1,'시작: cur = best = A[0] = '+A[0],0);
+      for(var i=1;i<n;i++){ var ext=cur+A[i], rs=A[i]>ext; cur=rs?A[i]:ext;
+        snap(3, rs?('A['+i+']='+A[i]+' 가 잇기('+ext+')보다 큼 → 새로 시작. cur='+cur):('이어붙임: cur+'+A[i]+' = '+cur), i);
+        if(cur>best){ best=cur; snap(4,'최대 갱신! best = <b>'+best+'</b>',i); }
+      }
+      snap(5,'<b>완료!</b> 최대 연속 부분합 = <b>'+best+'</b> (4,−1,2,1). 한 번 훑어 O(n)!',-1,{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx;
+      var info=AV.arr(V, f.A, { y:V.H*0.36, bw:46, gap:7, idx:true, hl:function(k){ if(k===f.i)return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'i'}; return null; } });
+      ctx.font='600 17px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.fillText('cur = '+f.cur, V.W*0.4, info.y+info.bw+42);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('best = '+f.best, V.W*0.6, info.y+info.bw+42); }
+  },
+
+  // ══════ DP(algo7_03) ▸ 동전 교환 (최소 동전, 코드+스텝) ══════
+  { id:'algo_br_coinchange', branchOf:'algo7_03',
+    code:[
+      'COIN-CHANGE(coins, amount) {        // 최소 동전 수',
+      '  dp[0]=0;  dp[1..amount]=∞',
+      '  for a = 1 to amount:',
+      '    for each c in coins:',
+      '      if (c <= a)',
+      '        dp[a] = min(dp[a], dp[a-c]+1)',
+      '  return dp[amount]',
+      '}'
+    ],
+    build:function(V){ var coins=[1,3,4], amount=6, INF=99, dp=[0], st=[];
+      for(var a=1;a<=amount;a++) dp[a]=INF;
+      function L(x){ return x>=INF?'∞':x; }
+      function snap(line,cap,a2,extra){ var f={line:line,cap:cap,dp:dp.slice(),a:a2==null?-1:a2,INF:INF}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(1,'dp[0]=0, 나머지 ∞. dp[a] = a원을 만드는 최소 동전 수.',-1);
+      for(a=1;a<=amount;a++){
+        for(var ci=0;ci<coins.length;ci++){ var c=coins[ci]; if(c>a) continue;
+          snap(5,'dp['+a+'] : 동전 '+c+' 사용 → dp['+(a-c)+']('+L(dp[a-c])+')+1 vs 현재 '+L(dp[a]),a);
+          if(dp[a-c]+1<dp[a]) dp[a]=dp[a-c]+1;
+        }
+        snap(5,'dp['+a+'] = <b>'+L(dp[a])+'</b> 확정.',a);
+      }
+      snap(6,'<b>완료!</b> 6원 최소 = <b>'+dp[amount]+'개</b> (3+3). ★그리디(4+1+1=3개)는 틀림 → DP가 정답!',-1,{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx;
+      var labels=f.dp.map(function(x){return x>=f.INF?'∞':x;});
+      var info=AV.arr(V, labels, { y:V.H*0.4, bw:50, gap:8, idx:true, hl:function(k){ if(k===f.a)return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'a'}; return null; } });
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('dp[a] = a원을 만드는 최소 동전 수 (동전 1,3,4)', V.W/2, info.y+info.bw+34); }
+  },
+
+  // ══════ 힙(algo5_04) ▸ 힙 삽입 sift-up (CLRS 6.5, 코드+스텝) ══════
+  { id:'algo_br_heapins', branchOf:'algo5_04',
+    code:[
+      'MAX-HEAP-INSERT(H, key) {',
+      '  H.append(key)               // 맨 끝에 추가',
+      '  i = size - 1',
+      '  while (i>0 && H[parent(i)] < H[i]) {',
+      '    swap(H[i], H[parent(i)])   // 부모와 교환',
+      '    i = parent(i)              // 위로 올라감',
+      '  }',
+      '}'
+    ],
+    build:function(V){ var H=[42,28,35,12,18,9,30], key=40, st=[];
+      function par(i){ return (i-1)>>1; }
+      function snap(line,cap,cur,extra){ var f={line:line,cap:cap,H:H.slice(),cur:cur==null?-1:cur}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      H.push(key); var i=H.length-1;
+      snap(1,'새 키 <b>'+key+'</b> 를 맨 끝(인덱스 '+i+')에 추가.',i);
+      while(i>0 && H[par(i)]<H[i]){
+        snap(3,'부모 H['+par(i)+']='+H[par(i)]+' < '+H[i]+' → 힙 위반, 교환.',i,{parent:par(i)});
+        var t=H[i]; H[i]=H[par(i)]; H[par(i)]=t; i=par(i);
+        snap(5,'위로 올라감 → 인덱스 '+i,i);
+      }
+      snap(6,'<b>완료!</b> 부모 ≥ 자식 복구. 트리 높이만큼 = O(log n).',i,{done:true});
+      return st; },
+    draw:function(V,f){ drawTreeB(V, f.H, function(j){ if(j===f.cur)return {fill:'rgba(255,178,122,0.32)',stroke:'#ffb27a',text:'#ffb27a',tag:'올라가는 중'}; if(j===f.parent)return {fill:'rgba(244,160,192,0.25)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'부모'}; if(j===0)return {fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5'}; return null; }, {lg:V.H*0.16,r:19}); }
+  },
+
+  // ══════ P vs NP(algo8_04) ▸ 환원(reduction) (CLRS 34.3, concept) ══════
+  { id:'algo_br_reduction', concept:true, branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.42;
+      function box(x,l,sub,col){ var w=E.W*0.22,h=E.H*0.15; ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=col; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-w/2,cy-h/2,w,h,12);ctx.fill();ctx.stroke();}else ctx.strokeRect(x-w/2,cy-h/2,w,h);
+        ctx.fillStyle=col; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.fillText(l,x,cy-2); ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText(sub,x,cy+20); }
+      box(cx-E.W*0.24,'문제 A','(풀고 싶은 것)','#ffb27a');
+      box(cx+E.W*0.24,'문제 B','(NP-하드 known)','#f4a0c0');
+      AV.arrow(ctx, cx-E.W*0.11, cy, cx+E.W*0.11, cy, '#8fe3b5', 3);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('다항시간 변환 A→B', cx, cy-E.H*0.12);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('B를 빠르게 풀면 A도 빠르게 풀림  ⇔  A가 어려우면 B도 어렵다', cx, cy+E.H*0.16); }
   }
 
   ];
