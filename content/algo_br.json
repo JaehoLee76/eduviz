@@ -598,5 +598,50 @@
    "q_en": "Why can Dijkstra fail with negative-weight edges?",
    "sol_en": "Its correctness relies on non-negative weights. With a negative edge, an already-settled vertex's distance could later decrease, breaking the 'settled on extraction' invariant → use Bellman-Ford."
   }
+ },
+ "algo_br_fracknap": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.1 그리디 (자세히)",
+  "title": "분할 가능 배낭 — 비율 높은 것부터",
+  "narr": "한정된 가방에 가장 값진 짐을 담으려면? 짐을 <b>쪼갤 수 있다면</b> 가치/무게 <b>비율이 높은 것부터</b> 욕심껏 담고, 마지막은 남는 만큼만 쪼개 넣으면 최적! 단, 쪼갤 수 없는 0/1 배낭은 그리디가 안 통해 DP가 필요해요.",
+  "hint": "가치/무게 비율 순 그리디",
+  "more": "<b>분할 가능 배낭</b>(fractional knapsack, CLRS 15 종합문제): 용량 W의 가방에 짐(가치 v, 무게 w)을 담아 가치를 최대화하되 <b>짐을 일부만</b> 담을 수 있는 버전. <b>그리디</b>: 가치/무게 비율 v/w 내림차순 정렬 → 비율 높은 것부터 통째로 담고, 가방이 가득 차기 직전 짐은 남은 용량만큼 <b>비율대로 쪼개</b> 담음. O(n log n)(정렬 지배). 최적성은 교환 논법: 비율 낮은 것을 높은 것으로 바꾸면 항상 이득. ★대조: <b>0/1 배낭</b>(쪼개기 불가)은 그리디가 최적이 아니어서 DP O(nW)가 필요 — '쪼갤 수 있느냐'가 그리디 가능 여부를 가르는 핵심. 자원 배분·투자 비중 결정에 응용.",
+  "more_en": "<b>Fractional knapsack</b> (CLRS Ch.15 problem): fill a capacity-W bag with items (value v, weight w) to maximize value, where you <b>may take a fraction</b> of an item. <b>Greedy</b>: sort by value/weight ratio v/w descending → take highest-ratio items whole, and for the item that overflows the bag, take just the <b>fraction</b> that fits. O(n log n) (sort dominates). Optimal by an exchange argument: swapping a lower-ratio part for a higher-ratio one always helps. ★Contrast: the <b>0/1 knapsack</b> (no fractions) is NOT solved optimally by greedy and needs DP O(nW) — whether items are divisible decides if greedy works. Used in resource allocation and portfolio weighting.",
+  "problem": {
+   "q": "분할 가능 배낭은 그리디로 최적인데, 0/1 배낭은 왜 아닌가요?",
+   "solution": "분할 가능이면 남는 용량을 비율대로 항상 꽉 채울 수 있어 그리디가 최적. 0/1은 통째로만 담아 비율 높은 것을 넣으면 빈 공간이 남아 더 나은 조합을 놓칠 수 있어요 → DP 필요.",
+   "q_en": "Greedy is optimal for fractional knapsack but not 0/1 — why?",
+   "sol_en": "With fractions you can always top off leftover capacity by ratio, so greedy is optimal. In 0/1 you must take items whole, so taking a high-ratio item may leave empty space and miss a better combination → DP needed."
+  }
+ },
+ "algo_br_chaining": {
+  "ch": "알고리즘 제2장 자료구조",
+  "sec": "2.4 해시 테이블 (자세히)",
+  "title": "체이닝 — 충돌을 연결 리스트로",
+  "narr": "서로 다른 키가 <b>같은 버킷</b>으로 해시되면(충돌) 어쩌죠? <b>체이닝</b>은 그 버킷에 연결 리스트를 달아 충돌한 키들을 줄줄이 묶어요. 부하율(원소수/버킷수)이 낮으면 평균 O(1)을 유지합니다.",
+  "hint": "같은 칸 = 리스트로 묶기",
+  "more": "<b>체이닝</b>(chaining, CLRS 11.2): 해시 충돌(서로 다른 키가 같은 인덱스)을 해결하는 가장 흔한 방법. 각 버킷이 <b>연결 리스트</b>(또는 동적 배열)를 가리켜, 같은 버킷으로 온 키들을 모두 그 리스트에 매답니다. <b>탐색/삽입/삭제</b>는 해당 버킷 리스트만 훑으면 됨. 평균 시간은 <b>부하율 α = n/m</b>(원소수/버킷수)에 비례 → α를 상수로 유지(필요시 재해싱)하면 평균 <b>O(1)</b>, 최악(모두 한 버킷)은 O(n). 좋은 해시 함수(균등 분포)가 관건이에요. ★대안: <b>개방 주소법</b>(다른 분기)은 리스트 없이 빈 칸을 찾아가는 방식 — 캐시 친화적이지만 부하율 한계가 더 엄격. 자바 HashMap·파이썬 dict 등 실제 구현의 토대.",
+  "more_en": "<b>Chaining</b> (CLRS 11.2): the most common way to resolve hash collisions (distinct keys hashing to the same index). Each bucket points to a <b>linked list</b> (or dynamic array) holding all keys that hashed there. <b>Search/insert/delete</b> just scan that bucket's list. Average time is proportional to the <b>load factor α = n/m</b> (elements/buckets) → keep α constant (rehash when needed) for average <b>O(1)</b>; worst case (all in one bucket) is O(n). A good (uniformly distributing) hash function is key. ★Alternative: <b>open addressing</b> (another branch) probes for empty slots without lists — cache-friendly but stricter on load factor. Foundation of Java HashMap, Python dict, etc.",
+  "problem": {
+   "q": "체이닝에서 평균 탐색 시간이 O(1)이 되려면 무엇을 유지해야 하나요?",
+   "solution": "<b>부하율 α = n/m</b>(원소수/버킷수)을 상수로 유지해야 해요. 원소가 늘면 버킷도 늘려(재해싱) α를 낮게 두면 각 리스트가 짧아 평균 O(1).",
+   "q_en": "For O(1) average search in chaining, what must you maintain?",
+   "sol_en": "Keep the <b>load factor α = n/m</b> (elements/buckets) constant. As elements grow, grow the table (rehash) so α stays low, keeping each list short → average O(1)."
+  }
+ },
+ "algo_br_rotate": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.3 균형 트리 (자세히)",
+  "title": "회전 — 균형을 맞추는 기본 동작",
+  "narr": "이진 탐색 트리가 한쪽으로 치우치면 O(n)으로 느려져요. <b>회전</b>(rotation)은 부모-자식 관계만 살짝 바꿔 <b>BST 순서는 그대로 둔 채 높이를 재조정</b>하는 O(1) 동작! 레드블랙·AVL 트리가 이걸로 균형을 유지합니다.",
+  "hint": "순서 보존, 높이만 조정",
+  "more": "<b>회전</b>(CLRS 13.2): 균형 이진 탐색 트리의 핵심 연산. <b>좌회전(left-rotate)</b>은 x와 오른쪽 자식 y의 관계를 뒤집어 y를 위로, x를 y의 왼쪽 자식으로 내립니다(우회전은 그 반대). 중요한 건 <b>BST 순서가 보존</b>된다는 것: 회전 전후 모두 α < x < β < y < γ 순서가 유지돼요(서브트리 β만 x↔y 사이에서 재배치). 연산은 포인터 몇 개만 바꿔 <b>O(1)</b>. <b>레드블랙 트리</b>는 삽입·삭제 후 색칠 규칙이 깨지면 회전 + 재색칠로 복구해 높이를 항상 O(log n)으로 유지(따라서 탐색·삽입·삭제 모두 O(log n) 보장). AVL 트리도 같은 회전으로 균형 인자를 맞춰요. DB 인덱스·언어 표준 라이브러리의 정렬된 맵(자바 TreeMap, C++ std::map)이 레드블랙 트리.",
+  "more_en": "<b>Rotation</b> (CLRS 13.2): the core operation of balanced BSTs. A <b>left-rotate</b> swaps the relationship of x and its right child y, lifting y up and making x its left child (right-rotate is the mirror). Crucially, <b>BST order is preserved</b>: before and after, α < x < β < y < γ holds (only subtree β moves between x and y). It changes a few pointers in <b>O(1)</b>. A <b>red-black tree</b>, after insert/delete breaks its coloring rules, restores them with rotations + recoloring, keeping height O(log n) (so search/insert/delete are all O(log n)). AVL trees use the same rotations to fix balance factors. DB indexes and sorted maps in standard libraries (Java TreeMap, C++ std::map) are red-black trees.",
+  "problem": {
+   "q": "회전이 BST의 무엇을 보존하고 무엇을 바꾸나요?",
+   "solution": "<b>중위 순서(키의 정렬 순서)는 보존</b>하고, 트리의 <b>높이/모양만</b> 바꿔요. 그래서 탐색 정확성은 그대로 두고 균형만 회복할 수 있습니다.",
+   "q_en": "What does a rotation preserve and what does it change in a BST?",
+   "sol_en": "It preserves the <b>in-order (sorted key) order</b> and changes only the tree's <b>height/shape</b>. So it restores balance without affecting search correctness."
+  }
  }
 }

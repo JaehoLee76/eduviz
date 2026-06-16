@@ -699,6 +699,81 @@
       ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('확정 집합 S', cx, cy-E.H*0.16);
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('u로 가는 다른 경로는 이미 S 안 어떤 정점을 거쳐 더 길다', cx, cy+E.H*0.24);
       ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.fillText('→ 꺼낸 u의 d[u]는 최종 최단거리(더 줄 수 없음)', cx, cy+E.H*0.30); }
+  },
+
+  // ══════ 그리디(algo8_01) ▸ 분할 가능 배낭 (CLRS 15 종합문제, 코드+스텝) ══════
+  { id:'algo_br_fracknap', branchOf:'algo8_01',
+    code:[
+      'FRACTIONAL-KNAPSACK(items, W) {  // 가치/무게 내림차순',
+      '  total = 0',
+      '  for each item:',
+      '    if (w[i] <= W)               // 통째로 넣기',
+      '      W -= w[i];  total += v[i]',
+      '    else                          // 일부만 넣기',
+      '      total += v[i] * (W / w[i])',
+      '      break',
+      '  return total',
+      '}'
+    ],
+    build:function(V){ var items=[{n:'A',v:60,w:10},{n:'B',v:100,w:20},{n:'C',v:120,w:30}], W=50, cap=50, total=0, st=[];
+      items.forEach(function(it){ it.r=(it.v/it.w).toFixed(1); });
+      function snap(line,cap2,cur,extra){ var f={line:line,cap:cap2,items:items,W:cap,used:cap-W,total:Math.round(total),cur:cur==null?-1:cur,state:{}}; items.forEach(function(it,i){ f.state[i]=st._state?st._state[i]:'none'; }); if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      st._state={};
+      snap(0,'가치/무게 비율 내림차순 정렬됨 (A=6, B=5, C=4). 용량 W=50.',-1);
+      for(var i=0;i<items.length;i++){ var it=items[i];
+        snap(3,it.n+' (가치'+it.v+'/무게'+it.w+', 비율'+it.r+') : 무게 '+it.w+' ≤ 남은 '+W+' ?',i);
+        if(it.w<=W){ W-=it.w; total+=it.v; st._state[i]='full'; snap(4,it.n+' <b>통째로</b> 넣음 → 총가치 '+Math.round(total)+', 남은용량 '+W,i); }
+        else { var frac=W/it.w; total+=it.v*frac; st._state[i]='part'; snap(6,it.n+' 의 <b>'+Math.round(frac*100)+'%</b>만 넣음(+'+Math.round(it.v*frac)+') → 가방 가득!',i); break; }
+      }
+      snap(8,'<b>완료!</b> 최대 가치 = <b>'+Math.round(total)+'</b>. 비율 높은 것부터 = 분할 가능일 땐 그리디가 최적(0/1 배낭은 DP 필요).',-1,{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx, y0=V.H*0.24, rh=Math.min(46,V.H*0.09), x0=V.W*0.16, maxW=V.W*0.5;
+      f.items.forEach(function(it,i){ var y=y0+i*rh, bw=maxW*it.w/30, stt=f.state[i], cur=(i===f.cur);
+        var col=stt==='full'?'#8fe3b5':stt==='part'?'#ffb27a':cur?'#ffb27a':'#7ab8ff';
+        ctx.fillStyle=stt==='full'?'rgba(143,227,181,0.3)':stt==='part'?'rgba(255,178,122,0.3)':cur?'rgba(255,178,122,0.18)':'rgba(122,184,255,0.12)';
+        ctx.strokeStyle=col; ctx.lineWidth=2; ctx.fillRect(x0,y,bw,rh-8); ctx.strokeRect(x0,y,bw,rh-8);
+        ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText(it.n+'  가치'+it.v+'/무게'+it.w+' (비율 '+it.r+')  '+(stt==='full'?'✓전체':stt==='part'?'◐일부':''), x0+bw+12, y+rh/2-1); });
+      // 용량 게이지
+      var gy=y0+f.items.length*rh+20, gw=V.W*0.6, gx=V.W/2-gw/2;
+      ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(gx,gy,gw,18); ctx.fillStyle='#8fe3b5'; ctx.fillRect(gx,gy,gw*Math.min(1,f.used/f.W),18);
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5; ctx.strokeRect(gx,gy,gw,18);
+      ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('가방: '+f.used+'/'+f.W+'    총가치 '+f.total, V.W/2, gy+40); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 체이닝 충돌 해결 (CLRS 11.2, concept) ══════
+  { id:'algo_br_chaining', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, M=5, bx=E.W*0.30, by=E.H*0.20, bw=120, bh=Math.min(46,E.H*0.09);
+      var buckets={1:['cat','fox'],3:['dog'],4:['owl','ant','bee']};
+      for(var i=0;i<M;i++){ var y=by+i*(bh+8);
+        ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(bx,y,bw,bh); ctx.strokeRect(bx,y,bw,bh);
+        ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('['+i+']', bx-8, y+bh/2+4);
+        var ch=buckets[i]||[];
+        for(var k=0;k<ch.length;k++){ var nx=bx+bw+30+k*92, ny=y+bh/2;
+          AV.arrow(ctx, nx-30, ny, nx-6, ny, '#8fe3b5', 2);
+          ctx.fillStyle='rgba(143,227,181,0.2)'; ctx.strokeStyle='#8fe3b5'; ctx.fillRect(nx,y+4,76,bh-8); ctx.strokeRect(nx,y+4,76,bh-8);
+          ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('"'+ch[k]+'"', nx+38, y+bh/2+4); }
+      }
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('같은 버킷에 충돌한 키들을 연결 리스트로 묶음', E.W/2, by+M*(bh+8)+10); }
+  },
+
+  // ══════ 균형(algo5_05) ▸ 레드블랙 회전 (CLRS 13.2, concept) ══════
+  { id:'algo_br_rotate', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      function nd(x,y,l,col){ AV.node(E,x,y,l,{r:19,fill:'rgba(122,184,255,0.16)',stroke:col||'#7ab8ff',text:'#dfeefb',fs:14}); }
+      function ed(a,b){ ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); }
+      // 좌: 회전 전 (x 위, y 아래오른쪽)
+      var L=E.W*0.27, R=E.W*0.73, t=E.H*0.24, g=E.H*0.15;
+      var x1=[L,t], y1=[L+E.W*0.10,t+g], a1=[L-E.W*0.07,t+g], b1=[L+E.W*0.03,t+2*g], c1=[L+E.W*0.17,t+2*g];
+      ed(x1,a1); ed(x1,y1); ed(y1,b1); ed(y1,c1); nd(a1[0],a1[1],'α'); nd(b1[0],b1[1],'β'); nd(c1[0],c1[1],'γ'); nd(y1[0],y1[1],'y'); nd(x1[0],x1[1],'x','#ffb27a');
+      // 우: 회전 후 (y 위, x 아래왼쪽)
+      var y2=[R,t], x2=[R-E.W*0.10,t+g], c2=[R+E.W*0.07,t+g], a2=[R-E.W*0.17,t+2*g], b2=[R-E.W*0.03,t+2*g];
+      ed(y2,x2); ed(y2,c2); ed(x2,a2); ed(x2,b2); nd(a2[0],a2[1],'α'); nd(b2[0],b2[1],'β'); nd(c2[0],c2[1],'γ'); nd(x2[0],x2[1],'x','#ffb27a'); nd(y2[0],y2[1],'y');
+      AV.arrow(ctx, E.W*0.46, t+g, E.W*0.54, t+g, '#8fe3b5', 3);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('좌회전', E.W*0.5, t+g-14);
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText('회전 전 (x가 위)', L, t-16); ctx.fillText('회전 후 (y가 위)', R, t-16);
+      ctx.fillStyle='#6f6e7a'; ctx.fillText('순서 α<x<β<y<γ 는 그대로 — BST 규칙 보존, 높이만 재조정', E.W/2, t+3*g); }
   }
 
   ];
