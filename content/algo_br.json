@@ -643,5 +643,35 @@
    "q_en": "What does a rotation preserve and what does it change in a BST?",
    "sol_en": "It preserves the <b>in-order (sorted key) order</b> and changes only the tree's <b>height/shape</b>. So it restores balance without affecting search correctness."
   }
+ },
+ "algo_br_bstins": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "title": "BST 삽입 — 빈 자리 찾아 매달기",
+  "narr": "새 값을 BST에 넣으려면? 탐색과 똑같이 루트부터 <b>크면 오른쪽, 작으면 왼쪽</b>으로 내려가다가, 더 갈 곳이 없는(NIL) 지점에 매달면 끝! 그러면 BST 규칙이 자동으로 유지돼요.",
+  "hint": "탐색 경로 끝의 빈 자리에",
+  "more": "<b>BST 삽입</b>(CLRS 12.3): 새 키 z를 넣을 때 탐색과 동일하게 루트부터 내려갑니다 — z<현재면 왼쪽, 크면 오른쪽. NIL(빈 자식)을 만나면 거기가 z의 자리. 마지막으로 지난 노드(parent)의 알맞은 쪽 자식으로 z를 연결해요. <b>시간 O(h)</b>(h=트리 높이): 균형 트리면 O(log n), 한쪽으로 치우치면 O(n). 삽입은 항상 <b>잎(leaf)으로</b> 추가되어 기존 노드는 안 움직여요. 정렬된 순서로 넣으면 편향 트리가 되니(→O(n)) 레드블랙·AVL이 회전(다른 분기)으로 균형을 맞춥니다. 중위 순회하면 다시 정렬된 순서가 나와요(#21).",
+  "more_en": "<b>BST insert</b> (CLRS 12.3): to add key z, descend from the root just like search — go left if z<node, right if larger. On reaching a NIL (empty child), that is z's spot; attach z as the appropriate child of the last node (parent) visited. <b>Time O(h)</b> (h=height): O(log n) if balanced, O(n) if skewed. Insertion always adds a <b>leaf</b>, leaving existing nodes in place. Inserting in sorted order produces a skewed tree (→O(n)), which red-black/AVL trees fix with rotations (another branch). An in-order traversal still yields sorted order (#21).",
+  "problem": {
+   "q": "빈 BST에 1,2,3,4를 순서대로 삽입하면 트리 모양과 높이는?",
+   "solution": "매번 오른쪽으로만 붙어 <b>한쪽으로 치우친(편향) 트리</b>, 높이 4 → 연결 리스트처럼 O(n). 이래서 균형 트리(회전)가 필요해요.",
+   "q_en": "Insert 1,2,3,4 in order into an empty BST — what shape and height?",
+   "sol_en": "Each attaches to the right → a <b>right-skewed tree</b>, height 4 → like a linked list, O(n). This is why balanced trees (rotations) are needed."
+  }
+ },
+ "algo_br_bstdel": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "title": "BST 삭제 — 세 가지 경우",
+  "narr": "BST에서 노드를 지우는 건 삽입보다 까다로워요. <b>자식이 없으면</b> 그냥 떼고, <b>하나면</b> 그 자식을 끌어올리고, <b>둘이면</b> 오른쪽 서브트리의 최솟값(후속자)으로 값을 바꾼 뒤 그 후속자를 지워요 — 그래야 BST 순서가 유지됩니다.",
+  "hint": "두 자식 → 후속자로 교체",
+  "more": "<b>BST 삭제</b>(CLRS 12.3)는 지울 노드 z의 자식 수로 세 경우를 나눕니다. <b>① 자식 0개(잎)</b>: 그냥 제거. <b>② 자식 1개</b>: 그 자식을 z 자리로 끌어올림. <b>③ 자식 2개</b>: z의 <b>중위 후속자</b>(오른쪽 서브트리의 최솟값 = 오른쪽으로 한 번 간 뒤 계속 왼쪽)를 찾아 z의 키를 그 값으로 바꾸고, 후속자 노드(자식이 최대 1개)를 ②/①로 제거. 후속자는 z보다 큰 값 중 가장 작아서 교체해도 \"왼쪽<부모<오른쪽\" 규칙이 깨지지 않아요. <b>시간 O(h)</b>. 레드블랙 트리는 삭제 후에도 색 규칙이 깨지면 회전+재색칠로 복구해 O(log n)을 보장합니다.",
+  "more_en": "<b>BST delete</b> (CLRS 12.3) splits into three cases by the number of children of the node z to remove. <b>① 0 children (leaf)</b>: just remove it. <b>② 1 child</b>: lift that child into z's place. <b>③ 2 children</b>: find z's <b>in-order successor</b> (the minimum of the right subtree = go right once, then left repeatedly), copy its key into z, then delete that successor node (which has ≤1 child) via case ②/①. The successor is the smallest value greater than z, so replacing keeps the \"left<parent<right\" rule intact. <b>Time O(h)</b>. Red-black trees restore color rules after deletion with rotations + recoloring to guarantee O(log n).",
+  "problem": {
+   "q": "자식이 둘인 노드를 삭제할 때 왜 '후속자'로 교체하나요?",
+   "solution": "후속자(오른쪽 서브트리 최솟값)는 그 노드보다 큰 값 중 <b>가장 작은</b> 값이라, 자리에 넣어도 왼쪽 자손은 모두 작고 오른쪽 자손은 모두 커서 <b>BST 순서가 그대로 유지</b>되기 때문이에요.",
+   "q_en": "When deleting a node with two children, why replace it with the successor?",
+   "sol_en": "The successor (minimum of the right subtree) is the <b>smallest</b> value larger than the node, so placing it keeps all left descendants smaller and right ones larger — <b>BST order stays valid</b>."
+  }
  }
 }
