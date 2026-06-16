@@ -6,7 +6,7 @@
   var scenes=[
 
   // ══════════ 2.1 배열 — 인덱스 접근 O(1) ══════════
-  { id:'algo2_01',
+  { id:'algo2_01', concept:true,
     enter:function(E){ this.s={i:2}; E.setOn([]); this.A=[42,17,8,99,23,4];
       E.controls('<div class="ctrl"><label>인덱스 i 접근</label><input type="range" id="ix" min="0" max="5" step="1" value="2"><output id="ixo">2</output></div>');
       var self=this; E.bind('#ix','input',function(e){ self.s.i=+e.target.value; document.getElementById('ixo').textContent=e.target.value; E.blip(440,0.08); }); },
@@ -21,7 +21,7 @@
   },
 
   // ══════════ 2.2 연결 리스트 — 포인터로 잇기 ══════════
-  { id:'algo2_02',
+  { id:'algo2_02', concept:true,
     enter:function(E){ this.s={cur:0,play:false}; E.setOn([]); this.A=[7,3,9,5]; },
     tap:function(E){ var s=this.s; if(s.cur>=this.A.length-1) s.cur=0; else s.cur++; E.blip(480+s.cur*40,0.1); },
     draw:function(E){ var s=this.s, ctx=E.ctx, n=this.A.length, y=E.H*0.42, bw=78, gap=46, total=n*(bw+gap)-gap, x0=E.W/2-total/2;
@@ -42,7 +42,7 @@
   },
 
   // ══════════ 2.3 스택 — LIFO ══════════
-  { id:'algo2_03',
+  { id:'algo2_03', concept:true,
     enter:function(E){ this.s={stack:[3,7]}; E.setOn([]); this.cnt=8; },
     tap:function(E,x,y){ var s=this.s; if(y && y>E.H*0.7){ if(s.stack.length) s.stack.pop(); E.blip(300,0.12); } else { if(s.stack.length<6){ s.stack.push(this.cnt++); E.blip(560,0.1);} } },
     draw:function(E){ var s=this.s, ctx=E.ctx, bw=120, bh=42, cx=E.W/2, baseY=E.H*0.62;
@@ -58,7 +58,7 @@
   },
 
   // ══════════ 2.3 큐 — FIFO ══════════
-  { id:'algo2_04',
+  { id:'algo2_04', concept:true,
     enter:function(E){ this.s={q:[5,2,8]}; E.setOn([]); this.cnt=9; },
     tap:function(E,x){ var s=this.s; if(x && x>E.W/2){ if(s.q.length<6){ s.q.push(this.cnt++); E.blip(560,0.1);} } else { if(s.q.length) s.q.shift(); E.blip(300,0.12); } },
     draw:function(E){ var s=this.s, ctx=E.ctx, bw=64, gap=8, n=s.q.length, total=n*bw+(n-1)*gap, x0=E.W/2-total/2, y=E.H*0.44;
@@ -75,7 +75,7 @@
   },
 
   // ══════════ 2.4 해시 테이블 — O(1) 조회 ══════════
-  { id:'algo2_05',
+  { id:'algo2_05', concept:true,
     enter:function(E){ this.s={k:'cat'}; E.setOn([]);
       E.controls('<div class="ctrl"><label>키</label><input type="range" id="kk" min="0" max="3" step="1" value="0"><output id="kko">cat</output></div>');
       var self=this; this.keys=['cat','dog','fox','owl'];
