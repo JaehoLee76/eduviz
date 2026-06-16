@@ -12,7 +12,7 @@
   var scenes=[
 
   // ══════ 퀵정렬(algo3_05) ▸ 최악의 경우 O(n²) (CLRS 7.2) ══════
-  { id:'algo_br_qs1', branchOf:'algo3_05',
+  { id:'algo_br_qs1', concept:true, branchOf:'algo3_05',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, levels=[[1,2,3,4,5,6],[1,2,3,4,5],[1,2,3,4],[1,2,3],[1,2]], top=E.H*0.22, lh=E.H*0.10, cell=34, cx=E.W/2;
       for(var L=0;L<levels.length;L++){ var a=levels[L], x0=cx-(a.length*cell)/2, y=top+L*lh;
@@ -26,7 +26,7 @@
   },
 
   // ══════ 퀵정렬(algo3_05) ▸ 랜덤화된 퀵정렬 (CLRS 7.3) ══════
-  { id:'algo_br_qs2', branchOf:'algo3_05',
+  { id:'algo_br_qs2', concept:true, branchOf:'algo3_05',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.30;
       // 균형 분할 트리 (랜덤 피벗 → 기대 균형)
@@ -44,7 +44,7 @@
   },
 
   // ══════ 빅오(algo1_03) ▸ 마스터 정리 (CLRS 4.5) ══════
-  { id:'algo_br_master', branchOf:'algo1_03',
+  { id:'algo_br_master', concept:true, branchOf:'algo1_03',
     enter:function(E){ this.s={k:0}; this.ex=[
         {r:'T(n)=2T(n/2)+n', a:2,b:2,f:'n', cmp:'n^(log₂2)=n¹ = f(n)', res:'Θ(n log n)', note:'병합정렬 (case 2)'},
         {r:'T(n)=2T(n/2)+1', a:2,b:2,f:'1', cmp:'n¹ > f(n)', res:'Θ(n)', note:'트리 순회 (case 1)'},
@@ -62,7 +62,7 @@
   },
 
   // ══════ 병합(algo3_04) ▸ 정렬의 하한 (CLRS 8.1, 결정 트리) ══════
-  { id:'algo_br_lb', branchOf:'algo3_04',
+  { id:'algo_br_lb', concept:true, branchOf:'algo3_04',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, top=E.H*0.20;
       function nd(x,y,t,leaf){ var w=leaf?70:50,h=26; ctx.fillStyle=leaf?'rgba(143,227,181,0.18)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=leaf?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=1.5;
@@ -82,7 +82,7 @@
   },
 
   // ══════ 병합(algo3_04) ▸ 계수 정렬 (CLRS 8.2) ══════
-  { id:'algo_br_count', branchOf:'algo3_04',
+  { id:'algo_br_count', concept:true, branchOf:'algo3_04',
     enter:function(E){ this.A=[2,5,3,0,2,3,0,3]; this.K=6; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, A=this.A, K=this.K, cnt=[];
       for(var v=0;v<K;v++) cnt[v]=0; A.forEach(function(x){cnt[x]++;});
@@ -98,7 +98,7 @@
   },
 
   // ══════ 병합(algo3_04) ▸ 기수 정렬 (CLRS 8.3) ══════
-  { id:'algo_br_radix', branchOf:'algo3_04',
+  { id:'algo_br_radix', concept:true, branchOf:'algo3_04',
     enter:function(E){ this.base=[329,457,657,839,436,720,355]; this.s={pass:0}; E.setOn([]); },
     tap:function(E){ this.s.pass=(this.s.pass+1)%4; E.blip(440+this.s.pass*60,0.1); },
     draw:function(E){ var ctx=E.ctx, s=this.s, arr=this.base.slice();
@@ -114,7 +114,7 @@
   },
 
   // ══════ 퀵(algo3_05) ▸ 순서 통계 / quickselect (CLRS 9) ══════
-  { id:'algo_br_select', branchOf:'algo3_05',
+  { id:'algo_br_select', concept:true, branchOf:'algo3_05',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2;
       var full=[3,7,1,8,2,5,9,4], k=4; // 4번째 작은 값 찾기
@@ -129,7 +129,7 @@
   },
 
   // ══════ 힙(algo5_04) ▸ 힙 정렬 (CLRS 6.4) ══════
-  { id:'algo_br_heapsort', branchOf:'algo5_04',
+  { id:'algo_br_heapsort', concept:true, branchOf:'algo5_04',
     enter:function(E){ this.s={step:0}; this.snaps=this.build(); E.setOn([]); },
     build:function(){ // 힙에서 최댓값을 끝으로 빼는 과정 스냅샷
       var h=[42,35,30,28,18,9,12], n=h.length, snaps=[{a:h.slice(),sorted:0}];
@@ -145,7 +145,7 @@
   },
 
   // ══════ 힙(algo5_04) ▸ 힙 만들기 build-heap O(n) (CLRS 6.3) ══════
-  { id:'algo_br_buildheap', branchOf:'algo5_04',
+  { id:'algo_br_buildheap', concept:true, branchOf:'algo5_04',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.30;
       ctx.font='15px sans-serif'; ctx.textAlign='center';
@@ -160,7 +160,7 @@
   },
 
   // ══════ DFS(algo6_04) ▸ 위상 정렬 (CLRS 20.4) ══════
-  { id:'algo_br_topo', branchOf:'algo6_04',
+  { id:'algo_br_topo', concept:true, branchOf:'algo6_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var P=[[0.16,0.30],[0.16,0.62],[0.46,0.22],[0.46,0.58],[0.32,0.86],[0.80,0.50]];
@@ -176,7 +176,7 @@
   },
 
   // ══════ DFS(algo6_04) ▸ 강연결요소 SCC (CLRS 20.5) ══════
-  { id:'algo_br_scc', branchOf:'algo6_04',
+  { id:'algo_br_scc', concept:true, branchOf:'algo6_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var P=[[0.12,0.3],[0.32,0.18],[0.30,0.55],[0.62,0.30],[0.82,0.20],[0.78,0.58]];
@@ -192,7 +192,7 @@
   },
 
   // ══════ 다익스트라(algo6_05) ▸ 벨만-포드 (CLRS 22.1) ══════
-  { id:'algo_br_bellman', branchOf:'algo6_05',
+  { id:'algo_br_bellman', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var P=[[0.12,0.4],[0.42,0.2],[0.42,0.62],[0.74,0.4]];
@@ -206,7 +206,7 @@
   },
 
   // ══════ 다익스트라(algo6_05) ▸ 플로이드-워셜 (CLRS 23.2) ══════
-  { id:'algo_br_floyd', branchOf:'algo6_05',
+  { id:'algo_br_floyd', concept:true, branchOf:'algo6_05',
     enter:function(E){ this.s={k:0}; E.setOn([]);
       var INF=9; var d0=[[0,3,INF,7],[8,0,2,INF],[5,INF,0,1],[2,INF,INF,0]];
       this.snaps=[JSON.parse(JSON.stringify(d0))];
@@ -224,7 +224,7 @@
   },
 
   // ══════ 다익스트라(algo6_05) ▸ 최소 신장 트리 MST (CLRS 21) ══════
-  { id:'algo_br_mst', branchOf:'algo6_05',
+  { id:'algo_br_mst', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var P=[[0.15,0.25],[0.5,0.15],[0.85,0.3],[0.25,0.7],[0.6,0.72]];
@@ -238,7 +238,7 @@
   },
 
   // ══════ BST(algo5_03) ▸ 레드블랙 트리 (CLRS 13) ══════
-  { id:'algo_br_rbt', branchOf:'algo5_03',
+  { id:'algo_br_rbt', concept:true, branchOf:'algo5_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       // [val, color('R'/'B'), xrel, level]
@@ -256,7 +256,7 @@
   },
 
   // ══════ 균형(algo5_05) ▸ B-트리 (CLRS 18) ══════
-  { id:'algo_br_btree', branchOf:'algo5_05',
+  { id:'algo_br_btree', concept:true, branchOf:'algo5_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       function node(cx,cy,keys,col){ var kw=42,w=keys.length*kw,x=cx-w/2;
@@ -275,7 +275,7 @@
   },
 
   // ══════ 균형(algo5_05) ▸ union-find 서로소 집합 (CLRS 19) ══════
-  { id:'algo_br_uf', branchOf:'algo5_05',
+  { id:'algo_br_uf', concept:true, branchOf:'algo5_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       // 병합 전: 두 트리 / 경로압축 후: 납작
@@ -292,7 +292,7 @@
   },
 
   // ══════ DP 두 조건(algo7_04) ▸ 막대 자르기 (CLRS 14.1) ══════
-  { id:'algo_br_rod', branchOf:'algo7_04',
+  { id:'algo_br_rod', concept:true, branchOf:'algo7_04',
     enter:function(E){ this.p=[0,1,5,8,9,10,17,17,20]; this.s={n:4}; E.setOn([]);
       E.controls('<div class="ctrl"><label>막대 길이 n</label><input type="range" id="nn" min="1" max="8" step="1" value="4"><output id="nno">4</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.1); }); },
@@ -310,7 +310,7 @@
   },
 
   // ══════ 격자 DP(algo7_05) ▸ 최장 공통 부분수열 LCS (CLRS 14.4) ══════
-  { id:'algo_br_lcs', branchOf:'algo7_05',
+  { id:'algo_br_lcs', concept:true, branchOf:'algo7_05',
     enter:function(E){ this.X='ABCB'; this.Y='BDCB'; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, X=this.X, Y=this.Y, m=X.length, n=Y.length;
       var dp=[]; for(var i=0;i<=m;i++){ dp[i]=[]; for(var j=0;j<=n;j++){ if(i===0||j===0)dp[i][j]=0; else if(X[i-1]===Y[j-1])dp[i][j]=dp[i-1][j-1]+1; else dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]); } }
@@ -327,7 +327,7 @@
   },
 
   // ══════ 격자 DP(algo7_05) ▸ 0/1 배낭 (CLRS 부록/고전 DP) ══════
-  { id:'algo_br_knap', branchOf:'algo7_05',
+  { id:'algo_br_knap', concept:true, branchOf:'algo7_05',
     enter:function(E){ this.items=[[2,3],[3,4],[4,5],[5,6]]; this.cap=5; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, it=this.items, cap=this.cap, n=it.length;
       var dp=[]; for(var i=0;i<=n;i++){ dp[i]=[]; for(var w=0;w<=cap;w++){ if(i===0)dp[i][w]=0; else if(it[i-1][0]>w)dp[i][w]=dp[i-1][w]; else dp[i][w]=Math.max(dp[i-1][w], dp[i-1][w-it[i-1][0]]+it[i-1][1]); } }
@@ -344,7 +344,7 @@
   },
 
   // ══════ 복잡도 등급표(algo1_05) ▸ 분할상환 분석 (CLRS 16) ══════
-  { id:'algo_br_amort', branchOf:'algo1_05',
+  { id:'algo_br_amort', concept:true, branchOf:'algo1_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, N=16, x0=E.W*0.16, w=E.W*0.68, bw=w/N, baseY=E.H*0.66, unit=E.H*0.034;
       // push 비용: 보통 1, 용량(1,2,4,8) 꽉찰때 복사
@@ -363,7 +363,7 @@
   },
 
   // ══════ 선형 탐색(algo4_01) ▸ 문자열 매칭 KMP (CLRS 32) ══════
-  { id:'algo_br_kmp', branchOf:'algo4_01',
+  { id:'algo_br_kmp', concept:true, branchOf:'algo4_01',
     enter:function(E){ E.setOn([]); this.T='ABABABCABAB'; this.P='ABABC'; },
     draw:function(E){ var ctx=E.ctx, T=this.T, P=this.P, cell=Math.min(48,E.W*0.06), x0=E.W/2-T.length*cell/2, y=E.H*0.34;
       // 텍스트
@@ -381,7 +381,7 @@
   },
 
   // ══════ P vs NP(algo8_04) ▸ 근사 알고리즘 (CLRS 35) ══════
-  { id:'algo_br_approx', branchOf:'algo8_04',
+  { id:'algo_br_approx', concept:true, branchOf:'algo8_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.26;
       ctx.font='15px sans-serif'; ctx.textAlign='center';
@@ -395,7 +395,7 @@
   },
 
   // ══════ 분할정복(algo8_03) ▸ 스트라센 행렬곱 (CLRS 4.2) ══════
-  { id:'algo_br_strassen', branchOf:'algo8_03',
+  { id:'algo_br_strassen', concept:true, branchOf:'algo8_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y=E.H*0.34;
       function blk(x,y,labs,col){ var c=44; for(var i=0;i<2;i++)for(var j=0;j<2;j++){ ctx.fillStyle='rgba(122,184,255,0.1)'; ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.fillRect(x+j*c,y+i*c,c-2,c-2); ctx.strokeRect(x+j*c,y+i*c,c-2,c-2); ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(labs[i*2+j],x+j*c+c/2,y+i*c+c/2); ctx.textBaseline='alphabetic'; } }
@@ -410,7 +410,7 @@
   },
 
   // ══════ 분할정복(algo8_03) ▸ FFT 고속 푸리에 변환 ══════
-  { id:'algo_br_fft', branchOf:'algo8_03',
+  { id:'algo_br_fft', concept:true, branchOf:'algo8_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.26;
       ctx.font='15px sans-serif'; ctx.textAlign='center';
@@ -424,7 +424,7 @@
   },
 
   // ══════ 다익스트라(algo6_05) ▸ 최대 플로우 (CLRS 24) ══════
-  { id:'algo_br_maxflow', branchOf:'algo6_05',
+  { id:'algo_br_maxflow', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var P=[[0.1,0.5],[0.42,0.25],[0.42,0.75],[0.78,0.5]];
@@ -439,7 +439,7 @@
   },
 
   // ══════ 해시(algo2_05) ▸ 개방 주소법 (CLRS 11.4) ══════
-  { id:'algo_br_openaddr', branchOf:'algo2_05',
+  { id:'algo_br_openaddr', concept:true, branchOf:'algo2_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, M=7, cell=58, x0=E.W/2-M*cell/2, y=E.H*0.42;
       var slots=['','dog','cat','fox','','',''];  // cat,fox 충돌 가정 시연
@@ -453,7 +453,7 @@
   },
 
   // ══════ 해시(algo2_05) ▸ RSA 암호 (CLRS 31, 정수론) ══════
-  { id:'algo_br_rsa', branchOf:'algo2_05',
+  { id:'algo_br_rsa', concept:true, branchOf:'algo2_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.24;
       ctx.font='14px sans-serif'; ctx.textAlign='center';
@@ -472,7 +472,7 @@
   },
 
   // ══════ 스택(algo2_03) ▸ 볼록 껍질 (CLRS 33, 계산기하) ══════
-  { id:'algo_br_hull', branchOf:'algo2_03',
+  { id:'algo_br_hull', concept:true, branchOf:'algo2_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var pts=[[0.2,0.25],[0.5,0.12],[0.82,0.28],[0.88,0.62],[0.55,0.82],[0.18,0.65],[0.45,0.45],[0.62,0.55]];
@@ -488,7 +488,7 @@
   },
 
   // ══════ P vs NP(algo8_04) ▸ 선형계획법 (CLRS 29) ══════
-  { id:'algo_br_lp', branchOf:'algo8_04',
+  { id:'algo_br_lp', concept:true, branchOf:'algo8_04',
     enter:function(E){ E.Plot.range(-0.5,5,-0.5,4); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       // 실행가능영역: x,y≥0, x+y≤4, x+3y≤6 → 꼭짓점 (0,0)(4,0)(3,1)(0,2)
@@ -504,7 +504,7 @@
   },
 
   // ══════ 해시(algo2_05) ▸ 유클리드 확장 & 모듈러 역원 ══════
-  { id:'algo_br_extgcd', branchOf:'algo2_05',
+  { id:'algo_br_extgcd', concept:true, branchOf:'algo2_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2;
       ctx.font='15px sans-serif'; ctx.textAlign='center';
@@ -520,7 +520,7 @@
   },
 
   // ══════ 분할정복(algo8_03) ▸ 가장 가까운 점 쌍 (CLRS 33.4) ══════
-  { id:'algo_br_closest', branchOf:'algo8_03',
+  { id:'algo_br_closest', concept:true, branchOf:'algo8_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
       var pts=[[0.15,0.3],[0.3,0.65],[0.45,0.35],[0.52,0.4],[0.7,0.25],[0.78,0.7],[0.88,0.5],[0.6,0.78]];
