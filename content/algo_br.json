@@ -538,5 +538,65 @@
    "q_en": "Why must Huffman codes be 'prefix codes'?",
    "sol_en": "If one code were a prefix of another (e.g. A=0, B=01), decoding a bit-stream would be ambiguous. Prefix codes place characters only at tree <b>leaves</b>, so decoding is unambiguous."
   }
+ },
+ "algo_br_editdist": {
+  "ch": "알고리즘 제7장 동적 계획법",
+  "sec": "7.2 동적 계획법 (자세히)",
+  "title": "편집 거리 — 문자열 사이의 거리",
+  "narr": "한 단어를 다른 단어로 바꾸는 데 필요한 <b>최소 편집 횟수</b>(삽입·삭제·교체)는? 격자 DP로 풀어요. 글자가 같으면 대각선 값 그대로, 다르면 <b>1 + min(삭제·삽입·교체)</b>. 격자 경로 DP(#34)의 사촌이에요.",
+  "hint": "같으면 대각선, 다르면 1+min",
+  "more": "<b>편집 거리</b>(Levenshtein, CLRS 14 변형): 문자열 A를 B로 바꾸는 최소 연산 수(삽입/삭제/교체 각 1). <b>DP 정의</b>: dp[i][j] = A[0..i−1]→B[0..j−1] 편집 거리. 기저 dp[i][0]=i(다 삭제), dp[0][j]=j(다 삽입). 점화식: A[i−1]=B[j−1]이면 dp[i][j]=dp[i−1][j−1](비용 0); 다르면 dp[i][j]=1+min(dp[i−1][j] 삭제, dp[i][j−1] 삽입, dp[i−1][j−1] 교체). 표 크기 (m+1)×(n+1) → <b>O(mn)</b>. 맞춤법 검사·DNA 정렬·diff·자동완성의 핵심. 격자 경로 DP와 같은 '한 칸씩 채우기' 구조지만 세 방향 중 최소를 고른다는 점이 달라요.",
+  "more_en": "<b>Edit distance</b> (Levenshtein, a CLRS-14 variant): the minimum operations (insert/delete/substitute, cost 1 each) to turn string A into B. <b>DP</b>: dp[i][j] = edit distance of A[0..i−1]→B[0..j−1]. Base dp[i][0]=i (delete all), dp[0][j]=j (insert all). Recurrence: if A[i−1]=B[j−1], dp[i][j]=dp[i−1][j−1] (cost 0); else dp[i][j]=1+min(dp[i−1][j] delete, dp[i][j−1] insert, dp[i−1][j−1] substitute). Table (m+1)×(n+1) → <b>O(mn)</b>. Core of spell-check, DNA alignment, diff, autocomplete. Same fill-one-cell structure as grid-path DP, but you take the min of three directions.",
+  "problem": {
+   "q": "'cat' → 'cut' 의 편집 거리는?",
+   "solution": "c=c, a→u 교체(1), t=t → <b>1</b>. (한 글자만 교체)",
+   "q_en": "What is the edit distance from 'cat' to 'cut'?",
+   "sol_en": "c=c, a→u substitute(1), t=t → <b>1</b> (one substitution)."
+  }
+ },
+ "algo_br_matchain": {
+  "ch": "알고리즘 제7장 동적 계획법",
+  "sec": "7.2 동적 계획법 (자세히)",
+  "title": "행렬 연쇄 곱셈 — 괄호의 비용",
+  "narr": "여러 행렬을 곱할 때 결과는 같지만 <b>괄호를 어디 치냐</b>로 곱셈 횟수가 수십 배 달라져요! 모든 분할점을 DP로 시도해 최소 비용 괄호화를 찾습니다. '최적 부분 구조'의 대표 예제.",
+  "hint": "괄호 위치 = 곱셈 비용",
+  "more": "<b>행렬 연쇄 곱셈</b>(CLRS 14.2): A₁A₂…Aₙ을 곱하는 순서(괄호화)에 따라 스칼라 곱셈 횟수가 크게 달라져요(행렬곱은 결합법칙이 성립해 결과는 동일). p×q 행렬과 q×r 행렬을 곱하면 p·q·r번 곱셈. <b>DP 정의</b>: m[i][j] = Aᵢ…Aⱼ를 곱하는 최소 비용 = min over k ( m[i][k] + m[k+1][j] + pᵢ₋₁·pₖ·pⱼ ). 사슬 길이를 늘려가며 표를 채워 <b>O(n³)</b>. 모든 괄호화를 다 따지면 카탈란 수만큼(지수적)이라 DP가 필수. 컴파일러의 곱셈 순서 최적화·DB 조인 순서 등에 응용. 최적 부분 구조(부분 사슬의 최적이 전체 최적의 일부)를 보이는 교과서 사례.",
+  "more_en": "<b>Matrix-chain multiplication</b> (CLRS 14.2): the order (parenthesization) of multiplying A₁A₂…Aₙ greatly changes the number of scalar multiplications (matrix product is associative, so the result is identical). Multiplying a p×q by a q×r matrix costs p·q·r. <b>DP</b>: m[i][j] = min cost to multiply Aᵢ…Aⱼ = min over k ( m[i][k] + m[k+1][j] + pᵢ₋₁·pₖ·pⱼ ). Fill by increasing chain length → <b>O(n³)</b>. Trying all parenthesizations is exponential (Catalan number), so DP is essential. Used in compiler multiplication ordering and database join ordering. A textbook case of optimal substructure.",
+  "problem": {
+   "q": "A(10×100), B(100×5), C(5×50) 를 곱할 때 ((AB)C) 의 곱셈 횟수는?",
+   "solution": "AB: 10·100·5 = 5,000, 결과 10×5. (AB)C: 10·5·50 = 2,500. 합 <b>7,500</b> (A(BC)의 75,000보다 10배 적음).",
+   "q_en": "For A(10×100), B(100×5), C(5×50), how many multiplications for ((AB)C)?",
+   "sol_en": "AB: 10·100·5 = 5,000 (→10×5). (AB)C: 10·5·50 = 2,500. Total <b>7,500</b> (10× fewer than A(BC)'s 75,000)."
+  }
+ },
+ "algo_br_edgeclass": {
+  "ch": "알고리즘 제6장 그래프",
+  "sec": "6.2 그래프 탐색 (자세히)",
+  "title": "DFS 간선 분류 — 사이클 탐지의 비밀",
+  "narr": "DFS는 모든 간선을 <b>네 종류</b>로 나눠요: 트리·후향·전향·교차. 특히 <b>후향 간선</b>(조상으로 가는 간선)이 하나라도 있으면 그래프에 <b>사이클</b>이 있다는 뜻! 발견/종료 시간이 이 분류의 열쇠예요.",
+  "hint": "후향 간선 = 사이클",
+  "more": "<b>DFS 간선 분류</b>(CLRS 20.3): 깊이 우선 탐색이 만드는 트리를 기준으로 모든 간선을 네 종류로 나눕니다. <b>① 트리 간선</b>: DFS가 새 정점(WHITE)을 처음 발견하며 지나간 간선 = DFS 트리. <b>② 후향(back) 간선</b>: 자손→조상(아직 GRAY인 정점)으로 가는 간선 → <b>방향 그래프의 사이클은 후향 간선이 있을 때만 존재</b>. <b>③ 전향(forward) 간선</b>: 조상→이미 끝난(BLACK) 자손으로의 비-트리 간선. <b>④ 교차(cross) 간선</b>: 조상-자손 관계가 아닌 정점 사이. 분류 기준은 간선 (u,v)를 볼 때 v의 색: WHITE=트리, GRAY=후향, BLACK=전향/교차(발견시간 비교). 사이클 탐지·위상정렬·SCC가 모두 이 분류에서 나와요.",
+  "more_en": "<b>DFS edge classification</b> (CLRS 20.3): relative to the DFS tree, every edge is one of four types. <b>① Tree edge</b>: traversed when DFS first discovers a WHITE vertex = the DFS tree. <b>② Back edge</b>: descendant→ancestor (a still-GRAY vertex) → <b>a directed graph has a cycle iff DFS finds a back edge</b>. <b>③ Forward edge</b>: ancestor→already-finished (BLACK) descendant, non-tree. <b>④ Cross edge</b>: between vertices with no ancestor-descendant relation. You classify edge (u,v) by v's color: WHITE=tree, GRAY=back, BLACK=forward/cross (compare discovery times). Cycle detection, topological sort, and SCC all follow from this.",
+  "problem": {
+   "q": "방향 그래프에 사이클이 있는지 DFS로 어떻게 판정하나요?",
+   "solution": "DFS 중 <b>후향 간선</b>(현재 GRAY인 조상으로 가는 간선)이 하나라도 나오면 사이클이 있어요. 하나도 없으면 DAG(비순환).",
+   "q_en": "How does DFS decide whether a directed graph has a cycle?",
+   "sol_en": "If DFS ever finds a <b>back edge</b> (to a currently-GRAY ancestor), there is a cycle. If none occur, it is a DAG (acyclic)."
+  }
+ },
+ "algo_br_dij_proof": {
+  "ch": "알고리즘 제6장 그래프",
+  "sec": "6.3 최단 경로 (자세히)",
+  "title": "다익스트라는 왜 맞는가 — 그리디 증명",
+  "narr": "다익스트라는 매번 <b>가장 가까운 미확정 정점</b>을 꺼내 거리를 '확정'해요. 그런데 왜 그 순간 그 거리가 진짜 최단일까요? 핵심: 다른 경로로 가면 <b>이미 확정된 집합을 벗어나는 더 먼 정점</b>을 반드시 거치므로 더 짧을 수 없어요.",
+  "hint": "꺼낸 순간 = 최단 확정",
+  "more": "<b>다익스트라 정확성</b>(CLRS 22.3): 핵심은 \"정점 u가 우선순위 큐에서 <b>최소 d[u]</b>로 꺼내질 때, d[u]는 이미 최종 최단거리\"라는 불변식. <b>증명 스케치(귀류법)</b>: u를 꺼낼 때 d[u]가 최단이 아니라고 가정하면, s→u의 더 짧은 경로 P가 있어야 함. P는 확정 집합 S를 벗어나는 첫 정점 y를 지나는데, 모든 간선 가중치가 <b>음이 아니므로</b> d[y] ≤ (P의 길이) < d[u]. 그러면 y가 u보다 먼저(더 작은 거리로) 꺼내졌어야 하므로 모순. 따라서 d[u]는 최단. ★이 논증은 <b>음수 간선이 없을 때만</b> 성립 → 음수 간선엔 벨만-포드를 써야 해요. 그리디(매 순간 최선)가 전역 최적을 주는 대표 사례.",
+  "more_en": "<b>Dijkstra's correctness</b> (CLRS 22.3): the key invariant is \"when vertex u is extracted from the priority queue with <b>minimum d[u]</b>, d[u] already equals the final shortest distance.\" <b>Proof sketch (contradiction)</b>: suppose d[u] is not shortest when extracted; then a shorter path P from s to u exists. P leaves the settled set S through some first vertex y, and since all edge weights are <b>non-negative</b>, d[y] ≤ length(P) < d[u]. But then y should have been extracted before u (smaller distance) — contradiction. So d[u] is shortest. ★This argument needs <b>non-negative edges</b> → use Bellman-Ford for negative edges. A flagship case of greedy giving the global optimum.",
+  "problem": {
+   "q": "다익스트라가 음수 가중치 간선에서 실패할 수 있는 이유는?",
+   "solution": "정확성 증명이 '음이 아닌 가중치'에 의존해요. 음수 간선이 있으면 이미 확정한 정점의 거리가 나중에 더 줄어들 수 있어 '꺼낸 순간 확정' 불변식이 깨집니다 → 벨만-포드 사용.",
+   "q_en": "Why can Dijkstra fail with negative-weight edges?",
+   "sol_en": "Its correctness relies on non-negative weights. With a negative edge, an already-settled vertex's distance could later decrease, breaking the 'settled on extraction' invariant → use Bellman-Ford."
+  }
  }
 }
