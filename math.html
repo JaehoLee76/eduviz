@@ -21,8 +21,10 @@
   body {
     background: radial-gradient(125% 125% at 50% 0%, #16161f 0%, #0b0b10 62%);
     color: #f4f3ee; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
-    user-select: none; touch-action: none;
+    user-select: none; touch-action: none; transition: background .45s ease;
   }
+  /* 분기(세부 학습) 모드 — 화면 전체를 옅은 오렌지로 틴트해 "세부 내용 학습 중"을 인지 */
+  body.in-branch { background: radial-gradient(125% 125% at 50% 0%, #2c2113 0%, #130d08 64%); }
   #stage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
   /* 상단바 */

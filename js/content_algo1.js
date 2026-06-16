@@ -27,10 +27,15 @@
       }
       st.push({line:6, cap:'끝! 최댓값 = <b>'+max+'</b>. n개를 한 번씩 훑음 = <b>O(n)</b>', maxIdx:mi, done:true});
       return st; },
-    draw:function(V,f){ if(!f)return; AV.arr(V, A, { y:V.H*0.42, bw:66, gap:12, idx:true, hl:function(k){
-      if(k===f.maxIdx) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'max'};
-      if(k===f.scan&&!f.done) return {fill:'rgba(143,227,181,0.25)',stroke:GRN,text:GRN,tag:'보는 중'};
-      return null; } }); }
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx, MAXV=Math.max.apply(null,A), maxH=V.H*0.40, baseY=V.H*0.64;
+      var info=AV.bars(V, A, { baseY:baseY, maxH:maxH, label:true, bw:60, gap:18, hl:function(k){
+        if(k===f.maxIdx) return ORA; if(k===f.scan&&f.found==null&&!f.done) return GRN; return BLU; } });
+      // 현재 최대 높이 가로 점선 + 라벨 → "가장 큰 값"이 시각적으로 명확
+      if(f.maxIdx!=null && f.maxIdx>=0){ var mv=A[f.maxIdx], ly=baseY-(mv/MAXV)*maxH, rightX=info.x0+A.length*(info.bw+info.gap)-info.gap;
+        ctx.strokeStyle=ORA; ctx.lineWidth=1.5; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(info.x0-24, ly); ctx.lineTo(rightX+10, ly); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=ORA; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('지금까지 최대 = '+mv, info.x0-24, ly-9);
+        var mx=info.x0+f.maxIdx*(info.bw+info.gap)+info.bw/2; ctx.textAlign='center'; ctx.fillText('▲ MAX', mx, ly-26); }
+      if(f.scan!=null && f.scan>=0 && f.found==null && !f.done){ var sx=info.x0+f.scan*(info.bw+info.gap)+info.bw/2; ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('보는 중', sx, baseY+34); } }
   },
 
   // ══════════ 1.2 효율성 — 같은 답, 다른 비용 (concept) ══════════

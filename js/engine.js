@@ -172,8 +172,8 @@
       if(p.i!=null&&!p.cur){ el.classList.add('clk'); el.onclick=function(){ goTo(p.i); }; } cb.appendChild(el); });
   }
   function updateBranchBtn(sc){ var bb=document.getElementById('branchBtn'); if(!bb) return;
-    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.textContent='🔍 자세히 ('+sc._branches.length+'갈래)'; bb.className='btn branch-in'; bb.onclick=enterBranch; }
-    else if(sc.branchOf!=null){ bb.style.display='inline-flex'; bb.textContent='↩ 뼈대로'; bb.className='btn branch-out'; bb.onclick=exitBranch; }
+    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.textContent='🔍 자세히 보기 ('+sc._branches.length+')'; bb.className='btn branch-in'; bb.onclick=enterBranch; }
+    else if(sc.branchOf!=null){ bb.style.display='inline-flex'; bb.textContent='↩ 뼈대로 돌아가기'; bb.className='btn branch-out'; bb.onclick=exitBranch; }
     else { bb.style.display='none'; }
   }
 
@@ -188,6 +188,7 @@
       nb.textContent=lastSpine?'처음으로 ↺':'다음 ▸'; }
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
+    if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
     if(sc.enter) sc.enter(E);
     paintTOC(); progress(); blip(660,0.14);
   }
@@ -317,7 +318,7 @@
       else if(e.key==='ArrowDown'){ enterBranch(); e.preventDefault(); }   // ↓ 분기(자세히)로 들어가기
       else if(e.key==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 뼈대로 나오기
       // Space/Enter = 한 단계 진행 (viz면 다음 스텝, 레거시면 tap). 캔버스 클릭 막힌 환경 대체 입력
-      else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s._viz){ stepNext(); e.preventDefault(); } else if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
+      else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s._viz&&_steps){ stepNext(); e.preventDefault(); } else if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
@@ -331,7 +332,7 @@
     if(chevBtn) chevBtn.onclick=function(){ var open=studyEl.classList.toggle('open'); if(chevLabel)chevLabel.textContent=open?'접기':'자세히 보기'; };
     if(studyProb) studyProb.addEventListener('click',function(e){ if(e.target&&e.target.classList&&e.target.classList.contains('sol-toggle')){ var s=studyProb.querySelector('.prob-sol'); var op=s.classList.toggle('show'); e.target.textContent=op?'풀이 숨기기 ▴':'풀이 보기 ▾'; } });
     // pointer routing
-    cv.addEventListener('pointerdown',function(e){ var s=SM.scenes[SM.cur]; if(s){ if(s._viz){ stepNext(); return; } if(s.down)s.down(E,e.clientX,e.clientY); if(s.tap)s.tap(E,e.clientX,e.clientY);} });
+    cv.addEventListener('pointerdown',function(e){ var s=SM.scenes[SM.cur]; if(s){ if(s._viz&&_steps){ stepNext(); return; } if(s.down)s.down(E,e.clientX,e.clientY); if(s.tap)s.tap(E,e.clientX,e.clientY);} });
     cv.addEventListener('pointermove',function(e){ var s=SM.scenes[SM.cur]; if(s&&s.move)s.move(E,e.clientX,e.clientY); });
     cv.addEventListener('pointerup',function(e){ var s=SM.scenes[SM.cur]; if(s&&s.up)s.up(E); });
     // 눈 깜빡임
