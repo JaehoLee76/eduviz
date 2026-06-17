@@ -4465,6 +4465,98 @@
       ctx.fillText('O(V³). 각 행을 비트셋으로: reach[i] |= reach[k] (if reach[i][k]) → O(V³/64)', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('DAG면 위상역순 DP. 쓰임: 도달성·부분순서 완성·관계 닫기·타입 추론·스케줄 의존성', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_cdq', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('CDQ 분할 정복 — 오프라인 다차원 부분순서', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('시간/한 차원으로 반 가르고, "왼쪽이 오른쪽에 주는 기여"만 병합 단계에서 계산', W/2, H*0.10+22);
+      // recursion split: [L..M] contributes to [M+1..R]
+      var ax=W*0.14, bx2=W*0.86, y=H*0.40; ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(ax,y); ctx.lineTo(bx2,y); ctx.stroke();
+      var mid=(ax+bx2)/2;
+      ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.fillRect(ax,y-16,mid-ax-2,32); ctx.strokeStyle='#7ab8ff'; ctx.strokeRect(ax,y-16,mid-ax-2,32);
+      ctx.fillStyle='rgba(143,227,181,0.18)'; ctx.fillRect(mid+2,y-16,bx2-mid-2,32); ctx.strokeStyle='#8fe3b5'; ctx.strokeRect(mid+2,y-16,bx2-mid-2,32);
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.fillText('왼쪽 [L..M]', (ax+mid)/2, y+4); ctx.fillStyle='#8fe3b5'; ctx.fillText('오른쪽 [M+1..R]', (mid+bx2)/2, y+4);
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo((ax+mid)/2,y-16); ctx.quadraticCurveTo(mid,y-50,(mid+bx2)/2,y-16); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.fillText('왼쪽 → 오른쪽 기여만 병합서 계산', W/2, y-40);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('한 차원(시간)은 분할로, 또 한 차원은 정렬, 나머지는 펜윅 → 3차원 부분순서 O(n log²n)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 쌍 (i<j)을 정확히 한 번, "왼쪽이 이미 확정된 상태"에서 오른쪽에 기여 → 머지소트류', W/2, H*0.87);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 3차원 LIS·점 지배(dominance) 세기, 동적→오프라인 변환, 분할정복 DP 가속', W/2, H*0.87+20); }
+  },
+
+  { id:'algo_br_slopetrick', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('슬로프 트릭 — 볼록 비용함수를 기울기로 관리', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('DP 값함수가 조각별 선형 볼록일 때, 기울기 변화점(꺾임)만 우선순위 큐로 관리', W/2, H*0.10+22);
+      // piecewise linear convex function with breakpoints
+      var ax=W*0.16, bx2=W*0.84, base=H*0.60;
+      var pts=[[0,0.30],[0.25,0.10],[0.45,0.0],[0.65,0.0],[0.85,0.18],[1.0,0.45]];
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      pts.forEach(function(p,i){ var x=ax+p[0]*(bx2-ax), y=base-p[1]*H*0.5; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+      pts.forEach(function(p){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(ax+p[0]*(bx2-ax),base-p[1]*H*0.5,4,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('꺾임점(기울기 −1씩 변화) = 큐에 저장', W/2, base+24);
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('평평한 바닥 = 최솟값 구간', W/2, base+44);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('|x − a| 더하기·prefix min 같은 연산이 "꺾임점 추가·이동·병합"으로', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('왼쪽/오른쪽 기울기를 두 힙(최대·최소)으로 → 각 전이 O(log n), 함수 전체 안 저장', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 비감소로 만들기 최소비용·근접 조정·창고/주식 DP. 볼록성 유지가 전제', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_parallelbs', concept:true, branchOf:'algo4_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('병렬 이분 탐색 — 여러 질의의 답을 한꺼번에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('질의마다 따로 이분 탐색하면 비쌈. 모든 질의의 "중간값"을 동시에 검사하며 함께 좁히기', W/2, H*0.10+22);
+      // queries with their lo/mid/hi ranges aligned at same mid step
+      var qy=[0.32,0.46,0.60], ax=W*0.20, bx2=W*0.82;
+      qy.forEach(function(t,i){ var y=H*0.22+t*H*0.5; ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(ax,y); ctx.lineTo(bx2,y); ctx.stroke();
+        ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('질의'+(i+1),ax-8,y+4); ctx.textAlign='center';
+        var mid=ax+(0.3+i*0.15)*(bx2-ax); ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(mid,y,5,0,Math.PI*2); ctx.fill(); });
+      // a sweep that processes events up to each mid
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('한 라운드: 시간 1→T로 이벤트 적용하며, 각 질의의 mid 시점에서 판정', W/2, H*0.74);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('질의들을 현재 mid로 그룹핑 → 자료구조에 이벤트 한 번 흘리며 모두 판정', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('log T 라운드 × (이벤트 적용 O(T·연산)) → O((Q+T)·log T·연산), 질의별 분리보다 빠름', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: "몇 번째 추가에서 조건 충족?"류 다수 질의(연결성·합 임계), 시간축 단조 판정', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_polyinv', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('다항식 역원·exp·log — 뉴턴법으로 배가', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('형식적 거듭제곱급수의 역원/지수/로그를, 정밀도를 매 단계 두 배로 늘리는 뉴턴 반복+NTT로', W/2, H*0.10+22);
+      // doubling precision steps
+      var steps=[['mod x¹','1항'],['mod x²','2항'],['mod x⁴','4항'],['mod x⁸','8항'],['mod x¹⁶','16항']];
+      var bx=W*0.5-(steps.length*88)/2, by=H*0.34;
+      steps.forEach(function(s,i){ var x=bx+i*88; ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(x,by,76,38); ctx.strokeRect(x,by,76,38);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(s[0],x+38,by+17); ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText(s[1],x+38,by+31);
+        if(i<steps.length-1){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+76,by+19); ctx.lineTo(x+88,by+19); ctx.stroke(); } });
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('역원: B ← B·(2 − A·B)  mod x^(2k)  (정밀도 k→2k)', W/2, H*0.62);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 단계가 정밀도를 두 배로, NTT 곱셈 O(k log k) → 총합 O(n log n)(기하급수 합)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('log A = ∫ A′/A, exp는 log의 뉴턴 역. 나눗셈·제곱근·복합함수도 같은 배가 틀', W/2, H*0.87);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 생성함수 연산(분할수·카탈란 OGF), 점화식 일괄, 조합론 대량 계산', W/2, H*0.87+20); }
   }
 
   ];
