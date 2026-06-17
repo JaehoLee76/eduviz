@@ -2225,6 +2225,94 @@
       ctx.fillText('역대입: z=−1 → y=3 → x=2', cx, H*0.66);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('수치 안정성을 위해 절댓값 큰 행을 위로(부분 피벗팅). 역행렬·행렬식·랭크·XOR 연립(가우스-조던)에', cx, H*0.74); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ 문자열 해싱(롤링 해시) ══════
+  { id:'algo_br_strhash', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('문자열 해싱 — 부분문자열을 숫자로 O(1) 비교', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('문자열을 다항식 값으로: h(s) = Σ s[i]·base^i (mod M). 접두사 해시로 임의 구간 O(1)', W/2, H*0.12+22);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 15px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('h[i] = h[i−1]·base + s[i]   (접두사 해시)', cx, H*0.34);
+      ctx.fillStyle='#8fe3b5'; ctx.font='14px ui-monospace, monospace';
+      ctx.fillText('구간 [l,r] 해시 = h[r] − h[l−1]·base^(r−l+1)', cx, H*0.45);
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
+      ctx.fillText('두 부분문자열이 같은가? → 해시 두 개를 O(1)에 비교', cx, H*0.55);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('전처리 O(n), 임의 구간 비교·검색 O(1). 라빈-카프(슬라이딩 해시)의 일반화', cx, H*0.65);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('충돌 위험 → 큰 소수 M·서로 다른 base로 이중 해시. 회문 판정·반복·LCP 이분탐색에', cx, H*0.73); }
+  },
+
+  // ══════ 정렬(algo3_04) ▸ 평방 분할(Sqrt Decomposition) ══════
+  { id:'algo_br_sqrtdecomp', concept:true, branchOf:'algo3_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('평방 분할 — 배열을 √n 블록으로 나눠 질의 O(√n)', W/2, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('블록마다 미리 합(또는 최댓값)을 저장 → 구간 질의 = 완전한 블록 + 양끝 자투리', W/2, H*0.11+22);
+      var n=12, blk=4, bw=Math.min(50,(W*0.62)/n), gap=4, total=n*bw+(n-1)*gap, x0=W/2-total/2, y=H*0.36;
+      for(var i=0;i<n;i++){ var x=x0+i*(bw+gap), b=Math.floor(i/blk), inq=(i>=2&&i<=9);
+        var col=['rgba(122,184,255,0.14)','rgba(143,227,181,0.14)','rgba(244,160,192,0.14)'][b];
+        ctx.fillStyle=inq?'rgba(255,178,122,0.22)':col; ctx.strokeStyle=inq?'#ffb27a':['#7ab8ff','#8fe3b5','#f4a0c0'][b]; ctx.lineWidth=2;
+        ctx.fillRect(x,y,bw,bw); ctx.strokeRect(x,y,bw,bw);
+        ctx.fillStyle='#9bb0c8'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(i,x+bw/2,y+bw/2+4); }
+      // 블록 라벨
+      for(var bb=0;bb<3;bb++){ var bx=x0+(bb*blk+blk/2)*(bw+gap)-bw/2; ctx.fillStyle=['#7ab8ff','#8fe3b5','#f4a0c0'][bb]; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('블록'+bb+' Σ', bx, y-8); }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('질의 [2,9] = 자투리(2,3) + 블록1 전체합 + 자투리(8,9). 완전 블록은 미리 합으로 O(1)', W/2, H*0.62);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('블록 √n개·블록 크기 √n → 질의·갱신 O(√n). 세그트리보다 단순, Mo·구간 갱신에 두루', W/2, H*0.62+22); }
+  },
+
+  // ══════ NP(algo8_04) ▸ 중간에서 만나기(Meet in the Middle) ══════
+  { id:'algo_br_mitm', concept:true, branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('중간에서 만나기 — 2ⁿ 을 2·2^(n/2) 로', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('원소를 절반으로 나눠 각 절반의 모든 조합을 만든 뒤, 둘을 합쳐 답을 찾는다', W/2, H*0.12+22);
+      // 두 반쪽 박스 + 합치기
+      function half(x, lab, col){ ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=col; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-W*0.13,H*0.34,W*0.26,H*0.14,10);ctx.fill();ctx.stroke();}else ctx.strokeRect(x-W*0.13,H*0.34,W*0.26,H*0.14);
+        ctx.fillStyle=col; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab, x, H*0.39);
+        ctx.fillStyle='#cfcdc6'; ctx.font='12px sans-serif'; ctx.fillText('2^(n/2) 가지 조합', x, H*0.435); }
+      half(W*0.30, '왼쪽 절반', '#7ab8ff'); half(W*0.70, '오른쪽 절반', '#8fe3b5');
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('정렬·해시로 합치기: 왼쪽 합 x → 오른쪽에서 target−x 를 이분/해시 탐색', cx, H*0.58);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 16px ui-monospace, monospace';
+      ctx.fillText('O(2ⁿ)  →  O(2^(n/2) · n)', cx, H*0.68);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('n=40도 2²⁰≈백만 두 번이면 끝. 부분집합 합·배낭(작은 n·큰 값)·BSGS(이산로그)가 같은 원리', cx, H*0.76); }
+  },
+
+  // ══════ 이진트리(algo5_01) ▸ 트립(Treap) ══════
+  { id:'algo_br_treap', concept:true, branchOf:'algo5_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('트립(Treap) — 트리 + 힙, 무작위로 균형', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 노드에 키와 무작위 우선순위. 키는 BST 순서, 우선순위는 힙 순서를 동시에 만족', W/2, H*0.10+22);
+      // 노드: 키(위), 우선순위(아래) — 우선순위 힙(부모>자식)
+      var N={ root:[0.5,0.30,'키 5','p:90'], l:[0.30,0.52,'키 3','p:60'], r:[0.72,0.52,'키 8','p:55'], ll:[0.18,0.74,'키 1','p:20'], lr:[0.42,0.74,'키 4','p:30'] };
+      var edges=[['root','l'],['root','r'],['l','ll'],['l','lr']];
+      function xy(k){ return [W*0.12+N[k][0]*W*0.76, H*0.24+N[k][1]*H*0.52]; }
+      edges.forEach(function(e){ var a=xy(e[0]),b=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k), root=(k==='root');
+        ctx.fillStyle=root?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=root?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],24,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=root?'#ffb27a':'#dfeefb'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText(N[k][2],p[0],p[1]-3);
+        ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText(N[k][3],p[0],p[1]+11); });
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('키: 왼쪽<부모<오른쪽(BST). 우선순위: 부모 ≥ 자식(힙). 둘을 동시 만족 → 모양이 유일', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('우선순위가 무작위라 기대 높이 O(log n). 회전(또는 split/merge)으로 유지. 구간 트립=배열 연산까지', W/2, H*0.88+20); }
   }
 
   ];
