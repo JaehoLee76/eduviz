@@ -4191,6 +4191,95 @@
       ctx.fillText('상위 비트부터 "반대 비트 자식"이 있으면 그쪽으로 → 최대 XOR 탐욕적 선택', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('삽입·질의 O(비트수). 최대 XOR 쌍·구간 XOR(영속 트라이)·XOR 조건 카운트. XOR기저와 짝', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_brokenprofile', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('윤곽선 DP — 격자를 칸 단위로 채우는 비트마스크', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('도미노/타일로 격자 채우기를, "지금까지 채운 경계(윤곽선) 모양"을 비트마스크 상태로', W/2, H*0.10+22);
+      // grid partially filled, profile boundary highlighted
+      var R=4,C=5, gx=W*0.32, gy=H*0.30, cell=42;
+      for(var r=0;r<R;r++)for(var c=0;c<C;c++){ var x=gx+c*cell,y=gy+r*cell;
+        var filled=(r*C+c) < 9; // first 9 cells filled (row-major)
+        ctx.fillStyle=filled?'rgba(122,184,255,0.28)':'rgba(122,184,255,0.05)'; ctx.strokeStyle='#3a4358'; ctx.lineWidth=1; ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3); }
+      // profile boundary (staircase) at cell 9
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(gx,gy+2*cell); ctx.lineTo(gx+4*cell,gy+2*cell); ctx.lineTo(gx+4*cell,gy+1*cell); ctx.lineTo(gx+C*cell-3,gy+1*cell); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('윤곽선(profile) = 비트마스크', gx+2*cell, gy+R*cell+18);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('상태 = 현재 칸 + 윤곽선 m비트(위·왼쪽 채움 여부). 칸마다 빈칸/가로/세로 타일 전이', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 칸씩 진행하므로 마스크 폭이 열 수 C → 상태 O(nm·2^C), 좁은 쪽을 C로(min(행,열))', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('도미노·타일링 경우의 수, 격자 독립집합, 좁은 그리드 최적화. 행 전체 마스크보다 칸 단위가 효율', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_expdp', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('기댓값 DP — 확률 점화식으로 평균을 구하기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('E[상태] = Σ 확률·(비용 + E[다음 상태]). 무작위 과정의 기대 횟수/비용을 DP로', W/2, H*0.10+22);
+      // states with transition probabilities
+      var states=[[0.5,0.32,'E[n]'],[0.30,0.58,'E[n−1]'],[0.70,0.58,'E[n−2]']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.4]; }
+      [[0,1,'p'],[0,2,'1−p']].forEach(function(e){ var a=xy(states[e[0]]),b=xy(states[e[1]]); ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(a[0]+b[0])/2,(a[1]+b[1])/2-4); });
+      states.forEach(function(st,i){ var p=xy(st); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(p[0]-34,p[1]-16,68,32); ctx.strokeRect(p[0]-34,p[1]-16,68,32); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(st[2],p[0],p[1]+4); });
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('E[n] = 1 + p·E[n−1] + (1−p)·E[n−2]', W/2, H*0.72);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('선형성 E[X+Y]=E[X]+E[Y]로 분해. 자기참조(루프)면 연립방정식(가우스 소거)으로 풀기', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 주사위 게임 기대 턴, 랜덤워크 도달시간, 쿠폰 수집가, 카드 뽑기 기대값', W/2, H*0.82+20);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('★뒤에서 앞으로(역방향) 또는 흡수상태부터. 무한 가능성은 등비급수로 닫힌 형태', W/2, H*0.82+38); }
+  },
+
+  { id:'algo_br_boundedknapsack', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('다중 배낭 — 개수 제한 물건을 빠르게', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 물건이 k개까지일 때, k개를 하나씩 넣으면 느림 → 이진 분할 또는 단조 덱으로 가속', W/2, H*0.10+22);
+      // binary split visualization: 13 -> 1,2,4,6
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('이진 분할: 개수 13개 →  1 + 2 + 4 + 6  묶음', W/2, H*0.32);
+      var chunks=[1,2,4,6]; var bw=70, bx=W*0.5-(chunks.length*bw)/2, by=H*0.40;
+      chunks.forEach(function(c,i){ var x=bx+i*bw; ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(x,by,bw-12,34); ctx.strokeRect(x,by,bw-12,34); ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.fillText('×'+c,x+(bw-12)/2,by+22); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('이 묶음들로 0~13 어떤 개수든 부분합으로 표현 가능 → 0/1 배낭으로 환원', W/2, H*0.62);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('이진 분할: 개수 k를 1,2,4,…,나머지 묶음으로 → O(N·W·Σlog kᵢ)', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('더 빠른 단조 덱: 무게로 나눈 나머지류(residue)별 슬라이딩 윈도우 최대 → O(N·W)', W/2, H*0.85);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('완전 배낭(무제한)=정방향 1차원, 0/1=역방향. 다중=이 둘 사이, 동전·자원 배분', W/2, H*0.85+20); }
+  },
+
+  { id:'algo_br_edmondskarp', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('에드몬즈-카프 — BFS로 최단 증대 경로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('포드-풀커슨의 증대 경로를 BFS(최단)로 고르면 종료가 보장되고 O(V·E²)', W/2, H*0.10+22);
+      // flow network s->t with augmenting path
+      var N={s:[0.14,0.50,'s'],a:[0.40,0.30,'a'],b:[0.40,0.70,'b'],c:[0.66,0.30,'c'],t:[0.88,0.50,'t']};
+      var edges=[['s','a'],['s','b'],['a','c'],['b','c'],['c','t'],['b','t']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var path=(['s','a','c','t'].indexOf(e[0])>=0 && ['a','c','t'].indexOf(e[1])>=0 && !(e[0]==='b')); ctx.strokeStyle=path?'#8fe3b5':'rgba(122,184,255,0.4)'; ctx.lineWidth=path?3.5:2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke();
+        var mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2,ang=Math.atan2(q[1]-p[1],q[0]-p[0]); ctx.fillStyle=path?'#8fe3b5':'rgba(122,184,255,0.5)'; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(mx-9*Math.cos(ang-0.4),my-9*Math.sin(ang-0.4)); ctx.lineTo(mx-9*Math.cos(ang+0.4),my-9*Math.sin(ang+0.4)); ctx.fill(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var st=(k==='s'||k==='t'); ctx.fillStyle=st?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=st?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('초록 = BFS가 찾은 최단 증대 경로 s→a→c→t', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('잔여 그래프에서 BFS로 최단 경로 찾아 병목만큼 흘리기를 반복(증대 경로법)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('최단 경로라 증대 횟수 O(VE) 보장 → O(VE²). 디닉(레벨그래프+블로킹)이 더 빠른 발전형', W/2, H*0.88+20); }
   }
 
   ];

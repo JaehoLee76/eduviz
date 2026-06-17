@@ -2923,5 +2923,65 @@
     "q_en": "Why is going to the 'opposite bit' optimal when finding the max XOR pair in a 0/1 trie?",
     "sol_en": "XOR is 1 exactly when two bits <b>differ</b>. A single high bit set to 1 outweighs all lower bits (place value), so <b>greedily turning on the highest bits first</b> is optimal. In the trie, going to the child with the <b>opposite bit</b> to x's (when it exists) makes that position's XOR 1, finding the pair with the highest bits maximally set in O(bits)."
    }
+  },
+  "algo_br_brokenprofile": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "윤곽선 DP — 격자를 칸 단위로 채우는 비트마스크",
+   "narr": "도미노나 타일로 격자를 빈틈없이 채우는 방법의 수는? 행 전체를 한꺼번에 보는 대신, <b>칸 하나씩</b> 진행하며 \"지금까지 채운 경계(윤곽선)\"를 비트마스크 상태로 두는 것이 <b>윤곽선 DP</b>입니다.",
+   "hint": "",
+   "more": "<b>윤곽선 DP(broken profile DP, plug DP)</b>는 격자를 채우는 문제(도미노·타일링, 격자 위 배치)를 <b>칸 단위로 진행</b>하며 비트마스크 상태로 푸는 기법입니다. 단순한 \"행 단위 비트마스크 DP\"는 한 행을 통째로 전이하지만(상태 2^C, 행 간 전이가 복잡), 윤곽선 DP는 <b>왼쪽 위에서 오른쪽 아래로 한 칸씩</b> 처리하며 상태로 <b>\"현재 칸 주변의 경계(윤곽선)\"</b> 즉 \"바로 위 칸들과 왼쪽 칸이 채워졌는지\"를 나타내는 <b>C+1비트 마스크</b>를 유지합니다(C=열 수). 한 칸에서의 전이는 단순합니다: 그 칸을 ① <b>비워 두기</b>(위에서 채워질 것), ② <b>가로 도미노</b>(왼쪽 칸과 짝), ③ <b>세로 도미노</b>(위 칸과 짝) 중 격자·마스크가 허용하는 것으로 — 각 전이가 마스크의 해당 비트만 갱신해 O(1)~O(상수). 전체 시간 <b>O(n·m·2^C)</b>(n·m=칸 수, C=좁은 쪽 차원이 되도록 격자를 회전). 행 단위 DP 대비 장점: 전이가 \"한 칸\"이라 단순하고 일반화(타일 모양·금지 칸·가중치)가 쉬움. 쓰임: <b>도미노/트로미노 타일링 경우의 수</b>, 격자 최대 독립집합/매칭, 좁은 폭 그리드의 최적 배치, 한 변이 작은 직사각형 문제. \"행 전체 말고 칸 하나씩, 경계만 기억\"이 핵심입니다.",
+   "more_en": "<b>Broken profile DP (plug DP)</b> solves grid-filling problems (domino/tiling, placements on a grid) by progressing <b>cell by cell</b> with a bitmask state. Plain \"row-by-row bitmask DP\" transitions a whole row at once (state 2^C, complex inter-row transitions), whereas broken profile DP processes <b>one cell at a time from top-left to bottom-right</b>, keeping as state the <b>\"boundary (profile) around the current cell\"</b> — a <b>(C+1)-bit mask</b> recording whether the cells just above and to the left are filled (C = number of columns). The per-cell transition is simple: place the cell as ① <b>left empty</b> (to be filled from above), ② a <b>horizontal domino</b> (paired with the left cell), or ③ a <b>vertical domino</b> (paired with the cell above), among those the grid/mask allow — each transition updates only the relevant mask bits in O(1)~constant. Total time <b>O(n·m·2^C)</b> (n·m = cells, with the grid rotated so C is the smaller dimension). Advantages over row DP: transitions are \"one cell,\" so they're simpler and easy to generalize (tile shapes, forbidden cells, weights). Uses: <b>counting domino/tromino tilings</b>, grid maximum independent set/matching, optimal placement on narrow grids, rectangle problems with one small side. The crux: \"one cell at a time, remember only the boundary.\"",
+   "problem": {
+    "q": "윤곽선 DP가 '행 단위' 비트마스크 DP보다 전이가 단순하고 효율적인 이유는?",
+    "solution": "행 단위는 한 행 전체(2^C 상태)를 한꺼번에 전이해 행 간 호환성 계산이 복잡합니다. 윤곽선 DP는 <b>칸 하나씩</b> 진행하며 \"위·왼쪽 채움 여부\"인 경계 마스크만 보므로, 전이가 <b>빈칸/가로/세로 도미노 몇 가지</b>로 단순하고 각 전이가 마스크 비트만 갱신해 일반화·구현이 쉽습니다.",
+    "q_en": "Why are transitions simpler and more efficient in broken profile DP than 'row-by-row' bitmask DP?",
+    "sol_en": "Row DP transitions an entire row (2^C states) at once, with complex inter-row compatibility. Broken profile DP advances <b>one cell at a time</b>, looking only at the boundary mask (above/left filled), so transitions are a few simple choices (empty / horizontal / vertical domino), each updating just mask bits — easy to generalize and implement."
+   }
+  },
+  "algo_br_expdp": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "기댓값 DP — 확률 점화식으로 평균을 구하기",
+   "narr": "\"이 게임은 평균 몇 턴 만에 끝날까?\" 같은 <b>기댓값</b>을, 상태별 점화식 <b>E[상태] = Σ 확률·(비용 + E[다음])</b>으로 푸는 것이 기댓값 DP입니다. 선형성과 후방 계산이 열쇠입니다.",
+   "hint": "",
+   "more": "<b>기댓값 DP(expected value DP)</b>는 무작위 과정의 <b>기대 횟수·비용·점수</b>를 동적 계획법으로 구합니다. 핵심은 <b>기댓값의 선형성</b> E[X+Y]=E[X]+E[Y]와, 상태를 다음 상태들의 기댓값으로 잇는 점화식: <b>E[상태] = Σ over 다음 (그 전이 확률) · ( 그 전이 비용 + E[다음 상태] )</b>. 예: 매 턴 확률 p로 한 칸, 1−p로 두 칸 전진하면 E[n] = 1 + p·E[n−1] + (1−p)·E[n−2](경계 E[0]=0 등). 계산 방향: 보통 <b>흡수 상태(끝)부터 거꾸로</b>(역방향 DP) 채웁니다 — 마지막 상태의 기댓값이 0/확정이고, 거기서 앞으로. 주의점: ① <b>자기 참조(같은 상태로 돌아오는 루프)</b>가 있으면 E가 양변에 나타나므로, 그 상태들에 대해 <b>연립 일차방정식</b>을 세워 가우스 소거로 풉니다(예: E[s] = 1 + q·E[s] + … → E[s] 정리). ② 무한히 계속될 수 있으면(예: 성공까지 반복) <b>등비급수</b>로 닫힌 형태(기대 시행 = 1/p 등). ③ \"확률·기댓값을 곱해 더한다\"를 헷갈리지 말 것 — 조건부 기댓값을 전확률로 전개. 쓰임: 주사위/보드게임 <b>기대 턴 수</b>, 랜덤워크 <b>도달/흡수 시간</b>, <b>쿠폰 수집가</b>(모든 종류 모으는 기대 = nHₙ), 카드 뽑기·뽑기 기대 횟수, 무작위 알고리즘 분석. \"상태마다 기댓값, 선형성으로 분해, 루프는 연립\"이 한 줄 요약입니다.",
+   "more_en": "<b>Expected value DP</b> computes the <b>expected count, cost, or score</b> of a random process via dynamic programming. The keys are <b>linearity of expectation</b> E[X+Y]=E[X]+E[Y] and a recurrence linking a state to its successors' expectations: <b>E[state] = Σ over next (transition probability) · ( transition cost + E[next state] )</b>. Example: advancing 1 cell with probability p and 2 with 1−p each turn gives E[n] = 1 + p·E[n−1] + (1−p)·E[n−2] (with boundaries like E[0]=0). Direction: usually fill <b>backward from absorbing (end) states</b>, whose expectation is 0/known, toward the front. Caveats: ① if there is a <b>self-loop (returning to the same state)</b>, E appears on both sides, so set up <b>linear equations</b> for those states and solve by Gaussian elimination (e.g. E[s] = 1 + q·E[s] + … → solve for E[s]); ② if it can continue forever (e.g. repeat until success), use a <b>geometric series</b> for a closed form (expected trials = 1/p, etc.); ③ don't confuse the \"sum of probability × expectation\" — expand by total expectation. Uses: expected number of turns in dice/board games, <b>hitting/absorption times</b> of random walks, the <b>coupon collector</b> (expected = nHₙ), expected draws in card/gacha problems, analysis of randomized algorithms. One-liner: \"an expectation per state, decompose by linearity, solve loops as a linear system.\"",
+   "problem": {
+    "q": "기댓값 DP에서 한 상태가 자기 자신으로 돌아오는(루프) 경우는 어떻게 푸나?",
+    "solution": "E가 점화식 <b>양변에 나타나므로</b> 그냥 대입이 안 됩니다. 그 상태(들)에 대해 <b>연립 일차방정식</b>을 세워 풉니다. 예: E[s] = 1 + q·E[s] + (1−q)·E[next] 이면 E[s] − q·E[s] = 1 + (1−q)E[next] → <b>E[s] = (1 + (1−q)E[next]) / (1−q)</b>. 여러 상태가 얽히면 가우스 소거로.",
+    "q_en": "How do you solve expected-value DP when a state loops back to itself?",
+    "sol_en": "E appears on <b>both sides</b> of the recurrence, so you can't just substitute. Set up <b>linear equations</b> for that state (or states) and solve. E.g. E[s] = 1 + q·E[s] + (1−q)·E[next] gives E[s] − q·E[s] = 1 + (1−q)E[next] → <b>E[s] = (1 + (1−q)E[next]) / (1−q)</b>; with several coupled states, use Gaussian elimination."
+   }
+  },
+  "algo_br_boundedknapsack": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "다중 배낭 — 개수 제한 물건을 빠르게",
+   "narr": "0/1 배낭은 각 물건 1개, 완전 배낭은 무제한. 그 사이 \"각 물건 <b>최대 k개</b>\"인 <b>다중 배낭</b>은 k개를 하나씩 넣으면 느립니다. <b>이진 분할</b>이나 <b>단조 덱</b>으로 가속합니다.",
+   "hint": "",
+   "more": "<b>다중 배낭(bounded knapsack)</b>은 각 물건을 <b>최대 kᵢ개</b>까지 담을 수 있는 배낭 문제입니다(0/1=1개, 완전=무제한의 중간). 순진하게 \"물건 i를 j개 담는다(j=0..kᵢ)\"를 모두 시도하면 O(N·W·max k)로 느립니다. 두 가지 가속: ① <b>이진 분할(binary splitting)</b> — 개수 kᵢ를 <b>1, 2, 4, …, 2^(t-1), (나머지)</b> 묶음으로 쪼갭니다. 이 묶음들의 부분합으로 0~kᵢ 어떤 개수든 정확히 표현되므로(이진 표현), 각 묶음을 \"한 덩어리 물건\"으로 보는 <b>0/1 배낭</b>으로 환원 → 시간 <b>O(N·W·Σ log kᵢ)</b>. 구현이 매우 단순해 실전 1순위. ② <b>단조 덱(monotonic deque) 최적화</b> — 무게 wᵢ로 나눈 <b>나머지(residue)류별</b>로 dp를 보면, 점화가 \"고정 길이 윈도우 안 최댓값(가치 보정 포함)\"이 되어 <b>슬라이딩 윈도우 최대(단조 덱)</b>로 각 W를 상수 시간에 → 전체 <b>O(N·W)</b>(이론상 최적). 양끝 변형: <b>완전 배낭</b>은 1차원 dp를 무게 <b>정방향</b>으로(같은 물건 재사용 허용), <b>0/1 배낭</b>은 <b>역방향</b>으로(한 번만). 다중은 그 사이를 위 두 기법으로 메웁니다. 쓰임: 한정 수량 동전/상품, 자원 배분, 생산 계획. \"개수 제한은 이진 분할(쉬움) 또는 단조 덱(최적)\"이 핵심입니다.",
+   "more_en": "The <b>bounded knapsack</b> allows each item up to <b>kᵢ copies</b> (between 0/1 = one copy and unbounded = unlimited). Naively trying \"take j copies of item i (j=0..kᵢ)\" is slow at O(N·W·max k). Two speedups: ① <b>binary splitting</b> — break kᵢ into groups <b>1, 2, 4, …, 2^(t-1), (remainder)</b>. Subset sums of these groups represent any count 0~kᵢ exactly (binary representation), so treating each group as one \"bundled item\" reduces it to a <b>0/1 knapsack</b> → time <b>O(N·W·Σ log kᵢ)</b>. Very simple to implement, the go-to in practice. ② <b>monotonic deque optimization</b> — viewing dp per <b>residue class modulo the weight wᵢ</b>, the recurrence becomes a \"max within a fixed-length window (with a value offset),\" handled by a <b>sliding-window maximum (monotonic deque)</b> in O(1) per W → total <b>O(N·W)</b> (theoretically optimal). The two ends: <b>unbounded knapsack</b> uses 1D dp scanned <b>forward</b> by weight (reuse allowed); <b>0/1 knapsack</b> scans <b>backward</b> (once each); bounded fills the gap with the two techniques above. Uses: limited-supply coins/goods, resource allocation, production planning. The crux: \"a count cap → binary splitting (easy) or monotonic deque (optimal).\"",
+   "problem": {
+    "q": "다중 배낭에서 개수 13개를 1,2,4,6으로 이진 분할하는 것이 왜 옳은가?",
+    "solution": "1,2,4는 2의 거듭제곱이고 6은 나머지(13−1−2−4=6)입니다. 이 묶음들의 <b>부분합으로 0부터 13까지 모든 정수</b>를 정확히 만들 수 있어(예: 9=1+2+6, 7=1+6, 13=전부), \"j개 담기\"를 묶음 단위 <b>0/1 배낭</b>으로 환원할 수 있습니다. 그래서 O(k) 대신 O(log k) 묶음으로 충분합니다.",
+    "q_en": "Why is splitting a count of 13 into 1,2,4,6 correct in bounded knapsack?",
+    "sol_en": "1,2,4 are powers of two and 6 is the remainder (13−1−2−4=6). Subset sums of these bundles make <b>every integer from 0 to 13</b> exactly (e.g. 9=1+2+6, 7=1+6, 13=all), so \"take j copies\" reduces to a <b>0/1 knapsack</b> over bundles — O(log k) bundles instead of O(k)."
+   }
+  },
+  "algo_br_edmondskarp": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "에드몬즈-카프 — BFS로 최단 증대 경로",
+   "narr": "포드-풀커슨 최대유량법은 \"증대 경로를 아무거나\" 고르면 종료가 보장되지 않을 수 있습니다. <b>에드몬즈-카프</b>는 증대 경로를 <b>BFS(간선 수 최소)</b>로 고르기만 하면, 항상 <b>O(V·E²)</b>에 끝납니다.",
+   "hint": "",
+   "more": "<b>에드몬즈-카프(Edmonds-Karp) 알고리즘</b>은 <b>포드-풀커슨(Ford-Fulkerson) 최대유량법</b>을 구체화한 것으로, 매 단계 <b>증대 경로(augmenting path)를 BFS로</b> 고릅니다. 포드-풀커슨의 틀: <b>잔여 그래프(residual graph)</b>에서 s→t 경로를 찾아 그 경로의 <b>병목 용량만큼 흘리고</b>, 역방향 잔여 간선을 갱신하기를 더 이상 경로가 없을 때까지 반복하면 최대유량이 됩니다(최대유량-최소컷 정리). 문제는 \"아무 경로나\" 고르면 무리수 용량에서 종료가 안 되거나 매우 느릴 수 있다는 것. 에드몬즈-카프의 처방: <b>항상 간선 수가 가장 적은 최단 경로를 BFS로</b> 선택합니다. 핵심 보조정리: BFS 최단 경로를 쓰면 \"s에서 각 정점까지의 잔여 최단거리가 단조 비감소\"이고, 한 간선이 <b>병목(포화)이 되어 사라졌다 다시 나타나기까지 그 거리가 최소 2 증가</b>합니다 — 그래서 각 간선이 병목이 되는 횟수가 O(V), 총 증대 횟수 O(VE), 각 BFS가 O(E)라 전체 <b>O(V·E²)</b>(용량 값과 무관, 정수가 아니어도 종료 보장). 이는 <b>디닉(Dinic) 알고리즘</b>의 토대로, 디닉은 \"한 번의 BFS 레벨 그래프에서 여러 증대 경로를 한꺼번에(블로킹 플로우)\" 흘려 <b>O(V²E)</b>로 더 빠릅니다(단위 용량/이분 매칭이면 O(E√V)=호프크로프트-카프). 쓰임: 최대유량·최소컷, 이분 매칭, 프로젝트 선택, 이미지 분할. \"증대 경로를 BFS 최단으로\"가 에드몬즈-카프의 전부입니다.",
+   "more_en": "<b>Edmonds-Karp</b> is a concrete realization of the <b>Ford-Fulkerson maximum-flow method</b> that chooses each <b>augmenting path by BFS</b>. Ford-Fulkerson's framework: in the <b>residual graph</b>, find an s→t path, push flow equal to its <b>bottleneck capacity</b>, update reverse residual edges, and repeat until no path remains — yielding the max flow (max-flow/min-cut theorem). The catch: picking \"any path\" may not terminate (with irrational capacities) or be very slow. Edmonds-Karp's fix: always pick the <b>shortest path (fewest edges) via BFS</b>. Key lemma: with BFS shortest paths, the residual shortest distance from s to each vertex is non-decreasing, and an edge that becomes the <b>bottleneck (saturates) and later reappears</b> has that distance increase by at least 2 — so each edge is a bottleneck O(V) times, giving O(VE) augmentations, each BFS O(E), total <b>O(V·E²)</b> (independent of capacity values, terminating even for non-integers). It is the basis of <b>Dinic's algorithm</b>, which pushes many augmenting paths at once (a blocking flow) per BFS level graph for a faster <b>O(V²E)</b> (O(E√V) for unit-capacity/bipartite matching = Hopcroft-Karp). Uses: max flow/min cut, bipartite matching, project selection, image segmentation. \"Augment along the BFS-shortest path\" is all of Edmonds-Karp.",
+   "problem": {
+    "q": "포드-풀커슨에서 증대 경로를 BFS(최단)로 고르면 무엇이 보장되는가?",
+    "solution": "<b>다항 시간 종료(O(VE²))</b>가 보장됩니다. BFS 최단 경로를 쓰면 s에서 각 정점까지의 잔여 최단거리가 단조 비감소하고, 한 간선이 병목으로 포화됐다 다시 쓰이려면 그 거리가 최소 2 늘어야 하므로 각 간선이 병목 되는 횟수가 O(V) → 증대 O(VE)회, BFS O(E) → 전체 O(VE²)(용량 크기·무리수와 무관).",
+    "q_en": "What does choosing augmenting paths by BFS (shortest) guarantee in Ford-Fulkerson?",
+    "sol_en": "<b>Polynomial termination, O(VE²)</b>. With BFS-shortest paths, residual distances from s are non-decreasing, and an edge that saturates and is reused needs that distance to grow by at least 2, so each edge is a bottleneck O(V) times → O(VE) augmentations × O(E) per BFS = O(VE²), regardless of capacity magnitudes or irrationality."
+   }
   }
 }
