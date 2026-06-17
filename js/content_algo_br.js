@@ -2741,6 +2741,104 @@
       ctx.fillText('온도 T가 높으면 거의 무작위 탐색, 낮아지면 점점 욕심내기. 천천히 식히면(냉각 스케줄) 전역해로 수렴', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('금속을 천천히 식혀 결정 결함을 없애는 담금질에서 따옴. NP-난해 최적화(TSP·배치)의 메타휴리스틱', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_karatsuba', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('카라츠바 — 곱셈 4번을 3번으로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('큰 수를 반으로 쪼개 곱하면 곱셈 4번. 한 번을 덧셈으로 대체해 O(n^1.585)', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('x = a·Bⁿ + b,   y = c·Bⁿ + d   →   xy = ac·B²ⁿ + (ad+bc)·Bⁿ + bd', W/2, H*0.30);
+      // three products boxes
+      var boxes=[['z₂ = a·c','#7ab8ff'],['z₀ = b·d','#7ab8ff'],['z₁ = (a+b)(c+d) − z₂ − z₀','#ffb27a']];
+      var by=H*0.42;
+      boxes.forEach(function(b,i){ var y=by+i*44;
+        ctx.fillStyle=b[1]==='#ffb27a'?'rgba(255,178,122,0.16)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=b[1]; ctx.lineWidth=2;
+        ctx.fillRect(W*0.28,y,W*0.44,34); ctx.strokeRect(W*0.28,y,W*0.44,34);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(b[0],W*0.5,y+22); });
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('ad+bc = z₁ — 따로 두 번 곱하지 않고 z₁ 한 번으로! (곱셈 3번)', W/2, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('점화식 T(n)=3·T(n/2)+O(n) → 마스터 정리로 O(n^log₂3) ≈ O(n^1.585)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('학교 곱셈 O(n²)보다 빠름(큰 수에서). 더 빠른 건 FFT/NTT O(n log n). 스트라센의 정수판 사촌', W/2, H*0.80+20); }
+  },
+
+  { id:'algo_br_lagrange', concept:true, branchOf:'algo8_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('라그랑주 보간 — 점들을 지나는 다항식 한 개', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('서로 다른 n+1개 점을 지나는 n차 다항식은 유일. 그것을 바로 적어 내는 공식', W/2, H*0.10+22);
+      // plot points and a smooth curve through them
+      var px=[0.20,0.40,0.62,0.82], py=[0.66,0.40,0.58,0.34];
+      function X(t){return W*0.1+t*W*0.8;} function Y(t){return H*0.24+t*H*0.5;}
+      // curve (just a wavy interpolation visual)
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var i=0;i<px.length;i++){ var x=X(px[i]),y=Y(py[i]); if(i===0)ctx.moveTo(x,y); else { var pxm=X((px[i-1]+px[i])/2); ctx.quadraticCurveTo(pxm,Y(py[i-1]),x,y);} } ctx.stroke();
+      for(var i=0;i<px.length;i++){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(X(px[i]),Y(py[i]),6,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText('(x'+i+', y'+i+')',X(px[i]),Y(py[i])-12); }
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('P(x) = Σ yᵢ · ℓᵢ(x),   ℓᵢ(x) = ∏(j≠i) (x − xⱼ)/(xᵢ − xⱼ)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('기저 ℓᵢ는 xᵢ에서 1, 다른 xⱼ에서 0 → 합치면 모든 점을 정확히 통과. O(n²)로 한 점 평가', W/2, H*0.80+20);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 거듭제곱 합 같은 다항식 수열 외삽, 비밀 분산(샤미르), 수치해석. 같은 점=같은 다항식(유일성)', W/2, H*0.80+38); }
+  },
+
+  { id:'algo_br_newton', concept:true, branchOf:'algo4_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('뉴턴법 — 접선을 타고 뿌리로 미끄러지기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('f(x)=0 의 해를, 접선이 x축과 만나는 점으로 갱신하며 빠르게(이차 수렴) 찾기', W/2, H*0.10+22);
+      // curve f, tangent lines stepping toward root
+      var ax=W*0.12, bx2=W*0.88, axisY=H*0.66;
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ax,axisY); ctx.lineTo(bx2,axisY); ctx.stroke();
+      function fx(x){ var t=(x-ax)/(bx2-ax); return axisY - (Math.pow((t-0.2)*2.0,2)*1.0 - 0.6)*H*0.22; } // parabola-ish, root near t=0.2+
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var x=ax;x<=bx2;x+=4){ var y=fx(x); if(x===ax)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke();
+      // iteration points x0 -> x1 -> x2
+      var xs=[0.80,0.55,0.40].map(function(t){return ax+t*(bx2-ax);});
+      ctx.font='12px sans-serif';
+      xs.forEach(function(xv,i){ var fy=fx(xv);
+        ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.moveTo(xv,fy); ctx.lineTo(xv,axisY); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(xv,axisY,4,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#8a8893'; ctx.fillText('x'+i,xv,axisY+18); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('현재 점에서 접선을 그어 x축과 만나는 곳이 다음 추정. 좋은 시작점이면 자릿수가 매 반복 두 배(이차 수렴)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('√a 는 f(x)=x²−a 에 적용 → xₙ₊₁=(xₙ+a/xₙ)/2. 단, 시작점·다중근에서는 발산 주의(이분탐색은 안전)', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_tonelli', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('토넬리-샹크스 — 모듈러 제곱근 구하기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('x² ≡ a (mod p) 를 만족하는 x를 찾기. 소수 p 위에서 "제곱근"을 푸는 법', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('예: x² ≡ 2 (mod 7)  →  x = 3  (3² = 9 ≡ 2)', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['1) 먼저 a가 제곱수인지: 오일러 판정 a^((p−1)/2) ≡ 1 (mod p) 이어야 해(이차잉여)',
+        '2) p ≡ 3 (mod 4) 인 쉬운 경우: x = a^((p+1)/4) mod p 로 끝',
+        '3) 일반 p: p−1 = Q·2^S 로 분해하고, 비잉여 z를 하나 골라',
+        '4) 보정 인자를 단계마다 제곱해 "2의 거듭제곱 차수"를 0으로 줄여 감'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.42+i*26); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('기대 O(log² p). RSA·타원곡선 암호, 이차잉여 기반 알고리즘에서 핵심 부품', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('정수 제곱근(√ 정수부)과 다름 주의 — 이건 "모듈러 세계의 제곱근". 합성수 모듈러는 인수분해+CRT', W/2, H*0.86+20); }
   }
 
   ];
