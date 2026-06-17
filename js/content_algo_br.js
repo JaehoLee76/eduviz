@@ -2839,6 +2839,107 @@
       ctx.fillText('기대 O(log² p). RSA·타원곡선 암호, 이차잉여 기반 알고리즘에서 핵심 부품', W/2, H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('정수 제곱근(√ 정수부)과 다름 주의 — 이건 "모듈러 세계의 제곱근". 합성수 모듈러는 인수분해+CRT', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_segbeats', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('세그먼트 트리 빔즈 — 구간에 min을 "찍는" 갱신', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"구간의 각 원소를 X와의 최솟값으로 바꾸기" 같은 갱신을 분할상환 O(log² n)에', W/2, H*0.10+22);
+      // segment tree storing max, 2nd max, count of max
+      var nodes=[[0.5,0.30,'최댓값 9','2nd 7 · 개수 1'],[0.28,0.55,'9 / 7','×1'],[0.72,0.55,'5 / 3','×1']];
+      function xy(t){ return [W*0.12+t[0]*W*0.76, H*0.24+t[1]*H*0.4]; }
+      ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
+      [[0,1],[0,2]].forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      nodes.forEach(function(n,i){ var p=xy(n);
+        ctx.fillStyle=i===0?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=i===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.fillRect(p[0]-66,p[1]-22,132,44); ctx.strokeRect(p[0]-66,p[1]-22,132,44);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(n[2],p[0],p[1]-2);
+        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(n[3],p[0],p[1]+14); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 노드에 [최댓값, 두 번째 최댓값, 최댓값 개수] 저장이 핵심', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('chmin(X): X ≥ 최댓값이면 건너뛰고, 2nd < X < 최댓값이면 최댓값만 일괄 감소(빠른 종료), 아니면 재귀', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('이 "빔(beats)" 가지치기로 구간 chmin/chmax + 합/최댓값 질의가 분할상환 O(log² n). 지전이 분석', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_lichao', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('리 차오 트리 — 직선들의 하한선을 트리로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('여러 직선 중 한 점에서 최솟값을 주는 직선 찾기를 O(log n)에 (기울기 순서 무관)', W/2, H*0.10+22);
+      // several lines and their lower envelope
+      var ax=W*0.14, bx2=W*0.86, ay=H*0.30, by2=H*0.70;
+      function clip(x,y){ return [x, Math.max(ay,Math.min(by2,y))]; }
+      var lines=[[0.0,by2,1.0,ay+H*0.18],[0.0,ay+H*0.12,1.0,by2-H*0.05],[0.0,ay+H*0.30,1.0,ay+H*0.30]];
+      var cols=['#7ab8ff','#8fe3b5','#9a86ff'];
+      lines.forEach(function(L,i){ ctx.strokeStyle=cols[i]; ctx.lineWidth=2; ctx.beginPath();
+        ctx.moveTo(ax+L[0]*(bx2-ax),L[1]); ctx.lineTo(ax+L[2]*(bx2-ax),L[3]); ctx.stroke(); });
+      // lower envelope (min) bold
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=4; ctx.beginPath();
+      for(var t=0;t<=1.001;t+=0.02){ var ys=lines.map(function(L){return L[1]+(L[3]-L[1])*t;}); var ymin=Math.max.apply(null,ys); // max y = lowest on screen since y down
+        var x=ax+t*(bx2-ax); if(t===0)ctx.moveTo(x,ymin); else ctx.lineTo(x,ymin);} ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('— 하한 포락선(매 x의 최솟값)', ax, by2+26); ctx.textAlign='center';
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('x좌표 구간을 노드로: 각 노드에 "그 구간 중앙을 지배하는 직선" 하나 보관', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('새 직선 삽입: 중앙에서 더 낮은 쪽을 노드에 두고, 교차하는 절반으로만 재귀 → 삽입·질의 O(log n)', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('볼록 껍질 트릭(CHT)과 같은 일을, 기울기 정렬 없이 처리. DP 가속(직선=상태 전이비용)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_burnside', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('번사이드 보조정리 — 대칭을 같게 보고 세기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('회전·반사로 겹치는 배치를 하나로 셀 때, "고정점의 평균"이 답', W/2, H*0.10+22);
+      // necklace of beads with rotation
+      var cx=W/2, cy=H*0.44, r=H*0.16, beads=6;
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      var colors=['#7ab8ff','#ffb27a','#7ab8ff','#8fe3b5','#ffb27a','#8fe3b5'];
+      for(var i=0;i<beads;i++){ var a=-Math.PI/2+i*2*Math.PI/beads; var x=cx+r*Math.cos(a), y=cy+r*Math.sin(a);
+        ctx.fillStyle=colors[i]; ctx.beginPath(); ctx.arc(x,y,11,0,Math.PI*2); ctx.fill(); }
+      // rotation arrow
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,r*0.5,-0.6,1.6); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('회전 대칭', cx, cy+4);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('서로 다른 배치 수 = (1/|G|) · Σ(g∈G) |g가 고정하는 배치 수|', W/2, H*0.70);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 대칭 변환 g마다 "g를 적용해도 그대로인 색칠 수"를 세어 평균 — 궤도(같은 것끼리)의 개수', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('폴리아 열거 정리로 확장(고정점 = 순환마디 수의 거듭제곱). 목걸이·주사위 색칠·동형 그래프 세기', W/2, H*0.90); }
+  },
+
+  { id:'algo_br_dlx', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('댄싱 링크(DLX) — 정확 덮개를 우아하게 백트래킹', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"각 열을 정확히 한 번씩 덮는 행 집합 고르기"(정확 덮개)를, 이중 연결 리스트로 빠르게', W/2, H*0.10+22);
+      // exact cover matrix
+      var M=[[1,0,0,1,0],[0,1,1,0,0],[1,0,0,0,1],[0,1,0,0,1],[0,0,1,1,0]];
+      var bx=W*0.34, by=H*0.30, cw=40;
+      ctx.font='12px sans-serif';
+      for(var c=0;c<5;c++){ ctx.fillStyle='#6a6873'; ctx.fillText('열'+(c+1),bx+c*cw+cw/2,by-8); }
+      for(var r=0;r<5;r++){ ctx.fillStyle='#6a6873'; ctx.textAlign='right'; ctx.fillText('행'+(r+1),bx-8,by+r*30+20); ctx.textAlign='center';
+        for(var c=0;c<5;c++){ var x=bx+c*cw,y=by+r*30; var on=M[r][c]===1;
+          ctx.fillStyle=on?'rgba(143,227,181,0.3)':'rgba(122,184,255,0.06)'; ctx.strokeStyle=on?'#8fe3b5':'#36405a'; ctx.lineWidth=on?2:1;
+          ctx.fillRect(x,y,cw-6,26); ctx.strokeRect(x,y,cw-6,26);
+          if(on){ ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.fillText('1',x+(cw-6)/2,y+18); ctx.font='12px sans-serif'; } } }
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('해: 행1{1,4} + 행2{2,3} + 행4{?}… 모든 열을 정확히 한 번 덮는 조합', W/2, H*0.70);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('Algorithm X: 가장 1이 적은 열 선택 → 그 열을 덮는 행을 시도 → 충돌 행·열을 리스트에서 "제거"', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('이중 연결 리스트라 제거/복원이 포인터 몇 개로 O(1)(춤추듯) → 백트래킹 초고속. 스도쿠·N-퀸·펜토미노', W/2, H*0.90); }
   }
 
   ];

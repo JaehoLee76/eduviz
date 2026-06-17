@@ -2083,5 +2083,65 @@
     "q_en": "Why is a^((p+1)/4) a square root of a when p ≡ 3 (mod 4)?",
     "sol_en": "Squaring x = a^((p+1)/4) gives x² = a^((p+1)/2) = a · a^((p−1)/2). If a is a quadratic residue then a^((p−1)/2) ≡ 1 (Euler's criterion), so x² ≡ a. The exponent (p+1)/4 is an integer exactly when p ≡ 3 (mod 4)."
    }
+  },
+  "algo_br_segbeats": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+   "title": "세그먼트 트리 빔즈 — 구간 chmin 갱신",
+   "narr": "보통 세그먼트 트리는 \"구간에 더하기\"는 lazy로 쉽게 합니다. 그런데 \"<b>구간의 각 원소를 X와의 최솟값으로</b>\"(chmin) 같은 갱신은 lazy로 안 됩니다. <b>세그먼트 트리 빔즈</b>는 노드에 정보를 더 들고 영리한 가지치기로 분할상환 <b>O(log² n)</b>에 해냅니다.",
+   "hint": "",
+   "more": "<b>세그먼트 트리 빔즈(Segment Tree Beats, Ji Driver Segment Tree)</b>는 일반 세그먼트 트리로는 어려운 <b>구간 chmin/chmax</b>(구간의 모든 원소를 aᵢ ← min(aᵢ, X) 로) 갱신을 <b>구간 합·최댓값 질의</b>와 함께 분할상환 <b>O(log² n)</b>에 처리합니다. 핵심은 각 노드에 <b>[최댓값, 둘째 최댓값(strict), 최댓값의 개수]</b>(필요시 합도)를 저장하는 것입니다. <b>chmin(구간, X)</b>를 노드에 적용할 때 세 경우로 나눕니다: ① <b>X ≥ 최댓값</b>이면 아무 변화 없음 → 즉시 종료, ② <b>둘째 최댓값 < X < 최댓값</b>이면 \"최댓값들만\" X로 깎이므로, <b>최댓값과 합만 일괄 갱신</b>하고 더 내려가지 않음(빠른 종료 — 이것이 lazy 역할), ③ <b>X ≤ 둘째 최댓값</b>이면 더 쪼개야 하니 자식으로 재귀. 분할상환 분석(둘째 최댓값이 만드는 \"서로 다른 값의 층\" 수가 갱신마다 줄어든다는 퍼텐셜)으로 총 <b>O((n+q) log² n)</b>가 보장됩니다. 확장: 구간 chmin·chmax·구간합·최솟값까지 동시에, 히스토릭 최댓값(과거 최대) 추적 등. \"lazy로 못 미루는 비선형 갱신을, 노드에 둘째값을 들고 빠른 종료로 미룬다\"가 한 줄 요약입니다.",
+   "more_en": "<b>Segment Tree Beats</b> handles <b>range chmin/chmax</b> updates (set every element in a range to aᵢ ← min(aᵢ, X)) together with <b>range sum/max queries</b> in amortized <b>O(log² n)</b> — something a plain lazy segment tree can't do. The key is storing at each node <b>[max, strict second max, count of max]</b> (and sum if needed). Applying <b>chmin(range, X)</b> to a node splits into three cases: ① <b>X ≥ max</b> → no change, return immediately; ② <b>second max < X < max</b> → only the maxima get lowered to X, so <b>update just max and sum in bulk</b> and don't recurse (a fast break — this plays lazy's role); ③ <b>X ≤ second max</b> → must split, recurse into children. An amortized analysis (a potential counting the distinct-value \"layers\" the second max creates, which shrink per update) guarantees total <b>O((n+q) log² n)</b>. Extensions: simultaneous chmin/chmax/range-sum/min, historic-maximum tracking, etc. One-liner: \"defer the non-linear update that lazy can't, by keeping the second value and breaking early.\"",
+   "problem": {
+    "q": "세그먼트 트리 빔즈에서 노드에 '둘째 최댓값'을 저장하는 이유는?",
+    "solution": "chmin(X) 갱신이 \"<b>둘째 최댓값 < X < 최댓값</b>\"일 때, 최댓값들만 X로 깎이고 나머지는 그대로입니다. 둘째 최댓값을 알면 이 경우를 판별해 <b>최댓값·합만 일괄 갱신하고 재귀를 멈출</b> 수 있어(빠른 종료) 분할상환 O(log² n)이 됩니다.",
+    "q_en": "Why does Segment Tree Beats store the 'second maximum' at each node?",
+    "sol_en": "When a chmin(X) update has <b>second max < X < max</b>, only the maxima are lowered to X and the rest are unchanged. Knowing the second max lets you detect this case and <b>update just max/sum in bulk and stop recursing</b> (a fast break), yielding amortized O(log² n)."
+   }
+  },
+  "algo_br_lichao": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "리 차오 트리 — 직선들의 하한 포락선",
+   "narr": "여러 <b>직선</b> 중 주어진 x에서 <b>최솟값을 주는 직선</b>을 빠르게 찾고 싶을 때, 볼록 껍질 트릭(CHT)은 기울기 정렬이 필요합니다. <b>리 차오 트리</b>는 정렬 없이, 직선 삽입·질의를 모두 <b>O(log n)</b>에 합니다.",
+   "hint": "",
+   "more": "<b>리 차오 트리(Li Chao Tree)</b>는 직선(또는 아래로 볼록한 함수)들의 집합에서, 임의의 x에 대한 <b>최솟값(또는 최댓값)을 주는 직선</b>을 찾는 자료구조입니다. x좌표 범위를 <b>세그먼트 트리</b>처럼 재귀 구간으로 나누고, <b>각 노드에 \"그 구간의 중점을 지배하는 직선\" 하나</b>를 보관합니다. <b>직선 삽입</b>: 노드에서 새 직선과 기존 직선을 <b>중점에서 비교</b>해 더 낮은 쪽을 그 노드에 남기고, 두 직선이 교차하는 것은 <b>왼쪽 절반이나 오른쪽 절반 중 한쪽에서만</b>이므로(직선은 한 번만 교차), 더 좋아질 가능성이 있는 <b>그 절반으로만 재귀</b>합니다 — 깊이 O(log n). <b>질의(x에서 최솟값)</b>: 루트에서 x를 포함하는 경로를 따라 내려가며 각 노드의 직선을 x에 대입해 최소를 취합 — 경로 길이 O(log n). 장점: <b>CHT와 달리 기울기·질의 순서에 제약이 없고</b> 구현이 단순하며, 직선뿐 아니라 \"교차가 한 번뿐인\" 함수면 됩니다. 단점: x 좌표 범위에 비례한 메모리(또는 동적 노드/좌표 압축). 쓰임: <b>DP 점화식 가속</b>(전이 비용이 \"기울기·절편이 상태에 의존하는 직선\" 꼴, 예: dp[i]=min_j(dp[j]+b[j]·a[i]) 형태)에서 O(n²)을 <b>O(n log n)</b>으로.",
+   "more_en": "A <b>Li Chao Tree</b> finds, over a set of lines (or downward-convex functions), the line giving the <b>minimum (or maximum) at any x</b>. It splits the x-range into recursive segments like a <b>segment tree</b>, storing at <b>each node one line that dominates that segment's midpoint</b>. <b>Inserting a line</b>: at a node, <b>compare the new and existing line at the midpoint</b>, keep the lower one there; since two lines cross only once, the better candidate can win only in <b>the left or the right half</b>, so <b>recurse into just that half</b> — depth O(log n). <b>Querying min at x</b>: descend the root-to-x path, evaluating each node's line at x and taking the minimum — path length O(log n). Advantages: <b>unlike CHT, no constraint on slope or query order</b>, simple to implement, and works for any \"cross-once\" functions, not just lines. Drawback: memory proportional to the x-range (or use dynamic nodes/coordinate compression). Uses: <b>speeding up DP recurrences</b> where the transition cost is a line whose slope/intercept depends on the state (e.g. dp[i]=min_j(dp[j]+b[j]·a[i])), turning O(n²) into <b>O(n log n)</b>.",
+   "problem": {
+    "q": "리 차오 트리가 직선 삽입을 O(log n)에 끝낼 수 있는 이유는?",
+    "solution": "두 직선은 <b>최대 한 번만 교차</b>합니다. 노드의 중점에서 더 낮은 직선을 남기면, 다른 직선이 더 좋아질 수 있는 곳은 <b>왼쪽 절반이나 오른쪽 절반 중 한쪽뿐</b>입니다. 그래서 그 절반으로만 재귀하면 되어 깊이가 O(log n)입니다.",
+    "q_en": "Why can a Li Chao tree insert a line in O(log n)?",
+    "sol_en": "Two lines <b>cross at most once</b>. Keeping the lower line at a node's midpoint, the other line can only become better in <b>one half (left or right)</b>, so you recurse into just that half — giving O(log n) depth."
+   }
+  },
+  "algo_br_burnside": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "번사이드 보조정리 — 대칭을 같게 보고 세기",
+   "narr": "구슬 6개로 목걸이를 만들 때, <b>회전하면 같아지는</b> 배치는 하나로 세야 합니다. 단순히 전체를 대칭 수로 나누면 틀립니다(어떤 배치는 회전해도 그대로니까). <b>번사이드 보조정리</b>는 \"<b>각 대칭이 고정하는 배치 수의 평균</b>\"이 정답임을 알려 줍니다.",
+   "hint": "",
+   "more": "<b>번사이드 보조정리(Burnside's lemma)</b>는 <b>대칭(군 G의 작용)으로 같아지는 것들을 하나로 묶어 세는</b>(서로 다른 <b>궤도</b>의 개수) 공식입니다: <b>(궤도 수) = (1/|G|) · Σ(g∈G) |Fix(g)|</b>, 여기서 <b>Fix(g)</b>는 변환 g를 적용해도 <b>그대로 유지되는 배치(고정점)의 수</b>입니다. 즉 \"전체 ÷ 대칭 수\"라는 순진한 계산을, <b>각 대칭이 고정하는 수의 평균</b>으로 바로잡은 것입니다(어떤 배치는 회전해도 같아 중복 보정이 다름). 예: 구슬 n개·색 k가지 목걸이를 <b>회전</b>(순환군 Cₙ)으로 셀 때, 회전 d칸의 고정점은 \"d칸 돌려도 같은 색칠\" = 색이 <b>gcd(n,d)개 묶음으로 일정</b>해야 하므로 k^gc(n,d). 따라서 답 = (1/n)Σ(d=0..n−1) k^gcd(n,d). <b>폴리아 열거 정리(Pólya)</b>는 이를 확장해, 각 g를 <b>순환 구조(사이클 수)</b>로 분해하면 Fix(g) = k^(사이클 수)임을 이용하고, 색마다 가중치(생성함수)까지 붙여 \"색을 몇 개씩 쓴 배치 수\"를 셉니다. 쓰임: 목걸이·팔찌(회전+반사, 이면체군), <b>주사위·정육면체 색칠</b>, 화학 이성질체 수, <b>동형이 아닌 그래프</b> 세기 등 \"대칭을 같다고 보는 모든 열거\".",
+   "more_en": "<b>Burnside's lemma</b> counts things <b>up to symmetry (a group G's action)</b> — the number of distinct <b>orbits</b>: <b>(number of orbits) = (1/|G|) · Σ(g∈G) |Fix(g)|</b>, where <b>Fix(g)</b> is the number of configurations <b>left unchanged (fixed) by g</b>. It corrects the naive \"total ÷ number of symmetries\" into the <b>average number fixed by each symmetry</b> (some configurations are symmetric, so over-count correction differs). Example: counting necklaces of n beads in k colors under <b>rotation</b> (cyclic group Cₙ), a rotation by d fixes colorings that repeat every gcd(n,d) — so k^gcd(n,d) of them; the answer is (1/n)Σ(d=0..n−1) k^gcd(n,d). <b>Pólya's enumeration theorem</b> extends this by decomposing each g into its <b>cycle structure</b> (Fix(g) = k^(#cycles)) and attaching per-color weights (generating functions) to count configurations using each color a given number of times. Uses: necklaces/bracelets (rotation + reflection, dihedral group), <b>coloring dice/cubes</b>, counting chemical isomers, counting <b>non-isomorphic graphs</b> — any enumeration where symmetric objects are considered the same.",
+   "problem": {
+    "q": "구슬 4개를 2가지 색으로 칠한 목걸이를 회전 대칭으로 세면 몇 가지인가? 번사이드로.",
+    "solution": "회전군 C₄ = {0,1,2,3칸 회전}. 고정점: 0칸=2⁴=16, 1칸=2^gcd(4,1)=2, 2칸=2^gcd(4,2)=4, 3칸=2^gcd(4,3)=2. 평균 = (16+2+4+2)/4 = 24/4 = <b>6가지</b>.",
+    "q_en": "How many necklaces of 4 beads in 2 colors are there up to rotation? Use Burnside.",
+    "sol_en": "Rotation group C₄ = {rotate by 0,1,2,3}. Fixed points: 0→2⁴=16, 1→2^gcd(4,1)=2, 2→2^gcd(4,2)=4, 3→2^gcd(4,3)=2. Average = (16+2+4+2)/4 = 24/4 = <b>6</b>."
+   }
+  },
+  "algo_br_dlx": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "댄싱 링크(DLX) — 정확 덮개 백트래킹",
+   "narr": "스도쿠·N-퀸·펜토미노는 모두 \"<b>각 조건(열)을 정확히 한 번씩 만족하는 선택(행) 집합 찾기</b>\"인 <b>정확 덮개 문제</b>입니다. <b>댄싱 링크(DLX)</b>는 이중 연결 리스트로 후보를 <b>춤추듯 제거·복원</b>하며 백트래킹을 초고속으로 만듭니다.",
+   "hint": "",
+   "more": "<b>정확 덮개(Exact Cover) 문제</b>는 0/1 행렬에서 \"<b>모든 열을 정확히 한 번씩</b> 덮는 행들의 부분집합\"을 찾는 것입니다(여러 퍼즐·배치 문제의 공통 틀). 크누스의 <b>Algorithm X</b>는 이를 백트래킹으로 풉니다: ① 남은 열 중 <b>1이 가장 적은 열</b>을 고르고(분기 수 최소화), ② 그 열을 덮는 각 <b>행을 차례로 해에 넣어 시도</b>, ③ 그 행이 덮는 열들과, 그 열들을 덮는 다른 행들을 <b>행렬에서 제거</b>한 뒤 재귀, ④ 실패하면 <b>되돌리기(복원)</b>. 이 \"제거→재귀→복원\"을 빠르게 하는 구현이 <b>댄싱 링크(Dancing Links, DLX)</b>입니다: 행렬의 1들을 <b>상하·좌우 이중 연결 리스트</b>로 엮어 두면, 한 노드를 제거하는 건 양옆 포인터를 이어 주기(node.left.right = node.right …)로 <b>O(1)</b>이고, 복원도 저장해 둔 포인터를 <b>되돌려 끼우기</b>로 O(1)입니다 — 노드가 빠졌다 들어왔다 \"춤추는\" 듯해 이름이 그렇습니다. 덕분에 백트래킹의 상태 저장·복원 비용이 거의 없어 <b>스도쿠·N-퀸·폴리오미노 채우기</b> 같은 정확 덮개를 매우 빠르게 풉니다. 본질은 알고리즘이 아니라 <b>백트래킹을 위한 자료구조 기교</b>(제거·복원 O(1))입니다.",
+   "more_en": "The <b>Exact Cover</b> problem asks, in a 0/1 matrix, for a <b>subset of rows that covers every column exactly once</b> — the common frame for many puzzles and placement problems. Knuth's <b>Algorithm X</b> solves it by backtracking: ① pick the <b>column with the fewest 1s</b> (minimize branching), ② try each <b>row covering that column</b> in the partial solution, ③ <b>remove from the matrix</b> the columns that row covers and the other rows covering those columns, then recurse, ④ on failure <b>undo (restore)</b>. The implementation that makes \"remove → recurse → restore\" fast is <b>Dancing Links (DLX)</b>: link the matrix's 1s into <b>up/down and left/right doubly linked lists</b>, so removing a node is just splicing neighbor pointers (node.left.right = node.right …) in <b>O(1)</b>, and restoring re-inserts the saved pointers in O(1) — nodes \"dance\" out and back, hence the name. With near-free state save/restore, backtracking flies through exact-cover problems like <b>Sudoku, N-Queens, polyomino tiling</b>. The essence is not an algorithm but a <b>data-structure trick for backtracking</b> (O(1) remove/restore).",
+   "problem": {
+    "q": "댄싱 링크가 백트래킹을 빠르게 만드는 핵심 기교는?",
+    "solution": "1들을 <b>상하·좌우 이중 연결 리스트</b>로 엮어 두면, 한 노드(행/열) 제거는 이웃 포인터를 이어 주기로 <b>O(1)</b>, 복원은 저장한 포인터를 <b>되끼우기</b>로 O(1)입니다. 그래서 백트래킹의 상태 제거·복원 비용이 거의 0이 됩니다.",
+    "q_en": "What is the key trick by which Dancing Links speeds up backtracking?",
+    "sol_en": "Linking the 1s into <b>up/down and left/right doubly linked lists</b> makes removing a node (row/column) O(1) by splicing neighbor pointers, and restoring O(1) by re-inserting the saved pointers — so backtracking's state remove/restore is nearly free."
+   }
   }
 }
