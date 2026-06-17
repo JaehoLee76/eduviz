@@ -1138,5 +1138,65 @@
     "q_en": "In the tree above, what is LCA(D,E) and the distance between them?",
     "sol_en": "LCA = <b>B</b> (their parent). Distance = depth[D]+depth[E]−2·depth[B] = 2+2−2·1 = <b>2</b> (D→B→E)."
    }
+  },
+  "algo_br_mcmf": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.3 최단경로·플로우 ▸ 자세히",
+   "title": "최소 비용 최대 유량 (MCMF)",
+   "narr": "최대 유량을 보내는 길은 여러 가지일 수 있습니다. 그중 <b>비용까지 최소</b>로 하고 싶다면? <b>MCMF</b>는 \"가장 싼 길부터\" 흘려 최대 유량을 채우면서 총비용도 최소로 만듭니다. 물류·작업 배정·이미지 분할의 핵심.",
+   "hint": "",
+   "more": "<b>MCMF(Min-Cost Max-Flow)</b>는 각 간선에 <b>(단위당 비용, 용량)</b>이 있을 때, <b>최대 유량</b>을 흘리되 그중 <b>총비용이 최소</b>인 방법을 찾습니다. 핵심 원리: 포드-풀커슨처럼 증가 경로를 찾되, 아무 경로가 아니라 <b>비용 기준 최단 경로</b>(SSP, Successive Shortest Paths)를 골라 흘립니다 — 이렇게 하면 각 단계가 \"현재 가장 싼 추가 유량\"이라 전체 최소비용이 보장됩니다(볼록성). 최단 경로는 <b>음수 비용</b>(잔여 그래프의 역간선)이 생기므로 <b>벨만-포드/SPFA</b>로 구하거나, <b>퍼텐셜(Johnson 기법)</b>로 비용을 비음수화해 <b>다익스트라</b>로 가속합니다. 복잡도는 대략 O(유량 × 최단경로). 쓰임: <b>이분 매칭의 가중치판(작업-인력 배정)</b>, 운송 문제, 영상 분할 등.",
+   "more_en": "<b>MCMF (Min-Cost Max-Flow)</b>: each edge has a <b>(cost per unit, capacity)</b>; push the <b>maximum flow</b> but among all max flows pick the one of <b>minimum total cost</b>. Idea: like Ford-Fulkerson but always augment along the <b>shortest path by cost</b> (Successive Shortest Paths) — since each step adds the cheapest extra unit of flow, the total is provably minimum (convexity). The shortest path can have <b>negative costs</b> (residual back-edges), so use <b>Bellman-Ford/SPFA</b>, or make costs non-negative with <b>potentials (Johnson)</b> to use <b>Dijkstra</b>. Roughly O(flow × shortest-path). Uses: <b>weighted bipartite matching (assignment)</b>, transportation problems, image segmentation.",
+   "problem": {
+    "q": "MCMF에서 증가 경로를 '아무거나'가 아니라 '비용 최단'으로 고르는 이유는?",
+    "solution": "각 단계가 <b>현재 가장 싼 추가 유량 1단위</b>를 더하므로, 유량이 늘수록 단위비용이 단조 증가(볼록) → 매 단계 최선이 곧 <b>전체 최소비용</b>이 됩니다. 아무 경로나 쓰면 비싼 길을 먼저 채워 최적성이 깨집니다.",
+    "q_en": "Why pick the min-cost shortest path (not any) for augmentation in MCMF?",
+    "sol_en": "Each step adds the <b>cheapest next unit</b> of flow, so unit cost rises monotonically (convex) — making each greedy step yield the <b>global minimum cost</b>. Using an arbitrary path could fill an expensive route first and break optimality."
+   }
+  },
+  "algo_br_2sat": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.2 그래프 탐색 ▸ 자세히",
+   "title": "2-SAT — 함의 그래프와 SCC로 충족성 판정",
+   "narr": "\"(x 또는 y) 그리고 (¬y 또는 z) 그리고 …\" 처럼 절마다 변수 2개인 논리식을, <b>참/거짓 배정이 가능한지</b> 선형 시간에 판정합니다. 비결은 절을 <b>함의(→)</b>로 바꿔 그래프로 보는 것.",
+   "hint": "",
+   "more": "<b>2-SAT</b>은 각 절이 리터럴 2개인 논리식의 충족 가능성 문제입니다. 핵심 변환: 절 <b>(a ∨ b)</b>는 \"a가 거짓이면 b가 참이어야 한다\"이므로 두 함의 <b>¬a → b</b>, <b>¬b → a</b>로 바뀝니다. 변수 x마다 정점 <b>x</b>와 <b>¬x</b>를 두고 모든 함의를 간선으로 그리면 <b>함의 그래프</b>가 됩니다. 판정: <b>강한 연결 요소(SCC)</b>로 묶었을 때, 어떤 변수 x에 대해 <b>x와 ¬x가 같은 SCC</b>에 있으면 \"x ⇒ ¬x\"이자 \"¬x ⇒ x\"라 모순 → <b>충족 불가</b>. 모든 변수가 다른 SCC면 충족 가능하고, <b>SCC 위상 역순으로 늦게 오는 쪽을 참</b>으로 배정하면 실제 해가 나옵니다. Tarjan/코사라주 SCC로 전체 <b>O(V+E)</b>.",
+   "more_en": "<b>2-SAT</b> decides satisfiability of a formula where every clause has two literals. Key transform: clause <b>(a ∨ b)</b> means \"if a is false then b must be true,\" i.e. two implications <b>¬a → b</b> and <b>¬b → a</b>. Make a vertex for each literal <b>x</b> and <b>¬x</b>, draw all implications → the <b>implication graph</b>. Decision: take <b>strongly connected components (SCC)</b>; if for any variable <b>x and ¬x lie in the same SCC</b>, then x ⇒ ¬x and ¬x ⇒ x — a contradiction → <b>unsatisfiable</b>. Otherwise satisfiable; assign each variable by <b>the SCC that comes later in reverse topological order = true</b> to recover a solution. With Tarjan/Kosaraju SCC the whole thing is <b>O(V+E)</b>.",
+   "problem": {
+    "q": "2-SAT에서 어떤 변수 x의 x와 ¬x가 같은 SCC에 있으면 왜 충족 불가일까?",
+    "solution": "같은 SCC면 <b>x → ¬x</b> 와 <b>¬x → x</b> 가 모두 성립합니다. 그러면 x가 참이어도 거짓을 강제하고, 거짓이어도 참을 강제해 <b>어떤 값도 모순</b> → 해가 없습니다.",
+    "q_en": "In 2-SAT, why is it unsatisfiable if x and ¬x are in the same SCC?",
+    "sol_en": "Same SCC means both <b>x → ¬x</b> and <b>¬x → x</b> hold. Then true forces false and false forces true — <b>every value is contradictory</b>, so no solution exists."
+   }
+  },
+  "algo_br_euler": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.2 그래프 탐색 ▸ 자세히",
+   "title": "오일러 경로 — 모든 간선을 한 번씩 (한붓그리기)",
+   "narr": "\"이 도형을 펜을 떼지 않고 한 번에 그릴 수 있나?\" — 쾨니히스베르크 다리 문제에서 시작된 <b>오일러 경로</b>입니다. 모든 <b>간선</b>을 정확히 한 번씩 지나는 길을, 차수만 세어 보면 가능 여부를 압니다.",
+   "hint": "",
+   "more": "<b>오일러 경로</b>는 그래프의 <b>모든 간선을 정확히 한 번씩</b> 지나는 경로입니다(시작=끝이면 <b>오일러 회로</b>). 존재 조건은 놀랍도록 단순합니다 — 그래프가 (간선 기준) <b>연결</b>되어 있고, <b>홀수 차수 정점의 개수</b>가 ① <b>0개면 오일러 회로</b>(아무 데서나 시작), ② <b>정확히 2개면 오일러 경로</b>(그 두 정점이 각각 시작·끝). 그 외엔 불가능. 구성은 <b>히어홀저(Hierholzer) 알고리즘</b>: 막힐 때까지 걷다가 막히면 스택에 쌓고, 아직 안 쓴 간선이 남은 정점에서 \"곁가지 회로\"를 찾아 끼워 넣습니다 → 전체 <b>O(E)</b>. 정점을 한 번씩 지나는 <b>해밀턴 경로</b>는 이름은 비슷해도 NP-난해라 완전히 다릅니다. 쓰임: DNA 조립(de Bruijn 그래프), 회로 배선, 제설차 경로.",
+   "more_en": "An <b>Eulerian path</b> traverses <b>every edge exactly once</b> (if start = end, an <b>Eulerian circuit</b>). The existence condition is strikingly simple — the graph must be <b>connected</b> (over its edges) and the number of <b>odd-degree vertices</b> must be ① <b>0 for a circuit</b> (start anywhere), or ② <b>exactly 2 for a path</b> (those two are the endpoints); otherwise impossible. Construction uses <b>Hierholzer's algorithm</b>: walk until stuck, push to a stack, then splice in side-circuits from vertices with unused edges → <b>O(E)</b> total. The similarly named <b>Hamiltonian path</b> (visit every vertex once) is NP-hard and completely different. Uses: DNA assembly (de Bruijn graphs), circuit routing, snowplow routing.",
+   "problem": {
+    "q": "홀수 차수 정점이 4개인 연결 그래프에 오일러 경로가 있을까?",
+    "solution": "<b>없습니다</b>. 오일러 경로는 홀수 차수 정점이 0개(회로) 또는 정확히 2개일 때만 존재합니다. 4개면 조건 위반이라 한붓그리기가 불가능합니다.",
+    "q_en": "Does a connected graph with four odd-degree vertices have an Eulerian path?",
+    "sol_en": "<b>No</b>. An Eulerian path exists only with 0 (circuit) or exactly 2 odd-degree vertices. Four violates the condition, so it cannot be drawn in one stroke."
+   }
+  },
+  "algo_br_01bfs": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.3 최단경로 ▸ 자세히",
+   "title": "0-1 BFS — 가중치 0/1 그래프의 최단경로 O(V+E)",
+   "narr": "간선 가중치가 <b>0과 1뿐</b>이라면, 다익스트라(우선순위 큐)까지 갈 것 없이 <b>덱(deque)</b> 하나로 최단거리를 O(V+E)에 구합니다. \"미로에서 벽을 최소 몇 번 부수나\" 같은 문제의 정석.",
+   "hint": "",
+   "more": "<b>0-1 BFS</b>는 모든 간선 가중치가 <b>0 또는 1</b>인 그래프의 단일 출발점 최단경로를 구합니다. 일반 BFS는 가중치가 같을 때만 맞지만, 0/1이면 <b>덱</b>을 쓰는 작은 변형으로 해결됩니다 — 정점을 꺼내 이웃을 볼 때, <b>가중치 0 간선이면 덱의 맨 앞에</b>(거리가 같으니 같은 \"층\"), <b>가중치 1 간선이면 맨 뒤에</b>(거리 +1, 다음 \"층\") 넣습니다. 이러면 덱이 항상 \"거리 오름차순\"을 유지해(BFS의 층 구조 보존) 우선순위 큐 없이 <b>O(V+E)</b>. 각 정점은 처음 꺼낼 때 거리가 확정됩니다. 쓰임: <b>격자에서 장애물 통과 비용</b>(벽 부수기 0/1), 방향 전환 최소화, 일부 간선만 비용이 드는 길찾기. 가중치가 0~k면 <b>다익스트라</b>나 <b>다이얼(Dial)</b> 기법으로 확장합니다.",
+   "more_en": "<b>0-1 BFS</b> finds single-source shortest paths when every edge weight is <b>0 or 1</b>. Plain BFS only works for equal weights, but for 0/1 a small <b>deque</b> variant suffices — when relaxing a neighbor, push it to the <b>front for a weight-0 edge</b> (same distance, same \"layer\") and to the <b>back for a weight-1 edge</b> (distance +1, next layer). The deque thus stays in nondecreasing distance order (preserving BFS's layering), giving <b>O(V+E)</b> with no priority queue; each vertex's distance is fixed when first popped. Uses: <b>grid traversal with obstacle costs</b> (break-a-wall 0/1), minimizing turns, routing where only some edges cost. For weights 0..k, extend with <b>Dijkstra</b> or <b>Dial's algorithm</b>.",
+   "problem": {
+    "q": "0-1 BFS에서 가중치 0 간선으로 만난 정점을 덱의 '앞'에 넣는 이유는?",
+    "solution": "가중치 0이면 그 정점은 <b>현재 정점과 거리가 같습니다</b>. 그러니 같은 \"층\"으로서 <b>지금 바로(앞에서)</b> 처리해야 거리 오름차순(BFS 층 구조)이 유지됩니다. 뒤에 넣으면 더 먼 정점보다 늦게 처리돼 순서가 깨집니다.",
+    "q_en": "In 0-1 BFS, why push a vertex reached by a weight-0 edge to the front of the deque?",
+    "sol_en": "A weight-0 edge means that vertex has the <b>same distance</b> as the current one, so it belongs to the same \"layer\" and must be processed <b>now (front)</b> to keep nondecreasing-distance order. Pushing it to the back would process it after farther vertices and break the ordering."
+   }
   }
 }
