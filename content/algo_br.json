@@ -1258,5 +1258,65 @@
     "q_en": "How does Manacher handle even-length palindromes (e.g. \"abba\")?",
     "sol_en": "Insert a <b>separator (#) between characters</b>, e.g. \"#a#b#b#a#\". Then every palindrome has an <b>odd length and odd center</b>, unifying the cases; the transformed length is 2n+1, so it stays O(n)."
    }
+  },
+  "algo_br_millerrabin": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "밀러-라빈 — 큰 수의 빠른 소수 판정",
+   "narr": "수백 자리 수가 소수인지 어떻게 빨리 아나? 일일이 나눠 보면 너무 느립니다. <b>밀러-라빈</b>은 페르마 소정리를 강화해, 무작위 증인 몇 개만으로 <b>거의 확실히</b> 판정합니다. RSA 키 생성의 심장.",
+   "hint": "",
+   "more": "<b>밀러-라빈(Miller-Rabin)</b>은 확률적 소수 판정입니다. n−1을 <b>2^s · d</b>(d 홀수)로 쓰고, 무작위 밑 <b>a</b>에 대해 <b>a^d, a^(2d), a^(4d), …, a^(2^(s−1)·d)</b> (mod n)를 봅니다. n이 소수라면 반드시 <b>a^d ≡ 1</b> 이거나, 이 수열 중 하나가 <b>≡ −1</b> 이어야 합니다(제곱해서 1이 되는 수는 ±1뿐이라는 성질). 이를 어기는 a를 찾으면 n은 <b>확실히 합성수</b>(a가 \"증인\"). 한 번의 무작위 a가 합성수를 소수로 잘못 볼 확률은 <b>≤ 1/4</b>이라, k번 반복하면 오류 <b>≤ 4^(−k)</b> — 사실상 0. 한 번 검사는 빠른 거듭제곱으로 <b>O(log³ n)</b>. 작은 고정 밑 집합(예: 2,3,5,7,…,37)이면 <b>64비트까지 결정적</b>으로 맞습니다. 순수 페르마 검사가 속는 <b>카마이클 수</b>(예 561)도 밀러-라빈은 잡아냅니다.",
+   "more_en": "<b>Miller-Rabin</b> is a probabilistic primality test. Write n−1 as <b>2^s · d</b> (d odd) and, for a random base <b>a</b>, look at <b>a^d, a^(2d), …, a^(2^(s−1)·d)</b> (mod n). If n is prime then either <b>a^d ≡ 1</b> or one of these is <b>≡ −1</b> (since the only square roots of 1 are ±1). An a that violates this proves n is <b>composite</b> (a \"witness\"). A single random a misclassifies a composite as prime with probability <b>≤ 1/4</b>, so k rounds give error <b>≤ 4^(−k)</b> — effectively zero. One test is <b>O(log³ n)</b> via fast exponentiation; a small fixed set of bases (2,3,5,…,37) is <b>deterministic up to 64 bits</b>. It also catches <b>Carmichael numbers</b> (e.g. 561) that fool the plain Fermat test.",
+   "problem": {
+    "q": "밀러-라빈에서 밑 a가 조건을 어기면 무엇을 확실히 알 수 있나?",
+    "solution": "n이 <b>합성수임이 확실</b>합니다. a는 합성수임을 증명하는 <b>증인(witness)</b>입니다. (조건을 만족한다고 소수가 확정되는 건 아니며, 그래서 여러 a로 반복합니다.)",
+    "q_en": "If a base a fails the Miller-Rabin condition, what is certain?",
+    "sol_en": "n is <b>definitely composite</b>; a is a <b>witness</b>. (Passing does not prove primality, which is why several bases a are tried.)"
+   }
+  },
+  "algo_br_crt": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.4 해시 ▸ 자세히",
+   "title": "중국인의 나머지 정리 (CRT)",
+   "narr": "\"3으로 나누면 2 남고, 5로 나누면 3 남고, 7로 나누면 2 남는 수는?\" 이런 <b>나머지 조건들</b>을 하나의 답으로 합치는 1700년 묵은 정리가, 현대 암호와 큰 수 연산을 빠르게 만듭니다.",
+   "hint": "",
+   "more": "<b>중국인의 나머지 정리(CRT)</b>: 법 m₁, m₂, …이 <b>서로소</b>이면, 연립 합동식 <b>x ≡ r₁ (mod m₁), x ≡ r₂ (mod m₂), …</b>는 <b>m = m₁·m₂·…</b>를 법으로 <b>유일한 해</b>를 가집니다. 예: x ≡ 2(mod 3), x ≡ 3(mod 5), x ≡ 2(mod 7) → 0~104 중 정확히 <b>x = 23</b>(mod 105). 구성은 각 항마다 \"자기 법에서는 1, 나머지 법에서는 0\"인 기저를 <b>확장 유클리드의 역원</b>으로 만들어 합칩니다. 핵심 응용: ① <b>큰 수 연산 가속</b> — 큰 합성 법에서의 계산을 작은 소법 여러 개로 쪼개 병렬·경량화(RSA 복호화가 약 4배 빨라짐) ② <b>해시·체크섬</b>의 충돌 회피(서로 다른 법으로 이중 해시) ③ 정수 복원·비밀 분산. 큰 수를 \"여러 잔여류의 묶음\"으로 보는 강력한 관점입니다.",
+   "more_en": "<b>Chinese Remainder Theorem (CRT)</b>: if moduli m₁, m₂, … are <b>pairwise coprime</b>, the system <b>x ≡ r₁ (mod m₁), x ≡ r₂ (mod m₂), …</b> has a <b>unique solution</b> modulo <b>m = m₁·m₂·…</b>. Example: x ≡ 2(mod 3), x ≡ 3(mod 5), x ≡ 2(mod 7) → exactly <b>x = 23</b> (mod 105). It is built by combining basis terms that are \"1 in their own modulus, 0 in the others,\" using <b>modular inverses from extended Euclid</b>. Key uses: ① <b>fast big-number arithmetic</b> — split work over a large composite modulus into several small prime moduli (RSA decryption ~4× faster); ② collision avoidance in <b>hashing/checksums</b> (double hashing with different moduli); ③ integer reconstruction and secret sharing. A powerful view of a big number as a bundle of residues.",
+   "problem": {
+    "q": "CRT가 유일한 해를 보장하려면 법들이 어떤 조건을 만족해야 하나?",
+    "solution": "법들이 <b>쌍마다 서로소(pairwise coprime)</b>여야 합니다. 그러면 곱 m = m₁·m₂·… 를 법으로 해가 정확히 하나 존재합니다. 공통 인수가 있으면 해가 없거나 여러 개일 수 있습니다.",
+    "q_en": "What must the moduli satisfy for CRT to guarantee a unique solution?",
+    "sol_en": "They must be <b>pairwise coprime</b>; then there is exactly one solution modulo m = m₁·m₂·…. With a common factor, solutions may be absent or non-unique."
+   }
+  },
+  "algo_br_segintersect": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.3 스택과 큐 ▸ 자세히",
+   "title": "선분 교차 판정 — 외적(CCW)의 부호로",
+   "narr": "두 선분이 <b>교차하는가?</b>를 곱셈·뺄셈 몇 번으로 정확히 판정합니다. 비결은 세 점이 <b>왼쪽으로 도는지 오른쪽으로 도는지</b>를 알려주는 <b>외적의 부호(CCW)</b>입니다.",
+   "hint": "",
+   "more": "세 점 A, B, C의 <b>방향(CCW)</b>은 외적 <b>(B−A) × (C−A)</b>의 부호로 정해집니다 — 양수면 <b>반시계(왼쪽)</b>, 음수면 <b>시계(오른쪽)</b>, 0이면 <b>일직선</b>. 선분 AB와 CD의 교차 판정(일반 위치): <b>CCW(A,B,C)와 CCW(A,B,D)의 부호가 다르고</b>(즉 C와 D가 직선 AB의 <b>서로 반대편</b>), <b>동시에</b> CCW(C,D,A)와 CCW(C,D,B)의 부호도 다르면(A,B가 직선 CD의 반대편) → <b>교차</b>. 한 CCW가 0이면 점이 선분 위에 있을 수 있어, 그 점이 선분의 경계 상자(bounding box) 안인지 추가로 확인합니다(공선·끝점 접촉 처리). 정수 좌표면 <b>오차 없이 정확</b>하고 전부 <b>O(1)</b>. 쓰임: 충돌 감지(게임)·다각형 자르기·볼록 껍질·지도 도형 연산의 기본 벽돌.",
+   "more_en": "The <b>orientation (CCW)</b> of three points A, B, C is the sign of the cross product <b>(B−A) × (C−A)</b> — positive means <b>counter-clockwise (left)</b>, negative <b>clockwise (right)</b>, zero <b>collinear</b>. Segments AB and CD intersect (general position) iff <b>CCW(A,B,C) and CCW(A,B,D) have opposite signs</b> (C and D on <b>opposite sides</b> of line AB) <b>and</b> CCW(C,D,A) and CCW(C,D,B) have opposite signs (A, B on opposite sides of CD). If a CCW is zero, a point may lie on a segment, so additionally check it is within the segment's bounding box (collinear/endpoint cases). With integer coordinates it is <b>exact</b>, all in <b>O(1)</b>. Uses: collision detection (games), polygon clipping, convex hull, map geometry.",
+   "problem": {
+    "q": "두 선분 AB, CD가 (일반 위치에서) 교차하려면 CCW 부호 조건은?",
+    "solution": "<b>CCW(A,B,C)·CCW(A,B,D) < 0</b> (C,D가 AB의 반대편) <b>이고</b> <b>CCW(C,D,A)·CCW(C,D,B) < 0</b> (A,B가 CD의 반대편). 두 조건이 모두 성립해야 교차합니다.",
+    "q_en": "What CCW-sign conditions mean segments AB and CD cross (general position)?",
+    "sol_en": "<b>CCW(A,B,C)·CCW(A,B,D) < 0</b> (C,D on opposite sides of AB) <b>and</b> <b>CCW(C,D,A)·CCW(C,D,B) < 0</b> (A,B on opposite sides of CD) — both must hold."
+   }
+  },
+  "algo_br_calipers": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.3 스택과 큐 ▸ 자세히",
+   "title": "회전하는 캘리퍼스 — 볼록 껍질의 지름",
+   "narr": "점 집합에서 <b>가장 먼 두 점</b>의 거리(지름)는? 모든 쌍을 보면 O(n²). 볼록 껍질을 두 평행선으로 감싸 함께 돌리는 <b>회전하는 캘리퍼스</b>로 <b>O(n)</b>에 끝냅니다.",
+   "hint": "",
+   "more": "<b>회전하는 캘리퍼스(rotating calipers)</b>는 <b>볼록 껍질</b> 위에서 도는 기법입니다. 볼록 다각형을 두 <b>평행한 받침선</b>(자/캘리퍼스의 두 턱)으로 양쪽에서 감싼 뒤, 둘을 <b>같은 각속도로 한 바퀴 회전</b>시킵니다. 회전 중 두 선이 닿는 <b>대척점(antipodal) 쌍</b>만이 <b>지름(가장 먼 두 점)</b>의 후보가 됩니다 — 가장 먼 두 점은 반드시 평행 받침선이 동시에 닿는 짝이기 때문입니다. 껍질의 정점이 n개면 두 포인터가 각각 한 바퀴만 돌아 <b>O(n)</b>(껍질 구하는 비용 O(n log n)은 별도). 같은 틀로 <b>다각형의 너비(최소 폭), 최소 외접 직사각형, 두 볼록다각형의 최소/최대 거리</b>까지 모두 선형에 풀립니다. 핵심 통찰: \"극단값은 볼록 껍질의 경계에서, 그것도 평행 지지선이 닿는 곳에서 나온다.\"",
+   "more_en": "<b>Rotating calipers</b> sweeps around a <b>convex hull</b>. Wrap the convex polygon between two <b>parallel supporting lines</b> (the jaws of a caliper) and rotate both <b>together a full turn</b>. The <b>antipodal pairs</b> touched during rotation are the only candidates for the <b>diameter (farthest pair)</b> — the two farthest points must be a pair simultaneously touched by parallel supports. With n hull vertices, two pointers each go around once → <b>O(n)</b> (the hull itself costs O(n log n)). The same framework solves the polygon's <b>width, minimum-area enclosing rectangle, and min/max distance between two convex polygons</b> in linear time. Key insight: extremes occur on the hull boundary, at points where parallel supporting lines touch.",
+   "problem": {
+    "q": "회전하는 캘리퍼스가 가장 먼 두 점을 O(n)에 찾을 수 있는 근거는?",
+    "solution": "가장 먼 두 점은 반드시 <b>평행한 두 받침선이 동시에 닿는 대척점 쌍</b>이라, 모든 쌍이 아니라 그런 후보만 보면 됩니다. 받침선을 한 바퀴 돌리면 두 포인터가 각각 한 바퀴만 돌아 O(n)입니다.",
+    "q_en": "Why can rotating calipers find the farthest pair in O(n)?",
+    "sol_en": "The farthest pair must be an <b>antipodal pair touched by two parallel supporting lines</b>, so only those candidates matter — not all pairs. One full rotation advances each pointer once around, giving O(n)."
+   }
   }
 }
