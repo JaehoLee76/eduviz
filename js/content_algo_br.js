@@ -1308,6 +1308,82 @@
       ctx.fillText('파랑 = 실제 거쳐간 길 · 옅은 파랑 = 후보로만 열렸다 닫힘 · 회색 = 벽', W/2, y0+R*cell+22);
       ctx.fillStyle='#bfe0ff'; ctx.font='13px sans-serif';
       ctx.fillText('h가 목표 쪽으로 안내 → 다익스트라보다 훨씬 적게 탐색. h가 실제 거리를 넘지 않으면(admissible) 최적 경로 보장', W/2, y0+R*cell+46); }
+  },
+
+  // ══════ 배열(algo2_01) ▸ 세그먼트 트리 ══════
+  { id:'algo_br_segtree', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, x0=W*0.14, x1=W*0.86, top=H*0.22, lg=H*0.135;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('세그먼트 트리 — 구간 합을 O(log n)에', W/2, H*0.08);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 노드 = 자기 구간의 합. 질의 [2,5]는 겹치는 노드(주황) 둘만 더하면 끝', W/2, H*0.08+22);
+      var levels=[ [[0,7,31]], [[0,3,9],[4,7,22]], [[0,1,4],[2,3,5],[4,5,14],[6,7,8]] ], hi={'2-3':1,'4-5':1};
+      function nx(L,i){ return x0+(x1-x0)*((i+0.5)/levels[L].length); }
+      for(var L=0;L<levels.length-1;L++){ for(var i=0;i<levels[L].length;i++){ var px=nx(L,i), py=top+L*lg+16;
+        [2*i,2*i+1].forEach(function(ci){ if(ci<levels[L+1].length){ var cx2=nx(L+1,ci), cy=top+(L+1)*lg; ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(cx2,cy); ctx.stroke(); } }); } }
+      for(L=0;L<levels.length;L++){ for(i=0;i<levels[L].length;i++){ var nd=levels[L][i], x=nx(L,i), y=top+L*lg, on=hi[nd[0]+'-'+nd[1]], bw=Math.min(56,(x1-x0)/levels[L].length-10), bh=32;
+        ctx.fillStyle=on?'rgba(255,178,122,0.3)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=on?'#ffb27a':'#7ab8ff'; ctx.lineWidth=1.6;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-bw/2,y,bw,bh,7);ctx.fill();ctx.stroke();}else ctx.strokeRect(x-bw/2,y,bw,bh);
+        ctx.fillStyle=on?'#ffb27a':'#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(nd[2],x,y+bh/2); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#6f7686'; ctx.font='10px sans-serif'; ctx.fillText('['+nd[0]+','+nd[1]+']',x,y+bh+11); } }
+      var A=[3,1,4,1,5,9,2,6], ly=top+3*lg+2;
+      AV.arr(E, A, { y:ly, bw:Math.min(46,(W*0.62)/8), gap:6, idx:true, hl:function(k){ return (k>=2&&k<=5)?{fill:'rgba(255,178,122,0.16)',stroke:'#ffb27a',text:'#ffb27a'}:null; } });
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('질의 합[2,5] = 노드[2,3]:5 + 노드[4,5]:14 = 19  —  6칸 대신 2개 노드만!', W/2, ly+H*0.15); }
+  },
+
+  // ══════ 배열(algo2_01) ▸ 펜윅 트리(BIT) ══════
+  { id:'algo_br_fenwick', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2, y=H*0.34;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('펜윅 트리(BIT) — 누적 합을 O(log n)에', W/2, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 칸은 "마지막 1비트" 폭의 구간을 저장. prefix(i): i −= i&(−i) 로 점프', W/2, H*0.11+22);
+      var chain=[ ['7','111','tree[7]=a[7]'], ['6','110','tree[6]=a[5..6]'], ['4','100','tree[4]=a[1..4]'] ];
+      var bw=W*0.17, gap=W*0.045, total=chain.length*bw+(chain.length-1)*gap, x=cx-total/2;
+      for(var i=0;i<chain.length;i++){ var bx=x+i*(bw+gap), c=chain[i];
+        ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.8;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,y,bw,H*0.17,10);ctx.fill();ctx.stroke();}else ctx.strokeRect(bx,y,bw,H*0.17);
+        ctx.fillStyle='#bfe0ff'; ctx.font='600 27px sans-serif'; ctx.textAlign='center'; ctx.fillText(c[0], bx+bw/2, y+H*0.055);
+        ctx.fillStyle='#8a8893'; ctx.font='13px ui-monospace,monospace'; ctx.fillText('0b'+c[1], bx+bw/2, y+H*0.092);
+        ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText(c[2], bx+bw/2, y+H*0.14);
+        if(i<chain.length-1){ AV.arrow(ctx, bx+bw+4, y+H*0.085, bx+bw+gap-4, y+H*0.085, '#ffb27a', 2); } }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('각 점프 = 마지막 1비트 제거 (7→6→4→0)', cx, y+H*0.22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif'; ctx.fillText('prefix(7) = tree[7] + tree[6] + tree[4] = a[1..7]   (단 3번!)', cx, y+H*0.28);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText('갱신은 반대로 i += i&(−i) 로 올라감. 코드 두 줄로 구간합·갱신 모두 O(log n)', cx, y+H*0.33); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 트라이(Trie) ══════
+  { id:'algo_br_trie', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('트라이(Trie) — 접두사를 공유하는 문자열 사전', W/2, H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('단어: cat, car, cup, dog  ·  같은 접두사는 길을 공유 → 검색 O(단어 길이)', W/2, H*0.09+22);
+      var N={ root:[0.5,0.18,'•'], c:[0.30,0.36,'c'], d:[0.74,0.36,'d'], a:[0.20,0.54,'a'], u:[0.40,0.54,'u'], o:[0.74,0.54,'o'], t:[0.13,0.74,'t'], r:[0.27,0.74,'r'], p:[0.40,0.74,'p'], g:[0.74,0.74,'g'] };
+      var ends={t:1,r:1,p:1,g:1}, edges=[['root','c'],['root','d'],['c','a'],['c','u'],['a','t'],['a','r'],['u','p'],['d','o'],['o','g']];
+      function xy(k){ return [W*0.10+N[k][0]*W*0.80, H*0.20+N[k][1]*H*0.60]; }
+      edges.forEach(function(e){ var a=xy(e[0]),b=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k), end=ends[k];
+        AV.node(E,p[0],p[1],N[k][2],{r:18,fs:15,fill:end?'rgba(143,227,181,0.28)':'rgba(122,184,255,0.16)',stroke:end?'#8fe3b5':'#7ab8ff',text:end?'#8fe3b5':'#dfeefb',tag:end?'단어끝':null}); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('초록 = 단어의 끝 표시. "car" 검색 = 루트→c→a→r 따라가면 끝', W/2, H*0.93); }
+  },
+
+  // ══════ BST탐색(algo5_03) ▸ 최소 공통 조상(LCA) ══════
+  { id:'algo_br_lca', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, T=['A','B','C','D','E','F','G'], qu=3, qv=4, lca=1;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('LCA — 두 노드의 최소 공통 조상', W/2, H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('u, v를 모두 조상으로 갖는 가장 깊은 노드. 질의: u=D, v=E', W/2, H*0.09+22);
+      drawTreeB(E, T, function(i){ if(i===lca) return {fill:'rgba(255,178,122,0.32)',stroke:'#ffb27a',text:'#ffb27a',tag:'LCA'};
+        if(i===qu||i===qv) return {fill:'rgba(122,184,255,0.32)',stroke:'#7ab8ff',text:'#bfe0ff',tag:'질의'}; return null; }, {top:H*0.30, lg:H*0.19, r:21});
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('D와 E에서 위로 올라가다 처음 만나는 노드 = B. 전처리(오일러+희소표 / 이진 점프)로 질의당 O(log n)~O(1)', W/2, H*0.88); }
   }
 
   ];
