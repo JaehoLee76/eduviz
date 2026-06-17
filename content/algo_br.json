@@ -1543,5 +1543,65 @@
     "q_en": "What is μ(12) and why?",
     "sol_en": "<b>μ(12) = 0</b>, because 12 = 2²·3 has a <b>squared factor (2²)</b>. (Only squarefree numbers get ±1.)"
    }
+  },
+  "algo_br_digitdp": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.2 격자 DP ▸ 자세히",
+   "title": "자릿수 DP — 범위 안에서 조건 맞는 수 세기",
+   "narr": "\"1부터 N까지 중 숫자 3이 들어간 수는 몇 개?\" 같은 <b>거대한 범위의 세기</b>를, 수를 하나씩 세지 않고 <b>자릿수를 채워 가며</b> 세는 DP입니다.",
+   "hint": "",
+   "more": "<b>자릿수 DP(Digit DP)</b>는 <b>[0, N] 범위에서 어떤 조건을 만족하는 수의 개수</b>를 셉니다(N이 10¹⁸이어도 OK). 핵심은 수를 <b>가장 높은 자리부터 한 자리씩</b> 채우며, 상태 <b>dp[pos][tight][추가상태]</b>로 메모이제이션하는 것입니다. <b>pos</b> = 현재 채우는 자리, <b>tight</b> = 지금까지 고른 앞자리들이 N과 <b>정확히 같은지</b>(같으면 이번 자리 상한이 N의 그 자릿수, 아니면 0~9 자유), <b>추가상태</b> = 문제별 정보(예: 지금까지 합·나머지·\"3을 썼는가\"·앞자리 등). 상태 수가 <b>O(자릿수 × 2 × 작은상태)</b>라 N과 무관하게 빠릅니다. 구간 [L, R]은 <b>f(R) − f(L−1)</b>로 처리. 쓰임: 특정 숫자 포함/제외, 자릿수 합·나머지 조건, 인접 자리 규칙(\"같은 숫자 연속 금지\") 등 \"큰 범위에서 자릿수 패턴 세기\".",
+   "more_en": "<b>Digit DP</b> counts <b>integers in [0, N] satisfying some property</b> (even for N = 10¹⁸). The idea: fill the number <b>one digit at a time from the most significant</b>, memoizing on <b>dp[pos][tight][extra]</b>. <b>pos</b> = current digit position, <b>tight</b> = whether the prefix chosen so far <b>equals N exactly</b> (if so, this digit's upper bound is N's digit; otherwise 0–9 free), <b>extra</b> = problem-specific info (running sum, remainder, \"used a 3?\", previous digit, …). The state count is <b>O(#digits × 2 × small)</b>, independent of N. A range [L, R] is handled as <b>f(R) − f(L−1)</b>. Uses: counting numbers containing/avoiding a digit, digit-sum or remainder conditions, adjacency rules — \"count digit patterns over a huge range.\"",
+   "problem": {
+    "q": "자릿수 DP의 상태 'tight'(꽉 참)는 무엇을 뜻하나?",
+    "solution": "지금까지 고른 윗자리들이 <b>N과 정확히 같다</b>는 뜻입니다. tight면 이번 자리는 <b>N의 해당 자릿수까지만</b> 고를 수 있고, tight가 풀리면(이미 N보다 작아짐) <b>0~9 자유</b>롭게 고를 수 있습니다.",
+    "q_en": "What does the 'tight' state mean in digit DP?",
+    "sol_en": "That the prefix chosen so far <b>exactly equals N</b>. While tight, this digit is capped at <b>N's digit</b>; once tight breaks (already smaller than N), digits 0–9 are <b>free</b>."
+   }
+  },
+  "algo_br_sosdp": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.2 격자 DP ▸ 자세히",
+   "title": "SOS DP — 부분집합 합(부분집합 제타 변환)",
+   "narr": "각 마스크에 대해 \"그 부분집합들의 값의 합\"을 모두 구하려면 순진하게는 3ⁿ. <b>SOS DP</b>는 비트 차원별로 누적해 <b>O(n·2ⁿ)</b>에 끝냅니다.",
+   "hint": "",
+   "more": "<b>SOS DP(Sum over Subsets)</b>는 모든 마스크에 대해 <b>F[mask] = Σ_{sub ⊆ mask} A[sub]</b>(부분집합들의 값 합)를 한꺼번에 구합니다. 순진하게 각 마스크의 모든 부분집합을 돌면 <b>O(3ⁿ)</b>. 핵심 절약은 <b>비트 차원을 하나씩 켜며 누적</b>하는 것: <code>for i in 0..n−1: for each mask with bit i set: F[mask] += F[mask ^ (1&lt;&lt;i)]</code>. i번째 통과가 끝나면 F[mask]는 \"i번째 비트까지에서만 다른 부분집합들의 합\"을 누적한 상태가 되고, n번 통과하면 모든 부분집합 합이 됩니다 → <b>O(n·2ⁿ)</b>. 이는 부울 격자 위의 <b>고차원 누적합(제타 변환)</b>이고, 빼는 방향이 <b>뫼비우스 변환</b>(역연산)입니다. 쓰임: <b>부분집합 컨볼루션</b>, 포함·배제 가속, \"마스크의 모든 부분집합/초집합에 대한 합·최댓값\" 질의, 비트마스크 DP 보조.",
+   "more_en": "<b>SOS DP (Sum over Subsets)</b> computes, for every mask, <b>F[mask] = Σ_{sub ⊆ mask} A[sub]</b>. Naively iterating each mask's subsets is <b>O(3ⁿ)</b>. The key saving is to <b>accumulate one bit dimension at a time</b>: <code>for i in 0..n−1: for each mask with bit i set: F[mask] += F[mask ^ (1&lt;&lt;i)]</code>. After pass i, F[mask] has summed subsets differing only in the first i bits; after n passes it is the full subset sum → <b>O(n·2ⁿ)</b>. This is a <b>higher-dimensional prefix sum (zeta transform)</b> on the boolean lattice, with the subtracting direction being the <b>Möbius transform</b> (its inverse). Uses: <b>subset-sum convolution</b>, inclusion-exclusion speedups, \"sum/max over all subsets/supersets of a mask\" queries, and as a helper for bitmask DP.",
+   "problem": {
+    "q": "SOS DP가 순진한 O(3ⁿ)을 O(n·2ⁿ)으로 줄이는 핵심은?",
+    "solution": "<b>비트 차원별 누적</b>입니다. 각 비트 i를 한 번씩만 \"켜며\" 부분합을 더해 나가면, n번 통과로 모든 부분집합 합이 완성됩니다(고차원 누적합). 매 마스크의 부분집합을 다 도는 중복을 차원 분리로 없앱니다.",
+    "q_en": "What lets SOS DP cut naive O(3ⁿ) to O(n·2ⁿ)?",
+    "sol_en": "<b>Per-bit-dimension accumulation</b>: turning each bit i on once and adding partial sums completes all subset sums in n passes (a higher-dimensional prefix sum), removing the redundancy of enumerating every mask's subsets."
+   }
+  },
+  "algo_br_matexp": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.2 격자 DP ▸ 자세히",
+   "title": "행렬 거듭제곱 — 선형 점화식을 로그 시간에",
+   "narr": "피보나치 F(10⁹)을 어떻게 구할까? 한 항씩 더하면 O(n). <b>행렬 거듭제곱</b>은 점화식을 행렬 곱으로 바꿔, <b>빠른 거듭제곱</b>으로 n을 <b>로그</b>에 끌어내립니다.",
+   "hint": "",
+   "more": "<b>고정 계수 선형 점화식</b>(예: F(n)=F(n−1)+F(n−2))은 <b>행렬 곱 한 번 = 한 단계 전이</b>로 쓸 수 있습니다: <b>[F(n+1), F(n)]ᵀ = M · [F(n), F(n−1)]ᵀ</b>, 여기서 M = [[1,1],[1,0]]. 그러면 n단계는 <b>Mⁿ</b>을 곱하는 것이고, <b>Mⁿ은 빠른 거듭제곱(분할정복: Mⁿ = (M^(n/2))²)</b>으로 <b>O(log n)번의 행렬 곱</b>에 구합니다. 항이 k개인 점화식이면 k×k 행렬이라 한 번 곱이 O(k³) → 전체 <b>O(k³ log n)</b>. 그래서 F(10⁹)도 약 30번의 2×2 곱이면 끝납니다. 일반화: <b>DP 전이가 \"이전 상태들의 고정 선형 결합\"</b>이면 어떤 것이든(경로 수 세기, 격자 위 이동 수, 오토마톤에서 길이 n 문자열 수 등) 행렬로 묶어 큰 n을 로그에 처리합니다. 보통 (mod p) 함께 씁니다.",
+   "more_en": "A <b>fixed-coefficient linear recurrence</b> (e.g. F(n)=F(n−1)+F(n−2)) can be written as <b>one matrix multiply = one step</b>: <b>[F(n+1), F(n)]ᵀ = M · [F(n), F(n−1)]ᵀ</b> with M = [[1,1],[1,0]]. Then n steps means multiplying by <b>Mⁿ</b>, and <b>Mⁿ via fast exponentiation</b> (Mⁿ = (M^(n/2))²) takes <b>O(log n) matrix multiplications</b>. With k terms the matrix is k×k (one multiply O(k³)) → overall <b>O(k³ log n)</b>. So F(10⁹) is ~30 multiplies of 2×2 matrices. Generalization: whenever a <b>DP transition is a fixed linear combination of previous states</b> (counting paths, lattice walks, length-n strings in an automaton…), pack it into a matrix and handle huge n in logarithmic time, usually mod p.",
+   "problem": {
+    "q": "행렬 거듭제곱으로 피보나치 F(n)을 O(log n)에 구하는 원리는?",
+    "solution": "점화식을 <b>[F(n+1),F(n)]ᵀ = M·[F(n),F(n−1)]ᵀ</b>(M=[[1,1],[1,0]])로 쓰면 n단계 = <b>Mⁿ</b> 곱입니다. Mⁿ을 <b>빠른 거듭제곱</b>으로 O(log n)번 곱하면 됩니다.",
+    "q_en": "How does matrix exponentiation get Fibonacci F(n) in O(log n)?",
+    "sol_en": "Writing the recurrence as <b>[F(n+1),F(n)]ᵀ = M·[F(n),F(n−1)]ᵀ</b> (M=[[1,1],[1,0]]), n steps equals multiplying by <b>Mⁿ</b>, computed in O(log n) multiplies via <b>fast exponentiation</b>."
+   }
+  },
+  "algo_br_treedp": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.2 BST 탐색 ▸ 자세히",
+   "title": "트리 DP — 서브트리에서 부모로 답을 모으기",
+   "narr": "트리에서 \"서로 인접하지 않게 최대한 많은 노드 고르기\"(최대 독립 집합) 같은 문제를, 각 노드의 답을 <b>자식들의 답으로</b> 정의해 DFS 한 번에 풉니다.",
+   "hint": "",
+   "more": "<b>트리 DP</b>는 각 노드의 답을 <b>그 자식들의 답으로 정의</b>하고 <b>후위순회(자식 먼저)</b>로 채웁니다. 대표 예 <b>최대 독립 집합(서로 인접 안 한 노드 최대 개수)</b>: 노드 v를 <b>고르는 경우와 안 고르는 경우</b>를 따로 둡니다 — <b>dp[v][1] = 1 + Σ dp[child][0]</b>(v를 고르면 자식은 못 고름), <b>dp[v][0] = Σ max(dp[child][0], dp[child][1])</b>(v를 안 고르면 자식은 자유). 답은 <b>max(dp[root][0], dp[root][1])</b>, 시간 <b>O(V)</b>. 이 \"노드를 넣고/빼는 두 상태\" 틀은 트리 위 수많은 문제에 통합니다: 서브트리 크기·합·지름, 트리에서의 배낭, 노드/간선 색칠, 부모-자식 제약 최적화 등. 루트를 바꿔 가며 모든 노드 답을 한 번에 구하는 <b>리루팅(rerooting)</b> 기법으로 확장됩니다.",
+   "more_en": "<b>Tree DP</b> defines each node's answer <b>in terms of its children</b> and fills it in <b>post-order (children first)</b>. Classic example, <b>maximum independent set</b> (most nodes with no two adjacent): keep two cases per node v — <b>dp[v][1] = 1 + Σ dp[child][0]</b> (taking v forbids children) and <b>dp[v][0] = Σ max(dp[child][0], dp[child][1])</b> (skipping v frees children). The answer is <b>max(dp[root][0], dp[root][1])</b> in <b>O(V)</b>. This \"include/exclude two states\" frame fits many tree problems: subtree size/sum/diameter, knapsack on trees, node/edge coloring, parent-child constraints. It extends to <b>rerooting</b> to get every node's answer in one pass.",
+   "problem": {
+    "q": "트리 최대 독립 집합에서 dp[v][1](v를 고름)의 점화식은?",
+    "solution": "<b>dp[v][1] = 1 + Σ_child dp[child][0]</b>. v를 고르면 인접한 <b>자식들은 못 고르므로</b>(각 자식은 '안 고름' 상태만), v 자신 1개에 자식들의 dp[child][0]을 더합니다.",
+    "q_en": "In tree maximum independent set, what is the recurrence for dp[v][1] (taking v)?",
+    "sol_en": "<b>dp[v][1] = 1 + Σ_child dp[child][0]</b>: taking v forbids its children (each must be in the 'not taken' state), so add 1 (for v) plus each child's dp[child][0]."
+   }
   }
 }
