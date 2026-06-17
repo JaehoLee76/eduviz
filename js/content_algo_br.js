@@ -2523,6 +2523,113 @@
       ctx.fillText('점화식 = 첫 괄호 안(i쌍)과 밖(n−1−i쌍)으로 쪼개 곱하고 더하기 → DP로 O(n²) 또는 공식 O(n)', W/2, H*0.78);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('같은 수: 노드 n개 이진트리 모양, 격자 대각선 안 넘는 경로, 다각형 삼각분할, 스택 가능한 순열', W/2, H*0.88); }
+  },
+
+  { id:'algo_br_lct', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('링크컷 트리 — 변하는 숲을 O(log n)에 다루기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('간선을 잇고(link) 끊고(cut), 경로 질의까지 모두 분할상환 O(log n)', W/2, H*0.10+22);
+      // draw a preferred-path chain (bold) and light edges
+      var cx=W/2;
+      // preferred path: vertical bold chain
+      var chain=[[cx,H*0.30],[cx,H*0.44],[cx,H*0.58],[cx,H*0.72]];
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.moveTo(chain[0][0],chain[0][1]); for(var i=1;i<chain.length;i++)ctx.lineTo(chain[i][0],chain[i][1]); ctx.stroke();
+      // light side edges
+      ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=2;
+      var sides=[[chain[1],[cx-W*0.16,H*0.52]],[chain[2],[cx+W*0.16,H*0.66]]];
+      sides.forEach(function(s){ ctx.beginPath(); ctx.moveTo(s[0][0],s[0][1]); ctx.lineTo(s[1][0],s[1][1]); ctx.stroke(); });
+      function node(p,col){ ctx.fillStyle=col.replace(')',',0.2)').indexOf('rgba')<0?'rgba(122,184,255,0.18)':col; ctx.fillStyle='rgba(122,184,255,0.18)'; if(col==='#ffb27a')ctx.fillStyle='rgba(255,178,122,0.22)';
+        ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); }
+      chain.forEach(function(p){ node(p,'#ffb27a'); });
+      node([cx-W*0.16,H*0.52],'#7ab8ff'); node([cx+W*0.16,H*0.66],'#7ab8ff');
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('선호 경로(splay 트리 한 개로 저장)', cx+18, H*0.30); ctx.textAlign='center';
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('access(v): v까지의 경로를 하나의 선호 경로로 모은다 → 그 트리의 루트로 splay', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('숲을 선호 경로들로 쪼개 각 경로를 스플레이 트리로. link/cut/경로합/경로최댓값 모두 분할상환 O(log n)', W/2, H*0.84+18);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('동적 트리 연결성, 동적 MST, 최대 유량의 동적 트리 가속 등에 사용. HLD의 동적 버전', W/2, H*0.84+36); }
+  },
+
+  { id:'algo_br_skiplist', concept:true, branchOf:'algo2_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('스킵 리스트 — 동전을 던져 만드는 빠른 리스트', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('정렬된 연결 리스트에 무작위 고속 차선을 얹어 탐색을 기대 O(log n)에', W/2, H*0.10+22);
+      var vals=[1,3,5,7,9,11,13]; var n=vals.length;
+      var bx=W*0.5-(n*60)/2, baseY=H*0.72, lvlH=H*0.13;
+      // levels: which nodes appear at each level
+      var lv=[[0,1,2,3,4,5,6],[0,2,4,6],[0,4],[0]];
+      for(var L=0;L<lv.length;L++){ var y=baseY-L*lvlH; var prev=null;
+        var col=L===0?'#7ab8ff':(L===3?'#ffb27a':'#8fe3b5');
+        // line across
+        for(var j=0;j<lv[L].length;j++){ var idx=lv[L][j]; var x=bx+idx*60;
+          if(prev!==null){ ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(prev+18,y); ctx.lineTo(x-18,y); ctx.stroke();
+            ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.moveTo(x-18,y); ctx.lineTo(x-24,y-4); ctx.lineTo(x-24,y+4); ctx.fill(); }
+          ctx.fillStyle=L===0?'rgba(122,184,255,0.18)':'rgba(143,227,181,0.14)'; ctx.strokeStyle=col; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.arc(x,y,16,0,Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(vals[idx],x,y+4);
+          prev=x; }
+        ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('L'+L,bx-30,y+4); ctx.textAlign='center'; }
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('탐색: 맨 위 차선에서 최대한 멀리 → 막히면 한 층 내려가기 (이분 탐색처럼)', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('각 노드는 동전을 던져 ½ 확률로 한 층씩 위로 → 기대 높이 O(log n). 균형 트리의 단순한 대안', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_reservoir', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('저수지 샘플링 — 끝을 모르는 스트림에서 공정하게 뽑기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('데이터가 한 번에 흘러가고 전체 개수도 모를 때, 메모리 k칸으로 균등 표본을', W/2, H*0.10+22);
+      // stream of items flowing into a reservoir of size k=1
+      var stream=[1,2,3,4,5,6,7,8]; var sx=W*0.12, sy=H*0.38;
+      ctx.font='600 14px sans-serif';
+      for(var i=0;i<stream.length;i++){ var x=sx+i*((W*0.76)/stream.length);
+        ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.arc(x,sy,15,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.fillText(stream[i],x,sy+5); }
+      ctx.fillStyle='#6a6873'; ctx.font='12px sans-serif'; ctx.fillText('스트림: 1, 2, 3, … 끝을 모름 →', W*0.5, sy-26);
+      // reservoir box
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.strokeRect(W*0.42,H*0.56,W*0.16,H*0.12);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.fillText('저수지 (k=1)', W*0.5, H*0.54);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.fillText('현재 표본', W*0.5, H*0.62);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('i번째 원소를 확률 k/i 로 받아들여 무작위 한 칸을 교체 → 매 시점 모든 원소가 정확히 k/i 확률', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('스트림이 끝나면 각 원소가 균등하게 k/n 확률로 표본 안에 → 1패스·O(1) 추가메모리(k칸)', W/2, H*0.80+18);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 거대 로그·무한 스트림 무작위 추출, 분산 환경 표본, A/B 테스트', W/2, H*0.80+36); }
+  },
+
+  { id:'algo_br_ntt', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('수론 변환(NTT) — 오차 없는 정수 FFT', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('FFT의 복소수 단위근을, 소수 모듈러의 원시근으로 바꿔 정수만으로 합성곱', W/2, H*0.10+22);
+      // contrast two columns: FFT vs NTT
+      function col(x,title,col1,lines){ ctx.fillStyle=col1; ctx.font='600 15px sans-serif'; ctx.fillText(title,x,H*0.32);
+        ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif';
+        lines.forEach(function(t,i){ ctx.fillText(t,x,H*0.40+i*24); }); }
+      col(W*0.27,'FFT (복소수)','#7ab8ff',['단위근 e^(2πi/n)','부동소수점 사용','반올림 오차 가능','큰 계수에서 위험']);
+      col(W*0.73,'NTT (정수 mod p)','#8fe3b5',['원시근 g^((p−1)/n)','정수 모듈러 연산','오차 0 (정확)','계수가 p 미만이어야']);
+      // divider
+      ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W*0.5,H*0.30); ctx.lineTo(W*0.5,H*0.74); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('대표 소수 998244353 = 119·2²³ + 1 → 길이 2²³까지 변환 가능', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('O(n log n) 합성곱을 정수로 정확히. 큰 정수·다항식 곱, 모듈러 조합론, 문자열 문제에 사용', W/2, H*0.90); }
   }
 
   ];
