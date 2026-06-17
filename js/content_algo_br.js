@@ -4841,6 +4841,93 @@
       ctx.fillText('새 원소를 기존 k그룹 중 하나(k가지)에 넣거나, 혼자 새 그룹(k−1→k). 제2종 스털링', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('제1종 스털링=순열의 사이클 수 분포. 벨=종/EGF e^(e^x−1). 카탈란·이항과 함께 조합 기둥', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_fastfib', concept:true, branchOf:'algo7_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('빠른 피보나치 — 두 배 공식으로 O(log n)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('F(n)을 한 칸씩이 아니라 n을 절반씩 줄여 계산. 행렬거듭제곱보다 가벼운 항등식', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('두 배 공식 (fast doubling):', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='15px sans-serif';
+      ctx.fillText('F(2k)   = F(k) · ( 2·F(k+1) − F(k) )', W/2, H*0.42);
+      ctx.fillText('F(2k+1) = F(k+1)² + F(k)²', W/2, H*0.52);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('(F(k), F(k+1))을 알면 (F(2k), F(2k+1))을 곱셈 몇 번에', W/2, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('n의 이진 비트를 위에서 아래로 보며 한 비트마다 두 배+1 → O(log n) 곱셈', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('행렬 [[1,1],[1,0]]^n 과 같은 결과지만 곱셈 수가 적음(2×2 행렬 8곱 vs 3~4곱)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('mod로 거대 n의 F(n)을 즉시. 일반 선형점화식은 행렬거듭제곱·키타마사로', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_graphcolor', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('그래프 채색 — 이웃끼리 다른 색, 탐욕적으로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('인접 정점은 다른 색. 최소 색 수(채색수)는 NP-난해지만, 탐욕은 Δ+1색 보장', W/2, H*0.10+22);
+      var N={a:[0.30,0.32,'#7ab8ff'],b:[0.58,0.28,'#8fe3b5'],c:[0.72,0.55,'#7ab8ff'],d:[0.44,0.60,'#ffb27a'],e:[0.26,0.62,'#8fe3b5']};
+      var edges=[['a','b'],['b','c'],['c','d'],['d','e'],['e','a'],['a','d'],['b','d']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle=N[k][2]; ctx.strokeStyle='#dfeefb'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],15,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#0d1117'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('탐욕: 정점을 순서대로 보며, 이웃이 안 쓴 가장 작은 색 번호 배정', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('항상 ≤ Δ+1색(Δ=최대 차수). 순서에 따라 색 수 달라짐(최적은 NP). Welsh-Powell=큰차수 먼저', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 레지스터 할당·시험 시간표·주파수 배정·스도쿠. 이분=2색, 평면=4색 정리', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_fenwickrange', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('펜윅 구간 갱신 — 두 BIT로 구간+구간', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('기본 펜윅은 점 갱신+구간 합. 차분과 보조 BIT를 더하면 구간 갱신+구간 합을 O(log n)에', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['차분(difference): [l,r]에 +v → diff[l]+=v, diff[r+1]−=v',
+        'prefix[i] = Σ diff = 원소값. 구간합엔 i·diff 보정이 필요',
+        'BIT1: Σ diff,  BIT2: Σ (i−1)·diff 두 개를 유지',
+        'prefix합(i) = i·query(BIT1, i) − query(BIT2, i)'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.34+i*28); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('두 펜윅(원래 차분 + i 가중 차분)으로 구간갱신·구간합 모두 O(log n)', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('lazy 세그트리와 같은 능력을, 더 적은 상수·간단한 코드로(합 연산 한정)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('점갱신+구간합=BIT 1개, 구간갱신+점질의=차분 BIT 1개, 구간+구간=BIT 2개', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_medians', concept:true, branchOf:'algo3_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('중앙값의 중앙값 — 최악 O(n) 결정론적 선택', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('퀵셀렉트는 운 나쁘면 O(n²). 좋은 피벗을 "5개씩 묶어 중앙값의 중앙값"으로 보장', W/2, H*0.10+22);
+      // groups of 5 with medians highlighted
+      var groups=5, perG=5, gx=W*0.5-(groups*64)/2, gy=H*0.30, ch=20;
+      for(var g=0;g<groups;g++){ var x=gx+g*64;
+        for(var r=0;r<perG;r++){ var y=gy+r*ch; var med=(r===2);
+          ctx.fillStyle=med?'rgba(255,178,122,0.3)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=med?'#ffb27a':'#3a4358'; ctx.lineWidth=med?2:1;
+          ctx.fillRect(x,y,52,ch-3); ctx.strokeRect(x,y,52,ch-3); } }
+      ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.fillText('각 5개의 중앙값', W/2, gy+perG*ch+12);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 12px sans-serif'; ctx.fillText('→ 그 중앙값들의 중앙값 = 피벗', W/2, gy+perG*ch+30);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('이 피벗은 적어도 30%를 양쪽으로 갈라 줌 → 분할이 항상 충분히 균형', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('T(n)=T(n/5)+T(7n/10)+O(n) → O(n) (1/5+7/10<1). 최악 보장 O(n) 선택', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('상수가 커 실무는 랜덤 퀵셀렉트가 보통 빠름. 이론적 최악 보장의 명작(BFPRT)', W/2, H*0.88+20); }
   }
 
   ];
