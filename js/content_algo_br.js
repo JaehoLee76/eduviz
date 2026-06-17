@@ -3820,6 +3820,98 @@
       ctx.fillText('질의·점갱신 O(log² n), 공간 O(n log n). 동적 점·구간 갱신까지(2D 펜윅보다 유연)', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('정적이면 머지소트트리/오프라인 1D로 더 가볍게. 구간갱신엔 lazy를 양 축에', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_eertree', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('회문 트리(Eertree) — 모든 회문 부분문자열을 한 트리에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('문자열의 서로 다른 회문은 최대 n개뿐. 글자를 하나씩 추가하며 O(n)에 모두 보관', W/2, H*0.10+22);
+      // two roots (len -1 and 0) + palindrome nodes
+      var nodes=[[0.30,0.26,'뿌리 −1'],[0.70,0.26,'뿌리 0'],[0.30,0.50,'a'],[0.70,0.50,'b'],[0.50,0.70,'aba'],[0.80,0.70,'bb']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.46]; }
+      var edges=[[0,2,'a'],[1,3,'b'],[2,4,'a'],[1,5,'b']];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); ctx.fillStyle='#8fe3b5'; ctx.font='11px sans-serif'; ctx.fillText(e[2],(a[0]+b[0])/2+8,(a[1]+b[1])/2); });
+      nodes.forEach(function(n,i){ var p=xy(n); var root=i<2;
+        ctx.fillStyle=root?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=root?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        var w=n[2].length*8+16; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='600 11px sans-serif'; ctx.fillText(n[2],p[0],p[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('노드 = 서로 다른 회문 하나. 두 뿌리(길이 −1·0)와 접미사 링크(suffix link)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('글자 추가 시 현재 최장 회문 접미사를 링크 따라 찾아 양쪽에 그 글자를 붙여 새 회문 생성', W/2, H*0.87);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('서로 다른 회문 수·각 회문 출현 횟수·최장 회문을 O(n)에. 회문 부분문자열 세기의 표준', W/2, H*0.87+20); }
+  },
+
+  { id:'algo_br_lyndon', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Lyndon 분해 — 문자열을 내림차순 최소 조각으로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('모든 문자열은 "자신이 모든 회전보다 작은" Lyndon 단어들의 내림차순 곱으로 유일하게', W/2, H*0.10+22);
+      // string split into lyndon words
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px monospace';
+      ctx.fillText('b b a b a a b a', W/2, H*0.32);
+      var parts=[['bb','#7ab8ff'],['ab','#8fe3b5'],['aab','#ffb27a'],['a','#9a86ff']];
+      var by=H*0.44, x0=W*0.5-(parts.length*90)/2;
+      parts.forEach(function(p,i){ var x=x0+i*90;
+        ctx.fillStyle=p[1].replace(')',',0.18)').indexOf('rgba')<0?'rgba(122,184,255,0.14)':'rgba(122,184,255,0.14)'; ctx.fillStyle='rgba(122,184,255,0.12)';
+        ctx.strokeStyle=p[1]; ctx.lineWidth=2; ctx.fillRect(x,by,80,32); ctx.strokeRect(x,by,80,32);
+        ctx.fillStyle=p[1]; ctx.font='600 15px monospace'; ctx.fillText(p[0],x+40,by+21); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('내림차순: bb ≥ ab ≥ aab ≥ a  (각 조각은 Lyndon 단어)', W/2, H*0.66);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('Lyndon 단어 = 자신의 모든 진회전(rotation)보다 사전순으로 엄격히 작은 문자열', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('Duval 알고리즘: 두 포인터로 O(n)·O(1) 공간에 유일 분해. 마지막 조각이 최소 접미사', W/2, H*0.87);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 최소 회전(부스 대안)·최소 접미사·de Bruijn 수열·자유 리 대수 기저', W/2, H*0.87+20); }
+  },
+
+  { id:'algo_br_chinesepostman', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('중국인 우편배달부 — 모든 간선을 최소 비용으로 돌기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('모든 간선을 최소 한 번씩 지나 출발점 복귀. 홀수차수 정점들을 짝지어 최소 추가', W/2, H*0.10+22);
+      var N={a:[0.30,0.32],b:[0.62,0.30],c:[0.72,0.60],d:[0.44,0.66],e:[0.26,0.58]};
+      var edges=[['a','b'],['b','c'],['c','d'],['d','e'],['e','a'],['b','d']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); var dup=(e[0]==='b'&&e[1]==='d'); ctx.strokeStyle=dup?'#ffb27a':'rgba(122,184,255,0.5)'; ctx.lineWidth=dup?3.5:2; if(dup)ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.setLineDash([]); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var odd=(k==='b'||k==='d');
+        ctx.fillStyle=odd?'rgba(255,141,141,0.25)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=odd?'#ff8d8d':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); if(odd){ctx.fillStyle='#ff8d8d';ctx.font='10px sans-serif';ctx.fillText('홀수차수',p[0],p[1]-22);} });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('주황 점선 = 중복 추가한 간선(B–D)', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('홀수차수 정점이 0개면 오일러 회로(추가 0). 있으면 짝지어 최단경로만큼 간선 중복', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('홀수정점 짝짓기 = 최소 가중 완전매칭(블로섬). 우편배달·제설·드론 순찰 경로 최적화', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_konig', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('쾨니그 정리 — 최대 매칭 = 최소 정점 덮개', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('이분 그래프에서 짝지은 최대 쌍 수 = 모든 간선을 덮는 최소 정점 수', W/2, H*0.10+22);
+      var L=[[0.30,0.32,'a'],[0.30,0.50,'b'],[0.30,0.68,'c']];
+      var R=[[0.70,0.32,'x'],[0.70,0.50,'y'],[0.70,0.68,'z']];
+      var all=[[0,0],[0,1],[1,1],[2,1],[2,2]]; var match=[[0,0],[1,1],[2,2]];
+      all.forEach(function(e){ var a=L[e[0]],b=R[e[1]]; ctx.strokeStyle='rgba(122,184,255,0.3)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W*a[0],H*a[1]); ctx.lineTo(W*b[0],H*b[1]); ctx.stroke(); });
+      match.forEach(function(e){ var a=L[e[0]],b=R[e[1]]; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(W*a[0],H*a[1]); ctx.lineTo(W*b[0],H*b[1]); ctx.stroke(); });
+      function dots(arr,cover){ arr.forEach(function(p,i){ var cov=cover.indexOf(i)>=0; ctx.fillStyle=cov?'rgba(255,178,122,0.3)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=cov?'#ffb27a':'#7ab8ff'; ctx.lineWidth=cov?3:2; ctx.beginPath(); ctx.arc(W*p[0],H*p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(p[2],W*p[0],H*p[1]+4); }); }
+      dots(L,[0]); dots(R,[1]); // cover = {a, y}
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('주황=최소 정점 덮개 {a, y} (2개)', W/2, H*0.84);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('최대 매칭 3? 아니 2(a-x, b-y, c-z 중 y가 겹쳐 실제 최대=2) → 덮개도 2, 일치!', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('덮개 구성: 매칭 후 미매칭 정점서 교대경로 BFS. 최대독립집합 = 전체 − 최소덮개(쾨니그)', W/2, H*0.90+18); }
   }
 
   ];

@@ -2683,5 +2683,65 @@
     "q_en": "Explain, per axis, why a rectangle query in a 2D segment tree is O(log² n).",
     "sol_en": "The outer <b>x segment tree</b> covers [x1,x2] with <b>O(log n) nodes</b>, and each node's <b>inner y segment tree</b> answers [y1,y2] in <b>O(log n)</b>. The two logs multiply to <b>O(log² n)</b> — a point update is likewise O(log n) affected x-nodes × O(log n) y-update."
    }
+  },
+  "algo_br_eertree": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.1 선형 탐색 ▸ 자세히",
+   "title": "회문 트리(Eertree) — 모든 회문 부분문자열을 한 트리에",
+   "narr": "문자열의 <b>서로 다른 회문 부분문자열</b>은 놀랍게도 길이 n에 대해 <b>최대 n개</b>뿐입니다. <b>회문 트리(Eertree, palindromic tree)</b>는 이들을 글자 하나씩 추가하며 <b>O(n)</b>에 모두 보관합니다.",
+   "hint": "",
+   "more": "<b>회문 트리(Eertree / palindromic tree)</b>는 문자열의 <b>서로 다른 모든 회문 부분문자열</b>을 담는 자료구조입니다. 핵심 사실: 길이 n 문자열의 서로 다른 회문은 <b>최대 n개</b>(글자 추가마다 새 회문이 많아야 1개 생김). 구조는 <b>두 개의 가짜 뿌리</b>를 둡니다 — 길이 <b>−1</b>(홀수 길이 회문의 시작점)과 길이 <b>0</b>(짝수 길이 회문의 시작점). 각 노드는 하나의 회문을 나타내고, 글자 c로 가는 간선은 \"그 회문 양옆에 c를 붙인 회문\"을 가리킵니다(c·P·c). 또 각 노드는 <b>접미사 링크</b>(자신의 가장 긴 진(proper) 회문 접미사로)를 가집니다. <b>온라인 추가</b>: 글자를 붙일 때, 현재 위치에서 \"양옆에 이 글자를 붙일 수 있는 가장 긴 회문 접미사\"를 접미사 링크를 따라 찾고, 없던 회문이면 새 노드를 만들어 그 간선·접미사 링크를 설정합니다. 분할상환 <b>O(n)</b>(접미사 링크 점프 총합이 선형). 구할 수 있는 것: <b>서로 다른 회문 개수</b>(=노드 수−2), <b>각 회문의 출현 횟수</b>(접미사 링크 트리에서 누적), <b>최장 회문 부분문자열</b>, 특정 길이 회문 세기 등. 매내처(Manacher)가 \"최장 회문 한 개\"라면, Eertree는 \"회문 부분문자열의 구조 전체\"를 다룹니다. 회문 관련 문제의 만능 도구입니다.",
+   "more_en": "An <b>Eertree (palindromic tree)</b> stores <b>all distinct palindromic substrings</b> of a string. Key fact: a length-n string has <b>at most n</b> distinct palindromes (each appended character adds at most one new palindrome). The structure has <b>two imaginary roots</b> — length <b>−1</b> (start of odd-length palindromes) and length <b>0</b> (start of even-length ones). Each node represents one palindrome, and an edge labeled c points to \"that palindrome wrapped with c on both sides\" (c·P·c). Each node also has a <b>suffix link</b> (to its longest proper palindromic suffix). <b>Online insertion</b>: when appending a character, follow suffix links from the current position to find the longest palindromic suffix that can be wrapped with this character, and if the resulting palindrome is new, create a node and set its edge and suffix link. Amortized <b>O(n)</b> (total suffix-link jumps are linear). It yields: the <b>number of distinct palindromes</b> (nodes − 2), <b>occurrence count of each palindrome</b> (accumulated on the suffix-link tree), the <b>longest palindromic substring</b>, counts of palindromes of a given length, etc. Where Manacher finds \"one longest palindrome,\" the Eertree captures \"the whole structure of palindromic substrings\" — a Swiss-army knife for palindrome problems.",
+   "problem": {
+    "q": "회문 트리(Eertree)가 두 개의 뿌리(길이 −1과 0)를 두는 이유는?",
+    "solution": "회문은 <b>홀수 길이</b>(중심이 한 글자)와 <b>짝수 길이</b>(중심이 두 글자 사이)로 나뉩니다. 길이 <b>−1 뿌리</b>는 홀수 회문의 \"빈 중심\"(양옆에 같은 글자 c를 붙이면 길이 1 회문 c가 됨), 길이 <b>0 뿌리</b>는 짝수 회문의 시작(붙이면 cc)이 됩니다. 두 뿌리가 있어야 두 종류를 일관되게 \"양옆에 글자 붙이기\"로 생성할 수 있습니다.",
+    "q_en": "Why does an Eertree use two roots (lengths −1 and 0)?",
+    "sol_en": "Palindromes split into <b>odd length</b> (centered on one char) and <b>even length</b> (centered between two). The length <b>−1 root</b> is the \"empty center\" of odd palindromes (wrapping with a char c gives the length-1 palindrome c), and the length <b>0 root</b> starts even palindromes (wrapping gives cc). Both roots let the two kinds be generated uniformly by \"wrapping a character on both sides.\""
+   }
+  },
+  "algo_br_lyndon": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.1 선형 탐색 ▸ 자세히",
+   "title": "Lyndon 분해 — 문자열을 내림차순 최소 조각으로",
+   "narr": "모든 문자열은 <b>Lyndon 단어</b>(자기 자신이 모든 회전보다 사전순으로 작은 문자열)들의 <b>사전순 내림차순 곱</b>으로 <b>유일하게</b> 쪼개집니다. Duval 알고리즘이 이를 O(n)·O(1) 공간에 합니다.",
+   "hint": "",
+   "more": "<b>Lyndon 단어(Lyndon word)</b>는 <b>자기 자신이 자신의 모든 진(proper) 회전보다 사전순으로 엄격히 작은</b> 비어 있지 않은 문자열입니다(예: \"aab\"은 회전 \"aba\",\"baa\"보다 작아 Lyndon, \"aba\"는 회전 \"aab\"가 더 작아 아님). <b>천-폭스-린든 정리(Chen-Fox-Lyndon)</b>: 모든 문자열 s는 Lyndon 단어들 w₁ ≥ w₂ ≥ … ≥ wₖ(사전순 비증가)의 연결 <b>s = w₁w₂…wₖ로 유일하게</b> 분해됩니다. <b>Duval 알고리즘</b>은 이 분해를 <b>O(n) 시간·O(1) 추가 공간</b>에 구합니다: 두 포인터로 현재 후보 Lyndon 조각을 키우며, 다음 글자가 \"주기를 유지하면 계속, 더 크면 후보 확장, 더 작으면 완성된 Lyndon 조각들을 잘라 냄\"을 반복합니다(고전적인 두 포인터 i, j, k 패턴). 응용: ① <b>최소 회전(least rotation)</b> — s+s에 Duval을 적용하거나 부스(Booth) 알고리즘으로 O(n), ② <b>최소 접미사</b>(Lyndon 분해의 마지막 조각이 단서), ③ <b>de Bruijn 수열</b> 생성(길이를 나누는 Lyndon 단어들을 사전순으로 이어 붙이면 됨 — FKM 알고리즘), ④ 자유 리 대수(free Lie algebra)의 기저, ⑤ burrows-wheeler 관련. \"문자열을 사전순 내림차순 최소 단위로 유일 분해\"가 핵심이며, 그 단순한 O(n) 절차가 Duval입니다.",
+   "more_en": "A <b>Lyndon word</b> is a non-empty string that is <b>strictly smaller (lexicographically) than all its proper rotations</b> (e.g. \"aab\" is Lyndon since rotations \"aba\",\"baa\" are larger; \"aba\" is not, since rotation \"aab\" is smaller). The <b>Chen-Fox-Lyndon theorem</b>: every string s factors <b>uniquely</b> as s = w₁w₂…wₖ where each wᵢ is Lyndon and w₁ ≥ w₂ ≥ … ≥ wₖ (lexicographically non-increasing). <b>Duval's algorithm</b> computes this in <b>O(n) time and O(1) extra space</b>: with two pointers it grows the current candidate Lyndon piece, repeating \"continue if the next char keeps the period, extend if larger, cut off completed Lyndon pieces if smaller\" (the classic i, j, k pointer pattern). Uses: ① <b>least rotation</b> (apply Duval to s+s, or Booth's algorithm, O(n)); ② <b>least suffix</b> (the last factor hints it); ③ generating <b>de Bruijn sequences</b> (concatenate, in lexicographic order, the Lyndon words whose length divides n — the FKM algorithm); ④ bases of the free Lie algebra; ⑤ Burrows-Wheeler-related tasks. The core is \"uniquely factor a string into lexicographically non-increasing minimal units,\" and Duval is the simple O(n) procedure for it.",
+   "problem": {
+    "q": "\"aab\"는 Lyndon 단어이고 \"aba\"는 아닌 이유는?",
+    "solution": "Lyndon 단어 = <b>자신이 모든 진회전보다 사전순으로 엄격히 작은</b> 문자열입니다. \"aab\"의 회전은 \"aba\",\"baa\"인데 둘 다 \"aab\"보다 크므로 Lyndon입니다. \"aba\"의 회전 중 <b>\"aab\"가 \"aba\"보다 작으므로</b>(자신이 최소가 아님) Lyndon이 아닙니다.",
+    "q_en": "Why is \"aab\" a Lyndon word but \"aba\" is not?",
+    "sol_en": "A Lyndon word is <b>strictly smaller than all its proper rotations</b>. \"aab\" has rotations \"aba\",\"baa\", both larger, so it is Lyndon. For \"aba\", the rotation <b>\"aab\" is smaller than \"aba\"</b> (so it isn't the minimum), hence it is not Lyndon."
+   }
+  },
+  "algo_br_chinesepostman": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "중국인 우편배달부 — 모든 간선을 최소 비용으로 돌기",
+   "narr": "우편배달부는 <b>모든 길(간선)을 적어도 한 번씩</b> 지나 출발점으로 돌아와야 합니다. 모든 정점 차수가 짝수면 오일러 회로로 딱 떨어지지만, 홀수면 일부 길을 <b>중복</b>해야 합니다 — 그 추가를 최소화하는 문제입니다.",
+   "hint": "",
+   "more": "<b>중국인 우편배달부 문제(Chinese Postman / Route Inspection)</b>는 가중 그래프에서 <b>모든 간선을 최소 한 번씩</b> 지나 출발점으로 돌아오는 <b>최소 비용 닫힌 경로(폐회로)</b>를 찾습니다(외판원은 \"모든 정점\", 이건 \"모든 간선\"). 핵심: 그래프에 <b>오일러 회로가 있으면</b>(연결 + 모든 정점 차수 짝수) 그 회로가 곧 답이고 추가 비용 0입니다. 차수가 <b>홀수인 정점</b>이 있으면(항상 짝수 개 존재) 그들을 지나는 일부 간선을 <b>중복으로 더 걸어야</b> 합니다. 무방향 버전 풀이: ① 홀수차수 정점들을 모두 모으고, ② 그들 사이의 <b>최단 경로</b>를 구한 뒤, ③ 홀수 정점들을 짝지어 \"짝지은 쌍들의 최단경로 거리 합\"이 최소가 되는 <b>최소 가중 완전 매칭</b>(일반 그래프 매칭=블로섬)을 찾습니다. ④ 그 매칭이 가리키는 경로의 간선들을 그래프에 <b>중복 추가</b>하면 모든 정점이 짝수차수가 되어 오일러 회로가 생기고, 그것이 최적 경로입니다. 답 = (모든 간선 가중치 합) + (최소 매칭 비용). 방향 그래프 버전은 진입·진출차수 불균형을 <b>최소 비용 유량(MCMF)</b>으로 맞춥니다. 쓰임: 우편·신문 배달, 제설·도로 청소·검침, 드론 순찰, 회로 검사. \"오일러 회로로 못 떨어지는 만큼만 최소로 중복\"이 핵심입니다.",
+   "more_en": "The <b>Chinese Postman (Route Inspection) problem</b> finds, in a weighted graph, the <b>minimum-cost closed walk that traverses every edge at least once</b> and returns to start (TSP visits every vertex; this visits every edge). Key: if the graph <b>has an Eulerian circuit</b> (connected + all degrees even), that circuit is the answer with zero extra cost. If there are <b>odd-degree vertices</b> (always an even number of them), some edges through them must be <b>traversed again (duplicated)</b>. Undirected solution: ① collect all odd-degree vertices; ② compute <b>shortest paths</b> between them; ③ find a <b>minimum-weight perfect matching</b> (general-graph matching = blossom) of the odd vertices minimizing the sum of matched-pair shortest distances; ④ <b>duplicate the edges</b> along those matched paths, making all degrees even so an Eulerian circuit exists — that is the optimal route. Answer = (sum of all edge weights) + (minimum matching cost). The directed version balances in/out-degree imbalances via <b>min-cost flow (MCMF)</b>. Uses: mail/newspaper delivery, snow plowing / street sweeping / meter reading, drone patrol, circuit testing. The crux: \"duplicate only as much as needed to recover an Eulerian circuit, minimally.\"",
+   "problem": {
+    "q": "중국인 우편배달부에서 홀수차수 정점이 있을 때 무엇을 최소화하며, 왜 그렇게 하나?",
+    "solution": "홀수차수 정점들을 짝지어 <b>각 쌍의 최단경로 거리 합이 최소가 되는 완전 매칭</b>을 찾고, 그 경로 간선들을 중복 추가합니다. 간선을 중복하면 양 끝 정점의 차수가 +2(짝수화)되므로, 홀수 정점을 모두 짝수로 만들어야 <b>오일러 회로</b>가 생기고, 추가 거리를 최소화한 것이 곧 최소 비용 경로입니다.",
+    "q_en": "In the Chinese Postman problem with odd-degree vertices, what is minimized and why?",
+    "sol_en": "Find a <b>minimum-weight perfect matching of the odd-degree vertices by their pairwise shortest-path distances</b>, and duplicate the edges along those paths. Duplicating an edge raises both endpoints' degree by 2 (making them even), so making all odd vertices even yields an <b>Eulerian circuit</b>; minimizing the added distance gives the minimum-cost route."
+   }
+  },
+  "algo_br_konig": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.1 그래프 기초 ▸ 자세히",
+   "title": "쾨니그 정리 — 최대 매칭 = 최소 정점 덮개",
+   "narr": "이분 그래프에서 <b>짝지을 수 있는 최대 쌍의 수</b>(최대 매칭)와 <b>모든 간선을 덮는 최소 정점 수</b>(최소 정점 덮개)가 항상 같습니다 — <b>쾨니그 정리</b>. 매칭과 덮개라는 다른 두 문제를 잇는 다리입니다.",
+   "hint": "",
+   "more": "<b>쾨니그 정리(König's theorem)</b>: <b>이분 그래프</b>에서 <b>최대 매칭의 크기 = 최소 정점 덮개의 크기</b>입니다(정점 덮개 = 모든 간선이 적어도 한 끝점을 가지도록 고른 정점 집합). 일반적으로 최소 정점 덮개는 NP-난해지만, <b>이분 그래프에서는 최대 매칭으로 다항 시간</b>에 풀립니다. 덮개 <b>구성법</b>: 최대 매칭 M을 구한 뒤(예: 호프크로프트-카프), 왼쪽의 <b>미매칭 정점들에서 교대 경로(alternating path)를 따라 BFS/DFS</b>로 도달 가능한 정점 집합 Z를 표시합니다. 그러면 <b>최소 정점 덮개 = (왼쪽에서 Z에 없는 정점) ∪ (오른쪽에서 Z에 있는 정점)</b> — 그 크기가 정확히 |M|이 됩니다. 따름정리: <b>최대 독립 집합(maximum independent set) = 전체 정점 − 최소 정점 덮개</b>(독립집합과 정점덮개는 서로 여집합)이므로, 이분 그래프의 최대 독립 집합도 매칭으로 구합니다. 또 <b>딜워스 정리</b>(부분순서에서 최대 반사슬 = 최소 사슬 분할)도 이분 매칭으로 환원됩니다(최소 경로 덮개). 이 정리들은 모두 <b>최대유량-최소컷 정리의 특수 형태</b>(매칭=유량, 덮개=컷)로 통합됩니다. 쓰임: 작업 배정의 최소 자원, 행렬의 0 덮기(헝가리안), 스케줄링, 최소 경로 덮개. \"매칭과 덮개는 동전의 양면\"이 핵심입니다.",
+   "more_en": "<b>König's theorem</b>: in a <b>bipartite graph</b>, the <b>size of a maximum matching equals the size of a minimum vertex cover</b> (a vertex cover is a set of vertices touching every edge). Minimum vertex cover is NP-hard in general, but <b>polynomial for bipartite graphs via maximum matching</b>. To <b>construct the cover</b>: find a maximum matching M (e.g. Hopcroft-Karp), then from the left's <b>unmatched vertices do a BFS/DFS along alternating paths</b>, marking the reachable set Z. The <b>minimum vertex cover = (left vertices NOT in Z) ∪ (right vertices IN Z)</b>, whose size is exactly |M|. Corollary: the <b>maximum independent set = all vertices − minimum vertex cover</b> (independent set and vertex cover are complements), so bipartite maximum independent set is also found via matching. <b>Dilworth's theorem</b> (in a poset, the largest antichain = the minimum chain partition) also reduces to bipartite matching (minimum path cover). These all unify as special cases of the <b>max-flow/min-cut theorem</b> (matching = flow, cover = cut). Uses: minimum resources in assignment, covering zeros of a matrix (Hungarian), scheduling, minimum path cover. The crux: \"matching and cover are two sides of one coin.\"",
+   "problem": {
+    "q": "쾨니그 정리로 이분 그래프의 최대 독립 집합을 어떻게 구하나?",
+    "solution": "쾨니그 정리로 <b>최소 정점 덮개 = 최대 매칭</b> 크기이고, <b>최대 독립 집합 = 전체 정점 − 최소 정점 덮개</b>입니다(독립집합과 덮개는 여집합 관계). 따라서 최대 매칭을 구해(호프크로프트-카프) 덮개를 교대경로 BFS로 구성한 뒤, 그 여집합을 취하면 최대 독립 집합 — 모두 다항 시간입니다.",
+    "q_en": "How do you find a bipartite graph's maximum independent set via König's theorem?",
+    "sol_en": "By König's theorem the <b>minimum vertex cover = maximum matching</b> size, and the <b>maximum independent set = all vertices − minimum vertex cover</b> (cover and independent set are complements). So compute a maximum matching (Hopcroft-Karp), build the cover via alternating-path BFS, and take its complement — all in polynomial time."
+   }
   }
 }
