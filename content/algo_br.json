@@ -1783,5 +1783,65 @@
     "q_en": "Why does a treap have expected O(log n) height without explicit balancing?",
     "sol_en": "Because <b>priorities are random</b>, the tree equals a BST built by inserting keys in <b>random order</b>; random-insertion BSTs have expected height O(log n), so treaps do too."
    }
+  },
+  "algo_br_centroid": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.3 트리 순회 ▸ 자세히",
+   "title": "센트로이드 분할 — 트리판 분할 정복",
+   "narr": "배열은 가운데를 잡아 반씩 쪼개면 깊이 O(log n). 트리는 <b>센트로이드(무게중심)</b>를 떼면 남는 조각이 <b>모두 절반 이하</b>가 되어, 같은 O(log n) 깊이의 분할 정복이 가능합니다.",
+   "hint": "",
+   "more": "<b>센트로이드 분할(Centroid Decomposition)</b>은 트리를 <b>분할 정복</b>하는 기법입니다. 트리의 <b>센트로이드</b>란 그 정점을 제거했을 때 <b>남는 모든 조각의 크기가 n/2 이하</b>가 되는 정점입니다(항상 존재). 센트로이드를 떼고 → 각 조각에서 다시 센트로이드를 떼는 일을 재귀하면, <b>센트로이드 분해 트리</b>가 만들어지고 그 <b>높이는 O(log n)</b>입니다. 핵심 성질: 원래 트리의 임의의 <b>경로</b>는 두 끝점의 센트로이드 분해 트리상 <b>최소 공통 조상인 센트로이드를 반드시 지납니다</b>. 그래서 \"모든 경로\"에 대한 질의를, 각 센트로이드에서 \"그 센트로이드를 지나는 경로들\"만 따로 모아 처리하면, 각 정점이 O(log n)개의 센트로이드에만 속하므로 전체가 <b>O(n log n)</b>이 됩니다. 쓰임: 트리에서 <b>거리 ≤ k인 정점쌍 개수</b>, 길이가 특정 값인 경로 세기, 경로상 색·합 질의, 트리 위 가장 가까운 표시 정점 찾기. 트리를 \"중심에서부터\" 보는 강력한 관점입니다.",
+   "more_en": "<b>Centroid Decomposition</b> is divide-and-conquer on a tree. A tree's <b>centroid</b> is a vertex whose removal leaves <b>every remaining piece of size ≤ n/2</b> (one always exists). Removing the centroid, then recursively removing a centroid in each piece, builds a <b>centroid-decomposition tree</b> of <b>height O(log n)</b>. Key property: any <b>path</b> in the original tree must pass through the <b>centroid that is the LCA of its endpoints</b> in the decomposition tree. So a query over \"all paths\" can be handled by gathering, at each centroid, only the paths through that centroid; since each vertex belongs to O(log n) centroids, the total is <b>O(n log n)</b>. Uses: counting <b>vertex pairs at distance ≤ k</b>, counting paths of a given length, path color/sum queries, nearest marked vertex on a tree. A powerful \"from the center outward\" view of a tree.",
+   "problem": {
+    "q": "센트로이드 분할이 트리 경로 질의를 O(n log n)에 푸는 핵심 성질은?",
+    "solution": "모든 경로는 두 끝점의 <b>분해 트리상 최소 공통 센트로이드를 반드시 지납니다</b>. 그래서 센트로이드별로 \"그를 지나는 경로\"만 모으면 되고, 각 정점이 O(log n)개 센트로이드에만 속해 전체 O(n log n)입니다.",
+    "q_en": "What property lets centroid decomposition answer tree-path queries in O(n log n)?",
+    "sol_en": "Every path must pass through the <b>lowest common centroid of its endpoints</b> in the decomposition tree, so each centroid only handles paths through it; since each vertex lies in O(log n) centroids, the total is O(n log n)."
+   }
+  },
+  "algo_br_sparse": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열과 리스트 ▸ 자세히",
+   "title": "희소 테이블 — 구간 최솟값을 O(1)에",
+   "narr": "구간 최솟값(RMQ)을 묻는 질의가 아주 많고 <b>값이 바뀌지 않는다면</b>, 세그먼트 트리(O(log n))보다 빠른 <b>희소 테이블</b>로 <b>질의 O(1)</b>이 가능합니다.",
+   "hint": "",
+   "more": "<b>희소 테이블(Sparse Table)</b>은 <b>변하지 않는 배열</b>에서 <b>겹쳐도 되는 연산</b>(min·max·gcd·AND 등, '멱등' 연산)의 구간 질의를 <b>O(1)</b>에 답합니다. <b>sparse[i][j]</b> = 시작 i, 길이 <b>2^j</b> 구간의 답을 미리 채웁니다: sparse[i][j] = op(sparse[i][j−1], sparse[i + 2^(j−1)][j−1]) — 길이 2^j 블록을 두 개의 2^(j−1) 블록으로 만드는 점화식, 전처리 <b>O(n log n)</b>. <b>질의 [l, r]</b>: 구간 길이 len = r−l+1에서 <b>k = ⌊log₂ len⌋</b>을 잡으면, <b>왼쪽 2^k 블록</b> sparse[l][k]와 <b>오른쪽 2^k 블록</b> sparse[r−2^k+1][k] <b>둘이 [l, r]을 (겹쳐서) 정확히 덮습니다</b>. min은 같은 값을 두 번 봐도 답이 같으므로(멱등), 두 블록의 op만으로 <b>O(1)</b>. 단점: <b>갱신 불가</b>(값이 바뀌면 다시 만들어야 함)와 메모리 O(n log n). 합처럼 겹치면 안 되는 연산은 펜윅/세그트리를 씁니다. 멱등 + 정적 + 질의 폭주가 희소 테이블의 자리입니다.",
+   "more_en": "A <b>Sparse Table</b> answers range queries of an <b>overlap-friendly (idempotent) operation</b> (min·max·gcd·AND…) on a <b>static array</b> in <b>O(1)</b>. <b>sparse[i][j]</b> = answer for the length-<b>2^j</b> range starting at i, filled by sparse[i][j] = op(sparse[i][j−1], sparse[i + 2^(j−1)][j−1]) — building a 2^j block from two 2^(j−1) blocks, preprocessing <b>O(n log n)</b>. For a <b>query [l, r]</b>, let len = r−l+1 and <b>k = ⌊log₂ len⌋</b>; then the <b>left 2^k block</b> sparse[l][k] and the <b>right 2^k block</b> sparse[r−2^k+1][k] <b>exactly cover [l, r] with overlap</b>. Since min gives the same answer even seeing a value twice (idempotent), one op over the two blocks is <b>O(1)</b>. Drawbacks: <b>no updates</b> (rebuild on change) and O(n log n) memory. For non-overlap-safe ops like sum, use a Fenwick/segment tree. Idempotent + static + many queries is where the sparse table shines.",
+   "problem": {
+    "q": "희소 테이블이 임의 구간 질의를 단 두 블록으로 O(1)에 답하는 이유는?",
+    "solution": "min·max·gcd는 같은 원소를 두 번 봐도 답이 같은 <b>멱등 연산</b>이기 때문입니다. 구간 [l,r]을 길이 2^k 블록 두 개(왼쪽 끝·오른쪽 끝)로 <b>겹쳐서</b> 덮어도 답이 정확하므로, op 한 번이면 됩니다.",
+    "q_en": "Why can a sparse table answer any range query with just two blocks in O(1)?",
+    "sol_en": "Because min·max·gcd are <b>idempotent</b> — seeing an element twice doesn't change the answer. Two length-2^k blocks (from each end) cover [l,r] with overlap, and one op over them is exact, hence O(1)."
+   }
+  },
+  "algo_br_ett": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.3 트리 순회 ▸ 자세히",
+   "title": "오일러 투어 기법 — 트리를 배열로 펼치기",
+   "narr": "트리의 <b>서브트리 갱신·질의</b>를 어떻게 빠르게 할까요? DFS의 <b>진입 시각(tin)과 탈출 시각(tout)</b>을 기록하면, 한 서브트리가 배열의 <b>연속 구간 [tin, tout]</b>이 되어 구간 자료구조를 그대로 씁니다.",
+   "hint": "",
+   "more": "<b>오일러 투어 기법(Euler Tour Technique, ETT)</b>은 트리를 <b>1차원 배열</b>로 평탄화합니다. 루트에서 DFS를 돌며 정점에 처음 들어간 순서로 <b>tin[v]</b>(진입 시각)를, 그 서브트리를 다 보고 나올 때 <b>tout[v]</b>(탈출 시각)를 매깁니다. 그러면 핵심 성질이 둘 생깁니다: ① <b>정점 v의 서브트리</b> = 배열의 <b>연속 구간 [tin[v], tout[v]]</b> — 그래서 \"서브트리 전체에 더하기/서브트리 합\" 같은 질의가 <b>구간 갱신·구간 질의</b>가 되어 <b>펜윅 트리나 세그먼트 트리로 O(log n)</b>에 처리됩니다. ② <b>조상 판정</b>: u가 v의 조상 ⇔ <b>tin[u] ≤ tin[v] ≤ tout[u]</b> 를 O(1)에 검사. (각 정점을 들어갈 때·나올 때 두 번 기록하는 변형은 <b>경로 합</b>까지 다룹니다.) 경로(서브트리가 아닌 두 정점 사이) 질의는 ETT만으로 부족해, <b>HLD(Heavy-Light 분해)</b>나 <b>LCA</b>와 결합합니다. ETT는 \"트리 문제를 익숙한 배열 구간 문제로 바꾸는\" 다리입니다.",
+   "more_en": "The <b>Euler Tour Technique (ETT)</b> flattens a tree into a <b>1-D array</b>. A DFS from the root assigns <b>tin[v]</b> (entry time) in first-visit order and <b>tout[v]</b> (exit time) when its subtree is finished. Two key properties follow: ① <b>v's subtree</b> = the <b>contiguous range [tin[v], tout[v]]</b>, so \"add to a whole subtree / subtree sum\" becomes a <b>range update / range query</b> handled by a <b>Fenwick or segment tree in O(log n)</b>. ② <b>Ancestry test</b>: u is an ancestor of v ⇔ <b>tin[u] ≤ tin[v] ≤ tout[u]</b> in O(1). (A variant recording each vertex twice, on entry and exit, also supports <b>path sums</b>.) Queries on a <b>path</b> between two vertices (not a subtree) need more — combine ETT with <b>Heavy-Light Decomposition</b> or <b>LCA</b>. ETT is the bridge that turns tree problems into familiar array-range problems.",
+   "problem": {
+    "q": "오일러 투어 기법에서 한 서브트리가 배열의 연속 구간이 되는 이유는?",
+    "solution": "DFS는 v에 들어가면 v의 <b>모든 후손을 다 본 뒤</b> 빠져나옵니다. 그래서 진입 시각 tin[v]와 탈출 시각 tout[v] 사이의 모든 시각은 정확히 v의 서브트리 정점들 → 구간 <b>[tin[v], tout[v]]</b>가 됩니다.",
+    "q_en": "Why does a subtree become a contiguous array range in the Euler tour technique?",
+    "sol_en": "DFS enters v, visits <b>all of v's descendants</b>, then leaves. So every time between tin[v] and tout[v] belongs exactly to v's subtree, giving the range <b>[tin[v], tout[v]]</b>."
+   }
+  },
+  "algo_br_grundy": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "님과 그런디 — 공정 게임의 승패를 XOR로",
+   "narr": "두 사람이 번갈아 두는 게임, 누가 이길까요? <b>님 게임</b>은 더미 크기를 모두 <b>XOR</b>해 0이면 둘 차례 패, 0이 아니면 승. 모든 공정 게임이 이 한 줄로 환원됩니다(<b>스프라그-그런디 정리</b>).",
+   "hint": "",
+   "more": "<b>공정 게임(impartial game)</b>은 양쪽이 둘 수 있는 수가 같고, 마지막에 둘 수 없는 쪽이 지는 게임입니다. <b>그런디 수(Grundy number)</b> g(상태)를 <b>g = mex{ 한 수로 갈 수 있는 다음 상태들의 그런디 수 }</b> 로 정의합니다. 여기서 <b>mex(집합)</b> = 집합에 없는 가장 작은 음 아닌 정수(예: mex{0,1,3}=2). 그러면 <b>g=0인 상태는 패배 상태(P-position)</b>: 무엇을 둬도 g≠0인 상태(상대의 승리)로 넘어갑니다. 반대로 g≠0이면 g=0으로 가는 수가 있어 승리 상태입니다. <b>님(Nim)</b>: 여러 더미에서 한 더미의 돌을 원하는 만큼 가져가는 게임 — 한 더미(크기 a)의 그런디 수는 a이고, <b>독립 게임의 합의 그런디 수는 각 그런디 수의 XOR</b>입니다(스프라그-그런디 정리). 그래서 님의 답은 <b>모든 더미 크기의 XOR</b>: 0이면 둘 차례(선수) 패, 0이 아니면 승. 임의의 공정 게임도 각 부분 게임의 그런디 수를 구해 XOR하면 전체 승패가 나옵니다. 게임을 \"하나의 님 더미\"로 압축하는 마법입니다.",
+   "more_en": "An <b>impartial game</b> gives both players the same available moves, and whoever cannot move loses. Define the <b>Grundy number</b> g(state) = <b>mex{ Grundy numbers of states reachable in one move }</b>, where <b>mex(set)</b> = smallest non-negative integer not in the set (e.g. mex{0,1,3}=2). Then a <b>state with g=0 is a losing position (P-position)</b>: every move leads to g≠0 (a win for the opponent); conversely g≠0 means some move reaches g=0, a winning position. <b>Nim</b>: take any number of stones from one pile — a single pile of size a has Grundy number a, and the <b>Grundy number of a sum of independent games is the XOR of their Grundy numbers</b> (Sprague-Grundy theorem). So Nim's verdict is the <b>XOR of all pile sizes</b>: 0 means the player to move loses, nonzero means they win. Any impartial game reduces the same way — compute each sub-game's Grundy number and XOR them. The magic of compressing a game into a single Nim pile.",
+   "problem": {
+    "q": "여러 게임을 동시에 하는 공정 게임의 승패는 어떻게 한 번에 판정하나?",
+    "solution": "<b>스프라그-그런디 정리</b>로 각 게임의 그런디 수를 구해 <b>모두 XOR</b>합니다. XOR가 0이면 현재 차례가 패(P-position), 0이 아니면 승입니다. 님은 그 특수형(더미 그런디 수 = 더미 크기)입니다.",
+    "q_en": "How do you decide the winner of several impartial games played at once?",
+    "sol_en": "By the <b>Sprague-Grundy theorem</b>, compute each game's Grundy number and <b>XOR them all</b>. XOR=0 means the player to move loses (P-position); nonzero means they win. Nim is the special case where a pile's Grundy number equals its size."
+   }
   }
 }

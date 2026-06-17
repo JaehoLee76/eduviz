@@ -2313,6 +2313,115 @@
       ctx.fillText('키: 왼쪽<부모<오른쪽(BST). 우선순위: 부모 ≥ 자식(힙). 둘을 동시 만족 → 모양이 유일', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('우선순위가 무작위라 기대 높이 O(log n). 회전(또는 split/merge)으로 유지. 구간 트립=배열 연산까지', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_centroid', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('센트로이드 분할 — 트리를 절반씩 쪼개는 분할 정복', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('센트로이드(무게중심)를 떼면 남는 조각이 모두 절반 이하 → 재귀 깊이 O(log n)', W/2, H*0.10+22);
+      // 트리: 센트로이드 c를 가운데, 양옆 서브트리
+      var N={ c:[0.50,0.32], a:[0.26,0.52], b:[0.74,0.52], a1:[0.16,0.72], a2:[0.34,0.72], b1:[0.66,0.72], b2:[0.84,0.72] };
+      var edges=[['c','a'],['c','b'],['a','a1'],['a','a2'],['b','b1'],['b','b2']];
+      function xy(k){ return [W*0.12+N[k][0]*W*0.76, H*0.24+N[k][1]*H*0.46]; }
+      edges.forEach(function(e){ var a=xy(e[0]),b=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k), c=(k==='c');
+        ctx.fillStyle=c?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=c?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],c?22:16,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+      var cp=xy('c'); ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif'; ctx.fillText('센트로이드', cp[0], cp[1]+4);
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif';
+      var ap=xy('a'),bp=xy('b'); ctx.fillText('≤ n/2', ap[0], ap[1]-24); ctx.fillText('≤ n/2', bp[0], bp[1]-24);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('각 정점은 센트로이드 분해 트리에서 O(log n)개 조각에만 속함 → 경로 질의를 센트로이드 경유로 분류', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 트리에서 거리 ≤ k 인 정점쌍 세기, 경로 합/색칠 질의. 전체 O(n log n)', W/2, H*0.90+20); }
+  },
+
+  { id:'algo_br_sparse', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('희소 테이블 — 구간 최솟값(RMQ)을 O(1)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 칸에서 길이 2^j 구간의 답을 미리 저장. 갱신은 없지만 질의는 O(1)', W/2, H*0.10+22);
+      var arr=[5,2,8,1,9,3,7,4]; var n=arr.length;
+      var bx=W*0.5-(n*46)/2, by=H*0.30, cw=42;
+      for(var i=0;i<n;i++){ var x=bx+i*46;
+        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,by,cw,34); ctx.strokeRect(x,by,cw,34);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.fillText(arr[i],x+cw/2,by+22);
+        ctx.fillStyle='#6a6873'; ctx.font='10px sans-serif'; ctx.fillText(i,x+cw/2,by-6); }
+      // 질의 [2,6] = min of two overlapping 2^2=4 blocks: [2..5],[3..6]
+      function blk(l,len,row,col){ var x1=bx+l*46, w=(len-1)*46+cw, y=by+row*30+50;
+        ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(x1-2,y,w+4,20);
+        ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('min['+l+'..'+(l+len-1)+']', x1, y+34); ctx.textAlign='center'; }
+      blk(2,4,0,'#ffb27a'); blk(3,4,1,'#8fe3b5');
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('질의 [2..6] = min( sparse[2][2] , sparse[3][2] ) = min(1, 1) = 1', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('겹쳐도 되는 연산(min·max·gcd)이라 두 개의 2^k 블록으로 임의 구간을 덮음 → O(1)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('전처리 O(n log n)·메모리 O(n log n). 합처럼 겹치면 안 되는 연산은 펜윅/세그트리 사용', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_ett', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('오일러 투어 기법 — 트리를 배열로 펼치기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('DFS 진입/탈출 시각을 기록하면, 서브트리가 배열의 연속 구간 [tin, tout]이 된다', W/2, H*0.10+22);
+      var N={ r:[0.50,0.26,'A','1..8'], a:[0.30,0.50,'B','2..5'], b:[0.70,0.50,'F','6..7'], c:[0.20,0.74,'C','3'], d:[0.40,0.74,'D','4'] };
+      var edges=[['r','a'],['r','b'],['a','c'],['a','d']];
+      function xy(k){ return [W*0.12+N[k][0]*W*0.5, H*0.22+N[k][1]*H*0.44]; }
+      edges.forEach(function(e){ var a=xy(e[0]),b=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k), r=(k==='a');
+        ctx.fillStyle=r?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=r?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],18,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=r?'#ffb27a':'#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+1);
+        ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText(N[k][3],p[0],p[1]+30); });
+      // euler array on the right
+      var seq=['A','B','C','D','F']; var ex=W*0.66, ey=H*0.40;
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('DFS 순서 배열', ex+seq.length*16, ey-18);
+      for(var i=0;i<seq.length;i++){ var x=ex+i*34;
+        ctx.fillStyle='rgba(143,227,181,0.14)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,ey,30,26); ctx.strokeRect(x,ey,30,26);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(seq[i],x+15,ey+18);
+        ctx.fillStyle='#6a6873'; ctx.font='10px sans-serif'; ctx.fillText(i+1,x+15,ey-6); }
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(ex+34-2,ey-2,30*4+34-30+4,30);
+      ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.fillText('B의 서브트리 = 구간 [2..5]', ex+2.5*34, ey+44);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('서브트리 갱신·질의 = 배열 구간 연산 → 펜윅/세그트리로 O(log n). 경로는 HLD와 결합', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('정점 v의 조상 여부도 tin[u] ≤ tin[v] ≤ tout[u] 로 O(1) 판정', W/2, H*0.90+20); }
+  },
+
+  { id:'algo_br_grundy', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('님과 그런디 수 — 공정 게임의 승패 공식', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 상태에 그런디 수 g = mex(다음 상태들의 g). g=0이면 패(다음 차례가 짐)', W/2, H*0.10+22);
+      // Nim: 3 piles, XOR
+      var piles=[3,4,5]; var px=W*0.5-(piles.length*120)/2+60, py=H*0.30;
+      ctx.font='600 14px sans-serif';
+      for(var i=0;i<piles.length;i++){ var cx=px+i*120;
+        for(var j=0;j<piles[i];j++){ ctx.fillStyle='rgba(122,184,255,0.5)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
+          var ry=py+90-j*22; ctx.fillRect(cx-22,ry,44,16); ctx.strokeRect(cx-22,ry,44,16); }
+        ctx.fillStyle='#8fe3b5'; ctx.fillText('g='+piles[i], cx, py+120);
+        ctx.fillStyle='#6a6873'; ctx.font='12px sans-serif'; ctx.fillText('더미 '+(i+1), cx, py-14); ctx.font='600 14px sans-serif'; }
+      ctx.fillStyle='#ffb27a'; ctx.font='600 18px sans-serif';
+      ctx.fillText('3 XOR 4 XOR 5 = 2  ≠ 0  →  먼저 두는 쪽이 이긴다', W/2, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('님: 각 더미 크기를 모두 XOR. 결과 0=현재 차례 패, 0 아님=현재 차례 승', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('스프라그-그런디 정리: 모든 공정 게임은 님 더미 하나와 동치. 독립 게임의 합 = 그런디 수의 XOR', W/2, H*0.80+20);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('mex(집합) = 집합에 없는 가장 작은 음 아닌 정수. 예: mex{0,1,3}=2', W/2, H*0.80+40); }
   }
 
   ];
