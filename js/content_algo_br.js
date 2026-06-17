@@ -992,6 +992,86 @@
         ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.strokeRect(x,y,cell,cell);
         if(sol[r]===c){ ctx.fillStyle='#ffb27a'; ctx.font=Math.round(cell*0.5)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('♛',x+cell/2,y+cell/2); ctx.textBaseline='alphabetic'; } }
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('4-퀸 해 하나 — 같은 행·열·대각선에 두 퀸이 없음', E.W/2, y0+N*cell+26); }
+  },
+
+  // ══════ 힙(algo5_04) ▸ 세그먼트 트리 (concept) ══════
+  { id:'algo_br_segtree', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      drawTreeB(E, [10,4,6,3,1,4,2], function(j){ if(j===0) return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'전체 합'}; if(j>=3) return {fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5',tag:'원소'}; return null; }, {lg:E.H*0.18,r:22});
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('잎=원소 [3,1,4,2], 내부=구간 합. 구간 질의·갱신을 O(log n)에', E.W/2, E.H*0.88); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 트라이(Trie) (concept) ══════
+  { id:'algo_br_trie', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, top=E.H*0.16, lg=E.H*0.16;
+      function nd(p,l,end){ AV.node(E,p[0],p[1],l,{r:18,fill:end?'rgba(143,227,181,0.25)':'rgba(122,184,255,0.16)',stroke:end?'#8fe3b5':'#7ab8ff',text:'#dfeefb',fs:15,tag:end?'끝':null}); }
+      function ed(a,b){ ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); }
+      var root=[cx,top], C=[cx-E.W*0.2,top+lg], D=[cx+E.W*0.2,top+lg], A=[cx-E.W*0.2,top+2*lg], O=[cx+E.W*0.2,top+2*lg], T=[cx-E.W*0.32,top+3*lg], R=[cx-E.W*0.08,top+3*lg], G=[cx+E.W*0.2,top+3*lg];
+      ed(root,C);ed(root,D);ed(C,A);ed(D,O);ed(A,T);ed(A,R);ed(O,G);
+      nd(root,'●'); nd(C,'c'); nd(D,'d'); nd(A,'a'); nd(O,'o'); nd(T,'t',true); nd(R,'r',true); nd(G,'g',true);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('cat · car · dog — 공통 접두어(c-a)를 공유하는 경로', E.W/2, top+4*lg); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ 슬라이딩 윈도우 (코드+스텝) ══════
+  { id:'algo_br_window', branchOf:'algo4_01',
+    code:[
+      'WINDOW-MAX-SUM(A, k) {        // 크기 k 창 최대합',
+      '  sum = (앞 k칸의 합)',
+      '  best = sum',
+      '  for i = k to n-1:',
+      '    sum += A[i] - A[i-k]      // 한 칸 밀기',
+      '    best = max(best, sum)',
+      '  return best',
+      '}'
+    ],
+    build:function(V){ var A=[2,1,5,1,3,2], k=3, n=A.length, sum=0, st=[];
+      for(var i=0;i<k;i++) sum+=A[i]; var best=sum, bestL=0;
+      function snap(line,cap,L,extra){ var f={line:line,cap:cap,A:A,k:k,L:L,sum:sum,best:best}; if(extra)for(var key in extra)f[key]=extra[key]; st.push(f); }
+      snap(2,'처음 '+k+'칸 합 = '+sum+'. 이게 첫 윈도우.',0);
+      for(i=k;i<n;i++){ sum+=A[i]-A[i-k];
+        snap(4,'창을 한 칸 →: +A['+i+']('+A[i]+') −A['+(i-k)+']('+A[i-k]+') = 합 <b>'+sum+'</b>', i-k+1);
+        if(sum>best){ best=sum; bestL=i-k+1; snap(5,'최대 갱신! best = <b>'+best+'</b>', i-k+1); }
+      }
+      snap(6,'<b>완료!</b> 크기 '+k+' 창 최대합 = <b>'+best+'</b>. 매번 재계산 없이 O(n)!',bestL,{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx;
+      var info=AV.arr(V, f.A, { y:V.H*0.4, bw:56, gap:10, idx:true, hl:function(k){ if(k>=f.L&&k<f.L+f.k) return {fill:'rgba(255,178,122,0.28)',stroke:'#ffb27a',text:'#ffb27a'}; return null; } });
+      ctx.font='600 16px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.fillText('현재 창 합 = '+f.sum, V.W*0.4, info.y+info.bw+40);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('최대 = '+f.best, V.W*0.6, info.y+info.bw+40); }
+  },
+
+  // ══════ 효율성(algo1_02) ▸ 에라토스테네스의 체 (코드+스텝) ══════
+  { id:'algo_br_sieve', branchOf:'algo1_02',
+    code:[
+      'SIEVE(n) {                      // n 이하 소수 찾기',
+      '  is_prime[2..n] = true',
+      '  for p = 2 to √n:',
+      '    if (is_prime[p])',
+      '      for m = p*p to n step p:',
+      '        is_prime[m] = false      // p의 배수 제거',
+      '}'
+    ],
+    build:function(V){ var n=30, isp=[], st=[];
+      for(var i=0;i<=n;i++) isp[i]=i>=2;
+      function snap(line,cap,p,extra){ var f={line:line,cap:cap,isp:isp.slice(),n:n,p:p==null?-1:p}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(1,'2부터 '+n+'까지 모두 소수 후보로 표시.',-1);
+      for(var p=2;p*p<=n;p++){ if(!isp[p]) continue;
+        snap(3,'<b>'+p+'</b> 은 소수 → 그 배수들을 지웁니다.',p);
+        for(var m=p*p;m<=n;m+=p){ isp[m]=false; }
+        snap(5,p+'의 배수('+(p*p)+', '+(p*p+p)+', …) 전부 합성수로 제거.',p);
+      }
+      snap(6,'<b>완료!</b> 남은 초록이 소수. 약 O(n log log n)로 매우 빠름.',-1,{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx, cols=7, cell=Math.min(60,V.W*0.095), x0=V.W/2-cols*cell/2, y0=V.H*0.2;
+      for(var v=2;v<=f.n;v++){ var idx=v-2, r=Math.floor(idx/cols), c=idx%cols, x=x0+c*cell, y=y0+r*cell;
+        var prime=f.isp[v], isP=(v===f.p);
+        ctx.fillStyle=isP?'rgba(255,178,122,0.35)':prime?'rgba(143,227,181,0.22)':'rgba(255,255,255,0.03)';
+        ctx.strokeStyle=isP?'#ffb27a':prime?'#8fe3b5':'rgba(255,255,255,0.12)'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,y,cell-4,cell-4); ctx.strokeRect(x,y,cell-4,cell-4);
+        ctx.fillStyle=prime?(isP?'#ffb27a':'#8fe3b5'):'#5a5f6b'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+(cell-4)/2,y+(cell-4)/2); ctx.textBaseline='alphabetic'; } }
   }
 
   ];
