@@ -1072,6 +1072,60 @@
         ctx.strokeStyle=isP?'#ffb27a':prime?'#8fe3b5':'rgba(255,255,255,0.12)'; ctx.lineWidth=1.5;
         ctx.fillRect(x,y,cell-4,cell-4); ctx.strokeRect(x,y,cell-4,cell-4);
         ctx.fillStyle=prime?(isP?'#ffb27a':'#8fe3b5'):'#5a5f6b'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+(cell-4)/2,y+(cell-4)/2); ctx.textBaseline='alphabetic'; } }
+  },
+
+  // ══════ 그래프(algo6_01) ▸ 이분 매칭 (CLRS 25, concept) ══════
+  { id:'algo_br_bipmatch', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      var L=[[E.W*0.34,E.H*0.30],[E.W*0.34,E.H*0.48],[E.W*0.34,E.H*0.66]], R=[[E.W*0.62,E.H*0.30],[E.W*0.62,E.H*0.48],[E.W*0.62,E.H*0.66]];
+      var edges=[[0,0],[0,1],[1,0],[1,2],[2,1]], match=[[0,0],[1,2],[2,1]];
+      function isM(a,b){ return match.some(function(m){return m[0]===a&&m[1]===b;}); }
+      edges.forEach(function(e){ var a=L[e[0]],b=R[e[1]], m=isM(e[0],e[1]); ctx.strokeStyle=m?'#8fe3b5':'rgba(255,255,255,0.16)'; ctx.lineWidth=m?4:1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      var ln=['A','B','C'], rn=['X','Y','Z'];
+      L.forEach(function(p,i){ AV.node(E,p[0],p[1],ln[i],{r:20,stroke:'#ffb27a',fill:'rgba(255,178,122,0.18)',text:'#ffb27a'}); });
+      R.forEach(function(p,i){ AV.node(E,p[0],p[1],rn[i],{r:20,stroke:'#7ab8ff',fill:'rgba(122,184,255,0.18)',text:'#bfe0ff'}); });
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('지원자(주황)', E.W*0.34, E.H*0.22); ctx.fillText('직무(파랑)', E.W*0.62, E.H*0.22);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('초록 = 최대 매칭 (3쌍 모두 짝지음)', E.W/2, E.H*0.82); }
+  },
+
+  // ══════ 균형(algo5_05) ▸ AVL 트리 (concept) ══════
+  { id:'algo_br_avl', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      drawTreeB(E, [3,2,null,1], function(j){ if(j===0)return {fill:'rgba(244,160,192,0.25)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'BF +2'}; return {fill:'rgba(244,160,192,0.15)',stroke:'#f4a0c0',text:'#f4a0c0'}; }, {left:E.W*0.02,right:E.W*0.46,top:E.H*0.26,lg:E.H*0.16,r:19});
+      drawTreeB(E, [2,1,3], function(){ return {fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5'}; }, {left:E.W*0.54,right:E.W*0.98,top:E.H*0.30,lg:E.H*0.16,r:19});
+      AV.arrow(ctx, E.W*0.485, E.H*0.42, E.W*0.515, E.H*0.42, '#8fe3b5', 3);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('우회전', E.W*0.5, E.H*0.4);
+      ctx.fillStyle='#f4a0c0'; ctx.font='13px sans-serif'; ctx.fillText('불균형 (높이차 2)', E.W*0.24, E.H*0.82);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('회전 후 균형 (높이차 ≤1)', E.W*0.76, E.H*0.82); }
+  },
+
+  // ══════ 종합(algo8_05) ▸ k-means 클러스터링 (CLRS 33, concept) ══════
+  { id:'algo_br_kmeans', concept:true, branchOf:'algo8_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      var c1=[[0.25,0.3],[0.34,0.42],[0.2,0.48],[0.3,0.58]], c2=[[0.7,0.32],[0.78,0.48],[0.64,0.58],[0.8,0.38]];
+      function px(p){ return [E.W*0.18+p[0]*E.W*0.62, E.H*0.18+p[1]*E.H*0.5]; }
+      c1.forEach(function(p){ var q=px(p); ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(q[0],q[1],7,0,7); ctx.fill(); });
+      c2.forEach(function(p){ var q=px(p); ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(q[0],q[1],7,0,7); ctx.fill(); });
+      [[px([0.27,0.44]),'#ffb27a'],[px([0.73,0.44]),'#7ab8ff']].forEach(function(c){ ctx.fillStyle=c[1]; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(c[0][0],c[0][1]-11); ctx.lineTo(c[0][0]+10,c[0][1]+7); ctx.lineTo(c[0][0]-10,c[0][1]+7); ctx.closePath(); ctx.fill(); ctx.stroke(); });
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('점=데이터, ▲=군집 중심. 가까운 중심에 배정 → 중심 재계산 → 반복', E.W/2, E.H*0.78); }
+  },
+
+  // ══════ 종합(algo8_05) ▸ 경사하강법 (CLRS 33, concept) ══════
+  { id:'algo_br_graddesc', concept:true, branchOf:'algo8_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, baseY=E.H*0.70, w=E.W*0.52, x0=cx-w/2, amp=E.H*0.4;
+      function Y(t){ return baseY-amp*Math.pow((t-0.5)*2,2); }
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var i=0;i<=100;i++){ var t=i/100, xx=x0+t*w; if(i===0)ctx.moveTo(xx,Y(t)); else ctx.lineTo(xx,Y(t)); } ctx.stroke();
+      var ts=[0.08,0.24,0.38,0.46,0.5];
+      ts.forEach(function(t,i){ var xx=x0+t*w, yy=Y(t), last=(i===ts.length-1);
+        if(i>0){ var pt=ts[i-1]; ctx.strokeStyle='rgba(255,178,122,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x0+pt*w,Y(pt)); ctx.lineTo(xx,yy); ctx.stroke(); ctx.setLineDash([]); }
+        ctx.fillStyle=last?'#8fe3b5':'#ffb27a'; ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(xx,yy,last?9:6,0,7); ctx.fill(); if(last)ctx.stroke(); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('최소점', cx, Y(0.5)+22);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('기울기 반대 방향으로 조금씩 내려가 비용 최소점에 도달', cx, E.H*0.84); }
   }
 
   ];

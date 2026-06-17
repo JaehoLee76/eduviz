@@ -838,5 +838,65 @@
    "q_en": "In the sieve, why cross out multiples of p starting at p²?",
    "sol_en": "Multiples of p with a smaller prime factor (2p, 3p, …) were <b>already crossed out</b> in earlier prime steps. p² is the smallest multiple p must remove itself, so starting there avoids redundant work."
   }
+ },
+ "algo_br_bipmatch": {
+  "ch": "알고리즘 제6장 그래프",
+  "sec": "6.3 그래프 응용 (자세히)",
+  "title": "이분 매칭 — 짝지어 주기",
+  "narr": "지원자와 직무, 학생과 기숙사처럼 두 집단을 <b>겹치지 않게 최대한 많이 짝지으려면</b>? 이게 이분 매칭이에요. 한쪽에서 시작해 '증가 경로'를 찾아 짝을 늘려가면 최대 매칭을 구할 수 있어요.",
+  "hint": "두 집단 최대로 짝짓기",
+  "more": "<b>이분 매칭</b>(bipartite matching, CLRS 25): 정점이 두 그룹 L, R로 나뉘고 간선이 그룹 사이에만 있는 이분 그래프에서, 한 정점이 최대 한 간선에만 속하도록 고른 간선 집합을 <b>매칭</b>이라 하고, 그 크기를 최대화하는 문제. <b>증가 경로(augmenting path)</b> 기법: 아직 안 짝지어진 L 정점에서 출발해 '미매칭-매칭-미매칭…' 간선이 번갈아 나오는 경로를 찾으면, 그 경로의 매칭/미매칭을 뒤집어 매칭 크기를 +1. 더 이상 증가 경로가 없으면 최대 매칭(쾨니그 정리). DFS/BFS로 구현해 <b>O(V·E)</b>(홉크로프트-카프는 O(E√V)). ★최대 매칭은 <b>최대 플로우</b>의 특수형(각 간선 용량 1)으로도 풀려요. 작업 배정·시간표·안정 결혼 문제·이미지 정합 등에 응용. CLRS 4판에서 새로 추가된 장.",
+  "more_en": "<b>Bipartite matching</b> (CLRS 25): in a bipartite graph (vertices split into groups L, R with edges only between them), a <b>matching</b> is a set of edges where each vertex belongs to at most one, and we maximize its size. The <b>augmenting path</b> method: from an unmatched L vertex, find a path alternating unmatched-matched-unmatched edges; flipping matched/unmatched along it grows the matching by 1. When no augmenting path remains, the matching is maximum (König's theorem). Implemented with DFS/BFS in <b>O(V·E)</b> (Hopcroft–Karp does O(E√V)). ★Maximum matching is a special case of <b>max-flow</b> (each edge capacity 1). Used in job assignment, scheduling, stable marriage, image registration. A newly added chapter in CLRS 4th edition.",
+  "problem": {
+   "q": "이분 매칭이 최대 플로우 문제로 환원되는 이유는?",
+   "solution": "가상의 출발점 s를 모든 L에, 가상의 도착점 t를 모든 R에 용량 1 간선으로 잇고, L→R 간선 용량도 1로 두면, <b>s→t 최대 플로우 = 최대 매칭 크기</b>가 돼요(용량 1이 '한 번만 짝지음'을 강제).",
+   "q_en": "Why does bipartite matching reduce to max-flow?",
+   "sol_en": "Add a source s to all of L and a sink t from all of R with capacity-1 edges, and capacity 1 on L→R edges; then <b>max-flow s→t = maximum matching size</b> (capacity 1 enforces 'matched at most once')."
+  }
+ },
+ "algo_br_avl": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.3 균형 트리 (자세히)",
+  "title": "AVL 트리 — 높이로 균형 잡기",
+  "narr": "BST가 한쪽으로 치우치면 O(n)으로 느려져요. <b>AVL 트리</b>는 모든 노드에서 <b>좌우 서브트리 높이 차이를 1 이하</b>로 유지해요. 삽입/삭제 후 균형이 깨지면 <b>회전</b>으로 즉시 복구 → 항상 O(log n) 보장!",
+  "hint": "좌우 높이차 ≤ 1 유지",
+  "more": "<b>AVL 트리</b>(Adelson-Velsky & Landis): 가장 먼저 고안된 자가 균형 BST. 각 노드의 <b>균형 인자(BF) = 왼쪽 높이 − 오른쪽 높이</b>를 −1, 0, +1 중 하나로 유지해요. 삽입·삭제로 어떤 노드의 |BF|가 2가 되면 그 자리에서 <b>회전</b>(LL/RR=단일 회전, LR/RL=이중 회전)으로 즉시 복구 → 트리 높이가 항상 ≈1.44·log n 이하라 탐색·삽입·삭제 모두 <b>O(log n)</b> 보장. ★레드블랙 트리와 비교: AVL은 더 <b>엄격히 균형</b>(높이가 더 낮음) → 탐색이 약간 빠르지만, 삽입·삭제 시 회전이 더 잦음. 그래서 <b>읽기가 많으면 AVL</b>, 쓰기가 많으면 레드블랙을 선호하기도 해요. 둘 다 회전(다른 분기)이라는 같은 도구로 균형을 유지합니다. DB 인덱스·메모리 내 정렬 컨테이너에 쓰여요.",
+  "more_en": "<b>AVL tree</b> (Adelson-Velsky & Landis): the first self-balancing BST. Each node keeps a <b>balance factor (BF) = left height − right height</b> in {−1, 0, +1}. If an insert/delete makes some |BF| = 2, a <b>rotation</b> at that node (LL/RR = single, LR/RL = double) restores it immediately → tree height stays ≈1.44·log n, guaranteeing <b>O(log n)</b> search/insert/delete. ★Vs red-black trees: AVL is <b>more strictly balanced</b> (lower height) → slightly faster lookups, but rotates more often on insert/delete. So <b>read-heavy → AVL</b>, write-heavy → red-black is often preferred. Both maintain balance with the same tool, rotation (another branch). Used in DB indexes and in-memory ordered containers.",
+  "problem": {
+   "q": "AVL 트리와 레드블랙 트리는 둘 다 O(log n)인데 무엇이 다른가요?",
+   "solution": "AVL은 균형을 <b>더 엄격히</b>(높이 차 ≤1) 유지해 트리가 더 낮아 <b>탐색이 빠름</b>. 대신 삽입/삭제 시 회전이 더 잦아요. 레드블랙은 더 느슨해 <b>쓰기가 빠름</b>. 읽기↑=AVL, 쓰기↑=레드블랙.",
+   "q_en": "Both AVL and red-black trees are O(log n) — what differs?",
+   "sol_en": "AVL keeps balance <b>more strictly</b> (height diff ≤1), so it's shorter and <b>searches faster</b>, but rotates more on insert/delete. Red-black is looser, so <b>writes are faster</b>. Read-heavy → AVL, write-heavy → red-black."
+  }
+ },
+ "algo_br_kmeans": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.4 머신러닝 응용 (자세히)",
+  "title": "k-평균 클러스터링 — 끼리끼리 묶기",
+  "narr": "정답표 없이 데이터를 <b>비슷한 것끼리 k개 그룹</b>으로 묶으려면? k-평균은 ①각 점을 가장 가까운 중심에 배정 ②각 그룹의 평균으로 중심을 다시 계산 — 이 두 단계를 중심이 안 변할 때까지 반복해요. 대표적인 비지도 학습이에요.",
+  "hint": "배정 → 중심 재계산 반복",
+  "more": "<b>k-평균 클러스터링</b>(k-means, CLRS 33): 레이블 없는 데이터를 k개 군집으로 나누는 비지도 학습. ①<b>초기화</b>: 중심(centroid) k개를 임의로 잡음. ②<b>배정</b>: 각 점을 가장 가까운 중심의 군집에 넣음. ③<b>갱신</b>: 각 군집 점들의 평균으로 중심을 옮김. ②③을 중심이 더 안 움직일 때까지 반복(수렴). 군집 내 분산(점-중심 거리 제곱합)을 단조 감소시키는 <b>그리디/좌표하강</b>식 국소 최적화라, 초기값에 따라 다른 결과가 나올 수 있어 여러 번 시도하거나 k-means++로 초기화를 개선해요. 반복당 O(n·k·d). 고객 세분화·이미지 색 양자화·이상치 탐지에 널리 쓰여요. ★전역 최적 보장은 없음(NP-하드) — 좋은 국소해를 빠르게 찾는 실용 알고리즘.",
+  "more_en": "<b>k-means clustering</b> (CLRS 33): unsupervised learning that partitions unlabeled data into k clusters. ①<b>Init</b>: pick k centroids (e.g. randomly). ②<b>Assign</b>: put each point in the cluster of its nearest centroid. ③<b>Update</b>: move each centroid to the mean of its cluster's points. Repeat ②③ until centroids stop moving (convergence). It monotonically decreases within-cluster variance (sum of squared point-centroid distances), a <b>greedy/coordinate-descent</b> local optimization, so results depend on initialization — run several times or use k-means++ for better seeds. O(n·k·d) per iteration. Widely used in customer segmentation, image color quantization, anomaly detection. ★No global-optimum guarantee (NP-hard) — a practical algorithm for a good local solution fast.",
+  "problem": {
+   "q": "k-평균이 실행마다 다른 결과를 줄 수 있는 이유는?",
+   "solution": "초기 중심을 <b>임의로</b> 잡고 국소 최적으로 수렴하기 때문이에요. 시작점이 다르면 다른 국소해에 빠질 수 있어, 여러 번 돌려 best를 고르거나 k-means++로 초기화를 개선합니다.",
+   "q_en": "Why can k-means give different results on different runs?",
+   "sol_en": "It starts from <b>random</b> centroids and converges to a local optimum. Different seeds can land in different local solutions, so you run it several times and keep the best, or improve seeding with k-means++."
+  }
+ },
+ "algo_br_graddesc": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.4 머신러닝 응용 (자세히)",
+  "title": "경사하강법 — 비용을 굴려 내리기",
+  "narr": "모델의 '틀린 정도(비용)'를 가장 작게 만들려면? 비용 곡면에서 <b>기울기(경사)의 반대 방향</b>으로 조금씩 내려가면 골짜기(최소점)에 도달해요. 신경망 학습의 심장이자, 수학 미분(17장)이 그대로 쓰이는 곳이에요.",
+  "hint": "기울기 반대로 한 걸음씩",
+  "more": "<b>경사하강법</b>(gradient descent, CLRS 33): 함수(비용/손실)의 최소점을 찾는 반복 최적화. 현재 위치에서 <b>기울기(gradient, 가장 가파른 증가 방향)를 구해 그 반대 방향으로</b> 작은 보폭(학습률 η)만큼 이동: x ← x − η·∇f(x). 이를 반복하면 점점 낮은 곳으로 내려가 (볼록함수면) 전역 최소, (비볼록이면) 국소 최소에 수렴. <b>학습률</b>이 너무 크면 발산·진동, 너무 작으면 느려요. 변형: 전체 데이터로 한 걸음(batch), 한 샘플씩(SGD), 미니배치, 관성을 더한 모멘텀·Adam 등. 미분(17장)·다변수 기울기가 핵심 도구라, '미분을 왜 배우나'의 가장 강력한 답이에요. 선형회귀·로지스틱회귀·신경망(역전파) 학습의 토대.",
+  "more_en": "<b>Gradient descent</b> (CLRS 33): iterative optimization to find a function's (cost/loss) minimum. At the current point, compute the <b>gradient</b> (direction of steepest increase) and step a small amount (learning rate η) in the <b>opposite</b> direction: x ← x − η·∇f(x). Repeating moves downhill to the global minimum (if convex) or a local one (if not). A learning rate too large diverges/oscillates; too small is slow. Variants: full-data step (batch), one sample (SGD), mini-batch, and momentum/Adam. Differentiation (Ch.17) and multivariable gradients are the core tools — the strongest answer to 'why learn derivatives.' The foundation of linear/logistic regression and neural-network training (backpropagation).",
+  "problem": {
+   "q": "경사하강법에서 학습률(보폭)이 너무 크면 어떤 문제가 생기나요?",
+   "solution": "최소점을 <b>건너뛰어 진동하거나 발산</b>할 수 있어요(점점 더 높은 곳으로). 너무 작으면 수렴이 매우 느리고요. 그래서 적절한 학습률(또는 적응형 Adam 등)이 중요합니다.",
+   "q_en": "In gradient descent, what happens if the learning rate (step size) is too large?",
+   "sol_en": "It can <b>overshoot the minimum and oscillate or diverge</b> (climbing higher). Too small, and convergence is very slow. So a well-chosen rate (or adaptive methods like Adam) matters."
+  }
  }
 }
