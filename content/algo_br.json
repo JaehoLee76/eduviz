@@ -3163,5 +3163,65 @@
     "q_en": "What two key tools compute polynomial inverse/exp/log in O(n log n)?",
     "sol_en": "① <b>Newton iteration doubling precision</b> — from the answer mod x^k to mod x^(2k) (inverse: B←B(2−AB)); ② <b>NTT polynomial multiplication, O(k log k)</b>. As precision doubles 1,2,4,…,n the cost is a geometric series dominated by the last step → <b>O(n log n)</b> overall."
    }
+  },
+  "algo_br_halfplane": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "반평면 교차 — 여러 부등식이 만드는 볼록 영역",
+   "narr": "직선 ax+by ≤ c 각각은 평면을 둘로 가른 <b>한쪽 반평면</b>입니다. 여러 반평면의 <b>교집합</b>은 볼록 다각형(또는 비거나 무한)이고, 각도 정렬 + 덱으로 <b>O(n log n)</b>에 구합니다.",
+   "hint": "",
+   "more": "<b>반평면 교차(half-plane intersection)</b>는 여러 <b>반평면</b>(직선 한쪽: aᵢx + bᵢy ≤ cᵢ)의 <b>교집합</b>인 볼록 영역을 구하는 계산기하 기법입니다. 결과는 <b>볼록 다각형</b>(유계), 또는 <b>무한 볼록 영역</b>, 또는 <b>공집합</b>일 수 있습니다. 표준 알고리즘: ① 각 반평면을 경계 직선의 <b>방향(법선 각도)으로 정렬</b>; ② <b>덱(deque)</b>에 하나씩 추가하며, 새 반평면이 덱 양끝의 두 반평면이 만드는 교점을 <b>쓸모없게 만들면(그 교점이 새 반평면 밖)</b> 양끝에서 제거(볼록껍질의 단조 스택과 닮은 논리); ③ 마지막에 앞뒤를 한 번 더 정리. 같은 각도의 반평면 중 더 안쪽만 남기고, 교차가 비거나 경계가 안 닫히는(무한) 경우를 조심해 처리. 시간 <b>O(n log n)</b>(정렬이 지배, 정렬돼 들어오면 O(n)). 핵심 통찰: 볼록 영역의 경계는 \"각도 순으로 도는 반평면들\"이라, 볼록껍질을 각도로 만드는 것과 본질적으로 같습니다(쌍대성). 쓰임: <b>2D 선형계획법</b>의 실현 가능 영역(목적함수 방향으로 최적점 찾기), 볼록 다각형의 <b>가시 커널(kernel)</b>(모든 점이 보이는 내부 영역), 점 집합을 분리하는 선/영역, 최적화 제약의 기하적 표현. \"부등식 = 반평면, 교집합 = 각도 정렬 덱\"이 핵심입니다.",
+   "more_en": "<b>Half-plane intersection</b> is a computational-geometry technique computing the convex region that is the <b>intersection of several half-planes</b> (one side of a line: aᵢx + bᵢy ≤ cᵢ). The result may be a <b>bounded convex polygon</b>, an <b>unbounded convex region</b>, or <b>empty</b>. Standard algorithm: ① <b>sort the half-planes by the direction (normal angle)</b> of their boundary lines; ② add them one by one to a <b>deque</b>, removing from either end any half-plane whose intersection with the deque's extreme pair is made <b>useless (outside the new half-plane)</b> — logic akin to the monotonic stack of a convex hull; ③ finish by reconciling front and back. Among same-angle half-planes keep only the innermost, and carefully handle empty or unbounded (unclosed boundary) cases. Time <b>O(n log n)</b> (sorting dominates; O(n) if already sorted). Key insight: a convex region's boundary is \"half-planes in angular order,\" essentially the same as building a convex hull by angle (duality). Uses: the feasible region of <b>2D linear programming</b> (find the optimum in the objective's direction), the <b>visibility kernel</b> of a convex/star polygon (the interior region from which all points are visible), separating lines/regions of point sets, geometric representation of optimization constraints. The crux: \"inequality = half-plane, intersection = angular-sorted deque.\"",
+   "problem": {
+    "q": "반평면 교차가 볼록껍질 구성과 본질적으로 같은(쌍대) 이유는?",
+    "solution": "볼록 영역의 <b>경계 변들이 법선 각도 순으로 단조롭게 회전</b>하기 때문입니다. 그래서 반평면들을 각도로 정렬해 덱에 넣으며 \"안쪽에 안 기여하는 것 제거\"하는 절차가, 점들을 각도/좌표로 정렬해 단조 스택으로 볼록껍질을 만드는 것과 같은 구조입니다 — 점↔직선의 쌍대 관계.",
+    "q_en": "Why is half-plane intersection essentially the same (dual) as convex hull construction?",
+    "sol_en": "Because a convex region's <b>boundary edges rotate monotonically in normal-angle order</b>. So sorting half-planes by angle and pushing them into a deque while \"removing those not contributing to the interior\" is structurally the same as sorting points by angle/coordinate and building a convex hull with a monotonic stack — the point↔line duality."
+   }
+  },
+  "algo_br_delaunay": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "들로네 삼각분할·보로노이 — 점들의 이웃 구조",
+   "narr": "평면의 점들을 삼각형으로 잇되, <b>어떤 삼각형의 외접원에도 다른 점이 들어가지 않게</b> 하는 것이 <b>들로네 삼각분할</b>입니다. 그 쌍대가 \"각 점의 가장 가까운 영역\"인 <b>보로노이 다이어그램</b>입니다.",
+   "hint": "",
+   "more": "<b>들로네 삼각분할(Delaunay triangulation)</b>은 평면의 점 집합을 삼각형들로 빈틈없이 잇되, <b>어떤 삼각형의 외접원(circumcircle) 내부에도 다른 점이 들어가지 않는다</b>는 조건(empty circumcircle property)을 만족하는 삼각분할입니다. 이 조건은 <b>모든 삼각형의 최소각을 최대화</b>(가늘고 긴 삼각형 회피)하는 \"가장 좋은\" 삼각분할과 같습니다. <b>보로노이 다이어그램(Voronoi diagram)</b>은 그 <b>쌍대(dual)</b>: 평면을 \"각 점에 가장 가까운 영역(셀)\"로 나눈 것으로, 보로노이 변은 두 점의 수직이등분선 위에 있고, 인접한 두 보로노이 셀의 점을 이으면 들로네 간선이 됩니다. 즉 <b>들로네 ↔ 보로노이는 서로 쌍대</b>. 구축: <b>O(n log n)</b> — 분할 정복, 점진 삽입(증분), 또는 평면 스위프(Fortune 알고리즘으로 보로노이를 직접). 들로네 간선은 <b>최근접 점(nearest neighbor)·유클리드 MST·갭 그래프</b>를 모두 포함(들로네 간선 수 O(n), 평면그래프라 E ≤ 3V−6). 들로네↔포물면 들어올리기(3D 볼록껍질로 환원)도 우아한 구성법. 쓰임: <b>메시 생성</b>(FEM·그래픽스, 좋은 삼각형), 지형/온도 등 <b>보간(자연 이웃)</b>, 최근접 질의, 시설 입지(보로노이=서비스 영역), 군집·밀도. \"외접원 비움 = 들로네, 가장 가까운 영역 = 보로노이, 둘은 쌍대\"가 핵심입니다.",
+   "more_en": "A <b>Delaunay triangulation</b> connects a planar point set into triangles such that <b>no triangle's circumcircle contains another point</b> (the empty-circumcircle property). This equals the \"best\" triangulation that <b>maximizes the minimum angle</b> (avoiding thin slivers). A <b>Voronoi diagram</b> is its <b>dual</b>: it partitions the plane into cells \"nearest to each point,\" with Voronoi edges on perpendicular bisectors of point pairs; connecting points of adjacent Voronoi cells gives Delaunay edges. So <b>Delaunay ↔ Voronoi are duals</b>. Construction: <b>O(n log n)</b> — divide and conquer, incremental insertion, or a plane sweep (Fortune's algorithm builds Voronoi directly). Delaunay edges contain the <b>nearest neighbor, the Euclidean MST, and the Gabriel graph</b> (O(n) edges, planar so E ≤ 3V−6). An elegant construction lifts points onto a paraboloid (reducing Delaunay to a 3D convex hull). Uses: <b>mesh generation</b> (FEM/graphics, well-shaped triangles), <b>interpolation</b> (natural-neighbor for terrain/temperature), nearest-neighbor queries, facility location (Voronoi = service regions), clustering/density. The crux: \"empty circumcircle = Delaunay, nearest region = Voronoi, and the two are dual.\"",
+   "problem": {
+    "q": "들로네 삼각분할의 정의(외접원 조건)와, 보로노이 다이어그램과의 관계는?",
+    "solution": "들로네: <b>어떤 삼각형의 외접원에도 다른 점이 들어가지 않는</b> 삼각분할(=최소각 최대화). 보로노이: 평면을 <b>각 점에 가장 가까운 영역(셀)</b>으로 나눈 것. 둘은 <b>쌍대</b>입니다 — 인접한 두 보로노이 셀의 점을 이으면 들로네 간선, 들로네 삼각형의 외심들이 보로노이 꼭짓점입니다.",
+    "q_en": "What defines a Delaunay triangulation (the circumcircle condition), and how does it relate to the Voronoi diagram?",
+    "sol_en": "Delaunay: a triangulation where <b>no triangle's circumcircle contains another point</b> (= maximizing the minimum angle). Voronoi: partitions the plane into cells <b>nearest to each point</b>. They are <b>duals</b> — connecting points of adjacent Voronoi cells gives Delaunay edges, and the circumcenters of Delaunay triangles are Voronoi vertices."
+   }
+  },
+  "algo_br_treediameter": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.3 트리 순회 ▸ 자세히",
+   "title": "트리 지름과 중심 — 가장 먼 두 점, 한가운데",
+   "narr": "트리에서 <b>가장 멀리 떨어진 두 정점의 거리</b>가 지름입니다. 신기하게도 \"아무 정점에서 가장 먼 점 u를 찾고, u에서 가장 먼 점 v를 찾으면\" u–v가 지름 — BFS 두 번이면 끝납니다.",
+   "hint": "",
+   "more": "<b>트리 지름(diameter)</b>은 트리에서 <b>두 정점 사이 최대 거리</b>(가장 긴 경로의 길이)입니다. 가장 간단한 구하는 법(<b>두 번의 BFS/DFS</b>): ① 임의의 정점 s에서 가장 먼 정점 <b>u</b>를 찾고, ② <b>u에서</b> 가장 먼 정점 <b>v</b>를 찾으면, <b>dist(u, v)가 지름</b>이고 u–v 경로가 지름 경로입니다. 왜 맞나(가중치 비음수 트리): \"임의 정점에서 가장 먼 점은 항상 어떤 지름의 한 끝점\"임을 증명할 수 있어, 첫 BFS의 끝점 u가 지름 끝이고 거기서 다시 최원점이 반대 끝 v입니다. <b>트리 DP</b>로도 O(n): 각 정점에서 \"아래로 가장 긴 두 경로의 합\"의 최댓값이 지름(자식들로부터 내려오는 깊이 1·2위를 합침). <b>중심(center)</b>은 \"가장 먼 정점까지 거리(편심)가 최소인 정점\"으로, <b>지름 경로의 중점</b>에 있습니다(1개 또는 인접한 2개). <b>무게중심(centroid)</b>은 다른 개념(제거 시 조각이 모두 절반 이하 — 센트로이드 분할). 쓰임: 네트워크 지연 한계, 트리 위 시설 입지(중심), 지름 경로 기반 분해, 트리 임베딩. \"BFS 두 번으로 지름, 그 중점이 중심\"이 한 줄 요약입니다(음수 간선이 있으면 이 방법은 실패 — 트리 DP나 다른 방법 필요).",
+   "more_en": "The <b>diameter</b> of a tree is the <b>maximum distance between two vertices</b> (length of the longest path). The simplest method (<b>two BFS/DFS</b>): ① from any vertex s find the farthest vertex <b>u</b>; ② from <b>u</b> find the farthest vertex <b>v</b>; then <b>dist(u, v) is the diameter</b> and u–v is a diameter path. Why it works (non-negative-weight tree): one can prove \"the farthest vertex from any vertex is always an endpoint of some diameter,\" so the first BFS's endpoint u is a diameter end, and the farthest from it is the opposite end v. <b>Tree DP</b> also gives O(n): at each vertex, the max of \"the sum of the two longest downward paths\" is the diameter (combine the top-two child depths). The <b>center</b> is the vertex minimizing the distance to the farthest vertex (eccentricity), lying at the <b>midpoint of a diameter path</b> (one or two adjacent vertices). The <b>centroid</b> is different (removing it leaves all pieces ≤ half — centroid decomposition). Uses: network latency bounds, facility location on trees (the center), diameter-path-based decomposition, tree embedding. One-liner: \"two BFS for the diameter, its midpoint is the center\" (with negative edges this method fails — use tree DP or another approach).",
+   "problem": {
+    "q": "트리 지름을 'BFS 두 번'으로 구하는 절차와, 왜 옳은가?",
+    "solution": "① 임의 정점에서 가장 먼 점 <b>u</b>를 BFS로 찾고, ② <b>u에서</b> 가장 먼 점 <b>v</b>를 BFS로 찾으면 dist(u,v)가 지름입니다. 옳은 이유: 음수 없는 트리에서 <b>임의 정점의 최원점은 반드시 어떤 지름의 끝점</b>이므로 u가 지름 한 끝이 되고, u의 최원점이 반대 끝 v가 됩니다.",
+    "q_en": "What is the 'two BFS' procedure for tree diameter, and why is it correct?",
+    "sol_en": "① From any vertex, BFS to the farthest vertex <b>u</b>; ② BFS from <b>u</b> to the farthest vertex <b>v</b>; then dist(u,v) is the diameter. Correct because, in a non-negative tree, <b>the farthest vertex from any vertex is always an endpoint of some diameter</b>, so u is one end and its farthest v is the other."
+   }
+  },
+  "algo_br_funcgraph": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "함수 그래프 — 각 정점 출차수 1의 ρ 구조",
+   "narr": "\"각 정점에서 나가는 간선이 정확히 하나\"인 그래프(i → f[i])를 <b>함수 그래프</b>라 합니다. 각 성분은 반드시 <b>하나의 사이클 + 그 사이클로 흘러드는 나무들</b>(그리스 문자 ρ 모양) 구조를 갖습니다.",
+   "hint": "",
+   "more": "<b>함수 그래프(functional graph)</b>는 모든 정점의 <b>출차수가 정확히 1</b>인 방향 그래프입니다 — 함수 f: V→V를 i → f[i] 간선으로 그린 것. 구조 정리: 각 <b>약연결 성분</b>은 정확히 <b>하나의 사이클</b>과 그 사이클의 정점들로 흘러드는 <b>나무(트리)들</b>로 이뤄집니다(나가는 간선이 하나뿐이라 따라가면 반드시 사이클에 빠짐 — 꼬리+고리 = 그리스 문자 <b>ρ</b> 모양). 풀이 도구: ① <b>사이클 탐지</b> — 방문 표시(색칠)로 각 성분의 사이클을 찾거나, 메모리 O(1)이 필요하면 <b>플로이드 거북-토끼</b>(한 칸·두 칸 포인터)/브렌트. ② <b>fᵏ(x)</b>(x에서 k번 적용한 위치) — <b>이진 점프(binary lifting)</b>로 up[x][j]=2^j번 적용, O(log k). 또는 \"꼬리 길이 + 사이클 길이\"를 구해 k를 사이클 안에서 mod. ③ <b>사이클 길이·꼬리 길이·각 정점이 속한 사이클</b>을 위상정렬류(입차수 0부터 제거)나 DFS로 O(n)에. <b>순열</b>은 함수 그래프의 특수형(모든 정점 입차수도 1 → 꼬리 없이 사이클만 = 순열 사이클 분해). 쓰임: 반복 적용(\"k번 후 상태\"), 의사난수·해시 충돌의 ρ(폴라드 로의 기반), 상태 기계 사이클, \"각자 한 명을 가리킬 때\" 구조 분석. \"출차수 1 → ρ(사이클+나무), 반복은 이진점프, 사이클은 거북토끼\"가 핵심입니다.",
+   "more_en": "A <b>functional graph</b> is a directed graph where every vertex has <b>out-degree exactly 1</b> — the drawing of a function f: V→V via edges i → f[i]. Structure theorem: each <b>weakly connected component</b> consists of exactly <b>one cycle</b> plus <b>trees</b> flowing into the cycle's vertices (following the single out-edge inevitably falls into a cycle — tail + loop = the Greek letter <b>ρ</b>). Tools: ① <b>cycle detection</b> — color-marking to find each component's cycle, or <b>Floyd's tortoise-and-hare</b> (one/two-step pointers)/Brent for O(1) memory; ② <b>fᵏ(x)</b> (position after applying f k times) via <b>binary lifting</b> up[x][j]=2^j applications, O(log k), or computing \"tail length + cycle length\" and taking k mod the cycle; ③ <b>cycle/tail lengths and each vertex's cycle</b> in O(n) by topological-style peeling (remove in-degree-0 first) or DFS. A <b>permutation</b> is the special case where every vertex also has in-degree 1 → no tails, only cycles (permutation cycle decomposition). Uses: iterated application (\"state after k steps\"), the ρ of pseudo-random/hash collisions (basis of Pollard's rho), state-machine cycles, analyzing \"everyone points to one\" structures. The crux: \"out-degree 1 → ρ (cycle + trees), iteration by binary lifting, cycles by tortoise-and-hare.\"",
+   "problem": {
+    "q": "함수 그래프(출차수 1)의 각 성분이 왜 '사이클 하나 + 나무들'(ρ 모양)인가?",
+    "solution": "각 정점에서 <b>나가는 간선이 하나뿐</b>이라, 아무 정점에서 출발해 계속 따라가면 정점이 유한하므로 <b>언젠가 방문한 정점을 다시 만나 사이클에 빠집니다</b>. 사이클에 직접 안 속한 정점들은 사이클의 어딘가로 흘러드는 <b>나무</b>를 이루어, 꼬리+고리의 ρ 모양이 됩니다. 순열은 입차수도 1이라 꼬리 없이 사이클만 남습니다.",
+    "q_en": "Why is each component of a functional graph (out-degree 1) 'one cycle + trees' (a ρ shape)?",
+    "sol_en": "Each vertex has <b>exactly one out-edge</b>, so following from any vertex, finiteness forces <b>revisiting a vertex and entering a cycle</b>. Vertices not on the cycle form <b>trees</b> flowing into it, giving the tail-plus-loop ρ shape. A permutation also has in-degree 1, so there are no tails — only cycles."
+   }
   }
 }

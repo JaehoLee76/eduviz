@@ -4557,6 +4557,102 @@
       ctx.fillText('log A = ∫ A′/A, exp는 log의 뉴턴 역. 나눗셈·제곱근·복합함수도 같은 배가 틀', W/2, H*0.87);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('쓰임: 생성함수 연산(분할수·카탈란 OGF), 점화식 일괄, 조합론 대량 계산', W/2, H*0.87+20); }
+  },
+
+  { id:'algo_br_halfplane', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('반평면 교차 — 여러 부등식이 만드는 볼록 영역', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('직선마다 "한쪽 반평면"을 선택, 그 교집합(볼록 다각형)을 각도 정렬+덱으로 O(n log n)에', W/2, H*0.10+22);
+      // convex region as intersection of half-planes
+      var cx=W*0.5, cy=H*0.50, r=H*0.20;
+      // draw polygon (the intersection)
+      var poly=[];for(var k=0;k<6;k++){ var a=-Math.PI/2+k*Math.PI/3; poly.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]); }
+      ctx.fillStyle='rgba(143,227,181,0.15)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.5; ctx.beginPath();
+      poly.forEach(function(p,i){ if(i===0)ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // bounding half-plane lines (extended)
+      poly.forEach(function(p,i){ var q=poly[(i+1)%poly.length]; var dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy); ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(p[0]-dx/L*40,p[1]-dy/L*40); ctx.lineTo(q[0]+dx/L*40,q[1]+dy/L*40); ctx.stroke(); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.fillText('교집합 = 실현 가능 볼록 영역', cx, cy+4);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 반평면을 법선 각도로 정렬 → 덱(deque)에 추가하며 쓸모없어진 양끝 제거', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('교차가 비거나 무한일 수 있음(경계 처리 주의). 선형계획 2D·코어, 볼록다각형 커널', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 2D 선형계획 실현가능영역, 볼록다각형 가시 커널, 점들을 분리하는 영역', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_delaunay', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('들로네 삼각분할·보로노이 — 점들의 이웃 구조', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('어떤 삼각형의 외접원에도 다른 점이 안 들어가게 삼각분할 → 그 쌍대가 보로노이 다이어그램', W/2, H*0.10+22);
+      // points + triangulation + dual voronoi hint
+      var pts=[[0.30,0.34],[0.60,0.28],[0.50,0.55],[0.74,0.58],[0.36,0.66],[0.62,0.78]];
+      function xy(t){ return [W*t[0], H*0.20+t[1]*H*0.6]; }
+      var tris=[[0,1,2],[1,2,3],[0,2,4],[2,4,5],[2,3,5]];
+      tris.forEach(function(t){ ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=1.8; ctx.beginPath(); var a=xy(pts[t[0]]),b=xy(pts[t[1]]),c=xy(pts[t[2]]); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]); ctx.closePath(); ctx.stroke(); });
+      // voronoi-ish dashed dual
+      ctx.strokeStyle='rgba(255,178,122,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(W*0.46,H*0.34); ctx.lineTo(W*0.55,H*0.46); ctx.lineTo(W*0.66,H*0.52); ctx.stroke(); ctx.setLineDash([]);
+      pts.forEach(function(p){ var c=xy(p); ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(c[0],c[1],5,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('주황 점선 = 보로노이(쌍대)', W/2, H*0.84);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('들로네 조건: 어느 삼각형 외접원도 다른 점을 품지 않음 → 최소각 최대화(가늘한 삼각형 회피)', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('O(n log n)(분할정복·점진·뒤집기). 보로노이=각 점의 "가장 가까운 영역". 최근접·메시·보간', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_treediameter', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('트리 지름과 중심 — 가장 먼 두 점, 한가운데', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('지름=가장 먼 두 정점 거리. "아무 정점서 가장 먼 점 u, u서 가장 먼 점 v"(BFS 두 번)', W/2, H*0.10+22);
+      // tree with a longest path highlighted
+      var N={a:[0.16,0.40],b:[0.34,0.30],c:[0.34,0.55],d:[0.55,0.45],e:[0.74,0.32],f:[0.74,0.60],g:[0.90,0.46]};
+      var edges=[['a','b'],['b','c'],['b','d'],['d','e'],['d','f'],['e','g']];
+      var diam=[['a','b'],['b','d'],['d','e'],['e','g']];
+      function xy(t){ return [W*N[t][0], H*0.24+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var on=diam.some(function(d){return (d[0]===e[0]&&d[1]===e[1])||(d[0]===e[1]&&d[1]===e[0]);}); ctx.strokeStyle=on?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.lineWidth=on?3.5:2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var end=(k==='a'||k==='g'); var ctr=(k==='d');
+        ctx.fillStyle=ctr?'rgba(143,227,181,0.3)':(end?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.16)'); ctx.strokeStyle=ctr?'#8fe3b5':(end?'#ffb27a':'#7ab8ff'); ctx.lineWidth=2.5;
+        ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('지름 경로 a–b–d–e–g (길이 4)', W*0.4, H*0.84); ctx.fillStyle='#8fe3b5'; ctx.fillText('중심 = d', W*0.78, H*0.84);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('지름: BFS/DFS로 임의 점서 최원점 u, u서 최원점 v → dist(u,v)가 지름', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('왜 맞나: 트리에선 최원점이 항상 지름의 한 끝. 중심=지름 경로의 중점(1~2개). 트리DP로도 O(n)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_funcgraph', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('함수 그래프 — 각 정점 출차수 1의 ρ 구조', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('i→f[i] 처럼 나가는 간선이 하나뿐인 그래프. 각 성분이 "사이클 + 거기로 흘러드는 나무들"', W/2, H*0.10+22);
+      // rho shape: tail trees flowing into a cycle
+      var cx=W*0.64, cy=H*0.50, r=H*0.16;
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      // cycle nodes
+      for(var k=0;k<5;k++){ var a=-Math.PI/2+k*2*Math.PI/5; var x=cx+r*Math.cos(a),y=cy+r*Math.sin(a); ctx.fillStyle='rgba(255,178,122,0.22)'; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2); ctx.fill(); ctx.stroke(); }
+      // trees flowing in (tails)
+      var tails=[[0.16,0.30],[0.26,0.40],[0.36,0.50],[0.20,0.62],[0.32,0.70]];
+      ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2;
+      var prev=null; tails.forEach(function(t,i){ var x=W*t[0],y=H*0.22+t[1]*H*0.5; ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+      ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.36+8,H*0.22+0.50*H*0.5); ctx.lineTo(cx-r-2,cy-4); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('사이클', cx, cy+4);
+      ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.fillText('흘러드는 나무(꼬리)', W*0.24, H*0.82);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 약연결 성분 = 사이클 하나 + 그 사이클로 들어오는 나무들 (ρ 모양)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('사이클 찾기=방문표시/플로이드 거북토끼. fᵏ(x)=이진점프. 순열은 꼬리없는 특수형(사이클만)', W/2, H*0.88+18); }
   }
 
   ];
