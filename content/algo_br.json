@@ -1363,5 +1363,65 @@
     "q_en": "For bitmask TSP, how many states and what total time complexity?",
     "sol_en": "States = <b>2ⁿ (visited set) × n (current city)</b>, each transitioning to n next cities → <b>O(2ⁿ · n²)</b> total — far below brute force O(n!), practical up to n ≈ 20."
    }
+  },
+  "algo_br_perseg": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열 ▸ 자세히",
+   "title": "영속 세그먼트 트리 — 과거 버전을 통째로 보존",
+   "narr": "갱신할 때마다 <b>이전 버전을 지우지 않고</b> 그대로 남겨, \"i번째 갱신 직후의 상태\"를 아무 때나 조회하고 싶다면? <b>영속(persistent) 세그먼트 트리</b>는 매 갱신을 O(log n) 추가 메모리로 새 버전을 만들어 보존합니다.",
+   "hint": "",
+   "more": "<b>영속(Persistent) 세그먼트 트리</b>는 자료구조를 <b>수정해도 이전 버전이 그대로 살아 있게</b> 만드는 기법입니다. 일반 세그먼트 트리에서 한 점을 갱신하면 <b>루트에서 그 리프까지의 경로(노드 O(log n)개)</b>만 값이 바뀝니다. 그래서 그 경로의 노드만 <b>새로 복사</b>하고, 바뀌지 않는 나머지 서브트리는 <b>옛 버전의 노드를 그대로 가리키게(공유)</b> 합니다. 새 루트 하나가 곧 \"새 버전\"입니다 → 갱신 1회당 <b>시간·메모리 O(log n)</b>, 모든 과거 버전 보존. 활용: ① <b>k번째 작은 수 질의</b>(값 도메인 세그트리의 버전 차이로 구간 [l,r]을 표현) ② 머지소트 트리/2D 질의의 대체 ③ 롤백·버전 관리. 함수형 자료구조의 \"불변성으로 공유\" 아이디어를 트리에 적용한 셈입니다.",
+   "more_en": "A <b>persistent segment tree</b> keeps <b>every old version alive after updates</b>. In an ordinary segment tree a point update changes only the <b>root-to-leaf path (O(log n) nodes)</b>. So we <b>copy just those path nodes</b> and let the untouched subtrees <b>point to the old version's nodes (sharing)</b>. A single new root is the \"new version\" → each update costs <b>O(log n) time and memory</b> while preserving all past versions. Uses: ① <b>k-th smallest queries</b> (express range [l,r] by the difference of two versions of a value-domain tree); ② an alternative to merge-sort trees / 2D queries; ③ rollback and versioning. It applies the functional \"share via immutability\" idea to trees.",
+   "problem": {
+    "q": "영속 세그먼트 트리에서 갱신 1회가 새로 만드는 노드 수는?",
+    "solution": "<b>O(log n)개</b> — 루트에서 갱신된 리프까지의 경로 노드만 복사하고, 나머지 서브트리는 옛 버전과 공유하기 때문입니다.",
+    "q_en": "How many new nodes does one update create in a persistent segment tree?",
+    "sol_en": "<b>O(log n)</b> — only the root-to-updated-leaf path is copied; the rest of the subtrees are shared with the previous version."
+   }
+  },
+  "algo_br_hld": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.2 BST 탐색 ▸ 자세히",
+   "title": "Heavy-Light 분해 — 트리 경로 질의를 빠르게",
+   "narr": "트리에서 \"두 노드 사이 경로의 합/최댓값\"을 묻고 중간 값도 바꾸려면? 경로를 매번 따라가면 O(n). <b>Heavy-Light 분해</b>는 트리를 몇 개의 <b>일자 사슬</b>로 쪼개 세그먼트 트리에 올려 O(log²n)으로 만듭니다.",
+   "hint": "",
+   "more": "<b>Heavy-Light 분해(HLD)</b>는 트리의 <b>경로 질의</b>를 세그먼트 트리로 처리하는 기법입니다. 각 노드에서 <b>서브트리 크기가 가장 큰 자식</b>으로 가는 간선을 <b>heavy(굵은)</b>, 나머지를 <b>light</b>로 칠합니다. 그러면 트리가 <b>heavy 간선으로 이어진 사슬 몇 개</b>로 나뉘는데, 핵심 성질: 루트에서 어떤 노드로 내려가는 동안 <b>light 간선은 최대 O(log n)번</b>만 지납니다(light로 갈 때마다 서브트리 크기가 절반 이하로 줄기 때문). 각 사슬을 <b>일렬로 펴 세그먼트 트리</b>에 올리면, 두 노드 u, v 사이 경로는 <b>O(log n)개의 사슬 구간</b>으로 쪼개지고 각 구간 질의가 O(log n) → <b>경로 합·최댓값·갱신이 O(log²n)</b>. 쓰임: 트리 위 경로 질의, LCA, 부분트리 질의(오일러 투어와 결합), 네트워크·계통 분석.",
+   "more_en": "<b>Heavy-Light Decomposition (HLD)</b> handles <b>path queries</b> on a tree using a segment tree. At each node, the edge to the child with the <b>largest subtree</b> is <b>heavy</b>; the rest are <b>light</b>. The tree then breaks into a few <b>chains of heavy edges</b>, with the key property that any root-to-node descent crosses at most <b>O(log n) light edges</b> (each light step at least halves the subtree size). Laying each chain <b>contiguously in a segment tree</b>, a path between u and v splits into <b>O(log n) chain segments</b>, each queried in O(log n) → <b>path sum/max/update in O(log²n)</b>. Uses: tree path queries, LCA, subtree queries (with Euler tour), network/phylogeny analysis.",
+   "problem": {
+    "q": "HLD에서 루트→노드 경로가 지나는 light 간선이 O(log n)개인 이유는?",
+    "solution": "<b>light 간선을 탈 때마다 향하는 서브트리 크기가 절반 이하로 줄기</b> 때문입니다(더 큰 자식이 heavy니까). n이 절반씩 줄 수 있는 횟수 = O(log n) → light 전환도 O(log n)번뿐입니다.",
+    "q_en": "Why does a root-to-node path cross only O(log n) light edges in HLD?",
+    "sol_en": "Each <b>light edge at least halves the target subtree size</b> (the bigger child is heavy). The number of halvings is O(log n), so there are at most O(log n) light switches."
+   }
+  },
+  "algo_br_mo": {
+   "ch": "알고리즘 제3장 정렬",
+   "sec": "3.2 병합 정렬 ▸ 자세히",
+   "title": "Mo's 알고리즘 — 오프라인 구간 질의를 정렬로",
+   "narr": "\"구간 [l,r] 안에 서로 다른 수가 몇 개?\" 같은 질의를 자료구조로 풀기 어려울 때, 질의 순서를 <b>영리하게 정렬</b>해 두 포인터를 조금씩만 움직이며 모두 답하는 오프라인 기법입니다.",
+   "hint": "",
+   "more": "<b>Mo's 알고리즘</b>은 <b>오프라인 구간 질의</b>(모든 질의를 미리 알 때)를 처리합니다. 전제: 현재 구간 [l,r]에서 <b>원소 하나를 추가/제거하는 비용이 O(1)</b>이고 답을 갱신할 수 있어야 합니다(예: 빈도 배열로 \"서로 다른 수의 개수\" 유지). 핵심은 <b>질의 정렬</b>: 배열을 크기 <b>√n 블록</b>으로 나누고, 질의 (l,r)을 <b>l이 속한 블록 번호 → r</b> 순으로 정렬합니다. 그러면 두 포인터 l, r을 질의 사이에 조금씩만 움직여도 모든 구간을 덮을 수 있어, <b>포인터 총 이동이 O((n+q)√n)</b>. 한 질의마다 자료구조 갱신 비용이 더해집니다. 쓰임: 구간 내 <b>서로 다른 원소 수·최빈값·동일 쌍 개수·빈도 통계</b>처럼 \"온라인 자료구조는 까다롭지만 ±1 갱신은 쉬운\" 문제. 변형: <b>Mo on tree</b>(트리 경로), <b>롤백 Mo</b>(제거가 어려운 경우).",
+   "more_en": "<b>Mo's algorithm</b> answers <b>offline range queries</b> (all queries known in advance). Requirement: adding/removing one element from the current range [l,r] is <b>O(1)</b> and can update the answer (e.g. keep a frequency array for \"number of distinct values\"). The trick is <b>sorting the queries</b>: split the array into <b>√n blocks</b> and sort queries (l,r) by <b>(block of l, then r)</b>. Then the two pointers l, r move only a little between queries, so <b>total pointer movement is O((n+q)√n)</b>, plus the per-step update cost. Uses: <b>distinct count, mode, equal-pair count, frequency stats</b> over a range — problems where an online structure is hard but ±1 updates are easy. Variants: <b>Mo on trees</b> (paths), <b>rollback Mo</b> (when deletion is hard).",
+   "problem": {
+    "q": "Mo's 알고리즘에서 질의를 √n 블록 기준으로 정렬하면 포인터 총 이동량은?",
+    "solution": "<b>O((n+q)√n)</b>. l은 블록 안에서 O(√n), 블록이 바뀔 때 r이 전체를 한 번 훑어 블록당 O(n) → 합쳐서 O((n+q)√n)입니다.",
+    "q_en": "With √n-block sorting in Mo's algorithm, what is the total pointer movement?",
+    "sol_en": "<b>O((n+q)√n)</b>: l moves O(√n) within a block, and r sweeps O(n) per block change → combined O((n+q)√n)."
+   }
+  },
+  "algo_br_splay": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.1 이진 트리 ▸ 자세히",
+   "title": "스플레이 트리 — 자기조정 이진 탐색 트리",
+   "narr": "별도 균형 정보(색·높이) 없이도 빠른 BST가 있을까? <b>스플레이 트리</b>는 접근한 노드를 회전으로 <b>루트까지 끌어올려</b>, 자주·최근 쓰는 키가 저절로 위로 모이게 합니다. 분할상환 O(log n).",
+   "hint": "",
+   "more": "<b>스플레이 트리(Splay Tree)</b>는 <b>자기조정(self-adjusting) BST</b>입니다. 탐색·삽입·삭제 후, 건드린 노드 x를 <b>splay 연산</b>으로 루트까지 끌어올립니다 — 부모·조부모 관계에 따라 <b>zig</b>(부모가 루트), <b>zig-zig</b>(같은 방향 두 번), <b>zig-zag</b>(반대 방향) 회전을 적용합니다(단순 회전 반복과 달리 zig-zig로 트리 높이를 적극적으로 줄임). 한 번의 연산은 O(n)까지 느릴 수 있지만, <b>분할상환하면 연산당 O(log n)</b>이 보장됩니다(퍼텐셜 함수 분석). 색·높이 같은 <b>추가 메타데이터가 전혀 필요 없어</b> 구현이 짧고, <b>지역성(locality)</b>이 있는 접근 패턴에서는 균형 트리보다도 빠릅니다(최근 쓴 키가 루트 근처). 더 나아가 <b>working set 정리</b>·<b>정적 최적성</b> 같은 강한 성질을 가지며, 구간 뒤집기 같은 연산을 지원하는 <b>암묵적(implicit) 스플레이/트립</b>으로 확장됩니다.",
+   "more_en": "A <b>splay tree</b> is a <b>self-adjusting BST</b>. After a search/insert/delete, the touched node x is <b>splayed</b> to the root using <b>zig</b> (parent is root), <b>zig-zig</b> (same direction twice), and <b>zig-zag</b> (opposite) rotations — unlike repeated single rotations, zig-zig actively shortens the tree. A single operation can be as slow as O(n), but <b>amortized it is O(log n)</b> per operation (potential-function analysis). It needs <b>no extra metadata</b> (no colors/heights), so it is short to implement and can beat balanced trees under <b>locality</b> (recently used keys sit near the root). It enjoys strong properties like the <b>working-set theorem</b> and <b>static optimality</b>, and extends to <b>implicit splay/treaps</b> supporting operations like range reversal.",
+   "problem": {
+    "q": "스플레이 트리의 한 연산이 O(n)일 수도 있는데 효율적이라 하는 근거는?",
+    "solution": "<b>분할상환(amortized) 분석</b> 때문입니다. 비싼 연산(깊은 splay)은 트리를 크게 평평하게 만들어 이후 연산을 싸게 하므로, <b>연산당 평균 O(log n)</b>이 보장됩니다(퍼텐셜 함수로 증명).",
+    "q_en": "A splay operation can be O(n) — why is it called efficient?",
+    "sol_en": "By <b>amortized analysis</b>: an expensive splay flattens the tree, making later operations cheap, so the <b>average is O(log n) per operation</b> (proved with a potential function)."
+   }
   }
 }
