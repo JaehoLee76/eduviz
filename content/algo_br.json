@@ -1048,5 +1048,35 @@
     "q_en": "In a while(lo ≤ hi) loop, when a[mid] < x, how should lo update to avoid an infinite loop?",
     "sol_en": "<b>lo = mid + 1</b>. mid is already known to be < x, so it must be excluded; without +1, lo stays put, the interval never shrinks, and it loops forever."
    }
+  },
+  "algo_br_dinic": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.3 최단경로·플로우 ▸ 자세히",
+   "title": "디닉 알고리즘 — 빠른 최대 유량 (Dinic)",
+   "narr": "최대 유량(source s → sink t로 보낼 수 있는 최대량)을 <b>포드-풀커슨</b>보다 훨씬 빠르게 구하는 고급 알고리즘입니다. 비결은 <b>레벨 그래프</b>로 \"전진하는 길\"만 남기고, 한 번에 여러 경로를 포화시키는 <b>막는 흐름</b>입니다.",
+   "hint": "",
+   "more": "<b>디닉(Dinic)</b>은 두 단계를 번갈아 반복합니다. <b>① 레벨 그래프</b>: 잔여 그래프에서 s로부터 <b>BFS</b>로 각 정점의 거리(레벨)를 매깁니다. t에 도달 못 하면 종료(최대 유량 완성). <b>② 막는 흐름(blocking flow)</b>: 레벨이 <b>정확히 +1씩 오르는 간선</b>으로만(전진만 허용) <b>DFS</b>를 돌려, 더 이상 보낼 수 없을 때까지 흐름을 흘립니다. 포화된 간선은 그 phase 동안 건너뜁니다(현재 간선 포인터). 핵심 효과: 포드-풀커슨은 증가 경로를 <b>하나씩</b> 찾지만, 디닉은 한 번의 BFS로 <b>같은 길이의 최단 경로들을 통째로</b> 포화시켜 phase 수가 <b>O(V)</b>로 묶입니다. 전체 <b>O(V²E)</b>. 게다가 <b>단위 용량</b> 그래프(이분 매칭 등)에선 <b>O(E√V)</b>로, 큰 매칭 문제의 표준 해법입니다.",
+   "more_en": "<b>Dinic's algorithm</b> alternates two phases. <b>① Level graph</b>: in the residual graph, run <b>BFS</b> from s to label each vertex's distance (level). If t is unreachable, stop (max flow found). <b>② Blocking flow</b>: run <b>DFS</b> using only edges whose level goes <b>up by exactly 1</b> (forward only), pushing flow until no more can be sent; saturated edges are skipped for the rest of the phase (current-arc pointer). Key effect: Ford-Fulkerson finds augmenting paths <b>one at a time</b>, but Dinic saturates <b>all shortest paths of the same length at once</b> per BFS, bounding the number of phases to <b>O(V)</b>. Overall <b>O(V²E)</b>. On <b>unit-capacity</b> graphs (e.g. bipartite matching) it runs in <b>O(E√V)</b>, the standard method for large matching problems.",
+   "problem": {
+    "q": "디닉이 포드-풀커슨보다 빠른 근본 이유 한 가지는?",
+    "solution": "한 번의 BFS(레벨 그래프)로 <b>같은 길이의 최단 증가 경로들을 한꺼번에</b> 포화시켜, 서로 다른 phase의 최단경로 길이가 매번 늘어나므로 phase 수가 <b>O(V)</b>로 제한되기 때문입니다(포드-풀커슨은 경로를 하나씩 처리).",
+    "q_en": "One fundamental reason Dinic beats Ford-Fulkerson?",
+    "sol_en": "Each BFS (level graph) saturates <b>all shortest augmenting paths of one length at once</b>; since the shortest-path length strictly increases per phase, the number of phases is bounded by <b>O(V)</b> (Ford-Fulkerson handles paths one by one)."
+   }
+  },
+  "algo_br_astar": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.3 최단경로 ▸ 자세히",
+   "title": "A* 탐색 — 길잡이 에이스타의 알고리즘",
+   "narr": "이 사이트의 길잡이 <b>에이스타</b>가 바로 이 알고리즘에서 왔습니다. <b>A*</b>는 다익스트라에 <b>목표까지의 어림짐작(휴리스틱)</b>을 더해, 엉뚱한 방향을 덜 뒤지고 <b>목표 쪽으로</b> 똑똑하게 탐색합니다. 게임 캐릭터·지도 앱·로봇 길찾기의 표준입니다.",
+   "hint": "",
+   "more": "<b>다익스트라</b>는 시작점에서 가까운 순서로 <b>사방을</b> 균일하게 넓혀 갑니다. <b>A*</b>는 우선순위를 <b>f(n) = g(n) + h(n)</b> 으로 바꿉니다 — <b>g(n)</b>은 시작부터 실제로 온 거리, <b>h(n)</b>은 <b>목표까지의 추정 거리</b>(예: 격자라면 맨해튼/유클리드 거리). 그래서 같은 g라도 <b>목표에 가까운 후보를 먼저</b> 꺼내, 반대쪽은 거의 안 봅니다. 핵심 성질: ① <b>허용성(admissible)</b> — h가 실제 최단거리를 <b>절대 넘지 않으면</b> A*는 <b>최적 경로</b>를 보장합니다. ② <b>일관성(consistent)</b> — 이웃으로 갈 때 h가 간선비용보다 더 줄지 않으면, 닫힌 정점을 다시 안 열어도 됩니다. h=0이면 정확히 다익스트라가 되고, h가 정확할수록 직선처럼 탐색합니다. 최악 복잡도는 다익스트라와 같지만(좋은 h면 실제 탐색량이 급감), 메모리도 후보 집합만큼 듭니다.",
+   "more_en": "<b>Dijkstra</b> expands uniformly in all directions by distance from the start. <b>A*</b> changes the priority to <b>f(n) = g(n) + h(n)</b> — <b>g(n)</b> is the actual cost from the start, <b>h(n)</b> is an <b>estimate of the remaining distance to the goal</b> (e.g. Manhattan/Euclidean distance on a grid). So among equal-g candidates it pops the one <b>closest to the goal first</b>, barely touching the opposite side. Key properties: ① <b>Admissible</b> — if h <b>never overestimates</b> the true distance, A* returns an <b>optimal path</b>. ② <b>Consistent</b> — if h drops by no more than each edge cost, closed nodes never need reopening. With h=0 it becomes exactly Dijkstra; the sharper h is, the more the search hugs a straight line. Worst-case complexity matches Dijkstra (a good h drastically cuts the nodes actually expanded), at the cost of memory for the open set.",
+   "problem": {
+    "q": "A*에서 휴리스틱 h가 어떤 조건을 지켜야 최단 경로가 보장될까?",
+    "solution": "<b>허용성(admissible)</b>: h(n)이 n에서 목표까지의 <b>실제 최단거리를 절대 넘지 않아야</b> 합니다(과소추정 OK, 과대추정 X). 넘으면 더 짧은 길을 건너뛰어 최적성이 깨집니다.",
+    "q_en": "What must the heuristic h satisfy for A* to guarantee a shortest path?",
+    "sol_en": "<b>Admissibility</b>: h(n) must <b>never overestimate</b> the true distance from n to the goal (underestimating is fine). If it overestimates, A* may skip a shorter route and lose optimality."
+   }
   }
 }
