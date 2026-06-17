@@ -4653,6 +4653,103 @@
       ctx.fillText('각 약연결 성분 = 사이클 하나 + 그 사이클로 들어오는 나무들 (ρ 모양)', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('사이클 찾기=방문표시/플로이드 거북토끼. fᵏ(x)=이진점프. 순열은 꼬리없는 특수형(사이클만)', W/2, H*0.88+18); }
+  },
+
+  { id:'algo_br_kdtree', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('k-d 트리 — 평면을 축 번갈아 가르기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('점들을 x·y 축을 번갈아 중앙값으로 분할 → 최근접 이웃·범위 질의를 평균 O(log n)에', W/2, H*0.10+22);
+      // plane with alternating splits
+      var bx=W*0.16, by=H*0.28, bw=W*0.40, bh=H*0.52;
+      ctx.strokeStyle='#3a4358'; ctx.lineWidth=1.5; ctx.strokeRect(bx,by,bw,bh);
+      // vertical split (x), then horizontal splits (y)
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx+bw*0.5,by); ctx.lineTo(bx+bw*0.5,by+bh); ctx.stroke();
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx,by+bh*0.45); ctx.lineTo(bx+bw*0.5,by+bh*0.45); ctx.moveTo(bx+bw*0.5,by+bh*0.6); ctx.lineTo(bx+bw,by+bh*0.6); ctx.stroke();
+      var pts=[[0.25,0.25],[0.3,0.7],[0.7,0.3],[0.8,0.8],[0.6,0.55]];
+      pts.forEach(function(p){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(bx+p[0]*bw,by+p[1]*bh,4,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#7ab8ff'; ctx.font='11px sans-serif'; ctx.fillText('x로 분할', bx+bw*0.5, by-6); ctx.fillStyle='#8fe3b5'; ctx.fillText('y로 분할', bx+bw+20, by+bh*0.45);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('깊이 d마다 (d mod k)번째 축으로', W*0.62, H*0.36);
+      ctx.fillText('중앙값 분할 → 균형 이진 트리', W*0.62, H*0.44);
+      ctx.fillText('최근접: 가까운 쪽 먼저, 경계까지', W*0.62, H*0.54);
+      ctx.fillText('거리 < 현재 최선이면 반대쪽도', W*0.62, H*0.61); ctx.textAlign='center';
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('구축 O(n log n). 최근접/범위 질의 평균 O(log n), 최악 O(n)(고차원서 저주)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 최근접 이웃·k-NN, 범위 검색, 충돌·레이트레이싱, 군집. 저차원에 강함', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_minkowski', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('민코프스키 합 — 두 볼록 도형을 "쓸어" 더하기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('A⊕B = {a+b}. 두 볼록다각형이면, 변들을 각도 순으로 병합해 O(n+m)에', W/2, H*0.10+22);
+      // A, B, and A+B shapes
+      function poly(cx,cy,sc,pts,col){ ctx.strokeStyle=col; ctx.fillStyle=col.replace(')',',0.12)').indexOf('rgba')<0?col:col; ctx.lineWidth=2; ctx.beginPath(); pts.forEach(function(p,i){ var x=cx+p[0]*sc,y=cy+p[1]*sc; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.closePath(); ctx.globalAlpha=0.12; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1; ctx.stroke(); }
+      var triA=[[0,-1],[1,0.7],[-1,0.7]]; var sqB=[[-0.7,-0.7],[0.7,-0.7],[0.7,0.7],[-0.7,0.7]];
+      poly(W*0.20,H*0.40,28,triA,'#7ab8ff'); ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.fillText('A', W*0.20, H*0.62);
+      poly(W*0.38,H*0.40,28,sqB,'#8fe3b5'); ctx.fillStyle='#8fe3b5'; ctx.fillText('B', W*0.38, H*0.62);
+      // A+B = rounded-ish hexagon
+      var sum=[[0,-1.5],[1.4,-0.5],[1.4,0.9],[0,1.4],[-1.4,0.9],[-1.4,-0.5]];
+      poly(W*0.70,H*0.42,34,sum,'#ffb27a'); ctx.fillStyle='#ffb27a'; ctx.fillText('A ⊕ B', W*0.70, H*0.70);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('볼록끼리: 두 다각형의 변(벡터)들을 극각 순으로 정렬·병합 → 합의 경계', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('충돌 판정: A,B 충돌 ⟺ 원점 ∈ A⊕(−B). 로봇 모션(장애물 팽창)·충돌 거리', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('비볼록은 볼록분해 후 합. GJK 충돌 알고리즘의 토대(민코프스키 차)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_quadtree', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('사분 트리 — 공간을 네 칸씩 재귀 분할', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('2D 영역을 점이 많으면 4등분 반복. 점 검색·충돌·이미지 압축·근사 중력(Barnes-Hut)', W/2, H*0.10+22);
+      // recursive quad subdivision
+      var bx=W*0.30, by=H*0.28, sz=H*0.5;
+      function quad(x,y,s,depth){ ctx.strokeStyle='rgba(122,184,255,'+(0.5-depth*0.1)+')'; ctx.lineWidth=1.5; ctx.strokeRect(x,y,s,s);
+        if(depth<2){ // subdivide top-right and bottom-left for variety
+          ctx.beginPath(); ctx.moveTo(x+s/2,y); ctx.lineTo(x+s/2,y+s); ctx.moveTo(x,y+s/2); ctx.lineTo(x+s,y+s/2); ctx.stroke();
+          quad(x+s/2,y,s/2,depth+1); quad(x,y+s/2,s/2,depth+1); } }
+      quad(bx,by,sz,0);
+      var pts=[[0.15,0.2],[0.6,0.15],[0.7,0.35],[0.2,0.7],[0.35,0.85],[0.8,0.8]];
+      pts.forEach(function(p){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(bx+p[0]*sz,by+p[1]*sz,4,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('칸에 점이 임계치 넘으면 4분할(NW·NE·SW·SE) → 밀집한 곳만 깊게', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('범위/최근접 질의는 겹치는 칸만 재귀. 3D는 팔분트리(octree). 적응형 해상도', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 충돌 브로드페이즈, 이미지 압축, GIS, Barnes-Hut N체(O(n log n) 중력)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_sufarraybuild', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('접미사 배열 구축 — 접두사 배가(prefix doubling)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('길이 1,2,4,…로 접미사를 순위 매겨 정렬. 이전 순위로 다음 길이 비교 → O(n log n)', W/2, H*0.10+22);
+      // doubling rounds: rank by first 1, 2, 4 chars
+      var rounds=[['길이 1','각 글자로 순위'],['길이 2','(현재순위, 다음순위)쌍 정렬'],['길이 4','앞 길이 순위 두 개로'],['길이 8','…유일해질 때까지']];
+      var bx=W*0.5-(rounds.length*100)/2, by=H*0.34;
+      rounds.forEach(function(r,i){ var x=bx+i*100; ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(x,by,88,46); ctx.strokeRect(x,by,88,46);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(r[0],x+44,by+18); ctx.fillStyle='#8a8893'; ctx.font='9px sans-serif'; ctx.fillText(r[1],x+44,by+34);
+        if(i<rounds.length-1){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+88,by+23); ctx.lineTo(x+100,by+23); ctx.stroke(); } });
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('길이 2k 순위 = (길이 k 순위, k칸 뒤 길이 k 순위) 쌍을 정렬', W/2, H*0.64);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 라운드 정렬을 기수정렬로 O(n) → log n 라운드 → O(n log n)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('이전 길이의 순위를 재사용하므로 글자 비교 없이 정수 쌍 비교. SA-IS는 O(n)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('Kasai로 LCP 얹으면 부분문자열·반복·LCS. 접미사 트라이/트리의 배열판', W/2, H*0.88+20); }
   }
 
   ];

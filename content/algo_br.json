@@ -3223,5 +3223,65 @@
     "q_en": "Why is each component of a functional graph (out-degree 1) 'one cycle + trees' (a ρ shape)?",
     "sol_en": "Each vertex has <b>exactly one out-edge</b>, so following from any vertex, finiteness forces <b>revisiting a vertex and entering a cycle</b>. Vertices not on the cycle form <b>trees</b> flowing into it, giving the tail-plus-loop ρ shape. A permutation also has in-degree 1, so there are no tails — only cycles."
    }
+  },
+  "algo_br_kdtree": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열과 리스트 ▸ 자세히",
+   "title": "k-d 트리 — 평면을 축 번갈아 가르기",
+   "narr": "1D 이진 탐색 트리가 수직선을 가른다면, <b>k-d 트리</b>는 <b>k차원 공간</b>을 깊이마다 다른 축으로 번갈아 가릅니다. 점들의 <b>최근접 이웃</b>·범위 질의를 평균 O(log n)에 답합니다.",
+   "hint": "",
+   "more": "<b>k-d 트리(k-dimensional tree)</b>는 k차원 점들을 저장하는 이진 트리로, <b>깊이 d의 노드는 (d mod k)번째 좌표축을 기준</b>으로 공간을 둘로 가릅니다(2D면 x·y·x·y… 번갈아). 보통 각 단계에서 <b>중앙값(median)</b>으로 분할해 균형 트리를 만들면 <b>구축 O(n log n)</b>, 높이 O(log n). 핵심 질의 <b>최근접 이웃(nearest neighbor)</b>: 루트에서 질의점이 속한 쪽으로 내려가 후보를 잡은 뒤, 되돌아오며 <b>반대편 영역까지의 거리(분할 평면까지의 수직 거리)가 현재 최선보다 가까울 때만 반대쪽도 탐색</b>(가지치기). 잘 분포된 저차원에서는 평균 <b>O(log n)</b>이지만, <b>차원이 높아지면(차원의 저주)</b> 가지치기가 거의 안 돼 최악 O(n)에 수렴합니다(대략 k ≳ 10이면 선형 스캔이 더 빠름). <b>범위 질의</b>(직사각형/구 안의 점)도 겹치는 영역만 재귀해 효율적. 갱신: 단순 삽입/삭제는 균형이 깨지므로 주기적 재구축하거나 균형 변형(분할 재배치)을 씀. 친척: <b>사분/팔분 트리</b>(공간을 좌표값으로 4/8등분), <b>볼 트리·R-트리</b>(다른 분할 규칙). 쓰임: <b>최근접/​k-NN 검색</b>(추천·분류), 범위 검색, 광선 추적·충돌의 공간 가속, 군집·밀도 추정. \"축을 번갈아 중앙값으로 가르고, 가까운 쪽부터 + 경계 가지치기\"가 핵심입니다.",
+   "more_en": "A <b>k-d tree (k-dimensional tree)</b> stores k-dimensional points in a binary tree where a node at <b>depth d splits on coordinate axis (d mod k)</b> (in 2D, alternating x, y, x, y…). Splitting at the <b>median</b> each step yields a balanced tree with <b>O(n log n)</b> construction and O(log n) height. The key query, <b>nearest neighbor</b>: descend to the side containing the query point to grab a candidate, then on the way back <b>explore the other side only if the distance to its region (perpendicular distance to the split plane) is closer than the current best</b> (pruning). For well-distributed low dimensions this averages <b>O(log n)</b>, but as <b>dimension grows (the curse of dimensionality)</b> pruning fails and it degrades toward O(n) (roughly k ≳ 10 makes a linear scan faster). <b>Range queries</b> (points in a box/ball) recurse only into overlapping regions, also efficient. Updates: naive insert/delete unbalances it, so periodically rebuild or use balanced variants. Relatives: <b>quad/octrees</b> (split by coordinate value into 4/8), <b>ball trees, R-trees</b> (other split rules). Uses: <b>nearest-neighbor / k-NN search</b> (recommendation, classification), range search, spatial acceleration for ray tracing/collision, clustering and density estimation. The crux: \"split on alternating axes at the median, search the near side first with boundary pruning.\"",
+   "problem": {
+    "q": "k-d 트리의 최근접 이웃 탐색에서 '반대쪽 가지'를 탐색할지 어떻게 결정하나?",
+    "solution": "질의점에서 <b>분할 평면까지의 수직 거리</b>를 보고, 그 거리가 <b>현재까지 찾은 최선 거리보다 작을 때만</b> 반대쪽 영역도 탐색합니다(그렇지 않으면 반대쪽엔 더 가까운 점이 있을 수 없어 가지치기). 가까운 쪽을 먼저 내려가 좋은 후보를 잡아 두면 가지치기가 잘 돼 평균 O(log n)이 됩니다.",
+    "q_en": "In k-d tree nearest-neighbor search, how do you decide whether to explore the other branch?",
+    "sol_en": "Compare the <b>perpendicular distance from the query point to the split plane</b> with the current best distance; explore the other region <b>only if that distance is smaller</b> (otherwise nothing closer can lie there — prune). Descending the near side first to grab a good candidate makes pruning effective, averaging O(log n)."
+   }
+  },
+  "algo_br_minkowski": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "민코프스키 합 — 두 볼록 도형을 쓸어 더하기",
+   "narr": "두 도형 A, B의 <b>민코프스키 합</b>은 \"A의 모든 점 + B의 모든 점\" = {a+b}로, B를 A의 경계를 따라 <b>쓸고 다닌</b> 모양입니다. 두 볼록 다각형이면 변들을 각도 순으로 병합해 O(n+m)에 구합니다.",
+   "hint": "",
+   "more": "<b>민코프스키 합(Minkowski sum)</b> A ⊕ B = { a + b : a∈A, b∈B }는 두 점집합의 모든 벡터 합으로 이뤄진 집합입니다. 직관적으로 B(를 원점 기준으로)를 A의 모든 점에 놓아 <b>쓸어 칠한(swept)</b> 영역 — 또는 A의 경계를 따라 B를 굴린 자취. <b>두 볼록 다각형</b>의 합은 다시 볼록 다각형이고, 각 도형의 <b>변(에지 벡터)들을 극각(편각) 순으로 정렬해 병합</b>하면 합의 경계가 나옵니다(둘 다 이미 각도순이므로 머지소트의 병합처럼) → <b>O(n+m)</b>. 비볼록 도형은 <b>볼록 분해</b> 후 부분 합들의 합집합으로(더 비쌈). 핵심 응용 <b>충돌 판정</b>: 두 볼록 도형 A, B가 겹친다 ⟺ <b>원점이 민코프스키 차 A ⊕ (−B)에 포함</b>된다(A∩B≠∅ ⟺ 0∈A−B). 이 사실이 <b>GJK 알고리즘</b>(충돌·거리)의 토대이며, 겹치지 않으면 A−B에서 원점까지의 최소 거리가 두 도형의 거리입니다. <b>로봇 모션 계획</b>: 로봇을 점으로 줄이는 대신 장애물을 로봇 모양만큼 <b>팽창(민코프스키 합)</b>시키면, 점 로봇의 경로 찾기로 환원(configuration space). 쓰임: 충돌/근접(게임·CAD·로봇), 모폴로지 연산(이미지 팽창/침식), 경로 계획, 합 다포프(sumset). \"모든 합의 집합 = 쓸어 칠하기, 볼록끼리는 각도 병합 O(n+m)\"이 핵심입니다.",
+   "more_en": "The <b>Minkowski sum</b> A ⊕ B = { a + b : a∈A, b∈B } is the set of all vector sums of two point sets — intuitively the region <b>swept</b> by placing B (relative to the origin) at every point of A, or B rolled along A's boundary. The sum of <b>two convex polygons</b> is again convex, and <b>merging their edge vectors in polar-angle order</b> traces the sum's boundary (both are already angle-sorted, like merge sort's merge) → <b>O(n+m)</b>. Non-convex shapes are handled by <b>convex decomposition</b> then the union of partial sums (more expensive). Key application, <b>collision detection</b>: two convex shapes A, B overlap ⟺ <b>the origin lies in the Minkowski difference A ⊕ (−B)</b> (A∩B≠∅ ⟺ 0∈A−B). This fact underlies the <b>GJK algorithm</b> (collision/distance); if they don't overlap, the minimum distance from the origin to A−B is the distance between the shapes. <b>Robot motion planning</b>: instead of shrinking the robot to a point, <b>inflate obstacles by the robot's shape (a Minkowski sum)</b>, reducing to point-robot pathfinding (configuration space). Uses: collision/proximity (games, CAD, robotics), morphological operations (image dilation/erosion), path planning, sumsets. The crux: \"set of all sums = sweeping, and convex-with-convex merges by angle in O(n+m).\"",
+   "problem": {
+    "q": "민코프스키 합/차가 충돌 판정에 쓰이는 원리는?",
+    "solution": "두 볼록 도형 A, B가 겹친다 ⟺ 공통점 a=b가 존재 ⟺ a−b=0인 a∈A,b∈B가 존재 ⟺ <b>원점이 민코프스키 차 A⊕(−B)에 포함</b>된다는 동치입니다. 그래서 \"두 도형 충돌?\"이 \"원점이 한 볼록 도형(A−B) 안인가?\"로 바뀌고(GJK), 안 겹치면 원점까지 거리가 두 도형 사이 거리입니다.",
+    "q_en": "What principle lets the Minkowski sum/difference be used for collision detection?",
+    "sol_en": "Two convex shapes A, B overlap ⟺ some common point a=b exists ⟺ some a∈A, b∈B has a−b=0 ⟺ <b>the origin lies in the Minkowski difference A⊕(−B)</b>. So \"do they collide?\" becomes \"is the origin inside one convex shape (A−B)?\" (GJK); if not, the distance to the origin is the distance between the shapes."
+   }
+  },
+  "algo_br_quadtree": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열과 리스트 ▸ 자세히",
+   "title": "사분 트리 — 공간을 네 칸씩 재귀 분할",
+   "narr": "2D 공간에서 한 칸에 점(또는 물체)이 너무 많으면 <b>네 칸(NW·NE·SW·SE)으로 4등분</b>하고, 또 많으면 또 4등분 — 이것이 <b>사분 트리(quadtree)</b>입니다. 밀집한 곳만 깊게 쪼개는 적응형 공간 분할입니다.",
+   "hint": "",
+   "more": "<b>사분 트리(quadtree)</b>는 2D 공간을 재귀적으로 <b>네 사분면(NW, NE, SW, SE)</b>으로 나누는 트리 자료구조입니다. 한 칸(노드)에 담긴 점·물체 수가 <b>임계치를 넘으면 그 칸을 4등분</b>해 자식 4개를 만들고, 이를 반복합니다 — 점이 <b>밀집한 곳만 깊게</b>, 빈 곳은 얕게 나뉘는 <b>적응형 해상도</b>. k-d 트리가 \"데이터 중앙값\"으로 가른다면 사분 트리는 \"<b>좌표 공간 자체를 절반씩</b>\"(중심으로) 가릅니다(점 분포와 무관한 균등 분할 → 구현 단순). 질의: <b>범위/근접</b> 질의는 질의 영역과 <b>겹치는 칸만 재귀</b>해 빈 영역을 빨리 버립니다. <b>충돌 브로드페이즈</b>: 물체들을 사분 트리에 넣으면 \"같은/이웃 칸\"의 쌍만 정밀 검사해 O(n²) 쌍 비교를 줄임. 3차원판은 <b>팔분 트리(octree)</b>(8등분). 응용: <b>이미지 압축</b>(균일한 영역은 한 노드로 — 영역 사분 트리), <b>GIS·지도</b>(타일·LOD), 게임 충돌·컬링, <b>Barnes-Hut N체 시뮬레이션</b>(멀리 있는 입자 무리를 한 노드의 질량중심으로 근사 → 중력 O(n log n)), 미로·셀룰러. 단점: 점이 한 점에 몰리면 깊이가 매우 깊어질 수 있어(분포 의존) 최대 깊이 제한·버킷 크기 조절 필요. \"공간을 4칸씩, 밀집한 곳만 깊게\"가 핵심입니다.",
+   "more_en": "A <b>quadtree</b> recursively divides 2D space into <b>four quadrants (NW, NE, SW, SE)</b>. When a cell (node) holds more points/objects than a <b>threshold, it is split into four</b> children, repeated as needed — giving <b>adaptive resolution</b> that subdivides <b>only where points are dense</b>, shallow where empty. Where a k-d tree splits at the data median, a quadtree splits the <b>coordinate space itself in half</b> (at the center, independent of the data distribution → simpler to implement). Queries: <b>range/proximity</b> queries recurse only into <b>cells overlapping the query region</b>, quickly discarding empty space. <b>Collision broad-phase</b>: putting objects in a quadtree, only pairs in the \"same/neighboring cell\" need precise checks, cutting O(n²) comparisons. The 3D analogue is an <b>octree</b> (eight parts). Uses: <b>image compression</b> (uniform regions as one node — region quadtree), <b>GIS/maps</b> (tiles, level of detail), game collision/culling, <b>Barnes-Hut N-body simulation</b> (approximating far particle clusters by a node's center of mass → gravity in O(n log n)), mazes, cellular grids. Drawback: points clumped at one spot make it very deep (distribution-dependent), so cap the depth or tune the bucket size. The crux: \"space into four cells, deep only where dense.\"",
+   "problem": {
+    "q": "사분 트리가 충돌 판정의 O(n²) 쌍 비교를 어떻게 줄이나?",
+    "solution": "물체들을 공간 위치에 따라 사분 트리의 칸에 넣으면, 멀리 떨어진 물체는 <b>다른 칸</b>에 들어갑니다. 충돌은 <b>같은 칸(또는 인접 칸)에 든 물체 쌍</b>만 정밀 검사하면 되므로, 떨어진 모든 쌍을 보지 않아 평균적으로 O(n²)이 크게 줄어듭니다(밀집도에 따라 ~O(n log n)). 빈 영역은 트리에서 빨리 버려집니다.",
+    "q_en": "How does a quadtree reduce the O(n²) pair comparisons of collision detection?",
+    "sol_en": "Placing objects into quadtree cells by their position, far-apart objects fall into <b>different cells</b>. Collisions only need precise checks between <b>pairs in the same (or neighboring) cell</b>, so distant pairs are skipped, cutting the average well below O(n²) (~O(n log n) depending on density). Empty regions are discarded quickly in the tree."
+   }
+  },
+  "algo_br_sufarraybuild": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.1 선형 탐색 ▸ 자세히",
+   "title": "접미사 배열 구축 — 접두사 배가(prefix doubling)",
+   "narr": "접미사 배열은 모든 접미사를 사전순으로 정렬한 것인데, 접미사 하나가 길이 n이라 순진하게 정렬하면 O(n² log n). <b>접두사 배가</b>는 길이 1, 2, 4, …의 순위를 단계적으로 매겨 <b>O(n log n)</b>에 짓습니다.",
+   "hint": "",
+   "more": "<b>접미사 배열(suffix array)</b>은 문자열의 모든 접미사를 <b>사전순으로 정렬한 시작 위치들의 배열</b>입니다. 접미사를 통째로 비교하며 정렬하면 비교마다 O(n)이라 느립니다(O(n² log n)). <b>접두사 배가(prefix doubling, Manber-Myers)</b>는 <b>O(n log n)</b>에 짓습니다: <b>각 접미사를 그 앞 길이 1, 2, 4, …, 2^k 글자만 보고 순위(rank)를 매기는 일을 반복</b>합니다. 핵심 점화: 길이 <b>2k</b>로 정렬한 순위는, 각 접미사 i를 <b>(길이 k 순위 rank[i], k칸 뒤 접미사의 길이 k 순위 rank[i+k])의 쌍</b>으로 보고 그 쌍들을 정렬하면 얻어집니다 — 이전 단계의 순위(정수)를 재사용하므로 글자 비교 없이 <b>정수 쌍 비교</b>만으로 됩니다. 각 라운드의 쌍 정렬을 <b>기수 정렬(radix sort)</b>로 O(n)에 하면, 길이가 1→2→4→…→n로 <b>log n 라운드</b>이므로 전체 <b>O(n log n)</b>. (비교 정렬을 쓰면 O(n log²n).) 모든 순위가 서로 달라지면(접미사가 유일하게 구분되면) 종료. 더 빠른 <b>SA-IS·DC3(skew)</b>는 <b>O(n)</b>에 짓습니다(유도 정렬·분할정복). 보통 <b>Kasai로 LCP 배열</b>을 O(n)에 함께 얹어, 부분문자열 검색·서로 다른 부분문자열 수·최장 반복·여러 문자열 LCS를 풉니다. 접미사 배열은 <b>접미사 트리/트라이의 공간 효율적 배열판</b>으로, 구현이 더 단순하고 캐시 친화적이라 경쟁 프로그래밍·문자열 색인의 표준입니다.",
+   "more_en": "A <b>suffix array</b> is the <b>array of starting positions of all suffixes sorted lexicographically</b>. Sorting by comparing whole suffixes is slow (O(n) per comparison → O(n² log n)). <b>Prefix doubling (Manber-Myers)</b> builds it in <b>O(n log n)</b>: <b>repeatedly rank each suffix by only its first 1, 2, 4, …, 2^k characters</b>. The key recurrence: the ranking for length <b>2k</b> is obtained by viewing each suffix i as the <b>pair (its length-k rank rank[i], the length-k rank rank[i+k] of the suffix k positions later)</b> and sorting those pairs — reusing the previous integer ranks, so it's <b>integer-pair comparison</b> with no character comparison. Sorting each round's pairs by <b>radix sort</b> in O(n), with lengths doubling 1→2→4→…→n over <b>log n rounds</b>, gives <b>O(n log n)</b> total. (Comparison sort gives O(n log²n).) It stops when all ranks become distinct (suffixes uniquely distinguished). Faster <b>SA-IS / DC3 (skew)</b> build it in <b>O(n)</b> (induced sorting / divide and conquer). Usually a <b>Kasai LCP array</b> is added in O(n) to solve substring search, the number of distinct substrings, longest repeats, and multi-string LCS. The suffix array is the <b>space-efficient array form of a suffix tree/trie</b>, simpler and cache-friendly — a standard for string indexing and competitive programming.",
+   "problem": {
+    "q": "접두사 배가에서 길이 2k 순위를 길이 k 순위로 어떻게 빠르게 구하나?",
+    "solution": "각 접미사 i를 <b>(rank_k[i], rank_k[i+k])의 정수 쌍</b>으로 보고(앞 k글자 순위, 그다음 k글자 순위) 그 쌍들을 정렬하면 길이 2k 순위가 됩니다. 이전 라운드의 정수 순위를 재사용해 <b>글자 비교 없이 쌍 비교</b>만 하고, 기수 정렬로 O(n)에 — log n 라운드라 전체 O(n log n)입니다.",
+    "q_en": "In prefix doubling, how do you quickly get the length-2k ranking from the length-k ranking?",
+    "sol_en": "View each suffix i as the <b>integer pair (rank_k[i], rank_k[i+k])</b> (rank of its first k chars, then the next k) and sort those pairs to get the length-2k ranking. Reusing the previous round's integer ranks means <b>pair comparison with no character comparison</b>, done in O(n) by radix sort — with log n rounds, O(n log n) total."
+   }
   }
 }
