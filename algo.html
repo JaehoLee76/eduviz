@@ -139,20 +139,18 @@
   #study.open .chev-svg { transform: scaleY(-1); animation: none; }
   #study.open .chev-c1, #study.open .chev-c2 { animation: none; }
 
-  /* ════ VIZ 모드: 왼쪽 애니메이션 + 오른쪽 코드(현재 줄 하이라이트) + 하단 스텝 컨트롤 ════ */
-  body.viz #stage { width: 58vw; }                 /* 캔버스 = 왼쪽 컬럼 */
-  body.viz .guide, body.viz .bignum { display: none !important; }  /* 캐릭터·big 숨김(겹침 제거) */
-  /* 자세히 보기(학습패널): 코드 장면에선 복원(스텝 캡션 위로 올려 겹침 회피), 개념 장면은 이미 우측 패널에 있으니 숨김 */
-  body.viz #study { left: 26px; bottom: 172px; width: min(420px, 50vw); }
-  body.viz-concept #study { display: none !important; }
+  /* ════ VIZ 모드: 왼쪽 = 코드/설명 + 스텝 컨트롤, 오른쪽 = 애니메이션(캔버스). 시선이 왼쪽에 머물게 ════ */
+  body.viz #stage { left: 42vw; width: 58vw; }     /* 캔버스 = 오른쪽 컬럼 */
+  body.viz .guide, body.viz .bignum, body.viz #study { display: none !important; }  /* 캐릭터·big·옛 학습패널 숨김(설명은 왼쪽 패널로 통합) */
 
-  #codepanel { position: fixed; top: 0; right: 0; width: 42vw; height: 100%; z-index: 5; display: none; flex-direction: column;
-    background: rgba(14,14,20,0.97); border-left: 1px solid var(--border); padding: 56px 0 0; }
+  /* 왼쪽 패널: 코드/설명(스크롤) → 스텝 캡션 → 스텝바 */
+  #codepanel { position: fixed; top: 0; left: 0; width: 42vw; height: 100%; z-index: 5; display: none; flex-direction: column;
+    background: rgba(14,14,20,0.97); border-right: 1px solid var(--border); padding: 56px 0 0; }
   body.viz #codepanel { display: flex; }
   .code-head { padding: 6px 22px 12px; color: var(--accent-light); font-size: 14px; font-weight: 700; letter-spacing: .04em;
     border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .code-body { flex: 1; overflow-y: auto; padding: 12px 0 70px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.65; }
+  .code-body { flex: 1; overflow-y: auto; padding: 12px 0 16px; }
+  .codelines { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.65; }
   .code-body::-webkit-scrollbar { width: 9px; }
   .code-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
   .cl { display: flex; gap: 14px; padding: 1px 22px; white-space: pre; }
@@ -160,20 +158,23 @@
   .cl .ct { color: #c2cbd8; }
   .cl.on { background: rgba(79,147,214,0.26); box-shadow: inset 3px 0 0 var(--accent-light); }
   .cl.on .ct { color: #ffffff; font-weight: 600; }
+  .codeextra { border-top: 1px solid var(--border); margin-top: 10px; }
 
-  #stepcap { position: fixed; left: 2.5vw; bottom: 88px; width: 53vw; z-index: 5; display: none;
-    background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-left: 3px solid var(--accent-light); border-radius: 11px; padding: 13px 18px; }
-  body.viz #stepcap { display: block; }
+  /* 스텝 캡션·컨트롤 = 왼쪽 패널 하단(코드와 같은 쪽) */
+  #stepcap { display: none; margin: 0 18px 8px; background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border); border-left: 3px solid var(--accent-light); border-radius: 11px; padding: 12px 15px; }
+  body.viz:not(.viz-concept) #stepcap { display: block; }
   #stepcap .stp { font-size: 12px; color: var(--accent-light); font-weight: 700; letter-spacing: .06em; margin-bottom: 5px; }
-  #stepcap .cap { font-size: 15.5px; color: #ece9e0; line-height: 1.55; }
+  #stepcap .cap { font-size: 15px; color: #ece9e0; line-height: 1.55; }
   #stepcap .cap b { color: #bfe0ff; font-weight: 600; }
+  #stepbar { display: none; padding: 4px 14px 16px; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  body.viz:not(.viz-concept) #stepbar { display: flex; }
 
-  #stepbar { position: fixed; left: 0; bottom: 24px; width: 58vw; z-index: 6; display: none; justify-content: center; gap: 10px; }
-  body.viz #stepbar { display: flex; }
-  body.viz-concept #stepbar, body.viz-concept #stepcap { display: none !important; }  /* 개념 장면=스텝 없음 */
-  body.viz #controls { left: 0; right: 42vw; }   /* 슬라이더를 왼쪽 컬럼 중앙으로 */
-  /* 개념 핵심 요약 패널 (오른쪽) */
-  .concept { padding: 8px 22px 36px; font-size: 14.5px; line-height: 1.72; color: var(--text-2); }
+  body.viz #controls { left: 42vw; right: 0; }   /* 슬라이더 = 오른쪽(캔버스) 컬럼 중앙 */
+  .ctrl-keys { align-self: center; font-size: 11px; color: var(--text-3); margin-top: 8px; }
+
+  /* 설명 패널 본문 (개념 + 코드 보충 공통) */
+  .concept { padding: 8px 22px 24px; font-size: 14.5px; line-height: 1.72; color: var(--text-2); }
   .cpt-intro { color: #dfeefb; margin-bottom: 16px; line-height: 1.7; }
   .cpt-intro b { color: #bfe0ff; font-weight: 600; }
   .cpt-sec { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
@@ -184,15 +185,16 @@
   .cpt-sol { margin-top: 10px; }
   .cpt-sol summary { cursor: pointer; color: var(--accent-light); font-size: 13.5px; }
   .cpt-sol b { color: var(--accent-light); }
-  .sbtn { background: var(--accent-soft); border: 1px solid var(--accent); color: #dceeff; padding: 9px 18px; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .sbtn { background: var(--accent-soft); border: 1px solid var(--accent); color: #dceeff; padding: 8px 14px; border-radius: 10px; font-size: 13.5px; cursor: pointer; font-family: inherit; }
   .sbtn:hover { background: rgba(79,147,214,0.3); }
   .sbtn:disabled { opacity: .3; cursor: default; }
   .sbtn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  /* 퀴즈 옵션 번호 키 */
+  .quiz .opt .optk { display: inline-block; min-width: 16px; margin-right: 7px; padding: 1px 5px; border: 1px solid currentColor; border-radius: 5px; font-size: 11px; opacity: .65; }
   @media (max-width: 760px) {
-    body.viz #stage { width: 100vw; height: 50vh; }
-    #codepanel { top: auto; bottom: 0; width: 100vw; height: 50vh; padding-top: 10px; border-left: none; border-top: 1px solid var(--border); }
-    #stepcap, #stepbar { width: 100vw; left: 0; text-align: center; }
-    #stepcap { bottom: 50vh; left: 0; padding: 8px 14px; }
+    body.viz #stage { left: 0; width: 100vw; height: 50vh; }
+    #codepanel { top: auto; bottom: 0; left: 0; width: 100vw; height: 50vh; padding-top: 10px; border-right: none; border-top: 1px solid var(--border); }
+    body.viz #controls { left: 0; right: 0; }
   }
 </style>
 </head>
@@ -245,17 +247,17 @@
   <button class="btn primary" id="next">다음 ▸</button>
 </div>
 
-<!-- VIZ: 코드 패널(오른쪽) + 단계 설명 + 스텝 컨트롤(왼쪽 하단) -->
+<!-- VIZ: 왼쪽 패널 = 코드/설명 + 단계 설명 + 스텝 컨트롤 / 오른쪽 = 애니메이션(캔버스) -->
 <div id="codepanel">
   <div class="code-head" id="codeHead"></div>
   <div class="code-body" id="codeBody"></div>
-</div>
-<div id="stepcap"><div class="stp" id="stepStp"></div><div class="cap" id="stepCap"></div></div>
-<div id="stepbar">
-  <button class="sbtn" id="sbPrev">◂ 이전 <kbd class="kc">A</kbd></button>
-  <button class="sbtn primary" id="sbNext">다음 단계 ▸ <kbd class="kc">D</kbd><kbd class="kc">W</kbd></button>
-  <button class="sbtn" id="sbAuto">▶ 자동 재생 <kbd class="kc">S</kbd></button>
-  <button class="sbtn" id="sbReset">↺ 초기화 <kbd class="kc">X</kbd></button>
+  <div id="stepcap"><div class="stp" id="stepStp"></div><div class="cap" id="stepCap"></div></div>
+  <div id="stepbar">
+    <button class="sbtn" id="sbPrev">◂ 이전 <kbd class="kc">A</kbd></button>
+    <button class="sbtn primary" id="sbNext">다음 단계 ▸ <kbd class="kc">D</kbd></button>
+    <button class="sbtn" id="sbAuto">▶ 자동 재생 <kbd class="kc">S</kbd></button>
+    <button class="sbtn" id="sbReset">↺ 초기화 <kbd class="kc">X</kbd></button>
+  </div>
 </div>
 
 <div id="toc-panel"><div id="toc"></div></div>

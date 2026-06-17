@@ -82,14 +82,15 @@
   var controlsEl;
   function controls(html){ if(!controlsEl) return; controlsEl.innerHTML=html||''; controlsEl.style.display=html?'flex':'none';
     // range 슬라이더 value 속성이 무시되고 중앙으로 뜨는 문제 방지: 속성값을 프로퍼티로 강제
-    var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++){ var av=rs[i].getAttribute('value'); if(av!=null) rs[i].value=av; } }
+    var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++){ var av=rs[i].getAttribute('value'); if(av!=null) rs[i].value=av; }
+    if(rs.length){ var hk=document.createElement('span'); hk.className='ctrl-keys'; hk.innerHTML='<kbd class="kc">A</kbd> ◂ 값 조절 ▸ <kbd class="kc">D</kbd>'; controlsEl.appendChild(hk); } }
   function bind(sel,ev,fn){ var el=document.querySelector(sel); if(el) el.addEventListener(ev,fn); return el; }
 
   // 재사용 문제풀이(퀴즈) 부품 — 핵심→응용→문제풀이 흐름의 마지막 단계
   function quiz(cfg){ // {q, choices:[...], answer:idx, explain}
     var h='<div class="quiz"><div class="q">'+cfg.q+'</div><div class="opts">';
-    for(var i=0;i<cfg.choices.length;i++) h+='<button class="opt" data-i="'+i+'">'+cfg.choices[i]+'</button>';
-    h+='</div><div class="fb" id="qfb">&nbsp;</div></div>';
+    for(var i=0;i<cfg.choices.length;i++) h+='<button class="opt" data-i="'+i+'"><span class="optk">'+(i+1)+'</span>'+cfg.choices[i]+'</button>';
+    h+='</div><div class="fb" id="qfb">숫자 키 1~'+cfg.choices.length+' 로도 선택</div></div>';
     controls(h);
     var done=false, opts=controlsEl.querySelectorAll('.opt');
     for(var k=0;k<opts.length;k++){ opts[k].addEventListener('click',function(){ if(done)return;
@@ -112,7 +113,7 @@
     studyEl.style.display = has ? 'flex' : 'none';
     studyEl.classList.remove('open'); if(chevLabel) chevLabel.textContent='자세히 보기';
     if(studyMore){ var mh = sc.more ? ('<h4>더 알아보기</h4>'+sc.more) : '';
-      if(sc.more_en) mh += '<div class="en-block"><div class="en-tag">IN ENGLISH</div>'+sc.more_en+'</div>';
+      if(sc.more_en) mh += '<div class="en-block">'+sc.more_en+'</div>';
       studyMore.innerHTML = mh; studyMore.style.display = mh?'block':'none'; }
     if(studyProb){
       if(sc.problem){ studyProb.style.display='block'; var p=sc.problem;
@@ -219,18 +220,23 @@
   var _steps=null, _stepI=0, _autoT=null;
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function kc(k){ return ' <kbd class="kc">'+k+'</kbd>'; }   // 버튼 단축키 표시
-  function renderCode(sc){ if(!codeBodyEl) return; var h='';
-    for(var i=0;i<sc.code.length;i++){ h+='<div class="cl" data-i="'+i+'"><span class="ln">'+i+'</span><span class="ct">'+escHtml(sc.code[i])+'</span></div>'; }
-    codeBodyEl.innerHTML=h; }
-  // 개념 장면(실행 코드 없음): 오른쪽 패널에 핵심 요약(narr+more+문제, 기존 한·영 콘텐츠 재활용)
-  function renderConcept(sc){ if(!codeBodyEl) return; var h='<div class="concept">';
-    if(sc.narr) h+='<div class="cpt-intro">'+sc.narr+'</div>';
+  // 더 알아보기 + 연습문제 블록 (영어는 'In English' 표제 없이 본문만)
+  function richBlocks(sc){ var h='';
     if(sc.more) h+='<div class="cpt-sec"><div class="cpt-h">핵심 요약</div>'+sc.more+'</div>';
-    if(sc.more_en) h+='<div class="cpt-sec en"><div class="cpt-h">IN ENGLISH</div>'+sc.more_en+'</div>';
+    if(sc.more_en) h+='<div class="cpt-sec en">'+sc.more_en+'</div>';
     if(sc.problem){ var p=sc.problem; h+='<div class="cpt-sec"><div class="cpt-h">연습 문제</div><div>'+p.q+'</div>'
       +(p.q_en?'<div class="en">'+p.q_en+'</div>':'')
       +'<details class="cpt-sol"><summary>풀이 보기</summary>'+p.solution+(p.sol_en?'<div class="en" style="margin-top:6px">'+p.sol_en+'</div>':'')+'</details></div>'; }
-    h+='</div>'; codeBodyEl.innerHTML=h; }
+    return h; }
+  function renderCode(sc){ if(!codeBodyEl) return; var h='<div class="codelines">';
+    for(var i=0;i<sc.code.length;i++){ h+='<div class="cl" data-i="'+i+'"><span class="ln">'+i+'</span><span class="ct">'+escHtml(sc.code[i])+'</span></div>'; }
+    h+='</div>';
+    var extra=richBlocks(sc); if(extra) h+='<div class="concept codeextra">'+extra+'</div>';
+    codeBodyEl.innerHTML=h; }
+  // 개념 장면(실행 코드 없음): 왼쪽 패널에 설명(narr+핵심요약+문제)
+  function renderConcept(sc){ if(!codeBodyEl) return; var h='<div class="concept">';
+    if(sc.narr) h+='<div class="cpt-intro">'+sc.narr+'</div>';
+    h+=richBlocks(sc)+'</div>'; codeBodyEl.innerHTML=h; }
   function paintStep(){ if(!_steps) return; var f=_steps[_stepI]||{};
     if(codeBodyEl){ var cls=codeBodyEl.querySelectorAll('.cl'); for(var i=0;i<cls.length;i++) cls[i].classList.remove('on');
       var lines=(f.line!=null)?(Array.isArray(f.line)?f.line:[f.line]):[];
@@ -318,19 +324,25 @@
     // 키보드 ← → 로 이전·다음 (슬라이더/입력 포커스 시엔 그쪽이 우선)
     global.addEventListener('keydown',function(e){
       var t=e.target;
-      if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='BUTTON'||t.isContentEditable)) return;
-      if(e.key==='ArrowRight'){ next(); e.preventDefault(); }
-      else if(e.key==='ArrowLeft'){ prev(); e.preventDefault(); }
-      else if(e.key==='ArrowDown'){ enterBranch(); e.preventDefault(); }   // ↓ 분기(자세히)로 들어가기
-      else if(e.key==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 뼈대로 나오기
-      // Space/Enter = 한 단계 진행 (viz면 다음 스텝, 레거시면 tap). 캔버스 클릭 막힌 환경 대체 입력
-      else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s._viz&&_steps){ stepNext(); e.preventDefault(); } else if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
-      // 애니메이션 스텝 컨트롤: A=이전 D/W=다음 S=자동재생 X=초기화 (코드+스텝 장면에서만)
-      else { var sk=SM.scenes[SM.cur]; if(sk&&sk._viz&&_steps){ var kk=(e.key||'').toLowerCase();
-        if(kk==='d'||kk==='w'){ stepNext(); e.preventDefault(); }
+      if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;  // 텍스트 입력 중엔 무시(버튼 포커스는 막지 않음)
+      if(document.querySelector('.cw-ov.open')) return;   // AI 채팅 열려 있으면 무시
+      var s=SM.scenes[SM.cur], k=e.key, kk=(k||'').toLowerCase();
+      if(k==='ArrowRight'){ next(); e.preventDefault(); }
+      else if(k==='ArrowLeft'){ prev(); e.preventDefault(); }
+      else if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); }   // ↓ 자세히(분기)로
+      else if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 나가기
+      else if(s&&s._viz&&_steps){   // 코드+스텝: A 이전 / D(W·Space) 다음 / S 자동 / X 초기화
+        if(kk==='d'||kk==='w'||k===' '||k==='Enter'){ stepNext(); e.preventDefault(); }
         else if(kk==='a'){ stepPrev(); e.preventDefault(); }
         else if(kk==='s'){ toggleAuto(); e.preventDefault(); }
-        else if(kk==='x'){ stepReset(); e.preventDefault(); } } }
+        else if(kk==='x'){ stepReset(); e.preventDefault(); }
+      } else {   // 슬라이더(A/D) · 퀴즈(숫자) · 탭(Space) 장면
+        var rng=controlsEl&&controlsEl.querySelector('input[type=range]');
+        if(rng&&(kk==='a'||kk==='d')){ var st=parseFloat(rng.step)||1, v=parseFloat(rng.value)+(kk==='d'?st:-st);
+          v=Math.max(parseFloat(rng.min), Math.min(parseFloat(rng.max), v)); rng.value=v; rng.dispatchEvent(new Event('input',{bubbles:true})); e.preventDefault(); }
+        else if(/^[1-9]$/.test(k)){ var opt=controlsEl&&controlsEl.querySelector('.opt[data-i="'+(parseInt(k,10)-1)+'"]'); if(opt){ opt.click(); e.preventDefault(); } }
+        else if((k===' '||k==='Enter')&&s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); }
+      }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
