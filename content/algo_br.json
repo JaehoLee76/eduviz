@@ -2863,5 +2863,65 @@
     "q_en": "Why is Simpson's rule more accurate than the trapezoid rule for the same number of points?",
     "sol_en": "The trapezoid joins two points with a <b>straight line</b>, while Simpson fits a <b>parabola</b> through three points, capturing the function's <b>curvature (quadratic term)</b>. It actually integrates cubics exactly, so the composite error drops to <b>O(h⁴)</b>, far below the trapezoid's O(h²)."
    }
+  },
+  "algo_br_kasai": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.1 선형 탐색 ▸ 자세히",
+   "title": "Kasai 알고리즘 — LCP 배열을 O(n)에",
+   "narr": "접미사 배열(SA)이 접미사들을 사전순으로 줄 세운다면, <b>LCP 배열</b>은 SA에서 이웃한 두 접미사의 <b>최장 공통 접두사 길이</b>를 담습니다. <b>Kasai 알고리즘</b>이 이를 놀랍게도 <b>O(n)</b>에 구합니다.",
+   "hint": "",
+   "more": "<b>LCP 배열(Longest Common Prefix array)</b>은 접미사 배열 SA에 대해 <b>LCP[i] = (SA에서 i번째 접미사)와 (i−1번째 접미사)의 최장 공통 접두사 길이</b>를 담는 배열입니다. 두 접미사를 한 글자씩 비교하면 전체 O(n²)이지만, <b>Kasai 알고리즘</b>은 <b>O(n)</b>에 끝냅니다. 핵심 통찰: 접미사들을 <b>SA 순서가 아니라 원문에서의 시작 위치 순서(i, i+1, …)</b>로 처리하면, 위치 i의 접미사 LCP가 h였을 때 <b>위치 i+1의 접미사 LCP는 최소 h−1</b>입니다(맨 앞 글자 하나만 떼였으므로). 그래서 비교 시작점을 매번 0으로 되돌리지 않고 <b>이전 h에서 1만 줄여 이어서</b> 비교하면, h의 총 증가량이 O(n)으로 묶여 전체 선형이 됩니다(rank 배열로 \"위치 i 접미사가 SA에서 몇 번째인지\"와 그 직전 접미사를 O(1)에 찾음). LCP 배열의 위력: ① <b>서로 다른 부분문자열 개수</b> = n(n+1)/2 − ΣLCP, ② <b>최장 반복 부분문자열</b> = max LCP, ③ 두 문자열을 $로 이어 만든 SA에서 \"서로 다른 문자열에서 온 이웃\"의 최대 LCP = <b>최장 공통 부분문자열</b>, ④ LCP 배열에 <b>RMQ(희소 테이블)</b>를 얹으면 SA상 임의의 두 접미사 i, j의 LCP = 그 사이 구간 최솟값을 O(1)에. 접미사 배열의 \"진짜 위력\"은 LCP와 함께 나옵니다.",
+   "more_en": "The <b>LCP array (Longest Common Prefix array)</b> stores, for a suffix array SA, <b>LCP[i] = the length of the longest common prefix of the i-th and (i−1)-th suffixes in SA order</b>. Comparing two suffixes character by character is O(n²) overall, but <b>Kasai's algorithm</b> does it in <b>O(n)</b>. Key insight: process suffixes <b>not in SA order but by their starting position in the text (i, i+1, …)</b>; if the suffix at position i has LCP h, then the suffix at <b>position i+1 has LCP at least h−1</b> (only the first character was dropped). So instead of restarting comparisons at 0 each time, <b>continue from the previous h minus 1</b> — the total growth of h is O(n), giving overall linear time (a rank array finds \"the SA index of the position-i suffix\" and its predecessor in O(1)). The power of the LCP array: ① <b>number of distinct substrings</b> = n(n+1)/2 − ΣLCP; ② <b>longest repeated substring</b> = max LCP; ③ for two strings joined by $, the max LCP of \"neighbors from different strings\" in SA = the <b>longest common substring</b>; ④ adding <b>RMQ (a sparse table)</b> over the LCP array gives the LCP of any two suffixes i, j as the minimum over that range in O(1). The suffix array's real power comes with the LCP array.",
+   "problem": {
+    "q": "Kasai 알고리즘이 LCP 배열을 O(n)에 구하는 핵심 관찰은?",
+    "solution": "접미사를 <b>원문 위치 순(i → i+1)</b>으로 처리하면, 위치 i 접미사의 LCP가 h일 때 위치 i+1 접미사의 LCP는 <b>최소 h−1</b>입니다(맨 앞 글자만 사라짐). 그래서 비교를 0부터 다시 하지 않고 <b>h−1에서 이어가</b>, h의 총 증가가 O(n)으로 묶여 전체 선형이 됩니다.",
+    "q_en": "What is the key observation that lets Kasai's algorithm compute the LCP array in O(n)?",
+    "sol_en": "Processing suffixes <b>in text-position order (i → i+1)</b>: if the position-i suffix has LCP h, the position-(i+1) suffix has LCP <b>at least h−1</b> (only the first character is removed). So comparisons <b>resume from h−1</b> instead of restarting at 0, bounding h's total growth at O(n) and giving overall linear time."
+   }
+  },
+  "algo_br_binarylifting": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.1 이진 트리 ▸ 자세히",
+   "title": "이진 점프(binary lifting) — 2의 거듭제곱 조상",
+   "narr": "트리에서 \"v의 100번째 조상\"이나 \"두 정점의 LCA\"를 매번 한 칸씩 올라가면 O(n)입니다. <b>이진 점프</b>는 각 정점의 <b>2^j번째 조상</b>을 미리 저장해, 임의의 k번째 조상·LCA를 <b>O(log n)</b>에 점프합니다.",
+   "hint": "",
+   "more": "<b>이진 점프(binary lifting, sparse ancestor table)</b>는 트리(또는 함수 그래프)에서 <b>k번째 조상</b>·<b>LCA</b> 등을 빠르게 답하는 전처리 기법입니다. 각 정점 v에 대해 <b>up[v][j] = v의 2^j번째 조상</b>을 표로 저장하는데, <b>점화식 up[v][j] = up[ up[v][j−1] ][j−1]</b>(2^j 조상 = 2^(j−1) 조상으로 두 번 점프)로 채웁니다 — 전처리 <b>O(n log n)</b>(j는 0..⌈log n⌉). <b>k번째 조상</b>: k를 이진수로 보고 <b>켜진 비트마다 그 크기(2^j)만큼 점프</b>(예: 13=1101₂ → 8·4·1칸 점프) → O(log n). <b>LCA(u,v)</b>: ① 더 깊은 쪽을 이진 점프로 끌어올려 <b>깊이를 맞추고</b>, ② 같은 깊이에서 둘을 <b>함께</b> \"조상이 달라지는 최대 점프\"로 올려, 마지막에 부모가 LCA. 모두 O(log n). 응용: 트리 경로 질의(경로 위 최댓값·합도 up 테이블에 함께 저장), <b>함수 반복</b>(fⁿ(x), 순열 사이클·after k steps), k번째 다음 노드. 같은 일을 <b>오일러 투어 + RMQ(희소테이블)</b>로 하면 전처리 O(n log n)·질의 O(1)이지만, 이진 점프는 구현이 단순하고 \"경로 위 집계\"를 얹기 쉬워 실전에서 널리 쓰입니다.",
+   "more_en": "<b>Binary lifting (sparse ancestor table)</b> is a preprocessing technique for fast <b>k-th ancestor</b> and <b>LCA</b> queries on a tree (or functional graph). For each vertex v it stores a table <b>up[v][j] = the 2^j-th ancestor of v</b>, filled by the recurrence <b>up[v][j] = up[ up[v][j−1] ][j−1]</b> (the 2^j ancestor is two 2^(j−1) jumps) — preprocessing <b>O(n log n)</b> (j from 0..⌈log n⌉). For the <b>k-th ancestor</b>, read k in binary and <b>jump by 2^j for each set bit</b> (e.g. 13=1101₂ → jumps of 8, 4, 1) → O(log n). For <b>LCA(u,v)</b>: ① lift the deeper one to <b>equalize depths</b>, then ② lift both <b>together</b> by the largest jumps that keep their ancestors different, so the final parent is the LCA — all O(log n). Applications: tree path queries (store path max/sum alongside the up table), <b>function iteration</b> (fⁿ(x), permutation cycles, after k steps), k-th next node. The same can be done with an <b>Euler tour + RMQ (sparse table)</b> at O(n log n) preprocessing, O(1) query, but binary lifting is simple to implement and easy to augment with path aggregates, so it is widely used in practice.",
+   "problem": {
+    "q": "이진 점프의 표 up[v][j]는 무엇을 저장하며 어떤 점화식으로 채우나?",
+    "solution": "<b>up[v][j] = v의 2^j번째 조상</b>입니다. 점화식 <b>up[v][j] = up[ up[v][j−1] ][j−1]</b> — 2^j칸 조상은 \"2^(j−1)칸 올라간 정점에서 다시 2^(j−1)칸\"이기 때문입니다. j=0은 부모. 이렇게 O(n log n)에 채우면 k번째 조상·LCA를 k의 이진 비트로 점프해 O(log n)에 구합니다.",
+    "q_en": "What does the binary-lifting table up[v][j] store, and by what recurrence is it filled?",
+    "sol_en": "<b>up[v][j] = the 2^j-th ancestor of v</b>, filled by <b>up[v][j] = up[ up[v][j−1] ][j−1]</b> — the 2^j ancestor is \"2^(j−1) up, then 2^(j−1) more.\" j=0 is the parent. Filling it in O(n log n) lets k-th ancestor and LCA be answered in O(log n) by jumping on k's binary bits."
+   }
+  },
+  "algo_br_dsuontree": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.3 트리 순회 ▸ 자세히",
+   "title": "DSU on tree — 작은 것을 큰 것에 합치기",
+   "narr": "각 서브트리에 대해 \"색깔별 빈도\"나 \"서로 다른 값의 수\" 같은 통계를 모두 구하려면? 매번 새로 세면 O(n²)입니다. <b>DSU on tree(small-to-large)</b>는 큰 자식의 결과를 <b>지우지 않고 물려받아</b> O(n log n)에 해냅니다.",
+   "hint": "",
+   "more": "<b>DSU on tree(small-to-large merging, sack)</b>는 트리의 <b>모든 서브트리에 대한 통계</b>(예: 서브트리 내 색깔별 빈도, 가장 많은 색, 서로 다른 값의 수, 특정 조건을 만족하는 쌍의 수)를 <b>O(n log n)</b>에 구하는 기법입니다. 순진하게 각 정점에서 서브트리를 새로 세면 O(n²). 핵심 아이디어: 정점 v를 처리할 때 ① <b>가벼운(작은) 자식들</b>의 서브트리는 먼저 처리하되 그 통계를 <b>지우고(전역 카운터를 비움)</b>, ② <b>무거운(heavy = 서브트리가 가장 큰) 자식</b>을 마지막에 처리하고 그 통계는 <b>전역 카운터에 그대로 남겨둔</b> 다음, ③ <b>가벼운 자식들의 서브트리만 다시 더해</b> v의 서브트리 전체 통계를 완성합니다(질의 답을 기록). 왜 O(n log n)? 각 정점은 \"자신보다 큰(또는 같은) 무거운 경로 조상\"을 지날 때만 다시 더해지는데, 루트까지 가며 <b>무거운 간선이 아닌 간선(light edge)을 지날 때마다 서브트리 크기가 두 배 이상으로 커지므로</b> 한 정점이 재추가되는 횟수가 <b>O(log n)</b>입니다(heavy-light 분해의 light-edge 개수 논리와 동일). 구현은 보통 오일러 투어(tin/tout)로 서브트리를 구간화해 전역 빈도 배열을 더하고 뺍니다. 쓰임: 서브트리 색 최빈/distinct·\"서브트리 안 조건 쌍 수\"·트리 위 오프라인 카운팅. \"작은 건 버리고 큰 건 물려받는다\"가 핵심입니다.",
+   "more_en": "<b>DSU on tree (small-to-large merging, \"sack\")</b> computes <b>statistics over every subtree</b> (e.g. per-color frequency, most frequent color, number of distinct values, count of pairs satisfying a condition) in <b>O(n log n)</b>. Naively recomputing each subtree is O(n²). Key idea: when processing vertex v, ① process the <b>light (smaller) children</b> first but <b>clear</b> their statistics (reset the global counters); ② process the <b>heavy child (the one with the largest subtree)</b> last and <b>keep</b> its statistics in the global counters; then ③ <b>re-add only the light children's subtrees</b> to complete v's whole-subtree statistics (recording the query answer). Why O(n log n)? A vertex is re-added only when passing a <b>light edge</b> on the way to the root, and each light edge at least <b>doubles the subtree size</b>, so any vertex is re-added <b>O(log n)</b> times (the same light-edge-count argument as heavy-light decomposition). Implementation often uses an Euler tour (tin/tout) to range the subtree and add/remove from a global frequency array. Uses: subtree mode/distinct colors, \"count of conditioned pairs within a subtree,\" offline counting on trees. The crux: \"discard the small, inherit the large.\"",
+   "problem": {
+    "q": "DSU on tree가 O(n log n)인 이유(각 정점이 O(log n)번만 다시 더해지는 이유)는?",
+    "solution": "정점은 조상으로 올라가며 <b>light edge(무거운 간선이 아닌 간선)를 지날 때만</b> 통계에 다시 더해집니다. light edge를 지날 때마다 <b>서브트리 크기가 최소 2배</b>가 되므로(아니면 그 간선이 heavy였을 것), 루트까지 light edge는 <b>O(log n)개</b>뿐 → 각 정점 재추가 O(log n), 전체 O(n log n).",
+    "q_en": "Why is DSU on tree O(n log n) (why is each vertex re-added only O(log n) times)?",
+    "sol_en": "A vertex is re-added to the statistics only when passing a <b>light edge</b> (a non-heavy edge) toward the root. Each light edge at least <b>doubles the subtree size</b> (else it would be heavy), so there are only <b>O(log n)</b> light edges to the root → each vertex is re-added O(log n) times, giving O(n log n)."
+   }
+  },
+  "algo_br_xortrie": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.5 해시 테이블 ▸ 자세히",
+   "title": "0/1 트라이 — 최대 XOR 짝을 비트로 탐욕",
+   "narr": "수 집합에서 두 수의 <b>XOR이 최대</b>가 되는 짝을 어떻게 빠르게 찾을까요? 수들을 <b>비트(상위→하위)</b>로 0/1 트라이에 넣고, 질의 수의 각 비트와 <b>반대 비트</b>로 내려가면 O(비트수)에 최대 XOR을 얻습니다.",
+   "hint": "",
+   "more": "<b>0/1 트라이(binary trie, XOR 트라이)</b>는 정수들을 <b>고정 비트 길이로 상위 비트부터</b> 0/1 경로로 저장하는 트라이입니다. <b>최대 XOR 짝</b> 문제(집합에서 a⊕b를 최대화)의 표준 해법: 모든 수를 트라이에 넣고, 각 수 x에 대해 트라이를 <b>상위 비트부터</b> 내려가며 \"x의 그 비트와 <b>반대인 비트</b>의 자식이 있으면 그쪽으로\"(없으면 같은 쪽) 갑니다 — 반대 비트로 가면 그 자리 XOR이 1이 되어 큰 비트부터 1을 최대한 켜는 <b>탐욕</b>이 최적입니다(상위 비트 1 하나가 하위 전부보다 큼). 한 번의 질의가 O(비트수 B), 전체 O(nB). 응용: ① <b>최대/최소 XOR 짝</b>, ② <b>구간 [l,r]에서 x와의 최대 XOR</b>(영속 트라이 또는 오프라인), ③ <b>x⊕y < K 인 쌍의 수</b>(트라이 카운트), ④ 트리에서 두 정점 경로 XOR 최대(루트까지 XOR을 트라이에). 비슷한 <b>XOR 선형 기저</b>가 \"부분집합 XOR로 만들 수 있는 값\"을 다룬다면, 0/1 트라이는 \"<b>집합에 실제로 있는 수</b>와의 XOR 최적화\"에 강합니다 — 둘은 짝을 이루는 XOR 도구입니다. 영속 0/1 트라이를 쓰면 \"앞 i개 중 x와 최대 XOR\" 같은 구간 질의로 확장됩니다.",
+   "more_en": "A <b>binary trie (0/1 trie, XOR trie)</b> stores integers as 0/1 paths <b>from the most significant bit down</b>, at a fixed bit length. The standard solution to the <b>maximum XOR pair</b> problem (maximize a⊕b over a set): insert all numbers, then for each x descend the trie <b>from the top bit</b>, going to the child with the <b>opposite bit</b> to x's when it exists (else the same) — taking the opposite bit makes that position's XOR 1, and greedily turning on high bits first is optimal (one high bit outweighs all lower bits). Each query is O(B) bits, total O(nB). Applications: ① <b>max/min XOR pair</b>; ② <b>max XOR with x over a range [l,r]</b> (persistent trie or offline); ③ <b>count of pairs with x⊕y < K</b> (trie counting); ④ max path-XOR between two tree vertices (store root-XORs in a trie). Where the <b>XOR linear basis</b> handles \"values formable by subset XOR,\" the binary trie excels at \"<b>optimizing XOR against numbers actually present</b>\" — the two are complementary XOR tools. With a persistent binary trie it extends to range queries like \"max XOR with x among the first i numbers.\"",
+   "problem": {
+    "q": "0/1 트라이에서 최대 XOR 짝을 찾을 때 '반대 비트'로 내려가는 것이 왜 최적인가?",
+    "solution": "XOR은 두 비트가 <b>다를 때 1</b>입니다. 상위 비트 하나의 1은 그 아래 모든 비트의 합보다 크므로(자리값), <b>가능한 한 높은 비트부터 1을 켜는 탐욕</b>이 최적입니다. 트라이에서 x의 각 비트와 <b>반대 비트 자식</b>이 있으면 그쪽으로 가면 그 자리 XOR=1이 되어, 큰 비트부터 최대로 켜진 짝을 O(비트수)에 찾습니다.",
+    "q_en": "Why is going to the 'opposite bit' optimal when finding the max XOR pair in a 0/1 trie?",
+    "sol_en": "XOR is 1 exactly when two bits <b>differ</b>. A single high bit set to 1 outweighs all lower bits (place value), so <b>greedily turning on the highest bits first</b> is optimal. In the trie, going to the child with the <b>opposite bit</b> to x's (when it exists) makes that position's XOR 1, finding the pair with the highest bits maximally set in O(bits)."
+   }
   }
 }

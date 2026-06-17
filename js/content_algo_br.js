@@ -4104,6 +4104,93 @@
       ctx.fillText('세 점을 지나는 포물선의 정확 적분. 구간을 n등분해 합치면 오차 O(h⁴)(사다리꼴은 O(h²))', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('적응형 심슨(오차 추정해 잘게)·기하 면적(원·곡선)·물리 시뮬 수치적분에', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_kasai', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Kasai 알고리즘 — LCP 배열을 O(n)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('접미사 배열에서 "사전순 이웃 접미사들의 최장 공통 접두사"를 선형 시간에', W/2, H*0.10+22);
+      // suffix array + LCP table for "banana"
+      var rows=[['5','a','—'],['3','ana','0'],['1','anana','3'],['0','banana','0'],['4','na','0'],['2','nana','2']];
+      var bx=W*0.26, by=H*0.30, rh=30;
+      ctx.font='12px sans-serif'; ctx.fillStyle='#6a6873';
+      ctx.fillText('SA', bx+20, by-8); ctx.fillText('접미사', bx+120, by-8); ctx.fillText('LCP', bx+250, by-8);
+      rows.forEach(function(r,i){ var y=by+i*rh;
+        ctx.fillStyle='rgba(122,184,255,0.08)'; ctx.fillRect(bx,y,300,rh-3); ctx.strokeStyle='#3a4358'; ctx.lineWidth=1; ctx.strokeRect(bx,y,300,rh-3);
+        ctx.fillStyle='#dfeefb'; ctx.font='12px monospace'; ctx.textAlign='left'; ctx.fillText(r[0],bx+12,y+19); ctx.fillText(r[1],bx+100,y+19);
+        ctx.fillStyle=r[2]==='—'?'#6a6873':'#ffb27a'; ctx.font='600 13px sans-serif'; ctx.fillText(r[2],bx+255,y+19); ctx.textAlign='center'; });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('LCP[i] = SA에서 i번째와 (i−1)번째 접미사의 공통 접두사 길이', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('핵심: 원문 위치 순으로 보면 LCP가 한 번에 1만 줄어듦 → 포인터 안 되돌리고 O(n)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('LCP+SA로 서로 다른 부분문자열 수·최장 반복·두 문자열 LCS. RMQ 얹으면 임의 두 접미사 LCP', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_binarylifting', concept:true, branchOf:'algo5_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('이진 점프(binary lifting) — 2의 거듭제곱 조상 점프', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 정점의 2^j번째 조상을 미리 저장 → k번째 조상·LCA를 O(log n)에', W/2, H*0.10+22);
+      // chain with jump arcs of length 1,2,4
+      var n=8, bx=W*0.12, y=H*0.50, gap=(W*0.76)/(n-1);
+      for(var i=0;i<n;i++){ var x=bx+i*gap; ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,12,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 11px sans-serif'; ctx.fillText(i,x,y+4);
+        if(i<n-1){ ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x+12,y); ctx.lineTo(x+gap-12,y); ctx.stroke(); } }
+      // jump arcs from node 7
+      function arc(from,len,col){ var x1=bx+from*gap, x2=bx+(from-len)*gap; ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(x1,y-12); ctx.quadraticCurveTo((x1+x2)/2,y-12-len*8,x2,y-12); ctx.stroke(); ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.fillText('2^'+Math.log2(len),(x1+x2)/2,y-18-len*8); }
+      arc(7,1,'#8fe3b5'); arc(7,2,'#ffb27a'); arc(7,4,'#9a86ff');
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('up[v][j] = up[ up[v][j−1] ][j−1]  (2^j 조상 = 2^(j−1) 두 번)', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('k번째 조상: k를 이진수로 보고 켜진 비트마다 그만큼 점프. LCA: 깊이 맞춘 뒤 함께 점프', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('전처리 O(n log n)·질의 O(log n). 트리 LCA·경로 질의·함수 반복(functional graph)에', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_dsuontree', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('DSU on tree — 작은 것을 큰 것에 합치기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 서브트리의 통계(색깔 빈도 등)를, 큰 자식 것을 유지하고 작은 자식만 더해 O(n log n)에', W/2, H*0.10+22);
+      // tree with heavy(big) child kept, light children merged
+      var N={r:[0.5,0.26],a:[0.30,0.50],b:[0.70,0.50],a1:[0.18,0.74],a2:[0.40,0.74],b1:[0.60,0.74],b2:[0.82,0.74]};
+      var edges=[['r','a'],['r','b'],['a','a1'],['a','a2'],['b','b1'],['b','b2']];
+      function xy(t){ return [W*0.1+N[t][0]*W*0.8, H*0.24+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]?e[0]:e[0]),q=e[1]; var a=xy(e[0]),b=xy(e[1]); var heavy=(e[0]==='r'&&e[1]==='b'); ctx.strokeStyle=heavy?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.lineWidth=heavy?3.5:2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],12,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('굵은 간선 = heavy(큰 자식): 통계 유지', W/2, H*0.86);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('큰(heavy) 자식의 통계는 지우지 않고 물려받고, 작은 자식들만 다시 더한다', W/2, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('각 정점은 자기보다 큰 조상 경로로만 재추가됨 → 총 O(n log n). 서브트리 색깔 최빈·distinct 수', W/2, H*0.92+18); }
+  },
+
+  { id:'algo_br_xortrie', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('0/1 트라이 — 최대 XOR 짝을 비트로 탐욕', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('수들을 비트(상위→하위)로 트라이에 넣고, 질의 수와 "반대 비트"로 내려가 최대 XOR을', W/2, H*0.10+22);
+      // binary trie
+      var nodes=[[0.5,0.26,''],[0.35,0.44,'0'],[0.65,0.44,'1'],[0.27,0.62,'0'],[0.43,0.62,'1'],[0.57,0.62,'0'],[0.73,0.62,'1']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.22+t[1]*H*0.5]; }
+      var edges=[[0,1,'0'],[0,2,'1'],[1,3,'0'],[1,4,'1'],[2,5,'0'],[2,6,'1']];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); var path=(e[0]===0&&e[1]===2)||(e[0]===2&&e[1]===5); ctx.strokeStyle=path?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.lineWidth=path?3:1.8; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); ctx.fillStyle=path?'#ffb27a':'#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(e[2],(a[0]+b[0])/2+8,(a[1]+b[1])/2); });
+      nodes.forEach(function(n,i){ var p=xy(n); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],10,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif';
+      ctx.fillText('질의 비트가 0이면 1쪽으로(있으면) → 그 비트 XOR=1 (주황 경로)', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('상위 비트부터 "반대 비트 자식"이 있으면 그쪽으로 → 최대 XOR 탐욕적 선택', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('삽입·질의 O(비트수). 최대 XOR 쌍·구간 XOR(영속 트라이)·XOR 조건 카운트. XOR기저와 짝', W/2, H*0.88+20); }
   }
 
   ];
