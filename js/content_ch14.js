@@ -17,7 +17,7 @@
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('극한 L = 1', P.X(10), P.Y(1)-8);
       for(var n=1;n<=N;n++){ var v=1+1/n; P.dot(n,v,'#7ab8ff'); }
       var last=1+1/N;
-      E.big('aₙ = 1 + 1/n → 1', 'n이 커질수록 항이 극한 1에 한없이 가까워져요 (현재 a'+N+'='+last.toFixed(3)+') = 수렴'); }
+      E.big('aₙ = 1 + 1/n → 1', 'n이 커질수록 항이 극한 1에 한없이 가까워집니다 (현재 a'+N+'='+last.toFixed(3)+') = 수렴'); }
   },
 
   // 14.1b 발산 · 진동
@@ -28,7 +28,7 @@
       for(var n=1;n<=12;n++){ var v = m===0 ? n*0.35 : (n%2===0?1:-1);
         if(v>=P.ymin&&v<=P.ymax) P.dot(n,v, m===0?'#f4a0c0':'#8fe3b5'); }
       E.tapHint(E.W/2, P.geom().bot+40, '▶ 발산 / 진동 바꾸기', true);
-      E.big(m===0?'aₙ = n/3 → ∞  (발산)':'aₙ = (−1)ⁿ  (진동)', m===0?'한없이 커져 한 값에 머물지 않아요 = 발산':'두 값 사이를 오가 극한이 없어요 = 진동(발산)'); }
+      E.big(m===0?'aₙ = n/3 → ∞  (발산)':'aₙ = (−1)ⁿ  (진동)', m===0?'한없이 커져 한 값에 머물지 않습니다 = 발산':'두 값 사이를 오가 극한이 없습니다 = 진동(발산)'); }
   },
 
   // ══════════ 14.2 극한의 계산 ══════════
@@ -58,7 +58,7 @@
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(10),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 y = 0', P.X(6), P.Y(0)-8);
       P.dot(2,0.5,'#8fe3b5'); P.dot(5,0.2,'#8fe3b5'); P.dot(8,0.125,'#8fe3b5');
-      E.big('lim(x→∞) 1/x = 0', 'x가 무한히 커지면 1/x는 0에 한없이 가까워져요 (점근선)'); }
+      E.big('lim(x→∞) 1/x = 0', 'x가 무한히 커지면 1/x는 0에 한없이 가까워집니다 (점근선)'); }
   },
 
   // ══════════ 14.3 e의 정의 ══════════

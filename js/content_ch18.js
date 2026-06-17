@@ -86,7 +86,7 @@
       P.curve(function(x){ var s=0; for(var k=0;k<N;k++){ var p=2*k+1, sign=(k%2===0)?1:-1; s+= sign*Math.pow(x,p)/fact(p); } return s; }, '#7ab8ff');
       var degs=[1,3,5,7,9];
       ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('진짜 sin x', P.X(2.2), P.Y(1.3));
-      E.big('sin x ≈ '+N+'항 (최고차 '+degs[N-1]+'차)', '테일러 근사 — 다항식으로 곡선 흉내! 항을 더할수록 더 넓게 sin과 겹쳐요 (17장 접선근사의 확장)'); }
+      E.big('sin x ≈ '+N+'항 (최고차 '+degs[N-1]+'차)', '테일러 근사 — 다항식으로 곡선 흉내! 항을 더할수록 더 넓게 sin과 겹칩니다 (17장 접선근사의 확장)'); }
   }
 
   ];

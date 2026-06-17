@@ -18,7 +18,7 @@
       P.dot(0,0,'#ffb27a'); P.dot(2,4,'#ffb27a');
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y=2x (위)', P.X(2.1), P.Y(4.2));
       ctx.fillStyle='#7ab8ff'; ctx.fillText('y=x² (아래)', P.X(2.1), P.Y(3.0));
-      E.big('∫₀² (2x − x²) dx = 4/3', '두 곡선 사이 넓이 = ∫(위 − 아래). 교점 사이를 적분해요'); }
+      E.big('∫₀² (2x − x²) dx = 4/3', '두 곡선 사이 넓이 = ∫(위 − 아래). 교점 사이를 적분합니다'); }
   },
 
   // ══════════ 20.2 회전체의 부피 (원판법) ══════════

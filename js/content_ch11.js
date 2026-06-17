@@ -105,7 +105,7 @@
       ctx.beginPath(); ctx.moveTo(ntop[0],ntop[1]); ctx.lineTo(ntop[0]-12*Math.cos(ang-0.4),ntop[1]-12*Math.sin(ang-0.4)); ctx.lineTo(ntop[0]-12*Math.cos(ang+0.4),ntop[1]-12*Math.sin(ang+0.4)); ctx.fill();
       ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('법선 n', ntop[0]+8, ntop[1]);
       ctx.fillStyle='#7ab8ff'; ctx.fillText('평면', c[2][0]-30, c[2][1]+4);
-      E.big('평면: ax + by + cz = d', '평면은 법선벡터 n=(a,b,c) 하나로 방향이 정해져요 (내적으로 정의)'); }
+      E.big('평면: ax + by + cz = d', '평면은 법선벡터 n=(a,b,c) 하나로 방향이 정해집니다 (내적으로 정의)'); }
   }
 
   ];

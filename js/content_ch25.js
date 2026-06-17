@@ -36,7 +36,7 @@
       P.dot(a,L,'#ffb27a','(1, 2)');
       ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('ε', P.X(3.4), P.Y(L+eps)-4);
       ctx.fillStyle='#7ab8ff'; ctx.fillText('δ', P.X(a+del)+3, P.Y(-0.6));
-      E.big('∀ε ∃δ : |x−1|<δ ⟹ |f(x)−2|<ε   (δ='+del.toFixed(1)+')', 'ε-δ 논법 — 출력 오차 ε를 정하면, 그걸 보장하는 입력 폭 δ가 있어요. 함수 극한의 엄밀한 정의'); }
+      E.big('∀ε ∃δ : |x−1|<δ ⟹ |f(x)−2|<ε   (δ='+del.toFixed(1)+')', 'ε-δ 논법 — 출력 오차 ε를 정하면, 그걸 보장하는 입력 폭 δ가 있습니다. 함수 극한의 엄밀한 정의'); }
   },
 
   // ══════════ 25.2 연속의 엄밀한 정의 ══════════

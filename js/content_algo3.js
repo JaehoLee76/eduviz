@@ -30,7 +30,7 @@
           if(a[j]>a[j+1]){ var t=a[j]; a[j]=a[j+1]; a[j+1]=t;
             st.push({line:4, cap:a[j+1]+' > '+a[j]+' 이므로 <b>교환</b> → ['+a.join(', ')+']', a:a.slice(), swap:[j,j+1], sorted:n-i}); }
         }
-        st.push({line:1, cap:'한 바퀴 끝 — <b>'+a[n-1-i]+'</b> 이(가) 뒷자리에 확정됐어요.', a:a.slice(), sorted:n-1-i});
+        st.push({line:1, cap:'한 바퀴 끝 — <b>'+a[n-1-i]+'</b> 이(가) 뒷자리에 확정됐습니다.', a:a.slice(), sorted:n-1-i});
       }
       st.push({line:8, cap:'<b>정렬 완료!</b> ['+a.join(', ')+'] — 비교 횟수가 많아 O(n²).', a:a.slice(), sorted:0, done:true});
       return st; },
@@ -60,7 +60,7 @@
         for(var j=i+1;j<n;j++){
           st.push({line:4, cap:'비교: a['+j+']=<b>'+a[j]+'</b> < 현재 최소 '+a[min]+' ?', a:a.slice(), cur:i, min:min, scan:j, sortedTo:i});
           if(a[j]<a[min]){ min=j;
-            st.push({line:5, cap:'더 작아요 → 최솟값 후보를 a['+j+']=<b>'+a[j]+'</b> 로 갱신.', a:a.slice(), cur:i, min:min, scan:j, sortedTo:i}); }
+            st.push({line:5, cap:'더 작습니다 → 최솟값 후보를 a['+j+']=<b>'+a[j]+'</b> 로 갱신.', a:a.slice(), cur:i, min:min, scan:j, sortedTo:i}); }
         }
         var t=a[i]; a[i]=a[min]; a[min]=t;
         st.push({line:7, cap:'최솟값 <b>'+a[i]+'</b> 을 '+i+'번 자리로 교환 → 앞부분 확정.', a:a.slice(), swap:[i,min], sortedTo:i+1});

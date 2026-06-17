@@ -23,7 +23,7 @@
       ctx.strokeStyle='rgba(244,160,192,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fb)); ctx.stroke(); ctx.setLineDash([]);
       P.dot(a,fa,'#7ab8ff','A'); P.dot(b,fb,'#ffb27a','B');
-      E.big('평균변화율 = Δy/Δx = '+slope.toFixed(2)+'  → (h→0) → 2', 'h를 0으로 줄이면 할선(주황)이 접선(초록)이 돼요 = 순간변화율!'); }
+      E.big('평균변화율 = Δy/Δx = '+slope.toFixed(2)+'  → (h→0) → 2', 'h를 0으로 줄이면 할선(주황)이 접선(초록)이 됩니다 = 순간변화율!'); }
   },
 
   // ══════════ 17.2 연속성 ══════════
@@ -31,16 +31,16 @@
     enter:function(E){ this.s={mode:0}; E.Plot.range(-1,5,-1,5); E.setOn([]); },
     tap:function(E){ this.s.mode=(this.s.mode+1)%3; E.blip(440+this.s.mode*60,0.15); },
     draw:function(E){ var P=E.Plot, m=this.s.mode, ctx=E.ctx; P.axes();
-      if(m===0){ P.curve(function(x){return 0.6*x+1;}, '#7ab8ff'); E.big('연속 — 끊김 없음', '한 붓으로 그릴 수 있어요. 극한값 = 함숫값.'); }
+      if(m===0){ P.curve(function(x){return 0.6*x+1;}, '#7ab8ff'); E.big('연속 — 끊김 없음', '한 붓으로 그릴 수 있습니다. 극한값 = 함숫값.'); }
       else if(m===1){ // 점프
         ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5;
         ctx.beginPath(); ctx.moveTo(P.X(-1),P.Y(0.4)); ctx.lineTo(P.X(2),P.Y(1.6)); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(P.X(2),P.Y(3.2)); ctx.lineTo(P.X(5),P.Y(4.4)); ctx.stroke();
         P.dot(2,1.6,'#7ab8ff'); ctx.fillStyle='#0b0b10'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(P.X(2),P.Y(3.2),6,0,7); ctx.fill(); ctx.stroke();
-        E.big('불연속 — 점프(도약)', '좌극한 ≠ 우극한. x=2에서 뚝 끊겨요.'); }
+        E.big('불연속 — 점프(도약)', '좌극한 ≠ 우극한. x=2에서 뚝 끊깁니다.'); }
       else { P.curve(function(x){return 0.6*x+1;}, '#7ab8ff');
         ctx.fillStyle='#0b0b10'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(P.X(2),P.Y(2.2),6,0,7); ctx.fill(); ctx.stroke();
-        E.big('불연속 — 구멍(제거 가능)', '극한은 있지만 그 점의 값이 없어요/달라요 (14장 #84).'); }
+        E.big('불연속 — 구멍(제거 가능)', '극한은 있지만 그 점의 값이 없습니다/다릅니다 (14장 #84).'); }
       E.tapHint(E.W/2, P.geom().bot+40, '▶ 연속 / 점프 / 구멍', true); }
   },
 
@@ -72,7 +72,7 @@
       P.curve(function(x){return n*Math.pow(x,n-1);}, '#8fe3b5');
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f = xⁿ', P.X(1.3), P.Y(4.3));
       ctx.fillStyle='#8fe3b5'; ctx.fillText("f ' = n·xⁿ⁻¹", P.X(-1.9), P.Y(4.3));
-      E.big("(xⁿ)' = n·xⁿ⁻¹   (n="+n+")", '멱법칙 — 지수를 앞으로 내리고 지수는 1 줄여요. 예: (x'+n+")' = "+n+"x"+(n-1===1?'':'^'+(n-1))); }
+      E.big("(xⁿ)' = n·xⁿ⁻¹   (n="+n+")", '멱법칙 — 지수를 앞으로 내리고 지수는 1 줄입니다. 예: (x'+n+")' = "+n+"x"+(n-1===1?'':'^'+(n-1))); }
   },
 
   // ══════════ 17.5 극대·극소 ══════════

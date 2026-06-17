@@ -19,7 +19,7 @@
         ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.strokeRect(x, baseY-h, gap*0.6, h);
         ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(v, x+gap*0.3, baseY-h-8);
         if(n>0){ ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.fillText((d>=0?'+':'')+d, x-gap*0.2, baseY-h+18); } }
-      E.big('aₙ = 2 + (n−1)·('+d+')', '등차수열 — 일정한 양 d씩 더해가요 (계단처럼 일정한 기울기)'); }
+      E.big('aₙ = 2 + (n−1)·('+d+')', '등차수열 — 일정한 양 d씩 더해 갑니다 (계단처럼 일정한 기울기)'); }
   },
 
   // 13.1b 등비수열 (7장 지수 회수)
@@ -34,7 +34,7 @@
         ctx.fillStyle='rgba(143,227,181,0.3)'; ctx.fillRect(x, baseY-h, gap*0.6, h);
         ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5; ctx.strokeRect(x, baseY-h, gap*0.6, h);
         ctx.fillStyle='#cfcdc6'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(v%1===0?v:v.toFixed(2), x+gap*0.3, baseY-h-7); }
-      E.big('aₙ = 1 · ('+r+')ⁿ⁻¹', r>1?'등비수열 — 일정 배율 r씩 곱해 폭발 성장 (7장 지수함수!)':'r<1이면 점점 작아져요 (지수 감쇠)'); }
+      E.big('aₙ = 1 · ('+r+')ⁿ⁻¹', r>1?'등비수열 — 일정 배율 r씩 곱해 폭발 성장 (7장 지수함수!)':'r<1이면 점점 작아집니다 (지수 감쇠)'); }
   },
 
   // 13.1c 등차수열의 합 — 가우스 짝짓기
@@ -66,7 +66,7 @@
         if(w>26){ ctx.fillStyle='#fff'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('1/'+Math.pow(2,i+1), px+w/2, y+hh/2+4); }
         sum+=cur; px+=w; cur/=2; }
       E.tapHint(E.W/2, y+hh+44, '▶ 항 더하기 ('+k+'개)', true);
-      E.big('1/2 + 1/4 + … = '+sum.toFixed(4)+' → 1', '무한히 더해도 1을 넘지 않고 다가가요 — 합이 수렴! (14장 극한 예고)'); }
+      E.big('1/2 + 1/4 + … = '+sum.toFixed(4)+' → 1', '무한히 더해도 1을 넘지 않고 다가갑니다 — 합이 수렴! (14장 극한 예고)'); }
   },
 
   // ══════════ 13.2 수학적 귀납법 ══════════
@@ -86,7 +86,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x0,baseY); ctx.lineTo(x0+gap*N,baseY); ctx.stroke();
       if(s.fall===0&&!s.play) E.tapHint(E.W/2, baseY+50, '▶ 첫 도미노 밀기 P(1)', true);
       else if(s.fall>=N&&!s.play) E.tapHint(E.W/2, baseY+50, '↻ 다시 세우기', false);
-      E.big('P(1) 참 + [P(k) → P(k+1)] ⟹ 모든 n 에서 참', '수학적 귀납법 = 도미노! 첫 개를 넘기고, 다음을 넘긴다는 규칙이면 전부 넘어가요'); }
+      E.big('P(1) 참 + [P(k) → P(k+1)] ⟹ 모든 n 에서 참', '수학적 귀납법 = 도미노! 첫 개를 넘기고, 다음을 넘긴다는 규칙이면 전부 넘어갑니다'); }
   }
 
   ];

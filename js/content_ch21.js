@@ -37,8 +37,8 @@
       mat(ctx, cx+50, y, C, '#ffb27a');
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
       ctx.fillText('(1행)·(1열) = 1·2 + 2·1 = 4', cx, y+120);
-      ctx.fillText('행 × 열 의 내적으로 각 칸을 채워요 (9장 내적!)', cx, y+144);
-      E.big('행렬 곱셈 = 행 · 열 (내적)', '왼쪽의 행과 오른쪽의 열을 내적해 각 칸을 채워요. 순서 바뀌면 결과 다름(AB≠BA)'); }
+      ctx.fillText('행 × 열 의 내적으로 각 칸을 채웁니다 (9장 내적!)', cx, y+144);
+      E.big('행렬 곱셈 = 행 · 열 (내적)', '왼쪽의 행과 오른쪽의 열을 내적해 각 칸을 채웁니다. 순서 바뀌면 결과 다름(AB≠BA)'); }
   },
 
   // ══════════ 21.3 행렬 = 선형변환 ══════════
@@ -58,7 +58,7 @@
       // 기저벡터
       function vec(x,y,col){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke(); }
       var e1=M(1,0), e2=M(0,1); vec(e1[0],e1[1],'#7ab8ff'); vec(e2[0],e2[1],'#8fe3b5');
-      E.big('행렬 [[1, '+k+'], [0, 1]] = 전단변환', '행렬은 공간을 바꾸는 변환! 격자가 기울어요. 기저 e₁→파랑, e₂→초록 (22장 일차변환 예고)'); }
+      E.big('행렬 [[1, '+k+'], [0, 1]] = 전단변환', '행렬은 공간을 바꾸는 변환! 격자가 기웁니다. 기저 e₁→파랑, e₂→초록 (22장 일차변환 예고)'); }
   },
 
   // ══════════ 21.4 행렬식 = 넓이 배율 ══════════
@@ -88,7 +88,7 @@
       P.curve(function(x){return -x+4;},'#7ab8ff');   // x+y=4
       P.curve(function(x){return x-0;},'#8fe3b5');     // x-y=0 → y=x
       ctx.globalAlpha=E.blink(); P.dot(2,2,'#ffb27a','해 (2, 2)'); ctx.globalAlpha=1;
-      E.big('Ax = b  →  x = A⁻¹b', '연립방정식을 행렬로! 역행렬 A⁻¹로 한 번에 풀어요. det≠0이면 유일한 해(교점)'); }
+      E.big('Ax = b  →  x = A⁻¹b', '연립방정식을 행렬로! 역행렬 A⁻¹로 한 번에 풉니다. det≠0이면 유일한 해(교점)'); }
   }
 
   ];

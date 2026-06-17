@@ -111,7 +111,7 @@
     if(!studyEl) return;
     var has = !!(sc.more || sc.problem);
     studyEl.style.display = has ? 'flex' : 'none';
-    studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('F');
+    studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W');
     if(studyMore){ var mh = sc.more ? ('<h4>더 알아보기</h4>'+sc.more) : '';
       if(sc.more_en) mh += '<div class="en-block">'+sc.more_en+'</div>';
       studyMore.innerHTML = mh; studyMore.style.display = mh?'block':'none'; }
@@ -124,8 +124,10 @@
       else { studyProb.style.display='none'; studyProb.innerHTML=''; }
     }
   }
-  function toggleStudy(){ if(!studyEl || getComputedStyle(studyEl).display==='none') return;
-    var open=studyEl.classList.toggle('open'); if(chevLabel) chevLabel.innerHTML=(open?'접기':'자세히 보기')+kc('F'); }
+  function studyVisible(){ return studyEl && getComputedStyle(studyEl).display!=='none'; }
+  function openStudy(){ if(!studyVisible()) return; studyEl.classList.add('open'); if(chevLabel) chevLabel.innerHTML='접기'+kc('X'); }
+  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W'); }
+  function toggleStudy(){ if(!studyVisible()) return; if(studyEl.classList.contains('open')) closeStudy(); else openStudy(); }
 
   // ---------- Scene Manager (계층형: 뼈대 spine + 분기 branch) ----------
   // 분기 장면은 content에서 sc.branchOf='<부모 뼈대 id>' 로 표시. 같은 branchOf끼리 순서대로 그룹.
@@ -298,12 +300,18 @@
   // ---------- 깜빡임 / 탭 안내 (전 챕터 공용) ----------
   function blink(){ return 0.32+0.68*(0.5+0.5*Math.sin(frameN*0.13)); }
   function tapHint(cx,cy,text,pulse){ ctx.save();
-    ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    var w=ctx.measureText(text).width+36, h=40, x=cx-w/2, y=cy-h/2;
+    ctx.font='600 15px sans-serif'; ctx.textBaseline='middle';
+    var kw=22, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;   // 텍스트 + D 키 배지
+    var w=inner+40, h=40, x=cx-w/2, y=cy-h/2;
     var pa=pulse?(0.55+0.45*Math.sin(frameN*0.10)):0.85;
     ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,20);ctx.fill();}else ctx.fillRect(x,y,w,h);
     ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,20);ctx.stroke();}else ctx.strokeRect(x,y,w,h);
-    ctx.fillStyle='#ffb27a'; ctx.fillText(text,cx,cy); ctx.restore(); ctx.textBaseline='alphabetic'; }
+    var tx=cx-inner/2;
+    ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text,tx,cy);
+    var kx=tx+tw+gap, ky=cy-11;                                            // D 키 배지
+    ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(kx,ky,kw,22,5);ctx.stroke();}else ctx.strokeRect(kx,ky,kw,22);
+    ctx.font='700 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('D',kx+kw/2,cy+0.5);
+    ctx.restore(); ctx.textBaseline='alphabetic'; ctx.textAlign='start'; }
 
   // ---------- engine facade (장면에 전달) ----------
   var E = {
@@ -328,24 +336,29 @@
       var t=e.target;
       if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;  // 텍스트 입력 중엔 무시(버튼 포커스는 막지 않음)
       if(document.querySelector('.cw-ov.open')) return;   // AI 채팅 열려 있으면 무시
-      var s=SM.scenes[SM.cur], k=e.key, kk=(k||'').toLowerCase();
-      if(k==='ArrowRight'){ next(); e.preventDefault(); }
-      else if(k==='ArrowLeft'){ prev(); e.preventDefault(); }
-      else if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); }   // ↓ 자세히(분기)로
-      else if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 나가기
-      else if(kk==='f'){ toggleStudy(); e.preventDefault(); }          // F 자세히 보기/접기
-      else if(s&&s._viz&&_steps){   // 코드+스텝: A 이전 / D(W·Space) 다음 / S 자동 / X 초기화
-        if(kk==='d'||kk==='w'||k===' '||k==='Enter'){ stepNext(); e.preventDefault(); }
-        else if(kk==='a'){ stepPrev(); e.preventDefault(); }
-        else if(kk==='s'){ toggleAuto(); e.preventDefault(); }
-        else if(kk==='x'){ stepReset(); e.preventDefault(); }
-      } else {   // 슬라이더(A/D) · 퀴즈(숫자) · 탭(Space) 장면
-        var rng=controlsEl&&controlsEl.querySelector('input[type=range]');
-        if(rng&&(kk==='a'||kk==='d')){ var st=parseFloat(rng.step)||1, v=parseFloat(rng.value)+(kk==='d'?st:-st);
-          v=Math.max(parseFloat(rng.min), Math.min(parseFloat(rng.max), v)); rng.value=v; rng.dispatchEvent(new Event('input',{bubbles:true})); e.preventDefault(); }
-        else if(/^[1-9]$/.test(k)){ var opt=controlsEl&&controlsEl.querySelector('.opt[data-i="'+(parseInt(k,10)-1)+'"]'); if(opt){ opt.click(); e.preventDefault(); } }
-        else if((k===' '||k==='Enter')&&s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); }
+      // ★ e.code 사용: 한글 입력기(IME)·자판배열과 무관하게 물리 키 인식(KeyD 등). e.key는 한글모드서 'ㅇ'로 들어와 실패.
+      var s=SM.scenes[SM.cur], k=e.key, c=e.code, space=(k===' '||c==='Space'), enter=(k==='Enter');
+      var viz=!!(s&&s._viz&&_steps);
+      if(k==='ArrowRight'){ next(); e.preventDefault(); return; }
+      if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
+      if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); return; }   // ↓ 자세히(분기)로
+      if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); return; }      // ↑ 나가기
+      // W 펼치기 / X 접기 (자세히 보기 패널). viz 화면은 패널이 숨겨지므로 W=다음·X=초기화로 라우팅.
+      if(c==='KeyW'){ if(studyVisible()) openStudy(); else if(viz) stepNext(); e.preventDefault(); return; }
+      if(c==='KeyX'){ if(studyVisible()) closeStudy(); else if(viz) stepReset(); e.preventDefault(); return; }
+      if(viz){   // 코드+스텝: A 이전 / D(Space·Enter) 다음 / S 자동
+        if(c==='KeyD'||space||enter){ stepNext(); e.preventDefault(); }
+        else if(c==='KeyA'){ stepPrev(); e.preventDefault(); }
+        else if(c==='KeyS'){ toggleAuto(); e.preventDefault(); }
+        return;
       }
+      // 슬라이더(A/D) · 퀴즈(숫자) · 탭(D·Space) 장면
+      var rng=controlsEl&&controlsEl.querySelector('input[type=range]');
+      if(rng&&(c==='KeyA'||c==='KeyD')){ var st=parseFloat(rng.step)||1, v=parseFloat(rng.value)+(c==='KeyD'?st:-st);
+        v=Math.max(parseFloat(rng.min), Math.min(parseFloat(rng.max), v)); rng.value=v; rng.dispatchEvent(new Event('input',{bubbles:true})); e.preventDefault(); return; }
+      var dm=/^Digit([1-9])$/.exec(c);
+      if(dm){ var opt=controlsEl&&controlsEl.querySelector('.opt[data-i="'+(parseInt(dm[1],10)-1)+'"]'); if(opt){ opt.click(); e.preventDefault(); } return; }
+      if((c==='KeyD'||space||enter)&&s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); return; }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)

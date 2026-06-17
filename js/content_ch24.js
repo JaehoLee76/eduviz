@@ -29,7 +29,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif'; ctx.textAlign='right';
       ctx.fillText('자연수 ℕ', x0-16, yN); ctx.fillText('짝수', x0-16, yE);
       ctx.textAlign='center'; ctx.fillText('… ∞', x0+n*gap, yN); ctx.fillText('… ∞', x0+n*gap, yE);
-      E.big('ℕ ↔ 짝수 :  n ↔ 2n  (같은 크기!)', '★무한의 역설 — 짝수는 자연수의 절반? 아니에요! 일대일 대응이 되니 크기 같음(ℵ₀, 가산무한)'); }
+      E.big('ℕ ↔ 짝수 :  n ↔ 2n  (같은 크기!)', '★무한의 역설 — 짝수는 자연수의 절반? 아닙니다! 일대일 대응이 되니 크기 같음(ℵ₀, 가산무한)'); }
   },
 
   // ══════════ 24.3 유리수도 가산 (대각선 나열) ══════════
@@ -45,7 +45,7 @@
       var order=[[1,1],[1,2],[2,1],[3,1],[2,2],[1,3],[1,4],[2,3],[3,2],[4,1]];
       for(var k=0;k<order.length;k++){ var px=x0+(order[k][1]-1)*cell, py=y0+(order[k][0]-1)*cell; if(k===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); } ctx.stroke();
       ctx.fillStyle='#ffb27a'; var s=x0+(order[0][1]-1)*cell, sy=y0; ctx.beginPath(); ctx.arc(x0,y0,5,0,TAU); ctx.fill();
-      E.big('유리수도 가산무한 (ℵ₀)', '분수를 격자로 늘어놓고 대각선으로 지그재그 세면 → 자연수와 일대일! 분수가 무한히 빽빽해도 셀 수 있어요'); }
+      E.big('유리수도 가산무한 (ℵ₀)', '분수를 격자로 늘어놓고 대각선으로 지그재그 세면 → 자연수와 일대일! 분수가 무한히 빽빽해도 셀 수 있습니다'); }
   },
 
   // ══════════ 24.4 실수는 비가산 (칸토어 대각선) ══════════
@@ -60,8 +60,8 @@
         ctx.fillStyle='#ffb27a'; ctx.fillRect(dx-2, y-15, 14, 20); }
       ctx.fillStyle='#8fe3b5'; ctx.font='15px ui-monospace, monospace';
       ctx.fillText('새 수 = 0. 2 4 2 6 9 …  (각 대각선 숫자 +1)', x0, y0+5*rh+24);
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('→ 목록의 어느 수와도 적어도 한 자리가 달라요 → 목록에 없음!', x0, y0+5*rh+48);
-      E.big('실수는 비가산 — 더 큰 무한!', '★칸토어 대각선논법 — 실수를 다 나열해도, 대각선을 바꾼 새 수는 목록에 없어요. 무한에도 크기가 여러 개!'); }
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('→ 목록의 어느 수와도 적어도 한 자리가 다릅니다 → 목록에 없음!', x0, y0+5*rh+48);
+      E.big('실수는 비가산 — 더 큰 무한!', '★칸토어 대각선논법 — 실수를 다 나열해도, 대각선을 바꾼 새 수는 목록에 없습니다. 무한에도 크기가 여러 개!'); }
   }
 
   ];

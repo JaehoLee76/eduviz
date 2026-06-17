@@ -58,7 +58,7 @@
       ctx.strokeStyle='rgba(244,160,192,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(-4)); ctx.lineTo(P.X(0),P.Y(4)); ctx.stroke(); ctx.setLineDash([]);
       P.curve(function(x){ return x>0? lg(x,a): NaN; }, '#8fe3b5');
       E.ctx.globalAlpha=E.blink(); P.dot(1,0,'#ffb27a','(1, 0)'); E.ctx.globalAlpha=1;
-      E.big('y = log'+(a===2?'₂':a===3?'₃':a===4?'₄':'₅')+' x', '정의역 x > 0 · 항상 (1, 0)을 지나요'); }
+      E.big('y = log'+(a===2?'₂':a===3?'₃':a===4?'₄':'₅')+' x', '정의역 x > 0 · 항상 (1, 0)을 지납니다'); }
   },
 
   // ══════════ 7.3 로그의 성질 ══════════

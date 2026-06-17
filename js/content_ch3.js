@@ -32,7 +32,7 @@
       if(op){ ctx.fillStyle='#7ab8ff'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('↓ '+op, cx, cy-44); }
       if(s.step>=2){ ctx.globalAlpha=E.blink(); ctx.fillStyle='#ffb27a'; ctx.font='700 20px sans-serif'; ctx.textAlign='center'; ctx.fillText('x = 2', cx, cy-74); ctx.globalAlpha=1; }
       E.tapHint(cx, cy+102, s.step<2?'▶ 다음 단계':'↻ 처음부터', s.step<2);
-      E.big(s.step<2?'2x + 1 = 5':'x = 2', s.step<2?'양변에 똑같이 — 균형 유지':'해를 찾았어요 ✓'); }
+      E.big(s.step<2?'2x + 1 = 5':'x = 2', s.step<2?'양변에 똑같이 — 균형 유지':'해를 찾았습니다 ✓'); }
   },
 
   { id:'ch3_02',

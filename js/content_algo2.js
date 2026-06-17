@@ -54,7 +54,7 @@
       // 바닥선
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-bw/2-8,baseY+2); ctx.lineTo(cx+bw/2+8,baseY+2); ctx.stroke();
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('▲ 위쪽 눌러 push (쌓기)', cx, E.H*0.22); ctx.fillStyle='#f4a0c0'; ctx.fillText('▼ 아래쪽 눌러 pop (꺼내기)', cx, E.H*0.74);
-      E.big('스택 (Stack) — LIFO', '나중에 넣은 게 먼저 나와요(Last In First Out). 접시 쌓기·실행취소(Undo)·함수 호출·괄호 검사'); }
+      E.big('스택 (Stack) — LIFO', '나중에 넣은 게 먼저 나옵니다(Last In First Out). 접시 쌓기·실행취소(Undo)·함수 호출·괄호 검사'); }
   },
 
   // ══════════ 2.3 큐 — FIFO ══════════
@@ -71,7 +71,7 @@
         if(rear && n>1) AV.pointer(E, x+bw/2, y+bw+4, 'rear', '#8fe3b5'); }
       ctx.fillStyle='#f4a0c0'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('◀ 왼쪽 눌러 dequeue (앞에서 빼기)', E.W*0.28, E.H*0.66);
       ctx.fillStyle='#8fe3b5'; ctx.fillText('오른쪽 눌러 enqueue (뒤에 넣기) ▶', E.W*0.72, E.H*0.66);
-      E.big('큐 (Queue) — FIFO', '먼저 넣은 게 먼저 나와요(First In First Out). 줄 서기·프린터 대기열·그래프 BFS(6장 예고)'); }
+      E.big('큐 (Queue) — FIFO', '먼저 넣은 게 먼저 나옵니다(First In First Out). 줄 서기·프린터 대기열·그래프 BFS(6장 예고)'); }
   },
 
   // ══════════ 2.4 해시 테이블 — O(1) 조회 ══════════
@@ -99,7 +99,7 @@
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,y,bw,bh,6);ctx.fill();ctx.stroke();}else ctx.strokeRect(bx,y,bw,bh);
         ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('['+i+']', bx-8, y+bh/2+4);
         if(on){ ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('"'+s.k+'"', bx+bw/2, y+bh/2); ctx.textBaseline='alphabetic'; } }
-      E.big('"'+s.k+'" → 버킷 ['+idx+']  (O(1))', '해시 테이블 — 키를 해시함수로 버킷 번호로 변환해 즉시 저장·조회(평균 O(1)). 충돌 시 같은 칸에 묶어요'); }
+      E.big('"'+s.k+'" → 버킷 ['+idx+']  (O(1))', '해시 테이블 — 키를 해시함수로 버킷 번호로 변환해 즉시 저장·조회(평균 O(1)). 충돌 시 같은 칸에 묶습니다'); }
   }
 
   ];

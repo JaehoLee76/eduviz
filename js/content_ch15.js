@@ -37,7 +37,7 @@
         ctx.fillStyle='#7ab8ff'; ctx.font='600 26px sans-serif'; ctx.textAlign='center'; ctx.fillText(c, x+bw/2, y+44);
         ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText((i+1)+'번 자리', x+bw/2, y+90); choices.push(c);
         if(i<r-1){ ctx.fillStyle='#ffb27a'; ctx.font='600 22px sans-serif'; ctx.fillText('×', x+bw+gap/2, y+44); } }
-      E.big('₄P'+r+' = '+choices.join('×')+' = '+nPr(n,r), '순열 = 순서 있게 뽑기. 칸을 채울수록 선택지가 하나씩 줄어요 (n!/(n−r)!)'); }
+      E.big('₄P'+r+' = '+choices.join('×')+' = '+nPr(n,r), '순열 = 순서 있게 뽑기. 칸을 채울수록 선택지가 하나씩 줄어듭니다 (n!/(n−r)!)'); }
   },
 
   // ══════════ 15.2 조합 ══════════
@@ -52,7 +52,7 @@
         ctx.beginPath(); ctx.arc(x,y,24,0,7); ctx.fill();
         ctx.strokeStyle=sel?'#ffb27a':'rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,24,0,7); ctx.stroke();
         ctx.fillStyle=sel?'#1a1a22':'#cfcdc6'; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(names[i],x,y); ctx.textBaseline='alphabetic'; }
-      E.big('₄C'+r+' = ₄P'+r+' / '+r+'! = '+nCr(n,r), '조합 = 순서 없이 뽑기. 순열을 같은 묶음의 순서 r!로 나눠요 (대표 한 조합 표시)'); }
+      E.big('₄C'+r+' = ₄P'+r+' / '+r+'! = '+nCr(n,r), '조합 = 순서 없이 뽑기. 순열을 같은 묶음의 순서 r!로 나눕니다 (대표 한 조합 표시)'); }
   },
 
   // ══════════ 15.3 파스칼·이항정리 ══════════

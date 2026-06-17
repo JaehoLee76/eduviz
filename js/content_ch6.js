@@ -73,8 +73,8 @@
       P.curve(function(x){ return m*x; }, '#7ab8ff');          // 움직이는 선
       P.curve(function(x){ return m2*x+1; }, '#8fe3b5');        // 기준선 y=2x+1
       var rel, det, parallel=(m===m2), perp=(Math.abs(m*m2+1)<0.001);
-      if(parallel){ rel='평행 (m₁ = m₂)'; det='두 직선이 만나지 않아요'; }
-      else if(perp){ rel='수직 (m₁·m₂ = −1)'; det='두 직선이 직각으로 만나요'; }
+      if(parallel){ rel='평행 (m₁ = m₂)'; det='두 직선이 만나지 않습니다'; }
+      else if(perp){ rel='수직 (m₁·m₂ = −1)'; det='두 직선이 직각으로 만납니다'; }
       else { rel='한 점에서 만남'; det='m₁ ≠ m₂ → 교점 하나'; }
       if(perp){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.5; var ix=-1/(m-m2); } // 표시용(생략 가능)
       E.big('m₁ = '+m+',  m₂ = 2', rel+' · '+det); }

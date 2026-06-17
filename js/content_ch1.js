@@ -160,7 +160,7 @@
 
   { id:'ch1_10',
     enter:function(E){ this.s={t:0,play:false}; E.setOn([]);
-      E.quiz({q:'다음 중 소수가 아닌 것은?', choices:['7','13','21','17'], answer:2, explain:'21 = 3 × 7 이라 소수가 아니에요.'}); },
+      E.quiz({q:'다음 중 소수가 아닌 것은?', choices:['7','13','21','17'], answer:2, explain:'21 = 3 × 7 이라 소수가 아닙니다.'}); },
     tap:function(E){ if(this.s.play) return; if(this.s.t>0){ this.s.t=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(520,0.15); } },
     draw:function(E){ var ctx=E.ctx, s=this.s, PH=66, PR=[2,3,5,7], PIDX={2:0,3:1,5:2,7:3}, END=PH*4+50;
       if(s.play){ s.t++; if(s.t>=END){ s.t=END; s.play=false; } }

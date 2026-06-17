@@ -25,7 +25,7 @@
       ctx.globalAlpha=0.16; star(ctx,cx,cy,R*1.4,0.42,BLU,rot); ctx.globalAlpha=1;
       star(ctx,cx,cy,R,0.42,BLU,rot); face(ctx,cx,cy,R,(E.frame%210)<8);
       ctx.fillStyle='#bfe0ff'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText('길잡이 · 에이스타 (A*)', cx, cy+R+34);
-      E.big('알고리즘의 세계에 오신 걸 환영합니다', '저는 최적의 길을 찾는 알고리즘 A*에서 온 길잡이 <b>에이스타</b>예요. 여러분이 길을 잃지 않도록, 한 걸음씩 함께 갈게요.'); }
+      E.big('알고리즘의 세계에 오신 걸 환영합니다', '저는 최적의 길을 찾는 알고리즘 A*에서 온 길잡이 <b>에이스타</b>입니다. 여러분이 길을 잃지 않도록, 한 걸음씩 함께 가겠습니다.'); }
   },
 
   // ══════ 시작 2 — 전체 윤곽(여정 지도) ══════
@@ -44,7 +44,7 @@
       var t=E.frame*0.05, sp=(s.step===0)?[x0-26,baseY]:pos(Math.min(s.step-1,n-1));
       star(ctx, sp[0], sp[1]-34+Math.sin(t)*4, 14, 0.42, ORA, Math.sin(t*0.3)*0.1);
       E.tapHint(E.W/2, E.H*0.82, s.step>n?'↻ 처음부터':(s.step===0?'▶ 출발! 정거장 따라가기':'▶ 다음 정거장'), true);
-      E.big('우리가 함께 걸을 길 — 8개의 정거장', '복잡도에서 출발해 자료구조·정렬·탐색·트리·그래프·동적계획법을 지나 설계 패러다임까지. <b>각 정거장은 다음 정거장의 디딤돌</b>이라, 순서대로 밟으면 자연스럽게 이어져요.'); }
+      E.big('우리가 함께 걸을 길 — 8개의 정거장', '복잡도에서 출발해 자료구조·정렬·탐색·트리·그래프·동적계획법을 지나 설계 패러다임까지. <b>각 정거장은 다음 정거장의 디딤돌</b>이라, 순서대로 밟으면 자연스럽게 이어집니다.'); }
   },
 
   // ══════ 시작 3 — 첫 걸음 스토리 ══════
@@ -57,7 +57,7 @@
         ctx.fillStyle=big?ORA:'#dfeefb'; ctx.font='600 26px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(A[i],x+bw/2,y+bw/2); ctx.textBaseline='alphabetic'; }
       var bx=x0+3*(bw+gap)+bw/2; star(ctx, bx, y-42+Math.sin(t)*3, 15, 0.42, ORA, Math.sin(t*0.3)*0.1);
       ctx.fillStyle=ORA; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('가장 큰 수는?', bx, y-66);
-      E.big('첫 걸음 — 알고리즘이란 무엇일까?', '거창해 보이지만 알고리즘은 결국 "문제를 푸는 분명한 단계"예요. 누구나 아는 문제부터 시작하죠 — 숫자 더미에서 <b>가장 큰 수 찾기</b>. 다음 화면에서 그 단계를 하나씩 뜯어봐요.'); }
+      E.big('첫 걸음 — 알고리즘이란 무엇일까?', '거창해 보이지만 알고리즘은 결국 "문제를 푸는 분명한 단계"입니다. 누구나 아는 문제부터 시작합니다 — 숫자 더미에서 <b>가장 큰 수 찾기</b>. 다음 화면에서 그 단계를 하나씩 뜯어봅니다.'); }
   }
 
   ];

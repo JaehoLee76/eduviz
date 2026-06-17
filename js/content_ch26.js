@@ -15,7 +15,7 @@
       P.curve(f,'#7ab8ff');
       // 근(x절편) 표시
       for(var x=-3;x<=3;x+=0.01){ if(f(x)*f(x+0.01)<0){ ctx.globalAlpha=E.blink(); P.dot(x+0.005,0,'#ffb27a'); ctx.globalAlpha=1; } }
-      E.big('x³ − 3x + '+q+' = 0', '삼차방정식 — 카르다노 공식으로 풀려요(복소수 필요!). q에 따라 실근 1~3개. 5차부턴 일반 공식 없음(갈루아)'); }
+      E.big('x³ − 3x + '+q+' = 0', '삼차방정식 — 카르다노 공식으로 풀립니다(복소수 필요!). q에 따라 실근 1~3개. 5차부턴 일반 공식 없음(갈루아)'); }
   },
 
   // ══════════ 26.2 체의 공리 (수 체계) ══════════
@@ -53,7 +53,7 @@
         ctx.beginPath(); ctx.arc(x,y,22,0,TAU); ctx.fill(); ctx.stroke();
         ctx.fillStyle=ok?'#8fe3b5':'#6f6e7a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(ok?'✓':'·',x,y); ctx.textBaseline='alphabetic'; }
       E.tapHint(E.W/2, cy+R+50, '▶ ∀ (전부) / ∃ (존재)', true);
-      E.big(m===0?'∀x : 모든 것에 대해 참 (전칭)':'∃x : 적어도 하나 존재 (존재)', '한정기호 — 수학 명제의 두 기둥. "모든"과 "어떤"의 정확한 구별이 모든 정의·증명의 언어예요'); }
+      E.big(m===0?'∀x : 모든 것에 대해 참 (전칭)':'∃x : 적어도 하나 존재 (존재)', '한정기호 — 수학 명제의 두 기둥. "모든"과 "어떤"의 정확한 구별이 모든 정의·증명의 언어입니다'); }
   },
 
   // ══════════ 26 여정의 끝 ══════════
@@ -68,7 +68,7 @@
         ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(pts[k][0],pts[k][1],5,0,TAU); ctx.fill(); ctx.globalAlpha=1;
         ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(pts[k][2], pts[k][0], pts[k][1]-12); }
       ctx.fillStyle='#ffd9bd'; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.fillText('🎓', cx, cy+5);
-      E.big('수학의 여정 — 완주!', '하나의 화면이 모양을 바꿔 여기까지 왔어요. 수→무한, 26장 전부 연결된 하나의 이야기. 다음은 알고리즘!'); }
+      E.big('수학의 여정 — 완주!', '하나의 화면이 모양을 바꿔 여기까지 왔습니다. 수→무한, 26장 전부 연결된 하나의 이야기. 다음은 알고리즘!'); }
   }
 
   ];

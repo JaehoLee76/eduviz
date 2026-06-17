@@ -34,7 +34,7 @@
       var steps=[], x=a, yv=b; while(yv>0){ var q=Math.floor(x/yv), r=x%yv; steps.push(x+' = '+q+'×'+yv+' + '+r); x=yv; yv=r; }
       for(var i=0;i<steps.length;i++){ ctx.fillStyle=i===steps.length-1?'#ffb27a':'#cfcdc6'; ctx.fillText(steps[i], cx, y+i*40); }
       ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.fillText('나머지가 0이 될 때의 나눈 수 = 최대공약수', cx, y+steps.length*40+24);
-      E.big('gcd(48, 36) = '+gcd(48,36), '유클리드 호제법 — 큰 수를 작은 수로 나눈 나머지로 계속 바꿔요. 가장 오래된 알고리즘!'); }
+      E.big('gcd(48, 36) = '+gcd(48,36), '유클리드 호제법 — 큰 수를 작은 수로 나눈 나머지로 계속 바꿉니다. 가장 오래된 알고리즘!'); }
   },
 
   // ══════════ 23.2 합동식 (시계 산술) ══════════
@@ -49,7 +49,7 @@
         if(on){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,14,0,TAU); ctx.stroke(); } }
       // 바늘
       var tt=-Math.PI/2 + r*TAU/m; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*0.7*Math.cos(tt),cy+R*0.7*Math.sin(tt)); ctx.stroke();
-      E.big(n+' ≡ '+r+'  (mod 12)', '합동식 = 시계 산술! 12로 나눈 나머지가 같으면 합동. '+n+'시는 '+r+'시와 같아요'); }
+      E.big(n+' ≡ '+r+'  (mod 12)', '합동식 = 시계 산술! 12로 나눈 나머지가 같으면 합동. '+n+'시는 '+r+'시와 같습니다'); }
   },
 
   // ══════════ 23.2 합동의 응용 (거듭제곱 주기) ══════════

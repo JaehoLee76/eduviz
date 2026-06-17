@@ -58,7 +58,7 @@
       ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillStyle='#7ab8ff'; ctx.fillText('A', ax-r*0.5, cy); ctx.fillStyle='#8fe3b5'; ctx.fillText('B', bx+r*0.5, cy);
       ctx.fillStyle='#ffd9bd'; ctx.fillText('A∩B', cx, cy); ctx.textBaseline='alphabetic';
-      E.big('P(A∪B) = P(A) + P(B) − P(A∩B)', '겹친 부분(A∩B)을 두 번 더했으니 한 번 빼요 (4장 집합 #44 회수)'); }
+      E.big('P(A∪B) = P(A) + P(B) − P(A∩B)', '겹친 부분(A∩B)을 두 번 더했으니 한 번 뺍니다 (4장 집합 #44 회수)'); }
   },
 
   // ══════════ 16.2 조건부확률·곱셈정리 ══════════
@@ -71,7 +71,7 @@
       for(var i=0;i<3;i++){ var on=(evens[i]===6); ctx.fillStyle=on?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.15)'; ctx.strokeStyle=on?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
         var x=x0+i*(s+gap); if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,s,s,8);ctx.fill();ctx.stroke();}else{ctx.fillRect(x,y,s,s);ctx.strokeRect(x,y,s,s);}
         ctx.fillStyle=on?'#ffb27a':'#cfcdc6'; ctx.font='600 24px sans-serif'; ctx.textBaseline='middle'; ctx.fillText(evens[i], x+s/2, y+s/2); ctx.textBaseline='alphabetic'; }
-      E.big('P(B | A) = P(A∩B) / P(A)', '조건부확률 — "A가 일어났다"는 정보로 표본공간이 A로 좁아져요'); }
+      E.big('P(B | A) = P(A∩B) / P(A)', '조건부확률 — "A가 일어났다"는 정보로 표본공간이 A로 좁아집니다'); }
   },
 
   // 16.2b 곱셈정리·독립 (확률 나무)
@@ -90,7 +90,7 @@
           ctx.fillStyle='#8fe3b5'; ctx.textAlign='center'; ctx.fillText(leaf[i][j][1], (midX+leafX)/2, ly+(j?16:-6)-4);
           ctx.beginPath(); ctx.arc(leafX,ly,5,0,TAU); ctx.fill();
           ctx.fillStyle='#cfcdc6'; ctx.textAlign='left'; ctx.fillText(br[i][0].slice(0,1)+'→'+leaf[i][j][0].slice(0,1)+'  '+(0.25), leafX+10, ly+4); } }
-      E.big('P(A∩B) = P(A) · P(B|A)', '곱셈정리 — 가지를 따라 확률을 곱해요. 독립이면 P(B|A)=P(B) (예: 1/2×1/2=1/4)'); }
+      E.big('P(A∩B) = P(A) · P(B|A)', '곱셈정리 — 가지를 따라 확률을 곱합니다. 독립이면 P(B|A)=P(B) (예: 1/2×1/2=1/4)'); }
   }
 
   ];
