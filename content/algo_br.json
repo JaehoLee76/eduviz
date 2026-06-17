@@ -1423,5 +1423,65 @@
     "q_en": "A splay operation can be O(n) — why is it called efficient?",
     "sol_en": "By <b>amortized analysis</b>: an expensive splay flattens the tree, making later operations cheap, so the <b>average is O(log n) per operation</b> (proved with a potential function)."
    }
+  },
+  "algo_br_bridge": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.2 그래프 탐색 ▸ 자세히",
+   "title": "단절점·다리 — 그래프의 약한 고리 찾기",
+   "narr": "네트워크에서 \"이 한 군데가 끊기면 전체가 두 동강 나는\" 취약점은 어디일까? <b>단절점(절단 정점)</b>과 <b>다리(절단 간선)</b>를, DFS 한 번으로 모두 찾습니다.",
+   "hint": "",
+   "more": "<b>다리(bridge)</b>는 <b>제거하면 연결 요소가 늘어나는 간선</b>, <b>단절점(articulation point)</b>은 그런 정점입니다. 둘 다 DFS 한 번으로 찾습니다 — 각 정점에 <b>발견 시각 tin[v]</b>와, v의 서브트리에서 <b>역방향(back) 간선으로 거슬러 올라갈 수 있는 가장 이른 시각 low[v]</b>를 계산합니다. 판정: ① 트리 간선 (u, v)에서 <b>low[v] > tin[u]</b> 면 v 쪽은 u를 거치지 않고는 위로 못 가므로 <b>(u,v)는 다리</b>. ② 정점 u가 단절점인 조건: u가 루트면 <b>자식이 2개 이상</b>, 루트가 아니면 어떤 자식 v에 대해 <b>low[v] ≥ tin[u]</b>(그 서브트리가 u 위로 우회 못 함). 전체 <b>O(V+E)</b>. 쓰임: 네트워크 신뢰도(단일 장애점), 2-에지/2-정점 연결성 분해, 회로·도로망 취약점 분석. 더 나아가 <b>이중 연결 요소(BCC)</b>로 그래프를 견고한 덩어리로 나눕니다.",
+   "more_en": "A <b>bridge</b> is an edge whose removal increases the number of connected components; an <b>articulation point</b> is such a vertex. Both are found in one DFS — compute each vertex's <b>discovery time tin[v]</b> and <b>low[v]</b>, the earliest time reachable from v's subtree via a back edge. Tests: ① for a tree edge (u, v), if <b>low[v] > tin[u]</b> then v's side cannot get above u except through it, so <b>(u,v) is a bridge</b>; ② u is an articulation point if it is the root with <b>≥2 children</b>, or a non-root with some child v where <b>low[v] ≥ tin[u]</b> (that subtree cannot bypass u). All in <b>O(V+E)</b>. Uses: network reliability (single points of failure), 2-edge/2-vertex connectivity, decomposition into <b>biconnected components</b>.",
+   "problem": {
+    "q": "트리 간선 (u,v)가 '다리'인 조건을 tin/low로 쓰면?",
+    "solution": "<b>low[v] > tin[u]</b>. v의 서브트리가 역방향 간선으로도 u보다 위(더 이른 시각)로 못 올라간다는 뜻이라, (u,v)를 끊으면 v 쪽이 분리됩니다.",
+    "q_en": "State the bridge condition for a tree edge (u,v) using tin/low.",
+    "sol_en": "<b>low[v] > tin[u]</b>: v's subtree cannot reach above u (an earlier time) via any back edge, so removing (u,v) disconnects v's side."
+   }
+  },
+  "algo_br_bipartite": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.1 그래프 표현 ▸ 자세히",
+   "title": "이분 그래프 판정 — 2색 칠하기",
+   "narr": "정점을 두 그룹으로 나눠 <b>같은 그룹끼리는 간선이 없게</b> 만들 수 있을까? 이 \"이분성\"은 매칭·스케줄링·충돌 방지의 출발점이고, 2색 칠하기로 단번에 판정합니다.",
+   "hint": "",
+   "more": "<b>이분 그래프(bipartite)</b>는 정점을 <b>두 집합으로 나눠 모든 간선이 서로 다른 집합 사이</b>에만 있는 그래프입니다. 판정은 <b>2색 칠하기</b>: BFS/DFS로 시작 정점을 색1로 칠하고, <b>이웃은 항상 반대 색</b>으로 칠해 나갑니다. 진행 중 <b>이미 칠해진 이웃이 나와 같은 색</b>이면 모순 → <b>이분 불가</b>. 핵심 정리: <b>그래프가 이분 ⇔ 홀수 길이 사이클이 없다</b>. 전체 <b>O(V+E)</b>. 쓰임: ① <b>이분 매칭</b>(쾨니그 정리: 최대 매칭 = 최소 정점 덮개)으로 작업-인력 배정 ② 스케줄링·상충 없는 2그룹 분할 ③ 2-색 가능성·홀수 사이클 검출. 이분이 아니면 <b>일반 매칭(블로섬)</b>이나 다른 접근이 필요합니다.",
+   "more_en": "A graph is <b>bipartite</b> if its vertices split into <b>two sets with every edge going between the sets</b>. Test by <b>2-coloring</b>: BFS/DFS color the start vertex color 1 and always color a <b>neighbor the opposite color</b>; if an already-colored neighbor has the <b>same color</b>, contradiction → <b>not bipartite</b>. Key theorem: <b>a graph is bipartite ⇔ it has no odd-length cycle</b>. All in <b>O(V+E)</b>. Uses: ① <b>bipartite matching</b> (König's theorem: max matching = min vertex cover) for assignment; ② scheduling / conflict-free 2-grouping; ③ 2-colorability / odd-cycle detection. If not bipartite, you need <b>general matching (blossom)</b> or another approach.",
+   "problem": {
+    "q": "어떤 그래프가 이분 그래프가 '아닌' 것과 동치인 구조적 조건은?",
+    "solution": "<b>홀수 길이의 사이클이 존재</b>하는 것입니다. 홀수 사이클을 두 색으로 칠하려 하면 반드시 같은 색 이웃이 생겨 모순이 나기 때문입니다(이분 ⇔ 홀수 사이클 없음).",
+    "q_en": "What structural condition is equivalent to a graph NOT being bipartite?",
+    "sol_en": "It contains an <b>odd-length cycle</b>. Any 2-coloring of an odd cycle forces two same-colored neighbors — a contradiction (bipartite ⇔ no odd cycle)."
+   }
+  },
+  "algo_br_blossom": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.3 최단경로·플로우 ▸ 자세히",
+   "title": "일반 그래프 최대 매칭 — 에드몬즈 블로섬",
+   "narr": "이분 그래프 매칭은 증가 경로로 쉽게 풀리지만, <b>일반 그래프</b>엔 <b>홀수 사이클</b>이라는 함정이 있습니다. <b>에드몬즈</b>는 이 사이클(블로섬, 꽃)을 한 점으로 <b>수축</b>해 매칭을 다항시간에 풀어냈습니다.",
+   "hint": "",
+   "more": "<b>최대 매칭</b>은 정점을 공유하지 않는 간선을 최대한 많이 고르는 문제입니다. 이분 그래프에선 <b>증가 경로(augmenting path)</b>를 찾아 뒤집으면 풀리지만(헝가리안), <b>일반 그래프</b>에선 <b>홀수 길이 교대 사이클(블로섬)</b>이 증가 경로 탐색을 망칩니다 — 같은 정점이 매칭/비매칭 양쪽으로 보여 BFS가 꼬입니다. <b>에드몬즈 블로섬 알고리즘</b>의 핵심: 블로섬을 발견하면 <b>그 사이클 전체를 하나의 슈퍼 정점으로 수축</b>해 그래프를 단순화하고, 거기서 증가 경로를 찾은 뒤 <b>다시 펼쳐(확장)</b> 매칭을 복원합니다. 이 수축 덕에 일반 그래프도 이분처럼 다룰 수 있어 <b>O(V³)</b>(정교한 구현은 O(V·E) 또는 O(E√V))에 최대 매칭을 구합니다. 가중치판은 더 복잡한 <b>가중 블로섬</b>으로 확장됩니다. 쓰임: 짝짓기·당번 배정·화학 결합·일반적 \"겹치지 않는 쌍 최대화\".",
+   "more_en": "<b>Maximum matching</b> selects as many vertex-disjoint edges as possible. In bipartite graphs you flip <b>augmenting paths</b> (Hungarian), but in <b>general graphs</b> an <b>odd-length alternating cycle (blossom)</b> breaks augmenting-path search — a vertex appears on both matched and unmatched sides, tangling the BFS. The heart of <b>Edmonds' blossom algorithm</b>: when a blossom is found, <b>contract the whole cycle into one super-vertex</b> to simplify the graph, find an augmenting path there, then <b>expand it back</b> to recover the matching. This contraction lets general graphs behave like bipartite ones, giving max matching in <b>O(V³)</b> (refined: O(V·E) or O(E√V)). The weighted version extends to the more involved <b>weighted blossom</b>. Uses: pairing, on-call assignment, chemical bonds, general \"maximize disjoint pairs.\"",
+   "problem": {
+    "q": "일반 그래프 매칭에서 '블로섬'을 수축하는 이유는?",
+    "solution": "블로섬(<b>홀수 교대 사이클</b>)은 한 정점이 매칭/비매칭 양쪽으로 보여 증가 경로 탐색을 꼬이게 합니다. 사이클을 <b>한 점으로 수축</b>하면 그 모순이 사라져 이분 그래프처럼 증가 경로를 찾을 수 있습니다.",
+    "q_en": "Why contract a 'blossom' in general-graph matching?",
+    "sol_en": "A blossom (<b>odd alternating cycle</b>) makes a vertex appear on both matched and unmatched sides, tangling augmenting-path search. <b>Contracting it to one vertex</b> removes the conflict so paths can be found as in a bipartite graph."
+   }
+  },
+  "algo_br_daglongest": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.2 그래프 탐색 ▸ 자세히",
+   "title": "DAG 최장 경로 — 임계 경로와 일정 관리",
+   "narr": "일반 그래프의 <b>최장 경로</b>는 NP-난해라 손도 못 대지만, <b>사이클 없는 DAG</b>에선 위상정렬 덕에 O(V+E)에 풀립니다. 프로젝트 일정의 \"가장 오래 걸리는 줄기(임계 경로)\"가 바로 이것입니다.",
+   "hint": "",
+   "more": "<b>DAG 최장 경로</b>: 가중 방향 비순환 그래프에서 가장 긴 경로(또는 시작에서 각 정점까지의 최장 거리)를 구합니다. 일반 그래프라면 NP-난해지만, <b>위상 정렬</b>로 정점을 \"선행이 모두 끝난 순서\"로 줄 세우면, 그 순서대로 <b>dist[v] = max(dist[u] + w(u,v))</b>를 한 번씩 완화하기만 하면 됩니다 → <b>O(V+E)</b>(최단 경로도 max를 min으로 바꾸면 동일, 음수 가중치도 OK). 대표 응용이 <b>임계 경로법(CPM)</b>: 작업을 정점, 선행 관계를 간선, 소요시간을 가중치로 두면 <b>최장 경로 = 프로젝트 최소 완료 시간</b>이고, 그 경로 위의 작업들(임계 작업)은 <b>단 하루도 늦으면 전체가 늦어집니다</b>. 쓰임: 빌드 시스템·작업 스케줄링·컴파일 의존성·공정 관리.",
+   "more_en": "<b>Longest path in a DAG</b>: find the longest path (or longest distance from a source to each vertex) in a weighted directed acyclic graph. In general graphs this is NP-hard, but with a <b>topological sort</b> ordering vertices so all predecessors come first, you simply relax <b>dist[v] = max(dist[u] + w(u,v))</b> once each in that order → <b>O(V+E)</b> (shortest path is the same with min; negative weights are fine). The flagship use is the <b>Critical Path Method (CPM)</b>: with tasks as vertices, precedence as edges, durations as weights, the <b>longest path = minimum project completion time</b>, and tasks on it (critical tasks) <b>delay the whole project if delayed at all</b>. Uses: build systems, job scheduling, compile dependencies, project management.",
+   "problem": {
+    "q": "왜 일반 그래프 최장경로는 NP-난해인데 DAG에선 O(V+E)일까?",
+    "solution": "사이클이 있으면 양의 사이클을 무한히 돌아 최장경로가 정의되지 않거나 탐색이 폭발합니다. <b>DAG는 사이클이 없어</b> 위상순서대로 각 정점을 한 번만 완화하면 되므로 O(V+E)입니다.",
+    "q_en": "Why is longest path NP-hard in general but O(V+E) in a DAG?",
+    "sol_en": "With cycles you could loop a positive cycle forever (undefined) or blow up the search. A <b>DAG has no cycles</b>, so relaxing each vertex once in topological order suffices — O(V+E)."
+   }
   }
 }
