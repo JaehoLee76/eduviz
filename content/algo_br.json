@@ -1603,5 +1603,65 @@
     "q_en": "In tree maximum independent set, what is the recurrence for dp[v][1] (taking v)?",
     "sol_en": "<b>dp[v][1] = 1 + Σ_child dp[child][0]</b>: taking v forbids its children (each must be in the 'not taken' state), so add 1 (for v) plus each child's dp[child][0]."
    }
+  },
+  "algo_br_monostack": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.3 스택과 큐 ▸ 자세히",
+   "title": "단조 스택 — 다음 큰 원소를 O(n)에",
+   "narr": "\"각 원소의 오른쪽에서 처음 나오는 더 큰 값은?\"을 이중 반복(O(n²)) 없이 한 번에 구합니다. 비결은 스택을 <b>항상 단조(줄어드는) 순서</b>로만 유지하는 것.",
+   "hint": "",
+   "more": "<b>단조 스택(monotonic stack)</b>은 스택 안의 값을 <b>항상 증가(또는 감소) 순서로만</b> 유지하는 기법입니다. 대표 문제 <b>다음 큰 원소(NGE)</b>: 왼쪽부터 보며, <b>새 값이 스택 top보다 크면</b> top을 pop하면서 \"네 다음 큰 값은 이 새 값이야\"라고 정답을 기록합니다. 그 뒤 새 값을 push. 각 원소는 <b>딱 한 번 push되고 한 번 pop</b>되므로 전체 <b>O(n)</b>(겉보기엔 중첩 반복 같아도 분할상환 O(n)). 핵심 직관: \"나보다 작은데 나보다 뒤에 온 값은, 내 뒤 누구에게도 '다음 큰 값'이 못 되니 버려도 된다.\" 쓰임: 다음/이전 큰·작은 원소, <b>히스토그램에서 최대 직사각형</b>, 주가 스팬(stock span), \"매일 더 따뜻한 날까지 며칠\", 빗물 가두기 등 \"가까운 더 큰/작은 경계\" 류 문제 전반.",
+   "more_en": "A <b>monotonic stack</b> keeps its contents in <b>increasing (or decreasing) order at all times</b>. The classic use is <b>next greater element (NGE)</b>: scanning left to right, while the <b>new value exceeds the stack top</b>, pop it and record \"your next greater element is this new value,\" then push the new value. Each element is <b>pushed once and popped once</b>, so it is <b>O(n)</b> overall (amortized, despite looking nested). Key intuition: \"a value smaller than me that came before me can never be anyone's later 'next greater', so discard it.\" Uses: next/previous greater/smaller, <b>largest rectangle in a histogram</b>, stock span, \"days until a warmer temperature,\" trapping rain water — \"nearest larger/smaller boundary\" problems in general.",
+   "problem": {
+    "q": "단조 스택이 다음 큰 원소를 O(n)에 푸는데, 각 원소는 스택에서 몇 번 다뤄지나?",
+    "solution": "<b>한 번 push, 한 번 pop</b> — 총 O(1)씩, 그래서 전체 O(n)입니다(분할상환). 한 번 pop된 원소는 다시 들어오지 않습니다.",
+    "q_en": "In a monotonic stack solving NGE, how many times is each element handled?",
+    "sol_en": "<b>Pushed once, popped once</b> — O(1) each, so O(n) total (amortized). Once popped, an element never returns."
+   }
+  },
+  "algo_br_slidemax": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.3 스택과 큐 ▸ 자세히",
+   "title": "슬라이딩 윈도우 최댓값 — 단조 덱으로 O(n)",
+   "narr": "크기 k인 창이 배열을 한 칸씩 지날 때 <b>각 창의 최댓값</b>을, 창마다 다시 훑지(O(nk)) 않고 한 번에 구합니다. <b>단조 덱(deque)</b>이 그 비밀입니다.",
+   "hint": "",
+   "more": "<b>슬라이딩 윈도우 최댓값</b>은 크기 k 창이 이동할 때 각 창의 최댓값을 구하는 문제입니다. 순진하게 창마다 최댓값을 찾으면 <b>O(n·k)</b>. <b>단조 덱(monotonic deque)</b>은 덱에 <b>인덱스</b>를 \"값이 줄어드는 순서\"로 유지합니다 — 새 원소를 넣기 전에 <b>덱 뒤쪽에서 자기보다 작은(또는 같은) 값들을 모두 제거</b>(그들은 이 새 값이 창에 있는 한 절대 최대가 못 됨), 그리고 <b>창을 벗어난 앞쪽 인덱스를 제거</b>합니다. 그러면 <b>덱의 맨 앞 = 현재 창의 최댓값</b>. 각 인덱스는 한 번 들어와 한 번 나가므로 전체 <b>O(n)</b>. 같은 틀로 <b>슬라이딩 최솟값</b>, 고정 폭 구간 최적화 DP(예: dp[i] = min over window + cost)에서 O(nk)를 O(n)으로 줄입니다. 단조 스택의 \"양끝 버전\"이라고 보면 됩니다.",
+   "more_en": "<b>Sliding window maximum</b> asks for the max of each size-k window as it moves. Naively scanning each window is <b>O(n·k)</b>. A <b>monotonic deque</b> keeps <b>indices</b> in decreasing-value order — before inserting a new element, <b>pop from the back all smaller-or-equal values</b> (they can never be the max while this new value is in the window), and <b>pop from the front any index that left the window</b>. Then the <b>front of the deque is the current window's maximum</b>. Each index enters and leaves once → <b>O(n)</b>. The same frame gives <b>sliding minimum</b> and speeds fixed-width window-optimization DP (e.g. dp[i] = min over a window + cost) from O(nk) to O(n). Think of it as the \"two-ended version\" of a monotonic stack.",
+   "problem": {
+    "q": "슬라이딩 윈도우 최댓값에서 새 값보다 작은 덱 뒤쪽 값들을 버리는 이유는?",
+    "solution": "그 작은 값들은 <b>새 값과 함께 창에 있는 한 절대 최댓값이 될 수 없기</b> 때문입니다(새 값이 더 크고 더 오래 남음). 버려서 덱을 단조로 유지하면 맨 앞이 항상 최댓값이 됩니다.",
+    "q_en": "Why discard the deque's back values smaller than the new one in sliding-window max?",
+    "sol_en": "Those smaller values <b>can never be the maximum while the new (larger, longer-lasting) value is in the window</b>. Discarding them keeps the deque monotone so its front is always the max."
+   }
+  },
+  "algo_br_ternary": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.2 이분 탐색 ▸ 자세히",
+   "title": "삼분 탐색 — 단봉 함수의 극값 찾기",
+   "narr": "이분 탐색은 <b>단조</b> 함수의 경계를 찾지만, 올라갔다 내려오는 <b>단봉(unimodal)</b> 함수의 <b>꼭대기</b>는 어떻게? <b>삼분 탐색</b>이 구간을 셋으로 나눠 극값을 O(log n)에 찾습니다.",
+   "hint": "",
+   "more": "<b>삼분 탐색(ternary search)</b>은 <b>단봉(볼록/오목)</b> 함수의 극값(최댓값 또는 최솟값)을 찾습니다 — 한 점까지 증가하다 그 뒤 감소하는(또는 반대) 함수. 구간 [lo, hi]를 두 점 <b>m1, m2(예: 1/3, 2/3 지점)</b>로 나눠 값을 비교합니다: 최댓값을 찾을 때 <b>f(m1) < f(m2)</b>면 정점은 m1보다 오른쪽에 있으니 <b>[lo, m1] 버림</b>(lo = m1), 반대면 <b>[m2, hi] 버림</b>(hi = m2). 매번 구간이 약 2/3로 줄어 <b>O(log n)</b>. 정수 구간은 폭이 충분히 작아질 때까지, 실수 구간은 정밀도까지 반복하거나 <b>황금 분할(0.618)</b>로 평가 횟수를 절반으로 줄입니다(이전 평가 재사용). 핵심 조건: <b>반드시 단봉</b>이어야 함(여러 봉우리면 틀림). 쓰임: \"매개변수를 바꿀 때 비용이 볼록\"인 최적화 — 각도·속도·임계값 튜닝, 기하 최단/최장, 매개변수 탐색.",
+   "more_en": "<b>Ternary search</b> finds the extremum (max or min) of a <b>unimodal</b> function — one that rises to a single peak then falls (or vice versa). Split [lo, hi] at two points <b>m1, m2 (e.g. the 1/3 and 2/3 marks)</b> and compare: for a maximum, if <b>f(m1) < f(m2)</b> the peak is right of m1, so <b>discard [lo, m1]</b> (lo = m1); otherwise <b>discard [m2, hi]</b> (hi = m2). The interval shrinks by ~2/3 each step → <b>O(log n)</b>. Iterate until the integer width is tiny or the real interval meets a tolerance; the <b>golden-section (0.618)</b> variant halves evaluations by reusing one. Key requirement: the function <b>must be unimodal</b> (multiple peaks break it). Uses: optimization where cost is convex in a parameter — tuning angles/speeds/thresholds, geometric min/max, parameter search.",
+   "problem": {
+    "q": "삼분 탐색을 쓰려면 함수가 어떤 성질을 만족해야 하나?",
+    "solution": "<b>단봉(unimodal)</b>이어야 합니다 — 한 극점까지 단조 증가하다 그 뒤 단조 감소(또는 반대). 봉우리가 여러 개면 잘못된 극값으로 수렴할 수 있어 쓸 수 없습니다.",
+    "q_en": "What property must a function have to use ternary search?",
+    "sol_en": "It must be <b>unimodal</b> — monotonically increasing to one extremum then decreasing (or vice versa). With multiple peaks it can converge to a wrong extremum, so it does not apply."
+   }
+  },
+  "algo_br_coordcomp": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열 ▸ 자세히",
+   "title": "좌표 압축 — 큰 값을 0..k 등수로",
+   "narr": "값이 10억까지 커도 실제 등장하는 종류가 n개뿐이라면, <b>크기 관계만 남기고</b> 0..n−1로 다시 번호를 매겨 배열·세그먼트 트리 인덱스로 쓸 수 있게 만듭니다.",
+   "hint": "",
+   "more": "<b>좌표 압축(coordinate compression)</b>은 값들이 <b>범위는 크지만 종류는 적을 때</b>, 각 값을 그 <b>등수(rank)</b>로 바꿔 <b>0..k−1의 작은 정수</b>로 만드는 전처리입니다. 방법: ① 등장한 값들을 모아 <b>정렬 + 중복 제거</b> ② 각 원래 값을 정렬 배열에서의 <b>인덱스(이분 탐색)</b>로 치환. 대소 관계는 그대로 보존되므로, <b>순서·구간·빈도</b>만 중요한 문제에서 원래 값 대신 압축 값을 써도 답이 같습니다. 효과: 값 범위가 10⁹이라 못 쓰던 <b>세그먼트 트리·펜윅 트리·카운팅 배열·DP 인덱스</b>를 크기 n으로 쓸 수 있게 됩니다. 비용은 정렬 <b>O(n log n)</b>. 쓰임: <b>전도(inversion) 수 세기</b>(펜윅), 구간에 등장한 서로 다른 값 수, 2D 스위프(이벤트 좌표 압축), 오프라인 질의 전처리. \"값 자체가 아니라 값들 사이의 순서만 필요하다\"는 통찰이 핵심입니다.",
+   "more_en": "<b>Coordinate compression</b> is preprocessing for when values have a <b>large range but few distinct values</b>: replace each value by its <b>rank</b>, mapping to small integers <b>0..k−1</b>. Method: ① collect the values, <b>sort and deduplicate</b>; ② replace each original value by its <b>index in the sorted array (binary search)</b>. Order is preserved, so for problems that only care about <b>order, ranges, or frequency</b>, using compressed values gives the same answer. Effect: structures like <b>segment trees, Fenwick trees, counting arrays, DP indices</b> that couldn't handle a 10⁹ range now fit in size n. Cost: sorting <b>O(n log n)</b>. Uses: <b>counting inversions</b> (Fenwick), distinct values in a range, 2D sweeps (compressing event coordinates), offline query preprocessing. The key insight: \"we need the order among values, not the values themselves.\"",
+   "problem": {
+    "q": "좌표 압축은 어떤 상황에서 유용하며, 무엇을 보존하나?",
+    "solution": "<b>값 범위는 크지만(예 10⁹) 종류가 적을 때</b> 유용합니다. 정렬·중복제거 후 등수로 바꿔 <b>대소 관계(순서)는 보존</b>하면서 인덱스를 0..n−1로 줄여, 세그먼트 트리·펜윅 등을 쓸 수 있게 합니다.",
+    "q_en": "When is coordinate compression useful, and what does it preserve?",
+    "sol_en": "When values have a <b>large range but few distinct ones</b>. Sorting + dedup + ranking <b>preserves order</b> while shrinking indices to 0..n−1, enabling segment trees, Fenwick trees, etc."
+   }
   }
 }

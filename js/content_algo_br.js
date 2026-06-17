@@ -2057,6 +2057,92 @@
       ctx.fillText('초록 = 고른 노드(서로 인접 안 함 = 독립집합). dp[v][0/1] = v를 빼고/넣고 서브트리 최적', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('dp[v][1]=1+Σ dp[child][0],  dp[v][0]=Σ max(dp[child][0],dp[child][1]). 후위순회 O(V)', W/2, H*0.84+22); }
+  },
+
+  // ══════ 스택(algo2_03) ▸ 단조 스택(다음 큰 원소) ══════
+  { id:'algo_br_monostack', concept:true, branchOf:'algo2_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, A=[2,5,3,6,1], NGE=[5,6,6,-1,-1];
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('단조 스택 — "다음 큰 원소"를 O(n)에', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('스택에 값을 줄어드는(또는 늘어나는) 순서로만 유지 → 각 원소는 한 번 push·한 번 pop', W/2, H*0.12+22);
+      var n=A.length, bw=Math.min(64,(W*0.55)/n), gap=10, total=n*bw+(n-1)*gap, x0=W/2-total/2, y=H*0.36;
+      for(var i=0;i<n;i++){ var x=x0+i*(bw+gap);
+        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(A[i],x+bw/2,y+bw/2); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#6f7686'; ctx.font='11px sans-serif'; ctx.fillText(i,x+bw/2,y-8);
+        var g=NGE[i]; ctx.fillStyle=g<0?'#6f6e7a':'#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.fillText(g<0?'없음':('→'+g), x+bw/2, y+bw+18); }
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('아래 = 각 원소의 "다음 큰 값"(NGE). 예: 2→5, 3→6, 6→없음', W/2, H*0.62);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('새 값이 스택 top보다 크면 top을 pop하며 "네 다음 큰 값은 나야"라고 정답 기록 → 총 O(n)', W/2, H*0.62+22);
+      ctx.fillStyle='#8a8893'; ctx.fillText('쓰임: 다음/이전 큰·작은 원소, 히스토그램 최대 직사각형, 주가 스팬, 온도 문제', W/2, H*0.62+42); }
+  },
+
+  // ══════ 큐(algo2_04) ▸ 슬라이딩 윈도우 최댓값(단조 덱) ══════
+  { id:'algo_br_slidemax', concept:true, branchOf:'algo2_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, A=[1,3,2,5,4], k=3;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('슬라이딩 윈도우 최댓값 — 단조 덱으로 O(n)', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('크기 k 창이 한 칸씩 이동할 때 각 창의 최댓값을, 덱에 줄어드는 순서로 인덱스만 유지', W/2, H*0.12+22);
+      var n=A.length, bw=Math.min(62,(W*0.55)/n), gap=9, total=n*bw+(n-1)*gap, x0=W/2-total/2, y=H*0.36;
+      for(var i=0;i<n;i++){ var x=x0+i*(bw+gap), inwin=(i>=2&&i<=4);  // 현재 창 [2,4]
+        ctx.fillStyle=inwin?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=inwin?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
+        ctx.fillStyle=A[i]===5&&inwin?'#ffb27a':'#dfeefb'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(A[i],x+bw/2,y+bw/2); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#6f7686'; ctx.font='11px sans-serif'; ctx.fillText(i,x+bw/2,y-8); }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('주황 = 현재 창 [2..4] = {2,5,4} → 최댓값 5 (덱의 맨 앞)', W/2, H*0.60);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('덱 규칙: 새 값보다 작은 뒤쪽을 모두 제거(작은 건 영원히 최대 못 됨), 창 벗어난 앞쪽 제거', W/2, H*0.60+22);
+      ctx.fillStyle='#8a8893'; ctx.fillText('덱 맨 앞 = 현재 창 최댓값. 각 인덱스 한 번 들고 한 번 나가 O(n). 그냥 매번 최대 찾기는 O(nk)', W/2, H*0.60+42); }
+  },
+
+  // ══════ 이분탐색(algo4_02) ▸ 삼분 탐색(단봉 함수) ══════
+  { id:'algo_br_ternary', concept:true, branchOf:'algo4_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, P=E.Plot;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('삼분 탐색 — 단봉(볼록) 함수의 극값을 O(log n)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('구간을 셋으로 나눠 m1, m2를 비교 → 극값이 없는 1/3을 매번 버린다', W/2, H*0.10+22);
+      // 위로 볼록 곡선(최댓값)
+      var x0=W*0.16, x1=W*0.86, yb=H*0.78, yt=H*0.34, cx=(x0+x1)/2;
+      function fy(t){ var u=(t-0.5); return yb-(yt-yb)*( -1)*(1-4*u*u); }  // 0~1 → 위로볼록
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var i=0;i<=40;i++){ var t=i/40, X=x0+(x1-x0)*t, Y=yb-(yt-yb)*(4*t*(1-t)); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+      function mark(t,col,lab){ var X=x0+(x1-x0)*t, Y=yb-(yt-yb)*(4*t*(1-t)); ctx.strokeStyle=col; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(X,yb+6); ctx.lineTo(X,Y); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X,Y,5,0,Math.PI*2); ctx.fill(); ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,X,yb+22); }
+      mark(0.40,'#8fe3b5','m1'); mark(0.60,'#ffb27a','m2'); mark(0.5,'#e2607a','정점');
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('f(m1) < f(m2) 면 정점은 m1 오른쪽 → [lo, m1] 버림 (반대면 [m2, hi] 버림)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('이분 탐색의 사촌: 단조가 아니라 "단봉(볼록/오목)"일 때 극값을 찾음. 실수 구간은 비율 0.618(황금분할)', W/2, H*0.88+20); }
+  },
+
+  // ══════ 배열(algo2_01) ▸ 좌표 압축 ══════
+  { id:'algo_br_coordcomp', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('좌표 압축 — 값의 "크기"만 남기고 0..k로 다시 번호 매기기', W/2, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('값이 10⁹까지 커도 종류가 n개뿐이면, 정렬·중복제거 후 등수로 바꿔 배열 크기를 n으로', W/2, H*0.11+22);
+      var orig=[100,5,100,90000000,5], rank={5:0,100:1,90000000:2}, comp=[1,0,1,2,0];
+      function row(vals,y,lab,col,fmt){ var n=vals.length, bw=Math.min(86,(W*0.62)/n), gap=10, total=n*bw+(n-1)*gap, x0=cx-total/2;
+        ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText(lab, x0-14, y+bw*0.3+6);
+        for(var i=0;i<n;i++){ var x=x0+i*(bw+gap); ctx.fillStyle=col.bg; ctx.strokeStyle=col.st; ctx.lineWidth=2;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw*0.6,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw*0.6);
+          ctx.fillStyle=col.tx; ctx.font='600 15px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(fmt(vals[i]),x+bw/2,y+bw*0.3); ctx.textBaseline='alphabetic'; } }
+      row(orig, H*0.36, '원본 값', {bg:'rgba(122,184,255,0.14)',st:'#7ab8ff',tx:'#dfeefb'}, function(v){return v>=1e6?(v/1e6)+'M':v;});
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('↓ 정렬·중복제거 → 등수(rank)로 치환  {5→0, 100→1, 90M→2}', cx, H*0.50);
+      row(comp, H*0.56, '압축 값', {bg:'rgba(143,227,181,0.2)',st:'#8fe3b5',tx:'#8fe3b5'}, function(v){return v;});
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('대소 관계는 그대로 보존. 값 범위가 커서 못 쓰던 세그먼트 트리·BIT·DP 인덱스를 0..n−1로', cx, H*0.72);
+      ctx.fillStyle='#8a8893'; ctx.fillText('정렬 O(n log n) + 이분 탐색으로 등수 찾기. 펜윅으로 전도 수 세기 등의 전처리 단골', cx, H*0.72+20); }
   }
 
   ];
