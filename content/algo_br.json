@@ -3283,5 +3283,65 @@
     "q_en": "In prefix doubling, how do you quickly get the length-2k ranking from the length-k ranking?",
     "sol_en": "View each suffix i as the <b>integer pair (rank_k[i], rank_k[i+k])</b> (rank of its first k chars, then the next k) and sort those pairs to get the length-2k ranking. Reusing the previous round's integer ranks means <b>pair comparison with no character comparison</b>, done in O(n) by radix sort — with log n rounds, O(n log n) total."
    }
+  },
+  "algo_br_boruvka": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "보루프카 — 모든 성분이 동시에 최소 간선 선택",
+   "narr": "크루스칼은 간선을 정렬하고 프림은 한 점에서 키웁니다. <b>보루프카(Borůvka)</b>는 다르게 — <b>모든 연결 덩어리가 동시에</b> 자기 밖으로 나가는 가장 싼 간선을 골라 한꺼번에 병합합니다. 라운드마다 성분 수가 절반 이하로 줄어 O(log V) 라운드.",
+   "hint": "",
+   "more": "<b>보루프카 알고리즘(Borůvka's algorithm)</b>은 <b>최소 신장 트리(MST)</b>를 구하는 세 번째 고전 방법입니다(크루스칼·프림과 함께). 한 <b>라운드</b>: ① 현재 각 <b>연결 성분(처음엔 정점 하나하나)</b>에 대해 그 성분에서 <b>밖으로 나가는 가장 싼 간선</b>을 동시에 찾고, ② 그 간선들을 모두 MST에 추가하며 성분들을 <b>병합(union-find)</b>합니다. 각 성분이 적어도 하나의 간선으로 다른 성분과 합쳐지므로 <b>성분 수가 매 라운드 최소 절반으로 감소</b> → <b>O(log V) 라운드</b>, 각 라운드가 모든 간선 훑기 O(E)라 전체 <b>O(E log V)</b>. (간선 가중치가 모두 다르면 각 성분의 최소 간선이 유일해 MST에 안전하게 추가됨 — 컷 성질; 같은 값이면 타이브레이크 규칙 필요, 안 그러면 사이클 위험.) 보루프카의 강점: <b>병렬·분산·외부 메모리</b>에 잘 맞습니다(각 성분의 최소 간선 찾기가 독립적이라 동시 처리 가능) — 그래서 GPU·맵리듀스 MST에 쓰입니다. 또 보루프카 + 다른 기법 결합으로 더 빠른 MST(Karger-Klein-Tarjan의 기대 선형 O(E), 또는 보루프카+프림 하이브리드)의 출발점입니다. 쓰임: 대규모·병렬 MST, 이미지 분할(영역 병합), 클러스터링. \"모든 덩어리가 동시에 자기 최소 간선으로 합친다\"가 핵심으로, 컷 성질(어떤 컷의 최소 간선은 MST에 속함)을 가장 직접적으로 쓰는 알고리즘입니다.",
+   "more_en": "<b>Borůvka's algorithm</b> is the third classic method for the <b>minimum spanning tree (MST)</b> (with Kruskal and Prim). One <b>round</b>: ① for each current <b>connected component</b> (initially single vertices), simultaneously find the <b>cheapest edge leaving it</b>; ② add all those edges to the MST and <b>merge (union-find)</b> the components. Since each component merges with another via at least one edge, the <b>number of components at least halves each round</b> → <b>O(log V) rounds</b>, each scanning all edges in O(E), for <b>O(E log V)</b> total. (With distinct edge weights, each component's minimum edge is unique and safely added — the cut property; equal weights need a tie-break rule, else cycles risk.) Borůvka's strength: it suits <b>parallel, distributed, and external-memory</b> settings (finding each component's min edge is independent and concurrent) — used in GPU/MapReduce MST. It is also the starting point for faster MST algorithms (Karger-Klein-Tarjan's expected-linear O(E), or Borůvka+Prim hybrids). Uses: large-scale/parallel MST, image segmentation (region merging), clustering. The crux: \"every component merges via its own minimum edge at once,\" the most direct use of the cut property (a cut's minimum edge belongs to the MST).",
+   "problem": {
+    "q": "보루프카 알고리즘이 O(log V) 라운드 만에 끝나는 이유는?",
+    "solution": "한 라운드에서 <b>모든 성분이 각자 밖으로 나가는 최소 간선으로 다른 성분과 병합</b>되므로, 각 성분이 최소 한 번은 다른 성분과 합쳐집니다. 따라서 <b>성분 수가 매 라운드 최소 절반으로</b> 줄어 V→V/2→V/4… → <b>O(log V) 라운드</b>면 하나로 합쳐집니다. 각 라운드 O(E)라 전체 O(E log V).",
+    "q_en": "Why does Borůvka's algorithm finish in O(log V) rounds?",
+    "sol_en": "In one round <b>every component merges with another via its own cheapest outgoing edge</b>, so each component is merged at least once. Hence the <b>number of components at least halves each round</b> (V→V/2→V/4…), collapsing to one in <b>O(log V) rounds</b>. With O(E) per round, the total is O(E log V)."
+   }
+  },
+  "algo_br_secondmst": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "차선 신장 트리 — MST 다음으로 싼 트리",
+   "narr": "최소 신장 트리(MST) 바로 다음으로 가중치 합이 작은 신장 트리는? MST에 <b>트리 밖 간선 하나</b>를 넣으면 사이클이 생기는데, 그 사이클의 <b>최대 간선</b>과 바꿔 증가량이 가장 작은 교환을 찾으면 됩니다.",
+   "hint": "",
+   "more": "<b>차선 신장 트리(second-best MST)</b>는 MST와 <b>다른</b> 신장 트리 중 가중치 합이 최소인 것입니다(MST 다음으로 싼 트리). 핵심 성질: 차선 MST는 <b>MST에서 정확히 한 간선만 교환</b>해 얻어집니다. 절차: ① 먼저 MST를 구함; ② 각 <b>비트리 간선(MST에 없는 간선) (u,v)</b>에 대해, 이 간선을 MST에 넣으면 <b>유일한 사이클</b>이 생기는데, 그 사이클은 MST상 u–v 경로 + 간선 (u,v)로 이뤄집니다; ③ 그 <b>MST 경로 위의 최대 간선</b>을 제거하고 (u,v)를 넣으면 다시 신장 트리가 되며, 가중치 <b>증가량 = w(u,v) − (경로 최대 간선)</b>; ④ 모든 비트리 간선에 대해 이 증가량을 구해 <b>최소(단, > 0이어야 다른 트리)</b>인 교환이 차선 MST. 효율: MST 경로의 <b>최대 간선</b>을 빠르게 구하려면 <b>이진 점프(binary lifting)로 LCA + 경로 최대값</b>을 함께 전처리(각 정점에서 2^j 조상까지의 최대 간선) → 비트리 간선당 O(log V), 전체 <b>O(E log V)</b>. (가중치가 같은 경우 \"엄격히 두 번째\"를 원하면 경로의 <b>최대 미만 최대(second max)</b>도 함께 관리.) 쓰임: <b>네트워크 백업 트리</b>(주 트리 고장 대비 차선), MST의 민감도 분석(어떤 간선이 얼마나 바뀌어야 MST가 변하나), 신뢰도. \"비트리 간선 하나 넣고 사이클 최대 간선과 교환, 증가 최소\"가 핵심입니다.",
+   "more_en": "The <b>second-best MST</b> is the minimum-weight spanning tree <b>different</b> from the MST (the next-cheapest tree). Key property: it differs from the MST by <b>exactly one edge swap</b>. Procedure: ① compute the MST; ② for each <b>non-tree edge (u,v)</b>, adding it to the MST creates a <b>unique cycle</b> (the MST path u–v plus the edge); ③ removing the <b>maximum edge on that MST path</b> and adding (u,v) gives another spanning tree, with weight <b>increase = w(u,v) − (max edge on the path)</b>; ④ over all non-tree edges, take the swap with the <b>smallest (and > 0, to be a different tree)</b> increase. Efficiency: to find the <b>maximum edge on the MST path</b> fast, preprocess <b>binary lifting for LCA + path maximum</b> (the max edge to the 2^j ancestor from each vertex) → O(log V) per non-tree edge, <b>O(E log V)</b> total. (For equal weights, if you want the strictly second-best, also track the <b>second maximum</b> on the path.) Uses: <b>network backup trees</b> (a fallback if the primary fails), MST sensitivity analysis (how much an edge must change to alter the MST), reliability. The crux: \"insert a non-tree edge, swap with the cycle's maximum edge, minimize the increase.\"",
+   "problem": {
+    "q": "차선 신장 트리를 구할 때, 비트리 간선 (u,v)를 넣으면 무엇과 교환하며 증가량은?",
+    "solution": "(u,v)를 MST에 넣으면 MST상 u–v 경로 + (u,v)로 이뤄진 <b>유일한 사이클</b>이 생깁니다. 그 사이클을 깨려면 사이클 위 간선 하나를 빼야 하고, 가중치 증가를 최소화하려면 <b>경로 위 최대 간선</b>을 뺍니다. 증가량 = <b>w(u,v) − (경로 최대 간선)</b>. 모든 비트리 간선에 대한 이 증가량의 최소(>0)가 차선 MST입니다(경로 최대는 LCA 이진점프로 O(log V)).",
+    "q_en": "When forming the second-best MST, what does inserting non-tree edge (u,v) swap with, and what's the increase?",
+    "sol_en": "Adding (u,v) creates a <b>unique cycle</b> (the MST path u–v plus (u,v)). To break it you remove one cycle edge, and to minimize the increase you remove the <b>maximum edge on the path</b>. The increase is <b>w(u,v) − (max path edge)</b>. The minimum (>0) of this over all non-tree edges gives the second-best MST (path max via LCA binary lifting, O(log V))."
+   }
+  },
+  "algo_br_palindromepart": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "회문 분할 DP — 최소 횟수로 회문 조각내기",
+   "narr": "문자열을 <b>모든 조각이 회문</b>이 되도록 자르려면 최소 몇 번 잘라야 할까요? \"앞 i글자까지의 최소 컷\"을 채우는 DP인데, 회문 여부를 미리 계산해 두면 O(n²)에 풉니다.",
+   "hint": "",
+   "more": "<b>회문 분할(palindrome partitioning)</b>은 문자열을 <b>모든 조각이 회문</b>인 부분들로 자르는 문제로, 보통 <b>최소 컷 수</b>(또는 분할 방법의 수)를 구합니다. <b>최소 컷 DP</b>: <b>dp[i] = 앞 i글자 s[0..i)를 회문 조각들로 자르는 최소 컷 수</b>. 점화 <b>dp[i] = min over j (dp[j] + 1)</b> 단, <b>s[j..i)가 회문</b>일 때(전체가 회문이면 dp[i]=0). 핵심은 \"s[j..i)가 회문인가\"를 빠르게 아는 것: <b>isPal[j][i]를 2D DP</b>로 미리 계산 — isPal[j][i] = (s[j]==s[i−1]) && (조각 길이 ≤ 2 또는 isPal[j+1][i−1]) — O(n²) 시간·공간. 그러면 전체도 <b>O(n²)</b>. 변형: ① <b>분할 방법의 수</b>(min 대신 합), ② <b>모든 회문 분할 나열</b>(백트래킹), ③ <b>최장 회문 부분수열</b>은 다른 문제로 LCS(s, reverse(s))로 O(n²), ④ <b>최장 회문 부분문자열</b>은 매내처로 O(n) 또는 회문트리(Eertree)로. 회문 판정을 <b>매내처(각 중심의 반지름)나 회문트리</b>로 대체하면 isPal 선계산을 더 빠르게/적은 메모리로 할 수 있습니다. 쓰임: 텍스트 분할, DNA 회문 구조, 문자열 분해 최적화. \"앞 i까지 최소 컷 + 회문 여부 선계산\"이 핵심이며, 구간 DP와 회문 알고리즘이 만나는 전형적 문제입니다.",
+   "more_en": "<b>Palindrome partitioning</b> cuts a string into parts that are <b>all palindromes</b>, usually asking for the <b>minimum number of cuts</b> (or the number of partitions). <b>Minimum-cut DP</b>: <b>dp[i] = the minimum cuts to split the prefix s[0..i) into palindromic parts</b>. Recurrence <b>dp[i] = min over j (dp[j] + 1)</b> when <b>s[j..i) is a palindrome</b> (dp[i]=0 if the whole prefix is a palindrome). The key is testing \"is s[j..i) a palindrome\" quickly: precompute <b>isPal[j][i] by 2D DP</b> — isPal[j][i] = (s[j]==s[i−1]) && (length ≤ 2 or isPal[j+1][i−1]) — O(n²) time/space. Then the whole thing is <b>O(n²)</b>. Variants: ① <b>number of partitions</b> (sum instead of min); ② <b>enumerate all palindrome partitions</b> (backtracking); ③ <b>longest palindromic subsequence</b> is a different problem, LCS(s, reverse(s)) in O(n²); ④ <b>longest palindromic substring</b> via Manacher in O(n) or an Eertree. Replacing the palindrome test with <b>Manacher (radius per center) or an Eertree</b> can make the isPal precomputation faster / lower-memory. Uses: text segmentation, DNA palindrome structure, string-decomposition optimization. The crux: \"minimum cuts to prefix i + precomputed palindrome tests,\" a classic meeting of interval DP and palindrome algorithms.",
+   "problem": {
+    "q": "회문 분할 최소 컷 DP의 점화식과, O(n²)을 가능케 하는 선계산은?",
+    "solution": "<b>dp[i] = min over j ( dp[j] + 1 ), s[j..i)가 회문일 때</b>(전체 회문이면 0). 매번 회문 여부를 O(n)에 검사하면 O(n³)이 되므로, <b>isPal[j][i]를 2D DP로 O(n²) 선계산</b>(isPal[j][i]=s[j]==s[i−1] && (길이≤2 ‖ isPal[j+1][i−1]))해 O(1) 조회 → 전체 O(n²).",
+    "q_en": "What is the recurrence for minimum-cut palindrome partitioning, and what precomputation makes it O(n²)?",
+    "sol_en": "<b>dp[i] = min over j ( dp[j] + 1 ) when s[j..i) is a palindrome</b> (0 if the whole prefix is one). Testing palindromes in O(n) each would be O(n³), so <b>precompute isPal[j][i] by 2D DP in O(n²)</b> (isPal[j][i]=s[j]==s[i−1] && (len≤2 ‖ isPal[j+1][i−1])) for O(1) lookup → O(n²) overall."
+   }
+  },
+  "algo_br_stirling": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "스털링·벨 수 — 집합을 그룹으로 나누는 가짓수",
+   "narr": "구별되는 n개를 비지 않은 <b>k개 그룹</b>으로 나누는 방법의 수가 <b>제2종 스털링 수 S(n,k)</b>이고, 그룹 수에 상관없이 <b>모든 분할</b>의 수가 <b>벨 수 B(n)=Σ_k S(n,k)</b>입니다. 카탈란·이항과 함께 조합론의 기둥입니다.",
+   "hint": "",
+   "more": "<b>제2종 스털링 수(Stirling number of the second kind) S(n,k)</b>는 구별되는 <b>n개 원소를 비지 않은 k개의 (구별 없는) 그룹으로 분할</b>하는 방법의 수입니다. 점화식: <b>S(n,k) = k·S(n−1,k) + S(n−1,k−1)</b> — 새 원소를 ① 기존 k개 그룹 중 하나에 넣거나(k가지), ② 혼자 새 그룹을 만들거나(S(n−1,k−1)). 경계 S(0,0)=1, S(n,0)=0(n>0). 닫힌 형태(포함배제): S(n,k) = (1/k!)Σ_{j} (−1)^j C(k,j)(k−j)ⁿ. 관련: <b>벨 수 B(n) = Σ_{k=0..n} S(n,k)</b> = n개 집합의 <b>모든 분할</b>의 수(그룹 수 무관, B(0)=1,1,2,5,15,52,…), 점화 B(n+1)=Σ C(n,k)B(k) 또는 벨 삼각형. <b>제1종 스털링 수 c(n,k)</b>(부호 없는)는 <b>n개의 순열 중 사이클이 정확히 k개</b>인 것의 수로, 점화 c(n,k)=(n−1)·c(n−1,k)+c(n−1,k−1)(순열 사이클 분해와 연결). 생성함수: 벨 수의 EGF는 <b>e^(eˣ−1)</b>, 제2종 스털링은 \"멱함수 → 하강 계승\" 변환 계수(xⁿ = Σ S(n,k)·x^(하강 k)). 쓰임: <b>분배 문제</b>(공/상자 구별 여부 4종 중 \"구별 공·구별 없는 상자\"=스털링), 집합 분할 세기, 같은 것 포함배제, 멱합 공식, 조합론 항등식. 카탈란(괄호·트리)·이항(부분집합)과 더불어 \"세는 수\"의 핵심 가족입니다.",
+   "more_en": "The <b>Stirling number of the second kind S(n,k)</b> is the number of ways to <b>partition n distinct elements into k non-empty (unlabeled) groups</b>. Recurrence: <b>S(n,k) = k·S(n−1,k) + S(n−1,k−1)</b> — put the new element ① into one of the existing k groups (k ways), or ② alone in a new group (S(n−1,k−1)). Base S(0,0)=1, S(n,0)=0 (n>0). Closed form (inclusion-exclusion): S(n,k) = (1/k!)Σ_j (−1)^j C(k,j)(k−j)ⁿ. Related: the <b>Bell number B(n) = Σ_{k=0..n} S(n,k)</b> = the number of <b>all partitions</b> of an n-set (any number of groups; B(0)=1,1,2,5,15,52,…), with B(n+1)=Σ C(n,k)B(k) or the Bell triangle. The <b>(unsigned) Stirling number of the first kind c(n,k)</b> counts <b>permutations of n with exactly k cycles</b>, recurrence c(n,k)=(n−1)·c(n−1,k)+c(n−1,k−1) (tied to permutation cycle decomposition). Generating functions: Bell's EGF is <b>e^(eˣ−1)</b>, and second-kind Stirling are the \"power → falling factorial\" change-of-basis coefficients (xⁿ = Σ S(n,k)·x^(falling k)). Uses: <b>distribution problems</b> (of the 4 ball-box variants, \"distinct balls, indistinct boxes\" = Stirling), counting set partitions, inclusion-exclusion with identical items, power-sum formulas, combinatorial identities. With Catalan (parentheses/trees) and binomials (subsets), they are the core family of \"counting numbers.\"",
+   "problem": {
+    "q": "제2종 스털링 수 점화식 S(n,k)=k·S(n−1,k)+S(n−1,k−1)의 두 항은 각각 무엇을 세나?",
+    "solution": "n번째(새) 원소를 어디에 두는지로 나눕니다: ① <b>기존 k개 그룹 중 하나</b>에 넣는 경우 — 그룹 선택이 k가지라 <b>k·S(n−1,k)</b>; ② <b>혼자 새 그룹</b>을 만드는 경우 — 나머지 n−1개를 k−1그룹으로 나눈 <b>S(n−1,k−1)</b>. 두 경우가 겹치지 않고 모두 덮으므로 합이 S(n,k)입니다.",
+    "q_en": "What do the two terms of S(n,k)=k·S(n−1,k)+S(n−1,k−1) each count?",
+    "sol_en": "Split by where the n-th (new) element goes: ① into <b>one of the existing k groups</b> — k choices, giving <b>k·S(n−1,k)</b>; ② <b>alone in a new group</b> — the other n−1 split into k−1 groups, giving <b>S(n−1,k−1)</b>. The cases are disjoint and exhaustive, so their sum is S(n,k)."
+   }
   }
 }

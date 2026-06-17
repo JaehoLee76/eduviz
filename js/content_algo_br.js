@@ -4750,6 +4750,97 @@
       ctx.fillText('이전 길이의 순위를 재사용하므로 글자 비교 없이 정수 쌍 비교. SA-IS는 O(n)', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('Kasai로 LCP 얹으면 부분문자열·반복·LCS. 접미사 트라이/트리의 배열판', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_boruvka', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('보루프카 — 모든 성분이 동시에 가장 싼 간선 선택', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('MST를 "각 덩어리가 자기 최소 간선을 동시에 고르고 병합" 반복으로. 라운드 O(log V)', W/2, H*0.10+22);
+      // components each picking cheapest outgoing edge
+      var N={a:[0.22,0.34],b:[0.40,0.30],c:[0.30,0.60],d:[0.66,0.34],e:[0.82,0.58],f:[0.62,0.66]};
+      var edges=[['a','b','1'],['a','c','3'],['b','d','5'],['d','e','2'],['e','f','4'],['c','f','6']];
+      var chosen={'a-b':1,'d-e':1,'e-f':1};
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var on=chosen[e[0]+'-'+e[1]]; ctx.strokeStyle=on?'#8fe3b5':'rgba(122,184,255,0.4)'; ctx.lineWidth=on?3.5:2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.fillStyle=on?'#8fe3b5':'#8a8893'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2,(p[1]+q[1])/2-4); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('초록 = 이번 라운드 각 성분의 최소 간선', W/2, H*0.82);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('한 라운드: 각 성분이 밖으로 나가는 최소 간선 선택→병합. 성분 수 ≥절반 감소', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('O(log V) 라운드 × O(E) = O(E log V). 병렬·외부메모리 친화(크루스칼·프림과 다른 MST)', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_secondmst', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('차선 신장 트리 — MST 다음으로 싼 트리', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('MST에 비트리 간선 하나를 넣으면 사이클 → 그 사이클 최대 간선과 교환, 증가 최소가 답', W/2, H*0.10+22);
+      // MST tree + a non-tree edge forming a cycle
+      var N={a:[0.25,0.35],b:[0.5,0.28],c:[0.75,0.38],d:[0.40,0.62],e:[0.66,0.66]};
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      var tree=[['a','b','2'],['b','c','3'],['a','d','4'],['c','e','1']];
+      tree.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2,(p[1]+q[1])/2-4); });
+      // non-tree edge d-e (forms cycle d-a-b-c-e)
+      var p=xy('d'),q=xy('e'); ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('+6', (p[0]+q[0])/2, (p[1]+q[1])/2+16);
+      Object.keys(N).forEach(function(k){ var pp=xy(k); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(pp[0],pp[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),pp[0],pp[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('d–e(+6) 넣으면 사이클 d-a-b-c-e, 그 경로 최대간선 a-d(4) 제거 → 증가 +2', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('모든 비트리 간선에 대해 (그 간선 − 사이클 최대간선) 최소 = 차선 MST', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('경로 최대간선은 이진점프(LCA)로 O(log V). 전체 O(E log V). 네트워크 백업 트리', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_palindromepart', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('회문 분할 DP — 최소 횟수로 회문 조각내기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('문자열을 모두 회문인 조각으로 자르는 최소 컷 수. dp[i]=앞 i글자 최소 컷', W/2, H*0.10+22);
+      // string aabba -> a|abba? no; show aab|b|a or aa|b|b|a; show palindrome cuts
+      ctx.fillStyle='#dfeefb'; ctx.font='600 16px monospace';
+      ctx.fillText('a  a  b  a  a', W/2, H*0.32);
+      // cut into "aa | b | aa" (2 cuts) -> all palindromes
+      var parts=[['aa','#7ab8ff'],['b','#8fe3b5'],['aa','#7ab8ff']]; var bx=W*0.5-(parts.length*100)/2, by=H*0.42;
+      parts.forEach(function(pp,i){ var x=bx+i*100; ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle=pp[1]; ctx.lineWidth=2; ctx.fillRect(x,by,88,34); ctx.strokeRect(x,by,88,34); ctx.fillStyle=pp[1]; ctx.font='600 15px monospace'; ctx.fillText(pp[0],x+44,by+22); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('aa | b | aa — 컷 2번, 세 조각 모두 회문', W/2, H*0.62);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('dp[i] = min over j<i ( dp[j] + 1 )  단, s[j..i)가 회문일 때', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('회문 여부 isPal[j][i]를 2D DP로 O(n²) 선계산 → 전체 O(n²)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('변형: 모든 조각 회문 분할 수, 최장 회문 부분수열=LCS(s,역s). 회문트리·매내처로 가속', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_stirling', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('스털링·벨 수 — 집합을 그룹으로 나누는 가짓수', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('S(n,k)=n개를 비지 않은 k그룹으로 나누기. 벨 수 B(n)=Σ_k S(n,k)(모든 분할)', W/2, H*0.10+22);
+      // partitions of {1,2,3} into groups
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('{1,2,3}의 분할 = 벨 수 B(3) = 5', W/2, H*0.30);
+      var parts=['{1,2,3}','{1,2}{3}','{1,3}{2}','{2,3}{1}','{1}{2}{3}'];
+      var ks=['k=1','k=2','k=2','k=2','k=3'];
+      var bx=W*0.5-(parts.length*92)/2, by=H*0.40;
+      parts.forEach(function(p,i){ var x=bx+i*92; ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.fillRect(x,by,84,40); ctx.strokeRect(x,by,84,40); ctx.fillStyle='#dfeefb'; ctx.font='11px monospace'; ctx.fillText(p,x+42,by+18); ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText(ks[i],x+42,by+33); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('S(3,1)=1, S(3,2)=3, S(3,3)=1  →  B(3)=1+3+1=5', W/2, H*0.62);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('점화: S(n,k) = k·S(n−1,k) + S(n−1,k−1)', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('새 원소를 기존 k그룹 중 하나(k가지)에 넣거나, 혼자 새 그룹(k−1→k). 제2종 스털링', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('제1종 스털링=순열의 사이클 수 분포. 벨=종/EGF e^(e^x−1). 카탈란·이항과 함께 조합 기둥', W/2, H*0.84+20); }
   }
 
   ];
