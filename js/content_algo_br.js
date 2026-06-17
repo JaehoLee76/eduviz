@@ -3248,6 +3248,105 @@
       ctx.fillText('"활성점 + 남은 개수 + 전역 끝" 규칙으로 각 글자 분할상환 O(1) → 전체 O(n)', W/2, H*0.91);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('부분문자열 검색·최장 반복·여러 문자열 LCS. 접미사 배열+LCP가 더 단순한 대안', W/2, H*0.91+18); }
+  },
+
+  { id:'algo_br_offdyncon', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('오프라인 동적 연결성 — 시간 축에 세그트리', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('간선이 생겼다 사라지는 그래프의 연결성을, 롤백 union-find + 시간 구간으로', W/2, H*0.10+22);
+      // time axis with edge life intervals mapped onto a segment tree
+      var ax=W*0.12, bx2=W*0.88, ty=H*0.34; ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(ax,ty); ctx.lineTo(bx2,ty); ctx.stroke();
+      ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; for(var t=0;t<=8;t++){ var x=ax+t/8*(bx2-ax); ctx.fillText(t,x,ty+16); }
+      // edge intervals
+      var iv=[[1,5,'간선 e1','#7ab8ff'],[2,4,'e2','#8fe3b5'],[5,8,'e3','#ffb27a']];
+      iv.forEach(function(v,i){ var x1=ax+v[0]/8*(bx2-ax), x2=ax+v[1]/8*(bx2-ax), y=ty-24-i*22;
+        ctx.strokeStyle=v[3]; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+        ctx.fillStyle=v[3]; ctx.font='11px sans-serif'; ctx.fillText(v[2],x1+(x2-x1)/2,y-6); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 간선의 "존재 구간 [생성, 삭제)"를 시간 세그먼트 트리의 O(log) 노드에 등록', W/2, H*0.62);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('세그트리를 DFS: 노드 진입 시 그 간선들 union(롤백 가능, 경로압축 X·랭크만), 나갈 때 되돌리기', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('잎(시각 t)에 도달하면 그 순간 연결성 질의에 답 → 전체 O((n+q) log n · α)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('삭제가 어려운 union-find를, "삭제=구간 끝"으로 바꿔 롤백만으로 처리. 오프라인(질의 미리 앎) 전제', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_bcc', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('이중연결성분(BCC) — 단절점으로 안 끊기는 덩어리', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 정점/간선을 없애도 여전히 연결인 부분. 단절점·다리로 그래프를 블록으로 분해', W/2, H*0.10+22);
+      // two blocks joined by an articulation point
+      var N={a:[0.20,0.40],b:[0.34,0.62],c:[0.20,0.74],ap:[0.50,0.52],d:[0.66,0.36],e:[0.80,0.60],f:[0.66,0.78]};
+      var blockL=[['a','b'],['b','c'],['c','a'],['a','ap'],['b','ap']];
+      var blockR=[['ap','d'],['d','e'],['e','f'],['f','ap'],['d','f']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.22+t[1]*H*0.56]; }
+      blockL.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      blockR.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(143,227,181,0.5)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var ap=(k==='ap');
+        ctx.fillStyle=ap?'rgba(255,141,141,0.3)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=ap?'#ff8d8d':'#7ab8ff'; ctx.lineWidth=ap?3:2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],ap?16:13,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        if(ap){ ctx.fillStyle='#ff8d8d'; ctx.font='600 11px sans-serif'; ctx.fillText('단절점',p[0],p[1]-24); } });
+      ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.fillText('블록 1', W*0.24, H*0.86); ctx.fillStyle='#8fe3b5'; ctx.fillText('블록 2', W*0.70, H*0.86);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('단절점(제거 시 분리되는 정점)을 공유하는 두 이중연결 블록', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('DFS의 low-link로 단절점·다리 탐지(low[v] ≥ disc[u]면 u가 단절점). 블록컷 트리로 응용', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_mergesorttree', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('머지 소트 트리 — 각 노드에 정렬된 구간 보관', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('세그먼트 트리 노드마다 그 구간을 "정렬해" 들고 있어, 구간 안 X 이하 개수를 O(log²n)에', W/2, H*0.10+22);
+      // segment tree nodes showing sorted lists
+      var nodes=[[0.5,0.30,'[1 2 3 5 8 9]'],[0.27,0.54,'[2 5 8]'],[0.73,0.54,'[1 3 9]'],[0.16,0.78,'[5 8]'],[0.38,0.78,'[2]']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.24+t[1]*H*0.5]; }
+      var edges=[[0,1],[0,2],[1,3],[1,4]];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      nodes.forEach(function(n,i){ var p=xy(n);
+        ctx.fillStyle=i===0?'rgba(255,178,122,0.18)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=i===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        var w=n[2].length*7+12; ctx.fillRect(p[0]-w/2,p[1]-13,w,26); ctx.strokeRect(p[0]-w/2,p[1]-13,w,26);
+        ctx.fillStyle='#dfeefb'; ctx.font='11px monospace'; ctx.fillText(n[2],p[0],p[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('질의 [l,r]에 X 이하 개수: 구간을 덮는 O(log n) 노드 각각에서 이분 탐색(upper_bound)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('노드당 정렬 리스트라 이분 탐색 O(log n) → 질의 O(log² n). 구축 O(n log n)·공간 O(n log n)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('구간 k번째·등수·X이하 개수. 분할비(fractional cascading)로 O(log n)까지. 웨이블릿·Mo의 대안', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_sternbrocot', concept:true, branchOf:'algo4_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Stern-Brocot 트리 — 모든 기약분수의 이진 탐색', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('0/1과 1/0 사이를 중간값(mediant)으로 갈라, 모든 기약분수를 딱 한 번씩 만드는 트리', W/2, H*0.10+22);
+      // tree of fractions
+      var nodes=[[0.5,0.28,'1/1'],[0.28,0.50,'1/2'],[0.72,0.50,'2/1'],[0.16,0.72,'1/3'],[0.40,0.72,'2/3'],[0.60,0.72,'3/2'],[0.84,0.72,'3/1']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.24+t[1]*H*0.5]; }
+      var edges=[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      nodes.forEach(function(n,i){ var p=xy(n);
+        ctx.fillStyle=i===0?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=i===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],17,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(n[2],p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif';
+      ctx.fillText('중간값(mediant): a/b 와 c/d 사이 = (a+c)/(b+d)', W/2, H*0.78);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('1/2 와 2/1 사이 → (1+2)/(2+1)=3/3? 아니 부모 1/1. 좌우 이웃의 중간값이 자식', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('각 기약분수가 정확히 한 번 등장. L/R 경로 = 연분수. 분모 제한 근사·유리수 이분탐색에 사용', W/2, H*0.86+20); }
   }
 
   ];

@@ -2323,5 +2323,65 @@
     "q_en": "Of Ukkonen's three devices for building a suffix tree in O(n), which avoids descending from the root each time?",
     "sol_en": "<b>Suffix links</b>: if an internal node represents string xα, it has a shortcut pointer to the node for α. After processing one suffix, you <b>jump</b> via this link to the next (one-shorter) suffix's location instead of re-searching from the root, giving amortized O(1)."
    }
+  },
+  "algo_br_offdyncon": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.5 균형 트리 ▸ 자세히",
+   "title": "오프라인 동적 연결성 — 시간 축 세그트리 + 롤백 DSU",
+   "narr": "union-find는 합치기는 잘하지만 <b>간선 삭제</b>가 어렵습니다. 간선이 생겼다 사라지는 그래프의 연결성 질의를, \"<b>삭제 = 존재 구간의 끝</b>\"으로 바꿔 <b>롤백 union-find + 시간 세그먼트 트리</b>로 한 번에 처리합니다.",
+   "hint": "",
+   "more": "<b>오프라인 동적 연결성(offline dynamic connectivity)</b>은 간선이 시점마다 <b>추가/삭제</b>되는 그래프에서 \"지금 u와 v가 연결됐나?\" 류 질의를, 모든 연산을 <b>미리 알 때(오프라인)</b> 효율적으로 답하는 기법입니다. union-find는 union·find는 거의 O(1)(역아커만 α)이지만 <b>삭제(간선 끊기)</b>가 본질적으로 어렵습니다. 핵심 아이디어: 각 간선의 <b>존재 구간 [생성 시각, 삭제 시각)</b>을 <b>시간 축 위의 세그먼트 트리</b>에 올려, 그 구간을 덮는 O(log T)개 노드에 \"이 간선이 살아있음\"으로 등록합니다. 그다음 시간 세그먼트 트리를 <b>DFS로 순회</b>: 한 노드에 들어갈 때 그 노드에 달린 간선들을 <b>union</b>하고, 잎(특정 시각 t)에 도달하면 그 순간의 연결성 질의에 답하고, 노드를 <b>나갈 때 union을 되돌립니다(rollback)</b>. 되돌리기가 가능하려면 <b>경로 압축을 쓰지 않고 union by rank/size만</b> 쓰는 <b>롤백 union-find</b>가 필요합니다(각 union이 바꾼 부모·랭크를 스택에 저장해 역순 복원, find는 O(log n)). 그러면 각 간선이 O(log T)개 노드에 등록되고 각 union이 O(log n)이라 전체 <b>O((n+q) log n log T)</b> 정도. 같은 틀로 \"각 시점의 연결성분 수·MST 가중치 합·이분 그래프 여부\" 등도 답합니다. \"삭제를 직접 하지 말고, 시간 구간으로 바꿔 롤백만 한다\"가 핵심입니다.",
+   "more_en": "<b>Offline dynamic connectivity</b> answers \"are u and v connected now?\" queries on a graph whose edges are <b>added/removed</b> over time, efficiently when all operations are <b>known in advance (offline)</b>. Union-find does union/find in near-O(1) (inverse-Ackermann α) but <b>deletion (cutting an edge) is inherently hard</b>. Key idea: place each edge's <b>existence interval [add time, remove time)</b> onto a <b>segment tree over time</b>, registering \"this edge is alive\" at the O(log T) nodes covering that interval. Then <b>DFS the time segment tree</b>: on entering a node <b>union</b> its edges, on reaching a leaf (a specific time t) answer that moment's connectivity query, and on leaving a node <b>roll back</b> the unions. Rollback requires a <b>rollback union-find</b> using <b>union by rank/size only, no path compression</b> (push each union's changed parent/rank to a stack and undo in reverse; find is O(log n)). Each edge sits in O(log T) nodes and each union is O(log n), giving about <b>O((n+q) log n log T)</b>. The same framework answers \"number of components / MST weight / bipartiteness at each time.\" The crux: don't delete directly — convert deletion into a time interval and only roll back.",
+   "problem": {
+    "q": "오프라인 동적 연결성에서 union-find에 '경로 압축'을 쓰지 않는 이유는?",
+    "solution": "세그먼트 트리 DFS에서 노드를 나갈 때 union을 <b>정확히 되돌려야(rollback)</b> 하는데, 경로 압축은 find 중 트리 구조를 광범위하게 바꿔 되돌리기가 어렵습니다. <b>union by rank/size만</b> 쓰면 각 union이 바꾼 것(부모 1개·랭크)만 스택에 저장해 역순 복원할 수 있어, find는 O(log n)이 되지만 롤백이 가능합니다.",
+    "q_en": "Why does offline dynamic connectivity avoid 'path compression' in its union-find?",
+    "sol_en": "The segment-tree DFS must <b>exactly roll back</b> unions when leaving a node, but path compression rewrites the tree broadly during find, making undo hard. Using <b>only union by rank/size</b>, each union changes just one parent and a rank, which can be pushed to a stack and undone in reverse — find becomes O(log n) but rollback is possible."
+   }
+  },
+  "algo_br_bcc": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "이중연결성분(BCC) — 단절점·다리로 분해",
+   "narr": "네트워크에서 \"한 곳만 고장 나도 끊기는 약한 지점\"이 어디일까요? <b>단절점(articulation point)</b>과 <b>다리(bridge)</b>입니다. 이를 없애도 끊기지 않는 덩어리가 <b>이중연결성분(BCC)</b>이며, DFS의 low-link 한 번으로 모두 찾습니다.",
+   "hint": "",
+   "more": "<b>이중연결성분(Biconnected Component, BCC)</b>은 무방향 그래프에서 \"<b>어떤 정점 하나를 제거해도 여전히 연결</b>인\" 극대 부분그래프입니다. 관련 개념: <b>단절점(articulation point)</b> = 제거하면 연결성분이 늘어나는 정점, <b>다리(bridge)</b> = 제거하면 연결성분이 늘어나는 간선. 이 셋은 하나의 <b>DFS + low-link</b>로 한 번에 찾습니다. DFS 트리에서 각 정점 u에 <b>disc[u]</b>(처음 방문 순서)와 <b>low[u]</b>(u의 서브트리에서 역방향 간선으로 닿을 수 있는 가장 이른 disc)를 계산합니다. 판정: 자식 v에 대해 <b>low[v] ≥ disc[u]</b>이면 u는 <b>단절점</b>(루트는 자식이 둘 이상일 때), <b>low[v] > disc[u]</b>이면 간선 (u,v)는 <b>다리</b>입니다. 직관: low[v]가 u보다 이르게 못 올라가면, v의 서브트리는 u를 거치지 않고는 위로 못 가므로 u가 끊어지는 길목. BCC 자체는 DFS 중 간선을 <b>스택</b>에 쌓다가 단절점 조건을 만나면 한 성분으로 묶어 추출합니다. 응용: <b>블록컷 트리(block-cut tree)</b>(BCC와 단절점을 정점으로 한 트리)로 \"두 정점 사이 모든 경로가 반드시 지나는 정점\" 등을 트리 문제로 환원, 네트워크 신뢰도(약점 식별), 2-에지-연결성. 강연결요소(SCC)의 무방향·\"정점/간선 제거\" 버전으로 이해하면 좋습니다.",
+   "more_en": "A <b>Biconnected Component (BCC)</b> is a maximal subgraph of an undirected graph that <b>stays connected even after removing any single vertex</b>. Related: an <b>articulation point</b> is a vertex whose removal increases the number of components; a <b>bridge</b> is such an edge. All three are found in one <b>DFS + low-link</b> pass. In the DFS tree, compute for each vertex u its <b>disc[u]</b> (first-visit order) and <b>low[u]</b> (earliest disc reachable from u's subtree via a back edge). Tests: for a child v, <b>low[v] ≥ disc[u]</b> makes u an <b>articulation point</b> (the root needs ≥2 children), and <b>low[v] > disc[u]</b> makes edge (u,v) a <b>bridge</b>. Intuition: if low[v] can't climb earlier than u, v's subtree can't reach above without going through u — a chokepoint. The BCCs themselves are extracted by pushing edges onto a <b>stack</b> during DFS and popping a component when the articulation condition is met. Applications: the <b>block-cut tree</b> (a tree of BCCs and articulation points) reduces \"vertices every path between two nodes must pass\" to a tree problem; network reliability (finding weak points); 2-edge-connectivity. Think of it as the undirected, \"remove a vertex/edge\" analogue of strongly connected components.",
+   "problem": {
+    "q": "DFS에서 정점 u가 단절점인지 low-link로 어떻게 판정하나?",
+    "solution": "DFS 트리에서 u의 자식 v에 대해 <b>low[v] ≥ disc[u]</b>이면 u는 단절점입니다(루트는 예외로 자식이 둘 이상일 때). low[v]는 v의 서브트리가 역간선으로 닿는 가장 이른 정점인데, 그게 u보다 위로 못 가면 v의 서브트리는 <b>u를 거쳐야만</b> 나머지와 연결되므로 u를 빼면 끊깁니다.",
+    "q_en": "How does low-link decide whether vertex u is an articulation point in DFS?",
+    "sol_en": "For a child v of u in the DFS tree, <b>low[v] ≥ disc[u]</b> makes u an articulation point (the root is special: needs ≥2 children). low[v] is the earliest vertex v's subtree reaches via back edges; if it can't go above u, v's subtree connects to the rest <b>only through u</b>, so removing u disconnects it."
+   }
+  },
+  "algo_br_mergesorttree": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+   "title": "머지 소트 트리 — 노드마다 정렬된 구간",
+   "narr": "\"구간 [l,r] 안에 X 이하인 값이 몇 개?\"를 빠르게 답하려면? <b>머지 소트 트리</b>는 세그먼트 트리의 <b>각 노드에 그 구간을 정렬해</b> 저장해 두고, 질의 시 노드마다 이분 탐색으로 세어 <b>O(log² n)</b>에 답합니다.",
+   "hint": "",
+   "more": "<b>머지 소트 트리(Merge Sort Tree)</b>는 <b>세그먼트 트리</b>의 각 노드에 \"그 노드가 담당하는 구간의 원소들을 <b>정렬한 리스트</b>\"를 저장한 자료구조입니다. 이름처럼, 잎(원소 하나)에서 위로 올라가며 두 자식의 정렬 리스트를 <b>병합(merge)</b>해 부모 리스트를 만들면 구축됩니다 — 머지 소트의 병합 과정 그 자체이며, 각 층 O(n)·총 O(log n)층이라 <b>구축 O(n log n)</b>, 공간 O(n log n). <b>질의 \"구간 [l,r]에서 X 이하 원소 개수\"</b>: 일반 세그먼트 트리처럼 [l,r]을 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 정렬 리스트에서 <b>이분 탐색(upper_bound)</b>으로 \"X 이하 개수\"를 O(log n)에 세어 합칩니다 → 질의 <b>O(log² n)</b>. 같은 방식으로 <b>구간 k번째로 작은 값</b>(개수에 대한 이분 탐색을 더해 O(log³ n), 또는 persistent/wavelet로 개선), 구간 등수·빈도도 답합니다. <b>분할비 캐스케이딩(fractional cascading)</b>을 적용하면 한 노드에서 다음 노드의 이분 탐색 위치를 물려받아 질의를 <b>O(log n)</b>으로 줄일 수 있습니다. 단점: 정적(갱신은 비쌈)과 공간 O(n log n). <b>웨이블릿 트리·영속 세그먼트 트리·Mo's</b>가 푸는 구간 통계 문제의 단순하고 직관적인 대안입니다.",
+   "more_en": "A <b>Merge Sort Tree</b> stores, at each node of a <b>segment tree</b>, the <b>sorted list of the elements</b> in that node's range. As the name suggests, it is built by <b>merging</b> the two children's sorted lists into the parent's — exactly merge sort's merge step — with O(n) per level and O(log n) levels, so <b>build is O(n log n)</b> and space O(n log n). To <b>query \"count of elements ≤ X in range [l,r]\"</b>: decompose [l,r] into <b>O(log n) nodes</b> as in a segment tree, and at each node binary-search (<b>upper_bound</b>) its sorted list for \"how many ≤ X\" in O(log n), summing them → query <b>O(log² n)</b>. The same way answers <b>k-th smallest in a range</b> (add a binary search over the count, O(log³ n), or improve with persistent/wavelet), and range rank/frequency. With <b>fractional cascading</b>, each node inherits the next node's binary-search position, cutting queries to <b>O(log n)</b>. Drawbacks: static (updates are costly) and O(n log n) space. It is a simple, intuitive alternative to wavelet trees, persistent segment trees, and Mo's for range-statistics problems.",
+   "problem": {
+    "q": "머지 소트 트리에서 '구간 [l,r]에 X 이하 개수' 질의가 O(log² n)인 이유는?",
+    "solution": "구간 [l,r]을 덮는 노드가 <b>O(log n)개</b>이고, 각 노드의 <b>정렬 리스트에서 이분 탐색(upper_bound)</b>으로 X 이하 개수를 O(log n)에 셉니다. 두 로그 인자가 곱해져 <b>O(log² n)</b>입니다(분할비 캐스케이딩으로 O(log n)까지 가능).",
+    "q_en": "Why is a 'count ≤ X in range [l,r]' query O(log² n) in a merge sort tree?",
+    "sol_en": "The range [l,r] is covered by <b>O(log n) nodes</b>, and at each node a <b>binary search (upper_bound) over its sorted list</b> counts elements ≤ X in O(log n). The two log factors multiply to <b>O(log² n)</b> (reducible to O(log n) with fractional cascading)."
+   }
+  },
+  "algo_br_sternbrocot": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.2 이분 탐색 ▸ 자세히",
+   "title": "Stern-Brocot 트리 — 모든 기약분수의 이진 탐색",
+   "narr": "모든 양의 <b>기약분수</b>를 중복·누락 없이 딱 한 번씩 나열할 수 있을까요? <b>Stern-Brocot 트리</b>는 0/1과 1/0 사이를 <b>중간값(mediant)</b>으로 갈라, 모든 기약분수를 정확히 한 번씩 만드는 이진 탐색 트리를 이룹니다.",
+   "hint": "",
+   "more": "<b>Stern-Brocot 트리</b>는 모든 양의 <b>기약분수(약분된 분수)</b>를 <b>정확히 한 번씩</b> 담는 무한 이진 탐색 트리입니다. 경계 <b>0/1</b>(=0)과 <b>1/0</b>(=∞)에서 시작해, 인접한 두 분수 a/b와 c/d 사이에 <b>중간값(mediant) (a+c)/(b+d)</b>를 끼워 넣기를 반복합니다. 놀라운 성질: ① 이렇게 생기는 모든 분수는 <b>자동으로 기약</b>(gcd=1)이고, ② <b>모든</b> 기약분수가 트리에 정확히 한 번 나타나며, ③ 트리는 <b>값 순서로 정렬</b>된 BST(왼쪽<부모<오른쪽)입니다(중간값은 두 이웃 사이 값). 루트는 1/1이고, 어떤 분수 x로 가는 <b>L(왼쪽)/R(오른쪽) 경로</b>는 x의 <b>연분수 전개</b>와 대응합니다. 활용: ① <b>유리수 이분 탐색</b> — 미지의 분수를 \"크다/작다\" 비교만으로 좁혀 가며 찾기(분모 한정 최적 근사), ② 실수의 <b>분모 ≤ N 최선 유리수 근사</b>(Stern-Brocot 하강을 연분수로 빠르게), ③ 기약분수 열거. 비슷한 <b>패리 수열(Farey sequence)</b>은 분모 ≤ N인 기약분수를 값 순으로 나열한 것으로, 역시 중간값 성질을 공유합니다. \"분수의 이진 탐색 우주\"라 부를 만한 우아한 구조입니다.",
+   "more_en": "The <b>Stern-Brocot tree</b> is an infinite binary search tree containing every positive <b>reduced fraction exactly once</b>. Starting from the boundaries <b>0/1</b> (=0) and <b>1/0</b> (=∞), repeatedly insert the <b>mediant (a+c)/(b+d)</b> between adjacent fractions a/b and c/d. Remarkable properties: ① every fraction so produced is <b>automatically reduced</b> (gcd=1); ② <b>every</b> reduced fraction appears exactly once; ③ the tree is a BST <b>sorted by value</b> (left<parent<right), since a mediant lies between its neighbors. The root is 1/1, and the <b>L/R path</b> to a fraction x corresponds to x's <b>continued-fraction expansion</b>. Uses: ① <b>binary search over rationals</b> — narrow down an unknown fraction with only \"greater/less\" comparisons (best bounded-denominator approximation); ② <b>best rational approximation with denominator ≤ N</b> (fast Stern-Brocot descent via continued fractions); ③ enumerating reduced fractions. The related <b>Farey sequence</b> lists reduced fractions with denominator ≤ N in value order and shares the mediant property. An elegant \"binary-search universe of fractions.\"",
+   "problem": {
+    "q": "Stern-Brocot 트리에서 중간값 (a+c)/(b+d)로 만든 분수가 항상 기약인 직관은?",
+    "solution": "인접한 두 분수 a/b, c/d는 트리 구성상 항상 <b>bc − ad = 1</b>(또는 −1)을 만족합니다. 중간값 (a+c)/(b+d)도 양 이웃과 같은 관계를 유지하는데, bc−ad=±1이면 a+c와 b+d의 <b>공약수가 1</b>일 수밖에 없습니다(공약수가 분자·분모를 나누면 행렬식 ±1을 나눠야 하므로). 그래서 자동으로 기약입니다.",
+    "q_en": "What's the intuition that a mediant (a+c)/(b+d) in the Stern-Brocot tree is always reduced?",
+    "sol_en": "Adjacent fractions a/b, c/d always satisfy <b>bc − ad = 1</b> (or −1) by construction. The mediant (a+c)/(b+d) preserves this with each neighbor, and bc−ad=±1 forces <b>gcd(a+c, b+d)=1</b> (any common divisor would divide the determinant ±1). So it is automatically reduced."
+   }
   }
 }
