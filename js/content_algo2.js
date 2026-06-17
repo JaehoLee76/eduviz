@@ -71,7 +71,7 @@
         if(rear && n>1) AV.pointer(E, x+bw/2, y+bw+4, 'rear', '#8fe3b5'); }
       ctx.fillStyle='#f4a0c0'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('◀ 왼쪽 눌러 dequeue (앞에서 빼기)', E.W*0.28, E.H*0.66);
       ctx.fillStyle='#8fe3b5'; ctx.fillText('오른쪽 눌러 enqueue (뒤에 넣기) ▶', E.W*0.72, E.H*0.66);
-      E.big('큐 (Queue) — FIFO', '먼저 넣은 게 먼저 나옵니다(First In First Out). 줄 서기·프린터 대기열·그래프 BFS(6장 예고)'); }
+      E.big('큐 (Queue) — FIFO', '먼저 넣은 게 먼저 나옵니다(First In First Out). 줄 서기·프린터 대기열·그래프 BFS(곧 배웁니다)'); }
   },
 
   // ══════════ 2.4 해시 테이블 — O(1) 조회 ══════════

@@ -97,7 +97,7 @@
         if(i===0||j===0){ dp[i][j]=1; cnt++; st.push({line:3, cap:'가장자리 ('+i+','+j+') = 1 (외길).', R:R,C:C,dp:copy(),cnt:cnt,cur:[i,j]}); }
         else { dp[i][j]=dp[i-1][j]+dp[i][j-1]; cnt++; st.push({line:5, cap:'('+i+','+j+') = 위('+dp[i-1][j]+') + 왼쪽('+dp[i][j-1]+') = <b>'+dp[i][j]+'</b>', R:R,C:C,dp:copy(),cnt:cnt,cur:[i,j],add:[[i-1,j],[i,j-1]]}); }
       }
-      st.push({line:6, cap:'<b>총 경로 수 = '+dp[R-1][C-1]+'!</b> (사실 조합 = 수학 15장 파스칼)', R:R,C:C,dp:copy(),cnt:R*C,done:true});
+      st.push({line:6, cap:'<b>총 경로 수 = '+dp[R-1][C-1]+'!</b> (사실 조합 = 파스칼 삼각형)', R:R,C:C,dp:copy(),cnt:R*C,done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx, R=f.R,C=f.C, cell=Math.min(78,V.H*0.16), x0=V.W/2-C*cell/2, y0=V.H*0.24;
       ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';

@@ -20,8 +20,8 @@
     "title": "그래프 저장하기 — 리스트 vs 행렬",
     "narr": "그래프를 컴퓨터에 어떻게 담을까요? 두 방법이 있습니다. <b>인접 리스트</b>는 각 정점마다 \"내 이웃 목록\"을 들고, <b>인접 행렬</b>은 n×n 표에 연결 여부를 0/1로 적습니다. 정점을 선택해 그 이웃을 보세요.",
     "hint": "정점을 선택해 이웃 목록을 보세요",
-    "more": "두 가지 표현 — <b>인접 리스트(adjacency list)</b>: 정점마다 이웃들의 목록. 공간 <b>O(V+E)</b>로 효율적이고 \"이웃 순회\"가 빠름 → <b>희소 그래프</b>(간선이 적음, 대부분의 실제 그래프)에 적합. <b>인접 행렬(adjacency matrix)</b>: V×V 표에 연결을 0/1(또는 가중치)로. 공간 <b>O(V²)</b>지만 \"두 정점이 연결됐나?\"를 O(1)에 확인 → <b>조밀 그래프</b>나 빠른 간선 조회에 적합. SNS·도로망처럼 간선이 정점 수에 비례하면 리스트가 압도적으로 효율적입니다. 표현을 정했으니, 이제 그래프를 <b>훑는 두 가지 방법</b>(BFS·DFS)으로 갑니다 — 트리 순회(5장)의 일반화입니다.",
-    "more_en": "Two representations — <b>adjacency list</b>: each vertex keeps a list of its neighbors. Space <b>O(V+E)</b>, efficient, with fast neighbor iteration → best for <b>sparse graphs</b> (few edges, like most real graphs). <b>adjacency matrix</b>: a V×V table with 0/1 (or weights). Space <b>O(V²)</b> but checks \"are two vertices connected?\" in O(1) → best for <b>dense graphs</b> or fast edge queries. When edges scale with vertices (social networks, road maps), the list is far more efficient. With a representation chosen, we now explore the graph via <b>two traversals</b> (BFS, DFS) — a generalization of tree traversal (Ch.5).",
+    "more": "두 가지 표현 — <b>인접 리스트(adjacency list)</b>: 정점마다 이웃들의 목록. 공간 <b>O(V+E)</b>로 효율적이고 \"이웃 순회\"가 빠름 → <b>희소 그래프</b>(간선이 적음, 대부분의 실제 그래프)에 적합. <b>인접 행렬(adjacency matrix)</b>: V×V 표에 연결을 0/1(또는 가중치)로. 공간 <b>O(V²)</b>지만 \"두 정점이 연결됐나?\"를 O(1)에 확인 → <b>조밀 그래프</b>나 빠른 간선 조회에 적합. SNS·도로망처럼 간선이 정점 수에 비례하면 리스트가 압도적으로 효율적입니다. 표현을 정했으니, 이제 그래프를 <b>훑는 두 가지 방법</b>(BFS·DFS)으로 갑니다 — 트리 순회의 일반화입니다.",
+    "more_en": "Two representations — <b>adjacency list</b>: each vertex keeps a list of its neighbors. Space <b>O(V+E)</b>, efficient, with fast neighbor iteration → best for <b>sparse graphs</b> (few edges, like most real graphs). <b>adjacency matrix</b>: a V×V table with 0/1 (or weights). Space <b>O(V²)</b> but checks \"are two vertices connected?\" in O(1) → best for <b>dense graphs</b> or fast edge queries. When edges scale with vertices (social networks, road maps), the list is far more efficient. With a representation chosen, we now explore the graph via <b>two traversals</b> (BFS, DFS) — a generalization of tree traversal.",
     "problem": {
       "q": "간선이 적은 희소 그래프엔 어떤 표현이 공간 효율적인가?",
       "solution": "<b>인접 리스트</b> (O(V+E)). 인접 행렬은 O(V²)로 빈 칸이 많아 낭비.",
@@ -33,10 +33,10 @@
     "ch": "알고리즘 제6장 그래프",
     "sec": "6.2 그래프 탐색",
     "title": "BFS — 가까운 곳부터 물결처럼",
-    "narr": "그래프를 탐색하는 첫 방법, <b>너비 우선 탐색(BFS)</b>! 출발점에서 <b>가까운 곳부터 물결처럼</b> 한 겹씩 퍼져나갑니다. 비결은 <b>큐(2장)</b> — 먼저 발견한 정점을 먼저 방문! 화면을 눌러 큐에서 꺼내 방문하세요.",
+    "narr": "그래프를 탐색하는 첫 방법, <b>너비 우선 탐색(BFS)</b>! 출발점에서 <b>가까운 곳부터 물결처럼</b> 한 겹씩 퍼져나갑니다. 비결은 <b>큐</b> — 먼저 발견한 정점을 먼저 방문! 화면을 눌러 큐에서 꺼내 방문하세요.",
     "hint": "▶ 눌러 큐에서 꺼내 방문",
-    "more": "<b>BFS(너비 우선 탐색)</b>는 출발 정점에서 <b>거리(간선 수)가 가까운 순서</b>로 방문합니다. 구현: <b>큐</b>에 출발점을 넣고, 꺼낸 정점의 미방문 이웃을 모두 큐에 넣기를 반복(2장 FIFO!). 한 겹(레벨)을 다 본 뒤 다음 겹으로 갑니다 = 트리의 레벨 순회(5장)를 그래프로 확장. 시간 <b>O(V+E)</b>. 핵심 응용: <b>가중치 없는 그래프의 최단 경로</b>(가장 적은 간선 수 — SNS의 \"몇 다리 건너\", 미로 최단 길), 연결 요소 찾기, 웹 크롤링. 같은 그래프, 같은 비용이지만 \"방문 순서\"가 DFS와 다릅니다(다음 장면) — 큐냐 스택이냐가 탐색의 성격을 가릅니다.",
-    "more_en": "<b>BFS (breadth-first search)</b> visits vertices in order of <b>distance (edge count)</b> from the start. Implementation: put the start in a <b>queue</b>, then repeatedly dequeue a vertex and enqueue all its unvisited neighbors (Ch.2 FIFO!). It finishes one layer before the next = tree level-order (Ch.5) extended to graphs. Time <b>O(V+E)</b>. Key uses: <b>shortest path in unweighted graphs</b> (fewest edges — \"degrees of separation,\" shortest maze path), finding connected components, web crawling. Same graph, same cost, but the \"visit order\" differs from DFS (next) — queue vs stack decides the character of the search.",
+    "more": "<b>BFS(너비 우선 탐색)</b>는 출발 정점에서 <b>거리(간선 수)가 가까운 순서</b>로 방문합니다. 구현: <b>큐</b>에 출발점을 넣고, 꺼낸 정점의 미방문 이웃을 모두 큐에 넣기를 반복(FIFO!). 한 겹(레벨)을 다 본 뒤 다음 겹으로 갑니다 = 트리의 레벨 순회를 그래프로 확장. 시간 <b>O(V+E)</b>. 핵심 응용: <b>가중치 없는 그래프의 최단 경로</b>(가장 적은 간선 수 — SNS의 \"몇 다리 건너\", 미로 최단 길), 연결 요소 찾기, 웹 크롤링. 같은 그래프, 같은 비용이지만 \"방문 순서\"가 DFS와 다릅니다(다음 장면) — 큐냐 스택이냐가 탐색의 성격을 가릅니다.",
+    "more_en": "<b>BFS (breadth-first search)</b> visits vertices in order of <b>distance (edge count)</b> from the start. Implementation: put the start in a <b>queue</b>, then repeatedly dequeue a vertex and enqueue all its unvisited neighbors (FIFO!). It finishes one layer before the next = tree level-order extended to graphs. Time <b>O(V+E)</b>. Key uses: <b>shortest path in unweighted graphs</b> (fewest edges — \"degrees of separation,\" shortest maze path), finding connected components, web crawling. Same graph, same cost, but the \"visit order\" differs from DFS (next) — queue vs stack decides the character of the search.",
     "problem": {
       "q": "BFS가 어떤 자료구조로 동작하며, 무엇을 잘 찾나?",
       "solution": "<b>큐</b>(FIFO). 가중치 없는 그래프의 <b>최단 경로(최소 간선 수)</b>를 찾습니다.",
@@ -48,10 +48,10 @@
     "ch": "알고리즘 제6장 그래프",
     "sec": "6.2 그래프 탐색",
     "title": "DFS — 한 길을 끝까지",
-    "narr": "두 번째 탐색, <b>깊이 우선 탐색(DFS)</b>! BFS와 반대로 <b>한 길을 끝까지 파고든 뒤</b> 막히면 되돌아와 다른 길을 갑니다. 비결은 <b>스택(2장)</b> 또는 재귀 — 가장 최근 발견을 먼저! 화면을 눌러 스택에서 꺼내 방문하세요.",
+    "narr": "두 번째 탐색, <b>깊이 우선 탐색(DFS)</b>! BFS와 반대로 <b>한 길을 끝까지 파고든 뒤</b> 막히면 되돌아와 다른 길을 갑니다. 비결은 <b>스택</b> 또는 재귀 — 가장 최근 발견을 먼저! 화면을 눌러 스택에서 꺼내 방문하세요.",
     "hint": "▶ 눌러 스택에서 꺼내 방문",
-    "more": "<b>DFS(깊이 우선 탐색)</b>는 <b>한 방향으로 갈 수 있는 데까지</b> 내려간 뒤, 막다른 길이면 <b>되돌아와(백트래킹)</b> 다른 가지를 탐색합니다. 구현: <b>스택</b>(또는 재귀 — 컴퓨터가 내부적으로 호출 스택 사용, 2장)으로 가장 최근 정점을 먼저. 시간 <b>O(V+E)</b>. 응용: <b>미로·퍼즐 풀기(백트래킹)</b>, <b>사이클 탐지</b>, <b>위상 정렬</b>(작업 순서), <b>연결 요소</b>, 트리 순회(5장의 전·중·후위가 바로 DFS!). BFS(큐, 넓게)와 DFS(스택, 깊게)는 그래프 탐색의 두 기둥이고, 거의 모든 그래프 알고리즘이 이 둘 위에 섭니다. 가중치가 있으면? 단순 BFS로는 부족해 — 다음의 다익스트라가 필요합니다.",
-    "more_en": "<b>DFS (depth-first search)</b> goes <b>as far as possible</b> down one path, then <b>backtracks</b> at dead ends to explore other branches. Implementation: a <b>stack</b> (or recursion — the computer's call stack, Ch.2), taking the most recent vertex first. Time <b>O(V+E)</b>. Uses: <b>solving mazes/puzzles (backtracking)</b>, <b>cycle detection</b>, <b>topological sort</b> (task ordering), <b>connected components</b>, and tree traversal (Ch.5's pre/in/post-order are DFS!). BFS (queue, wide) and DFS (stack, deep) are the two pillars of graph search, and nearly every graph algorithm builds on them. With weights? Plain BFS isn't enough — we need Dijkstra next.",
+    "more": "<b>DFS(깊이 우선 탐색)</b>는 <b>한 방향으로 갈 수 있는 데까지</b> 내려간 뒤, 막다른 길이면 <b>되돌아와(백트래킹)</b> 다른 가지를 탐색합니다. 구현: <b>스택</b>(또는 재귀 — 컴퓨터가 내부적으로 호출 스택 사용)으로 가장 최근 정점을 먼저. 시간 <b>O(V+E)</b>. 응용: <b>미로·퍼즐 풀기(백트래킹)</b>, <b>사이클 탐지</b>, <b>위상 정렬</b>(작업 순서), <b>연결 요소</b>, 트리 순회(전·중·후위가 바로 DFS!). BFS(큐, 넓게)와 DFS(스택, 깊게)는 그래프 탐색의 두 기둥이고, 거의 모든 그래프 알고리즘이 이 둘 위에 섭니다. 가중치가 있으면? 단순 BFS로는 부족해 — 다음의 다익스트라가 필요합니다.",
+    "more_en": "<b>DFS (depth-first search)</b> goes <b>as far as possible</b> down one path, then <b>backtracks</b> at dead ends to explore other branches. Implementation: a <b>stack</b> (or recursion — the computer's call stack), taking the most recent vertex first. Time <b>O(V+E)</b>. Uses: <b>solving mazes/puzzles (backtracking)</b>, <b>cycle detection</b>, <b>topological sort</b> (task ordering), <b>connected components</b>, and tree traversal (pre/in/post-order are DFS!). BFS (queue, wide) and DFS (stack, deep) are the two pillars of graph search, and nearly every graph algorithm builds on them. With weights? Plain BFS isn't enough — we need Dijkstra next.",
     "problem": {
       "q": "DFS가 사용하는 자료구조는? (또는 어떤 기법으로 구현?)",
       "solution": "<b>스택</b>(또는 재귀). 한 길을 끝까지 간 뒤 막히면 되돌아옵니다(백트래킹).",
@@ -65,13 +65,13 @@
     "title": "다익스트라 — 가장 빠른 길 찾기",
     "narr": "간선마다 <b>거리(가중치)</b>가 다르면? GPS가 최단 경로를 찾듯, <b>다익스트라 알고리즘</b>이 답입니다. <b>가장 가까운 정점부터 하나씩 확정</b>하며, 그 정점을 거쳐 더 가까워지는 이웃의 거리를 갱신(완화)합니다. 화면을 눌러 한 정점씩 확정하세요.",
     "hint": "▶ 눌러 가장 가까운 정점 확정",
-    "more": "<b>다익스트라(Dijkstra) 알고리즘</b>은 가중치가 모두 양수인 그래프에서 한 출발점으로부터 <b>모든 정점까지의 최단 거리</b>를 구합니다. 절차: ① 출발점 거리 0, 나머지 ∞ ② <b>미확정 정점 중 거리가 최소</b>인 것을 확정 ③ 그 정점의 이웃에 대해 \"더 짧은 길이 있으면 갱신\"(<b>완화, relaxation</b>) ④ 모두 확정될 때까지 반복. ②의 \"최소 거리 정점 빠르게 찾기\"에 <b>우선순위 큐(5장 힙!)</b>를 쓰면 <b>O(E log V)</b>. \"매 순간 가장 가까운 것을 확정\"하는 <b>그리디</b>(8장) 전략이고, 양수 가중치라 한 번 확정하면 안 바뀐다는 게 정당성의 핵심입니다. GPS 내비게이션, 네트워크 라우팅, 게임 길찾기(A*는 다익스트라의 발전형)가 모두 이것입니다. BFS는 \"간선 수\" 최단, 다익스트라는 \"가중치 합\" 최단 — 그래프 알고리즘의 정점입니다.",
-    "more_en": "<b>Dijkstra's algorithm</b> finds the <b>shortest distances from one source to all vertices</b> in a graph with non-negative weights. Steps: ① source distance 0, others ∞; ② <b>finalize the unfinalized vertex with the smallest distance</b>; ③ for its neighbors, update if a shorter path is found (<b>relaxation</b>); ④ repeat until all are finalized. Using a <b>priority queue (the heap of Ch.5!)</b> to find the minimum quickly gives <b>O(E log V)</b>. It is a <b>greedy</b> strategy (Ch.8) — \"finalize the nearest each step\" — and non-negative weights guarantee a finalized distance never changes. GPS navigation, network routing, and game pathfinding (A* is an extension of Dijkstra) all use it. BFS gives shortest by \"edge count,\" Dijkstra by \"weight sum\" — a pinnacle of graph algorithms.",
+    "more": "<b>다익스트라(Dijkstra) 알고리즘</b>은 가중치가 모두 양수인 그래프에서 한 출발점으로부터 <b>모든 정점까지의 최단 거리</b>를 구합니다. 절차: ① 출발점 거리 0, 나머지 ∞ ② <b>미확정 정점 중 거리가 최소</b>인 것을 확정 ③ 그 정점의 이웃에 대해 \"더 짧은 길이 있으면 갱신\"(<b>완화, relaxation</b>) ④ 모두 확정될 때까지 반복. ②의 \"최소 거리 정점 빠르게 찾기\"에 <b>우선순위 큐(힙!)</b>를 쓰면 <b>O(E log V)</b>. \"매 순간 가장 가까운 것을 확정\"하는 <b>그리디</b> 전략이고, 양수 가중치라 한 번 확정하면 안 바뀐다는 게 정당성의 핵심입니다. GPS 내비게이션, 네트워크 라우팅, 게임 길찾기(A*는 다익스트라의 발전형)가 모두 이것입니다. BFS는 \"간선 수\" 최단, 다익스트라는 \"가중치 합\" 최단 — 그래프 알고리즘의 정점입니다.",
+    "more_en": "<b>Dijkstra's algorithm</b> finds the <b>shortest distances from one source to all vertices</b> in a graph with non-negative weights. Steps: ① source distance 0, others ∞; ② <b>finalize the unfinalized vertex with the smallest distance</b>; ③ for its neighbors, update if a shorter path is found (<b>relaxation</b>); ④ repeat until all are finalized. Using a <b>priority queue (the heap of !)</b> to find the minimum quickly gives <b>O(E log V)</b>. It is a <b>greedy</b> strategy — \"finalize the nearest each step\" — and non-negative weights guarantee a finalized distance never changes. GPS navigation, network routing, and game pathfinding (A* is an extension of Dijkstra) all use it. BFS gives shortest by \"edge count,\" Dijkstra by \"weight sum\" — a pinnacle of graph algorithms.",
     "problem": {
       "q": "다익스트라가 빠른 최소 거리 정점 선택에 쓰는 자료구조는?",
-      "solution": "<b>우선순위 큐(힙, 5장)</b>. 가장 가까운 미확정 정점을 O(log V)에 꺼냅니다.",
+      "solution": "<b>우선순위 큐(힙)</b>. 가장 가까운 미확정 정점을 O(log V)에 꺼냅니다.",
       "q_en": "What data structure does Dijkstra use to pick the closest vertex quickly?",
-      "sol_en": "A <b>priority queue (heap, Ch.5)</b>, extracting the nearest unfinalized vertex in O(log V)."
+      "sol_en": "A <b>priority queue (heap)</b>, extracting the nearest unfinalized vertex in O(log V)."
     }
   }
 }

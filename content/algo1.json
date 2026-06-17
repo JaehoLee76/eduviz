@@ -20,8 +20,8 @@
   "title": "효율성 — 같은 답, 다른 비용",
   "narr": "같은 문제도 <b>푸는 방법에 따라 비용이 천차만별</b>입니다. 1부터 n까지 더하기: ① 하나씩 더하면 <b>n번</b> 계산, ② <b>가우스 공식 n(n+1)/2</b>면 단 <b>1번</b>! 답은 같은데 비용은 완전히 다릅니다. n을 키워보세요 — 차이가 벌어집니다.",
   "hint": "n을 키워 두 방법의 비용 차이를 보세요",
-  "more": "<b>효율성</b>은 알고리즘이 자원(시간·메모리)을 얼마나 쓰는지입니다. 1+2+…+n 을 — 반복문으로 하나씩 더하면 <b>n번 덧셈(O(n))</b>, <b>수학 13장의 가우스 합 공식 n(n+1)/2</b>를 쓰면 곱셈·덧셈·나눗셈 <b>딱 3번(O(1))</b>! n이 백만이면 백만 번 vs 3번 — 어마어마한 차이입니다. 핵심 통찰: <b>더 똑똑한 방법(수학·자료구조)이 반복을 없앤다</b>. 효율을 정확히 비교하려면 \"n이 커질 때\"의 행동을 봐야 하고, 그 언어가 다음의 <b>빅오 표기법</b>입니다.",
-  "more_en": "<b>Efficiency</b> is how much resource (time, memory) an algorithm uses. To compute 1+2+…+n: a loop adds one at a time — <b>n additions (O(n))</b> — while <b>Gauss's formula n(n+1)/2 (math Ch.13)</b> needs just <b>3 operations (O(1))</b>! For n = a million that's a million vs 3 — an enormous gap. Key insight: <b>a smarter method (math, data structures) eliminates the loop</b>. To compare efficiency precisely we study behavior \"as n grows,\" and that language is <b>Big-O notation</b>, next.",
+  "more": "<b>효율성</b>은 알고리즘이 자원(시간·메모리)을 얼마나 쓰는지입니다. 1+2+…+n 을 — 반복문으로 하나씩 더하면 <b>n번 덧셈(O(n))</b>, <b>가우스 합 공식 n(n+1)/2</b>를 쓰면 곱셈·덧셈·나눗셈 <b>딱 3번(O(1))</b>! n이 백만이면 백만 번 vs 3번 — 어마어마한 차이입니다. 핵심 통찰: <b>더 똑똑한 방법(수학·자료구조)이 반복을 없앤다</b>. 효율을 정확히 비교하려면 \"n이 커질 때\"의 행동을 봐야 하고, 그 언어가 다음의 <b>빅오 표기법</b>입니다.",
+  "more_en": "<b>Efficiency</b> is how much resource (time, memory) an algorithm uses. To compute 1+2+…+n: a loop adds one at a time — <b>n additions (O(n))</b> — while <b>Gauss's formula n(n+1)/2 </b> needs just <b>3 operations (O(1))</b>! For n = a million that's a million vs 3 — an enormous gap. Key insight: <b>a smarter method (math, data structures) eliminates the loop</b>. To compare efficiency precisely we study behavior \"as n grows,\" and that language is <b>Big-O notation</b>, next.",
   "problem": {
    "q": "1부터 1000까지의 합을 가우스 공식으로 구하면 계산은 몇 번?",
    "solution": "1000·1001/2 — 곱·합·나눗셈 약 <b>3번(O(1))</b>. (반복은 1000번 = O(n))",
@@ -35,8 +35,8 @@
   "title": "빅오 표기법 — 성장의 속도",
   "narr": "알고리즘의 효율을 <b>한 가지 언어</b>로 말하는 게 <b>빅오(Big-O)</b>입니다. 입력 n이 커질 때 <b>계산량이 자라는 속도</b>를 나타냅니다. O(1)은 평평하고, O(n)은 직선, O(n²)은 가파른 포물선! 곡선의 기울기가 곧 좋고 나쁨입니다.",
   "hint": "곡선이 가파를수록 느린 알고리즘",
-  "more": "<b>빅오 표기법 O(·)</b>는 입력 크기 n에 따른 <b>계산량의 성장률</b>을 나타냅니다(상수·낮은 차수는 무시 — 큰 그림만!). 빠른 순서: <b>O(1)</b>(상수, n과 무관) < <b>O(log n)</b>(로그, 7장) < <b>O(n)</b>(선형) < <b>O(n log n)</b> < <b>O(n²)</b>(제곱, 5장 포물선) < <b>O(2ⁿ)</b>(지수, 7장). n이 작을 땐 다 비슷해도, n이 커지면 <b>차이가 폭발</b>합니다(O(n²)는 n=1000에서 백만 번!). 그래서 알고리즘을 고를 땐 \"최악의 경우 n이 커지면?\"을 봅니다. 수학의 함수 성장(5·7장)이 그대로 복잡도가 된 것입니다.",
-  "more_en": "<b>Big-O notation O(·)</b> expresses the <b>growth rate</b> of computation as input size n grows (ignoring constants and lower-order terms — the big picture!). Fastest to slowest: <b>O(1)</b> (constant) < <b>O(log n)</b> (logarithmic, Ch.7) < <b>O(n)</b> (linear) < <b>O(n log n)</b> < <b>O(n²)</b> (quadratic, the parabola of math Ch.5) < <b>O(2ⁿ)</b> (exponential, Ch.7). For small n they look alike, but as n grows the <b>differences explode</b> (O(n²) is a million at n=1000!). So we judge algorithms by \"what happens as n grows, worst case?\" Math's function growth (Ch.5/7) becomes complexity directly.",
+  "more": "<b>빅오 표기법 O(·)</b>는 입력 크기 n에 따른 <b>계산량의 성장률</b>을 나타냅니다(상수·낮은 차수는 무시 — 큰 그림만!). 빠른 순서: <b>O(1)</b>(상수, n과 무관) < <b>O(log n)</b>(로그) < <b>O(n)</b>(선형) < <b>O(n log n)</b> < <b>O(n²)</b>(제곱, 포물선) < <b>O(2ⁿ)</b>(지수). n이 작을 땐 다 비슷해도, n이 커지면 <b>차이가 폭발</b>합니다(O(n²)는 n=1000에서 백만 번!). 그래서 알고리즘을 고를 땐 \"최악의 경우 n이 커지면?\"을 봅니다. 수학의 함수 성장(직선·곡선·로그)이 그대로 복잡도가 된 것입니다.",
+  "more_en": "<b>Big-O notation O(·)</b> expresses the <b>growth rate</b> of computation as input size n grows (ignoring constants and lower-order terms — the big picture!). Fastest to slowest: <b>O(1)</b> (constant) < <b>O(log n)</b> (logarithmic) < <b>O(n)</b> (linear) < <b>O(n log n)</b> < <b>O(n²)</b> (quadratic, the parabola of ) < <b>O(2ⁿ)</b> (exponential). For small n they look alike, but as n grows the <b>differences explode</b> (O(n²) is a million at n=1000!). So we judge algorithms by \"what happens as n grows, worst case?\" Math's function growth becomes complexity directly.",
   "problem": {
    "q": "두 배열의 모든 쌍을 비교하는 이중 반복문의 복잡도는?",
    "solution": "n개 × n개 = n² 번 → <b>O(n²)</b> (제곱, 가파른 성장).",
@@ -50,8 +50,8 @@
   "title": "O(log n)의 마법 — 절반씩 버리기",
   "narr": "가장 아름다운 복잡도 중 하나, <b>O(log n)</b>! 매 단계마다 <b>후보를 절반씩 버리면</b>, 백만 개도 단 <b>20단계</b>면 끝납니다. \"업/다운\" 숫자 맞히기 게임의 비밀입니다. n을 키워도 단계 수는 아주 천천히 늘어납니다. n을 바꿔보세요.",
   "hint": "n을 키워도 단계는 천천히 늘어납니다",
-  "more": "<b>O(log n)</b>은 매 단계 <b>입력을 일정 비율(보통 절반)로 줄이는</b> 알고리즘의 복잡도입니다. n을 절반씩 줄여 1이 될 때까지의 횟수 = <b>log₂n</b>(수학 7장 로그의 정의!). n=1,000,000도 약 20단계, n=10억도 ~30단계뿐 — 거의 안 늡니다. 핵심 조건: <b>버릴 절반을 확신할 수 있어야</b> 함(예: 정렬된 데이터). 이게 <b>이분 탐색(4장)·이진 탐색 트리(5장)·병합 정렬(3장)</b>의 심장입니다. \"문제를 반으로 쪼개기(분할정복)\"가 효율의 핵심 전략 중 하나라는 첫 신호입니다.",
-  "more_en": "<b>O(log n)</b> is the complexity of algorithms that <b>shrink the input by a constant factor (usually half) each step</b>. The number of halvings until you reach 1 is <b>log₂n</b> (math Ch.7's definition of log!). n=1,000,000 takes about 20 steps, n=a billion only ~30 — it barely grows. The key requirement: <b>you must be sure which half to discard</b> (e.g. sorted data). This is the heart of <b>binary search (Ch.4), binary search trees (Ch.5), and merge sort (Ch.3)</b>. It's the first sign that \"splitting a problem in half (divide and conquer)\" is a key strategy for efficiency.",
+  "more": "<b>O(log n)</b>은 매 단계 <b>입력을 일정 비율(보통 절반)로 줄이는</b> 알고리즘의 복잡도입니다. n을 절반씩 줄여 1이 될 때까지의 횟수 = <b>log₂n</b>(로그의 정의!). n=1,000,000도 약 20단계, n=10억도 ~30단계뿐 — 거의 안 늡니다. 핵심 조건: <b>버릴 절반을 확신할 수 있어야</b> 함(예: 정렬된 데이터). 이게 <b>이분 탐색·이진 탐색 트리·병합 정렬</b>의 심장입니다. \"문제를 반으로 쪼개기(분할정복)\"가 효율의 핵심 전략 중 하나라는 첫 신호입니다.",
+  "more_en": "<b>O(log n)</b> is the complexity of algorithms that <b>shrink the input by a constant factor (usually half) each step</b>. The number of halvings until you reach 1 is <b>log₂n</b> (definition of log!). n=1,000,000 takes about 20 steps, n=a billion only ~30 — it barely grows. The key requirement: <b>you must be sure which half to discard</b> (e.g. sorted data). This is the heart of <b>binary search, binary search trees, and merge sort </b>. It's the first sign that \"splitting a problem in half (divide and conquer)\" is a key strategy for efficiency.",
   "problem": {
    "q": "1024개 중 이분 탐색으로 찾으려면 최대 몇 단계?",
    "solution": "log₂1024 = 10 → 최대 <b>10단계</b>. (절반씩: 1024→512→…→1)",

@@ -5,8 +5,8 @@
     "title": "선형 탐색 — 처음부터 하나씩",
     "narr": "데이터에서 원하는 값을 찾는 게 <b>탐색</b>입니다. 가장 단순한 <b>선형 탐색</b>: <b>처음부터 하나씩 확인</b>하다 찾으면 멈춥니다. 정렬이 안 돼 있어도 되지만, 운 나쁘면 끝까지 봐야 합니다(O(n)). 화면을 눌러 한 칸씩 확인하세요.",
     "hint": "▶ 눌러 다음 칸 확인",
-    "more": "<b>선형 탐색(linear search)</b>은 배열을 <b>앞에서부터 순서대로</b> 목표값과 비교하다 찾으면 위치를 반환합니다. 장점: <b>정렬이 필요 없고</b> 어떤 자료구조(배열·연결 리스트)에도 통합니다. 단점: 평균·최악 <b>O(n)</b>(맨 끝이거나 없으면 n번 다 확인). 데이터가 작거나, 한 번만 찾거나, 정렬할 수 없는 경우엔 이게 최선입니다. \"더 빨리 찾을 수 없을까?\"에 대한 답이 다음의 이분 탐색인데, 그 대가로 <b>정렬</b>이라는 전제가 필요합니다(3장이 여기서 빛을 발합니다).",
-    "more_en": "<b>Linear search</b> compares the target with each element <b>from front to back</b>, returning the position when found. Pros: <b>no sorting needed</b>, works on any structure (array, linked list). Cons: average and worst case <b>O(n)</b> (checks all n if the target is last or absent). It is best for small data, one-off lookups, or unsortable data. The answer to \"can we search faster?\" is binary search next — but it requires the data to be <b>sorted</b> (where Ch.3 pays off).",
+    "more": "<b>선형 탐색(linear search)</b>은 배열을 <b>앞에서부터 순서대로</b> 목표값과 비교하다 찾으면 위치를 반환합니다. 장점: <b>정렬이 필요 없고</b> 어떤 자료구조(배열·연결 리스트)에도 통합니다. 단점: 평균·최악 <b>O(n)</b>(맨 끝이거나 없으면 n번 다 확인). 데이터가 작거나, 한 번만 찾거나, 정렬할 수 없는 경우엔 이게 최선입니다. \"더 빨리 찾을 수 없을까?\"에 대한 답이 다음의 이분 탐색인데, 그 대가로 <b>정렬</b>이라는 전제가 필요합니다(여기서 빛을 발합니다).",
+    "more_en": "<b>Linear search</b> compares the target with each element <b>from front to back</b>, returning the position when found. Pros: <b>no sorting needed</b>, works on any structure (array, linked list). Cons: average and worst case <b>O(n)</b> (checks all n if the target is last or absent). It is best for small data, one-off lookups, or unsortable data. The answer to \"can we search faster?\" is binary search next — but it requires the data to be <b>sorted</b> (where sorting pays off).",
     "problem": {
       "q": "n개 중 찾는 값이 없을 때 선형 탐색은 몇 번 확인하나?",
       "solution": "전부 확인해야 없음을 확신 → <b>n번</b> (O(n), 최악의 경우).",
@@ -20,8 +20,8 @@
     "title": "이분 탐색 — 절반씩 좁히기",
     "narr": "<b>정렬된</b> 데이터라면 훨씬 빠릅니다! <b>이분 탐색</b>은 <b>가운데(mid)를 확인</b>하고, 찾는 값이 더 크면 왼쪽 절반을, 작으면 오른쪽 절반을 통째로 버립니다. \"업/다운\" 게임처럼! 매번 절반이 사라지니 O(log n). 화면을 눌러보세요.",
     "hint": "▶ 눌러 중앙 비교 후 절반 버리기",
-    "more": "<b>이분 탐색(binary search)</b>은 <b>정렬된 배열</b>에서 lo~hi 범위의 <b>중앙 mid</b>를 목표값과 비교합니다 — 같으면 끝, 목표가 크면 lo=mid+1(왼쪽 버림), 작으면 hi=mid−1(오른쪽 버림). 매 단계 후보가 <b>절반</b>으로 줄어 <b>O(log n)</b>(1장 #4)! n=10억도 ~30번이면 끝. 전제: <b>반드시 정렬돼 있어야</b> 함(어느 절반을 버릴지 확신하려면). 그래서 \"한 번 정렬해두고 여러 번 빠르게 찾기\"가 핵심 패턴입니다. 변형: 경계 찾기(lower/upper bound), 정렬된 답 공간에서의 \"매개변수 탐색\". 이 \"절반씩 버리기\"가 다음 장 이진 탐색 트리(5장)의 구조 그 자체입니다.",
-    "more_en": "<b>Binary search</b> works on a <b>sorted array</b>: compare the <b>middle mid</b> of the range lo~hi with the target — equal means done; if the target is larger set lo=mid+1 (discard left), if smaller set hi=mid−1 (discard right). Each step halves the candidates, giving <b>O(log n)</b> (Ch.1 #4)! Even a billion items take ~30 steps. Requirement: the data <b>must be sorted</b> (to be sure which half to discard). So \"sort once, search many times fast\" is the key pattern. Variants: finding boundaries (lower/upper bound) and \"parametric search\" over a sorted answer space. This \"halving\" is exactly the structure of the binary search tree (Ch.5) next.",
+    "more": "<b>이분 탐색(binary search)</b>은 <b>정렬된 배열</b>에서 lo~hi 범위의 <b>중앙 mid</b>를 목표값과 비교합니다 — 같으면 끝, 목표가 크면 lo=mid+1(왼쪽 버림), 작으면 hi=mid−1(오른쪽 버림). 매 단계 후보가 <b>절반</b>으로 줄어 <b>O(log n)</b>(#4)! n=10억도 ~30번이면 끝. 전제: <b>반드시 정렬돼 있어야</b> 함(어느 절반을 버릴지 확신하려면). 그래서 \"한 번 정렬해두고 여러 번 빠르게 찾기\"가 핵심 패턴입니다. 변형: 경계 찾기(lower/upper bound), 정렬된 답 공간에서의 \"매개변수 탐색\". 이 \"절반씩 버리기\"가 다음 장 이진 탐색 트리의 구조 그 자체입니다.",
+    "more_en": "<b>Binary search</b> works on a <b>sorted array</b>: compare the <b>middle mid</b> of the range lo~hi with the target — equal means done; if the target is larger set lo=mid+1 (discard left), if smaller set hi=mid−1 (discard right). Each step halves the candidates, giving <b>O(log n)</b> (#4)! Even a billion items take ~30 steps. Requirement: the data <b>must be sorted</b> (to be sure which half to discard). So \"sort once, search many times fast\" is the key pattern. Variants: finding boundaries (lower/upper bound) and \"parametric search\" over a sorted answer space. This \"halving\" is exactly the structure of the binary search tree next.",
     "problem": {
       "q": "정렬된 1,000,000개에서 이분 탐색의 최대 단계는?",
       "solution": "log₂(1,000,000) ≈ <b>20단계</b>. (선형은 최대 백만 번!)",
@@ -50,13 +50,13 @@
     "title": "탐색 전략 — 상황에 맞게",
     "narr": "\"가장 빠른 탐색\"은 하나로 정해지지 않습니다. <b>데이터 상태</b>(정렬됐나?)와 <b>조회 빈도</b>(자주 찾나?)에 따라 최선이 달라집니다. 선형·이분·해시 — 각자의 자리가 있습니다.",
     "hint": "데이터와 빈도가 탐색을 결정",
-    "more": "탐색 전략 고르기: ① <b>정렬 안 됨 + 가끔 찾기</b> → 선형 탐색 O(n)(정렬 비용 회피). ② <b>정렬됨(또는 자주 찾음) + 범위 검색</b> → 이분 탐색 O(log n)(또는 정렬 후). ③ <b>정확한 키로 자주 조회</b> → 해시 테이블 O(1)(2장). 단 해시는 순서·범위 검색이 안 됩니다. ④ <b>동적으로 삽입·삭제하며 정렬 유지</b> → 이진 탐색 트리(5장, O(log n)). 핵심 통찰: 좋은 탐색은 좋은 <b>자료구조 선택</b>에서 나옵니다(3장 정렬 → 4장 이분, 2장 해시 → O(1) 조회). 알고리즘은 따로가 아니라 서로 떠받치는 하나의 체계입니다.",
-    "more_en": "Choosing a search strategy: ① <b>unsorted + occasional lookup</b> → linear O(n) (avoid sort cost); ② <b>sorted (or frequent) + range queries</b> → binary search O(log n) (or after sorting); ③ <b>exact-key frequent lookups</b> → hash table O(1) (Ch.2), though hashes can't do order or range queries; ④ <b>dynamic inserts/deletes keeping order</b> → a binary search tree (Ch.5, O(log n)). Key insight: good search comes from good <b>data-structure choice</b> (Ch.3 sorting → Ch.4 binary search; Ch.2 hashing → O(1) lookup). Algorithms aren't separate — they form one mutually supporting system.",
+    "more": "탐색 전략 고르기: ① <b>정렬 안 됨 + 가끔 찾기</b> → 선형 탐색 O(n)(정렬 비용 회피). ② <b>정렬됨(또는 자주 찾음) + 범위 검색</b> → 이분 탐색 O(log n)(또는 정렬 후). ③ <b>정확한 키로 자주 조회</b> → 해시 테이블 O(1). 단 해시는 순서·범위 검색이 안 됩니다. ④ <b>동적으로 삽입·삭제하며 정렬 유지</b> → 이진 탐색 트리(O(log n)). 핵심 통찰: 좋은 탐색은 좋은 <b>자료구조 선택</b>에서 나옵니다(정렬 → 이분, 해시 → O(1) 조회). 알고리즘은 따로가 아니라 서로 떠받치는 하나의 체계입니다.",
+    "more_en": "Choosing a search strategy: ① <b>unsorted + occasional lookup</b> → linear O(n) (avoid sort cost); ② <b>sorted (or frequent) + range queries</b> → binary search O(log n) (or after sorting); ③ <b>exact-key frequent lookups</b> → hash table O(1), though hashes can't do order or range queries; ④ <b>dynamic inserts/deletes keeping order</b> → a binary search tree (O(log n)). Key insight: good search comes from good <b>data-structure choice</b> (sorting → binary search; hashing → O(1) lookup). Algorithms aren't separate — they form one mutually supporting system.",
     "problem": {
       "q": "삽입·삭제가 잦으면서도 정렬 순서를 유지하며 빠르게 찾으려면?",
-      "solution": "<b>이진 탐색 트리(BST)</b> — 삽입·삭제·탐색 모두 평균 O(log n) (다음 5장!).",
+      "solution": "<b>이진 탐색 트리(BST)</b> — 삽입·삭제·탐색 모두 평균 O(log n) (다음 !).",
       "q_en": "For frequent inserts/deletes while keeping sorted order and fast search?",
-      "sol_en": "A <b>binary search tree (BST)</b> — insert, delete, and search all average O(log n) (Ch.5 next!)."
+      "sol_en": "A <b>binary search tree (BST)</b> — insert, delete, and search all average O(log n) (next!)."
     }
   }
 }
