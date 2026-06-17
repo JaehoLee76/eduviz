@@ -898,5 +898,65 @@
    "q_en": "In gradient descent, what happens if the learning rate (step size) is too large?",
    "sol_en": "It can <b>overshoot the minimum and oscillate or diverge</b> (climbing higher). Too small, and convergence is very slow. So a well-chosen rate (or adaptive methods like Adam) matters."
   }
+ },
+ "algo_br_fenwick": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.3 힙·트리 응용 (자세히)",
+  "title": "펜윅 트리(BIT) — 비트로 누적합",
+  "narr": "누적합을 빠르게 구하면서 값도 자주 바꿔야 한다면? <b>펜윅 트리</b>(이진 인덱스 트리)는 인덱스의 <b>이진수 비트</b>를 이용해 각 칸이 정해진 길이의 구간 합을 담당하게 해, 누적합과 갱신을 모두 <b>O(log n)</b>에 처리합니다. 세그먼트 트리보다 가볍고 빨라요.",
+  "hint": "lowbit으로 구간 담당",
+  "more": "<b>펜윅 트리</b>(Fenwick tree / BIT, Binary Indexed Tree): 누적합(prefix sum)을 효율적으로 유지하는 1차원 배열 구조. 핵심은 <b>lowbit(i) = i & (−i)</b>(i의 이진수에서 가장 낮은 1 비트). BIT[i]는 구간 (i−lowbit(i), i] 의 합을 담당해요. <b>누적합 query(i)</b>: i에서 시작해 i −= lowbit(i)를 반복하며 BIT 값을 더함 → O(log n). <b>갱신 update(i, Δ)</b>: i에서 시작해 i += lowbit(i)를 반복하며 BIT에 Δ 더함 → O(log n). 구현이 짧고 상수가 작아 세그먼트 트리보다 가볍지만, 합·역연산이 있는 연산에 주로 쓰여요(최소/최대는 일반적으로 세그먼트 트리). 2차원으로 확장 가능. 빈도 누적·역수열 개수(inversions)·구간 합 질의에 널리 사용. 비트 연산으로 트리 구조를 배열에 '접어 넣은' 영리한 설계.",
+  "more_en": "<b>Fenwick tree / BIT</b> (Binary Indexed Tree): a 1-D array structure that maintains prefix sums efficiently. The key is <b>lowbit(i) = i & (−i)</b> (the lowest set bit of i). BIT[i] holds the sum of the range (i−lowbit(i), i]. <b>Prefix sum query(i)</b>: start at i and repeat i −= lowbit(i), adding BIT values → O(log n). <b>Update(i, Δ)</b>: start at i and repeat i += lowbit(i), adding Δ → O(log n). Short to implement with small constants — lighter than a segment tree, but mainly for sum-like (invertible) operations (min/max usually need a segment tree). Extends to 2-D. Used for frequency counts, counting inversions, range-sum queries. A clever design that 'folds' a tree into an array via bit tricks.",
+  "problem": {
+   "q": "펜윅 트리와 세그먼트 트리는 둘 다 O(log n)인데 펜윅을 쓰는 이유는?",
+   "solution": "펜윅은 코드가 <b>짧고 상수가 작아</b> 더 빠르고 메모리도 적어요(합 계열 연산에 한해). 다만 최소/최대처럼 역연산이 없는 연산엔 세그먼트 트리가 필요합니다.",
+   "q_en": "Both Fenwick and segment trees are O(log n) — why use Fenwick?",
+   "sol_en": "Fenwick is <b>shorter with smaller constants</b>, so faster and lighter (for sum-like ops). But for non-invertible ops like min/max you need a segment tree."
+  }
+ },
+ "algo_br_lca": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.1 트리 (자세히)",
+  "title": "최소 공통 조상(LCA)",
+  "narr": "트리에서 두 노드의 <b>가장 가까운 공통 조상</b>은? 두 노드로 가는 길이 갈라지기 직전의 노드예요. 가계도의 '가장 가까운 공통 선조', 파일 경로의 공통 폴더와 같죠. 트리 질의의 기본 도구입니다.",
+  "hint": "길이 갈라지기 직전 노드",
+  "more": "<b>최소 공통 조상</b>(LCA, Lowest Common Ancestor): 트리의 두 노드 u, v를 모두 자손으로 갖는 노드 중 <b>가장 깊은(가까운)</b> 것. 직관적으로 루트에서 u·v로 내려가는 두 경로가 갈라지는 마지막 공통 노드. <b>구하는 법</b>: ①단순 — 두 노드를 같은 깊이로 맞춘 뒤 함께 한 칸씩 올라가 만나는 곳(O(높이)). ②전처리 — 오일러 투어 + 희소 테이블(sparse table)이나 이진 점프(binary lifting)로 전처리 O(n log n) 후 질의 O(log n) 또는 O(1)(RMQ 환원). LCA는 <b>두 노드 사이 거리</b>(트리에서 dist(u,v)=depth(u)+depth(v)−2·depth(LCA))·트리 경로 질의·계통수 분석의 핵심. 가계도·조직도·버전 관리(공통 조상 커밋)·생물 계통분류에 응용.",
+  "more_en": "<b>Lowest Common Ancestor</b> (LCA): the <b>deepest (nearest)</b> node that has both nodes u and v as descendants — intuitively, the last shared node where the root-to-u and root-to-v paths diverge. <b>How to find</b>: ①Naive — bring both to the same depth, then climb together one step at a time until they meet (O(height)). ②Preprocessed — Euler tour + sparse table or binary lifting: preprocess O(n log n), then query O(log n) or O(1) (RMQ reduction). LCA is key to <b>distance between nodes</b> (dist(u,v)=depth(u)+depth(v)−2·depth(LCA)), tree path queries, and phylogenetics. Used in family/org trees, version control (common-ancestor commit), and biological classification.",
+  "problem": {
+   "q": "트리에서 노드 u와 v 사이 거리를 LCA로 어떻게 구하나요?",
+   "solution": "dist(u,v) = depth(u) + depth(v) − 2·depth(LCA(u,v)). LCA까지 각자 올라간 뒤 합치는 거리예요.",
+   "q_en": "How do you get the distance between nodes u and v using LCA?",
+   "sol_en": "dist(u,v) = depth(u) + depth(v) − 2·depth(LCA(u,v)) — each climbs to the LCA, then combined."
+  }
+ },
+ "algo_br_rbfix": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.3 균형 트리 (자세히)",
+  "title": "레드블랙 삽입 fixup — 색을 고치다",
+  "narr": "레드블랙 트리에 새 노드(빨강)를 넣으면 '빨강 노드의 자식은 검정' 규칙이 깨질 수 있어요(빨강-빨강). 그러면 <b>삼촌 노드의 색</b>을 보고 ①재색칠하거나 ②회전+재색칠로 위반을 위로 밀어 올리며 복구합니다. 이게 RB가 균형을 지키는 비결!",
+  "hint": "삼촌 색 보고 재색칠/회전",
+  "more": "<b>레드블랙 삽입 fixup</b>(CLRS 13.3): 새 노드는 항상 <b>빨강</b>으로 삽입(검정 높이를 안 깨려고). 부모도 빨강이면 '빨강은 빨강 자식을 못 가진다' 규칙 위반 → 복구. <b>경우 분기(삼촌 색 기준)</b>: <b>Case 1</b> 삼촌이 빨강 → 부모·삼촌을 검정, 할아버지를 빨강으로 재색칠하고 위반을 할아버지로 올려 반복. <b>Case 2/3</b> 삼촌이 검정 → 회전(필요 시 이중)으로 모양을 바로잡고 재색칠. 마지막에 루트는 항상 검정으로. 위반은 매 단계 트리 위로 올라가므로 fixup은 <b>O(log n)</b>. 삭제 fixup은 '이중 검정'을 비슷한 경우 분석으로 해소해 더 복잡하지만 역시 O(log n). 회전(다른 분기)과 재색칠 두 도구로, 5가지 색 규칙(루트 검정·빨강의 자식 검정·모든 경로의 검정 수 동일 등)을 유지해 높이를 O(log n)로 보장해요.",
+  "more_en": "<b>Red-black insert fixup</b> (CLRS 13.3): a new node is always inserted <b>red</b> (to preserve black-height). If its parent is also red, the rule 'a red node has no red child' is violated → repair. <b>Cases (by uncle's color)</b>: <b>Case 1</b> uncle red → recolor parent and uncle black, grandparent red, and push the violation up to the grandparent, repeating. <b>Cases 2/3</b> uncle black → fix the shape with rotation(s) and recolor. Finally force the root black. The violation moves up the tree each step, so fixup is <b>O(log n)</b>. Delete fixup resolves a 'doubly-black' node via a similar case analysis, more involved but still O(log n). With two tools — rotation (another branch) and recoloring — it maintains the 5 color rules (root black, red's children black, equal black-count on all paths, …) keeping height O(log n).",
+  "problem": {
+   "q": "레드블랙 트리에서 새 노드를 왜 항상 '빨강'으로 삽입하나요?",
+   "solution": "빨강으로 넣으면 '모든 경로의 검정 노드 수가 같다'는 규칙(검정 높이)이 안 깨져요. 빨강-빨강 위반만 생길 수 있는데, 이건 재색칠·회전으로 국소 복구가 가능합니다(검정으로 넣으면 검정 높이가 깨져 복구가 더 어려움).",
+   "q_en": "Why is a new node always inserted 'red' in a red-black tree?",
+   "sol_en": "Inserting red preserves the 'equal black-node count on every path' rule (black-height). Only a red-red violation can arise, which is locally fixable by recoloring/rotation (inserting black would break black-height, harder to repair)."
+  }
+ },
+ "algo_br_amort3": {
+  "ch": "알고리즘 제2장 자료구조",
+  "sec": "2.1 배열 (자세히)",
+  "title": "분할상환 분석 — 세 가지 기법",
+  "narr": "동적 배열에 push할 때 대부분 O(1)이지만, 가끔 꽉 차면 2배로 늘리며 전부 복사(O(n))해요. 그래도 <b>한 번당 평균은 O(1)</b>! 이런 '가끔 비싼' 연산의 평균 비용을 엄밀히 따지는 게 분할상환 분석이고, 집계·회계·잠재 세 기법이 있어요.",
+  "hint": "가끔 비싸도 평균은 싸다",
+  "more": "<b>분할상환 분석</b>(amortized analysis, CLRS 16): 일련의 연산에서 '한 번은 비싸도 전체 평균은 싸다'를 엄밀히 보이는 기법. 동적 배열 doubling이 대표 예 — n번 push 중 확장(복사)은 가끔이고, 복사 총량이 n+n/2+n/4+…<2n이라 <b>총 O(n) → 한 번당 평균 O(1)</b>. <b>세 기법</b>: ①<b>집계법(aggregate)</b>: n개 연산의 총비용을 구해 n으로 나눈 평균. ②<b>회계법(accounting)</b>: 싼 연산에 실제보다 더 '요금'을 매겨 미리 적립(credit)해 두고, 비싼 연산이 그 적립으로 지불 — 적립이 음수가 안 되면 평균 비용 상한 성립. ③<b>잠재법(potential)</b>: 자료구조 상태에 '잠재 에너지' Φ를 정의해, 분할상환 비용 = 실제 비용 + ΔΦ로 계산(가장 일반적·강력). 셋은 같은 결론을 다른 관점으로 증명해요. 스택 다중 pop·이진 카운터 증가·동적 테이블·유니온파인드 분석의 토대.",
+  "more_en": "<b>Amortized analysis</b> (CLRS 16): rigorously shows 'one operation may be expensive but the average over a sequence is cheap.' Dynamic-array doubling is the classic example — among n pushes, resizes (copies) are occasional, and total copying is n+n/2+n/4+… < 2n, so <b>total O(n) → O(1) average per op</b>. <b>Three methods</b>: ①<b>Aggregate</b>: total cost of n ops ÷ n. ②<b>Accounting</b>: overcharge cheap ops to bank credit, which expensive ops spend — if credit never goes negative, the amortized bound holds. ③<b>Potential</b>: define a 'potential energy' Φ on the structure's state; amortized cost = actual cost + ΔΦ (most general and powerful). All three prove the same result from different angles. Foundation for analyzing stack multipop, binary counter increment, dynamic tables, and union-find.",
+  "problem": {
+   "q": "동적 배열에 n번 push하는 총비용이 O(n)인 이유는?",
+   "solution": "2배씩 확장하면 복사 총량 = n + n/2 + n/4 + … < 2n = O(n). 그래서 가끔 O(n) 복사가 있어도 <b>한 번당 분할상환 O(1)</b>이에요.",
+   "q_en": "Why is the total cost of n pushes into a dynamic array O(n)?",
+   "sol_en": "Doubling makes total copying = n + n/2 + n/4 + … < 2n = O(n). So despite occasional O(n) copies, each push is <b>amortized O(1)</b>."
+  }
  }
 }

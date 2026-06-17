@@ -1126,6 +1126,49 @@
         ctx.fillStyle=last?'#8fe3b5':'#ffb27a'; ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(xx,yy,last?9:6,0,7); ctx.fill(); if(last)ctx.stroke(); });
       ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('최소점', cx, Y(0.5)+22);
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('기울기 반대 방향으로 조금씩 내려가 비용 최소점에 도달', cx, E.H*0.84); }
+  },
+
+  // ══════ 힙(algo5_04) ▸ 펜윅 트리(BIT) (concept) ══════
+  { id:'algo_br_fenwick', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, n=8, cell=Math.min(62,E.W*0.085), x0=E.W/2-n*cell/2, baseY=E.H*0.56;
+      function lowbit(i){ return i&(-i); }
+      for(var i=1;i<=n;i++){ var x=x0+(i-1)*cell; ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.fillRect(x,baseY,cell-5,cell-5); ctx.strokeRect(x,baseY,cell-5,cell-5); ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(i,x+(cell-5)/2,baseY+(cell-5)/2); ctx.textBaseline='alphabetic'; }
+      for(i=1;i<=n;i++){ var lb=lowbit(i), start=i-lb+1, bx=x0+(start-1)*cell, bw=lb*cell-8, lvl=Math.round(Math.log2(lb)), by=baseY-16-lvl*16;
+        ctx.fillStyle='rgba(143,227,181,0.3)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5; ctx.fillRect(bx,by,bw,11); ctx.strokeRect(bx,by,bw,11); }
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('각 BIT[i]는 lowbit(i) 길이 구간의 합을 담당(초록 막대) → 누적합·갱신 O(log n)', E.W/2, baseY+cell+18); }
+  },
+
+  // ══════ 이진트리(algo5_01) ▸ 최소 공통 조상 LCA (concept) ══════
+  { id:'algo_br_lca', concept:true, branchOf:'algo5_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, T=[8,3,10,1,6,9,14];
+      drawTreeB(E, T, function(j){ if(j===0)return {fill:'rgba(255,178,122,0.32)',stroke:'#ffb27a',text:'#ffb27a',tag:'LCA'}; if(j===3||j===5)return {fill:'rgba(143,227,181,0.3)',stroke:'#8fe3b5',text:'#8fe3b5',tag:'질의'}; return null; }, {lg:E.H*0.17,r:21});
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('노드 1과 9의 최소 공통 조상(LCA) = 8 — 양쪽으로 갈라지는 가장 깊은 노드', E.W/2, E.H*0.88); }
+  },
+
+  // ══════ 균형(algo5_05) ▸ 레드블랙 삽입 fixup (CLRS 13.3, concept) ══════
+  { id:'algo_br_rbfix', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      var redB={0:false,1:true,3:true};
+      drawTreeB(E, [7,3,null,1], function(j){ var isRed=redB[j], viol=(j===1||j===3); return {fill:isRed?'rgba(226,75,74,0.3)':'rgba(255,255,255,0.1)', stroke:isRed?'#e24b4a':'#cfcdc6', text:isRed?'#f0a0a0':'#dfeefb', tag:viol?'빨강':null}; }, {left:E.W*0.02,right:E.W*0.46,top:E.H*0.26,lg:E.H*0.16,r:19});
+      var redA={0:false,1:true,2:true};
+      drawTreeB(E, [3,1,7], function(j){ var isRed=redA[j]; return {fill:isRed?'rgba(226,75,74,0.3)':'rgba(255,255,255,0.1)', stroke:isRed?'#e24b4a':'#cfcdc6', text:isRed?'#f0a0a0':'#dfeefb'}; }, {left:E.W*0.54,right:E.W*0.98,top:E.H*0.30,lg:E.H*0.16,r:19});
+      AV.arrow(ctx, E.W*0.485, E.H*0.42, E.W*0.515, E.H*0.42, '#8fe3b5', 3);
+      ctx.fillStyle='#e24b4a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('빨강-빨강 위반', E.W*0.24, E.H*0.8);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('회전 + 재색칠로 복구', E.W*0.76, E.H*0.8); }
+  },
+
+  // ══════ 배열(algo2_01) ▸ 분할상환 3기법 (CLRS 16, concept) ══════
+  { id:'algo_br_amort3', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.22;
+      function card(y,t,d,col){ ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(t, cx, y); ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText(d, cx, y+22); }
+      card(y0, '① 집계법 (Aggregate)', 'n번 연산 총비용 ÷ n = 1회 평균', '#7ab8ff');
+      card(y0+E.H*0.17, '② 회계법 (Accounting)', '싼 연산에 요금 미리 적립 → 비싼 연산이 인출', '#8fe3b5');
+      card(y0+E.H*0.34, '③ 잠재법 (Potential)', '저장된 에너지 Φ로 비싼 연산 비용 상쇄', '#ffb27a');
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('동적 배열 2배 확장: n번 push 총 O(n) → 한 번당 평균(분할상환) O(1)', cx, y0+E.H*0.48); }
   }
 
   ];
