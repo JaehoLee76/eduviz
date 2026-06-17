@@ -5103,6 +5103,99 @@
       ctx.fillText('이론 하한 ⌈log₂ n!⌉에 거의 일치(n≤~20에서 최적 또는 1~2 차이)', W/2, H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('비교가 비쌀 때(원소 비교 = 사람·디스크) 가치. 일반 정렬보다 느리지만 비교 적음', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_sais', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('SA-IS — 접미사 배열을 선형 시간 O(n)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('접두사 배가 O(n log n)을 넘어, 유도 정렬(induced sorting)로 O(n)에 짓기', W/2, H*0.10+22);
+      // S/L typing of suffixes
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px monospace';
+      ctx.fillText('m  m  i  s  s  i  s  s  i  p  p  i  $', W/2, H*0.30);
+      var types=['L','L','S','L','L','S','L','L','S','L','L','L','S'];
+      var bx=W*0.5-(types.length*30)/2;
+      types.forEach(function(t,i){ var x=bx+i*30+15; var star=(t==='S'&&i>0&&types[i-1]==='L'); ctx.fillStyle=t==='S'?'#8fe3b5':'#7ab8ff'; ctx.font=(star?'700':'400')+' 13px sans-serif'; ctx.fillText(t,x,H*0.30+24); if(star){ctx.fillStyle='#ffb27a';ctx.font='9px sans-serif';ctx.fillText('★',x,H*0.30+36);} });
+      ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText('S=뒤보다 작음, L=큼, ★=LMS(L다음 S)', W/2, H*0.46);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 각 접미사를 S형/L형으로 분류 + LMS 위치 표시',
+        '② LMS 부분문자열을 유도 정렬로 일단 정렬·이름붙임',
+        '③ 이름 수열을 재귀로 정렬(또는 모두 다르면 바로)',
+        '④ 정렬된 LMS로 전체 SA를 유도(induce)'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.14, H*0.56+i*26); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('재귀 크기가 절반 이하 → T(n)=T(n/2)+O(n)=O(n). DC3(skew)도 같은 선형', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('대용량 텍스트 색인·BWT(압축)·바이오 정렬의 표준. 구현 복잡하나 가장 빠름', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_kmpauto', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('KMP 자동자 — 실패함수를 상태기계로, DP까지', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('패턴 매칭 상태(몇 글자 맞췄나)를 노드로, 각 글자 전이를 미리 표로 → 그 위에서 DP', W/2, H*0.10+22);
+      // automaton states 0..m with transitions
+      var m=4, n=m+1, bx=W*0.14, y=H*0.42, gap=(W*0.72)/(n-1);
+      for(var i=0;i<n;i++){ var x=bx+i*gap; var acc=(i===m); ctx.fillStyle=acc?'rgba(143,227,181,0.3)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=acc?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,16,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(i,x,y+4);
+        if(i<n-1){ ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+16,y); ctx.lineTo(x+gap-16,y); ctx.stroke(); ctx.fillStyle='#8fe3b5'; ctx.font='11px sans-serif'; ctx.fillText('맞음',x+gap/2,y-6); } }
+      // fail transition (back arc)
+      ctx.strokeStyle='#ff8d8d'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(bx+m*gap,y+16); ctx.quadraticCurveTo(bx+m*gap*0.5,y+60,bx+1*gap,y+16); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ff8d8d'; ctx.font='11px sans-serif'; ctx.fillText('틀리면 실패함수로 후퇴(다음 상태로 점프)', W/2, y+50);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('전이표 δ[상태][글자] = 그 글자 후 매칭 상태. 매칭은 표 따라가기 O(n)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('DP: dp[i][상태] = 길이 i, 매칭상태인 문자열 수 → "패턴을 포함/회피하는 문자열 세기"', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('아호코라식은 여러 패턴판. 금지패턴 회피 카운팅·자동자 DP의 기본', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_samapp', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('접미사 오토마톤 응용 — 서로 다른 부분문자열 수', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('SAM의 각 상태가 부분문자열의 동치류. len−link.len 합 = 서로 다른 부분문자열 수', W/2, H*0.10+22);
+      // SAM states with len/link
+      var nodes=[[0.5,0.26,'0','len0'],[0.30,0.50,'1','len1'],[0.70,0.50,'2','len2'],[0.40,0.74,'3','len3']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.22+t[1]*H*0.5]; }
+      var edges=[[0,1],[0,2],[1,3]];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      nodes.forEach(function(n,i){ var p=xy(n); ctx.fillStyle=i===0?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=i===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],15,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(n[2],p[0],p[1]+4); ctx.fillStyle='#8fe3b5'; ctx.font='9px sans-serif'; ctx.fillText(n[3],p[0],p[1]+26); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('점선 화살표 = suffix link(접미사 링크)', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('서로 다른 부분문자열 수 = Σ (len[v] − len[link[v]])  (각 상태가 새로 더하는 길이)', W/2, H*0.87);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('상태 ≤ 2n개·간선 ≤ 3n개로 선형. 최장공통부분문자열·k번째 부분문자열·출현횟수도', W/2, H*0.87+20); }
+  },
+
+  { id:'algo_br_rollbackdsu', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('롤백 union-find — 합치기를 되돌릴 수 있게', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('경로 압축을 포기하고 union by rank만 → 각 합치기가 바꾼 것을 스택에 저장해 되감기', W/2, H*0.10+22);
+      // stack of operations to undo
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['union(a,b): 작은 트리를 큰 트리 밑에 (rank/size 기준)',
+        '바뀐 것 = 부모 1개 + (필요시 rank 1개) → 스택에 push',
+        'rollback(): 스택에서 pop해 부모·rank를 원래대로',
+        '경로압축은 트리를 광범위 변형 → 되돌리기 불가, 그래서 금지'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i<3?'#cfd8e6':'#8a8893'; ctx.fillText(t, W*0.10, H*0.34+i*28); });
+      ctx.textAlign='center';
+      // small stack visual
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('find는 O(log n)(압축 없음), union/rollback은 O(log n)', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('쓰임: 오프라인 동적 연결성(시간 세그트리 DFS)·롤백 Mo·되돌리는 분할정복', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('삭제가 어려운 union-find를 "추가만+되감기"로. 함수형 영속 DSU의 절차적 사촌', W/2, H*0.86+20); }
   }
 
   ];
