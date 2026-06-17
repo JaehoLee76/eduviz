@@ -53,24 +53,26 @@
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.08); }); },
     draw:function(E){ var ctx=E.ctx, n=this.s.n, cx=E.W/2, sum=n*(n+1)/2;
       // ── 무엇을 계산하나: 1+2+…+n ──
-      var expr = n<=10 ? (function(){var a=[];for(var i=1;i<=n;i++)a.push(i);return a.join(' + ');})() : '1 + 2 + 3 + … + '+n;
+      var expr = n<=8 ? (function(){var a=[];for(var i=1;i<=n;i++)a.push(i);return a.join('+');})() : '1+2+⋯+'+n;
       ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 18px sans-serif';
-      ctx.fillText('1 부터 '+n+' 까지 모두 더하기', cx, E.H*0.13);
-      ctx.fillStyle='#8a8893'; ctx.font='15px sans-serif'; ctx.fillText(expr+'  = ?', cx, E.H*0.13+24);
-      function card(x,title,formula,steps,col){ var w=E.W*0.40, h=E.H*0.30, y=E.H*0.26;
+      ctx.fillText('1 부터 '+n+' 까지 모두 더하면?', cx, E.H*0.11);
+      // 카드: 제목 / 식 여러 줄(마지막=결과 강조) / 계산 횟수 — 결과를 사각형 안에 두어 시선 이동 최소화
+      var cardY=E.H*0.24, cardH=248;   // 내용에 맞춘 고정 높이(화면 높이에 안 늘어남)
+      function card(x, title, lines, resultIdx, steps, col){ var w=E.W*0.42, y=cardY, h=cardH;
         ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=col; ctx.lineWidth=2;
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-w/2,y,w,h,14);ctx.fill();ctx.stroke();}else ctx.strokeRect(x-w/2,y,w,h);
-        ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(title, x, y+28);
-        ctx.fillStyle='#eef3fb'; ctx.font='600 18px ui-monospace, monospace'; ctx.fillText(formula, x, y+h*0.52);   // ← 공식/식(빈칸 채움)
-        ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText('계산 횟수', x, y+h-40);
-        ctx.fillStyle=col; ctx.font='700 24px sans-serif'; ctx.fillText(steps, x, y+h-12); }
-      card(cx-E.W*0.22, '① 하나씩 더하기', '1+2+⋯+'+n, n+' 번', PNK);
-      card(cx+E.W*0.22, '② 가우스 공식', 'n(n+1)/2', '단 1 번', GRN);
-      // 가우스 공식에 n 대입 → 같은 답
-      ctx.fillStyle=GRN; ctx.font='600 17px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('n(n+1)/2 = '+n+'×'+(n+1)+' / 2 = '+sum, cx, E.H*0.66);
-      ctx.fillStyle=ORA; ctx.font='600 15px sans-serif';
-      ctx.fillText('답은 '+sum+'로 같지만 — ①은 '+n+'번, ②는 n이 백만이어도 단 1번!', cx, E.H*0.66+28); }
+        ctx.textAlign='center'; ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.fillText(title, x, y+32);
+        var ly=y+78;
+        lines.forEach(function(t,i){ var isR=(i===resultIdx);
+          ctx.fillStyle=isR?col:'#cfd6e2'; ctx.font=(isR?'700 30px':'600 19px')+' ui-monospace, monospace';
+          ctx.fillText(t, x, ly); ly+=(isR?46:34); });
+        ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText('계산 횟수', x, y+h-32);
+        ctx.fillStyle=col; ctx.font='700 20px sans-serif'; ctx.fillText(steps, x, y+h-9); }
+      card(cx-E.W*0.23, '① 하나씩 더하기', [expr, '= '+sum], 1, n+' 번', PNK);
+      card(cx+E.W*0.23, '② 가우스 공식', ['n(n+1)/2', '= '+n+'×'+(n+1)+'/2', '= '+sum], 2, '단 1 번', GRN);
+      // 카드 바로 아래 한 줄 핵심(결과는 이미 카드 안)
+      ctx.fillStyle='#8a8893'; ctx.font='14px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('두 방법의 답('+sum+')은 같습니다 — 다른 것은 ‘계산 횟수’뿐. n을 키워 보세요.', cx, cardY+cardH+40); }
   },
 
   // ══════════ 1.3 빅오 — 성장 곡선 (concept) ══════════

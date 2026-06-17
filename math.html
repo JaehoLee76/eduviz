@@ -86,6 +86,9 @@
   .btn.primary { background: #d8814a; border-color: #d8814a; }
   .btn.primary:hover { background: #e6915a; }
   .btn:disabled { opacity: .3; cursor: default; }
+  /* 마우스 클릭 후 포커스 링이 한 버튼에만 남는 현상 제거 — 키보드 Tab 접근성은 유지 */
+  .btn:focus:not(:focus-visible), .sbtn:focus:not(:focus-visible) { outline: none; }
+  .btn:focus-visible, .sbtn:focus-visible { outline: 2px solid #d8814a; outline-offset: 2px; }
 
   /* TOC 패널 */
   #toc-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 300px; max-width: 80vw; background: rgba(18,18,24,0.97); border-left: 1px solid rgba(255,255,255,0.1);
