@@ -3,13 +3,13 @@
     "ch": "제26장 종합",
     "sec": "26.1 삼·사차방정식",
     "title": "삼차방정식 — 복소수가 필요한 이유",
-    "narr": "<b>3장의 이차방정식(근의 공식)</b>처럼, 삼차·사차방정식도 <b>일반 해법(카르다노 공식)</b>이 있어요. 놀라운 역사: 실근만 구하는데도 <b>도중에 복소수(10장)가 꼭 필요</b>했어요! q를 바꿔 실근이 1~3개로 변하는 걸 보세요.",
+    "narr": "<b>3장의 이차방정식(근의 공식)</b>처럼, 삼차·사차방정식도 <b>일반 해법(카르다노 공식)</b>이 있습니다. 놀라운 역사: 실근만 구하는데도 <b>도중에 복소수(10장)가 꼭 필요</b>했습니다! q를 바꿔 실근이 1~3개로 변하는 걸 보세요.",
     "hint": "q를 바꿔 근의 개수를 보세요",
-    "more": "<b>삼차방정식</b> x³+px+q=0 은 르네상스 시대 <b>카르다노·타르탈리아</b>가 일반 공식을 찾았어요. 충격: 실근 셋이 다 실수일 때조차 공식 중간에 <b>√(음수)</b>가 나와 — 허수를 \"가짜 수\"로 여기던 수학자들이 어쩔 수 없이 복소수를 받아들이게 됐죠(10장 복소수의 진짜 탄생 계기!). 사차까지는 공식이 있지만, <b>5차 이상은 일반 근의 공식이 없어요</b>(아벨·갈루아가 증명 — 방정식의 \"대칭성(군)\"으로!). 이렇게 대수·복소수·군론이 한 문제에서 만나요.",
+    "more": "<b>삼차방정식</b> x³+px+q=0 은 르네상스 시대 <b>카르다노·타르탈리아</b>가 일반 공식을 찾았습니다. 충격: 실근 셋이 다 실수일 때조차 공식 중간에 <b>√(음수)</b>가 나와 — 허수를 \"가짜 수\"로 여기던 수학자들이 어쩔 수 없이 복소수를 받아들이게 됐습니다(10장 복소수의 진짜 탄생 계기!). 사차까지는 공식이 있지만, <b>5차 이상은 일반 근의 공식이 없습니다</b>(아벨·갈루아가 증명 — 방정식의 \"대칭성(군)\"으로!). 이렇게 대수·복소수·군론이 한 문제에서 만납니다.",
     "more_en": "<b>Cubic equations</b> x³+px+q=0 were solved generally by <b>Cardano and Tartaglia</b> in the Renaissance. The shock: even when all three roots are real, the formula passes through <b>√(negative)</b> — forcing mathematicians who dismissed imaginaries to accept complex numbers (the real birth of Ch.10's complex numbers!). Quartics also have a formula, but <b>degree five and higher have no general radical formula</b> (proved by Abel and Galois via the \"symmetry/group\" of equations!). Algebra, complex numbers, and group theory meet in one problem.",
     "problem": {
       "q": "5차 이상 방정식에 일반적인 근의 공식이 있을까?",
-      "solution": "<b>없어요</b>. 아벨-루피니 정리·갈루아 이론이 증명했어요(방정식의 대칭군 때문).",
+      "solution": "<b>없습니다</b>. 아벨-루피니 정리·갈루아 이론이 증명했습니다(방정식의 대칭군 때문).",
       "q_en": "Is there a general radical formula for quintic (degree ≥5) equations?",
       "sol_en": "<b>No</b>. The Abel–Ruffini theorem and Galois theory proved it (due to the equation's symmetry group)."
     }
@@ -18,13 +18,13 @@
     "ch": "제26장 종합",
     "sec": "26.2 체의 공리",
     "title": "수 체계 — 확장의 여정",
-    "narr": "우리의 여정은 <b>수를 계속 넓혀온 역사</b>였어요. 1장 <b>자연수 ℕ</b>에서 시작해, 뺄셈을 위해 <b>정수 ℤ</b>, 나눗셈을 위해 <b>유리수 ℚ</b>, 빈틈을 메우려 <b>실수 ℝ</b>, 모든 방정식을 풀려고 <b>복소수 ℂ</b>까지. 각 단계가 \"안 되던 연산\"을 가능하게 했죠.",
+    "narr": "우리의 여정은 <b>수를 계속 넓혀온 역사</b>였습니다. 1장 <b>자연수 ℕ</b>에서 시작해, 뺄셈을 위해 <b>정수 ℤ</b>, 나눗셈을 위해 <b>유리수 ℚ</b>, 빈틈을 메우려 <b>실수 ℝ</b>, 모든 방정식을 풀려고 <b>복소수 ℂ</b>까지. 각 단계가 \"안 되던 연산\"을 가능하게 했습니다.",
     "hint": "ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ",
-    "more": "수 체계는 <b>ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ</b> 로 확장돼 왔어요 — ℕ(셈)→ℤ(뺄셈 닫힘)→ℚ(나눗셈 닫힘)→ℝ(극한·연속 닫힘, 25장)→ℂ(모든 다항식 근 존재, 대수학의 기본정리). ℚ·ℝ·ℂ처럼 <b>덧셈·뺄셈·곱셈·나눗셈(0 제외)이 모두 닫힌</b> 수 체계를 <b>체(field)</b>라 해요(교환·결합·분배·항등원·역원 공리를 만족). 추상대수는 이 \"공리를 만족하는 구조\"를 연구하죠 — 구체적 수를 넘어 \"구조 그 자체\"를 보는 현대 수학의 관점이에요. 1장에서 본 수직선이 이렇게 깊은 구조였어요.",
+    "more": "수 체계는 <b>ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ</b> 로 확장돼 왔습니다 — ℕ(셈)→ℤ(뺄셈 닫힘)→ℚ(나눗셈 닫힘)→ℝ(극한·연속 닫힘, 25장)→ℂ(모든 다항식 근 존재, 대수학의 기본정리). ℚ·ℝ·ℂ처럼 <b>덧셈·뺄셈·곱셈·나눗셈(0 제외)이 모두 닫힌</b> 수 체계를 <b>체(field)</b>라 합니다(교환·결합·분배·항등원·역원 공리를 만족). 추상대수는 이 \"공리를 만족하는 구조\"를 연구합니다 — 구체적 수를 넘어 \"구조 그 자체\"를 보는 현대 수학의 관점입니다. 1장에서 본 수직선이 이렇게 깊은 구조였습니다.",
     "more_en": "Number systems expanded as <b>ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ</b> — ℕ (counting) → ℤ (closed under subtraction) → ℚ (closed under division) → ℝ (closed under limits/continuity, Ch.25) → ℂ (every polynomial has roots, the Fundamental Theorem of Algebra). A system like ℚ, ℝ, ℂ where <b>addition, subtraction, multiplication, and division (except by 0) all stay inside</b> is a <b>field</b> (satisfying commutativity, associativity, distributivity, identities, inverses). Abstract algebra studies such \"structures satisfying axioms\" — the modern view of seeing \"structure itself\" beyond concrete numbers. The number line of Ch.1 held this deep structure all along.",
     "problem": {
       "q": "자연수 집합 ℕ은 뺄셈에 대해 닫혀 있을까?",
-      "solution": "<b>아니요</b>. 3−5=−2는 자연수가 아니에요. 그래서 정수 ℤ로 확장한 거예요.",
+      "solution": "<b>아니요</b>. 3−5=−2는 자연수가 아닙니다. 그래서 정수 ℤ로 확장한 것입니다.",
       "q_en": "Is the set of natural numbers ℕ closed under subtraction?",
       "sol_en": "<b>No</b>. 3−5=−2 is not natural, which is why we extend to the integers ℤ."
     }
@@ -33,13 +33,13 @@
     "ch": "제26장 종합",
     "sec": "26.4 확률분포와 평균",
     "title": "정규분포 — 통계의 종 곡선",
-    "narr": "<b>16장의 확률</b>과 <b>19장의 적분</b>이 만나는 곳, <b>확률분포</b>예요. 키·시험점수·측정오차… 자연의 수많은 데이터가 <b>종 모양(정규분포)</b>을 그려요. 중심이 평균, 폭이 표준편차 σ. σ를 바꿔 종이 넓어지고 좁아지는 걸 보세요.",
+    "narr": "<b>16장의 확률</b>과 <b>19장의 적분</b>이 만나는 곳, <b>확률분포</b>입니다. 키·시험점수·측정오차… 자연의 수많은 데이터가 <b>종 모양(정규분포)</b>을 그립니다. 중심이 평균, 폭이 표준편차 σ. σ를 바꿔 종이 넓어지고 좁아지는 걸 보세요.",
     "hint": "σ를 바꿔 퍼짐을 보세요",
-    "more": "<b>정규분포(가우스 분포)</b>는 평균 μ를 중심으로 좌우대칭인 종 모양 곡선이에요. <b>평균 μ</b>=중심 위치, <b>표준편차 σ</b>=퍼진 정도(σ↑ 넓고 낮게). 핵심 성질: <b>곡선 아래 전체 넓이 = 1</b>(전체 확률, 19장 적분!), 구간의 확률 = 그 구간 아래 넓이(정적분). \"평균±2σ 안에 약 95%\"가 들어오죠. <b>중심극한정리</b>: 무엇이든 많이 더하면(평균 내면) 정규분포에 가까워져요 — 16장 큰수의법칙의 정밀판. 키·오차·여론조사·금융위험이 모두 이 곡선이라, 통계·머신러닝·과학 실험의 심장이에요. 확률(16)·적분(19)·극한(14·25)이 한데 모인 종착점이에요.",
+    "more": "<b>정규분포(가우스 분포)</b>는 평균 μ를 중심으로 좌우대칭인 종 모양 곡선입니다. <b>평균 μ</b>=중심 위치, <b>표준편차 σ</b>=퍼진 정도(σ↑ 넓고 낮게). 핵심 성질: <b>곡선 아래 전체 넓이 = 1</b>(전체 확률, 19장 적분!), 구간의 확률 = 그 구간 아래 넓이(정적분). \"평균±2σ 안에 약 95%\"가 들어옵니다. <b>중심극한정리</b>: 무엇이든 많이 더하면(평균 내면) 정규분포에 가까워집니다 — 16장 큰수의법칙의 정밀판. 키·오차·여론조사·금융위험이 모두 이 곡선이라, 통계·머신러닝·과학 실험의 심장입니다. 확률(16)·적분(19)·극한(14·25)이 한데 모인 종착점입니다.",
     "more_en": "The <b>normal (Gaussian) distribution</b> is a bell curve symmetric about its mean μ. <b>Mean μ</b> = center, <b>standard deviation σ</b> = spread (larger σ → wider, lower). Key property: <b>total area under the curve = 1</b> (total probability, Ch.19 integration!), and the probability of an interval is the area above it (a definite integral). About 95% lies within μ±2σ. The <b>Central Limit Theorem</b>: averaging many of anything approaches a normal distribution — the precise form of Ch.16's law of large numbers. Heights, errors, polls, and financial risk all follow this curve, making it the heart of statistics, machine learning, and experiments. Probability (16), integration (19), and limits (14, 25) converge here.",
     "problem": {
       "q": "정규분포 곡선 아래의 전체 넓이는?",
-      "solution": "<b>1</b> (전체 확률). 어떤 구간의 확률은 그 구간 아래 넓이(적분)예요.",
+      "solution": "<b>1</b> (전체 확률). 어떤 구간의 확률은 그 구간 아래 넓이(적분)입니다.",
       "q_en": "What is the total area under a normal distribution curve?",
       "sol_en": "<b>1</b> (total probability). The probability of any interval is the area under it (an integral)."
     }
@@ -48,9 +48,9 @@
     "ch": "제26장 종합",
     "sec": "26.5 \"전부\"와 \"존재\"",
     "title": "모든 것과 어떤 것 — 논리의 두 기둥",
-    "narr": "수학의 모든 정의와 증명은 두 마디로 압축돼요: \"<b>모든(∀)</b>\"과 \"<b>어떤·존재(∃)</b>\". \"<b>모든</b> 짝수는 2의 배수\"(∀), \"<b>어떤</b> 수는 제곱이 2\"(∃). 25장의 극한 정의(∀ε ∃δ)도 이 둘의 춤이었죠! 화면을 눌러 ∀와 ∃를 비교해보세요.",
+    "narr": "수학의 모든 정의와 증명은 두 마디로 압축됩니다: \"<b>모든(∀)</b>\"과 \"<b>어떤·존재(∃)</b>\". \"<b>모든</b> 짝수는 2의 배수\"(∀), \"<b>어떤</b> 수는 제곱이 2\"(∃). 25장의 극한 정의(∀ε ∃δ)도 이 둘의 춤이었습니다! 화면을 눌러 ∀와 ∃를 비교해보세요.",
     "hint": "▶ ∀(전부) / ∃(존재)",
-    "more": "<b>한정기호</b>: <b>∀(전칭, '모든')</b> 과 <b>∃(존재, '어떤·적어도 하나')</b> 는 수학 명제의 두 기둥이에요. 순서가 중요하죠 — \"∀x ∃y (사랑한다)\"(각자에게 사랑할 누군가 있다)와 \"∃y ∀x\"(모두가 사랑하는 한 사람이 있다)는 전혀 달라요! 부정도 핵심: \"모든 게 참\"의 부정은 \"어떤 반례가 존재\"(¬∀ = ∃¬). 25장 극한의 ∀ε ∃N 정의, 수렴·연속·모든 증명이 이 기호의 정확한 배치로 쓰여요. 모호한 일상어를 떠나 \"정확히 무엇을 주장하는가\"를 못 박는 것 — 이게 수학적 사고의 본질이에요.",
+    "more": "<b>한정기호</b>: <b>∀(전칭, '모든')</b> 과 <b>∃(존재, '어떤·적어도 하나')</b> 는 수학 명제의 두 기둥입니다. 순서가 중요합니다 — \"∀x ∃y (사랑한다)\"(각자에게 사랑할 누군가 있다)와 \"∃y ∀x\"(모두가 사랑하는 한 사람이 있다)는 전혀 다릅니다! 부정도 핵심: \"모든 게 참\"의 부정은 \"어떤 반례가 존재\"(¬∀ = ∃¬). 25장 극한의 ∀ε ∃N 정의, 수렴·연속·모든 증명이 이 기호의 정확한 배치로 쓰입니다. 모호한 일상어를 떠나 \"정확히 무엇을 주장하는가\"를 못 박는 것 — 이게 수학적 사고의 본질입니다.",
     "more_en": "<b>Quantifiers</b>: <b>∀ (universal, 'for all')</b> and <b>∃ (existential, 'there exists / at least one')</b> are the two pillars of mathematical statements. Order matters — \"∀x ∃y (loves)\" (everyone has someone they love) differs entirely from \"∃y ∀x\" (one person whom everyone loves)! Negation is key too: the negation of \"all are true\" is \"a counterexample exists\" (¬∀ = ∃¬). Ch.25's ∀ε ∃N limit definitions, and every proof of convergence and continuity, are written by precisely arranging these symbols. Leaving vague everyday language to pin down \"exactly what is claimed\" — this is the essence of mathematical thinking.",
     "problem": {
       "q": "\"모든 학생이 통과했다\"의 부정은?",
@@ -63,9 +63,9 @@
     "ch": "제26장 종합",
     "sec": "여정의 끝",
     "title": "수학의 여정 — 완주!",
-    "narr": "축하해요! <b>수 하나에서 시작해 무한까지</b> — 26장의 긴 여정을 완주했어요. 수·식·함수·도형·벡터·미분·적분·확률·무한이 따로가 아니라 <b>촘촘히 이어진 하나의 이야기</b>였죠. 이 별자리처럼 모든 개념이 연결돼 있어요.",
-    "hint": "모든 개념은 하나로 이어져요",
-    "more": "우리가 걸어온 길: <b>수(1장)</b> → 식·방정식(2~4장) → <b>함수·도형·삼각(5~8장)</b> → 벡터·복소·공간·곡선·수열(9~13장) → <b>극한·확률·미분(14~17장)</b> → 미분응용·적분(18~20장) → <b>행렬·일차변환(21~22장)</b> → 수론·집합론·엄밀극한(23~25장) → 종합(26장). 각 개념은 앞을 딛고 다음을 예고하며 이어졌어요 — 피타고라스가 거리·삼각·복소·길이에서, 극한이 미분·적분·무한에서 계속 다시 나타났듯이. <b>\"하나의 화면이 모양을 바꿔가며 수학 전체를 이해한다\"</b>는 이 프로젝트의 비전이 26장으로 완성됐어요. 다음 여정은 <b>알고리즘</b> — 같은 방식으로, 계산의 세계를 시각으로 탐험해요. 수학이라는 언어를 손에 쥔 당신, 이제 어떤 책·어떤 문제든 두렵지 않아요.",
+    "narr": "축하합니다! <b>수 하나에서 시작해 무한까지</b> — 26장의 긴 여정을 완주했습니다. 수·식·함수·도형·벡터·미분·적분·확률·무한이 따로가 아니라 <b>촘촘히 이어진 하나의 이야기</b>였습니다. 이 별자리처럼 모든 개념이 연결돼 있습니다.",
+    "hint": "모든 개념은 하나로 이어집니다",
+    "more": "우리가 걸어온 길: <b>수(1장)</b> → 식·방정식(2~4장) → <b>함수·도형·삼각(5~8장)</b> → 벡터·복소·공간·곡선·수열(9~13장) → <b>극한·확률·미분(14~17장)</b> → 미분응용·적분(18~20장) → <b>행렬·일차변환(21~22장)</b> → 수론·집합론·엄밀극한(23~25장) → 종합(26장). 각 개념은 앞을 딛고 다음을 예고하며 이어졌습니다 — 피타고라스가 거리·삼각·복소·길이에서, 극한이 미분·적분·무한에서 계속 다시 나타났듯이. <b>\"하나의 화면이 모양을 바꿔가며 수학 전체를 이해한다\"</b>는 이 프로젝트의 비전이 26장으로 완성됐습니다. 다음 여정은 <b>알고리즘</b> — 같은 방식으로, 계산의 세계를 시각으로 탐험합니다. 수학이라는 언어를 손에 쥔 당신, 이제 어떤 책·어떤 문제든 두렵지 않습니다.",
     "more_en": "The path we walked: <b>Number (Ch.1)</b> → expressions, equations, inequalities (2–4) → <b>functions, geometry, trigonometry (5–8)</b> → vectors, complex plane, space, conics, sequences (9–13) → <b>limits, probability, differentiation (14–17)</b> → applications and integration (18–20) → <b>matrices, linear transformations (21–22)</b> → number theory, set theory, rigorous limits (23–25) → synthesis (26). Each idea stood on the previous and foreshadowed the next — Pythagoras reappeared in distance, trig, complex numbers, and arc length; limits reappeared in derivatives, integrals, and infinity. This project's vision — <b>\"one morphing screen to understand all of mathematics\"</b> — is complete across 26 chapters. The next journey is <b>algorithms</b>, exploring the world of computation visually in the same way. Holding the language of mathematics, you need not fear any book or problem now.",
     "problem": {
       "q": "이 여정에서 가장 여러 번 다시 등장한 정리 하나는?",

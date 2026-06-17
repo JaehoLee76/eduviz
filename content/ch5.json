@@ -3,9 +3,9 @@
     "ch": "제5장 함수",
     "sec": "5.1 함수와 그래프",
     "title": "함수란 — 입력을 출력으로",
-    "narr": "드디어 <b>함수</b>예요! 1장에서 수로 계산했죠. 함수는 그 계산을 하나의 <b>규칙(상자)</b>으로 묶은 거예요. x를 넣으면 정해진 규칙 f로 <b>f(x)</b>가 나와요. 입력 x를 바꿔보세요.",
+    "narr": "드디어 <b>함수</b>입니다! 1장에서 수로 계산했습니다. 함수는 그 계산을 하나의 <b>규칙(상자)</b>으로 묶은 것입니다. x를 넣으면 정해진 규칙 f로 <b>f(x)</b>가 나옵니다. 입력 x를 바꿔보세요.",
     "hint": "입력 x를 바꿔보세요",
-    "more": "<b>함수</b>는 입력 하나에 출력 하나를 짝지어 주는 <b>규칙</b>이에요. f(x) = 2x + 1 은 \"2를 곱하고 1을 더하라\"는 상자죠. 입력 x 전체를 <b>정의역</b>, 출력 f(x) 전체를 <b>치역</b>이라고 해요.",
+    "more": "<b>함수</b>는 입력 하나에 출력 하나를 짝지어 주는 <b>규칙</b>입니다. f(x) = 2x + 1 은 \"2를 곱하고 1을 더하라\"는 상자입니다. 입력 x 전체를 <b>정의역</b>, 출력 f(x) 전체를 <b>치역</b>이라고 합니다.",
     "more_en": "A <b>function</b> is a rule that assigns exactly one output to each input. f(x) = 2x + 1 is a box that says \"multiply by 2, then add 1\". The set of inputs is the <b>domain</b>, the set of outputs is the <b>range</b>.",
     "problem": {
       "q": "f(x) = 2x + 1 일 때 f(4) 의 값은?",
@@ -18,13 +18,13 @@
     "ch": "제5장 함수",
     "sec": "5.1 함수와 그래프",
     "title": "함수의 그래프 — 일차함수 y = ax + b",
-    "narr": "함수의 입력·출력 짝 (x, f(x))를 점으로 찍으면 <b>그래프</b>가 돼요. <b>3장 연립방정식(#28)에서 미리 본 직선</b>, 바로 일차함수의 그래프예요! 기울기 a와 y절편 b를 바꿔보세요.",
+    "narr": "함수의 입력·출력 짝 (x, f(x))를 점으로 찍으면 <b>그래프</b>가 됩니다. <b>3장 연립방정식(#28)에서 미리 본 직선</b>, 바로 일차함수의 그래프입니다! 기울기 a와 y절편 b를 바꿔보세요.",
     "hint": "기울기 a, y절편 b를 바꿔보세요",
-    "more": "<b>일차함수 y = ax + b</b>의 그래프는 <b>직선</b>이에요. <b>a는 기울기</b>(클수록 가파르고, 음수면 내리막), <b>b는 y절편</b>(y축과 만나는 높이)이죠. 기울기는 \"x가 1 늘 때 y가 a만큼 변한다\"는 뜻이에요.",
+    "more": "<b>일차함수 y = ax + b</b>의 그래프는 <b>직선</b>입니다. <b>a는 기울기</b>(클수록 가파르고, 음수면 내리막), <b>b는 y절편</b>(y축과 만나는 높이)입니다. 기울기는 \"x가 1 늘 때 y가 a만큼 변한다\"는 뜻입니다.",
     "more_en": "The graph of a <b>linear function y = ax + b</b> is a <b>straight line</b>. <b>a is the slope</b> (steeper when larger, downhill when negative) and <b>b is the y-intercept</b> (the height where it meets the y-axis). Slope means \"y changes by a when x increases by 1\".",
     "problem": {
       "q": "y = 2x − 1 에서 x = 3 일 때 y는?",
-      "solution": "2·3 − 1 = <b>5</b>. 그래프 위의 점 (3, 5)예요.",
+      "solution": "2·3 − 1 = <b>5</b>. 그래프 위의 점 (3, 5)입니다.",
       "q_en": "For y = 2x − 1, find y when x = 3.",
       "sol_en": "2·3 − 1 = <b>5</b>, the point (3, 5) on the graph."
     }
@@ -33,9 +33,9 @@
     "ch": "제5장 함수",
     "sec": "5.2 이차함수",
     "title": "이차함수 y = ax² + bx + c",
-    "narr": "<b>3장 #22~23에서 미리 본 포물선</b>, 이제 제대로 배웁니다! <b>이차함수 y = ax² + bx + c</b>의 그래프가 포물선이에요. a를 바꾸면 폭과 방향이, c를 바꾸면 위아래로 움직여요. (a = 0이면 직선이 돼요.)",
+    "narr": "<b>3장 #22~23에서 미리 본 포물선</b>, 이제 제대로 배웁니다! <b>이차함수 y = ax² + bx + c</b>의 그래프가 포물선입니다. a를 바꾸면 폭과 방향이, c를 바꾸면 위아래로 움직입니다. (a = 0이면 직선이 됩니다.)",
     "hint": "a, b, c를 바꿔보세요",
-    "more": "<b>이차함수</b>의 그래프는 <b>포물선(parabola)</b>이에요. <b>a</b>가 양수면 아래로 볼록(∪), 음수면 위로 볼록(∩), 절댓값이 클수록 좁아져요. <b>c</b>는 그래프를 위아래로 평행이동하죠. 꼭짓점은 x = −b/2a 에 있어요(완전제곱식 #21 참고). 곡선 위 한 점에서의 기울기는 나중에 <b>미분</b>에서 배워요.",
+    "more": "<b>이차함수</b>의 그래프는 <b>포물선(parabola)</b>입니다. <b>a</b>가 양수면 아래로 볼록(∪), 음수면 위로 볼록(∩), 절댓값이 클수록 좁아집니다. <b>c</b>는 그래프를 위아래로 평행이동합니다. 꼭짓점은 x = −b/2a 에 있습니다(완전제곱식 #21 참고). 곡선 위 한 점에서의 기울기는 나중에 <b>미분</b>에서 배웁니다.",
     "more_en": "The graph of a <b>quadratic function</b> is a <b>parabola</b>. If <b>a</b> is positive it opens upward (∪), if negative downward (∩); larger |a| makes it narrower. <b>c</b> shifts the graph up or down. The <b>vertex</b> is at x = −b/2a (see completing the square, #21). The slope at a point on the curve is studied later in <b>differentiation</b>.",
     "problem": {
       "q": "y = x² − 4 의 그래프가 x축과 만나는 점(근)은?",
@@ -48,9 +48,9 @@
     "ch": "제5장 함수",
     "sec": "5.2 이차함수",
     "title": "꼭짓점과 축 — y = (x − p)² + q",
-    "narr": "이차함수를 <b>완전제곱식(#21)</b>으로 바꾸면 <b>y = a(x − p)² + q</b> 꼴이 돼요. 그러면 <b>꼭짓점 (p, q)</b>가 바로 보이죠! p, q를 바꿔 꼭짓점을 옮겨보세요. 점선은 <b>대칭축 x = p</b>예요.",
+    "narr": "이차함수를 <b>완전제곱식(#21)</b>으로 바꾸면 <b>y = a(x − p)² + q</b> 꼴이 됩니다. 그러면 <b>꼭짓점 (p, q)</b>가 바로 보입니다! p, q를 바꿔 꼭짓점을 옮겨보세요. 점선은 <b>대칭축 x = p</b>입니다.",
     "hint": "p, q로 꼭짓점을 옮겨보세요",
-    "more": "<b>꼭짓점 형태 y = a(x − p)² + q</b>는 포물선의 <b>꼭짓점 (p, q)</b>를 바로 보여줘요. 포물선은 <b>대칭축 x = p</b>를 기준으로 좌우 대칭이죠. p는 좌우, q는 상하 이동을 뜻해요. (#22의 \"꼭짓점이 움직인다\"가 바로 이거예요.)",
+    "more": "<b>꼭짓점 형태 y = a(x − p)² + q</b>는 포물선의 <b>꼭짓점 (p, q)</b>를 바로 보여줍니다. 포물선은 <b>대칭축 x = p</b>를 기준으로 좌우 대칭입니다. p는 좌우, q는 상하 이동을 뜻합니다. (#22의 \"꼭짓점이 움직인다\"가 바로 이것입니다.)",
     "more_en": "The <b>vertex form y = a(x − p)² + q</b> shows the <b>vertex (p, q)</b> directly. The parabola is symmetric about its <b>axis of symmetry x = p</b>. Here p shifts it left/right and q shifts it up/down. (This is exactly the moving vertex from #22.)",
     "problem": {
       "q": "y = (x − 3)² + 1 의 꼭짓점은?",
@@ -63,13 +63,13 @@
     "ch": "제5장 함수",
     "sec": "5.3 분수·무리함수",
     "title": "분수함수 y = k / x",
-    "narr": "<b>2장의 분수식</b>이 함수가 되면 <b>분수함수</b>예요. y = k/x 는 x가 0에 다가가면 y가 무한히 커지고, x가 커지면 y가 0에 다가가요. 닿을 듯 안 닿는 선 — <b>점근선(asymptote)</b>이에요. k를 바꿔보세요.",
+    "narr": "<b>2장의 분수식</b>이 함수가 되면 <b>분수함수</b>입니다. y = k/x 는 x가 0에 다가가면 y가 무한히 커지고, x가 커지면 y가 0에 다가갑니다. 닿을 듯 안 닿는 선 — <b>점근선(asymptote)</b>입니다. k를 바꿔보세요.",
     "hint": "k를 바꿔보세요",
-    "more": "<b>분수함수 y = k/x</b>의 그래프는 두 갈래로 갈라진 <b>쌍곡선</b>이에요. x = 0(y축)과 y = 0(x축)에 한없이 가까워지지만 절대 닿지 않죠 — 이 선을 <b>점근선</b>이라 해요. x = 0은 정의역에서 빠져요(0으로 나눌 수 없으니까).",
+    "more": "<b>분수함수 y = k/x</b>의 그래프는 두 갈래로 갈라진 <b>쌍곡선</b>입니다. x = 0(y축)과 y = 0(x축)에 한없이 가까워지지만 절대 닿지 않습니다 — 이 선을 <b>점근선</b>이라 합니다. x = 0은 정의역에서 빠집니다(0으로 나눌 수 없으니까).",
     "more_en": "The graph of a <b>rational function y = k/x</b> is a <b>hyperbola</b> with two branches. It gets infinitely close to x = 0 (the y-axis) and y = 0 (the x-axis) but never touches them — these lines are <b>asymptotes</b>. x = 0 is excluded from the domain (you cannot divide by zero).",
     "problem": {
       "q": "y = 6/x 에서 x = 3 일 때 y는?",
-      "solution": "6 ÷ 3 = <b>2</b>. 그래프 위의 점 (3, 2)예요.",
+      "solution": "6 ÷ 3 = <b>2</b>. 그래프 위의 점 (3, 2)입니다.",
       "q_en": "For y = 6/x, find y when x = 3.",
       "sol_en": "6 ÷ 3 = <b>2</b>, the point (3, 2) on the graph."
     }
@@ -78,9 +78,9 @@
     "ch": "제5장 함수",
     "sec": "5.3 분수·무리함수",
     "title": "무리함수 y = √x",
-    "narr": "<b>1장의 제곱근(#11)</b>이 함수가 되면 <b>무리함수</b>예요. y = √x 는 음수의 제곱근이 없으니 <b>x ≥ 0</b>에서만 정의돼요. 옆으로 누운 반쪽 포물선 모양이죠. p를 바꿔 가로로 옮겨보세요.",
+    "narr": "<b>1장의 제곱근(#11)</b>이 함수가 되면 <b>무리함수</b>입니다. y = √x 는 음수의 제곱근이 없으니 <b>x ≥ 0</b>에서만 정의됩니다. 옆으로 누운 반쪽 포물선 모양입니다. p를 바꿔 가로로 옮겨보세요.",
     "hint": "p로 가로 이동해보세요",
-    "more": "<b>무리함수 y = √x</b>는 근호 안이 0 이상이어야 하므로 <b>정의역이 x ≥ 0</b>이에요. 그래프는 (0, 0)에서 시작해 천천히 올라가는 곡선이죠. y = √(x − p) 는 시작점을 (p, 0)으로 옮겨요. (사실 이차함수 y = x²의 일부를 옆으로 뒤집은 모양이에요.)",
+    "more": "<b>무리함수 y = √x</b>는 근호 안이 0 이상이어야 하므로 <b>정의역이 x ≥ 0</b>입니다. 그래프는 (0, 0)에서 시작해 천천히 올라가는 곡선입니다. y = √(x − p) 는 시작점을 (p, 0)으로 옮깁니다. (사실 이차함수 y = x²의 일부를 옆으로 뒤집은 모양입니다.)",
     "more_en": "For the <b>irrational function y = √x</b>, the inside of the root must be ≥ 0, so the <b>domain is x ≥ 0</b>. The graph starts at (0, 0) and rises slowly. y = √(x − p) moves the start point to (p, 0). (It is actually a reflected half of the parabola y = x².)",
     "problem": {
       "q": "y = √(x − 1) 이 정의되는 x의 범위는?",
