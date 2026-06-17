@@ -3912,6 +3912,103 @@
       ctx.fillText('최대 매칭 3? 아니 2(a-x, b-y, c-z 중 y가 겹쳐 실제 최대=2) → 덮개도 2, 일치!', W/2, H*0.90);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('덮개 구성: 매칭 후 미매칭 정점서 교대경로 BFS. 최대독립집합 = 전체 − 최소덮개(쾨니그)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_shoelace', concept:true, branchOf:'algo2_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('신발끈 공식과 Pick 정리 — 다각형의 넓이', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('좌표만으로 다각형 넓이 = ½|Σ(xᵢyᵢ₊₁ − xᵢ₊₁yᵢ)|. 격자점이면 Pick: A = I + B/2 − 1', W/2, H*0.10+22);
+      // polygon on a light grid
+      var ox=W*0.30, oy=H*0.62, g=30;
+      ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
+      for(var i=0;i<=6;i++){ ctx.beginPath(); ctx.moveTo(ox+i*g,oy-6*g); ctx.lineTo(ox+i*g,oy); ctx.stroke(); ctx.beginPath(); ctx.moveTo(ox,oy-i*g); ctx.lineTo(ox+6*g,oy-i*g); ctx.stroke(); }
+      var poly=[[0,0],[4,0],[5,3],[2,5],[0,3]];
+      ctx.strokeStyle='#7ab8ff'; ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.lineWidth=2.5; ctx.beginPath();
+      poly.forEach(function(p,i){ var x=ox+p[0]*g,y=oy-p[1]*g; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.closePath(); ctx.fill(); ctx.stroke();
+      poly.forEach(function(p){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(ox+p[0]*g,oy-p[1]*g,4,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('신발끈: 좌표를 위·아래로 교차 곱', W*0.62, H*0.34);
+      ctx.fillText('(끈을 꿰듯) 한 뒤 차의 절반', W*0.62, H*0.41);
+      ctx.fillText('Pick: A = I + B/2 − 1', W*0.62, H*0.52);
+      ctx.fillText('I=내부 격자점, B=경계 격자점', W*0.62, H*0.59); ctx.textAlign='center';
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('부호 있는 넓이라 시계/반시계 방향까지 알려줌(외적의 합). 볼록·오목 모두 O(n)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('Pick은 모든 꼭짓점이 격자점일 때만. 신발끈은 임의 좌표 OK. 삼각분할·무게중심에도', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_pointinpoly', concept:true, branchOf:'algo2_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('점-다각형 포함 판정 — 광선 쏘기(ray casting)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('점에서 한 방향으로 반직선을 쏴 다각형 변과 교차하는 횟수가 홀수면 내부, 짝수면 외부', W/2, H*0.10+22);
+      var poly=[[0.30,0.30],[0.62,0.26],[0.70,0.58],[0.46,0.70],[0.28,0.52]];
+      function xy(t){ return [W*t[0], H*0.20+t[1]*H*0.6]; }
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      poly.forEach(function(p,i){ var c=xy(p); if(i===0)ctx.moveTo(c[0],c[1]); else ctx.lineTo(c[0],c[1]); }); ctx.closePath(); ctx.stroke();
+      // inside point + ray
+      var pin=xy([0.45,0.45]); ctx.fillStyle='#8fe3b5'; ctx.beginPath(); ctx.arc(pin[0],pin[1],5,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(pin[0],pin[1]); ctx.lineTo(W*0.92,pin[1]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('내부(교차 1회=홀수)', pin[0]+10, pin[1]-10);
+      // outside point + ray
+      var pout=xy([0.10,0.45]); ctx.fillStyle='#ff8d8d'; ctx.beginPath(); ctx.arc(pout[0],pout[1],5,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#ff8d8d'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(pout[0],pout[1]); ctx.lineTo(W*0.92,pout[1]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ff8d8d'; ctx.font='12px sans-serif'; ctx.fillText('외부(교차 2회=짝수)', pout[0], pout[1]-10);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('교차 횟수 홀수 ⟺ 내부 (Jordan 곡선 정리). 변마다 광선과 교차 검사 O(n)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('경계·꼭짓점 통과는 일관 규칙으로 처리. 볼록이면 모든 변 같은 쪽(CCW부호)으로 O(log n) 가능', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_sweepline', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('스위프라인 선분 교차 — Bentley-Ottmann', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('수직선을 왼→오 쓸며, 만나는 선분만 위아래 순서로 관리 → 모든 교차를 O((n+k)log n)에', W/2, H*0.10+22);
+      // segments + a sweep line
+      var segs=[[[0.18,0.30],[0.80,0.55]],[[0.20,0.62],[0.78,0.30]],[[0.30,0.40],[0.70,0.66]]];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.5]; }
+      segs.forEach(function(s,i){ var a=xy(s[0]),b=xy(s[1]); ctx.strokeStyle=['#7ab8ff','#8fe3b5','#9a86ff'][i]; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      // sweep line
+      var sx=W*0.50; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(sx,H*0.20); ctx.lineTo(sx,H*0.74); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('스위프라인', sx, H*0.17);
+      // an intersection dot
+      ctx.fillStyle='#ff8d8d'; ctx.beginPath(); ctx.arc(W*0.49,H*0.45,5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('이벤트(시작·끝·교차)를 x순 우선순위 큐로. 인접해진 두 선분만 교차 검사', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('상태=현재 스위프라인과 만나는 선분들의 y순 정렬(BST). 교차는 "이웃끼리만" 생김', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('O((n+k)log n), k=교차 수. 모든 쌍 O(n²)보다 적은 교차일 때 우월. 지도 오버레이·CAD', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_welzl', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('최소 외접원 — Welzl의 기대 선형 알고리즘', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('점들을 모두 품는 가장 작은 원. 무작위 순서 + 경계점은 최대 3개라는 사실로 기대 O(n)', W/2, H*0.10+22);
+      // points + enclosing circle
+      var cx=W*0.5, cy=H*0.50, r=H*0.22;
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      var pts=[[-0.5,-0.7],[0.6,-0.6],[0.8,0.3],[0.1,0.9],[-0.8,0.2],[0,0],[-0.3,0.4],[0.4,0.5]];
+      pts.forEach(function(p,i){ var x=cx+p[0]*r, y=cy+p[1]*r; var bound=(i<3); // illustrative 3 boundary pts
+        ctx.fillStyle=bound?'#ff8d8d':'#7ab8ff'; ctx.beginPath(); ctx.arc(x,y,bound?6:4,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#ff8d8d'; ctx.font='12px sans-serif'; ctx.fillText('원 위의 결정점(≤3개)', cx, cy-r-10);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('점을 하나씩 추가하며, 새 점이 현재 원 밖이면 그 점을 경계에 두고 재귀', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('최소 외접원은 ≤3개의 점으로 결정됨(2점=지름 또는 3점=외접). 무작위 순서로 기대 O(n)', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('LP-type 문제의 대표(저차원). 시설 입지(최악 거리 최소), 충돌 구체, 군집 반경', W/2, H*0.90+18); }
   }
 
   ];
