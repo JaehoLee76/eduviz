@@ -3630,6 +3630,97 @@
       ctx.fillText('d_k(v)=시작점서 정확히 k간선으로 v까지 최단. DP O(VE)로 모든 d_k 채운 뒤 위 공식', W/2, H*0.84+18);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('쓰임: 음수사이클 판정 임계, 분수계획(Dinkelbach) 부품, 스케줄 주기·이익률 사이클', W/2, H*0.84+36); }
+  },
+
+  { id:'algo_br_gomoryhu', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Gomory-Hu 트리 — 모든 쌍 최소컷을 트리 하나로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('n−1번의 최소컷만 계산해, 임의의 두 정점 최소컷을 트리 경로의 최솟값으로', W/2, H*0.10+22);
+      // tree with edge weights
+      var N={a:[0.30,0.32,'A'],b:[0.62,0.30,'B'],c:[0.74,0.58,'C'],d:[0.46,0.62,'D'],e:[0.26,0.66,'E']};
+      var edges=[['a','b','6'],['b','c','5'],['a','d','4'],['d','e','3']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.52]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2+6,(p[1]+q[1])/2); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('mincut(C,E) = 경로 C–B–A–D–E 의 최소 간선 = min(5,6,4,3) = 3', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('임의 두 정점의 최소컷 = 트리 경로상 가장 가벼운 간선', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('Gusfield 알고리즘으로 n−1번 max-flow만에 구축. O(n²) 쌍 최소컷을 트리로 압축', W/2, H*0.88+18); }
+  },
+
+  { id:'algo_br_dominator', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('도미네이터 트리 — 반드시 거쳐야 하는 길목', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('시작점에서 v로 가는 모든 경로가 반드시 지나는 정점(지배자)을 트리로 정리', W/2, H*0.10+22);
+      // flow graph + dominator relation
+      var N={s:[0.18,0.48,'S'],a:[0.40,0.30,'A'],b:[0.40,0.66,'B'],c:[0.64,0.48,'C'],d:[0.85,0.48,'D']};
+      var edges=[['s','a'],['s','b'],['a','c'],['b','c'],['c','d']];
+      function xy(t){ return [W*t[0], H*0.24+t[1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke();
+        var mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2,ang=Math.atan2(q[1]-p[1],q[0]-p[0]); ctx.fillStyle='rgba(122,184,255,0.6)'; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(mx-8*Math.cos(ang-0.4),my-8*Math.sin(ang-0.4)); ctx.lineTo(mx-8*Math.cos(ang+0.4),my-8*Math.sin(ang+0.4)); ctx.fill(); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var dom=(k==='c'||k==='s'||k==='d');
+        ctx.fillStyle=dom?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=dom?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+4); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif';
+      ctx.fillText('D의 지배자: S, C, D — A·B는 둘 중 하나만 거쳐도 되므로 지배자 아님', W/2, H*0.78);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('idom(v)=v의 직속 지배자 → 도미네이터 트리(부모=가장 가까운 필수 길목)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('렌가워-타잔 O(E α). 컴파일러 최적화(SSA·코드 이동)·프로그램 분석의 핵심', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_lowerboundflow', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('하한 있는 유량 — 간선마다 최소 흘림 강제', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 간선 [하한 L, 상한 U] 제약을, 하한을 미리 흘린 뒤 초과/부족을 보조 그래프로', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 각 간선 (u→v, [L,U])에서 하한 L을 "이미 흘렸다" 가정 → 용량 U−L로 축소',
+        '② 강제로 흘린 L 때문에 v는 +L 들어옴, u는 −L 나감 → 불균형 발생',
+        '③ 초과 정점은 새 소스 S′→정점(용량=초과), 부족 정점은 정점→새 싱크 T′',
+        '④ S′→T′ 최대유량이 포화되면 실현 가능 → 원래 흐름 = L + 보조 흐름'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.08, H*0.36+i*30); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('하한 = "반드시 흘려야 하는 양" → 강제 후 남은 자유분만 일반 최대유량', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('실현가능 흐름 → (s,t 추가) 최대/최소 유량까지. 순환 유량·t→s 무한간선으로 닫기', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 스케줄(최소 근무시간)·공급망 최소 처리량·행렬 행·열합 맞추기(수송)', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_steiner', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('스타이너 트리 — 지정 정점들을 최소 비용으로 잇기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('터미널 k개를 잇는 최소 트리(중간 정점 추가 허용). k 작으면 부분집합 DP로 O(3ᵏ·n)', W/2, H*0.10+22);
+      // graph with terminals highlighted and a steiner tree
+      var N={a:[0.25,0.32],b:[0.55,0.26],c:[0.78,0.50],d:[0.50,0.55],e:[0.30,0.70],f:[0.66,0.74]};
+      var tree=[['a','d'],['b','d'],['d','f'],['c','f']];
+      var allE=[['a','d'],['b','d'],['d','f'],['c','f'],['d','e'],['a','e']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.54]; }
+      allE.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); var on=tree.some(function(t){return t[0]===e[0]&&t[1]===e[1];}); ctx.strokeStyle=on?'#8fe3b5':'rgba(255,255,255,0.15)'; ctx.lineWidth=on?3:1.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      var terms=['a','b','c'];
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var term=terms.indexOf(k)>=0;
+        ctx.fillStyle=term?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=term?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],term?14:11,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=term?'#ffb27a':'#8a8893'; ctx.font='600 11px sans-serif'; ctx.fillText(term?'단말':'',p[0],p[1]-20); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('주황=단말(반드시 연결), 초록=고른 스타이너 트리(중간점 D·F 활용)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('DP: dp[부분집합][정점] = 그 정점에 모인 단말 부분집합 연결 최소비용. 부분집합 병합 + 완화', W/2, H*0.91);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('NP-난해이나 단말 k 작으면 O(3ᵏ·n + 2ᵏ·n log n). MST는 중간점 없는 근사(2배 이내)', W/2, H*0.91+18); }
   }
 
   ];

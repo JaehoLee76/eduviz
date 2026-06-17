@@ -2563,5 +2563,65 @@
     "q_en": "Explain the minimum mean cycle value λ* via 'subtracting λ from all weights'.",
     "sol_en": "A cycle of mean λ has <b>sum 0 after subtracting λ from every edge weight</b>. Subtracting more than λ* makes some cycle's sum negative (a negative cycle appears); subtracting less keeps all cycle sums positive. So λ* is the <b>threshold just before a negative cycle emerges</b>, and Karp's formula min_v max_k (d_n−d_k)/(n−k) gives it in closed form."
    }
+  },
+  "algo_br_gomoryhu": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "Gomory-Hu 트리 — 모든 쌍 최소컷을 트리 하나로",
+   "narr": "무방향 그래프에서 <b>모든 정점 쌍의 최소컷</b>을 알고 싶다면? 쌍마다 max-flow를 돌리면 O(n²)번입니다. <b>Gomory-Hu 트리</b>는 단 <b>n−1번</b>의 최소컷 계산으로, 임의 쌍의 최소컷을 <b>트리 경로의 최소 간선</b>으로 답하게 해 줍니다.",
+   "hint": "",
+   "more": "<b>Gomory-Hu 트리</b>는 가중 무방향 그래프의 <b>모든 쌍 최소컷(min s-t cut) 값</b>을 담은 가중 트리입니다. 핵심 정리: 어떤 그래프든, 정점들로 이루어진 트리 T를 만들 수 있어서 <b>임의의 두 정점 u, v의 최소컷 = T에서 u–v 경로상 가장 가벼운 간선의 가중치</b>가 됩니다(그 가벼운 간선을 끊으면 실제 그래프의 최소컷 분할이 나옴). 즉 n(n−1)/2개의 쌍 최소컷이 단 <b>n−1개의 트리 간선</b>에 압축됩니다(서로 다른 최소컷 값은 최대 n−1가지뿐이라는 사실의 구현). 구축(<b>Gusfield 알고리즘</b>): 정점들을 한 트리로 시작해, 각 정점 v에 대해 현재 트리 부모 p와의 <b>s-t 최소컷을 max-flow로 한 번</b> 계산하고, 그 컷 값을 간선 가중치로, 컷의 s쪽 집합을 보고 다른 정점들의 부모를 갱신 — <b>총 n−1번의 max-flow</b>로 완성(O(n) 최대유량 호출). 질의는 트리에서 u–v 경로의 최소 간선이라 O(n) 또는 전처리로 O(log n). 쓰임: <b>네트워크 신뢰도/취약점</b>(가장 약한 분리), 클러스터링, 모든 쌍 연결강도, 이미지 분할. \"모든 쌍 최소컷의 정보는 트리 하나에 다 들어간다\"가 핵심 통찰입니다(전역 최소컷은 이 트리의 최소 간선).",
+   "more_en": "A <b>Gomory-Hu tree</b> is a weighted tree encoding <b>all-pairs minimum cuts</b> of a weighted undirected graph. Key theorem: for any graph, there is a tree T on its vertices such that the <b>min cut of any two vertices u, v equals the lightest edge on the u–v path in T</b> (cutting that edge yields an actual min-cut partition of the graph). So the n(n−1)/2 pairwise min cuts compress into just <b>n−1 tree edges</b> (realizing that there are at most n−1 distinct min-cut values). Construction (<b>Gusfield's algorithm</b>): start with all vertices in one tree; for each vertex v, compute <b>one s-t min cut via max-flow</b> between v and its current tree parent p, set that cut value as the edge weight, and update other vertices' parents based on the cut's side — completing in <b>n−1 max-flow calls</b> (O(n) flow computations). A query is the minimum edge on the u–v tree path, O(n) or O(log n) with preprocessing. Uses: <b>network reliability/vulnerability</b> (weakest separation), clustering, all-pairs connectivity strength, image segmentation. The key insight: \"all pairwise min-cut information fits in a single tree\" (the global min cut is the tree's lightest edge).",
+   "problem": {
+    "q": "Gomory-Hu 트리에서 두 정점 u, v의 최소컷을 어떻게 읽나? 왜 n−1번의 컷 계산이면 충분한가?",
+    "solution": "u–v <b>트리 경로상 가장 가벼운 간선의 가중치</b>가 둘의 최소컷입니다. 서로 다른 최소컷 값은 <b>최대 n−1가지</b>뿐이고, Gusfield 알고리즘이 각 정점-부모 쌍에 max-flow를 한 번씩(총 n−1번) 돌려 이 트리를 정확히 구성하기 때문에 n−1번이면 모든 쌍이 결정됩니다.",
+    "q_en": "How do you read the min cut of u, v from a Gomory-Hu tree, and why do n−1 cut computations suffice?",
+    "sol_en": "It's the <b>weight of the lightest edge on the u–v tree path</b>. There are at most <b>n−1 distinct min-cut values</b>, and Gusfield's algorithm builds the tree with exactly one max-flow per vertex-parent pair (n−1 total), determining all pairs."
+   }
+  },
+  "algo_br_dominator": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "도미네이터 트리 — 반드시 거쳐야 하는 길목",
+   "narr": "시작점에서 정점 v로 가는 <b>모든 경로</b>가 반드시 지나는 정점을 v의 <b>지배자(dominator)</b>라 합니다. 이 지배 관계는 놀랍게도 <b>트리</b>를 이루며, 컴파일러 최적화의 토대입니다.",
+   "hint": "",
+   "more": "<b>도미네이터 트리(dominator tree)</b>는 시작 정점 s가 있는 방향 그래프(흐름 그래프)에서 <b>지배 관계</b>를 정리한 트리입니다. 정점 d가 정점 v를 <b>지배(dominate)</b>한다 = s에서 v로 가는 <b>모든 경로</b>가 반드시 d를 지난다(s는 모든 정점을 지배, v는 자기 자신을 지배). v의 지배자 중 v 자신을 빼고 <b>v에 가장 가까운(다른 모든 지배자에게 지배되는) 것</b>을 <b>직속 지배자 idom(v)</b>라 합니다. 핵심 사실: 모든 정점은 <b>유일한 idom</b>을 가지며(s 제외), idom을 부모로 삼으면 <b>트리</b>가 됩니다 — 그래서 \"v의 지배자 전부\" = 도미네이터 트리에서 v의 <b>조상들</b>. 직관: 어떤 정점이 둘 이상의 갈래로 도달 가능하면(예: A를 거치거나 B를 거치거나) 그 둘은 지배자가 아니고, <b>갈래가 합쳐지는 합류점</b>이 길목(지배자)입니다. 계산: 단순하게는 각 정점을 빼 보며 도달성 검사(O(V·E))지만, <b>렌가워-타잔(Lengauer-Tarjan) 알고리즘</b>이 DFS 번호 + semidominator + union-find로 거의 선형 <b>O(E·α(E,V))</b>에 구합니다. 쓰임: <b>컴파일러</b>(SSA 형식 변환의 φ-함수 배치, 루프 불변 코드 이동, 죽은 코드 제거), 프로그램·제어흐름 분석, 네트워크에서 단일 실패 지점(SPOF) 식별. \"반드시 거치는 길목의 계층\"이 도미네이터 트리입니다.",
+   "more_en": "A <b>dominator tree</b> organizes the <b>domination relation</b> in a directed (flow) graph with a start vertex s. A vertex d <b>dominates</b> v if <b>every path</b> from s to v passes through d (s dominates all; v dominates itself). Among v's dominators other than v, the one <b>closest to v (dominated by all the others)</b> is the <b>immediate dominator idom(v)</b>. Key fact: every vertex (except s) has a <b>unique idom</b>, and making idom the parent yields a <b>tree</b> — so \"all dominators of v\" = v's <b>ancestors</b> in the dominator tree. Intuition: if a vertex is reachable via two branches (through A or through B), neither is a dominator; the <b>merge point where branches rejoin</b> is the chokepoint (dominator). Computation: naively, remove each vertex and test reachability (O(V·E)); the <b>Lengauer-Tarjan algorithm</b> uses DFS numbering + semidominators + union-find for near-linear <b>O(E·α(E,V))</b>. Uses: <b>compilers</b> (φ-function placement in SSA, loop-invariant code motion, dead-code elimination), control-flow/program analysis, identifying single points of failure in networks. The dominator tree is \"the hierarchy of mandatory chokepoints.\"",
+   "problem": {
+    "q": "도미네이터 트리에서 'v의 모든 지배자'는 어떻게 읽으며, 직속 지배자 idom(v)란?",
+    "solution": "도미네이터 트리에서 <b>v의 조상들 전부</b>가 v의 지배자입니다(루트 s 포함). <b>idom(v)</b>는 v 자신을 뺀 지배자 중 v에 가장 가까운 것(=다른 모든 지배자에게 지배되는 유일한 정점)으로, 도미네이터 트리에서 v의 <b>부모</b>입니다. 모든 정점이 유일한 idom을 가져 트리가 성립합니다.",
+    "q_en": "In a dominator tree, how do you read 'all dominators of v', and what is idom(v)?",
+    "sol_en": "All of <b>v's ancestors</b> in the dominator tree are its dominators (including root s). <b>idom(v)</b> is the dominator closest to v (other than v itself) — the unique one dominated by all the rest — and it is v's <b>parent</b> in the tree. Every vertex has a unique idom, so the structure is a tree."
+   }
+  },
+  "algo_br_lowerboundflow": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "하한 있는 유량 — 간선마다 최소 흘림 강제",
+   "narr": "보통 최대유량은 간선 용량을 \"0부터 U까지\"로 봅니다. 그런데 \"이 간선엔 <b>최소 L만큼은 반드시</b> 흘려야 한다\"는 <b>하한</b> 제약이 붙으면? 하한을 미리 강제로 흘린 뒤, 그로 인한 불균형을 보조 그래프로 푸는 변환이 답입니다.",
+   "hint": "",
+   "more": "<b>하한 있는 유량(flow with lower bounds)</b>은 각 간선에 <b>[하한 L, 상한 U]</b> 제약(흐름 f가 L ≤ f ≤ U)을 둔 네트워크 유량 문제입니다. 표준 변환으로 일반 최대유량으로 환원합니다: ① 각 간선 (u→v, [L,U])에서 <b>하한 L을 미리 흘린 것으로 간주</b>하고 용량을 <b>U−L</b>로 줄입니다. ② 그러면 강제로 흘린 L 때문에 각 정점에 불균형이 생깁니다 — 정점 v로는 들어오는 하한 합만큼 \"공급 초과\", u에서는 나가는 하한 합만큼 \"수요 부족\". 정점별 순불균형 <b>excess(v) = (들어오는 L 합) − (나가는 L 합)</b>. ③ <b>가상 슈퍼소스 S′·슈퍼싱크 T′</b>를 추가해, excess>0인 정점은 <b>S′→v(용량 excess)</b>, excess<0인 정점은 <b>v→T′(용량 −excess)</b> 간선으로 균형을 맞춥니다. ④ <b>S′→T′ 최대유량을 계산해 모든 S′ 간선이 포화</b>되면(=강제 하한을 모두 충족할 수 있으면) <b>실현 가능한 흐름이 존재</b>하고, 실제 간선 흐름 = L + (보조 그래프에서 흐른 양). 여기에 원래 s→t를 다루려면 <b>t→s 무한용량 간선</b>을 추가해 순환으로 만든 뒤 위 절차를 적용하고, 실현 가능 흐름을 얻은 뒤 잔여 그래프에서 s→t(또는 t→s)로 추가 증대해 <b>최대/최소 유량</b>까지 구합니다. 쓰임: <b>스케줄링</b>(최소 근무·기계 가동시간 보장), 공급망 최소 처리량, 행·열 합이 정해진 <b>수송/행렬 채우기</b>, 하한 있는 순환 유량. 핵심: \"반드시 흘려야 할 양을 먼저 흘리고, 남은 자유분만 일반 유량으로\".",
+   "more_en": "<b>Flow with lower bounds</b> puts a constraint <b>[lower L, upper U]</b> on each edge (flow f with L ≤ f ≤ U). A standard transformation reduces it to ordinary max-flow: ① treat the <b>lower bound L as already pushed</b> on each edge (u→v, [L,U]) and shrink its capacity to <b>U−L</b>. ② This forced L creates imbalances: each vertex v gets \"excess supply\" equal to incoming lower bounds and \"deficit\" equal to outgoing ones, with net <b>excess(v) = (sum of incoming L) − (sum of outgoing L)</b>. ③ Add a <b>virtual super-source S′ and super-sink T′</b>: connect S′→v (capacity excess) for excess>0 vertices and v→T′ (capacity −excess) for excess<0, to rebalance. ④ Compute <b>max-flow S′→T′; if all S′ edges saturate</b> (the forced lower bounds can all be met), a <b>feasible flow exists</b>, and the actual edge flow = L + (flow in the auxiliary graph). To handle the original s→t, add a <b>t→s infinite-capacity edge</b> to make it circulatory, run the above, then augment s→t (or t→s) in the residual graph to also get <b>max/min flow</b>. Uses: <b>scheduling</b> (guaranteed minimum shifts/machine uptime), supply-chain minimum throughput, <b>transportation/matrix filling</b> with fixed row-column sums, lower-bounded circulations. The crux: \"push the mandatory amount first, then route only the free remainder as ordinary flow.\"",
+   "problem": {
+    "q": "하한 있는 유량에서 하한 L을 '미리 흘렸다'고 보면 생기는 불균형을 어떻게 해소하나?",
+    "solution": "간선 용량을 U−L로 줄이면, 강제로 흘린 L 때문에 정점마다 <b>excess(v)=(들어오는 L 합)−(나가는 L 합)</b>의 불균형이 생깁니다. 이를 <b>슈퍼소스 S′→(excess>0 정점)</b>과 <b>(excess<0 정점)→슈퍼싱크 T′</b> 간선으로 메우고, S′→T′ 최대유량이 모두 포화되면 실현 가능 — 실제 흐름은 L + 보조 흐름입니다.",
+    "q_en": "In flow with lower bounds, how do you resolve the imbalance from treating L as 'already pushed'?",
+    "sol_en": "Shrinking capacities to U−L, the forced L creates a per-vertex imbalance <b>excess(v)=(incoming L) − (outgoing L)</b>. Cover it with edges <b>super-source S′→(excess>0 vertices)</b> and <b>(excess<0 vertices)→super-sink T′</b>; if the S′→T′ max-flow fully saturates, it's feasible — the actual flow is L plus the auxiliary flow."
+   }
+  },
+  "algo_br_steiner": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "스타이너 트리 — 지정 정점들을 최소 비용으로 잇기",
+   "narr": "그래프에서 <b>지정된 단말(terminal) 정점 k개</b>를 모두 연결하는 최소 비용 트리를 찾되, <b>중간 정점을 자유롭게 추가</b>해도 됩니다. MST와 달리 \"필요한 점만\" 이으면 되고, 단말 수 k가 작으면 <b>부분집합 DP</b>로 정확히 풉니다.",
+   "hint": "",
+   "more": "<b>스타이너 트리(Steiner tree) 문제</b>는 가중 그래프에서 지정된 <b>단말 정점 집합 K(|K|=k)</b>를 모두 연결하는 <b>최소 가중치 트리</b>를 찾는 문제입니다. 단, 트리는 K 밖의 <b>중간 정점(스타이너 점)을 추가로 써도</b> 됩니다 — 이게 \"모든 정점을 잇는\" MST와의 차이입니다(MST는 K=전체인 특수 경우). 일반적으로 <b>NP-난해</b>지만, <b>단말 수 k가 작을 때</b> 부분집합 DP(드라이퍼스-와그너 Dreyfus-Wagner)로 정확히 풉니다: <b>dp[S][v]</b> = 단말 부분집합 S를 모두 포함하고 정점 v에 \"모인\" 최소 트리 비용. 전이 두 가지 — ① <b>병합</b>: dp[S][v] = min over (S=A∪B, A∩B=∅) ( dp[A][v] + dp[B][v] ) (v에서 두 서브트리를 합침), ② <b>완화(확장)</b>: dp[S][v] = min over (u 이웃) ( dp[S][u] + w(u,v) ) (간선 따라 v로 뻗기 — 다익스트라/벨만포드식 완화). 답은 min over v of dp[K][v]. 시간 <b>O(3ᵏ·n + 2ᵏ·(n log n + m))</b>(부분집합 쌍 합이 3ᵏ, 각 S에서 최단경로 완화). k가 크면 못 쓰므로, 그때는 <b>근사</b>: 단말들만의 <b>거리 그래프(metric closure)에서 MST</b>를 구하면 최적의 <b>2배 이내</b>(2−2/k 근사)임이 보장됩니다(더 나은 1.39배 근사도 존재). 쓰임: <b>VLSI 배선</b>(여러 핀 연결), 통신/도로 네트워크 설계, 계통수(phylogenetics). \"필요한 점만, 중간점 도움 받아 최소로\"가 한 줄 요약입니다.",
+   "more_en": "The <b>Steiner tree problem</b> asks for the <b>minimum-weight tree</b> connecting a set of <b>terminal vertices K (|K|=k)</b> in a weighted graph, where the tree <b>may use extra intermediate (Steiner) vertices</b> outside K — the difference from an MST that spans all vertices (MST is the special case K = all). It is generally <b>NP-hard</b>, but for <b>small k</b> it is solved exactly by subset DP (Dreyfus-Wagner): <b>dp[S][v]</b> = minimum tree cost covering terminal subset S and \"rooted/gathered\" at vertex v. Two transitions — ① <b>merge</b>: dp[S][v] = min over (S=A∪B, A∩B=∅) ( dp[A][v] + dp[B][v] ) (join two subtrees at v); ② <b>relax (extend)</b>: dp[S][v] = min over neighbors u ( dp[S][u] + w(u,v) ) (extend along an edge, Dijkstra/Bellman-Ford style). The answer is min over v of dp[K][v]. Time <b>O(3ᵏ·n + 2ᵏ·(n log n + m))</b> (subset-pair sums total 3ᵏ, shortest-path relaxation per S). For large k it's infeasible, so use an <b>approximation</b>: the <b>MST on the terminals' metric closure</b> (pairwise shortest distances) is within <b>2× optimal</b> (a 2−2/k approximation; a better 1.39× exists). Uses: <b>VLSI routing</b> (connecting many pins), telecom/road network design, phylogenetics. One-liner: \"connect just the needed points, minimally, with help from intermediate vertices.\"",
+   "problem": {
+    "q": "스타이너 트리와 MST의 차이는? 단말 k가 클 때 흔한 근사법과 그 보장은?",
+    "solution": "MST는 <b>모든 정점</b>을 잇지만, 스타이너 트리는 <b>지정 단말만</b> 이으면 되고 중간 정점(스타이너 점)을 자유로 추가할 수 있습니다. k가 크면(NP-난해) <b>단말들의 거리 그래프(metric closure)에서 MST</b>를 구하는 근사를 쓰며, 이는 최적의 <b>2배 이내(2−2/k)</b>가 보장됩니다.",
+    "q_en": "How does a Steiner tree differ from an MST, and what's the common approximation for large k with its guarantee?",
+    "sol_en": "An MST spans <b>all vertices</b>, while a Steiner tree need only connect the <b>specified terminals</b>, freely adding intermediate (Steiner) vertices. For large k (NP-hard), a common approximation is the <b>MST on the terminals' metric closure</b> (pairwise shortest distances), guaranteed within <b>2× optimal (2−2/k)</b>."
+   }
   }
 }
