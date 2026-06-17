@@ -2443,5 +2443,65 @@
     "q_en": "Why does Johnson's reweighting w′(u,v)=w(u,v)+h[u]−h[v] preserve shortest paths?",
     "sol_en": "Summing along a path u→x→…→v, the intermediate vertices' <b>h values telescope</b>, giving (original sum) + h[u] − h[v]. Every path for the same (u,v) shifts by the same constant h[u]−h[v], so their relative order (the shortest-path ranking) is preserved. The triangle inequality also makes w′ ≥ 0, enabling Dijkstra."
    }
+  },
+  "algo_br_bittricks": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열과 리스트 ▸ 자세히",
+   "title": "비트 연산 트릭 — 한 줄로 끝내는 정수 마술",
+   "narr": "정수를 <b>비트들의 집합</b>으로 보면, 집합 연산이 비트 연산 한두 번으로 끝납니다. 최하위 비트 추출, 1의 개수, 부분집합 순회, 그레이 코드 — 경쟁 프로그래밍·시스템 코드의 필수 도구입니다.",
+   "hint": "",
+   "more": "정수의 비트를 <b>원소의 유무</b>로 보면 집합이 됩니다(비트 i=1 ⟺ 원소 i 포함). 그러면 <b>AND=교집합, OR=합집합, XOR=대칭차, x&~y=차집합, <<=원소 이동</b>. 자주 쓰는 비트 트릭: ① <b>x & (−x)</b> = 최하위 켜진 비트만 남김(2의 보수 성질, <b>펜윅 트리의 lowbit</b>). ② <b>x & (x−1)</b> = 최하위 1을 끔 → 이 한 줄을 0이 될 때까지 반복하면 <b>1의 개수(popcount)</b>를 켜진 비트 수만큼만에 셈(브라이언 커니핸). ③ <b>마스크 m의 부분집합 전부 순회</b>: `for(s=m; s; s=(s−1)&m)` — (s−1)&m이 m 안에서 다음 작은 부분집합을 줌(빈집합은 따로). 마스크들의 모든 부분집합 합은 <b>3ⁿ</b>(각 비트가 \"둘 다 0/마스크만/부분집합만\" 3상태). ④ <b>그레이 코드</b> g = x ^ (x>>1): 연속한 두 코드가 <b>정확히 1비트만 다름</b>(하드웨어 상태 전환·카르노맵). 역변환은 누적 XOR. ⑤ 기타: x|(x+1)(최하위 0 켜기), x&(x+1)(최하위 1들 끄기), 2의 거듭제곱 판정 x&(x−1)==0. 실무에선 <b>__builtin_popcount/ctz/clz</b> 같은 하드웨어 명령이 가장 빠릅니다. 비트 트릭은 <b>비트마스크 DP</b>(부분집합을 정수 상태로)와 <b>비트셋 가속</b>의 토대입니다.",
+   "more_en": "Viewing an integer's bits as <b>element membership</b> makes it a set (bit i=1 ⟺ element i present). Then <b>AND=intersection, OR=union, XOR=symmetric difference, x&~y=difference, <<=shifting elements</b>. Common bit tricks: ① <b>x & (−x)</b> isolates the lowest set bit (two's-complement property, the <b>Fenwick tree's lowbit</b>). ② <b>x & (x−1)</b> clears the lowest 1 → repeating until 0 counts the <b>number of 1s (popcount)</b> in as many steps as set bits (Brian Kernighan). ③ <b>iterate all subsets of a mask m</b>: `for(s=m; s; s=(s−1)&m)` gives the next smaller subset within m (handle empty separately). Summed over masks, all subsets total <b>3ⁿ</b> (each bit is in 3 states). ④ <b>Gray code</b> g = x ^ (x>>1): consecutive codes differ in <b>exactly one bit</b> (hardware transitions, Karnaugh maps); inverse is a prefix XOR. ⑤ Others: x|(x+1) (set lowest 0), x&(x+1) (clear trailing 1s), power-of-two test x&(x−1)==0. In practice <b>__builtin_popcount/ctz/clz</b> hardware instructions are fastest. Bit tricks underpin <b>bitmask DP</b> (subsets as integer states) and <b>bitset optimization</b>.",
+   "problem": {
+    "q": "x & (x−1) 이 하는 일과, 이것으로 popcount를 세는 방법은?",
+    "solution": "<b>x & (x−1)</b>은 x의 <b>최하위 켜진 비트 하나를 끕니다</b>(x−1이 그 비트 아래를 모두 뒤집기 때문). 따라서 x가 0이 될 때까지 이 연산을 반복하면, 반복 횟수가 곧 <b>켜진 비트 수(popcount)</b>입니다 — 켜진 비트 수만큼만 돌아 빠릅니다(브라이언 커니핸 방법).",
+    "q_en": "What does x & (x−1) do, and how does it count popcount?",
+    "sol_en": "<b>x & (x−1)</b> <b>clears the lowest set bit</b> of x (since x−1 flips everything below that bit). So repeating it until x is 0 takes exactly as many steps as there are set bits — that count is the <b>popcount</b> (Brian Kernighan's method), running only in the number of set bits."
+   }
+  },
+  "algo_br_xorbasis": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "XOR 선형 기저 — 부분집합 XOR의 전부",
+   "narr": "여러 수 중 일부를 골라 <b>XOR</b>해서 만들 수 있는 값은 무엇무엇일까요? <b>XOR 선형 기저</b>는 GF(2) 위의 가우스 소거로, 이 \"만들 수 있는 값 전체\"를 작은 기저로 압축합니다.",
+   "hint": "",
+   "more": "<b>XOR 선형 기저(linear basis over GF(2))</b>는 정수 집합에서 \"<b>부분집합의 XOR로 만들 수 있는 모든 값</b>\"을 다루는 자료구조입니다. 각 정수를 <b>비트 벡터</b>(2원체 GF(2) 위의 벡터)로 보면, 부분집합 XOR은 <b>벡터들의 선형결합</b>이라 선형대수가 그대로 적용됩니다 — 기저를 구하는 건 <b>가우스 소거의 XOR판</b>. 구현: 배열 basis[비트]를 두고, 새 수 x를 넣을 때 x의 <b>최상위 켜진 비트</b>부터 보며 그 비트의 기저가 있으면 <b>x ^= basis[비트]</b>로 그 비트를 지우고 내려갑니다. 끝까지 0이 안 되면(새로운 최상위 비트가 남으면) 그 자리에 x를 새 기저로 추가합니다(선두 비트가 서로 다른 \"기약행 사다리꼴\"). 성질: 기저 크기가 k이면 만들 수 있는 서로 다른 XOR 값은 정확히 <b>2ᵏ개</b>이며, 각 값은 기저의 부분집합 XOR로 <b>유일</b>하게 표현됩니다. 질의: <b>최대 XOR</b> = 큰 비트 기저부터 \"XOR하면 답이 커지면\" 탐욕적으로 적용, <b>특정값 가능여부</b> = 그 값을 기저로 소거해 0이 되는지, <b>k번째로 작은 XOR값</b> = k의 비트로 기저 선택. 쓰임: 부분집합 최대/최소 XOR, XOR 방정식 해 개수, 경로 XOR 질의(트리에서 DFS XOR + 사이클 기저). 시간은 값 비트수 B에 대해 삽입·질의 O(B).",
+   "more_en": "An <b>XOR linear basis (over GF(2))</b> handles \"<b>all values formable as the XOR of a subset</b>\" of a set of integers. Viewing each integer as a <b>bit vector</b> over GF(2), subset-XOR is a <b>linear combination</b>, so linear algebra applies directly — building the basis is <b>Gaussian elimination in XOR form</b>. Implementation: keep basis[bit]; to insert x, scan from x's <b>highest set bit</b>; if that bit has a basis vector, do <b>x ^= basis[bit]</b> to clear it and continue down. If x never reaches 0 (a new top bit remains), add x as a new basis vector there (a reduced row echelon form with distinct leading bits). Properties: a basis of size k forms exactly <b>2ᵏ</b> distinct XOR values, each <b>uniquely</b> as a subset-XOR of the basis. Queries: <b>maximum XOR</b> = greedily apply basis vectors from the high bit if they increase the answer; <b>is value v reachable</b> = reduce v by the basis and check it hits 0; <b>k-th smallest XOR</b> = pick basis vectors by k's bits. Uses: subset max/min XOR, counting solutions of XOR equations, path-XOR queries on trees (DFS XOR + cycle basis). Time is O(B) per insert/query for B value bits.",
+   "problem": {
+    "q": "수들의 XOR 선형 기저 크기가 k일 때, 부분집합 XOR로 만들 수 있는 서로 다른 값은 몇 개인가?",
+    "solution": "정확히 <b>2ᵏ개</b>입니다. 기저의 k개 벡터는 선형독립(선두 비트가 모두 다름)이라, 각 기저를 \"쓴다/안 쓴다\"의 2ᵏ가지 조합이 모두 <b>서로 다른</b> XOR 값을 주기 때문입니다(GF(2) 위 k차원 벡터공간).",
+    "q_en": "If the XOR linear basis of a set has size k, how many distinct values are formable by subset XOR?",
+    "sol_en": "Exactly <b>2ᵏ</b>. The k basis vectors are linearly independent (distinct leading bits), so the 2ᵏ choices of using/not using each give <b>distinct</b> XOR values — a k-dimensional vector space over GF(2)."
+   }
+  },
+  "algo_br_stablematch": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.1 그래프 기초 ▸ 자세히",
+   "title": "안정 결혼 — 게일-섀플리 청혼 알고리즘",
+   "narr": "n명씩 두 집단을 선호 순위에 따라 짝지을 때, \"<b>서로 상대보다 더 좋아하는 다른 짝</b>\"(불안정 쌍)이 없게 할 수 있을까요? <b>게일-섀플리</b>는 그런 <b>안정 매칭</b>이 항상 존재함을 청혼 과정으로 증명하고 O(n²)에 구성합니다.",
+   "hint": "",
+   "more": "<b>안정 결혼 문제(stable matching)</b>: 두 집단(예: 청혼자·수락자) 각 구성원이 상대 집단을 <b>선호 순위</b>로 가질 때, <b>불안정 쌍</b>(짝이 아닌 a와 b가 서로 현재 짝보다 상대를 더 선호)이 하나도 없는 완전 매칭을 찾습니다. <b>게일-섀플리(Gale-Shapley) 청혼 알고리즘</b>: ① 모든 청혼자는 자유 상태로 시작. ② 자유 청혼자는 <b>아직 청혼 안 한 가장 선호하는 상대</b>에게 청혼. ③ 수락자는 (현재 짝이 없으면 수락, 있으면) <b>둘 중 더 선호하는 쪽</b>을 택하고 다른 쪽을 자유화. ④ 자유 청혼자가 없을 때까지 반복. 핵심 성질: <b>항상 안정 매칭으로 종료</b>(불안정 쌍 0)하고, 각 청혼자는 거절될 때마다 선호 순위를 내려가므로 <b>총 청혼 횟수 ≤ n²</b> → <b>O(n²)</b>. 또 결과는 <b>청혼하는 쪽 최적(receiver는 최악)</b>: 모든 안정 매칭 중 청혼자 각자가 가질 수 있는 최선의 짝을 동시에 얻습니다. 수락자가 청혼하면 반대가 됩니다(어느 쪽이 청혼하느냐가 누구에게 유리한지를 결정). 쓰임: <b>인턴-병원 배정(NRMP)</b>, 학생-학교 배정, 신장 교환. 2012년 섀플리·로스가 노벨경제학상을 받았습니다. 변형: 선호 불완전·동순위·다대일(병원이 여러 인턴) 매칭.",
+   "more_en": "The <b>stable matching problem</b>: given two groups (e.g. proposers and receivers) each ranking the other by <b>preference</b>, find a perfect matching with no <b>unstable pair</b> (two non-partners a and b who each prefer the other to their current match). The <b>Gale-Shapley</b> proposal algorithm: ① all proposers start free; ② a free proposer proposes to the <b>most preferred receiver not yet proposed to</b>; ③ a receiver keeps (if free, accepts; else) the <b>more preferred of the two</b> and frees the other; ④ repeat until no free proposer remains. Key properties: it <b>always terminates with a stable matching</b> (no unstable pair), and since each proposer moves down their list on rejection, <b>total proposals ≤ n²</b> → <b>O(n²)</b>. The result is <b>proposer-optimal (receiver-pessimal)</b>: every proposer simultaneously gets the best partner they could have in any stable matching; swapping who proposes flips the favored side. Uses: <b>residency matching (NRMP)</b>, school choice, kidney exchange. Shapley and Roth won the 2012 Nobel Prize in Economics. Variants: incomplete preferences, ties, many-to-one (hospitals taking several interns).",
+   "problem": {
+    "q": "게일-섀플리 알고리즘이 항상 O(n²)에 끝나는 이유는?",
+    "solution": "각 청혼자는 <b>거절될 때마다 선호 순위에서 한 칸 아래</b> 상대에게만 청혼하고, 같은 상대에게 두 번 청혼하지 않습니다. 청혼자 n명 각자 최대 n명에게 청혼하므로 <b>총 청혼 횟수 ≤ n²</b> → O(n²)에 종료합니다(그리고 자유 청혼자가 없으면 안정 매칭).",
+    "q_en": "Why does Gale-Shapley always terminate in O(n²)?",
+    "sol_en": "Each proposer, <b>on each rejection, moves one step down their preference list</b> and never proposes to the same receiver twice. With n proposers each proposing to at most n receivers, <b>total proposals ≤ n²</b> → O(n²) (and when no proposer is free, the matching is stable)."
+   }
+  },
+  "algo_br_boyermoore": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.1 선형 탐색 ▸ 자세히",
+   "title": "보이어-무어 다수결 — 과반 원소를 O(1) 공간에",
+   "narr": "배열에 <b>절반을 넘게</b> 나오는 원소가 있다면, 정렬이나 해시 없이 <b>후보 하나와 카운터 하나</b>만으로 한 번 훑어 찾을 수 있습니다 — <b>보이어-무어 다수결 투표</b>.",
+   "hint": "",
+   "more": "<b>보이어-무어 다수결 투표(Boyer-Moore majority vote)</b>는 배열에서 <b>과반(> n/2)으로 등장하는 다수 원소</b>를 <b>O(n) 시간·O(1) 공간</b>에 찾습니다. 알고리즘: <b>후보(candidate)</b> 하나와 <b>카운터(count)</b> 하나를 두고 배열을 한 번 훑으며 — ① count=0이면 현재 원소를 <b>새 후보</b>로 삼고 count=1, ② 현재 원소가 후보와 같으면 <b>count++</b>, 다르면 <b>count−−</b>. 끝에 남은 후보가 다수 원소입니다. 직관: 다수 원소를 +1, 나머지를 각각 −1로 두면, 다수 원소는 다른 모든 원소와 <b>1:1로 상쇄</b>해도 과반이므로 반드시 양수로 남습니다(서로 다른 둘을 함께 지우는 짝소거 — count−−가 그 짝소거). <b>주의</b>: 과반 원소가 <b>존재한다는 보장이 없으면</b>, 찾은 후보가 진짜 과반인지 <b>2차 패스로 카운트해 검증</b>해야 합니다(없으면 엉뚱한 값이 남음). 일반화: <b>⌊n/k⌋ 초과로 나오는 원소들(최대 k−1개)</b>은 <b>후보 k−1개 + 카운터 k−1개</b>로 같은 방식(보이어-무어 k-다수결, 예 n/3 초과는 후보 2개). 쓰임: 스트리밍 데이터의 빈발 원소(heavy hitters) 근사, 분산 집계, 투표 집계. 같은 \"짝소거\" 아이디어가 여러 스트리밍 알고리즘의 뿌리입니다.",
+   "more_en": "The <b>Boyer-Moore majority vote</b> finds the <b>majority element (appearing > n/2 times)</b> in an array in <b>O(n) time and O(1) space</b>. Algorithm: keep one <b>candidate</b> and one <b>count</b>, scanning once — ① if count=0, set the current element as the <b>new candidate</b> with count=1; ② if the current element equals the candidate, <b>count++</b>, else <b>count−−</b>. The surviving candidate is the majority. Intuition: scoring the majority +1 and others −1, the majority survives even after <b>cancelling 1:1</b> with every other element (count−− is pairing off two different elements). <b>Caveat</b>: if a majority is <b>not guaranteed to exist</b>, verify the found candidate with a <b>second counting pass</b> (otherwise a spurious value may remain). Generalization: elements appearing <b>more than ⌊n/k⌋ times (at most k−1 of them)</b> use <b>k−1 candidates and counters</b> the same way (Boyer-Moore k-majority, e.g. > n/3 needs 2 candidates). Uses: approximate frequent items (heavy hitters) in streams, distributed aggregation, vote tallying. The same \"pairing-off\" idea is the root of several streaming algorithms.",
+   "problem": {
+    "q": "보이어-무어 다수결이 과반 원소를 O(1) 공간에 찾을 수 있는 직관은? 주의점은?",
+    "solution": "다수 원소를 +1, 나머지를 −1로 보면, 다수 원소는 <b>서로 다른 둘을 함께 지우는 짝소거(count−−)</b>를 다 해도 과반이라 반드시 양수로 남습니다 — 그래서 후보·카운터 하나면 충분합니다. <b>주의</b>: 과반 보장이 없으면 찾은 후보를 <b>2차 패스로 검증</b>해야 합니다(없을 땐 가짜가 남음).",
+    "q_en": "What's the intuition that Boyer-Moore finds the majority in O(1) space, and what's the caveat?",
+    "sol_en": "Scoring the majority +1 and others −1, the majority survives all <b>pairing-off cancellations (count−−) of two different elements</b> because it exceeds half — so one candidate and counter suffice. <b>Caveat</b>: without a guaranteed majority, you must <b>verify the candidate in a second pass</b> (otherwise a spurious value remains)."
+   }
   }
 }

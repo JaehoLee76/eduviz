@@ -3442,6 +3442,101 @@
       ctx.fillText('시간 O(V·E + V² log V) — 희소(E≪V²)면 플로이드-워셜 O(V³)보다 빠름', W/2, H*0.85);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('음수 간선 허용(음수 사이클은 불가). 다익스트라가 음수를 못 다루는 문제를 포텐셜로 우회', W/2, H*0.85+20); }
+  },
+
+  { id:'algo_br_bittricks', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('비트 연산 트릭 — 한 줄로 끝내는 정수 마술', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('최하위 비트·1의 개수·부분집합 순회·그레이 코드를 비트 연산 한두 번에', W/2, H*0.10+22);
+      var rows=[['x & (−x)','최하위 켜진 비트만 남김 (펜윅의 lowbit)','#7ab8ff'],
+        ['x & (x−1)','최하위 1을 끔 → popcount 루프','#8fe3b5'],
+        ['for(s=m; s; s=(s−1)&m)','부분집합 전부 순회 (마스크 m)','#ffb27a'],
+        ['x ^ (x>>1)','정수 → 그레이 코드 (이웃이 1비트차)','#9a86ff']];
+      var by=H*0.30;
+      rows.forEach(function(r,i){ var y=by+i*52;
+        ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fillRect(W*0.14,y,W*0.72,42);
+        ctx.strokeStyle=r[2]; ctx.lineWidth=2; ctx.strokeRect(W*0.14,y,W*0.72,42);
+        ctx.fillStyle=r[2]; ctx.font='600 15px monospace'; ctx.textAlign='left'; ctx.fillText(r[0],W*0.17,y+19);
+        ctx.fillStyle='#cfd8e6'; ctx.font='12px sans-serif'; ctx.fillText(r[1],W*0.17,y+36); ctx.textAlign='center'; });
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('비트 = 집합. AND=교집합·OR=합집합·XOR=대칭차·<<=원소이동. 비트마스크 DP의 토대', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('m의 부분집합 순회는 3ⁿ(전체), popcount는 하드웨어 명령(__builtin_popcount)이 가장 빠름', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_xorbasis', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('XOR 선형 기저 — 부분집합 XOR의 모든 값', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('수들의 부분집합 XOR로 만들 수 있는 값 전체를, 가우스 소거의 XOR판으로 압축', W/2, H*0.10+22);
+      // basis vectors as bit rows (leading bits distinct)
+      var basis=['1 0 1 1','0 1 1 0','0 0 1 0']; var by=H*0.32, bw=30;
+      ctx.fillStyle='#6a6873'; ctx.font='12px sans-serif'; ctx.fillText('선형 기저(각 행의 선두 1 위치가 서로 다름)', W/2, by-16);
+      basis.forEach(function(b,r){ var bits=b.split(' '); var y=by+r*40;
+        for(var c=0;c<bits.length;c++){ var x=W*0.5-(bits.length*bw)/2+c*bw; var one=bits[c]==='1'; var lead=(one && bits.slice(0,c).every(function(z){return z==='0';}));
+          ctx.fillStyle=lead?'rgba(255,178,122,0.3)':(one?'rgba(122,184,255,0.25)':'rgba(122,184,255,0.05)'); ctx.strokeStyle=lead?'#ffb27a':'#3a4358'; ctx.lineWidth=lead?2.5:1;
+          ctx.fillRect(x,y,bw-4,30); ctx.strokeRect(x,y,bw-4,30);
+          ctx.fillStyle=one?'#dfeefb':'#4a5568'; ctx.font='600 14px monospace'; ctx.fillText(bits[c],x+(bw-4)/2,y+20); } });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('주황=선두 비트(pivot)', W/2, by+3*40+8);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('삽입: 새 수의 최상위 비트부터, 그 비트의 기저가 있으면 XOR로 지우고 내려감', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('기저 크기 k → 만들 수 있는 XOR 값은 2ᵏ개. 최대 XOR=큰 비트부터 탐욕적으로 켜기', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 부분집합 최대 XOR, XOR로 특정값 가능여부, k번째 XOR값. GF(2) 벡터공간의 가우스 소거', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_stablematch', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('안정 결혼 — 게일-섀플리 청혼 알고리즘', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('서로 더 좋아하는 짝이 없도록(불안정 쌍 0) 짝짓기. 항상 존재하고 O(n²)에 구성', W/2, H*0.10+22);
+      // two columns proposers/receivers with matched lines
+      var L=[[0.28,0.34,'A'],[0.28,0.50,'B'],[0.28,0.66,'C']];
+      var R=[[0.72,0.34,'X'],[0.72,0.50,'Y'],[0.72,0.66,'Z']];
+      var match=[[0,1],[1,0],[2,2]];
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=3;
+      match.forEach(function(m){ var a=L[m[0]],b=R[m[1]]; ctx.beginPath(); ctx.moveTo(W*a[0],H*a[1]); ctx.lineTo(W*b[0],H*b[1]); ctx.stroke(); });
+      function dots(arr,col){ arr.forEach(function(p){ ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(W*p[0],H*p[1],16,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(p[2],W*p[0],H*p[1]+5); }); }
+      dots(L,'#7ab8ff'); dots(R,'#ffb27a');
+      ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.fillText('청혼자', W*0.28, H*0.24); ctx.fillStyle='#ffb27a'; ctx.fillText('수락자', W*0.72, H*0.24);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('자유 청혼자가 다음 선호 상대에게 청혼 → 상대는 더 나은 제안이면 갈아탐(이전 짝 자유화)', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('항상 안정 매칭으로 종료(불안정 쌍 없음). 청혼하는 쪽에 최적, 받는 쪽에 최악인 매칭', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 인턴-병원 배정(NRMP), 학생-학교 배정. 2012 노벨경제학상(섀플리·로스)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_boyermoore', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('보이어-무어 다수결 — 과반 원소를 O(1) 공간에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('절반 넘게 나오는 원소를, 후보 하나와 카운터 하나만으로 한 번 훑어 찾기', W/2, H*0.10+22);
+      var arr=['A','A','B','A','C','A','A']; var bx=W*0.5-(arr.length*48)/2, by=H*0.32, cw=42;
+      var cand=['A','A','A','A','A','A','A']; var cnt=[1,2,1,2,1,2,3];
+      for(var i=0;i<arr.length;i++){ var x=bx+i*48; var maj=arr[i]==='A';
+        ctx.fillStyle=maj?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=maj?'#ffb27a':'#7ab8ff'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,by,cw,34); ctx.strokeRect(x,by,cw,34);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif'; ctx.fillText(arr[i],x+cw/2,by+22);
+        ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText('cnt'+cnt[i],x+cw/2,by+48); }
+      ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif';
+      ctx.fillText('최종 후보 = A  (카운터가 0이 안 돼 살아남음)', W/2, H*0.62);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('규칙: 같으면 cnt++, 다르면 cnt−−. cnt=0이면 현재 원소를 새 후보로', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('직관: 과반 원소는 "다른 모든 원소와 1:1 상쇄"해도 반드시 남는다. O(n) 시간·O(1) 공간', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('주의: 과반 보장 없으면 후보를 2차 패스로 검증. ⌊n/3⌋ 초과는 후보 2개로 일반화', W/2, H*0.86+20); }
   }
 
   ];
