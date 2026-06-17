@@ -2143,6 +2143,88 @@
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center';
       ctx.fillText('대소 관계는 그대로 보존. 값 범위가 커서 못 쓰던 세그먼트 트리·BIT·DP 인덱스를 0..n−1로', cx, H*0.72);
       ctx.fillStyle='#8a8893'; ctx.fillText('정렬 O(n log n) + 이분 탐색으로 등수 찾기. 펜윅으로 전도 수 세기 등의 전처리 단골', cx, H*0.72+20); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 에라토스테네스의 체 ══════
+  { id:'algo_br_sieve', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('에라토스테네스의 체 — N까지 소수를 한꺼번에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('2부터, 각 소수의 배수를 모두 지운다. 남은 것이 소수 → O(N log log N)', W/2, H*0.10+22);
+      var prime={2:1,3:1,5:1,7:1,11:1,13:1,17:1,19:1,23:1,29:1};
+      var cols=10, cell=Math.min(48,(W*0.62)/cols), x0=W/2-cols*cell/2, y0=H*0.28;
+      for(var v=1;v<=30;v++){ var idx=v-1, r=Math.floor(idx/cols), c=idx%cols, x=x0+c*cell, y=y0+r*cell, p=prime[v];
+        ctx.fillStyle=v===1?'rgba(255,255,255,0.03)':p?'rgba(143,227,181,0.26)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=v===1?'rgba(255,255,255,0.15)':p?'#8fe3b5':'rgba(226,96,122,0.4)'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3);
+        ctx.fillStyle=v===1?'#5a5f6b':p?'#8fe3b5':'#7a5560'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+cell/2-1,y+cell/2-1); ctx.textBaseline='alphabetic'; }
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('초록 = 소수 (배수로 지워지지 않고 살아남음). 빨강 테두리 = 합성수(지워짐)', W/2, y0+3*cell+22);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('소수 p는 p²부터 지우면 충분. 선형 체(각 수를 최소소인수로 한 번만)면 O(N) + 최소소인수 분해표', W/2, y0+3*cell+44); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 오일러 피(φ) 함수 ══════
+  { id:'algo_br_totient', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('오일러 피 함수 φ(n) — n과 서로소인 수의 개수', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('1..n 중 gcd(k,n)=1 인 k의 개수. 소인수만 알면 곱셈 공식으로 바로', W/2, H*0.12+22);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 18px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('φ(n) = n · Π_{p|n} (1 − 1/p)', cx, H*0.34);
+      ctx.fillStyle='#8fe3b5'; ctx.font='15px ui-monospace, monospace';
+      ctx.fillText('φ(12) = 12 · (1−1/2)(1−1/3) = 12 · 1/2 · 2/3 = 4', cx, H*0.46);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('1..12 중 서로소: {1, 5, 7, 11} → 4개 ✓', cx, H*0.55);
+      ctx.fillStyle='#ffb27a'; ctx.font='14px ui-monospace, monospace';
+      ctx.fillText('오일러 정리: gcd(a,n)=1 이면  a^φ(n) ≡ 1 (mod n)', cx, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('페르마 소정리의 일반화 → 모듈러 역원 a^(φ(n)−1), RSA(φ(pq)=(p−1)(q−1))의 토대. 체로 1..N 일괄 O(N log log N)', cx, H*0.76); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 확장 유클리드·모듈러 역원 ══════
+  { id:'algo_br_extgcd', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('확장 유클리드 — 역원·일차 합동의 만능 열쇠', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('gcd(a,b)를 구하면서 ax + by = gcd(a,b)를 만족하는 정수 x, y까지 함께 찾는다', W/2, H*0.12+22);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 18px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('a·x + b·y = gcd(a, b)', cx, H*0.34);
+      ctx.fillStyle='#8fe3b5'; ctx.font='14px ui-monospace, monospace';
+      ctx.fillText('예) 3·x + 11·y = 1  →  x = 4, y = −1  (3·4 + 11·(−1) = 1)', cx, H*0.45);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 15px ui-monospace, monospace';
+      ctx.fillText('⇒ 3의 mod 11 역원 = 4   (3 · 4 ≡ 12 ≡ 1)', cx, H*0.56);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('gcd(a,m)=1 이면 a·x ≡ 1 (mod m)의 x = 역원. ax+my=1 의 x가 곧 답', cx, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('재귀로 O(log min(a,b)). 모듈러 역원·일차 합동 ax≡b·중국인 나머지정리(CRT)의 핵심 부품', cx, H*0.76); }
+  },
+
+  // ══════ NP(algo8_04) ▸ 가우스 소거법(선형 연립) ══════
+  { id:'algo_br_gauss', concept:true, branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('가우스 소거법 — 연립 일차방정식을 O(n³)에', W/2, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('행 연산으로 위는 0을 만들어 계단(상삼각) 꼴 → 아래에서 위로 대입해 해를 구한다', W/2, H*0.11+22);
+      var rowsB=[['2','1','−1','| 8'],['−3','−1','2','| −11'],['−2','1','2','| −3']];
+      var rowsA=[['2','1','−1','| 8'],['0','½','½','| 1'],['0','0','−1','| 1']];
+      function mat(rows, x, y, lab, col){ ctx.fillStyle=col; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab, x, y-12);
+        for(var r=0;r<rows.length;r++){ ctx.fillStyle='#cfd6e2'; ctx.font='15px ui-monospace, monospace'; ctx.textAlign='left'; ctx.fillText(rows[r].join('  '), x-W*0.10, y+r*24); } }
+      mat(rowsB, W*0.28, H*0.40, '원래 (증강) 행렬', '#7ab8ff');
+      AV.arrow(ctx, W*0.46, H*0.46, W*0.54, H*0.46, '#8fe3b5', 2.4);
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('행 소거', W*0.50, H*0.42);
+      mat(rowsA, W*0.74, H*0.40, '상삼각(계단) 꼴', '#ffb27a');
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('역대입: z=−1 → y=3 → x=2', cx, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('수치 안정성을 위해 절댓값 큰 행을 위로(부분 피벗팅). 역행렬·행렬식·랭크·XOR 연립(가우스-조던)에', cx, H*0.74); }
   }
 
   ];

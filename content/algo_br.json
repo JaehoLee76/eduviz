@@ -1663,5 +1663,65 @@
     "q_en": "When is coordinate compression useful, and what does it preserve?",
     "sol_en": "When values have a <b>large range but few distinct ones</b>. Sorting + dedup + ranking <b>preserves order</b> while shrinking indices to 0..n−1, enabling segment trees, Fenwick trees, etc."
    }
+  },
+  "algo_br_sieve": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.4 해시 ▸ 자세히",
+   "title": "에라토스테네스의 체 — 소수를 한꺼번에",
+   "narr": "N까지의 모든 소수를, 수마다 일일이 나눠 보지 않고 <b>배수를 지워가며</b> 한 번에 구합니다. 2000년 묵었지만 여전히 가장 실용적인 소수 생성법입니다.",
+   "hint": "",
+   "more": "<b>에라토스테네스의 체</b>는 1..N에서 소수를 찾는 고전 기법입니다. 2부터 시작해, <b>어떤 수 p가 아직 지워지지 않았다면 p는 소수</b>이고, 그 <b>배수(2p, 3p, …)를 모두 합성수로 지웁니다</b>. 다음으로 안 지워진 수로 반복. 끝나면 안 지워진 수들이 소수입니다. 최적화: <b>p의 배수는 p²부터 지워도 충분</b>(그 아래는 더 작은 소수가 이미 지움)하고, p ≤ √N 까지만 보면 됩니다. 전체 비용은 <b>O(N log log N)</b>(거의 선형). 더 나아가 <b>선형 체</b>는 각 합성수를 그 <b>최소 소인수</b>로 단 한 번만 지워 <b>O(N)</b>에 끝내고, 덤으로 <b>최소 소인수 표</b>를 얻어 1..N 어떤 수든 O(log) 소인수분해가 가능합니다. 쓰임: 소수 목록, 소인수분해 전처리, 오일러 피·약수 함수 일괄 계산, 정수론 문제 전반.",
+   "more_en": "The <b>Sieve of Eratosthenes</b> finds all primes in 1..N. Starting at 2, <b>if a number p is still unmarked it is prime</b>, and we <b>mark all its multiples (2p, 3p, …) as composite</b>; repeat with the next unmarked number. The survivors are the primes. Optimizations: <b>start marking at p²</b> (smaller multiples are already marked by smaller primes) and only loop p ≤ √N. Total cost is <b>O(N log log N)</b> (near-linear). A <b>linear sieve</b> marks each composite exactly once by its <b>smallest prime factor</b>, running in <b>O(N)</b> and yielding a <b>smallest-prime-factor table</b> for O(log) factorization of any number up to N. Uses: prime lists, factorization preprocessing, batch Euler-phi / divisor functions, number-theory problems.",
+   "problem": {
+    "q": "에라토스테네스의 체에서 소수 p의 배수를 p²부터 지워도 되는 이유는?",
+    "solution": "p² 미만의 p 배수(2p, 3p, …, (p−1)p)는 <b>p보다 작은 소인수를 가져 이미 지워졌기</b> 때문입니다. 그래서 p²부터 지우면 중복을 줄이면서도 빠짐없이 합성수를 거릅니다.",
+    "q_en": "Why can the sieve start marking multiples of p at p²?",
+    "sol_en": "Multiples below p² (2p, 3p, …, (p−1)p) have a <b>prime factor smaller than p and are already marked</b>. Starting at p² avoids redundancy while still marking every composite."
+   }
+  },
+  "algo_br_totient": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.4 해시 ▸ 자세히",
+   "title": "오일러 피 함수 φ(n) — 서로소의 개수",
+   "narr": "1부터 n까지 중 <b>n과 서로소</b>인 수는 몇 개일까? 일일이 gcd를 보지 않고 <b>소인수만으로</b> 곱셈 공식 한 줄에 구합니다. 오일러 정리와 RSA의 뿌리.",
+   "hint": "",
+   "more": "<b>오일러 피 함수 φ(n)</b>은 <b>1..n 중 n과 서로소(gcd=1)인 수의 개수</b>입니다. n의 소인수가 p₁, p₂, … 이면 <b>곱셈 공식 φ(n) = n · Π_{p|n} (1 − 1/p)</b>로 바로 구해집니다(포함·배제의 결과). 예: φ(12) = 12·(1−1/2)(1−1/3) = 4, 실제로 12와 서로소인 수는 {1, 5, 7, 11}로 4개. 핵심 성질: ① <b>곱셈적</b>(gcd(m,n)=1이면 φ(mn)=φ(m)φ(n)) ② <b>오일러 정리</b>: gcd(a,n)=1이면 <b>a^φ(n) ≡ 1 (mod n)</b> — 페르마 소정리(소수 p에서 a^(p−1)≡1)의 일반화. 응용: <b>모듈러 역원</b> a⁻¹ ≡ a^(φ(n)−1), <b>RSA</b>(φ(pq)=(p−1)(q−1)로 비밀 지수 d 계산), 거듭제곱의 주기. 1..N 전체는 체를 변형해 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
+   "more_en": "<b>Euler's totient φ(n)</b> counts the integers in <b>1..n that are coprime to n</b> (gcd = 1). If n's prime factors are p₁, p₂, …, then <b>φ(n) = n · Π_{p|n} (1 − 1/p)</b> (an inclusion-exclusion result). E.g. φ(12) = 12·(1−1/2)(1−1/3) = 4, matching {1, 5, 7, 11}. Key facts: ① it is <b>multiplicative</b> (φ(mn)=φ(m)φ(n) when gcd(m,n)=1); ② <b>Euler's theorem</b>: if gcd(a,n)=1 then <b>a^φ(n) ≡ 1 (mod n)</b> — generalizing Fermat's little theorem. Applications: <b>modular inverse</b> a⁻¹ ≡ a^(φ(n)−1), <b>RSA</b> (φ(pq)=(p−1)(q−1) to derive the private exponent), power cycles. φ for all 1..N is computed together via a modified sieve in <b>O(N log log N)</b>.",
+   "problem": {
+    "q": "φ(12)는? 곱셈 공식으로 계산해보면?",
+    "solution": "<b>φ(12) = 4</b>. 12 = 2²·3 이므로 φ(12) = 12·(1−1/2)(1−1/3) = 12·½·⅔ = <b>4</b>. (서로소인 수: 1, 5, 7, 11)",
+    "q_en": "What is φ(12) via the product formula?",
+    "sol_en": "<b>φ(12) = 4</b>. Since 12 = 2²·3, φ(12) = 12·(1−1/2)(1−1/3) = 12·½·⅔ = <b>4</b> (coprimes: 1, 5, 7, 11)."
+   }
+  },
+  "algo_br_extgcd": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.4 해시 ▸ 자세히",
+   "title": "확장 유클리드 — 모듈러 역원과 일차 합동",
+   "narr": "최대공약수를 구하는 유클리드 호제법을 살짝 키우면, <b>ax + by = gcd(a,b)</b>를 만족하는 정수 x, y까지 덤으로 나옵니다. 이 한 줄이 모듈러 역원·CRT의 만능 열쇠입니다.",
+   "hint": "",
+   "more": "<b>확장 유클리드(extended Euclidean)</b>는 gcd(a, b)를 구하면서, <b>베주 항등식</b> <b>a·x + b·y = gcd(a, b)</b>를 만족하는 정수 계수 x, y를 함께 반환합니다. 재귀로, gcd(b, a mod b)에서 얻은 (x', y')로부터 현재의 (x, y)를 <b>x = y', y = x' − ⌊a/b⌋·y'</b>로 갱신하면 됩니다. 시간은 유클리드와 같은 <b>O(log min(a,b))</b>. 가장 큰 응용은 <b>모듈러 역원</b>: gcd(a, m) = 1일 때 <b>a·x ≡ 1 (mod m)</b>의 x를 구하려면 a·x + m·y = 1을 풀어 그 x가 곧 역원입니다(역원은 m이 소수가 아니어도, 서로소이기만 하면 존재). 예: 3·x + 11·y = 1 → x = 4 이므로 3의 mod 11 역원은 4(3·4 = 12 ≡ 1). 또한 <b>일차 합동 ax ≡ b (mod m)</b> 풀이와 <b>중국인의 나머지 정리(CRT)</b>의 핵심 부품입니다. 모듈러 나눗셈, 분수의 모듈러 표현 등에 두루 쓰입니다.",
+   "more_en": "The <b>extended Euclidean algorithm</b> computes gcd(a, b) while also returning integers x, y satisfying <b>Bézout's identity</b> <b>a·x + b·y = gcd(a, b)</b>. Recursively, from (x', y') of gcd(b, a mod b), update the current (x, y) by <b>x = y', y = x' − ⌊a/b⌋·y'</b>. Time is <b>O(log min(a,b))</b>, like Euclid. Its biggest use is the <b>modular inverse</b>: when gcd(a, m) = 1, solving a·x + m·y = 1 gives x as the inverse of a mod m (the inverse exists whenever a and m are coprime, even if m is not prime). E.g. 3·x + 11·y = 1 → x = 4, so 3⁻¹ mod 11 = 4 (3·4 = 12 ≡ 1). It is also the core of solving <b>linear congruences ax ≡ b (mod m)</b> and of the <b>Chinese Remainder Theorem (CRT)</b>. Used throughout modular division and fraction-mod representations.",
+   "problem": {
+    "q": "확장 유클리드로 gcd(a,m)=1일 때 a의 모듈러 역원을 어떻게 얻나?",
+    "solution": "<b>a·x + m·y = 1</b>을 풀어 나온 <b>x가 곧 a의 역원</b>입니다(필요하면 mod m으로 양수화). a·x ≡ 1 (mod m)이 되기 때문입니다. 역원은 a와 m이 서로소이기만 하면 존재합니다.",
+    "q_en": "Using extended Euclid with gcd(a,m)=1, how do you get a's modular inverse?",
+    "sol_en": "Solve <b>a·x + m·y = 1</b>; the resulting <b>x is a's inverse</b> (reduce mod m if needed), since a·x ≡ 1 (mod m). It exists whenever a and m are coprime."
+   }
+  },
+  "algo_br_gauss": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.2 분할정복 ▸ 자세히",
+   "title": "가우스 소거법 — 연립 일차방정식 풀기",
+   "narr": "변수 n개의 연립 일차방정식을, 학교에서 배운 \"한 식을 다른 식에 더하고 빼는\" 과정을 체계화해 <b>O(n³)</b>에 풉니다. 선형대수 계산의 기본 엔진입니다.",
+   "hint": "",
+   "more": "<b>가우스 소거법(Gaussian elimination)</b>은 <b>Ax = b</b> 꼴 연립 일차방정식을 행 연산으로 풉니다. 계수와 b를 묶은 <b>증강 행렬 [A | b]</b>에서, <b>① 전진 소거</b>: 위에서부터 각 열의 <b>피벗</b>을 골라 그 아래 행들의 해당 열을 0으로 만들어(피벗 행의 배수를 빼서) <b>상삼각(계단) 꼴</b>로 바꿉니다. <b>② 후진 대입</b>: 맨 아래 행은 변수 하나만 남으니 바로 풀고, 위로 올라가며 이미 구한 값을 대입합니다. 전체 <b>O(n³)</b>. 수치 오차를 줄이려 <b>절댓값이 가장 큰 행을 피벗으로(부분 피벗팅)</b> 올립니다. 변형·응용: <b>역행렬</b>(b 대신 단위행렬), <b>행렬식</b>(피벗들의 곱), <b>랭크·해의 존재/유일성</b> 판정, <b>가우스-조던</b>(완전 기약 꼴), <b>XOR 연립</b>(비트 선형대수 — 라이트 토글 퍼즐·선형 기저). LU 분해는 이 소거를 행렬로 기록한 형태입니다.",
+   "more_en": "<b>Gaussian elimination</b> solves linear systems <b>Ax = b</b> with row operations on the <b>augmented matrix [A | b]</b>. <b>① Forward elimination</b>: from the top, pick a <b>pivot</b> in each column and zero out the entries below it (subtract multiples of the pivot row), reaching an <b>upper-triangular form</b>. <b>② Back substitution</b>: the bottom row has one variable, so solve it and substitute upward. Total <b>O(n³)</b>. For numerical stability, bring the <b>largest-magnitude row up as pivot (partial pivoting)</b>. Variants/uses: <b>matrix inverse</b> (use the identity instead of b), <b>determinant</b> (product of pivots), <b>rank and solvability/uniqueness</b>, <b>Gauss-Jordan</b> (reduced row echelon), and <b>XOR systems</b> (binary linear algebra — light-toggle puzzles, linear bases). LU decomposition records this elimination as matrices.",
+   "problem": {
+    "q": "가우스 소거에서 '부분 피벗팅'(절댓값 큰 행을 위로)을 하는 이유는?",
+    "solution": "<b>수치 안정성</b> 때문입니다. 피벗이 0이거나 아주 작으면 그 행의 배수를 뺄 때 큰 반올림 오차가 생기므로, 절댓값이 가장 큰 행을 피벗으로 올려 오차를 줄입니다(또한 피벗 0으로 인한 나눗셈 실패도 방지).",
+    "q_en": "Why use partial pivoting (largest-magnitude row up) in Gaussian elimination?",
+    "sol_en": "For <b>numerical stability</b>: a zero or tiny pivot causes large rounding error when subtracting its multiples, so moving the largest-magnitude row up reduces error (and avoids division by a zero pivot)."
+   }
   }
 }
