@@ -1465,6 +1465,91 @@
       ctx.fillStyle='#bfe0ff'; ctx.font='600 14px sans-serif'; ctx.fillText('덱: [ 0간선은 앞으로 ]  ←  처리  →  [ 1간선은 뒤로 ]', W/2, y+H*0.20);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('0이면 같은 \"층\", 1이면 다음 \"층\" → BFS의 층 구조가 유지돼 우선순위 큐 없이 최단거리. 미로 벽 부수기 최소화 등에', W/2, y+H*0.27); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ 접미사 배열 ══════
+  { id:'algo_br_suffixarray', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('접미사 배열 — 모든 접미사를 정렬한 색인', W/2, H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('문자열 "banana"의 접미사 6개를 사전순 정렬 → 시작 위치 목록이 SA', W/2, H*0.09+22);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 20px ui-monospace, monospace'; ctx.fillText('b a n a n a', W/2, H*0.22);
+      ctx.fillStyle='#6f7686'; ctx.font='11px ui-monospace, monospace'; ctx.fillText('0 1 2 3 4 5', W/2, H*0.22+18);
+      var rows=[[5,'a'],[3,'ana'],[1,'anana'],[0,'banana'],[4,'na'],[2,'nana']];
+      var y0=H*0.34, rh=H*0.085, cx=W/2;
+      for(var i=0;i<rows.length;i++){ var y=y0+i*rh;
+        ctx.textAlign='right'; ctx.fillStyle='#8fe3b5'; ctx.font='600 15px ui-monospace, monospace'; ctx.fillText('SA['+i+'] = '+rows[i][0], cx-20, y);
+        ctx.textAlign='left'; ctx.fillStyle='#dfeefb'; ctx.font='15px ui-monospace, monospace'; ctx.fillText(rows[i][1], cx+10, y); }
+      ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 15px ui-monospace, monospace'; ctx.fillText('SA = [ 5, 3, 1, 0, 4, 2 ]', W/2, y0+6*rh+6);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText('부분문자열 검색 = 정렬된 접미사에 이분 탐색 O(m log n). LCP 배열을 더하면 반복부분·검색이 더 강력', W/2, y0+6*rh+30); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ 아호-코라식 ══════
+  { id:'algo_br_ahocorasick', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('아호-코라식 — 여러 패턴을 한 번에 (트라이 + 실패 링크)', W/2, H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('패턴 {he, she, his}를 트라이로. 빨강 점선 = 실패 링크(불일치 시 갈 곳) = 트라이판 KMP', W/2, H*0.09+22);
+      var N={ root:[0.5,0.16,'•'], h:[0.30,0.36,'h'], s:[0.74,0.36,'s'], he:[0.18,0.58,'e'], hi:[0.42,0.58,'i'], sh:[0.74,0.58,'h'], his:[0.42,0.78,'s'], she:[0.74,0.78,'e'] };
+      var ends={he:1,his:1,she:1};
+      var edges=[['root','h'],['root','s'],['h','he'],['h','hi'],['hi','his'],['s','sh'],['sh','she']];
+      var fails=[['sh','h'],['she','he'],['his','s']];
+      function xy(k){ return [W*0.10+N[k][0]*W*0.80, H*0.20+N[k][1]*H*0.58]; }
+      edges.forEach(function(e){ var a=xy(e[0]),b=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      ctx.setLineDash([4,4]); fails.forEach(function(e){ var a=xy(e[0]),b=xy(e[1]); gedge(E,a,b,'#e2607a',1.8); }); ctx.setLineDash([]);
+      Object.keys(N).forEach(function(k){ var p=xy(k), end=ends[k];
+        AV.node(E,p[0],p[1],N[k][2],{r:17,fs:14,fill:end?'rgba(143,227,181,0.28)':'rgba(122,184,255,0.16)',stroke:end?'#8fe3b5':'#7ab8ff',text:end?'#8fe3b5':'#dfeefb',tag:end?'패턴끝':null}); });
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('텍스트를 한 번 훑으며, 불일치하면 실패 링크로 점프 → O(텍스트 + 패턴들 길이 + 매칭 수)', W/2, H*0.94); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ Z 함수 ══════
+  { id:'algo_br_zfunc', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, sChars='aabaab'.split(''), Z=['-',1,0,3,1,0];
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Z 함수 — 각 위치에서 "맨 앞 접두사"와 겹치는 길이', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('Z[i] = i부터 시작하는 부분문자열이 접두사(s[0..])와 일치하는 최대 길이', W/2, H*0.12+22);
+      var n=sChars.length, bw=Math.min(70,(W*0.6)/n), gap=8, total=n*bw+(n-1)*gap, x0=W/2-total/2, y=H*0.40;
+      for(var i=0;i<n;i++){ var x=x0+i*bw+i*gap, hot=(i===3);
+        ctx.fillStyle=hot?'rgba(255,178,122,0.26)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=hot?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 22px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(sChars[i], x+bw/2, y+bw/2); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#6f7686'; ctx.font='11px sans-serif'; ctx.fillText(i, x+bw/2, y-8);
+        ctx.fillStyle=hot?'#ffb27a':'#8fe3b5'; ctx.font='600 16px ui-monospace, monospace'; ctx.fillText('Z='+Z[i], x+bw/2, y+bw+20); }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Z[3]=3: s[3..5]="aab" 가 접두사 "aab"와 3글자 일치(주황)', W/2, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('이미 아는 가장 오른쪽 일치구간(Z-박스)의 거울값을 재활용 → O(n). "패턴 $ 텍스트"로 이으면 문자열 검색', W/2, H*0.66+22); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ 매내처 ══════
+  { id:'algo_br_manacher', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, sChars='abacaba'.split(''), rad=[0,1,0,3,0,1,0];
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('매내처(Manacher) — 최장 회문을 O(n)에', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 중심의 회문 반지름을, 이미 아는 "오른쪽 회문 경계"의 거울값으로 재활용', W/2, H*0.12+22);
+      var n=sChars.length, bw=Math.min(62,(W*0.62)/n), gap=7, total=n*bw+(n-1)*gap, x0=W/2-total/2, y=H*0.40;
+      for(var i=0;i<n;i++){ var x=x0+i*(bw+gap), hot=(i===3);
+        ctx.fillStyle=hot?'rgba(255,178,122,0.26)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=hot?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 22px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(sChars[i], x+bw/2, y+bw/2); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#6f7686'; ctx.font='11px sans-serif'; ctx.fillText(i, x+bw/2, y-8);
+        ctx.fillStyle=hot?'#ffb27a':'#8fe3b5'; ctx.font='600 14px ui-monospace, monospace'; ctx.fillText('r='+rad[i], x+bw/2, y+bw+19); }
+      // 중심3의 회문 범위 강조 선
+      var cx3=x0+3*(bw+gap)+bw/2, lx=x0, rx=x0+(n-1)*(bw+gap)+bw;
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(lx,y+bw+34); ctx.lineTo(rx,y+bw+34); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('중심 3(c) 반지름 3 = "abacaba" 전체가 회문(최장)', W/2, y+bw+58);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('거울 대칭으로 중복 계산 생략 → O(n). 짝수 길이 회문은 글자 사이에 # 를 끼워 홀수로 통일', W/2, y+bw+80); }
   }
 
   ];
