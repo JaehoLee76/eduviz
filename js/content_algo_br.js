@@ -5196,6 +5196,88 @@
       ctx.fillText('쓰임: 오프라인 동적 연결성(시간 세그트리 DFS)·롤백 Mo·되돌리는 분할정복', W/2, H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('삭제가 어려운 union-find를 "추가만+되감기"로. 함수형 영속 DSU의 절차적 사촌', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_edgecolor', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('간선 채색·비징 정리 — 한 점에 닿는 간선은 다른 색', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 정점에서 만나는 간선들에 서로 다른 색. 필요한 색 수는 Δ 또는 Δ+1뿐(비징)', W/2, H*0.10+22);
+      var N={a:[0.30,0.32],b:[0.62,0.30],c:[0.72,0.60],d:[0.42,0.66],e:[0.26,0.60]};
+      var edges=[['a','b','#7ab8ff'],['b','c','#8fe3b5'],['c','d','#7ab8ff'],['d','e','#ffb27a'],['e','a','#8fe3b5'],['a','d','#9a86ff']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle=e[2]; ctx.lineWidth=3.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#dfeefb'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('비징 정리: 단순 그래프의 간선 채색수는 Δ 또는 Δ+1 (단 둘 중 하나)', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('이분 그래프는 항상 Δ색(쾨니그). d-정규 이분 = d개 완전매칭으로 분해(1-인수분해)', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 시간표(교사-반=간선)·라운드로빈 대진표·주파수, 선분그래프 정점채색과 동치', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_closure', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('최대 가중 폐포 — 프로젝트 선택을 최소 컷으로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"고르려면 선행도 함께"인 의존성에서 이익 최대 부분집합 = 최소 컷', W/2, H*0.10+22);
+      // s -> profit nodes -> cost nodes -> t
+      var N={s:[0.12,0.5,'s'],p1:[0.38,0.32,'+5'],p2:[0.38,0.68,'+3'],c1:[0.64,0.32,'−2'],c2:[0.64,0.68,'−4'],t:[0.88,0.5,'t']};
+      var edges=[['s','p1'],['s','p2'],['p1','c1'],['p2','c1'],['p2','c2'],['c1','t'],['c2','t']];
+      function xy(t){ return [W*N[t][0], H*0.24+N[t][1]*H*0.46]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var st=(k==='s'||k==='t'); var prof=(k[0]==='p'); ctx.fillStyle=st?'rgba(255,178,122,0.22)':(prof?'rgba(143,227,181,0.2)':'rgba(255,141,141,0.18)'); ctx.strokeStyle=st?'#ffb27a':(prof?'#8fe3b5':'#ff8d8d'); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 11px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='11px sans-serif'; ctx.fillText('이익(+)은 s→용량=이익', W*0.34, H*0.16); ctx.fillStyle='#ff8d8d'; ctx.fillText('비용(−)은 →t 용량=비용', W*0.66, H*0.16);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('의존(고르면 선행도)은 ∞ 간선. 최대 이익 = (이익 합) − (최소 s-t 컷)', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('∞ 간선이 의존 위반(이익 선택+선행 미선택)을 컷에서 배제. 프로젝트·이미지 분할·라벨링', W/2, H*0.82+20); }
+  },
+
+  { id:'algo_br_hull3d', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('3D 볼록껍질 — 점들을 감싸는 다면체', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('2D 껍질의 3차원판. 점을 하나씩 추가하며 "보이는 면"을 지우고 새 면을 잇기', W/2, H*0.10+22);
+      // simple polyhedron wireframe (octahedron-ish)
+      var cx=W*0.5, cy=H*0.48, r=H*0.2;
+      var V=[[0,-1,0],[1,0,0.3],[0.2,0,1],[-1,0,0.3],[-0.2,0,-1],[0,1,0]];
+      function proj(v){ return [cx + (v[0]*0.9 + v[2]*0.4)*r, cy + (v[1]*0.9 - v[2]*0.3)*r]; }
+      var faces=[[0,1,2],[0,2,3],[0,3,4],[0,4,1],[5,2,1],[5,3,2],[5,4,3],[5,1,4]];
+      faces.forEach(function(f){ var a=proj(V[f[0]]),b=proj(V[f[1]]),c=proj(V[f[2]]); ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]); ctx.closePath(); ctx.stroke(); });
+      V.forEach(function(v){ var p=proj(v); ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(p[0],p[1],4,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('증분: 새 점에서 "보이는 면"(바깥향) 제거 → 경계 지평선에 새 삼각면 연결', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('기대 O(n log n)(랜덤 증분). 면 수 ≤ 2n−4(오일러). 들로네=4D 껍질 투영', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 충돌 경계(볼록체)·3D 메시·최원점쌍·선형계획 기하. 퀵헐(QuickHull) 3D', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_mincostcirc', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('최소 비용 순환 — 음수 사이클을 다 없앨 때까지', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('s·t 없이, 잔여 그래프에 음수 비용 사이클이 남지 않게 흘려 총비용 최소화', W/2, H*0.10+22);
+      // a cycle with costs
+      var N={a:[0.34,0.34,'2'],b:[0.64,0.32,'−3'],c:[0.70,0.62,'1'],d:[0.40,0.66,'−1']};
+      var edges=[['a','b','2'],['b','c','−3'],['c','d','1'],['d','a','−1']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var neg=e[2][0]==='−'; ctx.strokeStyle=neg?'#ff8d8d':'rgba(122,184,255,0.5)'; ctx.lineWidth=neg?3:2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.fillStyle=neg?'#ff8d8d':'#8a8893'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2+8,(p[1]+q[1])/2); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#ff8d8d'; ctx.font='12px sans-serif'; ctx.fillText('음수 사이클(합 −1) 발견 → 그 사이클로 흘려 비용 감소', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('최적성: 잔여 그래프에 음수 비용 사이클이 없다 ⟺ 현재 흐름이 최소 비용', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('사이클 소거(음수사이클 찾아 포화)·SSP(최단경로 증대). MCMF의 일반형, 수송·할당', W/2, H*0.88+20); }
   }
 
   ];
