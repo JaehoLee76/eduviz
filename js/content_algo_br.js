@@ -5278,6 +5278,89 @@
       ctx.fillText('최적성: 잔여 그래프에 음수 비용 사이클이 없다 ⟺ 현재 흐름이 최소 비용', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('사이클 소거(음수사이클 찾아 포화)·SSP(최단경로 증대). MCMF의 일반형, 수송·할당', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_bidirectional', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('양방향 탐색 — 양쪽에서 동시에 BFS', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('출발·도착에서 동시에 BFS를 키워 가운데서 만나기. 탐색 공간 b^d → 2·b^(d/2)', W/2, H*0.10+22);
+      // two expanding circles meeting
+      var sx=W*0.26, tx=W*0.74, cy=H*0.50;
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; [0.10,0.16,0.22].forEach(function(r){ ctx.beginPath(); ctx.arc(sx,cy,r*W,0,Math.PI*2); ctx.stroke(); });
+      ctx.strokeStyle='#8fe3b5'; [0.10,0.16,0.22].forEach(function(r){ ctx.beginPath(); ctx.arc(tx,cy,r*W,0,Math.PI*2); ctx.stroke(); });
+      ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(W*0.5,cy,7,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(sx,cy,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#8fe3b5'; ctx.beginPath(); ctx.arc(tx,cy,8,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText('출발 s', sx, cy-H*0.26); ctx.fillText('도착 t', tx, cy-H*0.26); ctx.fillStyle='#ffb27a'; ctx.fillText('만남', W*0.5, cy+24);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('두 프런티어가 처음 교차하는 정점에서 경로 결합 → 최단(가중치 1) 경로', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 BFS가 깊이 d/2만 → 방문 노드 b^(d/2)씩, 합쳐도 한쪽 b^d보다 훨씬 적음', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('역방향 간선을 알아야 함(t에서 거꾸로). 퍼즐 최단해·미로·소셜 거리. A*도 양방향 변형', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_iddfs', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('반복적 깊이 증가 — DFS의 메모리, BFS의 최단성', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('깊이 한계 0,1,2,…로 DFS를 반복. 메모리 O(d)이면서 BFS처럼 최단 깊이 보장', W/2, H*0.10+22);
+      // depth-limited DFS levels growing
+      var levels=[['한계 0','루트만'],['한계 1','루트+자식'],['한계 2','+손자'],['한계 3','목표 발견!']];
+      var by=H*0.34, bw=W*0.2;
+      levels.forEach(function(l,i){ var y=by+i*46; ctx.fillStyle=i===levels.length-1?'rgba(143,227,181,0.2)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=i===levels.length-1?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(W*0.30,y,bw*2,34); ctx.strokeRect(W*0.30,y,bw*2,34);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText(l[0],W*0.33,y+21); ctx.fillStyle='#8a8893'; ctx.fillText(l[1],W*0.50,y+21); ctx.textAlign='center'; });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('재방문 비용? 마지막 깊이가 비용 지배 → 총 비용 = O(b^d) (BFS와 동급)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('메모리 O(깊이)만(BFS는 O(b^d)). 휴리스틱 더하면 IDA*(메모리 적은 A*)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 큰 상태공간 퍼즐(15퍼즐·루빅스), 메모리 빡센 최단해, 게임 트리', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_bronkerbosch', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('브론-커보시 — 최대 클리크를 모두 열거', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('서로 다 인접한 정점 집합(클리크) 중 극대인 것을 전부. R·P·X 세 집합 재귀', W/2, H*0.10+22);
+      // a clique in a graph
+      var N={a:[0.32,0.34],b:[0.55,0.30],c:[0.50,0.56],d:[0.74,0.52],e:[0.30,0.62]};
+      var edges=[['a','b'],['b','c'],['a','c'],['b','d'],['c','d'],['a','e']];
+      var clique=[['a','b'],['b','c'],['a','c']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var inc=clique.some(function(c){return (c[0]===e[0]&&c[1]===e[1])||(c[0]===e[1]&&c[1]===e[0]);}); ctx.strokeStyle=inc?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.lineWidth=inc?3.5:2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var inc=['a','b','c'].indexOf(k)>=0; ctx.fillStyle=inc?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=inc?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('{a,b,c} = 극대 클리크(셋이 서로 다 연결)', W/2, H*0.82);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('R=현재클리크, P=확장후보, X=이미본것. P·X 비면 R이 극대 클리크', W/2, H*0.89);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('피벗 선택으로 가지치기. 최악 클리크 수 3^(n/3)(Moon-Moser). 소셜·생물 네트워크', W/2, H*0.89+18); }
+  },
+
+  { id:'algo_br_treeiso', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('트리 동형 판정 — 두 트리가 같은 모양인가', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('서브트리마다 정규 해시(자식 해시 정렬→인코딩)를 매겨, 루트 해시 비교로 O(n)', W/2, H*0.10+22);
+      // two trees with same shape, different drawing
+      function tree(ox,N,edges){ function xy(t){ return [ox+N[t][0]*W*0.30, H*0.26+N[t][1]*H*0.4]; } edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); }); Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],10,0,Math.PI*2); ctx.fill(); ctx.stroke(); }); }
+      tree(W*0.08,{r:[0.5,0],a:[0.2,0.5],b:[0.8,0.5],c:[0.6,1]}, [['r','a'],['r','b'],['b','c']]);
+      tree(W*0.56,{r:[0.5,0],a:[0.8,0.5],b:[0.2,0.5],c:[0.4,1]}, [['r','a'],['r','b'],['b','c']]);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('같은 해시 → 동형 ✓ (좌우만 다름)', W/2, H*0.74);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('AHU: 잎=()부터, 각 노드 = 자식 해시들을 정렬해 묶은 정규 라벨', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('루트 없으면 중심(center)에 고정(지름 중점 1~2개)해 비교. O(n)', W/2, H*0.91);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('자식 정렬이 좌우 순서 무시의 핵심. 일반 그래프 동형은 다항시간 미해결(준다항)', W/2, H*0.91+18); }
   }
 
   ];
