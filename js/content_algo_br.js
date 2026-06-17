@@ -5014,6 +5014,95 @@
       ctx.fillText('각 층 다항식 나눗셈 O(n log n)(NTT) × log n 층 = O(n log²n). 보간은 역과정', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('라그랑주 보간을 n점에 한꺼번에. 비밀분산 복원·생성함수·CRT 다항식판', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_binarygcd', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('이진 GCD — 나눗셈 없이 시프트와 뺄셈으로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('유클리드의 % 대신 2의 인수 빼기·짝수 시프트로. 큰 수·하드웨어에서 빠름(Stein)', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='14px sans-serif'; ctx.textAlign='left';
+      var lines=['둘 다 짝수: gcd(a,b) = 2·gcd(a/2, b/2)',
+        '하나만 짝수: 짝수만 /2 (2는 공약수 아님)',
+        '둘 다 홀수: gcd(a,b) = gcd(|a−b|, min(a,b))',
+        '하나가 0: gcd = 다른 수 × (모은 2의 거듭제곱)'];
+      lines.forEach(function(t,i){ ctx.fillStyle=['#7ab8ff','#8fe3b5','#ffb27a','#9a86ff'][i]; ctx.fillText(t, W*0.12, H*0.36+i*30); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('예: gcd(48,36) → 둘짝 →4·gcd(12,9) → gcd(12,9)→/2..→gcd(3,3)→3 ⇒ 12', W/2, H*0.72);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('나눗셈(%)이 시프트·뺄셈·비교로 대체 → CPU에서 빠름. O(log² max) 비트 연산', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('빅넘버 라이브러리·암호의 gcd에 표준. 확장판으로 모듈러 역원도', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_sat', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('분리축 정리 — 볼록 도형 충돌, 한 축으로 판별', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('두 볼록 도형이 안 겹친다 ⟺ 둘의 그림자(투영)가 겹치지 않는 축이 하나라도 있다', W/2, H*0.10+22);
+      // two polygons + a separating axis with projections
+      function poly(cx,cy,pts,col){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); pts.forEach(function(p,i){ var x=cx+p[0],y=cy+p[1]; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.closePath(); ctx.globalAlpha=0.12; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1; ctx.stroke(); }
+      poly(W*0.34,H*0.42,[[-30,-20],[25,-30],[35,25],[-20,30]],'#7ab8ff');
+      poly(W*0.62,H*0.46,[[-25,-25],[28,-18],[20,28],[-28,20]],'#8fe3b5');
+      // separating axis (horizontal) with projections (non-overlapping)
+      var ay=H*0.74; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.18,ay); ctx.lineTo(W*0.82,ay); ctx.stroke();
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(W*0.28,ay); ctx.lineTo(W*0.42,ay); ctx.stroke();
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(W*0.52,ay); ctx.lineTo(W*0.68,ay); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('이 축의 투영이 겹치지 않음 → 분리축 존재 → 충돌 아님', W/2, ay+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('검사할 축 = 각 다각형의 변에 수직인 방향들(법선)만 보면 충분', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('한 축이라도 분리되면 충돌X. 모든 축에서 겹치면 충돌O. 게임·물리엔진 충돌(원은 중심축)', W/2, H*0.88+18); }
+  },
+
+  { id:'algo_br_moupdates', concept:true, branchOf:'algo3_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText("Mo's with updates — 시간 차원을 더한 오프라인", W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('갱신이 섞인 구간 질의를, (블록, 블록, 시간) 3차원 정렬로 O(n^(5/3))에', W/2, H*0.10+22);
+      // 3D ordering illustration: queries as (L-block, R-block, time)
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('질의 = (l, r, t)  — t = 그 질의 전까지 적용된 갱신 수', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['정렬 키: (l/블록크기, r/블록크기, t)',
+        '세 포인터 L, R, T를 조금씩 이동하며 답 유지',
+        'T 이동 = 그 시점 갱신을 적용/되돌리기(현재 [L,R]에 영향시 반영)',
+        '블록 크기 ≈ n^(2/3) → 총 이동 O(n^(5/3))'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.12, H*0.42+i*28); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('기본 Mo(구간만)는 블록 √n, 갱신 추가하면 블록 n^(2/3)이 최적', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('점 갱신+구간 질의(서로 다른 수·빈도 등)를 자료구조 없이 오프라인으로', W/2, H*0.88); }
+  },
+
+  { id:'algo_br_fordjohnson', concept:true, branchOf:'algo3_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('포드-존슨 — 비교 횟수 최소에 가까운 정렬', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('병합 삽입 정렬. 정보이론 하한 ⌈log₂(n!)⌉에 거의 닿는 비교 횟수(작은 n 최적)', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 원소를 쌍으로 묶어 각 쌍 비교 → 큰 쪽들과 작은 쪽들',
+        '② 큰 쪽들을 재귀적으로 정렬(주 사슬)',
+        '③ 작은 쪽들을 야코브스탈 수 순서로 이분삽입',
+        '   (삽입 위치 후보가 2의 거듭제곱이 되게 → 비교 최소)'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i<3?'#cfd8e6':'#8a8893'; ctx.fillText(t, W*0.10, H*0.36+i*28); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('야코브스탈 순서 삽입이 이분 탐색 비교를 최소로 만드는 비결', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('이론 하한 ⌈log₂ n!⌉에 거의 일치(n≤~20에서 최적 또는 1~2 차이)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('비교가 비쌀 때(원소 비교 = 사람·디스크) 가치. 일반 정렬보다 느리지만 비교 적음', W/2, H*0.86+20); }
   }
 
   ];
