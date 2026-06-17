@@ -214,9 +214,9 @@
 
 <div class="guide">
   <svg class="ch" viewBox="0 0 60 60" aria-hidden="true">
-    <rect x="8" y="8" width="44" height="44" rx="10" fill="#7ab8ff"/>
-    <circle id="eyeL" cx="23" cy="30" r="3.4" fill="#1a1a22"/>
-    <circle id="eyeR" cx="37" cy="30" r="3.4" fill="#1a1a22"/>
+    <path d="M30,7 L35.6,22.3 L51.9,22.9 L39.0,32.9 L43.5,48.6 L30,39.5 L16.5,48.6 L21.0,32.9 L8.1,22.9 L24.4,22.3 Z" fill="#7ab8ff"/>
+    <ellipse id="eyeL" cx="24" cy="27" rx="2.9" ry="2.9" fill="#16161f"/>
+    <ellipse id="eyeR" cx="36" cy="27" rx="2.9" ry="2.9" fill="#16161f"/>
   </svg>
   <div class="bubble" id="bubble">…</div>
 </div>
@@ -262,11 +262,11 @@
 
 <script>
   (function(){ var v='?v='+Date.now();
-    ['js/engine.js','js/algo_helpers.js','js/content_algo1.js','js/content_algo2.js','js/content_algo3.js','js/content_algo4.js','js/content_algo5.js','js/content_algo6.js','js/content_algo7.js','js/content_algo8.js','js/content_algo_br.js','js/chat-config.js','js/chat.js'].forEach(function(s){ document.write('<scr'+'ipt src="'+s+v+'"></scr'+'ipt>'); });
+    ['js/engine.js','js/algo_helpers.js','js/content_algo0.js','js/content_algo1.js','js/content_algo2.js','js/content_algo3.js','js/content_algo4.js','js/content_algo5.js','js/content_algo6.js','js/content_algo7.js','js/content_algo8.js','js/content_algo_br.js','js/chat-config.js','js/chat.js'].forEach(function(s){ document.write('<scr'+'ipt src="'+s+v+'"></scr'+'ipt>'); });
   })();
 </script>
 <script>
-  Engine.start({ canvas: 'stage', content: ['content/algo1.json','content/algo2.json','content/algo3.json','content/algo4.json','content/algo5.json','content/algo6.json','content/algo7.json','content/algo8.json','content/algo_br.json'] });
+  Engine.start({ canvas: 'stage', content: ['content/algo0.json','content/algo1.json','content/algo2.json','content/algo3.json','content/algo4.json','content/algo5.json','content/algo6.json','content/algo7.json','content/algo8.json','content/algo_br.json'] });
 </script>
 </body>
 </html>
