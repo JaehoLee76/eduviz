@@ -2503,5 +2503,65 @@
     "q_en": "What's the intuition that Boyer-Moore finds the majority in O(1) space, and what's the caveat?",
     "sol_en": "Scoring the majority +1 and others −1, the majority survives all <b>pairing-off cancellations (count−−) of two different elements</b> because it exceeds half — so one candidate and counter suffice. <b>Caveat</b>: without a guaranteed majority, you must <b>verify the candidate in a second pass</b> (otherwise a spurious value remains)."
    }
+  },
+  "algo_br_partition": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "정수 분할 — n을 합으로 쪼개는 가짓수",
+   "narr": "4 = 4 = 3+1 = 2+2 = 2+1+1 = 1+1+1+1, 다섯 가지. 이렇게 <b>순서 무관하게</b> n을 양의 정수들의 합으로 적는 방법의 수 <b>p(n)</b>가 정수 분할입니다. 동전 교환과 같은 점화식으로 셉니다.",
+   "hint": "",
+   "more": "<b>정수 분할(integer partition)</b>은 양의 정수 n을 <b>순서를 무시하고</b> 양의 정수들의 합으로 나타내는 방법의 수 <b>p(n)</b>을 구하는 문제입니다(p(1)=1, p(2)=2, p(3)=3, p(4)=5, p(5)=7, …). 순서를 따지지 않으므로 3+1과 1+3은 같은 분할입니다. <b>DP</b>: \"1..i의 정수만 사용해 s를 만드는 분할 수\" <b>dp[i][s] = dp[i−1][s](i를 안 씀) + dp[i][s−i](i를 적어도 하나 씀)</b> — 정확히 <b>동전 교환(중복 허용)에서 \"가짓수\"를 세는 점화식</b>과 같습니다(부품 1..n을 한 번씩 바깥 루프로 누적해 순서 중복을 제거). O(n²) 또는 O(n²) 공간을 1차원으로 줄여 O(n) 공간. 더 빠른 길: <b>오일러의 오각수 정리(pentagonal number theorem)</b>로 p(n) = Σ (−1)^(k−1) [ p(n − g_k) + p(n − g_k') ] (g_k=오각수)를 쓰면 <b>O(n√n)</b>. 생성함수로는 <b>p(n) = [xⁿ] ∏_{k≥1} 1/(1−xᵏ)</b>. 시각화 도구는 <b>페러스(Ferrers) 점 그림</b>: 각 분할을 행으로 점을 찍어 그리며, 그림을 <b>전치(전치=대각선 뒤집기)</b>하면 <b>켤레 분할</b>이 되어 \"부분 개수 ≤ k인 분할 수 = 각 부분 ≤ k인 분할 수\" 같은 항등식이 한눈에 보입니다. 변형: 서로 다른 부분만(distinct parts), 홀수 부분만(=서로 다른 부분과 같음, 오일러 항등식), 부분 수 제한.",
+   "more_en": "<b>Integer partition</b> counts the ways <b>p(n)</b> to write a positive integer n as a sum of positive integers <b>ignoring order</b> (p(1)=1, p(2)=2, p(3)=3, p(4)=5, p(5)=7, …); 3+1 and 1+3 are the same partition. <b>DP</b>: \"partitions of s using only integers 1..i\" is <b>dp[i][s] = dp[i−1][s] (don't use i) + dp[i][s−i] (use at least one i)</b> — exactly the recurrence that <b>counts ways in coin change (unlimited supply)</b> (accumulate parts 1..n as the outer loop to avoid order duplicates). O(n²) time, reducible to O(n) space. Faster: <b>Euler's pentagonal number theorem</b> gives p(n) = Σ (−1)^(k−1) [ p(n − g_k) + p(n − g_k') ] (g_k pentagonal), in <b>O(n√n)</b>. As a generating function, <b>p(n) = [xⁿ] ∏_{k≥1} 1/(1−xᵏ)</b>. A visual tool is the <b>Ferrers diagram</b>: draw each partition as rows of dots; <b>transposing</b> (flipping across the diagonal) gives the <b>conjugate partition</b>, making identities like \"partitions into ≤ k parts = partitions with each part ≤ k\" obvious. Variants: distinct parts only, odd parts only (= distinct parts, Euler's identity), bounded number of parts.",
+   "problem": {
+    "q": "정수 분할 p(n)을 세는 DP가 동전 교환(중복 허용) '가짓수' 점화식과 같은 이유는?",
+    "solution": "둘 다 \"<b>1..i의 부품을 순서 무시하고 합 s 만들기</b>\"이기 때문입니다. dp[i][s]=dp[i−1][s]+dp[i][s−i]에서 부품 i를 <b>바깥 루프</b>로 한 번씩만 도입하면, (2+1)과 (1+2)를 같은 것으로 한 번만 세어 순서 중복이 제거됩니다 — 정수 분할이 곧 \"동전 1..n, 금액 n, 가짓수\"입니다.",
+    "q_en": "Why is the DP for partitions p(n) the same recurrence as coin change (unlimited) 'number of ways'?",
+    "sol_en": "Both count \"<b>making sum s from parts 1..i ignoring order</b>.\" In dp[i][s]=dp[i−1][s]+dp[i][s−i], introducing each part i once as the <b>outer loop</b> counts (2+1) and (1+2) as one, removing order duplicates — integer partition is exactly \"coins 1..n, amount n, number of ways.\""
+   }
+  },
+  "algo_br_matrixtree": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "키르히호프 정리 — 신장 트리의 개수를 행렬식으로",
+   "narr": "한 그래프에 서로 다른 <b>신장 트리(모든 정점을 잇는 트리)</b>가 몇 개일까요? 일일이 세지 않고, <b>라플라시안 행렬의 여인수(한 행·열을 지운 행렬식)</b> 한 번으로 정확히 구합니다 — <b>키르히호프의 행렬-트리 정리</b>.",
+   "hint": "",
+   "more": "<b>키르히호프의 행렬-트리 정리(Matrix-Tree Theorem)</b>는 그래프의 <b>신장 트리 개수</b>를 <b>행렬식</b>으로 계산합니다. 먼저 <b>라플라시안 행렬 L = D − A</b>를 만듭니다(D=각 정점 차수를 담은 대각행렬, A=인접행렬). 정리: 그래프의 서로 다른 신장 트리의 수는 <b>L에서 임의의 한 행과 같은 번호의 한 열(또는 임의 i행·j열)을 지운 (n−1)×(n−1) 부분행렬의 행렬식</b>(= 라플라시안의 임의의 여인수)과 같습니다. 놀랍게도 <b>어느 행·열을 지워도 결과가 같습니다</b>(L의 모든 1차 여인수가 동일 — 행/열 합이 0이라 고윳값 0을 가지는 구조에서 나옴). 계산은 <b>가우스 소거로 행렬식 O(V³)</b>. 특수 경우로 완전그래프 Kₙ의 신장 트리 수는 <b>케일리 공식 nⁿ⁻²</b>인데, 이는 행렬-트리 정리로 유도됩니다. 확장: <b>가중(간선에 가중치를 곱으로)</b> 버전은 \"신장 트리들의 (간선 가중치 곱)의 합\"을 주고, <b>방향 그래프</b>는 특정 루트로 향하는 <b>arborescence(방향 신장 트리) 수</b>를 \"in-degree 라플라시안\"으로 셉니다. 이름은 전기 회로의 키르히호프 법칙에서 유래(신장 트리 ↔ 회로의 기본 구조). 조합론에서 \"세는 문제를 선형대수(행렬식)로 환원\"하는 대표적 예입니다.",
+   "more_en": "<b>Kirchhoff's Matrix-Tree Theorem</b> computes a graph's <b>number of spanning trees</b> via a <b>determinant</b>. Build the <b>Laplacian L = D − A</b> (D = diagonal of degrees, A = adjacency matrix). Theorem: the number of distinct spanning trees equals the <b>determinant of the (n−1)×(n−1) submatrix obtained by deleting any one row and any one column of L</b> (any cofactor of the Laplacian). Remarkably, <b>any deleted row/column gives the same value</b> (all first cofactors of L are equal — arising from L having row/column sums 0, hence eigenvalue 0). Compute it as a <b>determinant by Gaussian elimination, O(V³)</b>. As a special case, the complete graph Kₙ has <b>nⁿ⁻² spanning trees (Cayley's formula)</b>, derivable from this theorem. Extensions: a <b>weighted</b> version (edge weights multiplied) gives \"the sum over spanning trees of the product of edge weights,\" and for <b>directed graphs</b> it counts <b>arborescences (directed spanning trees) toward a root</b> via an in-degree Laplacian. The name comes from Kirchhoff's circuit laws (spanning trees ↔ a circuit's fundamental structure). A prime example of reducing a counting problem to linear algebra (a determinant).",
+   "problem": {
+    "q": "키르히호프 정리에서 라플라시안 L의 '어느 행·열을 지워도' 신장 트리 수가 같은 이유의 직관은?",
+    "solution": "라플라시안 L은 각 <b>행과 열의 합이 0</b>입니다(차수 − 연결된 간선 수). 그래서 L은 항상 고윳값 0(랭크 ≤ n−1)을 가지며, 이런 행렬은 <b>모든 1차 여인수(한 행·열 지운 행렬식)가 서로 같다</b>는 선형대수 성질이 성립합니다. 그 공통값이 곧 신장 트리 수입니다.",
+    "q_en": "Why does deleting any row/column of the Laplacian L give the same spanning-tree count in Kirchhoff's theorem?",
+    "sol_en": "The Laplacian L has every <b>row and column summing to 0</b> (degree minus incident edges), so L always has eigenvalue 0 (rank ≤ n−1). For such a matrix, a linear-algebra fact makes <b>all first cofactors (delete one row/column, take the determinant) equal</b> — and that common value is the number of spanning trees."
+   }
+  },
+  "algo_br_hierholzer": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "Hierholzer — 오일러 회로를 실제로 구성",
+   "narr": "오일러 회로(모든 간선을 정확히 한 번씩 지나는 회로)가 <b>존재하는지</b>는 차수만 보면 압니다. <b>Hierholzer 알고리즘</b>은 그 회로를 <b>실제로 O(E)에 그려 냅니다</b> — 작은 회로들을 이어 붙이는 방식으로.",
+   "hint": "",
+   "more": "<b>오일러 회로(Eulerian circuit)</b> = 모든 간선을 <b>정확히 한 번씩</b> 지나 출발점으로 돌아오는 경로. <b>존재 조건</b>: (무방향) 연결 그래프에서 <b>모든 정점의 차수가 짝수</b> / (방향) 모든 정점의 진입차수=진출차수 + 강연결(간선 있는 부분). 오일러 \"경로\"(시작≠끝 허용)는 홀수 차수 정점이 정확히 0개 또는 2개일 때. <b>Hierholzer 알고리즘</b>은 이 회로를 <b>O(V+E)</b>에 구성합니다: ① 아무 정점에서 시작해 <b>아직 안 쓴 간선을 따라가며</b> 더 갈 수 없을 때까지 진행(차수가 짝수라 시작점으로 돌아와 닫힌 부분 회로가 됨, 간선은 소비 표시). ② 만들어진 회로 위의 정점 중 <b>아직 미사용 간선이 남은 정점</b>에서 같은 방식으로 새 부분 회로를 만들어, 그 자리에 <b>끼워 넣어(splice) 합칩니다</b>. ③ 모든 간선이 소비될 때까지 반복. 구현은 보통 <b>스택</b>으로: 현재 경로를 스택에 쌓다가 막히면(미사용 간선 없음) 스택에서 빼 결과 리스트에 추가 → 역순이 오일러 회로. 각 간선을 정확히 한 번 보므로 <b>O(E)</b>. 쓰임: <b>한붓그리기</b>(쾨니히스베르크 다리 문제의 답), <b>드브루인 수열</b> 생성(모든 길이-k 문자열을 한 번씩 포함하는 순환 = 드브루인 그래프의 오일러 회로), <b>DNA 단편 조립</b>(de Bruijn assembly), 우편배달부 문제(중국인 우편배달부의 토대). \"존재는 차수, 구성은 Hierholzer\"로 기억하면 됩니다.",
+   "more_en": "An <b>Eulerian circuit</b> traverses <b>every edge exactly once</b> and returns to the start. <b>Existence</b>: (undirected) connected graph with <b>all vertices of even degree</b> / (directed) every vertex with in-degree = out-degree plus connectivity. An Eulerian <b>path</b> (start ≠ end allowed) exists with exactly 0 or 2 odd-degree vertices. <b>Hierholzer's algorithm</b> constructs the circuit in <b>O(V+E)</b>: ① start anywhere and <b>follow unused edges</b> until stuck (even degrees mean you return to the start, forming a closed subtour; mark edges used). ② From a vertex on this tour that <b>still has unused edges</b>, build another subtour the same way and <b>splice it in</b> at that vertex. ③ Repeat until all edges are used. Implementation is usually a <b>stack</b>: push the current path; when stuck (no unused edge) pop to a result list → its reverse is the Eulerian circuit. Each edge is seen once, so <b>O(E)</b>. Uses: <b>one-stroke drawing</b> (the answer to the Königsberg bridges), generating <b>de Bruijn sequences</b> (a cyclic string containing every length-k string once = an Eulerian circuit of the de Bruijn graph), <b>DNA fragment assembly</b> (de Bruijn assembly), and the Chinese postman problem. Remember: \"existence from degrees, construction from Hierholzer.\"",
+   "problem": {
+    "q": "Hierholzer 알고리즘이 부분 회로들을 끼워 합쳐 전체 오일러 회로를 만들 수 있는 이유는?",
+    "solution": "모든 정점 차수가 <b>짝수</b>라, 한 정점에 들어오면 반드시 나갈 미사용 간선이 짝으로 남아 — 따라가다 막히는 곳은 <b>항상 시작점</b>이 되어 닫힌 부분 회로가 됩니다. 미사용 간선이 남은 정점은 기존 회로 위에 있으므로, 거기서 만든 새 부분 회로를 <b>그 자리에 끼워</b> 합치면 모든 간선이 하나의 회로로 연결됩니다.",
+    "q_en": "Why can Hierholzer's algorithm splice subtours into one full Eulerian circuit?",
+    "sol_en": "Since every degree is <b>even</b>, entering a vertex always leaves a paired unused edge to leave by — so following edges until stuck <b>always ends at the start</b>, forming a closed subtour. Any vertex with unused edges left lies on an existing tour, so the new subtour built there can be <b>spliced in at that vertex</b>, joining all edges into one circuit."
+   }
+  },
+  "algo_br_minmeancycle": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "최소 평균 사이클 — 칸(Karp)의 공식",
+   "narr": "사이클의 <b>간선 가중치 합 ÷ 간선 수</b>(평균)를 최소화하는 사이클을 찾고 싶을 때, <b>칸의 알고리즘</b>은 DP 한 판으로 <b>O(VE)</b>에 그 최소 평균값을 구합니다.",
+   "hint": "",
+   "more": "<b>최소 평균 사이클(minimum mean cycle)</b>은 가중 방향 그래프에서 사이클의 <b>평균 가중치 = (간선 가중치 합)/(간선 수)</b>를 최소화하는 사이클(과 그 값 λ*)을 찾는 문제입니다. <b>칸(Karp)의 정리</b>가 우아한 공식을 줍니다: 고정한 시작 정점 s에서 <b>정확히 k개 간선</b>으로 정점 v까지 가는 최단거리를 <b>d_k(v)</b>라 하면(없으면 +∞), 전체 그래프의 최소 평균 사이클 값은 <b>λ* = min over v ( max over k=0..n−1 of ( d_n(v) − d_k(v) ) / ( n − k ) )</b> 입니다(n = 정점 수). 계산: <b>DP로 d_0..d_n을 채우는 데 O(VE)</b>(d_{k+1}(v) = min over (u→v) of d_k(u) + w(u,v)), 그 뒤 각 v에서 max/(n−k)를 평가해 최솟값을 취하면 됩니다 → 전체 <b>O(VE)</b>. 직관: 평균이 λ인 사이클이 있으면 모든 가중치에서 λ를 빼면 그 사이클은 합 0이 되고, λ*보다 작게 빼면 음수 사이클이 생깁니다 — 즉 최소 평균은 \"음수 사이클이 생기기 직전의 임계 λ\"이고, 칸 공식이 이 임계를 닫힌 형태로 줍니다. 쓰임: <b>분수계획법(Dinkelbach)</b>의 핵심 부품, 음수 사이클 검출의 정량화, 주기적 스케줄의 최적 사이클 타임(예: 최대 이익률 사이클은 −가중치로), 이미지·네트워크의 최적 비율 순환. \"평균 최소화 = 빼기 임계\"가 핵심 아이디어입니다.",
+   "more_en": "The <b>minimum mean cycle</b> problem finds, in a weighted directed graph, the cycle minimizing the <b>mean weight = (sum of edge weights)/(number of edges)</b> (and its value λ*). <b>Karp's theorem</b> gives an elegant formula: fixing a start vertex s, let <b>d_k(v)</b> be the shortest distance to v using <b>exactly k edges</b> (+∞ if none); then the graph's minimum mean cycle value is <b>λ* = min over v ( max over k=0..n−1 of ( d_n(v) − d_k(v) ) / ( n − k ) )</b> (n = number of vertices). Compute: <b>fill d_0..d_n by DP in O(VE)</b> (d_{k+1}(v) = min over (u→v) of d_k(u) + w(u,v)), then evaluate the max/(n−k) at each v and take the minimum → overall <b>O(VE)</b>. Intuition: if a cycle has mean λ, subtracting λ from all weights makes its sum 0; subtracting more than λ* creates a negative cycle — so the minimum mean is \"the threshold λ just before a negative cycle appears,\" and Karp's formula gives this threshold in closed form. Uses: a key component of <b>fractional programming (Dinkelbach)</b>, quantifying negative-cycle detection, optimal cycle time in periodic schedules (e.g. max profit-ratio cycle via negated weights), optimal-ratio cycles in images/networks. The core idea: \"minimizing the mean = the subtraction threshold.\"",
+   "problem": {
+    "q": "최소 평균 사이클 값 λ*를 '모든 가중치에서 λ를 빼기'와 연결해 설명하면?",
+    "solution": "평균이 λ인 사이클은 <b>모든 간선 가중치에서 λ를 빼면 합이 0</b>이 됩니다. λ를 λ*보다 크게 빼면 어떤 사이클의 합이 음수가 되어(음수 사이클 출현), λ를 작게 빼면 모든 사이클 합이 양수입니다. 따라서 λ*는 <b>음수 사이클이 생기기 직전의 임계값</b>이고, 칸 공식 min_v max_k (d_n−d_k)/(n−k)가 이를 닫힌 형태로 줍니다.",
+    "q_en": "Explain the minimum mean cycle value λ* via 'subtracting λ from all weights'.",
+    "sol_en": "A cycle of mean λ has <b>sum 0 after subtracting λ from every edge weight</b>. Subtracting more than λ* makes some cycle's sum negative (a negative cycle appears); subtracting less keeps all cycle sums positive. So λ* is the <b>threshold just before a negative cycle emerges</b>, and Karp's formula min_v max_k (d_n−d_k)/(n−k) gives it in closed form."
+   }
   }
 }

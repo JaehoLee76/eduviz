@@ -3537,6 +3537,99 @@
       ctx.fillText('직관: 과반 원소는 "다른 모든 원소와 1:1 상쇄"해도 반드시 남는다. O(n) 시간·O(1) 공간', W/2, H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('주의: 과반 보장 없으면 후보를 2차 패스로 검증. ⌊n/3⌋ 초과는 후보 2개로 일반화', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_partition', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('정수 분할 — n을 합으로 쪼개는 가짓수', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('순서 무관하게 n을 양의 정수 합으로 적는 방법의 수 p(n). 동전교환의 사촌', W/2, H*0.10+22);
+      // Ferrers diagrams for partitions of 4
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('p(4) = 5 가지 (페러스 점 그림)', W/2, H*0.28);
+      var parts=[[4],[3,1],[2,2],[2,1,1],[1,1,1,1]];
+      var dot=11, gx=W*0.12, gy=H*0.38, colw=W*0.16;
+      parts.forEach(function(p,i){ var x0=gx+i*colw;
+        for(var r=0;r<p.length;r++)for(var c=0;c<p[r];c++){ ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(x0+c*(dot+3),gy+r*(dot+3),dot/2,0,Math.PI*2); ctx.fill(); }
+        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(p.join('+'),x0+18,gy+5*(dot+3)+6); });
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('DP: dp[i][s] = i 이하 정수로 s 만들기 = dp[i−1][s] + dp[i][s−i]', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('동전교환(중복허용)과 같은 점화식 — 단 "가짓수"를 셈. 부분합·부품 1..n 한 번씩 누적', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('오일러 오각수 정리로 O(n√n), 생성함수 ∏ 1/(1−xᵏ). 켤레=페러스 그림 뒤집기(전치)', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_matrixtree', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('키르히호프 정리 — 신장 트리의 개수를 행렬식으로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('그래프의 서로 다른 신장 트리 수 = 라플라시안 행렬의 여인수(한 행·열 지운 행렬식)', W/2, H*0.10+22);
+      // small graph + a couple spanning trees
+      var N={a:[0.22,0.34],b:[0.40,0.34],c:[0.22,0.62],d:[0.40,0.62]};
+      var edges=[['a','b'],['a','c'],['b','d'],['c','d'],['a','d']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('라플라시안 L = D(차수 대각) − A(인접행렬)', W*0.56, H*0.36);
+      ctx.fillText('신장트리 수 = det( L에서 임의의', W*0.56, H*0.46);
+      ctx.fillText('한 행과 한 열을 지운 행렬 )', W*0.56, H*0.53); ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('어느 행·열을 지워도 같은 값(여인수가 모두 동일)', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('가우스 소거로 행렬식 O(V³). 케일리 공식(완전그래프 nⁿ⁻²)도 이 정리의 특수 경우', W/2, H*0.85);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('가중(곱)·방향(루트 향한 arborescence) 버전도 존재. 회로 이론(키르히호프)에서 유래', W/2, H*0.85+20); }
+  },
+
+  { id:'algo_br_hierholzer', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Hierholzer — 오일러 회로를 실제로 그리기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('모든 간선을 한 번씩 지나는 회로(존재 조건 만족 시)를 O(E)에 구성', W/2, H*0.10+22);
+      // graph with a circuit, show stitching of subtours
+      var N={a:[0.30,0.34],b:[0.55,0.30],c:[0.70,0.55],d:[0.50,0.72],e:[0.30,0.60]};
+      var edges=[['a','b'],['b','c'],['c','d'],['d','e'],['e','a'],['b','d']];
+      function xy(t){ return [W*t[0], H*0.20+t[1]*H*0.56]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.45)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var deg=k==='b'||k==='d'?3:2; // illustrative
+        ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('조건: (무방향) 모든 정점 차수 짝수 + 연결 → 오일러 회로 존재', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 정점에서 막힐 때까지 따라가며 간선 소비(부분 회로) → 미사용 간선 가진 정점서 새 회로 → 끼워 합침', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('스택으로 구현(현재경로 push, 막히면 pop해 결과에). 한붓그리기·드브루인 수열·DNA 조립', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_minmeancycle', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('최소 평균 사이클 — 칸(Karp)의 공식', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('사이클의 (간선 합)/(간선 수)를 최소화하는 사이클을, DP 한 판으로 O(VE)에', W/2, H*0.10+22);
+      // cycle illustration
+      var N={a:[0.34,0.36,'2'],b:[0.62,0.34,'3'],c:[0.70,0.60,'1'],d:[0.40,0.64,'4']};
+      var edges=[['a','b','2'],['b','c','3'],['c','d','1'],['d','a','4']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2,(p[1]+q[1])/2-4); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('이 사이클 평균 = (2+3+1+4)/4 = 2.5', W/2, H*0.74);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('칸 공식: λ* = minᵥ maxₖ ( d_n(v) − d_k(v) ) / ( n − k )', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('d_k(v)=시작점서 정확히 k간선으로 v까지 최단. DP O(VE)로 모든 d_k 채운 뒤 위 공식', W/2, H*0.84+18);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 음수사이클 판정 임계, 분수계획(Dinkelbach) 부품, 스케줄 주기·이익률 사이클', W/2, H*0.84+36); }
   }
 
   ];
