@@ -273,6 +273,10 @@
     setTimeout(updateScrollHints,30); }
   // 자세히보기 스크롤 힌트(Q/Z) 표시 갱신
   function updateScrollHints(){ var el=conceptExtraEl; if(!el||!skUpEl||!skDnEl) return;
+    // 조작키(E/C)를 쓰는 장면(스택/큐)에선 스크롤은 Q/Z, 그 외엔 E/C
+    var cs=(SM&&SM.cur!=null)?SM.scenes[SM.cur]:null, useEC=!(cs&&cs.keys);
+    skUpEl.innerHTML='<kbd class="kc">'+(useEC?'E':'Q')+'</kbd> ▲ 위로';
+    skDnEl.innerHTML='▼ 아래로 <kbd class="kc">'+(useEC?'C':'Z')+'</kbd>';
     var scrollable=el.scrollHeight>el.clientHeight+4 && getComputedStyle(el).display!=='none';
     if(!scrollable){ skUpEl.classList.add('hidden'); skDnEl.classList.add('hidden'); return; }
     skUpEl.classList.toggle('hidden', el.scrollTop<=2);
@@ -280,9 +284,10 @@
   function scrollConcept(dir){ var el=conceptExtraEl; if(!el) return false;
     if(getComputedStyle(el).display==='none'||el.scrollHeight<=el.clientHeight+4){
       // 폴백: 레거시 학습 패널(math)
-      var sm=studyMore; if(studyEl&&studyEl.classList.contains('open')&&sm&&sm.scrollHeight>sm.clientHeight+4){ sm.scrollBy({top:dir*Math.max(120,sm.clientHeight*0.7),behavior:'smooth'}); return true; }
+      var sm=studyMore; if(studyEl&&studyEl.classList.contains('open')&&sm&&sm.scrollHeight>sm.clientHeight+4){ sm.scrollTop+=dir*Math.max(110,sm.clientHeight*0.7); return true; }
       return false; }
-    el.scrollBy({top:dir*Math.max(120,el.clientHeight*0.7),behavior:'smooth'}); setTimeout(updateScrollHints,160); return true; }
+    el.scrollTop += dir*Math.max(110, el.clientHeight*0.7);   // 즉시 스크롤(smooth는 일부 환경서 무시됨)
+    updateScrollHints(); return true; }
 
   // ---------- main loop ----------
   var frameN=0;
@@ -367,9 +372,11 @@
       // W 펼치기 / X 접기 (자세히 보기 패널). viz 화면은 패널이 숨겨지므로 W=다음·X=초기화로 라우팅.
       if(c==='KeyW'){ if(studyVisible()) openStudy(); else if(viz) stepNext(); e.preventDefault(); return; }
       if(c==='KeyX'){ if(studyVisible()) closeStudy(); else if(viz) stepReset(); e.preventDefault(); return; }
-      if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로
-      if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로
-      if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(E/C 등)
+      if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로(보조)
+      if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로(보조)
+      if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(스택/큐 E/C)
+      if(c==='KeyE'){ scrollConcept(-1); e.preventDefault(); return; }   // E 자세히보기 위로(조작키 없는 장면)
+      if(c==='KeyC'){ scrollConcept(1); e.preventDefault(); return; }    // C 자세히보기 아래로
       if(viz){   // 코드+스텝: A 이전 / D(Space·Enter) 다음 / S 자동
         if(c==='KeyD'||space||enter){ stepNext(); e.preventDefault(); }
         else if(c==='KeyA'){ stepPrev(); e.preventDefault(); }

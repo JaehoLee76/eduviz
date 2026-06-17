@@ -62,22 +62,28 @@
 
   // ══════════ 2.3 큐 — FIFO ══════════
   { id:'algo2_04', concept:true,
-    enter:function(E){ this.s={q:[5,2,8]}; E.setOn([]); this.cnt=9; },
+    enter:function(E){ this.cap=7; this.s={ a:[5,2,8,null,null,null,null], f:0, r:3 }; E.setOn([]); this.cnt=9; },
     keys:[
-      {code:'KeyE', key:'E', label:'넣기 (enqueue)', act:function(E){ var s=this.s; if(s.q.length<6){ s.q.push(this.cnt++); E.blip(560,0.1);} }},
-      {code:'KeyC', key:'C', label:'빼기 (dequeue)', act:function(E){ var s=this.s; if(s.q.length) s.q.shift(); E.blip(300,0.12); }} ],
-    tap:function(E,x){ var s=this.s; if(x && x>E.W/2){ if(s.q.length<6){ s.q.push(this.cnt++); E.blip(560,0.1);} } else { if(s.q.length) s.q.shift(); E.blip(300,0.12); } },
-    draw:function(E){ var s=this.s, ctx=E.ctx, bw=64, gap=8, n=s.q.length, total=n*bw+(n-1)*gap, x0=E.W/2-total/2, y=E.H*0.44;
-      for(var i=0;i<n;i++){ var x=x0+i*(bw+gap), front=(i===0), rear=(i===n-1);
-        ctx.fillStyle=front?'rgba(244,160,192,0.25)':rear?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.14)';
-        ctx.strokeStyle=front?'#f4a0c0':rear?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=2;
-        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
-        ctx.fillStyle='#dfeefb'; ctx.font='600 20px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(s.q[i], x+bw/2, y+bw/2); ctx.textBaseline='alphabetic';
-        if(front) AV.pointer(E, x+bw/2, y-14, 'front', '#f4a0c0');
-        if(rear && n>1) AV.pointer(E, x+bw/2, y+bw+4, 'rear', '#8fe3b5'); }
-      ctx.fillStyle='#f4a0c0'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('◀ 왼쪽 눌러 dequeue (앞에서 빼기)', E.W*0.28, E.H*0.66);
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('오른쪽 눌러 enqueue (뒤에 넣기) ▶', E.W*0.72, E.H*0.66);
-      E.big('큐 (Queue) — FIFO', '먼저 넣은 게 먼저 나옵니다(First In First Out). 줄 서기·프린터 대기열·그래프 BFS(곧 배웁니다)'); }
+      {code:'KeyE', key:'E', label:'넣기 (enqueue, 뒤에)', act:function(E){ var s=this.s, cap=this.cap;
+        if(s.r-s.f>=cap){ E.blip(200,0.12); return; }                                           // 가득
+        if(s.r>=cap){ for(var i=s.f;i<s.r;i++) s.a[i-s.f]=s.a[i]; s.r-=s.f; s.f=0; for(var j=s.r;j<cap;j++) s.a[j]=null; }  // 오른쪽 끝 도달 → 앞으로 당김(컴팩트)
+        s.a[s.r]=this.cnt++; s.r++; E.blip(560,0.1); }},
+      {code:'KeyC', key:'C', label:'빼기 (dequeue, 앞에서)', act:function(E){ var s=this.s; if(s.f<s.r){ s.a[s.f]=null; s.f++; E.blip(300,0.12); if(s.f===s.r){ s.f=0; s.r=0; } } }} ],
+    tap:function(E,x){ if(x && x>E.W/2) this.keys[0].act.call(this,E); else this.keys[1].act.call(this,E); },
+    draw:function(E){ var s=this.s, ctx=E.ctx, cap=this.cap, bw=Math.min(62,(E.W*0.74)/cap), gap=8, total=cap*bw+(cap-1)*gap, x0=E.W/2-total/2, y=E.H*0.42;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('큐 — 뒤(rear)로 들어와 앞(front)에서 나간다 (FIFO)', E.W/2, E.H*0.16);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('칸은 제자리 고정. dequeue = front 칸이 빠지고 front 포인터만 → 전진 (rear는 그대로)', E.W/2, E.H*0.16+22);
+      for(var i=0;i<cap;i++){ var x=x0+i*(bw+gap), active=(i>=s.f&&i<s.r), gone=(i<s.f), isFront=(i===s.f), isRear=(i===s.r-1);
+        if(active){ ctx.setLineDash([]); ctx.fillStyle=isFront?'rgba(244,160,192,0.28)':isRear?'rgba(143,227,181,0.24)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=isFront?'#f4a0c0':isRear?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=2; }
+        else { ctx.setLineDash([3,3]); ctx.fillStyle='rgba(255,255,255,0.02)'; ctx.strokeStyle='rgba(255,255,255,0.13)'; ctx.lineWidth=1; }
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw); ctx.setLineDash([]);
+        if(active){ ctx.fillStyle='#dfeefb'; ctx.font='600 20px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(s.a[i], x+bw/2, y+bw/2); ctx.textBaseline='alphabetic'; }
+        else if(gone){ ctx.fillStyle='#555a66'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('나감', x+bw/2, y+bw/2+4); }
+        if(isFront&&active) AV.pointer(E, x+bw/2, y-14, 'front', '#f4a0c0');
+        if(isRear&&active) AV.pointer(E, x+bw/2, y+bw+4, 'rear', '#8fe3b5'); }
+      if(s.f>=s.r){ ctx.fillStyle='#8a8893'; ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.fillText('(비어 있음)', E.W/2, y+bw/2+5); } }
   },
 
   // ══════════ 2.4 해시 테이블 — O(1) 조회 ══════════
