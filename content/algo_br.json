@@ -1963,5 +1963,65 @@
     "q_en": "What does NTT replace in FFT, and what advantage does that give?",
     "sol_en": "It replaces FFT's complex <b>n-th root of unity</b> e^(2πi/n) with an <b>n-th primitive root</b> g^((p−1)/n) (mod p) for a prime p. The root-of-unity properties still hold so the same O(n log n) butterfly works, but all arithmetic is integer — giving <b>zero rounding error</b> (exact integer convolution)."
    }
+  },
+  "algo_br_hungarian": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "헝가리안 알고리즘 — 최소 비용 1:1 할당",
+   "narr": "n명의 일꾼을 n개의 일에 <b>1:1로</b> 배정하되 <b>총비용을 최소</b>로 하려면? 모든 배정을 다 시도하면 n!. <b>헝가리안 알고리즘</b>은 비용 행렬을 영리하게 줄여 <b>O(n³)</b>에 최적 할당을 찾습니다.",
+   "hint": "",
+   "more": "<b>헝가리안 알고리즘(Hungarian algorithm, 쿤-먼크레스)</b>은 <b>할당 문제</b>(n×n 비용 행렬에서 각 행과 각 열을 정확히 하나씩 골라 총합 최소)를 <b>O(n³)</b>에 정확히 풉니다. 토대가 되는 관찰: <b>한 행(또는 열) 전체에서 같은 상수를 빼도 최적 할당의 위치는 변하지 않는다</b>(총비용만 그만큼 줄어듦). 그래서 ① 각 행에서 그 행의 최솟값을 빼고, ② 각 열에서도 최솟값을 빼면 행렬에 <b>0이 많이</b> 생깁니다. ③ 이 <b>0들만으로 완전 매칭</b>(서로 다른 행·열의 0을 n개)이 가능하면 그게 최적입니다. ④ 안 되면 <b>쾨니그 정리</b>로 \"모든 0을 덮는 최소 직선 수 = 0 위 최대 매칭\"을 구해, 덮이지 않은 칸들의 최솟값을 빼고 교차점에 더해 0을 더 만든 뒤 다시 매칭을 시도합니다. 이를 완전 매칭이 될 때까지 반복합니다. 동등하게, <b>이분 그래프의 최소 비용 완전 매칭</b>으로 보고 <b>퍼텐셜(라벨)</b>을 유지하며 증대 경로를 찾는 O(n³) 구현(쿤-먼크레스)이 표준입니다. 쓰임: 작업-기계 배정, 추적에서 검출-궤적 연결, 이미지 대응, 최소 비용 완전 매칭이 필요한 모든 곳.",
+   "more_en": "The <b>Hungarian algorithm (Kuhn-Munkres)</b> solves the <b>assignment problem</b> (pick exactly one entry per row and column of an n×n cost matrix to minimize the total) exactly in <b>O(n³)</b>. The key observation: <b>subtracting a constant from an entire row (or column) does not change where the optimal assignment is</b> (only the total cost drops). So ① subtract each row's minimum, ② subtract each column's minimum, creating <b>many zeros</b>. ③ If a <b>complete matching using only zeros</b> exists (n zeros in distinct rows and columns), it is optimal. ④ Otherwise, by <b>König's theorem</b> find \"minimum lines covering all zeros = maximum matching on zeros,\" subtract the minimum uncovered value and add it at line intersections to create more zeros, then retry — repeating until a complete matching forms. Equivalently, view it as <b>minimum-cost perfect matching in a bipartite graph</b> and maintain <b>potentials (labels)</b> while finding augmenting paths (the standard O(n³) Kuhn-Munkres). Uses: job-to-machine assignment, detection-to-track association in tracking, image correspondence — anywhere minimum-cost perfect matching is needed.",
+   "problem": {
+    "q": "헝가리안 알고리즘에서 '행/열에서 상수를 빼는' 조작이 정당한 이유는?",
+    "solution": "어떤 할당이든 <b>각 행에서 정확히 하나</b>를 고르므로, 한 행 전체에서 상수 c를 빼면 <b>모든 할당의 총비용이 똑같이 c만큼</b> 줄어듭니다(열도 마찬가지). 상대적 대소가 보존되니 <b>최적 할당의 위치는 불변</b>이고, 그래서 0을 만들어 매칭을 찾는 변형이 정당합니다.",
+    "q_en": "Why is subtracting a constant from a row/column valid in the Hungarian algorithm?",
+    "sol_en": "Any assignment picks <b>exactly one entry per row</b>, so subtracting a constant c from a whole row lowers <b>every assignment's total by the same c</b> (likewise for columns). Relative order is preserved, so the <b>optimal assignment's location is unchanged</b> — which justifies creating zeros and matching on them."
+   }
+  },
+  "algo_br_hopcroft": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.1 그래프 기초 ▸ 자세히",
+   "title": "호프크로프트-카프 — 이분 매칭을 O(E√V)에",
+   "narr": "이분 매칭을 증대 경로 하나씩 찾으면 O(VE). <b>호프크로프트-카프</b>는 BFS로 <b>최단 증대 경로 여러 개를 한 번에</b> 찾아, 라운드 수를 O(√V)로 묶고 전체를 <b>O(E√V)</b>로 끌어내립니다.",
+   "hint": "",
+   "more": "<b>호프크로프트-카프(Hopcroft-Karp)</b>는 <b>이분 그래프 최대 매칭</b>을 <b>O(E√V)</b>에 구하는 알고리즘으로, 단순 증대(매번 한 개의 증대 경로를 DFS로 찾는 O(VE))를 개선합니다. 각 <b>라운드</b>는 두 단계입니다: ① <b>BFS</b>로 매칭되지 않은 왼쪽 정점들에서 출발해, 매칭/비매칭 간선을 번갈아 밟는 <b>최단 증대 경로의 길이</b>를 한 번에 구하고 정점들을 레벨로 나눕니다. ② <b>DFS</b>로 그 최단 길이의 <b>서로 정점-서로소인 증대 경로들을 한꺼번에 모두</b> 증대합니다(극대 집합). 핵심 정리: 라운드가 진행될수록 최단 증대 경로 길이가 <b>엄격히 증가</b>하고, 길이가 √V를 넘는 순간 남은 매칭 부족분이 √V 이하임이 보장되어 <b>총 라운드 수가 O(√V)</b>가 됩니다. 각 라운드가 O(E)이므로 전체 <b>O(E√V)</b>. 이는 일반 그래프의 <b>디닉 알고리즘</b>을 이분 매칭(모든 용량 1)에 특수화한 것과 본질적으로 같습니다. 쓰임: 대규모 이분 매칭(작업 배정, 자원 할당, 안정/최대 매칭의 토대), 호프크로프트-카프로 빠르게 최대 매칭을 얻은 뒤 쾨니그 정리로 최소 정점 덮개도 구성합니다.",
+   "more_en": "<b>Hopcroft-Karp</b> computes <b>maximum bipartite matching</b> in <b>O(E√V)</b>, improving on simple augmentation (finding one augmenting path per DFS, O(VE)). Each <b>round</b> has two phases: ① a <b>BFS</b> from all unmatched left vertices finds the <b>length of the shortest augmenting path</b> (alternating matched/unmatched edges) at once and assigns levels; ② a <b>DFS</b> augments a <b>maximal set of vertex-disjoint shortest augmenting paths</b> simultaneously. Key theorem: the shortest augmenting-path length <b>strictly increases</b> each round, and once it exceeds √V the remaining deficiency is at most √V, bounding the <b>number of rounds by O(√V)</b>. With O(E) per round, the total is <b>O(E√V)</b>. This is essentially <b>Dinic's algorithm</b> specialized to bipartite matching (all capacities 1). Uses: large-scale bipartite matching (task/resource assignment, foundations of maximum/stable matching); after obtaining a maximum matching quickly, König's theorem builds the minimum vertex cover.",
+   "problem": {
+    "q": "호프크로프트-카프가 단순 증대(O(VE))보다 빠른 핵심 아이디어는?",
+    "solution": "매 라운드 <b>BFS로 최단 증대 경로 길이</b>를 구한 뒤, 그 길이의 <b>정점-서로소 증대 경로들을 한꺼번에</b> 증대합니다. 최단 길이가 라운드마다 엄격히 늘어 <b>라운드 수가 O(√V)</b>로 묶이고, 각 라운드 O(E)라 전체 O(E√V)가 됩니다.",
+    "q_en": "What is the key idea making Hopcroft-Karp faster than simple augmentation (O(VE))?",
+    "sol_en": "Each round uses <b>BFS to find the shortest augmenting-path length</b>, then augments <b>many vertex-disjoint paths of that length at once</b>. The shortest length strictly grows per round, bounding <b>rounds at O(√V)</b>; with O(E) per round the total is O(E√V)."
+   }
+  },
+  "algo_br_stoerwagner": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "슈토어-바그너 — 전역 최소 컷",
+   "narr": "그래프를 두 덩어리로 가르는 <b>가장 가벼운 절단</b>(최소 컷)을 구하는데, 보통은 소스 s와 싱크 t를 정해 최대유량을 풉니다. 하지만 \"<b>어디든 상관없이 전체에서 가장 약한 절단</b>\"은? <b>슈토어-바그너</b>가 s·t를 고르지 않고 직접 찾습니다.",
+   "hint": "",
+   "more": "<b>슈토어-바그너(Stoer-Wagner)</b>는 <b>가중 무방향 그래프</b>의 <b>전역 최소 컷</b>(정점을 비지 않은 두 집합으로 나누는, 잘리는 간선 가중치 합이 최소인 분할)을 최대유량 없이 직접 구합니다. 최대유량/최소컷 정리는 <b>고정된 s, t</b> 쌍의 최소컷만 주므로, 전역 최소컷을 그 방식으로 구하려면 s를 고정하고 모든 t를 시도해야 합니다. 슈토어-바그너의 영리함: 각 <b>단계(phase)</b>에서 임의의 정점에서 시작해 <b>가장 인접 가중치가 큰 정점을 차례로 흡수</b>(최대 인접도 순서, prim과 유사)하면, 마지막에 추가된 정점 t와 그 직전 정점 s에 대해 \"<b>t를 나머지 전체와 가르는 컷(cut-of-the-phase)</b>\"이 <b>그 단계의 s-t 최소컷</b>임이 보장됩니다. 이 컷 값을 후보로 기록하고, <b>마지막 두 정점 s, t를 하나로 합쳐</b> 그래프를 한 정점 줄입니다. 정점이 하나 남을 때까지 n−1단계 반복하면, 기록된 후보들의 <b>최솟값이 전역 최소컷</b>입니다. 각 단계가 O(V²)(또는 우선순위 큐로 O(E + V log V))라 전체 <b>O(V³)</b> 또는 O(VE + V² log V). 쓰임: 네트워크 신뢰도(가장 끊기 쉬운 지점), 이미지 분할, 클러스터링, 그래프 연결 강도 측정.",
+   "more_en": "<b>Stoer-Wagner</b> finds the <b>global minimum cut</b> of a <b>weighted undirected graph</b> (a partition into two non-empty sets minimizing the total weight of cut edges) directly, without max-flow. The max-flow/min-cut theorem gives only the min cut for a <b>fixed s, t</b> pair, so finding the global cut that way needs trying all t for a fixed s. Stoer-Wagner's trick: in each <b>phase</b>, start from any vertex and repeatedly <b>absorb the most tightly connected vertex</b> (maximum-adjacency order, Prim-like). Then for the last-added vertex t and the one before it s, the <b>cut separating t from the rest (the cut-of-the-phase)</b> is provably the <b>s-t minimum cut</b> of that phase. Record its value as a candidate, then <b>merge the last two vertices s, t</b> into one, shrinking the graph by a vertex. Repeat for n−1 phases until one vertex remains; the <b>minimum recorded candidate is the global min cut</b>. Each phase is O(V²) (or O(E + V log V) with a priority queue), giving <b>O(V³)</b> or O(VE + V² log V) total. Uses: network reliability (weakest link), image segmentation, clustering, measuring graph connectivity strength.",
+   "problem": {
+    "q": "슈토어-바그너가 전역 최소 컷을 s,t를 따로 고르지 않고 구할 수 있는 이유는?",
+    "solution": "각 단계에서 <b>최대 인접도 순서로 정점을 흡수</b>하면, 마지막 정점 t를 나머지와 가르는 컷(cut-of-the-phase)이 <b>그 단계 s-t 최소컷</b>임이 보장됩니다. 그 후 s·t를 <b>합쳐</b> 정점을 줄이며 n−1단계 반복하면, 후보들의 최솟값이 전역 최소컷이 됩니다.",
+    "q_en": "Why can Stoer-Wagner find the global min cut without choosing s and t?",
+    "sol_en": "In each phase, absorbing vertices in <b>maximum-adjacency order</b> guarantees the cut separating the last vertex t from the rest (the cut-of-the-phase) is the <b>s-t min cut</b> of that phase. Then <b>merging s and t</b> shrinks the graph; over n−1 phases the minimum recorded candidate is the global min cut."
+   }
+  },
+  "algo_br_anneal": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "시뮬레이티드 어닐링 — 가끔 손해도 받아들이기",
+   "narr": "경사하강이나 언덕 오르기는 가장 가까운 골짜기에 갇혀 버립니다(지역 최적). <b>담금질(시뮬레이티드 어닐링)</b>은 <b>가끔 나빠지는 이동도 받아들여</b> 언덕을 넘고, 온도를 천천히 낮추며 더 깊은 전역 골짜기를 찾습니다.",
+   "hint": "",
+   "more": "<b>시뮬레이티드 어닐링(Simulated Annealing, 담금질)</b>은 NP-난해 최적화의 <b>메타휴리스틱</b>으로, 금속을 천천히 식혀 결정 결함을 없애는 물리 과정에서 영감을 얻었습니다. 현재 해에서 이웃 해로 옮길 때, <b>더 좋아지면 항상 수용</b>하고, <b>나빠지더라도 확률 exp(−Δ/T)로 수용</b>합니다(Δ=비용 증가량, T=온도). 의미: <b>온도 T가 높으면</b> 나쁜 이동도 잘 받아들여 거의 무작위로 넓게 탐색하고(언덕을 쉽게 넘음), <b>T가 낮아지면</b> 점점 좋아지는 이동만 받아 욕심내기(지역 미세 조정)에 가까워집니다. 이 \"<b>탐험→수렴</b>\" 전환을 <b>냉각 스케줄</b>(예: T ← T·α, α≈0.99)로 천천히 진행하면, 단순 언덕 오르기가 빠지는 <b>지역 최적의 함정</b>을 확률적으로 빠져나와 전역 최적 부근으로 수렴합니다(충분히 느린 냉각이면 이론상 전역 최적 수렴). 설계 요소: 이웃 정의(작은 변형), 초기 온도, 냉각률, 종료 조건. 정확해를 보장하진 않지만 구현이 쉽고 넓게 적용됩니다 — <b>외판원(TSP)</b>, 배치·스케줄링, VLSI 배선, 함수 최적화 등. 친척으로 <b>유전 알고리즘·타부 서치</b> 등 다른 메타휴리스틱이 있습니다.",
+   "more_en": "<b>Simulated Annealing</b> is a <b>metaheuristic</b> for NP-hard optimization, inspired by slowly cooling metal to remove crystal defects. Moving from the current solution to a neighbor, it <b>always accepts an improvement</b> and <b>accepts a worsening move with probability exp(−Δ/T)</b> (Δ = cost increase, T = temperature). Meaning: at <b>high T</b> it readily accepts bad moves, exploring almost randomly and easily crossing hills; as <b>T lowers</b> it accepts mostly improving moves, behaving like greedy hill-climbing (local fine-tuning). Driving this \"<b>explore → converge</b>\" shift with a <b>cooling schedule</b> (e.g. T ← T·α, α≈0.99) lets it probabilistically escape the <b>local-optimum traps</b> that plain hill-climbing falls into, converging near the global optimum (with sufficiently slow cooling, global convergence in theory). Design choices: neighbor definition (small perturbation), initial temperature, cooling rate, stopping criterion. It guarantees no exact answer but is simple and broadly applicable — <b>TSP</b>, placement/scheduling, VLSI routing, function optimization. Relatives include genetic algorithms and tabu search.",
+   "problem": {
+    "q": "시뮬레이티드 어닐링이 지역 최적의 함정을 빠져나오는 메커니즘은?",
+    "solution": "더 나빠지는 이동도 <b>확률 exp(−Δ/T)로 수용</b>하기 때문입니다. 온도 T가 높을 때는 이 확률이 커서 언덕을 넘어 넓게 탐험하고, T를 <b>천천히 낮추면</b> 점차 좋은 이동만 받아 수렴합니다. 그래서 단순 언덕 오르기가 갇히는 지역 최솟값을 확률적으로 탈출합니다.",
+    "q_en": "What mechanism lets simulated annealing escape local-optimum traps?",
+    "sol_en": "It <b>accepts worsening moves with probability exp(−Δ/T)</b>. At high temperature T this probability is large, so it crosses hills and explores widely; as T is <b>slowly lowered</b> it accepts mostly improving moves and converges — probabilistically escaping the local minima where plain hill-climbing gets stuck."
+   }
   }
 }

@@ -2630,6 +2630,117 @@
       ctx.fillText('대표 소수 998244353 = 119·2²³ + 1 → 길이 2²³까지 변환 가능', W/2, H*0.82);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('O(n log n) 합성곱을 정수로 정확히. 큰 정수·다항식 곱, 모듈러 조합론, 문자열 문제에 사용', W/2, H*0.90); }
+  },
+
+  { id:'algo_br_hungarian', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('헝가리안 알고리즘 — 최소 비용 할당', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('n명의 일꾼을 n개의 일에 1:1로 배정, 총비용을 최소로. 비용 행렬에서 O(n³)', W/2, H*0.10+22);
+      // cost matrix
+      var M=[[4,2,8],[2,3,7],[3,1,6]]; var bx=W*0.30, by=H*0.30, cw=58;
+      ctx.font='600 12px sans-serif';
+      ctx.fillStyle='#6a6873'; ['일 A','일 B','일 C'].forEach(function(t,j){ ctx.fillText(t,bx+j*cw+cw/2,by-8); });
+      var pick={0:1,1:0,2:1}; // chosen cells (row->col) example optimal: A1? illustrate
+      for(var r=0;r<3;r++){ ctx.fillStyle='#6a6873'; ctx.textAlign='right'; ctx.fillText('일꾼 '+(r+1),bx-8,by+r*46+28); ctx.textAlign='center';
+        for(var c=0;c<3;c++){ var x=bx+c*cw, y=by+r*46;
+          var on=(r===0&&c===1)||(r===1&&c===0)||(r===2&&c===2);
+          ctx.fillStyle=on?'rgba(143,227,181,0.25)':'rgba(122,184,255,0.10)'; ctx.strokeStyle=on?'#8fe3b5':'#43506a'; ctx.lineWidth=on?2.5:1.2;
+          ctx.fillRect(x,y,cw-8,38); ctx.strokeRect(x,y,cw-8,38);
+          ctx.fillStyle=on?'#8fe3b5':'#dfeefb'; ctx.font=on?'700 16px sans-serif':'14px sans-serif'; ctx.fillText(M[r][c],x+(cw-8)/2,y+24); } }
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif';
+      ctx.fillText('최적 할당: 1→B(2) + 2→A(2) + 3→C(6) = 10 (각 행·열 정확히 하나)', W/2, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('핵심: 행/열에서 상수를 빼도 최적 할당은 불변 → 0을 많이 만들고 0들로 완전 매칭 시도', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쾨니그 정리(최소 선 덮기=최대 매칭)로 부족분을 조정. 이분 그래프 최소비용 완전매칭의 O(n³) 해법', W/2, H*0.80+20); }
+  },
+
+  { id:'algo_br_hopcroft', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('호프크로프트-카프 — 이분 매칭을 더 빠르게', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('증대 경로를 하나씩 말고 BFS로 한꺼번에 여러 개 찾아 O(E√V)로 가속', W/2, H*0.10+22);
+      // bipartite graph with matched (bold) and augmenting path
+      var L=[[W*0.30,H*0.34],[W*0.30,H*0.50],[W*0.30,H*0.66]];
+      var R=[[W*0.70,H*0.34],[W*0.70,H*0.50],[W*0.70,H*0.66]];
+      // edges
+      var matched=[[0,0],[1,1]]; var aug=[[2,1],[1,2]]; // augmenting path L2-R1=R1-L1? illustrate shortest aug
+      ctx.lineWidth=1.5; ctx.strokeStyle='rgba(122,184,255,0.3)';
+      [[0,0],[0,1],[1,1],[1,2],[2,1]].forEach(function(e){ ctx.beginPath(); ctx.moveTo(L[e[0]][0],L[e[0]][1]); ctx.lineTo(R[e[1]][0],R[e[1]][1]); ctx.stroke(); });
+      ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=4;
+      matched.forEach(function(e){ ctx.beginPath(); ctx.moveTo(L[e[0]][0],L[e[0]][1]); ctx.lineTo(R[e[1]][0],R[e[1]][1]); ctx.stroke(); });
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=3; ctx.setLineDash([7,5]);
+      [[2,1],[1,2]].forEach(function(e){ ctx.beginPath(); ctx.moveTo(L[e[0]][0],L[e[0]][1]); ctx.lineTo(R[e[1]][0],R[e[1]][1]); ctx.stroke(); }); ctx.setLineDash([]);
+      function dots(arr,col){ arr.forEach(function(p,i){ ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],15,0,Math.PI*2); ctx.fill(); ctx.stroke(); }); }
+      dots(L,'#7ab8ff'); dots(R,'#7ab8ff');
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('— 매칭된 간선', W*0.40, H*0.86); ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.fillText('--- 증대 경로(번갈아 가며 길이 늘리기)', W*0.5, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 라운드: BFS로 최단 증대 경로 길이를 구하고, 그 길이의 경로들을 DFS로 동시에 모두 증대', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('라운드 수가 O(√V)로 묶여 전체 O(E√V) — 단순 증대(O(VE))보다 빠른 이분 매칭의 표준', W/2, H*0.78+18); }
+  },
+
+  { id:'algo_br_stoerwagner', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('슈토어-바그너 — 전역 최소 컷 (소스 지정 없이)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('그래프를 두 덩어리로 가르는 가장 가벼운 절단을, s·t를 고르지 않고 직접', W/2, H*0.10+22);
+      // graph with a cut line
+      var N={a:[0.30,0.32],b:[0.44,0.58],c:[0.34,0.78],d:[0.66,0.32],e:[0.72,0.62],f:[0.60,0.82]};
+      var ed=[['a','b',3],['b','c',4],['a','c',3],['b','e',2],['d','e',3],['d','f',2],['e','f',3]];
+      function xy(k){ return [W*0.1+N[k][0]*W*0.8, H*0.24+N[k][1]*H*0.5]; }
+      ed.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var cut=(e[0]==='b'&&e[1]==='e');
+        ctx.strokeStyle=cut?'#ff8d8d':'rgba(255,255,255,0.25)'; ctx.lineWidth=cut?3:2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke();
+        ctx.fillStyle=cut?'#ff8d8d':'#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2,(p[1]+q[1])/2-4); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var left=['a','b','c'].indexOf(k)>=0;
+        ctx.fillStyle=left?'rgba(122,184,255,0.18)':'rgba(143,227,181,0.16)'; ctx.strokeStyle=left?'#7ab8ff':'#8fe3b5'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],15,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      // cut line
+      ctx.strokeStyle='rgba(255,141,141,0.5)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+      ctx.beginPath(); ctx.moveTo(W*0.5,H*0.26); ctx.lineTo(W*0.5,H*0.76); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ff8d8d'; ctx.font='600 13px sans-serif';
+      ctx.fillText('전역 최소 컷 = 2 (간선 B–E 하나만 자르면 두 덩어리)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('최대유량은 s,t 쌍마다 최소컷을 줌. 전역은 모든 쌍을 볼 필요 없이, 단계마다 한 정점 합치기로', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('최대 인접도 순서로 정점을 흡수→마지막 컷(cut-of-the-phase) 후보, n−1단계, 전체 O(V³ or VE+V²logV)', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_anneal', concept:true, branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('시뮬레이티드 어닐링 — 가끔 손해도 받아들이기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('경사하강은 가까운 골짜기에 갇힌다. 담금질은 온도를 천천히 낮추며 더 깊은 골짜기를 찾는다', W/2, H*0.10+22);
+      // energy landscape with local & global minima, a ball
+      var gx0=W*0.16, gx1=W*0.84, gy=H*0.62, amp=H*0.16;
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      function fY(x){ var t=(x-gx0)/(gx1-gx0); // two valleys, global on right deeper
+        var y = Math.sin(t*Math.PI*2)*0.5 + (t-0.6)*(t-0.6)*1.6 - t*0.5; return gy - y*amp; }
+      for(var x=gx0;x<=gx1;x+=4){ var yy=fY(x); if(x===gx0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy); } ctx.stroke();
+      // local min ball (left) escaping toward global (right)
+      var bx=gx0+(gx1-gx0)*0.30; ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(bx,fY(bx)-8,9,0,Math.PI*2); ctx.fill();
+      var gx=gx0+(gx1-gx0)*0.78; ctx.fillStyle='rgba(143,227,181,0.5)'; ctx.beginPath(); ctx.arc(gx,fY(gx)-8,9,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText('지역 최솟값(갇힘)', bx, fY(bx)+28); ctx.fillStyle='#8fe3b5'; ctx.fillText('전역 최솟값', gx, fY(gx)+28);
+      // arrow over the hump
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+      ctx.moveTo(bx+12,fY(bx)-18); ctx.quadraticCurveTo((bx+gx)/2,H*0.30,gx-12,fY(gx)-18); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('나빠지는 이동도 확률 exp(−Δ/T)로 수용 → 언덕을 넘는다', W/2, H*0.30);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('온도 T가 높으면 거의 무작위 탐색, 낮아지면 점점 욕심내기. 천천히 식히면(냉각 스케줄) 전역해로 수렴', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('금속을 천천히 식혀 결정 결함을 없애는 담금질에서 따옴. NP-난해 최적화(TSP·배치)의 메타휴리스틱', W/2, H*0.84+20); }
   }
 
   ];
