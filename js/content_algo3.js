@@ -3,8 +3,12 @@
    frame = {line:현재코드줄, cap:설명, a:배열스냅샷, ...강조상태}. 텍스트(title/narr/more)는 content/algo3.json. */
 (function(){
   var BLU='#7ab8ff', ORA='#ffb27a', GRN='#8fe3b5', PNK='#f4a0c0';
-  function bars(V, a, hl){ AV.bars(V, a, { baseY:V.H*0.70, maxH:V.H*0.46, label:true,
-    bw:Math.min(58,(V.W*0.66)/a.length), gap:12, hl:hl }); }
+  function bars(V, a, hl, title){ var ctx=V.ctx;
+    if(title){ ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.fillText(title, V.W/2, V.H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('막대 높이 = 값  ·  주황 = 비교 중  ·  분홍 = 교환  ·  초록 = 정렬 확정', V.W/2, V.H*0.12+20); }
+    AV.bars(V, a, { baseY:V.H*0.72, maxH:V.H*0.42, label:true,
+      bw:Math.min(58,(V.W*0.66)/a.length), gap:12, hl:hl }); }
 
   var scenes=[
 
@@ -35,7 +39,7 @@
       st.push({line:8, cap:'<b>정렬 완료!</b> ['+a.join(', ')+'] — 비교 횟수가 많아 O(n²).', a:a.slice(), sorted:0, done:true});
       return st; },
     draw:function(V,f){ if(!f)return; bars(V, f.a, function(k){ if(f.done)return GRN; if(f.sorted!=null&&k>=f.sorted)return GRN;
-      if(f.swap&&(k===f.swap[0]||k===f.swap[1]))return PNK; if(f.cmp&&(k===f.cmp[0]||k===f.cmp[1]))return ORA; return BLU; }); }
+      if(f.swap&&(k===f.swap[0]||k===f.swap[1]))return PNK; if(f.cmp&&(k===f.cmp[0]||k===f.cmp[1]))return ORA; return BLU; }, '버블 정렬 — 이웃끼리 비교해 큰 값을 뒤로 (오름차순)'); }
   },
 
   // ══════════ 3.1b 선택 정렬 ══════════
@@ -68,7 +72,7 @@
       st.push({line:9, cap:'<b>정렬 완료!</b> 교환은 적지만(O(n)) 비교는 O(n²).', a:a.slice(), sortedTo:n, done:true});
       return st; },
     draw:function(V,f){ if(!f)return; bars(V, f.a, function(k){ if(f.done)return GRN; if(f.sortedTo!=null&&k<f.sortedTo)return GRN;
-      if(f.swap&&(k===f.swap[0]||k===f.swap[1]))return PNK; if(k===f.min)return ORA; if(k===f.scan)return PNK; return BLU; }); }
+      if(f.swap&&(k===f.swap[0]||k===f.swap[1]))return PNK; if(k===f.min)return ORA; if(k===f.scan)return PNK; return BLU; }, '선택 정렬 — 남은 곳의 최솟값을 골라 앞으로 (오름차순)'); }
   },
 
   // ══════════ 3.1c 삽입 정렬 ══════════
@@ -101,7 +105,7 @@
       return st; },
     draw:function(V,f){ if(!f)return; bars(V, f.a, function(k){ if(f.done)return GRN;
       if(k===f.placed)return PNK; if(f.sortedTo!=null&&k<f.sortedTo&&k!==f.key)return GRN;
-      if(k===f.key)return PNK; if(k===f.cmp)return ORA; return BLU; }); }
+      if(k===f.key)return PNK; if(k===f.cmp)return ORA; return BLU; }, '삽입 정렬 — 카드 정리처럼 앞쪽 제자리에 끼우기 (오름차순)'); }
   },
 
   // ══════════ 3.2 병합 정렬 — 분할정복 (merge 단계) ══════════
@@ -130,7 +134,11 @@
       st.push({line:8, cap:'<b>병합 완료!</b> ['+out.join(', ')+'] — 분할 log n층 × 병합 n = O(n log n).', L:L.slice(), R:R.slice(), out:out.slice(), li:L.length, ri:R.length, done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
-      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('병합 정렬 — 이미 정렬된 두 줄을 하나로 합치기', V.W/2, V.H*0.07);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('양쪽 맨 앞(▲)을 비교해 작은 값부터 결과로 옮깁니다.', V.W/2, V.H*0.07+19);
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif';
       ctx.fillText('정렬된 왼쪽 L', V.W*0.28, V.H*0.16); ctx.fillText('정렬된 오른쪽 R', V.W*0.72, V.H*0.16);
       AV.arr(V, f.L, { cx:V.W*0.28, y:V.H*0.20, bw:48, hl:function(i){ return (i===f.li&&!f.done)?{fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'▲'}:(i<f.li?{fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.18)',text:'#5a5f6b'}:null); } });
       AV.arr(V, f.R, { cx:V.W*0.72, y:V.H*0.20, bw:48, hl:function(i){ return (i===f.ri&&!f.done)?{fill:'rgba(143,227,181,0.3)',stroke:GRN,text:GRN,tag:'▲'}:(i<f.ri?{fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.18)',text:'#5a5f6b'}:null); } });
@@ -168,7 +176,7 @@
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
       bars(V, f.a, function(k){ if(k===f.pivot)return PNK; if(k===f.pivotFinal)return GRN;
         if(f.swap&&(k===f.swap[0]||k===f.swap[1]))return PNK; if(k===f.scan)return ORA;
-        if(f.bound!=null&&k<f.bound)return GRN; return BLU; });
+        if(f.bound!=null&&k<f.bound)return GRN; return BLU; }, '퀵 정렬 — 피벗 기준으로 작은 값/큰 값 분할 (분홍=피벗)');
       if(f.bound!=null&&!f.done){ var bx=AV; ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='center';
         ctx.fillText('← 피벗보다 작은 영역', V.W*0.5, V.H*0.80); } }
   }
