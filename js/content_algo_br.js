@@ -1894,6 +1894,90 @@
       ctx.fillText('주황 = 임계 경로 A→B→D→F (길이 9). 라벨 = 시작에서의 최장 거리', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('위상순서대로 dist[v] = max(dist[u] + w)로 완화. 프로젝트 일정의 "임계 경로"가 곧 총 소요시간', W/2, H*0.84+22); }
+  },
+
+  // ══════ 선형탐색(algo4_01) ▸ 접미사 오토마톤(SAM) ══════
+  { id:'algo_br_sam', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('접미사 오토마톤(SAM) — 모든 부분문자열을 선형 크기로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('문자열의 모든 부분문자열을 인식하는 최소 DFA. 상태·간선이 O(n)뿐', W/2, H*0.10+22);
+      // 작은 오토마톤: 상태들 + 전이
+      var P={0:[0.14,0.50],1:[0.36,0.32],2:[0.36,0.68],3:[0.62,0.50],4:[0.86,0.50]};
+      var E2=[[0,1,'a'],[0,2,'b'],[1,3,'b'],[2,3,'a'],[3,4,'a']];
+      function xy(k){ return [W*0.10+P[k][0]*W*0.80, H*0.26+P[k][1]*H*0.46]; }
+      E2.forEach(function(e){ gedge(E,xy(e[0]),xy(e[1]),'rgba(143,227,181,0.6)',2,e[2]); });
+      Object.keys(P).forEach(function(k){ var p=xy(k), init=(k==='0');
+        AV.node(E,p[0],p[1],k,{r:18,fs:13,fill:init?'rgba(255,178,122,0.24)':'rgba(122,184,255,0.16)',stroke:init?'#ffb27a':'#7ab8ff',text:init?'#ffb27a':'#dfeefb',tag:init?'시작':null}); });
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('시작에서 글자를 따라가면 도달 가능한 모든 경로 = 모든 부분문자열', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('상태 ≤ 2n−1, 간선 ≤ 3n−4, 온라인 O(n) 구축. 서로 다른 부분문자열 개수·최장 공통 부분문자열·검색에', W/2, H*0.84+22); }
+  },
+
+  // ══════ NP(algo8_04) ▸ FFT로 큰 수·다항식 곱셈 ══════
+  { id:'algo_br_fftmul', concept:true, branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('FFT 곱셈 — 다항식·큰 수 곱을 O(n log n)에', W/2, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('계수 ⇄ 점값 표현을 빠르게 오가며, 곱셈을 점별 곱(O(n))으로 바꾼다', W/2, H*0.11+22);
+      // 파이프라인 3단계
+      var y=H*0.34, bw=W*0.22, gap=W*0.05, total=3*bw+2*gap, x0=cx-total/2;
+      var steps=[['계수표현','A(x), B(x)','#7ab8ff'],['점값표현','각 점에서 값','#8fe3b5'],['계수표현','곱 C(x)','#ffb27a']];
+      for(var i=0;i<3;i++){ var x=x0+i*(bw+gap);
+        ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=steps[i][2]; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,H*0.16,10);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,H*0.16);
+        ctx.fillStyle=steps[i][2]; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText(steps[i][0],x+bw/2,y+H*0.06);
+        ctx.fillStyle='#cfcdc6'; ctx.font='12px sans-serif'; ctx.fillText(steps[i][1],x+bw/2,y+H*0.105);
+        if(i<2){ var lab=i===0?'FFT (평가)':'역FFT (보간)'; AV.arrow(ctx, x+bw+4, y+H*0.08, x+bw+gap-4, y+H*0.08, '#dfeefb', 2); ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(lab, x+bw+gap/2, y-8); } }
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('점값에서는 C(xᵢ) = A(xᵢ) · B(xᵢ)  (그냥 곱셈, O(n))', cx, y+H*0.30);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('평가점으로 복소수 단위근을 쓰면 분할정복으로 평가·보간이 O(n log n) → 전체 O(n log n)', cx, y+H*0.30+24);
+      ctx.fillStyle='#8a8893'; ctx.fillText('큰 정수 곱셈, 문자열 매칭(비트), 컨볼루션, 신호·이미지 처리의 토대. 정수환은 NTT', cx, y+H*0.30+44); }
+  },
+
+  // ══════ NP(algo8_04) ▸ 이산 로그(Baby-step Giant-step) ══════
+  { id:'algo_br_bsgs', concept:true, branchOf:'algo8_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('이산 로그 — Baby-step Giant-step', W/2, H*0.12);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('a^x ≡ b (mod m) 의 x를, 모든 x(=m번) 대신 √m·√m 으로 나눠 찾는다', W/2, H*0.12+22);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 16px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('x = i·n − j   (n = ⌈√m⌉)', cx, H*0.32);
+      ctx.fillStyle='#8fe3b5'; ctx.font='14px ui-monospace, monospace';
+      ctx.fillText('Baby: a^0, a^1, …, a^(n−1) 를 해시테이블에 저장', cx, H*0.44);
+      ctx.fillStyle='#ffb27a'; ctx.font='14px ui-monospace, monospace';
+      ctx.fillText('Giant: b·a^(−in) 가 그 테이블에 있나 검사 (i = 0…n)', cx, H*0.54);
+      ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif';
+      ctx.fillText('일치하면 a^j ≡ b·a^(−in) → x = i·n − j', cx, H*0.64);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('시간·메모리 O(√m). 무차별 O(m)에서 제곱근으로 단축 — 디피-헬먼 등 암호 분석에', cx, H*0.74); }
+  },
+
+  // ══════ 해시(algo2_05) ▸ 뫼비우스 함수·포함배제 ══════
+  { id:'algo_br_mobius', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('뫼비우스 함수 μ — 정수론판 포함·배제', W/2, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('소인수의 "겹침"을 부호로 잡아, 배수 세기·서로소 개수를 깔끔하게', W/2, H*0.11+22);
+      ctx.fillStyle='#bfe0ff'; ctx.font='600 15px ui-monospace, monospace'; ctx.textAlign='left';
+      var lx=cx-W*0.26;
+      ctx.fillText('μ(n) = +1  : 서로 다른 소수 짝수 개의 곱 (예 μ(1)=1, μ(6)=1)', lx, H*0.34);
+      ctx.fillText('μ(n) = −1  : 서로 다른 소수 홀수 개의 곱 (예 μ(2)=μ(30)=−1)', lx, H*0.44);
+      ctx.fillText('μ(n) =  0  : 제곱 인수 보유 (예 μ(4)=μ(12)=0)', lx, H*0.54);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 15px ui-monospace, monospace'; ctx.textAlign='center';
+      ctx.fillText('뫼비우스 반전:  g(n)=Σ_{d|n} f(d)  ⇔  f(n)=Σ_{d|n} μ(n/d)·g(d)', cx, H*0.66);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('1~N 중 k와 서로소인 수 = Σ μ(d)·⌊N/d⌋ (d|k). 약수·배수 합·서로소 쌍 세기를 포함배제로 가속', cx, H*0.76); }
   }
 
   ];

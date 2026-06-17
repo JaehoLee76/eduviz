@@ -1483,5 +1483,65 @@
     "q_en": "Why is longest path NP-hard in general but O(V+E) in a DAG?",
     "sol_en": "With cycles you could loop a positive cycle forever (undefined) or blow up the search. A <b>DAG has no cycles</b>, so relaxing each vertex once in topological order suffices — O(V+E)."
    }
+  },
+  "algo_br_sam": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.1 선형 탐색 ▸ 자세히",
+   "title": "접미사 오토마톤(SAM) — 부분문자열의 작은 우주",
+   "narr": "한 문자열의 <b>모든 부분문자열</b>을 인식하는 기계를, 놀랍게도 <b>선형 크기</b>로 만들 수 있습니다. <b>접미사 오토마톤</b>은 부분문자열 질의의 만능 도구입니다.",
+   "hint": "",
+   "more": "<b>접미사 오토마톤(SAM, Suffix Automaton)</b>은 문자열 s의 <b>모든 부분문자열을 정확히 인식하는 최소 결정 유한 오토마톤(DFA)</b>입니다. 시작 상태에서 글자를 따라가 도달할 수 있는 모든 경로가 곧 s의 부분문자열입니다. 핵심은 그 크기가 <b>상태 ≤ 2n−1, 간선 ≤ 3n−4</b>로 <b>선형</b>이라는 점입니다. 각 상태는 \"끝나는 위치 집합(endpos)이 같은 부분문자열들\"을 묶고, 상태 사이의 <b>접미사 링크(suffix link)</b>가 트리를 이룹니다(이 트리가 접미사 트리와 쌍대). 구축은 글자를 하나씩 붙이는 <b>온라인 O(n)</b>(작은 알파벳 가정). 활용: ① <b>서로 다른 부분문자열 개수</b>(각 상태의 길이 차이 합) ② <b>최장 공통 부분문자열</b>(다른 문자열을 오토마톤에 흘려보내며) ③ <b>부분문자열 검색·출현 횟수</b>. 접미사 배열·접미사 트리와 함께 문자열 알고리즘의 세 기둥입니다.",
+   "more_en": "A <b>suffix automaton (SAM)</b> is the <b>smallest deterministic finite automaton that recognizes exactly all substrings</b> of a string s — every path from the start spells a substring. Remarkably its size is <b>linear</b>: states ≤ 2n−1, transitions ≤ 3n−4. Each state groups substrings with the same set of end positions (endpos), and the <b>suffix links</b> between states form a tree (dual to the suffix tree). It is built <b>online in O(n)</b> (small alphabet) by appending one character at a time. Uses: ① <b>count distinct substrings</b> (sum of length differences per state); ② <b>longest common substring</b> (feed another string through it); ③ <b>substring search / occurrence counts</b>. With suffix arrays and suffix trees it is one of the three pillars of string algorithms.",
+   "problem": {
+    "q": "접미사 오토마톤이 '모든 부분문자열'을 담는데도 크기가 선형인 핵심 이유는?",
+    "solution": "끝나는 위치 집합(<b>endpos</b>)이 같은 부분문자열들을 <b>한 상태로 묶기</b> 때문입니다. 서로 다른 endpos 클래스는 O(n)개뿐이라 상태·간선이 선형(상태 ≤ 2n−1)에 머뭅니다.",
+    "q_en": "Why is a suffix automaton linear in size despite holding all substrings?",
+    "sol_en": "It <b>merges substrings sharing the same end-position set (endpos)</b> into one state. There are only O(n) distinct endpos classes, so states/edges stay linear (states ≤ 2n−1)."
+   }
+  },
+  "algo_br_fftmul": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.2 분할정복 ▸ 자세히",
+   "title": "FFT 곱셈 — 다항식·큰 수를 O(n log n)에",
+   "narr": "두 다항식(또는 아주 큰 정수)을 곱할 때 자릿수마다 곱하면 O(n²). <b>FFT</b>는 표현을 바꿔 곱셈을 <b>점별 곱(O(n))</b>으로 만들고, 표현 변환을 O(n log n)에 해 전체를 <b>O(n log n)</b>으로 끌어내립니다.",
+   "hint": "",
+   "more": "다항식은 <b>계수 표현</b>(a₀, a₁, …)과 <b>점값 표현</b>(서로 다른 점 n개에서의 값)으로 나타낼 수 있고, <b>점값에서는 두 다항식의 곱이 그냥 점마다 값을 곱한 것</b>(O(n))입니다. 그래서 곱셈 절차는: ① 두 다항식을 <b>점값으로 평가(FFT)</b> → ② <b>점별 곱</b> → ③ 다시 <b>계수로 보간(역FFT)</b>. 평가점으로 <b>복소수 단위근</b>을 고르면, 짝수·홀수 차수로 나누는 <b>분할정복</b>이 맞아떨어져 평가·보간이 각각 <b>O(n log n)</b> → 전체 <b>O(n log n)</b>. 큰 정수 곱셈은 숫자를 다항식 계수로 보면 똑같이 풀립니다. 정수 모듈러 환에서는 단위근을 정수로 대체한 <b>수론 변환(NTT)</b>을 써서 부동소수 오차 없이 합니다. 쓰임: 큰 수 곱셈, 다항식·생성함수, 컨볼루션, 문자열 비트 매칭, 신호·이미지 처리.",
+   "more_en": "A polynomial has a <b>coefficient representation</b> (a₀, a₁, …) and a <b>point-value representation</b> (its values at n distinct points), and in point-value form the <b>product is just pointwise multiplication</b> (O(n)). So multiplication is: ① <b>evaluate both via FFT</b> → ② <b>pointwise multiply</b> → ③ <b>interpolate back (inverse FFT)</b>. Choosing <b>complex roots of unity</b> as evaluation points makes the even/odd-degree split a clean <b>divide and conquer</b>, so evaluation and interpolation are each <b>O(n log n)</b> → overall <b>O(n log n)</b>. Big-integer multiplication is the same with digits as coefficients. Over modular integer rings, use the <b>Number Theoretic Transform (NTT)</b> (integer roots of unity) to avoid floating error. Uses: big-number multiplication, polynomials/generating functions, convolution, bit string matching, signal/image processing.",
+   "problem": {
+    "q": "FFT 곱셈에서 '점값 표현'으로 바꾸면 곱셈이 왜 빨라지나?",
+    "solution": "점값에서는 두 다항식의 곱이 <b>각 점의 값을 그냥 곱한 것</b>(O(n))입니다. 느린 부분은 표현 변환인데, 단위근 + 분할정복으로 평가·보간을 각각 O(n log n)에 해 전체가 O(n log n)이 됩니다.",
+    "q_en": "Why does switching to point-value form speed up FFT multiplication?",
+    "sol_en": "In point-value form the product is just <b>pointwise multiplication</b> (O(n)). The costly part is the conversion, but roots of unity + divide-and-conquer make evaluation/interpolation O(n log n) each, so the whole is O(n log n)."
+   }
+  },
+  "algo_br_bsgs": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "이산 로그 — Baby-step Giant-step",
+   "narr": "\"a를 몇 제곱하면 b가 될까?\"(a^x ≡ b mod m)를 모든 x에 대해 시도하면 O(m). <b>BSGS</b>는 이를 <b>√m 두 단계</b>로 쪼개 O(√m)에 푸는, 만나서 풀기(meet-in-the-middle)의 대표입니다.",
+   "hint": "",
+   "more": "<b>이산 로그</b>는 <b>a^x ≡ b (mod m)</b>을 만족하는 x를 찾는 문제입니다(공개키 암호의 안전성 근거). 무차별이면 x를 0..m−1까지 보는 O(m). <b>Baby-step Giant-step(BSGS)</b>은 <b>x = i·n − j</b> (n = ⌈√m⌉, 0 ≤ j < n, 0 ≤ i ≤ n)로 쓰는 발상입니다. ① <b>Baby steps</b>: a^0, a^1, …, a^(n−1) (mod m)을 모두 계산해 <b>해시 테이블</b>에 \"값 → j\"로 저장. ② <b>Giant steps</b>: i를 키우며 <b>b · a^(−in)</b>(즉 b에 a^(−n)을 반복 곱)을 만들어 그 값이 테이블에 있는지 본다. 있으면 a^j ≡ b·a^(−in) 이므로 <b>x = i·n − j</b>. 두 단계 각각 약 √m번이라 <b>시간·메모리 O(√m)</b> — O(m)에서 제곱근으로 단축(meet-in-the-middle). 쓰임: 디피-헬먼·엘가말 분석, 군에서의 위수 계산, 격자/암호 연습 문제.",
+   "more_en": "The <b>discrete logarithm</b> problem asks for x with <b>a^x ≡ b (mod m)</b> (the basis of public-key security). Brute force scans x = 0..m−1 in O(m). <b>Baby-step Giant-step (BSGS)</b> writes <b>x = i·n − j</b> (n = ⌈√m⌉, 0 ≤ j < n, 0 ≤ i ≤ n). ① <b>Baby steps</b>: compute a^0..a^(n−1) (mod m) and store \"value → j\" in a <b>hash table</b>. ② <b>Giant steps</b>: increase i, forming <b>b · a^(−in)</b> (multiply b by a^(−n) repeatedly), and check if it is in the table. If so a^j ≡ b·a^(−in), giving <b>x = i·n − j</b>. Each phase is about √m steps → <b>O(√m) time and memory</b> — a square-root speedup over O(m) (meet-in-the-middle). Uses: analysis of Diffie-Hellman/ElGamal, computing orders in groups.",
+   "problem": {
+    "q": "BSGS가 이산 로그를 O(m)에서 O(√m)으로 줄이는 핵심 아이디어는?",
+    "solution": "<b>만나서 풀기(meet-in-the-middle)</b>입니다. x = i·n − j로 쪼개 한쪽(baby: a^j)을 √m개 미리 저장하고, 다른 쪽(giant: b·a^(−in))을 √m번 만들어 충돌을 찾으므로 양쪽 모두 √m이면 됩니다.",
+    "q_en": "What is the key idea letting BSGS cut discrete log from O(m) to O(√m)?",
+    "sol_en": "<b>Meet-in-the-middle</b>: splitting x = i·n − j, precompute one side (baby: a^j, √m entries) and generate the other (giant: b·a^(−in), √m times), then find a collision — both sides are √m."
+   }
+  },
+  "algo_br_mobius": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.4 해시 ▸ 자세히",
+   "title": "뫼비우스 함수 μ — 정수론판 포함·배제",
+   "narr": "\"1부터 N까지 중 k와 서로소인 수는 몇 개?\" 같은 세기 문제를, 소인수의 겹침을 <b>부호(+1/−1/0)</b>로 잡는 <b>뫼비우스 함수</b>로 깔끔히 풉니다. 포함·배제의 정수론 버전입니다.",
+   "hint": "",
+   "more": "<b>뫼비우스 함수 μ(n)</b>는 n의 소인수 구조로 정의됩니다 — <b>제곱 인수가 있으면 0</b>(예 μ(4)=μ(12)=0), 그렇지 않고 서로 다른 소수 <b>k개의 곱이면 (−1)^k</b>(소수 짝수 개면 +1, 홀수 개면 −1; μ(1)=1, μ(6)=μ(2·3)=+1, μ(30)=μ(2·3·5)=−1). 핵심 도구는 <b>뫼비우스 반전 공식</b>: <b>g(n)=Σ_{d|n} f(d)</b> 이면 거꾸로 <b>f(n)=Σ_{d|n} μ(n/d)·g(d)</b> 로 복원됩니다. 이는 \"약수 합으로 쌓은 것을 정확히 되돌리는\" 도구라, 약수/배수에 걸친 합을 가뿐히 분해합니다. 대표 응용: <b>1~N 중 k와 서로소인 수 = Σ_{d|k} μ(d)·⌊N/d⌋</b>(포함배제), 서로소 쌍 개수·gcd가 특정 값인 쌍 세기, 디리클레 합·약수 함수 계산. 에라토스테네스 선별로 μ를 1~N까지 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
+   "more_en": "The <b>Möbius function μ(n)</b> is defined by n's prime structure — <b>0 if n has a squared factor</b> (e.g. μ(4)=μ(12)=0); otherwise, for a product of <b>k distinct primes, (−1)^k</b> (μ(1)=1, μ(6)=μ(2·3)=+1, μ(30)=−1). Its key tool is <b>Möbius inversion</b>: if <b>g(n)=Σ_{d|n} f(d)</b> then <b>f(n)=Σ_{d|n} μ(n/d)·g(d)</b> — exactly undoing a \"sum over divisors,\" so it cleanly disentangles divisor/multiple sums. Flagship use: <b>count of integers in 1..N coprime to k = Σ_{d|k} μ(d)·⌊N/d⌋</b> (inclusion-exclusion), counting coprime pairs or pairs with a given gcd, Dirichlet sums and divisor functions. A sieve computes μ for 1..N together in <b>O(N log log N)</b>.",
+   "problem": {
+    "q": "μ(12)의 값은? 그 이유는?",
+    "solution": "<b>μ(12) = 0</b>. 12 = 2²·3 은 <b>제곱 인수(2²)를 가지기</b> 때문입니다. (제곱 인수가 없을 때만 ±1이 됩니다.)",
+    "q_en": "What is μ(12) and why?",
+    "sol_en": "<b>μ(12) = 0</b>, because 12 = 2²·3 has a <b>squared factor (2²)</b>. (Only squarefree numbers get ±1.)"
+   }
   }
 }
