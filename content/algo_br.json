@@ -2803,5 +2803,65 @@
     "q_en": "Why is the fact that the minimum enclosing circle is determined by at most 3 points crucial to Welzl's algorithm?",
     "sol_en": "Because only <b>≤3 points</b> fix the boundary, when a new point p is outside the current circle you can fix \"p is on the new boundary\" and recurse with <b>recursion depth bounded by a constant (≤3 boundary points)</b>. Combined with random order, points falling outside are rare, giving overall <b>expected O(n)</b> — the small determining set is the basis of the efficiency."
    }
+  },
+  "algo_br_wht": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "월시-아다마르 변환 — XOR 합성곱을 O(n log n)에",
+   "narr": "FFT가 보통 곱셈(자리 올림 합성곱)을 빠르게 한다면, <b>월시-아다마르 변환(WHT)</b>은 인덱스를 <b>비트 XOR로 결합</b>하는 합성곱을 O(n log n)에 합니다. 나비 연산이 곱셈근 대신 단순 <b>±합</b>입니다.",
+   "hint": "",
+   "more": "<b>월시-아다마르 변환(Walsh-Hadamard Transform, WHT)</b>은 <b>XOR 합성곱</b> c[k] = Σ_{i⊕j=k} a[i]·b[j] 를 <b>O(n log n)</b>(n=2^m)에 계산하는 변환입니다(⊕=비트 XOR). FFT/NTT가 \"덧셈 합성곱\"(자리 올림 곱셈, c[k]=Σ_{i+j=k})을 단위근으로 빠르게 하듯, WHT는 곱셈근 없이 <b>나비(butterfly) 연산 (a,b) → (a+b, a−b)</b>만으로 같은 분할정복 구조를 이룹니다(아다마르 행렬이 ±1로만 이뤄짐). 절차는 FFT와 동일: <b>A=WHT(a), B=WHT(b)</b>를 각각 O(n log n)에 구하고, <b>점별 곱 C[k]=A[k]·B[k]</b>를 한 뒤, <b>역WHT(C)</b>(같은 변환을 한 번 더 + n으로 나누기)로 c를 복원. 핵심은 WHT가 XOR 군 (ℤ/2)^m의 \"푸리에 변환\"이라, 변환 영역에서 XOR 합성곱이 점곱이 된다는 것. 변형: <b>AND 합성곱·OR 합성곱</b>은 부분집합에 대한 <b>제타 변환(SOS)·뫼비우스 변환</b>으로 같은 O(n log n)에 처리(부분집합 합 DP). 모든 항이 정수면 오차 없이 정확. 쓰임: <b>부분집합/비트마스크 결합</b>(XOR로 상태 합치기), <b>게임 이론</b>(그런디 수의 XOR 분포), 선형대수 over GF(2), 신호처리. \"FFT의 XOR/부분집합 버전\"으로 기억합니다.",
+   "more_en": "The <b>Walsh-Hadamard Transform (WHT)</b> computes the <b>XOR convolution</b> c[k] = Σ_{i⊕j=k} a[i]·b[j] in <b>O(n log n)</b> (n=2^m), where ⊕ is bitwise XOR. Just as FFT/NTT speed up \"addition convolution\" (carry multiplication, c[k]=Σ_{i+j=k}) via roots of unity, WHT needs no multiplicative roots — its <b>butterfly is simply (a,b) → (a+b, a−b)</b>, giving the same divide-and-conquer (the Hadamard matrix has only ±1 entries). The procedure mirrors FFT: compute <b>A=WHT(a), B=WHT(b)</b> in O(n log n) each, take the <b>pointwise product C[k]=A[k]·B[k]</b>, then <b>inverse WHT(C)</b> (the same transform again, divided by n) recovers c. The key is that WHT is the \"Fourier transform\" of the XOR group (ℤ/2)^m, so XOR convolution becomes pointwise multiplication in the transformed domain. Variants: <b>AND and OR convolution</b> use subset <b>zeta (SOS) and Möbius transforms</b> in the same O(n log n) (subset-sum DP). With integer inputs it's exact. Uses: <b>subset/bitmask combination</b> (merging states by XOR), <b>game theory</b> (XOR distribution of Grundy numbers), linear algebra over GF(2), signal processing. Remember it as \"the XOR/subset version of FFT.\"",
+   "problem": {
+    "q": "WHT가 FFT처럼 합성곱을 O(n log n)에 하면서도 곱셈근(단위근)이 필요 없는 이유는?",
+    "solution": "WHT는 <b>XOR 군의 푸리에 변환</b>이라, 기저(아다마르 행렬)가 <b>±1</b>로만 이뤄집니다. 그래서 나비 연산이 복소 단위근 곱이 아니라 단순 <b>(a,b)→(a+b, a−b)</b>입니다. 변환 후 점곱하고 역변환하면 XOR 합성곱이 나오며, 전 과정이 ±합이라 정수면 오차도 0입니다.",
+    "q_en": "Why can WHT do convolution in O(n log n) like FFT yet need no multiplicative roots of unity?",
+    "sol_en": "WHT is the <b>Fourier transform of the XOR group</b>, so its basis (the Hadamard matrix) has only <b>±1</b> entries. Hence the butterfly is just <b>(a,b)→(a+b, a−b)</b> rather than complex root multiplications. Transform, pointwise-multiply, inverse-transform yields the XOR convolution — all ±sums, exact for integers."
+   }
+  },
+  "algo_br_legendre": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.5 해시 테이블 ▸ 자세히",
+   "title": "르장드르·야코비 기호 — 이차잉여 판정",
+   "narr": "\"a가 소수 p로 나눈 <b>제곱수</b>(x²≡a)인가?\"를 빠르게 판정하는 도구가 <b>르장드르 기호 (a|p)</b>입니다. +1이면 제곱 가능, −1이면 불가. <b>이차 상호법칙</b>으로 gcd처럼 빠르게 계산합니다.",
+   "hint": "",
+   "more": "<b>르장드르 기호(Legendre symbol) (a|p)</b>는 홀수 소수 p와 정수 a에 대해 a가 <b>이차잉여(quadratic residue)</b>, 즉 x² ≡ a (mod p)의 해가 있는지를 ±1로 알려 줍니다: <b>(a|p) = +1</b>(이차잉여, 해 있음), <b>−1</b>(이차비잉여, 해 없음), <b>0</b>(p | a). 계산의 토대는 <b>오일러 판정법</b>: (a|p) ≡ a^((p−1)/2) (mod p). 더 빠른 길은 <b>이차 상호법칙(quadratic reciprocity)</b>: 두 홀수 소수 p, q에 대해 (p|q)(q|p) = (−1)^((p−1)/2·(q−1)/2), 보조 법칙 (−1|p)=(−1)^((p−1)/2), (2|p)=(−1)^((p²−1)/8). 이를 \"a를 소인수분해하지 않고\" 쓸 수 있게 확장한 것이 <b>야코비 기호(Jacobi symbol) (a|n)</b>(n=홀수 합성수, 소인수별 르장드르 기호의 곱). 야코비 기호는 상호법칙이 그대로 성립해, <b>유클리드 호제법처럼 a mod n과 부호 규칙을 반복</b>하며 <b>O(log² n)</b>에 계산됩니다(인수분해 불필요). 주의: 야코비 (a|n)=1이라고 a가 반드시 이차잉여는 아님(n이 합성수일 때) — 소수 p에서만 르장드르가 정확한 판정. 쓰임: <b>토넬리-샹크스</b>(모듈러 제곱근) 전 제곱 가능성 판정, <b>솔로베이-스트라센 소수판정</b>(야코비 vs 오일러 판정 비교), 이차체 암호, 평방 잉여 기반 프로토콜. \"제곱 가능성을 ±1로, 상호법칙으로 빠르게\"가 핵심입니다.",
+   "more_en": "The <b>Legendre symbol (a|p)</b>, for an odd prime p and integer a, tells via ±1 whether a is a <b>quadratic residue</b>, i.e. whether x² ≡ a (mod p) has a solution: <b>(a|p) = +1</b> (residue, solvable), <b>−1</b> (non-residue, unsolvable), <b>0</b> (p | a). The computational basis is <b>Euler's criterion</b>: (a|p) ≡ a^((p−1)/2) (mod p). A faster route is <b>quadratic reciprocity</b>: for odd primes p, q, (p|q)(q|p) = (−1)^((p−1)/2·(q−1)/2), with supplements (−1|p)=(−1)^((p−1)/2) and (2|p)=(−1)^((p²−1)/8). Extending this to be usable \"without factoring a\" gives the <b>Jacobi symbol (a|n)</b> (n odd composite, the product of Legendre symbols over n's prime factors). The Jacobi symbol satisfies the same reciprocity, so it is computed in <b>O(log² n)</b> by <b>iterating a mod n with sign rules, like the Euclidean algorithm</b> (no factoring). Caveat: Jacobi (a|n)=1 does not guarantee a is a residue (when n is composite) — only the Legendre symbol at a prime is a true test. Uses: testing solvability before <b>Tonelli-Shanks</b> (modular square root), the <b>Solovay-Strassen primality test</b> (comparing Jacobi vs Euler), quadratic-field cryptography, quadratic-residue protocols. The crux: \"squareness as ±1, computed fast via reciprocity.\"",
+   "problem": {
+    "q": "야코비 기호가 a를 소인수분해하지 않고도 빠르게 계산되는 이유는?",
+    "solution": "야코비 기호는 <b>이차 상호법칙</b>과 보조 법칙(−1·2에 대한)을 그대로 만족합니다. 그래서 (a|n)을 a mod n으로 줄이고, 2의 인수와 상호법칙으로 분자·분모를 뒤집기를 <b>유클리드 호제법처럼 반복</b>하면 인수분해 없이 O(log² n)에 ±1 값을 얻습니다(단, n 합성수면 =1이 이차잉여 보장은 아님).",
+    "q_en": "Why can the Jacobi symbol be computed fast without factoring a?",
+    "sol_en": "The Jacobi symbol obeys <b>quadratic reciprocity</b> and the supplements (for −1 and 2). So reducing (a|n) by a mod n, peeling off factors of 2, and flipping numerator/denominator via reciprocity — <b>iterating like the Euclidean algorithm</b> — yields the ±1 value in O(log² n) without factoring (though for composite n, =1 doesn't guarantee a residue)."
+   }
+  },
+  "algo_br_contfrac": {
+   "ch": "알고리즘 제4장 탐색",
+   "sec": "4.2 이분 탐색 ▸ 자세히",
+   "title": "연분수 — 실수를 정수 계단으로 펼치기",
+   "narr": "수를 <b>[a₀; a₁, a₂, …]</b> 꼴로 정수 항의 계단으로 펼친 것이 <b>연분수</b>입니다. 그 항은 유클리드 호제법의 몫과 같고, 중간에서 끊은 <b>근사분수</b>는 분모 한정 최선의 유리근사를 줍니다.",
+   "hint": "",
+   "more": "<b>연분수(continued fraction)</b>는 수 x를 <b>x = a₀ + 1/(a₁ + 1/(a₂ + …))</b>, 줄여서 <b>[a₀; a₁, a₂, …]</b>로 나타냅니다(aᵢ는 정수, a₀ 이후는 양수). <b>유리수</b>는 유한 연분수이고, 그 항 aᵢ는 정확히 <b>유클리드 호제법의 i번째 몫</b>입니다(415/93 = [4;2,6,7]: 415=4·93+43, 93=2·43+7, 43=6·7+1, 7=7·1). <b>근사분수(convergent) pᵢ/qᵢ</b>는 연분수를 i항에서 끊은 값으로, 점화식 <b>pᵢ = aᵢ·pᵢ₋₁ + pᵢ₋₂</b>, <b>qᵢ = aᵢ·qᵢ₋₁ + qᵢ₋₂</b>로 빠르게 구합니다. 근사분수의 결정적 성질: 분모가 qᵢ 이하인 모든 유리수 중 x에 <b>가장 가까운 최선 근사</b>이며 <b>|x − pᵢ/qᵢ| < 1/qᵢ²</b>(디리클레). <b>무리수</b>는 무한 연분수이고, 특히 <b>√n은 주기적</b> 연분수가 되어 그로부터 <b>펠 방정식 x² − n·y² = 1</b>의 기본해를 얻습니다. <b>황금비 φ = [1;1,1,1,…]</b>는 모든 항이 1이라 \"가장 근사하기 어려운\"(가장 무리수다운) 수. 쓰임: <b>최선 유리근사</b>(기어비·달력 윤년·음정), 펠 방정식·디오판토스, <b>Stern-Brocot 트리</b>의 L/R 경로, 무리수 판정, 격자 기약화. \"호제법의 몫이 곧 연분수, 근사분수가 최선 근사\"가 한 줄 요약입니다.",
+   "more_en": "A <b>continued fraction</b> writes x as <b>x = a₀ + 1/(a₁ + 1/(a₂ + …))</b>, abbreviated <b>[a₀; a₁, a₂, …]</b> (integer aᵢ, positive after a₀). A <b>rational</b> has a finite continued fraction whose terms aᵢ are exactly the <b>quotients of the Euclidean algorithm</b> (415/93 = [4;2,6,7]: 415=4·93+43, 93=2·43+7, 43=6·7+1, 7=7·1). The <b>convergents pᵢ/qᵢ</b> (truncations at term i) are computed fast by <b>pᵢ = aᵢ·pᵢ₋₁ + pᵢ₋₂</b>, <b>qᵢ = aᵢ·qᵢ₋₁ + qᵢ₋₂</b>. Their defining property: each convergent is the <b>best approximation</b> to x among all rationals with denominator ≤ qᵢ, with <b>|x − pᵢ/qᵢ| < 1/qᵢ²</b> (Dirichlet). An <b>irrational</b> has an infinite continued fraction; in particular <b>√n is periodic</b>, yielding the fundamental solution of <b>Pell's equation x² − n·y² = 1</b>. The <b>golden ratio φ = [1;1,1,1,…]</b> (all 1s) is the \"hardest to approximate\" (most irrational) number. Uses: <b>best rational approximation</b> (gear ratios, calendar leap years, musical intervals), Pell/Diophantine equations, the L/R path in the <b>Stern-Brocot tree</b>, irrationality, lattice reduction. One-liner: \"Euclid's quotients are the continued fraction; convergents are the best approximations.\"",
+   "problem": {
+    "q": "연분수의 항 [a₀; a₁, …]이 유클리드 호제법과 어떻게 연결되며, 근사분수가 좋은 이유는?",
+    "solution": "분수 p/q를 호제법으로 줄일 때 나오는 <b>몫들이 차례로 연분수 항 a₀, a₁, …</b>입니다(나머지가 다음 단계 분모). 중간에서 끊은 <b>근사분수 pᵢ/qᵢ</b>는 <b>분모 qᵢ 이하 모든 유리수 중 가장 가까운 근사</b>이고 오차가 1/qᵢ²보다 작아, 작은 분모로 정밀한 근사를 줍니다.",
+    "q_en": "How do continued-fraction terms [a₀; a₁, …] relate to the Euclidean algorithm, and why are convergents good?",
+    "sol_en": "Reducing p/q by the Euclidean algorithm, the successive <b>quotients are exactly the terms a₀, a₁, …</b> (the remainder becomes the next denominator). A truncated <b>convergent pᵢ/qᵢ</b> is the <b>closest approximation among all rationals with denominator ≤ qᵢ</b>, with error below 1/qᵢ² — precise approximations with small denominators."
+   }
+  },
+  "algo_br_simpson": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.5 알고리즘의 여정 ▸ 자세히",
+   "title": "심슨 공식 — 곡선 아래 넓이를 포물선으로",
+   "narr": "정적분을 수치로 구할 때, 구간을 직사각형(리만)이나 사다리꼴로 채우면 오차가 큽니다. <b>심슨 공식</b>은 세 점을 지나는 <b>포물선</b>으로 근사해, 같은 분할 수로 훨씬 정확합니다(오차 O(h⁴)).",
+   "hint": "",
+   "more": "<b>심슨 공식(Simpson's rule)</b>은 정적분 ∫ₐᵇ f(x) dx 를 수치로 근사합니다. 구간 [a,b]를 직사각형(리만 합)이나 직선(사다리꼴)이 아니라, 양 끝과 중점 <b>세 점 (a, f(a)), ((a+b)/2, f((a+b)/2)), (b, f(b))를 지나는 포물선</b>으로 근사해 그 포물선의 정확한 적분을 취합니다: <b>∫ₐᵇ f ≈ (b−a)/6 · [ f(a) + 4·f((a+b)/2) + f(b) ]</b>. 직관: 2차 함수까지는 <b>정확히</b> 적분하므로(사실 대칭성으로 3차도 정확) 곡률을 반영해 오차가 작습니다. 구간을 n등분(짝수)해 각 쌍에 적용한 <b>합성 심슨 공식</b>의 오차는 <b>O(h⁴)</b>(h=조각 폭)로, 사다리꼴 O(h²)·중점 O(h²)보다 한참 빨리 수렴합니다(같은 점 수로 더 정확). 더 똑똑한 <b>적응형 심슨(adaptive Simpson)</b>은 구간을 반으로 나눠 두 추정의 차로 오차를 추정하고, 오차가 크면 그 부분만 재귀로 잘게 나눠 \"필요한 곳만 정밀\"하게 — 곡률이 급한 구간에 계산을 집중합니다. 쓰임: <b>닫힌 형태가 없는 적분</b>(특수함수·확률분포 누적), 곡선·곡면 넓이/길이/부피, 물리 시뮬레이션, 기하 문제의 면적 계산. 더 높은 차수는 뉴턴-코츠(부울 공식 등)·가우스 구적법. \"포물선으로 채워 O(h⁴)\"가 핵심입니다.",
+   "more_en": "<b>Simpson's rule</b> numerically approximates the definite integral ∫ₐᵇ f(x) dx. Instead of rectangles (Riemann) or straight lines (trapezoid), it fits a <b>parabola through three points: (a, f(a)), ((a+b)/2, f((a+b)/2)), (b, f(b))</b> and takes that parabola's exact integral: <b>∫ₐᵇ f ≈ (b−a)/6 · [ f(a) + 4·f((a+b)/2) + f(b) ]</b>. Intuition: it integrates up to quadratics <b>exactly</b> (in fact cubics too, by symmetry), reflecting curvature for small error. Splitting [a,b] into n (even) pieces and applying it per pair gives the <b>composite Simpson's rule</b> with error <b>O(h⁴)</b> (h = piece width), converging far faster than the trapezoid/midpoint O(h²) (more accurate for the same number of points). The smarter <b>adaptive Simpson</b> halves an interval, estimates error from the difference of two estimates, and recurses to subdivide only where the error is large — concentrating computation where curvature is steep. Uses: <b>integrals with no closed form</b> (special functions, probability CDFs), curve/surface area, length, volume, physics simulation, area in geometry problems. Higher orders use Newton-Cotes (Boole's rule) or Gaussian quadrature. The crux: \"fill with parabolas for O(h⁴).\"",
+   "problem": {
+    "q": "심슨 공식이 사다리꼴 공식보다 같은 점 수로 더 정확한 이유는?",
+    "solution": "사다리꼴은 두 점을 <b>직선</b>으로 잇지만, 심슨은 세 점을 지나는 <b>포물선</b>으로 근사해 함수의 <b>곡률(2차 항)까지 반영</b>합니다. 실제로 3차 이하 다항식을 정확히 적분하므로, 합성 공식의 오차가 사다리꼴 O(h²)보다 훨씬 작은 <b>O(h⁴)</b>로 줄어듭니다.",
+    "q_en": "Why is Simpson's rule more accurate than the trapezoid rule for the same number of points?",
+    "sol_en": "The trapezoid joins two points with a <b>straight line</b>, while Simpson fits a <b>parabola</b> through three points, capturing the function's <b>curvature (quadratic term)</b>. It actually integrates cubics exactly, so the composite error drops to <b>O(h⁴)</b>, far below the trapezoid's O(h²)."
+   }
   }
 }

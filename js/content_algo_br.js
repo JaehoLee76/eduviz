@@ -4009,6 +4009,101 @@
       ctx.fillText('최소 외접원은 ≤3개의 점으로 결정됨(2점=지름 또는 3점=외접). 무작위 순서로 기대 O(n)', W/2, H*0.90);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('LP-type 문제의 대표(저차원). 시설 입지(최악 거리 최소), 충돌 구체, 군집 반경', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_wht', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('월시-아다마르 변환 — XOR 합성곱을 O(n log n)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('FFT가 보통 곱셈(덧셈 합성곱)이면, WHT는 비트 XOR 합성곱. 나비 연산이 ±합', W/2, H*0.10+22);
+      // butterfly: (a,b) -> (a+b, a-b)
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('XOR 합성곱:  c[k] = Σ_{i⊕j=k} a[i]·b[j]', W/2, H*0.30);
+      // butterfly diagram
+      var lx=W*0.30, rx=W*0.70, y1=H*0.46, y2=H*0.60;
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(lx,y1); ctx.lineTo(rx,y1); ctx.moveTo(lx,y2); ctx.lineTo(rx,y2); ctx.moveTo(lx,y1); ctx.lineTo(rx,y2); ctx.moveTo(lx,y2); ctx.lineTo(rx,y1); ctx.stroke();
+      function dot(x,y,t,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.fillText(t,x<W/2?x-22:x+26,y+4); }
+      dot(lx,y1,'a','#8fe3b5'); dot(lx,y2,'b','#8fe3b5'); dot(rx,y1,'a+b','#ffb27a'); dot(rx,y2,'a−b','#ffb27a');
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('WHT 나비: (a, b) → (a+b, a−b)  [정규화는 역변환서 ÷n]', W/2, H*0.72);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('A=WHT(a), B=WHT(b) → 점곱 C=A·B → 역WHT(C)=XOR 합성곱. 전체 O(n log n)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('AND/OR 합성곱은 부분집합 제타/뫼비우스(SOS) 변환으로. 부분집합 합·게임 그런디 결합', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_legendre', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('르장드르·야코비 기호 — 제곱수인지 빠르게 판정', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('a가 소수 p로 나눈 제곱(이차잉여)인지를 (a|p)=±1로. 상호법칙으로 gcd처럼 빠르게', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('르장드르 기호 (a|p):', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['= +1  →  a는 이차잉여 (x²≡a mod p 해 있음)',
+        '= −1  →  이차비잉여 (해 없음)',
+        '=  0  →  p | a',
+        '오일러 판정: (a|p) ≡ a^((p−1)/2)  (mod p)'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.22, H*0.40+i*26); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('이차 상호법칙: (p|q)(q|p) = (−1)^((p−1)/2·(q−1)/2)', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('야코비 기호는 합성수 분모로 확장(상호법칙으로 인수분해 없이 gcd처럼 O(log) 계산)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 토넬리-샹크스 전 제곱 가능성 판정, 솔로베이-스트라센 소수판정, 암호', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_contfrac', concept:true, branchOf:'algo4_02',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('연분수 — 실수를 정수 계단으로 펼치기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('수를 [a₀; a₁, a₂, …]로. 유클리드 호제법의 몫이 곧 연분수 항, 근사분수는 최적 유리근사', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('415 / 93  =  [4; 2, 6, 7]', W/2, H*0.32);
+      ctx.fillStyle='#cfd8e6'; ctx.font='15px sans-serif';
+      ctx.fillText('= 4 + 1/(2 + 1/(6 + 1/7))', W/2, H*0.44);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('항 aᵢ = 유클리드 호제법의 i번째 몫', W*0.24, H*0.56);
+      ctx.fillText('근사분수 pᵢ/qᵢ: p=a·p₋₁+p₋₂ (q도 동형)', W*0.24, H*0.63); ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('근사분수는 분모 한정 "최선" 유리근사 (|x − p/q| < 1/q²)', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('√n은 주기적 연분수 → 펠 방정식 x²−n y²=1 해. 황금비=[1;1,1,…]가 가장 느린 근사', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 최선 유리근사(기어비·달력), 펠 방정식, Stern-Brocot 경로, 격자기약', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_simpson', concept:true, branchOf:'algo8_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('심슨 공식 — 곡선 아래 넓이를 포물선으로 근사', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('적분을 직사각형(리만)·사다리꼴 대신 포물선 조각으로 근사 → 오차가 h⁴로 작음', W/2, H*0.10+22);
+      // curve + parabola approximation over [a,b]
+      var ax=W*0.20, bx2=W*0.80, base=H*0.66;
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ax,base); ctx.lineTo(bx2,base); ctx.stroke();
+      function f(x){ var t=(x-ax)/(bx2-ax); return base - (0.5 + Math.sin(t*Math.PI)*0.5)*H*0.3; }
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var x=ax;x<=bx2;x+=3){ var y=f(x); if(x===ax)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke();
+      // shade
+      ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.beginPath(); ctx.moveTo(ax,base); for(var x=ax;x<=bx2;x+=3)ctx.lineTo(x,f(x)); ctx.lineTo(bx2,base); ctx.closePath(); ctx.fill();
+      // three sample points a, mid, b
+      [ax,(ax+bx2)/2,bx2].forEach(function(x,i){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(x,f(x),5,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(['a','(a+b)/2','b'][i],x,base+16); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('∫ₐᵇ f ≈ (b−a)/6 · [ f(a) + 4·f((a+b)/2) + f(b) ]', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('세 점을 지나는 포물선의 정확 적분. 구간을 n등분해 합치면 오차 O(h⁴)(사다리꼴은 O(h²))', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('적응형 심슨(오차 추정해 잘게)·기하 면적(원·곡선)·물리 시뮬 수치적분에', W/2, H*0.88+20); }
   }
 
   ];
