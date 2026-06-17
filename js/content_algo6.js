@@ -49,6 +49,7 @@
 
   // ══════════ 6.2 BFS — 너비 우선 탐색 (코드+스텝) ══════════
   { id:'algo6_03',
+    input:'그래프: 정점 A~F, 간선 7개 ·  출발 = A',
     code:[
       'BFS(G, s) {',
       '  for each u in V: u.color = WHITE   // 미발견',
@@ -98,6 +99,7 @@
 
   // ══════════ 6.2 DFS — 깊이 우선 탐색 (코드+스텝, 발견/종료 시간) ══════════
   { id:'algo6_04',
+    input:'그래프: 정점 A~F, 간선 7개 ·  시작 = A',
     code:[
       'DFS(G) {',
       '  for each u in V: u.color = WHITE; time = 0',
@@ -145,6 +147,7 @@
 
   // ══════════ 6.3 다익스트라 — 최단 경로 (코드+스텝) ══════════
   { id:'algo6_05',
+    input:'가중 그래프: 정점 A~F, 간선 가중치 ·  출발 = A',
     code:[
       'DIJKSTRA(G, w, s) {',
       '  INITIALIZE: s.d = 0, 나머지 = ∞',

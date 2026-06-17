@@ -149,11 +149,25 @@
   body.viz #codepanel { display: flex; }
   .code-head { padding: 6px 22px 12px; color: var(--accent-light); font-size: 16.5px; font-weight: 700; letter-spacing: .02em;
     border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* 코드창 입력 데이터 배지 — 코드만 봐도 a[]에 뭐가 든지 알게 */
+  #codeInput { display: none; margin: 10px 22px 2px; padding: 7px 12px; border-radius: 9px;
+    background: rgba(143,227,181,0.10); border: 1px solid rgba(143,227,181,0.4);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: #cfeede; }
+  body.viz:not(.viz-concept) #codeInput[data-on="1"] { display: block; }
+  #codeInput .ik { color: #8fe3b5; font-weight: 700; }
   .code-body { flex: 0 1 auto; max-height: 42vh; overflow-y: auto; padding: 12px 0 14px; }
   body.viz-concept #codeBody { display: none; }                                   /* 개념 장면: 코드영역 없음 */
+  /* 자세히보기 스크롤 영역 + Q/Z 스크롤 힌트 */
+  .concept-wrap { flex: 1 1 auto; min-height: 0; position: relative; display: flex; }
   .concept-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }            /* 핵심요약/연습문제 = 스텝 아래 스크롤 */
   .concept-scroll::-webkit-scrollbar { width: 9px; }
   .concept-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
+  .sk { position: absolute; right: 16px; z-index: 4; pointer-events: none; display: flex; align-items: center; gap: 5px;
+    background: rgba(20,20,28,0.88); border: 1px solid var(--accent); border-radius: 8px; padding: 3px 9px;
+    font-size: 11.5px; color: var(--text-1); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.4); transition: opacity .2s; }
+  .sk .kc { opacity: 1; color: var(--accent-light); border-color: var(--accent-light); margin: 0; }
+  .sk-up { top: 6px; } .sk-dn { bottom: 10px; }
+  .sk.hidden { opacity: 0; }
   .codelines { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.65; }
   .code-body::-webkit-scrollbar { width: 9px; }
   .code-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
@@ -175,7 +189,8 @@
   body.viz:not(.viz-concept) #stepbar { display: flex; }
 
   body.viz #controls { left: 42vw; right: 0; }   /* 슬라이더 = 오른쪽(캔버스) 컬럼 중앙 */
-  .ctrl-keys { align-self: center; font-size: 11px; color: var(--text-3); margin-top: 8px; }
+  .ctrl-keys { align-self: center; font-size: 12.5px; color: var(--text-1); margin-top: 8px; font-weight: 500; }
+  .ctrl-keys .kc { opacity: 1; color: var(--accent-light); border-color: var(--accent-light); font-size: 11px; }
 
   /* 설명 패널 본문 (개념 + 코드 보충 공통) */
   .concept { padding: 8px 22px 24px; font-size: 14.5px; line-height: 1.72; color: var(--text-2); }
@@ -257,6 +272,7 @@
 <!-- VIZ: 왼쪽 패널 = 코드/설명 + 단계 설명 + 스텝 컨트롤 / 오른쪽 = 애니메이션(캔버스) -->
 <div id="codepanel">
   <div class="code-head" id="codeHead"></div>
+  <div id="codeInput"></div>
   <div class="code-body" id="codeBody"></div>
   <div id="stepcap"><div class="stp" id="stepStp"></div><div class="cap" id="stepCap"></div></div>
   <div id="stepbar">
@@ -265,7 +281,11 @@
     <button class="sbtn" id="sbAuto">▶ 자동 재생 <kbd class="kc">S</kbd></button>
     <button class="sbtn" id="sbReset">↺ 초기화 <kbd class="kc">X</kbd></button>
   </div>
-  <div class="concept-scroll" id="conceptExtra"></div>
+  <div class="concept-wrap" id="conceptWrap">
+    <div class="concept-scroll" id="conceptExtra"></div>
+    <div class="sk sk-up hidden" id="skUp"><kbd class="kc">Q</kbd> ▲ 위로</div>
+    <div class="sk sk-dn hidden" id="skDn">▼ 아래로 <kbd class="kc">Z</kbd></div>
+  </div>
 </div>
 
 <div id="toc-panel"><div id="toc"></div></div>

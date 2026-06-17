@@ -7,6 +7,7 @@
 
   // ══════════ 8.1 그리디 — 거스름돈 (코드+스텝) ══════════
   { id:'algo8_01',
+    input:'금액 = 780원 ,  동전 = [ 500, 100, 50, 10 ]',
     code:[
       'GREEDY-COINS(amount, coins[]) {   // coins 내림차순',
       '  for each c in coins:',

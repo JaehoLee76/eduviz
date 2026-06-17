@@ -14,6 +14,7 @@
 
   // ══════════ 3.1a 버블 정렬 ══════════
   { id:'algo3_01',
+    input:'a = [ 5, 2, 8, 1, 9, 3 ]  (오름차순 정렬)',
     code:[
       'void bubbleSort(int a[], int n) {',
       '  for (int i = 0; i < n-1; i++) {',
@@ -44,6 +45,7 @@
 
   // ══════════ 3.1b 선택 정렬 ══════════
   { id:'algo3_02',
+    input:'a = [ 5, 2, 8, 1, 9, 3 ]  (오름차순 정렬)',
     code:[
       'void selectionSort(int a[], int n) {',
       '  for (int i = 0; i < n-1; i++) {',
@@ -77,6 +79,7 @@
 
   // ══════════ 3.1c 삽입 정렬 ══════════
   { id:'algo3_03',
+    input:'a = [ 5, 2, 8, 1, 9, 3 ]  (오름차순 정렬)',
     code:[
       'void insertionSort(int a[], int n) {',
       '  for (int i = 1; i < n; i++) {',
@@ -110,6 +113,7 @@
 
   // ══════════ 3.2 병합 정렬 — 분할정복 (merge 단계) ══════════
   { id:'algo3_04',
+    input:'L = [ 2, 5, 8 ] ,  R = [ 1, 3, 9 ]  (정렬된 두 줄)',
     code:[
       'void merge(int L[], int R[], int out[]) {',
       '  int li = 0, ri = 0, k = 0;',
@@ -148,6 +152,7 @@
 
   // ══════════ 3.3 퀵 정렬 — 피벗 분할(Lomuto) ══════════
   { id:'algo3_05',
+    input:'a = [ 3, 7, 1, 8, 2, 5 ] ,  pivot = 5',
     code:[
       'int partition(int a[], int lo, int hi) {',
       '  int pivot = a[hi];',

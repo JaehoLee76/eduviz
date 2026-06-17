@@ -220,7 +220,7 @@
   // 장면이 .code(코드 줄 배열) + .build(V)→frames 를 가지면 viz 장면.
   // 각 frame = {line:코드줄(또는 배열), cap:설명HTML, ...상태}. draw(V, frame)로 렌더.
   // 코드 패널/스텝바 DOM이 없는 페이지(math.html)나 코드 없는 장면은 전혀 영향 없음(레거시 풀스크린).
-  var codeBodyEl, conceptExtraEl, codeHeadEl, stepStpEl, stepCapEl, sbPrev, sbNext, sbAuto, sbReset;
+  var codeBodyEl, conceptExtraEl, codeHeadEl, codeInputEl, skUpEl, skDnEl, stepStpEl, stepCapEl, sbPrev, sbNext, sbAuto, sbReset;
   var _steps=null, _stepI=0, _autoT=null;
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function kc(k){ return ' <kbd class="kc">'+k+'</kbd>'; }   // 버튼 단축키 표시
@@ -258,10 +258,24 @@
   function setVizMode(sc){ var hasCode=!!(sc.code&&sc.build), concept=!!sc.concept&&!hasCode, viz=hasCode||concept; sc._viz=viz;
     if(document.body){ document.body.classList.toggle('viz',viz); document.body.classList.toggle('viz-concept',concept); }
     stopAuto(); resize();
+    if(codeInputEl){ if(hasCode&&sc.input){ codeInputEl.innerHTML='<span class="ik">입력</span>  '+sc.input; codeInputEl.setAttribute('data-on','1'); } else codeInputEl.removeAttribute('data-on'); }
     if(hasCode){ setOn([]); if(codeHeadEl) codeHeadEl.textContent='📌 '+(sc.title||'CODE');
       renderCode(sc); _steps=sc.build(E)||[]; _stepI=0; paintStep(); }
     else if(concept){ if(codeHeadEl) codeHeadEl.textContent='💡 '+(sc.title||''); renderConcept(sc); _steps=null; }
-    else { _steps=null; } }
+    else { _steps=null; }
+    setTimeout(updateScrollHints,30); }
+  // 자세히보기 스크롤 힌트(Q/Z) 표시 갱신
+  function updateScrollHints(){ var el=conceptExtraEl; if(!el||!skUpEl||!skDnEl) return;
+    var scrollable=el.scrollHeight>el.clientHeight+4 && getComputedStyle(el).display!=='none';
+    if(!scrollable){ skUpEl.classList.add('hidden'); skDnEl.classList.add('hidden'); return; }
+    skUpEl.classList.toggle('hidden', el.scrollTop<=2);
+    skDnEl.classList.toggle('hidden', el.scrollTop>=el.scrollHeight-el.clientHeight-2); }
+  function scrollConcept(dir){ var el=conceptExtraEl; if(!el) return false;
+    if(getComputedStyle(el).display==='none'||el.scrollHeight<=el.clientHeight+4){
+      // 폴백: 레거시 학습 패널(math)
+      var sm=studyMore; if(studyEl&&studyEl.classList.contains('open')&&sm&&sm.scrollHeight>sm.clientHeight+4){ sm.scrollBy({top:dir*Math.max(120,sm.clientHeight*0.7),behavior:'smooth'}); return true; }
+      return false; }
+    el.scrollBy({top:dir*Math.max(120,el.clientHeight*0.7),behavior:'smooth'}); setTimeout(updateScrollHints,160); return true; }
 
   // ---------- main loop ----------
   var frameN=0;
@@ -346,6 +360,8 @@
       // W 펼치기 / X 접기 (자세히 보기 패널). viz 화면은 패널이 숨겨지므로 W=다음·X=초기화로 라우팅.
       if(c==='KeyW'){ if(studyVisible()) openStudy(); else if(viz) stepNext(); e.preventDefault(); return; }
       if(c==='KeyX'){ if(studyVisible()) closeStudy(); else if(viz) stepReset(); e.preventDefault(); return; }
+      if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로
+      if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로
       if(viz){   // 코드+스텝: A 이전 / D(Space·Enter) 다음 / S 자동
         if(c==='KeyD'||space||enter){ stepNext(); e.preventDefault(); }
         else if(c==='KeyA'){ stepPrev(); e.preventDefault(); }
@@ -363,6 +379,9 @@
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
     codeBodyEl=document.getElementById('codeBody'); conceptExtraEl=document.getElementById('conceptExtra'); codeHeadEl=document.getElementById('codeHead');
+    codeInputEl=document.getElementById('codeInput'); skUpEl=document.getElementById('skUp'); skDnEl=document.getElementById('skDn');
+    if(conceptExtraEl) conceptExtraEl.addEventListener('scroll', updateScrollHints);
+    global.addEventListener('resize', updateScrollHints);
     stepStpEl=document.getElementById('stepStp'); stepCapEl=document.getElementById('stepCap');
     sbPrev=document.getElementById('sbPrev'); sbNext=document.getElementById('sbNext'); sbAuto=document.getElementById('sbAuto'); sbReset=document.getElementById('sbReset');
     if(sbPrev)sbPrev.onclick=stepPrev; if(sbNext)sbNext.onclick=stepNext; if(sbAuto)sbAuto.onclick=toggleAuto; if(sbReset)sbReset.onclick=stepReset;
