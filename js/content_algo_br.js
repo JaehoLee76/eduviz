@@ -3721,6 +3721,105 @@
       ctx.fillText('DP: dp[부분집합][정점] = 그 정점에 모인 단말 부분집합 연결 최소비용. 부분집합 병합 + 완화', W/2, H*0.91);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('NP-난해이나 단말 k 작으면 O(3ᵏ·n + 2ᵏ·n log n). MST는 중간점 없는 근사(2배 이내)', W/2, H*0.91+18); }
+  },
+
+  { id:'algo_br_waveletmatrix', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('웨이블릿 행렬 — 비트 평면으로 다시 짠 웨이블릿', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('웨이블릿 트리를 "값의 비트 평면 log σ장"으로 펴서, 캐시 효율과 구현을 단순화', W/2, H*0.10+22);
+      // bit planes: each row = one bit level, stable partition by that bit
+      var planes=[['1 0 1 1 0 0 1','상위비트로 안정 분할'],['0 1 1 0 1 0 0','다음 비트'],['1 0 0 1 0 1 1','하위 비트']];
+      var by=H*0.30, cw=30;
+      planes.forEach(function(p,r){ var bits=p[0].split(' '); var y=by+r*54;
+        ctx.fillStyle=['#7ab8ff','#8fe3b5','#ffb27a'][r]; ctx.font='600 12px sans-serif'; ctx.textAlign='right'; ctx.fillText('비트'+r,W*0.5-(bits.length*cw)/2-10,y+18); ctx.textAlign='center';
+        for(var c=0;c<bits.length;c++){ var x=W*0.5-(bits.length*cw)/2+c*cw; var one=bits[c]==='1';
+          ctx.fillStyle=one?'rgba(122,184,255,0.3)':'rgba(122,184,255,0.06)'; ctx.strokeStyle='#3a4358'; ctx.lineWidth=1;
+          ctx.fillRect(x,y,cw-3,26); ctx.strokeRect(x,y,cw-3,26);
+          ctx.fillStyle=one?'#dfeefb':'#4a5568'; ctx.font='600 13px monospace'; ctx.fillText(bits[c],x+(cw-3)/2,y+18); } });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 비트 평면에서 0인 원소를 앞, 1인 원소를 뒤로 안정 분할(zero_count 저장)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('웨이블릿 트리와 같은 질의(구간 k번째·등수·빈도) O(log σ)이나, 평면 배열이라 캐시 친화·코드 단순', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('포인터 없는 비트벡터 log σ개 + rank. 대용량 정적 수열 질의의 실전 표준', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_persistent', concept:true, branchOf:'algo5_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('영속 자료구조 — 과거 버전을 통째로 보존', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('갱신할 때 바뀌는 경로만 복사(path copying) → 옛 버전 그대로 + 새 버전, 공간 O(log n)/갱신', W/2, H*0.10+22);
+      // two roots sharing subtrees
+      var old=[W*0.30,H*0.30], neu=[W*0.62,H*0.30];
+      function node(x,y,col,t){ ctx.fillStyle=col==='n'?'rgba(255,178,122,0.22)':(col==='s'?'rgba(143,227,181,0.18)':'rgba(122,184,255,0.16)'); ctx.strokeStyle=col==='n'?'#ffb27a':(col==='s'?'#8fe3b5':'#7ab8ff'); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,13,0,Math.PI*2); ctx.fill(); ctx.stroke(); if(t){ctx.fillStyle='#dfeefb';ctx.font='600 11px sans-serif';ctx.fillText(t,x,y+4);} }
+      // shared subtree
+      var shL=[W*0.22,H*0.58], shR=[W*0.46,H*0.58], newR=[W*0.74,H*0.58];
+      function edge(a,b,col){ ctx.strokeStyle=col||'rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); }
+      edge(old,shL); edge(old,shR);
+      edge(neu,shL,'#ffb27a'); edge(neu,newR,'#ffb27a'); // new root shares left, new right
+      node(old[0],old[1],'o','v1'); node(neu[0],neu[1],'n','v2');
+      node(shL[0],shL[1],'s'); node(shR[0],shR[1],'s'); node(newR[0],newR[1],'n');
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('공유(복사 안 함)', shL[0]-4, H*0.70);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('새로 복사된 경로', newR[0], H*0.70);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('v1과 v2는 변하지 않은 서브트리를 공유 → 옛 버전 손상 없이 새 버전 생성', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('영속 세그트리=이 원리로 "과거 구간 질의". 함수형 불변 자료구조의 핵심(경로 복사)', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('부분 영속(과거 읽기)·완전 영속(과거 갱신)·합류 영속. k번째 구간 질의·롤백·버전 관리', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_planar', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('평면 그래프와 오일러 공식 — V − E + F = 2', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('간선이 안 교차하게 평면에 그릴 수 있는 그래프. 정점·간선·면의 수가 항상 V−E+F=2', W/2, H*0.10+22);
+      // planar graph drawing with faces
+      var N={a:[0.32,0.32],b:[0.58,0.30],c:[0.66,0.58],d:[0.40,0.66],e:[0.28,0.54]};
+      var edges=[['a','b'],['b','c'],['c','d'],['d','e'],['e','a'],['a','c']];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],12,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+      // face labels
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.fillText('F1', W*0.42, H*0.40); ctx.fillText('F2', W*0.46, H*0.56);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('F3 (바깥 면)', W*0.78, H*0.30);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('V=5, E=6, F=3  →  5 − 6 + 3 = 2  ✓ (바깥 무한 면 포함)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('따름정리: 단순 평면그래프는 E ≤ 3V−6 → 평면그래프는 희소(O(V) 간선)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('K₅·K₃,₃는 비평면(쿠라토프스키). 판정 O(V)(호프크로프트-타잔). 4색 정리·외판원 근사', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_segtree2d', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('2D 세그먼트 트리 — 세그트리 안에 세그트리', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 축은 세그트리, 그 각 노드가 다른 축의 세그트리 → 직사각형 질의·갱신 O(log²n)', W/2, H*0.10+22);
+      // outer segtree (x) nodes, each holding a small inner tree
+      var xs=[[0.5,0.28],[0.30,0.46],[0.70,0.46]];
+      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.4]; }
+      [[0,1],[0,2]].forEach(function(e){ var a=xy(xs[e[0]]),b=xy(xs[e[1]]); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      xs.forEach(function(t,i){ var p=xy(t);
+        ctx.fillStyle=i===0?'rgba(255,178,122,0.16)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=i===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.fillRect(p[0]-44,p[1]-16,88,32); ctx.strokeRect(p[0]-44,p[1]-16,88,32);
+        ctx.fillStyle='#dfeefb'; ctx.font='11px sans-serif'; ctx.fillText('x-노드',p[0],p[1]-2);
+        ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText('→ y-세그트리',p[0],p[1]+12); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('질의 [x1..x2]×[y1..y2]: 바깥 x 트리 O(log n) 노드 → 각 노드의 y 트리서 O(log n)', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('질의·점갱신 O(log² n), 공간 O(n log n). 동적 점·구간 갱신까지(2D 펜윅보다 유연)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('정적이면 머지소트트리/오프라인 1D로 더 가볍게. 구간갱신엔 lazy를 양 축에', W/2, H*0.84+20); }
   }
 
   ];

@@ -2623,5 +2623,65 @@
     "q_en": "How does a Steiner tree differ from an MST, and what's the common approximation for large k with its guarantee?",
     "sol_en": "An MST spans <b>all vertices</b>, while a Steiner tree need only connect the <b>specified terminals</b>, freely adding intermediate (Steiner) vertices. For large k (NP-hard), a common approximation is the <b>MST on the terminals' metric closure</b> (pairwise shortest distances), guaranteed within <b>2× optimal (2−2/k)</b>."
    }
+  },
+  "algo_br_waveletmatrix": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열과 리스트 ▸ 자세히",
+   "title": "웨이블릿 행렬 — 비트 평면으로 다시 짠 웨이블릿",
+   "narr": "웨이블릿 트리는 포인터로 좌우 자식을 잇습니다. <b>웨이블릿 행렬(wavelet matrix)</b>은 같은 일을 <b>값의 비트 평면 log σ장</b>으로 펴서, 포인터 없이 캐시 친화적으로 — 구현도 더 단순합니다.",
+   "hint": "",
+   "more": "<b>웨이블릿 행렬(Wavelet Matrix)</b>은 웨이블릿 트리와 <b>동일한 구간 통계 질의</b>(구간 k번째 값·등수·X 이하 개수·빈도)를 <b>O(log σ)</b>에 답하되, 트리의 포인터·재귀 구조를 <b>비트 평면 log σ장의 일렬 배열</b>로 바꾼 변형입니다(σ=값 종류). 구성: 최상위 비트부터 한 비트 평면씩 — 그 비트가 0인 원소를 앞, 1인 원소를 뒤로 <b>안정 분할(stable partition)</b>하고, 이 평면의 비트열(0/1)과 \"0의 개수 zero_count\"를 저장합니다. 다음 평면은 분할된 순서를 이어받아 그 다음 비트로 또 분할. 각 비트 평면은 <b>rank/select를 O(1)에 답하는 비트벡터</b>입니다. 질의는 평면을 위에서 아래로 훑으며, 비트벡터 rank로 \"구간 [l,r)이 다음 평면에서 어디로 가는지\"를 갱신: 0으로 가면 [rank0(l), rank0(r)), 1로 가면 [zero_count+rank1(l), …). <b>웨이블릿 트리 대비 장점</b>: ① 노드 포인터가 없어 <b>메모리 지역성(캐시)이 좋고</b> 상수가 작음, ② 구현이 단순(평면 배열 + zero_count), ③ select(특정 값의 i번째 위치)가 자연스러움. 같은 점근(질의 O(log σ), 공간 n log σ 비트). 정적 대용량 수열의 구간 통계 질의에서 실전 표준으로 자주 쓰입니다.",
+   "more_en": "A <b>Wavelet Matrix</b> answers the <b>same range-statistics queries</b> as a wavelet tree (range k-th value, rank, count ≤ X, frequency) in <b>O(log σ)</b>, but replaces the tree's pointers/recursion with <b>log σ flat bit planes</b> (σ = number of distinct values). Construction: from the top bit down, for each plane <b>stable-partition</b> elements with that bit 0 to the front and 1 to the back, storing the plane's bit string and the count of zeros (zero_count); the next plane continues from the partitioned order with the next bit. Each plane is a <b>bit vector answering rank/select in O(1)</b>. A query sweeps planes top-down, using the bit vector's rank to update where the range [l,r) maps in the next plane: going to 0 gives [rank0(l), rank0(r)), going to 1 gives [zero_count+rank1(l), …). <b>Advantages over a wavelet tree</b>: ① no node pointers → better <b>memory locality (cache)</b> and small constants; ② simpler implementation (flat planes + zero_count); ③ natural select (the i-th position of a value). Same asymptotics (query O(log σ), space n log σ bits). A practical standard for range statistics over large static sequences.",
+   "problem": {
+    "q": "웨이블릿 행렬이 웨이블릿 트리와 같은 일을 하면서도 실전에서 더 빠른 이유는?",
+    "solution": "트리의 <b>포인터·재귀를 없애고</b> 값을 <b>비트 평면 log σ장의 일렬 배열</b>로 펴기 때문입니다. 각 평면이 연속 메모리라 <b>캐시 지역성이 좋고</b> 상수가 작으며, 갱신은 zero_count와 rank로만 다음 평면 위치를 계산합니다 — 점근(O(log σ))은 같지만 상수와 구현 복잡도가 낮습니다.",
+    "q_en": "Why is a wavelet matrix faster in practice than a wavelet tree while doing the same thing?",
+    "sol_en": "It <b>drops the tree's pointers/recursion</b> and flattens the data into <b>log σ contiguous bit planes</b>. Each plane is contiguous memory, giving <b>better cache locality</b> and small constants; queries just use zero_count and rank to map to the next plane — same asymptotics (O(log σ)) but lower constants and simpler code."
+   }
+  },
+  "algo_br_persistent": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.5 균형 트리 ▸ 자세히",
+   "title": "영속 자료구조 — 과거 버전을 통째로 보존",
+   "narr": "보통 자료구조는 갱신하면 옛 상태가 사라집니다. <b>영속(persistent) 자료구조</b>는 갱신할 때 <b>바뀌는 경로만 복사</b>해, 옛 버전을 그대로 두고 새 버전을 만듭니다 — \"과거를 질의\"할 수 있습니다.",
+   "hint": "",
+   "more": "<b>영속 자료구조(persistent data structure)</b>는 갱신 후에도 <b>이전 버전들이 그대로 살아 있어</b> 임의 시점의 상태를 질의할 수 있는 자료구조입니다. 핵심 기법은 <b>경로 복사(path copying)</b>: 트리(예: 이진 탐색 트리·세그먼트 트리)에서 한 잎을 갱신하면 루트에서 그 잎까지의 <b>경로상 노드만 새로 복사</b>하고, 경로에서 벗어난 <b>서브트리는 옛 노드를 그대로 가리켜(공유)</b> 새 루트를 만듭니다. 변경이 닿지 않은 부분을 공유하므로 <b>갱신당 추가 공간·시간이 O(트리 높이)=O(log n)</b>뿐이고, 옛 루트로 가면 옛 버전이 손상 없이 보존됩니다(불변 구조라 동시성·롤백도 안전). 등급: <b>부분 영속(partial)</b>=과거 읽기만, <b>완전 영속(full)</b>=과거 버전도 갱신해 분기, <b>합류 영속(confluent)</b>=두 버전 병합까지. 대표 응용: <b>영속 세그먼트 트리</b>(버전 = 배열 앞 i개를 반영 → \"구간 [l,r]의 k번째 값\"을 두 버전의 차로 O(log n)에), <b>영속 트립/배열</b>, 실행 취소(undo)·버전 관리, 함수형 언어의 불변 컬렉션. \"갱신은 새 버전을 낳고, 옛 버전은 안 죽는다\"가 한 줄 요약입니다. (배열 기반 자료구조는 fat node·노드 복사 등 다른 영속화 기법도 있음.)",
+   "more_en": "A <b>persistent data structure</b> keeps <b>all previous versions alive</b> after updates, letting you query the state at any point in time. The key technique is <b>path copying</b>: in a tree (e.g. BST or segment tree), updating one leaf <b>copies only the nodes on the root-to-leaf path</b> and <b>points off-path subtrees at the old (shared) nodes</b>, producing a new root. Since untouched parts are shared, each update costs only <b>O(tree height)=O(log n)</b> extra space and time, and the old root preserves the old version intact (immutability makes concurrency and rollback safe). Levels: <b>partially persistent</b> = read the past only; <b>fully persistent</b> = update past versions too (branching); <b>confluently persistent</b> = even merge two versions. Classic uses: the <b>persistent segment tree</b> (version i reflects the first i elements → \"k-th value in range [l,r]\" via the difference of two versions in O(log n)), persistent treaps/arrays, undo and version control, immutable collections in functional languages. One-liner: \"an update births a new version; the old one never dies.\" (Array-based structures also use other persistence techniques like fat nodes / node copying.)",
+   "problem": {
+    "q": "영속 세그먼트/트리에서 한 번의 갱신이 O(log n) 공간만 쓰는 이유는?",
+    "solution": "<b>경로 복사</b> 때문입니다. 잎 하나를 바꾸면 루트→그 잎 <b>경로상의 노드(높이 O(log n)개)만 새로 복사</b>하고, 경로 밖 서브트리는 <b>옛 노드를 그대로 가리켜 공유</b>합니다. 그래서 새 버전은 O(log n)개 노드만 추가하면 되고, 옛 루트는 손상 없이 보존됩니다.",
+    "q_en": "Why does one update use only O(log n) space in a persistent segment tree?",
+    "sol_en": "Because of <b>path copying</b>: changing one leaf <b>copies only the nodes on the root-to-leaf path (O(log n) of them)</b> and <b>shares the off-path subtrees by pointing at the old nodes</b>. So a new version adds only O(log n) nodes, and the old root stays intact."
+   }
+  },
+  "algo_br_planar": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "평면 그래프와 오일러 공식 — V − E + F = 2",
+   "narr": "간선이 서로 <b>교차하지 않게</b> 평면에 그릴 수 있는 그래프가 <b>평면 그래프</b>입니다. 어떻게 그리든 정점 수 V, 간선 수 E, 면(영역) 수 F 사이엔 항상 <b>V − E + F = 2</b>가 성립합니다(오일러).",
+   "hint": "",
+   "more": "<b>평면 그래프(planar graph)</b>는 간선이 끝점에서만 만나도록(서로 <b>교차하지 않게</b>) 평면에 그릴 수 있는 그래프입니다. 그런 그림(평면 매장, embedding)에서 평면은 간선들로 여러 <b>면(face, 영역)</b>으로 나뉘는데(바깥 무한 영역도 한 면), <b>오일러 공식</b>이 연결 평면 그래프에 대해 항상 <b>V − E + F = 2</b>를 보장합니다(V=정점, E=간선, F=면 수). 증명은 간선/정점을 하나씩 제거하며 V−E+F가 불변임을 보이는 귀납. 강력한 <b>따름정리</b>: 단순(중복·루프 없는) 연결 평면 그래프(V≥3)는 각 면이 ≥3개 간선에 둘러싸이고 각 간선이 2개 면에 접하므로 3F ≤ 2E, 오일러에 대입하면 <b>E ≤ 3V − 6</b> — 즉 <b>평면 그래프는 희소</b>(간선이 O(V))합니다. 삼각형이 없으면 더 강하게 E ≤ 2V − 4. 비평면성: <b>K₅</b>(완전그래프 5정점)와 <b>K₃,₃</b>(3-3 완전이분)는 평면에 못 그리며, <b>쿠라토프스키/바그너 정리</b>로 \"K₅나 K₃,₃를 (세분/마이너로) 포함하면 비평면\"입니다. <b>평면성 판정</b>은 <b>O(V)</b>(호프크로프트-타잔, 또는 LR/PQ-트리). 응용: <b>4색 정리</b>(평면그래프 4색 칠하기), 평면 그래프의 분리자 정리(√n 분리자 → 분할정복), VLSI 배치, 지도·네트워크. \"평면 = 희소 + V−E+F=2\"로 기억합니다.",
+   "more_en": "A <b>planar graph</b> can be drawn in the plane so edges meet only at endpoints (no <b>crossings</b>). In such a drawing (a planar embedding), the edges divide the plane into <b>faces (regions)</b> — including the unbounded outer face — and <b>Euler's formula</b> guarantees, for a connected planar graph, <b>V − E + F = 2</b> (V vertices, E edges, F faces). The proof is induction removing one edge/vertex at a time, showing V−E+F is invariant. A powerful <b>corollary</b>: a simple connected planar graph (V≥3) has each face bounded by ≥3 edges and each edge on 2 faces, so 3F ≤ 2E; substituting into Euler gives <b>E ≤ 3V − 6</b> — i.e. <b>planar graphs are sparse</b> (O(V) edges). If triangle-free, even E ≤ 2V − 4. Non-planarity: <b>K₅</b> (complete on 5) and <b>K₃,₃</b> (complete bipartite 3-3) cannot be drawn planar, and by <b>Kuratowski/Wagner</b> a graph is non-planar iff it contains K₅ or K₃,₃ (as a subdivision/minor). <b>Planarity testing</b> is <b>O(V)</b> (Hopcroft-Tarjan, or LR/PQ-tree). Uses: the <b>four-color theorem</b>, the planar separator theorem (√n separators → divide and conquer), VLSI layout, maps/networks. Remember: \"planar = sparse + V−E+F=2.\"",
+   "problem": {
+    "q": "오일러 공식으로 '단순 연결 평면 그래프는 E ≤ 3V − 6'을 어떻게 유도하나?",
+    "solution": "각 면은 최소 3개 간선에 둘러싸이고 각 간선은 정확히 2개 면에 접하므로 면-간선 접촉을 두 번 세면 <b>3F ≤ 2E</b>, 즉 F ≤ 2E/3. 오일러 V−E+F=2에 대입하면 V−E+2E/3 ≥ 2 → <b>E ≤ 3V−6</b>. 따라서 평면 그래프는 간선이 O(V)인 희소 그래프입니다.",
+    "q_en": "Using Euler's formula, how do you derive 'E ≤ 3V − 6' for a simple connected planar graph?",
+    "sol_en": "Each face is bounded by ≥3 edges and each edge touches exactly 2 faces, so double-counting face-edge incidences gives <b>3F ≤ 2E</b>, i.e. F ≤ 2E/3. Substituting into Euler's V−E+F=2: V−E+2E/3 ≥ 2 → <b>E ≤ 3V−6</b>. Hence planar graphs are sparse, with O(V) edges."
+   }
+  },
+  "algo_br_segtree2d": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+   "title": "2D 세그먼트 트리 — 세그트리 안에 세그트리",
+   "narr": "1D 세그먼트 트리가 구간 질의를 한다면, <b>2D 세그먼트 트리</b>는 평면 격자에서 <b>직사각형 질의</b>를 합니다. 한 축을 세그트리로 나누고, 그 <b>각 노드가 다른 축의 세그트리</b>를 들고 있는 구조입니다.",
+   "hint": "",
+   "more": "<b>2D 세그먼트 트리</b>는 2차원 격자에서 <b>직사각형 영역 질의·갱신</b>(합·최댓값 등)을 처리합니다. 구조는 <b>중첩</b>: 바깥쪽은 x 좌표에 대한 세그먼트 트리이고, 그 <b>각 노드가 자신이 담당하는 x 구간에 대해 y 좌표의 세그먼트 트리</b>를 하나씩 들고 있습니다(\"세그트리 안의 세그트리\"). <b>질의 [x1..x2]×[y1..y2]</b>: 바깥 x 트리에서 [x1,x2]를 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 <b>y 세그트리에서 [y1,y2] 질의를 O(log n)</b>에 → 전체 <b>O(log² n)</b>. <b>점 갱신</b>도 영향받는 x 노드 O(log n)개의 y 트리를 각각 O(log n) 갱신 → O(log² n). 공간은 <b>O(n log n)</b>(또는 좌표압축/동적 노드). <b>2D 펜윅과 비교</b>: 펜윅은 더 가볍고 빠르지만 점 갱신+직사각형 합에 한정, 2D 세그트리는 <b>구간 갱신(lazy를 양 축에)·최댓값 등 더 일반적 연산</b>이 가능하고 좌표가 동적일 때도 유연. 정적이면 <b>머지소트 트리·오프라인 스위프라인+1D</b>가 더 가벼운 대안입니다. 3차원으로 같은 중첩을 하면 3D 세그트리 O(log³ n). 쓰임: 2D 영역 최댓값/합 동적 질의, 평면 점 집계, 격자 RMQ. 핵심은 \"한 차원의 각 구간 노드에 다음 차원 구조를 매단다\"는 중첩 원리입니다.",
+   "more_en": "A <b>2D segment tree</b> handles <b>rectangle range queries/updates</b> (sum, max, …) on a 2D grid. It is <b>nested</b>: the outer tree is a segment tree over the x-coordinate, and <b>each of its nodes holds a segment tree over the y-coordinate</b> for the x-range it covers (\"a segment tree inside a segment tree\"). For a <b>query [x1..x2]×[y1..y2]</b>, decompose [x1,x2] into <b>O(log n) nodes</b> in the outer x-tree, and query [y1,y2] in each node's <b>inner y-tree in O(log n)</b> → <b>O(log² n)</b> total. A <b>point update</b> likewise updates the y-trees of the O(log n) affected x-nodes, each in O(log n) → O(log² n). Space is <b>O(n log n)</b> (or coordinate compression / dynamic nodes). <b>Versus a 2D Fenwick</b>: Fenwick is lighter and faster but limited to point update + rectangle sum; a 2D segment tree supports <b>range updates (lazy on both axes), max, and more general operations</b>, and stays flexible with dynamic coordinates. If static, <b>merge sort trees or offline sweepline + 1D</b> are lighter alternatives. The same nesting in three dimensions gives a 3D segment tree, O(log³ n). Uses: dynamic 2D region max/sum queries, planar point aggregation, grid RMQ. The core is the nesting principle: \"hang the next dimension's structure on each range node of one dimension.\"",
+   "problem": {
+    "q": "2D 세그먼트 트리에서 직사각형 질의가 O(log² n)인 이유를 두 축으로 나눠 설명하면?",
+    "solution": "바깥 <b>x 세그트리</b>에서 [x1,x2]를 덮는 노드가 <b>O(log n)개</b>이고, 그 각 노드의 <b>y 세그트리</b>에서 [y1,y2] 질의가 다시 <b>O(log n)</b>입니다. 두 로그가 곱해져 <b>O(log² n)</b> — 점 갱신도 영향 x노드 O(log n)개 × y갱신 O(log n)으로 같습니다.",
+    "q_en": "Explain, per axis, why a rectangle query in a 2D segment tree is O(log² n).",
+    "sol_en": "The outer <b>x segment tree</b> covers [x1,x2] with <b>O(log n) nodes</b>, and each node's <b>inner y segment tree</b> answers [y1,y2] in <b>O(log n)</b>. The two logs multiply to <b>O(log² n)</b> — a point update is likewise O(log n) affected x-nodes × O(log n) y-update."
+   }
   }
 }
