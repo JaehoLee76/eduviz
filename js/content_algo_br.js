@@ -4374,6 +4374,97 @@
       ctx.fillText('쓰임: 이항계수 mod 소수(팩토리얼 역원 미리계산), 분수의 모듈러 값, CRT, 해시', W/2, H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('역원이 존재할 조건 = a와 m이 서로소. 그래서 보통 m을 소수로 잡음(998244353 등)', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_permcycle', concept:true, branchOf:'algo3_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('순열 사이클 분해 — 화살표를 따라 도는 고리', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('순열 p를 i→p[i] 함수로 보면 서로소인 사이클들로 쪼개짐. 정렬·거듭제곱·복원의 열쇠', W/2, H*0.10+22);
+      // permutation 0->2->4->0, 1->3->1 cycles
+      var pos={0:[0.30,0.34],2:[0.50,0.30],4:[0.46,0.56],1:[0.70,0.36],3:[0.78,0.62]};
+      var arrows=[[0,2],[2,4],[4,0],[1,3],[3,1]];
+      function xy(t){ return [W*pos[t][0], H*0.22+pos[t][1]*H*0.5]; }
+      arrows.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var col=(e[0]<=4&&e[1]<=4&&[0,2,4].indexOf(e[0])>=0)?'#7ab8ff':'#8fe3b5'; ctx.strokeStyle=col; ctx.lineWidth=2.5;
+        var mx=(p[0]+q[0])/2+(q[1]-p[1])*0.15, my=(p[1]+q[1])/2-(q[0]-p[0])*0.15;
+        ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.quadraticCurveTo(mx,my,q[0],q[1]); ctx.stroke();
+        var ang=Math.atan2(q[1]-my,q[0]-mx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(q[0],q[1]); ctx.lineTo(q[0]-10*Math.cos(ang-0.4),q[1]-10*Math.sin(ang-0.4)); ctx.lineTo(q[0]-10*Math.cos(ang+0.4),q[1]-10*Math.sin(ang+0.4)); ctx.fill(); });
+      Object.keys(pos).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k,p[0],p[1]+4); });
+      ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.fillText('사이클 (0 2 4)', W*0.36, H*0.80); ctx.fillStyle='#8fe3b5'; ctx.fillText('사이클 (1 3)', W*0.72, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 원소를 i→p[i]로 따라가면 반드시 출발점으로 돌아옴 → 서로소 사이클들', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('최소 교환 정렬 = n − (사이클 수). p^k = 각 사이클 길이로 mod. 부호=(−1)^(n−사이클수)', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_montgomery', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('몽고메리 곱셈 — 나눗셈 없는 빠른 모듈러 곱', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('a·b mod m 을 느린 나눗셈(%) 없이, 2의 거듭제곱 R로의 시프트·곱셈만으로', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['느린 부분: 모듈러 곱마다 나눗셈 % m (CPU에서 비쌈)',
+        '몽고메리 영역: 수 x를 x·R mod m 로 표현 (R=2^k, m과 서로소)',
+        'REDUCE(t): t·R⁻¹ mod m 을 시프트+곱셈만으로 (나눗셈 없음)',
+        '곱셈: REDUCE( ā · b̄ ) 가 (a·b)의 몽고메리 표현'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.34+i*28); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('나눗셈 한 번 → R로 나누기(=비트 시프트)로 대체 → 모듈러 곱이 훨씬 빠름', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('영역 변환 비용은 1회뿐 → 같은 m으로 곱을 많이 할 때(거듭제곱·NTT·소수판정) 이득', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('사촌 바레트(Barrett) reduction은 1/m 근사 미리 계산. 밀러라빈·폴라드로 가속에 핵심', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_kshortest', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('k번째 최단 경로 — 1등 말고 K등까지', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('최단 1개가 아니라 짧은 순서로 K개. 우선순위 큐로 도착 횟수를 세는 일반화 다익스트라', W/2, H*0.10+22);
+      // graph with multiple s-t paths of different lengths
+      var N={s:[0.14,0.5,'s'],a:[0.40,0.30,'a'],b:[0.40,0.70,'b'],t:[0.86,0.5,'t']};
+      var edges=[['s','a','2'],['s','b','3'],['a','t','4'],['b','t','2'],['a','b','1']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2,(p[1]+q[1])/2-4); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var st=(k==='s'||k==='t'); ctx.fillStyle=st?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=st?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+4); });
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('s→t 경로: s-b-t=5, s-a-t=6, s-a-b-t=5 … 짧은 순 K개', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('단순법: 다익스트라 변형 — 정점에 K번 도착할 때까지 큐에서 꺼냄(cnt[v]<K)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('단순경로 한정이면 Yen 알고리즘(분기마다 최단 재계산). 경로 다양화·대안 경로·k-best', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_transclosure', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('추이 폐쇄 — 도달 가능성을 모두 채우기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"u에서 v로 (여러 단계 거쳐) 갈 수 있나?"를 모든 쌍에 대해. 플로이드형 DP 또는 비트셋', W/2, H*0.10+22);
+      // reachability matrix
+      var V=4, gx=W*0.34, gy=H*0.30, cell=42;
+      var reach=[[1,1,1,1],[0,1,1,1],[0,0,1,1],[0,0,0,1]];
+      ctx.font='12px sans-serif';
+      for(var c=0;c<V;c++){ ctx.fillStyle='#6a6873'; ctx.fillText(String.fromCharCode(65+c),gx+c*cell+cell/2,gy-8); }
+      for(var r=0;r<V;r++){ ctx.fillStyle='#6a6873'; ctx.textAlign='right'; ctx.fillText(String.fromCharCode(65+r),gx-8,gy+r*cell+cell/2); ctx.textAlign='center';
+        for(var c=0;c<V;c++){ var x=gx+c*cell,y=gy+r*cell; var on=reach[r][c];
+          ctx.fillStyle=on?'rgba(143,227,181,0.25)':'rgba(122,184,255,0.06)'; ctx.strokeStyle=on?'#8fe3b5':'#3a4358'; ctx.lineWidth=on?2:1;
+          ctx.fillRect(x,y,cell-4,cell-4); ctx.strokeRect(x,y,cell-4,cell-4);
+          ctx.fillStyle=on?'#8fe3b5':'#4a5568'; ctx.font='600 14px sans-serif'; ctx.fillText(on?'1':'0',x+(cell-4)/2,y+(cell-4)/2+5); } }
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('reach[i][j] |= reach[i][k] & reach[k][j]  (플로이드-워셜형, k 중간정점)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('O(V³). 각 행을 비트셋으로: reach[i] |= reach[k] (if reach[i][k]) → O(V³/64)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('DAG면 위상역순 DP. 쓰임: 도달성·부분순서 완성·관계 닫기·타입 추론·스케줄 의존성', W/2, H*0.88+20); }
   }
 
   ];

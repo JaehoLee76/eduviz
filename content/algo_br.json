@@ -3043,5 +3043,65 @@
     "q_en": "Why is a⁻¹ = a^(m−2) mod m when m is prime?",
     "sol_en": "By <b>Fermat's little theorem</b>, if m is prime and a is not a multiple of m, then <b>a^(m−1) ≡ 1 (mod m)</b>. Writing this as a·a^(m−2) ≡ 1 shows <b>a^(m−2) is a⁻¹</b>, computed in O(log m) by fast exponentiation (requires gcd(a,m)=1, i.e. a not a multiple of m)."
    }
+  },
+  "algo_br_permcycle": {
+   "ch": "알고리즘 제3장 정렬",
+   "sec": "3.5 퀵 정렬 ▸ 자세히",
+   "title": "순열 사이클 분해 — 화살표를 따라 도는 고리",
+   "narr": "순열 p를 \"i가 p[i]로 간다\"는 함수로 보면, 원소들이 <b>서로소인 사이클</b>들로 깔끔하게 쪼개집니다. 이 사이클 구조가 최소 교환 정렬·순열 거듭제곱·복원의 열쇠입니다.",
+   "hint": "",
+   "more": "<b>순열 사이클 분해(cycle decomposition)</b>는 순열 p(0..n−1의 재배열)를 <b>함수 i → p[i]</b>로 보고, 각 원소에서 화살표를 따라가 만들어지는 <b>서로소(disjoint) 사이클</b>들로 나누는 것입니다. 어떤 i에서 출발해 i → p[i] → p[p[i]] → … 를 따라가면 원소가 유한하므로 <b>반드시 출발점으로 돌아와</b> 하나의 사이클을 이루고, 모든 원소는 정확히 한 사이클에 속합니다(예: p=[2,3,4,1,0]는 (0 2 4)와 (1 3) 두 사이클). 응용: ① <b>최소 교환(swap) 정렬</b> — 순열을 항등(정렬)으로 만드는 최소 교환 수 = <b>n − (사이클 수)</b>(길이 L 사이클은 L−1번 교환). 그래서 \"제자리 정렬\"이나 \"배열 재배치\"를 사이클 단위로 O(n)에. ② <b>순열의 k제곱 p^k</b> — 각 사이클 안에서 위치를 <b>(사이클 길이) mod</b>로 점프하면 O(n). ③ <b>순열 부호(짝/홀)</b> = (−1)^(n − 사이클수)(짝순열·홀순열, 행렬식·기함수에). ④ <b>functional graph</b>(각 정점 출차수 1)의 사이클 찾기·ρ 구조(플로이드)와 직결. ⑤ 사이클 길이들의 최소공배수 = 순열의 위수(order, p^k=항등 최소 k). 쓰임: in-place 배열 회전/재배치, 순열 거듭제곱, 조합론(사이클 종류 수=제1종 스털링 수), 암호. \"순열은 사이클들의 곱\"이 핵심입니다.",
+   "more_en": "<b>Cycle decomposition</b> views a permutation p (a rearrangement of 0..n−1) as the <b>function i → p[i]</b> and splits it into <b>disjoint cycles</b> formed by following arrows from each element. Starting at i and following i → p[i] → p[p[i]] → …, finiteness forces a <b>return to the start</b>, forming one cycle, and every element belongs to exactly one cycle (e.g. p=[2,3,4,1,0] has cycles (0 2 4) and (1 3)). Applications: ① <b>minimum-swap sorting</b> — the fewest swaps to make a permutation identity = <b>n − (number of cycles)</b> (a length-L cycle needs L−1 swaps), so in-place sorting / array reassignment is done cycle by cycle in O(n); ② <b>k-th power p^k</b> — jump within each cycle by <b>k mod (cycle length)</b> in O(n); ③ the <b>sign (parity) of a permutation</b> = (−1)^(n − #cycles) (even/odd permutations, determinants); ④ directly tied to <b>functional graphs</b> (out-degree 1) and their cycle/ρ structure (Floyd); ⑤ the LCM of cycle lengths is the permutation's order (smallest k with p^k = identity). Uses: in-place array rotation/reassignment, permutation powers, combinatorics (number of permutations by cycle type = Stirling numbers of the first kind), cryptography. The crux: \"a permutation is a product of cycles.\"",
+   "problem": {
+    "q": "순열을 정렬(항등으로)하는 최소 교환 횟수가 'n − 사이클 수'인 이유는?",
+    "solution": "길이 L인 사이클 하나를 제자리로 되돌리려면 <b>L−1번의 교환</b>이 필요합니다(한 번 교환할 때마다 원소 하나가 제자리로 확정). 사이클들은 서로소라 독립적으로 처리되므로, 총 교환 수 = Σ(Lᵢ−1) = (ΣLᵢ) − (사이클 수) = <b>n − 사이클 수</b>입니다. 길이 1 사이클(고정점)은 0번.",
+    "q_en": "Why is the minimum number of swaps to sort a permutation 'n − number of cycles'?",
+    "sol_en": "A length-L cycle needs <b>L−1 swaps</b> to fix (each swap places one element correctly). Cycles are disjoint and handled independently, so total swaps = Σ(Lᵢ−1) = (ΣLᵢ) − (#cycles) = <b>n − #cycles</b>. Length-1 cycles (fixed points) need 0."
+   }
+  },
+  "algo_br_montgomery": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.5 해시 테이블 ▸ 자세히",
+   "title": "몽고메리 곱셈 — 나눗셈 없는 빠른 모듈러 곱",
+   "narr": "모듈러 곱 a·b mod m 은 매번 <b>나눗셈(%)</b>이 들어가 CPU에서 느립니다. <b>몽고메리 곱셈</b>은 수를 특별한 영역으로 옮겨, 나눗셈을 <b>2의 거듭제곱으로 나누기(=비트 시프트)</b>로 바꿔 모듈러 곱을 크게 가속합니다.",
+   "hint": "",
+   "more": "<b>몽고메리 곱셈(Montgomery multiplication)</b>은 같은 법 m으로 모듈러 곱셈을 <b>매우 많이</b> 할 때, 비싼 나눗셈(%) 연산을 제거해 속도를 높이는 기법입니다. 아이디어: m과 서로소인 <b>R = 2^k</b>(보통 워드 크기)를 잡고, 수 x를 <b>몽고메리 표현 x̄ = x·R mod m</b>으로 다룹니다. 핵심 연산 <b>몽고메리 reduction REDUCE(t) = t·R⁻¹ mod m</b>을, m'·m ≡ −1 (mod R)인 미리 계산한 m'을 써서 <b>나눗셈 없이 곱셈과 R로 나누기(=시프트)·m 한 번 빼기</b>만으로 구합니다(t가 R의 배수가 되도록 보정 후 R로 나눔 = 시프트). 그러면 두 몽고메리 표현의 곱 <b>REDUCE(ā · b̄) = (a·b)·R mod m = (a·b의 몽고메리 표현)</b>이 되어, 영역 안에서 곱셈이 닫힙니다. 입·출력 시 한 번씩 영역 변환(×R, REDUCE)하는 비용은 있지만, <b>곱을 반복할수록(빠른 거듭제곱, NTT, 밀러-라빈 소수판정, 폴라드 로)</b> 나눗셈 제거 이득이 압도합니다. 사촌 <b>바레트 reduction(Barrett)</b>은 1/m의 고정소수점 근사를 미리 계산해 \"나눗셈 ≈ 곱셈 + 시프트\"로 대체(영역 변환 불필요, 단 곱셈 한 번 더). 둘 다 \"<b>나눗셈을 곱셈·시프트로</b>\" 바꾸는 정수 산술 최적화입니다. 쓰임: 암호(모듈러 거듭제곱이 핵심인 RSA·ECC), 대량 모듈러 연산, 경쟁 프로그래밍의 상수 최적화.",
+   "more_en": "<b>Montgomery multiplication</b> speeds up modular multiplication when done <b>very many times</b> with the same modulus m, by eliminating the costly division (%). Idea: pick <b>R = 2^k</b> (usually a word size) coprime to m, and handle a number x in its <b>Montgomery form x̄ = x·R mod m</b>. The key operation, <b>Montgomery reduction REDUCE(t) = t·R⁻¹ mod m</b>, is computed <b>without division</b> using a precomputed m' with m'·m ≡ −1 (mod R): adjust t to be a multiple of R, then divide by R (a shift) and subtract m once. Then the product of two Montgomery forms <b>REDUCE(ā · b̄) = (a·b)·R mod m = the Montgomery form of a·b</b>, so multiplication is closed within the domain. There's a one-time conversion cost in/out (×R, REDUCE), but for <b>repeated multiplications (fast exponentiation, NTT, Miller-Rabin primality, Pollard's rho)</b> the removal of division dominates. The cousin <b>Barrett reduction</b> precomputes a fixed-point approximation of 1/m to replace \"division ≈ multiply + shift\" (no domain conversion, but one extra multiply). Both are integer-arithmetic optimizations that turn <b>division into multiplication and shifts</b>. Uses: cryptography (modular exponentiation in RSA/ECC), bulk modular arithmetic, constant-factor optimization in competitive programming.",
+   "problem": {
+    "q": "몽고메리 곱셈이 모듈러 곱을 빠르게 하는 핵심과, 언제 이득인가?",
+    "solution": "모듈러 곱마다 드는 <b>나눗셈(% m)</b>을, R=2^k로의 나눗셈 즉 <b>비트 시프트</b>로 바꾸는 것이 핵심입니다(몽고메리 reduction). 입·출력 영역 변환 비용이 있어 한두 번 곱셈엔 손해지만, <b>같은 m으로 곱을 아주 많이</b> 할 때(거듭제곱·NTT·소수판정) 나눗셈 제거 이득이 압도해 빨라집니다.",
+    "q_en": "What makes Montgomery multiplication fast, and when does it pay off?",
+    "sol_en": "It replaces the <b>division (% m)</b> in each modular product with division by R=2^k, i.e. a <b>bit shift</b> (Montgomery reduction). There is a domain-conversion cost in/out, so it's a loss for one or two multiplications, but when multiplying <b>very many times with the same m</b> (exponentiation, NTT, primality), removing the division dominates and it wins."
+   }
+  },
+  "algo_br_kshortest": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "k번째 최단 경로 — 1등 말고 K등까지",
+   "narr": "최단 경로 하나가 아니라, 짧은 순서대로 <b>K개</b>를 알고 싶다면? 우선순위 큐로 \"각 정점에 도착한 횟수\"를 세는 다익스트라의 일반화로, 또는 단순 경로 한정이면 Yen 알고리즘으로 풉니다.",
+   "hint": "",
+   "more": "<b>k번째 최단 경로(k-shortest paths)</b>는 s→t의 최단 경로를 짧은 순서로 <b>K개</b> 구하는 문제입니다(대안 경로·경로 다양화에 필요). 두 갈래로 나뉩니다. ① <b>경로 반복 허용(walks)</b>: 다익스트라를 일반화 — 우선순위 큐에서 (현재 거리, 정점)을 꺼낼 때 <b>정점 v에 도착한 횟수 cnt[v]를 세고, cnt[v] < K일 때만</b> 확장합니다. t에 K번째로 도착했을 때의 거리가 K번째 최단 거리. 정점마다 최대 K번 처리되므로 <b>O(K·E·log)</b> 정도. 구현이 단순하고 사이클을 통한 경로도 셉니다. ② <b>단순 경로(simple paths)만, 정점 중복 금지</b>: <b>Yen 알고리즘</b> — 이미 찾은 (k−1)번째 경로에서 <b>분기점(spur node)</b>마다 그 지점의 한 간선을 막고 최단 경로를 다시 구해 후보를 모으고, 후보 중 최소를 k번째로 채택. 각 분기마다 다익스트라 1회라 <b>O(K·V·(E + V log V))</b>. Eppstein 알고리즘은 (반복 허용) k-shortest를 거의 선형 가산(heap of paths)으로 더 빠르게. 쓰임: <b>대안 경로 안내</b>(내비게이션의 \"다른 경로\"), 네트워크 라우팅 백업 경로, 가설 순위(NLP·바이오), 제약 만족 경로 후보. \"최단 1개\"를 \"짧은 순 K개\"로 확장하는 두 표준(반복허용=다익스트라 변형, 단순경로=Yen)을 구분해 쓰는 것이 핵심입니다.",
+   "more_en": "The <b>k-shortest paths</b> problem finds the K shortest s→t paths in increasing order (needed for alternative routes / path diversity). It splits in two. ① <b>Allowing repeated vertices (walks)</b>: generalize Dijkstra — when popping (distance, vertex) from the priority queue, <b>count arrivals cnt[v] at vertex v and expand only while cnt[v] < K</b>. The distance when t is reached for the K-th time is the K-th shortest. Each vertex is processed up to K times, so about <b>O(K·E·log)</b>; simple to implement and it counts paths through cycles. ② <b>Simple paths only (no repeated vertices)</b>: <b>Yen's algorithm</b> — from each already-found (k−1)-th path, at every <b>spur node</b> remove one edge there and recompute a shortest path to gather candidates, then take the minimum candidate as the k-th. With one Dijkstra per spur, it's <b>O(K·V·(E + V log V))</b>. Eppstein's algorithm computes (repeat-allowed) k-shortest near-linearly with a heap of paths. Uses: <b>alternative route guidance</b> (navigation's \"other routes\"), backup routing paths, ranked hypotheses (NLP, bio), constraint-satisfying path candidates. The crux is distinguishing the two standards — Dijkstra-variant for walks, Yen for simple paths.",
+   "problem": {
+    "q": "반복 허용 k번째 최단 경로를 다익스트라 변형으로 어떻게 구하나?",
+    "solution": "우선순위 큐에서 (거리, 정점)을 꺼낼 때 정점 v의 <b>도착 횟수 cnt[v]</b>를 세고, <b>cnt[v] < K일 때만</b> 인접 정점으로 확장합니다(보통 다익스트라는 cnt<1). t가 <b>K번째로 꺼내질 때</b>의 거리가 K번째 최단 거리입니다. 각 정점이 최대 K번 처리되어 O(K·E·log).",
+    "q_en": "How do you find the (walk-allowing) k-th shortest path as a Dijkstra variant?",
+    "sol_en": "When popping (distance, vertex) from the priority queue, count arrivals <b>cnt[v]</b> at vertex v and expand to neighbors <b>only while cnt[v] < K</b> (ordinary Dijkstra uses cnt<1). The distance when t is popped for the <b>K-th time</b> is the K-th shortest. Each vertex is processed at most K times, so O(K·E·log)."
+   }
+  },
+  "algo_br_transclosure": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.4 그래프 응용 ▸ 자세히",
+   "title": "추이 폐쇄 — 도달 가능성을 모두 채우기",
+   "narr": "방향 그래프에서 \"u에서 v로 (몇 단계든 거쳐) 갈 수 있나?\"를 <b>모든 정점 쌍</b>에 대해 구한 것이 <b>추이 폐쇄</b>입니다. 플로이드-워셜형 DP나 비트셋으로 빠르게 채웁니다.",
+   "hint": "",
+   "more": "<b>추이 폐쇄(transitive closure)</b>는 방향 그래프의 <b>도달 가능성 관계</b>를 모든 쌍에 대해 구합니다: <b>reach[u][v] = u에서 v로 (0개 이상 간선을 거쳐) 도달 가능한가</b>. 즉 간선(직접 연결)을 \"여러 단계 도달 가능\"으로 확장(닫음)한 것입니다. 계산법: ① <b>플로이드-워셜형 DP</b> — <b>reach[i][j] |= reach[i][k] & reach[k][j]</b>를 모든 중간 정점 k에 대해(k 루프가 가장 바깥) → O(V³). 직관: i→k로 가고 k→j로 갈 수 있으면 i→j도 가능. ② <b>비트셋 가속</b> — 각 행 reach[i]를 비트셋으로 두면, \"reach[i][k]가 1이면 reach[i] |= reach[k]\"가 워드 단위 OR 한 번 → <b>O(V³/64)</b>(실측 수십 배). ③ <b>DAG</b>면 <b>위상 역순으로</b> reach[v] = {v} ∪ (자식들의 reach 합집합)을 모으면 더 효율적(또는 각 정점 DFS/BFS로 O(V·(V+E))). 쓰임: <b>도달성 질의</b> 전처리, <b>부분순서 완성</b>(관계의 추이적 닫힘), 타입 시스템의 서브타입 추론, 의존성/빌드 그래프, 정규식·오토마톤의 ε-닫힘, SCC 축약 후 DAG 도달성. 반대 개념인 <b>추이 축소(transitive reduction)</b>는 같은 도달성을 주는 최소 간선 집합(DAG에서 유일). \"간선을 도달 가능으로 닫는다\"가 핵심이며, 가중치를 OR 대신 min으로 바꾸면 곧 플로이드-워셜 최단경로입니다.",
+   "more_en": "The <b>transitive closure</b> computes the <b>reachability relation</b> of a directed graph for all pairs: <b>reach[u][v] = can u reach v via zero or more edges</b>. It extends (closes) direct edges into multi-step reachability. Methods: ① <b>Floyd-Warshall-style DP</b> — <b>reach[i][j] |= reach[i][k] & reach[k][j]</b> over all intermediate k (k as the outermost loop) → O(V³). Intuition: if i→k and k→j, then i→j. ② <b>bitset acceleration</b> — store each row reach[i] as a bitset, so \"if reach[i][k] then reach[i] |= reach[k]\" is one word-wise OR → <b>O(V³/64)</b> (tens of times faster in practice). ③ for a <b>DAG</b>, process in <b>reverse topological order</b>, reach[v] = {v} ∪ (union of children's reach), or BFS/DFS per vertex for O(V·(V+E)). Uses: precomputing <b>reachability queries</b>, <b>completing a partial order</b> (transitive closure of a relation), subtype inference in type systems, dependency/build graphs, ε-closure of automata/regex, DAG reachability after SCC condensation. The opposite, <b>transitive reduction</b>, is the minimal edge set giving the same reachability (unique for a DAG). The crux is \"closing edges into reachability,\" and replacing OR with min turns it into Floyd-Warshall shortest paths.",
+   "problem": {
+    "q": "추이 폐쇄를 플로이드-워셜형으로 구하는 점화식과, 비트셋이 어떻게 가속하나?",
+    "solution": "<b>reach[i][j] |= reach[i][k] & reach[k][j]</b>(중간 정점 k 루프 최외곽)로 O(V³). 각 행 reach[i]를 <b>비트셋</b>으로 두면, reach[i][k]=1일 때 <b>reach[i] |= reach[k]</b> 한 줄이 V비트를 워드 단위 OR로 동시에 처리 → O(V³/64)로 실측 수십 배 빨라집니다.",
+    "q_en": "What is the Floyd-Warshall-style recurrence for transitive closure, and how does a bitset accelerate it?",
+    "sol_en": "<b>reach[i][j] |= reach[i][k] & reach[k][j]</b> with k as the outermost loop, O(V³). Storing each row reach[i] as a <b>bitset</b>, when reach[i][k]=1 the single line <b>reach[i] |= reach[k]</b> ORs V bits word-by-word at once → O(V³/64), tens of times faster in practice."
+   }
   }
 }
