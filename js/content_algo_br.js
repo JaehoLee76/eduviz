@@ -3347,6 +3347,101 @@
       ctx.fillText('1/2 와 2/1 사이 → (1+2)/(2+1)=3/3? 아니 부모 1/1. 좌우 이웃의 중간값이 자식', W/2, H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('각 기약분수가 정확히 한 번 등장. L/R 경로 = 연분수. 분모 제한 근사·유리수 이분탐색에 사용', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_smawk', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('SMAWK — 완전단조 행렬의 행별 최솟값을 O(n)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 행의 최솟값 위치가 단조로 증가하면, 행마다 다 보지 않고도 한꺼번에', W/2, H*0.10+22);
+      // matrix with min positions monotone (staircase)
+      var R=5,C=6, bx=W*0.30, by=H*0.28, cw=42, ch=34;
+      var minc=[0,1,1,3,4];
+      for(var r=0;r<R;r++)for(var c=0;c<C;c++){ var x=bx+c*cw,y=by+r*ch; var on=(c===minc[r]);
+        ctx.fillStyle=on?'rgba(255,178,122,0.3)':'rgba(122,184,255,0.07)'; ctx.strokeStyle=on?'#ffb27a':'#3a4358'; ctx.lineWidth=on?2.5:1;
+        ctx.fillRect(x,y,cw-4,ch-4); ctx.strokeRect(x,y,cw-4,ch-4);
+        if(on){ ctx.fillStyle='#ffb27a'; ctx.font='600 11px sans-serif'; ctx.fillText('min',x+(cw-4)/2,y+ch/2); } }
+      ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+      for(var r=0;r<R;r++) ctx.fillText('행'+r,bx-6,by+r*ch+ch/2); ctx.textAlign='center';
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('완전단조: 행 최솟값 열 위치가 행이 내려갈수록 ≥ (계단처럼 단조)', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('REDUCE(쓸모없는 열 제거) + 홀수 행만 재귀 후 짝수 행은 좁은 범위서만 탐색 → 전체 O(n+m)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: 분할정복/크누스로 안 풀리는 1D1D DP, 최소 둘레 다각형, 행렬 검색을 선형으로', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_dinkelbach', concept:true, branchOf:'algo8_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('분수계획법(Dinkelbach) — 비율을 최대화하기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"합/합"(예 평균 비용) 최대화를, 매개변수 λ를 도입해 "합 − λ·합" 문제 반복으로', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('max  ( Σ profit ) / ( Σ cost )   →   g(λ) = max ( Σ profit − λ·Σ cost )', W/2, H*0.32);
+      // g(λ) decreasing curve crossing zero at optimal λ*
+      var ax=W*0.18, bx2=W*0.82, ay=H*0.44, by2=H*0.74;
+      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(ax,by2); ctx.lineTo(bx2,by2); ctx.stroke();
+      // zero line
+      var zy=(ay+by2)/2; ctx.strokeStyle='rgba(143,227,181,0.4)'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(ax,zy); ctx.lineTo(bx2,zy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var t=0;t<=1.001;t+=0.02){ var x=ax+t*(bx2-ax), y=ay+ (by2-ay)*t; if(t===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke();
+      var lx=ax+0.5*(bx2-ax); ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(lx,zy,5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('g(λ*)=0 → λ* = 최적 비율', lx, zy-12);
+      ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.fillText('g(λ) 감소', bx2-40, by2-8); ctx.fillText('λ', bx2-6, by2+16);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('g(λ)는 λ에 대해 단조 감소. g(λ)=0이 되는 λ*가 최적 비율 → 뉴턴식 반복 or 이분 탐색', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('각 반복은 일반 최적화(최대평균사이클·최적비용신장트리 등). 최소평균사이클·최대밀도부분그래프에', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_tarjanlca', concept:true, branchOf:'algo5_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('타잔 오프라인 LCA — DFS + union-find로 한 번에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('모든 LCA 질의를 미리 알 때, DFS 한 번 + union-find로 거의 선형에 모두 답', W/2, H*0.10+22);
+      var N={a:[0.5,0.26,'1'],b:[0.30,0.48,'2'],c:[0.70,0.48,'3'],d:[0.18,0.70,'4'],e:[0.42,0.70,'5'],f:[0.70,0.70,'6']};
+      var edges=[['a','b'],['a','c'],['b','d'],['b','e'],['c','f']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.22+t[1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var done=['b','d','e'].indexOf(k)>=0;
+        ctx.fillStyle=done?'rgba(143,227,181,0.2)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=done?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+4); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif';
+      ctx.fillText('질의 LCA(4,5)=2 — DFS가 2의 서브트리를 마칠 때 둘 다 방문완료 → 답=2의 묶음 대표', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('DFS: 자식 끝나면 부모로 union. 정점 u 방문중, 이미 끝난 짝 v와의 질의는 LCA=find(v)', W/2, H*0.91);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('전체 O((n+q)·α). 온라인 LCA(희소테이블·오일러투어+RMQ)와 달리 질의 선행 필요(오프라인)', W/2, H*0.91+18); }
+  },
+
+  { id:'algo_br_johnson', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('존슨 알고리즘 — 희소 그래프 모든 쌍 최단경로', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('음수 간선을 포텐셜로 "0 이상으로 재가중"한 뒤, 정점마다 다익스트라', W/2, H*0.10+22);
+      // steps list
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 가상 정점 q 추가 → 모든 정점에 가중치 0 간선',
+        '② 벨만-포드로 q에서 각 정점까지 거리 h[v] 계산 (음수사이클 검출도)',
+        '③ 재가중: w′(u,v) = w(u,v) + h[u] − h[v]  ≥ 0  (음수 제거!)',
+        '④ 각 정점에서 다익스트라(빠름) → 거리 d′ 복원: d = d′ − h[u] + h[v]'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.34+i*30); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('핵심: h[u]−h[v]는 경로 합에서 텔레스코핑 → 최단경로 순위 불변', W/2, H*0.74);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('시간 O(V·E + V² log V) — 희소(E≪V²)면 플로이드-워셜 O(V³)보다 빠름', W/2, H*0.85);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('음수 간선 허용(음수 사이클은 불가). 다익스트라가 음수를 못 다루는 문제를 포텐셜로 우회', W/2, H*0.85+20); }
   }
 
   ];

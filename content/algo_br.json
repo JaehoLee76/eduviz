@@ -2383,5 +2383,65 @@
     "q_en": "What's the intuition that a mediant (a+c)/(b+d) in the Stern-Brocot tree is always reduced?",
     "sol_en": "Adjacent fractions a/b, c/d always satisfy <b>bc − ad = 1</b> (or −1) by construction. The mediant (a+c)/(b+d) preserves this with each neighbor, and bc−ad=±1 forces <b>gcd(a+c, b+d)=1</b> (any common divisor would divide the determinant ±1). So it is automatically reduced."
    }
+  },
+  "algo_br_smawk": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "SMAWK — 완전단조 행렬의 행별 최솟값을 선형에",
+   "narr": "각 행의 최솟값을 찾으려면 보통 모든 칸 O(nm)을 봐야 합니다. 그러나 행렬이 <b>완전단조(totally monotone)</b>하면 — 행 최솟값 위치가 단조로 움직이면 — <b>SMAWK</b>가 <b>O(n+m)</b>에 모든 행의 최솟값을 찾습니다.",
+   "hint": "",
+   "more": "<b>SMAWK 알고리즘</b>은 <b>완전단조(totally monotone) 행렬</b>에서 <b>각 행의 최솟값(또는 최댓값)</b>을 <b>O(n+m)</b>(n행, m열)에 구합니다. <b>단조 행렬</b>이란 i번째 행의 최솟값 열 위치를 argmin(i)라 할 때, <b>argmin이 행이 커질수록 단조 증가</b>(argmin(1) ≤ argmin(2) ≤ …)하는 행렬이고, <b>완전단조</b>는 모든 부분행렬이 단조인(더 강한) 조건입니다. 핵심 절차 두 가지: ① <b>REDUCE</b> — 어느 행의 최솟값도 될 수 없는 \"쓸모없는 열\"을 스택으로 골라내, 열 수를 행 수 이하로 줄임(완전단조성으로 \"이 열은 이미 진 열\"을 O(1)에 판정), ② <b>홀수 행만 재귀</b>로 최솟값을 구한 뒤, <b>짝수 행은 위·아래 홀수 행의 argmin 사이</b>(단조성으로 그 범위 안에 있음)에서만 선형 탐색. 재귀가 행을 절반씩 줄이고 각 단계가 선형이라 전체 <b>O(n+m)</b>. 쓰임: 분할정복 최적화·크누스 최적화로도 안 떨어지는 <b>1D1D DP</b>(비용이 완전단조일 때), 최소 넓이/둘레 문제, 가장 가까운 점·다각형 문제, 동적 계획 전이 최소화. \"행마다 최솟값 위치가 뒤로만 간다\"는 기하적 단조성을 끝까지 활용한 선형 알고리즘입니다.",
+   "more_en": "<b>SMAWK</b> finds the <b>minimum (or maximum) of each row</b> of a <b>totally monotone matrix</b> in <b>O(n+m)</b> (n rows, m columns). A <b>monotone matrix</b> has its row-minimum column positions argmin(i) <b>non-decreasing as the row grows</b> (argmin(1) ≤ argmin(2) ≤ …); <b>totally monotone</b> (stronger) means every submatrix is monotone. Two key steps: ① <b>REDUCE</b> — use a stack to discard \"dead columns\" that can't be any row's minimum, shrinking columns to at most the number of rows (total monotonicity lets you判 a column \"already lost\" in O(1)); ② <b>recurse on odd rows only</b> to find their minima, then for <b>even rows search only between the argmins of the neighboring odd rows</b> (monotonicity bounds them there). The recursion halves the rows and each step is linear, giving <b>O(n+m)</b>. Uses: <b>1D1D DP</b> that divide-and-conquer or Knuth optimization can't handle (when the cost is totally monotone), minimum area/perimeter problems, closest-point/polygon problems, minimizing DP transitions. A linear algorithm that fully exploits the geometric monotonicity \"each row's minimum only moves forward.\"",
+   "problem": {
+    "q": "SMAWK가 행렬의 행별 최솟값을 O(nm)이 아닌 O(n+m)에 구할 수 있는 전제와 그 이유는?",
+    "solution": "행렬이 <b>완전단조</b>(행 최솟값 위치 argmin이 행 따라 단조 증가, 모든 부분행렬도)여야 합니다. 그러면 ① 어떤 행에서도 최소가 못 되는 열을 REDUCE로 골라내고 ② 짝수 행의 최솟값은 <b>이웃 홀수 행 argmin 사이</b>에만 있으므로 좁게 탐색 → 재귀가 행을 절반씩 줄여 선형이 됩니다.",
+    "q_en": "What condition lets SMAWK find row minima in O(n+m) instead of O(nm), and why?",
+    "sol_en": "The matrix must be <b>totally monotone</b> (row-minimum positions argmin non-decreasing, including every submatrix). Then ① REDUCE discards columns that can't be any row's minimum, and ② an even row's minimum lies only <b>between the argmins of its neighboring odd rows</b>, so the search is narrow — the recursion halves the rows, giving linear time."
+   }
+  },
+  "algo_br_dinkelbach": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.1 그리디 ▸ 자세히",
+   "title": "분수계획법(Dinkelbach) — 비율 최적화",
+   "narr": "\"이익의 합 ÷ 비용의 합\"(평균·밀도·효율 같은 비율)을 최대화하는 문제는 분모 때문에 까다롭습니다. <b>딘켈바흐(Dinkelbach)</b>는 매개변수 λ를 도입해 \"<b>이익 − λ·비용</b>\"이라는 보통 최적화로 바꾸고, λ를 반복 갱신해 풉니다.",
+   "hint": "",
+   "more": "<b>분수계획법(fractional programming)</b>은 목적함수가 <b>비율 (Σ 이익)/(Σ 비용)</b>인 최적화입니다(평균 비용, 밀도, 효율 등). 분모가 변수에 의존해 직접 최적화가 어렵습니다. <b>딘켈바흐 방법</b>의 핵심: 비율 최대값을 λ*라 하면, <b>매개변수 함수 g(λ) = max( Σ이익 − λ·Σ비용 )</b>을 정의할 때 <b>g(λ*) = 0</b>이고 g는 λ에 대해 <b>단조 감소</b>합니다(λ가 크면 비용에 큰 벌점→음수). 직관: 비율 ≥ λ ⟺ Σ이익 − λ·Σ비용 ≥ 0. 그래서 \"비율이 λ 이상인 해가 있는가?\"가 \"g(λ) ≥ 0인가?\"라는 <b>보통(분모 없는) 최적화</b>로 바뀝니다. 푸는 법: ① <b>이분 탐색</b> λ로 g(λ)의 부호를 보며 λ*를 좁히거나, ② <b>딘켈바흐 반복</b> — 현재 해로 λ ← (그 해의 이익합/비용합)을 갱신하면 매우 빠르게(초선형) 수렴. 각 반복의 \"g(λ) 계산\"은 분모 없는 일반 문제(최대 가중치 부분집합·DP·최소 신장 트리 등)라 기존 알고리즘 재사용. 대표 응용: <b>최소 평균 가중치 사이클</b>(min mean cycle, 칸의 알고리즘과 함께), <b>최적 비율 신장 트리</b>, <b>최대 밀도 부분그래프</b>, 0-1 분수 배낭. \"비율을 빼기로 바꾼다\"가 한 줄 요약입니다.",
+   "more_en": "<b>Fractional programming</b> optimizes an objective that is a <b>ratio (Σ profit)/(Σ cost)</b> (average cost, density, efficiency, …). The variable-dependent denominator makes direct optimization hard. <b>Dinkelbach's method</b>: let the maximum ratio be λ*; define the <b>parametric function g(λ) = max( Σprofit − λ·Σcost )</b>. Then <b>g(λ*) = 0</b> and g is <b>monotonically decreasing</b> in λ (large λ heavily penalizes cost → negative). Intuition: ratio ≥ λ ⟺ Σprofit − λ·Σcost ≥ 0. So \"is there a solution with ratio ≥ λ?\" becomes \"is g(λ) ≥ 0?\", a <b>denominator-free ordinary optimization</b>. Solve by ① <b>binary search</b> on λ using the sign of g(λ), or ② <b>Dinkelbach iteration</b> — update λ ← (current solution's profit-sum / cost-sum), converging superlinearly. Each \"evaluate g(λ)\" is an ordinary problem (max-weight subset, DP, MST, …), reusing existing algorithms. Applications: <b>minimum mean cycle</b> (with Karp's algorithm), <b>optimum ratio spanning tree</b>, <b>maximum density subgraph</b>, 0-1 fractional knapsack. One-liner: turn a ratio into a subtraction.",
+   "problem": {
+    "q": "분수계획법에서 비율 (Σ이익/Σ비용) 최대화를 g(λ)=max(Σ이익 − λ·Σ비용)로 바꿀 수 있는 근거는?",
+    "solution": "<b>비율 ≥ λ  ⟺  Σ이익 − λ·Σ비용 ≥ 0</b> (비용 합이 양수일 때 양변에 곱하기). 그래서 g(λ)=max(Σ이익−λ·Σ비용)의 부호가 \"비율이 λ 이상인 해의 존재\"를 알려 주고, g는 λ에 단조감소하며 <b>g(λ*)=0</b>인 λ*가 최적 비율입니다. 분모가 사라져 일반 최적화로 풉니다.",
+    "q_en": "Why can maximizing the ratio (Σprofit/Σcost) be reduced to g(λ)=max(Σprofit − λ·Σcost)?",
+    "sol_en": "Because <b>ratio ≥ λ ⟺ Σprofit − λ·Σcost ≥ 0</b> (multiply through by the positive cost-sum). So the sign of g(λ)=max(Σprofit−λ·Σcost) tells whether a solution with ratio ≥ λ exists; g decreases monotonically in λ and <b>g(λ*)=0</b> at the optimal ratio λ*. The denominator vanishes, leaving an ordinary optimization."
+   }
+  },
+  "algo_br_tarjanlca": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.3 트리 순회 ▸ 자세히",
+   "title": "타잔 오프라인 LCA — DFS + union-find",
+   "narr": "최소 공통 조상(LCA)을 온라인으로는 희소테이블·오일러투어+RMQ로 풉니다. 모든 질의를 <b>미리 알면(오프라인)</b>, <b>타잔</b>은 DFS 한 번 + union-find로 거의 <b>선형</b>에 모든 LCA를 한꺼번에 답합니다.",
+   "hint": "",
+   "more": "<b>타잔의 오프라인 LCA(Tarjan's off-line LCA)</b>는 트리에서 여러 LCA 질의 (u,v)를 <b>모두 미리 알 때(오프라인)</b>, 단 한 번의 <b>DFS</b>와 <b>union-find</b>로 거의 선형 <b>O((n+q)·α)</b>에 답합니다(α=역아커만). 절차: 루트부터 DFS를 돌며 정점 u에 대해 ① u의 <b>각 자식 서브트리를 재귀 처리한 뒤, 그 자식을 u로 union</b>(자식 묶음의 대표를 u로 설정), ② u의 모든 자식을 처리하고 u 자신을 \"방문 완료\"로 표시한 다음, ③ <b>u가 얽힌 질의 (u,v) 중 v가 이미 방문 완료된 것</b>에 대해 답을 <b>LCA = find(v)</b>로 확정합니다. 왜 맞나: v가 이미 끝났고 u를 지금 처리 중이면, find(v)는 \"v가 속한, 아직 u의 조상으로 묶이지 않은 가장 깊은 공통 조상\"을 가리킵니다 — 즉 u와 v가 처음 만나는 갈림길(LCA). union이 \"서브트리를 부모로 접어 올리는\" 과정이라, 두 정점이 둘 다 방문된 순간의 대표가 정확히 LCA가 됩니다. 온라인 방법(전처리 후 임의 질의 즉답)과 달리 <b>질의를 미리 모아야</b> 하지만, 구현이 짧고 상수가 작아 질의가 한꺼번에 주어질 때 효율적입니다. 오프라인 동적 연결성·DSU on tree 등과 같은 \"DFS 중 union-find\" 계열의 대표 기법입니다.",
+   "more_en": "<b>Tarjan's off-line LCA</b> answers many LCA queries (u,v) on a tree, <b>all known in advance (offline)</b>, in near-linear <b>O((n+q)·α)</b> with one <b>DFS</b> plus <b>union-find</b> (α = inverse Ackermann). Procedure: DFS from the root; at vertex u, ① recursively process each child subtree, then <b>union that child into u</b> (set the child's group representative to u); ② after all children, mark u itself \"visited\"; ③ for each query (u,v) where <b>v is already visited</b>, output <b>LCA = find(v)</b>. Why it works: if v is finished and u is being processed now, find(v) points to \"the deepest common ancestor of v not yet folded above u\" — exactly the fork where u and v first meet (their LCA). Since union folds subtrees up into the parent, the representative at the moment both endpoints are visited is precisely the LCA. Unlike online methods (preprocess, then answer any query instantly), it <b>requires collecting queries first</b>, but is short and has small constants, efficient when queries come in a batch. It is a hallmark of the \"union-find during DFS\" family, alongside offline dynamic connectivity and DSU-on-tree.",
+   "problem": {
+    "q": "타잔 오프라인 LCA에서 질의 (u,v)의 답이 find(v)인 시점과 이유는?",
+    "solution": "u를 DFS로 처리하는 중, 짝 v가 <b>이미 방문 완료</b>됐을 때입니다. DFS는 자식 서브트리를 마치면 그 정점을 부모로 union해 올리므로, 그 순간 <b>find(v)</b>는 v가 속한 묶음의 대표 = u와 v의 경로가 갈라지는 가장 깊은 공통 조상(LCA)을 가리킵니다.",
+    "q_en": "When and why is a query (u,v)'s answer find(v) in Tarjan's offline LCA?",
+    "sol_en": "When, during the DFS processing of u, the partner v is <b>already visited</b>. Since the DFS unions each finished subtree up into its parent, at that moment <b>find(v)</b> gives v's group representative — the deepest common ancestor where u's and v's paths diverge, i.e. the LCA."
+   }
+  },
+  "algo_br_johnson": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "존슨 알고리즘 — 희소 그래프 모든 쌍 최단경로",
+   "narr": "음수 간선이 있는 그래프에서 <b>모든 쌍</b> 최단경로를 구할 때, 플로이드-워셜은 O(V³)입니다. <b>존슨</b>은 음수 간선을 <b>포텐셜로 0 이상으로 재가중</b>한 뒤 정점마다 빠른 다익스트라를 돌려, 희소 그래프에서 더 빠릅니다.",
+   "hint": "",
+   "more": "<b>존슨 알고리즘(Johnson's algorithm)</b>은 <b>음수 간선이 있을 수도 있는</b> 그래프에서 <b>모든 쌍 최단경로(APSP)</b>를 구합니다. 다익스트라는 빠르지만 음수 간선을 못 다루고, 벨만-포드는 음수를 다루지만 느립니다(O(VE)). 존슨은 둘의 장점을 결합합니다: ① <b>가상 정점 q</b>를 추가하고 q에서 모든 정점으로 <b>가중치 0 간선</b>을 긋습니다. ② <b>벨만-포드</b>로 q에서 각 정점 v까지 최단거리 <b>h[v]</b>를 구합니다(이 과정에서 음수 사이클도 검출). ③ <b>재가중</b>: 모든 간선 (u,v)의 새 가중치를 <b>w′(u,v) = w(u,v) + h[u] − h[v]</b>로 바꿉니다. 삼각부등식 h[v] ≤ h[u] + w(u,v)에서 <b>w′ ≥ 0</b>이 보장돼 음수가 사라집니다. ④ 이제 <b>각 정점에서 다익스트라</b>(음수 없으니 가능, 빠름)를 돌려 d′를 구하고, 원래 거리는 <b>d(u,v) = d′(u,v) − h[u] + h[v]</b>로 복원합니다. 정당성의 핵심: 경로 u→…→v의 재가중 합은 <b>중간 항 h가 텔레스코핑</b>되어 (원래 합) + h[u] − h[v]가 되므로, 같은 (u,v) 쌍의 모든 경로가 같은 상수만큼 바뀌어 <b>최단경로의 순위가 불변</b>입니다. 시간 <b>O(V·E + V²log V)</b> — 희소(E ≪ V²)면 플로이드-워셜 O(V³)보다 빠릅니다. 음수 간선은 허용하되 음수 사이클은 (벨만-포드가 검출해) 불가입니다.",
+   "more_en": "<b>Johnson's algorithm</b> computes <b>all-pairs shortest paths (APSP)</b> on a graph that <b>may have negative edges</b>. Dijkstra is fast but can't handle negatives; Bellman-Ford handles negatives but is slow (O(VE)). Johnson combines their strengths: ① add a <b>virtual vertex q</b> with <b>weight-0 edges</b> to every vertex; ② run <b>Bellman-Ford</b> from q to get each vertex's shortest distance <b>h[v]</b> (also detecting any negative cycle); ③ <b>reweight</b> every edge (u,v) to <b>w′(u,v) = w(u,v) + h[u] − h[v]</b>. The triangle inequality h[v] ≤ h[u] + w(u,v) guarantees <b>w′ ≥ 0</b>, removing negatives; ④ now run <b>Dijkstra from each vertex</b> (possible since no negatives, and fast) to get d′, and recover the true distance as <b>d(u,v) = d′(u,v) − h[u] + h[v]</b>. The key to correctness: along a path u→…→v the reweighted sum <b>telescopes the intermediate h's</b> to (original sum) + h[u] − h[v], so every path for the same (u,v) shifts by the same constant — leaving the <b>ranking of shortest paths unchanged</b>. Time <b>O(V·E + V²log V)</b> — faster than Floyd-Warshall's O(V³) on sparse graphs (E ≪ V²). Negative edges are allowed; negative cycles are not (Bellman-Ford detects them).",
+   "problem": {
+    "q": "존슨 알고리즘의 재가중 w′(u,v)=w(u,v)+h[u]−h[v]이 최단경로를 바꾸지 않는 이유는?",
+    "solution": "경로 u→x→…→v의 재가중 합을 더하면 중간 정점들의 <b>h가 텔레스코핑</b>되어 (원래 경로 합) + h[u] − h[v]가 됩니다. 같은 (u,v) 쌍의 <b>모든 경로</b>가 동일한 상수 h[u]−h[v]만큼 더해지므로 경로들의 상대 대소(=최단경로 순위)가 보존됩니다. 또 삼각부등식으로 w′ ≥ 0이라 다익스트라가 가능합니다.",
+    "q_en": "Why does Johnson's reweighting w′(u,v)=w(u,v)+h[u]−h[v] preserve shortest paths?",
+    "sol_en": "Summing along a path u→x→…→v, the intermediate vertices' <b>h values telescope</b>, giving (original sum) + h[u] − h[v]. Every path for the same (u,v) shifts by the same constant h[u]−h[v], so their relative order (the shortest-path ranking) is preserved. The triangle inequality also makes w′ ≥ 0, enabling Dijkstra."
+   }
   }
 }
