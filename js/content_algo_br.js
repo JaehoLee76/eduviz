@@ -4280,6 +4280,100 @@
       ctx.fillText('잔여 그래프에서 BFS로 최단 경로 찾아 병목만큼 흘리기를 반복(증대 경로법)', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('최단 경로라 증대 횟수 O(VE) 보장 → O(VE²). 디닉(레벨그래프+블로킹)이 더 빠른 발전형', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_linearsieve', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('선형 체 — 각 합성수를 딱 한 번만 지우기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('에라토스테네스 체는 합성수를 여러 번 지움. 선형 체는 "최소 소인수"로 한 번만 → O(n)', W/2, H*0.10+22);
+      // numbers 2..16 colored, with smallest prime factor
+      var nums=[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+      var spf={4:2,6:2,8:2,9:3,10:2,12:2,14:2,15:3,16:2};
+      var bx=W*0.5-(nums.length*42)/2, by=H*0.34, cw=38;
+      nums.forEach(function(v,i){ var x=bx+i*42; var prime=!(v in spf);
+        ctx.fillStyle=prime?'rgba(143,227,181,0.25)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=prime?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=prime?2.5:1.5;
+        ctx.fillRect(x,by,cw,34); ctx.strokeRect(x,by,cw,34);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(v,x+cw/2,by+18);
+        if(!prime){ ctx.fillStyle='#ffb27a'; ctx.font='9px sans-serif'; ctx.fillText('spf'+spf[v],x+cw/2,by+30); } });
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('초록=소수, spf=최소 소인수', W/2, by+50);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('각 i를, "이미 찾은 소수 p ≤ spf(i)"와 곱한 i·p만 지움 → 각 합성수는 정확히 한 번', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('p가 i를 나누면 멈춤(i·p의 최소 소인수가 p임을 보장). 전체 O(n), 부산물로 spf·오일러피·뫼비우스', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('에라토스테네스 O(n log log n)보다 점근 우월(상수는 비슷). 곱셈적 함수 일괄 계산에 유용', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_lazyprop', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Lazy propagation — 구간 갱신을 미뤄서 O(log n)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"구간 전체에 더하기"를 잎마다 하면 O(n). 노드에 "미룬 갱신" 표시를 달아 필요할 때만 내림', W/2, H*0.10+22);
+      // segment tree with a lazy tag on a node
+      var nodes=[[0.5,0.28,'합 +레이지'],[0.30,0.52,'레이지 +5'],[0.70,0.52,''],[0.18,0.74,''],[0.42,0.74,'']];
+      function xy(t){ return [W*0.12+t[0]*W*0.76, H*0.24+t[1]*H*0.46]; }
+      var edges=[[0,1],[0,2],[1,3],[1,4]];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      nodes.forEach(function(n,i){ var p=xy(n); var lazy=(i===1);
+        ctx.fillStyle=lazy?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=lazy?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p[0],p[1],16,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        if(n[2]){ ctx.fillStyle=lazy?'#ffb27a':'#dfeefb'; ctx.font='10px sans-serif'; ctx.fillText(n[2],p[0],p[1]+3); } });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('이 노드 구간 전체에 +5를 "미뤄둠"', xy(nodes[1])[0], xy(nodes[1])[1]+34);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('구간 갱신: 완전히 덮인 노드에 lazy 태그만 달고 멈춤(자식엔 안 내려감)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('내려갈 일이 생기면 그때 push-down: 태그를 두 자식에 전파하고 자기 태그 비움', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('구간 더하기/덮기 + 구간 합/최댓값을 모두 O(log n). 태그 합성 규칙이 핵심(더하기·할당 순서)', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_dilworth', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('딜워스 정리 — 최소 사슬 분할 = 최대 반사슬', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('부분순서를 덮는 최소 사슬(비교 가능한 줄) 수 = 가장 큰 반사슬(서로 비교 불가) 크기', W/2, H*0.10+22);
+      // poset as DAG with chains colored
+      var N={a:[0.30,0.30,'#7ab8ff'],b:[0.55,0.30,'#8fe3b5'],c:[0.30,0.55,'#7ab8ff'],d:[0.55,0.55,'#8fe3b5'],e:[0.42,0.78,'#7ab8ff']};
+      var edges=[['a','c'],['c','e'],['b','d']];
+      function xy(t){ return [W*N[t][0], H*0.22+N[t][1]*H*0.5]; }
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle=N[k][2].replace('#','rgba(')+''; ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle=N[k][2]; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.fillText('사슬1: a→c→e', W*0.20, H*0.88); ctx.fillStyle='#8fe3b5'; ctx.fillText('사슬2: b→d', W*0.55, H*0.88);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('최소 2개 사슬로 덮음 = 최대 반사슬 크기 2 (예: {a,b} 서로 비교불가)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('최소 사슬 분할 = n − (이분 매칭 최대). DAG 최소 경로 덮개·LIS와 쌍대(Mirsky)', W/2, H*0.78+18); }
+  },
+
+  { id:'algo_br_modinverse', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('모듈러 역원 — 나눗셈을 곱셈으로 바꾸기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('mod 세계엔 나눗셈이 없다 → a로 나누기 = a의 역원 a⁻¹(a·a⁻¹≡1) 곱하기', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
+      ctx.fillText('a · a⁻¹ ≡ 1 (mod m)   를 만족하는 a⁻¹', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① m이 소수: 페르마 소정리 → a⁻¹ = a^(m−2) mod m (빠른 거듭제곱)',
+        '② 일반 m(gcd(a,m)=1): 확장 유클리드로 a·x + m·y = 1 의 x',
+        '③ 1..n 일괄: inv[i] = −(m/i)·inv[m mod i] mod m  → O(n)',
+        '④ 역원 없음: gcd(a,m) ≠ 1 이면 a⁻¹ 부재'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.42+i*26); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('예: 3⁻¹ mod 7 = 5  (3·5=15≡1)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('쓰임: 이항계수 mod 소수(팩토리얼 역원 미리계산), 분수의 모듈러 값, CRT, 해시', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('역원이 존재할 조건 = a와 m이 서로소. 그래서 보통 m을 소수로 잡음(998244353 등)', W/2, H*0.86+20); }
   }
 
   ];

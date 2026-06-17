@@ -2983,5 +2983,65 @@
     "q_en": "What does choosing augmenting paths by BFS (shortest) guarantee in Ford-Fulkerson?",
     "sol_en": "<b>Polynomial termination, O(VE²)</b>. With BFS-shortest paths, residual distances from s are non-decreasing, and an edge that saturates and is reused needs that distance to grow by at least 2, so each edge is a bottleneck O(V) times → O(VE) augmentations × O(E) per BFS = O(VE²), regardless of capacity magnitudes or irrationality."
    }
+  },
+  "algo_br_linearsieve": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.5 해시 테이블 ▸ 자세히",
+   "title": "선형 체 — 각 합성수를 딱 한 번만 지우기",
+   "narr": "에라토스테네스의 체는 12를 2로도, 3으로도 지워 <b>여러 번</b> 건드립니다. <b>선형 체(linear sieve)</b>는 각 합성수를 그 <b>최소 소인수</b>로 정확히 한 번만 지워 <b>O(n)</b>에 끝내고, 덤으로 최소 소인수표까지 줍니다.",
+   "hint": "",
+   "more": "<b>선형 체(linear sieve, 오일러 체)</b>는 1..n의 소수를 <b>O(n)</b>에 거르는 알고리즘으로, 에라토스테네스의 체(O(n log log n))가 한 합성수를 여러 소인수로 <b>중복해서</b> 지우는 비효율을 없앱니다. 핵심 불변식: <b>각 합성수는 자신의 최소 소인수(spf)에 의해 정확히 한 번만 지워진다</b>. 절차: i를 2..n으로 훑으며, ① i가 아직 안 지워졌으면 <b>소수 목록에 추가</b>; ② 이미 찾은 각 소수 p를 작은 것부터 보며 <b>i·p를 합성수로 표시</b>하되, <b>p가 i를 나누는 순간(p | i) 멈춘다</b>. 이 \"멈춤\" 규칙이 마법: i·p를 지울 때 그 <b>최소 소인수가 p가 되도록</b> 보장하므로(p ≤ spf(i)), 모든 i·p가 서로 다른 (최소소인수, 몫) 쌍이 되어 중복 없이 각 합성수가 한 번만 지워집니다 → 총 연산 O(n). 부산물: 진행 중에 <b>최소 소인수 spf[·]</b>를 공짜로 얻고, 이를 이용해 <b>오일러 피 φ·뫼비우스 μ·약수 개수/합</b> 같은 <b>곱셈적 함수(multiplicative function)</b>를 같은 O(n) 루프에서 함께 채울 수 있습니다(spf로 소수 거듭제곱 부분을 분리). 쓰임: 대량 소수·곱셈적 함수 전처리, spf로 임의 수 O(log n) 소인수분해. 에라토스테네스보다 점근이 약간 낫고(상수는 비슷) 무엇보다 spf·곱셈적 함수 동시 계산이 강점입니다.",
+   "more_en": "The <b>linear sieve (Euler's sieve)</b> finds primes in 1..n in <b>O(n)</b>, eliminating the inefficiency of the sieve of Eratosthenes (O(n log log n)) where a composite is crossed out <b>redundantly</b> by several prime factors. The invariant: <b>each composite is crossed out exactly once, by its smallest prime factor (spf)</b>. Procedure: scan i = 2..n; ① if i is still unmarked, <b>add it to the prime list</b>; ② for each known prime p in increasing order, <b>mark i·p as composite</b>, but <b>break the moment p divides i (p | i)</b>. That \"break\" rule is the magic: it guarantees the <b>smallest prime factor of i·p is p</b> (p ≤ spf(i)), so every i·p is a distinct (smallest-prime, cofactor) pair and each composite is marked once → O(n) total. Byproduct: you get the <b>smallest prime factor spf[·]</b> for free, and can fill <b>multiplicative functions</b> (Euler's φ, Möbius μ, divisor count/sum) in the same O(n) loop (splitting off the prime-power part via spf). Uses: bulk prime / multiplicative-function preprocessing, factoring any number in O(log n) via spf. It is asymptotically slightly better than Eratosthenes (similar constants), and its real strength is computing spf and multiplicative functions simultaneously.",
+   "problem": {
+    "q": "선형 체에서 'p가 i를 나누면 멈춘다(break)'는 규칙이 왜 각 합성수를 한 번만 지우게 하나?",
+    "solution": "i·p를 지울 때 <b>p가 i·p의 최소 소인수</b>가 되도록 보장하기 때문입니다. p | i 이면 그보다 큰 소수 p'로 i·p'를 지우면 그 수의 최소 소인수는 p(여전히 i 안에 있음)가 되어 <b>나중에 또 지워질</b> 것이므로, 거기서 멈춰 \"각 합성수 = (최소소인수)×(몫)\" 한 표현으로만 지웁니다 → 중복 0, O(n).",
+    "q_en": "Why does the 'break when p divides i' rule make the linear sieve cross out each composite once?",
+    "sol_en": "It ensures <b>p is the smallest prime factor of i·p</b>. If p | i, then crossing out i·p' for a larger prime p' would give a number whose smallest prime factor is still p (inside i), to be crossed out later — so we break, marking each composite only as \"(smallest prime)×(cofactor)\" once → no duplicates, O(n)."
+   }
+  },
+  "algo_br_lazyprop": {
+   "ch": "알고리즘 제5장 트리",
+   "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+   "title": "Lazy propagation — 구간 갱신을 미뤄서 O(log n)",
+   "narr": "세그먼트 트리로 \"구간 [l,r] 전체에 +5\"를 잎마다 하면 O(n)으로 느립니다. <b>Lazy propagation</b>은 완전히 덮인 노드에 <b>\"미룬 갱신\" 태그</b>만 달고 멈춰, 구간 갱신·질의를 모두 <b>O(log n)</b>에 합니다.",
+   "hint": "",
+   "more": "<b>Lazy propagation(지연 전파)</b>은 세그먼트 트리에서 <b>구간 갱신</b>(예: [l,r]에 일괄 +x, 또는 일괄 할당)을 <b>O(log n)</b>에 처리하는 기법입니다. 단순 세그먼트 트리는 점 갱신만 O(log n)이고 구간 갱신은 영향받는 잎을 다 고쳐 O(구간 크기)입니다. 핵심 아이디어: <b>구간 갱신을 즉시 자식까지 내리지 말고, 노드에 \"미룬 갱신\"을 lazy 태그로 저장</b>합니다. 갱신 시 [l,r]에 <b>완전히 포함되는 노드</b>를 만나면 그 노드의 합/최댓값을 즉시 갱신하고 <b>lazy 태그만 달고 재귀를 멈춥니다</b>(자식엔 안 내려감). 나중에 그 노드 <b>아래로 내려갈 일이 생기면(다른 질의/갱신이 자식을 봐야 할 때)</b> 비로소 <b>push-down</b>: 저장된 태그를 두 자식에 전파(자식 값·자식 lazy 갱신)하고 자기 태그를 비웁니다. 이렇게 \"필요할 때만\" 내리므로 갱신·질의 모두 O(log n)개 노드만 건드립니다. 주의: <b>태그 합성 규칙</b>이 정확해야 함 — \"더하기\"끼리는 더해 누적, \"할당\"은 이전 더하기를 덮어씀(순서 의존), 합성곱·구간 뒤집기 등 연산마다 결합 규칙 설계 필요. 쓰임: 구간 더하기 + 구간 합/최솟값/최댓값, 구간 할당, 등차수열 더하기, 오일러 투어와 결합한 서브트리 갱신, 좌표 평면(2D는 양 축 lazy). 세그먼트 트리를 \"점\"에서 \"구간\" 갱신으로 끌어올리는 표준 기법입니다.",
+   "more_en": "<b>Lazy propagation</b> lets a segment tree handle <b>range updates</b> (e.g. add x to all of [l,r], or assign a value) in <b>O(log n)</b>. A plain segment tree does point updates in O(log n) but range updates in O(range size) by touching every affected leaf. Key idea: <b>don't push a range update down to children immediately; store it as a lazy tag on the node</b>. During an update, when you reach a node <b>fully contained</b> in [l,r], update its sum/max immediately and <b>just attach a lazy tag, stopping recursion</b> (without descending). Later, when you must <b>go below that node</b> (another query/update needs its children), perform <b>push-down</b>: propagate the stored tag to both children (updating child values and child lazy tags) and clear your own. Descending only \"when needed,\" both updates and queries touch only O(log n) nodes. Caveat: the <b>tag composition rule</b> must be correct — \"adds\" accumulate, an \"assign\" overrides prior adds (order-dependent), and each operation (convolution, range reverse, …) needs a designed combination rule. Uses: range add + range sum/min/max, range assignment, arithmetic-progression add, subtree updates combined with an Euler tour, 2D (lazy on both axes). It is the standard technique lifting a segment tree from point to range updates.",
+   "problem": {
+    "q": "Lazy propagation에서 'push-down'은 언제, 왜 일어나나?",
+    "solution": "어떤 질의나 갱신이 그 노드의 <b>자식을 봐야 할 때(부분적으로만 겹쳐 더 내려가야 할 때)</b> 일어납니다. 노드에 미뤄둔 lazy 태그가 있으면, 자식들이 \"낡은 값\"을 갖고 있으므로 먼저 <b>태그를 두 자식에 전파(값·자식 lazy 갱신)하고 자기 태그를 비운</b> 뒤 내려갑니다. 그래야 자식 값이 정확해집니다.",
+    "q_en": "In lazy propagation, when and why does 'push-down' happen?",
+    "sol_en": "When a query or update must <b>descend into the node's children</b> (it only partially overlaps and must go deeper). If the node has a pending lazy tag, its children hold \"stale\" values, so you first <b>propagate the tag to both children (updating their values and lazy tags) and clear your own</b> before descending — making the children's values correct."
+   }
+  },
+  "algo_br_dilworth": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.1 그래프 기초 ▸ 자세히",
+   "title": "딜워스 정리 — 최소 사슬 분할 = 최대 반사슬",
+   "narr": "부분순서(어떤 원소끼리만 비교 가능)에서, 모든 원소를 덮는 <b>최소 개수의 사슬</b>(서로 비교 가능한 줄) 수가, <b>가장 큰 반사슬</b>(서로 누구도 비교 불가한 집합)의 크기와 정확히 같습니다 — <b>딜워스 정리</b>.",
+   "hint": "",
+   "more": "<b>딜워스 정리(Dilworth's theorem)</b>: 유한 <b>부분순서 집합(poset)</b>에서, 전체를 덮는 데 필요한 <b>최소 사슬(chain, 서로 비교 가능한 원소들의 줄) 개수</b> = <b>최대 반사슬(antichain, 어느 둘도 비교 불가한 원소 집합)의 크기</b>. 직관: 한 사슬은 반사슬의 원소를 최대 하나만 포함할 수 있으므로(반사슬은 서로 비교 불가) 사슬 수 ≥ 최대 반사슬 크기는 자명하고, 딜워스는 그 하한이 <b>정확히 달성됨</b>을 보장합니다. <b>계산</b>: 최소 사슬 분할은 <b>이분 매칭</b>으로 풉니다 — 각 원소 x를 좌측 xₗ·우측 xᵣ로 복제하고 \"x < y\"인 쌍마다 xₗ–yᵣ 간선을 둔 이분 그래프에서 <b>최소 사슬 수 = n − (최대 매칭)</b>(매칭된 간선이 두 원소를 한 사슬로 잇는다). 쌍대인 <b>미르스키 정리(Mirsky)</b>는 반대로 \"최소 반사슬 분할 = 최대 사슬 길이\"(가장 긴 사슬). 특수 경우: 수열을 \"i<j이고 aᵢ≤aⱼ\"로 부분순서 주면, <b>최소 비증가 수열 분할 개수 = 최장 증가 부분수열(LIS) 길이</b>(딜워스), \"최소 감소수열로 덮기\"류 문제가 LIS로 환원됩니다. <b>DAG 최소 경로 덮개</b>(모든 정점을 덮는 최소 경로 수 = n − 최대 이분 매칭)도 같은 틀. 쓰임: 작업 스케줄링(최소 기계 수), 상자 중첩(러시아 인형), 수열 분할, 부분순서 최적화. \"순서 구조의 매칭 쌍대성\"이 핵심으로, 쾨니그·최대유량최소컷과 한 가족입니다.",
+   "more_en": "<b>Dilworth's theorem</b>: in a finite <b>partially ordered set (poset)</b>, the <b>minimum number of chains (sequences of mutually comparable elements) needed to cover everything</b> = the <b>size of the largest antichain (a set of pairwise incomparable elements)</b>. Intuition: a chain can contain at most one element of any antichain (its elements are incomparable), so #chains ≥ max antichain is trivial, and Dilworth guarantees this bound is <b>exactly achieved</b>. <b>Computation</b>: the minimum chain partition is solved by <b>bipartite matching</b> — duplicate each element x into a left xₗ and right xᵣ, add an edge xₗ–yᵣ for each pair x < y; then <b>minimum chains = n − (maximum matching)</b> (each matched edge links two elements into one chain). The dual <b>Mirsky's theorem</b> says \"minimum antichain partition = longest chain.\" Special case: ordering a sequence by \"i<j and aᵢ≤aⱼ,\" the <b>minimum number of non-increasing subsequences covering it = the length of the longest increasing subsequence (LIS)</b> (Dilworth), reducing such cover problems to LIS. The <b>minimum path cover of a DAG</b> (fewest paths covering all vertices = n − maximum bipartite matching) uses the same framework. Uses: job scheduling (fewest machines), box nesting (Russian dolls), sequence partition, poset optimization. The crux is \"the matching duality of order structures,\" in the same family as König and max-flow/min-cut.",
+   "problem": {
+    "q": "딜워스 정리로 최소 사슬 분할을 어떻게 계산하며, LIS와는 어떻게 연결되나?",
+    "solution": "각 원소를 좌·우로 복제해 \"x<y\"마다 간선을 둔 <b>이분 그래프의 최대 매칭</b>을 구하면 <b>최소 사슬 수 = n − 최대매칭</b>입니다(쾨니그·매칭 쌍대). 수열에 \"i<j∧aᵢ≤aⱼ\" 순서를 주면 <b>최소 비증가 부분수열 분할 = LIS 길이</b>가 되어, 딜워스가 그 둘이 같음을 보장합니다.",
+    "q_en": "How is the minimum chain partition computed via Dilworth, and how does it connect to LIS?",
+    "sol_en": "Duplicate each element into left/right, add an edge per \"x<y,\" and find the <b>maximum bipartite matching</b>: <b>minimum chains = n − max matching</b> (matching duality, à la König). Ordering a sequence by \"i<j ∧ aᵢ≤aⱼ\" makes the <b>minimum non-increasing-subsequence partition = LIS length</b>, which Dilworth guarantees are equal."
+   }
+  },
+  "algo_br_modinverse": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.5 해시 테이블 ▸ 자세히",
+   "title": "모듈러 역원 — 나눗셈을 곱셈으로",
+   "narr": "모듈러 산술(mod m)에는 나눗셈이 없습니다. 대신 a로 나누는 것은 <b>a의 역원 a⁻¹</b>(a·a⁻¹ ≡ 1)을 곱하는 것으로 바꿉니다. 이항계수·분수의 모듈러 값 계산의 필수 부품입니다.",
+   "hint": "",
+   "more": "<b>모듈러 역원(modular multiplicative inverse)</b> a⁻¹은 <b>a · a⁻¹ ≡ 1 (mod m)</b>을 만족하는 수로, 모듈러 세계에서 \"a로 나누기\"를 \"a⁻¹ 곱하기\"로 대체합니다(b/a mod m = b·a⁻¹ mod m). <b>존재 조건</b>: a와 m이 <b>서로소(gcd(a,m)=1)</b>일 때만 존재. 구하는 법 세 가지: ① <b>m이 소수</b>이면 페르마의 소정리 a^(m−1)≡1에서 <b>a⁻¹ = a^(m−2) mod m</b>을 빠른 거듭제곱 O(log m)에. ② <b>일반 m</b>(gcd=1)은 <b>확장 유클리드</b>로 a·x + m·y = 1의 정수해 x를 구하면 x mod m이 역원(O(log m)). ③ <b>1..n 일괄</b>: 모든 inv[i]를 점화식 <b>inv[i] = −(m/i)·inv[m mod i] mod m</b>(inv[1]=1)으로 <b>O(n)</b>에 — 이항계수를 mod 소수로 대량 계산할 때 팩토리얼과 그 역원을 미리 깔 때 필수. 함께 쓰는 패턴: <b>C(n,k) mod p = fact[n]·invfact[k]·invfact[n−k]</b>(invfact는 fact[n]의 역원에서 거꾸로 곱해 O(n)). 주의: m이 합성수이고 a가 m과 약수를 공유하면 역원이 <b>없으므로</b>, 그런 경우는 CRT로 소수 거듭제곱별 처리하거나 분자·분모의 공통 소인수를 따로 관리합니다. 쓰임: 조합론 mod 소수, 분수의 모듈러 값, CRT, 다항식 해시, NTT. \"나눗셈 = 역원 곱하기, 역원은 페르마(소수)·확장유클리드(일반)·일괄점화(O(n))\"가 핵심입니다.",
+   "more_en": "A <b>modular multiplicative inverse</b> a⁻¹ satisfies <b>a · a⁻¹ ≡ 1 (mod m)</b>, replacing \"divide by a\" with \"multiply by a⁻¹\" in modular arithmetic (b/a mod m = b·a⁻¹ mod m). <b>Existence</b>: only when a and m are <b>coprime (gcd(a,m)=1)</b>. Three ways to compute it: ① if <b>m is prime</b>, Fermat's little theorem a^(m−1)≡1 gives <b>a⁻¹ = a^(m−2) mod m</b> via fast exponentiation O(log m); ② for <b>general m</b> (gcd=1), <b>extended Euclid</b> finds an integer solution x of a·x + m·y = 1, and x mod m is the inverse (O(log m)); ③ <b>for all of 1..n at once</b>, compute every inv[i] by the recurrence <b>inv[i] = −(m/i)·inv[m mod i] mod m</b> (inv[1]=1) in <b>O(n)</b> — essential for bulk binomial coefficients mod a prime, precomputing factorials and their inverses. A common pattern: <b>C(n,k) mod p = fact[n]·invfact[k]·invfact[n−k]</b> (invfact built by multiplying back from the inverse of fact[n], O(n)). Caveat: if m is composite and a shares a factor with m, no inverse exists, so handle via CRT per prime power or manage common prime factors of numerator/denominator separately. Uses: combinatorics mod a prime, modular value of fractions, CRT, polynomial hashing, NTT. The crux: \"division = multiply by the inverse; compute it via Fermat (prime), extended Euclid (general), or the O(n) recurrence (bulk).\"",
+   "problem": {
+    "q": "m이 소수일 때 a⁻¹ = a^(m−2) mod m 인 이유는?",
+    "solution": "<b>페르마의 소정리</b>: m이 소수이고 a가 m의 배수가 아니면 <b>a^(m−1) ≡ 1 (mod m)</b>. 양변을 a로 보면 a·a^(m−2) ≡ 1 이므로 <b>a^(m−2)가 곧 a⁻¹</b>입니다. 빠른 거듭제곱으로 O(log m)에 계산합니다(단, gcd(a,m)=1, 즉 a가 m의 배수가 아니어야).",
+    "q_en": "Why is a⁻¹ = a^(m−2) mod m when m is prime?",
+    "sol_en": "By <b>Fermat's little theorem</b>, if m is prime and a is not a multiple of m, then <b>a^(m−1) ≡ 1 (mod m)</b>. Writing this as a·a^(m−2) ≡ 1 shows <b>a^(m−2) is a⁻¹</b>, computed in O(log m) by fast exponentiation (requires gcd(a,m)=1, i.e. a not a multiple of m)."
+   }
   }
 }
