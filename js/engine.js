@@ -172,35 +172,40 @@
       if(p.i!=null&&!p.cur){ el.classList.add('clk'); el.onclick=function(){ goTo(p.i); }; } cb.appendChild(el); });
   }
   function updateBranchBtn(sc){ var bb=document.getElementById('branchBtn'); if(!bb) return;
-    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.textContent='🔍 자세히 보기 ('+sc._branches.length+')'; bb.className='btn branch-in'; bb.onclick=enterBranch; }
-    else if(sc.branchOf!=null){ bb.style.display='inline-flex'; bb.textContent='↩ 뼈대로 돌아가기'; bb.className='btn branch-out'; bb.onclick=exitBranch; }
+    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.innerHTML='🔍 자세히 보기 ('+sc._branches.length+')'+kc('↓'); bb.className='btn branch-in'; bb.onclick=enterBranch; }
+    else if(sc.branchOf!=null){ bb.style.display='inline-flex'; bb.innerHTML='나가기'+kc('↑'); bb.className='btn branch-out'; bb.onclick=exitBranch; }
     else { bb.style.display='none'; }
   }
 
   function goTo(i){ if(i<0||i>=SM.scenes.length) return; SM.cur=i; var sc=SM.scenes[i]; S={};
     say(sc.narr||''); if(hintEl)hintEl.textContent=sc.hint||''; if(titleEl)titleEl.textContent=sc.title||''; if(secEl)secEl.textContent=(sc.ch?sc.ch+' · ':'')+(sc.sec||'');
     var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent='#'+(sc._num||(i+1));
-    renderCrumb(sc); updateBranchBtn(sc);
-    var pb=document.getElementById('prev'), nb=document.getElementById('next');
-    if(pb) pb.disabled=(sc._isSpine && sc._spinePos===0);
-    if(nb){ var lastSpine=(sc._isSpine && sc._spinePos===HR.spine.length-1);
-      var lastBranch=(sc.branchOf!=null); // 분기 안에서는 '다음'이 다음 분기/뼈대 복귀
-      nb.textContent=lastSpine?'처음으로 ↺':'다음 ▸'; }
+    renderCrumb(sc); updateBranchBtn(sc); updateNavBtns(sc);
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
     if(sc.enter) sc.enter(E);
     paintTOC(); progress(); blip(660,0.14);
   }
-  // 뼈대 위에서만 선형 이동(분기는 건너뜀). 분기 안에서는 분기 내 이동 후 뼈대 복귀.
+  // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
+  function updateNavBtns(sc){ var pb=document.getElementById('prev'), nb=document.getElementById('next'); if(!pb||!nb) return;
+    if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur), n=sibs.length;
+      pb.innerHTML='◂ 자세히보기 이전'+kc('←'); nb.innerHTML='자세히보기 다음 ▸'+kc('→');
+      pb.disabled=(pos<=0); nb.disabled=(pos>=n-1);
+    } else {
+      pb.innerHTML='◂ 이전'+kc('←'); pb.disabled=(sc._spinePos===0);
+      var lastSpine=(sc._spinePos===HR.spine.length-1);
+      nb.innerHTML=(lastSpine?'처음으로 ↺':'다음 ▸')+kc('→'); nb.disabled=false;
+    } }
+  // 뼈대=선형 이동. 분기 안=형제 분기만 이동(끝에서 멈춤, 복귀는 '나가기'↑).
   function next(){ var sc=SM.scenes[SM.cur];
     if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur);
-      if(pos<sibs.length-1) goTo(sibs[pos+1]); else { var sp=SM.scenes[sc._parentIdx]._spinePos; goTo(sp<HR.spine.length-1?HR.spine[sp+1]:HR.spine[0]); }
+      if(pos<sibs.length-1) goTo(sibs[pos+1]);
     } else { var sp2=sc._spinePos; goTo(sp2<HR.spine.length-1?HR.spine[sp2+1]:HR.spine[0]); }
   }
   function prev(){ var sc=SM.scenes[SM.cur];
     if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur);
-      if(pos>0) goTo(sibs[pos-1]); else goTo(sc._parentIdx);
+      if(pos>0) goTo(sibs[pos-1]);
     } else { if(sc._spinePos>0) goTo(HR.spine[sc._spinePos-1]); }
   }
   function enterBranch(){ var sc=SM.scenes[SM.cur]; if(sc._isSpine && sc._branches && sc._branches.length) goTo(sc._branches[0]); }
@@ -213,6 +218,7 @@
   var codeBodyEl, codeHeadEl, stepStpEl, stepCapEl, sbPrev, sbNext, sbAuto, sbReset;
   var _steps=null, _stepI=0, _autoT=null;
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function kc(k){ return ' <kbd class="kc">'+k+'</kbd>'; }   // 버튼 단축키 표시
   function renderCode(sc){ if(!codeBodyEl) return; var h='';
     for(var i=0;i<sc.code.length;i++){ h+='<div class="cl" data-i="'+i+'"><span class="ln">'+i+'</span><span class="ct">'+escHtml(sc.code[i])+'</span></div>'; }
     codeBodyEl.innerHTML=h; }
@@ -236,9 +242,9 @@
   function stepNext(){ if(_steps&&_stepI<_steps.length-1){ _stepI++; paintStep(); blip(560,0.06); } else stopAuto(); }
   function stepPrev(){ if(_steps&&_stepI>0){ _stepI--; paintStep(); blip(420,0.06); } }
   function stepReset(){ if(_steps){ _stepI=0; paintStep(); stopAuto(); blip(340,0.1); } }
-  function stopAuto(){ if(_autoT){ clearInterval(_autoT); _autoT=null; if(sbAuto) sbAuto.textContent='▶ 자동 재생'; } }
+  function stopAuto(){ if(_autoT){ clearInterval(_autoT); _autoT=null; if(sbAuto) sbAuto.innerHTML='▶ 자동 재생'+kc('S'); } }
   function toggleAuto(){ if(_autoT){ stopAuto(); return; } if(!_steps) return; if(_stepI>=_steps.length-1){ _stepI=0; paintStep(); }
-    if(sbAuto) sbAuto.textContent='⏸ 정지'; _autoT=setInterval(function(){ if(_stepI>=_steps.length-1){ stopAuto(); return; } stepNext(); }, 820); }
+    if(sbAuto) sbAuto.innerHTML='⏸ 정지'+kc('S'); _autoT=setInterval(function(){ if(_stepI>=_steps.length-1){ stopAuto(); return; } stepNext(); }, 820); }
   function setVizMode(sc){ var hasCode=!!(sc.code&&sc.build), concept=!!sc.concept&&!hasCode, viz=hasCode||concept; sc._viz=viz;
     if(document.body){ document.body.classList.toggle('viz',viz); document.body.classList.toggle('viz-concept',concept); }
     stopAuto(); resize();
@@ -319,6 +325,12 @@
       else if(e.key==='ArrowUp'){ exitBranch(); e.preventDefault(); }      // ↑ 뼈대로 나오기
       // Space/Enter = 한 단계 진행 (viz면 다음 스텝, 레거시면 tap). 캔버스 클릭 막힌 환경 대체 입력
       else if(e.key===' '||e.key==='Enter'){ var s=SM.scenes[SM.cur]; if(s&&s._viz&&_steps){ stepNext(); e.preventDefault(); } else if(s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); } }
+      // 애니메이션 스텝 컨트롤: A=이전 D/W=다음 S=자동재생 X=초기화 (코드+스텝 장면에서만)
+      else { var sk=SM.scenes[SM.cur]; if(sk&&sk._viz&&_steps){ var kk=(e.key||'').toLowerCase();
+        if(kk==='d'||kk==='w'){ stepNext(); e.preventDefault(); }
+        else if(kk==='a'){ stepPrev(); e.preventDefault(); }
+        else if(kk==='s'){ toggleAuto(); e.preventDefault(); }
+        else if(kk==='x'){ stepReset(); e.preventDefault(); } } }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
