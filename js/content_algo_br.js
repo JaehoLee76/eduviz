@@ -4928,6 +4928,92 @@
       ctx.fillText('T(n)=T(n/5)+T(7n/10)+O(n) → O(n) (1/5+7/10<1). 최악 보장 O(n) 선택', W/2, H*0.88);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('상수가 커 실무는 랜덤 퀵셀렉트가 보통 빠름. 이론적 최악 보장의 명작(BFPRT)', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_kitamasa', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('키타마사 — 선형 점화식의 N번째 항을 빠르게', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('차수 L 선형점화의 a_N을 행렬거듭제곱(O(L³ log N))보다 빠른 O(L² log N)에', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('aₙ = c₁aₙ₋₁ + … + c_L aₙ₋_L  의 N번째 항', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['아이디어: a_N = Σ (xᴺ mod 특성다항식 f(x))의 계수 · a_초기',
+        'f(x) = xᴸ − c₁xᴸ⁻¹ − … − c_L (특성 다항식)',
+        'xᴺ mod f(x) 를 빠른 거듭제곱 + 다항식 mod 로 계산',
+        '각 곱셈/나머지가 O(L²) (또는 NTT면 O(L log L))'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.40+i*26); });
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+      ctx.fillText('xᴺ을 f(x)로 나눈 나머지(차수<L)의 계수가 곧 초기항 결합 가중치', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('벨캄프-매시로 점화식을 복원한 뒤 키타마사로 N항 — 미지 수열의 강력 콤보', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('행렬거듭제곱과 동치지만 다항식이라 L에 비해 빠름. 거대 N의 피보나치·DP수열', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_hall', concept:true, branchOf:'algo6_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('Hall의 결혼 정리 — 완전 매칭이 가능한 조건', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('왼쪽을 모두 짝지을 수 있다 ⟺ 어떤 부분집합 S도 이웃 수 |N(S)| ≥ |S|', W/2, H*0.10+22);
+      var L=[[0.30,0.30,'a'],[0.30,0.48,'b'],[0.30,0.66,'c']];
+      var R=[[0.70,0.30,'x'],[0.70,0.48,'y'],[0.70,0.66,'z']];
+      var edges=[[0,0],[0,1],[1,1],[2,1],[2,2]];
+      edges.forEach(function(e){ var a=L[e[0]],b=R[e[1]]; ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*a[0],H*a[1]); ctx.lineTo(W*b[0],H*b[1]); ctx.stroke(); });
+      function dots(arr,col){ arr.forEach(function(p){ ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(W*p[0],H*p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText(p[2],W*p[0],H*p[1]+4); }); }
+      dots(L,'#7ab8ff'); dots(R,'#ffb27a');
+      ctx.fillStyle='#ff8d8d'; ctx.font='12px sans-serif'; ctx.fillText('S={b,c}의 이웃 = {y,z}? 아니 {y} → |N(S)|=1 < 2', W/2, H*0.80);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('Hall 조건 위반(b,c가 모두 y만 가리킴) → 완전 매칭 불가능', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('증명·구성은 쾨니그/최대유량과 동치. 결혼·배정·라틴방진·정규그래프 1-인수분해', W/2, H*0.88+18); }
+  },
+
+  { id:'algo_br_altsubseq', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('최장 교대 부분수열 — 오르락내리락 가장 길게', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('연속 차이의 부호가 번갈아(↑↓↑↓) 가장 긴 부분수열. 봉우리·골 개수 세기', W/2, H*0.10+22);
+      // zigzag sequence
+      var vals=[1,5,2,7,3,6,4]; var bx=W*0.16, baseY=H*0.62, gap=(W*0.68)/(vals.length-1);
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
+      vals.forEach(function(v,i){ var x=bx+i*gap, y=baseY-v*H*0.05; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+      vals.forEach(function(v,i){ var x=bx+i*gap, y=baseY-v*H*0.05; var ext=(i>0&&i<vals.length-1); ctx.fillStyle=ext?'#ffb27a':'#8fe3b5'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(v,x,baseY+16); });
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('주황 = 봉우리/골(방향 전환점)', W/2, H*0.78);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+      ctx.fillText('up = (aᵢ>aᵢ₋₁ ? down+1 : up),  down = (aᵢ<aᵢ₋₁ ? up+1 : down)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('탐욕/DP로 O(n): 방향이 바뀔 때마다 길이 +1. 답 = max(up, down)', W/2, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('LIS는 O(n log n)인데 교대수열은 단조 구간을 한 점으로 줄여 O(n). 주식 거래 변형', W/2, H*0.92+18); }
+  },
+
+  { id:'algo_br_multipoint', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('다항식 다중점 평가·보간 — 분할 정복 + 나머지', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('n차 다항식을 n개 점에서 한꺼번에 평가/보간을 O(n log²n)에. 곱-나무 + 나머지 트리', W/2, H*0.10+22);
+      // product tree of (x-xi)
+      var nodes=[[0.5,0.28,'∏(x−xᵢ)'],[0.28,0.52,'(x−x₀)(x−x₁)'],[0.72,0.52,'(x−x₂)(x−x₃)'],[0.16,0.76,'x−x₀'],[0.40,0.76,'x−x₁']];
+      function xy(t){ return [W*0.1+t[0]*W*0.8, H*0.24+t[1]*H*0.5]; }
+      var edges=[[0,1],[0,2],[1,3],[1,4]];
+      edges.forEach(function(e){ var a=xy(nodes[e[0]]),b=xy(nodes[e[1]]); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); });
+      nodes.forEach(function(n,i){ var p=xy(n); ctx.fillStyle=i===0?'rgba(255,178,122,0.18)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=i===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; var w=n[2].length*7+12; ctx.fillRect(p[0]-w/2,p[1]-12,w,24); ctx.strokeRect(p[0]-w/2,p[1]-12,w,24); ctx.fillStyle='#dfeefb'; ctx.font='10px monospace'; ctx.fillText(n[2],p[0],p[1]+3); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('평가: P(xᵢ) = P mod (x−xᵢ). 곱-나무를 내려가며 P를 나머지로 쪼갬', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 층 다항식 나눗셈 O(n log n)(NTT) × log n 층 = O(n log²n). 보간은 역과정', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('라그랑주 보간을 n점에 한꺼번에. 비밀분산 복원·생성함수·CRT 다항식판', W/2, H*0.88+20); }
   }
 
   ];
