@@ -3149,6 +3149,105 @@
       ctx.fillText('decrease-key는 노드를 잘라 뿌리로(O(1)). 다익스트라/프림이 이론상 O(E + V log V)로', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('상수가 커 실무는 이진/쌍 힙이 보통 더 빠름. 이론적 하한을 보여 주는 명품 자료구조', W/2, H*0.84+20); }
+  },
+
+  { id:'algo_br_veb', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('van Emde Boas 트리 — 정수 키를 O(log log U)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('0..U−1 정수 키에서 삽입·삭제·후속자(successor)를 비교 한계(log n)보다 빠르게', W/2, H*0.10+22);
+      // recursive split: U into sqrt(U) clusters + summary
+      var topY=H*0.30;
+      ctx.fillStyle='rgba(255,178,122,0.18)'; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2;
+      ctx.fillRect(W*0.5-70,topY,140,32); ctx.strokeRect(W*0.5-70,topY,140,32);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif'; ctx.fillText('summary (√U 개 클러스터 중 빈/참)', W/2, topY+20);
+      var cy=H*0.56, k=4, cw=W*0.16;
+      for(var i=0;i<k;i++){ var x=W*0.16+i*(cw+W*0.04);
+        ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2,topY+32); ctx.lineTo(x+cw/2,cy); ctx.stroke();
+        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2;
+        ctx.fillRect(x,cy,cw,30); ctx.strokeRect(x,cy,cw,30);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.fillText('클러스터 '+i,x+cw/2,cy+20); }
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('전체 우주 U를 √U개 클러스터 + 요약(summary)으로 재귀 분해', W/2, H*0.76);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 연산은 클러스터 안 또는 요약 중 한 쪽으로만 재귀 → T(U)=T(√U)+O(1)=O(log log U)', W/2, H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('min/max를 따로 저장해 재귀를 한 번 끊는 게 핵심. 메모리 O(U)(축소판은 해시로). 정수 전용 우선순위 큐', W/2, H*0.86+20); }
+  },
+
+  { id:'algo_br_wavelet', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('웨이블릿 트리 — 구간 k번째 값·등수를 O(log σ)에', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('값의 비트(또는 중앙값)로 수열을 반복해 좌/우로 가르며, 각 층에 "어디로 갔는지" 비트맵 저장', W/2, H*0.10+22);
+      // top array, split into left(small) right(big)
+      var arr=[3,1,4,1,5,2,6]; var bx=W*0.5-(arr.length*40)/2, by=H*0.28, cw=36;
+      for(var i=0;i<arr.length;i++){ var x=bx+i*40; var small=arr[i]<=3;
+        ctx.fillStyle=small?'rgba(122,184,255,0.2)':'rgba(255,178,122,0.2)'; ctx.strokeStyle=small?'#7ab8ff':'#ffb27a'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,by,cw,28); ctx.strokeRect(x,by,cw,28);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(arr[i],x+cw/2,by+19);
+        ctx.fillStyle='#6a6873'; ctx.font='10px sans-serif'; ctx.fillText(small?'0':'1',x+cw/2,by+40); }
+      ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.fillText('비트맵(≤중앙값?0:1) — rank로 좌/우 위치 추적', W/2, by+54);
+      // two children
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.fillText('왼쪽(작은 값): 3 1 1 2', W*0.3, H*0.62);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('오른쪽(큰 값): 4 5 6', W*0.72, H*0.62);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('질의: 비트맵 rank로 구간을 자식으로 사상하며 내려가 k번째/등수/빈도 계산', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('값 종류 σ에 대해 높이 log σ, 각 층 O(1) rank → 구간 k번째 값·X 이하 개수 O(log σ)', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('정적 배열의 "압축된 만능 질의기". Mo·머지소트트리·영속세그의 대안', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_pairingheap', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('쌍 힙(Pairing Heap) — 단순하고 빠른 합치기 힙', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('두 힙을 "루트가 작은 쪽 밑에 붙이기"로 합침. 피보나치 힙의 실전적 대안', W/2, H*0.10+22);
+      // meld: two roots -> smaller becomes parent
+      function node(x,y,t,col,r){ ctx.fillStyle=col==='r'?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=col==='r'?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,r||15,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(t,x,y+4); }
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 13px sans-serif'; ctx.fillText('합치기(meld): 루트가 작은 힙 밑에 큰 힙을 자식으로', W/2, H*0.30);
+      // result tree: root 3 with children 5(and its child 8), 7
+      var root=[W*0.5,H*0.44]; node(root[0],root[1],'3','r');
+      var ch=[[W*0.30,H*0.64,'5'],[W*0.5,H*0.64,'7'],[W*0.70,H*0.64,'9']];
+      ch.forEach(function(c){ ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(root[0],root[1]); ctx.lineTo(c[0],c[1]); ctx.stroke(); node(c[0],c[1],c[2],'',13); });
+      // grandchild
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(ch[0][0],ch[0][1]); ctx.lineTo(ch[0][0]-W*0.06,H*0.82); ctx.stroke(); node(ch[0][0]-W*0.06,H*0.82,'8','',11);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('insert·decrease-key·merge = meld 한 번으로 O(1). 정리는 delete-min에서만', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('delete-min: 루트 제거 후 자식들을 둘씩 짝지어 합치고(two-pass) 다시 합침. 실측 매우 빠름', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_ukkonen', concept:true, branchOf:'algo4_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('우코넨 — 접미사 트리를 O(n)에 짓기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 문자열의 모든 접미사를 압축 트라이(접미사 트리)로, 한 글자씩 온라인으로 선형 시간에', W/2, H*0.10+22);
+      // suffix tree for "banana$" (illustrative compressed trie)
+      var root=[W*0.5,H*0.28];
+      function node(x,y,r){ ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,r||9,0,Math.PI*2); ctx.fill(); ctx.stroke(); }
+      function edge(a,b,lbl,col){ ctx.strokeStyle=col||'rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); ctx.fillStyle=col?'#ffb27a':'#8fe3b5'; ctx.font='11px sans-serif'; ctx.fillText(lbl,(a[0]+b[0])/2+10,(a[1]+b[1])/2); }
+      var kids=[[W*0.18,H*0.56,'a'],[W*0.40,H*0.56,'na'],[W*0.62,H*0.56,'banana$'],[W*0.84,H*0.56,'$']];
+      kids.forEach(function(k){ edge(root,k,k[2]); node(k[0],k[1]); });
+      node(root[0],root[1],11);
+      // suffix link (dashed)
+      ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(kids[1][0],kids[1][1]); ctx.quadraticCurveTo(W*0.3,H*0.7,kids[0][0],kids[0][1]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.fillText('접미사 링크(suffix link)', W*0.30, H*0.74);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('간선에 [시작,끝] 인덱스만 저장(전역 끝=암묵 확장), 접미사 링크로 다음 위치로 점프', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"활성점 + 남은 개수 + 전역 끝" 규칙으로 각 글자 분할상환 O(1) → 전체 O(n)', W/2, H*0.91);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('부분문자열 검색·최장 반복·여러 문자열 LCS. 접미사 배열+LCP가 더 단순한 대안', W/2, H*0.91+18); }
   }
 
   ];
