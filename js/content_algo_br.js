@@ -2422,6 +2422,107 @@
       ctx.fillText('스프라그-그런디 정리: 모든 공정 게임은 님 더미 하나와 동치. 독립 게임의 합 = 그런디 수의 XOR', W/2, H*0.80+20);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('mex(집합) = 집합에 없는 가장 작은 음 아닌 정수. 예: mex{0,1,3}=2', W/2, H*0.80+40); }
+  },
+
+  { id:'algo_br_pollard', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('폴라드 로 — 큰 합성수의 약수를 빠르게', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('수열 x→x²+c (mod n)이 ρ(로)처럼 순환. 그 주기에서 약수가 새어나온다', W/2, H*0.10+22);
+      // draw a rho-shaped path: a tail leading into a cycle
+      var cx=W*0.62, cy=H*0.48, r=H*0.18;
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W*0.20,H*0.30); ctx.lineTo(cx-r*0.72,cy-r*0.72); ctx.stroke();
+      // dots
+      ctx.fillStyle='#8fe3b5';
+      var tail=[[0.20,0.30],[0.27,0.345],[0.34,0.39],[0.41,0.435]];
+      tail.forEach(function(t){ ctx.beginPath(); ctx.arc(W*t[0],H*t[1],5,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='#6a6873'; ctx.font='12px sans-serif';
+      ctx.fillText('x₀ → x₁ → x₂ → …', W*0.27, H*0.27);
+      ctx.fillText('꼬리(tail)', W*0.30, H*0.46);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('순환(cycle)', cx, cy);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('gcd( |xᵢ − x₂ᵢ| , n ) 가 1도 n도 아니면 → 그 값이 약수!', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('플로이드 거북-토끼로 순환 탐지. 기대 시간 O(n^¼) — 시행착오 나눗셈보다 압도적으로 빠름', W/2, H*0.88);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('밀러-라빈으로 소수 판정 + 폴라드 로로 약수 추출 → 큰 수 소인수분해의 표준 조합', W/2, H*0.88+20); }
+  },
+
+  { id:'algo_br_lucas', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('뤼카 정리 — 이항계수를 소수 p로 나눈 나머지', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('C(n, k) mod p 를, n·k를 p진법으로 적어 자릿수별 작은 조합의 곱으로', W/2, H*0.10+22);
+      // example C(7,3) mod 3 ; 7=21_3, 3=10_3
+      ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('예: C(7, 3) mod 3', W/2, H*0.30);
+      ctx.font='600 15px sans-serif';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('7 = (2 1)₃', W*0.34, H*0.42);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('3 = (1 0)₃', W*0.66, H*0.42);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 17px sans-serif';
+      ctx.fillText('C(7,3) ≡ C(2,1) × C(1,0)  (mod 3)', W/2, H*0.56);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('≡ 2 × 1 = 2  (mod 3)', W/2, H*0.68);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('자릿수별 C(nᵢ, kᵢ)의 곱. 어떤 자리에서 kᵢ > nᵢ 이면 그 항이 0 → 전체가 0', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('n이 10^18처럼 거대해도 p가 작은 소수면 O(log_p n) 자리만 계산. 조합론 mod 소수의 핵심', W/2, H*0.82+20); }
+  },
+
+  { id:'algo_br_incexc', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('포함배제 원리 — 겹친 것을 더하고 빼며 세기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('|A∪B∪C| = (각각 더하기) − (둘씩 겹침 빼기) + (셋 겹침 다시 더하기)', W/2, H*0.10+22);
+      // three overlapping circles
+      var cyc=H*0.50, r=H*0.20, cx=W/2;
+      var circ=[[cx-r*0.7,cyc-r*0.4,'#7ab8ff','A'],[cx+r*0.7,cyc-r*0.4,'#8fe3b5','B'],[cx,cyc+r*0.7,'#ffb27a','C']];
+      ctx.lineWidth=2.5;
+      circ.forEach(function(c){ ctx.strokeStyle=c[2]; ctx.fillStyle=c[2].replace(')',',0.10)').replace('#','rgba(').length? c[2]:c[2];
+        ctx.beginPath(); ctx.arc(c[0],c[1],r,0,Math.PI*2);
+        ctx.globalAlpha=0.12; ctx.fillStyle=c[2]; ctx.fill(); ctx.globalAlpha=1; ctx.stroke(); });
+      circ.forEach(function(c){ ctx.fillStyle=c[2]; ctx.font='600 18px sans-serif';
+        ctx.fillText(c[3], c[0]+(c[3]==='A'?-r*0.5:c[3]==='B'?r*0.5:0), c[1]+(c[3]==='C'?r*0.5:-r*0.4)); });
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+      ctx.fillText('|A∪B∪C| = |A|+|B|+|C| − |A∩B|−|A∩C|−|B∩C| + |A∩B∩C|', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('홀수 개 교집합은 더하고(+), 짝수 개는 뺀다(−). 일반화: Σ (−1)^(|S|+1) |∩S|', W/2, H*0.84+20);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('쓰임: "어떤 조건도 만족 안 하는 것" 세기(여사건), 오일러 피·뫼비우스·교란순열(완전순열)', W/2, H*0.84+38); }
+  },
+
+  { id:'algo_br_catalan', concept:true, branchOf:'algo7_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('카탈란 수 — 올바른 괄호·이진트리·경로의 개수', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('Cₙ = 1,1,2,5,14,42,… 서로 달라 보이는 수많은 문제가 모두 이 한 수열', W/2, H*0.10+22);
+      // sequence boxes
+      var seq=[['C₀',1],['C₁',1],['C₂',2],['C₃',5],['C₄',14],['C₅',42]];
+      var bw=80, bx=W*0.5-(seq.length*bw)/2, by=H*0.28;
+      for(var i=0;i<seq.length;i++){ var x=bx+i*bw;
+        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,by,bw-10,40); ctx.strokeRect(x,by,bw-10,40);
+        ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText(seq[i][0],x+(bw-10)/2,by-6);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.fillText(seq[i][1],x+(bw-10)/2,by+26); }
+      // C3=5 balanced parentheses
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif';
+      ctx.fillText('C₃ = 5 가지 올바른 괄호: ((())) (()()) (())() ()(()) ()()()', W/2, H*0.50);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif';
+      ctx.fillText('Cₙ = C(2n, n) / (n+1) = Σ Cᵢ · Cₙ₋₁₋ᵢ', W/2, H*0.64);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('점화식 = 첫 괄호 안(i쌍)과 밖(n−1−i쌍)으로 쪼개 곱하고 더하기 → DP로 O(n²) 또는 공식 O(n)', W/2, H*0.78);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('같은 수: 노드 n개 이진트리 모양, 격자 대각선 안 넘는 경로, 다각형 삼각분할, 스택 가능한 순열', W/2, H*0.88); }
   }
 
   ];

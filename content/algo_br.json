@@ -1843,5 +1843,65 @@
     "q_en": "How do you decide the winner of several impartial games played at once?",
     "sol_en": "By the <b>Sprague-Grundy theorem</b>, compute each game's Grundy number and <b>XOR them all</b>. XOR=0 means the player to move loses (P-position); nonzero means they win. Nim is the special case where a pile's Grundy number equals its size."
    }
+  },
+  "algo_br_pollard": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.5 해시 테이블 ▸ 자세히",
+   "title": "폴라드 로 — 큰 합성수의 약수를 빠르게",
+   "narr": "1000자리 수의 약수를 어떻게 찾을까요? 하나씩 나눠 보면 너무 느립니다. <b>폴라드 로(ρ)</b>는 순환하는 수열을 만들어, 그 <b>주기에서 약수를 새어 나오게</b> 하는 기발한 확률 알고리즘입니다.",
+   "hint": "",
+   "more": "<b>폴라드 로(Pollard's rho)</b>는 큰 <b>합성수 n의 비자명한 약수</b>를 기대 <b>O(n^¼)</b>에 찾는 확률 알고리즘입니다(시행착오 나눗셈 O(√n)보다 훨씬 빠름). 아이디어: 의사난수 수열 <b>xₖ₊₁ = (xₖ² + c) mod n</b>을 만들면, 값이 n가지뿐이라 언젠가 <b>반드시 순환</b>합니다 — 꼬리와 고리가 그리스 문자 <b>ρ(로)</b> 모양이라 이름이 그렇습니다. 핵심은 \"n으로 본 수열\"의 순환보다 \"<b>n의 미지의 약수 p로 본 수열</b>\"의 순환이 <b>훨씬 빨리</b>(약 √p ≈ n^¼ 만에) 옵니다. 그래서 두 항 xᵢ, x₂ᵢ가 <b>p로는 같지만 n으로는 다른</b> 순간이 생기고, 그때 <b>gcd(|xᵢ − x₂ᵢ|, n)</b>이 1도 n도 아닌 <b>진짜 약수</b>가 됩니다. 순환 탐지는 <b>플로이드 거북-토끼</b>(한 칸·두 칸)로 추가 메모리 없이 합니다. 실패(gcd=n)하면 c를 바꿔 재시도. <b>밀러-라빈</b>(소수 판정)과 짝지어, n이 소수면 그대로 두고 합성수면 폴라드 로로 쪼개기를 재귀하면 <b>거대한 수의 완전 소인수분해</b>가 됩니다 — RSA 키 크기 추정의 바탕이기도 합니다.",
+   "more_en": "<b>Pollard's rho</b> finds a <b>non-trivial divisor of a large composite n</b> in expected <b>O(n^¼)</b> — far faster than O(√n) trial division. Idea: build a pseudo-random sequence <b>xₖ₊₁ = (xₖ² + c) mod n</b>; with only n possible values it <b>must eventually cycle</b> — the tail and loop look like the Greek letter <b>ρ (rho)</b>. The trick: the sequence cycles <b>much sooner modulo an unknown prime factor p of n</b> (in about √p ≈ n^¼ steps) than modulo n. So two terms xᵢ and x₂ᵢ become <b>equal mod p but different mod n</b>, and then <b>gcd(|xᵢ − x₂ᵢ|, n)</b> is a <b>real divisor</b> (neither 1 nor n). Cycle detection uses <b>Floyd's tortoise-and-hare</b> (one step vs two) with no extra memory; on failure (gcd=n) change c and retry. Paired with <b>Miller-Rabin</b> (primality), leaving primes alone and recursively splitting composites yields <b>full factorization of huge numbers</b> — the basis for estimating safe RSA key sizes.",
+   "problem": {
+    "q": "폴라드 로에서 gcd(|xᵢ − x₂ᵢ|, n)이 약수를 내놓는 이유는?",
+    "solution": "수열은 <b>미지의 약수 p로 보면</b> n으로 볼 때보다 훨씬 빨리 순환합니다. 그래서 두 항이 <b>p로는 같지만(차가 p의 배수) n으로는 다른</b> 순간이 오고, 그 차와 n의 gcd가 p를 품은 진짜 약수가 됩니다.",
+    "q_en": "Why does gcd(|xᵢ − x₂ᵢ|, n) yield a divisor in Pollard's rho?",
+    "sol_en": "The sequence cycles much sooner <b>modulo an unknown factor p</b> than modulo n. So two terms become <b>equal mod p (their difference is a multiple of p) but differ mod n</b>, and the gcd of that difference with n is a genuine divisor containing p."
+   }
+  },
+  "algo_br_lucas": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "뤼카 정리 — 이항계수를 소수로 나눈 나머지",
+   "narr": "C(10^18, 10^9) 를 소수 p로 나눈 나머지를 어떻게 구할까요? 직접 계산은 불가능합니다. <b>뤼카 정리</b>는 n과 k를 <b>p진법</b>으로 적어, <b>자릿수별 작은 조합의 곱</b>으로 바꿔 줍니다.",
+   "hint": "",
+   "more": "<b>뤼카 정리(Lucas' theorem)</b>는 소수 p에 대해 <b>C(n, k) mod p</b>를 빠르게 구합니다. n과 k를 <b>p진법</b>으로 적어 n = (nₘ … n₁ n₀)ₚ, k = (kₘ … k₁ k₀)ₚ 라 하면: <b>C(n, k) ≡ C(nₘ, kₘ) × … × C(n₁, k₁) × C(n₀, k₀)  (mod p)</b> — 즉 <b>각 자릿수끼리의 작은 이항계수의 곱</b>입니다. 어느 자리에서 <b>kᵢ > nᵢ</b>이면 C(nᵢ, kᵢ)=0이므로 <b>전체가 0</b>입니다(예: C(7,3) mod 3 → 7=21₃, 3=10₃ → C(2,1)·C(1,0)=2·1=2). 자릿수는 <b>log_p n</b>개뿐이고 각 항은 0 ≤ nᵢ, kᵢ < p 라 작은 표나 모듈러 역원으로 즉시 구하므로, n이 10^18처럼 거대해도 <b>O(p + log_p n)</b>에 끝납니다. p가 큰 소수면 한 자리(자기 자신)만 남아 일반 모듈러 조합과 같아집니다. 모듈러가 <b>소수의 거듭제곱</b>이면 <b>안드레프/그랜빌 확장</b>을 씁니다. 조합 수를 소수로 다루는 경쟁 프로그래밍의 기본기입니다.",
+   "more_en": "<b>Lucas' theorem</b> computes <b>C(n, k) mod p</b> for a prime p. Write n and k in <b>base p</b>: n = (nₘ … n₁ n₀)ₚ, k = (kₘ … k₁ k₀)ₚ. Then <b>C(n, k) ≡ C(nₘ, kₘ) × … × C(n₀, k₀)  (mod p)</b> — the <b>product of small per-digit binomial coefficients</b>. If any digit has <b>kᵢ > nᵢ</b>, then C(nᵢ, kᵢ)=0 and the <b>whole product is 0</b> (e.g. C(7,3) mod 3 → 7=21₃, 3=10₃ → C(2,1)·C(1,0)=2·1=2). There are only <b>log_p n</b> digits, each with 0 ≤ nᵢ, kᵢ < p computed instantly via a small table or modular inverse, so even n ≈ 10^18 finishes in <b>O(p + log_p n)</b>. For a large prime p only one digit remains and it reduces to ordinary modular binomials. For <b>prime-power moduli</b>, use the Andrew Granville extension. A staple for handling combinations modulo a prime in competitive programming.",
+   "problem": {
+    "q": "C(7,3) mod 3 을 뤼카 정리로 계산하면?",
+    "solution": "7과 3을 3진법으로: 7=(2 1)₃, 3=(1 0)₃. 자릿수별 곱 <b>C(2,1)×C(1,0) = 2×1 = 2</b>. 따라서 C(7,3) ≡ 2 (mod 3). (실제 C(7,3)=35, 35 mod 3 = 2로 일치)",
+    "q_en": "Compute C(7,3) mod 3 using Lucas' theorem.",
+    "sol_en": "Write 7 and 3 in base 3: 7=(2 1)₃, 3=(1 0)₃. The per-digit product is <b>C(2,1)×C(1,0) = 2×1 = 2</b>, so C(7,3) ≡ 2 (mod 3). (Indeed C(7,3)=35 and 35 mod 3 = 2.)"
+   }
+  },
+  "algo_br_incexc": {
+   "ch": "알고리즘 제8장 설계 패러다임",
+   "sec": "8.3 P vs NP ▸ 자세히",
+   "title": "포함배제 원리 — 겹친 것을 더하고 빼며 세기",
+   "narr": "\"3 또는 5의 배수\"를 세려고 둘을 그냥 더하면, <b>15의 배수가 두 번</b> 세집니다. <b>포함배제</b>는 겹친 만큼 빼고, 더 깊이 겹친 건 다시 더해 정확히 셉니다.",
+   "hint": "",
+   "more": "<b>포함배제 원리(Inclusion-Exclusion)</b>는 여러 집합의 <b>합집합 크기</b>를 정확히 셉니다. 두 집합이면 |A∪B| = |A|+|B|−|A∩B|, 세 집합이면 <b>|A∪B∪C| = |A|+|B|+|C| − |A∩B|−|A∩C|−|B∩C| + |A∩B∩C|</b>. 규칙: <b>홀수 개의 교집합은 더하고(+), 짝수 개는 뺀다(−)</b>. 일반식은 <b>|∪Aᵢ| = Σ over 비어있지 않은 S ⊆ {1..n} of (−1)^(|S|+1) |∩(i∈S) Aᵢ|</b>. 자주 쓰는 형태는 <b>여사건</b>: \"어떤 조건도 만족하지 않는 것의 수\" = 전체 − |∪(조건들)|. 응용: ① <b>오일러 피 함수</b> φ(n) — n의 서로 다른 소인수 집합에 포함배제, ② <b>교란순열(완전순열, derangement)</b> — 제자리에 오는 원소가 하나도 없는 순열 수 D(n) = n!·Σ(−1)ᵏ/k!, ③ \"특정 배수가 아닌 수 세기\", ④ <b>뫼비우스 함수</b>가 곧 정수론판 포함배제, ⑤ 비트마스크 DP에서 부분집합을 도는 형태(=SOS DP와 연결). 교집합 항이 2ⁿ개라 n이 작을 때(또는 구조가 단순할 때) 강력합니다.",
+   "more_en": "<b>Inclusion-Exclusion</b> counts the <b>size of a union</b> exactly. For two sets |A∪B| = |A|+|B|−|A∩B|; for three, <b>|A∪B∪C| = |A|+|B|+|C| − |A∩B|−|A∩C|−|B∩C| + |A∩B∩C|</b>. Rule: <b>add odd-sized intersections (+), subtract even-sized ones (−)</b>. The general form is <b>|∪Aᵢ| = Σ over non-empty S ⊆ {1..n} of (−1)^(|S|+1) |∩(i∈S) Aᵢ|</b>. A common use is the <b>complement</b>: \"count of things satisfying no condition\" = total − |∪(conditions)|. Applications: ① <b>Euler's totient</b> φ(n) via inclusion-exclusion over n's distinct prime factors, ② <b>derangements</b> D(n) = n!·Σ(−1)ᵏ/k! (permutations with no fixed point), ③ counting numbers not divisible by given values, ④ the <b>Möbius function</b> is number-theoretic inclusion-exclusion, ⑤ subset-iterating bitmask DP (linking to SOS DP). With 2ⁿ intersection terms it shines when n is small or the structure is simple.",
+   "problem": {
+    "q": "1부터 100까지 중 3 또는 5의 배수는 몇 개인가? 포함배제로.",
+    "solution": "3의 배수 ⌊100/3⌋=33, 5의 배수 ⌊100/5⌋=20, 15의 배수(겹침) ⌊100/15⌋=6. 포함배제로 <b>33 + 20 − 6 = 47</b>개. 겹치는 15의 배수를 한 번 빼 주는 것이 핵심입니다.",
+    "q_en": "How many integers in 1..100 are divisible by 3 or 5? Use inclusion-exclusion.",
+    "sol_en": "Multiples of 3: ⌊100/3⌋=33, of 5: ⌊100/5⌋=20, of 15 (overlap): ⌊100/15⌋=6. Inclusion-exclusion gives <b>33 + 20 − 6 = 47</b> — subtracting the doubly-counted multiples of 15 once."
+   }
+  },
+  "algo_br_catalan": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "카탈란 수 — 괄호·트리·경로를 세는 한 수열",
+   "narr": "올바른 괄호 배열의 수, 노드 n개 이진트리의 모양 수, 격자에서 대각선을 안 넘는 경로 수 — 전혀 달라 보이는 이 문제들의 답이 <b>모두 같은 수열</b> Cₙ = 1, 1, 2, 5, 14, 42, …",
+   "hint": "",
+   "more": "<b>카탈란 수(Catalan number)</b> Cₙ = 1, 1, 2, 5, 14, 42, 132, … 은 수많은 조합 문제의 공통 답입니다. 정의는 둘: <b>닫힌 공식</b> Cₙ = C(2n, n)/(n+1), <b>점화식</b> <b>Cₙ = Σ(i=0..n−1) Cᵢ · Cₙ₋₁₋ᵢ</b> (C₀=1). 점화식의 뜻: 올바른 괄호열에서 <b>맨 앞 '('와 짝이 되는 ')'</b>를 기준으로, 그 <b>안쪽(i쌍)</b>과 <b>바깥쪽(n−1−i쌍)</b>으로 갈라 각각 독립적으로 세어 곱하고, 짝 위치 i를 모두 더합니다 — 전형적인 \"쪼개서 곱하고 더하는\" DP라 <b>O(n²)</b>, 공식으로는 <b>O(n)</b>. 같은 Cₙ로 세어지는 것들: ① <b>올바른 괄호열</b> n쌍 (C₃=5: ((())),(()()),(())(),()(()),()()()), ② <b>노드 n개 이진트리</b>의 서로 다른 모양 수, ③ n+1개 항의 <b>곱셈 괄호 매기기</b>(행렬 연쇄와 같은 구조), ④ (n)×(n) 격자에서 <b>대각선을 넘지 않는</b> 단조 경로, ⑤ 볼록 (n+2)각형의 <b>삼각분할</b> 수, ⑥ 스택으로 만들 수 있는 순열(스택 정렬 가능). 서로 다른 옷을 입은 같은 구조를 알아보는 것이 조합론의 묘미입니다.",
+   "more_en": "The <b>Catalan numbers</b> Cₙ = 1, 1, 2, 5, 14, 42, 132, … answer a remarkable variety of combinatorial problems. Two definitions: the <b>closed form</b> Cₙ = C(2n, n)/(n+1) and the <b>recurrence</b> <b>Cₙ = Σ(i=0..n−1) Cᵢ · Cₙ₋₁₋ᵢ</b> (C₀=1). The recurrence's meaning: in a valid parenthesis string, split at the <b>')' matching the first '('</b> into the part <b>inside (i pairs)</b> and <b>outside (n−1−i pairs)</b>, count each independently, multiply, and sum over the match position i — a classic \"split, multiply, add\" DP giving <b>O(n²)</b>, or <b>O(n)</b> via the formula. Things Cₙ counts: ① <b>balanced parentheses</b> of n pairs (C₃=5), ② distinct shapes of <b>binary trees with n nodes</b>, ③ ways to <b>parenthesize</b> n+1 factors (same structure as matrix-chain), ④ monotone lattice paths in an n×n grid that <b>don't cross the diagonal</b>, ⑤ <b>triangulations</b> of a convex (n+2)-gon, ⑥ stack-sortable permutations. Recognizing one structure under many disguises is the joy of combinatorics.",
+   "problem": {
+    "q": "노드가 3개인 서로 다른 이진트리 모양은 몇 가지인가?",
+    "solution": "<b>C₃ = 5</b>가지입니다. 카탈란 점화식 C₃ = C₀C₂ + C₁C₁ + C₂C₀ = 1·2 + 1·1 + 2·1 = 5, 또는 공식 C(6,3)/4 = 20/4 = 5. 올바른 괄호열 3쌍의 가짓수와 정확히 같습니다.",
+    "q_en": "How many distinct shapes of binary tree have exactly 3 nodes?",
+    "sol_en": "<b>C₃ = 5</b>. By the Catalan recurrence C₃ = C₀C₂ + C₁C₁ + C₂C₀ = 1·2 + 1·1 + 2·1 = 5, or the formula C(6,3)/4 = 20/4 = 5 — exactly the number of balanced parenthesis strings of 3 pairs."
+   }
   }
 }
