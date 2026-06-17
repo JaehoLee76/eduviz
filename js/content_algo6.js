@@ -1,4 +1,4 @@
-/* 알고리즘 제6장 그래프 — VIZ 포맷 (CLRS 20·22장 의사코드 반영)
+/* 알고리즘 제6장 그래프 — VIZ 포맷
    소개·표현=concept, BFS·DFS·다익스트라=코드+스텝. 텍스트는 content/algo6.json. */
 (function(){
   var BLU='#7ab8ff', ORA='#ffb27a', GRN='#8fe3b5', PNK='#f4a0c0', DIM='#6f6e7a';
@@ -47,7 +47,7 @@
       ctx.fillText('인접 리스트  '+NAME[s.sel]+' → ['+ADJ[s.sel].map(function(i){return NAME[i];}).join(', ')+']', E.W/2, E.H*0.82); }
   },
 
-  // ══════════ 6.2 BFS — 너비 우선 탐색 (코드+스텝, CLRS 20.2) ══════════
+  // ══════════ 6.2 BFS — 너비 우선 탐색 (코드+스텝) ══════════
   { id:'algo6_03',
     code:[
       'BFS(G, s) {',
@@ -135,7 +135,7 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('정점 라벨 = 발견시간 / 종료시간', V.W/2, V.H*0.885); }
   },
 
-  // ══════════ 6.3 다익스트라 — 최단 경로 (코드+스텝, CLRS 22.3 RELAX) ══════════
+  // ══════════ 6.3 다익스트라 — 최단 경로 (코드+스텝) ══════════
   { id:'algo6_05',
     code:[
       'DIJKSTRA(G, w, s) {',

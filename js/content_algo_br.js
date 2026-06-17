@@ -1,4 +1,4 @@
-/* 알고리즘 — 분기(세부) 장면. 뼈대 장면에서 branchOf로 갈라짐. 자료(CLRS) 충실 반영의 시작.
+/* 알고리즘 — 분기(세부) 장면. 뼈대 장면에서 branchOf로 갈라짐. 자료 충실 반영의 시작.
    동작(behavior)만. 텍스트는 content/algo_br.json. AV 사용. */
 (function(){
   // 노드 가장자리~가장자리 화살표(방향 그래프). p=[x,y] 픽셀, r=노드 반지름
@@ -20,7 +20,7 @@
 
   var scenes=[
 
-  // ══════ 퀵정렬(algo3_05) ▸ 최악의 경우 O(n²) (CLRS 7.2) ══════
+  // ══════ 퀵정렬(algo3_05) ▸ 최악의 경우 O(n²) ══════
   { id:'algo_br_qs1', concept:true, branchOf:'algo3_05',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, levels=[[1,2,3,4,5,6],[1,2,3,4,5],[1,2,3,4],[1,2,3],[1,2]], top=E.H*0.22, lh=E.H*0.10, cell=34, cx=E.W/2;
@@ -34,7 +34,7 @@
       E.big('이미 정렬된 입력 + 끝값 피벗 = O(n²)', '퀵정렬 최악의 경우 — 분할이 (n−1):0으로 치우쳐 깊이 n. 좋은 피벗이 관건 (다음 분기: 랜덤화)'); }
   },
 
-  // ══════ 퀵정렬(algo3_05) ▸ 랜덤화된 퀵정렬 (CLRS 7.3) ══════
+  // ══════ 퀵정렬(algo3_05) ▸ 랜덤화된 퀵정렬 ══════
   { id:'algo_br_qs2', concept:true, branchOf:'algo3_05',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.30;
@@ -52,7 +52,7 @@
       E.big('랜덤화된 퀵정렬 = 기대 O(n log n)', '피벗을 무작위로 고르면 최악(정렬된 입력)을 입력이 아닌 운에 맡겨, 어떤 입력에도 기대 O(n log n). 실전 표준'); }
   },
 
-  // ══════ 빅오(algo1_03) ▸ 마스터 정리 (CLRS 4.5) ══════
+  // ══════ 빅오(algo1_03) ▸ 마스터 정리 ══════
   { id:'algo_br_master', concept:true, branchOf:'algo1_03',
     enter:function(E){ this.s={k:0}; this.ex=[
         {r:'T(n)=2T(n/2)+n', a:2,b:2,f:'n', cmp:'n^(log₂2)=n¹ = f(n)', res:'Θ(n log n)', note:'병합정렬 (case 2)'},
@@ -70,7 +70,7 @@
       E.big('마스터 정리 — 점화식을 한눈에', '분할정복 T(n)=a·T(n/b)+f(n)의 복잡도를 n^(log_b a)와 f(n)의 비교로 즉결. 재귀 트리를 풀지 않고 답!'); }
   },
 
-  // ══════ 병합(algo3_04) ▸ 정렬의 하한 (CLRS 8.1, 결정 트리) ══════
+  // ══════ 병합(algo3_04) ▸ 정렬의 하한 (결정 트리) ══════
   { id:'algo_br_lb', concept:true, branchOf:'algo3_04',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, top=E.H*0.20;
@@ -90,7 +90,7 @@
       E.big('비교 정렬의 한계 — Ω(n log n)', '비교만으로 정렬하는 모든 알고리즘 = 결정 트리. n!개 결과를 구분하려면 높이 ≥ log₂(n!) → 어떤 비교정렬도 O(n log n)보다 빠를 수 없음!'); }
   },
 
-  // ══════ 병합(algo3_04) ▸ 계수 정렬 (CLRS 8.2) ══════
+  // ══════ 병합(algo3_04) ▸ 계수 정렬 ══════
   { id:'algo_br_count', concept:true, branchOf:'algo3_04',
     enter:function(E){ this.A=[2,5,3,0,2,3,0,3]; this.K=6; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, A=this.A, K=this.K, cnt=[];
@@ -106,7 +106,7 @@
       E.big('계수 정렬 — 비교 없이 O(n + k)', '값의 범위 k가 작을 때, 비교 대신 각 값의 개수를 세서 정렬! 하한 Ω(n log n)을 우회(비교를 안 하니까). 안정 정렬'); }
   },
 
-  // ══════ 병합(algo3_04) ▸ 기수 정렬 (CLRS 8.3) ══════
+  // ══════ 병합(algo3_04) ▸ 기수 정렬 ══════
   { id:'algo_br_radix', concept:true, branchOf:'algo3_04',
     enter:function(E){ this.base=[329,457,657,839,436,720,355]; this.s={pass:0}; E.setOn([]); },
     tap:function(E){ this.s.pass=(this.s.pass+1)%4; E.blip(440+this.s.pass*60,0.1); },
@@ -122,7 +122,7 @@
       E.big('기수 정렬 — 자릿수별로 O(d(n+k))', '낮은 자리(1의자리)부터 높은 자리로, 각 자리를 계수정렬(안정)로 반복. d자리면 d번. 자릿수가 적으면 사실상 선형!'); }
   },
 
-  // ══════ 퀵(algo3_05) ▸ 순서 통계 / quickselect (CLRS 9) ══════
+  // ══════ 퀵(algo3_05) ▸ 순서 통계 / quickselect ══════
   { id:'algo_br_select', concept:true, branchOf:'algo3_05',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2;
@@ -137,7 +137,7 @@
       E.big('순서 통계 — k번째 값을 평균 O(n)', '퀵정렬은 양쪽 다 재귀(O(n log n))지만, k번째만 찾을 땐 k가 있는 한쪽만 재귀 → 평균 O(n)! (정렬 안 하고 중앙값 찾기)'); }
   },
 
-  // ══════ 힙(algo5_04) ▸ 힙 정렬 (CLRS 6.4) ══════
+  // ══════ 힙(algo5_04) ▸ 힙 정렬 ══════
   { id:'algo_br_heapsort', concept:true, branchOf:'algo5_04',
     enter:function(E){ this.s={step:0}; this.snaps=this.build(); E.setOn([]); },
     build:function(){ // 힙에서 최댓값을 끝으로 빼는 과정 스냅샷
@@ -153,7 +153,7 @@
       E.big('힙 정렬 — O(n log n), 제자리', '최대 힙(5장)의 루트=최댓값을 끝으로 빼고 힙 크기를 줄여 sift-down 반복. 추가 메모리 없이(in-place) O(n log n)!'); }
   },
 
-  // ══════ 힙(algo5_04) ▸ 힙 만들기 build-heap O(n) (CLRS 6.3) ══════
+  // ══════ 힙(algo5_04) ▸ 힙 만들기 build-heap O(n) ══════
   { id:'algo_br_buildheap', concept:true, branchOf:'algo5_04',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.30;
@@ -168,7 +168,7 @@
       E.big('build-heap = O(n) (놀랍게도!)', 'n개를 힙으로 만드는 건 O(n log n)이 아니라 O(n). 바닥 노드가 압도적으로 많고 그들의 이동 거리가 짧아서 — 합이 O(n)으로 수렴'); }
   },
 
-  // ══════ DFS(algo6_04) ▸ 위상 정렬 (CLRS 20.4) ══════
+  // ══════ DFS(algo6_04) ▸ 위상 정렬 ══════
   { id:'algo_br_topo', concept:true, branchOf:'algo6_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -184,7 +184,7 @@
       E.big('위상 정렬 — 순서가 있는 작업 줄세우기', '방향 비순환 그래프(DAG)에서 "A→B면 A가 먼저"를 모두 만족하는 일렬 순서. DFS 끝나는 역순! 작업 스케줄·빌드 의존성·선수과목'); }
   },
 
-  // ══════ DFS(algo6_04) ▸ 강연결요소 SCC (CLRS 20.5) ══════
+  // ══════ DFS(algo6_04) ▸ 강연결요소 SCC ══════
   { id:'algo_br_scc', concept:true, branchOf:'algo6_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -200,7 +200,7 @@
       E.big('강연결요소(SCC) — 서로 도달 가능한 덩어리', '방향 그래프에서 "서로 오갈 수 있는" 정점들의 최대 그룹. DFS 두 번(원그래프+역그래프)으로 O(V+E)에 찾음. 웹·SNS 군집 분석'); }
   },
 
-  // ══════ 다익스트라(algo6_05) ▸ 벨만-포드 (CLRS 22.1) ══════
+  // ══════ 다익스트라(algo6_05) ▸ 벨만-포드 ══════
   { id:'algo_br_bellman', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -214,7 +214,7 @@
       E.big('벨만-포드 — 음수 간선도 OK', '모든 간선을 V−1번 반복 완화(relax). 다익스트라(그리디)와 달리 음수 가중치 허용! O(VE). 한 번 더 완화되면 음수 사이클 존재 = 탐지'); }
   },
 
-  // ══════ 다익스트라(algo6_05) ▸ 플로이드-워셜 (CLRS 23.2) ══════
+  // ══════ 다익스트라(algo6_05) ▸ 플로이드-워셜 ══════
   { id:'algo_br_floyd', concept:true, branchOf:'algo6_05',
     enter:function(E){ this.s={k:0}; E.setOn([]);
       var INF=9; var d0=[[0,3,INF,7],[8,0,2,INF],[5,INF,0,1],[2,INF,INF,0]];
@@ -232,7 +232,7 @@
       E.big('플로이드-워셜 — 모든 쌍 최단경로', 'k를 거쳐 더 짧아지면 갱신, k=모든 정점 반복 → 모든 쌍 동시 해결! 삼중 반복 O(V³), 동적계획법(7장). 음수 간선 OK'); }
   },
 
-  // ══════ 다익스트라(algo6_05) ▸ 최소 신장 트리 MST (CLRS 21) ══════
+  // ══════ 다익스트라(algo6_05) ▸ 최소 신장 트리 MST ══════
   { id:'algo_br_mst', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -246,7 +246,7 @@
       E.big('최소 신장 트리(MST) — 최소 비용 연결', '모든 정점을 사이클 없이 잇는 가장 싼 방법. 크루스칼(간선 정렬+union-find로 사이클 회피) / 프림(다익스트라처럼 우선순위큐로 성장). 둘 다 그리디!'); }
   },
 
-  // ══════ BST(algo5_03) ▸ 레드블랙 트리 (CLRS 13) ══════
+  // ══════ BST(algo5_03) ▸ 레드블랙 트리 ══════
   { id:'algo_br_rbt', concept:true, branchOf:'algo5_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -264,7 +264,7 @@
       E.big('레드블랙 트리 — 스스로 균형 잡는 BST', 'BST가 한쪽으로 치우치는 걸 막는 자가균형 트리(5장 #24). 노드에 빨강/검정 색을 칠하고 삽입·삭제 시 회전+재색칠로 O(log n) 보장. map·set·DB 인덱스'); }
   },
 
-  // ══════ 균형(algo5_05) ▸ B-트리 (CLRS 18) ══════
+  // ══════ 균형(algo5_05) ▸ B-트리 ══════
   { id:'algo_br_btree', concept:true, branchOf:'algo5_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -283,7 +283,7 @@
       E.big('B-트리 — 디스크·DB를 위한 다진(多進) 트리', '한 노드가 키를 여러 개 담아 자식이 많은 낮고 넓은 트리. 디스크 블록 하나=노드 하나로 읽어 디스크 접근을 최소화 → 데이터베이스·파일시스템 인덱스의 표준'); }
   },
 
-  // ══════ 균형(algo5_05) ▸ union-find 서로소 집합 (CLRS 19) ══════
+  // ══════ 균형(algo5_05) ▸ union-find 서로소 집합 ══════
   { id:'algo_br_uf', concept:true, branchOf:'algo5_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -300,7 +300,7 @@
       E.big('union-find — 집합 합치고·찾기', '"이 둘이 같은 그룹?"을 거의 O(1)에. 각 원소가 부모를 가리키는 트리 숲 + 두 기법(union by rank, path compression)으로 초고속. MST 크루스칼·네트워크 연결성·이미지 분할'); }
   },
 
-  // ══════ DP 두 조건(algo7_04) ▸ 막대 자르기 (CLRS 14.1) ══════
+  // ══════ DP 두 조건(algo7_04) ▸ 막대 자르기 ══════
   { id:'algo_br_rod', concept:true, branchOf:'algo7_04',
     enter:function(E){ this.p=[0,1,5,8,9,10,17,17,20]; this.s={n:4}; E.setOn([]);
       E.controls('<div class="ctrl"><label>막대 길이 n</label><input type="range" id="nn" min="1" max="8" step="1" value="4"><output id="nno">4</output></div>');
@@ -318,7 +318,7 @@
       E.big('막대 '+n+' = '+pieces.join('+')+' 자르기 → 최대 ₩'+r[n], '막대 자르기 — DP의 고전. r[n]=max over j (가격[j] + r[n−j]). 자르는 모든 방법을 표로 따져 최대 수익! (안 자른 통짜보다 이득일 때가 많음)'); }
   },
 
-  // ══════ 격자 DP(algo7_05) ▸ 최장 공통 부분수열 LCS (CLRS 14.4) ══════
+  // ══════ 격자 DP(algo7_05) ▸ 최장 공통 부분수열 LCS ══════
   { id:'algo_br_lcs', concept:true, branchOf:'algo7_05',
     enter:function(E){ this.X='ABCB'; this.Y='BDCB'; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, X=this.X, Y=this.Y, m=X.length, n=Y.length;
@@ -335,7 +335,7 @@
       E.big('LCS("'+X+'", "'+Y+'") = '+dp[m][n]+'  ("BCB")', '최장 공통 부분수열 — 두 문자열에 공통으로(순서대로) 나타나는 가장 긴 수열. 격자 DP(7장). DNA 비교·diff·맞춤법 교정의 핵심'); }
   },
 
-  // ══════ 격자 DP(algo7_05) ▸ 0/1 배낭 (CLRS 부록/고전 DP) ══════
+  // ══════ 격자 DP(algo7_05) ▸ 0/1 배낭 ══════
   { id:'algo_br_knap', concept:true, branchOf:'algo7_05',
     enter:function(E){ this.items=[[2,3],[3,4],[4,5],[5,6]]; this.cap=5; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, it=this.items, cap=this.cap, n=it.length;
@@ -352,7 +352,7 @@
       E.big('최대 가치 = ₩'+dp[n][cap]+' (용량 '+cap+'kg)', '0/1 배낭 — 각 물건을 담거나 말거나, 무게 한도 내 가치 최대화. dp[i][w] 표를 채워 해결(7장 격자 DP). 자원 배분의 대표 문제'); }
   },
 
-  // ══════ 복잡도 등급표(algo1_05) ▸ 분할상환 분석 (CLRS 16) ══════
+  // ══════ 복잡도 등급표(algo1_05) ▸ 분할상환 분석 ══════
   { id:'algo_br_amort', concept:true, branchOf:'algo1_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, N=16, x0=E.W*0.16, w=E.W*0.68, bw=w/N, baseY=E.H*0.66, unit=E.H*0.034;
@@ -368,10 +368,10 @@
       ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(x0,baseY-3*unit); ctx.lineTo(x0+w,baseY-3*unit); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('분할상환 평균 ≈ 3 = O(1)', x0+w-160, baseY-3*unit-6);
       ctx.fillStyle='#f4a0c0'; ctx.textAlign='center'; ctx.fillText('분홍 = 배열 꽉 참 → 2배로 복사(가끔 비쌈)', E.W/2, E.H*0.74);
-      E.big('분할상환 분석 — 가끔 비싸도 평균은 싸다', '동적 배열 push는 보통 O(1)이지만 꽉 차면 2배 복사(O(n)). 그래도 n번 총비용 = n+(1+2+4+…) ≈ 3n → 1번당 평균 O(1)! 최악 1회가 아닌 "긴 안목"의 분석(CLRS 16)'); }
+      E.big('분할상환 분석 — 가끔 비싸도 평균은 싸다', '동적 배열 push는 보통 O(1)이지만 꽉 차면 2배 복사(O(n)). 그래도 n번 총비용 = n+(1+2+4+…) ≈ 3n → 1번당 평균 O(1)! 최악 1회가 아닌 "긴 안목"의 분석'); }
   },
 
-  // ══════ 선형 탐색(algo4_01) ▸ 문자열 매칭 KMP (CLRS 32) ══════
+  // ══════ 선형 탐색(algo4_01) ▸ 문자열 매칭 KMP ══════
   { id:'algo_br_kmp', concept:true, branchOf:'algo4_01',
     enter:function(E){ E.setOn([]); this.T='ABABABCABAB'; this.P='ABABC'; },
     draw:function(E){ var ctx=E.ctx, T=this.T, P=this.P, cell=Math.min(48,E.W*0.06), x0=E.W/2-T.length*cell/2, y=E.H*0.34;
@@ -389,7 +389,7 @@
       E.big('문자열 매칭(KMP) — O(n+m)', '긴 텍스트에서 패턴 찾기. 순진한 방법은 불일치마다 처음부터(O(nm)). KMP는 "실패 함수"로 이미 일치한 접두사를 활용해 안 돌아가 O(n+m)! 검색·DNA·grep'); }
   },
 
-  // ══════ P vs NP(algo8_04) ▸ 근사 알고리즘 (CLRS 35) ══════
+  // ══════ P vs NP(algo8_04) ▸ 근사 알고리즘 ══════
   { id:'algo_br_approx', concept:true, branchOf:'algo8_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.26;
@@ -400,10 +400,10 @@
       ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif';
       ctx.fillText('예) TSP(삼각부등식) — MST 기반 2-근사 (최적의 2배 이내)', cx, y0+112);
       ctx.fillText('예) 정점 커버 — 간선 양끝 모두 선택, 2-근사', cx, y0+138);
-      E.big('근사 알고리즘 — 최적은 못 풀어도', 'P≠NP라면 NP-난해 문제의 최적해는 사실상 불가. 대신 "최적의 c배 이내"를 다항시간에 보장하는 근사 알고리즘으로 현실 문제를 풉니다(CLRS 35). 휴리스틱과 함께 실전의 답'); }
+      E.big('근사 알고리즘 — 최적은 못 풀어도', 'P≠NP라면 NP-난해 문제의 최적해는 사실상 불가. 대신 "최적의 c배 이내"를 다항시간에 보장하는 근사 알고리즘으로 현실 문제를 풉니다. 휴리스틱과 함께 실전의 답'); }
   },
 
-  // ══════ 분할정복(algo8_03) ▸ 스트라센 행렬곱 (CLRS 4.2) ══════
+  // ══════ 분할정복(algo8_03) ▸ 스트라센 행렬곱 ══════
   { id:'algo_br_strassen', concept:true, branchOf:'algo8_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y=E.H*0.34;
@@ -432,7 +432,7 @@
       E.big('FFT — 곱셈을 O(n log n)으로', '고속 푸리에 변환. 다항식·큰수 곱셈을 O(n²)에서 O(n log n)으로! 짝/홀 분할정복 + 복소수 단위근(수학 10장). 신호처리·이미지·음향의 심장'); }
   },
 
-  // ══════ 다익스트라(algo6_05) ▸ 최대 플로우 (CLRS 24) ══════
+  // ══════ 다익스트라(algo6_05) ▸ 최대 플로우 ══════
   { id:'algo_br_maxflow', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -447,7 +447,7 @@
       E.big('최대 플로우 — 최대 유량 = 최소 컷', '관(간선 용량)으로 s→t에 물을 최대한 흘리기. 증가 경로를 찾아 반복(포드-풀커슨). ★최대 유량 = 최소 컷(병목)! 네트워크·매칭·이미지 분할'); }
   },
 
-  // ══════ 해시(algo2_05) ▸ 개방 주소법 (CLRS 11.4) ══════
+  // ══════ 해시(algo2_05) ▸ 개방 주소법 ══════
   { id:'algo_br_openaddr', concept:true, branchOf:'algo2_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, M=7, cell=58, x0=E.W/2-M*cell/2, y=E.H*0.42;
@@ -461,7 +461,7 @@
       E.big('개방 주소법 — 충돌 시 다음 칸으로', '해시 충돌(2장)을 연결리스트 대신 "테이블 안에서" 해결. 자리 차면 다음 빈칸 탐사(선형/이차/이중해시). 캐시 친화적, 부하율 낮을 때 빠름'); }
   },
 
-  // ══════ 해시(algo2_05) ▸ RSA 암호 (CLRS 31, 정수론) ══════
+  // ══════ 해시(algo2_05) ▸ RSA 암호 (정수론) ══════
   { id:'algo_br_rsa', concept:true, branchOf:'algo2_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.24;
@@ -480,7 +480,7 @@
       E.big('RSA — 인수분해의 어려움이 곧 보안', '두 소수 곱은 쉽지만 되돌리기(인수분해)는 어렵다. 이 비대칭으로 공개키 암호 구현. 빠른 거듭제곱 mod + 유클리드 + 소수판정. HTTPS·전자서명의 토대'); }
   },
 
-  // ══════ 스택(algo2_03) ▸ 볼록 껍질 (CLRS 33, 계산기하) ══════
+  // ══════ 스택(algo2_03) ▸ 볼록 껍질 (계산기하) ══════
   { id:'algo_br_hull', concept:true, branchOf:'algo2_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -496,7 +496,7 @@
       E.big('볼록 껍질 — 점들을 감싸는 최소 다각형', '흩어진 점들을 고무줄로 감싼 바깥 경계. 그레이엄 스캔: 각도순 정렬(3장) + 스택(2장)으로 O(n log n). 충돌 감지·패턴 인식·지도'); }
   },
 
-  // ══════ P vs NP(algo8_04) ▸ 선형계획법 (CLRS 29) ══════
+  // ══════ P vs NP(algo8_04) ▸ 선형계획법 ══════
   { id:'algo_br_lp', concept:true, branchOf:'algo8_04',
     enter:function(E){ E.Plot.range(-0.5,5,-0.5,4); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
@@ -528,7 +528,7 @@
       E.big('확장 유클리드 — 모듈러 역원의 열쇠', '유클리드 호제법을 거꾸로 따라가며 ax+by=gcd의 x,y를 구합니다(베주 항등식). gcd가 1이면 x가 곧 a의 모듈러 역원 → RSA의 비밀키 d 계산, 중국인의 나머지 정리에 필수'); }
   },
 
-  // ══════ 분할정복(algo8_03) ▸ 가장 가까운 점 쌍 (CLRS 33.4) ══════
+  // ══════ 분할정복(algo8_03) ▸ 가장 가까운 점 쌍 ══════
   { id:'algo_br_closest', concept:true, branchOf:'algo8_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -543,7 +543,7 @@
       E.big('가장 가까운 점 쌍 — O(n log n)', '평면 점들 중 가장 가까운 두 점. 모든 쌍 비교는 O(n²)지만, 분할정복(좌우로 쪼개 각각 + 경계 띠만 검사)으로 O(n log n)! 충돌감지·군집화·지도 서비스'); }
   },
 
-  // ══════ 그리디(algo8_01) ▸ 활동 선택 문제 (CLRS 15.1, 코드+스텝) ══════
+  // ══════ 그리디(algo8_01) ▸ 활동 선택 문제 (코드+스텝) ══════
   { id:'algo_br_actsel', branchOf:'algo8_01',
     code:[
       'GREEDY-ACTIVITY(s, f) {      // 끝나는 시각 f로 정렬',
@@ -577,7 +577,7 @@
         ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('a'+(i+1), X(a[1])+6, y+rh/2-1); }); }
   },
 
-  // ══════ DP(algo7_03) ▸ 최장 증가 부분수열 LIS (CLRS 14, 코드+스텝) ══════
+  // ══════ DP(algo7_03) ▸ 최장 증가 부분수열 LIS (코드+스텝) ══════
   { id:'algo_br_lis', branchOf:'algo7_03',
     code:[
       'LIS(A) {                   // 최장 증가 부분수열',
@@ -605,7 +605,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.fillText('아래 숫자 dp[i] = i에서 끝나는 최장 증가 길이', V.W/2, info.y+info.bw+56); }
   },
 
-  // ══════ 삽입정렬(algo3_03) ▸ 루프 불변식 정확성 (CLRS 2.1, concept) ══════
+  // ══════ 삽입정렬(algo3_03) ▸ 루프 불변식 정확성 (concept) ══════
   { id:'algo_br_insinv', concept:true, branchOf:'algo3_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, arr=[2,4,5,7,3,8,1,6], sortedLen=4;
@@ -615,7 +615,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.fillText('아직 안 본 부분 ▶', E.W*0.74, E.H*0.54); }
   },
 
-  // ══════ 그리디(algo8_01) ▸ 허프만 코딩 (CLRS 15.3, concept) ══════
+  // ══════ 그리디(algo8_01) ▸ 허프만 코딩 (concept) ══════
   { id:'algo_br_huffman', concept:true, branchOf:'algo8_01',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, top=E.H*0.18, lg=E.H*0.16;
@@ -629,7 +629,7 @@
       ctx.fillText('코드: A=0  B=10  C=110  D=111  (자주 쓰는 A가 가장 짧음!)', cx, top+4*lg); }
   },
 
-  // ══════ 격자DP(algo7_05) ▸ 편집 거리 (CLRS 14, 코드+스텝) ══════
+  // ══════ 격자DP(algo7_05) ▸ 편집 거리 (코드+스텝) ══════
   { id:'algo_br_editdist', branchOf:'algo7_05',
     code:[
       'EDIT-DIST(A, B) {                 // A→B 최소 편집',
@@ -669,7 +669,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.fillText('주황=A 문자(행) / 초록=B 문자(열) / 초록칸=참고한 이웃', V.W/2, y0+(f.m+1)*cell+6); }
   },
 
-  // ══════ 타뷸레이션(algo7_03) ▸ 행렬 연쇄 곱셈 (CLRS 14.2, concept) ══════
+  // ══════ 타뷸레이션(algo7_03) ▸ 행렬 연쇄 곱셈 (concept) ══════
   { id:'algo_br_matchain', concept:true, branchOf:'algo7_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2;
@@ -681,7 +681,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('DP로 모든 분할점을 시도해 최소 비용 괄호화를 O(n³)에 찾음', cx, E.H*0.74); }
   },
 
-  // ══════ DFS(algo6_04) ▸ 간선 분류 (CLRS 20.3, concept) ══════
+  // ══════ DFS(algo6_04) ▸ 간선 분류 (concept) ══════
   { id:'algo_br_edgeclass', concept:true, branchOf:'algo6_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, x0=E.W*0.18, y0=E.H*0.24, lh=E.H*0.13, len=E.W*0.16;
@@ -696,7 +696,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('발견/종료 시간으로 네 종류를 구분 — 후향 간선이 있으면 사이클!', E.W/2, y0+4*lh+10); }
   },
 
-  // ══════ 다익스트라(algo6_05) ▸ 정확성(그리디 불변식) (CLRS 22.3, concept) ══════
+  // ══════ 다익스트라(algo6_05) ▸ 정확성(그리디 불변식) (concept) ══════
   { id:'algo_br_dij_proof', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W*0.42, cy=E.H*0.42;
@@ -710,7 +710,7 @@
       ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.fillText('→ 꺼낸 u의 d[u]는 최종 최단거리(더 줄 수 없음)', cx, cy+E.H*0.30); }
   },
 
-  // ══════ 그리디(algo8_01) ▸ 분할 가능 배낭 (CLRS 15 종합문제, 코드+스텝) ══════
+  // ══════ 그리디(algo8_01) ▸ 분할 가능 배낭 (코드+스텝) ══════
   { id:'algo_br_fracknap', branchOf:'algo8_01',
     code:[
       'FRACTIONAL-KNAPSACK(items, W) {  // 가치/무게 내림차순',
@@ -749,7 +749,7 @@
       ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('가방: '+f.used+'/'+f.W+'    총가치 '+f.total, V.W/2, gy+40); }
   },
 
-  // ══════ 해시(algo2_05) ▸ 체이닝 충돌 해결 (CLRS 11.2, concept) ══════
+  // ══════ 해시(algo2_05) ▸ 체이닝 충돌 해결 (concept) ══════
   { id:'algo_br_chaining', concept:true, branchOf:'algo2_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, M=5, bx=E.W*0.30, by=E.H*0.20, bw=120, bh=Math.min(46,E.H*0.09);
@@ -766,7 +766,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('같은 버킷에 충돌한 키들을 연결 리스트로 묶음', E.W/2, by+M*(bh+8)+10); }
   },
 
-  // ══════ 균형(algo5_05) ▸ 레드블랙 회전 (CLRS 13.2, concept) ══════
+  // ══════ 균형(algo5_05) ▸ 레드블랙 회전 (concept) ══════
   { id:'algo_br_rotate', concept:true, branchOf:'algo5_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -785,7 +785,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.fillText('순서 α<x<β<y<γ 는 그대로 — BST 규칙 보존, 높이만 재조정', E.W/2, t+3*g); }
   },
 
-  // ══════ BST(algo5_03) ▸ BST 삽입 (CLRS 12.3, 코드+스텝) ══════
+  // ══════ BST(algo5_03) ▸ BST 삽입 (코드+스텝) ══════
   { id:'algo_br_bstins', branchOf:'algo5_03',
     code:[
       'TREE-INSERT(T, z) {           // z = 새 키',
@@ -811,7 +811,7 @@
     draw:function(V,f){ drawTreeB(V, f.T, function(j){ if(j===f.ins) return {fill:'rgba(143,227,181,0.35)',stroke:'#8fe3b5',text:'#8fe3b5',tag:'삽입!'}; if(j===f.cur) return {fill:'rgba(255,178,122,0.32)',stroke:'#ffb27a',text:'#ffb27a'}; if(f.path.indexOf(j)>=0) return {fill:'rgba(255,178,122,0.16)',stroke:'#ffb27a',text:'#ffb27a'}; return null; }, {lg:V.H*0.15,r:19}); }
   },
 
-  // ══════ BST(algo5_03) ▸ BST 삭제 (CLRS 12.3, concept) ══════
+  // ══════ BST(algo5_03) ▸ BST 삭제 (concept) ══════
   { id:'algo_br_bstdel', concept:true, branchOf:'algo5_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, T=[8,3,10,1,6,null,14];
@@ -879,7 +879,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('dp[a] = a원을 만드는 최소 동전 수 (동전 1,3,4)', V.W/2, info.y+info.bw+34); }
   },
 
-  // ══════ 힙(algo5_04) ▸ 힙 삽입 sift-up (CLRS 6.5, 코드+스텝) ══════
+  // ══════ 힙(algo5_04) ▸ 힙 삽입 sift-up (코드+스텝) ══════
   { id:'algo_br_heapins', branchOf:'algo5_04',
     code:[
       'MAX-HEAP-INSERT(H, key) {',
@@ -906,7 +906,7 @@
     draw:function(V,f){ drawTreeB(V, f.H, function(j){ if(j===f.cur)return {fill:'rgba(255,178,122,0.32)',stroke:'#ffb27a',text:'#ffb27a',tag:'올라가는 중'}; if(j===f.parent)return {fill:'rgba(244,160,192,0.25)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'부모'}; if(j===0)return {fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5'}; return null; }, {lg:V.H*0.16,r:19}); }
   },
 
-  // ══════ P vs NP(algo8_04) ▸ 환원(reduction) (CLRS 34.3, concept) ══════
+  // ══════ P vs NP(algo8_04) ▸ 환원(reduction) (concept) ══════
   { id:'algo_br_reduction', concept:true, branchOf:'algo8_04',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.42;
@@ -1074,7 +1074,7 @@
         ctx.fillStyle=prime?(isP?'#ffb27a':'#8fe3b5'):'#5a5f6b'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+(cell-4)/2,y+(cell-4)/2); ctx.textBaseline='alphabetic'; } }
   },
 
-  // ══════ 그래프(algo6_01) ▸ 이분 매칭 (CLRS 25, concept) ══════
+  // ══════ 그래프(algo6_01) ▸ 이분 매칭 (concept) ══════
   { id:'algo_br_bipmatch', concept:true, branchOf:'algo6_01',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -1101,7 +1101,7 @@
       ctx.fillStyle='#8fe3b5'; ctx.fillText('회전 후 균형 (높이차 ≤1)', E.W*0.76, E.H*0.82); }
   },
 
-  // ══════ 종합(algo8_05) ▸ k-means 클러스터링 (CLRS 33, concept) ══════
+  // ══════ 종합(algo8_05) ▸ k-means 클러스터링 (concept) ══════
   { id:'algo_br_kmeans', concept:true, branchOf:'algo8_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -1113,7 +1113,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('점=데이터, ▲=군집 중심. 가까운 중심에 배정 → 중심 재계산 → 반복', E.W/2, E.H*0.78); }
   },
 
-  // ══════ 종합(algo8_05) ▸ 경사하강법 (CLRS 33, concept) ══════
+  // ══════ 종합(algo8_05) ▸ 경사하강법 (concept) ══════
   { id:'algo_br_graddesc', concept:true, branchOf:'algo8_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, baseY=E.H*0.70, w=E.W*0.52, x0=cx-w/2, amp=E.H*0.4;
@@ -1147,7 +1147,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('노드 1과 9의 최소 공통 조상(LCA) = 8 — 양쪽으로 갈라지는 가장 깊은 노드', E.W/2, E.H*0.88); }
   },
 
-  // ══════ 균형(algo5_05) ▸ 레드블랙 삽입 fixup (CLRS 13.3, concept) ══════
+  // ══════ 균형(algo5_05) ▸ 레드블랙 삽입 fixup (concept) ══════
   { id:'algo_br_rbfix', concept:true, branchOf:'algo5_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -1160,7 +1160,7 @@
       ctx.fillStyle='#8fe3b5'; ctx.fillText('회전 + 재색칠로 복구', E.W*0.76, E.H*0.8); }
   },
 
-  // ══════ 배열(algo2_01) ▸ 분할상환 3기법 (CLRS 16, concept) ══════
+  // ══════ 배열(algo2_01) ▸ 분할상환 3기법 (concept) ══════
   { id:'algo_br_amort3', concept:true, branchOf:'algo2_01',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.22;
@@ -1171,7 +1171,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('동적 배열 2배 확장: n번 push 총 O(n) → 한 번당 평균(분할상환) O(1)', cx, y0+E.H*0.48); }
   },
 
-  // ══════ 분할정복(algo8_03) ▸ 병렬 알고리즘 (CLRS 26, concept) ══════
+  // ══════ 분할정복(algo8_03) ▸ 병렬 알고리즘 (concept) ══════
   { id:'algo_br_parallel', concept:true, branchOf:'algo8_03',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;
@@ -1179,7 +1179,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('병렬 합산: 같은 층은 동시에! 작업량(work) O(n), 깊이(span) O(log n) → 병렬도 n/log n', E.W/2, E.H*0.88); }
   },
 
-  // ══════ 그리디(algo8_01) ▸ 온라인 알고리즘 (CLRS 27, concept) ══════
+  // ══════ 그리디(algo8_01) ▸ 온라인 알고리즘 (concept) ══════
   { id:'algo_br_online', concept:true, branchOf:'algo8_01',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2;
@@ -1190,7 +1190,7 @@
       ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('온라인 = 전체 입력을 미리 못 봄. 경쟁비로 성능을 잼', cx, E.H*0.76); }
   },
 
-  // ══════ 종합(algo8_05) ▸ LU 분해 (CLRS 28, concept) ══════
+  // ══════ 종합(algo8_05) ▸ LU 분해 (concept) ══════
   { id:'algo_br_lu', concept:true, branchOf:'algo8_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cy=E.H*0.4, s=Math.min(40,E.H*0.08);
@@ -1205,7 +1205,7 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('A=LU 로 분해하면 Ax=b 를 전진·후진 대입으로 O(n²)에 풀이(가우스 소거)', E.W/2, cy+s*4); }
   },
 
-  // ══════ 최단경로(algo6_05) ▸ DAG 최단경로 (CLRS 22.4, concept) ══════
+  // ══════ 최단경로(algo6_05) ▸ DAG 최단경로 (concept) ══════
   { id:'algo_br_dagsp', concept:true, branchOf:'algo6_05',
     enter:function(E){ E.setOn([]); },
     draw:function(E){ var ctx=E.ctx;

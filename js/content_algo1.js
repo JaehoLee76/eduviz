@@ -27,15 +27,23 @@
       }
       st.push({line:6, cap:'끝! 최댓값 = <b>'+max+'</b>. n개를 한 번씩 훑음 = <b>O(n)</b>', maxIdx:mi, done:true});
       return st; },
-    draw:function(V,f){ if(!f)return; var ctx=V.ctx, MAXV=Math.max.apply(null,A), maxH=V.H*0.40, baseY=V.H*0.64;
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx, MAXV=Math.max.apply(null,A), maxH=V.H*0.34, baseY=V.H*0.66;
+      // ── 헤더: 입력 배열이 무엇인지 명시(애니메이션만으로 이해되게) ──
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('입력 배열   a = [ '+A.join(',  ')+' ]', V.W/2, V.H*0.15);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('막대 하나 = 배열의 한 칸. 왼쪽부터 차례로 보며 가장 큰 값을 찾습니다.', V.W/2, V.H*0.15+22);
       var info=AV.bars(V, A, { baseY:baseY, maxH:maxH, label:true, bw:60, gap:18, hl:function(k){
         if(k===f.maxIdx) return ORA; if(k===f.scan&&f.found==null&&!f.done) return GRN; return BLU; } });
+      // 인덱스 라벨 a[0]..a[n-1] → 코드의 a[i] 와 그림이 연결됨
+      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      for(var k=0;k<A.length;k++){ var bx=info.x0+k*(info.bw+info.gap)+info.bw/2; ctx.fillText('a['+k+']', bx, baseY+30); }
       // 현재 최대 높이 가로 점선 + 라벨 → "가장 큰 값"이 시각적으로 명확
       if(f.maxIdx!=null && f.maxIdx>=0){ var mv=A[f.maxIdx], ly=baseY-(mv/MAXV)*maxH, rightX=info.x0+A.length*(info.bw+info.gap)-info.gap;
         ctx.strokeStyle=ORA; ctx.lineWidth=1.5; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(info.x0-24, ly); ctx.lineTo(rightX+10, ly); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle=ORA; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('지금까지 최대 = '+mv, info.x0-24, ly-9);
         var mx=info.x0+f.maxIdx*(info.bw+info.gap)+info.bw/2; ctx.textAlign='center'; ctx.fillText('▲ MAX', mx, ly-26); }
-      if(f.scan!=null && f.scan>=0 && f.found==null && !f.done){ var sx=info.x0+f.scan*(info.bw+info.gap)+info.bw/2; ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('보는 중', sx, baseY+34); } }
+      if(f.scan!=null && f.scan>=0 && f.found==null && !f.done){ var sx=info.x0+f.scan*(info.bw+info.gap)+info.bw/2; ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('● 보는 중', sx, baseY+46); } }
   },
 
   // ══════════ 1.2 효율성 — 같은 답, 다른 비용 (concept) ══════════
@@ -44,15 +52,25 @@
       E.controls('<div class="ctrl"><label>n (1+2+…+n)</label><input type="range" id="nn" min="5" max="100" step="5" value="10"><output id="nno">10</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.08); }); },
     draw:function(E){ var ctx=E.ctx, n=this.s.n, cx=E.W/2, sum=n*(n+1)/2;
-      function card(x,title,steps,col){ var w=E.W*0.40, h=E.H*0.26, y=E.H*0.30;
+      // ── 무엇을 계산하나: 1+2+…+n ──
+      var expr = n<=10 ? (function(){var a=[];for(var i=1;i<=n;i++)a.push(i);return a.join(' + ');})() : '1 + 2 + 3 + … + '+n;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 18px sans-serif';
+      ctx.fillText('1 부터 '+n+' 까지 모두 더하기', cx, E.H*0.13);
+      ctx.fillStyle='#8a8893'; ctx.font='15px sans-serif'; ctx.fillText(expr+'  = ?', cx, E.H*0.13+24);
+      function card(x,title,formula,steps,col){ var w=E.W*0.40, h=E.H*0.30, y=E.H*0.26;
         ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=col; ctx.lineWidth=2;
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-w/2,y,w,h,14);ctx.fill();ctx.stroke();}else ctx.strokeRect(x-w/2,y,w,h);
-        ctx.fillStyle=col; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText(title, x, y+30);
-        ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.fillText('필요한 계산 횟수', x, y+h-42);
-        ctx.fillStyle=col; ctx.font='600 28px sans-serif'; ctx.fillText(steps, x, y+h-12); }
-      card(cx-E.W*0.22, '① 하나씩 더하기', n+' 번', PNK);
-      card(cx+E.W*0.22, '② 가우스 공식', '1 번', GRN);
-      ctx.fillStyle=ORA; ctx.font='600 17px sans-serif'; ctx.textAlign='center'; ctx.fillText('두 방법 모두 답 = '+sum, cx, E.H*0.64); }
+        ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(title, x, y+28);
+        ctx.fillStyle='#eef3fb'; ctx.font='600 18px ui-monospace, monospace'; ctx.fillText(formula, x, y+h*0.52);   // ← 공식/식(빈칸 채움)
+        ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText('계산 횟수', x, y+h-40);
+        ctx.fillStyle=col; ctx.font='700 24px sans-serif'; ctx.fillText(steps, x, y+h-12); }
+      card(cx-E.W*0.22, '① 하나씩 더하기', '1+2+⋯+'+n, n+' 번', PNK);
+      card(cx+E.W*0.22, '② 가우스 공식', 'n(n+1)/2', '단 1 번', GRN);
+      // 가우스 공식에 n 대입 → 같은 답
+      ctx.fillStyle=GRN; ctx.font='600 17px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('n(n+1)/2 = '+n+'×'+(n+1)+' / 2 = '+sum, cx, E.H*0.66);
+      ctx.fillStyle=ORA; ctx.font='600 15px sans-serif';
+      ctx.fillText('답은 '+sum+'로 같지만 — ①은 '+n+'번, ②는 n이 백만이어도 단 1번!', cx, E.H*0.66+28); }
   },
 
   // ══════════ 1.3 빅오 — 성장 곡선 (concept) ══════════
@@ -72,15 +90,21 @@
     enter:function(E){ this.s={n:64}; E.setOn([]);
       E.controls('<div class="ctrl"><label>후보 개수 n</label><input type="range" id="nn" min="2" max="1024" step="1" value="64"><output id="nno">64</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.08); }); },
-    draw:function(E){ var ctx=E.ctx, n=this.s.n, cx=E.W/2, y0=E.H*0.26, steps=Math.ceil(Math.log2(n)),
+    draw:function(E){ var ctx=E.ctx, n=this.s.n, cx=E.W/2, y0=E.H*0.30, steps=Math.ceil(Math.log2(n)),
         cur=n, x=cx-E.W*0.36, bw=E.W*0.50, k=0;
+      // ── 제목 + 막대가 무엇을 뜻하는지 ──
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 18px sans-serif';
+      ctx.fillText('후보 '+n+'개에서 매 단계 절반씩 버리면?', cx, E.H*0.13);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('가로 막대 = 아직 남은 후보 수 (예: 정렬된 데이터에서 가운데와 비교 → 절반 제거)', cx, E.H*0.13+22);
       ctx.font='13px sans-serif'; ctx.textAlign='left';
       while(cur>=1 && k<=steps){ var w=bw*cur/n, yy=y0+k*32;
         ctx.fillStyle=k===steps?'rgba(255,178,122,0.4)':'rgba(122,184,255,0.22)'; ctx.strokeStyle=k===steps?ORA:BLU; ctx.lineWidth=1.5;
         if(w>2){ ctx.fillRect(x,yy,Math.max(w,3),24); ctx.strokeRect(x,yy,Math.max(w,3),24); }
         ctx.fillStyle='#9b99a3'; ctx.fillText((k+1)+'단계: '+Math.max(1,Math.round(cur))+'개 남음', x+bw+12, yy+16);
         if(cur<=1) break; cur=cur/2; k++; }
-      ctx.fillStyle=ORA; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.fillText('n = '+n+' → 약 '+steps+'단계면 끝!', cx, E.H*0.74); }
+      ctx.fillStyle=ORA; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.fillText('n = '+n+' → 약 '+steps+'단계  =  log₂('+n+') ≈ '+steps, cx, E.H*0.80);
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.fillText('n을 2배로 키워도 단계는 +1뿐 — 그래서 백만 개도 ~20단계면 끝납니다.', cx, E.H*0.80+24); }
   },
 
   // ══════════ 1.3 복잡도 등급 한눈에 (concept) ══════════
