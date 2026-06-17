@@ -23,7 +23,12 @@
       }
       st.push({line:4, cap:'끝까지 없음 → NIL. 정렬 불필요하지만 최악 n번(O(n)).', A:A, i:A.length, done:true});
       return st; },
-    draw:function(V,f){ if(!f)return; AV.arr(V, f.A, { y:V.H*0.42, bw:64, gap:10, idx:true, hl:function(k){
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('정렬 안 된 배열에서  찾는 값 x = 23  탐색', V.W/2, V.H*0.20);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('처음부터 하나씩 비교 (주황 = 확인 중, 회색 = 이미 지나침)', V.W/2, V.H*0.20+22);
+      AV.arr(V, f.A, { y:V.H*0.42, bw:64, gap:10, idx:true, hl:function(k){
       if(k===f.found) return {fill:'rgba(143,227,181,0.35)',stroke:GRN,text:GRN,tag:'찾음!'};
       if(k===f.i&&f.found==null) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'확인'};
       if(k<f.i) return {fill:'rgba(255,255,255,0.04)',stroke:'rgba(255,255,255,0.2)',text:DIM}; return null; } }); }
@@ -55,6 +60,10 @@
       st.push({line:8, cap:'범위 소진 → 없음. n개도 약 log₂n 번이면 끝!', A:A, lo:lo, hi:hi, mid:-1, done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('정렬된 배열에서  찾는 값 x = 23  탐색', V.W/2, V.H*0.20);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('가운데(mid)와 비교 → 절반을 버림 (회색 = 버려진 범위)', V.W/2, V.H*0.20+22);
       AV.arr(V, f.A, { y:V.H*0.42, bw:58, gap:8, idx:true, hl:function(k){
         if(k===f.found) return {fill:'rgba(143,227,181,0.35)',stroke:GRN,text:GRN,tag:'찾음!'};
         if(k===f.mid&&f.found==null) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'mid'};
@@ -69,6 +78,10 @@
       E.controls('<div class="ctrl"><label>데이터 크기 n</label><input type="range" id="nn" min="16" max="1048576" step="16" value="1024"><output id="nno">1024</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=(+e.target.value).toLocaleString(); E.blip(440,0.08); }); },
     draw:function(E){ var ctx=E.ctx, n=this.s.n, lin=n, bin=Math.ceil(Math.log2(n)), cx=E.W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('데이터 '+n.toLocaleString()+'개에서 한 값 찾기 — 최악 몇 번 볼까?', cx, E.H*0.15);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('아래 슬라이더로 n을 키우면 두 방법의 차이가 폭발합니다.', cx, E.H*0.15+22);
       function card(x,title,val,col){ var w=E.W*0.40, h=E.H*0.26, y=E.H*0.30;
         ctx.strokeStyle=col; ctx.lineWidth=2; ctx.fillStyle='rgba(255,255,255,0.03)';
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-w/2,y,w,h,14);ctx.fill();ctx.stroke();}else ctx.strokeRect(x-w/2,y,w,h);

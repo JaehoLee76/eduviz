@@ -85,6 +85,10 @@
       cur=-1; snap(12,'<b>완료!</b> 각 정점의 거리 = A에서 최소 간선 수. 큐로 가까운 곳부터 = O(V+E).');
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('BFS — 출발 A에서 가까운 정점부터 너비로 (최단 간선 수)', V.W/2, V.H*0.085);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('회색=미발견 · 파랑=발견(큐 대기) · 초록=완료 · 주황=처리 중 · 라벨 뒤 숫자=A에서 거리', V.W/2, V.H*0.105);
       drawGraph(V, { r:23, labelOf:function(i){ return NAME[i]+(f.d[i]!=null?':'+f.d[i]:''); },
         hl:function(i){ return ghl(f,i); },
         edgeHl:function(a,b){ if(f.ex&&((a===f.ex[0]&&b===f.ex[1])||(a===f.ex[1]&&b===f.ex[0]))) return ORA; return null; } });
@@ -127,6 +131,10 @@
       cur=-1; snap(12,'<b>완료!</b> 한 길 끝까지 파고든 뒤 되돌아옴. 발견/종료 시간으로 간선 분류·위상정렬·SCC가 가능 = O(V+E).');
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('DFS — 한 길을 끝까지 깊이 판 뒤 되돌아오기', V.W/2, V.H*0.085);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('회색=미발견 · 파랑=발견 · 초록=완료 · 주황=처리 중', V.W/2, V.H*0.105);
       drawGraph(V, { r:23, labelOf:function(i){ return NAME[i]+(f.d[i]!=null?' '+f.d[i]+'/'+(f.fin[i]!=null?f.fin[i]:'·'):''); },
         hl:function(i){ return ghl(f,i); },
         edgeHl:function(a,b){ if(f.ex&&((a===f.ex[0]&&b===f.ex[1])||(a===f.ex[1]&&b===f.ex[0]))) return ORA; return null; } });
@@ -169,6 +177,10 @@
       cur=-1; snap(11,'<b>완료!</b> A에서 모든 정점까지 최단거리. 우선순위 큐(힙)로 O(E log V).');
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('다익스트라 — A에서 모든 정점까지 최단 거리', V.W/2, V.H*0.085);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('매번 가장 가까운 미확정 정점을 확정하고 이웃 거리를 줄여나갑니다.', V.W/2, V.H*0.105);
       drawGraph(V, { weights:true, r:24,
         labelOf:function(i){ return NAME[i]+':'+(f.dist[i]===Infinity?'∞':f.dist[i]); },
         hl:function(i){ if(i===f.cur) return {fill:'rgba(255,178,122,0.34)',stroke:ORA,text:ORA,tag:'확정중'};

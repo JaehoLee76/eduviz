@@ -50,6 +50,10 @@
       snap(0,'<b>완료!</b> 방문 순서 = '+out.join(', ')+' (오름차순 정렬!).', -1,{done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('중위순회 — 왼쪽 → 자신 → 오른쪽 순서로 방문', V.W/2, V.H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('BST를 이 순서로 돌면 방문 결과가 오름차순으로 정렬됩니다.', V.W/2, V.H*0.10+20);
       drawTree(V, BST, function(i){ if(i===f.cur) return {fill:'rgba(255,178,122,0.32)',stroke:ORA,text:ORA};
         if(f.vidx.indexOf(i)>=0) return {fill:'rgba(143,227,181,0.22)',stroke:GRN,text:GRN}; return null; },
         {edgeHl:function(a,b){ if(f.edge&&((a===f.edge[0]&&b===f.edge[1])||(a===f.edge[1]&&b===f.edge[0]))) return ORA; return null; }});
@@ -81,6 +85,10 @@
       snap(6,'NIL 도달 — 없음.', -1,{done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('정렬된 BST에서  찾는 값 6  탐색', V.W/2, V.H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('한 번 비교마다 한쪽 가지를 통째로 버립니다 (O(log n))', V.W/2, V.H*0.10+20);
       drawTree(V, BST, function(j){ if(j===f.found) return {fill:'rgba(143,227,181,0.35)',stroke:GRN,text:GRN,tag:'찾음'};
         if(j===f.cur) return {fill:'rgba(255,178,122,0.32)',stroke:ORA,text:ORA};
         if(f.path.indexOf(j)>=0) return {fill:'rgba(255,178,122,0.18)',stroke:ORA,text:ORA}; return null; });

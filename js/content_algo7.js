@@ -24,7 +24,12 @@
   // ══════════ 7.1 피보나치 순진한 재귀 (concept) ══════════
   { id:'algo7_01', concept:true,
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx; drawFT(E, false);
+    draw:function(E){ var ctx=E.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('피보나치를 순진하게 재귀로 — F(n) = F(n−1) + F(n−2)', E.W/2, E.H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('호출 트리: 같은 작은 문제가 여러 번 다시 계산됩니다.', E.W/2, E.H*0.09+18);
+      drawFT(E, false);
       ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('분홍 = F2 가 두 번 계산됨 (중복!)', E.W/2, E.H*0.88); }
   },
 
@@ -51,7 +56,12 @@
         st.push({line:3, cap:'dp['+i+'] = dp['+(i-1)+']('+dp[i-1]+') + dp['+(i-2)+']('+dp[i-2]+') = <b>'+dp[i]+'</b>', dp:dp.slice(), cur:i, add:[i-1,i-2]}); }
       st.push({line:4, cap:'<b>완료!</b> F('+n+')='+dp[n]+'. 작은 답부터 쌓아 O(n), 재귀 없음.', dp:dp.slice(), cur:n, done:true});
       return st; },
-    draw:function(V,f){ if(!f)return; AV.arr(V, f.dp, { y:V.H*0.44, bw:52, gap:8, idx:true, hl:function(i){
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('타뷸레이션 — 작은 답부터 표(dp)에 차곡차곡 채우기', V.W/2, V.H*0.20);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('dp[i] = dp[i−1] + dp[i−2] (초록 두 칸을 더해 주황 칸을 채움, 재귀 없음)', V.W/2, V.H*0.20+22);
+      AV.arr(V, f.dp, { y:V.H*0.44, bw:52, gap:8, idx:true, hl:function(i){
       if(i===f.cur) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'방금 채움'};
       if(f.add&&(i===f.add[0]||i===f.add[1])) return {fill:'rgba(143,227,181,0.22)',stroke:GRN,text:GRN,tag:'더함'}; return null; } }); }
   },
@@ -89,7 +99,11 @@
       }
       st.push({line:6, cap:'<b>총 경로 수 = '+dp[R-1][C-1]+'!</b> (사실 조합 = 수학 15장 파스칼)', R:R,C:C,dp:copy(),cnt:R*C,done:true});
       return st; },
-    draw:function(V,f){ if(!f)return; var ctx=V.ctx, R=f.R,C=f.C, cell=Math.min(78,V.H*0.16), x0=V.W/2-C*cell/2, y0=V.H*0.20;
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx, R=f.R,C=f.C, cell=Math.min(78,V.H*0.16), x0=V.W/2-C*cell/2, y0=V.H*0.24;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('격자 경로 세기 — 왼쪽 위에서 오른쪽 아래까지', V.W/2, V.H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('오른쪽·아래로만 이동. 각 칸 숫자 = 그 칸까지 오는 경로의 수 (위+왼쪽).', V.W/2, V.H*0.10+22);
       for(var i=0;i<R;i++)for(var j=0;j<C;j++){ var ord=i*C+j, shown=ord<f.cnt, x=x0+j*cell, y=y0+i*cell;
         var cur=f.cur&&f.cur[0]===i&&f.cur[1]===j;
         var add=f.add&&f.add.some(function(c){return c[0]===i&&c[1]===j;});

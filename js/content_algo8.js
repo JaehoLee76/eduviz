@@ -28,7 +28,11 @@
       st.push({line:5, cap:'<b>완료!</b> 총 '+total+'개. 한국 동전(10·50·100·500)에선 그리디가 항상 최소 — 단 최적성은 증명 필요.', picks:picks.slice(), rem:0, done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx, cx=V.W/2;
-      ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillStyle=DIM; ctx.fillText('남은 거스름돈', cx, V.H*0.20);
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('거스름돈 780원을 최소 동전 수로', cx, V.H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('큰 동전부터 욕심껏 집기(그리디) — 한국 동전에선 늘 최소', cx, V.H*0.09+20);
+      ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillStyle=DIM; ctx.fillText('남은 거스름돈', cx, V.H*0.22);
       ctx.fillStyle=f.rem===0?GRN:ORA; ctx.font='600 34px sans-serif'; ctx.fillText(f.rem+'원', cx, V.H*0.27);
       var y=V.H*0.40;
       f.picks.forEach(function(p,i){ var hot=(p[0]===f.used); ctx.fillStyle=hot?ORA:'#cfcdc6'; ctx.font='600 18px sans-serif'; ctx.fillText(p[0]+'원 × '+p[1]+'개', cx, y+i*32); });
@@ -51,7 +55,11 @@
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,
         L0=[[8,3,5,1,9,2,7,4]], L1=[[8,3,5,1],[9,2,7,4]], L2=[[8,3],[5,1],[9,2],[7,4]],
-        merged=[[1,3,5,8],[2,4,7,9]], top=E.H*0.16;
+        merged=[[1,3,5,8],[2,4,7,9]], top=E.H*0.20;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('분할정복 — 반으로 쪼개(분할) 각각 정복한 뒤 합치기(병합)', E.W/2, E.H*0.08);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('병합 정렬의 흐름: 파랑 = 쪼개는 중, 초록 = 정렬되어 합쳐짐', E.W/2, E.H*0.08+20);
       function row(arrs,y,col){ var totalW=arrs.reduce(function(s,a){return s+a.length;},0), gapGroups=arrs.length, cell=Math.min(34,(E.W*0.7)/(totalW+gapGroups)), x=E.W/2-(totalW*cell+(gapGroups-1)*20)/2;
         arrs.forEach(function(a){ a.forEach(function(v){ ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.fillRect(x,y,cell-2,cell-2); ctx.strokeRect(x,y,cell-2,cell-2);
           ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+cell/2,y+cell/2); ctx.textBaseline='alphabetic'; x+=cell; }); x+=20; }); }
@@ -64,7 +72,11 @@
   // ══════════ 8.3 P vs NP (concept) ══════════
   { id:'algo8_04', concept:true,
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.44;
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.46;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('P vs NP — 빨리 푸는 문제 vs 정답 검산만 빠른 문제', cx, E.H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('P ⊆ NP. "P = NP 인가?"는 컴퓨터과학 최대 난제(미해결).', cx, E.H*0.10+20);
       ctx.fillStyle='rgba(244,160,192,0.10)'; ctx.strokeStyle=PNK; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,cy,E.W*0.26,E.H*0.22,0,0,TAU); ctx.fill(); ctx.stroke();
       ctx.fillStyle='rgba(143,227,181,0.18)'; ctx.strokeStyle=GRN; ctx.beginPath(); ctx.ellipse(cx-E.W*0.08,cy+E.H*0.02,E.W*0.13,E.H*0.12,0,0,TAU); ctx.fill(); ctx.stroke();
       ctx.font='600 16px sans-serif'; ctx.textAlign='center';
