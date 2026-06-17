@@ -1318,5 +1318,50 @@
     "q_en": "Why can rotating calipers find the farthest pair in O(n)?",
     "sol_en": "The farthest pair must be an <b>antipodal pair touched by two parallel supporting lines</b>, so only those candidates matter — not all pairs. One full rotation advances each pointer once around, giving O(n)."
    }
+  },
+  "algo_br_cht": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.2 격자 DP ▸ 자세히",
+   "title": "볼록 껍질 트릭(CHT) — 직선 최솟값으로 DP 가속",
+   "narr": "DP 점화식이 <b>dp[i] = min_j (기울기_j × x + 절편_j)</b> 처럼 \"여러 직선 중 최솟값\" 꼴이면, 직선들을 그냥 다 비교하면 O(n²). <b>볼록 껍질 트릭</b>은 쓸모없는 직선을 버려 질의를 O(log n)~O(1)로 줄입니다.",
+   "hint": "",
+   "more": "<b>볼록 껍질 트릭(Convex Hull Trick, CHT)</b>은 <b>dp[i] = min_j (m_j · x_i + b_j)</b> 형태(직선들의 최솟값을 어떤 x에서 질의)를 가속합니다. 핵심 관찰: 어떤 x에서도 최솟값을 주는 직선들만 모으면 <b>아래로 볼록한 꺾은선(아래 껍질)</b>이 되고, 그 사이의 직선들은 <b>영원히 최솟값이 안 되므로 버려도</b> 됩니다. ① <b>직선을 기울기 순으로 추가</b>하며, 새 직선이 들어올 때 \"가운데에 끼어 쓸모없어진\" 직선을 스택에서 제거(교점 비교) → 전체 <b>O(n)</b>. ② 질의 x가 <b>단조</b>면 포인터를 한 방향으로 밀어 <b>O(1)</b>, 아니면 껍질에 <b>이분 탐색 O(log n)</b>. 임의 순서로 추가·질의해야 하면 <b>Li Chao 트리</b>로 일반화합니다. 효과: <b>O(n²) DP를 O(n log n) 또는 O(n)</b>으로. 쓰임: 비용이 \"가중치 × 위치 + 상수\"로 분해되는 분할/스케줄링 DP.",
+   "more_en": "The <b>Convex Hull Trick (CHT)</b> speeds up DP of the form <b>dp[i] = min_j (m_j · x_i + b_j)</b> (query the minimum of a set of lines at some x). Key observation: the lines that ever give the minimum form a <b>lower convex envelope</b>; lines stuck in the middle <b>never win and can be discarded</b>. ① <b>Add lines in slope order</b>, popping from a stack any line made useless by a newcomer (compare intersections) → <b>O(n)</b> total. ② If query x is <b>monotone</b>, push a pointer one way for <b>O(1)</b>; otherwise <b>binary search the hull O(log n)</b>. For arbitrary add/query order, generalize to a <b>Li Chao tree</b>. Effect: turns an <b>O(n²) DP into O(n log n) or O(n)</b>. Used when cost factors as \"weight × position + constant\" in partition/scheduling DP.",
+   "problem": {
+    "q": "CHT에서 어떤 직선을 '버려도 되는' 직선이라고 하나?",
+    "solution": "<b>어떤 x에서도 최솟값(아래 껍질)을 주지 못하는</b> 직선입니다. 두 이웃 직선의 교점 사이에 완전히 가려지면 영원히 최소가 안 되므로 제거해 후보 수를 줄입니다.",
+    "q_en": "Which lines can be discarded in CHT?",
+    "sol_en": "Lines that <b>never give the minimum (the lower envelope) at any x</b> — if fully covered between two neighbors' intersections, they can never win and are removed."
+   }
+  },
+  "algo_br_dcopt": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.2 격자 DP ▸ 자세히",
+   "title": "분할 정복 최적화 — 최적 분기점의 단조성",
+   "narr": "DP가 <b>dp[i][j] = min_k ( dp[i−1][k] + 비용(k,j) )</b> 꼴이고, j가 커질수록 <b>최적의 k도 같이 커진다</b>면? 그 단조성을 분할 정복으로 이용해 한 층의 비용을 확 줄입니다.",
+   "hint": "",
+   "more": "<b>분할 정복 최적화(Divide and Conquer Optimization)</b>는 <b>dp[i][j] = min_k ( dp[i−1][k] + C(k, j) )</b> 형태에서, 각 j의 <b>최적 분기점 opt(j)</b>가 <b>j에 대해 단조 증가</b>할 때 씁니다(opt(j₁) ≤ opt(j₂) for j₁ < j₂). 방법: 한 층을 채울 때 <b>구간 [lo, hi]의 가운데 mid를 골라 그 최적 k = opt(mid)를 직접 전부 탐색</b>합니다. 그러면 단조성에 의해 <b>왼쪽 절반의 k는 [klo, opt(mid)], 오른쪽 절반은 [opt(mid), khi]</b>로 갈라지므로, 재귀로 양쪽을 풉니다. 각 k가 로그 깊이만큼만 쓰이므로 <b>한 층이 O(n log n)</b>, 층이 m개면 전체 <b>O(m · n log n)</b>(순진한 O(m·n²)에서 개선). 단조성은 비용 C가 <b>사각 부등식(Quadrangle Inequality)</b>을 만족하면 보장됩니다. 비슷한 가정에서 <b>Knuth 최적화</b>(opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j])는 O(n²)까지 줄입니다.",
+   "more_en": "<b>Divide and Conquer Optimization</b> applies to <b>dp[i][j] = min_k ( dp[i−1][k] + C(k, j) )</b> when each j's <b>optimal split opt(j)</b> is <b>monotone non-decreasing in j</b>. Method: to fill a layer, pick the <b>middle mid of a range [lo, hi] and brute-force its best k = opt(mid)</b>. By monotonicity the left half's k lies in <b>[klo, opt(mid)]</b> and the right half's in <b>[opt(mid), khi]</b>, so recurse on both. Each k is used over only logarithmic depth, making a <b>layer O(n log n)</b> and the whole DP <b>O(m · n log n)</b> (down from O(m·n²)). Monotonicity holds when C satisfies the <b>Quadrangle Inequality</b>. Under similar assumptions <b>Knuth's optimization</b> (opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]) gets it to O(n²).",
+   "problem": {
+    "q": "분할 정복 최적화에서 가운데 mid의 최적 k를 먼저 구하는 이유는?",
+    "solution": "최적 분기점이 <b>단조</b>라, opt(mid)를 알면 <b>왼쪽 절반의 k 범위는 그 아래로, 오른쪽 절반은 그 위로</b> 갈라집니다. 덕분에 각 절반의 탐색 범위가 좁아져 한 층이 O(n log n)이 됩니다.",
+    "q_en": "Why compute the middle mid's optimal k first in D&C optimization?",
+    "sol_en": "Because the optimal split is <b>monotone</b>: knowing opt(mid) splits the left half's k-range to below it and the right half's to above it, shrinking each search so a layer costs O(n log n)."
+   }
+  },
+  "algo_br_bitmaskdp": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.2 격자 DP ▸ 자세히",
+   "title": "비트마스크 DP — 부분집합을 정수로 (외판원)",
+   "narr": "\"지금까지 방문한 도시들의 집합\"을 어떻게 DP 상태로 담을까? <b>비트마스크</b>는 부분집합을 <b>정수 한 개</b>(각 비트 = 원소 포함 여부)로 압축해, 외판원 문제(TSP)를 지수에서 다항×지수로 끌어내립니다.",
+   "hint": "",
+   "more": "<b>비트마스크 DP</b>는 <b>부분집합을 정수의 비트</b>로 인코딩합니다 — i번 비트가 1이면 원소 i 포함. 예: <b>01011₂ = 11</b>은 집합 {0,1,3}. 대표 예가 <b>외판원 문제(TSP)</b>: <b>dp[mask][i]</b> = \"mask에 든 도시들을 모두 방문했고 지금 i에 있을 때의 최소 비용\". 전이는 <b>dp[mask | (1&lt;&lt;j)][j] = min( dp[mask][i] + dist[i][j] )</b> (아직 안 간 j로 확장). 상태 수 = <b>2ⁿ개 부분집합 × n개 현재 위치</b>, 각 전이 O(n) → 전체 <b>O(2ⁿ · n²)</b>. 모든 순열을 보는 브루트포스 <b>O(n!)</b>보다 압도적으로 작아 <b>n ≤ 20</b> 규모에서 실전적입니다. 같은 틀로 <b>집합 분할·할당·해밀턴 경로·서브셋 합/SOS DP</b> 등 \"작은 우주의 모든 부분집합\"을 다루는 문제에 두루 쓰입니다. 비트 연산(1&lt;&lt;i, mask &amp; (1&lt;&lt;i), 부분집합 순회)이 핵심 도구입니다.",
+   "more_en": "<b>Bitmask DP</b> encodes a <b>subset as the bits of an integer</b> — bit i set means element i is included; e.g. <b>01011₂ = 11</b> is the set {0,1,3}. The flagship example is the <b>Traveling Salesman Problem (TSP)</b>: <b>dp[mask][i]</b> = \"minimum cost having visited exactly the cities in mask and now standing at i.\" Transition: <b>dp[mask | (1&lt;&lt;j)][j] = min( dp[mask][i] + dist[i][j] )</b> (extend to an unvisited j). States = <b>2ⁿ subsets × n positions</b>, each transition O(n) → <b>O(2ⁿ · n²)</b> overall — vastly smaller than brute force <b>O(n!)</b>, practical for <b>n ≤ 20</b>. The same pattern handles set partitioning, assignment, Hamiltonian paths, and subset-sum / sum-over-subsets DP. Bit operations (1&lt;&lt;i, mask &amp; (1&lt;&lt;i), subset enumeration) are the core tools.",
+   "problem": {
+    "q": "비트마스크로 TSP를 풀 때 상태 수와 전체 시간 복잡도는?",
+    "solution": "상태 = <b>2ⁿ(방문 집합) × n(현재 도시)</b>, 각 상태에서 다음 도시 n개로 전이 → 전체 <b>O(2ⁿ · n²)</b>. 브루트포스 O(n!)보다 훨씬 작아 n이 20 안팎까지 실전적입니다.",
+    "q_en": "For bitmask TSP, how many states and what total time complexity?",
+    "sol_en": "States = <b>2ⁿ (visited set) × n (current city)</b>, each transitioning to n next cities → <b>O(2ⁿ · n²)</b> total — far below brute force O(n!), practical up to n ≈ 20."
+   }
   }
 }
