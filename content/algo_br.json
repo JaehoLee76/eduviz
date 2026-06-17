@@ -958,5 +958,65 @@
    "q_en": "Why is the total cost of n pushes into a dynamic array O(n)?",
    "sol_en": "Doubling makes total copying = n + n/2 + n/4 + … < 2n = O(n). So despite occasional O(n) copies, each push is <b>amortized O(1)</b>."
   }
+ },
+ "algo_br_parallel": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.2 분할정복·병렬 (자세히)",
+  "title": "병렬 알고리즘 — 작업과 깊이",
+  "narr": "여러 코어로 동시에 계산하면 얼마나 빨라질까요? 8개 수를 더할 때 짝끼리 동시에 합치면 <b>log n 단계</b>면 끝! 병렬 성능은 총 작업량(work)과 가장 긴 의존 사슬(span, 깊이)로 따져요.",
+  "hint": "work=총량, span=깊이",
+  "more": "<b>병렬 알고리즘</b>(CLRS 26): 여러 프로세서로 동시에 일을 나눠 처리. 성능은 두 지표로 분석해요. <b>작업량(work) T₁</b> = 한 코어로 다 했을 때 총 연산 수. <b>깊이/스팬(span) T∞</b> = 무한 코어가 있어도 줄일 수 없는 가장 긴 의존 사슬 길이(= 병렬 실행 최소 시간). <b>병렬도 = T₁/T∞</b>(이론상 최대 가속). 예: n개 합산을 <b>이진 리덕션 트리</b>로 하면 같은 층은 서로 독립이라 동시에 → work O(n), span O(log n), 병렬도 n/log n. 분할정복은 좌우 부분문제가 독립이라 자연스럽게 병렬화돼요(병합정렬·퀵정렬·FFT). 한계: 암달의 법칙 — 직렬 부분이 가속을 제한. 실전에선 통신·동기화 비용도 고려. GPU·멀티코어·맵리듀스의 이론적 토대.",
+  "more_en": "<b>Parallel algorithms</b> (CLRS 26): split work across processors to run concurrently. Performance is analyzed with two measures. <b>Work T₁</b> = total operations if run on one core. <b>Span/depth T∞</b> = the longest dependency chain that even infinite cores can't shorten (= minimum parallel time). <b>Parallelism = T₁/T∞</b> (the ideal max speedup). Example: summing n numbers via a <b>binary reduction tree</b> — each level's operations are independent and run at once → work O(n), span O(log n), parallelism n/log n. Divide-and-conquer parallelizes naturally since left/right subproblems are independent (merge sort, quicksort, FFT). Limit: Amdahl's law — the serial fraction caps speedup. In practice, communication/synchronization costs matter too. The theoretical basis of GPUs, multicore, and MapReduce.",
+  "problem": {
+   "q": "n개 수를 병렬로 더할 때 깊이(span)가 O(log n)인 이유는?",
+   "solution": "짝끼리 동시에 합치면 한 단계에 개수가 절반으로 줄어요(n→n/2→n/4→…→1). 절반씩 줄이니 <b>log₂n 단계</b> = 깊이 O(log n). 각 단계의 합산들은 서로 독립이라 동시 실행됩니다.",
+   "q_en": "Why is the depth (span) of parallel summation of n numbers O(log n)?",
+   "sol_en": "Summing pairs at once halves the count each step (n→n/2→…→1). Halving gives <b>log₂n steps</b> = depth O(log n). Each step's sums are independent, so they run concurrently."
+  }
+ },
+ "algo_br_online": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.1 그리디·온라인 (자세히)",
+  "title": "온라인 알고리즘 — 미래를 모른 채",
+  "narr": "입력 전체를 미리 못 보고 <b>도착하는 대로</b> 결정해야 한다면? 스키를 며칠 탈지 모른 채 빌릴지 살지 정하는 것처럼요. 'B−1일까지 빌리다 B일째 사기' 전략은 미래를 몰라도 최적의 <b>2배 이내</b>를 보장해요(경쟁비 2).",
+  "hint": "경쟁비로 성능 측정",
+  "more": "<b>온라인 알고리즘</b>(CLRS 27): 입력이 한꺼번에 주어지지 않고 <b>시간에 따라 조금씩 도착</b>하며, 각 시점에 미래를 모른 채 즉시 결정해야 하는 알고리즘. 성능은 <b>경쟁비(competitive ratio)</b>로 잼 = (온라인 비용) / (모든 걸 미리 안 최적 오프라인 비용)의 최악값. <b>스키 대여</b> 예: 빌리면 하루 1, 사면 B원, 며칠 탈지 모름. 전략 'B−1일까지 빌리고 B일째 산다' → 최악에도 최적의 ≤2배 → 경쟁비 2(결정론적 최선). 다른 예: 연결 리스트의 맨앞 이동(move-to-front), 캐시 교체(LRU의 경쟁 분석), 페이지 교체, 작업 스케줄링. ★현실의 거의 모든 실시간 시스템(캐시·라우팅·광고 입찰)이 온라인 문제. 미래 정보 없이도 보장을 주는 게 핵심.",
+  "more_en": "<b>Online algorithms</b> (CLRS 27): the input is not given all at once but <b>arrives over time</b>, and you must decide immediately without seeing the future. Performance is measured by the <b>competitive ratio</b> = the worst-case (online cost) / (optimal offline cost that knew everything). <b>Ski rental</b> example: renting costs 1/day, buying costs B, and you don't know how many days you'll ski. Strategy 'rent until day B−1, buy on day B' → at most 2× optimal → competitive ratio 2 (best deterministic). Other examples: move-to-front on linked lists, cache eviction (competitive analysis of LRU), paging, job scheduling. ★Nearly every real-time system (caching, routing, ad bidding) is an online problem. The point is guarantees without future information.",
+  "problem": {
+   "q": "온라인 알고리즘의 '경쟁비'란 무엇인가요?",
+   "solution": "온라인 비용을, <b>입력을 미리 다 안 최적 오프라인 비용</b>으로 나눈 값의 최악치예요. 경쟁비 2면 '미래를 몰라도 최적의 2배는 절대 안 넘는다'는 보장입니다.",
+   "q_en": "What is the 'competitive ratio' of an online algorithm?",
+   "sol_en": "The worst-case online cost divided by the <b>optimal offline cost that knew the whole input</b>. A ratio of 2 guarantees 'never worse than 2× optimal, even without knowing the future.'"
+  }
+ },
+ "algo_br_lu": {
+  "ch": "알고리즘 제8장 설계 패러다임",
+  "sec": "8.4 행렬 연산 (자세히)",
+  "title": "LU 분해 — 행렬을 삼각형 둘로",
+  "narr": "연립방정식 Ax=b 를 빠르게 풀려면? 행렬 A를 <b>하삼각 L과 상삼각 U의 곱(A=LU)</b>으로 쪼개면, 전진 대입·후진 대입으로 쉽게 풀려요. 같은 A에 여러 b를 풀 때 특히 강력합니다.",
+  "hint": "A=LU → 대입으로 풀이",
+  "more": "<b>LU 분해</b>(CLRS 28): 정방행렬 A를 <b>하삼각행렬 L</b>(대각선 아래)과 <b>상삼각행렬 U</b>(대각선 위)의 곱으로 분해(A=LU) — 본질은 가우스 소거를 행렬로 기록한 것. Ax=b 풀이: Ax=LUx=b → 먼저 Ly=b를 <b>전진 대입</b>(위에서 아래로)으로 풀고, 이어 Ux=y를 <b>후진 대입</b>(아래에서 위로)으로 풂. 각 대입은 O(n²), 분해는 O(n³). ★장점: 같은 A에 여러 우변 b를 풀 때 분해(O(n³))를 한 번만 하고 대입(O(n²))만 반복 → 매번 가우스 소거(O(n³))보다 훨씬 빠름. 수치 안정성을 위해 행 교환(부분 피벗팅) LU=PA를 씀. 행렬식·역행렬·선형회귀 정규방정식 풀이의 기반. 공학 시뮬레이션·그래픽스·최적화의 핵심 수치 도구.",
+  "more_en": "<b>LU decomposition</b> (CLRS 28): factor a square matrix A into a <b>lower-triangular L</b> and <b>upper-triangular U</b> (A=LU) — essentially Gaussian elimination recorded as matrices. To solve Ax=b: Ax=LUx=b → first solve Ly=b by <b>forward substitution</b> (top to bottom), then Ux=y by <b>back substitution</b> (bottom to top). Each substitution is O(n²); the factorization is O(n³). ★Advantage: for many right-hand sides b with the same A, factor once (O(n³)) and reuse with O(n²) substitutions — far faster than redoing Gaussian elimination (O(n³)) each time. For numerical stability use row swaps (partial pivoting): PA=LU. Basis for determinants, inverses, and least-squares normal equations. A core numerical tool in engineering simulation, graphics, and optimization.",
+  "problem": {
+   "q": "같은 A에 우변 b만 여러 개 풀 때 LU 분해가 유리한 이유는?",
+   "solution": "분해 A=LU 는 O(n³)이지만 <b>한 번만</b> 하면 되고, 각 b는 전진·후진 대입 O(n²)으로 풀려요. 매번 가우스 소거(O(n³))를 반복하는 것보다 훨씬 빠릅니다.",
+   "q_en": "Why is LU decomposition advantageous for many right-hand sides b with the same A?",
+   "sol_en": "Factoring A=LU is O(n³) but done <b>once</b>; each b is then solved with O(n²) forward/back substitution — far faster than redoing O(n³) Gaussian elimination each time."
+  }
+ },
+ "algo_br_dagsp": {
+  "ch": "알고리즘 제6장 그래프",
+  "sec": "6.3 최단 경로 (자세히)",
+  "title": "DAG 최단경로 — 위상순서의 힘",
+  "narr": "사이클이 없는 방향 그래프(DAG)라면 최단경로가 더 쉬워요! <b>위상 정렬 순서대로</b> 정점을 한 번 훑으며 간선을 완화하면 끝 — 다익스트라보다 빠른 O(V+E)이고, <b>음수 가중치도</b> 문제없어요.",
+  "hint": "위상순서로 한 번 완화",
+  "more": "<b>DAG 최단경로</b>(CLRS 22.4): 방향 비순환 그래프(DAG)에서는 정점을 <b>위상 정렬 순서</b>로 나열한 뒤, 그 순서대로 각 정점의 나가는 간선을 완화(relax)하면 단일 출발점 최단경로가 한 번에 구해져요. 왜 되나: 위상순서에서 u가 v보다 앞이면 u→v 간선만 존재하므로, u를 처리할 때 u.d는 이미 확정 → 완화가 항상 옳음. <b>시간 O(V+E)</b>(위상정렬 O(V+E) + 완화 O(E)), 다익스트라(O(E log V))보다 빠르고 우선순위 큐 불필요. ★결정적 장점: 사이클이 없으므로 <b>음수 가중치 간선도 OK</b>(다익스트라는 음수에서 실패). 음수 사이클 자체가 DAG엔 없어 벨만-포드도 불필요. PERT/CPM 공정 일정(임계 경로)·작업 의존성·확률 DAG 기댓값 계산에 응용. 사이클이 없다는 구조적 제약이 더 빠른 알고리즘을 가능케 한 예.",
+  "more_en": "<b>Shortest paths in a DAG</b> (CLRS 22.4): in a directed acyclic graph, list vertices in <b>topological order</b>, then relax each vertex's outgoing edges in that order — single-source shortest paths fall out in one pass. Why it works: in topological order, if u precedes v then only u→v edges exist, so u.d is already final when u is processed → relaxation is always correct. <b>Time O(V+E)</b> (topo sort O(V+E) + relax O(E)), faster than Dijkstra (O(E log V)) and needs no priority queue. ★Decisive advantage: with no cycles, <b>negative-weight edges are fine</b> (Dijkstra fails on negatives). No negative cycle can exist in a DAG, so Bellman-Ford isn't needed either. Used in PERT/CPM project scheduling (critical path), task dependencies, and expected values over probabilistic DAGs. An example where the structural constraint (acyclicity) enables a faster algorithm.",
+  "problem": {
+   "q": "DAG 최단경로가 다익스트라보다 나은 점 두 가지는?",
+   "solution": "① <b>더 빠름</b>: O(V+E) (우선순위 큐 불필요) vs 다익스트라 O(E log V). ② <b>음수 가중치 허용</b>: 다익스트라는 음수에서 실패하지만 DAG는 위상순서 덕에 음수도 정확히 처리돼요.",
+   "q_en": "Two ways DAG shortest paths beat Dijkstra?",
+   "sol_en": "① <b>Faster</b>: O(V+E) (no priority queue) vs Dijkstra's O(E log V). ② <b>Allows negative weights</b>: Dijkstra fails on negatives, but the topological order makes DAG handle them correctly."
+  }
  }
 }

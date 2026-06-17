@@ -1169,6 +1169,52 @@
       card(y0+E.H*0.17, '② 회계법 (Accounting)', '싼 연산에 요금 미리 적립 → 비싼 연산이 인출', '#8fe3b5');
       card(y0+E.H*0.34, '③ 잠재법 (Potential)', '저장된 에너지 Φ로 비싼 연산 비용 상쇄', '#ffb27a');
       ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('동적 배열 2배 확장: n번 push 총 O(n) → 한 번당 평균(분할상환) O(1)', cx, y0+E.H*0.48); }
+  },
+
+  // ══════ 분할정복(algo8_03) ▸ 병렬 알고리즘 (CLRS 26, concept) ══════
+  { id:'algo_br_parallel', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      drawTreeB(E, [10,4,6,3,1,4,2], function(j){ if(j===0)return{fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'합'}; if(j>=3)return{fill:'rgba(143,227,181,0.2)',stroke:'#8fe3b5',text:'#8fe3b5',tag:'동시'}; return null; }, {lg:E.H*0.17,r:21});
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('병렬 합산: 같은 층은 동시에! 작업량(work) O(n), 깊이(span) O(log n) → 병렬도 n/log n', E.W/2, E.H*0.88); }
+  },
+
+  // ══════ 그리디(algo8_01) ▸ 온라인 알고리즘 (CLRS 27, concept) ══════
+  { id:'algo_br_online', concept:true, branchOf:'algo8_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
+      ctx.textAlign='center'; ctx.fillStyle='#cfcdc6'; ctx.font='600 16px sans-serif'; ctx.fillText('스키 대여 문제 — 며칠 탈지 모른 채 결정', cx, E.H*0.26);
+      ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif'; ctx.fillText('빌리기 = 하루 1원  vs  사기 = B원 (입력이 시간 따라 도착)', cx, E.H*0.38);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 16px sans-serif'; ctx.fillText('전략: B−1일까지 빌리다 B일째 사기', cx, E.H*0.54);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('→ 미래를 몰라도 최적의 2배 이내 (경쟁비 = 2)', cx, E.H*0.64);
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('온라인 = 전체 입력을 미리 못 봄. 경쟁비로 성능을 잼', cx, E.H*0.76); }
+  },
+
+  // ══════ 종합(algo8_05) ▸ LU 분해 (CLRS 28, concept) ══════
+  { id:'algo_br_lu', concept:true, branchOf:'algo8_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, cy=E.H*0.4, s=Math.min(40,E.H*0.08);
+      function mat(cx,kind,col){ for(var r=0;r<3;r++)for(var c=0;c<3;c++){ var x=cx+c*s, y=cy+r*s;
+        var on = kind==='A'?true : kind==='L'?(c<=r) : (c>=r);
+        ctx.fillStyle=on?(col+'33'):'rgba(255,255,255,0.02)'; ctx.strokeStyle=on?col:'rgba(255,255,255,0.1)'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,y,s-3,s-3); ctx.strokeRect(x,y,s-3,s-3); } }
+      mat(E.W*0.18,'A','#ffb27a'); mat(E.W*0.46,'L','#8fe3b5'); mat(E.W*0.72,'U','#7ab8ff');
+      ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#cfcdc6';
+      ctx.fillText('=', E.W*0.40, cy+s*1.5); ctx.fillText('×', E.W*0.66, cy+s*1.5);
+      ctx.font='600 14px sans-serif'; ctx.fillText('A', E.W*0.18+s, cy-12); ctx.fillStyle='#8fe3b5'; ctx.fillText('L (하삼각)', E.W*0.46+s, cy-12); ctx.fillStyle='#7ab8ff'; ctx.fillText('U (상삼각)', E.W*0.72+s, cy-12);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('A=LU 로 분해하면 Ax=b 를 전진·후진 대입으로 O(n²)에 풀이(가우스 소거)', E.W/2, cy+s*4); }
+  },
+
+  // ══════ 최단경로(algo6_05) ▸ DAG 최단경로 (CLRS 22.4, concept) ══════
+  { id:'algo_br_dagsp', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx;
+      var P={A:[E.W*0.14,E.H*0.46],B:[E.W*0.36,E.H*0.28],C:[E.W*0.36,E.H*0.64],D:[E.W*0.6,E.H*0.46],F:[E.W*0.84,E.H*0.46]};
+      function gd(a,b,w){ var dx=b[0]-a[0],dy=b[1]-a[1],d=Math.hypot(dx,dy),r=22, ax=a[0]+dx/d*r,ay=a[1]+dy/d*r,bx=b[0]-dx/d*r,by=b[1]-dy/d*r; AV.arrow(ctx,ax,ay,bx,by,'rgba(255,255,255,0.25)',2); ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(w,(ax+bx)/2,(ay+by)/2-4); }
+      gd(P.A,P.B,2); gd(P.A,P.C,4); gd(P.B,P.D,3); gd(P.C,P.D,1); gd(P.D,P.F,2);
+      var dist={A:0,B:2,C:4,D:5,F:7};
+      ['A','B','C','D','F'].forEach(function(k){ AV.node(E,P[k][0],P[k][1],k+':'+dist[k],{r:22,stroke:'#8fe3b5',fill:'rgba(143,227,181,0.18)',text:'#8fe3b5',fs:13}); });
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('위상순서(A→B→C→D→F)로 한 번 훑으며 완화 → O(V+E), 음수 가중치도 OK', E.W/2, E.H*0.84); }
   }
 
   ];
