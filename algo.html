@@ -34,8 +34,8 @@
   .home-link { color: #6f6e7a; font-size: 14px; text-decoration: none; white-space: nowrap; }
   .home-link:hover { color: #cfcdc6; }
   .titles { flex: 1; text-align: center; line-height: 1.3; }
-  .titles .sec { font-size: 12px; color: #8a8893; letter-spacing: .14em; text-transform: uppercase; }
-  .titles .ttl { font-size: 15px; color: #ece9e0; font-weight: 500; }
+  .titles .sec { font-size: 13px; color: #8a8893; letter-spacing: .12em; text-transform: uppercase; }
+  .titles .ttl { font-size: 20px; color: #ece9e0; font-weight: 600; line-height: 1.25; }
   .scene-no { position: fixed; top: 48px; left: 20px; z-index: 8; font-size: 12px; color: var(--accent-light); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 11px; letter-spacing: .05em; font-weight: 500; }
   .toc-toggle { background: none; border: 1px solid rgba(255,255,255,0.14); color: #cfcdc6; width: 36px; height: 36px; border-radius: 9px; cursor: pointer; font-size: 16px; }
   .toc-toggle:hover { background: rgba(255,255,255,0.08); }
@@ -145,11 +145,15 @@
 
   /* 왼쪽 패널: 코드/설명(스크롤) → 스텝 캡션 → 스텝바 */
   #codepanel { position: fixed; top: 0; left: 0; width: 42vw; height: 100%; z-index: 5; display: none; flex-direction: column;
-    background: rgba(14,14,20,0.97); border-right: 1px solid var(--border); padding: 56px 0 0; }
+    background: rgba(14,14,20,0.97); border-right: 1px solid var(--border); padding: 98px 0 0; }  /* 상단 = scene-no·breadcrumb 아래로(겹침 방지) */
   body.viz #codepanel { display: flex; }
-  .code-head { padding: 6px 22px 12px; color: var(--accent-light); font-size: 14px; font-weight: 700; letter-spacing: .04em;
+  .code-head { padding: 6px 22px 12px; color: var(--accent-light); font-size: 16.5px; font-weight: 700; letter-spacing: .02em;
     border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .code-body { flex: 1; overflow-y: auto; padding: 12px 0 16px; }
+  .code-body { flex: 0 1 auto; max-height: 42vh; overflow-y: auto; padding: 12px 0 14px; }
+  body.viz-concept #codeBody { display: none; }                                   /* 개념 장면: 코드영역 없음 */
+  .concept-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }            /* 핵심요약/연습문제 = 스텝 아래 스크롤 */
+  .concept-scroll::-webkit-scrollbar { width: 9px; }
+  .concept-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
   .codelines { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.65; }
   .code-body::-webkit-scrollbar { width: 9px; }
   .code-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
@@ -161,10 +165,10 @@
   .codeextra { border-top: 1px solid var(--border); margin-top: 10px; }
 
   /* 스텝 캡션·컨트롤 = 왼쪽 패널 하단(코드와 같은 쪽) */
-  #stepcap { display: none; margin: 0 18px 8px; background: rgba(255,255,255,0.04);
+  #stepcap { display: none; margin: 12px 18px 8px; background: rgba(122,184,255,0.08);
     border: 1px solid var(--border); border-left: 3px solid var(--accent-light); border-radius: 11px; padding: 12px 15px; }
-  body.viz:not(.viz-concept) #stepcap { display: block; }
-  #stepcap .stp { font-size: 12px; color: var(--accent-light); font-weight: 700; letter-spacing: .06em; margin-bottom: 5px; }
+  body.viz:not(.viz-concept) #stepcap { display: block; }                          /* 코드 바로 아래 STEP 캡션 */
+  #stepcap .stp { font-size: 13px; color: var(--accent-light); font-weight: 800; letter-spacing: .08em; margin-bottom: 5px; }
   #stepcap .cap { font-size: 15px; color: #ece9e0; line-height: 1.55; }
   #stepcap .cap b { color: #bfe0ff; font-weight: 600; }
   #stepbar { display: none; padding: 4px 14px 16px; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -258,6 +262,7 @@
     <button class="sbtn" id="sbAuto">▶ 자동 재생 <kbd class="kc">S</kbd></button>
     <button class="sbtn" id="sbReset">↺ 초기화 <kbd class="kc">X</kbd></button>
   </div>
+  <div class="concept-scroll" id="conceptExtra"></div>
 </div>
 
 <div id="toc-panel"><div id="toc"></div></div>

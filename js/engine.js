@@ -220,7 +220,7 @@
   // 장면이 .code(코드 줄 배열) + .build(V)→frames 를 가지면 viz 장면.
   // 각 frame = {line:코드줄(또는 배열), cap:설명HTML, ...상태}. draw(V, frame)로 렌더.
   // 코드 패널/스텝바 DOM이 없는 페이지(math.html)나 코드 없는 장면은 전혀 영향 없음(레거시 풀스크린).
-  var codeBodyEl, codeHeadEl, stepStpEl, stepCapEl, sbPrev, sbNext, sbAuto, sbReset;
+  var codeBodyEl, conceptExtraEl, codeHeadEl, stepStpEl, stepCapEl, sbPrev, sbNext, sbAuto, sbReset;
   var _steps=null, _stepI=0, _autoT=null;
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function kc(k){ return ' <kbd class="kc">'+k+'</kbd>'; }   // 버튼 단축키 표시
@@ -234,13 +234,13 @@
     return h; }
   function renderCode(sc){ if(!codeBodyEl) return; var h='<div class="codelines">';
     for(var i=0;i<sc.code.length;i++){ h+='<div class="cl" data-i="'+i+'"><span class="ln">'+i+'</span><span class="ct">'+escHtml(sc.code[i])+'</span></div>'; }
-    h+='</div>';
-    var extra=richBlocks(sc); if(extra) h+='<div class="concept codeextra">'+extra+'</div>';
-    codeBodyEl.innerHTML=h; }
+    h+='</div>'; codeBodyEl.innerHTML=h;                                   // 코드만(스텝 캡션이 바로 아래로)
+    if(conceptExtraEl){ var extra=richBlocks(sc); conceptExtraEl.innerHTML=extra?'<div class="concept codeextra">'+extra+'</div>':''; } }   // 핵심요약 = 스텝 아래
   // 개념 장면(실행 코드 없음): 왼쪽 패널에 설명(narr+핵심요약+문제)
-  function renderConcept(sc){ if(!codeBodyEl) return; var h='<div class="concept">';
+  function renderConcept(sc){ if(codeBodyEl) codeBodyEl.innerHTML='';
+    if(!conceptExtraEl) return; var h='<div class="concept">';
     if(sc.narr) h+='<div class="cpt-intro">'+sc.narr+'</div>';
-    h+=richBlocks(sc)+'</div>'; codeBodyEl.innerHTML=h; }
+    h+=richBlocks(sc)+'</div>'; conceptExtraEl.innerHTML=h; }
   function paintStep(){ if(!_steps) return; var f=_steps[_stepI]||{};
     if(codeBodyEl){ var cls=codeBodyEl.querySelectorAll('.cl'); for(var i=0;i<cls.length;i++) cls[i].classList.remove('on');
       var lines=(f.line!=null)?(Array.isArray(f.line)?f.line:[f.line]):[];
@@ -362,7 +362,7 @@
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
-    codeBodyEl=document.getElementById('codeBody'); codeHeadEl=document.getElementById('codeHead');
+    codeBodyEl=document.getElementById('codeBody'); conceptExtraEl=document.getElementById('conceptExtra'); codeHeadEl=document.getElementById('codeHead');
     stepStpEl=document.getElementById('stepStp'); stepCapEl=document.getElementById('stepCap');
     sbPrev=document.getElementById('sbPrev'); sbNext=document.getElementById('sbNext'); sbAuto=document.getElementById('sbAuto'); sbReset=document.getElementById('sbReset');
     if(sbPrev)sbPrev.onclick=stepPrev; if(sbNext)sbNext.onclick=stepNext; if(sbAuto)sbAuto.onclick=toggleAuto; if(sbReset)sbReset.onclick=stepReset;
