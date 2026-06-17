@@ -44,6 +44,9 @@
   // ══════════ 2.3 스택 — LIFO ══════════
   { id:'algo2_03', concept:true,
     enter:function(E){ this.s={stack:[3,7]}; E.setOn([]); this.cnt=8; },
+    keys:[
+      {code:'KeyE', key:'E', label:'쌓기 (push)', act:function(E){ var s=this.s; if(s.stack.length<6){ s.stack.push(this.cnt++); E.blip(560,0.1);} }},
+      {code:'KeyC', key:'C', label:'꺼내기 (pop)', act:function(E){ var s=this.s; if(s.stack.length) s.stack.pop(); E.blip(300,0.12); }} ],
     tap:function(E,x,y){ var s=this.s; if(y && y>E.H*0.7){ if(s.stack.length) s.stack.pop(); E.blip(300,0.12); } else { if(s.stack.length<6){ s.stack.push(this.cnt++); E.blip(560,0.1);} } },
     draw:function(E){ var s=this.s, ctx=E.ctx, bw=120, bh=42, cx=E.W/2, baseY=E.H*0.62;
       for(var i=0;i<s.stack.length;i++){ var y=baseY-i*(bh+4), top=(i===s.stack.length-1);
@@ -60,6 +63,9 @@
   // ══════════ 2.3 큐 — FIFO ══════════
   { id:'algo2_04', concept:true,
     enter:function(E){ this.s={q:[5,2,8]}; E.setOn([]); this.cnt=9; },
+    keys:[
+      {code:'KeyE', key:'E', label:'넣기 (enqueue)', act:function(E){ var s=this.s; if(s.q.length<6){ s.q.push(this.cnt++); E.blip(560,0.1);} }},
+      {code:'KeyC', key:'C', label:'빼기 (dequeue)', act:function(E){ var s=this.s; if(s.q.length) s.q.shift(); E.blip(300,0.12); }} ],
     tap:function(E,x){ var s=this.s; if(x && x>E.W/2){ if(s.q.length<6){ s.q.push(this.cnt++); E.blip(560,0.1);} } else { if(s.q.length) s.q.shift(); E.blip(300,0.12); } },
     draw:function(E){ var s=this.s, ctx=E.ctx, bw=64, gap=8, n=s.q.length, total=n*bw+(n-1)*gap, x0=E.W/2-total/2, y=E.H*0.44;
       for(var i=0;i<n;i++){ var x=x0+i*(bw+gap), front=(i===0), rear=(i===n-1);

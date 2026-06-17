@@ -79,7 +79,13 @@
     setTimeout(function(){ bubbleEl.innerHTML=html; bubbleEl.classList.remove('fade'); },170); }
 
   // ---------- generic DOM controls ----------
-  var controlsEl;
+  var controlsEl, keyHintEl;
+  // 키 조작 힌트 바(스택 push/pop 등 tap 장면) — sc.keys = [{code,key,label,act}]
+  function renderKeyHint(sc){ if(!keyHintEl) return;
+    if(sc && sc.keys && sc.keys.length){ var h='';
+      for(var i=0;i<sc.keys.length;i++){ var k=sc.keys[i]; h+='<span class="kh-item"><kbd class="kc">'+(k.key||k.code.replace('Key',''))+'</kbd> '+k.label+'</span>'; }
+      keyHintEl.innerHTML=h; keyHintEl.style.display='flex'; }
+    else keyHintEl.style.display='none'; }
   function controls(html){ if(!controlsEl) return; controlsEl.innerHTML=html||''; controlsEl.style.display=html?'flex':'none';
     // range 슬라이더 value 속성이 무시되고 중앙으로 뜨는 문제 방지: 속성값을 프로퍼티로 강제
     var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++){ var av=rs[i].getAttribute('value'); if(av!=null) rs[i].value=av; }
@@ -190,6 +196,7 @@
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
     if(sc.enter) sc.enter(E);
+    renderKeyHint(sc);
     paintTOC(); progress(); blip(660,0.14);
   }
   // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
@@ -340,7 +347,7 @@
     initStage(document.getElementById(opts.canvas));
     bubbleEl=document.getElementById('bubble'); hintEl=document.getElementById('hint');
     titleEl=document.getElementById('sceneTitle'); secEl=document.getElementById('sceneSec');
-    controlsEl=document.getElementById('controls'); bigEl=document.getElementById('bignum');
+    controlsEl=document.getElementById('controls'); keyHintEl=document.getElementById('keyhint'); bigEl=document.getElementById('bignum');
     bigN=document.getElementById('bigN'); bigW=document.getElementById('bigW');
     // nav
     var nb=document.getElementById('next'), pb=document.getElementById('prev');
@@ -362,6 +369,7 @@
       if(c==='KeyX'){ if(studyVisible()) closeStudy(); else if(viz) stepReset(); e.preventDefault(); return; }
       if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로
       if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로
+      if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(E/C 등)
       if(viz){   // 코드+스텝: A 이전 / D(Space·Enter) 다음 / S 자동
         if(c==='KeyD'||space||enter){ stepNext(); e.preventDefault(); }
         else if(c==='KeyA'){ stepPrev(); e.preventDefault(); }
@@ -374,7 +382,7 @@
         v=Math.max(parseFloat(rng.min), Math.min(parseFloat(rng.max), v)); rng.value=v; rng.dispatchEvent(new Event('input',{bubbles:true})); e.preventDefault(); return; }
       var dm=/^Digit([1-9])$/.exec(c);
       if(dm){ var opt=controlsEl&&controlsEl.querySelector('.opt[data-i="'+(parseInt(dm[1],10)-1)+'"]'); if(opt){ opt.click(); e.preventDefault(); } return; }
-      if((c==='KeyD'||space||enter)&&s&&s.tap){ s.tap(E, W/2, H/2); e.preventDefault(); return; }
+      if((c==='KeyD'||space||enter)&&s&&s.tap&&!s.keys){ s.tap(E, W/2, H/2); e.preventDefault(); return; }
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
