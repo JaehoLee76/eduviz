@@ -2203,5 +2203,65 @@
     "q_en": "With only the 2D prefix sum S, how do you get the sum of rectangle [r1..r2]×[c1..c2]?",
     "sol_en": "By 2D inclusion-exclusion at four corners: <b>S(r2,c2) − S(r1−1,c2) − S(r2,c1−1) + S(r1−1,c1−1)</b>. Subtracting the left and top regions removes the top-left corner twice, so add it back once."
    }
+  },
+  "algo_br_knuthopt": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "크누스 최적화 — 최적 분기점의 단조성",
+   "narr": "구간 DP dp[i][j] = min over k of (dp[i][k] + dp[k+1][j]) + 비용 은 분기점 k를 모두 보면 <b>O(n³)</b>입니다. <b>크누스 최적화</b>는 \"<b>최적 분기점이 단조롭게 움직인다</b>\"는 성질로 후보를 좁혀 <b>O(n²)</b>로 줄입니다.",
+   "hint": "",
+   "more": "<b>크누스 최적화(Knuth's optimization)</b>는 특정 <b>구간 DP</b>를 <b>O(n³) → O(n²)</b>로 가속합니다. 대상은 dp[i][j] = min(i ≤ k < j) ( dp[i][k] + dp[k+1][j] ) + C(i, j) 꼴(구간을 둘로 쪼개 합치는 비용 DP, 예: 최적 이진 탐색 트리, 파일/돌 합치기). 비용 C가 <b>사각부등식(quadrangle inequality)</b> C(a,c)+C(b,d) ≤ C(a,d)+C(b,c) (a≤b≤c≤d)와 단조성을 만족하면, 최적 분기점 <b>opt[i][j]</b>(dp[i][j]를 최소화하는 k)가 <b>단조</b>합니다: <b>opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]</b>. 따라서 dp[i][j]를 계산할 때 k를 0..n−1 전부 시도하지 말고 <b>opt[i][j−1]부터 opt[i+1][j]까지</b>만 보면 됩니다. 대각선(길이 순)으로 채우면서 각 길이에서 이 범위들의 <b>합이 telescoping되어 O(n)</b>, 모든 칸 합쳐 <b>O(n²)</b>. 같은 단조성 아이디어의 친척: <b>분할 정복 최적화</b>(opt가 행을 따라 단조 → 분할 정복으로 O(n² log n) 또는 층 DP), <b>SMAWK / 1D1D</b>. 핵심은 \"최적 결정점이 입력이 커질 때 뒤로만 간다\"는 단조성을 증명해 탐색을 잘라내는 것입니다.",
+   "more_en": "<b>Knuth's optimization</b> speeds up certain <b>interval DPs</b> from <b>O(n³) to O(n²)</b>. It targets dp[i][j] = min(i ≤ k < j) ( dp[i][k] + dp[k+1][j] ) + C(i, j) (split-an-interval merge-cost DPs, e.g. optimal binary search tree, file/stone merging). If the cost C satisfies the <b>quadrangle inequality</b> C(a,c)+C(b,d) ≤ C(a,d)+C(b,c) (a≤b≤c≤d) and monotonicity, then the optimal split point <b>opt[i][j]</b> (the k minimizing dp[i][j]) is <b>monotone</b>: <b>opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]</b>. So when computing dp[i][j] you only try k from <b>opt[i][j−1] to opt[i+1][j]</b> instead of all 0..n−1. Filling by diagonals (increasing length), these ranges <b>telescope to O(n) per length</b>, giving <b>O(n²)</b> overall. Relatives of the same monotonicity idea: <b>divide-and-conquer optimization</b> (opt monotone along rows → D&C for O(n² log n) layered DP) and <b>SMAWK / 1D1D</b>. The core is proving the optimal decision point only moves forward as the input grows, pruning the search.",
+   "problem": {
+    "q": "크누스 최적화에서 분기점 후보를 opt[i][j−1]..opt[i+1][j]로 좁히는데, 전체 시간이 왜 O(n²)인가?",
+    "solution": "각 칸 dp[i][j]가 보는 k 범위 길이는 (opt[i+1][j] − opt[i][j−1] + 1)입니다. 같은 길이(대각선)의 칸들을 따라 이 범위 합이 <b>telescoping</b>되어 한 대각선당 O(n), 대각선이 n개라 <b>O(n²)</b>가 됩니다.",
+    "q_en": "With candidate split points narrowed to opt[i][j−1]..opt[i+1][j], why is Knuth's optimization O(n²) total?",
+    "sol_en": "Each cell dp[i][j] scans a range of length (opt[i+1][j] − opt[i][j−1] + 1). Along cells of the same length (a diagonal) these ranges <b>telescope</b> to O(n) per diagonal, and with n diagonals the total is <b>O(n²)</b>."
+   }
+  },
+  "algo_br_aliens": {
+   "ch": "알고리즘 제7장 동적 계획법",
+   "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+   "title": "Aliens 트릭(WQS 이분) — '정확히 k개' 제약 풀기",
+   "narr": "\"<b>정확히 k번</b> 분할(또는 선택)\"이라는 제약이 붙으면 DP 상태에 k를 더해야 해 느려집니다. <b>Aliens 트릭(WQS 이분 탐색)</b>은 사용 한 번마다 <b>벌점 λ</b>를 매겨 제약을 없앤 뒤, λ를 이분 탐색해 개수를 k로 맞춥니다.",
+   "hint": "",
+   "more": "<b>Aliens 트릭(WQS 이분 탐색, 라그랑주 완화의 이산 버전)</b>은 \"<b>어떤 행동을 정확히 k번</b> 하라\"는 제약이 붙은 최적화 DP를 푸는 기법입니다. 보통은 상태에 \"지금까지 몇 번 했는지\"를 추가해 dp[i][used]가 되어 비싸집니다(예: 배열을 정확히 k개 구간으로 분할하는 최소 비용). 대신, <b>행동 한 번마다 벌점(또는 보상) λ를 부과</b>해 제약을 떼어 낸 <b>제약 없는 DP</b> g(λ)를 풉니다 — 이건 빠릅니다(개수 추적 불필요). 그러면 <b>λ를 키울수록 최적해가 행동을 적게 쓰게 되어, 최적 행동 개수가 λ에 대해 단조</b> 감소합니다. 따라서 <b>λ를 이분 탐색</b>해 \"최적 개수 = k\"가 되는 λ를 찾고, 그때의 값에서 벌점 보정을 되돌리면 원래 제약 문제의 답이 나옵니다. 작동 전제: 목적함수 f(k)(정확히 k번일 때의 최적값)가 <b>k에 대해 볼록(또는 오목)</b> — 그래야 \"기울기 −λ인 접선이 닿는 점\"이 k와 일대일 대응합니다(볼록 껍질 위의 점을 기울기로 고르는 것과 같음). 정수 k에서 접선이 평평한 구간(같은 λ가 여러 k에 대응)을 만나는 경계 처리에 주의가 필요합니다. 이름은 <b>IOI 2016 \"Aliens\"</b> 문제에서 유래. 쓰임: 정확히 k개 분할/그룹화 DP, 정확히 k개 선택 매칭, k개 구간으로 덮기 등 — \"제약 차원\"을 \"이분 탐색 한 번\"으로 바꾸는 강력한 변환입니다.",
+   "more_en": "<b>The Aliens trick (WQS binary search, a discrete Lagrangian relaxation)</b> solves optimization DPs constrained to \"do some action <b>exactly k times</b>.\" Normally you add \"how many used so far\" to the state, making dp[i][used] expensive (e.g. minimum cost to split an array into exactly k segments). Instead, <b>charge a penalty (or reward) λ per action</b> to drop the constraint and solve an <b>unconstrained DP</b> g(λ) — which is fast (no count to track). Then <b>raising λ makes the optimum use fewer actions, so the optimal action count is monotone in λ</b>. So <b>binary search λ</b> to find where \"optimal count = k,\" and undo the penalty to recover the constrained answer. Prerequisite: the objective f(k) (optimum given exactly k actions) is <b>convex (or concave) in k</b> — so a tangent of slope −λ touches a unique point k (like picking a point on a convex hull by slope). Care is needed at integer k where the tangent is flat (one λ maps to several k). The name comes from the <b>IOI 2016 \"Aliens\"</b> problem. Uses: exactly-k partition/grouping DPs, exactly-k selection matchings, covering with k intervals — a powerful transform turning a \"constraint dimension\" into \"one binary search.\"",
+   "problem": {
+    "q": "Aliens 트릭이 성립하려면 목적함수 f(k)가 어떤 성질을 가져야 하며, 그 이유는?",
+    "solution": "f(k)(정확히 k번일 때의 최적값)가 <b>k에 대해 볼록(또는 오목)</b>해야 합니다. 그래야 \"기울기 −λ인 접선\"이 각 k에 일대일로 대응해, λ를 이분 탐색하면 최적 개수를 원하는 k로 정확히 맞출 수 있습니다(비볼록이면 어떤 k는 어떤 λ로도 안 닿음).",
+    "q_en": "What property must f(k) have for the Aliens trick to work, and why?",
+    "sol_en": "f(k) (the optimum given exactly k actions) must be <b>convex (or concave) in k</b>. Then a tangent of slope −λ corresponds one-to-one to each k, so binary searching λ hits the desired count exactly; if non-convex, some k is unreachable by any λ."
+   }
+  },
+  "algo_br_bitset": {
+   "ch": "알고리즘 제2장 자료구조",
+   "sec": "2.1 배열과 리스트 ▸ 자세히",
+   "title": "비트셋 가속 — 한 워드에 64칸을 한 번에",
+   "narr": "불리언 배열에 대한 반복 연산은 한 칸씩 처리하면 O(n). 하지만 64개를 <b>한 기계어 워드</b>에 담아 AND/OR/XOR/시프트를 하면, <b>명령 한 번에 64칸</b>을 처리합니다 — 상수가 1/64로 줄어드는 강력한 실전 최적화입니다.",
+   "hint": "",
+   "more": "<b>비트셋 가속(bitset optimization)</b>은 불리언(0/1) 배열을 <b>정수의 비트들로 묶어</b>, 한 번의 비트 연산(AND·OR·XOR·NOT·시프트)으로 워드 크기(보통 <b>64비트</b>)만큼을 동시에 처리하는 기법입니다. 점근 복잡도의 \"차수\"는 그대로지만 <b>상수를 1/w(≈1/64)</b>로 줄여, O(n²) 알고리즘을 <b>O(n²/64)</b>로 만듭니다 — 실측 수십 배 빨라져 시간 제한을 통과시키는 일이 흔합니다. 대표 적용: ① <b>이분 매칭/도달성</b> — 각 정점의 인접 집합을 비트셋으로 두면 \"교집합·합집합\"이 워드 연산, 추이폐쇄(transitive closure)를 O(n³/64)에, ② <b>부분집합 합·배낭(가능 여부)</b> — 도달 가능한 합 집합을 비트셋 dp로 두고 <b>dp |= dp << w</b>(무게 w 추가)로 한 번에 전이, ③ <b>문자열 매칭</b> — Shift-And/Shift-Or(비트병렬)로 패턴 일치를 O(nm/w)에, ④ DP 상태 전이가 \"이전 비트들의 OR/AND\"인 경우. 도구: C++ <b>std::bitset</b>(고정 크기, 빠름)이나 직접 uint64 배열. 주의: 메모리는 n/8바이트로 적지만, 비트 단위 임의 접근·정렬 같은 작업엔 부적합하고, \"전체를 묶어 한꺼번에 같은 연산\"하는 구조에서만 이득입니다.",
+   "more_en": "<b>Bitset optimization</b> packs a boolean (0/1) array into the <b>bits of integers</b>, processing a word's worth (usually <b>64 bits</b>) at once with a single bit operation (AND·OR·XOR·NOT·shift). The asymptotic \"order\" is unchanged, but the <b>constant drops to 1/w (≈1/64)</b>, turning an O(n²) algorithm into <b>O(n²/64)</b> — often tens of times faster in practice, enough to pass time limits. Key uses: ① <b>bipartite matching / reachability</b> — store each vertex's adjacency as a bitset so \"intersection/union\" is a word op, transitive closure in O(n³/64); ② <b>subset sum / knapsack feasibility</b> — keep the set of reachable sums as a bitset dp and transition with <b>dp |= dp << w</b> (adding weight w) at once; ③ <b>string matching</b> — Shift-And/Shift-Or (bit-parallel) matches a pattern in O(nm/w); ④ DP transitions that are an OR/AND over previous bits. Tools: C++ <b>std::bitset</b> (fixed size, fast) or raw uint64 arrays. Caveats: memory is small (n/8 bytes), but it suits only \"apply the same op to the whole block at once\" structures, not bit-level random access or sorting.",
+   "problem": {
+    "q": "비트셋으로 O(n²) 알고리즘이 O(n²/64)가 되는 원리는? 점근 차수가 바뀌나?",
+    "solution": "불리언 64개를 한 워드에 담아 AND/OR/시프트를 하면 <b>명령 한 번이 64칸을 동시에</b> 처리합니다. 그래서 상수가 1/64로 줄어 실측이 수십 배 빨라집니다. 다만 <b>점근 차수(O(n²))는 그대로</b>이고 상수만 작아지는 것입니다.",
+    "q_en": "How does a bitset make an O(n²) algorithm O(n²/64)? Does the asymptotic order change?",
+    "sol_en": "Packing 64 booleans into one word, a single AND/OR/shift processes <b>64 cells at once</b>, cutting the constant to 1/64 (tens of times faster in practice). The <b>asymptotic order (O(n²)) is unchanged</b> — only the constant shrinks."
+   }
+  },
+  "algo_br_fibheap": {
+   "ch": "알고리즘 제6장 그래프",
+   "sec": "6.5 최단 경로 ▸ 자세히",
+   "title": "피보나치 힙 — decrease-key를 O(1)에",
+   "narr": "다익스트라는 매번 \"거리 줄이기(decrease-key)\"를 합니다. 이진 힙은 그게 O(log n)이지만, <b>피보나치 힙</b>은 <b>분할상환 O(1)</b>에 해내, 다익스트라/프림의 이론적 한계를 <b>O(E + V log V)</b>까지 끌어내립니다.",
+   "hint": "",
+   "more": "<b>피보나치 힙(Fibonacci heap)</b>은 <b>게으른(lazy)</b> 전략으로 우선순위 큐 연산의 분할상환 비용을 낮춘 자료구조입니다. 구조는 <b>힙 순서를 지키는 여러 트리들의 모임(뿌리 목록)</b>과 <b>최소 원소를 가리키는 포인터</b>입니다. 연산: <b>insert</b>는 새 노드를 그냥 뿌리 목록에 던져 넣음(<b>O(1)</b>), <b>merge</b>도 두 뿌리 목록 잇기(<b>O(1)</b>), <b>decrease-key</b>는 키를 줄인 뒤 힙 순서가 깨지면 그 서브트리를 <b>잘라 뿌리로 올림</b>(<b>분할상환 O(1)</b>, 부모가 자식을 두 번 잃으면 그 부모도 잘라 올리는 \"표시(marked)\" 규칙으로 트리 모양을 통제). 미뤄 둔 정리는 <b>extract-min</b>에서만 합니다: 최소를 떼고 그 자식들을 뿌리로 올린 뒤, <b>같은 차수(자식 수)의 뿌리들을 짝지어 합치는</b> consolidate로 뿌리 수를 O(log n)로 줄임(<b>분할상환 O(log n)</b>). 트리 차수와 크기의 관계가 <b>피보나치 수</b>로 묶여(차수 d인 트리의 크기 ≥ F_{d+2}) 이름이 그렇습니다. 이 비용표(insert/decrease-key O(1), extract-min O(log n)) 덕에 <b>다익스트라·프림</b>이 이론상 <b>O(E + V log V)</b>(이진 힙은 O(E log V)). 단점: <b>상수와 포인터 오버헤드가 커</b> 실무에서는 보통 이진 힙이나 <b>쌍 힙(pairing heap)</b>이 더 빠릅니다. 그래도 \"분할상환 분석\"과 \"게으른 자료구조\"의 교과서적 명작입니다.",
+   "more_en": "A <b>Fibonacci heap</b> lowers the amortized cost of priority-queue operations with a <b>lazy</b> strategy. It is a <b>collection of heap-ordered trees (a root list)</b> plus a <b>pointer to the minimum</b>. Operations: <b>insert</b> just drops a node into the root list (<b>O(1)</b>); <b>merge</b> concatenates two root lists (<b>O(1)</b>); <b>decrease-key</b> lowers the key and, if heap order breaks, <b>cuts that subtree and moves it to a root</b> (<b>amortized O(1)</b>, with a \"marked\" rule cutting a parent that loses a second child, to control tree shape). The deferred cleanup happens only at <b>extract-min</b>: remove the min, promote its children to roots, then <b>consolidate</b> by pairing roots of equal degree (number of children) to reduce the root count to O(log n) (<b>amortized O(log n)</b>). The relation between a tree's degree and size is bounded by <b>Fibonacci numbers</b> (a degree-d tree has size ≥ F_{d+2}), hence the name. This cost profile (insert/decrease-key O(1), extract-min O(log n)) gives <b>Dijkstra/Prim</b> a theoretical <b>O(E + V log V)</b> (vs O(E log V) with a binary heap). Drawback: <b>large constants and pointer overhead</b> make binary heaps or <b>pairing heaps</b> usually faster in practice. Still, it is a textbook masterpiece of amortized analysis and lazy data structures.",
+   "problem": {
+    "q": "피보나치 힙이 insert와 decrease-key를 O(1)에 하면서도 전체 정렬을 유지하는 비결은?",
+    "solution": "<b>정리를 미루는 것</b>입니다. insert는 뿌리 목록에 던지고, decrease-key는 서브트리를 잘라 뿌리로 올리기만 합니다(둘 다 O(1)). 미뤄 둔 \"같은 차수 뿌리 합치기(consolidate)\"는 <b>extract-min 때만</b> 수행해 그 연산에 분할상환 O(log n)으로 비용을 몰아줍니다.",
+    "q_en": "How does a Fibonacci heap do insert and decrease-key in O(1) yet stay sorted overall?",
+    "sol_en": "By <b>deferring cleanup</b>: insert drops into the root list and decrease-key just cuts a subtree up to a root (both O(1)). The postponed \"consolidate roots of equal degree\" runs <b>only at extract-min</b>, concentrating the cost there at amortized O(log n)."
+   }
   }
 }
