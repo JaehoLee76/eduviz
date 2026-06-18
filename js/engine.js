@@ -257,7 +257,15 @@
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function kc(k){ return ' <kbd class="kc">'+k+'</kbd>'; }   // 버튼 단축키 표시
   // 더 알아보기 + 연습문제 블록 (영어는 'In English' 표제 없이 본문만)
-  function richBlocks(sc){ var h='';
+  // 구현 코드 한 줄 가벼운 하이라이트: 주석(//~끝)을 먼저 떼고 키워드만 강조(중첩·속성오염 없음)
+  function hlCode(line){ var s=escHtml(line), cm='', ci=s.indexOf('//');
+    if(ci>=0){ cm='<span class="cc">'+s.slice(ci)+'</span>'; s=s.slice(0,ci); }
+    s=s.replace(/\b(for|while|if|else|elif|return|def|function|void|int|long|bool|var|let|const|new|swap|true|false|null|None|and|or|not|in|break|continue)\b/g,'<span class="ck">$1</span>');
+    return s+cm; }
+  function implBlock(sc){ if(!sc.impl||!sc.impl.length) return '';
+    var ci=''; for(var i=0;i<sc.impl.length;i++) ci+='<div class="il"><span class="iln">'+i+'</span><span class="ic">'+hlCode(sc.impl[i])+'</span></div>';
+    return '<div class="cpt-sec"><div class="cpt-h">구현 코드'+(sc.impl_lang?' · '+sc.impl_lang:'')+'</div><div class="implcode">'+ci+'</div></div>'; }
+  function richBlocks(sc){ var h=implBlock(sc);
     if(sc.more) h+='<div class="cpt-sec"><div class="cpt-h">핵심 요약</div>'+sc.more+'</div>';
     if(sc.more_en) h+='<div class="cpt-sec en">'+sc.more_en+'</div>';
     if(sc.problem){ var p=sc.problem; h+='<div class="cpt-sec"><div class="cpt-h">연습 문제</div><div>'+p.q+'</div>'

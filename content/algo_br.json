@@ -12,7 +12,22 @@
       "solution": "4+3+2+1 = <b>10 = 5·4/2</b> (O(n²)). 가우스 합 공식 그대로!",
       "q_en": "Quicksort on sorted [1,2,3,4,5] with last-element pivot makes how many comparisons?",
       "sol_en": "4+3+2+1 = <b>10 = 5·4/2</b> (O(n²)) — the Gauss sum formula!"
-    }
+    },
+    "impl": [
+      "void quicksort(int a[], int lo, int hi){",
+      "  if(lo >= hi) return;",
+      "  int p = partition(a, lo, hi);   // 피벗을 제자리로",
+      "  quicksort(a, lo, p-1);          // 왼쪽",
+      "  quicksort(a, p+1, hi);          // 오른쪽",
+      "}",
+      "int partition(int a[], int lo, int hi){",
+      "  int pivot = a[hi], i = lo;      // 최악: 정렬된 입력+끝 피벗",
+      "  for(int j = lo; j < hi; j++)",
+      "    if(a[j] < pivot) swap(a[i++], a[j]);",
+      "  swap(a[i], a[hi]);",
+      "  return i;   // 한쪽 0개 → 깊이 n → O(n^2)",
+      "}"
+    ]
   },
   "algo_br_qs2": {
     "ch": "알고리즘 제3장 정렬",
@@ -27,7 +42,19 @@
       "solution": "피벗을 무작위 선택 → 최악이 <b>특정 입력이 아닌 운</b>에 의존 → 기대 O(n log n) 보장.",
       "q_en": "How does randomized quicksort avoid the worst case?",
       "sol_en": "Random pivots make the worst case depend on <b>luck, not a specific input</b> → expected O(n log n)."
-    }
+    },
+    "impl": [
+      "int partition(int a[], int lo, int hi){",
+      "  int r = lo + rand() % (hi - lo + 1);",
+      "  swap(a[r], a[hi]);              // 무작위 피벗 → 최악 회피",
+      "  int pivot = a[hi], i = lo;",
+      "  for(int j = lo; j < hi; j++)",
+      "    if(a[j] < pivot) swap(a[i++], a[j]);",
+      "  swap(a[i], a[hi]);",
+      "  return i;",
+      "}",
+      "// 기대 비교 O(n log n), 어떤 입력에도 강함"
+    ]
   },
   "algo_br_lb": {
     "ch": "알고리즘 제3장 정렬",
@@ -87,7 +114,17 @@
       "solution": "분할 후 <b>한쪽만 재귀</b>(반대쪽 버림)하기 때문. 퀵정렬은 양쪽 다 재귀(O(n log n)).",
       "q_en": "Why is quickselect faster (average O(n)) than quicksort?",
       "sol_en": "It recurses into <b>only one side</b> after partitioning (discarding the other); quicksort recurses both (O(n log n))."
-    }
+    },
+    "impl": [
+      "int quickselect(int a[], int lo, int hi, int k){",
+      "  if(lo == hi) return a[lo];",
+      "  int p = partition(a, lo, hi);   // 랜덤 피벗",
+      "  if(k == p)      return a[p];",
+      "  else if(k < p)  return quickselect(a, lo, p-1, k);",
+      "  else            return quickselect(a, p+1, hi, k);",
+      "}",
+      "// k번째(0-based) 작은 값. 한쪽만 재귀 → 기대 O(n)"
+    ]
   },
   "algo_br_heapsort": {
     "ch": "알고리즘 제5장 트리",
@@ -102,7 +139,24 @@
       "solution": "<b>제자리(in-place) 정렬</b> — 추가 배열 O(n)이 필요 없음(병합은 O(n) 추가 메모리 필요).",
       "q_en": "What is heapsort's memory advantage over merge sort?",
       "sol_en": "It is <b>in-place</b> — no O(n) extra array (merge sort needs O(n) extra memory)."
-    }
+    },
+    "impl": [
+      "void heapsort(int a[], int n){",
+      "  for(int i = n/2-1; i >= 0; i--) siftDown(a, i, n); // 빌드힙 O(n)",
+      "  for(int end = n-1; end > 0; end--){",
+      "    swap(a[0], a[end]);            // 최댓값을 뒤로 확정",
+      "    siftDown(a, 0, end);           // 루트 재정렬 O(log n)",
+      "  }",
+      "}",
+      "void siftDown(int a[], int i, int n){",
+      "  while(2*i+1 < n){",
+      "    int c = 2*i+1;",
+      "    if(c+1 < n && a[c+1] > a[c]) c++;  // 큰 자식",
+      "    if(a[i] >= a[c]) break;",
+      "    swap(a[i], a[c]); i = c;",
+      "  }",
+      "}"
+    ]
   },
   "algo_br_buildheap": {
     "ch": "알고리즘 제5장 트리",
@@ -117,7 +171,16 @@
       "solution": "<b>O(n)</b> (O(n log n) 아님). 바닥 노드가 많고 그들의 sift-down 거리가 짧아 합이 선형.",
       "q_en": "What is the tight time complexity of build-heap on n elements?",
       "sol_en": "<b>O(n)</b> (not O(n log n)). Bottom nodes are numerous but sift down only a little, summing to linear."
-    }
+    },
+    "impl": [
+      "void buildHeap(int a[], int n){",
+      "  // 잎은 이미 힙 → 마지막 내부노드부터 거꾸로",
+      "  for(int i = n/2-1; i >= 0; i--)",
+      "    siftDown(a, i, n);",
+      "}",
+      "// 높이 h 노드는 ~n/2^(h+1)개, 비용 O(h)",
+      "// 합 = O(n)  (삽입 n번 O(n log n)보다 빠름)"
+    ]
   },
   "algo_br_topo": {
     "ch": "알고리즘 제6장 그래프",
@@ -162,7 +225,21 @@
       "solution": "<b>벨만-포드</b> (음수 간선 허용 + 음수 사이클 탐지). 다익스트라는 음수에서 틀림.",
       "q_en": "With negative edges, what do you use instead of Dijkstra?",
       "sol_en": "<b>Bellman-Ford</b> (allows negative edges and detects negative cycles); Dijkstra is incorrect with negatives."
-    }
+    },
+    "impl": [
+      "bool bellmanFord(int src){",
+      "  for(int v = 0; v < V; v++) dist[v] = INF;",
+      "  dist[src] = 0;",
+      "  for(int i = 0; i < V-1; i++)        // V-1 라운드",
+      "    for(each edge (u,v,w))",
+      "      if(dist[u] + w < dist[v])",
+      "        dist[v] = dist[u] + w;        // 완화(relax)",
+      "  for(each edge (u,v,w))              // 한 번 더 줄면",
+      "    if(dist[u] + w < dist[v]) return false; // 음수 사이클",
+      "  return true;",
+      "}",
+      "// O(VE). 음수 간선 OK(다익스트라는 불가)"
+    ]
   },
   "algo_br_floyd": {
     "ch": "알고리즘 제6장 그래프",
@@ -192,7 +269,21 @@
       "solution": "<b>union-find(서로소 집합)</b> — 두 정점이 이미 연결됐는지 빠르게 판정해 사이클을 막습니다.",
       "q_en": "What data structure does Kruskal's algorithm use to avoid cycles?",
       "sol_en": "<b>Union-find (disjoint sets)</b> — quickly tests whether two vertices are already connected, preventing cycles."
-    }
+    },
+    "impl": [
+      "int kruskal(){              // 간선 가중치 오름차순",
+      "  sort(edges);",
+      "  dsuInit(V);",
+      "  int total = 0;",
+      "  for(each edge (u,v,w) in order){",
+      "    if(find(u) != find(v)){  // 사이클 안 생기면",
+      "      unite(u, v);           // 안전한 간선 채택",
+      "      total += w;",
+      "    }",
+      "  }",
+      "  return total;             // 컷 성질이 최적성 보장",
+      "}"
+    ]
   },
   "algo_br_rbt": {
     "ch": "알고리즘 제5장 트리",
@@ -372,7 +463,23 @@
       "solution": "<b>최대 유량 = 최소 컷</b> 용량 (max-flow min-cut 정리). 최대로 흘리는 양 = 가장 약한 병목.",
       "q_en": "What is the relationship between max-flow and min-cut?",
       "sol_en": "<b>Max-flow = min-cut</b> capacity (the max-flow min-cut theorem). The most you can push equals the weakest bottleneck."
-    }
+    },
+    "impl": [
+      "int edmondsKarp(int s, int t){",
+      "  int flow = 0;",
+      "  while(true){",
+      "    // BFS로 잔여그래프에서 증대경로 찾기",
+      "    int bn = bfsAugment(s, t, parent);",
+      "    if(bn == 0) break;        // 증대경로 없음 → 최대",
+      "    for(int v = t; v != s; v = parent[v]){",
+      "      cap[parent[v]][v] -= bn;",
+      "      cap[v][parent[v]] += bn;  // 역간선",
+      "    }",
+      "    flow += bn;",
+      "  }",
+      "  return flow;   // = 최소 컷 용량",
+      "}"
+    ]
   },
   "algo_br_openaddr": {
     "ch": "알고리즘 제2장 자료구조",
@@ -402,7 +509,18 @@
       "solution": "<b>큰 수의 소인수분해</b>. 곱(n=pq)은 쉽지만 거꾸로 p,q를 찾기가 사실상 불가능.",
       "q_en": "What 'hard problem' does RSA's security rely on?",
       "sol_en": "<b>Factoring large numbers</b>. Computing n=pq is easy, but recovering p and q is practically impossible."
-    }
+    },
+    "impl": [
+      "// 키 생성",
+      "p, q = 큰 소수 두 개",
+      "n = p * q;  phi = (p-1) * (q-1);",
+      "e = 65537;                 // gcd(e, phi) = 1",
+      "long dkey = modInverse(e, phi);   // d·e ≡ 1 (mod phi)",
+      "// 공개키 (n, e), 개인키 (n, d)",
+      "long encrypt(long m){ return modpow(m, e, n); }",
+      "long decrypt(long c){ return modpow(c, dkey, n); }",
+      "// 안전성 = n의 소인수분해가 어렵다는 가정"
+    ]
   },
   "algo_br_hull": {
     "ch": "알고리즘 제2장 자료구조",
@@ -537,7 +655,20 @@
       "solution": "한 코드가 다른 코드의 접두어이면(예 A=0, B=01) 비트열 해독이 모호해집니다. 접두어 코드는 트리의 <b>잎</b>에만 문자를 두어 모호함 없이 한 가지로 해독됩니다.",
       "q_en": "Why must Huffman codes be 'prefix codes'?",
       "sol_en": "If one code were a prefix of another (e.g. A=0, B=01), decoding a bit-stream would be ambiguous. Prefix codes place characters only at tree <b>leaves</b>, so decoding is unambiguous."
-    }
+    },
+    "impl": [
+      "Node* huffman(int freq[], int n){",
+      "  minHeap H;                  // 빈도 최소 우선",
+      "  for(int i = 0; i < n; i++) H.push(leaf(freq[i]));",
+      "  while(H.size() > 1){",
+      "    Node* x = H.pop();        // 가장 작은 둘",
+      "    Node* y = H.pop();",
+      "    H.push(merge(x, y, x->f + y->f)); // 합쳐 부모로",
+      "  }",
+      "  return H.pop();             // 루트 = 최적 접두 코드",
+      "}",
+      "// 빈도 낮은 글자에 긴 코드 → 평균 길이 최소"
+    ]
   },
   "algo_br_editdist": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -567,7 +698,21 @@
       "solution": "AB: 10·100·5 = 5,000, 결과 10×5. (AB)C: 10·5·50 = 2,500. 합 <b>7,500</b> (A(BC)의 75,000보다 10배 적음).",
       "q_en": "For A(10×100), B(100×5), C(5×50), how many multiplications for ((AB)C)?",
       "sol_en": "AB: 10·100·5 = 5,000 (→10×5). (AB)C: 10·5·50 = 2,500. Total <b>7,500</b> (10× fewer than A(BC)'s 75,000)."
-    }
+    },
+    "impl": [
+      "int matrixChain(int p[], int n){   // p[]: 차원 경계",
+      "  int m[n][n] = {0};",
+      "  for(int len = 2; len < n; len++)",
+      "    for(int i = 1; i+len-1 < n; i++){",
+      "      int j = i+len-1; m[i][j] = INF;",
+      "      for(int k = i; k < j; k++){    // 괄호 위치",
+      "        int c = m[i][k]+m[k+1][j]+p[i-1]*p[k]*p[j];",
+      "        if(c < m[i][j]) m[i][j] = c;",
+      "      }",
+      "    }",
+      "  return m[1][n-1];   // 사슬 길이 오름차순 → O(n^3)",
+      "}"
+    ]
   },
   "algo_br_edgeclass": {
     "ch": "알고리즘 제6장 그래프",
@@ -582,7 +727,20 @@
       "solution": "DFS 중 <b>후향 간선</b>(현재 GRAY인 조상으로 가는 간선)이 하나라도 나오면 사이클이 있습니다. 하나도 없으면 DAG(비순환).",
       "q_en": "How does DFS decide whether a directed graph has a cycle?",
       "sol_en": "If DFS ever finds a <b>back edge</b> (to a currently-GRAY ancestor), there is a cycle. If none occur, it is a DAG (acyclic)."
-    }
+    },
+    "impl": [
+      "void dfs(int u){",
+      "  color[u] = GRAY; tin[u] = ++timer;",
+      "  for(int v : adj[u]){",
+      "    if(color[v] == WHITE){ treeEdge(u,v); dfs(v); }",
+      "    else if(color[v] == GRAY) backEdge(u,v);   // 사이클!",
+      "    else if(tin[u] < tin[v]) forwardEdge(u,v);",
+      "    else crossEdge(u,v);",
+      "  }",
+      "  color[u] = BLACK; tout[u] = ++timer;",
+      "}",
+      "// 후방 간선 ⟺ 방향 사이클. 무방향은 트리·후방만"
+    ]
   },
   "algo_br_dij_proof": {
     "ch": "알고리즘 제6장 그래프",
@@ -807,7 +965,27 @@
       "solution": "<b>6개</b>: c, a, t, r, u, p. cat·car는 c·a를 공유하고 t/r에서 갈라지며, cup은 c 다음 u·p로 갈라집니다. 공유 덕에 9글자가 6노드로 압축됩니다.",
       "q_en": "How many (letter) nodes does a trie of cat, car, cup have, excluding the root?",
       "sol_en": "<b>Six</b>: c, a, t, r, u, p. cat/car share c·a then split at t/r; cup branches to u·p after c. Sharing compresses 9 letters into 6 nodes."
-    }
+    },
+    "impl": [
+      "struct Node { Node* ch[26]; bool end; };",
+      "void insert(Node* root, string w){",
+      "  Node* cur = root;",
+      "  for(char c : w){",
+      "    int i = c - 'a';",
+      "    if(!cur->ch[i]) cur->ch[i] = newNode();",
+      "    cur = cur->ch[i];",
+      "  }",
+      "  cur->end = true;",
+      "}",
+      "bool search(Node* root, string w){",
+      "  Node* cur = root;",
+      "  for(char c : w){",
+      "    cur = cur->ch[c - 'a'];",
+      "    if(!cur) return false;",
+      "  }",
+      "  return cur->end;  // 탐색 O(길이), 집합 크기 무관",
+      "}"
+    ]
   },
   "algo_br_window": {
     "ch": "알고리즘 제4장 탐색",
@@ -852,7 +1030,29 @@
       "solution": "가상의 출발점 s를 모든 L에, 가상의 도착점 t를 모든 R에 용량 1 간선으로 잇고, L→R 간선 용량도 1로 두면, <b>s→t 최대 플로우 = 최대 매칭 크기</b>가 됩니다(용량 1이 '한 번만 짝지음'을 강제).",
       "q_en": "Why does bipartite matching reduce to max-flow?",
       "sol_en": "Add a source s to all of L and a sink t from all of R with capacity-1 edges, and capacity 1 on L→R edges; then <b>max-flow s→t = maximum matching size</b> (capacity 1 enforces 'matched at most once')."
-    }
+    },
+    "impl": [
+      "// 이분 매칭(쾨니그/쿤): 증대경로 반복",
+      "bool tryKuhn(int u){",
+      "  for(int v : adj[u]){",
+      "    if(used[v]) continue;",
+      "    used[v] = true;",
+      "    if(matchR[v] == -1 || tryKuhn(matchR[v])){",
+      "      matchR[v] = u;   // u-v 매칭",
+      "      return true;",
+      "    }",
+      "  }",
+      "  return false;",
+      "}",
+      "int maxMatching(){",
+      "  int cnt = 0;",
+      "  for(int u = 0; u < L; u++){",
+      "    fill(used, false);",
+      "    if(tryKuhn(u)) cnt++;",
+      "  }",
+      "  return cnt;   // O(V·E)",
+      "}"
+    ]
   },
   "algo_br_avl": {
     "ch": "알고리즘 제5장 트리",
@@ -927,7 +1127,25 @@
       "solution": "LCA = <b>B</b>(둘의 부모). 거리 = depth[D]+depth[E]−2·depth[B] = 2+2−2·1 = <b>2</b> (D→B→E).",
       "q_en": "In the tree above, what is LCA(D,E) and the distance between them?",
       "sol_en": "LCA = <b>B</b> (their parent). Distance = depth[D]+depth[E]−2·depth[B] = 2+2−2·1 = <b>2</b> (D→B→E)."
-    }
+    },
+    "impl": [
+      "void preprocess(){             // 이진 점프(binary lifting)",
+      "  for(int v = 0; v < V; v++) up[v][0] = par[v];",
+      "  for(int k = 1; k < LOG; k++)",
+      "    for(int v = 0; v < V; v++)",
+      "      up[v][k] = up[ up[v][k-1] ][k-1];",
+      "}",
+      "int lca(int u, int v){",
+      "  if(depth[u] < depth[v]) swap(u, v);",
+      "  int diff = depth[u] - depth[v];",
+      "  for(int k = 0; k < LOG; k++)",
+      "    if(diff >> k & 1) u = up[u][k];  // 같은 깊이로",
+      "  if(u == v) return u;",
+      "  for(int k = LOG-1; k >= 0; k--)",
+      "    if(up[u][k] != up[v][k]){ u = up[u][k]; v = up[v][k]; }",
+      "  return par[u];  // 질의 O(log n)",
+      "}"
+    ]
   },
   "algo_br_rbfix": {
     "ch": "알고리즘 제5장 트리",
@@ -972,7 +1190,22 @@
       "solution": "짝끼리 동시에 합치면 한 단계에 개수가 절반으로 줄어듭니다(n→n/2→n/4→…→1). 절반씩 줄이니 <b>log₂n 단계</b> = 깊이 O(log n). 각 단계의 합산들은 서로 독립이라 동시 실행됩니다.",
       "q_en": "Why is the depth (span) of parallel summation of n numbers O(log n)?",
       "sol_en": "Summing pairs at once halves the count each step (n→n/2→…→1). Halving gives <b>log₂n steps</b> = depth O(log n). Each step's sums are independent, so they run concurrently."
-    }
+    },
+    "impl": [
+      "// 작업(work)·깊이(depth) 모델",
+      "// work T1 = 전체 연산 수 (직렬 시간)",
+      "// depth T∞ = 임계경로 길이 (무한 프로세서 시간)",
+      "parallel_for(i = 0; i < n; i++)   // 분기",
+      "  process(i);",
+      "// 병렬 합: 분할정복 → depth O(log n)",
+      "long psum(int a[], int lo, int hi){",
+      "  if(hi - lo < CUT) return serialSum(a, lo, hi);",
+      "  int mid = (lo+hi)/2;",
+      "  long l = spawn psum(a, lo, mid);   // 동시 실행",
+      "  long r =       psum(a, mid, hi);",
+      "  sync;  return l + r;",
+      "}   // 가속비 ≤ T1/T∞ (브렌트 정리)"
+    ]
   },
   "algo_br_online": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -1047,7 +1280,18 @@
       "solution": "<b>lo = mid + 1</b>. mid는 이미 x보다 작다고 확인됐으니 제외해야 하고, +1을 안 하면 lo가 그대로라 구간이 줄지 않아 무한 루프가 됩니다.",
       "q_en": "In a while(lo ≤ hi) loop, when a[mid] < x, how should lo update to avoid an infinite loop?",
       "sol_en": "<b>lo = mid + 1</b>. mid is already known to be < x, so it must be excluded; without +1, lo stays put, the interval never shrinks, and it loops forever."
-    }
+    },
+    "impl": [
+      "int lowerBound(int a[], int n, int x){ // 처음 a[i] >= x",
+      "  int lo = 0, hi = n;            // [lo, hi) 반열린",
+      "  while(lo < hi){",
+      "    int mid = lo + (hi - lo)/2;  // 오버플로 회피",
+      "    if(a[mid] < x) lo = mid + 1; // 답은 항상 [lo, hi]",
+      "    else           hi = mid;",
+      "  }",
+      "  return lo;  // 불변식 유지 → 무한루프·경계 버그 없음",
+      "}"
+    ]
   },
   "algo_br_dinic": {
     "ch": "알고리즘 제6장 그래프",
@@ -1092,7 +1336,22 @@
       "solution": "각 단계가 <b>현재 가장 싼 추가 유량 1단위</b>를 더하므로, 유량이 늘수록 단위비용이 단조 증가(볼록) → 매 단계 최선이 곧 <b>전체 최소비용</b>이 됩니다. 아무 경로나 쓰면 비싼 길을 먼저 채워 최적성이 깨집니다.",
       "q_en": "Why pick the min-cost shortest path (not any) for augmentation in MCMF?",
       "sol_en": "Each step adds the <b>cheapest next unit</b> of flow, so unit cost rises monotonically (convex) — making each greedy step yield the <b>global minimum cost</b>. Using an arbitrary path could fill an expensive route first and break optimality."
-    }
+    },
+    "impl": [
+      "// 최소 비용 최대 유량: SPFA로 최소비용 증대경로",
+      "int mcmf(int s, int t){",
+      "  int flow = 0, cost = 0;",
+      "  while(spfa(s, t, dist, parent)){  // 비용 최소 경로",
+      "    int bn = bottleneck(s, t, parent);",
+      "    for(int v = t; v != s; v = from[parent[v]]){",
+      "      cap[parent[v]] -= bn;",
+      "      cap[parent[v]^1] += bn;   // 역간선",
+      "    }",
+      "    flow += bn; cost += bn * dist[t];",
+      "  }",
+      "  return cost;  // 최대 유량 중 최소 비용",
+      "}"
+    ]
   },
   "algo_br_2sat": {
     "ch": "알고리즘 제6장 그래프",
@@ -1197,7 +1456,19 @@
       "solution": "글자 사이마다 <b>구분자(#)를 끼워</b> \"#a#b#b#a#\"처럼 만듭니다. 그러면 모든 회문이 <b>홀수 길이·홀수 중심</b>이 되어 한 가지 경우로 통일되고, 변환 길이도 2n+1이라 복잡도는 그대로 O(n)입니다.",
       "q_en": "How does Manacher handle even-length palindromes (e.g. \"abba\")?",
       "sol_en": "Insert a <b>separator (#) between characters</b>, e.g. \"#a#b#b#a#\". Then every palindrome has an <b>odd length and odd center</b>, unifying the cases; the transformed length is 2n+1, so it stays O(n)."
-    }
+    },
+    "impl": [
+      "int manacher(string s){          // 변환: ^#a#b#...#$",
+      "  string t = transform(s); int n = t.size();",
+      "  int p[n] = {0}, c = 0, r = 0;  // p[i]=회문 반지름",
+      "  for(int i = 1; i < n-1; i++){",
+      "    if(i < r) p[i] = min(r - i, p[2*c - i]); // 거울",
+      "    while(t[i+p[i]+1] == t[i-p[i]-1]) p[i]++;",
+      "    if(i + p[i] > r){ c = i; r = i + p[i]; }",
+      "  }",
+      "  return maxOf(p);  // 최장 회문 길이 O(n)",
+      "}"
+    ]
   },
   "algo_br_millerrabin": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -1227,7 +1498,18 @@
       "solution": "법들이 <b>쌍마다 서로소(pairwise coprime)</b>여야 합니다. 그러면 곱 m = m₁·m₂·… 를 법으로 해가 정확히 하나 존재합니다. 공통 인수가 있으면 해가 없거나 여러 개일 수 있습니다.",
       "q_en": "What must the moduli satisfy for CRT to guarantee a unique solution?",
       "sol_en": "They must be <b>pairwise coprime</b>; then there is exactly one solution modulo m = m₁·m₂·…. With a common factor, solutions may be absent or non-unique."
-    }
+    },
+    "impl": [
+      "// x ≡ r1 (mod m1),  x ≡ r2 (mod m2)  병합",
+      "long crt2(long r1,long m1,long r2,long m2){",
+      "  long g, p, q; extgcd(m1, m2, g, p, q);",
+      "  if((r2 - r1) % g != 0) return -1;  // 해 없음",
+      "  long lcm = m1 / g * m2;",
+      "  long t = (r2 - r1) / g % (m2/g) * p % (m2/g);",
+      "  long x = (r1 + m1 * t) % lcm;",
+      "  return (x + lcm) % lcm;  // 유일 해 mod lcm(m1,m2)",
+      "}"
+    ]
   },
   "algo_br_segintersect": {
     "ch": "알고리즘 제2장 자료구조",
@@ -1332,7 +1614,23 @@
       "solution": "<b>light 간선을 탈 때마다 향하는 서브트리 크기가 절반 이하로 줄기</b> 때문입니다(더 큰 자식이 heavy니까). n이 절반씩 줄 수 있는 횟수 = O(log n) → light 전환도 O(log n)번뿐입니다.",
       "q_en": "Why does a root-to-node path cross only O(log n) light edges in HLD?",
       "sol_en": "Each <b>light edge at least halves the target subtree size</b> (the bigger child is heavy). The number of halvings is O(log n), so there are at most O(log n) light switches."
-    }
+    },
+    "impl": [
+      "// Heavy-Light 분해: 트리 경로를 O(log n) 구간으로",
+      "void dfsHeavy(int u){           // 무거운 자식 = 서브트리 최대",
+      "  sz[u] = 1; int mx = 0;",
+      "  for(int v : adj[u]) if(v != par[u]){",
+      "    dfsHeavy(v); sz[u] += sz[v];",
+      "    if(sz[v] > mx){ mx = sz[v]; heavy[u] = v; }",
+      "  }",
+      "}",
+      "void decompose(int u, int h){   // h = 체인 머리",
+      "  head[u] = h; pos[u] = curPos++;",
+      "  if(heavy[u]) decompose(heavy[u], h);     // 같은 체인",
+      "  for(int v : adj[u]) if(v != par[u] && v != heavy[u])",
+      "    decompose(v, v);            // 새 체인",
+      "}   // 경로 질의 = O(log n)개 체인 × 세그트리"
+    ]
   },
   "algo_br_mo": {
     "ch": "알고리즘 제3장 정렬",
@@ -1422,7 +1720,19 @@
       "solution": "사이클이 있으면 양의 사이클을 무한히 돌아 최장경로가 정의되지 않거나 탐색이 폭발합니다. <b>DAG는 사이클이 없어</b> 위상순서대로 각 정점을 한 번만 완화하면 되므로 O(V+E)입니다.",
       "q_en": "Why is longest path NP-hard in general but O(V+E) in a DAG?",
       "sol_en": "With cycles you could loop a positive cycle forever (undefined) or blow up the search. A <b>DAG has no cycles</b>, so relaxing each vertex once in topological order suffices — O(V+E)."
-    }
+    },
+    "impl": [
+      "// DAG 최장 경로 = 위상순서 DP (임계경로)",
+      "int longestPath(){",
+      "  topoSort(order);",
+      "  for(int v = 0; v < V; v++) dp[v] = 0;",
+      "  for(int u : order)            // 위상 순서대로",
+      "    for(auto [v,w] : adj[u])",
+      "      dp[v] = max(dp[v], dp[u] + w);",
+      "  return maxOf(dp);",
+      "}",
+      "// 각 간선 한 번 → O(V+E). 사이클 없어 순서 보장"
+    ]
   },
   "algo_br_sam": {
     "ch": "알고리즘 제4장 탐색",
@@ -1437,7 +1747,23 @@
       "solution": "끝나는 위치 집합(<b>endpos</b>)이 같은 부분문자열들을 <b>한 상태로 묶기</b> 때문입니다. 서로 다른 endpos 클래스는 O(n)개뿐이라 상태·간선이 선형(상태 ≤ 2n−1)에 머뭅니다.",
       "q_en": "Why is a suffix automaton linear in size despite holding all substrings?",
       "sol_en": "It <b>merges substrings sharing the same end-position set (endpos)</b> into one state. There are only O(n) distinct endpos classes, so states/edges stay linear (states ≤ 2n−1)."
-    }
+    },
+    "impl": [
+      "// 접미사 오토마톤: 모든 부분문자열을 O(n) 상태로",
+      "void saExtend(int c){",
+      "  int cur = newState(len[last]+1);",
+      "  int p = last;",
+      "  while(p != -1 && !has(p, c)){ link[p->c] = cur; p = link[p]; }",
+      "  if(p == -1) suf[cur] = root;",
+      "  else { int q = go[p][c];",
+      "    if(len[p]+1 == len[q]) suf[cur] = q;",
+      "    else { int clone = cloneState(q, len[p]+1);  // 상태 분할",
+      "      while(p != -1 && go[p][c] == q){ go[p][c] = clone; p = link[p]; }",
+      "      suf[q] = suf[cur] = clone; }",
+      "  }",
+      "  last = cur;",
+      "}   // 상태 ≤ 2n, 전이 ≤ 3n"
+    ]
   },
   "algo_br_fftmul": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -1527,7 +1853,20 @@
       "solution": "점화식을 <b>[F(n+1),F(n)]ᵀ = M·[F(n),F(n−1)]ᵀ</b>(M=[[1,1],[1,0]])로 쓰면 n단계 = <b>Mⁿ</b> 곱입니다. Mⁿ을 <b>빠른 거듭제곱</b>으로 O(log n)번 곱하면 됩니다.",
       "q_en": "How does matrix exponentiation get Fibonacci F(n) in O(log n)?",
       "sol_en": "Writing the recurrence as <b>[F(n+1),F(n)]ᵀ = M·[F(n),F(n−1)]ᵀ</b> (M=[[1,1],[1,0]]), n steps equals multiplying by <b>Mⁿ</b>, computed in O(log n) multiplies via <b>fast exponentiation</b>."
-    }
+    },
+    "impl": [
+      "// 선형 점화식을 행렬 거듭제곱으로 O(log n)",
+      "Mat matpow(Mat A, long n){",
+      "  Mat R = identity();",
+      "  while(n > 0){",
+      "    if(n & 1) R = R * A;   // 비트가 1이면 곱",
+      "    A = A * A;             // 제곱",
+      "    n >>= 1;",
+      "  }",
+      "  return R;",
+      "}",
+      "// 피보나치: [[1,1],[1,0]]^n 의 [0][1] = F(n)"
+    ]
   },
   "algo_br_treedp": {
     "ch": "알고리즘 제5장 트리",
@@ -1632,7 +1971,24 @@
       "solution": "<b>수치 안정성</b> 때문입니다. 피벗이 0이거나 아주 작으면 그 행의 배수를 뺄 때 큰 반올림 오차가 생기므로, 절댓값이 가장 큰 행을 피벗으로 올려 오차를 줄입니다(또한 피벗 0으로 인한 나눗셈 실패도 방지).",
       "q_en": "Why use partial pivoting (largest-magnitude row up) in Gaussian elimination?",
       "sol_en": "For <b>numerical stability</b>: a zero or tiny pivot causes large rounding error when subtracting its multiples, so moving the largest-magnitude row up reduces error (and avoids division by a zero pivot)."
-    }
+    },
+    "impl": [
+      "// 가우스 소거: 연립 일차방정식 Ax = b",
+      "void gauss(double A[n][n+1]){",
+      "  for(int col = 0, row = 0; col < n; col++){",
+      "    int piv = row;",
+      "    for(int i = row+1; i < n; i++)",
+      "      if(fabs(A[i][col]) > fabs(A[piv][col])) piv = i;",
+      "    if(fabs(A[piv][col]) < EPS) continue;",
+      "    swap(A[piv], A[row]);          // 부분 피벗팅",
+      "    for(int i = 0; i < n; i++) if(i != row){",
+      "      double f = A[i][col] / A[row][col];",
+      "      for(int j = col; j <= n; j++) A[i][j] -= f * A[row][j];",
+      "    }",
+      "    row++;",
+      "  }",
+      "}   // O(n^3), 후진대입으로 해 추출"
+    ]
   },
   "algo_br_strhash": {
     "ch": "알고리즘 제4장 탐색",
@@ -1692,7 +2048,22 @@
       "solution": "<b>우선순위가 무작위</b>라, 우선순위가 큰 순으로 삽입한 BST = <b>키를 무작위 순서로 넣은 BST</b>와 같은 분포가 됩니다. 무작위 삽입 BST의 기대 높이가 O(log n)이므로 트립도 그렇습니다.",
       "q_en": "Why does a treap have expected O(log n) height without explicit balancing?",
       "sol_en": "Because <b>priorities are random</b>, the tree equals a BST built by inserting keys in <b>random order</b>; random-insertion BSTs have expected height O(log n), so treaps do too."
-    }
+    },
+    "impl": [
+      "// 트립 = BST(키) + 힙(무작위 우선순위)",
+      "Node* merge(Node* a, Node* b){",
+      "  if(!a || !b) return a ? a : b;",
+      "  if(a->pri > b->pri){ a->r = merge(a->r, b); return a; }",
+      "  else { b->l = merge(a, b->l); return b; }",
+      "}",
+      "pair split(Node* t, int key){   // < key 와 >= key",
+      "  if(!t) return {NULL, NULL};",
+      "  if(t->key < key){ auto [l,r] = split(t->r, key);",
+      "    t->r = l; return {t, r}; }",
+      "  else { auto [l,r] = split(t->l, key);",
+      "    t->l = r; return {l, t}; }",
+      "}   // 기대 높이 O(log n)"
+    ]
   },
   "algo_br_centroid": {
     "ch": "알고리즘 제5장 트리",
@@ -1707,7 +2078,22 @@
       "solution": "모든 경로는 두 끝점의 <b>분해 트리상 최소 공통 센트로이드를 반드시 지납니다</b>. 그래서 센트로이드별로 \"그를 지나는 경로\"만 모으면 되고, 각 정점이 O(log n)개 센트로이드에만 속해 전체 O(n log n)입니다.",
       "q_en": "What property lets centroid decomposition answer tree-path queries in O(n log n)?",
       "sol_en": "Every path must pass through the <b>lowest common centroid of its endpoints</b> in the decomposition tree, so each centroid only handles paths through it; since each vertex lies in O(log n) centroids, the total is O(n log n)."
-    }
+    },
+    "impl": [
+      "// 센트로이드 분할: 트리를 균형 재귀",
+      "int centroid(int u, int total){    // 서브트리 최대 ≤ total/2 인 점",
+      "  for(int v : adj[u]) if(!removed[v] && v != par[u])",
+      "    if(sz[v] > total/2) return centroid(v, total);",
+      "  return u;",
+      "}",
+      "void solve(int u){",
+      "  int c = centroid(u, subtreeSize(u));",
+      "  removed[c] = true;",
+      "  countPaths(c);          // c를 지나는 경로 처리",
+      "  for(int v : adj[c]) if(!removed[v])",
+      "    solve(v);             // 조각마다 재귀 (깊이 O(log n))",
+      "}"
+    ]
   },
   "algo_br_sparse": {
     "ch": "알고리즘 제2장 자료구조",
@@ -1737,7 +2123,17 @@
       "solution": "DFS는 v에 들어가면 v의 <b>모든 후손을 다 본 뒤</b> 빠져나옵니다. 그래서 진입 시각 tin[v]와 탈출 시각 tout[v] 사이의 모든 시각은 정확히 v의 서브트리 정점들 → 구간 <b>[tin[v], tout[v]]</b>가 됩니다.",
       "q_en": "Why does a subtree become a contiguous array range in the Euler tour technique?",
       "sol_en": "DFS enters v, visits <b>all of v's descendants</b>, then leaves. So every time between tin[v] and tout[v] belongs exactly to v's subtree, giving the range <b>[tin[v], tout[v]]</b>."
-    }
+    },
+    "impl": [
+      "// 오일러 투어: 트리를 배열로 펼쳐 서브트리=구간",
+      "void dfs(int u){",
+      "  tin[u] = timer++;        // 진입 시각",
+      "  for(int v : adj[u]) if(v != par[u]) dfs(v);",
+      "  tout[u] = timer++;       // 종료 시각",
+      "}",
+      "// u의 서브트리 = 배열 구간 [tin[u], tout[u]]",
+      "// → 서브트리 합/갱신을 세그트리/펜윅으로 O(log n)"
+    ]
   },
   "algo_br_grundy": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -1812,7 +2208,19 @@
       "solution": "<b>C₃ = 5</b>가지입니다. 카탈란 점화식 C₃ = C₀C₂ + C₁C₁ + C₂C₀ = 1·2 + 1·1 + 2·1 = 5, 또는 공식 C(6,3)/4 = 20/4 = 5. 올바른 괄호열 3쌍의 가짓수와 정확히 같습니다.",
       "q_en": "How many distinct shapes of binary tree have exactly 3 nodes?",
       "sol_en": "<b>C₃ = 5</b>. By the Catalan recurrence C₃ = C₀C₂ + C₁C₁ + C₂C₀ = 1·2 + 1·1 + 2·1 = 5, or the formula C(6,3)/4 = 20/4 = 5 — exactly the number of balanced parenthesis strings of 3 pairs."
-    }
+    },
+    "impl": [
+      "// C(n) = 괄호·이진트리·경로의 수",
+      "long catalan(int n){",
+      "  long C[n+1]; C[0] = 1;",
+      "  for(int i = 1; i <= n; i++){",
+      "    C[i] = 0;",
+      "    for(int j = 0; j < i; j++)",
+      "      C[i] += C[j] * C[i-1-j];   // 분할 점화식",
+      "  }",
+      "  return C[n];   // 닫힌식: C(n) = (2n)! / ((n+1)! n!)",
+      "}"
+    ]
   },
   "algo_br_lct": {
     "ch": "알고리즘 제5장 트리",
@@ -1857,7 +2265,19 @@
       "solution": "정확히 <b>1/n</b>입니다. 첫 원소는 살아남으려면 이후 매 단계 i에서 교체되지 않아야 하니 확률은 (1−1/2)(1−1/3)…(1−1/n) = (1/2)(2/3)…((n−1)/n) = <b>1/n</b>. 모든 원소가 동일하게 1/n이라 균등합니다.",
       "q_en": "In k=1 reservoir sampling, what is the probability the first element is the one selected after seeing all n?",
       "sol_en": "Exactly <b>1/n</b>. The first element survives only if it is never replaced at each later step i, with probability (1−1/2)(1−1/3)…(1−1/n) = (1/2)(2/3)…((n−1)/n) = <b>1/n</b> — and every element has the same 1/n, so it is uniform."
-    }
+    },
+    "impl": [
+      "// 길이 모르는 스트림에서 k개를 공정하게",
+      "void reservoir(Stream s, int k){",
+      "  int res[k];",
+      "  for(int i = 0; i < k; i++) res[i] = s.next();  // 처음 k개",
+      "  for(int i = k; s.hasNext(); i++){",
+      "    int j = rand() % (i + 1);    // 0..i",
+      "    if(j < k) res[j] = s.get(i); // 확률 k/(i+1)로 교체",
+      "  }",
+      "  // 모든 원소가 최종적으로 k/n 확률 (귀납)",
+      "}"
+    ]
   },
   "algo_br_ntt": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -1947,7 +2367,20 @@
       "solution": "<b>(a+b)(c+d) = ac + ad + bc + bd</b> 를 한 번 곱하고, 이미 구한 <b>ac(=z₂)와 bd(=z₀)를 빼면</b> 정확히 ad+bc가 됩니다. 그래서 곱셈은 ac, bd, (a+b)(c+d) 단 <b>3번</b>, 점화식 T(n)=3T(n/2)+O(n) → O(n^1.585).",
       "q_en": "How does Karatsuba get the middle term ad+bc with a single multiplication?",
       "sol_en": "Compute <b>(a+b)(c+d) = ac + ad + bc + bd</b> once, then <b>subtract the already-computed ac (=z₂) and bd (=z₀)</b> to leave exactly ad+bc. So only <b>three</b> products (ac, bd, (a+b)(c+d)) are needed, giving T(n)=3T(n/2)+O(n) → O(n^1.585)."
-    }
+    },
+    "impl": [
+      "// n자리 곱을 3번의 절반 곱으로 (4번 대신)",
+      "long karatsuba(long x, long y, int n){",
+      "  if(n <= 1) return x * y;",
+      "  int h = n / 2; long b = pow10(h);",
+      "  long xh = x / b, xl = x % b;",
+      "  long yh = y / b, yl = y % b;",
+      "  long a = karatsuba(xh, yh, n-h);   // 상위",
+      "  long c = karatsuba(xl, yl, h);     // 하위",
+      "  long m = karatsuba(xh+xl, yh+yl, n-h) - a - c;  // 교차",
+      "  return a*b*b + m*b + c;",
+      "}   // T(n)=3T(n/2)+O(n) → O(n^1.585)"
+    ]
   },
   "algo_br_lagrange": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -2082,7 +2515,21 @@
       "solution": "DFS 순서로 정렬한 <b>인접 키 정점 쌍의 LCA</b>들을 추가합니다. 이 LCA들은 키 정점들의 경로가 <b>갈라지는 분기점</b>이라, 이들이 있어야 원래 트리의 조상-자손 관계를 정확히 압축해 크기 O(k) 트리로 보존할 수 있습니다.",
       "q_en": "When building a virtual tree, which extra vertices must be added besides the key vertices, and why?",
       "sol_en": "The <b>LCAs of adjacent key-vertex pairs</b> (in DFS order). These LCAs are the <b>branch points</b> where key-vertex paths diverge; including them lets you faithfully compress the original ancestry into an O(k)-size tree."
-    }
+    },
+    "impl": [
+      "// 가상 트리: 관심 정점 + 그들의 LCA만 압축",
+      "void buildVirtual(vector<int>& key){",
+      "  sort(key, by_tin);            // DFS 진입순",
+      "  stack<int> st; st.push(key[0]);",
+      "  for(int i = 1; i < key.size(); i++){",
+      "    int l = lca(key[i], st.top());",
+      "    while(st.size()>1 && tin[l] < tin[secondTop(st)]){",
+      "      addEdge(secondTop(st), st.top()); st.pop(); }",
+      "    if(st.top() != l){ addEdge(l, st.top()); st.pop(); st.push(l); }",
+      "    st.push(key[i]);",
+      "  }",
+      "}   // 크기 O(k), 트리 DP를 빠르게"
+    ]
   },
   "algo_br_karger": {
     "ch": "알고리즘 제6장 그래프",
@@ -2157,7 +2604,18 @@
       "solution": "불리언 64개를 한 워드에 담아 AND/OR/시프트를 하면 <b>명령 한 번이 64칸을 동시에</b> 처리합니다. 그래서 상수가 1/64로 줄어 실측이 수십 배 빨라집니다. 다만 <b>점근 차수(O(n²))는 그대로</b>이고 상수만 작아지는 것입니다.",
       "q_en": "How does a bitset make an O(n²) algorithm O(n²/64)? Does the asymptotic order change?",
       "sol_en": "Packing 64 booleans into one word, a single AND/OR/shift processes <b>64 cells at once</b>, cutting the constant to 1/64 (tens of times faster in practice). The <b>asymptotic order (O(n²)) is unchanged</b> — only the constant shrinks."
-    }
+    },
+    "impl": [
+      "// 비트셋: 한 워드(64비트)에 64칸을 한 번에",
+      "// LCS 등 DP를 64배 가속",
+      "bitset<N> row;",
+      "for(int i = 0; i < n; i++){",
+      "  bitset<N> x = (row << 1) | match[a[i]];",
+      "  // Hyyro 비트-병렬 갱신",
+      "  row = x & ~((x - shift) ^ x);",
+      "}",
+      "// 워드 단위 &, |, ^, shift → O(n·m / 64)"
+    ]
   },
   "algo_br_fibheap": {
     "ch": "알고리즘 제6장 그래프",
@@ -2172,7 +2630,20 @@
       "solution": "<b>정리를 미루는 것</b>입니다. insert는 뿌리 목록에 던지고, decrease-key는 서브트리를 잘라 뿌리로 올리기만 합니다(둘 다 O(1)). 미뤄 둔 \"같은 차수 뿌리 합치기(consolidate)\"는 <b>extract-min 때만</b> 수행해 그 연산에 분할상환 O(log n)으로 비용을 몰아줍니다.",
       "q_en": "How does a Fibonacci heap do insert and decrease-key in O(1) yet stay sorted overall?",
       "sol_en": "By <b>deferring cleanup</b>: insert drops into the root list and decrease-key just cuts a subtree up to a root (both O(1)). The postponed \"consolidate roots of equal degree\" runs <b>only at extract-min</b>, concentrating the cost there at amortized O(log n)."
-    }
+    },
+    "impl": [
+      "// 피보나치 힙: decrease-key 상각 O(1)",
+      "void decreaseKey(Node* x, int v){",
+      "  x->key = v;",
+      "  Node* p = x->parent;",
+      "  if(p && x->key < p->key){",
+      "    cut(x, p);          // 부모에서 잘라 루트로",
+      "    cascadingCut(p);    // 표시된 부모 연쇄 절단",
+      "  }",
+      "  if(x->key < minNode->key) minNode = x;",
+      "}",
+      "// extractMin은 상각 O(log n), 다익스트라/프림 가속"
+    ]
   },
   "algo_br_veb": {
     "ch": "알고리즘 제2장 자료구조",
@@ -2247,7 +2718,22 @@
       "solution": "세그먼트 트리 DFS에서 노드를 나갈 때 union을 <b>정확히 되돌려야(rollback)</b> 하는데, 경로 압축은 find 중 트리 구조를 광범위하게 바꿔 되돌리기가 어렵습니다. <b>union by rank/size만</b> 쓰면 각 union이 바꾼 것(부모 1개·랭크)만 스택에 저장해 역순 복원할 수 있어, find는 O(log n)이 되지만 롤백이 가능합니다.",
       "q_en": "Why does offline dynamic connectivity avoid 'path compression' in its union-find?",
       "sol_en": "The segment-tree DFS must <b>exactly roll back</b> unions when leaving a node, but path compression rewrites the tree broadly during find, making undo hard. Using <b>only union by rank/size</b>, each union changes just one parent and a rank, which can be pushed to a stack and undone in reverse — find becomes O(log n) but rollback is possible."
-    }
+    },
+    "impl": [
+      "// 오프라인 동적 연결성: 시간축 세그트리 + 롤백 DSU",
+      "// 각 간선의 [생성, 삭제) 구간을 시간 세그트리에 등록",
+      "void addEdge(int l, int r, Edge e){  // 구간 [l,r)에 간선 배치",
+      "  segInsert(1, 0, Q, l, r, e);",
+      "}",
+      "void dfs(int node, int tl, int tr){",
+      "  int snap = dsu.snapshot();",
+      "  for(Edge e : seg[node]) dsu.unite(e.u, e.v);  // 적용",
+      "  if(tl == tr) answer[tl] = dsu.components();",
+      "  else { int mid=(tl+tr)/2;",
+      "    dfs(L, tl, mid); dfs(R, mid+1, tr); }",
+      "  dsu.rollback(snap);   // 되돌리기(경로압축 없는 union by rank)",
+      "}   // O(Q log Q · α)"
+    ]
   },
   "algo_br_bcc": {
     "ch": "알고리즘 제6장 그래프",
@@ -2367,7 +2853,17 @@
       "solution": "<b>x & (x−1)</b>은 x의 <b>최하위 켜진 비트 하나를 끕니다</b>(x−1이 그 비트 아래를 모두 뒤집기 때문). 따라서 x가 0이 될 때까지 이 연산을 반복하면, 반복 횟수가 곧 <b>켜진 비트 수(popcount)</b>입니다 — 켜진 비트 수만큼만 돌아 빠릅니다(브라이언 커니핸 방법).",
       "q_en": "What does x & (x−1) do, and how does it count popcount?",
       "sol_en": "<b>x & (x−1)</b> <b>clears the lowest set bit</b> of x (since x−1 flips everything below that bit). So repeating it until x is 0 takes exactly as many steps as there are set bits — that count is the <b>popcount</b> (Brian Kernighan's method), running only in the number of set bits."
-    }
+    },
+    "impl": [
+      "x & (x-1)          // 최하위 1비트 제거",
+      "x & (-x)           // 최하위 1비트만 추출(lowbit)",
+      "x | (x+1)          // 최하위 0비트 켜기",
+      "__builtin_popcount(x)   // 켜진 비트 수",
+      "__builtin_ctz(x)        // 끝의 0 개수(=최하위 1 위치)",
+      "for(int s = m; s; s = (s-1) & m)   // m의 모든 부분집합 순회",
+      "(x >> k) & 1       // k번째 비트 읽기",
+      "x ^= (1 << k)      // k번째 비트 토글"
+    ]
   },
   "algo_br_xorbasis": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -2697,7 +3193,22 @@
       "solution": "두 선분이 교차하려면, 교차점 직전에 스위프라인 위에서 <b>반드시 위아래로 인접</b>해진 순간이 있기 때문입니다(연속적으로 y순서가 바뀌므로). 그래서 삽입·삭제·교차 이벤트에서 <b>새로 이웃이 된 쌍만</b> 검사하면 모든 교차를 빠짐없이 찾고, 검사 횟수가 O(n+k)로 줄어 O((n+k)log n)이 됩니다.",
       "q_en": "Why can Bentley-Ottmann check only adjacent segments instead of all O(n²) pairs?",
       "sol_en": "Because two segments, just before intersecting, must <b>become vertically adjacent</b> on the sweep line (their y-order changes continuously). So checking only <b>newly adjacent pairs</b> at insert/delete/intersection events catches every crossing, reducing checks to O(n+k) and the total to O((n+k)log n)."
-    }
+    },
+    "impl": [
+      "// Bentley-Ottmann: 스위프라인 선분 교차",
+      "void sweep(){",
+      "  priority_queue events;   // x좌표 순(시작/끝/교차)",
+      "  set status;              // 현재 y순 활성 선분",
+      "  while(!events.empty()){",
+      "    Event e = events.pop();",
+      "    if(e.type == START){ status.insert(e.seg);",
+      "      checkCross(above(e.seg), e.seg);",
+      "      checkCross(e.seg, below(e.seg)); }",
+      "    else if(e.type == END) status.erase(e.seg);",
+      "    else report(e.point);  // 교차점",
+      "  }",
+      "}   // O((n+k) log n), k=교차 수"
+    ]
   },
   "algo_br_welzl": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -2727,7 +3238,20 @@
       "solution": "WHT는 <b>XOR 군의 푸리에 변환</b>이라, 기저(아다마르 행렬)가 <b>±1</b>로만 이뤄집니다. 그래서 나비 연산이 복소 단위근 곱이 아니라 단순 <b>(a,b)→(a+b, a−b)</b>입니다. 변환 후 점곱하고 역변환하면 XOR 합성곱이 나오며, 전 과정이 ±합이라 정수면 오차도 0입니다.",
       "q_en": "Why can WHT do convolution in O(n log n) like FFT yet need no multiplicative roots of unity?",
       "sol_en": "WHT is the <b>Fourier transform of the XOR group</b>, so its basis (the Hadamard matrix) has only <b>±1</b> entries. Hence the butterfly is just <b>(a,b)→(a+b, a−b)</b> rather than complex root multiplications. Transform, pointwise-multiply, inverse-transform yields the XOR convolution — all ±sums, exact for integers."
-    }
+    },
+    "impl": [
+      "// Walsh-Hadamard: XOR 합성곱을 O(n log n)",
+      "void wht(long a[], int n, bool inv){",
+      "  for(int len = 1; len < n; len <<= 1)",
+      "    for(int i = 0; i < n; i += len<<1)",
+      "      for(int j = i; j < i+len; j++){",
+      "        long x = a[j], y = a[j+len];",
+      "        a[j] = x + y;  a[j+len] = x - y;   // 버터플라이",
+      "      }",
+      "  if(inv) for(int i = 0; i < n; i++) a[i] /= n;",
+      "}",
+      "// C = WHT^-1( WHT(A) · WHT(B) )"
+    ]
   },
   "algo_br_legendre": {
     "ch": "알고리즘 제2장 자료구조",
@@ -3312,7 +3836,20 @@
       "solution": "피벗(중앙값의 중앙값)이 적어도 <b>약 30%를 양쪽으로</b> 갈라, 분할 후 큰 쪽이 최대 <b>7n/10</b>입니다. 피벗을 만드는 데 중앙값들(n/5개)의 중앙값을 <b>T(n/5)</b>로 재귀하고, 분할 후 <b>T(7n/10)</b>로 재귀하며 나머지가 O(n)이라 <b>T(n)=T(n/5)+T(7n/10)+O(n)</b>. 1/5+7/10<1이므로 O(n)으로 풀립니다.",
       "q_en": "Explain via the recurrence why median of medians is worst-case O(n).",
       "sol_en": "The pivot (median of medians) splits off at least <b>about 30% on each side</b>, so the larger side after partition is at most <b>7n/10</b>. Building the pivot recurses on the n/5 group medians as <b>T(n/5)</b>, and the partition recurses as <b>T(7n/10)</b>, with O(n) other work: <b>T(n)=T(n/5)+T(7n/10)+O(n)</b>. Since 1/5+7/10<1, it solves to O(n)."
-    }
+    },
+    "impl": [
+      "// 중앙값의 중앙값 → 결정론적 O(n) 선택",
+      "int mom(int a[], int n, int k){",
+      "  if(n <= 5){ sort(a, n); return a[k]; }",
+      "  int meds[n/5];",
+      "  for(int i = 0; i < n/5; i++)",
+      "    meds[i] = median5(a + 5*i);  // 5개씩 중앙값",
+      "  int pivot = mom(meds, n/5, n/10);  // 중앙값의 중앙값",
+      "  int p = partitionBy(a, n, pivot);  // ≥3n/10 보장 절단",
+      "  if(k == p) return a[p];",
+      "  return k < p ? mom(a, p, k) : mom(a+p+1, n-p-1, k-p-1);",
+      "}   // T(n) ≤ T(n/5)+T(7n/10)+O(n) = O(n)"
+    ]
   },
   "algo_br_kitamasa": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -3447,7 +3984,17 @@
       "solution": "① <b>유도 정렬</b> — 정렬된 LMS 접미사들을 시드로, 버킷을 한 번씩 좌→우(L형)·우→좌(S형) 스캔해 <b>나머지 모든 접미사의 순서를 유도</b>. ② <b>재귀 크기 절반</b> — LMS 위치가 전체의 절반 이하라 재귀 문제가 ≤n/2이 되어 T(n)=T(n/2)+O(n)=O(n). \"일부만 정렬하면 전체가 스캔으로 결정\"이 마법입니다.",
       "q_en": "What are the two key ideas by which SA-IS builds a suffix array in O(n)?",
       "sol_en": "① <b>Induced sorting</b> — using sorted LMS suffixes as seeds, a single left-to-right (L-type) and right-to-left (S-type) bucket scan <b>induces the order of all remaining suffixes</b>. ② <b>Halved recursion</b> — LMS positions are at most half, so the recursive subproblem is ≤ n/2, giving T(n)=T(n/2)+O(n)=O(n). The magic: sorting only a subset determines the whole by scanning."
-    }
+    },
+    "impl": [
+      "// SA-IS: 접미사 배열을 선형 시간 O(n)",
+      "// 1) 각 접미사를 S형/L형으로 분류(뒤에서 앞으로)",
+      "// 2) LMS(L→S 경계) 위치를 추출",
+      "// 3) LMS 부분문자열을 유도 정렬(induced sort)",
+      "//    - L형을 앞에서, S형을 뒤에서 버킷에 채움",
+      "// 4) LMS 순위로 축약 문자열 만들어 재귀",
+      "// 5) 재귀 SA로 LMS 정렬 → 다시 유도 정렬 → 완성 SA",
+      "buildSA_IS(s);   // T(n)=T(n/2)+O(n)=O(n)"
+    ]
   },
   "algo_br_kmpauto": {
     "ch": "알고리즘 제4장 탐색",
@@ -3552,7 +4099,20 @@
       "solution": "판정: <b>잔여 그래프에 음수 비용 사이클이 없으면(⟺) 현재 순환이 최소 비용</b>입니다. 사이클 소거는 이를 직접 이용 — 잔여 그래프에서 <b>음수 비용 사이클을 (벨만-포드로) 찾아 그 사이클로 흐름을 흘려 총비용을 줄이기</b>를 음수 사이클이 사라질 때까지 반복합니다(최소 평균 사이클 선택 시 다항 시간).",
       "q_en": "What is the optimality criterion for a min-cost circulation, and how does cycle canceling use it?",
       "sol_en": "Criterion: <b>the current circulation is minimum-cost ⟺ its residual graph has no negative-cost cycle</b>. Cycle canceling uses this directly — repeatedly <b>find a negative-cost cycle (via Bellman-Ford) in the residual graph and push flow around it to lower the total cost</b>, until no negative cycle remains (polynomial if you pick the minimum-mean cycle)."
-    }
+    },
+    "impl": [
+      "// 최소 비용 순환: 음수 사이클이 사라질 때까지",
+      "int minCostCirculation(){",
+      "  while(true){",
+      "    int c = findNegativeCycle(residual);  // 벨만-포드류",
+      "    if(c == -1) break;        // 더 없음 → 최적",
+      "    int bn = minResidualOnCycle(c);",
+      "    pushFlowAlong(c, bn);     // 사이클로 유량 밀기",
+      "  }",
+      "  return totalCost();",
+      "}",
+      "// 음수 사이클 소거 정리 → 최소 비용"
+    ]
   },
   "algo_br_bidirectional": {
     "ch": "알고리즘 제6장 그래프",
@@ -3657,7 +4217,19 @@
       "solution": "① <b>각 층의 비용 합</b>: 루트 n, 다음 층 2×(n/2)=n, 그다음 4×(n/4)=n … <b>모든 층이 n으로 같음</b>. ② <b>층 수</b>: 크기가 매 층 절반이라 잎(크기 1)까지 높이 <b>lg n</b>(+1층). 둘을 곱해 (n)×(lg n) = <b>Θ(n lg n)</b>. 이 추측을 치환법으로 엄밀히 증명합니다.",
       "q_en": "What two ingredients let a recursion tree guess T(n)=2T(n/2)+n = Θ(n lg n)?",
       "sol_en": "① the <b>per-level cost sum</b>: root n, next level 2×(n/2)=n, then 4×(n/4)=n … <b>every level sums to n</b>; ② the <b>number of levels</b>: the size halves each level, so the height to leaves (size 1) is <b>lg n</b> (+1). Multiplying gives (n)×(lg n) = <b>Θ(n lg n)</b> — then verified rigorously by substitution."
-    }
+    },
+    "impl": [
+      "// 재귀 트리로 점화식 답 추측 → 치환법으로 증명",
+      "// T(n) = 2T(n/2) + n  의 트리:",
+      "//   층 0:        n",
+      "//   층 1:    n/2 + n/2          = n",
+      "//   층 2:  n/4·4                = n",
+      "//   ...   각 층 합 = n, 층 수 = log n",
+      "// 합계 = n · log n  →  T(n) = O(n log n)",
+      "int levels = log2(n);",
+      "int perLevel = n;",
+      "int total = perLevel * levels;"
+    ]
   },
   "algo_br_akrabazzi": {
     "ch": "알고리즘 제8장 설계 패러다임",

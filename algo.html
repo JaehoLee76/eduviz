@@ -208,6 +208,13 @@
   .cpt-intro b { color: #bfe0ff; font-weight: 600; }
   .cpt-sec { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
   .cpt-h { color: var(--accent-light); font-weight: 700; font-size: 12.5px; letter-spacing: .05em; margin-bottom: 8px; }
+  /* concept 장면 구현 코드 블록(라인번호+가벼운 키워드 강조) */
+  .implcode { background: rgba(8,10,16,0.66); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; padding: 11px 6px; margin-top: 2px; overflow-x: auto; }
+  .implcode .il { display: flex; white-space: pre; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.62; }
+  .implcode .iln { color: #444a57; min-width: 30px; text-align: right; padding-right: 13px; flex: 0 0 auto; -webkit-user-select: none; user-select: none; }
+  .implcode .ic { color: #d2dbe8; }
+  .implcode .ck { color: #7ab8ff; }
+  .implcode .cc { color: #6f8a6f; font-style: italic; }
   .concept b { color: var(--text-1); font-weight: 600; }
   .cpt-sec.en, .concept .en { color: var(--text-3); font-size: 13.5px; }
   .cpt-sec.en b, .concept .en b { color: var(--text-2); }
