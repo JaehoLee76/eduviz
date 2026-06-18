@@ -97,13 +97,32 @@
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('규칙: 왼쪽 자식 < 부모 < 오른쪽 자식', V.W/2, V.H*0.88); }
   },
 
-  // ══════════ 5.3 힙 (concept) ══════════
+  // ══════════ 5.3 힙 (concept, 삽입+sift-up 시연) ══════════
   { id:'algo5_04', concept:true,
-    enter:function(E){ this.heap=[42,28,35,12,18,9,30]; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, H=this.heap;
-      drawTree(E, H, function(i){ if(i===0) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'최대=루트'}; return null; }, {top:E.H*0.24,lg:E.H*0.17});
-      AV.arr(E, H, { y:E.H*0.72, bw:44, idx:true, hl:function(i){ return i===0?{fill:'rgba(255,178,122,0.25)',stroke:ORA,text:ORA}:null; } });
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('배열로 저장: 노드 i의 자식 = 2i+1, 2i+2', E.W/2, E.H*0.68); }
+    base:[42,28,35,12,18,9,30], inserts:[40,50],
+    enter:function(E){ this.s={heap:this.base.slice(), sift:-1, ins:0, flash:0, msg:'E로 새 값을 삽입해 보세요'}; E.setOn([]); var self=this;
+      function step(EE){ var s=self.s;
+        if(s.sift<0){ // 삽입 단계: 맨 끝에 새 값 추가
+          if(s.ins<self.inserts.length){ var v=self.inserts[s.ins++]; s.heap.push(v); s.sift=s.heap.length-1; s.flash=14; s.msg='새 값 '+v+'을 맨 끝에 넣고 위로 올립니다(sift-up)'; EE.blip(560,0.1); }
+          else { s.msg='더 넣을 값 없음 — C로 리셋'; EE.blip(220,0.08); } }
+        else { var i=s.sift, par=Math.floor((i-1)/2);
+          if(i>0 && s.heap[i]>s.heap[par]){ var t=s.heap[i]; s.heap[i]=s.heap[par]; s.heap[par]=t; s.sift=par; s.flash=14; s.msg=s.heap[par]+' > 부모 '+s.heap[i]+' → 교환하고 한 칸 위로'; EE.blip(500,0.1); }
+          else { s.msg=(i===0?'루트 도달':'부모보다 작거나 같음')+' → 제자리. 최대 힙 성질 유지!'; s.sift=-1; EE.blip(660,0.12); } } }
+      this.keys=[
+        {code:'KeyE', key:'E', label:'삽입 / 다음 sift 단계', act:step},
+        {code:'KeyC', key:'C', label:'리셋', act:function(EE){ self.s={heap:self.base.slice(), sift:-1, ins:0, flash:0, msg:'E로 새 값을 삽입해 보세요'}; EE.blip(330,0.1); }} ]; },
+    tap:function(E){ this.keys[0].act.call(this,E); },
+    draw:function(E){ var ctx=E.ctx, s=this.s, H=s.heap; if(s.flash>0)s.flash--;
+      var sift=s.sift, par=sift>0?Math.floor((sift-1)/2):-1;
+      drawTree(E, H, function(i){
+        if(i===sift) return {fill:'rgba(255,178,122,'+(s.flash>0?0.42:0.3)+')',stroke:ORA,text:ORA,tag:'올라가는 중'};
+        if(i===par) return {fill:'rgba(143,227,181,0.24)',stroke:GRN,text:GRN,tag:'부모(비교)'};
+        if(i===0&&sift<0) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'최대=루트'}; return null;
+      }, {top:E.H*0.22,lg:E.H*0.155});
+      AV.arr(E, H, { y:E.H*0.70, bw:40, idx:true, hl:function(i){ if(i===sift)return{fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA}; if(i===par)return{fill:'rgba(143,227,181,0.2)',stroke:GRN,text:GRN}; return i===0&&sift<0?{fill:'rgba(255,178,122,0.22)',stroke:ORA,text:ORA}:null; } });
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('배열 저장: 노드 i의 부모 = (i−1)/2, 자식 = 2i+1, 2i+2', E.W/2, E.H*0.65);
+      ctx.fillStyle=sift<0?GRN:ORA; ctx.font='600 14px sans-serif'; ctx.fillText(s.msg, E.W/2, E.H*0.86);
+      E.big('최대 힙 — 부모 ≥ 자식 (최댓값이 늘 꼭대기)', '힙 = 완전이진트리를 배열로. 부모가 자식보다 크다는 규칙만 지키면 최댓값이 항상 루트 → 꺼내기·우선순위 큐 O(log n). E=새 값 삽입 후 부모보다 크면 위로 교환(sift-up)을 직접 보세요.'); }
   },
 
   // ══════════ 5.3 균형의 중요성 (concept) ══════════
