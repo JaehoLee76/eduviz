@@ -57,7 +57,24 @@
       "solution": "항상 <b>루트(꼭대기)</b>. 그래서 최댓값을 O(1)에 보고, O(log n)에 꺼냅니다.",
       "q_en": "In a max-heap, where is the largest value?",
       "sol_en": "Always at the <b>root</b>. So you read the max in O(1) and remove it in O(log n)."
-    }
+    },
+    "impl": [
+      "// 최대 힙: 항상 최댓값이 꼭대기(루트)",
+      "void push(int x){          // 삽입 후 위로(sift-up)",
+      "  heap[++n] = x;",
+      "  for(int i = n; i > 1 && heap[i] > heap[i/2]; i /= 2)",
+      "    swap(heap[i], heap[i/2]);",
+      "}",
+      "int popMax(){              // 루트 빼고 아래로(sift-down)",
+      "  int top = heap[1]; heap[1] = heap[n--];",
+      "  for(int i = 1, c; (c = 2*i) <= n; i = c){",
+      "    if(c < n && heap[c+1] > heap[c]) c++;",
+      "    if(heap[i] >= heap[c]) break;",
+      "    swap(heap[i], heap[c]);",
+      "  }",
+      "  return top;   // 삽입·추출 모두 O(log n)",
+      "}"
+    ]
   },
   "algo5_05": {
     "ch": "알고리즘 제5장 트리",

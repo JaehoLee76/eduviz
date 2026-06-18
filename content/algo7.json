@@ -12,7 +12,16 @@
       "solution": "중복 계산이 지수적으로 늘어 <b>O(2ⁿ)</b> (사실상 사용 불가).",
       "q_en": "What is the time complexity of naive recursive Fibonacci?",
       "sol_en": "Repeated computation grows exponentially → <b>O(2ⁿ)</b> (practically unusable)."
-    }
+    },
+    "impl": [
+      "// 순진한 재귀: 같은 값을 지수적으로 다시 계산",
+      "int fib(int n){",
+      "  if(n <= 1) return n;       // 기저 사례",
+      "  return fib(n-1) + fib(n-2);  // 두 가지로 분기",
+      "}",
+      "// fib(5)는 fib(3)을 2번, fib(2)를 3번... 중복!",
+      "// 호출 수 ≈ 1.6^n → O(2^n) (메모이제이션이 해결)"
+    ]
   },
   "algo7_02": {
     "ch": "알고리즘 제7장 동적 계획법",

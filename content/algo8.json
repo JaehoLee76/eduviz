@@ -42,7 +42,18 @@
       "solution": "<b>분할 정복</b> — 문제를 절반으로 쪼개 해결 (둘 다 O(log n) 요소).",
       "q_en": "What design strategy do merge sort and binary search share?",
       "sol_en": "<b>Divide and conquer</b> — split the problem in half (both have an O(log n) factor)."
-    }
+    },
+    "impl": [
+      "// 분할 정복: 쪼개고 → 정복하고 → 합친다",
+      "Result divideConquer(Problem p){",
+      "  if(small(p)) return solveDirect(p);   // 기저",
+      "  auto [a, b] = split(p);          // 분할",
+      "  Result ra = divideConquer(a);    // 정복(재귀)",
+      "  Result rb = divideConquer(b);",
+      "  return combine(ra, rb);          // 결합",
+      "}",
+      "// 병합정렬·퀵정렬·이분탐색·카라츠바가 모두 이 틀"
+    ]
   },
   "algo8_04": {
     "ch": "알고리즘 제8장 설계 패러다임",

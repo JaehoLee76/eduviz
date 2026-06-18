@@ -12,7 +12,16 @@
       "solution": "<b>똑같이 빠릅니다</b>(둘 다 O(1)). 주소를 계산해 바로 접근하므로 위치와 무관.",
       "q_en": "Reading the 100th vs the 1st element of an array — which is faster?",
       "sol_en": "<b>Equally fast</b> (both O(1)). The address is computed directly, regardless of position."
-    }
+    },
+    "impl": [
+      "// 배열: 번호(인덱스)로 즉시 접근",
+      "int get(int a[], int i){ return a[i]; }   // O(1)",
+      "// 주소 = 시작주소 + i × 원소크기 → 바로 계산",
+      "void insertAt(int a[], int& n, int i, int v){",
+      "  for(int j = n; j > i; j--) a[j] = a[j-1]; // 뒤로 밀기",
+      "  a[i] = v; n++;            // 중간 삽입은 O(n)",
+      "}"
+    ]
   },
   "algo2_02": {
     "ch": "알고리즘 제2장 자료구조",
@@ -27,7 +36,18 @@
       "solution": "<b>O(1)</b>. 새 노드가 기존 머리를 가리키게 하고 머리를 바꾸면 끝(밀기 불필요).",
       "q_en": "What is the cost of inserting a value at the front of a linked list?",
       "sol_en": "<b>O(1)</b>. Point the new node to the old head and update the head — no shifting needed."
-    }
+    },
+    "impl": [
+      "struct Node { int val; Node* next; };",
+      "void insertFront(Node*& head, int v){   // O(1)",
+      "  Node* x = new Node{v, head};",
+      "  head = x;",
+      "}",
+      "void traverse(Node* head){",
+      "  for(Node* p = head; p; p = p->next)",
+      "    visit(p->val);          // 순차 접근 O(n), 임의접근 불가",
+      "}"
+    ]
   },
   "algo2_03": {
     "ch": "알고리즘 제2장 자료구조",
@@ -42,7 +62,15 @@
       "solution": "마지막에 넣은 <b>3</b> (LIFO).",
       "q_en": "Push 1, 2, 3 onto a stack, then pop once — what comes out?",
       "sol_en": "The last one pushed, <b>3</b> (LIFO)."
-    }
+    },
+    "impl": [
+      "// 스택: 마지막에 넣은 게 먼저 (LIFO)",
+      "int data[MAX], top = 0;",
+      "void push(int x){ data[top++] = x; }   // O(1)",
+      "int  pop(){ return data[--top]; }      // O(1)",
+      "int  peek(){ return data[top-1]; }",
+      "bool empty(){ return top == 0; }"
+    ]
   },
   "algo2_04": {
     "ch": "알고리즘 제2장 자료구조",
@@ -57,7 +85,15 @@
       "solution": "가장 먼저 넣은 <b>A</b> (FIFO).",
       "q_en": "Enqueue A, B, C into a queue, then dequeue once — what comes out?",
       "sol_en": "The first one in, <b>A</b> (FIFO)."
-    }
+    },
+    "impl": [
+      "// 큐: 먼저 온 사람이 먼저 (FIFO)",
+      "int data[MAX], head = 0, tail = 0;",
+      "void enqueue(int x){ data[tail++] = x; }   // 뒤로 넣고",
+      "int  dequeue(){ return data[head++]; }     // 앞에서 빼기",
+      "bool empty(){ return head == tail; }",
+      "// 원형 버퍼로 공간 재사용 가능"
+    ]
   },
   "algo2_05": {
     "ch": "알고리즘 제2장 자료구조",
@@ -72,6 +108,19 @@
       "solution": "<b>충돌(collision)</b>. 체이닝(연결 리스트로 묶기)이나 개방 주소법으로 해결합니다.",
       "q_en": "What is it called when two different keys map to the same bucket?",
       "sol_en": "A <b>collision</b>, resolved by chaining (a linked list) or open addressing."
-    }
+    },
+    "impl": [
+      "// 해시 테이블: 키를 계산해 버킷으로 (체이닝)",
+      "int hash(int key){ return key % M; }   // 0..M-1",
+      "void insert(int key){",
+      "  int b = hash(key);",
+      "  bucket[b].push_back(key);   // 충돌은 리스트로",
+      "}",
+      "bool search(int key){",
+      "  int b = hash(key);",
+      "  for(int k : bucket[b]) if(k == key) return true;",
+      "  return false;   // 적재율 상수면 기대 O(1)",
+      "}"
+    ]
   }
 }
