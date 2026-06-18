@@ -62,6 +62,7 @@
         wrapText(ctx, footer, W/2, H*0.93, W*0.86, 18, true); }
     };
   }
+  function rrect(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);} else {ctx.beginPath();ctx.rect(x,y,w,h);} }
   function wrapText(ctx, text, x, y, maxw, lh, center){
     var words=text.split(' '), line='', yy=y;
     for(var n=0;n<words.length;n++){ var test=line+words[n]+' ';
@@ -5930,6 +5931,150 @@
      ['#cfd8e6','단, "균등 분포"는 가정 — 적이 키를 알면 한 버킷에 몰 수 있다.'],
      ['#cfd8e6','보편 해싱: 함수족에서 무작위로 골라 어떤 두 키도 충돌 확률 ≤ 1/m 보장.']],
     '결론: 적재율 α를 상수로 유지하면 체이닝 해시의 모든 연산이 기대 O(1)이다.')
+  ,
+  // ===== R 재귀 구조 심화 배치 (인터랙티브) =====
+  // R1 하노이 탑 — 재귀의 정수, N/P로 한 수씩 이동
+  { id:'algo_br_hanoi', concept:true, branchOf:'algo7_01', codeHead:'하노이 탑',
+    keys:[{code:'KeyN',key:'N',label:'다음 이동',act:function(E){ if(E._hi<E._moves.length)E._hi++; }},
+          {code:'KeyP',key:'P',label:'이전 이동',act:function(E){ if(E._hi>0)E._hi--; }},
+          {code:'KeyR',key:'R',label:'처음으로',act:function(E){ E._hi=0; }}],
+    enter:function(E){ E.setOn&&E.setOn([]); E._hn=3; E._moves=[];
+      (function rec(n,f,t,v){ if(n===0)return; rec(n-1,f,v,t); E._moves.push([n,f,t]); rec(n-1,v,t,f); })(E._hn,0,2,1);
+      E._hi=0; },
+    draw:function(E){ var ctx=E.ctx,W=E.W,H=E.H;
+      var pegs=[[],[],[]]; for(var d=E._hn;d>=1;d--)pegs[0].push(d);
+      for(var m=0;m<E._hi;m++){ var mv=E._moves[m]; pegs[mv[2]].push(pegs[mv[1]].pop()); }
+      var names=['A (출발)','B (경유)','C (목표)'], baseY=H*0.80, pegH=H*0.52, maxW=W*0.24, cols=['#7ab8ff','#8fe3b5','#ffb27a','#f4a0c0','#c9a0f4'];
+      ctx.textAlign='center';
+      for(var p=0;p<3;p++){ var px=W*(0.24+0.26*p);
+        ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(px,baseY); ctx.lineTo(px,baseY-pegH); ctx.stroke();
+        ctx.fillStyle='rgba(255,255,255,0.14)'; ctx.fillRect(px-maxW/2-6,baseY,maxW+12,5);
+        ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText(names[p],px,baseY+22);
+        for(var i=0;i<pegs[p].length;i++){ var disk=pegs[p][i], dw=maxW*(0.35+0.65*disk/E._hn), dh=21, dy=baseY-(i+1)*(dh+3);
+          ctx.fillStyle=cols[disk-1]||'#7ab8ff'; rrect(ctx,px-dw/2,dy,dw,dh,5); ctx.fill();
+          ctx.fillStyle='#1a1c24'; ctx.font='600 12px sans-serif'; ctx.fillText(disk,px,dy+15); } }
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif'; ctx.fillText('하노이 탑 — 원반 '+E._hn+'개를 A에서 C로 (한 번에 하나, 큰 원반은 위로 못 감)', W/2, H*0.11);
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
+      var msg = E._hi===0 ? '시작: 모두 A에. N을 눌러 한 수씩 진행' : (E._hi>=E._moves.length ? '완성! 최소 '+E._moves.length+'수 = 2³−1' : E._hi+'수째: 원반 '+E._moves[E._hi-1][0]+' 을 '+names[E._moves[E._hi-1][1]][0]+'→'+names[E._moves[E._hi-1][2]][0]);
+      ctx.fillText(msg, W/2, H*0.16);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('재귀: hanoi(n,A,C,B) = hanoi(n−1,A,B,C) → 원반 n을 A→C → hanoi(n−1,B,C,A)   ⟹   T(n)=2T(n−1)+1=2ⁿ−1', W/2, H*0.92);
+      ctx.fillText('N 다음 · P 이전 · R 리셋   (이동 '+E._hi+' / '+E._moves.length+')', W/2, H*0.96); } }
+  ,
+  // R2 퀵정렬 재귀 구조 — partition 후 두 갈래 재귀 트리
+  { id:'algo_br_quicksort_recursion', concept:true, branchOf:'algo3_05', codeHead:'퀵정렬 재귀 구조',
+    enter:function(E){ E.setOn&&E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx,W=E.W,H=E.H;
+      // 재귀 트리: 각 노드=부분배열, 피벗=마지막원소. 미리 정해진 분할 결과를 그린다.
+      var nodes=[ {x:0.5,y:0.22,a:'5 2 8 1 9 3',p:'3'},
+        {x:0.27,y:0.42,a:'2 1',p:'1'}, {x:0.73,y:0.42,a:'5 8 9',p:'9'},
+        {x:0.15,y:0.62,a:'·'}, {x:0.37,y:0.62,a:'2'},
+        {x:0.62,y:0.62,a:'5 8',p:'8'}, {x:0.85,y:0.62,a:'·'},
+        {x:0.55,y:0.80,a:'5'}, {x:0.70,y:0.80,a:'·'} ];
+      var edges=[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[5,7],[5,8]];
+      ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
+      edges.forEach(function(e){ var A=nodes[e[0]],B=nodes[e[1]]; ctx.beginPath(); ctx.moveTo(A.x*W,A.y*H+14); ctx.lineTo(B.x*W,B.y*H-14); ctx.stroke(); });
+      ctx.textAlign='center';
+      nodes.forEach(function(n){ var tw=ctx.measureText(n.a).width+24, bx=n.x*W-tw/2, by=n.y*H-15;
+        ctx.fillStyle=n.p?'rgba(244,160,192,0.14)':'rgba(143,227,181,0.14)'; ctx.strokeStyle=n.p?'#f4a0c0':'#8fe3b5'; ctx.lineWidth=1.4;
+        rrect(ctx,bx,by,tw,30,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='13px monospace'; ctx.fillText(n.a,n.x*W,n.y*H+4);
+        if(n.p){ ctx.fillStyle='#f4a0c0'; ctx.font='10px sans-serif'; ctx.fillText('피벗 '+n.p,n.x*W,n.y*H+18); } });
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif'; ctx.fillText('퀵정렬 = partition 한 번 + 양쪽 부분배열에 같은 일을 재귀', W/2, H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('quicksort(a,lo,hi){ if(lo<hi){ p=partition(a,lo,hi); quicksort(a,lo,p−1); quicksort(a,p+1,hi); } }', W/2, H*0.93);
+      ctx.fillText('피벗(분홍)이 제자리에 박히고 왼쪽<피벗<오른쪽으로 갈라짐. 균형 분할이면 깊이 log n, 한쪽 쏠리면 n(최악).', W/2, H*0.965); } }
+  ,
+  // R3 병합정렬 재귀 구조 — 쪼개 내려가고(분할) 합쳐 올라온다(병합)
+  { id:'algo_br_mergesort_recursion', concept:true, branchOf:'algo3_05', codeHead:'병합정렬 재귀 구조',
+    keys:[{code:'KeyN',key:'N',label:'분할↔병합 전환',act:function(E){ E._msPhase=E._msPhase?0:1; }}],
+    enter:function(E){ E.setOn&&E.setOn([]); E._msPhase=0; },
+    draw:function(E){ var ctx=E.ctx,W=E.W,H=E.H, merge=E._msPhase;
+      // 고정 트리: 분할 단계 vs 병합 단계 라벨만 다르게
+      var split=[ ['38 27 43 3 9 82 10'], ['38 27 43 3','9 82 10'], ['38 27','43 3','9 82','10'], ['38','27','43','3','9','82','10'] ];
+      var merged=[ ['3 9 10 27 38 43 82'], ['3 27 38 43','9 10 82'], ['27 38','3 43','9 82','10'], ['38','27','43','3','9','82','10'] ];
+      var rows = merge ? merged : split;
+      ctx.textAlign='center';
+      for(var r=0;r<rows.length;r++){ var row=rows[r], yy=H*(0.24+r*0.16), n=row.length;
+        for(var c=0;c<n;c++){ var xx=W*((c+0.5)/n), txt=row[c], tw=ctx.measureText(txt).width+18, bx=xx-tw/2;
+          ctx.fillStyle=merge?'rgba(143,227,181,0.15)':'rgba(122,184,255,0.13)'; ctx.strokeStyle=merge?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=1.3;
+          rrect(ctx,bx,yy-13,tw,26,6); ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#dfeefb'; ctx.font='12px monospace'; ctx.fillText(txt,xx,yy+4);
+          if(r<rows.length-1){ ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.beginPath();
+            var below=rows[r+1].length, c2=Math.min(below-1, c*2+(merge?0:0));
+            ctx.moveTo(xx,yy+13); ctx.lineTo(W*((Math.floor(c*below/n)+0.5)/below), H*(0.24+(r+1)*0.16)-13); ctx.stroke(); } } }
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText(merge?'② 병합(merge): 정렬된 조각들을 짝지어 합치며 위로 올라온다':'① 분할(divide): 반씩 쪼개 한 칸이 될 때까지 내려간다', W/2, H*0.10);
+      ctx.fillStyle=merge?'#8fe3b5':'#7ab8ff'; ctx.font='12px sans-serif';
+      ctx.fillText('N 키로 분할 ↔ 병합 전환해서 보세요', W/2, H*0.145);
+      ctx.fillStyle='#8a8893';
+      ctx.fillText('mergeSort(a){ if(len>1){ L,R=쪼갬; mergeSort(L); mergeSort(R); merge(L,R); } }   ⟹   T(n)=2T(n/2)+n=O(n log n)', W/2, H*0.93);
+      ctx.fillText('층은 log n개(반씩 쪼개므로), 각 층 병합 비용 합 = n → n·log n.', W/2, H*0.965); } }
+  ,
+  // R4 재귀와 호출 스택 — factorial(4) 프레임 push/pop
+  { id:'algo_br_callstack', concept:true, branchOf:'algo7_01', codeHead:'재귀와 호출 스택',
+    keys:[{code:'KeyN',key:'N',label:'다음 단계',act:function(E){ if(E._csi<E._csSteps.length-1)E._csi++; }},
+          {code:'KeyP',key:'P',label:'이전 단계',act:function(E){ if(E._csi>0)E._csi--; }},
+          {code:'KeyR',key:'R',label:'처음으로',act:function(E){ E._csi=0; }}],
+    enter:function(E){ E.setOn&&E.setOn([]);
+      // factorial(4): push 4,3,2,1 → base → pop 반환 1,2,6,24
+      E._csSteps=[
+        {st:[4], cap:'fact(4) 호출 → 스택에 프레임 4 push. n≠1 이므로 4×fact(3) 필요.'},
+        {st:[4,3], cap:'fact(3) 호출 → 프레임 3 push. 아직 답 없음(fact(2) 기다림).'},
+        {st:[4,3,2], cap:'fact(2) 호출 → 프레임 2 push.'},
+        {st:[4,3,2,1], cap:'fact(1) 호출 → 프레임 1 push. <b>기저 사례!</b> 1을 반환.'},
+        {st:[4,3,2], ret:1, rv:'fact(1)=1', cap:'프레임 1 pop. fact(2)=2×1=2 계산.'},
+        {st:[4,3], ret:2, rv:'fact(2)=2', cap:'프레임 2 pop. fact(3)=3×2=6 계산.'},
+        {st:[4], ret:6, rv:'fact(3)=6', cap:'프레임 3 pop. fact(4)=4×6=24 계산.'},
+        {st:[], ret:24, rv:'fact(4)=24', cap:'프레임 4 pop. <b>최종 답 24</b> 반환. 스택 비워짐.'} ];
+      E._csi=0; },
+    draw:function(E){ var ctx=E.ctx,W=E.W,H=E.H, s=E._csSteps[E._csi];
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('재귀 = 호출 스택에 프레임을 쌓았다(내려감) 푸는(올라옴) 과정', W/2, H*0.10);
+      ctx.font='12px sans-serif'; ctx.fillStyle='#8a8893';
+      ctx.fillText('int fact(int n){ if(n==1) return 1; return n * fact(n−1); }', W/2, H*0.155);
+      // 스택 그리기 (아래가 바닥=먼저 호출된 4)
+      var bx=W*0.5, bw=W*0.34, baseY=H*0.80, fh=34;
+      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('▼ 호출 스택 (위가 가장 최근 호출)', bx, H*0.30);
+      for(var i=0;i<s.st.length;i++){ var n=s.st[i], fy=baseY-(i+1)*(fh+4), top=(i===s.st.length-1);
+        ctx.fillStyle=top?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=top?'#ffb27a':'#7ab8ff'; ctx.lineWidth=top?2:1.2;
+        rrect(ctx,bx-bw/2,fy,bw,fh,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='13px monospace'; ctx.textAlign='center';
+        ctx.fillText('fact('+n+')  '+(n===1?'→ return 1':'= '+n+' × fact('+(n-1)+')'), bx, fy+22); }
+      if(s.st.length===0){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('(스택 비어 있음)', bx, baseY-20); }
+      if(s.rv){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('↩ 반환: '+s.rv, W*0.5, H*0.85); }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      wrapText(ctx, (s.cap||'').replace(/<\/?b>/g,''), W*0.5, H*0.90, W*0.8, 18, true);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('N 다음 · P 이전 · R 리셋   ('+(E._csi+1)+' / '+E._csSteps.length+')   기저 사례가 없으면 스택 넘침(무한 재귀)', W/2, H*0.965); } }
+  ,
+  // R5 트리 순회 재귀 — 중위 순회의 호출 순서
+  { id:'algo_br_tree_recursion', concept:true, branchOf:'algo5_02', codeHead:'트리 순회 재귀',
+    keys:[{code:'KeyN',key:'N',label:'다음 방문',act:function(E){ if(E._tvi<E._tvOrder.length)E._tvi++; }},
+          {code:'KeyP',key:'P',label:'이전',act:function(E){ if(E._tvi>0)E._tvi--; }},
+          {code:'KeyR',key:'R',label:'처음으로',act:function(E){ E._tvi=0; }}],
+    enter:function(E){ E.setOn&&E.setOn([]);
+      // 완전이진트리 배열: 인덱스 0..6, 값
+      E._tvVals=[4,2,6,1,3,5,7];
+      // 중위 순회 방문 순서(인덱스): 3,1,4,0,5,2,6
+      E._tvOrder=[3,1,4,0,5,2,6]; E._tvi=0; },
+    draw:function(E){ var ctx=E.ctx,W=E.W,H=E.H, vals=E._tvVals;
+      var visited={}; for(var k=0;k<E._tvi;k++)visited[E._tvOrder[k]]=k+1;
+      var cur = E._tvi>0 ? E._tvOrder[E._tvi-1] : -1;
+      drawTreeB(E, vals, function(j){ if(j===cur) return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#fff',tag:visited[j]?('#'+visited[j]):null};
+        if(visited[j]) return {fill:'rgba(143,227,181,0.18)',stroke:'#8fe3b5',text:'#dfeefb',tag:'#'+visited[j]};
+        return null; }, {top:0.30, r:20});
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('중위 순회(inorder) = 왼쪽 재귀 → 자기 방문 → 오른쪽 재귀', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('inorder(x){ if(x){ inorder(x.left); visit(x); inorder(x.right); } }', W/2, H*0.155);
+      var seq=E._tvOrder.slice(0,E._tvi).map(function(idx){return vals[idx];});
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px monospace';
+      ctx.fillText('방문 순서: '+(seq.length?seq.join(' → '):'(N을 눌러 시작)'), W/2, H*0.86);
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif';
+      ctx.fillText('BST에서 중위 순회는 항상 오름차순 — 재귀가 트리의 좌→중→우 구조를 그대로 따라감', W/2, H*0.91);
+      ctx.fillStyle='#8a8893';
+      ctx.fillText('N 다음 방문 · P 이전 · R 리셋   ('+E._tvi+' / '+E._tvOrder.length+')   전위=중간을 먼저, 후위=중간을 마지막에', W/2, H*0.955); } }
 
   ];
   if(window.Engine) window.Engine.addScenes(scenes);

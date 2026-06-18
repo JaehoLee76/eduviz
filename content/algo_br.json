@@ -4153,5 +4153,80 @@
       "q_en": "What happens to a chaining hash if α is much larger than 1 (e.g., α=100), and how do you fix it?",
       "sol_en": "Chains average ~100, so search becomes Θ(1+α)≈Θ(101), nearly a linear scan. Fix by rehashing: when n grows relative to m, double m and reinsert all keys to bring α back to a small constant; amortized O(1) per op."
     }
+  },
+  "algo_br_hanoi": {
+    "ch": "재귀 구조",
+    "sec": "심화",
+    "title": "하노이 탑 — 재귀의 정수",
+    "narr": "세 기둥과 원반으로, 큰 문제를 같은 모양의 작은 문제로 쪼개는 재귀를 손으로 봅니다.",
+    "hint": "N 키로 한 수씩 옮기며 재귀가 만든 최소 이동을 따라가 보세요.",
+    "more": "<b>문제</b> 원반 n개를 A에서 C로 옮긴다. 규칙: ①한 번에 하나 ②큰 원반은 작은 원반 위에 못 놓는다.<br><br><b>재귀적 사고</b> 'n개를 A→C'를 직접 풀려 하지 말고, 같은 문제의 더 작은 판으로 쪼갭니다:<br>1) 위쪽 n−1개를 A→B로 옮긴다(B를 임시로 사용).<br>2) 가장 큰 원반 n을 A→C로 옮긴다(한 수).<br>3) B의 n−1개를 B→C로 옮긴다.<br>1)과 3)이 바로 '같은 문제의 작은 버전' — 여기서 재귀가 나옵니다.<br><br><b>이동 횟수</b> T(n)=2·T(n−1)+1, T(1)=1 → T(n)=2ⁿ−1. 원반 3개면 7수, 10개면 1023수, 64개면 약 1844경 수(전설의 '세상의 끝').<br><b>핵심</b> 기저 사례(n=1: 그냥 옮김)가 재귀를 멈추게 합니다. 기저 사례가 없으면 영원히 안 끝납니다.",
+    "more_en": "<b>Problem</b>: move n disks A→C, one at a time, never a larger disk on a smaller one.<br><b>Recursive idea</b>: (1) move top n−1 from A→B, (2) move disk n A→C, (3) move n−1 from B→C. Steps 1 and 3 are the same problem on a smaller stack — that's the recursion.<br><b>Count</b>: T(n)=2T(n−1)+1, T(1)=1 → T(n)=2ⁿ−1. The base case (n=1) stops the recursion.",
+    "problem": {
+      "q": "원반 5개짜리 하노이 탑의 최소 이동 횟수는? 그리고 첫 번째로 옮기는 원반은 몇 번(크기)인가?",
+      "solution": "최소 이동은 2⁵−1 = 31수입니다. 재귀 1단계는 '위쪽 4개를 A→B'이고, 그 안에서 또 '위쪽 3개를…'로 내려가 결국 맨 처음 옮기는 것은 가장 작은 원반(1번)입니다. 항상 가장 작은 원반이 첫 수이자 매 두 번째 수마다 움직입니다.",
+      "q_en": "Minimum moves for 5-disk Hanoi, and which disk moves first?",
+      "sol_en": "2⁵−1 = 31 moves. The recursion keeps descending into 'move the top k', so the very first move is the smallest disk (disk 1); the smallest disk moves on every other step."
+    }
+  },
+  "algo_br_quicksort_recursion": {
+    "ch": "재귀 구조",
+    "sec": "심화",
+    "title": "퀵정렬 재귀 구조",
+    "narr": "퀵정렬을 partition(가르기) 한 번 + 양쪽 재귀로 분해해, 전체 재귀 트리를 봅니다.",
+    "hint": "스텝 장면(뼈대)은 partition 한 번을 보여줍니다. 여기선 그 partition이 재귀로 어떻게 반복되는지 봅니다.",
+    "more": "<b>전체 구조</b><br><code>quicksort(a, lo, hi){<br>&nbsp; if(lo < hi){<br>&nbsp;&nbsp; p = partition(a, lo, hi);   // 피벗을 제자리에<br>&nbsp;&nbsp; quicksort(a, lo, p−1);       // 왼쪽(피벗보다 작음)<br>&nbsp;&nbsp; quicksort(a, p+1, hi);       // 오른쪽(피벗보다 큼)<br>&nbsp; }<br>}</code><br><br>뼈대 장면이 보여준 partition은 '피벗을 제자리에 박고 작은 값/큰 값으로 가르는' 한 단계입니다. 퀵정렬은 그 partition을 <b>양쪽 부분배열에 재귀로 반복</b>합니다. 부분배열 크기가 0이나 1이 되면(기저 사례) 멈춥니다.<br><br><b>깊이가 성능을 결정</b><br>• 균형 분할(매번 절반): 재귀 트리 깊이 log n, 각 층 partition 비용 합 n → O(n log n).<br>• 한쪽 쏠림(정렬된 입력 + 고정 피벗): 깊이 n → O(n²).<br>무작위 피벗/중앙값 피벗으로 쏠림을 피합니다.<br><br><b>꼬리 재귀 팁</b> 더 큰 쪽을 반복(loop)으로, 작은 쪽만 재귀하면 스택 깊이를 O(log n)으로 보장할 수 있습니다.",
+    "more_en": "<b>Full structure</b>: quicksort(lo,hi){ if(lo<hi){ p=partition; quicksort(lo,p−1); quicksort(p+1,hi); } }. The spine scene shows one partition; quicksort recurses it on both sides until size ≤1 (base case).<br><b>Depth decides cost</b>: balanced splits → depth log n → O(n log n); skewed → depth n → O(n²). Use a random/median pivot.<br><b>Tail-call tip</b>: recurse on the smaller side, loop on the larger, to bound stack depth to O(log n).",
+    "problem": {
+      "q": "퀵정렬에서 재귀 호출 두 개 중 '더 작은 부분배열을 먼저(또는 재귀로) 처리'하면 무엇이 좋아지는가?",
+      "solution": "항상 더 작은 쪽만 재귀하고 큰 쪽은 반복문으로 처리하면, 재귀 스택의 최대 깊이가 O(log n)으로 보장됩니다. 매 단계 작은 쪽은 전체의 절반 이하라 깊이가 log n을 넘지 못하기 때문입니다. 큰 쪽을 재귀로 두면 최악의 경우 스택 깊이가 O(n)까지 커져 스택 넘침 위험이 있습니다.",
+      "q_en": "Why recurse on the smaller subarray first (and loop the larger) in quicksort?",
+      "sol_en": "It bounds recursion stack depth to O(log n): the smaller side is at most half, so depth can't exceed log n. Recursing on the larger side risks O(n) stack depth (overflow) in the worst case."
+    }
+  },
+  "algo_br_mergesort_recursion": {
+    "ch": "재귀 구조",
+    "sec": "심화",
+    "title": "병합정렬 재귀 구조",
+    "narr": "병합정렬을 '쪼개 내려가기(분할)'와 '합쳐 올라오기(병합)' 두 흐름으로 봅니다.",
+    "hint": "N 키로 분할 트리 ↔ 병합 트리를 전환하세요. 뼈대 장면의 merge는 이 트리의 한 노드입니다.",
+    "more": "<b>두 흐름</b><br><code>mergeSort(a){<br>&nbsp; if(len(a) > 1){<br>&nbsp;&nbsp; mid = len/2;<br>&nbsp;&nbsp; L = mergeSort(a[:mid]);   // 왼쪽 절반 재귀<br>&nbsp;&nbsp; R = mergeSort(a[mid:]);   // 오른쪽 절반 재귀<br>&nbsp;&nbsp; return merge(L, R);        // 정렬된 둘을 합침<br>&nbsp; }<br>&nbsp; return a;   // 한 칸(기저 사례)<br>}</code><br><br><b>① 분할(divide)</b> 배열을 반씩 쪼개 한 칸이 될 때까지 내려갑니다. 한 칸짜리는 '이미 정렬됨'이 기저 사례입니다.<br><b>② 병합(merge)</b> 올라오면서 정렬된 두 조각을 짝지어 합칩니다(뼈대 장면이 보여준 그 merge). 합치면 더 큰 정렬된 조각이 됩니다.<br><br><b>비용</b> 반씩 쪼개므로 층이 log n개. 각 층에서 병합에 드는 총비용은 n(모든 원소를 한 번씩 만짐). 따라서 T(n)=2T(n/2)+n=O(n log n) — 입력에 상관없이 항상.<br><b>퀵정렬과 비교</b> 병합정렬은 분할이 항상 절반이라 최악도 O(n log n)이지만 추가 메모리 O(n)이 필요합니다. 퀵정렬은 제자리(in-place)지만 최악 O(n²).",
+    "more_en": "<b>Two flows</b>: mergeSort splits in half recursively down to single elements (base case = already sorted), then merges sorted pieces on the way up.<br><b>Cost</b>: log n levels (halving) × n work per level (merge touches all) = O(n log n), regardless of input.<br><b>vs quicksort</b>: merge sort is always O(n log n) but needs O(n) extra memory; quicksort is in-place but worst-case O(n²).",
+    "problem": {
+      "q": "병합정렬이 퀵정렬과 달리 최악의 경우에도 O(n log n)을 보장하는 이유는?",
+      "solution": "병합정렬은 분할 기준이 데이터 값이 아니라 '배열 가운데(mid)'라서, 입력이 어떻든 항상 정확히 반씩 나뉩니다. 그래서 재귀 트리 깊이가 항상 log n으로 고정됩니다. 반면 퀵정렬은 피벗 값에 따라 분할이 한쪽으로 쏠릴 수 있어 최악 깊이가 n이 됩니다. 병합정렬의 대가는 병합용 추가 메모리 O(n)입니다.",
+      "q_en": "Why does merge sort guarantee O(n log n) even in the worst case, unlike quicksort?",
+      "sol_en": "Merge sort splits at the array midpoint (not by value), so it always halves regardless of input → tree depth is always log n. Quicksort's split depends on the pivot value and can skew to depth n. The price is O(n) extra memory for merging."
+    }
+  },
+  "algo_br_callstack": {
+    "ch": "재귀 구조",
+    "sec": "심화",
+    "title": "재귀와 호출 스택",
+    "narr": "재귀 함수가 '호출 스택'에 프레임을 쌓았다 푸는 과정을 factorial로 한 단계씩 봅니다.",
+    "hint": "N 키로 push(내려감)와 pop(반환하며 올라옴)을 따라가세요. 기저 사례가 핵심.",
+    "more": "<b>호출 스택이란</b> 함수를 호출할 때마다 그 호출의 지역 변수·돌아갈 위치를 담은 '프레임'이 스택에 쌓입니다. 함수가 끝나면(return) 프레임이 빠지고 호출한 곳으로 값이 돌아갑니다.<br><br><b>factorial(4) 추적</b><br>내려가며 push: fact(4)→fact(3)→fact(2)→fact(1). 각 프레임은 'fact(n−1)의 결과를 기다리는 중'이라 답을 못 냅니다.<br>fact(1)에서 <b>기저 사례</b>(n==1 → return 1)를 만나 비로소 값이 생깁니다.<br>올라오며 pop: 1을 받은 fact(2)=2×1=2, fact(3)=3×2=6, fact(4)=4×6=24. 스택이 비면 끝.<br><br><b>왜 중요한가</b><br>• 기저 사례가 없거나 도달 못 하면 프레임이 무한히 쌓여 <b>스택 넘침(stack overflow)</b>.<br>• 재귀 깊이 d면 메모리 O(d)를 씁니다. 깊은 재귀(예: 한쪽 쏠린 퀵정렬)는 스택을 많이 먹습니다.<br>• 꼬리 재귀(반환이 곧 재귀 호출)는 컴파일러가 반복문으로 바꿔 스택을 O(1)로 줄이기도 합니다.",
+    "more_en": "<b>Call stack</b>: each call pushes a frame (locals + return address); returning pops it and hands the value back. <b>factorial(4)</b>: push fact(4..1), hit base case (n==1→1), then pop computing 2,6,24. No reachable base case → infinite frames → stack overflow. Recursion depth d uses O(d) memory; tail recursion can be turned into a loop (O(1) stack).",
+    "problem": {
+      "q": "재귀 깊이가 매우 큰 알고리즘(예: 길이 100만 리스트를 1씩 줄이며 재귀)이 스택 넘침을 내는 이유와, 해결책 두 가지는?",
+      "solution": "각 재귀 호출이 스택 프레임을 하나씩 쌓는데, 깊이가 100만이면 프레임 100만 개가 동시에 쌓여 스택 메모리 한도를 초과합니다(스택 넘침). 해결책: ①반복문으로 변환(명시적 스택이나 단순 루프로 재귀 제거) ②꼬리 재귀로 바꿔 꼬리 호출 최적화를 받게 하거나, 분할 정복이면 더 작은 쪽만 재귀하고 큰 쪽은 루프로 처리해 깊이를 O(log n)으로 낮춤.",
+      "q_en": "Why does very deep recursion (e.g., recursing down a million-length list) overflow the stack, and two fixes?",
+      "sol_en": "Each call pushes a frame; a million-deep recursion stacks a million frames, exceeding the stack limit. Fixes: (1) convert to iteration (explicit stack or plain loop); (2) use tail recursion for tail-call optimization, or in divide-and-conquer recurse only on the smaller side (loop the larger) to keep depth O(log n)."
+    }
+  },
+  "algo_br_tree_recursion": {
+    "ch": "재귀 구조",
+    "sec": "심화",
+    "title": "트리 순회 재귀",
+    "narr": "트리 순회가 재귀로 트리의 좌·중·우 구조를 그대로 따라가는 모습을 봅니다.",
+    "hint": "N 키로 중위 순회의 방문 순서를 따라가세요. 호출 순서가 곧 트리 모양.",
+    "more": "<b>세 가지 순회</b> 한 노드에서 '자기 방문'을 언제 하느냐로 갈립니다.<br>• 전위(preorder): <b>방문</b> → 왼쪽 → 오른쪽<br>• 중위(inorder): 왼쪽 → <b>방문</b> → 오른쪽<br>• 후위(postorder): 왼쪽 → 오른쪽 → <b>방문</b><br><br><code>inorder(x){ if(x){ inorder(x.left); visit(x); inorder(x.right); } }</code><br><br><b>재귀가 트리를 따라간다</b> 각 inorder 호출은 먼저 왼쪽 서브트리로 깊이 내려가고(호출 스택에 쌓임), 더 갈 곳이 없으면(기저 사례 x=null) 자기를 방문한 뒤 오른쪽으로 갑니다. 호출 스택의 모양이 곧 뿌리에서 현재 노드까지의 경로입니다.<br><br><b>BST의 특별함</b> 이진 탐색 트리(왼쪽<루트<오른쪽)에서 중위 순회는 <b>항상 오름차순</b>으로 값을 뱉습니다. 왼쪽(작은 것들)을 다 본 뒤 자기, 그 뒤 오른쪽(큰 것들)을 보기 때문입니다.<br><b>비용</b> 모든 노드를 정확히 한 번 방문 → O(n). 재귀 깊이는 트리 높이 O(h).",
+    "more_en": "<b>Three traversals</b> differ in when you visit the node: preorder (visit→L→R), inorder (L→visit→R), postorder (L→R→visit). The recursion follows the tree shape: each call descends left (stacking frames), hits the base case (null), visits, then goes right. <b>BST</b>: inorder always yields ascending order. Cost O(n) visits, recursion depth O(h).",
+    "problem": {
+      "q": "어떤 이진 트리의 전위 순회가 [4,2,1,3,6,5,7]이고 중위 순회가 [1,2,3,4,5,6,7]이다. 루트와 왼쪽 서브트리의 노드들은?",
+      "solution": "전위의 첫 원소가 루트이므로 루트=4입니다. 중위에서 4의 왼쪽 [1,2,3]이 왼쪽 서브트리, 오른쪽 [5,6,7]이 오른쪽 서브트리입니다. 따라서 왼쪽 서브트리 노드는 {1,2,3}(루트 2, 자식 1·3), 오른쪽은 {5,6,7}(루트 6, 자식 5·7). 전위+중위로 트리를 유일하게 복원할 수 있습니다.",
+      "q_en": "A binary tree has preorder [4,2,1,3,6,5,7] and inorder [1,2,3,4,5,6,7]. What is the root and the left subtree?",
+      "sol_en": "Preorder's first element is the root → 4. In the inorder, [1,2,3] left of 4 is the left subtree, [5,6,7] the right. So the left subtree is {1,2,3} (root 2, children 1 and 3). Preorder + inorder uniquely reconstruct the tree."
+    }
   }
 }
