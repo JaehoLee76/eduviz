@@ -5636,6 +5636,85 @@
       lines.forEach(function(t,i){ ctx.fillStyle=i===1?'#ffb27a':'#cfd8e6'; ctx.fillText(t, W*0.05, H*0.76+i*22); });
       ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('정리: 방향그래프가 DAG ⟺ DFS에 후진 간선이 없다 (사이클 검출의 토대)', W/2, H*0.965); }
+  },
+
+  // ─── 심화(원서 깊이): DP·그리디·최단경로 정당성 ───
+  { id:'algo_br_dp_principles', concept:true, branchOf:'algo7_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('DP 적용 조건 — 최적부분구조·겹치는부분문제', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"언제 DP를 쓸 수 있나"의 두 형식 조건과, 최적부분구조의 절단-붙이기 증명', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 최적 부분 구조: 문제의 최적해가 부분문제들의 최적해로 구성됨',
+        '   증명(절단-붙이기): 부분해가 최적이 아니면 더 좋은 것으로 "바꿔치기" 하면',
+        '   전체가 더 좋아져 모순 → 부분해도 반드시 최적 (cut-and-paste)',
+        '② 겹치는 부분 문제: 같은 부분문제가 재귀에서 여러 번 등장(다항 개) →',
+        '   메모/표로 한 번만 풀면 지수 → 다항. (서로 다른 부분문제 수 = 표 크기)',
+        '주의: 최적부분구조가 "안 성립"하는 예도 있음 — 무가중 최장경로(부분경로가',
+        '   최적이라고 전체 최장 보장 안 됨, 정점 재사용 불가 의존성). DP 적용 전 검증 필수'];
+      lines.forEach(function(t,i){ ctx.fillStyle=(i===0||i===3)?'#8fe3b5':(i===5?'#f4a0c0':'#cfd8e6'); ctx.fillText(t, W*0.05, H*0.30+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('두 조건 모두 만족 → DP. 하나라도 빠지면 분할정복(겹침 없음)이나 다른 기법', W/2, H*0.965); }
+  },
+
+  { id:'algo_br_greedy_proof', concept:true, branchOf:'algo8_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('그리디는 왜 최적인가 — 교환 논법', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"매번 최선"이 전체 최적이 되는 두 성질, 그리고 교환 논법 증명 틀', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 그리디 선택 속성: 전역 최적해를 "지역 최선(그리디) 선택"으로 시작할 수 있다',
+        '   증명(교환 논법): 어떤 최적해 O가 그리디 선택 g를 안 썼다면, O의 한 원소를',
+        '   g로 바꿔치기해도 여전히 실현가능 + 최소한 동등하게 좋음 → g 포함 최적해 존재',
+        '② 최적 부분 구조: 그리디 선택 후 남은 부분문제도 같은 그리디로 최적',
+        '예 활동 선택: "가장 먼저 끝나는 활동"이 항상 어떤 최적해에 포함(교환으로 증명)',
+        '주의: 그리디가 틀리는 곳(동전 [4,3,1]로 6 → 4+1+1=3개 vs 3+3=2개)도 많음 → 증명 필수'];
+      lines.forEach(function(t,i){ ctx.fillStyle=(i===0||i===3)?'#8fe3b5':(i===5?'#f4a0c0':'#cfd8e6'); ctx.fillText(t, W*0.05, H*0.32+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('교환 논법 = "최적해를 그리디 해로 한 단계씩 바꿔도 안 나빠진다" → 그리디가 최적', W/2, H*0.965); }
+  },
+
+  { id:'algo_br_matroid', concept:true, branchOf:'algo8_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('매트로이드 — 그리디가 최적인 추상 구조', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"언제 그리디가 무조건 최적인가?"의 답. MST·스케줄링이 같은 틀임을 드러냄', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['매트로이드 (S, I): 원소집합 S와 "독립" 부분집합족 I가 두 공리 만족 —',
+        '  ① 유전성: A∈I 이고 B⊆A 면 B∈I (독립집합의 부분집합도 독립)',
+        '  ② 교환 성질: A,B∈I, |A|<|B| 면 B의 어떤 원소를 A에 더해도 독립 유지',
+        '정리: 가중 매트로이드에서 "가장 무거운 독립 원소를 탐욕적으로 추가"하면 최적',
+        '예: 그래프 매트로이드(I=사이클 없는 간선집합) → MST가 곧 그리디 최적의 특수형',
+        '     스케줄링 매트로이드(마감 어기지 않는 작업집합) → 최대이익 작업 선택'];
+      lines.forEach(function(t,i){ ctx.fillStyle=(i===1||i===2)?'#8fe3b5':(i===3?'#ffb27a':'#cfd8e6'); ctx.fillText(t, W*0.05, H*0.32+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('교환 성질이 "그리디가 막혀도 더 큰 독립집합으로 확장 가능"을 보장 → 그리디 최적성', W/2, H*0.965); }
+  },
+
+  { id:'algo_br_bellman_proof', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('벨만-포드 정확성 — 완화 V−1번이면 충분한 이유', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('모든 간선을 V−1번 완화하면 최단거리 수렴. 한 번 더 줄면 음수 사이클', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['완화(relax): d[v] = min(d[v], d[u]+w(u,v)) — 간선 하나로 더 짧아지면 갱신',
+        '핵심 보조정리(경로 완화 성질): 최단경로 s→…→v의 간선들을 그 순서로 완화하면',
+        '  d[v] = δ(s,v)가 된다(중간에 다른 완화가 섞여도 무방).',
+        '최단경로는 간선 ≤ V−1개(사이클 없음) → 모든 간선을 V−1라운드 완화하면',
+        '  i번째 라운드 후 "간선 i개짜리 최단경로"가 확정 → V−1라운드면 모두 수렴.',
+        '음수 사이클 검출: V−1라운드 후 한 번 더 완화해 줄어드는 간선이 있으면 →',
+        '  도달가능한 음수 사이클 존재(최단거리 −∞). 다익스트라와 달리 음수 간선 OK'];
+      lines.forEach(function(t,i){ ctx.fillStyle=(i===1)?'#8fe3b5':(i===3?'#ffb27a':(i===5?'#f4a0c0':'#cfd8e6')); ctx.fillText(t, W*0.04, H*0.30+i*24); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('전체 O(VE). 경로 길이(간선 수)에 대한 귀납이 V−1 라운드의 정당성', W/2, H*0.965); }
   }
 
   ];
