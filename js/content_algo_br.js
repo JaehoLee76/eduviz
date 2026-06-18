@@ -5451,6 +5451,95 @@
       ctx.fillText('마스터 정리(모든 bᵢ=1/b, aᵢ 합=a)의 일반화. 분할 크기가 다른 분할정복 분석의 만능 도구', W/2, H*0.92);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('bᵢ에 약간의 흔들림(천장/바닥 보정)이 있어도 성립 — 실제 알고리즘에 바로 적용 가능', W/2, H*0.92+18); }
+  },
+
+  // ─── 심화(원서 깊이): 정렬·자료구조 분석 증명 ───
+  { id:'algo_br_buildheap_proof', concept:true, branchOf:'algo5_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('힙 만들기는 왜 O(n)인가 — 높이별 합산', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 노드 sift-down은 O(log n)이지만 n개 합치면 O(n log n)이 아니라 O(n)', W/2, H*0.10+22);
+      // tree by levels with node counts and heights
+      var rows=[['높이 0 (잎)','n/2개','×0'],['높이 1','n/4개','×1'],['높이 2','n/8개','×2'],['높이 h','1개','×h']];
+      var by=H*0.30;
+      rows.forEach(function(r,i){ var y=by+i*40; ctx.fillStyle=i===3?'rgba(255,178,122,0.14)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=i===3?'#ffb27a':'#7ab8ff'; ctx.lineWidth=1.6; ctx.fillRect(W*0.16,y,W*0.5,32); ctx.strokeRect(W*0.16,y,W*0.5,32);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText(r[0],W*0.19,y+20); ctx.fillStyle='#8fe3b5'; ctx.fillText(r[1],W*0.39,y+20); ctx.fillStyle='#ffb27a'; ctx.fillText('비용 '+r[2],W*0.54,y+20); ctx.textAlign='center'; });
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText('⋮', W*0.41, by+3.6*40);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px monospace';
+      ctx.fillText('총비용 = Σ (높이 h의 노드 수 ⌈n/2^(h+1)⌉) × O(h)', W/2, H*0.74);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 15px monospace';
+      ctx.fillText('= O( n · Σ_{h≥0} h/2^h ) = O(n · 2) = O(n)', W/2, H*0.82);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('열쇠: 잎(절반)은 비용 0, 비싼 노드는 적다. Σ h/2^h = 2 (수렴) → 선형', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('루트만 log n이고 대부분 노드는 거의 안 내려감 → 합이 n에 비례', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_quicksort_avg', concept:true, branchOf:'algo3_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('랜덤 퀵정렬 평균 — 지표 확률변수로 O(n log n)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('최악 O(n²)이지만, 두 원소가 비교될 확률을 더하면 기대 비교 = O(n log n)', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['핵심 관찰: 정렬 후 i번째 작은 원소 zᵢ와 zⱼ(i<j)는 "전 과정에서 많아야 한 번" 비교됨',
+        '둘이 비교될 확률 = zᵢ..zⱼ 중 zᵢ나 zⱼ가 피벗으로 먼저 뽑힐 확률 = 2/(j−i+1)',
+        '  (그 사이 다른 원소가 먼저 피벗이면 zᵢ,zⱼ는 다른 쪽으로 갈려 영영 비교 안 됨)',
+        '기대 총 비교 = Σ_{i<j} 2/(j−i+1)  =  Σ_i Σ_{k} 2/k  <  Σ_i 2·Hₙ',
+        '            = O(n · log n)   (조화수 Hₙ = ln n + O(1))'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===4?'#ffb27a':(i===1?'#8fe3b5':'#cfd8e6'); ctx.fillText(t, W*0.06, H*0.36+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 14px monospace';
+      ctx.fillText('E[비교 수] = Σ_{i<j} 2/(j−i+1) = O(n log n)', W/2, H*0.80);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('지표 확률변수 Xᵢⱼ=[zᵢ,zⱼ 비교됨]의 기댓값을 더함(선형성). 랜덤 피벗이라 입력 무관', W/2, H*0.90);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('멀리 떨어진 쌍일수록(j−i 큼) 비교 확률 작음 → 가까운 쌍이 비용 지배', W/2, H*0.90+18); }
+  },
+
+  { id:'algo_br_universal_hash', concept:true, branchOf:'algo2_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('보편·완전 해싱 — 최악을 무작위로 막기', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('고정 해시함수는 적이 최악 입력을 만들 수 있다. 해시함수를 무작위로 골라 기대 O(1) 보장', W/2, H*0.10+22);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['보편 해시족 H: 서로 다른 키 x≠y가 충돌할 확률 ≤ 1/m  (h를 H에서 무작위 선택)',
+        '  예: h(k)=((a·k+b) mod p) mod m  (p 소수, a∈{1..p−1},b∈{0..p−1} 무작위)',
+        '기대 충돌 수 E[버킷 길이] ≤ 1 + 적재율 α=n/m → 체이닝 조회 기대 O(1+α)',
+        '완전 해싱(정적 키): 2단계 — 1차로 버킷 나누고, 충돌난 버킷은 크기 nᵢ²의',
+        '  2차 테이블로 (보편족에서 무충돌 함수를 기대 O(1)회 시도해 찾음) → 최악 O(1) 조회'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===1?'#8fe3b5':(i===2?'#ffb27a':'#cfd8e6'); ctx.fillText(t, W*0.05, H*0.36+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
+      ctx.fillText('보편성: Pr[h(x)=h(y)] ≤ 1/m → 어떤 입력에도 기대 성능 보장', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('완전 해싱은 정적 키집합에 충돌 0(최악도 O(1))·총 공간 O(n). 2차 크기 nᵢ²가 핵심', W/2, H*0.84+18); }
+  },
+
+  { id:'algo_br_dynamic_table', concept:true, branchOf:'algo2_01',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('동적 테이블 — 2배 확장의 분할상환 O(1)', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('가득 차면 2배 새 배열로 전체 복사(O(n)). 그래도 삽입당 평균(상각) 비용은 O(1)', W/2, H*0.10+22);
+      // doubling cost spikes
+      var ax=W*0.14, bx=W*0.86, base=H*0.62; ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ax,base); ctx.lineTo(bx,base); ctx.stroke();
+      var spikes=[1,2,4,8,16]; var n=18;
+      for(var i=1;i<=n;i++){ var x=ax+(i/n)*(bx-ax); var sp=spikes.indexOf(i)>=0?i:0; var hgt=sp?Math.min(sp,16)*H*0.018:H*0.012;
+        ctx.fillStyle=sp?'#ff8d8d':'#7ab8ff'; ctx.fillRect(x-3,base-hgt,5,hgt); }
+      ctx.fillStyle='#ff8d8d'; ctx.font='11px sans-serif'; ctx.fillText('빨강 = 2배 확장(복사 O(현재크기))', W/2, base+18);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['n번 삽입 중 확장은 크기 1,2,4,…,n에서 일어남 → 복사 총비용 = 1+2+4+…+n < 2n',
+        '삽입 자체 n번(각 O(1)) + 복사 총 <2n  →  전체 O(n)  →  삽입당 상각 O(1)'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.06, H*0.76+i*24); });
+      ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 14px monospace';
+      ctx.fillText('상각 비용 = 전체 비용 / 연산 수 = O(n)/n = O(1)', W/2, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('회계법: 삽입마다 3 충전(자기 1+미래 복사 2) → 확장 비용을 미리 적립. 1.5배도 동일 원리', W/2, H*0.97); }
   }
 
   ];
