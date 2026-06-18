@@ -35,6 +35,14 @@
     };
   }
 
+  // 증명/유도 분기 헬퍼: 캔버스에 단계 그리고, 제목·설명은 JSON(this)에서
+  function pf(id, parent, lines, opts){ opts=opts||{};
+    return { id:id, branchOf:parent, enter:function(E){ E.setOn([]); },
+      draw:function(E){ steps(E, lines, {y0:E.H*0.36, lh:E.H*(lines.length>5?0.072:0.082)});
+        E.big(this.title||'', this.narr||''); } };
+  }
+  var O='#ffb27a', B='#7ab8ff', G='#8fe3b5', P='#f4a0c0', N='#cfcdc6';
+
   var scenes=[
   exSet('math_br_ex_algebra','ch3_11','연습문제 — 수·식·방정식',[
     ['☆','3x − 7 = 11 을 풀어라'],
@@ -78,6 +86,137 @@
     ['★','넓이: y = x 와 x축, x=0~2 사이 넓이는?'],
     ['★','미적분 기본정리로 ∫₁³ 2x dx 를 계산하라'],
     ['★★','치환적분으로 ∫ 2x·(x²+1)³ dx 를 구하라']]),
+
+  // ═══════ 수학 심화 증명·유도 배치 (수학독본 보완) ═══════
+  pf('math_br_primeinf','ch1_08',[
+    {t:'주장: 소수는 무한히 많다 (유클리드)', c:O, b:true},
+    {t:'가정: 소수가 유한개 p₁, p₂, …, pₙ 뿐이라 하자', c:N},
+    {t:'N = p₁·p₂·…·pₙ + 1 을 생각한다', c:B},
+    {t:'N을 어떤 pᵢ로 나눠도 나머지가 1 → 안 나눠짐', c:B},
+    {t:'그런데 N도 소인수를 가져야 함 → 목록 밖의 새 소수!', c:P, b:true},
+    {t:'모순. ∴ 소수는 무한히 많다  ∎', c:G, b:true, fs:20}], {y0:0.26}),
+  pf('math_br_repeatdec','ch1_03',[
+    {t:'순환소수는 항상 분수로 쓸 수 있다', c:O, b:true},
+    {t:'x = 0.4444…  라 하면', c:N},
+    {t:'10x = 4.444…   (한 자리 밀기)', c:B},
+    {t:'10x − x = 4   →   9x = 4', c:B},
+    {t:'x = 4/9  (분수!)', c:G, b:true, fs:20},
+    {t:'순환마디 길이만큼 10ⁿ 곱해 빼면 항상 분수', c:P}], {y0:0.27}),
+  pf('math_br_arithsum','ch13_03',[
+    {t:'등차수열의 합 공식 유도 (가우스)', c:O, b:true},
+    {t:'S = a + (a+d) + … + L      (정방향)', c:N},
+    {t:'S = L + (L−d) + … + a      (역방향)', c:N},
+    {t:'2S = (a+L) + (a+L) + … = n(a+L)', c:B},
+    {t:'S = n(a+L)/2   = n·(첫항+끝항)/2', c:G, b:true, fs:20},
+    {t:'1+2+…+100 = 100·101/2 = 5050', c:P}], {y0:0.27}),
+  pf('math_br_binomial','ch15_05',[
+    {t:'이항정리: (a+b)ⁿ 의 전개', c:O, b:true},
+    {t:'(a+b)ⁿ = 괄호 n개에서 a나 b를 골라 곱한 합', c:N},
+    {t:'b를 k개 고르는 방법 = ₙCₖ 가지', c:B},
+    {t:'(a+b)ⁿ = Σ ₙCₖ · aⁿ⁻ᵏ · bᵏ   (k=0..n)', c:G, b:true, fs:19},
+    {t:'계수 ₙCₖ = 파스칼 삼각형의 n번째 줄', c:P}], {y0:0.28}),
+  pf('math_br_sinelaw','ch8_03',[
+    {t:'사인법칙: a/sinA = 2R 증명', c:O, b:true},
+    {t:'외접원에서 현 a에 대한 원주각 = A', c:N},
+    {t:'지름 BD를 그으면 ∠BCD = 90°(반원의 원주각)', c:B},
+    {t:'∠BDC = A (같은 호) → sinA = a/(2R)', c:B},
+    {t:'∴ a/sinA = b/sinB = c/sinC = 2R  ∎', c:G, b:true, fs:19}], {y0:0.27}),
+  pf('math_br_heron','ch8_03',[
+    {t:'헤론 공식: 세 변으로 넓이', c:O, b:true},
+    {t:'s = (a+b+c)/2  (반둘레)', c:N},
+    {t:'넓이 = ½·ab·sinC, 코사인법칙으로 cosC 소거', c:B},
+    {t:'Area = √( s(s−a)(s−b)(s−c) )', c:G, b:true, fs:20},
+    {t:'각 없이 변 길이만으로 넓이 계산', c:P}], {y0:0.28}),
+  pf('math_br_cauchyschwarz','ch9_04',[
+    {t:'코시-슈바르츠 부등식', c:O, b:true},
+    {t:'|a·b| ≤ |a||b|   (내적 ≤ 크기 곱)', c:B},
+    {t:'a·b = |a||b|cosθ 이고 |cosθ| ≤ 1 이므로', c:N},
+    {t:'(Σaᵢbᵢ)² ≤ (Σaᵢ²)(Σbᵢ²)', c:G, b:true, fs:19},
+    {t:'등호: 두 벡터가 평행할 때(θ=0)', c:P}], {y0:0.28}),
+  pf('math_br_ivt','ch14_03',[
+    {t:'중간값 정리 (IVT)', c:O, b:true},
+    {t:'f가 [a,b]에서 연속이고 f(a)<k<f(b)이면', c:N},
+    {t:'f(c)=k 인 c가 (a,b)에 적어도 하나 존재', c:B},
+    {t:'직관: 연속한 곡선은 중간값을 건너뛸 수 없다', c:P},
+    {t:'응용: f(a)<0<f(b)면 근 존재(이분법의 근거)', c:G, b:true, fs:18}], {y0:0.28}),
+  pf('math_br_mvt','ch18_01',[
+    {t:'평균값 정리 (MVT)', c:O, b:true},
+    {t:'f가 [a,b] 연속·(a,b) 미분가능이면', c:N},
+    {t:'f′(c) = (f(b)−f(a))/(b−a) 인 c 존재', c:B},
+    {t:'= 평균 변화율(할선)과 같은 접선이 어딘가 있다', c:P},
+    {t:'롤의 정리(f(a)=f(b))의 일반화', c:G, b:true, fs:18}], {y0:0.28}),
+  pf('math_br_lhopital','ch18_03',[
+    {t:'로피탈 정리: 0/0, ∞/∞ 꼴 극한', c:O, b:true},
+    {t:'lim f/g 가 0/0 꼴이고 미분가능이면', c:N},
+    {t:'lim f(x)/g(x) = lim f′(x)/g′(x)', c:G, b:true, fs:20},
+    {t:'예: lim(x→0) sinx/x = cosx/1 → 1', c:B},
+    {t:'주의: 0/0·∞/∞ 꼴일 때만 적용', c:P}], {y0:0.28}),
+  pf('math_br_elimit','ch14_05',[
+    {t:'자연상수 e 의 정의', c:O, b:true},
+    {t:'e = lim(n→∞) (1 + 1/n)ⁿ', c:G, b:true, fs:20},
+    {t:'이항정리로 펼치면 1 + 1 + 1/2! + 1/3! + …', c:B},
+    {t:'= Σ 1/k!  ≈ 2.71828…', c:B},
+    {t:'복리·연속성장의 극한. (eˣ)′ = eˣ 의 뿌리', c:P}], {y0:0.28}),
+  pf('math_br_logdiff','ch17_05',[
+    {t:'로그미분법: 곱·거듭제곱을 쉽게', c:O, b:true},
+    {t:'y = xˣ 처럼 밑·지수 모두 변수일 때', c:N},
+    {t:'양변 ln: ln y = x·ln x', c:B},
+    {t:'미분: y′/y = ln x + 1', c:B},
+    {t:'y′ = xˣ(ln x + 1)', c:G, b:true, fs:20}], {y0:0.28}),
+  pf('math_br_implicit','ch17_05',[
+    {t:'음함수 미분: x²+y²=1 같은 식', c:O, b:true},
+    {t:'y를 x의 함수로 보고 양변 x로 미분', c:N},
+    {t:'2x + 2y·y′ = 0   (연쇄법칙)', c:B},
+    {t:'y′ = −x/y', c:G, b:true, fs:20},
+    {t:'y를 명시적으로 풀지 않고 기울기 계산', c:P}], {y0:0.28}),
+  pf('math_br_arclen','ch20_03',[
+    {t:'곡선의 길이 유도', c:O, b:true},
+    {t:'작은 조각 ds = √(dx² + dy²)  (피타고라스)', c:B},
+    {t:'= √(1 + (dy/dx)²) dx', c:B},
+    {t:'L = ∫ₐᵇ √(1 + (f′(x))²) dx', c:G, b:true, fs:19},
+    {t:'직선 근사 조각들을 적분으로 합침', c:P}], {y0:0.28}),
+  pf('math_br_solidvol','ch20_02',[
+    {t:'회전체 부피 — 원판법', c:O, b:true},
+    {t:'y=f(x)를 x축 둘레로 회전', c:N},
+    {t:'얇은 원판 부피 = π·반지름²·두께 = π f(x)² dx', c:B},
+    {t:'V = π ∫ₐᵇ f(x)² dx', c:G, b:true, fs:20},
+    {t:'예: 반원 회전 → 구의 부피 (4/3)πr³', c:P}], {y0:0.28}),
+  pf('math_br_cramer','ch21_05',[
+    {t:'크라메르 공식: 연립방정식 해', c:O, b:true},
+    {t:'Ax = b 에서 D = det(A) ≠ 0 이면', c:N},
+    {t:'xᵢ = det(Aᵢ) / det(A)', c:G, b:true, fs:20},
+    {t:'Aᵢ = A의 i열을 b로 바꾼 행렬', c:B},
+    {t:'2×2: x = (b₁d−b₂c)/(ad−bc)', c:P}], {y0:0.28}),
+  pf('math_br_totalprob','ch16_04',[
+    {t:'전확률 정리 & 베이즈의 토대', c:O, b:true},
+    {t:'표본공간을 배반사건 B₁,…,Bₙ로 분할', c:N},
+    {t:'P(A) = Σ P(A|Bᵢ)·P(Bᵢ)', c:G, b:true, fs:19},
+    {t:'각 경우로 나눠 더하기(나무그림)', c:B},
+    {t:'베이즈: P(Bⱼ|A) = P(A|Bⱼ)P(Bⱼ)/P(A)', c:P}], {y0:0.28}),
+  pf('math_br_variance','ch16_05',[
+    {t:'분산 공식 V(X) = E(X²) − E(X)²', c:O, b:true},
+    {t:'V(X) = E[(X − μ)²]   (정의)', c:N},
+    {t:'= E[X² − 2μX + μ²]', c:B},
+    {t:'= E(X²) − 2μ·E(X) + μ²  (E(X)=μ)', c:B},
+    {t:'= E(X²) − μ²  = E(X²) − E(X)²', c:G, b:true, fs:19}], {y0:0.28}),
+  pf('math_br_demorgan','ch4_03',[
+    {t:'드모르간 법칙', c:O, b:true},
+    {t:'(A ∪ B)ᶜ = Aᶜ ∩ Bᶜ', c:G, b:true, fs:20},
+    {t:'(A ∩ B)ᶜ = Aᶜ ∪ Bᶜ', c:G, b:true, fs:20},
+    {t:'"둘 중 하나"의 부정 = "둘 다 아님"', c:P},
+    {t:'논리(¬(p∨q)=¬p∧¬q)·집합·회로 공통', c:B}], {y0:0.29}),
+  pf('math_br_conjroot','ch10_01',[
+    {t:'켤레근 정리', c:O, b:true},
+    {t:'실수 계수 다항식이 복소근 a+bi 를 가지면', c:N},
+    {t:'그 켤레 a−bi 도 반드시 근이다', c:G, b:true, fs:19},
+    {t:'근거: 켤레는 +,×를 보존(conj 준동형)', c:B},
+    {t:'∴ 복소근은 항상 짝으로 나타난다', c:P}], {y0:0.28}),
+  pf('math_br_monoconv','ch25_03',[
+    {t:'단조수렴정리', c:O, b:true},
+    {t:'위로 유계인 증가수열은 항상 수렴한다', c:G, b:true, fs:19},
+    {t:'상한(sup)의 존재 = 실수의 완비성', c:B},
+    {t:'극한 = 그 상한값', c:N},
+    {t:'코시수열·완비성과 동치 (실수의 구멍 없음)', c:P}], {y0:0.28}),
 
 
 
