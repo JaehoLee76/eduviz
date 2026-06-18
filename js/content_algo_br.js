@@ -5540,6 +5540,102 @@
       ctx.fillText('상각 비용 = 전체 비용 / 연산 수 = O(n)/n = O(1)', W/2, H*0.92);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('회계법: 삽입마다 3 충전(자기 1+미래 복사 2) → 확장 비용을 미리 적립. 1.5배도 동일 원리', W/2, H*0.97); }
+  },
+
+  // ─── 심화(원서 깊이): 그래프 정확성 증명 ───
+  { id:'algo_br_bfs_proof', concept:true, branchOf:'algo6_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('BFS는 왜 최단거리를 주는가 — 층별 증명', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('BFS가 매긴 d[v]가 실제 최단거리 δ(s,v)와 같음. 큐가 거리순을 보장', W/2, H*0.10+22);
+      // BFS layers
+      var layers=[[0.5],[0.28,0.72],[0.14,0.42,0.62,0.86]], lab=[['s'],['1','1'],['2','2','2','2']];
+      var top=H*0.30, lg=H*0.17;
+      layers.forEach(function(row,L){ var y=top+L*lg;
+        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('d='+L, W*0.08, y+4); ctx.textAlign='center';
+        row.forEach(function(fx,k){ var x=W*0.12+fx*W*0.7; ctx.fillStyle=L===0?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.18)'; ctx.strokeStyle=L===0?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 11px sans-serif'; ctx.fillText(lab[L][k],x,y+4);
+          if(L<layers.length-1){ var nx=W*0.12+layers[L+1][Math.min(k*2,layers[L+1].length-1)]*W*0.7; ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(x,y+13); ctx.lineTo(nx,top+(L+1)*lg-13); ctx.stroke(); } }); });
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 하한: 간선 하나는 거리를 ≤1만 늘림 → d[v] ≥ δ(s,v) (귀납)',
+        '② 상한: 큐에서 거리 비감소 순으로 꺼냄(불변식) → v를 d[u]+1에 발견 → d[v] ≤ δ(s,v)',
+        '③ 둘 합쳐 d[v] = δ(s,v). BFS 트리 경로가 곧 최단 경로'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.06, H*0.78+i*22); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('핵심 불변식: 큐 안 정점들의 거리가 [k, k+1] 두 값뿐 → 층을 순서대로 완성', W/2, H*0.965); }
+  },
+
+  { id:'algo_br_dfs_parenthesis', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('DFS 괄호 정리 — 발견·종료 시각의 중첩 구조', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 정점에 발견시각 d[v]·종료시각 f[v]. 두 구간 [d,f]는 완전히 중첩되거나 완전히 분리', W/2, H*0.10+22);
+      // nested parentheses bars
+      var bars=[[0.10,0.90,'u','#7ab8ff'],[0.18,0.50,'v','#8fe3b5'],[0.24,0.42,'w','#ffb27a'],[0.58,0.84,'x','#9a86ff']];
+      var by=H*0.34;
+      bars.forEach(function(b,i){ var y=by+i*36, x1=W*0.12+b[0]*W*0.72, x2=W*0.12+b[1]*W*0.72;
+        ctx.strokeStyle=b[3]; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+        ctx.fillStyle=b[3]; ctx.font='12px sans-serif'; ctx.fillText('('+b[2], x1, y-6); ctx.fillText(b[2]+')', x2, y-6); });
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['괄호 정리: 임의 u,v에 대해 [d[u],f[u]]와 [d[v],f[v]]는',
+        '  ① 완전 분리(서로 조상 아님), 또는 ② 한쪽이 다른쪽에 완전 포함(조상-자손)',
+        '  — 절대 부분적으로 겹치지 않음 ( (u (v u) v) 같은 엇갈림 불가 )',
+        '흰색 경로 정리: u 발견 순간 v로 가는 "모두 흰색(미발견)" 경로가 있으면 v는 u의 자손'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===3?'#8fe3b5':'#cfd8e6'; ctx.fillText(t, W*0.06, H*0.66+i*24); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('이 중첩 구조가 간선 분류(트리/후진/전진/교차)와 사이클 검출(후진간선)의 토대', W/2, H*0.965); }
+  },
+
+  { id:'algo_br_mst_cut', concept:true, branchOf:'algo6_05',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('MST 절단(cut) 성질 — 안전한 간선의 증명', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('크루스칼·프림이 왜 옳은가의 핵심. 어떤 컷을 가로지르는 최소 간선은 MST에 안전', W/2, H*0.10+22);
+      // a cut dividing vertices, crossing edges, the light one chosen
+      var N={a:[0.26,0.34],b:[0.34,0.62],c:[0.30,0.46],d:[0.70,0.36],e:[0.74,0.62],f:[0.66,0.5]};
+      function xy(t){ return [W*N[t][0], H*0.24+N[t][1]*H*0.46]; }
+      var cross=[['c','f','4'],['b','e','7']];
+      cross.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); var light=e[2]==='4'; ctx.strokeStyle=light?'#8fe3b5':'rgba(255,141,141,0.6)'; ctx.lineWidth=light?3.5:2; if(!light)ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle=light?'#8fe3b5':'#ff8d8d'; ctx.font='600 12px sans-serif'; ctx.fillText(e[2],(p[0]+q[0])/2,(p[1]+q[1])/2-5); });
+      // internal edges
+      [['a','c'],['c','b'],['d','f'],['f','e']].forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); var left=['a','b','c'].indexOf(k)>=0; ctx.fillStyle=left?'rgba(122,184,255,0.18)':'rgba(255,178,122,0.18)'; ctx.strokeStyle=left?'#7ab8ff':'#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 11px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); });
+      ctx.strokeStyle='rgba(244,160,192,0.5)'; ctx.lineWidth=2; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(W*0.5,H*0.24); ctx.lineTo(W*0.5,H*0.72); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.fillText('컷(점선): 정점을 두 집합으로', W/2, H*0.20);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['정리: 컷을 가로지르는 최소 간선(경량간선) (c,f)=4 는 어떤 MST에도 속한다(안전).',
+        '증명(교환논법): 4를 안 쓴 MST T가 있다 치면, T에 4를 더하면 사이클 생김.',
+        '그 사이클은 컷을 가로지르는 다른 간선 e′(≥4)를 포함 → e′를 4로 바꾸면',
+        '연결 유지 + 가중치 ≤ → 더 작거나 같은 신장트리. 모순/대체 → 4는 안전.'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===0?'#8fe3b5':'#cfd8e6'; ctx.fillText(t, W*0.05, H*0.78+i*22); });
+      ctx.textAlign='center'; }
+  },
+
+  { id:'algo_br_topo_proof', concept:true, branchOf:'algo6_04',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('위상정렬 정확성 — DAG ⟺ 후진 간선 없음', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('DFS 종료시각 내림차순이 왜 올바른 위상순서인가. 사이클 ⟺ 후진간선 정리', W/2, H*0.10+22);
+      // DAG with finish-time order
+      var N={a:[0.2,0.3,'f=8'],b:[0.45,0.25,'f=7'],c:[0.45,0.6,'f=4'],d:[0.7,0.45,'f=5'],e:[0.9,0.45,'f=2']};
+      function xy(t){ return [W*N[t][0], H*0.26+N[t][1]*H*0.42]; }
+      var edges=[['a','b'],['a','c'],['b','d'],['c','d'],['d','e']];
+      edges.forEach(function(e){ var p=xy(e[0]),q=xy(e[1]); ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); var mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2,a=Math.atan2(q[1]-p[1],q[0]-p[0]); ctx.fillStyle='rgba(122,184,255,0.6)'; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(mx-9*Math.cos(a-0.4),my-9*Math.sin(a-0.4)); ctx.lineTo(mx-9*Math.cos(a+0.4),my-9*Math.sin(a+0.4)); ctx.fill(); });
+      Object.keys(N).forEach(function(k){ var p=xy(k); ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],14,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='600 11px sans-serif'; ctx.fillText(k.toUpperCase(),p[0],p[1]+4); ctx.fillStyle='#8fe3b5'; ctx.font='9px sans-serif'; ctx.fillText(N[k][2],p[0],p[1]+24); });
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['알고리즘: DFS 후 각 정점을 종료시각 f[v] 내림차순으로 나열',
+        '정확성 핵심: 간선 (u,v)가 있으면 항상 f[u] > f[v] (u가 더 늦게 끝남)',
+        '  ∵ v는 u의 자손이거나(괄호정리로 f[v]<f[u]) 교차간선(이미 끝난 v) → 둘 다 f[u]>f[v]',
+        '  단, DAG라 후진간선 없음(있으면 f[u]<f[v]가 되어 사이클)'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===1?'#ffb27a':'#cfd8e6'; ctx.fillText(t, W*0.05, H*0.76+i*22); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('정리: 방향그래프가 DAG ⟺ DFS에 후진 간선이 없다 (사이클 검출의 토대)', W/2, H*0.965); }
   }
 
   ];
