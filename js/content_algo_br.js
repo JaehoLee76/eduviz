@@ -18,6 +18,34 @@
     for(var j=0;j<arr.length;j++){ if(arr[j]==null) continue; var q=tpos(E,j,o), h=hl&&hl(j);
       AV.node(E,q[0],q[1],arr[j],{r:r,fill:(h&&h.fill)||'rgba(122,184,255,0.18)',stroke:(h&&h.stroke)||'#7ab8ff',text:(h&&h.text)||'#dfeefb',tag:h&&h.tag,fs:14}); } }
 
+  // 연습문제 세트 분기를 만드는 헬퍼: 문항 카드 목록 + 좌우 키로 한 문항씩 집중
+  function exSet(id, parent, head, items){
+    return { id:id, concept:true, branchOf:parent, codeHead:head,
+      keys:[{code:'KeyN',key:'N',label:'다음 문항',act:function(E){ E._exi=((E._exi||0)+1)%items.length; }},
+            {code:'KeyP',key:'P',label:'이전 문항',act:function(E){ E._exi=((E._exi||0)+items.length-1)%items.length; }}],
+      tap:function(E){ E._exi=((E._exi||0)+1)%items.length; },
+      enter:function(E){ E._exi=0; E.setOn&&E.setOn([]); },
+      draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, sel=E._exi||0;
+        ctx.textAlign='left';
+        ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+        ctx.fillText(head+'  ('+items.length+'문항)', W*0.06, H*0.12);
+        ctx.font='11px sans-serif'; ctx.fillStyle='#8a8893';
+        ctx.fillText('N 다음 문항 · P 이전 문항 · 화면을 탭해도 넘어갑니다', W*0.06, H*0.165);
+        var y0=H*0.24, rowH=Math.min(54,(H*0.66)/items.length);
+        for(var i=0;i<items.length;i++){ var y=y0+i*rowH, on=(i===sel);
+          ctx.fillStyle=on?'rgba(122,184,255,0.16)':'rgba(255,255,255,0.04)';
+          ctx.strokeStyle=on?'#7ab8ff':'rgba(255,255,255,0.10)'; ctx.lineWidth=on?2:1;
+          ctx.beginPath(); if(ctx.roundRect)ctx.roundRect(W*0.06,y,W*0.88,rowH-10,8); else ctx.rect(W*0.06,y,W*0.88,rowH-10); ctx.fill(); ctx.stroke();
+          ctx.fillStyle=items[i][0].indexOf('★★')>=0?'#f4a0c0':(items[i][0].indexOf('★')>=0?'#ffb27a':'#8fe3b5');
+          ctx.font='13px sans-serif'; ctx.fillText(items[i][0], W*0.085, y+rowH*0.45);
+          ctx.fillStyle=on?'#eaf2ff':'#b9c2d0'; ctx.font=(on?'600 ':'')+'13px sans-serif';
+          var q=items[i][1], maxc=Math.floor(W*0.74/7.2); if(q.length>maxc)q=q.slice(0,maxc-1)+'…';
+          ctx.fillText((i+1)+'. '+q, W*0.135, y+rowH*0.45); }
+        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+        ctx.fillText('난이도 ☆입문 · ★표준 · ★★심화  —  풀이는 아래 \"연습문제\" 패널에서', W/2, H*0.965); }
+    };
+  }
+
   var scenes=[
 
   // ══════ 퀵정렬(algo3_05) ▸ 최악의 경우 O(n²) ══════
@@ -5715,7 +5743,33 @@
       lines.forEach(function(t,i){ ctx.fillStyle=(i===1)?'#8fe3b5':(i===3?'#ffb27a':(i===5?'#f4a0c0':'#cfd8e6')); ctx.fillText(t, W*0.04, H*0.30+i*24); });
       ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('전체 O(VE). 경로 길이(간선 수)에 대한 귀납이 V−1 라운드의 정당성', W/2, H*0.965); }
-  }
+  },
+
+  // ===== 연습문제 세트 (책 두께의 핵심 차원: 장별 다문항) =====
+  exSet('algo_br_ex_analysis','algo1_03','연습문제 — 복잡도·점근·점화식',[
+    ['☆','n log n 과 n^1.01, 어느 쪽이 더 빠르게 자라나?'],
+    ['☆','3n^2+5n+2 = Θ(n^2) 임을 c1,c2,n0 로 보여라'],
+    ['★','T(n)=2T(n/2)+n 을 마스터 정리로 풀어라'],
+    ['★','삽입정렬의 최선/최악 입력은 각각 무엇인가?'],
+    ['★★','f=O(g) 이면 항상 2^f=O(2^g) 인가? 반례를 찾아라']]),
+  exSet('algo_br_ex_sorting','algo3_05','연습문제 — 정렬·선택·하한',[
+    ['☆','퀵정렬이 이미 정렬된 배열에서 O(n^2)이 되는 이유'],
+    ['★','병합정렬을 안정 정렬로 유지하는 비교 조건은?'],
+    ['★','비교정렬 하한 Ω(n log n) 을 결정트리로 설명하라'],
+    ['★','계수정렬이 O(n+k) 인데 일반정렬을 못 대체하는 이유'],
+    ['★★','중앙값의 중앙값으로 k번째 원소를 O(n)에 찾는 절차']]),
+  exSet('algo_br_ex_ds','algo2_05','연습문제 — 자료구조·해시·상각',[
+    ['☆','스택 2개로 큐를 구현하라. 각 연산의 상각 비용은?'],
+    ['★','동적 배열을 2배씩 늘릴 때 push 상각이 O(1)인 증명'],
+    ['★','체이닝 해시에서 적재율 α일 때 탐색 기대 시간'],
+    ['★','개방 주소법에서 삭제가 까다로운 이유와 해결(tombstone)'],
+    ['★★','이진검색트리에서 중위 후속자를 O(h)에 찾는 절차']]),
+  exSet('algo_br_ex_graph','algo6_05','연습문제 — 그래프·탐색·최단경로',[
+    ['☆','인접 리스트 vs 인접 행렬: 공간/간선조회 비용 비교'],
+    ['★','BFS가 무가중 그래프 최단경로를 주는 이유'],
+    ['★','DFS 간선 분류(트리/후방/전방/교차)와 사이클 판정'],
+    ['★','다익스트라가 음수 간선에서 실패하는 구체적 예'],
+    ['★★','위상정렬 DAG에서 최장경로를 O(V+E)에 구하는 법']])
 
   ];
   if(window.Engine) window.Engine.addScenes(scenes);
