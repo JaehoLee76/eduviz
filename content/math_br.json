@@ -433,5 +433,110 @@
       "q_en": "Use the product rule to find (x · sin x)′.",
       "sol_en": "f=x, g=sin x → f′g+fg′ = <b>sin x + x cos x</b>."
     }
+  },
+  "math_br_ex_algebra": {
+    "ch": "수·식·방정식",
+    "sec": "연습문제",
+    "title": "수·식·방정식 5제",
+    "narr": "대수의 기초를 직접 손으로 풉니다. 풀이를 가리고 도전해 보세요.",
+    "hint": "N/P로 문항 이동, 자세히 보기에서 풀이 확인.",
+    "more": "<b>풀이</b><br><b>1.</b> 3x − 7 = 11<br>&nbsp;&nbsp;→ 양변에 7을 더하면 3x = 18, 3으로 나누면 <b>x = 6</b>.<br><b>2.</b> x² − 5x + 6 = 0<br>&nbsp;&nbsp;→ (x−2)(x−3)=0 이므로 <b>x = 2 또는 x = 3</b>.<br><b>3.</b> x² + bx + 3 = 0 이 중근<br>&nbsp;&nbsp;→ 판별식 b² − 12 = 0 → <b>b = ±2√3</b>.<br><b>4.</b> (x+2)(x−3) 전개·인수분해<br>&nbsp;&nbsp;→ 전개 = x² − x − 6. 다시 인수분해하면 (x+2)(x−3) 원래대로.<br><b>5.</b> x² − 7x + 12 = 0 근의 합·곱<br>&nbsp;&nbsp;→ 비에트: 합 = 7, 곱 = 12. (근은 3과 4로 확인)<br>",
+    "more_en": "Solutions: 1) x=6.  2) x=2 or 3.  3) b=±2√3 (discriminant 0).  4) expands to x²−x−6.  5) sum=7, product=12 (Vieta).",
+    "problem": {
+      "q": "x² + x − 6 = 0 의 두 근의 합과 곱을 구하고, 직접 풀어 확인하라.",
+      "solution": "비에트의 정리로 합 = −1, 곱 = −6. 인수분해 (x+3)(x−2)=0 → x = −3, 2. 합 −3+2 = −1 ✓, 곱 −3·2 = −6 ✓.",
+      "q_en": "Find the sum and product of roots of x²+x−6=0 and verify.",
+      "sol_en": "Vieta: sum=−1, product=−6. Factor (x+3)(x−2)=0 → x=−3,2; check: −1, −6."
+    }
+  },
+  "math_br_ex_function": {
+    "ch": "함수와 그래프",
+    "sec": "연습문제",
+    "title": "함수와 그래프 5제",
+    "narr": "함수의 그래프 특성을 분석합니다.",
+    "hint": "꼭짓점·대칭축이 열쇠.",
+    "more": "<b>풀이</b><br><b>1.</b> y = 2x + 1 의 기울기·y절편<br>&nbsp;&nbsp;→ 기울기 = 2, y절편 = 1.<br><b>2.</b> y = x² − 4x + 3 꼭짓점<br>&nbsp;&nbsp;→ 완전제곱: y = (x−2)² − 1 → 꼭짓점 <b>(2, −1)</b>.<br><b>3.</b> y = (x−2)² + 1 대칭축·최솟값<br>&nbsp;&nbsp;→ 대칭축 x = 2, 최솟값 <b>1</b> (꼭짓점에서).<br><b>4.</b> y = 2ˣ 와 y = log₂x<br>&nbsp;&nbsp;→ 서로 역함수. y = x 직선에 대해 대칭.<br><b>5.</b> y = x³ − 3x 극대·극소<br>&nbsp;&nbsp;→ y′ = 3x²−3 = 0 → x = ±1. x=−1 극대(2), x=1 극소(−2).<br>",
+    "more_en": "Solutions: 1) slope 2, intercept 1.  2) vertex (2,−1).  3) axis x=2, min 1.  4) inverse functions, symmetric about y=x.  5) max at x=−1, min at x=1.",
+    "problem": {
+      "q": "y = x² + 2x − 3 의 꼭짓점과 x절편을 구하라.",
+      "solution": "완전제곱: y = (x+1)² − 4 → 꼭짓점 (−1, −4). x절편: (x+3)(x−1)=0 → x = −3, 1.",
+      "q_en": "Find the vertex and x-intercepts of y = x²+2x−3.",
+      "sol_en": "y=(x+1)²−4, vertex (−1,−4); x-intercepts x=−3, 1."
+    }
+  },
+  "math_br_ex_explog": {
+    "ch": "지수·로그·삼각",
+    "sec": "연습문제",
+    "title": "지수·로그·삼각 5제",
+    "narr": "지수·로그·삼각함수의 기본 계산.",
+    "hint": "지수법칙·로그법칙·덧셈정리.",
+    "more": "<b>풀이</b><br><b>1.</b> 2³ × 2⁴, 2⁵ ÷ 2²<br>&nbsp;&nbsp;→ 지수 더하기·빼기: 2⁷ = 128, 2³ = 8.<br><b>2.</b> log₂8 + log₂4<br>&nbsp;&nbsp;→ 곱의 로그 = log₂32 = <b>5</b> (3+2).<br><b>3.</b> log₂x = 5, log₄16<br>&nbsp;&nbsp;→ x = 2⁵ = 32. log₄16 = 2 (4² = 16).<br><b>4.</b> sin30°cos60° + cos30°sin60°<br>&nbsp;&nbsp;→ = sin(30°+60°) = sin90° = <b>1</b> (덧셈정리).<br><b>5.</b> sin75° 구하기<br>&nbsp;&nbsp;→ sin(45°+30°) = sin45cos30 + cos45sin30 = (√6+√2)/4.<br>",
+    "more_en": "Solutions: 1) 128, 8.  2) 5.  3) x=32, log₄16=2.  4) sin90°=1.  5) sin75°=(√6+√2)/4.",
+    "problem": {
+      "q": "log₃81 − log₃9 의 값을 구하라.",
+      "solution": "몫의 로그: log₃(81/9) = log₃9 = 2. (또는 4 − 2 = 2.)",
+      "q_en": "Compute log₃81 − log₃9.",
+      "sol_en": "log₃(81/9)=log₃9=2 (or 4−2=2)."
+    }
+  },
+  "math_br_ex_seqlim": {
+    "ch": "수열·극한",
+    "sec": "연습문제",
+    "title": "수열·극한 5제",
+    "narr": "수열과 극한의 핵심 계산.",
+    "hint": "공식·약분·수렴.",
+    "more": "<b>풀이</b><br><b>1.</b> 등차 2,5,8,… 제10항<br>&nbsp;&nbsp;→ a₁=2, d=3 → a₁₀ = 2 + 9·3 = <b>29</b>.<br><b>2.</b> 1 + 1/2 + 1/4 + …<br>&nbsp;&nbsp;→ 등비 무한합 a/(1−r) = 1/(1−1/2) = <b>2</b>.<br><b>3.</b> 1+2+…+100<br>&nbsp;&nbsp;→ 가우스: n(n+1)/2 = 100·101/2 = <b>5050</b>.<br><b>4.</b> lim(x→2)(x²−4)/(x−2)<br>&nbsp;&nbsp;→ 약분: (x+2)(x−2)/(x−2) = x+2 → <b>4</b>.<br><b>5.</b> lim(1+1/n)ⁿ<br>&nbsp;&nbsp;→ 자연상수 <b>e ≈ 2.718</b> 로 수렴.<br>",
+    "more_en": "Solutions: 1) 29.  2) 2.  3) 5050.  4) 4 (cancel x−2).  5) e.",
+    "problem": {
+      "q": "lim(x→3) (x²−9)/(x−3) 의 값을 구하라.",
+      "solution": "분자 인수분해 (x+3)(x−3), x−3 약분 → x+3, x→3 대입 = 6.",
+      "q_en": "Compute lim(x→3)(x²−9)/(x−3).",
+      "sol_en": "Cancel (x−3): x+3 → 6."
+    }
+  },
+  "math_br_ex_prob": {
+    "ch": "순열·조합·확률",
+    "sec": "연습문제",
+    "title": "순열·조합·확률 5제",
+    "narr": "경우의 수와 확률의 기본.",
+    "hint": "순열·조합·여사건·조건부.",
+    "more": "<b>풀이</b><br><b>1.</b> 5권을 일렬로<br>&nbsp;&nbsp;→ 5! = <b>120</b> 가지.<br><b>2.</b> 10명 중 3명 ₁₀C₃<br>&nbsp;&nbsp;→ 10·9·8/(3·2·1) = <b>120</b>.<br><b>3.</b> 주사위 두 개 합 7<br>&nbsp;&nbsp;→ (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6가지 / 36 = <b>1/6</b>.<br><b>4.</b> 동전 3개 앞면 2개<br>&nbsp;&nbsp;→ ₃C₂ / 2³ = 3/8.<br><b>5.</b> P(A)=0.5, P(A∩B)=0.2, P(B|A)<br>&nbsp;&nbsp;→ P(A∩B)/P(A) = 0.2/0.5 = <b>0.4</b>.<br>",
+    "more_en": "Solutions: 1) 120.  2) 120.  3) 1/6.  4) 3/8.  5) 0.4.",
+    "problem": {
+      "q": "빨강 3개·파랑 2개 공에서 2개를 꺼낼 때 둘 다 빨강일 확률은?",
+      "solution": "₃C₂ / ₅C₂ = 3 / 10. (또는 3/5 · 2/4 = 6/20 = 3/10.)",
+      "q_en": "From 3 red and 2 blue balls, probability both drawn are red?",
+      "sol_en": "₃C₂/₅C₂ = 3/10."
+    }
+  },
+  "math_br_ex_diff": {
+    "ch": "미분",
+    "sec": "연습문제",
+    "title": "미분 5제",
+    "narr": "미분의 핵심 규칙을 적용합니다.",
+    "hint": "멱법칙·곱·연쇄.",
+    "more": "<b>풀이</b><br><b>1.</b> f(x)=x³ 의 f′(x)<br>&nbsp;&nbsp;→ 멱법칙: <b>3x²</b>.<br><b>2.</b> f(x)=x²+3x, x=1 접선 기울기<br>&nbsp;&nbsp;→ f′ = 2x+3, f′(1) = <b>5</b>.<br><b>3.</b> (x²·sin x)′<br>&nbsp;&nbsp;→ 곱의 미분: 2x·sin x + x²·cos x.<br><b>4.</b> f(x)=x³−3x 극값 x<br>&nbsp;&nbsp;→ f′ = 3x²−3 = 0 → x = ±1.<br><b>5.</b> (sin(x²))′<br>&nbsp;&nbsp;→ 연쇄법칙: cos(x²)·2x = 2x·cos(x²).<br>",
+    "more_en": "Solutions: 1) 3x².  2) 5.  3) 2x·sinx + x²·cosx.  4) x=±1.  5) 2x·cos(x²).",
+    "problem": {
+      "q": "f(x) = (2x+1)⁴ 의 도함수를 연쇄법칙으로 구하라.",
+      "solution": "바깥 4(2x+1)³ × 안쪽 미분 2 = 8(2x+1)³.",
+      "q_en": "Differentiate f(x)=(2x+1)⁴ using the chain rule.",
+      "sol_en": "4(2x+1)³·2 = 8(2x+1)³."
+    }
+  },
+  "math_br_ex_integ": {
+    "ch": "적분",
+    "sec": "연습문제",
+    "title": "적분 5제",
+    "narr": "적분과 넓이 계산.",
+    "hint": "역도함수·기본정리·치환.",
+    "more": "<b>풀이</b><br><b>1.</b> ∫ 2x dx<br>&nbsp;&nbsp;→ 역도함수: <b>x² + C</b>.<br><b>2.</b> ∫₀¹ x² dx<br>&nbsp;&nbsp;→ [x³/3]₀¹ = <b>1/3</b>.<br><b>3.</b> y=x, x축, x=0~2 넓이<br>&nbsp;&nbsp;→ ∫₀² x dx = [x²/2]₀² = <b>2</b> (삼각형 넓이와 일치).<br><b>4.</b> ∫₁³ 2x dx<br>&nbsp;&nbsp;→ [x²]₁³ = 9 − 1 = <b>8</b> (기본정리).<br><b>5.</b> ∫ 2x(x²+1)³ dx<br>&nbsp;&nbsp;→ 치환 u=x²+1, du=2x dx → ∫u³du = u⁴/4 = (x²+1)⁴/4 + C.<br>",
+    "more_en": "Solutions: 1) x²+C.  2) 1/3.  3) 2.  4) 8.  5) (x²+1)⁴/4 + C.",
+    "problem": {
+      "q": "∫₀² (3x² + 1) dx 를 계산하라.",
+      "solution": "역도함수 x³ + x. [x³+x]₀² = (8+2) − 0 = 10.",
+      "q_en": "Evaluate ∫₀²(3x²+1)dx.",
+      "sol_en": "[x³+x]₀² = 10."
+    }
   }
 }

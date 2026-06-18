@@ -6,7 +6,80 @@
   function steps(E, lines, opts){ opts=opts||{}; var ctx=E.ctx, cx=E.W/2, y0=opts.y0||E.H*0.30, lh=opts.lh||E.H*0.075;
     lines.forEach(function(ln,i){ var y=y0+i*lh; ctx.fillStyle=ln.c||'#cfcdc6'; ctx.font=(ln.b?'600 ':'')+(ln.fs||18)+'px sans-serif'; ctx.textAlign='center'; ctx.fillText(ln.t, cx, y); }); }
 
+  function rrect(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);} else {ctx.beginPath();ctx.rect(x,y,w,h);} }
+  // 연습문제 세트(수학, 풀스크린 카드형): N/P로 문항 이동, 풀이는 '자세히 보기' 패널
+  function exSet(id, parent, head, items){
+    return { id:id, branchOf:parent,
+      keys:[{code:'KeyN',key:'N',label:'다음 문항',act:function(E){ E._exi=((E._exi||0)+1)%items.length; }},
+            {code:'KeyP',key:'P',label:'이전 문항',act:function(E){ E._exi=((E._exi||0)+items.length-1)%items.length; }}],
+      tap:function(E){ E._exi=((E._exi||0)+1)%items.length; },
+      enter:function(E){ E._exi=0; E.setOn([]); },
+      draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, sel=E._exi||0;
+        ctx.textAlign='center'; ctx.fillStyle='#ece9e0'; ctx.font='600 22px sans-serif';
+        ctx.fillText(head+'  ('+items.length+'문항)', W/2, H*0.13);
+        ctx.font='13px sans-serif'; ctx.fillStyle='#8a8893';
+        ctx.fillText('N 다음 · P 이전 문항 · 풀이는 왼쪽 아래 "자세히 보기 ^^"', W/2, H*0.175);
+        ctx.textAlign='left';
+        var n=items.length, cw=Math.min(W*0.7, 760), x0=(W-cw)/2, y0=H*0.26, rowH=Math.min(64,(H*0.52)/n);
+        for(var i=0;i<n;i++){ var y=y0+i*rowH, on=(i===sel);
+          ctx.fillStyle=on?'rgba(216,129,74,0.16)':'rgba(255,255,255,0.04)';
+          ctx.strokeStyle=on?'#d8814a':'rgba(255,255,255,0.10)'; ctx.lineWidth=on?2:1;
+          rrect(ctx,x0,y,cw,rowH-12,9); ctx.fill(); ctx.stroke();
+          ctx.fillStyle=items[i][0].indexOf('★★')>=0?'#f4a0c0':(items[i][0].indexOf('★')>=0?'#ffb27a':'#8fe3b5');
+          ctx.font='15px sans-serif'; ctx.fillText(items[i][0], x0+18, y+rowH*0.42);
+          ctx.fillStyle=on?'#f6efe6':'#c3ccda'; ctx.font=(on?'600 ':'')+'15px sans-serif';
+          var q=items[i][1], maxc=Math.floor((cw-110)/8.4); if(q.length>maxc)q=q.slice(0,maxc-1)+'…';
+          ctx.fillText((i+1)+'. '+q, x0+74, y+rowH*0.42); }
+        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+        ctx.fillText('난이도 ☆입문 · ★표준 · ★★심화', W/2, H*0.86); }
+    };
+  }
+
   var scenes=[
+  exSet('math_br_ex_algebra','ch3_11','연습문제 — 수·식·방정식',[
+    ['☆','3x − 7 = 11 을 풀어라'],
+    ['☆','x² − 5x + 6 = 0 을 인수분해로 풀어라'],
+    ['★','이차방정식 x² + bx + 3 = 0 이 중근을 가질 b는?'],
+    ['★','(x+2)(x−3) 를 전개하고 다시 인수분해하라'],
+    ['★★','근과 계수: x² − 7x + 12 = 0 두 근의 합과 곱은?']]),
+  exSet('math_br_ex_function','ch5_06','연습문제 — 함수와 그래프',[
+    ['☆','일차함수 y = 2x + 1 의 기울기와 y절편은?'],
+    ['★','y = x² − 4x + 3 의 꼭짓점 좌표를 구하라'],
+    ['★','y = (x−2)² + 1 의 대칭축과 최솟값은?'],
+    ['★','y = 2ˣ 와 y = log₂x 의 관계를 설명하라'],
+    ['★★','y = x³ − 3x 의 극대·극소를 그래프로 설명하라']]),
+  exSet('math_br_ex_explog','ch7_05','연습문제 — 지수·로그·삼각',[
+    ['☆','2³ × 2⁴ 와 2⁵ ÷ 2² 를 계산하라'],
+    ['★','log₂8 + log₂4 의 값은?'],
+    ['★','log₂x = 5 일 때 x 와, 밑변환 log₄16 의 값'],
+    ['★','sin30° · cos60° + cos30° · sin60° 의 값은?'],
+    ['★★','sin(α+β) 공식을 이용해 sin75° 를 구하라']]),
+  exSet('math_br_ex_seqlim','ch14_05','연습문제 — 수열·극한',[
+    ['☆','등차수열 2, 5, 8, … 의 제10항은?'],
+    ['★','등비수열 1 + 1/2 + 1/4 + … 의 무한합은?'],
+    ['★','1 + 2 + … + 100 을 가우스 공식으로 구하라'],
+    ['★','lim(x→2) (x²−4)/(x−2) 의 값은?'],
+    ['★★','lim(n→∞) (1 + 1/n)ⁿ 이 무엇으로 수렴하나?']]),
+  exSet('math_br_ex_prob','ch16_05','연습문제 — 순열·조합·확률',[
+    ['☆','서로 다른 5권을 일렬로 꽂는 경우의 수는?'],
+    ['★','10명 중 3명 대표를 뽑는 경우의 수 ₁₀C₃ 는?'],
+    ['★','주사위 두 개 합이 7일 확률은?'],
+    ['★','동전 3개를 던져 앞면이 2개 나올 확률은?'],
+    ['★★','조건부확률: P(A)=0.5, P(A∩B)=0.2 일 때 P(B|A)는?']]),
+  exSet('math_br_ex_diff','ch17_06','연습문제 — 미분',[
+    ['☆','f(x) = x³ 의 도함수 f′(x) 는?'],
+    ['★','f(x) = x² + 3x 의 x=1 에서 접선의 기울기는?'],
+    ['★','곱의 미분: (x²·sin x)′ 를 구하라'],
+    ['★','f(x) = x³ − 3x 의 극값을 주는 x를 찾아라'],
+    ['★★','연쇄법칙으로 (sin(x²))′ 를 구하라']]),
+  exSet('math_br_ex_integ','ch19_05','연습문제 — 적분',[
+    ['☆','∫ 2x dx 를 구하라 (+C)'],
+    ['★','∫₀¹ x² dx 의 값은?'],
+    ['★','넓이: y = x 와 x축, x=0~2 사이 넓이는?'],
+    ['★','미적분 기본정리로 ∫₁³ 2x dx 를 계산하라'],
+    ['★★','치환적분으로 ∫ 2x·(x²+1)³ dx 를 구하라']]),
+
+
 
   // ══════ 무리수 √2(ch1_05) ▸ √2가 무리수임의 증명 ══════
   { id:'math_br_sqrt2', branchOf:'ch1_05',
