@@ -568,7 +568,17 @@
       "solution": "<b>7번</b> → T(n)=7T(n/2)+O(n²) → <b>O(n^2.81)</b> (순진한 8번은 O(n³)).",
       "q_en": "How many multiplications does Strassen use for a 2×2 block product, and the resulting complexity?",
       "sol_en": "<b>7</b> → T(n)=7T(n/2)+O(n²) → <b>O(n^2.81)</b> (the naive 8 give O(n³))."
-    }
+    },
+    "impl": [
+      "// 스트라센: 2x2 블록 곱을 8번→7번",
+      "// M1=(A11+A22)(B11+B22), M2=(A21+A22)B11, ...",
+      "// M3=A11(B12-B22), M4=A22(B21-B11),",
+      "// M5=(A11+A12)B22, M6=(A21-A11)(B11+B12),",
+      "// M7=(A12-A22)(B21+B22)",
+      "C11=M1+M4-M5+M7; C12=M3+M5;",
+      "C21=M2+M4;       C22=M1-M2+M3+M6;",
+      "// T(n)=7T(n/2)+O(n^2) → O(n^2.807)"
+    ]
   },
   "algo_br_fft": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -725,7 +735,17 @@
       "solution": "항상 <b>꼭짓점(vertex)</b>에서. 볼록 영역 + 일차 목적함수이기 때문(심플렉스가 이를 이용).",
       "q_en": "Where does the optimum of a linear program occur in the feasible region?",
       "sol_en": "Always at a <b>vertex</b>. Because the region is convex and the objective is linear (simplex exploits this)."
-    }
+    },
+    "impl": [
+      "// 선형계획법: 심플렉스 (제약 속 최적화)",
+      "// max c·x  s.t. Ax <= b, x >= 0",
+      "while(존재 음수 감소비용 열 j){       // 진입 변수",
+      "  int i = minRatioTest(j);          // 탈출 변수(비율)",
+      "  if(i == -1) return UNBOUNDED;",
+      "  pivot(i, j);                       // 기저 교환",
+      "}",
+      "// 꼭짓점 따라 이동. 최악 지수, 실전 빠름"
+    ]
   },
   "algo_br_extgcd": {
     "ch": "알고리즘 제2장 자료구조",
@@ -766,7 +786,19 @@
       "solution": "분할선 양쪽으로 폭 d인 <b>경계 띠(strip)</b>만 (각 점은 상수 개 이웃만 검사) → O(n).",
       "q_en": "In the divide-and-conquer closest-pair, which region is checked during the combine step?",
       "sol_en": "Only the <b>strip</b> of width d around the dividing line (each point checks a constant number of neighbors) → O(n)."
-    }
+    },
+    "impl": [
+      "// 가장 가까운 점 쌍: 분할정복 O(n log n)",
+      "sort by x;",
+      "double rec(int l,int r){",
+      "  if(r-l<=3) return brute(l,r);",
+      "  int m=(l+r)/2; double midx=p[m].x;",
+      "  double d=min(rec(l,m), rec(m,r));",
+      "  // 띠(midx±d) 안 점들을 y순으로, 각 7점만 비교",
+      "  for(strip points by y) checkNearby(d);",
+      "  return d;",
+      "}"
+    ]
   },
   "algo_br_master": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
@@ -998,7 +1030,18 @@
       "solution": "<b>중위 순서(키의 정렬 순서)는 보존</b>하고, 트리의 <b>높이/모양만</b> 바꿉니다. 그래서 탐색 정확성은 그대로 두고 균형만 회복할 수 있습니다.",
       "q_en": "What does a rotation preserve and what does it change in a BST?",
       "sol_en": "It preserves the <b>in-order (sorted key) order</b> and changes only the tree's <b>height/shape</b>. So it restores balance without affecting search correctness."
-    }
+    },
+    "impl": [
+      "// 회전: BST 균형의 기본 동작 (부분순서 유지)",
+      "Node* rotateRight(Node* y){",
+      "  Node* x = y->left;",
+      "  y->left = x->right;                // β를 y 왼쪽으로",
+      "  x->right = y;",
+      "  update(y); update(x);              // 높이 갱신",
+      "  return x;                          // 새 부분트리 루트",
+      "}",
+      "// rotateLeft는 좌우 대칭. AVL·레드블랙의 토대"
+    ]
   },
   "algo_br_bstins": {
     "ch": "알고리즘 제5장 트리",
@@ -1939,7 +1982,20 @@
       "solution": "<b>CCW(A,B,C)·CCW(A,B,D) < 0</b> (C,D가 AB의 반대편) <b>이고</b> <b>CCW(C,D,A)·CCW(C,D,B) < 0</b> (A,B가 CD의 반대편). 두 조건이 모두 성립해야 교차합니다.",
       "q_en": "What CCW-sign conditions mean segments AB and CD cross (general position)?",
       "sol_en": "<b>CCW(A,B,C)·CCW(A,B,D) < 0</b> (C,D on opposite sides of AB) <b>and</b> <b>CCW(C,D,A)·CCW(C,D,B) < 0</b> (A,B on opposite sides of CD) — both must hold."
-    }
+    },
+    "impl": [
+      "// 선분 교차: 외적(CCW) 부호",
+      "int ccw(P a,P b,P c){",
+      "  long v=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);",
+      "  return (v>0)-(v<0);                // 좌회전/우회전",
+      "}",
+      "bool cross(P a,P b,P c,P d){          // 두 선분",
+      "  int d1=ccw(a,b,c)*ccw(a,b,d);",
+      "  int d2=ccw(c,d,a)*ccw(c,d,b);",
+      "  if(d1==0&&d2==0) return overlap(a,b,c,d);",
+      "  return d1<=0 && d2<=0;             // 서로 반대편",
+      "}"
+    ]
   },
   "algo_br_calipers": {
     "ch": "알고리즘 제2장 자료구조",
@@ -1954,7 +2010,18 @@
       "solution": "가장 먼 두 점은 반드시 <b>평행한 두 받침선이 동시에 닿는 대척점 쌍</b>이라, 모든 쌍이 아니라 그런 후보만 보면 됩니다. 받침선을 한 바퀴 돌리면 두 포인터가 각각 한 바퀴만 돌아 O(n)입니다.",
       "q_en": "Why can rotating calipers find the farthest pair in O(n)?",
       "sol_en": "The farthest pair must be an <b>antipodal pair touched by two parallel supporting lines</b>, so only those candidates matter — not all pairs. One full rotation advances each pointer once around, giving O(n)."
-    }
+    },
+    "impl": [
+      "// 회전 캘리퍼스: 볼록껍질 지름",
+      "int j=1; double best=0;",
+      "for(int i=0;i<n;i++){",
+      "  // i 변에서 가장 먼 점 j까지 회전",
+      "  while(cross(hull,i,j+1) > cross(hull,i,j)) j=(j+1)%n;",
+      "  best=max(best, dist(hull[i], hull[j]));",
+      "  best=max(best, dist(hull[i+1], hull[j]));",
+      "}",
+      "return best;   // 마주보는 점쌍만 → O(n)"
+    ]
   },
   "algo_br_cht": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -2217,7 +2284,17 @@
       "solution": "블로섬(<b>홀수 교대 사이클</b>)은 한 정점이 매칭/비매칭 양쪽으로 보여 증가 경로 탐색을 꼬이게 합니다. 사이클을 <b>한 점으로 수축</b>하면 그 모순이 사라져 이분 그래프처럼 증가 경로를 찾을 수 있습니다.",
       "q_en": "Why contract a 'blossom' in general-graph matching?",
       "sol_en": "A blossom (<b>odd alternating cycle</b>) makes a vertex appear on both matched and unmatched sides, tangling augmenting-path search. <b>Contracting it to one vertex</b> removes the conflict so paths can be found as in a bipartite graph."
-    }
+    },
+    "impl": [
+      "// 에드몬즈 블로섬: 일반그래프 최대매칭",
+      "// 홀수 사이클(blossom)을 한 점으로 수축",
+      "while(augmentingPathExists()){",
+      "  BFS로 교대트리 확장;",
+      "  if(홀수사이클 발견) contractBlossom();  // 수축",
+      "  else if(증대경로) augment();",
+      "}",
+      "// O(V^3). 이분이 아닌 그래프도 처리"
+    ]
   },
   "algo_br_daglongest": {
     "ch": "알고리즘 제6장 그래프",
@@ -2290,7 +2367,18 @@
       "solution": "점값에서는 두 다항식의 곱이 <b>각 점의 값을 그냥 곱한 것</b>(O(n))입니다. 느린 부분은 표현 변환인데, 단위근 + 분할정복으로 평가·보간을 각각 O(n log n)에 해 전체가 O(n log n)이 됩니다.",
       "q_en": "Why does switching to point-value form speed up FFT multiplication?",
       "sol_en": "In point-value form the product is just <b>pointwise multiplication</b> (O(n)). The costly part is the conversion, but roots of unity + divide-and-conquer make evaluation/interpolation O(n log n) each, so the whole is O(n log n)."
-    }
+    },
+    "impl": [
+      "// FFT 곱셈: 큰 수·다항식",
+      "// 1) A,B를 점값으로 (FFT)",
+      "fft(A,n,false); fft(B,n,false);",
+      "// 2) 점별 곱",
+      "for(int i=0;i<n;i++) C[i]=A[i]*B[i];",
+      "// 3) 역변환 후 자리올림",
+      "fft(C,n,true);",
+      "for(int i=0;i<n;i++){ res[i]+=round(C[i].real());",
+      "  res[i+1]+=res[i]/10; res[i]%=10; }   // O(n log n)"
+    ]
   },
   "algo_br_bsgs": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -2838,7 +2926,19 @@
       "solution": "수열은 <b>미지의 약수 p로 보면</b> n으로 볼 때보다 훨씬 빨리 순환합니다. 그래서 두 항이 <b>p로는 같지만(차가 p의 배수) n으로는 다른</b> 순간이 오고, 그 차와 n의 gcd가 p를 품은 진짜 약수가 됩니다.",
       "q_en": "Why does gcd(|xᵢ − x₂ᵢ|, n) yield a divisor in Pollard's rho?",
       "sol_en": "The sequence cycles much sooner <b>modulo an unknown factor p</b> than modulo n. So two terms become <b>equal mod p (their difference is a multiple of p) but differ mod n</b>, and the gcd of that difference with n is a genuine divisor containing p."
-    }
+    },
+    "impl": [
+      "// 폴라드 로: 큰 합성수의 약수",
+      "long pollard(long n){",
+      "  long x=2,y=2,d=1;",
+      "  auto f=[&](long v){ return (mulmod(v,v,n)+1)%n; };",
+      "  while(d==1){",
+      "    x=f(x); y=f(f(y));               // 토끼와 거북이",
+      "    d=gcd(abs(x-y), n);              // 사이클서 약수",
+      "  }",
+      "  return d==n ? -1 : d;",
+      "}   // 기대 O(n^1/4)"
+    ]
   },
   "algo_br_lucas": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -2853,7 +2953,21 @@
       "solution": "7과 3을 3진법으로: 7=(2 1)₃, 3=(1 0)₃. 자릿수별 곱 <b>C(2,1)×C(1,0) = 2×1 = 2</b>. 따라서 C(7,3) ≡ 2 (mod 3). (실제 C(7,3)=35, 35 mod 3 = 2로 일치)",
       "q_en": "Compute C(7,3) mod 3 using Lucas' theorem.",
       "sol_en": "Write 7 and 3 in base 3: 7=(2 1)₃, 3=(1 0)₃. The per-digit product is <b>C(2,1)×C(1,0) = 2×1 = 2</b>, so C(7,3) ≡ 2 (mod 3). (Indeed C(7,3)=35 and 35 mod 3 = 2.)"
-    }
+    },
+    "impl": [
+      "// 뤼카 정리: C(n,k) mod p (p 소수)",
+      "// n,k를 p진법으로 → 자릿수별 이항계수 곱",
+      "long lucas(long n,long k,long p){",
+      "  long r=1;",
+      "  while(n||k){",
+      "    long ni=n%p, ki=k%p;",
+      "    if(ki>ni) return 0;",
+      "    r = r * comb(ni,ki) % p;         // 작은 이항계수",
+      "    n/=p; k/=p;",
+      "  }",
+      "  return r;",
+      "}"
+    ]
   },
   "algo_br_incexc": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -2920,7 +3034,19 @@
       "solution": "access(v)는 <b>루트에서 v까지의 경로를 하나의 선호 경로로 모으고</b> v를 그 스플레이 트리의 루트로 올립니다. 그러면 그 경로의 모든 정점이 한 균형 트리에 모이므로, 경로 합·최댓값을 <b>O(log n)</b>에 질의·갱신할 수 있습니다.",
       "q_en": "What does a link-cut tree's access(v) do, and why does it enable path queries?",
       "sol_en": "access(v) <b>gathers the root-to-v path into a single preferred path</b> and splays v to that tree's root. With the whole path in one balanced tree, path sum/max can be queried and updated in <b>O(log n)</b>."
-    }
+    },
+    "impl": [
+      "// 링크컷 트리: 변하는 숲을 O(log n)",
+      "// 스플레이 트리들로 경로 표현(preferred path)",
+      "void access(Node* x){              // x를 루트까지 노출",
+      "  splay(x); x->right=NULL;",
+      "  while(x->pathParent){",
+      "    Node* p=x->pathParent; splay(p);",
+      "    p->right=x; x=p;",
+      "  }",
+      "  splay(start);",
+      "}   // link/cut/경로질의 모두 상각 O(log n)"
+    ]
   },
   "algo_br_skiplist": {
     "ch": "알고리즘 제2장 자료구조",
@@ -2935,7 +3061,18 @@
       "solution": "각 노드가 삽입 시 <b>동전을 던져</b> ½씩 위층으로 올라가, 층마다 노드 수가 약 절반으로 줄어듭니다. 위 차선에서 멀리 건너뛰고 막히면 한 층 내려가는 탐색이 <b>이분 탐색처럼</b> 작동하고, 기대 높이가 O(log n)이라 전체 기대 O(log n)입니다.",
       "q_en": "How does a skip list achieve expected O(log n) search without rotations?",
       "sol_en": "Each node <b>flips a coin</b> to rise a level with probability ½, halving the node count per level. Searching skips far on upper lanes and drops down when blocked — like <b>binary search</b> — and with expected height O(log n) the whole search is expected O(log n)."
-    }
+    },
+    "impl": [
+      "// 스킵 리스트: 동전 던져 층 쌓기",
+      "Node* insert(int v){",
+      "  int lvl=1; while(rand()&1) lvl++;  // 기대 높이 O(log n)",
+      "  Node* x=newNode(v, lvl);",
+      "  for(int i=0;i<lvl;i++){",
+      "    x->next[i]=update[i]->next[i];",
+      "    update[i]->next[i]=x;            // 각 층에 연결",
+      "  }",
+      "}   // 탐색·삽입·삭제 기대 O(log n)"
+    ]
   },
   "algo_br_reservoir": {
     "ch": "알고리즘 제4장 탐색",
@@ -3052,7 +3189,19 @@
       "solution": "각 단계에서 <b>최대 인접도 순서로 정점을 흡수</b>하면, 마지막 정점 t를 나머지와 가르는 컷(cut-of-the-phase)이 <b>그 단계 s-t 최소컷</b>임이 보장됩니다. 그 후 s·t를 <b>합쳐</b> 정점을 줄이며 n−1단계 반복하면, 후보들의 최솟값이 전역 최소컷이 됩니다.",
       "q_en": "Why can Stoer-Wagner find the global min cut without choosing s and t?",
       "sol_en": "In each phase, absorbing vertices in <b>maximum-adjacency order</b> guarantees the cut separating the last vertex t from the rest (the cut-of-the-phase) is the <b>s-t min cut</b> of that phase. Then <b>merging s and t</b> shrinks the graph; over n−1 phases the minimum recorded candidate is the global min cut."
-    }
+    },
+    "impl": [
+      "// 슈토어-바그너: 전역 최소 컷(s,t 무관)",
+      "int globalMinCut(){ int best=INF;",
+      "  while(V>1){",
+      "    // 최대 인접도 순서로 마지막 두 정점 s,t",
+      "    int cutOfPhase = maxAdjacencyOrder();",
+      "    best=min(best, cutOfPhase);",
+      "    mergeLastTwo();                  // s,t 합치기",
+      "  }",
+      "  return best;",
+      "}   // O(V^3)"
+    ]
   },
   "algo_br_anneal": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -3293,7 +3442,18 @@
       "solution": "최소 컷의 간선 수가 적을수록(그래프 차수가 그 이상이라) <b>무작위로 뽑은 간선이 최소 컷에 속할 확률이 작습니다</b>. 각 수축 단계에서 최소 컷 간선을 안 뽑을 확률을 곱하면 전체 생존 확률 ≥ 2/(n(n−1)). 그래서 O(n²)번 반복으로 충분합니다.",
       "q_en": "What's the intuition that a fixed min cut survives a contraction with not-too-low probability in Karger's algorithm?",
       "sol_en": "A small min cut means every vertex has degree at least its size, so a <b>randomly chosen edge is unlikely to belong to the min cut</b>. Multiplying the per-step survival probabilities gives overall ≥ 2/(n(n−1)) — hence O(n²) repetitions suffice."
-    }
+    },
+    "impl": [
+      "// 카거: 무작위 간선 수축으로 최소 컷",
+      "int karger(){",
+      "  while(V > 2){",
+      "    Edge e = randomEdge();",
+      "    contract(e);                     // 양끝 합치기(자기루프 제거)",
+      "  }",
+      "  return remainingEdges();           // 두 슈퍼정점 사이",
+      "}",
+      "// 한 번 성공확률 ~2/V^2 → O(V^2 log V)회 반복"
+    ]
   },
   "algo_br_fenwick2d": {
     "ch": "알고리즘 제5장 트리",
@@ -3308,7 +3468,21 @@
       "solution": "2D 포함배제로 네 모서리에서: <b>S(r2,c2) − S(r1−1,c2) − S(r2,c1−1) + S(r1−1,c1−1)</b>. 왼쪽 영역과 위쪽 영역을 각각 빼면 왼쪽-위 모서리가 두 번 빠지므로, 그 부분을 한 번 다시 더해 보정합니다.",
       "q_en": "With only the 2D prefix sum S, how do you get the sum of rectangle [r1..r2]×[c1..c2]?",
       "sol_en": "By 2D inclusion-exclusion at four corners: <b>S(r2,c2) − S(r1−1,c2) − S(r2,c1−1) + S(r1−1,c1−1)</b>. Subtracting the left and top regions removes the top-left corner twice, so add it back once."
-    }
+    },
+    "impl": [
+      "// 2D 펜윅: 평면 직사각형 합",
+      "void update(int x,int y,int v){",
+      "  for(int i=x;i<=n;i+=i&-i)",
+      "    for(int j=y;j<=m;j+=j&-j)",
+      "      bit[i][j]+=v;",
+      "}",
+      "int query(int x,int y){              // (1,1)~(x,y) 합",
+      "  int s=0;",
+      "  for(int i=x;i>0;i-=i&-i)",
+      "    for(int j=y;j>0;j-=j&-j) s+=bit[i][j];",
+      "  return s;",
+      "}   // O(log n · log m)"
+    ]
   },
   "algo_br_knuthopt": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -3525,7 +3699,17 @@
       "solution": "구간 [l,r]을 덮는 노드가 <b>O(log n)개</b>이고, 각 노드의 <b>정렬 리스트에서 이분 탐색(upper_bound)</b>으로 X 이하 개수를 O(log n)에 셉니다. 두 로그 인자가 곱해져 <b>O(log² n)</b>입니다(분할비 캐스케이딩으로 O(log n)까지 가능).",
       "q_en": "Why is a 'count ≤ X in range [l,r]' query O(log² n) in a merge sort tree?",
       "sol_en": "The range [l,r] is covered by <b>O(log n) nodes</b>, and at each node a <b>binary search (upper_bound) over its sorted list</b> counts elements ≤ X in O(log n). The two log factors multiply to <b>O(log² n)</b> (reducible to O(log n) with fractional cascading)."
-    }
+    },
+    "impl": [
+      "// 머지소트 트리: 노드마다 정렬된 구간",
+      "// 세그트리 각 노드 = 그 구간 값들 정렬 배열",
+      "void build(int node,int l,int r){",
+      "  if(l==r){ vec[node]={a[l]}; return; }",
+      "  build(2*node,l,mid); build(2*node+1,mid+1,r);",
+      "  merge(vec[2*node], vec[2*node+1], vec[node]);",
+      "}",
+      "// 구간 내 'x 이하 개수' 질의 O(log^2 n)"
+    ]
   },
   "algo_br_sternbrocot": {
     "ch": "알고리즘 제4장 탐색",
@@ -3585,7 +3769,17 @@
       "solution": "u를 DFS로 처리하는 중, 짝 v가 <b>이미 방문 완료</b>됐을 때입니다. DFS는 자식 서브트리를 마치면 그 정점을 부모로 union해 올리므로, 그 순간 <b>find(v)</b>는 v가 속한 묶음의 대표 = u와 v의 경로가 갈라지는 가장 깊은 공통 조상(LCA)을 가리킵니다.",
       "q_en": "When and why is a query (u,v)'s answer find(v) in Tarjan's offline LCA?",
       "sol_en": "When, during the DFS processing of u, the partner v is <b>already visited</b>. Since the DFS unions each finished subtree up into its parent, at that moment <b>find(v)</b> gives v's group representative — the deepest common ancestor where u's and v's paths diverge, i.e. the LCA."
-    }
+    },
+    "impl": [
+      "// 타잔 오프라인 LCA: DFS + union-find",
+      "void dfs(int u){",
+      "  anc[u]=u;",
+      "  for(int v: child[u]){ dfs(v); unite(u,v); anc[find(u)]=u; }",
+      "  visited[u]=true;",
+      "  for(int q: queries[u])             // u와 짝 q",
+      "    if(visited[q]) answer = anc[find(q)]; // LCA",
+      "}   // 전부 한 번에 O((V+Q) α)"
+    ]
   },
   "algo_br_johnson": {
     "ch": "알고리즘 제6장 그래프",
@@ -3764,7 +3958,19 @@
       "solution": "모든 정점 차수가 <b>짝수</b>라, 한 정점에 들어오면 반드시 나갈 미사용 간선이 짝으로 남아 — 따라가다 막히는 곳은 <b>항상 시작점</b>이 되어 닫힌 부분 회로가 됩니다. 미사용 간선이 남은 정점은 기존 회로 위에 있으므로, 거기서 만든 새 부분 회로를 <b>그 자리에 끼워</b> 합치면 모든 간선이 하나의 회로로 연결됩니다.",
       "q_en": "Why can Hierholzer's algorithm splice subtours into one full Eulerian circuit?",
       "sol_en": "Since every degree is <b>even</b>, entering a vertex always leaves a paired unused edge to leave by — so following edges until stuck <b>always ends at the start</b>, forming a closed subtour. Any vertex with unused edges left lies on an existing tour, so the new subtour built there can be <b>spliced in at that vertex</b>, joining all edges into one circuit."
-    }
+    },
+    "impl": [
+      "// Hierholzer: 오일러 회로 실제 구성",
+      "stack<int> st; st.push(start);",
+      "while(!st.empty()){",
+      "  int u=st.top();",
+      "  if(!adj[u].empty()){",
+      "    int v=adj[u].back(); adj[u].pop_back();",
+      "    removeEdge(v,u); st.push(v);     // 간선 따라가기",
+      "  } else { circuit.push_back(u); st.pop(); } // 막히면 기록",
+      "}",
+      "reverse(circuit);   // O(E)"
+    ]
   },
   "algo_br_minmeancycle": {
     "ch": "알고리즘 제6장 그래프",
@@ -4513,7 +4719,15 @@
       "solution": "각 원소를 좌·우로 복제해 \"x<y\"마다 간선을 둔 <b>이분 그래프의 최대 매칭</b>을 구하면 <b>최소 사슬 수 = n − 최대매칭</b>입니다(쾨니그·매칭 쌍대). 수열에 \"i<j∧aᵢ≤aⱼ\" 순서를 주면 <b>최소 비증가 부분수열 분할 = LIS 길이</b>가 되어, 딜워스가 그 둘이 같음을 보장합니다.",
       "q_en": "How is the minimum chain partition computed via Dilworth, and how does it connect to LIS?",
       "sol_en": "Duplicate each element into left/right, add an edge per \"x<y,\" and find the <b>maximum bipartite matching</b>: <b>minimum chains = n − max matching</b> (matching duality, à la König). Ordering a sequence by \"i<j ∧ aᵢ≤aⱼ\" makes the <b>minimum non-increasing-subsequence partition = LIS length</b>, which Dilworth guarantees are equal."
-    }
+    },
+    "impl": [
+      "// 딜워스 정리: 최소 사슬분할 = 최대 반사슬",
+      "// 최소 사슬 수 = 최대 안티체인 크기",
+      "// 부분순서 → 이분그래프 매칭으로 환원",
+      "int minChains = N - maxBipartiteMatching();",
+      "// 예: 최소 LIS 분할, 겹치는 구간 등",
+      "// 쾨니그 정리와 함께 매칭-덮개 쌍대성"
+    ]
   },
   "algo_br_modinverse": {
     "ch": "알고리즘 제2장 자료구조",
@@ -4576,7 +4790,17 @@
       "solution": "모듈러 곱마다 드는 <b>나눗셈(% m)</b>을, R=2^k로의 나눗셈 즉 <b>비트 시프트</b>로 바꾸는 것이 핵심입니다(몽고메리 reduction). 입·출력 영역 변환 비용이 있어 한두 번 곱셈엔 손해지만, <b>같은 m으로 곱을 아주 많이</b> 할 때(거듭제곱·NTT·소수판정) 나눗셈 제거 이득이 압도해 빨라집니다.",
       "q_en": "What makes Montgomery multiplication fast, and when does it pay off?",
       "sol_en": "It replaces the <b>division (% m)</b> in each modular product with division by R=2^k, i.e. a <b>bit shift</b> (Montgomery reduction). There is a domain-conversion cost in/out, so it's a loss for one or two multiplications, but when multiplying <b>very many times with the same m</b> (exponentiation, NTT, primality), removing the division dominates and it wins."
-    }
+    },
+    "impl": [
+      "// 몽고메리 곱셈: 나눗셈 없는 모듈러 곱",
+      "// R=2^k, 수를 몽고메리 폼 aR mod n으로",
+      "long redc(long T){                   // T·R^-1 mod n",
+      "  long m = (T * nInv) & (R-1);",
+      "  long t = (T + m*n) >> k;",
+      "  return t>=n ? t-n : t;",
+      "}",
+      "// 곱 = redc(aR · bR) = abR. 나눗셈→시프트"
+    ]
   },
   "algo_br_kshortest": {
     "ch": "알고리즘 제6장 그래프",
@@ -4641,7 +4865,18 @@
       "solution": "<b>첫 차원으로 정렬·분할</b>(왼쪽이 오른쪽보다 작음 보장), 병합 단계에서 <b>둘째 차원으로 정렬</b>해 투포인터로 훑으며, <b>셋째 차원은 펜윅</b>으로 \"왼쪽 점 삽입 + 오른쪽에서 c 이하 개수 질의\"를 처리합니다. 각 쌍이 한 번만 기여하고, 분할 O(log n)·펜윅 O(log n)이 곱해져 O(n log²n)입니다.",
       "q_en": "What is the structure by which CDQ divide-and-conquer solves 3D dominance in O(n log²n)?",
       "sol_en": "<b>Sort and split by the first dimension</b> (left < right guaranteed); in the merge, <b>sort by the second dimension</b> and sweep with two pointers, handling the <b>third dimension with a Fenwick tree</b> (insert left points, query count ≤ c for right points). Each pair contributes once, and the split's O(log n) times the Fenwick's O(log n) gives O(n log²n)."
-    }
+    },
+    "impl": [
+      "// CDQ 분할정복: 오프라인 다차원 부분순서",
+      "void cdq(int l,int r){",
+      "  if(l==r) return;",
+      "  int m=(l+r)/2;",
+      "  cdq(l,m); cdq(m+1,r);",
+      "  // 왼쪽이 오른쪽에 주는 기여를 한 차원 정렬+BIT로",
+      "  mergeContribution(l,m,r);",
+      "}",
+      "// 3차원 LIS·점 지배 등 O(n log^2 n)"
+    ]
   },
   "algo_br_slopetrick": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -4731,7 +4966,15 @@
       "solution": "① 임의 정점에서 가장 먼 점 <b>u</b>를 BFS로 찾고, ② <b>u에서</b> 가장 먼 점 <b>v</b>를 BFS로 찾으면 dist(u,v)가 지름입니다. 옳은 이유: 음수 없는 트리에서 <b>임의 정점의 최원점은 반드시 어떤 지름의 끝점</b>이므로 u가 지름 한 끝이 되고, u의 최원점이 반대 끝 v가 됩니다.",
       "q_en": "What is the 'two BFS' procedure for tree diameter, and why is it correct?",
       "sol_en": "① From any vertex, BFS to the farthest vertex <b>u</b>; ② BFS from <b>u</b> to the farthest vertex <b>v</b>; then dist(u,v) is the diameter. Correct because, in a non-negative tree, <b>the farthest vertex from any vertex is always an endpoint of some diameter</b>, so u is one end and its farthest v is the other."
-    }
+    },
+    "impl": [
+      "// 트리 지름: BFS 두 번",
+      "int u = farthest(any);             // 1) 아무데서 가장 먼 점",
+      "int v = farthest(u);               // 2) u에서 가장 먼 점",
+      "int diameter = dist(u, v);         // u~v가 지름",
+      "// 중심 = 지름 경로의 가운데(편심 최소)",
+      "// 또는 트리DP로 각 정점 아래 두 깊이 합"
+    ]
   },
   "algo_br_funcgraph": {
     "ch": "알고리즘 제6장 그래프",
@@ -4746,7 +4989,17 @@
       "solution": "각 정점에서 <b>나가는 간선이 하나뿐</b>이라, 아무 정점에서 출발해 계속 따라가면 정점이 유한하므로 <b>언젠가 방문한 정점을 다시 만나 사이클에 빠집니다</b>. 사이클에 직접 안 속한 정점들은 사이클의 어딘가로 흘러드는 <b>나무</b>를 이루어, 꼬리+고리의 ρ 모양이 됩니다. 순열은 입차수도 1이라 꼬리 없이 사이클만 남습니다.",
       "q_en": "Why is each component of a functional graph (out-degree 1) 'one cycle + trees' (a ρ shape)?",
       "sol_en": "Each vertex has <b>exactly one out-edge</b>, so following from any vertex, finiteness forces <b>revisiting a vertex and entering a cycle</b>. Vertices not on the cycle form <b>trees</b> flowing into it, giving the tail-plus-loop ρ shape. A permutation also has in-degree 1, so there are no tails — only cycles."
-    }
+    },
+    "impl": [
+      "// 함수 그래프: 출차수 1 (i → f[i])",
+      "// 구조 = 여러 ρ(꼬리 + 사이클)",
+      "for(int i=0;i<n;i++) if(!vis[i]){",
+      "  // i에서 따라가다 방문점 만나면",
+      "  // 사이클 시작 or 다른 트리에 합류 판정",
+      "  detectCycleAndTails(i);",
+      "}",
+      "// k번 적용 f^k(i)는 이진점프로 O(log k)"
+    ]
   },
   "algo_br_kdtree": {
     "ch": "알고리즘 제2장 자료구조",
@@ -5069,7 +5322,16 @@
       "solution": "특성 다항식 f(x)=xᴸ−c₁xᴸ⁻¹−…−c_L 에서 x를 \"한 칸 시프트 연산자\"로 보면, x^N을 f(x)로 나눈 <b>나머지(차수<L)의 계수</b>가 곧 a_N을 초기항 a₀..a_{L−1}로 쓰는 결합 가중치가 됩니다. x^N mod f(x)는 빠른 거듭제곱+다항식 나머지로 O(L² log N)에 구해 a_N=Σ 계수·aᵢ.",
       "q_en": "What principle lets Kitamasa compute a_N via 'x^N mod f(x)'?",
       "sol_en": "Treating x as a \"shift-by-one operator\" with the characteristic polynomial f(x)=xᴸ−c₁xᴸ⁻¹−…−c_L, the coefficients of <b>x^N mod f(x) (degree < L)</b> are exactly the weights expressing a_N in terms of the initial terms a₀..a_{L−1}. Compute x^N mod f(x) by fast exponentiation + polynomial reduction in O(L² log N), then a_N = Σ coeff·aᵢ."
-    }
+    },
+    "impl": [
+      "// 키타마사: 선형점화식 N번째 항 빠르게",
+      "// a(n)=Σ c_i·a(n-i). x^N mod (특성다항식) 계산",
+      "// 다항식 곱셈 + 모듈러로 x^N의 계수 구함",
+      "poly r = polypow_mod(x, N, charPoly);",
+      "long ans=0;",
+      "for(int i=0;i<k;i++) ans += r[i]*a[i];",
+      "// O(k^2 log N) 또는 NTT로 O(k log k log N)"
+    ]
   },
   "algo_br_hall": {
     "ch": "알고리즘 제6장 그래프",
@@ -5133,7 +5395,17 @@
       "solution": "나머지 정리로 <b>P(xᵢ) = P mod (x−xᵢ)</b>입니다. 잎이 (x−xᵢ)인 <b>곱-나무</b>를 만들고, 루트의 P를 각 노드에서 <b>그 노드 곱 다항식으로 나눈 나머지</b>로 쪼개 내려보내면, 잎에서 P mod (x−xᵢ)=P(xᵢ)가 됩니다. 각 층 다항식 나눗셈이 NTT로 O(n log n), 층이 log n개라 O(n log²n).",
       "q_en": "How does multipoint evaluation compute P(xᵢ) via 'P mod (x−xᵢ)' and a product tree in O(n log²n)?",
       "sol_en": "By the remainder theorem, <b>P(xᵢ) = P mod (x−xᵢ)</b>. Build a <b>product tree</b> with leaves (x−xᵢ), and push P down from the root, taking at each node the <b>remainder of P modulo that node's product polynomial</b>; at a leaf this is P mod (x−xᵢ)=P(xᵢ). Each level's polynomial division is O(n log n) via NTT, over log n levels → O(n log²n)."
-    }
+    },
+    "impl": [
+      "// 다항식 다중점 평가: 곱-나무 + 나머지",
+      "// 잎 = (x - x_i), 위로 곱해 곱-나무 구성",
+      "// P를 위에서 아래로 각 노드로 나눈 나머지",
+      "poly remainderTree(poly P, node){",
+      "  if(leaf) return P(node.x);",
+      "  P = P % node.poly;               // 나머지로 줄이기",
+      "  return merge(rec(P,left), rec(P,right));",
+      "}   // O(n log^2 n)"
+    ]
   },
   "algo_br_binarygcd": {
     "ch": "알고리즘 제2장 자료구조",
@@ -5306,7 +5578,19 @@
       "solution": "경로 압축은 find 중 <b>경로상 여러 노드의 부모를 한꺼번에 바꿔</b> 무엇이 변했는지 정확히 되돌리기 어렵습니다. 그래서 압축을 <b>포기</b>하고 <b>union by rank/size만</b> 써서, 한 union이 바꾸는 \"부모 1개+rank 1개\"만 스택에 저장→되감기. 대가로 find가 O(log n)이 되지만(압축 없음) rollback이 O(1)로 가능해집니다.",
       "q_en": "Why can't a rollback union-find use path compression, and what does it drop/keep instead?",
       "sol_en": "Path compression <b>changes many nodes' parents along the find path at once</b>, making exact undo hard. So it <b>drops compression</b> and uses <b>only union by rank/size</b>, storing the \"one parent + one rank\" a union changes on a stack to undo. The cost is O(log n) find (no compression), but rollback becomes O(1)."
-    }
+    },
+    "impl": [
+      "// 롤백 union-find: 합치기를 되돌리기",
+      "// 경로압축 금지(union by rank만), 변경 스택 기록",
+      "void unite(int a,int b){",
+      "  a=find(a); b=find(b);",
+      "  if(a==b){ history.push({-1,-1}); return; }",
+      "  if(rank[a]<rank[b]) swap(a,b);",
+      "  history.push({b, rank[a]});       // 되돌릴 정보",
+      "  par[b]=a; if(rank[a]==rank[b]) rank[a]++;",
+      "}",
+      "void rollback(){ /* history 꺼내 par·rank 복원 */ }"
+    ]
   },
   "algo_br_edgecolor": {
     "ch": "알고리즘 제6장 그래프",
@@ -5321,7 +5605,17 @@
       "solution": "비징 정리는 단순 그래프의 <b>간선 채색수가 Δ 또는 Δ+1, 단 두 값 중 하나</b>임을 보장합니다(정점 채색은 χ가 1..Δ+1 어디든 가능하고 최적값이 NP-난해). 그래서 후보가 둘뿐이라 \"Δ+1색 채색\"은 다항 시간에 구성 가능하고, 남은 문제는 \"이 그래프가 Δ색으로 되는가(1급)\"뿐입니다(그 판정은 일반적으로 NP-난해).",
       "q_en": "How does Vizing's theorem decisively differ from vertex coloring (χ ≤ Δ+1, optimum NP-hard)?",
       "sol_en": "Vizing's theorem guarantees a simple graph's <b>edge chromatic number is Δ or Δ+1 — just two values</b> (vertex coloring's χ can be anywhere in 1..Δ+1 with an NP-hard optimum). With only two candidates, a (Δ+1)-coloring is constructible in polynomial time, and the only remaining question is \"is it Δ-colorable (class 1)?\" (that decision is NP-hard in general)."
-    }
+    },
+    "impl": [
+      "// 비징 정리: 간선채색 = Δ 또는 Δ+1색",
+      "// 인접한 간선은 다른 색(Δ=최대차수)",
+      "for(each edge (u,v)){",
+      "  int c = 양끝 u,v에서 모두 안 쓰인 색;",
+      "  if(존재) assign(c);",
+      "  else 켐페 사슬(Kempe chain)로 색 교환 후 배정;",
+      "}",
+      "// 항상 Δ+1색으로 가능(이분은 Δ색)"
+    ]
   },
   "algo_br_closure": {
     "ch": "알고리즘 제6장 그래프",
@@ -5336,7 +5630,15 @@
       "solution": "의존 \"u를 고르면 v도\"를 어기는 것(u는 s쪽=선택, v는 t쪽=미선택)은 그 u→v 간선이 컷에 포함됨을 뜻합니다. 용량을 <b>∞</b>로 두면 그 간선은 <b>최소 컷에 절대 포함되지 않아</b>, \"이익만 취하고 선행은 안 고르는\" 위반 분할이 배제됩니다 — 즉 ∞ 간선이 폐포(closure) 제약을 강제합니다.",
       "q_en": "Why give dependency edges capacity ∞ in project selection (maximum weight closure)?",
       "sol_en": "Violating \"pick u ⇒ pick v\" (u on the s side = chosen, v on the t side = unchosen) means the edge u→v is in the cut. Setting it to <b>∞</b> ensures it is <b>never in the min cut</b>, excluding any \"take the profit but skip the prerequisite\" partition — so the ∞ edges enforce the closure constraint."
-    }
+    },
+    "impl": [
+      "// 최대 가중 폐포 = 최소 컷(프로젝트 선택)",
+      "// 양수 이익 v: s→v 용량 p, 음수 비용 v: v→t 용량 |p|",
+      "// 선행조건 a needs b: a→b 용량 무한",
+      "// 최대 이익 = (양수합) - 최소컷",
+      "int profit = sumPositive - maxflow(s, t);",
+      "// 컷의 소스쪽 = 선택할 프로젝트 집합"
+    ]
   },
   "algo_br_hull3d": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -5472,7 +5774,17 @@
       "solution": "트리는 자식의 <b>순서(좌우)가 의미 없으므로</b>, 같은 구조인데 자식이 다른 순서로 그려질 수 있습니다. 자식 라벨을 <b>정렬</b>해 묶으면 순서와 무관하게 같은 구조가 같은 정규 라벨을 얻어, \"그림만 다른\" 두 트리를 같다고 판정합니다(정렬이 없으면 순서 차이로 다르게 보임). 그 정규 라벨의 루트 값이 같으면 동형입니다.",
       "q_en": "In tree isomorphism (AHU), why are the children's labels sorted when forming a node's label?",
       "sol_en": "A tree's child <b>order is irrelevant</b>, so the same structure may be drawn with children in different orders. <b>Sorting</b> the children's labels before combining yields the same canonical label regardless of order, so two trees that differ only in drawing are judged equal (without sorting, order differences would look distinct). Matching root canonical labels then means isomorphic."
-    }
+    },
+    "impl": [
+      "// 트리 동형 판정: AHU 정규 라벨",
+      "string encode(int u,int p){",
+      "  vector<string> ch;",
+      "  for(int v: adj[u]) if(v!=p) ch.push_back(encode(v,u));",
+      "  sort(ch.begin(), ch.end());        // 자식 라벨 정렬",
+      "  return \"(\" + join(ch) + \")\";       // 괄호열",
+      "}",
+      "// encode(root1)==encode(root2) ⟺ 동형 (무근은 중심 기준)"
+    ]
   },
   "algo_br_asymptotic": {
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
