@@ -154,6 +154,22 @@
   .chev-label { font-size: 12px; color: var(--accent); letter-spacing: .05em; }
   #study.open .chev-svg { transform: scaleY(-1); animation: none; }
   #study.open .chev-c1, #study.open .chev-c2 { animation: none; }
+
+  /* 짧은 화면: 하단 요소가 겹치지 않게 행을 분리(말풍선=위, 컨트롤·내비=아래) */
+  @media (max-height: 680px) {
+    .bignum { top: 7%; }
+    .bignum #bigN { font-size: 46px; }
+    #controls { bottom: 20px; }
+    .nav { bottom: 20px; }
+    .guide { bottom: 78px; max-width: 54%; }
+    .guide .bubble { max-height: 26vh; overflow-y: auto; }
+    #study { bottom: 78px; }
+  }
+  @media (max-height: 520px) {
+    .bignum #bigN { font-size: 36px; }
+    .guide .ch { width: 42px; height: 42px; flex-basis: 42px; }
+    .guide .bubble { max-height: 22vh; font-size: 13px; }
+  }
 </style>
 </head>
 <body>
