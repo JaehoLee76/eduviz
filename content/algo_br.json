@@ -1477,7 +1477,16 @@
       "solution": "빨강으로 넣으면 '모든 경로의 검정 노드 수가 같다'는 규칙(검정 높이)이 안 깨집니다. 빨강-빨강 위반만 생길 수 있는데, 이건 재색칠·회전으로 국소 복구가 가능합니다(검정으로 넣으면 검정 높이가 깨져 복구가 더 어려움).",
       "q_en": "Why is a new node always inserted 'red' in a red-black tree?",
       "sol_en": "Inserting red preserves the 'equal black-node count on every path' rule (black-height). Only a red-red violation can arise, which is locally fixable by recoloring/rotation (inserting black would break black-height, harder to repair)."
-    }
+    },
+    "impl": [
+      "// 레드블랙 삽입 fixup: 색을 고치다",
+      "// z=빨강 삽입 후 부모도 빨강이면 3경우",
+      "// 경우1: 삼촌 빨강 → 부모·삼촌 흑, 조부 빨강, 위로",
+      "// 경우2: 삼촌 흑·z 안쪽 → 회전해 경우3로",
+      "// 경우3: 삼촌 흑·z 바깥 → 조부 회전 + 색교환",
+      "while(z->parent->color == RED) fixOneCase(z);",
+      "root->color = BLACK;   // 항상 O(log n)"
+    ]
   },
   "algo_br_amort3": {
     "ch": "알고리즘 제2장 자료구조",
@@ -3338,7 +3347,18 @@
       "solution": "chmin(X) 갱신이 \"<b>둘째 최댓값 < X < 최댓값</b>\"일 때, 최댓값들만 X로 깎이고 나머지는 그대로입니다. 둘째 최댓값을 알면 이 경우를 판별해 <b>최댓값·합만 일괄 갱신하고 재귀를 멈출</b> 수 있어(빠른 종료) 분할상환 O(log² n)이 됩니다.",
       "q_en": "Why does Segment Tree Beats store the 'second maximum' at each node?",
       "sol_en": "When a chmin(X) update has <b>second max < X < max</b>, only the maxima are lowered to X and the rest are unchanged. Knowing the second max lets you detect this case and <b>update just max/sum in bulk and stop recursing</b> (a fast break), yielding amortized O(log² n)."
-    }
+    },
+    "impl": [
+      "// 세그먼트 트리 빔즈: 구간 chmin",
+      "// 노드에 최댓값·둘째최댓값 유지",
+      "void chmin(int node,int l,int r,int v){",
+      "  if(maxV[node] <= v) return;       // 영향 없음(가지치기)",
+      "  if(secondMax[node] < v){          // 최댓값만 깎임",
+      "    applyChmin(node, v); return;",
+      "  }",
+      "  recurse(both children);           // 둘째도 걸리면 내려감",
+      "}   // 상각 O(log^2 n)"
+    ]
   },
   "algo_br_lichao": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -3353,7 +3373,19 @@
       "solution": "두 직선은 <b>최대 한 번만 교차</b>합니다. 노드의 중점에서 더 낮은 직선을 남기면, 다른 직선이 더 좋아질 수 있는 곳은 <b>왼쪽 절반이나 오른쪽 절반 중 한쪽뿐</b>입니다. 그래서 그 절반으로만 재귀하면 되어 깊이가 O(log n)입니다.",
       "q_en": "Why can a Li Chao tree insert a line in O(log n)?",
       "sol_en": "Two lines <b>cross at most once</b>. Keeping the lower line at a node's midpoint, the other line can only become better in <b>one half (left or right)</b>, so you recurse into just that half — giving O(log n) depth."
-    }
+    },
+    "impl": [
+      "// 리 차오 트리: 직선들의 하한 포락선",
+      "void add(int node,int l,int r,Line f){",
+      "  int m=(l+r)/2;",
+      "  bool left = f(l) < g[node](l);",
+      "  bool mid  = f(m) < g[node](m);",
+      "  if(mid) swap(f, g[node]);         // 중앙서 더 낮은 직선 보관",
+      "  if(l==r) return;",
+      "  if(left != mid) add(leftChild, f);",
+      "  else            add(rightChild, f);",
+      "}   // 질의·삽입 O(log n)"
+    ]
   },
   "algo_br_burnside": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -3368,7 +3400,16 @@
       "solution": "회전군 C₄ = {0,1,2,3칸 회전}. 고정점: 0칸=2⁴=16, 1칸=2^gcd(4,1)=2, 2칸=2^gcd(4,2)=4, 3칸=2^gcd(4,3)=2. 평균 = (16+2+4+2)/4 = 24/4 = <b>6가지</b>.",
       "q_en": "How many necklaces of 4 beads in 2 colors are there up to rotation? Use Burnside.",
       "sol_en": "Rotation group C₄ = {rotate by 0,1,2,3}. Fixed points: 0→2⁴=16, 1→2^gcd(4,1)=2, 2→2^gcd(4,2)=4, 3→2^gcd(4,3)=2. Average = (16+2+4+2)/4 = 24/4 = <b>6</b>."
-    }
+    },
+    "impl": [
+      "// 번사이드: 대칭 같게 보고 세기",
+      "// 서로 다른 배치 수 = (각 대칭의 고정점 평균)",
+      "long count=0;",
+      "for(Symmetry g : group)",
+      "  count += fixedPoints(g);          // g로 안 변하는 배치 수",
+      "return count / group.size();",
+      "// 예: 회전·반사하는 목걸이·큐브 색칠 가짓수"
+    ]
   },
   "algo_br_dlx": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -3383,7 +3424,21 @@
       "solution": "1들을 <b>상하·좌우 이중 연결 리스트</b>로 엮어 두면, 한 노드(행/열) 제거는 이웃 포인터를 이어 주기로 <b>O(1)</b>, 복원은 저장한 포인터를 <b>되끼우기</b>로 O(1)입니다. 그래서 백트래킹의 상태 제거·복원 비용이 거의 0이 됩니다.",
       "q_en": "What is the key trick by which Dancing Links speeds up backtracking?",
       "sol_en": "Linking the 1s into <b>up/down and left/right doubly linked lists</b> makes removing a node (row/column) O(1) by splicing neighbor pointers, and restoring O(1) by re-inserting the saved pointers — so backtracking's state remove/restore is nearly free."
-    }
+    },
+    "impl": [
+      "// 댄싱 링크(DLX): 정확 덮개 백트래킹",
+      "void search(int k){",
+      "  if(header->right == header){ report(); return; }",
+      "  Col* c = chooseMinColumn();       // 가장 제약 많은 열",
+      "  cover(c);",
+      "  for(row r in c) {",
+      "    for(j in r) cover(j->col);",
+      "    search(k+1);                    // 재귀",
+      "    for(j in r) uncover(j->col);    // 되돌리기(춤추는 링크)",
+      "  }",
+      "  uncover(c);",
+      "}   // 스도쿠·N퀸·타일링"
+    ]
   },
   "algo_br_berlekamp": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -3398,7 +3453,18 @@
       "solution": "<b>2L개</b>입니다. 미지수가 계수 L개인데, 점화식이 성립하는 등식 하나를 얻으려면 a_L=…부터 항이 필요하고, L개의 독립 등식을 만들려면 a_{2L−1}까지, 즉 <b>2L개 항</b>이 있어야 차수 L과 계수를 확정할 수 있습니다.",
       "q_en": "How many terms does Berlekamp-Massey need to recover a length-L linear recurrence, and why?",
       "sol_en": "<b>2L terms</b>. There are L unknown coefficients; forming L independent equations from the recurrence requires terms up to a_{2L−1}, i.e. <b>2L terms</b>, to pin down both the order L and the coefficients."
-    }
+    },
+    "impl": [
+      "// 벨캄프-매시: 수열에서 최소 점화식",
+      "// 선형 점화 LFSR을 점진적으로 보정",
+      "for(int i=0;i<n;i++){",
+      "  long delta = s[i] - predict(i);  // 불일치",
+      "  if(delta != 0){",
+      "    if(2*L <= i) { 새 점화식 길이 늘림; }",
+      "    C = C - (delta/b) * x^(i-m) * B;  // 보정",
+      "  }",
+      "}   // O(n^2). 수열의 차수 복원"
+    ]
   },
   "algo_br_virtualtree": {
     "ch": "알고리즘 제5장 트리",
@@ -3497,7 +3563,18 @@
       "solution": "각 칸 dp[i][j]가 보는 k 범위 길이는 (opt[i+1][j] − opt[i][j−1] + 1)입니다. 같은 길이(대각선)의 칸들을 따라 이 범위 합이 <b>telescoping</b>되어 한 대각선당 O(n), 대각선이 n개라 <b>O(n²)</b>가 됩니다.",
       "q_en": "With candidate split points narrowed to opt[i][j−1]..opt[i+1][j], why is Knuth's optimization O(n²) total?",
       "sol_en": "Each cell dp[i][j] scans a range of length (opt[i+1][j] − opt[i][j−1] + 1). Along cells of the same length (a diagonal) these ranges <b>telescope</b> to O(n) per diagonal, and with n diagonals the total is <b>O(n²)</b>."
-    }
+    },
+    "impl": [
+      "// 크누스 최적화: opt 단조 (구간 DP 가속)",
+      "// opt[i][j-1] <= opt[i][j] <= opt[i+1][j]",
+      "for(int len=2; len<=n; len++)",
+      "  for(int i=0; i+len<=n; i++){ int j=i+len;",
+      "    for(int k=opt[i][j-1]; k<=opt[i+1][j]; k++) // 좁은 범위",
+      "      if(dp[i][k]+dp[k][j]+C(i,j) < dp[i][j]){",
+      "        dp[i][j]=...; opt[i][j]=k; }",
+      "  }",
+      "// O(n^2) (O(n^3) → 줄임)"
+    ]
   },
   "algo_br_aliens": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -3512,7 +3589,18 @@
       "solution": "f(k)(정확히 k번일 때의 최적값)가 <b>k에 대해 볼록(또는 오목)</b>해야 합니다. 그래야 \"기울기 −λ인 접선\"이 각 k에 일대일로 대응해, λ를 이분 탐색하면 최적 개수를 원하는 k로 정확히 맞출 수 있습니다(비볼록이면 어떤 k는 어떤 λ로도 안 닿음).",
       "q_en": "What property must f(k) have for the Aliens trick to work, and why?",
       "sol_en": "f(k) (the optimum given exactly k actions) must be <b>convex (or concave) in k</b>. Then a tangent of slope −λ corresponds one-to-one to each k, so binary searching λ hits the desired count exactly; if non-convex, some k is unreachable by any λ."
-    }
+    },
+    "impl": [
+      "// Aliens 트릭(WQS): '정확히 k개' 제약",
+      "// 그룹마다 벌점 λ 부과 → 제약 없는 DP",
+      "// 사용 개수가 λ에 단조 → λ를 이분 탐색",
+      "while(lo < hi){",
+      "  double lam = (lo+hi)/2;",
+      "  auto [cost, used] = dpWithPenalty(lam);",
+      "  if(used >= k) lo = lam; else hi = lam;",
+      "}",
+      "// 답 = cost + λ·k"
+    ]
   },
   "algo_br_bitset": {
     "ch": "알고리즘 제2장 자료구조",
@@ -3581,7 +3669,18 @@
       "solution": "각 노드에 <b>min과 max를 자식과 별도로 저장</b>하는 것입니다. 그러면 삽입·후속자에서 \"클러스터로 한 번\"과 \"요약으로 한 번\" 두 번 재귀하는 대신 <b>한 쪽으로만 재귀</b>하게 끊을 수 있어, T(U)=T(√U)+O(1)=O(log log U)가 됩니다(min 분리가 없으면 log U).",
       "q_en": "What is the key trick by which a vEB tree achieves O(log log U) rather than O(log U)?",
       "sol_en": "Storing <b>min and max separately from the children</b> at each node. This lets insert/successor recurse into <b>only one side</b> (the cluster or the summary) instead of twice, giving T(U)=T(√U)+O(1)=O(log log U) (without separating min you'd get log U)."
-    }
+    },
+    "impl": [
+      "// van Emde Boas: 정수 키 O(log log U)",
+      "// U크기 우주를 √U 클러스터로 재귀 분할",
+      "int succ(vEB* T,int x){",
+      "  if(x < T->min) return T->min;",
+      "  int c = high(x);                 // 클러스터 번호",
+      "  if(low(x) < maxOf(T->cluster[c]))",
+      "    return index(c, succ(T->cluster[c], low(x)));",
+      "  return index(succ(T->summary, c), minOf(...));",
+      "}   // min/max는 O(1) 캐시"
+    ]
   },
   "algo_br_wavelet": {
     "ch": "알고리즘 제2장 자료구조",
@@ -3596,7 +3695,17 @@
       "solution": "각 노드에서 비트맵의 <b>rank로 구간 안 0(작은 쪽)의 개수</b>를 셉니다. 그 수가 k 이상이면 답이 작은 쪽에 있으니 <b>왼쪽 자식</b>으로, 아니면 k에서 그 수를 빼고 <b>오른쪽 자식</b>으로 내려갑니다. 값 비트를 한 층에 하나씩 결정하므로 높이 log σ만에 값이 확정됩니다.",
       "q_en": "How does a wavelet tree find the k-th smallest value in range [l,r] in O(log σ)?",
       "sol_en": "At each node, use the bitmap's <b>rank to count the 0s (lower half) within the range</b>. If that count ≥ k the answer is in the lower half, so go <b>left</b>; otherwise subtract it from k and go <b>right</b>. One value bit is decided per level, pinning the value in log σ levels."
-    }
+    },
+    "impl": [
+      "// 웨이블릿 트리: 구간 k번째·등수",
+      "// 값 중앙으로 0/1 분할, 각 층 비트벡터",
+      "int kth(int node,int l,int r,int k){",
+      "  if(leaf) return value;",
+      "  int zeros = rank0(node, l, r);    // 왼쪽(작은) 개수",
+      "  if(k <= zeros) return kth(left, map0(l), map0(r), k);",
+      "  return kth(right, map1(l), map1(r), k - zeros);",
+      "}   // O(log σ)"
+    ]
   },
   "algo_br_pairingheap": {
     "ch": "알고리즘 제6장 그래프",
@@ -3611,7 +3720,17 @@
       "solution": "단순히 왼쪽부터 하나씩 누적 meld하면 한 줄로 길어진 트리가 만들어져 다음 연산들이 느려질 수 있습니다. <b>둘씩 짝지어 먼저 합치는 첫 패스</b>가 트리 높이를 절반쯤으로 줄여 균형을 잡아 주므로, 분할상환 O(log n)을 보장합니다.",
       "q_en": "Why does pairing-heap delete-min combine children with a 'two-pass (pair them up)' scheme rather than simply in order?",
       "sol_en": "Naively melding left-to-right one by one can build a long chain that slows later operations. The <b>first pass that melds them in pairs</b> roughly halves the height and keeps things balanced, securing the amortized O(log n) bound."
-    }
+    },
+    "impl": [
+      "// 쌍 힙: 단순하고 빠른 합치기 힙",
+      "Node* merge(Node* a,Node* b){",
+      "  if(!a) return b; if(!b) return a;",
+      "  if(a->key > b->key) swap(a,b);",
+      "  b->sib = a->child; a->child = b;  // b를 a의 자식으로",
+      "  return a;",
+      "}",
+      "// deleteMin = 자식들을 짝지어 merge. 상각 빠름"
+    ]
   },
   "algo_br_ukkonen": {
     "ch": "알고리즘 제4장 탐색",
@@ -3626,7 +3745,18 @@
       "solution": "<b>접미사 링크(suffix link)</b>입니다. 내부 노드가 문자열 xα를 나타내면 α를 나타내는 노드로 가는 지름길 포인터를 둡니다. 한 접미사를 처리한 뒤 이 링크로 한 글자 짧은 다음 접미사 위치로 <b>점프</b>하므로, 루트부터 재탐색하지 않아 분할상환 O(1)이 됩니다.",
       "q_en": "Of Ukkonen's three devices for building a suffix tree in O(n), which avoids descending from the root each time?",
       "sol_en": "<b>Suffix links</b>: if an internal node represents string xα, it has a shortcut pointer to the node for α. After processing one suffix, you <b>jump</b> via this link to the next (one-shorter) suffix's location instead of re-searching from the root, giving amortized O(1)."
-    }
+    },
+    "impl": [
+      "// 우코넨: 접미사 트리를 선형 시간",
+      "// 활성점(active point) + 접미사 링크로 온라인 확장",
+      "for(int i=0;i<n;i++){            // 글자 하나씩",
+      "  remainder++;",
+      "  while(remainder > 0){",
+      "    if(canExtend) { addLeafOrSplit(); followSuffixLink(); }",
+      "    else { activeLength++; break; }  // 규칙3: 멈춤",
+      "  }",
+      "}   // O(n)"
+    ]
   },
   "algo_br_offdyncon": {
     "ch": "알고리즘 제5장 트리",
@@ -3724,7 +3854,18 @@
       "solution": "인접한 두 분수 a/b, c/d는 트리 구성상 항상 <b>bc − ad = 1</b>(또는 −1)을 만족합니다. 중간값 (a+c)/(b+d)도 양 이웃과 같은 관계를 유지하는데, bc−ad=±1이면 a+c와 b+d의 <b>공약수가 1</b>일 수밖에 없습니다(공약수가 분자·분모를 나누면 행렬식 ±1을 나눠야 하므로). 그래서 자동으로 기약입니다.",
       "q_en": "What's the intuition that a mediant (a+c)/(b+d) in the Stern-Brocot tree is always reduced?",
       "sol_en": "Adjacent fractions a/b, c/d always satisfy <b>bc − ad = 1</b> (or −1) by construction. The mediant (a+c)/(b+d) preserves this with each neighbor, and bc−ad=±1 forces <b>gcd(a+c, b+d)=1</b> (any common divisor would divide the determinant ±1). So it is automatically reduced."
-    }
+    },
+    "impl": [
+      "// Stern-Brocot: 모든 기약분수의 이진 탐색",
+      "// 0/1 과 1/0 사이를 중간값(mediant)으로 분할",
+      "// mediant(a/b, c/d) = (a+c)/(b+d)",
+      "while(분수 못 찾음){",
+      "  if(target < mid) hi = mid;        // 왼쪽",
+      "  else             lo = mid;        // 오른쪽",
+      "  mid = mediant(lo, hi);",
+      "}",
+      "// 연분수와 동치. 근사 분수 탐색"
+    ]
   },
   "algo_br_smawk": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -3739,7 +3880,18 @@
       "solution": "행렬이 <b>완전단조</b>(행 최솟값 위치 argmin이 행 따라 단조 증가, 모든 부분행렬도)여야 합니다. 그러면 ① 어떤 행에서도 최소가 못 되는 열을 REDUCE로 골라내고 ② 짝수 행의 최솟값은 <b>이웃 홀수 행 argmin 사이</b>에만 있으므로 좁게 탐색 → 재귀가 행을 절반씩 줄여 선형이 됩니다.",
       "q_en": "What condition lets SMAWK find row minima in O(n+m) instead of O(nm), and why?",
       "sol_en": "The matrix must be <b>totally monotone</b> (row-minimum positions argmin non-decreasing, including every submatrix). Then ① REDUCE discards columns that can't be any row's minimum, and ② an even row's minimum lies only <b>between the argmins of its neighboring odd rows</b>, so the search is narrow — the recursion halves the rows, giving linear time."
-    }
+    },
+    "impl": [
+      "// SMAWK: 완전단조 행렬 행별 최솟값 O(n+m)",
+      "// 1) REDUCE: 답이 될 수 없는 열 제거",
+      "// 2) 짝수 행만 재귀로 최솟값 위치 구함",
+      "// 3) 홀수 행은 이웃 답 사이에서만 탐색",
+      "void smawk(rows, cols){",
+      "  cols = reduce(rows, cols);",
+      "  smawk(evenRows, cols);          // 재귀",
+      "  interpolateOddRows();",
+      "}   // DP 최적화에 활용"
+    ]
   },
   "algo_br_dinkelbach": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -3754,7 +3906,18 @@
       "solution": "<b>비율 ≥ λ  ⟺  Σ이익 − λ·Σ비용 ≥ 0</b> (비용 합이 양수일 때 양변에 곱하기). 그래서 g(λ)=max(Σ이익−λ·Σ비용)의 부호가 \"비율이 λ 이상인 해의 존재\"를 알려 주고, g는 λ에 단조감소하며 <b>g(λ*)=0</b>인 λ*가 최적 비율입니다. 분모가 사라져 일반 최적화로 풉니다.",
       "q_en": "Why can maximizing the ratio (Σprofit/Σcost) be reduced to g(λ)=max(Σprofit − λ·Σcost)?",
       "sol_en": "Because <b>ratio ≥ λ ⟺ Σprofit − λ·Σcost ≥ 0</b> (multiply through by the positive cost-sum). So the sign of g(λ)=max(Σprofit−λ·Σcost) tells whether a solution with ratio ≥ λ exists; g decreases monotonically in λ and <b>g(λ*)=0</b> at the optimal ratio λ*. The denominator vanishes, leaving an ordinary optimization."
-    }
+    },
+    "impl": [
+      "// 분수계획법(Dinkelbach): 비율 최적화",
+      "// max (Σa)/(Σb) → max Σ(a - λ·b) 가 0 되는 λ",
+      "double lam=0;",
+      "while(true){",
+      "  double best = maximize(a[i] - lam*b[i]); // 선형화",
+      "  if(fabs(best) < EPS) break;",
+      "  lam = curRatio;                   // λ 갱신",
+      "}",
+      "// 최소평균사이클·최대밀도부분그래프"
+    ]
   },
   "algo_br_tarjanlca": {
     "ch": "알고리즘 제5장 트리",
@@ -3943,7 +4106,17 @@
       "solution": "라플라시안 L은 각 <b>행과 열의 합이 0</b>입니다(차수 − 연결된 간선 수). 그래서 L은 항상 고윳값 0(랭크 ≤ n−1)을 가지며, 이런 행렬은 <b>모든 1차 여인수(한 행·열 지운 행렬식)가 서로 같다</b>는 선형대수 성질이 성립합니다. 그 공통값이 곧 신장 트리 수입니다.",
       "q_en": "Why does deleting any row/column of the Laplacian L give the same spanning-tree count in Kirchhoff's theorem?",
       "sol_en": "The Laplacian L has every <b>row and column summing to 0</b> (degree minus incident edges), so L always has eigenvalue 0 (rank ≤ n−1). For such a matrix, a linear-algebra fact makes <b>all first cofactors (delete one row/column, take the determinant) equal</b> — and that common value is the number of spanning trees."
-    }
+    },
+    "impl": [
+      "// 키르히호프 정리: 신장트리 개수",
+      "// 라플라시안 L = 차수행렬 - 인접행렬",
+      "// 임의 한 행·열 지운 여인수(행렬식) = 신장트리 수",
+      "long countSpanningTrees(){",
+      "  buildLaplacian(L);",
+      "  return determinant(minor(L, 0, 0));",
+      "}",
+      "// 가중치판: 간선 가중치 곱의 합"
+    ]
   },
   "algo_br_hierholzer": {
     "ch": "알고리즘 제6장 그래프",
@@ -4064,7 +4237,17 @@
       "solution": "간선 용량을 U−L로 줄이면, 강제로 흘린 L 때문에 정점마다 <b>excess(v)=(들어오는 L 합)−(나가는 L 합)</b>의 불균형이 생깁니다. 이를 <b>슈퍼소스 S′→(excess>0 정점)</b>과 <b>(excess<0 정점)→슈퍼싱크 T′</b> 간선으로 메우고, S′→T′ 최대유량이 모두 포화되면 실현 가능 — 실제 흐름은 L + 보조 흐름입니다.",
       "q_en": "In flow with lower bounds, how do you resolve the imbalance from treating L as 'already pushed'?",
       "sol_en": "Shrinking capacities to U−L, the forced L creates a per-vertex imbalance <b>excess(v)=(incoming L) − (outgoing L)</b>. Cover it with edges <b>super-source S′→(excess>0 vertices)</b> and <b>(excess<0 vertices)→super-sink T′</b>; if the S′→T′ max-flow fully saturates, it's feasible — the actual flow is L plus the auxiliary flow."
-    }
+    },
+    "impl": [
+      "// 하한 있는 유량: 간선마다 최소 흘림 강제",
+      "// 각 간선 [low,cap] → 용량 cap-low로 바꾸고",
+      "// 초과/부족을 슈퍼소스 S'·슈퍼싱크 T'로 보정",
+      "for(each edge (u,v,low,cap)){",
+      "  excess[v] += low; excess[u] -= low;",
+      "  addEdge(u, v, cap - low);",
+      "}",
+      "// S'에서 maxflow가 포화면 실현가능"
+    ]
   },
   "algo_br_steiner": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -4079,7 +4262,18 @@
       "solution": "MST는 <b>모든 정점</b>을 잇지만, 스타이너 트리는 <b>지정 단말만</b> 이으면 되고 중간 정점(스타이너 점)을 자유로 추가할 수 있습니다. k가 크면(NP-난해) <b>단말들의 거리 그래프(metric closure)에서 MST</b>를 구하는 근사를 쓰며, 이는 최적의 <b>2배 이내(2−2/k)</b>가 보장됩니다.",
       "q_en": "How does a Steiner tree differ from an MST, and what's the common approximation for large k with its guarantee?",
       "sol_en": "An MST spans <b>all vertices</b>, while a Steiner tree need only connect the <b>specified terminals</b>, freely adding intermediate (Steiner) vertices. For large k (NP-hard), a common approximation is the <b>MST on the terminals' metric closure</b> (pairwise shortest distances), guaranteed within <b>2× optimal (2−2/k)</b>."
-    }
+    },
+    "impl": [
+      "// 스타이너 트리: 부분집합 DP (터미널 k개)",
+      "// dp[mask][v] = 터미널집합 mask를 v에 모으는 최소비용",
+      "for(int mask=1; mask<(1<<k); mask++)",
+      "  for(int v=0;v<V;v++){",
+      "    for(sub of mask) // 분할 병합",
+      "      dp[mask][v]=min(dp[mask][v], dp[sub][v]+dp[mask^sub][v]);",
+      "    dijkstraRelax(dp[mask]);        // 간선 따라 전파",
+      "  }",
+      "// O(3^k V + 2^k E log V)"
+    ]
   },
   "algo_br_waveletmatrix": {
     "ch": "알고리즘 제2장 자료구조",
@@ -4109,7 +4303,17 @@
       "solution": "<b>경로 복사</b> 때문입니다. 잎 하나를 바꾸면 루트→그 잎 <b>경로상의 노드(높이 O(log n)개)만 새로 복사</b>하고, 경로 밖 서브트리는 <b>옛 노드를 그대로 가리켜 공유</b>합니다. 그래서 새 버전은 O(log n)개 노드만 추가하면 되고, 옛 루트는 손상 없이 보존됩니다.",
       "q_en": "Why does one update use only O(log n) space in a persistent segment tree?",
       "sol_en": "Because of <b>path copying</b>: changing one leaf <b>copies only the nodes on the root-to-leaf path (O(log n) of them)</b> and <b>shares the off-path subtrees by pointing at the old nodes</b>. So a new version adds only O(log n) nodes, and the old root stays intact."
-    }
+    },
+    "impl": [
+      "// 영속 자료구조: 경로 복사(path copying)",
+      "// 갱신 시 변경되는 노드만 새로 만들고 나머지 공유",
+      "Node* update(Node* old, ...){",
+      "  Node* cur = new Node(*old);       // 복사",
+      "  cur->child = update(old->child, ...); // 한 경로만",
+      "  return cur;",
+      "}",
+      "// 각 버전이 root[]로 보존. 버전당 O(log n) 공간"
+    ]
   },
   "algo_br_planar": {
     "ch": "알고리즘 제6장 그래프",
@@ -4124,7 +4328,16 @@
       "solution": "각 면은 최소 3개 간선에 둘러싸이고 각 간선은 정확히 2개 면에 접하므로 면-간선 접촉을 두 번 세면 <b>3F ≤ 2E</b>, 즉 F ≤ 2E/3. 오일러 V−E+F=2에 대입하면 V−E+2E/3 ≥ 2 → <b>E ≤ 3V−6</b>. 따라서 평면 그래프는 간선이 O(V)인 희소 그래프입니다.",
       "q_en": "Using Euler's formula, how do you derive 'E ≤ 3V − 6' for a simple connected planar graph?",
       "sol_en": "Each face is bounded by ≥3 edges and each edge touches exactly 2 faces, so double-counting face-edge incidences gives <b>3F ≤ 2E</b>, i.e. F ≤ 2E/3. Substituting into Euler's V−E+F=2: V−E+2E/3 ≥ 2 → <b>E ≤ 3V−6</b>. Hence planar graphs are sparse, with O(V) edges."
-    }
+    },
+    "impl": [
+      "// 평면 그래프: 오일러 공식 V - E + F = 2",
+      "// 따름정리: 단순 평면그래프 E <= 3V - 6",
+      "// → 평면그래프는 희소(E = O(V))",
+      "// K5, K3,3 은 비평면(쿠라토프스키 정리)",
+      "bool maybePlanar(int V,int E){",
+      "  return E <= 3*V - 6;             // 필요조건",
+      "}"
+    ]
   },
   "algo_br_segtree2d": {
     "ch": "알고리즘 제5장 트리",
@@ -4139,7 +4352,18 @@
       "solution": "바깥 <b>x 세그트리</b>에서 [x1,x2]를 덮는 노드가 <b>O(log n)개</b>이고, 그 각 노드의 <b>y 세그트리</b>에서 [y1,y2] 질의가 다시 <b>O(log n)</b>입니다. 두 로그가 곱해져 <b>O(log² n)</b> — 점 갱신도 영향 x노드 O(log n)개 × y갱신 O(log n)으로 같습니다.",
       "q_en": "Explain, per axis, why a rectangle query in a 2D segment tree is O(log² n).",
       "sol_en": "The outer <b>x segment tree</b> covers [x1,x2] with <b>O(log n) nodes</b>, and each node's <b>inner y segment tree</b> answers [y1,y2] in <b>O(log n)</b>. The two logs multiply to <b>O(log² n)</b> — a point update is likewise O(log n) affected x-nodes × O(log n) y-update."
-    }
+    },
+    "impl": [
+      "// 2D 세그트리: 세그트리 안에 세그트리",
+      "// 바깥=x축 구간, 각 노드 안=y축 세그트리",
+      "void update(int nx,int x,int y,int v){",
+      "  // x 경로의 모든 노드의 y-세그트리 갱신",
+      "  for(node on x-path) ySegUpdate(node, y, v);",
+      "}",
+      "int query(x1,x2,y1,y2){",
+      "  // x 구간 노드들의 y-세그트리 질의 합",
+      "}   // O(log^2 n)"
+    ]
   },
   "algo_br_eertree": {
     "ch": "알고리즘 제4장 탐색",
@@ -4209,7 +4433,16 @@
       "solution": "홀수차수 정점들을 짝지어 <b>각 쌍의 최단경로 거리 합이 최소가 되는 완전 매칭</b>을 찾고, 그 경로 간선들을 중복 추가합니다. 간선을 중복하면 양 끝 정점의 차수가 +2(짝수화)되므로, 홀수 정점을 모두 짝수로 만들어야 <b>오일러 회로</b>가 생기고, 추가 거리를 최소화한 것이 곧 최소 비용 경로입니다.",
       "q_en": "In the Chinese Postman problem with odd-degree vertices, what is minimized and why?",
       "sol_en": "Find a <b>minimum-weight perfect matching of the odd-degree vertices by their pairwise shortest-path distances</b>, and duplicate the edges along those paths. Duplicating an edge raises both endpoints' degree by 2 (making them even), so making all odd vertices even yields an <b>Eulerian circuit</b>; minimizing the added distance gives the minimum-cost route."
-    }
+    },
+    "impl": [
+      "// 중국인 우편배달부: 모든 간선 최소비용 순회",
+      "// 홀수차수 정점들을 최소비용 매칭으로 짝지어",
+      "// 그 경로의 간선을 복제 → 오일러 회로 가능",
+      "findOddDegreeVertices(odd);",
+      "minWeightMatching(odd);            // 일반그래프 매칭",
+      "duplicateMatchedPaths();",
+      "answer = totalEdgeWeight + matchingWeight;"
+    ]
   },
   "algo_br_konig": {
     "ch": "알고리즘 제6장 그래프",
@@ -4571,7 +4804,17 @@
       "solution": "행 단위는 한 행 전체(2^C 상태)를 한꺼번에 전이해 행 간 호환성 계산이 복잡합니다. 윤곽선 DP는 <b>칸 하나씩</b> 진행하며 \"위·왼쪽 채움 여부\"인 경계 마스크만 보므로, 전이가 <b>빈칸/가로/세로 도미노 몇 가지</b>로 단순하고 각 전이가 마스크 비트만 갱신해 일반화·구현이 쉽습니다.",
       "q_en": "Why are transitions simpler and more efficient in broken profile DP than 'row-by-row' bitmask DP?",
       "sol_en": "Row DP transitions an entire row (2^C states) at once, with complex inter-row compatibility. Broken profile DP advances <b>one cell at a time</b>, looking only at the boundary mask (above/left filled), so transitions are a few simple choices (empty / horizontal / vertical domino), each updating just mask bits — easy to generalize and implement."
-    }
+    },
+    "impl": [
+      "// 윤곽선 DP: 격자를 칸 단위로 채우기",
+      "// dp[pos][mask] = 현재 칸, 윤곽선 점유 비트마스크",
+      "for(int pos=0; pos<n*m; pos++)",
+      "  for(int mask=0; mask<(1<<m); mask++){",
+      "    // 이 칸을 비우거나, 가로/세로 타일 놓기",
+      "    transit(dp[pos][mask] -> dp[pos+1][newMask]);",
+      "  }",
+      "// 도미노 타일링 가짓수 등 O(nm·2^m)"
+    ]
   },
   "algo_br_expdp": {
     "ch": "알고리즘 제7장 동적 계획법",
@@ -4891,7 +5134,15 @@
       "solution": "최솟값을 주는 <b>평평한 구간을 기준으로 왼쪽 기울기 꺾임점은 최대 힙, 오른쪽은 최소 힙</b>에 둡니다(볼록이라 기울기 단조). <b>f += |x−a|</b>는 꺾임점 a를 양쪽 힙에 하나씩 넣고, 두 힙의 top이 순서를 어기면(왼쪽 top > 오른쪽 top) <b>교환</b>해 평평 구간을 보정합니다 — 각 O(log n).",
       "q_en": "In slope trick, what do the two heaps (max and min) manage, and how is adding |x−a| handled?",
       "sol_en": "Relative to the <b>flat minimum interval, left-side breakpoints go in a max-heap and right-side in a min-heap</b> (slopes are monotone by convexity). <b>f += |x−a|</b> pushes breakpoint a into both heaps, and if the heap tops violate order (left top > right top) you <b>swap</b> them to correct the flat interval — each O(log n)."
-    }
+    },
+    "impl": [
+      "// 슬로프 트릭: 볼록 비용함수를 기울기로",
+      "// 함수의 기울기 꺾이는 점들을 두 우선순위큐(좌/우)로",
+      "// |x - a| 더하기 = L에 a, R에 a 넣고 한쪽 이동",
+      "addAbs(a){ L.push(a); R.push(L.top()); L.pop();",
+      "           if(R.top() < L.top()) swap tops; }",
+      "// 최솟값 = 바닥 유지. 함수 합·최소 슬라이딩 O(log n)"
+    ]
   },
   "algo_br_parallelbs": {
     "ch": "알고리즘 제4장 탐색",
@@ -4906,7 +5157,17 @@
       "solution": "모든 질의의 <b>이분 탐색 중간값(mid)을 동기화</b>해, <b>한 라운드에 이벤트를 시간순으로 단 한 번만 흘리며</b> 각 질의를 자기 mid 시점에서 판정합니다. 이벤트 재적용을 질의마다 반복하지 않으므로, 라운드 O(log T) × 이벤트적용 O(T)로 전체 O((T+Q)log T) — 개별 O(Q·T·log T)보다 Q배가량 절약.",
       "q_en": "What is the key idea making parallel binary search faster than per-query binary search?",
       "sol_en": "<b>Synchronize all queries' binary-search mid values</b> and <b>sweep the events in time order just once per round</b>, testing each query at its own mid. Events aren't reapplied per query, so O(log T) rounds × O(T) event application gives O((T+Q)log T) — a factor ~Q saving over per-query O(Q·T·log T)."
-    }
+    },
+    "impl": [
+      "// 병렬 이분 탐색: 여러 질의 답을 한꺼번에",
+      "// 각 질의의 답을 동시에 이분 → 같은 mid 묶어 처리",
+      "while(아직 수렴 안한 질의 존재){",
+      "  질의를 현재 lo,hi의 mid로 그룹핑;",
+      "  이벤트를 시간순 적용하며(BIT 등)",
+      "    각 질의 판정 → lo/hi 갱신;",
+      "  되돌리기;",
+      "}   // O((N+Q) log N · 판정비용)"
+    ]
   },
   "algo_br_polyinv": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -4921,7 +5182,17 @@
       "solution": "① <b>뉴턴 반복으로 정밀도 배가</b> — mod x^k 답에서 mod x^(2k) 답으로(역원은 B←B(2−AB)). ② <b>NTT 다항식 곱셈 O(k log k)</b>. 정밀도가 1,2,4,…,n로 두 배씩 늘며 비용이 기하급수 합이라 마지막 단계가 지배 → <b>전체 O(n log n)</b>입니다.",
       "q_en": "What two key tools compute polynomial inverse/exp/log in O(n log n)?",
       "sol_en": "① <b>Newton iteration doubling precision</b> — from the answer mod x^k to mod x^(2k) (inverse: B←B(2−AB)); ② <b>NTT polynomial multiplication, O(k log k)</b>. As precision doubles 1,2,4,…,n the cost is a geometric series dominated by the last step → <b>O(n log n)</b> overall."
-    }
+    },
+    "impl": [
+      "// 다항식 역원: 뉴턴법으로 배가",
+      "// B ≡ A^-1 (mod x^n). 길이 1에서 2배씩",
+      "B = {inv(A[0])};",
+      "for(int len=1; len<n; len<<=1){",
+      "  // B_new = B(2 - A·B) mod x^(2len)",
+      "  B = B * (2 - A*B);               // NTT로 곱",
+      "}",
+      "// exp·log·나눗셈·sqrt도 같은 배가 틀, O(n log n)"
+    ]
   },
   "algo_br_halfplane": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -4936,7 +5207,18 @@
       "solution": "볼록 영역의 <b>경계 변들이 법선 각도 순으로 단조롭게 회전</b>하기 때문입니다. 그래서 반평면들을 각도로 정렬해 덱에 넣으며 \"안쪽에 안 기여하는 것 제거\"하는 절차가, 점들을 각도/좌표로 정렬해 단조 스택으로 볼록껍질을 만드는 것과 같은 구조입니다 — 점↔직선의 쌍대 관계.",
       "q_en": "Why is half-plane intersection essentially the same (dual) as convex hull construction?",
       "sol_en": "Because a convex region's <b>boundary edges rotate monotonically in normal-angle order</b>. So sorting half-planes by angle and pushing them into a deque while \"removing those not contributing to the interior\" is structurally the same as sorting points by angle/coordinate and building a convex hull with a monotonic stack — the point↔line duality."
-    }
+    },
+    "impl": [
+      "// 반평면 교차: 부등식들의 볼록 영역",
+      "sort halfplanes by angle;",
+      "deque<HP> dq;",
+      "for(HP h : sorted){",
+      "  while(dq.size>=2 && outside(h, inter(dq[-1],dq[-2]))) dq.pop_back();",
+      "  while(dq.size>=2 && outside(h, inter(dq[0],dq[1])))  dq.pop_front();",
+      "  dq.push_back(h);",
+      "}",
+      "// 남은 덱 = 볼록다각형. O(n log n)"
+    ]
   },
   "algo_br_delaunay": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -4951,7 +5233,17 @@
       "solution": "들로네: <b>어떤 삼각형의 외접원에도 다른 점이 들어가지 않는</b> 삼각분할(=최소각 최대화). 보로노이: 평면을 <b>각 점에 가장 가까운 영역(셀)</b>으로 나눈 것. 둘은 <b>쌍대</b>입니다 — 인접한 두 보로노이 셀의 점을 이으면 들로네 간선, 들로네 삼각형의 외심들이 보로노이 꼭짓점입니다.",
       "q_en": "What defines a Delaunay triangulation (the circumcircle condition), and how does it relate to the Voronoi diagram?",
       "sol_en": "Delaunay: a triangulation where <b>no triangle's circumcircle contains another point</b> (= maximizing the minimum angle). Voronoi: partitions the plane into cells <b>nearest to each point</b>. They are <b>duals</b> — connecting points of adjacent Voronoi cells gives Delaunay edges, and the circumcenters of Delaunay triangles are Voronoi vertices."
-    }
+    },
+    "impl": [
+      "// 들로네 삼각분할: 어떤 삼각형 외접원도 점 미포함",
+      "// 보로노이의 쌍대. 점진 삽입 + edge flip",
+      "for(Point p : points){",
+      "  Triangle t = locate(p);",
+      "  splitInto3(t, p);",
+      "  legalizeEdges(p);                // 외접원 위반 시 뒤집기",
+      "}",
+      "// 최근접·최소신장트리·각도 최대화에 활용"
+    ]
   },
   "algo_br_treediameter": {
     "ch": "알고리즘 제5장 트리",
@@ -5475,7 +5767,17 @@
       "solution": "셋째 포인터 <b>시간 T</b>가 추가돼 이동 비용이 늘기 때문입니다. 블록 크기 B에 대해 L/R 이동은 약 q·B, T 이동은 약 q·(n/B)²에 비례해, 둘을 균형 잡는 <b>B ≈ n^(2/3)</b>에서 전체가 <b>O(n^(5/3))</b>로 최소화됩니다(갱신 없는 기본 Mo는 T가 없어 B=√n, O(n√n)).",
       "q_en": "Why use block size n^(2/3) instead of √n when applying Mo's to range queries with updates?",
       "sol_en": "Because the added <b>time pointer T</b> increases movement cost. For block size B, L/R moves scale like q·B and T moves like q·(n/B)², balanced at <b>B ≈ n^(2/3)</b>, minimizing the total to <b>O(n^(5/3))</b> (basic Mo without updates has no T, so B=√n gives O(n√n))."
-    }
+    },
+    "impl": [
+      "// Mo's with updates: 시간 차원 추가",
+      "// 질의를 (L블록, R블록, 시간) 으로 정렬",
+      "sort(queries by (L/B, R/B, time));",
+      "for(each query){",
+      "  while(curTime < t) applyUpdate(++curTime);",
+      "  while(curTime > t) undoUpdate(curTime--);",
+      "  adjust(curL, curR);              // 구간 이동",
+      "}   // O(n^(5/3))"
+    ]
   },
   "algo_br_fordjohnson": {
     "ch": "알고리즘 제3장 정렬",
@@ -5563,7 +5865,15 @@
       "solution": "각 상태 v는 endpos가 같은 부분문자열들의 동치류이고, 그 류에 속한 서로 다른 부분문자열은 길이가 <b>len[link[v]]+1 부터 len[v]까지</b>로 정확히 <b>len[v]−len[link[v]]개</b>입니다(더 짧은 것은 link가 가리키는 다른 상태 소관). 모든 상태에 대해 이 \"새로 더하는 개수\"를 합치면 중복 없이 전체 서로 다른 부분문자열 수가 됩니다.",
       "q_en": "Why does Σ(len[v]−len[link[v]]) count the number of distinct substrings in a suffix automaton?",
       "sol_en": "Each state v is an equivalence class of substrings sharing endpos, and the distinct substrings it owns have lengths <b>from len[link[v]]+1 to len[v]</b> — exactly <b>len[v]−len[link[v]]</b> of them (shorter ones belong to the state link points to). Summing these \"newly added\" counts over all states gives the total number of distinct substrings without overlap."
-    }
+    },
+    "impl": [
+      "// 접미사 오토마톤 응용: 서로 다른 부분문자열 수",
+      "// 각 상태가 len[v]-len[link[v]]개의 부분문자열 담당",
+      "long distinct=0;",
+      "for(int v=1; v<sz; v++)",
+      "  distinct += len[v] - len[link[v]];",
+      "// 또는 끝위치 수(endpos)로 등장 횟수 질의"
+    ]
   },
   "algo_br_rollbackdsu": {
     "ch": "알고리즘 제5장 트리",
