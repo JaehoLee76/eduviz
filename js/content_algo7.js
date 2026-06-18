@@ -9,35 +9,75 @@
     {x:.18,y:2,l:'F2',p:1,dup:true},{x:.42,y:2,l:'F1',p:1},{x:.66,y:2,l:'F1',p:2},{x:.84,y:2,l:'F0',p:2},
     {x:.12,y:3,l:'F1',p:3},{x:.26,y:3,l:'F0',p:3}
   ];
-  function ftpos(E,nd){ return [E.W*0.10+nd.x*E.W*0.80, E.H*0.20+nd.y*E.H*0.17]; }
-  function drawFT(E, memo){ var ctx=E.ctx;
-    FT.forEach(function(nd){ if(nd.p!=null){ var a=ftpos(E,FT[nd.p]), b=ftpos(E,nd); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); } });
-    FT.forEach(function(nd,i){ var p=ftpos(E,nd), cached=memo&&nd.dup&&i===2;
+  function ftpos(E,nd){ return [E.W*0.10+nd.x*E.W*0.80, E.H*0.22+nd.y*E.H*0.165]; }
+  // 호출 순서(DFS 전위): F4→F3→F2→F1→F0→F1→F2→F1→F0
+  var DFS=[0,1,3,7,8,4,2,5,6];
+  // memo 모드에서 "캐시 적중"으로 가지치기되는 노드(이미 그 F값을 계산함): 둘째 F2(idx2)와 그 자식(5,6), 둘째 F1(4)
+  var CACHED={2:true,5:true,6:true,4:true};
+  function childrenOf(i){ var out=[]; FT.forEach(function(nd,j){ if(nd.p===i) out.push(j); }); return out; }
+  // shown = DFS 단계로 드러난 호출 수(1..9). memo=true면 캐시적중 노드는 자식 펼침 생략.
+  function drawFT(E, shown, memo){ var ctx=E.ctx;
+    // 어떤 노드가 보이는지: DFS 순서로 shown개. memo면 캐시 노드의 자식은 숨김.
+    var vis={}; var count=0;
+    for(var s=0;s<DFS.length && count<shown; s++){ var idx=DFS[s];
+      // memo: 부모가 캐시적중이면 이 노드는 안 펼침
+      if(memo){ var par=FT[idx].p; if(par!=null && CACHED[par]) continue; }
+      vis[idx]=true; count++;
+    }
+    var lastIdx=null, c2=0; for(var s2=0;s2<DFS.length;s2++){ var id=DFS[s2]; if(vis[id]){ c2++; if(c2===shown) lastIdx=id; } }
+    // 간선
+    FT.forEach(function(nd,i){ if(nd.p!=null && vis[i] && vis[nd.p]){ var a=ftpos(E,FT[nd.p]), b=ftpos(E,nd); ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); } });
+    // 노드
+    FT.forEach(function(nd,i){ if(!vis[i]) return; var p=ftpos(E,nd);
+      var cached=memo&&CACHED[i], dup=nd.dup, cur=(i===lastIdx);
       AV.node(E, p[0], p[1], nd.l, { r:18, fs:13,
-        fill: cached?'rgba(255,255,255,0.04)':(nd.dup?'rgba(244,160,192,0.22)':'rgba(122,184,255,0.16)'),
-        stroke: cached?'rgba(255,255,255,0.3)':(nd.dup?PNK:BLU),
-        text: cached?DIM:'#dfeefb', tag: cached?'저장됨!':null }); });
+        fill: cur?'rgba(255,178,122,0.38)':(cached?'rgba(143,227,181,0.18)':(dup?'rgba(244,160,192,0.22)':'rgba(122,184,255,0.16)')),
+        stroke: cur?ORA:(cached?GRN:(dup?PNK:BLU)),
+        text:'#dfeefb', tag: cur?'호출!':(cached?'캐시 적중→생략':(dup?'또 계산':null)) }); });
+    return {visibleCalls:count, totalDFS:DFS.length};
   }
 
   var scenes=[
 
-  // ══════════ 7.1 피보나치 순진한 재귀 (concept) ══════════
+  // ══════════ 7.1 피보나치 순진한 재귀 (concept, 단계 펼치기) ══════════
   { id:'algo7_01', concept:true,
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx;
+    enter:function(E){ this.s={shown:1}; E.setOn([]); var self=this;
+      this.keys=[
+        {code:'KeyE', key:'E', label:'다음 호출 펼치기', act:function(EE){ if(self.s.shown<9){ self.s.shown++; EE.blip(420+self.s.shown*30,0.1);} else EE.blip(220,0.08); }},
+        {code:'KeyC', key:'C', label:'처음으로', act:function(EE){ self.s.shown=1; EE.blip(330,0.1); }} ]; },
+    tap:function(E){ if(this.s.shown<9){ this.s.shown++; E.blip(420+this.s.shown*30,0.1);} else this.s.shown=1; },
+    draw:function(E){ var ctx=E.ctx, s=this.s;
       ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
-      ctx.fillText('피보나치를 순진하게 재귀로 — F(n) = F(n−1) + F(n−2)', E.W/2, E.H*0.09);
+      ctx.fillText('피보나치를 순진하게 재귀로 — F(n)=F(n−1)+F(n−2)', E.W/2, E.H*0.09);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('호출 트리: 같은 작은 문제가 여러 번 다시 계산됩니다.', E.W/2, E.H*0.09+18);
-      drawFT(E, false);
-      ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('분홍 = F2 가 두 번 계산됨 (중복!)', E.W/2, E.H*0.88); }
+      ctx.fillText('E(또는 클릭)로 호출을 하나씩 펼쳐 보세요. 같은 작은 문제가 또 불립니다.', E.W/2, E.H*0.09+18);
+      var r=drawFT(E, s.shown, false);
+      // 호출 횟수 카운터
+      ctx.textAlign='center'; ctx.fillStyle=ORA; ctx.font='600 15px sans-serif';
+      ctx.fillText('지금까지 호출 횟수: '+s.shown+(s.shown>=9?'  (F4 하나에 9번!)':''), E.W/2, E.H*0.86);
+      ctx.fillStyle=PNK; ctx.font='12px sans-serif';
+      ctx.fillText('분홍 = 같은 F2/F1/F0를 또 계산(중복). n이 커지면 호출이 φⁿ로 폭발 → 지수 시간', E.W/2, E.H*0.86+20);
+      E.big('피보나치 재귀: '+s.shown+'/9 호출', '순진한 재귀는 같은 작은 문제를 수없이 다시 푼다(중복 부분문제). 호출 트리가 지수로 커진다 → 이걸 저장으로 없애는 게 메모이제이션·DP.'); }
   },
 
-  // ══════════ 7.1 메모이제이션 (concept) ══════════
+  // ══════════ 7.1 메모이제이션 (concept, 캐시로 가지치기) ══════════
   { id:'algo7_02', concept:true,
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx; drawFT(E, true);
-      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('이미 계산한 F2 는 저장값을 꺼내 씀 → 가지 통째로 제거', E.W/2, E.H*0.88); }
+    enter:function(E){ this.s={shown:1}; E.setOn([]); var self=this;
+      this.keys=[
+        {code:'KeyE', key:'E', label:'다음 호출 펼치기', act:function(EE){ if(self.s.shown<9){ self.s.shown++; EE.blip(420+self.s.shown*30,0.1);} else EE.blip(220,0.08); }},
+        {code:'KeyC', key:'C', label:'처음으로', act:function(EE){ self.s.shown=1; EE.blip(330,0.1); }} ]; },
+    tap:function(E){ if(this.s.shown<9){ this.s.shown++; E.blip(420+this.s.shown*30,0.1);} else this.s.shown=1; },
+    draw:function(E){ var ctx=E.ctx, s=this.s;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
+      ctx.fillText('메모이제이션 — 한 번 푼 답은 저장해 두고 꺼내 쓰기', E.W/2, E.H*0.09);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('E(또는 클릭)로 펼치면, 이미 계산한 F는 "캐시 적중"으로 가지를 통째로 건너뜁니다.', E.W/2, E.H*0.09+18);
+      var r=drawFT(E, s.shown, true);
+      ctx.textAlign='center'; ctx.fillStyle=GRN; ctx.font='600 15px sans-serif';
+      ctx.fillText('실제 계산한 호출: '+r.visibleCalls+'개  (재귀는 5번이면 끝 → O(n))', E.W/2, E.H*0.86);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('초록 = 저장값 재사용(가지 제거). 지수(9+) → 선형(5)으로 줄었습니다', E.W/2, E.H*0.86+20);
+      E.big('메모이제이션: 캐시로 가지치기', '겹치는 부분문제를 저장하면 같은 호출을 두 번 안 한다 → 지수 시간이 선형으로. 위→아래 저장이 메모이제이션, 아래→위 표 채우기가 타뷸레이션(다음 화면).'); }
   },
 
   // ══════════ 7.1 타뷸레이션 (코드+스텝, bottom-up) ══════════
