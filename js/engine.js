@@ -28,6 +28,29 @@
   }catch(e){} }
   global.addEventListener('pointerdown',function(){ if(actx&&actx.state==='suspended')actx.resume(); });
 
+  // ---------- 끝 알림 토스트 (분기 마지막에서 더 가려 할 때): 비프 2회 + 떴다 서서히 사라짐 ----------
+  var _endEl=null, _endStyled=false;
+  function endToast(msg, sub){
+    blip(720,0.07,'triangle'); setTimeout(function(){ blip(720,0.07,'triangle'); }, 115);  // 두 번 빠르게
+    if(!_endStyled){ var st=document.createElement('style'); st.textContent=
+      '#endToast{position:fixed;left:50%;top:16%;transform:translateX(-50%) translateY(-10px);'
+      +'background:rgba(18,20,28,0.94);border:1px solid var(--accent,#ffb27a);color:#eef3fb;'
+      +'padding:13px 24px;border-radius:13px;font-size:15px;font-weight:600;z-index:99990;text-align:center;'
+      +'opacity:0;pointer-events:none;box-shadow:0 10px 36px rgba(0,0,0,0.45);'
+      +'transition:opacity .22s ease, transform .22s ease;}'
+      +'#endToast.show{opacity:1;transform:translateX(-50%) translateY(0);}'
+      +'#endToast.fade{opacity:0;transform:translateX(-50%) translateY(-10px);transition:opacity 1.5s ease, transform 1.5s ease;}'
+      +'#endToast .et-sub{display:block;font-size:11px;font-weight:400;color:#9fb0c8;margin-top:4px;letter-spacing:.03em;}';
+      document.head.appendChild(st); _endStyled=true; }
+    if(!_endEl){ _endEl=document.createElement('div'); _endEl.id='endToast'; document.body.appendChild(_endEl); }
+    var el=_endEl;
+    el.innerHTML='<span>'+(msg||'끝 · 이 갈래의 마지막입니다')+'</span><span class="et-sub">'+(sub||'End of this branch — ↑ 나가기로 뼈대로 돌아갑니다')+'</span>';
+    el.classList.remove('fade'); void el.offsetWidth; el.classList.add('show');
+    clearTimeout(el._t1); clearTimeout(el._t2);
+    el._t1=setTimeout(function(){ el.classList.add('fade'); el.classList.remove('show'); }, 1150);
+    el._t2=setTimeout(function(){ el.classList.remove('fade'); }, 2750);
+  }
+
   // ---------- Colors ----------
   var COL = { accent:'#ffb27a', blue:'#7ab8ff', green:'#8fe3b5', pink:'#f4a0c0', dim:'rgba(230,228,220,0.78)', faint:'rgba(255,255,255,0.22)', txt:'#9b99a3' };
 
@@ -202,8 +225,9 @@
   // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
   function updateNavBtns(sc){ var pb=document.getElementById('prev'), nb=document.getElementById('next'); if(!pb||!nb) return;
     if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur), n=sibs.length;
-      pb.innerHTML='◂ 자세히보기 이전'+kc('←'); nb.innerHTML='자세히보기 다음 ▸'+kc('→');
-      pb.disabled=(pos<=0); nb.disabled=(pos>=n-1);
+      pb.innerHTML='◂ 자세히보기 이전'+kc('←');
+      var atLast=(pos>=n-1); nb.innerHTML=(atLast?'끝 · 갈래 마지막':'자세히보기 다음 ▸')+kc('→');
+      pb.disabled=(pos<=0); nb.disabled=false;   // 마지막에서도 누르면 끝 알림(next()가 처리)
     } else {
       pb.innerHTML='◂ 이전'+kc('←'); pb.disabled=(sc._spinePos===0);
       var lastSpine=(sc._spinePos===HR.spine.length-1);
@@ -213,6 +237,7 @@
   function next(){ var sc=SM.scenes[SM.cur];
     if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur);
       if(pos<sibs.length-1) goTo(sibs[pos+1]);
+      else endToast();   // 자세히보기(분기) 마지막에서 더 가려 하면 끝 알림
     } else { var sp2=sc._spinePos; goTo(sp2<HR.spine.length-1?HR.spine[sp2+1]:HR.spine[0]); }
   }
   function prev(){ var sc=SM.scenes[SM.cur];
