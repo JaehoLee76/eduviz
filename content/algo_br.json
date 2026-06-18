@@ -3913,5 +3913,65 @@
       "q_en": "Which algorithm for shortest paths with negative edges (no negative cycle), and why?",
       "sol_en": "Bellman-Ford: Dijkstra finalizes vertices once and fails on negatives; Bellman-Ford relaxes all edges over V−1 rounds (correct with negative edges) and detects negative cycles with one extra round."
     }
+  },
+  "algo_br_ex_dp": {
+    "ch": "동적 계획법",
+    "sec": "연습문제 세트",
+    "title": "동적 계획법 5제",
+    "narr": "겹치는 부분문제를 표로 채우는 DP의 정석 문제들입니다.",
+    "hint": "N/P 로 문항 이동. 점화식 세우기가 핵심.",
+    "more": "<b>풀이</b><br><b>1.</b> 순수 재귀 막대 절단은 같은 길이를 지수적으로 재계산합니다. 메모이제이션은 각 길이 i의 최적값 r[i]를 한 번만 계산·저장하므로 O(n^2)(각 i마다 j 합)로 줄어듭니다.<br><b>2.</b> LCS: c[i][j] = (x_i=y_j) ? c[i−1][j−1]+1 : max(c[i−1][j], c[i][j−1]). 표를 행 i 오름차순·열 j 오름차순으로 채웁니다. 시간 O(mn).<br><b>3.</b> 0/1 배낭: K[i][w] = max(K[i−1][w], v_i + K[i−1][w−w_i]) (w_i ≤ w일 때). 시간 O(nW), 의사다항(W에 비례).<br><b>4.</b> 편집 거리: 삽입·삭제·교체. d[i][j] = min(d[i−1][j]+1, d[i][j−1]+1, d[i−1][j−1]+[x_i≠y_j]). 시간 O(mn).<br><b>5.</b> 행렬 연쇄: m[i][j] = min over k of m[i][k]+m[k+1][j]+p_{i−1}p_k p_j. 사슬 길이 오름차순으로 채워 O(n^3).",
+    "more_en": "<b>Solutions</b><br>1. Memoization stores each r[i] once → O(n^2) vs exponential recursion.<br>2. LCS: c[i][j]=match?c[i-1][j-1]+1:max(...); fill rows/cols ascending, O(mn).<br>3. 0/1 knapsack K[i][w]=max(skip, take); O(nW) pseudo-polynomial.<br>4. Edit distance: min over insert/delete/replace, O(mn).<br>5. Matrix chain m[i][j]=min_k(...); fill by chain length, O(n^3).",
+    "problem": {
+      "q": "피보나치를 하향식 메모이제이션과 상향식 표 채우기로 각각 구현했을 때 시간/공간 차이를 말하라.",
+      "solution": "둘 다 시간 O(n)입니다. 하향식은 재귀 스택 O(n) + 메모 배열 O(n)을 쓰고, 상향식은 재귀가 없어 직전 두 값만 들고 가면 공간 O(1)까지 줄일 수 있습니다. 상향식이 상수·공간 면에서 유리합니다.",
+      "q_en": "Compare top-down memoized vs bottom-up Fibonacci in time/space.",
+      "sol_en": "Both O(n) time; top-down uses O(n) stack+table, bottom-up needs only the last two values → O(1) space."
+    }
+  },
+  "algo_br_ex_greedy": {
+    "ch": "그리디 알고리즘",
+    "sec": "연습문제 세트",
+    "title": "그리디·허프만 5제",
+    "narr": "그리디 선택이 왜 최적인지, 교환 논법으로 따집니다.",
+    "hint": "N/P 로 이동. '교환 논법'이 증명의 열쇠.",
+    "more": "<b>풀이</b><br><b>1.</b> 가장 빨리 끝나는 활동을 고르면 남는 시간이 최대가 되어, 이후 선택지가 어떤 최적해보다 작지 않습니다. 교환 논법: 최적해의 첫 활동을 가장 빨리 끝나는 것으로 바꿔도 충돌이 안 늘어 최적성이 유지됩니다.<br><b>2.</b> 허프만은 빈도가 가장 낮은 두 기호를 형제로 묶습니다. 최적 접두 코드 트리에서 가장 깊은 두 잎은 최저 빈도 기호로 둘 수 있고(교환해도 비용 ≤), 귀납으로 전체 최적이 됩니다.<br><b>3.</b> 분할 가능 배낭은 단위 무게당 가치가 큰 것부터 채우면 최적(쪼갤 수 있어 빈 용량을 항상 메움). 0/1은 쪼갤 수 없어 그리디가 깨지고 DP가 필요합니다.<br><b>4.</b> 그리디 선택 속성=지역 최적 선택이 전역 최적의 일부가 된다. 최적 부분구조=문제의 최적해가 부분문제의 최적해를 포함한다. 둘 다 성립해야 그리디가 정당합니다.<br><b>5.</b> 매트로이드 (S, I)에서 가중치 내림차순으로 독립성을 유지하며 원소를 추가하면 최대 가중 독립집합을 얻습니다. 교환 공리가 그리디 정당성을 보장합니다.",
+    "more_en": "<b>Solutions</b><br>1. Earliest-finish leaves max room; exchange argument keeps optimality.<br>2. Huffman merges two lowest-frequency symbols; deepest leaves can be the rarest, induction gives optimal prefix code.<br>3. Fractional knapsack: greedy by value/weight is optimal; 0/1 breaks it, needs DP.<br>4. Greedy-choice property + optimal substructure together justify greedy.<br>5. On a matroid, adding elements by decreasing weight while independent yields max-weight independent set.",
+    "problem": {
+      "q": "동전 거스름돈에서 그리디가 최적이 아닌 동전 체계의 예를 들어라.",
+      "solution": "동전이 {1,3,4}이고 6을 거슬러 줄 때, 그리디는 4+1+1=3개를 쓰지만 최적은 3+3=2개입니다. 일반 동전 체계는 그리디가 깨질 수 있어 DP로 풀어야 하며, 표준 통화(1,5,10,25 등)는 그리디가 최적이 되도록 설계되어 있습니다.",
+      "q_en": "Give a coin system where greedy change-making is not optimal.",
+      "sol_en": "Coins {1,3,4}, amount 6: greedy gives 4+1+1=3 coins but optimal is 3+3=2. General systems need DP; standard currencies are designed so greedy works."
+    }
+  },
+  "algo_br_ex_advds": {
+    "ch": "고급 자료구조",
+    "sec": "연습문제 세트",
+    "title": "고급 자료구조 5제",
+    "narr": "힙·유니온파인드·세그먼트트리·B트리·트라이의 비용을 분석합니다.",
+    "hint": "N/P 로 이동. 분기 인수와 상각이 주제.",
+    "more": "<b>풀이</b><br><b>1.</b> build-heap은 아래에서 위로 sift-down 합니다. 높이 h인 노드 수는 ≤ n/2^{h+1}, 각 비용 O(h). 합 Σ h·n/2^{h+1} = O(n)으로 수렴합니다(등비급수). 삽입 n번(O(n log n))보다 빠릅니다.<br><b>2.</b> 경로 압축 + 랭크(또는 크기) 합치기를 함께 쓰면 m번 연산이 O(m·α(n))(α=역애커만, 사실상 상수)입니다.<br><b>3.</b> 세그먼트 트리는 구간을 이진 분할해 각 노드가 부분 구간의 합을 보관합니다. 점 갱신·구간 질의 모두 루트에서 잎까지 O(log n) 경로만 건드립니다.<br><b>4.</b> B-트리는 한 노드에 여러 키(높은 분기 인수 t)를 담아 트리 높이를 log_t n으로 낮춥니다. 디스크는 블록 단위 I/O가 비싸므로, 노드=블록으로 맞추면 디스크 접근 횟수를 최소화합니다.<br><b>5.</b> 트라이는 문자 단위로 가지를 나눠 길이 L 문자열 탐색/삽입이 O(L)(집합 크기 무관). 접두사 질의도 접두사를 따라 내려가면 O(접두사 길이)입니다.",
+    "more_en": "<b>Solutions</b><br>1. Build-heap sums Σ h·n/2^{h+1}=O(n), beating n inserts O(n log n).<br>2. Union-find with path compression+rank: O(m·α(n)), α inverse-Ackermann.<br>3. Segment tree: point update & range query each touch one root-to-leaf path O(log n).<br>4. B-tree high fan-out t lowers height to log_t n, matching disk block I/O.<br>5. Trie: search/insert O(L) per string, prefix query O(prefix length), independent of set size.",
+    "problem": {
+      "q": "최소 힙에서 임의 원소의 키를 감소시키는 decrease-key 연산을 어떻게 O(log n)에 하나?",
+      "solution": "해당 원소의 키를 줄인 뒤, 부모와 비교해 부모보다 작으면 위로 교환(sift-up)합니다. 루트까지 최대 트리 높이 O(log n)번 올라가며, 최소 힙 성질이 회복되면 멈춥니다. 위치를 알아야 하므로 보통 원소→인덱스 매핑을 함께 유지합니다.",
+      "q_en": "How does decrease-key run in O(log n) on a min-heap?",
+      "sol_en": "Lower the key then sift up, swapping with the parent while smaller; at most O(log n) levels. Keep an element→index map to locate the node."
+    }
+  },
+  "algo_br_ex_complexity": {
+    "ch": "NP-완전성·근사",
+    "sec": "연습문제 세트",
+    "title": "NP·근사 5제",
+    "narr": "계산 복잡도와 근사 알고리즘의 핵심 개념을 정리합니다.",
+    "hint": "N/P 로 이동. 환원의 '방향'에 주의.",
+    "more": "<b>풀이</b><br><b>1.</b> P⊆NP. NP-완전=NP에 속하면서 NP의 모든 문제가 다항 환원되는 가장 어려운 NP 문제. NP-난해=NP의 모든 문제가 환원되지만 자신은 NP에 없어도 됨. (NP-완전 = NP ∩ NP-난해)<br><b>2.</b> A ≤p B 는 A의 임의 입력을 다항 시간에 B의 입력으로 변환해, B를 풀면 A도 풀린다는 뜻입니다. B가 A보다 '어렵거나 같다'는 방향입니다.<br><b>3.</b> 쿡-레빈 정리로 SAT가 첫 NP-완전 문제임이 증명되어, 이후 모든 NP-완전성 증명의 출발점(SAT ≤p 새 문제)이 됩니다.<br><b>4.</b> 정점 덮개 2-근사: 아직 덮이지 않은 간선 하나를 골라 양 끝점을 모두 넣길 반복. 고른 간선들은 서로 정점을 공유하지 않으므로(매칭), 최적해도 각 간선당 ≥1 정점이 필요 → |해| ≤ 2·OPT.<br><b>5.</b> 삼각부등식 TSP: MST를 구해 두 번 순회(오일러)한 뒤 지름길로 정점 중복을 제거합니다. MST ≤ OPT 이고 두 배 순회라 비용 ≤ 2·MST ≤ 2·OPT.",
+    "more_en": "<b>Solutions</b><br>1. P⊆NP; NP-complete = in NP and NP-hard; NP-hard need not be in NP.<br>2. A ≤p B: poly-time transform of A's inputs to B's; B is at least as hard.<br>3. Cook-Levin: SAT is the first NP-complete problem, the seed for all later reductions.<br>4. Vertex cover 2-approx: repeatedly take both endpoints of an uncovered edge (a matching) → ≤2·OPT.<br>5. Metric TSP: double MST traversal + shortcutting → ≤2·MST ≤2·OPT.",
+    "problem": {
+      "q": "어떤 문제가 NP-완전임을 새로 증명하려면 무엇을 보여야 하나?",
+      "solution": "두 가지를 보입니다. (1) 그 문제가 NP에 속함(해 후보를 다항 시간에 검증 가능). (2) 이미 알려진 NP-완전 문제 X를 그 문제로 다항 환원(X ≤p 새 문제). 둘을 합치면 새 문제가 NP-완전입니다. 환원 방향이 'X에서 새 문제로'인 점이 핵심입니다.",
+      "q_en": "What must you show to prove a new problem is NP-complete?",
+      "sol_en": "(1) It is in NP (a certificate is poly-time verifiable); (2) a known NP-complete problem X reduces to it (X ≤p new). Direction from X to the new problem is key."
+    }
   }
 }
