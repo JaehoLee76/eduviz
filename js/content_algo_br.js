@@ -46,6 +46,30 @@
     };
   }
 
+  // 증명 분기 헬퍼: 제목 + 색상 강조 줄들 + 하단 결론. lines=[[색,텍스트],...]
+  function proofScene(id, parent, head, lead, lines, footer){
+    return { id:id, concept:true, branchOf:parent, codeHead:head,
+      enter:function(E){ E.setOn&&E.setOn([]); },
+      draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+        ctx.textAlign='left'; ctx.font='600 15px sans-serif'; ctx.fillStyle='#cfd8e6';
+        ctx.fillText(head, W*0.05, H*0.11);
+        ctx.font='13px sans-serif'; ctx.fillStyle='#9fb0c8';
+        wrapText(ctx, lead, W*0.05, H*0.165, W*0.9, 20);
+        ctx.font='13px sans-serif';
+        for(var i=0;i<lines.length;i++){ ctx.fillStyle=lines[i][0];
+          ctx.fillText(lines[i][1], W*0.05, H*0.26+i*26); }
+        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+        wrapText(ctx, footer, W/2, H*0.93, W*0.86, 18, true); }
+    };
+  }
+  function wrapText(ctx, text, x, y, maxw, lh, center){
+    var words=text.split(' '), line='', yy=y;
+    for(var n=0;n<words.length;n++){ var test=line+words[n]+' ';
+      if(ctx.measureText(test).width>maxw && line){ ctx.fillText(line.trim(), x, yy); line=words[n]+' '; yy+=lh; }
+      else line=test; }
+    ctx.fillText(line.trim(), x, yy);
+  }
+
   var scenes=[
 
   // ══════ 퀵정렬(algo3_05) ▸ 최악의 경우 O(n²) ══════
@@ -5817,7 +5841,50 @@
     ['★','보편 해싱(universal hashing)이 최악 충돌을 막는 원리'],
     ['★','생일 역설: n개 키를 m버킷에 넣을 때 충돌 시작 규모'],
     ['★','라스베가스 vs 몬테카를로 알고리즘의 차이'],
-    ['★★','무작위 선택(randomized-select)의 기대 선형 시간 분석']])
+    ['★★','무작위 선택(randomized-select)의 기대 선형 시간 분석']]),
+
+  // ===== D5 정당성 증명 배치 (기존 알고리즘 분기가 빠뜨린 핵심 정리) =====
+  proofScene('algo_br_maxflow_proof','algo6_05','최대 유량 = 최소 컷 정리',
+    '증대 경로 정리: 다음 셋은 동치다 — 어느 하나가 참이면 셋 다 참.',
+    [['#8fe3b5','① f 는 최대 유량이다.'],
+     ['#ffb27a','② 잔여 그래프 G_f 에 증대 경로가 없다.'],
+     ['#f4a0c0','③ 어떤 컷 (S,T)에 대해 |f| = c(S,T) (컷 용량과 같다).'],
+     ['#cfd8e6','①→②: 증대 경로가 있으면 유량을 더 늘릴 수 있어 최대가 아님(대우).'],
+     ['#cfd8e6','②→③: S = G_f에서 s가 도달하는 정점들. T = 나머지. S→T 간선은 포화,'],
+     ['#cfd8e6','        T→S 간선은 유량 0 → |f| = c(S,T).'],
+     ['#cfd8e6','③→①: 모든 유량 ≤ 모든 컷 용량(약한 쌍대성)이므로 |f|=c(S,T)면 최대.']],
+    '결론: 증대 경로가 없을 때의 유량 = 최소 컷 용량. 에드몬즈-카프/디닉이 이 정리로 종료를 보장한다.')
+  ,
+  proofScene('algo_br_dfs_theorems','algo6_03','DFS 괄호 정리 · 흰 경로 정리',
+    'DFS는 각 정점에 발견시간 d[v]와 종료시간 f[v]를 매긴다. 구간 [d[v], f[v]]를 보면:',
+    [['#8fe3b5','괄호 정리: 두 구간 [d[u],f[u]], [d[v],f[v]]는 완전히 포개지거나(조상-자손)'],
+     ['#8fe3b5','           완전히 분리된다(서로 무관). 부분적으로 겹칠 수 없다.'],
+     ['#ffb27a','흰 경로 정리: u를 발견한 순간 v까지 "아직 안 본(흰) 정점만" 지나는 경로가'],
+     ['#ffb27a','           있으면, v는 DFS 트리에서 u의 자손이 된다.'],
+     ['#cfd8e6','간선 분류: 트리(흰 정점으로), 후방(회색 조상으로 — 사이클 신호),'],
+     ['#cfd8e6','           전방/교차(검은 정점으로). 무방향엔 트리·후방만.'],
+     ['#f4a0c0','응용: 후방 간선 ⟺ 사이클, 종료시간 역순 = 위상정렬, SCC 2-pass의 토대.']],
+    '결론: 발견/종료 시간의 중첩 구조가 트리 모양과 사이클·위상순서를 모두 규정한다.')
+  ,
+  proofScene('algo_br_master_proof','algo1_03','마스터 정리 — 재귀 트리 증명',
+    'T(n)=aT(n/b)+f(n). 재귀 트리는 깊이 log_b n, i층에 a^i개 노드, 각 크기 n/b^i.',
+    [['#8fe3b5','잎의 수 = a^{log_b n} = n^{log_b a}. 이 값과 f(n)을 비교한다.'],
+     ['#ffb27a','경우 1: f(n)=O(n^{log_b a − ε}) → 잎이 지배 → T(n)=Θ(n^{log_b a}).'],
+     ['#f4a0c0','경우 2: f(n)=Θ(n^{log_b a}) → 각 층 비용이 같음(log n층) → Θ(n^{log_b a} log n).'],
+     ['#7ab8ff','경우 3: f(n)=Ω(n^{log_b a + ε}) + 정규성 a·f(n/b)≤c·f(n) → 뿌리가 지배 → Θ(f(n)).'],
+     ['#cfd8e6','직관: 층별 비용 합이 등비급수 → 첫 항(뿌리) 또는 마지막 항(잎) 중 큰 쪽이 결정.'],
+     ['#cfd8e6','예: 병합정렬 a=b=2,f=n → 경우2 → Θ(n log n). 이분탐색 a=1,b=2 → Θ(log n).']],
+    '결론: 잎의 총비용 n^{log_b a} 와 뿌리 비용 f(n)의 균형이 점근 차수를 정한다.')
+  ,
+  proofScene('algo_br_quicksort_analysis','algo3_05','퀵정렬 기대 시간 — 지표 변수 증명',
+    '무작위 피벗 퀵정렬의 기대 비교 횟수를 지표 변수와 기댓값의 선형성으로 센다.',
+    [['#8fe3b5','X_{ij} = (정렬 후 i번째와 j번째 원소가 한 번이라도 비교되면 1).'],
+     ['#ffb27a','두 원소는 둘 사이 구간에서 처음 뽑히는 피벗이 자기들 중 하나일 때만 비교된다.'],
+     ['#ffb27a','그 구간 크기는 j−i+1 → P(비교) = 2/(j−i+1).'],
+     ['#f4a0c0','E[비교] = ΣΣ 2/(j−i+1) = Σ_i 2·(조화합) = O(n·H_n) = O(n log n).'],
+     ['#cfd8e6','최악(정렬된 입력+고정 피벗) = Θ(n^2)이지만, 무작위화로 어떤 입력도 기대 O(n log n).'],
+     ['#cfd8e6','조화수 H_n = 1+1/2+…+1/n ≈ ln n 이 log 인수의 출처다.']],
+    '결론: 무작위 피벗은 입력과 무관하게 기대 비교 O(n log n)을 보장한다(적대적 입력 무력화).')
 
   ];
   if(window.Engine) window.Engine.addScenes(scenes);

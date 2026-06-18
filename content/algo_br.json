@@ -4033,5 +4033,65 @@
       "q_en": "When can a Monte Carlo algorithm be turned into a Las Vegas one?",
       "sol_en": "When the answer is poly-time verifiable: run, verify, repeat on failure → always correct, expected 1/(success prob) iterations. Without verification, generally not."
     }
+  },
+  "algo_br_maxflow_proof": {
+    "ch": "그래프 알고리즘",
+    "sec": "정당성 증명",
+    "title": "최대 유량 = 최소 컷 정리",
+    "narr": "포드-풀커슨이 왜 최대 유량을 주는지, 증대 경로 정리로 엄밀히 봅니다.",
+    "hint": "세 조건의 동치(①최대 ②증대경로없음 ③컷용량과 같음)가 핵심입니다.",
+    "more": "<b>증대 경로 정리(세 조건 동치)</b><br><b>① f가 최대 유량 ⟺ ② 잔여 그래프 G_f에 증대 경로 없음 ⟺ ③ |f|=c(S,T)인 컷 존재.</b><br><br><b>①→②(대우):</b> G_f에 s→t 증대 경로 p가 있으면, p의 최소 잔여용량만큼 유량을 더 흘릴 수 있어 |f|가 커집니다 → f는 최대가 아닙니다.<br><b>②→③:</b> S = 잔여 그래프에서 s가 도달 가능한 정점 집합, T = 나머지(t∈T). S에서 T로 가는 원래 간선은 모두 포화(아니면 잔여간선이 있어 도달 가능, 모순), T에서 S로 오는 간선의 유량은 0. 따라서 컷을 가로지르는 순유량 |f| = c(S,T).<br><b>③→①:</b> 약한 쌍대성으로 임의의 유량 ≤ 임의의 컷 용량. |f|=c(S,T)이면 그보다 큰 유량이 있을 수 없으니 f가 최대, c(S,T)가 최소 컷입니다.<br><br>이 정리가 포드-풀커슨/에드몬즈-카프/디닉의 종료와 정확성을 동시에 보장합니다. (증대 경로가 없을 때 멈추면 곧 최대 유량)",
+    "more_en": "<b>Max-flow Min-cut (three equivalent conditions)</b><br>① f is maximum ⟺ ② no augmenting path in G_f ⟺ ③ |f|=c(S,T) for some cut.<br>①→② (contrapositive): an augmenting path lets you push more flow.<br>②→③: let S = vertices reachable from s in G_f; S→T edges are saturated, T→S carry 0, so |f|=c(S,T).<br>③→①: weak duality (any flow ≤ any cut) forces maximality.<br>This guarantees Ford-Fulkerson's termination and correctness.",
+    "problem": {
+      "q": "포드-풀커슨이 무리수 용량에서 종료하지 않을 수 있는 이유와, 에드몬즈-카프가 이를 어떻게 막는지 설명하라.",
+      "solution": "포드-풀커슨은 증대 경로 선택을 명시하지 않습니다. 무리수 용량에서 나쁜 경로를 반복 선택하면 유량이 최댓값에 무한히 가까워지지만 도달하지 못할 수 있습니다. 에드몬즈-카프는 항상 BFS로 '간선 수가 가장 적은' 증대 경로를 골라, 증대 횟수가 O(VE)로 유한함이 증명되어 항상 종료합니다.",
+      "q_en": "Why can Ford-Fulkerson fail to terminate with irrational capacities, and how does Edmonds-Karp fix it?",
+      "sol_en": "Ford-Fulkerson doesn't specify which augmenting path to pick; bad choices on irrational capacities can converge without reaching the max. Edmonds-Karp always takes the shortest (BFS) augmenting path, bounding augmentations to O(VE), so it terminates."
+    }
+  },
+  "algo_br_dfs_theorems": {
+    "ch": "그래프 알고리즘",
+    "sec": "정당성 증명",
+    "title": "DFS 괄호·흰 경로 정리",
+    "narr": "DFS의 발견/종료 시간이 트리 구조와 사이클·위상순서를 어떻게 규정하는지 봅니다.",
+    "hint": "구간 [d,f]의 중첩이 조상-자손 관계, 흰 경로가 자손 관계를 줍니다.",
+    "more": "<b>괄호 정리(parenthesis theorem)</b><br>각 정점 v에 발견시간 d[v], 종료시간 f[v]를 매기면, 임의의 두 정점 u,v에 대해 구간 [d[u],f[u]]와 [d[v],f[v]]는 (가)완전히 포개지거나(한쪽이 다른 쪽의 조상) (나)완전히 분리됩니다. 부분적으로 겹치는 일은 없습니다(괄호가 올바르게 중첩되듯).<br><br><b>흰 경로 정리(white-path theorem)</b><br>u를 발견하는 순간(시각 d[u]), v까지 아직 방문하지 않은 '흰' 정점만 지나는 경로가 존재하면 v는 DFS 트리에서 u의 자손이 됩니다. (DFS가 그 흰 경로를 따라 내려가 v를 자손으로 만듦)<br><br><b>간선 분류</b><br>발견 시 상대 정점 색으로 분류: 흰→트리 간선, 회색(스택 위 조상)→후방 간선, 검정→전방/교차. 무방향 그래프는 트리·후방 간선만 생깁니다.<br><br><b>응용</b><br>후방 간선 존재 ⟺ (방향)사이클. 종료시간 내림차순 = 위상정렬. 전치 그래프에서 종료시간 역순 DFS = 강결합요소(SCC) 2-pass의 정당성.",
+    "more_en": "<b>Parenthesis theorem</b>: intervals [d[u],f[u]] and [d[v],f[v]] are either nested (ancestor-descendant) or disjoint — never partially overlapping.<br><b>White-path theorem</b>: if at time d[u] there is an all-white path from u to v, then v becomes a descendant of u in the DFS tree.<br><b>Edge classification</b> by color on discovery: white→tree, gray→back (cycle), black→forward/cross.<br><b>Uses</b>: back edge ⟺ directed cycle; decreasing finish time = topological order; basis of the SCC two-pass algorithm.",
+    "problem": {
+      "q": "방향 그래프에 사이클이 있는 것과 DFS에서 후방 간선이 나오는 것이 동치임을 보여라.",
+      "solution": "(⇐) 후방 간선 (u,v)는 v가 u의 조상이라는 뜻이고, 트리 경로 v→…→u에 (u,v)를 더하면 사이클입니다. (⇒) 사이클이 있으면, 사이클에서 가장 먼저 발견되는 정점 v를 보면 v에서 사이클을 따라가는 경로가 d[v] 시점에 모두 흰색이므로 흰 경로 정리로 사이클의 나머지가 v의 자손이 되고, 사이클을 닫는 간선이 후방 간선이 됩니다.",
+      "q_en": "Show that a directed graph has a cycle iff DFS produces a back edge.",
+      "sol_en": "(⇐) A back edge (u,v) means v is an ancestor; the tree path v→…→u plus (u,v) is a cycle. (⇒) Given a cycle, its first-discovered vertex v has an all-white path along the cycle, so by the white-path theorem the rest are descendants and the closing edge is a back edge."
+    }
+  },
+  "algo_br_master_proof": {
+    "ch": "복잡도·점근 분석",
+    "sec": "정당성 증명",
+    "title": "마스터 정리 재귀 트리 증명",
+    "narr": "마스터 정리의 세 경우가 왜 그렇게 갈리는지, 재귀 트리의 층별 비용으로 봅니다.",
+    "hint": "잎 총비용 n^{log_b a} 와 뿌리 비용 f(n)의 등비급수 균형이 답입니다.",
+    "more": "<b>설정</b> T(n)=aT(n/b)+f(n). 재귀 트리는 깊이 log_b n, i번째 층에 a^i개의 부분문제(각 크기 n/b^i), i층의 비용은 a^i·f(n/b^i).<br><br><b>잎의 총비용</b> 마지막 층의 노드 수 = a^{log_b n} = n^{log_b a}. 이 값과 f(n)을 비교하는 것이 핵심입니다.<br><br><b>경우 1</b> f(n)=O(n^{log_b a−ε}): 층 비용이 아래로 갈수록 등비적으로 증가 → 잎이 지배 → T(n)=Θ(n^{log_b a}).<br><b>경우 2</b> f(n)=Θ(n^{log_b a}): 모든 층의 비용이 대략 같음 → log_b n개 층 합 → T(n)=Θ(n^{log_b a}·log n).<br><b>경우 3</b> f(n)=Ω(n^{log_b a+ε}) 이고 정규성 a·f(n/b)≤c·f(n)(c<1): 층 비용이 위로 갈수록 지배 → 뿌리가 지배 → T(n)=Θ(f(n)).<br><br><b>직관</b> 각 층 비용의 합은 공비가 (잎 우세냐 뿌리 우세냐에 따라) 1보다 크거나 작은 등비급수입니다. 등비급수는 첫 항(뿌리) 또는 마지막 항(잎) 중 큰 쪽에 의해 결정되므로 세 경우가 나옵니다. 경우 2는 공비≈1이라 층 수만큼 곱해집니다.<br><br>예: 병합정렬 a=2,b=2,f=n → n^{log_2 2}=n=f → 경우2 → Θ(n log n). 카라츠바 a=3,b=2,f=n → n^{1.585} 지배 → 경우1 → Θ(n^{1.585}).",
+    "more_en": "<b>Setup</b> T(n)=aT(n/b)+f(n); recursion tree depth log_b n, level i has a^i subproblems of size n/b^i, cost a^i·f(n/b^i). Leaves number n^{log_b a}.<br><b>Case 1</b> f=O(n^{log_b a−ε}): leaves dominate → Θ(n^{log_b a}).<br><b>Case 2</b> f=Θ(n^{log_b a}): every level equal → Θ(n^{log_b a} log n).<br><b>Case 3</b> f=Ω(n^{log_b a+ε}) + regularity: root dominates → Θ(f(n)).<br>The level costs form a geometric series decided by its largest term (root or leaves); case 2 has ratio ≈1 so it multiplies by the number of levels.",
+    "problem": {
+      "q": "T(n)=2T(n/2)+n log n 에 마스터 정리를 바로 쓸 수 없는 이유를 재귀 트리로 설명하라.",
+      "solution": "여기서 n^{log_b a}=n 이고 f(n)=n log n 입니다. f는 n보다 크지만 어떤 ε>0에 대해서도 n^{1+ε}보다는 작아(로그 인수 차이뿐) 경우 3의 다항적 분리 조건을 못 만족합니다. 재귀 트리로 보면 i층 비용이 n·log(n/2^i)이고 합이 Σ n(log n − i) = Θ(n log^2 n)이 됩니다. 표준 세 경우엔 안 맞고, 확장판(경우 2의 일반형)으로 Θ(n log^2 n)을 얻습니다.",
+      "q_en": "Explain via the recursion tree why the master theorem doesn't directly apply to T(n)=2T(n/2)+n log n.",
+      "sol_en": "Here n^{log_b a}=n and f=n log n; f exceeds n but not by a polynomial factor (only a log), failing case 3's separation. The tree gives level cost n·log(n/2^i), summing to Θ(n log^2 n) — handled by the extended (generalized case 2), not the three standard cases."
+    }
+  },
+  "algo_br_quicksort_analysis": {
+    "ch": "정렬·선택",
+    "sec": "정당성 증명",
+    "title": "퀵정렬 기대 시간 분석",
+    "narr": "무작위 피벗 퀵정렬이 기대 O(n log n)인 이유를 지표 변수로 증명합니다.",
+    "hint": "두 원소가 비교될 확률 2/(j−i+1) 과 기댓값의 선형성이 도구입니다.",
+    "more": "<b>지표 변수 설정</b><br>정렬된 결과의 i번째 원소를 z_i 라 하자. X_{ij} = (z_i 와 z_j 가 알고리즘 실행 중 한 번이라도 비교되면 1, 아니면 0). 총 비교 횟수 X = Σ_{i<j} X_{ij}.<br><br><b>비교 확률</b><br>z_i 와 z_j 는 둘 사이의 구간 {z_i,…,z_j}(크기 j−i+1) 에서 '가장 먼저 피벗으로 뽑히는 원소'가 z_i 또는 z_j 일 때만 비교됩니다. 그 사이의 다른 원소가 먼저 피벗이 되면 둘은 서로 다른 분할로 갈라져 영영 비교되지 않습니다. 무작위 피벗이므로 구간의 각 원소가 먼저 뽑힐 확률은 동일 → P(X_{ij}=1) = 2/(j−i+1).<br><br><b>기댓값</b><br>E[X] = Σ_{i<j} 2/(j−i+1) = Σ_{i=1}^{n−1} Σ_{k=1}^{n−i} 2/(k+1) ≤ Σ_i 2·H_n = O(n·H_n) = O(n log n). (H_n=조화수≈ln n)<br><br><b>해석</b><br>최악의 경우(정렬된 입력에 고정 피벗)는 Θ(n^2)이지만, 무작위화는 '나쁜 입력'을 미리 정할 수 없게 만들어 어떤 입력에 대해서도 기대 O(n log n)을 보장합니다. log 인수는 조화수 H_n 에서 나옵니다.",
+    "more_en": "<b>Indicator setup</b> Let z_i be the i-th smallest; X_{ij}=1 if z_i and z_j are ever compared. Total comparisons X=Σ_{i<j} X_{ij}.<br><b>Probability</b> z_i,z_j are compared iff the first pivot chosen from {z_i,…,z_j} (size j−i+1) is one of them → P=2/(j−i+1).<br><b>Expectation</b> E[X]=Σ 2/(j−i+1) ≤ Σ_i 2H_n = O(n log n), where H_n is the harmonic number ≈ ln n.<br><b>Reading</b> Worst case is Θ(n^2), but randomization makes adversarial input impossible, giving expected O(n log n) for any input.",
+    "problem": {
+      "q": "무작위 피벗 대신 항상 '세 원소의 중앙값(median-of-three)'을 피벗으로 쓰면 최악의 경우가 사라지는가?",
+      "solution": "사라지지 않습니다. median-of-three는 정렬된/역정렬된 입력에서 좋은 피벗을 주지만, 결정적 규칙이므로 그 규칙을 역이용하는 적대적 입력(중앙값이 항상 극단값이 되도록 구성)을 만들면 여전히 Θ(n^2)이 됩니다. 진짜로 최악을 없애려면 피벗 선택에 무작위성을 넣거나, 재귀 깊이가 깊어지면 힙정렬로 전환하는 인트로소트(introsort)를 써야 합니다.",
+      "q_en": "Does always using median-of-three as the pivot eliminate the worst case?",
+      "sol_en": "No. Median-of-three helps on sorted inputs but is deterministic, so an adversary can craft input forcing Θ(n^2). To truly avoid it, randomize the pivot or switch to heapsort on deep recursion (introsort)."
+    }
   }
 }
