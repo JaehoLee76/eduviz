@@ -144,8 +144,13 @@
   #study.open .chev-c1, #study.open .chev-c2 { animation: none; }
 
   /* ════ VIZ 모드: 왼쪽 = 코드/설명 + 스텝 컨트롤, 오른쪽 = 애니메이션(캔버스). 시선이 왼쪽에 머물게 ════ */
-  body.viz #stage { left: 42vw; width: 58vw; }     /* 캔버스 = 오른쪽 컬럼 */
+  body.viz #stage { left: 42vw; width: 58vw; height: calc(100% - 150px); }     /* 캔버스 = 오른쪽 컬럼. 하단 150px = 컨트롤(키힌트·내비) 전용 안전영역 → 캔버스 그림이 버튼과 안 겹침 */
   body.viz .guide, body.viz .bignum, body.viz #study { display: none !important; }  /* 캐릭터·big·옛 학습패널 숨김(설명은 왼쪽 패널로 통합) */
+  /* 하단 컨트롤 띠(캔버스 아래): 키힌트=위, 내비=아래. 서로·캔버스와 안 겹치게 고정 */
+  body.viz #keyhint { bottom: 98px; }
+  body.viz #controls { bottom: 98px; }
+  body.viz .nav { bottom: 32px; }
+  body.viz .nav .hint { display: none; }   /* 긴 hint 텍스트는 내비 버튼과 겹침 → viz에선 숨김(키힌트가 안내 대체) */
 
   /* 왼쪽 패널: 코드/설명(스크롤) → 스텝 캡션 → 스텝바 */
   #codepanel { position: fixed; top: 0; left: 0; width: 42vw; height: 100%; z-index: 5; display: none; flex-direction: column;

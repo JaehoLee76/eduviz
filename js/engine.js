@@ -225,9 +225,9 @@
   // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
   function updateNavBtns(sc){ var pb=document.getElementById('prev'), nb=document.getElementById('next'); if(!pb||!nb) return;
     if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur), n=sibs.length;
-      pb.innerHTML='◂ 자세히보기 이전'+kc('←');
-      var atLast=(pos>=n-1); nb.innerHTML=(atLast?'끝 · 갈래 마지막':'자세히보기 다음 ▸')+kc('→');
-      pb.disabled=(pos<=0); nb.disabled=false;   // 마지막에서도 누르면 끝 알림(next()가 처리)
+      pb.innerHTML=(pos>0?'◂ '+(pos-1):'◂')+kc('←');   // 좌 = 바로 전 페이지 번호(0부터)
+      nb.innerHTML=(pos+1)+' / '+n+kc('→');            // 우 = 몇 개 중 몇 번째(현재/전체)
+      pb.disabled=(pos<=0); nb.disabled=false;          // 마지막에서도 누르면 끝 알림(next()가 처리)
     } else {
       pb.innerHTML='◂ 이전'+kc('←'); pb.disabled=(sc._spinePos===0);
       var lastSpine=(sc._spinePos===HR.spine.length-1);

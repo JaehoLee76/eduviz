@@ -27,22 +27,20 @@
       enter:function(E){ E._exi=0; E.setOn&&E.setOn([]); },
       draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, sel=E._exi||0;
         ctx.textAlign='left';
-        ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
-        ctx.fillText(head+'  ('+items.length+'문항)', W*0.06, H*0.12);
-        ctx.font='11px sans-serif'; ctx.fillStyle='#8a8893';
-        ctx.fillText('N 다음 문항 · P 이전 문항 · 화면을 탭해도 넘어갑니다', W*0.06, H*0.165);
-        var y0=H*0.24, rowH=Math.min(54,(H*0.66)/items.length);
+        ctx.fillStyle='#cfd8e6'; ctx.font='600 17px sans-serif';
+        ctx.fillText(head+'  ('+items.length+'문항)', W*0.06, H*0.13);
+        var y0=H*0.24, rowH=Math.min(60,(H*0.62)/items.length);
         for(var i=0;i<items.length;i++){ var y=y0+i*rowH, on=(i===sel);
           ctx.fillStyle=on?'rgba(122,184,255,0.16)':'rgba(255,255,255,0.04)';
           ctx.strokeStyle=on?'#7ab8ff':'rgba(255,255,255,0.10)'; ctx.lineWidth=on?2:1;
-          ctx.beginPath(); if(ctx.roundRect)ctx.roundRect(W*0.06,y,W*0.88,rowH-10,8); else ctx.rect(W*0.06,y,W*0.88,rowH-10); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); if(ctx.roundRect)ctx.roundRect(W*0.06,y,W*0.88,rowH-10,9); else ctx.rect(W*0.06,y,W*0.88,rowH-10); ctx.fill(); ctx.stroke();
           ctx.fillStyle=items[i][0].indexOf('★★')>=0?'#f4a0c0':(items[i][0].indexOf('★')>=0?'#ffb27a':'#8fe3b5');
-          ctx.font='13px sans-serif'; ctx.fillText(items[i][0], W*0.085, y+rowH*0.45);
-          ctx.fillStyle=on?'#eaf2ff':'#b9c2d0'; ctx.font=(on?'600 ':'')+'13px sans-serif';
-          var q=items[i][1], maxc=Math.floor(W*0.74/7.2); if(q.length>maxc)q=q.slice(0,maxc-1)+'…';
-          ctx.fillText((i+1)+'. '+q, W*0.135, y+rowH*0.45); }
-        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-        ctx.fillText('난이도 ☆입문 · ★표준 · ★★심화  —  풀이는 아래 \"연습문제\" 패널에서', W/2, H*0.965); }
+          ctx.font='15px sans-serif'; ctx.fillText(items[i][0], W*0.09, y+rowH*0.43);
+          ctx.fillStyle=on?'#eaf2ff':'#c3ccda'; ctx.font=(on?'600 ':'')+'15px sans-serif';
+          var q=items[i][1], maxc=Math.floor(W*0.74/8.2); if(q.length>maxc)q=q.slice(0,maxc-1)+'…';
+          ctx.fillText((i+1)+'. '+q, W*0.145, y+rowH*0.43); }
+        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+        ctx.fillText('난이도 ☆입문 · ★표준 · ★★심화  —  풀이는 아래 \"연습문제\" 패널에서', W/2, H*0.97); }
     };
   }
 
@@ -51,15 +49,15 @@
     return { id:id, concept:true, branchOf:parent, codeHead:head,
       enter:function(E){ E.setOn&&E.setOn([]); },
       draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-        ctx.textAlign='left'; ctx.font='600 15px sans-serif'; ctx.fillStyle='#cfd8e6';
+        ctx.textAlign='left'; ctx.font='600 17px sans-serif'; ctx.fillStyle='#cfd8e6';
         ctx.fillText(head, W*0.05, H*0.11);
-        ctx.font='13px sans-serif'; ctx.fillStyle='#9fb0c8';
-        wrapText(ctx, lead, W*0.05, H*0.165, W*0.9, 20);
-        ctx.font='13px sans-serif';
+        ctx.font='14px sans-serif'; ctx.fillStyle='#9fb0c8';
+        wrapText(ctx, lead, W*0.05, H*0.17, W*0.9, 22);
+        ctx.font='14px sans-serif';
         for(var i=0;i<lines.length;i++){ ctx.fillStyle=lines[i][0];
-          ctx.fillText(lines[i][1], W*0.05, H*0.26+i*26); }
-        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-        wrapText(ctx, footer, W/2, H*0.93, W*0.86, 18, true); }
+          ctx.fillText(lines[i][1], W*0.05, H*0.27+i*29); }
+        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+        wrapText(ctx, footer, W/2, H*0.94, W*0.86, 19, true); }
     };
   }
   function rrect(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);} else {ctx.beginPath();ctx.rect(x,y,w,h);} }
@@ -5957,9 +5955,9 @@
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
       var msg = E._hi===0 ? '시작: 모두 A에. N을 눌러 한 수씩 진행' : (E._hi>=E._moves.length ? '완성! 최소 '+E._moves.length+'수 = 2³−1' : E._hi+'수째: 원반 '+E._moves[E._hi-1][0]+' 을 '+names[E._moves[E._hi-1][1]][0]+'→'+names[E._moves[E._hi-1][2]][0]);
       ctx.fillText(msg, W/2, H*0.16);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('재귀: hanoi(n,A,C,B) = hanoi(n−1,A,B,C) → 원반 n을 A→C → hanoi(n−1,B,C,A)   ⟹   T(n)=2T(n−1)+1=2ⁿ−1', W/2, H*0.92);
-      ctx.fillText('N 다음 · P 이전 · R 리셋   (이동 '+E._hi+' / '+E._moves.length+')', W/2, H*0.96); } }
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('재귀: hanoi(n,A,C,B) = hanoi(n−1,A,B,C) → 원반 n을 A→C → hanoi(n−1,B,C,A)   ⟹   T(n)=2T(n−1)+1=2ⁿ−1', W/2, H*0.93);
+      ctx.fillText('이동 '+E._hi+' / '+E._moves.length, W/2, H*0.97); } }
   ,
   // R2 퀵정렬 재귀 구조 — partition 후 두 갈래 재귀 트리
   { id:'algo_br_quicksort_recursion', concept:true, branchOf:'algo3_05', codeHead:'퀵정렬 재귀 구조',
@@ -6005,11 +6003,9 @@
             ctx.moveTo(xx,yy+13); ctx.lineTo(W*((Math.floor(c*below/n)+0.5)/below), H*(0.24+(r+1)*0.16)-13); ctx.stroke(); } } }
       ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
       ctx.fillText(merge?'② 병합(merge): 정렬된 조각들을 짝지어 합치며 위로 올라온다':'① 분할(divide): 반씩 쪼개 한 칸이 될 때까지 내려간다', W/2, H*0.10);
-      ctx.fillStyle=merge?'#8fe3b5':'#7ab8ff'; ctx.font='12px sans-serif';
-      ctx.fillText('N 키로 분할 ↔ 병합 전환해서 보세요', W/2, H*0.145);
-      ctx.fillStyle='#8a8893';
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
       ctx.fillText('mergeSort(a){ if(len>1){ L,R=쪼갬; mergeSort(L); mergeSort(R); merge(L,R); } }   ⟹   T(n)=2T(n/2)+n=O(n log n)', W/2, H*0.93);
-      ctx.fillText('층은 log n개(반씩 쪼개므로), 각 층 병합 비용 합 = n → n·log n.', W/2, H*0.965); } }
+      ctx.fillText('층은 log n개(반씩 쪼개므로), 각 층 병합 비용 합 = n → n·log n.', W/2, H*0.97); } }
   ,
   // R4 재귀와 호출 스택 — factorial(4) 프레임 push/pop
   { id:'algo_br_callstack', concept:true, branchOf:'algo7_01', codeHead:'재귀와 호출 스택',
@@ -6034,19 +6030,19 @@
       ctx.font='12px sans-serif'; ctx.fillStyle='#8a8893';
       ctx.fillText('int fact(int n){ if(n==1) return 1; return n * fact(n−1); }', W/2, H*0.155);
       // 스택 그리기 (아래가 바닥=먼저 호출된 4)
-      var bx=W*0.5, bw=W*0.34, baseY=H*0.80, fh=34;
-      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('▼ 호출 스택 (위가 가장 최근 호출)', bx, H*0.30);
-      for(var i=0;i<s.st.length;i++){ var n=s.st[i], fy=baseY-(i+1)*(fh+4), top=(i===s.st.length-1);
+      var bx=W*0.5, bw=W*0.40, baseY=H*0.82, fh=40;
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.fillText('▼ 호출 스택 (위가 가장 최근 호출)', bx, H*0.30);
+      for(var i=0;i<s.st.length;i++){ var n=s.st[i], fy=baseY-(i+1)*(fh+5), top=(i===s.st.length-1);
         ctx.fillStyle=top?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=top?'#ffb27a':'#7ab8ff'; ctx.lineWidth=top?2:1.2;
-        rrect(ctx,bx-bw/2,fy,bw,fh,7); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#dfeefb'; ctx.font='13px monospace'; ctx.textAlign='center';
-        ctx.fillText('fact('+n+')  '+(n===1?'→ return 1':'= '+n+' × fact('+(n-1)+')'), bx, fy+22); }
+        rrect(ctx,bx-bw/2,fy,bw,fh,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='15px monospace'; ctx.textAlign='center';
+        ctx.fillText('fact('+n+')  '+(n===1?'→ return 1':'= '+n+' × fact('+(n-1)+')'), bx, fy+25); }
       if(s.st.length===0){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('(스택 비어 있음)', bx, baseY-20); }
       if(s.rv){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('↩ 반환: '+s.rv, W*0.5, H*0.85); }
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
       wrapText(ctx, (s.cap||'').replace(/<\/?b>/g,''), W*0.5, H*0.90, W*0.8, 18, true);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('N 다음 · P 이전 · R 리셋   ('+(E._csi+1)+' / '+E._csSteps.length+')   기저 사례가 없으면 스택 넘침(무한 재귀)', W/2, H*0.965); } }
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('단계 '+(E._csi+1)+' / '+E._csSteps.length+'   ·   기저 사례가 없으면 스택이 넘칩니다(무한 재귀)', W/2, H*0.96); } }
   ,
   // R5 트리 순회 재귀 — 중위 순회의 호출 순서
   { id:'algo_br_tree_recursion', concept:true, branchOf:'algo5_02', codeHead:'트리 순회 재귀',
@@ -6071,10 +6067,10 @@
       var seq=E._tvOrder.slice(0,E._tvi).map(function(idx){return vals[idx];});
       ctx.fillStyle='#8fe3b5'; ctx.font='600 14px monospace';
       ctx.fillText('방문 순서: '+(seq.length?seq.join(' → '):'(N을 눌러 시작)'), W/2, H*0.86);
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif';
-      ctx.fillText('BST에서 중위 순회는 항상 오름차순 — 재귀가 트리의 좌→중→우 구조를 그대로 따라감', W/2, H*0.91);
-      ctx.fillStyle='#8a8893';
-      ctx.fillText('N 다음 방문 · P 이전 · R 리셋   ('+E._tvi+' / '+E._tvOrder.length+')   전위=중간을 먼저, 후위=중간을 마지막에', W/2, H*0.955); } }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
+      ctx.fillText('BST에서 중위 순회는 항상 오름차순 — 재귀가 트리의 좌→중→우 구조를 그대로 따라감', W/2, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('방문 '+E._tvi+' / '+E._tvOrder.length+'   ·   전위=중간을 먼저, 후위=중간을 마지막에', W/2, H*0.97); } }
 
   ];
   if(window.Engine) window.Engine.addScenes(scenes);
