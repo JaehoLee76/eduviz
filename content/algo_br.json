@@ -1191,7 +1191,19 @@
       "solution": "부분 해가 이미 제약을 어기면 그 아래 모든 경우를 <b>통째로 가지치기</b>(건너뜀)합니다. 그래서 전체 경우를 다 만들어 검사하는 brute force보다 탐색 공간이 훨씬 줄어듭니다.",
       "q_en": "Why can backtracking beat plain brute force?",
       "sol_en": "When a partial solution already violates a constraint, it <b>prunes</b> (skips) all cases below it. So the search space shrinks far below generating and checking every full case."
-    }
+    },
+    "impl": [
+      "// N-퀸: 백트래킹 (열·대각선 충돌 체크)",
+      "void solve(int row){",
+      "  if(row==N){ count++; return; }",
+      "  for(int col=0; col<N; col++)",
+      "    if(!colUsed[col] && !diag1[row+col] && !diag2[row-col+N]){",
+      "      place(row,col);                 // 놓고",
+      "      solve(row+1);                   // 다음 행 재귀",
+      "      remove(row,col);                // 되돌리기(backtrack)",
+      "    }",
+      "}   // 가지치기로 N!보다 훨씬 빠름"
+    ]
   },
   "algo_br_segtree": {
     "ch": "알고리즘 제2장 자료구조",
@@ -3225,7 +3237,19 @@
       "solution": "더 나빠지는 이동도 <b>확률 exp(−Δ/T)로 수용</b>하기 때문입니다. 온도 T가 높을 때는 이 확률이 커서 언덕을 넘어 넓게 탐험하고, T를 <b>천천히 낮추면</b> 점차 좋은 이동만 받아 수렴합니다. 그래서 단순 언덕 오르기가 갇히는 지역 최솟값을 확률적으로 탈출합니다.",
       "q_en": "What mechanism lets simulated annealing escape local-optimum traps?",
       "sol_en": "It <b>accepts worsening moves with probability exp(−Δ/T)</b>. At high temperature T this probability is large, so it crosses hills and explores widely; as T is <b>slowly lowered</b> it accepts mostly improving moves and converges — probabilistically escaping the local minima where plain hill-climbing gets stuck."
-    }
+    },
+    "impl": [
+      "// 시뮬레이티드 어닐링: 가끔 손해도 받아들이기",
+      "double T = T0;",
+      "while(T > Tmin){",
+      "  State next = perturb(cur);          // 살짝 변형",
+      "  double dE = cost(next) - cost(cur);",
+      "  if(dE < 0 || rand01() < exp(-dE/T)) // 손해도 확률 수용",
+      "    cur = next;",
+      "  T *= 0.995;                         // 천천히 냉각",
+      "}",
+      "// 지역최적 탈출 → 전역최적 근사"
+    ]
   },
   "algo_br_karatsuba": {
     "ch": "알고리즘 제8장 설계 패러다임",
@@ -4288,7 +4312,17 @@
       "solution": "트리의 <b>포인터·재귀를 없애고</b> 값을 <b>비트 평면 log σ장의 일렬 배열</b>로 펴기 때문입니다. 각 평면이 연속 메모리라 <b>캐시 지역성이 좋고</b> 상수가 작으며, 갱신은 zero_count와 rank로만 다음 평면 위치를 계산합니다 — 점근(O(log σ))은 같지만 상수와 구현 복잡도가 낮습니다.",
       "q_en": "Why is a wavelet matrix faster in practice than a wavelet tree while doing the same thing?",
       "sol_en": "It <b>drops the tree's pointers/recursion</b> and flattens the data into <b>log σ contiguous bit planes</b>. Each plane is contiguous memory, giving <b>better cache locality</b> and small constants; queries just use zero_count and rank to map to the next plane — same asymptotics (O(log σ)) but lower constants and simpler code."
-    }
+    },
+    "impl": [
+      "// 웨이블릿 행렬: 비트평면으로 재구성",
+      "// 높은 비트부터 안정 분할(0 먼저, 1 뒤로)",
+      "for(int b=HI; b>=0; b--){",
+      "  bitvec[b] = (각 값의 b번째 비트);",
+      "  stableSortBy(bitvec[b]);            // 0들 앞, 1들 뒤",
+      "  zeros[b] = count of 0;",
+      "}",
+      "// kth/rank/range 질의 O(log σ), 캐시 친화적"
+    ]
   },
   "algo_br_persistent": {
     "ch": "알고리즘 제5장 트리",
@@ -5963,7 +5997,19 @@
       "solution": "p에서 <b>\"보이는 면\"</b>(p가 그 면의 바깥쪽 반공간에 있는 면)들을 <b>모두 제거</b>합니다. 그 제거된 면들이 차지하던 영역의 <b>경계(지평선)</b>를 따라, <b>p를 꼭짓점으로 하는 새 삼각면들을 연결</b>해 껍질을 다시 닫습니다. 무작위 순서면 각 점이 평균 상수 개 면만 건드려 기대 O(n log n)입니다.",
       "q_en": "When adding a new point p in the incremental 3D hull, what is removed and what is created?",
       "sol_en": "Remove <b>all \"visible faces\"</b> from p (faces with p in their outer half-space). Then, along the <b>boundary (horizon)</b> of the removed region, <b>connect new triangular faces with p as a vertex</b> to re-close the hull. With random insertion order, each point touches a constant number of faces on average, giving expected O(n log n)."
-    }
+    },
+    "impl": [
+      "// 3D 볼록껍질: 점진 삽입(incremental)",
+      "initTetrahedron();                    // 시작 사면체",
+      "for(Point p : rest){",
+      "  faces = visibleFaces(p);            // p가 보는 면들",
+      "  if(faces.empty()) continue;         // 내부 점",
+      "  horizon = boundaryEdges(faces);",
+      "  removeFaces(faces);",
+      "  for(Edge e : horizon) addFace(e, p);// 지평선에 새 면",
+      "}",
+      "// 기대 O(n log n)"
+    ]
   },
   "algo_br_mincostcirc": {
     "ch": "알고리즘 제6장 그래프",
