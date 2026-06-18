@@ -88,30 +88,64 @@
 
   // ══════════ 2.4 해시 테이블 — O(1) 조회 ══════════
   { id:'algo2_05', concept:true,
-    enter:function(E){ this.s={k:'cat'}; E.setOn([]);
-      E.controls('<div class="ctrl"><label>키</label><input type="range" id="kk" min="0" max="3" step="1" value="0"><output id="kko">cat</output></div>');
-      var self=this; this.keys=['cat','dog','fox','owl'];
-      E.bind('#kk','input',function(e){ self.s.k=self.keys[+e.target.value]; document.getElementById('kko').textContent=self.s.k; E.blip(440,0.1); }); },
-    draw:function(E){ var s=this.s, ctx=E.ctx, M=5;
-      function hash(str){ var h=0; for(var i=0;i<str.length;i++) h+=str.charCodeAt(i); return h%M; }
-      var idx=hash(s.k);
-      // 키 박스
-      ctx.fillStyle='rgba(255,178,122,0.25)'; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2;
-      var kx=E.W*0.18, ky=E.H*0.40;
-      if(ctx.roundRect){ctx.beginPath();ctx.roundRect(kx-44,ky-22,88,44,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(kx-44,ky-22,88,44);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('"'+s.k+'"', kx, ky); ctx.textBaseline='alphabetic';
-      // 해시함수
-      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.fillText('hash() % '+M, E.W*0.40, ky-6); ctx.fillText('= '+idx, E.W*0.40, ky+14);
-      AV.arrow(ctx, kx+50, ky, E.W*0.40-44, ky, '#8fe3b5', 2);
-      AV.arrow(ctx, E.W*0.40+44, ky, E.W*0.58, ky, '#8fe3b5', 2);
-      // 버킷 배열
-      var bx=E.W*0.62, by=E.H*0.22, bw=140, bh=42;
-      for(var i=0;i<M;i++){ var y=by+i*(bh+6), on=(i===idx);
-        ctx.fillStyle=on?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.10)'; ctx.strokeStyle=on?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+    M:5, keyList:['cat','dog','fox','owl','bee'],
+    enter:function(E){ this.s={n:1, flash:0}; E.setOn([]);
+      var self=this;
+      // ★단축키: E=다음 키 삽입, C=처음으로 (this.keys = 엔진 키바인딩 형식)
+      this.keys=[
+        {code:'KeyE', key:'E', label:'다음 키 삽입', act:function(EE){ if(self.s.n<self.keyList.length){ self.s.n++; self.s.flash=18; EE.blip(self._hash(self.keyList[self.s.n-1])%self.M ? 560:440, 0.12); } else EE.blip(220,0.08); }},
+        {code:'KeyC', key:'C', label:'처음으로', act:function(EE){ self.s.n=1; self.s.flash=10; EE.blip(330,0.1); }}
+      ]; },
+    _hash:function(str){ var h=0; for(var i=0;i<str.length;i++) h+=str.charCodeAt(i); return h; },
+    draw:function(E){ var s=this.s, ctx=E.ctx, M=this.M, self=this;
+      if(s.flash>0) s.flash--;
+      var cur=this.keyList[s.n-1];                       // 방금 삽입한 키
+      var sum=this._hash(cur), idx=sum%M;
+      // ── 왼쪽: 해시 계산 과정을 단계로 ──
+      var lx=E.W*0.06;
+      ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText('삽입 중인 키', lx, E.H*0.20);
+      // 키 글자 + 각 글자의 문자코드
+      var cw=42, gy=E.H*0.26;
+      for(var i=0;i<cur.length;i++){ var gx=lx+i*cw;
+        ctx.fillStyle=s.flash>0?'rgba(255,178,122,0.4)':'rgba(255,178,122,0.22)'; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(gx,gy,cw-6,38,6);ctx.fill();ctx.stroke();}else ctx.strokeRect(gx,gy,cw-6,38);
+        ctx.fillStyle='#ffb27a'; ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.fillText(cur[i], gx+(cw-6)/2, gy+25);
+        ctx.fillStyle='#8fe3b5'; ctx.font='11px monospace'; ctx.fillText(cur.charCodeAt(i), gx+(cw-6)/2, gy+54); }
+      ctx.textAlign='left'; ctx.fillStyle='#6f6e7a'; ctx.font='10px sans-serif'; ctx.fillText('각 글자의 아스키 코드', lx, gy+72);
+      // 합 → %M = idx (계단식)
+      ctx.fillStyle='#dfeefb'; ctx.font='600 15px monospace';
+      ctx.fillText('합 = '+cur.split('').map(function(c){return c.charCodeAt(0);}).join(' + ')+' = '+sum, lx, E.H*0.50);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 17px monospace';
+      ctx.fillText(sum+'  %  '+M+'  =  '+idx, lx, E.H*0.50+30);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('→ 버킷 ['+idx+']에 저장', lx, E.H*0.50+54);
+      // 화살표
+      AV.arrow(ctx, E.W*0.40, E.H*0.45, E.W*0.50, E.H*0.45, '#8fe3b5', 2);
+      // ── 오른쪽: 버킷 배열 + 체이닝 ──
+      // 각 버킷에 들어간 키들(삽입순)
+      var buckets=[]; for(var b=0;b<M;b++) buckets.push([]);
+      for(var j=0;j<s.n;j++){ var kk=this.keyList[j]; buckets[this._hash(kk)%M].push(kk); }
+      var bx=E.W*0.54, by=E.H*0.13, bw=70, bh=40, gap=8;
+      for(var i=0;i<M;i++){ var y=by+i*(bh+gap), on=(i===idx);
+        ctx.fillStyle=on&&s.flash>0?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.10)'; ctx.strokeStyle=on?'#ffb27a':'#7ab8ff'; ctx.lineWidth=on?2.5:1.6;
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,y,bw,bh,6);ctx.fill();ctx.stroke();}else ctx.strokeRect(bx,y,bw,bh);
-        ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('['+i+']', bx-8, y+bh/2+4);
-        if(on){ ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('"'+s.k+'"', bx+bw/2, y+bh/2); ctx.textBaseline='alphabetic'; } }
-      E.big('"'+s.k+'" → 버킷 ['+idx+']  (O(1))', '해시 테이블 — 키를 해시함수로 버킷 번호로 변환해 즉시 저장·조회(평균 O(1)). 충돌 시 같은 칸에 묶습니다'); }
+        ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText('['+i+']', bx-6, y+bh/2);
+        // 체인(연결 리스트)
+        var chain=buckets[i];
+        for(var c=0;c<chain.length;c++){ var ex=bx+bw+14+c*86;
+          if(c===0){ AV.arrow(ctx, bx+bw, y+bh/2, ex-2, y+bh/2, '#7ab8ff', 1.6); }
+          else { AV.arrow(ctx, ex-86+72, y+bh/2, ex-2, y+bh/2, '#ff8d8d', 2); }
+          var nf=(chain[c]===cur&&s.flash>0);
+          ctx.fillStyle=nf?'rgba(255,178,122,0.35)':(c>0?'rgba(255,141,141,0.18)':'rgba(143,227,181,0.16)'); ctx.strokeStyle=c>0?'#ff8d8d':'#8fe3b5'; ctx.lineWidth=2;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(ex,y+5,72,bh-10,6);ctx.fill();ctx.stroke();}else ctx.strokeRect(ex,y+5,72,bh-10);
+          ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('"'+chain[c]+'"', ex+36, y+bh/2); }
+        if(chain.length>1){ ctx.fillStyle='#ff8d8d'; ctx.font='600 11px sans-serif'; ctx.textAlign='left'; ctx.fillText('← 충돌! 같은 칸을 사슬로 연결(체이닝)', bx+bw+14+chain.length*86-6, y+bh/2); }
+      }
+      ctx.textBaseline='alphabetic';
+      var collided=buckets[idx].length>1;
+      E.big('"'+cur+'" → 버킷 ['+idx+']'+(collided?'  ⚠충돌→체이닝':'  (O(1))'),
+        '해시 테이블 — 키를 해시함수(문자코드 합 % M)로 버킷 번호로 바꿔 즉시 저장·조회(평균 O(1)). E=다음 키 삽입 / C=처음으로. fox·owl이 같은 버킷[3]에 모이는 충돌을 사슬(연결 리스트)로 해결하는 걸 직접 보세요.'); }
   }
 
   ];
