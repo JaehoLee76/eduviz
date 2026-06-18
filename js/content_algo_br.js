@@ -5361,6 +5361,96 @@
       ctx.fillText('루트 없으면 중심(center)에 고정(지름 중점 1~2개)해 비교. O(n)', W/2, H*0.91);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('자식 정렬이 좌우 순서 무시의 핵심. 일반 그래프 동형은 다항시간 미해결(준다항)', W/2, H*0.91+18); }
+  },
+
+  // ─── 심화(원서 깊이): 분석 기초 — 점근표기·점화식 풀이 ───
+  { id:'algo_br_asymptotic', concept:true, branchOf:'algo1_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('점근 표기 형식 정의 — Θ·O·Ω·o·ω', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('"빠르다/느리다"를 집합으로 엄밀히. 상수 c와 n₀로 충분히 큰 n에서의 한계', W/2, H*0.10+22);
+      // two curves c1 g and c2 g sandwiching f for Theta
+      var ax=W*0.16, bx=W*0.84, by=H*0.62; ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ax,by); ctx.lineTo(bx,by); ctx.moveTo(ax,by); ctx.lineTo(ax,H*0.26); ctx.stroke();
+      function curve(k,col,w){ ctx.strokeStyle=col; ctx.lineWidth=w; ctx.beginPath(); for(var t=0;t<=1;t+=0.02){ var x=ax+t*(bx-ax), y=by-k*t*t*(by-H*0.28); if(t===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
+      curve(1.25,'rgba(143,227,181,0.7)',1.8); curve(0.55,'rgba(143,227,181,0.7)',1.8); curve(0.85,'#ffb27a',2.5);
+      var n0=ax+0.30*(bx-ax); ctx.strokeStyle='#f4a0c0'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(n0,H*0.26); ctx.lineTo(n0,by); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.fillText('n₀', n0, by+16);
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('f(n)', bx-30, H*0.40); ctx.fillStyle='#8fe3b5'; ctx.fillText('c₁g, c₂g', ax+50, H*0.32);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['Θ(g): ∃ c₁,c₂,n₀>0,  ∀n≥n₀  0 ≤ c₁g(n) ≤ f(n) ≤ c₂g(n)  (정확한 차수, 위·아래로 끼임)',
+        'O(g): ∃ c,n₀  f(n) ≤ c·g(n)  (상한). Ω(g): f(n) ≥ c·g(n) (하한)',
+        'o(g): ∀c>0 ∃n₀ f(n) < c·g(n) (엄격 상한, lim f/g=0). ω(g): 엄격 하한',
+        'f=Θ(g) ⟺ f=O(g) AND f=Ω(g). 전이성·반사성(Θ,O,Ω) 성립'];
+      lines.forEach(function(t,i){ ctx.fillText(t, W*0.08, H*0.74+i*22); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('상수·저차항 무시는 "충분히 큰 n"에서의 성장률만 본다는 뜻 — 알고리즘 비교의 표준 언어', W/2, H*0.965); }
+  },
+
+  { id:'algo_br_substitution', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('치환법 — 답을 추측하고 귀납으로 증명', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('점화식의 해를 짐작한 뒤, 수학적 귀납법으로 상수까지 맞춰 증명하는 방법', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px monospace'; ctx.fillText('예: T(n) = 2·T(n/2) + n,  추측 T(n) = O(n log n)', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 추측: T(n) ≤ c·n·lg n  (상수 c>0를 나중에 결정)',
+        '② 귀납 가정: n보다 작은 n/2에 대해 T(n/2) ≤ c·(n/2)·lg(n/2) 성립한다 치고',
+        '③ 대입: T(n) ≤ 2·[ c·(n/2)·lg(n/2) ] + n',
+        '          = c·n·(lg n − 1) + n  = c·n·lg n − c·n + n',
+        '          ≤ c·n·lg n     (단, −c·n + n ≤ 0  즉  c ≥ 1 이면)',
+        '④ 경계조건: 작은 n에서도 성립하도록 c·기저를 맞춤 → 증명 완료'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===4?'#ffb27a':(i===3?'#8fe3b5':'#cfd8e6'); ctx.fillText(t, W*0.08, H*0.42+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('함정: 점근 표기를 귀납 안에 흐릿하게 쓰면 안 됨 — 상수 c를 명시해 −c·n+n≤0처럼 정확히 잡아야', W/2, H*0.94); }
+  },
+
+  { id:'algo_br_recursiontree', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('재귀 트리 — 층마다 비용을 더해 답을 추측', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 재귀 호출의 "합치는 비용"을 트리로 펼쳐, 층별 합 × 층 수로 총비용을 짐작', W/2, H*0.10+22);
+      // recursion tree for T(n)=2T(n/2)+n: each level sums to n, log n levels
+      var levels=[[0.5],[0.3,0.7],[0.2,0.4,0.6,0.8]], costs=['n','n/2','n/4'];
+      var top=H*0.30, lg=H*0.16;
+      levels.forEach(function(row,L){ var y=top+L*lg;
+        row.forEach(function(fx,k){ var x=W*0.12+fx*W*0.62; ctx.fillStyle='rgba(122,184,255,0.18)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.arc(x,y,13,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dfeefb'; ctx.font='11px monospace'; ctx.fillText(costs[L],x,y+4);
+          if(L<levels.length-1){ var nr=levels[L+1]; ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.2; [2*k,2*k+1].forEach(function(ci){ if(nr[ci]!=null){ var cx=W*0.12+nr[ci]*W*0.62,cy=top+(L+1)*lg; ctx.beginPath(); ctx.moveTo(x,y+13); ctx.lineTo(cx,cy-13); ctx.stroke(); } }); } });
+        // 층 합
+        ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('층 합 = n', W*0.80, y+4); ctx.textAlign='center'; });
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('⋮ (잎까지 lg n + 1 층)', W*0.80, top+3*lg+4); ctx.textAlign='center';
+      ctx.fillStyle='#ffb27a'; ctx.font='600 15px monospace';
+      ctx.fillText('총비용 = (층 합 n) × (층 수 lg n) = Θ(n lg n)', W/2, H*0.84);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('각 층 비용 합이 모두 n으로 같음 → 층 수 lg n을 곱함. 추측 후 치환법으로 엄밀 증명', W/2, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('불균등 분할(T(n/3)+T(2n/3)+n 등)도 가장 긴 경로·층 합으로 차수 추측 가능', W/2, H*0.92+18); }
+  },
+
+  { id:'algo_br_akrabazzi', concept:true, branchOf:'algo8_03',
+    enter:function(E){ E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
+      ctx.fillText('아크라-바지 정리 — 불균등 분할 점화식의 마스터', W/2, H*0.10);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('마스터 정리는 균등 분할(모두 n/b)만. 조각 크기가 제각각이어도 차수를 한 공식으로', W/2, H*0.10+22);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 14px monospace'; ctx.fillText('T(n) = Σ aᵢ·T(bᵢ·n) + f(n)   (0 < bᵢ < 1)', W/2, H*0.30);
+      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      var lines=['① 임계 지수 p를 다음 방정식의 해로 정의:',
+        '     Σ aᵢ · bᵢᵖ = 1',
+        '② 그러면  T(n) = Θ( nᵖ · (1 + ∫₁ⁿ f(u)/u^(p+1) du) )',
+        '③ 직관: nᵖ가 분할 트리의 잎 비용 차수, 적분은 내부 층 f의 누적 기여',
+        '예: T(n)=T(n/3)+T(2n/3)+Θ(n) → (1/3)ᵖ+(2/3)ᵖ=1 의 해 p=1 → Θ(n log n)'];
+      lines.forEach(function(t,i){ ctx.fillStyle=i===1?'#ffb27a':(i===4?'#8fe3b5':'#cfd8e6'); ctx.fillText(t, W*0.07, H*0.42+i*26); });
+      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('마스터 정리(모든 bᵢ=1/b, aᵢ 합=a)의 일반화. 분할 크기가 다른 분할정복 분석의 만능 도구', W/2, H*0.92);
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
+      ctx.fillText('bᵢ에 약간의 흔들림(천장/바닥 보정)이 있어도 성립 — 실제 알고리즘에 바로 적용 가능', W/2, H*0.92+18); }
   }
 
   ];
