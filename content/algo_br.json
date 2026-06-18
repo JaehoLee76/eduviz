@@ -4093,5 +4093,65 @@
       "q_en": "Does always using median-of-three as the pivot eliminate the worst case?",
       "sol_en": "No. Median-of-three helps on sorted inputs but is deterministic, so an adversary can craft input forcing Θ(n^2). To truly avoid it, randomize the pivot or switch to heapsort on deep recursion (introsort)."
     }
+  },
+  "algo_br_rbtree_height_proof": {
+    "ch": "고급 자료구조",
+    "sec": "정당성 증명",
+    "title": "레드-블랙 트리 높이 증명",
+    "narr": "레드-블랙 트리가 왜 항상 O(log n) 높이를 보장하는지 흑색 높이로 증명합니다.",
+    "hint": "흑색 균형(규칙⑤)과 적색 비연속(규칙④)이 두 축입니다.",
+    "more": "<b>레드-블랙 5규칙</b><br>① 모든 노드는 적색 또는 흑색 ② 루트는 흑색 ③ 모든 잎(NIL)은 흑색 ④ 적색 노드의 두 자식은 흑색(적색 연속 금지) ⑤ 임의 노드에서 자손 잎까지 가는 모든 경로의 흑색 노드 수가 같다(이 값을 흑색 높이 bh라 함).<br><br><b>보조정리</b> 노드 x를 뿌리로 하는 서브트리는 내부 노드를 적어도 2^{bh(x)}−1개 가진다.<br><i>증명(높이 귀납):</i> x의 높이가 0이면 x는 잎이고 2^0−1=0개. 높이>0이면 두 자식의 흑색 높이는 bh(x) 또는 bh(x)−1 이상. 귀납가정으로 각 자식 서브트리는 ≥ 2^{bh(x)−1}−1개 → x 서브트리는 ≥ 2(2^{bh(x)−1}−1)+1 = 2^{bh(x)}−1개.<br><br><b>높이 묶기</b> 규칙④로 어떤 루트→잎 경로에서도 적색 노드는 연속될 수 없어, 그 경로의 적색 노드 수 ≤ 흑색 노드 수. 따라서 트리 높이 h ≤ 2·bh(root).<br>또 보조정리에서 n ≥ 2^{bh(root)}−1 → bh(root) ≤ log₂(n+1).<br><b>결합</b> h ≤ 2·bh(root) ≤ 2 log₂(n+1) = O(log n). 그래서 탐색·삽입·삭제가 모두 O(log n)입니다.",
+    "more_en": "<b>Red-black 5 rules</b>: nodes red/black; root black; leaves(NIL) black; red node's children are black (no two reds in a row); equal black-count on every root-to-leaf path (black-height bh).<br><b>Lemma</b>: a subtree rooted at x has ≥ 2^{bh(x)}−1 internal nodes (induction on height).<br><b>Bounding</b>: by rule ④ reds can't be consecutive, so any path has #red ≤ #black → h ≤ 2·bh(root). And n ≥ 2^{bh(root)}−1 → bh ≤ log₂(n+1).<br><b>Combine</b>: h ≤ 2 log₂(n+1) = O(log n).",
+    "problem": {
+      "q": "레드-블랙 트리에서 적색 노드의 자식이 반드시 흑색이어야 하는 규칙(④)이 없으면 무엇이 깨지는가?",
+      "solution": "규칙④가 없으면 한 경로에 적색 노드가 연속해서 길게 늘어설 수 있습니다. 그러면 적색 노드 수가 흑색 노드 수보다 훨씬 많아질 수 있어 'h ≤ 2·bh' 묶기가 성립하지 않고, 트리가 한쪽으로 길어져 높이가 O(log n)을 넘을 수 있습니다. 즉 적색 비연속 규칙이 흑색 높이의 2배라는 상한을 보장하는 핵심입니다.",
+      "q_en": "What breaks if red-black rule ④ (a red node's children must be black) is removed?",
+      "sol_en": "Without it, reds can chain along a path, so #red can far exceed #black and the bound h ≤ 2·bh fails — the tree can grow beyond O(log n) height. Rule ④ is what caps height at twice the black-height."
+    }
+  },
+  "algo_br_counting_radix_proof": {
+    "ch": "정렬·선택",
+    "sec": "정당성 증명",
+    "title": "계수·기수 정렬 정당성",
+    "narr": "계수 정렬의 안정성과 기수 정렬이 자릿수별로 올바른 이유를 증명합니다.",
+    "hint": "기수 정렬의 정당성은 '안정성'에 전적으로 의존합니다.",
+    "more": "<b>계수 정렬(counting sort)</b><br>키 범위 0..k에 대해 각 값의 개수를 세고 누적합 C[v]=(키 ≤ v 인 원소 수)를 만든 뒤, 입력을 <b>뒤에서 앞으로</b> 훑으며 각 원소를 출력 위치 C[key]−1로 보내고 C[key]를 하나 줄입니다.<br><b>안정성:</b> 같은 키를 가진 원소들 중 뒤에 있던 것이 먼저 처리되어 더 뒤 위치로 가므로, 원래의 앞뒤 순서가 그대로 보존됩니다 → 안정 정렬.<br><b>시간:</b> 초기화 O(k) + 세기 O(n) + 누적 O(k) + 배치 O(n) = O(n+k). k=O(n)이면 O(n)으로 비교정렬의 Ω(n log n) 하한을 우회합니다(비교를 안 하므로).<br><br><b>기수 정렬(radix sort, LSD)</b><br>가장 낮은 자릿수부터 d번 반복하며 각 자릿수에 대해 <b>안정</b> 정렬(보통 계수 정렬)을 적용합니다.<br><b>정당성(자릿수 귀납):</b> i개의 하위 자릿수까지 정렬됐다고 가정합니다. (i+1)번째 자릿수로 안정 정렬하면, (i+1)자리가 다르면 그 기준으로 올바르게 정렬되고, (i+1)자리가 같으면 안정성 덕분에 이미 정렬된 하위 i자리 순서가 보존됩니다 → i+1자리까지 정렬 완료. d회 후 전체 정렬.<br><b>시간:</b> O(d(n+k)). 자릿수 d가 상수면 O(n).",
+    "more_en": "<b>Counting sort</b>: build prefix counts C[v]=#{keys ≤ v}, then place elements scanning input back-to-front → equal keys keep order (stable). Time O(n+k); with k=O(n) it's O(n), bypassing the Ω(n log n) comparison bound.<br><b>Radix sort (LSD)</b>: stable-sort by each digit from least significant. Induction: if sorted on i low digits, a stable sort on digit i+1 keeps the lower-digit order whenever digit i+1 ties → sorted on i+1 digits. Time O(d(n+k)).",
+    "problem": {
+      "q": "기수 정렬에서 각 자릿수 정렬에 안정하지 않은 정렬(예: 일반 퀵정렬)을 쓰면 왜 결과가 틀어지는가?",
+      "solution": "기수 정렬은 하위 자릿수의 정렬 결과를 상위 자릿수 정렬이 '보존'한다는 전제로 작동합니다. 안정하지 않은 정렬을 쓰면, 상위 자릿수가 같은 원소들끼리의 순서가 무작위로 뒤섞여 이미 맞춰 둔 하위 자릿수 순서가 파괴됩니다. 그러면 자릿수 귀납이 깨져 최종 결과가 정렬되지 않습니다. 그래서 기수 정렬은 반드시 안정 정렬을 자릿수 처리에 써야 합니다.",
+      "q_en": "Why does radix sort break if each digit pass uses an unstable sort (e.g., plain quicksort)?",
+      "sol_en": "Radix sort relies on higher-digit passes preserving the order set by lower digits. An unstable pass scrambles the relative order of elements that tie on the current digit, destroying the already-correct lower-digit order, so the digit induction fails. Hence each pass must be stable."
+    }
+  },
+  "algo_br_knapsack_dp_proof": {
+    "ch": "동적 계획법",
+    "sec": "정당성 증명",
+    "title": "0/1 배낭 최적부분구조",
+    "narr": "0/1 배낭 점화식이 왜 최적해를 주는지 최적 부분구조로 증명합니다.",
+    "hint": "각 물건의 포함/제외 결정이 더 작은 같은 문제로 환원됩니다.",
+    "more": "<b>정의</b> K[i][w] = 처음 i개 물건만 고려하고 용량이 w일 때 담을 수 있는 최대 가치.<br><br><b>점화식</b> K[i][w] = max( K[i−1][w],  v_i + K[i−1][w−w_i] )  (단 w_i ≤ w, 아니면 첫 항만).<br>두 선택지: i번째 물건을 (가)안 넣음 → K[i−1][w], (나)넣음 → 가치 v_i 더하고 남은 용량 w−w_i 로 K[i−1][w−w_i].<br><br><b>최적 부분구조(오려붙이기 증명)</b><br>i번 물건을 넣지 않는 최적해 S를 보면, S는 처음 i−1개로 용량 w를 채운 해입니다. 만약 S가 (i−1, w) 문제의 최적이 아니라면, 더 가치 큰 해 S′로 바꿔치기해 전체 가치를 키울 수 있어 S의 최적성에 모순. 따라서 부분해는 (i−1, w)의 최적해여야 합니다. i번을 넣는 경우도 똑같이 (i−1, w−w_i)의 최적해를 포함해야 합니다.<br><br><b>겹치는 부분문제</b> K[i−1][·] 값들이 여러 K[i][·] 계산에 재사용됩니다 → 2차원 표로 메모이제이션. 시간 O(nW), 의사다항(W에 비례).<br><b>주의</b> 0/1 배낭은 그리디(단위 가치 큰 것부터)가 실패합니다(쪼갤 수 없어서). 분할 가능 배낭에서만 그리디가 최적입니다.",
+    "more_en": "<b>Def</b> K[i][w] = max value using the first i items with capacity w.<br><b>Recurrence</b> K[i][w] = max(K[i−1][w], v_i + K[i−1][w−w_i]) (if w_i ≤ w).<br><b>Optimal substructure (cut-and-paste)</b>: an optimal solution that excludes item i must solve (i−1, w) optimally — otherwise replace its subsolution with a better one to beat the optimum (contradiction). Including item i must optimally solve (i−1, w−w_i).<br><b>Overlapping subproblems</b>: K[i−1][·] reused across K[i][·] → memoize in a table, O(nW) pseudo-polynomial. Greedy fails for 0/1 (only fractional knapsack is greedy-optimal).",
+    "problem": {
+      "q": "0/1 배낭을 O(nW)가 아니라 진짜 다항 시간에 풀 수 없는 이유는?",
+      "solution": "O(nW)에서 W는 용량의 '값'이라 입력 크기(비트 수)에 지수적입니다 — W를 이진수로 적으면 log W 비트인데 표는 W에 비례하므로 입력 길이에 지수적입니다. 0/1 배낭은 NP-난해이므로 P=NP가 아닌 한 진짜 다항 시간 알고리즘은 없습니다. O(nW)는 'W가 작을 때만' 효율적인 의사다항 알고리즘입니다.",
+      "q_en": "Why isn't O(nW) a truly polynomial-time solution to 0/1 knapsack?",
+      "sol_en": "W is a value, exponential in input size (W needs only log W bits, but the table is proportional to W). 0/1 knapsack is NP-hard, so no truly polynomial algorithm exists unless P=NP; O(nW) is pseudo-polynomial — efficient only when W is small."
+    }
+  },
+  "algo_br_hashing_proof": {
+    "ch": "자료구조",
+    "sec": "정당성 증명",
+    "title": "해시 체이닝 기대 시간",
+    "narr": "체이닝 해시의 평균 탐색 시간이 왜 Θ(1+α)인지 기댓값으로 분석합니다.",
+    "hint": "적재율 α = n/m 을 상수로 유지하는 것이 O(1)의 비결입니다.",
+    "more": "<b>설정</b> 버킷 m개, 원소 n개, 적재율 α = n/m. 충돌은 같은 버킷에 연결 리스트(체인)로 매답니다. <b>단순 균등 해싱</b> 가정: 각 키가 m개 버킷 중 하나로 균등·독립적으로 매핑됩니다.<br><br><b>실패 탐색(없는 키)</b> 키가 해시된 버킷의 체인을 끝까지 훑습니다. 그 버킷의 기대 길이는 n개 원소가 각각 1/m 확률로 들어오므로 n/m = α. 따라서 기대 시간 Θ(1+α)(해시 계산 1 + 체인 탐색 α).<br><br><b>성공 탐색(있는 키 x)</b> x가 삽입될 때 같은 버킷에 이미 있던(=x보다 먼저 삽입된) 원소 수의 기댓값을 셉니다. 지표 변수로 계산하면 약 1 + α/2 → 역시 Θ(1+α).<br><br><b>상수로 유지</b> m을 Θ(n)으로 유지(원소가 늘면 재해싱으로 m을 2배)하면 α=O(1) → 탐색·삽입·삭제 기대 O(1).<br><br><b>현실 주의</b> '균등 분포'는 가정입니다. 해시 함수가 고정이면 적이 한 버킷에 키를 몰아 최악 O(n)을 강제할 수 있습니다. <b>보편 해싱</b>은 함수족에서 무작위로 골라, 어떤 두 키도 충돌 확률 ≤ 1/m 임을 수학적으로 보장해 이를 막습니다.",
+    "more_en": "<b>Setup</b> m buckets, n elements, load factor α=n/m; collisions chained. Simple uniform hashing: each key maps uniformly & independently to one of m buckets.<br><b>Unsuccessful search</b>: scans a bucket of expected length α → Θ(1+α).<br><b>Successful search for x</b>: expected number of elements inserted into x's bucket before x is ~1+α/2 → Θ(1+α).<br><b>Keep α constant</b>: maintain m=Θ(n) (rehash, doubling m) → expected O(1) per operation.<br><b>Caveat</b>: uniformity is an assumption; a fixed hash lets an adversary pile keys into one bucket (worst case O(n)). Universal hashing picks the function randomly so any two keys collide with prob ≤ 1/m.",
+    "problem": {
+      "q": "적재율 α를 1보다 훨씬 크게(예: α=100) 두면 체이닝 해시는 어떻게 동작하며, 어떻게 고치나?",
+      "solution": "α=100이면 각 버킷의 체인 평균 길이가 약 100이라 탐색이 기대 Θ(1+α)=Θ(101)로 사실상 선형 스캔에 가까워집니다(상수가 큼). 해결은 재해싱: 원소 수가 버킷 수에 비례해 커지면 m을 2배로 늘려(모든 키 재삽입) α를 다시 작은 상수로 되돌립니다. 재해싱 비용은 상각하면 연산당 O(1)입니다.",
+      "q_en": "What happens to a chaining hash if α is much larger than 1 (e.g., α=100), and how do you fix it?",
+      "sol_en": "Chains average ~100, so search becomes Θ(1+α)≈Θ(101), nearly a linear scan. Fix by rehashing: when n grows relative to m, double m and reinsert all keys to bring α back to a small constant; amortized O(1) per op."
+    }
   }
 }

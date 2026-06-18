@@ -123,7 +123,8 @@
       '    else',
       '      out[k++] = R[ri++];',
       '  }',
-      '  // 남은 원소 복사',
+      '  while (li < L.len) out[k++] = L[li++];   // 남은 왼쪽',
+      '  while (ri < R.len) out[k++] = R[ri++];   // 남은 오른쪽',
       '}'
     ],
     build:function(V){ var L=[2,5,8], R=[1,3,9], li=0, ri=0, out=[], st=[];
@@ -133,9 +134,9 @@
         if(L[li]<=R[ri]){ out.push(L[li]); st.push({line:4, cap:L[li]+' ≤ '+R[ri]+' → 왼쪽 <b>'+L[li]+'</b> 을 결과로.', L:L.slice(), R:R.slice(), out:out.slice(), li:li, ri:ri, took:'L'}); li++; }
         else { out.push(R[ri]); st.push({line:6, cap:R[ri]+' < '+L[li]+' → 오른쪽 <b>'+R[ri]+'</b> 을 결과로.', L:L.slice(), R:R.slice(), out:out.slice(), li:li, ri:ri, took:'R'}); ri++; }
       }
-      while(li<L.length){ out.push(L[li++]); }
-      while(ri<R.length){ out.push(R[ri++]); }
-      st.push({line:8, cap:'<b>병합 완료!</b> ['+out.join(', ')+'] — 분할 log n층 × 병합 n = O(n log n).', L:L.slice(), R:R.slice(), out:out.slice(), li:L.length, ri:R.length, done:true});
+      while(li<L.length){ out.push(L[li]); st.push({line:8, cap:'R이 동났습니다 → L에 남은 <b>'+L[li]+'</b> 을 그대로 복사.', L:L.slice(), R:R.slice(), out:out.slice(), li:li, ri:ri, took:'L'}); li++; }
+      while(ri<R.length){ out.push(R[ri]); st.push({line:9, cap:'L이 동났습니다 → R에 남은 <b>'+R[ri]+'</b> 을 그대로 복사.', L:L.slice(), R:R.slice(), out:out.slice(), li:li, ri:ri, took:'R'}); ri++; }
+      st.push({line:10, cap:'<b>병합 완료!</b> ['+out.join(', ')+'] — 분할 log n층 × 병합 n = O(n log n).', L:L.slice(), R:R.slice(), out:out.slice(), li:L.length, ri:R.length, done:true});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx;
       ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
