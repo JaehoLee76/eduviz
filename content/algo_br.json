@@ -3973,5 +3973,65 @@
       "q_en": "What must you show to prove a new problem is NP-complete?",
       "sol_en": "(1) It is in NP (a certificate is poly-time verifiable); (2) a known NP-complete problem X reduces to it (X ≤p new). Direction from X to the new problem is key."
     }
+  },
+  "algo_br_ex_search": {
+    "ch": "탐색",
+    "sec": "연습문제 세트",
+    "title": "탐색 5제",
+    "narr": "이분 탐색의 경계 조건과 응용을 손으로 따집니다.",
+    "hint": "N/P 로 이동. 불변식(invariant)이 열쇠.",
+    "more": "<b>풀이</b><br><b>1.</b> lo+hi 가 int 범위를 넘으면 음수로 뒤집힙니다. 안전식은 mid = lo + (hi−lo)/2. (또는 부호 없는 우측 시프트)<br><b>2.</b> lower_bound: [lo,hi) 반열린 구간에서 a[mid]<x 면 lo=mid+1, 아니면 hi=mid. 불변식 \"답은 항상 [lo,hi] 안\"을 유지하며 lo로 수렴 → 처음 ≥x 위치.<br><b>3.</b> 회전 배열은 한쪽 절반이 항상 정렬돼 있습니다. mid와 양 끝을 비교해 정렬된 절반을 판별하고, 목표가 그 안이면 그쪽, 아니면 반대쪽으로 좁혀 O(log n).<br><b>4.</b> 매개변수 탐색은 \"답이 x 이상인가?\"가 단조(monotone)일 때 적용합니다. 판정 함수가 한 번 참이 되면 계속 참이어야 이분이 성립합니다.<br><b>5.</b> 단봉 함수는 구간을 1/3씩 나눠 m1,m2 비교로 한쪽을 버립니다. 매 단계 구간이 2/3로 줄어 O(log_{3/2}(범위/ε)) 만에 최댓값에 수렴합니다.",
+    "more_en": "<b>Solutions</b><br>1. mid=lo+(hi-lo)/2 avoids overflow.<br>2. lower_bound on [lo,hi): if a[mid]<x then lo=mid+1 else hi=mid; invariant keeps answer in range.<br>3. Rotated array: one half is sorted; detect it and shrink → O(log n).<br>4. Parametric search needs a monotone predicate.<br>5. Ternary search on a unimodal function shrinks the range to 2/3 each step.",
+    "problem": {
+      "q": "정렬된 배열에서 값 x가 나타나는 횟수를 O(log n)에 세는 방법은?",
+      "solution": "lower_bound(처음 ≥x 위치)와 upper_bound(처음 >x 위치)를 각각 이분 탐색으로 구한 뒤, 그 차이가 x의 개수입니다. 두 번의 O(log n) 탐색이므로 전체 O(log n)입니다.",
+      "q_en": "Count occurrences of x in a sorted array in O(log n)?",
+      "sol_en": "Binary-search lower_bound and upper_bound; their difference is the count — two O(log n) searches."
+    }
+  },
+  "algo_br_ex_tree": {
+    "ch": "트리·균형",
+    "sec": "연습문제 세트",
+    "title": "트리·균형 5제",
+    "narr": "이진 트리의 높이·순회·균형 회전을 분석합니다.",
+    "hint": "N/P 로 이동. 균형이 곧 O(log n)의 근거.",
+    "more": "<b>풀이</b><br><b>1.</b> 노드 n개: 최소 높이는 완전 이진 트리의 ⌊log2 n⌋ (꽉 채울 때), 최대 높이는 한 줄로 늘어선 n−1 (편향 트리).<br><b>2.</b> BST는 왼쪽<루트<오른쪽. 중위 순회(왼→루트→오른)는 이 순서를 재귀적으로 따라가므로 항상 오름차순 출력을 줍니다.<br><b>3.</b> AVL: 삽입 후 균형 인수 |좌−우 높이|>1 인 가장 낮은 조상에서 회전. 새 노드가 그 조상의 좌-좌면 LL(우회전), 우-우면 RR(좌회전), 좌-우면 LR, 우-좌면 RL.<br><b>4.</b> 레드-블랙 5규칙(루트·잎 검정, 빨강 자식은 검정, 임의 경로의 검정 노드 수 동일)으로 가장 긴 경로 ≤ 2×가장 짧은 경로 → 높이 ≤ 2 log(n+1).<br><b>5.</b> LCA: 두 노드 값이 모두 현재 노드보다 작으면 왼쪽, 모두 크면 오른쪽, 갈라지면(사이) 그 노드가 LCA. BST에서 루트부터 내려가며 O(h).",
+    "more_en": "<b>Solutions</b><br>1. n nodes: min height ⌊log2 n⌋ (complete), max n−1 (skewed).<br>2. BST in-order (L-root-R) yields ascending order.<br>3. AVL rotations: LL→right rotate, RR→left, LR/RL double at the lowest unbalanced ancestor.<br>4. Red-black 5 rules force longest path ≤2×shortest → height ≤2 log(n+1).<br>5. BST LCA: descend; the node where the two values split is the LCA, O(h).",
+    "problem": {
+      "q": "AVL 트리에서 한 번의 삽입이 유발하는 회전은 최대 몇 번인가?",
+      "solution": "삽입 시에는 가장 낮은 불균형 조상에서의 회전 한 번(단일 또는 이중)으로 전체 균형이 회복됩니다. 따라서 삽입당 회전은 O(1)(단일 회전 1회 또는 이중 회전 1회). 반면 삭제는 루트까지 최대 O(log n)번 회전이 필요할 수 있습니다.",
+      "q_en": "How many rotations can one AVL insertion trigger?",
+      "sol_en": "At most one (single or double) rotation at the lowest unbalanced ancestor restores balance — O(1) per insert. Deletion may need up to O(log n)."
+    }
+  },
+  "algo_br_ex_divide": {
+    "ch": "분할 정복",
+    "sec": "연습문제 세트",
+    "title": "분할 정복 5제",
+    "narr": "문제를 절반으로 쪼개 정복하는 패러다임을 연습합니다.",
+    "hint": "N/P 로 이동. 점화식과 결합 단계가 핵심.",
+    "more": "<b>풀이</b><br><b>1.</b> 병합정렬: 분할=배열을 반으로 나눔, 정복=각 절반을 재귀 정렬, 결합=정렬된 두 절반을 선형 병합. T(n)=2T(n/2)+O(n)=O(n log n).<br><b>2.</b> 최대 부분 배열: 왼쪽 최대·오른쪽 최대·중앙을 가로지르는 최대 셋 중 최댓값. 가로지르는 합은 중앙에서 양쪽으로 O(n) 스캔. T(n)=2T(n/2)+O(n)=O(n log n). (단, 카데인은 O(n))<br><b>3.</b> 카라츠바: n자리 곱을 3개의 n/2자리 곱으로 환원(고전 4개 대신). T(n)=3T(n/2)+O(n) → 마스터 case 1, n^{log2 3}=n^1.585.<br><b>4.</b> 빠른 거듭제곱: a^n = (a^{n/2})^2 (짝수), a·a^{n−1}(홀수). 지수를 매번 반으로 줄여 곱셈 O(log n)번.<br><b>5.</b> 역위 쌍: 병합정렬을 변형해, 오른쪽 원소가 왼쪽보다 먼저 병합될 때 \"남은 왼쪽 원소 수\"만큼 역위를 더합니다. 정렬과 동시에 O(n log n)에 셉니다.",
+    "more_en": "<b>Solutions</b><br>1. Merge sort: split/recurse/linear-merge, T(n)=2T(n/2)+O(n)=O(n log n).<br>2. Max subarray: max of left, right, crossing (O(n) scan); O(n log n) (Kadane is O(n)).<br>3. Karatsuba: 3 half-size mults → n^{log2 3}=n^1.585.<br>4. Fast power halves the exponent each step → O(log n) mults.<br>5. Count inversions while merging: add remaining-left count when a right element is taken — O(n log n).",
+    "problem": {
+      "q": "마스터 정리로 풀 수 없는 분할 정복 점화식의 예를 들고, 대안 방법을 말하라.",
+      "solution": "T(n)=2T(n/2)+n log n 은 f(n)=n log n 이 n^{log_b a}=n 과 다항적으로 분리되지 않아(로그 인수 차이) 마스터 정리 세 경우에 안 맞습니다(확장판 case 2로는 가능). 일반 대안은 재귀 트리를 그려 층별 비용을 합하거나, 아커만식 치환법(substitution)으로 상·하한을 추정·증명하는 것입니다.",
+      "q_en": "Give a divide-and-conquer recurrence the master theorem can't solve, and an alternative.",
+      "sol_en": "T(n)=2T(n/2)+n log n falls between cases (only the extended case 2 covers it). Use the recursion-tree method or substitution to bound it."
+    }
+  },
+  "algo_br_ex_random": {
+    "ch": "확률·랜덤화",
+    "sec": "연습문제 세트",
+    "title": "확률·랜덤화 5제",
+    "narr": "무작위성이 알고리즘을 어떻게 강하게 만드는지 분석합니다.",
+    "hint": "N/P 로 이동. 기댓값과 선형성이 도구.",
+    "more": "<b>풀이</b><br><b>1.</b> 무작위 피벗은 입력 순서와 무관하게 분할이 평균적으로 균형 잡히게 합니다. 두 원소가 비교될 확률을 더하면(지표 변수+선형성) 기대 비교 수가 O(n log n)이 됩니다. 최악 입력을 노릴 수 없게 됩니다.<br><b>2.</b> 보편 해싱은 해시 함수를 무작위로 고른 함수족에서 뽑아, 어떤 두 키도 충돌 확률 ≤ 1/m 이 되게 합니다. 적이 입력을 알아도 함수를 모르므로 최악 충돌을 강제할 수 없습니다.<br><b>3.</b> 생일 역설: m버킷에 약 √m개만 넣어도 충돌 확률이 1/2을 넘습니다(쌍의 수 ~n^2/2 와 1/m). 그래서 해시 충돌은 생각보다 빨리 생깁니다.<br><b>4.</b> 라스베가스: 항상 정답, 실행 시간이 무작위(예: 무작위 퀵정렬). 몬테카를로: 시간은 고정, 낮은 확률로 오답(예: 밀러-라빈 소수판정).<br><b>5.</b> randomized-select: 무작위 피벗으로 한쪽만 재귀합니다. 기대 비용 T(n) ≤ T(3n/4)+O(n) (피벗이 좋은 1/2 확률로 ≥1/4씩 자름) → 기대 O(n).",
+    "more_en": "<b>Solutions</b><br>1. Random pivot makes splits balanced regardless of input; indicator-variable sum gives expected O(n log n).<br>2. Universal hashing: random function from a family, any two keys collide with prob ≤1/m; adversary can't force worst case.<br>3. Birthday paradox: ~√m insertions exceed 1/2 collision probability.<br>4. Las Vegas: always correct, random time; Monte Carlo: fixed time, small error probability.<br>5. Randomized-select recurses on one side, T(n)≤T(3n/4)+O(n) → expected O(n).",
+    "problem": {
+      "q": "몬테카를로 알고리즘을 라스베가스 알고리즘으로 바꿀 수 있는 조건은?",
+      "solution": "오답을 다항 시간에 검증(verify)할 수 있을 때 가능합니다. 몬테카를로를 돌려 답을 얻고 검증해, 틀렸으면 다시 돌리길 반복하면 항상 정답을 내는 라스베가스가 됩니다(기대 반복 횟수는 1/성공확률). 검증이 불가능하면 일반적으로는 변환할 수 없습니다.",
+      "q_en": "When can a Monte Carlo algorithm be turned into a Las Vegas one?",
+      "sol_en": "When the answer is poly-time verifiable: run, verify, repeat on failure → always correct, expected 1/(success prob) iterations. Without verification, generally not."
+    }
   }
 }
