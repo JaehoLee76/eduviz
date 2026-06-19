@@ -853,5 +853,305 @@
       "q_en": "Use the theorem to show aₙ=1−1/n converges.",
       "sol_en": "Increasing and bounded above by 1 → converges to sup=1."
     }
+  },
+  "math_br_taylor": {
+    "ch": "제18장 미분의 응용",
+    "sec": "심화 정리",
+    "title": "테일러 정리 — 함수를 다항식으로",
+    "narr": "매끄러운 함수를 한 점에서 다항식으로 근사합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>도함수를 맞추는 다항식</b><br>f(x)=f(a)+f′(a)(x−a)+f″(a)/2!(x−a)²+… 각 항은 a에서 1차·2차…도함수를 맞춰 점점 가깝게 접촉합니다. 잔차는 Rₙ=f⁽ⁿ⁺¹⁾(c)/(n+1)!(x−a)ⁿ⁺¹ (라그랑주 형). a=0이면 매클로린 급수로 eˣ=Σxⁿ/n!, sinx, cosx 등을 무한급수로 펼칩니다.",
+    "more_en": "f(x)=Σ f⁽ᵏ⁾(a)/k!·(x−a)ᵏ matches all derivatives at a; remainder Rₙ=f⁽ⁿ⁺¹⁾(c)/(n+1)!(x−a)ⁿ⁺¹. Maclaurin: eˣ=Σxⁿ/n!.",
+    "problem": {
+      "q": "eˣ 의 매클로린 급수 처음 4항을 써라.",
+      "solution": "f⁽ᵏ⁾(0)=1이므로 eˣ ≈ 1 + x + x²/2! + x³/3! = 1 + x + x²/2 + x³/6.",
+      "q_en": "First 4 terms of the Maclaurin series of eˣ.",
+      "sol_en": "1 + x + x²/2 + x³/6."
+    }
+  },
+  "math_br_clt": {
+    "ch": "제16장 확률",
+    "sec": "심화 정리",
+    "title": "중심극한정리 (CLT)",
+    "narr": "무엇을 더하든 충분히 많이 더하면 종 모양이 됩니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>합은 정규로 모인다</b><br>독립이고 같은 분포(평균 μ, 분산 σ²)인 표본 X₁,…,Xₙ의 합(또는 평균)은 n이 커지면 정규분포에 가까워집니다. 원래 분포가 균등이든 치우쳤든 상관없습니다. 표본평균 X̄ ~ N(μ, σ²/n). 여론조사·품질관리·신뢰구간 등 통계 추정의 근본 이유입니다.",
+    "more_en": "Sums/means of iid samples (mean μ, var σ²) approach a normal distribution as n grows, regardless of the original shape. X̄ ~ N(μ, σ²/n).",
+    "problem": {
+      "q": "표본 100개의 평균이 정규에 가까운 이유를 CLT로 설명하라.",
+      "solution": "개별 분포가 어떻든, 독립 표본 100개의 평균은 CLT에 의해 N(μ, σ²/100)에 근사합니다. n이 클수록 분산이 작아져(σ²/n) 평균 주위에 좁게 모입니다.",
+      "q_en": "Why is the mean of 100 samples nearly normal?",
+      "sol_en": "By CLT the sample mean ≈ N(μ, σ²/100) whatever the underlying shape."
+    }
+  },
+  "math_br_chebyshev": {
+    "ch": "제16장 확률",
+    "sec": "심화 증명",
+    "title": "체비셰프 부등식 → 큰수의 법칙",
+    "narr": "분산만으로 '평균에서 멀리 벗어날 확률'을 묶습니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>꼬리를 분산으로 제한</b><br>체비셰프: P(|X−μ|≥kσ) ≤ 1/k². 어떤 분포든 평균에서 k표준편차 이상 벗어날 확률은 1/k² 이하. 표본평균의 분산은 σ²/n이라 n→∞이면 0으로 가고, 따라서 표본평균이 μ에서 벗어날 확률도 0 → 큰수의 약법칙. 시행이 많을수록 상대도수가 진짜 확률로 수렴합니다.",
+    "more_en": "Chebyshev: P(|X−μ|≥kσ)≤1/k². The sample mean has variance σ²/n→0, so it concentrates at μ — the weak law of large numbers.",
+    "problem": {
+      "q": "체비셰프로 P(|X−μ| ≥ 2σ) 의 상한을 구하라.",
+      "solution": "k=2이므로 ≤ 1/2² = 1/4 = 25%. (어떤 분포든 평균±2σ 밖일 확률은 25% 이하)",
+      "q_en": "Chebyshev bound for P(|X−μ|≥2σ)?",
+      "sol_en": "≤ 1/4 = 25%."
+    }
+  },
+  "math_br_gramschmidt": {
+    "ch": "제21장 행렬",
+    "sec": "심화 기법",
+    "title": "그람-슈미트 직교화",
+    "narr": "임의의 기저를 서로 수직인 기저로 바꿉니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>정사영 빼기</b><br>벡터 v₁,v₂,…에서 u₁=v₁로 시작해, u₂=v₂−(v₂·u₁/u₁·u₁)u₁ 처럼 이전 방향 성분을 빼면 서로 수직인 u들이 나옵니다. 정규화하면 정규직교기저. QR 분해·최소제곱·푸리에 전개의 토대이며, '직교 = 독립적인 방향'이라는 직관을 구현합니다.",
+    "more_en": "Start u₁=v₁; subtract projections u₂=v₂−(v₂·u₁/u₁·u₁)u₁,… to get orthogonal vectors. Normalize for an orthonormal basis (QR, least squares).",
+    "problem": {
+      "q": "v₁=(1,0), v₂=(1,1) 을 직교화하라.",
+      "solution": "u₁=(1,0). u₂=(1,1)−((1,1)·(1,0)/(1))·(1,0)=(1,1)−(1,0)=(0,1). u₁⊥u₂ ✓.",
+      "q_en": "Orthogonalize v₁=(1,0), v₂=(1,1).",
+      "sol_en": "u₁=(1,0), u₂=(0,1)."
+    }
+  },
+  "math_br_trigsub": {
+    "ch": "제20장 적분의 응용",
+    "sec": "심화 기법",
+    "title": "삼각치환 적분",
+    "narr": "근호를 삼각함수로 바꿔 없앱니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>피타고라스 치환</b><br>√(a²−x²)는 x=a·sinθ (1−sin²=cos²), √(a²+x²)는 x=a·tanθ (1+tan²=sec²), √(x²−a²)는 x=a·secθ로 치환하면 근호가 깔끔히 사라져 삼각함수 적분이 됩니다. 원·타원의 넓이, 길이 적분에 필수입니다.",
+    "more_en": "√(a²−x²)→x=a sinθ, √(a²+x²)→x=a tanθ, √(x²−a²)→x=a secθ remove the radical via Pythagorean identities.",
+    "problem": {
+      "q": "∫ √(1−x²) dx 를 삼각치환으로 설정하라.",
+      "solution": "x=sinθ, dx=cosθdθ, √(1−x²)=cosθ → ∫cos²θdθ = θ/2 + sin2θ/4 + C = (½)(arcsin x + x√(1−x²)) + C.",
+      "q_en": "Set up ∫√(1−x²)dx by trig substitution.",
+      "sol_en": "x=sinθ → ∫cos²θdθ = ½(arcsin x + x√(1−x²)) + C."
+    }
+  },
+  "math_br_partfrac": {
+    "ch": "제2장 식",
+    "sec": "심화 기법",
+    "title": "부분분수 분해",
+    "narr": "복잡한 유리식을 간단한 분수들의 합으로 쪼갭니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>분모를 인수분해</b><br>1/((x−1)(x−2)) = A/(x−1)+B/(x−2). 통분해 분자를 비교하면 1=A(x−2)+B(x−1). x=1: A=−1, x=2: B=1. 따라서 −1/(x−1)+1/(x−2). 분모가 더 단순해져 적분(로그 합)·역라플라스 변환이 쉬워집니다.",
+    "more_en": "1/((x−1)(x−2))=A/(x−1)+B/(x−2); cover-up gives A=−1, B=1. Simplifies integration and inverse Laplace.",
+    "problem": {
+      "q": "3/((x)(x+3)) 을 부분분수로 분해하라.",
+      "solution": "A/x+B/(x+3), 3=A(x+3)+Bx. x=0: A=1. x=−3: B=−1. = 1/x − 1/(x+3).",
+      "q_en": "Decompose 3/(x(x+3)).",
+      "sol_en": "1/x − 1/(x+3)."
+    }
+  },
+  "math_br_gaussint": {
+    "ch": "제19장 적분",
+    "sec": "심화 정리",
+    "title": "가우스 적분 ∫e^(−x²)dx = √π",
+    "narr": "초등함수로 못 푸는 적분을 2중적분의 마법으로 풉니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>제곱해서 극좌표로</b><br>I=∫₋∞^∞ e^(−x²)dx. I²=∫∫e^(−x²−y²)dxdy를 극좌표(x²+y²=r², dxdy=r drdθ)로 바꾸면 ∫₀²π∫₀^∞ e^(−r²)r dr dθ = 2π·(1/2)=π. 따라서 I=√π. 정규분포가 전체 확률 1이 되도록 정규화하는 상수의 근원입니다.",
+    "more_en": "I²=∫∫e^(−x²−y²)dxdy in polar = ∫₀²π∫₀^∞ e^(−r²)r drdθ = π, so I=√π. Normalizes the Gaussian/normal distribution.",
+    "problem": {
+      "q": "∫₋∞^∞ e^(−x²/2) dx 의 값은?",
+      "solution": "치환 u=x/√2, dx=√2 du → √2·∫e^(−u²)du = √2·√π = √(2π). 표준정규분포 정규화 상수.",
+      "q_en": "Value of ∫₋∞^∞ e^(−x²/2)dx?",
+      "sol_en": "√(2π) (substitute u=x/√2)."
+    }
+  },
+  "math_br_eulerident": {
+    "ch": "제10장 복소평면",
+    "sec": "심화 유도",
+    "title": "오일러 항등식 e^(iπ)+1=0",
+    "narr": "가장 아름다운 식 — 다섯 상수가 한 줄에.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>오일러 공식의 특수값</b><br>e^(iθ)=cosθ+i·sinθ (테일러 급수에서 유도)에 θ=π를 넣으면 e^(iπ)=cosπ+i·sinπ=−1+0=−1. 옮기면 e^(iπ)+1=0. 자연상수 e, 허수단위 i, 원주율 π, 곱셈 항등원 1, 덧셈 항등원 0이 한 식에 모입니다. 지수·삼각·복소수의 통일.",
+    "more_en": "From e^(iθ)=cosθ+i sinθ at θ=π: e^(iπ)=−1, so e^(iπ)+1=0 — uniting e, i, π, 1, 0.",
+    "problem": {
+      "q": "e^(iπ/2) 의 값을 구하라.",
+      "solution": "θ=π/2: cos(π/2)+i·sin(π/2)=0+i·1=i. 즉 e^(iπ/2)=i (90° 회전).",
+      "q_en": "Compute e^(iπ/2).",
+      "sol_en": "cos(π/2)+i sin(π/2)=i."
+    }
+  },
+  "math_br_nthroot": {
+    "ch": "제10장 복소평면",
+    "sec": "심화 유도",
+    "title": "복소수의 n제곱근",
+    "narr": "복소수의 거듭제곱근은 정n각형으로 퍼집니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>드무아브르의 역</b><br>z=r(cosθ+i sinθ)의 n제곱근은 ⁿ√r·(cos((θ+2πk)/n)+i sin((θ+2πk)/n)), k=0,…,n−1로 n개. 크기는 모두 ⁿ√r로 같고 각이 2π/n씩 차이나, 복소평면에서 정n각형 꼭짓점에 놓입니다. 1의 n제곱근은 단위원 위에 균등 분포한 점들(원분점)입니다.",
+    "more_en": "n-th roots of z=r(cosθ+i sinθ) are ⁿ√r·cis((θ+2πk)/n), k=0..n−1 — vertices of a regular n-gon. Roots of unity are equally spaced on the unit circle.",
+    "problem": {
+      "q": "1의 세제곱근(세 개)을 구하라.",
+      "solution": "1=cos0+i sin0. k=0,1,2: cos(2πk/3)+i sin(2πk/3) = 1, −1/2+i√3/2, −1/2−i√3/2. (정삼각형 꼭짓점)",
+      "q_en": "Find the three cube roots of 1.",
+      "sol_en": "1, −½+i√3/2, −½−i√3/2."
+    }
+  },
+  "math_br_lagrangemult": {
+    "ch": "제18장 미분의 응용",
+    "sec": "심화 기법",
+    "title": "라그랑주 승수법",
+    "narr": "제약 조건 위에서 최댓값·최솟값을 찾습니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>기울기가 평행</b><br>제약 g(x,y)=0 위에서 f(x,y)의 극값은 ∇f=λ∇g인 곳에서 일어납니다. 기하적으로 f의 등위선과 제약곡선이 접하는 지점입니다(더 나아갈 방향이 제약에 막힘). ∇f=λ∇g와 g=0을 연립해 후보점을 찾습니다. 경제학·물리·기계학습 제약최적화의 핵심.",
+    "more_en": "Extrema of f on g=0 occur where ∇f=λ∇g (gradients parallel = level curve tangent to constraint). Solve ∇f=λ∇g with g=0.",
+    "problem": {
+      "q": "x+y=10 일 때 xy 의 최댓값을 라그랑주로 구하라.",
+      "solution": "∇(xy)=λ∇(x+y−10): (y,x)=λ(1,1) → x=y. 제약 x+y=10 → x=y=5. 최댓값 xy=25.",
+      "q_en": "Maximize xy subject to x+y=10.",
+      "sol_en": "x=y=5, max xy=25."
+    }
+  },
+  "math_br_ratiotest": {
+    "ch": "제13장 수열",
+    "sec": "심화 판정",
+    "title": "비 판정법 — 급수 수렴",
+    "narr": "이웃 항의 비로 무한급수의 수렴을 가립니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>L = lim|aₙ₊₁/aₙ|</b><br>L<1이면 항이 등비적으로 빨리 줄어 절대수렴, L>1이면 항이 커져 발산, L=1이면 판정 불가(p-급수처럼 더 섬세한 판정 필요). 팩토리얼·거듭제곱이 든 급수에 특히 강력합니다.",
+    "more_en": "L=lim|aₙ₊₁/aₙ|: L<1 absolute convergence, L>1 divergence, L=1 inconclusive. Great for factorials/powers.",
+    "problem": {
+      "q": "Σ 2ⁿ/n! 의 수렴을 비 판정으로 보여라.",
+      "solution": "aₙ₊₁/aₙ = 2^(n+1)/(n+1)! · n!/2ⁿ = 2/(n+1) → 0 < 1. 절대수렴(실은 e²로 수렴).",
+      "q_en": "Test Σ 2ⁿ/n! by the ratio test.",
+      "sol_en": "Ratio 2/(n+1)→0<1, converges (to e²)."
+    }
+  },
+  "math_br_radiusconv": {
+    "ch": "제14장 극한",
+    "sec": "심화 정리",
+    "title": "멱급수의 수렴반경",
+    "narr": "멱급수가 수렴하는 구간의 반지름입니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>비 판정으로 R</b><br>Σaₙxⁿ은 |x|<R에서 절대수렴, |x|>R에서 발산합니다. 1/R=lim|aₙ₊₁/aₙ| (또는 코시-아다마르 limsup|aₙ|^(1/n)). 경계 |x|=R는 따로 조사합니다. 테일러 급수가 함수를 대표하는 유효 범위를 정합니다.",
+    "more_en": "Σaₙxⁿ converges for |x|<R, diverges for |x|>R; 1/R=lim|aₙ₊₁/aₙ|. Endpoints checked separately.",
+    "problem": {
+      "q": "Σ xⁿ/n 의 수렴반경을 구하라.",
+      "solution": "aₙ=1/n. |aₙ₊₁/aₙ|=n/(n+1)→1, R=1. (x=−1 수렴, x=1 발산 — 경계는 따로)",
+      "q_en": "Radius of convergence of Σ xⁿ/n.",
+      "sol_en": "R=1 (endpoints differ: converges at −1, diverges at 1)."
+    }
+  },
+  "math_br_stronginduction": {
+    "ch": "제13장 수열",
+    "sec": "심화 기법",
+    "title": "강한 수학적 귀납법",
+    "narr": "이전 모든 경우를 가정해야 할 때 쓰는 귀납.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>모든 이전 경우 사용</b><br>보통 귀납은 P(k)→P(k+1)이지만, 강귀납은 P(1),…,P(k)가 모두 참이라 가정하고 P(k+1)을 보입니다. '바로 전' 하나로는 부족할 때 사용합니다. 예: 모든 n≥2는 소수의 곱이다(n을 두 인수로 쪼개면 둘 다 n보다 작아 가정 적용). 피보나치·재귀 정의 증명에 자주 쓰입니다.",
+    "more_en": "Strong induction assumes P(1)..P(k) all hold to prove P(k+1). Used when one prior case isn't enough — e.g. every n≥2 factors into primes.",
+    "problem": {
+      "q": "강귀납으로 '모든 우표값 ≥ 4는 2원·5원으로 만들 수 있다'를 보일 때 기초 단계는?",
+      "solution": "기초: 4=2+2, 5=5. 귀납: n≥6이면 n−2가 ≥4라 가정으로 만들 수 있고, 거기에 2원을 더하면 n. (이전 경우 n−2 사용 = 강귀납)",
+      "q_en": "Base cases for 'every postage ≥4 is 2+5 coins' by strong induction?",
+      "sol_en": "4=2+2, 5=5; then n≥6 uses n−2 (≥4) plus a 2."
+    }
+  },
+  "math_br_cantorbern": {
+    "ch": "제24장 집합론",
+    "sec": "심화 정리",
+    "title": "칸토어-베른슈타인 정리",
+    "narr": "양쪽으로 단사가 있으면 일대일대응이 있습니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>≤ 두 개가 = 를 준다</b><br>A에서 B로의 단사와 B에서 A로의 단사가 둘 다 있으면, A와 B 사이에 전단사(일대일대응)가 존재해 |A|=|B|. 집합 크기의 '반대칭성'입니다. 예: [0,1]과 (0,1)은 양방향 단사가 쉽게 있어 같은 농도(연속체)임을 보입니다.",
+    "more_en": "If there are injections A→B and B→A, then a bijection A↔B exists (|A|=|B|) — antisymmetry of cardinality. E.g. [0,1] and (0,1) have the same cardinality.",
+    "problem": {
+      "q": "ℕ 과 짝수 집합이 같은 크기임을 단사 두 개로 설명하라.",
+      "solution": "짝수→ℕ은 포함(단사), ℕ→짝수는 n↦2n(단사). 칸토어-베른슈타인으로 일대일대응 존재 → 같은 크기(가산무한).",
+      "q_en": "Show ℕ and the even numbers have equal size via two injections.",
+      "sol_en": "evens↪ℕ (inclusion), ℕ↪evens (n↦2n) → bijection by Cantor-Bernstein."
+    }
+  },
+  "math_br_diagonalize": {
+    "ch": "제22장 일차변환",
+    "sec": "심화 기법",
+    "title": "행렬의 대각화",
+    "narr": "고유벡터의 좌표계에서 변환은 단순한 늘이기가 됩니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>A = P D P⁻¹</b><br>A의 고유벡터들을 열로 모은 P와 고유값 대각행렬 D에 대해 A=PDP⁻¹. 고유벡터 좌표계에서 보면 A는 각 축을 고유값만큼 늘이는 것뿐입니다. 그래서 Aⁿ=PDⁿP⁻¹로 거듭제곱이 쉬워집니다. 점화식의 닫힌형, 미분방정식계, 마르코프 연쇄 정상상태에 활용.",
+    "more_en": "A=PDP⁻¹ where P holds eigenvectors and D the eigenvalues. In the eigenbasis A just scales axes, so Aⁿ=PDⁿP⁻¹ is easy. Used for recurrences, ODE systems, Markov chains.",
+    "problem": {
+      "q": "고유값이 2와 3인 2×2 행렬 A에 대해 A의 행렬식과 대각합은?",
+      "solution": "det = 고유값의 곱 = 2·3 = 6. 대각합(trace) = 고유값의 합 = 2+3 = 5.",
+      "q_en": "Eigenvalues 2,3 of a 2×2 A — its determinant and trace?",
+      "sol_en": "det=6 (product), trace=5 (sum)."
+    }
+  },
+  "math_br_cayley": {
+    "ch": "제21장 행렬",
+    "sec": "심화 정리",
+    "title": "케일리-해밀턴 정리",
+    "narr": "행렬은 자기 자신의 특성방정식을 만족합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>p(A)=O</b><br>특성다항식 p(λ)=det(A−λI)에 행렬 A를 대입하면 영행렬이 됩니다. 2×2에선 A²−(trA)A+(detA)I=O. 이로써 A의 거듭제곱이나 역행렬을 낮은 차수 다항식으로 표현할 수 있습니다. 선형 점화식·제어이론에서 강력합니다.",
+    "more_en": "Substituting A into its characteristic polynomial p(λ)=det(A−λI) gives p(A)=O. For 2×2: A²−(trA)A+(detA)I=O. Reduces high powers to low-degree polynomials in A.",
+    "problem": {
+      "q": "A=[[2,1],[0,3]] 에 케일리-해밀턴을 적용해 A² 를 trA, detA로 표현하라.",
+      "solution": "trA=5, detA=6. A²=(trA)A−(detA)I=5A−6I=[[10,5],[0,15]]−[[6,0],[0,6]]=[[4,5],[0,9]] (직접 곱과 일치).",
+      "q_en": "Use Cayley-Hamilton on A=[[2,1],[0,3]] to express A².",
+      "sol_en": "trA=5, detA=6 → A²=5A−6I=[[4,5],[0,9]]."
+    }
+  },
+  "math_br_sepvar": {
+    "ch": "제20장 적분의 응용",
+    "sec": "심화 기법",
+    "title": "변수분리형 미분방정식",
+    "narr": "x와 y를 양쪽으로 갈라 각각 적분합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>분리해서 적분</b><br>dy/dx=g(x)h(y) 꼴이면 dy/h(y)=g(x)dx로 변수를 분리해 양변을 적분합니다. 예: dy/dx=ky → dy/y=k dx → ln|y|=kx+C → y=Ce^(kx) (지수성장/감쇠). 인구·방사성붕괴·냉각 법칙의 기본 모형입니다.",
+    "more_en": "For dy/dx=g(x)h(y), separate dy/h(y)=g(x)dx and integrate. e.g. dy/dx=ky → y=Ce^(kx). Models growth/decay/cooling.",
+    "problem": {
+      "q": "dy/dx = 2xy, y(0)=1 을 변수분리로 풀어라.",
+      "solution": "dy/y=2x dx → ln y=x²+C → y=Ae^(x²). y(0)=1 → A=1. ∴ y=e^(x²).",
+      "q_en": "Solve dy/dx=2xy, y(0)=1.",
+      "sol_en": "dy/y=2x dx → y=e^(x²)."
+    }
+  },
+  "math_br_linode": {
+    "ch": "제20장 적분의 응용",
+    "sec": "심화 기법",
+    "title": "1계 선형 미분방정식 — 적분인자",
+    "narr": "적분인자를 곱하면 좌변이 곱의 미분으로 변합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>적분인자 μ</b><br>y′+P(x)y=Q(x)에 μ=e^(∫P dx)를 곱하면 좌변이 (μy)′가 되어 (μy)′=μQ. 양변 적분 후 μ로 나누면 y=(1/μ)∫μQ dx. RC 회로의 전류, 가열·냉각, 약물 농도 모형 등 선형 시스템의 표준 해법입니다.",
+    "more_en": "Multiply y′+P y=Q by μ=e^(∫P dx) so the left side becomes (μy)′=μQ; then y=(1/μ)∫μQ dx. Standard for linear systems (RC circuits, mixing).",
+    "problem": {
+      "q": "y′ + y = e^x 를 적분인자로 풀어라.",
+      "solution": "P=1 → μ=e^x. (e^x·y)′=e^x·e^x=e^(2x). e^x y=e^(2x)/2+C → y=e^x/2+Ce^(−x).",
+      "q_en": "Solve y′+y=eˣ using an integrating factor.",
+      "sol_en": "μ=eˣ → (eˣy)′=e^(2x) → y=eˣ/2+Ce⁻ˣ."
+    }
+  },
+  "math_br_genfunc": {
+    "ch": "제13장 수열",
+    "sec": "심화 기법",
+    "title": "생성함수 — 수열을 다항식으로",
+    "narr": "수열을 멱급수의 계수로 넣으면 점화식이 대수방정식이 됩니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>수열 ↔ 멱급수</b><br>수열 aₙ을 G(x)=Σaₙxⁿ의 계수로 인코딩하면, 점화식이 G(x)에 대한 방정식이 되어 닫힌형을 풀 수 있습니다. 피보나치는 G(x)=x/(1−x−x²)이고, 부분분수로 펼치면 비네 공식이 나옵니다. 조합 세기·확률·점화식의 만능 도구입니다.",
+    "more_en": "Encode aₙ as coefficients of G(x)=Σaₙxⁿ; recurrences become algebraic equations for G. Fibonacci: G(x)=x/(1−x−x²), giving Binet's formula.",
+    "problem": {
+      "q": "aₙ=2aₙ₋₁, a₀=1 의 생성함수를 구하라.",
+      "solution": "G(x)=Σaₙxⁿ. 점화식에서 G=1+2xG → G(1−2x)=1 → G(x)=1/(1−2x)=Σ2ⁿxⁿ. ∴ aₙ=2ⁿ.",
+      "q_en": "Generating function for aₙ=2aₙ₋₁, a₀=1.",
+      "sol_en": "G=1/(1−2x)=Σ2ⁿxⁿ, so aₙ=2ⁿ."
+    }
+  },
+  "math_br_quadrecip": {
+    "ch": "제23장 수론",
+    "sec": "심화 정리",
+    "title": "이차 상호법칙",
+    "narr": "가우스가 '산술의 보석'이라 부른 깊은 대칭.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>두 소수의 잉여 관계</b><br>서로 다른 홀수 소수 p, q에 대해 르장드르 기호의 곱 (p/q)(q/p)=(−1)^((p−1)/2·(q−1)/2). 즉 'p가 q의 이차잉여인가'와 'q가 p의 이차잉여인가'가 서로 연결됩니다(둘 다 4k+3 소수일 때만 부호가 뒤집힘). 가우스가 평생 8가지 다른 방법으로 증명한 정수론의 핵심 정리입니다.",
+    "more_en": "For distinct odd primes p,q: (p/q)(q/p)=(−1)^((p−1)/2·(q−1)/2), linking whether p is a QR mod q and vice versa. Gauss proved it 8 ways.",
+    "problem": {
+      "q": "(3/5)·(5/3) 의 부호를 상호법칙으로 정하라.",
+      "solution": "p=3,q=5: (p−1)/2·(q−1)/2 = 1·2 = 2 (짝수) → (−1)²=+1. 둘이 같은 잉여성(둘 다 잉여 or 둘 다 비잉여).",
+      "q_en": "Sign of (3/5)·(5/3) by reciprocity.",
+      "sol_en": "Exponent 1·2=2 even → +1."
+    }
   }
 }
