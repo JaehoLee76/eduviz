@@ -65,14 +65,14 @@
     "title": "판별식 — 근의 개수와 복소수",
     "narr": "완전제곱식으로 이차방정식을 풀면 근이 나옵니다. 그런데 <b>근이 몇 개인지</b>는 미리 알 수 있습니다 — 포물선이 <b>x축과 만나는 횟수</b>로. c를 올려 포물선을 들어올려보세요 (2개 → 1개 → 0개).",
     "hint": "c를 움직여보세요",
-    "more": "이차방정식 ax² + bx + c = 0 의 실근 개수는 <b>판별식 D = b² − 4ac</b> 의 부호로 압니다.<br><br>D > 0 → 서로 다른 실근 2개, D = 0 → 중근 1개, D < 0 → 실근 없음(복소수 허근 2개). 포물선이 x축과 만나는 횟수와 같습니다.",
+    "more": "앞 #21에서 완전제곱식으로 이차방정식을 풀면 <b>근의 공식 x = (−b ± √(b²−4ac)) / 2a</b> 가 나옵니다.<br><br>근의 개수를 가르는 건 딱 하나 — <b>√ 안의 값 b²−4ac</b> 입니다. 이걸 <b>판별식 D</b>라 부릅니다.<br>• D > 0 → √ 안이 양수라 ± 로 갈라짐 → <b>실근 2개</b><br>• D = 0 → √0 = 0 이라 ± 가 사라짐 → <b>중근 1개</b><br>• D < 0 → √(음수)는 실수가 아님 → <b>실근 없음</b>(복소수 허근 2개)<br><br>즉 D는 '근의 공식의 √ 안'이라서 근의 성질을 결정합니다. 포물선이 x축과 만나는 횟수와 똑같습니다.",
     "problem": {
       "q": "x² + 2x + 5 = 0 의 실근은 몇 개일까요?",
       "solution": "D = 2² − 4·1·5 = 4 − 20 = −16 < 0 이므로 <b>실근 없음</b>(복소수 허근 2개).",
       "q_en": "How many real roots does x² + 2x + 5 = 0 have?",
       "sol_en": "D = 2² − 4·1·5 = −16 < 0, so there are <b>no real roots</b> (two complex roots)."
     },
-    "more_en": "The number of real roots of ax²+bx+c=0 comes from the <b>discriminant D = b² − 4ac</b>: D>0 gives two real roots, D=0 one (double) root, D<0 no real roots (two <b>complex</b> roots). This equals how many times the parabola meets the x-axis."
+    "more_en": "Completing the square (#21) gives the quadratic formula x=(−b±√(b²−4ac))/2a. The number of roots is decided solely by what's under the root, <b>b²−4ac</b> (the discriminant D): D>0 → ± splits into 2 real roots; D=0 → ± vanishes → 1 double root; D<0 → √ of a negative isn't real → no real roots (2 complex). Same as how many times the parabola meets the x-axis."
   },
   "ch3_06": {
     "ch": "제3장 방정식",
