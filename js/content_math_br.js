@@ -39,7 +39,7 @@
   function pf(id, parent, lines, opts){ opts=opts||{};
     return { id:id, branchOf:parent, enter:function(E){ E.setOn([]); },
       draw:function(E){ steps(E, lines, {y0:E.H*0.36, lh:E.H*(lines.length>5?0.072:0.082)});
-        E.big(this.title||'', this.narr||''); } };
+        E.big(this.title||'', this.sub||this.narr||''); } };   // 소제목=짧은 sub(있으면), 긴 narr은 말풍선 전용
   }
   var O='#ffb27a', B='#7ab8ff', G='#8fe3b5', P='#f4a0c0', N='#cfcdc6';
 
