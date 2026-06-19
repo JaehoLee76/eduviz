@@ -3,7 +3,7 @@
     "ch": "제1장 실수",
     "sec": "1.1 실수의 분류 (자세히)",
     "title": "√2 가 무리수임의 증명",
-    "narr": "<b>1장에서 √2가 무리수(#5)</b>라고 했습니다. <b>귀류법</b>으로 √2가 분수로 표현될 수 없음을 증명합니다 — \"분수로 쓸 수 있다\"고 가정하면 모순이 도출됩니다. 고대 그리스를 뒤흔든 증명입니다.",
+    "narr": "1장에서 √2는 분수로 쓸 수 없는 <b>무리수(#5)</b>라고 했습니다. 그런데 '분수로 못 쓴다'는 것을 어떻게 증명할까요. 직접 보이기 어려우니 <b>귀류법</b>을 씁니다 — 먼저 √2를 기약분수 p/q로 <b>쓸 수 있다고 가정</b>한 뒤, 그 가정을 따라가면 p와 q가 둘 다 짝수가 되어 '더 약분 안 된다'는 전제와 <b>모순</b>이 생깁니다. 가정이 틀렸으므로 √2는 분수가 아닙니다. 고대 그리스를 뒤흔든 증명입니다.",
     "hint": "분수라고 가정 → 모순 → 무리수",
     "more": "<b>√2가 무리수임의 증명(귀류법)</b>: ① √2 = p/q (p, q는 더 약분 안 되는 기약분수)라 <b>가정</b>. ② 제곱하면 2 = p²/q² → <b>p² = 2q²</b> → p²은 짝수 → <b>p도 짝수</b>(홀수²=홀수이므로) → p = 2k. ③ 대입: 2q² = 4k² → <b>q² = 2k²</b> → 같은 논리로 <b>q도 짝수</b>. ④ p와 q가 둘 다 짝수면 2로 약분 가능 → \"기약분수\"라는 가정에 <b>모순</b>! ⑤ 따라서 √2는 분수로 쓸 수 없다 = <b>무리수</b>. ∎ 이 증명은 \"수직선이 분수만으로는 빈틈없이 채워지지 않는다\"는 충격적 사실을 보여줍니다(피타고라스 학파의 위기). 같은 방법으로 √3, √5, 소수의 제곱근이 모두 무리수임을 증명할 수 있습니다. <b>귀류법</b>(모순을 이끌어내 부정)은 수학 증명의 강력한 무기입니다.",
     "more_en": "<b>Proof that √2 is irrational (by contradiction)</b>: ① Assume √2 = p/q with p, q a fully reduced fraction. ② Squaring: 2 = p²/q² → <b>p² = 2q²</b> → p² is even → <b>p is even</b> (since odd² is odd) → p = 2k. ③ Substitute: 2q² = 4k² → <b>q² = 2k²</b> → by the same logic <b>q is even</b>. ④ If both p and q are even, they share a factor 2 → <b>contradiction</b> with \"fully reduced\"! ⑤ Hence √2 cannot be a fraction = it is <b>irrational</b>. ∎ This proof reveals the shocking fact that fractions alone leave gaps on the number line (the crisis of the Pythagoreans). The same method shows √3, √5, and roots of primes are all irrational. <b>Proof by contradiction</b> is a powerful weapon of mathematical reasoning.",
@@ -18,7 +18,7 @@
     "ch": "제3장 방정식",
     "sec": "3.2 이차방정식 (자세히)",
     "title": "근의 공식은 어디서 왔나 — 유도",
-    "narr": "이차방정식의 근의 공식 x = (−b±√(b²−4ac))/2a, 이 공식은 암기 대상이 아니라 <b>완전제곱식(#21)</b>에서 유도됩니다. ax²+bx+c=0을 완전제곱식으로 \"x를 가둬\" 풀면 그대로 유도됩니다. 암기가 아니라 이 유도 과정을 이해하는 것이 핵심입니다.",
+    "narr": "이차방정식 근의 공식 x=(−b±√(b²−4ac))/2a는 외우는 대상이 아니라, <b>완전제곱식(#21)</b> 하나로 유도되는 결과입니다. ax²+bx+c=0을 a로 나눠 x² 계수를 1로 만든 뒤, x가 든 부분을 <b>(x+b/2a)²</b> 꼴로 묶으면 x가 제곱 안에 갇힙니다. 그다음 양변에 제곱근을 씌워 x를 풀면 그대로 공식이 나옵니다. 핵심은 암기가 아니라 '완전제곱식으로 x를 가둔다'는 이 한 흐름을 이해하는 것입니다.",
     "hint": "완전제곱식으로 x를 가둔다",
     "more": "<b>근의 공식 유도</b>: ① ax²+bx+c=0 → 양변 ÷ a → x² + (b/a)x + c/a = 0. ② <b>완전제곱식(#21)</b> 만들기: (x + b/2a)² = (b/2a)² − c/a = b²/4a² − c/a. ③ 우변 통분: (x + b/2a)² = <b>(b²−4ac)/4a²</b>. ④ 양변 제곱근: x + b/2a = ±√(b²−4ac)/2a. ⑤ 정리: <b>x = (−b ± √(b²−4ac)) / 2a</b>. 여기서 √ 안의 <b>b²−4ac가 바로 판별식(#22)</b> — 양수면 근 2개, 0이면 1개, 음수면 복소근(#23). 완전제곱식이라는 한 도구가 \"모든 이차방정식을 푸는 공식\"을 낳은 것입니다. 공식의 유래를 알면 잊어버려도 다시 만들 수 있습니다 — 그게 진짜 이해입니다.",
     "more_en": "<b>Deriving the quadratic formula</b>: ① ax²+bx+c=0 → divide by a → x² + (b/a)x + c/a = 0. ② Complete the square (#21): (x + b/2a)² = (b/2a)² − c/a = b²/4a² − c/a. ③ Combine the right side: (x + b/2a)² = <b>(b²−4ac)/4a²</b>. ④ Take square roots: x + b/2a = ±√(b²−4ac)/2a. ⑤ Solve: <b>x = (−b ± √(b²−4ac)) / 2a</b>. The <b>b²−4ac under the root is the discriminant (#22)</b> — positive gives two roots, zero one, negative complex roots (#23). One tool, completing the square, yields a formula for every quadratic. Knowing a formula's origin lets you rebuild it even if you forget — that is real understanding.",
@@ -33,7 +33,7 @@
     "ch": "제3장 방정식",
     "sec": "3.2 이차방정식 (자세히)",
     "title": "근과 계수의 관계 (비에트)",
-    "narr": "이차방정식의 <b>두 근을 직접 구하지 않고도</b>, 근의 <b>합과 곱</b>을 계수만으로 알 수 있습니다! x²+bx+c=0의 두 근 α, β는 <b>α+β = −b, αβ = c</b>. b, c를 바꾸며 이 관계가 항상 성립함을 직접 확인해 보세요.",
+    "narr": "이차방정식의 두 근을 직접 구하지 않고도 근의 <b>합과 곱</b>을 계수만으로 알 수 있습니다. x²+bx+c=0의 두 근 α, β에 대해 <b>α+β=−b, αβ=c</b>입니다. 왜 그럴까요. 근이 α, β이면 식은 (x−α)(x−β)로 인수분해되고, 이걸 전개하면 x²−(α+β)x+αβ가 되어 계수와 직접 비교됩니다. 즉 <b>인수분해와 전개가 같은 동전의 양면</b>입니다. b, c를 바꿔 가며 이 관계가 항상 성립함을 확인해 보세요.",
     "hint": "합 = −b, 곱 = c",
     "more": "<b>근과 계수의 관계(비에트 정리)</b>: ax²+bx+c=0의 두 근 α, β에 대해 <b>α+β = −b/a, αβ = c/a</b> (그림은 a=1). 왜? 근이 α, β면 ax²+bx+c = a(x−α)(x−β) = a(x² −(α+β)x + αβ). 전개해 계수를 비교하면 바로 나옵니다(3장 인수분해의 역방향!). 활용: 근을 안 구하고 α²+β²=(α+β)²−2αβ 같은 식을 계산, 두 근으로 방정식 세우기(x²−(합)x+(곱)=0), 근의 부호 판정. 3차 이상에서도 일반화됩니다(대칭함수). \"근 ↔ 계수\"라는 다리는 갈루아 이론(26장)으로 이어지는 깊은 구조입니다. 인수분해와 전개가 사실 같은 동전의 양면임을 보여줍니다.",
     "more_en": "<b>Vieta's formulas (roots and coefficients)</b>: for ax²+bx+c=0 with roots α, β, <b>α+β = −b/a and αβ = c/a</b> (the figure uses a=1). Why? If the roots are α, β, then ax²+bx+c = a(x−α)(x−β) = a(x² −(α+β)x + αβ); expanding and matching coefficients gives it (the reverse of factoring, Ch.3!). Uses: compute expressions like α²+β²=(α+β)²−2αβ without finding the roots, build an equation from two roots (x²−(sum)x+(product)=0), and determine root signs. It generalizes to higher degrees (symmetric functions). The bridge \"roots ↔ coefficients\" leads to the deep structure of Galois theory (Ch.26). It shows factoring and expansion are two sides of one coin.",
@@ -48,7 +48,7 @@
     "ch": "제8장 삼각함수",
     "sec": "8.2 덧셈정리 (자세히)",
     "title": "2배각 공식 — 덧셈정리의 선물",
-    "narr": "<b>덧셈정리(#55)</b>에서 두 각을 같게(α=β=θ) 두면 <b>sin 2θ = 2 sin θ cos θ</b>가 유도됩니다. θ를 바꿔 sin 2θ와 2 sin θ cos θ가 항상 같음을 확인하세요.",
+    "narr": "<b>덧셈정리(#55)</b>는 sin(α+β)를 두 각으로 풀어 줍니다. 여기서 두 각을 같게(α=β=θ) 두면 무슨 일이 생길까요. sin(θ+θ)가 곧 sin 2θ이므로, 덧셈정리에 대입하면 <b>sin 2θ=2 sinθ cosθ</b>가 곧바로 유도됩니다. 새 공식을 따로 외울 필요 없이, 이미 아는 덧셈정리의 특수한 경우일 뿐입니다. 같은 방식으로 cos 2θ도 나오고, 여기서 반각·차수내림 공식까지 줄줄이 파생됩니다. θ를 바꿔 두 값이 항상 같음을 확인하세요.",
     "hint": "덧셈정리에 α=β=θ 대입",
     "more": "<b>2배각 공식</b>은 덧셈정리(#55)의 특수한 경우입니다 — α=β=θ로 두면: <b>sin 2θ = sin(θ+θ) = sinθcosθ + cosθsinθ = 2 sinθ cosθ</b>. 코사인은 <b>cos 2θ = cos²θ − sin²θ = 1 − 2sin²θ = 2cos²θ − 1</b>(피타고라스 항등식 sin²+cos²=1 사용). 여기서 <b>반각 공식</b>(sin²θ = (1−cos2θ)/2 등)도 따라 나옵니다. 쓰임: <b>적분</b>(sin²·cos² 적분은 2배각으로 차수를 낮춰서!), 물리(진동·파동), 회전 합성. 하나의 정리(덧셈정리)에서 2배각·반각·곱-합 공식이 줄줄이 파생되는 게 삼각함수의 아름다움입니다. 외울 게 많아 보여도 뿌리는 덧셈정리 하나입니다.",
     "more_en": "The <b>double-angle formulas</b> are a special case of the addition formula (#55): set α=β=θ to get <b>sin 2θ = sin(θ+θ) = sinθcosθ + cosθsinθ = 2 sinθ cosθ</b>. For cosine, <b>cos 2θ = cos²θ − sin²θ = 1 − 2sin²θ = 2cos²θ − 1</b> (using the identity sin²+cos²=1). From these follow the <b>half-angle formulas</b> (e.g. sin²θ = (1−cos2θ)/2). Uses: <b>integration</b> (integrate sin²/cos² by lowering the power via double angle!), physics (oscillation, waves), composing rotations. The beauty of trigonometry: double-, half-, and product-to-sum formulas all cascade from one addition theorem. It looks like much to memorize, but the root is a single formula.",
@@ -63,7 +63,7 @@
     "ch": "제8장 삼각함수",
     "sec": "8.3 삼각함수와 삼각형 (자세히)",
     "title": "코사인법칙 — 피타고라스의 일반화",
-    "narr": "<b>1장의 피타고라스 정리</b>는 직각삼각형에서만 c²=a²+b²였습니다. 직각이 아닌 삼각형은? <b>코사인법칙</b>이 답입니다: <b>c² = a² + b² − 2ab·cos C</b>. 보정항 −2ab cosC가 각도를 반영합니다. C가 90°면 cos C=0이라 피타고라스로 돌아갑니다!",
+    "narr": "1장의 피타고라스 정리 c²=a²+b²는 <b>직각삼각형에서만</b> 성립합니다. 직각이 아닌 삼각형에서 두 변과 끼인각으로 셋째 변을 알려 주는 것이 <b>코사인법칙 c²=a²+b²−2ab·cos C</b>입니다. 핵심은 보정항 −2ab cos C — 끼인각 C가 벌어지거나 좁아진 만큼 길이를 조정합니다. C=90°이면 cos C=0이라 보정항이 사라져 정확히 피타고라스로 돌아갑니다. 즉 코사인법칙은 피타고라스를 <b>모든 삼각형으로 확장</b>한 일반식입니다.",
     "hint": "C=90°면 피타고라스로 환원",
     "more": "<b>코사인법칙</b>: 삼각형의 세 변 a, b, c와 c의 대각 C에 대해 <b>c² = a² + b² − 2ab·cos C</b>. 피타고라스 정리(1장)를 <b>모든 삼각형</b>으로 확장한 것 — C=90°이면 cos90°=0이라 c²=a²+b²로 환원! 쓰임: <b>두 변과 낀 각</b>으로 나머지 변 구하기(SAS), 세 변으로 각 구하기(cos C = (a²+b²−c²)/2ab). 사인법칙(#56)이 \"변/sin(대각) 일정\"이라면, 코사인법칙은 \"한 각과 세 변\"을 직접 잇습니다 — 둘이 삼각형 풀이의 양대 도구입니다. 측량·내비게이션·물리(벡터 합의 크기 |a+b|²=|a|²+|b|²+2|a||b|cosθ)에서 핵심입니다. 9장 벡터 내적(a·b=|a||b|cosθ)으로 증명하면 한 줄입니다.",
     "more_en": "<b>Law of Cosines</b>: for a triangle with sides a, b, c and angle C opposite c, <b>c² = a² + b² − 2ab·cos C</b>. It extends the Pythagorean theorem (Ch.1) to <b>any triangle</b> — when C=90°, cos90°=0 reduces it to c²=a²+b²! Uses: find a side from <b>two sides and the included angle</b> (SAS), or find an angle from three sides (cos C = (a²+b²−c²)/2ab). While the Law of Sines (#56) gives \"side/sin(opposite) is constant,\" the Law of Cosines directly links one angle to all three sides — the two main tools for solving triangles. Central to surveying, navigation, and physics (the magnitude of a vector sum |a+b|²=|a|²+|b|²+2|a||b|cosθ). Proved in one line via the dot product (Ch.9, a·b=|a||b|cosθ).",
@@ -78,7 +78,7 @@
     "ch": "제10장 복소평면",
     "sec": "10.2 복소수와 평면기하 (자세히)",
     "title": "드무아브르 정리 — 거듭제곱은 회전",
-    "narr": "<b>복소수 곱셈은 회전+확대(#65)</b>였습니다. 같은 복소수를 n번 곱하면(거듭제곱) <b>크기는 n제곱, 각은 n배</b>가 됩니다. z = r∠θ → zⁿ = rⁿ∠nθ. 이게 <b>드무아브르 정리</b>입니다. n을 바꿔 각이 배가되는 걸 보세요.",
+    "narr": "복소수의 곱셈은 <b>크기는 곱하고 각은 더하는(#65)</b> 연산이었습니다. 그렇다면 같은 복소수를 n번 곱하는 거듭제곱은 어떻게 될까요. 같은 각을 n번 더하고 같은 크기를 n번 곱하는 셈이므로, <b>크기는 rⁿ, 각은 nθ</b>가 됩니다. 즉 z=r∠θ이면 zⁿ=rⁿ∠nθ, 이것이 <b>드무아브르 정리</b>입니다. 거듭제곱이 곧 회전의 반복인 것입니다. 여기서 1의 n제곱근이 정n각형 꼭짓점에 놓인다는 사실까지 따라옵니다. n을 바꿔 각이 배가되는 모습을 보세요.",
     "hint": "크기 rⁿ, 각 nθ",
     "more": "<b>드무아브르 정리</b>: 극형식 z = r(cos θ + i sin θ)에 대해 <b>zⁿ = rⁿ(cos nθ + i sin nθ)</b>. 곱셈에서 \"크기는 곱, 각은 합\"(#65)을 n번 반복한 결과 — 거듭제곱이 곧 회전의 반복! 강력한 응용: <b>1의 n제곱근</b>(zⁿ=1의 해)은 복소평면 단위원에 <b>정n각형 꼭짓점</b>으로 균등 배치됩니다(각 2πk/n). 이 단위근이 <b>FFT(알고리즘)</b>·신호처리·다항식 근의 핵심입니다. 또 (cosθ+isinθ)ⁿ을 전개하면 cos nθ·sin nθ를 cosθ·sinθ로 표현하는 <b>다배각 공식</b>이 한꺼번에 나옵니다(2배각·3배각…). 복소수가 삼각함수와 거듭제곱을 하나로 묶는 우아함입니다. 오일러 공식 e^(iθ)로 쓰면 (e^(iθ))ⁿ=e^(inθ)로 당연해집니다.",
     "more_en": "<b>De Moivre's theorem</b>: for z = r(cos θ + i sin θ), <b>zⁿ = rⁿ(cos nθ + i sin nθ)</b>. It is \"multiply magnitudes, add angles\" (#65) repeated n times — a power is repeated rotation! A powerful use: the <b>n-th roots of unity</b> (solutions of zⁿ=1) sit on the unit circle as the <b>vertices of a regular n-gon</b> (angles 2πk/n). These roots of unity are central to the <b>FFT (algorithms)</b>, signal processing, and polynomial roots. Also, expanding (cosθ+isinθ)ⁿ yields the <b>multiple-angle formulas</b> at once (double-, triple-angle…). The elegance of complex numbers uniting trigonometry and powers. With Euler's formula e^(iθ), it's obvious: (e^(iθ))ⁿ=e^(inθ).",
@@ -93,7 +93,7 @@
     "ch": "제13장 수열",
     "sec": "13.1 수열과 그 합 (자세히)",
     "title": "등비수열의 합 — 밀어서 빼기",
-    "narr": "등비수열 a + ar + ar² + … + arⁿ⁻¹ 을 한 번에 더하는 방법이 있습니다. <b>전체에 r을 곱한 식(rS)을 원래 식(S)에서 빼면</b> 가운데 항이 모두 상쇄됩니다. 남는 건 깔끔한 공식 하나. 그리고 무한히 가면 <b>#80 무한등비급수</b>가 나옵니다.",
+    "narr": "등비수열 a+ar+ar²+…+arⁿ⁻¹을 한 번에 더하는 영리한 방법이 있습니다. 항이 무수히 많아 막막해 보이지만, <b>전체에 r을 곱한 식(rS)을 원래 식(S)에서 빼면</b> 가운데 항들이 짝을 이뤄 모두 상쇄됩니다. 남는 것은 양 끝뿐이라 S(1−r)=a−arⁿ, 정리하면 <b>S=a(1−rⁿ)/(1−r)</b>이 됩니다. 더 나아가 |r|<1이고 항을 무한히 늘리면 rⁿ이 0으로 사라져, 13장 #80의 무한등비급수 S=a/(1−r)가 그대로 나옵니다.",
     "hint": "S − rS 로 가운데를 상쇄",
     "more": "<b>등비수열 합 공식 유도</b>: S = a + ar + ar² + … + arⁿ⁻¹ 라 두고, 양변에 r을 곱하면 rS = ar + ar² + … + arⁿ. 두 식을 빼면(S − rS) 겹치는 항이 모두 상쇄돼 <b>S(1−r) = a − arⁿ</b> → <b>S = a(1−rⁿ)/(1−r)</b> (r≠1). 이 \"한 칸 밀어서 빼기(telescoping)\"가 핵심 트릭입니다. 여기서 <b>|r|<1이고 n→∞</b>이면 rⁿ→0(14장 극한)이라 <b>S = a/(1−r)</b> — 13장 #80 무한등비급수 공식이 바로 나옵니다! 쓰임: 복리·연금 계산, 0.999…=1 증명, 프랙탈 길이, 컴퓨터과학의 분할상환 분석(동적배열 1+2+4+…). 유한합과 무한합이 하나의 유도로 연결됩니다.",
     "more_en": "<b>Deriving the geometric series sum</b>: let S = a + ar + ar² + … + arⁿ⁻¹; multiply by r to get rS = ar + ar² + … + arⁿ. Subtract (S − rS) and the overlapping terms cancel, leaving <b>S(1−r) = a − arⁿ</b> → <b>S = a(1−rⁿ)/(1−r)</b> (r≠1). This \"shift and subtract (telescoping)\" is the key trick. If <b>|r|<1 and n→∞</b>, then rⁿ→0 (Ch.14 limits), giving <b>S = a/(1−r)</b> — exactly Ch.13's infinite geometric series (#80)! Uses: compound interest and annuities, proving 0.999…=1, fractal lengths, and amortized analysis in CS (dynamic arrays 1+2+4+…). Finite and infinite sums connect through one derivation.",
@@ -108,7 +108,7 @@
     "ch": "제7장 지수·로그",
     "sec": "7.3 로그의 성질 (자세히)",
     "title": "로그의 밑변환 & 자연로그",
-    "narr": "log₂7 은 계산기로 직접 구하기 어렵습니다. 계산기엔 보통 ln(밑 e)이나 log(밑 10)만 있습니다. <b>밑변환 공식</b>으로 어떤 밑이든 바꿀 수 있습니다: <b>logₐ x = ln x / ln a</b>. 그리고 미적분에서 가장 자연스러운 밑은 <b>e</b>입니다 — 그래서 '자연'로그 ln이라 부릅니다.",
+    "narr": "log₂7은 계산기로 바로 누를 버튼이 없습니다. 계산기에는 보통 자연로그 ln(밑 e)이나 상용로그 log(밑 10)만 있기 때문입니다. 이때 <b>밑변환 공식 logₐx=ln x/ln a</b>를 쓰면 어떤 밑이든 계산기가 아는 밑으로 바꿀 수 있습니다. 그리고 미적분에서 가장 자연스러운 밑은 <b>e</b>입니다 — (ln x)′=1/x, (eˣ)′=eˣ처럼 다른 밑이면 붙는 군더더기 상수가 사라지기 때문입니다. 그래서 e를 밑으로 하는 로그를 '자연'로그라 부릅니다.",
     "hint": "logₐ x = ln x / ln a",
     "more": "<b>밑변환 공식</b>: <b>logₐ x = (log_b x)/(log_b a)</b> — 어떤 밑 a의 로그도 다른 밑 b로 환산합니다(계산기는 ln·log만 있어도 충분). <b>자연로그 ln</b>은 밑이 <b>e≈2.718</b>(#86 자연상수)인 로그입니다. 왜 e가 '자연'스러울까? <b>(ln x)′ = 1/x</b>, <b>(eˣ)′ = eˣ</b> 처럼 미적분 공식이 가장 깔끔해지기 때문입니다(다른 밑은 ln a 같은 군더더기 상수가 붙음). 그래서 과학·공학·통계·정보이론(엔트로피)·복잡도 분석의 기본 밑이 e입니다. 로그 자체의 위력(곱→합 #51)에 더해, '어떤 밑이든 자유롭게 오간다 + e가 미적분의 본거지'라는 게 로그를 완성합니다. 14장에서 본 e가 7장 로그와 17장 미분을 잇는 다리입니다.",
     "more_en": "<b>Change of base</b>: <b>logₐ x = (log_b x)/(log_b a)</b> — convert a logarithm of any base a into another base b (a calculator with only ln and log suffices). The <b>natural log ln</b> has base <b>e≈2.718</b> (#86, the natural constant). Why is e \"natural\"? Because calculus formulas become cleanest: <b>(ln x)′ = 1/x</b>, <b>(eˣ)′ = eˣ</b> (other bases carry an extra constant like ln a). So e is the default base in science, engineering, statistics, information theory (entropy), and complexity analysis. Beyond logs' power (product→sum #51), \"move freely between bases + e is calculus's home\" completes the picture. The e of Ch.14 bridges Ch.7 logs and Ch.17 differentiation.",
@@ -123,7 +123,7 @@
     "ch": "제11장 공간도형",
     "sec": "11.2 공간벡터 (자세히)",
     "title": "벡터의 외적 — 평면 밖으로",
-    "narr": "<b>내적(#60)</b>은 두 벡터로 '수(스칼라)'를 만들었습니다. 3차원에는 또 다른 곱 <b>외적</b>이 있습니다 — 두 벡터에 <b>동시에 수직인 새 벡터</b>를 만듭니다! 그 크기는 두 벡터가 만드는 <b>평행사변형의 넓이</b>(|a||b|sinθ)입니다. 법선·회전력·3D 그래픽의 핵심입니다.",
+    "narr": "<b>내적(#60)</b>은 두 벡터로 하나의 '수(스칼라)'를 만들었습니다. 3차원에는 또 다른 곱인 <b>외적</b>이 있는데, 결과가 수가 아니라 <b>두 벡터에 동시에 수직인 새 벡터</b>입니다. 그 크기는 두 벡터가 만드는 <b>평행사변형의 넓이</b> |a||b|sinθ이고, 방향은 오른손 법칙으로 정합니다. 내적이 cos(나란한 정도)을 잰다면, 외적은 sin(직교성·넓이)을 잽니다. 그래서 평면의 법선벡터, 물리의 토크·각운동량, 3D 그래픽의 면 방향 계산에 핵심입니다.",
     "hint": "결과는 두 벡터에 수직인 벡터",
     "more": "<b>벡터의 외적(cross product) a×b</b>는 (3차원 전용) 두 벡터에 <b>모두 수직인 벡터</b>입니다. 방향은 오른손 법칙, 크기는 <b>|a×b| = |a||b|sin θ = 평행사변형 넓이</b>. 내적(a·b=|a||b|cosθ, 스칼라, 평행도)과 짝을 이룹니다 — 내적은 cos(나란함), 외적은 sin(직교성·넓이). 성분으로는 행렬식(21장)으로 계산합니다: a×b = |i j k; a₁a₂a₃; b₁b₂b₃|. 핵심 성질: <b>a×b = −b×a</b>(순서 바꾸면 방향 반대), 평행하면 0. 쓰임: <b>평면의 법선벡터(#71)</b> 구하기, 물리의 <b>토크·각운동량·로런츠 힘</b>, 3D 그래픽의 면 방향·조명 계산, 삼각형 넓이. 내적+외적이 공간 기하의 두 곱셈입니다(2차원엔 외적이 스칼라로 축약).",
     "more_en": "The <b>cross product a×b</b> (3D only) is a vector <b>perpendicular to both</b> a and b. Its direction follows the right-hand rule, and its magnitude is <b>|a×b| = |a||b|sin θ = the area of the parallelogram</b>. It pairs with the dot product (a·b=|a||b|cosθ, a scalar, measuring alignment) — dot uses cos (parallelism), cross uses sin (perpendicularity, area). In components it's a determinant (Ch.21): a×b = |i j k; a₁a₂a₃; b₁b₂b₃|. Key properties: <b>a×b = −b×a</b> (swapping reverses direction), and it is 0 for parallel vectors. Uses: finding a plane's <b>normal vector (#71)</b>, physics' <b>torque, angular momentum, Lorentz force</b>, surface orientation and lighting in 3D graphics, and triangle areas. Dot and cross are the two products of space geometry (in 2D the cross reduces to a scalar).",
@@ -138,7 +138,7 @@
     "ch": "제19장 적분",
     "sec": "19.2 부정적분 (자세히)",
     "title": "치환적분 & 부분적분",
-    "narr": "미분은 규칙대로 기계적이지만, <b>적분은 \"기술\"</b>이 필요합니다. 두 핵심 도구: <b>치환적분</b>(연쇄법칙을 거꾸로)과 <b>부분적분</b>(곱의 미분을 거꾸로). 둘 다 <b>미분 법칙(#100.1)을 뒤집은 것</b>입니다 — 미분을 알면 적분의 절반을 안 셈!",
+    "narr": "미분은 규칙만 따르면 기계적으로 풀리지만, <b>적분은 '기술'</b>이 필요합니다. 핵심 도구가 둘 있습니다 — <b>치환적분</b>은 연쇄법칙을 거꾸로 읽어 '안쪽 함수의 미분이 곱해진' 모양을 변수치환으로 단순화하고, <b>부분적분</b>은 곱의 미분을 거꾸로 읽어 어려운 곱 적분을 더 쉬운 적분으로 옮깁니다. 둘 다 <b>미분 법칙(#100.1)을 뒤집은 것</b>이라는 점이 핵심입니다. 즉 미분 법칙을 알면 적분의 절반은 이미 안 셈입니다. 적분은 결국 패턴을 알아보는 기술입니다.",
     "hint": "미분 법칙을 거꾸로",
     "more": "적분의 두 핵심 기법(미분 법칙의 역) — <b>① 치환적분</b>: <b>∫ f(g(x))·g′(x) dx = ∫ f(u) du</b> (u=g(x)). 연쇄법칙(#100.1)의 역연산으로, '안쪽 함수의 미분이 곱해져 있을 때' 변수를 바꿔 단순화. 예) ∫2x·cos(x²)dx → u=x² → ∫cos u du = sin(x²)+C. <b>② 부분적분</b>: <b>∫ u dv = uv − ∫ v du</b>. 곱의 미분 (uv)′=u′v+uv′을 적분해 정리한 것 — '곱으로 된 적분'을 더 쉬운 적분으로 옮김. 예) ∫x·eˣdx → u=x, dv=eˣdx → x·eˣ−∫eˣdx=(x−1)eˣ+C. 어느 걸 u로 둘지는 LIATE 순서(로그·역삼각·다항·삼각·지수) 요령. 적분이 미분보다 어려운 이유: 미분은 항상 되지만 적분은 초등함수로 안 되는 경우도 많음(예 ∫eˣ²dx). 그래서 적분은 '패턴 인식 기술'입니다 — 그 토대가 바로 미분 법칙을 거꾸로 읽는 것입니다.",
     "more_en": "Two core integration techniques (inverses of differentiation rules) — <b>① Substitution</b>: <b>∫ f(g(x))·g′(x) dx = ∫ f(u) du</b> (u=g(x)). The reverse of the chain rule (#100.1): when an inner function's derivative is present, change variables to simplify. E.g. ∫2x·cos(x²)dx → u=x² → ∫cos u du = sin(x²)+C. <b>② Integration by parts</b>: <b>∫ u dv = uv − ∫ v du</b>. Obtained by integrating the product rule (uv)′=u′v+uv′ — it trades a product-integral for an easier one. E.g. ∫x·eˣdx → u=x, dv=eˣdx → x·eˣ−∫eˣdx=(x−1)eˣ+C. Which factor to call u follows the LIATE heuristic (log, inverse-trig, algebraic, trig, exponential). Why integration is harder than differentiation: differentiation always works, but many integrals have no elementary form (e.g. ∫eˣ²dx). So integration is a \"pattern-recognition craft\" — founded on reading the differentiation rules backwards.",
@@ -153,7 +153,7 @@
     "ch": "제2장 식",
     "sec": "2.2 인수분해 (자세히)",
     "title": "인수정리 & 조립제법",
-    "narr": "<b>2장에서 이차식 인수분해(#17)</b>를 했습니다. 3차·4차 같은 고차식은 어떻게 인수분해할까요? <b>인수정리</b>가 열쇠입니다 — <b>P(a)=0이면 (x−a)가 인수</b>! 그 a를 찾은 뒤 <b>조립제법</b>으로 빠르게 나눠 몫을 구하면 차수가 하나씩 내려갑니다.",
+    "narr": "2장에서 <b>이차식 인수분해(#17)</b>를 배웠습니다. 그렇다면 3차·4차 같은 고차식은 어떻게 인수분해할까요. 열쇠는 <b>인수정리</b>입니다 — 다항식 P에서 <b>P(a)=0이 되는 a를 찾으면 (x−a)가 인수</b>가 됩니다. 그런 a는 상수항의 약수에서 시도해 찾고, 찾은 뒤에는 <b>조립제법</b>으로 (x−a)를 빠르게 나눠 몫을 구합니다. 그러면 차수가 하나 내려가고, 같은 과정을 반복하면 고차식도 완전히 인수분해됩니다. 인수분해와 나눗셈이 한 도구에서 만납니다.",
     "hint": "P(a)=0 → (x−a)가 인수",
     "more": "<b>인수정리</b>: 다항식 P(x)에 대해 <b>P(a)=0 ⟺ (x−a)가 P(x)의 인수</b>(나머지정리 P(x)=(x−a)Q(x)+P(a)의 특수한 경우). 활용: 고차방정식의 근을 ±(상수항 약수/최고차 약수)에서 시도(유리근 정리)해 P(a)=0인 a를 찾고, <b>조립제법(synthetic division)</b>으로 (x−a)로 나눠 몫 Q(x)를 구함 → 차수가 1 내려가 반복하면 완전히 인수분해됩니다. 예) x³−2x²−5x+6: P(1)=0 → 조립제법 → 몫 x²−x−6=(x−3)(x+2) → P=(x−1)(x−3)(x+2). 조립제법은 계수만으로 나눗셈을 표 한 줄로 끝내는 효율적 알고리즘입니다(긴 나눗셈의 단축). 3·4차방정식(26장), 부분분수 분해, 다항식 평가(호너의 방법)로 이어집니다. 인수분해와 나눗셈이 한 도구로 만납니다.",
     "more_en": "<b>Factor theorem</b>: for a polynomial P(x), <b>P(a)=0 ⟺ (x−a) is a factor</b> (a special case of the remainder theorem P(x)=(x−a)Q(x)+P(a)). Use: try roots from ±(divisors of constant / divisors of leading coeff) (rational root theorem) to find a with P(a)=0, then use <b>synthetic division</b> to divide by (x−a) and get the quotient Q(x) → the degree drops by one; repeat to fully factor. E.g. x³−2x²−5x+6: P(1)=0 → synthetic division → quotient x²−x−6=(x−3)(x+2) → P=(x−1)(x−3)(x+2). Synthetic division is an efficient algorithm doing the division in one row using only coefficients (a shortcut for long division). It leads to cubics/quartics (Ch.26), partial fractions, and polynomial evaluation (Horner's method). Factoring and division meet in one tool.",
@@ -168,7 +168,7 @@
     "ch": "제4장 부등식",
     "sec": "4.2 부등식의 해법 (자세히)",
     "title": "산술평균 ≥ 기하평균 (AM-GM)",
-    "narr": "두 양수 a, b의 <b>산술평균 (a+b)/2</b> 와 <b>기하평균 √(ab)</b> 중 어느 게 클까요? 항상 <b>산술평균이 크거나 같습니다</b> — 등호는 <b>a=b일 때만</b>! a를 바꿔 두 평균을 비교해보세요. 최솟값 찾기의 강력한 무기입니다.",
+    "narr": "두 양수 a, b의 <b>산술평균 (a+b)/2</b>와 <b>기하평균 √(ab)</b> 중 어느 쪽이 클까요. 언제나 <b>산술평균이 크거나 같고</b>, 두 값이 정확히 같아지는 것은 <b>a=b일 때뿐</b>입니다. 증명은 의외로 간단합니다 — (√a−√b)²≥0은 항상 참이고, 이걸 전개하면 a+b≥2√(ab)가 바로 나옵니다. 이 부등식은 미분 없이 <b>최솟값을 찾는</b> 강력한 무기입니다. 예컨대 x+1/x는 두 항의 곱이 1로 고정되므로 최솟값이 2임을 한눈에 알 수 있습니다. a를 바꿔 두 평균을 비교해 보세요.",
     "hint": "a=b일 때만 등호",
     "more": "<b>산술-기하 평균 부등식(AM-GM)</b>: 양수 a, b에 대해 <b>(a+b)/2 ≥ √(ab)</b>, 등호는 <b>a=b</b>일 때만. 증명: (√a−√b)² ≥ 0 전개 → a+b ≥ 2√(ab). 기하적으로는 반원(지름 a+b)의 반지름 (a+b)/2 ≥ 수선 √(ab). n개로 일반화됩니다(산술평균 ≥ 기하평균 ≥ 조화평균). ★강력한 쓰임: <b>최솟값 찾기</b> — 미분 없이! 예) x>0에서 x + 1/x ≥ 2√(x·1/x)=2 (등호 x=1), 즉 최솟값 2. 둘레 고정 직사각형 넓이 최대(정사각형), 코시-슈바르츠와 함께 부등식 증명의 양대 도구. 18장 최적화를 \"부등식만으로\" 푸는 우아한 방법입니다.",
     "more_en": "<b>AM-GM inequality</b>: for positive a, b, <b>(a+b)/2 ≥ √(ab)</b>, with equality only when <b>a=b</b>. Proof: expand (√a−√b)² ≥ 0 → a+b ≥ 2√(ab). Geometrically, the radius (a+b)/2 of a semicircle (diameter a+b) ≥ the altitude √(ab). It generalizes to n terms (arithmetic ≥ geometric ≥ harmonic mean). Powerful use: <b>finding minimums without calculus!</b> E.g. for x>0, x + 1/x ≥ 2√(x·1/x)=2 (equality at x=1), so the minimum is 2. Maximizing a fixed-perimeter rectangle's area (a square), and with Cauchy-Schwarz, one of the two main tools for inequality proofs. An elegant way to solve Ch.18 optimization \"with inequalities alone.\"",
@@ -183,7 +183,7 @@
     "ch": "제9장 평면벡터",
     "sec": "9.2 벡터의 응용 (자세히)",
     "title": "정사영 — 그림자의 길이",
-    "narr": "햇빛이 수직으로 비출 때 벡터 a가 벡터 b 위에 만드는 <b>그림자</b>가 <b>정사영</b>입니다. 그 길이는 <b>|a|cos θ</b> — 바로 <b>내적(#60)의 기하학적 의미</b>입니다. a의 방향을 바꾸며 정사영이 변하는 것을 살펴보세요.",
+    "narr": "햇빛이 수직으로 비출 때 벡터 a가 벡터 b 방향으로 드리우는 <b>그림자</b>가 바로 <b>정사영</b>입니다. 그 길이는 <b>|a|cosθ</b>인데, 이것이 곧 <b>내적(#60)의 기하학적 정체</b>입니다 — 내적 a·b=|a||b|cosθ를 |b|로 나누면 정확히 이 그림자 길이가 나오기 때문입니다. 정사영의 진짜 쓸모는 '한 방향으로의 성분만 뽑아내는' 데 있습니다. 물리의 일(힘 중 이동 방향 성분), 통계의 최소제곱법, 그래픽 조명이 모두 이 원리를 씁니다. a의 방향을 바꾸며 그림자가 변하는 것을 살펴보세요.",
     "hint": "a의 b방향 그림자 = |a|cosθ",
     "more": "<b>정사영(projection)</b>: 벡터 a를 b 방향으로 \"수직으로 비춘\" 성분. 길이는 <b>|a|cos θ = (a·b)/|b|</b>, 벡터로는 <b>proj_b a = (a·b/|b|²) b</b>. 내적 a·b=|a||b|cosθ를 |b|로 나눈 게 정사영 길이라, <b>내적(#60)의 기하학적 정체</b>가 바로 이 그림자입니다! 핵심 분해: 임의의 a는 \"b방향 성분(정사영) + b수직 성분\"으로 유일하게 나뉩니다. 쓰임: 물리의 <b>일 W=F·d</b>(힘의 이동방향 성분), <b>최소제곱법</b>(데이터에 가장 가까운 직선 = 정사영), <b>그램-슈미트 직교화</b>(벡터를 직교 기저로), 컴퓨터그래픽 조명. \"한 방향으로의 성분 추출\"이라는 정사영이 내적의 진짜 쓸모입니다.",
     "more_en": "<b>Projection</b>: the component of vector a cast perpendicularly onto b's direction. Its length is <b>|a|cos θ = (a·b)/|b|</b>, and as a vector <b>proj_b a = (a·b/|b|²) b</b>. Since this is the dot product a·b=|a||b|cosθ divided by |b|, the projection is the <b>geometric meaning of the dot product (#60)</b>! Key decomposition: any a splits uniquely into \"a component along b (the projection) + a component perpendicular to b.\" Uses: physics' <b>work W=F·d</b> (force component along motion), <b>least squares</b> (the closest line to data is a projection), <b>Gram-Schmidt orthogonalization</b>, and lighting in computer graphics. Extracting \"the component along one direction\" is the real utility of the dot product.",
@@ -198,7 +198,7 @@
     "ch": "제14장 극한",
     "sec": "14.2 극한의 계산 (자세히)",
     "title": "샌드위치 정리 — 낀 함수의 극한",
-    "narr": "어떤 함수가 너무 복잡해 극한을 직접 못 구할 때, <b>위아래로 더 단순한 두 함수 사이에 가두면</b> 됩니다! 두 함수가 같은 값으로 가면 낀 함수도 그리로 — 이게 <b>샌드위치(압착) 정리</b>입니다. 이걸로 0/0이던 <b>lim(sinx/x)=1</b>을 증명합니다.",
+    "narr": "어떤 함수가 너무 복잡해 극한을 직접 구할 수 없을 때가 있습니다. 이럴 때 그 함수를 <b>더 단순한 두 함수 사이에 가두면</b> 됩니다 — 위아래 두 함수가 같은 값 L로 수렴하면, 사이에 낀 함수도 빠져나갈 곳이 없어 L로 끌려갑니다. 이것이 <b>샌드위치(압착) 정리</b>입니다. 대표적으로 0/0 꼴이라 직접 못 풀던 <b>lim(sinx/x)=1</b>을, cos x≤sinx/x≤1로 가두고 양 끝이 1로 감을 보여 증명합니다. '직접 못 풀면 가둬서 푼다'는 강력한 우회 전략입니다.",
     "hint": "cos x ≤ sin x/x ≤ 1, 양쪽 →1",
     "more": "<b>샌드위치 정리(압착 정리)</b>: a 근처에서 <b>g(x) ≤ f(x) ≤ h(x)</b> 이고 <b>lim g = lim h = L</b> 이면 <b>lim f = L</b>. 가운데 함수가 위아래에 \"압착\"돼 같은 극한으로 끌려갑니다. ★대표 응용: <b>lim(x→0) sin x / x = 1</b> — 0/0 꼴이라 직접 못 구하지만, 단위원 넓이 비교로 <b>cos x ≤ sin x/x ≤ 1</b>을 보이면 양 끝이 x→0에서 1이므로 가운데도 1! 이 극한이 <b>(sin x)′ = cos x</b>(삼각함수 미분, 17장)의 출발점입니다. 또 x²sin(1/x)처럼 진동하는 함수의 극한(−x²≤·≤x²→0)에도 씁니다. \"직접 못 풀면 가둬서 푼다\"는 극한의 강력한 우회 전략입니다.",
     "more_en": "<b>Squeeze (sandwich) theorem</b>: if near a, <b>g(x) ≤ f(x) ≤ h(x)</b> and <b>lim g = lim h = L</b>, then <b>lim f = L</b>. The middle function is squeezed to the same limit. Key use: <b>lim(x→0) sin x / x = 1</b> — a 0/0 form, but comparing areas in the unit circle shows <b>cos x ≤ sin x/x ≤ 1</b>, and since both ends →1 as x→0, so does the middle! This limit is the starting point of <b>(sin x)′ = cos x</b> (trig differentiation, Ch.17). It also handles oscillating limits like x²sin(1/x) (−x²≤·≤x²→0). \"If you can't solve it directly, trap it\" — a powerful detour strategy for limits.",
@@ -213,7 +213,7 @@
     "ch": "제16장 확률",
     "sec": "16.2 조건부확률 (자세히)",
     "title": "베이즈 정리 — 증거로 믿음을 갱신",
-    "narr": "조건부확률(#95)을 <b>거꾸로</b> 뒤집으면 \"결과(B)를 보고 원인(A)의 확률\"을 구하는 <b>베이즈 정리</b>가 나옵니다. 충격적 예: 유병률 1% 병을 99% 정확한 검사로 양성 판정받아도, <b>진짜 병일 확률은 겨우 ~50%</b>! 직관이 크게 빗나갑니다.",
+    "narr": "조건부확률(#95)이 '원인 A가 주어졌을 때 결과 B'를 다룬다면, 이를 <b>거꾸로 뒤집어</b> '결과 B를 보고 원인 A의 확률'을 구하는 것이 <b>베이즈 정리</b> P(A|B)=P(B|A)P(A)/P(B)입니다. 즉 사전확률을 증거로 갱신해 사후확률로 바꿉니다. 충격적 예로, 유병률 1%인 병을 99% 정확한 검사로 양성 판정받아도 <b>진짜 병일 확률은 겨우 50%쯤</b>입니다. 병이 드물어 건강한데 양성으로 나오는 거짓양성이 진짜 양성만큼 많기 때문입니다. 의료진단·스팸필터·AI 추론의 사고틀입니다.",
     "hint": "P(A|B) = P(B|A)P(A)/P(B)",
     "more": "<b>베이즈 정리</b>: <b>P(A|B) = P(B|A)·P(A) / P(B)</b>. 조건부확률(#95)을 뒤집어 \"증거 B가 주어졌을 때 가설 A의 확률\"을 계산합니다 — <b>사전확률 P(A)</b>를 증거로 갱신해 <b>사후확률 P(A|B)</b>로. ★유명한 의료검사 역설: 병 유병률 1%, 검사 정확도 99%(민감도·특이도)일 때 양성이 나오면? P(병|양성) = (0.99×0.01)/(0.99×0.01 + 0.01×0.99) = <b>0.5</b>! 병이 드물어서 \"건강한데 양성(거짓양성)\"이 \"진짜 병\"만큼 많기 때문. 직관(99% 정확하니 병이겠지)이 크게 틀립니다. 쓰임: <b>의료진단, 스팸필터, A/B 테스트, 베이지안 추론·머신러닝</b>(증거로 모델 갱신). \"데이터로 믿음을 합리적으로 바꾸는\" 현대 통계·AI의 사고틀입니다.",
     "more_en": "<b>Bayes' theorem</b>: <b>P(A|B) = P(B|A)·P(A) / P(B)</b>. It inverts conditional probability (#95) to compute \"the probability of hypothesis A given evidence B\" — updating a <b>prior P(A)</b> with evidence into a <b>posterior P(A|B)</b>. The famous medical-test paradox: with disease prevalence 1% and a 99%-accurate test, a positive result gives P(disease|positive) = (0.99×0.01)/(0.99×0.01 + 0.01×0.99) = <b>0.5</b>! Because the disease is rare, \"healthy but positive (false positives)\" are as common as true positives. Intuition (99% accurate, so surely diseased) is badly wrong. Uses: <b>medical diagnosis, spam filters, A/B testing, Bayesian inference and machine learning</b> (updating models with evidence). The thinking framework of modern statistics and AI: rationally revising belief from data.",
@@ -228,7 +228,7 @@
     "ch": "제21장 행렬",
     "sec": "21.2 행렬식 (자세히)",
     "title": "고유값·고유벡터 구하기",
-    "narr": "<b>22장에서 고유벡터(#127)</b> — 변환해도 방향이 안 변하는 축 — 를 봤습니다. 고유값은 <b>행렬식(#121)</b>으로 계산합니다: <b>det(A − λI) = 0</b> 을 풀면 고유값 λ를 얻습니다. 이게 \"특성방정식\"입니다.",
+    "narr": "22장에서 <b>고유벡터(#127)</b> — 행렬로 변환해도 방향이 바뀌지 않는 특별한 축 — 를 봤습니다. 그럼 그 고유값을 실제로 어떻게 계산할까요. Av=λv를 (A−λI)v=0으로 바꾸면, v가 0이 아니려면 A−λI가 <b>역행렬을 갖지 않아야</b> 합니다. 행렬이 역행렬을 못 가지는 조건은 <b>행렬식(#121)이 0</b>인 것이므로, <b>det(A−λI)=0</b>을 풀면 고유값 λ가 나옵니다. 이것이 '특성방정식'입니다. 행렬식이 '변환이 한 차원을 0으로 무너뜨리는 지점'을 찾아 고유값을 잡아내는 셈입니다.",
     "hint": "det(A−λI)=0 으로 λ를",
     "more": "<b>고유값·고유벡터 계산</b>: Av=λv (v≠0)를 변형하면 (A−λI)v=0. v가 영벡터가 아니려면 A−λI가 <b>역행렬이 없어야</b>(차원 붕괴) → <b>det(A−λI)=0</b>(특성방정식). 이 방정식(λ의 다항식)을 풀어 고유값 λ를 얻고, 각 λ를 (A−λI)v=0에 넣어 고유벡터 v를 구합니다. 예) A=[[2,1],[1,2]] → det([[2−λ,1],[1,2−λ]])=(2−λ)²−1=0 → λ=3, 1. λ=3 → v=(1,1), λ=1 → v=(1,−1). 행렬식(#121, 넓이 배율)이 \"변환이 한 차원을 0으로 만드는(det=0) 지점\"을 찾아 고유값을 잡아내는 것입니다. 쓰임: <b>주성분분석(PCA)·구글 페이지랭크·양자역학(에너지 고유값)·진동의 공명·미분방정식</b>. 행렬식→고유값→고유벡터로 선형대수의 정점에 도달합니다.",
     "more_en": "<b>Computing eigenvalues/eigenvectors</b>: Av=λv (v≠0) rearranges to (A−λI)v=0. For v to be nonzero, A−λI must be <b>non-invertible</b> (collapsing a dimension) → <b>det(A−λI)=0</b> (the characteristic equation). Solve this polynomial in λ for the eigenvalues, then plug each λ into (A−λI)v=0 to find the eigenvector v. E.g. A=[[2,1],[1,2]] → det([[2−λ,1],[1,2−λ]])=(2−λ)²−1=0 → λ=3, 1. λ=3 → v=(1,1), λ=1 → v=(1,−1). The determinant (#121, the area factor) pinpoints \"where the transformation collapses a dimension (det=0),\" capturing the eigenvalues. Uses: <b>PCA, Google PageRank, quantum mechanics (energy eigenvalues), resonance, differential equations</b>. Determinant → eigenvalues → eigenvectors reaches the summit of linear algebra.",
@@ -243,7 +243,7 @@
     "ch": "제10장 복소평면",
     "sec": "10.2 복소수와 평면기하 (자세히)",
     "title": "오일러 공식 — 가장 아름다운 식",
-    "narr": "지수함수와 삼각함수가 복소수를 통해 하나가 됩니다: <b>e^(iθ) = cos θ + i sin θ</b>! 복소평면 단위원 위의 점입니다. θ=π를 넣으면 — <b>e^(iπ) + 1 = 0</b>, 수학의 다섯 상수(e, i, π, 1, 0)가 한 줄에! 인류 최고의 등식입니다. θ를 바꿔보세요.",
+    "narr": "따로 자라 온 지수함수와 삼각함수가 복소수를 통해 하나로 묶입니다 — <b>e^(iθ)=cosθ+i sinθ</b>. 어떻게 가능할까요. eˣ, sinx, cosx의 테일러 급수에 x=iθ를 넣으면, i의 거듭제곱이 주기적으로 부호를 바꾸며 실수부는 cosθ, 허수부는 sinθ로 정확히 갈라집니다. 이 식에 θ=π를 넣으면 e^(iπ)=−1, 옮기면 <b>e^(iπ)+1=0</b> — 수학의 다섯 상수 e, i, π, 1, 0이 한 줄에 모입니다. 가장 아름다운 등식으로 불립니다. θ를 바꿔 단위원 위의 점이 도는 모습을 보세요.",
     "hint": "θ=180°에서 e^(iπ)+1=0",
     "more": "<b>오일러 공식</b>: <b>e^(iθ) = cos θ + i sin θ</b>. 지수함수(7장)·삼각함수(8장)·복소수(10장)를 하나로 묶는 다리입니다. 유도: eˣ, sin, cos의 테일러 급수(18장)에 x=iθ를 넣으면 실수부=cosθ, 허수부=sinθ로 정확히 갈라집니다! 의미: 복소수의 극형식(#64) r(cosθ+isinθ)이 <b>re^(iθ)</b>로 간결해지고, 곱셈(#65)·드무아브르(#65.1)가 지수법칙 e^(iα)·e^(iβ)=e^(i(α+β))로 당연해집니다. ★특수값 θ=π: e^(iπ)=−1 → <b>e^(iπ) + 1 = 0</b> — e(자연상수), i(허수), π(원주율), 1, 0 다섯 상수와 +, ×, =, 거듭제곱이 한 식에! \"수학에서 가장 아름다운 등식\"으로 불립니다. 쓰임: 신호처리(푸리에·FFT), 교류회로, 양자역학, 제어이론. 떨어져 있던 수학의 큰 줄기들이 한 점에서 만나는 경이입니다.",
     "more_en": "<b>Euler's formula</b>: <b>e^(iθ) = cos θ + i sin θ</b>. It bridges the exponential (Ch.7), trigonometric (Ch.8), and complex numbers (Ch.10). Derivation: substitute x=iθ into the Taylor series (Ch.18) of eˣ, sin, cos — the real part becomes cosθ and the imaginary part sinθ exactly! Meaning: a complex number's polar form (#64) r(cosθ+isinθ) compresses to <b>re^(iθ)</b>, and multiplication (#65) and De Moivre (#65.1) become obvious from exponent laws e^(iα)·e^(iβ)=e^(i(α+β)). The special value θ=π: e^(iπ)=−1 → <b>e^(iπ) + 1 = 0</b> — uniting the five constants e, i, π, 1, 0 with +, ×, =, and exponentiation in one line! Often called \"the most beautiful equation in mathematics.\" Uses: signal processing (Fourier, FFT), AC circuits, quantum mechanics, control theory. The wonder of mathematics' great branches meeting at a single point.",
@@ -258,7 +258,7 @@
     "ch": "제5장 함수",
     "sec": "5.1 함수와 그래프 (자세히)",
     "title": "합성함수와 역함수",
-    "narr": "함수를 <b>이어 붙이거나(합성)</b> <b>거꾸로 돌릴(역함수)</b> 수 있습니다. g로 처리한 결과를 f에 다시 넣으면 <b>합성함수 f∘g</b>, f가 한 일을 되돌리는 게 <b>역함수 f⁻¹</b>입니다. 역함수 그래프는 y=x에 대칭입니다(7장 로그=지수의 역함수!).",
+    "narr": "함수는 <b>이어 붙이거나(합성)</b> <b>거꾸로 돌릴(역함수)</b> 수 있습니다. g로 처리한 결과를 다시 f에 넣으면 <b>합성함수 (f∘g)(x)=f(g(x))</b>인데, 순서가 중요합니다(f∘g와 g∘f는 다릅니다). 반대로 f가 한 일을 정확히 되돌리는 함수가 <b>역함수 f⁻¹</b>이며, f를 한 뒤 f⁻¹을 하면 원래 값으로 돌아옵니다. 핵심 성질은 역함수의 그래프가 원함수를 <b>y=x에 대칭</b>시킨 모양이라는 것 — 7장에서 로그가 지수의 역함수인 이유가 바로 이것입니다.",
     "hint": "합성=이어붙이기, 역함수=되돌리기",
     "more": "<b>합성함수 (f∘g)(x) = f(g(x))</b>: g를 먼저 적용하고 그 결과에 f를 적용(순서 중요!). 예) g(x)=2x, f(x)=x+1이면 f(g(x))=2x+1. <b>역함수 f⁻¹</b>: f(x)=y를 거꾸로 x=f⁻¹(y)로 되돌리는 함수, f∘f⁻¹=항등(원래대로). 존재 조건: f가 <b>일대일대응(전단사)</b>일 것. 핵심 성질 — 역함수 그래프는 원함수를 <b>y=x에 대칭</b>(7장 로그함수가 지수함수의 역함수인 이유!), 정의역·치역이 맞바뀜. 미분에선 <b>연쇄법칙(#100.1)</b>이 합성함수의 미분 도구이고, 역함수 미분 (f⁻¹)′=1/f′. 쓰임: 암호화↔복호화(역함수), 좌표변환, 신경망의 층 합성. 함수를 \"조립하고 분해하는\" 두 연산입니다.",
     "more_en": "<b>Composition (f∘g)(x) = f(g(x))</b>: apply g first, then f to the result (order matters!). E.g. g(x)=2x, f(x)=x+1 gives f(g(x))=2x+1. <b>Inverse f⁻¹</b>: undoes f, turning f(x)=y back into x=f⁻¹(y), with f∘f⁻¹ = identity. Existence requires f to be a <b>bijection</b>. Key property — the inverse's graph is the original <b>reflected across y=x</b> (why log is the inverse of exp, Ch.7!), with domain and range swapped. In calculus the <b>chain rule (#100.1)</b> differentiates compositions, and (f⁻¹)′=1/f′. Uses: encryption↔decryption (inverses), coordinate changes, composing neural-network layers. The two operations for \"assembling and disassembling\" functions.",
@@ -273,7 +273,7 @@
     "ch": "제6장 도형과 식",
     "sec": "6.2 직선 (자세히)",
     "title": "점과 직선 사이의 거리",
-    "narr": "한 점에서 직선까지의 <b>가장 짧은(수직) 거리</b>를 구하는 공식이 있습니다: 직선 ax+by+c=0과 점 (x₀,y₀)의 거리 = <b>|ax₀+by₀+c| / √(a²+b²)</b>. 점을 움직여 거리가 변하는 걸 보세요.",
+    "narr": "한 점에서 직선까지 가장 짧은(수직) 거리를 재는 공식이 있습니다. 직선 ax+by+c=0과 점 (x₀,y₀) 사이 거리는 <b>|ax₀+by₀+c|/√(a²+b²)</b>입니다. 어떻게 나올까요. 직선의 <b>법선벡터 (a,b)</b> 방향으로 점에서 직선까지를 정사영한 길이입니다. 분자는 점을 직선식에 대입한 값의 절댓값(직선 위 점이면 0), 분모는 법선의 크기로 정규화한 것입니다. 6장 직선과 9장 정사영이 만나는 공식이며, 원과 직선의 접촉 판정·최소제곱 회귀에 쓰입니다. 점을 움직여 거리가 변하는 걸 보세요.",
     "hint": "|ax₀+by₀+c| / √(a²+b²)",
     "more": "<b>점과 직선 사이의 거리</b>: 직선 ax+by+c=0 과 점 P(x₀,y₀) 사이 최단(수직) 거리 = <b>|ax₀+by₀+c| / √(a²+b²)</b>. 유도: 직선의 <b>법선벡터(a,b)</b> 방향으로 P에서 직선까지의 정사영(#60.1) 길이. 분자 |ax₀+by₀+c|는 \"점을 직선식에 대입한 값\"의 절댓값(직선 위 점이면 0), 분모는 법선 크기로 정규화. 6장의 직선 방정식(#43)과 9장 정사영이 만나는 공식입니다. 쓰임: <b>충돌·접촉 판정</b>(원과 직선: 거리 vs 반지름), 최소제곱 회귀(점들과 직선의 거리 최소화), 컴퓨터그래픽 클리핑, 로봇 경로. 3차원으로 확장하면 점과 평면 거리 |ax₀+by₀+cz₀+d|/√(a²+b²+c²)(11장 #71 법선)입니다.",
     "more_en": "<b>Distance from a point to a line</b>: between line ax+by+c=0 and point P(x₀,y₀), the shortest (perpendicular) distance = <b>|ax₀+by₀+c| / √(a²+b²)</b>. Derivation: the projection (#60.1) from P to the line along the line's <b>normal vector (a,b)</b>. The numerator |ax₀+by₀+c| is the absolute value of \"plugging the point into the line equation\" (zero if on the line); the denominator normalizes by the normal's length. It unites Ch.6's line equation (#43) with Ch.9's projection. Uses: <b>collision/contact tests</b> (circle vs line: distance vs radius), least-squares regression, graphics clipping, robot paths. In 3D it extends to point-plane distance |ax₀+by₀+cz₀+d|/√(a²+b²+c²) (Ch.11 #71 normal).",
@@ -288,7 +288,7 @@
     "ch": "제12장 이차곡선",
     "sec": "12.1 포물선 (자세히)",
     "title": "포물선의 반사 성질",
-    "narr": "포물선엔 마법 같은 성질이 있습니다 — <b>축에 평행하게 들어온 모든 빛(전파)이 반사되면 정확히 한 점, 초점에 모입니다</b>! 위성 안테나·반사망원경이 왜 포물선 모양인지의 이유입니다. 거꾸로 초점에 광원을 두면 평행 빔이 나갑니다(헤드라이트).",
+    "narr": "포물선에는 마법 같은 광학 성질이 있습니다. <b>축에 평행하게 들어온 모든 빛이 반사되면 정확히 한 점, 초점에 모입니다</b>. 그 이유는 포물선의 정의인 '초점까지 거리=준선까지 거리'(#72)와 반사 법칙(입사각=반사각)을 결합하면, 평행 광선이 모두 초점으로 꺾인다는 것이 따라옵니다. 그래서 위성 안테나·반사망원경이 약한 평행 신호를 초점의 수신기에 모읍니다. 거꾸로 초점에 광원을 두면 평행 빔이 나가는데, 이것이 자동차 헤드라이트와 손전등의 원리입니다. 기하 정의가 곧 물리적 쓸모가 됩니다.",
     "hint": "평행 입사 → 모두 초점으로",
     "more": "<b>포물선의 반사 성질</b>: 포물선 축에 평행하게 입사한 광선은 곡면에서 반사된 뒤 <b>모두 초점 F를 지납니다</b>(반대로 초점에서 나온 빛은 평행 빔으로). 증명: 포물선의 \"초점까지 거리 = 준선까지 거리\"(#72 정의)와 반사 법칙(입사각=반사각)으로 따라옵니다. 응용: <b>위성·전파 안테나·반사망원경</b>(약한 평행 신호를 초점의 수신기에 집광), <b>태양열 집열기</b>(빛을 모아 가열), <b>자동차 헤드라이트·손전등</b>(초점 광원 → 평행 빔), 마이크(파라볼릭 마이크). 이차곡선마다 고유한 광학 성질이 있습니다 — 타원은 한 초점의 빛이 다른 초점에 모임(속삭이는 회랑·결석 파쇄술), 쌍곡선도 마찬가지. 기하 정의(초점)가 곧 물리적 쓸모로 이어지는 아름다운 예입니다.",
     "more_en": "<b>Reflective property of the parabola</b>: rays entering parallel to the axis reflect off the surface and <b>all pass through the focus F</b> (and conversely, light from the focus leaves as a parallel beam). Proof: it follows from the parabola's \"distance to focus = distance to directrix\" definition (#72) and the law of reflection (angle in = angle out). Applications: <b>satellite/radio antennas and reflecting telescopes</b> (concentrate faint parallel signals onto a receiver at the focus), <b>solar collectors</b>, <b>car headlights and flashlights</b> (focus source → parallel beam), and parabolic microphones. Each conic has its own optical property — an ellipse focuses light from one focus to the other (whispering galleries, lithotripsy), as does a hyperbola. A beautiful case of a geometric definition (the focus) becoming physical utility.",
@@ -303,7 +303,7 @@
     "ch": "제15장 순열·조합",
     "sec": "15.1 경우의 수 (자세히)",
     "title": "비둘기집 원리",
-    "narr": "너무 당연해서 오히려 강력한 원리! <b>비둘기 n+1마리를 상자 n개에 넣으면, 반드시 어느 한 상자엔 2마리 이상</b>이 들어갑니다. 이 뻔한 사실이 \"존재한다\"를 증명하는 마법의 도구가 됩니다.",
+    "narr": "너무 당연해서 오히려 강력한 원리입니다. <b>비둘기 n+1마리를 상자 n개에 넣으면, 반드시 어느 한 상자에는 2마리 이상</b>이 들어갑니다 — 만약 모든 상자에 1마리 이하라면 전체가 n마리를 넘지 못해 모순이기 때문입니다. 이 뻔한 사실이 '반드시 존재한다'를 증명하는 마법의 도구가 됩니다. 어디인지 콕 집지 못해도 존재만은 보장하기 때문입니다. 머리카락 수가 같은 두 사람이 있다거나, 23명 중 생일이 겹치는 둘이 있을 확률이 절반을 넘는다는 결과가 모두 여기서 나옵니다.",
     "hint": "n+1을 n칸에 → 한 칸은 2개+",
     "more": "<b>비둘기집 원리(pigeonhole principle)</b>: n개의 상자에 n+1개의 물건을 넣으면 <b>적어도 한 상자에는 2개 이상</b>이 들어간다. 일반형: kn+1개면 한 상자에 k+1개 이상. 너무 단순하지만 <b>존재성 증명</b>의 강력한 무기입니다 — 구체적으로 어디인지 몰라도 \"반드시 있다\"를 보장. 유명한 예: ① <b>서울에 머리카락 수가 정확히 같은 두 사람</b>이 존재(머리카락 수 < 인구). ② 23명만 모여도 <b>생일 같은 두 사람</b>이 있을 확률 50%↑(생일의 역설, 15·16장). ③ 임의의 6명 중 \"서로 아는 3명 또는 모르는 3명\"이 존재(램지 이론). ④ 정수론·근사(연분수)에서도 핵심. 셈(15장)의 가장 단순한 사실이 깊은 정리들의 증명 엔진이 되는 — 수학의 우아한 역설입니다.",
     "more_en": "<b>The pigeonhole principle</b>: placing n+1 objects into n boxes forces <b>at least one box to hold 2 or more</b>. General form: kn+1 objects force some box to hold k+1+. Trivial yet a powerful tool for <b>existence proofs</b> — it guarantees \"there must be one\" without saying where. Famous examples: ① in Seoul, <b>two people with exactly the same number of hairs</b> exist (hair counts < population); ② just 23 people give a >50% chance of <b>a shared birthday</b> (the birthday paradox, Ch.15/16); ③ among any 6 people, three mutual acquaintances or three mutual strangers exist (Ramsey theory); ④ it's key in number theory and approximation (continued fractions). The simplest fact of counting (Ch.15) becomes the proof engine of deep theorems — an elegant paradox of mathematics.",
@@ -318,7 +318,7 @@
     "ch": "제18장 미분의 응용",
     "sec": "18.2 최적화 (자세히)",
     "title": "뉴턴법 — 접선으로 근 찾기",
-    "narr": "방정식 f(x)=0의 근을 <b>접선(#102)</b>으로 빠르게 찾는 법! 추정값에서 접선을 그어 x축과 만나는 점을 새 추정값으로 삼고 반복하면, 놀랍도록 빨리 근에 수렴합니다. √2를 단 몇 번 만에! 반복 횟수를 늘려보세요.",
+    "narr": "방정식 f(x)=0의 근을 <b>접선(#102)</b>을 이용해 빠르게 찾는 방법이 있습니다. 추정값에서 접선을 긋고, 그 접선이 x축과 만나는 점을 새 추정값으로 삼아 반복합니다(xₙ₊₁=xₙ−f(xₙ)/f′(xₙ)). 접선은 곡선을 잘 근사하므로 추정값이 근에 놀랍도록 빨리 다가가는데, 맞는 자릿수가 매 단계 약 두 배씩 늘어납니다(이차 수렴). 예컨대 √2는 단 몇 번 만에 정밀해집니다. 컴퓨터가 √나 나눗셈을 내부적으로 이렇게 계산합니다. 반복 횟수를 늘려 수렴을 보세요.",
     "hint": "접선이 x축 만나는 점 → 반복",
     "more": "<b>뉴턴법(뉴턴-랩슨)</b>: f(x)=0의 근을 반복으로 구합니다 — <b>xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</b>. 기하적 의미: 현재 추정값에서 <b>접선(#102, 17장)</b>을 긋고, 그 접선이 x축과 만나는 점을 다음 추정값으로. 접선이 곡선을 잘 근사하므로(선형근사) 빠르게 근으로 수렴 — <b>이차 수렴</b>(맞는 자릿수가 매 단계 약 2배!). 예) √2는 f(x)=x²−2의 근, x₀=2 → 1.5 → 1.4166… → 1.41421… 몇 번 만에 정밀. 주의: 시작점이 나쁘거나 f′=0 근처면 발산할 수 있음. 쓰임: <b>컴퓨터의 √·나눗셈·역수 계산</b>(하드웨어가 내부적으로 뉴턴법!), 최적화(f′=0 찾기), 머신러닝(손실 최소화). 미분(접선)이 \"방정식을 푸는\" 도구가 되는 — 17·18장 미분의 강력한 실전 응용입니다.",
     "more_en": "<b>Newton's method (Newton-Raphson)</b> finds a root of f(x)=0 iteratively — <b>xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</b>. Geometric meaning: draw the <b>tangent (#102, Ch.17)</b> at the current guess and take where it crosses the x-axis as the next guess. Since the tangent approximates the curve well (linear approximation), it converges fast — <b>quadratic convergence</b> (correct digits roughly double each step!). E.g. √2 is the root of f(x)=x²−2: x₀=2 → 1.5 → 1.4166… → 1.41421… precise in a few steps. Caution: a bad start or f′≈0 can diverge. Uses: <b>computing √, division, and reciprocals in hardware</b> (which uses Newton internally!), optimization (finding f′=0), and machine learning (minimizing loss). Differentiation (the tangent) becomes a tool for solving equations — a powerful application of Ch.17/18.",
@@ -333,7 +333,7 @@
     "ch": "제20장 적분의 응용",
     "sec": "20.1 넓이 (자세히)",
     "title": "적분의 평균값 정리",
-    "narr": "들쭉날쭉한 함수에도 <b>평균값</b>을 정의할 수 있습니다. 곡선 아래 넓이를 <b>같은 밑변의 직사각형</b>으로 바꿨을 때, 그 높이가 함수의 평균입니다. 그리고 함수가 그 평균값과 정확히 같아지는 점 c가 반드시 존재합니다(연속이면).",
+    "narr": "들쭉날쭉 변하는 함수에도 하나의 <b>평균값</b>을 정의할 수 있습니다. 곡선 아래 넓이를 <b>같은 밑변의 직사각형</b>으로 바꿨을 때, 그 직사각형의 높이가 함수의 평균입니다(평균=넓이÷밑변). 그리고 함수가 연속이면, 그 평균값과 함숫값이 정확히 같아지는 점 c가 구간 안에 반드시 존재합니다. 즉 '평균이 곧 어떤 점의 실제값'이라는 것으로, 미분의 평균값정리(#103)에 대응하는 적분판입니다. 평균 속도·평균 기온·확률의 기댓값이 모두 이 원리로 정의됩니다.",
     "hint": "넓이 = 평균높이 × 밑변",
     "more": "<b>적분의 평균값 정리</b>: 구간 [a,b]에서 f가 연속이면 <b>(1/(b−a))∫ₐᵇ f dx = f(c)</b>인 점 c가 (a,b)에 존재. 좌변이 함수의 <b>평균값</b>(곡선 아래 넓이를 밑변으로 나눔 = 같은 넓이의 직사각형 높이). 미분의 평균값정리(#103)의 적분판입니다 — \"평균이 곧 어떤 점의 실제값\". 쓰임: <b>평균 속도·평균 기온·평균 전력</b>(순간값의 적분 평균), 물리의 무게중심·관성모멘트, 확률의 기댓값(연속분포: E[X]=∫x·p(x)dx). RMS(실효값) 같은 다양한 평균도 적분으로 정의됩니다. 적분이 단순히 \"넓이\"를 넘어 \"연속적인 양의 평균·총합\"을 다루는 도구임을 보여주는 정리입니다.",
     "more_en": "<b>The Mean Value Theorem for integrals</b>: if f is continuous on [a,b], there exists c in (a,b) with <b>(1/(b−a))∫ₐᵇ f dx = f(c)</b>. The left side is the function's <b>average value</b> (area under the curve divided by the base = the height of an equal-area rectangle). It is the integral analog of the differential MVT (#103) — \"the average equals the actual value at some point.\" Uses: <b>average velocity, temperature, power</b> (the integral average of instantaneous values), centers of mass and moments of inertia in physics, and expected values in probability (continuous: E[X]=∫x·p(x)dx). Various means like RMS are also defined via integrals. The theorem shows integration handles \"averages and totals of continuous quantities,\" beyond mere area.",
@@ -348,7 +348,7 @@
     "ch": "제23장 수론",
     "sec": "23.2 합동식 (자세히)",
     "title": "페르마 소정리 — 합동의 황금률",
-    "narr": "<b>거듭제곱의 나머지(#84)</b>가 왜 주기를 갖는지, 그 비밀을 푸는 정리입니다. <b>p가 소수면 a^(p−1) ≡ 1 (mod p)</b>! 예로 2⁶=64를 7로 나누면 나머지 1. 거대한 거듭제곱의 나머지를 한순간에 구하게 해주고, RSA 암호의 수학적 근거입니다.",
+    "narr": "거듭제곱을 어떤 수로 나눈 <b>나머지(#84)</b>가 왜 일정한 주기로 반복되는지, 그 비밀을 푸는 정리입니다. <b>p가 소수이고 a가 p의 배수가 아니면 a^(p−1)≡1 (mod p)</b>입니다. 예컨대 2⁶=64를 7로 나누면 나머지가 1입니다. 덕분에 거대한 거듭제곱의 나머지를 한순간에 구할 수 있고, 모듈러 역원 계산과 소수 판정도 가능해집니다. 무엇보다 인터넷을 지키는 <b>RSA 암호</b>가 정확히 복원되는 수학적 근거가 바로 이것입니다. 작은 주기 패턴이 깊은 정리로, 다시 현대 암호로 이어집니다.",
     "hint": "소수 p: a^(p−1) ≡ 1 (mod p)",
     "more": "<b>페르마 소정리</b>: <b>p가 소수이고 a가 p의 배수가 아니면 a^(p−1) ≡ 1 (mod p)</b>. 예) p=7: 2⁶=64≡1, 3⁶=729≡1 (mod 7) 모두 성립. #84에서 본 \"거듭제곱 나머지의 주기성\"의 근본 이유입니다. 활용: ① <b>거대 거듭제곱의 나머지</b>를 지수를 (p−1)로 나눈 나머지만으로 계산. ② <b>모듈러 역원</b>: a⁻¹ ≡ a^(p−2) (mod p)(확장 유클리드의 대안). ③ <b>RSA 복호화(#10.2)</b>가 cᵈ≡m으로 정확히 복원되는 수학적 근거(오일러 정리로 일반화). ④ <b>소수 판정</b>(밀러-라빈, 페르마 검정): a^(n−1)≢1이면 n은 합성수. 합동(#83)과 거듭제곱(#84)을 잇는 정수론의 황금률이자, 현대 암호의 심장입니다. 작은 패턴(주기)이 깊은 정리로, 다시 인터넷 보안으로 이어집니다.",
     "more_en": "<b>Fermat's little theorem</b>: <b>if p is prime and a is not a multiple of p, then a^(p−1) ≡ 1 (mod p)</b>. E.g. p=7: 2⁶=64≡1, 3⁶=729≡1 (mod 7). It is the root cause of the \"periodicity of power remainders\" seen in #84. Uses: ① compute <b>remainders of huge powers</b> using only the exponent mod (p−1); ② <b>modular inverse</b>: a⁻¹ ≡ a^(p−2) (mod p) (an alternative to extended Euclid); ③ the mathematical basis for <b>RSA decryption (#10.2)</b> recovering cᵈ≡m exactly (generalized by Euler's theorem); ④ <b>primality testing</b> (Miller-Rabin, Fermat test): if a^(n−1)≢1 then n is composite. The golden rule of number theory linking congruence (#83) and powers (#84), and the heart of modern cryptography. A small pattern (periodicity) leads to a deep theorem and back to internet security.",
@@ -363,7 +363,7 @@
     "ch": "제22장 일차변환",
     "sec": "22.2 평면의 일차변환 (자세히)",
     "title": "회전의 합성 = 각의 덧셈",
-    "narr": "두 회전을 연달아 하면? 당연히 <b>각이 더해진</b> 회전입니다. 행렬로 보면 <b>R(α)·R(β) = R(α+β)</b>. 그런데 이 행렬 곱을 직접 전개하면 — 놀랍게도 <b>8장의 덧셈정리(#55)가 그대로 튀어나옵니다</b>! 기하·대수·삼각이 하나로 만납니다.",
+    "narr": "두 회전을 연달아 하면 결과는 어떻게 될까요. 직관대로 <b>각이 더해진</b> 회전이며, 행렬로는 <b>R(α)·R(β)=R(α+β)</b>입니다. 그런데 이 회전행렬의 곱을 실제로 전개해 성분을 계산하면, 놀랍게도 cos(α+β)와 sin(α+β)가 그대로 튀어나옵니다 — 바로 <b>8장의 덧셈정리(#55)</b>입니다. 즉 '회전을 잇는다'는 기하적 사실이 행렬 곱(대수)으로, 또 삼각함수 덧셈정리로, 그리고 복소수 곱으로 나타나는 <b>한 진리의 여러 얼굴</b>입니다. 이래서 회전은 어느 언어로도 표현됩니다.",
     "hint": "회전행렬 곱 = 각의 합",
     "more": "<b>회전행렬의 합성</b>: 각 α 회전 후 각 β 회전 = 각 (α+β) 회전, 즉 <b>R(α)·R(β) = R(α+β)</b>(22장 #123). 회전행렬 R(θ)=[[cosθ,−sinθ],[sinθ,cosθ]]를 곱해 (1,1)·(2,1) 성분을 계산하면 cosα cosβ − sinα sinβ, sinα cosβ + cosα sinβ가 나오는데, 이게 정확히 <b>cos(α+β), sin(α+β)</b>(8장 덧셈정리 #55)! 즉 \"회전을 잇는다\"는 기하적 사실이 행렬 곱(대수)으로, 또 삼각함수 덧셈정리로, 그리고 복소수 곱(#65, e^(iα)e^(iβ)=e^(i(α+β)))로 — <b>한 진리의 네 얼굴</b>입니다. 이래서 회전은 행렬·복소수·삼각함수 어느 언어로도 표현됩니다. 3D 회전(쿼터니언)·로봇·그래픽스의 토대이고, 군(group) 구조(회전들의 합성이 군을 이룸)로 이어집니다.",
     "more_en": "<b>Composition of rotations</b>: rotating by α then β equals rotating by (α+β), i.e. <b>R(α)·R(β) = R(α+β)</b> (Ch.22 #123). Multiplying R(θ)=[[cosθ,−sinθ],[sinθ,cosθ]] and computing the (1,1) and (2,1) entries gives cosα cosβ − sinα sinβ and sinα cosβ + cosα sinβ — exactly <b>cos(α+β), sin(α+β)</b> (Ch.8 addition formulas #55)! So the geometric fact \"compose rotations\" appears as matrix multiplication (algebra), as the trig addition formula, and as complex multiplication (#65, e^(iα)e^(iβ)=e^(i(α+β))) — <b>four faces of one truth</b>. This is why rotation can be expressed in matrices, complex numbers, or trig. It underlies 3D rotation (quaternions), robotics, and graphics, and leads to group structure (rotations form a group under composition).",
@@ -378,7 +378,7 @@
     "ch": "제24장 집합론",
     "sec": "24.4 비가산·연속의 농도 (자세히)",
     "title": "칸토어의 정리 — 무한의 끝없는 위계",
-    "narr": "<b>실수가 자연수보다 큰 무한(#135)</b>임을 봤습니다. 그럼 가장 큰 무한이 있을까요? <b>없습니다!</b> 칸토어의 정리: 어떤 집합이든 그 <b>부분집합 전체의 모임(멱집합)이 항상 더 크다</b>. 그래서 무한은 끝없이 더 큰 무한으로 올라가는 사다리입니다.",
+    "narr": "실수는 자연수보다 큰 무한(#135)임을 봤습니다. 그렇다면 '가장 큰 무한'이 있을까요. <b>없습니다.</b> 칸토어의 정리는 어떤 집합이든 그 <b>부분집합을 모두 모은 멱집합이 항상 더 크다</b>고 말합니다(크기 2^|A|). 증명은 대각선 논법의 일반화로, 어떤 대응을 만들어도 '빠지는 부분집합'이 반드시 생겨 일대일대응이 불가능합니다. 그래서 무한은 ℵ₀<𝔠<2^𝔠<… 끝없이 더 큰 무한으로 올라가는 사다리가 됩니다. 유한의 직관을 완전히 넘어선, 칸토어가 연 현대 수학의 가장 깊은 영역입니다.",
     "hint": "멱집합 |P(A)| > |A| 항상",
     "more": "<b>칸토어의 정리</b>: 임의의 집합 A에 대해 <b>|P(A)| > |A|</b> (멱집합 = A의 모든 부분집합의 집합, 크기 2^|A|). 증명은 대각선 논법(#135)의 일반화 — A에서 P(A)로의 어떤 대응도 \"빠지는 부분집합\"을 만들 수 있어 전단사 불가. 결과: 무한은 하나가 아니라 <b>ℵ₀(자연수) < 𝔠=2^ℵ₀(실수) < 2^𝔠 < …</b> 끝없이 큰 무한들의 위계! \"가장 큰 무한\"은 존재하지 않습니다. 관련 난제 <b>연속체 가설</b>: ℵ₀와 𝔠 사이에 다른 무한이 있는가? → 괴델·코언이 \"현 공리계(ZFC)로는 증명도 반증도 불가능\"함을 증명(독립성). 유한의 직관을 완전히 초월한 무한의 세계 — 칸토어가 연 현대 수학의 가장 깊은 영역입니다. (24·25장 엄밀화의 정점.)",
     "more_en": "<b>Cantor's theorem</b>: for any set A, <b>|P(A)| > |A|</b> (the power set = all subsets of A, of size 2^|A|). The proof generalizes the diagonal argument (#135) — any map from A to P(A) misses a constructible subset, so no bijection exists. Result: infinity is not single but a hierarchy <b>ℵ₀ (naturals) < 𝔠=2^ℵ₀ (reals) < 2^𝔠 < …</b> of ever-larger infinities! There is no \"largest infinity.\" The related open problem, the <b>Continuum Hypothesis</b> (is there an infinity strictly between ℵ₀ and 𝔠?), was shown by Gödel and Cohen to be <b>independent of the standard axioms (ZFC)</b> — neither provable nor disprovable. A world of infinity utterly beyond finite intuition — the deepest realm of modern mathematics opened by Cantor. (The summit of Ch.24/25 rigor.)",
@@ -393,7 +393,7 @@
     "ch": "제25장 엄밀한 극한",
     "sec": "25.2 함수의 극한 (자세히)",
     "title": "코시 수열과 실수의 완비성",
-    "narr": "극한값을 <b>미리 모르고도</b> 수렴을 판정할 수 있을까요? <b>코시 수열</b>이면 됩니다 — 항들이 자기들끼리 한없이 가까워지면 수렴! 그리고 실수는 \"코시 수열이 항상 수렴하는\" <b>완비</b>한 체계입니다. 1장 √2가 만든 유리수의 구멍을 메운 결과입니다.",
+    "narr": "극한값을 <b>미리 모르는 상태로도</b> 수렴 여부를 판정할 수 있을까요. <b>코시 수열</b>이면 가능합니다 — 뒤로 갈수록 항들이 자기들끼리 한없이 가까워지면 그 수열은 수렴합니다. 그리고 실수는 '모든 코시 수열이 반드시 수렴하는' <b>완비</b>한 체계입니다. 반면 유리수에는 구멍이 있습니다 — 1, 1.4, 1.41, 1.414…처럼 √2로 다가가는 수열은 유리수 안에 도착할 곳이 없습니다(√2가 무리수이므로). 그래서 실수는 유리수의 모든 구멍을 메워 완비하게 만든 수 체계로 정의됩니다. 1장 √2 이야기의 결말입니다.",
     "hint": "항들이 서로 가까워짐 = 수렴",
     "more": "<b>코시 수열</b>: 충분히 뒤로 가면 임의의 두 항의 거리가 ε보다 작아지는 수열(∀ε>0 ∃N, m,n>N → |aₘ−aₙ|<ε). 핵심: <b>극한값 L을 몰라도</b> 항들끼리의 거리만으로 수렴 여부를 판정! <b>실수의 완비성</b>: 실수에서는 \"모든 코시 수열이 수렴한다\". 하지만 <b>유리수엔 구멍</b>이 있습니다 — 1, 1.4, 1.41, 1.414…처럼 √2로 가는 코시 수열은 유리수 안에선 수렴할 곳(√2)이 없습니다(1장 #5 무리수!). 그래서 <b>실수 = 유리수의 모든 구멍을 메워(코시 수열의 극한을 다 추가해) 완비하게 만든 수 체계</b>로 정의할 수 있습니다(데데킨트 절단·코시 완비화). 미적분의 극한·연속·적분이 실수 위에서만 안전한 근본 이유 — 25장 엄밀 극한의 토대이자, 1장에서 시작한 \"수의 완성\" 여정의 결말입니다.",
     "more_en": "<b>Cauchy sequence</b>: a sequence whose terms get arbitrarily close to each other far enough out (∀ε>0 ∃N, m,n>N → |aₘ−aₙ|<ε). Key: you can decide convergence from the terms' mutual closeness <b>without knowing the limit L</b>! <b>Completeness of the reals</b>: in ℝ, \"every Cauchy sequence converges.\" But the <b>rationals have gaps</b> — a Cauchy sequence like 1, 1.4, 1.41, 1.414… heading to √2 has nowhere to converge within ℚ (Ch.1 #5, irrationality!). So <b>the reals can be defined as the rationals completed by filling all gaps</b> (adding all Cauchy-sequence limits; Dedekind cuts / Cauchy completion). This is the fundamental reason calculus' limits, continuity, and integrals are safe only over ℝ — the foundation of Ch.25's rigorous limits and the finale of the \"completing number\" journey begun in Ch.1.",
@@ -408,7 +408,7 @@
     "ch": "제26장 종합",
     "sec": "26.4 확률분포와 평균 (자세히)",
     "title": "기댓값과 분산 — 분포의 중심과 퍼짐",
-    "narr": "확률분포는 두 숫자로 요약됩니다. <b>기댓값(평균)</b>은 분포의 중심을, <b>분산</b>은 퍼진 정도를 나타냅니다. 주사위의 기댓값은 3.5입니다. 정규분포(#141)는 이 (평균, 분산) 단 둘로 완전히 결정됩니다. 통계와 위험 측정의 기본입니다.",
+    "narr": "확률분포는 두 숫자로 그 성격을 요약할 수 있습니다. <b>기댓값(평균)</b>은 분포의 무게중심, 즉 수없이 반복했을 때 평균적으로 나오는 값(예컨대 공정한 주사위는 3.5)이고, <b>분산</b>은 값들이 평균에서 얼마나 퍼져 있는지를 제곱으로 잰 척도입니다. 그 제곱근이 표준편차입니다. 정규분포(#141)는 이 (평균, 분산) 단 두 숫자로 완전히 결정됩니다. 투자 위험(기대수익 대 변동성), 보험의 기댓값, 머신러닝의 손실(평균제곱오차)이 모두 이 둘로 다뤄집니다 — 불확실성을 두 숫자로 길들이는 법입니다.",
     "hint": "기댓값=중심, 분산=퍼짐",
     "more": "<b>기댓값(expected value) E[X] = Σ x·p(x)</b> (연속이면 ∫x·p(x)dx): 각 값을 그 확률로 가중한 평균 = 분포의 <b>무게중심</b>, \"수없이 반복하면 평균적으로 나오는 값\"(큰수의 법칙 #93). 예) 공정한 주사위 E[X]=(1+…+6)/6=3.5. <b>분산 Var(X)=E[(X−μ)²]</b>: 평균에서 떨어진 정도의 제곱 평균 = <b>퍼짐</b>의 측도(주사위 ≈2.92), 그 제곱근이 <b>표준편차 σ</b>. 정규분포(#141)는 (μ, σ²) 단 둘로 완전히 결정됩니다. 성질: E는 선형(E[aX+b]=aE[X]+b), 독립이면 Var 합. 쓰임: <b>투자 위험(기대수익 vs 변동성), 보험·도박의 기댓값, 머신러닝 손실(평균제곱오차=분산), 신뢰구간</b>. 16장 확률에서 시작해 통계·금융·AI로 이어지는 핵심 측도입니다 — 불확실성을 두 숫자로 길들이는 법.",
     "more_en": "<b>Expected value E[X] = Σ x·p(x)</b> (or ∫x·p(x)dx if continuous): the probability-weighted average = the distribution's <b>center of mass</b>, the value you get on average over many repeats (law of large numbers #93). E.g. a fair die: E[X]=(1+…+6)/6=3.5. <b>Variance Var(X)=E[(X−μ)²]</b>: the mean squared distance from the average = a measure of <b>spread</b> (≈2.92 for a die), and its square root is the <b>standard deviation σ</b>. The normal distribution (#141) is fully determined by just (μ, σ²). Properties: E is linear (E[aX+b]=aE[X]+b); variances add for independent variables. Uses: <b>investment risk (expected return vs volatility), expected value in insurance and gambling, ML loss (mean squared error = variance), confidence intervals</b>. Starting from Ch.16 probability, it extends to statistics, finance, and AI — taming uncertainty with two numbers.",
@@ -423,7 +423,7 @@
     "ch": "제17장 미분",
     "sec": "17.4 여러 미분법 (자세히)",
     "title": "미분의 법칙 — 곱·몫·연쇄",
-    "narr": "<b>멱법칙(#100)</b>만으론 sin(x²)이나 x²·eˣ 같은 복잡한 함수를 못 미분합니다. 다행히 <b>곱·몫·연쇄법칙</b>으로 어떤 함수든 잘게 분해해 미분할 수 있습니다. 특히 <b>연쇄법칙</b>은 \"겹친 함수\"의 핵심 도구입니다.",
+    "narr": "<b>멱법칙(#100)</b>만으로는 sin(x²)이나 x²·eˣ처럼 함수가 겹치거나 곱해진 식을 미분할 수 없습니다. 다행히 <b>곱·몫·연쇄법칙</b>이 있어 어떤 함수든 잘게 분해해 미분할 수 있습니다. 특히 주의할 함정은 곱의 미분이 (fg)′=f′g′가 <b>아니라</b> f′g+fg′라는 점입니다. 그리고 <b>연쇄법칙</b>은 '바깥 함수 미분 × 안쪽 함수 미분'으로 겹친 함수를 처리합니다 — 예로 (sin(x²))′=cos(x²)·2x입니다. 이 연쇄법칙이 곧 <b>신경망의 역전파</b>라서, 미분 한 도구가 딥러닝까지 닿습니다.",
     "hint": "복잡한 함수를 법칙으로 분해",
     "more": "<b>미분의 법칙</b>: <b>상수배</b> (cf)′=cf′, <b>합·차</b> (f±g)′=f′±g′, <b>곱</b> <b>(fg)′ = f′g + fg′</b>, <b>몫</b> (f/g)′ = (f′g − fg′)/g², <b>연쇄법칙</b> <b>(f(g(x)))′ = f′(g(x))·g′(x)</b>. 곱의 미분이 (fg)′=f′g′가 <b>아닌</b> 게 핵심 함정! 연쇄법칙은 \"바깥 함수 미분 × 안쪽 함수 미분\" — 예 (sin(x²))′ = cos(x²)·2x. 이 법칙들로 다항·삼각·지수·로그·합성 어떤 함수든 기계적으로 미분합니다. ★연쇄법칙은 <b>신경망의 역전파(backpropagation)</b> 그 자체 — 여러 층 합성함수의 기울기를 연쇄적으로 곱해 계산하는 게 딥러닝 학습의 심장입니다. 미분 한 도구가 AI까지 닿습니다.",
     "more_en": "<b>Rules of differentiation</b> (standard calculus): <b>constant multiple</b> (cf)′=cf′, <b>sum/difference</b> (f±g)′=f′±g′, <b>product</b> <b>(fg)′ = f′g + fg′</b>, <b>quotient</b> (f/g)′ = (f′g − fg′)/g², <b>chain rule</b> <b>(f(g(x)))′ = f′(g(x))·g′(x)</b>. A key trap: the product rule is <b>not</b> (fg)′=f′g′! The chain rule is \"derivative of the outer × derivative of the inner\" — e.g. (sin(x²))′ = cos(x²)·2x. With these, any polynomial, trig, exponential, log, or composite function differentiates mechanically. The chain rule <b>is backpropagation in neural networks</b> — multiplying gradients through layers of composed functions is the heart of deep-learning training. One tool, differentiation, reaches all the way to AI.",
@@ -438,7 +438,7 @@
     "ch": "수·식·방정식",
     "sec": "연습문제",
     "title": "수·식·방정식 5제",
-    "narr": "대수의 기초를 직접 손으로 풉니다. 풀이를 가리고 도전해 보세요.",
+    "narr": "지금까지 배운 수·식·방정식의 기초를 직접 손으로 풀어 봅니다. 일차·이차방정식 풀이, 판별식으로 중근 조건 찾기, 전개와 인수분해의 왕복, 그리고 근과 계수의 관계(비에트)까지 다섯 문항이 난이도순으로 이어집니다. 머릿속으로만 따라가지 말고 풀이를 가린 채 직접 종이에 도전한 뒤, 막히는 부분만 왼쪽 아래 '자세히 보기'에서 단계별 풀이를 확인하세요. N과 P로 문항을 넘기며 풉니다.",
     "hint": "N/P로 문항 이동, 자세히 보기에서 풀이 확인.",
     "more": "<b>풀이</b><br><b>1.</b> 3x − 7 = 11<br>&nbsp;&nbsp;→ 양변에 7을 더하면 3x = 18, 3으로 나누면 <b>x = 6</b>.<br><b>2.</b> x² − 5x + 6 = 0<br>&nbsp;&nbsp;→ (x−2)(x−3)=0 이므로 <b>x = 2 또는 x = 3</b>.<br><b>3.</b> x² + bx + 3 = 0 이 중근<br>&nbsp;&nbsp;→ 판별식 b² − 12 = 0 → <b>b = ±2√3</b>.<br><b>4.</b> (x+2)(x−3) 전개·인수분해<br>&nbsp;&nbsp;→ 전개 = x² − x − 6. 다시 인수분해하면 (x+2)(x−3) 원래대로.<br><b>5.</b> x² − 7x + 12 = 0 근의 합·곱<br>&nbsp;&nbsp;→ 비에트: 합 = 7, 곱 = 12. (근은 3과 4로 확인)<br>",
     "more_en": "Solutions: 1) x=6.  2) x=2 or 3.  3) b=±2√3 (discriminant 0).  4) expands to x²−x−6.  5) sum=7, product=12 (Vieta).",
@@ -453,7 +453,7 @@
     "ch": "함수와 그래프",
     "sec": "연습문제",
     "title": "함수와 그래프 5제",
-    "narr": "함수의 그래프 특성을 분석합니다.",
+    "narr": "함수의 그래프 특성을 분석하는 다섯 문항입니다. 일차함수의 기울기와 절편 읽기에서 출발해, 이차함수를 완전제곱식으로 바꿔 꼭짓점과 대칭축·최솟값을 찾고, 지수함수와 로그함수가 서로 역함수라 y=x에 대칭임을 확인하며, 마지막으로 삼차함수의 극대·극소를 그래프로 설명합니다. 핵심은 '식을 보고 그래프의 모양을 머릿속에 그리는' 능력입니다. 풀이를 가린 채 도전한 뒤 '자세히 보기'에서 단계별 풀이를 맞춰 보세요.",
     "hint": "꼭짓점·대칭축이 열쇠.",
     "more": "<b>풀이</b><br><b>1.</b> y = 2x + 1 의 기울기·y절편<br>&nbsp;&nbsp;→ 기울기 = 2, y절편 = 1.<br><b>2.</b> y = x² − 4x + 3 꼭짓점<br>&nbsp;&nbsp;→ 완전제곱: y = (x−2)² − 1 → 꼭짓점 <b>(2, −1)</b>.<br><b>3.</b> y = (x−2)² + 1 대칭축·최솟값<br>&nbsp;&nbsp;→ 대칭축 x = 2, 최솟값 <b>1</b> (꼭짓점에서).<br><b>4.</b> y = 2ˣ 와 y = log₂x<br>&nbsp;&nbsp;→ 서로 역함수. y = x 직선에 대해 대칭.<br><b>5.</b> y = x³ − 3x 극대·극소<br>&nbsp;&nbsp;→ y′ = 3x²−3 = 0 → x = ±1. x=−1 극대(2), x=1 극소(−2).<br>",
     "more_en": "Solutions: 1) slope 2, intercept 1.  2) vertex (2,−1).  3) axis x=2, min 1.  4) inverse functions, symmetric about y=x.  5) max at x=−1, min at x=1.",
@@ -468,7 +468,7 @@
     "ch": "지수·로그·삼각",
     "sec": "연습문제",
     "title": "지수·로그·삼각 5제",
-    "narr": "지수·로그·삼각함수의 기본 계산.",
+    "narr": "지수법칙·로그법칙·삼각함수 덧셈정리를 적용하는 다섯 문항입니다. 같은 밑의 지수를 더하고 빼는 계산에서 시작해, 곱과 몫의 로그를 합과 차로 바꾸기, 밑변환으로 로그값 구하기, 그리고 덧셈정리로 sin(α+β)를 펼쳐 sin75° 같은 특수각의 값을 계산하는 데까지 나아갑니다. 각 단원의 핵심 공식이 실제 계산에서 어떻게 쓰이는지 손으로 익히는 과정입니다. 풀이를 가린 채 풀어 본 뒤 '자세히 보기'로 확인하세요.",
     "hint": "지수법칙·로그법칙·덧셈정리.",
     "more": "<b>풀이</b><br><b>1.</b> 2³ × 2⁴, 2⁵ ÷ 2²<br>&nbsp;&nbsp;→ 지수 더하기·빼기: 2⁷ = 128, 2³ = 8.<br><b>2.</b> log₂8 + log₂4<br>&nbsp;&nbsp;→ 곱의 로그 = log₂32 = <b>5</b> (3+2).<br><b>3.</b> log₂x = 5, log₄16<br>&nbsp;&nbsp;→ x = 2⁵ = 32. log₄16 = 2 (4² = 16).<br><b>4.</b> sin30°cos60° + cos30°sin60°<br>&nbsp;&nbsp;→ = sin(30°+60°) = sin90° = <b>1</b> (덧셈정리).<br><b>5.</b> sin75° 구하기<br>&nbsp;&nbsp;→ sin(45°+30°) = sin45cos30 + cos45sin30 = (√6+√2)/4.<br>",
     "more_en": "Solutions: 1) 128, 8.  2) 5.  3) x=32, log₄16=2.  4) sin90°=1.  5) sin75°=(√6+√2)/4.",
@@ -483,7 +483,7 @@
     "ch": "수열·극한",
     "sec": "연습문제",
     "title": "수열·극한 5제",
-    "narr": "수열과 극한의 핵심 계산.",
+    "narr": "수열과 극한의 핵심 계산을 다루는 다섯 문항입니다. 등차수열의 일반항 구하기, 무한등비급수의 합, 가우스의 짝짓기로 1부터 100까지 더하기에서 출발해, 0/0 꼴 극한을 인수분해와 약분으로 풀고, 마지막으로 (1+1/n)ⁿ이 자연상수 e로 수렴함을 확인합니다. 공식을 외우는 데 그치지 말고 왜 그 값이 나오는지 흐름을 따라가 보세요. 풀이를 가린 채 도전한 뒤 '자세히 보기'에서 단계별 풀이를 맞춰 봅니다.",
     "hint": "공식·약분·수렴.",
     "more": "<b>풀이</b><br><b>1.</b> 등차 2,5,8,… 제10항<br>&nbsp;&nbsp;→ a₁=2, d=3 → a₁₀ = 2 + 9·3 = <b>29</b>.<br><b>2.</b> 1 + 1/2 + 1/4 + …<br>&nbsp;&nbsp;→ 등비 무한합 a/(1−r) = 1/(1−1/2) = <b>2</b>.<br><b>3.</b> 1+2+…+100<br>&nbsp;&nbsp;→ 가우스: n(n+1)/2 = 100·101/2 = <b>5050</b>.<br><b>4.</b> lim(x→2)(x²−4)/(x−2)<br>&nbsp;&nbsp;→ 약분: (x+2)(x−2)/(x−2) = x+2 → <b>4</b>.<br><b>5.</b> lim(1+1/n)ⁿ<br>&nbsp;&nbsp;→ 자연상수 <b>e ≈ 2.718</b> 로 수렴.<br>",
     "more_en": "Solutions: 1) 29.  2) 2.  3) 5050.  4) 4 (cancel x−2).  5) e.",
@@ -498,7 +498,7 @@
     "ch": "순열·조합·확률",
     "sec": "연습문제",
     "title": "순열·조합·확률 5제",
-    "narr": "경우의 수와 확률의 기본.",
+    "narr": "경우의 수와 확률의 기본을 다지는 다섯 문항입니다. 순열로 일렬 배열의 수를 세고, 조합으로 대표 뽑기의 수를 구하며, 주사위 두 개의 합이나 동전 던지기처럼 표본공간을 세어 확률을 계산합니다. 마지막은 조건부확률 P(B|A)=P(A∩B)/P(A)를 적용하는 문항입니다. 핵심은 '전체 경우 중 원하는 경우가 몇인지'를 정확히 세는 것입니다. 풀이를 가린 채 직접 풀어 본 뒤 '자세히 보기'에서 확인하세요.",
     "hint": "순열·조합·여사건·조건부.",
     "more": "<b>풀이</b><br><b>1.</b> 5권을 일렬로<br>&nbsp;&nbsp;→ 5! = <b>120</b> 가지.<br><b>2.</b> 10명 중 3명 ₁₀C₃<br>&nbsp;&nbsp;→ 10·9·8/(3·2·1) = <b>120</b>.<br><b>3.</b> 주사위 두 개 합 7<br>&nbsp;&nbsp;→ (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6가지 / 36 = <b>1/6</b>.<br><b>4.</b> 동전 3개 앞면 2개<br>&nbsp;&nbsp;→ ₃C₂ / 2³ = 3/8.<br><b>5.</b> P(A)=0.5, P(A∩B)=0.2, P(B|A)<br>&nbsp;&nbsp;→ P(A∩B)/P(A) = 0.2/0.5 = <b>0.4</b>.<br>",
     "more_en": "Solutions: 1) 120.  2) 120.  3) 1/6.  4) 3/8.  5) 0.4.",
@@ -513,7 +513,7 @@
     "ch": "미분",
     "sec": "연습문제",
     "title": "미분 5제",
-    "narr": "미분의 핵심 규칙을 적용합니다.",
+    "narr": "미분의 핵심 규칙을 적용하는 다섯 문항입니다. 멱법칙으로 도함수를 구하는 기초에서 출발해, 특정 점에서 접선의 기울기 계산, 곱의 미분(fg)′=f′g+fg′, 도함수가 0이 되는 극값 찾기, 그리고 연쇄법칙으로 (sin(x²))′ 같은 합성함수를 미분하는 데까지 이어집니다. 각 규칙이 어떤 모양의 함수에 쓰이는지 구별하는 것이 핵심입니다. 풀이를 가린 채 도전한 뒤 '자세히 보기'에서 단계별 풀이를 맞춰 보세요.",
     "hint": "멱법칙·곱·연쇄.",
     "more": "<b>풀이</b><br><b>1.</b> f(x)=x³ 의 f′(x)<br>&nbsp;&nbsp;→ 멱법칙: <b>3x²</b>.<br><b>2.</b> f(x)=x²+3x, x=1 접선 기울기<br>&nbsp;&nbsp;→ f′ = 2x+3, f′(1) = <b>5</b>.<br><b>3.</b> (x²·sin x)′<br>&nbsp;&nbsp;→ 곱의 미분: 2x·sin x + x²·cos x.<br><b>4.</b> f(x)=x³−3x 극값 x<br>&nbsp;&nbsp;→ f′ = 3x²−3 = 0 → x = ±1.<br><b>5.</b> (sin(x²))′<br>&nbsp;&nbsp;→ 연쇄법칙: cos(x²)·2x = 2x·cos(x²).<br>",
     "more_en": "Solutions: 1) 3x².  2) 5.  3) 2x·sinx + x²·cosx.  4) x=±1.  5) 2x·cos(x²).",
@@ -528,7 +528,7 @@
     "ch": "적분",
     "sec": "연습문제",
     "title": "적분 5제",
-    "narr": "적분과 넓이 계산.",
+    "narr": "적분과 넓이 계산을 익히는 다섯 문항입니다. 역도함수 구하기에서 시작해, 정적분으로 곡선 아래 넓이를 계산하고, 미적분 기본정리로 [F(x)]를 양 끝에서 빼는 계산, 그리고 치환적분으로 안쪽 함수의 미분이 곱해진 식을 푸는 데까지 나아갑니다. 적분이 단순한 공식 적용이 아니라 '미분을 거꾸로 읽는 기술'임을 손으로 체득하는 과정입니다. 풀이를 가린 채 도전한 뒤 '자세히 보기'에서 확인하세요.",
     "hint": "역도함수·기본정리·치환.",
     "more": "<b>풀이</b><br><b>1.</b> ∫ 2x dx<br>&nbsp;&nbsp;→ 역도함수: <b>x² + C</b>.<br><b>2.</b> ∫₀¹ x² dx<br>&nbsp;&nbsp;→ [x³/3]₀¹ = <b>1/3</b>.<br><b>3.</b> y=x, x축, x=0~2 넓이<br>&nbsp;&nbsp;→ ∫₀² x dx = [x²/2]₀² = <b>2</b> (삼각형 넓이와 일치).<br><b>4.</b> ∫₁³ 2x dx<br>&nbsp;&nbsp;→ [x²]₁³ = 9 − 1 = <b>8</b> (기본정리).<br><b>5.</b> ∫ 2x(x²+1)³ dx<br>&nbsp;&nbsp;→ 치환 u=x²+1, du=2x dx → ∫u³du = u⁴/4 = (x²+1)⁴/4 + C.<br>",
     "more_en": "Solutions: 1) x²+C.  2) 1/3.  3) 2.  4) 8.  5) (x²+1)⁴/4 + C.",
@@ -543,7 +543,7 @@
     "ch": "제1장 실수",
     "sec": "심화 증명",
     "title": "소수는 무한히 많다 — 유클리드",
-    "narr": "유클리드의 2300년 된 귀류법. 소수가 유한하다고 가정하면 모순이 나옵니다.",
+    "narr": "소수가 3, 5, 7…처럼 어디선가 끝난다면 어떻게 될까요. 유클리드는 <b>귀류법</b>으로 답합니다. 소수가 p₁,…,pₙ로 유한하다고 가정한 뒤 <b>N=p₁·…·pₙ+1</b>을 만들면, N은 목록의 어떤 소수로 나눠도 나머지가 1이라 나눠지지 않습니다. 그런데 N도 소인수를 가져야 하므로, 목록에 없는 <b>새 소수가 반드시 존재</b>합니다 — 가정과 모순입니다. 따라서 소수는 무한히 많습니다. 2300년 된 증명입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>유클리드의 증명</b><br>소수가 p₁,…,pₙ로 유한하다고 가정. N = p₁·…·pₙ + 1 을 만들면, N은 어떤 pᵢ로 나눠도 나머지가 1이라 나눠지지 않습니다. 하지만 N도 소인수를 가져야 하므로(또는 N 자체가 소수), 목록에 없는 새 소수가 존재합니다 → 모순. 따라서 소수는 무한히 많습니다.",
     "more_en": "Euclid: assume finitely many primes p₁..pₙ. N=p₁…pₙ+1 leaves remainder 1 by each pᵢ, yet must have a prime factor — a new prime not in the list. Contradiction; primes are infinite.",
@@ -552,7 +552,8 @@
       "solution": "아직 미해결입니다(쌍둥이 소수 추측). 유클리드 증명은 '소수 자체'의 무한성만 보이며, 특정 패턴의 소수가 무한한지는 별개의 어려운 문제입니다.",
       "q_en": "Is the infinitude of twin primes also proven?",
       "sol_en": "No — the twin prime conjecture is still open. Euclid's proof shows primes are infinite, but patterns like twins are separate, hard problems."
-    }
+    },
+    "sub": "소수가 유한하다고 가정하면 모순이 나옵니다."
   },
   "math_br_repeatdec": {
     "ch": "제1장 실수",
@@ -574,7 +575,7 @@
     "ch": "제13장 수열",
     "sec": "심화 유도",
     "title": "등차수열의 합 — 가우스의 발견",
-    "narr": "정방향과 역방향을 더하면 합이 한 번에 나옵니다.",
+    "narr": "2+5+8+…처럼 일정하게 늘어나는 등차수열의 합을 빠르게 구하는 방법입니다. 어린 가우스의 발상은 합 S를 <b>정방향과 역방향으로 두 번</b> 적어 더하는 것입니다. 그러면 첫 항과 끝 항, 둘째 항과 끝에서 둘째 항… 모든 자리가 짝을 이뤄 <b>(첫항+끝항)으로 일정</b>해집니다. 그런 짝이 n개이므로 2S=n(첫항+끝항), 따라서 <b>S=n(첫항+끝항)/2</b>입니다. 1부터 100까지 더하면 100·101/2=5050이 순식간에 나옵니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>가우스의 짝짓기</b><br>S = a + (a+d) + … + L 과 S = L + … + a 를 더하면 각 자리가 모두 (a+L)이 되어 2S = n(a+L). 따라서 S = n(첫항+끝항)/2. 1+2+…+100 = 100·101/2 = 5050. 어린 가우스가 순식간에 푼 방법입니다.",
     "more_en": "Add S forwards and backwards: every column sums to (a+L), so 2S=n(a+L), S=n(first+last)/2. 1+…+100=5050.",
@@ -583,13 +584,14 @@
       "solution": "첫항 3, 공차 4, 끝항 99. 항수 n=(99−3)/4+1=25. 합 = 25·(3+99)/2 = 25·51 = 1275.",
       "q_en": "Sum 3+7+11+…+99.",
       "sol_en": "n=25 terms; sum=25·(3+99)/2=1275."
-    }
+    },
+    "sub": "정방향과 역방향을 더하면 합이 한 번에 나옵니다."
   },
   "math_br_binomial": {
     "ch": "제15장 순열·조합",
     "sec": "심화 유도",
     "title": "이항정리 — (a+b)ⁿ 의 전개",
-    "narr": "괄호 n개에서 b를 몇 개 고르느냐가 곧 조합의 수입니다.",
+    "narr": "(a+b)ⁿ을 전개하면 각 항의 계수가 어디서 오는지 봅니다. (a+b)ⁿ은 <b>n개의 괄호에서 각각 a 또는 b를 골라</b> 곱한 것들을 모두 더한 식입니다. 그렇다면 aⁿ⁻ᵏbᵏ 항은 'n개 괄호 중 b를 정확히 k개 고르는' 경우에서 나오는데, 그 방법의 수가 바로 <b>조합 ₙCₖ</b>입니다. 따라서 (a+b)ⁿ=Σ ₙCₖ aⁿ⁻ᵏbᵏ이고, 계수들은 <b>파스칼 삼각형</b>의 한 줄과 정확히 일치합니다. 전개가 곧 '고르기 세기'인 것입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>고르기로 보는 전개</b><br>(a+b)ⁿ은 n개의 괄호에서 각각 a 또는 b를 골라 곱한 것들의 합입니다. b를 정확히 k개 고르는 방법이 ₙCₖ가지이므로 aⁿ⁻ᵏbᵏ의 계수가 ₙCₖ. 따라서 (a+b)ⁿ = Σ ₙCₖ aⁿ⁻ᵏ bᵏ. 계수들은 파스칼 삼각형의 한 줄입니다.",
     "more_en": "Each bracket contributes a or b; choosing b exactly k times in ₙCₖ ways gives coefficient ₙCₖ for aⁿ⁻ᵏbᵏ. So (a+b)ⁿ=Σ ₙCₖ aⁿ⁻ᵏbᵏ (Pascal's row).",
@@ -598,13 +600,14 @@
       "solution": "(1+1)ⁿ = Σ ₙCₖ = 2ⁿ. 즉 n개 원소 집합의 부분집합 개수가 2ⁿ임을 보여줍니다(각 원소를 넣거나 빼거나).",
       "q_en": "Apply the binomial theorem to (1+1)ⁿ.",
       "sol_en": "Σ ₙCₖ = 2ⁿ — the number of subsets of an n-set."
-    }
+    },
+    "sub": "괄호 n개에서 b를 몇 개 고르느냐가 곧 조합의 수입니다."
   },
   "math_br_sinelaw": {
     "ch": "제8장 삼각함수",
     "sec": "심화 증명",
     "title": "사인법칙 — a/sinA = 2R",
-    "narr": "외접원의 지름을 이용하면 변과 각의 비가 지름으로 묶입니다.",
+    "narr": "삼각형에서 변과 마주보는 각 사이에는 어떤 관계가 있을까요. 비밀은 <b>외접원</b>에 있습니다. 반지름 R인 외접원에서 변 a를 바라보는 원주각이 A인데, <b>지름을 한 변으로 하는 직각삼각형</b>을 만들면 sin A=a/(2R)이 나옵니다. 세 변에 대해 모두 같은 논리가 적용되므로 <b>a/sinA=b/sinB=c/sinC=2R</b>입니다. 즉 '변÷마주보는 각의 사인'이 어느 변에서나 외접원의 지름으로 일정합니다. 한 변과 두 각을 알 때 나머지 변을 구하는 데 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>외접원 원주각</b><br>삼각형 외접원(반지름 R)에서 변 a를 보는 원주각이 A입니다. 지름을 한 변으로 하는 직각삼각형을 만들면 sinA = a/(2R)이 나옵니다. 세 변 모두 같으므로 a/sinA = b/sinB = c/sinC = 2R. 변과 마주보는 각의 사인의 비가 항상 외접원 지름과 같습니다.",
     "more_en": "In the circumcircle (radius R), the inscribed angle on side a is A; a right triangle on a diameter gives sinA=a/(2R). Hence a/sinA=b/sinB=c/sinC=2R.",
@@ -613,13 +616,14 @@
       "solution": "a/sinA = 2R → 10/sin30° = 10/0.5 = 20 = 2R → R = 10.",
       "q_en": "Side 10 opposite a 30° angle — find the circumradius.",
       "sol_en": "2R=10/sin30°=20, so R=10."
-    }
+    },
+    "sub": "외접원의 지름을 이용하면 변과 각의 비가 지름으로 묶입니다."
   },
   "math_br_heron": {
     "ch": "제8장 삼각함수",
     "sec": "심화 유도",
     "title": "헤론 공식 — 세 변으로 넓이",
-    "narr": "각을 재지 않고 세 변 길이만으로 삼각형 넓이를 구합니다.",
+    "narr": "삼각형 넓이는 보통 ½ab·sin C로 구하지만, 각 C를 모르면 어떻게 할까요. 헤론은 <b>각을 변으로 소거</b>합니다. sin²C=1−cos²C에 코사인법칙 cos C=(a²+b²−c²)/2ab를 대입해 정리하면, 각이 사라지고 세 변만 남습니다. 그 결과가 <b>넓이=√(s(s−a)(s−b)(s−c))</b>이며, 여기서 s=(a+b+c)/2는 반둘레입니다. 각을 전혀 재지 않고 변 세 개만으로 넓이가 나오는 우아한 공식입니다. 3,4,5 삼각형에 넣으면 넓이 6이 정확히 나옵니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>코사인법칙으로 각 소거</b><br>넓이 = ½ab·sinC. sin²C = 1−cos²C이고 코사인법칙 cosC=(a²+b²−c²)/(2ab)를 대입해 정리하면, 반둘레 s=(a+b+c)/2에 대해 Area = √(s(s−a)(s−b)(s−c)). 각을 전혀 몰라도 변 길이만으로 넓이가 나옵니다.",
     "more_en": "Area=½ab·sinC; substitute cosC from the law of cosines into sin²C=1−cos²C to get Area=√(s(s−a)(s−b)(s−c)), s=(a+b+c)/2.",
@@ -628,13 +632,14 @@
       "solution": "s=(3+4+5)/2=6. Area=√(6·3·2·1)=√36=6. (직각삼각형 ½·3·4=6과 일치)",
       "q_en": "Heron's area for sides 3,4,5.",
       "sol_en": "s=6, Area=√(6·3·2·1)=6."
-    }
+    },
+    "sub": "각을 재지 않고 세 변 길이만으로 삼각형 넓이를 구합니다."
   },
   "math_br_cauchyschwarz": {
     "ch": "제9장 평면벡터",
     "sec": "심화 증명",
     "title": "코시-슈바르츠 부등식",
-    "narr": "내적은 크기의 곱을 넘지 못합니다 — cosθ가 1 이하이기 때문.",
+    "narr": "두 벡터의 내적은 얼마나 커질 수 있을까요. 내적은 <b>a·b=|a||b|cosθ</b>인데 cosθ의 절댓값이 1을 넘을 수 없으므로, 내적의 크기는 결코 두 길이의 곱을 넘지 못합니다 — <b>|a·b|≤|a||b|</b>. 이것이 코시-슈바르츠 부등식이고, 성분으로 쓰면 (Σaᵢbᵢ)²≤(Σaᵢ²)(Σbᵢ²)입니다. 등호는 두 벡터가 평행할 때(θ=0 또는 π)만 성립합니다. 단순한 cosθ≤1이 삼각부등식과 통계의 상관계수 |r|≤1을 떠받치는 토대가 됩니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>cosθ ≤ 1</b><br>a·b = |a||b|cosθ 이고 |cosθ|≤1이므로 |a·b| ≤ |a||b|. 성분으로 쓰면 (Σaᵢbᵢ)² ≤ (Σaᵢ²)(Σbᵢ²). 등호는 두 벡터가 평행할 때(θ=0 또는 π) 성립합니다. 삼각부등식·통계의 상관계수(|r|≤1)의 토대입니다.",
     "more_en": "a·b=|a||b|cosθ with |cosθ|≤1 gives |a·b|≤|a||b|, i.e. (Σaᵢbᵢ)²≤(Σaᵢ²)(Σbᵢ²). Equality iff parallel. Basis for triangle inequality and |correlation|≤1.",
@@ -643,13 +648,14 @@
       "solution": "a=(x,y), b=(1,1)로 두면 (x+y)²=(a·b)² ≤ |a|²|b|² = (x²+y²)·2. 등호는 x=y일 때.",
       "q_en": "Use Cauchy-Schwarz to show (x+y)²≤2(x²+y²).",
       "sol_en": "Take a=(x,y), b=(1,1): (x+y)²≤(x²+y²)·2, equality at x=y."
-    }
+    },
+    "sub": "내적은 크기의 곱을 넘지 못합니다 — cosθ가 1 이하이기 때문."
   },
   "math_br_ivt": {
     "ch": "제14장 극한",
     "sec": "심화 정리",
     "title": "중간값 정리 (IVT)",
-    "narr": "연속한 곡선은 중간값을 건너뛸 수 없습니다.",
+    "narr": "끊김 없이 그린 곡선은 두 높이 사이의 모든 값을 반드시 지납니다 — 이것이 <b>중간값 정리</b>입니다. f가 [a,b]에서 연속이고 f(a)<k<f(b)이면, <b>f(c)=k가 되는 c</b>가 그 사이에 존재합니다. 펜을 떼지 않고 낮은 곳에서 높은 곳으로 선을 그으면 중간 높이를 건너뛸 수 없다는 직관입니다. 가장 중요한 쓰임은 <b>근의 존재 보장</b>입니다 — f(a)와 f(b)의 부호가 다르면 그 사이에 f(c)=0인 근이 있고, 구간을 반씩 좁히는 이분법으로 근을 찾아갈 수 있습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>연속의 힘</b><br>f가 [a,b]에서 연속이고 f(a)<k<f(b)이면, f(c)=k인 c가 (a,b)에 존재합니다. 직관: 끊김 없이 그린 선은 그 사이 모든 높이를 지납니다. 핵심 응용은 근의 존재: f(a)<0<f(b)면 f(c)=0인 근이 있어, 이분법으로 근을 좁혀갈 수 있습니다.",
     "more_en": "If f is continuous on [a,b] and f(a)<k<f(b), some c gives f(c)=k. Used to guarantee a root when f changes sign — the basis of bisection.",
@@ -658,13 +664,14 @@
       "solution": "f(0)=−1<0, f(1)=1>0, f는 연속 → IVT로 (0,1)에 f(c)=0인 근이 존재.",
       "q_en": "Show x³+x−1=0 has a root in (0,1).",
       "sol_en": "f(0)=−1, f(1)=1, continuous → IVT gives a root in (0,1)."
-    }
+    },
+    "sub": "연속한 곡선은 중간값을 건너뛸 수 없습니다."
   },
   "math_br_mvt": {
     "ch": "제18장 미분의 응용",
     "sec": "심화 정리",
     "title": "평균값 정리 (MVT)",
-    "narr": "평균 변화율과 똑같은 순간 변화율이 어딘가 반드시 있습니다.",
+    "narr": "구간 전체의 평균 기울기와 정확히 같은 순간 기울기가 어딘가에 반드시 존재합니다. f가 연속이고 미분가능하면, 두 끝점을 잇는 <b>할선의 기울기 (f(b)−f(a))/(b−a)</b>와 똑같은 기울기의 접선을 갖는 점 c가 있습니다 — 즉 <b>할선과 평행한 접선</b>이 어딘가 있다는 뜻입니다. 예컨대 평균 시속 60km로 달렸다면 순간 속도가 정확히 60km였던 순간이 반드시 있었습니다. f(a)=f(b)인 특수한 경우가 롤의 정리이며, 단조성과 부등식 증명의 핵심 도구입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>할선과 평행한 접선</b><br>f가 [a,b]에서 연속, (a,b)에서 미분가능이면 f′(c)=(f(b)−f(a))/(b−a)인 c가 존재합니다. 즉 구간 평균 기울기(할선)와 같은 접선이 어딘가 있습니다. f(a)=f(b)인 특수경우가 롤의 정리(f′(c)=0). 단조성·부등식 증명의 핵심 도구입니다.",
     "more_en": "If f is continuous on [a,b], differentiable on (a,b), then f′(c)=(f(b)−f(a))/(b−a) for some c — a tangent parallel to the secant. Rolle's theorem is the case f(a)=f(b).",
@@ -673,13 +680,14 @@
       "solution": "f=sin, MVT: sinx−siny=cosc·(x−y). |cosc|≤1이므로 |sinx−siny|≤|x−y|.",
       "q_en": "Use MVT to show |sinx−siny|≤|x−y|.",
       "sol_en": "sinx−siny=cosc·(x−y), |cosc|≤1 ⇒ |sinx−siny|≤|x−y|."
-    }
+    },
+    "sub": "평균 변화율과 똑같은 순간 변화율이 어딘가 반드시 있습니다."
   },
   "math_br_lhopital": {
     "ch": "제18장 미분의 응용",
     "sec": "심화 정리",
     "title": "로피탈 정리 — 0/0 꼴 극한",
-    "narr": "분자·분모를 각각 미분해 까다로운 극한을 풉니다.",
+    "narr": "0/0이나 ∞/∞처럼 그대로는 값을 알 수 없는 <b>부정형 극한</b>을 미분으로 푸는 방법입니다. 분수 f/g가 이런 부정형이고 미분가능하면, <b>분자와 분모를 각각 미분</b>한 lim f′/g′를 대신 구하면 됩니다. 예로 lim(sinx/x)는 0/0이지만 cosx/1로 바꾸면 x→0에서 1이 바로 나옵니다. 분자와 분모가 0으로 가는 '속도'를 미분으로 비교하는 셈입니다. 단, 반드시 부정형일 때만 써야 하며, 한 번에 안 풀리면 반복 적용할 수 있습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>미분으로 푸는 극한</b><br>lim f/g 가 0/0 또는 ∞/∞ 꼴이고 미분가능하면 lim f/g = lim f′/g′. 예: lim(x→0) sinx/x = lim cosx/1 = 1. 주의: 부정형(0/0, ∞/∞)일 때만 적용하며, 그렇지 않은데 쓰면 틀립니다. 한 번에 안 풀리면 반복 적용할 수 있습니다.",
     "more_en": "For 0/0 or ∞/∞ forms, lim f/g = lim f′/g′. E.g. lim sinx/x = lim cosx/1 = 1. Only for indeterminate forms; can be applied repeatedly.",
@@ -688,13 +696,14 @@
       "solution": "0/0 꼴. 분자·분모 미분 → eˣ/1, x→0 대입 = 1.",
       "q_en": "Compute lim(x→0)(eˣ−1)/x.",
       "sol_en": "0/0 → eˣ/1 → 1."
-    }
+    },
+    "sub": "분자·분모를 각각 미분해 까다로운 극한을 풉니다."
   },
   "math_br_elimit": {
     "ch": "제14장 극한",
     "sec": "심화 정의",
     "title": "자연상수 e 의 정의",
-    "narr": "복리를 무한히 잘게 나누면 e가 나옵니다.",
+    "narr": "자연상수 e는 어디서 올까요. 이자를 1년에 한 번이 아니라 점점 더 자주, 무한히 잘게 나눠 주는 <b>연속 복리</b>를 생각하면 (1+1/n)ⁿ이 되는데, n을 무한히 키운 극한이 바로 <b>e=lim(1+1/n)ⁿ≈2.71828</b>입니다. 이항정리로 펼치면 1+1+1/2!+1/3!+…=Σ1/k!라는 급수와도 같습니다. e가 특별한 이유는 <b>(eˣ)′=eˣ</b>, 즉 미분해도 자기 자신인 유일한 밑이기 때문입니다. 그래서 미적분에서 가장 자연스러운 밑으로 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>두 가지 정의</b><br>e = lim(n→∞)(1+1/n)ⁿ. 이항정리로 펼치면 1+1+1/2!+1/3!+… = Σ1/k! ≈ 2.71828. 연속 복리(원금이 매 순간 이자를 받는 한계)의 결과이며, (eˣ)′=eˣ 라는 유일한 성질의 뿌리입니다. 그래서 미적분에서 가장 자연스러운 밑입니다.",
     "more_en": "e=lim(1+1/n)ⁿ=Σ1/k!≈2.71828. The limit of continuous compounding; the unique base with (eˣ)′=eˣ.",
@@ -703,13 +712,14 @@
       "solution": "(1+2/n)ⁿ = [(1+2/n)^(n/2)]² → e² (1+1/m)^m 꼴로 치환, m=n/2).",
       "q_en": "Value of lim(1+2/n)ⁿ?",
       "sol_en": "e² (substitute m=n/2 to get [(1+1/m)^m]²)."
-    }
+    },
+    "sub": "복리를 무한히 잘게 나누면 e가 나옵니다."
   },
   "math_br_logdiff": {
     "ch": "제17장 미분",
     "sec": "심화 기법",
     "title": "로그미분법",
-    "narr": "밑과 지수가 모두 변수일 때 로그를 먼저 취합니다.",
+    "narr": "y=xˣ처럼 밑과 지수가 모두 변수인 함수는 멱법칙도 지수법칙도 바로 통하지 않습니다. 이럴 때 <b>양변에 자연로그 ln을 먼저 씌웁니다</b>. 그러면 ln y=x·ln x가 되어 지수가 앞으로 내려와 곱셈으로 바뀝니다. 이제 양변을 미분하면 좌변은 연쇄법칙으로 y′/y, 우변은 곱의 미분으로 ln x+1이 되어 <b>y′=xˣ(ln x+1)</b>을 얻습니다. 이 로그미분법은 곱과 몫이 많이 얽힌 함수도 로그로 합·차로 풀어 미분을 훨씬 쉽게 만듭니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>양변에 ln</b><br>y=xˣ처럼 멱법칙·지수법칙이 안 통할 때, 양변에 ln을 씌우면 ln y = x·ln x. 미분하면 y′/y = lnx+1 (곱의 미분), 따라서 y′ = xˣ(lnx+1). 곱·몫이 많은 함수도 ln으로 합·차로 바꿔 미분이 쉬워집니다.",
     "more_en": "For y=xˣ, take ln: ln y=x·ln x; differentiate y′/y=ln x+1, so y′=xˣ(ln x+1). Turns products into sums.",
@@ -718,13 +728,14 @@
       "solution": "ln y = sinx·lnx. 미분: y′/y = cosx·lnx + sinx/x. y′ = x^(sinx)(cosx·lnx + sinx/x).",
       "q_en": "Differentiate y=x^(sinx).",
       "sol_en": "y′=x^(sinx)(cosx·lnx + sinx/x)."
-    }
+    },
+    "sub": "밑과 지수가 모두 변수일 때 로그를 먼저 취합니다."
   },
   "math_br_implicit": {
     "ch": "제17장 미분",
     "sec": "심화 기법",
     "title": "음함수 미분",
-    "narr": "y를 명시적으로 풀지 않고도 기울기를 구합니다.",
+    "narr": "x²+y²=1 같은 원의 방정식은 y를 x만의 식으로 깔끔히 풀기 어렵습니다. 이럴 때는 y를 풀지 않고, <b>y를 x의 함수로 본 채 양변을 그대로 x로 미분</b>합니다. 핵심은 y가 든 항을 미분할 때 <b>연쇄법칙</b>을 적용하는 것 — 예컨대 y²은 2y·y′이 됩니다. 그러면 2x+2y·y′=0이 되고, 이를 y′에 대해 풀면 <b>y′=−x/y</b>가 나옵니다. 이렇게 음함수 미분을 쓰면 원·타원처럼 y로 풀리지 않는 곡선의 접선 기울기도 한 번에 구할 수 있습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>y를 x의 함수로</b><br>x²+y²=1 처럼 y가 명시적이지 않을 때, y를 x의 함수로 보고 양변을 x로 미분합니다(연쇄법칙으로 y²→2y·y′). 2x+2y·y′=0 → y′=−x/y. 원·타원·음함수 곡선의 접선 기울기를 한 번에 얻습니다.",
     "more_en": "Treat y as a function of x and differentiate both sides (chain rule): for x²+y²=1, 2x+2yy′=0 → y′=−x/y. Gives tangent slopes without solving for y.",
@@ -733,13 +744,14 @@
       "solution": "양변 미분: 3x²+3y²y′ = 6y+6xy′. 정리: y′(3y²−6x)=6y−3x² → y′=(6y−3x²)/(3y²−6x).",
       "q_en": "Find y′ for x³+y³=6xy.",
       "sol_en": "3x²+3y²y′=6y+6xy′ → y′=(6y−3x²)/(3y²−6x)."
-    }
+    },
+    "sub": "y를 명시적으로 풀지 않고도 기울기를 구합니다."
   },
   "math_br_arclen": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 유도",
     "title": "곡선의 길이",
-    "narr": "곡선을 잘게 쪼개 피타고라스로 더합니다.",
+    "narr": "휘어진 곡선의 길이는 어떻게 잴까요. 곡선을 아주 잘게 쪼개면 각 조각은 거의 <b>직선</b>이라, 그 미세한 길이는 피타고라스로 ds=√(dx²+dy²)입니다. 여기서 dx를 묶어내면 <b>ds=√(1+(dy/dx)²)dx</b>가 되고, 이 미세 조각들을 a부터 b까지 모두 더하면(적분하면) <b>L=∫ₐᵇ√(1+(f′(x))²)dx</b>입니다. 무수히 많은 작은 직선 조각의 합으로 곡선 길이를 얻는 것 — 적분이 '쪼개서 더하기'라는 본질을 잘 보여 주는 응용입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>미소 길이의 적분</b><br>곡선의 아주 작은 조각은 직선으로 근사되며, 그 길이 ds=√(dx²+dy²)=√(1+(dy/dx)²)dx (피타고라스). 이를 a에서 b까지 적분하면 L=∫ₐᵇ√(1+(f′(x))²)dx. 무수히 많은 미세 직선 조각을 더해 곡선 길이를 얻습니다.",
     "more_en": "A tiny arc ds=√(dx²+dy²)=√(1+(y′)²)dx; integrating gives L=∫ₐᵇ√(1+f′(x)²)dx.",
@@ -748,13 +760,14 @@
       "solution": "y′=x^(1/2), 1+y′²=1+x. L=∫₀³√(1+x)dx=[(2/3)(1+x)^(3/2)]₀³=(2/3)(8−1)=14/3.",
       "q_en": "Arc length of y=(2/3)x^(3/2) on [0,3].",
       "sol_en": "y′=√x, L=∫₀³√(1+x)dx=14/3."
-    }
+    },
+    "sub": "곡선을 잘게 쪼개 피타고라스로 더합니다."
   },
   "math_br_solidvol": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 유도",
     "title": "회전체의 부피 — 원판법",
-    "narr": "곡선을 축 둘레로 돌리면 얇은 원판들이 쌓입니다.",
+    "narr": "곡선 y=f(x)를 x축 둘레로 회전시키면 도자기 같은 입체가 생깁니다. 그 부피는 어떻게 구할까요. 입체를 x축에 수직으로 얇게 썰면 각 조각은 <b>두께 dx, 반지름 f(x)인 얇은 원판</b>이고, 그 부피는 π·f(x)²·dx입니다. 이 원판들을 a부터 b까지 모두 쌓아 더하면(적분하면) <b>V=π∫ₐᵇf(x)²dx</b>가 됩니다. 예로 반원 y=√(r²−x²)을 회전시키면 구가 되고, 이 공식으로 계산하면 정확히 구의 부피 (4/3)πr³이 나옵니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>원판 쌓기</b><br>y=f(x)를 x축 둘레로 회전하면 두께 dx, 반지름 f(x)인 얇은 원판이 생기고, 그 부피는 π·f(x)²·dx. 적분하면 V=π∫ₐᵇf(x)²dx. 예: 반원 y=√(r²−x²)를 회전하면 구의 부피 (4/3)πr³가 나옵니다.",
     "more_en": "Rotating y=f(x) about the x-axis stacks disks of volume πf(x)²dx, so V=π∫ₐᵇf(x)²dx. A semicircle gives the sphere's (4/3)πr³.",
@@ -763,13 +776,14 @@
       "solution": "V=π∫₀⁴(√x)²dx=π∫₀⁴x dx=π[x²/2]₀⁴=π·8=8π.",
       "q_en": "Volume from rotating y=√x on [0,4] about the x-axis.",
       "sol_en": "V=π∫₀⁴x dx=8π."
-    }
+    },
+    "sub": "곡선을 회전시켜 생긴 입체를 얇은 원판으로 쌓습니다."
   },
   "math_br_cramer": {
     "ch": "제21장 행렬",
     "sec": "심화 공식",
     "title": "크라메르 공식",
-    "narr": "행렬식의 비로 연립방정식의 해를 한 번에 씁니다.",
+    "narr": "연립일차방정식 Ax=b를 <b>행렬식</b>만으로 푸는 공식입니다. 계수행렬의 행렬식 D=det(A)가 0이 아니면, 각 변수 xᵢ는 <b>xᵢ=det(Aᵢ)/D</b>로 구해집니다. 여기서 Aᵢ는 A의 i번째 열을 우변 b로 바꿔 끼운 행렬입니다. 즉 변수마다 분모는 똑같이 D이고, 분자만 해당 열을 b로 교체한 행렬식입니다. 2×2 연립방정식이면 x=(ed−bf)/(ad−bc) 꼴로 바로 떨어집니다. 변수 수가 적을 때 손으로 빠르게 풀 수 있는 우아한 공식입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>행렬식의 비</b><br>Ax=b 에서 D=det(A)≠0이면 xᵢ=det(Aᵢ)/D. 여기서 Aᵢ는 A의 i번째 열을 b로 바꾼 행렬입니다. 2×2 ax+by=e, cx+dy=f 의 해는 x=(ed−bf)/(ad−bc). 변수마다 분모는 같고 분자만 열을 교체합니다.",
     "more_en": "For Ax=b with D=det(A)≠0, xᵢ=det(Aᵢ)/D where Aᵢ replaces column i of A with b. 2×2: x=(ed−bf)/(ad−bc).",
@@ -778,13 +792,14 @@
       "solution": "D=2·3−1·1=5. x=(5·3−1·10)/5=5/5=1. y=(2·10−5·1)/5=15/5=3. (x,y)=(1,3).",
       "q_en": "Solve 2x+y=5, x+3y=10 by Cramer's rule.",
       "sol_en": "D=5, x=(15−10)/5=1, y=(20−5)/5=3."
-    }
+    },
+    "sub": "행렬식의 비로 연립방정식의 해를 한 번에 구합니다."
   },
   "math_br_totalprob": {
     "ch": "제16장 확률",
     "sec": "심화 정리",
     "title": "전확률 정리",
-    "narr": "경우를 빠짐없이 나눠 더하면 전체 확률이 나옵니다.",
+    "narr": "어떤 사건 A의 확률을 직접 구하기 어려울 때, <b>경우를 나눠서</b> 더하면 됩니다. 표본공간을 서로 겹치지 않는 B₁,…,Bₙ으로 분할하면 <b>P(A)=Σ P(A|Bᵢ)P(Bᵢ)</b>입니다. 즉 각 가지로 갈라져 그 가지가 일어날 확률 P(Bᵢ)에 그 안에서 A가 일어날 확률 P(A|Bᵢ)를 곱해, 모든 가지를 더하는 나무그림 계산입니다. 이 전확률 정리를 거꾸로 뒤집은 것이 바로 베이즈 정리로, 결과 A를 보고 원인 Bⱼ의 확률을 갱신하는 데 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>분할해서 더하기</b><br>표본공간을 서로 배반인 B₁,…,Bₙ으로 분할하면 P(A)=Σ P(A|Bᵢ)P(Bᵢ). 각 경우(가지)로 나눠 그 가지의 확률을 곱해 더하는 나무그림 계산입니다. 이를 뒤집은 것이 베이즈 정리 P(Bⱼ|A)=P(A|Bⱼ)P(Bⱼ)/P(A)로, 증거 A로 원인 Bⱼ의 확률을 갱신합니다.",
     "more_en": "Partition the space into disjoint B₁..Bₙ: P(A)=Σ P(A|Bᵢ)P(Bᵢ). Bayes inverts it: P(Bⱼ|A)=P(A|Bⱼ)P(Bⱼ)/P(A).",
@@ -793,13 +808,14 @@
       "solution": "전확률: 0.6·0.02 + 0.4·0.05 = 0.012+0.020 = 0.032 = 3.2%.",
       "q_en": "Plant A(60%, 2% defect), B(40%, 5%). P(defective)?",
       "sol_en": "0.6·0.02+0.4·0.05=0.032=3.2%."
-    }
+    },
+    "sub": "경우를 나눠 각 가지의 확률을 곱해 더합니다."
   },
   "math_br_variance": {
     "ch": "제16장 확률",
     "sec": "심화 유도",
     "title": "분산 공식 V(X)=E(X²)−E(X)²",
-    "narr": "정의를 전개하면 계산하기 쉬운 형태가 나옵니다.",
+    "narr": "분산은 평균에서 떨어진 정도의 제곱 평균, 즉 정의상 <b>V(X)=E[(X−μ)²]</b>입니다. 하지만 이대로는 계산이 번거로워, 안쪽을 전개해 봅니다. (X−μ)²=X²−2μX+μ²이므로 기댓값을 취하면 E(X²)−2μE(X)+μ²이 되는데, E(X)가 곧 μ이므로 −2μ²+μ²=−μ²로 묶여 <b>V(X)=E(X²)−E(X)²</b>가 됩니다. 즉 분산은 <b>제곱의 평균에서 평균의 제곱을 뺀 값</b>입니다. 실제 계산에서는 정의식보다 이 형태가 훨씬 편리합니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>정의 전개</b><br>V(X)=E[(X−μ)²]=E[X²−2μX+μ²]=E(X²)−2μE(X)+μ². E(X)=μ이므로 =E(X²)−2μ²+μ²=E(X²)−μ²=E(X²)−E(X)². 실제 계산에선 정의식보다 이 형태가 훨씬 편합니다(제곱의 평균 − 평균의 제곱).",
     "more_en": "V(X)=E[(X−μ)²]=E(X²)−2μE(X)+μ²=E(X²)−μ²=E(X²)−E(X)². 'mean of square minus square of mean' is easier to compute.",
@@ -808,13 +824,14 @@
       "solution": "E(X)=3.5. E(X²)=(1+4+9+16+25+36)/6=91/6≈15.17. V=91/6−3.5²=15.17−12.25≈2.92.",
       "q_en": "Variance of one die roll.",
       "sol_en": "E(X)=3.5, E(X²)=91/6, V=91/6−12.25≈2.92."
-    }
+    },
+    "sub": "정의식을 전개하면 '제곱의 평균 − 평균의 제곱'이 됩니다."
   },
   "math_br_demorgan": {
     "ch": "제4장 부등식",
     "sec": "심화 법칙",
     "title": "드모르간 법칙",
-    "narr": "'또는'의 부정은 '둘 다 아님'입니다.",
+    "narr": "'둘 중 하나'의 부정은 '둘 다 아님'입니다. 이것을 식으로 정리한 것이 드모르간 법칙입니다 — <b>(A∪B)ᶜ=Aᶜ∩Bᶜ</b>, 그리고 <b>(A∩B)ᶜ=Aᶜ∪Bᶜ</b>. 즉 부정을 안으로 분배하면 합집합과 교집합이 서로 뒤바뀝니다. 'A 또는 B가 아니다'는 'A도 아니고 B도 아니다'와 같고, 'A이고 B가 아니다'는 '둘 중 하나는 아니다'와 같습니다. 이 원리는 논리(¬(p∨q)=¬p∧¬q), 집합, 그리고 디지털 회로(NAND·NOR 게이트)에서 똑같이 작동합니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>부정의 분배</b><br>(A∪B)ᶜ=Aᶜ∩Bᶜ, (A∩B)ᶜ=Aᶜ∪Bᶜ. '둘 중 하나'의 부정은 '둘 다 아님'(교집합), '둘 다'의 부정은 '하나라도 아님'(합집합). 논리(¬(p∨q)=¬p∧¬q), 집합, 디지털 회로(NAND/NOR)에서 같은 원리로 쓰입니다.",
     "more_en": "(A∪B)ᶜ=Aᶜ∩Bᶜ and (A∩B)ᶜ=Aᶜ∪Bᶜ. Negation swaps ∪↔∩. Same in logic (¬(p∨q)=¬p∧¬q) and circuits.",
@@ -823,13 +840,14 @@
       "solution": "¬(비 ∨ 바람) = ¬비 ∧ ¬바람 = '비도 안 오고 바람도 안 분다'.",
       "q_en": "Negate 'it rains or it is windy' using De Morgan.",
       "sol_en": "¬(rain∨wind)=¬rain∧¬wind = 'no rain and no wind'."
-    }
+    },
+    "sub": "부정이 합집합·교집합을 서로 뒤집습니다."
   },
   "math_br_conjroot": {
     "ch": "제10장 복소평면",
     "sec": "심화 정리",
     "title": "켤레근 정리",
-    "narr": "실수 계수 다항식의 복소근은 항상 짝으로 옵니다.",
+    "narr": "실수 계수를 가진 다항식이 복소근 z=a+bi를 가지면, 그 <b>켤레 z̄=a−bi도 반드시 근</b>이 됩니다. 왜 그럴까요. 켤레 연산은 덧셈과 곱셈을 그대로 보존하므로, P(z)=0의 양변에 켤레를 취하면 P(z̄)=0이 됩니다 — 계수가 실수라 켤레를 취해도 그대로이기 때문입니다. 그래서 복소근은 항상 짝을 이뤄, (x−z)(x−z̄)=x²−2ax+(a²+b²)라는 <b>실수 계수의 이차인수</b>로 묶입니다. 실수 계수 다항식이 실수 일차·이차인수의 곱으로 인수분해되는 근거입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>켤레는 연산을 보존</b><br>실수 계수 다항식 P(x)가 복소근 z=a+bi를 가지면, 켤레 z̄=a−bi도 근입니다. 이유: 켤레 연산은 덧셈·곱셈을 보존하므로 P(z)=0의 켤레를 취하면 P(z̄)=0(실수 계수라 계수는 그대로). 따라서 복소근은 (x−z)(x−z̄)=x²−2ax+(a²+b²)라는 실수 이차인수로 묶입니다.",
     "more_en": "If a real-polynomial P has root z=a+bi, then z̄=a−bi is also a root (conjugation preserves +,× and real coefficients). Complex roots pair into real quadratic factors.",
@@ -838,13 +856,14 @@
       "solution": "근의공식: x=(4±√(16−52))/2=2±3i. 2+3i와 2−3i가 켤레쌍으로 함께 나타남 ✓.",
       "q_en": "Solve x²−4x+13=0 and check conjugate roots.",
       "sol_en": "x=2±3i — a conjugate pair, as predicted."
-    }
+    },
+    "sub": "실수 계수 다항식의 복소근은 켤레와 짝으로 나옵니다."
   },
   "math_br_monoconv": {
     "ch": "제25장 엄밀한 극한",
     "sec": "심화 정리",
     "title": "단조수렴정리",
-    "narr": "위로 막힌 증가수열은 반드시 수렴합니다.",
+    "narr": "끝없이 커지지만 어떤 천장을 넘지 못하는 수열은 결국 어떻게 될까요. <b>위로 유계인 단조증가 수열은 항상 수렴</b>하며, 그 극한은 값들의 상한(sup)입니다. 이는 실수의 <b>완비성</b> — 위로 막힌 집합에는 반드시 상한이 존재한다는 성질 — 에서 곧바로 나옵니다. 하지만 유리수에서는 성립하지 않습니다 — √2로 다가가는 유리수열은 위로 막혀 있어도 유리수 안에 극한이 없기 때문입니다. 코시수열 수렴과 동치인, '실수에는 구멍이 없다'는 핵심 성질입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>완비성의 결과</b><br>위로 유계인 단조증가 수열은 항상 수렴하며, 그 극한은 상한(sup)입니다. 이는 실수의 완비성(모든 유계 집합에 상한 존재)에서 나옵니다. 유리수에선 성립하지 않습니다(√2로 수렴하는 유리수열은 유리수 극한이 없음). 코시수열 수렴과 동치인 '실수에 구멍이 없다'는 성질입니다.",
     "more_en": "A bounded monotone-increasing sequence converges to its supremum — a consequence of the completeness of ℝ (every bounded set has a sup). Fails in ℚ.",
@@ -853,13 +872,14 @@
       "solution": "aₙ은 증가(1/n 감소)하고 1로 위로 유계 → 단조수렴정리로 수렴. 극한 = sup = 1.",
       "q_en": "Use the theorem to show aₙ=1−1/n converges.",
       "sol_en": "Increasing and bounded above by 1 → converges to sup=1."
-    }
+    },
+    "sub": "위로 막힌 단조증가 수열은 항상 수렴합니다."
   },
   "math_br_taylor": {
     "ch": "제18장 미분의 응용",
     "sec": "심화 정리",
     "title": "테일러 정리 — 함수를 다항식으로",
-    "narr": "매끄러운 함수를 한 점에서 다항식으로 근사합니다.",
+    "narr": "복잡한 함수를 다루기 쉬운 다항식으로 바꿀 수 있을까요. 테일러의 발상은 한 점 a에서 <b>함숫값과 1차·2차·…도함수를 차례로 맞추는</b> 다항식을 만드는 것입니다 — f(x)=f(a)+f′(a)(x−a)+f″(a)/2!(x−a)²+…. 항을 더할수록 a 근처에서 원래 함수에 점점 더 밀착합니다. 남는 오차는 라그랑주 형 잔차로 정확히 표현됩니다. a=0인 경우가 매클로린 급수이며, 이것으로 eˣ=Σxⁿ/n!, sin x, cos x 같은 함수를 무한급수로 펼칠 수 있습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>도함수를 맞추는 다항식</b><br>f(x)=f(a)+f′(a)(x−a)+f″(a)/2!(x−a)²+… 각 항은 a에서 1차·2차…도함수를 맞춰 점점 가깝게 접촉합니다. 잔차는 Rₙ=f⁽ⁿ⁺¹⁾(c)/(n+1)!(x−a)ⁿ⁺¹ (라그랑주 형). a=0이면 매클로린 급수로 eˣ=Σxⁿ/n!, sinx, cosx 등을 무한급수로 펼칩니다.",
     "more_en": "f(x)=Σ f⁽ᵏ⁾(a)/k!·(x−a)ᵏ matches all derivatives at a; remainder Rₙ=f⁽ⁿ⁺¹⁾(c)/(n+1)!(x−a)ⁿ⁺¹. Maclaurin: eˣ=Σxⁿ/n!.",
@@ -868,13 +888,14 @@
       "solution": "f⁽ᵏ⁾(0)=1이므로 eˣ ≈ 1 + x + x²/2! + x³/3! = 1 + x + x²/2 + x³/6.",
       "q_en": "First 4 terms of the Maclaurin series of eˣ.",
       "sol_en": "1 + x + x²/2 + x³/6."
-    }
+    },
+    "sub": "도함수를 차례로 맞춰 함수를 다항식으로 근사합니다."
   },
   "math_br_clt": {
     "ch": "제16장 확률",
     "sec": "심화 정리",
     "title": "중심극한정리 (CLT)",
-    "narr": "무엇을 더하든 충분히 많이 더하면 종 모양이 됩니다.",
+    "narr": "원래 분포가 무엇이든, 독립이고 같은 분포를 따르는 표본을 <b>많이 더하면(또는 평균 내면) 정규분포에 가까워집니다</b> — 이것이 중심극한정리입니다. 각 변수가 균등하든 한쪽으로 치우쳤든 상관없이, n이 커질수록 표본평균 X̄의 분포는 N(μ, σ²/n)이라는 종 모양으로 수렴합니다. 수많은 작은 무작위 요인이 합쳐지면 종형 분포가 되는 셈입니다. 여론조사, 품질관리, 신뢰구간처럼 통계 추정이 정규분포 위에서 작동하는 근본 이유가 바로 이 정리입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>합은 정규로 모인다</b><br>독립이고 같은 분포(평균 μ, 분산 σ²)인 표본 X₁,…,Xₙ의 합(또는 평균)은 n이 커지면 정규분포에 가까워집니다. 원래 분포가 균등이든 치우쳤든 상관없습니다. 표본평균 X̄ ~ N(μ, σ²/n). 여론조사·품질관리·신뢰구간 등 통계 추정의 근본 이유입니다.",
     "more_en": "Sums/means of iid samples (mean μ, var σ²) approach a normal distribution as n grows, regardless of the original shape. X̄ ~ N(μ, σ²/n).",
@@ -883,13 +904,14 @@
       "solution": "개별 분포가 어떻든, 독립 표본 100개의 평균은 CLT에 의해 N(μ, σ²/100)에 근사합니다. n이 클수록 분산이 작아져(σ²/n) 평균 주위에 좁게 모입니다.",
       "q_en": "Why is the mean of 100 samples nearly normal?",
       "sol_en": "By CLT the sample mean ≈ N(μ, σ²/100) whatever the underlying shape."
-    }
+    },
+    "sub": "독립인 많은 변수의 합은 정규분포로 모입니다."
   },
   "math_br_chebyshev": {
     "ch": "제16장 확률",
     "sec": "심화 증명",
     "title": "체비셰프 부등식 → 큰수의 법칙",
-    "narr": "분산만으로 '평균에서 멀리 벗어날 확률'을 묶습니다.",
+    "narr": "어떤 분포인지 몰라도 '평균에서 크게 벗어날 확률'을 제한할 수 있습니다. 체비셰프 부등식은 <b>P(|X−μ|≥kσ)≤1/k²</b> — 평균에서 k표준편차 이상 떨어질 확률이 1/k²을 넘지 못한다고 말합니다. 이를 표본평균에 적용하면, 표본평균의 분산이 σ²/n이라 시행 수 n이 커질수록 0으로 가고, 따라서 표본평균이 진짜 평균 μ에서 벗어날 확률도 0이 됩니다. 이것이 <b>큰수의 약법칙</b>입니다 — 시행을 많이 할수록 상대도수가 진짜 확률로 수렴합니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>꼬리를 분산으로 제한</b><br>체비셰프: P(|X−μ|≥kσ) ≤ 1/k². 어떤 분포든 평균에서 k표준편차 이상 벗어날 확률은 1/k² 이하. 표본평균의 분산은 σ²/n이라 n→∞이면 0으로 가고, 따라서 표본평균이 μ에서 벗어날 확률도 0 → 큰수의 약법칙. 시행이 많을수록 상대도수가 진짜 확률로 수렴합니다.",
     "more_en": "Chebyshev: P(|X−μ|≥kσ)≤1/k². The sample mean has variance σ²/n→0, so it concentrates at μ — the weak law of large numbers.",
@@ -898,13 +920,14 @@
       "solution": "k=2이므로 ≤ 1/2² = 1/4 = 25%. (어떤 분포든 평균±2σ 밖일 확률은 25% 이하)",
       "q_en": "Chebyshev bound for P(|X−μ|≥2σ)?",
       "sol_en": "≤ 1/4 = 25%."
-    }
+    },
+    "sub": "꼬리 확률을 분산으로 제한해 큰수의 법칙을 끌어냅니다."
   },
   "math_br_gramschmidt": {
     "ch": "제21장 행렬",
     "sec": "심화 기법",
     "title": "그람-슈미트 직교화",
-    "narr": "임의의 기저를 서로 수직인 기저로 바꿉니다.",
+    "narr": "제멋대로 뻗은 벡터들을 서로 <b>수직인 기저</b>로 바꾸는 방법입니다. 첫 벡터 u₁=v₁은 그대로 두고, 다음 벡터에서는 <b>이미 정한 방향으로의 정사영 성분을 빼냅니다</b> — u₂=v₂−(v₂·u₁/u₁·u₁)u₁. 그러면 u₂는 u₁과 직교하게 됩니다. 이를 차례로 반복하면 서로 수직인 u들이 나오고, 각각의 길이를 1로 맞추면 정규직교기저가 완성됩니다. '직교는 서로 독립적인 방향'이라는 직관을 구현한 것으로, QR 분해·최소제곱·푸리에 전개의 토대입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>정사영 빼기</b><br>벡터 v₁,v₂,…에서 u₁=v₁로 시작해, u₂=v₂−(v₂·u₁/u₁·u₁)u₁ 처럼 이전 방향 성분을 빼면 서로 수직인 u들이 나옵니다. 정규화하면 정규직교기저. QR 분해·최소제곱·푸리에 전개의 토대이며, '직교 = 독립적인 방향'이라는 직관을 구현합니다.",
     "more_en": "Start u₁=v₁; subtract projections u₂=v₂−(v₂·u₁/u₁·u₁)u₁,… to get orthogonal vectors. Normalize for an orthonormal basis (QR, least squares).",
@@ -913,13 +936,14 @@
       "solution": "u₁=(1,0). u₂=(1,1)−((1,1)·(1,0)/(1))·(1,0)=(1,1)−(1,0)=(0,1). u₁⊥u₂ ✓.",
       "q_en": "Orthogonalize v₁=(1,0), v₂=(1,1).",
       "sol_en": "u₁=(1,0), u₂=(0,1)."
-    }
+    },
+    "sub": "이전 방향의 정사영을 빼서 직교 기저를 만듭니다."
   },
   "math_br_trigsub": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 기법",
     "title": "삼각치환 적분",
-    "narr": "근호를 삼각함수로 바꿔 없앱니다.",
+    "narr": "√(a²−x²) 같은 근호가 든 적분은 그대로는 풀기 어렵습니다. 이때 <b>피타고라스 항등식</b>을 거꾸로 이용해 근호를 없앱니다 — √(a²−x²)는 x=a·sinθ로 두면 1−sin²θ=cos²θ가 되어 근호가 cos θ로 깔끔히 풀립니다. 마찬가지로 √(a²+x²)는 x=a·tanθ(1+tan²=sec²), √(x²−a²)는 x=a·secθ로 치환합니다. 그러면 근호가 사라지고 삼각함수 적분으로 바뀝니다. 원과 타원의 넓이·길이를 적분으로 구할 때 반드시 필요한 기법입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>피타고라스 치환</b><br>√(a²−x²)는 x=a·sinθ (1−sin²=cos²), √(a²+x²)는 x=a·tanθ (1+tan²=sec²), √(x²−a²)는 x=a·secθ로 치환하면 근호가 깔끔히 사라져 삼각함수 적분이 됩니다. 원·타원의 넓이, 길이 적분에 필수입니다.",
     "more_en": "√(a²−x²)→x=a sinθ, √(a²+x²)→x=a tanθ, √(x²−a²)→x=a secθ remove the radical via Pythagorean identities.",
@@ -928,13 +952,14 @@
       "solution": "x=sinθ, dx=cosθdθ, √(1−x²)=cosθ → ∫cos²θdθ = θ/2 + sin2θ/4 + C = (½)(arcsin x + x√(1−x²)) + C.",
       "q_en": "Set up ∫√(1−x²)dx by trig substitution.",
       "sol_en": "x=sinθ → ∫cos²θdθ = ½(arcsin x + x√(1−x²)) + C."
-    }
+    },
+    "sub": "근호를 삼각함수로 치환해 깔끔히 없앱니다."
   },
   "math_br_partfrac": {
     "ch": "제2장 식",
     "sec": "심화 기법",
     "title": "부분분수 분해",
-    "narr": "복잡한 유리식을 간단한 분수들의 합으로 쪼갭니다.",
+    "narr": "1/((x−1)(x−2)) 같은 복잡한 분수는 그대로 적분하기 어렵습니다. 그래서 <b>분모를 인수분해</b>한 뒤, 더 단순한 분수들의 합 A/(x−1)+B/(x−2)로 쪼갭니다. 미지수 A, B는 통분해 분자를 비교하면 구할 수 있습니다 — 1=A(x−2)+B(x−1)에 x=1을 넣으면 A=−1, x=2를 넣으면 B=1입니다. 이렇게 분모가 단순해지면 각 조각이 로그 적분으로 쉽게 풀립니다. 적분뿐 아니라 역라플라스 변환에서도 핵심으로 쓰이는 분해 기법입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>분모를 인수분해</b><br>1/((x−1)(x−2)) = A/(x−1)+B/(x−2). 통분해 분자를 비교하면 1=A(x−2)+B(x−1). x=1: A=−1, x=2: B=1. 따라서 −1/(x−1)+1/(x−2). 분모가 더 단순해져 적분(로그 합)·역라플라스 변환이 쉬워집니다.",
     "more_en": "1/((x−1)(x−2))=A/(x−1)+B/(x−2); cover-up gives A=−1, B=1. Simplifies integration and inverse Laplace.",
@@ -943,13 +968,14 @@
       "solution": "A/x+B/(x+3), 3=A(x+3)+Bx. x=0: A=1. x=−3: B=−1. = 1/x − 1/(x+3).",
       "q_en": "Decompose 3/(x(x+3)).",
       "sol_en": "1/x − 1/(x+3)."
-    }
+    },
+    "sub": "복잡한 분수를 단순한 분수들의 합으로 쪼갭니다."
   },
   "math_br_gaussint": {
     "ch": "제19장 적분",
     "sec": "심화 정리",
     "title": "가우스 적분 ∫e^(−x²)dx = √π",
-    "narr": "초등함수로 못 푸는 적분을 2중적분의 마법으로 풉니다.",
+    "narr": "∫e^(−x²)dx는 초등함수로는 도저히 풀리지 않습니다. 그런데 −∞에서 ∞까지의 정적분 I는 영리한 우회로 구할 수 있습니다. <b>I를 제곱</b>해 I²=∫∫e^(−x²−y²)dxdy라는 2차원 적분으로 만든 뒤, 이를 <b>극좌표</b>로 바꾸면(x²+y²=r², dxdy=r dr dθ) ∫₀²π∫₀^∞ e^(−r²)r dr dθ가 되어 r 덕분에 깔끔히 적분돼 π가 나옵니다. 따라서 <b>I=√π</b>입니다. 정규분포의 전체 확률이 1이 되도록 정규화하는 상수가 바로 여기서 옵니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>제곱해서 극좌표로</b><br>I=∫₋∞^∞ e^(−x²)dx. I²=∫∫e^(−x²−y²)dxdy를 극좌표(x²+y²=r², dxdy=r drdθ)로 바꾸면 ∫₀²π∫₀^∞ e^(−r²)r dr dθ = 2π·(1/2)=π. 따라서 I=√π. 정규분포가 전체 확률 1이 되도록 정규화하는 상수의 근원입니다.",
     "more_en": "I²=∫∫e^(−x²−y²)dxdy in polar = ∫₀²π∫₀^∞ e^(−r²)r drdθ = π, so I=√π. Normalizes the Gaussian/normal distribution.",
@@ -958,13 +984,14 @@
       "solution": "치환 u=x/√2, dx=√2 du → √2·∫e^(−u²)du = √2·√π = √(2π). 표준정규분포 정규화 상수.",
       "q_en": "Value of ∫₋∞^∞ e^(−x²/2)dx?",
       "sol_en": "√(2π) (substitute u=x/√2)."
-    }
+    },
+    "sub": "제곱한 뒤 극좌표로 바꾸면 깔끔히 적분됩니다."
   },
   "math_br_eulerident": {
     "ch": "제10장 복소평면",
     "sec": "심화 유도",
     "title": "오일러 항등식 e^(iπ)+1=0",
-    "narr": "가장 아름다운 식 — 다섯 상수가 한 줄에.",
+    "narr": "오일러 공식 e^(iθ)=cosθ+i·sinθ는 테일러 급수에서 유도됩니다. 여기에 <b>θ=π</b>를 넣으면 무슨 일이 생길까요. e^(iπ)=cosπ+i·sinπ=−1+0=−1이 되고, 이를 옮기면 <b>e^(iπ)+1=0</b>입니다. 단 한 줄에 자연상수 e, 허수단위 i, 원주율 π, 곱셈 항등원 1, 덧셈 항등원 0이 모두 모입니다 — 서로 다른 갈래에서 태어난 다섯 상수가 한자리에 만나는 셈입니다. 지수·삼각·복소수가 하나로 통일되는, 흔히 가장 아름다운 식으로 불리는 항등식입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>오일러 공식의 특수값</b><br>e^(iθ)=cosθ+i·sinθ (테일러 급수에서 유도)에 θ=π를 넣으면 e^(iπ)=cosπ+i·sinπ=−1+0=−1. 옮기면 e^(iπ)+1=0. 자연상수 e, 허수단위 i, 원주율 π, 곱셈 항등원 1, 덧셈 항등원 0이 한 식에 모입니다. 지수·삼각·복소수의 통일.",
     "more_en": "From e^(iθ)=cosθ+i sinθ at θ=π: e^(iπ)=−1, so e^(iπ)+1=0 — uniting e, i, π, 1, 0.",
@@ -973,13 +1000,14 @@
       "solution": "θ=π/2: cos(π/2)+i·sin(π/2)=0+i·1=i. 즉 e^(iπ/2)=i (90° 회전).",
       "q_en": "Compute e^(iπ/2).",
       "sol_en": "cos(π/2)+i sin(π/2)=i."
-    }
+    },
+    "sub": "오일러 공식에 θ=π를 넣으면 다섯 상수가 모입니다."
   },
   "math_br_nthroot": {
     "ch": "제10장 복소평면",
     "sec": "심화 유도",
     "title": "복소수의 n제곱근",
-    "narr": "복소수의 거듭제곱근은 정n각형으로 퍼집니다.",
+    "narr": "복소수의 n제곱근은 몇 개나, 어디에 있을까요. 드무아브르 정리를 거꾸로 적용하면 z=r∠θ의 n제곱근은 크기가 모두 <b>ⁿ√r로 같고</b>, 각은 (θ+2πk)/n으로 k=0,…,n−1만큼 갈라져 <b>정확히 n개</b>가 됩니다. 각이 2π/n씩 일정하게 차이나므로, 복소평면에서 <b>정n각형의 꼭짓점</b>에 균등하게 놓입니다. 특히 1의 n제곱근은 단위원 위에 고르게 분포한 점들(원분점)이며, 이 단위근이 FFT와 신호처리의 핵심으로 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>드무아브르의 역</b><br>z=r(cosθ+i sinθ)의 n제곱근은 ⁿ√r·(cos((θ+2πk)/n)+i sin((θ+2πk)/n)), k=0,…,n−1로 n개. 크기는 모두 ⁿ√r로 같고 각이 2π/n씩 차이나, 복소평면에서 정n각형 꼭짓점에 놓입니다. 1의 n제곱근은 단위원 위에 균등 분포한 점들(원분점)입니다.",
     "more_en": "n-th roots of z=r(cosθ+i sinθ) are ⁿ√r·cis((θ+2πk)/n), k=0..n−1 — vertices of a regular n-gon. Roots of unity are equally spaced on the unit circle.",
@@ -988,13 +1016,14 @@
       "solution": "1=cos0+i sin0. k=0,1,2: cos(2πk/3)+i sin(2πk/3) = 1, −1/2+i√3/2, −1/2−i√3/2. (정삼각형 꼭짓점)",
       "q_en": "Find the three cube roots of 1.",
       "sol_en": "1, −½+i√3/2, −½−i√3/2."
-    }
+    },
+    "sub": "거듭제곱을 거꾸로 — 정n각형 꼭짓점으로 갈라집니다."
   },
   "math_br_lagrangemult": {
     "ch": "제18장 미분의 응용",
     "sec": "심화 기법",
     "title": "라그랑주 승수법",
-    "narr": "제약 조건 위에서 최댓값·최솟값을 찾습니다.",
+    "narr": "g(x,y)=0이라는 제약을 만족하면서 f(x,y)를 최대·최소로 만드는 점을 어떻게 찾을까요. 핵심 통찰은 그 극값에서 <b>두 기울기가 평행</b>하다는 것 — ∇f=λ∇g입니다. 기하적으로는 f의 등위선과 제약곡선이 <b>접하는 지점</b>으로, 제약을 따라 더 나아가도 f가 늘지 않는 곳입니다. 그래서 ∇f=λ∇g와 g=0을 연립해 후보점을 찾습니다. λ는 라그랑주 승수라 부릅니다. 경제학·물리·기계학습의 제약최적화 어디서나 쓰이는 강력한 방법입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>기울기가 평행</b><br>제약 g(x,y)=0 위에서 f(x,y)의 극값은 ∇f=λ∇g인 곳에서 일어납니다. 기하적으로 f의 등위선과 제약곡선이 접하는 지점입니다(더 나아갈 방향이 제약에 막힘). ∇f=λ∇g와 g=0을 연립해 후보점을 찾습니다. 경제학·물리·기계학습 제약최적화의 핵심.",
     "more_en": "Extrema of f on g=0 occur where ∇f=λ∇g (gradients parallel = level curve tangent to constraint). Solve ∇f=λ∇g with g=0.",
@@ -1003,13 +1032,14 @@
       "solution": "∇(xy)=λ∇(x+y−10): (y,x)=λ(1,1) → x=y. 제약 x+y=10 → x=y=5. 최댓값 xy=25.",
       "q_en": "Maximize xy subject to x+y=10.",
       "sol_en": "x=y=5, max xy=25."
-    }
+    },
+    "sub": "제약 위 극값에서는 두 기울기가 평행해집니다."
   },
   "math_br_ratiotest": {
     "ch": "제13장 수열",
     "sec": "심화 판정",
     "title": "비 판정법 — 급수 수렴",
-    "narr": "이웃 항의 비로 무한급수의 수렴을 가립니다.",
+    "narr": "무한급수가 수렴하는지 어떻게 알까요. 비 판정법은 <b>이웃한 두 항의 비</b>의 극한 L=lim|aₙ₊₁/aₙ|을 봅니다. <b>L<1이면 수렴</b>(항이 등비적으로 작아짐), <b>L>1이면 발산</b>(항이 점점 커짐), L=1이면 판정 불가라 p-급수처럼 더 섬세한 판정이 필요합니다. 항이 얼마나 빠르게 줄어드는지를 비율로 재는 셈입니다. 팩토리얼이나 거듭제곱이 든 급수에서 특히 강력하며, 멱급수의 수렴반경을 구하는 데도 그대로 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>L = lim|aₙ₊₁/aₙ|</b><br>L<1이면 항이 등비적으로 빨리 줄어 절대수렴, L>1이면 항이 커져 발산, L=1이면 판정 불가(p-급수처럼 더 섬세한 판정 필요). 팩토리얼·거듭제곱이 든 급수에 특히 강력합니다.",
     "more_en": "L=lim|aₙ₊₁/aₙ|: L<1 absolute convergence, L>1 divergence, L=1 inconclusive. Great for factorials/powers.",
@@ -1018,13 +1048,14 @@
       "solution": "aₙ₊₁/aₙ = 2^(n+1)/(n+1)! · n!/2ⁿ = 2/(n+1) → 0 < 1. 절대수렴(실은 e²로 수렴).",
       "q_en": "Test Σ 2ⁿ/n! by the ratio test.",
       "sol_en": "Ratio 2/(n+1)→0<1, converges (to e²)."
-    }
+    },
+    "sub": "이웃한 항의 비로 급수의 수렴을 판정합니다."
   },
   "math_br_radiusconv": {
     "ch": "제14장 극한",
     "sec": "심화 정리",
     "title": "멱급수의 수렴반경",
-    "narr": "멱급수가 수렴하는 구간의 반지름입니다.",
+    "narr": "Σaₙxⁿ 같은 멱급수는 모든 x에서 수렴하지는 않습니다. 어디까지 수렴할까요. 비 판정법을 적용하면 <b>|x|<R에서 수렴, |x|>R에서 발산</b>하는 경계값 R이 나오는데, 이를 <b>수렴반경</b>이라 합니다. 1/R=lim|aₙ₊₁/aₙ|(또는 코시-아다마르 공식)로 구합니다. 정확히 경계 |x|=R인 지점은 수렴할 수도, 발산할 수도 있어 따로 조사해야 합니다. 수렴반경은 테일러 급수가 원래 함수를 제대로 대표하는 유효 범위를 정해 줍니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>비 판정으로 R</b><br>Σaₙxⁿ은 |x|<R에서 절대수렴, |x|>R에서 발산합니다. 1/R=lim|aₙ₊₁/aₙ| (또는 코시-아다마르 limsup|aₙ|^(1/n)). 경계 |x|=R는 따로 조사합니다. 테일러 급수가 함수를 대표하는 유효 범위를 정합니다.",
     "more_en": "Σaₙxⁿ converges for |x|<R, diverges for |x|>R; 1/R=lim|aₙ₊₁/aₙ|. Endpoints checked separately.",
@@ -1033,13 +1064,14 @@
       "solution": "aₙ=1/n. |aₙ₊₁/aₙ|=n/(n+1)→1, R=1. (x=−1 수렴, x=1 발산 — 경계는 따로)",
       "q_en": "Radius of convergence of Σ xⁿ/n.",
       "sol_en": "R=1 (endpoints differ: converges at −1, diverges at 1)."
-    }
+    },
+    "sub": "멱급수가 수렴하는 x의 범위를 비 판정으로 정합니다."
   },
   "math_br_stronginduction": {
     "ch": "제13장 수열",
     "sec": "심화 기법",
     "title": "강한 수학적 귀납법",
-    "narr": "이전 모든 경우를 가정해야 할 때 쓰는 귀납.",
+    "narr": "보통의 수학적 귀납법은 바로 앞 P(k)만 가정해 P(k+1)을 보입니다. 하지만 '바로 전' 하나로는 부족할 때가 있습니다. 이때 <b>강한 귀납법</b>은 P(1)부터 P(k)까지 <b>이전의 모든 경우를 함께 참이라 가정</b>하고 P(k+1)을 증명합니다. 예로 '모든 n≥2는 소수의 곱'임을 보일 때, n을 두 인수로 쪼개면 둘 다 n보다 작으므로 이전 경우들의 가정을 그대로 적용할 수 있습니다. 피보나치처럼 여러 앞 항에 기대는 재귀 정의를 증명할 때 자주 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>모든 이전 경우 사용</b><br>보통 귀납은 P(k)→P(k+1)이지만, 강귀납은 P(1),…,P(k)가 모두 참이라 가정하고 P(k+1)을 보입니다. '바로 전' 하나로는 부족할 때 사용합니다. 예: 모든 n≥2는 소수의 곱이다(n을 두 인수로 쪼개면 둘 다 n보다 작아 가정 적용). 피보나치·재귀 정의 증명에 자주 쓰입니다.",
     "more_en": "Strong induction assumes P(1)..P(k) all hold to prove P(k+1). Used when one prior case isn't enough — e.g. every n≥2 factors into primes.",
@@ -1048,13 +1080,14 @@
       "solution": "기초: 4=2+2, 5=5. 귀납: n≥6이면 n−2가 ≥4라 가정으로 만들 수 있고, 거기에 2원을 더하면 n. (이전 경우 n−2 사용 = 강귀납)",
       "q_en": "Base cases for 'every postage ≥4 is 2+5 coins' by strong induction?",
       "sol_en": "4=2+2, 5=5; then n≥6 uses n−2 (≥4) plus a 2."
-    }
+    },
+    "sub": "이전의 모든 경우를 함께 가정하는 귀납법입니다."
   },
   "math_br_cantorbern": {
     "ch": "제24장 집합론",
     "sec": "심화 정리",
     "title": "칸토어-베른슈타인 정리",
-    "narr": "양쪽으로 단사가 있으면 일대일대응이 있습니다.",
+    "narr": "두 무한집합의 크기가 같음을 보일 때, 일대일대응을 직접 만들기는 어렵지만 더 쉬운 길이 있습니다. A에서 B로의 단사와 B에서 A로의 단사가 <b>둘 다 존재하면</b>, A와 B 사이에 전단사가 반드시 있어 <b>|A|=|B|</b>가 됩니다 — 이것이 칸토어-베른슈타인 정리입니다. 'A≤B이고 B≤A이면 A=B'라는 집합 크기의 반대칭성인 셈입니다. 예로 [0,1]과 (0,1)은 양방향 단사가 쉽게 보여, 끝점을 포함하든 빼든 같은 연속체 농도임을 증명할 수 있습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>≤ 두 개가 = 를 준다</b><br>A에서 B로의 단사와 B에서 A로의 단사가 둘 다 있으면, A와 B 사이에 전단사(일대일대응)가 존재해 |A|=|B|. 집합 크기의 '반대칭성'입니다. 예: [0,1]과 (0,1)은 양방향 단사가 쉽게 있어 같은 농도(연속체)임을 보입니다.",
     "more_en": "If there are injections A→B and B→A, then a bijection A↔B exists (|A|=|B|) — antisymmetry of cardinality. E.g. [0,1] and (0,1) have the same cardinality.",
@@ -1063,13 +1096,14 @@
       "solution": "짝수→ℕ은 포함(단사), ℕ→짝수는 n↦2n(단사). 칸토어-베른슈타인으로 일대일대응 존재 → 같은 크기(가산무한).",
       "q_en": "Show ℕ and the even numbers have equal size via two injections.",
       "sol_en": "evens↪ℕ (inclusion), ℕ↪evens (n↦2n) → bijection by Cantor-Bernstein."
-    }
+    },
+    "sub": "양방향 단사가 있으면 두 집합의 크기가 같습니다."
   },
   "math_br_diagonalize": {
     "ch": "제22장 일차변환",
     "sec": "심화 기법",
     "title": "행렬의 대각화",
-    "narr": "고유벡터의 좌표계에서 변환은 단순한 늘이기가 됩니다.",
+    "narr": "복잡해 보이는 행렬도 알맞은 좌표계에서 보면 단순해집니다. A의 <b>고유벡터들을 열로 모은 P</b>와 <b>고유값을 늘어놓은 대각행렬 D</b>를 쓰면 <b>A=PDP⁻¹</b>로 분해됩니다. 고유벡터 좌표계에서 보면 A는 각 축을 고유값만큼 늘이기만 하는 단순한 변환입니다. 이 분해의 큰 이득은 거듭제곱입니다 — <b>Aⁿ=PDⁿP⁻¹</b>이라 대각행렬의 거듭제곱(대각원소만 n제곱)으로 끝납니다. 점화식의 닫힌형, 미분방정식계, 마르코프 연쇄의 정상상태 계산에 활용됩니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>A = P D P⁻¹</b><br>A의 고유벡터들을 열로 모은 P와 고유값 대각행렬 D에 대해 A=PDP⁻¹. 고유벡터 좌표계에서 보면 A는 각 축을 고유값만큼 늘이는 것뿐입니다. 그래서 Aⁿ=PDⁿP⁻¹로 거듭제곱이 쉬워집니다. 점화식의 닫힌형, 미분방정식계, 마르코프 연쇄 정상상태에 활용.",
     "more_en": "A=PDP⁻¹ where P holds eigenvectors and D the eigenvalues. In the eigenbasis A just scales axes, so Aⁿ=PDⁿP⁻¹ is easy. Used for recurrences, ODE systems, Markov chains.",
@@ -1078,13 +1112,14 @@
       "solution": "det = 고유값의 곱 = 2·3 = 6. 대각합(trace) = 고유값의 합 = 2+3 = 5.",
       "q_en": "Eigenvalues 2,3 of a 2×2 A — its determinant and trace?",
       "sol_en": "det=6 (product), trace=5 (sum)."
-    }
+    },
+    "sub": "고유벡터 좌표계에서 행렬을 대각행렬로 만듭니다."
   },
   "math_br_cayley": {
     "ch": "제21장 행렬",
     "sec": "심화 정리",
     "title": "케일리-해밀턴 정리",
-    "narr": "행렬은 자기 자신의 특성방정식을 만족합니다.",
+    "narr": "놀랍게도 행렬은 자기 자신의 특성다항식을 만족합니다. 특성다항식 p(λ)=det(A−λI)에 숫자 대신 <b>행렬 A를 대입하면 영행렬이 됩니다</b> — 이것이 케일리-해밀턴 정리입니다. 2×2 행렬이면 <b>A²−(trA)A+(detA)I=O</b>이 되는데, trA는 대각합, detA는 행렬식입니다. 이 관계를 쓰면 A²을 A와 I의 조합으로 바꿀 수 있어, A의 높은 거듭제곱이나 역행렬을 <b>낮은 차수의 다항식</b>으로 표현할 수 있습니다. 선형 점화식과 제어이론에서 강력하게 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>p(A)=O</b><br>특성다항식 p(λ)=det(A−λI)에 행렬 A를 대입하면 영행렬이 됩니다. 2×2에선 A²−(trA)A+(detA)I=O. 이로써 A의 거듭제곱이나 역행렬을 낮은 차수 다항식으로 표현할 수 있습니다. 선형 점화식·제어이론에서 강력합니다.",
     "more_en": "Substituting A into its characteristic polynomial p(λ)=det(A−λI) gives p(A)=O. For 2×2: A²−(trA)A+(detA)I=O. Reduces high powers to low-degree polynomials in A.",
@@ -1093,13 +1128,14 @@
       "solution": "trA=5, detA=6. A²=(trA)A−(detA)I=5A−6I=[[10,5],[0,15]]−[[6,0],[0,6]]=[[4,5],[0,9]] (직접 곱과 일치).",
       "q_en": "Use Cayley-Hamilton on A=[[2,1],[0,3]] to express A².",
       "sol_en": "trA=5, detA=6 → A²=5A−6I=[[4,5],[0,9]]."
-    }
+    },
+    "sub": "행렬이 자기 특성방정식을 만족합니다."
   },
   "math_br_sepvar": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 기법",
     "title": "변수분리형 미분방정식",
-    "narr": "x와 y를 양쪽으로 갈라 각각 적분합니다.",
+    "narr": "미분방정식 dy/dx=g(x)h(y)는 x에 대한 식과 y에 대한 식이 곱으로 깔끔히 나뉘어 있습니다. 이럴 때 <b>변수를 양변으로 분리</b>합니다 — dy/h(y)=g(x)dx. 그다음 양변을 각각 적분하면 해가 나옵니다. 예로 dy/dx=ky는 dy/y=k dx가 되고, 적분하면 ln|y|=kx+C, 정리하면 <b>y=Ce^(kx)</b>라는 지수성장·감쇠 해가 나옵니다. 인구 증가, 방사성 붕괴, 뉴턴의 냉각 법칙처럼 변화율이 현재 양에 비례하는 현상의 기본 모형입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>분리해서 적분</b><br>dy/dx=g(x)h(y) 꼴이면 dy/h(y)=g(x)dx로 변수를 분리해 양변을 적분합니다. 예: dy/dx=ky → dy/y=k dx → ln|y|=kx+C → y=Ce^(kx) (지수성장/감쇠). 인구·방사성붕괴·냉각 법칙의 기본 모형입니다.",
     "more_en": "For dy/dx=g(x)h(y), separate dy/h(y)=g(x)dx and integrate. e.g. dy/dx=ky → y=Ce^(kx). Models growth/decay/cooling.",
@@ -1108,13 +1144,14 @@
       "solution": "dy/y=2x dx → ln y=x²+C → y=Ae^(x²). y(0)=1 → A=1. ∴ y=e^(x²).",
       "q_en": "Solve dy/dx=2xy, y(0)=1.",
       "sol_en": "dy/y=2x dx → y=e^(x²)."
-    }
+    },
+    "sub": "변수를 양쪽으로 분리해 각각 적분합니다."
   },
   "math_br_linode": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 기법",
     "title": "1계 선형 미분방정식 — 적분인자",
-    "narr": "적분인자를 곱하면 좌변이 곱의 미분으로 변합니다.",
+    "narr": "1계 선형 미분방정식 y′+P(x)y=Q(x)는 어떻게 풀까요. 비결은 <b>적분인자 μ=e^(∫P dx)</b>를 양변에 곱하는 것입니다. 그러면 좌변이 정확히 <b>(μy)′</b>이라는 곱의 미분 형태로 묶입니다 — 이것이 적분인자를 그렇게 고른 이유입니다. 이제 양변을 적분하면 μy=∫μQ dx가 되고, 마지막에 μ로 나누면 y=(1/μ)∫μQ dx라는 해가 나옵니다. RC 회로의 전류, 가열·냉각, 약물 농도처럼 선형 시스템을 다루는 표준 해법입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>적분인자 μ</b><br>y′+P(x)y=Q(x)에 μ=e^(∫P dx)를 곱하면 좌변이 (μy)′가 되어 (μy)′=μQ. 양변 적분 후 μ로 나누면 y=(1/μ)∫μQ dx. RC 회로의 전류, 가열·냉각, 약물 농도 모형 등 선형 시스템의 표준 해법입니다.",
     "more_en": "Multiply y′+P y=Q by μ=e^(∫P dx) so the left side becomes (μy)′=μQ; then y=(1/μ)∫μQ dx. Standard for linear systems (RC circuits, mixing).",
@@ -1123,13 +1160,14 @@
       "solution": "P=1 → μ=e^x. (e^x·y)′=e^x·e^x=e^(2x). e^x y=e^(2x)/2+C → y=e^x/2+Ce^(−x).",
       "q_en": "Solve y′+y=eˣ using an integrating factor.",
       "sol_en": "μ=eˣ → (eˣy)′=e^(2x) → y=eˣ/2+Ce⁻ˣ."
-    }
+    },
+    "sub": "적분인자를 곱해 좌변을 곱의 미분으로 만듭니다."
   },
   "math_br_genfunc": {
     "ch": "제13장 수열",
     "sec": "심화 기법",
     "title": "생성함수 — 수열을 다항식으로",
-    "narr": "수열을 멱급수의 계수로 넣으면 점화식이 대수방정식이 됩니다.",
+    "narr": "수열을 다항식처럼 다룰 수 있을까요. 생성함수의 발상은 수열 aₙ을 <b>멱급수 G(x)=Σaₙxⁿ의 계수로 인코딩</b>하는 것입니다. 그러면 수열의 점화식이 G(x)에 대한 하나의 방정식으로 바뀌어, 그 방정식을 풀면 수열의 닫힌형을 얻습니다. 예로 피보나치 수열은 <b>G(x)=x/(1−x−x²)</b>이고, 이를 부분분수로 펼치면 일반항을 직접 주는 비네 공식이 나옵니다. 조합을 세거나 확률·점화식을 다루는 데 두루 쓰이는 만능 도구입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>수열 ↔ 멱급수</b><br>수열 aₙ을 G(x)=Σaₙxⁿ의 계수로 인코딩하면, 점화식이 G(x)에 대한 방정식이 되어 닫힌형을 풀 수 있습니다. 피보나치는 G(x)=x/(1−x−x²)이고, 부분분수로 펼치면 비네 공식이 나옵니다. 조합 세기·확률·점화식의 만능 도구입니다.",
     "more_en": "Encode aₙ as coefficients of G(x)=Σaₙxⁿ; recurrences become algebraic equations for G. Fibonacci: G(x)=x/(1−x−x²), giving Binet's formula.",
@@ -1138,13 +1176,14 @@
       "solution": "G(x)=Σaₙxⁿ. 점화식에서 G=1+2xG → G(1−2x)=1 → G(x)=1/(1−2x)=Σ2ⁿxⁿ. ∴ aₙ=2ⁿ.",
       "q_en": "Generating function for aₙ=2aₙ₋₁, a₀=1.",
       "sol_en": "G=1/(1−2x)=Σ2ⁿxⁿ, so aₙ=2ⁿ."
-    }
+    },
+    "sub": "수열을 멱급수의 계수로 인코딩해 다룹니다."
   },
   "math_br_quadrecip": {
     "ch": "제23장 수론",
     "sec": "심화 정리",
     "title": "이차 상호법칙",
-    "narr": "가우스가 '산술의 보석'이라 부른 깊은 대칭.",
+    "narr": "어떤 수가 소수 p로 나눈 나머지의 제곱이 될 수 있는지를 <b>이차잉여</b>라 하고, 르장드르 기호 (a/p)로 잉여면 +1, 아니면 −1로 표시합니다. 이차 상호법칙은 서로 다른 홀수 소수 p, q에 대해 <b>'p가 q의 이차잉여인가'와 'q가 p의 이차잉여인가'가 서로 연결</b>됨을 말합니다 — (p/q)(q/p)=(−1)^((p−1)/2·(q−1)/2)로, 둘 다 4k+3 꼴 소수일 때만 부호가 뒤집힙니다. 가우스가 평생 여덟 가지 방법으로 증명한 정수론의 핵심 정리입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>두 소수의 잉여 관계</b><br>르장드르 기호 (a/p)는 a가 p로 나눈 어떤 수의 제곱과 같은 나머지(=이차잉여)면 +1, 아니면 −1로 정하는 ±1 값입니다(분수가 아님). 서로 다른 홀수 소수 p, q에 대해 그 곱 (p/q)(q/p)=(−1)^((p−1)/2·(q−1)/2). 즉 'p가 q의 이차잉여인가'와 'q가 p의 이차잉여인가'가 서로 연결됩니다(둘 다 4k+3 소수일 때만 부호가 뒤집힘). 가우스가 평생 8가지 다른 방법으로 증명한 정수론의 핵심 정리입니다.",
     "more_en": "For distinct odd primes p,q: (p/q)(q/p)=(−1)^((p−1)/2·(q−1)/2), linking whether p is a QR mod q and vice versa. Gauss proved it 8 ways.",
@@ -1153,13 +1192,14 @@
       "solution": "p=3,q=5: (p−1)/2·(q−1)/2 = 1·2 = 2 (짝수) → (−1)²=+1. 둘이 같은 잉여성(둘 다 잉여 or 둘 다 비잉여).",
       "q_en": "Sign of (3/5)·(5/3) by reciprocity.",
       "sol_en": "Exponent 1·2=2 even → +1."
-    }
+    },
+    "sub": "두 소수의 이차잉여 관계가 서로 연결됩니다."
   },
   "math_br_basel": {
     "ch": "제14장 극한",
     "sec": "랜드마크",
     "title": "바젤 문제 — Σ1/n² = π²/6",
-    "narr": "정수의 제곱 역수 합에 원주율 π가 등장하는 경이로운 결과.",
+    "narr": "1+1/4+1/9+…처럼 제곱수의 역수를 모두 더한 값을 묻는 것이 100년간 풀리지 않던 바젤 문제이고, 오일러가 1734년에 해결했습니다. 그의 통찰은 sin x를 <b>무한곱 sin x=x∏(1−x²/(n²π²))</b>로 펼치는 것이었습니다. 이 무한곱에서 sin x/x를 전개해 나온 x² 항의 계수를, 테일러 급수의 x² 계수와 비교하면 <b>Σ1/n²=π²/6≈1.6449</b>가 나옵니다. 제곱수의 합에서 뜬금없이 π가 등장하는 셈으로, 정수론의 제타함수와 해석학을 잇는 다리입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>오일러의 통찰</b><br>1+1/4+1/9+… 의 값을 묻는 100년 묵은 문제를 오일러가 1734년 풀었습니다. sinx = x∏(1−x²/(n²π²)) 라는 무한곱으로 sinx/x를 전개하고, 테일러 급수 x²의 계수와 비교하면 Σ1/n² = π²/6 ≈ 1.6449. 정수론(제타함수 ζ(2))과 해석학을 잇는 다리입니다.",
     "more_en": "Euler (1734) used the product sinx = x∏(1−x²/n²π²); comparing the x² coefficient with the Taylor series gives Σ1/n² = π²/6. This is ζ(2).",
@@ -1168,13 +1208,14 @@
       "solution": "전체 = 홀수항 + 짝수항. 짝수항 Σ1/(2n)² = (1/4)Σ1/n² = π²/24. 홀수항 = π²/6 − π²/24 = π²/8.",
       "q_en": "Using Σ1/n²=π²/6, find the sum over odd squares 1+1/9+1/25+….",
       "sol_en": "Odd = total − even = π²/6 − π²/24 = π²/8."
-    }
+    },
+    "sub": "오일러가 sin x의 무한곱으로 풀어낸 합입니다."
   },
   "math_br_harmonic": {
     "ch": "제13장 수열",
     "sec": "심화 정리",
     "title": "조화급수의 발산",
-    "narr": "항이 0으로 가는데도 합이 무한대가 되는 유명한 예.",
+    "narr": "1+1/2+1/3+…은 항이 0으로 점점 작아지는데, 그 합은 수렴할까요. 놀랍게도 <b>발산</b>합니다. 오렘은 항을 <b>덩어리로 묶어</b> 보였습니다 — 1/3+1/4는 1/2보다 크고, 1/5+…+1/8도 1/2보다 크고… 이렇게 매번 1/2을 넘는 덩어리가 무한히 나오므로 합이 끝없이 커집니다. 이는 '항이 0으로 가는 것'이 수렴의 필요조건일 뿐 충분조건은 아님을 보여 주는 대표 예입니다. 부분합은 대략 ln n+γ로 아주 느리게, 그러나 멈추지 않고 자랍니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>덩어리로 묶기</b><br>1+1/2+1/3+… 에서 1/3+1/4 > 1/2, 1/5+…+1/8 > 1/2, … 처럼 묶으면 매번 1/2보다 큰 덩어리가 무한히 나와 합이 발산합니다(오렘, 14세기). 항이 0으로 가는 것은 수렴의 필요조건일 뿐 충분조건이 아님을 보여줍니다. 부분합은 대략 ln n + γ(γ≈0.577, 오일러-마스케로니 상수)로 매우 느리게 자랍니다.",
     "more_en": "Group 1/3+1/4>1/2, 1/5+…+1/8>1/2, … : infinitely many ½-chunks ⇒ diverges (Oresme). Terms→0 is necessary but not sufficient. Partial sums ~ ln n + γ.",
@@ -1183,13 +1224,14 @@
       "solution": "등비급수 1/2ⁿ은 항이 기하급수적으로(빠르게) 줄어 합 1로 수렴. 조화급수 1/n은 너무 느리게 줄어(1/2씩 덩어리가 무한) 발산합니다. '0으로 가는 속도'가 관건.",
       "q_en": "Why does 1/2+1/4+… converge but the harmonic series diverge?",
       "sol_en": "Geometric terms shrink exponentially (sum=1); harmonic terms shrink too slowly (½-chunks forever)."
-    }
+    },
+    "sub": "항을 덩어리로 묶으면 합이 끝없이 자랍니다."
   },
   "math_br_altseries": {
     "ch": "제13장 수열",
     "sec": "심화 판정",
     "title": "교대급수 판정 (라이프니츠)",
-    "narr": "부호가 번갈아 바뀌면 느리게 줄어도 수렴합니다.",
+    "narr": "발산하는 급수도 부호를 번갈면 수렴할 수 있습니다. 라이프니츠 판정법은 항 aₙ이 <b>0으로 단조감소</b>하면 교대급수 Σ(−1)ⁿaₙ이 수렴한다고 말합니다. 왜냐하면 부분합이 더했다 뺐다를 반복하며 <b>위아래로 번갈아 답을 좁혀 가기</b> 때문입니다. 예로 1−1/2+1/3−1/4+…는 ln 2로 수렴합니다. 흥미롭게도 조화급수 1+1/2+1/3+…은 발산하지만, 이렇게 부호만 번갈면 수렴합니다 — '조건수렴'의 대표적인 예입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>샌드위치되는 부분합</b><br>aₙ이 0으로 단조감소하면 Σ(−1)ⁿaₙ은 수렴합니다. 부분합이 위·아래로 번갈아 답을 좁혀가기 때문입니다. 예: 1−1/2+1/3−1/4+… = ln2. 조화급수는 발산하지만 부호를 번갈으면 수렴 — '조건수렴'의 대표 예입니다.",
     "more_en": "If aₙ↓0, then Σ(−1)ⁿaₙ converges (partial sums bracket the limit). e.g. 1−1/2+1/3−…=ln2 — conditionally convergent though the harmonic series diverges.",
@@ -1198,13 +1240,14 @@
       "solution": "이는 arctan(1)의 급수로 π/4 로 수렴합니다(라이프니츠의 π 공식). 교대급수 판정으로 수렴이 보장됩니다.",
       "q_en": "What does 1−1/3+1/5−1/7+… converge to?",
       "sol_en": "π/4 (Leibniz formula, the arctan(1) series)."
-    }
+    },
+    "sub": "부호를 번갈으면 부분합이 답을 좁혀 수렴합니다."
   },
   "math_br_stirling": {
     "ch": "제15장 순열·조합",
     "sec": "심화 근사",
     "title": "스털링 근사 — n!의 크기",
-    "narr": "거대한 팩토리얼을 매끄러운 식으로 근사합니다.",
+    "narr": "n!은 n이 조금만 커도 어마어마하게 커지는데, 그 크기를 가늠하는 근사가 <b>n!≈√(2πn)(n/e)ⁿ</b>입니다. 핵심 아이디어는 ln(n!)=Σln k라는 로그의 합을, 적분 <b>∫₁ⁿ ln x dx=n ln n−n+1</b>로 근사하는 것입니다 — 합을 넓이로 바꿔 (n/e)ⁿ이라는 주된 크기를 얻습니다. 앞의 보정항 √(2πn)은 오일러-매클로린 공식 같은 더 정밀한 분석에서 나옵니다. 이항분포 계산, 통계역학의 엔트로피, 정보이론에서 필수로 쓰입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>로그를 적분으로</b><br>n! ≈ √(2πn)(n/e)ⁿ. ln(n!) = Σln k 를 ∫₁ⁿ ln x dx = n ln n − n + 1 로 근사한 것이 핵심 아이디어이고, √(2πn) 보정항은 더 정밀한 분석(오일러-매클로린)에서 나옵니다. 확률(이항분포), 통계역학(엔트로피), 정보이론에서 필수입니다.",
     "more_en": "n! ≈ √(2πn)(n/e)ⁿ. Approximate ln(n!)=Σln k by ∫ln x dx = n ln n − n; the √(2πn) factor comes from finer analysis. Used in probability, statistical mechanics, information theory.",
@@ -1213,13 +1256,14 @@
       "solution": "ln(n!) ≈ n ln n − n + (1/2)ln(2πn). 주된 항은 n ln n − n (선형·로그 항이 지배).",
       "q_en": "Leading terms of ln(n!) by Stirling.",
       "sol_en": "ln(n!) ≈ n ln n − n + ½ln(2πn); dominant term n ln n − n."
-    }
+    },
+    "sub": "ln(n!)을 적분으로 근사해 n!의 크기를 잽니다."
   },
   "math_br_gamma": {
     "ch": "제19장 적분",
     "sec": "심화 함수",
     "title": "감마 함수 — 팩토리얼의 확장",
-    "narr": "정수가 아닌 수의 팩토리얼을 정의하는 적분.",
+    "narr": "팩토리얼은 자연수에만 정의되는데, 이를 실수와 복소수로 잇는 함수가 감마 함수입니다. <b>Γ(n)=∫₀^∞ x^(n−1)e^(−x)dx</b>로 정의하면, 부분적분을 통해 <b>Γ(n+1)=nΓ(n)</b>이라는 팩토리얼의 점화식이 그대로 나옵니다. Γ(1)=1이므로 자연수에서는 Γ(n)=(n−1)!로 팩토리얼과 일치합니다. 핵심 특수값 <b>Γ(1/2)=√π</b>는 가우스 적분에서 옵니다 — 즉 '½의 팩토리얼'도 정의됩니다. 확률분포(감마·베타·카이제곱)와 복소해석을 떠받치는 기둥입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>적분으로 정의</b><br>Γ(n)=∫₀^∞ x^(n−1)e^(−x)dx. 부분적분으로 Γ(n+1)=nΓ(n)이라는 팩토리얼 점화식이 나오고, Γ(1)=1이므로 자연수에서 Γ(n)=(n−1)!. 핵심 특수값 Γ(1/2)=√π는 가우스 적분에서 옵니다. 확률분포(감마·베타·카이제곱), 복소해석의 기둥입니다.",
     "more_en": "Γ(n)=∫₀^∞ x^(n−1)e^(−x)dx; integration by parts gives Γ(n+1)=nΓ(n), so Γ(n)=(n−1)! for integers. Γ(1/2)=√π.",
@@ -1228,13 +1272,14 @@
       "solution": "Γ(5)=(5−1)!=4!=24. Γ(1/2)=√π (가우스 적분 ∫e^(−x²)=√π 와 직접 연결).",
       "q_en": "Compute Γ(5) and Γ(1/2).",
       "sol_en": "Γ(5)=4!=24; Γ(1/2)=√π."
-    }
+    },
+    "sub": "적분으로 팩토리얼을 실수·복소수까지 확장합니다."
   },
   "math_br_weierstrass": {
     "ch": "제25장 엄밀한 극한",
     "sec": "랜드마크",
     "title": "연속이지만 어디서도 미분 불가",
-    "narr": "'매끄러운 연속곡선'이라는 직관을 깨뜨린 괴물 함수.",
+    "narr": "'연속이면 적어도 대부분의 점에서는 매끄럽다'는 19세기의 믿음을 바이어슈트라스가 한 함수로 무너뜨렸습니다. <b>W(x)=Σ aⁿcos(bⁿπx)</b> 꼴의 이 함수는 모든 점에서 연속이지만, <b>어느 한 점에서도 미분 불가능</b>합니다. 이유는 어디를 확대해도 똑같이 뾰족한 <b>자기유사 구조(프랙탈)</b> 때문에 접선을 그을 만큼 매끄러운 곳이 전혀 없기 때문입니다. 직관에 정면으로 반하는 이 반례는 해석학을 엄밀하게 다시 세우는 계기가 되었습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>바이어슈트라스 함수</b><br>W(x)=Σ aⁿcos(bⁿπx) (0<a<1, ab>1)는 모든 점에서 연속이지만 어느 점에서도 미분 불가능합니다. 어디를 확대해도 똑같이 뾰족한 자기유사 구조(프랙탈) 때문에 접선을 그을 수 없습니다. '연속이면 미분가능'이라는 19세기 믿음을 무너뜨려 해석학의 엄밀화를 촉발했습니다.",
     "more_en": "W(x)=Σaⁿcos(bⁿπx) (0<a<1, ab>1) is everywhere continuous but nowhere differentiable — a self-similar fractal with no tangent anywhere. It shattered the belief 'continuous ⇒ differentiable'.",
@@ -1243,13 +1288,14 @@
       "solution": "거짓입니다. 바이어슈트라스 함수가 반례입니다(어디서나 연속이지만 어디서도 미분 불가). 역은 참: 미분가능하면 반드시 연속입니다.",
       "q_en": "True or false: continuous implies differentiable?",
       "sol_en": "False — the Weierstrass function is a counterexample. The converse (differentiable ⇒ continuous) is true."
-    }
+    },
+    "sub": "어디서나 연속이지만 어디서도 미분 불가능한 함수입니다."
   },
   "math_br_greendiv": {
     "ch": "제11장 공간도형",
     "sec": "심화 정리",
     "title": "발산정리·그린·스토크스",
-    "narr": "안에서의 누적이 곧 경계에서의 흐름이라는 통일 원리.",
+    "narr": "벡터미적분의 큰 정리들 — 그린·발산·스토크스 — 은 사실 <b>한 가지 생각의 변주</b>입니다. '영역 내부에서 미분한 것을 적분하면, 경계에서의 값으로 환원된다'는 것입니다. 그린 정리는 평면에서 ∮F·dr=∬(∂Q/∂x−∂P/∂y)dA, 발산정리는 3차원에서 ∯F·dS=∭div F dV, 스토크스는 그 곡면판입니다. 모두 1차원의 미적분 기본정리 ∫f′=f(b)−f(a)를 <b>고차원으로 일반화</b>한 것입니다. 맥스웰 방정식 같은 전자기학의 언어가 바로 이 정리들입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>경계로 환원</b><br>벡터미적분의 큰 정리들은 '영역 내부의 미분 적분 = 경계에서의 값'이라는 한 가지 생각의 변주입니다. 그린: ∮F·dr=∬(∂Q/∂x−∂P/∂y)dA. 발산정리: ∯F·dS=∭div F dV. 스토크스는 그 곡면판입니다. 미적분 기본정리 ∫f′=f(b)−f(a)의 고차원 일반화로, 전자기학(맥스웰 방정식)의 언어입니다.",
     "more_en": "Green/Stokes/Divergence theorems all say 'integral of a derivative inside = boundary values' — the multidimensional fundamental theorem of calculus. Language of electromagnetism.",
@@ -1258,13 +1304,14 @@
       "solution": "둘 다 '내부의 변화율 적분 = 경계에서의 값'입니다. 1차원: ∫ₐᵇf′dx=f(b)−f(a)(끝점 두 개). 3차원: ∭div F dV=∯F·dS(경계 곡면). 차원만 올라간 같은 원리.",
       "q_en": "How is the divergence theorem the same idea as the FTC?",
       "sol_en": "Both equate the integral of a derivative inside to boundary values — FTC uses two endpoints, divergence uses a boundary surface."
-    }
+    },
+    "sub": "내부의 미분 적분이 경계의 값으로 환원됩니다."
   },
   "math_br_jacobian": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 기법",
     "title": "야코비안 — 변수변환",
-    "narr": "좌표를 바꾸면 넓이·부피가 야코비안 배율만큼 늘어납니다.",
+    "narr": "다중적분에서 좌표를 (x,y)에서 (u,v)로 바꾸면 넓이 요소도 함께 바뀝니다. 그 변환율을 주는 것이 <b>야코비 행렬식</b>으로, dx dy=|∂(x,y)/∂(u,v)| du dv입니다. 즉 야코비안은 그 점에서 좌표변환이 넓이(부피)를 얼마나 늘이거나 줄이는지의 <b>국소 배율</b>입니다. 예로 극좌표의 야코비안은 r이라 dx dy=r dr dθ가 됩니다 — 가우스 적분이 풀린 것도 바로 이 r 덕분입니다. 확률밀도 변환과 다변수 치환적분의 핵심 도구입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>국소 넓이 배율</b><br>다중적분에서 (x,y)→(u,v)로 좌표를 바꾸면 dx dy = |∂(x,y)/∂(u,v)| du dv. 야코비 행렬식이 그 점에서의 넓이(부피) 확대율입니다. 극좌표는 야코비안이 r이라 dx dy = r dr dθ. 가우스 적분, 확률밀도 변환, 다변수 치환적분의 핵심 도구입니다.",
     "more_en": "Changing variables (x,y)→(u,v) in a multiple integral gives dx dy=|∂(x,y)/∂(u,v)|du dv — the Jacobian determinant is the local area scaling. Polar: Jacobian r, so dx dy=r dr dθ.",
@@ -1273,13 +1320,14 @@
       "solution": "x=r cosθ, y=r sinθ. ∂(x,y)/∂(r,θ) = |cosθ −r sinθ; sinθ r cosθ| = r cos²θ + r sin²θ = r. ∴ dx dy = r dr dθ.",
       "q_en": "Write dx dy in polar coordinates using the Jacobian r.",
       "sol_en": "x=r cosθ, y=r sinθ → Jacobian = r, so dx dy = r dr dθ."
-    }
+    },
+    "sub": "좌표를 바꿀 때의 국소 넓이 배율입니다."
   },
   "math_br_fourier": {
     "ch": "제8장 삼각함수",
     "sec": "랜드마크",
     "title": "푸리에 급수 — 파동의 분해",
-    "narr": "어떤 주기 신호도 사인·코사인의 합으로 쪼갤 수 있습니다.",
+    "narr": "복잡한 주기 파형을 단순한 사인·코사인의 합으로 분해할 수 있을까요. 푸리에 급수는 f(x)=a₀+Σ(aₙcos nx+bₙsin nx)로 펼칩니다. 계수는 어떻게 뽑을까요. 핵심은 <b>직교성</b>입니다 — 서로 다른 사인·코사인을 한 주기에서 곱해 적분하면 0이 됩니다. 그래서 f에 cos nx를 곱해 적분하면 <b>딱 aₙ 항만 살아남습니다</b>. 이렇게 파형을 기본 진동수들의 합으로 분해하는 원리가 음향, 신호처리, 열전도, 양자역학, 영상압축(JPEG)의 공통 언어가 됩니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>직교성으로 계수 추출</b><br>주기함수 f(x)=a₀+Σ(aₙcos nx+bₙsin nx). 서로 다른 사인·코사인은 한 주기에서 적분하면 0(직교)이므로, f에 cos nx를 곱해 적분하면 aₙ만 남습니다. 복잡한 파형을 기본 진동수들의 합으로 분해 — 음향, 신호처리, 열전도, 양자역학, 영상압축(JPEG)의 공통 언어입니다.",
     "more_en": "Any periodic f = a₀+Σ(aₙcos nx+bₙsin nx). Sines/cosines are orthogonal over a period, so multiplying by cos nx and integrating extracts aₙ. Language of audio, signals, heat, quantum mechanics, JPEG.",
@@ -1288,13 +1336,14 @@
       "solution": "f(x)에 cos(nx)를 곱해 한 주기 적분하면, cos(mx)cos(nx)는 m≠n이면 적분 0, m=n이면 π. 따라서 ∫f cos nx dx = aₙ·π → aₙ = (1/π)∫f cos nx dx.",
       "q_en": "How are Fourier coefficients aₙ extracted via orthogonality?",
       "sol_en": "Multiply f by cos nx and integrate over a period: cross terms vanish, leaving aₙ=(1/π)∫f cos nx dx."
-    }
+    },
+    "sub": "직교성을 이용해 파동을 진동수별로 분해합니다."
   },
   "math_br_laplace": {
     "ch": "제20장 적분의 응용",
     "sec": "심화 기법",
     "title": "라플라스 변환",
-    "narr": "미분방정식을 대수방정식으로 바꾸는 마법의 적분.",
+    "narr": "라플라스 변환 L{f}(s)=∫₀^∞ f(t)e^(−st)dt의 진짜 힘은 미분을 단순한 곱셈으로 바꾸는 데 있습니다. 핵심 성질 <b>L{f′}=sF(s)−f(0)</b>에 따라, 함수를 미분하는 것이 s를 곱하는 것으로 바뀝니다. 그래서 풀기 어려운 <b>미분방정식이 s에 대한 대수방정식</b>으로 변하고, 그 대수방정식을 풀어 역변환하면 원래 해가 나옵니다. 더구나 초기조건 f(0)이 식에 자동으로 들어갑니다. 제어공학·회로·신호처리의 표준 기법입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>미분 → 곱셈</b><br>L{f}(s)=∫₀^∞ f(t)e^(−st)dt. 핵심 성질 L{f′}=sF(s)−f(0)로 미분이 s 곱하기로 바뀝니다. 그래서 미분방정식이 s에 대한 대수방정식이 되고, 풀어서 역변환하면 해가 나옵니다. 초기조건이 자동 반영되며 제어공학·회로·신호처리의 표준 기법입니다.",
     "more_en": "L{f}(s)=∫₀^∞f(t)e^(−st)dt; L{f′}=sF−f(0) turns differentiation into multiplication by s, converting ODEs into algebra. Standard in control theory and circuits.",
@@ -1303,13 +1352,14 @@
       "solution": "미분이 s 곱셈으로 바뀌므로 y′+ay=f 같은 ODE가 (s+a)Y = F + y(0) 라는 대수식이 됩니다. Y를 s로 풀고 역변환하면 y(t). 미적분이 대수로 환원됩니다.",
       "q_en": "Explain how L{f′}=sF−f(0) lets Laplace solve ODEs.",
       "sol_en": "Differentiation becomes ×s, so an ODE becomes an algebraic equation in Y(s); solve and invert."
-    }
+    },
+    "sub": "미분을 s 곱하기로 바꿔 미분방정식을 대수로 만듭니다."
   },
   "math_br_triplescalar": {
     "ch": "제11장 공간도형",
     "sec": "심화 유도",
     "title": "스칼라 삼중곱 = 부피",
-    "narr": "세 벡터가 만드는 평행육면체의 부피를 한 번에 구합니다.",
+    "narr": "세 벡터가 만드는 평행육면체의 부피를 어떻게 구할까요. 스칼라 삼중곱 <b>a·(b×c)=det[a b c]</b>이 답입니다. 먼저 b×c는 b와 c가 만드는 <b>밑면의 넓이</b>를 크기로, 그 면의 법선을 방향으로 갖는 벡터입니다. 거기에 a를 내적하면 a의 법선 방향 성분, 즉 <b>높이</b>가 곱해져 '밑넓이×높이'=부피가 됩니다. 값이 0이면 세 벡터가 한 평면 위에 있다는 뜻(공면)이고, 부호는 오른손·왼손 배향을 나타냅니다. 외적과 내적이 한 식에서 만납니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>외적과 내적의 결합</b><br>a·(b×c) = det[a b c]. b×c는 밑면(b,c가 만드는 평행사변형) 넓이를 크기로, 법선을 방향으로 갖는 벡터입니다. 거기에 a를 내적하면 '높이 × 밑넓이' = 평행육면체 부피가 나옵니다. 값이 0이면 세 벡터가 한 평면 위(공면)이고, 부호는 오른손/왼손 배향을 나타냅니다.",
     "more_en": "a·(b×c)=det[a b c]. b×c gives base area (magnitude) and normal (direction); dotting with a yields height×base = parallelepiped volume. Zero ⇒ coplanar; sign = orientation.",
@@ -1318,13 +1368,14 @@
       "solution": "a·(b×c)=det[[1,0,0],[0,2,0],[0,0,3]]=1·2·3=6. 세 변이 1,2,3인 직육면체 부피 = 6. (양수이므로 오른손 배향)",
       "q_en": "Scalar triple product of a=(1,0,0), b=(0,2,0), c=(0,0,3) and its meaning?",
       "sol_en": "det=6 — the volume of the 1×2×3 box (positive ⇒ right-handed)."
-    }
+    },
+    "sub": "외적과 내적을 결합해 평행육면체 부피를 잽니다."
   },
   "math_br_powerset": {
     "ch": "제24장 집합론",
     "sec": "랜드마크",
     "title": "멱집합은 항상 더 크다 — 칸토어",
-    "narr": "무한에도 끝없는 위계가 있음을 보인 칸토어의 정리.",
+    "narr": "집합 S의 모든 부분집합을 모은 것을 멱집합 P(S)라 하고, 그 크기는 2^|S|입니다. 칸토어의 정리는 S와 P(S) 사이에 <b>결코 일대일대응이 없다</b>고 말합니다 — 즉 멱집합이 항상 더 큽니다. 증명은 대각선 논법입니다. 어떤 대응 f를 가져와도 <b>D={x : x∉f(x)}</b>라는 부분집합을 만들면, D는 모든 f(x)와 적어도 한 원소에서 달라 대응에서 빠집니다. 그래서 무한에도 더 큰 무한이 끝없이 있습니다 — ℵ₀(자연수)<2^ℵ₀(실수)<…로 위계가 이어집니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>2^|S| > |S|</b><br>집합 S의 모든 부분집합을 모은 멱집합 P(S)는 |P(S)|=2^|S|이며, 칸토어의 정리에 의해 S와 P(S) 사이엔 결코 일대일대응이 없습니다. 증명은 대각선 논법: 어떤 대응 f가 있다 해도 D={x : x∉f(x)}는 어떤 f(x)와도 다릅니다. 따라서 무한에도 더 큰 무한이 끝없이 있습니다(ℵ₀=자연수의 무한 크기 < 2^ℵ₀=실수의 크기 < …).",
     "more_en": "P(S) has cardinality 2^|S|, and by Cantor's theorem there is no bijection S↔P(S) (diagonal set D={x:x∉f(x)} differs from every f(x)). So infinities form an endless hierarchy.",
@@ -1333,13 +1384,14 @@
       "solution": "2³ = 8개(공집합 포함 모든 부분집합). 칸토어 정리: 어떤 집합도 자기 멱집합보다 작아, ℕ의 멱집합(=실수 농도)은 ℕ보다 진짜 더 큽니다.",
       "q_en": "Size of the power set of a 3-element set, and what Cantor's theorem says?",
       "sol_en": "2³=8; Cantor: every set is strictly smaller than its power set, so |P(ℕ)| (the reals) exceeds |ℕ|."
-    }
+    },
+    "sub": "부분집합 전체의 모임은 원래 집합보다 항상 큽니다."
   },
   "math_br_russell": {
     "ch": "제24장 집합론",
     "sec": "랜드마크",
     "title": "러셀의 역설",
-    "narr": "'모든 집합의 집합'이라는 소박한 생각이 모순을 낳습니다.",
+    "narr": "'아무 조건이나 붙이면 집합이 된다'고 믿으면 어떤 함정에 빠질까요. <b>R={자기 자신을 원소로 갖지 않는 집합들}</b>을 생각해 'R은 R의 원소인가?'를 물어봅니다. 만약 R∈R이면 정의상 R은 자기를 포함하지 않아야 하니 R∉R, 반대로 R∉R이면 정의상 R∈R이어야 합니다 — <b>어느 쪽도 모순</b>입니다. 이 러셀의 역설은 소박한 집합론을 무너뜨렸고, 아무 조건이나 집합을 만들지 못하게 제한하는 ZFC 같은 공리적 집합론이 탄생하는 계기가 되었습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>자기지시의 함정</b><br>R = {자기 자신을 원소로 갖지 않는 집합들}을 생각하면, 'R∈R인가?'를 물을 때 R∈R이면 정의상 R∉R이어야 하고, R∉R이면 정의상 R∈R이어야 합니다 — 어느 쪽도 모순. 이는 '아무 조건이나 집합을 만든다'는 소박한 집합론을 무너뜨려, ZFC 같은 공리적 집합론(분류 공리)이 탄생하게 했습니다.",
     "more_en": "Let R={sets that don't contain themselves}. 'Is R∈R?' is contradictory either way. This collapsed naive set theory and motivated axiomatic (ZFC) set theory.",
@@ -1348,13 +1400,14 @@
       "solution": "'어떤 성질이든 그것을 만족하는 모든 것의 집합이 존재한다'(무제한 내포)를 금지하게 했습니다. ZFC는 분류 공리로 '기존 집합의 부분'만 만들도록 제한해 역설을 피합니다.",
       "q_en": "What did Russell's paradox force mathematicians to forbid?",
       "sol_en": "Unrestricted comprehension; ZFC only allows carving subsets out of existing sets (separation axiom)."
-    }
+    },
+    "sub": "자기 자신을 참조하는 집합이 모순을 일으킵니다."
   },
   "math_br_godel": {
     "ch": "제26장 종합",
     "sec": "랜드마크",
     "title": "괴델 불완전성 정리",
-    "narr": "수학을 완전한 기계로 만들 수 없음을 증명한 20세기의 충격.",
+    "narr": "수학의 모든 참을 증명해 낼 완벽한 공리계가 있을까요. 괴델은 '없다'고 답했습니다. 산술을 포함하는 무모순인 공리계는 <b>참이지만 그 안에서 증명할 수 없는 명제</b>를 반드시 갖습니다(제1정리). 그는 명제마다 번호를 매겨 '이 명제는 증명 불가능하다'를 수학 안에서 구성했습니다 — 이것이 만약 증명되면 거짓이 되니 증명될 수 없고, 따라서 참입니다. 더 나아가 제2정리는 그런 체계가 <b>자기 자신의 무모순성조차 증명할 수 없다</b>고 말합니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>참이지만 증명 불가</b><br>산술을 포함하는 무모순인 공리계는 '참이지만 그 체계 안에서 증명할 수 없는' 명제를 반드시 갖습니다(제1정리). 괴델은 명제에 번호를 매겨 '이 명제는 증명 불가능하다'를 수학 안에서 구성했습니다 — 그것이 증명되면 거짓이 되니 증명 불가, 따라서 참. 제2정리: 그런 체계는 자기 자신의 무모순성을 증명할 수 없습니다.",
     "more_en": "Any consistent system strong enough for arithmetic has true-but-unprovable statements (Gödel numbering encodes 'this statement is unprovable'). It cannot prove its own consistency.",
@@ -1363,13 +1416,14 @@
       "solution": "모든 수학적 진리를 유한한 공리에서 기계적으로 증명하려던 힐베르트 프로그램을 무너뜨렸습니다. 어떤 공리계도 완전(모든 참을 증명)하면서 무모순일 수 없습니다.",
       "q_en": "Which dream did Gödel's theorem shatter?",
       "sol_en": "Hilbert's program — no consistent axiom system can mechanically prove all mathematical truths."
-    }
+    },
+    "sub": "충분히 강한 체계엔 참이지만 증명 못 할 명제가 있습니다."
   },
   "math_br_fermatlast": {
     "ch": "제23장 수론",
     "sec": "랜드마크",
     "title": "페르마의 마지막 정리",
-    "narr": "358년 동안 수학자들을 괴롭힌 여백의 메모.",
+    "narr": "피타고라스 정리 x²+y²=z²은 (3,4,5)처럼 정수해가 많습니다. 그런데 지수를 3 이상으로 올리면 어떻게 될까요. 페르마는 <b>n≥3이면 xⁿ+yⁿ=zⁿ을 만족하는 양의 정수해가 없다</b>고 주장했습니다. 1637년 그는 책 여백에 '경이로운 증명을 찾았으나 여백이 좁다'고 적었고, 그 뒤 수많은 천재가 도전했지만 부분적 결과만 쌓였습니다. 마침내 1994년 앤드루 와일즈가 타니야마-시무라 추측을 증명하며 358년 만에 해결했습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>358년의 여정</b><br>n≥3이면 xⁿ+yⁿ=zⁿ을 만족하는 양의 정수해가 없습니다. 페르마가 1637년 책 여백에 '경이로운 증명을 찾았으나 여백이 좁다'고 적은 뒤, 수많은 천재가 도전했고 부분적 결과만 쌓였습니다. 1994년 앤드루 와일즈가 타니야마-시무라 추측(타원곡선=모듈러형식)을 증명하며 마침내 해결했습니다.",
     "more_en": "For n≥3, xⁿ+yⁿ=zⁿ has no positive integer solutions. Fermat's 1637 margin note resisted proof for 358 years until Andrew Wiles (1994) proved it via the modularity of elliptic curves.",
@@ -1378,13 +1432,14 @@
       "solution": "n=2는 피타고라스 수로 무한히 많은 해가 있습니다(3,4,5 / 5,12,13 …). 그러나 n≥3에선 해가 전혀 없습니다 — 페르마의 마지막 정리. 지수 하나 차이가 운명을 가릅니다.",
       "q_en": "Does xⁿ+yⁿ=zⁿ have solutions for n=2? How does n≥3 differ?",
       "sol_en": "n=2 has infinitely many (Pythagorean triples); n≥3 has none (Fermat's Last Theorem)."
-    }
+    },
+    "sub": "n≥3에서는 xⁿ+yⁿ=zⁿ의 정수해가 없습니다."
   },
   "math_br_riemann": {
     "ch": "제26장 종합",
     "sec": "랜드마크",
     "title": "리만 가설 — 미해결 난제",
-    "narr": "소수의 비밀을 쥔, 수학에서 가장 유명한 미해결 문제.",
+    "narr": "소수는 어떤 규칙으로 분포할까요. 그 비밀은 리만 제타함수 ζ(s)=Σ1/nˢ에 숨어 있습니다. 이 함수를 복소수까지 확장하면 ζ(s)=0이 되는 점들, 즉 영점이 생기는데, 리만 가설은 <b>모든 비자명 영점이 실수부 1/2인 직선 위에 있다</b>고 추측합니다. 이 영점들의 위치가 <b>소수의 분포(소수 정리의 오차항)를 정밀하게 지배</b>하기 때문에, 가설의 진위는 수론 전체에 막대한 영향을 줍니다. 1859년 제기되어 160여 년째 미해결인 100만 달러 밀레니엄 문제입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>제타 영점의 직선</b><br>리만 제타함수 ζ(s)=Σ1/nˢ를 복소수로 확장하면, '비자명 영점'(ζ(s)=0인 점)들이 모두 실수부 1/2인 직선 위에 있다는 추측입니다. 이 영점들의 위치가 소수의 분포(소수 정리의 오차항)를 정밀하게 지배합니다. 1859년 리만이 제기, 160여 년째 미해결로 100만 달러 밀레니엄 문제입니다.",
     "more_en": "The nontrivial zeros of ζ(s)=Σ1/nˢ all lie on Re(s)=1/2 (conjectured). Their location governs the distribution of primes. Posed 1859, still open — a Millennium Prize problem.",
@@ -1393,13 +1448,14 @@
       "solution": "소수의 분포를 매우 정밀하게 알게 됩니다. 소수 정리(소수의 개수 ~ x/ln x)의 오차가 제타 영점에 의해 결정되는데, 가설이 참이면 그 오차가 가능한 한 작음이 보장됩니다.",
       "q_en": "What would proving the Riemann hypothesis tell us?",
       "sol_en": "It pins down the error term in the prime number theorem — the tightest possible control on how primes are distributed."
-    }
+    },
+    "sub": "제타함수의 비자명 영점이 한 직선 위에 있다는 추측입니다."
   },
   "math_br_goldbach": {
     "ch": "제23장 수론",
     "sec": "랜드마크",
     "title": "골드바흐 추측",
-    "narr": "단순해 보이지만 280년째 풀리지 않은 짝수와 소수의 수수께끼.",
+    "narr": "짝수와 소수 사이에 단순하면서도 깊은 관계가 있습니다. 골드바흐 추측은 <b>2보다 큰 모든 짝수가 두 소수의 합</b>으로 쓰일 수 있다고 말합니다 — 4=2+2, 6=3+3, 8=3+5, 100=3+97처럼 말입니다. 보기엔 당연해 보이지만, 컴퓨터로 4×10¹⁸까지 모두 확인됐음에도 <b>일반적인 증명은 아직 없습니다</b>(1742년 제기). 한편 '약한 골드바흐'(5보다 큰 모든 홀수는 세 소수의 합)는 2013년에 증명되어, 본 추측 해결에 한 걸음 다가섰습니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>짝수 = 소수 + 소수</b><br>2보다 큰 모든 짝수는 두 소수의 합으로 쓸 수 있다는 추측입니다(골드바흐, 1742). 4=2+2, 6=3+3, 8=3+5, 100=3+97 … 컴퓨터로 4×10¹⁸까지 모두 확인됐지만 일반 증명은 없습니다. '약한 골드바흐'(홀수=세 소수 합)는 2013년 증명됐습니다.",
     "more_en": "Every even number >2 is a sum of two primes (Goldbach, 1742). Verified to 4×10¹⁸ but unproven. The weak version (odd = sum of three primes) was proved in 2013.",
@@ -1408,13 +1464,14 @@
       "solution": "100 = 3 + 97 (둘 다 소수). 또는 11+89, 17+83, 29+71, 41+59, 47+53 등 여러 가지. 골드바흐 추측의 한 사례.",
       "q_en": "Express 100 as a sum of two primes.",
       "sol_en": "100=3+97 (also 11+89, 17+83, 29+71, 41+59, 47+53)."
-    }
+    },
+    "sub": "2보다 큰 모든 짝수는 두 소수의 합이라는 추측입니다."
   },
   "math_br_planeeq": {
     "ch": "제11장 공간도형",
     "sec": "심화 유도",
     "title": "평면의 방정식 — 법선벡터",
-    "narr": "한 점과 수직 방향이 평면을 완전히 결정합니다.",
+    "narr": "공간에서 평면을 어떻게 식으로 나타낼까요. 핵심은 <b>법선벡터 n=(a,b,c)</b>입니다. 평면 위의 임의의 점 P에 대해 벡터 P−P₀가 항상 법선과 수직이므로, <b>n·(P−P₀)=0</b>이 평면의 정의입니다. 이를 전개하면 <b>ax+by+cz=d</b>(d=n·P₀)가 되어, 법선의 세 성분이 곧 x, y, z의 계수가 됩니다. 한 점 Q에서 이 평면까지의 거리는 |n·Q−d|/|n|로, 6장의 점과 직선 사이 거리 공식을 3차원으로 확장한 모습입니다.",
     "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
     "more": "<b>법선과 수직</b><br>법선벡터 n=(a,b,c)에 수직이고 점 P₀를 지나는 평면 위의 임의의 점 P는 n·(P−P₀)=0을 만족합니다. 전개하면 ax+by+cz=d (d=n·P₀). 법선의 세 성분이 곧 x,y,z 계수입니다. 점 Q에서 평면까지의 거리는 |n·Q−d|/|n|로, 점과 직선 거리의 3차원 판입니다.",
     "more_en": "Points P on the plane through P₀ with normal n=(a,b,c) satisfy n·(P−P₀)=0, i.e. ax+by+cz=d. Distance from Q is |n·Q−d|/|n|.",
@@ -1423,6 +1480,7 @@
       "solution": "2(x−1)−1(y−2)+2(z−3)=0 → 2x−y+2z−6=0 → 2x−y+2z=6. (d = n·P₀ = 2−2+6 = 6)",
       "q_en": "Plane through (1,2,3) with normal (2,−1,2)?",
       "sol_en": "2x−y+2z=6."
-    }
+    },
+    "sub": "법선벡터에 수직인 점들의 모임이 평면입니다."
   }
 }
