@@ -63,7 +63,7 @@
     "ch": "제19장 적분",
     "sec": "19.3 정적분의 성질",
     "title": "부호 있는 넓이",
-    "narr": "정적분은 사실 \"넓이\"가 아니라 <b>부호 있는 넓이</b>입니다. <b>x축 위는 +, 아래는 −</b>로 셉니다. 그래서 홀함수(예: x³)를 대칭 구간에서 적분하면, 위쪽 +넓이와 아래쪽 −넓이가 정확히 맞상쇄되어 <b>0</b>이 됩니다. 부호를 도입한 순간 자연히 따라오는 결과죠.",
+    "narr": "정적분은 사실 \"넓이\"가 아니라 <b>부호 있는 넓이</b>입니다. <b>x축 위는 +, 아래는 −</b>로 셉니다. 그래서 홀함수(예: x³)를 대칭 구간에서 적분하면, 위쪽 +넓이와 아래쪽 −넓이가 정확히 맞상쇄되어 <b>0</b>이 됩니다. 부호를 도입한 순간 자연히 따라오는 결과입니다.",
     "hint": "축 위는 +, 아래는 −",
     "more": "정적분 ∫ₐᵇ f(x)dx 는 <b>부호 있는 넓이</b>입니다 — f>0(축 위)이면 양수, f<0(축 아래)이면 음수로 더합니다. 그래서 <b>홀함수</b>(f(−x)=−f(x), 예 x, x³, sin x)를 <b>대칭 구간 [−a, a]</b>에서 적분하면 위·아래가 상쇄돼 <b>0</b>! 반대로 <b>짝함수</b>(x², cos x)는 ∫₋ₐᵃ = 2∫₀ᵃ 로 두 배입니다. \"실제 면적\"을 원하면 |f|를 적분하거나 구간을 나눠야 합니다. 이 부호 개념이 일·전하·평균값 등 물리·통계 계산에서 중요합니다(상쇄가 의미를 가짐).",
     "more_en": "A definite integral ∫ₐᵇ f(x)dx is a <b>signed area</b> — positive where f>0 (above the axis), negative where f<0 (below). So an <b>odd function</b> (f(−x)=−f(x), e.g. x, x³, sin x) integrated over a <b>symmetric interval [−a, a]</b> gives <b>0</b> (the parts above and below cancel)! Conversely an <b>even function</b> (x², cos x) gives ∫₋ₐᵃ = 2∫₀ᵃ. For true geometric area, integrate |f| or split the interval. This sign idea matters in physics and statistics (work, charge, mean) where cancellation is meaningful.",

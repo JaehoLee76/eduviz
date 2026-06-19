@@ -33,7 +33,7 @@
     "ch": "제23장 수론",
     "sec": "23.2 합동식",
     "title": "합동식 — 시계의 산술",
-    "narr": "시계에서 17시는 곧 <b>5시</b>죠(17−12=5). 시계는 12를 넘으면 다시 돌기 때문입니다. 이렇게 \"<b>나눈 나머지가 같으면 같게 취급</b>\"하는 게 <b>합동식(mod 산술)</b>입니다. 수를 바꿔 시계 위 어디에 멈추는지 보세요.",
+    "narr": "시계에서 17시는 곧 <b>5시</b>입니다(17−12=5). 시계는 12를 넘으면 다시 돌기 때문입니다. 이렇게 \"<b>나눈 나머지가 같으면 같게 취급</b>\"하는 게 <b>합동식(mod 산술)</b>입니다. 수를 바꿔 시계 위 어디에 멈추는지 보세요.",
     "hint": "수를 바꿔 시계 나머지를 보세요",
     "more": "<b>합동식</b>: a ≡ b (mod m) 은 \"a와 b를 m으로 나눈 나머지가 같다\"는 뜻입니다(a−b가 m의 배수). 시계(mod 12), 요일(mod 7), 각도(mod 360)가 다 합동 산술입니다. 놀라운 점: <b>합동은 덧셈·곱셈과 잘 어울립니다</b>(a≡b, c≡d면 a+c≡b+d, ac≡bd). 그래서 거대한 수의 나머지를 쉽게 계산합니다(다음 장면). 이 \"나머지의 세계\"가 유한한데도 풍부한 구조를 가져서, 암호(RSA)·오류정정코드·해시함수의 수학적 토대가 됩니다. 무한한 정수를 m개의 칸으로 접은 것입니다.",
     "more_en": "<b>Congruence</b>: a ≡ b (mod m) means \"a and b have the same remainder mod m\" (m divides a−b). Clocks (mod 12), weekdays (mod 7), and angles (mod 360) are all modular arithmetic. Remarkably, <b>congruence respects addition and multiplication</b> (if a≡b, c≡d then a+c≡b+d, ac≡bd), making remainders of huge numbers easy to compute (next scene). This finite-yet-rich \"world of remainders\" is the mathematical basis of cryptography (RSA), error-correcting codes, and hash functions — folding the infinite integers into m boxes.",

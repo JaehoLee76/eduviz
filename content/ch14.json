@@ -35,7 +35,7 @@
     "title": "함수의 극한 — 0/0의 비밀",
     "narr": "함수에서도 극한을 생각합니다. (x²−1)/(x−1) 에 x=1을 넣으면 <b>0/0</b>… 값이 없습니다(그래프에 구멍!). 그런데 <b>x를 1에 가까이 보내면</b> 양쪽 모두 <b>2로 다가갑니다</b>. \"그 점의 값\"이 아니라 \"<b>다가가는 값</b>\"이 극한입니다.",
     "hint": "x=1 양쪽에서 2로 다가갑니다",
-    "more": "함수의 극한 <b>lim(x→a) f(x) = L</b> 은 \"x를 a에 가까이(단, x≠a) 보낼 때 f(x)가 다가가는 값\"입니다. <b>(x²−1)/(x−1)</b>은 x=1에서 0/0(정의 안 됨, 구멍)이지만, 약분하면 x+1이라 <b>극한은 2</b>죠. 핵심: <b>극한은 그 점의 함숫값과 무관</b> — 구멍이 있어도, 값이 달라도 극한은 존재할 수 있습니다. 이 \"0/0 꼴 극한\"이 바로 다음에 배울 <b>미분(순간변화율)</b>의 정체입니다. 양쪽 극한(좌·우)이 같아야 극한이 존재합니다.",
+    "more": "함수의 극한 <b>lim(x→a) f(x) = L</b> 은 \"x를 a에 가까이(단, x≠a) 보낼 때 f(x)가 다가가는 값\"입니다. <b>(x²−1)/(x−1)</b>은 x=1에서 0/0(정의 안 됨, 구멍)이지만, 약분하면 x+1이라 <b>극한은 2</b>입니다. 핵심: <b>극한은 그 점의 함숫값과 무관</b> — 구멍이 있어도, 값이 달라도 극한은 존재할 수 있습니다. 이 \"0/0 꼴 극한\"이 바로 다음에 배울 <b>미분(순간변화율)</b>의 정체입니다. 양쪽 극한(좌·우)이 같아야 극한이 존재합니다.",
     "more_en": "The limit <b>lim(x→a) f(x) = L</b> is \"the value f(x) approaches as x nears a (with x ≠ a).\" <b>(x²−1)/(x−1)</b> is 0/0 at x=1 (undefined, a hole), but it factors to x+1, so the <b>limit is 2</b>. Key: <b>the limit is independent of the value at the point</b> — it can exist even with a hole or a different value. This \"0/0 limit\" is exactly the <b>derivative (instantaneous rate)</b> coming next. Left and right limits must agree for the limit to exist.",
     "problem": {
       "q": "lim(x→2) (x²−4)/(x−2) 는?",

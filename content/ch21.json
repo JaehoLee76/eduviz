@@ -65,7 +65,7 @@
     "title": "연립방정식과 역행렬",
     "narr": "<b>3장의 연립방정식(#29)</b>이 행렬로 돌아왔습니다! 연립방정식은 <b>Ax = b</b> 한 줄로 쓸 수 있고, <b>역행렬 A⁻¹</b>로 x = A⁻¹b 하고 한 번에 풀립니다. 단, <b>행렬식이 0이면</b> 역행렬이 없어 해가 유일하지 않습니다(두 직선이 평행/일치).",
     "hint": "det ≠ 0 이면 유일한 해(교점)",
-    "more": "연립일차방정식은 <b>Ax = b</b>(A=계수행렬)로 압축됩니다. <b>det(A) ≠ 0</b>이면 <b>역행렬 A⁻¹</b>이 존재해 <b>x = A⁻¹b</b>로 유일하게 풀립니다(두 직선이 한 점에서 만남 = 3장 #29의 교점). <b>det(A) = 0</b>이면 역행렬이 없어, 두 직선이 <b>평행(해 없음)</b>이거나 <b>일치(무수히 많은 해)</b>죠. <b>크라메르 공식</b>은 각 미지수를 행렬식의 비로 직접 줍니다(21.4의 넓이 해석과 연결). 미지수가 수백만 개인 거대 연립방정식(공학 시뮬레이션·머신러닝·경제모형)을 컴퓨터가 행렬로 푸는 게 선형대수의 핵심 응용입니다.",
+    "more": "연립일차방정식은 <b>Ax = b</b>(A=계수행렬)로 압축됩니다. <b>det(A) ≠ 0</b>이면 <b>역행렬 A⁻¹</b>이 존재해 <b>x = A⁻¹b</b>로 유일하게 풀립니다(두 직선이 한 점에서 만남 = 3장 #29의 교점). <b>det(A) = 0</b>이면 역행렬이 없어, 두 직선이 <b>평행(해 없음)</b>이거나 <b>일치(무수히 많은 해)</b>입니다. <b>크라메르 공식</b>은 각 미지수를 행렬식의 비로 직접 줍니다(21.4의 넓이 해석과 연결). 미지수가 수백만 개인 거대 연립방정식(공학 시뮬레이션·머신러닝·경제모형)을 컴퓨터가 행렬로 푸는 게 선형대수의 핵심 응용입니다.",
     "more_en": "A linear system compresses to <b>Ax = b</b> (A = coefficient matrix). If <b>det(A) ≠ 0</b>, an <b>inverse A⁻¹</b> exists and <b>x = A⁻¹b</b> solves it uniquely (two lines meeting at a point = Ch.3 #29's intersection). If <b>det(A) = 0</b>, there is no inverse: the lines are <b>parallel (no solution)</b> or <b>identical (infinitely many)</b>. <b>Cramer's rule</b> gives each unknown directly as a ratio of determinants (linking to the area meaning of 21.4). Computers solving huge systems with millions of unknowns (engineering simulation, machine learning, economic models) via matrices is the core application of linear algebra.",
     "problem": {
       "q": "연립방정식의 계수행렬식이 0이 아니면 해는?",

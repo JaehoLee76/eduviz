@@ -18,7 +18,7 @@
     "ch": "제6장 도형과 식",
     "sec": "6.1 점의 좌표",
     "title": "내분점과 중점",
-    "narr": "선분 AB 위의 한 점은 <b>A에서 B로 t만큼</b> 간 점입니다. t = 0이면 A, t = 1이면 B, <b>t = 0.5면 정확히 한가운데(중점)</b>죠. 비율 t를 움직여보세요.",
+    "narr": "선분 AB 위의 한 점은 <b>A에서 B로 t만큼</b> 간 점입니다. t = 0이면 A, t = 1이면 B, <b>t = 0.5면 정확히 한가운데(중점)</b>입니다. 비율 t를 움직여보세요.",
     "hint": "비율 t를 움직여보세요",
     "more": "선분 AB를 <b>t : (1−t)</b>로 나누는 <b>내분점</b>은 <b>P = (1−t)·A + t·B</b> 입니다. 좌표로는 P = ((1−t)x₁ + t·x₂, (1−t)y₁ + t·y₂). 특히 <b>t = 1/2</b>이면 <b>중점 = ((x₁+x₂)/2, (y₁+y₂)/2)</b>가 됩니다. 가중평균(1장)의 도형판입니다.",
     "more_en": "The <b>internal division point</b> dividing segment AB in ratio <b>t : (1−t)</b> is <b>P = (1−t)·A + t·B</b>. In coordinates, P = ((1−t)x₁ + t·x₂, (1−t)y₁ + t·y₂). When <b>t = 1/2</b> it becomes the <b>midpoint = ((x₁+x₂)/2, (y₁+y₂)/2)</b> — a geometric version of the weighted average.",

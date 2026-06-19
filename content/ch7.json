@@ -35,7 +35,7 @@
     "title": "로그 — 지수의 역함수",
     "narr": "\"2를 몇 제곱하면 8이 될까?\" 그 <b>몇 제곱</b>을 찾는 게 <b>로그</b>입니다. log₂8 = 3 입니다. 로그는 지수함수를 거꾸로 돌린 <b>역함수</b>라서, 그래프가 <b>y = x에 대칭</b>입니다. 파란선(지수)과 초록선(로그)이 거울처럼 마주봅니다.",
     "hint": "지수와 로그는 y = x 에 대칭",
-    "more": "<b>로그 log_a x</b>는 \"a를 몇 번 곱해야 x가 되는가\"입니다 — 즉 <b>y = log_a x ⟺ x = aʸ</b>. 지수함수 y = aˣ의 <b>역함수</b>죠. 역함수의 그래프는 원래 함수를 <b>직선 y = x에 대칭</b>시킨 것입니다. 그래서 지수가 지나는 (0, 1)이 로그에서는 <b>(1, 0)</b>으로 뒤바뀝니다. 역함수 개념은 5장 함수의 자연스러운 확장입니다.",
+    "more": "<b>로그 log_a x</b>는 \"a를 몇 번 곱해야 x가 되는가\"입니다 — 즉 <b>y = log_a x ⟺ x = aʸ</b>. 지수함수 y = aˣ의 <b>역함수</b>입니다. 역함수의 그래프는 원래 함수를 <b>직선 y = x에 대칭</b>시킨 것입니다. 그래서 지수가 지나는 (0, 1)이 로그에서는 <b>(1, 0)</b>으로 뒤바뀝니다. 역함수 개념은 5장 함수의 자연스러운 확장입니다.",
     "more_en": "A <b>logarithm log_a x</b> asks \"how many times must we multiply a to get x?\" — that is, <b>y = log_a x ⟺ x = aʸ</b>. It is the <b>inverse function</b> of y = aˣ. The graph of an inverse is the original <b>reflected across the line y = x</b>. So the point (0, 1) on the exponential becomes <b>(1, 0)</b> on the logarithm. Inverse functions extend the function idea from Ch.5.",
     "problem": {
       "q": "log₂ 8 의 값은?",

@@ -35,7 +35,7 @@
     "title": "실수배 — 늘이고 뒤집기",
     "narr": "벡터에 <b>실수 k를 곱하면</b> 방향은 그대로, <b>크기만 k배</b>가 됩니다. k가 1보다 크면 길어지고, 0과 1 사이면 짧아지고, <b>음수면 방향이 반대로 뒤집힙니다</b>! k를 움직여보세요.",
     "hint": "k를 움직여 늘이고 뒤집어보세요",
-    "more": "<b>실수배(스칼라 곱) k·v = (k·x, k·y)</b> — 각 성분에 k를 곱합니다. 결과는 <b>방향이 같거나(k>0) 반대(k<0)</b>이고 <b>크기는 |k|배</b>죠. k = 0이면 영벡터(점)입니다. 두 벡터가 실수배 관계면 <b>평행</b>(같은 방향선)이라는 뜻 — 6장의 평행 조건이 벡터로 깔끔해집니다. 이 \"실수배 + 덧셈\"의 조합(일차결합)이 21장 행렬·선형대수의 출발점입니다.",
+    "more": "<b>실수배(스칼라 곱) k·v = (k·x, k·y)</b> — 각 성분에 k를 곱합니다. 결과는 <b>방향이 같거나(k>0) 반대(k<0)</b>이고 <b>크기는 |k|배</b>입니다. k = 0이면 영벡터(점)입니다. 두 벡터가 실수배 관계면 <b>평행</b>(같은 방향선)이라는 뜻 — 6장의 평행 조건이 벡터로 깔끔해집니다. 이 \"실수배 + 덧셈\"의 조합(일차결합)이 21장 행렬·선형대수의 출발점입니다.",
     "more_en": "<b>Scalar multiplication k·v = (k·x, k·y)</b> multiplies each component by k. The result has the <b>same direction (k>0) or opposite (k<0)</b> and magnitude <b>|k| times</b> the original. If k = 0 it is the zero vector (a point). Two vectors related by a scalar multiple are <b>parallel</b> — Ch.6's parallel condition, made clean. This combination of \"scaling + adding\" (linear combination) launches matrices and linear algebra in Ch.21.",
     "problem": {
       "q": "벡터 a = (2, −3) 일 때 −2·a 는?",

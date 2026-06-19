@@ -63,7 +63,7 @@
     "ch": "제11장 공간도형",
     "sec": "11.3 직선·평면·구의 방정식",
     "title": "평면의 방정식 — 법선이 결정한다",
-    "narr": "공간의 <b>평면</b>은 어떻게 식으로 쓸까요? 비밀은 <b>법선벡터</b>(평면에 수직인 화살표)입니다. 법선 n = (a, b, c) 하나면 평면의 기울기가 완전히 정해져서 <b>ax + by + cz = d</b>가 됩니다. 내적 = 0(수직)이 핵심 도구입니다.",
+    "narr": "공간의 <b>평면</b>은 <b>법선벡터</b>(평면에 수직인 화살표)로 식이 정해집니다. 법선 n = (a, b, c) 하나면 평면의 기울기가 완전히 정해져서 <b>ax + by + cz = d</b>가 됩니다. 내적 = 0(수직)이 핵심 도구입니다.",
     "hint": "법선벡터가 평면의 방향을 정합니다",
     "more": "<b>평면의 방정식 ax + by + cz = d</b> 에서 계수 <b>(a, b, c)가 바로 법선벡터 n</b>입니다. 원리: 평면 위 임의의 두 점을 잇는 벡터는 법선과 <b>수직</b>(내적 0)이어야 한다 → 그 조건을 풀면 위 식이 나옵니다. 그래서 \"점 하나 + 법선 하나\"면 평면이 유일하게 정해집니다(9·11장 내적의 직접 응용). 점과 평면 사이 거리, 두 평면이 이루는 각도도 모두 법선의 내적으로 구합니다. 직선은 <b>방향벡터</b>로, 평면은 <b>법선벡터</b>로 — 벡터가 공간 도형의 언어입니다.",
     "more_en": "In the <b>plane equation ax + by + cz = d</b>, the coefficients <b>(a, b, c) are exactly the normal vector n</b>. Why: any vector between two points on the plane must be <b>perpendicular</b> to the normal (dot product 0); solving that condition yields the equation. So \"one point + one normal\" fixes a plane uniquely (a direct use of the dot product, Ch.9/11). Distance from a point to a plane, and the angle between two planes, also come from normals via the dot product. A line is given by a <b>direction vector</b>, a plane by a <b>normal vector</b> — vectors are the language of solid geometry.",

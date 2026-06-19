@@ -5,7 +5,7 @@
     "title": "순간의 기울기 — 미분의 탄생",
     "narr": "드디어 <b>미분</b>! <b>14장의 0/0 극한(#84)</b>이 여기서 빛을 발합니다. 두 점을 잇는 <b>할선의 기울기</b>(평균변화율)에서, 두 점을 <b>한없이 가까이</b>(h→0) 붙이면 — 할선이 <b>접선</b>이 되고, 그 기울기가 <b>순간변화율</b>입니다! h를 0으로 줄여보세요.",
     "hint": "h를 0으로 줄여 할선→접선을 보세요",
-    "more": "<b>평균변화율</b> = Δy/Δx = (f(a+h)−f(a))/h 는 두 점을 잇는 <b>할선의 기울기</b>입니다. 여기서 <b>h→0</b> 극한을 취하면 <b>순간변화율(미분계수) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = 그 점에서의 <b>접선의 기울기</b>죠. f(x)=x²이면 (1+h)²−1)/h = 2+h → <b>2</b>. 14장에서 본 0/0 극한이 바로 이것입니다(분자·분모 모두 0으로). 속도(위치의 순간변화율)·한계비용 등 \"순간의 변화\"가 모두 미분입니다.",
+    "more": "<b>평균변화율</b> = Δy/Δx = (f(a+h)−f(a))/h 는 두 점을 잇는 <b>할선의 기울기</b>입니다. 여기서 <b>h→0</b> 극한을 취하면 <b>순간변화율(미분계수) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = 그 점에서의 <b>접선의 기울기</b>입니다. f(x)=x²이면 (1+h)²−1)/h = 2+h → <b>2</b>. 14장에서 본 0/0 극한이 바로 이것입니다(분자·분모 모두 0으로). 속도(위치의 순간변화율)·한계비용 등 \"순간의 변화\"가 모두 미분입니다.",
     "more_en": "The <b>average rate of change</b> Δy/Δx = (f(a+h)−f(a))/h is the slope of the <b>secant line</b> through two points. Taking the limit <b>h→0</b> gives the <b>instantaneous rate (derivative) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = the slope of the <b>tangent line</b> there. For f(x)=x²: ((1+h)²−1)/h = 2+h → <b>2</b>. This is exactly the 0/0 limit from Ch.14 (numerator and denominator both → 0). Velocity (instantaneous rate of position), marginal cost, and any \"instantaneous change\" is a derivative.",
     "problem": {
       "q": "f(x) = x² 에서 x = 3 일 때의 순간변화율 f'(3) 은?",
@@ -78,7 +78,7 @@
     "ch": "제17장 미분",
     "sec": "17.5 미분의 활용",
     "title": "접선의 방정식",
-    "narr": "미분계수 f'(a)는 <b>접선의 기울기</b>죠. 그러면 <b>6장의 직선 방정식(#43)</b>으로 접선을 바로 쓸 수 있습니다: 점 (a, f(a))를 지나고 기울기 f'(a)인 직선! 접점 a를 옮겨 접선이 곡선을 스치며 따라가는 걸 보세요.",
+    "narr": "미분계수 f'(a)는 <b>접선의 기울기</b>입니다. 그러면 <b>6장의 직선 방정식(#43)</b>으로 접선을 바로 쓸 수 있습니다: 점 (a, f(a))를 지나고 기울기 f'(a)인 직선! 접점 a를 옮겨 접선이 곡선을 스치며 따라가는 걸 보세요.",
     "hint": "접점 a를 옮겨보세요",
     "more": "곡선 y=f(x) 위의 점 (a, f(a))에서의 <b>접선의 방정식</b>은 — 기울기 = f'(a) 이므로 <b>y − f(a) = f'(a)(x − a)</b> (6장의 점-기울기 꼴!). 예) f=x², a=1 → f'(1)=2, 접선 y−1=2(x−1) → y=2x−1. 접선은 그 점 근처에서 곡선을 가장 잘 흉내 내는 직선이라(<b>선형근사</b>), f(a+h) ≈ f(a) + f'(a)h 로 어림셈에 씁니다. 이 \"곡선을 직선으로 근사\"가 뉴턴법(근 찾기)·물리 근사·테일러 정리(18장)의 출발점입니다. 미분이 6장 좌표기하와 한 바퀴 돌아 만납니다.",
     "more_en": "At a point (a, f(a)) on y=f(x), the <b>tangent line</b> has slope f'(a), so its equation is <b>y − f(a) = f'(a)(x − a)</b> (Ch.6's point-slope form!). E.g. f=x², a=1 → f'(1)=2, tangent y−1=2(x−1) → y=2x−1. The tangent is the line that best imitates the curve nearby (<b>linear approximation</b>), giving f(a+h) ≈ f(a) + f'(a)h for estimates. This \"approximate a curve by a line\" begins Newton's method (root-finding), physics approximations, and Taylor's theorem (Ch.18). Differentiation comes full circle back to Ch.6's coordinate geometry.",

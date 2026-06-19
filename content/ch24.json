@@ -35,7 +35,7 @@
     "title": "유리수도 셀 수 있다",
     "narr": "분수(유리수)는 수직선에 <b>무한히 빽빽하게</b> 들어차 있습니다(어떤 두 분수 사이에도 또 분수가!). 그런데도 — <b>유리수는 셀 수 있습니다</b>! 분수를 격자로 늘어놓고 <b>대각선으로 지그재그</b> 훑으면 자연수와 일대일 대응이 됩니다.",
     "hint": "대각선 지그재그로 번호 매기기",
-    "more": "<b>유리수 ℚ는 가산무한(ℵ₀)</b>입니다 — 자연수만큼 \"셀 수 있다\". 증명(칸토어): 분수 p/q를 p행 q열 격자에 놓고, <b>대각선을 따라 지그재그</b>로 1번, 2번, 3번… 번호를 매기면 모든 분수가 빠짐없이 자연수와 짝지어집니다(중복은 건너뛰며). 수직선에 빈틈없이 빽빽한데도 ℕ과 같은 크기라니, 또 한 번 직관을 깹니다. 그렇다면 \"모든 무한은 ℵ₀로 같은 크기\"일까요? 다음 장면에서 칸토어가 \"아니다\"를 증명합니다 — 실수는 차원이 다른 무한입니다.",
+    "more": "<b>유리수 ℚ는 가산무한(ℵ₀)</b>입니다 — 자연수만큼 \"셀 수 있다\". 증명(칸토어): 분수 p/q를 p행 q열 격자에 놓고, <b>대각선을 따라 지그재그</b>로 1번, 2번, 3번… 번호를 매기면 모든 분수가 빠짐없이 자연수와 짝지어집니다(중복은 건너뛰며). 수직선에 빈틈없이 빽빽한데도 ℕ과 같은 크기라니, 또 한 번 직관을 깹니다. 그렇다고 \"모든 무한이 ℵ₀로 같은 크기\"인 것은 아닙니다. 다음 장면에서 칸토어가 이를 반증합니다 — 실수는 차원이 다른 무한입니다.",
     "more_en": "The <b>rationals ℚ are countably infinite (ℵ₀)</b> — as countable as the naturals. Cantor's proof: place each fraction p/q in a grid (row p, column q) and number them <b>1, 2, 3, … along zigzag diagonals</b>, so every fraction pairs with a natural number (skipping duplicates). Even though they pack the number line densely, they match ℕ in size — another broken intuition. So is every infinity ℵ₀? In the next scene, Cantor proves \"no\" — the reals are an infinity of a different order.",
     "problem": {
       "q": "유리수(분수)의 농도는?",

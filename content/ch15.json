@@ -48,7 +48,7 @@
     "ch": "제15장 순열·조합",
     "sec": "15.3 이항정리",
     "title": "파스칼의 삼각형",
-    "narr": "조합 수 ₙCᵣ 들을 삼각형으로 늘어놓으면 또렷한 규칙이 보입니다 — <b>각 수는 바로 위 두 수의 합</b>! (4 + 6 = 10) 왜 그럴까요? r개를 뽑을 때 '맨 끝 하나를 뽑느냐 마느냐'로 갈리기 때문입니다. 양 끝은 항상 1이죠. 이게 <b>파스칼의 삼각형</b>입니다. 수 하나하나가 \"r개 뽑기\"의 가짓수입니다.",
+    "narr": "조합 수 ₙCᵣ 들을 삼각형으로 늘어놓으면 또렷한 규칙이 보입니다 — <b>각 수는 바로 위 두 수의 합</b>! (4 + 6 = 10) 왜 그럴까요? r개를 뽑을 때 '맨 끝 하나를 뽑느냐 마느냐'로 갈리기 때문입니다. 양 끝은 항상 1입니다. 이게 <b>파스칼의 삼각형</b>입니다. 수 하나하나가 \"r개 뽑기\"의 가짓수입니다.",
     "hint": "각 수 = 위 두 수의 합",
     "more": "<b>파스칼의 삼각형</b>은 n번째 줄에 ₙC₀, ₙC₁, …, ₙCₙ 을 늘어놓은 것입니다. 핵심 규칙: <b>ₙCᵣ = ₍ₙ₋₁₎Cᵣ + ₍ₙ₋₁₎C₍ᵣ₋₁₎</b> (위 두 수의 합) — \"마지막 원소를 안 뽑거나 / 뽑거나\"로 나눠 세면 증명됩니다. 대칭(ₙCᵣ = ₙC₍ₙ₋ᵣ₎), 각 줄의 합 = 2ⁿ(부분집합 총수) 같은 성질이 숨어 있습니다. 이 숫자들이 그대로 다음 이항정리의 전개 계수가 됩니다.",
     "more_en": "<b>Pascal's triangle</b> places ₙC₀, ₙC₁, …, ₙCₙ on row n. The key rule: <b>ₙCᵣ = ₍ₙ₋₁₎Cᵣ + ₍ₙ₋₁₎C₍ᵣ₋₁₎</b> (sum of the two above) — proved by splitting into \"don't pick / pick the last element.\" Hidden patterns include symmetry (ₙCᵣ = ₙC₍ₙ₋ᵣ₎) and each row summing to 2ⁿ (total subsets). These same numbers become the expansion coefficients in the binomial theorem next.",
