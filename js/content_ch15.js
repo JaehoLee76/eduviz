@@ -72,7 +72,7 @@
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(ax,sy+12); ctx.lineTo(dx,dy-12); ctx.moveTo(bx,sy+12); ctx.lineTo(dx,dy-12); ctx.stroke();
       ctx.textBaseline='alphabetic';
-      E.big('파스칼의 삼각형', '각 수 = 바로 위 두 수의 합 (예: 4 + 6 = 10) · 양 끝은 항상 1 · r번째 줄 = ₙCᵣ'); }
+      E.big('파스칼의 삼각형', '각 수 = 바로 위 두 수의 합 (예: 4 + 6 = 10) · 양 끝은 항상 1 · n번째 줄 = ₙCᵣ'); }
   },
 
   // 15.3b 이항정리

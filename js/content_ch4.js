@@ -67,7 +67,7 @@
       ctx.font='600 18px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillStyle='#7ab8ff'; ctx.fillText('A', ax-r*0.55, cy); ctx.fillStyle='#8fe3b5'; ctx.fillText('B', bx+r*0.55, cy); ctx.textBaseline='alphabetic';
       E.tapHint(cx, cy+r+52, '▶ 연산 바꾸기', true);
-      var t=['합집합   A ∪ B','교집합   A ∩ B','여집합   Aᶜ'][s.op], d2=['A 또는 B (둘 다 포함)','A 그리고 B (겹친 부분)','A 가 아닌 모든 것'][s.op];
+      var t=['합집합   A ∪ B','교집합   A ∩ B','여집합   Aᶜ'][s.op], d2=['A 또는 B (둘 중 하나라도)','A 그리고 B (겹친 부분)','A 가 아닌 모든 것'][s.op];
       E.big(t, d2); }
   },
 

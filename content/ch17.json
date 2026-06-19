@@ -18,7 +18,7 @@
     "ch": "제17장 미분",
     "sec": "17.2 연속성",
     "title": "연속 — 끊김 없이 이어짐",
-    "narr": "앞에서 접선의 기울기로 미분을 정의했는데, 그 전에 함수가 <b>연속</b>이어야 한다는 전제가 깔려 있습니다. 연속은 14장 극한으로 엄밀히 정의되지만, 직관적으로는 \"<b>펜을 떼지 않고 한 붓으로 그릴 수 있다</b>\"는 뜻입니다 — 도중에 뚝 끊기는 점프도, 비어 있는 구멍도 없어야 합니다. 끊긴 곳에서는 좌우가 따로 놀거나 점 자체가 없어서 접선의 기울기를 말할 수 없고, 그래서 미분도 할 수 없습니다. 화면을 눌러 연속·점프·구멍 세 모습을 비교해보세요.",
+    "narr": "앞에서 접선의 기울기로 미분을 정의했는데, 그 전에 함수가 <b>연속</b>이어야 한다는 전제가 깔려 있습니다. 연속은 14장 극한으로 엄밀히 정의되지만, 직관적으로는 \"<b>펜을 떼지 않고 한 붓으로 그릴 수 있다</b>\"는 뜻입니다 — 도중에 뚝 끊기는 점프도, 비어 있는 구멍도 없어야 합니다. 끊긴 곳에서는 좌우의 값이 어긋나거나 점 자체가 없어서 접선의 기울기를 말할 수 없고, 그래서 미분도 할 수 없습니다. 화면을 눌러 연속·점프·구멍 세 모습을 비교해보세요.",
     "hint": "▶ 연속 / 점프 / 구멍 비교",
     "more": "함수가 한 점에서 <b>연속</b>이려면 — ① 그 점에서 함숫값이 있고 ② 극한값이 존재하며 ③ <b>극한값 = 함숫값</b> 이어야 합니다(14장 극한 위에 세워진 정의). 끊기는 경우: <b>점프</b>(좌극한≠우극한), <b>구멍</b>(극한은 있으나 값이 없거나 다름). 핵심: <b>미분가능하면 반드시 연속</b>입니다(역은 거짓 — 뾰족점 |x|는 연속이나 미분 불가). 연속은 미분의 전제 조건이자, 사잇값 정리 같은 정리들의 토대입니다.",
     "more_en": "A function is <b>continuous</b> at a point if ① the value exists, ② the limit exists, and ③ <b>limit = value</b> (built on Ch.14's limits). Breaks: a <b>jump</b> (left limit ≠ right limit) or a <b>hole</b> (limit exists but value missing or different). Key: <b>differentiable ⟹ continuous</b> (but not the reverse — the corner |x| is continuous yet not differentiable). Continuity is the prerequisite for differentiation and the basis of theorems like the Intermediate Value Theorem.",

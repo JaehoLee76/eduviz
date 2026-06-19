@@ -3,7 +3,7 @@
     "ch": "제9장 평면벡터",
     "sec": "9.1 벡터와 계산",
     "title": "벡터란 — 크기와 방향",
-    "narr": "지금까지 다룬 수는 5나 −3처럼 <b>크기</b>만 가졌습니다. 그러나 속도나 힘처럼 '얼마나'뿐 아니라 '어느 쪽으로'까지 중요한 양도 있습니다. 이런 양을 나타내려고 <b>크기와 방향을 함께 가진 화살표</b>를 쓰는데, 이것이 <b>벡터</b>입니다. 벡터는 놓인 위치는 상관없고 가로·세로로 얼마나 가는지인 <b>성분 (x, y)</b>로 적습니다. 그 화살표의 길이, 곧 크기 |v|는 원점에서 점 (x, y)까지의 거리이므로 <b>6장의 거리 공식 √(x² + y²)</b>이 그대로 쓰입니다. x, y 성분을 바꿔 화살표가 어떻게 변하는지 보세요.",
+    "narr": "지금까지 다룬 수는 5나 −3처럼 <b>크기</b>만 가졌습니다. 그러나 속도나 힘처럼 '얼마나'뿐 아니라 '어느 쪽으로'까지 중요한 양도 있습니다. 이런 양을 나타내려고 <b>크기와 방향을 함께 가진 화살표</b>를 쓰는데, 이것이 <b>벡터</b>입니다. 벡터는 놓인 위치는 상관없고 가로·세로로 얼마나 가는지를 나타내는 <b>성분 (x, y)</b>로 적습니다. 그 화살표의 길이, 곧 크기 |v|는 원점에서 점 (x, y)까지의 거리이므로 <b>6장의 거리 공식 √(x² + y²)</b>이 그대로 쓰입니다. x, y 성분을 바꿔 화살표가 어떻게 변하는지 보세요.",
     "hint": "x, y 성분을 바꿔보세요",
     "more": "<b>벡터(vector)</b>는 크기와 방향을 가진 양입니다. 평면에서는 <b>성분 v = (x, y)</b>로 쓰고, 어디에 놓든 같은 화살표면 같은 벡터입니다(평행이동 무관). <b>크기(길이)는 |v| = √(x² + y²)</b> — 6장 거리 공식과 똑같습니다. 힘·속도·가속도처럼 \"방향이 중요한 양\"을 다루는 언어이고, 물리학의 기본 도구입니다.",
     "more_en": "A <b>vector</b> is a quantity with both magnitude and direction. In the plane we write it by <b>components v = (x, y)</b>; the same arrow placed anywhere is the same vector (translation doesn't matter). Its <b>magnitude is |v| = √(x² + y²)</b> — exactly the distance formula from Ch.6. Vectors are the language for forces, velocities, and accelerations — a basic tool of physics.",

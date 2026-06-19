@@ -17,7 +17,7 @@
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.strokeRect(cx-bw/2, baseY-h, bw, h);
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(cx-160,baseY); ctx.lineTo(cx+160,baseY); ctx.stroke();
       ctx.fillStyle='#8fe3b5'; ctx.font='600 20px sans-serif'; ctx.textAlign='center'; ctx.fillText('2^'+n+' = '+(v%1===0?v:v.toFixed(3)), cx, baseY-h-16);
-      var note = n<0?'음의 지수 → 역수 (1/2^'+(-n)+')' : n===0?'0 지수 → 항상 1' : (n%1!==0?'분수 지수 → 거듭제곱근 (1장 회수)':'양의 정수 → 거듭 곱하기');
+      var note = n<0?'음의 지수 → 역수 (1/2^'+(-n)+')' : n===0?'0 지수 → 항상 1' : (n%1!==0?'분수 지수 → 거듭제곱근 (1장에서 다룸)':'양의 정수 → 거듭 곱하기');
       E.big('2ⁿ,  n = '+n, note); }
   },
 

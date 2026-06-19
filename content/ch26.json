@@ -5,7 +5,7 @@
     "title": "삼차방정식 — 복소수가 필요한 이유",
     "narr": "<b>3장의 이차방정식이 근의 공식</b>으로 풀렸듯, 삼차·사차방정식도 르네상스 시대 <b>카르다노·타르탈리아의 일반 공식</b>으로 풀립니다. 놀라운 역사는, x³+px+q=0의 실근이 셋 다 실수일 때조차 공식 중간에 <b>√(음수)</b>가 나와, 허수를 가짜 수로 여기던 수학자들이 <b>복소수(10장)를 받아들일 수밖에 없었다</b>는 점입니다. 화면의 q를 바꾸면 곡선이 x축과 만나는 실근이 1~3개로 바뀝니다. 한편 5차 이상은 일반 근의 공식이 없는데, 이는 방정식의 대칭(군)으로 아벨·갈루아가 증명했습니다.",
     "hint": "q를 바꿔 근의 개수를 보세요",
-    "more": "<b>삼차방정식</b> x³+px+q=0 은 르네상스 시대 <b>카르다노·타르탈리아</b>가 일반 공식을 찾았습니다. 충격: 실근 셋이 다 실수일 때조차 공식 중간에 <b>√(음수)</b>가 나와 — 허수를 \"가짜 수\"로 여기던 수학자들이 어쩔 수 없이 복소수를 받아들이게 됐습니다(10장 복소수의 진짜 탄생 계기!). 사차까지는 공식이 있지만, <b>5차 이상은 일반 근의 공식이 없습니다</b>(아벨·갈루아가 증명 — 방정식의 \"대칭성(군)\"으로!). 이렇게 대수·복소수·군론이 한 문제에서 만납니다.",
+    "more": "<b>삼차방정식</b> x³+px+q=0 은 르네상스 시대 <b>카르다노·타르탈리아</b>가 일반 공식을 찾았습니다. 충격: 실근 셋이 다 실수일 때조차 공식 중간에 <b>√(음수)</b>가 나와 — 허수를 \"가짜 수\"로 여기던 수학자들이 어쩔 수 없이 복소수를 받아들이게 됐습니다(10장 복소수가 탄생한 진정한 계기!). 사차까지는 공식이 있지만, <b>5차 이상은 일반 근의 공식이 없습니다</b>(아벨·갈루아가 증명 — 방정식의 \"대칭성(군)\"으로!). 이렇게 대수·복소수·군론이 한 문제에서 만납니다.",
     "more_en": "<b>Cubic equations</b> x³+px+q=0 were solved generally by <b>Cardano and Tartaglia</b> in the Renaissance. The shock: even when all three roots are real, the formula passes through <b>√(negative)</b> — forcing mathematicians who dismissed imaginaries to accept complex numbers (the real birth of Ch.10's complex numbers!). Quartics also have a formula, but <b>degree five and higher have no general radical formula</b> (proved by Abel and Galois via the \"symmetry/group\" of equations!). Algebra, complex numbers, and group theory meet in one problem.",
     "problem": {
       "q": "5차 이상 방정식에 일반적인 근의 공식이 있을까?",
@@ -48,7 +48,7 @@
     "ch": "제26장 종합",
     "sec": "26.5 \"전부\"와 \"존재\"",
     "title": "모든 것과 어떤 것 — 논리의 두 기둥",
-    "narr": "지금까지 본 모든 정의와 증명은 결국 두 마디로 압축됩니다. \"<b>모든(∀)</b>\"과 \"<b>어떤·존재(∃)</b>\"입니다. \"<b>모든</b> 짝수는 2의 배수\"가 전칭이고, \"제곱이 2인 <b>어떤</b> 수가 있다\"가 존재입니다. 25장의 극한 정의 ∀ε ∃δ도 바로 이 둘의 배치였습니다. 순서가 결정적이라 \"∀x ∃y\"와 \"∃y ∀x\"는 전혀 다른 주장이고, \"모두 참\"의 부정은 \"반례가 하나 존재\"(¬∀ = ∃¬)입니다. 화면을 눌러, 모두가 참인 ∀와 하나만 참이어도 되는 ∃를 비교해 보세요.",
+    "narr": "지금까지 본 모든 정의와 증명은 결국 두 마디로 압축됩니다. \"<b>모든(∀)</b>\"과 \"<b>어떤·존재(∃)</b>\"입니다. \"<b>모든</b> 짝수는 2의 배수\"가 전칭이고, \"제곱이 2인 <b>어떤</b> 수가 있다\"가 존재입니다. 25장의 극한 정의 ∀ε ∃δ도 바로 이 둘의 배치였습니다. 순서가 결정적이라 \"∀x ∃y\"와 \"∃y ∀x\"는 전혀 다른 주장이고, \"모두 참\"의 부정은 \"반례가 하나 존재\"(¬∀ = ∃¬)입니다. 화면을 눌러, 모두가 참이어야 하는 ∀와 하나만 참이면 되는 ∃를 비교해 보세요.",
     "hint": "▶ ∀(전부) / ∃(존재)",
     "more": "<b>한정기호</b>: <b>∀(전칭, '모든')</b> 과 <b>∃(존재, '어떤·적어도 하나')</b> 는 수학 명제의 두 기둥입니다. 순서가 중요합니다 — \"∀x ∃y (사랑한다)\"(각자에게 사랑할 누군가 있다)와 \"∃y ∀x\"(모두가 사랑하는 한 사람이 있다)는 전혀 다릅니다! 부정도 핵심: \"모든 게 참\"의 부정은 \"어떤 반례가 존재\"(¬∀ = ∃¬). 25장 극한의 ∀ε ∃N 정의, 수렴·연속·모든 증명이 이 기호의 정확한 배치로 쓰입니다. 모호한 일상어를 떠나 \"정확히 무엇을 주장하는가\"를 못 박는 것 — 이게 수학적 사고의 본질입니다.",
     "more_en": "<b>Quantifiers</b>: <b>∀ (universal, 'for all')</b> and <b>∃ (existential, 'there exists / at least one')</b> are the two pillars of mathematical statements. Order matters — \"∀x ∃y (loves)\" (everyone has someone they love) differs entirely from \"∃y ∀x\" (one person whom everyone loves)! Negation is key too: the negation of \"all are true\" is \"a counterexample exists\" (¬∀ = ∃¬). Ch.25's ∀ε ∃N limit definitions, and every proof of convergence and continuity, are written by precisely arranging these symbols. Leaving vague everyday language to pin down \"exactly what is claimed\" — this is the essence of mathematical thinking.",

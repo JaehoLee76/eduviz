@@ -162,7 +162,7 @@
       if(pmove>0.4){ ctx.globalAlpha=clamp((pmove-0.4)/0.6); ctx.fillStyle=E.COL.txt; ctx.font='600 28px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('=', E.W*0.50, cy0); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
       if(s.p===0&&!s.play) tapHint(E, ox+g.W2/2, oy+g.H2+52, '▶ 눌러서 변형 보기', true);
       else if(s.p>=1&&!s.play) tapHint(E, E.W/2, cy0+ts/2+38, '↻ 다시 보기', false);
-      var sub = (!s.play&&s.p===0)?'통짜 직사각형 — 눌러서 나눠보세요':(pdash<1?'점선으로 네 칸 분리…':(psolid<1?'점선이 실선으로…':(pmove<1?'도형은 왼쪽, 인수는 오른쪽으로…':'왼쪽 = x²+5x+6, 오른쪽 = (x+2)(x+3) ✓')));
+      var sub = (!s.play&&s.p===0)?'하나의 직사각형 — 눌러서 나눠보세요':(pdash<1?'점선으로 네 칸 분리…':(psolid<1?'점선이 실선으로…':(pmove<1?'도형은 왼쪽, 인수는 오른쪽으로…':'왼쪽 = x²+5x+6, 오른쪽 = (x+2)(x+3) ✓')));
       E.big('x² + 5x + 6 = (x+2)(x+3)', sub); }
   },
 

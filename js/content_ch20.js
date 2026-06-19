@@ -62,7 +62,7 @@
     draw:function(E){ var P=E.Plot, k=this.s.k, ctx=E.ctx; P.axes();
       P.curve(function(x){return Math.exp(k*x);}, '#7ab8ff');
       P.dot(0,1,'#ffb27a','(0, 1)');
-      var note = k>0?'k>0 → 폭발 성장 (인구·복리·전염)' : k<0?'k<0 → 지수 감쇠 (방사성붕괴·냉각)' : 'k=0 → 변화 없음 (상수)';
+      var note = k>0?'k>0 → 지수 성장 (인구·복리·전염)' : k<0?'k<0 → 지수 감쇠 (방사성붕괴·냉각)' : 'k=0 → 변화 없음 (상수)';
       E.big("y' = "+k+"y  →  y = e^("+k+"x)", '미분방정식 — 변화율이 자기 크기에 비례! 해는 지수함수. '+note); }
   },
 

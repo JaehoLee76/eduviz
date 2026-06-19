@@ -48,7 +48,7 @@
     "ch": "제8장 삼각함수",
     "sec": "8.2 덧셈정리",
     "title": "덧셈정리 — 각을 더하면",
-    "narr": "삼각함수가 회전을 나타낸다는 것을 알았으니, 두 회전을 이어 붙이면 어떻게 되는지 묻습니다. 즉 각 α만큼 돌고 다시 β만큼 더 돌았을 때 sin(α+β)의 값입니다. 흔한 오해와 달리 이 값은 sin α + sin β가 <b>아닙니다</b>. 단위원에서 두 회전을 합성해 보면 cos와 sin이 섞여 <b>sin(α+β) = sin α cos β + cos α sin β</b>라는 식이 나오며, 이것이 <b>덧셈정리</b>입니다. 화면에서 α, β를 어떻게 바꿔도 직접 계산한 왼쪽 값과 공식으로 구한 오른쪽 값이 항상 일치함을 확인하세요.",
+    "narr": "삼각함수가 회전을 나타낸다는 것을 알았으니, 두 회전을 이어 붙이면 어떻게 되는지 묻습니다. 즉 각 α만큼 돌고 다시 β만큼 더 돌았을 때 sin(α+β)의 값입니다. 흔한 오해와 달리 이 값은 sin α + sin β가 <b>아닙니다</b>. 단위원에서 두 회전을 합성해 보면 cos와 sin이 섞여 <b>sin(α+β) = sin α cos β + cos α sin β</b>라는 식이 나오며, 이것이 <b>덧셈정리</b>입니다. 화면에서 α, β를 어떻게 바꿔도 직접 계산한 좌변 값과 공식으로 구한 우변 값이 항상 일치함을 확인하세요.",
     "hint": "α, β를 바꿔 양변이 같은지 보세요",
     "more": "<b>삼각함수의 덧셈정리</b>입니다 — <b>sin(α+β) = sin α cos β + cos α sin β</b>, <b>cos(α+β) = cos α cos β − sin α sin β</b>. 단위원의 회전을 합성하면 나옵니다. 여기서 <b>2배각 공식</b>(sin 2θ = 2 sin θ cos θ)도 따라 나옵니다. 이 회전 합성은 <b>9장 벡터의 회전</b>과 <b>10장 복소수 곱셈</b>(각도가 더해진다!)에서 같은 원리로 다시 등장합니다.",
     "more_en": "These are the <b>angle addition formulas</b>: <b>sin(α+β) = sin α cos β + cos α sin β</b> and <b>cos(α+β) = cos α cos β − sin α sin β</b>. They come from composing rotations on the unit circle, and yield the <b>double-angle formula</b> (sin 2θ = 2 sin θ cos θ). The same rotation-composition reappears in <b>rotating vectors (Ch.9)</b> and <b>multiplying complex numbers (Ch.10)</b>, where angles add.",

@@ -58,7 +58,7 @@
       ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillStyle='#7ab8ff'; ctx.fillText('A', ax-r*0.5, cy); ctx.fillStyle='#8fe3b5'; ctx.fillText('B', bx+r*0.5, cy);
       ctx.fillStyle='#ffd9bd'; ctx.fillText('A∩B', cx, cy); ctx.textBaseline='alphabetic';
-      E.big('P(A∪B) = P(A) + P(B) − P(A∩B)', '겹친 부분(A∩B)을 두 번 더했으니 한 번 뺍니다 (4장 집합 #44 회수)'); }
+      E.big('P(A∪B) = P(A) + P(B) − P(A∩B)', '겹친 부분(A∩B)을 두 번 더했으니 한 번 뺍니다 (4장 집합 #44에서 다룬 원리)'); }
   },
 
   // ══════════ 16.2 조건부확률·곱셈정리 ══════════

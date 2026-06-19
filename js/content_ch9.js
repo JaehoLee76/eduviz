@@ -74,7 +74,7 @@
       vec(P,ctx,0,0,ax,ay,'#7ab8ff','a');
       vec(P,ctx,0,0,bx,by,'#8fe3b5','b');
       if(perp){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(P.X(0),P.Y(0)-16,16,16); }
-      E.big('a · b = '+dot.toFixed(2)+'  ( = |a||b|cos'+this.s.deg+'° )', perp?'θ=90° → 내적 = 0 → 수직! (6장 #44 회수)':'내적 = 성분곱의 합 = |a||b|cosθ'); }
+      E.big('a · b = '+dot.toFixed(2)+'  ( = |a||b|cos'+this.s.deg+'° )', perp?'θ=90° → 내적 = 0 → 수직! (6장 #44에서 다룸)':'내적 = 성분곱의 합 = |a||b|cosθ'); }
   },
 
   // 9.2b 응용 — 내적으로 수직 판정

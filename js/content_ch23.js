@@ -33,7 +33,7 @@
       ctx.fillStyle='#cfcdc6'; ctx.font='600 17px sans-serif'; ctx.textAlign='center';
       var steps=[], x=a, yv=b; while(yv>0){ var q=Math.floor(x/yv), r=x%yv; steps.push(x+' = '+q+'×'+yv+' + '+r); x=yv; yv=r; }
       for(var i=0;i<steps.length;i++){ ctx.fillStyle=i===steps.length-1?'#ffb27a':'#cfcdc6'; ctx.fillText(steps[i], cx, y+i*40); }
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.fillText('나머지가 0이 될 때의 나눈 수 = 최대공약수', cx, y+steps.length*40+24);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.fillText('나머지가 0이 되기 직전에 나눈 수 = 최대공약수', cx, y+steps.length*40+24);
       E.big('gcd(48, 36) = '+gcd(48,36), '유클리드 호제법 — 큰 수를 작은 수로 나눈 나머지로 계속 바꿉니다. 가장 오래된 알고리즘!'); }
   },
 

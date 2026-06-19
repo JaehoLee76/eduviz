@@ -48,7 +48,7 @@
     "ch": "제20장 적분의 응용",
     "sec": "20.4 미분방정식",
     "title": "미분방정식 — 변화의 법칙",
-    "narr": "자연의 법칙은 대개 양 자체가 아니라 \"<b>지금 변하는 속도</b>\"로 주어집니다. 인구는 <b>현재 인구에 비례해</b> 늘고, 뜨거운 커피는 <b>주변과의 온도차에 비례해</b> 식습니다. 이렇게 함수와 그 도함수를 잇는 \"변화율 = ⋯\" 식이 <b>미분방정식</b>입니다. 가장 기본인 <b>y'=ky</b>는 \"변화율이 자기 크기에 비례\"한다는 뜻이고, 그 답은 <b>지수함수 y=e^(kx)</b>입니다. eˣ가 미분해도 자기 자신이라 이 조건에 꼭 맞기 때문입니다. k를 바꿔 부호에 따라 폭발 성장과 감쇠가 갈리는 것을 보세요.",
+    "narr": "자연의 법칙은 대개 양 자체가 아니라 \"<b>지금 변하는 속도</b>\"로 주어집니다. 인구는 <b>현재 인구에 비례해</b> 늘고, 뜨거운 커피는 <b>주변과의 온도차에 비례해</b> 식습니다. 이렇게 함수와 그 도함수를 잇는 \"변화율 = ⋯\" 식이 <b>미분방정식</b>입니다. 가장 기본인 <b>y'=ky</b>는 \"변화율이 자기 크기에 비례\"한다는 뜻이고, 그 답은 <b>지수함수 y=e^(kx)</b>입니다. eˣ가 미분해도 자기 자신이라 이 조건에 꼭 맞기 때문입니다. k를 바꿔 부호에 따라 지수적인 성장과 감쇠가 갈리는 것을 보세요.",
     "hint": "k의 부호로 성장·감쇠가 갈립니다",
     "more": "<b>미분방정식</b>은 함수와 그 도함수(변화율) 사이의 관계식입니다. 가장 기본 <b>y' = ky</b>(\"변화율이 자기 크기에 비례\")의 해는 <b>y = y₀·e^(kx)</b> — k>0이면 <b>지수 성장</b>(인구·복리·전염 초기), k<0이면 <b>지수 감쇠</b>(방사성붕괴·약물대사·뉴턴냉각)입니다. 7·14장의 e와 지수함수가 \"왜 그렇게 중요한가\"의 답이 여기 있습니다(eˣ가 자기 미분이라!). 물리·생물·경제·공학의 거의 모든 동역학이 미분방정식으로 쓰입니다 — 뉴턴 운동방정식 F=ma도 미분방정식입니다. 미적분의 최종 응용 무대입니다.",
     "more_en": "A <b>differential equation</b> relates a function to its derivative (rate of change). The simplest, <b>y' = ky</b> (\"rate proportional to size\"), has solution <b>y = y₀·e^(kx)</b> — k>0 gives <b>exponential growth</b> (populations, compound interest, early epidemics), k<0 gives <b>exponential decay</b> (radioactivity, drug metabolism, Newton's cooling). Here is why e and the exponential (Ch.7/14) matter so much (eˣ is its own derivative!). Nearly all dynamics in physics, biology, economics, and engineering are differential equations — even Newton's F=ma. It is the ultimate stage of calculus.",
