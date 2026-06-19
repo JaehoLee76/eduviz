@@ -7,18 +7,18 @@
     lines.forEach(function(ln,i){ var y=y0+i*lh; ctx.fillStyle=ln.c||'#cfcdc6'; ctx.font=(ln.b?'600 ':'')+(ln.fs||18)+'px sans-serif'; ctx.textAlign='center'; ctx.fillText(ln.t, cx, y); }); }
 
   function rrect(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);} else {ctx.beginPath();ctx.rect(x,y,w,h);} }
-  // 연습문제 세트(수학, 풀스크린 카드형): N/P로 문항 이동, 풀이는 '자세히 보기' 패널
+  // 연습문제 세트(수학, 풀스크린 카드형): N/B로 문항 이동, 풀이는 '자세히 보기'(P) 패널
   function exSet(id, parent, head, items){
     return { id:id, branchOf:parent,
       keys:[{code:'KeyN',key:'N',label:'다음 문항',act:function(E){ E._exi=((E._exi||0)+1)%items.length; }},
-            {code:'KeyP',key:'P',label:'이전 문항',act:function(E){ E._exi=((E._exi||0)+items.length-1)%items.length; }}],
+            {code:'KeyB',key:'B',label:'이전 문항',act:function(E){ E._exi=((E._exi||0)+items.length-1)%items.length; }}],
       tap:function(E){ E._exi=((E._exi||0)+1)%items.length; },
       enter:function(E){ E._exi=0; E.setOn([]); },
       draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, sel=E._exi||0;
         ctx.textAlign='center'; ctx.fillStyle='#ece9e0'; ctx.font='600 22px sans-serif';
         ctx.fillText(head+'  ('+items.length+'문항)', W/2, H*0.13);
         ctx.font='13px sans-serif'; ctx.fillStyle='#8a8893';
-        ctx.fillText('N 다음 · P 이전 문항 · 풀이는 왼쪽 아래 "자세히 보기"', W/2, H*0.175);
+        ctx.fillText('N 다음 · B 이전 문항 · 풀이는 오른쪽 "자세히 보기"(P)', W/2, H*0.175);
         ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif';
         ctx.fillText('난이도  ☆ 입문 · ★ 표준 · ★★ 심화', W/2, H*0.21);
         ctx.textAlign='left';

@@ -161,7 +161,7 @@
     if(!studyEl) return;
     var has = !!(sc.more || sc.problem);
     studyEl.style.display = has ? 'flex' : 'none';
-    studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W');
+    studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('P');
     if(studyMore){ var mh = sc.more ? ('<h4>더 알아보기</h4>'+sc.more) : '';
       if(sc.more_en) mh += '<div class="en-block">'+sc.more_en+'</div>';
       studyMore.innerHTML = mh; studyMore.style.display = mh?'block':'none'; }
@@ -176,9 +176,9 @@
   }
   function studyVisible(){ return studyEl && getComputedStyle(studyEl).display!=='none'; }
   function openStudy(){ if(!studyVisible()) return; studyEl.classList.add('open');
-    if(chevLabel){ var sh=''; setTimeout(function(){ if(studyBody&&studyEl.classList.contains('open')&&studyBody.scrollHeight>studyBody.clientHeight+8) chevLabel.innerHTML='접기'+kc('X')+' <span class="scrollkc">'+kc('Q')+'/'+kc('Z')+' 스크롤</span>'; },360);
-      chevLabel.innerHTML='접기'+kc('X'); } }
-  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W'); }
+    if(chevLabel){ setTimeout(function(){ if(studyBody&&studyEl.classList.contains('open')&&studyBody.scrollHeight>studyBody.clientHeight+8) chevLabel.innerHTML='접기'+kc('P')+' <span class="scrollkc">'+kc('Q')+'/'+kc('Z')+' 스크롤</span>'; },360);
+      chevLabel.innerHTML='접기'+kc('P'); } }
+  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('P'); }
   function toggleStudy(){ if(!studyVisible()) return; if(studyEl.classList.contains('open')) closeStudy(); else openStudy(); }
 
   // ---------- Scene Manager (계층형: 뼈대 spine + 분기 branch) ----------
@@ -427,9 +427,11 @@
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
       if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); return; }   // ↓ 자세히(분기)로
       if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); return; }      // ↑ 나가기
-      // W 펼치기 / X 접기 (자세히 보기 패널). viz 화면은 패널이 숨겨지므로 W=다음·X=초기화로 라우팅.
-      if(c==='KeyW'){ if(studyVisible()) openStudy(); else if(viz) stepNext(); e.preventDefault(); return; }
-      if(c==='KeyX'){ if(studyVisible()) closeStudy(); else if(viz) stepReset(); e.preventDefault(); return; }
+      // P 한 키로 자세히 보기(오른쪽 패널) 펼치기·접기 토글. 패널이 있는 math에서만 가로채고, viz(algo)는 통과시켜 장면별 P키(이전 등)가 동작하게 둠.
+      if(c==='KeyP'){ if(studyVisible()){ toggleStudy(); e.preventDefault(); return; } }
+      // W·X는 viz(algo) 스텝 전용(다음/초기화). math에선 동작 없음(자세히 보기는 P).
+      if(c==='KeyW'){ if(viz){ stepNext(); e.preventDefault(); } return; }
+      if(c==='KeyX'){ if(viz){ stepReset(); e.preventDefault(); } return; }
       if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로(보조)
       if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로(보조)
       if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(스택/큐 E/C)
