@@ -31,7 +31,7 @@
     enter:function(E){ this.s={hist:[],h:0,n:0}; E.setOn([]); },
     tap:function(E){ var s=this.s; if(s.n>=600){ s.hist=[]; s.h=0; s.n=0; E.blip(320,0.12); return; }
       for(var i=0;i<30;i++){ s.n++; if(Math.random()<0.5) s.h++; if(s.n%3===0||s.n<30) s.hist.push(s.h/s.n); } E.blip(560,0.1); },
-    draw:function(E){ var ctx=E.ctx, s=this.s, x0=E.W*0.16, x1=E.W*0.86, yT=E.H*0.22, yB=E.H*0.66, mid=(yT+yB)/2;
+    draw:function(E){ var ctx=E.ctx, s=this.s, x0=E.W*0.16, x1=E.W*0.86, yT=E.H*0.32, yB=E.H*0.66, mid=(yT+yB)/2;
       // 축 + 0.5선
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x0,yB); ctx.lineTo(x1,yB); ctx.moveTo(x0,yT); ctx.lineTo(x0,yB); ctx.stroke();
       ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(x0,mid); ctx.lineTo(x1,mid); ctx.stroke(); ctx.setLineDash([]);

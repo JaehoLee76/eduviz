@@ -8,7 +8,7 @@
   // ══════════ 24.1 일대일 대응 = 크기 비교 ══════════
   { id:'ch24_01',
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, A=['🍎','🍊','🍐','🍇'], B=['1','2','3','4'], lx=E.W*0.36, rx=E.W*0.60, y0=E.H*0.26, gap=E.H*0.10;
+    draw:function(E){ var ctx=E.ctx, A=['🍎','🍊','🍐','🍇'], B=['1','2','3','4'], lx=E.W*0.36, rx=E.W*0.60, y0=E.H*0.33, gap=E.H*0.10;
       ctx.font='22px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       for(var i=0;i<4;i++){ var y=y0+i*gap;
         ctx.strokeStyle='rgba(143,227,181,0.6)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx+20,y); ctx.lineTo(rx-20,y); ctx.stroke();
@@ -35,7 +35,7 @@
   // ══════════ 24.3 유리수도 가산 (대각선 나열) ══════════
   { id:'ch24_03',
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, N=5, x0=E.W*0.30, y0=E.H*0.20, cell=Math.min(54,E.H*0.10);
+    draw:function(E){ var ctx=E.ctx, N=5, x0=E.W*0.30, y0=E.H*0.34, cell=Math.min(54,E.H*0.10);
       ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       for(var p=1;p<=N;p++)for(var q=1;q<=N;q++){ var x=x0+(q-1)*cell, y=y0+(p-1)*cell;
         ctx.fillStyle='#8a8893'; ctx.fillText(p+'/'+q, x, y); }
@@ -51,7 +51,7 @@
   // ══════════ 24.4 실수는 비가산 (칸토어 대각선) ══════════
   { id:'ch24_04',
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, x0=E.W*0.30, y0=E.H*0.22, rh=Math.min(40,E.H*0.07);
+    draw:function(E){ var ctx=E.ctx, x0=E.W*0.30, y0=E.H*0.33, rh=Math.min(40,E.H*0.07);
       var L=['0. 1 4 2 8 …','0. 3 3 3 3 …','0. 7 1 8 2 …','0. 9 0 0 5 …','0. 2 7 1 8 …'];
       ctx.font='16px ui-monospace, monospace'; ctx.textAlign='left';
       for(var i=0;i<5;i++){ var y=y0+i*rh; ctx.fillStyle='#8a8893'; ctx.fillText((i+1)+':  '+L[i], x0, y);

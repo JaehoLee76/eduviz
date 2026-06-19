@@ -68,7 +68,7 @@
     back:function(E){ E.NL.step(); E.NL.draw({integers:true}); },
     draw:function(E){ var ctx=E.ctx, s=this.s;
       // 단위 정사각형 + 대각선
-      var side=Math.min(130,E.H*0.18), ox=E.W/2-side/2, oy=E.H*0.24;
+      var side=Math.min(130,E.H*0.18), ox=E.W/2-side/2, oy=E.H*0.33;
       ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,side,side);
       ctx.strokeStyle=E.COL.accent; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(ox,oy+side); ctx.lineTo(ox+side,oy); ctx.stroke();
       ctx.fillStyle=E.COL.txt; ctx.font='13px sans-serif'; ctx.textAlign='center';

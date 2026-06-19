@@ -58,8 +58,13 @@
   /* 큰 숫자/식 오버레이 */
   .bignum { position: fixed; top: 13%; left: 0; right: 0; text-align: center; z-index: 4; pointer-events: none; transition: opacity .3s; }
   .bignum.hidden { opacity: 0; }
-  .bignum #bigN { font-size: 56px; font-weight: 200; color: #ffb27a; line-height: 1.05; }
-  .bignum #bigW { font-size: 16px; color: #8a8893; margin-top: 6px; letter-spacing: .06em; }
+  /* 가독성 스크림: 제목·소제목 텍스트 뒤 반투명 배경 → 뒤로 지나가는 그래프/라벨과 겹쳐도 항상 또렷 */
+  .bignum #bigN { display: block; width: fit-content; max-width: 92vw; margin: 0 auto; font-size: 56px; font-weight: 200; color: #ffb27a; line-height: 1.12;
+    background: rgba(9,9,15,0.66); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    padding: 4px 22px; border-radius: 14px; box-shadow: 0 0 0 1px rgba(255,178,122,0.07); }
+  .bignum #bigW { display: block; width: fit-content; max-width: 90vw; margin: 8px auto 0; font-size: 16px; color: #b9b7c2; letter-spacing: .05em; line-height: 1.45;
+    background: rgba(9,9,15,0.62); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    padding: 4px 14px; border-radius: 9px; }
 
   /* 컨트롤(슬라이더 등) */
   #controls { position: fixed; bottom: 176px; left: 50%; transform: translateX(-50%); max-width: 92vw; z-index: 5; display: none; justify-content: center; flex-wrap: wrap; gap: 10px; }

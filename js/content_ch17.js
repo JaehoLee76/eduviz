@@ -23,7 +23,7 @@
       ctx.strokeStyle='rgba(244,160,192,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fb)); ctx.stroke(); ctx.setLineDash([]);
       P.dot(a,fa,'#7ab8ff','A'); P.dot(b,fb,'#ffb27a','B');
-      E.big('평균변화율 = Δy/Δx = '+slope.toFixed(2)+'  → (h→0) → 2', 'h를 0으로 줄이면 할선(주황)이 접선(초록)이 됩니다 = 순간변화율!'); }
+      E.big('평균변화율 = Δy/Δx = '+slope.toFixed(2)+'  → (h→0) → 2', 'h = 두 점 A·B 사이의 가로 간격(Δx = b−a). h를 0으로 줄이면 할선(주황)이 접선(초록)이 됩니다 = 순간변화율'); }
   },
 
   // ══════════ 17.2 연속성 ══════════

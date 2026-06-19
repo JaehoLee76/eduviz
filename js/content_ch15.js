@@ -11,14 +11,14 @@
   // 15.1a 곱의 법칙 (나무그림)
   { id:'ch15_01',
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, rootX=E.W*0.22, rootY=E.H*0.42, tops=['셔츠A','셔츠B'], bots=['청바지','반바지','치마'];
+    draw:function(E){ var ctx=E.ctx, rootX=E.W*0.22, rootY=E.H*0.58, tops=['셔츠A','셔츠B'], bots=['청바지','반바지','치마'];
       ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(rootX,rootY,8,0,7); ctx.fill();
       ctx.font='13px sans-serif'; ctx.textAlign='left';
       var midX=E.W*0.45, leafX=E.W*0.66, cnt=0;
-      for(var i=0;i<2;i++){ var ty=rootY+(i-0.5)*E.H*0.34;
+      for(var i=0;i<2;i++){ var ty=rootY+(i-0.5)*E.H*0.24;
         ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(rootX,rootY); ctx.lineTo(midX,ty); ctx.stroke();
         ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(midX,ty,6,0,7); ctx.fill(); ctx.fillText(tops[i], midX-58, ty+4);
-        for(var j=0;j<3;j++){ var ly=ty+(j-1)*E.H*0.11;
+        for(var j=0;j<3;j++){ var ly=ty+(j-1)*E.H*0.075;
           ctx.strokeStyle='rgba(143,227,181,0.7)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(midX,ty); ctx.lineTo(leafX,ly); ctx.stroke();
           ctx.fillStyle='#8fe3b5'; ctx.beginPath(); ctx.arc(leafX,ly,5,0,7); ctx.fill();
           ctx.fillStyle='#cfcdc6'; ctx.fillText(tops[i].slice(-1)+'+'+bots[j], leafX+10, ly+4); cnt++; } }
@@ -59,13 +59,13 @@
   // 15.3a 파스칼의 삼각형
   { id:'ch15_04',
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, rows=7, cell=46, topY=E.H*0.16, cx=E.W/2;
-      ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    draw:function(E){ var ctx=E.ctx, rows=7, cell=Math.min(46,E.H*0.072), topY=E.H*0.34, cx=E.W/2, rad=Math.min(17,cell*0.37);
+      ctx.font='600 '+Math.round(Math.min(16,cell*0.35))+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       for(var r=0;r<rows;r++){ var y=topY+r*cell, x0=cx-r*cell/2;
         for(var k=0;k<=r;k++){ var x=x0+k*cell, v=nCr(r,k);
           var hot=(r===4&&(k===1||k===2)) , res=(r===5&&k===2);
           ctx.fillStyle= res?'rgba(255,178,122,0.85)':hot?'rgba(122,184,255,0.5)':'rgba(122,184,255,0.16)';
-          ctx.beginPath(); ctx.arc(x,y,17,0,7); ctx.fill();
+          ctx.beginPath(); ctx.arc(x,y,rad,0,7); ctx.fill();
           ctx.fillStyle= res?'#1a1a22':'#dfeefb'; ctx.fillText(v,x,y); } }
       // "위 두 수의 합" 화살표 (4행 1,2 → 5행 2)
       var ax=cx-4*cell/2+1*cell, bx=cx-4*cell/2+2*cell, sy=topY+4*cell, dx=cx-5*cell/2+2*cell, dy=topY+5*cell;
