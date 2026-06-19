@@ -229,7 +229,7 @@
       if(p.i!=null&&!p.cur){ el.classList.add('clk'); el.onclick=function(){ goTo(p.i); }; } cb.appendChild(el); });
   }
   function updateBranchBtn(sc){ var bb=document.getElementById('branchBtn'); if(!bb) return;
-    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.innerHTML='🔍 자세히 보기 ('+sc._branches.length+')'+kc('↓'); bb.className='btn branch-in'; bb.onclick=enterBranch; }
+    if(sc._isSpine && sc._branches && sc._branches.length){ bb.style.display='inline-flex'; bb.innerHTML='📚 심화학습 ('+sc._branches.length+')'+kc('↓'); bb.className='btn branch-in'; bb.onclick=enterBranch; }
     else if(sc.branchOf!=null){ bb.style.display='inline-flex'; bb.innerHTML='나가기'+kc('↑'); bb.className='btn branch-out'; bb.onclick=exitBranch; }
     else { bb.style.display='none'; }
   }
