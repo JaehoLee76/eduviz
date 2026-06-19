@@ -1922,7 +1922,7 @@
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('주황 5각형 = 블로섬(홀수 사이클). 한 점으로 수축하면 다시 이분처럼 증가경로 탐색 가능', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('에드몬즈 블로섬 알고리즘 O(V³)(또는 O(V·E)). 이분 매칭(증가경로)을 일반 그래프로 확장한 고전', W/2, H*0.84+22); }
+      ctx.fillText('에드몬즈 블로섬 알고리즘 O(V³)(V=정점 수) 또는 O(V·E)(E=간선 수). 이분 매칭(증가경로)을 일반 그래프로 확장한 고전', W/2, H*0.84+22); }
   },
 
   // ══════ DFS(algo6_04) ▸ 위상정렬 응용: DAG 최장경로/일정 ══════
@@ -5448,7 +5448,7 @@
       ctx.fillText('점화식의 해를 짐작한 뒤, 수학적 귀납법으로 상수까지 맞춰 증명하는 방법', W/2, H*0.10+22);
       ctx.fillStyle='#dfeefb'; ctx.font='600 14px monospace'; ctx.fillText('예: T(n) = 2·T(n/2) + n,  추측 T(n) = O(n log n)', W/2, H*0.30);
       ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
-      var lines=['① 추측: T(n) ≤ c·n·lg n  (상수 c>0를 나중에 결정)',
+      var lines=['① 추측: T(n) ≤ c·n·lg n  (lg n=log₂ n; 상수 c>0는 나중에 결정)',
         '② 귀납 가정: n보다 작은 n/2에 대해 T(n/2) ≤ c·(n/2)·lg(n/2) 성립한다 치고',
         '③ 대입: T(n) ≤ 2·[ c·(n/2)·lg(n/2) ] + n',
         '          = c·n·(lg n − 1) + n  = c·n·lg n − c·n + n',
@@ -5478,7 +5478,7 @@
       ctx.fillStyle='#ffb27a'; ctx.font='600 15px monospace';
       ctx.fillText('총비용 = (층 합 n) × (층 수 lg n) = Θ(n lg n)', W/2, H*0.84);
       ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('각 층 비용 합이 모두 n으로 같음 → 층 수 lg n을 곱함. 추측 후 치환법으로 엄밀 증명', W/2, H*0.92);
+      ctx.fillText('각 층 비용 합이 모두 n으로 같음 → 층 수 lg n(=log₂ n)을 곱함. 추측 후 치환법으로 엄밀 증명', W/2, H*0.92);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('불균등 분할(T(n/3)+T(2n/3)+n 등)도 가장 긴 경로·층 합으로 차수 추측 가능', W/2, H*0.92+18); }
   },

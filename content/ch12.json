@@ -50,7 +50,7 @@
     "title": "이심률 — 세 곡선은 하나였다",
     "narr": "포물선·타원·쌍곡선은 따로 떨어진 곡선이 아닙니다. <b>이심률 e</b>라는 숫자 하나로 모두 연결됩니다. <b>초점까지 거리 ÷ 준선까지 거리 = e</b>. <b>e<1이면 타원, e=1이면 포물선, e>1이면 쌍곡선</b>! e 슬라이더 하나로 곡선이 변신하는 걸 보세요.",
     "hint": "e를 바꿔 세 곡선의 변신을 보세요",
-    "more": "한 점(초점)과 한 직선(준선)에 대해 <b>거리의 비 (초점까지)/(준선까지) = e</b> 로 곡선을 정의하면, 단 하나의 정의가 셋을 모두 낳습니다 — <b>e < 1 타원, e = 1 포물선, e > 1 쌍곡선</b>(원은 e = 0). 극형식 <b>r = l/(1 + e cos θ)</b> 한 식에 e만 넣으면 세 곡선이 나옵니다. 이 셋을 <b>원뿔곡선(원뿔을 비스듬히 자른 단면)</b>이라 부릅니다. 자르는 각도 = 이심률. \"여러 개로 보이던 것이 사실 하나\"라는 통일이 수학의 가장 큰 기쁨입니다.",
+    "more": "한 점(초점)과 한 직선(준선)에 대해 <b>거리의 비 (초점까지)/(준선까지) = e</b> 로 곡선을 정의하면, 단 하나의 정의가 셋을 모두 낳습니다 — <b>e < 1 타원, e = 1 포물선, e > 1 쌍곡선</b>(원은 e = 0). 극형식 <b>r = l/(1 + e cos θ)</b>(여기서 r·θ는 초점을 원점으로 한 극좌표 — 곡선 위 점까지의 거리와 각, l은 초점에서 곡선까지 잰 기준 길이) 한 식에 e만 바꿔 넣으면 세 곡선이 모두 나옵니다. 이 셋을 <b>원뿔곡선(원뿔을 비스듬히 자른 단면)</b>이라 부릅니다. 자르는 각도 = 이심률. \"여러 개로 보이던 것이 사실 하나\"라는 통일이 수학의 가장 큰 기쁨입니다.",
     "more_en": "Define a curve by the ratio <b>(distance to focus)/(distance to directrix) = e</b>, and one definition produces all three — <b>e < 1 ellipse, e = 1 parabola, e > 1 hyperbola</b> (a circle is e = 0). The single polar equation <b>r = l/(1 + e cos θ)</b> yields all three as e varies. Together they are the <b>conic sections</b> (slices of a cone); the cutting angle is the eccentricity. \"Things that looked separate are actually one\" — this kind of unification is one of math's deepest joys.",
     "problem": {
       "q": "이심률 e = 1 인 원뿔곡선은 무엇인가?",
