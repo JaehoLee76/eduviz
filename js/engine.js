@@ -112,17 +112,28 @@
   // 슬라이더마다 다른 키쌍(감소/증가) — 3개 이상도 각자 단축키
   var SLIDER_KEYS=[['KeyA','KeyD','A','D'],['KeyF','KeyH','F','H'],['KeyJ','KeyL','J','L'],['KeyB','KeyN','B','N']];
   function controls(html){ if(!controlsEl) return; controlsEl.innerHTML=html||''; controlsEl.style.display=html?'flex':'none';
-    // range 슬라이더 value 속성이 무시되고 중앙으로 뜨는 문제 방지: 속성값을 프로퍼티로 강제
-    var rs=controlsEl.querySelectorAll('input[type=range]');
-    for(var i=0;i<rs.length;i++){ var av=rs[i].getAttribute('value'); if(av!=null) rs[i].value=av;
+    var rs=controlsEl.querySelectorAll('input[type=range]'); if(!rs.length) return;
+    var sliders=[].slice.call(rs), multi=sliders.length>1;
+    // 슬라이더마다 세로 유닛으로 재구성: [라벨·슬라이더·값] 위, 그 슬라이더의 단축키를 바로 아래에
+    for(var i=0;i<sliders.length;i++){ var sl=sliders[i];
+      var av=sl.getAttribute('value'); if(av!=null) sl.value=av;   // value 속성 무시 방지
       var p=SLIDER_KEYS[i]||SLIDER_KEYS[SLIDER_KEYS.length-1];
-      rs[i].setAttribute('data-kdec',p[0]); rs[i].setAttribute('data-kinc',p[1]);
-      var hk=document.createElement('span'); hk.className='ctrl-keys';
-      hk.innerHTML='<kbd class="kc">'+p[2]+'</kbd> ◂ ▸ <kbd class="kc">'+p[3]+'</kbd>';
-      var box=rs[i].parentNode;                        // .ctrl div (슬라이더 옆에 그 슬라이더의 키 표시)
-      if(box && box.classList && box.classList.contains('ctrl')) box.appendChild(hk);
-      else controlsEl.appendChild(hk);
-    } }
+      sl.setAttribute('data-kdec',p[0]); sl.setAttribute('data-kinc',p[1]);
+      var lab=sl.previousElementSibling, out=sl.nextElementSibling;
+      var unit=document.createElement('div'); unit.className='sl-unit';
+      var row=document.createElement('div'); row.className='sl-row';
+      if(lab && lab.tagName==='LABEL'){ lab.style.marginLeft=''; row.appendChild(lab); }
+      row.appendChild(sl);
+      if(out && out.tagName==='OUTPUT') row.appendChild(out);
+      unit.appendChild(row);
+      var hk=document.createElement('div'); hk.className='ctrl-keys';
+      hk.innerHTML='<kbd class="kc">'+p[2]+'</kbd> ◂'+(multi?'':' 값 조절')+' ▸ <kbd class="kc">'+p[3]+'</kbd>';
+      unit.appendChild(hk);
+      controlsEl.appendChild(unit);
+    }
+    var emp=controlsEl.querySelectorAll('.ctrl');   // 비워진 원래 컨테이너 제거
+    for(var j=0;j<emp.length;j++) if(!emp[j].querySelector('input,label,output')) emp[j].parentNode.removeChild(emp[j]);
+  }
   function bind(sel,ev,fn){ var el=document.querySelector(sel); if(el) el.addEventListener(ev,fn); return el; }
 
   // 재사용 문제풀이(퀴즈) 부품 — 핵심→응용→문제풀이 흐름의 마지막 단계
