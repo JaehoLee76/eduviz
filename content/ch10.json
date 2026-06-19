@@ -48,7 +48,7 @@
     "ch": "제10장 복소평면",
     "sec": "10.2 복소수와 평면기하",
     "title": "복소수의 곱셈 = 회전과 확대",
-    "narr": "복소수의 진짜 마법! 두 복소수를 곱하면 — <b>크기는 곱해지고, 각도는 더해집니다</b>. 즉 곱셈은 <b>회전 + 확대</b>입니다! 이게 가능한 건 <b>8장 덧셈정리</b>(각의 합) 덕분입니다. w의 각을 바꿔 z·w가 회전하는 걸 보세요.",
+    "narr": "복소수를 <b>극형식</b>(크기 r, 각 θ)으로 쓰면 곱셈이 놀랍도록 단순해집니다. 두 복소수를 곱하면 — <b>크기는 곱해지고, 각도는 더해집니다</b>. 즉 곱셈은 <b>회전 + 확대</b>! 왜냐고요? 곱을 전개하면 <b>8장 덧셈정리</b>(각의 합 공식)가 그대로 튀어나오기 때문입니다. w의 각을 바꿔 z·w가 회전하는 걸 보세요.",
     "hint": "w의 각을 바꿔 z·w 회전을 보세요",
     "more": "극형식에서 곱셈은 <b>r₁(cosθ₁+isinθ₁) · r₂(cosθ₂+isinθ₂) = r₁r₂·(cos(θ₁+θ₂) + i sin(θ₁+θ₂))</b> — <b>크기는 곱(r₁r₂), 각은 합(θ₁+θ₂)</b>입니다. 전개하면 8장 덧셈정리가 정확히 튀어나옵니다! 그래서 \"어떤 복소수를 곱한다 = 평면을 회전시키고 확대한다\"가 됩니다. 거듭제곱은 <b>드무아브르 정리</b> zⁿ = rⁿ(cos nθ + i sin nθ)로, <b>12장 회전</b>·신호처리·컴퓨터그래픽의 회전 변환이 모두 이 원리입니다.",
     "more_en": "In polar form, multiplication is <b>r₁(cosθ₁+isinθ₁) · r₂(cosθ₂+isinθ₂) = r₁r₂·(cos(θ₁+θ₂) + i sin(θ₁+θ₂))</b> — <b>magnitudes multiply (r₁r₂), angles add (θ₁+θ₂)</b>. Expanding it produces Ch.8's addition formulas exactly! So \"multiplying by a complex number = rotating and scaling the plane.\" Powers follow <b>De Moivre's theorem</b> zⁿ = rⁿ(cos nθ + i sin nθ) — the rotation transforms of <b>Ch.12</b>, signal processing, and computer graphics all rest on this.",

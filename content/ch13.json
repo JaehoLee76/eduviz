@@ -33,7 +33,7 @@
     "ch": "제13장 수열",
     "sec": "13.1 수열과 그 합",
     "title": "수열의 합 — 가우스의 짝짓기",
-    "narr": "1부터 n까지 다 더하면? 어린 가우스가 찾은 멋진 방법: <b>오름 계단과 내림 계단을 붙이면 완벽한 직사각형</b>이 됩니다! 직사각형은 n×(n+1), 우리가 원한 합은 그 <b>절반</b>입니다. n을 바꿔보세요.",
+    "narr": "1부터 n까지 다 더하면? 어린 가우스가 찾은 멋진 방법: <b>오름 계단과 내림 계단을 마주 붙이면</b>, 각 칸의 높이 합이 늘 (n+1)로 똑같아 <b>완벽한 직사각형</b>이 됩니다! 가로 n × 세로 (n+1)이고, 우리가 원한 합은 그 <b>절반</b>입니다. n을 바꿔보세요.",
     "hint": "n을 바꿔 직사각형을 보세요",
     "more": "<b>등차수열의 합</b>: 1 + 2 + … + n 을 거꾸로 한 번 더 써서 짝지으면, 각 짝의 합이 모두 (n+1)이고 그런 짝이 n개 → 합의 2배가 n(n+1). 따라서 <b>합 = n(n+1)/2</b>입니다(그림: 오름+내림 계단 = n×(n+1) 직사각형, 합은 절반). 일반 등차수열은 <b>Sₙ = n(a₁ + aₙ)/2</b> (\"첫항과 끝항의 평균 × 개수\"). 이 \"짝지어 단순화\"가 수열 합의 핵심 아이디어입니다.",
     "more_en": "<b>Sum of an arithmetic sequence</b>: write 1 + 2 + … + n again in reverse and pair them — each pair sums to (n+1), and there are n pairs, so twice the sum is n(n+1). Hence <b>sum = n(n+1)/2</b> (picture: up-staircase + down-staircase = an n×(n+1) rectangle, the sum is half). In general, <b>Sₙ = n(a₁ + aₙ)/2</b> (\"average of first and last, times the count\"). This \"pair-and-simplify\" trick is the heart of sequence sums.",

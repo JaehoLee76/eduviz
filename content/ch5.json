@@ -35,7 +35,7 @@
     "title": "이차함수 y = ax² + bx + c",
     "narr": "<b>3장 #22~23에서 미리 본 포물선</b>, 이제 제대로 배웁니다! <b>이차함수 y = ax² + bx + c</b>의 그래프가 포물선입니다. a를 바꾸면 폭과 방향이, c를 바꾸면 위아래로 움직입니다. (a = 0이면 직선이 됩니다.)",
     "hint": "a, b, c를 바꿔보세요",
-    "more": "<b>이차함수</b>의 그래프는 <b>포물선(parabola)</b>입니다. <b>a</b>가 양수면 아래로 볼록(∪), 음수면 위로 볼록(∩), 절댓값이 클수록 좁아집니다. <b>c</b>는 그래프를 위아래로 평행이동합니다. 꼭짓점은 x = −b/2a 에 있습니다(완전제곱식 #21 참고). 곡선 위 한 점에서의 기울기는 나중에 <b>미분</b>에서 배웁니다.",
+    "more": "<b>이차함수</b>의 그래프는 <b>포물선(parabola)</b>입니다. <b>a</b>가 양수면 아래로 볼록(∪), 음수면 위로 볼록(∩), 절댓값이 클수록 좁아집니다. <b>c</b>는 그래프를 위아래로 평행이동합니다. 그런데 이 포물선의 <b>꼭짓점(최저·최고점)은 어디</b>일까요? 일반형 ax²+bx+c만 봐선 한눈에 안 보입니다 — <b>다음 장면</b>에서 완전제곱식으로 바꾸면 꼭짓점이 드러납니다. 곡선 위 한 점에서의 기울기는 나중에 <b>미분</b>에서 배웁니다.",
     "more_en": "The graph of a <b>quadratic function</b> is a <b>parabola</b>. If <b>a</b> is positive it opens upward (∪), if negative downward (∩); larger |a| makes it narrower. <b>c</b> shifts the graph up or down. The <b>vertex</b> is at x = −b/2a (see completing the square, #21). The slope at a point on the curve is studied later in <b>differentiation</b>.",
     "problem": {
       "q": "y = x² − 4 의 그래프가 x축과 만나는 점(근)은?",

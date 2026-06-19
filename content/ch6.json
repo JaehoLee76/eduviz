@@ -80,7 +80,7 @@
     "title": "부등식이 나타내는 영역",
     "narr": "<b>4장의 부등식(#41~43)</b>이 좌표평면에서는 <b>영역(넓은 면)</b>이 됩니다. y &gt; x + 1 은 직선의 위쪽 전체, x² + y² &lt; 9 는 원의 내부! 둘을 동시에 만족하면 <b>교집합</b> 영역입니다. 화면을 눌러 바꿔보세요.",
     "hint": "화면을 눌러 영역을 바꿔보세요",
-    "more": "부등식은 좌표평면을 <b>경계(직선·원)</b>로 나눠 한쪽 <b>영역</b>을 나타냅니다. <b>y &gt; (직선)</b> 은 직선 위쪽, <b>x² + y² &lt; r²</b> 은 원의 내부입니다. 부등호가 &lt;, &gt; 면 경계 미포함(점선), ≤, ≥ 면 포함(실선)입니다. 여러 부등식을 <b>동시에</b> 만족하는 곳이 <b>교집합 영역</b> — 4장의 집합 개념(#44)이 그림으로 나타난 것입니다. (이런 영역에서 최댓값을 찾는 게 '선형계획법'입니다.)",
+    "more": "부등식은 좌표평면을 <b>경계(직선·원)</b>로 나눠 한쪽 <b>영역</b>을 나타냅니다. <b>y &gt; (직선)</b> 은 직선 위쪽, <b>x² + y² &lt; r²</b> 은 원의 내부입니다. 부등호가 &lt;, &gt; 면 경계 미포함(점선), ≤, ≥ 면 포함(실선)입니다. 여러 부등식을 <b>동시에</b> 만족하는 곳이 <b>교집합 영역</b> — 4장의 집합 개념(#44)이 그림으로 나타난 것입니다. 여러 조건(부등식)을 동시에 만족하는 영역 안에서 '<b>가장 이득이 큰 점</b>'을 고르는 문제가 실제로 자주 나옵니다(생산량·자원배분 최적화).",
     "more_en": "An inequality splits the plane along a <b>boundary</b> (line or circle) and shades one <b>region</b>. <b>y &gt; (line)</b> is above the line; <b>x² + y² &lt; r²</b> is the interior of the circle. Strict &lt;, &gt; exclude the boundary (dashed); ≤, ≥ include it (solid). The place satisfying several inequalities <b>at once</b> is the <b>intersection region</b> — the set ideas of Ch.4 drawn as pictures. (Maximizing over such a region is 'linear programming'.)",
     "problem": {
       "q": "점 (0, 3) 은 부등식 y > x + 1 의 영역에 속할까?",

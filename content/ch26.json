@@ -33,7 +33,7 @@
     "ch": "제26장 종합",
     "sec": "26.4 확률분포와 평균",
     "title": "정규분포 — 통계의 종 곡선",
-    "narr": "<b>16장의 확률</b>과 <b>19장의 적분</b>이 만나는 곳, <b>확률분포</b>입니다. 키·시험점수·측정오차… 자연의 수많은 데이터가 <b>종 모양(정규분포)</b>을 그립니다. 중심이 평균, 폭이 표준편차 σ. σ를 바꿔 종이 넓어지고 좁아지는 걸 보세요.",
+    "narr": "<b>16장의 확률</b>과 <b>19장의 적분</b>이 만나는 곳, <b>확률분포</b>입니다. 키·시험점수·측정오차처럼 <b>서로 무관한 데이터가 왜 똑같은 종 모양</b>일까요? 비밀은 '많은 작은 요인이 더해지면 종 곡선이 된다'(중심극한정리)는 데 있습니다. 그 종 모양이 <b>정규분포</b> — 중심이 평균, 폭이 표준편차 σ. σ를 바꿔 종이 넓어지고 좁아지는 걸 보세요.",
     "hint": "σ를 바꿔 퍼짐을 보세요",
     "more": "<b>정규분포(가우스 분포)</b>는 평균 μ를 중심으로 좌우대칭인 종 모양 곡선입니다. <b>평균 μ</b>=중심 위치, <b>표준편차 σ</b>=퍼진 정도(σ↑ 넓고 낮게). 핵심 성질: <b>곡선 아래 전체 넓이 = 1</b>(전체 확률, 19장 적분!), 구간의 확률 = 그 구간 아래 넓이(정적분). \"평균±2σ 안에 약 95%\"가 들어옵니다. <b>중심극한정리</b>: 무엇이든 많이 더하면(평균 내면) 정규분포에 가까워집니다 — 16장 큰수의법칙의 정밀판. 키·오차·여론조사·금융위험이 모두 이 곡선이라, 통계·머신러닝·과학 실험의 심장입니다. 확률(16)·적분(19)·극한(14·25)이 한데 모인 종착점입니다.",
     "more_en": "The <b>normal (Gaussian) distribution</b> is a bell curve symmetric about its mean μ. <b>Mean μ</b> = center, <b>standard deviation σ</b> = spread (larger σ → wider, lower). Key property: <b>total area under the curve = 1</b> (total probability, Ch.19 integration!), and the probability of an interval is the area above it (a definite integral). About 95% lies within μ±2σ. The <b>Central Limit Theorem</b>: averaging many of anything approaches a normal distribution — the precise form of Ch.16's law of large numbers. Heights, errors, polls, and financial risk all follow this curve, making it the heart of statistics, machine learning, and experiments. Probability (16), integration (19), and limits (14, 25) converge here.",

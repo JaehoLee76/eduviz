@@ -33,7 +33,7 @@
     "ch": "제21장 행렬",
     "sec": "21.1 행렬과 연산",
     "title": "행렬 = 공간을 바꾸는 변환",
-    "narr": "행렬의 진짜 정체! 행렬에 벡터를 곱하면 <b>그 벡터가 다른 곳으로 옮겨갑니다</b>. 즉 행렬은 <b>공간 전체를 움직이는 변환</b>입니다. 격자 전체가 늘어나고, 기울고, 회전합니다. k를 바꿔 격자가 기우는(전단) 걸 보세요!",
+    "narr": "행렬에 벡터를 곱하면 어떻게 될까요? 벡터의 각 성분이 행과 내적되며 새 좌표가 나옵니다 — 즉 <b>그 벡터가 다른 곳으로 옮겨갑니다</b>. 즉 행렬은 <b>공간 전체를 움직이는 변환</b>입니다. 격자 전체가 늘어나고, 기울고, 회전합니다. k를 바꿔 격자가 기우는(전단) 걸 보세요!",
     "hint": "k를 바꿔 공간이 기우는 걸 보세요",
     "more": "행렬을 벡터에 곱하면 그 벡터를 <b>옮깁니다</b> — 행렬은 <b>선형변환</b>(공간을 늘이고·기울이고·회전·반사하되 격자선은 평행·등간격 유지)입니다. 핵심: 변환은 <b>기저벡터 e₁=(1,0), e₂=(0,1)이 어디로 가는지</b>로 완전히 결정됩니다 — 그 두 도착점이 바로 행렬의 두 열입니다! [[1,k],[0,1]]은 <b>전단(shear)</b>(층층이 밀기), [[cosθ,−sinθ],[sinθ,cosθ]]는 <b>회전</b>(10장 복소수 곱과 같음!). 이 \"행렬 = 변환\" 관점이 22장 일차변환의 핵심이고, 게임·영상·로봇의 움직임이 모두 이것입니다.",
     "more_en": "Multiplying a matrix by a vector <b>moves</b> it — a matrix is a <b>linear transformation</b> (stretching, shearing, rotating, reflecting space while keeping grid lines parallel and evenly spaced). Key: a transformation is fully determined by <b>where the basis vectors e₁=(1,0), e₂=(0,1) go</b> — those two images are exactly the matrix's two columns! [[1,k],[0,1]] is a <b>shear</b>, and [[cosθ,−sinθ],[sinθ,cosθ]] is a <b>rotation</b> (same as complex multiplication, Ch.10!). This \"matrix = transformation\" view is the core of Ch.22, and drives motion in games, video, and robotics.",

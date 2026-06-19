@@ -63,7 +63,7 @@
     "ch": "제18장 미분의 응용",
     "sec": "18.5 테일러 정리",
     "title": "테일러 근사 — 곡선을 다항식으로",
-    "narr": "<b>17장의 접선 근사(#102)</b>를 기억하나요? 곡선을 직선으로 흉내 냈습니다. 그걸 더 밀어붙이면 — <b>곡선을 다항식으로</b> 점점 정확히 흉내 낼 수 있습니다! sin x ≈ x − x³/6 + … 항을 더할수록 sin과 더 넓게 겹칩니다. N을 키워보세요.",
+    "narr": "<b>17장의 접선 근사(#102)</b>를 기억하나요? 곡선을 직선으로 흉내 냈습니다. 그걸 더 밀어붙이면 — <b>곡선을 다항식으로</b> 점점 정확히 흉내 낼 수 있습니다! 처음엔 직선 x로, 다음엔 휘는 항을 더하고… 이렇게 항을 쌓을수록 sin과 더 넓게 겹칩니다(각 항의 계수는 그 점의 미분값에서 나옵니다). N을 키워보세요.",
     "hint": "N을 키워 sin과 겹치는 걸 보세요",
     "more": "<b>테일러 정리</b>: 매끄러운 함수를 한 점 근처에서 <b>다항식</b>으로 근사할 수 있습니다. 계수는 그 점의 미분값들로 정해집니다 — <b>f(x) ≈ f(0) + f'(0)x + f''(0)x²/2! + f'''(0)x³/3! + …</b>. 예) sin x = x − x³/3! + x⁵/5! − … (항을 더할수록 더 넓은 범위에서 정확). 1차 항만 쓰면 17장의 접선 근사(선형근사)입니다. 이 덕분에 계산기·컴퓨터가 sin·eˣ·ln 같은 함수를 사칙연산만으로 계산하고, 물리학이 복잡한 식을 단순화합니다(진자 sin θ≈θ). \"어떤 함수든 다항식으로\"라는 게 해석학의 강력한 무기입니다.",
     "more_en": "<b>Taylor's theorem</b>: a smooth function can be approximated near a point by a <b>polynomial</b> whose coefficients come from the derivatives there — <b>f(x) ≈ f(0) + f'(0)x + f''(0)x²/2! + f'''(0)x³/3! + …</b>. E.g. sin x = x − x³/3! + x⁵/5! − … (more terms = accurate over a wider range). Using only the linear term is Ch.17's tangent (linear) approximation. This lets calculators and computers evaluate sin, eˣ, ln using only arithmetic, and lets physics simplify hard expressions (pendulum sin θ ≈ θ). \"Any function as a polynomial\" is a powerful weapon of analysis.",

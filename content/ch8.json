@@ -63,7 +63,7 @@
     "ch": "제8장 삼각함수",
     "sec": "8.3 삼각함수와 삼각형",
     "title": "사인법칙 — 변과 각을 잇다",
-    "narr": "삼각함수는 다시 <b>삼각형</b>으로 돌아옵니다. 어떤 삼각형이든 <b>변 ÷ 마주보는 각의 sin</b>은 항상 일정하고, 그 값이 <b>외접원의 지름(2R)</b>입니다: <b>a/sin A = b/sin B = c/sin C = 2R</b>. 측량·천문에서 거리를 재는 핵심 도구입니다.",
+    "narr": "삼각함수는 다시 <b>삼각형</b>으로 돌아옵니다. 한 변을 그 삼각형의 <b>외접원</b>에 얹어 보면, 변과 마주보는 각 사이에 늘 같은 비가 숨어 있습니다 — 그 비가 바로 <b>외접원의 지름(2R)</b>입니다: <b>a/sin A = b/sin B = c/sin C = 2R</b>. 그래서 한 변과 두 각만 알면 나머지 변을 잴 수 있죠(측량·천문).",
     "hint": "변과 마주보는 각의 sin 비율은 일정",
     "more": "<b>사인법칙</b>: <b>a/sin A = b/sin B = c/sin C = 2R</b> (R은 외접원 반지름). 한 변과 두 각을 알면 나머지 변을 구할 수 있습니다(삼각측량). 짝꿍인 <b>코사인법칙</b> <b>c² = a² + b² − 2ab·cos C</b>는 피타고라스 정리(1장)를 직각이 아닌 삼각형까지 일반화한 것입니다(C = 90°이면 cos C = 0 → 피타고라스!). 도형과 수가 삼각함수로 완전히 연결됩니다.",
     "more_en": "The <b>Law of Sines</b>: <b>a/sin A = b/sin B = c/sin C = 2R</b> (R is the circumradius). Knowing one side and two angles lets you find the rest (triangulation). Its partner, the <b>Law of Cosines</b> <b>c² = a² + b² − 2ab·cos C</b>, generalizes the Pythagorean theorem (Ch.1) to non-right triangles (if C = 90°, cos C = 0 → Pythagoras!). Geometry and number are fully linked through trigonometry.",

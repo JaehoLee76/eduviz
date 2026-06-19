@@ -18,7 +18,7 @@
     "ch": "제25장 엄밀한 극한",
     "sec": "25.2 함수의 극한",
     "title": "ε-δ 논법 — 함수 극한의 정의",
-    "narr": "함수의 극한도 정밀하게! \"x가 a에 가까우면 f(x)가 L에 가깝다\"를 <b>두 개의 띠</b>로 표현합니다: 출력 오차 <b>ε(가로 띠)</b>를 정하면, 그걸 보장하는 입력 폭 <b>δ(세로 띠)</b>가 있습니다. ε를 바꿔 δ가 따라 정해지는 걸 보세요.",
+    "narr": "<b>앞 장면(ε-N)은 수열</b>이라 '몇 번째 항(N)부터' 가까운지를 따졌습니다. 함수는 'x를 a에 <b>얼마나 가까이</b> 보내야 하나'가 문제죠 — 그래서 단계 N 대신 <b>입력 거리 δ</b>를 씁니다. 출력 오차 <b>ε(가로 띠)</b>를 정하면, 그걸 보장하는 입력 폭 <b>δ(세로 띠)</b>가 있습니다. ε를 바꿔 δ가 따라 정해지는 걸 보세요.",
     "hint": "ε(출력)을 정하면 δ(입력)가 결정됩니다",
     "more": "<b>ε-δ 논법</b>: <b>lim(x→a) f(x) = L ⟺ ∀ε>0, ∃δ>0, (0<|x−a|<δ ⟹ |f(x)−L|<ε)</b>. 그림: 목표(L) 둘레에 <b>가로 ε띠</b>를 그으면, a 둘레에 <b>세로 δ띠</b>를 잡아 \"δ띠 안의 x는 모두 ε띠 안의 f(x)\"가 되게 할 수 있습니다. ε를 좁히면 δ도 좁혀야 합니다. 17장의 미분(순간변화율)도 결국 이 ε-δ 위에 세워진 극한입니다. 모호함을 완전히 제거한 이 정의가, 미적분의 모든 정리(중간값·평균값·기본정리)에 엄밀한 증명을 줍니다.",
     "more_en": "The <b>ε-δ definition</b>: <b>lim(x→a) f(x) = L ⟺ ∀ε>0, ∃δ>0, (0<|x−a|<δ ⟹ |f(x)−L|<ε)</b>. Picture: draw a <b>horizontal ε-band</b> around the target L; you can choose a <b>vertical δ-band</b> around a so that every x in the δ-band has f(x) in the ε-band. Narrowing ε forces narrowing δ. Even Ch.17's derivative is a limit built on this. Removing all vagueness, this definition gives rigorous proofs to every calculus theorem (intermediate value, mean value, fundamental theorem).",
