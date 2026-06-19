@@ -33,16 +33,16 @@
     "ch": "제3장 방정식",
     "sec": "3.2 이차방정식",
     "title": "완전제곱식 — 정사각형 완성하기",
-    "narr": "일차방정식은 저울로 풀었습니다(#19~20). 그런데 x²이 든 <b>이차방정식</b>은 그렇게 안 됩니다. 그래서 식을 <b>정사각형 모양</b>으로 바꿔 푸는데, 이게 <b>완전제곱식</b>입니다. x² + 6x 를 정사각형에 가깝게 만들어 봅시다 — 어디가 비는지 보세요.",
+    "narr": "이차방정식 <b>x² + 6x = 7</b> 을 풀어봅시다. 일차방정식과 달리 x가 <b>x²과 6x 두 군데</b> 있어 한쪽으로 모을 수 없습니다. 비법은 왼쪽을 <b>(x+□)² 같은 정사각형</b>으로 만드는 것 — 그러면 양변에 √를 씌워 단번에 풀립니다. 그래서 정사각형을 '<b>완성</b>'합니다.",
     "hint": "화면을 눌러 모서리 채우기",
-    "more": "<b>왜 하필 9를 더할까? — 그림으로 따라가기</b><br>① x²은 한 변이 x인 <b>정사각형</b>입니다.<br>② 거기 붙은 6x를 <b>둘로 쪼갭니다</b>: 6 = 3 + 3. 폭이 3인 띠 두 개가 되죠.<br>③ 그 두 띠를 정사각형의 <b>위와 오른쪽 변</b>에 붙이면, 딱 <b>한 귀퉁이만 비어</b> 있습니다.<br>④ 그 빈 모서리는 가로·세로가 모두 3인 작은 정사각형 → <b>3 × 3 = 9</b>.<br>그래서 9를 더하면 한 변이 (x+3)인 <b>완전한 정사각형 (x+3)²</b>이 됩니다.<br><br>일반화: x² + bx 에는 가운데 항 b를 <b>반으로 나눈 것의 제곱 (b/2)²</b>를 더합니다(여기선 b=6 → (6/2)²=9). 이 방법으로 모든 이차방정식을 풀 수 있고, <b>근의 공식</b>도 여기서 나옵니다. 또 y = x²+bx+c 를 (x+b/2)²+k 로 바꾸면 <b>꼭짓점</b>이 바로 보입니다(꼭짓점의 x좌표 = −b/2).",
+    "more": "<b>① 무엇을 풀려는가</b><br>x² + 6x = 7. x가 두 군데 흩어져 있어 'x = …' 꼴로 못 옮깁니다.<br><br><b>② 아이디어 — 정사각형이면 √로 풀린다</b><br>만약 왼쪽이 (x + a)² 같은 <b>완전한 정사각형</b>이라면, 양변에 √를 씌워 x + a = ±(수) 로 바로 풀 수 있습니다. 그래서 x²+6x 를 정사각형으로 만들고 싶습니다.<br><br><b>③ 9는 어디서? — 빈 모서리</b><br>x²은 한 변이 x인 정사각형, 6x는 둘로 쪼개(3x + 3x) 두 변에 붙인 띠입니다. 그러면 한 귀퉁이가 비는데, 그 빈 모서리는 가로·세로 모두 3 → <b>3 × 3 = 9</b>. 즉 9는 '정사각형을 완성하는 데 모자란 조각'입니다. (일반식: 가운데 항 b의 절반의 제곱 (b/2)²)<br><br><b>④ 실제로 풀기</b><br>양변에 9를 더하면 x²+6x+9 = 7+9, 즉 <b>(x+3)² = 16</b>. 양변에 √ → x+3 = ±4 → <b>x = 1 또는 x = −7</b>. 이 방법으로 어떤 이차방정식도 풀 수 있고, <b>근의 공식</b>도 여기서 나옵니다.",
     "problem": {
-      "q": "x² + 10x 를 완전제곱식으로 만들려면 얼마를 더해야 하나? 그림으로 이유도 말하라.",
-      "solution": "10을 반으로 나누면 5. 폭 5짜리 띠 둘을 두 변에 붙이면 빈 모서리가 5×5 = 25. 그래서 25를 더하면 x²+10x+25 = (x+5)². 일반식 (b/2)² = (10/2)² = 25.",
-      "q_en": "What must you add to x²+10x to complete the square, and why (geometrically)?",
-      "sol_en": "Half of 10 is 5; the empty corner is 5×5=25, so x²+10x+25=(x+5)². In general (b/2)²=25."
+      "q": "x² + 8x = 9 를 완전제곱식으로 풀어라. (어떤 수를 더하는지, 왜인지 포함)",
+      "solution": "8의 절반 4 → 빈 모서리 4×4 = 16 을 양변에 더한다. x²+8x+16 = 9+16 → (x+4)² = 25 → x+4 = ±5 → x = 1 또는 x = −9. (16 = (8/2)² 가 정사각형을 완성하는 모자란 조각)",
+      "q_en": "Solve x²+8x=9 by completing the square (state what you add and why).",
+      "sol_en": "Half of 8 is 4 → missing corner 4×4=16; add to both sides: (x+4)²=25 → x=1 or −9."
     },
-    "more_en": "<b>Why add 9? Follow the picture</b><br>x² is a square of side x. Split 6x into 3+3 (two strips of width 3) and place them on two sides; one corner is left empty — a 3×3 square = 9. Adding 9 completes the square (x+3)². In general x²+bx needs (b/2)² (here (6/2)²=9). This gives the quadratic formula and the parabola's vertex (x = −b/2)."
+    "more_en": "<b>① The problem</b> Solve x²+6x=7. x appears twice (x² and 6x), so we can't isolate it.<br><b>② Idea</b> If the left side were a perfect square (x+a)², we could take √ of both sides. So we make x²+6x a square.<br><b>③ Where 9 comes from</b> x² is a square of side x; split 6x into 3x+3x on two sides — one corner is empty, a 3×3=9 square. So 9 is the missing piece (in general (b/2)²).<br><b>④ Solve</b> Add 9 to both sides: (x+3)²=16 → x+3=±4 → x=1 or −7. This yields the quadratic formula."
   },
   "ch3_04": {
     "ch": "제3장 방정식",
