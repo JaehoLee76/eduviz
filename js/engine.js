@@ -109,10 +109,20 @@
       for(var i=0;i<sc.keys.length;i++){ var k=sc.keys[i]; h+='<span class="kh-item"><kbd class="kc">'+(k.key||k.code.replace('Key',''))+'</kbd> '+k.label+'</span>'; }
       keyHintEl.innerHTML=h; keyHintEl.style.display='flex'; }
     else keyHintEl.style.display='none'; }
+  // 슬라이더마다 다른 키쌍(감소/증가) — 3개 이상도 각자 단축키
+  var SLIDER_KEYS=[['KeyA','KeyD','A','D'],['KeyF','KeyH','F','H'],['KeyJ','KeyL','J','L'],['KeyB','KeyN','B','N']];
   function controls(html){ if(!controlsEl) return; controlsEl.innerHTML=html||''; controlsEl.style.display=html?'flex':'none';
     // range 슬라이더 value 속성이 무시되고 중앙으로 뜨는 문제 방지: 속성값을 프로퍼티로 강제
-    var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++){ var av=rs[i].getAttribute('value'); if(av!=null) rs[i].value=av; }
-    if(rs.length){ var hk=document.createElement('span'); hk.className='ctrl-keys'; hk.innerHTML='<kbd class="kc">A</kbd> ◂ 값 조절 ▸ <kbd class="kc">D</kbd>'; controlsEl.appendChild(hk); } }
+    var rs=controlsEl.querySelectorAll('input[type=range]');
+    for(var i=0;i<rs.length;i++){ var av=rs[i].getAttribute('value'); if(av!=null) rs[i].value=av;
+      var p=SLIDER_KEYS[i]||SLIDER_KEYS[SLIDER_KEYS.length-1];
+      rs[i].setAttribute('data-kdec',p[0]); rs[i].setAttribute('data-kinc',p[1]);
+      var hk=document.createElement('span'); hk.className='ctrl-keys';
+      hk.innerHTML='<kbd class="kc">'+p[2]+'</kbd> ◂ ▸ <kbd class="kc">'+p[3]+'</kbd>';
+      var box=rs[i].parentNode;                        // .ctrl div (슬라이더 옆에 그 슬라이더의 키 표시)
+      if(box && box.classList && box.classList.contains('ctrl')) box.appendChild(hk);
+      else controlsEl.appendChild(hk);
+    } }
   function bind(sel,ev,fn){ var el=document.querySelector(sel); if(el) el.addEventListener(ev,fn); return el; }
 
   // 재사용 문제풀이(퀴즈) 부품 — 핵심→응용→문제풀이 흐름의 마지막 단계
@@ -416,10 +426,13 @@
         else if(c==='KeyS'){ toggleAuto(); e.preventDefault(); }
         return;
       }
-      // 슬라이더(A/D) · 퀴즈(숫자) · 탭(D·Space) 장면
-      var rng=controlsEl&&controlsEl.querySelector('input[type=range]');
-      if(rng&&(c==='KeyA'||c==='KeyD')){ var st=parseFloat(rng.step)||1, v=parseFloat(rng.value)+(c==='KeyD'?st:-st);
-        v=Math.max(parseFloat(rng.min), Math.min(parseFloat(rng.max), v)); rng.value=v; rng.dispatchEvent(new Event('input',{bubbles:true})); e.preventDefault(); return; }
+      // 슬라이더(슬라이더별 키쌍) · 퀴즈(숫자) · 탭(D·Space) 장면
+      if(controlsEl && controlsEl.style.display!=='none'){
+        var rss=controlsEl.querySelectorAll('input[type=range]');
+        for(var ri=0;ri<rss.length;ri++){ var rg=rss[ri], kd=rg.getAttribute('data-kdec'), ki=rg.getAttribute('data-kinc');
+          if(c===kd||c===ki){ var st=parseFloat(rg.step)||1, v=parseFloat(rg.value)+(c===ki?st:-st);
+            v=Math.max(parseFloat(rg.min), Math.min(parseFloat(rg.max), v)); rg.value=v; rg.dispatchEvent(new Event('input',{bubbles:true})); e.preventDefault(); return; } }
+      }
       var dm=/^Digit([1-9])$/.exec(c);
       if(dm){ var opt=controlsEl&&controlsEl.querySelector('.opt[data-i="'+(parseInt(dm[1],10)-1)+'"]'); if(opt){ opt.click(); e.preventDefault(); } return; }
       if((c==='KeyD'||space||enter)&&s&&s.tap&&!s.keys){ s.tap(E, W/2, H/2); e.preventDefault(); return; }
