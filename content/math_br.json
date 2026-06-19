@@ -1153,5 +1153,275 @@
       "q_en": "Sign of (3/5)·(5/3) by reciprocity.",
       "sol_en": "Exponent 1·2=2 even → +1."
     }
+  },
+  "math_br_basel": {
+    "ch": "제14장 극한",
+    "sec": "랜드마크",
+    "title": "바젤 문제 — Σ1/n² = π²/6",
+    "narr": "정수의 제곱 역수 합에 원주율 π가 등장하는 경이로운 결과.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>오일러의 통찰</b><br>1+1/4+1/9+… 의 값을 묻는 100년 묵은 문제를 오일러가 1734년 풀었습니다. sinx = x∏(1−x²/(n²π²)) 라는 무한곱으로 sinx/x를 전개하고, 테일러 급수 x²의 계수와 비교하면 Σ1/n² = π²/6 ≈ 1.6449. 정수론(제타함수 ζ(2))과 해석학을 잇는 다리입니다.",
+    "more_en": "Euler (1734) used the product sinx = x∏(1−x²/n²π²); comparing the x² coefficient with the Taylor series gives Σ1/n² = π²/6. This is ζ(2).",
+    "problem": {
+      "q": "Σ 1/n² = π²/6 을 이용해 1 + 1/9 + 1/25 + … (홀수 제곱) 의 합을 구하라.",
+      "solution": "전체 = 홀수항 + 짝수항. 짝수항 Σ1/(2n)² = (1/4)Σ1/n² = π²/24. 홀수항 = π²/6 − π²/24 = π²/8.",
+      "q_en": "Using Σ1/n²=π²/6, find the sum over odd squares 1+1/9+1/25+….",
+      "sol_en": "Odd = total − even = π²/6 − π²/24 = π²/8."
+    }
+  },
+  "math_br_harmonic": {
+    "ch": "제13장 수열",
+    "sec": "심화 정리",
+    "title": "조화급수의 발산",
+    "narr": "항이 0으로 가는데도 합이 무한대가 되는 유명한 예.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>덩어리로 묶기</b><br>1+1/2+1/3+… 에서 1/3+1/4 > 1/2, 1/5+…+1/8 > 1/2, … 처럼 묶으면 매번 1/2보다 큰 덩어리가 무한히 나와 합이 발산합니다(오렘, 14세기). 항이 0으로 가는 것은 수렴의 필요조건일 뿐 충분조건이 아님을 보여줍니다. 부분합은 대략 ln n + γ로 자랍니다.",
+    "more_en": "Group 1/3+1/4>1/2, 1/5+…+1/8>1/2, … : infinitely many ½-chunks ⇒ diverges (Oresme). Terms→0 is necessary but not sufficient. Partial sums ~ ln n + γ.",
+    "problem": {
+      "q": "1/2+1/4+1/8+… 은 수렴하는데 조화급수는 발산하는 차이는?",
+      "solution": "등비급수 1/2ⁿ은 항이 기하급수적으로(빠르게) 줄어 합 1로 수렴. 조화급수 1/n은 너무 느리게 줄어(1/2씩 덩어리가 무한) 발산합니다. '0으로 가는 속도'가 관건.",
+      "q_en": "Why does 1/2+1/4+… converge but the harmonic series diverge?",
+      "sol_en": "Geometric terms shrink exponentially (sum=1); harmonic terms shrink too slowly (½-chunks forever)."
+    }
+  },
+  "math_br_altseries": {
+    "ch": "제13장 수열",
+    "sec": "심화 판정",
+    "title": "교대급수 판정 (라이프니츠)",
+    "narr": "부호가 번갈아 바뀌면 느리게 줄어도 수렴합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>샌드위치되는 부분합</b><br>aₙ이 0으로 단조감소하면 Σ(−1)ⁿaₙ은 수렴합니다. 부분합이 위·아래로 번갈아 답을 좁혀가기 때문입니다. 예: 1−1/2+1/3−1/4+… = ln2. 조화급수는 발산하지만 부호를 번갈으면 수렴 — '조건수렴'의 대표 예입니다.",
+    "more_en": "If aₙ↓0, then Σ(−1)ⁿaₙ converges (partial sums bracket the limit). e.g. 1−1/2+1/3−…=ln2 — conditionally convergent though the harmonic series diverges.",
+    "problem": {
+      "q": "1 − 1/3 + 1/5 − 1/7 + … 은 무엇으로 수렴하는가?",
+      "solution": "이는 arctan(1)의 급수로 π/4 로 수렴합니다(라이프니츠의 π 공식). 교대급수 판정으로 수렴이 보장됩니다.",
+      "q_en": "What does 1−1/3+1/5−1/7+… converge to?",
+      "sol_en": "π/4 (Leibniz formula, the arctan(1) series)."
+    }
+  },
+  "math_br_stirling": {
+    "ch": "제15장 순열·조합",
+    "sec": "심화 근사",
+    "title": "스털링 근사 — n!의 크기",
+    "narr": "거대한 팩토리얼을 매끄러운 식으로 근사합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>로그를 적분으로</b><br>n! ≈ √(2πn)(n/e)ⁿ. ln(n!) = Σln k 를 ∫₁ⁿ ln x dx = n ln n − n + 1 로 근사한 것이 핵심 아이디어이고, √(2πn) 보정항은 더 정밀한 분석(오일러-매클로린)에서 나옵니다. 확률(이항분포), 통계역학(엔트로피), 정보이론에서 필수입니다.",
+    "more_en": "n! ≈ √(2πn)(n/e)ⁿ. Approximate ln(n!)=Σln k by ∫ln x dx = n ln n − n; the √(2πn) factor comes from finer analysis. Used in probability, statistical mechanics, information theory.",
+    "problem": {
+      "q": "스털링 근사로 ln(n!) 의 주된 항을 써라.",
+      "solution": "ln(n!) ≈ n ln n − n + (1/2)ln(2πn). 주된 항은 n ln n − n (선형·로그 항이 지배).",
+      "q_en": "Leading terms of ln(n!) by Stirling.",
+      "sol_en": "ln(n!) ≈ n ln n − n + ½ln(2πn); dominant term n ln n − n."
+    }
+  },
+  "math_br_gamma": {
+    "ch": "제19장 적분",
+    "sec": "심화 함수",
+    "title": "감마 함수 — 팩토리얼의 확장",
+    "narr": "정수가 아닌 수의 팩토리얼을 정의하는 적분.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>적분으로 정의</b><br>Γ(n)=∫₀^∞ x^(n−1)e^(−x)dx. 부분적분으로 Γ(n+1)=nΓ(n)이라는 팩토리얼 점화식이 나오고, Γ(1)=1이므로 자연수에서 Γ(n)=(n−1)!. 핵심 특수값 Γ(1/2)=√π는 가우스 적분에서 옵니다. 확률분포(감마·베타·카이제곱), 복소해석의 기둥입니다.",
+    "more_en": "Γ(n)=∫₀^∞ x^(n−1)e^(−x)dx; integration by parts gives Γ(n+1)=nΓ(n), so Γ(n)=(n−1)! for integers. Γ(1/2)=√π.",
+    "problem": {
+      "q": "Γ(5) 와 Γ(1/2) 의 값을 구하라.",
+      "solution": "Γ(5)=(5−1)!=4!=24. Γ(1/2)=√π (가우스 적분 ∫e^(−x²)=√π 와 직접 연결).",
+      "q_en": "Compute Γ(5) and Γ(1/2).",
+      "sol_en": "Γ(5)=4!=24; Γ(1/2)=√π."
+    }
+  },
+  "math_br_weierstrass": {
+    "ch": "제25장 엄밀한 극한",
+    "sec": "랜드마크",
+    "title": "연속이지만 어디서도 미분 불가",
+    "narr": "'매끄러운 연속곡선'이라는 직관을 깨뜨린 괴물 함수.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>바이어슈트라스 함수</b><br>W(x)=Σ aⁿcos(bⁿπx) (0<a<1, ab>1)는 모든 점에서 연속이지만 어느 점에서도 미분 불가능합니다. 어디를 확대해도 똑같이 뾰족한 자기유사 구조(프랙탈) 때문에 접선을 그을 수 없습니다. '연속이면 미분가능'이라는 19세기 믿음을 무너뜨려 해석학의 엄밀화를 촉발했습니다.",
+    "more_en": "W(x)=Σaⁿcos(bⁿπx) (0<a<1, ab>1) is everywhere continuous but nowhere differentiable — a self-similar fractal with no tangent anywhere. It shattered the belief 'continuous ⇒ differentiable'.",
+    "problem": {
+      "q": "'연속이면 미분가능하다'는 참인가 거짓인가? 근거는?",
+      "solution": "거짓입니다. 바이어슈트라스 함수가 반례입니다(어디서나 연속이지만 어디서도 미분 불가). 역은 참: 미분가능하면 반드시 연속입니다.",
+      "q_en": "True or false: continuous implies differentiable?",
+      "sol_en": "False — the Weierstrass function is a counterexample. The converse (differentiable ⇒ continuous) is true."
+    }
+  },
+  "math_br_greendiv": {
+    "ch": "제11장 공간도형",
+    "sec": "심화 정리",
+    "title": "발산정리·그린·스토크스",
+    "narr": "안에서의 누적이 곧 경계에서의 흐름이라는 통일 원리.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>경계로 환원</b><br>벡터미적분의 큰 정리들은 '영역 내부의 미분 적분 = 경계에서의 값'이라는 한 가지 생각의 변주입니다. 그린: ∮F·dr=∬(∂Q/∂x−∂P/∂y)dA. 발산정리: ∯F·dS=∭div F dV. 스토크스는 그 곡면판입니다. 미적분 기본정리 ∫f′=f(b)−f(a)의 고차원 일반화로, 전자기학(맥스웰 방정식)의 언어입니다.",
+    "more_en": "Green/Stokes/Divergence theorems all say 'integral of a derivative inside = boundary values' — the multidimensional fundamental theorem of calculus. Language of electromagnetism.",
+    "problem": {
+      "q": "발산정리는 미적분 기본정리와 어떤 점에서 같은 생각인가?",
+      "solution": "둘 다 '내부의 변화율 적분 = 경계에서의 값'입니다. 1차원: ∫ₐᵇf′dx=f(b)−f(a)(끝점 두 개). 3차원: ∭div F dV=∯F·dS(경계 곡면). 차원만 올라간 같은 원리.",
+      "q_en": "How is the divergence theorem the same idea as the FTC?",
+      "sol_en": "Both equate the integral of a derivative inside to boundary values — FTC uses two endpoints, divergence uses a boundary surface."
+    }
+  },
+  "math_br_jacobian": {
+    "ch": "제20장 적분의 응용",
+    "sec": "심화 기법",
+    "title": "야코비안 — 변수변환",
+    "narr": "좌표를 바꾸면 넓이·부피가 야코비안 배율만큼 늘어납니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>국소 넓이 배율</b><br>다중적분에서 (x,y)→(u,v)로 좌표를 바꾸면 dx dy = |∂(x,y)/∂(u,v)| du dv. 야코비 행렬식이 그 점에서의 넓이(부피) 확대율입니다. 극좌표는 야코비안이 r이라 dx dy = r dr dθ. 가우스 적분, 확률밀도 변환, 다변수 치환적분의 핵심 도구입니다.",
+    "more_en": "Changing variables (x,y)→(u,v) in a multiple integral gives dx dy=|∂(x,y)/∂(u,v)|du dv — the Jacobian determinant is the local area scaling. Polar: Jacobian r, so dx dy=r dr dθ.",
+    "problem": {
+      "q": "극좌표 변환의 야코비안이 r 임을 이용해 dx dy 를 r,θ 로 써라.",
+      "solution": "x=r cosθ, y=r sinθ. ∂(x,y)/∂(r,θ) = |cosθ −r sinθ; sinθ r cosθ| = r cos²θ + r sin²θ = r. ∴ dx dy = r dr dθ.",
+      "q_en": "Write dx dy in polar coordinates using the Jacobian r.",
+      "sol_en": "x=r cosθ, y=r sinθ → Jacobian = r, so dx dy = r dr dθ."
+    }
+  },
+  "math_br_fourier": {
+    "ch": "제8장 삼각함수",
+    "sec": "랜드마크",
+    "title": "푸리에 급수 — 파동의 분해",
+    "narr": "어떤 주기 신호도 사인·코사인의 합으로 쪼갤 수 있습니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>직교성으로 계수 추출</b><br>주기함수 f(x)=a₀+Σ(aₙcos nx+bₙsin nx). 서로 다른 사인·코사인은 한 주기에서 적분하면 0(직교)이므로, f에 cos nx를 곱해 적분하면 aₙ만 남습니다. 복잡한 파형을 기본 진동수들의 합으로 분해 — 음향, 신호처리, 열전도, 양자역학, 영상압축(JPEG)의 공통 언어입니다.",
+    "more_en": "Any periodic f = a₀+Σ(aₙcos nx+bₙsin nx). Sines/cosines are orthogonal over a period, so multiplying by cos nx and integrating extracts aₙ. Language of audio, signals, heat, quantum mechanics, JPEG.",
+    "problem": {
+      "q": "푸리에 계수 aₙ 을 직교성으로 어떻게 뽑아내는가?",
+      "solution": "f(x)에 cos(nx)를 곱해 한 주기 적분하면, cos(mx)cos(nx)는 m≠n이면 적분 0, m=n이면 π. 따라서 ∫f cos nx dx = aₙ·π → aₙ = (1/π)∫f cos nx dx.",
+      "q_en": "How are Fourier coefficients aₙ extracted via orthogonality?",
+      "sol_en": "Multiply f by cos nx and integrate over a period: cross terms vanish, leaving aₙ=(1/π)∫f cos nx dx."
+    }
+  },
+  "math_br_laplace": {
+    "ch": "제20장 적분의 응용",
+    "sec": "심화 기법",
+    "title": "라플라스 변환",
+    "narr": "미분방정식을 대수방정식으로 바꾸는 마법의 적분.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>미분 → 곱셈</b><br>L{f}(s)=∫₀^∞ f(t)e^(−st)dt. 핵심 성질 L{f′}=sF(s)−f(0)로 미분이 s 곱하기로 바뀝니다. 그래서 미분방정식이 s에 대한 대수방정식이 되고, 풀어서 역변환하면 해가 나옵니다. 초기조건이 자동 반영되며 제어공학·회로·신호처리의 표준 기법입니다.",
+    "more_en": "L{f}(s)=∫₀^∞f(t)e^(−st)dt; L{f′}=sF−f(0) turns differentiation into multiplication by s, converting ODEs into algebra. Standard in control theory and circuits.",
+    "problem": {
+      "q": "L{f′}=sF−f(0) 을 이용해 라플라스 변환이 미분방정식을 푸는 원리를 설명하라.",
+      "solution": "미분이 s 곱셈으로 바뀌므로 y′+ay=f 같은 ODE가 (s+a)Y = F + y(0) 라는 대수식이 됩니다. Y를 s로 풀고 역변환하면 y(t). 미적분이 대수로 환원됩니다.",
+      "q_en": "Explain how L{f′}=sF−f(0) lets Laplace solve ODEs.",
+      "sol_en": "Differentiation becomes ×s, so an ODE becomes an algebraic equation in Y(s); solve and invert."
+    }
+  },
+  "math_br_triplescalar": {
+    "ch": "제11장 공간도형",
+    "sec": "심화 유도",
+    "title": "스칼라 삼중곱 = 부피",
+    "narr": "세 벡터가 만드는 평행육면체의 부피를 한 번에 구합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>외적과 내적의 결합</b><br>a·(b×c) = det[a b c]. b×c는 밑면(b,c가 만드는 평행사변형) 넓이를 크기로, 법선을 방향으로 갖는 벡터입니다. 거기에 a를 내적하면 '높이 × 밑넓이' = 평행육면체 부피가 나옵니다. 값이 0이면 세 벡터가 한 평면 위(공면)이고, 부호는 오른손/왼손 배향을 나타냅니다.",
+    "more_en": "a·(b×c)=det[a b c]. b×c gives base area (magnitude) and normal (direction); dotting with a yields height×base = parallelepiped volume. Zero ⇒ coplanar; sign = orientation.",
+    "problem": {
+      "q": "a=(1,0,0), b=(0,2,0), c=(0,0,3) 의 스칼라 삼중곱과 그 뜻은?",
+      "solution": "a·(b×c)=det[[1,0,0],[0,2,0],[0,0,3]]=1·2·3=6. 세 변이 1,2,3인 직육면체 부피 = 6. (양수이므로 오른손 배향)",
+      "q_en": "Scalar triple product of a=(1,0,0), b=(0,2,0), c=(0,0,3) and its meaning?",
+      "sol_en": "det=6 — the volume of the 1×2×3 box (positive ⇒ right-handed)."
+    }
+  },
+  "math_br_powerset": {
+    "ch": "제24장 집합론",
+    "sec": "랜드마크",
+    "title": "멱집합은 항상 더 크다 — 칸토어",
+    "narr": "무한에도 끝없는 위계가 있음을 보인 칸토어의 정리.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>2^|S| > |S|</b><br>집합 S의 모든 부분집합을 모은 멱집합 P(S)는 |P(S)|=2^|S|이며, 칸토어의 정리에 의해 S와 P(S) 사이엔 결코 일대일대응이 없습니다. 증명은 대각선 논법: 어떤 대응 f가 있다 해도 D={x : x∉f(x)}는 어떤 f(x)와도 다릅니다. 따라서 무한에도 더 큰 무한이 끝없이 있습니다(ℵ₀ < 2^ℵ₀ < …).",
+    "more_en": "P(S) has cardinality 2^|S|, and by Cantor's theorem there is no bijection S↔P(S) (diagonal set D={x:x∉f(x)} differs from every f(x)). So infinities form an endless hierarchy.",
+    "problem": {
+      "q": "원소 3개인 집합의 멱집합 크기는? 그리고 칸토어 정리가 말하는 것은?",
+      "solution": "2³ = 8개(공집합 포함 모든 부분집합). 칸토어 정리: 어떤 집합도 자기 멱집합보다 작아, ℕ의 멱집합(=실수 농도)은 ℕ보다 진짜 더 큽니다.",
+      "q_en": "Size of the power set of a 3-element set, and what Cantor's theorem says?",
+      "sol_en": "2³=8; Cantor: every set is strictly smaller than its power set, so |P(ℕ)| (the reals) exceeds |ℕ|."
+    }
+  },
+  "math_br_russell": {
+    "ch": "제24장 집합론",
+    "sec": "랜드마크",
+    "title": "러셀의 역설",
+    "narr": "'모든 집합의 집합'이라는 소박한 생각이 모순을 낳습니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>자기지시의 함정</b><br>R = {자기 자신을 원소로 갖지 않는 집합들}을 생각하면, 'R∈R인가?'를 물을 때 R∈R이면 정의상 R∉R이어야 하고, R∉R이면 정의상 R∈R이어야 합니다 — 어느 쪽도 모순. 이는 '아무 조건이나 집합을 만든다'는 소박한 집합론을 무너뜨려, ZFC 같은 공리적 집합론(분류 공리)이 탄생하게 했습니다.",
+    "more_en": "Let R={sets that don't contain themselves}. 'Is R∈R?' is contradictory either way. This collapsed naive set theory and motivated axiomatic (ZFC) set theory.",
+    "problem": {
+      "q": "러셀의 역설은 무엇을 금지하게 만들었는가?",
+      "solution": "'어떤 성질이든 그것을 만족하는 모든 것의 집합이 존재한다'(무제한 내포)를 금지하게 했습니다. ZFC는 분류 공리로 '기존 집합의 부분'만 만들도록 제한해 역설을 피합니다.",
+      "q_en": "What did Russell's paradox force mathematicians to forbid?",
+      "sol_en": "Unrestricted comprehension; ZFC only allows carving subsets out of existing sets (separation axiom)."
+    }
+  },
+  "math_br_godel": {
+    "ch": "제26장 종합",
+    "sec": "랜드마크",
+    "title": "괴델 불완전성 정리",
+    "narr": "수학을 완전한 기계로 만들 수 없음을 증명한 20세기의 충격.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>참이지만 증명 불가</b><br>산술을 포함하는 무모순인 공리계는 '참이지만 그 체계 안에서 증명할 수 없는' 명제를 반드시 갖습니다(제1정리). 괴델은 명제에 번호를 매겨 '이 명제는 증명 불가능하다'를 수학 안에서 구성했습니다 — 그것이 증명되면 거짓이 되니 증명 불가, 따라서 참. 제2정리: 그런 체계는 자기 자신의 무모순성을 증명할 수 없습니다.",
+    "more_en": "Any consistent system strong enough for arithmetic has true-but-unprovable statements (Gödel numbering encodes 'this statement is unprovable'). It cannot prove its own consistency.",
+    "problem": {
+      "q": "괴델 정리는 힐베르트의 어떤 꿈을 무너뜨렸는가?",
+      "solution": "모든 수학적 진리를 유한한 공리에서 기계적으로 증명하려던 힐베르트 프로그램을 무너뜨렸습니다. 어떤 공리계도 완전(모든 참을 증명)하면서 무모순일 수 없습니다.",
+      "q_en": "Which dream did Gödel's theorem shatter?",
+      "sol_en": "Hilbert's program — no consistent axiom system can mechanically prove all mathematical truths."
+    }
+  },
+  "math_br_fermatlast": {
+    "ch": "제23장 수론",
+    "sec": "랜드마크",
+    "title": "페르마의 마지막 정리",
+    "narr": "358년 동안 수학자들을 괴롭힌 여백의 메모.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>358년의 여정</b><br>n≥3이면 xⁿ+yⁿ=zⁿ을 만족하는 양의 정수해가 없습니다. 페르마가 1637년 책 여백에 '경이로운 증명을 찾았으나 여백이 좁다'고 적은 뒤, 수많은 천재가 도전했고 부분적 결과만 쌓였습니다. 1994년 앤드루 와일즈가 타니야마-시무라 추측(타원곡선=모듈러형식)을 증명하며 마침내 해결했습니다.",
+    "more_en": "For n≥3, xⁿ+yⁿ=zⁿ has no positive integer solutions. Fermat's 1637 margin note resisted proof for 358 years until Andrew Wiles (1994) proved it via the modularity of elliptic curves.",
+    "problem": {
+      "q": "n=2 일 때 xⁿ+yⁿ=zⁿ 는 해가 있는가? n≥3 과 무엇이 다른가?",
+      "solution": "n=2는 피타고라스 수로 무한히 많은 해가 있습니다(3,4,5 / 5,12,13 …). 그러나 n≥3에선 해가 전혀 없습니다 — 페르마의 마지막 정리. 지수 하나 차이가 운명을 가릅니다.",
+      "q_en": "Does xⁿ+yⁿ=zⁿ have solutions for n=2? How does n≥3 differ?",
+      "sol_en": "n=2 has infinitely many (Pythagorean triples); n≥3 has none (Fermat's Last Theorem)."
+    }
+  },
+  "math_br_riemann": {
+    "ch": "제26장 종합",
+    "sec": "랜드마크",
+    "title": "리만 가설 — 미해결 난제",
+    "narr": "소수의 비밀을 쥔, 수학에서 가장 유명한 미해결 문제.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>제타 영점의 직선</b><br>리만 제타함수 ζ(s)=Σ1/nˢ를 복소수로 확장하면, '비자명 영점'(ζ(s)=0인 점)들이 모두 실수부 1/2인 직선 위에 있다는 추측입니다. 이 영점들의 위치가 소수의 분포(소수 정리의 오차항)를 정밀하게 지배합니다. 1859년 리만이 제기, 160여 년째 미해결로 100만 달러 밀레니엄 문제입니다.",
+    "more_en": "The nontrivial zeros of ζ(s)=Σ1/nˢ all lie on Re(s)=1/2 (conjectured). Their location governs the distribution of primes. Posed 1859, still open — a Millennium Prize problem.",
+    "problem": {
+      "q": "리만 가설이 풀리면 무엇을 더 잘 알게 되는가?",
+      "solution": "소수의 분포를 매우 정밀하게 알게 됩니다. 소수 정리(소수의 개수 ~ x/ln x)의 오차가 제타 영점에 의해 결정되는데, 가설이 참이면 그 오차가 가능한 한 작음이 보장됩니다.",
+      "q_en": "What would proving the Riemann hypothesis tell us?",
+      "sol_en": "It pins down the error term in the prime number theorem — the tightest possible control on how primes are distributed."
+    }
+  },
+  "math_br_goldbach": {
+    "ch": "제23장 수론",
+    "sec": "랜드마크",
+    "title": "골드바흐 추측",
+    "narr": "단순해 보이지만 280년째 풀리지 않은 짝수와 소수의 수수께끼.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>짝수 = 소수 + 소수</b><br>2보다 큰 모든 짝수는 두 소수의 합으로 쓸 수 있다는 추측입니다(골드바흐, 1742). 4=2+2, 6=3+3, 8=3+5, 100=3+97 … 컴퓨터로 4×10¹⁸까지 모두 확인됐지만 일반 증명은 없습니다. '약한 골드바흐'(홀수=세 소수 합)는 2013년 증명됐습니다.",
+    "more_en": "Every even number >2 is a sum of two primes (Goldbach, 1742). Verified to 4×10¹⁸ but unproven. The weak version (odd = sum of three primes) was proved in 2013.",
+    "problem": {
+      "q": "100 을 두 소수의 합으로 나타내는 한 예를 들어라.",
+      "solution": "100 = 3 + 97 (둘 다 소수). 또는 11+89, 17+83, 29+71, 41+59, 47+53 등 여러 가지. 골드바흐 추측의 한 사례.",
+      "q_en": "Express 100 as a sum of two primes.",
+      "sol_en": "100=3+97 (also 11+89, 17+83, 29+71, 41+59, 47+53)."
+    }
+  },
+  "math_br_planeeq": {
+    "ch": "제11장 공간도형",
+    "sec": "심화 유도",
+    "title": "평면의 방정식 — 법선벡터",
+    "narr": "한 점과 수직 방향이 평면을 완전히 결정합니다.",
+    "hint": "자세히 보기에서 전체 풀이를 확인하세요.",
+    "more": "<b>법선과 수직</b><br>법선벡터 n=(a,b,c)에 수직이고 점 P₀를 지나는 평면 위의 임의의 점 P는 n·(P−P₀)=0을 만족합니다. 전개하면 ax+by+cz=d (d=n·P₀). 법선의 세 성분이 곧 x,y,z 계수입니다. 점 Q에서 평면까지의 거리는 |n·Q−d|/|n|로, 점과 직선 거리의 3차원 판입니다.",
+    "more_en": "Points P on the plane through P₀ with normal n=(a,b,c) satisfy n·(P−P₀)=0, i.e. ax+by+cz=d. Distance from Q is |n·Q−d|/|n|.",
+    "problem": {
+      "q": "점 (1,2,3)을 지나고 법선이 (2,−1,2)인 평면의 방정식을 구하라.",
+      "solution": "2(x−1)−1(y−2)+2(z−3)=0 → 2x−y+2z−6=0 → 2x−y+2z=6. (d = n·P₀ = 2−2+6 = 6)",
+      "q_en": "Plane through (1,2,3) with normal (2,−1,2)?",
+      "sol_en": "2x−y+2z=6."
+    }
   }
 }
