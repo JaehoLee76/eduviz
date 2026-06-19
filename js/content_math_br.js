@@ -18,7 +18,9 @@
         ctx.textAlign='center'; ctx.fillStyle='#ece9e0'; ctx.font='600 22px sans-serif';
         ctx.fillText(head+'  ('+items.length+'문항)', W/2, H*0.13);
         ctx.font='13px sans-serif'; ctx.fillStyle='#8a8893';
-        ctx.fillText('N 다음 · P 이전 문항 · 풀이는 왼쪽 아래 "자세히 보기 ^^"', W/2, H*0.175);
+        ctx.fillText('N 다음 · P 이전 문항 · 풀이는 왼쪽 아래 "자세히 보기"', W/2, H*0.175);
+        ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif';
+        ctx.fillText('난이도  ☆ 입문 · ★ 표준 · ★★ 심화', W/2, H*0.21);
         ctx.textAlign='left';
         var n=items.length, cw=Math.min(W*0.7, 760), x0=(W-cw)/2, y0=H*0.26, rowH=Math.min(64,(H*0.52)/n);
         for(var i=0;i<n;i++){ var y=y0+i*rowH, on=(i===sel);
@@ -29,9 +31,7 @@
           ctx.font='15px sans-serif'; ctx.fillText(items[i][0], x0+18, y+rowH*0.42);
           ctx.fillStyle=on?'#f6efe6':'#c3ccda'; ctx.font=(on?'600 ':'')+'15px sans-serif';
           var q=items[i][1], maxc=Math.floor((cw-110)/8.4); if(q.length>maxc)q=q.slice(0,maxc-1)+'…';
-          ctx.fillText((i+1)+'. '+q, x0+74, y+rowH*0.42); }
-        ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-        ctx.fillText('난이도 ☆입문 · ★표준 · ★★심화', W/2, H*0.86); }
+          ctx.fillText((i+1)+'. '+q, x0+74, y+rowH*0.42); } }
     };
   }
 

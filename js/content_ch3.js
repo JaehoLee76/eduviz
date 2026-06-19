@@ -46,13 +46,8 @@
     enter:function(E){ this.s={p:0,play:false}; E.setOn([]); },
     tap:function(E){ if(this.s.play)return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(540,0.15); } },
     draw:function(E){ var s=this.s, ctx=E.ctx; if(s.play){ s.p+=0.012; if(s.p>=1){s.p=1;s.play=false;} }
-      var mp=ez(s.p), u=Math.min(32,E.H*0.05), xl=4*u, t=3*u, big=xl+t, ox=E.W/2-big/2, oy=E.H*0.36;
-      // 풀려는 문제 + 아이디어 (항상 위에 — 9의 동기)
+      var mp=ez(s.p), u=Math.min(30,E.H*0.046), xl=4*u, t=3*u, big=xl+t, ox=E.W/2-big/2, oy=E.H*0.34;
       ctx.textAlign='center';
-      ctx.fillStyle='#cfd8e6'; ctx.font='600 17px sans-serif';
-      ctx.fillText('풀 문제 :  x² + 6x = 7', E.W/2, E.H*0.215);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('x 가 x²·6x 두 군데 — 못 모은다. 왼쪽이 (x+□)² 정사각형이면 양변에 √를 씌워 풀 수 있다!', E.W/2, E.H*0.255);
       box(ctx,ox,oy,xl,xl,'#7ab8ff','x²',16);
       box(ctx,ox+xl,oy,t,xl,'#8fe3b5','3x');
       box(ctx,ox,oy+xl,xl,t,'#8fe3b5','3x');
@@ -68,14 +63,12 @@
         ctx.save();ctx.translate(ox-14, oy+xl/2);ctx.rotate(-Math.PI/2);ctx.fillText('x',0,0);ctx.restore();
         ctx.save();ctx.translate(ox-14, oy+xl+t/2);ctx.rotate(-Math.PI/2);ctx.fillText('3',0,0);ctx.restore();
         ctx.globalAlpha=sl*0.6;ctx.save();ctx.translate(ox-14, oy+xl);ctx.rotate(-Math.PI/2);ctx.fillText('+',0,0);ctx.restore();
-        ctx.globalAlpha=1;
-        // 풀이 사슬: 9를 양변에 더해 → √ → 해
-        ctx.textAlign='center'; ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif';
-        ctx.fillText('양변에 9 :  (x+3)² = 7 + 9 = 16   →   x+3 = ±4   →   x = 1 또는 −7', E.W/2, oy+big+34); }
-      if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+46, '▶ 빈 모서리(?)를 채워 정사각형 완성 → 풀기', true);
-      else if(s.p>=1&&!s.play) E.tapHint(ox+big/2, oy+big+64, '↻ 다시 보기', false);
+        ctx.globalAlpha=1; }
+      ctx.textAlign='center';
+      if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+40, '▶ 빈 모서리(?)를 채워 정사각형 완성 → 풀기', true);
+      else if(s.p>=1&&!s.play) E.tapHint(ox+big/2, oy+big+40, '↻ 다시 보기', false);
       var bigN, bigW;
-      if(s.p<0.02){ bigN='x² + 6x 은 정사각형이 되다 말았다'; bigW='한 귀퉁이(?)만 채우면 (x+□)² 완전한 정사각형 — 그래야 √로 풀린다'; }
+      if(s.p<0.02){ bigN='x² + 6x = 7 을 풀자'; bigW='왼쪽을 (x+□)² 정사각형으로 만들면 √로 풀린다 — 한 귀퉁이(?)가 비었다'; }
       else if(s.p<1){ bigN='빈 모서리를 채우는 중…'; bigW='6x = 3x + 3x 를 두 변에 붙이면 → 빈 곳은 3 × 3 = 9'; }
       else { bigN='(x + 3)² 완성  →  x = 1 또는 −7'; bigW='9 = (6의 절반)² 를 양변에 더해 정사각형 완성 → √ → 해!'; }
       E.big(bigN, bigW); }

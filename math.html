@@ -157,18 +157,21 @@
 
   /* 짧은 화면: 하단 요소가 겹치지 않게 행을 분리(말풍선=위, 컨트롤·내비=아래) */
   @media (max-height: 680px) {
-    .bignum { top: 7%; }
-    .bignum #bigN { font-size: 46px; }
-    #controls { bottom: 20px; }
-    .nav { bottom: 20px; }
-    .guide { bottom: 78px; max-width: 54%; }
-    .guide .bubble { max-height: 26vh; overflow-y: auto; }
-    #study { bottom: 78px; }
+    .topbar .titles { display: none; }   /* 중앙 제목 숨김 → E.big(bignum)과 상단 충돌 제거. 브레드크럼이 제목 대체 */
+    .bignum { top: 9%; }
+    .bignum #bigN { font-size: 38px; }
+    .bignum #bigW { font-size: 13px; margin-top: 4px; }
+    #controls { bottom: 18px; }
+    .nav { bottom: 18px; }
+    .guide { bottom: 74px; max-width: 50%; }
+    .guide .bubble { max-height: 22vh; overflow-y: auto; }
+    #study { bottom: 74px; }
   }
   @media (max-height: 520px) {
-    .bignum #bigN { font-size: 36px; }
-    .guide .ch { width: 42px; height: 42px; flex-basis: 42px; }
-    .guide .bubble { max-height: 22vh; font-size: 13px; }
+    .bignum #bigN { font-size: 32px; }
+    .bignum #bigW { font-size: 12px; }
+    .guide .ch { width: 40px; height: 40px; flex-basis: 40px; }
+    .guide .bubble { max-height: 20vh; font-size: 13px; }
   }
 </style>
 </head>
