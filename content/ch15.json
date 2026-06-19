@@ -63,7 +63,7 @@
     "ch": "제15장 순열·조합",
     "sec": "15.3 이항정리",
     "title": "이항정리 — 전개의 계수",
-    "narr": "<b>3장에서 (a+b)²= a²+2ab+b²(#33)</b>를 곱셈공식으로 외웠습니다. 그럼 (a+b)⁵처럼 차수가 높아지면 일일이 다섯 번 곱하기가 벅찹니다. 그런데 그럴 필요가 없습니다. (a+b)를 n번 곱할 때 각 괄호에서 a나 b를 고르는데, b를 r번 고르는 방법의 수가 곧 조합 ₙCᵣ이기 때문입니다. 그래서 <b>전개 계수가 정확히 파스칼 삼각형의 n번째 줄</b>(ₙC₀, ₙC₁, …)이 됩니다. 이렇게 전개 계수를 조합으로 한 번에 주는 것이 <b>이항정리</b>입니다. n을 바꿔 계수 줄을 확인하세요.",
+    "narr": "<b>3장에서 (a+b)²= a²+2ab+b²(#29)</b>를 곱셈공식으로 외웠습니다. 그럼 (a+b)⁵처럼 차수가 높아지면 일일이 다섯 번 곱하기가 벅찹니다. 그런데 그럴 필요가 없습니다. (a+b)를 n번 곱할 때 각 괄호에서 a나 b를 고르는데, b를 r번 고르는 방법의 수가 곧 조합 ₙCᵣ이기 때문입니다. 그래서 <b>전개 계수가 정확히 파스칼 삼각형의 n번째 줄</b>(ₙC₀, ₙC₁, …)이 됩니다. 이렇게 전개 계수를 조합으로 한 번에 주는 것이 <b>이항정리</b>입니다. n을 바꿔 계수 줄을 확인하세요.",
     "hint": "n을 바꿔 계수(파스칼 줄)를 보세요",
     "more": "<b>이항정리</b>: <b>(a+b)ⁿ = Σ ₙCᵣ aⁿ⁻ʳ bʳ</b> — 각 항의 계수가 <b>조합 수 ₙCᵣ</b>(=파스칼 n번째 줄)입니다. 왜? (a+b)를 n번 곱할 때 각 괄호에서 a 또는 b를 고르는데, b를 r번 고르는 \"방법의 수\"가 바로 ₙCᵣ이기 때문입니다(조합!). 3장의 곱셈공식 (a+b)², (a+b)³이 n=2, 3인 특수한 경우입니다. 이렇게 <b>대수(전개)와 조합(세기)이 하나로</b> 만납니다. 확률(16장)·통계의 이항분포도 여기서 나옵니다.",
     "more_en": "<b>The binomial theorem</b>: <b>(a+b)ⁿ = Σ ₙCᵣ aⁿ⁻ʳ bʳ</b> — each term's coefficient is the <b>combination ₙCᵣ</b> (Pascal's row n). Why? Multiplying (a+b) n times, you choose a or b from each factor; the number of ways to pick b exactly r times is ₙCᵣ (a combination!). Ch.3's identities (a+b)², (a+b)³ are the cases n = 2, 3. Thus <b>algebra (expansion) and combinatorics (counting) unite</b>. The binomial distribution of probability (Ch.16) and statistics also springs from here.",

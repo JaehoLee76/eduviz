@@ -5,7 +5,7 @@
     "title": "순간의 기울기 — 미분의 탄생",
     "narr": "드디어 <b>미분</b>! <b>14장의 0/0 극한(#84)</b>이 여기서 빛을 발합니다. 한 점 <b>x=a</b>와, 거기서 <b>h</b>만큼 오른쪽에 있는 점 <b>x=a+h</b> — 즉 <b>h는 두 점의 가로(x) 간격</b>입니다. 이 두 점을 잇는 <b>할선의 기울기</b>가 평균변화율이고, <b>h를 한없이 줄이면(h→0)</b> 두 점이 겹쳐지며 할선이 <b>접선</b>이 됩니다 — 그 기울기가 <b>순간변화율</b>! 슬라이더로 h를 0으로 줄여보세요.",
     "hint": "h를 0으로 줄여 할선→접선을 보세요",
-    "more": "<b>h</b>는 두 점의 <b>x좌표 간격</b>입니다: 한 점은 x=a, 다른 점은 x=a+h. <b>평균변화율</b> = Δy/Δx = (f(a+h)−f(a))/h 는 이 두 점을 잇는 <b>할선의 기울기</b>입니다. 여기서 <b>h→0</b> 극한을 취하면(두 점을 겹치면) <b>순간변화율(미분계수) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = 그 점에서의 <b>접선의 기울기</b>가 됩니다. f(x)=x²이면 (1+h)²의 전개로 f'(1)=2가 나옵니다.",
+    "more": "<b>h</b>는 두 점의 <b>x좌표 간격</b>입니다: 한 점은 x=a, 다른 점은 x=a+h. <b>평균변화율</b> = Δy/Δx = (f(a+h)−f(a))/h 는 이 두 점을 잇는 <b>할선의 기울기</b>입니다. 여기서 <b>h→0</b> 극한을 취하면(두 점을 겹치면) <b>순간변화율(미분계수) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = 그 점에서의 <b>접선의 기울기</b>가 됩니다. f(x)=x²이면 (1+h)²의 전개로 f'(1)=2가 나옵니다. 물리에서 <b>위치(거리)를 미분하면 그 순간의 속도</b>가 되는 것이 바로 이 순간변화율이며, 한계비용처럼 \"순간의 변화\"는 모두 미분입니다(이 속도–거리 관계는 20장에서 적분으로 되돌아옵니다).",
     "more_en": "The <b>average rate of change</b> Δy/Δx = (f(a+h)−f(a))/h is the slope of the <b>secant line</b> through two points. Taking the limit <b>h→0</b> gives the <b>instantaneous rate (derivative) f'(a) = lim(h→0) (f(a+h)−f(a))/h</b> = the slope of the <b>tangent line</b> there. For f(x)=x²: ((1+h)²−1)/h = 2+h → <b>2</b>. This is exactly the 0/0 limit from Ch.14 (numerator and denominator both → 0). Velocity (instantaneous rate of position), marginal cost, and any \"instantaneous change\" is a derivative.",
     "problem": {
       "q": "f(x) = x² 에서 x = 3 일 때의 순간변화율 f'(3) 은?",

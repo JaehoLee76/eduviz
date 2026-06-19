@@ -33,7 +33,7 @@
     "ch": "제20장 적분의 응용",
     "sec": "20.3 곡선의 길이",
     "title": "곡선의 길이 — 잘게 펴서 재기",
-    "narr": "넓이와 부피처럼, 구불구불한 곡선의 길이도 <b>잘게 쪼개 더하는</b> 적분으로 잽니다. 곡선을 <b>아주 짧은 직선 토막</b>들로 근사하면, 각 토막은 가로 Δx·세로 Δy인 작은 직각삼각형의 빗변이라 길이가 <b>√(Δx²+Δy²)</b>입니다. 여기서 <b>1장의 피타고라스</b>가 다시 등장합니다. 이 토막 길이를 모두 더하고 토막을 무한히 잘게 하면 참 길이에 수렴하며, 식으로는 √(1+(f')²)를 적분한 것이 됩니다. n을 키워 꺾은선이 곡선에 달라붙는 모습을 보세요.",
+    "narr": "넓이와 부피처럼, 구불구불한 곡선의 길이도 <b>잘게 쪼개 더하는</b> 적분으로 잽니다. 곡선을 <b>아주 짧은 직선 토막</b>들로 근사하면, 각 토막은 가로 Δx·세로 Δy인 작은 직각삼각형의 빗변이라 길이가 <b>√(Δx²+Δy²)</b>입니다. 두 점 사이 거리를 빗변으로 잰 <b>6장 거리공식(피타고라스)</b>이 미소 토막 하나하나에 그대로 다시 쓰입니다. 이 토막 길이를 모두 더하고 토막을 무한히 잘게 하면 참 길이에 수렴하며, 식으로는 √(1+(f')²)를 적분한 것이 됩니다. n을 키워 꺾은선이 곡선에 달라붙는 모습을 보세요.",
     "hint": "n을 키워 곡선에 가까워지는 걸 보세요",
     "more": "<b>곡선의 길이(호의 길이)</b>: 곡선을 작은 선분들로 근사하면, 각 선분 길이는 <b>√(Δx² + Δy²)</b>(피타고라스, 6장 거리공식). 다 더하고 잘게 쪼개는 극한을 취하면 <b>L = ∫ₐᵇ √(1 + (f'(x))²) dx</b>(Δy/Δx → f' 이용). 넓이·부피처럼 길이도 \"잘게 쪼개 더하는\" 적분입니다. 미분(f')과 적분(∫), 피타고라스가 한 식에 모두 모였습니다! 다만 √ 안의 식 때문에 실제 적분은 어려운 경우가 많아 수치적분을 쓰기도 합니다. GPS 경로 거리, 케이블 길이 계산 등에 쓰입니다.",
     "more_en": "<b>Arc length</b>: approximate the curve by small segments, each of length <b>√(Δx² + Δy²)</b> (Pythagoras, Ch.6 distance). Summing and taking the fine limit gives <b>L = ∫ₐᵇ √(1 + (f'(x))²) dx</b> (using Δy/Δx → f'). Like area and volume, length is a \"slice-and-add\" integral. Differentiation (f'), integration (∫), and Pythagoras all meet in one formula! The √ often makes the integral hard, so numerical methods are common. Used for GPS path distances, cable lengths, and more.",
