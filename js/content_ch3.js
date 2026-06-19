@@ -68,9 +68,9 @@
       if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+40, '▶ 빈 모서리(?)를 채워 정사각형 완성 → 풀기', true);
       else if(s.p>=1&&!s.play) E.tapHint(ox+big/2, oy+big+40, '↻ 다시 보기', false);
       var bigN, bigW;
-      if(s.p<0.02){ bigN='x² + 6x = 7 을 풀자'; bigW='왼쪽을 (x+□)² 정사각형으로 만들면 √로 풀린다 — 한 귀퉁이(?)가 비었다'; }
-      else if(s.p<1){ bigN='빈 모서리를 채우는 중…'; bigW='6x = 3x + 3x 를 두 변에 붙이면 → 빈 곳은 3 × 3 = 9'; }
-      else { bigN='(x + 3)² 완성  →  x = 1 또는 −7'; bigW='9 = (6의 절반)² 를 양변에 더해 정사각형 완성 → √ → 해!'; }
+      if(s.p<0.02){ bigN='x² + 6x = 7'; bigW='좌변(x² + 6x)을 (x+□)² 정사각형으로 만들면 √로 풀린다 — 한 귀퉁이(?)가 비었다'; }
+      else if(s.p<1){ bigN='x² + 6x + 9 = 7 + 9'; bigW='빈 모서리 3 × 3 = 9 를 양변에 더한다 (6x = 3x + 3x 를 두 변에 붙임)'; }
+      else { bigN='(x + 3)² = 16  →  x + 3 = ±4  →  x = 1 또는 −7'; bigW='좌변은 정사각형 (x+3)², 우변은 7 + 9 = 16 → 양변에 √ → 해!'; }
       E.big(bigN, bigW); }
   },
 

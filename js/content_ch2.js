@@ -16,15 +16,20 @@
   // "눌러서 보기" 탭 안내 — 클릭 가능함을 쉽게 인지시키는 펄스 버튼
   function tapHint(E, cx, cy, text, pulse){
     var ctx=E.ctx; ctx.save();
-    ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    var w=ctx.measureText(text).width+36, h=40, x=cx-w/2, y=cy-h/2;
+    ctx.font='600 15px sans-serif'; ctx.textBaseline='middle';
+    var kw=50, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;   // 텍스트 + Space 키 배지
+    var w=inner+40, h=40, x=cx-w/2, y=cy-h/2;
     var pa = pulse ? (0.55+0.45*Math.sin(E.frame*0.10)) : 0.85;
     ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a';
     if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,20); ctx.fill(); } else ctx.fillRect(x,y,w,h);
     ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6;
     if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,20); ctx.stroke(); } else ctx.strokeRect(x,y,w,h);
-    ctx.fillStyle='#ffb27a'; ctx.fillText(text, cx, cy);
-    ctx.restore(); ctx.textBaseline='alphabetic';
+    var tx=cx-inner/2;
+    ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text, tx, cy);
+    var kx=tx+tw+gap, ky=cy-11;                                           // Space 키 배지(클릭=Space)
+    ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(kx,ky,kw,22,5);ctx.stroke();}else ctx.strokeRect(kx,ky,kw,22);
+    ctx.font='700 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('Space',kx+kw/2,cy+0.5);
+    ctx.restore(); ctx.textBaseline='alphabetic'; ctx.textAlign='start';
   }
 
   // 대수 타일: ax² + bx + c
