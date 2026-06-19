@@ -63,9 +63,9 @@
         ctx.save();ctx.translate(ox-14, oy+xl+t/2);ctx.rotate(-Math.PI/2);ctx.fillText('3',0,0);ctx.restore();
         ctx.globalAlpha=sl*0.6;ctx.save();ctx.translate(ox-14, oy+xl);ctx.rotate(-Math.PI/2);ctx.fillText('+',0,0);ctx.restore();
         ctx.globalAlpha=1; }
-      if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+46, '▶ 눌러서 9 채우기', true);
+      if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+46, '▶ 6x를 3+3으로 쪼개 빈 모서리 채우기', true);
       else if(s.p>=1&&!s.play) E.tapHint(ox+big/2, oy+big+46, '↻ 다시 보기', false);
-      E.big('x² + 6x + 9 = (x+3)²', s.p<1?'모서리에 9를 채우면 정사각형 완성':'(x+3)² 완전제곱식 ✓'); }
+      E.big('x² + 6x + 9 = (x+3)²', s.p<1?'6x = 3x + 3x → 두 변에 붙이면 빈 모서리는 3×3 = 9':'9 = (6의 절반)² = (x+3)² 완전제곱식 ✓'); }
   },
 
   { id:'ch3_04',
@@ -78,8 +78,8 @@
       P.curve(function(x){return x*x+b*x-3;}, '#7ab8ff');
       var h=-b/2, k=-3-b*b/4, sq=Math.sqrt(b*b+12)/2;
       var bl=E.blink(); E.ctx.globalAlpha=bl; P.dot(-b/2-sq,0,'#ffb27a'); P.dot(-b/2+sq,0,'#ffb27a'); E.ctx.globalAlpha=1;
-      P.dot(h,k,'#8fe3b5','꼭짓점');
-      E.big('y = x² '+(b>=0?'+ '+b:'− '+(-b))+'x − 3', '꼭짓점 ('+h.toFixed(1)+', '+k.toFixed(2)+') · 점선 = 꼭짓점 자취'); }
+      P.dot(h,k,'#8fe3b5','꼭짓점 x=−b/2='+h.toFixed(1));
+      E.big('y = x² '+(b>=0?'+ '+b:'− '+(-b))+'x − 3', 'b'+(b>=0?'=+'+b:'='+b)+' → 꼭짓점 x = −b/2 = '+h.toFixed(1)+'  (b 키울수록 왼쪽)'); }
   },
 
   { id:'ch3_05',

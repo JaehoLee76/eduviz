@@ -48,9 +48,9 @@
     "ch": "제9장 평면벡터",
     "sec": "9.2 벡터의 응용",
     "title": "내적 — 두 벡터의 곱",
-    "narr": "벡터끼리 곱하는 특별한 방법, <b>내적</b>입니다. <b>a·b = aₓbₓ + a_ybₓ</b>(성분곱의 합)인데, 신기하게도 <b>= |a||b|cos θ</b>(8장의 cos!)와 같습니다. 두 벡터가 <b>수직이면 내적이 정확히 0</b>입니다! b의 방향을 90°로 맞춰보세요.",
+    "narr": "벡터끼리 곱하는 특별한 방법, <b>내적</b>입니다. 성분으로는 <b>a·b = aₓbₓ + a_yb_y</b>(성분곱의 합). 이걸 각도로 풀면 <b>= |a||b|cos θ</b>(8장의 cos!)가 됩니다 — '한 벡터를 다른 벡터 방향으로 비춘 길이 × 크기'라서 cos이 들어갑니다. 그래서 두 벡터가 <b>수직이면 cos90°=0 → 내적도 0</b>! b의 방향을 90°로 맞춰보세요.",
     "hint": "θ=90°면 내적 = 0 (수직)",
-    "more": "<b>내적(dot product)</b>은 <b>a·b = aₓbₓ + a_yb_y = |a||b|cos θ</b> (θ는 두 벡터 사이 각). 결과는 벡터가 아니라 <b>수(스칼라)</b>입니다. 핵심: <b>a·b = 0 ⟺ 두 벡터가 수직</b>(6장 #44의 수직 조건을 한 줄로!). cos이 들어가니 \"한 벡터가 다른 벡터 방향으로 얼마나 향하는가\"(투영)도 잽니다. 물리의 일(W = F·d)이 바로 내적입니다.",
+    "more": "<b>내적(dot product)</b>은 <b>a·b = aₓbₓ + a_yb_y = |a||b|cos θ</b> (θ는 두 벡터 사이 각). 두 식이 같은 이유는 코사인법칙(또는 정사영)으로 증명됩니다 — 한 벡터를 다른 벡터 위에 비춘 길이가 |a|cosθ이고, 거기에 |b|를 곱한 것이 성분곱의 합과 일치합니다. 결과는 벡터가 아니라 <b>수(스칼라)</b>. 핵심: <b>a·b = 0 ⟺ 두 벡터가 수직</b>(cos90°=0, 6장 #44의 수직 조건을 한 줄로!). 물리의 일(W = F·d)이 바로 내적입니다.",
     "more_en": "The <b>dot product</b> is <b>a·b = aₓbₓ + a_yb_y = |a||b|cos θ</b> (θ is the angle between them). The result is a <b>number (scalar)</b>, not a vector. Key fact: <b>a·b = 0 ⟺ the vectors are perpendicular</b> (Ch.6 #44's condition in one line!). Because cos appears, it also measures how much one vector points along another (projection). In physics, work W = F·d is exactly a dot product.",
     "problem": {
       "q": "a = (3, 0), b = (0, 5) 의 내적은? 두 벡터의 관계는?",

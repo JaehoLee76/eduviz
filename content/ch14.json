@@ -63,7 +63,7 @@
     "ch": "제14장 극한",
     "sec": "14.3 무한급수",
     "title": "자연상수 e — 극한이 만든 수",
-    "narr": "극한은 새로운 <b>수</b>도 만듭니다. (1 + 1/n)ⁿ 에서 n을 무한히 키우면, 신기하게도 <b>e ≈ 2.71828…</b> 이라는 특별한 수에 수렴합니다! 복리이자를 \"무한히 잘게\" 나눌 때 나오는 수입니다. n을 키워 e에 다가가는 걸 보세요.",
+    "narr": "극한은 새로운 <b>수</b>도 만듭니다. 연이율 100%를 1년에 n번 나눠 복리로 받으면 (1 + 1/n)ⁿ 배가 되는데, n을 무한히 키워 '쉬지 않고 복리'를 주면 이 값이 한 수로 수렴합니다 — <b>e ≈ 2.71828…</b>. 즉 e는 마법이 아니라 <b>연속복리의 극한값</b>입니다. n을 키워 e에 다가가는 걸 보세요.",
     "hint": "n을 키워 e에 다가가는 걸 보세요",
     "more": "<b>자연상수 e = lim(n→∞) (1 + 1/n)ⁿ ≈ 2.71828…</b> 는 원주율 π처럼 수학 곳곳에 나타나는 무리수입니다. 유래: 연이율 100%를 1년에 n번 복리로 나눠 받으면 (1+1/n)ⁿ 배가 되는데, n→∞(연속복리)이면 e배! 이 e가 특별한 이유는 <b>지수함수 eˣ의 미분이 자기 자신</b>(17장)이고, <b>로그의 자연스러운 밑</b>(7장 ln)이기 때문입니다. 극한이 π·e 같은 \"새 수\"를 엄밀히 정의해 줍니다 — 극한 없이는 무리수도, 미적분도 없습니다.",
     "more_en": "The natural constant <b>e = lim(n→∞) (1 + 1/n)ⁿ ≈ 2.71828…</b> is an irrational number appearing throughout math, like π. Origin: at 100% annual interest compounded n times a year you get (1+1/n)ⁿ times your money; as n→∞ (continuous compounding) it becomes e times! e is special because <b>the exponential eˣ is its own derivative</b> (Ch.17) and it is <b>the natural base of logarithms</b> (Ch.7, ln). Limits rigorously define \"new numbers\" like π and e — without limits there are no irrationals and no calculus.",

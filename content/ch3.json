@@ -33,31 +33,31 @@
     "ch": "제3장 방정식",
     "sec": "3.2 이차방정식",
     "title": "완전제곱식 — 정사각형 완성하기",
-    "narr": "일차방정식은 저울로 풀었습니다(#19~20). 그런데 x²이 들어간 <b>이차방정식</b>은 그렇게 안 됩니다. 핵심 도구가 <b>완전제곱식</b>입니다. x² + 6x 에 모서리 9를 채우면 (x+3)²인 <b>완전한 정사각형</b>이 됩니다.",
+    "narr": "일차방정식은 저울로 풀었습니다(#19~20). 그런데 x²이 든 <b>이차방정식</b>은 그렇게 안 됩니다. 그래서 식을 <b>정사각형 모양</b>으로 바꿔 푸는데, 이게 <b>완전제곱식</b>입니다. x² + 6x 를 정사각형에 가깝게 만들어 봅시다 — 어디가 비는지 보세요.",
     "hint": "화면을 눌러 모서리 채우기",
-    "more": "<b>완전제곱식</b>은 (x+a)² 처럼 제곱 하나로 묶이는 식입니다. x² + bx 에 <b>(b/2)²</b>를 더하면 (x + b/2)² 로 완성됩니다 — 정사각형의 빈 모서리를 채우는 것과 같습니다.<br><br>이 방법으로 모든 이차방정식을 풀 수 있고, 근의 공식도 여기서 나옵니다.<br><br>또한 y = x² + bx + c 를 완전제곱식 y = (x + b/2)² + k 로 바꾸면 <b>포물선의 꼭짓점</b>이 바로 보입니다 — 꼭짓점의 x좌표는 <b>−b/2</b>. (이 꼭짓점을 바로 다음 #22에서 활용합니다.)",
+    "more": "<b>왜 하필 9를 더할까? — 그림으로 따라가기</b><br>① x²은 한 변이 x인 <b>정사각형</b>입니다.<br>② 거기 붙은 6x를 <b>둘로 쪼갭니다</b>: 6 = 3 + 3. 폭이 3인 띠 두 개가 되죠.<br>③ 그 두 띠를 정사각형의 <b>위와 오른쪽 변</b>에 붙이면, 딱 <b>한 귀퉁이만 비어</b> 있습니다.<br>④ 그 빈 모서리는 가로·세로가 모두 3인 작은 정사각형 → <b>3 × 3 = 9</b>.<br>그래서 9를 더하면 한 변이 (x+3)인 <b>완전한 정사각형 (x+3)²</b>이 됩니다.<br><br>일반화: x² + bx 에는 가운데 항 b를 <b>반으로 나눈 것의 제곱 (b/2)²</b>를 더합니다(여기선 b=6 → (6/2)²=9). 이 방법으로 모든 이차방정식을 풀 수 있고, <b>근의 공식</b>도 여기서 나옵니다. 또 y = x²+bx+c 를 (x+b/2)²+k 로 바꾸면 <b>꼭짓점</b>이 바로 보입니다(꼭짓점의 x좌표 = −b/2).",
     "problem": {
-      "q": "x² + 8x 를 완전제곱식으로 만들려면 무엇을 더해야 할까요?",
-      "solution": "(8/2)² = 4² = <b>16</b>. 그러면 x² + 8x + 16 = (x + 4)².",
-      "q_en": "What must you add to x² + 8x to complete the square?",
-      "sol_en": "(8/2)² = <b>16</b>, giving x²+8x+16 = (x+4)²."
+      "q": "x² + 10x 를 완전제곱식으로 만들려면 얼마를 더해야 하나? 그림으로 이유도 말하라.",
+      "solution": "10을 반으로 나누면 5. 폭 5짜리 띠 둘을 두 변에 붙이면 빈 모서리가 5×5 = 25. 그래서 25를 더하면 x²+10x+25 = (x+5)². 일반식 (b/2)² = (10/2)² = 25.",
+      "q_en": "What must you add to x²+10x to complete the square, and why (geometrically)?",
+      "sol_en": "Half of 10 is 5; the empty corner is 5×5=25, so x²+10x+25=(x+5)². In general (b/2)²=25."
     },
-    "more_en": "A <b>perfect square</b> is a single squared expression like (x+a)². Adding <b>(b/2)²</b> to x²+bx <b>completes the square</b> into (x+b/2)². This solves any quadratic and yields the quadratic formula. Writing y = (x+b/2)²+k also reveals the <b>vertex</b> of the parabola at x = <b>−b/2</b>."
+    "more_en": "<b>Why add 9? Follow the picture</b><br>x² is a square of side x. Split 6x into 3+3 (two strips of width 3) and place them on two sides; one corner is left empty — a 3×3 square = 9. Adding 9 completes the square (x+3)². In general x²+bx needs (b/2)² (here (6/2)²=9). This gives the quadratic formula and the parabola's vertex (x = −b/2)."
   },
   "ch3_04": {
     "ch": "제3장 방정식",
     "sec": "3.2 이차방정식",
     "title": "계수를 바꾸면 — 포물선이 미끄러진다",
-    "narr": "<b>잠깐, 추가로 봅시다.</b> 앞 #21에서 완전제곱식으로 꼭짓점(x = −b/2)을 찾았습니다. 그 꼭짓점이 계수 <b>b</b>를 바꾸면 어떻게 움직일까요? 신기하게도 <b>또 하나의 포물선(꼭짓점의 자취)</b>을 따라 미끄러집니다. (포물선 그래프 자체는 <b>5장 함수</b>에서 본격적으로 배웁니다.)",
+    "narr": "방금 완전제곱식으로 <b>꼭짓점의 x좌표 = −b/2</b> 를 얻었습니다. 그러면 계수 <b>b</b>를 직접 바꾸면 꼭짓점이 어디로 갈까요? 슬라이더를 움직여 직접 확인하고, <b>왜 그렇게 움직이는지</b> 아래에서 따져 봅시다.",
     "hint": "계수 b를 바꿔보세요",
-    "more": "이 장면은 본 흐름의 <b>곁다리(심화)</b>입니다. y = x² + bx + c 에서 b를 바꾸면 포물선이 좌우로 미끄러지며 꼭짓점(x = −b/2)이 또 다른 곡선을 그리고, c를 바꾸면 위아래로 평행이동합니다.<br><br>포물선·그래프의 정식 개념은 <b>5장 함수</b>에서 다룹니다 — 여기선 \"계수가 그래프를 움직인다\"는 직관만 즐기세요.",
+    "more": "<b>슬라이더를 +로 올렸는데 그래프가 왜 왼쪽으로?</b><br>완전제곱으로 정리하면  y = x² + bx − 3 = <b>(x + b/2)² − b²/4 − 3</b>.<br>정사각형 꼴 (x − h)² 의 꼭짓점은 h 입니다. 그런데 우리 식은 (x + b/2)² = (x − (<b>−b/2</b>))² 꼴이라, 꼭짓점 x = <b>−b/2</b> — 여기서 <b>부호가 뒤집히는 이유</b>가 바로 이 '(x − 꼭짓점)' 형태 때문입니다.<br><br><b>직관:</b> + bx 항은 b가 커질수록 오른쪽을 더 가파르게 들어올립니다. 그러면 가장 낮은 점(꼭짓점)이 <b>왼쪽으로</b> 밀려나죠. 그래서 b를 +로 키울수록 꼭짓점 x = −b/2 는 작아져(왼쪽으로) 포물선이 왼쪽으로 미끄러집니다. (c를 바꾸면 위아래로 평행이동)<br><br>점선은 꼭짓점이 지나가는 길(자취)입니다. 포물선·그래프의 정식 개념은 <b>5장 함수</b>에서 본격적으로 다룹니다 — 여기선 '계수가 그래프를 움직인다'는 직관만 챙기세요.",
     "problem": {
-      "q": "y = x² − 6x + 5 의 꼭짓점의 x좌표는?",
-      "solution": "#21에서 본 꼭짓점 공식 <b>x = −b/2</b> 를 쓰면, −(−6)/2 = <b>3</b>. (대입하면 꼭짓점은 (3, −4).)",
-      "q_en": "Find the x-coordinate of the vertex of y = x² − 6x + 5.",
-      "sol_en": "Using x = −b/2 (from #21): −(−6)/2 = <b>3</b>. The vertex is (3, −4)."
+      "q": "y = x² + bx 에서 b = 4 일 때 꼭짓점의 x좌표는? b를 키우면 왼쪽·오른쪽 어디로 가나?",
+      "solution": "꼭짓점 x = −b/2 = −4/2 = −2 (왼쪽). b를 더 키우면 −b/2 가 더 작아져(더 음수) 꼭짓점이 계속 왼쪽으로 갑니다. 부호가 반대인 건 (x − 꼭짓점)² 꼴 때문.",
+      "q_en": "For y=x²+bx with b=4, what is the vertex x-coordinate? Which way does it move as b grows?",
+      "sol_en": "x=−b/2=−2 (left). Larger b makes −b/2 more negative → vertex keeps moving left (sign flips due to the (x−vertex)² form)."
     },
-    "more_en": "This is a <b>bonus aside</b>. In y = x²+bx+c, changing b slides the parabola sideways while its <b>vertex</b> (x = −b/2) traces another curve; changing c shifts it up and down. Parabolas and graphs are covered properly in <b>Chapter 5 (Functions)</b>."
+    "more_en": "<b>Why does the graph slide LEFT when b increases?</b><br>Completing the square: y=x²+bx−3=(x+b/2)²−b²/4−3. A square (x−h)² has vertex h; here (x+b/2)²=(x−(−b/2))², so vertex x=−b/2 — the sign flips because of the (x − vertex) form. Intuition: a larger +bx lifts the right side more steeply, pushing the lowest point left. So b↑ moves the vertex −b/2 left. The dashed line is the vertex's path; parabolas are covered fully in Ch.5."
   },
   "ch3_05": {
     "ch": "제3장 방정식",
