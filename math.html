@@ -165,6 +165,48 @@
   #study.open .chev-svg { transform: scaleY(-1); animation: none; }
   #study.open .chev-c1, #study.open .chev-c2 { animation: none; }
 
+  /* ── 심화학습(분기) 책 페이지: 중앙을 충분히 활용한 본문 + 그래프 ── */
+  #branchPage { position: fixed; left: 50%; top: 88px; transform: translateX(-50%);
+    width: min(900px, 94vw); max-height: calc(100vh - 156px); overflow-y: auto; z-index: 6; display: none;
+    background: rgba(20,20,28,0.94); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 18px 60px rgba(0,0,0,0.5);
+    padding: 30px 44px 34px; overscroll-behavior: contain; }
+  body.page-mode #branchPage { display: block; }
+  body.page-mode .guide, body.page-mode #study, body.page-mode .bignum,
+  body.page-mode #controls, body.page-mode #keyhint, body.page-mode .nav .hint { display: none !important; }
+  #branchPage::-webkit-scrollbar { width: 10px; }
+  #branchPage::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 5px; }
+  #branchPage::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.30); }
+  #branchPage { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
+  /* 본문 타이포 — 책 한 페이지처럼 읽기 좋게 */
+  .bp-eyebrow { font-size: 13px; letter-spacing: .08em; color: var(--accent-light); font-weight: 600; margin: 0 0 6px; }
+  #branchPage h1 { font-size: 27px; font-weight: 700; color: var(--text-1); margin: 0 0 18px; line-height: 1.3; letter-spacing: -0.01em; }
+  #branchPage h2 { font-size: 19px; font-weight: 600; color: var(--accent-light); margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  #branchPage h3 { font-size: 16px; font-weight: 600; color: var(--text-1); margin: 18px 0 7px; }
+  #branchPage p { font-size: 16px; line-height: 1.85; color: var(--text-2); margin: 0 0 13px; }
+  #branchPage b, #branchPage strong { color: var(--text-1); font-weight: 600; }
+  #branchPage .key { color: var(--accent-light); font-weight: 600; }
+  #branchPage ul, #branchPage ol { margin: 0 0 14px; padding-left: 22px; }
+  #branchPage li { font-size: 16px; line-height: 1.8; color: var(--text-2); margin: 0 0 6px; }
+  #branchPage .formula { display: block; text-align: center; font-size: 19px; color: var(--text-1);
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; margin: 16px auto; line-height: 1.6; overflow-x: auto; }
+  #branchPage .note { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px; line-height: 1.75; color: var(--text-2); }
+  #branchPage .note b { color: var(--accent-light); }
+  /* 본문 속 그래프/도형 figure */
+  #branchPage figure { margin: 18px auto; text-align: center; }
+  #branchPage figure svg { max-width: 100%; height: auto; background: rgba(255,255,255,0.02); border-radius: 10px; }
+  #branchPage figcaption { font-size: 13px; color: var(--text-3); margin-top: 7px; }
+  #branchPage .en { display: block; font-size: 14px; color: var(--text-3); line-height: 1.7; margin: 4px 0 0; }
+  #branchPage .steps { counter-reset: stp; margin: 14px 0; padding: 0; list-style: none; }
+  #branchPage .steps > li { position: relative; padding: 8px 0 8px 40px; border-top: 1px solid rgba(255,255,255,0.06); }
+  #branchPage .steps > li:before { counter-increment: stp; content: counter(stp); position: absolute; left: 0; top: 8px;
+    width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-light);
+    border: 1px solid var(--accent); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  @media (max-height: 680px) { #branchPage { top: 70px; max-height: calc(100vh - 130px); padding: 22px 28px 26px; }
+    #branchPage h1 { font-size: 23px; } #branchPage p, #branchPage li { font-size: 15px; line-height: 1.7; } }
+
   /* 짧은 화면: 하단 요소가 겹치지 않게 행을 분리(말풍선=위, 컨트롤·내비=아래) */
   @media (max-height: 680px) {
     .topbar .titles { display: none; }   /* 중앙 제목 숨김 → E.big(bignum)과 상단 충돌 제거. 브레드크럼이 제목 대체 */
@@ -229,6 +271,9 @@
     <span class="chev-label" id="chevLabel">자세히 보기</span>
   </button>
 </div>
+
+<!-- 심화학습(분기) 책 페이지: page 필드가 있는 분기 장면에서 중앙에 펼침 -->
+<div id="branchPage"><div id="branchPageInner"></div></div>
 
 <div class="nav">
   <span class="hint" id="hint"></span>

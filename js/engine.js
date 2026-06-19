@@ -156,7 +156,7 @@
   function big(n,w){ if(!bigEl)return; if(n==null){ bigEl.classList.add('hidden'); return; } bigEl.classList.remove('hidden'); bigN.innerHTML=n; bigW.innerHTML=w||''; }
 
   // ---------- 펼침 학습 패널 (scene.more = 상세설명 HTML, scene.problem = {q, solution}) ----------
-  var studyEl, studyBody, studyMore, studyProb, chevLabel;
+  var studyEl, studyBody, studyMore, studyProb, chevLabel, branchPageEl, branchPageInner;
   function setStudy(sc){
     if(!studyEl) return;
     var has = !!(sc.more || sc.problem);
@@ -241,6 +241,9 @@
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
+    var pageMode = !!(sc.branchOf!=null && sc.page);   // 심화학습 책 페이지(중앙 본문). 말풍선·자세히보기·캔버스 숨김
+    if(document.body) document.body.classList.toggle('page-mode', pageMode);
+    if(branchPageInner){ branchPageInner.innerHTML = pageMode ? sc.page : ''; if(pageMode && branchPageEl) branchPageEl.scrollTop=0; }
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
     paintTOC(); progress(); blip(660,0.14);
@@ -338,6 +341,9 @@
     skUpEl.classList.toggle('hidden', el.scrollTop<=2);
     skDnEl.classList.toggle('hidden', el.scrollTop>=el.scrollHeight-el.clientHeight-2); }
   function scrollConcept(dir){
+    var bp=branchPageEl;   // 심화학습 책 페이지(page 모드)
+    if(bp && document.body && document.body.classList.contains('page-mode') && bp.scrollHeight>bp.clientHeight+4){
+      bp.scrollTop += dir*Math.max(120, bp.clientHeight*0.78); return true; }
     var el=conceptExtraEl;   // algo: 좌측 개념 패널
     if(el && getComputedStyle(el).display!=='none' && el.scrollHeight>el.clientHeight+4){
       el.scrollTop += dir*Math.max(110, el.clientHeight*0.7);   // 즉시 스크롤(smooth는 일부 환경서 무시됨)
@@ -353,7 +359,7 @@
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
-    if(sc&&sc.draw){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달
+    if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드(심화학습 책 페이지)면 캔버스 그리기 생략
     requestAnimationFrame(loop);
   }
 
@@ -465,6 +471,7 @@
     if(sbPrev)sbPrev.onclick=stepPrev; if(sbNext)sbNext.onclick=stepNext; if(sbAuto)sbAuto.onclick=toggleAuto; if(sbReset)sbReset.onclick=stepReset;
     // 학습 패널: 꺽쇠 펼침 + 풀이 토글
     studyEl=document.getElementById('study'); studyBody=document.getElementById('studyBody'); studyMore=document.getElementById('studyMore'); studyProb=document.getElementById('studyProblem'); chevLabel=document.getElementById('chevLabel');
+    branchPageEl=document.getElementById('branchPage'); branchPageInner=document.getElementById('branchPageInner');
     var chevBtn=document.getElementById('chevBtn');
     if(chevBtn) chevBtn.onclick=toggleStudy;
     if(studyProb) studyProb.addEventListener('click',function(e){ if(e.target&&e.target.classList&&e.target.classList.contains('sol-toggle')){ var s=studyProb.querySelector('.prob-sol'); var op=s.classList.toggle('show'); e.target.textContent=op?'풀이 숨기기 ▴':'풀이 보기 ▾'; } });
