@@ -391,16 +391,16 @@
   function blink(){ return 0.32+0.68*(0.5+0.5*Math.sin(frameN*0.13)); }
   function tapHint(cx,cy,text,pulse){ ctx.save();
     ctx.font='600 15px sans-serif'; ctx.textBaseline='middle';
-    var kw=50, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;    // 텍스트 + Space 키 배지
+    var kw=26, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;    // 텍스트 + D 키 배지(단계 진행)
     var w=inner+40, h=40, x=cx-w/2, y=cy-h/2;
     var pa=pulse?(0.55+0.45*Math.sin(frameN*0.10)):0.85;
     ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,20);ctx.fill();}else ctx.fillRect(x,y,w,h);
     ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,20);ctx.stroke();}else ctx.strokeRect(x,y,w,h);
     var tx=cx-inner/2;
     ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text,tx,cy);
-    var kx=tx+tw+gap, ky=cy-11;                                            // Space 키 배지(재생·다시보기 단축키)
+    var kx=tx+tw+gap, ky=cy-11;                                            // D 키 배지(단계 진행 단축키)
     ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(kx,ky,kw,22,5);ctx.stroke();}else ctx.strokeRect(kx,ky,kw,22);
-    ctx.font='700 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('Space',kx+kw/2,cy+0.5);
+    ctx.font='700 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('D',kx+kw/2,cy+0.5);
     ctx.restore(); ctx.textBaseline='alphabetic'; ctx.textAlign='start'; }
 
   // ---------- engine facade (장면에 전달) ----------
@@ -458,7 +458,8 @@
       }
       var dm=/^Digit([1-9])$/.exec(c);
       if(dm){ var opt=controlsEl&&controlsEl.querySelector('.opt[data-i="'+(parseInt(dm[1],10)-1)+'"]'); if(opt){ opt.click(); e.preventDefault(); } return; }
-      if((c==='KeyD'||space||enter)&&s&&s.tap&&!s.keys){ s.tap(E, W/2, H/2); e.preventDefault(); return; }
+      if(c==='KeyD'&&s&&s.tap&&!s.keys){ s.tap(E, W/2, H/2); e.preventDefault(); return; }            // D = 단계 진행(애니메이션)
+      if(c==='KeyS'&&s&&s.tap&&!s.keys){ if(s.s){ s.s.auto=!s.s.auto; s.s.hold=0; if(s.s.auto&&s.s.step>=3){ s.s.step=0; s.s.t=1; } } e.preventDefault(); return; }   // S = 자동 진행
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)

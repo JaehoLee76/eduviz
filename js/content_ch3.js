@@ -43,21 +43,27 @@
 
   // ══════════ 3.2 이차방정식 ══════════
   { id:'ch3_03',
-    enter:function(E){ this.s={p:0,play:false}; E.setOn([]); },
-    tap:function(E){ if(this.s.play)return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(540,0.15); } },
-    draw:function(E){ var s=this.s, ctx=E.ctx; if(s.play){ s.p+=0.012; if(s.p>=1){s.p=1;s.play=false;} }
-      var mp=ez(s.p), u=Math.min(30,E.H*0.046), xl=4*u, t=3*u, big=xl+t, ox=E.W/2-big/2, oy=E.H*0.34;
+    enter:function(E){ this.s={step:0,t:1,auto:false,hold:0}; E.setOn([]); },
+    // 설명 단위로 단계 진행: D=다음 단계, S=자동. 정사각형이 완성된 뒤(step2) 한 번 더 눌러야 최종식(step3)으로.
+    tap:function(E){ var s=this.s; if(s.t<1) return;             // 애니메이션 중엔 무시
+      if(s.step>=3){ s.step=0; s.t=1; s.auto=false; E.blip(340,0.12); }
+      else { s.step++; s.t=(s.step===2?0:1); E.blip(520+s.step*26,0.14); } },   // step2만 채우기 애니(t:0→1), 나머지는 즉시
+    draw:function(E){ var s=this.s, ctx=E.ctx;
+      if(s.t<1) s.t=Math.min(1, s.t+0.016);
+      if(s.auto && s.t>=1){ if(++s.hold>45){ s.hold=0; if(s.step<3){ s.step++; s.t=(s.step===2?0:1); } else s.auto=false; } }
+      var step=s.step, fillP=(step>2)?1:(step<2?0:ez(s.t));
+      var u=Math.min(30,E.H*0.046), xl=4*u, t=3*u, big=xl+t, ox=E.W/2-big/2, oy=E.H*0.34;
       ctx.textAlign='center';
       box(ctx,ox,oy,xl,xl,'#7ab8ff','x²',16);
       box(ctx,ox+xl,oy,t,xl,'#8fe3b5','3x');
       box(ctx,ox,oy+xl,xl,t,'#8fe3b5','3x');
-      if(mp<0.02){ ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(244,160,192,0.8)'; ctx.lineWidth=1.5; ctx.strokeRect(ox+xl,oy+xl,t,t); ctx.setLineDash([]);
+      if(fillP<0.02){ ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(244,160,192,0.8)'; ctx.lineWidth=1.5; ctx.strokeRect(ox+xl,oy+xl,t,t); ctx.setLineDash([]);
         ctx.fillStyle='#f4a0c0'; ctx.font='700 24px sans-serif'; ctx.textBaseline='middle'; ctx.fillText('?',ox+xl+t/2,oy+xl+t/2); ctx.textBaseline='alphabetic'; }
-      else { var dy=(1-mp)*70, ca=mp;
+      else { var dy=(1-fillP)*70, ca=fillP;
         ctx.globalAlpha=ca*0.18; ctx.fillStyle='#ffb27a'; ctx.fillRect(ox+xl,oy+xl-dy,t,t);
         ctx.globalAlpha=ca; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.5; ctx.strokeRect(ox+xl,oy+xl-dy,t,t);
-        var la=(s.p>=1)?E.blink():ca; ctx.globalAlpha=la; ctx.fillStyle='#ffb27a'; ctx.font='700 16px sans-serif'; ctx.textBaseline='middle'; ctx.fillText('+9',ox+xl+t/2,oy+xl-dy+t/2); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
-      if(s.p>=1){ var sl=E.blink(); ctx.fillStyle='#ffb27a'; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
+        var la=(step>=3)?E.blink():ca; ctx.globalAlpha=la; ctx.fillStyle='#ffb27a'; ctx.font='700 16px sans-serif'; ctx.textBaseline='middle'; ctx.fillText('+9',ox+xl+t/2,oy+xl-dy+t/2); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
+      if(step>=3){ var sl=E.blink(); ctx.fillStyle='#ffb27a'; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
         ctx.globalAlpha=sl; ctx.fillText('x', ox+xl/2, oy-12); ctx.fillText('3', ox+xl+t/2, oy-12);
         ctx.globalAlpha=sl*0.6; ctx.fillText('+', ox+xl, oy-12); ctx.globalAlpha=sl;
         ctx.save();ctx.translate(ox-14, oy+xl/2);ctx.rotate(-Math.PI/2);ctx.fillText('x',0,0);ctx.restore();
@@ -65,13 +71,14 @@
         ctx.globalAlpha=sl*0.6;ctx.save();ctx.translate(ox-14, oy+xl);ctx.rotate(-Math.PI/2);ctx.fillText('+',0,0);ctx.restore();
         ctx.globalAlpha=1; }
       ctx.textAlign='center';
-      if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+40, '▶ 빈 모서리(?)를 채워 정사각형 완성 → 풀기', true);
-      else if(s.p>=1&&!s.play) E.tapHint(ox+big/2, oy+big+40, '↻ 다시 보기', false);
-      var bigN, bigW;
-      if(s.p<0.02){ bigN='x² + 6x = 7'; bigW='좌변(x² + 6x)을 (x+□)² 정사각형으로 만들면 √로 풀린다 — 한 귀퉁이(?)가 비었다'; }
-      else if(s.p<1){ bigN='x² + 6x + 9 = 7 + 9'; bigW='빈 모서리 3 × 3 = 9 를 양변에 더한다 (6x = 3x + 3x 를 두 변에 붙임)'; }
-      else { bigN='(x + 3)² = 16  →  x + 3 = ±4  →  x = 1 또는 −7'; bigW='좌변은 정사각형 (x+3)², 우변은 7 + 9 = 16 → 양변에 √ → 해!'; }
-      E.big(bigN, bigW); }
+      var hints=['▶ 상수항 옮기기','▶ 정사각형 완성','▶ 정리해서 풀기','↻ 처음부터'];
+      if(s.t>=1 && !s.auto) E.tapHint(ox+big/2, oy+big+40, hints[step], step<3);
+      var EQ=['x² + 6x − 7 = 0','x² + 6x = 7','x² + 6x + 9 = 7 + 9','(x + 3)² = 16  →  x + 3 = ±4  →  x = 1 또는 −7'];
+      var SB=['이차방정식은 먼저 좌변에 다항식, 우변에 상수만 남깁니다 — 상수항 −7을 우변으로 옮길 준비',
+              '−7을 옮겨 좌변엔 다항식 x²+6x, 우변엔 상수 7만 남았습니다. 이제 좌변을 (x+□)² 정사각형으로 만듭니다',
+              '빈 모서리 3 × 3 = 9 를 채웁니다 — 공정하게 양변에 +9 (6x = 3x + 3x 를 두 변에 붙임)',
+              '좌변 = (x+3)², 우변 = 16 → √ → 해. (x+3)²−9 꼴이라 꼭짓점 x = −3 = −6/2 = −b/2 도 함께 드러납니다'];
+      E.big(EQ[step], SB[step]); }
   },
 
   { id:'ch3_04',

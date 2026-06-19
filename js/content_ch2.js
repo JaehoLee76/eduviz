@@ -17,7 +17,7 @@
   function tapHint(E, cx, cy, text, pulse){
     var ctx=E.ctx; ctx.save();
     ctx.font='600 15px sans-serif'; ctx.textBaseline='middle';
-    var kw=50, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;   // 텍스트 + Space 키 배지
+    var kw=26, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;   // 텍스트 + D 키 배지(단계 진행)
     var w=inner+40, h=40, x=cx-w/2, y=cy-h/2;
     var pa = pulse ? (0.55+0.45*Math.sin(E.frame*0.10)) : 0.85;
     ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a';
@@ -26,9 +26,9 @@
     if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,20); ctx.stroke(); } else ctx.strokeRect(x,y,w,h);
     var tx=cx-inner/2;
     ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text, tx, cy);
-    var kx=tx+tw+gap, ky=cy-11;                                           // Space 키 배지(클릭=Space)
+    var kx=tx+tw+gap, ky=cy-11;                                           // D 키 배지(클릭=D)
     ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(kx,ky,kw,22,5);ctx.stroke();}else ctx.strokeRect(kx,ky,kw,22);
-    ctx.font='700 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('Space',kx+kw/2,cy+0.5);
+    ctx.font='700 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('D',kx+kw/2,cy+0.5);
     ctx.restore(); ctx.textBaseline='alphabetic'; ctx.textAlign='start';
   }
 
