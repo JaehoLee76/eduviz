@@ -3,9 +3,9 @@
     "ch": "알고리즘 제5장 트리",
     "sec": "5.1 이진 트리",
     "title": "이진 트리 — 가지치는 계층 구조",
-    "narr": "지금까지 데이터는 일렬(배열·리스트)이었습니다. <b>트리</b>는 <b>가지치는 계층 구조</b>입니다 — 맨 위 <b>루트</b>에서 아래로 갈라지고, 끝의 자식 없는 노드가 <b>리프</b>죠. 폴더 구조·가계도·조직도가 다 트리입니다. 각 노드가 자식 최대 2개면 <b>이진 트리</b>!",
+    "narr": "지금까지 데이터는 일렬(배열·리스트)이었습니다. <b>트리</b>는 <b>가지치는 계층 구조</b>입니다 — 맨 위 <b>루트</b>에서 아래로 갈라지고, 끝의 자식 없는 노드가 <b>리프</b>입니다. 폴더 구조·가계도·조직도가 다 트리입니다. 각 노드가 자식 최대 2개면 <b>이진 트리</b>!",
     "hint": "루트(주황) → 가지 → 리프(초록)",
-    "more": "<b>트리(tree)</b>는 노드들이 부모-자식으로 연결된 계층 구조입니다(사이클 없음). 용어: <b>루트</b>(꼭대기), <b>부모/자식</b>, <b>리프</b>(자식 없는 끝 노드), <b>깊이/높이</b>(층 수), <b>서브트리</b>. <b>이진 트리</b>는 각 노드의 자식이 <b>최대 2개</b>(왼쪽·오른쪽). 왜 중요할까요? 균형 잡힌 이진 트리는 n개의 노드를 단 <b>log n 층</b>에 담아, 탐색·삽입·삭제를 O(log n)으로 만듭니다(이분 탐색을 자료구조로 굳힌 것!). 파일시스템, 데이터베이스 인덱스(B-트리), 컴파일러의 구문 트리, 의사결정 트리(AI)가 모두 트리입니다. 다음: 트리를 \"훑는\" 방법(순회).",
+    "more": "<b>트리(tree)</b>는 노드들이 부모-자식으로 연결된 계층 구조입니다(사이클 없음). 용어: <b>루트</b>(꼭대기), <b>부모/자식</b>, <b>리프</b>(자식 없는 끝 노드), <b>깊이/높이</b>(층 수), <b>서브트리</b>. <b>이진 트리</b>는 각 노드의 자식이 <b>최대 2개</b>(왼쪽·오른쪽). 이 구조가 중요한 이유는, 균형 잡힌 이진 트리는 n개의 노드를 단 <b>log n 층</b>에 담아, 탐색·삽입·삭제를 O(log n)으로 만듭니다(이분 탐색을 자료구조로 굳힌 것!). 파일시스템, 데이터베이스 인덱스(B-트리), 컴파일러의 구문 트리, 의사결정 트리(AI)가 모두 트리입니다. 다음: 트리를 \"훑는\" 방법(순회).",
     "more_en": "A <b>tree</b> is a hierarchy of nodes linked as parent-child (no cycles). Terms: <b>root</b> (top), <b>parent/child</b>, <b>leaf</b> (a node with no children), <b>depth/height</b> (number of levels), <b>subtree</b>. A <b>binary tree</b> has <b>at most 2 children</b> per node (left and right). Why it matters: a balanced binary tree packs n nodes into just <b>log n levels</b>, making search, insert, and delete O(log n) (binary search solidified into a data structure!). File systems, database indexes (B-trees), compiler syntax trees, and decision trees (AI) are all trees. Next: how to \"walk\" a tree (traversal).",
     "problem": {
       "q": "노드가 7개인 균형 이진 트리의 깊이(층 수)는?",

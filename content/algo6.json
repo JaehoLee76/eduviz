@@ -18,7 +18,7 @@
     "ch": "알고리즘 제6장 그래프",
     "sec": "6.1 그래프 표현",
     "title": "그래프 저장하기 — 리스트 vs 행렬",
-    "narr": "그래프를 컴퓨터에 어떻게 담을까요? 두 방법이 있습니다. <b>인접 리스트</b>는 각 정점마다 \"내 이웃 목록\"을 들고, <b>인접 행렬</b>은 n×n 표에 연결 여부를 0/1로 적습니다. 정점을 선택해 그 이웃을 보세요.",
+    "narr": "그래프를 컴퓨터에 담는 데는 두 가지 방법이 있습니다. <b>인접 리스트</b>는 각 정점마다 \"내 이웃 목록\"을 들고, <b>인접 행렬</b>은 n×n 표에 연결 여부를 0/1로 적습니다. 정점을 선택해 그 이웃을 보세요.",
     "hint": "정점을 선택해 이웃 목록을 보세요",
     "more": "두 가지 표현 — <b>인접 리스트(adjacency list)</b>: 정점마다 이웃들의 목록. 공간 <b>O(V+E)</b>로 효율적이고 \"이웃 순회\"가 빠름 → <b>희소 그래프</b>(간선이 적음, 대부분의 실제 그래프)에 적합. <b>인접 행렬(adjacency matrix)</b>: V×V 표에 연결을 0/1(또는 가중치)로. 공간 <b>O(V²)</b>지만 \"두 정점이 연결됐나?\"를 O(1)에 확인 → <b>조밀 그래프</b>나 빠른 간선 조회에 적합. SNS·도로망처럼 간선이 정점 수에 비례하면 리스트가 압도적으로 효율적입니다. 표현을 정했으니, 이제 그래프를 <b>훑는 두 가지 방법</b>(BFS·DFS)으로 갑니다 — 트리 순회의 일반화입니다.",
     "more_en": "Two representations — <b>adjacency list</b>: each vertex keeps a list of its neighbors. Space <b>O(V+E)</b>, efficient, with fast neighbor iteration → best for <b>sparse graphs</b> (few edges, like most real graphs). <b>adjacency matrix</b>: a V×V table with 0/1 (or weights). Space <b>O(V²)</b> but checks \"are two vertices connected?\" in O(1) → best for <b>dense graphs</b> or fast edge queries. When edges scale with vertices (social networks, road maps), the list is far more efficient. With a representation chosen, we now explore the graph via <b>two traversals</b> (BFS, DFS) — a generalization of tree traversal.",
