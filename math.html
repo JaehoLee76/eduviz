@@ -47,7 +47,9 @@
   .progress #bar { height: 100%; width: 0; background: #ffb27a; transition: width .4s; }
 
   /* 캐릭터 + 말풍선 */
-  .guide { position: fixed; left: 26px; bottom: 14px; z-index: 5; display: flex; align-items: flex-end; gap: 13px; max-width: 52%; }
+  /* 좌측 하단 스택: 자세히 보기(위) → 말풍선(아래). 컨테이너가 바닥 고정, 내용은 위로 자람 → 겹침 불가 */
+  #leftStack { position: fixed; left: 26px; bottom: 14px; z-index: 7; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; max-width: 56vw; }
+  .guide { position: static; display: flex; align-items: flex-end; gap: 13px; max-width: 100%; }
   .guide .ch { width: 56px; height: 56px; flex: 0 0 56px; animation: bob 3.2s ease-in-out infinite; }
   @keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-7px);} }
   .bubble { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; border-bottom-left-radius: 4px;
@@ -122,9 +124,9 @@
   .btn.branch-out { background: rgba(255,255,255,0.06); border-color: var(--accent); color: var(--accent-light); }
 
   /* ── 펼침 학습 패널 (자세히 설명 + 문제) ── */
-  /* 자세히 보기(꺾쇠) = 우측 하단(내비 위). 좌측 하단 기본설명창(말풍선)과 절대 안 겹침 */
-  #study { position: fixed; left: 26px; right: auto; bottom: 66px; z-index: 7; display: none; flex-direction: column; align-items: flex-start; width: auto; }
-  body.study-open .guide { opacity: 0; pointer-events: none; }   /* 자세히 보기(좌측) 펼치면 요약 말풍선 숨김 → 겹침·시선분산 제거 */
+  /* 자세히 보기(꺾쇠) = 스택 맨 위(말풍선 위). 스택이 겹침을 구조적으로 막음 */
+  #study { position: static; display: none; flex-direction: column; align-items: flex-start; width: auto; }
+  body.study-open .guide { display: none; }   /* 자세히 보기 펼치면 요약 말풍선을 레이아웃에서 제거(겹침·시선분산 차단) */
   #study .study-body { width: min(460px, 80vw); }
   .study-body { max-height: 0; overflow: hidden; opacity: 0; width: 100%;
     background: var(--panel-bg); border: 1px solid var(--border); border-radius: var(--radius);
@@ -215,8 +217,7 @@
     .bignum #bigN { font-size: 38px; }
     .bignum #bigW { font-size: 13px; margin-top: 4px; }
     #controls, #keyhint { bottom: 150px; }
-    #study { bottom: 108px; }
-    .guide { bottom: 12px; max-width: 50%; }
+    #leftStack { bottom: 50px; max-width: 52vw; }
     .guide .bubble { font-size: 14px; }
     .nav { bottom: 14px; }
   }
@@ -224,7 +225,7 @@
     .bignum #bigN { font-size: 32px; }
     .bignum #bigW { font-size: 12px; }
     #controls, #keyhint { bottom: 132px; }
-    #study { bottom: 92px; }
+    #leftStack { bottom: 40px; }
     .guide .ch { width: 38px; height: 38px; flex-basis: 38px; }
     .guide .bubble { font-size: 13px; }
   }
@@ -247,30 +248,32 @@
 <div id="controls"></div>
 <div id="keyhint"></div>
 
-<div class="guide">
-  <svg class="ch" viewBox="0 0 60 60" aria-hidden="true">
-    <path d="M30 6 L54 50 Q56 54 50 54 L10 54 Q4 54 6 50 Z" fill="#ffb27a"/>
-    <circle id="eyeL" cx="23" cy="40" r="3.4" fill="#1a1a22"/>
-    <circle id="eyeR" cx="37" cy="40" r="3.4" fill="#1a1a22"/>
-  </svg>
-  <div class="bubble" id="bubble">…</div>
-</div>
-
-<div id="study">
-  <div class="study-body" id="studyBody">
-    <div class="study-section" id="studyMore"></div>
-    <div class="study-section" id="studyProblem"></div>
+<!-- 좌측 하단 세로 스택: 자세히 보기(위) + 기본설명 말풍선(아래). 말풍선 높이가 변해도 칩과 절대 안 겹침 -->
+<div id="leftStack">
+  <div id="study">
+    <div class="study-body" id="studyBody">
+      <div class="study-section" id="studyMore"></div>
+      <div class="study-section" id="studyProblem"></div>
+    </div>
+    <button class="chev-btn" id="chevBtn" aria-label="자세히 보기">
+      <svg class="chev-svg" viewBox="0 0 40 30" width="42" height="32" aria-hidden="true">
+        <defs><linearGradient id="chevGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffe0c6"/><stop offset="1" stop-color="#d8814a"/>
+        </linearGradient></defs>
+        <polyline class="chev-c1" points="7,13 20,4 33,13" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline class="chev-c2" points="7,25 20,16 33,25" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="chev-label" id="chevLabel">자세히 보기</span>
+    </button>
   </div>
-  <button class="chev-btn" id="chevBtn" aria-label="자세히 보기">
-    <svg class="chev-svg" viewBox="0 0 40 30" width="42" height="32" aria-hidden="true">
-      <defs><linearGradient id="chevGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#ffe0c6"/><stop offset="1" stop-color="#d8814a"/>
-      </linearGradient></defs>
-      <polyline class="chev-c1" points="7,13 20,4 33,13" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <polyline class="chev-c2" points="7,25 20,16 33,25" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <div class="guide">
+    <svg class="ch" viewBox="0 0 60 60" aria-hidden="true">
+      <path d="M30 6 L54 50 Q56 54 50 54 L10 54 Q4 54 6 50 Z" fill="#ffb27a"/>
+      <circle id="eyeL" cx="23" cy="40" r="3.4" fill="#1a1a22"/>
+      <circle id="eyeR" cx="37" cy="40" r="3.4" fill="#1a1a22"/>
     </svg>
-    <span class="chev-label" id="chevLabel">자세히 보기</span>
-  </button>
+    <div class="bubble" id="bubble">…</div>
+  </div>
 </div>
 
 <!-- 심화학습(분기) 책 페이지: page 필드가 있는 분기 장면에서 중앙에 펼침 -->
