@@ -45,7 +45,10 @@
   .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.06); z-index: 7; }
   .progress #bar { height: 100%; width: 0; background: var(--accent-light); transition: width .4s; }
 
-  .guide { position: fixed; left: 26px; bottom: 24px; z-index: 5; display: flex; align-items: flex-end; gap: 13px; max-width: 64%; }
+  /* 좌측 하단 스택: 더 알아보기(위) → 말풍선(아래). 컨테이너 바닥 고정·위로 자람 → 겹침 불가(수학과 통일) */
+  #leftStack { position: fixed; left: 26px; bottom: 24px; z-index: 7; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; max-width: 64%; }
+  .guide { position: static; display: flex; align-items: flex-end; gap: 13px; max-width: 100%; }
+  body.study-open .guide { display: none; }   /* 더 알아보기 펼치면 요약 말풍선 숨김(겹침·시선분산 차단) */
   .guide .ch { width: 56px; height: 56px; flex: 0 0 56px; animation: bob 3.2s ease-in-out infinite; }
   @keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-7px);} }
   .bubble { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; border-bottom-left-radius: 4px;
@@ -110,7 +113,7 @@
   .btn.branch-in { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-light); }
   .btn.branch-out { background: rgba(255,255,255,0.06); border-color: var(--accent); color: var(--accent-light); }
 
-  #study { position: fixed; left: 26px; bottom: 108px; z-index: 7; display: none; flex-direction: column; align-items: flex-start; width: min(460px, 44vw); }
+  #study { position: static; display: none; flex-direction: column; align-items: flex-start; width: min(460px, 44vw); }
   .study-body { max-height: 0; overflow: hidden; opacity: 0; width: 100%;
     background: var(--panel-bg); border: 1px solid var(--border); border-radius: var(--radius);
     transition: max-height .38s ease, opacity .3s ease, padding .38s ease; }
@@ -150,7 +153,7 @@
 
   /* ════ VIZ 모드: 왼쪽 = 코드/설명 + 스텝 컨트롤, 오른쪽 = 애니메이션(캔버스). 시선이 왼쪽에 머물게 ════ */
   body.viz #stage { left: 42vw; width: 58vw; height: calc(100% - 150px); }     /* 캔버스 = 오른쪽 컬럼. 하단 150px = 컨트롤(키힌트·내비) 전용 안전영역 → 캔버스 그림이 버튼과 안 겹침 */
-  body.viz .guide, body.viz .bignum, body.viz #study { display: none !important; }  /* 캐릭터·big·옛 학습패널 숨김(설명은 왼쪽 패널로 통합) */
+  body.viz .guide, body.viz .bignum, body.viz #study, body.viz #leftStack { display: none !important; }  /* viz(코드+시각화) 장면: 좌측 스택 숨김(설명은 좌측 코드 패널로 통합) */
   /* 하단 컨트롤 띠(캔버스 아래): 키힌트=위, 내비=아래. 서로·캔버스와 안 겹치게 고정 */
   body.viz #keyhint { bottom: 98px; }
   body.viz #controls { bottom: 98px; }
@@ -260,30 +263,32 @@
 <div id="controls"></div>
 <div id="keyhint"></div>
 
-<div class="guide">
-  <svg class="ch" viewBox="0 0 60 60" aria-hidden="true">
-    <path d="M30,7 L35.6,22.3 L51.9,22.9 L39.0,32.9 L43.5,48.6 L30,39.5 L16.5,48.6 L21.0,32.9 L8.1,22.9 L24.4,22.3 Z" fill="#7ab8ff"/>
-    <ellipse id="eyeL" cx="24" cy="27" rx="2.9" ry="2.9" fill="#16161f"/>
-    <ellipse id="eyeR" cx="36" cy="27" rx="2.9" ry="2.9" fill="#16161f"/>
-  </svg>
-  <div class="bubble" id="bubble">…</div>
-</div>
-
-<div id="study">
-  <div class="study-body" id="studyBody">
-    <div class="study-section" id="studyMore"></div>
-    <div class="study-section" id="studyProblem"></div>
+<!-- 좌측 하단 세로 스택: 더 알아보기(위) + 기본설명 말풍선(아래). 겹침 구조적 방지(수학과 통일) -->
+<div id="leftStack">
+  <div id="study">
+    <div class="study-body" id="studyBody">
+      <div class="study-section" id="studyMore"></div>
+      <div class="study-section" id="studyProblem"></div>
+    </div>
+    <button class="chev-btn" id="chevBtn" aria-label="더 알아보기">
+      <svg class="chev-svg" viewBox="0 0 40 30" width="42" height="32" aria-hidden="true">
+        <defs><linearGradient id="chevGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c6e3ff"/><stop offset="1" stop-color="#4f93d6"/>
+        </linearGradient></defs>
+        <polyline class="chev-c1" points="7,13 20,4 33,13" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline class="chev-c2" points="7,25 20,16 33,25" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="chev-label" id="chevLabel">더 알아보기</span>
+    </button>
   </div>
-  <button class="chev-btn" id="chevBtn" aria-label="더 알아보기">
-    <svg class="chev-svg" viewBox="0 0 40 30" width="42" height="32" aria-hidden="true">
-      <defs><linearGradient id="chevGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#c6e3ff"/><stop offset="1" stop-color="#4f93d6"/>
-      </linearGradient></defs>
-      <polyline class="chev-c1" points="7,13 20,4 33,13" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <polyline class="chev-c2" points="7,25 20,16 33,25" fill="none" stroke="url(#chevGrad)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <div class="guide">
+    <svg class="ch" viewBox="0 0 60 60" aria-hidden="true">
+      <path d="M30,7 L35.6,22.3 L51.9,22.9 L39.0,32.9 L43.5,48.6 L30,39.5 L16.5,48.6 L21.0,32.9 L8.1,22.9 L24.4,22.3 Z" fill="#7ab8ff"/>
+      <ellipse id="eyeL" cx="24" cy="27" rx="2.9" ry="2.9" fill="#16161f"/>
+      <ellipse id="eyeR" cx="36" cy="27" rx="2.9" ry="2.9" fill="#16161f"/>
     </svg>
-    <span class="chev-label" id="chevLabel">더 알아보기</span>
-  </button>
+    <div class="bubble" id="bubble">…</div>
+  </div>
 </div>
 
 <div class="nav">
