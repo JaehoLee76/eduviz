@@ -161,7 +161,7 @@
     if(!studyEl) return;
     var has = !!(sc.more || sc.problem);
     studyEl.style.display = has ? 'flex' : 'none';
-    studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W');
+    studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='더 알아보기'+kc('W');
     if(studyMore){ var mh = sc.more ? ('<h4>더 알아보기</h4>'+sc.more) : '';
       if(sc.more_en) mh += '<div class="en-block">'+sc.more_en+'</div>';
       studyMore.innerHTML = mh; studyMore.style.display = mh?'block':'none'; }
@@ -178,7 +178,7 @@
   function openStudy(){ if(!studyVisible()) return; studyEl.classList.add('open'); if(document.body) document.body.classList.add('study-open');
     if(chevLabel){ setTimeout(function(){ if(studyBody&&studyEl.classList.contains('open')&&studyBody.scrollHeight>studyBody.clientHeight+8) chevLabel.innerHTML='접기'+kc('W')+' <span class="scrollkc">'+kc('Q')+'/'+kc('Z')+' 스크롤</span>'; },360);
       chevLabel.innerHTML='접기'+kc('W'); } }
-  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W'); }
+  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='더 알아보기'+kc('W'); }
   function toggleStudy(){ if(!studyVisible()) return; if(studyEl.classList.contains('open')) closeStudy(); else openStudy(); }
 
   // ---------- Scene Manager (계층형: 뼈대 spine + 분기 branch) ----------
@@ -243,7 +243,11 @@
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
     var pageMode = !!(sc.branchOf!=null && sc.page);   // 심화학습 책 페이지(중앙 본문). 말풍선·자세히보기·캔버스 숨김
     if(document.body) document.body.classList.toggle('page-mode', pageMode);
-    if(branchPageInner){ branchPageInner.innerHTML = pageMode ? sc.page : ''; if(pageMode && branchPageEl) branchPageEl.scrollTop=0; }
+    if(branchPageInner){ branchPageInner.innerHTML = pageMode ? sc.page : '';
+      if(branchPageEl){ if(pageMode){ branchPageEl.scrollTop=0;
+          var chk=function(){ branchPageEl.classList.toggle('scrollable', branchPageEl.scrollHeight > branchPageEl.clientHeight + 8); };
+          requestAnimationFrame(chk); setTimeout(chk, 180);   // SVG·이미지 레이아웃 후 재확인
+        } else branchPageEl.classList.remove('scrollable'); } }
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
     paintTOC(); progress(); blip(660,0.14);
