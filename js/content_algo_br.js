@@ -1508,21 +1508,88 @@
   },
 
   // ══════ DP 두 조건(algo7_04) ▸ 막대 자르기 ══════
-  { id:'algo_br_rod', concept:true, branchOf:'algo7_04',
-    enter:function(E){ this.p=[0,1,5,8,9,10,17,17,20]; this.s={n:4}; E.setOn([]);
-      E.controls('<div class="ctrl"><label>막대 길이 n</label><input type="range" id="nn" min="1" max="8" step="1" value="4"><output id="nno">4</output></div>');
-      var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.1); }); },
-    draw:function(E){ var ctx=E.ctx, p=this.p, n=this.s.n;
-      var r=[0], cut=[[]]; for(var i=1;i<=n;i++){ var best=-1,bj=0; for(var j=1;j<=i;j++){ if(p[j]+r[i-j]>best){best=p[j]+r[i-j];bj=j;} } r[i]=best; cut[i]=[bj].concat(cut[i-bj]); }
-      // 막대 그리기
-      var pieces=cut[n], total=n, x0=E.W/2-E.W*0.3, w=E.W*0.6, y=E.H*0.40, px=x0;
-      for(var k=0;k<pieces.length;k++){ var pw=w*pieces[k]/total;
-        ctx.fillStyle='rgba(122,184,255,0.2)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(px,y,pw-3,44); ctx.strokeRect(px,y,pw-3,44);
-        ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('길이'+pieces[k], px+pw/2, y+20); ctx.fillStyle='#8fe3b5'; ctx.fillText('₩'+p[pieces[k]], px+pw/2, y+38); px+=pw; }
-      // 가격표
-      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('길이별 가격: '+p.slice(1,9).map(function(v,i){return (i+1)+'→'+v;}).join('  '), E.W/2, E.H*0.62);
-      E.big('막대 '+n+' = '+pieces.join('+')+' 자르기 → 최대 ₩'+r[n], '막대 자르기 — DP의 고전. r[n]=max over j (가격[j] + r[n−j]). 자르는 모든 방법을 표로 따져 최대 수익! (안 자른 통짜보다 이득일 때가 많음)'); }
+  { id:'algo_br_rod', branchOf:'algo7_04',
+    code:[
+      'CUT-ROD(price, n):',
+      '  r[0] = 0',
+      '  for i = 1 .. n:           // 길이 i의 막대',
+      '    best = -∞',
+      '    for j = 1 .. i:         // 첫 토막 길이 j',
+      '      best = max(best, price[j] + r[i-j])',
+      '    r[i] = best',
+      '  return r[n]'
+    ],
+    build:function(V){
+      var price=[0,1,5,8,9,10], n=5, st=[];
+      var r=[]; for(var t=0;t<=n;t++) r[t]=null;
+      function snap(line,cap,o){
+        var f={line:line,cap:cap,price:price.slice(),n:n,r:r.slice(),
+          i:(o&&o.i!=null)?o.i:-1, j:(o&&o.j!=null)?o.j:-1,
+          best:(o&&o.best!=null)?o.best:null, cut:(o&&o.cut!=null)?o.cut:null};
+        st.push(f); }
+      snap(0,'길이별 <b>가격표</b> p=[1,5,8,9,10] (길이 1~5). 길이 n=5 막대의 <b>최대 수익</b>을 DP로 구합니다.',{});
+      r[0]=0;
+      snap(1,'기저: 길이 0 막대의 수익 <b>r[0]=0</b>. 작은 길이부터 r을 채워 올라갑니다.',{});
+      var bestCut=[null,null,null,null,null,null];
+      for(var i=1;i<=n;i++){
+        var best=-1e9, cut=0;
+        snap(3,'길이 <b>i='+i+'</b> 시작. 첫 토막 길이 j를 1..'+i+'로 모두 시도해 최댓값을 찾습니다.',{i:i,best:null});
+        for(var j=1;j<=i;j++){
+          var cand=price[j]+r[i-j];
+          snap([4,5],'j='+j+': price['+j+']+r['+(i-j)+'] = '+price[j]+'+'+r[i-j]+' = <b>'+cand+'</b>'+(cand>best?' (지금까지 최대!)':' ('+cand+' ≤ '+best+', 갱신 없음)'),{i:i,j:j,best:Math.max(best,-1e9===best?cand:best)});
+          if(cand>best){ best=cand; cut=j; }
+          snap([4,5],'현재 best = <b>'+best+'</b> (첫 토막 길이 '+cut+').',{i:i,j:j,best:best});
+        }
+        r[i]=best; bestCut[i]=cut;
+        snap(6,'<b>r['+i+'] = '+best+'</b> 확정. 길이 '+i+'의 최적은 첫 토막 '+cut+' + 나머지 '+(i-cut)+'.',{i:i,best:best,cut:cut});
+      }
+      snap(7,'<b>완료!</b> r[5] = <b>'+r[5]+'</b>. 표 한 칸당 작은 부분 문제를 한 번만 풀어 O(n²). 가짜 없이 실제 점화로 채웠습니다.',{i:-1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('막대 자르기: r[i] = max_j ( price[j] + r[i−j] )', W/2, H*0.10);
+      // price table
+      var cols=n+1, cw=Math.min(70,(W*0.72)/cols), x0=W/2-(cols*cw)/2, py=H*0.24;
+      ctx.font='12px sans-serif'; ctx.fillStyle='#7f8a9b'; ctx.textAlign='center';
+      ctx.fillText('가격표 price', x0-4, py-22);
+      for(var j=0;j<=n;j++){ var x=x0+j*cw;
+        var hot=(j===f.j);
+        ctx.fillStyle=hot?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=hot?'#ffb27a':'#3c4a5e'; ctx.lineWidth=hot?2.2:1;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+3,py,cw-6,34,6);}else{ctx.beginPath();ctx.rect(x+3,py,cw-6,34);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#6f7a8b'; ctx.font='11px sans-serif'; ctx.textBaseline='middle';
+        ctx.fillText('len '+j, x+cw/2, py-8);
+        ctx.fillStyle=hot?'#ffb27a':(j===0?'#6f6e7a':'#dfeefb'); ctx.font='600 15px monospace';
+        ctx.fillText(j===0?'—':(''+f.price[j]), x+cw/2, py+17);
+        ctx.textBaseline='alphabetic'; }
+      // dp r table
+      var ry=H*0.55;
+      ctx.font='12px sans-serif'; ctx.fillStyle='#7f8a9b'; ctx.textAlign='center';
+      ctx.fillText('수익표 r', x0-4, ry-22);
+      for(j=0;j<=n;j++){ var rx=x0+j*cw, val=f.r[j];
+        var isCur=(j===f.i), isSub=(f.i>=0&&f.j>=0&&j===f.i-f.j);
+        var col=isCur?'#ffb27a':isSub?'#8fe3b5':(val==null?'#3c4a5e':'#7ab8ff');
+        var fil=isCur?'rgba(255,178,122,0.22)':isSub?'rgba(143,227,181,0.20)':(val==null?'rgba(122,184,255,0.04)':'rgba(122,184,255,0.13)');
+        ctx.fillStyle=fil; ctx.strokeStyle=col; ctx.lineWidth=(isCur||isSub)?2.2:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(rx+3,ry,cw-6,34,6);}else{ctx.beginPath();ctx.rect(rx+3,ry,cw-6,34);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#6f7a8b'; ctx.font='11px sans-serif'; ctx.textBaseline='middle';
+        ctx.fillText('r['+j+']', rx+cw/2, ry-8);
+        ctx.fillStyle=col; ctx.font='600 16px monospace';
+        ctx.fillText(val==null?'·':(''+val), rx+cw/2, ry+17);
+        ctx.textBaseline='alphabetic'; }
+      // current best badge
+      if(f.best!=null && f.i>=0){
+        ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+        ctx.fillText('계산 중 r['+f.i+']: best = '+f.best, W/2, H*0.78);
+      }
+      if(f.cut!=null && f.i>=0){
+        ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('최적 첫 토막 길이 = '+f.cut, W/2, H*0.84);
+      }
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('주황=계산 중 r[i]  ·  초록=참조하는 r[i−j]', W/2, H*0.95); }
   },
 
   // ══════ 격자 DP(algo7_05) ▸ 최장 공통 부분수열 LCS ══════
@@ -3005,15 +3072,82 @@
   },
 
   // ══════ 타뷸레이션(algo7_03) ▸ 행렬 연쇄 곱셈 (concept) ══════
-  { id:'algo_br_matchain', concept:true, branchOf:'algo7_03',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, cx=E.W/2;
-      ctx.font='600 16px sans-serif'; ctx.textAlign='center';
-      ctx.fillStyle='#cfcdc6'; ctx.fillText('A(10×100) · B(100×5) · C(5×50)', cx, E.H*0.24);
-      ctx.fillStyle='#f4a0c0'; ctx.font='600 15px sans-serif'; ctx.fillText('((A·B)·C): 10·100·5 + 10·5·50 = 7,500', cx, E.H*0.42);
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('(A·(B·C)): 100·5·50 + 10·100·50 = 75,000', cx, E.H*0.52);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif'; ctx.fillText('괄호 위치만 바꿔도 10배 차이!', cx, E.H*0.66);
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('DP로 모든 분할점을 시도해 최소 비용 괄호화를 O(n³)에 찾음', cx, E.H*0.74); }
+  { id:'algo_br_matchain', branchOf:'algo7_03',
+    code:[
+      'MATRIX-CHAIN(p):           // p[0..n] 차원 경계',
+      '  m[i][i] = 0',
+      '  for len = 2 .. n:        // 사슬 길이',
+      '    for i = 1 .. n-len+1:',
+      '      j = i+len-1',
+      '      m[i][j] = ∞',
+      '      for k = i .. j-1:    // 분할점',
+      '        c = m[i][k]+m[k+1][j]+p[i-1]p[k]p[j]',
+      '        m[i][j] = min(m[i][j], c)',
+      '  return m[1][n]'
+    ],
+    build:function(V){
+      var p=[10,100,5,50], n=3, st=[];   // A:10x100 B:100x5 C:5x50
+      var m=[]; for(var a=0;a<=n;a++){ m[a]=[]; for(var b=0;b<=n;b++) m[a][b]=null; }
+      function MM(){ var r=[]; for(var x=0;x<=n;x++) r.push(m[x].slice()); return r; }
+      function snap(line,cap,o){
+        var f={line:line,cap:cap,m:MM(),n:n,p:p.slice(),
+          i:(o&&o.i!=null)?o.i:-1, j:(o&&o.j!=null)?o.j:-1, k:(o&&o.k!=null)?o.k:-1,
+          a:(o&&o.a!=null)?o.a:-1, b:(o&&o.b!=null)?o.b:-1, cand:(o&&o.cand!=null)?o.cand:null};
+        st.push(f); }
+      snap(0,'세 행렬 <b>A(10×100)·B(100×5)·C(5×50)</b>. 차원 경계 p=[10,100,5,50]. 최소 곱셈 횟수를 구간 DP로 찾습니다.',{});
+      for(var d=1;d<=n;d++){ m[d][d]=0; }
+      snap(1,'기저: 행렬 하나(i=j)는 곱이 없으니 <b>m[i][i]=0</b>. 대각선을 0으로 채웁니다.',{});
+      for(var len=2; len<=n; len++){
+        snap(2,'<b>사슬 길이 len='+len+'</b> — '+len+'개 연속 행렬 구간들을 채웁니다(작은 구간이 이미 풀려 있어 재사용).',{});
+        for(var i=1;i+len-1<=n;i++){
+          var j=i+len-1;
+          m[i][j]=1e15;
+          snap([4,5],'구간 ['+i+'..'+j+'] 계산 시작. m['+i+']['+j+']=∞ 로 두고 분할점 k를 모두 시도합니다.',{i:i,j:j});
+          for(var k=i;k<j;k++){
+            var c=m[i][k]+m[k+1][j]+p[i-1]*p[k]*p[j];
+            snap([6,7],'k='+k+': m['+i+']['+k+']+m['+(k+1)+']['+j+']+ p'+(i-1)+'·p'+k+'·p'+j+' = '+m[i][k]+'+'+m[k+1][j]+'+'+(p[i-1]*p[k]*p[j])+' = <b>'+c+'</b>',{i:i,j:j,k:k,a:k,b:k+1,cand:c});
+            if(c<m[i][j]) m[i][j]=c;
+            snap(8,'현재 m['+i+']['+j+'] = <b>'+m[i][j]+'</b> (지금까지 최소).',{i:i,j:j,k:k,cand:c});
+          }
+          snap(8,'<b>m['+i+']['+j+'] = '+m[i][j]+'</b> 확정.',{i:i,j:j});
+        }
+      }
+      snap(9,'<b>완료!</b> m[1]['+n+'] = <b>'+m[1][n]+'</b> = ((A·B)·C). A(B·C)였다면 75,000 — 같은 결과에 10배 차이! O(n³).',{i:1,j:n});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('행렬 연쇄: m[i][j] = min_k ( m[i][k]+m[k+1][j]+ p·p·p )', W/2, H*0.10);
+      // dp table m[1..n][1..n]
+      var cw=Math.min(92,(W*0.6)/n), ch=Math.min(56,H*0.16);
+      var x0=W/2-(n*cw)/2+cw*0.2, y0=H*0.26;
+      // headers
+      ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      for(var c=1;c<=n;c++){ ctx.fillStyle='#7f8a9b'; ctx.fillText('j='+c, x0+(c-1)*cw+cw/2, y0-14); }
+      for(var rI=1;rI<=n;rI++){ ctx.fillStyle='#7f8a9b'; ctx.fillText('i='+rI, x0-26, y0+(rI-1)*ch+ch/2); }
+      for(rI=1;rI<=n;rI++){
+        for(c=1;c<=n;c++){
+          var x=x0+(c-1)*cw, y=y0+(rI-1)*ch, val=f.m[rI][c];
+          if(c<rI){ continue; } // lower triangle unused
+          var isCur=(rI===f.i&&c===f.j), isA=(rI===f.i&&c===f.k), isB=((rI===f.k+1&&c===f.j)&&f.k>=0);
+          var diag=(rI===c);
+          var col=isCur?'#ffb27a':(isA||isB)?'#8fe3b5':(val==null?'#3c4a5e':diag?'#9b99a3':'#7ab8ff');
+          var fil=isCur?'rgba(255,178,122,0.24)':(isA||isB)?'rgba(143,227,181,0.20)':(val==null?'rgba(122,184,255,0.04)':'rgba(122,184,255,0.12)');
+          ctx.fillStyle=fil; ctx.strokeStyle=col; ctx.lineWidth=(isCur||isA||isB)?2.2:1.1;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+3,y+3,cw-6,ch-6,7);}else{ctx.beginPath();ctx.rect(x+3,y+3,cw-6,ch-6);}
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle=col; ctx.font='600 14px monospace';
+          var disp=(val==null)?'·':(val>=1e15?'∞':(''+val));
+          ctx.fillText(disp, x+cw/2, y+ch/2);
+        }
+      }
+      ctx.textBaseline='alphabetic';
+      // split badge
+      if(f.k>=0 && f.cand!=null){
+        ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+        ctx.fillText('분할점 k='+f.k+' (왼 ['+f.i+'..'+f.k+'] | 오른 ['+(f.k+1)+'..'+f.j+'])  후보 = '+f.cand, W/2, H*0.82);
+      }
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('주황=계산 중 m[i][j]  ·  초록=참조하는 두 부분구간  ·  대각선=기저 0', W/2, H*0.93); }
   },
 
   // ══════ DFS(algo6_04) ▸ 간선 분류 (concept) ══════
@@ -6445,70 +6579,288 @@
   },
 
   // ══════ 격자DP(algo7_05) ▸ 볼록 껍질 트릭(CHT) ══════
-  { id:'algo_br_cht', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, x0=W*0.16, x1=W*0.86, y0=H*0.30, y1=H*0.74;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('볼록 껍질 트릭(CHT) — 직선들의 최솟값을 빠르게', W/2, H*0.11);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('dp[i] = min_j ( m_j·x + b_j ) 꼴: 후보 직선들의 "아래 껍질"만 남겨 질의 O(log n)~O(1)', W/2, H*0.11+22);
-      var lines=[[-1.4,0.95],[ -0.5,0.55],[0.2,0.30],[1.1,0.18]];   // m, b(정규화)
-      function X(t){ return x0+(x1-x0)*t; } function Y(v){ return y1-(y1-y0)*Math.max(0,Math.min(1,v)); }
-      lines.forEach(function(L,i){ ctx.strokeStyle=i===1||i===2?'#8fe3b5':'rgba(122,184,255,0.35)'; ctx.lineWidth=i===1||i===2?2.4:1.5;
-        ctx.beginPath(); ctx.moveTo(X(0), Y(L[1])); ctx.lineTo(X(1), Y(L[0]*1+L[1])); ctx.stroke(); });
-      // 아래 껍질(최솟값) 강조 — 굵은 초록 꺾은선
-      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=3; ctx.beginPath();
-      ctx.moveTo(X(0),Y(0.30)); ctx.lineTo(X(0.45),Y(0.42)); ctx.lineTo(X(1),Y(0.18)); ctx.stroke();
-      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('← 아래 껍질(각 x의 최솟값)', X(0.5), Y(0.55));
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('새 직선을 기울기 순으로 추가하며 불필요한 직선 제거 → O(n). 질의 x가 단조면 포인터로 O(1)', W/2, H*0.84);
-      ctx.fillStyle='#8a8893'; ctx.fillText('O(n²) DP를 O(n log n)/O(n)으로. 일반화 = Li Chao 트리(임의 추가·질의)', W/2, H*0.84+22); }
+  { id:'algo_br_cht', branchOf:'algo7_05',
+    code:[
+      'addLine(m, b):              // 기울기 감소순 추가',
+      '  while size>=2 and',
+      '        bad(L[-2], L[-1], (m,b)):',
+      '    pop()                   // 가운데 끼인 직선 제거',
+      '  push (m, b)',
+      'query(x):                   // x 단조 → 포인터',
+      '  while ptr+1<size and',
+      '        L[ptr+1](x) <= L[ptr](x): ptr++',
+      '  return L[ptr](x)'
+    ],
+    build:function(V){ var st=[];
+      // 고정 직선 5개 y = m*x + b, 기울기 감소순으로 추가
+      var LINES=[[3,0],[2,1],[1,1],[1,5],[-1,8]];
+      // bad: b1,b2,b3 에서 b2가 쓸모없는가? (b1∩b3 의 x ≤ b1∩b2 의 x)
+      function xint(a,b){ return (b[1]-a[1])/(a[0]-b[0]); } // a,b 교점 x
+      function bad(a,b,c){ return xint(a,c) <= xint(a,b); }
+      var hull=[]; // 채택된 직선 스택
+      function snap(line,cap,extra){ var f={line:line,cap:cap,lines:LINES,hull:hull.map(function(i){return i;}),qx:null,best:-1}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      function nm(i){ var L=LINES[i]; return 'y='+L[0]+'x'+(L[1]>=0?'+':'')+L[1]; }
+      snap(0,'직선 5개를 <b>기울기 감소순</b>으로 추가하며 아래 껍질(하포락선)을 만듭니다.',{intro:LINES.map(function(_,i){return i;})});
+      for(var i=0;i<LINES.length;i++){
+        snap(4,'<b>'+nm(i)+'</b> 추가 시도. 현재 껍질 직선 '+hull.length+'개.',{cand:i});
+        while(hull.length>=2 && bad(LINES[hull[hull.length-2]],LINES[hull[hull.length-1]],LINES[i])){
+          var dead=hull[hull.length-1];
+          snap([1,2,3],'<b>'+nm(dead)+'</b> 가 두 이웃 교점 사이에 가려져 쓸모없음 → 스택에서 <b>제거</b>.',{cand:i,dead:dead});
+          hull.pop();
+        }
+        hull.push(i);
+        snap(5,'<b>'+nm(i)+'</b> 를 껍질에 추가. 껍질 = ['+hull.map(nm).join(', ')+'].',{cand:i});
+      }
+      snap(5,'<b>하포락선 완성!</b> 살아남은 직선 '+hull.length+'개가 어떤 x에서든 최솟값 후보입니다.',{done:true});
+      // 질의: x가 단조 증가하므로 ptr 한 방향으로
+      var qs=[-2,0,2,4]; var ptr=0;
+      for(var q=0;q<qs.length;q++){ var x=qs[q];
+        while(ptr+1<hull.length && (LINES[hull[ptr+1]][0]*x+LINES[hull[ptr+1]][1]) <= (LINES[hull[ptr]][0]*x+LINES[hull[ptr]][1])) ptr++;
+        var val=LINES[hull[ptr]][0]*x+LINES[hull[ptr]][1];
+        snap([6,7,8],'질의 x='+x+': 포인터를 밀어 최소 직선 <b>'+nm(hull[ptr])+'</b> → 최솟값 <b>'+val+'</b>.',{done:true,qx:x,best:hull[ptr],qval:val,ptr:ptr});
+      }
+      snap(8,'<b>완료!</b> x가 단조면 포인터 누적 이동으로 질의 전체 O(n). O(n²) DP를 O(n)으로.',{done:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      // 좌표계: x in [-3,5], y in [-2,12]
+      var x0=W*0.12,x1=W*0.92,y0=H*0.12,y1=H*0.80;
+      var XMIN=-3,XMAX=5,YMIN=-2,YMAX=14;
+      function PX(x){ return x0+(x-XMIN)/(XMAX-XMIN)*(x1-x0); }
+      function PY(y){ return y1-(y-YMIN)/(YMAX-YMIN)*(y1-y0); }
+      // 축
+      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(PX(XMIN),PY(0)); ctx.lineTo(PX(XMAX),PY(0)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PX(0),PY(YMIN)); ctx.lineTo(PX(0),PY(YMAX)); ctx.stroke();
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('x', PX(XMAX)-8, PY(0)-12); ctx.fillText('y', PX(0)+12, PY(YMAX)+6);
+      var inHull={}; for(var h=0;h<f.hull.length;h++) inHull[f.hull[h]]=true;
+      // 모든 직선
+      for(var i=0;i<f.lines.length;i++){ var L=f.lines[i];
+        var col,lw;
+        if(i===f.dead){ col='#f4a0c0'; lw=2.6; }
+        else if(i===f.best){ col='#ffb27a'; lw=3.2; }
+        else if(inHull[i]){ col='#8fe3b5'; lw=2.4; }
+        else if(i===f.cand){ col='#ffb27a'; lw=2.4; }
+        else { col='rgba(122,184,255,0.30)'; lw=1.3; }
+        ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.beginPath();
+        ctx.moveTo(PX(XMIN),PY(L[0]*XMIN+L[1])); ctx.lineTo(PX(XMAX),PY(L[0]*XMAX+L[1])); ctx.stroke();
+        // 라벨
+        var lx=XMAX-0.3, ly=L[0]*lx+L[1];
+        if(ly>=YMIN&&ly<=YMAX){ ctx.fillStyle=col; ctx.font='600 11px monospace'; ctx.textAlign='left';
+          ctx.fillText('m='+L[0], PX(lx)+4, PY(ly)); }
+      }
+      // 질의점
+      if(f.qx!=null && f.best>=0){ var L=f.lines[f.best], qy=L[0]*f.qx+L[1];
+        ctx.save(); ctx.shadowColor='#ffb27a'; ctx.shadowBlur=14;
+        ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(PX(f.qx),PY(qy),6,0,Math.PI*2); ctx.fill(); ctx.restore();
+        ctx.strokeStyle='rgba(255,178,122,0.5)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(PX(f.qx),PY(0)); ctx.lineTo(PX(f.qx),PY(qy)); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+        ctx.fillText('min='+f.qval, PX(f.qx), PY(qy)-10);
+      }
+      // 껍질 스택 칩
+      ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.font='600 12px sans-serif';
+      ctx.fillStyle='#9b99a3'; ctx.fillText('껍질 스택:', x0, H*0.90);
+      var cx=x0+78;
+      for(var s=0;s<f.hull.length;s++){ var id=f.hull[s], lbl='m='+f.lines[id][0];
+        var w=ctx.measureText(lbl).width+14;
+        ctx.fillStyle='rgba(143,227,181,0.18)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.5;
+        ctx.fillRect(cx,H*0.90-11,w,22); ctx.strokeRect(cx,H*0.90-11,w,22);
+        ctx.fillStyle='#8fe3b5'; ctx.textAlign='center'; ctx.fillText(lbl,cx+w/2,H*0.90); ctx.textAlign='left';
+        cx+=w+7; }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('초록=껍질(최소 후보)  ·  분홍=제거된 직선  ·  주황=질의 최소', W/2, H*0.965); }
   },
 
   // ══════ 격자DP(algo7_05) ▸ 분할 정복 최적화 ══════
-  { id:'algo_br_dcopt', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('분할 정복 최적화 — 최적 분기점의 단조성 이용', W/2, H*0.11);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('dp[i][j] = min_k dp[i−1][k] + C(k,j) 에서 최적 k = opt(j)가 j에 단조 증가하면…', W/2, H*0.11+22);
-      ctx.fillStyle='#bfe0ff'; ctx.font='600 14px ui-monospace, monospace'; ctx.textAlign='center';
-      ctx.fillText('opt(j₁) ≤ opt(jₘᵢ𝒹) ≤ opt(j₂)', W/2, H*0.32);
-      // 가운데부터 분할정복하는 구조 그림
-      var mid=W/2, y=H*0.44;
-      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2;
-      function seg(x1,x2,yy,col,lab){ ctx.strokeStyle=col; ctx.beginPath(); ctx.moveTo(x1,yy); ctx.lineTo(x2,yy); ctx.stroke();
-        ctx.fillStyle=col; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,(x1+x2)/2,yy-8); }
-      seg(W*0.20,W*0.80,y,'#7ab8ff','구간 [lo, hi] — 가운데 mid의 최적 k를 직접 탐색');
-      seg(W*0.20,W*0.49,y+H*0.13,'#8fe3b5','왼쪽: k ∈ [klo, opt(mid)]');
-      seg(W*0.51,W*0.80,y+H*0.13,'#ffb27a','오른쪽: k ∈ [opt(mid), khi]');
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('mid의 최적 k를 찾으면, 그 값이 양쪽 절반의 k 범위를 갈라줌 → 한 층이 O(n log n)', W/2, H*0.78);
-      ctx.fillStyle='#8a8893'; ctx.fillText('층이 m개면 전체 O(m·n log n). C가 사각부등식(QI)을 만족할 때 단조성 보장', W/2, H*0.78+22); }
+  { id:'algo_br_dcopt', branchOf:'algo7_05',
+    code:[
+      'solve(l, r, optL, optR):   // 한 층의 [l,r] 채움',
+      '  if l > r: return',
+      '  mid = (l+r)/2',
+      '  best = optL',
+      '  for k = optL .. min(mid,optR):  // mid의 최적 k 전탐색',
+      '    if cost(k,mid) < dp[mid]:',
+      '      dp[mid]=cost(k,mid); best=k',
+      '  solve(l, mid-1, optL, best)   // 왼쪽은 best 이하',
+      '  solve(mid+1, r, best, optR)   // 오른쪽은 best 이상'
+    ],
+    build:function(V){ var st=[];
+      // dp[j] = min_{k<=j} ( prev[k] + C(k,j) ), C는 사각부등식 만족하도록 설계
+      var n=6;
+      var prev=[0,2,3,5,6,8];               // 이전 층 값 (고정)
+      // C(k,j) = (j-k)^2  (k<=j) — 사각부등식 만족, opt 단조
+      function C(k,j){ return (j-k)*(j-k); }
+      function cost(k,j){ return prev[k]+C(k,j); }
+      var dp=[], opt=[]; for(var i=0;i<n;i++){ dp[i]=Infinity; opt[i]=-1; }
+      var order=[]; // 채워진 순서 기록(시각화용)
+      function snap(line,cap,extra){
+        var f={line:line,cap:cap,n:n,dp:dp.slice(),opt:opt.slice()}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(0,'한 층 dp[j]=min_k(prev[k]+C(k,j)) 를 분할정복으로 채웁니다. C(k,j)=(j−k)². 전체 구간 [0,'+(n-1)+'].',{prev:prev});
+      function solve(l,r,optL,optR){
+        if(l>r) return;
+        var mid=(l+r)>>1, best=optL, scan=[];
+        snap([2,3],'구간 ['+l+','+r+'] → mid='+mid+'. 후보 k는 [optL='+optL+', min(mid,optR)='+Math.min(mid,optR)+'] 만 본다.',{lo:l,hi:r,mid:mid,optL:optL,optR:optR,scan:[]});
+        for(var k=optL;k<=Math.min(mid,optR);k++){ scan.push(k);
+          var c=cost(k,mid);
+          if(c<dp[mid]){ dp[mid]=c; best=k;
+            snap([4,5,6],'k='+k+': cost='+prev[k]+'+'+C(k,mid)+'=<b>'+c+'</b> → dp['+mid+'] 갱신, best='+k+'.',{lo:l,hi:r,mid:mid,optL:optL,optR:optR,scan:scan.slice(),hk:k,best:best});
+          } else {
+            snap([4,5],'k='+k+': cost='+prev[k]+'+'+C(k,mid)+'='+c+' ≥ dp['+mid+']='+dp[mid]+' → 유지.',{lo:l,hi:r,mid:mid,optL:optL,optR:optR,scan:scan.slice(),hk:k,best:best});
+          }
+        }
+        opt[mid]=best; order.push(mid);
+        snap(6,'dp['+mid+']=<b>'+dp[mid]+'</b>, opt['+mid+']=<b>'+best+'</b> 확정. 단조성: 왼쪽은 best 이하, 오른쪽은 best 이상.',{lo:l,hi:r,mid:mid,optL:optL,optR:optR,best:best,fixed:mid});
+        snap(7,'왼쪽 ['+l+','+(mid-1)+'] 재귀 — k는 [optL='+optL+', best='+best+'].',{lo:l,hi:r,mid:mid});
+        solve(l,mid-1,optL,best);
+        snap(8,'오른쪽 ['+(mid+1)+','+r+'] 재귀 — k는 [best='+best+', optR='+optR+'].',{lo:l,hi:r,mid:mid});
+        solve(mid+1,r,best,optR);
+      }
+      solve(0,n-1,0,n-1);
+      var optstr=opt.join(', ');
+      snap(0,'<b>완료!</b> dp=['+dp.join(', ')+'], opt=['+optstr+'] — opt가 단조 증가. 한 층 O(n log n) (순진한 O(n²)에서).',{done:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      var n=f.n, x0=W*0.10, x1=W*0.92, cw=(x1-x0)/n;
+      function cellx(j){ return x0+j*cw; }
+      // dp 표 (위) + opt 표 (아래) + 후보 범위 막대
+      var topY=H*0.20, rowH=H*0.13;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      // 활성 구간 [lo,hi] 음영
+      if(f.lo!=null){ ctx.fillStyle='rgba(122,184,255,0.07)'; ctx.fillRect(cellx(f.lo),topY-rowH*0.2,cw*(f.hi-f.lo+1),rowH*2.6); }
+      // 후보 스캔 범위 표시 (mid 행 위)
+      // index 헤더
+      ctx.font='11px sans-serif'; ctx.fillStyle='#9b99a3';
+      for(var j=0;j<n;j++){ ctx.fillText('j='+j, cellx(j)+cw/2, topY-16); }
+      // dp 행
+      for(var j2=0;j2<n;j2++){ var dv=f.dp[j2], mid=(j2===f.mid), fixed=(j2===f.fixed);
+        var col,fill;
+        if(mid){ col='#ffb27a'; fill='rgba(255,178,122,0.20)'; }
+        else if(dv<Infinity){ col='#8fe3b5'; fill='rgba(143,227,181,0.14)'; }
+        else { col='#7ab8ff'; fill='rgba(122,184,255,0.06)'; }
+        ctx.fillStyle=fill; ctx.strokeStyle=col; ctx.lineWidth=mid?2.4:1.4;
+        ctx.fillRect(cellx(j2)+3,topY,cw-6,rowH-6); ctx.strokeRect(cellx(j2)+3,topY,cw-6,rowH-6);
+        ctx.fillStyle=col; ctx.font='600 15px sans-serif';
+        ctx.fillText(dv<Infinity?dv:'∞', cellx(j2)+cw/2, topY+(rowH-6)/2); }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+      ctx.fillText('dp', x0-6, topY+(rowH-6)/2);
+      // opt 행
+      var optY=topY+rowH;
+      ctx.textAlign='center';
+      for(var j3=0;j3<n;j3++){ var ov=f.opt[j3];
+        ctx.strokeStyle=ov>=0?'#c9a8ff':'rgba(155,153,163,0.3)'; ctx.lineWidth=1.4;
+        ctx.fillStyle=ov>=0?'rgba(201,168,255,0.12)':'transparent';
+        ctx.fillRect(cellx(j3)+3,optY,cw-6,rowH-6); ctx.strokeRect(cellx(j3)+3,optY,cw-6,rowH-6);
+        ctx.fillStyle=ov>=0?'#c9a8ff':'#56555f'; ctx.font='600 14px sans-serif';
+        ctx.fillText(ov>=0?ov:'·', cellx(j3)+cw/2, optY+(rowH-6)/2); }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+      ctx.fillText('opt', x0-6, optY+(rowH-6)/2);
+      // 후보 k 스캔 시각화 (점들)
+      var scanY=optY+rowH+H*0.06;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('mid의 후보 k:', x0, scanY);
+      if(f.scan){ for(var s=0;s<f.scan.length;s++){ var k=f.scan[s], hot=(k===f.hk), bst=(k===f.best);
+        var cxk=cellx(k)+cw/2;
+        ctx.beginPath(); ctx.arc(cxk,scanY,hot?8:6,0,Math.PI*2);
+        ctx.fillStyle=bst?'#8fe3b5':hot?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.fill();
+        ctx.fillStyle='#16151a'; ctx.font='600 10px monospace'; ctx.textAlign='center'; ctx.fillText(k,cxk,scanY); } }
+      // prev 표시
+      if(f.prev){ var pY=scanY+H*0.10; ctx.textAlign='left'; ctx.font='11px monospace'; ctx.fillStyle='#9b99a3';
+        ctx.fillText('prev[] = ['+f.prev.join(', ')+']   ·   C(k,j)=(j−k)²', x0, pY); }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('주황=mid·현재k  ·  초록=best/확정 dp  ·  보라=opt(단조 증가)', W/2, H*0.94); }
   },
 
   // ══════ 격자DP(algo7_05) ▸ 비트마스크 DP(외판원) ══════
-  { id:'algo_br_bitmaskdp', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('비트마스크 DP — "방문한 집합"을 정수 한 개로', W/2, H*0.11);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('부분집합을 비트(0/1)로 인코딩 → dp[mask][i] = mask 정점을 다 방문하고 i에 있을 때 최소비용', W/2, H*0.11+22);
-      // 5개 도시, mask 예: 01011 = {0,1,3} 방문
-      var bits=['1','1','0','1','0'];
-      var bw=W*0.07, gap=W*0.02, total=bits.length*bw+(bits.length-1)*gap, x0=W/2-total/2, y=H*0.36;
-      for(var i=0;i<bits.length;i++){ var x=x0+i*(bw+gap), on=bits[i]==='1';
-        ctx.fillStyle=on?'rgba(143,227,181,0.28)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=on?'#8fe3b5':'rgba(255,255,255,0.2)'; ctx.lineWidth=2;
-        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,7);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
-        ctx.fillStyle=on?'#8fe3b5':'#6f6e7a'; ctx.font='600 20px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(bits[i],x+bw/2,y+bw/2); ctx.textBaseline='alphabetic';
-        ctx.fillStyle='#6f7686'; ctx.font='11px sans-serif'; ctx.fillText('도시'+i, x+bw/2, y+bw+14); }
-      ctx.fillStyle='#bfe0ff'; ctx.font='600 15px ui-monospace, monospace'; ctx.textAlign='center';
-      ctx.fillText('mask = 01011₂ = 11  →  도시 {0,1,3} 방문 완료', W/2, H*0.58);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('상태 = 2ⁿ개 부분집합 × n개 현재위치 → 외판원(TSP)을 O(2ⁿ·n²)에 (브루트포스 n!보다 압도적)', W/2, H*0.68);
-      ctx.fillStyle='#8a8893'; ctx.fillText('전이: dp[mask|1<<j][j] = min( dp[mask][i] + dist[i][j] ). n ≤ 20 규모에 실전적', W/2, H*0.68+22); }
+  { id:'algo_br_bitmaskdp', branchOf:'algo7_05',
+    code:[
+      'dp[1<<0][0] = 0           // 0에서 출발',
+      'for mask = 1 .. (1<<n)-1:',
+      '  for i in mask:          // 현재 도시 i',
+      '    for j not in mask:    // 다음 도시 j',
+      '      nm = mask | (1<<j)',
+      '      cand = dp[mask][i] + d[i][j]',
+      '      dp[nm][j] = min(dp[nm][j], cand)',
+      'ans = min dp[full][i] + d[i][0]   // 0으로 복귀'
+    ],
+    build:function(V){
+      var n=4, NM=['A','B','C','D'], INF=1e9;
+      // 고정 대칭 거리행렬
+      var d=[[0,10,15,20],[10,0,35,25],[15,35,0,30],[20,25,30,0]];
+      var FULL=(1<<n)-1;
+      var dp=[]; for(var m=0;m<(1<<n);m++){ dp.push([INF,INF,INF,INF]); }
+      dp[1][0]=0;
+      var st=[];
+      function clone(){ var c=[]; for(var m=0;m<dp.length;m++) c.push(dp[m].slice()); return c; }
+      function snap(line,cap,extra){ var f={line:line,cap:cap,dp:clone(),n:n,d:d,NM:NM,INF:INF,full:FULL}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      function bs(m){ var s=''; for(var b=n-1;b>=0;b--) s+=((m>>b)&1); return s; }
+      snap(0,'거리행렬을 둔 4도시 TSP. <b>dp[{A}][A]=0</b> — A만 방문, 현재 A, 비용 0에서 시작합니다.',{mask:1,cur:0});
+      for(var mask=1;mask<=FULL;mask++){
+        if(!(mask&1)) continue; // 출발 A(비트0) 미포함 마스크는 도달 불가
+        for(var i=0;i<n;i++){
+          if(!((mask>>i)&1)) continue;
+          if(dp[mask][i]>=INF) continue;
+          for(var j=0;j<n;j++){
+            if((mask>>j)&1) continue;
+            var nmask=mask|(1<<j);
+            var cand=dp[mask][i]+d[i][j];
+            var better=cand<dp[nmask][j];
+            snap([4,5],'mask={'+bs(mask)+'} 현재 <b>'+NM[i]+'</b>(비용 '+dp[mask][i]+') → 미방문 <b>'+NM[j]+'</b>: '+dp[mask][i]+'+'+d[i][j]+' = <b>'+cand+'</b>.',{mask:mask,cur:i,nxt:j,cand:cand});
+            if(better){
+              dp[nmask][j]=cand;
+              snap(6,'dp[{'+bs(nmask)+'}]['+NM[j]+'] 을 <b>'+cand+'</b> 로 갱신합니다(더 짧음).',{mask:nmask,cur:j,nxt:-1,cand:cand});
+            }
+          }
+        }
+      }
+      // 답: full에서 0으로 복귀
+      var ans=INF, best=-1;
+      for(var i2=0;i2<n;i2++){ if(dp[FULL][i2]>=INF) continue; var tot=dp[FULL][i2]+d[i2][0]; if(tot<ans){ans=tot;best=i2;} }
+      snap(7,'전부 방문(full) 후 마지막 도시에서 <b>A로 복귀</b>: 최소는 '+NM[best]+'에서 '+dp[FULL][best]+'+'+d[best][0]+' = <b>'+ans+'</b>.',{mask:FULL,cur:best,nxt:0,cand:ans});
+      snap(7,'<b>완료!</b> 최소 순회 비용 = <b>'+ans+'</b>. 상태 2ⁿ·n개, 전이 O(n) → 전체 O(2ⁿ·n²)로 O(n!) 완전탐색을 압도합니다.',{mask:FULL,cur:best,nxt:0,cand:ans,done:1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n,NM=f.NM,INF=f.INF;
+      // 도시 좌표(원형 배치)
+      var cx=W*0.30, cy=H*0.46, R=Math.min(W*0.16,H*0.30);
+      var P=[]; for(var i=0;i<n;i++){ var a=-Math.PI/2+i*2*Math.PI/n; P.push([cx+R*Math.cos(a),cy+R*Math.sin(a)]); }
+      // 모든 간선 흐리게
+      ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.10)';
+      for(var a1=0;a1<n;a1++) for(var b1=a1+1;b1<n;b1++){ ctx.beginPath(); ctx.moveTo(P[a1][0],P[a1][1]); ctx.lineTo(P[b1][0],P[b1][1]); ctx.stroke(); }
+      // 현재 전이 간선 강조
+      if(f.cur>=0 && f.nxt>=0){
+        ctx.strokeStyle=f.done?'#8fe3b5':'#ffb27a'; ctx.lineWidth=3.5;
+        ctx.beginPath(); ctx.moveTo(P[f.cur][0],P[f.cur][1]); ctx.lineTo(P[f.nxt][0],P[f.nxt][1]); ctx.stroke();
+      }
+      // 도시 노드
+      for(i=0;i<n;i++){ var inMask=(f.mask>>i)&1, isCur=(i===f.cur), isNxt=(i===f.nxt);
+        var fill=isCur?'rgba(255,178,122,0.30)':isNxt?'rgba(244,160,192,0.22)':inMask?'rgba(143,227,181,0.18)':'rgba(122,184,255,0.10)';
+        var stroke=isCur?'#ffb27a':isNxt?'#f4a0c0':inMask?'#8fe3b5':'#7ab8ff';
+        ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=2.2;
+        ctx.beginPath(); ctx.arc(P[i][0],P[i][1],20,0,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=stroke; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(NM[i],P[i][0],P[i][1]); }
+      ctx.textBaseline='alphabetic';
+      // 현재 마스크 비트 표시
+      ctx.fillStyle='#dfeefb'; ctx.font='13px monospace'; ctx.textAlign='center';
+      var bits=''; for(var b=n-1;b>=0;b--) bits+=((f.mask>>b)&1);
+      ctx.fillText('mask = {'+bits+'}  (켜진 비트 = 방문한 도시)', cx, cy+R+44);
+      // DP 표 (우측): 행=mask, 열=현재도시
+      var tx=W*0.56, ty=H*0.10, cw=Math.min(46,(W*0.40)/(n+1)), rh=Math.min(20,(H*0.78)/((1<<n)+1));
+      ctx.font='600 11px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#9b99a3'; ctx.fillText('mask', tx+cw*0.5, ty);
+      for(var c=0;c<n;c++){ ctx.fillStyle='#9b99a3'; ctx.fillText(NM[c], tx+cw*(c+1.5), ty); }
+      for(var mm=0;mm<(1<<n);mm++){ var ry=ty+rh*(mm+1);
+        var mb=''; for(b=n-1;b>=0;b--) mb+=((mm>>b)&1);
+        ctx.fillStyle=(mm===f.mask)?'#ffb27a':'#7f7e8a'; ctx.font='10px monospace';
+        ctx.fillText(mb, tx+cw*0.5, ry);
+        for(c=0;c<n;c++){ var val=f.dp[mm][c]; if(val>=INF) continue;
+          var hot=(mm===f.mask && c===f.cur);
+          ctx.fillStyle=hot?'rgba(255,178,122,0.30)':'rgba(143,227,181,0.12)';
+          ctx.fillRect(tx+cw*(c+1)+2, ry-rh*0.45, cw-4, rh*0.85);
+          ctx.fillStyle=hot?'#ffb27a':'#8fe3b5'; ctx.font='600 11px monospace';
+          ctx.fillText(val, tx+cw*(c+1.5), ry); } }
+      ctx.textBaseline='alphabetic'; }
   },
 
   // ══════ 세그먼트트리(algo2_01) ▸ 영속 세그먼트 트리 ══════
@@ -7405,65 +7757,233 @@
       } } },
 
   // ══════ 격자DP(algo7_05) ▸ 자릿수 DP(Digit DP) ══════
-  { id:'algo_br_digitdp', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('자릿수 DP — "범위 [0, N] 중 조건 맞는 수 세기"', W/2, H*0.11);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('숫자를 위 자리부터 한 칸씩 채우며, (위치, tight, 추가상태)로 메모이제이션', W/2, H*0.11+22);
-      // N=527 자릿수 채우기
-      var digs=['5','2','7'];
-      var bw=W*0.10, gap=W*0.03, total=digs.length*bw+(digs.length-1)*gap, x0=cx-total/2, y=H*0.34;
-      for(var i=0;i<digs.length;i++){ var x=x0+i*(bw+gap), cur=(i===1);
-        ctx.fillStyle=cur?'rgba(255,178,122,0.26)':'rgba(122,184,255,0.16)'; ctx.strokeStyle=cur?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
-        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,8);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,bw);
-        ctx.fillStyle=cur?'#ffb27a':'#dfeefb'; ctx.font='600 26px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(digs[i],x+bw/2,y+bw/2); ctx.textBaseline='alphabetic';
-        ctx.fillStyle='#6f7686'; ctx.font='11px sans-serif'; ctx.fillText('자리'+i, x+bw/2, y+bw+14); }
-      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('tight=참: 지금까지 N과 똑같음 → 이 자리 상한은 N의 자릿수(2). tight=거짓 → 0~9 자유', cx, H*0.58);
-      ctx.fillStyle='#bfe0ff'; ctx.font='600 14px ui-monospace, monospace';
-      ctx.fillText('dp[pos][tight][상태]  — pos는 O(자릿수), 상태는 작게', cx, H*0.68);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('O(자릿수 × 10 × 상태) ≪ N. [L,R]은 f(R)−f(L−1). "3 들어간 수 개수" 같은 문제의 정석', cx, H*0.76); }
+  { id:'algo_br_digitdp', branchOf:'algo7_05',
+    code:[
+      'dfs(pos, sum%3, tight):',
+      '  if pos == len: return (sum%3 == 0)',
+      '  hi = tight ? digit[pos] : 9',
+      '  res = 0',
+      '  for c = 0 .. hi:',
+      '    ntight = tight and (c == hi)',
+      '    res += dfs(pos+1, (sum+c)%3, ntight)',
+      '  return res'
+    ],
+    build:function(V){
+      // [0,N] 중 자릿수 합이 3의 배수인 수의 개수, N=123
+      var digit=[1,2,3], len=3;
+      // 메모이션 dfs (실제 정답 계산) — tight 풀린 상태는 (pos,rem)로 메모
+      var memo={};
+      function dfs(pos,rem,tight){
+        if(pos===len) return (rem===0)?1:0;
+        if(!tight){ var key=pos+'_'+rem; if(memo[key]!=null) return memo[key]; }
+        var hi=tight?digit[pos]:9, res=0;
+        for(var c=0;c<=hi;c++){ res+=dfs(pos+1,(rem+c)%3, tight&&(c===hi)); }
+        if(!tight) memo[pos+'_'+rem]=res;
+        return res;
+      }
+      var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap,digit:digit,len:len}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(0,'N=<b>123</b>에서 [0,123] 중 <b>자릿수 합이 3의 배수</b>인 수를 셉니다. 상태 = (자리 pos, 합%3, tight). 가장 높은 자리부터 채웁니다.',{cur:-1});
+      // 최상위 자리(pos0): tight면 hi=digit[0]=1
+      snap(2,'<b>pos 0</b>, 합%3=0, tight=예 → 상한 hi = digit[0] = <b>1</b> (이 자리는 0 또는 1만 가능).',{cur:0,rem:0,tight:true,hi:1});
+      // c=0 at pos0 -> tight 풀림, 나머지 두 자리 자유(0~9)
+      var c0=dfs(1, (0+0)%3, false);
+      snap([4,5,6],'pos 0에 <b>0</b> 선택 → tight 풀림(이미 100보다 작음). 남은 두 자리 자유(00~99) 중 합%3=0 = <b>'+c0+'</b>개.',{cur:0,rem:0,tight:true,hi:1,pick:0,sub:c0,res:c0});
+      // c=1 at pos0 -> still tight (1==hi), proceed to pos1 tight, rem=1
+      snap([4,5,6],'pos 0에 <b>1</b> 선택(=상한) → 여전히 tight. 합%3=1을 들고 pos 1로 내려갑니다.',{cur:0,rem:0,tight:true,hi:1,pick:1,res:c0});
+      // pos1 tight: hi=digit[1]=2, rem currently 1
+      snap(2,'<b>pos 1</b>, 합%3=1, tight=예 → 상한 hi = digit[1] = <b>2</b> (0,1,2 가능).',{cur:1,rem:1,tight:true,hi:2});
+      var sub10=dfs(2,(1+0)%3,false), sub11=dfs(2,(1+1)%3,false);
+      snap([4,5,6],'pos 1에 <b>0</b> → tight 풀림, 마지막 자리(0~9) 중 합%3=0 되는 것 = <b>'+sub10+'</b>개.',{cur:1,rem:1,tight:true,hi:2,pick:0,sub:sub10,res:c0+sub10});
+      snap([4,5,6],'pos 1에 <b>1</b> → tight 풀림, 마지막 자리 중 조건 만족 = <b>'+sub11+'</b>개. 누적 '+(c0+sub10+sub11)+'.',{cur:1,rem:1,tight:true,hi:2,pick:1,sub:sub11,res:c0+sub10+sub11});
+      // c=2 at pos1 (==hi) still tight, rem becomes (1+2)%3=0, go pos2 tight
+      snap([4,5,6],'pos 1에 <b>2</b> 선택(=상한) → 여전히 tight. 합%3=(1+2)%3=0 으로 pos 2(마지막)로.',{cur:1,rem:1,tight:true,hi:2,pick:2,res:c0+sub10+sub11});
+      // pos2 tight: hi=digit[2]=3, rem=0
+      snap(2,'<b>pos 2</b>(마지막), 합%3=0, tight=예 → 상한 hi = digit[2] = <b>3</b>. 끝까지 tight면 곧 N=123 자신.',{cur:2,rem:0,tight:true,hi:3});
+      // count c in 0..3 with (0+c)%3==0 -> c=0,3 => 2개
+      var pos2cnt=0; for(var c=0;c<=3;c++){ if((0+c)%3===0) pos2cnt++; }
+      snap([4,5,6,7],'마지막 자리 c∈{0..3} 중 (0+c)%3=0 인 것 = c∈{0,3} → <b>'+pos2cnt+'개</b> (즉 120, 123).',{cur:2,rem:0,tight:true,hi:3,pick:3,sub:pos2cnt,res:c0+sub10+sub11+pos2cnt});
+      var total=dfs(0,0,true);
+      snap(7,'<b>완료!</b> [0,123]에서 자릿수 합이 3의 배수인 수 = <b>'+total+'</b>개. tight 분기와 메모이제이션으로 상태 O(자릿수×3×2) — N이 아무리 커도 빠릅니다.',{cur:-1,res:total,done:1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      var bx=W*0.5-((f.len)*54)/2, by=H*0.16, cw=54;
+      ctx.font='13px sans-serif'; ctx.fillStyle='#9b99a3'; ctx.fillText('N = 123  (각 자리 상한 digit[pos])', W*0.5, by-26);
+      for(var p=0;p<f.len;p++){ var x=bx+p*cw, on=(p===f.cur);
+        ctx.fillStyle=on?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=on?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        ctx.fillRect(x,by,cw-8,46); ctx.strokeRect(x,by,cw-8,46);
+        ctx.fillStyle=on?'#ffb27a':'#dfeefb'; ctx.font='600 20px sans-serif';
+        ctx.fillText(f.digit[p],x+(cw-8)/2,by+22);
+        ctx.fillStyle='#7f7e8a'; ctx.font='10px monospace'; ctx.fillText('pos '+p,x+(cw-8)/2,by+60); }
+      var sy=H*0.46;
+      if(f.cur>=0 && f.rem!=null){
+        ctx.font='600 15px sans-serif'; ctx.fillStyle='#dfeefb';
+        var tightS=f.tight?'tight (앞자리 = N)':'free (이미 N보다 작음)';
+        ctx.fillText('현재:  pos='+f.cur+'    합%3='+f.rem+'    '+tightS, W*0.5, sy);
+        if(f.hi!=null){ ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
+          ctx.fillText('이 자리 선택 범위:  0 ~ '+f.hi+(f.tight?'  (= N의 자릿수)':'  (자유)'), W*0.5, sy+26); }
+        if(f.pick!=null && f.sub!=null){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif';
+          ctx.fillText('"'+f.pick+'" 선택 → 하위에서 '+f.sub+'개 발견', W*0.5, sy+52); }
+        else if(f.pick!=null){ ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+          ctx.fillText('"'+f.pick+'" 선택 (상한과 같음 → tight 유지, 더 깊이)', W*0.5, sy+52); }
+      }
+      if(f.res!=null){ ctx.fillStyle=f.done?'#8fe3b5':'#7ab8ff'; ctx.font='600 17px sans-serif';
+        ctx.fillText('세고 있는 개수  count = '+f.res, W*0.5, H*0.78); }
+      ctx.textBaseline='alphabetic'; }
   },
 
   // ══════ 격자DP(algo7_05) ▸ SOS DP(부분집합 합) ══════
-  { id:'algo_br_sosdp', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('SOS DP — 모든 부분집합 합을 O(n·2ⁿ)에', W/2, H*0.11);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('F[mask] = Σ_{sub ⊆ mask} A[sub] 를, 비트 차원별로 더해 빠르게', W/2, H*0.11+22);
-      ctx.fillStyle='#bfe0ff'; ctx.font='600 14px ui-monospace, monospace'; ctx.textAlign='center';
-      ctx.fillText('for i in 0..n−1:', cx, H*0.34);
-      ctx.fillText('  for mask: if mask &amp; (1&lt;&lt;i):  F[mask] += F[mask ^ (1&lt;&lt;i)]', cx, H*0.42);
-      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif';
-      ctx.fillText('비트 차원 i를 하나씩 "켜며" 부분합을 누적 → n번 통과 = O(n·2ⁿ)', cx, H*0.54);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('순진하게 모든 (mask, sub) 쌍을 보면 3ⁿ. 차원별 누적이 그 핵심 절약', cx, H*0.62);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('= 부분집합에 대한 고차원 누적합(zeta 변환). 부분집합 컨볼루션·포함배제·비트마스크 문제에', cx, H*0.72); }
+  { id:'algo_br_sosdp', branchOf:'algo7_05',
+    code:[
+      'F[mask] = A[mask]          // 초기값',
+      'for i = 0 .. n-1:          // 비트 차원 i',
+      '  for mask = 0 .. 2^n-1:',
+      '    if mask & (1<<i):      // i번 비트 켜진 마스크',
+      '      F[mask] += F[mask ^ (1<<i)]',
+      '// 결과: F[mask] = Σ_{sub⊆mask} A[sub]'
+    ],
+    build:function(V){
+      var n=3, SZ=1<<n;
+      var A=[3,1,4,1,5,9,2,6]; // 고정 입력
+      var F=A.slice();
+      var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap,F:F.slice(),n:n,A:A}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      function bs(m){ var s=''; for(var b=n-1;b>=0;b--) s+=((m>>b)&1); return s; }
+      snap(0,'입력 A를 F로 복사. 목표: 모든 mask에 대해 <b>F[mask] = Σ(부분집합 sub⊆mask의 A[sub])</b>.',{i:-1,mask:-1});
+      for(var i=0;i<n;i++){
+        snap(1,'<b>비트 차원 '+i+'</b> 통과 시작 — '+i+'번 비트가 켜진 마스크에 그 비트를 끈 짝의 값을 더합니다.',{i:i,mask:-1});
+        for(var mask=0;mask<SZ;mask++){
+          if(mask&(1<<i)){
+            var pair=mask^(1<<i);
+            var before=F[mask];
+            F[mask]+=F[pair];
+            snap([3,4],'F[{'+bs(mask)+'}] += F[{'+bs(pair)+'}]: '+before+' + '+F[pair]+' = <b>'+F[mask]+'</b>.',{i:i,mask:mask,pair:pair,before:before});
+          }
+        }
+      }
+      // 검증용: 직접 합과 일치 확인은 build 내 실제 계산이 곧 정답
+      snap(5,'<b>완료!</b> 예) F[{111}] = A 전체 합 = <b>'+F[SZ-1]+'</b>. 비트 차원별 누적으로 O(3ⁿ)을 <b>O(n·2ⁿ)</b>으로 줄였습니다.',{i:n,mask:SZ-1,done:1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n,SZ=1<<f.n;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      function bs(m){ var s=''; for(var b=n-1;b>=0;b--) s+=((m>>b)&1); return s; }
+      // 차원 표시
+      ctx.font='600 14px sans-serif';
+      ctx.fillStyle=f.i>=0&&f.i<n?'#ffb27a':'#9b99a3';
+      ctx.fillText(f.i<0?'초기화':(f.i>=n?'모든 차원 완료':'비트 차원 i = '+f.i+' 통과 중'), W*0.5, H*0.10);
+      // 마스크 칸 그리드 (한 줄 8칸)
+      var cw=Math.min(78,(W*0.92)/SZ), x0=W*0.5-cw*SZ/2, y0=H*0.30, bh=64;
+      for(var m=0;m<SZ;m++){ var x=x0+m*cw, isCur=(m===f.mask), isPair=(m===f.pair);
+        var fill=isCur?'rgba(255,178,122,0.28)':isPair?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.10)';
+        var stroke=isCur?'#ffb27a':isPair?'#8fe3b5':'#7ab8ff';
+        ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=isCur?2.6:1.6;
+        ctx.fillRect(x+3,y0,cw-6,bh); ctx.strokeRect(x+3,y0,cw-6,bh);
+        // 마스크 비트 라벨 (현재 차원 비트 강조)
+        ctx.font='12px monospace';
+        var lbl=bs(m);
+        for(var b=0;b<n;b++){ var ch=lbl[b]; var bitIdx=n-1-b;
+          ctx.fillStyle=(bitIdx===f.i)?'#ffb27a':'#7f7e8a';
+          ctx.fillText(ch, x+3+(cw-6)/2 + (b-(n-1)/2)*9, y0+15); }
+        // F 값
+        ctx.fillStyle=isCur?'#ffb27a':isPair?'#8fe3b5':'#dfeefb'; ctx.font='600 17px sans-serif';
+        ctx.fillText(f.F[m], x+3+(cw-6)/2, y0+42); }
+      // A 원본 행 (참조)
+      ctx.font='11px monospace'; ctx.textAlign='center';
+      ctx.fillStyle='#9b99a3'; ctx.fillText('원본 A: ['+f.A.join(', ')+']', W*0.5, y0+bh+30);
+      // 화살표: pair -> mask
+      if(f.mask>=0 && f.pair>=0){
+        var xm=x0+f.mask*cw+(cw)/2, xp=x0+f.pair*cw+(cw)/2, ay=y0-14;
+        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath();
+        ctx.moveTo(xp,ay); ctx.lineTo(xm,ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(xm,ay); ctx.lineTo(xm-5,ay-4); ctx.lineTo(xm-5,ay+4); ctx.closePath(); ctx.fillStyle='#8fe3b5'; ctx.fill();
+        ctx.fillStyle='#8fe3b5'; ctx.font='11px sans-serif'; ctx.fillText('짝의 값을 더함', (xm+xp)/2, ay-12);
+      }
+      ctx.textBaseline='alphabetic'; }
   },
 
   // ══════ 격자DP(algo7_05) ▸ 행렬 거듭제곱 점화식 ══════
-  { id:'algo_br_matexp', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('행렬 거듭제곱 — 선형 점화식을 O(k³ log n)에', W/2, H*0.12);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('피보나치 같은 선형 점화식을 행렬 곱으로 쓰고, 빠른 거듭제곱으로 n을 로그에', W/2, H*0.12+22);
-      ctx.fillStyle='#bfe0ff'; ctx.font='600 16px ui-monospace, monospace'; ctx.textAlign='center';
-      ctx.fillText('[ F(n+1) ]   =   [ 1  1 ]^n   [ F(1) ]', cx, H*0.36);
-      ctx.fillText('[ F(n)   ]       [ 1  0 ]      [ F(0) ]', cx, H*0.43);
-      ctx.fillStyle='#8fe3b5'; ctx.font='14px ui-monospace, monospace';
-      ctx.fillText('M^n 을 빠른 거듭제곱(분할정복)으로 → O(log n)번 행렬 곱', cx, H*0.57);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 15px ui-monospace, monospace';
-      ctx.fillText('F(10⁹) 도 약 30번의 2×2 행렬 곱이면 끝!', cx, H*0.66);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('항이 k개인 점화식이면 k×k 행렬 → O(k³ log n). 경로 수 세기·DP 전이가 고정선형일 때 만능', cx, H*0.76); }
+  { id:'algo_br_matexp', branchOf:'algo7_05',
+    code:[
+      'matpow(M, n):',
+      '  R ← 단위행렬 I',
+      '  while n > 0:',
+      '    if n & 1:  R ← R · M     // 비트 1이면 곱',
+      '    M ← M · M                // 제곱',
+      '    n ← n >> 1',
+      '  return R     // F(n)=R[0][1]'
+    ],
+    build:function(V){ var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      function mul(A,B){ return [[A[0][0]*B[0][0]+A[0][1]*B[1][0], A[0][0]*B[0][1]+A[0][1]*B[1][1]],
+                                 [A[1][0]*B[0][0]+A[1][1]*B[1][0], A[1][0]*B[0][1]+A[1][1]*B[1][1]]]; }
+      function cp(A){ return [[A[0][0],A[0][1]],[A[1][0],A[1][1]]]; }
+      var N=13, M=[[1,1],[1,0]], R=[[1,0],[0,1]], n=N;
+      snap(0,'<b>피보나치 행렬</b> M=[[1,1],[1,0]]. <b>Mⁿ</b>의 [0][1]이 F(n)입니다. n='+N+' = 이진수 <b>'+N.toString(2)+'</b>.',{M:cp(M),R:cp(R),n:n,bit:null,act:null});
+      snap(1,'결과 누적용 <b>R = 단위행렬 I</b>로 시작합니다. n의 비트를 <b>아래(LSB)부터</b> 훑으며 R에 곱을 누적합니다.',{M:cp(M),R:cp(R),n:n,bit:null,act:'init'});
+      while(n>0){
+        var bit=n&1;
+        snap(2,'n='+n+' (이진 …'+n.toString(2)+'). 최하위 비트 = <b>'+bit+'</b>.',{M:cp(M),R:cp(R),n:n,bit:bit,act:'test'});
+        if(bit){
+          var newR=mul(R,M);
+          snap(3,'비트가 <b>1</b> → R ← R · M. 결과 R = [['+newR[0][0]+','+newR[0][1]+'],['+newR[1][0]+','+newR[1][1]+']].',{M:cp(M),R:cp(newR),n:n,bit:1,act:'accumR'});
+          R=newR;
+        } else {
+          snap(3,'비트가 <b>0</b> → R은 그대로 두고 곱을 건너뜁니다.',{M:cp(M),R:cp(R),n:n,bit:0,act:'skip'});
+        }
+        var newM=mul(M,M);
+        snap(4,'M ← M·M (<b>제곱</b>). M = [['+newM[0][0]+','+newM[0][1]+'],['+newM[1][0]+','+newM[1][1]+']]. 이 한 번이 인덱스 2배에 해당합니다.',{M:cp(newM),R:cp(R),n:n,bit:bit,act:'sqM'});
+        M=newM;
+        n=n>>1;
+        snap(5,'n ← n >> 1 = <b>'+n+'</b>. 비트 하나 처리 완료 — 반복은 총 <b>'+(N.toString(2).length)+'</b>번(=log₂ n)뿐입니다.',{M:cp(M),R:cp(R),n:n,bit:bit,act:'shift'});
+      }
+      snap(6,'<b>완료! R = M^'+N+'</b> = [['+R[0][0]+','+R[0][1]+'],['+R[1][0]+','+R[1][1]+']]. <b>F('+N+') = R[0][1] = '+R[0][1]+'</b>. 약 '+(N.toString(2).length)+'번의 2×2 곱이면 끝.',{M:cp(M),R:cp(R),n:0,bit:null,act:'done',fib:R[0][1]});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('빠른 거듭제곱: R에 곱 누적(비트 1) · M은 매번 제곱 → O(log n) 행렬 곱', W/2, H*0.09);
+      // draw a 2x2 matrix
+      function mat(cx,cy,Mt,label,col,hot){
+        var cw=58, chh=44, gap=6, tw=cw*2+gap;
+        ctx.fillStyle='#9b99a3'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+        ctx.fillText(label, cx, cy-chh-14);
+        for(var i=0;i<2;i++) for(var j=0;j<2;j++){
+          var x=cx-tw/2+j*(cw+gap), y=cy-chh+i*(chh+gap);
+          ctx.fillStyle=hot?'rgba(255,178,122,0.16)':(col==='R'?'rgba(143,227,181,0.12)':'rgba(122,184,255,0.10)');
+          ctx.strokeStyle=hot?'#ffb27a':(col==='R'?'#8fe3b5':'#7ab8ff'); ctx.lineWidth=hot?2.2:1.4;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,cw,chh,7);}else{ctx.beginPath();ctx.rect(x,y,cw,chh);}
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle=hot?'#ffd9b8':(col==='R'?'#8fe3b5':'#cfe0ff'); ctx.font='600 16px monospace'; ctx.textBaseline='middle';
+          ctx.fillText(''+Mt[i][j], x+cw/2, y+chh/2); ctx.textBaseline='alphabetic';
+        }
+      }
+      var ry=H*0.40;
+      mat(W*0.30, ry, f.R, 'R (누적)', 'R', f.act==='accumR'||f.act==='done');
+      mat(W*0.70, ry, f.M, 'M (제곱중)', 'M', f.act==='sqM');
+      ctx.fillStyle='#6f6e7a'; ctx.font='22px sans-serif'; ctx.textAlign='center'; ctx.fillText('·', W*0.50, ry+4);
+      // n binary readout
+      var by=H*0.62;
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('남은 n =', W*0.20, by);
+      ctx.fillStyle='#dfeefb'; ctx.font='600 18px monospace';
+      ctx.fillText(f.n>0?(f.n+'  (…'+f.n.toString(2)+')'):'0 (끝)', W*0.20+72, by);
+      if(f.bit!=null){
+        ctx.fillStyle=f.bit?'#8fe3b5':'#9b99a3'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('최하위 비트 = '+f.bit+(f.bit?'  → R에 곱':'  → 건너뜀'), W*0.20, by+26);
+      }
+      // result
+      if(f.fib!=null){
+        ctx.fillStyle='rgba(143,227,181,0.16)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.2;
+        var fw=W*0.6, fx=W/2-fw/2, fyy=H*0.78;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(fx,fyy,fw,42,10);}else{ctx.beginPath();ctx.rect(fx,fyy,fw,42);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 17px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('F(13) = R[0][1] = '+f.fib, W/2, fyy+21); ctx.textBaseline='alphabetic';
+      }
+      ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif';
+      ctx.fillText('▶ '+(f.act==='done'?'완료 — O(log n)':'빠른 거듭제곱 한 단계'), W/2, H*0.965); }
   },
 
   // ══════ BST탐색(algo5_03) ▸ 트리 DP(서브트리 점화) ══════
@@ -9089,27 +9609,113 @@
       ctx.fillText('▶ '+badge, W/2, H*0.965); }
   },
 
-  { id:'algo_br_lucas', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('뤼카 정리 — 이항계수를 소수 p로 나눈 나머지', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('C(n, k) mod p 를, n·k를 p진법으로 적어 자릿수별 작은 조합의 곱으로', W/2, H*0.10+22);
-      // example C(7,3) mod 3 ; 7=21_3, 3=10_3
-      ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
-      ctx.fillText('예: C(7, 3) mod 3', W/2, H*0.30);
-      ctx.font='600 15px sans-serif';
-      ctx.fillStyle='#7ab8ff'; ctx.fillText('7 = (2 1)₃', W*0.34, H*0.42);
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('3 = (1 0)₃', W*0.66, H*0.42);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 17px sans-serif';
-      ctx.fillText('C(7,3) ≡ C(2,1) × C(1,0)  (mod 3)', W/2, H*0.56);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
-      ctx.fillText('≡ 2 × 1 = 2  (mod 3)', W/2, H*0.68);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('자릿수별 C(nᵢ, kᵢ)의 곱. 어떤 자리에서 kᵢ > nᵢ 이면 그 항이 0 → 전체가 0', W/2, H*0.82);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('n이 10^18처럼 거대해도 p가 작은 소수면 O(log_p n) 자리만 계산. 조합론 mod 소수의 핵심', W/2, H*0.82+20); }
+  { id:'algo_br_lucas', branchOf:'algo7_05',
+    code:[
+      'LUCAS(n, k, p):           // C(n,k) mod p, p 소수',
+      '  r ← 1',
+      '  while n > 0 or k > 0:',
+      '    ni ← n mod p          // n의 p진법 자릿수',
+      '    ki ← k mod p          // k의 p진법 자릿수',
+      '    if ki > ni: return 0  // 그 자리 C(ni,ki)=0',
+      '    r ← r * C(ni, ki) mod p   // 작은 이항계수',
+      '    n ← n / p,  k ← k / p',
+      '  return r'
+    ],
+    build:function(V){
+      var n=7,k=3,p=3, st=[];
+      function comb(a,b){ if(b<0||b>a) return 0; var r=1; for(var i=0;i<b;i++){ r=r*(a-i)/(i+1); } return Math.round(r); }
+      function snap(line,cap,o){ var f={line:line,cap:cap}; if(o) for(var key in o) f[key]=o[key]; st.push(f); }
+      // 자릿수 분해를 미리 계산(표시는 단계별로 누적)
+      var nd=[], kd=[]; var nn=n, kk=k; while(nn>0||kk>0){ nd.push(nn%p); kd.push(kk%p); nn=Math.floor(nn/p); kk=Math.floor(kk/p); }
+      // nd/kd 는 [0]=최하위. 표시는 최상위가 왼쪽.
+      var digs=nd.length;
+      snap(0,'<b>C(7,3) mod 3</b>을 뤼카 정리로 구합니다. p=3은 소수입니다. n과 k를 <b>3진법</b>으로 적어 자릿수별 작은 이항계수의 곱으로 바꿉니다.',
+        {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:n,kv:k,r:1,cur:-1,done:false,terms:[]});
+      snap(1,'결과 누적값 <b>r ← 1</b> 로 시작합니다. 한 자리씩 처리하며 곱해 나갑니다.',
+        {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:n,kv:k,r:1,cur:-1,done:false,terms:[]});
+      var r=1, curn=n, curk=k, terms=[]; var pos=0;
+      while(curn>0||curk>0){
+        var ni=curn%p, ki=curk%p;
+        snap([3,4],'자리 '+pos+': 현재 n='+curn+', k='+curk+'. <b>ni = '+curn+' mod 3 = '+ni+'</b>,  <b>ki = '+curk+' mod 3 = '+ki+'</b> (3진법 한 자리 추출).',
+          {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:curn,kv:curk,r:r,cur:pos,ni:ni,ki:ki,done:false,terms:terms.slice()});
+        if(ki>ni){
+          snap(5,'ki='+ki+' &gt; ni='+ni+' 이므로 C('+ni+','+ki+')=0 → <b>전체 곱이 0</b>. 즉시 0을 반환합니다.',
+            {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:curn,kv:curk,r:0,cur:pos,ni:ni,ki:ki,done:true,terms:terms.slice()});
+          return st;
+        }
+        var c=comb(ni,ki);
+        terms.push({pos:pos,ni:ni,ki:ki,val:c});
+        r=(r*c)%p;
+        snap(6,'C('+ni+','+ki+') = <b>'+c+'</b> (작은 표에서 즉시). r ← r × '+c+' mod 3 = <b>'+r+'</b>.',
+          {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:curn,kv:curk,r:r,cur:pos,ni:ni,ki:ki,done:false,terms:terms.slice()});
+        curn=Math.floor(curn/p); curk=Math.floor(curk/p);
+        snap(7,'다음 자리로: n ← n/3 = '+curn+',  k ← k/3 = '+curk+'. '+((curn>0||curk>0)?'아직 자리가 남아 계속합니다.':'모든 자리를 처리했습니다.'),
+          {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:curn,kv:curk,r:r,cur:pos,ni:ni,ki:ki,done:false,terms:terms.slice()});
+        pos++;
+      }
+      var prod=''; for(var t=0;t<terms.length;t++){ prod+=(t?' × ':'')+'C('+terms[t].ni+','+terms[t].ki+')='+terms[t].val; }
+      snap(8,'<b>완료!</b> 자릿수별 곱 '+prod+' = <b>'+r+'</b> (mod 3). 즉 C(7,3) ≡ '+r+'. 실제 C(7,3)=35, 35 mod 3 = 2 로 일치합니다.',
+        {n:n,k:k,p:p,digs:digs,nd:nd,kd:kd,nv:0,kv:0,r:r,cur:-1,done:true,terms:terms.slice()});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('뤼카 정리: C('+f.n+','+f.k+') mod '+f.p+' = Π C(ni, ki)', W/2, H*0.085);
+      // 자릿수 표 (n행, k행). 최상위 자리를 왼쪽에 배치 → 인덱스 반전.
+      var dg=f.digs, cw=Math.min(72,(W*0.6)/dg), gap=10;
+      var totW=dg*cw+(dg-1)*gap, x0=W/2-totW/2, ny=H*0.24, ky=ny+cw+gap;
+      function colX(disp){ return x0+disp*(cw+gap); }   // disp 0 = 최상위(왼쪽)
+      // 라벨
+      ctx.textAlign='right'; ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+      ctx.fillText('n=7 (3진법)', x0-12, ny+cw/2+5);
+      ctx.fillText('k=3 (3진법)', x0-12, ky+cw/2+5);
+      for(var d=0;d<dg;d++){
+        var logical=dg-1-d;             // disp d → 논리 자리 logical
+        var disp=d;
+        var nx=colX(disp), active=(logical===f.cur);
+        var nval=f.nd[logical], kval=f.kd[logical];
+        var col=active?'#ffb27a':(logical<f.cur||(f.done&&f.cur<0))?'#8fe3b5':'#7ab8ff';
+        var fillc=active?'rgba(255,178,122,0.22)':(logical<f.cur||(f.done&&f.cur<0))?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.10)';
+        // n 셀
+        ctx.fillStyle=fillc; ctx.strokeStyle=col; ctx.lineWidth=active?2.4:1.4;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(nx,ny,cw,cw,8);}else{ctx.beginPath();ctx.rect(nx,ny,cw,cw);} ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 22px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(nval, nx+cw/2, ny+cw/2);
+        // k 셀
+        ctx.fillStyle=fillc; ctx.strokeStyle=col; ctx.lineWidth=active?2.4:1.4;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(nx,ky,cw,cw,8);}else{ctx.beginPath();ctx.rect(nx,ky,cw,cw);} ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 22px monospace'; ctx.fillText(kval, nx+cw/2, ky+cw/2);
+        ctx.textBaseline='alphabetic';
+        // 자리값 표시 (3^logical)
+        ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif';
+        ctx.fillText('3^'+logical, nx+cw/2, ky+cw+16);
+      }
+      ctx.textBaseline='alphabetic';
+      // 항 곱 영역
+      var ty=H*0.62;
+      ctx.textAlign='center'; ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+      ctx.fillText('자릿수별 작은 이항계수의 곱', W/2, ty-8);
+      var tn=f.terms.length;
+      // 순서: 논리 자리 오름차순으로 누적되지만 화면은 좌→우로 나열
+      var sorted=f.terms.slice().sort(function(a,b){ return b.pos-a.pos; }); // 최상위 먼저(왼쪽)
+      var bw=Math.min(120,(W*0.7)/Math.max(1,sorted.length+1)), bx0=W/2-((sorted.length)*(bw+10))/2;
+      for(var i=0;i<sorted.length;i++){
+        var tm=sorted[i], bx=bx0+i*(bw+10);
+        var hot=(tm.pos===f.cur);
+        ctx.fillStyle=hot?'rgba(255,178,122,0.22)':'rgba(143,227,181,0.16)'; ctx.strokeStyle=hot?'#ffb27a':'#8fe3b5'; ctx.lineWidth=hot?2.2:1.4;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,ty+6,bw,40,8);}else{ctx.beginPath();ctx.rect(bx,ty+6,bw,40);} ctx.fill(); ctx.stroke();
+        ctx.fillStyle=hot?'#ffd9b8':'#cfe8d8'; ctx.font='600 14px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('C('+tm.ni+','+tm.ki+')='+tm.val, bx+bw/2, ty+26);
+        ctx.textBaseline='alphabetic';
+        if(i<sorted.length-1){ ctx.fillStyle='#9b99a3'; ctx.font='18px sans-serif'; ctx.fillText('×', bx+bw+5, ty+30); }
+      }
+      // 누적 r 박스
+      var rd=f.done?(f.r===0?'0':f.r):f.r;
+      ctx.textAlign='center';
+      ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle=f.done?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=2.4;
+      var rbw=180, rbx=W/2-rbw/2, rby=H*0.80;
+      if(ctx.roundRect){ctx.beginPath();ctx.roundRect(rbx,rby,rbw,44,10);}else{ctx.beginPath();ctx.rect(rbx,rby,rbw,44);} ctx.fill(); ctx.stroke();
+      ctx.fillStyle=f.done?'#8fe3b5':'#dfeefb'; ctx.font='600 18px monospace'; ctx.textBaseline='middle';
+      ctx.fillText('r (mod '+f.p+') = '+rd, W/2, rby+22); ctx.textBaseline='alphabetic';
+    }
   },
 
   { id:'algo_br_incexc', branchOf:'algo8_03',
@@ -9196,30 +9802,90 @@
     }
   },
 
-  { id:'algo_br_catalan', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('카탈란 수 — 올바른 괄호·이진트리·경로의 개수', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('Cₙ = 1,1,2,5,14,42,… 서로 달라 보이는 수많은 문제가 모두 이 한 수열', W/2, H*0.10+22);
-      // sequence boxes
-      var seq=[['C₀',1],['C₁',1],['C₂',2],['C₃',5],['C₄',14],['C₅',42]];
-      var bw=80, bx=W*0.5-(seq.length*bw)/2, by=H*0.28;
-      for(var i=0;i<seq.length;i++){ var x=bx+i*bw;
-        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
-        ctx.fillRect(x,by,bw-10,40); ctx.strokeRect(x,by,bw-10,40);
-        ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.fillText(seq[i][0],x+(bw-10)/2,by-6);
-        ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.fillText(seq[i][1],x+(bw-10)/2,by+26); }
-      // C3=5 balanced parentheses
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif';
-      ctx.fillText('C₃ = 5 가지 올바른 괄호: ((())) (()()) (())() ()(()) ()()()', W/2, H*0.50);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif';
-      ctx.fillText('Cₙ = C(2n, n) / (n+1) = Σ Cᵢ · Cₙ₋₁₋ᵢ', W/2, H*0.64);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('점화식 = 첫 괄호 안(i쌍)과 밖(n−1−i쌍)으로 쪼개 곱하고 더하기 → DP로 O(n²) 또는 공식 O(n)', W/2, H*0.78);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('같은 수: 노드 n개 이진트리 모양, 격자 대각선 안 넘는 경로, 다각형 삼각분할, 스택 가능한 순열', W/2, H*0.88); }
+  { id:'algo_br_catalan', branchOf:'algo7_05',
+    code:[
+      'CATALAN(n):                  // C0..Cn',
+      '  C[0] ← 1',
+      '  for i = 1 .. n:',
+      '    C[i] ← 0',
+      '    for j = 0 .. i-1:',
+      '      C[i] ← C[i] + C[j]·C[i-1-j]   // 분할 점화식',
+      '  return C[n]'
+    ],
+    build:function(V){
+      var n=4, st=[];
+      var C=[]; for(var t=0;t<=n;t++) C.push(0);
+      function snap(line,cap,o){ var f={line:line,cap:cap,C:C.slice(),n:n}; if(o) for(var key in o) f[key]=o[key]; st.push(f); }
+      snap(0,'<b>카탈란 수</b> C0..C4 를 점화식 <b>Cᵢ = Σⱼ Cⱼ·Cᵢ₋₁₋ⱼ</b> 로 채웁니다. 괄호열·이진트리·격자경로를 모두 세는 수입니다.', {i:-1});
+      C[0]=1;
+      snap(1,'기저: <b>C0 = 1</b> (빈 괄호열 1가지, 노드 0개 트리 1가지).', {i:0,fillIdx:0});
+      for(var i=1;i<=n;i++){
+        snap([2,3],'<b>C'+i+'</b> 계산 시작 — 0으로 초기화하고, 짝 위치 j=0..'+(i-1)+'로 갈라 더합니다.', {i:i,fillIdx:-1,terms:[]});
+        C[i]=0; var terms=[];
+        for(var j=0;j<i;j++){
+          var a=C[j], b=C[i-1-j], add=a*b;
+          C[i]+=add; terms.push({j:j,a:a,b:b,prod:add});
+          snap(5,'j='+j+': 안쪽 C'+j+'='+a+' × 바깥쪽 C'+(i-1-j)+'='+b+' = <b>'+add+'</b> 를 더함. (맨 앞 \'(\'의 짝 안/밖으로 분할) → C'+i+' = '+C[i]+' 누적.',
+            {i:i,j:j,fillIdx:-1,terms:terms.slice(),partial:C[i]});
+        }
+        snap(5,'<b>C'+i+' = '+C[i]+'</b> 확정 ('+terms.map(function(tm){return tm.a+'·'+tm.b;}).join(' + ')+' = '+C[i]+').',
+          {i:i,fillIdx:i,terms:terms.slice(),partial:C[i]});
+      }
+      snap(6,'<b>완료!</b> C0..C4 = 1, 1, 2, 5, 14. 예: <b>C3=5</b> = 괄호열 3쌍 5가지 = 노드 3개 이진트리 5모양. 닫힌식 C(2n,n)/(n+1) 와도 일치.',
+        {i:-1,fillIdx:-1,showStrings:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('카탈란 수: Cᵢ = Σⱼ Cⱼ · Cᵢ₋₁₋ⱼ', W/2, H*0.085);
+      // 배열 셀 C0..Cn
+      var cells=f.n+1, cw=Math.min(80,(W*0.7)/cells), gap=12;
+      var totW=cells*cw+(cells-1)*gap, x0=W/2-totW/2, ay=H*0.20;
+      for(var t=0;t<cells;t++){
+        var x=x0+t*(cw+gap), filled=(t<=(f.fillIdx>=0?f.fillIdx:-1)) || (f.fillIdx<0 && f.C[t]>0 && (f.i<0||t<f.i)) || (f.i===t && f.fillIdx===t);
+        var active=(t===f.i);
+        var solved=f.C[t]>0 && (f.i<0 ? true : (t<f.i || (t===f.i && f.fillIdx===t)));
+        var col=active?'#ffb27a':solved?'#8fe3b5':'#7ab8ff';
+        var fc=active?'rgba(255,178,122,0.22)':solved?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.10)';
+        ctx.fillStyle=fc; ctx.strokeStyle=col; ctx.lineWidth=active?2.4:1.4;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,ay,cw,cw*0.7,8);}else{ctx.beginPath();ctx.rect(x,ay,cw,cw*0.7);} ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 22px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        var disp=(solved||(active&&f.partial!=null))? (active&&f.fillIdx!==t&&f.partial!=null?f.partial:f.C[t]) : '?';
+        ctx.fillText(disp, x+cw/2, ay+cw*0.35);
+        ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('C'+t, x+cw/2, ay+cw*0.7+18);
+      }
+      // 현재 항 분해 표시
+      if(f.terms && f.terms.length){
+        var ty=H*0.46;
+        ctx.textAlign='center'; ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+        ctx.fillText('C'+f.i+' 의 분할 항  (안쪽 Cⱼ × 바깥쪽 Cᵢ₋₁₋ⱼ)', W/2, ty-6);
+        var bw=Math.min(110,(W*0.78)/Math.max(1,f.terms.length)), bx0=W/2-(f.terms.length*(bw+8)-8)/2;
+        for(var i=0;i<f.terms.length;i++){
+          var tm=f.terms[i], bx=bx0+i*(bw+8), hot=(tm.j===f.j);
+          ctx.fillStyle=hot?'rgba(255,178,122,0.22)':'rgba(143,227,181,0.14)'; ctx.strokeStyle=hot?'#ffb27a':'#8fe3b5'; ctx.lineWidth=hot?2.2:1.4;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,ty+6,bw,42,8);}else{ctx.beginPath();ctx.rect(bx,ty+6,bw,42);} ctx.fill(); ctx.stroke();
+          ctx.fillStyle=hot?'#ffd9b8':'#cfe8d8'; ctx.font='600 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText('C'+tm.j+'·C'+(f.i-1-tm.j)+'='+tm.prod, bx+bw/2, ty+27); ctx.textBaseline='alphabetic';
+        }
+      }
+      // 마지막: C3=5 괄호열 5가지
+      if(f.showStrings){
+        var strs=['((()))','(()())','(())()','()(())','()()()'];
+        var sy=H*0.50;
+        ctx.textAlign='center'; ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+        ctx.fillText('C3 = 5 : 올바른 괄호열 3쌍 (= 노드 3개 이진트리 5모양)', W/2, sy);
+        var sw=Math.min(115,(W*0.82)/5), sx0=W/2-(5*(sw+8)-8)/2;
+        for(var s=0;s<5;s++){
+          var sx=sx0+s*(sw+8);
+          ctx.fillStyle='rgba(143,227,181,0.16)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.6;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(sx,sy+14,sw,40,8);}else{ctx.beginPath();ctx.rect(sx,sy+14,sw,40);} ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#8fe3b5'; ctx.font='600 16px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(strs[s], sx+sw/2, sy+34); ctx.textBaseline='alphabetic';
+        }
+        ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+        ctx.fillText('닫힌식  Cₙ = C(2n, n) / (n+1)  →  C3 = C(6,3)/4 = 20/4 = 5', W/2, sy+78);
+      }
+    }
   },
 
   { id:'algo_br_lct', branchOf:'algo5_05',
@@ -10219,31 +10885,118 @@
       ctx.restore(); }
   },
 
-  { id:'algo_br_lichao', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('리 차오 트리 — 직선들의 하한선을 트리로', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('여러 직선 중 한 점에서 최솟값을 주는 직선 찾기를 O(log n)에 (기울기 순서 무관)', W/2, H*0.10+22);
-      // several lines and their lower envelope
-      var ax=W*0.14, bx2=W*0.86, ay=H*0.30, by2=H*0.70;
-      function clip(x,y){ return [x, Math.max(ay,Math.min(by2,y))]; }
-      var lines=[[0.0,by2,1.0,ay+H*0.18],[0.0,ay+H*0.12,1.0,by2-H*0.05],[0.0,ay+H*0.30,1.0,ay+H*0.30]];
-      var cols=['#7ab8ff','#8fe3b5','#9a86ff'];
-      lines.forEach(function(L,i){ ctx.strokeStyle=cols[i]; ctx.lineWidth=2; ctx.beginPath();
-        ctx.moveTo(ax+L[0]*(bx2-ax),L[1]); ctx.lineTo(ax+L[2]*(bx2-ax),L[3]); ctx.stroke(); });
-      // lower envelope (min) bold
-      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=4; ctx.beginPath();
-      for(var t=0;t<=1.001;t+=0.02){ var ys=lines.map(function(L){return L[1]+(L[3]-L[1])*t;}); var ymin=Math.max.apply(null,ys); // max y = lowest on screen since y down
-        var x=ax+t*(bx2-ax); if(t===0)ctx.moveTo(x,ymin); else ctx.lineTo(x,ymin);} ctx.stroke();
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('— 하한 포락선(매 x의 최솟값)', ax, by2+26); ctx.textAlign='center';
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('x좌표 구간을 노드로: 각 노드에 "그 구간 중앙을 지배하는 직선" 하나 보관', W/2, H*0.82);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('새 직선 삽입: 중앙에서 더 낮은 쪽을 노드에 두고, 교차하는 절반으로만 재귀 → 삽입·질의 O(log n)', W/2, H*0.90);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('볼록 껍질 트릭(CHT)과 같은 일을, 기울기 정렬 없이 처리. DP 가속(직선=상태 전이비용)', W/2, H*0.90+18); }
+  { id:'algo_br_lichao', branchOf:'algo7_05',
+    code:[
+      'add(node, l, r, f):        // 새 직선 f 삽입',
+      '  m = (l+r)/2',
+      '  if f(m) < g[node](m):',
+      '    swap(f, g[node])       // 중점 더 낮은 직선 보관',
+      '  if l==r: return',
+      '  if f(l) < g[node](l):',
+      '    add(left, l, m, f)     // 왼쪽 절반만',
+      '  else:',
+      '    add(right, m+1, r, f)  // 오른쪽 절반만'
+    ],
+    build:function(V){ var st=[];
+      // x 범위 [0..7], 8칸. 세그트리 노드 g[]에 직선 보관.
+      var LO=0, HI=7;
+      // 삽입할 직선들 (m,b)
+      var INS=[[0,5],[2,-1],[-1,7]];
+      // 세그트리 노드: 1=root[0..7],2=[0..3],3=[4..7],4=[0..1],5=[2..3],6=[4..5],7=[6..7]...
+      // 각 노드의 [l,r] 미리 계산
+      var node=[null]; // 1-indexed
+      function buildNodes(idx,l,r){ node[idx]={l:l,r:r}; if(l===r)return; var m=(l+r)>>1; buildNodes(2*idx,l,m); buildNodes(2*idx+1,m+1,r); }
+      buildNodes(1,LO,HI);
+      var g={}; // node -> [m,b] or undefined
+      function ev(f,x){ return f[0]*x+f[1]; }
+      function lab(f){ return f?('y='+f[0]+'x'+(f[1]>=0?'+':'')+f[1]):'∅'; }
+      function snap(line,cap,extra){
+        var gs={}; for(var k in g) gs[k]=g[k]?[g[k][0],g[k][1]]:null;
+        var f={line:line,cap:cap,g:gs,LO:LO,HI:HI}; if(extra)for(var k2 in extra)f[k2]=extra[k2]; st.push(f); }
+      snap(0,'리 차오 트리: x범위 [0,7]을 세그트리로 나눠 <b>각 노드에 직선 하나</b>를 보관합니다.',{});
+      function add(idx,fline,depth){
+        var l=node[idx].l, r=node[idx].r, m=(l+r)>>1;
+        snap([0,1],'노드 ['+l+','+r+']: 중점 m='+m+'. 새 직선 <b>'+lab(fline)+'</b> vs 보관 <b>'+lab(g[idx])+'</b>.',{cur:idx,newf:[fline[0],fline[1]]});
+        if(!g[idx]){ g[idx]=fline; snap(3,'빈 노드 → 직선 <b>'+lab(fline)+'</b> 를 그대로 보관.',{cur:idx}); return; }
+        if(ev(fline,m) < ev(g[idx],m)){
+          var tmp=g[idx]; g[idx]=fline; fline=tmp;
+          snap([2,3],'중점 m='+m+'에서 새 직선이 더 낮음('+ev(g[idx],m)+'&lt;'+ev(fline,m)+') → <b>교환</b>. 노드엔 더 낮은 직선.',{cur:idx,newf:[fline[0],fline[1]]});
+        } else {
+          snap(2,'중점 m='+m+'에서 보관 직선이 더 낮음 → 노드 유지. 밀려난 직선을 한쪽으로.',{cur:idx,newf:[fline[0],fline[1]]});
+        }
+        if(l===r){ snap(4,'리프 도달 → 밀려난 직선은 버립니다. 삽입 끝.',{cur:idx}); return; }
+        if(ev(fline,l) < ev(g[idx],l)){
+          snap([5,6],'왼끝 x='+l+'에서 밀려난 직선이 더 낮음 → <b>왼쪽 절반</b>으로만 재귀.',{cur:idx,go:2*idx});
+          add(2*idx,fline,depth+1);
+        } else {
+          snap([7,8],'왼끝에서 안 낮음 → 교차는 오른쪽 → <b>오른쪽 절반</b>으로만 재귀.',{cur:idx,go:2*idx+1});
+          add(2*idx+1,fline,depth+1);
+        }
+      }
+      for(var i=0;i<INS.length;i++){
+        snap(0,'<b>직선 '+(i+1)+'/'+INS.length+'</b> = '+lab(INS[i])+' 삽입 시작(루트부터).',{cur:1,newf:[INS[i][0],INS[i][1]]});
+        add(1,[INS[i][0],INS[i][1]],0);
+      }
+      // 질의 x=2,5
+      function query(x){
+        var idx=1, best=Infinity, path=[];
+        while(true){ var l=node[idx].l,r=node[idx].r,m=(l+r)>>1; path.push(idx);
+          if(g[idx]) best=Math.min(best,ev(g[idx],x));
+          if(l===r) break;
+          idx = x<=m ? 2*idx : 2*idx+1;
+        }
+        return {best:best,path:path};
+      }
+      [2,5].forEach(function(x){ var q=query(x);
+        snap(0,'질의 x='+x+': 루트→x 경로의 각 노드 직선을 x에 대입, 최소 = <b>'+q.best+'</b>.',{qx:x,qpath:q.path,qbest:q.best});
+      });
+      snap(0,'<b>완료!</b> 삽입·질의 모두 경로 깊이 O(log n). 정렬 없이 임의 순서 OK — CHT의 일반화.',{done:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      // 위: x축 위 직선/포락선 그래프, 아래: 세그트리 노드
+      var x0=W*0.10,x1=W*0.62,y0=H*0.10,y1=H*0.56;
+      var XMIN=-0.5,XMAX=7.5,YMIN=-3,YMAX=10;
+      function PX(x){ return x0+(x-XMIN)/(XMAX-XMIN)*(x1-x0); }
+      function PY(y){ return y1-(y-YMIN)/(YMAX-YMIN)*(y1-y0); }
+      ctx.strokeStyle='rgba(255,255,255,0.16)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(PX(XMIN),PY(0)); ctx.lineTo(PX(XMAX),PY(0)); ctx.stroke();
+      ctx.fillStyle='#9b99a3'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      for(var gx=f.LO;gx<=f.HI;gx++){ ctx.fillText(gx, PX(gx), PY(0)+12); }
+      // 보관된 직선들 (g) 그리기
+      var seen={};
+      for(var k in f.g){ if(!f.g[k]) continue; var key=f.g[k][0]+':'+f.g[k][1]; if(seen[key])continue; seen[key]=1;
+        var L=f.g[k]; ctx.strokeStyle='rgba(122,184,255,0.55)'; ctx.lineWidth=1.6; ctx.beginPath();
+        ctx.moveTo(PX(XMIN),PY(L[0]*XMIN+L[1])); ctx.lineTo(PX(XMAX),PY(L[0]*XMAX+L[1])); ctx.stroke(); }
+      // 새 직선 강조
+      if(f.newf){ var L=f.newf; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.6; ctx.beginPath();
+        ctx.moveTo(PX(XMIN),PY(L[0]*XMIN+L[1])); ctx.lineTo(PX(XMAX),PY(L[0]*XMAX+L[1])); ctx.stroke(); }
+      // 질의점
+      if(f.qx!=null){ ctx.save(); ctx.shadowColor='#8fe3b5'; ctx.shadowBlur=12;
+        ctx.fillStyle='#8fe3b5'; ctx.beginPath(); ctx.arc(PX(f.qx),PY(f.qbest),6,0,Math.PI*2); ctx.fill(); ctx.restore();
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+        ctx.fillText('x='+f.qx+'→'+f.qbest, PX(f.qx), PY(f.qbest)-9); }
+      // 세그트리: 노드 1..15, 깊이별 배치
+      var TX0=W*0.66, TX1=W*0.97, TY0=H*0.14, lg=H*0.16;
+      var pos={1:[0.5,0],2:[0.25,1],3:[0.75,1],4:[0.125,2],5:[0.375,2],6:[0.625,2],7:[0.875,2],
+               8:[0.0625,3],9:[0.1875,3],10:[0.3125,3],11:[0.4375,3],12:[0.5625,3],13:[0.6875,3],14:[0.8125,3],15:[0.9375,3]};
+      var qp={}; if(f.qpath) f.qpath.forEach(function(n){qp[n]=1;});
+      function nx(n){ return TX0+pos[n][0]*(TX1-TX0); }
+      function ny(n){ return TY0+pos[n][1]*lg; }
+      // edges
+      ctx.strokeStyle='rgba(255,255,255,0.14)'; ctx.lineWidth=1;
+      for(var n=2;n<=15;n++){ if(!pos[n]||!pos[n>>1])continue; ctx.beginPath(); ctx.moveTo(nx(n>>1),ny(n>>1)); ctx.lineTo(nx(n),ny(n)); ctx.stroke(); }
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      for(var nn=1;nn<=15;nn++){ if(!pos[nn])continue;
+        var has=f.g[nn], cur=(nn===f.cur), go=(nn===f.go), onp=qp[nn];
+        var col = cur?'#ffb27a': go?'#f4a0c0': onp?'#8fe3b5': has?'#7ab8ff':'rgba(155,153,163,0.4)';
+        var fill = cur?'rgba(255,178,122,0.22)': onp?'rgba(143,227,181,0.18)': has?'rgba(122,184,255,0.14)':'rgba(155,153,163,0.05)';
+        var r=12; if(cur){ ctx.save(); ctx.shadowColor='#ffb27a'; ctx.shadowBlur=12; }
+        ctx.fillStyle=fill; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(nx(nn),ny(nn),r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        if(cur) ctx.restore();
+        ctx.fillStyle=col; ctx.font='600 10px monospace'; ctx.fillText(has?('m'+has[0]):'·', nx(nn),ny(nn)); }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.fillText('세그트리 (노드=구간 보관 직선)', (TX0+TX1)/2, TY0-2);
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('파랑=보관 직선  ·  주황=현재 노드/새 직선  ·  분홍=재귀할 절반  ·  초록=질의 경로', W/2, H*0.95); }
   },
 
   { id:'algo_br_burnside', branchOf:'algo8_03',
@@ -10444,29 +11197,94 @@
       ctx.fillText('회색=cover로 제거된 행/열 (uncover로 O(1) 복원)', W/2, sy+44); }
   },
 
-  { id:'algo_br_berlekamp', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('벨캄프-매시 — 수열에서 점화식을 역으로 찾기', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('처음 몇 항만 보고 "이 수열을 만드는 최단 선형 점화식"을 자동으로 복원', W/2, H*0.10+22);
-      // sequence
-      var seq=[1,1,2,3,5,8,13,21]; var bw=72, bx=W*0.5-(seq.length*bw)/2, by=H*0.30;
-      ctx.font='600 14px sans-serif';
-      for(var i=0;i<seq.length;i++){ var x=bx+i*bw;
-        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
-        ctx.fillRect(x,by,bw-10,36); ctx.strokeRect(x,by,bw-10,36);
-        ctx.fillStyle='#dfeefb'; ctx.fillText(seq[i],x+(bw-10)/2,by+24);
-        ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.fillText('a'+i,x+(bw-10)/2,by-6); ctx.font='600 14px sans-serif'; }
-      ctx.fillStyle='#ffb27a'; ctx.font='600 17px sans-serif';
-      ctx.fillText('찾은 점화식:  aₙ = 1·aₙ₋₁ + 1·aₙ₋₂  (피보나치!)', W/2, H*0.56);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('항을 하나씩 보며 현재 점화식의 예측 오차(불일치)가 나면, 이전 실패 정보로 최소 길이로 보정', W/2, H*0.72);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('길이 L짜리 선형 점화식이면 2L개 항만 있으면 복원, O(L²). 찾은 뒤 키타마사/행렬거듭제곱으로 N번째 항을', W/2, H*0.82);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('쓰임: DP 수열의 닫힌 점화식 추측, 모듈러 선형회귀, 오류정정부호(BCH/리드-솔로몬)', W/2, H*0.82+20); }
+  { id:'algo_br_berlekamp', branchOf:'algo7_05',
+    code:[
+      'BM(s[0..n-1]):',
+      '  C ← [1],  B ← [1],  L ← 0,  b ← 1,  m ← 1',
+      '  for i = 0 .. n-1:',
+      '    δ ← s[i] + Σ_{j=1..L} C[j]·s[i-j]   // 불일치',
+      '    if δ == 0:  m ← m+1                  // 예측 적중',
+      '    else if 2L ≤ i:                       // 길이 늘림',
+      '      T←C;  C ← C − (δ/b)·xᵐ·B;  L←i+1−L;  B←T;  b←δ;  m←1',
+      '    else:        C ← C − (δ/b)·xᵐ·B;  m←m+1   // 보정만',
+      '  return C    // 최단 점화식'
+    ],
+    build:function(V){ var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      function poly(C){ // C 배열 → s[i]= ... 점화식 문자열 (계수 = -C[1..])
+        if(C.length<=1) return '(아직 없음)';
+        var t=[]; for(var j=1;j<C.length;j++){ var c=-C[j]; if(c===0) continue; t.push((c===1?'':c+'·')+'aₙ₋'+j); }
+        return t.length? 'aₙ = '+t.join(' + ') : '(아직 없음)';
+      }
+      var s=[1,1,2,3,5,8,13];
+      var C=[1], B=[1], L=0, m=1, b=1;
+      snap([0,1],'수열 <b>'+s.join(', ')+'</b> 에서 <b>최단 선형 점화식</b>을 자동 복원합니다. 초기: C=[1], L=0(점화식 없음).',{s:s,i:-1,C:C.slice(),L:L,delta:null,rec:poly(C)});
+      for(var i=0;i<s.length;i++){
+        var delta=s[i];
+        for(var j=1;j<=L;j++) delta += C[j]*s[i-j];
+        snap(3,'i='+i+': 현재 점화식으로 a['+i+'] 예측 → 실제 '+s[i]+'와의 <b>불일치 δ = '+delta+'</b>.',{s:s,i:i,C:C.slice(),L:L,delta:delta,rec:poly(C)});
+        if(delta===0){
+          m++;
+          snap(4,'δ = 0 → 현재 점화식이 a['+i+']을 <b>정확히 예측</b>. 그대로 두고 다음 항으로(m='+m+').',{s:s,i:i,C:C.slice(),L:L,delta:0,rec:poly(C),ok:true});
+        } else if(2*L<=i){
+          var T=C.slice(), coef=delta/b;
+          while(C.length<B.length+m) C.push(0);
+          for(var jj=0;jj<B.length;jj++) C[jj+m]-=coef*B[jj];
+          var oldL=L; L=i+1-L; B=T; b=delta; m=1;
+          snap([5,6],'δ≠0 이고 2L≤i → 점화식 <b>길이를 '+oldL+'→'+L+'</b> 로 늘리고 이전 실패정보 B로 보정. '+poly(C)+'.',{s:s,i:i,C:C.slice(),L:L,delta:delta,rec:poly(C),grow:true});
+        } else {
+          var coef2=delta/b;
+          while(C.length<B.length+m) C.push(0);
+          for(var k=0;k<B.length;k++) C[k+m]-=coef2*B[k];
+          m++;
+          snap([7],'δ≠0 이지만 2L>i → 길이 유지, <b>계수만 보정</b>(C −= (δ/b)·xᵐ·B).',{s:s,i:i,C:C.slice(),L:L,delta:delta,rec:poly(C),fix:true});
+        }
+      }
+      snap(8,'<b>복원 완료! L='+L+', '+poly(C)+'</b> — 곧 피보나치 점화식입니다. 길이 L이면 2L개 항으로 충분, O(L²).',{s:s,i:s.length-1,C:C.slice(),L:L,delta:null,rec:poly(C),final:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('수열을 왼쪽부터 훑으며 불일치 δ가 나면 점화식을 최소 길이로 보정', W/2, H*0.09);
+      // sequence boxes
+      var s=f.s, bw=Math.min(70,(W*0.84)/s.length), bx=W/2-(s.length*bw)/2, by=H*0.22;
+      ctx.font='600 15px monospace';
+      for(var i=0;i<s.length;i++){ var x=bx+i*bw;
+        var cur=(i===f.i), seen=(i<f.i)||(f.final), fut=(i>f.i&&!f.final);
+        var col=cur?'#ffb27a':seen?'#8fe3b5':'#7ab8ff';
+        var fc=cur?'rgba(255,178,122,0.22)':seen?'rgba(143,227,181,0.13)':'rgba(122,184,255,0.08)';
+        ctx.fillStyle=fc; ctx.strokeStyle=col; ctx.lineWidth=cur?2.4:1.5;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,by,bw-8,40,7);}else{ctx.beginPath();ctx.rect(x,by,bw-8,40);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='600 16px monospace';
+        ctx.fillText(s[i], x+(bw-8)/2, by+20); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.fillText('a'+i, x+(bw-8)/2, by-6); ctx.font='600 15px monospace';
+      }
+      // discrepancy
+      if(f.delta!=null){
+        var dcol=f.delta===0?'#8fe3b5':'#f4a0c0';
+        ctx.fillStyle=dcol; ctx.font='600 17px monospace'; ctx.textAlign='center';
+        ctx.fillText('불일치 δ = '+f.delta+(f.delta===0?'   (예측 적중)':'   (보정 필요)'), W/2, H*0.42);
+      }
+      // C polynomial / L
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('점화식 길이 L = '+f.L+'      C = ['+f.C.join(', ')+']', W/2, H*0.55);
+      // current recurrence box
+      ctx.fillStyle=(f.final?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.10)');
+      ctx.strokeStyle=(f.final?'#8fe3b5':(f.grow||f.fix)?'#ffb27a':'#7ab8ff'); ctx.lineWidth=2.2;
+      var rw=W*0.7, rx=W/2-rw/2, ryy=H*0.62;
+      if(ctx.roundRect){ctx.beginPath();ctx.roundRect(rx,ryy,rw,46,10);}else{ctx.beginPath();ctx.rect(rx,ryy,rw,46);}
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle=f.final?'#8fe3b5':'#dfeefb'; ctx.font='600 17px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(f.rec, W/2, ryy+23); ctx.textBaseline='alphabetic';
+      // legend / status
+      ctx.fillStyle='#7f8a9b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      var msg=f.grow?'길이를 늘리며 보정':f.fix?'계수만 보정(길이 유지)':f.ok?'예측 적중 — 점화식 유지':'불일치 확인';
+      ctx.fillText('상태: '+(f.final?'복원 완료':msg), W/2, H*0.82);
+      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif';
+      ctx.fillText('C[1..]의 부호를 뒤집은 값이 점화식 계수입니다 (s[i] = −Σ C[j]·s[i−j])', W/2, H*0.88);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif';
+      ctx.fillText('▶ '+(f.final?'완료 — 최단 점화식 O(L²)':'BM 한 단계'), W/2, H*0.96); }
   },
 
   { id:'algo_br_virtualtree', branchOf:'algo5_03',
@@ -10710,56 +11528,215 @@
       ctx.restore(); }
   },
 
-  { id:'algo_br_knuthopt', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('크누스 최적화 — 최적 분기점의 단조성', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('구간 DP의 O(n³)을, "최적 분기점이 단조로 움직인다"는 성질로 O(n²)로', W/2, H*0.10+22);
-      // dp table with opt[i][j] monotone band
-      var T=W*0.30, by=H*0.30, cell=40, n=6;
-      for(var i=0;i<n;i++)for(var j=0;j<n;j++){ if(j<i)continue; var x=T+j*cell,y=by+i*cell;
-        var band=(j>=i && Math.abs((j-i)-1)<=1 && j>i); // illustrative opt band near diagonal+1
-        ctx.fillStyle=band?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.08)'; ctx.strokeStyle='#3a4358'; ctx.lineWidth=1;
-        ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3); }
-      ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('opt[i][j] = 최적 분기점', T+n*cell+12, by+1.5*cell); ctx.textAlign='center';
-      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
-      ctx.fillText('opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]', W/2, H*0.80);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('분기점 후보를 0..n−1 전부가 아니라 위·왼쪽 답 사이로만 좁힘 → 총 후보 합이 O(n²)', W/2, H*0.88);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('조건: 사각부등식(quadrangle inequality) 성립 시. 최적 BST·파일 합치기·구간 분할 DP 가속', W/2, H*0.88+20); }
+  { id:'algo_br_knuthopt', branchOf:'algo7_05',
+    code:[
+      'for len = 2 .. n:           // 대각선(구간 길이) 순',
+      '  for i with j=i+len:',
+      '    for k = opt[i][j-1] .. opt[i+1][j]:  // 좁은 범위',
+      '      v = dp[i][k]+dp[k][j]+C(i,j)',
+      '      if v < dp[i][j]:',
+      '        dp[i][j]=v; opt[i][j]=k',
+      '// opt[i][j-1] <= opt[i][j] <= opt[i+1][j]',
+      '// 합이 telescoping → O(n^2)'
+    ],
+    build:function(V){ var st=[];
+      // 돌 합치기: w[]=돌무게, C(i,j)=구간합 (사각부등식 만족)
+      var w=[4,1,2,3];                 // n+1? 여기선 4개 더미 경계로 사용
+      // 정의: dp[i][j] = 구간 (i,j] 합치는 최소비용, j>i. C(i,j)=sum w[i..j-1]
+      var N=w.length;                  // 노드 경계 0..N, 구간 (i,j]
+      var pre=[0]; for(var i=0;i<N;i++) pre.push(pre[i]+w[i]);
+      function C(i,j){ return pre[j]-pre[i]; }  // sum w[i..j-1]
+      var dp=[], opt=[];
+      for(var a=0;a<=N;a++){ dp[a]=[]; opt[a]=[]; for(var b=0;b<=N;b++){ dp[a][b]=0; opt[a][b]=0; } }
+      // 길이1 구간 (i,i+1]: 비용 0, opt=i
+      for(var x=0;x<N;x++){ dp[x][x+1]=0; opt[x][x+1]=x; }
+      function snap(line,cap,extra){
+        var f={line:line,cap:cap,N:N,w:w,
+          dp:dp.map(function(r){return r.slice();}),
+          opt:opt.map(function(r){return r.slice();})};
+        if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(0,'돌 합치기 구간 DP. dp[i][j]=구간 (i,j] 합치는 최소비용, C(i,j)=Σw. 무게 w=['+w.join(',')+'].',{});
+      snap(0,'길이 1 구간은 비용 0(이미 한 덩이). 대각선을 따라 길이를 늘리며 채웁니다.',{diag:1});
+      for(var len=2; len<=N; len++){
+        snap(0,'<b>대각선 len='+len+'</b>: 길이 '+len+'인 구간들을 채웁니다.',{diag:len});
+        for(var i=0; i+len<=N; i++){ var j=i+len;
+          var kl=opt[i][j-1], kr=opt[i+1][j];
+          dp[i][j]=Infinity;
+          snap([1,2],'구간 ('+i+','+j+']: k 후보를 <b>opt['+i+']['+(j-1)+']='+kl+' .. opt['+(i+1)+']['+j+']='+kr+'</b> 로 한정.',{ci:i,cj:j,kl:kl,kr:kr,scan:[]});
+          var scan=[];
+          for(var k=kl; k<=kr; k++){ scan.push(k);
+            var v=dp[i][k]+dp[k][j]+C(i,j);
+            if(v<dp[i][j]){ dp[i][j]=v; opt[i][j]=k;
+              snap([3,4,5],'k='+k+': dp['+i+']['+k+']+dp['+k+']['+j+']+C = '+dp[i][k]+'+'+dp[k][j]+'+'+C(i,j)+' = <b>'+v+'</b> → 갱신.',{ci:i,cj:j,kl:kl,kr:kr,scan:scan.slice(),hk:k,best:k});
+            } else {
+              snap([3,4],'k='+k+': '+dp[i][k]+'+'+dp[k][j]+'+'+C(i,j)+' = '+v+' ≥ 현재 '+dp[i][j]+' → 유지.',{ci:i,cj:j,kl:kl,kr:kr,scan:scan.slice(),hk:k,best:opt[i][j]});
+            }
+          }
+          snap(5,'dp['+i+']['+j+']=<b>'+dp[i][j]+'</b>, opt['+i+']['+j+']=<b>'+opt[i][j]+'</b> 확정.',{ci:i,cj:j,kl:kl,kr:kr,best:opt[i][j],fixed:[i,j]});
+        }
+      }
+      snap(6,'opt가 행·열로 단조: opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]. 그래서 후보 범위가 매우 좁습니다.',{});
+      snap(7,'<b>완료!</b> 최소비용 dp[0]['+N+']=<b>'+dp[0][N]+'</b>. 범위 합이 telescoping → 전체 <b>O(n²)</b> (O(n³)에서).',{fixed:[0,N]});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      var N=f.N, gx0=W*0.16, gy0=H*0.12, cs=Math.min((W*0.68)/(N+1),(H*0.66)/(N+1));
+      function cx(c){ return gx0+c*cs; }
+      function cy(r){ return gy0+r*cs; }
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      // 헤더
+      ctx.font='11px sans-serif'; ctx.fillStyle='#9b99a3';
+      for(var c=0;c<=N;c++){ ctx.fillText('j'+c, cx(c)+cs/2, gy0-12); }
+      for(var r=0;r<=N;r++){ ctx.fillText('i'+r, gx0-14, cy(r)+cs/2); }
+      // dp 표 (i<j 만 의미)
+      for(var i=0;i<=N;i++){ for(var j=0;j<=N;j++){
+        if(j<=i) continue;
+        var x=cx(j), y=cy(i), cur=(f.ci===i&&f.cj===j), filled=(f.dp[i][j]>0 || (f.opt[i][j]>0)||(j-i===1));
+        var isFix=(f.fixed&&f.fixed[0]===i&&f.fixed[1]===j);
+        var col,fill;
+        if(cur){ col='#ffb27a'; fill='rgba(255,178,122,0.20)'; }
+        else if(f.dp[i][j]<Infinity && (f.dp[i][j]>0 || j-i===1)){ col='#8fe3b5'; fill='rgba(143,227,181,0.12)'; }
+        else if(f.dp[i][j]===Infinity){ col='#ffb27a'; fill='rgba(255,178,122,0.08)'; }
+        else { col='rgba(122,184,255,0.4)'; fill='rgba(122,184,255,0.04)'; }
+        if(isFix){ ctx.save(); ctx.shadowColor='#8fe3b5'; ctx.shadowBlur=12; }
+        ctx.fillStyle=fill; ctx.strokeStyle=col; ctx.lineWidth=cur?2.4:1.3;
+        ctx.fillRect(x+2,y+2,cs-4,cs-4); ctx.strokeRect(x+2,y+2,cs-4,cs-4);
+        if(isFix) ctx.restore();
+        var val=f.dp[i][j];
+        ctx.fillStyle=col; ctx.font='600 13px sans-serif';
+        ctx.fillText(val===Infinity?'∞':val, x+cs/2, y+cs*0.40);
+        // opt 작게
+        if(f.opt[i][j]>0 || j-i===1){ ctx.fillStyle='#c9a8ff'; ctx.font='10px monospace';
+          ctx.fillText('k'+f.opt[i][j], x+cs/2, y+cs*0.72); }
+      } }
+      // 후보 k 범위 표시
+      var sy=gy0+cs*(N+1)+H*0.05;
+      ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.font='12px sans-serif'; ctx.fillStyle='#9b99a3';
+      if(f.ci!=null){
+        ctx.fillText('현재 ('+f.ci+','+f.cj+')  후보 k ∈ ['+f.kl+', '+f.kr+']:', gx0-14, sy);
+        if(f.scan){ var bx=gx0+200;
+          for(var s=0;s<f.scan.length;s++){ var k=f.scan[s], hot=(k===f.hk), bst=(k===f.best);
+            ctx.beginPath(); ctx.arc(bx+s*34,sy,hot?9:7,0,Math.PI*2);
+            ctx.fillStyle=bst?'#8fe3b5':hot?'#ffb27a':'rgba(122,184,255,0.4)'; ctx.fill();
+            ctx.fillStyle='#16151a'; ctx.font='600 11px monospace'; ctx.textAlign='center'; ctx.fillText('k'+k,bx+s*34,sy); ctx.textAlign='left'; }
+        }
+      }
+      // diag 표시
+      if(f.diag){ ctx.fillStyle='#7ab8ff'; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('대각선 len = '+f.diag, gx0-14, sy+H*0.07); }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('초록=확정 dp  ·  주황=현재 칸/k  ·  보라 kN=opt(단조)  ·  좁은 k 범위가 O(n²)의 핵심', W/2, H*0.96); }
   },
 
-  { id:'algo_br_aliens', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('Aliens 트릭(WQS 이분) — "정확히 k개" 제약 풀기', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('"정확히 k번 사용" 제약을, 사용마다 벌점 λ를 매겨 자유 DP로 바꾸고 λ를 이분 탐색', W/2, H*0.10+22);
-      // convex curve f(k) and a tangent line of slope -λ
-      var ax=W*0.16, bx2=W*0.84, ay=H*0.28, by2=H*0.66;
-      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ax,by2); ctx.lineTo(ax,ay); ctx.moveTo(ax,by2); ctx.lineTo(bx2,by2); ctx.stroke();
-      ctx.fillStyle='#6a6873'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('비용', ax-6, ay-8); ctx.fillText('사용 개수 k', bx2-60, by2+18); ctx.textAlign='center';
-      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
-      function fk(t){ return by2 - (0.9 - (t-0.55)*(t-0.55)*2.2)*(by2-ay)*0.7; }
-      for(var t=0;t<=1.001;t+=0.02){ var x=ax+t*(bx2-ax),y=fk(t); if(t===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke();
-      // tangent at k*
-      var ts=0.55, xs=ax+ts*(bx2-ax), ys=fk(ts);
-      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
-      ctx.beginPath(); ctx.moveTo(xs-W*0.18,ys-(by2-ay)*0.10); ctx.lineTo(xs+W*0.18,ys+(by2-ay)*0.10); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(xs,ys,5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('기울기 −λ 접선이 k에 닿음', xs, ys-14);
-      ctx.fillStyle='#8fe3b5'; ctx.font='11px sans-serif'; ctx.fillText('k=목표', xs, by2+14);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('벌점 λ를 키우면 최적 사용 개수가 줄어듦(단조) → λ를 이분 탐색해 개수=k 맞추기', W/2, H*0.80);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('전제: 답 f(k)가 k에 대해 볼록(또는 오목). 제약 없는 DP를 O(log) 번 풀어 제약 DP 해결', W/2, H*0.88);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('이름은 IOI 2016 Aliens 문제. 라그랑주 완화의 이산 버전. "정확히 k" 분할/매칭 DP에 활용', W/2, H*0.88+20); }
+  { id:'algo_br_aliens', branchOf:'algo7_05',
+    code:[
+      'aliens(k):  // 정확히 k개 구간으로 분할, 비용 최소',
+      '  lo, hi ← 0, λmax           // λ 이분 탐색',
+      '  while lo < hi:',
+      '    λ ← (lo+hi+1)/2',
+      '    (cost, used) ← dp(λ)      // 구간마다 벌점 λ',
+      '    if used ≥ k:  lo ← λ      // 더 많이 씀 → λ 올림',
+      '    else:         hi ← λ−1',
+      '  return dp(lo).cost − λ·k     // 벌점 되돌림'
+    ],
+    build:function(V){ var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      var a=[3,1,4,1,5,9,2,6], n=a.length, K=3;
+      var pre=[0]; for(var i=0;i<n;i++) pre.push(pre[i]+a[i]);
+      function segcost(l,r){ var s=pre[r]-pre[l]; return s*s; }
+      function dp(lam){ var d=new Array(n+1).fill(Infinity), cnt=new Array(n+1).fill(0), par=new Array(n+1).fill(0);
+        d[0]=0;
+        for(var i=1;i<=n;i++) for(var j=0;j<i;j++){ var v=d[j]+segcost(j,i)+lam;
+          if(v<d[i]-1e-9 || (Math.abs(v-d[i])<1e-9 && cnt[j]+1<cnt[i])){ d[i]=v; cnt[i]=cnt[j]+1; par[i]=j; } }
+        // 분할 경계 복원
+        var cuts=[], cur=n; while(cur>0){ cuts.unshift([par[cur],cur]); cur=par[cur]; }
+        return {cost:d[n],used:cnt[n],cuts:cuts}; }
+      // 참값 f(k) (정확히 k개) — 표시용 곡선
+      function exact(k){ var INF=Infinity, dpt=[]; for(var i=0;i<=n;i++) dpt.push(new Array(k+1).fill(INF)); dpt[0][0]=0;
+        for(var i=1;i<=n;i++) for(var c=1;c<=k;c++) for(var j=0;j<i;j++){ if(dpt[j][c-1]<INF){ var v=dpt[j][c-1]+segcost(j,i); if(v<dpt[i][c]) dpt[i][c]=v; } }
+        return dpt[n][k]; }
+      var fcurve=[]; for(var k=1;k<=6;k++) fcurve.push(exact(k));
+      snap(0,'배열 ['+a.join(',')+'] 을 <b>정확히 '+K+'개 구간</b>으로 나눠 비용 Σ(구간합)² 을 최소화합니다. 보통은 dp[i][쓴개수]로 비싸집니다.',{a:a,K:K,fcurve:fcurve,lo:null,hi:null,lam:null,used:null,cuts:null});
+      snap(1,'<b>핵심:</b> 구간 하나 만들 때마다 벌점 λ를 매기면 "개수 제약"이 사라진 빠른 DP가 됩니다. λ가 클수록 구간을 <b>적게</b> 쓰게 됩니다(단조).',{a:a,K:K,fcurve:fcurve,lo:null,hi:null,lam:null,used:null,cuts:null});
+      // 이분 탐색
+      var lo=0, hi=200, kk=K;
+      snap(2,'그래서 <b>λ를 이분 탐색</b>해 "최적 사용 개수 = '+K+'"가 되는 λ를 찾습니다. 범위 λ ∈ ['+lo+', '+hi+'].',{a:a,K:K,fcurve:fcurve,lo:lo,hi:hi,lam:null,used:null,cuts:null});
+      while(lo<hi){
+        var mid=Math.floor((lo+hi+1)/2);
+        var r=dp(mid);
+        snap([3,4],'λ='+mid+' 로 벌점 DP 실행 → 최적 사용 개수 <b>'+r.used+'</b>개, 벌점포함 비용 '+r.cost+'.',{a:a,K:K,fcurve:fcurve,lo:lo,hi:hi,lam:mid,used:r.used,cuts:r.cuts});
+        if(r.used>=kk){
+          snap(5,'used('+r.used+') ≥ k('+K+') → 구간을 더 쓰고 있음. <b>λ를 올립니다</b> (lo='+mid+').',{a:a,K:K,fcurve:fcurve,lo:mid,hi:hi,lam:mid,used:r.used,cuts:r.cuts});
+          lo=mid;
+        } else {
+          snap(6,'used('+r.used+') < k('+K+') → 벌점이 과해 구간을 적게 씀. <b>λ를 내립니다</b> (hi='+(mid-1)+').',{a:a,K:K,fcurve:fcurve,lo:lo,hi:mid-1,lam:mid,used:r.used,cuts:r.cuts});
+          hi=mid-1;
+        }
+      }
+      var fin=dp(lo);
+      snap([3,4],'수렴: <b>λ='+lo+'</b> 에서 used = '+fin.used+' = k. 이 λ에서 정확히 '+K+'개 분할이 최적이 됩니다.',{a:a,K:K,fcurve:fcurve,lo:lo,hi:hi,lam:lo,used:fin.used,cuts:fin.cuts});
+      var ans=fin.cost-lo*K;
+      snap(7,'<b>벌점 되돌리기:</b> 답 = (벌점포함 비용 '+fin.cost+') − λ·k ('+lo+'·'+K+') = <b>'+ans+'</b>. 곧 정확히 '+K+'개 분할의 진짜 최소비용.',{a:a,K:K,fcurve:fcurve,lo:lo,hi:hi,lam:lo,used:fin.used,cuts:fin.cuts,ans:ans});
+      snap(7,'<b>완료! f('+K+') = '+ans+'</b>. 제약 차원(개수)을 <b>이분 탐색 한 번</b>으로 바꿔, 무제약 DP를 O(log) 번만 풀면 됩니다. 전제: f(k)가 볼록.',{a:a,K:K,fcurve:fcurve,lo:lo,hi:hi,lam:lo,used:fin.used,cuts:fin.cuts,ans:ans,final:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('Aliens 트릭(WQS): 구간마다 벌점 λ → 무제약 DP, λ를 이분 탐색해 개수=k', W/2, H*0.085);
+      // array with current cuts
+      var a=f.a, n=a.length, bw=Math.min(56,(W*0.7)/n), bx=W/2-(n*bw)/2, by=H*0.18;
+      // determine cut boundaries set
+      var cutStarts={}; if(f.cuts){ f.cuts.forEach(function(c){ cutStarts[c[0]]=1; }); }
+      ctx.font='600 15px monospace';
+      for(var i=0;i<n;i++){ var x=bx+i*bw;
+        var newseg=cutStarts[i];
+        ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.4;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,by,bw-6,38,6);}else{ctx.beginPath();ctx.rect(x,by,bw-6,38);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(a[i], x+(bw-6)/2, by+19); ctx.textBaseline='alphabetic';
+        if(newseg && i>0){ ctx.strokeStyle='#f4a0c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x-3,by-6); ctx.lineTo(x-3,by+44); ctx.stroke(); }
+      }
+      if(f.cuts){ ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('현재 분할: '+f.cuts.length+'개 구간 (분홍 경계)', W/2, by+58); }
+      // convex curve f(k)
+      var fc=f.fcurve, gx0=W*0.14, gx1=W*0.52, gy0=H*0.48, gy1=H*0.84;
+      var mn=Math.min.apply(null,fc), mx=Math.max.apply(null,fc);
+      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy1); ctx.lineTo(gx1,gy1); ctx.stroke();
+      ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('비용 f(k)', gx0-4, gy0-6); ctx.textAlign='center'; ctx.fillText('구간 개수 k', (gx0+gx1)/2, gy1+16);
+      function px(k){ return gx0+(gx1-gx0)*(k-1)/(fc.length-1); }
+      function py(v){ return gy1-(gy1-gy0)*(v-mn)/(mx-mn||1)*0.9-6; }
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath();
+      for(i=0;i<fc.length;i++){ var X=px(i+1),Y=py(fc[i]); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+      for(i=0;i<fc.length;i++){ var tgt=(i+1===f.K);
+        ctx.fillStyle=tgt?'#ffb27a':'#7ab8ff'; ctx.beginPath(); ctx.arc(px(i+1),py(fc[i]),tgt?5:3,0,7); ctx.fill(); }
+      // highlight target k
+      var tk=f.K; ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('목표 k='+tk, px(tk), py(fc[tk-1])-12);
+      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('f(k) 볼록 → 기울기 −λ 접선이 각 k에 일대일', (gx0+gx1)/2, gy0-22);
+      // binary search panel (right)
+      var rx=W*0.62, ry=H*0.50;
+      ctx.textAlign='left'; ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+      ctx.fillText('λ 이분 탐색', rx, ry);
+      if(f.lo!=null){
+        ctx.fillStyle='#cfd8e6'; ctx.font='600 15px monospace';
+        ctx.fillText('lo = '+f.lo+'    hi = '+f.hi, rx, ry+26);
+      }
+      if(f.lam!=null){
+        ctx.fillStyle='#ffb27a'; ctx.font='600 16px monospace'; ctx.fillText('λ = '+f.lam, rx, ry+54);
+        ctx.fillStyle=(f.used===f.K)?'#8fe3b5':'#dfeefb'; ctx.font='600 15px monospace';
+        ctx.fillText('→ used = '+f.used+'  (목표 '+f.K+')', rx, ry+80);
+        var cmp=f.used>=f.K?'used ≥ k → λ↑':'used < k → λ↓';
+        ctx.fillStyle='#7f8a9b'; ctx.font='12px sans-serif'; ctx.fillText(cmp, rx, ry+102);
+      }
+      if(f.ans!=null){
+        ctx.fillStyle='rgba(143,227,181,0.16)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.2;
+        var aw=W*0.34, ax=rx, ayy=ry+118;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(ax,ayy,aw,40,9);}else{ctx.beginPath();ctx.rect(ax,ayy,aw,40);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 16px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('f('+f.K+') = '+f.ans, ax+aw/2, ayy+20); ctx.textBaseline='alphabetic';
+      }
+      ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif';
+      ctx.fillText('▶ '+(f.final?'완료 — 제약을 이분 탐색으로':'벌점 DP + λ 이분 탐색'), W/2, H*0.965); }
   },
 
   { id:'algo_br_bitset', branchOf:'algo2_01',
@@ -11560,28 +12537,126 @@
       ctx.fillText('L/R 경로 = 연분수 전개', W*0.93, H*0.93); }
   },
 
-  { id:'algo_br_smawk', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('SMAWK — 완전단조 행렬의 행별 최솟값을 O(n)에', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('각 행의 최솟값 위치가 단조로 증가하면, 행마다 다 보지 않고도 한꺼번에', W/2, H*0.10+22);
-      // matrix with min positions monotone (staircase)
-      var R=5,C=6, bx=W*0.30, by=H*0.28, cw=42, ch=34;
-      var minc=[0,1,1,3,4];
-      for(var r=0;r<R;r++)for(var c=0;c<C;c++){ var x=bx+c*cw,y=by+r*ch; var on=(c===minc[r]);
-        ctx.fillStyle=on?'rgba(255,178,122,0.3)':'rgba(122,184,255,0.07)'; ctx.strokeStyle=on?'#ffb27a':'#3a4358'; ctx.lineWidth=on?2.5:1;
-        ctx.fillRect(x,y,cw-4,ch-4); ctx.strokeRect(x,y,cw-4,ch-4);
-        if(on){ ctx.fillStyle='#ffb27a'; ctx.font='600 11px sans-serif'; ctx.fillText('min',x+(cw-4)/2,y+ch/2); } }
-      ctx.fillStyle='#6a6873'; ctx.font='11px sans-serif'; ctx.textAlign='right';
-      for(var r=0;r<R;r++) ctx.fillText('행'+r,bx-6,by+r*ch+ch/2); ctx.textAlign='center';
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('완전단조: 행 최솟값 열 위치가 행이 내려갈수록 ≥ (계단처럼 단조)', W/2, H*0.74);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('REDUCE(쓸모없는 열 제거) + 홀수 행만 재귀 후 짝수 행은 좁은 범위서만 탐색 → 전체 O(n+m)', W/2, H*0.84);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('쓰임: 분할정복/크누스로 안 풀리는 1D1D DP, 최소 둘레 다각형, 행렬 검색을 선형으로', W/2, H*0.84+20); }
+  { id:'algo_br_smawk', branchOf:'algo7_05',
+    code:[
+      'smawk(rows, cols):',
+      '  cols = REDUCE(rows, cols)   // 죽은 열 제거',
+      '  if |rows|==1: argmin 직접',
+      '  smawk(oddRows, cols)        // 홀수 행만 재귀',
+      '  // 짝수 행 보간:',
+      '  for even row r:',
+      '    lo = argmin(r-1)          // 위 홀수 행',
+      '    hi = argmin(r+1)          // 아래 홀수 행',
+      '    argmin(r) = min in [lo,hi] // 좁은 구간'
+    ],
+    build:function(V){ var st=[];
+      // 완전단조 행렬 (행 argmin 단조 증가). 4x5.
+      var Mx=[
+        [ 3, 5, 9, 12, 15],
+        [ 6, 4, 7, 10, 13],
+        [ 9, 7, 5,  8, 11],
+        [12, 9, 6,  4,  7]
+      ];
+      var R=Mx.length, Cn=Mx[0].length;
+      function snap(line,cap,extra){
+        var f={line:line,cap:cap,M:Mx,R:R,Cn:Cn,argmin:[-1,-1,-1,-1]};
+        if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      // 실제 행별 argmin(검증용)
+      var trueAM=Mx.map(function(row){ var b=0; for(var c=1;c<row.length;c++) if(row[c]<row[b]) b=c; return b; });
+      snap(0,'완전단조 행렬 (행마다 최솟값 열 argmin이 단조 증가). 모든 행의 최솟값을 O(n+m)에 구합니다.',{});
+      // REDUCE: 스택으로 죽은 열 제거. 전체 행 대상.
+      // 표준 REDUCE: 스택 유지, 새 열 c와 비교
+      var stack=[]; // 살아남는 열 인덱스
+      var rowsForReduce=[0,1,2,3];
+      snap(1,'<b>REDUCE</b>: 어느 행에서도 최소가 못 되는 "죽은 열"을 스택으로 골라냅니다.',{reduceStack:[]});
+      for(var c=0;c<Cn;c++){
+        snap(1,'열 '+c+' 검토. 스택 top과 비교해 진 열을 버립니다.',{reduceStack:stack.slice(),rc:c});
+        while(stack.length>0){
+          var k=stack.length-1; var top=stack[k];
+          // 비교 행 = k번째 (스택 크기-1). M[k][top] vs M[k][c]
+          if(k<R && Mx[k][top] > Mx[k][c]){
+            snap(1,'행 '+k+'에서 열 '+top+'('+Mx[k][top]+') &gt; 열 '+c+'('+Mx[k][c]+') → 열 '+top+'는 죽음, pop.',{reduceStack:stack.slice(),rc:c,dead:top});
+            stack.pop();
+          } else break;
+        }
+        if(stack.length<R){ stack.push(c); }
+        else { snap(1,'스택이 행 수만큼 찼고 마지막 열은 이길 수 없음 → 열 '+c+' 버림.',{reduceStack:stack.slice(),rc:c,dead:c}); }
+      }
+      snap(1,'REDUCE 완료: 살아남은 열 = [<b>'+stack.join(', ')+'</b>]. 열 수 ≤ 행 수.',{reduceStack:stack.slice(),survive:stack.slice()});
+      // 홀수 행(0,2 — 0-indexed even rows = "홀수 번째"로 본다) 재귀로 argmin 구함.
+      // 여기선 단순화: 행 0,2 직접 계산(살아남은 열 안에서)
+      var am=[-1,-1,-1,-1];
+      var oddRows=[0,2];
+      snap(3,'<b>홀수 행만 재귀</b>: 행 0,2의 최솟값을 살아남은 열에서 구합니다.',{reduceStack:stack.slice(),survive:stack.slice(),oddRows:oddRows});
+      oddRows.forEach(function(r){
+        var bestC=stack[0], bestV=Mx[r][stack[0]];
+        for(var s=1;s<stack.length;s++){ if(Mx[r][stack[s]]<bestV){ bestV=Mx[r][stack[s]]; bestC=stack[s]; } }
+        am[r]=bestC;
+        snap(3,'행 '+r+': 최솟값 '+bestV+' (열 '+bestC+'). argmin['+r+']='+bestC+'.',{reduceStack:stack.slice(),survive:stack.slice(),argmin:am.slice(),hr:r});
+      });
+      // 짝수 행(1,3) 보간: 이웃 홀수 행 argmin 사이만 탐색
+      snap(4,'<b>짝수 행 보간</b>: 행 1,3의 최솟값은 위·아래 홀수 행 argmin 사이에만 있습니다.',{argmin:am.slice()});
+      // 행1: 사이 [am[0], am[2]]
+      [[1,0,2],[3,2,3]].forEach(function(t){
+        var r=t[0], up=t[1], dn=t[2];
+        var lo=am[up], hi=(am[dn]>=0?am[dn]:Cn-1);
+        if(dn>=R || am[dn]<0) hi=Cn-1;
+        snap([6,7,8],'행 '+r+': 위 argmin='+lo+', 아래 argmin='+(am[dn]>=0?am[dn]:'(끝)')+' → 열 ['+lo+','+hi+'] 만 탐색.',{argmin:am.slice(),hr:r,lo:lo,hi:hi});
+        var bestC=lo, bestV=Mx[r][lo];
+        for(var c2=lo;c2<=hi;c2++){ if(Mx[r][c2]<bestV){ bestV=Mx[r][c2]; bestC=c2; } }
+        am[r]=bestC;
+        snap(8,'행 '+r+': 좁은 구간 최솟값 '+bestV+' (열 '+bestC+'). argmin['+r+']='+bestC+'.',{argmin:am.slice(),hr:r,lo:lo,hi:hi});
+      });
+      var ok = am.join(',')===trueAM.join(',');
+      snap(8,'<b>완료!</b> 행별 argmin = ['+am.join(', ')+'] (검증 일치='+ok+'). 재귀가 행을 절반씩 줄여 O(n+m).',{argmin:am.slice(),done:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      var R=f.R, Cn=f.Cn;
+      var gx0=W*0.18, gy0=H*0.16, cw=Math.min((W*0.66)/Cn,(H*0.50)/R);
+      function cx(c){ return gx0+c*cw; }
+      function cy(r){ return gy0+r*cw; }
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      var surv={}; if(f.survive) f.survive.forEach(function(c){surv[c]=1;});
+      // 헤더
+      ctx.font='11px sans-serif'; ctx.fillStyle='#9b99a3';
+      for(var c=0;c<Cn;c++){ ctx.fillStyle=(f.rc===c)?'#ffb27a':(surv[c]?'#8fe3b5':'#9b99a3'); ctx.fillText('열'+c, cx(c)+cw/2, gy0-12); }
+      for(var r=0;r<R;r++){ ctx.fillStyle=(f.hr===r)?'#ffb27a':'#9b99a3'; ctx.fillText('행'+r, gx0-16, cy(r)+cw/2); }
+      // 셀
+      for(var i=0;i<R;i++){ for(var j=0;j<Cn;j++){
+        var x=cx(j), y=cy(i);
+        var isAM=(f.argmin&&f.argmin[i]===j);
+        var inRange=(f.hr===i && f.lo!=null && j>=f.lo && j<=f.hi);
+        var dead=(f.dead===j);
+        var survCol=surv[j];
+        var col,fill;
+        if(isAM){ col='#8fe3b5'; fill='rgba(143,227,181,0.28)'; }
+        else if(f.hr===i && inRange){ col='#ffb27a'; fill='rgba(255,178,122,0.16)'; }
+        else if(dead){ col='#f4a0c0'; fill='rgba(244,160,192,0.12)'; }
+        else if(survCol){ col='#7ab8ff'; fill='rgba(122,184,255,0.10)'; }
+        else { col='rgba(155,153,163,0.45)'; fill='rgba(155,153,163,0.04)'; }
+        ctx.fillStyle=fill; ctx.strokeStyle=col; ctx.lineWidth=isAM?2.4:1.2;
+        ctx.fillRect(x+2,y+2,cw-4,cw-4); ctx.strokeRect(x+2,y+2,cw-4,cw-4);
+        ctx.fillStyle=col; ctx.font='600 14px sans-serif';
+        ctx.fillText(f.M[i][j], x+cw/2, y+cw/2);
+      } }
+      // REDUCE 스택 칩
+      var sy=gy0+cw*R+H*0.06;
+      ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.font='12px sans-serif';
+      if(f.reduceStack){ ctx.fillStyle='#9b99a3'; ctx.fillText('REDUCE 스택:', gx0-16, sy);
+        var bx=gx0+90;
+        for(var s=0;s<f.reduceStack.length;s++){ var lbl='열'+f.reduceStack[s];
+          var wd=ctx.measureText(lbl).width+12;
+          ctx.fillStyle='rgba(143,227,181,0.16)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=1.4;
+          ctx.fillRect(bx,sy-11,wd,22); ctx.strokeRect(bx,sy-11,wd,22);
+          ctx.fillStyle='#8fe3b5'; ctx.textAlign='center'; ctx.fillText(lbl,bx+wd/2,sy); ctx.textAlign='left';
+          bx+=wd+6; }
+      }
+      // argmin 결과
+      if(f.argmin){ var ay=sy+H*0.07; ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+        var amstr=f.argmin.map(function(v){return v<0?'·':v;}).join(', ');
+        ctx.fillText('행별 argmin = ['+amstr+']  (단조 증가)', gx0-16, ay); }
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('초록=행 최솟값  ·  분홍=죽은 열(REDUCE)  ·  주황=짝수행 좁은 탐색구간', W/2, H*0.95); }
   },
 
   { id:'algo_br_dinkelbach', branchOf:'algo8_01',
@@ -12116,27 +13191,79 @@
       ctx.textBaseline='alphabetic'; }
   },
 
-  { id:'algo_br_partition', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('정수 분할 — n을 합으로 쪼개는 가짓수', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('순서 무관하게 n을 양의 정수 합으로 적는 방법의 수 p(n). 동전교환의 사촌', W/2, H*0.10+22);
-      // Ferrers diagrams for partitions of 4
-      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
-      ctx.fillText('p(4) = 5 가지 (페러스 점 그림)', W/2, H*0.28);
-      var parts=[[4],[3,1],[2,2],[2,1,1],[1,1,1,1]];
-      var dot=11, gx=W*0.12, gy=H*0.38, colw=W*0.16;
-      parts.forEach(function(p,i){ var x0=gx+i*colw;
-        for(var r=0;r<p.length;r++)for(var c=0;c<p[r];c++){ ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(x0+c*(dot+3),gy+r*(dot+3),dot/2,0,Math.PI*2); ctx.fill(); }
-        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(p.join('+'),x0+18,gy+5*(dot+3)+6); });
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
-      ctx.fillText('DP: dp[i][s] = i 이하 정수로 s 만들기 = dp[i−1][s] + dp[i][s−i]', W/2, H*0.74);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('동전교환(중복허용)과 같은 점화식 — 단 "가짓수"를 셈. 부분합·부품 1..n 한 번씩 누적', W/2, H*0.84);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('오일러 오각수 정리로 O(n√n), 생성함수 ∏ 1/(1−xᵏ). 켤레=페러스 그림 뒤집기(전치)', W/2, H*0.84+20); }
+  { id:'algo_br_partition', branchOf:'algo7_05',
+    code:[
+      'PARTITION-COUNT(n):',
+      '  dp[0] = 1            // 빈 합 = 1가지',
+      '  for part = 1 .. n:   // 사용할 수(바깥)',
+      '    for s = part .. n: // 정방향(재사용 허용)',
+      '      dp[s] += dp[s-part]',
+      '  return dp[n]         // p(n)'
+    ],
+    build:function(V){
+      var n=5, st=[];
+      var dp=[]; for(var s=0;s<=n;s++) dp[s]=0;
+      function snap(line,cap,o){
+        var f={line:line,cap:cap,n:n,dp:dp.slice(),
+          part:(o&&o.part!=null)?o.part:-1, s:(o&&o.s!=null)?o.s:-1,
+          src:(o&&o.src!=null)?o.src:-1};
+        st.push(f); }
+      snap(0,'정수 <b>n=5</b>를 순서 무시하고 양의 정수 합으로 적는 방법 수 <b>p(5)</b>를 구합니다(동전교환 가짓수와 동일).',{});
+      dp[0]=1;
+      snap(1,'기저: <b>dp[0]=1</b> (합 0을 만드는 방법은 "아무것도 안 쓰기" 1가지). 부품 1..5를 차례로 도입합니다.',{});
+      for(var part=1;part<=n;part++){
+        snap(2,'부품 <b>'+part+'</b> 도입(바깥 루프). 이 부품을 0개 이상 쓰는 경우를 dp에 누적합니다 — 순서 중복 제거.',{part:part});
+        for(var ss=part;ss<=n;ss++){
+          var add=dp[ss-part], before=dp[ss];
+          dp[ss]+=add;
+          snap([3,4],'dp['+ss+'] += dp['+(ss-part)+'] : '+before+' + '+add+' = <b>'+dp[ss]+'</b> (합 '+ss+'에 부품 '+part+' 하나 더 쓰는 경우 추가).',{part:part,s:ss,src:ss-part});
+        }
+        snap(4,'부품 '+part+' 반영 완료. dp = ['+dp.join(',')+'].',{part:part});
+      }
+      snap(5,'<b>완료!</b> p(5) = dp[5] = <b>'+dp[n]+'</b>. (5, 4+1, 3+2, 3+1+1, 2+2+1, 2+1+1+1, 1+1+1+1+1 = 7가지) O(n²).',{});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('정수 분할 p(n): dp[s] += dp[s−part] (부품 1..n 바깥 루프)', W/2, H*0.10);
+      // parts list (which part introduced)
+      ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#7f8a9b';
+      ctx.fillText('도입한 부품:', W*0.10, H*0.22);
+      var px=W*0.28;
+      for(var p=1;p<=n;p++){
+        var done=(f.part>p)||(f.part===p), cur=(p===f.part);
+        var lbl=''+p;
+        ctx.font='600 13px sans-serif'; var bw=30;
+        ctx.fillStyle=cur?'rgba(255,178,122,0.26)':done?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.06)';
+        ctx.strokeStyle=cur?'#ffb27a':done?'#8fe3b5':'#3c4a5e'; ctx.lineWidth=cur?2.2:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(px,H*0.18,bw,26,6);}else{ctx.beginPath();ctx.rect(px,H*0.18,bw,26);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=cur?'#ffb27a':done?'#8fe3b5':'#5a5a64'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(lbl, px+bw/2, H*0.18+13); ctx.textBaseline='alphabetic'; px+=bw+10;
+      }
+      // dp table 0..n
+      var cols=n+1, cw=Math.min(86,(W*0.78)/cols), x0=W/2-(cols*cw)/2, y0=H*0.42;
+      ctx.font='12px sans-serif'; ctx.fillStyle='#7f8a9b'; ctx.textAlign='left';
+      ctx.fillText('dp[s] = 합 s를 만드는 분할 수', x0, y0-18);
+      for(var c=0;c<=n;c++){ var x=x0+c*cw, val=f.dp[c];
+        var isCur=(c===f.s), isSrc=(c===f.src&&f.src>=0);
+        var col=isCur?'#ffb27a':isSrc?'#8fe3b5':'#7ab8ff';
+        var fil=isCur?'rgba(255,178,122,0.24)':isSrc?'rgba(143,227,181,0.20)':'rgba(122,184,255,0.12)';
+        ctx.fillStyle=fil; ctx.strokeStyle=col; ctx.lineWidth=(isCur||isSrc)?2.4:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+3,y0,cw-6,40,7);}else{ctx.beginPath();ctx.rect(x+3,y0,cw-6,40);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#6f7a8b'; ctx.font='11px sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='center';
+        ctx.fillText('s='+c, x+cw/2, y0-8);
+        ctx.fillStyle=col; ctx.font='600 18px monospace';
+        ctx.fillText(''+val, x+cw/2, y0+20); ctx.textBaseline='alphabetic'; }
+      if(f.s>=0 && f.src>=0){
+        ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
+        ctx.fillText('정방향 누적: dp['+f.s+'] ← dp['+f.s+'] + dp['+f.src+']  (부품 '+f.part+' 재사용 허용)', W/2, H*0.66);
+      }
+      // partitions of 5 list at bottom for intuition
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('p(5)=7: 5 · 4+1 · 3+2 · 3+1+1 · 2+2+1 · 2+1+1+1 · 1+1+1+1+1', W/2, H*0.82);
+      ctx.fillStyle='#7f8a9b'; ctx.font='12px sans-serif';
+      ctx.fillText('주황=갱신 중 dp[s]  ·  초록=참조 dp[s−part]  ·  부품을 한 번씩만 바깥에 둬 순서 중복 제거', W/2, H*0.92); }
   },
 
   { id:'algo_br_matrixtree', branchOf:'algo8_03',
@@ -12332,29 +13459,96 @@
       ctx.fillText('쓰임: 스케줄(최소 근무시간)·공급망 최소 처리량·행렬 행·열합 맞추기(수송)', W/2, H*0.86+20); }
   },
 
-  { id:'algo_br_steiner', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('스타이너 트리 — 지정 정점들을 최소 비용으로 잇기', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('터미널 k개를 잇는 최소 트리(중간 정점 추가 허용). k 작으면 부분집합 DP로 O(3ᵏ·n)', W/2, H*0.10+22);
-      // graph with terminals highlighted and a steiner tree
-      var N={a:[0.25,0.32],b:[0.55,0.26],c:[0.78,0.50],d:[0.50,0.55],e:[0.30,0.70],f:[0.66,0.74]};
-      var tree=[['a','d'],['b','d'],['d','f'],['c','f']];
-      var allE=[['a','d'],['b','d'],['d','f'],['c','f'],['d','e'],['a','e']];
-      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.54]; }
-      allE.forEach(function(e){ var p=xy(N[e[0]]),q=xy(N[e[1]]); var on=tree.some(function(t){return t[0]===e[0]&&t[1]===e[1];}); ctx.strokeStyle=on?'#8fe3b5':'rgba(255,255,255,0.15)'; ctx.lineWidth=on?3:1.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); });
-      var terms=['a','b','c'];
-      Object.keys(N).forEach(function(k){ var p=xy(N[k]); var term=terms.indexOf(k)>=0;
-        ctx.fillStyle=term?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.14)'; ctx.strokeStyle=term?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(p[0],p[1],term?14:11,0,Math.PI*2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=term?'#ffb27a':'#8a8893'; ctx.font='600 11px sans-serif'; ctx.fillText(term?'단말':'',p[0],p[1]-20); });
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('주황=단말(반드시 연결), 초록=고른 스타이너 트리(중간점 D·F 활용)', W/2, H*0.84);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('DP: dp[부분집합][정점] = 그 정점에 모인 단말 부분집합 연결 최소비용. 부분집합 병합 + 완화', W/2, H*0.91);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('NP-난해이나 단말 k 작으면 O(3ᵏ·n + 2ᵏ·n log n). MST는 중간점 없는 근사(2배 이내)', W/2, H*0.91+18); }
+  { id:'algo_br_steiner', branchOf:'algo7_05',
+    code:[
+      'for t: dp[{t}][t] = 0          // 단일 단말 비용 0',
+      'for mask = 1 .. 2^k-1:',
+      '  for v in V:                  // v에 모으는 비용',
+      '    for sub ⊂ mask:            // 두 서브트리 병합',
+      '      dp[mask][v]=min(dp[sub][v]+dp[mask^sub][v])',
+      '    relax(dp[mask]) by edges   // 간선 따라 확장',
+      'ans = min_v dp[full][v]'
+    ],
+    build:function(V){
+      var n=5, INF=1e9, NM=['A','B','C','D','E'];
+      // 무방향 가중 그래프. 단말 K={A,B,C}=인덱스 0,1,2. D,E는 스타이너 후보.
+      var EG=[[0,3,1],[1,3,2],[2,3,2],[0,1,5],[1,2,4],[3,4,1],[2,4,3]];
+      var adj=[]; for(var i=0;i<n;i++) adj.push([]);
+      EG.forEach(function(e){ adj[e[0]].push([e[1],e[2]]); adj[e[1]].push([e[0],e[2]]); });
+      var term=[0,1,2], k=3, FULL=(1<<k)-1;
+      var dp=[]; for(var m=0;m<(1<<k);m++){ dp.push([INF,INF,INF,INF,INF]); }
+      for(var t=0;t<k;t++) dp[1<<t][term[t]]=0;
+      var st=[];
+      function clone(){ var c=[]; for(var m=0;m<dp.length;m++) c.push(dp[m].slice()); return c; }
+      function snap(line,cap,extra){ var f={line:line,cap:cap,dp:clone(),EG:EG,NM:NM,n:n,INF:INF,full:FULL,term:term}; if(extra)for(var k2 in extra)f[k2]=extra[k2]; st.push(f); }
+      function tb(m){ var s=''; for(var b=k-1;b>=0;b--) s+=((m>>b)&1); return s; }
+      function dij(arr,mask){
+        var dist=arr.slice(), used=[false,false,false,false,false];
+        for(var it=0;it<n;it++){ var u=-1,bd=INF; for(var i=0;i<n;i++) if(!used[i]&&dist[i]<bd){bd=dist[i];u=i;}
+          if(u<0)break; used[u]=true;
+          for(var e=0;e<adj[u].length;e++){ var to=adj[u][e][0], w=adj[u][e][1]; if(dist[u]+w<dist[to]) dist[to]=dist[u]+w; } }
+        for(i=0;i<n;i++) arr[i]=dist[i];
+      }
+      snap(0,'단말 K={A,B,C}(k=3)을 잇는 최소 트리. D·E는 추가 가능한 <b>스타이너 점</b>. dp[{단일단말}][그 정점]=0 으로 초기화.',{mask:-1,v:-1});
+      for(var mask=1;mask<=FULL;mask++){
+        snap(1,'단말 부분집합 <b>{'+tb(mask)+'}</b> 처리 — 이 단말들을 어느 정점 v에 모으는 최소 비용을 채웁니다.',{mask:mask,v:-1});
+        for(var v=0;v<n;v++){
+          for(var sub=(mask-1)&mask; sub>0; sub=(sub-1)&mask){
+            var other=mask^sub;
+            if(dp[sub][v]>=INF||dp[other][v]>=INF) continue;
+            var cand=dp[sub][v]+dp[other][v];
+            if(cand<dp[mask][v]){
+              dp[mask][v]=cand;
+              snap([3,4],'<b>병합</b> at '+NM[v]+': dp[{'+tb(sub)+'}]['+NM[v]+']+dp[{'+tb(other)+'}]['+NM[v]+'] = '+cand+' → dp[{'+tb(mask)+'}]['+NM[v]+'].',{mask:mask,v:v});
+            }
+          }
+        }
+        var beforeRelax=dp[mask].slice();
+        dij(dp[mask],mask);
+        snap(5,'<b>완화(다익스트라)</b>: {'+tb(mask)+'}를 모은 정점에서 간선 따라 이웃 v로 확장해 dp[{'+tb(mask)+'}][·]를 더 줄입니다.',{mask:mask,v:-1});
+      }
+      var ans=INF, best=-1;
+      for(var v2=0;v2<n;v2++){ if(dp[FULL][v2]<ans){ans=dp[FULL][v2];best=v2;} }
+      snap(6,'<b>완료!</b> 답 = min_v dp[{'+tb(FULL)+'}][v] = <b>'+ans+'</b> (정점 '+NM[best]+'에 별모양으로 모임: A·B·C가 D를 거쳐 연결).',{mask:FULL,v:best,done:1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n,NM=f.NM,INF=f.INF;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      // 정점 좌표
+      var P=[[0.12,0.18],[0.12,0.78],[0.55,0.85],[0.40,0.42],[0.78,0.50]];
+      function px(i){ return [W*0.06+P[i][0]*W*0.46, H*0.16+P[i][1]*H*0.66]; }
+      // 간선
+      ctx.lineWidth=1.5;
+      for(var e=0;e<f.EG.length;e++){ var a=px(f.EG[e][0]), b=px(f.EG[e][1]);
+        ctx.strokeStyle='rgba(122,184,255,0.30)'; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
+        ctx.fillStyle='#7f7e8a'; ctx.font='11px sans-serif'; ctx.fillText(f.EG[e][2],(a[0]+b[0])/2,(a[1]+b[1])/2-2); }
+      // 정점
+      var isTerm=[false,false,false,false,false]; f.term.forEach(function(t){ isTerm[t]=true; });
+      for(var i=0;i<n;i++){ var p=px(i), cur=(i===f.v), term=isTerm[i];
+        var fill=cur?'rgba(143,227,181,0.30)':term?'rgba(255,178,122,0.20)':'rgba(122,184,255,0.10)';
+        var stroke=cur?'#8fe3b5':term?'#ffb27a':'#7ab8ff';
+        if(cur){ ctx.save(); ctx.shadowColor='#8fe3b5'; ctx.shadowBlur=14; }
+        ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=2.4;
+        ctx.beginPath(); ctx.arc(p[0],p[1],19,0,7); ctx.fill(); ctx.stroke();
+        if(cur) ctx.restore();
+        ctx.fillStyle=stroke; ctx.font='600 14px sans-serif'; ctx.fillText(NM[i],p[0],p[1]); }
+      ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('주황 = 단말 K{A,B,C}   파랑 = 스타이너 후보(D,E)', W*0.04, H*0.06);
+      // dp 표 (우측): 행=mask, 열=정점
+      var k=3, tx=W*0.56, ty=H*0.12, cw=Math.min(48,(W*0.42)/(n+1)), rh=Math.min(26,(H*0.74)/((1<<k)+1));
+      ctx.font='600 11px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#9b99a3'; ctx.fillText('mask', tx+cw*0.5, ty);
+      for(var c=0;c<n;c++){ ctx.fillStyle=(c===f.v)?'#8fe3b5':'#9b99a3'; ctx.fillText(NM[c], tx+cw*(c+1.5), ty); }
+      function tb(m){ var s=''; for(var b=k-1;b>=0;b--) s+=((m>>b)&1); return s; }
+      for(var mm=1;mm<(1<<k);mm++){ var ry=ty+rh*mm;
+        ctx.fillStyle=(mm===f.mask)?'#ffb27a':'#7f7e8a'; ctx.font='10px monospace';
+        ctx.fillText('{'+tb(mm)+'}', tx+cw*0.5, ry);
+        for(c=0;c<n;c++){ var val=f.dp[mm][c]; if(val>=INF) continue;
+          var hot=(mm===f.mask);
+          ctx.fillStyle=hot?'rgba(255,178,122,0.22)':'rgba(143,227,181,0.10)';
+          ctx.fillRect(tx+cw*(c+1)+2, ry-rh*0.42, cw-4, rh*0.8);
+          ctx.fillStyle=hot?'#ffb27a':'#8fe3b5'; ctx.font='600 11px monospace';
+          ctx.fillText(val, tx+cw*(c+1.5), ry); } }
+      ctx.textBaseline='alphabetic'; }
   },
 
   { id:'algo_br_waveletmatrix', branchOf:'algo2_01',
@@ -14007,72 +15201,246 @@
       ctx.fillText('주황 = 현재 내려가는 노드/간선  ·  반대 비트로 갈 수 있으면 그쪽(그 자리 XOR=1)', W/2, H*0.97); }
   },
 
-  { id:'algo_br_brokenprofile', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('윤곽선 DP — 격자를 칸 단위로 채우는 비트마스크', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('도미노/타일로 격자 채우기를, "지금까지 채운 경계(윤곽선) 모양"을 비트마스크 상태로', W/2, H*0.10+22);
-      // grid partially filled, profile boundary highlighted
-      var R=4,C=5, gx=W*0.32, gy=H*0.30, cell=42;
-      for(var r=0;r<R;r++)for(var c=0;c<C;c++){ var x=gx+c*cell,y=gy+r*cell;
-        var filled=(r*C+c) < 9; // first 9 cells filled (row-major)
-        ctx.fillStyle=filled?'rgba(122,184,255,0.28)':'rgba(122,184,255,0.05)'; ctx.strokeStyle='#3a4358'; ctx.lineWidth=1; ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3); }
-      // profile boundary (staircase) at cell 9
-      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=3;
-      ctx.beginPath(); ctx.moveTo(gx,gy+2*cell); ctx.lineTo(gx+4*cell,gy+2*cell); ctx.lineTo(gx+4*cell,gy+1*cell); ctx.lineTo(gx+C*cell-3,gy+1*cell); ctx.stroke();
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('윤곽선(profile) = 비트마스크', gx+2*cell, gy+R*cell+18);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('상태 = 현재 칸 + 윤곽선 m비트(위·왼쪽 채움 여부). 칸마다 빈칸/가로/세로 타일 전이', W/2, H*0.80);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('한 칸씩 진행하므로 마스크 폭이 열 수 C → 상태 O(nm·2^C), 좁은 쪽을 C로(min(행,열))', W/2, H*0.88);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('도미노·타일링 경우의 수, 격자 독립집합, 좁은 그리드 최적화. 행 전체 마스크보다 칸 단위가 효율', W/2, H*0.88+20); }
+  { id:'algo_br_brokenprofile', branchOf:'algo7_05',
+    code:[
+      'dp{0:1}                       // 빈 윤곽선 1가지',
+      'for each cell (i,j) 좌→우·위→아래:',
+      '  for (mask, ways) in dp:',
+      '    if mask 비트 j 켜짐:       // 위에서 이미 채워짐',
+      '      넘어감 (비트 j 끔)',
+      '    else: 빈칸 두 선택지',
+      '      세로 도미노 → 비트 j 켬',
+      '      가로 도미노 → 비트 j+1 켬',
+      '// 답 = dp[0] (윤곽선 깔끔)'
+    ],
+    build:function(V){
+      var R=2,C=3; // 2x3 격자
+      var dp={0:1};
+      var st=[];
+      function dpArr(d){ var a=[]; for(var k in d) a.push([+k,d[k]]); a.sort(function(p,q){return p[0]-q[0];}); return a; }
+      function bs(m){ var s=''; for(var b=C-1;b>=0;b--) s+=((m>>b)&1); return s; }
+      function snap(line,cap,extra){ var f={line:line,cap:cap,R:R,C:C,dp:dpArr(dp)}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(0,'2×3 격자를 <b>도미노</b>로 빈틈없이 채우는 가짓수. 윤곽선 dp = {빈마스크 0 : 1가지}에서 시작.',{ci:-1,cj:-1});
+      for(var i=0;i<R;i++){
+        for(var j=0;j<C;j++){
+          var ndp={};
+          var moves=[];
+          for(var k=0;k<dpArr(dp).length;k++){ var pr=dpArr(dp)[k]; var mask=pr[0], ways=pr[1];
+            var bit=(mask>>j)&1;
+            if(bit){ var nm=mask&~(1<<j); ndp[nm]=(ndp[nm]||0)+ways; moves.push('skip'); }
+            else {
+              if(i+1<R){ var nv=mask|(1<<j); ndp[nv]=(ndp[nv]||0)+ways; }
+              if(j+1<C && !((mask>>(j+1))&1)){ var nh=mask|(1<<(j+1)); ndp[nh]=(ndp[nh]||0)+ways; }
+            }
+          }
+          snap([1],'칸 <b>('+i+','+j+')</b> 처리: 현재 dp의 각 윤곽선 마스크에서 이 칸을 어떻게 덮을지 전이합니다.',{ci:i,cj:j});
+          // 전이 설명: 첫 마스크 기준
+          var sample=dpArr(dp);
+          if(sample.length){ var sm=sample[0][0]; var sbit=(sm>>j)&1;
+            var msg = sbit ? '윤곽선 {'+bs(sm)+'} 은 비트 '+j+'이 켜짐 → 위 세로도미노가 이미 덮음. <b>넘어감</b>(비트 끔).'
+                           : '빈칸이면 두 선택: <b>세로</b>(아래칸과 짝, 비트 '+j+' 켬) 또는 <b>가로</b>(오른칸과 짝, 비트 '+(j+1)+' 켬).';
+            snap(sbit?[3,4]:[5,6,7], msg,{ci:i,cj:j});
+          }
+          dp=ndp;
+          snap(1,'칸 ('+i+','+j+') 후 윤곽선 dp 갱신 — 마스크별 가짓수가 누적됩니다.',{ci:i,cj:j,after:1});
+        }
+      }
+      var ans=dp[0]||0;
+      snap(8,'<b>완료!</b> 모든 칸 처리 후 윤곽선이 깔끔(0)한 경우 = <b>'+ans+'가지</b>. 칸 하나씩·경계만 기억해 O(nm·2^C).',{ci:-1,cj:-1,done:1,ans:ans});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,R=f.R,C=f.C;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      // 격자
+      var cell=Math.min(56,W*0.10,H*0.16), gx=W*0.28-cell*C/2, gy=H*0.30;
+      for(var i=0;i<R;i++) for(var j=0;j<C;j++){ var x=gx+j*cell, y=gy+i*cell;
+        var cur=(i===f.ci&&j===f.cj);
+        ctx.fillStyle=cur?'rgba(255,178,122,0.30)':'rgba(122,184,255,0.08)';
+        ctx.strokeStyle=cur?'#ffb27a':'#7ab8ff'; ctx.lineWidth=cur?2.6:1.4;
+        ctx.fillRect(x,y,cell-2,cell-2); ctx.strokeRect(x,y,cell-2,cell-2);
+        ctx.fillStyle='#7f7e8a'; ctx.font='10px monospace';
+        ctx.fillText('('+i+','+j+')',x+(cell-2)/2,y+(cell-2)/2); }
+      ctx.font='12px sans-serif'; ctx.fillStyle='#9b99a3';
+      ctx.fillText('2 × 3 격자', gx+cell*C/2, gy-22);
+      // dp 맵 표 (우측): mask | ways
+      var tx=W*0.58, ty=H*0.18, rh=Math.min(26,(H*0.66)/(f.dp.length+1));
+      ctx.font='600 12px monospace'; ctx.textAlign='left';
+      ctx.fillStyle='#9b99a3'; ctx.fillText('윤곽선 dp  (마스크 → 가짓수)', tx, ty-8);
+      for(var r=0;r<f.dp.length;r++){ var mk=f.dp[r][0], wv=f.dp[r][1], yy=ty+rh*(r+0.5)+8;
+        var clean=(mk===0);
+        ctx.fillStyle=clean?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.10)';
+        ctx.fillRect(tx,yy-rh*0.4,W*0.30,rh*0.85);
+        var mb=''; for(var b=C-1;b>=0;b--) mb+=((mk>>b)&1);
+        ctx.fillStyle=clean?'#8fe3b5':'#dfeefb'; ctx.font='600 13px monospace';
+        ctx.fillText('{'+mb+'}', tx+8, yy);
+        ctx.fillStyle='#9b99a3'; ctx.fillText('→', tx+W*0.13, yy);
+        ctx.fillStyle=clean?'#8fe3b5':'#ffb27a'; ctx.font='600 14px sans-serif';
+        ctx.fillText(wv+' 가지', tx+W*0.16, yy); }
+      // 결과
+      if(f.done){ ctx.textAlign='center'; ctx.fillStyle='#8fe3b5'; ctx.font='600 18px sans-serif';
+        ctx.fillText('타일링 = '+f.ans+' 가지', gx+cell*C/2, gy+cell*R+40); }
+      ctx.textBaseline='alphabetic'; }
   },
 
-  { id:'algo_br_expdp', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('기댓값 DP — 확률 점화식으로 평균을 구하기', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('E[상태] = Σ 확률·(비용 + E[다음 상태]). 무작위 과정의 기대 횟수/비용을 DP로', W/2, H*0.10+22);
-      // states with transition probabilities
-      var states=[[0.5,0.32,'E[n]'],[0.30,0.58,'E[n−1]'],[0.70,0.58,'E[n−2]']];
-      function xy(t){ return [W*t[0], H*0.22+t[1]*H*0.4]; }
-      [[0,1,'p'],[0,2,'1−p']].forEach(function(e){ var a=xy(states[e[0]]),b=xy(states[e[1]]); ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText(e[2],(a[0]+b[0])/2,(a[1]+b[1])/2-4); });
-      states.forEach(function(st,i){ var p=xy(st); ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(p[0]-34,p[1]-16,68,32); ctx.strokeRect(p[0]-34,p[1]-16,68,32); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.fillText(st[2],p[0],p[1]+4); });
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
-      ctx.fillText('E[n] = 1 + p·E[n−1] + (1−p)·E[n−2]', W/2, H*0.72);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('선형성 E[X+Y]=E[X]+E[Y]로 분해. 자기참조(루프)면 연립방정식(가우스 소거)으로 풀기', W/2, H*0.82);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('쓰임: 주사위 게임 기대 턴, 랜덤워크 도달시간, 쿠폰 수집가, 카드 뽑기 기대값', W/2, H*0.82+20);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('★뒤에서 앞으로(역방향) 또는 흡수상태부터. 무한 가능성은 등비급수로 닫힌 형태', W/2, H*0.82+38); }
+  { id:'algo_br_expdp', branchOf:'algo7_05',
+    code:[
+      'E[N] = 0                       // 도착점: 기대 0',
+      'for n = N-1 down to 0:         // 거꾸로 채움',
+      '  a = E[min(n+1, N)]           // +1칸 (확률 0.6)',
+      '  b = E[min(n+2, N)]           // +2칸 (확률 0.4)',
+      '  E[n] = 1 + 0.6*a + 0.4*b     // 1걸음 + 미래 기댓값',
+      '// 답 = E[0] (시작점 기대 걸음 수)'
+    ],
+    build:function(V){
+      var N=5, p=0.6;
+      var E=[]; for(var i=0;i<=N;i++) E[i]=null;
+      E[N]=0;
+      var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap,N:N,p:p,E:E.slice()}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      function fmt(x){ return x==null?'?':x.toFixed(2); }
+      snap(0,'위치 0→5 게임. 매 걸음 <b>+1칸(확률 0.6)</b> 또는 <b>+2칸(0.4)</b>. 도착점 <b>E[5]=0</b>(더 갈 필요 없음).',{cur:N});
+      for(var n=N-1;n>=0;n--){
+        var ai=Math.min(n+1,N), bi=Math.min(n+2,N);
+        snap(1,'<b>n='+n+'</b> 계산 — 이미 구한 앞쪽 값으로 기댓값을 거꾸로 채웁니다.',{cur:n});
+        snap([2,3],'다음 위치: +1 → E['+ai+']='+fmt(E[ai])+' (p=0.6),  +2 → E['+bi+']='+fmt(E[bi])+' (p=0.4).',{cur:n,ai:ai,bi:bi});
+        E[n]=1 + p*E[ai] + (1-p)*E[bi];
+        snap(4,'E['+n+'] = 1 + 0.6·'+fmt(E[ai])+' + 0.4·'+fmt(E[bi])+' = <b>'+E[n].toFixed(3)+'</b> 걸음.',{cur:n,ai:ai,bi:bi,just:1});
+      }
+      snap(5,'<b>완료!</b> 시작점 기대 걸음 수 E[0] = <b>'+E[0].toFixed(3)+'</b>. 끝(흡수상태)부터 선형성으로 한 상태씩 분해했습니다.',{cur:0,done:1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,N=f.N;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      // 보드 위치 0..N 한 줄
+      var n=N+1, cw=Math.min(86,(W*0.88)/n), x0=W*0.5-cw*n/2, y0=H*0.30, bh=70;
+      for(var i=0;i<n;i++){ var x=x0+i*cw, cur=(i===f.cur), tgt=(i===f.ai||i===f.bi);
+        var fill=cur?'rgba(255,178,122,0.28)':tgt?'rgba(143,227,181,0.18)':i===N?'rgba(122,184,255,0.14)':'rgba(122,184,255,0.08)';
+        var stroke=cur?'#ffb27a':tgt?'#8fe3b5':i===N?'#7ab8ff':'#5a6b85';
+        ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=cur?2.6:1.6;
+        ctx.fillRect(x+3,y0,cw-6,bh); ctx.strokeRect(x+3,y0,cw-6,bh);
+        // 위치 라벨
+        ctx.fillStyle='#7f7e8a'; ctx.font='11px monospace'; ctx.fillText('칸 '+i,x+3+(cw-6)/2,y0+15);
+        // E 값
+        var ev=f.E[i];
+        ctx.fillStyle=ev==null?'#5a6b85':(cur?'#ffb27a':tgt?'#8fe3b5':'#dfeefb');
+        ctx.font='600 16px sans-serif';
+        ctx.fillText(ev==null?'?':('E='+ev.toFixed(2)),x+3+(cw-6)/2,y0+44); }
+      // 전이 화살표 +1, +2 (현재 셀에서)
+      if(f.cur!=null && f.cur<N && f.ai!=null){
+        var sx=x0+f.cur*cw+(cw)/2;
+        [[f.ai,'+1 (0.6)','#8fe3b5'],[f.bi,'+2 (0.4)','#7ab8ff']].forEach(function(t,k){
+          var tx=x0+t[0]*cw+(cw)/2, ay=y0-16-k*16;
+          ctx.strokeStyle=t[2]; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(sx,ay); ctx.lineTo(tx,ay); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(tx,ay); ctx.lineTo(tx-5,ay-4); ctx.lineTo(tx-5,ay+4); ctx.closePath(); ctx.fillStyle=t[2]; ctx.fill();
+          ctx.fillStyle=t[2]; ctx.font='10px sans-serif'; ctx.fillText(t[1],(sx+tx)/2,ay-9);
+        });
+      }
+      // 점화식 표시
+      if(f.just && f.cur!=null){
+        ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
+        ctx.fillText('E['+f.cur+'] = 1 + 0.6·E['+f.ai+'] + 0.4·E['+f.bi+'] = '+f.E[f.cur].toFixed(3), W*0.5, H*0.62);
+      }
+      if(f.done){ ctx.fillStyle='#8fe3b5'; ctx.font='600 18px sans-serif';
+        ctx.fillText('기대 걸음 수  E[0] = '+f.E[0].toFixed(3), W*0.5, H*0.74); }
+      ctx.textBaseline='alphabetic'; }
   },
 
-  { id:'algo_br_boundedknapsack', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('다중 배낭 — 개수 제한 물건을 빠르게', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('각 물건이 k개까지일 때, k개를 하나씩 넣으면 느림 → 이진 분할 또는 단조 덱으로 가속', W/2, H*0.10+22);
-      // binary split visualization: 13 -> 1,2,4,6
-      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
-      ctx.fillText('이진 분할: 개수 13개 →  1 + 2 + 4 + 6  묶음', W/2, H*0.32);
-      var chunks=[1,2,4,6]; var bw=70, bx=W*0.5-(chunks.length*bw)/2, by=H*0.40;
-      chunks.forEach(function(c,i){ var x=bx+i*bw; ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillRect(x,by,bw-12,34); ctx.strokeRect(x,by,bw-12,34); ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.fillText('×'+c,x+(bw-12)/2,by+22); });
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
-      ctx.fillText('이 묶음들로 0~13 어떤 개수든 부분합으로 표현 가능 → 0/1 배낭으로 환원', W/2, H*0.62);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('이진 분할: 개수 k를 1,2,4,…,나머지 묶음으로 → O(N·W·Σlog kᵢ)', W/2, H*0.76);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('더 빠른 단조 덱: 무게로 나눈 나머지류(residue)별 슬라이딩 윈도우 최대 → O(N·W)', W/2, H*0.85);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('완전 배낭(무제한)=정방향 1차원, 0/1=역방향. 다중=이 둘 사이, 동전·자원 배분', W/2, H*0.85+20); }
+  { id:'algo_br_boundedknapsack', branchOf:'algo7_05',
+    code:[
+      'BOUNDED-KNAPSACK(items, W):',
+      '  for each (w, v, cnt):       // 개수 제한 물건',
+      '    for k = 1; cnt>0; k<<=1:  // 이진 분할',
+      '      take = min(k, cnt)',
+      '      bundle = (w·take, v·take)',
+      '      cnt -= take',
+      '      // 묶음 하나 = 0/1 배낭 물건',
+      '      for c = W .. bundle.w:   // 역방향(0/1)',
+      '        dp[c] = max(dp[c], dp[c-bw] + bv)',
+      '  return dp[W]'
+    ],
+    build:function(V){
+      // 물건: (무게, 가치, 개수)  배낭 용량 W
+      var items=[{w:2,v:5,cnt:3},{w:3,v:8,cnt:2}], W=7, st=[];
+      var dp=[]; for(var c=0;c<=W;c++) dp[c]=0;
+      var bundles=[];   // 누적 표시용
+      function DPC(){ return dp.slice(); }
+      function snap(line,cap,o){
+        var f={line:line,cap:cap,W:W,dp:DPC(),items:items,
+          bundles:bundles.slice(),
+          it:(o&&o.it!=null)?o.it:-1, bw:(o&&o.bw!=null)?o.bw:-1, bv:(o&&o.bv!=null)?o.bv:-1,
+          c:(o&&o.c!=null)?o.c:-1, src:(o&&o.src!=null)?o.src:-1};
+        st.push(f); }
+      snap(0,'물건 ①(무게2,가치5,최대3개) ②(무게3,가치8,최대2개). 배낭 용량 <b>W=7</b>. 개수 제한 배낭을 풉니다.',{});
+      for(var ii=0;ii<items.length;ii++){
+        var it=items[ii], cnt=it.cnt;
+        snap(1,'물건 '+(ii+1)+': 개수 '+cnt+'개를 <b>이진 분할</b>로 묶어 0/1 배낭 물건으로 바꿉니다.',{it:ii});
+        for(var k=1;cnt>0;k<<=1){
+          var take=Math.min(k,cnt); cnt-=take;
+          var bw=it.w*take, bv=it.v*take;
+          bundles.push({label:(it.w)+'×'+take, w:bw, v:bv, it:ii});
+          snap([2,3,4],'묶음 생성: '+take+'개 묶음 = (무게 '+bw+', 가치 '+bv+'). 이 묶음 하나를 한 물건처럼 dp에 반영합니다.',{it:ii,bw:bw,bv:bv});
+          // 0/1 knapsack: backward
+          for(var c=W;c>=bw;c--){
+            var cand=dp[c-bw]+bv;
+            if(cand>dp[c]){
+              snap([7,8],'c='+c+': dp['+(c-bw)+']+'+bv+' = '+dp[c-bw]+'+'+bv+' = <b>'+cand+'</b> &gt; dp['+c+']='+dp[c]+' → 갱신',{it:ii,bw:bw,bv:bv,c:c,src:c-bw});
+              dp[c]=cand;
+            }
+          }
+          snap(8,'묶음 (무게'+bw+',가치'+bv+') 반영 완료. dp = ['+dp.join(',')+'].',{it:ii,bw:bw,bv:bv});
+        }
+      }
+      snap(9,'<b>완료!</b> dp[7] = <b>'+dp[W]+'</b> (물건①×2 + 물건②×1 = 무게7, 가치18). 이진 분할로 O(N·W·Σlog k).',{});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,cap=f.W;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('다중 배낭: 개수 → 이진 분할 묶음 → 0/1 배낭 dp', W/2, H*0.10);
+      // items row
+      ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#7f8a9b';
+      ctx.fillText('물건:', W*0.06, H*0.20);
+      var ix=W*0.18;
+      for(var t=0;t<f.items.length;t++){ var it=f.items[t], hot=(t===f.it);
+        var lbl='무'+it.w+'/가'+it.v+'×'+it.cnt;
+        ctx.font='600 12px sans-serif'; var bw=ctx.measureText(lbl).width+18;
+        ctx.fillStyle=hot?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=hot?'#ffb27a':'#3c4a5e'; ctx.lineWidth=hot?2:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(ix,H*0.165,bw,26,6);}else{ctx.beginPath();ctx.rect(ix,H*0.165,bw,26);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=hot?'#ffb27a':'#cfe0ff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(lbl, ix+bw/2, H*0.165+13); ctx.textBaseline='alphabetic'; ix+=bw+10; }
+      // bundles row
+      ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#7f8a9b';
+      ctx.fillText('이진 분할 묶음:', W*0.06, H*0.32);
+      var bx=W*0.30;
+      for(t=0;t<f.bundles.length;t++){ var b=f.bundles[t];
+        var active=(b.w===f.bw && b.v===f.bv);
+        var lab='(w'+b.w+',v'+b.v+')';
+        ctx.font='600 12px sans-serif'; var ww=ctx.measureText(lab).width+16;
+        ctx.fillStyle=active?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=active?'#8fe3b5':'#3c4a5e'; ctx.lineWidth=active?2:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,H*0.285,ww,24,6);}else{ctx.beginPath();ctx.rect(bx,H*0.285,ww,24);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=active?'#8fe3b5':'#cfe0ff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(lab, bx+ww/2, H*0.285+12); ctx.textBaseline='alphabetic'; bx+=ww+8; }
+      // dp table 0..W
+      var cols=cap+1, cwd=Math.min(64,(W*0.82)/cols), x0=W/2-(cols*cwd)/2, y0=H*0.52;
+      ctx.font='12px sans-serif'; ctx.fillStyle='#7f8a9b'; ctx.textAlign='left';
+      ctx.fillText('dp[용량] = 최대 가치', x0, y0-16);
+      for(var c=0;c<=cap;c++){ var x=x0+c*cwd, val=f.dp[c];
+        var isCur=(c===f.c), isSrc=(c===f.src&&f.src>=0);
+        var col=isCur?'#ffb27a':isSrc?'#8fe3b5':'#7ab8ff';
+        var fil=isCur?'rgba(255,178,122,0.24)':isSrc?'rgba(143,227,181,0.20)':'rgba(122,184,255,0.12)';
+        ctx.fillStyle=fil; ctx.strokeStyle=col; ctx.lineWidth=(isCur||isSrc)?2.2:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+2,y0,cwd-4,34,6);}else{ctx.beginPath();ctx.rect(x+2,y0,cwd-4,34);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#6f7a8b'; ctx.font='11px sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='center';
+        ctx.fillText('c='+c, x+cwd/2, y0-7);
+        ctx.fillStyle=col; ctx.font='600 16px monospace';
+        ctx.fillText(''+val, x+cwd/2, y0+17); ctx.textBaseline='alphabetic'; }
+      if(f.c>=0 && f.src>=0){
+        ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
+        ctx.fillText('역방향 0/1 갱신: dp['+f.c+'] ← dp['+f.src+'] + '+f.bv, W/2, H*0.78);
+      }
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('주황=갱신 중 dp[c]  ·  초록=참조 dp[c−묶음무게]  ·  역방향이라 각 묶음 1회만', W/2, H*0.90); }
   },
 
   { id:'algo_br_edmondskarp', concept:true, branchOf:'algo6_05',
@@ -14711,27 +16079,99 @@
     }
   },
 
-  { id:'algo_br_slopetrick', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('슬로프 트릭 — 볼록 비용함수를 기울기로 관리', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('DP 값함수가 조각별 선형 볼록일 때, 기울기 변화점(꺾임)만 우선순위 큐로 관리', W/2, H*0.10+22);
-      // piecewise linear convex function with breakpoints
-      var ax=W*0.16, bx2=W*0.84, base=H*0.60;
-      var pts=[[0,0.30],[0.25,0.10],[0.45,0.0],[0.65,0.0],[0.85,0.18],[1.0,0.45]];
-      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
-      pts.forEach(function(p,i){ var x=ax+p[0]*(bx2-ax), y=base-p[1]*H*0.5; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
-      pts.forEach(function(p){ ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(ax+p[0]*(bx2-ax),base-p[1]*H*0.5,4,0,Math.PI*2); ctx.fill(); });
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('꺾임점(기울기 −1씩 변화) = 큐에 저장', W/2, base+24);
-      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.fillText('평평한 바닥 = 최솟값 구간', W/2, base+44);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif';
-      ctx.fillText('|x − a| 더하기·prefix min 같은 연산이 "꺾임점 추가·이동·병합"으로', W/2, H*0.80);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('왼쪽/오른쪽 기울기를 두 힙(최대·최소)으로 → 각 전이 O(log n), 함수 전체 안 저장', W/2, H*0.88);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('쓰임: 비감소로 만들기 최소비용·근접 조정·창고/주식 DP. 볼록성 유지가 전제', W/2, H*0.88+20); }
+  { id:'algo_br_slopetrick', branchOf:'algo7_05',
+    code:[
+      'cost = 0',
+      'for a in A:                 // f(x) += |x - a|',
+      '  L.push(a)                 // 최대 힙(왼쪽 기울기)',
+      '  if L.top() > a:           // 순서 위반?',
+      '    cost += L.top() - a',
+      '    L.pop(); L.push(a)      // 정점을 a로 끌어내림',
+      '// 비감소 제약: 오른쪽은 자동 처리',
+      'return cost                 // 최소 비용'
+    ],
+    build:function(V){ var st=[];
+      // 수열을 비감소로 만드는 최소비용 (각 a_i를 +-로 옮김, |변화|합 최소)
+      // 슬로프 트릭 표준: 최대힙 L 유지. 정답값 검증 포함.
+      var A=[3,1,4,1,5];
+      var L=[]; // 최대 힙(배열로, 매번 정렬해 top 관리 — 작은 예제라 OK)
+      function top(){ return L[L.length-1]; }
+      function pushL(v){ L.push(v); L.sort(function(a,b){return a-b;}); } // 오름차순 → top=끝
+      var cost=0;
+      function snap(line,cap,extra){
+        var f={line:line,cap:cap,A:A,heap:L.slice(),cost:cost};
+        if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(0,'수열 A=['+A.join(',')+'] 를 <b>비감소</b>로 만드는 최소 |변화| 합을 슬로프 트릭으로.',{});
+      for(var i=0;i<A.length;i++){ var a=A[i];
+        pushL(a);
+        snap([1,2],'a='+a+' 추가: 최대 힙 L에 push. 볼록 비용 f(x) += |x−'+a+'| 의 새 꺾임점.',{idx:i,cur:a,pushed:a});
+        if(top()>a){
+          var t=top();
+          cost += t - a;
+          L.pop(); pushL(a);
+          snap([3,4,5],'L.top()='+t+' &gt; '+a+' → 순서 위반. 비용 += '+t+'−'+a+'='+(t-a)+'. 정점을 '+a+'로 끌어내림.',{idx:i,cur:a,fixed:true,added:t-a});
+        } else {
+          snap(2,'L.top()='+(L.length?top():'∅')+' ≤ '+a+' → 위반 없음. 비용 변화 없음.',{idx:i,cur:a});
+        }
+      }
+      // 검증: brute force 최소 비용 (비감소로 만드는 L1)
+      // (작은 예제라 DP로 확인) — 값 후보 = A의 값들
+      function brute(){
+        var vals=A.slice().sort(function(a,b){return a-b;});
+        // dp[v] = A[0..i]를 비감소로, i번째를 vals[v]로 둘 때 최소비용
+        var INF=1e9, m=vals.length;
+        var dp=vals.map(function(v){ return Math.abs(A[0]-v); });
+        for(var i=1;i<A.length;i++){ var nd=[], run=INF;
+          for(var v=0;v<m;v++){ run=Math.min(run,dp[v]); nd[v]=run+Math.abs(A[i]-vals[v]); }
+          dp=nd;
+        }
+        return Math.min.apply(null,dp);
+      }
+      var bf=brute();
+      snap(7,'<b>완료!</b> 최소 비용 = <b>'+cost+'</b> (brute 검증='+bf+', 일치='+(cost===bf)+'). 각 연산 O(log n).',{done:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      // 위: 수열 막대(이미 처리한 것 강조) / 아래: 힙(최대) 칩 + 비용 + 볼록함수 스케치
+      var n=f.A.length, x0=W*0.12, x1=W*0.88, bw=(x1-x0)/n;
+      var topY=H*0.14, barMaxH=H*0.26;
+      var mx=Math.max.apply(null,f.A);
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('입력 수열 A (비감소로 만들 대상)', x0, topY-6);
+      for(var i=0;i<n;i++){ var v=f.A[i], h=barMaxH*v/mx, bx=x0+i*bw, by=topY+barMaxH-h+14;
+        var cur=(f.idx===i), done=(f.idx!=null && i<f.idx);
+        var col= cur?'#ffb27a': done?'#8fe3b5':'#7ab8ff';
+        var fill= cur?'rgba(255,178,122,0.25)': done?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.12)';
+        ctx.fillStyle=fill; ctx.strokeStyle=col; ctx.lineWidth=cur?2.4:1.4;
+        ctx.fillRect(bx+6,by,bw-12,h); ctx.strokeRect(bx+6,by,bw-12,h);
+        ctx.fillStyle=col; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(v, bx+bw/2, by+h/2);
+        ctx.fillStyle='#9b99a3'; ctx.font='10px sans-serif'; ctx.fillText('i='+i, bx+bw/2, topY+barMaxH+24); }
+      // 최대 힙 칩 (왼쪽 기울기 꺾임점)
+      var hy=H*0.62;
+      ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.font='12px sans-serif'; ctx.fillStyle='#9b99a3';
+      ctx.fillText('최대 힙 L (왼쪽 기울기 꺾임점):', x0, hy-22);
+      var bx2=x0;
+      for(var s=0;s<f.heap.length;s++){ var val=f.heap[s], isTop=(s===f.heap.length-1);
+        var lbl=''+val, wd=ctx.measureText(lbl).width+18;
+        var col=isTop?'#ffb27a':'#7ab8ff';
+        ctx.fillStyle=isTop?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=col; ctx.lineWidth=1.6;
+        if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(bx2,hy-13,wd,26,6); ctx.fill(); ctx.stroke(); }
+        else { ctx.fillRect(bx2,hy-13,wd,26); ctx.strokeRect(bx2,hy-13,wd,26); }
+        ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(lbl, bx2+wd/2, hy); ctx.textAlign='left';
+        if(isTop){ ctx.fillStyle='#ffb27a'; ctx.font='10px sans-serif'; ctx.fillText('top', bx2+wd/2-9, hy+22); }
+        bx2+=wd+8; }
+      if(f.heap.length===0){ ctx.fillStyle='#56555f'; ctx.fillText('(비어 있음)', x0, hy); }
+      // 비용 패널
+      var cy2=H*0.80; ctx.textAlign='center'; ctx.font='600 16px sans-serif';
+      ctx.fillStyle=f.fixed?'#8fe3b5':'#dfeefb';
+      ctx.fillText('누적 최소 비용 cost = '+f.cost, W/2, cy2);
+      if(f.added){ ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
+        ctx.fillText('(+'+f.added+' : 정점을 '+f.cur+'로 끌어내림)', W/2, cy2+22); }
+      // 볼록함수 한 줄 설명
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('f(x)=Σ|x−aᵢ| 의 볼록 비용을 꺾임점(힙)만으로 관리  ·  주황 top=최소구간 왼끝', W/2, H*0.93); }
   },
 
   { id:'algo_br_parallelbs', branchOf:'algo4_02',
@@ -15687,73 +17127,304 @@
       ctx.fillText('경로 최대간선은 이진점프(LCA)로 O(log V). 전체 O(E log V). 네트워크 백업 트리', W/2, H*0.90+18); }
   },
 
-  { id:'algo_br_palindromepart', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('회문 분할 DP — 최소 횟수로 회문 조각내기', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('문자열을 모두 회문인 조각으로 자르는 최소 컷 수. dp[i]=앞 i글자 최소 컷', W/2, H*0.10+22);
-      // string aabba -> a|abba? no; show aab|b|a or aa|b|b|a; show palindrome cuts
-      ctx.fillStyle='#dfeefb'; ctx.font='600 16px monospace';
-      ctx.fillText('a  a  b  a  a', W/2, H*0.32);
-      // cut into "aa | b | aa" (2 cuts) -> all palindromes
-      var parts=[['aa','#7ab8ff'],['b','#8fe3b5'],['aa','#7ab8ff']]; var bx=W*0.5-(parts.length*100)/2, by=H*0.42;
-      parts.forEach(function(pp,i){ var x=bx+i*100; ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle=pp[1]; ctx.lineWidth=2; ctx.fillRect(x,by,88,34); ctx.strokeRect(x,by,88,34); ctx.fillStyle=pp[1]; ctx.font='600 15px monospace'; ctx.fillText(pp[0],x+44,by+22); });
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
-      ctx.fillText('aa | b | aa — 컷 2번, 세 조각 모두 회문', W/2, H*0.62);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
-      ctx.fillText('dp[i] = min over j<i ( dp[j] + 1 )  단, s[j..i)가 회문일 때', W/2, H*0.74);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('회문 여부 isPal[j][i]를 2D DP로 O(n²) 선계산 → 전체 O(n²)', W/2, H*0.84);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('변형: 모든 조각 회문 분할 수, 최장 회문 부분수열=LCS(s,역s). 회문트리·매내처로 가속', W/2, H*0.84+20); }
+  { id:'algo_br_palindromepart', branchOf:'algo7_05',
+    code:[
+      'PALINDROME-CUT(s):           // n = |s|',
+      '  isPal[a][b] = (s[a..b] 회문?)   // 2D 선계산',
+      '  dp[0] = 0',
+      '  for i = 1 .. n:            // 앞 i글자',
+      '    dp[i] = ∞',
+      '    for j = 0 .. i-1:        // 마지막 조각 s[j..i)',
+      '      if isPal[j][i-1]:',
+      '        dp[i] = min(dp[i], dp[j] + 1)',
+      '  return dp[n] - 1           // 컷 수 = 조각수-1'
+    ],
+    build:function(V){
+      var s='aab', n=s.length, st=[];
+      // isPal[a][b] : s[a..b] 회문 여부 (둘 다 포함 인덱스)
+      var isPal=[]; for(var a=0;a<n;a++){ isPal[a]=[]; for(var b=0;b<n;b++) isPal[a][b]=false; }
+      function clone2(){ var r=[]; for(var x=0;x<n;x++) r.push(isPal[x].slice()); return r; }
+      var dp=[]; for(var t=0;t<=n;t++) dp[t]=null;
+      function snap(line,cap,o){
+        var f={line:line,cap:cap,s:s,n:n,isPal:clone2(),dp:dp.slice(),
+          pa:(o&&o.pa!=null)?o.pa:-1, pb:(o&&o.pb!=null)?o.pb:-1,
+          i:(o&&o.i!=null)?o.i:-1, j:(o&&o.j!=null)?o.j:-1, ok:(o&&o.ok!=null)?o.ok:false};
+        st.push(f); }
+      snap(0,'문자열 <b>s="aab"</b> (n=3). 모든 조각이 회문이 되도록 <b>최소 컷 수</b>를 DP로 구합니다.',{});
+      // 회문 선계산: 길이 1, 2, 3...
+      for(var len=1;len<=n;len++){
+        for(a=0;a+len-1<n;a++){
+          var b=a+len-1;
+          var ok;
+          if(len===1) ok=true;
+          else if(len===2) ok=(s[a]===s[b]);
+          else ok=(s[a]===s[b] && isPal[a+1][b-1]);
+          isPal[a][b]=ok;
+          snap(1,'회문 선계산: s['+a+'..'+b+']="'+s.slice(a,b+1)+'" → '+(ok?'<b>회문 O</b>':'회문 X')+(len>=3?' (양끝 '+s[a]+'='+s[b]+' & 안쪽 회문)':''),{pa:a,pb:b,ok:ok});
+        }
+      }
+      snap(1,'isPal 표 완성. 어떤 조각이든 <b>O(1)</b>에 회문 여부를 조회할 수 있습니다.',{});
+      dp[0]=0;
+      snap(2,'기저: 빈 접두 <b>dp[0]=0</b> (조각 0개). 앞 i글자별로 최소 조각 수를 채웁니다.',{});
+      for(var i=1;i<=n;i++){
+        dp[i]=1e9;
+        snap(4,'<b>앞 '+i+'글자 "'+s.slice(0,i)+'"</b> 처리. 마지막 회문 조각 s[j..'+i+')를 모든 j로 시도합니다.',{i:i});
+        for(var j=0;j<i;j++){
+          var pal=isPal[j][i-1];
+          if(pal){
+            var cand=dp[j]+1;
+            snap([5,6,7],'j='+j+': s['+j+'..'+(i-1)+']="'+s.slice(j,i)+'"는 회문! dp['+j+']+1 = '+dp[j]+'+1 = <b>'+cand+'</b>'+(cand<dp[i]?' (최소 갱신)':' (갱신 없음)'),{i:i,j:j,ok:true});
+            if(cand<dp[i]) dp[i]=cand;
+          } else {
+            snap(5,'j='+j+': s['+j+'..'+(i-1)+']="'+s.slice(j,i)+'"는 회문 아님 → 건너뜀.',{i:i,j:j,ok:false});
+          }
+        }
+        snap(7,'<b>dp['+i+'] = '+dp[i]+'</b> (앞 '+i+'글자를 회문 '+dp[i]+'조각으로).',{i:i});
+      }
+      snap(8,'<b>완료!</b> dp['+n+']='+dp[n]+' 조각 → 컷 수 = '+dp[n]+'−1 = <b>'+(dp[n]-1)+'</b>. "aa"|"b" 로 1번 자릅니다.',{});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n,s=f.s;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('회문 분할: dp[i] = min_j ( dp[j]+1 ), s[j..i) 회문', W/2, H*0.10);
+      // string row
+      var ccw=Math.min(46,W*0.10), sx=W/2-(n*ccw)/2, sy=H*0.20;
+      for(var c=0;c<n;c++){ var x=sx+c*ccw;
+        var inSeg=(f.j>=0&&f.i>=0&&c>=f.j&&c<f.i);
+        ctx.fillStyle=inSeg?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=inSeg?'#ffb27a':'#3c4a5e'; ctx.lineWidth=inSeg?2:1.2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+2,sy,ccw-4,34,6);}else{ctx.beginPath();ctx.rect(x+2,sy,ccw-4,34);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=inSeg?'#ffb27a':'#dfeefb'; ctx.font='600 18px monospace'; ctx.textBaseline='middle'; ctx.textAlign='center';
+        ctx.fillText(s[c], x+ccw/2, sy+17);
+        ctx.fillStyle='#6f7a8b'; ctx.font='10px sans-serif'; ctx.fillText(''+c, x+ccw/2, sy-7);
+        ctx.textBaseline='alphabetic'; }
+      // isPal 2D table
+      var tw=Math.min(48,W*0.10), tx0=W*0.16, ty0=H*0.40;
+      ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#7f8a9b'; ctx.textBaseline='middle';
+      ctx.fillText('isPal[a][b]', tx0-8, ty0-16);
+      for(var b2=0;b2<n;b2++) ctx.fillText('b'+b2, tx0+b2*tw+tw/2, ty0-16);
+      for(var a2=0;a2<n;a2++){
+        ctx.fillStyle='#7f8a9b'; ctx.fillText('a'+a2, tx0-16, ty0+a2*tw+tw/2);
+        for(b2=0;b2<n;b2++){
+          if(b2<a2) continue;
+          var x=tx0+b2*tw, y=ty0+a2*tw, v=f.isPal[a2][b2];
+          var cur=(a2===f.pa&&b2===f.pb);
+          var col=cur?'#ffb27a':v?'#8fe3b5':'#56555f';
+          var fil=cur?'rgba(255,178,122,0.24)':v?'rgba(143,227,181,0.18)':'rgba(122,184,255,0.05)';
+          ctx.fillStyle=fil; ctx.strokeStyle=col; ctx.lineWidth=cur?2.2:1.1;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+2,y+2,tw-4,tw-4,5);}else{ctx.beginPath();ctx.rect(x+2,y+2,tw-4,tw-4);}
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle=col; ctx.font='600 14px monospace';
+          ctx.fillText(v?'O':'·', x+tw/2, y+tw/2);
+        }
+      }
+      // dp 1D table
+      var dw=Math.min(56,(W*0.40)/(n+1)), dx0=W*0.56, dy0=H*0.44;
+      ctx.fillStyle='#7f8a9b'; ctx.font='11px sans-serif'; ctx.fillText('dp[i] (조각수)', dx0+ (n+1)*dw/2, dy0-16);
+      for(var di=0;di<=n;di++){ var dx=dx0+di*dw, val=f.dp[di];
+        var isCur=(di===f.i), isSrc=(di===f.j&&f.j>=0&&f.ok);
+        var col=isCur?'#ffb27a':isSrc?'#8fe3b5':(val==null?'#3c4a5e':'#7ab8ff');
+        var fil=isCur?'rgba(255,178,122,0.22)':isSrc?'rgba(143,227,181,0.20)':(val==null?'rgba(122,184,255,0.04)':'rgba(122,184,255,0.12)');
+        ctx.fillStyle=fil; ctx.strokeStyle=col; ctx.lineWidth=(isCur||isSrc)?2.2:1.1;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(dx+2,dy0,dw-4,32,6);}else{ctx.beginPath();ctx.rect(dx+2,dy0,dw-4,32);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#6f7a8b'; ctx.font='10px sans-serif'; ctx.fillText('i='+di, dx+dw/2, dy0-7);
+        var dv=(val==null)?'·':(val>=1e9?'∞':(''+val));
+        ctx.fillStyle=col; ctx.font='600 15px monospace'; ctx.fillText(dv, dx+dw/2, dy0+16); }
+      ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('초록 O=회문 조각  ·  주황=계산 중 dp[i]  ·  초록 dp[j]=이어붙이는 접두', W/2, H*0.94); }
   },
 
-  { id:'algo_br_stirling', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('스털링·벨 수 — 집합을 그룹으로 나누는 가짓수', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('S(n,k)=n개를 비지 않은 k그룹으로 나누기. 벨 수 B(n)=Σ_k S(n,k)(모든 분할)', W/2, H*0.10+22);
-      // partitions of {1,2,3} into groups
-      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
-      ctx.fillText('{1,2,3}의 분할 = 벨 수 B(3) = 5', W/2, H*0.30);
-      var parts=['{1,2,3}','{1,2}{3}','{1,3}{2}','{2,3}{1}','{1}{2}{3}'];
-      var ks=['k=1','k=2','k=2','k=2','k=3'];
-      var bx=W*0.5-(parts.length*92)/2, by=H*0.40;
-      parts.forEach(function(p,i){ var x=bx+i*92; ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.fillRect(x,by,84,40); ctx.strokeRect(x,by,84,40); ctx.fillStyle='#dfeefb'; ctx.font='11px monospace'; ctx.fillText(p,x+42,by+18); ctx.fillStyle='#8fe3b5'; ctx.font='10px sans-serif'; ctx.fillText(ks[i],x+42,by+33); });
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
-      ctx.fillText('S(3,1)=1, S(3,2)=3, S(3,3)=1  →  B(3)=1+3+1=5', W/2, H*0.62);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
-      ctx.fillText('점화: S(n,k) = k·S(n−1,k) + S(n−1,k−1)', W/2, H*0.74);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('새 원소를 기존 k그룹 중 하나(k가지)에 넣거나, 혼자 새 그룹(k−1→k). 제2종 스털링', W/2, H*0.84);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('제1종 스털링=순열의 사이클 수 분포. 벨=종/EGF e^(e^x−1). 카탈란·이항과 함께 조합 기둥', W/2, H*0.84+20); }
+  { id:'algo_br_stirling', branchOf:'algo7_05',
+    code:[
+      'STIRLING2(N):                 // S(n,k) 삼각표',
+      '  S[0][0] ← 1',
+      '  for n = 1 .. N:',
+      '    for k = 1 .. n:',
+      '      S[n][k] ← k·S[n-1][k] + S[n-1][k-1]',
+      '  // 벨 수 B(n) = Σ_k S(n,k)',
+      '  return S'
+    ],
+    build:function(V){
+      var N=4, st=[];
+      var S=[]; for(var a=0;a<=N;a++){ var row=[]; for(var b=0;b<=N;b++) row.push(0); S.push(row); }
+      function copyS(){ var r=[]; for(var i=0;i<=N;i++) r.push(S[i].slice()); return r; }
+      function snap(line,cap,o){ var f={line:line,cap:cap,S:copyS(),N:N}; if(o) for(var key in o) f[key]=o[key]; st.push(f); }
+      snap(0,'<b>제2종 스털링 수 S(n,k)</b> 삼각표를 채웁니다. S(n,k) = 구별되는 n개를 비지 않은 k개 그룹으로 분할하는 가짓수.', {n:-1,k:-1});
+      S[0][0]=1;
+      snap(1,'기저 <b>S(0,0)=1</b> (빈 집합을 0개 그룹으로 나누는 방법 1가지).', {n:0,k:0,fillN:0,fillK:0});
+      for(var n=1;n<=N;n++){
+        for(var k=1;k<=n;k++){
+          var termA=k*S[n-1][k], termB=S[n-1][k-1];
+          snap(4,'<b>S('+n+','+k+')</b>: 새 원소를 ① 기존 '+k+'개 그룹 중 하나에 넣기 = '+k+'·S('+(n-1)+','+k+')='+k+'·'+S[n-1][k]+'='+termA+',  ② 혼자 새 그룹 = S('+(n-1)+','+(k-1)+')='+termB+'.',
+            {n:n,k:k,fillN:-1,fillK:-1,srcA:[n-1,k],srcB:[n-1,k-1],termA:termA,termB:termB});
+          S[n][k]=termA+termB;
+          snap(4,'S('+n+','+k+') = '+termA+' + '+termB+' = <b>'+S[n][k]+'</b>. (두 경우가 겹치지 않고 모두 덮음)',
+            {n:n,k:k,fillN:n,fillK:k,srcA:[n-1,k],srcB:[n-1,k-1],termA:termA,termB:termB});
+        }
+      }
+      // 벨 수 = 행 합
+      snap(5,'각 행의 합이 <b>벨 수 B(n) = Σ_k S(n,k)</b> — n개 집합의 모든 분할 수입니다.', {n:-1,k:-1,showBell:true});
+      snap(6,'<b>완료!</b> 벨 수 B(0..4) = 1, 1, 2, 5, 15. 예: B(3)=5 = S(3,1)+S(3,2)+S(3,3) = 1+3+1 = 5 — 세 원소를 나누는 모든 분할.',
+        {n:-1,k:-1,showBell:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,N=f.N;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('제2종 스털링 수  S(n,k) = k·S(n−1,k) + S(n−1,k−1)', W/2, H*0.075);
+      var cw=Math.min(64,(W*0.62)/(N+1)), ch=cw*0.72, gap=8;
+      var gridW=(N+1)*cw+N*gap, x0=W*0.18, y0=H*0.18;
+      function cx(k){ return x0+k*(cw+gap); }
+      function cy(n){ return y0+n*(ch+gap); }
+      // 헤더 k
+      ctx.fillStyle='#7f8a9b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      for(var k=0;k<=N;k++) ctx.fillText('k='+k, cx(k)+cw/2, y0-8);
+      for(var n=0;n<=N;n++){
+        // 행 라벨
+        ctx.fillStyle='#7f8a9b'; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.textBaseline='middle';
+        ctx.fillText('n='+n, x0-10, cy(n)+ch/2); ctx.textBaseline='alphabetic';
+        for(k=0;k<=n;k++){
+          var x=cx(k), y=cy(n), val=f.S[n][k];
+          var isCur=(n===f.n && k===f.k);
+          var isSrcA=(f.srcA && n===f.srcA[0] && k===f.srcA[1]);
+          var isSrcB=(f.srcB && n===f.srcB[0] && k===f.srcB[1]);
+          var solved=val>0 && !isCur;
+          var col,fc;
+          if(isCur){ col='#ffb27a'; fc='rgba(255,178,122,0.22)'; }
+          else if(isSrcA){ col='#7ab8ff'; fc='rgba(122,184,255,0.22)'; }
+          else if(isSrcB){ col='#f4a0c0'; fc='rgba(244,160,192,0.20)'; }
+          else if(solved){ col='#8fe3b5'; fc='rgba(143,227,181,0.14)'; }
+          else { col='#56555f'; fc='rgba(122,184,255,0.06)'; }
+          ctx.fillStyle=fc; ctx.strokeStyle=col; ctx.lineWidth=(isCur||isSrcA||isSrcB)?2.2:1.3;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,cw,ch,7);}else{ctx.beginPath();ctx.rect(x,y,cw,ch);} ctx.fill(); ctx.stroke();
+          ctx.fillStyle=col; ctx.font='600 18px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          var disp=(isCur && f.fillN!==f.n)? '?' : (val>0||(n===0&&k===0)? val : '');
+          ctx.fillText(disp, x+cw/2, y+ch/2); ctx.textBaseline='alphabetic';
+        }
+      }
+      // 현재 계산 식
+      if(f.termA!=null){
+        ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 14px monospace';
+        ctx.fillText('S('+f.n+','+f.k+') = '+f.k+'·S('+(f.n-1)+','+f.k+') + S('+(f.n-1)+','+(f.k-1)+') = '+f.termA+' + '+f.termB+(f.fillN===f.n?(' = '+f.S[f.n][f.k]):''),
+          W/2, H*0.82);
+        ctx.fillStyle='#7ab8ff'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('■ 파랑=기존 그룹에 넣기 (×k)', W*0.18, H*0.88);
+        ctx.fillStyle='#f4a0c0'; ctx.fillText('■ 분홍=혼자 새 그룹', W*0.50, H*0.88);
+      }
+      // 벨 수 (행 합)
+      if(f.showBell){
+        var bx=x0+gridW+34;
+        ctx.textAlign='center'; ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif';
+        ctx.fillText('B(n)', bx+30, y0-8);
+        for(n=0;n<=N;n++){
+          var sum=0; for(k=0;k<=n;k++) sum+=f.S[n][k];
+          var by=cy(n);
+          ctx.fillStyle='rgba(255,178,122,0.18)'; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.8;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,by,60,ch,7);}else{ctx.beginPath();ctx.rect(bx,by,60,ch);} ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#ffd9b8'; ctx.font='600 17px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(sum, bx+30, by+ch/2); ctx.textBaseline='alphabetic';
+        }
+        ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('벨 수 = 행 합 = 모든 분할 수', x0+gridW*0.5+30, cy(N)+ch+22);
+      }
+    }
   },
 
-  { id:'algo_br_fastfib', concept:true, branchOf:'algo7_01',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('빠른 피보나치 — 두 배 공식으로 O(log n)', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('F(n)을 한 칸씩이 아니라 n을 절반씩 줄여 계산. 행렬거듭제곱보다 가벼운 항등식', W/2, H*0.10+22);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif';
-      ctx.fillText('두 배 공식 (fast doubling):', W/2, H*0.30);
-      ctx.fillStyle='#cfd8e6'; ctx.font='15px sans-serif';
-      ctx.fillText('F(2k)   = F(k) · ( 2·F(k+1) − F(k) )', W/2, H*0.42);
-      ctx.fillText('F(2k+1) = F(k+1)² + F(k)²', W/2, H*0.52);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
-      ctx.fillText('(F(k), F(k+1))을 알면 (F(2k), F(2k+1))을 곱셈 몇 번에', W/2, H*0.66);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('n의 이진 비트를 위에서 아래로 보며 한 비트마다 두 배+1 → O(log n) 곱셈', W/2, H*0.78);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('행렬 [[1,1],[1,0]]^n 과 같은 결과지만 곱셈 수가 적음(2×2 행렬 8곱 vs 3~4곱)', W/2, H*0.86);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('mod로 거대 n의 F(n)을 즉시. 일반 선형점화식은 행렬거듭제곱·키타마사로', W/2, H*0.86+20); }
+  { id:'algo_br_fastfib', branchOf:'algo7_01',
+    code:[
+      'fib(n):  // (F(n), F(n+1)) 반환',
+      '  if n == 0: return (0, 1)',
+      '  (a, b) = fib(n >> 1)         // F(k), F(k+1), k=⌊n/2⌋',
+      '  c = a * (2*b - a)           // F(2k)',
+      '  d = a*a + b*b               // F(2k+1)',
+      '  if n & 1: return (d, c+d)   // 홀수: 한 칸 전진',
+      '  else:     return (c, d)     // 짝수'
+    ],
+    build:function(V){ var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      var N=13;
+      // 비트를 최상위부터 나열 (재귀 펼침). n>>1 의 사슬: 13,6,3,1,0
+      var chain=[]; for(var v=N; v>0; v=v>>1) chain.push(v); chain.push(0);
+      // chain = [13,6,3,1,0]; 비트는 최상위부터: 1101
+      var bits=[]; for(var i=chain.length-2;i>=0;i--) bits.push(chain[i]&1);
+      snap(0,'<b>빠른 피보나치(fast doubling)</b>로 <b>F('+N+')</b>을 구합니다. n='+N+' = 이진수 <b>'+N.toString(2)+'</b> — 비트 수만큼만 단계가 듭니다.',{N:N,chain:chain,res:null,k:-1});
+      snap(0,'재귀를 펼치면 n은 절반씩 줄어 <b>'+chain.join(' → ')+'</b>. 바닥(n=0)부터 거꾸로 (F(k),F(k+1))을 <b>두 배 공식</b>으로 키워 올립니다.',{N:N,chain:chain,res:null,k:-1});
+      // 바닥에서 위로 실제 계산
+      var results={}; // n -> [F(n),F(n+1)]
+      snap(1,'바닥: <b>fib(0) = (F(0), F(1)) = (0, 1)</b>. 여기서 시작해 위로 합칩니다.',{N:N,chain:chain,res:null,k:0});
+      results[0]=[0,1];
+      // 위로 올라가며: chain[len-2]..chain[0]
+      for(i=chain.length-2;i>=0;i--){
+        var n=chain[i], k=n>>1;
+        var a=results[k][0], b=results[k][1];
+        var c=a*(2*b-a);
+        var d=a*a+b*b;
+        snap([2,3],'fib('+n+'): 절반 k='+k+' 의 (a,b)=(F('+k+'),F('+(k+1)+'))=(<b>'+a+'</b>,<b>'+b+'</b>). c=F(2k)=a(2b−a)='+a+'·(2·'+b+'−'+a+')=<b>'+c+'</b>.',{N:N,chain:chain,res:null,k:n,a:a,b:b,c:c,d:d,bit:(n&1)});
+        snap(4,'d=F(2k+1)=a²+b²='+a+'²+'+b+'²=<b>'+d+'</b>. 곱셈은 <b>'+(n&1?'3~4':'3~4')+'번</b>뿐 — 행렬 2×2 곱(8번)보다 가볍습니다.',{N:N,chain:chain,res:null,k:n,a:a,b:b,c:c,d:d,bit:(n&1)});
+        var nn;
+        if(n&1){ nn=[d,c+d];
+          snap(5,'n='+n+' 은 <b>홀수</b> → 한 칸 전진: return (d, c+d) = (<b>'+d+'</b>, <b>'+(c+d)+'</b>) = (F('+n+'), F('+(n+1)+')).',{N:N,chain:chain,res:null,k:n,a:a,b:b,c:c,d:d,bit:1,out:nn});
+        } else { nn=[c,d];
+          snap(6,'n='+n+' 은 <b>짝수</b> → return (c, d) = (<b>'+c+'</b>, <b>'+d+'</b>) = (F('+n+'), F('+(n+1)+')).',{N:N,chain:chain,res:null,k:n,a:a,b:b,c:c,d:d,bit:0,out:nn});
+        }
+        results[n]=nn;
+      }
+      var R=results[N];
+      snap([5,6],'<b>완료! F('+N+') = '+R[0]+'</b> (그리고 F('+(N+1)+')='+R[1]+'). 단계 수 = n의 비트 수 ≈ <b>log₂ n</b>, 곱셈 O(log n).',{N:N,chain:chain,res:R,k:N,final:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('Fast doubling: n을 절반씩 줄이며 (F(k),F(k+1)) 을 두 배 공식으로 키움', W/2, H*0.085);
+      // chain ladder
+      var ch=f.chain, m=ch.length, x0=W*0.12, x1=W*0.88, y=H*0.24;
+      for(var i=0;i<m;i++){
+        var x=x0+(x1-x0)*i/(m-1);
+        var n=ch[i], active=(n===f.k);
+        var col=active?'#ffb27a':(n<=f.k||(f.final))?'#8fe3b5':'#7ab8ff';
+        var fc =active?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.10)';
+        ctx.fillStyle=fc; ctx.strokeStyle=col; ctx.lineWidth=active?2.4:1.6;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x-26,y-18,52,36,8);}else{ctx.beginPath();ctx.rect(x-26,y-18,52,36);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 15px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('n='+n, x, y); ctx.textBaseline='alphabetic';
+        if(i<m-1){ ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(x+26,y); ctx.lineTo(x0+(x1-x0)*(i+1)/(m-1)-26,y); ctx.stroke();
+          ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('»1', (x+ x0+(x1-x0)*(i+1)/(m-1))/2, y-22); }
+      }
+      // doubling computation panel
+      var py=H*0.40;
+      ctx.textAlign='center'; ctx.fillStyle='#7f8a9b'; ctx.font='12px sans-serif';
+      ctx.fillText('두 배 공식:  c = F(2k) = a·(2b−a)      d = F(2k+1) = a² + b²', W/2, py);
+      if(f.a!=null){
+        var rows=[
+          ['a = F('+(f.k>>1)+')', ''+f.a, '#7ab8ff'],
+          ['b = F('+((f.k>>1)+1)+')', ''+f.b, '#7ab8ff'],
+          ['c = a(2b−a)', ''+f.c, '#8fe3b5'],
+          ['d = a²+b²', ''+f.d, '#8fe3b5']
+        ];
+        var bw=W*0.20, bx=W/2-bw*2-12*1.5, ry=py+22;
+        for(i=0;i<rows.length;i++){
+          var rx=bx+i*(bw+10);
+          ctx.fillStyle='rgba(122,184,255,0.08)'; ctx.strokeStyle='#3c4a5e'; ctx.lineWidth=1;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(rx,ry,bw,52,8);}else{ctx.beginPath();ctx.rect(rx,ry,bw,52);}
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(rows[i][0], rx+bw/2, ry+18);
+          ctx.fillStyle=rows[i][2]; ctx.font='600 18px monospace'; ctx.fillText(rows[i][1], rx+bw/2, ry+42);
+        }
+        // chosen output highlight
+        ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+        if(f.out){ ctx.fillText('n='+f.k+(f.bit?' 홀수 → (d, c+d) = ('+f.out[0]+', '+f.out[1]+')':' 짝수 → (c, d) = ('+f.out[0]+', '+f.out[1]+')'), W/2, ry+82); }
+      }
+      // final result
+      if(f.res){
+        ctx.fillStyle='rgba(143,227,181,0.16)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.2;
+        var fw=W*0.5, fx=W/2-fw/2, fyy=H*0.80;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(fx,fyy,fw,40,10);}else{ctx.beginPath();ctx.rect(fx,fyy,fw,40);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 18px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('F('+f.N+') = '+f.res[0], W/2, fyy+20); ctx.textBaseline='alphabetic';
+      }
+      ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif';
+      ctx.fillText('▶ '+(f.final?'완료 — O(log n) 곱셈':'두 배 공식으로 한 단계'), W/2, H*0.965); }
   },
 
   { id:'algo_br_graphcolor', concept:true, branchOf:'algo6_01',
@@ -15977,28 +17648,115 @@
       ctx.fillText('초록=그룹 중앙값 · 주황=중앙값의 중앙값(피벗)', W/2, H*0.965); }
   },
 
-  { id:'algo_br_kitamasa', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('키타마사 — 선형 점화식의 N번째 항을 빠르게', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('차수 L 선형점화의 a_N을 행렬거듭제곱(O(L³ log N))보다 빠른 O(L² log N)에', W/2, H*0.10+22);
-      ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif';
-      ctx.fillText('aₙ = c₁aₙ₋₁ + … + c_L aₙ₋_L  의 N번째 항', W/2, H*0.30);
-      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
-      var lines=['아이디어: a_N = Σ (xᴺ mod 특성다항식 f(x))의 계수 · a_초기',
-        'f(x) = xᴸ − c₁xᴸ⁻¹ − … − c_L (특성 다항식)',
-        'xᴺ mod f(x) 를 빠른 거듭제곱 + 다항식 mod 로 계산',
-        '각 곱셈/나머지가 O(L²) (또는 NTT면 O(L log L))'];
-      lines.forEach(function(t,i){ ctx.fillText(t, W*0.10, H*0.40+i*26); });
-      ctx.textAlign='center';
-      ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif';
-      ctx.fillText('xᴺ을 f(x)로 나눈 나머지(차수<L)의 계수가 곧 초기항 결합 가중치', W/2, H*0.78);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('벨캄프-매시로 점화식을 복원한 뒤 키타마사로 N항 — 미지 수열의 강력 콤보', W/2, H*0.86);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('행렬거듭제곱과 동치지만 다항식이라 L에 비해 빠름. 거대 N의 피보나치·DP수열', W/2, H*0.86+20); }
+  { id:'algo_br_kitamasa', branchOf:'algo7_05',
+    code:[
+      'kitamasa(N):  // a_N, 점화식 aₙ=aₙ₋₁+aₙ₋₂',
+      '  f(x) = x² − x − 1     // 특성 다항식',
+      '  r ← x^N mod f(x)      // 빠른 거듭제곱',
+      '    base=x, result=1; N의 비트마다:',
+      '      비트1: result = result·base mod f',
+      '      base = base·base mod f',
+      '  return Σ r[i]·a[i]     // 초기항 결합'
+    ],
+    build:function(V){ var st=[];
+      function snap(line,cap,extra){ var f={line:line,cap:cap}; if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      // 다항식: 길이2 배열 [c0,c1] (차수<2). x²≡x+1 로 환원
+      function red(p){ // p: 임의 차수 배열 → 차수<2
+        p=p.slice();
+        for(var d=p.length-1; d>=2; d--){ if(!p[d]) continue; var c=p[d]; p[d]=0; p[d-1]+=c; p[d-2]+=c; }
+        return [p[0]||0, p[1]||0];
+      }
+      function mul(a,b){ // a,b 차수<2 → 곱(차수≤2) → 환원
+        var r=[0,0,0];
+        for(var i=0;i<2;i++) for(var j=0;j<2;j++) r[i+j]+=a[i]*b[j];
+        return red(r);
+      }
+      function ps(p){ // 표기
+        var t=[]; if(p[1]) t.push((p[1]===1?'':p[1])+'x'); if(p[0]||!t.length) t.push(''+p[0]);
+        return t.join(' + ').replace('+ -','− ');
+      }
+      var N=10;
+      var a=[0,1]; // a0,a1 (Fibonacci)
+      snap(0,'<b>키타마사</b>로 a_'+N+' 을 구합니다. 점화식 aₙ=aₙ₋₁+aₙ₋₂, 초기항 a₀=0, a₁=1 (피보나치).',{poly:null,base:null,res:null,N:N,a:a,bitlist:N.toString(2),bi:-1});
+      snap(1,'특성 다항식 <b>f(x)=x²−x−1</b>. 환원 규칙: x² ≡ x + 1 (mod f). 모든 다항식을 차수 < 2 로 유지합니다.',{poly:null,base:null,res:null,N:N,a:a,bitlist:N.toString(2),bi:-1});
+      // 빠른 거듭제곱: result=1=[1,0], base=x=[0,1], N 비트 LSB부터
+      var result=[1,0], base=[0,1], n=N;
+      var bits=[]; for(var t=N;t>0;t=t>>1) bits.push(t&1); // LSB first
+      snap(2,'x^'+N+' mod f 를 빠른 거듭제곱으로. <b>result=1, base=x</b>. N='+N+'=이진 '+N.toString(2)+' 의 비트를 LSB부터 처리.',{poly:result.slice(),base:base.slice(),res:null,N:N,a:a,bitlist:N.toString(2),bi:-1});
+      var bi=0;
+      for(n=N; n>0; n=n>>1){
+        var bit=n&1;
+        if(bit){
+          var nr=mul(result,base);
+          snap(4,'비트 <b>1</b> → result = result·base mod f = ('+ps(result)+')·('+ps(base)+') = <b>'+ps(nr)+'</b>.',{poly:nr.slice(),base:base.slice(),res:null,N:N,a:a,bitlist:N.toString(2),bi:bi,bit:1});
+          result=nr;
+        } else {
+          snap(4,'비트 <b>0</b> → result 유지 ('+ps(result)+').',{poly:result.slice(),base:base.slice(),res:null,N:N,a:a,bitlist:N.toString(2),bi:bi,bit:0});
+        }
+        var nb=mul(base,base);
+        snap(5,'base = base·base mod f = ('+ps(base)+')² = <b>'+ps(nb)+'</b> (x² 항은 x+1 로 환원).',{poly:result.slice(),base:nb.slice(),res:null,N:N,a:a,bitlist:N.toString(2),bi:bi,bit:bit});
+        base=nb;
+        bi++;
+      }
+      snap(3,'모든 비트 처리 완료. <b>x^'+N+' mod f(x) = '+ps(result)+'</b>  (계수 [c₀,c₁] = ['+result[0]+','+result[1]+']).',{poly:result.slice(),base:base.slice(),res:null,N:N,a:a,bitlist:N.toString(2),bi:bi,done_pow:true});
+      var ans=result[0]*a[0]+result[1]*a[1];
+      snap(6,'초기항 결합: a_'+N+' = c₀·a₀ + c₁·a₁ = '+result[0]+'·'+a[0]+' + '+result[1]+'·'+a[1]+' = <b>'+ans+'</b>.',{poly:result.slice(),base:base.slice(),res:ans,N:N,a:a,bitlist:N.toString(2),bi:bi,done_pow:true});
+      snap(6,'<b>완료! a_'+N+' = '+ans+'</b> (= F('+N+')). 단계마다 다항식 곱·환원 O(L²), 비트 O(log N) → 전체 <b>O(L² log N)</b>.',{poly:result.slice(),base:base.slice(),res:ans,N:N,a:a,bitlist:N.toString(2),bi:bi,final:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('x^N mod f(x) 를 빠른 거듭제곱으로 → 나머지 계수가 초기항 결합 가중치', W/2, H*0.09);
+      ctx.fillStyle='#7f8a9b'; ctx.font='13px monospace';
+      ctx.fillText('f(x) = x² − x − 1     환원규칙:  x² ≡ x + 1', W/2, H*0.16);
+      // bit progress of N
+      var bs=f.bitlist, bw=34, bx=W/2-(bs.length*bw)/2, by=H*0.24;
+      ctx.font='600 14px monospace';
+      for(var i=0;i<bs.length;i++){ var x=bx+i*bw;
+        // bi counts from LSB; index from MSB so processed = (len-1-i) <= bi
+        var processed=(bs.length-1-i)<=f.bi;
+        ctx.fillStyle=processed?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=processed?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=1.6;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,by,bw-6,30,6);}else{ctx.beginPath();ctx.rect(x,by,bw-6,30);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=processed?'#8fe3b5':'#cfe0ff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(bs[i], x+(bw-6)/2, by+15); ctx.textBaseline='alphabetic';
+      }
+      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('N='+f.N+' (이진, LSB부터 처리)', W/2, by+44);
+      // poly boxes
+      function pbox(cx,cy,label,p,col){
+        ctx.fillStyle='#9b99a3'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, cx, cy-30);
+        var txt = p? ((p[1]? (p[1]+'·x'):'') + (p[1]&&p[0]>=0?' + ':(p[1]?' ':'')) + p[0]) : '—';
+        if(p && !p[1]) txt=''+p[0];
+        var w=W*0.30, x=cx-w/2;
+        ctx.fillStyle='rgba('+(col==='res'?'255,178,122':'122,184,255')+',0.12)';
+        ctx.strokeStyle=col==='res'?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,cy-20,w,42,9);}else{ctx.beginPath();ctx.rect(x,cy-20,w,42);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col==='res'?'#ffd9b8':'#cfe0ff'; ctx.font='600 18px monospace'; ctx.textBaseline='middle'; ctx.textAlign='center';
+        ctx.fillText(txt, cx, cy+1); ctx.textBaseline='alphabetic';
+      }
+      var py=H*0.46;
+      if(f.poly){ pbox(W*0.30, py, 'result = x^N mod f', f.poly, 'res'); }
+      if(f.base){ pbox(W*0.70, py, 'base (제곱 누적)', f.base, 'base'); }
+      // coefficient -> initial-term combination
+      if(f.poly){
+        ctx.fillStyle='#7f8a9b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('계수 [c₀, c₁] = ['+f.poly[0]+', '+f.poly[1]+']     초기항 [a₀, a₁] = ['+f.a[0]+', '+f.a[1]+']', W/2, H*0.66);
+        ctx.fillStyle='#dfeefb'; ctx.font='600 15px monospace';
+        ctx.fillText('a_'+f.N+' = c₀·a₀ + c₁·a₁ = '+f.poly[0]+'·'+f.a[0]+' + '+f.poly[1]+'·'+f.a[1], W/2, H*0.72);
+      }
+      if(f.res!=null){
+        ctx.fillStyle='rgba(143,227,181,0.16)'; ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.2;
+        var fw=W*0.5, fx=W/2-fw/2, fyy=H*0.80;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(fx,fyy,fw,40,10);}else{ctx.beginPath();ctx.rect(fx,fyy,fw,40);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 18px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('a_'+f.N+' = '+f.res, W/2, fyy+20); ctx.textBaseline='alphabetic';
+      }
+      ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.font='600 12px sans-serif';
+      ctx.fillText('▶ '+(f.final?'완료 — O(L² log N)':'다항식 곱 · x²→x+1 환원'), W/2, H*0.965); }
   },
 
   { id:'algo_br_hall', concept:true, branchOf:'algo6_01',
@@ -16021,25 +17779,102 @@
       ctx.fillText('증명·구성은 쾨니그/최대유량과 동치. 결혼·배정·라틴방진·정규그래프 1-인수분해', W/2, H*0.88+18); }
   },
 
-  { id:'algo_br_altsubseq', concept:true, branchOf:'algo7_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('최장 교대 부분수열 — 오르락내리락 가장 길게', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('연속 차이의 부호가 번갈아(↑↓↑↓) 가장 긴 부분수열. 봉우리·골 개수 세기', W/2, H*0.10+22);
-      // zigzag sequence
-      var vals=[1,5,2,7,3,6,4]; var bx=W*0.16, baseY=H*0.62, gap=(W*0.68)/(vals.length-1);
-      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath();
-      vals.forEach(function(v,i){ var x=bx+i*gap, y=baseY-v*H*0.05; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
-      vals.forEach(function(v,i){ var x=bx+i*gap, y=baseY-v*H*0.05; var ext=(i>0&&i<vals.length-1); ctx.fillStyle=ext?'#ffb27a':'#8fe3b5'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText(v,x,baseY+16); });
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.fillText('주황 = 봉우리/골(방향 전환점)', W/2, H*0.78);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif';
-      ctx.fillText('up = (aᵢ>aᵢ₋₁ ? down+1 : up),  down = (aᵢ<aᵢ₋₁ ? up+1 : down)', W/2, H*0.86);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('탐욕/DP로 O(n): 방향이 바뀔 때마다 길이 +1. 답 = max(up, down)', W/2, H*0.92);
-      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('LIS는 O(n log n)인데 교대수열은 단조 구간을 한 점으로 줄여 O(n). 주식 거래 변형', W/2, H*0.92+18); }
+  { id:'algo_br_altsubseq', branchOf:'algo7_05',
+    code:[
+      'ALT-SUBSEQ(a):              // n = |a|',
+      '  up   = 1                  // 마지막 차이 ↑',
+      '  down = 1                  // 마지막 차이 ↓',
+      '  for i = 1 .. n-1:',
+      '    if a[i] > a[i-1]:',
+      '      up = down + 1         // ↓ 뒤에 ↑ 이어붙임',
+      '    else if a[i] < a[i-1]:',
+      '      down = up + 1         // ↑ 뒤에 ↓ 이어붙임',
+      '  return max(up, down)      // O(n)'
+    ],
+    build:function(V){
+      var a=[1,5,4,7,3,6], n=a.length, st=[];
+      var up=1, down=1;
+      // 각 위치의 up/down 추적(시각화용)
+      var upArr=[1], downArr=[1];
+      for(var z=1;z<n;z++){ upArr[z]=1; downArr[z]=1; }
+      function snap(line,cap,o){
+        var f={line:line,cap:cap,a:a.slice(),n:n,up:up,down:down,
+          upArr:upArr.slice(), downArr:downArr.slice(),
+          i:(o&&o.i!=null)?o.i:-1, dir:(o&&o.dir!=null)?o.dir:0};
+        st.push(f); }
+      snap(0,'수열 a=[1,5,4,7,3,6]. 인접 차이의 부호가 <b>↑↓↑↓ 번갈아</b> 나타나는 가장 긴 부분수열 길이를 구합니다.',{});
+      snap([1,2],'초기화: <b>up=1, down=1</b> (한 원소만으로 길이 1). i=1부터 한 번 훑습니다.',{i:0});
+      for(var i=1;i<n;i++){
+        if(a[i]>a[i-1]){
+          up=down+1;
+          snap([4,5],'i='+i+': a['+i+']='+a[i]+' &gt; a['+(i-1)+']='+a[i-1]+' (↑). up = down+1 = '+(down)+'+1 = <b>'+up+'</b>.',{i:i,dir:1});
+        } else if(a[i]<a[i-1]){
+          down=up+1;
+          snap([6,7],'i='+i+': a['+i+']='+a[i]+' &lt; a['+(i-1)+']='+a[i-1]+' (↓). down = up+1 = '+(up)+'+1 = <b>'+down+'</b>.',{i:i,dir:-1});
+        } else {
+          snap(4,'i='+i+': a['+i+']=a['+(i-1)+'] (변화 없음) → up·down 유지.',{i:i,dir:0});
+        }
+        upArr[i]=up; downArr[i]=down;
+        snap(8,'갱신 후 up='+up+', down='+down+'. (현재까지 최장 교대 길이 = max = '+Math.max(up,down)+')',{i:i,dir:(a[i]>a[i-1]?1:(a[i]<a[i-1]?-1:0))});
+      }
+      snap(8,'<b>완료!</b> max(up,down) = max('+up+','+down+') = <b>'+Math.max(up,down)+'</b>. 1,5,4,7,3,6 전체가 ↑↓↑↓↑ 교대! 한 번 훑어 O(n).',{i:-1});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n,a=f.a;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('교대 부분수열: ↑이면 up=down+1, ↓이면 down=up+1', W/2, H*0.10);
+      // line chart of the sequence
+      var mn=Math.min.apply(null,a), mx=Math.max.apply(null,a);
+      var px0=W*0.14, px1=W*0.86, py0=H*0.24, py1=H*0.52;
+      function PX(i){ return px0+(px1-px0)*i/(n-1); }
+      function PY(v){ return py1-(py1-py0)*(v-mn)/(mx-mn||1); }
+      // connect arrows up to current i
+      ctx.lineWidth=2.5;
+      for(var i=1;i<n;i++){
+        if(f.i>=0 && i>f.i) break;
+        var rising=a[i]>a[i-1], col=rising?'#8fe3b5':(a[i]<a[i-1]?'#f4a0c0':'#7ab8ff');
+        var hot=(i===f.i);
+        ctx.strokeStyle=hot?'#ffb27a':col; ctx.lineWidth=hot?3.5:2.2;
+        ctx.beginPath(); ctx.moveTo(PX(i-1),PY(a[i-1])); ctx.lineTo(PX(i),PY(a[i])); ctx.stroke();
+        // direction glyph at midpoint
+        ctx.fillStyle=hot?'#ffb27a':col; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(rising?'↑':(a[i]<a[i-1]?'↓':'='), (PX(i-1)+PX(i))/2, (PY(a[i-1])+PY(a[i]))/2-12);
+      }
+      ctx.textBaseline='alphabetic';
+      // points
+      for(i=0;i<n;i++){
+        var cur=(i===f.i);
+        ctx.fillStyle=cur?'rgba(255,178,122,0.30)':'rgba(122,184,255,0.18)';
+        ctx.strokeStyle=cur?'#ffb27a':'#7ab8ff'; ctx.lineWidth=cur?2.5:1.8;
+        ctx.beginPath(); ctx.arc(PX(i),PY(a[i]),cur?12:9,0,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=cur?'#ffb27a':'#dfeefb'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(''+a[i], PX(i), PY(a[i])); ctx.textBaseline='alphabetic';
+      }
+      // up / down arrays
+      var cw=Math.min(64,(W*0.72)/n), x0=W/2-(n*cw)/2, uy=H*0.66, dy=H*0.80;
+      ctx.textAlign='center';
+      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('up[]  (마지막 ↑)', x0, uy-10);
+      ctx.fillStyle='#f4a0c0'; ctx.fillText('down[]  (마지막 ↓)', x0, dy-10);
+      for(i=0;i<n;i++){
+        var ux=x0+i*cw, hot2=(i===f.i);
+        // up cell
+        ctx.fillStyle=hot2?'rgba(143,227,181,0.28)':'rgba(143,227,181,0.10)';
+        ctx.strokeStyle=hot2&&f.dir>=0?'#8fe3b5':'#3c5046'; ctx.lineWidth=hot2?2:1.1;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(ux+3,uy,cw-6,28,5);}else{ctx.beginPath();ctx.rect(ux+3,uy,cw-6,28);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 14px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(''+f.upArr[i], ux+cw/2, uy+14);
+        // down cell
+        ctx.fillStyle=hot2?'rgba(244,160,192,0.26)':'rgba(244,160,192,0.10)';
+        ctx.strokeStyle=hot2&&f.dir<=0?'#f4a0c0':'#503642'; ctx.lineWidth=hot2?2:1.1;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(ux+3,dy,cw-6,28,5);}else{ctx.beginPath();ctx.rect(ux+3,dy,cw-6,28);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#f4a0c0'; ctx.font='600 14px monospace';
+        ctx.fillText(''+f.downArr[i], ux+cw/2, dy+14);
+        ctx.textBaseline='alphabetic';
+      }
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('초록 ↑ 상승 · 분홍 ↓ 하강 · 주황=지금 보는 원소  ·  답 = max(up, down)', W/2, H*0.93); }
   },
 
   { id:'algo_br_multipoint', branchOf:'algo8_03',
@@ -18243,24 +20078,175 @@
   },
 
   // ─── 심화(원서 깊이): DP·그리디·최단경로 정당성 ───
-  { id:'algo_br_dp_principles', concept:true, branchOf:'algo7_04',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
-      ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 17px sans-serif';
-      ctx.fillText('DP 적용 조건 — 최적부분구조·겹치는부분문제', W/2, H*0.10);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('"언제 DP를 쓸 수 있나"의 두 형식 조건과, 최적부분구조의 절단-붙이기 증명', W/2, H*0.10+22);
-      ctx.fillStyle='#cfd8e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
-      var lines=['① 최적 부분 구조: 문제의 최적해가 부분문제들의 최적해로 구성됨',
-        '   증명(절단-붙이기): 부분해가 최적이 아니면 더 좋은 것으로 "바꿔치기" 하면',
-        '   전체가 더 좋아져 모순 → 부분해도 반드시 최적 (cut-and-paste)',
-        '② 겹치는 부분 문제: 같은 부분문제가 재귀에서 여러 번 등장(다항 개) →',
-        '   메모/표로 한 번만 풀면 지수 → 다항. (서로 다른 부분문제 수 = 표 크기)',
-        '주의: 최적부분구조가 "안 성립"하는 예도 있음 — 무가중 최장경로(부분경로가',
-        '   최적이라고 전체 최장 보장 안 됨, 정점 재사용 불가 의존성). DP 적용 전 검증 필수'];
-      lines.forEach(function(t,i){ ctx.fillStyle=(i===0||i===3)?'#8fe3b5':(i===5?'#f4a0c0':'#cfd8e6'); ctx.fillText(t, W*0.05, H*0.30+i*26); });
-      ctx.textAlign='center'; ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
-      ctx.fillText('두 조건 모두 만족 → DP. 하나라도 빠지면 분할정복(겹침 없음)이나 다른 기법', W/2, H*0.965); }
+  { id:'algo_br_dp_principles', branchOf:'algo7_04',
+    code:[
+      '// DP 적용 두 조건',
+      'FIB(n):                    // ① 겹치는 부분문제',
+      '  if n < 2: return n',
+      '  return FIB(n-1) + FIB(n-2)   // 같은 호출 반복',
+      '// ② 최적 부분 구조 (절단-붙이기)',
+      'shortest s→t = shortest s→v  +  v→t',
+      '  if 부분 s→v 가 최단 아니면:',
+      '    더 짧은 것으로 잘라-붙여 전체 단축 → 모순',
+      '  ∴ 부분해도 반드시 최적'
+    ],
+    build:function(V){
+      var st=[];
+      function snap(line,cap,o){ var f={line:line,cap:cap}; if(o) for(var key in o) f[key]=o[key]; st.push(f); }
+      // ===== 파트 A: 겹치는 부분문제 (FIB(5) 호출 트리) =====
+      // 노드: id, 라벨 n, depth, x(상대 0..1), 부모 id
+      // FIB(5) -> 4,3 ; 4->3,2 ; 3->2,1 ; 2->1,0 ...  중복 강조
+      var T=[
+        {id:0,n:5,d:0,x:0.50,p:-1},
+        {id:1,n:4,d:1,x:0.30,p:0}, {id:2,n:3,d:1,x:0.74,p:0},
+        {id:3,n:3,d:2,x:0.16,p:1}, {id:4,n:2,d:2,x:0.42,p:1},
+        {id:5,n:2,d:2,x:0.64,p:2}, {id:6,n:1,d:2,x:0.86,p:2},
+        {id:7,n:2,d:3,x:0.10,p:3}, {id:8,n:1,d:3,x:0.24,p:3},
+        {id:9,n:1,d:3,x:0.37,p:4}, {id:10,n:0,d:3,x:0.49,p:4},
+        {id:11,n:1,d:3,x:0.58,p:5}, {id:12,n:0,d:3,x:0.70,p:5}
+      ];
+      snap([1,2,3],'<b>겹치는 부분문제</b>를 FIB(5)로 봅니다. 순수 재귀는 같은 호출을 <b>여러 번</b> 다시 풉니다 — 호출 트리를 펼쳐 봅니다.',
+        {phase:'A',tree:T,reveal:0,hl:null});
+      snap([1,2,3],'FIB(5) → FIB(4) + FIB(3) 으로 갈라집니다. 가지를 끝까지 펼치면 노드 수가 <b>지수적</b>으로 늘어납니다.',
+        {phase:'A',tree:T,reveal:3,hl:null});
+      snap([1,2,3],'더 펼침: FIB(3)이 벌써 <b>두 번</b> 나타납니다 (id 2와 id 3). 같은 입력인데 따로 다시 계산합니다.',
+        {phase:'A',tree:T,reveal:7,hl:[2,3]});
+      snap(3,'완전히 펼친 트리. 같은 값 노드끼리 색을 맞췄습니다: FIB(2)는 <b>3번</b>, FIB(1)은 <b>5번</b> 중복 호출됩니다.',
+        {phase:'A',tree:T,reveal:13,hl:'dup'});
+      snap(3,'서로 <b>다른</b> 부분문제는 FIB(0..5) 단 <b>6개</b>뿐입니다 (다항). 핵심: 다른 부분문제 수가 작아야 메모가 이득입니다.',
+        {phase:'A',tree:T,reveal:13,hl:'dup',countDistinct:true});
+      // 메모 채우기 (한 번씩) — 실제 피보나치 값
+      var fib=[0,1,1,2,3,5];
+      snap(3,'<b>메모이제이션</b>: 각 부분문제를 <b>한 번만</b> 풀어 표에 저장. FIB(0..5)를 상향식으로 채웁니다.',
+        {phase:'M',fib:fib,memo:[-1,-1,-1,-1,-1,-1],cur:-1});
+      var memo=[-1,-1,-1,-1,-1,-1];
+      for(var v=0;v<=5;v++){
+        memo[v]=fib[v];
+        var how=(v<2)?'기저값':('F('+(v-1)+')+F('+(v-2)+')='+fib[v-1]+'+'+fib[v-2]+'='+fib[v]);
+        snap(3,'F('+v+') = '+how+' → 저장. 각 칸은 딱 한 번 계산됩니다.',
+          {phase:'M',fib:fib,memo:memo.slice(),cur:v});
+      }
+      snap(3,'지수 재귀가 <b>O(n)</b> 으로! 겹침이 클수록 메모/표의 이득이 큽니다. (분할정복은 부분문제가 안 겹쳐 이득 없음)',
+        {phase:'M',fib:fib,memo:memo.slice(),cur:-1,done:true});
+      // ===== 파트 B: 최적 부분 구조 (절단-붙이기) =====
+      // 최단경로 s→v→t. s→v 후보 두 개: P1=4, P2=7(나쁨). v→t=3.
+      snap([4,5],'<b>최적 부분 구조</b>로 넘어갑니다. 최단경로 s→t 가 s→v 와 v→t 로 쪼개진다고 합시다. <b>부분경로 s→v도 최단</b>일까요?',
+        {phase:'B',svGood:4,svBad:7,vt:3,use:'bad',proved:false});
+      snap([5,6],'가정(귀류): 전체 최단해가 s→v 부분으로 <b>길이 7짜리(빨강)</b>를 쓴다고 합시다. 그러면 전체 = 7 + 3 = <b>10</b>.',
+        {phase:'B',svGood:4,svBad:7,vt:3,use:'bad',proved:false});
+      snap([7,8],'그런데 s→v 에 <b>길이 4짜리(초록)</b>가 존재합니다. 빨강을 잘라내고 초록을 <b>붙여넣으면</b> 전체 = 4 + 3 = <b>7</b> 로 더 짧아집니다.',
+        {phase:'B',svGood:4,svBad:7,vt:3,use:'swap',proved:false});
+      snap(8,'전체가 더 짧아졌으니 \"전체가 최단\"이라는 가정과 <b>모순</b>입니다. 따라서 부분 s→v 가 최단이 아닐 수 없습니다.',
+        {phase:'B',svGood:4,svBad:7,vt:3,use:'good',proved:false});
+      snap(8,'∴ <b>부분해도 반드시 최적</b> — 이것이 절단-붙이기 논증이며 최적 부분 구조의 증거입니다. (이 성질이 없으면 DP 불가)',
+        {phase:'B',svGood:4,svBad:7,vt:3,use:'good',proved:true});
+      snap(8,'<b>주의</b>: 무가중 <b>최장 단순경로</b>는 부분경로 교체가 정점 재사용을 깨뜨려 이 논증이 실패 → 실제 NP-난해. DP 전에 두 조건을 꼭 확인하세요.',
+        {phase:'B',svGood:4,svBad:7,vt:3,use:'good',proved:true,warn:true});
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
+      ctx.textAlign='center';
+      // 값별 색 (중복 강조용)
+      var palette={0:'#f4a0c0',1:'#ffb27a',2:'#7ab8ff',3:'#8fe3b5',4:'#c9a0f4',5:'#dfeefb'};
+      if(f.phase==='A'){
+        ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif'; ctx.fillText('① 겹치는 부분문제 — FIB(5) 호출 트리', W/2, H*0.085);
+        var T=f.tree, lg=Math.min(58,H*0.16);
+        function X(node){ return W*0.10+node.x*W*0.80; }
+        function Y(node){ return H*0.20+node.d*lg; }
+        // 간선
+        ctx.lineWidth=1.6;
+        for(var i=0;i<T.length && i<f.reveal;i++){ var nd=T[i]; if(nd.p<0) continue;
+          var par=T[nd.p]; if(nd.p>=f.reveal) continue;
+          ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.beginPath(); ctx.moveTo(X(par),Y(par)); ctx.lineTo(X(nd),Y(nd)); ctx.stroke(); }
+        // 노드
+        // 중복 카운트
+        var cnt={}; for(i=0;i<f.reveal;i++){ cnt[T[i].n]=(cnt[T[i].n]||0)+1; }
+        for(i=0;i<T.length && i<f.reveal;i++){ var n2=T[i], x=X(n2), y=Y(n2), r=16;
+          var dup=(cnt[n2.n]>1), isHl=(f.hl && f.hl!=='dup' && f.hl.indexOf && f.hl.indexOf(i)>=0);
+          var col, fc;
+          if(f.hl==='dup' && dup){ col=palette[n2.n]||'#7ab8ff'; fc='rgba(255,255,255,0.10)'; }
+          else if(isHl){ col='#ffb27a'; fc='rgba(255,178,122,0.22)'; }
+          else { col='#7ab8ff'; fc='rgba(122,184,255,0.12)'; }
+          if(f.hl==='dup'&&dup){ ctx.save(); ctx.shadowColor=col; ctx.shadowBlur=8; }
+          ctx.fillStyle=fc; ctx.strokeStyle=col; ctx.lineWidth=(f.hl==='dup'&&dup)?2.4:1.8;
+          ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
+          if(f.hl==='dup'&&dup) ctx.restore();
+          ctx.fillStyle=col; ctx.font='600 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText('F'+n2.n, x, y); ctx.textBaseline='alphabetic';
+        }
+        if(f.countDistinct){
+          ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+          ctx.fillText('서로 다른 부분문제: FIB(0..5) = 6개 (다항)  vs  순수 재귀 호출 13회 (지수)', W/2, H*0.92);
+        } else {
+          ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+          ctx.fillText('같은 색 = 같은 부분문제(중복 호출).  순수 재귀는 이를 매번 다시 계산.', W/2, H*0.92);
+        }
+        return;
+      }
+      if(f.phase==='M'){
+        ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif'; ctx.fillText('메모이제이션 — 각 부분문제를 한 번만 계산해 저장', W/2, H*0.10);
+        var cells=6, cw=Math.min(90,(W*0.78)/cells), gap=12, totW=cells*cw+(cells-1)*gap, x0=W/2-totW/2, ay=H*0.36;
+        for(var t=0;t<cells;t++){
+          var x=x0+t*(cw+gap), filled=(f.memo[t]>=0), cur=(t===f.cur);
+          var col=cur?'#ffb27a':filled?'#8fe3b5':'#56555f';
+          var fcc=cur?'rgba(255,178,122,0.22)':filled?'rgba(143,227,181,0.16)':'rgba(122,184,255,0.06)';
+          if(cur){ ctx.save(); ctx.shadowColor='#ffb27a'; ctx.shadowBlur=14; }
+          ctx.fillStyle=fcc; ctx.strokeStyle=col; ctx.lineWidth=cur?2.6:1.6;
+          if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,ay,cw,cw*0.7,9);}else{ctx.beginPath();ctx.rect(x,ay,cw,cw*0.7);} ctx.fill(); ctx.stroke();
+          if(cur) ctx.restore();
+          ctx.fillStyle=col; ctx.font='600 24px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(filled?f.memo[t]:'·', x+cw/2, ay+cw*0.35); ctx.textBaseline='alphabetic';
+          ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('F('+t+')', x+cw/2, ay+cw*0.7+20);
+        }
+        ctx.fillStyle=f.done?'#8fe3b5':'#9b99a3'; ctx.font=(f.done?'600 ':'')+'14px sans-serif'; ctx.textAlign='center';
+        ctx.fillText(f.done?'각 칸 1회 계산 → 전체 O(n). 지수 → 선형.':'표를 왼쪽부터 한 번씩 채웁니다.', W/2, H*0.70);
+        return;
+      }
+      if(f.phase==='B'){
+        ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif'; ctx.fillText('② 최적 부분 구조 — 절단-붙이기 논증', W/2, H*0.085);
+        // 노드 s, v, t 위치
+        var sX=W*0.16, sY=H*0.55, vX=W*0.56, vY=H*0.55, tX=W*0.88, tY=H*0.55;
+        var midUp=H*0.30, midDn=H*0.78;
+        // s→v 두 후보 곡선 (위=초록 좋은4, 아래=빨강 나쁜7)
+        function curve(x1,y1,x2,y2,my,col,wd,dash){
+          ctx.strokeStyle=col; ctx.lineWidth=wd; if(dash) ctx.setLineDash([7,6]); else ctx.setLineDash([]);
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo((x1+x2)/2,my,x2,y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        var useGood=(f.use==='good'), useBad=(f.use==='bad'), useSwap=(f.use==='swap');
+        // 좋은 후보(위, 초록, =4)
+        var goodCol=(useGood||useSwap)?'#8fe3b5':'rgba(143,227,181,0.40)';
+        var goodW=(useGood||useSwap)?4:2.2;
+        curve(sX,sY,vX,vY,midUp,goodCol,goodW,!(useGood||useSwap));
+        ctx.fillStyle=goodCol; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('s→v 길이 '+f.svGood, (sX+vX)/2, midUp-6);
+        // 나쁜 후보(아래, 빨강, =7)
+        var badCol=(useBad)?'#f4a0c0':(useSwap?'rgba(244,160,192,0.35)':'rgba(244,160,192,0.5)');
+        var badW=(useBad)?4:2;
+        curve(sX,sY,vX,vY,midDn,badCol,badW,false);
+        ctx.fillStyle=badCol; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('s→v 길이 '+f.svBad+(useSwap?'  (잘라냄 ✂)':''), (sX+vX)/2, midDn+18);
+        // v→t (중립)
+        ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=3; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(vX,vY); ctx.lineTo(tX,tY); ctx.stroke();
+        ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.fillText('v→t = '+f.vt, (vX+tX)/2, vY-12);
+        // 노드 s v t
+        function node(x,y,lab,col){
+          ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle=col; ctx.lineWidth=2.4;
+          ctx.beginPath(); ctx.arc(x,y,22,0,7); ctx.fill(); ctx.stroke();
+          ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(lab,x,y); ctx.textBaseline='alphabetic';
+        }
+        node(sX,sY,'s','#ffb27a'); node(vX,vY,'v','#dfeefb'); node(tX,tY,'t','#ffb27a');
+        // 전체 길이 표시
+        var total = useGood?(f.svGood+f.vt) : useSwap?(f.svGood+f.vt) : (f.svBad+f.vt);
+        var prevBad = f.svBad+f.vt;
+        ctx.textAlign='center';
+        if(useBad){ ctx.fillStyle='#f4a0c0'; ctx.font='600 16px sans-serif'; ctx.fillText('전체 = '+f.svBad+' + '+f.vt+' = '+prevBad, W/2, H*0.93); }
+        else if(useSwap){ ctx.fillStyle='#8fe3b5'; ctx.font='600 16px sans-serif'; ctx.fillText('잘라-붙임 후 전체 = '+f.svGood+' + '+f.vt+' = '+total+'  ('+prevBad+'보다 짧음!)', W/2, H*0.93); }
+        else if(f.proved){ ctx.fillStyle='#8fe3b5'; ctx.font='600 16px sans-serif'; ctx.fillText(f.warn?'⚠ 단, 최장 단순경로 등은 이 논증이 실패 → DP 불가':'∴ 부분해도 반드시 최적 (최적 부분 구조 성립)', W/2, H*0.93); }
+        else { ctx.fillStyle='#9b99a3'; ctx.font='15px sans-serif'; ctx.fillText('모순 → 가정이 틀림 (부분이 최단이 아닐 수 없음)', W/2, H*0.93); }
+        return;
+      }
+    }
   },
 
   { id:'algo_br_greedy_proof', branchOf:'algo8_01',
