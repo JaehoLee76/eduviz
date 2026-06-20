@@ -451,34 +451,234 @@
   },
 
   // ══════ 힙(algo5_04) ▸ 힙 만들기 build-heap O(n) ══════
-  { id:'algo_br_buildheap', concept:true, branchOf:'algo5_04',
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, cx=E.W/2, y0=E.H*0.30;
-      ctx.font='15px sans-serif'; ctx.textAlign='center';
-      ctx.fillStyle='#cfcdc6'; ctx.fillText('힙 만들기: 마지막 부모(n/2)부터 거꾸로 sift-down', cx, y0);
-      ctx.fillStyle='#7ab8ff'; ctx.font='600 17px sans-serif';
-      ctx.fillText('순진하게: n개 × 각 O(log n) = O(n log n)?', cx, y0+44);
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('실제로는 O(n)!', cx, y0+80);
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
-      ctx.fillText('대부분의 노드는 트리 바닥 근처 → sift-down 거리가 짧다', cx, y0+112);
-      ctx.fillText('높이 h인 노드 수 ≈ n/2^(h+1), Σ h·n/2^(h+1) = O(n)', cx, y0+136);
-      E.big('build-heap = O(n) (놀랍게도!)', 'n개를 힙으로 만드는 건 O(n log n)이 아니라 O(n). 바닥 노드가 압도적으로 많고 그들의 이동 거리가 짧아서 — 합이 O(n)으로 수렴'); }
+  { id:'algo_br_buildheap', branchOf:'algo5_04', impl_lang:'C++',
+    impl:['#include <iostream>','using namespace std;','',
+      '// 한 노드를 자식들과 비교하며 아래로 내려보내 힙성질 복구',
+      'void siftDown(int a[], int i, int n){',
+      '    while(true){',
+      '        int l=2*i+1, r=2*i+2, big=i;',
+      '        if(l<n && a[l]>a[big]) big=l;   // 왼자식이 더 큼',
+      '        if(r<n && a[r]>a[big]) big=r;   // 오른자식이 더 큼',
+      '        if(big==i) break;               // 더 내려갈 곳 없음',
+      '        swap(a[i], a[big]); i=big;      // 교환 후 그 자리로',
+      '    }',
+      '}',
+      '// 잎은 이미 힙 → 마지막 내부노드(n/2-1)부터 거꾸로',
+      'void buildHeap(int a[], int n){',
+      '    for(int i = n/2-1; i >= 0; i--)',
+      '        siftDown(a, i, n);',
+      '}',
+      '',
+      'int main(){',
+      '    int a[] = {3,9,2,1,7,5,8,4,6};',
+      '    buildHeap(a, 9);',
+      '    for(int x: a) std::cout << x << " ";  // 9 7 8 6 3 5 2 4 1',
+      '    return 0;',
+      '}'],
+    code:[
+      'BUILD-MAX-HEAP(a, n) {',
+      '  for i = n/2-1 downto 0      // 마지막 부모부터 거꾸로',
+      '    SIFT-DOWN(a, i, n)        // 그 노드를 아래로 내림',
+      '}',
+      'SIFT-DOWN(a, i, n) {',
+      '  big = i; l = 2i+1; r = 2i+2',
+      '  if l<n & a[l]>a[big]: big=l  // 더 큰 자식 고르기',
+      '  if r<n & a[r]>a[big]: big=r',
+      '  if big != i: swap(a[i],a[big]); i=big; repeat',
+      '}'
+    ],
+    build:function(V){ var H=[3,9,2,1,7,5,8,4,6], n=H.length, st=[];
+      var settled={};                       // 이미 힙성질 확정된 인덱스
+      function snap(line,cap,cur,extra){
+        var f={line:line, cap:cap, H:H.slice(), cur:(cur==null?-1:cur),
+               settled:Object.keys(settled).map(Number)};
+        if(extra)for(var k in extra)f[k]=extra[k]; st.push(f); }
+      snap(0,'배열 <b>[3,9,2,1,7,5,8,4,6]</b> 를 힙으로. 잎(인덱스 4~8)은 이미 힙 → 마지막 <b>부모</b> 인덱스 <b>n/2-1 = '+(n/2-1|0)+'</b> 부터 거꾸로 sift-down.',-1);
+      for(var i=(n/2-1|0); i>=0; i--){
+        snap(1,'i = <b>'+i+'</b> (값 '+H[i]+') 의 sift-down 시작.',i);
+        var j=i;
+        while(true){
+          var l=2*j+1, r=2*j+2, big=j;
+          if(l<n && H[l]>H[big]) big=l;
+          if(r<n && H[r]>H[big]) big=r;
+          // 비교 스냅: 자식과 비교
+          var cl=(l<n)?l:-1, cr=(r<n)?r:-1;
+          snap(6,'노드 '+H[j]+'(idx '+j+') 의 자식과 비교: '
+                 +(cl>=0?('왼 '+H[cl]):'없음')+(cr>=0?(', 오른 '+H[cr]):'')
+                 +' → 가장 큰 값은 <b>'+H[big]+'</b>(idx '+big+').',
+                 j,{cmpL:cl, cmpR:cr});
+          if(big===j){
+            settled[j]=1;
+            snap(8,'부모 '+H[j]+' ≥ 자식 → <b>제자리 확정</b>. sift-down 종료.',j);
+            break;
+          }
+          // 교환 스냅
+          snap(8,'부모 '+H[j]+' < 자식 '+H[big]+' → <b>교환</b>(부모를 아래로).',
+               j,{swap:[j,big]});
+          var t=H[j]; H[j]=H[big]; H[big]=t;
+          settled[j]=1;                      // 위쪽 노드는 확정
+          j=big;                             // 교환된 자리로 내려감
+        }
+      }
+      snap(3,'<b>완료!</b> 전체가 최대 힙 → '+JSON.stringify(H)+'. 부모마다 비용은 높이 h, 높이 h 노드는 ~n/2^(h+1)개 → 합 <b>O(n)</b>.',-1,{done:true});
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx, W=V.W, H=V.H, arr=f.H, n=arr.length;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('힙 만들기: 마지막 부모(n/2-1)부터 거꾸로 sift-down — 잎은 건너뜀', W/2, H*0.07);
+      var sset={}; (f.settled||[]).forEach(function(x){ sset[x]=1; });
+      var sw=f.swap||[];
+      function col(j){
+        if(j===sw[0]||j===sw[1]) return {fill:'rgba(244,160,192,0.30)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'교환'};
+        if(j===f.cur) return {fill:'rgba(255,178,122,0.32)',stroke:'#ffb27a',text:'#ffb27a',tag:'내리는 중'};
+        if(j===f.cmpL||j===f.cmpR) return {fill:'rgba(122,184,255,0.22)',stroke:'#7ab8ff',text:'#dfeefb',tag:'비교'};
+        if(sset[j]) return {fill:'rgba(143,227,181,0.20)',stroke:'#8fe3b5',text:'#8fe3b5'};
+        return null;
+      }
+      // 1) 이진 트리
+      drawTreeB(V, arr, col, {top:H*0.20, lg:H*0.155, r:18});
+      // 2) 배열 박스 (트리 인덱스와 동일 색)
+      var bw=Math.min(W*0.86, n*48), bx0=W/2-bw/2, cw=bw/n, by=H*0.80;
+      ctx.font='12px sans-serif'; ctx.fillStyle='#6f6e7a'; ctx.textAlign='center';
+      ctx.fillText('▼ 배열 (인덱스 i의 자식 = 2i+1, 2i+2)', W/2, by-12);
+      for(var k=0;k<n;k++){ var c=col(k), x=bx0+k*cw;
+        ctx.fillStyle=(c&&c.fill)||'rgba(122,184,255,0.10)';
+        ctx.strokeStyle=(c&&c.stroke)||'rgba(255,255,255,0.18)'; ctx.lineWidth=c?2:1;
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x+3,by,cw-6,40,7);ctx.fill();ctx.stroke();}
+        else {ctx.fillRect(x+3,by,cw-6,40);ctx.strokeRect(x+3,by,cw-6,40);}
+        ctx.fillStyle=(c&&c.text)||'#dfeefb'; ctx.font='600 16px monospace';
+        ctx.fillText(arr[k], x+cw/2, by+26);
+        ctx.fillStyle='#6f6e7a'; ctx.font='10px monospace'; ctx.fillText(k, x+cw/2, by+52); }
+      // 3) 범례 / 결과
+      ctx.textAlign='center'; ctx.font='12px sans-serif';
+      if(f.done){ ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif';
+        ctx.fillText('최대 힙 완성 — build 단계는 O(n) (삽입 n번 O(n log n)보다 빠름)', W/2, H*0.95); }
+      else { ctx.fillStyle='#9b99a3';
+        ctx.fillText('주황=내리는 노드 · 분홍=교환쌍 · 파랑=비교 자식 · 초록=확정', W/2, H*0.95); } }
   },
 
   // ══════ DFS(algo6_04) ▸ 위상 정렬 ══════
-  { id:'algo_br_topo', concept:true, branchOf:'algo6_04',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx;
-      var P=[[0.16,0.30],[0.16,0.62],[0.46,0.22],[0.46,0.58],[0.32,0.86],[0.80,0.50]];
-      var NM=['속옷','바지','셔츠','벨트','신발','재킷'];
-      var EG=[[0,1],[1,3],[2,3],[3,5],[1,4],[2,5]];
-      function px(i){ return [E.W*0.12+P[i][0]*E.W*0.62, E.H*0.16+P[i][1]*E.H*0.56]; }
-      EG.forEach(function(e){ gedge(E, px(e[0]), px(e[1]), 'rgba(122,184,255,0.5)'); });
-      for(var i=0;i<P.length;i++){ var p=px(i); AV.node(E,p[0],p[1],NM[i],{r:24,fs:12,fill:'rgba(122,184,255,0.16)',stroke:'#7ab8ff'}); }
-      var order=['속옷','셔츠','바지','벨트','신발','재킷'];
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 16px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('위상 순서:  '+order.join('  →  '), E.W/2, E.H*0.84);
-      E.big('위상 정렬 — 순서가 있는 작업 줄세우기', '방향 비순환 그래프(DAG)에서 "A→B면 A가 먼저"를 모두 만족하는 일렬 순서. DFS 끝나는 역순! 작업 스케줄·빌드 의존성·선수과목'); }
+  // ══════ DFS(algo6_04) ▸ 위상 정렬 (코드+빌드: 칸 알고리즘) ══════
+  { id:'algo_br_topo', branchOf:'algo6_04', impl_lang:'C++',
+    impl:['#include <iostream>','#include <vector>','#include <queue>','using namespace std;','',
+      '// 칸(Kahn) 알고리즘: 진입차수 0인 정점을 차례로 빼며 위상 순서를 만든다',
+      'int main() {',
+      '    const int V = 6;                       // 정점 0..5',
+      '    vector<vector<int>> adj(V);            // 인접 리스트(방향)',
+      '    int indeg[V] = {0};                    // 각 정점의 진입차수',
+      '',
+      '    // 간선 u -> v 추가 (u가 v보다 먼저)',
+      '    auto add = [&](int u, int v){ adj[u].push_back(v); indeg[v]++; };',
+      '    add(0,1); add(0,2); add(1,3); add(2,3); add(3,4); add(1,5); add(3,5);',
+      '',
+      '    queue<int> q;',
+      '    for (int i = 0; i < V; i++)            // 진입차수 0인 정점을 큐에',
+      '        if (indeg[i] == 0) q.push(i);',
+      '',
+      '    vector<int> order;',
+      '    while (!q.empty()) {',
+      '        int u = q.front(); q.pop();        // 꺼내서 출력에 추가',
+      '        order.push_back(u);',
+      '        for (int v : adj[u])               // 이웃의 진입차수 감소',
+      '            if (--indeg[v] == 0) q.push(v); // 0이 되면 큐에',
+      '    }',
+      '',
+      '    for (int x : order) cout << x << " ";   // 0 1 2 3 4 5',
+      '    cout << "\\n";',
+      '    return 0;',
+      '}'],
+    code:[
+      'for each v: compute indeg[v]   // 진입차수 계산',
+      'Q = { v : indeg[v] == 0 }      // 0인 정점 큐에',
+      'while Q not empty:',
+      '  u = Q.pop();  order += u     // 꺼내 출력',
+      '  for each edge u -> v:        // 이웃 순회',
+      '    indeg[v] -= 1              // 진입차수 감소',
+      '    if indeg[v] == 0: Q.push(v)// 0되면 큐에'
+    ],
+    build:function(V){
+      var NM=['미적분','선대','자구','알고리즘','OS','ML'], n=6;
+      // 고정 DAG: u -> v (u가 v보다 먼저)
+      var EG=[[0,1],[0,2],[1,3],[2,3],[3,4],[1,5],[3,5]];
+      var adj=[]; for(var a=0;a<n;a++) adj[a]=[];
+      var indeg=[0,0,0,0,0,0];
+      for(var e=0;e<EG.length;e++){ adj[EG[e][0]].push(EG[e][1]); indeg[EG[e][1]]++; }
+      var st=[], Q=[], order=[];
+      function snap(line,cap,cur,upd){
+        st.push({line:line, cap:cap, eg:EG, indeg:indeg.slice(),
+          queue:Q.slice(), order:order.slice(),
+          cur:cur==null?-1:cur, upd:upd==null?-1:upd}); }
+      // 1) 진입차수 계산
+      snap(0,'<b>진입차수 계산</b>: 각 정점으로 들어오는 화살표 수를 셉니다. 0=선수과목 없음.', -1, -1);
+      // 2) 진입차수 0인 정점을 큐에
+      for(var i=0;i<n;i++){ if(indeg[i]===0){ Q.push(i);
+        snap(1,'<b>'+NM[i]+'</b>(진입차수 0) → 큐에 넣습니다. 바로 들을 수 있는 과목.', i, -1); } }
+      // 3) 메인 루프
+      while(Q.length){
+        var u=Q.shift(); order.push(u);
+        snap(3,'큐에서 <b>'+NM[u]+'</b> 꺼냄 → 출력 순서 '+(order.length)+'번째로 확정.', u, -1);
+        for(var k=0;k<adj[u].length;k++){
+          var v=adj[u][k];
+          snap(4,'<b>'+NM[u]+' → '+NM[v]+'</b> 간선: 이웃 '+NM[v]+'의 진입차수를 줄입니다.', u, v);
+          indeg[v]--;
+          if(indeg[v]===0){ Q.push(v);
+            snap(6,'<b>'+NM[v]+'</b> 진입차수 0 도달 → 선수과목 모두 끝남! 큐에 넣습니다.', u, v);
+          } else {
+            snap(5,NM[v]+' 진입차수 = <b>'+indeg[v]+'</b> (아직 ≠0) → 큐에 안 넣음.', u, v);
+          }
+        }
+      }
+      snap(2,'<b>완료!</b> 위상 순서: '+order.map(function(x){return NM[x];}).join(' → ')+'. 모든 "A→B면 A 먼저"를 만족. O(V+E).', -1, -1);
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx, W=V.W, H=V.H;
+      var NM=['미적분','선대','자구','알고리즘','OS','ML'];
+      // 고정 좌표(상대값) — 왼→오 위상 흐름
+      var P=[[0.06,0.20],[0.32,0.10],[0.32,0.62],[0.60,0.34],[0.86,0.16],[0.86,0.66]];
+      function px(i){ return [W*0.14+P[i][0]*W*0.60, H*0.18+P[i][1]*H*0.50]; }
+      // 출력 완료 여부
+      var done={}; for(var o=0;o<f.order.length;o++) done[f.order[o]]=o+1;
+      // 간선 그리기 (현재 처리 정점에서 나가는 간선 강조)
+      for(var k=0;k<f.eg.length;k++){ var e=f.eg[k];
+        var hot=(e[0]===f.cur && e[1]===f.upd);
+        var col=hot?'#ffb27a':(done[e[0]]?'rgba(143,227,181,0.35)':'rgba(122,184,255,0.45)');
+        gedge(V, px(e[0]), px(e[1]), col, hot?3.5:2); }
+      // 정점 그리기
+      for(var i=0;i<6;i++){ var p=px(i), isCur=(i===f.cur && done[i]==null), isUpd=(i===f.upd), isDone=(done[i]!=null);
+        var fill, stroke;
+        if(isCur){ fill='rgba(255,178,122,0.28)'; stroke='#ffb27a'; }
+        else if(isUpd){ fill='rgba(255,178,122,0.18)'; stroke='#ffb27a'; }
+        else if(isDone){ fill='rgba(143,227,181,0.16)'; stroke='#8fe3b5'; }
+        else { fill='rgba(122,184,255,0.16)'; stroke='#7ab8ff'; }
+        if(isCur){ ctx.save(); ctx.shadowColor='#ffb27a'; ctx.shadowBlur=18; }
+        AV.node(V,p[0],p[1],NM[i],{r:26,fs:12,fill:fill,stroke:stroke,text:isDone&&!isCur?'#9b99a3':'#dfeefb'});
+        if(isCur) ctx.restore();
+        // 진입차수 배지(우상단)
+        var bd=f.indeg[i], bx=p[0]+20, by=p[1]-20;
+        ctx.beginPath(); ctx.arc(bx,by,11,0,Math.PI*2);
+        ctx.fillStyle=(bd===0)?'#8fe3b5':'#34323c'; ctx.fill();
+        ctx.strokeStyle=(bd===0)?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle=(bd===0)?'#1a1820':'#dfeefb'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(bd, bx, by); ctx.textBaseline='alphabetic';
+        // 출력 순번 배지(좌하단)
+        if(isDone){ ctx.fillStyle='#8fe3b5'; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
+          ctx.fillText('#'+done[i], p[0]-22, p[1]+22); } }
+      // 하단: 큐 + 출력 순서
+      ctx.textAlign='left'; ctx.font='600 13px sans-serif';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('큐(Q):', W*0.10, H*0.86);
+      var qx=W*0.22;
+      if(f.queue.length===0){ ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('(비어 있음)', qx, H*0.86); }
+      for(var j=0;j<f.queue.length;j++){ var qn=NM[f.queue[j]];
+        ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5;
+        var qw=Math.max(46,qn.length*13+18);
+        rrect(ctx,qx,H*0.86-15,qw,22,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(qn, qx+qw/2, H*0.86); ctx.textAlign='left';
+        qx+=qw+8; }
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif';
+      ctx.fillText('출력 순서:', W*0.10, H*0.94);
+      var ostr=f.order.map(function(x){return NM[x];}).join('  →  ');
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif';
+      ctx.fillText(ostr||'(아직 없음)', W*0.24, H*0.94);
+      ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('초록 배지 = 진입차수 0(지금 들을 수 있음)  ·  주황 = 처리 중  ·  #n = 출력 순번', W/2, H*0.99); ctx.textAlign='left'; }
   },
 
   // ══════ DFS(algo6_04) ▸ 강연결요소 SCC ══════
@@ -621,17 +821,113 @@
   },
 
   // ══════ 다익스트라(algo6_05) ▸ 최소 신장 트리 MST ══════
-  { id:'algo_br_mst', concept:true, branchOf:'algo6_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx;
-      var P=[[0.15,0.25],[0.5,0.15],[0.85,0.3],[0.25,0.7],[0.6,0.72]];
+  { id:'algo_br_mst', branchOf:'algo6_05', impl_lang:'C++',
+    impl:['#include <iostream>','#include <vector>','#include <algorithm>','using namespace std;','',
+      'const int V = 5;                 // 정점 0=A 1=B 2=C 3=D 4=E',
+      'struct Edge { int u, v, w; };',
+      '',
+      'int par[V];                      // union-find 부모 배열',
+      'int find(int x){ return par[x]==x ? x : par[x]=find(par[x]); }',
+      'bool uni(int a,int b){           // 합치기 (이미 한 집합이면 false)',
+      '    a=find(a); b=find(b);',
+      '    if(a==b) return false;       // 사이클 → 거부',
+      '    par[a]=b; return true;       // 다른 집합 → 합침',
+      '}',
+      '',
+      '// 크루스칼: 간선을 가중치 오름차순으로 보며 사이클 없는 것만 채택',
+      'int main(){',
+      '    vector<Edge> e = {',
+      '        {0,1,1},{1,2,2},{0,2,3},{1,3,4},',
+      '        {3,4,5},{2,4,6},{0,3,7}',
+      '    };',
+      '    sort(e.begin(), e.end(),',
+      '         [](Edge a, Edge b){ return a.w < b.w; });',
+      '    for(int i=0;i<V;i++) par[i]=i;  // 각자 자기 집합',
+      '',
+      '    int total=0, cnt=0;',
+      '    for(auto& x : e){',
+      '        if(uni(x.u, x.v)){          // 합쳐지면 = 사이클 아님',
+      '            total += x.w; cnt++;     // MST에 채택',
+      '            if(cnt == V-1) break;    // 간선 V-1개면 완성',
+      '        }',
+      '    }',
+      '    cout << "MST weight = " << total << "\\n";  // 12',
+      '    return 0;',
+      '}'],
+    code:[
+      'sort(edges by w)            // 가중치 오름차순',
+      'for v in V: par[v] = v      // 각자 자기 집합',
+      'total = 0;  cnt = 0',
+      'for each (u,v,w) in order:',
+      '  if find(u) != find(v):    // 다른 집합 → 사이클 X',
+      '    union(u, v);  total += w   // MST에 채택',
+      '    if cnt == V-1: break     // 간선 V-1개면 완성',
+      '  else: skip                // 같은 집합 → 사이클'
+    ],
+    build:function(V){
+      var NM=['A','B','C','D','E'], n=5;
+      // 정렬 전 간선 [u,v,w]
+      var RAW=[[0,1,1],[1,2,2],[0,2,3],[1,3,4],[3,4,5],[2,4,6],[0,3,7]];
+      var EG=RAW.slice().sort(function(a,b){ return a[2]-b[2]; }); // 가중치 오름차순
+      var par=[0,1,2,3,4];
+      function find(x){ while(par[x]!==x){ par[x]=par[par[x]]; x=par[x]; } return x; }
+      // 채택 상태: -1=미검사, 1=채택, 0=거부(사이클)
+      var state=EG.map(function(){ return -1; });
+      var st=[], total=0, cnt=0;
+      function snap(line,cap,cur){
+        st.push({line:line, cap:cap, eg:EG, state:state.slice(),
+          par:par.slice(), cur:cur==null?-1:cur, total:total, cnt:cnt}); }
+      var ord = EG.map(function(e){ return NM[e[0]]+NM[e[1]]+'('+e[2]+')'; }).join('  ');
+      snap(0,'간선을 가중치 오름차순으로 정렬: <b>'+ord+'</b>. 싼 것부터 봅니다.', -1);
+      snap(1,'union-find 초기화: 정점 5개가 <b>각자 자기 집합</b>(par[v]=v). 아직 아무것도 연결 안 됨.', -1);
+      snap(2,'채택 간선 합 total=0, 개수 cnt=0. <b>간선 '+(n-1)+'개</b>를 채우면 MST 완성.', -1);
+      for(var k=0;k<EG.length;k++){
+        var u=EG[k][0], v=EG[k][1], w=EG[k][2];
+        var ru=find(u), rv=find(v);
+        if(ru!==rv){
+          snap(4, '<b>'+NM[u]+'–'+NM[v]+' (w='+w+')</b>: find('+NM[u]+')≠find('+NM[v]+') → 서로 다른 집합, <b>사이클 아님</b>.', k);
+          par[ru]=rv; state[k]=1; total+=w; cnt++;
+          snap(5, '<b>채택!</b> '+NM[u]+', '+NM[v]+' 집합을 합칩니다. total = <b>'+total+'</b>, 채택 간선 '+cnt+'개.', k);
+          if(cnt===n-1){
+            snap(6, '간선이 <b>'+(n-1)+'개</b> 모였습니다 → 모든 정점 연결 완료, <b>break</b>!', k);
+            break;
+          }
+        } else {
+          snap(7, '<b>'+NM[u]+'–'+NM[v]+' (w='+w+')</b>: find('+NM[u]+')=find('+NM[v]+') → 이미 같은 집합. 추가하면 <b>사이클</b> → 건너뜀.', k);
+          state[k]=0;
+        }
+      }
+      snap(6,'<b>완성!</b> MST 총 가중치 = <b>'+total+'</b> (간선 '+cnt+'개, 사이클 없이 전부 연결). 크루스칼: 그리디 + union-find, O(E log E).', -1);
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx, W=V.W, H=V.H;
       var NM=['A','B','C','D','E'];
-      var EG=[[0,1,3,1],[1,2,5,0],[0,3,2,1],[3,4,4,1],[1,4,6,0],[2,4,1,1],[1,3,7,0]]; // [u,v,w,inMST]
-      function px(i){ return [E.W*0.14+P[i][0]*E.W*0.6, E.H*0.18+P[i][1]*E.H*0.52]; }
-      EG.forEach(function(e){ uedge(E, px(e[0]), px(e[1]), e[3]?'#8fe3b5':'rgba(255,255,255,0.18)', e[3]?3:1.5, e[2]); });
-      for(var i=0;i<P.length;i++){ var p=px(i); AV.node(E,p[0],p[1],NM[i],{r:22,fill:'rgba(122,184,255,0.16)',stroke:'#7ab8ff'}); }
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('초록 = 선택된 MST 간선 (총 가중치 최소, 사이클 없이 전부 연결)', E.W/2, E.H*0.84);
-      E.big('최소 신장 트리(MST) — 최소 비용 연결', '모든 정점을 사이클 없이 잇는 가장 싼 방법. 크루스칼(간선 정렬+union-find로 사이클 회피) / 프림(다익스트라처럼 우선순위큐로 성장). 둘 다 그리디!'); }
+      // 고정 좌표(상대값) — V.W/V.H 비례 배치
+      var P=[[0.22,0.30],[0.55,0.12],[0.88,0.34],[0.18,0.74],[0.62,0.78]];
+      function px(i){ return [W*0.14+P[i][0]*W*0.60, H*0.18+P[i][1]*H*0.52]; }
+      // union-find 집합별 색 (find 루트로 그룹)
+      var SET=['#7ab8ff','#ffb27a','#f4a0c0','#8fe3b5','#c9a8ff'];
+      function root(x){ var p=f.par; while(p[x]!==x){ x=p[x]; } return x; }
+      // 간선 그리기
+      for(var k=0;k<f.eg.length;k++){ var e=f.eg[k], cur=(k===f.cur), s=f.state[k];
+        var col, lw;
+        if(s===1){ col='#8fe3b5'; lw=4; }                 // 채택(초록 굵게)
+        else if(cur && s===0){ col='#f4a0c0'; lw=2.5; }   // 지금 거부(사이클)
+        else if(cur){ col='#ffb27a'; lw=3; }              // 지금 검사
+        else if(s===0){ col='rgba(244,160,192,0.28)'; lw=1.2; } // 거부됨(흐림)
+        else { col='rgba(255,255,255,0.16)'; lw=1.2; }    // 미검사
+        uedge(V, px(e[0]), px(e[1]), col, lw, e[2]); }
+      // 정점 그리기 (집합 색으로 구분)
+      for(var i=0;i<P.length;i++){ var p=px(i), r=root(i), endpt=(f.cur>=0 && (f.eg[f.cur][0]===i||f.eg[f.cur][1]===i));
+        var col=SET[r%SET.length];
+        var fillCol = endpt ? 'rgba(255,178,122,0.30)' : 'rgba(122,184,255,0.10)';
+        if(endpt){ ctx.save(); ctx.shadowColor='#ffb27a'; ctx.shadowBlur=16; }
+        AV.node(V,p[0],p[1],NM[i],{r:23,fs:15,fill:fillCol,stroke:endpt?'#ffb27a':col});
+        if(endpt) ctx.restore(); }
+      // 진행 패널 (채택 합 / 간선 수)
+      ctx.textAlign='center'; ctx.font='600 14px sans-serif'; ctx.fillStyle='#8fe3b5';
+      ctx.fillText('MST 가중치 합  total = '+f.total+'    ·    채택 간선  '+f.cnt+' / '+(NM.length-1), W/2, H*0.88);
+      ctx.font='12px sans-serif'; ctx.fillStyle='#9b99a3';
+      ctx.fillText('초록 = 채택(MST)  ·  주황 = 검사 중  ·  분홍 = 사이클로 거부  ·  정점 테두리색 = 같은 union-find 집합', W/2, H*0.95); }
   },
 
   // ══════ BST(algo5_03) ▸ 레드블랙 트리 ══════
@@ -707,37 +1003,135 @@
   },
 
   // ══════ 격자 DP(algo7_05) ▸ 최장 공통 부분수열 LCS ══════
-  { id:'algo_br_lcs', concept:true, branchOf:'algo7_05',
-    enter:function(E){ this.X='ABCB'; this.Y='BDCB'; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, X=this.X, Y=this.Y, m=X.length, n=Y.length;
-      var dp=[]; for(var i=0;i<=m;i++){ dp[i]=[]; for(var j=0;j<=n;j++){ if(i===0||j===0)dp[i][j]=0; else if(X[i-1]===Y[j-1])dp[i][j]=dp[i-1][j-1]+1; else dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]); } }
-      var cell=Math.min(56,E.H*0.085), x0=E.W/2-(n+1)*cell/2+cell*0.5, y0=E.H*0.26;
-      // 헤더 (Y)
-      ctx.font='600 14px sans-serif'; ctx.textAlign='center';
-      for(var j=0;j<n;j++){ ctx.fillStyle='#8fe3b5'; ctx.fillText(Y[j], x0+(j+1)*cell+cell/2, y0-6); }
-      for(var i=0;i<m;i++){ ctx.fillStyle='#ffb27a'; ctx.fillText(X[i], x0-cell/2, y0+(i+1)*cell+cell/2+4); }
-      for(var i=0;i<=m;i++)for(var j=0;j<=n;j++){ var x=x0+j*cell,y=y0+i*cell, match=(i>0&&j>0&&X[i-1]===Y[j-1]);
-        ctx.fillStyle=match?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.08)'; ctx.strokeStyle=match?'#8fe3b5':'rgba(122,184,255,0.3)'; ctx.lineWidth=1; ctx.fillRect(x,y,cell-2,cell-2); ctx.strokeRect(x,y,cell-2,cell-2);
-        ctx.fillStyle=(i===m&&j===n)?'#ffb27a':'#dfeefb'; ctx.font=(i===m&&j===n?'600 18px':'14px')+' sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(dp[i][j], x+cell/2-1, y+cell/2-1); ctx.textBaseline='alphabetic'; }
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('글자가 같으면 ↖+1, 다르면 max(↑, ←)', E.W/2, y0+(m+1)*cell+24);
-      E.big('LCS("'+X+'", "'+Y+'") = '+dp[m][n]+'  ("BCB")', '최장 공통 부분수열 — 두 문자열에 공통으로(순서대로) 나타나는 가장 긴 수열. 격자 DP. DNA 비교·diff·맞춤법 교정의 핵심'); }
+  { id:'algo_br_lcs', branchOf:'algo7_05', impl_lang:'C++',
+    impl:['#include <iostream>','#include <string>','#include <vector>','#include <algorithm>','using namespace std;','',
+      '// 최장 공통 부분수열 (LCS) — 격자 DP',
+      'int lcs(const string& X, const string& Y) {',
+      '    int m = X.size(), n = Y.size();',
+      '    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));',
+      '    for (int i = 1; i <= m; i++)',
+      '        for (int j = 1; j <= n; j++)',
+      '            if (X[i-1] == Y[j-1])               // 글자 같음',
+      '                dp[i][j] = dp[i-1][j-1] + 1;    // ↖ 대각선 + 1',
+      '            else                                 // 글자 다름',
+      '                dp[i][j] = max(dp[i-1][j], dp[i][j-1]); // ↑,← 중 큰 값',
+      '    return dp[m][n];',
+      '}',
+      '',
+      'int main() {',
+      '    string X = "ABCB", Y = "BDCB";',
+      '    cout << "LCS = " << lcs(X, Y) << "\\n";  // 3 ("BCB")',
+      '    return 0;',
+      '}'],
+    code:[
+      'LCS(X, Y) {                       // 최장 공통 부분수열',
+      '  dp[i][0]=0;  dp[0][j]=0          // 기저(빈 문자열)',
+      '  for i=1..m, j=1..n:',
+      '    if (X[i-1] == Y[j-1])',
+      '      dp[i][j] = dp[i-1][j-1] + 1  // ↖ 대각선 +1',
+      '    else',
+      '      dp[i][j] = max(dp[i-1][j],   // ↑ 위',
+      '                     dp[i][j-1])   // ← 왼쪽',
+      '  return dp[m][n]',
+      '}'
+    ],
+    build:function(V){ var X='ABCB', Y='BDCB', m=X.length, n=Y.length, dp=[], st=[];
+      for(var i=0;i<=m;i++){ dp[i]=[]; for(var j=0;j<=n;j++) dp[i][j]=0; }
+      function copy(){ return dp.map(function(r){return r.slice();}); }
+      function snap(line,cap,cur,src,diag){ st.push({line:line,cap:cap,X:X,Y:Y,m:m,n:n,dp:copy(),cur:cur||null,src:src||null,diag:!!diag}); }
+      snap(1,'기저: 한쪽이 빈 문자열이면 공통 부분수열 길이는 <b>0</b> → 0번 행·열을 0으로 채웁니다.', null, null, false);
+      for(i=1;i<=m;i++)for(j=1;j<=n;j++){
+        if(X[i-1]===Y[j-1]){ dp[i][j]=dp[i-1][j-1]+1; snap(4,"X[<b>"+(i-1)+"</b>]='"+X[i-1]+"' = Y[<b>"+(j-1)+"</b>]='"+Y[j-1]+"' <b>같음</b> → ↖ 대각선 "+dp[i-1][j-1]+" + 1 = <b>"+dp[i][j]+"</b>", [i,j], [[i-1,j-1]], true); }
+        else { dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]); snap(6,"'"+X[i-1]+"' ≠ '"+Y[j-1]+"' <b>다름</b> → max(↑"+dp[i-1][j]+", ←"+dp[i][j-1]+") = <b>"+dp[i][j]+"</b>", [i,j], [[i-1,j],[i,j-1]], false); }
+      }
+      snap(8,'<b>LCS 길이 = '+dp[m][n]+'</b> — 공통 부분수열은 "BCB"(순서 유지). 표의 오른쪽 끝 아래칸이 최종 답입니다.', [m,n], null, false);
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx, cell=Math.min(60,V.H*0.12), x0=V.W/2-(f.n+1)*cell/2+cell*0.35, y0=V.H*0.28;
+      ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      for(var j=0;j<=f.n;j++){ var x=x0+j*cell; ctx.fillStyle='#8fe3b5'; ctx.fillText(j===0?'∅':f.Y[j-1], x+cell/2, y0-cell*0.45); }
+      for(var i=0;i<=f.m;i++){ var y=y0+i*cell; ctx.fillStyle='#ffb27a'; ctx.fillText(i===0?'∅':f.X[i-1], x0-cell*0.45, y+cell/2); }
+      for(i=0;i<=f.m;i++)for(j=0;j<=f.n;j++){ var x=x0+j*cell, y=y0+i*cell;
+        var cur=f.cur&&f.cur[0]===i&&f.cur[1]===j, src=f.src&&f.src.some(function(c){return c[0]===i&&c[1]===j;});
+        ctx.fillStyle=cur?'rgba(255,178,122,0.32)':src?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.12)';
+        ctx.strokeStyle=cur?'#ffb27a':src?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=1.5;
+        ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3);
+        ctx.fillStyle=cur?'#ffb27a':'#dfeefb'; ctx.font='600 16px sans-serif'; ctx.fillText(f.dp[i][j], x+cell/2, y+cell/2); }
+      // 현재 셀과 참조 셀이 같은(일치) 비교일 때 대각선 강조 화살표
+      if(f.cur&&f.src&&f.diag){ var cx=x0+f.cur[1]*cell+cell/2, cyy=y0+f.cur[0]*cell+cell/2, sx=x0+f.src[0][1]*cell+cell/2, sy=y0+f.src[0][0]*cell+cell/2;
+        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(cx,cyy); ctx.stroke(); ctx.setLineDash([]); }
+      ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('주황=X 문자(행) / 초록=Y 문자(열) / 초록칸=참고한 이웃, 같으면 ↖+1·다르면 max(↑,←)', V.W/2, y0+(f.m+1)*cell+8); }
   },
 
   // ══════ 격자 DP(algo7_05) ▸ 0/1 배낭 ══════
-  { id:'algo_br_knap', concept:true, branchOf:'algo7_05',
-    enter:function(E){ this.items=[[2,3],[3,4],[4,5],[5,6]]; this.cap=5; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, it=this.items, cap=this.cap, n=it.length;
-      var dp=[]; for(var i=0;i<=n;i++){ dp[i]=[]; for(var w=0;w<=cap;w++){ if(i===0)dp[i][w]=0; else if(it[i-1][0]>w)dp[i][w]=dp[i-1][w]; else dp[i][w]=Math.max(dp[i-1][w], dp[i-1][w-it[i-1][0]]+it[i-1][1]); } }
-      // 선택된 아이템 역추적
-      var sel={}, w=cap; for(var i=n;i>0;i--){ if(dp[i][w]!==dp[i-1][w]){ sel[i-1]=true; w-=it[i-1][0]; } }
-      ctx.fillStyle='#9b99a3'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('배낭 용량 '+cap+'kg — 가치 합을 최대로', E.W/2, E.H*0.24);
-      var bw=120, gap=18, total=n*bw+(n-1)*gap, x0=E.W/2-total/2, y=E.H*0.34;
-      for(var k=0;k<n;k++){ var x=x0+k*(bw+gap), on=sel[k];
-        ctx.fillStyle=on?'rgba(143,227,181,0.22)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=on?'#8fe3b5':'rgba(255,255,255,0.25)'; ctx.lineWidth=2;
-        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,72,10);ctx.fill();ctx.stroke();}else ctx.strokeRect(x,y,bw,72);
-        ctx.fillStyle=on?'#8fe3b5':'#cfcdc6'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('물건 '+(k+1), x+bw/2, y+24);
-        ctx.font='13px sans-serif'; ctx.fillText(it[k][0]+'kg / ₩'+it[k][1], x+bw/2, y+46); if(on){ ctx.fillStyle='#8fe3b5'; ctx.fillText('✓ 담음', x+bw/2, y+64); } }
-      E.big('최대 가치 = ₩'+dp[n][cap]+' (용량 '+cap+'kg)', '0/1 배낭 — 각 물건을 담거나 말거나, 무게 한도 내 가치 최대화. dp[i][w] 표를 채워 해결(격자 DP). 자원 배분의 대표 문제'); }
+  { id:'algo_br_knap', branchOf:'algo7_05', impl_lang:'C++',
+    impl:['#include <iostream>','#include <vector>','#include <algorithm>','using namespace std;','',
+      'int main() {',
+      '    int wt[] = {2, 3, 4};      // 물건 무게',
+      '    int val[] = {3, 4, 5};     // 물건 가치',
+      '    int n = 3, W = 5;          // 물건 수, 배낭 용량',
+      '    // dp[i][w] = 물건 1..i, 용량 w 에서의 최대 가치',
+      '    vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));',
+      '    for (int i = 1; i <= n; i++)',
+      '        for (int w = 0; w <= W; w++) {',
+      '            dp[i][w] = dp[i-1][w];            // 물건 i 안 담음',
+      '            if (wt[i-1] <= w)                 // 담을 수 있으면',
+      '                dp[i][w] = max(dp[i][w],',
+      '                    val[i-1] + dp[i-1][w - wt[i-1]]);  // 담음',
+      '        }',
+      '    cout << "최대 가치 = " << dp[n][W] << "\\n";  // 7',
+      '    return 0;',
+      '}'],
+    code:[
+      'KNAPSACK(wt, val, n, W) {          // 0/1 배낭',
+      '  dp[0][w] = 0                      // 기저: 물건 0개',
+      '  for i = 1..n, w = 0..W:',
+      '    dp[i][w] = dp[i-1][w]           // ① 물건 i 안 담음 (위 칸)',
+      '    if (wt[i] <= w)                 // 담을 수 있으면',
+      '      dp[i][w] = max(dp[i][w],',
+      '        val[i] + dp[i-1][w-wt[i]])  // ② 담음 (가치 + 대각 왼쪽 위)',
+      '  return dp[n][W]',
+      '}'
+    ],
+    build:function(V){ var wt=[2,3,4], val=[3,4,5], nm=['A','B','C'], n=3, W=5, dp=[], st=[];
+      for(var i=0;i<=n;i++){ dp[i]=[]; for(var w=0;w<=W;w++) dp[i][w]=0; }
+      function copy(){ return dp.map(function(r){return r.slice();}); }
+      function snap(line,cap,cur,src){ st.push({line:line,cap:cap,wt:wt,val:val,nm:nm,n:n,W:W,dp:copy(),cur:cur||null,src:src||null}); }
+      snap(1,'기저: 물건이 0개면 어떤 용량이든 가치 = 0 (맨 윗줄 전부 0).', null, null);
+      for(i=1;i<=n;i++)for(var w=0;w<=W;w++){
+        var skip=dp[i-1][w];
+        if(wt[i-1]>w){ dp[i][w]=skip;
+          snap(3,'물건 '+nm[i-1]+'(무게 '+wt[i-1]+') > 용량 '+w+' → 못 담음. <b>위 칸 '+skip+'</b> 그대로.', [i,w], [[i-1,w]]); }
+        else { var take=val[i-1]+dp[i-1][w-wt[i-1]];
+          dp[i][w]=Math.max(skip,take);
+          var pick=(take>skip);
+          snap(6,'물건 '+nm[i-1]+': max( 안 담음 <b>'+skip+'</b>(위), 담음 <b>'+take+'</b> = 가치'+val[i-1]+'+'+dp[i-1][w-wt[i-1]]+'(대각) ) = <b>'+dp[i][w]+'</b>'+(pick?' → 담는 게 이득!':'.'),
+            [i,w], pick?[[i-1,w],[i-1,w-wt[i-1]]]:[[i-1,w]]); }
+      }
+      snap(7,'<b>최대 가치 = '+dp[n][W]+'</b> (용량 '+W+': A+B = 무게 5, 가치 3+4 = 7 선택). 표 오른쪽 아래 칸이 답.', [n,W], null);
+      return st; },
+    draw:function(V,f){ var ctx=V.ctx, cell=Math.min(56,V.H*0.115,V.W/(f.W+3)), x0=V.W/2-(f.W+1)*cell/2+cell*0.35, y0=V.H*0.30;
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('0/1 배낭 DP — 행=물건(누적), 열=용량 w. 한 칸씩: max( 위 칸, 가치+대각 )', V.W/2, V.H*0.13);
+      ctx.font='600 14px sans-serif'; ctx.textBaseline='middle';
+      // 열 머리글(용량 w)
+      for(var w=0;w<=f.W;w++){ var x=x0+w*cell; ctx.fillStyle='#8fe3b5'; ctx.fillText('w='+w, x+cell/2, y0-cell*0.45); }
+      // 행 머리글(물건)
+      for(var i=0;i<=f.n;i++){ var y=y0+i*cell; ctx.fillStyle='#ffb27a';
+        ctx.fillText(i===0?'∅':(f.nm[i-1]+'('+f.wt[i-1]+'/'+f.val[i-1]+')'), x0-cell*0.95, y+cell/2); }
+      // 표 본체
+      for(i=0;i<=f.n;i++)for(w=0;w<=f.W;w++){ var x=x0+w*cell, y=y0+i*cell;
+        var cur=f.cur&&f.cur[0]===i&&f.cur[1]===w;
+        var src=f.src&&f.src.some(function(c){return c[0]===i&&c[1]===w;});
+        var isAns=(i===f.n&&w===f.W&&f.line===7);
+        ctx.fillStyle=cur?'rgba(255,178,122,0.32)':isAns?'rgba(143,227,181,0.32)':src?'rgba(143,227,181,0.22)':'rgba(122,184,255,0.12)';
+        ctx.strokeStyle=cur?'#ffb27a':isAns?'#8fe3b5':src?'#8fe3b5':'#7ab8ff'; ctx.lineWidth=cur||isAns?2:1.4;
+        ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3);
+        ctx.fillStyle=cur?'#ffb27a':isAns?'#8fe3b5':'#dfeefb'; ctx.font='600 16px sans-serif';
+        ctx.fillText(f.dp[i][w], x+cell/2, y+cell/2); }
+      ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif';
+      ctx.fillText('주황=계산 중인 칸 / 초록=참고한 칸(위·대각) / 물건 라벨 = 이름(무게/가치)', V.W/2, y0+(f.n+1)*cell+8); }
   },
 
   // ══════ 복잡도 등급표(algo1_05) ▸ 분할상환 분석 ══════
@@ -1155,22 +1549,129 @@
   },
 
   // ══════ 균형(algo5_05) ▸ 레드블랙 회전 (concept) ══════
-  { id:'algo_br_rotate', concept:true, branchOf:'algo5_05',
-    enter:function(E){ E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx;
-      function nd(x,y,l,col){ AV.node(E,x,y,l,{r:19,fill:'rgba(122,184,255,0.16)',stroke:col||'#7ab8ff',text:'#dfeefb',fs:14}); }
-      function ed(a,b){ ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); }
-      // 좌: 회전 전 (x 위, y 아래오른쪽)
-      var L=E.W*0.27, R=E.W*0.73, t=E.H*0.24, g=E.H*0.15;
-      var x1=[L,t], y1=[L+E.W*0.10,t+g], a1=[L-E.W*0.07,t+g], b1=[L+E.W*0.03,t+2*g], c1=[L+E.W*0.17,t+2*g];
-      ed(x1,a1); ed(x1,y1); ed(y1,b1); ed(y1,c1); nd(a1[0],a1[1],'α'); nd(b1[0],b1[1],'β'); nd(c1[0],c1[1],'γ'); nd(y1[0],y1[1],'y'); nd(x1[0],x1[1],'x','#ffb27a');
-      // 우: 회전 후 (y 위, x 아래왼쪽)
-      var y2=[R,t], x2=[R-E.W*0.10,t+g], c2=[R+E.W*0.07,t+g], a2=[R-E.W*0.17,t+2*g], b2=[R-E.W*0.03,t+2*g];
-      ed(y2,x2); ed(y2,c2); ed(x2,a2); ed(x2,b2); nd(a2[0],a2[1],'α'); nd(b2[0],b2[1],'β'); nd(c2[0],c2[1],'γ'); nd(x2[0],x2[1],'x','#ffb27a'); nd(y2[0],y2[1],'y');
-      AV.arrow(ctx, E.W*0.46, t+g, E.W*0.54, t+g, '#8fe3b5', 3);
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('좌회전', E.W*0.5, t+g-14);
-      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText('회전 전 (x가 위)', L, t-16); ctx.fillText('회전 후 (y가 위)', R, t-16);
-      ctx.fillStyle='#6f6e7a'; ctx.fillText('순서 α<x<β<y<γ 는 그대로 — BST 규칙 보존, 높이만 재조정', E.W/2, t+3*g); }
+  { id:'algo_br_rotate', branchOf:'algo5_05', impl_lang:'C++',
+    impl:['#include <iostream>','using namespace std;','',
+      'struct Node { int key; Node *left, *right;',
+      '  Node(int k):key(k),left(0),right(0){} };','',
+      '// 우회전: 왼쪽으로 치우친 y를 균형잡기',
+      '//   (BST 정렬 순서는 그대로, 높이만 줄임)',
+      'Node* rightRotate(Node* y) {',
+      '    Node* x  = y->left;     // x = 위로 올릴 왼쪽 자식',
+      '    Node* T2 = x->right;    // T2 = x의 오른쪽 서브트리(β)',
+      '    x->right = y;           // y를 x의 오른쪽 자식으로 내림',
+      '    y->left  = T2;          // β를 y의 왼쪽에 다시 붙임',
+      '    return x;               // x가 새 부분트리 루트',
+      '}',
+      '',
+      '// 좌회전은 좌우 대칭 (left<->right)',
+      'Node* leftRotate(Node* x) {',
+      '    Node* y  = x->right;',
+      '    Node* T2 = y->left;',
+      '    y->left  = x;',
+      '    x->right = T2;',
+      '    return y;',
+      '}',
+      '',
+      'void inorder(Node* r){',
+      '    if(!r) return;',
+      '    inorder(r->left);',
+      '    std::cout << r->key << " ";',
+      '    inorder(r->right);',
+      '}',
+      '',
+      'int main() {',
+      '    // 왼쪽으로 치우친 트리:    y(20)',
+      '    //                       /     \\\\',
+      '    //                     x(10)   γ(30)',
+      '    //                    /    \\\\',
+      '    //                  α(5)   β(15)',
+      '    Node* y = new Node(20);',
+      '    y->left = new Node(10); y->right = new Node(30);',
+      '    y->left->left  = new Node(5);',
+      '    y->left->right = new Node(15);',
+      '',
+      '    std::cout << "before: "; inorder(y); std::cout << "\\n";',
+      '    Node* root = rightRotate(y);   // x(10)이 새 루트',
+      '    std::cout << "after : "; inorder(root); std::cout << "\\n";',
+      '    // 둘 다  5 10 15 20 30  — 순서 보존!',
+      '    return 0;',
+      '}'],
+    code:[
+      'Node* rightRotate(Node* y) {',
+      '  Node* x  = y->left;     // 올릴 자식',
+      '  Node* T2 = x->right;    // β 서브트리',
+      '  x->right = y;           // y를 내림',
+      '  y->left  = T2;          // β 재배선',
+      '  return x;               // x = 새 루트',
+      '}'
+    ],
+    // 노드별 목표 좌표(프랙션)를 단계마다 지정 → draw에서 frame 보간으로 부드럽게 이동.
+    // 단계 사이 좌표가 바뀌는 노드가 '회전하며 재배치되는 노드'.
+    build:function(V){ var st=[];
+      // 좌표 프리셋: P_before(치우친 트리), P_after(균형 트리)
+      // 키: y=20, x=10, a(α)=5, b(β)=15, g(γ)=30
+      var Pb={ y:[0.50,0.20], x:[0.34,0.45], g:[0.70,0.45], a:[0.22,0.72], b:[0.46,0.72] };
+      var Pa={ x:[0.42,0.22], a:[0.26,0.48], y:[0.62,0.48], b:[0.50,0.74], g:[0.78,0.74] };
+      // 간선 목록: [부모키,자식키]. hl=강조(재배선)되는 간선 키문자열들.
+      function snap(line,cap,pos,edges,move,hl,note){ st.push({line:line,cap:cap,pos:pos,edges:edges,move:move||[],hl:hl||[],note:note||''}); }
+      var Eb=[['y','x'],['y','g'],['x','a'],['x','b']];
+      snap(0,'왼쪽으로 치우친 트리. 루트 <b>y=20</b>의 왼쪽이 무거워(높이 3) 균형을 잡아야 합니다. 순서는 5&lt;10&lt;15&lt;20&lt;30.',
+        Pb, Eb, [], [], '불균형: 왼쪽 무거움');
+      snap(1,'<b>x = y->left</b> → 위로 올릴 후보는 y의 왼쪽 자식 <b>x=10</b>.',
+        Pb, Eb, ['x'], [['y','x']], '');
+      snap(2,'<b>T2 = x->right</b> → x의 오른쪽 서브트리 <b>β=15</b>를 따로 기억해 둡니다(나중에 옮길 가지).',
+        Pb, Eb, ['x','b'], [['x','b']], '');
+      // x->right=y : y가 x 아래(오른쪽)로 내려옴. a는 x의 왼쪽 그대로, β/γ는 잠시 그대로 두고 표시.
+      var Em1=[['x','a'],['x','y'],['y','g'],['x','b']];
+      snap(3,'<b>x->right = y</b> → x를 위로 올리고 <b>y를 x의 오른쪽 자식으로 내림</b>. x가 새 루트 자리로.',
+        Pa, Em1, ['x','y'], [['x','y']], 'x를 위로 · y를 아래로');
+      // y->left=T2 : β를 y의 왼쪽으로 재배선
+      var Em2=[['x','a'],['x','y'],['y','b'],['y','g']];
+      snap(4,'<b>y->left = T2</b> → 기억해 둔 <b>β=15</b>를 y의 왼쪽 자식으로 다시 붙입니다(β는 10과 20 사이라 자리가 맞음).',
+        Pa, Em2, ['b','y'], [['y','b']], 'β를 y 왼쪽으로');
+      snap(5,'<b>return x</b> → <b>x=10</b>이 새 부분트리 루트. 높이 3→2로 줄고 BST 순서 그대로!',
+        Pa, Em2, ['x'], [], '균형 회복 · 높이 ↓');
+      snap(6,'<b>완료!</b> 중위 순회는 회전 전후 모두 <b>5 10 15 20 30</b> — 순서 보존, 모양만 바뀜. 포인터 몇 개만 = O(1).',
+        Pa, Em2, [], [], '순서 보존 · O(1)');
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H, r=21;
+      var VAL={ y:20, x:10, a:5, b:15, g:30 };
+      var LBL={ y:'y', x:'x', a:'α', b:'β', g:'γ' };
+      // 프레임 전환 감지 → 보간 시작점 저장. _rp = 현재 화면상 좌표(프랙션)
+      if(V._rotStep!==f){ V._rotPrev=V._rp; V._rotStep=f; V._rotT0=V.frame; }
+      var tp=f.pos; if(!V._rp){ V._rp={}; for(var k0 in tp) V._rp[k0]=tp[k0].slice(); }
+      // 모든 키가 _rp에 존재하도록(새로 등장하는 노드는 목표에서 시작)
+      for(var k1 in tp){ if(!V._rp[k1]) V._rp[k1]=tp[k1].slice(); }
+      // 이징 보간 (목표로 부드럽게)
+      var ease=0.18; for(var k in tp){ var cur=V._rp[k], tg=tp[k];
+        cur[0]+=(tg[0]-cur[0])*ease; cur[1]+=(tg[1]-cur[1])*ease; }
+      function PX(k){ var c=V._rp[k]; return [c[0]*W, c[1]*H]; }
+      // 헤더
+      ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
+      ctx.fillText('우회전(rightRotate) — 왼쪽으로 치우친 트리의 균형을 O(1)에 회복', W/2, H*0.085);
+      // 간선 그리기 (강조 간선은 #8fe3b5 굵게)
+      function isHL(a,b){ for(var i=0;i<f.hl.length;i++){ var e=f.hl[i]; if((e[0]===a&&e[1]===b)||(e[0]===b&&e[1]===a)) return true; } return false; }
+      for(var ei=0;ei<f.edges.length;ei++){ var pa=PX(f.edges[ei][0]), cb=PX(f.edges[ei][1]), hl=isHL(f.edges[ei][0],f.edges[ei][1]);
+        ctx.strokeStyle=hl?'#8fe3b5':'rgba(255,255,255,0.22)'; ctx.lineWidth=hl?3:2;
+        ctx.beginPath(); ctx.moveTo(pa[0],pa[1]); ctx.lineTo(cb[0],cb[1]); ctx.stroke(); }
+      // 노드 그리기. move에 든 키 = #ffb27a 강조
+      function moving(k){ return f.move.indexOf(k)>=0; }
+      var order=['g','y','b','a','x'];
+      for(var oi=0;oi<order.length;oi++){ var k2=order[oi]; if(VAL[k2]==null) continue; var p=PX(k2), mv=moving(k2);
+        AV.node(V,p[0],p[1],VAL[k2],{ r:r,
+          fill: mv?'rgba(255,178,122,0.28)':'rgba(122,184,255,0.16)',
+          stroke: mv?'#ffb27a':'#7ab8ff',
+          text: mv?'#fff':'#dfeefb', fs:15,
+          tag: LBL[k2] });
+        // β·T2 라벨 보조 표기(기억해 둔 가지 표시)
+        if(k2==='b' && (f.line===2)){ ctx.fillStyle='#ffb27a'; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('= T2 (기억)', p[0], p[1]+r+16); }
+      }
+      // 단계 노트 배지
+      if(f.note){ ctx.textAlign='center'; ctx.fillStyle=(f.line>=5)?'#8fe3b5':'#ffb27a'; ctx.font='600 13px sans-serif';
+        ctx.fillText('● '+f.note, W/2, H*0.93); }
+      // 순서 보존 띠
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('중위(정렬) 순서  α(5) < x(10) < β(15) < y(20) < γ(30)  — 회전해도 불변', W/2, H*0.985); }
   },
 
   // ══════ BST(algo5_03) ▸ BST 삽입 (코드+스텝) ══════
