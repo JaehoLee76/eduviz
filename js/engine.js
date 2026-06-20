@@ -171,7 +171,7 @@
       if(sc.problem){ studyProb.style.display='block'; var p=sc.problem;
         studyProb.innerHTML = '<h4>연습 문제</h4><div class="prob-q">'+p.q+'</div>'
           +(p.q_en?'<div class="prob-q en-text">'+p.q_en+'</div>':'')
-          +'<button class="sol-toggle" type="button">풀이 보기 ▾</button>'
+          +'<button class="sol-toggle" type="button">풀이 보기 ▾'+kc('R')+'</button>'
           +'<div class="prob-sol">'+p.solution+(p.sol_en?'<div class="en-text" style="margin-top:8px">'+p.sol_en+'</div>':'')+'</div>'; }
       else { studyProb.style.display='none'; studyProb.innerHTML=''; }
     }
@@ -183,6 +183,10 @@
       chevLabel.innerHTML='접기'+kc('W'); } }
   function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='더 알아보기'+kc('W'); }
   function toggleStudy(){ if(!studyVisible()) return; if(studyEl.classList.contains('open')) closeStudy(); else openStudy(); }
+  // 연습문제 '풀이 보기/숨기기' 토글(R). 학습패널이 닫혀 있으면 먼저 펼친 뒤 풀이를 연다. 풀이 토글이 없으면 false 반환(다른 키 처리로 위임).
+  function toggleSolution(){ if(!studyProb) return false; var btn=studyProb.querySelector('.sol-toggle'); if(!btn) return false;
+    if(studyVisible() && !studyEl.classList.contains('open')) openStudy();
+    btn.click(); return true; }
 
   // ---------- Scene Manager (계층형: 뼈대 spine + 분기 branch) ----------
   // 분기 장면은 content에서 sc.branchOf='<부모 뼈대 id>' 로 표시. 같은 branchOf끼리 순서대로 그룹.
@@ -448,6 +452,7 @@
       if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로(보조)
       if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로(보조)
       if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(스택/큐 E/C)
+      if(c==='KeyR'){ if(toggleSolution()){ e.preventDefault(); } return; }   // R = 연습문제 풀이 보기/숨기기(math)
       if(c==='KeyE'){ scrollConcept(-1); e.preventDefault(); return; }   // E 자세히보기 위로(조작키 없는 장면)
       if(c==='KeyC'){ scrollConcept(1); e.preventDefault(); return; }    // C 자세히보기 아래로
       if(viz){   // 코드+스텝: A 이전 / D(Space·Enter) 다음 / S 자동
@@ -482,7 +487,7 @@
     branchPageEl=document.getElementById('branchPage'); branchPageInner=document.getElementById('branchPageInner');
     var chevBtn=document.getElementById('chevBtn');
     if(chevBtn) chevBtn.onclick=toggleStudy;
-    if(studyProb) studyProb.addEventListener('click',function(e){ if(e.target&&e.target.classList&&e.target.classList.contains('sol-toggle')){ var s=studyProb.querySelector('.prob-sol'); var op=s.classList.toggle('show'); e.target.textContent=op?'풀이 숨기기 ▴':'풀이 보기 ▾'; } });
+    if(studyProb) studyProb.addEventListener('click',function(e){ var btn=(e.target&&e.target.closest)?e.target.closest('.sol-toggle'):null; if(btn){ var s=studyProb.querySelector('.prob-sol'); var op=s.classList.toggle('show'); btn.innerHTML=(op?'풀이 숨기기 ▴':'풀이 보기 ▾')+kc('R'); } });
     // pointer routing
     cv.addEventListener('pointerdown',function(e){ var s=SM.scenes[SM.cur]; if(s){ if(s._viz&&_steps){ stepNext(); return; } if(s.down)s.down(E,e.clientX,e.clientY); if(s.tap)s.tap(E,e.clientX,e.clientY);} });
     cv.addEventListener('pointermove',function(e){ var s=SM.scenes[SM.cur]; if(s&&s.move)s.move(E,e.clientX,e.clientY); });
