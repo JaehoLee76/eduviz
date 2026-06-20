@@ -6,7 +6,8 @@
 > 마지막 갱신: 2026-06-20.
 
 ## 지금 무엇을 하고 있나
-알고리즘 트랙의 **정적 `concept:true` 분기**(좌측 코드/우측 멈춘 그래픽)를 **`code+build+draw` 코드동기 단계 애니메이션**으로 전부 전환하는 중. 사령관 지시: "모든 시각화=코드+애니메이션 쌍, 코드 줄커서 포커스, 최대치로 보강, 남은 거 완료될 때까지 계속."
+✅ **완료**: 알고리즘 트랙의 정적 `concept:true` 분기 161개를 전부 `code+build+draw` 코드동기 단계 애니메이션으로 전환 완료(2026-06-21). 모든 시각화=코드+애니메이션 쌍, 코드 줄커서 포커스, 골든룰(표시값 실계산) 준수, 렌더 스캔 330장면 에러0.
+다음 후보(사령관 지시 대기): 품질 고도화(장면별 캡션/색/단계 보강), 수학 트랙 추가 개선, 신규 챕터/토픽 확장 등.
 
 ## 진행 상황
 - **수학 트랙**: 26장 143뼈대 + 95분기 = **완성**(전 장면 에러0). 추가 작업 불필요.
@@ -14,18 +15,21 @@
   - ✅ 9장(패러다임, algo8): 50/50 분기 전부 완료(허프만·N퀸·가우스·FFT·3SAT환원 등).
   - ✅ 1장(복잡도, algo1): 3/3(마스터정리·점근표기·분할상환).
   - ✅ 3장(정렬, algo3): 10/10(기수·퀵·역위·Mo·평방분할·순열사이클·중앙값의중앙값·포드존슨 등).
-  - ◐ 2장(자료구조, algo2): 7개 완료(체·펜윅·구간트리·트라이·단조스택·슬라이딩최대·희소테이블), **33개 남음**.
-  - ☐ 4장(탐색·문자열, algo4): **24개 남음**.
-  - ☐ 5장(트리·고급DS, algo5): **29개 남음**.
-  - ☐ 6장(그래프, algo6): **48개 남음**.
-  - ☐ 7장(DP, algo7): **27개 남음**.
+  - ✅ 2장(자료구조, algo2): **33/33 완료**(수론12·기하6·해시비트6·구간압축5·웨이블릿4 등 추가 전환). 2장 정적 분기 0.
+  - ✅ 4장(탐색·문자열, algo4): **24/24 완료**(KMP·Z·마나허·접미사배열/구축·SA-IS·Kasai·우코넨·eertree·아호코라식·SAM·삼분탐색·뉴턴 등). 정적 분기 0.
+  - ✅ 5장(트리·고급DS, algo5): **29/29 완료**(RB·AVL·splay·treap·LCA·이진점프·HLD·센트로이드·트리DP·DSU온트리·세그비츠·lazy·2D펜윅·영속·롤백DSU·B트리 등). 정적 분기 0.
+  - ✅ 6장(그래프, algo6): **48/48 완료**(최단경로·최대유량·매칭·연결성·오일러·컷·MST·힙 8그룹). 정적 분기 0. (stoerwagner lastTwo 버그 수정 포함.)
+  - ✅ 7장(DP, algo7): **27/27 완료**(막대자르기·행렬연쇄·CHT·LiChao·DC최적화·Knuth·SMAWK·슬로프트릭·비트마스크TSP·자리DP·SOS·기댓값·스타이너·행렬거듭제곱·키타마사·벌리캠프·에일리언·뤼카·카탈란·스털링 등). 정적 분기 0.
   - 골드 패턴 본보기: `algo_br_huffman / nqueens / gauss / bellman / mst`(content_algo_br.js).
 
-## 남은 정적 분기 161개 (정확한 인벤토리 — 매 작업 전 1단계 스크립트로 재확인 권장)
-- **algo2 (33)**: openaddr rsa hull extgcd chaining amort3 crt segintersect calipers perseg mobius coordcomp totient pollard skiplist tonelli bitset veb wavelet bittricks waveletmatrix shoelace pointinpoly legendre xortrie linearsieve modinverse montgomery kdtree quadtree binarygcd universal_hash dynamic_table
-- **algo4 (24)**: kmp lowerbound bsbug suffixarray ahocorasick zfunc manacher sam ternary strhash reservoir newton ukkonen sternbrocot boyermoore eertree lyndon contfrac kasai parallelbs sufarraybuild sais kmpauto samapp
-- **algo5 (29)**: rbt btree uf bstdel avl lca rbfix hld splay treedp treap centroid ett lct segbeats virtualtree fenwick2d offdyncon mergesorttree tarjanlca persistent segtree2d binarylifting dsuontree lazyprop treediameter fenwickrange rollbackdsu treeiso
-- **algo6 (48)**: scc floyd maxflow edgeclass bipmatch dagsp dinic astar mcmf 2sat euler 01bfs bridge bipartite blossom daglongest hungarian hopcroft stoerwagner karger fibheap pairingheap bcc johnson stablematch hierholzer minmeancycle gomoryhu dominator lowerboundflow planar chinesepostman konig edmondskarp dilworth kshortest transclosure funcgraph boruvka secondmst graphcolor hall edgecolor closure mincostcirc bidirectional dfs_parenthesis mst_cut
+## 🎉 남은 정적 분기 0개 — 알고리즘 트랙 애니메이션 전환 100% 완료 (2026-06-21)
+- **algo2: ✅ 0 (33/33 완료)**
+- **algo4: ✅ 0 (24/24 완료)**
+- **algo5: ✅ 0 (29/29 완료)**
+- **algo6: ✅ 0 (48/48 완료)**
+- **algo7: ✅ 0 (27/27 완료)**
+- 총 161개 정적 concept:true 분기를 전부 code+build+draw 코드동기 단계 애니메이션으로 전환. 렌더 스캔 330장면 에러0.
+- 수학 트랙: 학습패널 '풀이 보기/숨기기'에 단축키 R 배정(engine.js, 전 장면 공통).
 - **algo7 (27)**: rod matchain cht dcopt bitmaskdp digitdp sosdp matexp lucas catalan lichao berlekamp knuthopt aliens smawk partition steiner brokenprofile expdp boundedknapsack slopetrick palindromepart stirling fastfib kitamasa altsubseq dp_principles
 
 ## 권장 순서
