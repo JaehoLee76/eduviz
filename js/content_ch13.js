@@ -72,10 +72,12 @@
   // ══════════ 13.2 수학적 귀납법 ══════════
   // 도미노
   { id:'ch13_05',
-    enter:function(E){ this.s={fall:0,play:false}; E.setOn([]); },
-    tap:function(E){ if(this.s.play)return; if(this.s.fall>=8){ this.s.fall=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(560,0.15); } },
+    enter:function(E){ this.s={fall:0,tgt:0,auto:false}; E.setOn([]); },
+    tap:function(E){ var s=this.s, N=8;   // 설명 단위: 도미노 한 개씩 P(k)
+      if(s.fall>=N){ s.fall=0; s.tgt=0; s.auto=false; E.blip(340,0.12); return; }
+      s.tgt=Math.min(N, Math.floor(Math.max(s.fall,s.tgt||0)+1e-6)+1); s.auto=false; E.blip(560,0.14); },
     draw:function(E){ var s=this.s, ctx=E.ctx, N=8, baseY=E.H*0.62, x0=E.W*0.18, gap=(E.W*0.64)/N, dw=14, dh=64;
-      if(s.play){ s.fall+=0.08; if(s.fall>=N){ s.fall=N; s.play=false; } }
+      var tgt=s.auto?N:(s.tgt||0); if(s.fall<tgt) s.fall=Math.min(tgt,s.fall+0.08); if(s.auto&&s.fall>=N)s.auto=false;
       for(var i=0;i<N;i++){ var x=x0+i*gap+gap/2;
         var lean=Math.max(0,Math.min(1, s.fall-i)); var ang=lean*Math.PI*0.42;
         ctx.save(); ctx.translate(x,baseY); ctx.rotate(-ang);
@@ -84,8 +86,9 @@
         ctx.restore();
         ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('P('+(i+1)+')', x, baseY+16); }
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x0,baseY); ctx.lineTo(x0+gap*N,baseY); ctx.stroke();
-      if(s.fall===0&&!s.play) E.tapHint(E.W/2, baseY+50, '▶ 첫 도미노 밀기 P(1)', true);
-      else if(s.fall>=N&&!s.play) E.tapHint(E.W/2, baseY+50, '↻ 다시 세우기', false);
+      if(s.fall<=0) E.tapHint(E.W/2, baseY+50, '▶ 첫 도미노 D · 자동 S', true);
+      else if(s.fall>=N) E.tapHint(E.W/2, baseY+50, '↻ 다시 세우기 (D)', false);
+      else if(!s.auto) E.tapHint(E.W/2, baseY+50, '▶ 다음 도미노 (D)', false);
       E.big('P(1) 참 + [P(k) → P(k+1)] ⟹ 모든 n 에서 참', '수학적 귀납법 = 도미노! 첫 개를 넘기고, 다음을 넘긴다는 규칙이면 전부 넘어갑니다'); }
   }
 

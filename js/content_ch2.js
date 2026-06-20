@@ -94,15 +94,15 @@
   },
 
   { id:'ch2_02',
-    enter:function(E){ this.s={a:2,b:3,p:0,play:false}; E.setOn([]);
+    enter:function(E){ this.s={a:2,b:3,p:0,tgt:0,auto:false}; E.setOn([]);
       E.controls('<div class="ctrl"><label>a</label><input type="range" id="ma" min="1" max="4" step="1" value="2"><output id="oma">2</output>'
         +'<label style="margin-left:16px">b</label><input type="range" id="mb" min="1" max="4" step="1" value="3"><output id="omb">3</output></div>');
       var self=this;
-      E.bind('#ma','input',function(e){ self.s.a=+e.target.value; document.getElementById('oma').textContent=e.target.value; self.s.p=0; self.s.play=false; E.blip(480,0.1); });
-      E.bind('#mb','input',function(e){ self.s.b=+e.target.value; document.getElementById('omb').textContent=e.target.value; self.s.p=0; self.s.play=false; E.blip(420,0.1); }); },
-    tap:function(E){ if(this.s.play) return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(520,0.15); } },
+      E.bind('#ma','input',function(e){ self.s.a=+e.target.value; document.getElementById('oma').textContent=e.target.value; self.s.p=0; self.s.tgt=0; self.s.auto=false; E.blip(480,0.1); });
+      E.bind('#mb','input',function(e){ self.s.b=+e.target.value; document.getElementById('omb').textContent=e.target.value; self.s.p=0; self.s.tgt=0; self.s.auto=false; E.blip(420,0.1); }); },
+    tap:function(E){ var s=this.s; if(s.p>=1){ s.p=0; s.tgt=0; s.auto=false; E.blip(340,0.12); } else { s.tgt=1; s.auto=false; E.blip(520,0.15); } },
     draw:function(E){ var s=this.s, ctx=E.ctx;
-      if(s.play){ s.p+=0.012; if(s.p>=1){s.p=1;s.play=false;} }
+      var tgt=s.auto?1:(s.tgt||0); if(s.p<tgt) s.p=Math.min(tgt,s.p+0.012); if(s.auto&&s.p>=1)s.auto=false;
       var g=geo(E,s.a,s.b), ox=g.ox, oy=g.oy, xl=g.xlen, u=g.u, aw=s.a*u, bw=s.b*u, p=s.p;
       // 전체 직사각형 (항상)
       ctx.globalAlpha=0.16; ctx.fillStyle='#7ab8ff'; ctx.fillRect(ox,oy,g.W2,g.H2); ctx.globalAlpha=1;
@@ -124,17 +124,20 @@
       ctx.save();ctx.translate(ox-13,oy+xl/2);ctx.rotate(-Math.PI/2);ctx.fillText('x',0,0);ctx.restore();
       ctx.save();ctx.translate(ox-13,oy+xl+bw/2);ctx.rotate(-Math.PI/2);ctx.fillText(''+s.b,0,0);ctx.restore();
       ctx.globalAlpha=0.6;ctx.save();ctx.translate(ox-13,oy+xl);ctx.rotate(-Math.PI/2);ctx.fillText('+',0,0);ctx.restore();ctx.globalAlpha=1;
-      if(s.p===0&&!s.play) tapHint(E, ox+g.W2/2, oy+g.H2+46, '▶ 눌러서 펼치기', true);
-      else if(s.p>=1&&!s.play) tapHint(E, ox+g.W2/2, oy+g.H2+46, '↻ 다시 보기', false);
-      E.big((s.p<1?'(x+'+s.a+')(x+'+s.b+')':'(x+'+s.a+')(x+'+s.b+') = x² + '+(s.a+s.b)+'x + '+(s.a*s.b)), (s.p>=1?'네 칸 = 네 항':'눌러서 네 칸으로 펼치기')); }
+      if(s.p<=0) tapHint(E, ox+g.W2/2, oy+g.H2+46, '▶ 펼치기 D · 자동 S', true);
+      else if(s.p>=1) tapHint(E, ox+g.W2/2, oy+g.H2+46, '↻ 다시 보기 (D)', false);
+      E.big((s.p<1?'(x+'+s.a+')(x+'+s.b+')':'(x+'+s.a+')(x+'+s.b+') = x² + '+(s.a+s.b)+'x + '+(s.a*s.b)), (s.p>=1?'네 칸 = 네 항':'D로 네 칸으로 펼치기')); }
   },
 
   // ══════════ 2.2 인수분해 ══════════
   { id:'ch2_03',
-    enter:function(E){ this.s={p:0,play:false}; E.setOn([]); },
-    tap:function(E){ if(this.s.play) return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(520,0.15); } },
+    enter:function(E){ this.s={p:0,tgt:0,auto:false}; E.setOn([]); },
+    tap:function(E){ var s=this.s, B=[0,0.20,0.35,1];   // 설명 단위: 점선 분리 → 실선 → 이동
+      if(s.p>=1){ s.p=0; s.tgt=0; s.auto=false; E.blip(340,0.12); return; }
+      var base=Math.max(s.p,s.tgt||0), nb=1; for(var i=0;i<B.length;i++){ if(B[i]>base+1e-4){ nb=B[i]; break; } }
+      s.tgt=nb; s.auto=false; E.blip(520,0.14); },
     draw:function(E){ var s=this.s, ctx=E.ctx, a=2, b=3;
-      if(s.play){ s.p+=0.008; if(s.p>=1){s.p=1;s.play=false;} }
+      var tgt=s.auto?1:(s.tgt||0); if(s.p<tgt) s.p=Math.min(tgt,s.p+0.008); if(s.auto&&s.p>=1)s.auto=false;
       var g=geo(E,a,b), ox=g.ox, oy=g.oy, xl=g.xlen, u=g.u, aw=a*u, bw=b*u;
       var pdash=clamp(s.p/0.20), psolid=clamp((s.p-0.22)/0.13), pmove=ez(clamp((s.p-0.50)/0.50));
       var grid=[ {x:ox,y:oy,w:xl,h:xl,c:'#7ab8ff',t:'x²'},
@@ -160,18 +163,22 @@
       if(pmove>0.15){ var fa=(s.p>=1)?blinkA(E):clamp((pmove-0.15)/0.85); ctx.globalAlpha=fa; ctx.fillStyle='#ffb27a'; ctx.font='700 30px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('(x+2)(x+3)', E.W*0.68, cy0); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
       // = 기호
       if(pmove>0.4){ ctx.globalAlpha=clamp((pmove-0.4)/0.6); ctx.fillStyle=E.COL.txt; ctx.font='600 28px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('=', E.W*0.50, cy0); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
-      if(s.p===0&&!s.play) tapHint(E, ox+g.W2/2, oy+g.H2+52, '▶ 눌러서 변형 보기', true);
-      else if(s.p>=1&&!s.play) tapHint(E, E.W/2, cy0+ts/2+38, '↻ 다시 보기', false);
-      var sub = (!s.play&&s.p===0)?'하나의 직사각형 — 눌러서 나눠보세요':(pdash<1?'점선으로 네 칸 분리…':(psolid<1?'점선이 실선으로…':(pmove<1?'도형은 왼쪽, 인수는 오른쪽으로…':'왼쪽 = x²+5x+6, 오른쪽 = (x+2)(x+3) ✓')));
+      if(s.p<=0) tapHint(E, ox+g.W2/2, oy+g.H2+52, '▶ 다음 단계 D · 자동 S', true);
+      else if(s.p>=1) tapHint(E, E.W/2, cy0+ts/2+38, '↻ 다시 보기 (D)', false);
+      else if(!s.auto) tapHint(E, E.W/2, cy0+ts/2+38, '▶ 다음 단계 (D)', false);
+      var sub = (s.p<=0)?'하나의 직사각형 — D로 한 단계씩':(pdash<1?'점선으로 네 칸 분리…':(psolid<1?'점선이 실선으로…':(pmove<1?'도형은 왼쪽, 인수는 오른쪽으로…':'왼쪽 = x²+5x+6, 오른쪽 = (x+2)(x+3) ✓')));
       E.big('x² + 5x + 6 = (x+2)(x+3)', sub); }
   },
 
   { id:'ch2_04',
-    enter:function(E){ this.s={p:0,play:false,a:4,b:1.5}; E.setOn([]);
+    enter:function(E){ this.s={p:0,tgt:0,auto:false,a:4,b:1.5}; E.setOn([]);
       E.quiz({q:'x² − 9 를 인수분해하면?', choices:['(x+3)(x−3)','(x−3)²','(x+3)²','(x−9)(x+1)'], answer:0, explain:'a²−b²=(a+b)(a−b), 9=3² → (x+3)(x−3)'}); },
-    tap:function(E){ if(this.s.play) return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(560,0.15); } },
+    tap:function(E){ var s=this.s, B=[0,0.40,0.58,1];   // 설명 단위: 점선 자르기 → 실선 → 조각 이동
+      if(s.p>=1){ s.p=0; s.tgt=0; s.auto=false; E.blip(340,0.12); return; }
+      var base=Math.max(s.p,s.tgt||0), nb=1; for(var i=0;i<B.length;i++){ if(B[i]>base+1e-4){ nb=B[i]; break; } }
+      s.tgt=nb; s.auto=false; E.blip(560,0.14); },
     draw:function(E){ var ctx=E.ctx, s=this.s;
-      if(s.play){ s.p+=0.006; if(s.p>=1){ s.p=1; s.play=false; } }
+      var tgt=s.auto?1:(s.tgt||0); if(s.p<tgt) s.p=Math.min(tgt,s.p+0.006); if(s.auto&&s.p>=1)s.auto=false;
       function ez(p){ p=Math.max(0,Math.min(1,p)); return p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2; }
       var u=Math.min(64,E.H*0.085), a=s.a, b=s.b;
       var aw=a*u, bw=b*u, abw=(a-b)*u, totalW=(a+b)*u, totalH=abw, sx=E.W/2-totalW/2, sy=E.H*0.30;
@@ -205,9 +212,10 @@
       var lblA=(s.p>=1)?blinkA(E):mp; ctx.globalAlpha=lblA; ctx.fillStyle='#ffb27a'; ctx.font='700 17px sans-serif'; ctx.textAlign='center';
       ctx.fillText('a + b', sx+totalW/2, sy+totalH+24);
       ctx.save(); ctx.translate(sx-18, sy+totalH/2); ctx.rotate(-Math.PI/2); ctx.fillText('a − b',0,0); ctx.restore(); ctx.globalAlpha=1;
-      if(s.p===0 && !s.play) tapHint(E, sx+totalW/2, sy+aw+46, '▶ 눌러서 변형 보기', true);
-      else if(s.p>=1 && !s.play) tapHint(E, sx+totalW/2, sy+aw+46, '↻ 다시 보기', false);
-      var sub; if(!s.play&&s.p===0) sub='먼저 모양을 살펴보고 — 화면을 누르세요';
+      if(s.p<=0) tapHint(E, sx+totalW/2, sy+aw+46, '▶ 다음 단계 D · 자동 S', true);
+      else if(s.p>=1) tapHint(E, sx+totalW/2, sy+aw+46, '↻ 다시 보기 (D)', false);
+      else if(!s.auto) tapHint(E, sx+totalW/2, sy+aw+46, '▶ 다음 단계 (D)', false);
+      var sub; if(s.p<=0) sub='먼저 모양을 살펴보고 — D로 한 단계씩';
       else if(pDash<1&&mp<0.02) sub='자를 위치를 점선으로 표시…';
       else if(pSolid<1&&mp<0.02) sub='점선을 실선으로 — 자르기';
       else if(mp<1) sub='조각을 옮겨 붙이는 중…'; else sub='(a+b)(a−b) 직사각형 완성 ✓';
@@ -216,10 +224,10 @@
 
   // ══════════ 2.3 다항식의 나눗셈·분수식 ══════════
   { id:'ch2_05',
-    enter:function(E){ this.s={p:0,play:false}; E.setOn([]); },
-    tap:function(E){ if(this.s.play) return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(520,0.15); } },
+    enter:function(E){ this.s={p:0,tgt:0,auto:false}; E.setOn([]); },
+    tap:function(E){ var s=this.s; if(s.p>=1){ s.p=0; s.tgt=0; s.auto=false; E.blip(340,0.12); } else { s.tgt=1; s.auto=false; E.blip(520,0.15); } },
     draw:function(E){ var s=this.s, ctx=E.ctx, a=2, b=3;
-      if(s.play){ s.p+=0.012; if(s.p>=1){s.p=1;s.play=false;} }
+      var tgt=s.auto?1:(s.tgt||0); if(s.p<tgt) s.p=Math.min(tgt,s.p+0.012); if(s.auto&&s.p>=1)s.auto=false;
       var mp=Math.max(0,Math.min(1,s.p)), g=geo(E,a,b), ox=g.ox, oy=g.oy, xl=g.xlen, u=g.u, aw=a*u, bw=b*u;
       // 내부 4칸 (넓이 분해: x² · 2x · 3x · 6)
       box(ctx, ox, oy, xl, xl, '#7ab8ff', 'x²', 16);
@@ -242,8 +250,8 @@
       if(s.p>=1){ ctx.globalAlpha=blinkA(E); ctx.fillStyle='#ffb27a'; ctx.font='700 17px sans-serif'; ctx.fillText('x+3',0,0); ctx.globalAlpha=1; }
       else { ctx.fillStyle=E.COL.txt; ctx.font='700 18px sans-serif'; ctx.fillText('?',0,0); }
       ctx.restore();
-      if(s.p===0&&!s.play) tapHint(E, ox+g.W2/2, oy+g.H2+46, '▶ 눌러서 나머지 변 찾기', true);
-      else if(s.p>=1&&!s.play) tapHint(E, ox+g.W2/2, oy+g.H2+46, '↻ 다시 보기', false);
+      if(s.p<=0) tapHint(E, ox+g.W2/2, oy+g.H2+46, '▶ 나머지 변 찾기 D · 자동 S', true);
+      else if(s.p>=1) tapHint(E, ox+g.W2/2, oy+g.H2+46, '↻ 다시 보기 (D)', false);
       E.big('(x² + 5x + 6) ÷ (x+2) = '+(s.p>=1?'x + 3':'?'), s.p<1?'넓이 4칸을 (x+2)로 나누면 나머지 변은?':'4칸 = x²+2x+3x+6 · 나머지 변 = x+3 ✓'); }
   },
 

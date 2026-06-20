@@ -159,11 +159,14 @@
   },
 
   { id:'ch1_10',
-    enter:function(E){ this.s={t:0,play:false}; E.setOn([]);
+    enter:function(E){ this.s={t:0,tgt:0,auto:false}; E.setOn([]);
       E.quiz({q:'다음 중 소수가 아닌 것은?', choices:['7','13','21','17'], answer:2, explain:'21 = 3 × 7 이라 소수가 아닙니다.'}); },
-    tap:function(E){ if(this.s.play) return; if(this.s.t>0){ this.s.t=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(520,0.15); } },
+    tap:function(E){ var s=this.s, PH=66, END=PH*4+50, B=[0,26,PH+26,2*PH+26,3*PH+26,END];   // 설명 단위: 2·3·5·7 배수 삭제 완료 시점 → 소수 확정
+      if(s.t>=END-0.5){ s.t=0; s.tgt=0; s.auto=false; E.blip(340,0.12); return; }
+      var base=Math.max(s.t,s.tgt||0), nb=END; for(var i=0;i<B.length;i++){ if(B[i]>base+0.5){ nb=B[i]; break; } }
+      s.tgt=nb; s.auto=false; E.blip(520,0.14); },
     draw:function(E){ var ctx=E.ctx, s=this.s, PH=66, PR=[2,3,5,7], PIDX={2:0,3:1,5:2,7:3}, END=PH*4+50;
-      if(s.play){ s.t++; if(s.t>=END){ s.t=END; s.play=false; } }
+      var tgt=s.auto?END:(s.tgt||0); if(s.t<tgt) s.t=Math.min(tgt,s.t+2); if(s.auto&&s.t>=END){ s.t=END; s.auto=false; }
       var cols=8, n0=2, N=49, cell=Math.min(52,(E.W-120)/cols), gw=cols*cell, ox=E.W/2-gw/2, oy=E.H*0.24;
       function spf(v){ for(var i=0;i<4;i++){ var p=PR[i]; if(v%p===0 && v!==p) return p; } return 0; }
       var curPhase=Math.floor(s.t/PH), pc=0;
@@ -177,10 +180,10 @@
         if(d>0.5){ ctx.strokeStyle='rgba(226,75,74,'+((d-0.5)*2*0.55)+')'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+9,y+9); ctx.lineTo(x+cell-9,y+cell-9); ctx.stroke(); } }
       ctx.textBaseline='alphabetic';
       var gy=oy+6*cell+34;
-      if(!s.play && s.t===0) E.tapHint(E.W/2, gy, '▶ 눌러서 체 실행', true);
-      else if(!s.play && s.t>=END) E.tapHint(E.W/2, gy, '↻ 다시 보기', false);
-      var ttl = (s.t===0&&!s.play)?'에라토스테네스의 체' : (s.t>=END?'소수 '+pc+'개' : (curPhase<4?PR[curPhase]+'의 배수 삭제':'소수 확정!'));
-      E.big(ttl, (s.t>=END)?'남은 주황색이 소수 (2~49)':(s.t===0&&!s.play?'모두 주황색 — 눌러서 체 실행':'배수가 어두워집니다')); }
+      if(s.t>=END) E.tapHint(E.W/2, gy, '↻ 처음부터 (D)', false);
+      else if(!s.auto) E.tapHint(E.W/2, gy, s.t<=0?'▶ 다음 단계 D · 자동 S':'▶ 다음 단계 (D)', true);
+      var ttl = (s.t<=0)?'에라토스테네스의 체' : (s.t>=END?'소수 '+pc+'개' : (curPhase<4?PR[curPhase]+'의 배수 삭제':'소수 확정!'));
+      E.big(ttl, (s.t>=END)?'남은 주황색이 소수 (2~49)':(s.t<=0?'모두 주황색 — D로 한 단계씩':'배수가 어두워집니다')); }
   },
 
   // ══════════ 1.4 제곱근 ══════════

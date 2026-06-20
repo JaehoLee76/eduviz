@@ -182,9 +182,9 @@
 
   // ══════════ 3.5 등식의 증명 ══════════
   { id:'ch3_11',
-    enter:function(E){ this.s={p:0,play:false}; E.setOn([]); },
-    tap:function(E){ if(this.s.play)return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(540,0.15); } },
-    draw:function(E){ var s=this.s, ctx=E.ctx; if(s.play){ s.p+=0.012; if(s.p>=1){s.p=1;s.play=false;} }
+    enter:function(E){ this.s={p:0,tgt:0,auto:false}; E.setOn([]); },
+    tap:function(E){ var s=this.s; if(s.p>=1){ s.p=0; s.tgt=0; s.auto=false; E.blip(340,0.12); } else { s.tgt=1; s.auto=false; E.blip(540,0.15); } },
+    draw:function(E){ var s=this.s, ctx=E.ctx; var tgt=s.auto?1:(s.tgt||0); if(s.p<tgt) s.p=Math.min(tgt,s.p+0.012); if(s.auto&&s.p>=1)s.auto=false;
       var p=s.p, u=Math.min(40,E.H*0.06), a=3*u, b=2*u, big=a+b, ox=E.W/2-big/2, oy=E.H*0.30;
       ctx.globalAlpha=0.16; ctx.fillStyle='#7ab8ff'; ctx.fillRect(ox,oy,big,big); ctx.globalAlpha=1;
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,big,big);
@@ -202,8 +202,8 @@
       ctx.save();ctx.translate(ox-13,oy+a/2);ctx.rotate(-Math.PI/2);ctx.fillText('a',0,0);ctx.restore();
       ctx.save();ctx.translate(ox-13,oy+a+b/2);ctx.rotate(-Math.PI/2);ctx.fillText('b',0,0);ctx.restore();
       ctx.globalAlpha=0.6;ctx.save();ctx.translate(ox-13,oy+a);ctx.rotate(-Math.PI/2);ctx.fillText('+',0,0);ctx.restore();ctx.globalAlpha=1;
-      if(s.p===0&&!s.play) E.tapHint(ox+big/2, oy+big+46, '▶ 눌러서 네 칸으로', true);
-      else if(s.p>=1&&!s.play) E.tapHint(ox+big/2, oy+big+46, '↻ 다시 보기', false);
+      if(s.p<=0) E.tapHint(ox+big/2, oy+big+46, '▶ 네 칸으로 D · 자동 S', true);
+      else if(s.p>=1) E.tapHint(ox+big/2, oy+big+46, '↻ 다시 보기 (D)', false);
       E.big('(a+b)² = a² + 2ab + b²', s.p<1?'정사각형을 네 칸으로':'가운데 두 칸 = 2ab ✓'); }
   }
 

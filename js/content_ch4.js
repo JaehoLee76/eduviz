@@ -6,19 +6,19 @@
 
   // ══════════ 4.1 부등식의 기본 성질 ══════════
   { id:'ch4_01',
-    enter:function(E){ this.s={p:0,play:false,a:1,b:3}; E.NL.range(-5,5); E.setOn([]); },
-    tap:function(E){ if(this.s.play)return; if(this.s.p>=1){ this.s.p=0; E.blip(340,0.12); } else { this.s.play=true; E.blip(540,0.15); } },
+    enter:function(E){ this.s={p:0,tgt:0,auto:false,a:1,b:3}; E.NL.range(-5,5); E.setOn([]); },
+    tap:function(E){ var s=this.s; if(s.p>=1){ s.p=0; s.tgt=0; s.auto=false; E.blip(340,0.12); } else { s.tgt=1; s.auto=false; E.blip(540,0.15); } },
     back:function(E){ E.NL.step(); E.NL.draw(); },
-    draw:function(E){ var s=this.s, ctx=E.ctx; if(s.play){ s.p+=0.012; if(s.p>=1){s.p=1;s.play=false;} }
+    draw:function(E){ var s=this.s, ctx=E.ctx; var tgt=s.auto?1:(s.tgt||0); if(s.p<tgt) s.p=Math.min(tgt,s.p+0.012); if(s.auto&&s.p>=1)s.auto=false;
       var mp=ez(s.p), a=s.a*(1-2*mp), b=s.b*(1-2*mp), y=E.NL.yy();
       // 0 기준 반사선(애니 중 옅게)
-      if(s.play){ ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(E.NL.px(0),y-60); ctx.lineTo(E.NL.px(0),y+60); ctx.stroke(); ctx.setLineDash([]); }
+      if(s.p>0&&s.p<1){ ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(E.NL.px(0),y-60); ctx.lineTo(E.NL.px(0),y+60); ctx.stroke(); ctx.setLineDash([]); }
       E.NL.dot(a,'#7ab8ff',8); E.NL.dot(b,'#ffb27a',8);
       ctx.font='600 15px sans-serif'; ctx.textAlign='center';
       ctx.fillStyle='#7ab8ff'; ctx.fillText(Math.round(a),E.NL.px(a),y-20);
       ctx.fillStyle='#ffb27a'; ctx.fillText(Math.round(b),E.NL.px(b),y-20);
-      if(s.p===0&&!s.play) E.tapHint(E.W/2, y+78,'▶ 눌러서 ×(−1)',true);
-      else if(s.p>=1&&!s.play) E.tapHint(E.W/2, y+78,'↻ 다시 보기',false);
+      if(s.p<=0) E.tapHint(E.W/2, y+78,'▶ ×(−1) D · 자동 S',true);
+      else if(s.p>=1) E.tapHint(E.W/2, y+78,'↻ 다시 보기 (D)',false);
       var done=s.p>=1;
       E.big(done?'−1 &gt; −3':'1 &lt; 3', done?'부등호가 < 에서 > 로 뒤집힘 ✓':'음수를 곱하면 순서가 뒤집힙니다'); }
   },
