@@ -6028,42 +6028,56 @@
       ctx.fillText('층은 log n개(반씩 쪼개므로), 각 층 병합 비용 합 = n → n·log n.', W/2, H*0.97); } }
   ,
   // R4 재귀와 호출 스택 — factorial(4) 프레임 push/pop
-  { id:'algo_br_callstack', concept:true, branchOf:'algo7_01', codeHead:'재귀와 호출 스택',
-    keys:[{code:'KeyN',key:'N',label:'다음 단계',act:function(E){ if(E._csi<E._csSteps.length-1)E._csi++; }},
-          {code:'KeyP',key:'P',label:'이전 단계',act:function(E){ if(E._csi>0)E._csi--; }},
-          {code:'KeyR',key:'R',label:'처음으로',act:function(E){ E._csi=0; }}],
-    enter:function(E){ E.setOn&&E.setOn([]);
-      // factorial(4): push 4,3,2,1 → base → pop 반환 1,2,6,24
-      E._csSteps=[
-        {st:[4], cap:'fact(4) 호출 → 스택에 프레임 4 push. n≠1 이므로 4×fact(3) 필요.'},
-        {st:[4,3], cap:'fact(3) 호출 → 프레임 3 push. 아직 답 없음(fact(2) 기다림).'},
-        {st:[4,3,2], cap:'fact(2) 호출 → 프레임 2 push.'},
-        {st:[4,3,2,1], cap:'fact(1) 호출 → 프레임 1 push. <b>기저 사례!</b> 1을 반환.'},
-        {st:[4,3,2], ret:1, rv:'fact(1)=1', cap:'프레임 1 pop. fact(2)=2×1=2 계산.'},
-        {st:[4,3], ret:2, rv:'fact(2)=2', cap:'프레임 2 pop. fact(3)=3×2=6 계산.'},
-        {st:[4], ret:6, rv:'fact(3)=6', cap:'프레임 3 pop. fact(4)=4×6=24 계산.'},
-        {st:[], ret:24, rv:'fact(4)=24', cap:'프레임 4 pop. <b>최종 답 24</b> 반환. 스택 비워짐.'} ];
-      E._csi=0; },
-    draw:function(E){ var ctx=E.ctx,W=E.W,H=E.H, s=E._csSteps[E._csi];
+  { id:'algo_br_callstack', branchOf:'algo7_01', impl_lang:'C++',
+    impl:['#include <iostream>','using namespace std;','',
+      '// 재귀: 자기 자신을 호출하며 호출 스택에 프레임을 쌓는다',
+      'int fact(int n) {',
+      '    if (n == 1)              // 기저 사례 — 재귀를 멈추는 조건',
+      '        return 1;',
+      '    return n * fact(n - 1);  // 재귀 호출: 더 작은 문제로',
+      '}',
+      '',
+      'int main() {',
+      '    std::cout << "fact(4) = " << fact(4) << "\\n";  // 24',
+      '    return 0;',
+      '}'],
+    code:[
+      'int fact(int n) {',
+      '  if (n == 1)              // 기저 사례',
+      '    return 1;',
+      '  return n * fact(n - 1);  // 재귀 호출',
+      '}'
+    ],
+    build:function(V){ var st=[];
+      function snap(line,stack,cap,rv){ st.push({line:line, st:stack.slice(), cap:cap, rv:rv||''}); }
+      snap(0,[4],'fact(4) 호출 → 호출 스택에 프레임 <b>4</b>를 push.');
+      snap(1,[4],'n==1? <b>4≠1</b> → 기저 아님.');
+      snap(3,[4],'<b>4 × fact(3)</b> 가 필요 → fact(3) 호출.');
+      snap(0,[4,3],'fact(3) 진입 → 프레임 <b>3</b> push.');
+      snap(3,[4,3],'<b>3 × fact(2)</b> → fact(2) 호출.');
+      snap(0,[4,3,2],'프레임 <b>2</b> push.');
+      snap(3,[4,3,2],'<b>2 × fact(1)</b> → fact(1) 호출.');
+      snap(0,[4,3,2,1],'프레임 <b>1</b> push. 스택이 가장 깊어졌습니다.');
+      snap(1,[4,3,2,1],'n==1? <b>1==1</b> → <b>기저 사례 도달!</b>');
+      snap(2,[4,3,2,1],'<b>1을 반환</b> → 이제 위에서부터 되돌아옵니다(pop).','fact(1) = 1');
+      snap(3,[4,3,2],'프레임 1 pop. fact(2) = 2×1 = <b>2</b>.','fact(2) = 2');
+      snap(3,[4,3],'프레임 2 pop. fact(3) = 3×2 = <b>6</b>.','fact(3) = 6');
+      snap(3,[4],'프레임 3 pop. fact(4) = 4×6 = <b>24</b>.','fact(4) = 24');
+      snap(4,[],'프레임 4 pop. <b>최종 답 24</b> 반환, 스택이 비워졌습니다.','24');
+      return st; },
+    draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H;
       ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';
-      ctx.fillText('재귀 = 호출 스택에 프레임을 쌓았다(내려감) 푸는(올라옴) 과정', W/2, H*0.10);
-      ctx.font='12px sans-serif'; ctx.fillStyle='#8a8893';
-      ctx.fillText('int fact(int n){ if(n==1) return 1; return n * fact(n−1); }', W/2, H*0.155);
-      // 스택 그리기 (아래가 바닥=먼저 호출된 4)
-      var bx=W*0.5, bw=W*0.40, baseY=H*0.82, fh=40;
-      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.fillText('▼ 호출 스택 (위가 가장 최근 호출)', bx, H*0.30);
-      for(var i=0;i<s.st.length;i++){ var n=s.st[i], fy=baseY-(i+1)*(fh+5), top=(i===s.st.length-1);
-        ctx.fillStyle=top?'rgba(255,178,122,0.2)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=top?'#ffb27a':'#7ab8ff'; ctx.lineWidth=top?2:1.2;
+      ctx.fillText('재귀 = 호출 스택에 프레임을 쌓고(내려감) 되돌아오며 푸는(올라옴) 과정', W/2, H*0.12);
+      ctx.fillStyle='#6f6e7a'; ctx.font='12px sans-serif'; ctx.fillText('▼ 호출 스택 (위 = 가장 최근 호출)', W*0.5, H*0.24);
+      var bx=W*0.5, bw=Math.min(W*0.62,360), baseY=H*0.80, fh=42;
+      for(var i=0;i<f.st.length;i++){ var n=f.st[i], fy=baseY-(i+1)*(fh+5), top=(i===f.st.length-1);
+        ctx.fillStyle=top?'rgba(255,178,122,0.22)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=top?'#ffb27a':'#7ab8ff'; ctx.lineWidth=top?2:1.2;
         rrect(ctx,bx-bw/2,fy,bw,fh,8); ctx.fill(); ctx.stroke();
         ctx.fillStyle='#dfeefb'; ctx.font='15px monospace'; ctx.textAlign='center';
-        ctx.fillText('fact('+n+')  '+(n===1?'→ return 1':'= '+n+' × fact('+(n-1)+')'), bx, fy+25); }
-      if(s.st.length===0){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('(스택 비어 있음)', bx, baseY-20); }
-      if(s.rv){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.fillText('↩ 반환: '+s.rv, W*0.5, H*0.85); }
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
-      wrapText(ctx, (s.cap||'').replace(/<\/?b>/g,''), W*0.5, H*0.90, W*0.8, 18, true);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('단계 '+(E._csi+1)+' / '+E._csSteps.length+'   ·   기저 사례가 없으면 스택이 넘칩니다(무한 재귀)', W/2, H*0.96); } }
-  ,
+        ctx.fillText('fact('+n+')  '+(n===1?'→ return 1':'= '+n+' × fact('+(n-1)+')'), bx, fy+26); }
+      if(f.st.length===0){ ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('(스택 비어 있음)', bx, baseY-20); }
+      if(f.rv){ ctx.fillStyle='#8fe3b5'; ctx.font='600 16px monospace'; ctx.textAlign='center'; ctx.fillText('↩ 반환  '+f.rv, W*0.5, H*0.90); } }
+  },
   // R5 트리 순회 재귀 — 중위 순회의 호출 순서
   { id:'algo_br_tree_recursion', concept:true, branchOf:'algo5_02', codeHead:'트리 순회 재귀',
     keys:[{code:'KeyN',key:'N',label:'다음 방문',act:function(E){ if(E._tvi<E._tvOrder.length)E._tvi++; }},
