@@ -176,6 +176,7 @@
   }
   function studyVisible(){ return studyEl && getComputedStyle(studyEl).display!=='none'; }
   function openStudy(){ if(!studyVisible()) return; studyEl.classList.add('open'); if(document.body) document.body.classList.add('study-open');
+    if(studyBody) studyBody.scrollTop=0;   // 열 때마다 맨 위에서 시작(스크롤 위치는 항상 0으로 지정)
     if(chevLabel){ setTimeout(function(){ if(studyBody&&studyEl.classList.contains('open')&&studyBody.scrollHeight>studyBody.clientHeight+8) chevLabel.innerHTML='접기'+kc('W')+' <span class="scrollkc">'+kc('Q')+'/'+kc('Z')+' 스크롤</span>'; },360);
       chevLabel.innerHTML='접기'+kc('W'); } }
   function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='더 알아보기'+kc('W'); }
