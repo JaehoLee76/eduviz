@@ -123,7 +123,8 @@
 
   /* ── 펼침 학습 패널 (자세히 설명 + 문제) ── */
   /* 자세히 보기(꺾쇠) = 우측 하단(내비 위). 좌측 하단 기본설명창(말풍선)과 절대 안 겹침 */
-  #study { position: fixed; right: 26px; left: auto; bottom: 66px; z-index: 7; display: none; flex-direction: column; align-items: flex-end; width: auto; }
+  #study { position: fixed; left: 26px; right: auto; bottom: 66px; z-index: 7; display: none; flex-direction: column; align-items: flex-start; width: auto; }
+  body.study-open .guide { opacity: 0; pointer-events: none; }   /* 자세히 보기(좌측) 펼치면 요약 말풍선 숨김 → 겹침·시선분산 제거 */
   #study .study-body { width: min(460px, 80vw); }
   .study-body { max-height: 0; overflow: hidden; opacity: 0; width: 100%;
     background: var(--panel-bg); border: 1px solid var(--border); border-radius: var(--radius);

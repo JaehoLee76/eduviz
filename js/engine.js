@@ -161,7 +161,7 @@
     if(!studyEl) return;
     var has = !!(sc.more || sc.problem);
     studyEl.style.display = has ? 'flex' : 'none';
-    studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('P');
+    studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W');
     if(studyMore){ var mh = sc.more ? ('<h4>더 알아보기</h4>'+sc.more) : '';
       if(sc.more_en) mh += '<div class="en-block">'+sc.more_en+'</div>';
       studyMore.innerHTML = mh; studyMore.style.display = mh?'block':'none'; }
@@ -175,10 +175,10 @@
     }
   }
   function studyVisible(){ return studyEl && getComputedStyle(studyEl).display!=='none'; }
-  function openStudy(){ if(!studyVisible()) return; studyEl.classList.add('open');
-    if(chevLabel){ setTimeout(function(){ if(studyBody&&studyEl.classList.contains('open')&&studyBody.scrollHeight>studyBody.clientHeight+8) chevLabel.innerHTML='접기'+kc('P')+' <span class="scrollkc">'+kc('Q')+'/'+kc('Z')+' 스크롤</span>'; },360);
-      chevLabel.innerHTML='접기'+kc('P'); } }
-  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('P'); }
+  function openStudy(){ if(!studyVisible()) return; studyEl.classList.add('open'); if(document.body) document.body.classList.add('study-open');
+    if(chevLabel){ setTimeout(function(){ if(studyBody&&studyEl.classList.contains('open')&&studyBody.scrollHeight>studyBody.clientHeight+8) chevLabel.innerHTML='접기'+kc('W')+' <span class="scrollkc">'+kc('Q')+'/'+kc('Z')+' 스크롤</span>'; },360);
+      chevLabel.innerHTML='접기'+kc('W'); } }
+  function closeStudy(){ if(!studyVisible()) return; studyEl.classList.remove('open'); if(document.body) document.body.classList.remove('study-open'); if(chevLabel) chevLabel.innerHTML='자세히 보기'+kc('W'); }
   function toggleStudy(){ if(!studyVisible()) return; if(studyEl.classList.contains('open')) closeStudy(); else openStudy(); }
 
   // ---------- Scene Manager (계층형: 뼈대 spine + 분기 branch) ----------
@@ -433,11 +433,9 @@
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
       if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); return; }   // ↓ 자세히(분기)로
       if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); return; }      // ↑ 나가기
-      // P 한 키로 자세히 보기(오른쪽 패널) 펼치기·접기 토글. 패널이 있는 math에서만 가로채고, viz(algo)는 통과시켜 장면별 P키(이전 등)가 동작하게 둠.
-      if(c==='KeyP'){ if(studyVisible()){ toggleStudy(); e.preventDefault(); return; } }
-      // W·X는 viz(algo) 스텝 전용(다음/초기화). math에선 동작 없음(자세히 보기는 P).
-      if(c==='KeyW'){ if(viz){ stepNext(); e.preventDefault(); } return; }
-      if(c==='KeyX'){ if(viz){ stepReset(); e.preventDefault(); } return; }
+      // W 한 키로 자세히 보기(좌측 패널) 펼치기·접기 토글(math). viz(algo)에선 W=다음 단계.
+      if(c==='KeyW'){ if(studyVisible()){ toggleStudy(); e.preventDefault(); return; } if(viz){ stepNext(); e.preventDefault(); } return; }
+      if(c==='KeyX'){ if(viz){ stepReset(); e.preventDefault(); } return; }   // X = viz 초기화
       if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로(보조)
       if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로(보조)
       if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(스택/큐 E/C)
