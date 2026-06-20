@@ -21,12 +21,14 @@
   // ---------- Sound (듣고) ----------
   var actx=null;
   function blip(f,dur,type){ try{ if(!actx) actx=new (global.AudioContext||global.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();   // 키보드 탐색(화살표/D 등) 후에도 소리 나도록 즉시 resume
     var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime;
     o.type=type||'sine'; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.08,t+0.012);
     g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.25)); o.start(t); o.stop(t+(dur||0.25)+0.02);
   }catch(e){} }
-  global.addEventListener('pointerdown',function(){ if(actx&&actx.state==='suspended')actx.resume(); });
+  function resumeAudio(){ if(actx&&actx.state==='suspended')actx.resume(); }
+  global.addEventListener('pointerdown',resumeAudio); global.addEventListener('keydown',resumeAudio);   // 마우스·키보드 어느 쪽으로 탐색해도 오디오 활성
 
   // ---------- 끝 알림 토스트 (분기 마지막에서 더 가려 할 때): 비프 2회 + 떴다 서서히 사라짐 ----------
   var _endEl=null, _endStyled=false;
