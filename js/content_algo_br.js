@@ -73,16 +73,36 @@
 
   // ══════ 퀵정렬(algo3_05) ▸ 최악의 경우 O(n²) ══════
   { id:'algo_br_qs1', concept:true, branchOf:'algo3_05',
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, levels=[[1,2,3,4,5,6],[1,2,3,4,5],[1,2,3,4],[1,2,3],[1,2]], top=E.H*0.22, lh=E.H*0.10, cell=34, cx=E.W/2;
-      for(var L=0;L<levels.length;L++){ var a=levels[L], x0=cx-(a.length*cell)/2, y=top+L*lh;
-        for(var i=0;i<a.length;i++){ var x=x0+i*cell, isPivot=(i===a.length-1);
-          ctx.fillStyle=isPivot?'rgba(244,160,192,0.3)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=isPivot?'#f4a0c0':'#7ab8ff'; ctx.lineWidth=1.5;
-          ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3);
-          ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(a[i],x+cell/2-1,y+cell/2-1); ctx.textBaseline='alphabetic'; }
-        ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('피벗 '+a[a.length-1]+' → 한쪽만 줄어듦', x0+a.length*cell+12, y+cell/2); }
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('비교 = (n−1)+(n−2)+…+1 = n(n−1)/2  (가우스 합!)', cx, top+levels.length*lh+24);
-      E.big('이미 정렬된 입력 + 끝값 피벗 = O(n²)', '퀵정렬 최악의 경우 — 분할이 (n−1):0으로 치우쳐 깊이 n. 좋은 피벗이 관건 (다음 분기: 랜덤화)'); }
+    enter:function(E){ this.s={shown:-1,t0:0}; E.setOn([]); },
+    build:function(E){ return [
+      {n:0, cap:'<b>이미 정렬된</b> [1·2·3·4·5·6]. 마지막 끝값 <b>6</b>을 피벗으로 잡습니다.'},
+      {n:1, cap:'6보다 작은 값이 <b>전부 왼쪽</b>으로 — 분할이 <b>5 : 0</b>으로 극단으로 치우칩니다.'},
+      {n:2, cap:'남은 [1..5]에서 또 끝값 <b>5</b>가 피벗 → 다시 <b>4 : 0</b>.'},
+      {n:3, cap:'매 단계 한 칸씩만 줄어, 재귀 <b>깊이가 n</b>까지 자랍니다(균형이면 log n).'},
+      {n:4, cap:'각 단계의 비교 수는 n−1, n−2, … 처럼 한 칸씩 줄어듭니다.'},
+      {n:5, cap:'총 비교 = (n−1)+…+1 = <b>n(n−1)/2 = O(n²)</b>. 좋은 피벗 선택이 관건!'}
+    ]; },
+    draw:function(E, st){ var s=this.s, ctx=E.ctx;
+      var levels=[[1,2,3,4,5,6],[1,2,3,4,5],[1,2,3,4],[1,2,3],[1,2],[1]];
+      var show=(st&&st.n!=null)?st.n:0;
+      if(s.shown!==show){ s.shown=show; s.t0=E.frame; }
+      var ap=Math.min(1,(E.frame-s.t0)*0.12), ez=ap<0.5?2*ap*ap:1-Math.pow(-2*ap+2,2)/2;
+      var top=E.H*0.17, lh=Math.min(52,E.H*0.107), cell=Math.min(36,E.W*0.05), cx=E.W*0.5;
+      for(var L=0;L<=show && L<levels.length;L++){ var a=levels[L], x0=cx-(a.length*cell)/2, y=top+L*lh;
+        var newest=(L===show), la=newest?ez:1, dy=newest?(1-ez)*-16:0;
+        for(var i=0;i<a.length;i++){ var x=x0+i*cell, isPiv=(i===a.length-1);
+          ctx.globalAlpha=la;
+          ctx.fillStyle=isPiv?'rgba(244,160,192,0.32)':'rgba(122,184,255,0.13)';
+          ctx.strokeStyle=isPiv?'#f4a0c0':'#7ab8ff'; ctx.lineWidth=1.6;
+          ctx.fillRect(x,y+dy,cell-4,cell-4); ctx.strokeRect(x,y+dy,cell-4,cell-4);
+          ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(a[i], x+(cell-4)/2, y+dy+(cell-4)/2); ctx.textBaseline='alphabetic'; }
+        ctx.globalAlpha=la*0.9; ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('피벗 '+a[a.length-1]+' → '+(a.length-1)+' : 0', x0+a.length*cell+14, y+dy+cell/2);
+        ctx.globalAlpha=1; }
+      if(show>=5){ ctx.fillStyle='#ffb27a'; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('비교 = (n−1)+(n−2)+…+1 = n(n−1)/2 = O(n²)', cx, top+levels.length*lh+16); }
+      E.big('이미 정렬된 입력 + 끝값 피벗 = O(n²)', '퀵정렬 최악 — 분할이 (n−1):0으로 치우쳐 깊이 n. D로 단계 진행 · S 자동'); }
   },
 
   // ══════ 퀵정렬(algo3_05) ▸ 랜덤화된 퀵정렬 ══════

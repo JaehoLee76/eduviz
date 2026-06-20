@@ -199,12 +199,12 @@
   /* 스텝 캡션·컨트롤 = 왼쪽 패널 하단(코드와 같은 쪽) */
   #stepcap { display: none; margin: 12px 18px 8px; background: rgba(122,184,255,0.08);
     border: 1px solid var(--border); border-left: 3px solid var(--accent-light); border-radius: 11px; padding: 12px 15px; }
-  body.viz:not(.viz-concept) #stepcap { display: block; }                          /* 코드 바로 아래 STEP 캡션 */
+  body.viz:not(.viz-concept) #stepcap, body.stepped #stepcap { display: block; }    /* 코드/개념 단계 STEP 캡션 */
   #stepcap .stp { font-size: 13px; color: var(--accent-light); font-weight: 800; letter-spacing: .08em; margin-bottom: 5px; }
   #stepcap .cap { font-size: 15px; color: #ece9e0; line-height: 1.55; }
   #stepcap .cap b { color: #bfe0ff; font-weight: 600; }
   #stepbar { display: none; padding: 4px 14px 16px; justify-content: center; gap: 8px; flex-wrap: wrap; }
-  body.viz:not(.viz-concept) #stepbar { display: flex; }
+  body.viz:not(.viz-concept) #stepbar, body.stepped #stepbar { display: flex; }
 
   body.viz #controls { left: 42vw; right: 0; }   /* 슬라이더 = 오른쪽(캔버스) 컬럼 중앙 */
   body.viz #keyhint { left: 42vw; right: 0; }

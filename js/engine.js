@@ -332,8 +332,10 @@
     if(codeInputEl){ if(hasCode&&sc.input){ codeInputEl.innerHTML='<span class="ik">입력</span>  '+sc.input; codeInputEl.setAttribute('data-on','1'); } else codeInputEl.removeAttribute('data-on'); }
     if(hasCode){ setOn([]); if(codeHeadEl) codeHeadEl.textContent='📌 '+(sc.title||'CODE');
       renderCode(sc); _steps=sc.build(E)||[]; _stepI=0; paintStep(); }
-    else if(concept){ if(codeHeadEl) codeHeadEl.textContent='💡 '+(sc.title||''); renderConcept(sc); _steps=null; }
+    else if(concept){ if(codeHeadEl) codeHeadEl.textContent='💡 '+(sc.title||''); renderConcept(sc);
+      if(sc.build){ _steps=sc.build(E)||[]; _stepI=0; paintStep(); } else _steps=null; }   // 개념 장면도 build 있으면 단계 애니메이션(D/A/S)
     else { _steps=null; }
+    if(document.body) document.body.classList.toggle('stepped', !!(_steps&&_steps.length>1));   // 스텝 캡션·버튼 표시(코드/개념 공통)
     setTimeout(updateScrollHints,30); }
   // 자세히보기 스크롤 힌트(Q/Z) 표시 갱신
   function updateScrollHints(){ var el=conceptExtraEl; if(!el||!skUpEl||!skDnEl) return;
