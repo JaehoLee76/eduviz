@@ -64,7 +64,8 @@
 
   // ── 무리수 √2 ─────────────────────────────────────────
   { id:'ch1_05',
-    enter:function(E){ this.s={dig:3,t:0}; E.NL.range(1,2); E.big(null); E.setOn([]); },
+    enter:function(E){ this.s={dig:3,t:0,auto:false}; E.NL.range(1,2); E.big(null); E.setOn([]); },
+    tap:function(E){ var s=this.s; if(s.dig>=ROOT2.length){ s.dig=3; s.auto=false; E.blip(340,0.12); } else { s.dig++; s.auto=false; E.blip(500+s.dig*24,0.12); } },
     back:function(E){ E.NL.step(); E.NL.draw({integers:true}); },
     draw:function(E){ var ctx=E.ctx, s=this.s;
       // 단위 정사각형 + 대각선
@@ -77,8 +78,10 @@
       // 수직선 위 √2 위치 (1.4142)
       var v=1.41421356; E.NL.marker(v, E.COL.accent, null);
       ctx.fillStyle=E.COL.txt; ctx.font='13px sans-serif'; ctx.fillText('1.4', E.NL.px(1.4), E.NL.yy()+26); ctx.fillText('1.5', E.NL.px(1.5), E.NL.yy()+26);
-      // 자릿수 애니메이션
-      s.t++; if(s.t%14===0 && s.dig<ROOT2.length) s.dig++;
+      // 자릿수: D=한 자리씩, S=자동
+      if(s.auto){ s.t++; if(s.t%14===0 && s.dig<ROOT2.length) s.dig++; if(s.dig>=ROOT2.length) s.auto=false; }
+      var doneAll=s.dig>=ROOT2.length;
+      E.tapHint(E.W/2, E.NL.yy()+58, doneAll?'↻ 처음부터 (D)':'▶ 다음 자리 D · 자동 S', !doneAll);
       E.big('√2 = '+ROOT2.slice(0,s.dig)+'<span style="color:#6f6e7a">…</span>', '분수로는 못 쓰는 수');
     }
   },
