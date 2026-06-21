@@ -34,31 +34,33 @@
   // ══════════ 14.2 극한의 계산 ══════════
   // 14.2a 함수의 극한 — 0/0 구멍
   { id:'ch14_03',
-    enter:function(E){ this.s={}; E.Plot.range(-2,4,-1,5); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
-      // y=(x²-1)/(x-1) = x+1 (x≠1)
-      P.curve(function(x){ return x+1; }, '#7ab8ff');
-      // x=1 에서 구멍(빈 원)
-      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillStyle='#0b0b10';
-      ctx.beginPath(); ctx.arc(P.X(1),P.Y(2),6,0,7); ctx.fill(); ctx.stroke();
-      // 양쪽에서 접근 화살표
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
-      P.dot(0.4,1.4,'#8fe3b5'); P.dot(1.6,2.6,'#8fe3b5');
-      ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(P.X(1),P.Y(2)); ctx.lineTo(P.X(1),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#ffb27a'; ctx.fillText('x → 1', P.X(1), P.Y(0)-6);
-      E.big('lim(x→1) (x²−1)/(x−1) = 2', 'x=1에서 0/0이라 값은 없지만(구멍), 양쪽서 다가가는 극한은 2'); }
+    enter:function(E){ this.s={d:0.8}; E.Plot.range(-2,4,-1,5);
+      E.controls('<div class="ctrl"><label>1에서 거리 d</label><input type="range" id="ld" min="0.02" max="1.5" step="0.02" value="0.8"><output id="ldo">0.80</output></div>');
+      var self=this; E.bind('#ld','input',function(e){ self.s.d=+e.target.value; document.getElementById('ldo').textContent=(+e.target.value).toFixed(2); E.blip(700-self.s.d*300,0.08); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, d=this.s.d; P.axes();
+      P.curve(function(x){ return x+1; }, '#7ab8ff');   // (x²−1)/(x−1) = x+1 (x≠1)
+      var xl=1-d, xr=1+d, yl=xl+1, yr=xr+1;   // f = x+1 실계산
+      ctx.strokeStyle='rgba(143,227,181,0.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      [[xl,yl],[xr,yr]].forEach(function(p){ ctx.beginPath(); ctx.moveTo(P.X(p[0]),P.Y(0)); ctx.lineTo(P.X(p[0]),P.Y(p[1])); ctx.lineTo(P.X(-2),P.Y(p[1])); ctx.stroke(); }); ctx.setLineDash([]);
+      P.dot(xl,yl,'#8fe3b5'); P.dot(xr,yr,'#8fe3b5');
+      ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillStyle='#0b0b10'; ctx.beginPath(); ctx.arc(P.X(1),P.Y(2),6,0,7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('구멍 (x=1, 0/0)', P.X(1), P.Y(2)+24);
+      E.big('x = 1 ± '+d.toFixed(2)+'  →  f = '+yl.toFixed(2)+' ,  '+yr.toFixed(2), 'd를 0으로 줄여 보세요 — 양쪽 f가 모두 2로 수렴! x=1은 0/0(구멍)이지만 극한은 2'); }
   },
 
   // 14.2b lim x→∞  (1/x → 0)
   { id:'ch14_04',
-    enter:function(E){ this.s={}; E.Plot.range(0,10,-0.5,4); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
-      P.curve(function(x){ return x>0.1? 1/x : 99; }, '#7ab8ff');
+    enter:function(E){ this.s={x:2}; E.Plot.range(0,10,-0.5,4);
+      E.controls('<div class="ctrl"><label>x</label><input type="range" id="lx" min="1" max="10" step="0.5" value="2"><output id="lxo">2</output></div>');
+      var self=this; E.bind('#lx','input',function(e){ self.s.x=+e.target.value; document.getElementById('lxo').textContent=e.target.value; E.blip(360+self.s.x*28,0.08); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx, x=this.s.x; P.axes();
+      P.curve(function(t){ return t>0.1? 1/t : 99; }, '#7ab8ff');
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(10),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 y = 0', P.X(6), P.Y(0)-8);
-      P.dot(2,0.5,'#8fe3b5'); P.dot(5,0.2,'#8fe3b5'); P.dot(8,0.125,'#8fe3b5');
-      E.big('lim(x→∞) 1/x = 0', 'x가 무한히 커지면 1/x는 0에 한없이 가까워집니다 (점근선)'); }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 y = 0', P.X(6.5), P.Y(0)-8);
+      var y=1/x;
+      ctx.strokeStyle='rgba(143,227,181,0.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.lineTo(P.X(0),P.Y(y)); ctx.stroke(); ctx.setLineDash([]);
+      P.dot(x,y,'#8fe3b5');
+      E.big('x = '+x+'  →  1/x = '+y.toFixed(3), 'x를 키울수록 1/x는 0에 한없이 가까워집니다 (x→∞이면 0, 닿지는 않음)'); }
   },
 
   // ══════════ 14.3 e의 정의 ══════════
