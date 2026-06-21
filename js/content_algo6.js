@@ -190,6 +190,63 @@
           if(f.done[i]) return {fill:'rgba(143,227,181,0.22)',stroke:GRN,text:GRN}; return null; },
         edgeHl:function(a,b){ if(f.ex&&((a===f.ex[0]&&b===f.ex[1])||(a===f.ex[1]&&b===f.ex[0]))) return ORA; return null; } });
       ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('정점 라벨 = A로부터 현재 최단거리, 간선 숫자 = 가중치', V.W/2, V.H*0.86); }
+  },
+
+  // ══════════ 가중 그래프 심화 — 최단경로·MST (concept) ══════════
+  { id:'algo6_06', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'가중 그래프 심화 — 최단경로·MST',
+      sub:'다익스트라 너머의 최단경로와 최소 신장 트리. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 최단경로',   items:['벨만-포드','플로이드-워셜','DAG 최단','0-1 BFS','A*']},
+        {c:'#ffb27a', t:'② 전쌍·변형',  items:['존슨','k번째 최단','최소 평균 사이클','양방향 탐색']},
+        {c:'#f4a0c0', t:'③ 가속 힙',    items:['피보나치 힙','쌍 힙']},
+        {c:'#7ab8ff', t:'④ 최소 신장 트리', items:['MST','보루프카','차선 MST','MST 절단 성질']}
+      ],
+      foot:'음수·DAG·휴리스틱 최단경로 → 전쌍·K등·평균 → 더 빠른 힙 → 최소 비용 연결(MST)' }); }
+  },
+
+  // ══════════ 네트워크 플로우 — 유량과 컷 (concept) ══════════
+  { id:'algo6_07', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'네트워크 플로우 — 유량과 컷',
+      sub:'간선 용량을 따라 흐름을 최대로, 컷을 최소로. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 최대 유량',   items:['최대 플로우','에드몬즈-카프','디닉']},
+        {c:'#ffb27a', t:'② 비용·제약',   items:['최소비용 최대유량','하한 있는 유량','최소비용 순환']},
+        {c:'#f4a0c0', t:'③ 응용',        items:['최대 가중 폐포']},
+        {c:'#7ab8ff', t:'④ 전역 최소 컷', items:['슈토어-바그너','카거','Gomory-Hu 트리']}
+      ],
+      foot:'증가경로로 최대 유량 → 비용·하한 제약 → 프로젝트 선택 응용 → s·t 없는 전역 최소 컷' }); }
+  },
+
+  // ══════════ 매칭·그래프 이론 (concept) ══════════
+  { id:'algo6_08', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'매칭·그래프 이론 — 짝짓기와 쌍대성',
+      sub:'짝을 짓고, 정리로 한계를 증명한다. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 이분 매칭',   items:['이분 매칭','호프크로프트-카프','헝가리안(가중)']},
+        {c:'#ffb27a', t:'② 일반 매칭',   items:['에드몬즈 블로섬']},
+        {c:'#f4a0c0', t:'③ 쌍대 정리',   items:['Hall 결혼 정리','쾨니그 정리','딜워스 정리']},
+        {c:'#7ab8ff', t:'④ 안정성·채색', items:['안정 결혼','그래프 채색','간선 채색·비징']}
+      ],
+      foot:'이분 매칭 → 일반 그래프 매칭 → 매칭=덮개 쌍대 정리 → 안정 결혼과 채색' }); }
+  },
+
+  // ══════════ 고급 그래프 — DFS 응용·구조 (concept) ══════════
+  { id:'algo6_09', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'고급 그래프 — DFS 응용과 구조',
+      sub:'한 번의 DFS가 드러내는 그래프의 뼈대. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① DFS 토대',   items:['위상 정렬','간선 분류','괄호 정리']},
+        {c:'#ffb27a', t:'② 강연결·충족', items:['SCC','2-SAT']},
+        {c:'#f4a0c0', t:'③ 연결성',     items:['단절점·다리','BCC','도미네이터']},
+        {c:'#7ab8ff', t:'④ 오일러·경로', items:['오일러 경로','Hierholzer','중국인 우편배달부']},
+        {c:'#ffd9bd', t:'⑤ DAG·기타',   items:['DAG 최장경로','추이 폐쇄','함수 그래프','평면 그래프']}
+      ],
+      foot:'DFS 시각으로 순서·분류 → 강연결·충족성 → 연결성 약점 → 한붓그리기 → DAG·평면 구조' }); }
   }
 
   ];

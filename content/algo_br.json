@@ -203,11 +203,11 @@
  },
  "algo_br_topo": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 (자세히)",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "위상 정렬 — 순서 있는 작업 줄세우기",
   "narr": "DFS로 그래프를 훑는 법을 익혔습니다. 그 위에서 <b>위상 정렬</b>은 '<b>A를 끝내야 B를 할 수 있다</b>'는 의존 관계를 어기지 않게 작업을 일렬로 줄 세웁니다. 이런 관계는 방향이 있고 순환이 없는 그래프(DAG)로 표현됩니다. 방법은 의외로 간단합니다. DFS를 돌려 각 정점의 탐색이 <b>완전히 끝나는 시각</b>을 기록하고, 그 역순으로 정점을 늘어놓으면 됩니다. 어떤 간선 A→B가 있으면 B의 탐색이 A보다 먼저 끝나므로 역순에서 A가 B보다 앞에 오는 것이 보장됩니다. 독립적인 작업들끼리는 순서를 강제하지 않아 자유롭게 배치됩니다. 간선과 정점을 한 번씩만 보므로 <b>O(V+E)</b>이며, 빌드 의존성·선수과목·작업 스케줄에 쓰입니다.",
   "hint": "모든 화살표가 앞→뒤가 되게 줄세우기",
-  "more": "<b>위상 정렬(topological sort)</b>: <b>방향 비순환 그래프(DAG)</b>의 정점을, 모든 간선 u→v에 대해 <b>u가 v보다 앞</b>에 오도록 일렬로 나열합니다. 구현: <b>DFS</b>를 돌려 각 정점이 \"완료(끝)\"되는 순서의 <b>역순</b>이 위상 순서(스택에 쌓기). O(V+E). 사이클이 있으면 위상 정렬 불가(순환 의존 = 닭과 달걀). 쓰임: <b>빌드 시스템</b>(파일 컴파일 순서), <b>작업 스케줄링</b>, <b>스프레드시트 셀 계산 순서</b>, <b>선수과목</b>, 패키지 의존성 해결. 유효한 순서가 여러 개일 수 있습니다(독립 작업끼리는 순서 무관). DFS의 대표 응용이고, 다음의 SCC와 짝을 이룹니다.",
+  "more": "​사이클 없는 그래프의 <b>작업 순서</b> — 위상 정렬. <b>위상 정렬(topological sort)</b>: <b>방향 비순환 그래프(DAG)</b>의 정점을, 모든 간선 u→v에 대해 <b>u가 v보다 앞</b>에 오도록 일렬로 나열합니다. 구현: <b>DFS</b>를 돌려 각 정점이 \"완료(끝)\"되는 순서의 <b>역순</b>이 위상 순서(스택에 쌓기). O(V+E). 사이클이 있으면 위상 정렬 불가(순환 의존 = 닭과 달걀). 쓰임: <b>빌드 시스템</b>(파일 컴파일 순서), <b>작업 스케줄링</b>, <b>스프레드시트 셀 계산 순서</b>, <b>선수과목</b>, 패키지 의존성 해결. 유효한 순서가 여러 개일 수 있습니다(독립 작업끼리는 순서 무관). DFS의 대표 응용이고, 다음의 SCC와 짝을 이룹니다.",
   "more_en": "<b>Topological sort</b>: order the vertices of a <b>directed acyclic graph (DAG)</b> so that for every edge u→v, <b>u comes before v</b>. Implementation: run <b>DFS</b> and take the <b>reverse</b> of the order in which vertices finish (push onto a stack). O(V+E). If there's a cycle, no topological order exists (circular dependency). Uses: <b>build systems</b> (compile order), <b>task scheduling</b>, <b>spreadsheet recalculation order</b>, <b>course prerequisites</b>, package dependency resolution. Multiple valid orders may exist (independent tasks are unordered). A flagship application of DFS, paired with SCC next.",
   "problem": {
    "q": "위상 정렬이 불가능한 그래프는?",
@@ -225,15 +225,17 @@
    "}",
    "if(order.size()!=V) return CYCLE;  // 사이클 존재",
    "// O(V+E). DFS 종료시각 역순으로도 가능"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 1
  },
  "algo_br_scc": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 (자세히)",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "강연결요소(SCC) — 서로 오가는 덩어리",
   "narr": "방향 그래프에서 <b>서로 오갈 수 있는</b> 정점들의 최대 묶음을 <b>강연결요소(SCC)</b>라 합니다. 같은 SCC 안의 두 정점은 a→b 경로와 b→a 경로가 모두 존재합니다. 코사라주 알고리즘은 DFS를 두 번 써서 이를 찾습니다. 먼저 원래 그래프에서 DFS를 돌려 정점이 끝나는 순서를 스택에 쌓고, 다음으로 <b>모든 간선의 방향을 뒤집은 역그래프</b>에서 그 스택의 역순으로 DFS를 시작합니다. 한 번의 탐색에서 닿는 정점들이 곧 하나의 SCC가 됩니다. 끝난 순서대로 시작하면 SCC들이 서로 섞이지 않고 한 덩어리씩 떨어져 나오기 때문입니다. DFS 두 번이므로 <b>O(V+E)</b>이며, SNS의 상호 영향 집단이나 웹의 상호 링크 군집을 찾는 데 쓰입니다.",
   "hint": "서로 도달 가능한 최대 그룹",
-  "more": "<b>강연결요소(Strongly Connected Component)</b>: 방향 그래프에서 <b>임의의 두 정점 u, v가 서로에게 도달 가능한</b> 최대 정점 집합. SCC들을 하나로 묶으면 그래프가 <b>DAG(SCC 그래프)</b>가 됩니다. 찾는 법(코사라주 알고리즘): ① 원그래프에서 <b>DFS</b>로 완료 순서 기록 ② 모든 간선을 뒤집은 <b>역그래프</b>에서 완료 역순으로 <b>DFS</b> → 각 DFS 트리가 하나의 SCC. O(V+E)(타잔 알고리즘은 DFS 한 번). 쓰임: SNS 커뮤니티 탐지, 웹 페이지 군집, 2-SAT 풀이, 데드락 탐지. 위상 정렬과 함께 DFS의 깊은 응용 — \"방향 그래프의 구조를 꿰뚫어 보는\" 도구입니다.",
+  "more": "​서로 오갈 수 있는 <b>강하게 묶인 덩어리</b> — SCC. <b>강연결요소(Strongly Connected Component)</b>: 방향 그래프에서 <b>임의의 두 정점 u, v가 서로에게 도달 가능한</b> 최대 정점 집합. SCC들을 하나로 묶으면 그래프가 <b>DAG(SCC 그래프)</b>가 됩니다. 찾는 법(코사라주 알고리즘): ① 원그래프에서 <b>DFS</b>로 완료 순서 기록 ② 모든 간선을 뒤집은 <b>역그래프</b>에서 완료 역순으로 <b>DFS</b> → 각 DFS 트리가 하나의 SCC. O(V+E)(타잔 알고리즘은 DFS 한 번). 쓰임: SNS 커뮤니티 탐지, 웹 페이지 군집, 2-SAT 풀이, 데드락 탐지. 위상 정렬과 함께 DFS의 깊은 응용 — \"방향 그래프의 구조를 꿰뚫어 보는\" 도구입니다.",
   "more_en": "<b>Strongly Connected Component (SCC)</b>: a maximal set of vertices where <b>every pair u, v can reach each other</b> in a directed graph. Contracting each SCC turns the graph into a <b>DAG (the component graph)</b>. Finding them (Kosaraju): ① <b>DFS</b> the original graph recording finish times; ② <b>DFS</b> the <b>transpose</b> (all edges reversed) in reverse finish order → each DFS tree is one SCC. O(V+E) (Tarjan does it in a single DFS). Uses: social-network community detection, web page clustering, 2-SAT solving, deadlock detection. With topological sort, a deep application of DFS — a tool for seeing the structure of directed graphs.",
   "problem": {
    "q": "A→B, B→C, C→A 인 그래프의 SCC는 몇 개?",
@@ -251,15 +253,17 @@
    "for(int v=0;v<V;v++) if(!vis[v]) dfs1(v);",
    "for(int i=V-1,c=0;i>=0;i--)     // 종료 역순으로",
    "  if(comp[order[i]]<0) dfs2(order[i],c++);  // 전치그래프"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 4
  },
  "algo_br_bellman": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단 경로 (자세히)",
+  "sec": "최단경로·MST",
   "title": "벨만-포드 — 음수 간선도 다루기",
   "narr": "다익스트라는 한 번 확정한 거리를 다시 줄이지 않는 그리디라, 나중에 더 짧게 만드는 <b>음수 간선</b>이 있으면 틀립니다. <b>벨만-포드</b>는 더 느린 대신 음수 가중치도 정확히 다룹니다. 방법은 우직합니다. 모든 간선을 한 차례 돌며 '이 간선을 거치면 더 짧아지는가'를 확인해 거리를 갱신(완화)하고, 이 전체 과정을 <b>V−1번</b> 반복합니다. 최단 경로는 간선을 최대 V−1개 지나므로, 매 반복마다 최단 경로의 간선이 적어도 하나씩 확정되어 V−1번이면 모든 거리가 안정됩니다. V−1번 후에도 더 완화되는 간선이 있다면 끝없이 짧아지는 <b>음수 사이클</b>이 존재한다는 뜻이므로 그것까지 탐지합니다. 모든 간선을 V−1번 보므로 <b>O(VE)</b>입니다.",
   "hint": "분홍=음수 간선 (다익스트라 불가)",
-  "more": "<b>벨만-포드 알고리즘</b>: 출발점에서 모든 정점까지 최단 거리를 구하되 <b>음수 간선을 허용</b>합니다. 방법: 모든 간선에 대해 \"더 짧은 길 있으면 갱신\"(완화, relaxation)을 <b>V−1번 반복</b>. 왜 V−1번? 최단 경로는 간선을 최대 V−1개 쓰므로, 매 라운드 최소 한 정점의 거리가 확정됩니다. <b>O(VE)</b>(다익스트라 O(E log V)보다 느림). 핵심 보너스: V−1번 후에도 <b>또 완화되면 음수 사이클 존재</b> → 탐지 가능(다익스트라엔 없는 기능). 쓰임: 환율 차익거래 탐지(음수 사이클=무한 이득), 네트워크 라우팅(거리 벡터). 다익스트라(그리디)와 벨만-포드(완화 반복)는 음수 간선 유무로 갈라지는 최단경로의 두 축입니다.",
+  "more": "​다익스트라가 못 다루는 <b>음수 간선</b>을 — 벨만-포드. <b>벨만-포드 알고리즘</b>: 출발점에서 모든 정점까지 최단 거리를 구하되 <b>음수 간선을 허용</b>합니다. 방법: 모든 간선에 대해 \"더 짧은 길 있으면 갱신\"(완화, relaxation)을 <b>V−1번 반복</b>. 왜 V−1번? 최단 경로는 간선을 최대 V−1개 쓰므로, 매 라운드 최소 한 정점의 거리가 확정됩니다. <b>O(VE)</b>(다익스트라 O(E log V)보다 느림). 핵심 보너스: V−1번 후에도 <b>또 완화되면 음수 사이클 존재</b> → 탐지 가능(다익스트라엔 없는 기능). 쓰임: 환율 차익거래 탐지(음수 사이클=무한 이득), 네트워크 라우팅(거리 벡터). 다익스트라(그리디)와 벨만-포드(완화 반복)는 음수 간선 유무로 갈라지는 최단경로의 두 축입니다.",
   "more_en": "<b>Bellman-Ford</b>: shortest paths from a source, but <b>allowing negative-weight edges</b>. Method: <b>relax all edges V−1 times</b> (\"update if a shorter path exists\"). Why V−1? A shortest path uses at most V−1 edges, so each round finalizes at least one vertex. <b>O(VE)</b> (slower than Dijkstra's O(E log V)). Key bonus: if any edge can <b>still be relaxed after V−1 rounds, a negative cycle exists</b> → detectable (Dijkstra can't). Uses: currency arbitrage detection (a negative cycle = infinite gain), network routing (distance vector). Dijkstra (greedy) and Bellman-Ford (iterative relaxation) are the two pillars of shortest paths, split by whether negative edges occur.",
   "problem": {
    "q": "음수 간선이 있을 때 다익스트라 대신 무엇을 쓰나?",
@@ -280,15 +284,17 @@
    "  return true;",
    "}",
    "// O(VE). 음수 간선 OK(다익스트라는 불가)"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 1
  },
  "algo_br_floyd": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단 경로 (자세히)",
+  "sec": "최단경로·MST",
   "title": "플로이드-워셜 — 모든 쌍 최단경로",
   "narr": "다익스트라·벨만-포드는 한 출발점에서의 최단 거리를 구했습니다. <b>모든 정점 쌍</b> 사이 거리를 한 번에 얻으려면 <b>플로이드-워셜</b>을 씁니다. 정점 간 거리 행렬을 두고, 중간 경유점 k를 1번부터 차례로 허용하며 갱신하는 동적 계획법입니다. 핵심 질문은 매번 '<b>지금의 i→j 거리보다, i→k→j로 돌아가는 편이 더 짧은가</b>'입니다. 더 짧으면 dist[i][j]를 dist[i][k]+dist[k][j]로 바꿉니다. k를 1부터 V까지 모두 허용하고 나면 어떤 경유 조합이라도 이미 반영되었으므로 모든 쌍의 최단 거리가 완성됩니다. 삼중 반복이라 <b>O(V³)</b>이고 음수 간선도 다룹니다. k를 늘려보세요.",
   "hint": "k를 늘려 거리표가 짧아지는 걸 보세요",
-  "more": "<b>플로이드-워셜 알고리즘</b>: <b>모든 쌍 최단 경로(All-Pairs Shortest Path)</b>를 동적계획법으로 풉니다. dist[i][j]를 거리 행렬에 두고, 중간 경유 정점을 0~k까지 하나씩 늘리며 <b>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</b>로 갱신. 삼중 반복(k, i, j)이라 <b>O(V³)</b>. 음수 간선 OK(음수 사이클은 안 됨). 다익스트라를 모든 정점에서 V번 돌리는 것(O(VE log V))과 비교해, 조밀한 그래프나 작은 V에 단순·효율적입니다. 코드가 단 3중 for문으로 놀랍도록 짧습니다. \"중간 정점을 하나씩 허용\"이라는 DP 점화식이 핵심 — 알고리즘 설계의 우아함을 보여줍니다.",
+  "more": "​한 출발점이 아니라 <b>모든 쌍</b>의 최단경로를 한 번에 — 플로이드-워셜. <b>플로이드-워셜 알고리즘</b>: <b>모든 쌍 최단 경로(All-Pairs Shortest Path)</b>를 동적계획법으로 풉니다. dist[i][j]를 거리 행렬에 두고, 중간 경유 정점을 0~k까지 하나씩 늘리며 <b>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</b>로 갱신. 삼중 반복(k, i, j)이라 <b>O(V³)</b>. 음수 간선 OK(음수 사이클은 안 됨). 다익스트라를 모든 정점에서 V번 돌리는 것(O(VE log V))과 비교해, 조밀한 그래프나 작은 V에 단순·효율적입니다. 코드가 단 3중 for문으로 놀랍도록 짧습니다. \"중간 정점을 하나씩 허용\"이라는 DP 점화식이 핵심 — 알고리즘 설계의 우아함을 보여줍니다.",
   "more_en": "<b>Floyd-Warshall</b>: solves <b>All-Pairs Shortest Paths</b> with dynamic programming. Keep dist[i][j] in a matrix and, allowing intermediate vertices 0..k one at a time, update <b>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</b>. The triple loop (k, i, j) gives <b>O(V³)</b>. Negative edges are fine (no negative cycles). Compared to running Dijkstra from every vertex (O(VE log V)), it's simpler and efficient for dense graphs or small V. Its code is astonishingly short — three nested loops. The DP recurrence \"allow one more intermediate vertex\" is the key idea, showcasing the elegance of algorithm design.",
   "problem": {
    "q": "플로이드-워셜의 시간복잡도와 핵심 점화식의 의미는?",
@@ -304,15 +310,17 @@
    "      if(d[i][k]+d[k][j] < d[i][j])",
    "        d[i][j] = d[i][k]+d[k][j];",
    "// O(V^3). d[i][i]<0 이면 음수 사이클"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 2
  },
  "algo_br_mst": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단 경로 (자세히)",
+  "sec": "최단경로·MST",
   "title": "최소 신장 트리(MST) — 가장 싸게 연결하기",
   "narr": "여러 도시를 도로로 모두 잇되 <b>총 건설비를 최소</b>로 하는 문제의 답이 <b>최소 신장 트리(MST)</b>입니다. 모든 정점을 사이클 없이 연결하는 가장 싼 간선 집합으로, 정점이 V개면 간선은 정확히 V−1개입니다. 의외로 단순한 <b>그리디</b>가 최적을 보장합니다. 크루스칼은 간선을 비용 오름차순으로 정렬해 싼 것부터 보되, 사이클을 만들지 않는 간선만 채택하며 union-find로 사이클 여부를 빠르게 확인합니다. 프림은 한 정점에서 출발해 매번 트리에 닿는 가장 싼 간선을 우선순위 큐로 골라 키워 갑니다. 그리디가 옳은 까닭은 컷 성질 때문입니다. 그래프를 둘로 가르는 어떤 분할에서도 그 경계를 잇는 최소 간선은 반드시 어떤 MST에 포함되므로, 매번 가장 싼 안전한 간선을 고르는 것이 최적과 어긋나지 않습니다.",
   "hint": "초록 = 선택된 최소비용 간선들",
-  "more": "<b>최소 신장 트리(Minimum Spanning Tree)</b>: 가중 무방향 그래프에서 <b>모든 정점을 연결하면서 간선 가중치 합이 최소</b>인 트리(간선 V−1개, 사이클 없음). 두 그리디 알고리즘 — <b>크루스칼</b>: 간선을 가중치 오름차순 정렬해, 사이클을 만들지 않는 것만 차례로 추가(사이클 판정에 <b>union-find</b>(관련)). O(E log E). <b>프림</b>: 한 정점에서 시작해, 트리에 닿는 가장 싼 간선을 <b>우선순위 큐(힙)</b>로 골라 키워감(다익스트라와 거의 동일!). O(E log V). 둘 다 \"지금 가장 싼 선택\"이 전체 최적이 되는(그리디 선택 속성·절단 정리로 증명) 대표 사례입니다(그리디). 쓰임: 네트워크·전력망·도로 설계, 군집화(클러스터링). 그리디·union-find·우선순위큐가 한 문제에서 만납니다.",
+  "more": "​최단경로에서 <b>최소 비용 연결</b>로 — 최소 신장 트리. <b>최소 신장 트리(Minimum Spanning Tree)</b>: 가중 무방향 그래프에서 <b>모든 정점을 연결하면서 간선 가중치 합이 최소</b>인 트리(간선 V−1개, 사이클 없음). 두 그리디 알고리즘 — <b>크루스칼</b>: 간선을 가중치 오름차순 정렬해, 사이클을 만들지 않는 것만 차례로 추가(사이클 판정에 <b>union-find</b>(관련)). O(E log E). <b>프림</b>: 한 정점에서 시작해, 트리에 닿는 가장 싼 간선을 <b>우선순위 큐(힙)</b>로 골라 키워감(다익스트라와 거의 동일!). O(E log V). 둘 다 \"지금 가장 싼 선택\"이 전체 최적이 되는(그리디 선택 속성·절단 정리로 증명) 대표 사례입니다(그리디). 쓰임: 네트워크·전력망·도로 설계, 군집화(클러스터링). 그리디·union-find·우선순위큐가 한 문제에서 만납니다.",
   "more_en": "<b>Minimum Spanning Tree (MST)</b>: in a weighted undirected graph, a tree connecting <b>all vertices with minimum total edge weight</b> (V−1 edges, no cycle). Two greedy algorithms — <b>Kruskal</b>: sort edges by weight and add each that doesn't form a cycle (cycle check via <b>union-find</b>, related to ). O(E log E). <b>Prim</b>: start from a vertex and grow by repeatedly picking the cheapest edge leaving the tree, using a <b>priority queue (heap)</b> (nearly identical to Dijkstra!). O(E log V). Both are flagship cases where \"the cheapest choice now\" yields the global optimum (proved by the greedy-choice property and cut theorem; greedy). Uses: network, power-grid, and road design, plus clustering. Greedy, union-find, and priority queues meet in one problem.",
   "problem": {
    "q": "크루스칼 알고리즘이 사이클을 피하는 데 쓰는 자료구조는?",
@@ -333,7 +341,9 @@
    "  }",
    "  return total;             // 컷 성질이 최적성 보장",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 12
  },
  "algo_br_rbt": {
   "ch": "알고리즘 제5장 트리",
@@ -614,11 +624,11 @@
  },
  "algo_br_maxflow": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단 경로 (자세히)",
+  "sec": "네트워크 플로우",
   "title": "최대 플로우 — 최대 유량 = 최소 컷",
   "narr": "용량이 정해진 수도관 네트워크에서 출발지 s부터 도착지 t까지 물을 <b>최대한 흘려보내는</b> 양을 구하는 것이 <b>최대 플로우</b> 문제입니다. 포드-풀커슨 방식은 아직 여유 용량이 남은 <b>증가 경로</b>를 s→t로 찾아 그 길의 최소 여유만큼 흘리기를 반복하며, 더는 그런 경로가 없을 때 멈춥니다. 여기서 <b>잔여 그래프</b>가 핵심으로, 이미 흘린 흐름을 되돌릴 수 있는 역방향 간선을 두어 앞선 잘못된 배분을 나중에 교정합니다. 멈췄을 때의 흐름이 최대임은 유명한 정리가 보장합니다. <b>흘릴 수 있는 최대 유량 = 그래프를 s쪽과 t쪽으로 가르는 가장 약한 병목(최소 컷)의 용량</b>입니다. 병목보다 더 흘릴 수 없고 그 병목만큼은 채울 수 있기 때문입니다. 네트워크·이분 매칭·이미지 분할에 쓰입니다.",
   "hint": "간선 라벨 = 흐름/용량",
-  "more": "<b>최대 플로우(max-flow)</b>: 용량이 있는 방향 그래프(플로우 네트워크)에서 source s → sink t로 보낼 수 있는 최대 유량. <b>포드-풀커슨 방법</b>: s에서 t로 여유가 남은 <b>증가 경로(augmenting path)</b>를 찾아 흐름을 늘리길 반복(잔여 그래프에서 BFS로 찾으면 에드몬드-카프, O(VE²)). ★핵심 정리 <b>최대 유량 = 최소 컷(max-flow min-cut)</b>: 흘릴 수 있는 최대량은 네트워크를 s쪽·t쪽으로 가르는 <b>가장 작은 절단(병목 간선들의 용량 합)</b>과 정확히 같습니다! 쓰임: <b>이분 매칭</b>(작업 배정·결혼 문제), 네트워크 신뢰도, 이미지 분할(그래프 컷), 스포츠 리그 우승 가능성. 그래프 최적화의 깊은 정점 — 다익스트라·MST와 함께 그래프 알고리즘의 3대 기둥입니다.",
+  "more": "​용량 있는 그래프의 <b>최대 흐름</b> — 증가경로로. <b>최대 플로우(max-flow)</b>: 용량이 있는 방향 그래프(플로우 네트워크)에서 source s → sink t로 보낼 수 있는 최대 유량. <b>포드-풀커슨 방법</b>: s에서 t로 여유가 남은 <b>증가 경로(augmenting path)</b>를 찾아 흐름을 늘리길 반복(잔여 그래프에서 BFS로 찾으면 에드몬드-카프, O(VE²)). ★핵심 정리 <b>최대 유량 = 최소 컷(max-flow min-cut)</b>: 흘릴 수 있는 최대량은 네트워크를 s쪽·t쪽으로 가르는 <b>가장 작은 절단(병목 간선들의 용량 합)</b>과 정확히 같습니다! 쓰임: <b>이분 매칭</b>(작업 배정·결혼 문제), 네트워크 신뢰도, 이미지 분할(그래프 컷), 스포츠 리그 우승 가능성. 그래프 최적화의 깊은 정점 — 다익스트라·MST와 함께 그래프 알고리즘의 3대 기둥입니다.",
   "more_en": "<b>Maximum flow</b>: the most flow you can push from source s to sink t in a directed graph with edge capacities. <b>Ford-Fulkerson method</b>: repeatedly find an <b>augmenting path</b> with spare capacity from s to t and increase the flow (finding it by BFS in the residual graph is Edmonds-Karp, O(VE²)). The key theorem <b>max-flow = min-cut</b>: the maximum flow equals the capacity of the <b>smallest cut</b> separating s from t (the bottleneck edges)! Uses: <b>bipartite matching</b> (job assignment, stable marriage), network reliability, image segmentation (graph cuts), sports-league elimination. A deep peak of graph optimization — with Dijkstra and MST, one of the three pillars of graph algorithms.",
   "problem": {
    "q": "최대 플로우와 최소 컷의 관계는?",
@@ -641,7 +651,9 @@
    "  }",
    "  return flow;   // = 최소 컷 용량",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 1
  },
  "algo_br_openaddr": {
   "ch": "알고리즘 제2장 자료구조",
@@ -944,11 +956,11 @@
  },
  "algo_br_edgeclass": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 (자세히)",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "DFS 간선 분류 — 사이클 탐지의 비밀",
   "narr": "DFS는 그래프를 훑으며 만나는 모든 간선을 <b>네 종류</b>로 나눕니다. <b>트리 간선</b>은 새 정점을 처음 발견할 때 타는 간선, <b>후향 간선</b>은 현재 정점에서 아직 탐색이 안 끝난 <b>조상</b>으로 가는 간선, <b>전향 간선</b>은 이미 탐색이 끝난 자손으로 건너뛰는 간선, <b>교차 간선</b>은 다른 서브트리의 정점으로 가는 간선입니다. 분류의 열쇠는 각 정점의 <b>발견 시간과 종료 시간</b>이라, 도착한 정점의 색과 시간 구간 포함 관계를 보면 어느 종류인지 가려집니다. 특히 중요한 사실이 하나 있습니다. 그래프에 <b>후향 간선이 하나라도 있으면 사이클이 존재</b>하고, 없으면 비순환입니다. 후향 간선은 조상으로 돌아가는 길이라 그 자체로 닫힌 고리를 만들기 때문입니다. 사이클 탐지와 위상 정렬 가능 판정의 토대입니다.",
   "hint": "후향 간선 = 사이클",
-  "more": "<b>DFS 간선 분류</b>: 깊이 우선 탐색이 만드는 트리를 기준으로 모든 간선을 네 종류로 나눕니다. <b>① 트리 간선</b>: DFS가 새 정점(WHITE)을 처음 발견하며 지나간 간선 = DFS 트리. <b>② 후향(back) 간선</b>: 자손→조상(아직 GRAY인 정점)으로 가는 간선 → <b>방향 그래프의 사이클은 후향 간선이 있을 때만 존재</b>. <b>③ 전향(forward) 간선</b>: 조상→이미 끝난(BLACK) 자손으로의 비-트리 간선. <b>④ 교차(cross) 간선</b>: 조상-자손 관계가 아닌 정점 사이. 분류 기준은 간선 (u,v)를 볼 때 v의 색: WHITE=트리, GRAY=후향, BLACK=전향/교차(발견시간 비교). 사이클 탐지·위상정렬·SCC가 모두 이 분류에서 나옵니다.",
+  "more": "​DFS가 만드는 <b>간선의 종류</b>(트리·백·전진·교차). <b>DFS 간선 분류</b>: 깊이 우선 탐색이 만드는 트리를 기준으로 모든 간선을 네 종류로 나눕니다. <b>① 트리 간선</b>: DFS가 새 정점(WHITE)을 처음 발견하며 지나간 간선 = DFS 트리. <b>② 후향(back) 간선</b>: 자손→조상(아직 GRAY인 정점)으로 가는 간선 → <b>방향 그래프의 사이클은 후향 간선이 있을 때만 존재</b>. <b>③ 전향(forward) 간선</b>: 조상→이미 끝난(BLACK) 자손으로의 비-트리 간선. <b>④ 교차(cross) 간선</b>: 조상-자손 관계가 아닌 정점 사이. 분류 기준은 간선 (u,v)를 볼 때 v의 색: WHITE=트리, GRAY=후향, BLACK=전향/교차(발견시간 비교). 사이클 탐지·위상정렬·SCC가 모두 이 분류에서 나옵니다.",
   "more_en": "<b>DFS edge classification</b>: relative to the DFS tree, every edge is one of four types. <b>① Tree edge</b>: traversed when DFS first discovers a WHITE vertex = the DFS tree. <b>② Back edge</b>: descendant→ancestor (a still-GRAY vertex) → <b>a directed graph has a cycle iff DFS finds a back edge</b>. <b>③ Forward edge</b>: ancestor→already-finished (BLACK) descendant, non-tree. <b>④ Cross edge</b>: between vertices with no ancestor-descendant relation. You classify edge (u,v) by v's color: WHITE=tree, GRAY=back, BLACK=forward/cross (compare discovery times). Cycle detection, topological sort, and SCC all follow from this.",
   "problem": {
    "q": "방향 그래프에 사이클이 있는지 DFS로 어떻게 판정하나요?",
@@ -968,7 +980,9 @@
    "  color[u] = BLACK; tout[u] = ++timer;",
    "}",
    "// 후방 간선 ⟺ 방향 사이클. 무방향은 트리·후방만"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 2
  },
  "algo_br_dij_proof": {
   "ch": "알고리즘 제6장 그래프",
@@ -1317,11 +1331,11 @@
  },
  "algo_br_bipmatch": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 그래프 응용 (자세히)",
+  "sec": "매칭·그래프 이론",
   "title": "이분 매칭 — 짝지어 주기",
   "narr": "이분 그래프는 정점이 두 그룹 L, R로 나뉘고 간선이 그룹 사이에만 있습니다. <b>이분 매칭</b>은 한 정점이 최대 한 간선에만 속하도록 고른 간선을 최대로 만드는 문제입니다. <b>증가 경로</b> 기법이 핵심입니다. 아직 안 짝지어진 L 정점에서 출발해 미매칭-매칭-미매칭이 번갈아 나오는 경로를 찾으면, 그 경로의 간선들을 뒤집어 매칭 크기를 +1 늘립니다. 더 이상 증가 경로가 없으면 최대 매칭입니다(쾨니그 정리). DFS/BFS로 <b>O(V·E)</b>입니다. 각 간선 용량을 1로 두면 최대 플로우의 특수형이라, 작업 배정·시간표·안정 결혼에 응용됩니다.",
   "hint": "두 집단 최대로 짝짓기",
-  "more": "<b>이분 매칭</b>(bipartite matching): 정점이 두 그룹 L, R로 나뉘고 간선이 그룹 사이에만 있는 이분 그래프에서, 한 정점이 최대 한 간선에만 속하도록 고른 간선 집합을 <b>매칭</b>이라 하고, 그 크기를 최대화하는 문제. <b>증가 경로(augmenting path)</b> 기법: 아직 안 짝지어진 L 정점에서 출발해 '미매칭-매칭-미매칭…' 간선이 번갈아 나오는 경로를 찾으면, 그 경로의 매칭/미매칭을 뒤집어 매칭 크기를 +1. 더 이상 증가 경로가 없으면 최대 매칭(쾨니그 정리). DFS/BFS로 구현해 <b>O(V·E)</b>(홉크로프트-카프는 O(E√V)). ★최대 매칭은 <b>최대 플로우</b>의 특수형(각 간선 용량 1)으로도 풀립니다. 작업 배정·시간표·안정 결혼 문제·이미지 정합 등에 응용. 표준 교재에 비교적 최근 추가된 주제입니다.",
+  "more": "​두 집단을 <b>1:1로 짝</b>짓는 이분 매칭 — 증가경로로. <b>이분 매칭</b>(bipartite matching): 정점이 두 그룹 L, R로 나뉘고 간선이 그룹 사이에만 있는 이분 그래프에서, 한 정점이 최대 한 간선에만 속하도록 고른 간선 집합을 <b>매칭</b>이라 하고, 그 크기를 최대화하는 문제. <b>증가 경로(augmenting path)</b> 기법: 아직 안 짝지어진 L 정점에서 출발해 '미매칭-매칭-미매칭…' 간선이 번갈아 나오는 경로를 찾으면, 그 경로의 매칭/미매칭을 뒤집어 매칭 크기를 +1. 더 이상 증가 경로가 없으면 최대 매칭(쾨니그 정리). DFS/BFS로 구현해 <b>O(V·E)</b>(홉크로프트-카프는 O(E√V)). ★최대 매칭은 <b>최대 플로우</b>의 특수형(각 간선 용량 1)으로도 풀립니다. 작업 배정·시간표·안정 결혼 문제·이미지 정합 등에 응용. 표준 교재에 비교적 최근 추가된 주제입니다.",
   "more_en": "<b>Bipartite matching</b>: in a bipartite graph (vertices split into groups L, R with edges only between them), a <b>matching</b> is a set of edges where each vertex belongs to at most one, and we maximize its size. The <b>augmenting path</b> method: from an unmatched L vertex, find a path alternating unmatched-matched-unmatched edges; flipping matched/unmatched along it grows the matching by 1. When no augmenting path remains, the matching is maximum (König's theorem). Implemented with DFS/BFS in <b>O(V·E)</b> (Hopcroft–Karp does O(E√V)). ★Maximum matching is a special case of <b>max-flow</b> (each edge capacity 1). Used in job assignment, scheduling, stable marriage, image registration. A relatively recent addition to standard texts.",
   "problem": {
    "q": "이분 매칭이 최대 플로우 문제로 환원되는 이유는?",
@@ -1350,7 +1364,9 @@
    "  }",
    "  return cnt;   // O(V·E)",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 1
  },
  "algo_br_avl": {
   "ch": "알고리즘 제5장 트리",
@@ -1604,11 +1620,11 @@
  },
  "algo_br_dagsp": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단 경로 (자세히)",
+  "sec": "최단경로·MST",
   "title": "DAG 최단경로 — 위상순서의 힘",
   "narr": "사이클이 없는 방향 그래프(DAG)에서는 최단경로가 더 쉬워집니다. 정점을 <b>위상 정렬 순서</b>로 나열한 뒤, 그 순서대로 각 정점의 나가는 간선을 완화하면 한 번에 구해집니다. 위상순서에서 u가 v보다 앞이면 u→v 간선만 존재하므로, u를 처리할 시점에 u까지의 거리는 이미 확정되어 완화가 항상 옳습니다. 우선순위 큐가 필요 없어 전체 <b>O(V+E)</b>로, 다익스트라의 O(E log V)보다 빠릅니다. 게다가 사이클이 없으니 <b>음수 가중치 간선도</b> 정확히 처리됩니다(다익스트라는 음수에서 실패). PERT/CPM 공정 일정의 임계 경로 계산에 쓰입니다.",
   "hint": "위상순서로 한 번 완화",
-  "more": "<b>DAG 최단경로</b>: 방향 비순환 그래프(DAG)에서는 정점을 <b>위상 정렬 순서</b>로 나열한 뒤, 그 순서대로 각 정점의 나가는 간선을 완화(relax)하면 단일 출발점 최단경로가 한 번에 구해집니다. 왜 되나: 위상순서에서 u가 v보다 앞이면 u→v 간선만 존재하므로, u를 처리할 때 u.d는 이미 확정 → 완화가 항상 옳음. <b>시간 O(V+E)</b>(위상정렬 O(V+E) + 완화 O(E)), 다익스트라(O(E log V))보다 빠르고 우선순위 큐 불필요. ★결정적 장점: 사이클이 없으므로 <b>음수 가중치 간선도 OK</b>(다익스트라는 음수에서 실패). 음수 사이클 자체가 DAG엔 없어 벨만-포드도 불필요. PERT/CPM 공정 일정(임계 경로)·작업 의존성·확률 DAG 기댓값 계산에 응용. 사이클이 없다는 구조적 제약이 더 빠른 알고리즘을 가능케 한 예.",
+  "more": "​사이클 없는 DAG라면 <b>위상순서</b>로 더 빠르게. <b>DAG 최단경로</b>: 방향 비순환 그래프(DAG)에서는 정점을 <b>위상 정렬 순서</b>로 나열한 뒤, 그 순서대로 각 정점의 나가는 간선을 완화(relax)하면 단일 출발점 최단경로가 한 번에 구해집니다. 왜 되나: 위상순서에서 u가 v보다 앞이면 u→v 간선만 존재하므로, u를 처리할 때 u.d는 이미 확정 → 완화가 항상 옳음. <b>시간 O(V+E)</b>(위상정렬 O(V+E) + 완화 O(E)), 다익스트라(O(E log V))보다 빠르고 우선순위 큐 불필요. ★결정적 장점: 사이클이 없으므로 <b>음수 가중치 간선도 OK</b>(다익스트라는 음수에서 실패). 음수 사이클 자체가 DAG엔 없어 벨만-포드도 불필요. PERT/CPM 공정 일정(임계 경로)·작업 의존성·확률 DAG 기댓값 계산에 응용. 사이클이 없다는 구조적 제약이 더 빠른 알고리즘을 가능케 한 예.",
   "more_en": "<b>Shortest paths in a DAG</b>: in a directed acyclic graph, list vertices in <b>topological order</b>, then relax each vertex's outgoing edges in that order — single-source shortest paths fall out in one pass. Why it works: in topological order, if u precedes v then only u→v edges exist, so u.d is already final when u is processed → relaxation is always correct. <b>Time O(V+E)</b> (topo sort O(V+E) + relax O(E)), faster than Dijkstra (O(E log V)) and needs no priority queue. ★Decisive advantage: with no cycles, <b>negative-weight edges are fine</b> (Dijkstra fails on negatives). No negative cycle can exist in a DAG, so Bellman-Ford isn't needed either. Used in PERT/CPM project scheduling (critical path), task dependencies, and expected values over probabilistic DAGs. An example where the structural constraint (acyclicity) enables a faster algorithm.",
   "problem": {
    "q": "DAG 최단경로가 다익스트라보다 나은 점 두 가지는?",
@@ -1625,7 +1641,9 @@
    "    for(auto [v,w]: adj[u])",
    "      dist[v]=min(dist[v], dist[u]+w);",
    "// O(V+E). 음수 간선 OK(사이클 없으니)"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 3
  },
  "algo_br_lowerbound": {
   "ch": "알고리즘 제4장 탐색",
@@ -1680,11 +1698,11 @@
  },
  "algo_br_dinic": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단경로·플로우 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "디닉 알고리즘 — 빠른 최대 유량 (Dinic)",
   "narr": "최대 유량을 포드-풀커슨처럼 증가 경로를 하나씩 찾으면 느립니다. <b>디닉</b>은 두 단계를 번갈아 반복합니다. 먼저 잔여 그래프에서 s로부터 <b>BFS</b>로 각 정점의 거리(레벨)를 매겨 <b>레벨 그래프</b>를 만듭니다. 다음으로 레벨이 정확히 +1씩 오르는 전진 간선으로만 <b>DFS</b>를 돌려, 더 보낼 수 없을 때까지 흘리는 <b>막는 흐름</b>을 구합니다. 한 번의 BFS로 같은 길이의 최단 경로들을 통째로 포화시키므로, phase마다 최단경로 길이가 늘어 phase 수가 <b>O(V)</b>로 묶입니다. 전체 <b>O(V²E)</b>이고, 단위 용량 그래프(이분 매칭)에선 O(E√V)로 표준 해법이 됩니다.",
   "hint": "",
-  "more": "<b>디닉(Dinic)</b>은 두 단계를 번갈아 반복합니다. <b>① 레벨 그래프</b>: 잔여 그래프에서 s로부터 <b>BFS</b>로 각 정점의 거리(레벨)를 매깁니다. t에 도달 못 하면 종료(최대 유량 완성). <b>② 막는 흐름(blocking flow)</b>: 레벨이 <b>정확히 +1씩 오르는 간선</b>으로만(전진만 허용) <b>DFS</b>를 돌려, 더 이상 보낼 수 없을 때까지 흐름을 흘립니다. 포화된 간선은 그 phase 동안 건너뜁니다(현재 간선 포인터). 핵심 효과: 포드-풀커슨은 증가 경로를 <b>하나씩</b> 찾지만, 디닉은 한 번의 BFS로 <b>같은 길이의 최단 경로들을 통째로</b> 포화시켜 phase 수가 <b>O(V)</b>로 묶입니다. 전체 <b>O(V²E)</b>. 게다가 <b>단위 용량</b> 그래프(이분 매칭 등)에선 <b>O(E√V)</b>로, 큰 매칭 문제의 표준 해법입니다.",
+  "more": "​레벨 그래프 + 막는 흐름으로 <b>더 빠른</b> 최대유량. <b>디닉(Dinic)</b>은 두 단계를 번갈아 반복합니다. <b>① 레벨 그래프</b>: 잔여 그래프에서 s로부터 <b>BFS</b>로 각 정점의 거리(레벨)를 매깁니다. t에 도달 못 하면 종료(최대 유량 완성). <b>② 막는 흐름(blocking flow)</b>: 레벨이 <b>정확히 +1씩 오르는 간선</b>으로만(전진만 허용) <b>DFS</b>를 돌려, 더 이상 보낼 수 없을 때까지 흐름을 흘립니다. 포화된 간선은 그 phase 동안 건너뜁니다(현재 간선 포인터). 핵심 효과: 포드-풀커슨은 증가 경로를 <b>하나씩</b> 찾지만, 디닉은 한 번의 BFS로 <b>같은 길이의 최단 경로들을 통째로</b> 포화시켜 phase 수가 <b>O(V)</b>로 묶입니다. 전체 <b>O(V²E)</b>. 게다가 <b>단위 용량</b> 그래프(이분 매칭 등)에선 <b>O(E√V)</b>로, 큰 매칭 문제의 표준 해법입니다.",
   "more_en": "<b>Dinic's algorithm</b> alternates two phases. <b>① Level graph</b>: in the residual graph, run <b>BFS</b> from s to label each vertex's distance (level). If t is unreachable, stop (max flow found). <b>② Blocking flow</b>: run <b>DFS</b> using only edges whose level goes <b>up by exactly 1</b> (forward only), pushing flow until no more can be sent; saturated edges are skipped for the rest of the phase (current-arc pointer). Key effect: Ford-Fulkerson finds augmenting paths <b>one at a time</b>, but Dinic saturates <b>all shortest paths of the same length at once</b> per BFS, bounding the number of phases to <b>O(V)</b>. Overall <b>O(V²E)</b>. On <b>unit-capacity</b> graphs (e.g. bipartite matching) it runs in <b>O(E√V)</b>, the standard method for large matching problems.",
   "problem": {
    "q": "디닉이 포드-풀커슨보다 빠른 근본 이유 한 가지는?",
@@ -1702,15 +1720,17 @@
    "  }",
    "  return flow;",
    "}   // O(V^2 E), 단위용량은 O(E√V)"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 3
  },
  "algo_br_astar": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "A* 탐색 — 길잡이 에이스타의 알고리즘",
   "narr": "다익스트라는 시작점에서 가까운 순서로 사방을 균일하게 넓혀 갑니다. <b>A*</b>는 우선순위를 <b>f(n)=g(n)+h(n)</b>으로 바꿉니다. g는 시작부터 실제로 온 거리, <b>h는 목표까지의 추정 거리</b>(격자라면 맨해튼·유클리드)입니다. 그래서 같은 g라도 목표에 가까운 후보를 먼저 꺼내, 반대쪽은 거의 안 봅니다. 최단 경로가 보장되는 조건은 <b>허용성</b>입니다. h가 실제 최단거리를 절대 넘지 않으면(과소추정) 더 짧은 길을 건너뛰지 않아 최적이 됩니다. h=0이면 정확히 다익스트라가 되고, h가 정확할수록 직선처럼 탐색합니다. 게임·지도·로봇 길찾기의 표준이며 이 사이트 길잡이 에이스타의 이름이기도 합니다.",
   "hint": "",
-  "more": "<b>다익스트라</b>는 시작점에서 가까운 순서로 <b>사방을</b> 균일하게 넓혀 갑니다. <b>A*</b>는 우선순위를 <b>f(n) = g(n) + h(n)</b> 으로 바꿉니다 — <b>g(n)</b>은 시작부터 실제로 온 거리, <b>h(n)</b>은 <b>목표까지의 추정 거리</b>(예: 격자라면 맨해튼/유클리드 거리). 그래서 같은 g라도 <b>목표에 가까운 후보를 먼저</b> 꺼내, 반대쪽은 거의 안 봅니다. 핵심 성질: ① <b>허용성(admissible)</b> — h가 실제 최단거리를 <b>절대 넘지 않으면</b> A*는 <b>최적 경로</b>를 보장합니다. ② <b>일관성(consistent)</b> — 이웃으로 갈 때 h가 간선비용보다 더 줄지 않으면, 닫힌 정점을 다시 안 열어도 됩니다. h=0이면 정확히 다익스트라가 되고, h가 정확할수록 직선처럼 탐색합니다. 최악 복잡도는 다익스트라와 같지만(좋은 h면 실제 탐색량이 급감), 메모리도 후보 집합만큼 듭니다.",
+  "more": "​목표를 향한 <b>휴리스틱</b>으로 탐색을 좁히는 A*. <b>다익스트라</b>는 시작점에서 가까운 순서로 <b>사방을</b> 균일하게 넓혀 갑니다. <b>A*</b>는 우선순위를 <b>f(n) = g(n) + h(n)</b> 으로 바꿉니다 — <b>g(n)</b>은 시작부터 실제로 온 거리, <b>h(n)</b>은 <b>목표까지의 추정 거리</b>(예: 격자라면 맨해튼/유클리드 거리). 그래서 같은 g라도 <b>목표에 가까운 후보를 먼저</b> 꺼내, 반대쪽은 거의 안 봅니다. 핵심 성질: ① <b>허용성(admissible)</b> — h가 실제 최단거리를 <b>절대 넘지 않으면</b> A*는 <b>최적 경로</b>를 보장합니다. ② <b>일관성(consistent)</b> — 이웃으로 갈 때 h가 간선비용보다 더 줄지 않으면, 닫힌 정점을 다시 안 열어도 됩니다. h=0이면 정확히 다익스트라가 되고, h가 정확할수록 직선처럼 탐색합니다. 최악 복잡도는 다익스트라와 같지만(좋은 h면 실제 탐색량이 급감), 메모리도 후보 집합만큼 듭니다.",
   "more_en": "<b>Dijkstra</b> expands uniformly in all directions by distance from the start. <b>A*</b> changes the priority to <b>f(n) = g(n) + h(n)</b> — <b>g(n)</b> is the actual cost from the start, <b>h(n)</b> is an <b>estimate of the remaining distance to the goal</b> (e.g. Manhattan/Euclidean distance on a grid). So among equal-g candidates it pops the one <b>closest to the goal first</b>, barely touching the opposite side. Key properties: ① <b>Admissible</b> — if h <b>never overestimates</b> the true distance, A* returns an <b>optimal path</b>. ② <b>Consistent</b> — if h drops by no more than each edge cost, closed nodes never need reopening. With h=0 it becomes exactly Dijkstra; the sharper h is, the more the search hugs a straight line. Worst-case complexity matches Dijkstra (a good h drastically cuts the nodes actually expanded), at the cost of memory for the open set.",
   "problem": {
    "q": "A*에서 휴리스틱 h가 어떤 조건을 지켜야 최단 경로가 보장될까?",
@@ -1730,15 +1750,17 @@
    "      pq.push({g[v]+h(v), v});   // f = g + h",
    "    }",
    "}   // h가 허용적이면 최적 보장"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 5
  },
  "algo_br_mcmf": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단경로·플로우 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "최소 비용 최대 유량 (MCMF)",
   "narr": "최대 유량을 보내는 길은 여럿일 수 있고, 그중 총비용까지 최소로 하고 싶을 때가 <b>MCMF</b>입니다. 각 간선에 (단위당 비용, 용량)이 있을 때 최대 유량을 흘리되 비용을 최소로 만듭니다. 핵심은 증가 경로를 아무거나가 아니라 <b>비용 기준 최단 경로</b>로 고르는 것입니다(연속 최단 경로). 매 단계가 '현재 가장 싼 추가 유량 1단위'라 유량이 늘수록 단위비용이 단조 증가(볼록)하고, 그 결과 매 단계의 최선이 곧 전체 최소비용이 됩니다. 잔여 그래프의 역간선이 음수라 벨만-포드로 풀거나, 퍼텐셜로 비음수화해 다익스트라로 가속합니다. 가중치 이분 매칭·운송 문제에 쓰입니다.",
   "hint": "",
-  "more": "<b>MCMF(Min-Cost Max-Flow)</b>는 각 간선에 <b>(단위당 비용, 용량)</b>이 있을 때, <b>최대 유량</b>을 흘리되 그중 <b>총비용이 최소</b>인 방법을 찾습니다. 핵심 원리: 포드-풀커슨처럼 증가 경로를 찾되, 아무 경로가 아니라 <b>비용 기준 최단 경로</b>(SSP, Successive Shortest Paths)를 골라 흘립니다 — 이렇게 하면 각 단계가 \"현재 가장 싼 추가 유량\"이라 전체 최소비용이 보장됩니다(볼록성). 최단 경로는 <b>음수 비용</b>(잔여 그래프의 역간선)이 생기므로 <b>벨만-포드/SPFA</b>로 구하거나, <b>퍼텐셜(Johnson 기법)</b>로 비용을 비음수화해 <b>다익스트라</b>로 가속합니다. 복잡도는 대략 O(유량 × 최단경로). 쓰임: <b>이분 매칭의 가중치판(작업-인력 배정)</b>, 운송 문제, 영상 분할 등.",
+  "more": "​흐름에 <b>비용</b>을 더해 최소 비용 최대유량. <b>MCMF(Min-Cost Max-Flow)</b>는 각 간선에 <b>(단위당 비용, 용량)</b>이 있을 때, <b>최대 유량</b>을 흘리되 그중 <b>총비용이 최소</b>인 방법을 찾습니다. 핵심 원리: 포드-풀커슨처럼 증가 경로를 찾되, 아무 경로가 아니라 <b>비용 기준 최단 경로</b>(SSP, Successive Shortest Paths)를 골라 흘립니다 — 이렇게 하면 각 단계가 \"현재 가장 싼 추가 유량\"이라 전체 최소비용이 보장됩니다(볼록성). 최단 경로는 <b>음수 비용</b>(잔여 그래프의 역간선)이 생기므로 <b>벨만-포드/SPFA</b>로 구하거나, <b>퍼텐셜(Johnson 기법)</b>로 비용을 비음수화해 <b>다익스트라</b>로 가속합니다. 복잡도는 대략 O(유량 × 최단경로). 쓰임: <b>이분 매칭의 가중치판(작업-인력 배정)</b>, 운송 문제, 영상 분할 등.",
   "more_en": "<b>MCMF (Min-Cost Max-Flow)</b>: each edge has a <b>(cost per unit, capacity)</b>; push the <b>maximum flow</b> but among all max flows pick the one of <b>minimum total cost</b>. Idea: like Ford-Fulkerson but always augment along the <b>shortest path by cost</b> (Successive Shortest Paths) — since each step adds the cheapest extra unit of flow, the total is provably minimum (convexity). The shortest path can have <b>negative costs</b> (residual back-edges), so use <b>Bellman-Ford/SPFA</b>, or make costs non-negative with <b>potentials (Johnson)</b> to use <b>Dijkstra</b>. Roughly O(flow × shortest-path). Uses: <b>weighted bipartite matching (assignment)</b>, transportation problems, image segmentation.",
   "problem": {
    "q": "MCMF에서 증가 경로를 '아무거나'가 아니라 '비용 최단'으로 고르는 이유는?",
@@ -1760,15 +1782,17 @@
    "  }",
    "  return cost;  // 최대 유량 중 최소 비용",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 4
  },
  "algo_br_2sat": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "2-SAT — 함의 그래프와 SCC로 충족성 판정",
   "narr": "각 절이 리터럴 2개인 논리식의 충족 가능성을 선형 시간에 판정합니다. 핵심 변환은 절 <b>(a ∨ b)</b>를 'a가 거짓이면 b가 참'으로 읽어 두 함의 <b>¬a → b, ¬b → a</b>로 바꾸는 것입니다. 변수마다 정점 x와 ¬x를 두고 모든 함의를 간선으로 그리면 <b>함의 그래프</b>가 됩니다. 이제 <b>강한 연결 요소(SCC)</b>로 묶습니다. 어떤 변수의 x와 ¬x가 같은 SCC에 있으면 x→¬x와 ¬x→x가 모두 성립해, 어떤 값을 줘도 모순이라 <b>충족 불가</b>입니다. 모두 다른 SCC면 충족 가능하고, 위상 역순으로 늦게 오는 쪽을 참으로 배정하면 실제 해가 나옵니다. Tarjan SCC로 <b>O(V+E)</b>입니다.",
   "hint": "",
-  "more": "<b>2-SAT</b>은 각 절이 리터럴 2개인 논리식의 충족 가능성 문제입니다. 핵심 변환: 절 <b>(a ∨ b)</b>는 \"a가 거짓이면 b가 참이어야 한다\"이므로 두 함의 <b>¬a → b</b>, <b>¬b → a</b>로 바뀝니다. 변수 x마다 정점 <b>x</b>와 <b>¬x</b>를 두고 모든 함의를 간선으로 그리면 <b>함의 그래프</b>가 됩니다. 판정: <b>강한 연결 요소(SCC)</b>로 묶었을 때, 어떤 변수 x에 대해 <b>x와 ¬x가 같은 SCC</b>에 있으면 \"x ⇒ ¬x\"이자 \"¬x ⇒ x\"라 모순 → <b>충족 불가</b>. 모든 변수가 다른 SCC면 충족 가능하고, <b>SCC 위상 역순으로 늦게 오는 쪽을 참</b>으로 배정하면 실제 해가 나옵니다. Tarjan/코사라주 SCC로 전체 <b>O(V+E)</b>.",
+  "more": "​참/거짓 제약의 충족성을 <b>함의 그래프 SCC</b>로 — 2-SAT. <b>2-SAT</b>은 각 절이 리터럴 2개인 논리식의 충족 가능성 문제입니다. 핵심 변환: 절 <b>(a ∨ b)</b>는 \"a가 거짓이면 b가 참이어야 한다\"이므로 두 함의 <b>¬a → b</b>, <b>¬b → a</b>로 바뀝니다. 변수 x마다 정점 <b>x</b>와 <b>¬x</b>를 두고 모든 함의를 간선으로 그리면 <b>함의 그래프</b>가 됩니다. 판정: <b>강한 연결 요소(SCC)</b>로 묶었을 때, 어떤 변수 x에 대해 <b>x와 ¬x가 같은 SCC</b>에 있으면 \"x ⇒ ¬x\"이자 \"¬x ⇒ x\"라 모순 → <b>충족 불가</b>. 모든 변수가 다른 SCC면 충족 가능하고, <b>SCC 위상 역순으로 늦게 오는 쪽을 참</b>으로 배정하면 실제 해가 나옵니다. Tarjan/코사라주 SCC로 전체 <b>O(V+E)</b>.",
   "more_en": "<b>2-SAT</b> decides satisfiability of a formula where every clause has two literals. Key transform: clause <b>(a ∨ b)</b> means \"if a is false then b must be true,\" i.e. two implications <b>¬a → b</b> and <b>¬b → a</b>. Make a vertex for each literal <b>x</b> and <b>¬x</b>, draw all implications → the <b>implication graph</b>. Decision: take <b>strongly connected components (SCC)</b>; if for any variable <b>x and ¬x lie in the same SCC</b>, then x ⇒ ¬x and ¬x ⇒ x — a contradiction → <b>unsatisfiable</b>. Otherwise satisfiable; assign each variable by <b>the SCC that comes later in reverse topological order = true</b> to recover a solution. With Tarjan/Kosaraju SCC the whole thing is <b>O(V+E)</b>.",
   "problem": {
    "q": "2-SAT에서 어떤 변수 x의 x와 ¬x가 같은 SCC에 있으면 왜 충족 불가일까?",
@@ -1786,15 +1810,17 @@
    "for(int v=0; v<N; v+=2)          // 위상 늦은 쪽=참",
    "  value[v] = comp[v] > comp[v^1];",
    "// O(V+E)"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 5
  },
  "algo_br_euler": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "오일러 경로 — 모든 간선을 한 번씩 (한붓그리기)",
   "narr": "쾨니히스베르크 다리 문제에서 시작된, 모든 <b>간선</b>을 정확히 한 번씩 지나는 길이 <b>오일러 경로</b>입니다(시작=끝이면 회로). 존재 조건은 차수만 세면 됩니다. 그래프가 연결되어 있고, <b>홀수 차수 정점</b>이 0개면 오일러 회로, 정확히 2개면 그 둘을 양 끝으로 하는 오일러 경로가 있고, 그 외엔 불가능합니다. 구성은 <b>히어홀저 알고리즘</b>으로, 막힐 때까지 걷다가 막히면 스택에 쌓고 아직 안 쓴 간선이 남은 정점에서 곁가지 회로를 끼워 넣어 <b>O(E)</b>에 만듭니다. 정점을 한 번씩 지나는 해밀턴 경로는 이름은 비슷해도 NP-난해라 완전히 다릅니다. DNA 조립·회로 배선에 쓰입니다.",
   "hint": "",
-  "more": "<b>오일러 경로</b>는 그래프의 <b>모든 간선을 정확히 한 번씩</b> 지나는 경로입니다(시작=끝이면 <b>오일러 회로</b>). 존재 조건은 놀랍도록 단순합니다 — 그래프가 (간선 기준) <b>연결</b>되어 있고, <b>홀수 차수 정점의 개수</b>가 ① <b>0개면 오일러 회로</b>(아무 데서나 시작), ② <b>정확히 2개면 오일러 경로</b>(그 두 정점이 각각 시작·끝). 그 외엔 불가능. 구성은 <b>히어홀저(Hierholzer) 알고리즘</b>: 막힐 때까지 걷다가 막히면 스택에 쌓고, 아직 안 쓴 간선이 남은 정점에서 \"곁가지 회로\"를 찾아 끼워 넣습니다 → 전체 <b>O(E)</b>. 정점을 한 번씩 지나는 <b>해밀턴 경로</b>는 이름은 비슷해도 NP-난해라 완전히 다릅니다. 쓰임: DNA 조립(de Bruijn 그래프), 회로 배선, 제설차 경로.",
+  "more": "​모든 간선을 한 번씩 — <b>오일러 경로</b>(한붓그리기). <b>오일러 경로</b>는 그래프의 <b>모든 간선을 정확히 한 번씩</b> 지나는 경로입니다(시작=끝이면 <b>오일러 회로</b>). 존재 조건은 놀랍도록 단순합니다 — 그래프가 (간선 기준) <b>연결</b>되어 있고, <b>홀수 차수 정점의 개수</b>가 ① <b>0개면 오일러 회로</b>(아무 데서나 시작), ② <b>정확히 2개면 오일러 경로</b>(그 두 정점이 각각 시작·끝). 그 외엔 불가능. 구성은 <b>히어홀저(Hierholzer) 알고리즘</b>: 막힐 때까지 걷다가 막히면 스택에 쌓고, 아직 안 쓴 간선이 남은 정점에서 \"곁가지 회로\"를 찾아 끼워 넣습니다 → 전체 <b>O(E)</b>. 정점을 한 번씩 지나는 <b>해밀턴 경로</b>는 이름은 비슷해도 NP-난해라 완전히 다릅니다. 쓰임: DNA 조립(de Bruijn 그래프), 회로 배선, 제설차 경로.",
   "more_en": "An <b>Eulerian path</b> traverses <b>every edge exactly once</b> (if start = end, an <b>Eulerian circuit</b>). The existence condition is strikingly simple — the graph must be <b>connected</b> (over its edges) and the number of <b>odd-degree vertices</b> must be ① <b>0 for a circuit</b> (start anywhere), or ② <b>exactly 2 for a path</b> (those two are the endpoints); otherwise impossible. Construction uses <b>Hierholzer's algorithm</b>: walk until stuck, push to a stack, then splice in side-circuits from vertices with unused edges → <b>O(E)</b> total. The similarly named <b>Hamiltonian path</b> (visit every vertex once) is NP-hard and completely different. Uses: DNA assembly (de Bruijn graphs), circuit routing, snowplow routing.",
   "problem": {
    "q": "홀수 차수 정점이 4개인 연결 그래프에 오일러 경로가 있을까?",
@@ -1814,15 +1840,17 @@
    "  }",
    "  path.push_back(u);             // 후위로 경로",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 9
  },
  "algo_br_01bfs": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "0-1 BFS — 가중치 0/1 그래프의 최단경로 O(V+E)",
   "narr": "일반 BFS는 간선 가중치가 같을 때만 최단거리를 줍니다. 가중치가 <b>0과 1뿐</b>이라면 다익스트라의 우선순위 큐까지 갈 것 없이 <b>덱</b> 하나로 풀립니다. 정점을 꺼내 이웃을 볼 때, <b>가중치 0 간선이면 덱의 앞에</b>(거리가 같으니 같은 층), <b>가중치 1 간선이면 뒤에</b>(거리 +1, 다음 층) 넣습니다. 이러면 덱이 항상 거리 오름차순을 유지해 BFS의 층 구조가 보존되고, 각 정점은 처음 꺼낼 때 거리가 확정됩니다. 우선순위 큐가 없어 <b>O(V+E)</b>입니다. 미로에서 벽을 최소 몇 번 부수나, 방향 전환 최소화 같은 0/1 비용 길찾기의 정석입니다.",
   "hint": "",
-  "more": "<b>0-1 BFS</b>는 모든 간선 가중치가 <b>0 또는 1</b>인 그래프의 단일 출발점 최단경로를 구합니다. 일반 BFS는 가중치가 같을 때만 맞지만, 0/1이면 <b>덱</b>을 쓰는 작은 변형으로 해결됩니다 — 정점을 꺼내 이웃을 볼 때, <b>가중치 0 간선이면 덱의 맨 앞에</b>(거리가 같으니 같은 \"층\"), <b>가중치 1 간선이면 맨 뒤에</b>(거리 +1, 다음 \"층\") 넣습니다. 이러면 덱이 항상 \"거리 오름차순\"을 유지해(BFS의 층 구조 보존) 우선순위 큐 없이 <b>O(V+E)</b>. 각 정점은 처음 꺼낼 때 거리가 확정됩니다. 쓰임: <b>격자에서 장애물 통과 비용</b>(벽 부수기 0/1), 방향 전환 최소화, 일부 간선만 비용이 드는 길찾기. 가중치가 0~k면 <b>다익스트라</b>나 <b>다이얼(Dial)</b> 기법으로 확장합니다.",
+  "more": "​가중치가 0/1뿐이라면 덱으로 <b>O(V+E)</b>에. <b>0-1 BFS</b>는 모든 간선 가중치가 <b>0 또는 1</b>인 그래프의 단일 출발점 최단경로를 구합니다. 일반 BFS는 가중치가 같을 때만 맞지만, 0/1이면 <b>덱</b>을 쓰는 작은 변형으로 해결됩니다 — 정점을 꺼내 이웃을 볼 때, <b>가중치 0 간선이면 덱의 맨 앞에</b>(거리가 같으니 같은 \"층\"), <b>가중치 1 간선이면 맨 뒤에</b>(거리 +1, 다음 \"층\") 넣습니다. 이러면 덱이 항상 \"거리 오름차순\"을 유지해(BFS의 층 구조 보존) 우선순위 큐 없이 <b>O(V+E)</b>. 각 정점은 처음 꺼낼 때 거리가 확정됩니다. 쓰임: <b>격자에서 장애물 통과 비용</b>(벽 부수기 0/1), 방향 전환 최소화, 일부 간선만 비용이 드는 길찾기. 가중치가 0~k면 <b>다익스트라</b>나 <b>다이얼(Dial)</b> 기법으로 확장합니다.",
   "more_en": "<b>0-1 BFS</b> finds single-source shortest paths when every edge weight is <b>0 or 1</b>. Plain BFS only works for equal weights, but for 0/1 a small <b>deque</b> variant suffices — when relaxing a neighbor, push it to the <b>front for a weight-0 edge</b> (same distance, same \"layer\") and to the <b>back for a weight-1 edge</b> (distance +1, next layer). The deque thus stays in nondecreasing distance order (preserving BFS's layering), giving <b>O(V+E)</b> with no priority queue; each vertex's distance is fixed when first popped. Uses: <b>grid traversal with obstacle costs</b> (break-a-wall 0/1), minimizing turns, routing where only some edges cost. For weights 0..k, extend with <b>Dijkstra</b> or <b>Dial's algorithm</b>.",
   "problem": {
    "q": "0-1 BFS에서 가중치 0 간선으로 만난 정점을 덱의 '앞'에 넣는 이유는?",
@@ -1842,7 +1870,9 @@
    "      else     dq.push_back(v);   // 1이면 뒤로",
    "    }",
    "}   // O(V+E), 우선순위큐 불필요"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 4
  },
  "algo_br_suffixarray": {
   "ch": "알고리즘 제4장 탐색",
@@ -2271,11 +2301,11 @@
  },
  "algo_br_bridge": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "단절점·다리 — 그래프의 약한 고리 찾기",
   "narr": "네트워크에서 한 군데가 끊기면 전체가 두 동강 나는 취약점을 DFS 한 번으로 찾습니다. <b>다리</b>는 제거하면 연결 요소가 늘어나는 간선, <b>단절점</b>은 그런 정점입니다. 각 정점에 발견 시각 tin[v]와, 서브트리에서 역방향 간선으로 거슬러 올라갈 수 있는 가장 이른 시각 low[v]를 계산합니다. 트리 간선 (u,v)에서 <b>low[v] > tin[u]</b>면 v 쪽이 u를 거치지 않고는 위로 못 가므로 (u,v)는 다리입니다. 단절점은 루트면 자식이 2개 이상, 아니면 어떤 자식에 low[v] ≥ tin[u]인 경우입니다. 전체 <b>O(V+E)</b>로, 네트워크 단일 장애점 분석과 이중 연결 요소 분해에 쓰입니다.",
   "hint": "",
-  "more": "<b>다리(bridge)</b>는 <b>제거하면 연결 요소가 늘어나는 간선</b>, <b>단절점(articulation point)</b>은 그런 정점입니다. 둘 다 DFS 한 번으로 찾습니다 — 각 정점에 <b>발견 시각 tin[v]</b>와, v의 서브트리에서 <b>역방향(back) 간선으로 거슬러 올라갈 수 있는 가장 이른 시각 low[v]</b>를 계산합니다. 판정: ① 트리 간선 (u, v)에서 <b>low[v] > tin[u]</b> 면 v 쪽은 u를 거치지 않고는 위로 못 가므로 <b>(u,v)는 다리</b>. ② 정점 u가 단절점인 조건: u가 루트면 <b>자식이 2개 이상</b>, 루트가 아니면 어떤 자식 v에 대해 <b>low[v] ≥ tin[u]</b>(그 서브트리가 u 위로 우회 못 함). 전체 <b>O(V+E)</b>. 쓰임: 네트워크 신뢰도(단일 장애점), 2-에지/2-정점 연결성 분해, 회로·도로망 취약점 분석. 더 나아가 <b>이중 연결 요소(BCC)</b>로 그래프를 견고한 덩어리로 나눕니다.",
+  "more": "​끊으면 그래프가 쪼개지는 <b>약한 고리</b> — 단절점·다리. <b>다리(bridge)</b>는 <b>제거하면 연결 요소가 늘어나는 간선</b>, <b>단절점(articulation point)</b>은 그런 정점입니다. 둘 다 DFS 한 번으로 찾습니다 — 각 정점에 <b>발견 시각 tin[v]</b>와, v의 서브트리에서 <b>역방향(back) 간선으로 거슬러 올라갈 수 있는 가장 이른 시각 low[v]</b>를 계산합니다. 판정: ① 트리 간선 (u, v)에서 <b>low[v] > tin[u]</b> 면 v 쪽은 u를 거치지 않고는 위로 못 가므로 <b>(u,v)는 다리</b>. ② 정점 u가 단절점인 조건: u가 루트면 <b>자식이 2개 이상</b>, 루트가 아니면 어떤 자식 v에 대해 <b>low[v] ≥ tin[u]</b>(그 서브트리가 u 위로 우회 못 함). 전체 <b>O(V+E)</b>. 쓰임: 네트워크 신뢰도(단일 장애점), 2-에지/2-정점 연결성 분해, 회로·도로망 취약점 분석. 더 나아가 <b>이중 연결 요소(BCC)</b>로 그래프를 견고한 덩어리로 나눕니다.",
   "more_en": "A <b>bridge</b> is an edge whose removal increases the number of connected components; an <b>articulation point</b> is such a vertex. Both are found in one DFS — compute each vertex's <b>discovery time tin[v]</b> and <b>low[v]</b>, the earliest time reachable from v's subtree via a back edge. Tests: ① for a tree edge (u, v), if <b>low[v] > tin[u]</b> then v's side cannot get above u except through it, so <b>(u,v) is a bridge</b>; ② u is an articulation point if it is the root with <b>≥2 children</b>, or a non-root with some child v where <b>low[v] ≥ tin[u]</b> (that subtree cannot bypass u). All in <b>O(V+E)</b>. Uses: network reliability (single points of failure), 2-edge/2-vertex connectivity, decomposition into <b>biconnected components</b>.",
   "problem": {
    "q": "트리 간선 (u,v)가 '다리'인 조건을 tin/low로 쓰면?",
@@ -2296,7 +2326,9 @@
    "    }",
    "  }",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 6
  },
  "algo_br_bipartite": {
   "ch": "알고리즘 제6장 그래프",
@@ -2328,11 +2360,11 @@
  },
  "algo_br_blossom": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.3 최단경로·플로우 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "일반 그래프 최대 매칭 — 에드몬즈 블로섬",
   "narr": "이분 그래프 매칭은 증가 경로를 찾아 뒤집으면 풀리지만, <b>일반 그래프</b>엔 <b>홀수 길이 교대 사이클(블로섬)</b>이라는 함정이 있습니다. 같은 정점이 매칭·비매칭 양쪽으로 보여 BFS가 꼬이기 때문입니다. <b>에드몬즈 블로섬 알고리즘</b>은 블로섬을 발견하면 그 사이클 전체를 하나의 슈퍼 정점으로 <b>수축</b>합니다. 수축하면 그 모순이 사라져 이분 그래프처럼 증가 경로를 찾을 수 있고, 경로를 찾은 뒤 다시 펼쳐 매칭을 복원합니다. 덕분에 일반 그래프도 다항시간 <b>O(V³)</b>(정교한 구현은 O(E√V))에 최대 매칭을 구합니다. 가중치판은 가중 블로섬으로 확장되어 당번 배정·화학 결합에 쓰입니다.",
   "hint": "",
-  "more": "<b>최대 매칭</b>은 정점을 공유하지 않는 간선을 최대한 많이 고르는 문제입니다. 이분 그래프에선 <b>증가 경로(augmenting path)</b>를 찾아 뒤집으면 풀리지만(헝가리안), <b>일반 그래프</b>에선 <b>홀수 길이 교대 사이클(블로섬)</b>이 증가 경로 탐색을 망칩니다 — 같은 정점이 매칭/비매칭 양쪽으로 보여 BFS가 꼬입니다. <b>에드몬즈 블로섬 알고리즘</b>의 핵심: 블로섬을 발견하면 <b>그 사이클 전체를 하나의 슈퍼 정점으로 수축</b>해 그래프를 단순화하고, 거기서 증가 경로를 찾은 뒤 <b>다시 펼쳐(확장)</b> 매칭을 복원합니다. 이 수축 덕에 일반 그래프도 이분처럼 다룰 수 있어 <b>O(V³)</b>(정교한 구현은 O(V·E) 또는 O(E√V))에 최대 매칭을 구합니다. 가중치판은 더 복잡한 <b>가중 블로섬</b>으로 확장됩니다. 쓰임: 짝짓기·당번 배정·화학 결합·일반적 \"겹치지 않는 쌍 최대화\".",
+  "more": "​이분이 아닌 <b>일반 그래프</b> 매칭 — 에드몬즈 블로섬. <b>최대 매칭</b>은 정점을 공유하지 않는 간선을 최대한 많이 고르는 문제입니다. 이분 그래프에선 <b>증가 경로(augmenting path)</b>를 찾아 뒤집으면 풀리지만(헝가리안), <b>일반 그래프</b>에선 <b>홀수 길이 교대 사이클(블로섬)</b>이 증가 경로 탐색을 망칩니다 — 같은 정점이 매칭/비매칭 양쪽으로 보여 BFS가 꼬입니다. <b>에드몬즈 블로섬 알고리즘</b>의 핵심: 블로섬을 발견하면 <b>그 사이클 전체를 하나의 슈퍼 정점으로 수축</b>해 그래프를 단순화하고, 거기서 증가 경로를 찾은 뒤 <b>다시 펼쳐(확장)</b> 매칭을 복원합니다. 이 수축 덕에 일반 그래프도 이분처럼 다룰 수 있어 <b>O(V³)</b>(정교한 구현은 O(V·E) 또는 O(E√V))에 최대 매칭을 구합니다. 가중치판은 더 복잡한 <b>가중 블로섬</b>으로 확장됩니다. 쓰임: 짝짓기·당번 배정·화학 결합·일반적 \"겹치지 않는 쌍 최대화\".",
   "more_en": "<b>Maximum matching</b> selects as many vertex-disjoint edges as possible. In bipartite graphs you flip <b>augmenting paths</b> (Hungarian), but in <b>general graphs</b> an <b>odd-length alternating cycle (blossom)</b> breaks augmenting-path search — a vertex appears on both matched and unmatched sides, tangling the BFS. The heart of <b>Edmonds' blossom algorithm</b>: when a blossom is found, <b>contract the whole cycle into one super-vertex</b> to simplify the graph, find an augmenting path there, then <b>expand it back</b> to recover the matching. This contraction lets general graphs behave like bipartite ones, giving max matching in <b>O(V³)</b> (refined: O(V·E) or O(E√V)). The weighted version extends to the more involved <b>weighted blossom</b>. Uses: pairing, on-call assignment, chemical bonds, general \"maximize disjoint pairs.\"",
   "problem": {
    "q": "일반 그래프 매칭에서 '블로섬'을 수축하는 이유는?",
@@ -2349,15 +2381,17 @@
    "  else if(증대경로) augment();",
    "}",
    "// O(V^3). 이분이 아닌 그래프도 처리"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 4
  },
  "algo_br_daglongest": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.2 그래프 탐색 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "DAG 최장 경로 — 임계 경로와 일정 관리",
   "narr": "그래프 탐색에서 DFS의 응용으로 이름만 짚고 넘어간 <b>위상정렬</b>이 여기서 빛을 발합니다. 일반 그래프의 <b>최장 경로</b>는 NP-난해라 손도 못 대지만, <b>사이클 없는 DAG</b>에선 다릅니다. 위상정렬로 정점을 '선행이 모두 끝난 순서'로 줄 세우면, 그 순서대로 <b>dist[v]=max(dist[u]+w)</b>를 한 번씩만 완화해도 됩니다. 앞선 정점의 답이 이미 확정돼 있으니 갱신이 단 한 번으로 끝나 <b>O(V+E)</b>입니다. 작업을 정점, 소요시간을 가중치로 보면 이 최장 경로가 곧 프로젝트 <b>임계 경로(CPM)</b>이며, 그 위의 작업은 하루만 늦어도 전체가 늦어집니다. 빌드·일정 관리의 핵심입니다.",
   "hint": "",
-  "more": "<b>DAG 최장 경로</b>: 가중 방향 비순환 그래프에서 가장 긴 경로(또는 시작에서 각 정점까지의 최장 거리)를 구합니다. 일반 그래프라면 NP-난해지만, <b>위상 정렬</b>로 정점을 \"선행이 모두 끝난 순서\"로 줄 세우면, 그 순서대로 <b>dist[v] = max(dist[u] + w(u,v))</b>를 한 번씩 완화하기만 하면 됩니다 → <b>O(V+E)</b>(최단 경로도 max를 min으로 바꾸면 동일, 음수 가중치도 OK). 대표 응용이 <b>임계 경로법(CPM)</b>: 작업을 정점, 선행 관계를 간선, 소요시간을 가중치로 두면 <b>최장 경로 = 프로젝트 최소 완료 시간</b>이고, 그 경로 위의 작업들(임계 작업)은 <b>단 하루도 늦으면 전체가 늦어집니다</b>. 쓰임: 빌드 시스템·작업 스케줄링·컴파일 의존성·공정 관리.",
+  "more": "​DAG의 <b>최장 경로</b> — 임계 경로·일정. <b>DAG 최장 경로</b>: 가중 방향 비순환 그래프에서 가장 긴 경로(또는 시작에서 각 정점까지의 최장 거리)를 구합니다. 일반 그래프라면 NP-난해지만, <b>위상 정렬</b>로 정점을 \"선행이 모두 끝난 순서\"로 줄 세우면, 그 순서대로 <b>dist[v] = max(dist[u] + w(u,v))</b>를 한 번씩 완화하기만 하면 됩니다 → <b>O(V+E)</b>(최단 경로도 max를 min으로 바꾸면 동일, 음수 가중치도 OK). 대표 응용이 <b>임계 경로법(CPM)</b>: 작업을 정점, 선행 관계를 간선, 소요시간을 가중치로 두면 <b>최장 경로 = 프로젝트 최소 완료 시간</b>이고, 그 경로 위의 작업들(임계 작업)은 <b>단 하루도 늦으면 전체가 늦어집니다</b>. 쓰임: 빌드 시스템·작업 스케줄링·컴파일 의존성·공정 관리.",
   "more_en": "<b>Longest path in a DAG</b>: find the longest path (or longest distance from a source to each vertex) in a weighted directed acyclic graph. In general graphs this is NP-hard, but with a <b>topological sort</b> ordering vertices so all predecessors come first, you simply relax <b>dist[v] = max(dist[u] + w(u,v))</b> once each in that order → <b>O(V+E)</b> (shortest path is the same with min; negative weights are fine). The flagship use is the <b>Critical Path Method (CPM)</b>: with tasks as vertices, precedence as edges, durations as weights, the <b>longest path = minimum project completion time</b>, and tasks on it (critical tasks) <b>delay the whole project if delayed at all</b>. Uses: build systems, job scheduling, compile dependencies, project management.",
   "problem": {
    "q": "왜 일반 그래프 최장경로는 NP-난해인데 DAG에선 O(V+E)일까?",
@@ -2376,7 +2410,9 @@
    "  return maxOf(dp);",
    "}",
    "// 각 간선 한 번 → O(V+E). 사이클 없어 순서 보장"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 12
  },
  "algo_br_sam": {
   "ch": "알고리즘 제4장 탐색",
@@ -3200,11 +3236,11 @@
  },
  "algo_br_hungarian": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "헝가리안 알고리즘 — 최소 비용 1:1 할당",
   "narr": "최단 경로를 다루는 흐름에서 만나는 최적 할당 알고리즘입니다. n명을 n개 일에 1:1로 배정해 총비용을 최소로 하려면 모든 배정이 n!이지만, <b>헝가리안 알고리즘</b>은 <b>O(n³)</b>입니다. 토대는 '<b>한 행(열) 전체에서 같은 상수를 빼도 최적 배정 위치는 변하지 않는다</b>'는 관찰입니다. ①각 행, ②각 열에서 최솟값을 빼면 0이 많아지고, ③그 0들만으로 완전 매칭이 되면 그게 최적입니다. ④안 되면 쾨니그 정리로 '0을 덮는 최소 직선 수'를 구해 덮이지 않은 칸의 최솟값을 빼고 교차점에 더해 0을 더 만든 뒤 다시 매칭합니다. 동등하게 <b>퍼텐셜을 유지하며 증대 경로를 찾는</b> 쿤-먼크레스 구현이 표준입니다. 작업-기계 배정, 검출-궤적 연결에 쓰입니다.",
   "hint": "",
-  "more": "<b>헝가리안 알고리즘(Hungarian algorithm, 쿤-먼크레스)</b>은 <b>할당 문제</b>(n×n 비용 행렬에서 각 행과 각 열을 정확히 하나씩 골라 총합 최소)를 <b>O(n³)</b>에 정확히 풉니다. 토대가 되는 관찰: <b>한 행(또는 열) 전체에서 같은 상수를 빼도 최적 할당의 위치는 변하지 않는다</b>(총비용만 그만큼 줄어듦). 그래서 ① 각 행에서 그 행의 최솟값을 빼고, ② 각 열에서도 최솟값을 빼면 행렬에 <b>0이 많이</b> 생깁니다. ③ 이 <b>0들만으로 완전 매칭</b>(서로 다른 행·열의 0을 n개)이 가능하면 그게 최적입니다. ④ 안 되면 <b>쾨니그 정리</b>로 \"모든 0을 덮는 최소 직선 수 = 0 위 최대 매칭\"을 구해, 덮이지 않은 칸들의 최솟값을 빼고 교차점에 더해 0을 더 만든 뒤 다시 매칭을 시도합니다. 이를 완전 매칭이 될 때까지 반복합니다. 동등하게, <b>이분 그래프의 최소 비용 완전 매칭</b>으로 보고 <b>퍼텐셜(라벨)</b>을 유지하며 증대 경로를 찾는 O(n³) 구현(쿤-먼크레스)이 표준입니다. 쓰임: 작업-기계 배정, 추적에서 검출-궤적 연결, 이미지 대응, 최소 비용 완전 매칭이 필요한 모든 곳.",
+  "more": "​가중치가 있을 때 <b>최소 비용 1:1 할당</b> — 헝가리안. <b>헝가리안 알고리즘(Hungarian algorithm, 쿤-먼크레스)</b>은 <b>할당 문제</b>(n×n 비용 행렬에서 각 행과 각 열을 정확히 하나씩 골라 총합 최소)를 <b>O(n³)</b>에 정확히 풉니다. 토대가 되는 관찰: <b>한 행(또는 열) 전체에서 같은 상수를 빼도 최적 할당의 위치는 변하지 않는다</b>(총비용만 그만큼 줄어듦). 그래서 ① 각 행에서 그 행의 최솟값을 빼고, ② 각 열에서도 최솟값을 빼면 행렬에 <b>0이 많이</b> 생깁니다. ③ 이 <b>0들만으로 완전 매칭</b>(서로 다른 행·열의 0을 n개)이 가능하면 그게 최적입니다. ④ 안 되면 <b>쾨니그 정리</b>로 \"모든 0을 덮는 최소 직선 수 = 0 위 최대 매칭\"을 구해, 덮이지 않은 칸들의 최솟값을 빼고 교차점에 더해 0을 더 만든 뒤 다시 매칭을 시도합니다. 이를 완전 매칭이 될 때까지 반복합니다. 동등하게, <b>이분 그래프의 최소 비용 완전 매칭</b>으로 보고 <b>퍼텐셜(라벨)</b>을 유지하며 증대 경로를 찾는 O(n³) 구현(쿤-먼크레스)이 표준입니다. 쓰임: 작업-기계 배정, 추적에서 검출-궤적 연결, 이미지 대응, 최소 비용 완전 매칭이 필요한 모든 곳.",
   "more_en": "The <b>Hungarian algorithm (Kuhn-Munkres)</b> solves the <b>assignment problem</b> (pick exactly one entry per row and column of an n×n cost matrix to minimize the total) exactly in <b>O(n³)</b>. The key observation: <b>subtracting a constant from an entire row (or column) does not change where the optimal assignment is</b> (only the total cost drops). So ① subtract each row's minimum, ② subtract each column's minimum, creating <b>many zeros</b>. ③ If a <b>complete matching using only zeros</b> exists (n zeros in distinct rows and columns), it is optimal. ④ Otherwise, by <b>König's theorem</b> find \"minimum lines covering all zeros = maximum matching on zeros,\" subtract the minimum uncovered value and add it at line intersections to create more zeros, then retry — repeating until a complete matching forms. Equivalently, view it as <b>minimum-cost perfect matching in a bipartite graph</b> and maintain <b>potentials (labels)</b> while finding augmenting paths (the standard O(n³) Kuhn-Munkres). Uses: job-to-machine assignment, detection-to-track association in tracking, image correspondence — anywhere minimum-cost perfect matching is needed.",
   "problem": {
    "q": "헝가리안 알고리즘에서 '행/열에서 상수를 빼는' 조작이 정당한 이유는?",
@@ -3221,15 +3257,17 @@
    "  augment(i, u, v, p);           // 라벨 조정 + 매칭",
    "}",
    "// 결과: p[j] = j열에 배정된 행"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 3
  },
  "algo_br_hopcroft": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "호프크로프트-카프 — 이분 매칭을 O(E√V)에",
   "narr": "그래프 기초의 이분 매칭을 가속하는 알고리즘입니다. 증대 경로를 하나씩 DFS로 찾으면 O(VE)인데, <b>호프크로프트-카프</b>는 <b>O(E√V)</b>입니다. 각 라운드가 두 단계입니다 — ①<b>BFS</b>로 매칭 안 된 왼쪽 정점에서 출발해 매칭/비매칭 간선을 번갈아 밟는 최단 증대 경로 길이를 한 번에 구하고 정점을 레벨로 나눕니다, ②<b>DFS</b>로 그 최단 길이의 <b>정점-서로소 증대 경로들을 한꺼번에 모두</b> 증대합니다. 핵심 정리는 라운드가 진행될수록 최단 증대 경로 길이가 <b>엄격히 증가</b>하고, 길이가 √V를 넘으면 남은 부족분이 √V 이하임이 보장돼 <b>총 라운드가 O(√V)</b>라는 것입니다. 각 라운드가 O(E)라 전체 <b>O(E√V)</b>입니다. 이분 매칭에 특수화한 디닉이며, 대규모 자원 할당에 쓰입니다.",
   "hint": "",
-  "more": "<b>호프크로프트-카프(Hopcroft-Karp)</b>는 <b>이분 그래프 최대 매칭</b>을 <b>O(E√V)</b>에 구하는 알고리즘으로, 단순 증대(매번 한 개의 증대 경로를 DFS로 찾는 O(VE))를 개선합니다. 각 <b>라운드</b>는 두 단계입니다: ① <b>BFS</b>로 매칭되지 않은 왼쪽 정점들에서 출발해, 매칭/비매칭 간선을 번갈아 밟는 <b>최단 증대 경로의 길이</b>를 한 번에 구하고 정점들을 레벨로 나눕니다. ② <b>DFS</b>로 그 최단 길이의 <b>서로 정점-서로소인 증대 경로들을 한꺼번에 모두</b> 증대합니다(극대 집합). 핵심 정리: 라운드가 진행될수록 최단 증대 경로 길이가 <b>엄격히 증가</b>하고, 길이가 √V를 넘는 순간 남은 매칭 부족분이 √V 이하임이 보장되어 <b>총 라운드 수가 O(√V)</b>가 됩니다. 각 라운드가 O(E)이므로 전체 <b>O(E√V)</b>. 이는 일반 그래프의 <b>디닉 알고리즘</b>을 이분 매칭(모든 용량 1)에 특수화한 것과 본질적으로 같습니다. 쓰임: 대규모 이분 매칭(작업 배정, 자원 할당, 안정/최대 매칭의 토대), 호프크로프트-카프로 빠르게 최대 매칭을 얻은 뒤 쾨니그 정리로 최소 정점 덮개도 구성합니다.",
+  "more": "​이분 매칭을 <b>O(E√V)</b>로 빠르게 — 호프크로프트-카프. <b>호프크로프트-카프(Hopcroft-Karp)</b>는 <b>이분 그래프 최대 매칭</b>을 <b>O(E√V)</b>에 구하는 알고리즘으로, 단순 증대(매번 한 개의 증대 경로를 DFS로 찾는 O(VE))를 개선합니다. 각 <b>라운드</b>는 두 단계입니다: ① <b>BFS</b>로 매칭되지 않은 왼쪽 정점들에서 출발해, 매칭/비매칭 간선을 번갈아 밟는 <b>최단 증대 경로의 길이</b>를 한 번에 구하고 정점들을 레벨로 나눕니다. ② <b>DFS</b>로 그 최단 길이의 <b>서로 정점-서로소인 증대 경로들을 한꺼번에 모두</b> 증대합니다(극대 집합). 핵심 정리: 라운드가 진행될수록 최단 증대 경로 길이가 <b>엄격히 증가</b>하고, 길이가 √V를 넘는 순간 남은 매칭 부족분이 √V 이하임이 보장되어 <b>총 라운드 수가 O(√V)</b>가 됩니다. 각 라운드가 O(E)이므로 전체 <b>O(E√V)</b>. 이는 일반 그래프의 <b>디닉 알고리즘</b>을 이분 매칭(모든 용량 1)에 특수화한 것과 본질적으로 같습니다. 쓰임: 대규모 이분 매칭(작업 배정, 자원 할당, 안정/최대 매칭의 토대), 호프크로프트-카프로 빠르게 최대 매칭을 얻은 뒤 쾨니그 정리로 최소 정점 덮개도 구성합니다.",
   "more_en": "<b>Hopcroft-Karp</b> computes <b>maximum bipartite matching</b> in <b>O(E√V)</b>, improving on simple augmentation (finding one augmenting path per DFS, O(VE)). Each <b>round</b> has two phases: ① a <b>BFS</b> from all unmatched left vertices finds the <b>length of the shortest augmenting path</b> (alternating matched/unmatched edges) at once and assigns levels; ② a <b>DFS</b> augments a <b>maximal set of vertex-disjoint shortest augmenting paths</b> simultaneously. Key theorem: the shortest augmenting-path length <b>strictly increases</b> each round, and once it exceeds √V the remaining deficiency is at most √V, bounding the <b>number of rounds by O(√V)</b>. With O(E) per round, the total is <b>O(E√V)</b>. This is essentially <b>Dinic's algorithm</b> specialized to bipartite matching (all capacities 1). Uses: large-scale bipartite matching (task/resource assignment, foundations of maximum/stable matching); after obtaining a maximum matching quickly, König's theorem builds the minimum vertex cover.",
   "problem": {
    "q": "호프크로프트-카프가 단순 증대(O(VE))보다 빠른 핵심 아이디어는?",
@@ -3245,15 +3283,17 @@
    "      matching++;",
    "}",
    "// 매 단계 최단경로 → √V 단계면 끝"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 2
  },
  "algo_br_stoerwagner": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "슈토어-바그너 — 전역 최소 컷",
   "narr": "최단 경로 자리에서 다루는, s·t를 정하지 않는 전역 최소 컷입니다. 최대유량/최소컷 정리는 <b>고정된 s,t</b>의 최소컷만 주지만, '어디든 상관없이 전체에서 가장 약한 절단'은 그것만으론 부족합니다. <b>슈토어-바그너</b>는 각 <b>단계</b>에서 임의 정점부터 <b>가장 인접 가중치가 큰 정점을 차례로 흡수</b>(prim과 유사)하면, 마지막에 추가된 t와 직전 s에 대해 <b>'t를 나머지 전체와 가르는 컷'이 그 단계의 s-t 최소컷</b>임이 보장됨을 이용합니다. 이 컷 값을 후보로 기록하고 마지막 두 정점을 <b>하나로 합쳐</b> 정점을 하나 줄입니다. n−1단계 반복하면 후보들의 최솟값이 전역 최소컷입니다. 각 단계가 O(V²)라 전체 <b>O(V³)</b>(또는 우선순위 큐로 O(VE+V²log V))입니다. 네트워크 신뢰도·이미지 분할에 쓰입니다.",
   "hint": "",
-  "more": "<b>슈토어-바그너(Stoer-Wagner)</b>는 <b>가중 무방향 그래프</b>의 <b>전역 최소 컷</b>(정점을 비지 않은 두 집합으로 나누는, 잘리는 간선 가중치 합이 최소인 분할)을 최대유량 없이 직접 구합니다. 최대유량/최소컷 정리는 <b>고정된 s, t</b> 쌍의 최소컷만 주므로, 전역 최소컷을 그 방식으로 구하려면 s를 고정하고 모든 t를 시도해야 합니다. 슈토어-바그너의 영리함: 각 <b>단계(phase)</b>에서 임의의 정점에서 시작해 <b>가장 인접 가중치가 큰 정점을 차례로 흡수</b>(최대 인접도 순서, prim과 유사)하면, 마지막에 추가된 정점 t와 그 직전 정점 s에 대해 \"<b>t를 나머지 전체와 가르는 컷(cut-of-the-phase)</b>\"이 <b>그 단계의 s-t 최소컷</b>임이 보장됩니다. 이 컷 값을 후보로 기록하고, <b>마지막 두 정점 s, t를 하나로 합쳐</b> 그래프를 한 정점 줄입니다. 정점이 하나 남을 때까지 n−1단계 반복하면, 기록된 후보들의 <b>최솟값이 전역 최소컷</b>입니다. 각 단계가 O(V²)(또는 우선순위 큐로 O(E + V log V))라 전체 <b>O(V³)</b> 또는 O(VE + V² log V). 쓰임: 네트워크 신뢰도(가장 끊기 쉬운 지점), 이미지 분할, 클러스터링, 그래프 연결 강도 측정.",
+  "more": "​s·t를 정하지 않는 <b>전역 최소 컷</b> — 슈토어-바그너. <b>슈토어-바그너(Stoer-Wagner)</b>는 <b>가중 무방향 그래프</b>의 <b>전역 최소 컷</b>(정점을 비지 않은 두 집합으로 나누는, 잘리는 간선 가중치 합이 최소인 분할)을 최대유량 없이 직접 구합니다. 최대유량/최소컷 정리는 <b>고정된 s, t</b> 쌍의 최소컷만 주므로, 전역 최소컷을 그 방식으로 구하려면 s를 고정하고 모든 t를 시도해야 합니다. 슈토어-바그너의 영리함: 각 <b>단계(phase)</b>에서 임의의 정점에서 시작해 <b>가장 인접 가중치가 큰 정점을 차례로 흡수</b>(최대 인접도 순서, prim과 유사)하면, 마지막에 추가된 정점 t와 그 직전 정점 s에 대해 \"<b>t를 나머지 전체와 가르는 컷(cut-of-the-phase)</b>\"이 <b>그 단계의 s-t 최소컷</b>임이 보장됩니다. 이 컷 값을 후보로 기록하고, <b>마지막 두 정점 s, t를 하나로 합쳐</b> 그래프를 한 정점 줄입니다. 정점이 하나 남을 때까지 n−1단계 반복하면, 기록된 후보들의 <b>최솟값이 전역 최소컷</b>입니다. 각 단계가 O(V²)(또는 우선순위 큐로 O(E + V log V))라 전체 <b>O(V³)</b> 또는 O(VE + V² log V). 쓰임: 네트워크 신뢰도(가장 끊기 쉬운 지점), 이미지 분할, 클러스터링, 그래프 연결 강도 측정.",
   "more_en": "<b>Stoer-Wagner</b> finds the <b>global minimum cut</b> of a <b>weighted undirected graph</b> (a partition into two non-empty sets minimizing the total weight of cut edges) directly, without max-flow. The max-flow/min-cut theorem gives only the min cut for a <b>fixed s, t</b> pair, so finding the global cut that way needs trying all t for a fixed s. Stoer-Wagner's trick: in each <b>phase</b>, start from any vertex and repeatedly <b>absorb the most tightly connected vertex</b> (maximum-adjacency order, Prim-like). Then for the last-added vertex t and the one before it s, the <b>cut separating t from the rest (the cut-of-the-phase)</b> is provably the <b>s-t minimum cut</b> of that phase. Record its value as a candidate, then <b>merge the last two vertices s, t</b> into one, shrinking the graph by a vertex. Repeat for n−1 phases until one vertex remains; the <b>minimum recorded candidate is the global min cut</b>. Each phase is O(V²) (or O(E + V log V) with a priority queue), giving <b>O(V³)</b> or O(VE + V² log V) total. Uses: network reliability (weakest link), image segmentation, clustering, measuring graph connectivity strength.",
   "problem": {
    "q": "슈토어-바그너가 전역 최소 컷을 s,t를 따로 고르지 않고 구할 수 있는 이유는?",
@@ -3272,7 +3312,9 @@
    "  }",
    "  return best;",
    "}   // O(V^3)"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 8
  },
  "algo_br_anneal": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -3575,11 +3617,11 @@
  },
  "algo_br_karger": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "카거 알고리즘 — 무작위 수축으로 최소 컷",
   "narr": "전역 최소 컷을 무작위 수축만으로 푸는 몬테카를로 알고리즘입니다. 슈토어-바그너는 결정론적이지만 다소 복잡한데, <b>카거</b>는 놀랍도록 단순합니다 — <b>간선을 무작위로 균등하게 골라 양 끝 정점을 하나로 수축</b>하기를 <b>정점이 둘 남을 때까지</b> 반복합니다(자기 루프는 제거, 다른 간선은 다중 간선으로 유지). 남은 두 슈퍼정점 사이 간선 수가 하나의 컷입니다. 핵심 분석은 어떤 고정 최소 컷이 한 번의 시행에서 <b>살아남을 확률이 ≥2/(n(n−1))</b>이라는 것이라, <b>O(n²)번 반복</b>하면 적어도 한 번 찾을 확률이 상수 이상이 되고 추가 O(log n)배로 실패 확률을 임의로 낮춥니다. <b>카거-스타인</b> 개선은 작아졌을 때만 더 자주 분기해 <b>O(n²log n)</b>에 높은 성공률을 냅니다.",
   "hint": "",
-  "more": "<b>카거 알고리즘(Karger's algorithm)</b>은 <b>무방향 그래프의 전역 최소 컷</b>을 찾는 <b>몬테카를로 랜덤 알고리즘</b>입니다. 한 번의 시행: <b>남은 간선 중 하나를 무작위로 균등하게 골라, 그 양 끝 정점을 하나로 수축(contract)</b>합니다(두 정점 사이 간선은 지우되, 각각이 다른 정점과 잇던 간선은 <b>다중 간선으로 유지</b> — 자기 루프는 제거). 이를 <b>정점이 2개</b> 남을 때까지 반복하면, 그 두 \"슈퍼정점\" 사이에 남은 간선 수가 <b>하나의 컷</b>이 됩니다(두 슈퍼정점이 원래 정점들을 두 집합으로 나눔). 핵심 분석: 어떤 고정된 최소 컷이 <b>한 번의 시행에서 살아남을(수축에 한 번도 안 뽑힐) 확률 ≥ 2/(n(n−1))</b>. 따라서 <b>O(n²)번 독립 반복</b>하면 적어도 한 번 최소 컷을 찾을 확률이 상수 이상으로 올라가고, 추가로 O(log n)배 반복하면 실패 확률을 임의로 낮춥니다 — 전체 O(n²·(반복당 비용)). <b>카거-스타인(Karger-Stein)</b> 개선: 그래프가 작아졌을 때(수축이 위험해질 때)만 더 자주 분기하는 재귀로 <b>O(n² log n)</b>에 높은 성공 확률을 얻어, 결정론적 방법과 경쟁합니다. 단순함과 분석의 우아함으로 랜덤 알고리즘 교육의 대표작입니다.",
+  "more": "​무작위 간선 수축으로 <b>최소 컷</b>을 — 카거. <b>카거 알고리즘(Karger's algorithm)</b>은 <b>무방향 그래프의 전역 최소 컷</b>을 찾는 <b>몬테카를로 랜덤 알고리즘</b>입니다. 한 번의 시행: <b>남은 간선 중 하나를 무작위로 균등하게 골라, 그 양 끝 정점을 하나로 수축(contract)</b>합니다(두 정점 사이 간선은 지우되, 각각이 다른 정점과 잇던 간선은 <b>다중 간선으로 유지</b> — 자기 루프는 제거). 이를 <b>정점이 2개</b> 남을 때까지 반복하면, 그 두 \"슈퍼정점\" 사이에 남은 간선 수가 <b>하나의 컷</b>이 됩니다(두 슈퍼정점이 원래 정점들을 두 집합으로 나눔). 핵심 분석: 어떤 고정된 최소 컷이 <b>한 번의 시행에서 살아남을(수축에 한 번도 안 뽑힐) 확률 ≥ 2/(n(n−1))</b>. 따라서 <b>O(n²)번 독립 반복</b>하면 적어도 한 번 최소 컷을 찾을 확률이 상수 이상으로 올라가고, 추가로 O(log n)배 반복하면 실패 확률을 임의로 낮춥니다 — 전체 O(n²·(반복당 비용)). <b>카거-스타인(Karger-Stein)</b> 개선: 그래프가 작아졌을 때(수축이 위험해질 때)만 더 자주 분기하는 재귀로 <b>O(n² log n)</b>에 높은 성공 확률을 얻어, 결정론적 방법과 경쟁합니다. 단순함과 분석의 우아함으로 랜덤 알고리즘 교육의 대표작입니다.",
   "more_en": "<b>Karger's algorithm</b> finds the <b>global minimum cut</b> of an undirected graph as a <b>Monte Carlo randomized algorithm</b>. One trial: <b>pick a remaining edge uniformly at random and contract its two endpoints into one</b> (delete edges between them but <b>keep parallel edges</b> to other vertices; remove self-loops). Repeat until <b>2 vertices</b> remain; the edges between those two \"supervertices\" form <b>one cut</b> (partitioning the original vertices into two sets). Key analysis: any fixed minimum cut <b>survives one trial (is never contracted) with probability ≥ 2/(n(n−1))</b>. So <b>O(n²) independent repetitions</b> raise the chance of finding a min cut to a constant, and an extra O(log n) factor drives failure arbitrarily low — total O(n² · cost-per-trial). The <b>Karger-Stein</b> improvement recurses, branching more often only once the graph is small (where contraction gets risky), achieving high success probability in <b>O(n² log n)</b>, competitive with deterministic methods. Its simplicity and elegant analysis make it a showcase of randomized algorithms.",
   "problem": {
    "q": "카거 알고리즘에서 고정된 최소 컷이 한 번의 수축에서 살아남을 확률이 낮지 않은 이유의 직관은?",
@@ -3597,7 +3639,9 @@
    "  return remainingEdges();           // 두 슈퍼정점 사이",
    "}",
    "// 한 번 성공확률 ~2/V^2 → O(V^2 log V)회 반복"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 9
  },
  "algo_br_fenwick2d": {
   "ch": "알고리즘 제5장 트리",
@@ -3712,11 +3756,11 @@
  },
  "algo_br_fibheap": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "피보나치 힙 — decrease-key를 O(1)에",
   "narr": "다익스트라·프림은 매번 거리 줄이기(<b>decrease-key</b>)를 하는데 이진 힙은 그게 O(log n)입니다. <b>피보나치 힙</b>은 <b>게으른 전략</b>으로 비용을 낮춥니다. insert는 새 노드를 뿌리 목록에 던지고(O(1)), decrease-key는 깨진 서브트리를 잘라 뿌리로 올리기만 합니다(<b>분할상환 O(1)</b>). 미뤄 둔 정리는 extract-min에서만 같은 차수 뿌리를 짝지어 합쳐(consolidate) 뿌리 수를 줄입니다(O(log n)). 차수와 크기가 <b>피보나치 수</b>로 묶여 이름이 그렇습니다. 그 결과 다익스트라가 이론상 <b>O(E + V log V)</b>입니다. 다만 상수가 커 실무에선 이진 힙·쌍 힙이 더 빠른, 분할상환 분석의 교과서입니다.",
   "hint": "",
-  "more": "<b>피보나치 힙(Fibonacci heap)</b>은 <b>게으른(lazy)</b> 전략으로 우선순위 큐 연산의 분할상환 비용을 낮춘 자료구조입니다. 구조는 <b>힙 순서를 지키는 여러 트리들의 모임(뿌리 목록)</b>과 <b>최소 원소를 가리키는 포인터</b>입니다. 연산: <b>insert</b>는 새 노드를 그냥 뿌리 목록에 던져 넣음(<b>O(1)</b>), <b>merge</b>도 두 뿌리 목록 잇기(<b>O(1)</b>), <b>decrease-key</b>는 키를 줄인 뒤 힙 순서가 깨지면 그 서브트리를 <b>잘라 뿌리로 올림</b>(<b>분할상환 O(1)</b>, 부모가 자식을 두 번 잃으면 그 부모도 잘라 올리는 \"표시(marked)\" 규칙으로 트리 모양을 통제). 미뤄 둔 정리는 <b>extract-min</b>에서만 합니다: 최소를 떼고 그 자식들을 뿌리로 올린 뒤, <b>같은 차수(자식 수)의 뿌리들을 짝지어 합치는</b> consolidate로 뿌리 수를 O(log n)로 줄임(<b>분할상환 O(log n)</b>). 트리 차수와 크기의 관계가 <b>피보나치 수</b>로 묶여(차수 d인 트리의 크기 ≥ F_{d+2}) 이름이 그렇습니다. 이 비용표(insert/decrease-key O(1), extract-min O(log n)) 덕에 <b>다익스트라·프림</b>이 이론상 <b>O(E + V log V)</b>(V=정점 수, E=간선 수; 이진 힙은 O(E log V)). 단점: <b>상수와 포인터 오버헤드가 커</b> 실무에서는 보통 이진 힙이나 <b>쌍 힙(pairing heap)</b>이 더 빠릅니다. 그래도 \"분할상환 분석\"과 \"게으른 자료구조\"의 교과서적 명작입니다.",
+  "more": "​다익스트라의 decrease-key를 <b>분할상환 O(1)</b>로 — 피보나치 힙. <b>피보나치 힙(Fibonacci heap)</b>은 <b>게으른(lazy)</b> 전략으로 우선순위 큐 연산의 분할상환 비용을 낮춘 자료구조입니다. 구조는 <b>힙 순서를 지키는 여러 트리들의 모임(뿌리 목록)</b>과 <b>최소 원소를 가리키는 포인터</b>입니다. 연산: <b>insert</b>는 새 노드를 그냥 뿌리 목록에 던져 넣음(<b>O(1)</b>), <b>merge</b>도 두 뿌리 목록 잇기(<b>O(1)</b>), <b>decrease-key</b>는 키를 줄인 뒤 힙 순서가 깨지면 그 서브트리를 <b>잘라 뿌리로 올림</b>(<b>분할상환 O(1)</b>, 부모가 자식을 두 번 잃으면 그 부모도 잘라 올리는 \"표시(marked)\" 규칙으로 트리 모양을 통제). 미뤄 둔 정리는 <b>extract-min</b>에서만 합니다: 최소를 떼고 그 자식들을 뿌리로 올린 뒤, <b>같은 차수(자식 수)의 뿌리들을 짝지어 합치는</b> consolidate로 뿌리 수를 O(log n)로 줄임(<b>분할상환 O(log n)</b>). 트리 차수와 크기의 관계가 <b>피보나치 수</b>로 묶여(차수 d인 트리의 크기 ≥ F_{d+2}) 이름이 그렇습니다. 이 비용표(insert/decrease-key O(1), extract-min O(log n)) 덕에 <b>다익스트라·프림</b>이 이론상 <b>O(E + V log V)</b>(V=정점 수, E=간선 수; 이진 힙은 O(E log V)). 단점: <b>상수와 포인터 오버헤드가 커</b> 실무에서는 보통 이진 힙이나 <b>쌍 힙(pairing heap)</b>이 더 빠릅니다. 그래도 \"분할상환 분석\"과 \"게으른 자료구조\"의 교과서적 명작입니다.",
   "more_en": "A <b>Fibonacci heap</b> lowers the amortized cost of priority-queue operations with a <b>lazy</b> strategy. It is a <b>collection of heap-ordered trees (a root list)</b> plus a <b>pointer to the minimum</b>. Operations: <b>insert</b> just drops a node into the root list (<b>O(1)</b>); <b>merge</b> concatenates two root lists (<b>O(1)</b>); <b>decrease-key</b> lowers the key and, if heap order breaks, <b>cuts that subtree and moves it to a root</b> (<b>amortized O(1)</b>, with a \"marked\" rule cutting a parent that loses a second child, to control tree shape). The deferred cleanup happens only at <b>extract-min</b>: remove the min, promote its children to roots, then <b>consolidate</b> by pairing roots of equal degree (number of children) to reduce the root count to O(log n) (<b>amortized O(log n)</b>). The relation between a tree's degree and size is bounded by <b>Fibonacci numbers</b> (a degree-d tree has size ≥ F_{d+2}), hence the name. This cost profile (insert/decrease-key O(1), extract-min O(log n)) gives <b>Dijkstra/Prim</b> a theoretical <b>O(E + V log V)</b> (vs O(E log V) with a binary heap). Drawback: <b>large constants and pointer overhead</b> make binary heaps or <b>pairing heaps</b> usually faster in practice. Still, it is a textbook masterpiece of amortized analysis and lazy data structures.",
   "problem": {
    "q": "피보나치 힙이 insert와 decrease-key를 O(1)에 하면서도 전체 정렬을 유지하는 비결은?",
@@ -3736,7 +3780,9 @@
    "  if(x->key < minNode->key) minNode = x;",
    "}",
    "// extractMin은 상각 O(log n), 다익스트라/프림 가속"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 10
  },
  "algo_br_veb": {
   "ch": "알고리즘 제2장 자료구조",
@@ -3793,11 +3839,11 @@
  },
  "algo_br_pairingheap": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "쌍 힙(Pairing Heap) — 단순하고 빠른 합치기 힙",
   "narr": "피보나치 힙은 이론은 멋지나 상수가 큽니다. <b>쌍 힙</b>은 힙 순서를 지키는 다진 트리 하나로, 모든 것을 <b>meld(루트가 작은 힙 밑에 큰 힙을 붙이기, O(1))</b>로 처리합니다. insert·decrease-key·merge가 모두 O(1)이고, 무거운 정리는 delete-min에서만 합니다. 루트를 빼면 자식들이 흩어지는데, 이를 <b>왼쪽부터 둘씩 짝지어 meld(첫 패스)</b>하고 결과를 오른쪽에서 누적 meld(둘째 패스)하는 two-pass로 다시 하나로 합쳐 균형을 잡습니다(분할상환 O(log n)). 단순 누적이면 한 줄로 길어져 느려지지만 둘씩 짝짓기가 높이를 절반으로 줄입니다. 구현이 짧고 빨라 다익스트라에서 피보나치 힙의 현실적 대체재입니다.",
   "hint": "",
-  "more": "<b>쌍 힙(Pairing Heap)</b>은 힙 순서를 지키는 <b>다진 트리(multiway tree) 하나</b>로 표현되는 합치기 가능(mergeable) 힙입니다. 모든 것의 기본은 <b>meld(두 힙 합치기)</b>: <b>루트가 더 작은 힙</b>을 위에 두고, 다른 힙을 그 <b>맨 앞 자식으로 붙이기</b>(O(1)). 이로부터 <b>insert</b>(노드 하나짜리 힙과 meld), <b>decrease-key</b>(해당 서브트리를 떼어내 루트와 meld), <b>merge</b>가 모두 <b>O(1)</b>(실질·분할상환). 무거운 정리는 <b>delete-min</b>에서만: 루트를 제거하면 그 자식들이 여러 힙으로 흩어지는데, 이를 <b>왼쪽부터 둘씩 짝지어 meld(첫 패스)</b>하고, 그 결과들을 <b>오른쪽에서 왼쪽으로 누적 meld(둘째 패스)</b>하는 \"two-pass\" 방식으로 다시 하나로 합칩니다(분할상환 O(log n)). 이론적 분석은 까다로워(정확한 decrease-key 분할상환 한계가 오랜 미해결이었고 O(log n)~o(log n) 사이로 알려짐) 피보나치 힙만큼 깔끔하지 않지만, <b>구현이 훨씬 단순하고 상수가 작아 실무·경쟁에서 보통 더 빠릅니다</b>. 다익스트라·프림에서 피보나치 힙의 현실적 대체재로 자주 쓰입니다.",
+  "more": "​더 단순하고 실전에서 빠른 <b>쌍 힙</b>. <b>쌍 힙(Pairing Heap)</b>은 힙 순서를 지키는 <b>다진 트리(multiway tree) 하나</b>로 표현되는 합치기 가능(mergeable) 힙입니다. 모든 것의 기본은 <b>meld(두 힙 합치기)</b>: <b>루트가 더 작은 힙</b>을 위에 두고, 다른 힙을 그 <b>맨 앞 자식으로 붙이기</b>(O(1)). 이로부터 <b>insert</b>(노드 하나짜리 힙과 meld), <b>decrease-key</b>(해당 서브트리를 떼어내 루트와 meld), <b>merge</b>가 모두 <b>O(1)</b>(실질·분할상환). 무거운 정리는 <b>delete-min</b>에서만: 루트를 제거하면 그 자식들이 여러 힙으로 흩어지는데, 이를 <b>왼쪽부터 둘씩 짝지어 meld(첫 패스)</b>하고, 그 결과들을 <b>오른쪽에서 왼쪽으로 누적 meld(둘째 패스)</b>하는 \"two-pass\" 방식으로 다시 하나로 합칩니다(분할상환 O(log n)). 이론적 분석은 까다로워(정확한 decrease-key 분할상환 한계가 오랜 미해결이었고 O(log n)~o(log n) 사이로 알려짐) 피보나치 힙만큼 깔끔하지 않지만, <b>구현이 훨씬 단순하고 상수가 작아 실무·경쟁에서 보통 더 빠릅니다</b>. 다익스트라·프림에서 피보나치 힙의 현실적 대체재로 자주 쓰입니다.",
   "more_en": "A <b>Pairing Heap</b> is a mergeable heap represented as a single heap-ordered <b>multiway tree</b>. Everything builds on <b>meld (merge two heaps)</b>: put the heap with the <b>smaller root</b> on top and attach the other as its <b>leftmost child</b> (O(1)). From this, <b>insert</b> (meld with a single-node heap), <b>decrease-key</b> (detach that subtree and meld it with the root), and <b>merge</b> are all <b>O(1)</b> (actual/amortized). The heavy work is only in <b>delete-min</b>: removing the root scatters its children into several heaps, which are recombined by a \"two-pass\" scheme — <b>meld them in left-to-right pairs (first pass)</b>, then <b>accumulate-meld right to left (second pass)</b> — at amortized O(log n). Its analysis is subtle (the exact decrease-key amortized bound was a long-open problem, known to lie between o(log n) and O(log n)), so it's less clean than a Fibonacci heap, but it is <b>far simpler to implement and has small constants, usually faster in practice</b>. It is a common practical replacement for Fibonacci heaps in Dijkstra/Prim.",
   "problem": {
    "q": "쌍 힙의 delete-min에서 자식들을 그냥 순서대로 합치지 않고 'two-pass(둘씩 짝짓기)'로 합치는 이유는?",
@@ -3814,7 +3860,9 @@
    "  return a;",
    "}",
    "// deleteMin = 자식들을 짝지어 merge. 상각 빠름"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 11
  },
  "algo_br_ukkonen": {
   "ch": "알고리즘 제4장 탐색",
@@ -3876,11 +3924,11 @@
  },
  "algo_br_bcc": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "이중연결성분(BCC) — 단절점·다리로 분해",
   "narr": "네트워크에서 한 곳만 고장 나도 끊기는 약한 지점이 <b>단절점</b>·<b>다리</b>이고, 이를 없애도 안 끊기는 덩어리가 <b>이중연결성분(BCC)</b>입니다. 이 셋은 <b>DFS + low-link</b> 한 번으로 찾습니다. DFS 트리에서 disc[u](방문 순서)와 low[u](서브트리가 역간선으로 닿는 가장 이른 정점)를 구해, 자식 v에 대해 <b>low[v] ≥ disc[u]면 u가 단절점</b>(루트는 자식 둘 이상일 때), <b>low[v] > disc[u]면 (u,v)가 다리</b>입니다. 직관은 v의 서브트리가 u보다 위로 못 가면 u를 거쳐야만 연결되므로 u가 길목이라는 것입니다. 간선을 스택에 쌓다 조건에서 성분을 추출합니다. <b>블록컷 트리</b>로 경로 필수 정점 질의 등에 쓰입니다.",
   "hint": "",
-  "more": "<b>이중연결성분(Biconnected Component, BCC)</b>은 무방향 그래프에서 \"<b>어떤 정점 하나를 제거해도 여전히 연결</b>인\" 극대 부분그래프입니다. 관련 개념: <b>단절점(articulation point)</b> = 제거하면 연결성분이 늘어나는 정점, <b>다리(bridge)</b> = 제거하면 연결성분이 늘어나는 간선. 이 셋은 하나의 <b>DFS + low-link</b>로 한 번에 찾습니다. DFS 트리에서 각 정점 u에 <b>disc[u]</b>(처음 방문 순서)와 <b>low[u]</b>(u의 서브트리에서 역방향 간선으로 닿을 수 있는 가장 이른 disc)를 계산합니다. 판정: 자식 v에 대해 <b>low[v] ≥ disc[u]</b>이면 u는 <b>단절점</b>(루트는 자식이 둘 이상일 때), <b>low[v] > disc[u]</b>이면 간선 (u,v)는 <b>다리</b>입니다. 직관: low[v]가 u보다 이르게 못 올라가면, v의 서브트리는 u를 거치지 않고는 위로 못 가므로 u가 끊어지는 길목. BCC 자체는 DFS 중 간선을 <b>스택</b>에 쌓다가 단절점 조건을 만나면 한 성분으로 묶어 추출합니다. 응용: <b>블록컷 트리(block-cut tree)</b>(BCC와 단절점을 정점으로 한 트리)로 \"두 정점 사이 모든 경로가 반드시 지나는 정점\" 등을 트리 문제로 환원, 네트워크 신뢰도(약점 식별), 2-에지-연결성. 강연결요소(SCC)의 무방향·\"정점/간선 제거\" 버전으로 이해하면 좋습니다.",
+  "more": "​단절점으로 나눈 <b>이중연결성분</b>. <b>이중연결성분(Biconnected Component, BCC)</b>은 무방향 그래프에서 \"<b>어떤 정점 하나를 제거해도 여전히 연결</b>인\" 극대 부분그래프입니다. 관련 개념: <b>단절점(articulation point)</b> = 제거하면 연결성분이 늘어나는 정점, <b>다리(bridge)</b> = 제거하면 연결성분이 늘어나는 간선. 이 셋은 하나의 <b>DFS + low-link</b>로 한 번에 찾습니다. DFS 트리에서 각 정점 u에 <b>disc[u]</b>(처음 방문 순서)와 <b>low[u]</b>(u의 서브트리에서 역방향 간선으로 닿을 수 있는 가장 이른 disc)를 계산합니다. 판정: 자식 v에 대해 <b>low[v] ≥ disc[u]</b>이면 u는 <b>단절점</b>(루트는 자식이 둘 이상일 때), <b>low[v] > disc[u]</b>이면 간선 (u,v)는 <b>다리</b>입니다. 직관: low[v]가 u보다 이르게 못 올라가면, v의 서브트리는 u를 거치지 않고는 위로 못 가므로 u가 끊어지는 길목. BCC 자체는 DFS 중 간선을 <b>스택</b>에 쌓다가 단절점 조건을 만나면 한 성분으로 묶어 추출합니다. 응용: <b>블록컷 트리(block-cut tree)</b>(BCC와 단절점을 정점으로 한 트리)로 \"두 정점 사이 모든 경로가 반드시 지나는 정점\" 등을 트리 문제로 환원, 네트워크 신뢰도(약점 식별), 2-에지-연결성. 강연결요소(SCC)의 무방향·\"정점/간선 제거\" 버전으로 이해하면 좋습니다.",
   "more_en": "A <b>Biconnected Component (BCC)</b> is a maximal subgraph of an undirected graph that <b>stays connected even after removing any single vertex</b>. Related: an <b>articulation point</b> is a vertex whose removal increases the number of components; a <b>bridge</b> is such an edge. All three are found in one <b>DFS + low-link</b> pass. In the DFS tree, compute for each vertex u its <b>disc[u]</b> (first-visit order) and <b>low[u]</b> (earliest disc reachable from u's subtree via a back edge). Tests: for a child v, <b>low[v] ≥ disc[u]</b> makes u an <b>articulation point</b> (the root needs ≥2 children), and <b>low[v] > disc[u]</b> makes edge (u,v) a <b>bridge</b>. Intuition: if low[v] can't climb earlier than u, v's subtree can't reach above without going through u — a chokepoint. The BCCs themselves are extracted by pushing edges onto a <b>stack</b> during DFS and popping a component when the articulation condition is met. Applications: the <b>block-cut tree</b> (a tree of BCCs and articulation points) reduces \"vertices every path between two nodes must pass\" to a tree problem; network reliability (finding weak points); 2-edge-connectivity. Think of it as the undirected, \"remove a vertex/edge\" analogue of strongly connected components.",
   "problem": {
    "q": "DFS에서 정점 u가 단절점인지 low-link로 어떻게 판정하나?",
@@ -3900,7 +3948,9 @@
    "      stk.push({u,v}); low[u]=min(low[u],disc[v]); }",
    "  }",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 7
  },
  "algo_br_mergesorttree": {
   "ch": "알고리즘 제5장 트리",
@@ -4034,11 +4084,11 @@
  },
  "algo_br_johnson": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "존슨 알고리즘 — 희소 그래프 모든 쌍 최단경로",
   "narr": "음수 간선이 있는 그래프에서 <b>모든 쌍 최단경로</b>를 구할 때 플로이드-워셜은 O(V³)입니다. <b>존슨 알고리즘</b>은 다익스트라(빠르나 음수 불가)와 벨만-포드(음수 가능하나 느림)의 장점을 결합합니다. 가상 정점에서 0 간선을 긋고 <b>벨만-포드로 포텐셜 h[v]</b>를 구한 뒤, 간선을 <b>w′(u,v) = w + h[u] − h[v]</b>로 재가중합니다. 삼각부등식으로 <b>w′ ≥ 0</b>이 보장돼 음수가 사라지고, 경로 합이 중간 h가 <b>텔레스코핑</b>되어 같은 (u,v)의 모든 경로가 같은 상수만 바뀌므로 <b>최단경로 순위가 불변</b>입니다. 이제 각 정점에서 빠른 다익스트라를 돌려 거리를 복원합니다. 전체 <b>O(VE + V²log V)</b>로, 희소 그래프에서 플로이드-워셜보다 빠릅니다(음수 사이클은 벨만-포드가 검출).",
   "hint": "",
-  "more": "<b>존슨 알고리즘(Johnson's algorithm)</b>은 <b>음수 간선이 있을 수도 있는</b> 그래프에서 <b>모든 쌍 최단경로(APSP)</b>를 구합니다. 다익스트라는 빠르지만 음수 간선을 못 다루고, 벨만-포드는 음수를 다루지만 느립니다(O(VE)). 존슨은 둘의 장점을 결합합니다: ① <b>가상 정점 q</b>를 추가하고 q에서 모든 정점으로 <b>가중치 0 간선</b>을 긋습니다. ② <b>벨만-포드</b>로 q에서 각 정점 v까지 최단거리 <b>h[v]</b>를 구합니다(이 과정에서 음수 사이클도 검출). ③ <b>재가중</b>: 모든 간선 (u,v)의 새 가중치를 <b>w′(u,v) = w(u,v) + h[u] − h[v]</b>로 바꿉니다. 삼각부등식 h[v] ≤ h[u] + w(u,v)에서 <b>w′ ≥ 0</b>이 보장돼 음수가 사라집니다. ④ 이제 <b>각 정점에서 다익스트라</b>(음수 없으니 가능, 빠름)를 돌려 d′를 구하고, 원래 거리는 <b>d(u,v) = d′(u,v) − h[u] + h[v]</b>로 복원합니다. 정당성의 핵심: 경로 u→…→v의 재가중 합은 <b>중간 항 h가 텔레스코핑</b>되어 (원래 합) + h[u] − h[v]가 되므로, 같은 (u,v) 쌍의 모든 경로가 같은 상수만큼 바뀌어 <b>최단경로의 순위가 불변</b>입니다. 시간 <b>O(V·E + V²log V)</b> — 희소(E ≪ V²)면 플로이드-워셜 O(V³)보다 빠릅니다. 음수 간선은 허용하되 음수 사이클은 (벨만-포드가 검출해) 불가입니다.",
+  "more": "​<b>재가중</b>으로 음수를 없애 다익스트라를 전쌍에 — 존슨. <b>존슨 알고리즘(Johnson's algorithm)</b>은 <b>음수 간선이 있을 수도 있는</b> 그래프에서 <b>모든 쌍 최단경로(APSP)</b>를 구합니다. 다익스트라는 빠르지만 음수 간선을 못 다루고, 벨만-포드는 음수를 다루지만 느립니다(O(VE)). 존슨은 둘의 장점을 결합합니다: ① <b>가상 정점 q</b>를 추가하고 q에서 모든 정점으로 <b>가중치 0 간선</b>을 긋습니다. ② <b>벨만-포드</b>로 q에서 각 정점 v까지 최단거리 <b>h[v]</b>를 구합니다(이 과정에서 음수 사이클도 검출). ③ <b>재가중</b>: 모든 간선 (u,v)의 새 가중치를 <b>w′(u,v) = w(u,v) + h[u] − h[v]</b>로 바꿉니다. 삼각부등식 h[v] ≤ h[u] + w(u,v)에서 <b>w′ ≥ 0</b>이 보장돼 음수가 사라집니다. ④ 이제 <b>각 정점에서 다익스트라</b>(음수 없으니 가능, 빠름)를 돌려 d′를 구하고, 원래 거리는 <b>d(u,v) = d′(u,v) − h[u] + h[v]</b>로 복원합니다. 정당성의 핵심: 경로 u→…→v의 재가중 합은 <b>중간 항 h가 텔레스코핑</b>되어 (원래 합) + h[u] − h[v]가 되므로, 같은 (u,v) 쌍의 모든 경로가 같은 상수만큼 바뀌어 <b>최단경로의 순위가 불변</b>입니다. 시간 <b>O(V·E + V²log V)</b> — 희소(E ≪ V²)면 플로이드-워셜 O(V³)보다 빠릅니다. 음수 간선은 허용하되 음수 사이클은 (벨만-포드가 검출해) 불가입니다.",
   "more_en": "<b>Johnson's algorithm</b> computes <b>all-pairs shortest paths (APSP)</b> on a graph that <b>may have negative edges</b>. Dijkstra is fast but can't handle negatives; Bellman-Ford handles negatives but is slow (O(VE)). Johnson combines their strengths: ① add a <b>virtual vertex q</b> with <b>weight-0 edges</b> to every vertex; ② run <b>Bellman-Ford</b> from q to get each vertex's shortest distance <b>h[v]</b> (also detecting any negative cycle); ③ <b>reweight</b> every edge (u,v) to <b>w′(u,v) = w(u,v) + h[u] − h[v]</b>. The triangle inequality h[v] ≤ h[u] + w(u,v) guarantees <b>w′ ≥ 0</b>, removing negatives; ④ now run <b>Dijkstra from each vertex</b> (possible since no negatives, and fast) to get d′, and recover the true distance as <b>d(u,v) = d′(u,v) − h[u] + h[v]</b>. The key to correctness: along a path u→…→v the reweighted sum <b>telescopes the intermediate h's</b> to (original sum) + h[u] − h[v], so every path for the same (u,v) shifts by the same constant — leaving the <b>ranking of shortest paths unchanged</b>. Time <b>O(V·E + V²log V)</b> — faster than Floyd-Warshall's O(V³) on sparse graphs (E ≪ V²). Negative edges are allowed; negative cycles are not (Bellman-Ford detects them).",
   "problem": {
    "q": "존슨 알고리즘의 재가중 w′(u,v)=w(u,v)+h[u]−h[v]이 최단경로를 바꾸지 않는 이유는?",
@@ -4055,7 +4105,9 @@
    "for(each edge) w2 = w + h[u] - h[v];",
    "for(int s=0;s<V;s++) dijkstra(s, dist[s]);",
    "// O(VE + V·E log V), 음수간선 OK"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 6
  },
  "algo_br_bittricks": {
   "ch": "알고리즘 제2장 자료구조",
@@ -4110,11 +4162,11 @@
  },
  "algo_br_stablematch": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "안정 결혼 — 게일-섀플리 청혼 알고리즘",
   "narr": "두 집단을 선호 순위로 짝지을 때 <b>서로 상대를 더 좋아하는 불안정 쌍</b>이 없게 하는 것이 <b>안정 매칭</b>입니다. <b>게일-섀플리 청혼 알고리즘</b>은 자유 청혼자가 아직 청혼 안 한 가장 선호하는 상대에게 청혼하고, 수락자는 둘 중 더 선호하는 쪽을 택해 다른 쪽을 자유화하기를 반복합니다. 각 청혼자는 <b>거절될 때마다 한 칸 아래</b> 상대에게만 청혼하고 같은 상대에 두 번 청혼하지 않으므로, 총 청혼 ≤ n²이라 <b>O(n²)</b>에 끝나고 항상 <b>안정 매칭</b>으로 종료합니다(불안정 쌍 0). 결과는 <b>청혼하는 쪽 최적</b>입니다. 인턴-병원 배정·학교 배정·신장 교환에 쓰이며, 2012년 노벨경제학상을 받았습니다.",
   "hint": "",
-  "more": "<b>안정 결혼 문제(stable matching)</b>: 두 집단(예: 청혼자·수락자) 각 구성원이 상대 집단을 <b>선호 순위</b>로 가질 때, <b>불안정 쌍</b>(짝이 아닌 a와 b가 서로 현재 짝보다 상대를 더 선호)이 하나도 없는 완전 매칭을 찾습니다. <b>게일-섀플리(Gale-Shapley) 청혼 알고리즘</b>: ① 모든 청혼자는 자유 상태로 시작. ② 자유 청혼자는 <b>아직 청혼 안 한 가장 선호하는 상대</b>에게 청혼. ③ 수락자는 (현재 짝이 없으면 수락, 있으면) <b>둘 중 더 선호하는 쪽</b>을 택하고 다른 쪽을 자유화. ④ 자유 청혼자가 없을 때까지 반복. 핵심 성질: <b>항상 안정 매칭으로 종료</b>(불안정 쌍 0)하고, 각 청혼자는 거절될 때마다 선호 순위를 내려가므로 <b>총 청혼 횟수 ≤ n²</b> → <b>O(n²)</b>. 또 결과는 <b>청혼하는 쪽 최적(receiver는 최악)</b>: 모든 안정 매칭 중 청혼자 각자가 가질 수 있는 최선의 짝을 동시에 얻습니다. 수락자가 청혼하면 반대가 됩니다(어느 쪽이 청혼하느냐가 누구에게 유리한지를 결정). 쓰임: <b>인턴-병원 배정(NRMP)</b>, 학생-학교 배정, 신장 교환. 2012년 섀플리·로스가 노벨경제학상을 받았습니다. 변형: 선호 불완전·동순위·다대일(병원이 여러 인턴) 매칭.",
+  "more": "​아무도 이탈 안 하는 <b>안정 결혼</b> — 게일-섀플리. <b>안정 결혼 문제(stable matching)</b>: 두 집단(예: 청혼자·수락자) 각 구성원이 상대 집단을 <b>선호 순위</b>로 가질 때, <b>불안정 쌍</b>(짝이 아닌 a와 b가 서로 현재 짝보다 상대를 더 선호)이 하나도 없는 완전 매칭을 찾습니다. <b>게일-섀플리(Gale-Shapley) 청혼 알고리즘</b>: ① 모든 청혼자는 자유 상태로 시작. ② 자유 청혼자는 <b>아직 청혼 안 한 가장 선호하는 상대</b>에게 청혼. ③ 수락자는 (현재 짝이 없으면 수락, 있으면) <b>둘 중 더 선호하는 쪽</b>을 택하고 다른 쪽을 자유화. ④ 자유 청혼자가 없을 때까지 반복. 핵심 성질: <b>항상 안정 매칭으로 종료</b>(불안정 쌍 0)하고, 각 청혼자는 거절될 때마다 선호 순위를 내려가므로 <b>총 청혼 횟수 ≤ n²</b> → <b>O(n²)</b>. 또 결과는 <b>청혼하는 쪽 최적(receiver는 최악)</b>: 모든 안정 매칭 중 청혼자 각자가 가질 수 있는 최선의 짝을 동시에 얻습니다. 수락자가 청혼하면 반대가 됩니다(어느 쪽이 청혼하느냐가 누구에게 유리한지를 결정). 쓰임: <b>인턴-병원 배정(NRMP)</b>, 학생-학교 배정, 신장 교환. 2012년 섀플리·로스가 노벨경제학상을 받았습니다. 변형: 선호 불완전·동순위·다대일(병원이 여러 인턴) 매칭.",
   "more_en": "The <b>stable matching problem</b>: given two groups (e.g. proposers and receivers) each ranking the other by <b>preference</b>, find a perfect matching with no <b>unstable pair</b> (two non-partners a and b who each prefer the other to their current match). The <b>Gale-Shapley</b> proposal algorithm: ① all proposers start free; ② a free proposer proposes to the <b>most preferred receiver not yet proposed to</b>; ③ a receiver keeps (if free, accepts; else) the <b>more preferred of the two</b> and frees the other; ④ repeat until no free proposer remains. Key properties: it <b>always terminates with a stable matching</b> (no unstable pair), and since each proposer moves down their list on rejection, <b>total proposals ≤ n²</b> → <b>O(n²)</b>. The result is <b>proposer-optimal (receiver-pessimal)</b>: every proposer simultaneously gets the best partner they could have in any stable matching; swapping who proposes flips the favored side. Uses: <b>residency matching (NRMP)</b>, school choice, kidney exchange. Shapley and Roth won the 2012 Nobel Prize in Economics. Variants: incomplete preferences, ties, many-to-one (hospitals taking several interns).",
   "problem": {
    "q": "게일-섀플리 알고리즘이 항상 O(n²)에 끝나는 이유는?",
@@ -4132,7 +4184,9 @@
    "  } else m은 w 거절당함;",
    "}",
    "// 항상 안정 매칭, 청혼자 최적. O(n^2)"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 8
  },
  "algo_br_boyermoore": {
   "ch": "알고리즘 제4장 탐색",
@@ -4210,11 +4264,11 @@
  },
  "algo_br_hierholzer": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "Hierholzer — 오일러 회로를 실제로 구성",
   "narr": "오일러 회로(모든 간선을 정확히 한 번 지나 돌아오기)의 <b>존재</b>는 차수만 보면 압니다(무방향은 모든 정점 차수 짝수). <b>Hierholzer 알고리즘</b>은 그 회로를 <b>O(V+E)</b>에 실제로 구성합니다. 아무 정점에서 안 쓴 간선을 따라가다 막히는 곳은 차수가 짝수라 <b>항상 시작점</b>이 되어 닫힌 부분 회로가 됩니다. 그 회로 위에 미사용 간선이 남은 정점에서 새 부분 회로를 만들어 <b>그 자리에 끼워(splice) 합치기</b>를 모든 간선이 소비될 때까지 반복합니다. 보통 스택으로 경로를 쌓다 막히면 빼서 결과에 더해 역순을 취합니다. 각 간선을 한 번만 보므로 <b>O(E)</b>입니다. 한붓그리기·드브루인 수열 생성·DNA 조립에 쓰여, 존재는 차수 구성은 Hierholzer로 기억합니다.",
   "hint": "",
-  "more": "<b>오일러 회로(Eulerian circuit)</b> = 모든 간선을 <b>정확히 한 번씩</b> 지나 출발점으로 돌아오는 경로. <b>존재 조건</b>: (무방향) 연결 그래프에서 <b>모든 정점의 차수가 짝수</b> / (방향) 모든 정점의 진입차수=진출차수 + 강연결(간선 있는 부분). 오일러 \"경로\"(시작≠끝 허용)는 홀수 차수 정점이 정확히 0개 또는 2개일 때. <b>Hierholzer 알고리즘</b>은 이 회로를 <b>O(V+E)</b>에 구성합니다: ① 아무 정점에서 시작해 <b>아직 안 쓴 간선을 따라가며</b> 더 갈 수 없을 때까지 진행(차수가 짝수라 시작점으로 돌아와 닫힌 부분 회로가 됨, 간선은 소비 표시). ② 만들어진 회로 위의 정점 중 <b>아직 미사용 간선이 남은 정점</b>에서 같은 방식으로 새 부분 회로를 만들어, 그 자리에 <b>끼워 넣어(splice) 합칩니다</b>. ③ 모든 간선이 소비될 때까지 반복. 구현은 보통 <b>스택</b>으로: 현재 경로를 스택에 쌓다가 막히면(미사용 간선 없음) 스택에서 빼 결과 리스트에 추가 → 역순이 오일러 회로. 각 간선을 정확히 한 번 보므로 <b>O(E)</b>. 쓰임: <b>한붓그리기</b>(쾨니히스베르크 다리 문제의 답), <b>드브루인 수열</b> 생성(모든 길이-k 문자열을 한 번씩 포함하는 순환 = 드브루인 그래프의 오일러 회로), <b>DNA 단편 조립</b>(de Bruijn assembly), 우편배달부 문제(중국인 우편배달부의 토대). \"존재는 차수, 구성은 Hierholzer\"로 기억하면 됩니다.",
+  "more": "​오일러 회로를 <b>실제로 구성</b>하는 Hierholzer. <b>오일러 회로(Eulerian circuit)</b> = 모든 간선을 <b>정확히 한 번씩</b> 지나 출발점으로 돌아오는 경로. <b>존재 조건</b>: (무방향) 연결 그래프에서 <b>모든 정점의 차수가 짝수</b> / (방향) 모든 정점의 진입차수=진출차수 + 강연결(간선 있는 부분). 오일러 \"경로\"(시작≠끝 허용)는 홀수 차수 정점이 정확히 0개 또는 2개일 때. <b>Hierholzer 알고리즘</b>은 이 회로를 <b>O(V+E)</b>에 구성합니다: ① 아무 정점에서 시작해 <b>아직 안 쓴 간선을 따라가며</b> 더 갈 수 없을 때까지 진행(차수가 짝수라 시작점으로 돌아와 닫힌 부분 회로가 됨, 간선은 소비 표시). ② 만들어진 회로 위의 정점 중 <b>아직 미사용 간선이 남은 정점</b>에서 같은 방식으로 새 부분 회로를 만들어, 그 자리에 <b>끼워 넣어(splice) 합칩니다</b>. ③ 모든 간선이 소비될 때까지 반복. 구현은 보통 <b>스택</b>으로: 현재 경로를 스택에 쌓다가 막히면(미사용 간선 없음) 스택에서 빼 결과 리스트에 추가 → 역순이 오일러 회로. 각 간선을 정확히 한 번 보므로 <b>O(E)</b>. 쓰임: <b>한붓그리기</b>(쾨니히스베르크 다리 문제의 답), <b>드브루인 수열</b> 생성(모든 길이-k 문자열을 한 번씩 포함하는 순환 = 드브루인 그래프의 오일러 회로), <b>DNA 단편 조립</b>(de Bruijn assembly), 우편배달부 문제(중국인 우편배달부의 토대). \"존재는 차수, 구성은 Hierholzer\"로 기억하면 됩니다.",
   "more_en": "An <b>Eulerian circuit</b> traverses <b>every edge exactly once</b> and returns to the start. <b>Existence</b>: (undirected) connected graph with <b>all vertices of even degree</b> / (directed) every vertex with in-degree = out-degree plus connectivity. An Eulerian <b>path</b> (start ≠ end allowed) exists with exactly 0 or 2 odd-degree vertices. <b>Hierholzer's algorithm</b> constructs the circuit in <b>O(V+E)</b>: ① start anywhere and <b>follow unused edges</b> until stuck (even degrees mean you return to the start, forming a closed subtour; mark edges used). ② From a vertex on this tour that <b>still has unused edges</b>, build another subtour the same way and <b>splice it in</b> at that vertex. ③ Repeat until all edges are used. Implementation is usually a <b>stack</b>: push the current path; when stuck (no unused edge) pop to a result list → its reverse is the Eulerian circuit. Each edge is seen once, so <b>O(E)</b>. Uses: <b>one-stroke drawing</b> (the answer to the Königsberg bridges), generating <b>de Bruijn sequences</b> (a cyclic string containing every length-k string once = an Eulerian circuit of the de Bruijn graph), <b>DNA fragment assembly</b> (de Bruijn assembly), and the Chinese postman problem. Remember: \"existence from degrees, construction from Hierholzer.\"",
   "problem": {
    "q": "Hierholzer 알고리즘이 부분 회로들을 끼워 합쳐 전체 오일러 회로를 만들 수 있는 이유는?",
@@ -4233,15 +4287,17 @@
    "  } else { circuit.push_back(u); st.pop(); } // 막히면 기록",
    "}",
    "reverse(circuit);   // O(E)"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 10
  },
  "algo_br_minmeancycle": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "최소 평균 사이클 — 칸(Karp)의 공식",
   "narr": "사이클의 <b>간선 가중치 합 ÷ 간선 수</b>(평균)를 최소화하는 사이클을 찾는 것이 <b>최소 평균 사이클</b>입니다. <b>칸(Karp)의 정리</b>가 우아한 공식을 줍니다. 시작 s에서 정확히 k개 간선으로 v까지 가는 최단거리를 d_k(v)라 하면, 최소 평균값은 <b>λ* = min over v ( max over k ( d_n(v) − d_k(v) ) / ( n − k ) )</b>입니다. d_0..d_n을 DP로 채우는 데 <b>O(VE)</b>, 이후 평가도 그 안이라 전체 O(VE)입니다. 직관은 모든 가중치에서 평균 λ를 빼면 그 사이클 합이 0이 되고, λ를 더 빼면 음수 사이클이 생긴다는 것 — 즉 λ*는 <b>음수 사이클이 생기기 직전의 임계값</b>이고 칸 공식이 이를 닫힌 형태로 줍니다. 분수계획법의 핵심 부품으로, 최적 사이클 타임 등에 쓰입니다.",
   "hint": "",
-  "more": "<b>최소 평균 사이클(minimum mean cycle)</b>은 가중 방향 그래프에서 사이클의 <b>평균 가중치 = (간선 가중치 합)/(간선 수)</b>를 최소화하는 사이클(과 그 값 λ*)을 찾는 문제입니다. <b>칸(Karp)의 정리</b>가 우아한 공식을 줍니다: 고정한 시작 정점 s에서 <b>정확히 k개 간선</b>으로 정점 v까지 가는 최단거리를 <b>d_k(v)</b>라 하면(없으면 +∞), 전체 그래프의 최소 평균 사이클 값은 <b>λ* = min over v ( max over k=0..n−1 of ( d_n(v) − d_k(v) ) / ( n − k ) )</b> 입니다(n = 정점 수). 계산: <b>DP로 d_0..d_n을 채우는 데 O(VE)</b>(d_{k+1}(v) = min over (u→v) of d_k(u) + w(u,v)), 그 뒤 각 v에서 max/(n−k)를 평가해 최솟값을 취하면 됩니다 → 전체 <b>O(VE)</b>. 직관: 평균이 λ인 사이클이 있으면 모든 가중치에서 λ를 빼면 그 사이클은 합 0이 되고, λ*보다 작게 빼면 음수 사이클이 생깁니다 — 즉 최소 평균은 \"음수 사이클이 생기기 직전의 임계 λ\"이고, 칸 공식이 이 임계를 닫힌 형태로 줍니다. 쓰임: <b>분수계획법(Dinkelbach)</b>의 핵심 부품, 음수 사이클 검출의 정량화, 주기적 스케줄의 최적 사이클 타임(예: 최대 이익률 사이클은 −가중치로), 이미지·네트워크의 최적 비율 순환. \"평균 최소화 = 빼기 임계\"가 핵심 아이디어입니다.",
+  "more": "​평균 가중치가 가장 작은 <b>사이클</b> — 칸의 공식. <b>최소 평균 사이클(minimum mean cycle)</b>은 가중 방향 그래프에서 사이클의 <b>평균 가중치 = (간선 가중치 합)/(간선 수)</b>를 최소화하는 사이클(과 그 값 λ*)을 찾는 문제입니다. <b>칸(Karp)의 정리</b>가 우아한 공식을 줍니다: 고정한 시작 정점 s에서 <b>정확히 k개 간선</b>으로 정점 v까지 가는 최단거리를 <b>d_k(v)</b>라 하면(없으면 +∞), 전체 그래프의 최소 평균 사이클 값은 <b>λ* = min over v ( max over k=0..n−1 of ( d_n(v) − d_k(v) ) / ( n − k ) )</b> 입니다(n = 정점 수). 계산: <b>DP로 d_0..d_n을 채우는 데 O(VE)</b>(d_{k+1}(v) = min over (u→v) of d_k(u) + w(u,v)), 그 뒤 각 v에서 max/(n−k)를 평가해 최솟값을 취하면 됩니다 → 전체 <b>O(VE)</b>. 직관: 평균이 λ인 사이클이 있으면 모든 가중치에서 λ를 빼면 그 사이클은 합 0이 되고, λ*보다 작게 빼면 음수 사이클이 생깁니다 — 즉 최소 평균은 \"음수 사이클이 생기기 직전의 임계 λ\"이고, 칸 공식이 이 임계를 닫힌 형태로 줍니다. 쓰임: <b>분수계획법(Dinkelbach)</b>의 핵심 부품, 음수 사이클 검출의 정량화, 주기적 스케줄의 최적 사이클 타임(예: 최대 이익률 사이클은 −가중치로), 이미지·네트워크의 최적 비율 순환. \"평균 최소화 = 빼기 임계\"가 핵심 아이디어입니다.",
   "more_en": "The <b>minimum mean cycle</b> problem finds, in a weighted directed graph, the cycle minimizing the <b>mean weight = (sum of edge weights)/(number of edges)</b> (and its value λ*). <b>Karp's theorem</b> gives an elegant formula: fixing a start vertex s, let <b>d_k(v)</b> be the shortest distance to v using <b>exactly k edges</b> (+∞ if none); then the graph's minimum mean cycle value is <b>λ* = min over v ( max over k=0..n−1 of ( d_n(v) − d_k(v) ) / ( n − k ) )</b> (n = number of vertices). Compute: <b>fill d_0..d_n by DP in O(VE)</b> (d_{k+1}(v) = min over (u→v) of d_k(u) + w(u,v)), then evaluate the max/(n−k) at each v and take the minimum → overall <b>O(VE)</b>. Intuition: if a cycle has mean λ, subtracting λ from all weights makes its sum 0; subtracting more than λ* creates a negative cycle — so the minimum mean is \"the threshold λ just before a negative cycle appears,\" and Karp's formula gives this threshold in closed form. Uses: a key component of <b>fractional programming (Dinkelbach)</b>, quantifying negative-cycle detection, optimal cycle time in periodic schedules (e.g. max profit-ratio cycle via negated weights), optimal-ratio cycles in images/networks. The core idea: \"minimizing the mean = the subtraction threshold.\"",
   "problem": {
    "q": "최소 평균 사이클 값 λ*를 '모든 가중치에서 λ를 빼기'와 연결해 설명하면?",
@@ -4260,15 +4316,17 @@
    "  for(int k=0;k<V;k++) mx=max(mx,(dp[V][v]-dp[k][v])/(V-k));",
    "  ans=min(ans,mx);                 // max-min",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 8
  },
  "algo_br_gomoryhu": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "Gomory-Hu 트리 — 모든 쌍 최소컷을 트리 하나로",
   "narr": "무방향 그래프의 <b>모든 정점 쌍 최소컷</b>을 쌍마다 max-flow로 구하면 O(n²)번입니다. <b>Gomory-Hu 트리</b>는 단 <b>n−1번</b>의 최소컷 계산으로, 임의 쌍의 최소컷을 <b>트리 경로상 가장 가벼운 간선</b>으로 답하게 합니다. 핵심 정리는 어떤 그래프든 정점들로 된 트리를 만들 수 있어 u–v 최소컷이 그 경로 최소 간선과 같다는 것입니다(서로 다른 최소컷 값이 최대 n−1가지뿐이라는 사실). <b>Gusfield 알고리즘</b>은 각 정점과 현재 부모의 s-t 최소컷을 max-flow로 한 번씩(총 n−1번) 돌려 트리를 구성합니다. 질의는 경로 최소 간선이라 O(n) 또는 전처리로 O(log n)입니다. 네트워크 취약점·클러스터링에 쓰이며, 모든 쌍 최소컷이 트리 하나에 담긴다는 통찰이 핵심입니다(전역 최소컷은 그 최소 간선).",
   "hint": "",
-  "more": "<b>Gomory-Hu 트리</b>는 가중 무방향 그래프의 <b>모든 쌍 최소컷(min s-t cut) 값</b>을 담은 가중 트리입니다. 핵심 정리: 어떤 그래프든, 정점들로 이루어진 트리 T를 만들 수 있어서 <b>임의의 두 정점 u, v의 최소컷 = T에서 u–v 경로상 가장 가벼운 간선의 가중치</b>가 됩니다(그 가벼운 간선을 끊으면 실제 그래프의 최소컷 분할이 나옴). 즉 n(n−1)/2개의 쌍 최소컷이 단 <b>n−1개의 트리 간선</b>에 압축됩니다(서로 다른 최소컷 값은 최대 n−1가지뿐이라는 사실의 구현). 구축(<b>Gusfield 알고리즘</b>): 정점들을 한 트리로 시작해, 각 정점 v에 대해 현재 트리 부모 p와의 <b>s-t 최소컷을 max-flow로 한 번</b> 계산하고, 그 컷 값을 간선 가중치로, 컷의 s쪽 집합을 보고 다른 정점들의 부모를 갱신 — <b>총 n−1번의 max-flow</b>로 완성(O(n) 최대유량 호출). 질의는 트리에서 u–v 경로의 최소 간선이라 O(n) 또는 전처리로 O(log n). 쓰임: <b>네트워크 신뢰도/취약점</b>(가장 약한 분리), 클러스터링, 모든 쌍 연결강도, 이미지 분할. \"모든 쌍 최소컷의 정보는 트리 하나에 다 들어간다\"가 핵심 통찰입니다(전역 최소컷은 이 트리의 최소 간선).",
+  "more": "​모든 쌍 최소 컷을 <b>트리 하나</b>로 — Gomory-Hu. <b>Gomory-Hu 트리</b>는 가중 무방향 그래프의 <b>모든 쌍 최소컷(min s-t cut) 값</b>을 담은 가중 트리입니다. 핵심 정리: 어떤 그래프든, 정점들로 이루어진 트리 T를 만들 수 있어서 <b>임의의 두 정점 u, v의 최소컷 = T에서 u–v 경로상 가장 가벼운 간선의 가중치</b>가 됩니다(그 가벼운 간선을 끊으면 실제 그래프의 최소컷 분할이 나옴). 즉 n(n−1)/2개의 쌍 최소컷이 단 <b>n−1개의 트리 간선</b>에 압축됩니다(서로 다른 최소컷 값은 최대 n−1가지뿐이라는 사실의 구현). 구축(<b>Gusfield 알고리즘</b>): 정점들을 한 트리로 시작해, 각 정점 v에 대해 현재 트리 부모 p와의 <b>s-t 최소컷을 max-flow로 한 번</b> 계산하고, 그 컷 값을 간선 가중치로, 컷의 s쪽 집합을 보고 다른 정점들의 부모를 갱신 — <b>총 n−1번의 max-flow</b>로 완성(O(n) 최대유량 호출). 질의는 트리에서 u–v 경로의 최소 간선이라 O(n) 또는 전처리로 O(log n). 쓰임: <b>네트워크 신뢰도/취약점</b>(가장 약한 분리), 클러스터링, 모든 쌍 연결강도, 이미지 분할. \"모든 쌍 최소컷의 정보는 트리 하나에 다 들어간다\"가 핵심 통찰입니다(전역 최소컷은 이 트리의 최소 간선).",
   "more_en": "A <b>Gomory-Hu tree</b> is a weighted tree encoding <b>all-pairs minimum cuts</b> of a weighted undirected graph. Key theorem: for any graph, there is a tree T on its vertices such that the <b>min cut of any two vertices u, v equals the lightest edge on the u–v path in T</b> (cutting that edge yields an actual min-cut partition of the graph). So the n(n−1)/2 pairwise min cuts compress into just <b>n−1 tree edges</b> (realizing that there are at most n−1 distinct min-cut values). Construction (<b>Gusfield's algorithm</b>): start with all vertices in one tree; for each vertex v, compute <b>one s-t min cut via max-flow</b> between v and its current tree parent p, set that cut value as the edge weight, and update other vertices' parents based on the cut's side — completing in <b>n−1 max-flow calls</b> (O(n) flow computations). A query is the minimum edge on the u–v tree path, O(n) or O(log n) with preprocessing. Uses: <b>network reliability/vulnerability</b> (weakest separation), clustering, all-pairs connectivity strength, image segmentation. The key insight: \"all pairwise min-cut information fits in a single tree\" (the global min cut is the tree's lightest edge).",
   "problem": {
    "q": "Gomory-Hu 트리에서 두 정점 u, v의 최소컷을 어떻게 읽나? 왜 n−1번의 컷 계산이면 충분한가?",
@@ -4286,15 +4344,17 @@
    "      parent[j]=i;",
    "}",
    "// 두 정점 최소컷 = 트리경로 최소 간선"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 10
  },
  "algo_br_dominator": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "도미네이터 트리 — 반드시 거쳐야 하는 길목",
   "narr": "시작점 s에서 정점 v로 가는 <b>모든 경로</b>가 반드시 지나는 정점이 v의 <b>지배자</b>입니다. v의 지배자 중 v에 가장 가까운 것이 <b>직속 지배자 idom(v)</b>이고, 모든 정점이 유일한 idom을 가져 이를 부모로 삼으면 <b>도미네이터 트리</b>가 됩니다 — v의 지배자 전부는 곧 트리에서 v의 <b>조상들</b>입니다. 직관은 둘 이상의 갈래로 도달 가능한 정점은 그 갈래가 합쳐지는 <b>합류점</b>이 길목이라는 것입니다. 단순히는 정점을 빼며 도달성 검사로 O(VE)지만, <b>렌가워-타잔 알고리즘</b>이 DFS 번호+semidominator+union-find로 거의 선형 <b>O(E·α)</b>에 구합니다. 컴파일러의 SSA φ 배치·루프 불변 코드 이동·죽은 코드 제거, 단일 실패 지점 식별의 토대입니다.",
   "hint": "",
-  "more": "<b>도미네이터 트리(dominator tree)</b>는 시작 정점 s가 있는 방향 그래프(흐름 그래프)에서 <b>지배 관계</b>를 정리한 트리입니다. 정점 d가 정점 v를 <b>지배(dominate)</b>한다 = s에서 v로 가는 <b>모든 경로</b>가 반드시 d를 지난다(s는 모든 정점을 지배, v는 자기 자신을 지배). v의 지배자 중 v 자신을 빼고 <b>v에 가장 가까운(다른 모든 지배자에게 지배되는) 것</b>을 <b>직속 지배자 idom(v)</b>라 합니다. 핵심 사실: 모든 정점은 <b>유일한 idom</b>을 가지며(s 제외), idom을 부모로 삼으면 <b>트리</b>가 됩니다 — 그래서 \"v의 지배자 전부\" = 도미네이터 트리에서 v의 <b>조상들</b>. 직관: 어떤 정점이 둘 이상의 갈래로 도달 가능하면(예: A를 거치거나 B를 거치거나) 그 둘은 지배자가 아니고, <b>갈래가 합쳐지는 합류점</b>이 길목(지배자)입니다. 계산: 단순하게는 각 정점을 빼 보며 도달성 검사(O(V·E), V=정점 수·E=간선 수)지만, <b>렌가워-타잔(Lengauer-Tarjan) 알고리즘</b>이 DFS 번호 + semidominator + union-find로 거의 선형 <b>O(E·α(E,V))</b>(α=역 아커만 함수 — 실질적으로 ≤4인 상수라 \"거의 선형\")에 구합니다. 쓰임: <b>컴파일러</b>(SSA 형식 변환의 φ-함수 배치, 루프 불변 코드 이동, 죽은 코드 제거), 프로그램·제어흐름 분석, 네트워크에서 단일 실패 지점(SPOF) 식별. \"반드시 거치는 길목의 계층\"이 도미네이터 트리입니다.",
+  "more": "​반드시 거쳐야 하는 <b>길목</b> — 도미네이터 트리. <b>도미네이터 트리(dominator tree)</b>는 시작 정점 s가 있는 방향 그래프(흐름 그래프)에서 <b>지배 관계</b>를 정리한 트리입니다. 정점 d가 정점 v를 <b>지배(dominate)</b>한다 = s에서 v로 가는 <b>모든 경로</b>가 반드시 d를 지난다(s는 모든 정점을 지배, v는 자기 자신을 지배). v의 지배자 중 v 자신을 빼고 <b>v에 가장 가까운(다른 모든 지배자에게 지배되는) 것</b>을 <b>직속 지배자 idom(v)</b>라 합니다. 핵심 사실: 모든 정점은 <b>유일한 idom</b>을 가지며(s 제외), idom을 부모로 삼으면 <b>트리</b>가 됩니다 — 그래서 \"v의 지배자 전부\" = 도미네이터 트리에서 v의 <b>조상들</b>. 직관: 어떤 정점이 둘 이상의 갈래로 도달 가능하면(예: A를 거치거나 B를 거치거나) 그 둘은 지배자가 아니고, <b>갈래가 합쳐지는 합류점</b>이 길목(지배자)입니다. 계산: 단순하게는 각 정점을 빼 보며 도달성 검사(O(V·E), V=정점 수·E=간선 수)지만, <b>렌가워-타잔(Lengauer-Tarjan) 알고리즘</b>이 DFS 번호 + semidominator + union-find로 거의 선형 <b>O(E·α(E,V))</b>(α=역 아커만 함수 — 실질적으로 ≤4인 상수라 \"거의 선형\")에 구합니다. 쓰임: <b>컴파일러</b>(SSA 형식 변환의 φ-함수 배치, 루프 불변 코드 이동, 죽은 코드 제거), 프로그램·제어흐름 분석, 네트워크에서 단일 실패 지점(SPOF) 식별. \"반드시 거치는 길목의 계층\"이 도미네이터 트리입니다.",
   "more_en": "A <b>dominator tree</b> organizes the <b>domination relation</b> in a directed (flow) graph with a start vertex s. A vertex d <b>dominates</b> v if <b>every path</b> from s to v passes through d (s dominates all; v dominates itself). Among v's dominators other than v, the one <b>closest to v (dominated by all the others)</b> is the <b>immediate dominator idom(v)</b>. Key fact: every vertex (except s) has a <b>unique idom</b>, and making idom the parent yields a <b>tree</b> — so \"all dominators of v\" = v's <b>ancestors</b> in the dominator tree. Intuition: if a vertex is reachable via two branches (through A or through B), neither is a dominator; the <b>merge point where branches rejoin</b> is the chokepoint (dominator). Computation: naively, remove each vertex and test reachability (O(V·E)); the <b>Lengauer-Tarjan algorithm</b> uses DFS numbering + semidominators + union-find for near-linear <b>O(E·α(E,V))</b>. Uses: <b>compilers</b> (φ-function placement in SSA, loop-invariant code motion, dead-code elimination), control-flow/program analysis, identifying single points of failure in networks. The dominator tree is \"the hierarchy of mandatory chokepoints.\"",
   "problem": {
    "q": "도미네이터 트리에서 'v의 모든 지배자'는 어떻게 읽으며, 직속 지배자 idom(v)란?",
@@ -4312,15 +4372,17 @@
    "  link(order[i]);",
    "}",
    "computeIdom();   // O(E α(V))"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 8
  },
  "algo_br_lowerboundflow": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "하한 있는 유량 — 간선마다 최소 흘림 강제",
   "narr": "보통 최대유량은 간선 흐름을 0..U로 보지만, <b>이 간선엔 최소 L은 반드시 흘려야 한다</b>는 <b>하한 제약</b>이 붙을 수 있습니다. 표준 변환은 하한 L을 미리 흘린 것으로 보고 용량을 <b>U−L</b>로 줄입니다. 그러면 강제로 흘린 L 때문에 정점마다 <b>excess(v) = (들어오는 L 합) − (나가는 L 합)</b>의 불균형이 생깁니다. 이를 <b>슈퍼소스 S′ →(excess>0 정점)</b>과 <b>(excess<0 정점)→ 슈퍼싱크 T′</b> 간선으로 메우고, S′→T′ 최대유량이 모두 <b>포화</b>되면 실현 가능하고 실제 흐름은 L + 보조 흐름입니다. 원래 s→t는 t→s 무한 간선으로 순환을 만들어 처리한 뒤 잔여 그래프에서 추가 증대합니다. 스케줄링의 최소 가동시간 보장·행렬 채우기에 쓰입니다.",
   "hint": "",
-  "more": "<b>하한 있는 유량(flow with lower bounds)</b>은 각 간선에 <b>[하한 L, 상한 U]</b> 제약(흐름 f가 L ≤ f ≤ U)을 둔 네트워크 유량 문제입니다. 표준 변환으로 일반 최대유량으로 환원합니다: ① 각 간선 (u→v, [L,U])에서 <b>하한 L을 미리 흘린 것으로 간주</b>하고 용량을 <b>U−L</b>로 줄입니다. ② 그러면 강제로 흘린 L 때문에 각 정점에 불균형이 생깁니다 — 정점 v로는 들어오는 하한 합만큼 \"공급 초과\", u에서는 나가는 하한 합만큼 \"수요 부족\". 정점별 순불균형 <b>excess(v) = (들어오는 L 합) − (나가는 L 합)</b>. ③ <b>가상 슈퍼소스 S′·슈퍼싱크 T′</b>를 추가해, excess>0인 정점은 <b>S′→v(용량 excess)</b>, excess<0인 정점은 <b>v→T′(용량 −excess)</b> 간선으로 균형을 맞춥니다. ④ <b>S′→T′ 최대유량을 계산해 모든 S′ 간선이 포화</b>되면(=강제 하한을 모두 충족할 수 있으면) <b>실현 가능한 흐름이 존재</b>하고, 실제 간선 흐름 = L + (보조 그래프에서 흐른 양). 여기에 원래 s→t를 다루려면 <b>t→s 무한용량 간선</b>을 추가해 순환으로 만든 뒤 위 절차를 적용하고, 실현 가능 흐름을 얻은 뒤 잔여 그래프에서 s→t(또는 t→s)로 추가 증대해 <b>최대/최소 유량</b>까지 구합니다. 쓰임: <b>스케줄링</b>(최소 근무·기계 가동시간 보장), 공급망 최소 처리량, 행·열 합이 정해진 <b>수송/행렬 채우기</b>, 하한 있는 순환 유량. 핵심: \"반드시 흘려야 할 양을 먼저 흘리고, 남은 자유분만 일반 유량으로\".",
+  "more": "​간선마다 <b>최소 흘림</b>을 강제하는 하한 유량. <b>하한 있는 유량(flow with lower bounds)</b>은 각 간선에 <b>[하한 L, 상한 U]</b> 제약(흐름 f가 L ≤ f ≤ U)을 둔 네트워크 유량 문제입니다. 표준 변환으로 일반 최대유량으로 환원합니다: ① 각 간선 (u→v, [L,U])에서 <b>하한 L을 미리 흘린 것으로 간주</b>하고 용량을 <b>U−L</b>로 줄입니다. ② 그러면 강제로 흘린 L 때문에 각 정점에 불균형이 생깁니다 — 정점 v로는 들어오는 하한 합만큼 \"공급 초과\", u에서는 나가는 하한 합만큼 \"수요 부족\". 정점별 순불균형 <b>excess(v) = (들어오는 L 합) − (나가는 L 합)</b>. ③ <b>가상 슈퍼소스 S′·슈퍼싱크 T′</b>를 추가해, excess>0인 정점은 <b>S′→v(용량 excess)</b>, excess<0인 정점은 <b>v→T′(용량 −excess)</b> 간선으로 균형을 맞춥니다. ④ <b>S′→T′ 최대유량을 계산해 모든 S′ 간선이 포화</b>되면(=강제 하한을 모두 충족할 수 있으면) <b>실현 가능한 흐름이 존재</b>하고, 실제 간선 흐름 = L + (보조 그래프에서 흐른 양). 여기에 원래 s→t를 다루려면 <b>t→s 무한용량 간선</b>을 추가해 순환으로 만든 뒤 위 절차를 적용하고, 실현 가능 흐름을 얻은 뒤 잔여 그래프에서 s→t(또는 t→s)로 추가 증대해 <b>최대/최소 유량</b>까지 구합니다. 쓰임: <b>스케줄링</b>(최소 근무·기계 가동시간 보장), 공급망 최소 처리량, 행·열 합이 정해진 <b>수송/행렬 채우기</b>, 하한 있는 순환 유량. 핵심: \"반드시 흘려야 할 양을 먼저 흘리고, 남은 자유분만 일반 유량으로\".",
   "more_en": "<b>Flow with lower bounds</b> puts a constraint <b>[lower L, upper U]</b> on each edge (flow f with L ≤ f ≤ U). A standard transformation reduces it to ordinary max-flow: ① treat the <b>lower bound L as already pushed</b> on each edge (u→v, [L,U]) and shrink its capacity to <b>U−L</b>. ② This forced L creates imbalances: each vertex v gets \"excess supply\" equal to incoming lower bounds and \"deficit\" equal to outgoing ones, with net <b>excess(v) = (sum of incoming L) − (sum of outgoing L)</b>. ③ Add a <b>virtual super-source S′ and super-sink T′</b>: connect S′→v (capacity excess) for excess>0 vertices and v→T′ (capacity −excess) for excess<0, to rebalance. ④ Compute <b>max-flow S′→T′; if all S′ edges saturate</b> (the forced lower bounds can all be met), a <b>feasible flow exists</b>, and the actual edge flow = L + (flow in the auxiliary graph). To handle the original s→t, add a <b>t→s infinite-capacity edge</b> to make it circulatory, run the above, then augment s→t (or t→s) in the residual graph to also get <b>max/min flow</b>. Uses: <b>scheduling</b> (guaranteed minimum shifts/machine uptime), supply-chain minimum throughput, <b>transportation/matrix filling</b> with fixed row-column sums, lower-bounded circulations. The crux: \"push the mandatory amount first, then route only the free remainder as ordinary flow.\"",
   "problem": {
    "q": "하한 있는 유량에서 하한 L을 '미리 흘렸다'고 보면 생기는 불균형을 어떻게 해소하나?",
@@ -4337,7 +4399,9 @@
    "  addEdge(u, v, cap - low);",
    "}",
    "// S'에서 maxflow가 포화면 실현가능"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 5
  },
  "algo_br_steiner": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -4419,11 +4483,11 @@
  },
  "algo_br_planar": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "평면 그래프와 오일러 공식 — V − E + F = 2",
   "narr": "간선이 서로 <b>교차하지 않게</b> 평면에 그릴 수 있는 그래프가 <b>평면 그래프</b>입니다. 그 그림에서 평면은 여러 <b>면(영역)</b>으로 나뉘는데, 연결 평면 그래프는 어떻게 그리든 <b>오일러 공식 V − E + F = 2</b>가 성립합니다(간선·정점을 하나씩 제거해도 V−E+F가 불변임을 귀납으로 증명). 강력한 따름정리는 각 면이 ≥3 간선에 둘러싸이고 각 간선이 2면에 접해 3F ≤ 2E이므로, 오일러에 대입하면 <b>E ≤ 3V − 6</b> — 즉 평면 그래프는 간선이 O(V)인 <b>희소</b> 그래프라는 것입니다. K₅와 K₃,₃는 비평면이고(쿠라토프스키), 평면성 판정은 O(V)입니다. 4색 정리·√n 분리자 정리·VLSI 배치에 쓰이며, 평면=희소+V−E+F=2로 기억합니다.",
   "hint": "",
-  "more": "<b>평면 그래프(planar graph)</b>는 간선이 끝점에서만 만나도록(서로 <b>교차하지 않게</b>) 평면에 그릴 수 있는 그래프입니다. 그런 그림(평면 매장, embedding)에서 평면은 간선들로 여러 <b>면(face, 영역)</b>으로 나뉘는데(바깥 무한 영역도 한 면), <b>오일러 공식</b>이 연결 평면 그래프에 대해 항상 <b>V − E + F = 2</b>를 보장합니다(V=정점, E=간선, F=면 수). 증명은 간선/정점을 하나씩 제거하며 V−E+F가 불변임을 보이는 귀납. 강력한 <b>따름정리</b>: 단순(중복·루프 없는) 연결 평면 그래프(V≥3)는 각 면이 ≥3개 간선에 둘러싸이고 각 간선이 2개 면에 접하므로 3F ≤ 2E, 오일러에 대입하면 <b>E ≤ 3V − 6</b> — 즉 <b>평면 그래프는 희소</b>(간선이 O(V))합니다. 삼각형이 없으면 더 강하게 E ≤ 2V − 4. 비평면성: <b>K₅</b>(완전그래프 5정점)와 <b>K₃,₃</b>(3-3 완전이분)는 평면에 못 그리며, <b>쿠라토프스키/바그너 정리</b>로 \"K₅나 K₃,₃를 (세분/마이너로) 포함하면 비평면\"입니다. <b>평면성 판정</b>은 <b>O(V)</b>(호프크로프트-타잔, 또는 LR/PQ-트리). 응용: <b>4색 정리</b>(평면그래프 4색 칠하기), 평면 그래프의 분리자 정리(√n 분리자 → 분할정복), VLSI 배치, 지도·네트워크. \"평면 = 희소 + V−E+F=2\"로 기억합니다.",
+  "more": "​평면에 그릴 수 있는 그래프와 <b>오일러 공식</b> V−E+F=2. <b>평면 그래프(planar graph)</b>는 간선이 끝점에서만 만나도록(서로 <b>교차하지 않게</b>) 평면에 그릴 수 있는 그래프입니다. 그런 그림(평면 매장, embedding)에서 평면은 간선들로 여러 <b>면(face, 영역)</b>으로 나뉘는데(바깥 무한 영역도 한 면), <b>오일러 공식</b>이 연결 평면 그래프에 대해 항상 <b>V − E + F = 2</b>를 보장합니다(V=정점, E=간선, F=면 수). 증명은 간선/정점을 하나씩 제거하며 V−E+F가 불변임을 보이는 귀납. 강력한 <b>따름정리</b>: 단순(중복·루프 없는) 연결 평면 그래프(V≥3)는 각 면이 ≥3개 간선에 둘러싸이고 각 간선이 2개 면에 접하므로 3F ≤ 2E, 오일러에 대입하면 <b>E ≤ 3V − 6</b> — 즉 <b>평면 그래프는 희소</b>(간선이 O(V))합니다. 삼각형이 없으면 더 강하게 E ≤ 2V − 4. 비평면성: <b>K₅</b>(완전그래프 5정점)와 <b>K₃,₃</b>(3-3 완전이분)는 평면에 못 그리며, <b>쿠라토프스키/바그너 정리</b>로 \"K₅나 K₃,₃를 (세분/마이너로) 포함하면 비평면\"입니다. <b>평면성 판정</b>은 <b>O(V)</b>(호프크로프트-타잔, 또는 LR/PQ-트리). 응용: <b>4색 정리</b>(평면그래프 4색 칠하기), 평면 그래프의 분리자 정리(√n 분리자 → 분할정복), VLSI 배치, 지도·네트워크. \"평면 = 희소 + V−E+F=2\"로 기억합니다.",
   "more_en": "A <b>planar graph</b> can be drawn in the plane so edges meet only at endpoints (no <b>crossings</b>). In such a drawing (a planar embedding), the edges divide the plane into <b>faces (regions)</b> — including the unbounded outer face — and <b>Euler's formula</b> guarantees, for a connected planar graph, <b>V − E + F = 2</b> (V vertices, E edges, F faces). The proof is induction removing one edge/vertex at a time, showing V−E+F is invariant. A powerful <b>corollary</b>: a simple connected planar graph (V≥3) has each face bounded by ≥3 edges and each edge on 2 faces, so 3F ≤ 2E; substituting into Euler gives <b>E ≤ 3V − 6</b> — i.e. <b>planar graphs are sparse</b> (O(V) edges). If triangle-free, even E ≤ 2V − 4. Non-planarity: <b>K₅</b> (complete on 5) and <b>K₃,₃</b> (complete bipartite 3-3) cannot be drawn planar, and by <b>Kuratowski/Wagner</b> a graph is non-planar iff it contains K₅ or K₃,₃ (as a subdivision/minor). <b>Planarity testing</b> is <b>O(V)</b> (Hopcroft-Tarjan, or LR/PQ-tree). Uses: the <b>four-color theorem</b>, the planar separator theorem (√n separators → divide and conquer), VLSI layout, maps/networks. Remember: \"planar = sparse + V−E+F=2.\"",
   "problem": {
    "q": "오일러 공식으로 '단순 연결 평면 그래프는 E ≤ 3V − 6'을 어떻게 유도하나?",
@@ -4439,7 +4503,9 @@
    "bool maybePlanar(int V,int E){",
    "  return E <= 3*V - 6;             // 필요조건",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 15
  },
  "algo_br_segtree2d": {
   "ch": "알고리즘 제5장 트리",
@@ -4530,11 +4596,11 @@
  },
  "algo_br_chinesepostman": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "중국인 우편배달부 — 모든 간선을 최소 비용으로 돌기",
   "narr": "우편배달부는 <b>모든 간선을 적어도 한 번씩</b> 지나 출발점으로 돌아와야 합니다(외판원은 모든 정점, 이건 모든 간선). <b>중국인 우편배달부 문제</b>는 그 최소 비용 폐회로를 찾습니다. <b>오일러 회로가 있으면</b>(연결+모든 차수 짝수) 그게 답이고 추가 0입니다. 차수가 <b>홀수</b>인 정점이 있으면(항상 짝수 개), 그들을 짝지어 <b>각 쌍 최단경로 거리 합이 최소가 되는 완전 매칭</b>을 찾아 그 경로 간선을 중복 추가합니다. 간선을 중복하면 양 끝 차수가 +2(짝수화)되므로 모든 정점이 짝수가 되어 오일러 회로가 생기고, 그것이 최적 경로입니다. 답 = (전체 간선 합) + (최소 매칭 비용)입니다. 방향 버전은 진입·진출 불균형을 최소 비용 유량으로 맞춥니다. 우편·제설·검침·드론 순찰에 쓰입니다.",
   "hint": "",
-  "more": "<b>중국인 우편배달부 문제(Chinese Postman / Route Inspection)</b>는 가중 그래프에서 <b>모든 간선을 최소 한 번씩</b> 지나 출발점으로 돌아오는 <b>최소 비용 닫힌 경로(폐회로)</b>를 찾습니다(외판원은 \"모든 정점\", 이건 \"모든 간선\"). 핵심: 그래프에 <b>오일러 회로가 있으면</b>(연결 + 모든 정점 차수 짝수) 그 회로가 곧 답이고 추가 비용 0입니다. 차수가 <b>홀수인 정점</b>이 있으면(항상 짝수 개 존재) 그들을 지나는 일부 간선을 <b>중복으로 더 걸어야</b> 합니다. 무방향 버전 풀이: ① 홀수차수 정점들을 모두 모으고, ② 그들 사이의 <b>최단 경로</b>를 구한 뒤, ③ 홀수 정점들을 짝지어 \"짝지은 쌍들의 최단경로 거리 합\"이 최소가 되는 <b>최소 가중 완전 매칭</b>(일반 그래프 매칭=블로섬)을 찾습니다. ④ 그 매칭이 가리키는 경로의 간선들을 그래프에 <b>중복 추가</b>하면 모든 정점이 짝수차수가 되어 오일러 회로가 생기고, 그것이 최적 경로입니다. 답 = (모든 간선 가중치 합) + (최소 매칭 비용). 방향 그래프 버전은 진입·진출차수 불균형을 <b>최소 비용 유량(MCMF)</b>으로 맞춥니다. 쓰임: 우편·신문 배달, 제설·도로 청소·검침, 드론 순찰, 회로 검사. \"오일러 회로로 못 떨어지는 만큼만 최소로 중복\"이 핵심입니다.",
+  "more": "​모든 간선을 <b>최소 비용</b>으로 도는 중국인 우편배달부. <b>중국인 우편배달부 문제(Chinese Postman / Route Inspection)</b>는 가중 그래프에서 <b>모든 간선을 최소 한 번씩</b> 지나 출발점으로 돌아오는 <b>최소 비용 닫힌 경로(폐회로)</b>를 찾습니다(외판원은 \"모든 정점\", 이건 \"모든 간선\"). 핵심: 그래프에 <b>오일러 회로가 있으면</b>(연결 + 모든 정점 차수 짝수) 그 회로가 곧 답이고 추가 비용 0입니다. 차수가 <b>홀수인 정점</b>이 있으면(항상 짝수 개 존재) 그들을 지나는 일부 간선을 <b>중복으로 더 걸어야</b> 합니다. 무방향 버전 풀이: ① 홀수차수 정점들을 모두 모으고, ② 그들 사이의 <b>최단 경로</b>를 구한 뒤, ③ 홀수 정점들을 짝지어 \"짝지은 쌍들의 최단경로 거리 합\"이 최소가 되는 <b>최소 가중 완전 매칭</b>(일반 그래프 매칭=블로섬)을 찾습니다. ④ 그 매칭이 가리키는 경로의 간선들을 그래프에 <b>중복 추가</b>하면 모든 정점이 짝수차수가 되어 오일러 회로가 생기고, 그것이 최적 경로입니다. 답 = (모든 간선 가중치 합) + (최소 매칭 비용). 방향 그래프 버전은 진입·진출차수 불균형을 <b>최소 비용 유량(MCMF)</b>으로 맞춥니다. 쓰임: 우편·신문 배달, 제설·도로 청소·검침, 드론 순찰, 회로 검사. \"오일러 회로로 못 떨어지는 만큼만 최소로 중복\"이 핵심입니다.",
   "more_en": "The <b>Chinese Postman (Route Inspection) problem</b> finds, in a weighted graph, the <b>minimum-cost closed walk that traverses every edge at least once</b> and returns to start (TSP visits every vertex; this visits every edge). Key: if the graph <b>has an Eulerian circuit</b> (connected + all degrees even), that circuit is the answer with zero extra cost. If there are <b>odd-degree vertices</b> (always an even number of them), some edges through them must be <b>traversed again (duplicated)</b>. Undirected solution: ① collect all odd-degree vertices; ② compute <b>shortest paths</b> between them; ③ find a <b>minimum-weight perfect matching</b> (general-graph matching = blossom) of the odd vertices minimizing the sum of matched-pair shortest distances; ④ <b>duplicate the edges</b> along those matched paths, making all degrees even so an Eulerian circuit exists — that is the optimal route. Answer = (sum of all edge weights) + (minimum matching cost). The directed version balances in/out-degree imbalances via <b>min-cost flow (MCMF)</b>. Uses: mail/newspaper delivery, snow plowing / street sweeping / meter reading, drone patrol, circuit testing. The crux: \"duplicate only as much as needed to recover an Eulerian circuit, minimally.\"",
   "problem": {
    "q": "중국인 우편배달부에서 홀수차수 정점이 있을 때 무엇을 최소화하며, 왜 그렇게 하나?",
@@ -4550,15 +4616,17 @@
    "minWeightMatching(odd);            // 일반그래프 매칭",
    "duplicateMatchedPaths();",
    "answer = totalEdgeWeight + matchingWeight;"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 11
  },
  "algo_br_konig": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "쾨니그 정리 — 최대 매칭 = 최소 정점 덮개",
   "narr": "이분 그래프에서 <b>최대 매칭의 크기</b>와 <b>최소 정점 덮개의 크기</b>(모든 간선의 한 끝을 덮는 정점 집합)가 항상 같다는 것이 <b>쾨니그 정리</b>입니다. 일반 그래프의 최소 정점 덮개는 NP-난해지만 이분 그래프에서는 매칭으로 다항 시간에 풀립니다. 덮개는 최대 매칭 M을 구한 뒤 왼쪽 미매칭 정점에서 교대 경로로 도달 가능한 집합 Z를 표시해, <b>(왼쪽 Z 밖) ∪ (오른쪽 Z 안)</b>으로 구성하면 크기가 정확히 |M|이 됩니다. 따름정리로 <b>최대 독립 집합 = 전체 − 최소 정점 덮개</b>(독립집합과 덮개는 여집합)이므로 역시 매칭으로 구합니다. 딜워스 정리도 이분 매칭으로 환원되며, 이 모두가 <b>최대유량-최소컷의 특수 형태</b>입니다. 작업 배정·헝가리안에 쓰이는, 매칭과 덮개의 양면입니다.",
   "hint": "",
-  "more": "<b>쾨니그 정리(König's theorem)</b>: <b>이분 그래프</b>에서 <b>최대 매칭의 크기 = 최소 정점 덮개의 크기</b>입니다(정점 덮개 = 모든 간선이 적어도 한 끝점을 가지도록 고른 정점 집합). 일반적으로 최소 정점 덮개는 NP-난해지만, <b>이분 그래프에서는 최대 매칭으로 다항 시간</b>에 풀립니다. 덮개 <b>구성법</b>: 최대 매칭 M을 구한 뒤(예: 호프크로프트-카프), 왼쪽의 <b>미매칭 정점들에서 교대 경로(alternating path)를 따라 BFS/DFS</b>로 도달 가능한 정점 집합 Z를 표시합니다. 그러면 <b>최소 정점 덮개 = (왼쪽에서 Z에 없는 정점) ∪ (오른쪽에서 Z에 있는 정점)</b> — 그 크기가 정확히 |M|이 됩니다. 따름정리: <b>최대 독립 집합(maximum independent set) = 전체 정점 − 최소 정점 덮개</b>(독립집합과 정점덮개는 서로 여집합)이므로, 이분 그래프의 최대 독립 집합도 매칭으로 구합니다. 또 <b>딜워스 정리</b>(부분순서에서 최대 반사슬 = 최소 사슬 분할)도 이분 매칭으로 환원됩니다(최소 경로 덮개). 이 정리들은 모두 <b>최대유량-최소컷 정리의 특수 형태</b>(매칭=유량, 덮개=컷)로 통합됩니다. 쓰임: 작업 배정의 최소 자원, 행렬의 0 덮기(헝가리안), 스케줄링, 최소 경로 덮개. \"매칭과 덮개는 동전의 양면\"이 핵심입니다.",
+  "more": "​이분에서 <b>최대 매칭 = 최소 정점 덮개</b> — 쾨니그. <b>쾨니그 정리(König's theorem)</b>: <b>이분 그래프</b>에서 <b>최대 매칭의 크기 = 최소 정점 덮개의 크기</b>입니다(정점 덮개 = 모든 간선이 적어도 한 끝점을 가지도록 고른 정점 집합). 일반적으로 최소 정점 덮개는 NP-난해지만, <b>이분 그래프에서는 최대 매칭으로 다항 시간</b>에 풀립니다. 덮개 <b>구성법</b>: 최대 매칭 M을 구한 뒤(예: 호프크로프트-카프), 왼쪽의 <b>미매칭 정점들에서 교대 경로(alternating path)를 따라 BFS/DFS</b>로 도달 가능한 정점 집합 Z를 표시합니다. 그러면 <b>최소 정점 덮개 = (왼쪽에서 Z에 없는 정점) ∪ (오른쪽에서 Z에 있는 정점)</b> — 그 크기가 정확히 |M|이 됩니다. 따름정리: <b>최대 독립 집합(maximum independent set) = 전체 정점 − 최소 정점 덮개</b>(독립집합과 정점덮개는 서로 여집합)이므로, 이분 그래프의 최대 독립 집합도 매칭으로 구합니다. 또 <b>딜워스 정리</b>(부분순서에서 최대 반사슬 = 최소 사슬 분할)도 이분 매칭으로 환원됩니다(최소 경로 덮개). 이 정리들은 모두 <b>최대유량-최소컷 정리의 특수 형태</b>(매칭=유량, 덮개=컷)로 통합됩니다. 쓰임: 작업 배정의 최소 자원, 행렬의 0 덮기(헝가리안), 스케줄링, 최소 경로 덮개. \"매칭과 덮개는 동전의 양면\"이 핵심입니다.",
   "more_en": "<b>König's theorem</b>: in a <b>bipartite graph</b>, the <b>size of a maximum matching equals the size of a minimum vertex cover</b> (a vertex cover is a set of vertices touching every edge). Minimum vertex cover is NP-hard in general, but <b>polynomial for bipartite graphs via maximum matching</b>. To <b>construct the cover</b>: find a maximum matching M (e.g. Hopcroft-Karp), then from the left's <b>unmatched vertices do a BFS/DFS along alternating paths</b>, marking the reachable set Z. The <b>minimum vertex cover = (left vertices NOT in Z) ∪ (right vertices IN Z)</b>, whose size is exactly |M|. Corollary: the <b>maximum independent set = all vertices − minimum vertex cover</b> (independent set and vertex cover are complements), so bipartite maximum independent set is also found via matching. <b>Dilworth's theorem</b> (in a poset, the largest antichain = the minimum chain partition) also reduces to bipartite matching (minimum path cover). These all unify as special cases of the <b>max-flow/min-cut theorem</b> (matching = flow, cover = cut). Uses: minimum resources in assignment, covering zeros of a matrix (Hungarian), scheduling, minimum path cover. The crux: \"matching and cover are two sides of one coin.\"",
   "problem": {
    "q": "쾨니그 정리로 이분 그래프의 최대 독립 집합을 어떻게 구하나?",
@@ -4573,7 +4641,9 @@
    "// 최대 독립집합 = V - matching",
    "// 구성: 안 매칭된 좌측에서 교대경로로 도달 표시",
    "// 덮개 = (도달 안된 좌측) ∪ (도달된 우측)"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 6
  },
  "algo_br_shoelace": {
   "ch": "알고리즘 제2장 자료구조",
@@ -4990,11 +5060,11 @@
  },
  "algo_br_edmondskarp": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "에드몬즈-카프 — BFS로 최단 증대 경로",
   "narr": "최단 경로의 BFS를 최대유량에 결합한 알고리즘입니다. 포드-풀커슨은 잔여 그래프에서 증대 경로를 찾아 병목만큼 흘리길 반복하지만, 경로를 아무거나 고르면 종료가 늦거나 보장되지 않습니다. <b>에드몬즈-카프</b>는 증대 경로를 항상 <b>BFS 최단(간선 수 최소)</b>으로 고릅니다. 그러면 각 정점까지의 잔여 최단거리가 단조 비감소이고, 한 간선이 병목이 됐다 다시 나타나려면 그 거리가 최소 2 증가하므로 각 간선의 병목 횟수가 O(V)로 묶입니다. 따라서 증대 횟수 O(VE)·BFS O(E)로 전체 <b>O(V·E²)</b>이며 용량 값과 무관합니다. 디닉 알고리즘의 토대로, 최대유량·이분 매칭에 쓰입니다.",
   "hint": "",
-  "more": "<b>에드몬즈-카프(Edmonds-Karp) 알고리즘</b>은 <b>포드-풀커슨(Ford-Fulkerson) 최대유량법</b>을 구체화한 것으로, 매 단계 <b>증대 경로(augmenting path)를 BFS로</b> 고릅니다. 포드-풀커슨의 틀: <b>잔여 그래프(residual graph)</b>에서 s→t 경로를 찾아 그 경로의 <b>병목 용량만큼 흘리고</b>, 역방향 잔여 간선을 갱신하기를 더 이상 경로가 없을 때까지 반복하면 최대유량이 됩니다(최대유량-최소컷 정리). 문제는 \"아무 경로나\" 고르면 무리수 용량에서 종료가 안 되거나 매우 느릴 수 있다는 것. 에드몬즈-카프의 처방: <b>항상 간선 수가 가장 적은 최단 경로를 BFS로</b> 선택합니다. 핵심 보조정리: BFS 최단 경로를 쓰면 \"s에서 각 정점까지의 잔여 최단거리가 단조 비감소\"이고, 한 간선이 <b>병목(포화)이 되어 사라졌다 다시 나타나기까지 그 거리가 최소 2 증가</b>합니다 — 그래서 각 간선이 병목이 되는 횟수가 O(V), 총 증대 횟수 O(VE), 각 BFS가 O(E)라 전체 <b>O(V·E²)</b>(용량 값과 무관, 정수가 아니어도 종료 보장). 이는 <b>디닉(Dinic) 알고리즘</b>의 토대로, 디닉은 \"한 번의 BFS 레벨 그래프에서 여러 증대 경로를 한꺼번에(블로킹 플로우)\" 흘려 <b>O(V²E)</b>로 더 빠릅니다(단위 용량/이분 매칭이면 O(E√V)=호프크로프트-카프). 쓰임: 최대유량·최소컷, 이분 매칭, 프로젝트 선택, 이미지 분할. \"증대 경로를 BFS 최단으로\"가 에드몬즈-카프의 전부입니다.",
+  "more": "​증가경로를 <b>BFS(최단)</b>로 골라 O(VE²) 보장. <b>에드몬즈-카프(Edmonds-Karp) 알고리즘</b>은 <b>포드-풀커슨(Ford-Fulkerson) 최대유량법</b>을 구체화한 것으로, 매 단계 <b>증대 경로(augmenting path)를 BFS로</b> 고릅니다. 포드-풀커슨의 틀: <b>잔여 그래프(residual graph)</b>에서 s→t 경로를 찾아 그 경로의 <b>병목 용량만큼 흘리고</b>, 역방향 잔여 간선을 갱신하기를 더 이상 경로가 없을 때까지 반복하면 최대유량이 됩니다(최대유량-최소컷 정리). 문제는 \"아무 경로나\" 고르면 무리수 용량에서 종료가 안 되거나 매우 느릴 수 있다는 것. 에드몬즈-카프의 처방: <b>항상 간선 수가 가장 적은 최단 경로를 BFS로</b> 선택합니다. 핵심 보조정리: BFS 최단 경로를 쓰면 \"s에서 각 정점까지의 잔여 최단거리가 단조 비감소\"이고, 한 간선이 <b>병목(포화)이 되어 사라졌다 다시 나타나기까지 그 거리가 최소 2 증가</b>합니다 — 그래서 각 간선이 병목이 되는 횟수가 O(V), 총 증대 횟수 O(VE), 각 BFS가 O(E)라 전체 <b>O(V·E²)</b>(용량 값과 무관, 정수가 아니어도 종료 보장). 이는 <b>디닉(Dinic) 알고리즘</b>의 토대로, 디닉은 \"한 번의 BFS 레벨 그래프에서 여러 증대 경로를 한꺼번에(블로킹 플로우)\" 흘려 <b>O(V²E)</b>로 더 빠릅니다(단위 용량/이분 매칭이면 O(E√V)=호프크로프트-카프). 쓰임: 최대유량·최소컷, 이분 매칭, 프로젝트 선택, 이미지 분할. \"증대 경로를 BFS 최단으로\"가 에드몬즈-카프의 전부입니다.",
   "more_en": "<b>Edmonds-Karp</b> is a concrete realization of the <b>Ford-Fulkerson maximum-flow method</b> that chooses each <b>augmenting path by BFS</b>. Ford-Fulkerson's framework: in the <b>residual graph</b>, find an s→t path, push flow equal to its <b>bottleneck capacity</b>, update reverse residual edges, and repeat until no path remains — yielding the max flow (max-flow/min-cut theorem). The catch: picking \"any path\" may not terminate (with irrational capacities) or be very slow. Edmonds-Karp's fix: always pick the <b>shortest path (fewest edges) via BFS</b>. Key lemma: with BFS shortest paths, the residual shortest distance from s to each vertex is non-decreasing, and an edge that becomes the <b>bottleneck (saturates) and later reappears</b> has that distance increase by at least 2 — so each edge is a bottleneck O(V) times, giving O(VE) augmentations, each BFS O(E), total <b>O(V·E²)</b> (independent of capacity values, terminating even for non-integers). It is the basis of <b>Dinic's algorithm</b>, which pushes many augmenting paths at once (a blocking flow) per BFS level graph for a faster <b>O(V²E)</b> (O(E√V) for unit-capacity/bipartite matching = Hopcroft-Karp). Uses: max flow/min cut, bipartite matching, project selection, image segmentation. \"Augment along the BFS-shortest path\" is all of Edmonds-Karp.",
   "problem": {
    "q": "포드-풀커슨에서 증대 경로를 BFS(최단)로 고르면 무엇이 보장되는가?",
@@ -5014,7 +5084,9 @@
    "  }",
    "  return flow;",
    "}   // O(VE^2), 증대 ≤ VE번"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 2
  },
  "algo_br_linearsieve": {
   "ch": "알고리즘 제2장 자료구조",
@@ -5075,11 +5147,11 @@
  },
  "algo_br_dilworth": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "딜워스 정리 — 최소 사슬 분할 = 최대 반사슬",
   "narr": "그래프의 매칭 쌍대성을 부분순서에 적용한 정리입니다. <b>부분순서 집합</b>에서 전체를 덮는 <b>최소 사슬(서로 비교 가능한 줄) 개수</b>가 <b>최대 반사슬(어느 둘도 비교 불가한 집합)의 크기</b>와 정확히 같습니다. 한 사슬은 반사슬 원소를 최대 하나만 포함하므로 사슬 수 ≥ 최대 반사슬은 자명하고, 딜워스는 이 하한이 정확히 달성됨을 보장합니다. 계산은 <b>이분 매칭</b>으로 합니다. 원소를 좌·우로 복제하고 x<y 쌍마다 간선을 두면 <b>최소 사슬 수 = n − 최대 매칭</b>입니다. 수열에 적용하면 최소 비증가 분할 = LIS 길이가 되어 수열 문제가 환원됩니다. 작업 스케줄링·상자 중첩에 쓰이며 쾨니그 정리와 한 가족입니다.",
   "hint": "",
-  "more": "<b>딜워스 정리(Dilworth's theorem)</b>: 유한 <b>부분순서 집합(poset)</b>에서, 전체를 덮는 데 필요한 <b>최소 사슬(chain, 서로 비교 가능한 원소들의 줄) 개수</b> = <b>최대 반사슬(antichain, 어느 둘도 비교 불가한 원소 집합)의 크기</b>. 직관: 한 사슬은 반사슬의 원소를 최대 하나만 포함할 수 있으므로(반사슬은 서로 비교 불가) 사슬 수 ≥ 최대 반사슬 크기는 자명하고, 딜워스는 그 하한이 <b>정확히 달성됨</b>을 보장합니다. <b>계산</b>: 최소 사슬 분할은 <b>이분 매칭</b>으로 풉니다 — 각 원소 x를 좌측 xₗ·우측 xᵣ로 복제하고 \"x < y\"인 쌍마다 xₗ–yᵣ 간선을 둔 이분 그래프에서 <b>최소 사슬 수 = n − (최대 매칭)</b>(매칭된 간선이 두 원소를 한 사슬로 잇는다). 쌍대인 <b>미르스키 정리(Mirsky)</b>는 반대로 \"최소 반사슬 분할 = 최대 사슬 길이\"(가장 긴 사슬). 특수 경우: 수열을 \"i<j이고 aᵢ≤aⱼ\"로 부분순서 주면, <b>최소 비증가 수열 분할 개수 = 최장 증가 부분수열(LIS) 길이</b>(딜워스), \"최소 감소수열로 덮기\"류 문제가 LIS로 환원됩니다. <b>DAG 최소 경로 덮개</b>(모든 정점을 덮는 최소 경로 수 = n − 최대 이분 매칭)도 같은 틀. 쓰임: 작업 스케줄링(최소 기계 수), 상자 중첩(러시아 인형), 수열 분할, 부분순서 최적화. \"순서 구조의 매칭 쌍대성\"이 핵심으로, 쾨니그·최대유량최소컷과 한 가족입니다.",
+  "more": "​순서집합의 <b>최소 사슬 = 최대 반사슬</b> — 딜워스. <b>딜워스 정리(Dilworth's theorem)</b>: 유한 <b>부분순서 집합(poset)</b>에서, 전체를 덮는 데 필요한 <b>최소 사슬(chain, 서로 비교 가능한 원소들의 줄) 개수</b> = <b>최대 반사슬(antichain, 어느 둘도 비교 불가한 원소 집합)의 크기</b>. 직관: 한 사슬은 반사슬의 원소를 최대 하나만 포함할 수 있으므로(반사슬은 서로 비교 불가) 사슬 수 ≥ 최대 반사슬 크기는 자명하고, 딜워스는 그 하한이 <b>정확히 달성됨</b>을 보장합니다. <b>계산</b>: 최소 사슬 분할은 <b>이분 매칭</b>으로 풉니다 — 각 원소 x를 좌측 xₗ·우측 xᵣ로 복제하고 \"x < y\"인 쌍마다 xₗ–yᵣ 간선을 둔 이분 그래프에서 <b>최소 사슬 수 = n − (최대 매칭)</b>(매칭된 간선이 두 원소를 한 사슬로 잇는다). 쌍대인 <b>미르스키 정리(Mirsky)</b>는 반대로 \"최소 반사슬 분할 = 최대 사슬 길이\"(가장 긴 사슬). 특수 경우: 수열을 \"i<j이고 aᵢ≤aⱼ\"로 부분순서 주면, <b>최소 비증가 수열 분할 개수 = 최장 증가 부분수열(LIS) 길이</b>(딜워스), \"최소 감소수열로 덮기\"류 문제가 LIS로 환원됩니다. <b>DAG 최소 경로 덮개</b>(모든 정점을 덮는 최소 경로 수 = n − 최대 이분 매칭)도 같은 틀. 쓰임: 작업 스케줄링(최소 기계 수), 상자 중첩(러시아 인형), 수열 분할, 부분순서 최적화. \"순서 구조의 매칭 쌍대성\"이 핵심으로, 쾨니그·최대유량최소컷과 한 가족입니다.",
   "more_en": "<b>Dilworth's theorem</b>: in a finite <b>partially ordered set (poset)</b>, the <b>minimum number of chains (sequences of mutually comparable elements) needed to cover everything</b> = the <b>size of the largest antichain (a set of pairwise incomparable elements)</b>. Intuition: a chain can contain at most one element of any antichain (its elements are incomparable), so #chains ≥ max antichain is trivial, and Dilworth guarantees this bound is <b>exactly achieved</b>. <b>Computation</b>: the minimum chain partition is solved by <b>bipartite matching</b> — duplicate each element x into a left xₗ and right xᵣ, add an edge xₗ–yᵣ for each pair x < y; then <b>minimum chains = n − (maximum matching)</b> (each matched edge links two elements into one chain). The dual <b>Mirsky's theorem</b> says \"minimum antichain partition = longest chain.\" Special case: ordering a sequence by \"i<j and aᵢ≤aⱼ,\" the <b>minimum number of non-increasing subsequences covering it = the length of the longest increasing subsequence (LIS)</b> (Dilworth), reducing such cover problems to LIS. The <b>minimum path cover of a DAG</b> (fewest paths covering all vertices = n − maximum bipartite matching) uses the same framework. Uses: job scheduling (fewest machines), box nesting (Russian dolls), sequence partition, poset optimization. The crux is \"the matching duality of order structures,\" in the same family as König and max-flow/min-cut.",
   "problem": {
    "q": "딜워스 정리로 최소 사슬 분할을 어떻게 계산하며, LIS와는 어떻게 연결되나?",
@@ -5094,7 +5166,9 @@
    "int minChains = N - maxBipartiteMatching();",
    "// 예: 최소 LIS 분할, 겹치는 구간 등",
    "// 쾨니그 정리와 함께 매칭-덮개 쌍대성"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 7
  },
  "algo_br_modinverse": {
   "ch": "알고리즘 제2장 자료구조",
@@ -5175,11 +5249,11 @@
  },
  "algo_br_kshortest": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "k번째 최단 경로 — 1등 말고 K등까지",
   "narr": "최단 경로 하나가 아니라 짧은 순서로 <b>K개</b>를 구하는 확장입니다. 두 갈래로 나뉩니다. <b>경로 반복 허용</b>이면 다익스트라를 일반화해, 우선순위 큐에서 (거리, 정점)을 꺼낼 때 <b>정점 v 도착 횟수가 K 미만일 때만</b> 확장하고 t에 K번째로 도착한 거리가 답입니다. 정점마다 최대 K번 처리되어 O(K·E·log)입니다. <b>단순 경로만</b>이면 Yen 알고리즘으로, 이미 찾은 경로의 <b>분기점마다 한 간선을 막고</b> 최단을 다시 구해 후보를 모으고 최소를 채택하며 분기마다 다익스트라 1회로 O(K·V·(E+V log V))입니다. 내비게이션의 대안 경로·라우팅 백업 경로에 쓰입니다. 반복허용은 다익스트라 변형, 단순경로는 Yen으로 구분합니다.",
   "hint": "",
-  "more": "<b>k번째 최단 경로(k-shortest paths)</b>는 s→t의 최단 경로를 짧은 순서로 <b>K개</b> 구하는 문제입니다(대안 경로·경로 다양화에 필요). 두 갈래로 나뉩니다. ① <b>경로 반복 허용(walks)</b>: 다익스트라를 일반화 — 우선순위 큐에서 (현재 거리, 정점)을 꺼낼 때 <b>정점 v에 도착한 횟수 cnt[v]를 세고, cnt[v] < K일 때만</b> 확장합니다. t에 K번째로 도착했을 때의 거리가 K번째 최단 거리. 정점마다 최대 K번 처리되므로 <b>O(K·E·log)</b> 정도. 구현이 단순하고 사이클을 통한 경로도 셉니다. ② <b>단순 경로(simple paths)만, 정점 중복 금지</b>: <b>Yen 알고리즘</b> — 이미 찾은 (k−1)번째 경로에서 <b>분기점(spur node)</b>마다 그 지점의 한 간선을 막고 최단 경로를 다시 구해 후보를 모으고, 후보 중 최소를 k번째로 채택. 각 분기마다 다익스트라 1회라 <b>O(K·V·(E + V log V))</b>. Eppstein 알고리즘은 (반복 허용) k-shortest를 거의 선형 가산(heap of paths)으로 더 빠르게. 쓰임: <b>대안 경로 안내</b>(내비게이션의 \"다른 경로\"), 네트워크 라우팅 백업 경로, 가설 순위(NLP·바이오), 제약 만족 경로 후보. \"최단 1개\"를 \"짧은 순 K개\"로 확장하는 두 표준(반복허용=다익스트라 변형, 단순경로=Yen)을 구분해 쓰는 것이 핵심입니다.",
+  "more": "​1등 말고 <b>K등</b>까지의 최단경로. <b>k번째 최단 경로(k-shortest paths)</b>는 s→t의 최단 경로를 짧은 순서로 <b>K개</b> 구하는 문제입니다(대안 경로·경로 다양화에 필요). 두 갈래로 나뉩니다. ① <b>경로 반복 허용(walks)</b>: 다익스트라를 일반화 — 우선순위 큐에서 (현재 거리, 정점)을 꺼낼 때 <b>정점 v에 도착한 횟수 cnt[v]를 세고, cnt[v] < K일 때만</b> 확장합니다. t에 K번째로 도착했을 때의 거리가 K번째 최단 거리. 정점마다 최대 K번 처리되므로 <b>O(K·E·log)</b> 정도. 구현이 단순하고 사이클을 통한 경로도 셉니다. ② <b>단순 경로(simple paths)만, 정점 중복 금지</b>: <b>Yen 알고리즘</b> — 이미 찾은 (k−1)번째 경로에서 <b>분기점(spur node)</b>마다 그 지점의 한 간선을 막고 최단 경로를 다시 구해 후보를 모으고, 후보 중 최소를 k번째로 채택. 각 분기마다 다익스트라 1회라 <b>O(K·V·(E + V log V))</b>. Eppstein 알고리즘은 (반복 허용) k-shortest를 거의 선형 가산(heap of paths)으로 더 빠르게. 쓰임: <b>대안 경로 안내</b>(내비게이션의 \"다른 경로\"), 네트워크 라우팅 백업 경로, 가설 순위(NLP·바이오), 제약 만족 경로 후보. \"최단 1개\"를 \"짧은 순 K개\"로 확장하는 두 표준(반복허용=다익스트라 변형, 단순경로=Yen)을 구분해 쓰는 것이 핵심입니다.",
   "more_en": "The <b>k-shortest paths</b> problem finds the K shortest s→t paths in increasing order (needed for alternative routes / path diversity). It splits in two. ① <b>Allowing repeated vertices (walks)</b>: generalize Dijkstra — when popping (distance, vertex) from the priority queue, <b>count arrivals cnt[v] at vertex v and expand only while cnt[v] < K</b>. The distance when t is reached for the K-th time is the K-th shortest. Each vertex is processed up to K times, so about <b>O(K·E·log)</b>; simple to implement and it counts paths through cycles. ② <b>Simple paths only (no repeated vertices)</b>: <b>Yen's algorithm</b> — from each already-found (k−1)-th path, at every <b>spur node</b> remove one edge there and recompute a shortest path to gather candidates, then take the minimum candidate as the k-th. With one Dijkstra per spur, it's <b>O(K·V·(E + V log V))</b>. Eppstein's algorithm computes (repeat-allowed) k-shortest near-linearly with a heap of paths. Uses: <b>alternative route guidance</b> (navigation's \"other routes\"), backup routing paths, ranked hypotheses (NLP, bio), constraint-satisfying path candidates. The crux is distinguishing the two standards — Dijkstra-variant for walks, Yen for simple paths.",
   "problem": {
    "q": "반복 허용 k번째 최단 경로를 다익스트라 변형으로 어떻게 구하나?",
@@ -5197,15 +5271,17 @@
    "  for(auto [v,w]: adj[u])",
    "    if(cnt[v]<k) pq.push({d+w, v});",
    "}   // 같은 정점 여러 번 통과 허용"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 7
  },
  "algo_br_transclosure": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "추이 폐쇄 — 도달 가능성을 모두 채우기",
   "narr": "그래프 응용에서 도달 가능성을 모든 쌍으로 채우는 문제입니다. 방향 그래프의 <b>reach[u][v] = u에서 v로 0개 이상 간선을 거쳐 도달 가능한가</b>를 구합니다. 간선(직접 연결)을 여러 단계 도달로 확장(닫음)한 것입니다. <b>플로이드-워셜형 DP</b>는 reach[i][j] |= reach[i][k] & reach[k][j]를 모든 중간 k에 대해(k 루프 바깥) O(V³)에 채웁니다. 각 행을 <b>비트셋</b>으로 두면 워드 단위 OR로 <b>O(V³/64)</b>까지 빨라지고, DAG면 위상 역순으로 자식들의 reach 합집합을 모아 더 효율적입니다. 도달성 질의 전처리·서브타입 추론·ε-닫힘에 쓰입니다. OR을 min으로 바꾸면 곧 플로이드-워셜 최단경로입니다.",
   "hint": "",
-  "more": "<b>추이 폐쇄(transitive closure)</b>는 방향 그래프의 <b>도달 가능성 관계</b>를 모든 쌍에 대해 구합니다: <b>reach[u][v] = u에서 v로 (0개 이상 간선을 거쳐) 도달 가능한가</b>. 즉 간선(직접 연결)을 \"여러 단계 도달 가능\"으로 확장(닫음)한 것입니다. 계산법: ① <b>플로이드-워셜형 DP</b> — <b>reach[i][j] |= reach[i][k] & reach[k][j]</b>를 모든 중간 정점 k에 대해(k 루프가 가장 바깥) → O(V³). 직관: i→k로 가고 k→j로 갈 수 있으면 i→j도 가능. ② <b>비트셋 가속</b> — 각 행 reach[i]를 비트셋으로 두면, \"reach[i][k]가 1이면 reach[i] |= reach[k]\"가 워드 단위 OR 한 번 → <b>O(V³/64)</b>(실측 수십 배). ③ <b>DAG</b>면 <b>위상 역순으로</b> reach[v] = {v} ∪ (자식들의 reach 합집합)을 모으면 더 효율적(또는 각 정점 DFS/BFS로 O(V·(V+E))). 쓰임: <b>도달성 질의</b> 전처리, <b>부분순서 완성</b>(관계의 추이적 닫힘), 타입 시스템의 서브타입 추론, 의존성/빌드 그래프, 정규식·오토마톤의 ε-닫힘, SCC 축약 후 DAG 도달성. 반대 개념인 <b>추이 축소(transitive reduction)</b>는 같은 도달성을 주는 최소 간선 집합(DAG에서 유일). \"간선을 도달 가능으로 닫는다\"가 핵심이며, 가중치를 OR 대신 min으로 바꾸면 곧 플로이드-워셜 최단경로입니다.",
+  "more": "​<b>도달 가능성</b>을 모두 채우는 추이 폐쇄. <b>추이 폐쇄(transitive closure)</b>는 방향 그래프의 <b>도달 가능성 관계</b>를 모든 쌍에 대해 구합니다: <b>reach[u][v] = u에서 v로 (0개 이상 간선을 거쳐) 도달 가능한가</b>. 즉 간선(직접 연결)을 \"여러 단계 도달 가능\"으로 확장(닫음)한 것입니다. 계산법: ① <b>플로이드-워셜형 DP</b> — <b>reach[i][j] |= reach[i][k] & reach[k][j]</b>를 모든 중간 정점 k에 대해(k 루프가 가장 바깥) → O(V³). 직관: i→k로 가고 k→j로 갈 수 있으면 i→j도 가능. ② <b>비트셋 가속</b> — 각 행 reach[i]를 비트셋으로 두면, \"reach[i][k]가 1이면 reach[i] |= reach[k]\"가 워드 단위 OR 한 번 → <b>O(V³/64)</b>(실측 수십 배). ③ <b>DAG</b>면 <b>위상 역순으로</b> reach[v] = {v} ∪ (자식들의 reach 합집합)을 모으면 더 효율적(또는 각 정점 DFS/BFS로 O(V·(V+E))). 쓰임: <b>도달성 질의</b> 전처리, <b>부분순서 완성</b>(관계의 추이적 닫힘), 타입 시스템의 서브타입 추론, 의존성/빌드 그래프, 정규식·오토마톤의 ε-닫힘, SCC 축약 후 DAG 도달성. 반대 개념인 <b>추이 축소(transitive reduction)</b>는 같은 도달성을 주는 최소 간선 집합(DAG에서 유일). \"간선을 도달 가능으로 닫는다\"가 핵심이며, 가중치를 OR 대신 min으로 바꾸면 곧 플로이드-워셜 최단경로입니다.",
   "more_en": "The <b>transitive closure</b> computes the <b>reachability relation</b> of a directed graph for all pairs: <b>reach[u][v] = can u reach v via zero or more edges</b>. It extends (closes) direct edges into multi-step reachability. Methods: ① <b>Floyd-Warshall-style DP</b> — <b>reach[i][j] |= reach[i][k] & reach[k][j]</b> over all intermediate k (k as the outermost loop) → O(V³). Intuition: if i→k and k→j, then i→j. ② <b>bitset acceleration</b> — store each row reach[i] as a bitset, so \"if reach[i][k] then reach[i] |= reach[k]\" is one word-wise OR → <b>O(V³/64)</b> (tens of times faster in practice). ③ for a <b>DAG</b>, process in <b>reverse topological order</b>, reach[v] = {v} ∪ (union of children's reach), or BFS/DFS per vertex for O(V·(V+E)). Uses: precomputing <b>reachability queries</b>, <b>completing a partial order</b> (transitive closure of a relation), subtype inference in type systems, dependency/build graphs, ε-closure of automata/regex, DAG reachability after SCC condensation. The opposite, <b>transitive reduction</b>, is the minimal edge set giving the same reachability (unique for a DAG). The crux is \"closing edges into reachability,\" and replacing OR with min turns it into Floyd-Warshall shortest paths.",
   "problem": {
    "q": "추이 폐쇄를 플로이드-워셜형으로 구하는 점화식과, 비트셋이 어떻게 가속하나?",
@@ -5221,7 +5297,9 @@
    "      for(int j=0;j<V;j++)",
    "        reach[i][j] = reach[i][j] || reach[k][j];",
    "// O(V^3), 비트셋으로 V^3/64 가속"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 13
  },
  "algo_br_cdq": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -5402,11 +5480,11 @@
  },
  "algo_br_funcgraph": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "함수 그래프 — 각 정점 출차수 1의 ρ 구조",
   "narr": "그래프 응용에서 각 정점의 출차수가 정확히 1인 구조입니다. 함수 f: V→V를 i → f[i] 간선으로 그린 것입니다. 구조 정리상 각 성분은 정확히 <b>하나의 사이클과 그 사이클로 흘러드는 나무들</b>로 이뤄집니다. 나가는 간선이 하나뿐이라 따라가면 반드시 사이클에 빠지기 때문이며, 꼬리+고리가 그리스 문자 ρ 모양입니다. 풀이는 <b>사이클 탐지</b>(방문 색칠 또는 메모리 O(1)이면 플로이드 거북-토끼), <b>fᵏ(x)</b>는 <b>이진 점프</b>로 2^j번 적용을 미리 쌓아 O(log k), 사이클·꼬리 길이는 입차수 0부터 제거로 O(n)입니다. 순열은 입차수도 1이라 꼬리 없이 사이클만 있는 특수형입니다. 반복 적용·폴라드 로·상태 기계 사이클에 쓰입니다.",
   "hint": "",
-  "more": "<b>함수 그래프(functional graph)</b>는 모든 정점의 <b>출차수가 정확히 1</b>인 방향 그래프입니다 — 함수 f: V→V를 i → f[i] 간선으로 그린 것. 구조 정리: 각 <b>약연결 성분</b>은 정확히 <b>하나의 사이클</b>과 그 사이클의 정점들로 흘러드는 <b>나무(트리)들</b>로 이뤄집니다(나가는 간선이 하나뿐이라 따라가면 반드시 사이클에 빠짐 — 꼬리+고리 = 그리스 문자 <b>ρ</b> 모양). 풀이 도구: ① <b>사이클 탐지</b> — 방문 표시(색칠)로 각 성분의 사이클을 찾거나, 메모리 O(1)이 필요하면 <b>플로이드 거북-토끼</b>(한 칸·두 칸 포인터)/브렌트. ② <b>fᵏ(x)</b>(x에서 k번 적용한 위치) — <b>이진 점프(binary lifting)</b>로 up[x][j]=2^j번 적용, O(log k). 또는 \"꼬리 길이 + 사이클 길이\"를 구해 k를 사이클 안에서 mod. ③ <b>사이클 길이·꼬리 길이·각 정점이 속한 사이클</b>을 위상정렬류(입차수 0부터 제거)나 DFS로 O(n)에. <b>순열</b>은 함수 그래프의 특수형(모든 정점 입차수도 1 → 꼬리 없이 사이클만 = 순열 사이클 분해). 쓰임: 반복 적용(\"k번 후 상태\"), 의사난수·해시 충돌의 ρ(폴라드 로의 기반), 상태 기계 사이클, \"각자 한 명을 가리킬 때\" 구조 분석. \"출차수 1 → ρ(사이클+나무), 반복은 이진점프, 사이클은 거북토끼\"가 핵심입니다.",
+  "more": "​각 정점 출차수 1의 <b>ρ 구조</b> — 함수 그래프. <b>함수 그래프(functional graph)</b>는 모든 정점의 <b>출차수가 정확히 1</b>인 방향 그래프입니다 — 함수 f: V→V를 i → f[i] 간선으로 그린 것. 구조 정리: 각 <b>약연결 성분</b>은 정확히 <b>하나의 사이클</b>과 그 사이클의 정점들로 흘러드는 <b>나무(트리)들</b>로 이뤄집니다(나가는 간선이 하나뿐이라 따라가면 반드시 사이클에 빠짐 — 꼬리+고리 = 그리스 문자 <b>ρ</b> 모양). 풀이 도구: ① <b>사이클 탐지</b> — 방문 표시(색칠)로 각 성분의 사이클을 찾거나, 메모리 O(1)이 필요하면 <b>플로이드 거북-토끼</b>(한 칸·두 칸 포인터)/브렌트. ② <b>fᵏ(x)</b>(x에서 k번 적용한 위치) — <b>이진 점프(binary lifting)</b>로 up[x][j]=2^j번 적용, O(log k). 또는 \"꼬리 길이 + 사이클 길이\"를 구해 k를 사이클 안에서 mod. ③ <b>사이클 길이·꼬리 길이·각 정점이 속한 사이클</b>을 위상정렬류(입차수 0부터 제거)나 DFS로 O(n)에. <b>순열</b>은 함수 그래프의 특수형(모든 정점 입차수도 1 → 꼬리 없이 사이클만 = 순열 사이클 분해). 쓰임: 반복 적용(\"k번 후 상태\"), 의사난수·해시 충돌의 ρ(폴라드 로의 기반), 상태 기계 사이클, \"각자 한 명을 가리킬 때\" 구조 분석. \"출차수 1 → ρ(사이클+나무), 반복은 이진점프, 사이클은 거북토끼\"가 핵심입니다.",
   "more_en": "A <b>functional graph</b> is a directed graph where every vertex has <b>out-degree exactly 1</b> — the drawing of a function f: V→V via edges i → f[i]. Structure theorem: each <b>weakly connected component</b> consists of exactly <b>one cycle</b> plus <b>trees</b> flowing into the cycle's vertices (following the single out-edge inevitably falls into a cycle — tail + loop = the Greek letter <b>ρ</b>). Tools: ① <b>cycle detection</b> — color-marking to find each component's cycle, or <b>Floyd's tortoise-and-hare</b> (one/two-step pointers)/Brent for O(1) memory; ② <b>fᵏ(x)</b> (position after applying f k times) via <b>binary lifting</b> up[x][j]=2^j applications, O(log k), or computing \"tail length + cycle length\" and taking k mod the cycle; ③ <b>cycle/tail lengths and each vertex's cycle</b> in O(n) by topological-style peeling (remove in-degree-0 first) or DFS. A <b>permutation</b> is the special case where every vertex also has in-degree 1 → no tails, only cycles (permutation cycle decomposition). Uses: iterated application (\"state after k steps\"), the ρ of pseudo-random/hash collisions (basis of Pollard's rho), state-machine cycles, analyzing \"everyone points to one\" structures. The crux: \"out-degree 1 → ρ (cycle + trees), iteration by binary lifting, cycles by tortoise-and-hare.\"",
   "problem": {
    "q": "함수 그래프(출차수 1)의 각 성분이 왜 '사이클 하나 + 나무들'(ρ 모양)인가?",
@@ -5423,7 +5501,9 @@
    "  detectCycleAndTails(i);",
    "}",
    "// k번 적용 f^k(i)는 이진점프로 O(log k)"
-  ]
+  ],
+  "branchOf": "algo6_09",
+  "ord": 14
  },
  "algo_br_kdtree": {
   "ch": "알고리즘 제2장 자료구조",
@@ -5539,11 +5619,11 @@
  },
  "algo_br_boruvka": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "보루프카 — 모든 성분이 동시에 최소 간선 선택",
   "narr": "크루스칼·프림과 다른 세 번째 MST 방법입니다. 크루스칼은 간선을 정렬하고 프림은 한 점에서 키우지만, <b>보루프카</b>는 한 라운드에 <b>모든 연결 성분이 동시에</b> 자기 밖으로 나가는 가장 싼 간선을 찾아 한꺼번에 병합합니다. 각 성분이 적어도 하나의 간선으로 합쳐지므로 <b>성분 수가 매 라운드 절반 이하로 감소</b>해 <b>O(log V) 라운드</b>이고, 라운드마다 간선 훑기 O(E)라 전체 <b>O(E log V)</b>입니다. 가중치가 모두 다르면 각 성분의 최소 간선이 유일해 컷 성질로 안전하게 추가됩니다. 각 성분의 최소 간선 찾기가 독립적이라 <b>병렬·분산·외부 메모리</b>에 잘 맞아 GPU·맵리듀스 MST에 쓰이고, 기대 선형 MST의 출발점입니다.",
   "hint": "",
-  "more": "<b>보루프카 알고리즘(Borůvka's algorithm)</b>은 <b>최소 신장 트리(MST)</b>를 구하는 세 번째 고전 방법입니다(크루스칼·프림과 함께). 한 <b>라운드</b>: ① 현재 각 <b>연결 성분(처음엔 정점 하나하나)</b>에 대해 그 성분에서 <b>밖으로 나가는 가장 싼 간선</b>을 동시에 찾고, ② 그 간선들을 모두 MST에 추가하며 성분들을 <b>병합(union-find)</b>합니다. 각 성분이 적어도 하나의 간선으로 다른 성분과 합쳐지므로 <b>성분 수가 매 라운드 최소 절반으로 감소</b> → <b>O(log V) 라운드</b>, 각 라운드가 모든 간선 훑기 O(E)라 전체 <b>O(E log V)</b>. (간선 가중치가 모두 다르면 각 성분의 최소 간선이 유일해 MST에 안전하게 추가됨 — 컷 성질; 같은 값이면 타이브레이크 규칙 필요, 안 그러면 사이클 위험.) 보루프카의 강점: <b>병렬·분산·외부 메모리</b>에 잘 맞습니다(각 성분의 최소 간선 찾기가 독립적이라 동시 처리 가능) — 그래서 GPU·맵리듀스 MST에 쓰입니다. 또 보루프카 + 다른 기법 결합으로 더 빠른 MST(Karger-Klein-Tarjan의 기대 선형 O(E), 또는 보루프카+프림 하이브리드)의 출발점입니다. 쓰임: 대규모·병렬 MST, 이미지 분할(영역 병합), 클러스터링. \"모든 덩어리가 동시에 자기 최소 간선으로 합친다\"가 핵심으로, 컷 성질(어떤 컷의 최소 간선은 MST에 속함)을 가장 직접적으로 쓰는 알고리즘입니다.",
+  "more": "​모든 성분이 <b>동시에</b> 최소 간선을 고르는 보루프카. <b>보루프카 알고리즘(Borůvka's algorithm)</b>은 <b>최소 신장 트리(MST)</b>를 구하는 세 번째 고전 방법입니다(크루스칼·프림과 함께). 한 <b>라운드</b>: ① 현재 각 <b>연결 성분(처음엔 정점 하나하나)</b>에 대해 그 성분에서 <b>밖으로 나가는 가장 싼 간선</b>을 동시에 찾고, ② 그 간선들을 모두 MST에 추가하며 성분들을 <b>병합(union-find)</b>합니다. 각 성분이 적어도 하나의 간선으로 다른 성분과 합쳐지므로 <b>성분 수가 매 라운드 최소 절반으로 감소</b> → <b>O(log V) 라운드</b>, 각 라운드가 모든 간선 훑기 O(E)라 전체 <b>O(E log V)</b>. (간선 가중치가 모두 다르면 각 성분의 최소 간선이 유일해 MST에 안전하게 추가됨 — 컷 성질; 같은 값이면 타이브레이크 규칙 필요, 안 그러면 사이클 위험.) 보루프카의 강점: <b>병렬·분산·외부 메모리</b>에 잘 맞습니다(각 성분의 최소 간선 찾기가 독립적이라 동시 처리 가능) — 그래서 GPU·맵리듀스 MST에 쓰입니다. 또 보루프카 + 다른 기법 결합으로 더 빠른 MST(Karger-Klein-Tarjan의 기대 선형 O(E), 또는 보루프카+프림 하이브리드)의 출발점입니다. 쓰임: 대규모·병렬 MST, 이미지 분할(영역 병합), 클러스터링. \"모든 덩어리가 동시에 자기 최소 간선으로 합친다\"가 핵심으로, 컷 성질(어떤 컷의 최소 간선은 MST에 속함)을 가장 직접적으로 쓰는 알고리즘입니다.",
   "more_en": "<b>Borůvka's algorithm</b> is the third classic method for the <b>minimum spanning tree (MST)</b> (with Kruskal and Prim). One <b>round</b>: ① for each current <b>connected component</b> (initially single vertices), simultaneously find the <b>cheapest edge leaving it</b>; ② add all those edges to the MST and <b>merge (union-find)</b> the components. Since each component merges with another via at least one edge, the <b>number of components at least halves each round</b> → <b>O(log V) rounds</b>, each scanning all edges in O(E), for <b>O(E log V)</b> total. (With distinct edge weights, each component's minimum edge is unique and safely added — the cut property; equal weights need a tie-break rule, else cycles risk.) Borůvka's strength: it suits <b>parallel, distributed, and external-memory</b> settings (finding each component's min edge is independent and concurrent) — used in GPU/MapReduce MST. It is also the starting point for faster MST algorithms (Karger-Klein-Tarjan's expected-linear O(E), or Borůvka+Prim hybrids). Uses: large-scale/parallel MST, image segmentation (region merging), clustering. The crux: \"every component merges via its own minimum edge at once,\" the most direct use of the cut property (a cut's minimum edge belongs to the MST).",
   "problem": {
    "q": "보루프카 알고리즘이 O(log V) 라운드 만에 끝나는 이유는?",
@@ -5560,15 +5640,17 @@
    "  for(each component c)            // 동시에 합치기",
    "    if(cheapest[c]!=-1) unite(cheapest[c]);",
    "}   // O(E log V), 병렬화 쉬움"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 13
  },
  "algo_br_secondmst": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "차선 신장 트리 — MST 다음으로 싼 트리",
   "narr": "MST 바로 다음으로 가중치 합이 작은 신장 트리입니다. 핵심 성질은 차선 MST가 <b>MST에서 정확히 한 간선만 교환</b>해 얻어진다는 것입니다. 먼저 MST를 구하고, 각 <b>비트리 간선 (u,v)</b>를 넣으면 유일한 사이클이 생기는데 그 사이클은 MST상 u–v 경로 + (u,v)입니다. 그 <b>경로 위 최대 간선</b>을 제거하고 (u,v)를 넣으면 증가량이 w(u,v) − 경로 최대 간선이고, 모든 비트리 간선에 대해 이 증가량의 <b>최소(단, 0 초과)</b>가 차선 MST입니다. 경로 최대 간선을 빠르게 구하려면 <b>이진 점프로 LCA + 경로 최대값</b>을 전처리해 간선당 O(log V), 전체 <b>O(E log V)</b>입니다. 네트워크 백업 트리·MST 민감도 분석에 쓰입니다.",
   "hint": "",
-  "more": "<b>차선 신장 트리(second-best MST)</b>는 MST와 <b>다른</b> 신장 트리 중 가중치 합이 최소인 것입니다(MST 다음으로 싼 트리). 핵심 성질: 차선 MST는 <b>MST에서 정확히 한 간선만 교환</b>해 얻어집니다. 절차: ① 먼저 MST를 구함; ② 각 <b>비트리 간선(MST에 없는 간선) (u,v)</b>에 대해, 이 간선을 MST에 넣으면 <b>유일한 사이클</b>이 생기는데, 그 사이클은 MST상 u–v 경로 + 간선 (u,v)로 이뤄집니다; ③ 그 <b>MST 경로 위의 최대 간선</b>을 제거하고 (u,v)를 넣으면 다시 신장 트리가 되며, 가중치 <b>증가량 = w(u,v) − (경로 최대 간선)</b>; ④ 모든 비트리 간선에 대해 이 증가량을 구해 <b>최소(단, > 0이어야 다른 트리)</b>인 교환이 차선 MST. 효율: MST 경로의 <b>최대 간선</b>을 빠르게 구하려면 <b>이진 점프(binary lifting)로 LCA + 경로 최대값</b>을 함께 전처리(각 정점에서 2^j 조상까지의 최대 간선) → 비트리 간선당 O(log V), 전체 <b>O(E log V)</b>. (가중치가 같은 경우 \"엄격히 두 번째\"를 원하면 경로의 <b>최대 미만 최대(second max)</b>도 함께 관리.) 쓰임: <b>네트워크 백업 트리</b>(주 트리 고장 대비 차선), MST의 민감도 분석(어떤 간선이 얼마나 바뀌어야 MST가 변하나), 신뢰도. \"비트리 간선 하나 넣고 사이클 최대 간선과 교환, 증가 최소\"가 핵심입니다.",
+  "more": "​MST 다음으로 싼 <b>차선</b> 신장 트리. <b>차선 신장 트리(second-best MST)</b>는 MST와 <b>다른</b> 신장 트리 중 가중치 합이 최소인 것입니다(MST 다음으로 싼 트리). 핵심 성질: 차선 MST는 <b>MST에서 정확히 한 간선만 교환</b>해 얻어집니다. 절차: ① 먼저 MST를 구함; ② 각 <b>비트리 간선(MST에 없는 간선) (u,v)</b>에 대해, 이 간선을 MST에 넣으면 <b>유일한 사이클</b>이 생기는데, 그 사이클은 MST상 u–v 경로 + 간선 (u,v)로 이뤄집니다; ③ 그 <b>MST 경로 위의 최대 간선</b>을 제거하고 (u,v)를 넣으면 다시 신장 트리가 되며, 가중치 <b>증가량 = w(u,v) − (경로 최대 간선)</b>; ④ 모든 비트리 간선에 대해 이 증가량을 구해 <b>최소(단, > 0이어야 다른 트리)</b>인 교환이 차선 MST. 효율: MST 경로의 <b>최대 간선</b>을 빠르게 구하려면 <b>이진 점프(binary lifting)로 LCA + 경로 최대값</b>을 함께 전처리(각 정점에서 2^j 조상까지의 최대 간선) → 비트리 간선당 O(log V), 전체 <b>O(E log V)</b>. (가중치가 같은 경우 \"엄격히 두 번째\"를 원하면 경로의 <b>최대 미만 최대(second max)</b>도 함께 관리.) 쓰임: <b>네트워크 백업 트리</b>(주 트리 고장 대비 차선), MST의 민감도 분석(어떤 간선이 얼마나 바뀌어야 MST가 변하나), 신뢰도. \"비트리 간선 하나 넣고 사이클 최대 간선과 교환, 증가 최소\"가 핵심입니다.",
   "more_en": "The <b>second-best MST</b> is the minimum-weight spanning tree <b>different</b> from the MST (the next-cheapest tree). Key property: it differs from the MST by <b>exactly one edge swap</b>. Procedure: ① compute the MST; ② for each <b>non-tree edge (u,v)</b>, adding it to the MST creates a <b>unique cycle</b> (the MST path u–v plus the edge); ③ removing the <b>maximum edge on that MST path</b> and adding (u,v) gives another spanning tree, with weight <b>increase = w(u,v) − (max edge on the path)</b>; ④ over all non-tree edges, take the swap with the <b>smallest (and > 0, to be a different tree)</b> increase. Efficiency: to find the <b>maximum edge on the MST path</b> fast, preprocess <b>binary lifting for LCA + path maximum</b> (the max edge to the 2^j ancestor from each vertex) → O(log V) per non-tree edge, <b>O(E log V)</b> total. (For equal weights, if you want the strictly second-best, also track the <b>second maximum</b> on the path.) Uses: <b>network backup trees</b> (a fallback if the primary fails), MST sensitivity analysis (how much an edge must change to alter the MST), reliability. The crux: \"insert a non-tree edge, swap with the cycle's maximum edge, minimize the increase.\"",
   "problem": {
    "q": "차선 신장 트리를 구할 때, 비트리 간선 (u,v)를 넣으면 무엇과 교환하며 증가량은?",
@@ -5586,7 +5668,9 @@
    "  if(w > mx) best = min(best, mstWeight - mx + w);",
    "}",
    "return best;   // 사이클에서 최대간선만 빼고 넣음"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 14
  },
  "algo_br_palindromepart": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -5665,11 +5749,11 @@
  },
  "algo_br_graphcolor": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "그래프 채색 — 이웃끼리 다른 색, 탐욕적으로",
   "narr": "그래프 기초에서 인접 정점을 다른 색으로 칠합니다. 최소 색 수인 <b>채색수 χ(G)</b>를 구하는 것은 NP-난해입니다. <b>탐욕 채색</b>은 정점을 어떤 순서로 보며 각 정점에 <b>이미 칠해진 이웃이 안 쓴 가장 작은 번호의 색</b>을 줍니다. 한 정점의 이웃이 최대 Δ개라 Δ+1번째 색은 늘 비어 있으므로 항상 <b>≤ Δ+1색</b>을 보장합니다(Δ=최대 차수). 단 색 수는 정점 순서에 의존해, Welsh-Powell·DSATUR 같은 휴리스틱이 보통 더 적은 색을 씁니다. 이분 그래프는 2색, 평면 그래프는 4색 정리로 4색입니다. 레지스터 할당·시험 시간표·주파수 배정에 쓰입니다. 인접은 다른 색, 탐욕은 Δ+1 보장, 최적은 NP가 핵심입니다.",
   "hint": "",
-  "more": "<b>그래프 채색(graph coloring)</b>은 <b>인접한 두 정점이 같은 색을 갖지 않도록</b> 정점에 색을 배정하는 문제입니다. 최소 색의 수를 <b>채색수(chromatic number) χ(G)</b>라 하며, χ(G) 또는 \"k색으로 칠할 수 있는가\"(k≥3)는 <b>NP-난해</b>입니다. <b>탐욕 채색(greedy coloring)</b>: 정점을 어떤 순서로 보며, 각 정점에 <b>이미 칠해진 이웃이 안 쓴 가장 작은 번호의 색</b>을 줍니다. 이 방법은 항상 <b>≤ Δ+1색</b>을 씁니다(Δ=최대 차수 — 한 정점의 이웃이 최대 Δ개라 Δ+1번째 색은 늘 비어 있음). 단, <b>색 수는 정점 순서에 크게 의존</b>합니다: 좋은 순서는 적은 색, 나쁜 순서는 많은 색(완전 이분 그래프에서 교대로 보면 최악). 휴리스틱: <b>Welsh-Powell</b>(차수 큰 정점 먼저), <b>DSATUR</b>(이웃의 서로 다른 색 수가 큰 정점 먼저)가 보통 더 적은 색. 특수 경우: <b>이분 그래프 ⟺ 2색 가능 ⟺ 홀수 사이클 없음</b>(BFS 2색칠), <b>평면 그래프는 4색 정리</b>로 항상 4색(5색은 쉬운 정리), <b>구간 그래프·현 그래프(chordal)</b>는 탐욕(완벽 제거 순서)으로 최적. 응용(채색 = 충돌 없는 자원 배분): <b>레지스터 할당</b>(컴파일러, 간섭 그래프), <b>시험·강의 시간표</b>(겹치는 과목=간선), <b>주파수/채널 배정</b>, 스도쿠(9색), 지도 색칠. \"인접=다른 색, 탐욕은 Δ+1 보장, 최적은 NP\"가 핵심입니다.",
+  "more": "​이웃끼리 다른 색 — <b>그래프 채색</b>(탐욕). <b>그래프 채색(graph coloring)</b>은 <b>인접한 두 정점이 같은 색을 갖지 않도록</b> 정점에 색을 배정하는 문제입니다. 최소 색의 수를 <b>채색수(chromatic number) χ(G)</b>라 하며, χ(G) 또는 \"k색으로 칠할 수 있는가\"(k≥3)는 <b>NP-난해</b>입니다. <b>탐욕 채색(greedy coloring)</b>: 정점을 어떤 순서로 보며, 각 정점에 <b>이미 칠해진 이웃이 안 쓴 가장 작은 번호의 색</b>을 줍니다. 이 방법은 항상 <b>≤ Δ+1색</b>을 씁니다(Δ=최대 차수 — 한 정점의 이웃이 최대 Δ개라 Δ+1번째 색은 늘 비어 있음). 단, <b>색 수는 정점 순서에 크게 의존</b>합니다: 좋은 순서는 적은 색, 나쁜 순서는 많은 색(완전 이분 그래프에서 교대로 보면 최악). 휴리스틱: <b>Welsh-Powell</b>(차수 큰 정점 먼저), <b>DSATUR</b>(이웃의 서로 다른 색 수가 큰 정점 먼저)가 보통 더 적은 색. 특수 경우: <b>이분 그래프 ⟺ 2색 가능 ⟺ 홀수 사이클 없음</b>(BFS 2색칠), <b>평면 그래프는 4색 정리</b>로 항상 4색(5색은 쉬운 정리), <b>구간 그래프·현 그래프(chordal)</b>는 탐욕(완벽 제거 순서)으로 최적. 응용(채색 = 충돌 없는 자원 배분): <b>레지스터 할당</b>(컴파일러, 간섭 그래프), <b>시험·강의 시간표</b>(겹치는 과목=간선), <b>주파수/채널 배정</b>, 스도쿠(9색), 지도 색칠. \"인접=다른 색, 탐욕은 Δ+1 보장, 최적은 NP\"가 핵심입니다.",
   "more_en": "<b>Graph coloring</b> assigns colors to vertices so that <b>no two adjacent vertices share a color</b>. The minimum number of colors is the <b>chromatic number χ(G)</b>, and computing χ(G) (or deciding k-colorability for k≥3) is <b>NP-hard</b>. <b>Greedy coloring</b>: scanning vertices in some order, give each the <b>smallest-numbered color not used by its already-colored neighbors</b>. This always uses <b>≤ Δ+1 colors</b> (Δ = maximum degree — a vertex has at most Δ neighbors, so the (Δ+1)-th color is always free). But the <b>number of colors depends heavily on the vertex order</b>: a good order uses few, a bad one many (worst on a complete bipartite graph taken alternately). Heuristics: <b>Welsh-Powell</b> (highest-degree first) and <b>DSATUR</b> (highest saturation — most distinct neighbor colors — first) usually use fewer colors. Special cases: <b>bipartite ⟺ 2-colorable ⟺ no odd cycle</b> (BFS 2-coloring), <b>planar graphs are 4-colorable</b> (four-color theorem; 5 colors is easy), and <b>interval/chordal graphs</b> are optimally colored greedily (perfect elimination order). Applications (coloring = conflict-free resource assignment): <b>register allocation</b> (compilers, interference graph), <b>exam/class timetabling</b> (conflicts = edges), <b>frequency/channel assignment</b>, Sudoku (9 colors), map coloring. The crux: \"adjacent = different color, greedy guarantees Δ+1, optimal is NP-hard.\"",
   "problem": {
    "q": "탐욕 채색이 항상 Δ+1색 이내를 보장하는 이유는? (Δ=최대 차수)",
@@ -5686,7 +5770,9 @@
    "  color[u]=c;",
    "}",
    "// 색 수 ≤ 최대차수+1 (NP난해, 탐욕은 근사)"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 9
  },
  "algo_br_fenwickrange": {
   "ch": "알고리즘 제5장 트리",
@@ -5769,11 +5855,11 @@
  },
  "algo_br_hall": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "Hall의 결혼 정리 — 완전 매칭이 가능한 조건",
   "narr": "그래프 기초에서 완전 매칭의 존재 조건을 줍니다. 이분 그래프(왼쪽 X, 오른쪽 Y)에서 <b>X를 모두 짝짓는 매칭이 존재할 필요충분조건</b>은 <b>X의 모든 부분집합 S에 대해 |N(S)| ≥ |S|</b>입니다(N(S)는 이웃). 직관은, 어떤 S가 합쳐도 이웃을 |S|개보다 적게 가지면 서로 다른 짝에 배정할 수 없으므로(비둘기집) 매칭이 불가능하고, 모든 S가 조건을 만족하면 항상 존재한다는 것입니다. 이 정리는 쾨니그 정리·최대유량-최소컷과 동치이며, 매칭이 없을 때 <b>위반하는 병목 집합 S</b>로 이유를 증명합니다. 호프크로프트-카프로 최대 매칭을 구해 확인합니다. 일·사람 배정·라틴 방진·정규 이분 그래프의 1-인수분해에 쓰입니다.",
   "hint": "",
-  "more": "<b>Hall의 결혼 정리(Hall's marriage theorem)</b>는 이분 그래프(왼쪽 X, 오른쪽 Y)에서 <b>X의 모든 정점을 포화시키는 매칭(X-완전 매칭)이 존재할 필요충분조건</b>을 줍니다: <b>X의 모든 부분집합 S에 대해 |N(S)| ≥ |S|</b>. 여기서 N(S)는 S의 정점들과 인접한 Y 정점들의 집합(이웃). 직관: 어떤 S개의 정점이 다 합쳐도 <b>이웃을 |S|개보다 적게</b> 가진다면, 그 S를 서로 다른 짝에 배정할 수 없으니 완전 매칭이 불가능합니다(비둘기집). 역으로 모든 S가 이 조건을 만족하면 항상 완전 매칭이 존재합니다(필요충분). 이 정리는 <b>쾨니그 정리·최대유량-최소컷</b>과 동치이며(매칭=유량), 매칭이 없을 때 \"왜 안 되는지\"를 <b>위반하는 집합 S(병목)</b>로 증명해 줍니다(최대 매칭 = |X| − max(|S|−|N(S)|), 결손 버전). 알고리즘으로는 호프크로프트-카프로 최대 매칭을 구해 \"X 완전인지\" 확인하면 되고, 아니면 교대 경로로 위반 집합을 추출. 응용: <b>일·사람 배정</b>(각자 가능한 일이 충분한가), <b>라틴 방진</b> 완성, <b>정규 이분 그래프의 1-인수분해</b>(d-정규 이분 그래프는 d개의 완전 매칭으로 분해 — 시간표·스케줄), 시스템의 서로 다른 대표(SDR). 일반화: <b>결손 버전(deficiency)</b>, 가중·분수 매칭. \"모든 부분집합의 이웃이 충분 ⟺ 완전 매칭\"이 핵심입니다.",
+  "more": "​완전 매칭이 <b>가능한 조건</b> — Hall의 결혼 정리. <b>Hall의 결혼 정리(Hall's marriage theorem)</b>는 이분 그래프(왼쪽 X, 오른쪽 Y)에서 <b>X의 모든 정점을 포화시키는 매칭(X-완전 매칭)이 존재할 필요충분조건</b>을 줍니다: <b>X의 모든 부분집합 S에 대해 |N(S)| ≥ |S|</b>. 여기서 N(S)는 S의 정점들과 인접한 Y 정점들의 집합(이웃). 직관: 어떤 S개의 정점이 다 합쳐도 <b>이웃을 |S|개보다 적게</b> 가진다면, 그 S를 서로 다른 짝에 배정할 수 없으니 완전 매칭이 불가능합니다(비둘기집). 역으로 모든 S가 이 조건을 만족하면 항상 완전 매칭이 존재합니다(필요충분). 이 정리는 <b>쾨니그 정리·최대유량-최소컷</b>과 동치이며(매칭=유량), 매칭이 없을 때 \"왜 안 되는지\"를 <b>위반하는 집합 S(병목)</b>로 증명해 줍니다(최대 매칭 = |X| − max(|S|−|N(S)|), 결손 버전). 알고리즘으로는 호프크로프트-카프로 최대 매칭을 구해 \"X 완전인지\" 확인하면 되고, 아니면 교대 경로로 위반 집합을 추출. 응용: <b>일·사람 배정</b>(각자 가능한 일이 충분한가), <b>라틴 방진</b> 완성, <b>정규 이분 그래프의 1-인수분해</b>(d-정규 이분 그래프는 d개의 완전 매칭으로 분해 — 시간표·스케줄), 시스템의 서로 다른 대표(SDR). 일반화: <b>결손 버전(deficiency)</b>, 가중·분수 매칭. \"모든 부분집합의 이웃이 충분 ⟺ 완전 매칭\"이 핵심입니다.",
   "more_en": "<b>Hall's marriage theorem</b> gives the necessary and sufficient condition for a bipartite graph (left X, right Y) to have a <b>matching saturating all of X (an X-perfect matching)</b>: <b>for every subset S ⊆ X, |N(S)| ≥ |S|</b>, where N(S) is the set of Y-vertices adjacent to S (its neighborhood). Intuition: if some S of vertices collectively has <b>fewer than |S| neighbors</b>, they can't all be matched to distinct partners, so no perfect matching exists (pigeonhole). Conversely, if every S satisfies the condition, a perfect matching always exists (iff). The theorem is equivalent to <b>König's theorem and max-flow/min-cut</b> (matching = flow), and when no matching exists it certifies \"why\" via a <b>violating set S (bottleneck)</b> (the deficiency version: max matching = |X| − max(|S|−|N(S)|)). Algorithmically, find a maximum matching (Hopcroft-Karp) and check whether it is X-perfect; if not, extract a violating set via alternating paths. Applications: <b>job-person assignment</b> (does each have enough options), completing <b>Latin squares</b>, <b>1-factorization of regular bipartite graphs</b> (a d-regular bipartite graph splits into d perfect matchings — timetabling/scheduling), systems of distinct representatives (SDR). Generalizations: the deficiency version, weighted/fractional matching. The crux: \"every subset has enough neighbors ⟺ a perfect matching exists.\"",
   "problem": {
    "q": "Hall 조건(모든 S에 대해 |N(S)| ≥ |S|)이 위반되면 왜 완전 매칭이 불가능한가?",
@@ -5790,7 +5876,9 @@
    "bool hasPerfectMatching(){",
    "  return maxMatching() == leftSize;",
    "}"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 5
  },
  "algo_br_altsubseq": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -6056,11 +6144,11 @@
  },
  "algo_br_edgecolor": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "매칭·그래프 이론",
   "title": "간선 채색·비징 정리 — 인접 간선은 다른 색",
   "narr": "그래프 기초에서 한 정점에 모이는 간선들을 다른 색으로 칠합니다. <b>간선 채색</b>은 같은 정점에 닿는 두 간선이 같은 색을 갖지 않게 칠하는 문제로, 최소 색 수가 <b>간선 채색수 χ'(G)</b>입니다. 하한은 <b>Δ(최대 차수)</b>입니다. <b>비징 정리</b>는 모든 단순 그래프가 <b>Δ 또는 Δ+1색</b>으로 칠해진다고 말합니다(정점 채색이 NP-난해인 것과 달리 후보가 둘뿐). Δ색이면 1급, Δ+1색이면 2급입니다. 이분 그래프는 항상 정확히 Δ색이고(쾨니그), d-정규 이분 그래프는 d개의 완전 매칭으로 분해됩니다. 1급/2급 판정은 NP-난해지만 비징의 증명은 Δ+1 채색을 다항 시간에 구성합니다. 시간표·라운드로빈 대진표·네트워크 스케줄링에 쓰입니다.",
   "hint": "",
-  "more": "<b>간선 채색(edge coloring)</b>은 <b>같은 정점에 닿는 두 간선이 같은 색을 갖지 않도록</b> 간선에 색을 칠하는 문제입니다(정점 채색의 \"간선판\"). 필요한 최소 색 수를 <b>간선 채색수 χ'(G)</b>라 합니다. 명백한 하한은 <b>Δ(최대 차수)</b>입니다(한 정점에 Δ개 간선이 모이면 다 다른 색 필요). <b>비징 정리(Vizing's theorem)</b>: <b>모든 단순 그래프는 Δ 또는 Δ+1색으로 간선 채색이 가능</b>합니다 — 즉 χ'(G)는 <b>Δ ≤ χ' ≤ Δ+1</b>로 딱 두 값 중 하나입니다(정점 채색이 χ ≤ Δ+1만 보장하고 실제 값은 NP-난해인 것과 대조적으로, 간선은 후보가 둘뿐). Δ색이면 <b>1급(class 1)</b>, Δ+1색이면 <b>2급(class 2)</b>. 특수: <b>이분 그래프</b>는 항상 <b>정확히 Δ색</b>(쾨니그의 간선 채색 정리) — <b>d-정규 이분 그래프는 d개의 완전 매칭으로 분해</b>됨(1-인수분해, 시간표·라운드로빈의 핵심). 어떤 그래프가 1급/2급인지 판정하는 것은 일반적으로 NP-난해지만(Holyer), 비징의 증명은 <b>Δ+1색 채색을 다항 시간에 구성</b>(알찬 경로/팬 회전, Vizing fan)합니다. <b>선분 그래프(line graph)</b>의 정점 채색 = 원 그래프의 간선 채색(동치). 쓰임: <b>시간표</b>(교사-학급을 간선으로, 색=시간대), <b>라운드로빈 대진표</b>(각 라운드=완전 매칭), <b>스위치/네트워크 스케줄링</b>, 주파수 배정. \"인접 간선 다른 색, 단순 그래프는 Δ 또는 Δ+1\"이 핵심입니다.",
+  "more": "​인접 간선끼리 다른 색 — <b>간선 채색</b>·비징. <b>간선 채색(edge coloring)</b>은 <b>같은 정점에 닿는 두 간선이 같은 색을 갖지 않도록</b> 간선에 색을 칠하는 문제입니다(정점 채색의 \"간선판\"). 필요한 최소 색 수를 <b>간선 채색수 χ'(G)</b>라 합니다. 명백한 하한은 <b>Δ(최대 차수)</b>입니다(한 정점에 Δ개 간선이 모이면 다 다른 색 필요). <b>비징 정리(Vizing's theorem)</b>: <b>모든 단순 그래프는 Δ 또는 Δ+1색으로 간선 채색이 가능</b>합니다 — 즉 χ'(G)는 <b>Δ ≤ χ' ≤ Δ+1</b>로 딱 두 값 중 하나입니다(정점 채색이 χ ≤ Δ+1만 보장하고 실제 값은 NP-난해인 것과 대조적으로, 간선은 후보가 둘뿐). Δ색이면 <b>1급(class 1)</b>, Δ+1색이면 <b>2급(class 2)</b>. 특수: <b>이분 그래프</b>는 항상 <b>정확히 Δ색</b>(쾨니그의 간선 채색 정리) — <b>d-정규 이분 그래프는 d개의 완전 매칭으로 분해</b>됨(1-인수분해, 시간표·라운드로빈의 핵심). 어떤 그래프가 1급/2급인지 판정하는 것은 일반적으로 NP-난해지만(Holyer), 비징의 증명은 <b>Δ+1색 채색을 다항 시간에 구성</b>(알찬 경로/팬 회전, Vizing fan)합니다. <b>선분 그래프(line graph)</b>의 정점 채색 = 원 그래프의 간선 채색(동치). 쓰임: <b>시간표</b>(교사-학급을 간선으로, 색=시간대), <b>라운드로빈 대진표</b>(각 라운드=완전 매칭), <b>스위치/네트워크 스케줄링</b>, 주파수 배정. \"인접 간선 다른 색, 단순 그래프는 Δ 또는 Δ+1\"이 핵심입니다.",
   "more_en": "<b>Edge coloring</b> colors edges so that <b>no two edges sharing a vertex have the same color</b> (the \"edge analogue\" of vertex coloring). The minimum number of colors is the <b>edge chromatic number χ'(G)</b>. An obvious lower bound is <b>Δ (maximum degree)</b> (Δ edges meeting at a vertex all need different colors). <b>Vizing's theorem</b>: <b>every simple graph is edge-colorable with Δ or Δ+1 colors</b> — so χ'(G) is exactly <b>Δ ≤ χ' ≤ Δ+1</b>, one of just two values (unlike vertex coloring, where χ ≤ Δ+1 but the exact value is NP-hard; here only two candidates). Δ colors → <b>class 1</b>, Δ+1 → <b>class 2</b>. Special: <b>bipartite graphs</b> always need <b>exactly Δ colors</b> (König's edge-coloring theorem) — and a <b>d-regular bipartite graph decomposes into d perfect matchings</b> (1-factorization, key to timetabling/round-robin). Deciding class 1 vs 2 is NP-hard in general (Holyer), but Vizing's proof <b>constructs a (Δ+1)-coloring in polynomial time</b> (augmenting paths / fan rotations, the Vizing fan). Vertex coloring of the <b>line graph</b> equals edge coloring of the original (equivalent). Uses: <b>timetabling</b> (teacher-class as edges, colors = time slots), <b>round-robin tournaments</b> (each round = a perfect matching), <b>switch/network scheduling</b>, frequency assignment. The crux: \"adjacent edges different colors, and simple graphs need Δ or Δ+1.\"",
   "problem": {
    "q": "비징 정리가 정점 채색(χ ≤ Δ+1, 최적은 NP-난해)과 결정적으로 다른 점은?",
@@ -6077,15 +6165,17 @@
    "  else 켐페 사슬(Kempe chain)로 색 교환 후 배정;",
    "}",
    "// 항상 Δ+1색으로 가능(이분은 Δ색)"
-  ]
+  ],
+  "branchOf": "algo6_08",
+  "ord": 10
  },
  "algo_br_closure": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "최대 가중 폐포 — 프로젝트 선택을 최소 컷으로",
   "narr": "최단 경로 도구인 최소 컷으로 의존성 있는 선택 문제를 풉니다. <b>최대 가중 폐포</b>는 각 정점에 가중치가 있고 <b>정점을 고르면 가리키는 정점도 함께 골라야</b> 하는 제약 아래 가중치 합을 최대화합니다. 이는 선행 작업을 만족하며 순이익을 최대화하는 <b>프로젝트 선택</b>의 전형으로, <b>최소 컷으로 정확히 환원</b>됩니다. 구성은 소스·싱크를 추가하고, 이익 +p인 정점은 s→정점 용량 p, 비용 c인 정점은 정점→t 용량 c, <b>의존 간선은 용량 ∞</b>로 둡니다. 그러면 <b>최대 순이익 = 양수 이익 합 − 최소 컷</b>입니다. ∞ 간선이 절대 안 잘려 '이익만 취하고 선행은 안 고르는' 위반을 배제해 폐포 제약을 강제하기 때문입니다. 노천 광산 채굴·이미지 분할에 쓰입니다.",
   "hint": "",
-  "more": "<b>최대 가중 폐포(maximum weight closure)</b> 문제: 방향 그래프에서 각 정점에 가중치(이익 또는 비용)가 있고, \"<b>정점 u를 고르면 u가 가리키는 정점들도 반드시 함께 골라야 한다</b>\"(폐포 closure: 선택 집합이 후속 간선에 닫혀 있음)는 제약 아래, <b>고른 정점들의 가중치 합을 최대화</b>합니다. 이는 \"<b>프로젝트 선택(project selection) / 최대 이익 스케줄링</b>\"의 전형 — 의존성(선행 작업)을 만족하며 순이익 최대 부분집합 고르기 — 으로, <b>최소 컷(최대 유량)으로 정확히 환원</b>됩니다. 구성: ① 소스 s·싱크 t 추가; ② <b>이익이 양수(+p)인 정점</b>: s→정점, 용량 p; ③ <b>비용(−c, 즉 이익 음수)인 정점</b>: 정점→t, 용량 c; ④ <b>의존 간선 u→v</b>(u 고르면 v도): 용량 <b>∞</b>. 그러면 <b>최대 순이익 = (모든 양수 이익의 합) − (최소 s-t 컷)</b>입니다. 직관: 최소 컷은 \"포기하는 이익(s쪽 끊김) + 치르는 비용(t쪽 끊김)\"의 최소를 고르고, <b>∞ 간선이 \"이익은 취하고 선행은 안 고르는\" 위반을 컷에서 배제</b>(∞라 절대 안 잘림)해 폐포 제약을 강제합니다. 컷의 s쪽 정점이 곧 \"고른 집합\". 쓰임: <b>프로젝트/작업 선택</b>(선행 의존), <b>노천 광산 채굴</b>(위 블록 파야 아래 블록), <b>이미지 분할·라벨링</b>(이웃 일관성), 마케팅 타깃 선택, 최대 밀도 부분그래프(이분 변형). \"의존 = ∞ 간선, 최대 이익 = 이익합 − 최소컷\"이 핵심입니다.",
+  "more": "​프로젝트 선택을 <b>최소 컷</b>으로 — 최대 가중 폐포. <b>최대 가중 폐포(maximum weight closure)</b> 문제: 방향 그래프에서 각 정점에 가중치(이익 또는 비용)가 있고, \"<b>정점 u를 고르면 u가 가리키는 정점들도 반드시 함께 골라야 한다</b>\"(폐포 closure: 선택 집합이 후속 간선에 닫혀 있음)는 제약 아래, <b>고른 정점들의 가중치 합을 최대화</b>합니다. 이는 \"<b>프로젝트 선택(project selection) / 최대 이익 스케줄링</b>\"의 전형 — 의존성(선행 작업)을 만족하며 순이익 최대 부분집합 고르기 — 으로, <b>최소 컷(최대 유량)으로 정확히 환원</b>됩니다. 구성: ① 소스 s·싱크 t 추가; ② <b>이익이 양수(+p)인 정점</b>: s→정점, 용량 p; ③ <b>비용(−c, 즉 이익 음수)인 정점</b>: 정점→t, 용량 c; ④ <b>의존 간선 u→v</b>(u 고르면 v도): 용량 <b>∞</b>. 그러면 <b>최대 순이익 = (모든 양수 이익의 합) − (최소 s-t 컷)</b>입니다. 직관: 최소 컷은 \"포기하는 이익(s쪽 끊김) + 치르는 비용(t쪽 끊김)\"의 최소를 고르고, <b>∞ 간선이 \"이익은 취하고 선행은 안 고르는\" 위반을 컷에서 배제</b>(∞라 절대 안 잘림)해 폐포 제약을 강제합니다. 컷의 s쪽 정점이 곧 \"고른 집합\". 쓰임: <b>프로젝트/작업 선택</b>(선행 의존), <b>노천 광산 채굴</b>(위 블록 파야 아래 블록), <b>이미지 분할·라벨링</b>(이웃 일관성), 마케팅 타깃 선택, 최대 밀도 부분그래프(이분 변형). \"의존 = ∞ 간선, 최대 이익 = 이익합 − 최소컷\"이 핵심입니다.",
   "more_en": "The <b>maximum weight closure</b> problem: in a directed graph where each vertex has a weight (profit or cost), under the constraint \"<b>if you pick vertex u you must also pick the vertices u points to</b>\" (a closure: the chosen set is closed under outgoing edges), <b>maximize the total weight of chosen vertices</b>. This is the classic \"<b>project selection / maximum-profit scheduling</b>\" — pick a max-net-profit subset respecting dependencies (prerequisites) — and it <b>reduces exactly to min cut (max flow)</b>. Construction: ① add source s and sink t; ② <b>positive-profit (+p) vertices</b>: s→vertex with capacity p; ③ <b>cost (−c) vertices</b>: vertex→t with capacity c; ④ <b>dependency edges u→v</b> (pick u ⇒ pick v): capacity <b>∞</b>. Then <b>max net profit = (sum of all positive profits) − (min s-t cut)</b>. Intuition: the min cut picks the minimum of \"forgone profit (cut on the s side) + cost paid (cut on the t side),\" and the <b>∞ edges exclude any \"take the profit but skip the prerequisite\" violation</b> from the cut (∞ is never cut), enforcing closure. The s-side vertices of the cut are the chosen set. Uses: <b>project/task selection</b> with prerequisites, <b>open-pit mining</b> (must dig blocks above to reach below), <b>image segmentation/labeling</b> (neighbor consistency), marketing target selection, maximum-density subgraph (a bipartite variant). The crux: \"dependency = ∞ edge, max profit = sum of profits − min cut.\"",
   "problem": {
    "q": "프로젝트 선택(최대 가중 폐포)에서 의존 간선에 용량 ∞를 주는 이유는?",
@@ -6100,7 +6190,9 @@
    "// 최대 이익 = (양수합) - 최소컷",
    "int profit = sumPositive - maxflow(s, t);",
    "// 컷의 소스쪽 = 선택할 프로젝트 집합"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 7
  },
  "algo_br_hull3d": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -6133,11 +6225,11 @@
  },
  "algo_br_mincostcirc": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "네트워크 플로우",
   "title": "최소 비용 순환 — 음수 사이클을 없앨 때까지",
   "narr": "최소 비용 최대 유량(MCMF)이 s에서 t로 정해진 양을 <b>최소 비용</b>에 보낸다면, <b>최소 비용 순환</b>은 s·t 없이 그래프 전체에서 흐름을 돌려 총비용을 최소화합니다. 용량 하한·상한이 섞인 일반 유량 문제를 통일해 다룰 수 있습니다. 최적성의 판정 기준이 우아합니다. 현재 흐름이 최적인 것과 <b>잔여 그래프에 음수 비용 사이클이 없는 것</b>이 정확히 같습니다. 음수 사이클이 있으면 그 사이클로 흐름을 돌릴 때 비용이 더 줄어드니 최적이 아니기 때문입니다. 그래서 알고리즘은 <b>음수 사이클을 찾아 흐름을 보내는 일을 사라질 때까지 반복</b>합니다. 벨만-포드로 사이클을 찾는 표준 구현은 다항 시간에 끝납니다. 잔여 사이클이 어떻게 비용을 낮추는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>최소 비용 순환(minimum-cost circulation)</b>은 각 간선에 <b>용량과 단위 비용</b>이 있는 그래프에서, <b>모든 정점의 유입=유출(보존)</b>을 지키는 흐름(순환) 중 <b>총비용(Σ 흐름·비용)을 최소화</b>하는 문제입니다 — 소스·싱크가 따로 없고(또는 하한 있는 유량/수송을 t→s 간선으로 닫아 순환으로 환원), <b>음수 비용 간선·하한</b>을 자연스럽게 다루는 유량 문제의 <b>가장 일반적 형태</b>입니다(최대 유량·MCMF·하한 유량이 모두 특수 경우). 핵심 최적성 정리: <b>어떤 순환이 최소 비용이다 ⟺ 그 흐름의 잔여 그래프에 음수 비용 사이클이 없다</b>. 직관: 잔여 그래프에 합이 음수인 사이클이 있으면, 그 사이클을 따라 흐름을 더 흘려(잔여 용량만큼) <b>총비용을 더 줄일 수 있으므로</b> 최적이 아닙니다. 알고리즘: ① <b>사이클 소거(cycle canceling)</b> — 임의의 실현가능 흐름에서 시작해, 잔여 그래프에서 <b>음수 비용 사이클을 (벨만-포드/SPFA로) 찾아 포화될 만큼 흘리기</b>를 더 이상 음수 사이클이 없을 때까지 반복(가장 작은 평균 비용 사이클을 고르면 다항 시간 — Goldberg-Tarjan). ② <b>비용 스케일링</b>(ε-최적성), ③ SSP(최단경로 증대)는 MCMF 특수형. 쓰임: <b>수송·할당 문제</b>, 최소 비용 흐름이 필요한 스케줄링·배차, 하한 있는 흐름의 비용 최적화, 이미지 처리. \"보존 흐름 + 음수 사이클 0 = 최소 비용\"이 핵심이며, 모든 유량 변종을 포괄하는 틀입니다.",
+  "more": "​음수 사이클을 없애 <b>최소 비용 순환</b>으로. <b>최소 비용 순환(minimum-cost circulation)</b>은 각 간선에 <b>용량과 단위 비용</b>이 있는 그래프에서, <b>모든 정점의 유입=유출(보존)</b>을 지키는 흐름(순환) 중 <b>총비용(Σ 흐름·비용)을 최소화</b>하는 문제입니다 — 소스·싱크가 따로 없고(또는 하한 있는 유량/수송을 t→s 간선으로 닫아 순환으로 환원), <b>음수 비용 간선·하한</b>을 자연스럽게 다루는 유량 문제의 <b>가장 일반적 형태</b>입니다(최대 유량·MCMF·하한 유량이 모두 특수 경우). 핵심 최적성 정리: <b>어떤 순환이 최소 비용이다 ⟺ 그 흐름의 잔여 그래프에 음수 비용 사이클이 없다</b>. 직관: 잔여 그래프에 합이 음수인 사이클이 있으면, 그 사이클을 따라 흐름을 더 흘려(잔여 용량만큼) <b>총비용을 더 줄일 수 있으므로</b> 최적이 아닙니다. 알고리즘: ① <b>사이클 소거(cycle canceling)</b> — 임의의 실현가능 흐름에서 시작해, 잔여 그래프에서 <b>음수 비용 사이클을 (벨만-포드/SPFA로) 찾아 포화될 만큼 흘리기</b>를 더 이상 음수 사이클이 없을 때까지 반복(가장 작은 평균 비용 사이클을 고르면 다항 시간 — Goldberg-Tarjan). ② <b>비용 스케일링</b>(ε-최적성), ③ SSP(최단경로 증대)는 MCMF 특수형. 쓰임: <b>수송·할당 문제</b>, 최소 비용 흐름이 필요한 스케줄링·배차, 하한 있는 흐름의 비용 최적화, 이미지 처리. \"보존 흐름 + 음수 사이클 0 = 최소 비용\"이 핵심이며, 모든 유량 변종을 포괄하는 틀입니다.",
   "more_en": "A <b>minimum-cost circulation</b> minimizes the <b>total cost (Σ flow·cost)</b> over all flows (circulations) that respect <b>conservation (inflow=outflow) at every vertex</b>, in a graph where each edge has a <b>capacity and a unit cost</b> — with no separate source/sink (or by closing a flow/transport problem with a t→s edge into a circulation). It is the <b>most general flow formulation</b>, naturally handling <b>negative-cost edges and lower bounds</b> (max flow, MCMF, and lower-bounded flow are all special cases). Key optimality theorem: <b>a circulation is minimum-cost ⟺ its residual graph has no negative-cost cycle</b>. Intuition: if the residual graph has a negative-sum cycle, pushing flow around it (up to the residual capacity) <b>reduces the total cost further</b>, so it isn't optimal. Algorithms: ① <b>cycle canceling</b> — start from any feasible flow and repeatedly <b>find a negative-cost cycle in the residual graph (via Bellman-Ford/SPFA) and saturate it</b>, until none remain (choosing the minimum-mean cycle gives polynomial time — Goldberg-Tarjan); ② <b>cost scaling</b> (ε-optimality); ③ SSP (shortest-path augmentation) is the MCMF special case. Uses: <b>transportation/assignment problems</b>, cost-minimizing scheduling/dispatch, cost optimization of lower-bounded flows, image processing. The crux: \"a conserved flow with zero negative cycles = minimum cost,\" a framework subsuming all flow variants.",
   "problem": {
    "q": "최소 비용 순환의 최적성 판정 기준과, 사이클 소거 알고리즘이 그것을 어떻게 이용하나?",
@@ -6157,15 +6249,17 @@
    "  return totalCost();",
    "}",
    "// 음수 사이클 소거 정리 → 최소 비용"
-  ]
+  ],
+  "branchOf": "algo6_07",
+  "ord": 6
  },
  "algo_br_bidirectional": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.1 그래프 기초 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "양방향 탐색 — 양쪽에서 동시에 BFS",
   "narr": "BFS는 출발점에서만 탐색을 키우면 깊이 d에서 방문 노드가 분기 계수 b에 대해 <b>b^d</b>로 폭발합니다. <b>양방향 탐색</b>은 출발과 도착 양쪽에서 동시에 BFS를 키워 가운데서 만나게 합니다. 두 탐색은 각각 깊이 d/2까지만 가면 충분하므로, 전체 방문 노드가 <b>b^d에서 2·b^(d/2)</b>로 줄어 거의 제곱근으로 작아집니다. 양쪽 방문 집합의 교집합이 비지 않는 순간 두 경로를 이어 붙이면 최단 경로가 됩니다. 옳은 이유는 양쪽 모두 거리순으로 층을 완성하기 때문입니다. 도착의 역방향 간선을 알아야 하고, 만남 지점 처리에 주의가 필요합니다. 퍼즐·라우팅의 대형 그래프에서 효과가 큽니다. 두 물결이 가운데서 만나는 모습을 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>양방향 탐색(bidirectional search)</b>은 <b>출발 정점 s에서 앞으로</b>, <b>도착 정점 t에서 뒤로(역방향 간선 따라)</b> 두 개의 BFS(또는 탐색)를 <b>동시에 번갈아 확장</b>하다가, 두 프런티어(탐색 경계)가 <b>처음 만나는 정점</b>에서 양쪽 경로를 이어 붙여 s–t 경로를 얻는 기법입니다. 핵심 이득: 분기 계수 b, 해의 깊이 d인 그래프에서, 한쪽 BFS는 <b>b^d</b>개 노드를 보지만, 양방향은 각자 <b>깊이 d/2까지만</b> 확장하면 만나므로 각 <b>b^(d/2)</b>개씩, 합쳐도 <b>2·b^(d/2)</b> — 큰 d에서 극적으로 적습니다(예: b=10, d=6이면 10^6 → 2·10^3). 정확성을 위해 <b>두 탐색이 만났을 때를 올바르게 처리</b>해야 합니다: 가중치가 모두 1(BFS)이면 \"두 프런티어가 처음 겹치는 노드\"가 최단; 일반 가중치(다익스트라 양방향)는 \"<b>한쪽이 닫은 노드를 다른 쪽이 만났을 때\"의 거리 합 최소\"를 끝까지 갱신하는 종료 조건이 필요합니다(단순히 처음 만남이 최단이 아님). 전제: <b>역방향 간선</b>을 알아야 함(t에서 거꾸로 가려면) — 무방향이면 자동, 방향 그래프면 전치 그래프. 휴리스틱을 더한 <b>양방향 A*</b>도 있으나 종료 조건이 까다롭습니다. 쓰임: <b>퍼즐 최단해</b>(루빅스·15퍼즐), 미로·격자 최단경로, <b>소셜 네트워크 거리</b>(케빈 베이컨), 경로 계획. \"양쪽에서 절반씩 → 제곱근 공간\"이 핵심입니다.",
+  "more": "​출발·도착 <b>양쪽에서</b> 동시에 탐색. <b>양방향 탐색(bidirectional search)</b>은 <b>출발 정점 s에서 앞으로</b>, <b>도착 정점 t에서 뒤로(역방향 간선 따라)</b> 두 개의 BFS(또는 탐색)를 <b>동시에 번갈아 확장</b>하다가, 두 프런티어(탐색 경계)가 <b>처음 만나는 정점</b>에서 양쪽 경로를 이어 붙여 s–t 경로를 얻는 기법입니다. 핵심 이득: 분기 계수 b, 해의 깊이 d인 그래프에서, 한쪽 BFS는 <b>b^d</b>개 노드를 보지만, 양방향은 각자 <b>깊이 d/2까지만</b> 확장하면 만나므로 각 <b>b^(d/2)</b>개씩, 합쳐도 <b>2·b^(d/2)</b> — 큰 d에서 극적으로 적습니다(예: b=10, d=6이면 10^6 → 2·10^3). 정확성을 위해 <b>두 탐색이 만났을 때를 올바르게 처리</b>해야 합니다: 가중치가 모두 1(BFS)이면 \"두 프런티어가 처음 겹치는 노드\"가 최단; 일반 가중치(다익스트라 양방향)는 \"<b>한쪽이 닫은 노드를 다른 쪽이 만났을 때\"의 거리 합 최소\"를 끝까지 갱신하는 종료 조건이 필요합니다(단순히 처음 만남이 최단이 아님). 전제: <b>역방향 간선</b>을 알아야 함(t에서 거꾸로 가려면) — 무방향이면 자동, 방향 그래프면 전치 그래프. 휴리스틱을 더한 <b>양방향 A*</b>도 있으나 종료 조건이 까다롭습니다. 쓰임: <b>퍼즐 최단해</b>(루빅스·15퍼즐), 미로·격자 최단경로, <b>소셜 네트워크 거리</b>(케빈 베이컨), 경로 계획. \"양쪽에서 절반씩 → 제곱근 공간\"이 핵심입니다.",
   "more_en": "<b>Bidirectional search</b> runs two BFS (or searches) <b>simultaneously, alternating</b> — one <b>forward from the start s</b> and one <b>backward from the goal t (following reverse edges)</b> — until the two frontiers <b>first meet at a vertex</b>, where the two halves are joined into an s–t path. The key gain: with branching factor b and solution depth d, a single BFS visits <b>b^d</b> nodes, but each side of a bidirectional search only expands to <b>depth d/2</b> before meeting, visiting <b>b^(d/2)</b> each, <b>2·b^(d/2)</b> total — dramatically fewer for large d (e.g. b=10, d=6: 10^6 → 2·10^3). For correctness you must <b>handle the meeting properly</b>: with unit weights (BFS), the node where the frontiers first overlap gives the shortest path; with general weights (bidirectional Dijkstra), you need a termination condition that keeps updating \"the minimum sum of distances when one side meets a node the other closed\" (the first meeting isn't necessarily shortest). Prerequisite: you must know the <b>reverse edges</b> (to go backward from t) — automatic if undirected, the transpose graph if directed. A <b>bidirectional A*</b> adds heuristics but has subtle termination. Uses: <b>shortest puzzle solutions</b> (Rubik's cube, 15-puzzle), maze/grid shortest paths, <b>social-network distance</b> (Kevin Bacon), route planning. The crux: \"half from each side → square-root space.\"",
   "problem": {
    "q": "양방향 탐색이 탐색 공간을 b^d에서 2·b^(d/2)로 줄이는 이유는?",
@@ -6182,7 +6276,9 @@
    "  expand(qt, visT, visS);",
    "}",
    "// 분기 b, 깊이 d → O(b^(d/2)) (단방향 b^d 대비)"
-  ]
+  ],
+  "branchOf": "algo6_06",
+  "ord": 9
  },
  "algo_br_iddfs": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -6411,33 +6507,37 @@
  },
  "algo_br_dfs_parenthesis": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.4 그래프 응용 ▸ 자세히",
+  "sec": "고급 그래프(DFS 응용)",
   "title": "DFS 괄호 정리 — 발견·종료 시각의 중첩 구조",
   "narr": "DFS는 각 정점에 <b>발견시각 d[v]와 종료시각 f[v]</b>를 매겨 두 시각의 구간 [d[v], f[v]]를 만듭니다. <b>괄호 정리</b>는 이 구간들이 <b>완전히 중첩되거나 완전히 분리</b>될 뿐 절대 엇갈리지 않는다는 사실입니다. u의 탐색이 끝나기 전에 v를 발견하면 v는 u의 후손이라 [d[v],f[v]]가 [d[u],f[u]] 안에 통째로 들어가고, 그렇지 않으면 두 구간은 겹치지 않습니다. 마치 올바르게 짝지어진 괄호 같습니다. 이 중첩 구조가 곧 트리/후진/순방향/교차 <b>간선 분류</b>의 기준이 되고, 후진 간선의 존재가 곧 사이클이라는 검출 원리로 이어집니다. DFS 기반 거의 모든 정리의 출발점입니다. 구간들이 어떻게 중첩·분리되는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>괄호 정리(parenthesis theorem)</b>: DFS에서 정점 v를 처음 방문한 시각 <b>d[v]</b>와 v의 서브트리를 다 보고 빠져나온 시각 <b>f[v]</b>를 매기면(시간은 매 방문·종료마다 1씩 증가), 임의의 두 정점 u, v에 대해 구간 <b>[d[u], f[u]]와 [d[v], f[v]]는 다음 중 하나</b>입니다: <b>① 완전히 분리</b>(겹치지 않음 — u, v는 DFS 숲에서 서로 조상이 아님), 또는 <b>② 한쪽이 다른 쪽에 완전히 포함</b>(예 [d[v],f[v]] ⊂ [d[u],f[u]] ⟺ v가 u의 자손). <b>절대 부분적으로 겹치지 않습니다</b> — 즉 \"( u ( v u ) v )\"처럼 괄호가 엇갈리는 일이 불가능(그래서 \"괄호\" 정리; DFS의 d/f를 여는/닫는 괄호로 보면 항상 올바르게 중첩된 괄호열). 증명은 DFS의 스택 구조(재귀)에서 나옴 — v가 u 처리 도중 방문되면 v는 u가 끝나기 전에 끝나야 함(스택 LIFO). 동반 정리 <b>흰색 경로 정리(white-path theorem)</b>: u를 발견하는 순간(d[u]), v로 가는 경로가 <b>전부 흰색(아직 미발견) 정점</b>으로만 이뤄져 있으면 v는 DFS 숲에서 <b>u의 자손</b>이 된다. 이 두 정리가 <b>간선 분류</b>의 토대: 간선 (u,v)를 d/f 관계로 <b>트리 간선</b>(v가 흰색일 때 발견)·<b>후진 간선</b>(v가 회색=조상, 사이클의 증거)·<b>전진 간선</b>(v가 검정 자손)·<b>교차 간선</b>(v가 검정 비자손)으로 분류. 무방향 DFS는 트리·후진 간선만 나옴. 응용: <b>사이클 검출</b>(방향그래프에 후진 간선 ⟺ 사이클), <b>위상정렬</b>(f 내림차순), <b>SCC</b>(2-패스), 괄호 매칭. \"d/f 구간은 항상 올바르게 중첩 = 괄호\"가 핵심입니다.",
+  "more": "​발견·종료 시각의 <b>중첩(괄호) 구조</b>. <b>괄호 정리(parenthesis theorem)</b>: DFS에서 정점 v를 처음 방문한 시각 <b>d[v]</b>와 v의 서브트리를 다 보고 빠져나온 시각 <b>f[v]</b>를 매기면(시간은 매 방문·종료마다 1씩 증가), 임의의 두 정점 u, v에 대해 구간 <b>[d[u], f[u]]와 [d[v], f[v]]는 다음 중 하나</b>입니다: <b>① 완전히 분리</b>(겹치지 않음 — u, v는 DFS 숲에서 서로 조상이 아님), 또는 <b>② 한쪽이 다른 쪽에 완전히 포함</b>(예 [d[v],f[v]] ⊂ [d[u],f[u]] ⟺ v가 u의 자손). <b>절대 부분적으로 겹치지 않습니다</b> — 즉 \"( u ( v u ) v )\"처럼 괄호가 엇갈리는 일이 불가능(그래서 \"괄호\" 정리; DFS의 d/f를 여는/닫는 괄호로 보면 항상 올바르게 중첩된 괄호열). 증명은 DFS의 스택 구조(재귀)에서 나옴 — v가 u 처리 도중 방문되면 v는 u가 끝나기 전에 끝나야 함(스택 LIFO). 동반 정리 <b>흰색 경로 정리(white-path theorem)</b>: u를 발견하는 순간(d[u]), v로 가는 경로가 <b>전부 흰색(아직 미발견) 정점</b>으로만 이뤄져 있으면 v는 DFS 숲에서 <b>u의 자손</b>이 된다. 이 두 정리가 <b>간선 분류</b>의 토대: 간선 (u,v)를 d/f 관계로 <b>트리 간선</b>(v가 흰색일 때 발견)·<b>후진 간선</b>(v가 회색=조상, 사이클의 증거)·<b>전진 간선</b>(v가 검정 자손)·<b>교차 간선</b>(v가 검정 비자손)으로 분류. 무방향 DFS는 트리·후진 간선만 나옴. 응용: <b>사이클 검출</b>(방향그래프에 후진 간선 ⟺ 사이클), <b>위상정렬</b>(f 내림차순), <b>SCC</b>(2-패스), 괄호 매칭. \"d/f 구간은 항상 올바르게 중첩 = 괄호\"가 핵심입니다.",
   "more_en": "<b>Parenthesis theorem</b>: in DFS, give each vertex v a <b>discovery time d[v]</b> (first visit) and a <b>finish time f[v]</b> (after its subtree is done), with time incrementing on each visit/finish. For any two vertices u, v, the intervals <b>[d[u], f[u]] and [d[v], f[v]] are one of</b>: <b>① entirely disjoint</b> (u, v are not ancestors of each other in the DFS forest), or <b>② one fully contains the other</b> (e.g. [d[v],f[v]] ⊂ [d[u],f[u]] ⟺ v is a descendant of u). They <b>never partially overlap</b> — \"( u ( v u ) v )\" with crossing brackets is impossible (hence \"parenthesis\"; reading d/f as opening/closing brackets always yields a well-nested sequence). The proof comes from DFS's stack (recursion): if v is visited during u's processing, v must finish before u (LIFO). The companion <b>white-path theorem</b>: at the moment u is discovered (d[u]), if there is a path to v consisting <b>only of white (undiscovered) vertices</b>, then v becomes a <b>descendant of u</b> in the DFS forest. These two underpin <b>edge classification</b>: an edge (u,v) is classified by the d/f relation as a <b>tree edge</b> (v white when found), <b>back edge</b> (v gray = ancestor, evidence of a cycle), <b>forward edge</b> (v a black descendant), or <b>cross edge</b> (v a black non-descendant). Undirected DFS yields only tree and back edges. Applications: <b>cycle detection</b> (a back edge in a digraph ⟺ a cycle), <b>topological sort</b> (decreasing f), <b>SCC</b> (two-pass), bracket matching. The crux: \"d/f intervals are always well-nested = parentheses.\"",
   "problem": {
    "q": "괄호 정리에 따르면 두 정점의 [d,f] 구간이 가질 수 없는 관계는? 그게 무엇을 뜻하나?",
    "solution": "<b>부분적으로 겹치는 관계(엇갈림)</b>는 불가능합니다 — \"( u ( v u ) v )\"처럼 괄호가 교차하는 일은 없습니다. 가능한 건 <b>완전 분리</b>(서로 조상 아님)이거나 <b>완전 포함</b>(조상-자손)뿐입니다. 이는 v가 u 처리 도중 발견되면 DFS 스택(LIFO) 때문에 v가 u보다 먼저 끝나야 하기 때문이며, 이 중첩 구조가 간선 분류·사이클 검출의 근거입니다.",
    "q_en": "By the parenthesis theorem, what relation between two vertices' [d,f] intervals is impossible, and what does it imply?",
    "sol_en": "<b>Partial overlap (crossing)</b> is impossible — no \"( u ( v u ) v )\" with crossing brackets. The only options are <b>fully disjoint</b> (not ancestors) or <b>fully nested</b> (ancestor-descendant), because if v is discovered during u's processing, the DFS stack (LIFO) forces v to finish before u. This nesting structure underlies edge classification and cycle detection."
-  }
+  },
+  "branchOf": "algo6_09",
+  "ord": 3
  },
  "algo_br_mst_cut": {
   "ch": "알고리즘 제6장 그래프",
-  "sec": "6.5 최단 경로 ▸ 자세히",
+  "sec": "최단경로·MST",
   "title": "MST 절단(cut) 성질 — 안전한 간선의 증명",
   "narr": "크루스칼·프림이 \"가장 싼 간선\"을 골라도 옳은 이유의 핵심이 <b>절단 성질</b>입니다. 정점을 두 집합으로 가르는 <b>어떤 절단</b>이든, 그 절단을 가로지르는 간선 중 <b>가장 가벼운 간선은 어떤 MST에도 반드시 속합니다(안전)</b>. 증명은 교환 논법입니다. 그 최소 간선 e를 안 쓰는 MST T가 있다고 하면, T에 e를 더하면 절단을 두 번 건너는 사이클이 생기고 그 사이클엔 절단을 가로지르는 다른 간선 e'가 있습니다. e'를 e로 바꾸면 가중치가 줄거나 같은 또 다른 신장 트리가 되어, e를 포함하는 MST가 존재합니다. 따라서 \"이미 고른 트리 조각과 나머지\"의 절단에서 최소 간선을 매번 더하는 그리디가 정당합니다. 안전한 간선이 왜 교환으로 보장되는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>절단 성질(cut property)·안전한 간선 정리</b>는 모든 MST 알고리즘(크루스칼·프림·보루프카)의 정당성 토대입니다. 용어: <b>절단(cut)</b> = 정점을 두 집합 (S, V−S)로 나누는 분할. <b>가로지르는 간선</b> = 한 끝이 S, 다른 끝이 V−S. <b>경량 간선(light edge)</b> = 그 절단을 가로지르는 간선 중 가중치 최소. 정리: <b>어떤 절단이든, 지금까지 고른 간선 집합 A를 \"존중\"(가로지르지 않음)하는 절단의 경량 간선 (u,v)는 A를 포함하는 어떤 MST에도 안전하게 추가</b>할 수 있습니다(= 그 간선을 더해도 여전히 어떤 MST의 부분집합). <b>증명(교환 논법, cut-and-paste)</b>: A를 포함하는 MST T가 경량 간선 (u,v)를 안 쓴다고 가정. T에 (u,v)를 더하면 <b>유일한 사이클</b>이 생기고, u∈S·v∈V−S이므로 그 사이클은 절단을 <b>다시 가로지르는 또 다른 간선 (x,y)</b>를 반드시 포함합니다(사이클이 절단을 짝수 번 가로지름). (u,v)가 경량이므로 <b>w(u,v) ≤ w(x,y)</b>. 이제 T에서 (x,y)를 빼고 (u,v)를 넣은 T′ = T − (x,y) + (u,v)를 만들면: 사이클을 깼으니 여전히 <b>신장 트리</b>이고, 가중치 w(T′) = w(T) − w(x,y) + w(u,v) ≤ w(T). T가 최소였으니 T′도 최소(MST) → (u,v)를 포함하는 MST가 존재 → <b>(u,v)는 안전</b>. ∎ <b>크루스칼</b>은 \"두 연결성분을 잇는 가장 싼 간선\"(그 두 성분 사이 절단의 경량 간선)을 고르고, <b>프림</b>은 \"트리와 바깥을 가르는 절단의 경량 간선\"을 고름 — 둘 다 매번 안전한 간선만 추가하므로 옳습니다. 대칭 개념인 <b>사이클 성질</b>: 어떤 사이클의 최대 간선은 MST에 없다(차선 MST 분석의 토대). \"경량 간선은 안전 = 그리디 MST가 옳다\"가 핵심입니다.",
+  "more": "​MST 그리디가 옳은 이유 — <b>절단(cut) 성질</b>. <b>절단 성질(cut property)·안전한 간선 정리</b>는 모든 MST 알고리즘(크루스칼·프림·보루프카)의 정당성 토대입니다. 용어: <b>절단(cut)</b> = 정점을 두 집합 (S, V−S)로 나누는 분할. <b>가로지르는 간선</b> = 한 끝이 S, 다른 끝이 V−S. <b>경량 간선(light edge)</b> = 그 절단을 가로지르는 간선 중 가중치 최소. 정리: <b>어떤 절단이든, 지금까지 고른 간선 집합 A를 \"존중\"(가로지르지 않음)하는 절단의 경량 간선 (u,v)는 A를 포함하는 어떤 MST에도 안전하게 추가</b>할 수 있습니다(= 그 간선을 더해도 여전히 어떤 MST의 부분집합). <b>증명(교환 논법, cut-and-paste)</b>: A를 포함하는 MST T가 경량 간선 (u,v)를 안 쓴다고 가정. T에 (u,v)를 더하면 <b>유일한 사이클</b>이 생기고, u∈S·v∈V−S이므로 그 사이클은 절단을 <b>다시 가로지르는 또 다른 간선 (x,y)</b>를 반드시 포함합니다(사이클이 절단을 짝수 번 가로지름). (u,v)가 경량이므로 <b>w(u,v) ≤ w(x,y)</b>. 이제 T에서 (x,y)를 빼고 (u,v)를 넣은 T′ = T − (x,y) + (u,v)를 만들면: 사이클을 깼으니 여전히 <b>신장 트리</b>이고, 가중치 w(T′) = w(T) − w(x,y) + w(u,v) ≤ w(T). T가 최소였으니 T′도 최소(MST) → (u,v)를 포함하는 MST가 존재 → <b>(u,v)는 안전</b>. ∎ <b>크루스칼</b>은 \"두 연결성분을 잇는 가장 싼 간선\"(그 두 성분 사이 절단의 경량 간선)을 고르고, <b>프림</b>은 \"트리와 바깥을 가르는 절단의 경량 간선\"을 고름 — 둘 다 매번 안전한 간선만 추가하므로 옳습니다. 대칭 개념인 <b>사이클 성질</b>: 어떤 사이클의 최대 간선은 MST에 없다(차선 MST 분석의 토대). \"경량 간선은 안전 = 그리디 MST가 옳다\"가 핵심입니다.",
   "more_en": "The <b>cut property (safe-edge theorem)</b> is the foundation justifying every MST algorithm (Kruskal, Prim, Borůvka). Terms: a <b>cut</b> = a partition of the vertices into (S, V−S); an edge <b>crosses</b> the cut if one end is in S and the other in V−S; a <b>light edge</b> = a minimum-weight crossing edge. Theorem: <b>for any cut that \"respects\" the set A of edges chosen so far (no edge of A crosses it), a light edge (u,v) crossing that cut can be safely added</b> to any MST containing A (it stays a subset of some MST). <b>Proof (exchange / cut-and-paste)</b>: suppose an MST T containing A does not use the light edge (u,v). Adding (u,v) to T creates a <b>unique cycle</b>, and since u∈S, v∈V−S, that cycle must contain <b>another crossing edge (x,y)</b> (a cycle crosses a cut an even number of times). Since (u,v) is light, <b>w(u,v) ≤ w(x,y)</b>. Form T′ = T − (x,y) + (u,v): breaking the cycle keeps it a <b>spanning tree</b>, with weight w(T′) = w(T) − w(x,y) + w(u,v) ≤ w(T). As T was minimum, T′ is also an MST → an MST containing (u,v) exists → <b>(u,v) is safe</b>. ∎ <b>Kruskal</b> picks \"the cheapest edge joining two components\" (the light edge of the cut between them), and <b>Prim</b> picks \"the light edge of the cut between the tree and the outside\" — both only add safe edges, so both are correct. The dual <b>cycle property</b>: the maximum edge of any cycle is not in the MST (basis of second-best MST analysis). The crux: \"a light edge is safe = greedy MST is correct.\"",
   "problem": {
    "q": "MST 절단 성질의 교환 논법에서, 경량 간선 (u,v)를 안 쓴 MST T가 있다 가정하면 어떻게 모순/대체를 이끄나?",
    "solution": "T에 (u,v)를 더하면 <b>유일한 사이클</b>이 생기고, u·v가 절단 양쪽이라 그 사이클은 절단을 가로지르는 <b>다른 간선 (x,y)</b>를 포함합니다. (u,v)가 경량이라 w(u,v)≤w(x,y). T′=T−(x,y)+(u,v)는 사이클을 깨 여전히 신장트리이고 w(T′)≤w(T) → T′도 MST. 따라서 <b>(u,v)를 포함하는 MST가 존재</b>하므로 (u,v)는 안전합니다.",
    "q_en": "In the exchange argument for the MST cut property, assuming an MST T that omits the light edge (u,v), how do you derive the replacement?",
    "sol_en": "Adding (u,v) to T creates a <b>unique cycle</b>, and since u, v are on opposite sides of the cut, that cycle contains <b>another crossing edge (x,y)</b>. As (u,v) is light, w(u,v)≤w(x,y). Then T′=T−(x,y)+(u,v) breaks the cycle (still a spanning tree) with w(T′)≤w(T) → T′ is also an MST. Hence an MST containing (u,v) exists, so (u,v) is safe."
-  }
+  },
+  "branchOf": "algo6_06",
+  "ord": 15
  },
  "algo_br_topo_proof": {
   "ch": "알고리즘 제6장 그래프",
