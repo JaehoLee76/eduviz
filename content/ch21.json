@@ -1,77 +1,77 @@
 {
-  "ch21_01": {
-    "ch": "제21장 행렬",
-    "sec": "21.1 행렬과 연산",
-    "title": "행렬 — 수의 직사각형 배열",
-    "narr": "9장의 벡터가 수를 한 줄로 세운 것이었다면, <b>행렬</b>은 수를 <b>가로(행)와 세로(열)의 직사각형으로 줄 세운 것</b>입니다. 여러 데이터, 여러 식, 여러 좌표를 한 덩어리로 묶어 다루는 도구입니다. 기본 연산부터 보겠습니다. <b>덧셈</b>은 같은 자리끼리 더하고, <b>실수배</b>는 모든 성분에 같은 수를 곱하면 끝이라 벡터 때와 똑같습니다. 화면에서 k를 바꿔 모든 칸이 한꺼번에 k배 되는 것을 보세요. 진정한 위력은 다음의 곱셈에서 드러납니다.",
-    "hint": "k를 바꿔 실수배를 보세요",
-    "more": "<b>행렬</b>은 m×n개의 수를 행(가로)과 열(세로)로 배열한 것입니다. <b>덧셈</b>: 같은 자리끼리 더함(크기 같아야). <b>실수배</b>: 모든 성분에 곱함. 이건 9장 벡터(사실 행렬의 특수형)의 연산과 같습니다. 행렬은 연립방정식의 계수, 데이터 표, 변환 등을 압축해 표현합니다. 진정한 위력은 다음의 <b>곱셈</b>과 <b>변환</b>에서 나옵니다 — 단순한 표가 아니라 \"공간을 움직이는 연산자\"가 됩니다.",
-    "more_en": "A <b>matrix</b> arranges m×n numbers in rows and columns. <b>Addition</b>: entrywise (same size required). <b>Scalar multiple</b>: multiply every entry. This matches the operations on vectors (Ch.9, a special matrix). Matrices compactly represent systems of equations, data tables, and transformations. Their real power appears in <b>multiplication</b> and <b>transformation</b> next — not just a table, but an \"operator that moves space.\"",
-    "problem": {
-      "q": "행렬 [[1,2],[3,0]] 에 3을 곱하면 (1,1) 성분은?",
-      "solution": "모든 성분에 3을 곱함: 3×1 = <b>3</b>. (전체는 [[3,6],[9,0]])",
-      "q_en": "Multiplying [[1,2],[3,0]] by 3, what is the (1,1) entry?",
-      "sol_en": "Multiply every entry by 3: 3×1 = <b>3</b> (whole: [[3,6],[9,0]])."
-    }
-  },
-  "ch21_02": {
-    "ch": "제21장 행렬",
-    "sec": "21.1 행렬과 연산",
-    "title": "행렬 곱셈 — 행과 열의 내적",
-    "narr": "덧셈·실수배가 자리끼리였던 것과 달리, 행렬 곱셈은 규칙이 조금 특별합니다. 결과의 각 칸은 <b>왼쪽 행렬의 한 행</b>과 <b>오른쪽 행렬의 한 열</b>을 <b>내적(9장!)</b>해서 채웁니다. 예컨대 왼쪽 1행과 오른쪽 1열을 곱해 더하면 결과의 (1,1)칸이 됩니다. 이렇게 행과 열을 짝지으므로 왼쪽의 열 수와 오른쪽의 행 수가 같아야 곱이 정의됩니다. 또 행과 열의 역할이 비대칭이라 순서를 바꾸면 결과가 달라집니다(<b>AB ≠ BA</b>). 화면에서 한 칸이 어떻게 채워지는지 보세요.",
-    "hint": "행 · 열 = 각 칸",
-    "more": "<b>행렬 곱 (AB)의 (i,j)성분 = A의 i번째 행과 B의 j번째 열의 내적</b>(9장 내적!). 그래서 A의 열 수 = B의 행 수여야 곱이 정의됩니다. 중요한 성질: <b>교환법칙이 안 성립(AB ≠ BA)</b> — 변환을 \"순서대로\" 적용하는 것과 같아서, 회전 후 확대 ≠ 확대 후 회전입니다. 행렬 곱은 <b>변환의 합성</b>(변환을 이어서 함)을 뜻합니다(다음 장면). 컴퓨터그래픽·신경망·연립방정식이 모두 행렬 곱으로 돌아갑니다.",
-    "more_en": "<b>The (i,j) entry of AB = the dot product of A's i-th row with B's j-th column</b> (Ch.9 dot product!). So A's column count must equal B's row count. A crucial property: <b>multiplication is not commutative (AB ≠ BA)</b> — it applies transformations \"in order,\" so rotate-then-scale ≠ scale-then-rotate. Matrix multiplication means <b>composing transformations</b> (one after another, next scene). Computer graphics, neural networks, and linear systems all run on matrix multiplication.",
-    "problem": {
-      "q": "[[1,2],[3,1]] × [[2,0],[1,2]] 의 (1,1) 성분은?",
-      "solution": "1행 (1,2) · 1열 (2,1) = 1·2 + 2·1 = <b>4</b>.",
-      "q_en": "In [[1,2],[3,1]] × [[2,0],[1,2]], what is the (1,1) entry?",
-      "sol_en": "Row 1 (1,2) · Column 1 (2,1) = 1·2 + 2·1 = <b>4</b>."
-    }
-  },
-  "ch21_03": {
-    "ch": "제21장 행렬",
-    "sec": "21.1 행렬과 연산",
-    "title": "행렬 = 공간을 바꾸는 변환",
-    "narr": "곱셈 규칙을 벡터에 적용하면 행렬의 진정한 정체가 드러납니다. 행렬에 벡터를 곱하면 행과의 내적으로 새 좌표가 나오는데, 이는 곧 <b>그 벡터가 다른 자리로 옮겨가는 것</b>입니다. 모든 점을 한꺼번에 이렇게 옮기므로 행렬은 <b>공간 전체를 움직이는 변환</b>입니다. 핵심은 변환이 <b>기저벡터 e₁, e₂가 어디로 가는지</b>로 완전히 정해진다는 점이고, 그 두 도착점이 바로 행렬의 두 열입니다. 화면의 [[1,k],[0,1]]은 격자를 층층이 미는 <b>전단</b>입니다. k를 바꿔 공간이 기우는 것을 보세요.",
-    "hint": "k를 바꿔 공간이 기우는 걸 보세요",
-    "more": "행렬을 벡터에 곱하면 그 벡터를 <b>옮깁니다</b> — 행렬은 <b>선형변환</b>(공간을 늘이고·기울이고·회전·반사하되 격자선은 평행·등간격 유지)입니다. 핵심: 변환은 <b>기저벡터 e₁=(1,0), e₂=(0,1)이 어디로 가는지</b>로 완전히 결정됩니다 — 그 두 도착점이 바로 행렬의 두 열입니다! [[1,k],[0,1]]은 <b>전단(shear)</b>(층층이 밀기), [[cosθ,−sinθ],[sinθ,cosθ]]는 <b>회전</b>(10장 복소수 곱과 같음!). 이 \"행렬 = 변환\" 관점이 22장 일차변환의 핵심이고, 게임·영상·로봇의 움직임이 모두 이것입니다.",
-    "more_en": "Multiplying a matrix by a vector <b>moves</b> it — a matrix is a <b>linear transformation</b> (stretching, shearing, rotating, reflecting space while keeping grid lines parallel and evenly spaced). Key: a transformation is fully determined by <b>where the basis vectors e₁=(1,0), e₂=(0,1) go</b> — those two images are exactly the matrix's two columns! [[1,k],[0,1]] is a <b>shear</b>, and [[cosθ,−sinθ],[sinθ,cosθ]] is a <b>rotation</b> (same as complex multiplication, Ch.10!). This \"matrix = transformation\" view is the core of Ch.22, and drives motion in games, video, and robotics.",
-    "problem": {
-      "q": "선형변환에서 기저벡터 e₁=(1,0)이 가는 곳은 행렬의 무엇인가?",
-      "solution": "행렬의 <b>첫 번째 열</b>. (e₂는 두 번째 열) — 변환은 기저의 행선지로 결정됩니다.",
-      "q_en": "Where e₁=(1,0) goes under a linear transformation is which part of the matrix?",
-      "sol_en": "The matrix's <b>first column</b> (e₂ gives the second). A transformation is fixed by where the basis lands."
-    }
-  },
-  "ch21_04": {
-    "ch": "제21장 행렬",
-    "sec": "21.2 행렬식",
-    "title": "행렬식 — 넓이가 몇 배?",
-    "narr": "행렬이 공간을 옮기는 변환이라면, 그 변환이 공간을 얼마나 늘리거나 줄이는지를 한 숫자로 요약한 것이 <b>행렬식(det)</b>입니다. 넓이 1인 <b>단위정사각형</b>이 변환 뒤 <b>넓이 몇 배</b>가 되는지가 곧 행렬식이고, [[a,0],[0,d]]에서는 가로 a배·세로 d배라 넓이가 a·d배가 됩니다. a, d를 바꿔 흰 정사각형이 몇 배로 펴지는지 보세요. 특히 <b>det=0이면 한 변이 0이 되어 정사각형이 선이나 점으로 납작하게 붕괴</b>하는데, 차원이 무너진 것이라 되돌릴 수 없습니다.",
-    "hint": "a, d를 바꿔 넓이 배율을 보세요",
-    "more": "<b>행렬식 det = ad − bc</b> ([[a,b],[c,d]])는 그 변환의 <b>넓이 배율</b>입니다 — 단위정사각형이 변환 후 갖는 (부호 있는) 넓이입니다. <b>det>0</b> 방향 유지, <b>det<0</b> 거울처럼 뒤집힘, <b>det=0</b>이면 공간이 납작해져(직선·점으로 붕괴) <b>역변환 불가능 = 역행렬 없음</b>! 3차원에선 부피 배율입니다. 그래서 det=0은 연립방정식이 \"유일한 해를 못 갖는\" 조건과 정확히 같습니다(다음 장면). 한 숫자에 변환의 핵심 정보(가역성·방향·크기변화)가 압축된 것입니다.",
-    "more_en": "The <b>determinant det = ad − bc</b> (for [[a,b],[c,d]]) is the transformation's <b>area scaling factor</b> — the (signed) area of the unit square after transforming. <b>det>0</b> preserves orientation, <b>det<0</b> flips it like a mirror, and <b>det=0</b> collapses space onto a line or point, so the transformation is <b>not invertible = no inverse matrix</b>! In 3D it is the volume factor. Thus det=0 is exactly when a linear system fails to have a unique solution (next scene). One number compresses the key info: invertibility, orientation, and size change.",
-    "problem": {
-      "q": "행렬 [[3,0],[0,2]] 의 행렬식과 넓이 배율은?",
-      "solution": "det = 3·2 − 0·0 = <b>6</b>. 단위정사각형이 넓이 6배(3×2 직사각형)로.",
-      "q_en": "Find the determinant and area factor of [[3,0],[0,2]].",
-      "sol_en": "det = 3·2 − 0·0 = <b>6</b>. The unit square becomes 6× the area (a 3×2 rectangle)."
-    }
-  },
-  "ch21_05": {
-    "ch": "제21장 행렬",
-    "sec": "21.3 연립방정식과 행렬식",
-    "title": "연립방정식과 역행렬",
-    "narr": "<b>3장의 연립방정식(#29)</b>이 이제 행렬의 언어로 돌아옵니다. 여러 일차식을 한꺼번에 묶으면 계수를 행렬 A에 모아 <b>Ax = b</b> 한 줄로 쓸 수 있고, 마치 나눗셈처럼 <b>역행렬 A⁻¹</b>를 양변에 곱해 x = A⁻¹b로 한 번에 풉니다. 단, 역행렬이 늘 있는 것은 아닙니다. 앞 장면에서 <b>det=0이면 공간이 붕괴해 되돌릴 수 없었듯</b>, A의 행렬식이 0이면 역행렬이 없어 해가 유일하지 않습니다. 이때는 두 직선이 평행해 만나지 않거나 완전히 겹쳐 무수히 많은 해를 갖습니다. 화면은 det≠0이라 두 직선이 한 점(2,2)에서 만나는 경우입니다.",
-    "hint": "det ≠ 0 이면 유일한 해(교점)",
-    "more": "연립일차방정식은 <b>Ax = b</b>(A=계수행렬)로 압축됩니다. <b>det(A) ≠ 0</b>이면 <b>역행렬 A⁻¹</b>이 존재해 <b>x = A⁻¹b</b>로 유일하게 풀립니다(두 직선이 한 점에서 만남 = 3장 #29의 교점). <b>det(A) = 0</b>이면 역행렬이 없어, 두 직선이 <b>평행(해 없음)</b>이거나 <b>일치(무수히 많은 해)</b>입니다. <b>크라메르 공식</b>은 각 미지수를 행렬식의 비로 직접 줍니다(21.4의 넓이 해석과 연결). 미지수가 수백만 개인 거대 연립방정식(공학 시뮬레이션·머신러닝·경제모형)을 컴퓨터가 행렬로 푸는 게 선형대수의 핵심 응용입니다.",
-    "more_en": "A linear system compresses to <b>Ax = b</b> (A = coefficient matrix). If <b>det(A) ≠ 0</b>, an <b>inverse A⁻¹</b> exists and <b>x = A⁻¹b</b> solves it uniquely (two lines meeting at a point = Ch.3 #29's intersection). If <b>det(A) = 0</b>, there is no inverse: the lines are <b>parallel (no solution)</b> or <b>identical (infinitely many)</b>. <b>Cramer's rule</b> gives each unknown directly as a ratio of determinants (linking to the area meaning of 21.4). Computers solving huge systems with millions of unknowns (engineering simulation, machine learning, economic models) via matrices is the core application of linear algebra.",
-    "problem": {
-      "q": "연립방정식의 계수행렬식이 0이 아니면 해는?",
-      "solution": "역행렬이 존재 → <b>유일한 해</b> (두 직선이 한 점에서 만남).",
-      "q_en": "If a system's coefficient determinant is nonzero, what about the solution?",
-      "sol_en": "An inverse exists → a <b>unique solution</b> (the two lines meet at one point)."
-    }
+ "ch21_01": {
+  "ch": "제21장 행렬",
+  "sec": "21.1 행렬과 연산",
+  "title": "행렬 — 수의 직사각형 배열",
+  "narr": "9장의 벡터가 수를 한 줄로 세운 것이었다면, <b>행렬</b>은 수를 <b>가로(행)와 세로(열)의 직사각형으로 줄 세운 것</b>입니다. 여러 데이터, 여러 식, 여러 좌표를 한 덩어리로 묶어 다루는 도구입니다. 기본 연산부터 보겠습니다. <b>덧셈</b>은 같은 자리끼리 더하고, <b>실수배</b>는 모든 성분에 같은 수를 곱하면 끝이라 벡터 때와 똑같습니다. 화면에서 k를 바꿔 모든 칸이 한꺼번에 k배 되는 것을 보세요. 진정한 위력은 다음의 곱셈에서 드러납니다.",
+  "hint": "k를 바꿔 실수배를 보세요",
+  "more": "<b>행렬</b>은 m×n개의 수를 행(가로)과 열(세로)로 배열한 것입니다. <b>덧셈</b>: 같은 자리끼리 더함(크기 같아야). <b>실수배</b>: 모든 성분에 곱함. 이건 9장 벡터(사실 행렬의 특수형)의 연산과 같습니다. 행렬은 연립방정식의 계수, 데이터 표, 변환 등을 압축해 표현합니다. 진정한 위력은 다음의 <b>곱셈</b>과 <b>변환</b>에서 나옵니다 — 단순한 표가 아니라 \"공간을 움직이는 연산자\"가 됩니다.",
+  "more_en": "A <b>matrix</b> arranges m×n numbers in rows and columns. <b>Addition</b>: entrywise (same size required). <b>Scalar multiple</b>: multiply every entry. This matches the operations on vectors (Ch.9, a special matrix). Matrices compactly represent systems of equations, data tables, and transformations. Their real power appears in <b>multiplication</b> and <b>transformation</b> next — not just a table, but an \"operator that moves space.\"",
+  "problem": {
+   "q": "행렬 [[1,2],[3,0]] 에 3을 곱하면 (1,1) 성분은?",
+   "solution": "모든 성분에 3을 곱함: 3×1 = <b>3</b>. (전체는 [[3,6],[9,0]])",
+   "q_en": "Multiplying [[1,2],[3,0]] by 3, what is the (1,1) entry?",
+   "sol_en": "Multiply every entry by 3: 3×1 = <b>3</b> (whole: [[3,6],[9,0]])."
   }
+ },
+ "ch21_02": {
+  "ch": "제21장 행렬",
+  "sec": "21.1 행렬과 연산",
+  "title": "행렬 곱셈 — 행과 열의 내적",
+  "narr": "덧셈·실수배가 자리끼리였던 것과 달리, 행렬 곱셈은 규칙이 조금 특별합니다. 결과의 각 칸은 <b>왼쪽 행렬의 한 행</b>과 <b>오른쪽 행렬의 한 열</b>을 <b>내적(9장!)</b>해서 채웁니다. 예컨대 왼쪽 1행과 오른쪽 1열을 곱해 더하면 결과의 (1,1)칸이 됩니다. 이렇게 행과 열을 짝지으므로 왼쪽의 열 수와 오른쪽의 행 수가 같아야 곱이 정의됩니다. 또 행과 열의 역할이 비대칭이라 순서를 바꾸면 결과가 달라집니다(<b>AB ≠ BA</b>). 화면에서 한 칸이 어떻게 채워지는지 보세요.",
+  "hint": "행 · 열 = 각 칸",
+  "more": "<b>행렬 곱 (AB)의 (i,j)성분 = A의 i번째 행과 B의 j번째 열의 내적</b>(9장 내적!). 그래서 A의 열 수 = B의 행 수여야 곱이 정의됩니다. 중요한 성질: <b>교환법칙이 안 성립(AB ≠ BA)</b> — 변환을 \"순서대로\" 적용하는 것과 같아서, 회전 후 확대 ≠ 확대 후 회전입니다. 행렬 곱은 <b>변환의 합성</b>(변환을 이어서 함)을 뜻합니다(다음 장면). 컴퓨터그래픽·신경망·연립방정식이 모두 행렬 곱으로 돌아갑니다.",
+  "more_en": "<b>The (i,j) entry of AB = the dot product of A's i-th row with B's j-th column</b> (Ch.9 dot product!). So A's column count must equal B's row count. A crucial property: <b>multiplication is not commutative (AB ≠ BA)</b> — it applies transformations \"in order,\" so rotate-then-scale ≠ scale-then-rotate. Matrix multiplication means <b>composing transformations</b> (one after another, next scene). Computer graphics, neural networks, and linear systems all run on matrix multiplication.",
+  "problem": {
+   "q": "[[1,2],[3,1]] × [[2,0],[1,2]] 의 (1,1) 성분은?",
+   "solution": "1행 (1,2) · 1열 (2,1) = 1·2 + 2·1 = <b>4</b>.",
+   "q_en": "In [[1,2],[3,1]] × [[2,0],[1,2]], what is the (1,1) entry?",
+   "sol_en": "Row 1 (1,2) · Column 1 (2,1) = 1·2 + 2·1 = <b>4</b>."
+  }
+ },
+ "ch21_03": {
+  "ch": "제21장 행렬",
+  "sec": "21.1 행렬과 연산",
+  "title": "행렬 = 공간을 바꾸는 변환",
+  "narr": "곱셈 규칙을 벡터에 적용하면 행렬의 진정한 정체가 드러납니다. 행렬에 벡터를 곱하면 행과의 내적으로 새 좌표가 나오는데, 이는 곧 <b>그 벡터가 다른 자리로 옮겨가는 것</b>입니다. 모든 점을 한꺼번에 이렇게 옮기므로 행렬은 <b>공간 전체를 움직이는 변환</b>입니다. 핵심은 변환이 <b>기저벡터 e₁, e₂가 어디로 가는지</b>로 완전히 정해진다는 점이고, 그 두 도착점이 바로 행렬의 두 열입니다. 화면의 [[1,k],[0,1]]은 격자를 층층이 미는 <b>전단</b>입니다. k를 바꿔 공간이 기우는 것을 보세요.",
+  "hint": "k를 바꿔 공간이 기우는 걸 보세요",
+  "more": "행렬을 벡터에 곱하면 그 벡터를 <b>옮깁니다</b> — 행렬은 <b>선형변환</b>(공간을 늘이고·기울이고·회전·반사하되 격자선은 평행·등간격 유지)입니다. 핵심: 변환은 <b>기저벡터 e₁=(1,0), e₂=(0,1)이 어디로 가는지</b>로 완전히 결정됩니다 — 그 두 도착점이 바로 행렬의 두 열입니다! [[1,k],[0,1]]은 <b>전단(shear)</b>(층층이 밀기), [[cosθ,−sinθ],[sinθ,cosθ]]는 <b>회전</b>(10장 복소수 곱과 같음!). 이 \"행렬 = 변환\" 관점이 22장 일차변환의 핵심이고, 게임·영상·로봇의 움직임이 모두 이것입니다.",
+  "more_en": "Multiplying a matrix by a vector <b>moves</b> it — a matrix is a <b>linear transformation</b> (stretching, shearing, rotating, reflecting space while keeping grid lines parallel and evenly spaced). Key: a transformation is fully determined by <b>where the basis vectors e₁=(1,0), e₂=(0,1) go</b> — those two images are exactly the matrix's two columns! [[1,k],[0,1]] is a <b>shear</b>, and [[cosθ,−sinθ],[sinθ,cosθ]] is a <b>rotation</b> (same as complex multiplication, Ch.10!). This \"matrix = transformation\" view is the core of Ch.22, and drives motion in games, video, and robotics.",
+  "problem": {
+   "q": "선형변환에서 기저벡터 e₁=(1,0)이 가는 곳은 행렬의 무엇인가?",
+   "solution": "행렬의 <b>첫 번째 열</b>. (e₂는 두 번째 열) — 변환은 기저의 행선지로 결정됩니다.",
+   "q_en": "Where e₁=(1,0) goes under a linear transformation is which part of the matrix?",
+   "sol_en": "The matrix's <b>first column</b> (e₂ gives the second). A transformation is fixed by where the basis lands."
+  }
+ },
+ "ch21_04": {
+  "ch": "제21장 행렬",
+  "sec": "21.2 행렬식",
+  "title": "행렬식 — 넓이가 몇 배?",
+  "narr": "행렬이 공간을 옮기는 변환이라면, 그 변환이 공간을 얼마나 늘리거나 줄이는지를 한 숫자로 요약한 것이 <b>행렬식(det)</b>입니다. 넓이 1인 <b>단위정사각형</b>이 변환 뒤 <b>넓이 몇 배</b>가 되는지가 곧 행렬식이고, [[a,0],[0,d]]에서는 가로 a배·세로 d배라 넓이가 a·d배가 됩니다. a, d를 바꿔 흰 정사각형이 몇 배로 펴지는지 보세요. 특히 <b>det=0이면 한 변이 0이 되어 정사각형이 선이나 점으로 납작하게 붕괴</b>하는데, 차원이 무너진 것이라 되돌릴 수 없습니다.",
+  "hint": "a, d를 바꿔 넓이 배율을 보세요",
+  "more": "<b>행렬식 det = ad − bc</b> ([[a,b],[c,d]])는 그 변환의 <b>넓이 배율</b>입니다 — 단위정사각형이 변환 후 갖는 (부호 있는) 넓이입니다. <b>det>0</b> 방향 유지, <b>det<0</b> 거울처럼 뒤집힘, <b>det=0</b>이면 공간이 납작해져(직선·점으로 붕괴) <b>역변환 불가능 = 역행렬 없음</b>! 3차원에선 부피 배율입니다. 그래서 det=0은 연립방정식이 \"유일한 해를 못 갖는\" 조건과 정확히 같습니다(다음 장면). 한 숫자에 변환의 핵심 정보(가역성·방향·크기변화)가 압축된 것입니다.",
+  "more_en": "The <b>determinant det = ad − bc</b> (for [[a,b],[c,d]]) is the transformation's <b>area scaling factor</b> — the (signed) area of the unit square after transforming. <b>det>0</b> preserves orientation, <b>det<0</b> flips it like a mirror, and <b>det=0</b> collapses space onto a line or point, so the transformation is <b>not invertible = no inverse matrix</b>! In 3D it is the volume factor. Thus det=0 is exactly when a linear system fails to have a unique solution (next scene). One number compresses the key info: invertibility, orientation, and size change.",
+  "problem": {
+   "q": "행렬 [[3,0],[0,2]] 의 행렬식과 넓이 배율은?",
+   "solution": "det = 3·2 − 0·0 = <b>6</b>. 단위정사각형이 넓이 6배(3×2 직사각형)로.",
+   "q_en": "Find the determinant and area factor of [[3,0],[0,2]].",
+   "sol_en": "det = 3·2 − 0·0 = <b>6</b>. The unit square becomes 6× the area (a 3×2 rectangle)."
+  }
+ },
+ "ch21_05": {
+  "ch": "제21장 행렬",
+  "sec": "21.3 연립방정식과 행렬식",
+  "title": "연립방정식과 역행렬",
+  "narr": "<b>3장의 연립방정식(#28)</b>이 이제 행렬의 언어로 돌아옵니다. 여러 일차식을 한꺼번에 묶으면 계수를 행렬 A에 모아 <b>Ax = b</b> 한 줄로 쓸 수 있고, 마치 나눗셈처럼 <b>역행렬 A⁻¹</b>를 양변에 곱해 x = A⁻¹b로 한 번에 풉니다. 단, 역행렬이 늘 있는 것은 아닙니다. 앞 장면에서 <b>det=0이면 공간이 붕괴해 되돌릴 수 없었듯</b>, A의 행렬식이 0이면 역행렬이 없어 해가 유일하지 않습니다. 이때는 두 직선이 평행해 만나지 않거나 완전히 겹쳐 무수히 많은 해를 갖습니다. 화면은 det≠0이라 두 직선이 한 점(2,2)에서 만나는 경우입니다.",
+  "hint": "det ≠ 0 이면 유일한 해(교점)",
+  "more": "연립일차방정식은 <b>Ax = b</b>(A=계수행렬)로 압축됩니다. <b>det(A) ≠ 0</b>이면 <b>역행렬 A⁻¹</b>이 존재해 <b>x = A⁻¹b</b>로 유일하게 풀립니다(두 직선이 한 점에서 만남 = 3장 #28의 교점). <b>det(A) = 0</b>이면 역행렬이 없어, 두 직선이 <b>평행(해 없음)</b>이거나 <b>일치(무수히 많은 해)</b>입니다. <b>크라메르 공식</b>은 각 미지수를 행렬식의 비로 직접 줍니다(21.4의 넓이 해석과 연결). 미지수가 수백만 개인 거대 연립방정식(공학 시뮬레이션·머신러닝·경제모형)을 컴퓨터가 행렬로 푸는 게 선형대수의 핵심 응용입니다.",
+  "more_en": "A linear system compresses to <b>Ax = b</b> (A = coefficient matrix). If <b>det(A) ≠ 0</b>, an <b>inverse A⁻¹</b> exists and <b>x = A⁻¹b</b> solves it uniquely (two lines meeting at a point = Ch.3 #29's intersection). If <b>det(A) = 0</b>, there is no inverse: the lines are <b>parallel (no solution)</b> or <b>identical (infinitely many)</b>. <b>Cramer's rule</b> gives each unknown directly as a ratio of determinants (linking to the area meaning of 21.4). Computers solving huge systems with millions of unknowns (engineering simulation, machine learning, economic models) via matrices is the core application of linear algebra.",
+  "problem": {
+   "q": "연립방정식의 계수행렬식이 0이 아니면 해는?",
+   "solution": "역행렬이 존재 → <b>유일한 해</b> (두 직선이 한 점에서 만남).",
+   "q_en": "If a system's coefficient determinant is nonzero, what about the solution?",
+   "sol_en": "An inverse exists → a <b>unique solution</b> (the two lines meet at one point)."
+  }
+ }
 }

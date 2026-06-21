@@ -1,62 +1,62 @@
 {
-  "ch23_01": {
-    "ch": "제23장 수론",
-    "sec": "23.1 산술의 기본정리",
-    "title": "소인수분해 — 수의 원자",
-    "narr": "<b>1장에서 소수(#16)</b>를 \"1과 자기 자신으로만 나뉘는, 더 못 쪼개는 수\"로 봤습니다. 여기서 한 걸음 더 나아간 사실이 <b>산술의 기본정리</b>입니다. 1보다 큰 <b>모든 자연수는 소수들의 곱으로, 순서를 빼면 단 한 가지 방법으로만</b> 쪼개집니다. 예를 들어 60 = 2²×3×5인데 다른 소수 조합은 없습니다. 그래서 소수는 더 못 쪼개면서 모든 수를 만들어내는 <b>수의 원자(레고 블록)</b>입니다. n을 바꿔 소수 블록으로 분해되는 것을 보세요.",
-    "hint": "n을 바꿔 소수 블록을 보세요",
-    "more": "<b>산술의 기본정리</b>: 1보다 큰 모든 자연수는 <b>소수들의 곱으로 유일하게</b> 표현됩니다(순서 무시). 예) 60 = 2²×3×5. 소수가 \"수의 원자\"인 이유입니다 — 더 못 쪼개고, 모든 수를 만들어내기 때문입니다. 이 유일성 덕분에 약수·배수·최대공약수를 소인수로 분석할 수 있습니다. 소인수분해는 <b>쉬워 보여도 큰 수에서는 대단히 어려워서</b>(되돌리기 힘듦), 바로 그 비대칭성이 <b>RSA 암호</b>(인터넷 보안)의 심장입니다. 단순한 수론이 현대 디지털 세계를 지킵니다.",
-    "more_en": "<b>The Fundamental Theorem of Arithmetic</b>: every natural number greater than 1 factors <b>uniquely into primes</b> (up to order). E.g. 60 = 2²×3×5. This is why primes are the \"atoms of number\" — unbreakable, and they build every number. The uniqueness lets us analyze divisors and GCDs via prime factors. Factoring looks easy but is <b>extremely hard for large numbers</b> (tough to reverse), and that asymmetry is the heart of <b>RSA encryption</b> (internet security). Simple number theory guards the modern digital world.",
-    "problem": {
-      "q": "72를 소인수분해하면?",
-      "solution": "72 = 8×9 = 2³ × 3² → <b>2³·3²</b>.",
-      "q_en": "Factor 72 into primes.",
-      "sol_en": "72 = 8×9 = 2³ × 3² → <b>2³·3²</b>."
-    }
-  },
-  "ch23_02": {
-    "ch": "제23장 수론",
-    "sec": "23.1 산술의 기본정리",
-    "title": "유클리드 호제법 — 가장 오래된 알고리즘",
-    "narr": "앞에서 소인수분해를 봤지만, 두 수의 <b>최대공약수</b>를 구하려고 매번 큰 수를 인수분해하는 것은 느립니다. 2300년 전 유클리드의 묘수는 <b>큰 수를 작은 수로 나눈 나머지로 계속 바꾸는</b> 것입니다. 화면처럼 48과 36이면 48=1·36+12, 다음 36=3·12+0, 나머지가 0이 된 순간 직전에 나눈 12가 최대공약수입니다. 이것이 통하는 이유는 <b>a와 b의 공약수는 그 나머지의 약수이기도 해서</b> gcd가 보존되기 때문입니다. 인수분해보다 훨씬 빠른 인류 최초의 알고리즘입니다.",
-    "hint": "나머지로 계속 바꿔 0이 되면 끝",
-    "more": "<b>유클리드 호제법</b>: gcd(a, b) = gcd(b, a mod b) 를 나머지가 0이 될 때까지 반복합니다. 예) gcd(48,36): 48=1·36+12 → 36=3·12+0 → <b>gcd=12</b>. 원리: a와 b의 공약수는 a−b(또는 나머지)의 약수이기도 하다. 소인수분해보다 훨씬 빠르고(큰 수에도!), 컴퓨터 정수 연산의 기본입니다. \"알고리즘(algorithm)\"이라는 말의 뿌리이자, 2300년간 개선이 거의 없을 만큼 완벽한 방법 — 다음 트랙 <b>알고리즘</b>의 멋진 첫 사례입니다.",
-    "more_en": "<b>The Euclidean algorithm</b>: repeat gcd(a, b) = gcd(b, a mod b) until the remainder is 0. E.g. gcd(48,36): 48=1·36+12 → 36=3·12+0 → <b>gcd=12</b>. Principle: any common divisor of a and b also divides a−b (or the remainder). It is far faster than factoring (even for huge numbers) and is fundamental to computer integer arithmetic. One of the oldest algorithms, so good it has barely changed in 2300 years — a great first example for the upcoming <b>algorithms</b> track.",
-    "problem": {
-      "q": "gcd(20, 12) 를 유클리드 호제법으로 구하면?",
-      "solution": "20=1·12+8 → 12=1·8+4 → 8=2·4+0 → <b>gcd=4</b>.",
-      "q_en": "Find gcd(20, 12) by the Euclidean algorithm.",
-      "sol_en": "20=1·12+8 → 12=1·8+4 → 8=2·4+0 → <b>gcd=4</b>."
-    }
-  },
-  "ch23_03": {
-    "ch": "제23장 수론",
-    "sec": "23.2 합동식",
-    "title": "합동식 — 시계의 산술",
-    "narr": "앞에서 \"나눈 나머지\"가 호제법의 열쇠였는데, 그 나머지 자체를 수로 다루는 것이 <b>합동식</b>입니다. 시계에서 17시는 곧 <b>5시</b>인데, 시계가 12를 넘으면 다시 돌아 17과 5가 12로 나눈 나머지가 같기 때문입니다. 이렇게 \"<b>m으로 나눈 나머지가 같으면 같게 취급</b>\"하는 것을 a ≡ b (mod m)으로 씁니다. 시계(mod 12)·요일(mod 7)·각도(mod 360)가 모두 이 산술입니다. 수를 바꿔 시계 위 어느 칸에 멈추는지 보세요.",
-    "hint": "수를 바꿔 시계 나머지를 보세요",
-    "more": "<b>합동식</b>: a ≡ b (mod m) 은 \"a와 b를 m으로 나눈 나머지가 같다\"는 뜻입니다(a−b가 m의 배수). 시계(mod 12), 요일(mod 7), 각도(mod 360)가 다 합동 산술입니다. 놀라운 점: <b>합동은 덧셈·곱셈과 잘 어울립니다</b>(a≡b, c≡d면 a+c≡b+d, ac≡bd). 그래서 거대한 수의 나머지를 쉽게 계산합니다(다음 장면). 이 \"나머지의 세계\"가 유한한데도 풍부한 구조를 가져서, 암호(RSA)·오류정정코드·해시함수의 수학적 토대가 됩니다. 무한한 정수를 m개의 칸으로 접은 것입니다.",
-    "more_en": "<b>Congruence</b>: a ≡ b (mod m) means \"a and b have the same remainder mod m\" (m divides a−b). Clocks (mod 12), weekdays (mod 7), and angles (mod 360) are all modular arithmetic. Remarkably, <b>congruence respects addition and multiplication</b> (if a≡b, c≡d then a+c≡b+d, ac≡bd), making remainders of huge numbers easy to compute (next scene). This finite-yet-rich \"world of remainders\" is the mathematical basis of cryptography (RSA), error-correcting codes, and hash functions — folding the infinite integers into m boxes.",
-    "problem": {
-      "q": "오늘이 수요일이면 100일 후는 무슨 요일? (mod 7)",
-      "solution": "100 = 14×7 + 2 → 100 ≡ 2 (mod 7). 수요일 + 2일 = <b>금요일</b>.",
-      "q_en": "If today is Wednesday, what day is it 100 days later? (mod 7)",
-      "sol_en": "100 = 14×7 + 2 → 100 ≡ 2 (mod 7). Wednesday + 2 = <b>Friday</b>."
-    }
-  },
-  "ch23_04": {
-    "ch": "제23장 수론",
-    "sec": "23.2 합동식",
-    "title": "거듭제곱의 주기 — 합동의 힘",
-    "narr": "앞 장면의 합동이 빛을 발하는 곳입니다. 3을 백 번 곱한 3¹⁰⁰의 <b>일의 자리</b>는 직접 계산하면 어마어마하지만, 일의 자리는 곧 mod 10이라 한순간에 풀립니다. 3ⁿ의 일의 자리는 <b>3, 9, 7, 1이 주기 4로 반복</b>되는데, 합동이 곱셈과 잘 어울려 나머지끼리만 곱해도 되기 때문입니다. 그래서 100을 주기 4로 나눈 나머지 0, 즉 주기의 4번째인 1이 답입니다. k를 바꿔 네 칸 주기를 확인하세요.",
-    "hint": "k를 바꿔 4개 주기를 보세요",
-    "more": "<b>거듭제곱의 나머지는 주기적으로 반복</b>합니다. 3ⁿ의 일의 자리(mod 10): 3, 9, 7, 1, 3, 9, … <b>주기 4</b>. 그래서 3¹⁰⁰의 일의 자리는 100 ≡ 0 (mod 4) → 주기의 4번째 = <b>1</b>! 합동이 덧셈·곱셈과 어울리기에(앞 장면), 지수를 주기로 나눈 나머지만 보면 됩니다. 이 \"주기성\"과 <b>페르마 소정리</b>(aᵖ⁻¹ ≡ 1 mod p)가 <b>RSA 암호</b>의 핵심 엔진입니다 — 큰 수의 거듭제곱 나머지를 빠르게 계산해 메시지를 잠그고 푸는. 작은 수의 패턴이 인터넷 전체의 보안이 되는 것입니다.",
-    "more_en": "<b>Remainders of powers repeat periodically</b>. The last digit of 3ⁿ (mod 10): 3, 9, 7, 1, 3, 9, … <b>period 4</b>. So the last digit of 3¹⁰⁰ is found from 100 ≡ 0 (mod 4) → the 4th in the cycle = <b>1</b>! Because congruence respects multiplication (previous scene), you only need the exponent mod the period. This periodicity and <b>Fermat's little theorem</b> (aᵖ⁻¹ ≡ 1 mod p) are the engine of <b>RSA encryption</b> — fast modular exponentiation locks and unlocks messages. A small-number pattern becomes the security of the entire internet.",
-    "problem": {
-      "q": "7^2 의 일의 자리는? 7ⁿ의 일의 자리 주기는 7,9,3,1 이다.",
-      "solution": "주기 7,9,3,1 의 2번째 → <b>9</b>. (7²=49)",
-      "q_en": "What is the last digit of 7²? The last digits of 7ⁿ cycle as 7,9,3,1.",
-      "sol_en": "The 2nd in the cycle 7,9,3,1 → <b>9</b> (7²=49)."
-    }
+ "ch23_01": {
+  "ch": "제23장 수론",
+  "sec": "23.1 산술의 기본정리",
+  "title": "소인수분해 — 수의 원자",
+  "narr": "<b>1장에서 소수(#10)</b>를 \"1과 자기 자신으로만 나뉘는, 더 못 쪼개는 수\"로 봤습니다. 여기서 한 걸음 더 나아간 사실이 <b>산술의 기본정리</b>입니다. 1보다 큰 <b>모든 자연수는 소수들의 곱으로, 순서를 빼면 단 한 가지 방법으로만</b> 쪼개집니다. 예를 들어 60 = 2²×3×5인데 다른 소수 조합은 없습니다. 그래서 소수는 더 못 쪼개면서 모든 수를 만들어내는 <b>수의 원자(레고 블록)</b>입니다. n을 바꿔 소수 블록으로 분해되는 것을 보세요.",
+  "hint": "n을 바꿔 소수 블록을 보세요",
+  "more": "<b>산술의 기본정리</b>: 1보다 큰 모든 자연수는 <b>소수들의 곱으로 유일하게</b> 표현됩니다(순서 무시). 예) 60 = 2²×3×5. 소수가 \"수의 원자\"인 이유입니다 — 더 못 쪼개고, 모든 수를 만들어내기 때문입니다. 이 유일성 덕분에 약수·배수·최대공약수를 소인수로 분석할 수 있습니다. 소인수분해는 <b>쉬워 보여도 큰 수에서는 대단히 어려워서</b>(되돌리기 힘듦), 바로 그 비대칭성이 <b>RSA 암호</b>(인터넷 보안)의 심장입니다. 단순한 수론이 현대 디지털 세계를 지킵니다.",
+  "more_en": "<b>The Fundamental Theorem of Arithmetic</b>: every natural number greater than 1 factors <b>uniquely into primes</b> (up to order). E.g. 60 = 2²×3×5. This is why primes are the \"atoms of number\" — unbreakable, and they build every number. The uniqueness lets us analyze divisors and GCDs via prime factors. Factoring looks easy but is <b>extremely hard for large numbers</b> (tough to reverse), and that asymmetry is the heart of <b>RSA encryption</b> (internet security). Simple number theory guards the modern digital world.",
+  "problem": {
+   "q": "72를 소인수분해하면?",
+   "solution": "72 = 8×9 = 2³ × 3² → <b>2³·3²</b>.",
+   "q_en": "Factor 72 into primes.",
+   "sol_en": "72 = 8×9 = 2³ × 3² → <b>2³·3²</b>."
   }
+ },
+ "ch23_02": {
+  "ch": "제23장 수론",
+  "sec": "23.1 산술의 기본정리",
+  "title": "유클리드 호제법 — 가장 오래된 알고리즘",
+  "narr": "앞에서 소인수분해를 봤지만, 두 수의 <b>최대공약수</b>를 구하려고 매번 큰 수를 인수분해하는 것은 느립니다. 2300년 전 유클리드의 묘수는 <b>큰 수를 작은 수로 나눈 나머지로 계속 바꾸는</b> 것입니다. 화면처럼 48과 36이면 48=1·36+12, 다음 36=3·12+0, 나머지가 0이 된 순간 직전에 나눈 12가 최대공약수입니다. 이것이 통하는 이유는 <b>a와 b의 공약수는 그 나머지의 약수이기도 해서</b> gcd가 보존되기 때문입니다. 인수분해보다 훨씬 빠른 인류 최초의 알고리즘입니다.",
+  "hint": "나머지로 계속 바꿔 0이 되면 끝",
+  "more": "<b>유클리드 호제법</b>: gcd(a, b) = gcd(b, a mod b) 를 나머지가 0이 될 때까지 반복합니다. 예) gcd(48,36): 48=1·36+12 → 36=3·12+0 → <b>gcd=12</b>. 원리: a와 b의 공약수는 a−b(또는 나머지)의 약수이기도 하다. 소인수분해보다 훨씬 빠르고(큰 수에도!), 컴퓨터 정수 연산의 기본입니다. \"알고리즘(algorithm)\"이라는 말의 뿌리이자, 2300년간 개선이 거의 없을 만큼 완벽한 방법 — 다음 트랙 <b>알고리즘</b>의 멋진 첫 사례입니다.",
+  "more_en": "<b>The Euclidean algorithm</b>: repeat gcd(a, b) = gcd(b, a mod b) until the remainder is 0. E.g. gcd(48,36): 48=1·36+12 → 36=3·12+0 → <b>gcd=12</b>. Principle: any common divisor of a and b also divides a−b (or the remainder). It is far faster than factoring (even for huge numbers) and is fundamental to computer integer arithmetic. One of the oldest algorithms, so good it has barely changed in 2300 years — a great first example for the upcoming <b>algorithms</b> track.",
+  "problem": {
+   "q": "gcd(20, 12) 를 유클리드 호제법으로 구하면?",
+   "solution": "20=1·12+8 → 12=1·8+4 → 8=2·4+0 → <b>gcd=4</b>.",
+   "q_en": "Find gcd(20, 12) by the Euclidean algorithm.",
+   "sol_en": "20=1·12+8 → 12=1·8+4 → 8=2·4+0 → <b>gcd=4</b>."
+  }
+ },
+ "ch23_03": {
+  "ch": "제23장 수론",
+  "sec": "23.2 합동식",
+  "title": "합동식 — 시계의 산술",
+  "narr": "앞에서 \"나눈 나머지\"가 호제법의 열쇠였는데, 그 나머지 자체를 수로 다루는 것이 <b>합동식</b>입니다. 시계에서 17시는 곧 <b>5시</b>인데, 시계가 12를 넘으면 다시 돌아 17과 5가 12로 나눈 나머지가 같기 때문입니다. 이렇게 \"<b>m으로 나눈 나머지가 같으면 같게 취급</b>\"하는 것을 a ≡ b (mod m)으로 씁니다. 시계(mod 12)·요일(mod 7)·각도(mod 360)가 모두 이 산술입니다. 수를 바꿔 시계 위 어느 칸에 멈추는지 보세요.",
+  "hint": "수를 바꿔 시계 나머지를 보세요",
+  "more": "<b>합동식</b>: a ≡ b (mod m) 은 \"a와 b를 m으로 나눈 나머지가 같다\"는 뜻입니다(a−b가 m의 배수). 시계(mod 12), 요일(mod 7), 각도(mod 360)가 다 합동 산술입니다. 놀라운 점: <b>합동은 덧셈·곱셈과 잘 어울립니다</b>(a≡b, c≡d면 a+c≡b+d, ac≡bd). 그래서 거대한 수의 나머지를 쉽게 계산합니다(다음 장면). 이 \"나머지의 세계\"가 유한한데도 풍부한 구조를 가져서, 암호(RSA)·오류정정코드·해시함수의 수학적 토대가 됩니다. 무한한 정수를 m개의 칸으로 접은 것입니다.",
+  "more_en": "<b>Congruence</b>: a ≡ b (mod m) means \"a and b have the same remainder mod m\" (m divides a−b). Clocks (mod 12), weekdays (mod 7), and angles (mod 360) are all modular arithmetic. Remarkably, <b>congruence respects addition and multiplication</b> (if a≡b, c≡d then a+c≡b+d, ac≡bd), making remainders of huge numbers easy to compute (next scene). This finite-yet-rich \"world of remainders\" is the mathematical basis of cryptography (RSA), error-correcting codes, and hash functions — folding the infinite integers into m boxes.",
+  "problem": {
+   "q": "오늘이 수요일이면 100일 후는 무슨 요일? (mod 7)",
+   "solution": "100 = 14×7 + 2 → 100 ≡ 2 (mod 7). 수요일 + 2일 = <b>금요일</b>.",
+   "q_en": "If today is Wednesday, what day is it 100 days later? (mod 7)",
+   "sol_en": "100 = 14×7 + 2 → 100 ≡ 2 (mod 7). Wednesday + 2 = <b>Friday</b>."
+  }
+ },
+ "ch23_04": {
+  "ch": "제23장 수론",
+  "sec": "23.2 합동식",
+  "title": "거듭제곱의 주기 — 합동의 힘",
+  "narr": "앞 장면의 합동이 빛을 발하는 곳입니다. 3을 백 번 곱한 3¹⁰⁰의 <b>일의 자리</b>는 직접 계산하면 어마어마하지만, 일의 자리는 곧 mod 10이라 한순간에 풀립니다. 3ⁿ의 일의 자리는 <b>3, 9, 7, 1이 주기 4로 반복</b>되는데, 합동이 곱셈과 잘 어울려 나머지끼리만 곱해도 되기 때문입니다. 그래서 100을 주기 4로 나눈 나머지 0, 즉 주기의 4번째인 1이 답입니다. k를 바꿔 네 칸 주기를 확인하세요.",
+  "hint": "k를 바꿔 4개 주기를 보세요",
+  "more": "<b>거듭제곱의 나머지는 주기적으로 반복</b>합니다. 3ⁿ의 일의 자리(mod 10): 3, 9, 7, 1, 3, 9, … <b>주기 4</b>. 그래서 3¹⁰⁰의 일의 자리는 100 ≡ 0 (mod 4) → 주기의 4번째 = <b>1</b>! 합동이 덧셈·곱셈과 어울리기에(앞 장면), 지수를 주기로 나눈 나머지만 보면 됩니다. 이 \"주기성\"과 <b>페르마 소정리</b>(aᵖ⁻¹ ≡ 1 mod p)가 <b>RSA 암호</b>의 핵심 엔진입니다 — 큰 수의 거듭제곱 나머지를 빠르게 계산해 메시지를 잠그고 푸는. 작은 수의 패턴이 인터넷 전체의 보안이 되는 것입니다.",
+  "more_en": "<b>Remainders of powers repeat periodically</b>. The last digit of 3ⁿ (mod 10): 3, 9, 7, 1, 3, 9, … <b>period 4</b>. So the last digit of 3¹⁰⁰ is found from 100 ≡ 0 (mod 4) → the 4th in the cycle = <b>1</b>! Because congruence respects multiplication (previous scene), you only need the exponent mod the period. This periodicity and <b>Fermat's little theorem</b> (aᵖ⁻¹ ≡ 1 mod p) are the engine of <b>RSA encryption</b> — fast modular exponentiation locks and unlocks messages. A small-number pattern becomes the security of the entire internet.",
+  "problem": {
+   "q": "7^2 의 일의 자리는? 7ⁿ의 일의 자리 주기는 7,9,3,1 이다.",
+   "solution": "주기 7,9,3,1 의 2번째 → <b>9</b>. (7²=49)",
+   "q_en": "What is the last digit of 7²? The last digits of 7ⁿ cycle as 7,9,3,1.",
+   "sol_en": "The 2nd in the cycle 7,9,3,1 → <b>9</b> (7²=49)."
+  }
+ }
 }
