@@ -1217,11 +1217,11 @@
  },
  "algo_br_segtree": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "세그먼트 트리 — 구간 질의와 갱신 O(log n)",
   "narr": "구간 합 [l,r]을 매번 직접 더하면 한 질의에 O(n)이 듭니다. <b>세그먼트 트리</b>는 배열 구간을 루트에 두고 반씩 쪼갠 이진 트리에, 각 노드가 자기 구간의 합(또는 최소·최대·gcd)을 미리 담아 둡니다. 질의는 루트에서 내려가며 노드 구간이 [l,r]에 완전히 포함되면 그 값을 그대로 쓰고, 겹치면 양쪽 자식으로, 벗어나면 버립니다. 그래서 최대 <b>O(log n)개</b> 노드만 합치면 됩니다. 점 갱신은 해당 리프부터 루트까지 한 줄만 다시 계산해 O(log n)입니다. 지연 전파를 더하면 구간 전체 갱신도 O(log n)이 됩니다.",
   "hint": "",
-  "more": "<b>세그먼트 트리</b>는 배열 구간 [0,n−1]을 루트로 두고 <b>반씩 쪼개</b> 내려가는 이진 트리입니다. 각 노드는 자기 구간의 <b>합(또는 최솟값·최댓값·gcd 등 결합 가능한 값)</b>을 저장합니다. <b>구간 질의 [l,r]</b>: 루트에서 내려가며 ① 노드 구간이 [l,r]에 <b>완전히 포함</b>되면 그 값을 그대로 쓰고 ② <b>겹치면</b> 양쪽 자식으로, ③ <b>벗어나면</b> 버립니다 → 최대 <b>O(log n)개</b> 노드만 합치면 끝. <b>점 갱신</b>: 해당 리프부터 루트까지 한 줄만 다시 계산 → O(log n). 확장: <b>지연 전파(lazy propagation)</b>로 구간 전체 갱신도 O(log n). 합·최솟값·최댓값·구간 gcd 등 \"결합법칙이 성립하는\" 모든 연산에 쓰입니다.",
+  "more": "​구간 질의와 <b>점 갱신</b>을 모두 O(log n) — 세그먼트 트리. <b>세그먼트 트리</b>는 배열 구간 [0,n−1]을 루트로 두고 <b>반씩 쪼개</b> 내려가는 이진 트리입니다. 각 노드는 자기 구간의 <b>합(또는 최솟값·최댓값·gcd 등 결합 가능한 값)</b>을 저장합니다. <b>구간 질의 [l,r]</b>: 루트에서 내려가며 ① 노드 구간이 [l,r]에 <b>완전히 포함</b>되면 그 값을 그대로 쓰고 ② <b>겹치면</b> 양쪽 자식으로, ③ <b>벗어나면</b> 버립니다 → 최대 <b>O(log n)개</b> 노드만 합치면 끝. <b>점 갱신</b>: 해당 리프부터 루트까지 한 줄만 다시 계산 → O(log n). 확장: <b>지연 전파(lazy propagation)</b>로 구간 전체 갱신도 O(log n). 합·최솟값·최댓값·구간 gcd 등 \"결합법칙이 성립하는\" 모든 연산에 쓰입니다.",
   "more_en": "A <b>segment tree</b> takes the array range [0,n−1] as the root and splits it <b>in half</b> down a binary tree; each node stores its range's <b>sum (or min/max/gcd — any associative value)</b>. <b>Range query [l,r]</b>: descend from the root — ① if a node's range is <b>fully inside</b> [l,r] use its stored value, ② if it <b>overlaps</b> recurse into both children, ③ if <b>disjoint</b> drop it → combine only <b>O(log n)</b> nodes. <b>Point update</b>: recompute the single path from that leaf up to the root → O(log n). Extension: <b>lazy propagation</b> makes whole-range updates O(log n) too. Works for any operation with an <b>associative</b> combine (sum, min, max, gcd, …).",
   "problem": {
    "q": "길이 8 배열의 구간 합 [2,5]를 세그먼트 트리로 구하면 몇 개의 노드를 더하나? (위 그림 기준)",
@@ -1244,7 +1244,9 @@
    "  int m=(l+r)/2;",
    "  return query(2*node,l,m,ql,qr)+query(2*node+1,m+1,r,ql,qr);",
    "}   // 둘 다 O(log n)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 6
  },
  "algo_br_trie": {
   "ch": "알고리즘 제2장 자료구조",
@@ -1430,11 +1432,11 @@
  },
  "algo_br_fenwick": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "펜윅 트리(BIT) — 누적 합을 비트로 O(log n)",
   "narr": "세그먼트 트리처럼 누적 합과 갱신을 다루지만, <b>코드가 훨씬 짧고 메모리도 절반</b>입니다. <b>펜윅 트리</b>는 tree[i]에 (i − lowbit(i), i] 구간의 합을 담습니다(lowbit(i)=i&(−i), 마지막 1비트의 값). 누적합 prefix(i)는 i가 0이 될 때까지 tree[i]를 더하고 <b>i −= lowbit(i)</b>로 내려갑니다. 점 갱신은 반대로 <b>i += lowbit(i)</b>로 올라가며 더합니다. 둘 다 i의 1비트 개수만큼만 도니 <b>O(log n)</b>입니다. 구간합 [l,r]은 prefix(r) − prefix(l−1)로 구합니다. 상수가 작고 구현이 짧아 누적합·전도 수 세기에 애용됩니다.",
   "hint": "",
-  "more": "<b>펜윅 트리(BIT, Binary Indexed Tree)</b>는 1-기반 배열 tree[]에서 <b>tree[i]가 (i − lowbit(i), i] 구간의 합</b>을 저장합니다(lowbit(i) = i & (−i) = 마지막 1비트의 값). <b>누적합 prefix(i)</b> = a[1]+…+a[i]: i가 0이 될 때까지 <b>tree[i]를 더하고 i −= lowbit(i)</b>. 예: prefix(7)=tree[7]+tree[6]+tree[4](7→6→4→0, 비트 111→110→100). <b>점 갱신</b>: 반대로 <b>i += lowbit(i)</b> 로 올라가며 tree[i]에 더함. 둘 다 1의 비트 개수만큼 = <b>O(log n)</b>. 구간합 [l,r] = prefix(r) − prefix(l−1). 세그먼트 트리보다 상수가 작고 구현이 짧아 경시대회·실무에서 누적합·역수열(전도 수) 세기 등에 애용됩니다.",
+  "more": "​구간 합을 비트로 O(log n) — <b>펜윅 트리(BIT)</b>. <b>펜윅 트리(BIT, Binary Indexed Tree)</b>는 1-기반 배열 tree[]에서 <b>tree[i]가 (i − lowbit(i), i] 구간의 합</b>을 저장합니다(lowbit(i) = i & (−i) = 마지막 1비트의 값). <b>누적합 prefix(i)</b> = a[1]+…+a[i]: i가 0이 될 때까지 <b>tree[i]를 더하고 i −= lowbit(i)</b>. 예: prefix(7)=tree[7]+tree[6]+tree[4](7→6→4→0, 비트 111→110→100). <b>점 갱신</b>: 반대로 <b>i += lowbit(i)</b> 로 올라가며 tree[i]에 더함. 둘 다 1의 비트 개수만큼 = <b>O(log n)</b>. 구간합 [l,r] = prefix(r) − prefix(l−1). 세그먼트 트리보다 상수가 작고 구현이 짧아 경시대회·실무에서 누적합·역수열(전도 수) 세기 등에 애용됩니다.",
   "more_en": "A <b>Fenwick tree (BIT)</b> uses a 1-based array where <b>tree[i] holds the sum of (i − lowbit(i), i]</b> (lowbit(i) = i & (−i), the value of the lowest set bit). <b>Prefix sum(i)</b> = a[1]+…+a[i]: add tree[i] and do <b>i −= lowbit(i)</b> until 0 — e.g. prefix(7)=tree[7]+tree[6]+tree[4] (7→6→4→0, bits 111→110→100). <b>Point update</b>: go the other way with <b>i += lowbit(i)</b>, adding to each tree[i]. Both take as many steps as set bits = <b>O(log n)</b>. Range sum [l,r] = prefix(r) − prefix(l−1). Smaller constant and far shorter code than a segment tree, popular for prefix sums and counting inversions.",
   "problem": {
    "q": "펜윅 트리에서 prefix(7)을 구할 때 더하는 tree 칸의 인덱스는?",
@@ -1453,7 +1455,9 @@
    "  for(; i>0; i -= i & (-i)) s += bit[i];",
    "  return s;",
    "}   // 갱신·질의 모두 O(log n)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 3
  },
  "algo_br_lca": {
   "ch": "알고리즘 제5장 트리",
@@ -2154,11 +2158,11 @@
  },
  "algo_br_perseg": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "영속 세그먼트 트리 — 과거 버전을 통째로 보존",
   "narr": "갱신할 때마다 이전 버전을 지우지 않고 남겨 '몇 번째 갱신 직후 상태'를 아무 때나 조회하려는 게 <b>영속 세그먼트 트리</b>입니다. 일반 세그먼트 트리에서 한 점을 갱신하면 루트에서 그 리프까지의 경로(노드 O(log n)개)만 값이 바뀝니다. 그래서 그 경로의 노드만 <b>새로 복사</b>하고, 바뀌지 않는 나머지 서브트리는 옛 버전의 노드를 그대로 가리키게(공유) 합니다. 새 루트 하나가 곧 새 버전이라, 갱신 1회당 시간·메모리가 <b>O(log n)</b>이고 모든 과거 버전이 보존됩니다. k번째 작은 수 질의(버전 차이로 구간 표현), 롤백·버전 관리에 쓰이는, 함수형의 불변성-공유 아이디어입니다.",
   "hint": "",
-  "more": "<b>영속(Persistent) 세그먼트 트리</b>는 자료구조를 <b>수정해도 이전 버전이 그대로 살아 있게</b> 만드는 기법입니다. 일반 세그먼트 트리에서 한 점을 갱신하면 <b>루트에서 그 리프까지의 경로(노드 O(log n)개)</b>만 값이 바뀝니다. 그래서 그 경로의 노드만 <b>새로 복사</b>하고, 바뀌지 않는 나머지 서브트리는 <b>옛 버전의 노드를 그대로 가리키게(공유)</b> 합니다. 새 루트 하나가 곧 \"새 버전\"입니다 → 갱신 1회당 <b>시간·메모리 O(log n)</b>, 모든 과거 버전 보존. 활용: ① <b>k번째 작은 수 질의</b>(값 도메인 세그트리의 버전 차이로 구간 [l,r]을 표현) ② 머지소트 트리/2D 질의의 대체 ③ 롤백·버전 관리. 함수형 자료구조의 \"불변성으로 공유\" 아이디어를 트리에 적용한 셈입니다.",
+  "more": "​갱신해도 <b>과거 버전</b>이 살아있는 영속 세그먼트 트리. <b>영속(Persistent) 세그먼트 트리</b>는 자료구조를 <b>수정해도 이전 버전이 그대로 살아 있게</b> 만드는 기법입니다. 일반 세그먼트 트리에서 한 점을 갱신하면 <b>루트에서 그 리프까지의 경로(노드 O(log n)개)</b>만 값이 바뀝니다. 그래서 그 경로의 노드만 <b>새로 복사</b>하고, 바뀌지 않는 나머지 서브트리는 <b>옛 버전의 노드를 그대로 가리키게(공유)</b> 합니다. 새 루트 하나가 곧 \"새 버전\"입니다 → 갱신 1회당 <b>시간·메모리 O(log n)</b>, 모든 과거 버전 보존. 활용: ① <b>k번째 작은 수 질의</b>(값 도메인 세그트리의 버전 차이로 구간 [l,r]을 표현) ② 머지소트 트리/2D 질의의 대체 ③ 롤백·버전 관리. 함수형 자료구조의 \"불변성으로 공유\" 아이디어를 트리에 적용한 셈입니다.",
   "more_en": "A <b>persistent segment tree</b> keeps <b>every old version alive after updates</b>. In an ordinary segment tree a point update changes only the <b>root-to-leaf path (O(log n) nodes)</b>. So we <b>copy just those path nodes</b> and let the untouched subtrees <b>point to the old version's nodes (sharing)</b>. A single new root is the \"new version\" → each update costs <b>O(log n) time and memory</b> while preserving all past versions. Uses: ① <b>k-th smallest queries</b> (express range [l,r] by the difference of two versions of a value-domain tree); ② an alternative to merge-sort trees / 2D queries; ③ rollback and versioning. It applies the functional \"share via immutability\" idea to trees.",
   "problem": {
    "q": "영속 세그먼트 트리에서 갱신 1회가 새로 만드는 노드 수는?",
@@ -2177,7 +2181,9 @@
    "  pull(cur);",
    "  return cur;",
    "}   // 버전마다 O(log n) 공간"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 11
  },
  "algo_br_hld": {
   "ch": "알고리즘 제5장 트리",
@@ -2670,11 +2676,11 @@
  },
  "algo_br_coordcomp": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "좌표 압축 — 큰 값을 0..k 등수로",
   "narr": "배열을 다루기 전 거치는 전처리입니다. 값이 10억까지 커도 <b>실제 종류는 n개뿐</b>일 때, 크기 관계만 남기고 <b>등수(rank)</b>로 바꿔 0..n−1의 작은 정수로 만듭니다. 방법은 ①등장 값을 <b>정렬+중복 제거</b>, ②각 원래 값을 정렬 배열에서의 인덱스(이분 탐색)로 치환입니다. 대소 관계가 그대로 보존되므로 순서·구간·빈도만 중요한 문제라면 압축 값을 써도 답이 같습니다. 덕분에 값 범위 10⁹이라 못 쓰던 <b>세그먼트 트리·펜윅·카운팅 배열·DP 인덱스</b>를 크기 n으로 쓸 수 있습니다. 비용은 정렬 <b>O(n log n)</b>입니다. 전도 수 세기, 구간 내 서로 다른 값 수, 2D 스위프의 단골 전처리입니다.",
   "hint": "",
-  "more": "<b>좌표 압축(coordinate compression)</b>은 값들이 <b>범위는 크지만 종류는 적을 때</b>, 각 값을 그 <b>등수(rank)</b>로 바꿔 <b>0..k−1의 작은 정수</b>로 만드는 전처리입니다. 방법: ① 등장한 값들을 모아 <b>정렬 + 중복 제거</b> ② 각 원래 값을 정렬 배열에서의 <b>인덱스(이분 탐색)</b>로 치환. 대소 관계는 그대로 보존되므로, <b>순서·구간·빈도</b>만 중요한 문제에서 원래 값 대신 압축 값을 써도 답이 같습니다. 효과: 값 범위가 10⁹이라 못 쓰던 <b>세그먼트 트리·펜윅 트리·카운팅 배열·DP 인덱스</b>를 크기 n으로 쓸 수 있게 됩니다. 비용은 정렬 <b>O(n log n)</b>. 쓰임: <b>전도(inversion) 수 세기</b>(펜윅), 구간에 등장한 서로 다른 값 수, 2D 스위프(이벤트 좌표 압축), 오프라인 질의 전처리. \"값 자체가 아니라 값들 사이의 순서만 필요하다\"는 통찰이 핵심입니다.",
+  "more": "​구간 질의의 첫 준비 — 큰 값을 <b>0..k 등수</b>로 줄이는 좌표 압축. <b>좌표 압축(coordinate compression)</b>은 값들이 <b>범위는 크지만 종류는 적을 때</b>, 각 값을 그 <b>등수(rank)</b>로 바꿔 <b>0..k−1의 작은 정수</b>로 만드는 전처리입니다. 방법: ① 등장한 값들을 모아 <b>정렬 + 중복 제거</b> ② 각 원래 값을 정렬 배열에서의 <b>인덱스(이분 탐색)</b>로 치환. 대소 관계는 그대로 보존되므로, <b>순서·구간·빈도</b>만 중요한 문제에서 원래 값 대신 압축 값을 써도 답이 같습니다. 효과: 값 범위가 10⁹이라 못 쓰던 <b>세그먼트 트리·펜윅 트리·카운팅 배열·DP 인덱스</b>를 크기 n으로 쓸 수 있게 됩니다. 비용은 정렬 <b>O(n log n)</b>. 쓰임: <b>전도(inversion) 수 세기</b>(펜윅), 구간에 등장한 서로 다른 값 수, 2D 스위프(이벤트 좌표 압축), 오프라인 질의 전처리. \"값 자체가 아니라 값들 사이의 순서만 필요하다\"는 통찰이 핵심입니다.",
   "more_en": "<b>Coordinate compression</b> is preprocessing for when values have a <b>large range but few distinct values</b>: replace each value by its <b>rank</b>, mapping to small integers <b>0..k−1</b>. Method: ① collect the values, <b>sort and deduplicate</b>; ② replace each original value by its <b>index in the sorted array (binary search)</b>. Order is preserved, so for problems that only care about <b>order, ranges, or frequency</b>, using compressed values gives the same answer. Effect: structures like <b>segment trees, Fenwick trees, counting arrays, DP indices</b> that couldn't handle a 10⁹ range now fit in size n. Cost: sorting <b>O(n log n)</b>. Uses: <b>counting inversions</b> (Fenwick), distinct values in a range, 2D sweeps (compressing event coordinates), offline query preprocessing. The key insight: \"we need the order among values, not the values themselves.\"",
   "problem": {
    "q": "좌표 압축은 어떤 상황에서 유용하며, 무엇을 보존하나?",
@@ -2690,7 +2696,9 @@
    "for(int i=0;i<n;i++)",
    "  a[i] = lower_bound(v.begin(),v.end(),a[i]) - v.begin();",
    "// 값 범위가 커도 인덱스로 세그트리·펜윅 사용 가능"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 1
  },
  "algo_br_totient": {
   "ch": "알고리즘 제2장 자료구조",
@@ -2897,11 +2905,11 @@
  },
  "algo_br_sparse": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "희소 테이블 — 구간 최솟값을 O(1)에",
   "narr": "배열·리스트 위에서 정적 구간 질의를 극한까지 빠르게 만드는 자료구조입니다. <b>희소 테이블</b>은 값이 변하지 않는 배열에서, 겹쳐도 답이 같은 <b>멱등 연산</b>(min·max·gcd 등)의 구간 질의를 <b>O(1)</b>에 답합니다. sparse[i][j]에 시작 i·길이 <b>2^j</b> 구간의 답을 미리 채우는데, 큰 블록을 두 개의 절반 블록으로 만드는 점화식이라 전처리 <b>O(n log n)</b>입니다. <b>질의 [l,r]</b>은 k=⌊log₂(r−l+1)⌋을 잡아 <b>왼쪽 2^k 블록</b>과 <b>오른쪽 2^k 블록</b> 둘로 구간을 (겹쳐서) 정확히 덮습니다 — 같은 값을 두 번 봐도 멱등이라 답이 같으니 두 블록의 op만으로 끝납니다. 단점은 갱신 불가입니다. 정적·멱등·질의 폭주가 희소 테이블의 자리입니다.",
   "hint": "",
-  "more": "<b>희소 테이블(Sparse Table)</b>은 <b>변하지 않는 배열</b>에서 <b>겹쳐도 되는 연산</b>(min·max·gcd·AND 등, '멱등' 연산)의 구간 질의를 <b>O(1)</b>에 답합니다. <b>sparse[i][j]</b> = 시작 i, 길이 <b>2^j</b> 구간의 답을 미리 채웁니다: sparse[i][j] = op(sparse[i][j−1], sparse[i + 2^(j−1)][j−1]) — 길이 2^j 블록을 두 개의 2^(j−1) 블록으로 만드는 점화식, 전처리 <b>O(n log n)</b>. <b>질의 [l, r]</b>: 구간 길이 len = r−l+1에서 <b>k = ⌊log₂ len⌋</b>을 잡으면, <b>왼쪽 2^k 블록</b> sparse[l][k]와 <b>오른쪽 2^k 블록</b> sparse[r−2^k+1][k] <b>둘이 [l, r]을 (겹쳐서) 정확히 덮습니다</b>. min은 같은 값을 두 번 봐도 답이 같으므로(멱등), 두 블록의 op만으로 <b>O(1)</b>. 단점: <b>갱신 불가</b>(값이 바뀌면 다시 만들어야 함)와 메모리 O(n log n). 합처럼 겹치면 안 되는 연산은 펜윅/세그트리를 씁니다. 멱등 + 정적 + 질의 폭주가 희소 테이블의 자리입니다.",
+  "more": "​변하지 않는 배열의 <b>구간 최솟값을 O(1)</b>에 — 희소 테이블. <b>희소 테이블(Sparse Table)</b>은 <b>변하지 않는 배열</b>에서 <b>겹쳐도 되는 연산</b>(min·max·gcd·AND 등, '멱등' 연산)의 구간 질의를 <b>O(1)</b>에 답합니다. <b>sparse[i][j]</b> = 시작 i, 길이 <b>2^j</b> 구간의 답을 미리 채웁니다: sparse[i][j] = op(sparse[i][j−1], sparse[i + 2^(j−1)][j−1]) — 길이 2^j 블록을 두 개의 2^(j−1) 블록으로 만드는 점화식, 전처리 <b>O(n log n)</b>. <b>질의 [l, r]</b>: 구간 길이 len = r−l+1에서 <b>k = ⌊log₂ len⌋</b>을 잡으면, <b>왼쪽 2^k 블록</b> sparse[l][k]와 <b>오른쪽 2^k 블록</b> sparse[r−2^k+1][k] <b>둘이 [l, r]을 (겹쳐서) 정확히 덮습니다</b>. min은 같은 값을 두 번 봐도 답이 같으므로(멱등), 두 블록의 op만으로 <b>O(1)</b>. 단점: <b>갱신 불가</b>(값이 바뀌면 다시 만들어야 함)와 메모리 O(n log n). 합처럼 겹치면 안 되는 연산은 펜윅/세그트리를 씁니다. 멱등 + 정적 + 질의 폭주가 희소 테이블의 자리입니다.",
   "more_en": "A <b>Sparse Table</b> answers range queries of an <b>overlap-friendly (idempotent) operation</b> (min·max·gcd·AND…) on a <b>static array</b> in <b>O(1)</b>. <b>sparse[i][j]</b> = answer for the length-<b>2^j</b> range starting at i, filled by sparse[i][j] = op(sparse[i][j−1], sparse[i + 2^(j−1)][j−1]) — building a 2^j block from two 2^(j−1) blocks, preprocessing <b>O(n log n)</b>. For a <b>query [l, r]</b>, let len = r−l+1 and <b>k = ⌊log₂ len⌋</b>; then the <b>left 2^k block</b> sparse[l][k] and the <b>right 2^k block</b> sparse[r−2^k+1][k] <b>exactly cover [l, r] with overlap</b>. Since min gives the same answer even seeing a value twice (idempotent), one op over the two blocks is <b>O(1)</b>. Drawbacks: <b>no updates</b> (rebuild on change) and O(n log n) memory. For non-overlap-safe ops like sum, use a Fenwick/segment tree. Idempotent + static + many queries is where the sparse table shines.",
   "problem": {
    "q": "희소 테이블이 임의 구간 질의를 단 두 블록으로 O(1)에 답하는 이유는?",
@@ -2919,7 +2927,9 @@
    "  int k=log2(r-l+1);",
    "  return min(sp[k][l], sp[k][r-(1<<k)+1]);",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 2
  },
  "algo_br_ett": {
   "ch": "알고리즘 제5장 트리",
@@ -3402,11 +3412,11 @@
  },
  "algo_br_segbeats": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "세그먼트 트리 빔즈 — 구간 chmin 갱신",
   "narr": "BST·세그먼트 트리로는 어려운 비선형 갱신을 해내는 변형입니다. 보통 세그먼트 트리는 '구간에 더하기'를 lazy로 쉽게 하지만, '구간의 각 원소를 X와의 최솟값으로'(chmin)는 lazy로 안 됩니다. <b>세그먼트 트리 빔즈</b>는 각 노드에 <b>[최댓값, 둘째 최댓값, 최댓값 개수]</b>를 들고 영리하게 가지치기합니다. chmin(구간,X)에서 ①X≥최댓값이면 무변화로 즉시 종료, ②둘째 최댓값<X<최댓값이면 최댓값들만 깎이니 <b>최댓값·합만 일괄 갱신하고 멈춤</b>(빠른 종료가 lazy 역할), ③X≤둘째 최댓값이면 자식으로 재귀합니다. 둘째 최댓값이 만드는 '서로 다른 값의 층' 수가 갱신마다 줄어든다는 분할상환 분석으로 <b>O(log²n)</b>이 보장됩니다. 구간 chmin·chmax·합·최솟값을 동시에 다룹니다.",
   "hint": "",
-  "more": "<b>세그먼트 트리 빔즈(Segment Tree Beats, Ji Driver Segment Tree)</b>는 일반 세그먼트 트리로는 어려운 <b>구간 chmin/chmax</b>(구간의 모든 원소를 aᵢ ← min(aᵢ, X) 로) 갱신을 <b>구간 합·최댓값 질의</b>와 함께 분할상환 <b>O(log² n)</b>에 처리합니다. 핵심은 각 노드에 <b>[최댓값, 둘째 최댓값(strict), 최댓값의 개수]</b>(필요시 합도)를 저장하는 것입니다. <b>chmin(구간, X)</b>를 노드에 적용할 때 세 경우로 나눕니다: ① <b>X ≥ 최댓값</b>이면 아무 변화 없음 → 즉시 종료, ② <b>둘째 최댓값 < X < 최댓값</b>이면 \"최댓값들만\" X로 깎이므로, <b>최댓값과 합만 일괄 갱신</b>하고 더 내려가지 않음(빠른 종료 — 이것이 lazy 역할), ③ <b>X ≤ 둘째 최댓값</b>이면 더 쪼개야 하니 자식으로 재귀. 분할상환 분석(둘째 최댓값이 만드는 \"서로 다른 값의 층\" 수가 갱신마다 줄어든다는 퍼텐셜)으로 총 <b>O((n+q) log² n)</b>가 보장됩니다. 확장: 구간 chmin·chmax·구간합·최솟값까지 동시에, 히스토릭 최댓값(과거 최대) 추적 등. \"lazy로 못 미루는 비선형 갱신을, 노드에 둘째값을 들고 빠른 종료로 미룬다\"가 한 줄 요약입니다.",
+  "more": "​구간 chmin 같은 <b>까다로운 갱신</b>도 — 세그먼트 트리 빔즈. <b>세그먼트 트리 빔즈(Segment Tree Beats, Ji Driver Segment Tree)</b>는 일반 세그먼트 트리로는 어려운 <b>구간 chmin/chmax</b>(구간의 모든 원소를 aᵢ ← min(aᵢ, X) 로) 갱신을 <b>구간 합·최댓값 질의</b>와 함께 분할상환 <b>O(log² n)</b>에 처리합니다. 핵심은 각 노드에 <b>[최댓값, 둘째 최댓값(strict), 최댓값의 개수]</b>(필요시 합도)를 저장하는 것입니다. <b>chmin(구간, X)</b>를 노드에 적용할 때 세 경우로 나눕니다: ① <b>X ≥ 최댓값</b>이면 아무 변화 없음 → 즉시 종료, ② <b>둘째 최댓값 < X < 최댓값</b>이면 \"최댓값들만\" X로 깎이므로, <b>최댓값과 합만 일괄 갱신</b>하고 더 내려가지 않음(빠른 종료 — 이것이 lazy 역할), ③ <b>X ≤ 둘째 최댓값</b>이면 더 쪼개야 하니 자식으로 재귀. 분할상환 분석(둘째 최댓값이 만드는 \"서로 다른 값의 층\" 수가 갱신마다 줄어든다는 퍼텐셜)으로 총 <b>O((n+q) log² n)</b>가 보장됩니다. 확장: 구간 chmin·chmax·구간합·최솟값까지 동시에, 히스토릭 최댓값(과거 최대) 추적 등. \"lazy로 못 미루는 비선형 갱신을, 노드에 둘째값을 들고 빠른 종료로 미룬다\"가 한 줄 요약입니다.",
   "more_en": "<b>Segment Tree Beats</b> handles <b>range chmin/chmax</b> updates (set every element in a range to aᵢ ← min(aᵢ, X)) together with <b>range sum/max queries</b> in amortized <b>O(log² n)</b> — something a plain lazy segment tree can't do. The key is storing at each node <b>[max, strict second max, count of max]</b> (and sum if needed). Applying <b>chmin(range, X)</b> to a node splits into three cases: ① <b>X ≥ max</b> → no change, return immediately; ② <b>second max < X < max</b> → only the maxima get lowered to X, so <b>update just max and sum in bulk</b> and don't recurse (a fast break — this plays lazy's role); ③ <b>X ≤ second max</b> → must split, recurse into children. An amortized analysis (a potential counting the distinct-value \"layers\" the second max creates, which shrink per update) guarantees total <b>O((n+q) log² n)</b>. Extensions: simultaneous chmin/chmax/range-sum/min, historic-maximum tracking, etc. One-liner: \"defer the non-linear update that lazy can't, by keeping the second value and breaking early.\"",
   "problem": {
    "q": "세그먼트 트리 빔즈에서 노드에 '둘째 최댓값'을 저장하는 이유는?",
@@ -3424,7 +3434,9 @@
    "  }",
    "  recurse(both children);           // 둘째도 걸리면 내려감",
    "}   // 상각 O(log^2 n)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 8
  },
  "algo_br_lichao": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -3589,11 +3601,11 @@
  },
  "algo_br_fenwick2d": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "2D 펜윅 트리 — 평면 위 직사각형 합",
   "narr": "1D 펜윅 트리를 평면으로 올린 자료구조입니다. 1D 펜윅이 구간 합을 O(log n)에 했다면, <b>2D 펜윅</b>은 격자에서 <b>직사각형 영역 합</b>과 점 갱신을 각각 <b>O(log n·log m)</b>에 합니다. 구현은 1D 펜윅을 <b>두 축에 중첩</b>한 것으로, 행 인덱스를 펜윅 방식으로 이동하며 각 행에서 다시 열 인덱스를 펜윅 방식으로 이동합니다. 핵심 도구는 <b>원점부터의 누적합</b> S(r,c)이고, 임의의 직사각형 합을 <b>2D 포함배제</b>로 네 모서리에서 구합니다: S(r2,c2)−S(r1−1,c2)−S(r2,c1−1)+S(r1−1,c1−1). 1D 누적합 pre[b]−pre[a−1]의 2차원 일반화입니다. 갱신이 없다면 정적 2D 누적합이 더 빠르고, 차원이 늘면 3D 펜윅도 가능합니다.",
   "hint": "",
-  "more": "<b>2D 펜윅 트리(2D Binary Indexed Tree)</b>는 격자(2차원 배열)에서 <b>점 갱신</b>과 <b>직사각형 구간 합</b> 질의를 각각 <b>O(log n · log m)</b>에 처리합니다. 구현은 1D 펜윅을 <b>두 축에 중첩</b>한 것입니다: 갱신·질의 시 행 인덱스를 펜윅 방식(i += i & −i 또는 i −= i & −i)으로 이동하면서, 각 행에 대해 다시 열 인덱스를 펜윅 방식으로 이동합니다(이중 루프, 각 O(log)). 핵심 도구는 <b>원점부터의 누적합</b> S(r, c) = (1,1)부터 (r,c)까지의 합입니다. 이것만 있으면 임의의 직사각형 [r1..r2]×[c1..c2] 합을 <b>2D 포함배제</b>로 네 모서리에서 구합니다: <b>S(r2,c2) − S(r1−1,c2) − S(r2,c1−1) + S(r1−1,c1−1)</b> (왼쪽·위쪽을 두 번 빼서 한 번 더한 보정). 1D 누적합 구간합 a..b = pre[b]−pre[a−1] 의 2차원 일반화입니다. 쓰임: <b>평면 위 점 개수 세기</b>(동적으로 점이 추가/삭제되며 직사각형 안 점 수 질의), 2D 누적·이미지 적분영상의 동적 버전, 역위 쌍의 2D 일반화. 갱신이 없다면(정적) <b>2D 누적합(prefix sum) 배열</b>로 전처리 O(nm)·질의 O(1)이 더 빠르고, 점이 적으면 <b>좌표 압축 + 오프라인 1D 펜윅</b>(스위프라인)으로도 풉니다. 차원이 늘면 같은 방식으로 3D 펜윅(O(log³))도 가능합니다.",
+  "more": "​BIT를 <b>평면</b>으로 — 직사각형 합. <b>2D 펜윅 트리(2D Binary Indexed Tree)</b>는 격자(2차원 배열)에서 <b>점 갱신</b>과 <b>직사각형 구간 합</b> 질의를 각각 <b>O(log n · log m)</b>에 처리합니다. 구현은 1D 펜윅을 <b>두 축에 중첩</b>한 것입니다: 갱신·질의 시 행 인덱스를 펜윅 방식(i += i & −i 또는 i −= i & −i)으로 이동하면서, 각 행에 대해 다시 열 인덱스를 펜윅 방식으로 이동합니다(이중 루프, 각 O(log)). 핵심 도구는 <b>원점부터의 누적합</b> S(r, c) = (1,1)부터 (r,c)까지의 합입니다. 이것만 있으면 임의의 직사각형 [r1..r2]×[c1..c2] 합을 <b>2D 포함배제</b>로 네 모서리에서 구합니다: <b>S(r2,c2) − S(r1−1,c2) − S(r2,c1−1) + S(r1−1,c1−1)</b> (왼쪽·위쪽을 두 번 빼서 한 번 더한 보정). 1D 누적합 구간합 a..b = pre[b]−pre[a−1] 의 2차원 일반화입니다. 쓰임: <b>평면 위 점 개수 세기</b>(동적으로 점이 추가/삭제되며 직사각형 안 점 수 질의), 2D 누적·이미지 적분영상의 동적 버전, 역위 쌍의 2D 일반화. 갱신이 없다면(정적) <b>2D 누적합(prefix sum) 배열</b>로 전처리 O(nm)·질의 O(1)이 더 빠르고, 점이 적으면 <b>좌표 압축 + 오프라인 1D 펜윅</b>(스위프라인)으로도 풉니다. 차원이 늘면 같은 방식으로 3D 펜윅(O(log³))도 가능합니다.",
   "more_en": "A <b>2D Fenwick (Binary Indexed) Tree</b> supports <b>point updates</b> and <b>rectangle range-sum</b> queries on a grid, each in <b>O(log n · log m)</b>. It is a 1D Fenwick <b>nested over two axes</b>: on update/query you move the row index Fenwick-style (i += i & −i or i −= i & −i) and, for each row, move the column index Fenwick-style too (a double loop, each O(log)). The key tool is the <b>prefix sum from the origin</b> S(r, c) = sum from (1,1) to (r,c). With it, any rectangle [r1..r2]×[c1..c2] sum follows from <b>2D inclusion-exclusion</b> at four corners: <b>S(r2,c2) − S(r1−1,c2) − S(r2,c1−1) + S(r1−1,c1−1)</b> (subtract the left and top regions, add back the doubly removed corner). It is the 2D generalization of 1D prefix sums a..b = pre[b]−pre[a−1]. Uses: <b>counting points in the plane</b> (with dynamic insert/delete and rectangle-count queries), a dynamic version of 2D prefix sums / integral images, 2D generalization of inversion counting. If there are no updates (static), a precomputed <b>2D prefix-sum array</b> (O(nm) build, O(1) query) is faster; with few points, <b>coordinate compression + offline 1D Fenwick</b> (sweep line) also works. Extending dimensions gives a 3D Fenwick (O(log³)) the same way.",
   "problem": {
    "q": "2D 누적합 S만 있을 때 직사각형 [r1..r2]×[c1..c2]의 합을 어떻게 구하나?",
@@ -3614,7 +3626,9 @@
    "    for(int j=y;j>0;j-=j&-j) s+=bit[i][j];",
    "  return s;",
    "}   // O(log n · log m)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 5
  },
  "algo_br_knuthopt": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -3670,11 +3684,11 @@
  },
  "algo_br_bitset": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "비트셋 가속 — 한 워드에 64칸을 한 번에",
   "narr": "불리언 배열에 대한 반복 연산을 한 칸씩 하면 <b>O(n)</b>입니다. <b>비트셋 가속</b>은 0/1 값 64개를 <b>한 기계어 워드</b>에 담아 AND·OR·XOR·시프트를 한 번 하면 <b>명령 한 번이 64칸을 동시에</b> 처리합니다. 점근 차수는 그대로지만 상수가 <b>1/64</b>로 줄어 O(n²)가 <b>O(n²/64)</b>가 되고, 실측 수십 배 빨라져 시간 제한을 통과시킵니다. 대표 쓰임은 추이폐쇄(인접집합을 비트셋으로 교집합), 배낭 가능여부 dp |= dp << w, 비트병렬 문자열 매칭입니다. 임의 접근·정렬엔 부적합하고 <b>전체를 묶어 같은 연산</b>하는 구조에서만 이득인 실전 최적화입니다.",
   "hint": "",
-  "more": "<b>비트셋 가속(bitset optimization)</b>은 불리언(0/1) 배열을 <b>정수의 비트들로 묶어</b>, 한 번의 비트 연산(AND·OR·XOR·NOT·시프트)으로 워드 크기(보통 <b>64비트</b>)만큼을 동시에 처리하는 기법입니다. 점근 복잡도의 \"차수\"는 그대로지만 <b>상수를 1/w(≈1/64)</b>로 줄여, O(n²) 알고리즘을 <b>O(n²/64)</b>로 만듭니다 — 실측 수십 배 빨라져 시간 제한을 통과시키는 일이 흔합니다. 대표 적용: ① <b>이분 매칭/도달성</b> — 각 정점의 인접 집합을 비트셋으로 두면 \"교집합·합집합\"이 워드 연산, 추이폐쇄(transitive closure)를 O(n³/64)에, ② <b>부분집합 합·배낭(가능 여부)</b> — 도달 가능한 합 집합을 비트셋 dp로 두고 <b>dp |= dp << w</b>(무게 w 추가)로 한 번에 전이, ③ <b>문자열 매칭</b> — Shift-And/Shift-Or(비트병렬)로 패턴 일치를 O(nm/w)에, ④ DP 상태 전이가 \"이전 비트들의 OR/AND\"인 경우. 도구: C++ <b>std::bitset</b>(고정 크기, 빠름)이나 직접 uint64 배열. 주의: 메모리는 n/8바이트로 적지만, 비트 단위 임의 접근·정렬 같은 작업엔 부적합하고, \"전체를 묶어 한꺼번에 같은 연산\"하는 구조에서만 이득입니다.",
+  "more": "​한 워드에 <b>64칸을 한 번에</b> — 비트셋 가속. <b>비트셋 가속(bitset optimization)</b>은 불리언(0/1) 배열을 <b>정수의 비트들로 묶어</b>, 한 번의 비트 연산(AND·OR·XOR·NOT·시프트)으로 워드 크기(보통 <b>64비트</b>)만큼을 동시에 처리하는 기법입니다. 점근 복잡도의 \"차수\"는 그대로지만 <b>상수를 1/w(≈1/64)</b>로 줄여, O(n²) 알고리즘을 <b>O(n²/64)</b>로 만듭니다 — 실측 수십 배 빨라져 시간 제한을 통과시키는 일이 흔합니다. 대표 적용: ① <b>이분 매칭/도달성</b> — 각 정점의 인접 집합을 비트셋으로 두면 \"교집합·합집합\"이 워드 연산, 추이폐쇄(transitive closure)를 O(n³/64)에, ② <b>부분집합 합·배낭(가능 여부)</b> — 도달 가능한 합 집합을 비트셋 dp로 두고 <b>dp |= dp << w</b>(무게 w 추가)로 한 번에 전이, ③ <b>문자열 매칭</b> — Shift-And/Shift-Or(비트병렬)로 패턴 일치를 O(nm/w)에, ④ DP 상태 전이가 \"이전 비트들의 OR/AND\"인 경우. 도구: C++ <b>std::bitset</b>(고정 크기, 빠름)이나 직접 uint64 배열. 주의: 메모리는 n/8바이트로 적지만, 비트 단위 임의 접근·정렬 같은 작업엔 부적합하고, \"전체를 묶어 한꺼번에 같은 연산\"하는 구조에서만 이득입니다.",
   "more_en": "<b>Bitset optimization</b> packs a boolean (0/1) array into the <b>bits of integers</b>, processing a word's worth (usually <b>64 bits</b>) at once with a single bit operation (AND·OR·XOR·NOT·shift). The asymptotic \"order\" is unchanged, but the <b>constant drops to 1/w (≈1/64)</b>, turning an O(n²) algorithm into <b>O(n²/64)</b> — often tens of times faster in practice, enough to pass time limits. Key uses: ① <b>bipartite matching / reachability</b> — store each vertex's adjacency as a bitset so \"intersection/union\" is a word op, transitive closure in O(n³/64); ② <b>subset sum / knapsack feasibility</b> — keep the set of reachable sums as a bitset dp and transition with <b>dp |= dp << w</b> (adding weight w) at once; ③ <b>string matching</b> — Shift-And/Shift-Or (bit-parallel) matches a pattern in O(nm/w); ④ DP transitions that are an OR/AND over previous bits. Tools: C++ <b>std::bitset</b> (fixed size, fast) or raw uint64 arrays. Caveats: memory is small (n/8 bytes), but it suits only \"apply the same op to the whole block at once\" structures, not bit-level random access or sorting.",
   "problem": {
    "q": "비트셋으로 O(n²) 알고리즘이 O(n²/64)가 되는 원리는? 점근 차수가 바뀌나?",
@@ -3692,7 +3706,9 @@
    "  row = x & ~((x - shift) ^ x);",
    "}",
    "// 워드 단위 &, |, ^, shift → O(n·m / 64)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 14
  },
  "algo_br_fibheap": {
   "ch": "알고리즘 제6장 그래프",
@@ -3750,11 +3766,11 @@
  },
  "algo_br_wavelet": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "웨이블릿 트리 — 구간 k번째·등수의 만능기",
   "narr": "정적 배열에서 구간 [l,r]의 <b>k번째로 작은 값</b>·<b>X 이하 개수</b>·빈도를 한 자료구조로 모두 답하는 것이 <b>웨이블릿 트리</b>입니다. 값 범위를 중앙값으로 둘로 나눠 각 원소가 작은 쪽(0)·큰 쪽(1)인지를 <b>비트맵</b>으로 기록하고, 원소를 좌·우 자식으로 보내기를 값이 하나 될 때까지 재귀해 높이 <b>log σ</b>의 트리를 만듭니다. 각 층 비트맵에 rank(앞쪽 0/1 개수)를 O(1)에 얹어, 질의는 rank로 구간이 어느 자식으로 가는지를 따라 내려갑니다. k번째 값은 왼쪽의 0 개수가 k 이상이면 왼쪽, 아니면 빼고 오른쪽으로 — 값 비트를 한 층에 하나씩 정해 <b>O(log σ)</b>입니다. 공간은 n log σ 비트로 거의 하한입니다.",
   "hint": "",
-  "more": "<b>웨이블릿 트리(Wavelet Tree)</b>는 정적 배열에 대한 <b>구간 통계 질의의 만능기</b>입니다. 값 범위 [0, σ)를 <b>중앙값(또는 최상위 비트)으로 둘로 나눠</b>, 각 원소가 작은 쪽(0)인지 큰 쪽(1)인지를 <b>비트맵</b>으로 기록하고, 원소들을 그 순서를 유지한 채 좌/우 자식으로 보냅니다. 이를 값 범위가 한 개가 될 때까지 재귀하면 높이 <b>log σ</b>의 트리가 되고, 각 층의 비트맵에 <b>rank(앞에서 0/1이 몇 개)</b>를 O(1)에 답하는 구조(비트벡터)를 얹습니다. 질의는 이 rank로 \"구간 [l,r]이 자식에서 어디로 가는지\"를 따라 내려가며 처리합니다: ① <b>구간 k번째로 작은 값</b> — 왼쪽 자식의 0 개수가 k 이상이면 왼쪽으로, 아니면 k에서 빼고 오른쪽으로(이진 탐색하듯 값 비트를 결정), ② <b>구간에 X 이하 개수</b>·<b>값 v의 등수/빈도</b>도 같은 방식. 모든 질의가 <b>O(log σ)</b>, 공간은 <b>n log σ 비트</b>(거의 정보이론 하한). 정적이라 갱신은 비싸지만(동적 변형 존재), \"한 번 짓고 온갖 구간 질의\"에 강력합니다. <b>머지소트 트리·영속 세그먼트 트리·Mo's</b>가 푸는 문제들을 더 작은 공간으로 대체하는 경우가 많습니다.",
+  "more": "​구간 <b>k번째 값·등수</b>의 만능기 — 웨이블릿 트리. <b>웨이블릿 트리(Wavelet Tree)</b>는 정적 배열에 대한 <b>구간 통계 질의의 만능기</b>입니다. 값 범위 [0, σ)를 <b>중앙값(또는 최상위 비트)으로 둘로 나눠</b>, 각 원소가 작은 쪽(0)인지 큰 쪽(1)인지를 <b>비트맵</b>으로 기록하고, 원소들을 그 순서를 유지한 채 좌/우 자식으로 보냅니다. 이를 값 범위가 한 개가 될 때까지 재귀하면 높이 <b>log σ</b>의 트리가 되고, 각 층의 비트맵에 <b>rank(앞에서 0/1이 몇 개)</b>를 O(1)에 답하는 구조(비트벡터)를 얹습니다. 질의는 이 rank로 \"구간 [l,r]이 자식에서 어디로 가는지\"를 따라 내려가며 처리합니다: ① <b>구간 k번째로 작은 값</b> — 왼쪽 자식의 0 개수가 k 이상이면 왼쪽으로, 아니면 k에서 빼고 오른쪽으로(이진 탐색하듯 값 비트를 결정), ② <b>구간에 X 이하 개수</b>·<b>값 v의 등수/빈도</b>도 같은 방식. 모든 질의가 <b>O(log σ)</b>, 공간은 <b>n log σ 비트</b>(거의 정보이론 하한). 정적이라 갱신은 비싸지만(동적 변형 존재), \"한 번 짓고 온갖 구간 질의\"에 강력합니다. <b>머지소트 트리·영속 세그먼트 트리·Mo's</b>가 푸는 문제들을 더 작은 공간으로 대체하는 경우가 많습니다.",
   "more_en": "A <b>Wavelet Tree</b> is a Swiss-army knife for range statistics on a static array. Split the value range [0, σ) in half <b>by the median (or top bit)</b>, record for each element whether it is in the lower (0) or upper (1) half as a <b>bitmap</b>, and send elements (keeping order) to the left/right child. Recursing until the value range is a single value gives a tree of height <b>log σ</b>, with each level's bitmap augmented by an O(1) <b>rank</b> (count of 0s/1s in a prefix) structure. Queries follow the rank to map a range [l,r] into children as they descend: ① <b>k-th smallest in a range</b> — if the left child's count of 0s is ≥ k go left, else subtract and go right (deciding value bits like a binary search); ② <b>count of values ≤ X in a range</b> and <b>rank/frequency of value v</b> work the same way. Every query is <b>O(log σ)</b>, with space <b>n log σ bits</b> (near the information-theoretic bound). Being static, updates are costly (dynamic variants exist), but it shines at \"build once, answer all kinds of range queries.\" It often replaces what merge-sort trees, persistent segment trees, or Mo's algorithm do, in smaller space.",
   "problem": {
    "q": "웨이블릿 트리로 구간 [l,r]의 k번째로 작은 값을 어떻게 O(log σ)에 찾나?",
@@ -3771,7 +3787,9 @@
    "  if(k <= zeros) return kth(left, map0(l), map0(r), k);",
    "  return kth(right, map1(l), map1(r), k - zeros);",
    "}   // O(log σ)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 12
  },
  "algo_br_pairingheap": {
   "ch": "알고리즘 제6장 그래프",
@@ -3886,11 +3904,11 @@
  },
  "algo_br_mergesorttree": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "머지 소트 트리 — 노드마다 정렬된 구간",
   "narr": "구간 [l,r] 안에 <b>X 이하 값이 몇 개</b>인지 빠르게 세려는 것이 동기입니다. <b>머지 소트 트리</b>는 세그먼트 트리의 각 노드에 <b>그 구간을 정렬한 리스트</b>를 저장합니다. 잎에서 위로 두 자식 리스트를 <b>병합</b>해 부모를 만드니 머지 소트 그 자체이고, 구축 O(n log n)·공간 O(n log n)입니다. 질의는 [l,r]을 덮는 <b>O(log n)개 노드</b>로 분해하고 각 노드의 정렬 리스트에서 <b>이분 탐색(upper_bound)</b>으로 X 이하를 O(log n)에 세어 합쳐 <b>O(log² n)</b>입니다. 분할비 캐스케이딩을 쓰면 O(log n)까지 줄고, 같은 틀로 구간 k번째 값도 답합니다. 정적이고 무겁지만 직관적인 구간 통계 도구입니다.",
   "hint": "",
-  "more": "<b>머지 소트 트리(Merge Sort Tree)</b>는 <b>세그먼트 트리</b>의 각 노드에 \"그 노드가 담당하는 구간의 원소들을 <b>정렬한 리스트</b>\"를 저장한 자료구조입니다. 이름처럼, 잎(원소 하나)에서 위로 올라가며 두 자식의 정렬 리스트를 <b>병합(merge)</b>해 부모 리스트를 만들면 구축됩니다 — 머지 소트의 병합 과정 그 자체이며, 각 층 O(n)·총 O(log n)층이라 <b>구축 O(n log n)</b>, 공간 O(n log n). <b>질의 \"구간 [l,r]에서 X 이하 원소 개수\"</b>: 일반 세그먼트 트리처럼 [l,r]을 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 정렬 리스트에서 <b>이분 탐색(upper_bound)</b>으로 \"X 이하 개수\"를 O(log n)에 세어 합칩니다 → 질의 <b>O(log² n)</b>. 같은 방식으로 <b>구간 k번째로 작은 값</b>(개수에 대한 이분 탐색을 더해 O(log³ n), 또는 persistent/wavelet로 개선), 구간 등수·빈도도 답합니다. <b>분할비 캐스케이딩(fractional cascading)</b>을 적용하면 한 노드에서 다음 노드의 이분 탐색 위치를 물려받아 질의를 <b>O(log n)</b>으로 줄일 수 있습니다. 단점: 정적(갱신은 비쌈)과 공간 O(n log n). <b>웨이블릿 트리·영속 세그먼트 트리·Mo's</b>가 푸는 구간 통계 문제의 단순하고 직관적인 대안입니다.",
+  "more": "​노드마다 <b>정렬된 구간</b>을 담아 구간 내 순위 질의. <b>머지 소트 트리(Merge Sort Tree)</b>는 <b>세그먼트 트리</b>의 각 노드에 \"그 노드가 담당하는 구간의 원소들을 <b>정렬한 리스트</b>\"를 저장한 자료구조입니다. 이름처럼, 잎(원소 하나)에서 위로 올라가며 두 자식의 정렬 리스트를 <b>병합(merge)</b>해 부모 리스트를 만들면 구축됩니다 — 머지 소트의 병합 과정 그 자체이며, 각 층 O(n)·총 O(log n)층이라 <b>구축 O(n log n)</b>, 공간 O(n log n). <b>질의 \"구간 [l,r]에서 X 이하 원소 개수\"</b>: 일반 세그먼트 트리처럼 [l,r]을 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 정렬 리스트에서 <b>이분 탐색(upper_bound)</b>으로 \"X 이하 개수\"를 O(log n)에 세어 합칩니다 → 질의 <b>O(log² n)</b>. 같은 방식으로 <b>구간 k번째로 작은 값</b>(개수에 대한 이분 탐색을 더해 O(log³ n), 또는 persistent/wavelet로 개선), 구간 등수·빈도도 답합니다. <b>분할비 캐스케이딩(fractional cascading)</b>을 적용하면 한 노드에서 다음 노드의 이분 탐색 위치를 물려받아 질의를 <b>O(log n)</b>으로 줄일 수 있습니다. 단점: 정적(갱신은 비쌈)과 공간 O(n log n). <b>웨이블릿 트리·영속 세그먼트 트리·Mo's</b>가 푸는 구간 통계 문제의 단순하고 직관적인 대안입니다.",
   "more_en": "A <b>Merge Sort Tree</b> stores, at each node of a <b>segment tree</b>, the <b>sorted list of the elements</b> in that node's range. As the name suggests, it is built by <b>merging</b> the two children's sorted lists into the parent's — exactly merge sort's merge step — with O(n) per level and O(log n) levels, so <b>build is O(n log n)</b> and space O(n log n). To <b>query \"count of elements ≤ X in range [l,r]\"</b>: decompose [l,r] into <b>O(log n) nodes</b> as in a segment tree, and at each node binary-search (<b>upper_bound</b>) its sorted list for \"how many ≤ X\" in O(log n), summing them → query <b>O(log² n)</b>. The same way answers <b>k-th smallest in a range</b> (add a binary search over the count, O(log³ n), or improve with persistent/wavelet), and range rank/frequency. With <b>fractional cascading</b>, each node inherits the next node's binary-search position, cutting queries to <b>O(log n)</b>. Drawbacks: static (updates are costly) and O(n log n) space. It is a simple, intuitive alternative to wavelet trees, persistent segment trees, and Mo's for range-statistics problems.",
   "problem": {
    "q": "머지 소트 트리에서 '구간 [l,r]에 X 이하 개수' 질의가 O(log² n)인 이유는?",
@@ -3907,7 +3925,9 @@
    "  merge(vec[2*node], vec[2*node+1], vec[node]);",
    "}",
    "// 구간 내 'x 이하 개수' 질의 O(log^2 n)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 10
  },
  "algo_br_sternbrocot": {
   "ch": "알고리즘 제4장 탐색",
@@ -4039,11 +4059,11 @@
  },
  "algo_br_bittricks": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "비트 연산 트릭 — 한 줄로 끝내는 정수 마술",
   "narr": "정수의 비트를 <b>원소 유무</b>로 보면 집합이 되어 AND=교집합·OR=합집합·XOR=대칭차가 됩니다. 자주 쓰는 비트 트릭은 ① <b>x & (−x)</b>로 최하위 켜진 비트만 남기기(펜윅의 lowbit), ② <b>x & (x−1)</b>로 최하위 1 끄기 — 0이 될 때까지 반복하면 켜진 비트 수만큼만에 <b>popcount</b>(브라이언 커니핸), ③ <b>s=(s−1)&m</b>로 마스크의 모든 부분집합 순회(총합 3ⁿ), ④ <b>그레이 코드 g = x^(x>>1)</b>는 연속 두 코드가 1비트만 다름입니다. 실무에선 __builtin_popcount/ctz/clz 같은 하드웨어 명령이 가장 빠릅니다. 이 트릭들은 <b>비트마스크 DP</b>와 <b>비트셋 가속</b>의 토대로, 집합 연산을 한두 줄로 끝내는 경쟁·시스템 코드의 필수기입니다.",
   "hint": "",
-  "more": "정수의 비트를 <b>원소의 유무</b>로 보면 집합이 됩니다(비트 i=1 ⟺ 원소 i 포함). 그러면 <b>AND=교집합, OR=합집합, XOR=대칭차, x&~y=차집합, <<=원소 이동</b>. 자주 쓰는 비트 트릭: ① <b>x & (−x)</b> = 최하위 켜진 비트만 남김(2의 보수 성질, <b>펜윅 트리의 lowbit</b>). ② <b>x & (x−1)</b> = 최하위 1을 끔 → 이 한 줄을 0이 될 때까지 반복하면 <b>1의 개수(popcount)</b>를 켜진 비트 수만큼만에 셈(브라이언 커니핸). ③ <b>마스크 m의 부분집합 전부 순회</b>: `for(s=m; s; s=(s−1)&m)` — (s−1)&m이 m 안에서 다음 작은 부분집합을 줌(빈집합은 따로). 마스크들의 모든 부분집합 합은 <b>3ⁿ</b>(각 비트가 \"둘 다 0/마스크만/부분집합만\" 3상태). ④ <b>그레이 코드</b> g = x ^ (x>>1): 연속한 두 코드가 <b>정확히 1비트만 다름</b>(하드웨어 상태 전환·카르노맵). 역변환은 누적 XOR. ⑤ 기타: x|(x+1)(최하위 0 켜기), x&(x+1)(최하위 1들 끄기), 2의 거듭제곱 판정 x&(x−1)==0. 실무에선 <b>__builtin_popcount/ctz/clz</b> 같은 하드웨어 명령이 가장 빠릅니다. 비트 트릭은 <b>비트마스크 DP</b>(부분집합을 정수 상태로)와 <b>비트셋 가속</b>의 토대입니다.",
+  "more": "​마지막으로 <b>한 줄로 끝내는</b> 정수 비트 트릭. 정수의 비트를 <b>원소의 유무</b>로 보면 집합이 됩니다(비트 i=1 ⟺ 원소 i 포함). 그러면 <b>AND=교집합, OR=합집합, XOR=대칭차, x&~y=차집합, <<=원소 이동</b>. 자주 쓰는 비트 트릭: ① <b>x & (−x)</b> = 최하위 켜진 비트만 남김(2의 보수 성질, <b>펜윅 트리의 lowbit</b>). ② <b>x & (x−1)</b> = 최하위 1을 끔 → 이 한 줄을 0이 될 때까지 반복하면 <b>1의 개수(popcount)</b>를 켜진 비트 수만큼만에 셈(브라이언 커니핸). ③ <b>마스크 m의 부분집합 전부 순회</b>: `for(s=m; s; s=(s−1)&m)` — (s−1)&m이 m 안에서 다음 작은 부분집합을 줌(빈집합은 따로). 마스크들의 모든 부분집합 합은 <b>3ⁿ</b>(각 비트가 \"둘 다 0/마스크만/부분집합만\" 3상태). ④ <b>그레이 코드</b> g = x ^ (x>>1): 연속한 두 코드가 <b>정확히 1비트만 다름</b>(하드웨어 상태 전환·카르노맵). 역변환은 누적 XOR. ⑤ 기타: x|(x+1)(최하위 0 켜기), x&(x+1)(최하위 1들 끄기), 2의 거듭제곱 판정 x&(x−1)==0. 실무에선 <b>__builtin_popcount/ctz/clz</b> 같은 하드웨어 명령이 가장 빠릅니다. 비트 트릭은 <b>비트마스크 DP</b>(부분집합을 정수 상태로)와 <b>비트셋 가속</b>의 토대입니다.",
   "more_en": "Viewing an integer's bits as <b>element membership</b> makes it a set (bit i=1 ⟺ element i present). Then <b>AND=intersection, OR=union, XOR=symmetric difference, x&~y=difference, <<=shifting elements</b>. Common bit tricks: ① <b>x & (−x)</b> isolates the lowest set bit (two's-complement property, the <b>Fenwick tree's lowbit</b>). ② <b>x & (x−1)</b> clears the lowest 1 → repeating until 0 counts the <b>number of 1s (popcount)</b> in as many steps as set bits (Brian Kernighan). ③ <b>iterate all subsets of a mask m</b>: `for(s=m; s; s=(s−1)&m)` gives the next smaller subset within m (handle empty separately). Summed over masks, all subsets total <b>3ⁿ</b> (each bit is in 3 states). ④ <b>Gray code</b> g = x ^ (x>>1): consecutive codes differ in <b>exactly one bit</b> (hardware transitions, Karnaugh maps); inverse is a prefix XOR. ⑤ Others: x|(x+1) (set lowest 0), x&(x+1) (clear trailing 1s), power-of-two test x&(x−1)==0. In practice <b>__builtin_popcount/ctz/clz</b> hardware instructions are fastest. Bit tricks underpin <b>bitmask DP</b> (subsets as integer states) and <b>bitset optimization</b>.",
   "problem": {
    "q": "x & (x−1) 이 하는 일과, 이것으로 popcount를 세는 방법은?",
@@ -4060,7 +4080,9 @@
    "for(int s = m; s; s = (s-1) & m)   // m의 모든 부분집합 순회",
    "(x >> k) & 1       // k번째 비트 읽기",
    "x ^= (1 << k)      // k번째 비트 토글"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 15
  },
  "algo_br_xorbasis": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -4345,11 +4367,11 @@
  },
  "algo_br_waveletmatrix": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "웨이블릿 행렬 — 비트 평면으로 다시 짠 웨이블릿",
   "narr": "웨이블릿 트리는 포인터로 좌·우 자식을 잇지만, <b>웨이블릿 행렬</b>은 같은 구간 통계 질의를 <b>비트 평면 log σ장의 일렬 배열</b>로 펴서 처리합니다. 최상위 비트부터 한 평면씩, 그 비트가 0인 원소를 앞·1인 원소를 뒤로 <b>안정 분할</b>하고 비트열과 0의 개수 zero_count를 저장합니다. 각 평면은 rank/select를 O(1)에 답하는 비트벡터입니다. 질의는 평면을 위에서 아래로 훑으며 rank로 구간 [l,r)이 다음 평면 어디로 가는지를 갱신해 <b>O(log σ)</b>에 답합니다. 트리 대비 장점은 <b>포인터·재귀가 없어 캐시 지역성이 좋고 상수가 작으며 구현이 단순</b>하다는 것입니다. 점근(O(log σ))·공간(n log σ 비트)은 같지만 실전에서 더 빨라 대용량 수열 구간 통계의 표준입니다.",
   "hint": "",
-  "more": "<b>웨이블릿 행렬(Wavelet Matrix)</b>은 웨이블릿 트리와 <b>동일한 구간 통계 질의</b>(구간 k번째 값·등수·X 이하 개수·빈도)를 <b>O(log σ)</b>에 답하되, 트리의 포인터·재귀 구조를 <b>비트 평면 log σ장의 일렬 배열</b>로 바꾼 변형입니다(σ=값 종류). 구성: 최상위 비트부터 한 비트 평면씩 — 그 비트가 0인 원소를 앞, 1인 원소를 뒤로 <b>안정 분할(stable partition)</b>하고, 이 평면의 비트열(0/1)과 \"0의 개수 zero_count\"를 저장합니다. 다음 평면은 분할된 순서를 이어받아 그 다음 비트로 또 분할. 각 비트 평면은 <b>rank/select를 O(1)에 답하는 비트벡터</b>입니다. 질의는 평면을 위에서 아래로 훑으며, 비트벡터 rank로 \"구간 [l,r)이 다음 평면에서 어디로 가는지\"를 갱신: 0으로 가면 [rank0(l), rank0(r)), 1로 가면 [zero_count+rank1(l), …). <b>웨이블릿 트리 대비 장점</b>: ① 노드 포인터가 없어 <b>메모리 지역성(캐시)이 좋고</b> 상수가 작음, ② 구현이 단순(평면 배열 + zero_count), ③ select(특정 값의 i번째 위치)가 자연스러움. 같은 점근(질의 O(log σ), 공간 n log σ 비트). 정적 대용량 수열의 구간 통계 질의에서 실전 표준으로 자주 쓰입니다.",
+  "more": "​웨이블릿을 <b>비트 평면</b>으로 다시 짠 행렬판. <b>웨이블릿 행렬(Wavelet Matrix)</b>은 웨이블릿 트리와 <b>동일한 구간 통계 질의</b>(구간 k번째 값·등수·X 이하 개수·빈도)를 <b>O(log σ)</b>에 답하되, 트리의 포인터·재귀 구조를 <b>비트 평면 log σ장의 일렬 배열</b>로 바꾼 변형입니다(σ=값 종류). 구성: 최상위 비트부터 한 비트 평면씩 — 그 비트가 0인 원소를 앞, 1인 원소를 뒤로 <b>안정 분할(stable partition)</b>하고, 이 평면의 비트열(0/1)과 \"0의 개수 zero_count\"를 저장합니다. 다음 평면은 분할된 순서를 이어받아 그 다음 비트로 또 분할. 각 비트 평면은 <b>rank/select를 O(1)에 답하는 비트벡터</b>입니다. 질의는 평면을 위에서 아래로 훑으며, 비트벡터 rank로 \"구간 [l,r)이 다음 평면에서 어디로 가는지\"를 갱신: 0으로 가면 [rank0(l), rank0(r)), 1로 가면 [zero_count+rank1(l), …). <b>웨이블릿 트리 대비 장점</b>: ① 노드 포인터가 없어 <b>메모리 지역성(캐시)이 좋고</b> 상수가 작음, ② 구현이 단순(평면 배열 + zero_count), ③ select(특정 값의 i번째 위치)가 자연스러움. 같은 점근(질의 O(log σ), 공간 n log σ 비트). 정적 대용량 수열의 구간 통계 질의에서 실전 표준으로 자주 쓰입니다.",
   "more_en": "A <b>Wavelet Matrix</b> answers the <b>same range-statistics queries</b> as a wavelet tree (range k-th value, rank, count ≤ X, frequency) in <b>O(log σ)</b>, but replaces the tree's pointers/recursion with <b>log σ flat bit planes</b> (σ = number of distinct values). Construction: from the top bit down, for each plane <b>stable-partition</b> elements with that bit 0 to the front and 1 to the back, storing the plane's bit string and the count of zeros (zero_count); the next plane continues from the partitioned order with the next bit. Each plane is a <b>bit vector answering rank/select in O(1)</b>. A query sweeps planes top-down, using the bit vector's rank to update where the range [l,r) maps in the next plane: going to 0 gives [rank0(l), rank0(r)), going to 1 gives [zero_count+rank1(l), …). <b>Advantages over a wavelet tree</b>: ① no node pointers → better <b>memory locality (cache)</b> and small constants; ② simpler implementation (flat planes + zero_count); ③ natural select (the i-th position of a value). Same asymptotics (query O(log σ), space n log σ bits). A practical standard for range statistics over large static sequences.",
   "problem": {
    "q": "웨이블릿 행렬이 웨이블릿 트리와 같은 일을 하면서도 실전에서 더 빠른 이유는?",
@@ -4366,7 +4388,9 @@
    "  zeros[b] = count of 0;",
    "}",
    "// kth/rank/range 질의 O(log σ), 캐시 친화적"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 13
  },
  "algo_br_persistent": {
   "ch": "알고리즘 제5장 트리",
@@ -4419,11 +4443,11 @@
  },
  "algo_br_segtree2d": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "2D 세그먼트 트리 — 세그트리 안에 세그트리",
   "narr": "1D 세그먼트 트리가 구간 질의를 한다면, <b>2D 세그먼트 트리</b>는 격자에서 <b>직사각형 질의</b>를 합니다. 구조는 <b>중첩</b>으로, 바깥은 x에 대한 세그트리이고 그 각 노드가 자신의 x 구간에 대해 <b>y 세그트리</b>를 하나씩 듭니다(세그트리 안의 세그트리). 질의 [x1..x2]×[y1..y2]는 바깥 x 트리에서 [x1,x2]를 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 y 세그트리에서 [y1,y2]를 다시 <b>O(log n)</b>에 질의해 <b>O(log² n)</b>입니다. 점 갱신도 같습니다. 공간은 O(n log n)입니다. 2D 펜윅보다 무겁지만 <b>구간 갱신(양 축 lazy)·최댓값 등 더 일반적 연산</b>과 동적 좌표에 유연합니다. 핵심은 한 차원의 각 구간 노드에 다음 차원 구조를 매단다는 중첩 원리입니다.",
   "hint": "",
-  "more": "<b>2D 세그먼트 트리</b>는 2차원 격자에서 <b>직사각형 영역 질의·갱신</b>(합·최댓값 등)을 처리합니다. 구조는 <b>중첩</b>: 바깥쪽은 x 좌표에 대한 세그먼트 트리이고, 그 <b>각 노드가 자신이 담당하는 x 구간에 대해 y 좌표의 세그먼트 트리</b>를 하나씩 들고 있습니다(\"세그트리 안의 세그트리\"). <b>질의 [x1..x2]×[y1..y2]</b>: 바깥 x 트리에서 [x1,x2]를 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 <b>y 세그트리에서 [y1,y2] 질의를 O(log n)</b>에 → 전체 <b>O(log² n)</b>. <b>점 갱신</b>도 영향받는 x 노드 O(log n)개의 y 트리를 각각 O(log n) 갱신 → O(log² n). 공간은 <b>O(n log n)</b>(또는 좌표압축/동적 노드). <b>2D 펜윅과 비교</b>: 펜윅은 더 가볍고 빠르지만 점 갱신+직사각형 합에 한정, 2D 세그트리는 <b>구간 갱신(lazy를 양 축에)·최댓값 등 더 일반적 연산</b>이 가능하고 좌표가 동적일 때도 유연. 정적이면 <b>머지소트 트리·오프라인 스위프라인+1D</b>가 더 가벼운 대안입니다. 3차원으로 같은 중첩을 하면 3D 세그트리 O(log³ n). 쓰임: 2D 영역 최댓값/합 동적 질의, 평면 점 집계, 격자 RMQ. 핵심은 \"한 차원의 각 구간 노드에 다음 차원 구조를 매단다\"는 중첩 원리입니다.",
+  "more": "​세그트리 <b>안에 세그트리</b> — 2D 질의. <b>2D 세그먼트 트리</b>는 2차원 격자에서 <b>직사각형 영역 질의·갱신</b>(합·최댓값 등)을 처리합니다. 구조는 <b>중첩</b>: 바깥쪽은 x 좌표에 대한 세그먼트 트리이고, 그 <b>각 노드가 자신이 담당하는 x 구간에 대해 y 좌표의 세그먼트 트리</b>를 하나씩 들고 있습니다(\"세그트리 안의 세그트리\"). <b>질의 [x1..x2]×[y1..y2]</b>: 바깥 x 트리에서 [x1,x2]를 덮는 <b>O(log n)개 노드</b>로 분해하고, 각 노드의 <b>y 세그트리에서 [y1,y2] 질의를 O(log n)</b>에 → 전체 <b>O(log² n)</b>. <b>점 갱신</b>도 영향받는 x 노드 O(log n)개의 y 트리를 각각 O(log n) 갱신 → O(log² n). 공간은 <b>O(n log n)</b>(또는 좌표압축/동적 노드). <b>2D 펜윅과 비교</b>: 펜윅은 더 가볍고 빠르지만 점 갱신+직사각형 합에 한정, 2D 세그트리는 <b>구간 갱신(lazy를 양 축에)·최댓값 등 더 일반적 연산</b>이 가능하고 좌표가 동적일 때도 유연. 정적이면 <b>머지소트 트리·오프라인 스위프라인+1D</b>가 더 가벼운 대안입니다. 3차원으로 같은 중첩을 하면 3D 세그트리 O(log³ n). 쓰임: 2D 영역 최댓값/합 동적 질의, 평면 점 집계, 격자 RMQ. 핵심은 \"한 차원의 각 구간 노드에 다음 차원 구조를 매단다\"는 중첩 원리입니다.",
   "more_en": "A <b>2D segment tree</b> handles <b>rectangle range queries/updates</b> (sum, max, …) on a 2D grid. It is <b>nested</b>: the outer tree is a segment tree over the x-coordinate, and <b>each of its nodes holds a segment tree over the y-coordinate</b> for the x-range it covers (\"a segment tree inside a segment tree\"). For a <b>query [x1..x2]×[y1..y2]</b>, decompose [x1,x2] into <b>O(log n) nodes</b> in the outer x-tree, and query [y1,y2] in each node's <b>inner y-tree in O(log n)</b> → <b>O(log² n)</b> total. A <b>point update</b> likewise updates the y-trees of the O(log n) affected x-nodes, each in O(log n) → O(log² n). Space is <b>O(n log n)</b> (or coordinate compression / dynamic nodes). <b>Versus a 2D Fenwick</b>: Fenwick is lighter and faster but limited to point update + rectangle sum; a 2D segment tree supports <b>range updates (lazy on both axes), max, and more general operations</b>, and stays flexible with dynamic coordinates. If static, <b>merge sort trees or offline sweepline + 1D</b> are lighter alternatives. The same nesting in three dimensions gives a 3D segment tree, O(log³ n). Uses: dynamic 2D region max/sum queries, planar point aggregation, grid RMQ. The core is the nesting principle: \"hang the next dimension's structure on each range node of one dimension.\"",
   "problem": {
    "q": "2D 세그먼트 트리에서 직사각형 질의가 O(log² n)인 이유를 두 축으로 나눠 설명하면?",
@@ -4441,7 +4465,9 @@
    "int query(x1,x2,y1,y2){",
    "  // x 구간 노드들의 y-세그트리 질의 합",
    "}   // O(log^2 n)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 9
  },
  "algo_br_eertree": {
   "ch": "알고리즘 제4장 탐색",
@@ -5020,11 +5046,11 @@
  },
  "algo_br_lazyprop": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "Lazy propagation — 구간 갱신을 미뤄서 O(log n)",
   "narr": "이진 탐색 트리 계열의 세그먼트 트리를 구간 갱신까지 끌어올리는 기법입니다. 단순 세그먼트 트리는 점 갱신만 O(log n)이고 [l,r] 전체에 +x는 잎을 다 고쳐 느립니다. <b>Lazy propagation</b>은 갱신을 즉시 자식까지 내리지 않고, [l,r]에 <b>완전히 포함된 노드</b>를 만나면 그 노드 값만 갱신하고 <b>미룬 갱신을 태그로 달아 재귀를 멈춥니다</b>. 나중에 그 아래로 내려갈 일이 생길 때만 push-down으로 태그를 두 자식에 전파합니다. 필요할 때만 내리므로 갱신·질의 모두 O(log n)개 노드만 건드립니다. 태그 합성 규칙(더하기 누적·할당이 덮어씀)이 정확해야 합니다. 구간 더하기+구간 합/최솟값에 표준입니다.",
   "hint": "",
-  "more": "<b>Lazy propagation(지연 전파)</b>은 세그먼트 트리에서 <b>구간 갱신</b>(예: [l,r]에 일괄 +x, 또는 일괄 할당)을 <b>O(log n)</b>에 처리하는 기법입니다. 단순 세그먼트 트리는 점 갱신만 O(log n)이고 구간 갱신은 영향받는 잎을 다 고쳐 O(구간 크기)입니다. 핵심 아이디어: <b>구간 갱신을 즉시 자식까지 내리지 말고, 노드에 \"미룬 갱신\"을 lazy 태그로 저장</b>합니다. 갱신 시 [l,r]에 <b>완전히 포함되는 노드</b>를 만나면 그 노드의 합/최댓값을 즉시 갱신하고 <b>lazy 태그만 달고 재귀를 멈춥니다</b>(자식엔 안 내려감). 나중에 그 노드 <b>아래로 내려갈 일이 생기면(다른 질의/갱신이 자식을 봐야 할 때)</b> 비로소 <b>push-down</b>: 저장된 태그를 두 자식에 전파(자식 값·자식 lazy 갱신)하고 자기 태그를 비웁니다. 이렇게 \"필요할 때만\" 내리므로 갱신·질의 모두 O(log n)개 노드만 건드립니다. 주의: <b>태그 합성 규칙</b>이 정확해야 함 — \"더하기\"끼리는 더해 누적, \"할당\"은 이전 더하기를 덮어씀(순서 의존), 합성곱·구간 뒤집기 등 연산마다 결합 규칙 설계 필요. 쓰임: 구간 더하기 + 구간 합/최솟값/최댓값, 구간 할당, 등차수열 더하기, 오일러 투어와 결합한 서브트리 갱신, 좌표 평면(2D는 양 축 lazy). 세그먼트 트리를 \"점\"에서 \"구간\" 갱신으로 끌어올리는 표준 기법입니다.",
+  "more": "​<b>구간 갱신</b>을 미뤄(lazy) O(log n)으로. <b>Lazy propagation(지연 전파)</b>은 세그먼트 트리에서 <b>구간 갱신</b>(예: [l,r]에 일괄 +x, 또는 일괄 할당)을 <b>O(log n)</b>에 처리하는 기법입니다. 단순 세그먼트 트리는 점 갱신만 O(log n)이고 구간 갱신은 영향받는 잎을 다 고쳐 O(구간 크기)입니다. 핵심 아이디어: <b>구간 갱신을 즉시 자식까지 내리지 말고, 노드에 \"미룬 갱신\"을 lazy 태그로 저장</b>합니다. 갱신 시 [l,r]에 <b>완전히 포함되는 노드</b>를 만나면 그 노드의 합/최댓값을 즉시 갱신하고 <b>lazy 태그만 달고 재귀를 멈춥니다</b>(자식엔 안 내려감). 나중에 그 노드 <b>아래로 내려갈 일이 생기면(다른 질의/갱신이 자식을 봐야 할 때)</b> 비로소 <b>push-down</b>: 저장된 태그를 두 자식에 전파(자식 값·자식 lazy 갱신)하고 자기 태그를 비웁니다. 이렇게 \"필요할 때만\" 내리므로 갱신·질의 모두 O(log n)개 노드만 건드립니다. 주의: <b>태그 합성 규칙</b>이 정확해야 함 — \"더하기\"끼리는 더해 누적, \"할당\"은 이전 더하기를 덮어씀(순서 의존), 합성곱·구간 뒤집기 등 연산마다 결합 규칙 설계 필요. 쓰임: 구간 더하기 + 구간 합/최솟값/최댓값, 구간 할당, 등차수열 더하기, 오일러 투어와 결합한 서브트리 갱신, 좌표 평면(2D는 양 축 lazy). 세그먼트 트리를 \"점\"에서 \"구간\" 갱신으로 끌어올리는 표준 기법입니다.",
   "more_en": "<b>Lazy propagation</b> lets a segment tree handle <b>range updates</b> (e.g. add x to all of [l,r], or assign a value) in <b>O(log n)</b>. A plain segment tree does point updates in O(log n) but range updates in O(range size) by touching every affected leaf. Key idea: <b>don't push a range update down to children immediately; store it as a lazy tag on the node</b>. During an update, when you reach a node <b>fully contained</b> in [l,r], update its sum/max immediately and <b>just attach a lazy tag, stopping recursion</b> (without descending). Later, when you must <b>go below that node</b> (another query/update needs its children), perform <b>push-down</b>: propagate the stored tag to both children (updating child values and child lazy tags) and clear your own. Descending only \"when needed,\" both updates and queries touch only O(log n) nodes. Caveat: the <b>tag composition rule</b> must be correct — \"adds\" accumulate, an \"assign\" overrides prior adds (order-dependent), and each operation (convolution, range reverse, …) needs a designed combination rule. Uses: range add + range sum/min/max, range assignment, arithmetic-progression add, subtree updates combined with an Euler tour, 2D (lazy on both axes). It is the standard technique lifting a segment tree from point to range updates.",
   "problem": {
    "q": "Lazy propagation에서 'push-down'은 언제, 왜 일어나나?",
@@ -5043,7 +5069,9 @@
    "  update(2*node+1,m+1,r,ql,qr,v);",
    "  tree[node]=merge(2*node, 2*node+1);",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 7
  },
  "algo_br_dilworth": {
   "ch": "알고리즘 제6장 그래프",
@@ -5662,11 +5690,11 @@
  },
  "algo_br_fenwickrange": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.4 이진 탐색 트리 ▸ 자세히",
+  "sec": "고급 자료구조",
   "title": "펜윅 구간 갱신 — 두 BIT로 구간+구간",
   "narr": "이진 탐색 트리 계열 펜윅 트리의 능력을 끌어올립니다. 기본 펜윅은 <b>점 갱신 + 구간 합</b>만 O(log n)에 합니다. 차분과 보조 BIT를 더하면 <b>구간 갱신 + 구간 합</b>까지 됩니다. 구간 갱신+점 질의는 차분 배열의 BIT 하나로 [l,r]에 +v를 diff[l]+=v, diff[r+1]−=v 두 번 점 갱신해 처리합니다. 구간 갱신+구간 합은 <b>BIT 두 개</b>로, 접두사 합이 <b>x·(Σdiff) − (Σ(i−1)·diff)</b>로 정리되므로 diff와 (i−1)·diff를 각각 담으면 갱신·질의 모두 O(log n)입니다. <b>lazy 세그먼트 트리와 같은 기능</b>을 더 짧은 코드로 얻습니다(합 같은 가환 연산에 한정). 차분과 i 가중 차분, BIT 두 개가 핵심입니다.",
   "hint": "",
-  "more": "<b>펜윅 트리(BIT)의 구간 갱신·구간 합</b>은 <b>두 개의 BIT</b>로 구현합니다. 펜윅은 기본적으로 \"점 갱신 + 접두사 합\"을 O(log n)에 합니다. 능력별 구성: ① <b>점 갱신 + 구간 합</b> = BIT 1개(접두사 합의 차). ② <b>구간 갱신 + 점 질의</b> = <b>차분 배열</b>의 BIT 1개 — [l,r]에 +v는 <b>diff[l] += v, diff[r+1] −= v</b>로 두 번 점 갱신, 점 i의 값 = diff의 접두사 합. ③ <b>구간 갱신 + 구간 합</b> = <b>BIT 두 개</b>. 차분 diff에 대해, 접두사 합 Σ_{i≤x} a[i] = Σ_{i≤x} (x−i+1 가중이 섞인 항)이 되는데, 정리하면 <b>prefixSum(x) = x·(Σ_{i≤x} diff[i]) − (Σ_{i≤x} (i−1)·diff[i])</b>. 그래서 \"diff를 담는 BIT1\"과 \"(i−1)·diff를 담는 BIT2\"를 유지하면, 구간 갱신 시 두 BIT를 각각 O(log n)에 갱신하고, 구간 합 질의도 두 BIT의 접두사 합으로 O(log n)에 답합니다. 결과적으로 <b>구간 더하기 + 구간 합</b>을 펜윅으로 — <b>lazy propagation 세그먼트 트리와 같은 기능</b>을 더 적은 메모리·상수·짧은 코드로(단 \"합\" 같은 가환·결합 연산에 한정; 최댓값/할당은 세그트리). 쓰임: 구간 가산 누적, 역위 수 변형, 오프라인 구간 질의, 2D로 확장(BIT 4개로 2D 구간 갱신·합). \"차분 + i 가중 차분, BIT 두 개\"가 핵심입니다.",
+  "more": "​BIT 두 개로 <b>구간 갱신 + 구간 합</b>까지. <b>펜윅 트리(BIT)의 구간 갱신·구간 합</b>은 <b>두 개의 BIT</b>로 구현합니다. 펜윅은 기본적으로 \"점 갱신 + 접두사 합\"을 O(log n)에 합니다. 능력별 구성: ① <b>점 갱신 + 구간 합</b> = BIT 1개(접두사 합의 차). ② <b>구간 갱신 + 점 질의</b> = <b>차분 배열</b>의 BIT 1개 — [l,r]에 +v는 <b>diff[l] += v, diff[r+1] −= v</b>로 두 번 점 갱신, 점 i의 값 = diff의 접두사 합. ③ <b>구간 갱신 + 구간 합</b> = <b>BIT 두 개</b>. 차분 diff에 대해, 접두사 합 Σ_{i≤x} a[i] = Σ_{i≤x} (x−i+1 가중이 섞인 항)이 되는데, 정리하면 <b>prefixSum(x) = x·(Σ_{i≤x} diff[i]) − (Σ_{i≤x} (i−1)·diff[i])</b>. 그래서 \"diff를 담는 BIT1\"과 \"(i−1)·diff를 담는 BIT2\"를 유지하면, 구간 갱신 시 두 BIT를 각각 O(log n)에 갱신하고, 구간 합 질의도 두 BIT의 접두사 합으로 O(log n)에 답합니다. 결과적으로 <b>구간 더하기 + 구간 합</b>을 펜윅으로 — <b>lazy propagation 세그먼트 트리와 같은 기능</b>을 더 적은 메모리·상수·짧은 코드로(단 \"합\" 같은 가환·결합 연산에 한정; 최댓값/할당은 세그트리). 쓰임: 구간 가산 누적, 역위 수 변형, 오프라인 구간 질의, 2D로 확장(BIT 4개로 2D 구간 갱신·합). \"차분 + i 가중 차분, BIT 두 개\"가 핵심입니다.",
   "more_en": "<b>Fenwick (BIT) range update + range sum</b> is built with <b>two BITs</b>. A Fenwick tree natively does \"point update + prefix sum\" in O(log n). By capability: ① <b>point update + range sum</b> = one BIT (difference of prefix sums); ② <b>range update + point query</b> = one BIT over a <b>difference array</b> — adding v to [l,r] is <b>diff[l] += v, diff[r+1] −= v</b> (two point updates), and a point's value is the prefix sum of diff; ③ <b>range update + range sum</b> = <b>two BITs</b>. For the difference diff, the prefix sum Σ_{i≤x} a[i] works out to <b>prefixSum(x) = x·(Σ_{i≤x} diff[i]) − (Σ_{i≤x} (i−1)·diff[i])</b>. So keeping \"a BIT of diff\" (BIT1) and \"a BIT of (i−1)·diff\" (BIT2), a range update updates both in O(log n), and a range-sum query answers via both prefix sums in O(log n). The result is <b>range add + range sum</b> on a Fenwick tree — <b>the same capability as a lazy-propagation segment tree</b> with less memory, smaller constants, and shorter code (limited to commutative/associative ops like sum; for max/assign use a segment tree). Uses: cumulative range additions, inversion-count variants, offline range queries, extending to 2D (four BITs for 2D range update + sum). The crux: \"difference + i-weighted difference, two BITs.\"",
   "problem": {
    "q": "펜윅으로 '구간 갱신 + 구간 합'을 하려면 왜 BIT가 두 개 필요한가?",
@@ -5683,7 +5711,9 @@
    "long prefix(int i){",
    "  return sum(B1,i)*i - sum(B2,i);",
    "}   // 구간갱신·구간질의 모두 O(log n)"
-  ]
+  ],
+  "branchOf": "algo2_08",
+  "ord": 4
  },
  "algo_br_medians": {
   "ch": "알고리즘 제3장 정렬",
