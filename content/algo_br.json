@@ -347,11 +347,11 @@
  },
  "algo_br_rbt": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "레드블랙 트리 — 스스로 균형 잡기",
   "narr": "BST는 입력 순서가 나쁘면 한쪽으로 길어져 높이가 n까지 자라고 탐색이 <b>O(n)</b>으로 망가집니다(#24). <b>레드블랙 트리</b>는 노드마다 <b>빨강/검정</b> 색을 부여하고 몇 가지 규칙으로 이 쏠림을 막습니다. 규칙의 골자는 '빨강 노드의 자식은 검정', '루트에서 어떤 잎까지 가도 거치는 검정 노드 수가 같다'입니다. 후자 덕분에 가장 긴 경로조차 가장 짧은 경로의 두 배를 넘지 못해 높이가 <b>2 log n</b> 이하로 묶입니다. 삽입·삭제로 규칙이 깨지면 <b>회전</b>과 재색칠로 국소적으로 복구하는데, 이 보정 비용이 O(log n)이라 모든 연산이 최악에도 O(log n)입니다. 그래서 표준 라이브러리의 map·set, 데이터베이스 인덱스의 토대로 널리 쓰입니다.",
   "hint": "색칠 규칙으로 한쪽 쏠림 방지",
-  "more": "<b>레드블랙 트리</b>는 다섯 규칙을 지키는 자가균형 BST입니다 — ① 모든 노드는 빨강 또는 검정 ② <b>루트는 검정</b> ③ 모든 잎(nil)은 검정 ④ <b>빨강 노드의 자식은 검정</b>(빨강 연속 금지) ⑤ <b>임의 노드에서 잎까지의 모든 경로에 검정 노드 수가 같다</b>. 이 규칙들이 \"가장 긴 경로 ≤ 2 × 가장 짧은 경로\"를 보장해 높이 ≤ 2log(n+1) → <b>탐색·삽입·삭제 모두 O(log n)</b>. 삽입·삭제로 규칙이 깨지면 <b>회전(rotation)</b>과 재색칠로 복구합니다(상수 번). AVL 트리(더 엄격한 균형)보다 회전이 적어 삽입·삭제가 잦을 때 유리 → C++ std::map/set, 자바 TreeMap, 리눅스 커널 스케줄러·메모리 관리에 쓰입니다. \"균형이 전부\"를 실제로 보장하는 장치입니다.",
+  "more": "​색 규칙으로 균형 — <b>레드블랙 트리</b>. <b>레드블랙 트리</b>는 다섯 규칙을 지키는 자가균형 BST입니다 — ① 모든 노드는 빨강 또는 검정 ② <b>루트는 검정</b> ③ 모든 잎(nil)은 검정 ④ <b>빨강 노드의 자식은 검정</b>(빨강 연속 금지) ⑤ <b>임의 노드에서 잎까지의 모든 경로에 검정 노드 수가 같다</b>. 이 규칙들이 \"가장 긴 경로 ≤ 2 × 가장 짧은 경로\"를 보장해 높이 ≤ 2log(n+1) → <b>탐색·삽입·삭제 모두 O(log n)</b>. 삽입·삭제로 규칙이 깨지면 <b>회전(rotation)</b>과 재색칠로 복구합니다(상수 번). AVL 트리(더 엄격한 균형)보다 회전이 적어 삽입·삭제가 잦을 때 유리 → C++ std::map/set, 자바 TreeMap, 리눅스 커널 스케줄러·메모리 관리에 쓰입니다. \"균형이 전부\"를 실제로 보장하는 장치입니다.",
   "more_en": "A <b>red-black tree</b> is a self-balancing BST obeying five rules — ① every node is red or black; ② <b>the root is black</b>; ③ all leaves (nil) are black; ④ <b>a red node's children are black</b> (no two reds in a row); ⑤ <b>every path from a node to its leaves has the same number of black nodes</b>. These guarantee \"longest path ≤ 2 × shortest path,\" so height ≤ 2log(n+1) → <b>search, insert, delete all O(log n)</b>. When insert/delete breaks a rule, <b>rotations</b> and recoloring fix it (a constant number). With fewer rotations than AVL trees, it suits frequent insert/delete → used in C++ std::map/set, Java TreeMap, and the Linux kernel's scheduler and memory management. It is the machinery that actually guarantees \"balance is everything.\"",
   "problem": {
    "q": "레드블랙 트리에서 빨강 노드가 연속으로 올 수 있을까?",
@@ -371,15 +371,17 @@
    "  }",
    "  root->color=BLACK;",
    "}   // 높이 ≤ 2 log(n+1)"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 5
  },
  "algo_br_btree": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "B-트리 — 디스크를 위한 넓은 트리",
   "narr": "균형 이진 트리도 데이터가 <b>디스크</b>에 있으면 한계가 있습니다. 디스크 한 번 읽기는 메모리보다 수만 배 느려, 트리 높이만큼 디스크를 오가는 것이 곧 병목이기 때문입니다. <b>B-트리</b>는 노드 하나에 키를 여러 개 담아 자식을 많이 갖는 <b>낮고 넓은 다진 트리</b>로 이를 해결합니다. 노드 하나가 디스크 블록 하나에 대응하도록 크게 만들어, 한 번의 디스크 읽기로 키 수십~수백 개를 한꺼번에 가져와 비교합니다. 분기 수가 클수록 같은 데이터를 담는 트리 높이가 낮아져 디스크 접근 횟수가 log_B n(B는 분기 수)으로 줄어듭니다. 모든 잎이 같은 깊이가 되도록 분할·병합으로 균형을 유지하며, 데이터베이스와 파일시스템 인덱스의 표준 구조입니다.",
   "hint": "한 노드 = 디스크 블록 = 키 여러 개",
-  "more": "<b>B-트리</b>는 한 노드가 <b>여러 개의 키와 여러 자식</b>(차수 t면 t−1~2t−1개 키)을 갖는 균형 탐색 트리입니다. 모든 잎이 같은 깊이(완전 균형). 왜? <b>디스크 접근이 병목</b>이기 때문 — 노드 하나를 <b>디스크 블록 하나</b>에 맞춰, 한 번 읽기로 많은 키를 비교하면 트리 높이(=디스크 읽기 횟수)가 log_t n으로 매우 낮아집니다(이진트리의 log₂n보다 훨씬 작음). 백만 개 키도 디스크 읽기 2~3번! 그래서 <b>데이터베이스 인덱스(MySQL·PostgreSQL), 파일시스템(NTFS·ext4)</b>의 표준입니다. 변형 B+트리는 잎을 연결해 범위 검색에 강합니다. \"느린 저장장치엔 넓은 트리\"라는, 하드웨어를 고려한 자료구조 설계의 정수입니다.",
+  "more": "​한 노드에 키 여럿 — 디스크용 <b>B-트리</b>. <b>B-트리</b>는 한 노드가 <b>여러 개의 키와 여러 자식</b>(차수 t면 t−1~2t−1개 키)을 갖는 균형 탐색 트리입니다. 모든 잎이 같은 깊이(완전 균형). 왜? <b>디스크 접근이 병목</b>이기 때문 — 노드 하나를 <b>디스크 블록 하나</b>에 맞춰, 한 번 읽기로 많은 키를 비교하면 트리 높이(=디스크 읽기 횟수)가 log_t n으로 매우 낮아집니다(이진트리의 log₂n보다 훨씬 작음). 백만 개 키도 디스크 읽기 2~3번! 그래서 <b>데이터베이스 인덱스(MySQL·PostgreSQL), 파일시스템(NTFS·ext4)</b>의 표준입니다. 변형 B+트리는 잎을 연결해 범위 검색에 강합니다. \"느린 저장장치엔 넓은 트리\"라는, 하드웨어를 고려한 자료구조 설계의 정수입니다.",
   "more_en": "A <b>B-tree</b> is a balanced search tree where each node holds <b>multiple keys and many children</b> (with minimum degree t, between t−1 and 2t−1 keys). All leaves are at the same depth (perfectly balanced). Why? Because <b>disk access is the bottleneck</b> — fit one node into one <b>disk block</b>, so reading it once compares many keys, keeping the height (= number of disk reads) at log_t n, far smaller than a binary tree's log₂n. A million keys take just 2–3 disk reads! Hence it is the standard for <b>database indexes (MySQL, PostgreSQL) and file systems (NTFS, ext4)</b>. The B+tree variant links leaves for fast range queries. It is the essence of hardware-aware data structure design: \"wide trees for slow storage.\"",
   "problem": {
    "q": "B-트리가 이진 탐색 트리보다 디스크에서 유리한 이유는?",
@@ -399,15 +401,17 @@
    "  }",
    "  insertNonFull(x->child[i],k);",
    "}   // 높이 ~log_t n → 디스크 I/O 최소"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 9
  },
  "algo_br_uf": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "union-find — 같은 그룹인지 빠르게",
   "narr": "'이 두 사람이 같은 무리인가', '이 두 도시가 연결되어 있나' 같은 그룹 질의에 거의 즉시 답하는 자료구조가 <b>union-find(서로소 집합)</b>입니다. 각 원소가 <b>부모를 가리키는 트리</b>로 그룹을 표현하고, 트리의 뿌리가 그 그룹의 대표가 됩니다. 두 원소가 같은 그룹인지는 각자 뿌리까지 올라가 대표를 비교하면 되고, 두 그룹을 합칠 때는 한 뿌리를 다른 뿌리에 매답니다. 그냥 두면 트리가 길어지므로 두 기법으로 가속합니다. <b>경로 압축</b>은 find 도중 지나친 노드를 뿌리에 바로 붙여 다음 탐색을 짧게 만들고, <b>랭크/크기 기준 합치기</b>는 낮은 트리를 높은 쪽에 매달아 높이 증가를 억제합니다. 둘을 함께 쓰면 한 연산이 거의 상수(역아커만 함수)에 수렴합니다. <b>크루스칼 MST</b>의 사이클 판정 부품입니다.",
   "hint": "합치기(union) + 루트 찾기(find)",
-  "more": "<b>union-find / 서로소 집합(disjoint sets)</b>은 두 연산을 지원합니다 — <b>find(x)</b>: x가 속한 집합의 대표(루트) 찾기, <b>union(x,y)</b>: 두 집합을 하나로 합치기. 각 집합을 \"원소가 부모를 가리키는 트리\"로 표현(루트가 대표). 두 최적화로 초고속이 됩니다 — ① <b>union by rank</b>(작은 트리를 큰 트리 밑에 붙여 높이 억제) ② <b>path compression</b>(find 중 거쳐온 노드를 루트에 직접 연결). 둘을 합치면 m번 연산이 거의 선형 <b>O(m·α(n))</b>(α=역 아커만 함수, 사실상 ≤4=상수!). 쓰임: <b>MST 크루스칼</b>(사이클 판정), 네트워크 연결성, 이미지 영역 분할, 친구 관계 그룹. 트리가 \"집합을 빠르게 관리하는\" 또 다른 얼굴로 쓰인 우아한 예입니다.",
+  "more": "​같은 그룹인지 빠르게 — <b>union-find</b>. <b>union-find / 서로소 집합(disjoint sets)</b>은 두 연산을 지원합니다 — <b>find(x)</b>: x가 속한 집합의 대표(루트) 찾기, <b>union(x,y)</b>: 두 집합을 하나로 합치기. 각 집합을 \"원소가 부모를 가리키는 트리\"로 표현(루트가 대표). 두 최적화로 초고속이 됩니다 — ① <b>union by rank</b>(작은 트리를 큰 트리 밑에 붙여 높이 억제) ② <b>path compression</b>(find 중 거쳐온 노드를 루트에 직접 연결). 둘을 합치면 m번 연산이 거의 선형 <b>O(m·α(n))</b>(α=역 아커만 함수, 사실상 ≤4=상수!). 쓰임: <b>MST 크루스칼</b>(사이클 판정), 네트워크 연결성, 이미지 영역 분할, 친구 관계 그룹. 트리가 \"집합을 빠르게 관리하는\" 또 다른 얼굴로 쓰인 우아한 예입니다.",
   "more_en": "<b>Union-find / disjoint sets</b> support two operations — <b>find(x)</b>: get the representative (root) of x's set; <b>union(x,y)</b>: merge two sets. Each set is a tree of \"elements pointing to their parent\" (the root is the representative). Two optimizations make it ultra-fast — ① <b>union by rank</b> (attach the smaller tree under the larger to limit height); ② <b>path compression</b> (during find, point visited nodes directly to the root). Together, m operations run in near-linear <b>O(m·α(n))</b> (α = inverse Ackermann, effectively ≤4 = constant!). Uses: <b>Kruskal's MST</b> (cycle detection), network connectivity, image segmentation, friend grouping. An elegant case of trees serving as a tool for managing sets quickly.",
   "problem": {
    "q": "union-find의 두 핵심 최적화는?",
@@ -425,7 +429,9 @@
    "  if(rank[a]<rank[b]) swap(a,b);",
    "  par[b]=a; if(rank[a]==rank[b]) rank[a]++;",
    "}   // 연산당 거의 상수 O(α(n))"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 12
  },
  "algo_br_rod": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -1057,11 +1063,11 @@
  },
  "algo_br_rotate": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 균형 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "회전 — 균형을 맞추는 기본 동작",
   "narr": "이진 탐색 트리가 한쪽으로 치우치면 높이가 자라 탐색이 <b>O(n)</b>으로 느려집니다. <b>회전</b>은 이 쏠림을 바로잡는 기본 동작으로, 부모-자식 관계만 국소적으로 재배치해 <b>BST의 정렬 순서는 그대로 둔 채 높이를 조정</b>합니다. 좌회전을 예로 들면, 노드 x와 그 오른쪽 자식 y의 위치를 맞바꿔 y를 위로 올리고 x를 y의 왼쪽 자식으로 내립니다. 이때 y의 왼쪽 서브트리만 x의 오른쪽으로 옮겨 붙입니다. 그러면 α < x < β < y < γ라는 대소 순서가 회전 후에도 정확히 보존되어 BST 규칙이 깨지지 않습니다. 가리키는 포인터 몇 개만 바꾸므로 <b>O(1)</b>에 끝납니다. 레드블랙 트리와 AVL 트리가 삽입·삭제로 균형이 무너질 때마다 이 회전으로 높이를 log n에 묶어 둡니다.",
   "hint": "순서 보존, 높이만 조정",
-  "more": "<b>회전</b>: 균형 이진 탐색 트리의 핵심 연산. <b>좌회전(left-rotate)</b>은 x와 오른쪽 자식 y의 관계를 뒤집어 y를 위로, x를 y의 왼쪽 자식으로 내립니다(우회전은 그 반대). 중요한 건 <b>BST 순서가 보존</b>된다는 것: 회전 전후 모두 α < x < β < y < γ 순서가 유지됩니다(서브트리 β만 x↔y 사이에서 재배치). 연산은 포인터 몇 개만 바꿔 <b>O(1)</b>. <b>레드블랙 트리</b>는 삽입·삭제 후 색칠 규칙이 깨지면 회전 + 재색칠로 복구해 높이를 항상 O(log n)으로 유지(따라서 탐색·삽입·삭제 모두 O(log n) 보장). AVL 트리도 같은 회전으로 균형 인자를 맞춥니다. DB 인덱스·언어 표준 라이브러리의 정렬된 맵(자바 TreeMap, C++ std::map)이 레드블랙 트리.",
+  "more": "​균형을 고치는 기본 동작 — <b>회전</b>. <b>회전</b>: 균형 이진 탐색 트리의 핵심 연산. <b>좌회전(left-rotate)</b>은 x와 오른쪽 자식 y의 관계를 뒤집어 y를 위로, x를 y의 왼쪽 자식으로 내립니다(우회전은 그 반대). 중요한 건 <b>BST 순서가 보존</b>된다는 것: 회전 전후 모두 α < x < β < y < γ 순서가 유지됩니다(서브트리 β만 x↔y 사이에서 재배치). 연산은 포인터 몇 개만 바꿔 <b>O(1)</b>. <b>레드블랙 트리</b>는 삽입·삭제 후 색칠 규칙이 깨지면 회전 + 재색칠로 복구해 높이를 항상 O(log n)으로 유지(따라서 탐색·삽입·삭제 모두 O(log n) 보장). AVL 트리도 같은 회전으로 균형 인자를 맞춥니다. DB 인덱스·언어 표준 라이브러리의 정렬된 맵(자바 TreeMap, C++ std::map)이 레드블랙 트리.",
   "more_en": "<b>Rotation</b>: the core operation of balanced BSTs. A <b>left-rotate</b> swaps the relationship of x and its right child y, lifting y up and making x its left child (right-rotate is the mirror). Crucially, <b>BST order is preserved</b>: before and after, α < x < β < y < γ holds (only subtree β moves between x and y). It changes a few pointers in <b>O(1)</b>. A <b>red-black tree</b>, after insert/delete breaks its coloring rules, restores them with rotations + recoloring, keeping height O(log n) (so search/insert/delete are all O(log n)). AVL trees use the same rotations to fix balance factors. DB indexes and sorted maps in standard libraries (Java TreeMap, C++ std::map) are red-black trees.",
   "problem": {
    "q": "회전이 BST의 무엇을 보존하고 무엇을 바꾸나요?",
@@ -1079,30 +1085,34 @@
    "  return x;                          // 새 부분트리 루트",
    "}",
    "// rotateLeft는 좌우 대칭. AVL·레드블랙의 토대"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 3
  },
  "algo_br_bstins": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "BST 삽입 — 빈 자리 찾아 매달기",
   "narr": "BST에 새 키 z를 넣는 일은 탐색과 거의 같습니다. 루트에서 출발해, z가 현재 노드보다 <b>작으면 왼쪽, 크면 오른쪽</b>으로 내려가며 직전에 지난 노드를 부모로 기억해 둡니다. 이렇게 내려가다 더 갈 곳이 없는 빈 자리(NIL)에 도달하면, 그곳이 바로 z가 들어갈 자리입니다. 마지막으로 기억한 부모의 알맞은 쪽 자식으로 z를 매답니다. 이 자리가 옳은 까닭은 탐색 경로가 곧 'z보다 큰 값들은 어느 가지, 작은 값들은 다른 가지'를 따라온 길이기 때문입니다. 그 끝의 빈 자리에 z를 붙이면 모든 조상에 대해 좌소·우대 관계가 자동으로 성립해 BST 규칙이 유지됩니다. 비용은 내려간 깊이에 비례해 균형 트리면 <b>O(log n)</b>, 치우치면 O(n)입니다.",
   "hint": "탐색 경로 끝의 빈 자리에",
-  "more": "<b>BST 삽입</b>: 새 키 z를 넣을 때 탐색과 동일하게 루트부터 내려갑니다 — z<현재면 왼쪽, 크면 오른쪽. NIL(빈 자식)을 만나면 거기가 z의 자리. 마지막으로 지난 노드(parent)의 알맞은 쪽 자식으로 z를 연결합니다. <b>시간 O(h)</b>(h=트리 높이): 균형 트리면 O(log n), 한쪽으로 치우치면 O(n). 삽입은 항상 <b>잎(leaf)으로</b> 추가되어 기존 노드는 안 움직입니다. 정렬된 순서로 넣으면 편향 트리가 되니(→O(n)) 레드블랙·AVL이 회전(다른 분기)으로 균형을 맞춥니다. 중위 순회하면 다시 정렬된 순서가 나옵니다(#21).",
+  "more": "​빈 자리를 찾아 매다는 <b>BST 삽입</b>. <b>BST 삽입</b>: 새 키 z를 넣을 때 탐색과 동일하게 루트부터 내려갑니다 — z<현재면 왼쪽, 크면 오른쪽. NIL(빈 자식)을 만나면 거기가 z의 자리. 마지막으로 지난 노드(parent)의 알맞은 쪽 자식으로 z를 연결합니다. <b>시간 O(h)</b>(h=트리 높이): 균형 트리면 O(log n), 한쪽으로 치우치면 O(n). 삽입은 항상 <b>잎(leaf)으로</b> 추가되어 기존 노드는 안 움직입니다. 정렬된 순서로 넣으면 편향 트리가 되니(→O(n)) 레드블랙·AVL이 회전(다른 분기)으로 균형을 맞춥니다. 중위 순회하면 다시 정렬된 순서가 나옵니다(#21).",
   "more_en": "<b>BST insert</b>: to add key z, descend from the root just like search — go left if z<node, right if larger. On reaching a NIL (empty child), that is z's spot; attach z as the appropriate child of the last node (parent) visited. <b>Time O(h)</b> (h=height): O(log n) if balanced, O(n) if skewed. Insertion always adds a <b>leaf</b>, leaving existing nodes in place. Inserting in sorted order produces a skewed tree (→O(n)), which red-black/AVL trees fix with rotations (another branch). An in-order traversal still yields sorted order (#21).",
   "problem": {
    "q": "빈 BST에 1,2,3,4를 순서대로 삽입하면 트리 모양과 높이는?",
    "solution": "매번 오른쪽으로만 붙어 <b>한쪽으로 치우친(편향) 트리</b>, 높이 4 → 연결 리스트처럼 O(n). 이래서 균형 트리(회전)가 필요합니다.",
    "q_en": "Insert 1,2,3,4 in order into an empty BST — what shape and height?",
    "sol_en": "Each attaches to the right → a <b>right-skewed tree</b>, height 4 → like a linked list, O(n). This is why balanced trees (rotations) are needed."
-  }
+  },
+  "branchOf": "algo5_06",
+  "ord": 1
  },
  "algo_br_bstdel": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 이진 탐색 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "BST 삭제 — 세 가지 경우",
   "narr": "BST에서 노드를 지우는 일은 삽입보다 까다롭습니다. 자리가 비면 순서가 깨질 수 있어 자식 수에 따라 세 경우로 나눕니다. <b>자식이 없으면</b> 그냥 떼어내면 됩니다. <b>자식이 하나면</b> 그 자식 서브트리를 통째로 끌어올려 지운 노드의 자리에 붙입니다. 자식 하나가 차지하던 대소 위치를 그대로 잇기 때문에 순서가 보존됩니다. <b>자식이 둘이면</b> 노드를 바로 못 떼고, 오른쪽 서브트리의 <b>최솟값(중위 후속자)</b>을 찾아 그 값을 지울 노드 자리에 복사한 뒤, 원래의 후속자 노드를 삭제합니다. 후속자는 지운 값보다 큰 값 중 가장 작은 값이라, 그 자리에 들어와도 왼쪽은 모두 더 작고 오른쪽은 모두 더 큰 BST 순서가 유지됩니다. 게다가 후속자는 왼쪽 자식이 없어 그 자체 삭제는 앞의 쉬운 두 경우로 떨어집니다.",
   "hint": "두 자식 → 후속자로 교체",
-  "more": "<b>BST 삭제</b>는 지울 노드 z의 자식 수로 세 경우를 나눕니다. <b>① 자식 0개(잎)</b>: 그냥 제거. <b>② 자식 1개</b>: 그 자식을 z 자리로 끌어올림. <b>③ 자식 2개</b>: z의 <b>중위 후속자</b>(오른쪽 서브트리의 최솟값 = 오른쪽으로 한 번 간 뒤 계속 왼쪽)를 찾아 z의 키를 그 값으로 바꾸고, 후속자 노드(자식이 최대 1개)를 ②/①로 제거. 후속자는 z보다 큰 값 중 가장 작아서 교체해도 \"왼쪽<부모<오른쪽\" 규칙이 깨지지 않습니다. <b>시간 O(h)</b>. 레드블랙 트리는 삭제 후에도 색 규칙이 깨지면 회전+재색칠로 복구해 O(log n)을 보장합니다.",
+  "more": "​세 경우로 나뉘는 <b>BST 삭제</b>. <b>BST 삭제</b>는 지울 노드 z의 자식 수로 세 경우를 나눕니다. <b>① 자식 0개(잎)</b>: 그냥 제거. <b>② 자식 1개</b>: 그 자식을 z 자리로 끌어올림. <b>③ 자식 2개</b>: z의 <b>중위 후속자</b>(오른쪽 서브트리의 최솟값 = 오른쪽으로 한 번 간 뒤 계속 왼쪽)를 찾아 z의 키를 그 값으로 바꾸고, 후속자 노드(자식이 최대 1개)를 ②/①로 제거. 후속자는 z보다 큰 값 중 가장 작아서 교체해도 \"왼쪽<부모<오른쪽\" 규칙이 깨지지 않습니다. <b>시간 O(h)</b>. 레드블랙 트리는 삭제 후에도 색 규칙이 깨지면 회전+재색칠로 복구해 O(log n)을 보장합니다.",
   "more_en": "<b>BST delete</b> splits into three cases by the number of children of the node z to remove. <b>① 0 children (leaf)</b>: just remove it. <b>② 1 child</b>: lift that child into z's place. <b>③ 2 children</b>: find z's <b>in-order successor</b> (the minimum of the right subtree = go right once, then left repeatedly), copy its key into z, then delete that successor node (which has ≤1 child) via case ②/①. The successor is the smallest value greater than z, so replacing keeps the \"left<parent<right\" rule intact. <b>Time O(h)</b>. Red-black trees restore color rules after deletion with rotations + recoloring to guarantee O(log n).",
   "problem": {
    "q": "자식이 둘인 노드를 삭제할 때 왜 '후속자'로 교체하나요?",
@@ -1124,7 +1134,9 @@
    "  }",
    "  return t;",
    "}"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 2
  },
  "algo_br_kadane": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -1390,11 +1402,11 @@
  },
  "algo_br_avl": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 균형 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "AVL 트리 — 높이로 균형 잡기",
   "narr": "BST가 한쪽으로 치우치면 탐색이 O(n)으로 느려집니다. <b>AVL 트리</b>는 모든 노드에서 균형 인자(왼쪽 높이 − 오른쪽 높이)를 −1, 0, +1로 유지하는 자가 균형 BST입니다. 삽입·삭제로 어떤 노드의 |BF|가 2가 되면 그 자리에서 <b>회전</b>(LL/RR은 단일, LR/RL은 이중)으로 즉시 복구합니다. 덕분에 트리 높이가 항상 약 1.44·log n 이하로 유지되어 탐색·삽입·삭제가 모두 <b>O(log n)</b>입니다. 레드블랙보다 더 엄격히 균형을 잡아 탐색이 빠른 대신 회전이 잦으니, 읽기가 많으면 AVL, 쓰기가 많으면 레드블랙을 선호합니다.",
   "hint": "좌우 높이차 ≤ 1 유지",
-  "more": "<b>AVL 트리</b>(Adelson-Velsky & Landis): 가장 먼저 고안된 자가 균형 BST. 각 노드의 <b>균형 인자(BF) = 왼쪽 높이 − 오른쪽 높이</b>를 −1, 0, +1 중 하나로 유지합니다. 삽입·삭제로 어떤 노드의 |BF|가 2가 되면 그 자리에서 <b>회전</b>(LL/RR=단일 회전, LR/RL=이중 회전)으로 즉시 복구 → 트리 높이가 항상 ≈1.44·log n 이하라 탐색·삽입·삭제 모두 <b>O(log n)</b> 보장. ★레드블랙 트리와 비교: AVL은 더 <b>엄격히 균형</b>(높이가 더 낮음) → 탐색이 약간 빠르지만, 삽입·삭제 시 회전이 더 잦음. 그래서 <b>읽기가 많으면 AVL</b>, 쓰기가 많으면 레드블랙을 선호하기도 합니다. 둘 다 회전(다른 분기)이라는 같은 도구로 균형을 유지합니다. DB 인덱스·메모리 내 정렬 컨테이너에 쓰입니다.",
+  "more": "​높이차 ±1로 균형 — <b>AVL</b>. <b>AVL 트리</b>(Adelson-Velsky & Landis): 가장 먼저 고안된 자가 균형 BST. 각 노드의 <b>균형 인자(BF) = 왼쪽 높이 − 오른쪽 높이</b>를 −1, 0, +1 중 하나로 유지합니다. 삽입·삭제로 어떤 노드의 |BF|가 2가 되면 그 자리에서 <b>회전</b>(LL/RR=단일 회전, LR/RL=이중 회전)으로 즉시 복구 → 트리 높이가 항상 ≈1.44·log n 이하라 탐색·삽입·삭제 모두 <b>O(log n)</b> 보장. ★레드블랙 트리와 비교: AVL은 더 <b>엄격히 균형</b>(높이가 더 낮음) → 탐색이 약간 빠르지만, 삽입·삭제 시 회전이 더 잦음. 그래서 <b>읽기가 많으면 AVL</b>, 쓰기가 많으면 레드블랙을 선호하기도 합니다. 둘 다 회전(다른 분기)이라는 같은 도구로 균형을 유지합니다. DB 인덱스·메모리 내 정렬 컨테이너에 쓰입니다.",
   "more_en": "<b>AVL tree</b> (Adelson-Velsky & Landis): the first self-balancing BST. Each node keeps a <b>balance factor (BF) = left height − right height</b> in {−1, 0, +1}. If an insert/delete makes some |BF| = 2, a <b>rotation</b> at that node (LL/RR = single, LR/RL = double) restores it immediately → tree height stays ≈1.44·log n, guaranteeing <b>O(log n)</b> search/insert/delete. ★Vs red-black trees: AVL is <b>more strictly balanced</b> (lower height) → slightly faster lookups, but rotates more often on insert/delete. So <b>read-heavy → AVL</b>, write-heavy → red-black is often preferred. Both maintain balance with the same tool, rotation (another branch). Used in DB indexes and in-memory ordered containers.",
   "problem": {
    "q": "AVL 트리와 레드블랙 트리는 둘 다 O(log n)인데 무엇이 다른가요?",
@@ -1415,7 +1427,9 @@
    "  if(b<-1){t->right=rotR(t->right); return rotL(t); } // RL",
    "  return t;",
    "}   // 높이 ~1.44 log n"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 4
  },
  "algo_br_kmeans": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -1497,11 +1511,11 @@
  },
  "algo_br_lca": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 BST 탐색 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "LCA — 최소 공통 조상",
   "narr": "트리에서 두 노드 u, v를 모두 자손으로 갖는 가장 깊은 노드가 <b>LCA</b>입니다. 소박하게는 둘을 같은 깊이로 맞춘 뒤 함께 한 칸씩 위로 올려 처음 만나는 곳을 찾아 질의당 O(높이)입니다. 더 빠른 길은 둘입니다. <b>이진 점프</b>는 각 노드의 2^k번째 조상을 미리 계산(O(n log n))해, 깊이 차를 비트로 점프하므로 질의당 <b>O(log n)</b>입니다. <b>오일러 투어 + 희소 표</b>는 트리를 한 줄로 펴 구간 최솟값 문제로 바꿔 질의당 O(1)입니다. 두 노드 거리는 depth[u]+depth[v]−2·depth[LCA]로, 경로 질의·트리 DP의 단골 부품입니다.",
   "hint": "",
-  "more": "<b>LCA(Lowest Common Ancestor)</b>는 트리에서 u와 v를 <b>모두 자손으로 갖는 가장 깊은 노드</b>입니다. 소박하게는 u, v를 같은 깊이로 맞춘 뒤 <b>함께 한 칸씩 위로</b> 올려 처음 만나는 곳을 찾습니다(질의당 O(높이)). 빠른 방법 둘: ① <b>이진 점프(binary lifting)</b> — 각 노드의 \"2^k번째 조상\"을 전처리(O(n log n))해 두면, 깊이 차를 비트로 점프해 <b>질의당 O(log n)</b>. ② <b>오일러 투어 + 희소 표(sparse table)</b> — 트리를 한 줄로 펴 구간 최솟값 문제로 바꾸면 <b>질의당 O(1)</b>. 쓰임: 두 노드 거리 = depth[u]+depth[v]−2·depth[LCA], 경로 질의, 트리 DP. 가족 관계·계통수·파일 시스템 경로 등에 자연스럽게 등장합니다.",
+  "more": "​두 정점의 <b>최소 공통 조상(LCA)</b>. <b>LCA(Lowest Common Ancestor)</b>는 트리에서 u와 v를 <b>모두 자손으로 갖는 가장 깊은 노드</b>입니다. 소박하게는 u, v를 같은 깊이로 맞춘 뒤 <b>함께 한 칸씩 위로</b> 올려 처음 만나는 곳을 찾습니다(질의당 O(높이)). 빠른 방법 둘: ① <b>이진 점프(binary lifting)</b> — 각 노드의 \"2^k번째 조상\"을 전처리(O(n log n))해 두면, 깊이 차를 비트로 점프해 <b>질의당 O(log n)</b>. ② <b>오일러 투어 + 희소 표(sparse table)</b> — 트리를 한 줄로 펴 구간 최솟값 문제로 바꾸면 <b>질의당 O(1)</b>. 쓰임: 두 노드 거리 = depth[u]+depth[v]−2·depth[LCA], 경로 질의, 트리 DP. 가족 관계·계통수·파일 시스템 경로 등에 자연스럽게 등장합니다.",
   "more_en": "The <b>LCA (Lowest Common Ancestor)</b> of u and v is the <b>deepest node that has both as descendants</b>. Naively, level u and v to the same depth, then move <b>both up one step at a time</b> until they meet (O(height) per query). Two fast methods: ① <b>binary lifting</b> — precompute each node's \"2^k-th ancestor\" (O(n log n)), then jump by bits → <b>O(log n) per query</b>; ② <b>Euler tour + sparse table</b> — flatten the tree into an array and reduce to range-minimum → <b>O(1) per query</b>. Uses: distance = depth[u]+depth[v]−2·depth[LCA], path queries, tree DP. Appears naturally in genealogies, phylogenetic trees, and file-system paths.",
   "problem": {
    "q": "위 트리에서 D와 E의 LCA는? 두 노드 사이 거리는?",
@@ -1526,15 +1540,17 @@
    "    if(up[u][k] != up[v][k]){ u = up[u][k]; v = up[v][k]; }",
    "  return par[u];  // 질의 O(log n)",
    "}"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 1
  },
  "algo_br_rbfix": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 균형 트리 (자세히)",
+  "sec": "균형 트리",
   "title": "레드블랙 삽입 fixup — 색을 고치다",
   "narr": "레드블랙 트리는 색 규칙으로 높이를 O(log n)에 묶는 균형 BST입니다. 새 노드를 <b>빨강</b>으로 넣는 이유는, 그래야 모든 경로의 검정 노드 수(검정 높이)가 안 깨지기 때문입니다. 다만 부모도 빨강이면 빨강-빨강 규칙이 깨지니 <b>fixup</b>으로 복구합니다. <b>삼촌 색</b>을 봅니다. 삼촌이 빨강이면 부모·삼촌을 검정, 할아버지를 빨강으로 재색칠하고 위반을 위로 올려 반복합니다. 삼촌이 검정이면 회전(필요 시 이중)으로 모양을 바로잡고 재색칠합니다. 위반이 매 단계 위로 올라가니 fixup은 <b>O(log n)</b>입니다. 회전과 재색칠 두 도구로 다섯 색 규칙을 지킵니다.",
   "hint": "삼촌 색 보고 재색칠/회전",
-  "more": "<b>레드블랙 삽입 fixup</b>: 새 노드는 항상 <b>빨강</b>으로 삽입(검정 높이를 안 깨려고). 부모도 빨강이면 '빨강은 빨강 자식을 못 가진다' 규칙 위반 → 복구. <b>경우 분기(삼촌 색 기준)</b>: <b>Case 1</b> 삼촌이 빨강 → 부모·삼촌을 검정, 할아버지를 빨강으로 재색칠하고 위반을 할아버지로 올려 반복. <b>Case 2/3</b> 삼촌이 검정 → 회전(필요 시 이중)으로 모양을 바로잡고 재색칠. 마지막에 루트는 항상 검정으로. 위반은 매 단계 트리 위로 올라가므로 fixup은 <b>O(log n)</b>. 삭제 fixup은 '이중 검정'을 비슷한 경우 분석으로 해소해 더 복잡하지만 역시 O(log n). 회전(다른 분기)과 재색칠 두 도구로, 5가지 색 규칙(루트 검정·빨강의 자식 검정·모든 경로의 검정 수 동일 등)을 유지해 높이를 O(log n)로 보장합니다.",
+  "more": "​삽입 후 색을 고치는 <b>RB fixup</b>. <b>레드블랙 삽입 fixup</b>: 새 노드는 항상 <b>빨강</b>으로 삽입(검정 높이를 안 깨려고). 부모도 빨강이면 '빨강은 빨강 자식을 못 가진다' 규칙 위반 → 복구. <b>경우 분기(삼촌 색 기준)</b>: <b>Case 1</b> 삼촌이 빨강 → 부모·삼촌을 검정, 할아버지를 빨강으로 재색칠하고 위반을 할아버지로 올려 반복. <b>Case 2/3</b> 삼촌이 검정 → 회전(필요 시 이중)으로 모양을 바로잡고 재색칠. 마지막에 루트는 항상 검정으로. 위반은 매 단계 트리 위로 올라가므로 fixup은 <b>O(log n)</b>. 삭제 fixup은 '이중 검정'을 비슷한 경우 분석으로 해소해 더 복잡하지만 역시 O(log n). 회전(다른 분기)과 재색칠 두 도구로, 5가지 색 규칙(루트 검정·빨강의 자식 검정·모든 경로의 검정 수 동일 등)을 유지해 높이를 O(log n)로 보장합니다.",
   "more_en": "<b>Red-black insert fixup</b>: a new node is always inserted <b>red</b> (to preserve black-height). If its parent is also red, the rule 'a red node has no red child' is violated → repair. <b>Cases (by uncle's color)</b>: <b>Case 1</b> uncle red → recolor parent and uncle black, grandparent red, and push the violation up to the grandparent, repeating. <b>Cases 2/3</b> uncle black → fix the shape with rotation(s) and recolor. Finally force the root black. The violation moves up the tree each step, so fixup is <b>O(log n)</b>. Delete fixup resolves a 'doubly-black' node via a similar case analysis, more involved but still O(log n). With two tools — rotation (another branch) and recoloring — it maintains the 5 color rules (root black, red's children black, equal black-count on all paths, …) keeping height O(log n).",
   "problem": {
    "q": "레드블랙 트리에서 새 노드를 왜 항상 '빨강'으로 삽입하나요?",
@@ -1550,7 +1566,9 @@
    "// 경우3: 삼촌 흑·z 바깥 → 조부 회전 + 색교환",
    "while(z->parent->color == RED) fixOneCase(z);",
    "root->color = BLACK;   // 항상 O(log n)"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 6
  },
  "algo_br_amort3": {
   "ch": "알고리즘 제2장 자료구조",
@@ -2245,11 +2263,11 @@
  },
  "algo_br_hld": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 BST 탐색 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "Heavy-Light 분해 — 트리 경로 질의를 빠르게",
   "narr": "트리에서 두 노드 사이 경로의 합·최댓값을 묻고 중간 값도 바꾸려면 매번 경로를 따라가서 O(n)이 듭니다. <b>Heavy-Light 분해</b>는 각 노드에서 서브트리가 가장 큰 자식으로 가는 간선을 <b>heavy</b>, 나머지를 light로 칠해 트리를 일자 사슬 몇 개로 나눕니다. 루트에서 내려갈 때 light 간선을 탈 때마다 서브트리 크기가 절반 이하로 줄어, light는 최대 <b>O(log n)</b>번만 지납니다. 각 사슬을 일렬로 펴 세그먼트 트리에 올리면, 두 노드 경로가 O(log n)개의 사슬 구간으로 쪼개지고 각 구간 질의가 O(log n)이라 경로 질의·갱신이 <b>O(log²n)</b>이 됩니다. 트리 위 경로 질의·LCA에 쓰입니다.",
   "hint": "",
-  "more": "<b>Heavy-Light 분해(HLD)</b>는 트리의 <b>경로 질의</b>를 세그먼트 트리로 처리하는 기법입니다. 각 노드에서 <b>서브트리 크기가 가장 큰 자식</b>으로 가는 간선을 <b>heavy(굵은)</b>, 나머지를 <b>light</b>로 칠합니다. 그러면 트리가 <b>heavy 간선으로 이어진 사슬 몇 개</b>로 나뉘는데, 핵심 성질: 루트에서 어떤 노드로 내려가는 동안 <b>light 간선은 최대 O(log n)번</b>만 지납니다(light로 갈 때마다 서브트리 크기가 절반 이하로 줄기 때문). 각 사슬을 <b>일렬로 펴 세그먼트 트리</b>에 올리면, 두 노드 u, v 사이 경로는 <b>O(log n)개의 사슬 구간</b>으로 쪼개지고 각 구간 질의가 O(log n) → <b>경로 합·최댓값·갱신이 O(log²n)</b>. 쓰임: 트리 위 경로 질의, LCA, 부분트리 질의(오일러 투어와 결합), 네트워크·계통 분석.",
+  "more": "​경로를 구간으로 — <b>Heavy-Light 분해</b>. <b>Heavy-Light 분해(HLD)</b>는 트리의 <b>경로 질의</b>를 세그먼트 트리로 처리하는 기법입니다. 각 노드에서 <b>서브트리 크기가 가장 큰 자식</b>으로 가는 간선을 <b>heavy(굵은)</b>, 나머지를 <b>light</b>로 칠합니다. 그러면 트리가 <b>heavy 간선으로 이어진 사슬 몇 개</b>로 나뉘는데, 핵심 성질: 루트에서 어떤 노드로 내려가는 동안 <b>light 간선은 최대 O(log n)번</b>만 지납니다(light로 갈 때마다 서브트리 크기가 절반 이하로 줄기 때문). 각 사슬을 <b>일렬로 펴 세그먼트 트리</b>에 올리면, 두 노드 u, v 사이 경로는 <b>O(log n)개의 사슬 구간</b>으로 쪼개지고 각 구간 질의가 O(log n) → <b>경로 합·최댓값·갱신이 O(log²n)</b>. 쓰임: 트리 위 경로 질의, LCA, 부분트리 질의(오일러 투어와 결합), 네트워크·계통 분석.",
   "more_en": "<b>Heavy-Light Decomposition (HLD)</b> handles <b>path queries</b> on a tree using a segment tree. At each node, the edge to the child with the <b>largest subtree</b> is <b>heavy</b>; the rest are <b>light</b>. The tree then breaks into a few <b>chains of heavy edges</b>, with the key property that any root-to-node descent crosses at most <b>O(log n) light edges</b> (each light step at least halves the subtree size). Laying each chain <b>contiguously in a segment tree</b>, a path between u and v splits into <b>O(log n) chain segments</b>, each queried in O(log n) → <b>path sum/max/update in O(log²n)</b>. Uses: tree path queries, LCA, subtree queries (with Euler tour), network/phylogeny analysis.",
   "problem": {
    "q": "HLD에서 루트→노드 경로가 지나는 light 간선이 O(log n)개인 이유는?",
@@ -2272,7 +2290,9 @@
    "  for(int v : adj[u]) if(v != par[u] && v != heavy[u])",
    "    decompose(v, v);            // 새 체인",
    "}   // 경로 질의 = O(log n)개 체인 × 세그트리"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 9
  },
  "algo_br_mo": {
   "ch": "알고리즘 제3장 정렬",
@@ -2303,11 +2323,11 @@
  },
  "algo_br_splay": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.1 이진 트리 ▸ 자세히",
+  "sec": "균형 트리",
   "title": "스플레이 트리 — 자기조정 이진 탐색 트리",
   "narr": "색·높이 같은 균형 정보를 따로 두지 않고도 빠른 BST가 <b>스플레이 트리</b>입니다. 탐색·삽입·삭제 후 건드린 노드 x를 <b>splay 연산</b>으로 루트까지 끌어올립니다. 부모·조부모 관계에 따라 zig, zig-zig(같은 방향 두 번), zig-zag(반대 방향) 회전을 쓰는데, 특히 zig-zig가 트리 높이를 적극적으로 줄입니다. 한 연산은 O(n)까지 느릴 수 있지만, 비싼 splay가 트리를 평평하게 만들어 이후 연산을 싸게 하므로 <b>분할상환하면 연산당 O(log n)</b>이 보장됩니다(퍼텐셜 함수로 증명). 추가 메타데이터가 없어 구현이 짧고, 최근 쓴 키가 루트 근처로 모여 지역성 있는 접근에서 균형 트리보다도 빠릅니다.",
   "hint": "",
-  "more": "<b>스플레이 트리(Splay Tree)</b>는 <b>자기조정(self-adjusting) BST</b>입니다. 탐색·삽입·삭제 후, 건드린 노드 x를 <b>splay 연산</b>으로 루트까지 끌어올립니다 — 부모·조부모 관계에 따라 <b>zig</b>(부모가 루트), <b>zig-zig</b>(같은 방향 두 번), <b>zig-zag</b>(반대 방향) 회전을 적용합니다(단순 회전 반복과 달리 zig-zig로 트리 높이를 적극적으로 줄임). 한 번의 연산은 O(n)까지 느릴 수 있지만, <b>분할상환하면 연산당 O(log n)</b>이 보장됩니다(퍼텐셜 함수 분석). 색·높이 같은 <b>추가 메타데이터가 전혀 필요 없어</b> 구현이 짧고, <b>지역성(locality)</b>이 있는 접근 패턴에서는 균형 트리보다도 빠릅니다(최근 쓴 키가 루트 근처). 더 나아가 <b>working set 정리</b>·<b>정적 최적성</b> 같은 강한 성질을 가지며, 구간 뒤집기 같은 연산을 지원하는 <b>암묵적(implicit) 스플레이/트립</b>으로 확장됩니다.",
+  "more": "​접근 노드를 루트로 — <b>스플레이</b>(자기조정). <b>스플레이 트리(Splay Tree)</b>는 <b>자기조정(self-adjusting) BST</b>입니다. 탐색·삽입·삭제 후, 건드린 노드 x를 <b>splay 연산</b>으로 루트까지 끌어올립니다 — 부모·조부모 관계에 따라 <b>zig</b>(부모가 루트), <b>zig-zig</b>(같은 방향 두 번), <b>zig-zag</b>(반대 방향) 회전을 적용합니다(단순 회전 반복과 달리 zig-zig로 트리 높이를 적극적으로 줄임). 한 번의 연산은 O(n)까지 느릴 수 있지만, <b>분할상환하면 연산당 O(log n)</b>이 보장됩니다(퍼텐셜 함수 분석). 색·높이 같은 <b>추가 메타데이터가 전혀 필요 없어</b> 구현이 짧고, <b>지역성(locality)</b>이 있는 접근 패턴에서는 균형 트리보다도 빠릅니다(최근 쓴 키가 루트 근처). 더 나아가 <b>working set 정리</b>·<b>정적 최적성</b> 같은 강한 성질을 가지며, 구간 뒤집기 같은 연산을 지원하는 <b>암묵적(implicit) 스플레이/트립</b>으로 확장됩니다.",
   "more_en": "A <b>splay tree</b> is a <b>self-adjusting BST</b>. After a search/insert/delete, the touched node x is <b>splayed</b> to the root using <b>zig</b> (parent is root), <b>zig-zig</b> (same direction twice), and <b>zig-zag</b> (opposite) rotations — unlike repeated single rotations, zig-zig actively shortens the tree. A single operation can be as slow as O(n), but <b>amortized it is O(log n)</b> per operation (potential-function analysis). It needs <b>no extra metadata</b> (no colors/heights), so it is short to implement and can beat balanced trees under <b>locality</b> (recently used keys sit near the root). It enjoys strong properties like the <b>working-set theorem</b> and <b>static optimality</b>, and extends to <b>implicit splay/treaps</b> supporting operations like range reversal.",
   "problem": {
    "q": "스플레이 트리의 한 연산이 O(n)일 수도 있는데 효율적이라 하는 근거는?",
@@ -2325,7 +2345,9 @@
    "  }",
    "  root=x;",
    "}   // 상각 O(log n), 자주 쓰는 키 빨라짐"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 7
  },
  "algo_br_bridge": {
   "ch": "알고리즘 제6장 그래프",
@@ -2645,11 +2667,11 @@
  },
  "algo_br_treedp": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.2 BST 탐색 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "트리 DP — 서브트리에서 부모로 답을 모으기",
   "narr": "BST를 다루던 트리 자리에서, 트리 위의 최적화를 DP로 풉니다. <b>트리 DP</b>는 각 노드의 답을 <b>그 자식들의 답으로 정의</b>하고 <b>후위순회(자식 먼저)</b>로 채웁니다. 대표 예 <b>최대 독립 집합</b>은 노드 v를 고르는 경우와 안 고르는 경우를 따로 둡니다 — dp[v][1]=1+Σdp[child][0](고르면 자식은 못 고름), dp[v][0]=Σmax(dp[child][0],dp[child][1])(안 고르면 자식 자유). 부분 문제가 서브트리로 깔끔히 나뉘고 겹치지 않으니, 각 노드를 한 번씩만 처리해 <b>O(V)</b>입니다. 이 '넣고/빼는 두 상태' 틀은 서브트리 합·지름, 트리 배낭, 색칠로 확장되고, 루트를 바꿔 모든 답을 한 번에 구하는 <b>리루팅</b>으로 일반화됩니다.",
   "hint": "",
-  "more": "<b>트리 DP</b>는 각 노드의 답을 <b>그 자식들의 답으로 정의</b>하고 <b>후위순회(자식 먼저)</b>로 채웁니다. 대표 예 <b>최대 독립 집합(서로 인접 안 한 노드 최대 개수)</b>: 노드 v를 <b>고르는 경우와 안 고르는 경우</b>를 따로 둡니다 — <b>dp[v][1] = 1 + Σ dp[child][0]</b>(v를 고르면 자식은 못 고름), <b>dp[v][0] = Σ max(dp[child][0], dp[child][1])</b>(v를 안 고르면 자식은 자유). 답은 <b>max(dp[root][0], dp[root][1])</b>, 시간 <b>O(V)</b>(V=트리의 노드 수). 이 \"노드를 넣고/빼는 두 상태\" 틀은 트리 위 수많은 문제에 통합니다: 서브트리 크기·합·지름, 트리에서의 배낭, 노드/간선 색칠, 부모-자식 제약 최적화 등. 루트를 바꿔 가며 모든 노드 답을 한 번에 구하는 <b>리루팅(rerooting)</b> 기법으로 확장됩니다.",
+  "more": "​서브트리에서 부모로 답을 모으는 <b>트리 DP</b>. <b>트리 DP</b>는 각 노드의 답을 <b>그 자식들의 답으로 정의</b>하고 <b>후위순회(자식 먼저)</b>로 채웁니다. 대표 예 <b>최대 독립 집합(서로 인접 안 한 노드 최대 개수)</b>: 노드 v를 <b>고르는 경우와 안 고르는 경우</b>를 따로 둡니다 — <b>dp[v][1] = 1 + Σ dp[child][0]</b>(v를 고르면 자식은 못 고름), <b>dp[v][0] = Σ max(dp[child][0], dp[child][1])</b>(v를 안 고르면 자식은 자유). 답은 <b>max(dp[root][0], dp[root][1])</b>, 시간 <b>O(V)</b>(V=트리의 노드 수). 이 \"노드를 넣고/빼는 두 상태\" 틀은 트리 위 수많은 문제에 통합니다: 서브트리 크기·합·지름, 트리에서의 배낭, 노드/간선 색칠, 부모-자식 제약 최적화 등. 루트를 바꿔 가며 모든 노드 답을 한 번에 구하는 <b>리루팅(rerooting)</b> 기법으로 확장됩니다.",
   "more_en": "<b>Tree DP</b> defines each node's answer <b>in terms of its children</b> and fills it in <b>post-order (children first)</b>. Classic example, <b>maximum independent set</b> (most nodes with no two adjacent): keep two cases per node v — <b>dp[v][1] = 1 + Σ dp[child][0]</b> (taking v forbids children) and <b>dp[v][0] = Σ max(dp[child][0], dp[child][1])</b> (skipping v frees children). The answer is <b>max(dp[root][0], dp[root][1])</b> in <b>O(V)</b>. This \"include/exclude two states\" frame fits many tree problems: subtree size/sum/diameter, knapsack on trees, node/edge coloring, parent-child constraints. It extends to <b>rerooting</b> to get every node's answer in one pass.",
   "problem": {
    "q": "트리 최대 독립 집합에서 dp[v][1](v를 고름)의 점화식은?",
@@ -2667,7 +2689,9 @@
    "  }",
    "}",
    "// 예: 최대 독립집합, 서브트리 크기, 트리 지름"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 5
  },
  "algo_br_monostack": {
   "ch": "알고리즘 제2장 자료구조",
@@ -2915,11 +2939,11 @@
  },
  "algo_br_treap": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.1 이진 트리 ▸ 자세히",
+  "sec": "균형 트리",
   "title": "트립(Treap) — 무작위 우선순위로 균형 잡는 BST",
   "narr": "이진 트리에 무작위성을 더해 저절로 균형 잡는 BST입니다. 균형 트리는 보통 색·높이 같은 복잡한 규칙이 필요한데, <b>트립</b>은 각 노드에 <b>키</b>와 <b>무작위 우선순위</b> 두 값을 줍니다 — 키는 BST 순서, 우선순위는 힙 순서를 동시에 만족합니다. 이 두 조건을 만족하는 모양은 <b>유일</b>하고, 우선순위가 무작위라 그 트리는 '키를 무작위 순서로 삽입한 BST'와 같은 분포가 되어 <b>기대 높이 O(log n)</b>이 됩니다. 즉 별도 규칙 없이 확률적으로 균형이 잡힙니다. 삽입·삭제는 <b>회전</b>으로, 더 우아하게는 <b>split·merge</b> 두 연산으로 표현합니다. 크기를 키로 쓰는 <b>암묵적 트립</b>은 i번째 접근·구간 삽입/뒤집기를 O(log n)에 지원하는 동적 배열이 됩니다.",
   "hint": "",
-  "more": "<b>트립(Treap)</b>은 각 노드가 <b>키</b>와 <b>무작위 우선순위</b> 두 값을 갖는 이진 트리로, <b>키는 BST 순서</b>(왼쪽<부모<오른쪽)를, <b>우선순위는 힙 순서</b>(부모 ≥ 자식)를 <b>동시에</b> 만족합니다. 신기하게도 이 두 조건을 만족하는 모양은 <b>유일</b>합니다. 우선순위를 무작위로 주면, 그 트리는 \"키를 무작위 순서로 삽입한 BST\"와 같은 분포가 되어 <b>기대 높이 O(log n)</b> — 즉 별도 균형 규칙 없이 확률적으로 균형이 잡힙니다. 연산: 삽입은 BST처럼 내려가 넣은 뒤 힙 조건이 깨지면 <b>회전</b>으로 끌어올리고, 삭제는 반대로 내려보냅니다. 더 우아한 구현은 <b>split(키 기준 둘로 쪼개기)·merge(두 트립 합치기)</b> 두 연산으로 모든 것을 표현합니다. 우선순위 대신 <b>서브트리 크기</b>를 키로 쓰는 <b>암묵적(implicit) 트립</b>은 \"배열의 i번째 원소 접근·구간 삽입/삭제/뒤집기\"를 O(log n)에 지원해, 실질적으로 <b>균형 잡힌 동적 배열</b>이 됩니다. 레드블랙·AVL의 간단하고 강력한 대안입니다.",
+  "more": "​무작위 우선순위로 균형 — <b>트립</b>. <b>트립(Treap)</b>은 각 노드가 <b>키</b>와 <b>무작위 우선순위</b> 두 값을 갖는 이진 트리로, <b>키는 BST 순서</b>(왼쪽<부모<오른쪽)를, <b>우선순위는 힙 순서</b>(부모 ≥ 자식)를 <b>동시에</b> 만족합니다. 신기하게도 이 두 조건을 만족하는 모양은 <b>유일</b>합니다. 우선순위를 무작위로 주면, 그 트리는 \"키를 무작위 순서로 삽입한 BST\"와 같은 분포가 되어 <b>기대 높이 O(log n)</b> — 즉 별도 균형 규칙 없이 확률적으로 균형이 잡힙니다. 연산: 삽입은 BST처럼 내려가 넣은 뒤 힙 조건이 깨지면 <b>회전</b>으로 끌어올리고, 삭제는 반대로 내려보냅니다. 더 우아한 구현은 <b>split(키 기준 둘로 쪼개기)·merge(두 트립 합치기)</b> 두 연산으로 모든 것을 표현합니다. 우선순위 대신 <b>서브트리 크기</b>를 키로 쓰는 <b>암묵적(implicit) 트립</b>은 \"배열의 i번째 원소 접근·구간 삽입/삭제/뒤집기\"를 O(log n)에 지원해, 실질적으로 <b>균형 잡힌 동적 배열</b>이 됩니다. 레드블랙·AVL의 간단하고 강력한 대안입니다.",
   "more_en": "A <b>treap</b> is a binary tree where each node has a <b>key</b> and a <b>random priority</b>, satisfying the <b>BST order on keys</b> (left<parent<right) and the <b>heap order on priorities</b> (parent ≥ child) <b>simultaneously</b> — and remarkably, the shape satisfying both is <b>unique</b>. With random priorities, the tree is distributed like a BST built by inserting keys in random order, giving <b>expected height O(log n)</b> — balance without explicit rules. Operations: insert as in a BST, then <b>rotate</b> up if heap order breaks; delete pushes down. A more elegant implementation expresses everything via <b>split (by key) and merge (two treaps)</b>. Using <b>subtree size</b> as the key, an <b>implicit treap</b> supports \"access the i-th array element, range insert/delete/reverse\" in O(log n) — effectively a <b>balanced dynamic array</b>. A simple, powerful alternative to red-black/AVL trees.",
   "problem": {
    "q": "트립이 별도 균형 규칙 없이도 기대 O(log n) 높이가 되는 이유는?",
@@ -2941,15 +2965,17 @@
    "  else { auto [l,r] = split(t->l, key);",
    "    t->l = r; return {l, t}; }",
    "}   // 기대 높이 O(log n)"
-  ]
+  ],
+  "branchOf": "algo5_06",
+  "ord": 8
  },
  "algo_br_centroid": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "센트로이드 분할 — 트리판 분할 정복",
   "narr": "배열의 이분 분할을 트리로 옮긴 분할 정복입니다. 배열은 가운데를 잡으면 깊이 O(log n)으로 쪼개지지만, 트리는 <b>센트로이드</b>를 떼야 합니다 — 그 정점을 제거하면 <b>남는 모든 조각의 크기가 n/2 이하</b>가 되는 정점(항상 존재)입니다. 떼고 각 조각에서 다시 떼기를 재귀하면 <b>센트로이드 분해 트리</b>가 생기고 그 <b>높이는 O(log n)</b>입니다. 핵심 성질은 원래 트리의 임의 <b>경로가 두 끝점의 최소 공통 조상 센트로이드를 반드시 지난다</b>는 것입니다. 그래서 '모든 경로' 질의를 각 센트로이드에서 '그를 지나는 경로'만 모아 처리하면, 각 정점이 O(log n)개 센트로이드에만 속해 전체 <b>O(n log n)</b>입니다. 거리 ≤k인 정점쌍 세기 같은 경로 질의에 쓰입니다.",
   "hint": "",
-  "more": "<b>센트로이드 분할(Centroid Decomposition)</b>은 트리를 <b>분할 정복</b>하는 기법입니다. 트리의 <b>센트로이드</b>란 그 정점을 제거했을 때 <b>남는 모든 조각의 크기가 n/2 이하</b>가 되는 정점입니다(항상 존재). 센트로이드를 떼고 → 각 조각에서 다시 센트로이드를 떼는 일을 재귀하면, <b>센트로이드 분해 트리</b>가 만들어지고 그 <b>높이는 O(log n)</b>입니다. 핵심 성질: 원래 트리의 임의의 <b>경로</b>는 두 끝점의 센트로이드 분해 트리상 <b>최소 공통 조상인 센트로이드를 반드시 지납니다</b>. 그래서 \"모든 경로\"에 대한 질의를, 각 센트로이드에서 \"그 센트로이드를 지나는 경로들\"만 따로 모아 처리하면, 각 정점이 O(log n)개의 센트로이드에만 속하므로 전체가 <b>O(n log n)</b>이 됩니다. 쓰임: 트리에서 <b>거리 ≤ k인 정점쌍 개수</b>, 길이가 특정 값인 경로 세기, 경로상 색·합 질의, 트리 위 가장 가까운 표시 정점 찾기. 트리를 \"중심에서부터\" 보는 강력한 관점입니다.",
+  "more": "​트리판 분할정복 — <b>센트로이드</b>. <b>센트로이드 분할(Centroid Decomposition)</b>은 트리를 <b>분할 정복</b>하는 기법입니다. 트리의 <b>센트로이드</b>란 그 정점을 제거했을 때 <b>남는 모든 조각의 크기가 n/2 이하</b>가 되는 정점입니다(항상 존재). 센트로이드를 떼고 → 각 조각에서 다시 센트로이드를 떼는 일을 재귀하면, <b>센트로이드 분해 트리</b>가 만들어지고 그 <b>높이는 O(log n)</b>입니다. 핵심 성질: 원래 트리의 임의의 <b>경로</b>는 두 끝점의 센트로이드 분해 트리상 <b>최소 공통 조상인 센트로이드를 반드시 지납니다</b>. 그래서 \"모든 경로\"에 대한 질의를, 각 센트로이드에서 \"그 센트로이드를 지나는 경로들\"만 따로 모아 처리하면, 각 정점이 O(log n)개의 센트로이드에만 속하므로 전체가 <b>O(n log n)</b>이 됩니다. 쓰임: 트리에서 <b>거리 ≤ k인 정점쌍 개수</b>, 길이가 특정 값인 경로 세기, 경로상 색·합 질의, 트리 위 가장 가까운 표시 정점 찾기. 트리를 \"중심에서부터\" 보는 강력한 관점입니다.",
   "more_en": "<b>Centroid Decomposition</b> is divide-and-conquer on a tree. A tree's <b>centroid</b> is a vertex whose removal leaves <b>every remaining piece of size ≤ n/2</b> (one always exists). Removing the centroid, then recursively removing a centroid in each piece, builds a <b>centroid-decomposition tree</b> of <b>height O(log n)</b>. Key property: any <b>path</b> in the original tree must pass through the <b>centroid that is the LCA of its endpoints</b> in the decomposition tree. So a query over \"all paths\" can be handled by gathering, at each centroid, only the paths through that centroid; since each vertex belongs to O(log n) centroids, the total is <b>O(n log n)</b>. Uses: counting <b>vertex pairs at distance ≤ k</b>, counting paths of a given length, path color/sum queries, nearest marked vertex on a tree. A powerful \"from the center outward\" view of a tree.",
   "problem": {
    "q": "센트로이드 분할이 트리 경로 질의를 O(n log n)에 푸는 핵심 성질은?",
@@ -2971,7 +2997,9 @@
    "  for(int v : adj[c]) if(!removed[v])",
    "    solve(v);             // 조각마다 재귀 (깊이 O(log n))",
    "}"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 10
  },
  "algo_br_sparse": {
   "ch": "알고리즘 제2장 자료구조",
@@ -3003,11 +3031,11 @@
  },
  "algo_br_ett": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "오일러 투어 기법 — 트리를 배열로 펼치기",
   "narr": "트리 순회를 한 번 돌려 트리를 배열로 펼치는 기법입니다. <b>오일러 투어 기법(ETT)</b>은 루트에서 DFS를 돌며 정점에 처음 들어간 시각 <b>tin[v]</b>와 서브트리를 다 보고 나올 때의 시각 <b>tout[v]</b>를 매깁니다. 그러면 ①<b>정점 v의 서브트리가 곧 연속 구간 [tin[v],tout[v]]</b>이 되어, '서브트리 전체에 더하기/합' 같은 질의가 <b>구간 갱신·질의</b>로 바뀌어 펜윅·세그먼트 트리로 <b>O(log n)</b>에 처리됩니다. ②조상 판정도 'tin[u]≤tin[v]≤tout[u]'로 O(1)입니다. DFS의 진입·탈출 시각이 부모-자식 포함 관계를 구간 포함 관계로 옮겨 준 덕입니다. 두 정점 사이 경로 질의는 ETT만으론 부족해 HLD·LCA와 결합합니다. '트리 문제를 익숙한 배열 구간 문제로 바꾸는 다리'입니다.",
   "hint": "",
-  "more": "<b>오일러 투어 기법(Euler Tour Technique, ETT)</b>은 트리를 <b>1차원 배열</b>로 평탄화합니다. 루트에서 DFS를 돌며 정점에 처음 들어간 순서로 <b>tin[v]</b>(진입 시각)를, 그 서브트리를 다 보고 나올 때 <b>tout[v]</b>(탈출 시각)를 매깁니다. 그러면 핵심 성질이 둘 생깁니다: ① <b>정점 v의 서브트리</b> = 배열의 <b>연속 구간 [tin[v], tout[v]]</b> — 그래서 \"서브트리 전체에 더하기/서브트리 합\" 같은 질의가 <b>구간 갱신·구간 질의</b>가 되어 <b>펜윅 트리나 세그먼트 트리로 O(log n)</b>에 처리됩니다. ② <b>조상 판정</b>: u가 v의 조상 ⇔ <b>tin[u] ≤ tin[v] ≤ tout[u]</b> 를 O(1)에 검사. (각 정점을 들어갈 때·나올 때 두 번 기록하는 변형은 <b>경로 합</b>까지 다룹니다.) 경로(서브트리가 아닌 두 정점 사이) 질의는 ETT만으로 부족해, <b>HLD(Heavy-Light 분해)</b>나 <b>LCA</b>와 결합합니다. ETT는 \"트리 문제를 익숙한 배열 구간 문제로 바꾸는\" 다리입니다.",
+  "more": "​서브트리를 구간으로 — <b>오일러 투어</b>. <b>오일러 투어 기법(Euler Tour Technique, ETT)</b>은 트리를 <b>1차원 배열</b>로 평탄화합니다. 루트에서 DFS를 돌며 정점에 처음 들어간 순서로 <b>tin[v]</b>(진입 시각)를, 그 서브트리를 다 보고 나올 때 <b>tout[v]</b>(탈출 시각)를 매깁니다. 그러면 핵심 성질이 둘 생깁니다: ① <b>정점 v의 서브트리</b> = 배열의 <b>연속 구간 [tin[v], tout[v]]</b> — 그래서 \"서브트리 전체에 더하기/서브트리 합\" 같은 질의가 <b>구간 갱신·구간 질의</b>가 되어 <b>펜윅 트리나 세그먼트 트리로 O(log n)</b>에 처리됩니다. ② <b>조상 판정</b>: u가 v의 조상 ⇔ <b>tin[u] ≤ tin[v] ≤ tout[u]</b> 를 O(1)에 검사. (각 정점을 들어갈 때·나올 때 두 번 기록하는 변형은 <b>경로 합</b>까지 다룹니다.) 경로(서브트리가 아닌 두 정점 사이) 질의는 ETT만으로 부족해, <b>HLD(Heavy-Light 분해)</b>나 <b>LCA</b>와 결합합니다. ETT는 \"트리 문제를 익숙한 배열 구간 문제로 바꾸는\" 다리입니다.",
   "more_en": "The <b>Euler Tour Technique (ETT)</b> flattens a tree into a <b>1-D array</b>. A DFS from the root assigns <b>tin[v]</b> (entry time) in first-visit order and <b>tout[v]</b> (exit time) when its subtree is finished. Two key properties follow: ① <b>v's subtree</b> = the <b>contiguous range [tin[v], tout[v]]</b>, so \"add to a whole subtree / subtree sum\" becomes a <b>range update / range query</b> handled by a <b>Fenwick or segment tree in O(log n)</b>. ② <b>Ancestry test</b>: u is an ancestor of v ⇔ <b>tin[u] ≤ tin[v] ≤ tout[u]</b> in O(1). (A variant recording each vertex twice, on entry and exit, also supports <b>path sums</b>.) Queries on a <b>path</b> between two vertices (not a subtree) need more — combine ETT with <b>Heavy-Light Decomposition</b> or <b>LCA</b>. ETT is the bridge that turns tree problems into familiar array-range problems.",
   "problem": {
    "q": "오일러 투어 기법에서 한 서브트리가 배열의 연속 구간이 되는 이유는?",
@@ -3024,7 +3052,9 @@
    "}",
    "// u의 서브트리 = 배열 구간 [tin[u], tout[u]]",
    "// → 서브트리 합/갱신을 세그트리/펜윅으로 O(log n)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 4
  },
  "algo_br_grundy": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -3172,11 +3202,11 @@
  },
  "algo_br_lct": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.5 균형 트리 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "링크컷 트리 — 변하는 숲을 O(log n)에",
   "narr": "균형 트리를 동적인 숲으로 끌어올린 자료구조입니다. 트리가 고정이면 HLD로 경로 질의를 빠르게 했지만, 간선이 실시간으로 붙고 끊기면 다른 무기가 필요합니다. <b>링크컷 트리(LCT)</b>는 <b>link·cut·경로 질의</b>를 모두 분할상환 <b>O(log n)</b>에 합니다. 트리를 <b>선호 경로</b>들로 분해하고 각 선호 경로를 <b>스플레이 트리</b> 하나로 저장하는 것이 핵심입니다. <b>access(v)</b>가 루트에서 v까지의 경로를 한 선호 경로로 모으고 v를 스플레이 루트로 올려, '그 경로 전체'를 한 트리에서 O(log n)에 질의·갱신하게 합니다. 선호 경로 사이는 경로 부모 포인터로 잇습니다. 스플레이의 분할상환과 선호 경로 변경 횟수 분석으로 전체가 보장됩니다 — <b>HLD의 동적 버전</b>이며 동적 연결성·동적 MST에 쓰입니다.",
   "hint": "",
-  "more": "<b>링크컷 트리(Link-Cut Tree, LCT)</b>는 <b>동적으로 변하는 숲</b>(루트 있는 트리들의 모임)에서 <b>link(간선 추가)·cut(간선 제거)·경로 질의(합·최댓값 등)</b>를 모두 분할상환 <b>O(log n)</b>에 처리합니다. 핵심 아이디어는 트리를 <b>선호 경로(preferred path)</b>들로 분해하고, 각 선호 경로를 <b>스플레이 트리</b> 하나로 저장하는 것입니다(\"경로의 깊이 순서\"를 키로). 핵심 연산 <b>access(v)</b>: 루트에서 v까지의 경로를 하나의 선호 경로로 모으고, v를 그 스플레이 트리의 루트로 올립니다 — 그러면 \"v까지의 경로 전체\"가 한 스플레이 트리에 모여 합·최댓값을 O(log n)에 질의·갱신할 수 있습니다. 선호 경로 사이는 <b>경로 부모(path-parent) 포인터</b>로 느슨하게 연결합니다. <b>makeRoot(v)</b>(스플레이 트리에 lazy 뒤집기로 트리 루트 바꾸기), <b>findRoot</b>(연결성 판정)도 같은 틀에서 나옵니다. 스플레이의 분할상환 + 선호 경로 변경 횟수 분석으로 전체 <b>O(log n) 분할상환</b>이 보장됩니다. <b>HLD의 동적 버전</b>으로 볼 수 있고, 쓰임: 동적 연결성, <b>동적 MST</b>(가장 비싼 경로 간선 교체), 최대 유량의 동적 트리 가속, 오프라인 트리 문제. 구현 난이도는 높지만, \"숲을 경로로 쪼개 각 경로를 균형 트리로\"라는 한 줄로 요약됩니다.",
+  "more": "​변하는 숲을 O(log n)에 — <b>링크컷 트리</b>. <b>링크컷 트리(Link-Cut Tree, LCT)</b>는 <b>동적으로 변하는 숲</b>(루트 있는 트리들의 모임)에서 <b>link(간선 추가)·cut(간선 제거)·경로 질의(합·최댓값 등)</b>를 모두 분할상환 <b>O(log n)</b>에 처리합니다. 핵심 아이디어는 트리를 <b>선호 경로(preferred path)</b>들로 분해하고, 각 선호 경로를 <b>스플레이 트리</b> 하나로 저장하는 것입니다(\"경로의 깊이 순서\"를 키로). 핵심 연산 <b>access(v)</b>: 루트에서 v까지의 경로를 하나의 선호 경로로 모으고, v를 그 스플레이 트리의 루트로 올립니다 — 그러면 \"v까지의 경로 전체\"가 한 스플레이 트리에 모여 합·최댓값을 O(log n)에 질의·갱신할 수 있습니다. 선호 경로 사이는 <b>경로 부모(path-parent) 포인터</b>로 느슨하게 연결합니다. <b>makeRoot(v)</b>(스플레이 트리에 lazy 뒤집기로 트리 루트 바꾸기), <b>findRoot</b>(연결성 판정)도 같은 틀에서 나옵니다. 스플레이의 분할상환 + 선호 경로 변경 횟수 분석으로 전체 <b>O(log n) 분할상환</b>이 보장됩니다. <b>HLD의 동적 버전</b>으로 볼 수 있고, 쓰임: 동적 연결성, <b>동적 MST</b>(가장 비싼 경로 간선 교체), 최대 유량의 동적 트리 가속, 오프라인 트리 문제. 구현 난이도는 높지만, \"숲을 경로로 쪼개 각 경로를 균형 트리로\"라는 한 줄로 요약됩니다.",
   "more_en": "A <b>Link-Cut Tree (LCT)</b> handles, on a <b>dynamically changing forest</b> of rooted trees, the operations <b>link (add edge), cut (remove edge), and path queries (sum, max, …)</b> all in amortized <b>O(log n)</b>. The core idea: decompose the tree into <b>preferred paths</b> and store each preferred path as a single <b>splay tree</b> (keyed by depth order along the path). The key operation <b>access(v)</b> gathers the root-to-v path into one preferred path and splays v to its tree's root — so the entire \"path to v\" lives in one splay tree where sum/max can be queried and updated in O(log n). Preferred paths are loosely linked by <b>path-parent pointers</b>. <b>makeRoot(v)</b> (re-rooting via a lazy reverse flag) and <b>findRoot</b> (connectivity) fall out of the same framework. Splay's amortization plus a bound on preferred-path changes guarantees overall <b>amortized O(log n)</b>. It is the <b>dynamic version of HLD</b>, used for dynamic connectivity, <b>dynamic MST</b> (replacing the costliest path edge), dynamic-tree speedups of max flow, and offline tree problems. Hard to implement, but summarized in one line: \"split the forest into paths, store each path as a balanced tree.\"",
   "problem": {
    "q": "링크컷 트리의 access(v) 연산이 하는 일과, 그것이 경로 질의를 가능케 하는 이유는?",
@@ -3195,7 +3225,9 @@
    "  }",
    "  splay(start);",
    "}   // link/cut/경로질의 모두 상각 O(log n)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 15
  },
  "algo_br_skiplist": {
   "ch": "알고리즘 제2장 자료구조",
@@ -3642,11 +3674,11 @@
  },
  "algo_br_virtualtree": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "가상 트리 — 관심 정점만 추린 압축 트리",
   "narr": "트리 순회를 관심 정점만 남겨 압축한 트리입니다. 거대한 트리에서 질의마다 <b>일부 정점 k개</b>만 중요하다면 매번 전체(크기 N)를 도는 것은 낭비입니다. <b>가상 트리</b>는 그 k개와 <b>꼭 필요한 LCA만</b> 모아 크기 O(k)의 작은 트리를 만듭니다. 구성은 ①키 정점을 <b>DFS 진입 시각(tin) 순으로 정렬</b>, ②<b>인접한 두 키 정점의 LCA</b>를 모두 추가(이것이 꼭 필요한 분기점), ③tin 순으로 보며 <b>스택</b>으로 부모-자식을 이어 트리를 세웁니다. 원래 트리의 조상 관계를 LCA로 압축한 것이라 크기가 <b>O(k)</b>, 구성은 <b>O(k log k)</b>입니다. 간선에는 압축된 경로 길이를 얹습니다. 정점 집합에 대한 트리 DP를 여러 번 빠르게 돌리는 오프라인 다중 질의에 쓰입니다.",
   "hint": "",
-  "more": "<b>가상 트리(Virtual Tree, 또는 보조 트리 auxiliary tree)</b>는 큰 트리에서 <b>관심 있는 정점들(키 정점) 집합</b>과 그들 사이의 트리 구조만을 보존한 <b>압축된 작은 트리</b>입니다. 여러 질의가 각각 일부 정점 집합에만 관련될 때, 매 질의마다 전체 트리(크기 N)를 도는 대신 <b>크기 O(k)인 가상 트리</b>만 다뤄, 질의 전체에서 키 정점 수의 합에 비례한 시간만 씁니다. 구성: ① 키 정점들을 <b>DFS 진입 시각(tin) 순서로 정렬</b>, ② <b>인접한 두 키 정점의 LCA</b>를 모두 구해 정점 집합에 추가(이 LCA들이 \"갈래\"가 되는 꼭 필요한 분기점), ③ 이 정점들을 다시 tin 순으로 보며 <b>스택</b>으로 부모-자식 관계를 이어 트리를 세움(원래 트리의 조상 관계를 LCA로 압축). 결과 트리의 크기는 <b>O(k)</b>이고 구성은 <b>O(k log k)</b>(정렬 + LCA). 가상 트리의 간선은 원래 트리의 <b>경로(여러 간선)를 한 간선으로 압축</b>하므로, 경로 길이·가중치를 간선에 얹어 둡니다. 쓰임: 트리에서 \"주어진 정점 집합에 대한\" <b>트리 DP를 여러 번</b> 빠르게(예: 키 정점들만 연결을 유지하는 최소 비용, 키 정점 사이 거리 합), 오프라인 다중 질의. <b>센트로이드 분할·LCA</b>와 함께 트리 질의 최적화의 한 축입니다.",
+  "more": "​관심 정점만 추린 <b>가상 트리</b>. <b>가상 트리(Virtual Tree, 또는 보조 트리 auxiliary tree)</b>는 큰 트리에서 <b>관심 있는 정점들(키 정점) 집합</b>과 그들 사이의 트리 구조만을 보존한 <b>압축된 작은 트리</b>입니다. 여러 질의가 각각 일부 정점 집합에만 관련될 때, 매 질의마다 전체 트리(크기 N)를 도는 대신 <b>크기 O(k)인 가상 트리</b>만 다뤄, 질의 전체에서 키 정점 수의 합에 비례한 시간만 씁니다. 구성: ① 키 정점들을 <b>DFS 진입 시각(tin) 순서로 정렬</b>, ② <b>인접한 두 키 정점의 LCA</b>를 모두 구해 정점 집합에 추가(이 LCA들이 \"갈래\"가 되는 꼭 필요한 분기점), ③ 이 정점들을 다시 tin 순으로 보며 <b>스택</b>으로 부모-자식 관계를 이어 트리를 세움(원래 트리의 조상 관계를 LCA로 압축). 결과 트리의 크기는 <b>O(k)</b>이고 구성은 <b>O(k log k)</b>(정렬 + LCA). 가상 트리의 간선은 원래 트리의 <b>경로(여러 간선)를 한 간선으로 압축</b>하므로, 경로 길이·가중치를 간선에 얹어 둡니다. 쓰임: 트리에서 \"주어진 정점 집합에 대한\" <b>트리 DP를 여러 번</b> 빠르게(예: 키 정점들만 연결을 유지하는 최소 비용, 키 정점 사이 거리 합), 오프라인 다중 질의. <b>센트로이드 분할·LCA</b>와 함께 트리 질의 최적화의 한 축입니다.",
   "more_en": "A <b>Virtual Tree (auxiliary tree)</b> is a <b>compressed small tree</b> preserving only a set of <b>vertices of interest (key vertices)</b> and the tree structure among them. When many queries each concern only some vertices, instead of traversing the whole tree (size N) per query you work on a <b>virtual tree of size O(k)</b>, spending time proportional to the total number of key vertices across queries. Construction: ① <b>sort key vertices by DFS entry time (tin)</b>, ② add the <b>LCA of each adjacent pair</b> of key vertices (these LCAs are the necessary branch points), ③ scan again in tin order and use a <b>stack</b> to link parent-child relations, compressing the original ancestry via LCAs. The result has size <b>O(k)</b> and is built in <b>O(k log k)</b> (sort + LCA). Its edges <b>compress paths (many edges) into single edges</b>, so path lengths/weights are stored on them. Uses: running <b>tree DP many times</b> over given vertex subsets quickly (e.g. minimum cost to keep key vertices connected, sum of distances among key vertices), offline multi-queries. Together with <b>centroid decomposition and LCA</b>, it is a pillar of tree-query optimization.",
   "problem": {
    "q": "가상 트리를 만들 때, 키 정점들 외에 어떤 정점을 추가로 넣어야 하며 그 이유는?",
@@ -3667,7 +3699,9 @@
    "    st.push(key[i]);",
    "  }",
    "}   // 크기 O(k), 트리 DP를 빠르게"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 11
  },
  "algo_br_karger": {
   "ch": "알고리즘 제6장 그래프",
@@ -3952,11 +3986,11 @@
  },
  "algo_br_offdyncon": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.5 균형 트리 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "오프라인 동적 연결성 — 시간 축 세그트리 + 롤백 DSU",
   "narr": "union-find는 합치기는 거의 O(1)이지만 <b>간선 삭제</b>가 본질적으로 어렵습니다. <b>오프라인 동적 연결성</b>은 모든 연산을 미리 알 때, 각 간선의 <b>존재 구간 [생성,삭제)</b>를 <b>시간 축 세그먼트 트리</b>에 올려 O(log T)개 노드에 등록합니다. 그 세그먼트 트리를 DFS로 순회하며 노드 진입 시 간선을 <b>union</b>하고, 잎(특정 시각)에서 질의에 답한 뒤 노드 퇴장 시 <b>union을 되돌립니다(rollback)</b>. 되돌리려면 <b>경로 압축 없이 union by rank/size</b>만 쓰는 롤백 union-find가 필요합니다(바꾼 부모·랭크만 스택에 저장, find는 O(log n)). 전체 약 <b>O((n+q) log n log T)</b>. 삭제를 직접 하지 말고 시간 구간으로 바꿔 롤백만 한다는 것이 핵심입니다.",
   "hint": "",
-  "more": "<b>오프라인 동적 연결성(offline dynamic connectivity)</b>은 간선이 시점마다 <b>추가/삭제</b>되는 그래프에서 \"지금 u와 v가 연결됐나?\" 류 질의를, 모든 연산을 <b>미리 알 때(오프라인)</b> 효율적으로 답하는 기법입니다. union-find는 union·find는 거의 O(1)(역아커만 α)이지만 <b>삭제(간선 끊기)</b>가 본질적으로 어렵습니다. 핵심 아이디어: 각 간선의 <b>존재 구간 [생성 시각, 삭제 시각)</b>을 <b>시간 축 위의 세그먼트 트리</b>에 올려, 그 구간을 덮는 O(log T)개 노드에 \"이 간선이 살아있음\"으로 등록합니다. 그다음 시간 세그먼트 트리를 <b>DFS로 순회</b>: 한 노드에 들어갈 때 그 노드에 달린 간선들을 <b>union</b>하고, 잎(특정 시각 t)에 도달하면 그 순간의 연결성 질의에 답하고, 노드를 <b>나갈 때 union을 되돌립니다(rollback)</b>. 되돌리기가 가능하려면 <b>경로 압축을 쓰지 않고 union by rank/size만</b> 쓰는 <b>롤백 union-find</b>가 필요합니다(각 union이 바꾼 부모·랭크를 스택에 저장해 역순 복원, find는 O(log n)). 그러면 각 간선이 O(log T)개 노드에 등록되고 각 union이 O(log n)이라 전체 <b>O((n+q) log n log T)</b> 정도. 같은 틀로 \"각 시점의 연결성분 수·MST 가중치 합·이분 그래프 여부\" 등도 답합니다. \"삭제를 직접 하지 말고, 시간 구간으로 바꿔 롤백만 한다\"가 핵심입니다.",
+  "more": "​시간축 세그트리+롤백DSU — <b>오프라인 동적 연결성</b>. <b>오프라인 동적 연결성(offline dynamic connectivity)</b>은 간선이 시점마다 <b>추가/삭제</b>되는 그래프에서 \"지금 u와 v가 연결됐나?\" 류 질의를, 모든 연산을 <b>미리 알 때(오프라인)</b> 효율적으로 답하는 기법입니다. union-find는 union·find는 거의 O(1)(역아커만 α)이지만 <b>삭제(간선 끊기)</b>가 본질적으로 어렵습니다. 핵심 아이디어: 각 간선의 <b>존재 구간 [생성 시각, 삭제 시각)</b>을 <b>시간 축 위의 세그먼트 트리</b>에 올려, 그 구간을 덮는 O(log T)개 노드에 \"이 간선이 살아있음\"으로 등록합니다. 그다음 시간 세그먼트 트리를 <b>DFS로 순회</b>: 한 노드에 들어갈 때 그 노드에 달린 간선들을 <b>union</b>하고, 잎(특정 시각 t)에 도달하면 그 순간의 연결성 질의에 답하고, 노드를 <b>나갈 때 union을 되돌립니다(rollback)</b>. 되돌리기가 가능하려면 <b>경로 압축을 쓰지 않고 union by rank/size만</b> 쓰는 <b>롤백 union-find</b>가 필요합니다(각 union이 바꾼 부모·랭크를 스택에 저장해 역순 복원, find는 O(log n)). 그러면 각 간선이 O(log T)개 노드에 등록되고 각 union이 O(log n)이라 전체 <b>O((n+q) log n log T)</b> 정도. 같은 틀로 \"각 시점의 연결성분 수·MST 가중치 합·이분 그래프 여부\" 등도 답합니다. \"삭제를 직접 하지 말고, 시간 구간으로 바꿔 롤백만 한다\"가 핵심입니다.",
   "more_en": "<b>Offline dynamic connectivity</b> answers \"are u and v connected now?\" queries on a graph whose edges are <b>added/removed</b> over time, efficiently when all operations are <b>known in advance (offline)</b>. Union-find does union/find in near-O(1) (inverse-Ackermann α) but <b>deletion (cutting an edge) is inherently hard</b>. Key idea: place each edge's <b>existence interval [add time, remove time)</b> onto a <b>segment tree over time</b>, registering \"this edge is alive\" at the O(log T) nodes covering that interval. Then <b>DFS the time segment tree</b>: on entering a node <b>union</b> its edges, on reaching a leaf (a specific time t) answer that moment's connectivity query, and on leaving a node <b>roll back</b> the unions. Rollback requires a <b>rollback union-find</b> using <b>union by rank/size only, no path compression</b> (push each union's changed parent/rank to a stack and undo in reverse; find is O(log n)). Each edge sits in O(log T) nodes and each union is O(log n), giving about <b>O((n+q) log n log T)</b>. The same framework answers \"number of components / MST weight / bipartiteness at each time.\" The crux: don't delete directly — convert deletion into a time interval and only roll back.",
   "problem": {
    "q": "오프라인 동적 연결성에서 union-find에 '경로 압축'을 쓰지 않는 이유는?",
@@ -3978,7 +4012,9 @@
    "    dfs(L, tl, mid); dfs(R, mid+1, tr); }",
    "  dsu.rollback(snap);   // 되돌리기(경로압축 없는 union by rank)",
    "}   // O(Q log Q · α)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 14
  },
  "algo_br_bcc": {
   "ch": "알고리즘 제6장 그래프",
@@ -4119,11 +4155,11 @@
  },
  "algo_br_tarjanlca": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "타잔 오프라인 LCA — DFS + union-find",
   "narr": "최소 공통 조상(LCA)을 온라인으로는 희소테이블·오일러투어로 풀지만, 모든 질의를 <b>미리 알면</b> <b>타잔 오프라인 LCA</b>가 DFS 한 번+union-find로 거의 선형 <b>O((n+q)·α)</b>에 한꺼번에 답합니다. 루트부터 DFS하며 정점 u의 각 자식 서브트리를 처리한 뒤 <b>그 자식을 u로 union</b>하고, u를 방문 완료로 표시한 다음 u가 얽힌 질의 (u,v) 중 <b>v가 이미 완료된 것</b>의 답을 <b>find(v)</b>로 확정합니다. union이 끝난 서브트리를 부모로 접어 올리므로, v가 완료된 순간 find(v)는 u와 v의 경로가 갈라지는 가장 깊은 공통 조상을 정확히 가리킵니다. 구현이 짧고 상수가 작아 질의가 한꺼번에 주어질 때 효율적인 DFS 중 union-find 기법입니다.",
   "hint": "",
-  "more": "<b>타잔의 오프라인 LCA(Tarjan's off-line LCA)</b>는 트리에서 여러 LCA 질의 (u,v)를 <b>모두 미리 알 때(오프라인)</b>, 단 한 번의 <b>DFS</b>와 <b>union-find</b>로 거의 선형 <b>O((n+q)·α)</b>에 답합니다(α=역아커만). 절차: 루트부터 DFS를 돌며 정점 u에 대해 ① u의 <b>각 자식 서브트리를 재귀 처리한 뒤, 그 자식을 u로 union</b>(자식 묶음의 대표를 u로 설정), ② u의 모든 자식을 처리하고 u 자신을 \"방문 완료\"로 표시한 다음, ③ <b>u가 얽힌 질의 (u,v) 중 v가 이미 방문 완료된 것</b>에 대해 답을 <b>LCA = find(v)</b>로 확정합니다. 왜 맞나: v가 이미 끝났고 u를 지금 처리 중이면, find(v)는 \"v가 속한, 아직 u의 조상으로 묶이지 않은 가장 깊은 공통 조상\"을 가리킵니다 — 즉 u와 v가 처음 만나는 갈림길(LCA). union이 \"서브트리를 부모로 접어 올리는\" 과정이라, 두 정점이 둘 다 방문된 순간의 대표가 정확히 LCA가 됩니다. 온라인 방법(전처리 후 임의 질의 즉답)과 달리 <b>질의를 미리 모아야</b> 하지만, 구현이 짧고 상수가 작아 질의가 한꺼번에 주어질 때 효율적입니다. 오프라인 동적 연결성·DSU on tree 등과 같은 \"DFS 중 union-find\" 계열의 대표 기법입니다.",
+  "more": "​DFS+union-find <b>오프라인 LCA</b> — 타잔. <b>타잔의 오프라인 LCA(Tarjan's off-line LCA)</b>는 트리에서 여러 LCA 질의 (u,v)를 <b>모두 미리 알 때(오프라인)</b>, 단 한 번의 <b>DFS</b>와 <b>union-find</b>로 거의 선형 <b>O((n+q)·α)</b>에 답합니다(α=역아커만). 절차: 루트부터 DFS를 돌며 정점 u에 대해 ① u의 <b>각 자식 서브트리를 재귀 처리한 뒤, 그 자식을 u로 union</b>(자식 묶음의 대표를 u로 설정), ② u의 모든 자식을 처리하고 u 자신을 \"방문 완료\"로 표시한 다음, ③ <b>u가 얽힌 질의 (u,v) 중 v가 이미 방문 완료된 것</b>에 대해 답을 <b>LCA = find(v)</b>로 확정합니다. 왜 맞나: v가 이미 끝났고 u를 지금 처리 중이면, find(v)는 \"v가 속한, 아직 u의 조상으로 묶이지 않은 가장 깊은 공통 조상\"을 가리킵니다 — 즉 u와 v가 처음 만나는 갈림길(LCA). union이 \"서브트리를 부모로 접어 올리는\" 과정이라, 두 정점이 둘 다 방문된 순간의 대표가 정확히 LCA가 됩니다. 온라인 방법(전처리 후 임의 질의 즉답)과 달리 <b>질의를 미리 모아야</b> 하지만, 구현이 짧고 상수가 작아 질의가 한꺼번에 주어질 때 효율적입니다. 오프라인 동적 연결성·DSU on tree 등과 같은 \"DFS 중 union-find\" 계열의 대표 기법입니다.",
   "more_en": "<b>Tarjan's off-line LCA</b> answers many LCA queries (u,v) on a tree, <b>all known in advance (offline)</b>, in near-linear <b>O((n+q)·α)</b> with one <b>DFS</b> plus <b>union-find</b> (α = inverse Ackermann). Procedure: DFS from the root; at vertex u, ① recursively process each child subtree, then <b>union that child into u</b> (set the child's group representative to u); ② after all children, mark u itself \"visited\"; ③ for each query (u,v) where <b>v is already visited</b>, output <b>LCA = find(v)</b>. Why it works: if v is finished and u is being processed now, find(v) points to \"the deepest common ancestor of v not yet folded above u\" — exactly the fork where u and v first meet (their LCA). Since union folds subtrees up into the parent, the representative at the moment both endpoints are visited is precisely the LCA. Unlike online methods (preprocess, then answer any query instantly), it <b>requires collecting queries first</b>, but is short and has small constants, efficient when queries come in a batch. It is a hallmark of the \"union-find during DFS\" family, alongside offline dynamic connectivity and DSU-on-tree.",
   "problem": {
    "q": "타잔 오프라인 LCA에서 질의 (u,v)의 답이 find(v)인 시점과 이유는?",
@@ -4140,7 +4176,9 @@
    "  for(int q: queries[u])             // u와 짝 q",
    "    if(visited[q]) answer = anc[find(q)]; // LCA",
    "}   // 전부 한 번에 O((V+Q) α)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 3
  },
  "algo_br_johnson": {
   "ch": "알고리즘 제6장 그래프",
@@ -4526,11 +4564,11 @@
  },
  "algo_br_persistent": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.5 균형 트리 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "영속 자료구조 — 과거 버전을 통째로 보존",
   "narr": "보통 자료구조는 갱신하면 옛 상태가 사라지지만, <b>영속 자료구조</b>는 이전 버전들이 그대로 살아 있어 임의 시점을 질의합니다. 핵심은 <b>경로 복사</b>입니다. 트리에서 한 잎을 갱신하면 루트→잎 <b>경로상 노드(높이 O(log n)개)만 새로 복사</b>하고, 경로 밖 서브트리는 <b>옛 노드를 그대로 가리켜 공유</b>해 새 루트를 만듭니다. 그래서 갱신당 추가 공간·시간이 <b>O(log n)</b>뿐이고 옛 루트로 가면 옛 버전이 손상 없이 보존됩니다(불변 구조라 동시성·롤백도 안전). 대표 응용은 <b>영속 세그먼트 트리</b>로, 버전을 앞 i개 반영으로 두고 두 버전의 차로 구간 k번째 값을 O(log n)에 답합니다. 실행 취소·버전 관리·함수형 불변 컬렉션의 토대입니다.",
   "hint": "",
-  "more": "<b>영속 자료구조(persistent data structure)</b>는 갱신 후에도 <b>이전 버전들이 그대로 살아 있어</b> 임의 시점의 상태를 질의할 수 있는 자료구조입니다. 핵심 기법은 <b>경로 복사(path copying)</b>: 트리(예: 이진 탐색 트리·세그먼트 트리)에서 한 잎을 갱신하면 루트에서 그 잎까지의 <b>경로상 노드만 새로 복사</b>하고, 경로에서 벗어난 <b>서브트리는 옛 노드를 그대로 가리켜(공유)</b> 새 루트를 만듭니다. 변경이 닿지 않은 부분을 공유하므로 <b>갱신당 추가 공간·시간이 O(트리 높이)=O(log n)</b>뿐이고, 옛 루트로 가면 옛 버전이 손상 없이 보존됩니다(불변 구조라 동시성·롤백도 안전). 등급: <b>부분 영속(partial)</b>=과거 읽기만, <b>완전 영속(full)</b>=과거 버전도 갱신해 분기, <b>합류 영속(confluent)</b>=두 버전 병합까지. 대표 응용: <b>영속 세그먼트 트리</b>(버전 = 배열 앞 i개를 반영 → \"구간 [l,r]의 k번째 값\"을 두 버전의 차로 O(log n)에), <b>영속 트립/배열</b>, 실행 취소(undo)·버전 관리, 함수형 언어의 불변 컬렉션. \"갱신은 새 버전을 낳고, 옛 버전은 안 죽는다\"가 한 줄 요약입니다. (배열 기반 자료구조는 fat node·노드 복사 등 다른 영속화 기법도 있음.)",
+  "more": "​과거 버전을 통째로 보존하는 <b>영속 자료구조</b>. <b>영속 자료구조(persistent data structure)</b>는 갱신 후에도 <b>이전 버전들이 그대로 살아 있어</b> 임의 시점의 상태를 질의할 수 있는 자료구조입니다. 핵심 기법은 <b>경로 복사(path copying)</b>: 트리(예: 이진 탐색 트리·세그먼트 트리)에서 한 잎을 갱신하면 루트에서 그 잎까지의 <b>경로상 노드만 새로 복사</b>하고, 경로에서 벗어난 <b>서브트리는 옛 노드를 그대로 가리켜(공유)</b> 새 루트를 만듭니다. 변경이 닿지 않은 부분을 공유하므로 <b>갱신당 추가 공간·시간이 O(트리 높이)=O(log n)</b>뿐이고, 옛 루트로 가면 옛 버전이 손상 없이 보존됩니다(불변 구조라 동시성·롤백도 안전). 등급: <b>부분 영속(partial)</b>=과거 읽기만, <b>완전 영속(full)</b>=과거 버전도 갱신해 분기, <b>합류 영속(confluent)</b>=두 버전 병합까지. 대표 응용: <b>영속 세그먼트 트리</b>(버전 = 배열 앞 i개를 반영 → \"구간 [l,r]의 k번째 값\"을 두 버전의 차로 O(log n)에), <b>영속 트립/배열</b>, 실행 취소(undo)·버전 관리, 함수형 언어의 불변 컬렉션. \"갱신은 새 버전을 낳고, 옛 버전은 안 죽는다\"가 한 줄 요약입니다. (배열 기반 자료구조는 fat node·노드 복사 등 다른 영속화 기법도 있음.)",
   "more_en": "A <b>persistent data structure</b> keeps <b>all previous versions alive</b> after updates, letting you query the state at any point in time. The key technique is <b>path copying</b>: in a tree (e.g. BST or segment tree), updating one leaf <b>copies only the nodes on the root-to-leaf path</b> and <b>points off-path subtrees at the old (shared) nodes</b>, producing a new root. Since untouched parts are shared, each update costs only <b>O(tree height)=O(log n)</b> extra space and time, and the old root preserves the old version intact (immutability makes concurrency and rollback safe). Levels: <b>partially persistent</b> = read the past only; <b>fully persistent</b> = update past versions too (branching); <b>confluently persistent</b> = even merge two versions. Classic uses: the <b>persistent segment tree</b> (version i reflects the first i elements → \"k-th value in range [l,r]\" via the difference of two versions in O(log n)), persistent treaps/arrays, undo and version control, immutable collections in functional languages. One-liner: \"an update births a new version; the old one never dies.\" (Array-based structures also use other persistence techniques like fat nodes / node copying.)",
   "problem": {
    "q": "영속 세그먼트/트리에서 한 번의 갱신이 O(log n) 공간만 쓰는 이유는?",
@@ -4547,7 +4585,9 @@
    "  return cur;",
    "}",
    "// 각 버전이 root[]로 보존. 버전당 O(log n) 공간"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 16
  },
  "algo_br_planar": {
   "ch": "알고리즘 제6장 그래프",
@@ -4973,11 +5013,11 @@
  },
  "algo_br_binarylifting": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.1 이진 트리 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "이진 점프(binary lifting) — 2의 거듭제곱 조상",
   "narr": "트리에서 v의 100번째 조상이나 두 정점 LCA를 한 칸씩 올라가면 O(n)입니다. <b>이진 점프</b>는 각 정점의 <b>2^j번째 조상</b>을 표 <b>up[v][j]</b>에 미리 저장합니다. 점화식 <b>up[v][j] = up[ up[v][j−1] ][j−1]</b>(2^j칸 = 2^(j−1)칸 두 번)로 전처리 <b>O(n log n)</b>에 채웁니다. <b>k번째 조상</b>은 k의 이진수에서 켜진 비트마다 그 크기만큼 점프해 O(log n)입니다(13=1101₂ → 8·4·1칸). <b>LCA</b>는 깊은 쪽을 끌어올려 깊이를 맞춘 뒤 둘을 함께 조상이 달라지는 최대 점프로 올려 마지막 부모가 LCA입니다. 경로 위 최댓값·합도 up 테이블에 함께 얹고, 함수 반복 fⁿ(x)에도 씁니다. 구현이 단순하고 경로 집계를 얹기 쉬워 실전에서 널리 쓰입니다.",
   "hint": "",
-  "more": "<b>이진 점프(binary lifting, sparse ancestor table)</b>는 트리(또는 함수 그래프)에서 <b>k번째 조상</b>·<b>LCA</b> 등을 빠르게 답하는 전처리 기법입니다. 각 정점 v에 대해 <b>up[v][j] = v의 2^j번째 조상</b>을 표로 저장하는데, <b>점화식 up[v][j] = up[ up[v][j−1] ][j−1]</b>(2^j 조상 = 2^(j−1) 조상으로 두 번 점프)로 채웁니다 — 전처리 <b>O(n log n)</b>(j는 0..⌈log n⌉). <b>k번째 조상</b>: k를 이진수로 보고 <b>켜진 비트마다 그 크기(2^j)만큼 점프</b>(예: 13=1101₂ → 8·4·1칸 점프) → O(log n). <b>LCA(u,v)</b>: ① 더 깊은 쪽을 이진 점프로 끌어올려 <b>깊이를 맞추고</b>, ② 같은 깊이에서 둘을 <b>함께</b> \"조상이 달라지는 최대 점프\"로 올려, 마지막에 부모가 LCA. 모두 O(log n). 응용: 트리 경로 질의(경로 위 최댓값·합도 up 테이블에 함께 저장), <b>함수 반복</b>(fⁿ(x), 순열 사이클·after k steps), k번째 다음 노드. 같은 일을 <b>오일러 투어 + RMQ(희소테이블)</b>로 하면 전처리 O(n log n)·질의 O(1)이지만, 이진 점프는 구현이 단순하고 \"경로 위 집계\"를 얹기 쉬워 실전에서 널리 쓰입니다.",
+  "more": "​2^k 조상을 미리 — <b>이진 점프</b>. <b>이진 점프(binary lifting, sparse ancestor table)</b>는 트리(또는 함수 그래프)에서 <b>k번째 조상</b>·<b>LCA</b> 등을 빠르게 답하는 전처리 기법입니다. 각 정점 v에 대해 <b>up[v][j] = v의 2^j번째 조상</b>을 표로 저장하는데, <b>점화식 up[v][j] = up[ up[v][j−1] ][j−1]</b>(2^j 조상 = 2^(j−1) 조상으로 두 번 점프)로 채웁니다 — 전처리 <b>O(n log n)</b>(j는 0..⌈log n⌉). <b>k번째 조상</b>: k를 이진수로 보고 <b>켜진 비트마다 그 크기(2^j)만큼 점프</b>(예: 13=1101₂ → 8·4·1칸 점프) → O(log n). <b>LCA(u,v)</b>: ① 더 깊은 쪽을 이진 점프로 끌어올려 <b>깊이를 맞추고</b>, ② 같은 깊이에서 둘을 <b>함께</b> \"조상이 달라지는 최대 점프\"로 올려, 마지막에 부모가 LCA. 모두 O(log n). 응용: 트리 경로 질의(경로 위 최댓값·합도 up 테이블에 함께 저장), <b>함수 반복</b>(fⁿ(x), 순열 사이클·after k steps), k번째 다음 노드. 같은 일을 <b>오일러 투어 + RMQ(희소테이블)</b>로 하면 전처리 O(n log n)·질의 O(1)이지만, 이진 점프는 구현이 단순하고 \"경로 위 집계\"를 얹기 쉬워 실전에서 널리 쓰입니다.",
   "more_en": "<b>Binary lifting (sparse ancestor table)</b> is a preprocessing technique for fast <b>k-th ancestor</b> and <b>LCA</b> queries on a tree (or functional graph). For each vertex v it stores a table <b>up[v][j] = the 2^j-th ancestor of v</b>, filled by the recurrence <b>up[v][j] = up[ up[v][j−1] ][j−1]</b> (the 2^j ancestor is two 2^(j−1) jumps) — preprocessing <b>O(n log n)</b> (j from 0..⌈log n⌉). For the <b>k-th ancestor</b>, read k in binary and <b>jump by 2^j for each set bit</b> (e.g. 13=1101₂ → jumps of 8, 4, 1) → O(log n). For <b>LCA(u,v)</b>: ① lift the deeper one to <b>equalize depths</b>, then ② lift both <b>together</b> by the largest jumps that keep their ancestors different, so the final parent is the LCA — all O(log n). Applications: tree path queries (store path max/sum alongside the up table), <b>function iteration</b> (fⁿ(x), permutation cycles, after k steps), k-th next node. The same can be done with an <b>Euler tour + RMQ (sparse table)</b> at O(n log n) preprocessing, O(1) query, but binary lifting is simple to implement and easy to augment with path aggregates, so it is widely used in practice.",
   "problem": {
    "q": "이진 점프의 표 up[v][j]는 무엇을 저장하며 어떤 점화식으로 채우나?",
@@ -4996,15 +5036,17 @@
    "    if(k>>j & 1) v=up[v][j];",
    "  return v;",
    "}   // 전처리 O(V log V), 질의 O(log V)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 2
  },
  "algo_br_dsuontree": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "DSU on tree — 작은 것을 큰 것에 합치기",
   "narr": "각 서브트리의 색깔별 빈도·distinct 같은 통계를 모두 구하려고 매번 새로 세면 O(n²)입니다. <b>DSU on tree(small-to-large)</b>는 <b>O(n log n)</b>에 해냅니다. 정점 v를 처리할 때 ① <b>가벼운 자식들</b>은 먼저 처리하되 전역 카운터를 <b>비우고</b>, ② <b>무거운 자식</b>(서브트리 최대)을 마지막에 처리해 그 통계는 <b>그대로 남겨둔 뒤</b>, ③ 가벼운 자식 서브트리만 다시 더해 v의 통계를 완성합니다. O(n log n)인 이유는, 정점이 조상으로 올라가며 <b>light edge를 지날 때만</b> 다시 더해지는데 light edge를 지날 때마다 서브트리 크기가 <b>최소 2배</b>가 되므로(아니면 그 간선이 heavy였을 것) 루트까지 light edge가 <b>O(log n)개</b>뿐이라는 것입니다. 오일러 투어로 구간화해 빈도를 더하고 뺍니다. 서브트리 최빈·distinct·조건 쌍 수에 쓰입니다.",
   "hint": "",
-  "more": "<b>DSU on tree(small-to-large merging, sack)</b>는 트리의 <b>모든 서브트리에 대한 통계</b>(예: 서브트리 내 색깔별 빈도, 가장 많은 색, 서로 다른 값의 수, 특정 조건을 만족하는 쌍의 수)를 <b>O(n log n)</b>에 구하는 기법입니다. 순진하게 각 정점에서 서브트리를 새로 세면 O(n²). 핵심 아이디어: 정점 v를 처리할 때 ① <b>가벼운(작은) 자식들</b>의 서브트리는 먼저 처리하되 그 통계를 <b>지우고(전역 카운터를 비움)</b>, ② <b>무거운(heavy = 서브트리가 가장 큰) 자식</b>을 마지막에 처리하고 그 통계는 <b>전역 카운터에 그대로 남겨둔</b> 다음, ③ <b>가벼운 자식들의 서브트리만 다시 더해</b> v의 서브트리 전체 통계를 완성합니다(질의 답을 기록). 왜 O(n log n)? 각 정점은 \"자신보다 큰(또는 같은) 무거운 경로 조상\"을 지날 때만 다시 더해지는데, 루트까지 가며 <b>무거운 간선이 아닌 간선(light edge)을 지날 때마다 서브트리 크기가 두 배 이상으로 커지므로</b> 한 정점이 재추가되는 횟수가 <b>O(log n)</b>입니다(heavy-light 분해의 light-edge 개수 논리와 동일). 구현은 보통 오일러 투어(tin/tout)로 서브트리를 구간화해 전역 빈도 배열을 더하고 뺍니다. 쓰임: 서브트리 색 최빈/distinct·\"서브트리 안 조건 쌍 수\"·트리 위 오프라인 카운팅. \"작은 건 버리고 큰 건 물려받는다\"가 핵심입니다.",
+  "more": "​작은 것을 큰 것에 — <b>DSU on tree</b>. <b>DSU on tree(small-to-large merging, sack)</b>는 트리의 <b>모든 서브트리에 대한 통계</b>(예: 서브트리 내 색깔별 빈도, 가장 많은 색, 서로 다른 값의 수, 특정 조건을 만족하는 쌍의 수)를 <b>O(n log n)</b>에 구하는 기법입니다. 순진하게 각 정점에서 서브트리를 새로 세면 O(n²). 핵심 아이디어: 정점 v를 처리할 때 ① <b>가벼운(작은) 자식들</b>의 서브트리는 먼저 처리하되 그 통계를 <b>지우고(전역 카운터를 비움)</b>, ② <b>무거운(heavy = 서브트리가 가장 큰) 자식</b>을 마지막에 처리하고 그 통계는 <b>전역 카운터에 그대로 남겨둔</b> 다음, ③ <b>가벼운 자식들의 서브트리만 다시 더해</b> v의 서브트리 전체 통계를 완성합니다(질의 답을 기록). 왜 O(n log n)? 각 정점은 \"자신보다 큰(또는 같은) 무거운 경로 조상\"을 지날 때만 다시 더해지는데, 루트까지 가며 <b>무거운 간선이 아닌 간선(light edge)을 지날 때마다 서브트리 크기가 두 배 이상으로 커지므로</b> 한 정점이 재추가되는 횟수가 <b>O(log n)</b>입니다(heavy-light 분해의 light-edge 개수 논리와 동일). 구현은 보통 오일러 투어(tin/tout)로 서브트리를 구간화해 전역 빈도 배열을 더하고 뺍니다. 쓰임: 서브트리 색 최빈/distinct·\"서브트리 안 조건 쌍 수\"·트리 위 오프라인 카운팅. \"작은 건 버리고 큰 건 물려받는다\"가 핵심입니다.",
   "more_en": "<b>DSU on tree (small-to-large merging, \"sack\")</b> computes <b>statistics over every subtree</b> (e.g. per-color frequency, most frequent color, number of distinct values, count of pairs satisfying a condition) in <b>O(n log n)</b>. Naively recomputing each subtree is O(n²). Key idea: when processing vertex v, ① process the <b>light (smaller) children</b> first but <b>clear</b> their statistics (reset the global counters); ② process the <b>heavy child (the one with the largest subtree)</b> last and <b>keep</b> its statistics in the global counters; then ③ <b>re-add only the light children's subtrees</b> to complete v's whole-subtree statistics (recording the query answer). Why O(n log n)? A vertex is re-added only when passing a <b>light edge</b> on the way to the root, and each light edge at least <b>doubles the subtree size</b>, so any vertex is re-added <b>O(log n)</b> times (the same light-edge-count argument as heavy-light decomposition). Implementation often uses an Euler tour (tin/tout) to range the subtree and add/remove from a global frequency array. Uses: subtree mode/distinct colors, \"count of conditioned pairs within a subtree,\" offline counting on trees. The crux: \"discard the small, inherit the large.\"",
   "problem": {
    "q": "DSU on tree가 O(n log n)인 이유(각 정점이 O(log n)번만 다시 더해지는 이유)는?",
@@ -5021,7 +5063,9 @@
    "  answer[u] = query();",
    "  if(!keep) removeSubtree(u);       // 가벼우면 정리",
    "}   // O(n log n)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 8
  },
  "algo_br_xortrie": {
   "ch": "알고리즘 제2장 자료구조",
@@ -5539,11 +5583,11 @@
  },
  "algo_br_treediameter": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "트리 지름과 중심 — 가장 먼 두 점, 한가운데",
   "narr": "트리 순회로 가장 먼 두 점과 한가운데를 찾습니다. <b>지름</b>은 두 정점 사이 최대 거리입니다. 구하는 법은 <b>BFS/DFS 두 번</b>입니다. 임의 정점 s에서 가장 먼 정점 u를 찾고, u에서 가장 먼 정점 v를 찾으면 dist(u,v)가 지름입니다. 왜 맞느냐면 비음수 가중 트리에서 임의 정점의 최원점은 항상 어떤 지름의 한 끝점임을 증명할 수 있어, 첫 끝점 u가 지름 끝이고 거기서 다시 최원점이 반대 끝 v가 됩니다. 트리 DP로도 각 정점에서 아래로 가장 긴 두 경로 합의 최댓값으로 O(n)에 구합니다. <b>중심</b>은 편심이 최소인 정점으로 지름 경로의 중점에 있습니다. 네트워크 지연 한계·시설 입지에 쓰입니다(음수 간선이면 이 방법은 실패합니다).",
   "hint": "",
-  "more": "<b>트리 지름(diameter)</b>은 트리에서 <b>두 정점 사이 최대 거리</b>(가장 긴 경로의 길이)입니다. 가장 간단한 구하는 법(<b>두 번의 BFS/DFS</b>): ① 임의의 정점 s에서 가장 먼 정점 <b>u</b>를 찾고, ② <b>u에서</b> 가장 먼 정점 <b>v</b>를 찾으면, <b>dist(u, v)가 지름</b>이고 u–v 경로가 지름 경로입니다. 왜 맞나(가중치 비음수 트리): \"임의 정점에서 가장 먼 점은 항상 어떤 지름의 한 끝점\"임을 증명할 수 있어, 첫 BFS의 끝점 u가 지름 끝이고 거기서 다시 최원점이 반대 끝 v입니다. <b>트리 DP</b>로도 O(n): 각 정점에서 \"아래로 가장 긴 두 경로의 합\"의 최댓값이 지름(자식들로부터 내려오는 깊이 1·2위를 합침). <b>중심(center)</b>은 \"가장 먼 정점까지 거리(편심)가 최소인 정점\"으로, <b>지름 경로의 중점</b>에 있습니다(1개 또는 인접한 2개). <b>무게중심(centroid)</b>은 다른 개념(제거 시 조각이 모두 절반 이하 — 센트로이드 분할). 쓰임: 네트워크 지연 한계, 트리 위 시설 입지(중심), 지름 경로 기반 분해, 트리 임베딩. \"BFS 두 번으로 지름, 그 중점이 중심\"이 한 줄 요약입니다(음수 간선이 있으면 이 방법은 실패 — 트리 DP나 다른 방법 필요).",
+  "more": "​가장 먼 두 점·한가운데 — <b>트리 지름·중심</b>. <b>트리 지름(diameter)</b>은 트리에서 <b>두 정점 사이 최대 거리</b>(가장 긴 경로의 길이)입니다. 가장 간단한 구하는 법(<b>두 번의 BFS/DFS</b>): ① 임의의 정점 s에서 가장 먼 정점 <b>u</b>를 찾고, ② <b>u에서</b> 가장 먼 정점 <b>v</b>를 찾으면, <b>dist(u, v)가 지름</b>이고 u–v 경로가 지름 경로입니다. 왜 맞나(가중치 비음수 트리): \"임의 정점에서 가장 먼 점은 항상 어떤 지름의 한 끝점\"임을 증명할 수 있어, 첫 BFS의 끝점 u가 지름 끝이고 거기서 다시 최원점이 반대 끝 v입니다. <b>트리 DP</b>로도 O(n): 각 정점에서 \"아래로 가장 긴 두 경로의 합\"의 최댓값이 지름(자식들로부터 내려오는 깊이 1·2위를 합침). <b>중심(center)</b>은 \"가장 먼 정점까지 거리(편심)가 최소인 정점\"으로, <b>지름 경로의 중점</b>에 있습니다(1개 또는 인접한 2개). <b>무게중심(centroid)</b>은 다른 개념(제거 시 조각이 모두 절반 이하 — 센트로이드 분할). 쓰임: 네트워크 지연 한계, 트리 위 시설 입지(중심), 지름 경로 기반 분해, 트리 임베딩. \"BFS 두 번으로 지름, 그 중점이 중심\"이 한 줄 요약입니다(음수 간선이 있으면 이 방법은 실패 — 트리 DP나 다른 방법 필요).",
   "more_en": "The <b>diameter</b> of a tree is the <b>maximum distance between two vertices</b> (length of the longest path). The simplest method (<b>two BFS/DFS</b>): ① from any vertex s find the farthest vertex <b>u</b>; ② from <b>u</b> find the farthest vertex <b>v</b>; then <b>dist(u, v) is the diameter</b> and u–v is a diameter path. Why it works (non-negative-weight tree): one can prove \"the farthest vertex from any vertex is always an endpoint of some diameter,\" so the first BFS's endpoint u is a diameter end, and the farthest from it is the opposite end v. <b>Tree DP</b> also gives O(n): at each vertex, the max of \"the sum of the two longest downward paths\" is the diameter (combine the top-two child depths). The <b>center</b> is the vertex minimizing the distance to the farthest vertex (eccentricity), lying at the <b>midpoint of a diameter path</b> (one or two adjacent vertices). The <b>centroid</b> is different (removing it leaves all pieces ≤ half — centroid decomposition). Uses: network latency bounds, facility location on trees (the center), diameter-path-based decomposition, tree embedding. One-liner: \"two BFS for the diameter, its midpoint is the center\" (with negative edges this method fails — use tree DP or another approach).",
   "problem": {
    "q": "트리 지름을 'BFS 두 번'으로 구하는 절차와, 왜 옳은가?",
@@ -5558,7 +5602,9 @@
    "int diameter = dist(u, v);         // u~v가 지름",
    "// 중심 = 지름 경로의 가운데(편심 최소)",
    "// 또는 트리DP로 각 정점 아래 두 깊이 합"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 6
  },
  "algo_br_funcgraph": {
   "ch": "알고리즘 제6장 그래프",
@@ -6209,11 +6255,11 @@
  },
  "algo_br_rollbackdsu": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.5 균형 트리 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "롤백 union-find — 합치기를 되돌릴 수 있게",
   "narr": "균형 트리 계열에서 합치기를 되돌릴 수 있는 분리집합입니다. 보통 union-find는 <b>경로 압축 + union by rank</b>로 거의 O(1)이지만, 경로 압축이 find 중 여러 노드 부모를 한꺼번에 바꿔 복원이 어렵습니다. <b>롤백 버전</b>은 경로 압축을 포기하고 <b>union by rank만</b> 씁니다. 그러면 한 번의 union이 바꾸는 것이 <b>루트 부모 1개와 rank 1개</b>뿐이라, 변경 전 값을 <b>스택에 push</b>해 두면 rollback이 pop으로 O(1)에 되돌립니다. 대신 find는 압축이 없어 O(log n)입니다. 이 O(log n) find와 O(1) 되감기가 오프라인 동적 연결성·롤백 Mo·분할정복 위 union의 핵심 부품입니다. 압축과 rank를 함께 쓰면 롤백이 깨지므로 rank만 씁니다.",
   "hint": "",
-  "more": "<b>롤백 union-find(rollback DSU, undoable disjoint set)</b>는 union 연산을 <b>되돌릴 수 있는</b> 분리집합 자료구조입니다. 보통의 union-find는 <b>경로 압축 + union by rank</b>로 거의 O(1)(역아커만 α)이지만, 경로 압축이 find 중 <b>여러 노드의 부모를 한꺼번에 바꿔</b> 무엇이 바뀌었는지 추적·복원이 어렵습니다. 롤백 버전은 <b>경로 압축을 쓰지 않고 union by rank(또는 size)만</b> 씁니다. 그러면 한 번의 union이 바꾸는 것은 <b>정확히 (한 루트의 부모 1개) + (필요 시 rank/size 1개)</b>뿐이라, 이 변경 전 값을 <b>스택에 push</b>해 두면 <b>rollback()</b>이 스택에서 pop해 원래대로 되돌립니다(O(1)). 대신 find는 압축이 없어 <b>O(log n)</b>(union by rank가 트리 높이를 log로 묶음). 이 \"O(log n) find + O(1) 되감기\"가 여러 <b>오프라인/분할정복 기법</b>의 핵심 부품입니다: ① <b>오프라인 동적 연결성</b>(간선의 존재 구간을 시간 세그먼트 트리에 올리고 DFS하며 들어갈 때 union, 나갈 때 rollback), ② <b>롤백 Mo</b>(제거가 어려운 통계를 추가만+되감기로), ③ <b>분할정복 위 union</b>(왼쪽 처리 후 되돌리고 오른쪽). 주의: 경로 압축과 rank를 함께 쓰면 압축이 추적 불가라 롤백이 깨지므로 <b>둘 중 rank만</b>. 함수형 <b>영속 DSU</b>(경로 복사로 모든 버전 보존)가 같은 목표의 다른 접근이라면, 롤백 DSU는 \"스택으로 직전 상태만 되감는\" 절차적·메모리 효율 사촌입니다. \"압축 포기 + 변경 스택 = 되돌리는 union-find\"가 핵심입니다.",
+  "more": "​합치기를 되돌리는 <b>롤백 DSU</b>. <b>롤백 union-find(rollback DSU, undoable disjoint set)</b>는 union 연산을 <b>되돌릴 수 있는</b> 분리집합 자료구조입니다. 보통의 union-find는 <b>경로 압축 + union by rank</b>로 거의 O(1)(역아커만 α)이지만, 경로 압축이 find 중 <b>여러 노드의 부모를 한꺼번에 바꿔</b> 무엇이 바뀌었는지 추적·복원이 어렵습니다. 롤백 버전은 <b>경로 압축을 쓰지 않고 union by rank(또는 size)만</b> 씁니다. 그러면 한 번의 union이 바꾸는 것은 <b>정확히 (한 루트의 부모 1개) + (필요 시 rank/size 1개)</b>뿐이라, 이 변경 전 값을 <b>스택에 push</b>해 두면 <b>rollback()</b>이 스택에서 pop해 원래대로 되돌립니다(O(1)). 대신 find는 압축이 없어 <b>O(log n)</b>(union by rank가 트리 높이를 log로 묶음). 이 \"O(log n) find + O(1) 되감기\"가 여러 <b>오프라인/분할정복 기법</b>의 핵심 부품입니다: ① <b>오프라인 동적 연결성</b>(간선의 존재 구간을 시간 세그먼트 트리에 올리고 DFS하며 들어갈 때 union, 나갈 때 rollback), ② <b>롤백 Mo</b>(제거가 어려운 통계를 추가만+되감기로), ③ <b>분할정복 위 union</b>(왼쪽 처리 후 되돌리고 오른쪽). 주의: 경로 압축과 rank를 함께 쓰면 압축이 추적 불가라 롤백이 깨지므로 <b>둘 중 rank만</b>. 함수형 <b>영속 DSU</b>(경로 복사로 모든 버전 보존)가 같은 목표의 다른 접근이라면, 롤백 DSU는 \"스택으로 직전 상태만 되감는\" 절차적·메모리 효율 사촌입니다. \"압축 포기 + 변경 스택 = 되돌리는 union-find\"가 핵심입니다.",
   "more_en": "A <b>rollback union-find (undoable DSU)</b> is a disjoint-set structure whose union operations can be <b>undone</b>. Ordinary union-find with <b>path compression + union by rank</b> is near-O(1) (inverse-Ackermann α), but path compression <b>changes many nodes' parents at once</b> during find, making it hard to track and restore. The rollback version uses <b>only union by rank (or size), no path compression</b>. Then a single union changes <b>exactly (one root's parent) + (a rank/size if needed)</b>, so pushing the pre-change values onto a <b>stack</b> lets <b>rollback()</b> pop and restore them (O(1)). In return, find is <b>O(log n)</b> (union by rank bounds the height by log). This \"O(log n) find + O(1) undo\" is a core building block of several <b>offline/divide-and-conquer</b> techniques: ① <b>offline dynamic connectivity</b> (place edges' existence intervals on a time segment tree and DFS, union on entry, rollback on exit); ② <b>rollback Mo</b> (statistics hard to remove, handled add-only + rewind); ③ <b>union over divide and conquer</b> (process the left, undo, then the right). Caveat: combining path compression with rank breaks rollback (compression is untrackable), so use <b>rank only</b>. Where a functional <b>persistent DSU</b> (path copying to keep all versions) is another approach to the same goal, rollback DSU is its procedural, memory-efficient cousin that \"undoes just the latest state via a stack.\" The crux: \"drop compression + a change stack = an undoable union-find.\"",
   "problem": {
    "q": "롤백 union-find가 경로 압축을 쓰지 못하는 이유와, 대신 무엇을 포기/유지하는가?",
@@ -6232,7 +6278,9 @@
    "  par[b]=a; if(rank[a]==rank[b]) rank[a]++;",
    "}",
    "void rollback(){ /* history 꺼내 par·rank 복원 */ }"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 13
  },
  "algo_br_edgecolor": {
   "ch": "알고리즘 제6장 그래프",
@@ -6431,11 +6479,11 @@
  },
  "algo_br_treeiso": {
   "ch": "알고리즘 제5장 트리",
-  "sec": "5.3 트리 순회 ▸ 자세히",
+  "sec": "고급 트리(질의·분해·연결성)",
   "title": "트리 동형 판정 — 두 트리가 같은 모양인가",
   "narr": "그림은 달라도 가지 구조가 같으면 두 트리는 <b>동형</b>입니다. 자식 순서·라벨이 달라 순진한 비교는 어렵습니다. <b>AHU 알고리즘</b>은 잎에서 루트로 올라오며 각 서브트리에 <b>정규 해시</b>를 매깁니다. 한 노드의 해시는 자식들의 해시를 모아 <b>정렬해 인코딩</b>한 값입니다. 정렬이 자식 순서의 임의성을 없애므로, 모양이 같은 서브트리는 항상 같은 코드를 받습니다. 두 트리의 루트 코드가 같으면 동형입니다. 각 노드를 한 번씩만 처리하므로 <b>O(n)</b>입니다. 해시가 잎에서 루트로 어떻게 합성되는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>트리 동형 판정(tree isomorphism)</b>은 두 트리가 \"<b>정점 이름·그림은 무시하고 가지 구조(연결 모양)만 같은가</b>\"를 판정합니다. <b>AHU 알고리즘(Aho-Hopcroft-Ullman)</b>이 <b>O(n)</b>에 풉니다. <b>뿌리 있는 트리</b>의 경우: 각 노드에 <b>정규 라벨(canonical label/해시)</b>을 잎부터 위로 매깁니다 — 잎은 \"()\"(또는 0), 내부 노드는 <b>자식들의 라벨을 모두 구한 뒤 사전순으로 정렬해 괄호로 묶은 문자열</b>(예 \"(()())\"). 자식을 <b>정렬</b>하는 것이 핵심 — 같은 구조면 자식 순서가 달라도 정렬 후 같은 라벨이 되어 \"좌우/순서 무시\"가 됩니다. 두 트리의 <b>루트 라벨이 같으면 동형</b>. 문자열이 길어지면 각 라벨을 정수로 <b>이름 다시 붙이기(renaming)</b>(같은 라벨끼리 같은 정수)로 O(n)에 유지. <b>뿌리 없는(자유) 트리</b>는 비교 전에 <b>중심(center)에 뿌리를 고정</b>합니다 — 트리의 중심은 지름 경로의 중점으로 <b>1개 또는 2개</b>(2개면 둘 다 시도하거나 가상 정점)이고 동형 불변이라, 양쪽을 중심에 뿌리내려 비교하면 됩니다. <b>일반 그래프 동형(graph isomorphism)</b>은 다항 시간 알고리즘이 알려지지 않은(준다항, Babai 2015) 어려운 문제인 반면, <b>트리는 O(n)</b>으로 쉽습니다(구조가 계층적이라). 쓰임: <b>화학 분자(트리형) 비교</b>, XML/구문 트리 중복 검출, 컴파일러의 공통 부분식, 계통수 비교. \"서브트리 정규 해시(자식 정렬) + 중심 고정\"이 핵심입니다.",
+  "more": "​두 트리가 같은 모양인가 — <b>트리 동형</b>. <b>트리 동형 판정(tree isomorphism)</b>은 두 트리가 \"<b>정점 이름·그림은 무시하고 가지 구조(연결 모양)만 같은가</b>\"를 판정합니다. <b>AHU 알고리즘(Aho-Hopcroft-Ullman)</b>이 <b>O(n)</b>에 풉니다. <b>뿌리 있는 트리</b>의 경우: 각 노드에 <b>정규 라벨(canonical label/해시)</b>을 잎부터 위로 매깁니다 — 잎은 \"()\"(또는 0), 내부 노드는 <b>자식들의 라벨을 모두 구한 뒤 사전순으로 정렬해 괄호로 묶은 문자열</b>(예 \"(()())\"). 자식을 <b>정렬</b>하는 것이 핵심 — 같은 구조면 자식 순서가 달라도 정렬 후 같은 라벨이 되어 \"좌우/순서 무시\"가 됩니다. 두 트리의 <b>루트 라벨이 같으면 동형</b>. 문자열이 길어지면 각 라벨을 정수로 <b>이름 다시 붙이기(renaming)</b>(같은 라벨끼리 같은 정수)로 O(n)에 유지. <b>뿌리 없는(자유) 트리</b>는 비교 전에 <b>중심(center)에 뿌리를 고정</b>합니다 — 트리의 중심은 지름 경로의 중점으로 <b>1개 또는 2개</b>(2개면 둘 다 시도하거나 가상 정점)이고 동형 불변이라, 양쪽을 중심에 뿌리내려 비교하면 됩니다. <b>일반 그래프 동형(graph isomorphism)</b>은 다항 시간 알고리즘이 알려지지 않은(준다항, Babai 2015) 어려운 문제인 반면, <b>트리는 O(n)</b>으로 쉽습니다(구조가 계층적이라). 쓰임: <b>화학 분자(트리형) 비교</b>, XML/구문 트리 중복 검출, 컴파일러의 공통 부분식, 계통수 비교. \"서브트리 정규 해시(자식 정렬) + 중심 고정\"이 핵심입니다.",
   "more_en": "<b>Tree isomorphism</b> decides whether two trees \"have the <b>same branching structure (shape), ignoring vertex names/drawing</b>.\" The <b>AHU algorithm (Aho-Hopcroft-Ullman)</b> solves it in <b>O(n)</b>. For <b>rooted trees</b>: assign each node a <b>canonical label (hash)</b> bottom-up — a leaf is \"()\" (or 0), and an internal node is the string of its <b>children's labels sorted lexicographically and wrapped in parentheses</b> (e.g. \"(()())\"). <b>Sorting</b> the children is the key — the same structure yields the same label regardless of child order, making it \"order-insensitive.\" Two trees are isomorphic <b>iff their root labels match</b>. To avoid long strings, <b>rename</b> each distinct label to an integer (equal labels → equal integers), keeping it O(n). For <b>unrooted (free) trees</b>, <b>root them at the center</b> before comparing — a tree's center is the midpoint of a diameter path, <b>one or two</b> vertices (try both, or use a virtual node), and is isomorphism-invariant, so rooting both at the center and comparing works. Whereas <b>general graph isomorphism</b> has no known polynomial algorithm (quasi-polynomial, Babai 2015), <b>trees are O(n)</b> (their hierarchical structure makes it easy). Uses: <b>comparing tree-shaped molecules</b> in chemistry, detecting duplicate XML/syntax trees, common-subexpression elimination in compilers, phylogenetic tree comparison. The crux: \"canonical subtree hashing (sort children) + root at the center.\"",
   "problem": {
    "q": "트리 동형 판정(AHU)에서 각 노드의 라벨을 만들 때 '자식 라벨을 정렬'하는 이유는?",
@@ -6452,7 +6500,9 @@
    "  return \"(\" + join(ch) + \")\";       // 괄호열",
    "}",
    "// encode(root1)==encode(root2) ⟺ 동형 (무근은 중심 기준)"
-  ]
+  ],
+  "branchOf": "algo5_07",
+  "ord": 7
  },
  "algo_br_asymptotic": {
   "ch": "알고리즘 제1장 알고리즘과 복잡도",

@@ -1,94 +1,112 @@
 {
-  "algo5_01": {
-    "ch": "알고리즘 제5장 트리",
-    "sec": "5.1 이진 트리",
-    "title": "이진 트리 — 가지치는 계층 구조",
-    "narr": "지금까지 데이터는 일렬(배열·리스트)이었습니다. <b>트리</b>는 한 줄을 벗어난 <b>가지치는 계층 구조</b>입니다 — 맨 위 <b>루트</b>에서 부모-자식으로 아래로 갈라지고(사이클 없음), 끝의 자식 없는 노드가 <b>리프</b>입니다. 폴더 구조·가계도·조직도가 모두 트리입니다. 각 노드의 자식이 최대 2개면 <b>이진 트리</b>입니다. 이 구조가 중요한 이유는, 균형 잡힌 이진 트리가 n개의 노드를 단 log n 층에 담아 탐색·삽입·삭제를 O(log n)으로 만들기 때문입니다 — 이분 탐색을 자료구조로 굳힌 셈입니다. 루트(주황)에서 가지를 따라 리프(초록)까지 내려가는 모양을 보세요.",
-    "hint": "루트(주황) → 가지 → 리프(초록)",
-    "more": "<b>트리(tree)</b>는 노드들이 부모-자식으로 연결된 계층 구조입니다(사이클 없음). 용어: <b>루트</b>(꼭대기), <b>부모/자식</b>, <b>리프</b>(자식 없는 끝 노드), <b>깊이/높이</b>(층 수), <b>서브트리</b>. <b>이진 트리</b>는 각 노드의 자식이 <b>최대 2개</b>(왼쪽·오른쪽). 이 구조가 중요한 이유는, 균형 잡힌 이진 트리는 n개의 노드를 단 <b>log n 층</b>에 담아, 탐색·삽입·삭제를 O(log n)으로 만듭니다(이분 탐색을 자료구조로 굳힌 것!). 파일시스템, 데이터베이스 인덱스(B-트리), 컴파일러의 구문 트리, 의사결정 트리(AI)가 모두 트리입니다. 다음: 트리를 \"훑는\" 방법(순회).",
-    "more_en": "A <b>tree</b> is a hierarchy of nodes linked as parent-child (no cycles). Terms: <b>root</b> (top), <b>parent/child</b>, <b>leaf</b> (a node with no children), <b>depth/height</b> (number of levels), <b>subtree</b>. A <b>binary tree</b> has <b>at most 2 children</b> per node (left and right). Why it matters: a balanced binary tree packs n nodes into just <b>log n levels</b>, making search, insert, and delete O(log n) (binary search solidified into a data structure!). File systems, database indexes (B-trees), compiler syntax trees, and decision trees (AI) are all trees. Next: how to \"walk\" a tree (traversal).",
-    "problem": {
-      "q": "노드가 7개인 균형 이진 트리의 깊이(층 수)는?",
-      "solution": "log₂(7+1) = 3층 → 루트 포함 <b>3개 층</b> (1+2+4 = 7노드).",
-      "q_en": "What is the depth (number of levels) of a balanced binary tree with 7 nodes?",
-      "sol_en": "log₂(7+1) = <b>3 levels</b> (1+2+4 = 7 nodes)."
-    }
-  },
-  "algo5_02": {
-    "ch": "알고리즘 제5장 트리",
-    "sec": "5.1 트리 순회",
-    "title": "트리 순회 — 모든 노드 훑기",
-    "narr": "트리를 만들었으니 이번엔 모든 노드를 빠짐없이 방문하는 <b>순회</b>를 봅니다. 깊이 우선 순회는 방문 순서에 따라 셋으로 나뉩니다 — 전위(자신→왼→오), 중위(왼→자신→오), 후위(왼→오→자신). 가장 유용한 <b>중위순회</b>는 <b>왼쪽 → 자신 → 오른쪽</b>으로 가는데, BST에서는 왼쪽<자신<오른쪽 규칙 때문에 이 순서가 곧 <b>오름차순 정렬된 결과</b>가 됩니다. 순회는 본질적으로 각 서브트리에 같은 규칙을 적용하는 재귀이고, 재귀는 스택으로 동작합니다 — 다음 장 그래프 탐색(DFS/BFS)의 직접적 토대입니다. 화면을 눌러 한 노드씩 방문해 보세요.",
-    "hint": "▶ 눌러 다음 노드 방문",
-    "more": "<b>순회(traversal)</b>는 트리의 모든 노드를 체계적으로 방문하는 것입니다. 깊이 우선 3가지 — <b>전위(pre-order)</b>: 자신→왼쪽→오른쪽(트리 복사·식 표기), <b>중위(in-order)</b>: 왼쪽→자신→오른쪽(BST에서 <b>정렬 순서</b>!), <b>후위(post-order)</b>: 왼쪽→오른쪽→자신(폴더 용량 계산·삭제). 그리고 <b>레벨 순회</b>(층별, 큐 사용 = BFS). 순회는 본질적으로 <b>재귀</b>(각 서브트리에 같은 규칙)이고, 재귀는 스택으로 동작합니다. 같은 트리도 \"어떤 순서로 보느냐\"에 따라 다른 일을 합니다 — 그래프 탐색(DFS/BFS)의 직접적 토대입니다.",
-    "more_en": "<b>Traversal</b> systematically visits every node. Three depth-first orders — <b>pre-order</b> (node→left→right; copying a tree, prefix notation), <b>in-order</b> (left→node→right; <b>sorted order</b> in a BST!), <b>post-order</b> (left→right→node; computing folder sizes, deletion). Plus <b>level-order</b> (by levels, using a queue = BFS). Traversal is inherently <b>recursive</b> (same rule on each subtree), and recursion runs on a stack. The same tree does different jobs depending on \"the order you look\" — a direct foundation for graph search (DFS/BFS).",
-    "problem": {
-      "q": "BST를 중위순회하면 결과의 특징은?",
-      "solution": "<b>오름차순 정렬</b>된 순서로 나옵니다 (왼쪽<자신<오른쪽 규칙 때문).",
-      "q_en": "What is special about an in-order traversal of a BST?",
-      "sol_en": "It yields the values in <b>ascending sorted order</b> (because left < node < right)."
-    }
-  },
-  "algo5_03": {
-    "ch": "알고리즘 제5장 트리",
-    "sec": "5.2 이진 탐색 트리",
-    "title": "이진 탐색 트리 — 트리로 만든 이분 탐색",
-    "narr": "이제 트리에 규칙을 하나 부여합니다. <b>이진 탐색 트리(BST)</b>는 모든 노드에서 <b>왼쪽 서브트리 < 노드 < 오른쪽 서브트리</b>가 성립합니다. 그래서 값을 찾을 때 루트와 비교해 작으면 왼쪽, 크면 오른쪽으로 내려가며 <b>한 번 비교로 후보의 절반을 버립니다</b> — 균형 잡히면 O(log n)으로, 이분 탐색과 같은 원리를 트리로 구현한 것입니다. 삽입·삭제도 같은 경로를 따라 O(log n)이고, 배열의 이분 탐색과 달리 <b>동적으로 값을 넣고 빼면서도 정렬을 유지</b>합니다. 찾는 값을 바꿔 루트에서 갈라지는 탐색 경로를 보세요.",
-    "hint": "찾는 값을 바꿔 탐색 경로를 보세요",
-    "more": "<b>이진 탐색 트리(BST)</b>는 모든 노드에서 <b>왼쪽 서브트리 < 노드 < 오른쪽 서브트리</b>가 성립하는 이진 트리입니다. 탐색: 루트와 비교해 작으면 왼쪽, 크면 오른쪽으로 내려가며 매번 <b>절반을 버립니다</b> → 균형 잡히면 O(log n)(이분 탐색과 같은 원리, 트리로 구현). 삽입·삭제도 같은 경로로 O(log n)이고, 배열의 이분 탐색과 달리 <b>동적으로 추가·삭제하며 정렬을 유지</b>합니다. 약점: 삽입 순서가 나쁘면 한쪽으로 치우쳐 O(n)이 됨(다음 장면). 그래서 <b>자가 균형 트리(AVL, 레드-블랙)</b>가 자동으로 모양을 고쳐 O(log n)을 보장합니다 — 데이터베이스·메모리 관리·셋(set)/맵(map) 구현의 핵심입니다.",
-    "more_en": "A <b>binary search tree (BST)</b> is a binary tree where at every node, <b>left subtree < node < right subtree</b>. Search: compare with the root and go left if smaller, right if larger, <b>discarding half each time</b> → O(log n) when balanced (the same idea as binary search,, built as a tree). Insert and delete follow the same path in O(log n), and unlike array binary search, a BST <b>stays sorted while adding/removing dynamically</b>. Weakness: a bad insertion order skews it to O(n) (next scene). So <b>self-balancing trees (AVL, red-black)</b> automatically restructure to guarantee O(log n) — central to databases, memory management, and set/map implementations.",
-    "problem": {
-      "q": "BST에서 값 14를 찾을 때 루트(8)에서 첫 이동 방향은?",
-      "solution": "14 > 8 이므로 <b>오른쪽</b>으로. (작으면 왼쪽, 크면 오른쪽)",
-      "q_en": "Searching for 14 in the BST, which way from the root (8) first?",
-      "sol_en": "14 > 8, so go <b>right</b> (smaller goes left, larger goes right)."
-    }
-  },
-  "algo5_04": {
-    "ch": "알고리즘 제5장 트리",
-    "sec": "5.3 힙과 우선순위 큐",
-    "title": "힙 — 항상 최댓값이 꼭대기",
-    "narr": "BST가 '순서'를 다뤘다면, <b>힙</b>은 '우선순위'를 다루는 특별한 트리입니다. 빈틈없이 채운 완전이진트리이면서 <b>부모가 항상 자식보다 큰</b>(최대 힙) 규칙을 지킵니다. 그 결과 <b>최댓값이 늘 루트</b>에 있어 O(1)에 들여다보고, 꺼낸 뒤에는 원소가 위아래로 헤엄쳐(sift) O(log n)에 규칙을 회복합니다. 덕분에 '가장 급한 것부터' 꺼내는 <b>우선순위 큐</b>를 빠르게 만들어, OS 스케줄러나 다음 장의 다익스트라 최단경로에 쓰입니다. 완전이진트리라 포인터 없이 <b>배열로 깔끔하게 저장</b>됩니다(노드 i의 자식 = 2i+1, 2i+2). 부모≥자식 규칙으로 최댓값이 루트에 오는 모양을 보세요.",
-    "hint": "부모 ≥ 자식 · 최댓값 = 루트",
-    "more": "<b>힙(heap)</b>은 <b>완전이진트리</b>(빈틈없이 채워진)이면서 <b>힙 속성</b>(최대 힙: 부모 ≥ 자식 / 최소 힙: 부모 ≤ 자식)을 만족합니다. 그래서 <b>최댓값(또는 최솟값)이 항상 루트</b>! 삽입·삭제 시 자리를 위/아래로 \"헤엄쳐\"(sift) O(log n)에 속성을 회복합니다. 핵심 응용: <b>우선순위 큐</b>(가장 급한 작업부터 — OS 스케줄러, 다익스트라 최단경로 ), <b>힙 정렬</b>(O(n log n)), <b>상위 K개 찾기</b>. 완전이진트리라 <b>배열로 저장</b>됩니다(노드 i의 자식 = 2i+1, 2i+2 — 포인터 불필요!). 큐가 \"순서\"였다면 힙은 \"우선순위\"입니다.",
-    "more_en": "A <b>heap</b> is a <b>complete binary tree</b> (filled with no gaps) satisfying the <b>heap property</b> (max-heap: parent ≥ children / min-heap: parent ≤ children). So the <b>max (or min) is always the root</b>! On insert/delete, an element \"sifts\" up or down to restore the property in O(log n). Key uses: <b>priority queues</b> (most urgent first — OS schedulers, Dijkstra's shortest path ), <b>heapsort</b> (O(n log n)), and <b>top-K selection</b>. Being a complete tree, it is <b>stored as an array</b> (node i's children = 2i+1, 2i+2 — no pointers needed!). If the queue idea was about \"order,\" the heap is about \"priority.\"",
-    "problem": {
-      "q": "최대 힙에서 가장 큰 값은 어디에 있나?",
-      "solution": "항상 <b>루트(꼭대기)</b>. 그래서 최댓값을 O(1)에 보고, O(log n)에 꺼냅니다.",
-      "q_en": "In a max-heap, where is the largest value?",
-      "sol_en": "Always at the <b>root</b>. So you read the max in O(1) and remove it in O(log n)."
-    },
-    "impl": [
-      "// 최대 힙: 항상 최댓값이 꼭대기(루트)",
-      "void push(int x){          // 삽입 후 위로(sift-up)",
-      "  heap[++n] = x;",
-      "  for(int i = n; i > 1 && heap[i] > heap[i/2]; i /= 2)",
-      "    swap(heap[i], heap[i/2]);",
-      "}",
-      "int popMax(){              // 루트 빼고 아래로(sift-down)",
-      "  int top = heap[1]; heap[1] = heap[n--];",
-      "  for(int i = 1, c; (c = 2*i) <= n; i = c){",
-      "    if(c < n && heap[c+1] > heap[c]) c++;",
-      "    if(heap[i] >= heap[c]) break;",
-      "    swap(heap[i], heap[c]);",
-      "  }",
-      "  return top;   // 삽입·추출 모두 O(log n)",
-      "}"
-    ]
-  },
-  "algo5_05": {
-    "ch": "알고리즘 제5장 트리",
-    "sec": "5.2 이진 탐색 트리",
-    "title": "균형이 전부다",
-    "narr": "BST가 빠른(O(log n)) 진짜 이유는 <b>균형</b>에 있습니다. 탐색이 루트부터 리프까지 내려가니 성능은 <b>깊이</b>에 달려 있는데, 균형 트리는 깊이가 log n입니다. 그런데 값을 1, 2, 3, 4… 정렬된 순서로 넣으면 트리가 <b>한쪽으로만 줄줄이</b> 자라 사실상 연결 리스트가 되고, 깊이가 n으로 늘어 탐색이 다시 <b>O(n)</b>으로 퇴화합니다. 해결책은 삽입·삭제 때마다 <b>회전(rotation)</b>으로 모양을 고쳐 깊이를 log n으로 유지하는 자가 균형 트리(AVL, 레드-블랙)입니다. 좋은 자료구조도 모양을 지키는 규율이 있어야 보장된 성능을 냅니다. 왼쪽(균형)과 오른쪽(편향)을 비교해 보세요.",
-    "hint": "편향되면 O(log n)이 O(n)으로 무너집니다",
-    "more": "BST의 성능은 <b>깊이</b>에 달려 있습니다 — 탐색은 루트부터 리프까지 내려가기 때문입니다. <b>균형 트리</b>(왼·오 골고루)는 깊이 <b>log n</b> → O(log n). 하지만 정렬된 순서로 삽입하면 <b>편향 트리</b>(한쪽으로만)가 되어 깊이 <b>n</b> → O(n)(연결 리스트로 퇴화!). 해결책: <b>자가 균형 트리</b>가 삽입·삭제 때마다 <b>회전(rotation)</b>으로 모양을 고쳐 깊이를 log n으로 유지합니다 — <b>AVL 트리</b>(엄격한 균형), <b>레드-블랙 트리</b>(느슨하지만 빠른 균형, C++ map·자바 TreeMap·리눅스 커널), <b>B-트리</b>(디스크·데이터베이스 인덱스). 교훈: 좋은 자료구조도 <b>모양을 유지하는 규율</b>이 있어야 보장된 성능을 냅니다. 이제 트리를 넘어 더 일반적인 연결 구조 — 그래프로 갑니다.",
-    "more_en": "BST performance depends on <b>depth</b> — search descends from root to leaf. A <b>balanced tree</b> (even left/right) has depth <b>log n</b> → O(log n). But inserting in sorted order makes a <b>skewed tree</b> (all one side) of depth <b>n</b> → O(n) (degenerated to a linked list!). The fix: <b>self-balancing trees</b> restructure via <b>rotations</b> on each insert/delete to keep depth at log n — <b>AVL trees</b> (strict balance), <b>red-black trees</b> (looser but fast; C++ map, Java TreeMap, Linux kernel), and <b>B-trees</b> (disk and database indexes). Lesson: even a good data structure needs <b>discipline to keep its shape</b> for guaranteed performance. Now beyond trees to a more general linked structure — graphs.",
-    "problem": {
-      "q": "정렬된 값을 순서대로 BST에 넣으면 어떤 모양이 되나?",
-      "solution": "한쪽으로 치우친 <b>편향 트리(사실상 연결 리스트)</b> → 탐색 O(n)으로 퇴화.",
-      "q_en": "Inserting already-sorted values into a BST produces what shape?",
-      "sol_en": "A one-sided <b>skewed tree (effectively a linked list)</b> → search degrades to O(n)."
-    }
+ "algo5_01": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.1 이진 트리",
+  "title": "이진 트리 — 가지치는 계층 구조",
+  "narr": "지금까지 데이터는 일렬(배열·리스트)이었습니다. <b>트리</b>는 한 줄을 벗어난 <b>가지치는 계층 구조</b>입니다 — 맨 위 <b>루트</b>에서 부모-자식으로 아래로 갈라지고(사이클 없음), 끝의 자식 없는 노드가 <b>리프</b>입니다. 폴더 구조·가계도·조직도가 모두 트리입니다. 각 노드의 자식이 최대 2개면 <b>이진 트리</b>입니다. 이 구조가 중요한 이유는, 균형 잡힌 이진 트리가 n개의 노드를 단 log n 층에 담아 탐색·삽입·삭제를 O(log n)으로 만들기 때문입니다 — 이분 탐색을 자료구조로 굳힌 셈입니다. 루트(주황)에서 가지를 따라 리프(초록)까지 내려가는 모양을 보세요.",
+  "hint": "루트(주황) → 가지 → 리프(초록)",
+  "more": "<b>트리(tree)</b>는 노드들이 부모-자식으로 연결된 계층 구조입니다(사이클 없음). 용어: <b>루트</b>(꼭대기), <b>부모/자식</b>, <b>리프</b>(자식 없는 끝 노드), <b>깊이/높이</b>(층 수), <b>서브트리</b>. <b>이진 트리</b>는 각 노드의 자식이 <b>최대 2개</b>(왼쪽·오른쪽). 이 구조가 중요한 이유는, 균형 잡힌 이진 트리는 n개의 노드를 단 <b>log n 층</b>에 담아, 탐색·삽입·삭제를 O(log n)으로 만듭니다(이분 탐색을 자료구조로 굳힌 것!). 파일시스템, 데이터베이스 인덱스(B-트리), 컴파일러의 구문 트리, 의사결정 트리(AI)가 모두 트리입니다. 다음: 트리를 \"훑는\" 방법(순회).",
+  "more_en": "A <b>tree</b> is a hierarchy of nodes linked as parent-child (no cycles). Terms: <b>root</b> (top), <b>parent/child</b>, <b>leaf</b> (a node with no children), <b>depth/height</b> (number of levels), <b>subtree</b>. A <b>binary tree</b> has <b>at most 2 children</b> per node (left and right). Why it matters: a balanced binary tree packs n nodes into just <b>log n levels</b>, making search, insert, and delete O(log n) (binary search solidified into a data structure!). File systems, database indexes (B-trees), compiler syntax trees, and decision trees (AI) are all trees. Next: how to \"walk\" a tree (traversal).",
+  "problem": {
+   "q": "노드가 7개인 균형 이진 트리의 깊이(층 수)는?",
+   "solution": "log₂(7+1) = 3층 → 루트 포함 <b>3개 층</b> (1+2+4 = 7노드).",
+   "q_en": "What is the depth (number of levels) of a balanced binary tree with 7 nodes?",
+   "sol_en": "log₂(7+1) = <b>3 levels</b> (1+2+4 = 7 nodes)."
   }
+ },
+ "algo5_02": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.1 트리 순회",
+  "title": "트리 순회 — 모든 노드 훑기",
+  "narr": "트리를 만들었으니 이번엔 모든 노드를 빠짐없이 방문하는 <b>순회</b>를 봅니다. 깊이 우선 순회는 방문 순서에 따라 셋으로 나뉩니다 — 전위(자신→왼→오), 중위(왼→자신→오), 후위(왼→오→자신). 가장 유용한 <b>중위순회</b>는 <b>왼쪽 → 자신 → 오른쪽</b>으로 가는데, BST에서는 왼쪽<자신<오른쪽 규칙 때문에 이 순서가 곧 <b>오름차순 정렬된 결과</b>가 됩니다. 순회는 본질적으로 각 서브트리에 같은 규칙을 적용하는 재귀이고, 재귀는 스택으로 동작합니다 — 다음 장 그래프 탐색(DFS/BFS)의 직접적 토대입니다. 화면을 눌러 한 노드씩 방문해 보세요.",
+  "hint": "▶ 눌러 다음 노드 방문",
+  "more": "<b>순회(traversal)</b>는 트리의 모든 노드를 체계적으로 방문하는 것입니다. 깊이 우선 3가지 — <b>전위(pre-order)</b>: 자신→왼쪽→오른쪽(트리 복사·식 표기), <b>중위(in-order)</b>: 왼쪽→자신→오른쪽(BST에서 <b>정렬 순서</b>!), <b>후위(post-order)</b>: 왼쪽→오른쪽→자신(폴더 용량 계산·삭제). 그리고 <b>레벨 순회</b>(층별, 큐 사용 = BFS). 순회는 본질적으로 <b>재귀</b>(각 서브트리에 같은 규칙)이고, 재귀는 스택으로 동작합니다. 같은 트리도 \"어떤 순서로 보느냐\"에 따라 다른 일을 합니다 — 그래프 탐색(DFS/BFS)의 직접적 토대입니다.",
+  "more_en": "<b>Traversal</b> systematically visits every node. Three depth-first orders — <b>pre-order</b> (node→left→right; copying a tree, prefix notation), <b>in-order</b> (left→node→right; <b>sorted order</b> in a BST!), <b>post-order</b> (left→right→node; computing folder sizes, deletion). Plus <b>level-order</b> (by levels, using a queue = BFS). Traversal is inherently <b>recursive</b> (same rule on each subtree), and recursion runs on a stack. The same tree does different jobs depending on \"the order you look\" — a direct foundation for graph search (DFS/BFS).",
+  "problem": {
+   "q": "BST를 중위순회하면 결과의 특징은?",
+   "solution": "<b>오름차순 정렬</b>된 순서로 나옵니다 (왼쪽<자신<오른쪽 규칙 때문).",
+   "q_en": "What is special about an in-order traversal of a BST?",
+   "sol_en": "It yields the values in <b>ascending sorted order</b> (because left < node < right)."
+  }
+ },
+ "algo5_03": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.2 이진 탐색 트리",
+  "title": "이진 탐색 트리 — 트리로 만든 이분 탐색",
+  "narr": "이제 트리에 규칙을 하나 부여합니다. <b>이진 탐색 트리(BST)</b>는 모든 노드에서 <b>왼쪽 서브트리 < 노드 < 오른쪽 서브트리</b>가 성립합니다. 그래서 값을 찾을 때 루트와 비교해 작으면 왼쪽, 크면 오른쪽으로 내려가며 <b>한 번 비교로 후보의 절반을 버립니다</b> — 균형 잡히면 O(log n)으로, 이분 탐색과 같은 원리를 트리로 구현한 것입니다. 삽입·삭제도 같은 경로를 따라 O(log n)이고, 배열의 이분 탐색과 달리 <b>동적으로 값을 넣고 빼면서도 정렬을 유지</b>합니다. 찾는 값을 바꿔 루트에서 갈라지는 탐색 경로를 보세요.",
+  "hint": "찾는 값을 바꿔 탐색 경로를 보세요",
+  "more": "<b>이진 탐색 트리(BST)</b>는 모든 노드에서 <b>왼쪽 서브트리 < 노드 < 오른쪽 서브트리</b>가 성립하는 이진 트리입니다. 탐색: 루트와 비교해 작으면 왼쪽, 크면 오른쪽으로 내려가며 매번 <b>절반을 버립니다</b> → 균형 잡히면 O(log n)(이분 탐색과 같은 원리, 트리로 구현). 삽입·삭제도 같은 경로로 O(log n)이고, 배열의 이분 탐색과 달리 <b>동적으로 추가·삭제하며 정렬을 유지</b>합니다. 약점: 삽입 순서가 나쁘면 한쪽으로 치우쳐 O(n)이 됨(다음 장면). 그래서 <b>자가 균형 트리(AVL, 레드-블랙)</b>가 자동으로 모양을 고쳐 O(log n)을 보장합니다 — 데이터베이스·메모리 관리·셋(set)/맵(map) 구현의 핵심입니다.",
+  "more_en": "A <b>binary search tree (BST)</b> is a binary tree where at every node, <b>left subtree < node < right subtree</b>. Search: compare with the root and go left if smaller, right if larger, <b>discarding half each time</b> → O(log n) when balanced (the same idea as binary search,, built as a tree). Insert and delete follow the same path in O(log n), and unlike array binary search, a BST <b>stays sorted while adding/removing dynamically</b>. Weakness: a bad insertion order skews it to O(n) (next scene). So <b>self-balancing trees (AVL, red-black)</b> automatically restructure to guarantee O(log n) — central to databases, memory management, and set/map implementations.",
+  "problem": {
+   "q": "BST에서 값 14를 찾을 때 루트(8)에서 첫 이동 방향은?",
+   "solution": "14 > 8 이므로 <b>오른쪽</b>으로. (작으면 왼쪽, 크면 오른쪽)",
+   "q_en": "Searching for 14 in the BST, which way from the root (8) first?",
+   "sol_en": "14 > 8, so go <b>right</b> (smaller goes left, larger goes right)."
+  }
+ },
+ "algo5_04": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.3 힙과 우선순위 큐",
+  "title": "힙 — 항상 최댓값이 꼭대기",
+  "narr": "BST가 '순서'를 다뤘다면, <b>힙</b>은 '우선순위'를 다루는 특별한 트리입니다. 빈틈없이 채운 완전이진트리이면서 <b>부모가 항상 자식보다 큰</b>(최대 힙) 규칙을 지킵니다. 그 결과 <b>최댓값이 늘 루트</b>에 있어 O(1)에 들여다보고, 꺼낸 뒤에는 원소가 위아래로 헤엄쳐(sift) O(log n)에 규칙을 회복합니다. 덕분에 '가장 급한 것부터' 꺼내는 <b>우선순위 큐</b>를 빠르게 만들어, OS 스케줄러나 다음 장의 다익스트라 최단경로에 쓰입니다. 완전이진트리라 포인터 없이 <b>배열로 깔끔하게 저장</b>됩니다(노드 i의 자식 = 2i+1, 2i+2). 부모≥자식 규칙으로 최댓값이 루트에 오는 모양을 보세요.",
+  "hint": "부모 ≥ 자식 · 최댓값 = 루트",
+  "more": "<b>힙(heap)</b>은 <b>완전이진트리</b>(빈틈없이 채워진)이면서 <b>힙 속성</b>(최대 힙: 부모 ≥ 자식 / 최소 힙: 부모 ≤ 자식)을 만족합니다. 그래서 <b>최댓값(또는 최솟값)이 항상 루트</b>! 삽입·삭제 시 자리를 위/아래로 \"헤엄쳐\"(sift) O(log n)에 속성을 회복합니다. 핵심 응용: <b>우선순위 큐</b>(가장 급한 작업부터 — OS 스케줄러, 다익스트라 최단경로 ), <b>힙 정렬</b>(O(n log n)), <b>상위 K개 찾기</b>. 완전이진트리라 <b>배열로 저장</b>됩니다(노드 i의 자식 = 2i+1, 2i+2 — 포인터 불필요!). 큐가 \"순서\"였다면 힙은 \"우선순위\"입니다.",
+  "more_en": "A <b>heap</b> is a <b>complete binary tree</b> (filled with no gaps) satisfying the <b>heap property</b> (max-heap: parent ≥ children / min-heap: parent ≤ children). So the <b>max (or min) is always the root</b>! On insert/delete, an element \"sifts\" up or down to restore the property in O(log n). Key uses: <b>priority queues</b> (most urgent first — OS schedulers, Dijkstra's shortest path ), <b>heapsort</b> (O(n log n)), and <b>top-K selection</b>. Being a complete tree, it is <b>stored as an array</b> (node i's children = 2i+1, 2i+2 — no pointers needed!). If the queue idea was about \"order,\" the heap is about \"priority.\"",
+  "problem": {
+   "q": "최대 힙에서 가장 큰 값은 어디에 있나?",
+   "solution": "항상 <b>루트(꼭대기)</b>. 그래서 최댓값을 O(1)에 보고, O(log n)에 꺼냅니다.",
+   "q_en": "In a max-heap, where is the largest value?",
+   "sol_en": "Always at the <b>root</b>. So you read the max in O(1) and remove it in O(log n)."
+  },
+  "impl": [
+   "// 최대 힙: 항상 최댓값이 꼭대기(루트)",
+   "void push(int x){          // 삽입 후 위로(sift-up)",
+   "  heap[++n] = x;",
+   "  for(int i = n; i > 1 && heap[i] > heap[i/2]; i /= 2)",
+   "    swap(heap[i], heap[i/2]);",
+   "}",
+   "int popMax(){              // 루트 빼고 아래로(sift-down)",
+   "  int top = heap[1]; heap[1] = heap[n--];",
+   "  for(int i = 1, c; (c = 2*i) <= n; i = c){",
+   "    if(c < n && heap[c+1] > heap[c]) c++;",
+   "    if(heap[i] >= heap[c]) break;",
+   "    swap(heap[i], heap[c]);",
+   "  }",
+   "  return top;   // 삽입·추출 모두 O(log n)",
+   "}"
+  ]
+ },
+ "algo5_05": {
+  "ch": "알고리즘 제5장 트리",
+  "sec": "5.2 이진 탐색 트리",
+  "title": "균형이 전부다",
+  "narr": "BST가 빠른(O(log n)) 진짜 이유는 <b>균형</b>에 있습니다. 탐색이 루트부터 리프까지 내려가니 성능은 <b>깊이</b>에 달려 있는데, 균형 트리는 깊이가 log n입니다. 그런데 값을 1, 2, 3, 4… 정렬된 순서로 넣으면 트리가 <b>한쪽으로만 줄줄이</b> 자라 사실상 연결 리스트가 되고, 깊이가 n으로 늘어 탐색이 다시 <b>O(n)</b>으로 퇴화합니다. 해결책은 삽입·삭제 때마다 <b>회전(rotation)</b>으로 모양을 고쳐 깊이를 log n으로 유지하는 자가 균형 트리(AVL, 레드-블랙)입니다. 좋은 자료구조도 모양을 지키는 규율이 있어야 보장된 성능을 냅니다. 왼쪽(균형)과 오른쪽(편향)을 비교해 보세요.",
+  "hint": "편향되면 O(log n)이 O(n)으로 무너집니다",
+  "more": "BST의 성능은 <b>깊이</b>에 달려 있습니다 — 탐색은 루트부터 리프까지 내려가기 때문입니다. <b>균형 트리</b>(왼·오 골고루)는 깊이 <b>log n</b> → O(log n). 하지만 정렬된 순서로 삽입하면 <b>편향 트리</b>(한쪽으로만)가 되어 깊이 <b>n</b> → O(n)(연결 리스트로 퇴화!). 해결책: <b>자가 균형 트리</b>가 삽입·삭제 때마다 <b>회전(rotation)</b>으로 모양을 고쳐 깊이를 log n으로 유지합니다 — <b>AVL 트리</b>(엄격한 균형), <b>레드-블랙 트리</b>(느슨하지만 빠른 균형, C++ map·자바 TreeMap·리눅스 커널), <b>B-트리</b>(디스크·데이터베이스 인덱스). 교훈: 좋은 자료구조도 <b>모양을 유지하는 규율</b>이 있어야 보장된 성능을 냅니다. 이제 트리를 넘어 더 일반적인 연결 구조 — 그래프로 갑니다.",
+  "more_en": "BST performance depends on <b>depth</b> — search descends from root to leaf. A <b>balanced tree</b> (even left/right) has depth <b>log n</b> → O(log n). But inserting in sorted order makes a <b>skewed tree</b> (all one side) of depth <b>n</b> → O(n) (degenerated to a linked list!). The fix: <b>self-balancing trees</b> restructure via <b>rotations</b> on each insert/delete to keep depth at log n — <b>AVL trees</b> (strict balance), <b>red-black trees</b> (looser but fast; C++ map, Java TreeMap, Linux kernel), and <b>B-trees</b> (disk and database indexes). Lesson: even a good data structure needs <b>discipline to keep its shape</b> for guaranteed performance. Now beyond trees to a more general linked structure — graphs.",
+  "problem": {
+   "q": "정렬된 값을 순서대로 BST에 넣으면 어떤 모양이 되나?",
+   "solution": "한쪽으로 치우친 <b>편향 트리(사실상 연결 리스트)</b> → 탐색 O(n)으로 퇴화.",
+   "q_en": "Inserting already-sorted values into a BST produces what shape?",
+   "sol_en": "A one-sided <b>skewed tree (effectively a linked list)</b> → search degrades to O(n)."
+  }
+ },
+ "algo5_06": {
+  "ch": "알고리즘 · 균형 트리",
+  "sec": "균형 트리",
+  "title": "균형 트리 — 스스로 균형 잡는 BST",
+  "narr": "BST는 정렬 순서로 넣으면 한쪽으로 치우쳐 O(n)으로 퇴화합니다. <b>균형 트리</b>는 삽입·삭제 때마다 모양을 고쳐 깊이를 log n으로 지킵니다 — ① <b>BST 기본</b>(삽입·삭제·회전), ② <b>높이·색 균형</b>(AVL·레드블랙), ③ <b>자기조정·무작위</b>(스플레이·트립), ④ 디스크용 <b>B-트리</b>. ↓ 심화학습에서 순서대로.",
+  "hint": "균형트리 = BST기본 → AVL·RB → 스플레이·트립 → B-트리",
+  "more": "큰 그림: 모든 균형 트리는 '<b>회전(rotation)</b>'이라는 한 동작으로 모양을 고칩니다. AVL은 높이차(±1)로, 레드블랙은 색 규칙으로 균형을 강제하고, 스플레이는 접근한 노드를 루트로 끌어올려 자기조정하며, 트립은 무작위 우선순위로 기대 균형을 얻습니다. B-트리는 한 노드에 키를 여러 개 담아 디스크 접근을 줄입니다. 공통 목표는 깊이 = O(log n).",
+  "more_en": "Big picture: every balanced tree fixes shape via one operation — the <b>rotation</b>. AVL enforces balance by height difference (±1), red-black by color rules, splay self-adjusts by lifting accessed nodes to the root, and treaps get expected balance via random priorities. B-trees pack many keys per node to cut disk access. The shared goal: depth = O(log n)."
+ },
+ "algo5_07": {
+  "ch": "알고리즘 · 고급 트리",
+  "sec": "고급 트리(질의·분해·연결성)",
+  "title": "고급 트리 — 질의·분해·연결성",
+  "narr": "트리에서 '두 정점의 공통 조상은? 경로의 합은? 서브트리의 답은?'을 빠르게 묻습니다. 비결은 트리를 <b>배열·경로로 펼치는</b> 것 — ① <b>조상·LCA</b>(이진점프·오일러투어), ② <b>트리 DP·동형</b>, ③ <b>경로 분해</b>(HLD·센트로이드), ④ 합치고 되돌리는 <b>DSU·동적 연결성</b>. ↓ 심화학습에서 순서대로.",
+  "hint": "고급트리 = LCA → 트리DP·동형 → 경로분해 → DSU·동적연결",
+  "more": "큰 그림: 고급 트리 기법의 핵심은 '<b>트리를 선형 구조로 사상</b>'하는 것입니다. 오일러 투어는 서브트리를 구간으로, HLD는 경로를 몇 개의 구간으로 바꿔 세그먼트 트리로 질의합니다. LCA는 이진 점프(2^k 조상)나 오일러+희소테이블로, 센트로이드 분할은 트리판 분할정복입니다. union-find와 그 변형(롤백·오프라인 동적 연결성·LCT)은 '연결되어 있나'를 동적으로 답합니다 — 앞서 배운 세그먼트 트리·분할정복·DSU가 트리 위에서 다시 만납니다.",
+  "more_en": "Big picture: advanced tree techniques <b>map a tree onto a linear structure</b>. Euler tour turns subtrees into ranges; HLD turns a path into a few ranges queryable by a segment tree. LCA uses binary lifting (2^k ancestors) or Euler+sparse table; centroid decomposition is divide-and-conquer on trees. Union-find and its variants (rollback, offline dynamic connectivity, link-cut trees) answer connectivity dynamically — segment trees, divide-and-conquer, and DSU from earlier reunite on trees."
+ }
 }

@@ -134,6 +134,34 @@
       ctx.font='600 14px sans-serif'; ctx.textAlign='center';
       ctx.fillStyle=GRN; ctx.fillText('균형 → 깊이 log n → O(log n)', E.W*0.26, E.H*0.86);
       ctx.fillStyle=PNK; ctx.fillText('편향 → 깊이 n → O(n) ✗', E.W*0.74, E.H*0.86); }
+  },
+
+  // ══════════ 균형 트리 — 스스로 균형 잡는 BST (concept) ══════════
+  { id:'algo5_06', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'균형 트리 — 스스로 균형 잡는 BST',
+      sub:'편향을 막아 깊이를 log n으로 유지한다. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① BST 기본', items:['BST 삽입','BST 삭제','회전']},
+        {c:'#ffb27a', t:'② 높이·색 균형', items:['AVL','레드블랙','RB 삽입 fixup']},
+        {c:'#f4a0c0', t:'③ 자기조정·무작위', items:['스플레이','트립(Treap)']},
+        {c:'#7ab8ff', t:'④ 디스크', items:['B-트리']}
+      ],
+      foot:'삽입·삭제·회전 → 높이(AVL)·색(RB) 균형 → 자기조정·무작위 → 디스크용 넓은 트리' }); }
+  },
+
+  // ══════════ 고급 트리 — 질의·분해·연결성 (concept) ══════════
+  { id:'algo5_07', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'고급 트리 — 질의·분해·연결성',
+      sub:'트리를 배열·경로로 펼쳐 빠르게 묻는다. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 조상·LCA', items:['LCA','이진 점프','타잔 오프라인 LCA','오일러 투어']},
+        {c:'#ffb27a', t:'② 트리 DP·동형', items:['트리 DP','트리 지름·중심','트리 동형','DSU on tree']},
+        {c:'#f4a0c0', t:'③ 경로 분해', items:['Heavy-Light','센트로이드','가상 트리']},
+        {c:'#7ab8ff', t:'④ DSU·동적연결', items:['union-find','롤백 DSU','오프라인 동적연결','링크컷 트리','영속 자료구조']}
+      ],
+      foot:'조상·LCA를 빠르게 → 서브트리 DP·동형 → 경로를 구간으로 분해 → 합치고 되돌리는 연결성' }); }
   }
 
   ];
