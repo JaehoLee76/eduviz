@@ -52,14 +52,15 @@
   { id:'ch24_04',
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, x0=E.W*0.30, y0=E.H*0.33, rh=Math.min(40,E.H*0.07);
-      var L=['0. 1 4 2 8 …','0. 3 3 3 3 …','0. 7 1 8 2 …','0. 9 0 0 5 …','0. 2 7 1 8 …'];
+      var L=['0. 1 4 2 8 5 …','0. 3 3 3 3 3 …','0. 7 1 8 2 8 …','0. 9 0 0 5 1 …','0. 2 7 1 8 2 …'];
       ctx.font='16px ui-monospace, monospace'; ctx.textAlign='left';
       for(var i=0;i<5;i++){ var y=y0+i*rh; ctx.fillStyle='#8a8893'; ctx.fillText((i+1)+':  '+L[i], x0, y);
         // 대각선 숫자 강조
         var dx=x0+ctx.measureText((i+1)+':  0. ').width + i*ctx.measureText('0 ').width;
         ctx.fillStyle='#ffb27a'; ctx.fillRect(dx-2, y-15, 14, 20); }
       ctx.fillStyle='#8fe3b5'; ctx.font='15px ui-monospace, monospace';
-      ctx.fillText('새 수 = 0. 2 4 2 6 9 …  (각 대각선 숫자 +1)', x0, y0+5*rh+24);
+      var nn=[]; for(var d=0;d<5;d++){ var dig=L[d].replace('0. ','').trim().split(/\s+/); nn.push((parseInt(dig[d],10)+1)%10); }   // 대각선 숫자에서 실제 +1 계산(9는 0) — 골든룰
+      ctx.fillText('새 수 = 0. '+nn.join(' ')+' …  (각 대각선 숫자 +1, 9는 0)', x0, y0+5*rh+24);
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('→ 목록의 어느 수와도 적어도 한 자리가 다릅니다 → 목록에 없음!', x0, y0+5*rh+48);
       E.big('실수는 비가산 — 더 큰 무한!', '★칸토어 대각선논법 — 실수를 다 나열해도, 대각선을 바꾼 새 수는 목록에 없습니다. 무한에도 크기가 여러 개!'); }
   }

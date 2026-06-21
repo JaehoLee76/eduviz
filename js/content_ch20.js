@@ -18,7 +18,8 @@
       P.dot(0,0,'#ffb27a'); P.dot(2,4,'#ffb27a');
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y=2x (위)', P.X(2.1), P.Y(4.2));
       ctx.fillStyle='#7ab8ff'; ctx.fillText('y=x² (아래)', P.X(2.1), P.Y(3.0));
-      E.big('∫₀² (2x − x²) dx = 4/3', '두 곡선 사이 넓이 = ∫(위 − 아래). 교점 사이를 적분합니다'); }
+      var area=0,NS=2000; for(var s=0;s<NS;s++){ var tt=2*(s+0.5)/NS; area+=(top(tt)-bot(tt))*(2/NS); }   // 리만합 실계산
+      E.big('∫₀² (2x − x²) dx ≈ '+area.toFixed(3)+'  (= 4/3)', '두 곡선 사이 넓이 = ∫(위 − 아래). 교점 사이를 적분합니다'); }
   },
 
   // ══════════ 20.2 회전체의 부피 (원판법) ══════════
@@ -35,7 +36,8 @@
         ctx.ellipse(P.X(x),P.Y(0), Math.max(2,(P.X(x+0.13)-P.X(x))), Math.abs(P.Y(r)-P.Y(0)),0,0,TAU); ctx.stroke();
         ctx.fillStyle='rgba(143,227,181,0.10)'; ctx.fill(); }
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('← x축 둘레로 회전 →', E.W/2, P.Y(-2.1));
-      E.big('V = π ∫ₐᵇ [f(x)]² dx', '회전체 부피 = 얇은 원판(반지름 f(x))을 쌓기. 각 원판 넓이 πf² 를 적분'); }
+      var V=0,NV=2000,bb=3; for(var s=0;s<NV;s++){ var xv=bb*(s+0.5)/NV; V+=Math.PI*f(xv)*f(xv)*(bb/NV); }   // V=π∫f² 리만합 실계산
+      E.big('V = π ∫₀³ [f(x)]² dx ≈ '+V.toFixed(2), '회전체 부피 = 얇은 원판(반지름 f(x))을 쌓기. 각 원판 넓이 πf² 를 적분'); }
   },
 
   // ══════════ 20.3 곡선의 길이 ══════════
