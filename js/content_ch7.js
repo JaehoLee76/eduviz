@@ -35,17 +35,28 @@
 
   // 7.2b 로그 = 지수의 역함수 (y=x 대칭)
   { id:'ch7_03',
-    enter:function(E){ this.s={}; E.Plot.range(-3,6,-3,3); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
+    enter:function(E){ this.s={t:1}; E.Plot.range(-3,6,-3,3);
+      E.controls('<div class="ctrl"><label>지수 위 점의 x 좌표</label><input type="range" id="tx" min="-2" max="2.5" step="0.5" value="1"><output id="txo">1</output></div>');
+      var self=this; E.bind('#tx','input',function(e){ self.s.t=+e.target.value; document.getElementById('txo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx; P.axes();
       // y = x (대칭축)
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.5; ctx.setLineDash([5,5]);
       ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(-3)); ctx.lineTo(P.X(3),P.Y(3)); ctx.stroke(); ctx.setLineDash([]);
       P.curve(function(x){ return Math.pow(2,x); }, '#7ab8ff');         // 지수
       P.curve(function(x){ return x>0? lg(x,2): NaN; }, '#8fe3b5');     // 로그
-      P.dot(0,1,'#7ab8ff'); P.dot(1,0,'#8fe3b5');
       ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = 2ˣ', P.X(1.7), P.Y(5));
       ctx.fillStyle='#8fe3b5'; ctx.fillText('y = log₂x', P.X(4), P.Y(2.4));
-      E.big('y = log₂ x  ⟺  x = 2ʸ', '로그는 지수의 역함수 — y = x 에 대칭'); }
+      // 지수 위 점 (x, 2^x) — 슬라이더로 이동
+      var ex=s.t, ey=Math.pow(2,ex);
+      // y=x 대칭점 = 좌표 교환 (ey, ex) — 로그 곡선 위
+      var lx=ey, ly=ex;
+      // 거울 연결선(점선)
+      ctx.strokeStyle='rgba(255,178,122,0.55)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(P.X(ex),P.Y(ey)); ctx.lineTo(P.X(lx),P.Y(ly)); ctx.stroke(); ctx.setLineDash([]);
+      function f(v){ return v%1===0?v:v.toFixed(2); }
+      P.dot(ex,ey,'#7ab8ff','('+f(ex)+', '+f(ey)+')');
+      P.dot(lx,ly,'#8fe3b5','('+f(lx)+', '+f(ly)+')');
+      E.big('지수 ('+f(ex)+', '+f(ey)+')  ↔  로그 ('+f(lx)+', '+f(ly)+')', '좌표 (x, y) ↔ (y, x) 교환 — y = x 에 대칭(거울)'); }
   },
 
   // 7.2c 로그함수 그래프

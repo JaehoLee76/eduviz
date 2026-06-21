@@ -79,16 +79,25 @@
 
   // 9.2b 응용 — 내적으로 수직 판정
   { id:'ch9_05',
-    enter:function(E){ this.s={}; E.setOn([]);
-      E.quiz({q:'두 벡터 a=(2, 1), b=(−1, 2) 의 내적 a·b 는?', choices:['0','3','4','−2'], answer:0, explain:'2·(−1) + 1·2 = −2 + 2 = 0 → 두 벡터는 수직!'}); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; E.Plot.range(-3,4,-2,4); P.axes();
-      function vc(ox,oy,x,y,col,lab){ vec(P,ctx,ox,oy,x,y,col,lab); }
-      vc(0,0,2,1,'#7ab8ff','a=(2,1)');
-      vc(0,0,-1,2,'#8fe3b5','b=(−1,2)');
-      // 직각 표시
-      ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.arc(P.X(0),P.Y(0),18,-Math.atan2(1,2),-Math.atan2(2,-1),true); ctx.stroke();
-      E.big('a · b = 2·(−1) + 1·2 = 0', '내적 = 0 ⟺ 두 벡터가 수직 (직교)'); }
+    enter:function(E){ this.s={deg:117}; E.Plot.range(-4,4,-3,4);
+      // a=(2,1)의 방향각 ≈ 26.57°. b를 a기준 +90°(=116.57°)로 두면 수직.
+      E.controls('<div class="ctrl"><label>b의 방향 θ (도)</label><input type="range" id="bt" min="0" max="180" step="9" value="117"><output id="bto">117°</output></div>');
+      var self=this; E.bind('#bt','input',function(e){ self.s.deg=+e.target.value; document.getElementById('bto').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
+      var ax=2, ay=1, mb=Math.sqrt(5), t=this.s.deg*Math.PI/180;
+      var bx=mb*Math.cos(t), by=mb*Math.sin(t);          // |b| = |a| = √5
+      var dot=ax*bx+ay*by;                                // 실계산 내적
+      var perp=Math.abs(dot)<0.15;
+      vec(P,ctx,0,0,ax,ay,'#7ab8ff','a=(2,1)');
+      vec(P,ctx,0,0,bx,by,'#8fe3b5','b=('+bx.toFixed(1)+', '+by.toFixed(1)+')');
+      // 두 벡터 사이 호(angle) — 화면 y축 반전이므로 각도 부호 음수
+      var aA=Math.atan2(ay,ax), bA=Math.atan2(by,bx);
+      ctx.strokeStyle=perp?'rgba(255,178,122,0.9)':'rgba(255,255,255,0.4)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(P.X(0),P.Y(0),22,-aA,-bA,true); ctx.stroke();
+      if(perp){ // 직각기호(작은 사각형) — a·b=0 일 때만
+        ctx.save(); ctx.translate(P.X(0),P.Y(0)); ctx.scale(1,-1); ctx.rotate(aA);
+        ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(0,0,15,15); ctx.restore(); }
+      E.big('a · b = 2·('+bx.toFixed(1)+') + 1·('+by.toFixed(1)+') = '+dot.toFixed(2), perp?'내적 ≈ 0  →  두 벡터 수직(직교)! ⊥':'내적 = 성분곱의 합 = |a||b|cosθ'); }
   }
 
   ];

@@ -60,7 +60,7 @@
       // 전체 길이 1 (목표)
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.5; ctx.strokeRect(x0,y,L,hh);
       var sum=0, cur=0.5, px=x0, cols=['#7ab8ff','#8fe3b5','#ffb27a','#f4a0c0'];
-      for(var i=0;i<k;i++){ var w=cur*L; ctx.fillStyle=cols[i%4].replace(')',',0.5)').replace('#','rgba(')==cols[i%4]?cols[i%4]:cols[i%4];
+      for(var i=0;i<k;i++){ var w=cur*L;
         ctx.globalAlpha=0.45; ctx.fillStyle=cols[i%4]; ctx.fillRect(px,y,w,hh); ctx.globalAlpha=1;
         ctx.strokeStyle=cols[i%4]; ctx.lineWidth=1; ctx.strokeRect(px,y,w,hh);
         if(w>26){ ctx.fillStyle='#fff'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('1/'+Math.pow(2,i+1), px+w/2, y+hh/2+4); }

@@ -76,7 +76,11 @@
       if(parallel){ rel='평행 (m₁ = m₂)'; det='두 직선이 만나지 않습니다'; }
       else if(perp){ rel='수직 (m₁·m₂ = −1)'; det='두 직선이 직각으로 만납니다'; }
       else { rel='한 점에서 만남'; det='m₁ ≠ m₂ → 교점 하나'; }
-      if(perp){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.5; var ix=-1/(m-m2); } // 표시용(생략 가능)
+      // 수직일 때 교점에 직각기호(실제 교점 좌표 계산: m·x = 2x+1)
+      if(perp && m!==m2){ var ix=1/(m-m2), iy=m*ix;   // 교점 (ix, iy)
+        var a1=Math.atan2(m,1);                         // 움직이는 직선 방향각
+        ctx.save(); ctx.translate(P.X(ix),P.Y(iy)); ctx.scale(1,-1); ctx.rotate(a1);
+        ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(0,0,12,12); ctx.restore(); }
       E.big('m₁ = '+m+',  m₂ = 2', rel+' · '+det); }
   },
 
@@ -102,36 +106,41 @@
 
   // ══════════ 6.4 부등식이 나타내는 영역 ══════════
   { id:'ch6_06',
-    enter:function(E){ this.s={mode:0}; E.Plot.range(-7.5,7.5,-5,5); E.setOn([]); },
+    enter:function(E){ this.s={mode:0,m:1,r:3}; E.Plot.range(-7.5,7.5,-5,5);
+      E.controls('<div class="ctrl"><label>직선 기울기 m</label><input type="range" id="rm" min="-2" max="2" step="0.5" value="1"><output id="rmo">1</output><label style="margin-left:14px">원 반지름 r</label><input type="range" id="rr" min="1" max="4" step="1" value="3"><output id="rro">3</output></div>');
+      var self=this;
+      E.bind('#rm','input',function(e){ self.s.m=+e.target.value; document.getElementById('rmo').textContent=(+e.target.value); E.blip(440,0.1); });
+      E.bind('#rr','input',function(e){ self.s.r=+e.target.value; document.getElementById('rro').textContent=e.target.value; E.blip(400,0.1); }); E.setOn([]); },
     tap:function(E){ this.s.mode=(this.s.mode+1)%3; E.blip(440+this.s.mode*50,0.15); },
-    draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, g=P.geom(); P.axes();
+    draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, g=P.geom(), m=s.m, r=s.r; P.axes();
+      var mTxt=(m%1===0?m:m.toFixed(1));
+      // 직선 y = m·x + 1 을 클립 사각형 안에서 채울 사다리꼴 꼭짓점(실계산)
+      function fillAbove(){ ctx.beginPath();
+        ctx.moveTo(g.left,P.Y(m*P.xmin+1)); ctx.lineTo(g.right,P.Y(m*P.xmax+1)); ctx.lineTo(g.right,g.top); ctx.lineTo(g.left,g.top); ctx.closePath(); ctx.fill(); }
       ctx.save(); ctx.beginPath(); ctx.rect(g.left,g.top,g.w,g.h); ctx.clip();
-      if(s.mode===0){ // y > x+1
-        ctx.fillStyle='rgba(122,184,255,0.25)'; ctx.beginPath();
-        ctx.moveTo(g.left,P.Y(P.xmin+1)); ctx.lineTo(g.right,P.Y(P.xmax+1)); ctx.lineTo(g.right,g.top); ctx.lineTo(g.left,g.top); ctx.closePath(); ctx.fill();
-        ctx.restore(); P.curve(function(x){return x+1;},'#7ab8ff');
-        E.big('y &gt; x + 1', '직선 위쪽 영역 (경계 미포함)'); return;
-      } else if(s.mode===1){ // 원 내부 x²+y²<9
-        for(var i=0;i<=240;i++){ var x=P.xmin+(P.xmax-P.xmin)*i/240; }
-        ctx.fillStyle='rgba(143,227,181,0.25)'; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),3*sx(P),3*sy(P),0,0,7); ctx.fill();
+      if(s.mode===0){ // y > m·x + 1
+        ctx.fillStyle='rgba(122,184,255,0.25)'; fillAbove();
+        ctx.restore(); P.curve(function(x){return m*x+1;},'#7ab8ff');
+        E.big('y &gt; '+mTxt+'x + 1', '직선 위쪽 영역 (경계 미포함) — 기울기 '+mTxt); return;
+      } else if(s.mode===1){ // 원 내부 x²+y²<r²
+        ctx.fillStyle='rgba(143,227,181,0.25)'; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.fill();
         ctx.restore();
-        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),3*sx(P),3*sy(P),0,0,7); ctx.stroke();
-        E.big('x² + y² &lt; 9', '중심 O, 반지름 3 인 원의 내부'); return;
-      } else { // 교집합: y>x+1 그리고 원 내부
+        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke();
+        E.big('x² + y² &lt; '+(r*r), '중심 O, 반지름 '+r+' 인 원의 내부'); return;
+      } else { // 교집합: y > m·x+1 그리고 원 내부
         ctx.fillStyle='rgba(255,178,122,0.30)';
-        ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),3*sx(P),3*sy(P),0,0,7); ctx.clip();
-        ctx.beginPath(); ctx.moveTo(g.left,P.Y(P.xmin+1)); ctx.lineTo(g.right,P.Y(P.xmax+1)); ctx.lineTo(g.right,g.top); ctx.lineTo(g.left,g.top); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.clip();
+        fillAbove();
         ctx.restore();
-        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),3*sx(P),3*sy(P),0,0,7); ctx.stroke();
-        P.curve(function(x){return x+1;},'#7ab8ff');
-        E.big('y &gt; x + 1  그리고  x² + y² &lt; 9', '두 부등식을 동시에 — 교집합 영역'); return;
+        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke();
+        P.curve(function(x){return m*x+1;},'#7ab8ff');
+        E.big('y &gt; '+mTxt+'x + 1  그리고  x² + y² &lt; '+(r*r), '두 부등식을 동시에 — 교집합 영역'); return;
       } }
-    , layout:function(E){}
   }
 
   ];
   // tap 힌트(영역 장면)
-  scenes[5].draw=(function(orig){ return function(E){ orig.call(this,E); E.tapHint(E.W/2, E.Plot.geom().bot+40, '▶ 영역 바꾸기', true); }; })(scenes[5].draw);
+  scenes[5].draw=(function(orig){ return function(E){ orig.call(this,E); E.tapHint(E.W/2, E.Plot.geom().bot+40, '▶ 영역 바꾸기 (탭)', true); }; })(scenes[5].draw);
 
   if(window.Engine) window.Engine.addScenes(scenes);
 })();

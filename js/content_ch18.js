@@ -40,16 +40,35 @@
 
   // ══════════ 18.3 곡선의 개형 ══════════
   { id:'ch18_03',
-    enter:function(E){ this.s={}; E.Plot.range(-2.5,2.5,-4,4); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
-      function f(t){return t*t*t-3*t;}
+    enter:function(E){ this.s={b:-3}; E.Plot.range(-2.5,2.5,-4,4);
+      E.controls('<div class="ctrl"><label>계수 b  (y = x³ + b·x)</label><input type="range" id="bc" min="-4" max="2" step="0.5" value="-3"><output id="bco">-3</output></div>');
+      var self=this; E.bind('#bc','input',function(e){ self.s.b=+e.target.value; document.getElementById('bco').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx; P.axes();
+      function f(t){return t*t*t + b*t;}
       P.curve(f, '#7ab8ff');
-      // 극대·극소·변곡
-      P.dot(-1,2,'#ffb27a','극대'); P.dot(1,-2,'#8fe3b5','극소'); P.dot(0,0,'rgba(244,160,192,0.8)','변곡');
-      // 증감 화살표
-      ctx.font='18px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#9b99a3';
-      ctx.fillText('↗', P.X(-1.7), P.Y(3.4)); ctx.fillText('↘', P.X(0), P.Y(1.2)); ctx.fillText('↗', P.X(1.7), P.Y(-3.4));
-      E.big('f(x) = x³ − 3x 의 개형', '미분 종합 — f\'으로 증감(극대·극소), f\'\'으로 요철(변곡)을 알면 그래프 완성!'); }
+      // f'(x)=3x²+b=0 → x=±√(−b/3) : b<0 일 때만 극값 두 개 (실계산)
+      var disc = -b/3, capExtra;
+      if(disc > 1e-9){
+        var xc = Math.sqrt(disc);           // 임계점 |x|
+        var xmax = -xc, ymax = f(xmax);     // f''=6x<0 → 극대 (왼쪽)
+        var xmin =  xc, ymin = f(xmin);     // f''=6x>0 → 극소 (오른쪽)
+        P.dot(xmax, ymax, '#ffb27a', '극대('+xmax.toFixed(2)+', '+ymax.toFixed(2)+')');
+        P.dot(xmin, ymin, '#8fe3b5', '극소('+xmin.toFixed(2)+', '+ymin.toFixed(2)+')');
+        // 증감 화살표 (극대 왼쪽 ↗, 사이 ↘, 극소 오른쪽 ↗)
+        ctx.font='18px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#9b99a3';
+        ctx.fillText('↗', P.X(xmax-0.7), P.Y(f(xmax-0.7)+0.4));
+        ctx.fillText('↘', P.X(0), P.Y(f(0)+0.6));
+        ctx.fillText('↗', P.X(xmin+0.7), P.Y(f(xmin+0.7)-0.4));
+        capExtra = '극값: x=±'+xc.toFixed(3)+' (f\'=3x²+b=0)';
+      } else {
+        // f'=3x²+b≥0 항상 → 단조증가 (극값 없음)
+        ctx.font='18px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#9b99a3';
+        ctx.fillText('↗', P.X(-1.5), P.Y(f(-1.5)+0.4)); ctx.fillText('↗', P.X(1.5), P.Y(f(1.5)-0.4));
+        capExtra = '극값 없음 — f\'=3x²+b≥0 이라 단조증가';
+      }
+      // 변곡점 f''(x)=6x=0 → x=0 (실계산)
+      var xi=0, yi=f(xi); P.dot(xi, yi, 'rgba(244,160,192,0.9)', '변곡('+xi.toFixed(2)+', '+yi.toFixed(2)+')');
+      E.big('f(x) = x³ + ('+b+')·x 의 개형', '미분 종합 — f\'으로 증감(극대·극소), f\'\'으로 요철(변곡)을 알면 그래프 완성! '+capExtra); }
   },
 
   // ══════════ 18.4 최적화 ══════════

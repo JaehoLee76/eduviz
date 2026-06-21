@@ -107,24 +107,38 @@
 
   // 8.5 사인법칙 — a/sinA = 2R
   { id:'ch8_05',
-    enter:function(E){ this.s={}; E.setOn([]);
-      E.quiz({q:'삼각형에서 a = 6, sin A = 0.5 일 때 외접원 지름 2R 은?', choices:['6','12','3','24'], answer:1, explain:'a/sinA = 2R → 6/0.5 = 12'}); },
-    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.42, R=Math.min(E.H*0.20,E.W*0.16);
+    enter:function(E){ this.s={va:100}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>꼭짓점 A 위치</label><input type="range" id="va" min="60" max="160" step="2" value="100"><output id="vao">100°</output></div>');
+      var self=this; E.bind('#va','input',function(e){ self.s.va=+e.target.value; document.getElementById('vao').textContent=e.target.value+'°'; E.blip(440,0.08); }); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.40, R=Math.min(E.H*0.20,E.W*0.16);
       // 외접원
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy,R,0,TAU); ctx.stroke();
       ctx.fillStyle='rgba(122,184,255,0.5)'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('외접원 (반지름 R)', cx, cy-R-10);
-      // 삼각형 꼭짓점(원 위)
-      var A=[-2.3,1.1], angs=[100,210,330]; var pts=angs.map(function(d){ var t=d*D2R; return [cx+R*Math.cos(t), cy-R*Math.sin(t)]; });
+      // 삼각형 꼭짓점(원 위) — A만 슬라이더로 이동, B·C 고정
+      var angs=[this.s.va,210,330]; var pts=angs.map(function(d){ var t=d*D2R; return [cx+R*Math.cos(t), cy-R*Math.sin(t)]; });
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); ctx.lineTo(pts[1][0],pts[1][1]); ctx.lineTo(pts[2][0],pts[2][1]); ctx.closePath(); ctx.stroke();
       var labs=['A','B','C'];
       for(var i=0;i<3;i++){ ctx.fillStyle='#ffd9bd'; ctx.beginPath(); ctx.arc(pts[i][0],pts[i][1],5,0,TAU); ctx.fill();
         ctx.font='600 15px sans-serif'; ctx.fillText(labs[i], pts[i][0]+(pts[i][0]<cx?-16:16), pts[i][1]); }
+      // 실제 변 길이(픽셀 → 화면단위는 R로 정규화: 픽셀거리 그대로 사용)
+      function dist(p,q){ return Math.hypot(p[0]-q[0],p[1]-q[1]); }
+      var a=dist(pts[1],pts[2]), b=dist(pts[0],pts[2]), c=dist(pts[0],pts[1]);  // a=BC, b=CA, c=AB
+      // 마주각: 원에 내접하므로 내접각 = 반대편 호의 절반. 각 꼭짓점의 내각을 좌표로 실계산
+      function ang(v,p1,p2){ var u1=[p1[0]-v[0],p1[1]-v[1]], u2=[p2[0]-v[0],p2[1]-v[1]];
+        var d=(u1[0]*u2[0]+u1[1]*u2[1])/(Math.hypot(u1[0],u1[1])*Math.hypot(u2[0],u2[1])); return Math.acos(Math.max(-1,Math.min(1,d))); }
+      var A=ang(pts[0],pts[1],pts[2]), B=ang(pts[1],pts[0],pts[2]), C=ang(pts[2],pts[0],pts[1]);
       // 변 라벨
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif';
       ctx.fillText('a', (pts[1][0]+pts[2][0])/2, (pts[1][1]+pts[2][1])/2+16);
       ctx.fillText('b', (pts[0][0]+pts[2][0])/2+14, (pts[0][1]+pts[2][1])/2);
       ctx.fillText('c', (pts[0][0]+pts[1][0])/2-14, (pts[0][1]+pts[1][1])/2);
-      E.big('a/sin A = b/sin B = c/sin C = 2R', '사인법칙 — 변과 마주보는 각의 sin 비율은 일정'); }
+      // a/sinA, b/sinB, c/sinC, 2R 실계산 표시(픽셀 단위; 2R = 2*R 픽셀)
+      var rA=a/Math.sin(A), rB=b/Math.sin(B), rC=c/Math.sin(C);
+      ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      var ty=cy+R+34;
+      ctx.fillText('a/sinA = '+rA.toFixed(1)+'   b/sinB = '+rB.toFixed(1)+'   c/sinC = '+rC.toFixed(1), cx, ty);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('= 2R = '+(2*R).toFixed(1)+' (모두 일치 ✓)', cx, ty+22);
+      E.big('a/sin A = b/sin B = c/sin C = 2R', '사인법칙 — 변과 마주보는 각의 sin 비율은 외접원 지름 2R로 일정. A를 움직여도 세 비가 모두 같습니다'); }
   }
 
   ];

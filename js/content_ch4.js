@@ -25,15 +25,25 @@
 
   // ══════════ 4.2 부등식의 해법 ══════════
   { id:'ch4_02',
-    enter:function(E){ this.s={}; E.NL.range(-3,7); E.setOn([]);
-      E.quiz({q:'x − 3 < 1 의 해는?', choices:['x < 4','x > 4','x < −2','x > −2'], answer:0, explain:'양변에 +3 → x < 4'}); },
+    enter:function(E){ this.s={c:5,incl:false}; E.NL.range(-3,7);
+      E.controls('<div class="ctrl"><label>우변 상수 c</label><input type="range" id="rc" min="1" max="9" step="2" value="5"><output id="rco">5</output></div>');
+      var self=this;
+      E.bind('#rc','input',function(e){ self.s.c=+e.target.value; document.getElementById('rco').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
+    tap:function(E){ this.s.incl=!this.s.incl; E.blip(this.s.incl?520:420,0.15); },
     back:function(E){ E.NL.step(); E.NL.draw(); },
-    draw:function(E){ var ctx=E.ctx, y=E.NL.yy(), x2=E.NL.px(2), xr=E.NL.px(6.7);
-      ctx.strokeStyle=E.COL.accent; ctx.lineWidth=6; ctx.globalAlpha=0.5; ctx.beginPath(); ctx.moveTo(x2,y); ctx.lineTo(xr,y); ctx.stroke(); ctx.globalAlpha=1;
+    draw:function(E){ var s=this.s, ctx=E.ctx, y=E.NL.yy();
+      // 2x + 1 (>|≥) c  →  x (>|≥) (c−1)/2 = 끝점
+      var ep=(s.c-1)/2, sign=s.incl?'≥':'>', xe=E.NL.px(ep), xr=E.NL.px(E.NL.tmax-0.3);
+      ctx.strokeStyle=E.COL.accent; ctx.lineWidth=6; ctx.globalAlpha=0.5; ctx.beginPath(); ctx.moveTo(xe,y); ctx.lineTo(xr,y); ctx.stroke(); ctx.globalAlpha=1;
       ctx.fillStyle=E.COL.accent; ctx.beginPath(); ctx.moveTo(xr,y); ctx.lineTo(xr-10,y-6); ctx.lineTo(xr-10,y+6); ctx.fill();
-      ctx.fillStyle='#0b0b10'; ctx.strokeStyle=E.COL.accent; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(x2,y,7,0,7); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=E.COL.accent; ctx.font='700 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('x > 2', (x2+xr)/2, y-18);
-      E.big('2x + 1 > 5  →  x > 2', '해 = 2보다 오른쪽 전체 (영역)'); }
+      // 끝점: ≥ 면 닫힌(●) · > 면 열린(○)
+      ctx.lineWidth=2.5; ctx.strokeStyle=E.COL.accent; ctx.beginPath(); ctx.arc(xe,y,7,0,7);
+      if(s.incl){ ctx.fillStyle=E.COL.accent; ctx.fill(); } else { ctx.fillStyle='#0b0b10'; ctx.fill(); ctx.stroke(); }
+      ctx.fillStyle=E.COL.accent; ctx.font='700 16px sans-serif'; ctx.textAlign='center';
+      var eTxt=(ep%1===0?ep:ep.toFixed(1));
+      ctx.fillText('x '+sign+' '+eTxt, (xe+xr)/2, y-18);
+      E.tapHint(E.W/2, y+78, '↔ '+(s.incl?'≥ → > (열린 끝점)':'> → ≥ (닫힌 끝점)'), true);
+      E.big('2x + 1 '+sign+' '+s.c+'  →  x '+sign+' '+eTxt, s.incl?'끝점 포함(●) — 닫힌 끝점':'끝점 미포함(○) — 열린 끝점'); }
   },
 
   { id:'ch4_03',
@@ -72,18 +82,27 @@
   },
 
   { id:'ch4_05',
-    enter:function(E){ this.s={}; E.setOn([]);
-      E.quiz({q:'"x = 2 이면 x² = 4" 에서 x = 2 는?', choices:['충분조건','필요조건','필요충분조건','조건 아님'], answer:0, explain:'{2} ⊂ {−2, 2} → x=2는 충분조건(역은 거짓). 작은 집합 쪽이 충분조건.'}); },
-    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.46, R=Math.min(150,E.H*0.21), r=R*0.5;
+    enter:function(E){ this.s={d:0}; // d = P 중심을 Q 중심에서 오른쪽으로 민 거리(반지름 R 단위, 0~1.6)
+      E.controls('<div class="ctrl"><label>P의 위치 (Q 밖으로)</label><input type="range" id="pp" min="0" max="1.6" step="0.2" value="0"><output id="ppo">0.0</output></div>');
+      var self=this; E.bind('#pp','input',function(e){ self.s.d=+e.target.value; document.getElementById('ppo').textContent=(+e.target.value).toFixed(1); E.blip(420+self.s.d*120,0.1); }); E.setOn([]); },
+    draw:function(E){ var s=this.s, ctx=E.ctx, cx=E.W/2, cy=E.H*0.46, R=Math.min(150,E.H*0.21), r=R*0.5;
+      var px=cx+s.d*R, py=cy;   // P 중심
+      // P ⊂ Q 판정: 두 중심거리 + r ≤ R 이면 P가 Q 안에 완전히 들어감(실계산)
+      var dist=Math.abs(px-cx), subset=(dist+r<=R+0.001);
+      // Q
       ctx.fillStyle='rgba(143,227,181,0.14)'; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
       ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
-      ctx.fillStyle='rgba(255,178,122,0.28)'; ctx.beginPath(); ctx.arc(cx,cy-R*0.4,r,0,7); ctx.fill();
-      ctx.strokeStyle='#ffb27a'; ctx.beginPath(); ctx.arc(cx,cy-R*0.4,r,0,7); ctx.stroke();
+      // P (포함이면 주황, 벗어나면 분홍 경고)
+      var pcol=subset?'#ffb27a':'#f4a0c0';
+      ctx.fillStyle=subset?'rgba(255,178,122,0.28)':'rgba(244,160,192,0.28)'; ctx.beginPath(); ctx.arc(px,py,r,0,7); ctx.fill();
+      ctx.strokeStyle=pcol; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,r,0,7); ctx.stroke();
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.fillText('P (정사각형)', cx, cy-R*0.4);
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('Q (직사각형)', cx, cy+R*0.72); ctx.textBaseline='alphabetic';
-      ctx.globalAlpha=E.blink(); ctx.fillStyle='#ffd9bd'; ctx.font='700 16px sans-serif'; ctx.fillText('P ⊂ Q   ⟺   p → q', cx, cy-R-16); ctx.globalAlpha=1;
-      E.big('p → q   ⟺   P ⊂ Q', 'p = 충분조건 · q = 필요조건'); }
+      ctx.fillStyle=pcol; ctx.font='600 14px sans-serif'; ctx.fillText('P', px, py);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('Q', cx, cy+R*0.78); ctx.textBaseline='alphabetic';
+      ctx.globalAlpha=E.blink(); ctx.fillStyle=subset?'#8fe3b5':'#f4a0c0'; ctx.font='700 16px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(subset?'P ⊂ Q  성립  →  p → q  참':'P ⊄ Q  불성립  →  p → q  거짓', cx, cy-R-16); ctx.globalAlpha=1;
+      E.tapHint(E.W/2, cy+R+44, '◂▸ P를 Q 안팎으로 이동', true);
+      E.big('p → q   ⟺   P ⊂ Q', subset?'P가 Q 안에 있으면 명제 p→q 는 참 (p는 충분조건)':'P가 Q를 벗어나면 반례 존재 → 명제 거짓'); }
   }
 
   ];

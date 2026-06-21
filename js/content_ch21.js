@@ -29,16 +29,39 @@
 
   // ══════════ 21.2 행렬 곱셈 ══════════
   { id:'ch21_02',
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, A=[[1,2],[3,1]], B=[[2,0],[1,2]], y=E.H*0.36, cx=E.W/2;
-      var C=[[0,0],[0,0]]; for(var i=0;i<2;i++)for(var j=0;j<2;j++)C[i][j]=A[i][0]*B[0][j]+A[i][1]*B[1][j];
-      mat(ctx, cx-230, y, A, '#7ab8ff'); ctx.fillStyle='#cfcdc6'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.fillText('×', cx-130, y+38);
-      mat(ctx, cx-100, y, B, '#8fe3b5'); ctx.fillText('=', cx+5, y+38);
-      mat(ctx, cx+50, y, C, '#ffb27a');
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
-      ctx.fillText('(1행)·(1열) = 1·2 + 2·1 = 4', cx, y+120);
-      ctx.fillText('행 × 열 의 내적으로 각 칸을 채웁니다 (9장 내적!)', cx, y+144);
-      E.big('행렬 곱셈 = 행 · 열 (내적)', '왼쪽 행렬의 행과 오른쪽 행렬의 열을 내적해 각 칸을 채웁니다. 순서가 바뀌면 결과가 달라집니다(AB≠BA)'); }
+    enter:function(E){ this.s={step:0}; E.setOn([]); },   // step 0..4 : 0=처음, 1~4=칸 (1,1)→(1,2)→(2,1)→(2,2)
+    tap:function(E){ this.s.step=(this.s.step+1)%5; E.blip(440+this.s.step*40,0.12); },
+    draw:function(E){ var ctx=E.ctx, A=[[1,2],[3,1]], B=[[2,0],[1,2]], y=E.H*0.34, cx=E.W/2, st=this.s.step;
+      // 결과행렬: 채워진 칸만(step 순서대로) 실계산, 나머지는 빈칸
+      var cells=[[0,0],[0,1],[1,0],[1,1]];  // 순회 순서 (1,1)(1,2)(2,1)(2,2)
+      var done=st; // 채워진 칸 수
+      var C=[['·','·'],['·','·']];
+      for(var d=0;d<done;d++){ var ci=cells[d][0], cj=cells[d][1]; C[ci][cj]=A[ci][0]*B[0][cj]+A[ci][1]*B[1][cj]; }
+      // 현재 활성 칸 (step 1~4 → cells[step-1])
+      var act = st>=1 ? cells[st-1] : null;
+      var axA=cx-230, axB=cx-100, axC=cx+50, cw=42, rh=34;
+      // 행렬 그리기(활성 행/열 하이라이트)
+      mat(ctx, axA, y, A, '#7ab8ff'); ctx.fillStyle='#cfcdc6'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.fillText('×', cx-130, y+38);
+      mat(ctx, axB, y, B, '#8fe3b5'); ctx.fillText('=', cx+5, y+38);
+      mat(ctx, axC, y, C, '#ffb27a');
+      if(act){ var ri=act[0], cj2=act[1];
+        // A의 활성 행
+        ctx.fillStyle='rgba(255,178,122,0.18)'; ctx.fillRect(axA+8, y+ri*rh, cw*2, rh);
+        // B의 활성 열
+        ctx.fillStyle='rgba(255,178,122,0.18)'; ctx.fillRect(axB+8+cj2*cw, y, cw, rh*2);
+        // C의 활성 칸
+        ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(axC+8+cj2*cw, y+ri*rh, cw, rh);
+        // 행렬 텍스트가 하이라이트에 가리지 않게 다시
+        mat(ctx, axA, y, A, '#7ab8ff'); mat(ctx, axB, y, B, '#8fe3b5'); mat(ctx, axC, y, C, '#ffb27a');
+        // 내적 식 실시간 표시
+        var p0=A[ri][0]*B[0][cj2], p1=A[ri][1]*B[1][cj2], val=p0+p1;
+        ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('C['+(ri+1)+','+(cj2+1)+'] = ('+(ri+1)+'행)·('+(cj2+1)+'열)', cx, y+120);
+        ctx.fillText('= '+A[ri][0]+'·'+B[0][cj2]+' + '+A[ri][1]+'·'+B[1][cj2]+' = '+p0+' + '+p1+' = '+val, cx, y+146); }
+      else { ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('행 × 열 의 내적으로 각 칸을 차례로 채웁니다 (9장 내적!)', cx, y+130); }
+      E.tapHint(E.W/2, y+rh*2+80, '▶ 다음 칸 채우기 ('+st+'/4)', true);
+      E.big('행렬 곱셈 = 행 · 열 (내적)', '왼쪽 행렬의 행과 오른쪽 행렬의 열을 내적해 각 칸을 차례로 채웁니다. 순서가 바뀌면 결과가 달라집니다(AB≠BA)'); }
   },
 
   // ══════════ 21.3 행렬 = 선형변환 ══════════

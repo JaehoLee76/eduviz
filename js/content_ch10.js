@@ -85,7 +85,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0), r*sx, r*sy, 0,0,TAU); ctx.stroke();
       // 이전 자취(옅게)
       for(var k=0;k<=n;k++){ var t=k*90*D2R, x=r*Math.cos(t), y=r*Math.sin(t);
-        ctx.globalAlpha=(k===n)?1:0.25; phasor(P,ctx,x,y,(k===n)?'#ffb27a':'#7ab8ff', (k===n)?null:null); ctx.globalAlpha=1; }
+        ctx.globalAlpha=(k===n)?1:0.25; phasor(P,ctx,x,y,(k===n)?'#ffb27a':'#7ab8ff', null); ctx.globalAlpha=1; }
       var labs=['1','i','−1','−i'], cur=labs[n];
       E.tapHint(E.W/2, P.geom().bot+40, '▶ i 곱하기 (90° 회전)', true);
       E.big('1 → i → −1 → −i → …   지금: i^'+n+' = '+cur, 'i 곱하기 = 90° 회전! i² = −1 (두 번 = 180° = 반대)'); }

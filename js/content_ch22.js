@@ -74,12 +74,15 @@
       ctx.strokeStyle='rgba(255,178,122,0.25)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(-3)); ctx.lineTo(P.X(3),P.Y(3)); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(3)); ctx.lineTo(P.X(3),P.Y(-3)); ctx.stroke(); ctx.setLineDash([]);
-      var v=[2*Math.cos(t),2*Math.sin(t)], Mv=ap(M,v);
+      var v=[Math.cos(t),Math.sin(t)], Mv=ap(M,v);   // v는 단위벡터(축소 없이 Mv를 실제 배율로)
       function arr(p,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(p[0]),P.Y(p[1])); ctx.stroke(); var a=Math.atan2(P.Y(p[1])-P.Y(0),P.X(p[0])-P.X(0)); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(P.X(p[0]),P.Y(p[1])); ctx.lineTo(P.X(p[0])-12*Math.cos(a-0.4),P.Y(p[1])-12*Math.sin(a-0.4)); ctx.lineTo(P.X(p[0])-12*Math.cos(a+0.4),P.Y(p[1])-12*Math.sin(a+0.4)); ctx.fill(); if(lab){ctx.font='600 13px sans-serif';ctx.textAlign='left';ctx.fillText(lab,P.X(p[0])+6,P.Y(p[1]));} }
-      arr(v,'#7ab8ff','v'); arr([Mv[0]/1.5,Mv[1]/1.5],'#8fe3b5','Mv');
-      // 정렬 판정(고유벡터 근처)
-      var cross=v[0]*Mv[1]-v[1]*Mv[0], aligned=Math.abs(cross)<0.25;
-      E.big(aligned?'★ 고유벡터! Mv가 v와 같은 방향 (단지 늘어남)':'Mv가 v에서 방향이 틀어집니다', aligned?'변환해도 방향이 안 변하는 특별한 축 = 고유벡터 (여기선 45°·135°)':'45°(또는 135°)로 맞춰 고유벡터를 찾아보세요'); }
+      // 정렬 판정(고유벡터 근처) + 고유값 실계산
+      var cross=v[0]*Mv[1]-v[1]*Mv[0], aligned=Math.abs(cross)<0.06;
+      var dot=v[0]*Mv[0]+v[1]*Mv[1], lam=dot;   // |v|=1 이므로 λ = (Mv·v) = 정렬 시 배율
+      arr(v,'#7ab8ff','v'); arr(Mv,'#8fe3b5', aligned? 'Mv (×'+lam.toFixed(1)+')' : 'Mv');
+      ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Mv·v / |v|² = '+lam.toFixed(2)+(aligned?'  =  고유값 λ':''), P.X(0), P.geom().bot+22);
+      E.big(aligned?'★ 고유벡터! Mv = λv,  λ = '+lam.toFixed(1):'Mv가 v에서 방향이 틀어집니다', aligned?'변환해도 방향이 안 변하는 특별한 축 = 고유벡터. 여기선 45°→λ=3, 135°→λ=1':'45°(또는 135°)로 맞춰 고유벡터를 찾아보세요'); }
   }
 
   ];

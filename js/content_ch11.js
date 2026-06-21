@@ -59,14 +59,28 @@
 
   // 11.2b 공간벡터 내적
   { id:'ch11_03',
-    enter:function(E){ this.s={}; E.setOn([]);
-      E.quiz({q:'a=(1, 2, 2), b=(2, 0, −1) 의 내적 a·b 는?', choices:['0','4','2','6'], answer:0, explain:'1·2 + 2·0 + 2·(−1) = 2 + 0 − 2 = 0 → 수직!'}); },
+    enter:function(E){ this.s={deg:35}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>b 의 방향 θ</label><input type="range" id="bth" min="0" max="180" step="1" value="35"><output id="btho">35°</output></div>');
+      var self=this; E.bind('#bth','input',function(e){ self.s.deg=+e.target.value; document.getElementById('btho').textContent=e.target.value+'°'; E.blip(440,0.1); }); },
     draw:function(E){ var ctx=E.ctx, v=view(E); axes(ctx,v,4);
-      arrow3(ctx,v,1,2,2,'#7ab8ff'); arrow3(ctx,v,2,0,-1,'#8fe3b5');
-      var pa=p3(v,1,2,2), pb=p3(v,2,0,-1);
+      // a 고정, b 는 x-z 평면에서 각도 θ로 회전(반지름 3) → b=(3cosθ, 0, 3sinθ)
+      var ax=1, ay=2, az=2;
+      var th=(this.s.deg||0)*Math.PI/180, R=3;
+      var bx=R*Math.cos(th), by=0, bz=R*Math.sin(th);
+      // 내적 실계산
+      var dot = ax*bx + ay*by + az*bz;
+      arrow3(ctx,v,ax,ay,az,'#7ab8ff'); arrow3(ctx,v,bx,by,bz,'#8fe3b5');
+      var pa=p3(v,ax,ay,az), pb=p3(v,bx,by,bz);
       ctx.font='600 14px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle='#7ab8ff'; ctx.fillText('a', pa[0]+8, pa[1]); ctx.fillStyle='#8fe3b5'; ctx.fillText('b', pb[0]+8, pb[1]);
-      E.big('a · b = 1·2 + 2·0 + 2·(−1) = 0', '내적도 성분 하나 추가 (9장 그대로) · 0이면 공간에서도 수직'); }
+      // 수직 통과(내적≈0)면 직각 표시 + 강조
+      var perp = Math.abs(dot) < 0.06;
+      if(perp){ ctx.fillStyle='#ffb27a'; ctx.font='700 18px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('⟂ 수직!', v.cx, v.cy - v.S*4.4); }
+      // 성분 표기(소수 1자리, 실계산)
+      var bxs=bx.toFixed(1), bzs=bz.toFixed(1);
+      var expr = 'a·b = 1·'+bxs+' + 2·0 + 2·'+bzs+' = '+dot.toFixed(2);
+      E.big(expr, '내적도 성분 하나 추가 (9장 그대로) · b를 돌려 a·b가 0을 지날 때 두 벡터가 수직'+(perp?' — 지금 수직입니다':'')); }
   },
 
   // ══════════ 11.3 구의 방정식 ══════════
@@ -92,20 +106,48 @@
 
   // 11.3b 평면과 법선
   { id:'ch11_05',
-    enter:function(E){ this.s={}; E.setOn([]); },
+    enter:function(E){ this.s={th:25, ph:35}; E.setOn([]);
+      E.controls(
+        '<div class="ctrl"><label>법선 기울기 θ</label><input type="range" id="nth" min="0" max="70" step="1" value="25"><output id="ntho">25°</output></div>'+
+        '<div class="ctrl"><label>법선 방위 φ</label><input type="range" id="nph" min="0" max="180" step="1" value="35"><output id="npho">35°</output></div>');
+      var self=this;
+      E.bind('#nth','input',function(e){ self.s.th=+e.target.value; document.getElementById('ntho').textContent=e.target.value+'°'; E.blip(440,0.1); });
+      E.bind('#nph','input',function(e){ self.s.ph=+e.target.value; document.getElementById('npho').textContent=e.target.value+'°'; E.blip(420,0.1); }); },
     draw:function(E){ var ctx=E.ctx, v=view(E); axes(ctx,v,4);
-      // 평면 z = 1.5 (사각형 패치)
-      var h=1.5, c=[[ -2,-2],[2,-2],[2,2],[-2,2] ].map(function(p){ return p3(v,p[0],p[1],h); });
+      // 법선벡터 n = 단위벡터(구면좌표: θ=z로부터 기울기, φ=방위) → (a,b,c)
+      var th=(this.s.th||0)*Math.PI/180, ph=(this.s.ph||0)*Math.PI/180;
+      var a = Math.sin(th)*Math.cos(ph);
+      var b = Math.sin(th)*Math.sin(ph);
+      var c = Math.cos(th);
+      // 평면이 점 P0=(0,0,h0)를 지나도록 → d = n·P0 = c*h0 (실계산)
+      var h0 = 1.5, d = c*h0;
+      // 평면 위 직교기저 u,w (n에 수직) 구성 (실계산)
+      var hx, hy, hz; // n과 평행하지 않은 보조벡터
+      if(Math.abs(c) < 0.9){ hx=0; hy=0; hz=1; } else { hx=1; hy=0; hz=0; }
+      // u = normalize(h × n)
+      var ux = hy*c - hz*b, uy = hz*a - hx*c, uz = hx*b - hy*a;
+      var ul = Math.sqrt(ux*ux+uy*uy+uz*uz)||1; ux/=ul; uy/=ul; uz/=ul;
+      // w = n × u  (n,u 모두에 수직, 단위)
+      var wx = b*uz - c*uy, wy = c*ux - a*uz, wz = a*uy - b*ux;
+      // 평면 중심 P0
+      var P0x=0, P0y=0, P0z=h0;
+      // 사각형 패치 4모서리 = P0 + s*u + t*w, s,t ∈ {-2,2}
+      var sg=[[-2,-2],[2,-2],[2,2],[-2,2]];
+      var corners = sg.map(function(g){
+        var x=P0x+g[0]*ux+g[1]*wx, y=P0y+g[0]*uy+g[1]*wy, z=P0z+g[0]*uz+g[1]*wz;
+        return p3(v,x,y,z); });
       ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.strokeStyle='rgba(122,184,255,0.6)'; ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.moveTo(c[0][0],c[0][1]); for(var i=1;i<4;i++)ctx.lineTo(c[i][0],c[i][1]); ctx.closePath(); ctx.fill(); ctx.stroke();
-      // 법선 벡터 (평면 중심에서 위로)
-      var ctr=p3(v,0,0,h), ntop=p3(v,0,0,h+1.8);
+      ctx.beginPath(); ctx.moveTo(corners[0][0],corners[0][1]); for(var i=1;i<4;i++)ctx.lineTo(corners[i][0],corners[i][1]); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // 법선 벡터 (평면 중심에서 n 방향으로, 길이 2)
+      var L=2;
+      var ctr=p3(v,P0x,P0y,P0z), ntop=p3(v,P0x+a*L,P0y+b*L,P0z+c*L);
       line(ctx,ctr,ntop,'#ffb27a',3);
       var ang=Math.atan2(ntop[1]-ctr[1],ntop[0]-ctr[0]); ctx.fillStyle='#ffb27a';
       ctx.beginPath(); ctx.moveTo(ntop[0],ntop[1]); ctx.lineTo(ntop[0]-12*Math.cos(ang-0.4),ntop[1]-12*Math.sin(ang-0.4)); ctx.lineTo(ntop[0]-12*Math.cos(ang+0.4),ntop[1]-12*Math.sin(ang+0.4)); ctx.fill();
       ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('법선 n', ntop[0]+8, ntop[1]);
-      ctx.fillStyle='#7ab8ff'; ctx.fillText('평면', c[2][0]-30, c[2][1]+4);
-      E.big('평면: ax + by + cz = d', '평면은 법선벡터 n=(a,b,c) 하나로 방향이 정해집니다 (내적으로 정의)'); }
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('평면', corners[2][0]-30, corners[2][1]+4);
+      var eq = a.toFixed(2)+'x + '+b.toFixed(2)+'y + '+c.toFixed(2)+'z = '+d.toFixed(2);
+      E.big(eq, '계수 (a,b,c)='+'('+a.toFixed(2)+', '+b.toFixed(2)+', '+c.toFixed(2)+') 가 곧 법선 n — 법선을 돌리면 평면이 그에 수직으로 기웁니다'); }
   }
 
   ];

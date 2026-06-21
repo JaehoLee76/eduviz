@@ -100,7 +100,7 @@
       P.curve(function(x){return x*x;}, '#7ab8ff');
       tangentLine(P,ctx,a,fa,slope,'#ffb27a');
       ctx.globalAlpha=E.blink(); P.dot(a,fa,'#ffb27a','('+a+', '+fa+')'); ctx.globalAlpha=1;
-      var bTxt=(-(a*a)); var b=-a*a;
+      var b=-a*a;
       E.big('접선: y = '+slope+'x '+(b>=0?'+ '+b:'− '+(-b)), '접점 ('+a+', '+fa+')에서 기울기 f\'(a)='+slope+' → y−'+fa+' = '+slope+'(x−'+a+')'); }
   }
 

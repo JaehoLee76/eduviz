@@ -28,13 +28,20 @@
 
   // ══════════ 23.2 유클리드 호제법 ══════════
   { id:'ch23_02',
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, a=48, b=36, cx=E.W/2, y=E.H*0.30;
-      ctx.fillStyle='#cfcdc6'; ctx.font='600 17px sans-serif'; ctx.textAlign='center';
-      var steps=[], x=a, yv=b; while(yv>0){ var q=Math.floor(x/yv), r=x%yv; steps.push(x+' = '+q+'×'+yv+' + '+r); x=yv; yv=r; }
-      for(var i=0;i<steps.length;i++){ ctx.fillStyle=i===steps.length-1?'#ffb27a':'#cfcdc6'; ctx.fillText(steps[i], cx, y+i*40); }
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.fillText('나머지가 0이 되기 직전에 나눈 수 = 최대공약수', cx, y+steps.length*40+24);
-      E.big('gcd(48, 36) = '+gcd(48,36), '유클리드 호제법 — 큰 수를 작은 수로 나눈 나머지로 계속 바꿉니다. 가장 오래된 알고리즘!'); }
+    enter:function(E){ this.s={a:48,b:36}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>수 a</label><input type="range" id="ea" min="2" max="120" step="1" value="48"><output id="eao">48</output><label style="margin-left:14px">수 b</label><input type="range" id="eb" min="2" max="120" step="1" value="36"><output id="ebo">36</output></div>');
+      var self=this;
+      E.bind('#ea','input',function(e){ self.s.a=+e.target.value; document.getElementById('eao').textContent=e.target.value; E.blip(420,0.08); });
+      E.bind('#eb','input',function(e){ self.s.b=+e.target.value; document.getElementById('ebo').textContent=e.target.value; E.blip(440,0.08); }); },
+    draw:function(E){ var ctx=E.ctx, a=this.s.a, b=this.s.b, cx=E.W/2, y=E.H*0.26;
+      // 큰 수가 위로 오도록 정렬(나눗셈 a=bq+r 표준형)
+      var x=Math.max(a,b), yv=Math.min(a,b);
+      ctx.font='600 17px sans-serif'; ctx.textAlign='center';
+      var steps=[]; while(yv>0){ var q=Math.floor(x/yv), r=x%yv; steps.push(x+' = '+q+'×'+yv+' + '+r); x=yv; yv=r; }
+      for(var i=0;i<steps.length;i++){ ctx.fillStyle=i===steps.length-1?'#ffb27a':'#cfcdc6'; ctx.fillText(steps[i], cx, y+i*36); }
+      var g=gcd(a,b);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.fillText('나머지가 0이 되기 직전에 나눈 수 = 최대공약수', cx, y+steps.length*36+24);
+      E.big('gcd('+a+', '+b+') = '+g, '유클리드 호제법 — 큰 수를 작은 수로 나눈 나머지로 계속 바꿉니다. 가장 오래된 알고리즘!'); }
   },
 
   // ══════════ 23.2 합동식 (시계 산술) ══════════

@@ -64,17 +64,26 @@
 
   // ══════════ 19.3 부호 있는 넓이 ══════════
   { id:'ch19_05',
-    enter:function(E){ this.s={}; E.Plot.range(-2.4,2.4,-3,3); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
+    enter:function(E){ this.s={a:2}; E.Plot.range(-2.4,2.4,-3,3);
+      E.controls('<div class="ctrl"><label>구간 [−a, a]의 a</label><input type="range" id="aa" min="0.5" max="2" step="0.25" value="2"><output id="aao">2</output></div>');
+      var self=this; E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
+    draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();
       function f(x){return x*x*x*0.6;} var y0=P.Y(0);
-      // 음수부(빨강) / 양수부(초록)
-      for(var i=0;i<=120;i++){ var t=-2+4*i/120, t2=-2+4*(i+1)/120, v=f(t);
-        if(t2>2) break; ctx.fillStyle = v>=0?'rgba(143,227,181,0.3)':'rgba(226,75,74,0.3)';
-        ctx.beginPath(); ctx.moveTo(P.X(t),y0); ctx.lineTo(P.X(t),P.Y(v)); ctx.lineTo(P.X(t2),P.Y(f(t2))); ctx.lineTo(P.X(t2),y0); ctx.closePath(); ctx.fill(); }
+      // [−a,a] 를 N개 슬라이스로: 색칠 + 리만합으로 정적분 실계산
+      var N=160, dx=(2*a)/N, integ=0, posA=0, negA=0;
+      for(var i=0;i<N;i++){ var t=-a+dx*i, t2=t+dx, xm=t+dx/2, vm=f(xm);
+        integ += vm*dx;                        // 중점 리만합 (부호 포함)
+        if(vm>=0) posA += vm*dx; else negA += vm*dx;
+        ctx.fillStyle = vm>=0?'rgba(143,227,181,0.3)':'rgba(226,75,74,0.3)';
+        ctx.beginPath(); ctx.moveTo(P.X(t),y0); ctx.lineTo(P.X(t),P.Y(f(t))); ctx.lineTo(P.X(t2),P.Y(f(t2))); ctx.lineTo(P.X(t2),y0); ctx.closePath(); ctx.fill(); }
       P.curve(f, '#7ab8ff');
-      ctx.fillStyle='#e24b4a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('− (축 아래)', P.X(-1.3), P.Y(-1.2));
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('+ (축 위)', P.X(1.3), P.Y(1.2));
-      E.big('∫₋₂² (0.6x³) dx = 0', '정적분은 부호 있는 넓이 — 축 아래는 음수. 홀함수는 대칭이라 합이 0!'); }
+      // 구간 끝 표시선
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(P.X(-a),P.Y(-3)); ctx.lineTo(P.X(-a),P.Y(3)); ctx.moveTo(P.X(a),P.Y(-3)); ctx.lineTo(P.X(a),P.Y(3)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#e24b4a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('− 넓이 '+negA.toFixed(3), P.X(-a*0.65), P.Y(-1.2));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('+ 넓이 '+posA.toFixed(3), P.X(a*0.65), P.Y(1.2));
+      var iv = Math.abs(integ)<1e-6?0:integ;   // 부동소수 잡음 정리
+      E.big('∫₋'+a+'^'+a+' (0.6x³) dx ≈ '+iv.toFixed(3)+'  (리만합 N='+N+')', '정적분은 부호 있는 넓이 — 축 아래는 음수. 홀함수라 +넓이('+posA.toFixed(3)+')와 −넓이('+negA.toFixed(3)+')가 상쇄돼 0!'); }
   }
 
   ];
