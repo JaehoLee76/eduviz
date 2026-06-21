@@ -3,6 +3,24 @@
    텍스트는 content/algo0.json. 반드시 content_algo1.js 보다 먼저 로드(시작이 맨 앞). */
 (function(){
   var BLU='#7ab8ff', GRN='#8fe3b5', ORA='#ffb27a', DIM='#9b99a3';
+  // ── 공용 심화 섹션 '학습 지도' 렌더러 (모든 섹션 노드가 데이터만으로 사용) ──
+  // cfg = { title, sub, stages:[{c,t,items:[]}], foot }
+  window.AlgoMap = function(E, cfg){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+    function rr(x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#dfeefb'; ctx.font='600 19px sans-serif'; ctx.fillText(cfg.title, cx, H*0.11);
+    if(cfg.sub){ ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.fillText(cfg.sub, cx, H*0.11+22); }
+    var st=cfg.stages, n=st.length, x0=W*0.05, colW=W*0.90/n, top=H*0.25;
+    var maxItems=0; for(var q=0;q<n;q++) maxItems=Math.max(maxItems, st[q].items.length);
+    var rowH=Math.min(38, (H*0.58)/Math.max(1,maxItems));
+    for(var i=0;i<n;i++){ var s=st[i], cxi=x0+i*colW+colW*0.5;
+      ctx.fillStyle=s.c; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText(s.t, cxi, top);
+      if(i<n-1){ var ax=x0+(i+1)*colW-colW*0.03; ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(ax-12, top-5); ctx.lineTo(ax-2, top-5); ctx.lineTo(ax-7, top-9); ctx.moveTo(ax-2,top-5); ctx.lineTo(ax-7,top-1); ctx.stroke(); }
+      for(var k=0;k<s.items.length;k++){ var y=top+20+k*rowH, bw=colW*0.86, bx=cxi-bw/2;
+        ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=s.c; ctx.lineWidth=1.5; rr(bx,y,bw,rowH-8,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeefb'; ctx.font='12.5px sans-serif'; ctx.textAlign='center'; ctx.fillText(s.items[k], cxi, y+(rowH-8)/2+4); } }
+    if(cfg.foot){ ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(cfg.foot, cx, H*0.95); } };
   // 5각 별 (에이스타)
   function star(ctx, cx, cy, R, ratio, fill, rot){ var r=R*ratio; ctx.beginPath();
     for(var i=0;i<10;i++){ var rad=(i%2===0)?R:r, a=(rot||0)+(-90+i*36)*Math.PI/180, x=cx+rad*Math.cos(a), y=cy+rad*Math.sin(a);

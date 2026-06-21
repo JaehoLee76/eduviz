@@ -671,11 +671,11 @@
  },
  "algo_br_rsa": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.4 해시 테이블 (자세히)",
+  "sec": "정수론·수론",
   "title": "RSA — 어려움이 지켜주는 암호",
   "narr": "<b>RSA</b>는 인터넷 보안을 떠받치는 공개키 암호입니다. 바탕은 한 가지 수학적 비대칭입니다. '<b>두 큰 소수를 곱하긴 쉽지만, 그 곱을 다시 소인수분해하긴 사실상 불가능하다</b>'는 사실입니다. 두 소수 p, q를 골라 곱 n과 오일러 함수로 키 쌍을 만들면, 누구나 메시지를 잠글 수 있는 <b>공개키</b>(n, e)와 본인만 푸는 <b>비밀키</b> d가 나옵니다. 암호화는 메시지를 e제곱해 n으로 나눈 나머지를 취하고, 복호화는 거기에 d제곱을 다시 적용하는데, 합동식의 성질에 의해 원문이 정확히 복원됩니다. 공개키만으로 d를 알아내려면 n을 소인수분해해야 하므로, n이 충분히 크면 현실적으로 깨지지 않습니다. 빠른 거듭제곱 mod, 유클리드 호제법, 소수 판정이 함께 쓰이며 HTTPS와 전자서명의 토대입니다.",
   "hint": "곱하긴 쉽고 인수분해는 어렵다",
-  "more": "<b>RSA</b>(정수론): <b>공개키 암호</b>의 대표. 키 생성 — ① 큰 소수 p, q를 골라 n=pq ② 공개 지수 e, 비밀 지수 d를 (e·d ≡ 1 mod (p−1)(q−1))로 계산. <b>공개키 (e, n)</b>은 공개, <b>비밀키 d</b>는 본인만. 암호화 <b>c = mᵉ mod n</b>, 복호화 <b>m = cᵈ mod n</b>(페르마 소정리로 성립 — 수학·알고리즘 합동·거듭제곱 주기!). 안전성: n을 알아도 <b>소인수분해(p,q 찾기)가 사실상 불가능</b>(현재 알고리즘으로 수백 자리 수는 수천 년) → d를 못 구함. 핵심 알고리즘: <b>빠른 거듭제곱 mod</b>(O(log e), 제곱-곱), <b>유클리드 호제법</b>(역원 d 계산), <b>소수 판정</b>(밀러-라빈, 확률적). \"풀기 어려운 문제\"를 무기로 삼는다는 점에서 P vs NP·계산 복잡도와 깊이 연결됩니다. 알고리즘이 일상 보안(HTTPS·전자서명)을 떠받치는 가장 극적인 예입니다.",
+  "more": "​지금까지의 도구가 모이는 곳 — 공개키 암호 <b>RSA</b>. <b>RSA</b>(정수론): <b>공개키 암호</b>의 대표. 키 생성 — ① 큰 소수 p, q를 골라 n=pq ② 공개 지수 e, 비밀 지수 d를 (e·d ≡ 1 mod (p−1)(q−1))로 계산. <b>공개키 (e, n)</b>은 공개, <b>비밀키 d</b>는 본인만. 암호화 <b>c = mᵉ mod n</b>, 복호화 <b>m = cᵈ mod n</b>(페르마 소정리로 성립 — 수학·알고리즘 합동·거듭제곱 주기!). 안전성: n을 알아도 <b>소인수분해(p,q 찾기)가 사실상 불가능</b>(현재 알고리즘으로 수백 자리 수는 수천 년) → d를 못 구함. 핵심 알고리즘: <b>빠른 거듭제곱 mod</b>(O(log e), 제곱-곱), <b>유클리드 호제법</b>(역원 d 계산), <b>소수 판정</b>(밀러-라빈, 확률적). \"풀기 어려운 문제\"를 무기로 삼는다는 점에서 P vs NP·계산 복잡도와 깊이 연결됩니다. 알고리즘이 일상 보안(HTTPS·전자서명)을 떠받치는 가장 극적인 예입니다.",
   "more_en": "<b>RSA</b> (number theory): the flagship <b>public-key cryptosystem</b>. Key generation — ① pick large primes p, q, set n=pq; ② choose public exponent e and private exponent d with (e·d ≡ 1 mod (p−1)(q−1)). The <b>public key (e, n)</b> is shared, the <b>private key d</b> is secret. Encrypt <b>c = mᵉ mod n</b>, decrypt <b>m = cᵈ mod n</b> (works by Fermat's little theorem — modular exponentiation and cycles from !). Security: even knowing n, <b>factoring it (finding p, q) is practically impossible</b> (hundreds-of-digit numbers would take millennia) → d can't be recovered. Core algorithms: <b>fast modular exponentiation</b> (O(log e), square-and-multiply), the <b>Euclidean algorithm</b> (computing the inverse d), and <b>primality testing</b> (Miller-Rabin, probabilistic). Using a \"hard problem\" as a weapon ties it deeply to P vs NP and complexity. It is the most dramatic example of algorithms underpinning everyday security (HTTPS, digital signatures).",
   "problem": {
    "q": "RSA의 안전성이 의존하는 '어려운 문제'는?",
@@ -693,7 +693,9 @@
    "long encrypt(long m){ return modpow(m, e, n); }",
    "long decrypt(long c){ return modpow(c, dkey, n); }",
    "// 안전성 = n의 소인수분해가 어렵다는 가정"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 15
  },
  "algo_br_hull": {
   "ch": "알고리즘 제2장 자료구조",
@@ -751,11 +753,11 @@
  },
  "algo_br_extgcd": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.4 해시 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "확장 유클리드 — 모듈러 역원과 일차 합동",
   "narr": "유클리드 호제법은 gcd(a, b)를 구할 때 큰 수를 작은 수로 나눈 나머지로 문제를 줄여 갑니다. <b>확장 유클리드</b>는 같은 재귀를 거슬러 올라오며 계수까지 함께 추적해, <b>ax + by = gcd(a, b)</b>를 만족하는 정수 x, y를 덤으로 구합니다(베주 항등식). 바닥 단계에서 gcd가 자기 자신·0과 만들어내는 자명한 해를 두고, 각 나눗셈 단계를 되짚으며 x, y를 갱신해 위로 전파하는 방식입니다. 이 한 쌍이 강력한 까닭은 응용에 있습니다. gcd(a, m)=1이면 ax+my=1에서 x가 곧 <b>법 m에서의 a의 역원</b>이 되어, 모듈러 나눗셈과 일차 합동식 ax≡b (mod m)을 풀 수 있습니다. RSA의 비밀키 d 계산과 중국인의 나머지 정리(CRT)의 핵심 부품입니다.",
   "hint": "",
-  "more": "<b>확장 유클리드(extended Euclidean)</b>는 gcd(a, b)를 구하면서, <b>베주 항등식</b> <b>a·x + b·y = gcd(a, b)</b>를 만족하는 정수 계수 x, y를 함께 반환합니다. 재귀로, gcd(b, a mod b)에서 얻은 (x', y')로부터 현재의 (x, y)를 <b>x = y', y = x' − ⌊a/b⌋·y'</b>로 갱신하면 됩니다. 시간은 유클리드와 같은 <b>O(log min(a,b))</b>. 가장 큰 응용은 <b>모듈러 역원</b>: gcd(a, m) = 1일 때 <b>a·x ≡ 1 (mod m)</b>의 x를 구하려면 a·x + m·y = 1을 풀어 그 x가 곧 역원입니다(역원은 m이 소수가 아니어도, 서로소이기만 하면 존재). 예: 3·x + 11·y = 1 → x = 4 이므로 3의 mod 11 역원은 4(3·4 = 12 ≡ 1). 또한 <b>일차 합동 ax ≡ b (mod m)</b> 풀이와 <b>중국인의 나머지 정리(CRT)</b>의 핵심 부품입니다. 모듈러 나눗셈, 분수의 모듈러 표현 등에 두루 쓰입니다.",
+  "more": "​gcd를 구하며 <b>계수까지</b> 추적하면 ax+by=gcd가 덤으로 나옵니다. <b>확장 유클리드(extended Euclidean)</b>는 gcd(a, b)를 구하면서, <b>베주 항등식</b> <b>a·x + b·y = gcd(a, b)</b>를 만족하는 정수 계수 x, y를 함께 반환합니다. 재귀로, gcd(b, a mod b)에서 얻은 (x', y')로부터 현재의 (x, y)를 <b>x = y', y = x' − ⌊a/b⌋·y'</b>로 갱신하면 됩니다. 시간은 유클리드와 같은 <b>O(log min(a,b))</b>. 가장 큰 응용은 <b>모듈러 역원</b>: gcd(a, m) = 1일 때 <b>a·x ≡ 1 (mod m)</b>의 x를 구하려면 a·x + m·y = 1을 풀어 그 x가 곧 역원입니다(역원은 m이 소수가 아니어도, 서로소이기만 하면 존재). 예: 3·x + 11·y = 1 → x = 4 이므로 3의 mod 11 역원은 4(3·4 = 12 ≡ 1). 또한 <b>일차 합동 ax ≡ b (mod m)</b> 풀이와 <b>중국인의 나머지 정리(CRT)</b>의 핵심 부품입니다. 모듈러 나눗셈, 분수의 모듈러 표현 등에 두루 쓰입니다.",
   "more_en": "The <b>extended Euclidean algorithm</b> computes gcd(a, b) while also returning integers x, y satisfying <b>Bézout's identity</b> <b>a·x + b·y = gcd(a, b)</b>. Recursively, from (x', y') of gcd(b, a mod b), update the current (x, y) by <b>x = y', y = x' − ⌊a/b⌋·y'</b>. Time is <b>O(log min(a,b))</b>, like Euclid. Its biggest use is the <b>modular inverse</b>: when gcd(a, m) = 1, solving a·x + m·y = 1 gives x as the inverse of a mod m (the inverse exists whenever a and m are coprime, even if m is not prime). E.g. 3·x + 11·y = 1 → x = 4, so 3⁻¹ mod 11 = 4 (3·4 = 12 ≡ 1). It is also the core of solving <b>linear congruences ax ≡ b (mod m)</b> and of the <b>Chinese Remainder Theorem (CRT)</b>. Used throughout modular division and fraction-mod representations.",
   "problem": {
    "q": "확장 유클리드로 gcd(a,m)=1일 때 a의 모듈러 역원을 어떻게 얻나?",
@@ -773,7 +775,9 @@
    "  y = x1 - (a/b)*y1;",
    "  return g;",
    "}   // 모듈러 역원: a·x ≡ 1 (mod m)"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 4
  },
  "algo_br_closest": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -1290,18 +1294,20 @@
  },
  "algo_br_sieve": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.4 해시 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "에라토스테네스의 체 — 소수를 한꺼번에",
   "narr": "N까지의 소수를 수마다 일일이 나눠 보면 느립니다. <b>에라토스테네스의 체</b>는 배수를 지워 가며 한 번에 구합니다. 2부터 시작해, 아직 지워지지 않은 수 p는 소수이고 그 배수를 모두 합성수로 지웁니다. p의 배수를 <b>p²부터</b> 지워도 충분한 이유는, 그 아래의 p 배수는 더 작은 소인수에 이미 지워졌기 때문입니다. p ≤ √N까지만 보면 되어 전체 비용이 <b>O(N log log N)</b>으로 거의 선형입니다. 각 합성수를 최소 소인수로 단 한 번만 지우는 선형 체는 O(N)에 끝내고, 덤으로 최소 소인수 표를 얻어 빠른 소인수분해까지 가능합니다.",
   "hint": "",
-  "more": "<b>에라토스테네스의 체</b>는 1..N에서 소수를 찾는 고전 기법입니다. 2부터 시작해, <b>어떤 수 p가 아직 지워지지 않았다면 p는 소수</b>이고, 그 <b>배수(2p, 3p, …)를 모두 합성수로 지웁니다</b>. 다음으로 안 지워진 수로 반복. 끝나면 안 지워진 수들이 소수입니다. 최적화: <b>p의 배수는 p²부터 지워도 충분</b>(그 아래는 더 작은 소수가 이미 지움)하고, p ≤ √N 까지만 보면 됩니다. 전체 비용은 <b>O(N log log N)</b>(거의 선형). 더 나아가 <b>선형 체</b>는 각 합성수를 그 <b>최소 소인수</b>로 단 한 번만 지워 <b>O(N)</b>에 끝내고, 덤으로 <b>최소 소인수 표</b>를 얻어 1..N 어떤 수든 O(log) 소인수분해가 가능합니다. 쓰임: 소수 목록, 소인수분해 전처리, 오일러 피·약수 함수 일괄 계산, 정수론 문제 전반.",
+  "more": "​정수론의 출발점은 <b>소수</b>입니다 — 한꺼번에 거르는 체부터. <b>에라토스테네스의 체</b>는 1..N에서 소수를 찾는 고전 기법입니다. 2부터 시작해, <b>어떤 수 p가 아직 지워지지 않았다면 p는 소수</b>이고, 그 <b>배수(2p, 3p, …)를 모두 합성수로 지웁니다</b>. 다음으로 안 지워진 수로 반복. 끝나면 안 지워진 수들이 소수입니다. 최적화: <b>p의 배수는 p²부터 지워도 충분</b>(그 아래는 더 작은 소수가 이미 지움)하고, p ≤ √N 까지만 보면 됩니다. 전체 비용은 <b>O(N log log N)</b>(거의 선형). 더 나아가 <b>선형 체</b>는 각 합성수를 그 <b>최소 소인수</b>로 단 한 번만 지워 <b>O(N)</b>에 끝내고, 덤으로 <b>최소 소인수 표</b>를 얻어 1..N 어떤 수든 O(log) 소인수분해가 가능합니다. 쓰임: 소수 목록, 소인수분해 전처리, 오일러 피·약수 함수 일괄 계산, 정수론 문제 전반.",
   "more_en": "The <b>Sieve of Eratosthenes</b> finds all primes in 1..N. Starting at 2, <b>if a number p is still unmarked it is prime</b>, and we <b>mark all its multiples (2p, 3p, …) as composite</b>; repeat with the next unmarked number. The survivors are the primes. Optimizations: <b>start marking at p²</b> (smaller multiples are already marked by smaller primes) and only loop p ≤ √N. Total cost is <b>O(N log log N)</b> (near-linear). A <b>linear sieve</b> marks each composite exactly once by its <b>smallest prime factor</b>, running in <b>O(N)</b> and yielding a <b>smallest-prime-factor table</b> for O(log) factorization of any number up to N. Uses: prime lists, factorization preprocessing, batch Euler-phi / divisor functions, number-theory problems.",
   "problem": {
    "q": "에라토스테네스의 체에서 소수 p의 배수를 p²부터 지워도 되는 이유는?",
    "solution": "p² 미만의 p 배수(2p, 3p, …, (p−1)p)는 <b>p보다 작은 소인수를 가져 이미 지워졌기</b> 때문입니다. 그래서 p²부터 지우면 중복을 줄이면서도 빠짐없이 합성수를 거릅니다.",
    "q_en": "Why can the sieve start marking multiples of p at p²?",
    "sol_en": "Multiples below p² (2p, 3p, …, (p−1)p) have a <b>prime factor smaller than p and are already marked</b>. Starting at p² avoids redundancy while still marking every composite."
-  }
+  },
+  "branchOf": "algo2_06",
+  "ord": 1
  },
  "algo_br_bipmatch": {
   "ch": "알고리즘 제6장 그래프",
@@ -1946,11 +1952,11 @@
  },
  "algo_br_millerrabin": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "밀러-라빈 — 큰 수의 빠른 소수 판정",
   "narr": "수백 자리 수가 소수인지 일일이 나눠 보면 너무 느립니다. <b>밀러-라빈</b>은 페르마 소정리를 강화한 확률적 판정입니다. n−1을 2^s·d(d 홀수)로 쓰고, 무작위 밑 a에 대해 a^d, a^(2d), …, a^(2^(s−1)·d) (mod n)를 봅니다. 제곱해서 1이 되는 수는 ±1뿐이라는 성질 때문에, n이 소수면 반드시 a^d ≡ 1이거나 이 수열 중 하나가 ≡ −1이어야 합니다. 이를 어기는 a를 찾으면 n은 <b>확실히 합성수</b>이고 a가 증인입니다. 한 번의 무작위 a가 속을 확률은 ≤ 1/4이라 k번 반복하면 오류가 4^(−k)로 사실상 0입니다. 한 검사는 빠른 거듭제곱으로 O(log³ n)이라 RSA 키 생성에 쓰입니다.",
   "hint": "",
-  "more": "<b>밀러-라빈(Miller-Rabin)</b>은 확률적 소수 판정입니다. n−1을 <b>2^s · d</b>(d 홀수)로 쓰고, 무작위 밑 <b>a</b>에 대해 <b>a^d, a^(2d), a^(4d), …, a^(2^(s−1)·d)</b> (mod n)를 봅니다. n이 소수라면 반드시 <b>a^d ≡ 1</b> 이거나, 이 수열 중 하나가 <b>≡ −1</b> 이어야 합니다(제곱해서 1이 되는 수는 ±1뿐이라는 성질). 이를 어기는 a를 찾으면 n은 <b>확실히 합성수</b>(a가 \"증인\"). 한 번의 무작위 a가 합성수를 소수로 잘못 볼 확률은 <b>≤ 1/4</b>이라, k번 반복하면 오류 <b>≤ 4^(−k)</b> — 사실상 0. 한 번 검사는 빠른 거듭제곱으로 <b>O(log³ n)</b>. 작은 고정 밑 집합(예: 2,3,5,7,…,37)이면 <b>64비트까지 결정적</b>으로 맞습니다. 순수 페르마 검사가 속는 <b>카마이클 수</b>(예 561)도 밀러-라빈은 잡아냅니다.",
+  "more": "​큰 수가 소수인지 빠르게 — 확률적 <b>밀러-라빈</b> 판정. <b>밀러-라빈(Miller-Rabin)</b>은 확률적 소수 판정입니다. n−1을 <b>2^s · d</b>(d 홀수)로 쓰고, 무작위 밑 <b>a</b>에 대해 <b>a^d, a^(2d), a^(4d), …, a^(2^(s−1)·d)</b> (mod n)를 봅니다. n이 소수라면 반드시 <b>a^d ≡ 1</b> 이거나, 이 수열 중 하나가 <b>≡ −1</b> 이어야 합니다(제곱해서 1이 되는 수는 ±1뿐이라는 성질). 이를 어기는 a를 찾으면 n은 <b>확실히 합성수</b>(a가 \"증인\"). 한 번의 무작위 a가 합성수를 소수로 잘못 볼 확률은 <b>≤ 1/4</b>이라, k번 반복하면 오류 <b>≤ 4^(−k)</b> — 사실상 0. 한 번 검사는 빠른 거듭제곱으로 <b>O(log³ n)</b>. 작은 고정 밑 집합(예: 2,3,5,7,…,37)이면 <b>64비트까지 결정적</b>으로 맞습니다. 순수 페르마 검사가 속는 <b>카마이클 수</b>(예 561)도 밀러-라빈은 잡아냅니다.",
   "more_en": "<b>Miller-Rabin</b> is a probabilistic primality test. Write n−1 as <b>2^s · d</b> (d odd) and, for a random base <b>a</b>, look at <b>a^d, a^(2d), …, a^(2^(s−1)·d)</b> (mod n). If n is prime then either <b>a^d ≡ 1</b> or one of these is <b>≡ −1</b> (since the only square roots of 1 are ±1). An a that violates this proves n is <b>composite</b> (a \"witness\"). A single random a misclassifies a composite as prime with probability <b>≤ 1/4</b>, so k rounds give error <b>≤ 4^(−k)</b> — effectively zero. One test is <b>O(log³ n)</b> via fast exponentiation; a small fixed set of bases (2,3,5,…,37) is <b>deterministic up to 64 bits</b>. It also catches <b>Carmichael numbers</b> (e.g. 561) that fool the plain Fermat test.",
   "problem": {
    "q": "밀러-라빈에서 밑 a가 조건을 어기면 무엇을 확실히 알 수 있나?",
@@ -1972,15 +1978,17 @@
    "  }",
    "  return true;",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 9
  },
  "algo_br_crt": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.4 해시 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "중국인의 나머지 정리 (CRT)",
   "narr": "'3으로 나누면 2, 5로 나누면 3, 7로 나누면 2 남는 수는?' 같은 나머지 조건들을 하나로 합치는 게 <b>중국인의 나머지 정리</b>입니다. 법 m₁, m₂, …가 <b>쌍마다 서로소</b>이면, 연립 합동식은 곱 m=m₁·m₂·…를 법으로 유일한 해를 가집니다. 위 예는 0~104 중 정확히 x=23(mod 105)입니다. 구성은 각 항마다 '자기 법에서는 1, 나머지 법에서는 0'인 기저를 확장 유클리드의 역원으로 만들어 합칩니다. 서로소 조건이 유일성을 보장합니다. 응용으로 큰 합성 법의 계산을 작은 소법 여러 개로 쪼개 RSA 복호화를 약 4배 빠르게 하고, 이중 해시·비밀 분산에도 쓰입니다.",
   "hint": "",
-  "more": "<b>중국인의 나머지 정리(CRT)</b>: 법 m₁, m₂, …이 <b>서로소</b>이면, 연립 합동식 <b>x ≡ r₁ (mod m₁), x ≡ r₂ (mod m₂), …</b>는 <b>m = m₁·m₂·…</b>를 법으로 <b>유일한 해</b>를 가집니다. 예: x ≡ 2(mod 3), x ≡ 3(mod 5), x ≡ 2(mod 7) → 0~104 중 정확히 <b>x = 23</b>(mod 105). 구성은 각 항마다 \"자기 법에서는 1, 나머지 법에서는 0\"인 기저를 <b>확장 유클리드의 역원</b>으로 만들어 합칩니다. 핵심 응용: ① <b>큰 수 연산 가속</b> — 큰 합성 법에서의 계산을 작은 소법 여러 개로 쪼개 병렬·경량화(RSA 복호화가 약 4배 빨라짐) ② <b>해시·체크섬</b>의 충돌 회피(서로 다른 법으로 이중 해시) ③ 정수 복원·비밀 분산. 큰 수를 \"여러 잔여류의 묶음\"으로 보는 강력한 관점입니다.",
+  "more": "​여러 합동식을 <b>하나로 합치는</b> 중국인의 나머지 정리. <b>중국인의 나머지 정리(CRT)</b>: 법 m₁, m₂, …이 <b>서로소</b>이면, 연립 합동식 <b>x ≡ r₁ (mod m₁), x ≡ r₂ (mod m₂), …</b>는 <b>m = m₁·m₂·…</b>를 법으로 <b>유일한 해</b>를 가집니다. 예: x ≡ 2(mod 3), x ≡ 3(mod 5), x ≡ 2(mod 7) → 0~104 중 정확히 <b>x = 23</b>(mod 105). 구성은 각 항마다 \"자기 법에서는 1, 나머지 법에서는 0\"인 기저를 <b>확장 유클리드의 역원</b>으로 만들어 합칩니다. 핵심 응용: ① <b>큰 수 연산 가속</b> — 큰 합성 법에서의 계산을 작은 소법 여러 개로 쪼개 병렬·경량화(RSA 복호화가 약 4배 빨라짐) ② <b>해시·체크섬</b>의 충돌 회피(서로 다른 법으로 이중 해시) ③ 정수 복원·비밀 분산. 큰 수를 \"여러 잔여류의 묶음\"으로 보는 강력한 관점입니다.",
   "more_en": "<b>Chinese Remainder Theorem (CRT)</b>: if moduli m₁, m₂, … are <b>pairwise coprime</b>, the system <b>x ≡ r₁ (mod m₁), x ≡ r₂ (mod m₂), …</b> has a <b>unique solution</b> modulo <b>m = m₁·m₂·…</b>. Example: x ≡ 2(mod 3), x ≡ 3(mod 5), x ≡ 2(mod 7) → exactly <b>x = 23</b> (mod 105). It is built by combining basis terms that are \"1 in their own modulus, 0 in the others,\" using <b>modular inverses from extended Euclid</b>. Key uses: ① <b>fast big-number arithmetic</b> — split work over a large composite modulus into several small prime moduli (RSA decryption ~4× faster); ② collision avoidance in <b>hashing/checksums</b> (double hashing with different moduli); ③ integer reconstruction and secret sharing. A powerful view of a big number as a bundle of residues.",
   "problem": {
    "q": "CRT가 유일한 해를 보장하려면 법들이 어떤 조건을 만족해야 하나?",
@@ -1998,7 +2006,9 @@
    "  long x = (r1 + m1 * t) % lcm;",
    "  return (x + lcm) % lcm;  // 유일 해 mod lcm(m1,m2)",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 6
  },
  "algo_br_segintersect": {
   "ch": "알고리즘 제2장 자료구조",
@@ -2415,11 +2425,11 @@
  },
  "algo_br_bsgs": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "이산 로그 — Baby-step Giant-step",
   "narr": "P vs NP를 다루는 자리에서 만나는 만나서 풀기(meet-in-the-middle)의 대표입니다. <b>a^x≡b (mod m)</b>인 x를 찾는 <b>이산 로그</b>는 무차별이면 O(m)입니다. <b>BSGS</b>는 x=i·n−j (n=⌈√m⌉)로 쪼갭니다. ①<b>Baby step</b>: a^0..a^(n−1)을 해시 테이블에 저장하고, ②<b>Giant step</b>: i를 키우며 b·a^(−in)이 테이블에 있는지 봅니다. 두 단계가 각각 약 √m번이고 한쪽 결과를 테이블로 즉시 조회하므로, O(m)이 <b>O(√m)</b>으로 단축됩니다. 양쪽을 절반씩 만들어 가운데서 맞추는 발상이라 시간·메모리 모두 O(√m)입니다. 디피-헬먼·엘가말 분석, 군의 위수 계산에 쓰입니다.",
   "hint": "",
-  "more": "<b>이산 로그</b>는 <b>a^x ≡ b (mod m)</b>을 만족하는 x를 찾는 문제입니다(공개키 암호의 안전성 근거). 무차별이면 x를 0..m−1까지 보는 O(m). <b>Baby-step Giant-step(BSGS)</b>은 <b>x = i·n − j</b> (n = ⌈√m⌉, 0 ≤ j < n, 0 ≤ i ≤ n)로 쓰는 발상입니다. ① <b>Baby steps</b>: a^0, a^1, …, a^(n−1) (mod m)을 모두 계산해 <b>해시 테이블</b>에 \"값 → j\"로 저장. ② <b>Giant steps</b>: i를 키우며 <b>b · a^(−in)</b>(즉 b에 a^(−n)을 반복 곱)을 만들어 그 값이 테이블에 있는지 본다. 있으면 a^j ≡ b·a^(−in) 이므로 <b>x = i·n − j</b>. 두 단계 각각 약 √m번이라 <b>시간·메모리 O(√m)</b> — O(m)에서 제곱근으로 단축(meet-in-the-middle). 쓰임: 디피-헬먼·엘가말 분석, 군에서의 위수 계산, 격자/암호 연습 문제.",
+  "more": "​곱셈의 역연산 <b>이산 로그</b> — Baby-step Giant-step. <b>이산 로그</b>는 <b>a^x ≡ b (mod m)</b>을 만족하는 x를 찾는 문제입니다(공개키 암호의 안전성 근거). 무차별이면 x를 0..m−1까지 보는 O(m). <b>Baby-step Giant-step(BSGS)</b>은 <b>x = i·n − j</b> (n = ⌈√m⌉, 0 ≤ j < n, 0 ≤ i ≤ n)로 쓰는 발상입니다. ① <b>Baby steps</b>: a^0, a^1, …, a^(n−1) (mod m)을 모두 계산해 <b>해시 테이블</b>에 \"값 → j\"로 저장. ② <b>Giant steps</b>: i를 키우며 <b>b · a^(−in)</b>(즉 b에 a^(−n)을 반복 곱)을 만들어 그 값이 테이블에 있는지 본다. 있으면 a^j ≡ b·a^(−in) 이므로 <b>x = i·n − j</b>. 두 단계 각각 약 √m번이라 <b>시간·메모리 O(√m)</b> — O(m)에서 제곱근으로 단축(meet-in-the-middle). 쓰임: 디피-헬먼·엘가말 분석, 군에서의 위수 계산, 격자/암호 연습 문제.",
   "more_en": "The <b>discrete logarithm</b> problem asks for x with <b>a^x ≡ b (mod m)</b> (the basis of public-key security). Brute force scans x = 0..m−1 in O(m). <b>Baby-step Giant-step (BSGS)</b> writes <b>x = i·n − j</b> (n = ⌈√m⌉, 0 ≤ j < n, 0 ≤ i ≤ n). ① <b>Baby steps</b>: compute a^0..a^(n−1) (mod m) and store \"value → j\" in a <b>hash table</b>. ② <b>Giant steps</b>: increase i, forming <b>b · a^(−in)</b> (multiply b by a^(−n) repeatedly), and check if it is in the table. If so a^j ≡ b·a^(−in), giving <b>x = i·n − j</b>. Each phase is about √m steps → <b>O(√m) time and memory</b> — a square-root speedup over O(m) (meet-in-the-middle). Uses: analysis of Diffie-Hellman/ElGamal, computing orders in groups.",
   "problem": {
    "q": "BSGS가 이산 로그를 O(m)에서 O(√m)으로 줄이는 핵심 아이디어는?",
@@ -2441,15 +2451,17 @@
    "  }",
    "  return -1;",
    "}   // O(√m)"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 14
  },
  "algo_br_mobius": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.4 해시 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "뫼비우스 함수 μ — 정수론판 포함·배제",
   "narr": "해시로 빈도를 다루던 흐름에서 정수론판 포함·배제로 넘어갑니다. <b>뫼비우스 함수 μ(n)</b>는 소인수 구조로 정의됩니다 — 제곱 인수가 있으면 0, 서로 다른 소수 k개의 곱이면 (−1)^k입니다. 핵심 도구는 <b>반전 공식</b>: g(n)=Σ_{d|n}f(d)이면 거꾸로 <b>f(n)=Σ_{d|n}μ(n/d)g(d)</b>로 정확히 복원됩니다. 약수 합으로 쌓은 것을 한 항도 새지 않게 되돌리는 도구라, 약수·배수에 걸친 합을 깔끔히 분해합니다. 그래서 '1~N 중 k와 서로소인 수=Σ_{d|k}μ(d)⌊N/d⌋' 같은 세기가 한 줄로 풀립니다. μ는 에라토스테네스 선별로 1~N까지 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
   "hint": "",
-  "more": "<b>뫼비우스 함수 μ(n)</b>는 n의 소인수 구조로 정의됩니다 — <b>제곱 인수가 있으면 0</b>(예 μ(4)=μ(12)=0), 그렇지 않고 서로 다른 소수 <b>k개의 곱이면 (−1)^k</b>(소수 짝수 개면 +1, 홀수 개면 −1; μ(1)=1, μ(6)=μ(2·3)=+1, μ(30)=μ(2·3·5)=−1). 핵심 도구는 <b>뫼비우스 반전 공식</b>: <b>g(n)=Σ_{d|n} f(d)</b> 이면 거꾸로 <b>f(n)=Σ_{d|n} μ(n/d)·g(d)</b> 로 복원됩니다. 이는 \"약수 합으로 쌓은 것을 정확히 되돌리는\" 도구라, 약수/배수에 걸친 합을 가뿐히 분해합니다. 대표 응용: <b>1~N 중 k와 서로소인 수 = Σ_{d|k} μ(d)·⌊N/d⌋</b>(포함배제), 서로소 쌍 개수·gcd가 특정 값인 쌍 세기, 디리클레 합·약수 함수 계산. 에라토스테네스 선별로 μ를 1~N까지 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
+  "more": "​φ와 짝을 이루는 <b>뫼비우스 μ</b> — 정수론판 포함·배제. <b>뫼비우스 함수 μ(n)</b>는 n의 소인수 구조로 정의됩니다 — <b>제곱 인수가 있으면 0</b>(예 μ(4)=μ(12)=0), 그렇지 않고 서로 다른 소수 <b>k개의 곱이면 (−1)^k</b>(소수 짝수 개면 +1, 홀수 개면 −1; μ(1)=1, μ(6)=μ(2·3)=+1, μ(30)=μ(2·3·5)=−1). 핵심 도구는 <b>뫼비우스 반전 공식</b>: <b>g(n)=Σ_{d|n} f(d)</b> 이면 거꾸로 <b>f(n)=Σ_{d|n} μ(n/d)·g(d)</b> 로 복원됩니다. 이는 \"약수 합으로 쌓은 것을 정확히 되돌리는\" 도구라, 약수/배수에 걸친 합을 가뿐히 분해합니다. 대표 응용: <b>1~N 중 k와 서로소인 수 = Σ_{d|k} μ(d)·⌊N/d⌋</b>(포함배제), 서로소 쌍 개수·gcd가 특정 값인 쌍 세기, 디리클레 합·약수 함수 계산. 에라토스테네스 선별로 μ를 1~N까지 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
   "more_en": "The <b>Möbius function μ(n)</b> is defined by n's prime structure — <b>0 if n has a squared factor</b> (e.g. μ(4)=μ(12)=0); otherwise, for a product of <b>k distinct primes, (−1)^k</b> (μ(1)=1, μ(6)=μ(2·3)=+1, μ(30)=−1). Its key tool is <b>Möbius inversion</b>: if <b>g(n)=Σ_{d|n} f(d)</b> then <b>f(n)=Σ_{d|n} μ(n/d)·g(d)</b> — exactly undoing a \"sum over divisors,\" so it cleanly disentangles divisor/multiple sums. Flagship use: <b>count of integers in 1..N coprime to k = Σ_{d|k} μ(d)·⌊N/d⌋</b> (inclusion-exclusion), counting coprime pairs or pairs with a given gcd, Dirichlet sums and divisor functions. A sieve computes μ for 1..N together in <b>O(N log log N)</b>.",
   "problem": {
    "q": "μ(12)의 값은? 그 이유는?",
@@ -2465,7 +2477,9 @@
    "  for(int j=2*i;j<=n;j+=i)",
    "    mu[j] -= mu[i];              // 약수 합 = [n==1]",
    "// Σ_{d|n} μ(d) = (n==1 ? 1 : 0)"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 8
  },
  "algo_br_digitdp": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -2672,11 +2686,11 @@
  },
  "algo_br_totient": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.4 해시 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "오일러 피 함수 φ(n) — 서로소의 개수",
   "narr": "해시로 빈도를 세던 흐름에서 정수론의 세는 함수로 넘어갑니다. <b>오일러 피 함수 φ(n)</b>은 <b>1..n 중 n과 서로소인 수의 개수</b>입니다. gcd를 일일이 보지 않고, 소인수가 p₁,p₂,…이면 <b>곱셈 공식 φ(n)=n·Π_{p|n}(1−1/p)</b>로 바로 구합니다(포함·배제의 결과). 핵심 성질은 ①곱셈적(서로소면 φ(mn)=φ(m)φ(n)) ②<b>오일러 정리</b>: gcd(a,n)=1이면 a^φ(n)≡1 (mod n) — 페르마 소정리의 일반화입니다. 그래서 모듈러 역원(a⁻¹≡a^(φ(n)−1)), RSA의 비밀 지수, 거듭제곱의 주기를 모두 φ로 다룹니다. 1..N 전체는 체를 변형해 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
   "hint": "",
-  "more": "<b>오일러 피 함수 φ(n)</b>은 <b>1..n 중 n과 서로소(gcd=1)인 수의 개수</b>입니다. n의 소인수가 p₁, p₂, … 이면 <b>곱셈 공식 φ(n) = n · Π_{p|n} (1 − 1/p)</b>로 바로 구해집니다(포함·배제의 결과). 예: φ(12) = 12·(1−1/2)(1−1/3) = 4, 실제로 12와 서로소인 수는 {1, 5, 7, 11}로 4개. 핵심 성질: ① <b>곱셈적</b>(gcd(m,n)=1이면 φ(mn)=φ(m)φ(n)) ② <b>오일러 정리</b>: gcd(a,n)=1이면 <b>a^φ(n) ≡ 1 (mod n)</b> — 페르마 소정리(소수 p에서 a^(p−1)≡1)의 일반화. 응용: <b>모듈러 역원</b> a⁻¹ ≡ a^(φ(n)−1), <b>RSA</b>(φ(pq)=(p−1)(q−1)로 비밀 지수 d 계산), 거듭제곱의 주기. 1..N 전체는 체를 변형해 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
+  "more": "​n과 서로소인 수의 개수 — <b>오일러 φ</b>, 곱셈적 함수의 대표. <b>오일러 피 함수 φ(n)</b>은 <b>1..n 중 n과 서로소(gcd=1)인 수의 개수</b>입니다. n의 소인수가 p₁, p₂, … 이면 <b>곱셈 공식 φ(n) = n · Π_{p|n} (1 − 1/p)</b>로 바로 구해집니다(포함·배제의 결과). 예: φ(12) = 12·(1−1/2)(1−1/3) = 4, 실제로 12와 서로소인 수는 {1, 5, 7, 11}로 4개. 핵심 성질: ① <b>곱셈적</b>(gcd(m,n)=1이면 φ(mn)=φ(m)φ(n)) ② <b>오일러 정리</b>: gcd(a,n)=1이면 <b>a^φ(n) ≡ 1 (mod n)</b> — 페르마 소정리(소수 p에서 a^(p−1)≡1)의 일반화. 응용: <b>모듈러 역원</b> a⁻¹ ≡ a^(φ(n)−1), <b>RSA</b>(φ(pq)=(p−1)(q−1)로 비밀 지수 d 계산), 거듭제곱의 주기. 1..N 전체는 체를 변형해 <b>O(N log log N)</b>에 한꺼번에 구합니다.",
   "more_en": "<b>Euler's totient φ(n)</b> counts the integers in <b>1..n that are coprime to n</b> (gcd = 1). If n's prime factors are p₁, p₂, …, then <b>φ(n) = n · Π_{p|n} (1 − 1/p)</b> (an inclusion-exclusion result). E.g. φ(12) = 12·(1−1/2)(1−1/3) = 4, matching {1, 5, 7, 11}. Key facts: ① it is <b>multiplicative</b> (φ(mn)=φ(m)φ(n) when gcd(m,n)=1); ② <b>Euler's theorem</b>: if gcd(a,n)=1 then <b>a^φ(n) ≡ 1 (mod n)</b> — generalizing Fermat's little theorem. Applications: <b>modular inverse</b> a⁻¹ ≡ a^(φ(n)−1), <b>RSA</b> (φ(pq)=(p−1)(q−1) to derive the private exponent), power cycles. φ for all 1..N is computed together via a modified sieve in <b>O(N log log N)</b>.",
   "problem": {
    "q": "φ(12)는? 곱셈 공식으로 계산해보면?",
@@ -2696,7 +2710,9 @@
    "  if(n>1) result -= result/n;",
    "  return result;",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 7
  },
  "algo_br_gauss": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -2950,11 +2966,11 @@
  },
  "algo_br_pollard": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "폴라드 로 — 큰 합성수의 약수를 빠르게",
   "narr": "해시 테이블의 의사난수 발상을 정수론에 쓴 확률 알고리즘입니다. 큰 합성수 n의 약수를 시행착오 나눗셈으로 찾으면 O(√n)이지만, <b>폴라드 로</b>는 기대 <b>O(n^¼)</b>입니다. 의사난수 수열 xₖ₊₁=(xₖ²+c) mod n은 값이 n가지뿐이라 언젠가 순환하는데(꼬리+고리가 ρ 모양), 핵심은 'n의 미지의 약수 p로 본 수열'이 약 √p≈n^¼ 만에 <b>훨씬 빨리</b> 순환한다는 점입니다. 그래서 두 항이 p로는 같고 n으로는 다른 순간이 생기고, 그때 <b>gcd(|xᵢ−x₂ᵢ|,n)</b>이 진짜 약수가 됩니다. 순환 탐지는 플로이드 거북-토끼로 메모리 없이 합니다. 밀러-라빈(소수 판정)과 짝지어 재귀하면 <b>거대한 수의 완전 소인수분해</b>가 됩니다.",
   "hint": "",
-  "more": "<b>폴라드 로(Pollard's rho)</b>는 큰 <b>합성수 n의 비자명한 약수</b>를 기대 <b>O(n^¼)</b>에 찾는 확률 알고리즘입니다(시행착오 나눗셈 O(√n)보다 훨씬 빠름). 아이디어: 의사난수 수열 <b>xₖ₊₁ = (xₖ² + c) mod n</b>을 만들면, 값이 n가지뿐이라 언젠가 <b>반드시 순환</b>합니다 — 꼬리와 고리가 그리스 문자 <b>ρ(로)</b> 모양이라 이름이 그렇습니다. 핵심은 \"n으로 본 수열\"의 순환보다 \"<b>n의 미지의 약수 p로 본 수열</b>\"의 순환이 <b>훨씬 빨리</b>(약 √p ≈ n^¼ 만에) 옵니다. 그래서 두 항 xᵢ, x₂ᵢ가 <b>p로는 같지만 n으로는 다른</b> 순간이 생기고, 그때 <b>gcd(|xᵢ − x₂ᵢ|, n)</b>이 1도 n도 아닌 <b>진짜 약수</b>가 됩니다. 순환 탐지는 <b>플로이드 거북-토끼</b>(한 칸·두 칸)로 추가 메모리 없이 합니다. 실패(gcd=n)하면 c를 바꿔 재시도. <b>밀러-라빈</b>(소수 판정)과 짝지어, n이 소수면 그대로 두고 합성수면 폴라드 로로 쪼개기를 재귀하면 <b>거대한 수의 완전 소인수분해</b>가 됩니다 — RSA 키 크기 추정의 바탕이기도 합니다.",
+  "more": "​합성수라면 약수를 빠르게 찾는 <b>폴라드 로</b>. <b>폴라드 로(Pollard's rho)</b>는 큰 <b>합성수 n의 비자명한 약수</b>를 기대 <b>O(n^¼)</b>에 찾는 확률 알고리즘입니다(시행착오 나눗셈 O(√n)보다 훨씬 빠름). 아이디어: 의사난수 수열 <b>xₖ₊₁ = (xₖ² + c) mod n</b>을 만들면, 값이 n가지뿐이라 언젠가 <b>반드시 순환</b>합니다 — 꼬리와 고리가 그리스 문자 <b>ρ(로)</b> 모양이라 이름이 그렇습니다. 핵심은 \"n으로 본 수열\"의 순환보다 \"<b>n의 미지의 약수 p로 본 수열</b>\"의 순환이 <b>훨씬 빨리</b>(약 √p ≈ n^¼ 만에) 옵니다. 그래서 두 항 xᵢ, x₂ᵢ가 <b>p로는 같지만 n으로는 다른</b> 순간이 생기고, 그때 <b>gcd(|xᵢ − x₂ᵢ|, n)</b>이 1도 n도 아닌 <b>진짜 약수</b>가 됩니다. 순환 탐지는 <b>플로이드 거북-토끼</b>(한 칸·두 칸)로 추가 메모리 없이 합니다. 실패(gcd=n)하면 c를 바꿔 재시도. <b>밀러-라빈</b>(소수 판정)과 짝지어, n이 소수면 그대로 두고 합성수면 폴라드 로로 쪼개기를 재귀하면 <b>거대한 수의 완전 소인수분해</b>가 됩니다 — RSA 키 크기 추정의 바탕이기도 합니다.",
   "more_en": "<b>Pollard's rho</b> finds a <b>non-trivial divisor of a large composite n</b> in expected <b>O(n^¼)</b> — far faster than O(√n) trial division. Idea: build a pseudo-random sequence <b>xₖ₊₁ = (xₖ² + c) mod n</b>; with only n possible values it <b>must eventually cycle</b> — the tail and loop look like the Greek letter <b>ρ (rho)</b>. The trick: the sequence cycles <b>much sooner modulo an unknown prime factor p of n</b> (in about √p ≈ n^¼ steps) than modulo n. So two terms xᵢ and x₂ᵢ become <b>equal mod p but different mod n</b>, and then <b>gcd(|xᵢ − x₂ᵢ|, n)</b> is a <b>real divisor</b> (neither 1 nor n). Cycle detection uses <b>Floyd's tortoise-and-hare</b> (one step vs two) with no extra memory; on failure (gcd=n) change c and retry. Paired with <b>Miller-Rabin</b> (primality), leaving primes alone and recursively splitting composites yields <b>full factorization of huge numbers</b> — the basis for estimating safe RSA key sizes.",
   "problem": {
    "q": "폴라드 로에서 gcd(|xᵢ − x₂ᵢ|, n)이 약수를 내놓는 이유는?",
@@ -2973,7 +2989,9 @@
    "  }",
    "  return d==n ? -1 : d;",
    "}   // 기대 O(n^1/4)"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 10
  },
  "algo_br_lucas": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -3349,11 +3367,11 @@
  },
  "algo_br_tonelli": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "토넬리-샹크스 — 모듈러 제곱근",
   "narr": "해시 테이블의 모듈러 산술을 제곱근으로 확장한 도구입니다. 보통 제곱근은 실수지만, 암호에서는 <b>x²≡a (mod p)</b>인 정수 x, 곧 모듈러 세계의 제곱근이 필요합니다. <b>토넬리-샹크스</b>가 소수 p 위에서 이를 풉니다. ①<b>존재 판정</b>은 a가 이차잉여인지 오일러 판정법 a^((p−1)/2)≡1로 확인합니다. ②<b>쉬운 경우</b> p≡3 (mod 4)이면 x=a^((p+1)/4)로 즉시 끝납니다. ③<b>일반 경우</b>는 p−1=Q·2^S로 분해하고 이차 비잉여 z를 하나 찾아, '현재 후보가 1에서 얼마나 떨어졌는지'를 나타내는 2의 거듭제곱 차수를 z의 거듭제곱으로 <b>0까지 줄여</b> 갑니다. 기대 시간 <b>O(log²p)</b>입니다. 타원곡선 암호의 점 압축 복원에 쓰이며, 정수 제곱근과는 전혀 다릅니다.",
   "hint": "",
-  "more": "<b>토넬리-샹크스(Tonelli-Shanks)</b>는 소수 p에 대해 <b>x² ≡ a (mod p)</b> 의 해 x(모듈러 제곱근)를 구합니다. 절차: ① <b>존재 판정</b> — a가 제곱수(이차잉여)인지 <b>오일러 판정법</b> a^((p−1)/2) ≡ 1 (mod p) 으로 확인(−1이면 해 없음). ② <b>쉬운 경우</b> p ≡ 3 (mod 4) 이면 <b>x = a^((p+1)/4) mod p</b> 로 즉시 끝(제곱하면 a^((p+1)/2)=a·a^((p−1)/2)=a). ③ <b>일반 경우</b> p−1 = Q·2^S (Q 홀수)로 분해하고, 아무 <b>이차 비잉여</b> z를 하나 찾아(보통 무작위로 빨리 발견) 보정 인자를 만든 뒤, \"현재 후보가 1에서 얼마나 떨어졌는지\"를 나타내는 <b>2의 거듭제곱 차수</b>를 단계마다 z의 거듭제곱을 곱해 <b>0으로 줄여</b> 갑니다 — 비잉여를 이용해 \"2^k차 단위근\" 구조를 차례로 상쇄하는 것이 핵심 아이디어입니다. 기대 시간 <b>O(log² p)</b>(비잉여 찾기는 평균 두 번 시도). 해가 x면 −x ≡ p−x 도 해입니다. <b>합성수 모듈러</b>는 인수분해 후 각 소수(거듭제곱)에서 풀고 <b>중국인의 나머지 정리</b>로 합칩니다. 쓰임: <b>타원곡선 암호</b>에서 점 압축 복원(y² = x³+ax+b 의 y 찾기), 이차잉여 기반 프로토콜, 일부 소인수분해·이산로그 보조. \"정수 제곱근(√의 정수부)\"과는 전혀 다른, 모듈러 산술의 도구입니다.",
+  "more": "​제곱잉여라면 <b>모듈러 제곱근</b>을 — 토넬리-샹크스. <b>토넬리-샹크스(Tonelli-Shanks)</b>는 소수 p에 대해 <b>x² ≡ a (mod p)</b> 의 해 x(모듈러 제곱근)를 구합니다. 절차: ① <b>존재 판정</b> — a가 제곱수(이차잉여)인지 <b>오일러 판정법</b> a^((p−1)/2) ≡ 1 (mod p) 으로 확인(−1이면 해 없음). ② <b>쉬운 경우</b> p ≡ 3 (mod 4) 이면 <b>x = a^((p+1)/4) mod p</b> 로 즉시 끝(제곱하면 a^((p+1)/2)=a·a^((p−1)/2)=a). ③ <b>일반 경우</b> p−1 = Q·2^S (Q 홀수)로 분해하고, 아무 <b>이차 비잉여</b> z를 하나 찾아(보통 무작위로 빨리 발견) 보정 인자를 만든 뒤, \"현재 후보가 1에서 얼마나 떨어졌는지\"를 나타내는 <b>2의 거듭제곱 차수</b>를 단계마다 z의 거듭제곱을 곱해 <b>0으로 줄여</b> 갑니다 — 비잉여를 이용해 \"2^k차 단위근\" 구조를 차례로 상쇄하는 것이 핵심 아이디어입니다. 기대 시간 <b>O(log² p)</b>(비잉여 찾기는 평균 두 번 시도). 해가 x면 −x ≡ p−x 도 해입니다. <b>합성수 모듈러</b>는 인수분해 후 각 소수(거듭제곱)에서 풀고 <b>중국인의 나머지 정리</b>로 합칩니다. 쓰임: <b>타원곡선 암호</b>에서 점 압축 복원(y² = x³+ax+b 의 y 찾기), 이차잉여 기반 프로토콜, 일부 소인수분해·이산로그 보조. \"정수 제곱근(√의 정수부)\"과는 전혀 다른, 모듈러 산술의 도구입니다.",
   "more_en": "<b>Tonelli-Shanks</b> finds, for a prime p, a solution x of <b>x² ≡ a (mod p)</b> — a modular square root. Steps: ① <b>existence</b> — check a is a quadratic residue via <b>Euler's criterion</b> a^((p−1)/2) ≡ 1 (mod p) (if −1, no solution). ② <b>easy case</b> p ≡ 3 (mod 4): <b>x = a^((p+1)/4) mod p</b> immediately (squaring gives a^((p+1)/2)=a·a^((p−1)/2)=a). ③ <b>general case</b>: factor p−1 = Q·2^S (Q odd), find any <b>quadratic non-residue</b> z (usually fast at random) to build a correction factor, then drive the <b>power-of-two order</b> measuring \"how far the candidate is from 1\" down to <b>zero</b> by multiplying powers of z each step — using the non-residue to cancel the \"2^k-th root of unity\" structure level by level. Expected time <b>O(log² p)</b> (finding a non-residue takes ~2 tries). If x is a root so is −x ≡ p−x. For <b>composite moduli</b>, factor, solve mod each prime power, and combine via the <b>Chinese Remainder Theorem</b>. Uses: <b>elliptic-curve cryptography</b> point decompression (recovering y from y² = x³+ax+b), quadratic-residue protocols, some factoring/discrete-log helpers. It is entirely different from the \"integer square root\" — a tool of modular arithmetic.",
   "problem": {
    "q": "p ≡ 3 (mod 4) 인 소수에서 x² ≡ a 의 제곱근이 a^((p+1)/4) 인 이유는?",
@@ -3370,7 +3388,9 @@
    "  // 일반: Q·2^S = p-1 분해 후 비잉여 z로 보정",
    "  return tonelliShanks(n,p);",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 13
  },
  "algo_br_segbeats": {
   "ch": "알고리즘 제5장 트리",
@@ -4662,11 +4682,11 @@
  },
  "algo_br_legendre": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "르장드르·야코비 기호 — 이차잉여 판정",
   "narr": "a가 소수 p로 나눈 <b>제곱수(x²≡a)</b>인지를 판정하는 도구가 <b>르장드르 기호 (a|p)</b>입니다. <b>+1</b>이면 이차잉여(해 있음), <b>−1</b>이면 없음, <b>0</b>이면 p|a입니다. 토대는 <b>오일러 판정법 (a|p) ≡ a^((p−1)/2)</b>이고, 더 빠른 길은 <b>이차 상호법칙</b>으로 두 소수를 gcd처럼 뒤집어 줄이는 것입니다. 이를 인수분해 없이 쓸 수 있게 확장한 것이 <b>야코비 기호 (a|n)</b>입니다. 야코비는 상호법칙과 −1·2 보조 법칙을 그대로 만족해, a mod n으로 줄이고 분자·분모 뒤집기를 <b>유클리드 호제법처럼 반복</b>하면 <b>O(log² n)</b>에 ±1을 얻습니다(단 n 합성수면 =1이 이차잉여 보장은 아님). 토넬리-샹크스 전 제곱 가능성 판정, 솔로베이-스트라센 소수판정에 쓰입니다.",
   "hint": "",
-  "more": "<b>르장드르 기호(Legendre symbol) (a|p)</b>는 홀수 소수 p와 정수 a에 대해 a가 <b>이차잉여(quadratic residue)</b>, 즉 x² ≡ a (mod p)의 해가 있는지를 ±1로 알려 줍니다: <b>(a|p) = +1</b>(이차잉여, 해 있음), <b>−1</b>(이차비잉여, 해 없음), <b>0</b>(p | a). 계산의 토대는 <b>오일러 판정법</b>: (a|p) ≡ a^((p−1)/2) (mod p). 더 빠른 길은 <b>이차 상호법칙(quadratic reciprocity)</b>: 두 홀수 소수 p, q에 대해 (p|q)(q|p) = (−1)^((p−1)/2·(q−1)/2), 보조 법칙 (−1|p)=(−1)^((p−1)/2), (2|p)=(−1)^((p²−1)/8). 이를 \"a를 소인수분해하지 않고\" 쓸 수 있게 확장한 것이 <b>야코비 기호(Jacobi symbol) (a|n)</b>(n=홀수 합성수, 소인수별 르장드르 기호의 곱). 야코비 기호는 상호법칙이 그대로 성립해, <b>유클리드 호제법처럼 a mod n과 부호 규칙을 반복</b>하며 <b>O(log² n)</b>에 계산됩니다(인수분해 불필요). 주의: 야코비 (a|n)=1이라고 a가 반드시 이차잉여는 아님(n이 합성수일 때) — 소수 p에서만 르장드르가 정확한 판정. 쓰임: <b>토넬리-샹크스</b>(모듈러 제곱근) 전 제곱 가능성 판정, <b>솔로베이-스트라센 소수판정</b>(야코비 vs 오일러 판정 비교), 이차체 암호, 평방 잉여 기반 프로토콜. \"제곱 가능성을 ±1로, 상호법칙으로 빠르게\"가 핵심입니다.",
+  "more": "​어떤 수가 <b>제곱잉여</b>인가? 르장드르·야코비 기호. <b>르장드르 기호(Legendre symbol) (a|p)</b>는 홀수 소수 p와 정수 a에 대해 a가 <b>이차잉여(quadratic residue)</b>, 즉 x² ≡ a (mod p)의 해가 있는지를 ±1로 알려 줍니다: <b>(a|p) = +1</b>(이차잉여, 해 있음), <b>−1</b>(이차비잉여, 해 없음), <b>0</b>(p | a). 계산의 토대는 <b>오일러 판정법</b>: (a|p) ≡ a^((p−1)/2) (mod p). 더 빠른 길은 <b>이차 상호법칙(quadratic reciprocity)</b>: 두 홀수 소수 p, q에 대해 (p|q)(q|p) = (−1)^((p−1)/2·(q−1)/2), 보조 법칙 (−1|p)=(−1)^((p−1)/2), (2|p)=(−1)^((p²−1)/8). 이를 \"a를 소인수분해하지 않고\" 쓸 수 있게 확장한 것이 <b>야코비 기호(Jacobi symbol) (a|n)</b>(n=홀수 합성수, 소인수별 르장드르 기호의 곱). 야코비 기호는 상호법칙이 그대로 성립해, <b>유클리드 호제법처럼 a mod n과 부호 규칙을 반복</b>하며 <b>O(log² n)</b>에 계산됩니다(인수분해 불필요). 주의: 야코비 (a|n)=1이라고 a가 반드시 이차잉여는 아님(n이 합성수일 때) — 소수 p에서만 르장드르가 정확한 판정. 쓰임: <b>토넬리-샹크스</b>(모듈러 제곱근) 전 제곱 가능성 판정, <b>솔로베이-스트라센 소수판정</b>(야코비 vs 오일러 판정 비교), 이차체 암호, 평방 잉여 기반 프로토콜. \"제곱 가능성을 ±1로, 상호법칙으로 빠르게\"가 핵심입니다.",
   "more_en": "The <b>Legendre symbol (a|p)</b>, for an odd prime p and integer a, tells via ±1 whether a is a <b>quadratic residue</b>, i.e. whether x² ≡ a (mod p) has a solution: <b>(a|p) = +1</b> (residue, solvable), <b>−1</b> (non-residue, unsolvable), <b>0</b> (p | a). The computational basis is <b>Euler's criterion</b>: (a|p) ≡ a^((p−1)/2) (mod p). A faster route is <b>quadratic reciprocity</b>: for odd primes p, q, (p|q)(q|p) = (−1)^((p−1)/2·(q−1)/2), with supplements (−1|p)=(−1)^((p−1)/2) and (2|p)=(−1)^((p²−1)/8). Extending this to be usable \"without factoring a\" gives the <b>Jacobi symbol (a|n)</b> (n odd composite, the product of Legendre symbols over n's prime factors). The Jacobi symbol satisfies the same reciprocity, so it is computed in <b>O(log² n)</b> by <b>iterating a mod n with sign rules, like the Euclidean algorithm</b> (no factoring). Caveat: Jacobi (a|n)=1 does not guarantee a is a residue (when n is composite) — only the Legendre symbol at a prime is a true test. Uses: testing solvability before <b>Tonelli-Shanks</b> (modular square root), the <b>Solovay-Strassen primality test</b> (comparing Jacobi vs Euler), quadratic-field cryptography, quadratic-residue protocols. The crux: \"squareness as ±1, computed fast via reciprocity.\"",
   "problem": {
    "q": "야코비 기호가 a를 소인수분해하지 않고도 빠르게 계산되는 이유는?",
@@ -4682,7 +4702,9 @@
    "  return (r==1) ? 1 : -1;          // 1=잉여, -1=비잉여",
    "}",
    "// 야코비 기호는 합성수 분모로 일반화"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 12
  },
  "algo_br_contfrac": {
   "ch": "알고리즘 제4장 탐색",
@@ -4954,11 +4976,11 @@
  },
  "algo_br_linearsieve": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "선형 체 — 각 합성수를 딱 한 번만 지우기",
   "narr": "에라토스테네스의 체가 12를 2로도 3으로도 지워 중복 작업을 하던 것을 없앤 기법입니다. 1..n의 소수를 거르되 <b>각 합성수를 자신의 최소 소인수로 정확히 한 번만</b> 지웁니다. i를 2..n으로 훑으며 i가 안 지워졌으면 소수에 넣고, 찾은 소수 p를 작은 것부터 보며 i·p를 지우되 <b>p가 i를 나누는 순간 멈춥니다</b>. 이 멈춤이 i·p의 최소 소인수가 p가 되도록 보장해, 모든 합성수가 서로 다른 (최소소인수, 몫) 쌍으로 한 번씩만 지워지므로 총 <b>O(n)</b>입니다. 진행 중 최소 소인수표를 공짜로 얻어 오일러 피·뫼비우스 같은 <b>곱셈적 함수</b>를 같은 루프에서 채울 수 있습니다.",
   "hint": "",
-  "more": "<b>선형 체(linear sieve, 오일러 체)</b>는 1..n의 소수를 <b>O(n)</b>에 거르는 알고리즘으로, 에라토스테네스의 체(O(n log log n))가 한 합성수를 여러 소인수로 <b>중복해서</b> 지우는 비효율을 없앱니다. 핵심 불변식: <b>각 합성수는 자신의 최소 소인수(spf)에 의해 정확히 한 번만 지워진다</b>. 절차: i를 2..n으로 훑으며, ① i가 아직 안 지워졌으면 <b>소수 목록에 추가</b>; ② 이미 찾은 각 소수 p를 작은 것부터 보며 <b>i·p를 합성수로 표시</b>하되, <b>p가 i를 나누는 순간(p | i) 멈춘다</b>. 이 \"멈춤\" 규칙이 마법: i·p를 지울 때 그 <b>최소 소인수가 p가 되도록</b> 보장하므로(p ≤ spf(i)), 모든 i·p가 서로 다른 (최소소인수, 몫) 쌍이 되어 중복 없이 각 합성수가 한 번만 지워집니다 → 총 연산 O(n). 부산물: 진행 중에 <b>최소 소인수 spf[·]</b>를 공짜로 얻고, 이를 이용해 <b>오일러 피 φ·뫼비우스 μ·약수 개수/합</b> 같은 <b>곱셈적 함수(multiplicative function)</b>를 같은 O(n) 루프에서 함께 채울 수 있습니다(spf로 소수 거듭제곱 부분을 분리). 쓰임: 대량 소수·곱셈적 함수 전처리, spf로 임의 수 O(log n) 소인수분해. 에라토스테네스보다 점근이 약간 낫고(상수는 비슷) 무엇보다 spf·곱셈적 함수 동시 계산이 강점입니다.",
+  "more": "​에라토스테네스 체를 <b>완전히 선형(O(n))</b>으로 — 각 합성수를 딱 한 번만. <b>선형 체(linear sieve, 오일러 체)</b>는 1..n의 소수를 <b>O(n)</b>에 거르는 알고리즘으로, 에라토스테네스의 체(O(n log log n))가 한 합성수를 여러 소인수로 <b>중복해서</b> 지우는 비효율을 없앱니다. 핵심 불변식: <b>각 합성수는 자신의 최소 소인수(spf)에 의해 정확히 한 번만 지워진다</b>. 절차: i를 2..n으로 훑으며, ① i가 아직 안 지워졌으면 <b>소수 목록에 추가</b>; ② 이미 찾은 각 소수 p를 작은 것부터 보며 <b>i·p를 합성수로 표시</b>하되, <b>p가 i를 나누는 순간(p | i) 멈춘다</b>. 이 \"멈춤\" 규칙이 마법: i·p를 지울 때 그 <b>최소 소인수가 p가 되도록</b> 보장하므로(p ≤ spf(i)), 모든 i·p가 서로 다른 (최소소인수, 몫) 쌍이 되어 중복 없이 각 합성수가 한 번만 지워집니다 → 총 연산 O(n). 부산물: 진행 중에 <b>최소 소인수 spf[·]</b>를 공짜로 얻고, 이를 이용해 <b>오일러 피 φ·뫼비우스 μ·약수 개수/합</b> 같은 <b>곱셈적 함수(multiplicative function)</b>를 같은 O(n) 루프에서 함께 채울 수 있습니다(spf로 소수 거듭제곱 부분을 분리). 쓰임: 대량 소수·곱셈적 함수 전처리, spf로 임의 수 O(log n) 소인수분해. 에라토스테네스보다 점근이 약간 낫고(상수는 비슷) 무엇보다 spf·곱셈적 함수 동시 계산이 강점입니다.",
   "more_en": "The <b>linear sieve (Euler's sieve)</b> finds primes in 1..n in <b>O(n)</b>, eliminating the inefficiency of the sieve of Eratosthenes (O(n log log n)) where a composite is crossed out <b>redundantly</b> by several prime factors. The invariant: <b>each composite is crossed out exactly once, by its smallest prime factor (spf)</b>. Procedure: scan i = 2..n; ① if i is still unmarked, <b>add it to the prime list</b>; ② for each known prime p in increasing order, <b>mark i·p as composite</b>, but <b>break the moment p divides i (p | i)</b>. That \"break\" rule is the magic: it guarantees the <b>smallest prime factor of i·p is p</b> (p ≤ spf(i)), so every i·p is a distinct (smallest-prime, cofactor) pair and each composite is marked once → O(n) total. Byproduct: you get the <b>smallest prime factor spf[·]</b> for free, and can fill <b>multiplicative functions</b> (Euler's φ, Möbius μ, divisor count/sum) in the same O(n) loop (splitting off the prime-power part via spf). Uses: bulk prime / multiplicative-function preprocessing, factoring any number in O(log n) via spf. It is asymptotically slightly better than Eratosthenes (similar constants), and its real strength is computing spf and multiplicative functions simultaneously.",
   "problem": {
    "q": "선형 체에서 'p가 i를 나누면 멈춘다(break)'는 규칙이 왜 각 합성수를 한 번만 지우게 하나?",
@@ -4976,7 +4998,9 @@
    "    if(i%p==0) break;            // 최소소인수에서만 지움",
    "  }",
    "}   // O(n)"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 2
  },
  "algo_br_lazyprop": {
   "ch": "알고리즘 제5장 트리",
@@ -5030,11 +5054,11 @@
  },
  "algo_br_modinverse": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "모듈러 역원 — 나눗셈을 곱셈으로",
   "narr": "모듈러 산술에는 나눗셈이 없어, a로 나누기를 <b>역원 a⁻¹</b> 곱하기로 바꾸는 부품입니다. a⁻¹은 <b>a·a⁻¹ ≡ 1 (mod m)</b>을 만족하며 a와 m이 <b>서로소</b>일 때만 존재합니다. 구하는 법은 셋입니다. m이 소수면 페르마 소정리로 <b>a⁻¹ = a^(m−2)</b>를 빠른 거듭제곱 O(log m)에, 일반 m은 <b>확장 유클리드</b>로 ax+my=1의 x를, 1..n 일괄은 점화식 <b>inv[i] = −(m/i)·inv[m mod i]</b>로 O(n)에 얻습니다. 이항계수 C(n,k) mod p를 팩토리얼과 그 역원으로 대량 계산할 때 필수입니다. 나눗셈을 역원 곱하기로 바꾸는 것이 핵심입니다.",
   "hint": "",
-  "more": "<b>모듈러 역원(modular multiplicative inverse)</b> a⁻¹은 <b>a · a⁻¹ ≡ 1 (mod m)</b>을 만족하는 수로, 모듈러 세계에서 \"a로 나누기\"를 \"a⁻¹ 곱하기\"로 대체합니다(b/a mod m = b·a⁻¹ mod m). <b>존재 조건</b>: a와 m이 <b>서로소(gcd(a,m)=1)</b>일 때만 존재. 구하는 법 세 가지: ① <b>m이 소수</b>이면 페르마의 소정리 a^(m−1)≡1에서 <b>a⁻¹ = a^(m−2) mod m</b>을 빠른 거듭제곱 O(log m)에. ② <b>일반 m</b>(gcd=1)은 <b>확장 유클리드</b>로 a·x + m·y = 1의 정수해 x를 구하면 x mod m이 역원(O(log m)). ③ <b>1..n 일괄</b>: 모든 inv[i]를 점화식 <b>inv[i] = −(m/i)·inv[m mod i] mod m</b>(inv[1]=1)으로 <b>O(n)</b>에 — 이항계수를 mod 소수로 대량 계산할 때 팩토리얼과 그 역원을 미리 깔 때 필수. 함께 쓰는 패턴: <b>C(n,k) mod p = fact[n]·invfact[k]·invfact[n−k]</b>(invfact는 fact[n]의 역원에서 거꾸로 곱해 O(n)). 주의: m이 합성수이고 a가 m과 약수를 공유하면 역원이 <b>없으므로</b>, 그런 경우는 CRT로 소수 거듭제곱별 처리하거나 분자·분모의 공통 소인수를 따로 관리합니다. 쓰임: 조합론 mod 소수, 분수의 모듈러 값, CRT, 다항식 해시, NTT. \"나눗셈 = 역원 곱하기, 역원은 페르마(소수)·확장유클리드(일반)·일괄점화(O(n))\"가 핵심입니다.",
+  "more": "​확장 유클리드의 첫 응용 — <b>나눗셈을 곱셈으로</b> 바꾸는 모듈러 역원. <b>모듈러 역원(modular multiplicative inverse)</b> a⁻¹은 <b>a · a⁻¹ ≡ 1 (mod m)</b>을 만족하는 수로, 모듈러 세계에서 \"a로 나누기\"를 \"a⁻¹ 곱하기\"로 대체합니다(b/a mod m = b·a⁻¹ mod m). <b>존재 조건</b>: a와 m이 <b>서로소(gcd(a,m)=1)</b>일 때만 존재. 구하는 법 세 가지: ① <b>m이 소수</b>이면 페르마의 소정리 a^(m−1)≡1에서 <b>a⁻¹ = a^(m−2) mod m</b>을 빠른 거듭제곱 O(log m)에. ② <b>일반 m</b>(gcd=1)은 <b>확장 유클리드</b>로 a·x + m·y = 1의 정수해 x를 구하면 x mod m이 역원(O(log m)). ③ <b>1..n 일괄</b>: 모든 inv[i]를 점화식 <b>inv[i] = −(m/i)·inv[m mod i] mod m</b>(inv[1]=1)으로 <b>O(n)</b>에 — 이항계수를 mod 소수로 대량 계산할 때 팩토리얼과 그 역원을 미리 깔 때 필수. 함께 쓰는 패턴: <b>C(n,k) mod p = fact[n]·invfact[k]·invfact[n−k]</b>(invfact는 fact[n]의 역원에서 거꾸로 곱해 O(n)). 주의: m이 합성수이고 a가 m과 약수를 공유하면 역원이 <b>없으므로</b>, 그런 경우는 CRT로 소수 거듭제곱별 처리하거나 분자·분모의 공통 소인수를 따로 관리합니다. 쓰임: 조합론 mod 소수, 분수의 모듈러 값, CRT, 다항식 해시, NTT. \"나눗셈 = 역원 곱하기, 역원은 페르마(소수)·확장유클리드(일반)·일괄점화(O(n))\"가 핵심입니다.",
   "more_en": "A <b>modular multiplicative inverse</b> a⁻¹ satisfies <b>a · a⁻¹ ≡ 1 (mod m)</b>, replacing \"divide by a\" with \"multiply by a⁻¹\" in modular arithmetic (b/a mod m = b·a⁻¹ mod m). <b>Existence</b>: only when a and m are <b>coprime (gcd(a,m)=1)</b>. Three ways to compute it: ① if <b>m is prime</b>, Fermat's little theorem a^(m−1)≡1 gives <b>a⁻¹ = a^(m−2) mod m</b> via fast exponentiation O(log m); ② for <b>general m</b> (gcd=1), <b>extended Euclid</b> finds an integer solution x of a·x + m·y = 1, and x mod m is the inverse (O(log m)); ③ <b>for all of 1..n at once</b>, compute every inv[i] by the recurrence <b>inv[i] = −(m/i)·inv[m mod i] mod m</b> (inv[1]=1) in <b>O(n)</b> — essential for bulk binomial coefficients mod a prime, precomputing factorials and their inverses. A common pattern: <b>C(n,k) mod p = fact[n]·invfact[k]·invfact[n−k]</b> (invfact built by multiplying back from the inverse of fact[n], O(n)). Caveat: if m is composite and a shares a factor with m, no inverse exists, so handle via CRT per prime power or manage common prime factors of numerator/denominator separately. Uses: combinatorics mod a prime, modular value of fractions, CRT, polynomial hashing, NTT. The crux: \"division = multiply by the inverse; compute it via Fermat (prime), extended Euclid (general), or the O(n) recurrence (bulk).\"",
   "problem": {
    "q": "m이 소수일 때 a⁻¹ = a^(m−2) mod m 인 이유는?",
@@ -5050,7 +5074,9 @@
    "  return modpow(a, m-2, m);       // m이 소수일 때",
    "}",
    "// 나눗셈 b/a → b·inv(a) mod m"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 5
  },
  "algo_br_permcycle": {
   "ch": "알고리즘 제3장 정렬",
@@ -5078,11 +5104,11 @@
  },
  "algo_br_montgomery": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "몽고메리 곱셈 — 나눗셈 없는 빠른 모듈러 곱",
   "narr": "모듈러 곱 a·b mod m이 매번 비싼 <b>나눗셈(%)</b>을 부르는 것을 제거하는 정수 산술 최적화입니다. m과 서로소인 <b>R=2^k</b>를 잡고 수를 몽고메리 표현 x̄ = x·R mod m으로 다룹니다. 핵심 reduction은 미리 계산한 m'(m'·m ≡ −1 mod R)을 써서 <b>나눗셈 없이 곱셈과 R로 나누기(=시프트)</b>만으로 t·R⁻¹ mod m을 구합니다. 그러면 두 몽고메리 표현의 곱에 reduction을 적용하면 다시 몽고메리 표현이 되어 영역 안에서 곱이 닫힙니다. 입·출력 변환 비용은 있지만 <b>곱을 반복할수록</b> 나눗셈 제거 이득이 압도합니다. 사촌 바레트 reduction과 함께 RSA·NTT·소수판정의 상수를 줄입니다.",
   "hint": "",
-  "more": "<b>몽고메리 곱셈(Montgomery multiplication)</b>은 같은 법 m으로 모듈러 곱셈을 <b>매우 많이</b> 할 때, 비싼 나눗셈(%) 연산을 제거해 속도를 높이는 기법입니다. 아이디어: m과 서로소인 <b>R = 2^k</b>(보통 워드 크기)를 잡고, 수 x를 <b>몽고메리 표현 x̄ = x·R mod m</b>으로 다룹니다. 핵심 연산 <b>몽고메리 reduction REDUCE(t) = t·R⁻¹ mod m</b>을, m'·m ≡ −1 (mod R)인 미리 계산한 m'을 써서 <b>나눗셈 없이 곱셈과 R로 나누기(=시프트)·m 한 번 빼기</b>만으로 구합니다(t가 R의 배수가 되도록 보정 후 R로 나눔 = 시프트). 그러면 두 몽고메리 표현의 곱 <b>REDUCE(ā · b̄) = (a·b)·R mod m = (a·b의 몽고메리 표현)</b>이 되어, 영역 안에서 곱셈이 닫힙니다. 입·출력 시 한 번씩 영역 변환(×R, REDUCE)하는 비용은 있지만, <b>곱을 반복할수록(빠른 거듭제곱, NTT, 밀러-라빈 소수판정, 폴라드 로)</b> 나눗셈 제거 이득이 압도합니다. 사촌 <b>바레트 reduction(Barrett)</b>은 1/m의 고정소수점 근사를 미리 계산해 \"나눗셈 ≈ 곱셈 + 시프트\"로 대체(영역 변환 불필요, 단 곱셈 한 번 더). 둘 다 \"<b>나눗셈을 곱셈·시프트로</b>\" 바꾸는 정수 산술 최적화입니다. 쓰임: 암호(모듈러 거듭제곱이 핵심인 RSA·ECC), 대량 모듈러 연산, 경쟁 프로그래밍의 상수 최적화.",
+  "more": "​모듈러 곱을 <b>나눗셈 없이</b> 빠르게 — 몽고메리. <b>몽고메리 곱셈(Montgomery multiplication)</b>은 같은 법 m으로 모듈러 곱셈을 <b>매우 많이</b> 할 때, 비싼 나눗셈(%) 연산을 제거해 속도를 높이는 기법입니다. 아이디어: m과 서로소인 <b>R = 2^k</b>(보통 워드 크기)를 잡고, 수 x를 <b>몽고메리 표현 x̄ = x·R mod m</b>으로 다룹니다. 핵심 연산 <b>몽고메리 reduction REDUCE(t) = t·R⁻¹ mod m</b>을, m'·m ≡ −1 (mod R)인 미리 계산한 m'을 써서 <b>나눗셈 없이 곱셈과 R로 나누기(=시프트)·m 한 번 빼기</b>만으로 구합니다(t가 R의 배수가 되도록 보정 후 R로 나눔 = 시프트). 그러면 두 몽고메리 표현의 곱 <b>REDUCE(ā · b̄) = (a·b)·R mod m = (a·b의 몽고메리 표현)</b>이 되어, 영역 안에서 곱셈이 닫힙니다. 입·출력 시 한 번씩 영역 변환(×R, REDUCE)하는 비용은 있지만, <b>곱을 반복할수록(빠른 거듭제곱, NTT, 밀러-라빈 소수판정, 폴라드 로)</b> 나눗셈 제거 이득이 압도합니다. 사촌 <b>바레트 reduction(Barrett)</b>은 1/m의 고정소수점 근사를 미리 계산해 \"나눗셈 ≈ 곱셈 + 시프트\"로 대체(영역 변환 불필요, 단 곱셈 한 번 더). 둘 다 \"<b>나눗셈을 곱셈·시프트로</b>\" 바꾸는 정수 산술 최적화입니다. 쓰임: 암호(모듈러 거듭제곱이 핵심인 RSA·ECC), 대량 모듈러 연산, 경쟁 프로그래밍의 상수 최적화.",
   "more_en": "<b>Montgomery multiplication</b> speeds up modular multiplication when done <b>very many times</b> with the same modulus m, by eliminating the costly division (%). Idea: pick <b>R = 2^k</b> (usually a word size) coprime to m, and handle a number x in its <b>Montgomery form x̄ = x·R mod m</b>. The key operation, <b>Montgomery reduction REDUCE(t) = t·R⁻¹ mod m</b>, is computed <b>without division</b> using a precomputed m' with m'·m ≡ −1 (mod R): adjust t to be a multiple of R, then divide by R (a shift) and subtract m once. Then the product of two Montgomery forms <b>REDUCE(ā · b̄) = (a·b)·R mod m = the Montgomery form of a·b</b>, so multiplication is closed within the domain. There's a one-time conversion cost in/out (×R, REDUCE), but for <b>repeated multiplications (fast exponentiation, NTT, Miller-Rabin primality, Pollard's rho)</b> the removal of division dominates. The cousin <b>Barrett reduction</b> precomputes a fixed-point approximation of 1/m to replace \"division ≈ multiply + shift\" (no domain conversion, but one extra multiply). Both are integer-arithmetic optimizations that turn <b>division into multiplication and shifts</b>. Uses: cryptography (modular exponentiation in RSA/ECC), bulk modular arithmetic, constant-factor optimization in competitive programming.",
   "problem": {
    "q": "몽고메리 곱셈이 모듈러 곱을 빠르게 하는 핵심과, 언제 이득인가?",
@@ -5099,7 +5125,9 @@
    "  return t>=n ? t-n : t;",
    "}",
    "// 곱 = redc(aR · bR) = abR. 나눗셈→시프트"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 11
  },
  "algo_br_kshortest": {
   "ch": "알고리즘 제6장 그래프",
@@ -5759,11 +5787,11 @@
  },
  "algo_br_binarygcd": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.5 해시 테이블 ▸ 자세히",
+  "sec": "정수론·수론",
   "title": "이진 GCD — 나눗셈 없이 시프트와 뺄셈으로",
   "narr": "유클리드 호제법의 나머지(%)를 시프트와 뺄셈으로 바꾼 기법입니다. <b>이진 GCD(슈타인)</b>는 비싼 모듈러 연산을 <b>2로 나누기·뺄셈·비교</b>로 대체합니다. 규칙은 패리티로 분기합니다. 둘 다 짝수면 2를 빼서 gcd(a/2,b/2)에 곱하고, 하나만 짝수면 그 2를 버려 /2하고, 둘 다 홀수면 gcd(|a−b|, min)으로(홀수−홀수=짝수라 다음에 시프트됨), 한쪽이 0이면 모아 둔 공통 2의 거듭제곱을 곱합니다. 시프트·뺄셈만 쓰므로 <b>나눗셈이 느린/없는 하드웨어나 빅넘버</b>에서 유클리드보다 빠릅니다. 확장판으로 베주 계수·모듈러 역원도 같은 틀로 구합니다. 짝수는 시프트, 홀수끼리는 빼기가 핵심입니다.",
   "hint": "",
-  "more": "<b>이진 GCD(Stein's algorithm)</b>는 두 수의 최대공약수를 <b>나눗셈(%) 없이</b> 구합니다 — 비싼 모듈러 연산을 <b>2로 나누기(우측 시프트)·뺄셈·비교</b>로 대체합니다. 규칙(2의 인수와 패리티로 분기): ① <b>둘 다 짝수</b>: gcd(a,b) = 2·gcd(a/2, b/2) (2가 공약수 → 빼서 나중에 곱함); ② <b>하나만 짝수</b>: 그 짝수만 /2 (2는 공약수가 아니므로 버려도 됨); ③ <b>둘 다 홀수</b>: gcd(a,b) = gcd(|a−b|, min(a,b)) (홀수−홀수=짝수라 다음에 시프트됨, 유클리드 한 스텝의 뺄셈판); ④ <b>한쪽이 0</b>: gcd = 다른 수 (× 처음 모아 둔 공통 2의 거듭제곱). 시프트·뺄셈만 쓰므로 <b>나눗셈 회로가 느린/없는 하드웨어, 임의 정밀도 빅넘버</b>에서 유클리드보다 빠릅니다(비트 수 b에 대해 O(b²) 비트 연산이지만 각 연산이 싸다). 같은 GCD를 주되 \"느린 % 한 번\"을 \"싼 연산 몇 번\"으로 분산. <b>확장판(binary extended GCD)</b>은 베주 계수·모듈러 역원도 같은 틀로 구합니다. 쓰임: <b>큰 정수 라이브러리</b>(GMP 등)·암호의 gcd, 분수 약분, 임베디드(나눗셈 명령 없는 MCU). \"짝수는 시프트, 홀수끼리는 빼기\"가 핵심이며, 유클리드의 비트 버전으로 이해하면 됩니다.",
+  "more": "​소수를 거쳤으니 <b>최대공약수</b>로. 나눗셈 없이 시프트·뺄셈만으로. <b>이진 GCD(Stein's algorithm)</b>는 두 수의 최대공약수를 <b>나눗셈(%) 없이</b> 구합니다 — 비싼 모듈러 연산을 <b>2로 나누기(우측 시프트)·뺄셈·비교</b>로 대체합니다. 규칙(2의 인수와 패리티로 분기): ① <b>둘 다 짝수</b>: gcd(a,b) = 2·gcd(a/2, b/2) (2가 공약수 → 빼서 나중에 곱함); ② <b>하나만 짝수</b>: 그 짝수만 /2 (2는 공약수가 아니므로 버려도 됨); ③ <b>둘 다 홀수</b>: gcd(a,b) = gcd(|a−b|, min(a,b)) (홀수−홀수=짝수라 다음에 시프트됨, 유클리드 한 스텝의 뺄셈판); ④ <b>한쪽이 0</b>: gcd = 다른 수 (× 처음 모아 둔 공통 2의 거듭제곱). 시프트·뺄셈만 쓰므로 <b>나눗셈 회로가 느린/없는 하드웨어, 임의 정밀도 빅넘버</b>에서 유클리드보다 빠릅니다(비트 수 b에 대해 O(b²) 비트 연산이지만 각 연산이 싸다). 같은 GCD를 주되 \"느린 % 한 번\"을 \"싼 연산 몇 번\"으로 분산. <b>확장판(binary extended GCD)</b>은 베주 계수·모듈러 역원도 같은 틀로 구합니다. 쓰임: <b>큰 정수 라이브러리</b>(GMP 등)·암호의 gcd, 분수 약분, 임베디드(나눗셈 명령 없는 MCU). \"짝수는 시프트, 홀수끼리는 빼기\"가 핵심이며, 유클리드의 비트 버전으로 이해하면 됩니다.",
   "more_en": "<b>Binary GCD (Stein's algorithm)</b> computes the greatest common divisor <b>without division (%)</b> — replacing costly modular operations with <b>halving (right shift), subtraction, and comparison</b>. Rules (branching on factors of 2 and parity): ① <b>both even</b>: gcd(a,b) = 2·gcd(a/2, b/2) (2 is a common factor, factored out and multiplied back later); ② <b>only one even</b>: halve just that one (2 isn't a common factor, so drop it); ③ <b>both odd</b>: gcd(a,b) = gcd(|a−b|, min(a,b)) (odd−odd=even, halved next; the subtractive version of a Euclid step); ④ <b>one is 0</b>: gcd = the other (× the common power of 2 collected at the start). Using only shifts and subtraction, it beats Euclid on <b>hardware with slow/absent division and on arbitrary-precision big numbers</b> (O(b²) bit operations for b bits, but each is cheap) — same GCD, spreading \"one slow %\" into \"a few cheap ops.\" The <b>extended binary GCD</b> finds Bézout coefficients and modular inverses in the same framework. Uses: <b>big-integer libraries</b> (GMP, etc.) and cryptographic GCDs, fraction reduction, embedded MCUs without a divide instruction. The crux: \"shift the evens, subtract the odds,\" the bit-level version of Euclid.",
   "problem": {
    "q": "이진 GCD에서 '둘 다 홀수'일 때 gcd(a,b)=gcd(|a−b|, min(a,b))로 줄이는 근거는?",
@@ -5784,7 +5812,9 @@
    "  }",
    "  return a << s;",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_06",
+  "ord": 3
  },
  "algo_br_sat": {
   "ch": "알고리즘 제8장 설계 패러다임",

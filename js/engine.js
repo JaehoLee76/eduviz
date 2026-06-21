@@ -201,7 +201,9 @@
     var spineNo=0;
     for(i=0;i<sc.length;i++){ if(!sc[i].branchOf){ spineNo++; sc[i]._isSpine=true; sc[i]._spineNo=spineNo; sc[i]._spinePos=HR.spine.length; sc[i]._num=''+spineNo; HR.spine.push(i); } }
     for(i=0;i<sc.length;i++){ var b=sc[i].branchOf; if(b!=null){ var pIdx=HR.byId[b]; sc[i]._isSpine=false; sc[i]._parentIdx=pIdx;
-      if(pIdx!=null&&sc[pIdx]){ if(!sc[pIdx]._branches) sc[pIdx]._branches=[]; sc[pIdx]._branches.push(i); } } }
+      if(pIdx!=null&&sc[pIdx]){ if(!sc[pIdx]._branches) sc[pIdx]._branches=[];
+        var brs=sc[pIdx]._branches, dup=false; for(var j=0;j<brs.length;j++){ if(sc[brs[j]].id===sc[i].id){ dup=true; break; } }  // 교차배치 중복 id(같은 부모)는 1개만
+        if(!dup) brs.push(i); } } }
     // 분기 순서 = ord 필드 오름차순(기본 9999), 동률이면 파일 순서. 정렬 후 번호(_num) 부여 → 재배치/재정렬을 JSON ord만으로 제어.
     for(i=0;i<HR.spine.length;i++){ var pi=HR.spine[i], br=sc[pi]._branches; if(!br) continue;
       br.sort(function(x,y){ var ox=(sc[x].ord==null?9999:sc[x].ord), oy=(sc[y].ord==null?9999:sc[y].ord); return (ox-oy)||(x-y); });
