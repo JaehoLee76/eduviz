@@ -699,11 +699,11 @@
  },
  "algo_br_hull": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.3 스택과 큐 (자세히)",
+  "sec": "계산기하",
   "title": "볼록 껍질 — 점들을 감싸기",
   "narr": "평면에 흩어진 점들을 <b>고무줄로 둘러쌌을 때</b> 나오는 가장 바깥 경계가 <b>볼록 껍질</b>입니다. 안쪽으로 패인 곳 없이 모든 점을 감싸는 최소 볼록 다각형으로, 계산기하의 기본 문제입니다. <b>그레이엄 스캔</b>은 스택을 영리하게 씁니다. 먼저 가장 아래쪽 기준점을 잡고 나머지 점을 그 점에서 본 <b>각도순으로 정렬</b>합니다. 그다음 점들을 차례로 스택에 넣되, 새 점을 더할 때 직전 두 점과 이루는 방향이 <b>오른쪽(시계 방향)으로 꺾이면</b> 그 점은 껍질 안쪽이므로 스택에서 빼냅니다. 왼쪽으로만 돌도록 유지하면 볼록성이 보존됩니다. 각 점은 스택에 한 번 들어가고 많아야 한 번 나오므로 스캔은 선형이고, 정렬이 지배해 <b>O(n log n)</b>입니다. 충돌 감지·패턴 인식·지도에 쓰입니다.",
   "hint": "바깥 점들을 잇는 최소 다각형",
-  "more": "<b>볼록 껍질(convex hull)</b>(계산기하): 평면 위 점 집합을 모두 포함하는 <b>가장 작은 볼록 다각형</b>. <b>그레이엄 스캔</b>: ① 가장 아래 점을 기준으로 나머지를 <b>각도순 정렬</b>(정렬) ② 차례로 보며 <b>스택</b>에 쌓되, 새 점이 \"오른쪽(시계방향)으로 꺾으면\" 스택에서 빼냄(볼록성 위반 제거) → O(n log n)(정렬이 지배). 다른 방법: 자비스 행진(O(nh)), 분할정복. 핵심: <b>스택이 \"되돌아가 고치는\" 구조</b>로 쓰여 볼록성을 유지(스택의 우아한 응용). 쓰임: <b>충돌 감지(게임·로봇)</b>, 패턴 인식, 지리정보(영역), 이미지 처리, 통계(이상치). 정렬+스택이라는 기본 도구가 기하 문제를 푸는 — 자료구조·알고리즘이 협력하는 또 하나의 예입니다. 계산기하는 컴퓨터그래픽·CAD·로보틱스의 토대입니다.",
+  "more": "​계산기하의 출발점 — 점들을 감싸는 <b>볼록 껍질</b>. <b>볼록 껍질(convex hull)</b>(계산기하): 평면 위 점 집합을 모두 포함하는 <b>가장 작은 볼록 다각형</b>. <b>그레이엄 스캔</b>: ① 가장 아래 점을 기준으로 나머지를 <b>각도순 정렬</b>(정렬) ② 차례로 보며 <b>스택</b>에 쌓되, 새 점이 \"오른쪽(시계방향)으로 꺾으면\" 스택에서 빼냄(볼록성 위반 제거) → O(n log n)(정렬이 지배). 다른 방법: 자비스 행진(O(nh)), 분할정복. 핵심: <b>스택이 \"되돌아가 고치는\" 구조</b>로 쓰여 볼록성을 유지(스택의 우아한 응용). 쓰임: <b>충돌 감지(게임·로봇)</b>, 패턴 인식, 지리정보(영역), 이미지 처리, 통계(이상치). 정렬+스택이라는 기본 도구가 기하 문제를 푸는 — 자료구조·알고리즘이 협력하는 또 하나의 예입니다. 계산기하는 컴퓨터그래픽·CAD·로보틱스의 토대입니다.",
   "more_en": "<b>Convex hull</b> (computational geometry): the <b>smallest convex polygon</b> containing a set of points. <b>Graham scan</b>: ① <b>sort the points by angle</b> around the lowest point (sorting); ② push them onto a <b>stack</b>, popping whenever a new point turns \"clockwise\" (removing a convexity violation) → O(n log n) (sorting dominates). Other methods: Jarvis march (O(nh)), divide and conquer. Key: the <b>stack's \"go back and fix\" structure</b> maintains convexity (an elegant use of the stack). Uses: <b>collision detection (games, robots)</b>, pattern recognition, GIS regions, image processing, outlier detection in statistics. Basic tools — sorting and a stack — solve a geometry problem: another case of data structures and algorithms cooperating. Computational geometry underpins computer graphics, CAD, and robotics.",
   "problem": {
    "q": "그레이엄 스캔이 볼록 껍질을 만들 때 쓰는 두 도구는?",
@@ -724,7 +724,9 @@
    "  while(k>=lower && cross(h[k-2],h[k-1],p[i])<=0) k--;",
    "  h[k++]=p[i];",
    "}   // O(n log n) (정렬이 지배)"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 1
  },
  "algo_br_lp": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -781,11 +783,11 @@
  },
  "algo_br_closest": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할 정복 (자세히)",
+  "sec": "계산기하",
   "title": "가장 가까운 점 쌍 — O(n log n)",
   "narr": "평면에 흩어진 점들 중 <b>가장 가까운 두 점</b>을 찾는 문제입니다. 모든 쌍의 거리를 재면 쌍이 n²개에 비례해 <b>O(n²)</b>로 느립니다. <b>분할정복</b>으로 가속합니다. 점들을 x좌표 중앙선으로 좌·우 절반으로 나눠 각각에서 최소 거리를 재귀로 구하고, 두 값 중 작은 쪽을 d로 둡니다. 남은 일은 한 점은 왼쪽, 다른 점은 오른쪽에 있는 경계 쌍의 검사인데, 이것이 핵심입니다. 그런 쌍이 d보다 가깝다면 두 점 모두 중앙선에서 좌우로 d 이내의 <b>좁은 띠</b> 안에 있어야 합니다. 띠 안 점들을 y좌표로 정렬하면 각 점은 자기보다 위쪽의 <b>상수 개(최대 7개) 점</b>만 확인해도 충분함이 증명됩니다. 한 점 주변 d×2d 영역에 점이 그 이상 못 들어가기 때문입니다. 덕분에 경계 검사가 선형이라 전체 <b>O(n log n)</b>입니다.",
   "hint": "좌우 분할 + 경계 띠만 검사",
-  "more": "<b>가장 가까운 점 쌍(closest pair)</b>: 평면의 n개 점 중 거리가 최소인 두 점 찾기. 무식하게는 모든 쌍 C(n,2)≈n²/2 비교 = O(n²). <b>분할정복</b>: ① x좌표로 정렬해 <b>좌우 절반으로 분할</b> ② 각 절반에서 재귀로 최소거리 d 구함 ③ <b>병합(결합)</b>: 분할선 양쪽 폭 d인 \"띠(strip)\" 안의 점들만 검사 — 이 띠에선 각 점이 <b>상수 개(≤7~8개)</b>의 이웃만 보면 됨(기하학적 논증!) → 결합도 O(n). 점화식 T(n)=2T(n/2)+O(n) → <b>O(n log n)</b>(마스터 정리!). \"경계 영역만 영리하게\"가 핵심 — 무한해 보이는 교차 비교를 상수로 줄이는 기하적 통찰입니다. 쓰임: <b>충돌 감지(게임·시뮬레이션), 군집화, 지도/배달 서비스, 패턴 인식</b>. 분할정복이 정렬·곱셈을 넘어 기하 문제까지 정복하는 예입니다.",
+  "more": "​흩어진 점들 중 <b>가장 가까운 두 점</b>을 분할정복으로. <b>가장 가까운 점 쌍(closest pair)</b>: 평면의 n개 점 중 거리가 최소인 두 점 찾기. 무식하게는 모든 쌍 C(n,2)≈n²/2 비교 = O(n²). <b>분할정복</b>: ① x좌표로 정렬해 <b>좌우 절반으로 분할</b> ② 각 절반에서 재귀로 최소거리 d 구함 ③ <b>병합(결합)</b>: 분할선 양쪽 폭 d인 \"띠(strip)\" 안의 점들만 검사 — 이 띠에선 각 점이 <b>상수 개(≤7~8개)</b>의 이웃만 보면 됨(기하학적 논증!) → 결합도 O(n). 점화식 T(n)=2T(n/2)+O(n) → <b>O(n log n)</b>(마스터 정리!). \"경계 영역만 영리하게\"가 핵심 — 무한해 보이는 교차 비교를 상수로 줄이는 기하적 통찰입니다. 쓰임: <b>충돌 감지(게임·시뮬레이션), 군집화, 지도/배달 서비스, 패턴 인식</b>. 분할정복이 정렬·곱셈을 넘어 기하 문제까지 정복하는 예입니다.",
   "more_en": "<b>Closest pair of points</b>: find the two nearest points among n in the plane. Brute force compares all C(n,2)≈n²/2 pairs = O(n²). <b>Divide and conquer</b>: ① sort by x and <b>split into left/right halves</b>; ② recurse to get each half's minimum distance d; ③ <b>combine</b>: only check points within a <b>strip</b> of width d around the dividing line — within it each point needs to compare with just a <b>constant number (≤7–8)</b> of neighbors (a geometric argument!) → the combine is O(n). The recurrence T(n)=2T(n/2)+O(n) → <b>O(n log n)</b> (Master Theorem!). \"Be clever only at the boundary\" is the key — a geometric insight reducing seemingly infinite cross-comparisons to a constant. Uses: <b>collision detection (games, simulation), clustering, map/delivery services, pattern recognition</b>. An example of divide-and-conquer conquering geometry, beyond sorting and multiplication.",
   "problem": {
    "q": "가장 가까운 점 쌍을 분할정복으로 풀 때, 결합 단계에서 검사하는 영역은?",
@@ -804,7 +806,9 @@
    "  for(strip points by y) checkNearby(d);",
    "  return d;",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 7
  },
  "algo_br_master": {
   "ch": "알고리즘 제1장 알고리즘과 복잡도",
@@ -2012,11 +2016,11 @@
  },
  "algo_br_segintersect": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.3 스택과 큐 ▸ 자세히",
+  "sec": "계산기하",
   "title": "선분 교차 판정 — 외적(CCW)의 부호로",
   "narr": "두 선분이 교차하는지를 곱셈·뺄셈 몇 번으로 정확히 판정합니다. 비결은 세 점이 어느 쪽으로 도는지 알려주는 <b>외적의 부호(CCW)</b>입니다. (B−A)×(C−A)가 양수면 반시계(왼쪽), 음수면 시계(오른쪽), 0이면 일직선입니다. 선분 AB, CD의 교차 조건은, C와 D가 직선 AB의 <b>서로 반대편</b>(CCW(A,B,C)와 CCW(A,B,D)의 부호가 다름)이고, 동시에 A와 B가 직선 CD의 반대편인 것입니다. 양쪽이 서로를 가로질러야 교차합니다. 한 CCW가 0이면 점이 선분 위에 있을 수 있어 경계 상자로 추가 확인합니다. 정수 좌표면 오차 없이 정확하고 모두 <b>O(1)</b>인, 충돌 감지의 기본 벽돌입니다.",
   "hint": "",
-  "more": "세 점 A, B, C의 <b>방향(CCW)</b>은 외적 <b>(B−A) × (C−A)</b>의 부호로 정해집니다 — 양수면 <b>반시계(왼쪽)</b>, 음수면 <b>시계(오른쪽)</b>, 0이면 <b>일직선</b>. 선분 AB와 CD의 교차 판정(일반 위치): <b>CCW(A,B,C)와 CCW(A,B,D)의 부호가 다르고</b>(즉 C와 D가 직선 AB의 <b>서로 반대편</b>), <b>동시에</b> CCW(C,D,A)와 CCW(C,D,B)의 부호도 다르면(A,B가 직선 CD의 반대편) → <b>교차</b>. 한 CCW가 0이면 점이 선분 위에 있을 수 있어, 그 점이 선분의 경계 상자(bounding box) 안인지 추가로 확인합니다(공선·끝점 접촉 처리). 정수 좌표면 <b>오차 없이 정확</b>하고 전부 <b>O(1)</b>. 쓰임: 충돌 감지(게임)·다각형 자르기·볼록 껍질·지도 도형 연산의 기본 벽돌.",
+  "more": "​도형의 기본 질문 — 두 <b>선분이 교차</b>하는가? 외적(CCW)으로. 세 점 A, B, C의 <b>방향(CCW)</b>은 외적 <b>(B−A) × (C−A)</b>의 부호로 정해집니다 — 양수면 <b>반시계(왼쪽)</b>, 음수면 <b>시계(오른쪽)</b>, 0이면 <b>일직선</b>. 선분 AB와 CD의 교차 판정(일반 위치): <b>CCW(A,B,C)와 CCW(A,B,D)의 부호가 다르고</b>(즉 C와 D가 직선 AB의 <b>서로 반대편</b>), <b>동시에</b> CCW(C,D,A)와 CCW(C,D,B)의 부호도 다르면(A,B가 직선 CD의 반대편) → <b>교차</b>. 한 CCW가 0이면 점이 선분 위에 있을 수 있어, 그 점이 선분의 경계 상자(bounding box) 안인지 추가로 확인합니다(공선·끝점 접촉 처리). 정수 좌표면 <b>오차 없이 정확</b>하고 전부 <b>O(1)</b>. 쓰임: 충돌 감지(게임)·다각형 자르기·볼록 껍질·지도 도형 연산의 기본 벽돌.",
   "more_en": "The <b>orientation (CCW)</b> of three points A, B, C is the sign of the cross product <b>(B−A) × (C−A)</b> — positive means <b>counter-clockwise (left)</b>, negative <b>clockwise (right)</b>, zero <b>collinear</b>. Segments AB and CD intersect (general position) iff <b>CCW(A,B,C) and CCW(A,B,D) have opposite signs</b> (C and D on <b>opposite sides</b> of line AB) <b>and</b> CCW(C,D,A) and CCW(C,D,B) have opposite signs (A, B on opposite sides of CD). If a CCW is zero, a point may lie on a segment, so additionally check it is within the segment's bounding box (collinear/endpoint cases). With integer coordinates it is <b>exact</b>, all in <b>O(1)</b>. Uses: collision detection (games), polygon clipping, convex hull, map geometry.",
   "problem": {
    "q": "두 선분 AB, CD가 (일반 위치에서) 교차하려면 CCW 부호 조건은?",
@@ -2036,15 +2040,17 @@
    "  if(d1==0&&d2==0) return overlap(a,b,c,d);",
    "  return d1<=0 && d2<=0;             // 서로 반대편",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 3
  },
  "algo_br_calipers": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.3 스택과 큐 ▸ 자세히",
+  "sec": "계산기하",
   "title": "회전하는 캘리퍼스 — 볼록 껍질의 지름",
   "narr": "점 집합에서 가장 먼 두 점의 거리(지름)를 모든 쌍으로 보면 O(n²)입니다. <b>회전하는 캘리퍼스</b>는 볼록 껍질 위에서 돕니다. 볼록 다각형을 두 <b>평행 받침선</b>으로 양쪽에서 감싼 뒤 같은 각속도로 한 바퀴 돌립니다. 회전 중 두 선이 닿는 <b>대척점 쌍</b>만이 지름의 후보가 됩니다. 가장 먼 두 점은 반드시 평행 받침선이 동시에 닿는 짝이기 때문입니다. 그래서 모든 쌍이 아니라 그 후보만 보면 되고, 두 포인터가 각각 한 바퀴만 돌아 <b>O(n)</b>입니다(껍질 구하는 O(n log n)은 별도). 같은 틀로 다각형의 너비, 최소 외접 직사각형, 두 볼록다각형 거리까지 선형에 풉니다.",
   "hint": "",
-  "more": "<b>회전하는 캘리퍼스(rotating calipers)</b>는 <b>볼록 껍질</b> 위에서 도는 기법입니다. 볼록 다각형을 두 <b>평행한 받침선</b>(자/캘리퍼스의 두 턱)으로 양쪽에서 감싼 뒤, 둘을 <b>같은 각속도로 한 바퀴 회전</b>시킵니다. 회전 중 두 선이 닿는 <b>대척점(antipodal) 쌍</b>만이 <b>지름(가장 먼 두 점)</b>의 후보가 됩니다 — 가장 먼 두 점은 반드시 평행 받침선이 동시에 닿는 짝이기 때문입니다. 껍질의 정점이 n개면 두 포인터가 각각 한 바퀴만 돌아 <b>O(n)</b>(껍질 구하는 비용 O(n log n)은 별도). 같은 틀로 <b>다각형의 너비(최소 폭), 최소 외접 직사각형, 두 볼록다각형의 최소/최대 거리</b>까지 모두 선형에 풀립니다. 핵심 통찰: \"극단값은 볼록 껍질의 경계에서, 그것도 평행 지지선이 닿는 곳에서 나온다.\"",
+  "more": "​볼록 껍질 위에서 <b>가장 먼 두 점(지름)</b>을 회전 캘리퍼스로. <b>회전하는 캘리퍼스(rotating calipers)</b>는 <b>볼록 껍질</b> 위에서 도는 기법입니다. 볼록 다각형을 두 <b>평행한 받침선</b>(자/캘리퍼스의 두 턱)으로 양쪽에서 감싼 뒤, 둘을 <b>같은 각속도로 한 바퀴 회전</b>시킵니다. 회전 중 두 선이 닿는 <b>대척점(antipodal) 쌍</b>만이 <b>지름(가장 먼 두 점)</b>의 후보가 됩니다 — 가장 먼 두 점은 반드시 평행 받침선이 동시에 닿는 짝이기 때문입니다. 껍질의 정점이 n개면 두 포인터가 각각 한 바퀴만 돌아 <b>O(n)</b>(껍질 구하는 비용 O(n log n)은 별도). 같은 틀로 <b>다각형의 너비(최소 폭), 최소 외접 직사각형, 두 볼록다각형의 최소/최대 거리</b>까지 모두 선형에 풀립니다. 핵심 통찰: \"극단값은 볼록 껍질의 경계에서, 그것도 평행 지지선이 닿는 곳에서 나온다.\"",
   "more_en": "<b>Rotating calipers</b> sweeps around a <b>convex hull</b>. Wrap the convex polygon between two <b>parallel supporting lines</b> (the jaws of a caliper) and rotate both <b>together a full turn</b>. The <b>antipodal pairs</b> touched during rotation are the only candidates for the <b>diameter (farthest pair)</b> — the two farthest points must be a pair simultaneously touched by parallel supports. With n hull vertices, two pointers each go around once → <b>O(n)</b> (the hull itself costs O(n log n)). The same framework solves the polygon's <b>width, minimum-area enclosing rectangle, and min/max distance between two convex polygons</b> in linear time. Key insight: extremes occur on the hull boundary, at points where parallel supporting lines touch.",
   "problem": {
    "q": "회전하는 캘리퍼스가 가장 먼 두 점을 O(n)에 찾을 수 있는 근거는?",
@@ -2062,7 +2068,9 @@
    "  best=max(best, dist(hull[i+1], hull[j]));",
    "}",
    "return best;   // 마주보는 점쌍만 → O(n)"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 2
  },
  "algo_br_cht": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -4543,11 +4551,11 @@
  },
  "algo_br_shoelace": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.3 스택과 큐 ▸ 자세히",
+  "sec": "계산기하",
   "title": "신발끈 공식과 Pick 정리 — 다각형의 넓이",
   "narr": "다각형 꼭짓점 좌표만으로 넓이를 구하는 것이 <b>신발끈 공식</b>입니다. <b>A = ½ |Σ (xᵢ·y_{i+1} − x_{i+1}·yᵢ)|</b>로, 좌표를 두 열로 쓰고 <b>대각선 교차 곱(끈을 꿰듯)</b>해 더하고 빼는 모양이라 이름이 그렇습니다. 절댓값을 벗기면 <b>부호 있는 넓이</b>가 되어 양수면 꼭짓점이 <b>반시계(CCW)</b>, 음수면 시계 방향임을 알려 줍니다(외적의 합이라 방향에 민감). 볼록·오목 상관없이 <b>O(n)</b>입니다. 꼭짓점이 모두 격자점이면 <b>Pick 정리 A = I + B/2 − 1</b>(I=내부, B=경계 격자점)이 넓이를 점 개수로 줍니다. 경계 B는 각 변에서 gcd(|Δx|,|Δy|)개입니다. 다각형 넓이·방향 판정·격자 점 세기에 쓰이며, 부호 있는 넓이는 볼록껍질·점-다각형 판정의 토대입니다.",
   "hint": "",
-  "more": "<b>신발끈 공식(shoelace formula, 가우스의 넓이 공식)</b>은 다각형의 꼭짓점 (x₀,y₀),…,(x_{n−1},y_{n−1})만으로 넓이를 구합니다: <b>A = ½ |Σ_{i} (xᵢ·y_{i+1} − x_{i+1}·yᵢ)|</b> (인덱스는 순환). 이름은 좌표를 두 열로 쓰고 <b>대각선으로 교차 곱(끈을 꿰듯)</b>해 더하고 빼는 모양에서 왔습니다. 절댓값을 벗기면 <b>부호 있는 넓이</b>가 되어, 양수면 꼭짓점이 <b>반시계(CCW)</b>, 음수면 시계 방향임을 알려 줍니다(외적 ∑ 의 합 = 원점 기준 삼각형 넓이들의 합). 볼록·오목 상관없이 <b>O(n)</b>이며, 자기교차 다각형엔 부호가 상쇄돼 주의. <b>Pick의 정리(Pick's theorem)</b>는 꼭짓점이 <b>모두 격자점(정수 좌표)</b>인 단순 다각형에 대해 넓이를 격자점 수로 줍니다: <b>A = I + B/2 − 1</b> (I=내부 격자점 수, B=경계 위 격자점 수). 경계 격자점 B는 각 변 (Δx,Δy)에서 <b>gcd(|Δx|,|Δy|)</b>개씩(끝점 중복 보정), I는 Pick을 역으로 I = A − B/2 + 1로 구합니다. 두 정리는 함께 \"좌표 기하 넓이의 두 얼굴\": 신발끈은 <b>임의 실수 좌표</b>, Pick은 <b>격자점일 때 격자점 세기로</b>. 쓰임: 다각형 넓이·무게중심·방향 판정, 격자 위 영역의 점 개수, 다각형 삼각분할 검증, 컴퓨터 그래픽스. 부호 있는 넓이는 외적(CCW)·볼록껍질·점-다각형 판정의 토대이기도 합니다.",
+  "more": "​다각형의 <b>넓이</b>를 좌표만으로 — 신발끈 공식·Pick 정리. <b>신발끈 공식(shoelace formula, 가우스의 넓이 공식)</b>은 다각형의 꼭짓점 (x₀,y₀),…,(x_{n−1},y_{n−1})만으로 넓이를 구합니다: <b>A = ½ |Σ_{i} (xᵢ·y_{i+1} − x_{i+1}·yᵢ)|</b> (인덱스는 순환). 이름은 좌표를 두 열로 쓰고 <b>대각선으로 교차 곱(끈을 꿰듯)</b>해 더하고 빼는 모양에서 왔습니다. 절댓값을 벗기면 <b>부호 있는 넓이</b>가 되어, 양수면 꼭짓점이 <b>반시계(CCW)</b>, 음수면 시계 방향임을 알려 줍니다(외적 ∑ 의 합 = 원점 기준 삼각형 넓이들의 합). 볼록·오목 상관없이 <b>O(n)</b>이며, 자기교차 다각형엔 부호가 상쇄돼 주의. <b>Pick의 정리(Pick's theorem)</b>는 꼭짓점이 <b>모두 격자점(정수 좌표)</b>인 단순 다각형에 대해 넓이를 격자점 수로 줍니다: <b>A = I + B/2 − 1</b> (I=내부 격자점 수, B=경계 위 격자점 수). 경계 격자점 B는 각 변 (Δx,Δy)에서 <b>gcd(|Δx|,|Δy|)</b>개씩(끝점 중복 보정), I는 Pick을 역으로 I = A − B/2 + 1로 구합니다. 두 정리는 함께 \"좌표 기하 넓이의 두 얼굴\": 신발끈은 <b>임의 실수 좌표</b>, Pick은 <b>격자점일 때 격자점 세기로</b>. 쓰임: 다각형 넓이·무게중심·방향 판정, 격자 위 영역의 점 개수, 다각형 삼각분할 검증, 컴퓨터 그래픽스. 부호 있는 넓이는 외적(CCW)·볼록껍질·점-다각형 판정의 토대이기도 합니다.",
   "more_en": "The <b>shoelace formula (Gauss's area formula)</b> computes a polygon's area from its vertices (x₀,y₀),…,(x_{n−1},y_{n−1}) alone: <b>A = ½ |Σ_i (xᵢ·y_{i+1} − x_{i+1}·yᵢ)|</b> (cyclic indices). The name comes from writing coordinates in two columns and <b>cross-multiplying diagonally (like lacing a shoe)</b>, adding and subtracting. Dropping the absolute value gives the <b>signed area</b>, telling orientation: positive means vertices are <b>counterclockwise (CCW)</b>, negative clockwise (the sum equals signed triangle areas about the origin via cross products). It is <b>O(n)</b> for convex or concave polygons; self-intersecting ones cancel signs, so take care. <b>Pick's theorem</b> gives, for a simple polygon whose vertices are <b>all lattice points (integer coordinates)</b>, the area as a count: <b>A = I + B/2 − 1</b> (I = interior lattice points, B = boundary lattice points). The boundary count B sums <b>gcd(|Δx|,|Δy|)</b> over each edge (Δx,Δy) (adjusting for shared endpoints), and I follows by inverting Pick to I = A − B/2 + 1. Together they are the \"two faces of coordinate-geometry area\": shoelace for <b>arbitrary real coordinates</b>, Pick for <b>counting lattice points when on a grid</b>. Uses: polygon area/centroid/orientation, counting points in a lattice region, validating triangulations, computer graphics. Signed area also underlies the cross product (CCW), convex hull, and point-in-polygon tests.",
   "problem": {
    "q": "신발끈 공식의 부호(절댓값 벗긴 값)가 알려 주는 추가 정보는?",
@@ -4566,15 +4574,17 @@
    "  return fabs(s)/2;",
    "}",
    "// Pick: A = 내부격자점 + 경계점/2 - 1"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 5
  },
  "algo_br_pointinpoly": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.3 스택과 큐 ▸ 자세히",
+  "sec": "계산기하",
   "title": "점-다각형 포함 판정 — 광선 쏘기(ray casting)",
   "narr": "한 점이 다각형 <b>안인지 밖인지</b>를 판정하는 것이 <b>점-다각형 포함 판정</b>입니다. 대표 방법 <b>광선 쏘기</b>는 점 P에서 한 방향으로 <b>반직선</b>을 쏴 다각형 변과 <b>교차하는 횟수</b>를 셉니다. <b>홀수면 내부, 짝수면 외부</b>입니다. 직관은 무한히 먼 확실한 외부에서 P까지 오며 경계를 지날 때마다 안↔밖이 토글되므로(<b>조던 곡선 정리</b>), 외부에서 시작해 토글이 홀수면 안이라는 것입니다. 각 변 교차는 O(1) 검사라 전체 <b>O(n)</b>이고, 꼭짓점 통과 같은 퇴화는 일관된 규칙으로 처리합니다. 자기교차 다각형엔 <b>감김 수</b>가 더 견고하고, 볼록이면 외적 부호나 이분 탐색으로 <b>O(log n)</b>입니다. GIS·충돌 판정·지오펜싱에 쓰이며, 반직선 교차 홀짝이 한 줄 요약입니다.",
   "hint": "",
-  "more": "<b>점-다각형 포함 판정(point-in-polygon)</b>은 주어진 점 P가 단순 다각형의 내부/외부/경계 중 어디인지 판정합니다. 대표 방법 <b>광선 쏘기(ray casting / crossing number)</b>: P에서 한 방향(보통 +x)으로 <b>반직선</b>을 쏘고, 그것이 다각형의 변과 <b>교차하는 횟수</b>를 셉니다. <b>홀수면 내부, 짝수면 외부</b>입니다 — 직관: 반직선을 따라 무한히 멀리(확실히 바깥)에서 P로 들어오며 경계를 지날 때마다 \"안↔밖\"이 토글되기 때문(<b>조던 곡선 정리</b>). 각 변과의 교차는 \"변의 두 끝점이 광선의 양쪽 y에 걸치는가 + 교차 x좌표가 P보다 오른쪽인가\"로 O(1) 검사, 전체 <b>O(n)</b>. 까다로운 경계 사례(광선이 꼭짓점을 정확히 통과, 변이 광선과 겹침)는 \"한쪽 끝점만 포함\"하는 <b>일관된 규칙</b>으로 처리해 중복/누락을 막습니다. 대안 ① <b>감김 수(winding number)</b>: P 주위로 다각형이 몇 바퀴 도는지(각의 합/2π) — 자기교차 다각형에서 더 견고. ② <b>볼록 다각형</b>이면 모든 변에 대해 외적(CCW) 부호가 같은지 보거나, 한 꼭짓점 기준 이분 탐색으로 <b>O(log n)</b>. 쓰임: GIS(영역 안 좌표), 충돌 판정, 색칠(채우기), 클릭 hit-test, 지오펜싱. \"반직선 교차 홀짝\"이 한 줄 요약입니다.",
+  "more": "​한 점이 다각형 <b>안인가 밖인가</b> — 광선 쏘기. <b>점-다각형 포함 판정(point-in-polygon)</b>은 주어진 점 P가 단순 다각형의 내부/외부/경계 중 어디인지 판정합니다. 대표 방법 <b>광선 쏘기(ray casting / crossing number)</b>: P에서 한 방향(보통 +x)으로 <b>반직선</b>을 쏘고, 그것이 다각형의 변과 <b>교차하는 횟수</b>를 셉니다. <b>홀수면 내부, 짝수면 외부</b>입니다 — 직관: 반직선을 따라 무한히 멀리(확실히 바깥)에서 P로 들어오며 경계를 지날 때마다 \"안↔밖\"이 토글되기 때문(<b>조던 곡선 정리</b>). 각 변과의 교차는 \"변의 두 끝점이 광선의 양쪽 y에 걸치는가 + 교차 x좌표가 P보다 오른쪽인가\"로 O(1) 검사, 전체 <b>O(n)</b>. 까다로운 경계 사례(광선이 꼭짓점을 정확히 통과, 변이 광선과 겹침)는 \"한쪽 끝점만 포함\"하는 <b>일관된 규칙</b>으로 처리해 중복/누락을 막습니다. 대안 ① <b>감김 수(winding number)</b>: P 주위로 다각형이 몇 바퀴 도는지(각의 합/2π) — 자기교차 다각형에서 더 견고. ② <b>볼록 다각형</b>이면 모든 변에 대해 외적(CCW) 부호가 같은지 보거나, 한 꼭짓점 기준 이분 탐색으로 <b>O(log n)</b>. 쓰임: GIS(영역 안 좌표), 충돌 판정, 색칠(채우기), 클릭 hit-test, 지오펜싱. \"반직선 교차 홀짝\"이 한 줄 요약입니다.",
   "more_en": "<b>Point-in-polygon</b> decides whether a point P is inside, outside, or on a simple polygon. The classic method is <b>ray casting (crossing number)</b>: shoot a <b>ray</b> from P in one direction (usually +x) and count how many polygon <b>edges it crosses</b>. <b>Odd means inside, even means outside</b> — intuition: coming in from infinitely far (definitely outside) along the ray to P, each boundary crossing toggles \"inside ↔ outside\" (<b>Jordan curve theorem</b>). Each edge crossing is an O(1) check (\"do the edge's endpoints straddle the ray's y, and is the crossing x to the right of P?\"), so <b>O(n)</b> total. Tricky boundary cases (ray exactly through a vertex, edge collinear with the ray) are handled by a <b>consistent rule</b> (e.g. include only one endpoint) to avoid double/missed counts. Alternatives: ① the <b>winding number</b> (how many times the polygon wraps around P, sum of angles / 2π) — more robust for self-intersecting polygons; ② for a <b>convex polygon</b>, check the cross-product (CCW) sign is consistent across all edges, or binary-search from one vertex in <b>O(log n)</b>. Uses: GIS (is a coordinate in a region), collision detection, polygon fill, click hit-testing, geofencing. One-liner: \"parity of ray crossings.\"",
   "problem": {
    "q": "광선 쏘기에서 교차 횟수가 홀수면 점이 내부인 이유는?",
@@ -4593,15 +4603,17 @@
    "  }",
    "  return in;",
    "}"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 6
  },
  "algo_br_sweepline": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "스위프라인 선분 교차 — Bentley-Ottmann",
   "narr": "n개 선분의 <b>모든 교차점</b>을 모든 쌍으로 찾으면 O(n²)입니다. <b>Bentley-Ottmann 스위프라인</b>은 <b>O((n+k) log n)</b>(k=교차 수)에 모두 찾습니다. 가상의 수직선을 왼→오로 옮기며 <b>이벤트 큐</b>(시작·끝·교차점, x순)와 <b>상태 구조</b>(현재 만나는 선분을 y순으로 정렬한 균형 BST)를 씁니다. 핵심 통찰은 <b>두 선분이 교차하려면 직전에 스위프라인 위에서 위아래로 인접</b>해야 한다는 것입니다. 그래서 삽입·삭제·교차 이벤트에서 <b>새로 이웃이 된 쌍만</b> 검사하면 모든 교차를 빠짐없이 찾고, 검사 횟수가 O(n+k)로 줄어 각 이벤트 O(log n)과 곱해 <b>O((n+k) log n)</b>입니다. 지도 오버레이·CAD 충돌·다각형 불 연산에 쓰여, 교차는 이웃끼리만 생긴다가 심장입니다.",
   "hint": "",
-  "more": "<b>Bentley-Ottmann 스위프라인 알고리즘</b>은 평면의 n개 선분에서 <b>모든 쌍의 교차점</b>을 <b>O((n+k) log n)</b>(k=교차 수)에 찾습니다(모든 쌍 O(n²)보다 교차가 적을 때 우월). 가상의 <b>수직 스위프라인</b>을 왼쪽에서 오른쪽으로 이동시키며 두 자료구조를 씁니다: ① <b>이벤트 큐</b>(우선순위 큐, x좌표 순) — 이벤트는 선분의 <b>시작점·끝점·교차점</b> 3종. ② <b>상태(status) 구조</b> — 현재 스위프라인과 만나는 선분들을 <b>위아래(y) 순서로 정렬</b>한 균형 BST. 핵심 통찰: <b>두 선분이 교차하려면 어느 순간 스위프라인 상에서 위아래로 인접</b>해야 합니다. 그래서 교차 후보는 \"이웃이 된 쌍\"만 검사하면 됩니다 — 시작점에서 선분을 상태에 삽입하면 새 이웃들과 교차 검사, 끝점에서 제거하면 새로 인접해진 두 선분 검사, 교차점에서는 두 선분의 상하 순서를 <b>교환</b>하고 각자의 새 이웃과 검사해 발견된 교차를 이벤트 큐에 추가. 각 이벤트는 O(log n)(큐·BST 연산)이고 이벤트 수는 O(n+k)라 전체 <b>O((n+k) log n)</b>. 주의: 수직 선분·세 선분 동시 교차·동일 x 같은 퇴화(degeneracy)는 정밀한 비교 규칙으로 처리. 쓰임: <b>지도 오버레이</b>(도로·경계 교차), CAD/그래픽스 충돌, 다각형 불 연산(합·교차), 모든 교차 보고. \"교차는 이웃끼리만 생긴다\"가 알고리즘의 심장입니다.",
+  "more": "​선분이 많을 때 모든 교차점을 <b>쓸어가며</b> 한 번에. <b>Bentley-Ottmann 스위프라인 알고리즘</b>은 평면의 n개 선분에서 <b>모든 쌍의 교차점</b>을 <b>O((n+k) log n)</b>(k=교차 수)에 찾습니다(모든 쌍 O(n²)보다 교차가 적을 때 우월). 가상의 <b>수직 스위프라인</b>을 왼쪽에서 오른쪽으로 이동시키며 두 자료구조를 씁니다: ① <b>이벤트 큐</b>(우선순위 큐, x좌표 순) — 이벤트는 선분의 <b>시작점·끝점·교차점</b> 3종. ② <b>상태(status) 구조</b> — 현재 스위프라인과 만나는 선분들을 <b>위아래(y) 순서로 정렬</b>한 균형 BST. 핵심 통찰: <b>두 선분이 교차하려면 어느 순간 스위프라인 상에서 위아래로 인접</b>해야 합니다. 그래서 교차 후보는 \"이웃이 된 쌍\"만 검사하면 됩니다 — 시작점에서 선분을 상태에 삽입하면 새 이웃들과 교차 검사, 끝점에서 제거하면 새로 인접해진 두 선분 검사, 교차점에서는 두 선분의 상하 순서를 <b>교환</b>하고 각자의 새 이웃과 검사해 발견된 교차를 이벤트 큐에 추가. 각 이벤트는 O(log n)(큐·BST 연산)이고 이벤트 수는 O(n+k)라 전체 <b>O((n+k) log n)</b>. 주의: 수직 선분·세 선분 동시 교차·동일 x 같은 퇴화(degeneracy)는 정밀한 비교 규칙으로 처리. 쓰임: <b>지도 오버레이</b>(도로·경계 교차), CAD/그래픽스 충돌, 다각형 불 연산(합·교차), 모든 교차 보고. \"교차는 이웃끼리만 생긴다\"가 알고리즘의 심장입니다.",
   "more_en": "The <b>Bentley-Ottmann sweep-line algorithm</b> finds <b>all pairwise intersections</b> of n segments in <b>O((n+k) log n)</b> (k = number of intersections), better than all-pairs O(n²) when intersections are few. An imaginary <b>vertical sweep line</b> moves left to right using two structures: ① an <b>event queue</b> (priority queue ordered by x) with three event types — segment <b>start, end, and intersection</b> points; ② a <b>status structure</b> — a balanced BST of the segments currently crossing the sweep line, <b>ordered top-to-bottom (by y)</b>. Key insight: <b>two segments can intersect only if they become vertically adjacent on the sweep line at some moment</b>. So only \"newly adjacent pairs\" need checking — inserting a segment at its start checks its new neighbors, removing one at its end checks the two segments that become adjacent, and at an intersection the two segments <b>swap</b> their vertical order and each is checked against its new neighbor, with found intersections pushed to the queue. Each event is O(log n) (queue/BST ops) and there are O(n+k) events, giving <b>O((n+k) log n)</b>. Care with degeneracies (vertical segments, three segments meeting, equal x) via precise comparison rules. Uses: <b>map overlay</b> (road/boundary intersections), CAD/graphics collision, polygon boolean operations (union/intersection), reporting all crossings. \"Intersections arise only between neighbors\" is the heart of the algorithm.",
   "problem": {
    "q": "Bentley-Ottmann이 모든 쌍 O(n²) 대신 인접한 선분만 교차 검사해도 되는 이유는?",
@@ -4623,15 +4635,17 @@
    "    else report(e.point);  // 교차점",
    "  }",
    "}   // O((n+k) log n), k=교차 수"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 4
  },
  "algo_br_welzl": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "최소 외접원 — Welzl의 기대 선형 알고리즘",
   "narr": "평면의 점들을 <b>모두 품는 가장 작은 원</b>을 찾는 것이 최소 외접원입니다. 핵심 사실은 그 원이 <b>최대 3개의 점</b>으로 결정된다는 것입니다(두 점이 지름이거나 세 점이 원 위에). <b>Welzl 알고리즘</b>은 점들을 <b>무작위 순서</b>로 하나씩 추가하며 현재 최소 외접원을 유지하다가, 새 점 p가 원 밖이면 <b>p는 반드시 새 원의 경계 위</b>라는 사실로 p를 경계에 고정하고 앞의 점들로 재귀합니다(경계점을 0→3개 모음). 결정점이 ≤3개라 재귀 깊이가 상수로 묶이고, 무작위 순서 덕에 밖으로 나가는 일이 드물어 <b>기대 O(n)</b>입니다. 이는 LP-type 문제의 대표 예입니다. 시설 입지(1-center)·충돌 판정용 경계 구체·군집 반경에 쓰이며, 답은 ≤3점이 정한다+무작위 증분이 핵심입니다.",
   "hint": "",
-  "more": "<b>최소 외접원(smallest enclosing circle / minimum enclosing disk)</b>은 평면의 점 집합을 <b>모두 포함하는 반지름 최소의 원</b>을 찾습니다. 핵심 사실: 최소 외접원은 <b>최대 3개의 점</b>으로 결정됩니다 — 두 점이 <b>지름</b>의 양 끝이거나, 세 점이 원 위에(외접원). 이 점들이 \"경계 결정점\". <b>Welzl 알고리즘</b>은 이를 우아한 무작위 증분법으로 풉니다: 점들을 <b>무작위 순서</b>로 하나씩 추가하며 현재 최소 외접원을 유지하다가, 새 점 p가 현재 원 <b>밖</b>이면 \"p는 반드시 새 원의 <b>경계 위</b>에 있다\"는 사실을 이용해, p를 경계 조건에 고정하고 앞의 점들로 재귀합니다(경계점을 0→1→2→3개 모으는 재귀; 경계 3개면 원이 유일하게 결정). 무작위 순서 덕에 \"새 점이 밖이라 재귀하는\" 일이 드물어 <b>기대 O(n)</b> 시간(최악은 더 크나 무작위로 회피). 이는 <b>LP-type(저차원 선형계획류) 문제</b>의 대표 예로, 같은 틀이 최소 외접타원·거리 기반 최적화에도 적용됩니다. 결정론적 O(n)(메깃도)도 있으나 Welzl이 훨씬 단순. 쓰임: <b>시설 입지</b>(모든 수요점까지 최악 거리 최소 = 1-center 문제), 충돌 판정용 경계 구체(bounding sphere), 군집의 대표 반경, 컴퓨터 비전. \"답은 ≤3점이 정한다 + 무작위 증분\"이 핵심입니다.",
+  "more": "​모든 점을 담는 <b>가장 작은 원</b> — Welzl. <b>최소 외접원(smallest enclosing circle / minimum enclosing disk)</b>은 평면의 점 집합을 <b>모두 포함하는 반지름 최소의 원</b>을 찾습니다. 핵심 사실: 최소 외접원은 <b>최대 3개의 점</b>으로 결정됩니다 — 두 점이 <b>지름</b>의 양 끝이거나, 세 점이 원 위에(외접원). 이 점들이 \"경계 결정점\". <b>Welzl 알고리즘</b>은 이를 우아한 무작위 증분법으로 풉니다: 점들을 <b>무작위 순서</b>로 하나씩 추가하며 현재 최소 외접원을 유지하다가, 새 점 p가 현재 원 <b>밖</b>이면 \"p는 반드시 새 원의 <b>경계 위</b>에 있다\"는 사실을 이용해, p를 경계 조건에 고정하고 앞의 점들로 재귀합니다(경계점을 0→1→2→3개 모으는 재귀; 경계 3개면 원이 유일하게 결정). 무작위 순서 덕에 \"새 점이 밖이라 재귀하는\" 일이 드물어 <b>기대 O(n)</b> 시간(최악은 더 크나 무작위로 회피). 이는 <b>LP-type(저차원 선형계획류) 문제</b>의 대표 예로, 같은 틀이 최소 외접타원·거리 기반 최적화에도 적용됩니다. 결정론적 O(n)(메깃도)도 있으나 Welzl이 훨씬 단순. 쓰임: <b>시설 입지</b>(모든 수요점까지 최악 거리 최소 = 1-center 문제), 충돌 판정용 경계 구체(bounding sphere), 군집의 대표 반경, 컴퓨터 비전. \"답은 ≤3점이 정한다 + 무작위 증분\"이 핵심입니다.",
   "more_en": "The <b>smallest enclosing circle (minimum enclosing disk)</b> finds the <b>minimum-radius circle containing all</b> points in the plane. Key fact: it is determined by <b>at most 3 points</b> — either two points as a <b>diameter</b>, or three points on the circle (circumscribed). These are the \"boundary-determining points.\" <b>Welzl's algorithm</b> solves it by an elegant randomized incremental method: add points in <b>random order</b>, maintaining the current smallest circle; when a new point p falls <b>outside</b> the current circle, use the fact that \"p must lie <b>on the boundary</b> of the new circle\" to fix p as a boundary constraint and recurse on the earlier points (a recursion collecting 0→1→2→3 boundary points; with 3 the circle is uniquely determined). Thanks to the random order, \"a new point being outside and forcing recursion\" is rare, giving <b>expected O(n)</b> time (worst case larger but avoided randomly). It is a flagship <b>LP-type (low-dimensional linear-programming-like) problem</b>, and the same framework handles minimum enclosing ellipses and distance-based optimization. A deterministic O(n) (Megiddo) exists but Welzl is far simpler. Uses: <b>facility location</b> (minimize the worst distance to all demand points = the 1-center problem), bounding spheres for collision, representative cluster radius, computer vision. The crux: \"the answer is fixed by ≤3 points + randomized incremental.\"",
   "problem": {
    "q": "최소 외접원이 최대 3개의 점으로 결정된다는 사실이 Welzl 알고리즘에서 왜 중요한가?",
@@ -4650,7 +4664,9 @@
    "  R.push_back(p);                  // p가 경계에 있어야",
    "  return welzl(pts, R);",
    "}   // 무작위 순서면 기대 O(n)"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 8
  },
  "algo_br_wht": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -5280,11 +5296,11 @@
  },
  "algo_br_halfplane": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "반평면 교차 — 여러 부등식이 만드는 볼록 영역",
   "narr": "여러 선형 부등식이 만드는 영역을 구하는 계산기하 기법입니다. 각 <b>반평면</b>(직선 한쪽 aᵢx+bᵢy ≤ cᵢ)의 <b>교집합</b>은 볼록 다각형이거나 무한 볼록 영역이거나 공집합입니다. 표준 알고리즘은 각 반평면을 경계 직선의 <b>각도로 정렬</b>한 뒤, <b>덱</b>에 하나씩 추가하며 새 반평면이 덱 양끝 교점을 쓸모없게 만들면 양끝에서 제거합니다(볼록껍질의 단조 스택과 닮은 논리). 마지막에 앞뒤를 한 번 더 정리합니다. 정렬이 지배해 <b>O(n log n)</b>이고, 정렬돼 들어오면 O(n)입니다. 볼록 영역의 경계가 각도 순으로 도는 반평면이라 볼록껍질과 쌍대입니다. 2D 선형계획법의 실현 가능 영역·가시 커널에 쓰입니다.",
   "hint": "",
-  "more": "<b>반평면 교차(half-plane intersection)</b>는 여러 <b>반평면</b>(직선 한쪽: aᵢx + bᵢy ≤ cᵢ)의 <b>교집합</b>인 볼록 영역을 구하는 계산기하 기법입니다. 결과는 <b>볼록 다각형</b>(유계), 또는 <b>무한 볼록 영역</b>, 또는 <b>공집합</b>일 수 있습니다. 표준 알고리즘: ① 각 반평면을 경계 직선의 <b>방향(법선 각도)으로 정렬</b>; ② <b>덱(deque)</b>에 하나씩 추가하며, 새 반평면이 덱 양끝의 두 반평면이 만드는 교점을 <b>쓸모없게 만들면(그 교점이 새 반평면 밖)</b> 양끝에서 제거(볼록껍질의 단조 스택과 닮은 논리); ③ 마지막에 앞뒤를 한 번 더 정리. 같은 각도의 반평면 중 더 안쪽만 남기고, 교차가 비거나 경계가 안 닫히는(무한) 경우를 조심해 처리. 시간 <b>O(n log n)</b>(정렬이 지배, 정렬돼 들어오면 O(n)). 핵심 통찰: 볼록 영역의 경계는 \"각도 순으로 도는 반평면들\"이라, 볼록껍질을 각도로 만드는 것과 본질적으로 같습니다(쌍대성). 쓰임: <b>2D 선형계획법</b>의 실현 가능 영역(목적함수 방향으로 최적점 찾기), 볼록 다각형의 <b>가시 커널(kernel)</b>(모든 점이 보이는 내부 영역), 점 집합을 분리하는 선/영역, 최적화 제약의 기하적 표현. \"부등식 = 반평면, 교집합 = 각도 정렬 덱\"이 핵심입니다.",
+  "more": "​여러 부등식(반평면)이 만드는 <b>볼록 영역</b>. <b>반평면 교차(half-plane intersection)</b>는 여러 <b>반평면</b>(직선 한쪽: aᵢx + bᵢy ≤ cᵢ)의 <b>교집합</b>인 볼록 영역을 구하는 계산기하 기법입니다. 결과는 <b>볼록 다각형</b>(유계), 또는 <b>무한 볼록 영역</b>, 또는 <b>공집합</b>일 수 있습니다. 표준 알고리즘: ① 각 반평면을 경계 직선의 <b>방향(법선 각도)으로 정렬</b>; ② <b>덱(deque)</b>에 하나씩 추가하며, 새 반평면이 덱 양끝의 두 반평면이 만드는 교점을 <b>쓸모없게 만들면(그 교점이 새 반평면 밖)</b> 양끝에서 제거(볼록껍질의 단조 스택과 닮은 논리); ③ 마지막에 앞뒤를 한 번 더 정리. 같은 각도의 반평면 중 더 안쪽만 남기고, 교차가 비거나 경계가 안 닫히는(무한) 경우를 조심해 처리. 시간 <b>O(n log n)</b>(정렬이 지배, 정렬돼 들어오면 O(n)). 핵심 통찰: 볼록 영역의 경계는 \"각도 순으로 도는 반평면들\"이라, 볼록껍질을 각도로 만드는 것과 본질적으로 같습니다(쌍대성). 쓰임: <b>2D 선형계획법</b>의 실현 가능 영역(목적함수 방향으로 최적점 찾기), 볼록 다각형의 <b>가시 커널(kernel)</b>(모든 점이 보이는 내부 영역), 점 집합을 분리하는 선/영역, 최적화 제약의 기하적 표현. \"부등식 = 반평면, 교집합 = 각도 정렬 덱\"이 핵심입니다.",
   "more_en": "<b>Half-plane intersection</b> is a computational-geometry technique computing the convex region that is the <b>intersection of several half-planes</b> (one side of a line: aᵢx + bᵢy ≤ cᵢ). The result may be a <b>bounded convex polygon</b>, an <b>unbounded convex region</b>, or <b>empty</b>. Standard algorithm: ① <b>sort the half-planes by the direction (normal angle)</b> of their boundary lines; ② add them one by one to a <b>deque</b>, removing from either end any half-plane whose intersection with the deque's extreme pair is made <b>useless (outside the new half-plane)</b> — logic akin to the monotonic stack of a convex hull; ③ finish by reconciling front and back. Among same-angle half-planes keep only the innermost, and carefully handle empty or unbounded (unclosed boundary) cases. Time <b>O(n log n)</b> (sorting dominates; O(n) if already sorted). Key insight: a convex region's boundary is \"half-planes in angular order,\" essentially the same as building a convex hull by angle (duality). Uses: the feasible region of <b>2D linear programming</b> (find the optimum in the objective's direction), the <b>visibility kernel</b> of a convex/star polygon (the interior region from which all points are visible), separating lines/regions of point sets, geometric representation of optimization constraints. The crux: \"inequality = half-plane, intersection = angular-sorted deque.\"",
   "problem": {
    "q": "반평면 교차가 볼록껍질 구성과 본질적으로 같은(쌍대) 이유는?",
@@ -5302,15 +5318,17 @@
    "  dq.push_back(h);",
    "}",
    "// 남은 덱 = 볼록다각형. O(n log n)"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 9
  },
  "algo_br_delaunay": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "들로네 삼각분할·보로노이 — 점들의 이웃 구조",
   "narr": "평면의 점들을 잇는 가장 좋은 삼각분할과 그 쌍대입니다. <b>들로네 삼각분할</b>은 <b>어떤 삼각형의 외접원 내부에도 다른 점이 없는</b> 조건을 만족하며, 이는 모든 삼각형의 <b>최소각을 최대화</b>(가늘고 긴 삼각형 회피)하는 것과 같습니다. <b>보로노이 다이어그램</b>은 그 <b>쌍대</b>로, 평면을 각 점에 가장 가까운 영역으로 나눈 것이며 인접한 두 보로노이 셀의 점을 이으면 들로네 간선이 됩니다. 구축은 분할 정복·점진 삽입·Fortune 스위프로 <b>O(n log n)</b>입니다. 들로네 간선은 최근접 점·유클리드 MST를 모두 포함하고 평면그래프라 간선 수가 O(n)입니다. 메시 생성·자연 이웃 보간·시설 입지에 쓰입니다. 외접원 비움과 가장 가까운 영역이 쌍대인 것이 핵심입니다.",
   "hint": "",
-  "more": "<b>들로네 삼각분할(Delaunay triangulation)</b>은 평면의 점 집합을 삼각형들로 빈틈없이 잇되, <b>어떤 삼각형의 외접원(circumcircle) 내부에도 다른 점이 들어가지 않는다</b>는 조건(empty circumcircle property)을 만족하는 삼각분할입니다. 이 조건은 <b>모든 삼각형의 최소각을 최대화</b>(가늘고 긴 삼각형 회피)하는 \"가장 좋은\" 삼각분할과 같습니다. <b>보로노이 다이어그램(Voronoi diagram)</b>은 그 <b>쌍대(dual)</b>: 평면을 \"각 점에 가장 가까운 영역(셀)\"로 나눈 것으로, 보로노이 변은 두 점의 수직이등분선 위에 있고, 인접한 두 보로노이 셀의 점을 이으면 들로네 간선이 됩니다. 즉 <b>들로네 ↔ 보로노이는 서로 쌍대</b>. 구축: <b>O(n log n)</b> — 분할 정복, 점진 삽입(증분), 또는 평면 스위프(Fortune 알고리즘으로 보로노이를 직접). 들로네 간선은 <b>최근접 점(nearest neighbor)·유클리드 MST·갭 그래프</b>를 모두 포함(들로네 간선 수 O(n), 평면그래프라 E ≤ 3V−6). 들로네↔포물면 들어올리기(3D 볼록껍질로 환원)도 우아한 구성법. 쓰임: <b>메시 생성</b>(FEM·그래픽스, 좋은 삼각형), 지형/온도 등 <b>보간(자연 이웃)</b>, 최근접 질의, 시설 입지(보로노이=서비스 영역), 군집·밀도. \"외접원 비움 = 들로네, 가장 가까운 영역 = 보로노이, 둘은 쌍대\"가 핵심입니다.",
+  "more": "​점들의 <b>이웃 구조</b> — 들로네 삼각분할과 보로노이. <b>들로네 삼각분할(Delaunay triangulation)</b>은 평면의 점 집합을 삼각형들로 빈틈없이 잇되, <b>어떤 삼각형의 외접원(circumcircle) 내부에도 다른 점이 들어가지 않는다</b>는 조건(empty circumcircle property)을 만족하는 삼각분할입니다. 이 조건은 <b>모든 삼각형의 최소각을 최대화</b>(가늘고 긴 삼각형 회피)하는 \"가장 좋은\" 삼각분할과 같습니다. <b>보로노이 다이어그램(Voronoi diagram)</b>은 그 <b>쌍대(dual)</b>: 평면을 \"각 점에 가장 가까운 영역(셀)\"로 나눈 것으로, 보로노이 변은 두 점의 수직이등분선 위에 있고, 인접한 두 보로노이 셀의 점을 이으면 들로네 간선이 됩니다. 즉 <b>들로네 ↔ 보로노이는 서로 쌍대</b>. 구축: <b>O(n log n)</b> — 분할 정복, 점진 삽입(증분), 또는 평면 스위프(Fortune 알고리즘으로 보로노이를 직접). 들로네 간선은 <b>최근접 점(nearest neighbor)·유클리드 MST·갭 그래프</b>를 모두 포함(들로네 간선 수 O(n), 평면그래프라 E ≤ 3V−6). 들로네↔포물면 들어올리기(3D 볼록껍질로 환원)도 우아한 구성법. 쓰임: <b>메시 생성</b>(FEM·그래픽스, 좋은 삼각형), 지형/온도 등 <b>보간(자연 이웃)</b>, 최근접 질의, 시설 입지(보로노이=서비스 영역), 군집·밀도. \"외접원 비움 = 들로네, 가장 가까운 영역 = 보로노이, 둘은 쌍대\"가 핵심입니다.",
   "more_en": "A <b>Delaunay triangulation</b> connects a planar point set into triangles such that <b>no triangle's circumcircle contains another point</b> (the empty-circumcircle property). This equals the \"best\" triangulation that <b>maximizes the minimum angle</b> (avoiding thin slivers). A <b>Voronoi diagram</b> is its <b>dual</b>: it partitions the plane into cells \"nearest to each point,\" with Voronoi edges on perpendicular bisectors of point pairs; connecting points of adjacent Voronoi cells gives Delaunay edges. So <b>Delaunay ↔ Voronoi are duals</b>. Construction: <b>O(n log n)</b> — divide and conquer, incremental insertion, or a plane sweep (Fortune's algorithm builds Voronoi directly). Delaunay edges contain the <b>nearest neighbor, the Euclidean MST, and the Gabriel graph</b> (O(n) edges, planar so E ≤ 3V−6). An elegant construction lifts points onto a paraboloid (reducing Delaunay to a 3D convex hull). Uses: <b>mesh generation</b> (FEM/graphics, well-shaped triangles), <b>interpolation</b> (natural-neighbor for terrain/temperature), nearest-neighbor queries, facility location (Voronoi = service regions), clustering/density. The crux: \"empty circumcircle = Delaunay, nearest region = Voronoi, and the two are dual.\"",
   "problem": {
    "q": "들로네 삼각분할의 정의(외접원 조건)와, 보로노이 다이어그램과의 관계는?",
@@ -5327,7 +5345,9 @@
    "  legalizeEdges(p);                // 외접원 위반 시 뒤집기",
    "}",
    "// 최근접·최소신장트리·각도 최대화에 활용"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 10
  },
  "algo_br_treediameter": {
   "ch": "알고리즘 제5장 트리",
@@ -5379,11 +5399,11 @@
  },
  "algo_br_kdtree": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "계산기하",
   "title": "k-d 트리 — 평면을 축 번갈아 가르기",
   "narr": "배열·리스트의 1D 탐색을 다차원 공간으로 확장한 트리입니다. <b>k-d 트리</b>는 k차원 점을 저장하며 <b>깊이 d의 노드가 (d mod k)번째 축</b>으로 공간을 가릅니다(2D면 x·y 번갈아). 각 단계에서 <b>중앙값</b>으로 분할하면 균형 트리가 되어 구축 O(n log n), 높이 O(log n)입니다. <b>최근접 이웃</b> 질의는 질의점이 속한 쪽으로 내려가 후보를 잡고, 되돌아오며 <b>반대편 영역까지의 거리가 현재 최선보다 가까울 때만</b> 반대쪽도 탐색합니다(가지치기). 저차원에서는 평균 O(log n)이지만 <b>차원이 높아지면</b> 가지치기가 안 돼 O(n)에 수렴합니다(차원의 저주). k-NN 검색·범위 검색·충돌 가속에 쓰입니다. 축을 번갈아 가르고 경계 가지치기하는 것이 핵심입니다.",
   "hint": "",
-  "more": "<b>k-d 트리(k-dimensional tree)</b>는 k차원 점들을 저장하는 이진 트리로, <b>깊이 d의 노드는 (d mod k)번째 좌표축을 기준</b>으로 공간을 둘로 가릅니다(2D면 x·y·x·y… 번갈아). 보통 각 단계에서 <b>중앙값(median)</b>으로 분할해 균형 트리를 만들면 <b>구축 O(n log n)</b>, 높이 O(log n). 핵심 질의 <b>최근접 이웃(nearest neighbor)</b>: 루트에서 질의점이 속한 쪽으로 내려가 후보를 잡은 뒤, 되돌아오며 <b>반대편 영역까지의 거리(분할 평면까지의 수직 거리)가 현재 최선보다 가까울 때만 반대쪽도 탐색</b>(가지치기). 잘 분포된 저차원에서는 평균 <b>O(log n)</b>이지만, <b>차원이 높아지면(차원의 저주)</b> 가지치기가 거의 안 돼 최악 O(n)에 수렴합니다(대략 k ≳ 10이면 선형 스캔이 더 빠름). <b>범위 질의</b>(직사각형/구 안의 점)도 겹치는 영역만 재귀해 효율적. 갱신: 단순 삽입/삭제는 균형이 깨지므로 주기적 재구축하거나 균형 변형(분할 재배치)을 씀. 친척: <b>사분/팔분 트리</b>(공간을 좌표값으로 4/8등분), <b>볼 트리·R-트리</b>(다른 분할 규칙). 쓰임: <b>최근접/​k-NN 검색</b>(추천·분류), 범위 검색, 광선 추적·충돌의 공간 가속, 군집·밀도 추정. \"축을 번갈아 중앙값으로 가르고, 가까운 쪽부터 + 경계 가지치기\"가 핵심입니다.",
+  "more": "​평면을 축 번갈아 갈라 <b>최근접 질의</b>를 빠르게 — k-d 트리. <b>k-d 트리(k-dimensional tree)</b>는 k차원 점들을 저장하는 이진 트리로, <b>깊이 d의 노드는 (d mod k)번째 좌표축을 기준</b>으로 공간을 둘로 가릅니다(2D면 x·y·x·y… 번갈아). 보통 각 단계에서 <b>중앙값(median)</b>으로 분할해 균형 트리를 만들면 <b>구축 O(n log n)</b>, 높이 O(log n). 핵심 질의 <b>최근접 이웃(nearest neighbor)</b>: 루트에서 질의점이 속한 쪽으로 내려가 후보를 잡은 뒤, 되돌아오며 <b>반대편 영역까지의 거리(분할 평면까지의 수직 거리)가 현재 최선보다 가까울 때만 반대쪽도 탐색</b>(가지치기). 잘 분포된 저차원에서는 평균 <b>O(log n)</b>이지만, <b>차원이 높아지면(차원의 저주)</b> 가지치기가 거의 안 돼 최악 O(n)에 수렴합니다(대략 k ≳ 10이면 선형 스캔이 더 빠름). <b>범위 질의</b>(직사각형/구 안의 점)도 겹치는 영역만 재귀해 효율적. 갱신: 단순 삽입/삭제는 균형이 깨지므로 주기적 재구축하거나 균형 변형(분할 재배치)을 씀. 친척: <b>사분/팔분 트리</b>(공간을 좌표값으로 4/8등분), <b>볼 트리·R-트리</b>(다른 분할 규칙). 쓰임: <b>최근접/​k-NN 검색</b>(추천·분류), 범위 검색, 광선 추적·충돌의 공간 가속, 군집·밀도 추정. \"축을 번갈아 중앙값으로 가르고, 가까운 쪽부터 + 경계 가지치기\"가 핵심입니다.",
   "more_en": "A <b>k-d tree (k-dimensional tree)</b> stores k-dimensional points in a binary tree where a node at <b>depth d splits on coordinate axis (d mod k)</b> (in 2D, alternating x, y, x, y…). Splitting at the <b>median</b> each step yields a balanced tree with <b>O(n log n)</b> construction and O(log n) height. The key query, <b>nearest neighbor</b>: descend to the side containing the query point to grab a candidate, then on the way back <b>explore the other side only if the distance to its region (perpendicular distance to the split plane) is closer than the current best</b> (pruning). For well-distributed low dimensions this averages <b>O(log n)</b>, but as <b>dimension grows (the curse of dimensionality)</b> pruning fails and it degrades toward O(n) (roughly k ≳ 10 makes a linear scan faster). <b>Range queries</b> (points in a box/ball) recurse only into overlapping regions, also efficient. Updates: naive insert/delete unbalances it, so periodically rebuild or use balanced variants. Relatives: <b>quad/octrees</b> (split by coordinate value into 4/8), <b>ball trees, R-trees</b> (other split rules). Uses: <b>nearest-neighbor / k-NN search</b> (recommendation, classification), range search, spatial acceleration for ray tracing/collision, clustering and density estimation. The crux: \"split on alternating axes at the median, search the near side first with boundary pruning.\"",
   "problem": {
    "q": "k-d 트리의 최근접 이웃 탐색에서 '반대쪽 가지'를 탐색할지 어떻게 결정하나?",
@@ -5402,15 +5422,17 @@
    "  n->right = build(rightHalf, depth+1);",
    "  return n;",
    "}   // 최근접 이웃 질의에 가지치기"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 14
  },
  "algo_br_minkowski": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "민코프스키 합 — 두 볼록 도형을 쓸어 더하기",
   "narr": "두 도형을 합쳐 새 모양을 만드는 계산기하 연산입니다. <b>민코프스키 합</b> A⊕B = {a+b}는 두 점집합의 모든 벡터 합으로, B를 A의 모든 점에 놓아 <b>쓸어 칠한</b> 영역입니다. <b>두 볼록 다각형</b>의 합은 다시 볼록이고, 각 도형의 <b>변 벡터를 극각 순으로 정렬해 병합</b>하면 경계가 나와 <b>O(n+m)</b>입니다(둘 다 각도순이라 머지소트의 병합처럼). 핵심 응용은 <b>충돌 판정</b>으로, 두 볼록이 겹친다는 것은 원점이 민코프스키 차 A⊕(−B)에 포함되는 것과 같습니다. 이 사실이 GJK 알고리즘의 토대입니다. 로봇 모션 계획은 장애물을 로봇 모양만큼 팽창시켜 점 로봇 경로로 환원합니다. 충돌·근접·모폴로지 연산에 쓰입니다.",
   "hint": "",
-  "more": "<b>민코프스키 합(Minkowski sum)</b> A ⊕ B = { a + b : a∈A, b∈B }는 두 점집합의 모든 벡터 합으로 이뤄진 집합입니다. 직관적으로 B(를 원점 기준으로)를 A의 모든 점에 놓아 <b>쓸어 칠한(swept)</b> 영역 — 또는 A의 경계를 따라 B를 굴린 자취. <b>두 볼록 다각형</b>의 합은 다시 볼록 다각형이고, 각 도형의 <b>변(에지 벡터)들을 극각(편각) 순으로 정렬해 병합</b>하면 합의 경계가 나옵니다(둘 다 이미 각도순이므로 머지소트의 병합처럼) → <b>O(n+m)</b>. 비볼록 도형은 <b>볼록 분해</b> 후 부분 합들의 합집합으로(더 비쌈). 핵심 응용 <b>충돌 판정</b>: 두 볼록 도형 A, B가 겹친다 ⟺ <b>원점이 민코프스키 차 A ⊕ (−B)에 포함</b>된다(A∩B≠∅ ⟺ 0∈A−B). 이 사실이 <b>GJK 알고리즘</b>(충돌·거리)의 토대이며, 겹치지 않으면 A−B에서 원점까지의 최소 거리가 두 도형의 거리입니다. <b>로봇 모션 계획</b>: 로봇을 점으로 줄이는 대신 장애물을 로봇 모양만큼 <b>팽창(민코프스키 합)</b>시키면, 점 로봇의 경로 찾기로 환원(configuration space). 쓰임: 충돌/근접(게임·CAD·로봇), 모폴로지 연산(이미지 팽창/침식), 경로 계획, 합 다포프(sumset). \"모든 합의 집합 = 쓸어 칠하기, 볼록끼리는 각도 병합 O(n+m)\"이 핵심입니다.",
+  "more": "​두 볼록 도형을 <b>쓸어 더하는</b> 민코프스키 합. <b>민코프스키 합(Minkowski sum)</b> A ⊕ B = { a + b : a∈A, b∈B }는 두 점집합의 모든 벡터 합으로 이뤄진 집합입니다. 직관적으로 B(를 원점 기준으로)를 A의 모든 점에 놓아 <b>쓸어 칠한(swept)</b> 영역 — 또는 A의 경계를 따라 B를 굴린 자취. <b>두 볼록 다각형</b>의 합은 다시 볼록 다각형이고, 각 도형의 <b>변(에지 벡터)들을 극각(편각) 순으로 정렬해 병합</b>하면 합의 경계가 나옵니다(둘 다 이미 각도순이므로 머지소트의 병합처럼) → <b>O(n+m)</b>. 비볼록 도형은 <b>볼록 분해</b> 후 부분 합들의 합집합으로(더 비쌈). 핵심 응용 <b>충돌 판정</b>: 두 볼록 도형 A, B가 겹친다 ⟺ <b>원점이 민코프스키 차 A ⊕ (−B)에 포함</b>된다(A∩B≠∅ ⟺ 0∈A−B). 이 사실이 <b>GJK 알고리즘</b>(충돌·거리)의 토대이며, 겹치지 않으면 A−B에서 원점까지의 최소 거리가 두 도형의 거리입니다. <b>로봇 모션 계획</b>: 로봇을 점으로 줄이는 대신 장애물을 로봇 모양만큼 <b>팽창(민코프스키 합)</b>시키면, 점 로봇의 경로 찾기로 환원(configuration space). 쓰임: 충돌/근접(게임·CAD·로봇), 모폴로지 연산(이미지 팽창/침식), 경로 계획, 합 다포프(sumset). \"모든 합의 집합 = 쓸어 칠하기, 볼록끼리는 각도 병합 O(n+m)\"이 핵심입니다.",
   "more_en": "The <b>Minkowski sum</b> A ⊕ B = { a + b : a∈A, b∈B } is the set of all vector sums of two point sets — intuitively the region <b>swept</b> by placing B (relative to the origin) at every point of A, or B rolled along A's boundary. The sum of <b>two convex polygons</b> is again convex, and <b>merging their edge vectors in polar-angle order</b> traces the sum's boundary (both are already angle-sorted, like merge sort's merge) → <b>O(n+m)</b>. Non-convex shapes are handled by <b>convex decomposition</b> then the union of partial sums (more expensive). Key application, <b>collision detection</b>: two convex shapes A, B overlap ⟺ <b>the origin lies in the Minkowski difference A ⊕ (−B)</b> (A∩B≠∅ ⟺ 0∈A−B). This fact underlies the <b>GJK algorithm</b> (collision/distance); if they don't overlap, the minimum distance from the origin to A−B is the distance between the shapes. <b>Robot motion planning</b>: instead of shrinking the robot to a point, <b>inflate obstacles by the robot's shape (a Minkowski sum)</b>, reducing to point-robot pathfinding (configuration space). Uses: collision/proximity (games, CAD, robotics), morphological operations (image dilation/erosion), path planning, sumsets. The crux: \"set of all sums = sweeping, and convex-with-convex merges by angle in O(n+m).\"",
   "problem": {
    "q": "민코프스키 합/차가 충돌 판정에 쓰이는 원리는?",
@@ -5428,15 +5450,17 @@
    "  if(cross(edgeA[i],edgeB[j])>=0) cur += edgeA[i++];",
    "  else cur += edgeB[j++];",
    "}   // O(n+m). 충돌=원점이 A⊕(-B) 안?"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 11
  },
  "algo_br_quadtree": {
   "ch": "알고리즘 제2장 자료구조",
-  "sec": "2.1 배열과 리스트 ▸ 자세히",
+  "sec": "계산기하",
   "title": "사분 트리 — 공간을 네 칸씩 재귀 분할",
   "narr": "배열·리스트의 공간 색인을 2D로 확장한 적응형 트리입니다. <b>사분 트리</b>는 2D 공간을 재귀적으로 <b>네 사분면(NW·NE·SW·SE)</b>으로 나눕니다. 한 칸에 담긴 점 수가 임계치를 넘으면 그 칸을 4등분하고 반복하므로, 점이 <b>밀집한 곳만 깊게</b> 나뉘는 적응형 해상도입니다. k-d 트리가 데이터 중앙값으로 가른다면 사분 트리는 <b>좌표 공간 자체를 절반씩</b> 가르므로 구현이 단순합니다. 범위·근접 질의는 질의 영역과 겹치는 칸만 재귀해 빈 영역을 빨리 버립니다. 3차원판은 팔분 트리입니다. 이미지 압축·GIS·게임 충돌·Barnes-Hut N체 시뮬레이션(중력 O(n log n))에 쓰입니다. 점이 한곳에 몰리면 깊어지므로 깊이 제한이 필요합니다.",
   "hint": "",
-  "more": "<b>사분 트리(quadtree)</b>는 2D 공간을 재귀적으로 <b>네 사분면(NW, NE, SW, SE)</b>으로 나누는 트리 자료구조입니다. 한 칸(노드)에 담긴 점·물체 수가 <b>임계치를 넘으면 그 칸을 4등분</b>해 자식 4개를 만들고, 이를 반복합니다 — 점이 <b>밀집한 곳만 깊게</b>, 빈 곳은 얕게 나뉘는 <b>적응형 해상도</b>. k-d 트리가 \"데이터 중앙값\"으로 가른다면 사분 트리는 \"<b>좌표 공간 자체를 절반씩</b>\"(중심으로) 가릅니다(점 분포와 무관한 균등 분할 → 구현 단순). 질의: <b>범위/근접</b> 질의는 질의 영역과 <b>겹치는 칸만 재귀</b>해 빈 영역을 빨리 버립니다. <b>충돌 브로드페이즈</b>: 물체들을 사분 트리에 넣으면 \"같은/이웃 칸\"의 쌍만 정밀 검사해 O(n²) 쌍 비교를 줄임. 3차원판은 <b>팔분 트리(octree)</b>(8등분). 응용: <b>이미지 압축</b>(균일한 영역은 한 노드로 — 영역 사분 트리), <b>GIS·지도</b>(타일·LOD), 게임 충돌·컬링, <b>Barnes-Hut N체 시뮬레이션</b>(멀리 있는 입자 무리를 한 노드의 질량중심으로 근사 → 중력 O(n log n)), 미로·셀룰러. 단점: 점이 한 점에 몰리면 깊이가 매우 깊어질 수 있어(분포 의존) 최대 깊이 제한·버킷 크기 조절 필요. \"공간을 4칸씩, 밀집한 곳만 깊게\"가 핵심입니다.",
+  "more": "​공간을 네 칸씩 재귀 분할하는 <b>사분 트리</b>. <b>사분 트리(quadtree)</b>는 2D 공간을 재귀적으로 <b>네 사분면(NW, NE, SW, SE)</b>으로 나누는 트리 자료구조입니다. 한 칸(노드)에 담긴 점·물체 수가 <b>임계치를 넘으면 그 칸을 4등분</b>해 자식 4개를 만들고, 이를 반복합니다 — 점이 <b>밀집한 곳만 깊게</b>, 빈 곳은 얕게 나뉘는 <b>적응형 해상도</b>. k-d 트리가 \"데이터 중앙값\"으로 가른다면 사분 트리는 \"<b>좌표 공간 자체를 절반씩</b>\"(중심으로) 가릅니다(점 분포와 무관한 균등 분할 → 구현 단순). 질의: <b>범위/근접</b> 질의는 질의 영역과 <b>겹치는 칸만 재귀</b>해 빈 영역을 빨리 버립니다. <b>충돌 브로드페이즈</b>: 물체들을 사분 트리에 넣으면 \"같은/이웃 칸\"의 쌍만 정밀 검사해 O(n²) 쌍 비교를 줄임. 3차원판은 <b>팔분 트리(octree)</b>(8등분). 응용: <b>이미지 압축</b>(균일한 영역은 한 노드로 — 영역 사분 트리), <b>GIS·지도</b>(타일·LOD), 게임 충돌·컬링, <b>Barnes-Hut N체 시뮬레이션</b>(멀리 있는 입자 무리를 한 노드의 질량중심으로 근사 → 중력 O(n log n)), 미로·셀룰러. 단점: 점이 한 점에 몰리면 깊이가 매우 깊어질 수 있어(분포 의존) 최대 깊이 제한·버킷 크기 조절 필요. \"공간을 4칸씩, 밀집한 곳만 깊게\"가 핵심입니다.",
   "more_en": "A <b>quadtree</b> recursively divides 2D space into <b>four quadrants (NW, NE, SW, SE)</b>. When a cell (node) holds more points/objects than a <b>threshold, it is split into four</b> children, repeated as needed — giving <b>adaptive resolution</b> that subdivides <b>only where points are dense</b>, shallow where empty. Where a k-d tree splits at the data median, a quadtree splits the <b>coordinate space itself in half</b> (at the center, independent of the data distribution → simpler to implement). Queries: <b>range/proximity</b> queries recurse only into <b>cells overlapping the query region</b>, quickly discarding empty space. <b>Collision broad-phase</b>: putting objects in a quadtree, only pairs in the \"same/neighboring cell\" need precise checks, cutting O(n²) comparisons. The 3D analogue is an <b>octree</b> (eight parts). Uses: <b>image compression</b> (uniform regions as one node — region quadtree), <b>GIS/maps</b> (tiles, level of detail), game collision/culling, <b>Barnes-Hut N-body simulation</b> (approximating far particle clusters by a node's center of mass → gravity in O(n log n)), mazes, cellular grids. Drawback: points clumped at one spot make it very deep (distribution-dependent), so cap the depth or tune the bucket size. The crux: \"space into four cells, deep only where dense.\"",
   "problem": {
    "q": "사분 트리가 충돌 판정의 O(n²) 쌍 비교를 어떻게 줄이나?",
@@ -5453,7 +5477,9 @@
    "  insert(n->child[q], p);",
    "}",
    "// 충돌검사·이미지·지도 인덱싱"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 15
  },
  "algo_br_sufarraybuild": {
   "ch": "알고리즘 제4장 탐색",
@@ -5818,11 +5844,11 @@
  },
  "algo_br_sat": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "분리축 정리 — 볼록 도형 충돌을 한 축으로",
   "narr": "두 볼록 도형의 충돌 판정의 토대입니다. <b>분리축 정리(SAT)</b>는 두 볼록이 겹치지 않는다는 것이 <b>어떤 축에 투영했을 때 두 그림자 구간이 안 겹치는 분리축이 하나라도 존재</b>하는 것과 같다고 말합니다. 거꾸로 모든 축에서 투영이 겹치면 충돌입니다. 무한히 많은 축을 다 볼 필요 없이 <b>검사 후보는 각 변에 수직인 법선들</b>뿐입니다(2D). 각 후보 축에 꼭짓점들을 내적으로 투영해 [min,max]를 구하고, 두 구간이 떨어지면 즉시 충돌 아님으로 종료합니다. 원은 변이 없어 중심에서 가장 가까운 꼭짓점 방향을 후보에 추가합니다. 충돌 시 최소 침투 벡터로 밀어내기까지 구합니다. 게임·물리 엔진 충돌에 쓰이며, 사촌 GJK는 더 일반적입니다.",
   "hint": "",
-  "more": "<b>분리축 정리(Separating Axis Theorem, SAT)</b>는 <b>두 볼록 도형의 충돌(겹침) 판정</b>의 토대입니다: <b>두 볼록 도형이 서로 겹치지 않는다 ⟺ 두 도형을 어떤 직선(축)에 투영(그림자)했을 때 두 투영 구간이 겹치지 않는, 그런 \"분리축\"이 하나라도 존재한다</b>. 거꾸로, <b>모든 축에서 투영이 겹치면 두 도형은 충돌</b>합니다. 무한히 많은 축을 다 볼 필요는 없습니다 — <b>검사할 후보 축은 두 다각형의 각 변에 수직인 방향(법선)들</b>뿐입니다(2D). 알고리즘: 각 후보 축에 대해 두 다각형의 꼭짓점들을 그 축에 <b>내적으로 투영</b>해 [min, max] 구간을 구하고, 두 구간이 떨어져 있으면(겹침 없음) <b>즉시 \"충돌 아님\"</b>으로 종료(분리축 발견); 모든 축에서 겹치면 충돌. 시간은 (변 수 합) × (투영 비용) = O((n+m)·(n+m)) 정도이고, 볼록끼리만 성립(비볼록은 볼록 분해). <b>원</b>은 변이 없으니 후보 축에 \"원 중심에서 가장 가까운 다각형 꼭짓점 방향\"을 추가합니다. 충돌 시 가장 적게 겹친 축(최소 침투 벡터, MTV)으로 밀어내기까지 구할 수 있어 물리 반응에 유용. 쓰임: <b>게임·물리 엔진의 충돌 판정</b>(2D 다각형, OBB 박스), 로봇 충돌, 컴퓨터 그래픽스. 사촌인 <b>GJK</b>(민코프스키 차의 원점 포함)는 임의 볼록·거리까지 다루는 더 일반적 방법. \"한 분리축이라도 있으면 안 충돌, 후보는 변의 법선뿐\"이 핵심입니다.",
+  "more": "​두 볼록 도형이 <b>충돌</b>하는가 — 분리축 정리. <b>분리축 정리(Separating Axis Theorem, SAT)</b>는 <b>두 볼록 도형의 충돌(겹침) 판정</b>의 토대입니다: <b>두 볼록 도형이 서로 겹치지 않는다 ⟺ 두 도형을 어떤 직선(축)에 투영(그림자)했을 때 두 투영 구간이 겹치지 않는, 그런 \"분리축\"이 하나라도 존재한다</b>. 거꾸로, <b>모든 축에서 투영이 겹치면 두 도형은 충돌</b>합니다. 무한히 많은 축을 다 볼 필요는 없습니다 — <b>검사할 후보 축은 두 다각형의 각 변에 수직인 방향(법선)들</b>뿐입니다(2D). 알고리즘: 각 후보 축에 대해 두 다각형의 꼭짓점들을 그 축에 <b>내적으로 투영</b>해 [min, max] 구간을 구하고, 두 구간이 떨어져 있으면(겹침 없음) <b>즉시 \"충돌 아님\"</b>으로 종료(분리축 발견); 모든 축에서 겹치면 충돌. 시간은 (변 수 합) × (투영 비용) = O((n+m)·(n+m)) 정도이고, 볼록끼리만 성립(비볼록은 볼록 분해). <b>원</b>은 변이 없으니 후보 축에 \"원 중심에서 가장 가까운 다각형 꼭짓점 방향\"을 추가합니다. 충돌 시 가장 적게 겹친 축(최소 침투 벡터, MTV)으로 밀어내기까지 구할 수 있어 물리 반응에 유용. 쓰임: <b>게임·물리 엔진의 충돌 판정</b>(2D 다각형, OBB 박스), 로봇 충돌, 컴퓨터 그래픽스. 사촌인 <b>GJK</b>(민코프스키 차의 원점 포함)는 임의 볼록·거리까지 다루는 더 일반적 방법. \"한 분리축이라도 있으면 안 충돌, 후보는 변의 법선뿐\"이 핵심입니다.",
   "more_en": "The <b>Separating Axis Theorem (SAT)</b> underlies <b>collision (overlap) detection for two convex shapes</b>: <b>two convex shapes do NOT overlap ⟺ there exists some line (axis) onto which their projections (shadows) do not overlap</b> — a \"separating axis.\" Conversely, <b>if the projections overlap on every axis, the shapes collide</b>. You needn't check infinitely many axes — the <b>candidate axes are just the normals (perpendiculars) to each polygon's edges</b> (in 2D). Algorithm: for each candidate axis, <b>project</b> both polygons' vertices via dot product to get [min, max] intervals; if the two intervals are disjoint (no overlap), <b>immediately conclude \"no collision\"</b> (a separating axis found); if they overlap on all axes, it's a collision. Time is about O((n+m)·(n+m)) (edges × projection cost), valid only for convex shapes (decompose non-convex). A <b>circle</b> has no edges, so add the axis \"from the circle's center toward the nearest polygon vertex.\" On collision you can also find the axis of least overlap (minimum translation vector, MTV) to push shapes apart, useful for physics response. Uses: <b>collision detection in game/physics engines</b> (2D polygons, oriented bounding boxes), robot collision, computer graphics. Its cousin <b>GJK</b> (origin inside the Minkowski difference) is a more general method handling arbitrary convex shapes and distance. The crux: \"any one separating axis means no collision, and candidates are just edge normals.\"",
   "problem": {
    "q": "분리축 정리에서 무한히 많은 방향이 아니라 '변의 법선'만 검사해도 되는 이유는?",
@@ -5840,7 +5866,9 @@
    "  if(maxA < minB || maxB < minA) return NO_COLLISION;",
    "}",
    "return COLLISION;   // 모든 축에서 겹치면 충돌"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 12
  },
  "algo_br_moupdates": {
   "ch": "알고리즘 제3장 정렬",
@@ -6046,11 +6074,11 @@
  },
  "algo_br_hull3d": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "계산기하",
   "title": "3D 볼록껍질 — 점들을 감싸는 최소 다면체",
   "narr": "2D 볼록껍질이 점들을 감싸는 다각형이라면, <b>3D 볼록껍질</b>은 공간 점들을 감싸는 <b>볼록 다면체</b>입니다. 핵심은 증분법입니다. 점을 하나씩 넣을 때 그 점에서 <b>보이는 면(바깥을 향한 면)</b>들을 지우면 구멍이 생기는데, 그 경계 고리와 새 점을 잇는 삼각형으로 메웁니다. 이렇게 하면 항상 볼록성이 유지됩니다. 보이는 면을 빠르게 찾으려 각 점이 어느 면을 보는지 <b>충돌 그래프</b>로 관리하면, 무작위 삽입 순서에서 면의 생성·삭제 총량이 선형 기댓값이 되어 <b>기대 O(n log n)</b>입니다. 충돌 검출·반평면 교차 등 3D 기하 문제의 기반입니다. 점들이 어떻게 면을 새로 만드는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>3D 볼록껍질(3D convex hull)</b>은 공간의 점 집합을 모두 포함하는 <b>가장 작은 볼록 다면체</b>(꼭짓점·모서리·면으로 이뤄짐)입니다. 면은 <b>삼각형</b>(일반 위치)이고, <b>오일러 공식 V−E+F=2</b>로 면 수 F ≤ 2V−4, 모서리 E ≤ 3V−6 — 즉 <b>크기가 선형 O(n)</b>입니다. 대표 알고리즘: ① <b>랜덤 증분법(incremental)</b> — 점을 무작위 순서로 하나씩 추가하며, 새 점 p에서 <b>\"보이는 면\"(p가 그 면의 바깥쪽에 있는 면)을 모두 제거</b>하고, 제거된 영역의 <b>경계(지평선, horizon)에 p를 꼭짓점으로 하는 새 삼각면들을 연결</b>합니다. 각 점이 평균 상수 개의 면만 건드려 <b>기대 O(n log n)</b>. ② <b>QuickHull 3D</b>(가장 먼 점으로 분할), ③ <b>분할 정복</b>, ④ <b>선물 포장(gift wrapping)</b> O(nF). 우아한 연결: <b>n개 2D 점을 포물면 z=x²+y²로 들어올린 뒤 3D 하부 껍질</b>을 구하면, 그 투영이 정확히 <b>들로네 삼각분할</b>이 됩니다(들로네 ↔ 3D 껍질 쌍대). 핵심 도구는 네 점의 <b>방향(orientation) = 행렬식 부호</b>(어느 쪽에 있나)와 \"면이 점에서 보이는가\". 쓰임: <b>충돌 판정용 볼록 경계체</b>(게임·물리), 3D 메시·재구성, 가장 먼 점 쌍, 최소 외접 도형, 선형계획의 기하적 해석, 들로네/보로노이. \"보이는 면 제거 + 지평선에 새 면\"이 증분 3D 껍질의 한 줄 요약입니다.",
+  "more": "​껍질을 <b>3차원</b>으로 — 점들을 감싸는 최소 다면체. <b>3D 볼록껍질(3D convex hull)</b>은 공간의 점 집합을 모두 포함하는 <b>가장 작은 볼록 다면체</b>(꼭짓점·모서리·면으로 이뤄짐)입니다. 면은 <b>삼각형</b>(일반 위치)이고, <b>오일러 공식 V−E+F=2</b>로 면 수 F ≤ 2V−4, 모서리 E ≤ 3V−6 — 즉 <b>크기가 선형 O(n)</b>입니다. 대표 알고리즘: ① <b>랜덤 증분법(incremental)</b> — 점을 무작위 순서로 하나씩 추가하며, 새 점 p에서 <b>\"보이는 면\"(p가 그 면의 바깥쪽에 있는 면)을 모두 제거</b>하고, 제거된 영역의 <b>경계(지평선, horizon)에 p를 꼭짓점으로 하는 새 삼각면들을 연결</b>합니다. 각 점이 평균 상수 개의 면만 건드려 <b>기대 O(n log n)</b>. ② <b>QuickHull 3D</b>(가장 먼 점으로 분할), ③ <b>분할 정복</b>, ④ <b>선물 포장(gift wrapping)</b> O(nF). 우아한 연결: <b>n개 2D 점을 포물면 z=x²+y²로 들어올린 뒤 3D 하부 껍질</b>을 구하면, 그 투영이 정확히 <b>들로네 삼각분할</b>이 됩니다(들로네 ↔ 3D 껍질 쌍대). 핵심 도구는 네 점의 <b>방향(orientation) = 행렬식 부호</b>(어느 쪽에 있나)와 \"면이 점에서 보이는가\". 쓰임: <b>충돌 판정용 볼록 경계체</b>(게임·물리), 3D 메시·재구성, 가장 먼 점 쌍, 최소 외접 도형, 선형계획의 기하적 해석, 들로네/보로노이. \"보이는 면 제거 + 지평선에 새 면\"이 증분 3D 껍질의 한 줄 요약입니다.",
   "more_en": "A <b>3D convex hull</b> is the <b>smallest convex polyhedron</b> (vertices, edges, faces) containing a set of points in space. Faces are <b>triangles</b> (in general position), and by <b>Euler's formula V−E+F=2</b>, F ≤ 2V−4 and E ≤ 3V−6 — i.e. <b>linear size O(n)</b>. Main algorithms: ① <b>randomized incremental</b> — add points in random order; for a new point p, <b>remove all \"visible faces\" (faces with p on their outer side)</b> and <b>connect new triangular faces from p to the boundary (horizon) of the removed region</b>. Each point touches a constant number of faces on average, giving <b>expected O(n log n)</b>. ② <b>QuickHull 3D</b> (split via the farthest point), ③ <b>divide and conquer</b>, ④ <b>gift wrapping</b> O(nF). Elegant link: <b>lift n 2D points onto the paraboloid z=x²+y² and take the 3D lower hull</b> — its projection is exactly the <b>Delaunay triangulation</b> (Delaunay ↔ 3D hull duality). The key tools are the <b>orientation (sign of a determinant)</b> of four points (which side) and \"is a face visible from a point.\" Uses: <b>convex bounding volumes for collision</b> (games, physics), 3D meshing/reconstruction, farthest pair, minimum enclosing shapes, geometric view of linear programming, Delaunay/Voronoi. \"Remove visible faces, add new faces on the horizon\" is the one-line summary of the incremental 3D hull.",
   "problem": {
    "q": "증분 3D 볼록껍질에서 새 점 p를 추가할 때 무엇을 제거하고 무엇을 새로 만드나?",
@@ -6069,7 +6097,9 @@
    "  for(Edge e : horizon) addFace(e, p);// 지평선에 새 면",
    "}",
    "// 기대 O(n log n)"
-  ]
+  ],
+  "branchOf": "algo2_07",
+  "ord": 13
  },
  "algo_br_mincostcirc": {
   "ch": "알고리즘 제6장 그래프",
