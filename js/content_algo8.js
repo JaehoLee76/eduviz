@@ -100,6 +100,33 @@
         ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(pts[k][0],pts[k][1],5,0,TAU); ctx.fill(); ctx.globalAlpha=1;
         ctx.fillStyle='#cfcdc6'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(pts[k][2], pts[k][0], pts[k][1]-12); }
       ctx.fillStyle='#bfe0ff'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.fillText('{ }', cx, cy+7); }
+  },
+
+  // ══════════ 분할정복·다항식·백트래킹 심화 (concept) ══════════
+  { id:'algo8_06', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'분할정복·다항식·백트래킹 심화',
+      sub:'쪼개서 곱하고, 가지를 쳐가며 뒤진다. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 빠른 곱셈', items:['카라츠바','스트라센','FFT']},
+        {c:'#ffb27a', t:'② 변환·다항식', items:['NTT','월시-아다마르','다항식 역원·exp·log','다중점 평가']},
+        {c:'#f4a0c0', t:'③ 오프라인 D&C', items:['CDQ 분할정복']},
+        {c:'#7ab8ff', t:'④ 백트래킹', items:['N-퀸','댄싱 링크(DLX)','브론-커보시','반복적 깊이증가','병렬 알고리즘']}
+      ],
+      foot:'쪼개서 곱셈을 가속 → 변환으로 합성곱·다항식 → 오프라인 차원 분할 → 가지치기 완전탐색' }); }
+  },
+
+  // ══════════ 조합·게임·점화식 분석 (concept) ══════════
+  { id:'algo8_07', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'조합·게임·점화식 분석',
+      sub:'세고, 이기고, 증명한다. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 세기',     items:['포함배제','번사이드','키르히호프 정리']},
+        {c:'#ffb27a', t:'② 비트·게임', items:['XOR 선형 기저','님과 그런디']},
+        {c:'#f4a0c0', t:'③ 점화식 분석', items:['치환법','재귀 트리','아크라-바지 정리']}
+      ],
+      foot:'겹침을 더하고 빼며 세고 → 대칭·행렬식으로 세고 → XOR 게임 → 점화식을 풀고 증명' }); }
   }
 
   ];

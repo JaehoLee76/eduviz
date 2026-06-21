@@ -456,11 +456,11 @@
  },
  "algo_br_lcs": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 최적 부분 구조 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "최장 공통 부분수열(LCS)",
   "narr": "두 문자열에 <b>순서를 지키며 공통으로</b> 나타나는 가장 긴 부분수열을 찾는 문제입니다. 'ABCB'와 'BDCB'의 최장 공통 부분수열은 'BCB'(길이 3)입니다. 격자 DP로 풉니다. dp[i][j]를 'A의 앞 i글자와 B의 앞 j글자가 공유하는 LCS 길이'로 두면, 두 끝 글자가 <b>같을 때는</b> 그 글자를 답에 더하므로 dp[i−1][j−1]+1이 되고, <b>다를 때는</b> 한쪽 글자를 버린 두 경우 중 큰 쪽, 즉 max(dp[i−1][j], dp[i][j−1])이 됩니다. 표의 한 칸이 왼쪽·위·대각선 이웃만 보고 정해지므로 격자를 한 번 채우면 답이 완성되어 <b>O(mn)</b>입니다. DNA 서열 비교, 파일 diff, 맞춤법 교정의 핵심입니다.",
   "hint": "같으면 ↖+1, 다르면 max(↑,←)",
-  "more": "<b>최장 공통 부분수열(LCS)</b>: 두 수열 X, Y에서 순서를 유지하되 연속일 필요는 없는 가장 긴 공통 수열. 격자 DP — <b>dp[i][j]</b>를 X의 앞 i글자와 Y의 앞 j글자의 LCS 길이로 두고, <b>X[i]=Y[j]면 dp[i][j]=dp[i−1][j−1]+1</b>(대각선+1), <b>다르면 max(dp[i−1][j], dp[i][j−1])</b>. 표를 채우면 O(mn). 역추적으로 실제 LCS 문자열도 복원합니다. 격자 경로 DP와 똑같은 구조(각 칸이 이웃 칸으로 정해짐)! 쓰임: <b>DNA·단백질 서열 정렬(생물정보학)</b>, <b>git/파일 diff</b>(바뀐 줄 찾기), 맞춤법 교정(편집 거리의 사촌), 표절 검사. \"두 수열을 표로 비교\"가 DP의 대표 응용입니다.",
+  "more": "​두 수열의 <b>공통 뼈대</b>를 찾는 LCS — 격자 DP의 대표. <b>최장 공통 부분수열(LCS)</b>: 두 수열 X, Y에서 순서를 유지하되 연속일 필요는 없는 가장 긴 공통 수열. 격자 DP — <b>dp[i][j]</b>를 X의 앞 i글자와 Y의 앞 j글자의 LCS 길이로 두고, <b>X[i]=Y[j]면 dp[i][j]=dp[i−1][j−1]+1</b>(대각선+1), <b>다르면 max(dp[i−1][j], dp[i][j−1])</b>. 표를 채우면 O(mn). 역추적으로 실제 LCS 문자열도 복원합니다. 격자 경로 DP와 똑같은 구조(각 칸이 이웃 칸으로 정해짐)! 쓰임: <b>DNA·단백질 서열 정렬(생물정보학)</b>, <b>git/파일 diff</b>(바뀐 줄 찾기), 맞춤법 교정(편집 거리의 사촌), 표절 검사. \"두 수열을 표로 비교\"가 DP의 대표 응용입니다.",
   "more_en": "<b>Longest Common Subsequence (LCS)</b>: the longest sequence appearing in both X and Y in order (not necessarily contiguous). Grid DP — let <b>dp[i][j]</b> be the LCS length of X's first i and Y's first j characters; <b>if X[i]=Y[j], dp[i][j]=dp[i−1][j−1]+1</b> (diagonal +1), <b>else max(dp[i−1][j], dp[i][j−1])</b>. Filling the table is O(mn), and backtracking recovers the actual LCS string. It is exactly the structure of the grid-path DP (each cell determined by neighbors)! Uses: <b>DNA/protein sequence alignment (bioinformatics)</b>, <b>git/file diff</b> (finding changed lines), spell correction (cousin of edit distance), plagiarism detection. \"Compare two sequences in a table\" is a flagship DP application.",
   "problem": {
    "q": "LCS에서 두 글자가 같을 때 dp 값은 어떻게 정해지나?",
@@ -478,15 +478,17 @@
    "      else c[i][j]=max(c[i-1][j], c[i][j-1]);",
    "  return c[n][m];",
    "}   // O(nm). 역추적으로 수열 복원"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 1
  },
  "algo_br_knap": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 최적 부분 구조 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "0/1 배낭 — 무엇을 담을까",
   "narr": "무게 한도가 있는 배낭에, 무게와 가치가 제각각인 물건들 중 가치 합이 최대가 되게 담는 문제입니다. 각 물건은 통째로 <b>담거나 안 담거나</b> 둘 중 하나라(0/1) 쪼갤 수 없습니다. 가치가 큰 것이나 가치/무게 비율이 높은 것부터 넣는 그리디는 남는 공간을 잘못 써서 최적을 놓칠 수 있습니다. 그래서 표를 채우는 DP로 진짜 최적을 찾습니다. dp[i][w]를 'i번째까지의 물건으로 무게 한도 w에서 낼 수 있는 최대 가치'로 정의하면, i번 물건을 <b>넣지 않는 경우 dp[i−1][w]</b>와 <b>넣는 경우 dp[i−1][w−무게]+가치</b> 중 큰 값이 됩니다. 모든 (i, w) 칸을 채우면 <b>O(n·W)</b>에 최적이 나옵니다. 자원 배분의 대표 문제입니다.",
   "hint": "초록 = 담은 물건 (가치 최대 조합)",
-  "more": "<b>0/1 배낭 문제(knapsack)</b>: 용량 W인 배낭에, 무게 wᵢ·가치 vᵢ인 물건들을 (쪼개지 않고) 담아 가치 합 최대화. DP — <b>dp[i][w]</b>를 \"앞 i개 물건, 용량 w일 때 최대 가치\"로 두고: <b>물건 i를 안 담으면 dp[i−1][w]</b>, <b>담으면 dp[i−1][w−wᵢ]+vᵢ</b>, 둘 중 max. 표 크기 n×W라 <b>O(nW)</b>(의사 다항 — W가 크면 느림). 왜 그리디가 안 되나? \"가치/무게 비율 큰 것부터\"는 분할 가능 배낭(fractional)엔 최적이지만, 0/1에선 틀립니다(그리디의 함정과 같은 이유) → DP가 모든 조합을 표로 따져 보장. 쓰임: 예산 배분, 투자 선택, 화물 적재, 자원 스케줄링. \"담는다/뺀다\" 결정의 최적화 = DP의 전형입니다.",
+  "more": "​가치를 최대로 담는 <b>0/1 배낭</b>. <b>0/1 배낭 문제(knapsack)</b>: 용량 W인 배낭에, 무게 wᵢ·가치 vᵢ인 물건들을 (쪼개지 않고) 담아 가치 합 최대화. DP — <b>dp[i][w]</b>를 \"앞 i개 물건, 용량 w일 때 최대 가치\"로 두고: <b>물건 i를 안 담으면 dp[i−1][w]</b>, <b>담으면 dp[i−1][w−wᵢ]+vᵢ</b>, 둘 중 max. 표 크기 n×W라 <b>O(nW)</b>(의사 다항 — W가 크면 느림). 왜 그리디가 안 되나? \"가치/무게 비율 큰 것부터\"는 분할 가능 배낭(fractional)엔 최적이지만, 0/1에선 틀립니다(그리디의 함정과 같은 이유) → DP가 모든 조합을 표로 따져 보장. 쓰임: 예산 배분, 투자 선택, 화물 적재, 자원 스케줄링. \"담는다/뺀다\" 결정의 최적화 = DP의 전형입니다.",
   "more_en": "<b>0/1 knapsack</b>: with capacity W, choose items (each weight wᵢ, value vᵢ) — taken whole or not — to maximize total value. DP — let <b>dp[i][w]</b> be \"max value using the first i items with capacity w\": <b>skip item i → dp[i−1][w]</b>, <b>take it → dp[i−1][w−wᵢ]+vᵢ</b>, take the max. The table is n×W, so <b>O(nW)</b> (pseudo-polynomial — slow for large W). Why doesn't greedy work? \"Highest value/weight first\" is optimal for the fractional knapsack but wrong for 0/1 (same trap as greedy) → DP guarantees it by tabulating all combinations. Uses: budget allocation, investment selection, cargo loading, resource scheduling. Optimizing take/leave decisions is a hallmark of DP.",
   "problem": {
    "q": "0/1 배낭에 그리디(가치/무게 비율 순)를 쓰면 왜 최적이 아닐 수 있나?",
@@ -506,7 +508,9 @@
    "    }",
    "  return K[n][W];",
    "}   // O(nW) 의사다항. 그리디는 실패"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 3
  },
  "algo_br_amort": {
   "ch": "알고리즘 제1장 알고리즘과 복잡도",
@@ -569,11 +573,11 @@
  },
  "algo_br_strassen": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할 정복 (자세히)",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "스트라센 행렬곱 — 8번을 7번으로",
   "narr": "n×n 행렬 두 개를 정의대로 곱하면 출력의 각 칸마다 n번 곱셈이 들어 <b>O(n³)</b>입니다. 분할정복으로 행렬을 2×2 블록으로 쪼개도, 블록 곱이 8번 필요해 점화식 T(n)=8T(n/2)+O(n²)가 되고 여전히 O(n³)입니다. <b>스트라센</b>은 블록들의 덧셈·뺄셈을 영리하게 조합한 7개의 곱(M1~M7)을 정의해, <b>곱셈을 8번에서 7번으로</b> 줄였습니다. 덧셈이 늘어나지만 덧셈은 O(n²)로 싸고 곱셈이 재귀의 진짜 비용이라, 점화식이 T(n)=7T(n/2)+O(n²)로 바뀝니다. 마스터 정리로 풀면 <b>O(n^log₂7)≈O(n^2.81)</b>이 됩니다. 깰 수 없어 보이던 n³ 하한을 처음으로 넘어선 결과로, 더 빠른 행렬곱 연구의 출발점이 되었습니다.",
   "hint": "곱셈 8 → 7이 지수를 바꾼다",
-  "more": "<b>스트라센 알고리즘</b>: 행렬을 2×2 블록으로 나눠 곱하면 8개의 부분 곱이 필요(T(n)=8T(n/2)+O(n²)=O(n³)). 스트라센은 <b>덧셈·뺄셈을 더 쓰는 대신 부분 곱을 7개(P1~P7)로</b> 재구성합니다 → <b>T(n)=7T(n/2)+O(n²)</b> → 마스터 정리(case 1) → <b>O(n^log₂7) ≈ O(n^2.81)</b>. \"곱셈 한 번을 줄였을 뿐\"인데 지수가 3→2.81로 바뀌어 큰 n에서 큰 차이! 이 발견(1969)은 \"행렬곱은 O(n³)이 당연\"이라는 통념을 깨고 빠른 행렬곱 연구를 열었습니다(현재 이론적 최선 ≈ O(n^2.37)). 분할정복에서 \"부분 문제 개수(a)를 줄이는 것\"이 복잡도를 바꾼다는 마스터 정리의 생생한 예입니다. 단, 상수가 커서 실전엔 큰 행렬에만 이득.",
+  "more": "​행렬곱 8번을 7번으로 — <b>스트라센</b>. <b>스트라센 알고리즘</b>: 행렬을 2×2 블록으로 나눠 곱하면 8개의 부분 곱이 필요(T(n)=8T(n/2)+O(n²)=O(n³)). 스트라센은 <b>덧셈·뺄셈을 더 쓰는 대신 부분 곱을 7개(P1~P7)로</b> 재구성합니다 → <b>T(n)=7T(n/2)+O(n²)</b> → 마스터 정리(case 1) → <b>O(n^log₂7) ≈ O(n^2.81)</b>. \"곱셈 한 번을 줄였을 뿐\"인데 지수가 3→2.81로 바뀌어 큰 n에서 큰 차이! 이 발견(1969)은 \"행렬곱은 O(n³)이 당연\"이라는 통념을 깨고 빠른 행렬곱 연구를 열었습니다(현재 이론적 최선 ≈ O(n^2.37)). 분할정복에서 \"부분 문제 개수(a)를 줄이는 것\"이 복잡도를 바꾼다는 마스터 정리의 생생한 예입니다. 단, 상수가 커서 실전엔 큰 행렬에만 이득.",
   "more_en": "<b>Strassen's algorithm</b>: splitting matrices into 2×2 blocks needs 8 sub-products (T(n)=8T(n/2)+O(n²)=O(n³)). Strassen reorganizes these into <b>just 7 sub-products (P1–P7)</b> using extra additions/subtractions → <b>T(n)=7T(n/2)+O(n²)</b> → Master Theorem (case 1) → <b>O(n^log₂7) ≈ O(n^2.81)</b>. Removing one multiplication shifts the exponent 3→2.81, a big difference for large n! This 1969 discovery broke the belief that matrix multiplication \"must be O(n³)\" and launched fast matrix-multiply research (current theoretical best ≈ O(n^2.37)). A vivid example of the Master Theorem: reducing the number of subproblems (a) changes the complexity. (Large constants mean it pays off only for big matrices.)",
   "problem": {
    "q": "스트라센이 2×2 블록 곱을 몇 번의 곱셈으로 하나? 그 결과 복잡도는?",
@@ -590,15 +594,17 @@
    "C11=M1+M4-M5+M7; C12=M3+M5;",
    "C21=M2+M4;       C22=M1-M2+M3+M6;",
    "// T(n)=7T(n/2)+O(n^2) → O(n^2.807)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 2
  },
  "algo_br_fft": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할 정복 (자세히)",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "FFT — 곱셈을 O(n log n)으로",
   "narr": "두 다항식(또는 아주 큰 수)을 곱하면 항끼리 모두 곱해 합쳐야 해서 <b>O(n²)</b>입니다. <b>고속 푸리에 변환(FFT)</b>은 표현을 바꿔 이를 <b>O(n log n)</b>으로 낮춥니다. 핵심 통찰은 차수 n−1 다항식이 서로 다른 n개의 점에서의 값으로도 똑같이 결정된다는 점입니다. 점값 표현에서는 곱셈이 같은 위치 값끼리의 단순 곱이라 O(n)에 끝납니다. 문제는 계수↔점값 변환을 빠르게 하는 것인데, 평가점으로 <b>복소수 단위근</b>을 쓰면 짝수 항과 홀수 항으로 나눈 두 절반 문제의 결과를 재사용할 수 있어 분할정복이 성립합니다. 변환과 역변환이 각각 O(n log n)이라 전체가 O(n log n)이 됩니다. 신호처리·이미지·음향의 심장이자 20세기 가장 중요한 알고리즘 중 하나입니다.",
   "hint": "계수 → 점값 표현으로 바꿔 곱하기",
-  "more": "<b>고속 푸리에 변환(FFT)</b>: 다항식 곱셈의 핵심 통찰은 두 가지 표현입니다 — <b>계수 표현</b>(곱셈 O(n²))과 <b>점값 표현</b>(여러 점에서의 값; 곱셈은 점별 곱 O(n)). FFT는 계수↔점값 변환을 <b>O(n log n)</b>에 해 줍니다. 방법: 다항식을 <b>짝수 차수·홀수 차수 계수로 분할</b>(분할정복!)하고, 평가점으로 <b>복소수 단위근(복소평면·회전!)</b>을 써서 절반의 계산을 재활용 → T(n)=2T(n/2)+O(n) → O(n log n). 그래서 다항식 곱·<b>큰 수 곱셈</b>·<b>합성곱(convolution)</b>이 모두 O(n log n). 쓰임: <b>신호처리·오디오·이미지 압축(JPEG)·통신</b>의 근간, 빠른 정수 곱셈. 분할정복과 수학(복소수)이 결합해 \"표현을 바꾸면 어려운 연산이 쉬워진다\"는 깊은 아이디어를 보여줍니다.",
+  "more": "​곱셈·합성곱을 O(n log n)에 — <b>FFT</b>. <b>고속 푸리에 변환(FFT)</b>: 다항식 곱셈의 핵심 통찰은 두 가지 표현입니다 — <b>계수 표현</b>(곱셈 O(n²))과 <b>점값 표현</b>(여러 점에서의 값; 곱셈은 점별 곱 O(n)). FFT는 계수↔점값 변환을 <b>O(n log n)</b>에 해 줍니다. 방법: 다항식을 <b>짝수 차수·홀수 차수 계수로 분할</b>(분할정복!)하고, 평가점으로 <b>복소수 단위근(복소평면·회전!)</b>을 써서 절반의 계산을 재활용 → T(n)=2T(n/2)+O(n) → O(n log n). 그래서 다항식 곱·<b>큰 수 곱셈</b>·<b>합성곱(convolution)</b>이 모두 O(n log n). 쓰임: <b>신호처리·오디오·이미지 압축(JPEG)·통신</b>의 근간, 빠른 정수 곱셈. 분할정복과 수학(복소수)이 결합해 \"표현을 바꾸면 어려운 연산이 쉬워진다\"는 깊은 아이디어를 보여줍니다.",
   "more_en": "<b>Fast Fourier Transform (FFT)</b>: the key insight for polynomial multiplication is two representations — <b>coefficient form</b> (multiply in O(n²)) and <b>point-value form</b> (values at points; multiply pointwise in O(n)). FFT converts between them in <b>O(n log n)</b>. Method: split the polynomial into <b>even- and odd-degree coefficients</b> (divide and conquer!) and evaluate at <b>complex roots of unity (complex plane and rotation!)</b> to reuse half the work → T(n)=2T(n/2)+O(n) → O(n log n). So polynomial products, <b>big-number multiplication</b>, and <b>convolution</b> all become O(n log n). Uses: the backbone of <b>signal processing, audio, image compression (JPEG), communications</b>, and fast integer multiplication. Combining divide-and-conquer with math (complex numbers), it shows the deep idea that \"changing representation makes a hard operation easy.\"",
   "problem": {
    "q": "FFT가 다항식 곱셈을 O(n²)에서 O(n log n)으로 줄이는 핵심은?",
@@ -620,7 +626,9 @@
    "  }",
    "  if(inv) for(int i=0;i<n;i++) a[i]/=n;",
    "}   // O(n log n)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 3
  },
  "algo_br_maxflow": {
   "ch": "알고리즘 제6장 그래프",
@@ -854,18 +862,20 @@
  },
  "algo_br_lis": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.1 동적 계획법 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "최장 증가 부분수열 (LIS)",
   "narr": "수열에서 <b>순서를 지키며 값이 점점 커지는</b> 가장 긴 부분수열의 길이를 구하는 문제입니다(예: 3,1,4,1,5,9,2,6에서 1,4,5,9 → 4). 동적 계획법으로 풉니다. dp[i]를 '<b>i번째 원소에서 끝나는</b> 최장 증가 부분수열의 길이'로 정의하면, 자기 자신만으로 최소 1이고, 앞쪽의 어떤 j에 대해 A[j] < A[i]이면 그 수열 뒤에 A[i]를 이어붙일 수 있으므로 dp[j]+1의 후보가 됩니다. 그중 최댓값이 dp[i]입니다. 'i에서 끝난다'고 못 박은 덕분에 부분 문제들이 겹치면서도 서로 독립적으로 정의되어 표를 한 번 채우면 됩니다. 각 i마다 앞쪽을 훑으므로 <b>O(n²)</b>이고, 정답은 모든 dp 값 중 최대입니다. 이진 탐색을 쓰면 O(n log n)까지 줄일 수 있습니다.",
   "hint": "dp[i]=i에서 끝나는 최장 길이",
-  "more": "<b>최장 증가 부분수열</b>(LIS): 연속이 아니어도 되며 순서를 지키며 증가하는 가장 긴 부분수열. <b>DP 정의</b>: dp[i] = A[i]로 끝나는 LIS 길이 = 1 + max{ dp[j] : j<i, A[j]<A[i] }. 모든 i를 채운 뒤 최댓값이 답. 이중 루프라 <b>O(n²)</b> (이진 탐색을 쓰면 O(n log n)으로 개선 가능). LIS는 최적 부분 구조(작은 LIS로 큰 LIS 구성)와 겹치는 부분 문제(같은 dp[j] 재사용)를 모두 가져 DP의 교과서 예시입니다. 버전 관리 diff·DNA 서열 비교·상자 쌓기 등에 응용.",
+  "more": "​가장 긴 <b>증가 부분수열</b>(LIS) — O(n log n)까지. <b>최장 증가 부분수열</b>(LIS): 연속이 아니어도 되며 순서를 지키며 증가하는 가장 긴 부분수열. <b>DP 정의</b>: dp[i] = A[i]로 끝나는 LIS 길이 = 1 + max{ dp[j] : j<i, A[j]<A[i] }. 모든 i를 채운 뒤 최댓값이 답. 이중 루프라 <b>O(n²)</b> (이진 탐색을 쓰면 O(n log n)으로 개선 가능). LIS는 최적 부분 구조(작은 LIS로 큰 LIS 구성)와 겹치는 부분 문제(같은 dp[j] 재사용)를 모두 가져 DP의 교과서 예시입니다. 버전 관리 diff·DNA 서열 비교·상자 쌓기 등에 응용.",
   "more_en": "<b>Longest Increasing Subsequence</b> (LIS): the longest subsequence (not necessarily contiguous) that increases in order. <b>DP definition</b>: dp[i] = length of the LIS ending at A[i] = 1 + max{ dp[j] : j<i, A[j]<A[i] }. After filling all i, the answer is the maximum. The double loop gives <b>O(n²)</b> (a binary-search variant improves it to O(n log n)). LIS has both optimal substructure (build a big LIS from smaller ones) and overlapping subproblems (reuse dp[j]), making it a textbook DP. Used in diff tools, DNA sequence comparison, box stacking.",
   "problem": {
    "q": "[3, 1, 4, 1, 5] 의 최장 증가 부분수열 길이는?",
    "solution": "dp=[1,1,2,1,3]. 3에서1, 1에서1, 4는 3·1뒤 +1=2, 1은1, 5는 4(dp2)뒤 +1=<b>3</b> (예: 1,4,5 또는 3,4,5).",
    "q_en": "What is the LIS length of [3, 1, 4, 1, 5]?",
    "sol_en": "dp=[1,1,2,1,3]. 4 follows 3/1 → 2; 5 follows 4 (dp 2) → <b>3</b> (e.g. 1,4,5 or 3,4,5)."
-  }
+  },
+  "branchOf": "algo7_06",
+  "ord": 4
  },
  "algo_br_insinv": {
   "ch": "알고리즘 제3장 정렬",
@@ -912,26 +922,28 @@
  },
  "algo_br_editdist": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 동적 계획법 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "편집 거리 — 문자열 사이의 거리",
   "narr": "한 단어를 다른 단어로 바꾸는 데 필요한 <b>삽입·삭제·교체</b>의 최소 횟수가 편집 거리입니다. 격자 DP로 풉니다. dp[i][j]를 'A의 앞 i글자를 B의 앞 j글자로 바꾸는 최소 비용'으로 두면, 기저는 빈 문자열을 만드는 데 드는 삽입/삭제 횟수라 dp[i][0]=i, dp[0][j]=j입니다. 두 끝 글자가 <b>같으면</b> 손댈 필요가 없어 대각선 값 dp[i−1][j−1]을 그대로 가져오고, <b>다르면</b> 세 연산에 각각 대응하는 이웃에서 1을 더한 뒤 가장 싼 것을 택합니다. 위 칸은 삭제, 왼쪽 칸은 삽입, 대각선 칸은 교체에 해당해 <b>1 + min(dp[i−1][j], dp[i][j−1], dp[i−1][j−1])</b>입니다. 한 칸이 이웃 셋만 보므로 격자를 한 번 채워 <b>O(mn)</b>입니다. 격자 경로 DP의 사촌이며 맞춤법 교정·diff에 쓰입니다.",
   "hint": "같으면 대각선, 다르면 1+min",
-  "more": "<b>편집 거리</b>(Levenshtein): 문자열 A를 B로 바꾸는 최소 연산 수(삽입/삭제/교체 각 1). <b>DP 정의</b>: dp[i][j] = A[0..i−1]→B[0..j−1] 편집 거리. 기저 dp[i][0]=i(다 삭제), dp[0][j]=j(다 삽입). 점화식: A[i−1]=B[j−1]이면 dp[i][j]=dp[i−1][j−1](비용 0); 다르면 dp[i][j]=1+min(dp[i−1][j] 삭제, dp[i][j−1] 삽입, dp[i−1][j−1] 교체). 표 크기 (m+1)×(n+1) → <b>O(mn)</b>. 맞춤법 검사·DNA 정렬·diff·자동완성의 핵심. 격자 경로 DP와 같은 '한 칸씩 채우기' 구조지만 세 방향 중 최소를 고른다는 점이 다릅니다.",
+  "more": "​한 문자열을 다른 것으로 바꾸는 <b>최소 편집</b> 거리. <b>편집 거리</b>(Levenshtein): 문자열 A를 B로 바꾸는 최소 연산 수(삽입/삭제/교체 각 1). <b>DP 정의</b>: dp[i][j] = A[0..i−1]→B[0..j−1] 편집 거리. 기저 dp[i][0]=i(다 삭제), dp[0][j]=j(다 삽입). 점화식: A[i−1]=B[j−1]이면 dp[i][j]=dp[i−1][j−1](비용 0); 다르면 dp[i][j]=1+min(dp[i−1][j] 삭제, dp[i][j−1] 삽입, dp[i−1][j−1] 교체). 표 크기 (m+1)×(n+1) → <b>O(mn)</b>. 맞춤법 검사·DNA 정렬·diff·자동완성의 핵심. 격자 경로 DP와 같은 '한 칸씩 채우기' 구조지만 세 방향 중 최소를 고른다는 점이 다릅니다.",
   "more_en": "<b>Edit distance</b> (Levenshtein): the minimum operations (insert/delete/substitute, cost 1 each) to turn string A into B. <b>DP</b>: dp[i][j] = edit distance of A[0..i−1]→B[0..j−1]. Base dp[i][0]=i (delete all), dp[0][j]=j (insert all). Recurrence: if A[i−1]=B[j−1], dp[i][j]=dp[i−1][j−1] (cost 0); else dp[i][j]=1+min(dp[i−1][j] delete, dp[i][j−1] insert, dp[i−1][j−1] substitute). Table (m+1)×(n+1) → <b>O(mn)</b>. Core of spell-check, DNA alignment, diff, autocomplete. Same fill-one-cell structure as grid-path DP, but you take the min of three directions.",
   "problem": {
    "q": "'cat' → 'cut' 의 편집 거리는?",
    "solution": "c=c, a→u 교체(1), t=t → <b>1</b>. (한 글자만 교체)",
    "q_en": "What is the edit distance from 'cat' to 'cut'?",
    "sol_en": "c=c, a→u substitute(1), t=t → <b>1</b> (one substitution)."
-  }
+  },
+  "branchOf": "algo7_06",
+  "ord": 2
  },
  "algo_br_matchain": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 동적 계획법 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "행렬 연쇄 곱셈 — 괄호의 비용",
   "narr": "여러 행렬을 곱할 때 결과 행렬은 같지만, <b>괄호를 어디에 치느냐</b>에 따라 들어가는 스칼라 곱셈 횟수가 수십 배까지 달라집니다. p×q 행렬과 q×r 행렬의 곱은 p·q·r번이 드는데, 곱하는 중간 행렬의 모양이 괄호 위치로 바뀌기 때문입니다. 동적 계획법으로 최소 비용 괄호화를 찾습니다. dp[i][j]를 'i번째부터 j번째 행렬까지 곱하는 최소 비용'으로 정의하면, 마지막 곱이 어느 <b>분할점 k</b>에서 일어나는지를 i ≤ k < j의 모든 경우로 시도해 dp[i][k] + dp[k+1][j] + (양쪽 결과 곱 비용)의 최솟값을 취합니다. 작은 구간부터 큰 구간으로 채워 가면 같은 부분 문제를 다시 풀지 않아 <b>O(n³)</b>에 최적 괄호화가 나옵니다. '최적 부분 구조'의 대표 예제입니다.",
   "hint": "괄호 위치 = 곱셈 비용",
-  "more": "<b>행렬 연쇄 곱셈</b>: A₁A₂…Aₙ을 곱하는 순서(괄호화)에 따라 스칼라 곱셈 횟수가 크게 달라집니다(행렬곱은 결합법칙이 성립해 결과는 동일). p×q 행렬과 q×r 행렬을 곱하면 p·q·r번 곱셈. <b>DP 정의</b>: m[i][j] = Aᵢ…Aⱼ를 곱하는 최소 비용 = min over k ( m[i][k] + m[k+1][j] + pᵢ₋₁·pₖ·pⱼ ). 사슬 길이를 늘려가며 표를 채워 <b>O(n³)</b>. 모든 괄호화를 다 따지면 카탈란 수만큼(지수적)이라 DP가 필수. 컴파일러의 곱셈 순서 최적화·DB 조인 순서 등에 응용. 최적 부분 구조(부분 사슬의 최적이 전체 최적의 일부)를 보이는 교과서 사례.",
+  "more": "​괄호 위치로 곱셈 비용을 최소화 — <b>행렬 연쇄</b>. <b>행렬 연쇄 곱셈</b>: A₁A₂…Aₙ을 곱하는 순서(괄호화)에 따라 스칼라 곱셈 횟수가 크게 달라집니다(행렬곱은 결합법칙이 성립해 결과는 동일). p×q 행렬과 q×r 행렬을 곱하면 p·q·r번 곱셈. <b>DP 정의</b>: m[i][j] = Aᵢ…Aⱼ를 곱하는 최소 비용 = min over k ( m[i][k] + m[k+1][j] + pᵢ₋₁·pₖ·pⱼ ). 사슬 길이를 늘려가며 표를 채워 <b>O(n³)</b>. 모든 괄호화를 다 따지면 카탈란 수만큼(지수적)이라 DP가 필수. 컴파일러의 곱셈 순서 최적화·DB 조인 순서 등에 응용. 최적 부분 구조(부분 사슬의 최적이 전체 최적의 일부)를 보이는 교과서 사례.",
   "more_en": "<b>Matrix-chain multiplication</b>: the order (parenthesization) of multiplying A₁A₂…Aₙ greatly changes the number of scalar multiplications (matrix product is associative, so the result is identical). Multiplying a p×q by a q×r matrix costs p·q·r. <b>DP</b>: m[i][j] = min cost to multiply Aᵢ…Aⱼ = min over k ( m[i][k] + m[k+1][j] + pᵢ₋₁·pₖ·pⱼ ). Fill by increasing chain length → <b>O(n³)</b>. Trying all parenthesizations is exponential (Catalan number), so DP is essential. Used in compiler multiplication ordering and database join ordering. A textbook case of optimal substructure.",
   "problem": {
    "q": "A(10×100), B(100×5), C(5×50) 를 곱할 때 ((AB)C) 의 곱셈 횟수는?",
@@ -952,7 +964,9 @@
    "    }",
    "  return m[1][n-1];   // 사슬 길이 오름차순 → O(n^3)",
    "}"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 5
  },
  "algo_br_edgeclass": {
   "ch": "알고리즘 제6장 그래프",
@@ -1114,33 +1128,37 @@
  },
  "algo_br_kadane": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.1 동적 계획법 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "최대 부분 배열 — 카데인 알고리즘",
   "narr": "음수가 섞인 수열에서 <b>연속한 구간</b>의 합이 최대가 되는 곳을 찾는 문제입니다. 모든 구간을 따지면 O(n²)이지만 <b>카데인 알고리즘</b>은 한 번 훑어 끝냅니다. 각 위치 i에서 '<b>i에서 끝나는 최대 연속합</b>' cur 하나만 들고 갑니다. 새 원소 A[i]를 만나면 선택은 둘뿐입니다. 지금까지의 cur 뒤에 <b>이어붙이거나</b>(cur + A[i]), 여기서 <b>새로 시작하거나</b>(A[i]) 중 큰 쪽을 취합니다. cur가 음수면 이어 붙여 봐야 손해라 끊고 새로 시작하는 것이 이득이라는 통찰이 핵심입니다. 그러면서 지금껏 본 cur들의 최댓값 best를 따로 갱신합니다. 각 위치를 한 번씩만 보고 상수 작업이라 <b>O(n)</b>이고, 추가 메모리도 거의 없습니다.",
   "hint": "잇기 vs 새로 시작",
-  "more": "<b>최대 부분 배열</b>(maximum subarray, Kadane): 연속 부분 배열 중 원소 합이 가장 큰 것을 찾습니다. <b>핵심 통찰</b>: i에서 끝나는 최대 합 cur는 'A[i] 하나로 새로 시작' 또는 'cur+A[i]로 이어붙이기' 중 큰 값 — cur = max(A[i], cur+A[i]). 전역 답 best는 매 단계 cur로 갱신. 한 번만 훑어 <b>O(n)</b>(분할정복 O(n log n)·완전탐색 O(n²)보다 우월). 음수가 누적되면 버리고 새로 시작하는 게 DP의 '최적 부분 구조'. 주식 최대 이익(하루 등락 합)·신호 처리·이미지 밝기 구간 등에 응용. 분할정복 버전과 카데인(Kadane) 알고리즘이 잘 알려진 두 풀이입니다.",
+  "more": "​최대 합 구간을 한 번에 — <b>카데인</b>. <b>최대 부분 배열</b>(maximum subarray, Kadane): 연속 부분 배열 중 원소 합이 가장 큰 것을 찾습니다. <b>핵심 통찰</b>: i에서 끝나는 최대 합 cur는 'A[i] 하나로 새로 시작' 또는 'cur+A[i]로 이어붙이기' 중 큰 값 — cur = max(A[i], cur+A[i]). 전역 답 best는 매 단계 cur로 갱신. 한 번만 훑어 <b>O(n)</b>(분할정복 O(n log n)·완전탐색 O(n²)보다 우월). 음수가 누적되면 버리고 새로 시작하는 게 DP의 '최적 부분 구조'. 주식 최대 이익(하루 등락 합)·신호 처리·이미지 밝기 구간 등에 응용. 분할정복 버전과 카데인(Kadane) 알고리즘이 잘 알려진 두 풀이입니다.",
   "more_en": "<b>Maximum subarray</b> (Kadane): find the contiguous subarray with the largest sum. <b>Key insight</b>: the max sum ending at i, cur, is the larger of 'start fresh at A[i]' or 'extend with cur+A[i]' — cur = max(A[i], cur+A[i]). The global answer best is updated with cur each step. One pass → <b>O(n)</b> (better than divide-and-conquer O(n log n) or brute force O(n²)). Dropping accumulated negatives and restarting is the DP's optimal substructure. Used in max stock profit (sum of daily changes), signal processing, image brightness ranges. Both a divide-and-conquer version and Kadane's algorithm are well-known solutions.",
   "problem": {
    "q": "[−2, 1, −3, 4, −1, 2, 1] 의 최대 연속 부분합은?",
    "solution": "4, −1, 2, 1 의 합 = <b>6</b>. (앞의 음수 누적은 버리고 4에서 새로 시작)",
    "q_en": "What is the maximum contiguous subarray sum of [−2, 1, −3, 4, −1, 2, 1]?",
    "sol_en": "4 + (−1) + 2 + 1 = <b>6</b> (drop the leading negatives, restart at 4)."
-  }
+  },
+  "branchOf": "algo7_06",
+  "ord": 6
  },
  "algo_br_coinchange": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.1 동적 계획법 (자세히)",
+  "sec": "고급 DP(상태·기법)",
   "title": "동전 교환 — 그리디가 틀리는 곳",
   "narr": "주어진 동전 종류로 어떤 금액을 만드는 데 필요한 <b>최소 동전 수</b>를 구하는 문제입니다. 동전 [1, 3, 4]로 6원을 만들 때, 큰 것부터 욕심내는 그리디는 4+1+1로 3개를 쓰지만 정답은 3+3=<b>2개</b>입니다. 큰 동전이 항상 이득은 아니라 그리디가 틀립니다. 동적 계획법으로 진짜 최적을 보장합니다. dp[a]를 'a원을 만드는 최소 동전 수'로 두고 작은 금액부터 채웁니다. 금액 a에 대해 각 동전 c(≤ a)를 마지막에 한 번 쓴다고 가정하면, 남는 금액 a−c의 최적해는 이미 구해 둔 dp[a−c]이므로 dp[a]=min over c (dp[a−c]+1)이 됩니다. 모든 동전을 시험해 최솟값을 취하면 큰 것부터 식의 함정 없이 전역 최적이 나옵니다. 금액마다 동전 수만큼 보므로 <b>O(amount·동전수)</b>입니다.",
   "hint": "작은 금액부터 dp 채우기",
-  "more": "<b>동전 교환 문제</b>(coin change): 동전 종류로 목표 금액을 만드는 최소 동전 수. <b>DP 정의</b>: dp[a] = a원을 만드는 최소 동전 수 = min over c ( dp[a−c] + 1 ) (c는 a 이하 동전). dp[0]=0에서 시작해 1원부터 차례로 채웁니다. 시간 <b>O(amount × 종류수)</b>. ★중요: 한국 동전(10·50·100·500)처럼 '정규(canonical)' 체계에선 그리디가 맞지만, [1,3,4] 같은 임의 체계에선 <b>그리디가 최적이 아님</b>(#36 그리디 함정) → DP가 필요. 이는 '언제 그리디가 통하고 언제 DP가 필요한가'를 보여주는 대표 대조 사례. 같은 dp 골격으로 '만드는 방법의 수'도 셀 수 있습니다.",
+  "more": "​<b>그리디가 틀리는</b> 동전 교환을 DP로 정확히. <b>동전 교환 문제</b>(coin change): 동전 종류로 목표 금액을 만드는 최소 동전 수. <b>DP 정의</b>: dp[a] = a원을 만드는 최소 동전 수 = min over c ( dp[a−c] + 1 ) (c는 a 이하 동전). dp[0]=0에서 시작해 1원부터 차례로 채웁니다. 시간 <b>O(amount × 종류수)</b>. ★중요: 한국 동전(10·50·100·500)처럼 '정규(canonical)' 체계에선 그리디가 맞지만, [1,3,4] 같은 임의 체계에선 <b>그리디가 최적이 아님</b>(#36 그리디 함정) → DP가 필요. 이는 '언제 그리디가 통하고 언제 DP가 필요한가'를 보여주는 대표 대조 사례. 같은 dp 골격으로 '만드는 방법의 수'도 셀 수 있습니다.",
   "more_en": "<b>Coin change</b>: the minimum number of coins to make a target amount. <b>DP</b>: dp[a] = min coins for amount a = min over c ( dp[a−c] + 1 ) (coin c ≤ a). Start from dp[0]=0 and fill 1, 2, …, amount. Time <b>O(amount × #coins)</b>. ★Key: for 'canonical' systems (like 10/50/100/500) greedy works, but for arbitrary systems like [1,3,4] <b>greedy is not optimal</b> (#36 greedy trap) → DP is needed. A flagship contrast for 'when greedy works vs when DP is required.' The same DP skeleton also counts the number of ways to make the amount.",
   "problem": {
    "q": "동전 [1, 3, 4]로 6원을 만들 때, 그리디와 DP의 답이 다른 이유는?",
    "solution": "그리디는 큰 4부터 골라 4+1+1=3개. DP는 모든 조합을 따져 3+3=<b>2개</b>를 찾음. 이 동전 체계는 '정규'가 아니라 그리디가 최적을 보장하지 못합니다.",
    "q_en": "For coins [1, 3, 4] making 6, why do greedy and DP differ?",
    "sol_en": "Greedy picks 4 first → 4+1+1 = 3 coins. DP checks all combos → 3+3 = <b>2 coins</b>. This coin system isn't 'canonical', so greedy isn't guaranteed optimal."
-  }
+  },
+  "branchOf": "algo7_06",
+  "ord": 7
  },
  "algo_br_heapins": {
   "ch": "알고리즘 제5장 트리",
@@ -1204,11 +1222,11 @@
  },
  "algo_br_nqueens": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할정복·백트래킹 (자세히)",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "백트래킹 — N-퀸과 되돌아가기",
   "narr": "백트래킹은 해를 한 조각씩 만들다가 제약을 어기면 <b>마지막 선택을 취소하고 되돌아가</b> 다른 후보를 시도하는 체계적 완전 탐색입니다. N-퀸은 N×N 판에 퀸 N개를 같은 행·열·대각선이 겹치지 않게 놓는 문제입니다. 한 행에 하나씩 놓되, 놓기 전에 이미 놓인 퀸들과 충돌하는지 검사합니다. 충돌하면 그 칸을 건너뛰고, 그 행에 놓을 곳이 없으면 이전 행으로 되돌아갑니다. 가망 없는 부분 해를 일찍 버리는 <b>가지치기</b>가 핵심이라 모든 배치를 다 만들지 않습니다. 스도쿠·부분집합 합·제약 충족 문제의 일반 틀입니다.",
   "hint": "막히면 되돌아가 다시",
-  "more": "<b>백트래킹</b>(backtracking): 해를 한 조각씩 만들어 가다, 제약을 어기면 <b>마지막 선택을 취소하고 되돌아가</b> 다른 후보를 시도하는 체계적 완전 탐색. <b>N-퀸</b>: N×N 판에 퀸 N개를 같은 행·열·대각선이 겹치지 않게 배치. 한 행에 하나씩 퀸을 놓되, 놓기 전 '이미 놓인 퀸들과 충돌하는가'를 검사 → 충돌하면 그 칸을 건너뛰고, 그 행에서 놓을 곳이 없으면 이전 행으로 되돌아가 옮김. 가능성 없는 부분 해를 일찍 버리는 <b>가지치기(pruning)</b>가 핵심이라, 모든 배치 N^N을 다 보지 않습니다. 미로 탐색·스도쿠·부분집합 합·순열 생성·제약 충족 문제(CSP)의 일반 틀. 더 똑똑한 한정(bound)을 더하면 분기 한정(branch & bound)이 됩니다.",
+  "more": "​가지치며 모두 뒤지는 <b>백트래킹</b> — N-퀸. <b>백트래킹</b>(backtracking): 해를 한 조각씩 만들어 가다, 제약을 어기면 <b>마지막 선택을 취소하고 되돌아가</b> 다른 후보를 시도하는 체계적 완전 탐색. <b>N-퀸</b>: N×N 판에 퀸 N개를 같은 행·열·대각선이 겹치지 않게 배치. 한 행에 하나씩 퀸을 놓되, 놓기 전 '이미 놓인 퀸들과 충돌하는가'를 검사 → 충돌하면 그 칸을 건너뛰고, 그 행에서 놓을 곳이 없으면 이전 행으로 되돌아가 옮김. 가능성 없는 부분 해를 일찍 버리는 <b>가지치기(pruning)</b>가 핵심이라, 모든 배치 N^N을 다 보지 않습니다. 미로 탐색·스도쿠·부분집합 합·순열 생성·제약 충족 문제(CSP)의 일반 틀. 더 똑똑한 한정(bound)을 더하면 분기 한정(branch & bound)이 됩니다.",
   "more_en": "<b>Backtracking</b>: build a solution piece by piece, and when a constraint is violated, <b>undo the last choice and go back</b> to try another candidate — a systematic exhaustive search with pruning. <b>N-queens</b>: place N queens on an N×N board so no two share a row, column, or diagonal. Place one queen per row, but before placing check 'does it conflict with already-placed queens?' → skip conflicting squares, and if a row has no valid square, backtrack to the previous row and move its queen. The key is <b>pruning</b> hopeless partial solutions early, so you don't examine all N^N placements. A general framework for maze solving, Sudoku, subset sum, permutation generation, and constraint satisfaction (CSP). Adding smarter bounds yields branch & bound.",
   "problem": {
    "q": "백트래킹이 단순 완전 탐색(brute force)보다 빠를 수 있는 이유는?",
@@ -1227,7 +1245,9 @@
    "      remove(row,col);                // 되돌리기(backtrack)",
    "    }",
    "}   // 가지치기로 N!보다 훨씬 빠름"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 9
  },
  "algo_br_segtree": {
   "ch": "알고리즘 제2장 자료구조",
@@ -1549,11 +1569,11 @@
  },
  "algo_br_parallel": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할정복·병렬 (자세히)",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "병렬 알고리즘 — 작업과 깊이",
   "narr": "여러 코어로 일을 나눠 처리할 때 성능은 두 지표로 분석합니다. <b>작업량 T₁</b>은 한 코어로 다 했을 때의 총 연산 수, <b>깊이(스팬) T∞</b>는 무한 코어로도 줄일 수 없는 가장 긴 의존 사슬 길이입니다. 둘의 비 T₁/T∞가 이론상 최대 가속인 <b>병렬도</b>입니다. n개 수를 짝끼리 동시에 합치는 <b>이진 리덕션 트리</b>는 같은 층이 서로 독립이라 동시에 처리되어, 개수가 절반씩 줄며 깊이가 <b>O(log n)</b>입니다(작업량은 O(n)). 분할정복은 좌우 부분문제가 독립이라 자연히 병렬화됩니다. 다만 암달의 법칙에 따라 직렬 부분이 가속을 제한합니다.",
   "hint": "work=총량, span=깊이",
-  "more": "<b>병렬 알고리즘</b>: 여러 프로세서로 동시에 일을 나눠 처리. 성능은 두 지표로 분석합니다. <b>작업량(work) T₁</b> = 한 코어로 다 했을 때 총 연산 수. <b>깊이/스팬(span) T∞</b> = 무한 코어가 있어도 줄일 수 없는 가장 긴 의존 사슬 길이(= 병렬 실행 최소 시간). <b>병렬도 = T₁/T∞</b>(이론상 최대 가속). 예: n개 합산을 <b>이진 리덕션 트리</b>로 하면 같은 층은 서로 독립이라 동시에 → work O(n), span O(log n), 병렬도 n/log n. 분할정복은 좌우 부분문제가 독립이라 자연스럽게 병렬화됩니다(병합정렬·퀵정렬·FFT). 한계: 암달의 법칙 — 직렬 부분이 가속을 제한. 실전에선 통신·동기화 비용도 고려. GPU·멀티코어·맵리듀스의 이론적 토대.",
+  "more": "​작업과 깊이로 보는 <b>병렬 알고리즘</b>. <b>병렬 알고리즘</b>: 여러 프로세서로 동시에 일을 나눠 처리. 성능은 두 지표로 분석합니다. <b>작업량(work) T₁</b> = 한 코어로 다 했을 때 총 연산 수. <b>깊이/스팬(span) T∞</b> = 무한 코어가 있어도 줄일 수 없는 가장 긴 의존 사슬 길이(= 병렬 실행 최소 시간). <b>병렬도 = T₁/T∞</b>(이론상 최대 가속). 예: n개 합산을 <b>이진 리덕션 트리</b>로 하면 같은 층은 서로 독립이라 동시에 → work O(n), span O(log n), 병렬도 n/log n. 분할정복은 좌우 부분문제가 독립이라 자연스럽게 병렬화됩니다(병합정렬·퀵정렬·FFT). 한계: 암달의 법칙 — 직렬 부분이 가속을 제한. 실전에선 통신·동기화 비용도 고려. GPU·멀티코어·맵리듀스의 이론적 토대.",
   "more_en": "<b>Parallel algorithms</b>: split work across processors to run concurrently. Performance is analyzed with two measures. <b>Work T₁</b> = total operations if run on one core. <b>Span/depth T∞</b> = the longest dependency chain that even infinite cores can't shorten (= minimum parallel time). <b>Parallelism = T₁/T∞</b> (the ideal max speedup). Example: summing n numbers via a <b>binary reduction tree</b> — each level's operations are independent and run at once → work O(n), span O(log n), parallelism n/log n. Divide-and-conquer parallelizes naturally since left/right subproblems are independent (merge sort, quicksort, FFT). Limit: Amdahl's law — the serial fraction caps speedup. In practice, communication/synchronization costs matter too. The theoretical basis of GPUs, multicore, and MapReduce.",
   "problem": {
    "q": "n개 수를 병렬로 더할 때 깊이(span)가 O(log n)인 이유는?",
@@ -1575,7 +1595,9 @@
    "  long r =       psum(a, mid, hi);",
    "  sync;  return l + r;",
    "}   // 가속비 ≤ T1/T∞ (브렌트 정리)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 13
  },
  "algo_br_online": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -2108,11 +2130,11 @@
  },
  "algo_br_cht": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 격자 DP ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "볼록 껍질 트릭(CHT) — 직선 최솟값으로 DP 가속",
   "narr": "DP 점화식이 <b>dp[i] = min_j (m_j·x + b_j)</b>처럼 '여러 직선 중 최솟값' 꼴이면, 직선을 다 비교할 때 O(n²)이 듭니다. <b>볼록 껍질 트릭</b>은 쓸모없는 직선을 버립니다. 어떤 x에서도 최솟값을 주는 직선들만 모으면 아래로 볼록한 꺾은선(아래 껍질)이 되고, 그 사이에서 영원히 최소가 안 되는 직선은 버려도 됩니다. 직선을 기울기 순으로 추가하며 가운데 끼어 쓸모없어진 직선을 스택에서 제거해 전체 O(n)에 껍질을 만듭니다. 질의 x가 단조면 포인터를 한 방향으로 밀어 <b>O(1)</b>, 아니면 이분 탐색 O(log n)입니다. 임의 순서면 Li Chao 트리로 일반화하여 O(n²) DP를 O(n log n)으로 줄입니다.",
   "hint": "",
-  "more": "<b>볼록 껍질 트릭(Convex Hull Trick, CHT)</b>은 <b>dp[i] = min_j (m_j · x_i + b_j)</b> 형태(직선들의 최솟값을 어떤 x에서 질의)를 가속합니다. 핵심 관찰: 어떤 x에서도 최솟값을 주는 직선들만 모으면 <b>아래로 볼록한 꺾은선(아래 껍질)</b>이 되고, 그 사이의 직선들은 <b>영원히 최솟값이 안 되므로 버려도</b> 됩니다. ① <b>직선을 기울기 순으로 추가</b>하며, 새 직선이 들어올 때 \"가운데에 끼어 쓸모없어진\" 직선을 스택에서 제거(교점 비교) → 전체 <b>O(n)</b>. ② 질의 x가 <b>단조</b>면 포인터를 한 방향으로 밀어 <b>O(1)</b>, 아니면 껍질에 <b>이분 탐색 O(log n)</b>. 임의 순서로 추가·질의해야 하면 <b>Li Chao 트리</b>로 일반화합니다. 효과: <b>O(n²) DP를 O(n log n) 또는 O(n)</b>으로. 쓰임: 비용이 \"가중치 × 위치 + 상수\"로 분해되는 분할/스케줄링 DP.",
+  "more": "​전이가 직선이면 하포락선으로 — <b>볼록 껍질 트릭(CHT)</b>. <b>볼록 껍질 트릭(Convex Hull Trick, CHT)</b>은 <b>dp[i] = min_j (m_j · x_i + b_j)</b> 형태(직선들의 최솟값을 어떤 x에서 질의)를 가속합니다. 핵심 관찰: 어떤 x에서도 최솟값을 주는 직선들만 모으면 <b>아래로 볼록한 꺾은선(아래 껍질)</b>이 되고, 그 사이의 직선들은 <b>영원히 최솟값이 안 되므로 버려도</b> 됩니다. ① <b>직선을 기울기 순으로 추가</b>하며, 새 직선이 들어올 때 \"가운데에 끼어 쓸모없어진\" 직선을 스택에서 제거(교점 비교) → 전체 <b>O(n)</b>. ② 질의 x가 <b>단조</b>면 포인터를 한 방향으로 밀어 <b>O(1)</b>, 아니면 껍질에 <b>이분 탐색 O(log n)</b>. 임의 순서로 추가·질의해야 하면 <b>Li Chao 트리</b>로 일반화합니다. 효과: <b>O(n²) DP를 O(n log n) 또는 O(n)</b>으로. 쓰임: 비용이 \"가중치 × 위치 + 상수\"로 분해되는 분할/스케줄링 DP.",
   "more_en": "The <b>Convex Hull Trick (CHT)</b> speeds up DP of the form <b>dp[i] = min_j (m_j · x_i + b_j)</b> (query the minimum of a set of lines at some x). Key observation: the lines that ever give the minimum form a <b>lower convex envelope</b>; lines stuck in the middle <b>never win and can be discarded</b>. ① <b>Add lines in slope order</b>, popping from a stack any line made useless by a newcomer (compare intersections) → <b>O(n)</b> total. ② If query x is <b>monotone</b>, push a pointer one way for <b>O(1)</b>; otherwise <b>binary search the hull O(log n)</b>. For arbitrary add/query order, generalize to a <b>Li Chao tree</b>. Effect: turns an <b>O(n²) DP into O(n log n) or O(n)</b>. Used when cost factors as \"weight × position + constant\" in partition/scheduling DP.",
   "problem": {
    "q": "CHT에서 어떤 직선을 '버려도 되는' 직선이라고 하나?",
@@ -2132,15 +2154,17 @@
    "  while(ptr+1<size && L[ptr+1].eval(x)<=L[ptr].eval(x)) ptr++;",
    "  return L[ptr].eval(x);",
    "}"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 1
  },
  "algo_br_dcopt": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 격자 DP ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "분할 정복 최적화 — 최적 분기점의 단조성",
   "narr": "DP가 <b>dp[i][j] = min_k ( dp[i−1][k] + C(k,j) )</b> 꼴이고, j가 커질수록 최적 분기점 opt(j)도 같이 커진다면(단조) 한 층의 비용을 줄일 수 있습니다. <b>분할 정복 최적화</b>는 구간 [lo,hi]의 가운데 mid를 골라 그 최적 k=opt(mid)를 직접 전부 탐색합니다. 그러면 단조성에 의해 왼쪽 절반의 k는 opt(mid) 아래, 오른쪽 절반은 그 위로 갈라지므로 양쪽을 재귀로 풉니다. 각 k가 로그 깊이만큼만 쓰여 한 층이 <b>O(n log n)</b>, 전체가 O(m·n log n)으로 순진한 O(m·n²)에서 개선됩니다. 단조성은 비용이 사각 부등식을 만족하면 보장됩니다.",
   "hint": "",
-  "more": "<b>분할 정복 최적화(Divide and Conquer Optimization)</b>는 <b>dp[i][j] = min_k ( dp[i−1][k] + C(k, j) )</b> 형태에서, 각 j의 <b>최적 분기점 opt(j)</b>가 <b>j에 대해 단조 증가</b>할 때 씁니다(opt(j₁) ≤ opt(j₂) for j₁ < j₂). 방법: 한 층을 채울 때 <b>구간 [lo, hi]의 가운데 mid를 골라 그 최적 k = opt(mid)를 직접 전부 탐색</b>합니다. 그러면 단조성에 의해 <b>왼쪽 절반의 k는 [klo, opt(mid)], 오른쪽 절반은 [opt(mid), khi]</b>로 갈라지므로, 재귀로 양쪽을 풉니다. 각 k가 로그 깊이만큼만 쓰이므로 <b>한 층이 O(n log n)</b>, 층이 m개면 전체 <b>O(m · n log n)</b>(순진한 O(m·n²)에서 개선). 단조성은 비용 C가 <b>사각 부등식(Quadrangle Inequality)</b>을 만족하면 보장됩니다. 비슷한 가정에서 <b>Knuth 최적화</b>(opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j])는 O(n²)까지 줄입니다.",
+  "more": "​최적 분기점의 <b>단조성</b>으로 분할정복 최적화. <b>분할 정복 최적화(Divide and Conquer Optimization)</b>는 <b>dp[i][j] = min_k ( dp[i−1][k] + C(k, j) )</b> 형태에서, 각 j의 <b>최적 분기점 opt(j)</b>가 <b>j에 대해 단조 증가</b>할 때 씁니다(opt(j₁) ≤ opt(j₂) for j₁ < j₂). 방법: 한 층을 채울 때 <b>구간 [lo, hi]의 가운데 mid를 골라 그 최적 k = opt(mid)를 직접 전부 탐색</b>합니다. 그러면 단조성에 의해 <b>왼쪽 절반의 k는 [klo, opt(mid)], 오른쪽 절반은 [opt(mid), khi]</b>로 갈라지므로, 재귀로 양쪽을 풉니다. 각 k가 로그 깊이만큼만 쓰이므로 <b>한 층이 O(n log n)</b>, 층이 m개면 전체 <b>O(m · n log n)</b>(순진한 O(m·n²)에서 개선). 단조성은 비용 C가 <b>사각 부등식(Quadrangle Inequality)</b>을 만족하면 보장됩니다. 비슷한 가정에서 <b>Knuth 최적화</b>(opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j])는 O(n²)까지 줄입니다.",
   "more_en": "<b>Divide and Conquer Optimization</b> applies to <b>dp[i][j] = min_k ( dp[i−1][k] + C(k, j) )</b> when each j's <b>optimal split opt(j)</b> is <b>monotone non-decreasing in j</b>. Method: to fill a layer, pick the <b>middle mid of a range [lo, hi] and brute-force its best k = opt(mid)</b>. By monotonicity the left half's k lies in <b>[klo, opt(mid)]</b> and the right half's in <b>[opt(mid), khi]</b>, so recurse on both. Each k is used over only logarithmic depth, making a <b>layer O(n log n)</b> and the whole DP <b>O(m · n log n)</b> (down from O(m·n²)). Monotonicity holds when C satisfies the <b>Quadrangle Inequality</b>. Under similar assumptions <b>Knuth's optimization</b> (opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]) gets it to O(n²).",
   "problem": {
    "q": "분할 정복 최적화에서 가운데 mid의 최적 k를 먼저 구하는 이유는?",
@@ -2159,15 +2183,17 @@
    "  solve(l,m-1,optL,best);        // 왼쪽은 best 이하",
    "  solve(m+1,r,best,optR);        // 오른쪽은 best 이상",
    "}   // O(n log n)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 3
  },
  "algo_br_bitmaskdp": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 격자 DP ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "비트마스크 DP — 부분집합을 정수로 (외판원)",
   "narr": "'지금까지 방문한 도시들의 집합'을 DP 상태로 담을 때 <b>비트마스크</b>는 부분집합을 정수 하나로 압축합니다(i번 비트가 1이면 원소 i 포함, 01011₂는 {0,1,3}). 대표 예가 외판원 문제입니다. <b>dp[mask][i]</b>를 'mask의 도시들을 모두 방문했고 지금 i에 있을 때 최소 비용'으로 두고, 아직 안 간 j로 dp[mask|(1<<j)][j]를 갱신합니다. 상태가 2ⁿ개 부분집합 × n개 위치이고 각 전이가 O(n)이라 전체 <b>O(2ⁿ·n²)</b>입니다. 모든 순열을 보는 O(n!)보다 압도적으로 작아 n ≤ 20에서 실전적입니다. 같은 틀이 집합 분할·할당·해밀턴 경로·SOS DP로 두루 쓰입니다.",
   "hint": "",
-  "more": "<b>비트마스크 DP</b>는 <b>부분집합을 정수의 비트</b>로 인코딩합니다 — i번 비트가 1이면 원소 i 포함. 예: <b>01011₂ = 11</b>은 집합 {0,1,3}. 대표 예가 <b>외판원 문제(TSP)</b>: <b>dp[mask][i]</b> = \"mask에 든 도시들을 모두 방문했고 지금 i에 있을 때의 최소 비용\". 전이는 <b>dp[mask | (1&lt;&lt;j)][j] = min( dp[mask][i] + dist[i][j] )</b> (아직 안 간 j로 확장). 상태 수 = <b>2ⁿ개 부분집합 × n개 현재 위치</b>, 각 전이 O(n) → 전체 <b>O(2ⁿ · n²)</b>. 모든 순열을 보는 브루트포스 <b>O(n!)</b>보다 압도적으로 작아 <b>n ≤ 20</b> 규모에서 실전적입니다. 같은 틀로 <b>집합 분할·할당·해밀턴 경로·서브셋 합/SOS DP</b> 등 \"작은 우주의 모든 부분집합\"을 다루는 문제에 두루 쓰입니다. 비트 연산(1&lt;&lt;i, mask &amp; (1&lt;&lt;i), 부분집합 순회)이 핵심 도구입니다.",
+  "more": "​방문 집합을 <b>정수 비트</b>로 — 외판원(TSP) DP. <b>비트마스크 DP</b>는 <b>부분집합을 정수의 비트</b>로 인코딩합니다 — i번 비트가 1이면 원소 i 포함. 예: <b>01011₂ = 11</b>은 집합 {0,1,3}. 대표 예가 <b>외판원 문제(TSP)</b>: <b>dp[mask][i]</b> = \"mask에 든 도시들을 모두 방문했고 지금 i에 있을 때의 최소 비용\". 전이는 <b>dp[mask | (1&lt;&lt;j)][j] = min( dp[mask][i] + dist[i][j] )</b> (아직 안 간 j로 확장). 상태 수 = <b>2ⁿ개 부분집합 × n개 현재 위치</b>, 각 전이 O(n) → 전체 <b>O(2ⁿ · n²)</b>. 모든 순열을 보는 브루트포스 <b>O(n!)</b>보다 압도적으로 작아 <b>n ≤ 20</b> 규모에서 실전적입니다. 같은 틀로 <b>집합 분할·할당·해밀턴 경로·서브셋 합/SOS DP</b> 등 \"작은 우주의 모든 부분집합\"을 다루는 문제에 두루 쓰입니다. 비트 연산(1&lt;&lt;i, mask &amp; (1&lt;&lt;i), 부분집합 순회)이 핵심 도구입니다.",
   "more_en": "<b>Bitmask DP</b> encodes a <b>subset as the bits of an integer</b> — bit i set means element i is included; e.g. <b>01011₂ = 11</b> is the set {0,1,3}. The flagship example is the <b>Traveling Salesman Problem (TSP)</b>: <b>dp[mask][i]</b> = \"minimum cost having visited exactly the cities in mask and now standing at i.\" Transition: <b>dp[mask | (1&lt;&lt;j)][j] = min( dp[mask][i] + dist[i][j] )</b> (extend to an unvisited j). States = <b>2ⁿ subsets × n positions</b>, each transition O(n) → <b>O(2ⁿ · n²)</b> overall — vastly smaller than brute force <b>O(n!)</b>, practical for <b>n ≤ 20</b>. The same pattern handles set partitioning, assignment, Hamiltonian paths, and subset-sum / sum-over-subsets DP. Bit operations (1&lt;&lt;i, mask &amp; (1&lt;&lt;i), subset enumeration) are the core tools.",
   "problem": {
    "q": "비트마스크로 TSP를 풀 때 상태 수와 전체 시간 복잡도는?",
@@ -2184,7 +2210,9 @@
    "      dp[mask|1<<j][j] = min(dp[mask|1<<j][j],",
    "                             dp[mask][i] + d[i][j]);",
    "// O(2^n · n^2)"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 9
  },
  "algo_br_perseg": {
   "ch": "알고리즘 제2장 자료구조",
@@ -2533,11 +2561,11 @@
  },
  "algo_br_digitdp": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 격자 DP ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "자릿수 DP — 범위 안에서 조건 맞는 수 세기",
   "narr": "격자 DP의 사고를 자릿수 위로 옮긴 기법입니다. '1~N 중 조건 맞는 수 세기'를 N이 10¹⁸이어도 하나씩 세지 않고 풉니다. <b>자릿수 DP</b>는 수를 <b>가장 높은 자리부터 한 자리씩</b> 채우며 <b>dp[pos][tight][추가상태]</b>로 메모이제이션합니다. <b>tight</b>는 지금까지 고른 앞자리가 N과 정확히 같은지를 표시해, 같으면 이번 자리 상한이 N의 그 자릿수, 아니면 0~9 자유가 됩니다. 같은 상태를 여러 큰 수가 공유하므로 상태 수가 <b>O(자릿수×2×작은상태)</b>로 N과 무관하게 빠릅니다. 구간 [L,R]은 f(R)−f(L−1)로 처리합니다. 특정 숫자 포함, 자릿수 합·나머지 조건, 인접 자리 규칙 세기에 두루 쓰입니다.",
   "hint": "",
-  "more": "<b>자릿수 DP(Digit DP)</b>는 <b>[0, N] 범위에서 어떤 조건을 만족하는 수의 개수</b>를 셉니다(N이 10¹⁸이어도 OK). 핵심은 수를 <b>가장 높은 자리부터 한 자리씩</b> 채우며, 상태 <b>dp[pos][tight][추가상태]</b>로 메모이제이션하는 것입니다. <b>pos</b> = 현재 채우는 자리, <b>tight</b> = 지금까지 고른 앞자리들이 N과 <b>정확히 같은지</b>(같으면 이번 자리 상한이 N의 그 자릿수, 아니면 0~9 자유), <b>추가상태</b> = 문제별 정보(예: 지금까지 합·나머지·\"3을 썼는가\"·앞자리 등). 상태 수가 <b>O(자릿수 × 2 × 작은상태)</b>라 N과 무관하게 빠릅니다. 구간 [L, R]은 <b>f(R) − f(L−1)</b>로 처리. 쓰임: 특정 숫자 포함/제외, 자릿수 합·나머지 조건, 인접 자리 규칙(\"같은 숫자 연속 금지\") 등 \"큰 범위에서 자릿수 패턴 세기\".",
+  "more": "​범위 안에서 조건 맞는 수 세기 — <b>자릿수 DP</b>. <b>자릿수 DP(Digit DP)</b>는 <b>[0, N] 범위에서 어떤 조건을 만족하는 수의 개수</b>를 셉니다(N이 10¹⁸이어도 OK). 핵심은 수를 <b>가장 높은 자리부터 한 자리씩</b> 채우며, 상태 <b>dp[pos][tight][추가상태]</b>로 메모이제이션하는 것입니다. <b>pos</b> = 현재 채우는 자리, <b>tight</b> = 지금까지 고른 앞자리들이 N과 <b>정확히 같은지</b>(같으면 이번 자리 상한이 N의 그 자릿수, 아니면 0~9 자유), <b>추가상태</b> = 문제별 정보(예: 지금까지 합·나머지·\"3을 썼는가\"·앞자리 등). 상태 수가 <b>O(자릿수 × 2 × 작은상태)</b>라 N과 무관하게 빠릅니다. 구간 [L, R]은 <b>f(R) − f(L−1)</b>로 처리. 쓰임: 특정 숫자 포함/제외, 자릿수 합·나머지 조건, 인접 자리 규칙(\"같은 숫자 연속 금지\") 등 \"큰 범위에서 자릿수 패턴 세기\".",
   "more_en": "<b>Digit DP</b> counts <b>integers in [0, N] satisfying some property</b> (even for N = 10¹⁸). The idea: fill the number <b>one digit at a time from the most significant</b>, memoizing on <b>dp[pos][tight][extra]</b>. <b>pos</b> = current digit position, <b>tight</b> = whether the prefix chosen so far <b>equals N exactly</b> (if so, this digit's upper bound is N's digit; otherwise 0–9 free), <b>extra</b> = problem-specific info (running sum, remainder, \"used a 3?\", previous digit, …). The state count is <b>O(#digits × 2 × small)</b>, independent of N. A range [L, R] is handled as <b>f(R) − f(L−1)</b>. Uses: counting numbers containing/avoiding a digit, digit-sum or remainder conditions, adjacency rules — \"count digit patterns over a huge range.\"",
   "problem": {
    "q": "자릿수 DP의 상태 'tight'(꽉 참)는 무엇을 뜻하나?",
@@ -2556,15 +2584,17 @@
    "              tight && d==hi, started||d>0);",
    "  return res;",
    "}   // f(R) - f(L-1)"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 12
  },
  "algo_br_sosdp": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 격자 DP ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "SOS DP — 부분집합 합(부분집합 제타 변환)",
   "narr": "격자 DP의 비트마스크판입니다. 모든 마스크에 대해 <b>F[mask]=Σ_{sub⊆mask}A[sub]</b>(부분집합들의 합)를 구하려면 순진하게는 <b>O(3ⁿ)</b>입니다. <b>SOS DP</b>는 비트 차원을 하나씩 켜며 누적합니다 — i번 통과에서 i번째 비트가 켜진 마스크마다 F[mask]+=F[mask^(1<<i)]. i번째 통과가 끝나면 'i번째 비트까지에서만 다른 부분집합들의 합'이 쌓이고, n번 통과하면 모든 부분집합 합이 완성됩니다. 차원을 한 축씩 더하는 고차원 누적합이라 <b>O(n·2ⁿ)</b>으로 줄어듭니다. 이것이 부울 격자 위의 <b>제타 변환</b>이고 빼는 방향이 뫼비우스 변환입니다. 부분집합 컨볼루션, 포함배제 가속, 마스크 합·최댓값 질의에 쓰입니다.",
   "hint": "",
-  "more": "<b>SOS DP(Sum over Subsets)</b>는 모든 마스크에 대해 <b>F[mask] = Σ_{sub ⊆ mask} A[sub]</b>(부분집합들의 값 합)를 한꺼번에 구합니다. 순진하게 각 마스크의 모든 부분집합을 돌면 <b>O(3ⁿ)</b>. 핵심 절약은 <b>비트 차원을 하나씩 켜며 누적</b>하는 것: <code>for i in 0..n−1: for each mask with bit i set: F[mask] += F[mask ^ (1&lt;&lt;i)]</code>. i번째 통과가 끝나면 F[mask]는 \"i번째 비트까지에서만 다른 부분집합들의 합\"을 누적한 상태가 되고, n번 통과하면 모든 부분집합 합이 됩니다 → <b>O(n·2ⁿ)</b>. 이는 부울 격자 위의 <b>고차원 누적합(제타 변환)</b>이고, 빼는 방향이 <b>뫼비우스 변환</b>(역연산)입니다. 쓰임: <b>부분집합 컨볼루션</b>, 포함·배제 가속, \"마스크의 모든 부분집합/초집합에 대한 합·최댓값\" 질의, 비트마스크 DP 보조.",
+  "more": "​모든 부분집합 합을 빠르게 — <b>SOS DP</b>. <b>SOS DP(Sum over Subsets)</b>는 모든 마스크에 대해 <b>F[mask] = Σ_{sub ⊆ mask} A[sub]</b>(부분집합들의 값 합)를 한꺼번에 구합니다. 순진하게 각 마스크의 모든 부분집합을 돌면 <b>O(3ⁿ)</b>. 핵심 절약은 <b>비트 차원을 하나씩 켜며 누적</b>하는 것: <code>for i in 0..n−1: for each mask with bit i set: F[mask] += F[mask ^ (1&lt;&lt;i)]</code>. i번째 통과가 끝나면 F[mask]는 \"i번째 비트까지에서만 다른 부분집합들의 합\"을 누적한 상태가 되고, n번 통과하면 모든 부분집합 합이 됩니다 → <b>O(n·2ⁿ)</b>. 이는 부울 격자 위의 <b>고차원 누적합(제타 변환)</b>이고, 빼는 방향이 <b>뫼비우스 변환</b>(역연산)입니다. 쓰임: <b>부분집합 컨볼루션</b>, 포함·배제 가속, \"마스크의 모든 부분집합/초집합에 대한 합·최댓값\" 질의, 비트마스크 DP 보조.",
   "more_en": "<b>SOS DP (Sum over Subsets)</b> computes, for every mask, <b>F[mask] = Σ_{sub ⊆ mask} A[sub]</b>. Naively iterating each mask's subsets is <b>O(3ⁿ)</b>. The key saving is to <b>accumulate one bit dimension at a time</b>: <code>for i in 0..n−1: for each mask with bit i set: F[mask] += F[mask ^ (1&lt;&lt;i)]</code>. After pass i, F[mask] has summed subsets differing only in the first i bits; after n passes it is the full subset sum → <b>O(n·2ⁿ)</b>. This is a <b>higher-dimensional prefix sum (zeta transform)</b> on the boolean lattice, with the subtracting direction being the <b>Möbius transform</b> (its inverse). Uses: <b>subset-sum convolution</b>, inclusion-exclusion speedups, \"sum/max over all subsets/supersets of a mask\" queries, and as a helper for bitmask DP.",
   "problem": {
    "q": "SOS DP가 순진한 O(3ⁿ)을 O(n·2ⁿ)으로 줄이는 핵심은?",
@@ -2579,15 +2609,17 @@
    "    if(mask & (1<<i))",
    "      f[mask] += f[mask ^ (1<<i)]; // 하위 부분집합 누적",
    "// O(n·2^n) (단순합 3^n 보다 빠름)"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 13
  },
  "algo_br_matexp": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.2 격자 DP ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "행렬 거듭제곱 — 선형 점화식을 로그 시간에",
   "narr": "선형 점화식을 다루는 격자 DP의 가속기입니다. 피보나치 F(10⁹)을 한 항씩 더하면 O(n)이지만, <b>고정 계수 선형 점화식</b>은 <b>행렬 곱 한 번=한 단계 전이</b>로 쓸 수 있습니다 — [F(n+1),F(n)]ᵀ=M·[F(n),F(n−1)]ᵀ. 그러면 n단계는 <b>Mⁿ</b>을 곱하는 일이고, Mⁿ은 <b>빠른 거듭제곱(Mⁿ=(M^(n/2))²)</b>으로 약 log n번의 행렬 곱에 구해집니다. 항이 k개면 k×k 행렬이라 곱 한 번이 O(k³), 전체 <b>O(k³ log n)</b>입니다. DP 전이가 '이전 상태들의 고정 선형 결합'이면 경로 수·격자 이동 수·오토마톤 문자열 수까지 모두 행렬로 묶어 거대한 n을 로그에 처리합니다. 보통 (mod p)와 함께 씁니다.",
   "hint": "",
-  "more": "<b>고정 계수 선형 점화식</b>(예: F(n)=F(n−1)+F(n−2))은 <b>행렬 곱 한 번 = 한 단계 전이</b>로 쓸 수 있습니다: <b>[F(n+1), F(n)]ᵀ = M · [F(n), F(n−1)]ᵀ</b>, 여기서 M = [[1,1],[1,0]]. 그러면 n단계는 <b>Mⁿ</b>을 곱하는 것이고, <b>Mⁿ은 빠른 거듭제곱(분할정복: Mⁿ = (M^(n/2))²)</b>으로 <b>O(log n)번의 행렬 곱</b>에 구합니다. 항이 k개인 점화식이면 k×k 행렬이라 한 번 곱이 O(k³) → 전체 <b>O(k³ log n)</b>. 그래서 F(10⁹)도 약 30번의 2×2 곱이면 끝납니다. 일반화: <b>DP 전이가 \"이전 상태들의 고정 선형 결합\"</b>이면 어떤 것이든(경로 수 세기, 격자 위 이동 수, 오토마톤에서 길이 n 문자열 수 등) 행렬로 묶어 큰 n을 로그에 처리합니다. 보통 (mod p) 함께 씁니다.",
+  "more": "​선형 점화식을 로그시간에 — <b>행렬 거듭제곱</b>. <b>고정 계수 선형 점화식</b>(예: F(n)=F(n−1)+F(n−2))은 <b>행렬 곱 한 번 = 한 단계 전이</b>로 쓸 수 있습니다: <b>[F(n+1), F(n)]ᵀ = M · [F(n), F(n−1)]ᵀ</b>, 여기서 M = [[1,1],[1,0]]. 그러면 n단계는 <b>Mⁿ</b>을 곱하는 것이고, <b>Mⁿ은 빠른 거듭제곱(분할정복: Mⁿ = (M^(n/2))²)</b>으로 <b>O(log n)번의 행렬 곱</b>에 구합니다. 항이 k개인 점화식이면 k×k 행렬이라 한 번 곱이 O(k³) → 전체 <b>O(k³ log n)</b>. 그래서 F(10⁹)도 약 30번의 2×2 곱이면 끝납니다. 일반화: <b>DP 전이가 \"이전 상태들의 고정 선형 결합\"</b>이면 어떤 것이든(경로 수 세기, 격자 위 이동 수, 오토마톤에서 길이 n 문자열 수 등) 행렬로 묶어 큰 n을 로그에 처리합니다. 보통 (mod p) 함께 씁니다.",
   "more_en": "A <b>fixed-coefficient linear recurrence</b> (e.g. F(n)=F(n−1)+F(n−2)) can be written as <b>one matrix multiply = one step</b>: <b>[F(n+1), F(n)]ᵀ = M · [F(n), F(n−1)]ᵀ</b> with M = [[1,1],[1,0]]. Then n steps means multiplying by <b>Mⁿ</b>, and <b>Mⁿ via fast exponentiation</b> (Mⁿ = (M^(n/2))²) takes <b>O(log n) matrix multiplications</b>. With k terms the matrix is k×k (one multiply O(k³)) → overall <b>O(k³ log n)</b>. So F(10⁹) is ~30 multiplies of 2×2 matrices. Generalization: whenever a <b>DP transition is a fixed linear combination of previous states</b> (counting paths, lattice walks, length-n strings in an automaton…), pack it into a matrix and handle huge n in logarithmic time, usually mod p.",
   "problem": {
    "q": "행렬 거듭제곱으로 피보나치 F(n)을 O(log n)에 구하는 원리는?",
@@ -2607,7 +2639,9 @@
    "  return R;",
    "}",
    "// 피보나치: [[1,1],[1,0]]^n 의 [0][1] = F(n)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 8
  },
  "algo_br_treedp": {
   "ch": "알고리즘 제5장 트리",
@@ -2994,11 +3028,11 @@
  },
  "algo_br_grundy": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "님과 그런디 — 공정 게임의 승패를 XOR로",
   "narr": "P vs NP를 다루는 자리의 게임 이론입니다. 둘이 번갈아 두고 못 두는 쪽이 지는 <b>공정 게임</b>의 승패를, 한 줄로 환원합니다. <b>그런디 수</b>를 <b>g=mex{다음 상태들의 그런디 수}</b>로 정의하는데, mex는 집합에 없는 가장 작은 음 아닌 정수입니다. 그러면 <b>g=0이 패배 상태</b>입니다 — 무엇을 둬도 g≠0(상대 승)으로 넘어가기 때문이고, g≠0이면 g=0으로 가는 수가 있어 승리입니다. 핵심은 <b>스프라그-그런디 정리</b>: 독립 게임의 합의 그런디 수는 각 그런디 수의 <b>XOR</b>입니다. 님(Nim) 한 더미(크기 a)의 그런디 수가 a이므로, 님의 답은 모든 더미 크기의 <b>XOR</b>입니다 — 0이면 선수 패, 아니면 승. 임의의 공정 게임을 하나의 님 더미로 압축합니다.",
   "hint": "",
-  "more": "<b>공정 게임(impartial game)</b>은 양쪽이 둘 수 있는 수가 같고, 마지막에 둘 수 없는 쪽이 지는 게임입니다. <b>그런디 수(Grundy number)</b> g(상태)를 <b>g = mex{ 한 수로 갈 수 있는 다음 상태들의 그런디 수 }</b> 로 정의합니다. 여기서 <b>mex(집합)</b> = 집합에 없는 가장 작은 음 아닌 정수(예: mex{0,1,3}=2). 그러면 <b>g=0인 상태는 패배 상태(P-position)</b>: 무엇을 둬도 g≠0인 상태(상대의 승리)로 넘어갑니다. 반대로 g≠0이면 g=0으로 가는 수가 있어 승리 상태입니다. <b>님(Nim)</b>: 여러 더미에서 한 더미의 돌을 원하는 만큼 가져가는 게임 — 한 더미(크기 a)의 그런디 수는 a이고, <b>독립 게임의 합의 그런디 수는 각 그런디 수의 XOR</b>입니다(스프라그-그런디 정리). 그래서 님의 답은 <b>모든 더미 크기의 XOR</b>: 0이면 둘 차례(선수) 패, 0이 아니면 승. 임의의 공정 게임도 각 부분 게임의 그런디 수를 구해 XOR하면 전체 승패가 나옵니다. 게임을 \"하나의 님 더미\"로 압축하는 마법입니다.",
+  "more": "​공정 게임의 승패를 XOR로 — <b>님과 그런디</b>. <b>공정 게임(impartial game)</b>은 양쪽이 둘 수 있는 수가 같고, 마지막에 둘 수 없는 쪽이 지는 게임입니다. <b>그런디 수(Grundy number)</b> g(상태)를 <b>g = mex{ 한 수로 갈 수 있는 다음 상태들의 그런디 수 }</b> 로 정의합니다. 여기서 <b>mex(집합)</b> = 집합에 없는 가장 작은 음 아닌 정수(예: mex{0,1,3}=2). 그러면 <b>g=0인 상태는 패배 상태(P-position)</b>: 무엇을 둬도 g≠0인 상태(상대의 승리)로 넘어갑니다. 반대로 g≠0이면 g=0으로 가는 수가 있어 승리 상태입니다. <b>님(Nim)</b>: 여러 더미에서 한 더미의 돌을 원하는 만큼 가져가는 게임 — 한 더미(크기 a)의 그런디 수는 a이고, <b>독립 게임의 합의 그런디 수는 각 그런디 수의 XOR</b>입니다(스프라그-그런디 정리). 그래서 님의 답은 <b>모든 더미 크기의 XOR</b>: 0이면 둘 차례(선수) 패, 0이 아니면 승. 임의의 공정 게임도 각 부분 게임의 그런디 수를 구해 XOR하면 전체 승패가 나옵니다. 게임을 \"하나의 님 더미\"로 압축하는 마법입니다.",
   "more_en": "An <b>impartial game</b> gives both players the same available moves, and whoever cannot move loses. Define the <b>Grundy number</b> g(state) = <b>mex{ Grundy numbers of states reachable in one move }</b>, where <b>mex(set)</b> = smallest non-negative integer not in the set (e.g. mex{0,1,3}=2). Then a <b>state with g=0 is a losing position (P-position)</b>: every move leads to g≠0 (a win for the opponent); conversely g≠0 means some move reaches g=0, a winning position. <b>Nim</b>: take any number of stones from one pile — a single pile of size a has Grundy number a, and the <b>Grundy number of a sum of independent games is the XOR of their Grundy numbers</b> (Sprague-Grundy theorem). So Nim's verdict is the <b>XOR of all pile sizes</b>: 0 means the player to move loses, nonzero means they win. Any impartial game reduces the same way — compute each sub-game's Grundy number and XOR them. The magic of compressing a game into a single Nim pile.",
   "problem": {
    "q": "여러 게임을 동시에 하는 공정 게임의 승패는 어떻게 한 번에 판정하나?",
@@ -3016,7 +3050,9 @@
    "  return g;",
    "}",
    "// 게임 합 = XOR of grundy. 0이면 패배 위치"
-  ]
+  ],
+  "branchOf": "algo8_07",
+  "ord": 5
  },
  "algo_br_pollard": {
   "ch": "알고리즘 제2장 자료구조",
@@ -3049,11 +3085,11 @@
  },
  "algo_br_lucas": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "뤼카 정리 — 이항계수를 소수로 나눈 나머지",
   "narr": "동적 계획법 응용의 정수론 도구입니다. C(10¹⁸,10⁹)을 소수 p로 나눈 나머지는 직접 계산이 불가능한데, <b>뤼카 정리</b>는 n과 k를 <b>p진법</b>으로 적어 풉니다. n=(nₘ…n₀)ₚ, k=(kₘ…k₀)ₚ라 하면 <b>C(n,k)≡Π C(nᵢ,kᵢ) (mod p)</b> — 각 자릿수끼리의 작은 이항계수의 곱입니다. 어느 자리에서 kᵢ>nᵢ이면 그 항이 0이라 전체가 0이 됩니다. 자릿수가 log_p n개뿐이고 각 항은 0≤nᵢ,kᵢ<p라 작은 표나 모듈러 역원으로 즉시 구하므로, n이 거대해도 <b>O(p+log_p n)</b>에 끝납니다. p가 큰 소수면 한 자리만 남아 일반 모듈러 조합과 같아지고, 모듈러가 소수 거듭제곱이면 그랜빌 확장을 씁니다. 조합을 소수로 다루는 기본기입니다.",
   "hint": "",
-  "more": "<b>뤼카 정리(Lucas' theorem)</b>는 소수 p에 대해 <b>C(n, k) mod p</b>를 빠르게 구합니다. n과 k를 <b>p진법</b>으로 적어 n = (nₘ … n₁ n₀)ₚ, k = (kₘ … k₁ k₀)ₚ 라 하면: <b>C(n, k) ≡ C(nₘ, kₘ) × … × C(n₁, k₁) × C(n₀, k₀)  (mod p)</b> — 즉 <b>각 자릿수끼리의 작은 이항계수의 곱</b>입니다. 어느 자리에서 <b>kᵢ > nᵢ</b>이면 C(nᵢ, kᵢ)=0이므로 <b>전체가 0</b>입니다(예: C(7,3) mod 3 → 7=21₃, 3=10₃ → C(2,1)·C(1,0)=2·1=2). 자릿수는 <b>log_p n</b>개뿐이고 각 항은 0 ≤ nᵢ, kᵢ < p 라 작은 표나 모듈러 역원으로 즉시 구하므로, n이 10^18처럼 거대해도 <b>O(p + log_p n)</b>에 끝납니다. p가 큰 소수면 한 자리(자기 자신)만 남아 일반 모듈러 조합과 같아집니다. 모듈러가 <b>소수의 거듭제곱</b>이면 <b>안드레프/그랜빌 확장</b>을 씁니다. 조합 수를 소수로 다루는 경쟁 프로그래밍의 기본기입니다.",
+  "more": "​이항계수 mod 소수 — <b>뤼카 정리</b>. <b>뤼카 정리(Lucas' theorem)</b>는 소수 p에 대해 <b>C(n, k) mod p</b>를 빠르게 구합니다. n과 k를 <b>p진법</b>으로 적어 n = (nₘ … n₁ n₀)ₚ, k = (kₘ … k₁ k₀)ₚ 라 하면: <b>C(n, k) ≡ C(nₘ, kₘ) × … × C(n₁, k₁) × C(n₀, k₀)  (mod p)</b> — 즉 <b>각 자릿수끼리의 작은 이항계수의 곱</b>입니다. 어느 자리에서 <b>kᵢ > nᵢ</b>이면 C(nᵢ, kᵢ)=0이므로 <b>전체가 0</b>입니다(예: C(7,3) mod 3 → 7=21₃, 3=10₃ → C(2,1)·C(1,0)=2·1=2). 자릿수는 <b>log_p n</b>개뿐이고 각 항은 0 ≤ nᵢ, kᵢ < p 라 작은 표나 모듈러 역원으로 즉시 구하므로, n이 10^18처럼 거대해도 <b>O(p + log_p n)</b>에 끝납니다. p가 큰 소수면 한 자리(자기 자신)만 남아 일반 모듈러 조합과 같아집니다. 모듈러가 <b>소수의 거듭제곱</b>이면 <b>안드레프/그랜빌 확장</b>을 씁니다. 조합 수를 소수로 다루는 경쟁 프로그래밍의 기본기입니다.",
   "more_en": "<b>Lucas' theorem</b> computes <b>C(n, k) mod p</b> for a prime p. Write n and k in <b>base p</b>: n = (nₘ … n₁ n₀)ₚ, k = (kₘ … k₁ k₀)ₚ. Then <b>C(n, k) ≡ C(nₘ, kₘ) × … × C(n₀, k₀)  (mod p)</b> — the <b>product of small per-digit binomial coefficients</b>. If any digit has <b>kᵢ > nᵢ</b>, then C(nᵢ, kᵢ)=0 and the <b>whole product is 0</b> (e.g. C(7,3) mod 3 → 7=21₃, 3=10₃ → C(2,1)·C(1,0)=2·1=2). There are only <b>log_p n</b> digits, each with 0 ≤ nᵢ, kᵢ < p computed instantly via a small table or modular inverse, so even n ≈ 10^18 finishes in <b>O(p + log_p n)</b>. For a large prime p only one digit remains and it reduces to ordinary modular binomials. For <b>prime-power moduli</b>, use the Andrew Granville extension. A staple for handling combinations modulo a prime in competitive programming.",
   "problem": {
    "q": "C(7,3) mod 3 을 뤼카 정리로 계산하면?",
@@ -3074,15 +3110,17 @@
    "  }",
    "  return r;",
    "}"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 11
  },
  "algo_br_incexc": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "포함배제 원리 — 겹친 것을 더하고 빼며 세기",
   "narr": "겹침을 부호로 바로잡아 세는 원리입니다. '3 또는 5의 배수'를 그냥 더하면 15의 배수가 두 번 세집니다. <b>포함배제</b>는 두 집합이면 |A∪B|=|A|+|B|−|A∩B|, 세 집합이면 둘씩 교집합을 빼고 셋의 교집합을 다시 더합니다. 규칙은 <b>홀수 개 교집합은 더하고(+), 짝수 개는 뺀다(−)</b>이고, 일반식은 |∪Aᵢ|=Σ(−1)^(|S|+1)|∩Aᵢ|입니다. 자주 쓰는 형태는 <b>여사건</b>: '어떤 조건도 만족 않는 수=전체−|∪조건|'입니다. 각 영역이 정확히 한 번씩만 세어지도록 부호가 중복을 정확히 상쇄해 줍니다. 오일러 피 함수, 교란순열(D(n)=n!·Σ(−1)ᵏ/k!), 뫼비우스 함수, SOS DP가 모두 이 원리의 응용입니다. 교집합 항이 2ⁿ개라 n이 작을 때 강력합니다.",
   "hint": "",
-  "more": "<b>포함배제 원리(Inclusion-Exclusion)</b>는 여러 집합의 <b>합집합 크기</b>를 정확히 셉니다. 두 집합이면 |A∪B| = |A|+|B|−|A∩B|, 세 집합이면 <b>|A∪B∪C| = |A|+|B|+|C| − |A∩B|−|A∩C|−|B∩C| + |A∩B∩C|</b>. 규칙: <b>홀수 개의 교집합은 더하고(+), 짝수 개는 뺀다(−)</b>. 일반식은 <b>|∪Aᵢ| = Σ over 비어있지 않은 S ⊆ {1..n} of (−1)^(|S|+1) |∩(i∈S) Aᵢ|</b>. 자주 쓰는 형태는 <b>여사건</b>: \"어떤 조건도 만족하지 않는 것의 수\" = 전체 − |∪(조건들)|. 응용: ① <b>오일러 피 함수</b> φ(n) — n의 서로 다른 소인수 집합에 포함배제, ② <b>교란순열(완전순열, derangement)</b> — 제자리에 오는 원소가 하나도 없는 순열 수 D(n) = n!·Σ(−1)ᵏ/k!, ③ \"특정 배수가 아닌 수 세기\", ④ <b>뫼비우스 함수</b>가 곧 정수론판 포함배제, ⑤ 비트마스크 DP에서 부분집합을 도는 형태(=SOS DP와 연결). 교집합 항이 2ⁿ개라 n이 작을 때(또는 구조가 단순할 때) 강력합니다.",
+  "more": "​겹친 것을 더하고 빼며 세기 — <b>포함배제</b>. <b>포함배제 원리(Inclusion-Exclusion)</b>는 여러 집합의 <b>합집합 크기</b>를 정확히 셉니다. 두 집합이면 |A∪B| = |A|+|B|−|A∩B|, 세 집합이면 <b>|A∪B∪C| = |A|+|B|+|C| − |A∩B|−|A∩C|−|B∩C| + |A∩B∩C|</b>. 규칙: <b>홀수 개의 교집합은 더하고(+), 짝수 개는 뺀다(−)</b>. 일반식은 <b>|∪Aᵢ| = Σ over 비어있지 않은 S ⊆ {1..n} of (−1)^(|S|+1) |∩(i∈S) Aᵢ|</b>. 자주 쓰는 형태는 <b>여사건</b>: \"어떤 조건도 만족하지 않는 것의 수\" = 전체 − |∪(조건들)|. 응용: ① <b>오일러 피 함수</b> φ(n) — n의 서로 다른 소인수 집합에 포함배제, ② <b>교란순열(완전순열, derangement)</b> — 제자리에 오는 원소가 하나도 없는 순열 수 D(n) = n!·Σ(−1)ᵏ/k!, ③ \"특정 배수가 아닌 수 세기\", ④ <b>뫼비우스 함수</b>가 곧 정수론판 포함배제, ⑤ 비트마스크 DP에서 부분집합을 도는 형태(=SOS DP와 연결). 교집합 항이 2ⁿ개라 n이 작을 때(또는 구조가 단순할 때) 강력합니다.",
   "more_en": "<b>Inclusion-Exclusion</b> counts the <b>size of a union</b> exactly. For two sets |A∪B| = |A|+|B|−|A∩B|; for three, <b>|A∪B∪C| = |A|+|B|+|C| − |A∩B|−|A∩C|−|B∩C| + |A∩B∩C|</b>. Rule: <b>add odd-sized intersections (+), subtract even-sized ones (−)</b>. The general form is <b>|∪Aᵢ| = Σ over non-empty S ⊆ {1..n} of (−1)^(|S|+1) |∩(i∈S) Aᵢ|</b>. A common use is the <b>complement</b>: \"count of things satisfying no condition\" = total − |∪(conditions)|. Applications: ① <b>Euler's totient</b> φ(n) via inclusion-exclusion over n's distinct prime factors, ② <b>derangements</b> D(n) = n!·Σ(−1)ᵏ/k! (permutations with no fixed point), ③ counting numbers not divisible by given values, ④ the <b>Möbius function</b> is number-theoretic inclusion-exclusion, ⑤ subset-iterating bitmask DP (linking to SOS DP). With 2ⁿ intersection terms it shines when n is small or the structure is simple.",
   "problem": {
    "q": "1부터 100까지 중 3 또는 5의 배수는 몇 개인가? 포함배제로.",
@@ -3099,15 +3137,17 @@
    "  int sign = (bits&1) ? +1 : -1;",
    "  count += sign * (N / lcmv);     // 배수 개수",
    "}"
-  ]
+  ],
+  "branchOf": "algo8_07",
+  "ord": 1
  },
  "algo_br_catalan": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "카탈란 수 — 괄호·트리·경로를 세는 한 수열",
   "narr": "동적 계획법 응용에서 만나는, 여러 문제를 한꺼번에 세는 수열입니다. 올바른 괄호열 수, 노드 n개 이진트리 모양 수, 대각선을 안 넘는 격자 경로 수가 전혀 달라 보여도 답이 모두 같은 <b>카탈란 수</b> Cₙ=1,1,2,5,14,42,…입니다. 정의는 둘 — 닫힌 공식 Cₙ=C(2n,n)/(n+1)과 점화식 <b>Cₙ=Σ Cᵢ·Cₙ₋₁₋ᵢ</b>입니다. 점화식의 뜻은 올바른 괄호열에서 맨 앞 '('의 짝을 기준으로 <b>안쪽(i쌍)과 바깥쪽(n−1−i쌍)</b>으로 갈라 각각 독립으로 세어 곱하고 짝 위치를 모두 더하는 것입니다 — 전형적인 '쪼개서 곱하고 더하는' DP라 O(n²), 공식으로는 O(n)입니다. 삼각분할·스택 정렬 가능 순열까지 같은 Cₙ로 세어집니다.",
   "hint": "",
-  "more": "<b>카탈란 수(Catalan number)</b> Cₙ = 1, 1, 2, 5, 14, 42, 132, … 은 수많은 조합 문제의 공통 답입니다. 정의는 둘: <b>닫힌 공식</b> Cₙ = C(2n, n)/(n+1), <b>점화식</b> <b>Cₙ = Σ(i=0..n−1) Cᵢ · Cₙ₋₁₋ᵢ</b> (C₀=1). 점화식의 뜻: 올바른 괄호열에서 <b>맨 앞 '('와 짝이 되는 ')'</b>를 기준으로, 그 <b>안쪽(i쌍)</b>과 <b>바깥쪽(n−1−i쌍)</b>으로 갈라 각각 독립적으로 세어 곱하고, 짝 위치 i를 모두 더합니다 — 전형적인 \"쪼개서 곱하고 더하는\" DP라 <b>O(n²)</b>, 공식으로는 <b>O(n)</b>. 같은 Cₙ로 세어지는 것들: ① <b>올바른 괄호열</b> n쌍 (C₃=5: ((())),(()()),(())(),()(()),()()()), ② <b>노드 n개 이진트리</b>의 서로 다른 모양 수, ③ n+1개 항의 <b>곱셈 괄호 매기기</b>(행렬 연쇄와 같은 구조), ④ (n)×(n) 격자에서 <b>대각선을 넘지 않는</b> 단조 경로, ⑤ 볼록 (n+2)각형의 <b>삼각분할</b> 수, ⑥ 스택으로 만들 수 있는 순열(스택 정렬 가능). 서로 다른 옷을 입은 같은 구조를 알아보는 것이 조합론의 묘미입니다.",
+  "more": "​괄호·트리·경로를 세는 — <b>카탈란 수</b>. <b>카탈란 수(Catalan number)</b> Cₙ = 1, 1, 2, 5, 14, 42, 132, … 은 수많은 조합 문제의 공통 답입니다. 정의는 둘: <b>닫힌 공식</b> Cₙ = C(2n, n)/(n+1), <b>점화식</b> <b>Cₙ = Σ(i=0..n−1) Cᵢ · Cₙ₋₁₋ᵢ</b> (C₀=1). 점화식의 뜻: 올바른 괄호열에서 <b>맨 앞 '('와 짝이 되는 ')'</b>를 기준으로, 그 <b>안쪽(i쌍)</b>과 <b>바깥쪽(n−1−i쌍)</b>으로 갈라 각각 독립적으로 세어 곱하고, 짝 위치 i를 모두 더합니다 — 전형적인 \"쪼개서 곱하고 더하는\" DP라 <b>O(n²)</b>, 공식으로는 <b>O(n)</b>. 같은 Cₙ로 세어지는 것들: ① <b>올바른 괄호열</b> n쌍 (C₃=5: ((())),(()()),(())(),()(()),()()()), ② <b>노드 n개 이진트리</b>의 서로 다른 모양 수, ③ n+1개 항의 <b>곱셈 괄호 매기기</b>(행렬 연쇄와 같은 구조), ④ (n)×(n) 격자에서 <b>대각선을 넘지 않는</b> 단조 경로, ⑤ 볼록 (n+2)각형의 <b>삼각분할</b> 수, ⑥ 스택으로 만들 수 있는 순열(스택 정렬 가능). 서로 다른 옷을 입은 같은 구조를 알아보는 것이 조합론의 묘미입니다.",
   "more_en": "The <b>Catalan numbers</b> Cₙ = 1, 1, 2, 5, 14, 42, 132, … answer a remarkable variety of combinatorial problems. Two definitions: the <b>closed form</b> Cₙ = C(2n, n)/(n+1) and the <b>recurrence</b> <b>Cₙ = Σ(i=0..n−1) Cᵢ · Cₙ₋₁₋ᵢ</b> (C₀=1). The recurrence's meaning: in a valid parenthesis string, split at the <b>')' matching the first '('</b> into the part <b>inside (i pairs)</b> and <b>outside (n−1−i pairs)</b>, count each independently, multiply, and sum over the match position i — a classic \"split, multiply, add\" DP giving <b>O(n²)</b>, or <b>O(n)</b> via the formula. Things Cₙ counts: ① <b>balanced parentheses</b> of n pairs (C₃=5), ② distinct shapes of <b>binary trees with n nodes</b>, ③ ways to <b>parenthesize</b> n+1 factors (same structure as matrix-chain), ④ monotone lattice paths in an n×n grid that <b>don't cross the diagonal</b>, ⑤ <b>triangulations</b> of a convex (n+2)-gon, ⑥ stack-sortable permutations. Recognizing one structure under many disguises is the joy of combinatorics.",
   "problem": {
    "q": "노드가 3개인 서로 다른 이진트리 모양은 몇 가지인가?",
@@ -3126,7 +3166,9 @@
    "  }",
    "  return C[n];   // 닫힌식: C(n) = (2n)! / ((n+1)! n!)",
    "}"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 12
  },
  "algo_br_lct": {
   "ch": "알고리즘 제5장 트리",
@@ -3210,11 +3252,11 @@
  },
  "algo_br_ntt": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "수론 변환(NTT) — 오차 없는 정수판 FFT",
   "narr": "FFT를 정수 위로 옮겨 오차를 없앤 변환입니다. FFT는 복소수 부동소수점이라 큰 정수 합성곱에서 <b>반올림 오차</b>가 치명적인데, <b>수론 변환(NTT)</b>은 복소수 <b>n차 단위근</b> 대신 소수 p에 대한 <b>n차 원시근</b> g^((p−1)/n) (mod p)을 씁니다. 단위근의 핵심 성질(ωⁿ=1 등)이 모듈러 원시근에서도 그대로 성립해 <b>버터플라이</b> 구조가 똑같이 작동하고, 모든 연산이 정수 mod p라 <b>오차가 0</b>입니다. 조건은 길이 n이 p−1을 나눠야 한다는 것이라 <b>p=c·2ᵏ+1</b> 꼴 소수(998244353=119·2²³+1 등)를 씁니다. 계수가 p보다 크면 여러 NTT 소수로 변환 후 <b>CRT</b>로 합칩니다. 전체 <b>O(n log n)</b>이며, '오차가 두려운 곳의 FFT'가 NTT입니다.",
   "hint": "",
-  "more": "<b>수론 변환(Number Theoretic Transform, NTT)</b>은 <b>FFT를 정수 모듈러 위에서</b> 수행하는 변환입니다. FFT가 쓰는 복소수 <b>n차 단위근</b> e^(2πi/n) 대신, 적절한 소수 p에 대해 모듈러 곱셈군의 <b>n차 원시근</b> g^((p−1)/n) (mod p)을 씁니다. 단위근의 핵심 성질(ωⁿ=1, 서로 다른 거듭제곱들의 합이 0 등)이 모듈러 원시근에서도 그대로 성립하므로, <b>분할 정복 버터플라이</b> 구조가 똑같이 작동하여 <b>O(n log n)</b> 합성곱을 얻습니다. 차이는 <b>모든 연산이 정수 mod p</b>라는 점 — <b>부동소수점 오차가 0</b>입니다(정확). 조건: 변환 길이 n이 p−1을 나눠야 하므로, <b>p = c·2ᵏ + 1</b> 꼴의 \"NTT 친화 소수\"를 씁니다. 대표적으로 <b>998244353 = 119·2²³ + 1</b>(원시근 3) — 길이 2²³까지 변환 가능. 계수가 p보다 크거나 음수일 수 있으면 <b>서로 다른 NTT 소수 여러 개로 변환 후 중국인의 나머지 정리(CRT)로 합치기</b>(이를 흔히 임의 모듈러 합성곱이라 부름). 쓰임: 큰 정수·다항식 곱셈을 <b>정확히</b>, 모듈러 조합론(생성함수), 문자열 매칭의 비트 합성곱 등. \"오차가 두려운 곳의 FFT\"가 NTT입니다.",
+  "more": "​오차 없는 정수판 FFT — <b>NTT</b>. <b>수론 변환(Number Theoretic Transform, NTT)</b>은 <b>FFT를 정수 모듈러 위에서</b> 수행하는 변환입니다. FFT가 쓰는 복소수 <b>n차 단위근</b> e^(2πi/n) 대신, 적절한 소수 p에 대해 모듈러 곱셈군의 <b>n차 원시근</b> g^((p−1)/n) (mod p)을 씁니다. 단위근의 핵심 성질(ωⁿ=1, 서로 다른 거듭제곱들의 합이 0 등)이 모듈러 원시근에서도 그대로 성립하므로, <b>분할 정복 버터플라이</b> 구조가 똑같이 작동하여 <b>O(n log n)</b> 합성곱을 얻습니다. 차이는 <b>모든 연산이 정수 mod p</b>라는 점 — <b>부동소수점 오차가 0</b>입니다(정확). 조건: 변환 길이 n이 p−1을 나눠야 하므로, <b>p = c·2ᵏ + 1</b> 꼴의 \"NTT 친화 소수\"를 씁니다. 대표적으로 <b>998244353 = 119·2²³ + 1</b>(원시근 3) — 길이 2²³까지 변환 가능. 계수가 p보다 크거나 음수일 수 있으면 <b>서로 다른 NTT 소수 여러 개로 변환 후 중국인의 나머지 정리(CRT)로 합치기</b>(이를 흔히 임의 모듈러 합성곱이라 부름). 쓰임: 큰 정수·다항식 곱셈을 <b>정확히</b>, 모듈러 조합론(생성함수), 문자열 매칭의 비트 합성곱 등. \"오차가 두려운 곳의 FFT\"가 NTT입니다.",
   "more_en": "The <b>Number Theoretic Transform (NTT)</b> performs an <b>FFT over integers modulo a prime</b>. Instead of FFT's complex <b>n-th root of unity</b> e^(2πi/n), it uses, for a suitable prime p, an <b>n-th primitive root</b> g^((p−1)/n) (mod p) of the modular multiplicative group. The essential root-of-unity properties (ωⁿ=1, distinct powers summing to 0, …) still hold modulo p, so the same <b>divide-and-conquer butterfly</b> gives an <b>O(n log n)</b> convolution — but with <b>all arithmetic in integers mod p</b>, so <b>zero floating-point error</b> (exact). Condition: the transform length n must divide p−1, so we use \"NTT-friendly primes\" of the form <b>p = c·2ᵏ + 1</b>. A classic one is <b>998244353 = 119·2²³ + 1</b> (primitive root 3), allowing lengths up to 2²³. If coefficients can exceed p or be negative, transform under <b>several distinct NTT primes and combine via the Chinese Remainder Theorem (CRT)</b> (\"arbitrary-modulus convolution\"). Uses: exact big-integer and polynomial multiplication, modular combinatorics (generating functions), bit-convolution string matching. NTT is \"FFT where rounding error is unacceptable.\"",
   "problem": {
    "q": "NTT는 FFT의 무엇을 무엇으로 바꾸며, 그래서 어떤 이점을 얻나?",
@@ -3232,7 +3274,9 @@
    "    // FFT와 동일한 버터플라이, mod 연산",
    "  }",
    "}   // 다항식 곱 O(n log n), 정수 정확"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 4
  },
  "algo_br_hungarian": {
   "ch": "알고리즘 제6장 그래프",
@@ -3345,11 +3389,11 @@
  },
  "algo_br_karatsuba": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "카라츠바 — 곱셈 4번을 3번으로",
   "narr": "분할 정복이 상수가 아니라 <b>지수</b>를 바꾼 첫 사례입니다. 두 큰 수를 학교식으로 곱하면 O(n²)이고, 반으로 쪼개도 부분곱이 4번 필요해 그대로입니다. x=a·B+b, y=c·B+d로 쪼개면 xy=ac·B²+(ad+bc)·B+bd인데, ac·ad·bc·bd 네 번을 그대로 곱하면 T(n)=4T(n/2)+O(n)=O(n²)입니다. <b>카라츠바</b>의 핵심은 가운데 항을 따로 두 번 곱하지 않고 <b>z₁=(a+b)(c+d)−ac−bd</b>로 얻는 것입니다 — (a+b)(c+d)에서 ac와 bd를 빼면 정확히 ad+bc이기 때문입니다. 곱셈이 <b>3번</b>으로 줄어 T(n)=3T(n/2)+O(n), 마스터 정리로 <b>O(n^1.585)</b>입니다. 툼-쿡, 그리고 그 극한 FFT/NTT로 이어지며, 행렬 버전이 스트라센입니다.",
   "hint": "",
-  "more": "<b>카라츠바(Karatsuba)</b>는 큰 수(또는 다항식) 곱셈을 <b>O(n^log₂3) ≈ O(n^1.585)</b>에 하는 분할 정복 알고리즘입니다. n자리 수 x, y를 절반 자리 B=베이스^(n/2)로 쪼개 <b>x = a·B + b, y = c·B + d</b> 라 하면, xy = ac·B² + (ad+bc)·B + bd. 순진하게는 <b>ac, ad, bc, bd 네 번</b>의 절반 크기 곱이 필요해 T(n)=4T(n/2)+O(n)=O(n²)로 빨라지지 않습니다. 카라츠바의 핵심: 가운데 항 ad+bc를 따로 두 번 곱하지 말고, <b>z₂=ac, z₀=bd</b>를 구한 뒤 <b>z₁=(a+b)(c+d) − z₂ − z₀</b>로 얻습니다 — (a+b)(c+d)=ac+ad+bc+bd 에서 ac와 bd를 빼면 정확히 ad+bc이기 때문입니다. 이렇게 곱셈이 <b>3번</b>(ac, bd, (a+b)(c+d))으로 줄어 <b>T(n)=3T(n/2)+O(n)</b>, 마스터 정리로 <b>O(n^1.585)</b>입니다. 곱셈이 덧셈보다 비싼(큰 수) 상황에서 유리하며, 더 잘게 쪼개는 <b>툼-쿡(Toom-Cook)</b>, 그리고 그 극한인 <b>FFT/NTT O(n log n)</b>으로 이어집니다. 행렬 버전이 바로 <b>스트라센</b>(8번을 7번으로)입니다.",
+  "more": "​곱셈 4번을 3번으로 — <b>카라츠바</b>. <b>카라츠바(Karatsuba)</b>는 큰 수(또는 다항식) 곱셈을 <b>O(n^log₂3) ≈ O(n^1.585)</b>에 하는 분할 정복 알고리즘입니다. n자리 수 x, y를 절반 자리 B=베이스^(n/2)로 쪼개 <b>x = a·B + b, y = c·B + d</b> 라 하면, xy = ac·B² + (ad+bc)·B + bd. 순진하게는 <b>ac, ad, bc, bd 네 번</b>의 절반 크기 곱이 필요해 T(n)=4T(n/2)+O(n)=O(n²)로 빨라지지 않습니다. 카라츠바의 핵심: 가운데 항 ad+bc를 따로 두 번 곱하지 말고, <b>z₂=ac, z₀=bd</b>를 구한 뒤 <b>z₁=(a+b)(c+d) − z₂ − z₀</b>로 얻습니다 — (a+b)(c+d)=ac+ad+bc+bd 에서 ac와 bd를 빼면 정확히 ad+bc이기 때문입니다. 이렇게 곱셈이 <b>3번</b>(ac, bd, (a+b)(c+d))으로 줄어 <b>T(n)=3T(n/2)+O(n)</b>, 마스터 정리로 <b>O(n^1.585)</b>입니다. 곱셈이 덧셈보다 비싼(큰 수) 상황에서 유리하며, 더 잘게 쪼개는 <b>툼-쿡(Toom-Cook)</b>, 그리고 그 극한인 <b>FFT/NTT O(n log n)</b>으로 이어집니다. 행렬 버전이 바로 <b>스트라센</b>(8번을 7번으로)입니다.",
   "more_en": "<b>Karatsuba</b> multiplies large numbers (or polynomials) in <b>O(n^log₂3) ≈ O(n^1.585)</b> via divide and conquer. Split n-digit x, y at half B = base^(n/2): <b>x = a·B + b, y = c·B + d</b>, so xy = ac·B² + (ad+bc)·B + bd. Naively this needs <b>four</b> half-size products ac, ad, bc, bd, giving T(n)=4T(n/2)+O(n)=O(n²) — no speedup. Karatsuba's trick: don't compute the middle ad+bc with two products; instead get <b>z₂=ac, z₀=bd</b> and <b>z₁=(a+b)(c+d) − z₂ − z₀</b>, since (a+b)(c+d)=ac+ad+bc+bd minus ac and bd is exactly ad+bc. That uses only <b>three</b> multiplications (ac, bd, (a+b)(c+d)), giving <b>T(n)=3T(n/2)+O(n)</b> = <b>O(n^1.585)</b> by the master theorem. It helps when multiplication is costlier than addition (big numbers); finer splits give <b>Toom-Cook</b>, and the limit is <b>FFT/NTT O(n log n)</b>. Its matrix analogue is <b>Strassen</b> (8 products to 7).",
   "problem": {
    "q": "카라츠바가 가운데 항 ad+bc를 곱셈 한 번으로 얻는 방법은?",
@@ -3369,7 +3413,9 @@
    "  long m = karatsuba(xh+xl, yh+yl, n-h) - a - c;  // 교차",
    "  return a*b*b + m*b + c;",
    "}   // T(n)=3T(n/2)+O(n) → O(n^1.585)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 1
  },
  "algo_br_lagrange": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -3482,11 +3528,11 @@
  },
  "algo_br_lichao": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "리 차오 트리 — 직선들의 하한 포락선",
   "narr": "동적 계획법 응용의 직선 질의 자료구조입니다. 여러 직선 중 주어진 x에서 <b>최솟값을 주는 직선</b>을 찾을 때 볼록 껍질 트릭은 기울기 정렬이 필요한데, <b>리 차오 트리</b>는 정렬 없이 삽입·질의를 모두 <b>O(log n)</b>에 합니다. x 범위를 세그먼트 트리처럼 나누고 <b>각 노드에 그 구간 중점을 지배하는 직선 하나</b>를 둡니다. <b>삽입</b>은 노드에서 새 직선과 기존 직선을 <b>중점에서 비교</b>해 더 낮은 쪽을 남기고, 두 직선은 한 번만 교차하므로 더 좋아질 가능성이 있는 <b>한쪽 절반으로만 재귀</b>합니다(깊이 O(log n)). <b>질의</b>는 x를 포함하는 경로를 따라 내려가며 각 노드 직선의 최소를 취합니다. CHT와 달리 기울기·질의 순서에 제약이 없어, DP 점화식의 O(n²)을 <b>O(n log n)</b>으로 줄입니다.",
   "hint": "",
-  "more": "<b>리 차오 트리(Li Chao Tree)</b>는 직선(또는 아래로 볼록한 함수)들의 집합에서, 임의의 x에 대한 <b>최솟값(또는 최댓값)을 주는 직선</b>을 찾는 자료구조입니다. x좌표 범위를 <b>세그먼트 트리</b>처럼 재귀 구간으로 나누고, <b>각 노드에 \"그 구간의 중점을 지배하는 직선\" 하나</b>를 보관합니다. <b>직선 삽입</b>: 노드에서 새 직선과 기존 직선을 <b>중점에서 비교</b>해 더 낮은 쪽을 그 노드에 남기고, 두 직선이 교차하는 것은 <b>왼쪽 절반이나 오른쪽 절반 중 한쪽에서만</b>이므로(직선은 한 번만 교차), 더 좋아질 가능성이 있는 <b>그 절반으로만 재귀</b>합니다 — 깊이 O(log n). <b>질의(x에서 최솟값)</b>: 루트에서 x를 포함하는 경로를 따라 내려가며 각 노드의 직선을 x에 대입해 최소를 취합 — 경로 길이 O(log n). 장점: <b>CHT와 달리 기울기·질의 순서에 제약이 없고</b> 구현이 단순하며, 직선뿐 아니라 \"교차가 한 번뿐인\" 함수면 됩니다. 단점: x 좌표 범위에 비례한 메모리(또는 동적 노드/좌표 압축). 쓰임: <b>DP 점화식 가속</b>(전이 비용이 \"기울기·절편이 상태에 의존하는 직선\" 꼴, 예: dp[i]=min_j(dp[j]+b[j]·a[i]) 형태)에서 O(n²)을 <b>O(n log n)</b>으로.",
+  "more": "​직선·선분 최솟값을 세그트리로 — <b>리 차오 트리</b>. <b>리 차오 트리(Li Chao Tree)</b>는 직선(또는 아래로 볼록한 함수)들의 집합에서, 임의의 x에 대한 <b>최솟값(또는 최댓값)을 주는 직선</b>을 찾는 자료구조입니다. x좌표 범위를 <b>세그먼트 트리</b>처럼 재귀 구간으로 나누고, <b>각 노드에 \"그 구간의 중점을 지배하는 직선\" 하나</b>를 보관합니다. <b>직선 삽입</b>: 노드에서 새 직선과 기존 직선을 <b>중점에서 비교</b>해 더 낮은 쪽을 그 노드에 남기고, 두 직선이 교차하는 것은 <b>왼쪽 절반이나 오른쪽 절반 중 한쪽에서만</b>이므로(직선은 한 번만 교차), 더 좋아질 가능성이 있는 <b>그 절반으로만 재귀</b>합니다 — 깊이 O(log n). <b>질의(x에서 최솟값)</b>: 루트에서 x를 포함하는 경로를 따라 내려가며 각 노드의 직선을 x에 대입해 최소를 취합 — 경로 길이 O(log n). 장점: <b>CHT와 달리 기울기·질의 순서에 제약이 없고</b> 구현이 단순하며, 직선뿐 아니라 \"교차가 한 번뿐인\" 함수면 됩니다. 단점: x 좌표 범위에 비례한 메모리(또는 동적 노드/좌표 압축). 쓰임: <b>DP 점화식 가속</b>(전이 비용이 \"기울기·절편이 상태에 의존하는 직선\" 꼴, 예: dp[i]=min_j(dp[j]+b[j]·a[i]) 형태)에서 O(n²)을 <b>O(n log n)</b>으로.",
   "more_en": "A <b>Li Chao Tree</b> finds, over a set of lines (or downward-convex functions), the line giving the <b>minimum (or maximum) at any x</b>. It splits the x-range into recursive segments like a <b>segment tree</b>, storing at <b>each node one line that dominates that segment's midpoint</b>. <b>Inserting a line</b>: at a node, <b>compare the new and existing line at the midpoint</b>, keep the lower one there; since two lines cross only once, the better candidate can win only in <b>the left or the right half</b>, so <b>recurse into just that half</b> — depth O(log n). <b>Querying min at x</b>: descend the root-to-x path, evaluating each node's line at x and taking the minimum — path length O(log n). Advantages: <b>unlike CHT, no constraint on slope or query order</b>, simple to implement, and works for any \"cross-once\" functions, not just lines. Drawback: memory proportional to the x-range (or use dynamic nodes/coordinate compression). Uses: <b>speeding up DP recurrences</b> where the transition cost is a line whose slope/intercept depends on the state (e.g. dp[i]=min_j(dp[j]+b[j]·a[i])), turning O(n²) into <b>O(n log n)</b>.",
   "problem": {
    "q": "리 차오 트리가 직선 삽입을 O(log n)에 끝낼 수 있는 이유는?",
@@ -3505,15 +3551,17 @@
    "  if(left != mid) add(leftChild, f);",
    "  else            add(rightChild, f);",
    "}   // 질의·삽입 O(log n)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 2
  },
  "algo_br_burnside": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "번사이드 보조정리 — 대칭을 같게 보고 세기",
   "narr": "대칭을 같다고 보고 정확히 세는 공식입니다. 구슬 6개 목걸이에서 회전하면 같아지는 배치는 하나로 세야 하는데, 전체를 대칭 수로 나누면 틀립니다(어떤 배치는 회전해도 그대로라 보정이 다름). <b>번사이드 보조정리</b>는 <b>(궤도 수)=(1/|G|)·Σ|Fix(g)|</b> — 각 대칭 g가 고정하는 배치 수의 평균이 정답임을 알려 줍니다. '전체÷대칭 수'를 각 대칭의 고정점 평균으로 정확히 바로잡은 것입니다. 예로 구슬 n개·색 k 목걸이를 회전으로 세면 d칸 회전의 고정점이 k^gcd(n,d)이라, 답=(1/n)Σ k^gcd(n,d)입니다. <b>폴리아 정리</b>는 g를 순환 구조로 분해해 Fix(g)=k^(사이클 수)임을 쓰고 색 가중치까지 붙입니다. 정육면체 색칠, 동형 아닌 그래프 세기에 쓰입니다.",
   "hint": "",
-  "more": "<b>번사이드 보조정리(Burnside's lemma)</b>는 <b>대칭(군 G의 작용)으로 같아지는 것들을 하나로 묶어 세는</b>(서로 다른 <b>궤도</b>의 개수) 공식입니다: <b>(궤도 수) = (1/|G|) · Σ(g∈G) |Fix(g)|</b>, 여기서 <b>Fix(g)</b>는 변환 g를 적용해도 <b>그대로 유지되는 배치(고정점)의 수</b>입니다. 즉 \"전체 ÷ 대칭 수\"라는 순진한 계산을, <b>각 대칭이 고정하는 수의 평균</b>으로 바로잡은 것입니다(어떤 배치는 회전해도 같아 중복 보정이 다름). 예: 구슬 n개·색 k가지 목걸이를 <b>회전</b>(순환군 Cₙ)으로 셀 때, 회전 d칸의 고정점은 \"d칸 돌려도 같은 색칠\" = 색이 <b>gcd(n,d)개 묶음으로 일정</b>해야 하므로 k^gc(n,d). 따라서 답 = (1/n)Σ(d=0..n−1) k^gcd(n,d). <b>폴리아 열거 정리(Pólya)</b>는 이를 확장해, 각 g를 <b>순환 구조(사이클 수)</b>로 분해하면 Fix(g) = k^(사이클 수)임을 이용하고, 색마다 가중치(생성함수)까지 붙여 \"색을 몇 개씩 쓴 배치 수\"를 셉니다. 쓰임: 목걸이·팔찌(회전+반사, 이면체군), <b>주사위·정육면체 색칠</b>, 화학 이성질체 수, <b>동형이 아닌 그래프</b> 세기 등 \"대칭을 같다고 보는 모든 열거\".",
+  "more": "​대칭을 같게 보고 세기 — <b>번사이드</b>. <b>번사이드 보조정리(Burnside's lemma)</b>는 <b>대칭(군 G의 작용)으로 같아지는 것들을 하나로 묶어 세는</b>(서로 다른 <b>궤도</b>의 개수) 공식입니다: <b>(궤도 수) = (1/|G|) · Σ(g∈G) |Fix(g)|</b>, 여기서 <b>Fix(g)</b>는 변환 g를 적용해도 <b>그대로 유지되는 배치(고정점)의 수</b>입니다. 즉 \"전체 ÷ 대칭 수\"라는 순진한 계산을, <b>각 대칭이 고정하는 수의 평균</b>으로 바로잡은 것입니다(어떤 배치는 회전해도 같아 중복 보정이 다름). 예: 구슬 n개·색 k가지 목걸이를 <b>회전</b>(순환군 Cₙ)으로 셀 때, 회전 d칸의 고정점은 \"d칸 돌려도 같은 색칠\" = 색이 <b>gcd(n,d)개 묶음으로 일정</b>해야 하므로 k^gc(n,d). 따라서 답 = (1/n)Σ(d=0..n−1) k^gcd(n,d). <b>폴리아 열거 정리(Pólya)</b>는 이를 확장해, 각 g를 <b>순환 구조(사이클 수)</b>로 분해하면 Fix(g) = k^(사이클 수)임을 이용하고, 색마다 가중치(생성함수)까지 붙여 \"색을 몇 개씩 쓴 배치 수\"를 셉니다. 쓰임: 목걸이·팔찌(회전+반사, 이면체군), <b>주사위·정육면체 색칠</b>, 화학 이성질체 수, <b>동형이 아닌 그래프</b> 세기 등 \"대칭을 같다고 보는 모든 열거\".",
   "more_en": "<b>Burnside's lemma</b> counts things <b>up to symmetry (a group G's action)</b> — the number of distinct <b>orbits</b>: <b>(number of orbits) = (1/|G|) · Σ(g∈G) |Fix(g)|</b>, where <b>Fix(g)</b> is the number of configurations <b>left unchanged (fixed) by g</b>. It corrects the naive \"total ÷ number of symmetries\" into the <b>average number fixed by each symmetry</b> (some configurations are symmetric, so over-count correction differs). Example: counting necklaces of n beads in k colors under <b>rotation</b> (cyclic group Cₙ), a rotation by d fixes colorings that repeat every gcd(n,d) — so k^gcd(n,d) of them; the answer is (1/n)Σ(d=0..n−1) k^gcd(n,d). <b>Pólya's enumeration theorem</b> extends this by decomposing each g into its <b>cycle structure</b> (Fix(g) = k^(#cycles)) and attaching per-color weights (generating functions) to count configurations using each color a given number of times. Uses: necklaces/bracelets (rotation + reflection, dihedral group), <b>coloring dice/cubes</b>, counting chemical isomers, counting <b>non-isomorphic graphs</b> — any enumeration where symmetric objects are considered the same.",
   "problem": {
    "q": "구슬 4개를 2가지 색으로 칠한 목걸이를 회전 대칭으로 세면 몇 가지인가? 번사이드로.",
@@ -3529,15 +3577,17 @@
    "  count += fixedPoints(g);          // g로 안 변하는 배치 수",
    "return count / group.size();",
    "// 예: 회전·반사하는 목걸이·큐브 색칠 가짓수"
-  ]
+  ],
+  "branchOf": "algo8_07",
+  "ord": 2
  },
  "algo_br_dlx": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "댄싱 링크(DLX) — 정확 덮개 백트래킹",
   "narr": "정확 덮개 백트래킹을 위한 자료구조 기교입니다. 스도쿠·N-퀸·펜토미노는 모두 '<b>각 열을 정확히 한 번씩 덮는 행 집합 찾기</b>'인 정확 덮개 문제입니다. 크누스의 <b>Algorithm X</b>는 ①남은 열 중 1이 가장 적은 열을 고르고(분기 최소화), ②그 열을 덮는 각 행을 시도, ③그 행이 덮는 열들과 그 열들을 덮는 다른 행들을 제거한 뒤 재귀, ④실패하면 복원합니다. 이 '제거→재귀→복원'을 빠르게 하는 구현이 <b>댄싱 링크(DLX)</b>입니다 — 행렬의 1들을 <b>상하·좌우 이중 연결 리스트</b>로 엮으면 노드 제거는 양옆 포인터를 잇기로 <b>O(1)</b>, 복원도 저장한 포인터를 되끼우기로 <b>O(1)</b>입니다. 노드가 빠졌다 들어오며 춤추는 듯해 그 이름입니다. 상태 저장·복원 비용이 거의 없어 백트래킹이 초고속이 됩니다.",
   "hint": "",
-  "more": "<b>정확 덮개(Exact Cover) 문제</b>는 0/1 행렬에서 \"<b>모든 열을 정확히 한 번씩</b> 덮는 행들의 부분집합\"을 찾는 것입니다(여러 퍼즐·배치 문제의 공통 틀). 크누스의 <b>Algorithm X</b>는 이를 백트래킹으로 풉니다: ① 남은 열 중 <b>1이 가장 적은 열</b>을 고르고(분기 수 최소화), ② 그 열을 덮는 각 <b>행을 차례로 해에 넣어 시도</b>, ③ 그 행이 덮는 열들과, 그 열들을 덮는 다른 행들을 <b>행렬에서 제거</b>한 뒤 재귀, ④ 실패하면 <b>되돌리기(복원)</b>. 이 \"제거→재귀→복원\"을 빠르게 하는 구현이 <b>댄싱 링크(Dancing Links, DLX)</b>입니다: 행렬의 1들을 <b>상하·좌우 이중 연결 리스트</b>로 엮어 두면, 한 노드를 제거하는 건 양옆 포인터를 이어 주기(node.left.right = node.right …)로 <b>O(1)</b>이고, 복원도 저장해 둔 포인터를 <b>되돌려 끼우기</b>로 O(1)입니다 — 노드가 빠졌다 들어왔다 \"춤추는\" 듯해 이름이 그렇습니다. 덕분에 백트래킹의 상태 저장·복원 비용이 거의 없어 <b>스도쿠·N-퀸·폴리오미노 채우기</b> 같은 정확 덮개를 매우 빠르게 풉니다. 본질은 알고리즘이 아니라 <b>백트래킹을 위한 자료구조 기교</b>(제거·복원 O(1))입니다.",
+  "more": "​정확 덮개를 <b>댄싱 링크(DLX)</b>로. <b>정확 덮개(Exact Cover) 문제</b>는 0/1 행렬에서 \"<b>모든 열을 정확히 한 번씩</b> 덮는 행들의 부분집합\"을 찾는 것입니다(여러 퍼즐·배치 문제의 공통 틀). 크누스의 <b>Algorithm X</b>는 이를 백트래킹으로 풉니다: ① 남은 열 중 <b>1이 가장 적은 열</b>을 고르고(분기 수 최소화), ② 그 열을 덮는 각 <b>행을 차례로 해에 넣어 시도</b>, ③ 그 행이 덮는 열들과, 그 열들을 덮는 다른 행들을 <b>행렬에서 제거</b>한 뒤 재귀, ④ 실패하면 <b>되돌리기(복원)</b>. 이 \"제거→재귀→복원\"을 빠르게 하는 구현이 <b>댄싱 링크(Dancing Links, DLX)</b>입니다: 행렬의 1들을 <b>상하·좌우 이중 연결 리스트</b>로 엮어 두면, 한 노드를 제거하는 건 양옆 포인터를 이어 주기(node.left.right = node.right …)로 <b>O(1)</b>이고, 복원도 저장해 둔 포인터를 <b>되돌려 끼우기</b>로 O(1)입니다 — 노드가 빠졌다 들어왔다 \"춤추는\" 듯해 이름이 그렇습니다. 덕분에 백트래킹의 상태 저장·복원 비용이 거의 없어 <b>스도쿠·N-퀸·폴리오미노 채우기</b> 같은 정확 덮개를 매우 빠르게 풉니다. 본질은 알고리즘이 아니라 <b>백트래킹을 위한 자료구조 기교</b>(제거·복원 O(1))입니다.",
   "more_en": "The <b>Exact Cover</b> problem asks, in a 0/1 matrix, for a <b>subset of rows that covers every column exactly once</b> — the common frame for many puzzles and placement problems. Knuth's <b>Algorithm X</b> solves it by backtracking: ① pick the <b>column with the fewest 1s</b> (minimize branching), ② try each <b>row covering that column</b> in the partial solution, ③ <b>remove from the matrix</b> the columns that row covers and the other rows covering those columns, then recurse, ④ on failure <b>undo (restore)</b>. The implementation that makes \"remove → recurse → restore\" fast is <b>Dancing Links (DLX)</b>: link the matrix's 1s into <b>up/down and left/right doubly linked lists</b>, so removing a node is just splicing neighbor pointers (node.left.right = node.right …) in <b>O(1)</b>, and restoring re-inserts the saved pointers in O(1) — nodes \"dance\" out and back, hence the name. With near-free state save/restore, backtracking flies through exact-cover problems like <b>Sudoku, N-Queens, polyomino tiling</b>. The essence is not an algorithm but a <b>data-structure trick for backtracking</b> (O(1) remove/restore).",
   "problem": {
    "q": "댄싱 링크가 백트래킹을 빠르게 만드는 핵심 기교는?",
@@ -3558,15 +3608,17 @@
    "  }",
    "  uncover(c);",
    "}   // 스도쿠·N퀸·타일링"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 10
  },
  "algo_br_berlekamp": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "벨캄프-매시 — 수열에서 점화식 역추적",
   "narr": "동적 계획법 응용의 점화식 역추적 알고리즘입니다. 수열 1,1,2,3,5,8,…을 보고 사람은 직관으로 aₙ=aₙ₋₁+aₙ₋₂를 알지만, <b>벨캄프-매시</b>는 이를 자동으로, 그것도 <b>가장 짧은 선형 점화식</b>으로 복원합니다. 항을 <b>왼쪽부터 하나씩</b> 보며 현재 점화식으로 다음 항을 예측하고, <b>예측이 틀리면(불일치)</b> 이전 실패 지점의 정보로 점화식을 <b>최소 길이로 보정</b>합니다 — 길이를 늘려야 할 때만 늘려 항상 최단을 유지하는 것이 핵심입니다(LFSR 최소 길이 찾기와 동일). 길이 L 점화식이면 <b>2L개 항</b>이면 완전히 복원되고 시간은 <b>O(L²)</b>입니다. DP 수열 50~100항을 모듈러로 계산해 점화식을 복원한 뒤, 키타마사나 행렬 거듭제곱으로 거대한 N번째 항을 구합니다. 오류정정부호 복호의 핵심이기도 합니다.",
   "hint": "",
-  "more": "<b>벨캄프-매시(Berlekamp-Massey)</b>는 수열의 처음 몇 항만 보고, 그 수열을 생성하는 <b>최단 선형 점화식</b> aₙ = c₁aₙ₋₁ + c₂aₙ₋₂ + … + c_L a_{n−L} 의 계수 cᵢ와 차수 L을 <b>O(L²)</b>(또는 항 수 m에 대해 O(mL))에 찾습니다. 원리: 항을 <b>왼쪽부터 하나씩</b> 보며 현재 점화식으로 다음 항을 예측하고, <b>예측이 틀리면(불일치, discrepancy)</b> 이전에 실패했던 지점의 정보를 이용해 점화식을 <b>최소 길이로 보정</b>합니다 — 길이를 늘려야 할 때만 늘려 항상 최단을 유지하는 것이 핵심(LFSR, 선형 되먹임 시프트 레지스터의 최소 길이 찾기와 동일). 길이 L짜리 점화식이라면 <b>2L개의 항</b>만 있으면 완전히 복원됩니다. 활용 흐름: ① 어떤 DP/조합 수열의 처음 ~50~100항을 (모듈러로) 계산 → ② 벨캄프-매시로 점화식 복원 → ③ <b>키타마사(Kitamasa)</b>법이나 <b>행렬 거듭제곱</b>으로 거대한 N번째 항을 O(L² log N) 또는 O(L³ log N)에 계산. 쓰임: 점화식을 모르는 수열의 N번째 항 구하기(경쟁 프로그래밍의 강력한 \"치트\"), 모듈러 선형대수(희소 행렬의 최소다항식, 위드만 알고리즘), <b>오류정정부호</b>(BCH·리드-솔로몬 복호의 핵심)입니다.",
+  "more": "​수열에서 점화식을 역추적 — <b>벨캄프-매시</b>. <b>벨캄프-매시(Berlekamp-Massey)</b>는 수열의 처음 몇 항만 보고, 그 수열을 생성하는 <b>최단 선형 점화식</b> aₙ = c₁aₙ₋₁ + c₂aₙ₋₂ + … + c_L a_{n−L} 의 계수 cᵢ와 차수 L을 <b>O(L²)</b>(또는 항 수 m에 대해 O(mL))에 찾습니다. 원리: 항을 <b>왼쪽부터 하나씩</b> 보며 현재 점화식으로 다음 항을 예측하고, <b>예측이 틀리면(불일치, discrepancy)</b> 이전에 실패했던 지점의 정보를 이용해 점화식을 <b>최소 길이로 보정</b>합니다 — 길이를 늘려야 할 때만 늘려 항상 최단을 유지하는 것이 핵심(LFSR, 선형 되먹임 시프트 레지스터의 최소 길이 찾기와 동일). 길이 L짜리 점화식이라면 <b>2L개의 항</b>만 있으면 완전히 복원됩니다. 활용 흐름: ① 어떤 DP/조합 수열의 처음 ~50~100항을 (모듈러로) 계산 → ② 벨캄프-매시로 점화식 복원 → ③ <b>키타마사(Kitamasa)</b>법이나 <b>행렬 거듭제곱</b>으로 거대한 N번째 항을 O(L² log N) 또는 O(L³ log N)에 계산. 쓰임: 점화식을 모르는 수열의 N번째 항 구하기(경쟁 프로그래밍의 강력한 \"치트\"), 모듈러 선형대수(희소 행렬의 최소다항식, 위드만 알고리즘), <b>오류정정부호</b>(BCH·리드-솔로몬 복호의 핵심)입니다.",
   "more_en": "<b>Berlekamp-Massey</b> recovers, from the first few terms of a sequence, the <b>shortest linear recurrence</b> aₙ = c₁aₙ₋₁ + … + c_L a_{n−L} generating it — finding the coefficients cᵢ and order L in <b>O(L²)</b> (or O(mL) for m terms). Principle: scan terms <b>left to right</b>, predicting the next term with the current recurrence; when the <b>prediction is wrong (a discrepancy)</b>, use information from the previous failure point to <b>correct the recurrence by the minimum amount</b>, growing its length only when necessary so it stays shortest (identical to finding the minimal-length LFSR — linear feedback shift register). A length-L recurrence is fully recovered from just <b>2L terms</b>. Typical flow: ① compute the first ~50-100 terms of some DP/combinatorial sequence (modularly), ② recover the recurrence with Berlekamp-Massey, ③ evaluate a huge N-th term in O(L² log N) via <b>Kitamasa</b> or O(L³ log N) via <b>matrix exponentiation</b>. Uses: finding the N-th term of a sequence with unknown recurrence (a powerful competitive-programming \"cheat\"), modular linear algebra (minimal polynomial of a sparse matrix, Wiedemann's algorithm), and <b>error-correcting codes</b> (the core of BCH and Reed-Solomon decoding).",
   "problem": {
    "q": "길이 L인 선형 점화식을 벨캄프-매시로 복원하려면 항이 최소 몇 개 필요한가? 이유는?",
@@ -3584,7 +3636,9 @@
    "    C = C - (delta/b) * x^(i-m) * B;  // 보정",
    "  }",
    "}   // O(n^2). 수열의 차수 복원"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 10
  },
  "algo_br_virtualtree": {
   "ch": "알고리즘 제5장 트리",
@@ -3676,11 +3730,11 @@
  },
  "algo_br_knuthopt": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "크누스 최적화 — 최적 분기점의 단조성",
   "narr": "구간 DP dp[i][j] = min over k ( dp[i][k] + dp[k+1][j] ) + C(i,j) 는 분기점 k를 전부 보면 <b>O(n³)</b>입니다. <b>크누스 최적화</b>는 비용 C가 <b>사각부등식</b>을 만족하면 최적 분기점 opt[i][j]가 <b>단조</b>(opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j])하다는 성질을 씁니다. 그래서 k를 0..n−1 전부가 아니라 <b>opt[i][j−1]부터 opt[i+1][j]까지</b>만 봅니다. 대각선(길이 순)으로 채우면 같은 길이의 범위 합이 <b>telescoping되어 한 대각선당 O(n)</b>, 모두 합쳐 <b>O(n²)</b>가 됩니다. 최적 BST·돌 합치기 같은 비용 DP를 한 차수 빠르게 만드는 단조성 가속입니다.",
   "hint": "",
-  "more": "<b>크누스 최적화(Knuth's optimization)</b>는 특정 <b>구간 DP</b>를 <b>O(n³) → O(n²)</b>로 가속합니다. 대상은 dp[i][j] = min(i ≤ k < j) ( dp[i][k] + dp[k+1][j] ) + C(i, j) 꼴(구간을 둘로 쪼개 합치는 비용 DP, 예: 최적 이진 탐색 트리, 파일/돌 합치기). 비용 C가 <b>사각부등식(quadrangle inequality)</b> C(a,c)+C(b,d) ≤ C(a,d)+C(b,c) (a≤b≤c≤d)와 단조성을 만족하면, 최적 분기점 <b>opt[i][j]</b>(dp[i][j]를 최소화하는 k)가 <b>단조</b>합니다: <b>opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]</b>. 따라서 dp[i][j]를 계산할 때 k를 0..n−1 전부 시도하지 말고 <b>opt[i][j−1]부터 opt[i+1][j]까지</b>만 보면 됩니다. 대각선(길이 순)으로 채우면서 각 길이에서 이 범위들의 <b>합이 telescoping되어 O(n)</b>, 모든 칸 합쳐 <b>O(n²)</b>. 같은 단조성 아이디어의 친척: <b>분할 정복 최적화</b>(opt가 행을 따라 단조 → 분할 정복으로 O(n² log n) 또는 층 DP), <b>SMAWK / 1D1D</b>. 핵심은 \"최적 결정점이 입력이 커질 때 뒤로만 간다\"는 단조성을 증명해 탐색을 잘라내는 것입니다.",
+  "more": "​사각부등식이면 <b>크누스 최적화</b>로 O(n²). <b>크누스 최적화(Knuth's optimization)</b>는 특정 <b>구간 DP</b>를 <b>O(n³) → O(n²)</b>로 가속합니다. 대상은 dp[i][j] = min(i ≤ k < j) ( dp[i][k] + dp[k+1][j] ) + C(i, j) 꼴(구간을 둘로 쪼개 합치는 비용 DP, 예: 최적 이진 탐색 트리, 파일/돌 합치기). 비용 C가 <b>사각부등식(quadrangle inequality)</b> C(a,c)+C(b,d) ≤ C(a,d)+C(b,c) (a≤b≤c≤d)와 단조성을 만족하면, 최적 분기점 <b>opt[i][j]</b>(dp[i][j]를 최소화하는 k)가 <b>단조</b>합니다: <b>opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]</b>. 따라서 dp[i][j]를 계산할 때 k를 0..n−1 전부 시도하지 말고 <b>opt[i][j−1]부터 opt[i+1][j]까지</b>만 보면 됩니다. 대각선(길이 순)으로 채우면서 각 길이에서 이 범위들의 <b>합이 telescoping되어 O(n)</b>, 모든 칸 합쳐 <b>O(n²)</b>. 같은 단조성 아이디어의 친척: <b>분할 정복 최적화</b>(opt가 행을 따라 단조 → 분할 정복으로 O(n² log n) 또는 층 DP), <b>SMAWK / 1D1D</b>. 핵심은 \"최적 결정점이 입력이 커질 때 뒤로만 간다\"는 단조성을 증명해 탐색을 잘라내는 것입니다.",
   "more_en": "<b>Knuth's optimization</b> speeds up certain <b>interval DPs</b> from <b>O(n³) to O(n²)</b>. It targets dp[i][j] = min(i ≤ k < j) ( dp[i][k] + dp[k+1][j] ) + C(i, j) (split-an-interval merge-cost DPs, e.g. optimal binary search tree, file/stone merging). If the cost C satisfies the <b>quadrangle inequality</b> C(a,c)+C(b,d) ≤ C(a,d)+C(b,c) (a≤b≤c≤d) and monotonicity, then the optimal split point <b>opt[i][j]</b> (the k minimizing dp[i][j]) is <b>monotone</b>: <b>opt[i][j−1] ≤ opt[i][j] ≤ opt[i+1][j]</b>. So when computing dp[i][j] you only try k from <b>opt[i][j−1] to opt[i+1][j]</b> instead of all 0..n−1. Filling by diagonals (increasing length), these ranges <b>telescope to O(n) per length</b>, giving <b>O(n²)</b> overall. Relatives of the same monotonicity idea: <b>divide-and-conquer optimization</b> (opt monotone along rows → D&C for O(n² log n) layered DP) and <b>SMAWK / 1D1D</b>. The core is proving the optimal decision point only moves forward as the input grows, pruning the search.",
   "problem": {
    "q": "크누스 최적화에서 분기점 후보를 opt[i][j−1]..opt[i+1][j]로 좁히는데, 전체 시간이 왜 O(n²)인가?",
@@ -3698,15 +3752,17 @@
    "        dp[i][j]=...; opt[i][j]=k; }",
    "  }",
    "// O(n^2) (O(n^3) → 줄임)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 4
  },
  "algo_br_aliens": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "Aliens 트릭(WQS 이분) — '정확히 k개' 제약 풀기",
   "narr": "정확히 <b>k번</b> 분할·선택하라는 제약이 붙으면 DP 상태에 횟수를 더해 dp[i][used]가 되어 비싸집니다. <b>Aliens 트릭(WQS 이분)</b>은 라그랑주 완화의 이산판으로, 행동 한 번마다 <b>벌점 λ</b>를 매겨 제약을 떼어 낸 빠른 무제약 DP g(λ)를 풉니다. λ를 키울수록 최적해가 행동을 덜 쓰므로 <b>최적 개수가 λ에 단조 감소</b>합니다. 그래서 <b>λ를 이분 탐색</b>해 개수가 k가 되는 λ를 찾고 벌점을 되돌리면 원래 답이 나옵니다. 성립 전제는 f(k)가 <b>볼록</b>이라 접선이 각 k에 일대일 대응한다는 것입니다. 제약 차원을 이분 탐색 한 번으로 바꾸는 강력한 변환입니다.",
   "hint": "",
-  "more": "<b>Aliens 트릭(WQS 이분 탐색, 라그랑주 완화의 이산 버전)</b>은 \"<b>어떤 행동을 정확히 k번</b> 하라\"는 제약이 붙은 최적화 DP를 푸는 기법입니다. 보통은 상태에 \"지금까지 몇 번 했는지\"를 추가해 dp[i][used]가 되어 비싸집니다(예: 배열을 정확히 k개 구간으로 분할하는 최소 비용). 대신, <b>행동 한 번마다 벌점(또는 보상) λ를 부과</b>해 제약을 떼어 낸 <b>제약 없는 DP</b> g(λ)를 풉니다 — 이건 빠릅니다(개수 추적 불필요). 그러면 <b>λ를 키울수록 최적해가 행동을 적게 쓰게 되어, 최적 행동 개수가 λ에 대해 단조</b> 감소합니다. 따라서 <b>λ를 이분 탐색</b>해 \"최적 개수 = k\"가 되는 λ를 찾고, 그때의 값에서 벌점 보정을 되돌리면 원래 제약 문제의 답이 나옵니다. 작동 전제: 목적함수 f(k)(정확히 k번일 때의 최적값)가 <b>k에 대해 볼록(또는 오목)</b> — 그래야 \"기울기 −λ인 접선이 닿는 점\"이 k와 일대일 대응합니다(볼록 껍질 위의 점을 기울기로 고르는 것과 같음). 정수 k에서 접선이 평평한 구간(같은 λ가 여러 k에 대응)을 만나는 경계 처리에 주의가 필요합니다. 이름은 <b>IOI 2016 \"Aliens\"</b> 문제에서 유래. 쓰임: 정확히 k개 분할/그룹화 DP, 정확히 k개 선택 매칭, k개 구간으로 덮기 등 — \"제약 차원\"을 \"이분 탐색 한 번\"으로 바꾸는 강력한 변환입니다.",
+  "more": "​'정확히 k개' 제약을 이분으로 — <b>Aliens 트릭</b>. <b>Aliens 트릭(WQS 이분 탐색, 라그랑주 완화의 이산 버전)</b>은 \"<b>어떤 행동을 정확히 k번</b> 하라\"는 제약이 붙은 최적화 DP를 푸는 기법입니다. 보통은 상태에 \"지금까지 몇 번 했는지\"를 추가해 dp[i][used]가 되어 비싸집니다(예: 배열을 정확히 k개 구간으로 분할하는 최소 비용). 대신, <b>행동 한 번마다 벌점(또는 보상) λ를 부과</b>해 제약을 떼어 낸 <b>제약 없는 DP</b> g(λ)를 풉니다 — 이건 빠릅니다(개수 추적 불필요). 그러면 <b>λ를 키울수록 최적해가 행동을 적게 쓰게 되어, 최적 행동 개수가 λ에 대해 단조</b> 감소합니다. 따라서 <b>λ를 이분 탐색</b>해 \"최적 개수 = k\"가 되는 λ를 찾고, 그때의 값에서 벌점 보정을 되돌리면 원래 제약 문제의 답이 나옵니다. 작동 전제: 목적함수 f(k)(정확히 k번일 때의 최적값)가 <b>k에 대해 볼록(또는 오목)</b> — 그래야 \"기울기 −λ인 접선이 닿는 점\"이 k와 일대일 대응합니다(볼록 껍질 위의 점을 기울기로 고르는 것과 같음). 정수 k에서 접선이 평평한 구간(같은 λ가 여러 k에 대응)을 만나는 경계 처리에 주의가 필요합니다. 이름은 <b>IOI 2016 \"Aliens\"</b> 문제에서 유래. 쓰임: 정확히 k개 분할/그룹화 DP, 정확히 k개 선택 매칭, k개 구간으로 덮기 등 — \"제약 차원\"을 \"이분 탐색 한 번\"으로 바꾸는 강력한 변환입니다.",
   "more_en": "<b>The Aliens trick (WQS binary search, a discrete Lagrangian relaxation)</b> solves optimization DPs constrained to \"do some action <b>exactly k times</b>.\" Normally you add \"how many used so far\" to the state, making dp[i][used] expensive (e.g. minimum cost to split an array into exactly k segments). Instead, <b>charge a penalty (or reward) λ per action</b> to drop the constraint and solve an <b>unconstrained DP</b> g(λ) — which is fast (no count to track). Then <b>raising λ makes the optimum use fewer actions, so the optimal action count is monotone in λ</b>. So <b>binary search λ</b> to find where \"optimal count = k,\" and undo the penalty to recover the constrained answer. Prerequisite: the objective f(k) (optimum given exactly k actions) is <b>convex (or concave) in k</b> — so a tangent of slope −λ touches a unique point k (like picking a point on a convex hull by slope). Care is needed at integer k where the tangent is flat (one λ maps to several k). The name comes from the <b>IOI 2016 \"Aliens\"</b> problem. Uses: exactly-k partition/grouping DPs, exactly-k selection matchings, covering with k intervals — a powerful transform turning a \"constraint dimension\" into \"one binary search.\"",
   "problem": {
    "q": "Aliens 트릭이 성립하려면 목적함수 f(k)가 어떤 성질을 가져야 하며, 그 이유는?",
@@ -3724,7 +3780,9 @@
    "  if(used >= k) lo = lam; else hi = lam;",
    "}",
    "// 답 = cost + λ·k"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 7
  },
  "algo_br_bitset": {
   "ch": "알고리즘 제2장 자료구조",
@@ -4007,11 +4065,11 @@
  },
  "algo_br_smawk": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "SMAWK — 완전단조 행렬의 행별 최솟값을 선형에",
   "narr": "각 행의 최솟값을 찾으려면 보통 모든 칸 <b>O(nm)</b>을 봐야 합니다. 그러나 행렬이 <b>완전단조</b>(행 최솟값 위치 argmin이 행 따라 단조 증가, 모든 부분행렬도)하면 <b>SMAWK</b>가 <b>O(n+m)</b>에 모든 행 최솟값을 구합니다. 두 절차로 됩니다. ① <b>REDUCE</b>는 어느 행에서도 최소가 못 되는 쓸모없는 열을 스택으로 골라내 열 수를 행 수 이하로 줄이고, ② <b>홀수 행만 재귀</b>로 풀면 짝수 행 최솟값은 <b>이웃 홀수 행의 argmin 사이</b>에만 있어 좁게 탐색합니다. 재귀가 행을 절반씩 줄이고 각 단계가 선형이라 <b>O(n+m)</b>입니다. 크누스·분할정복 최적화로도 안 떨어지는 1D1D DP를 푸는, 기하적 단조성의 극한입니다.",
   "hint": "",
-  "more": "<b>SMAWK 알고리즘</b>은 <b>완전단조(totally monotone) 행렬</b>에서 <b>각 행의 최솟값(또는 최댓값)</b>을 <b>O(n+m)</b>(n행, m열)에 구합니다. <b>단조 행렬</b>이란 i번째 행의 최솟값 열 위치를 argmin(i)라 할 때, <b>argmin이 행이 커질수록 단조 증가</b>(argmin(1) ≤ argmin(2) ≤ …)하는 행렬이고, <b>완전단조</b>는 모든 부분행렬이 단조인(더 강한) 조건입니다. 핵심 절차 두 가지: ① <b>REDUCE</b> — 어느 행의 최솟값도 될 수 없는 \"쓸모없는 열\"을 스택으로 골라내, 열 수를 행 수 이하로 줄임(완전단조성으로 \"이 열은 이미 진 열\"을 O(1)에 판정), ② <b>홀수 행만 재귀</b>로 최솟값을 구한 뒤, <b>짝수 행은 위·아래 홀수 행의 argmin 사이</b>(단조성으로 그 범위 안에 있음)에서만 선형 탐색. 재귀가 행을 절반씩 줄이고 각 단계가 선형이라 전체 <b>O(n+m)</b>. 쓰임: 분할정복 최적화·크누스 최적화로도 안 떨어지는 <b>1D1D DP</b>(비용이 완전단조일 때), 최소 넓이/둘레 문제, 가장 가까운 점·다각형 문제, 동적 계획 전이 최소화. \"행마다 최솟값 위치가 뒤로만 간다\"는 기하적 단조성을 끝까지 활용한 선형 알고리즘입니다.",
+  "more": "​완전단조 행렬 행별 최소를 선형에 — <b>SMAWK</b>. <b>SMAWK 알고리즘</b>은 <b>완전단조(totally monotone) 행렬</b>에서 <b>각 행의 최솟값(또는 최댓값)</b>을 <b>O(n+m)</b>(n행, m열)에 구합니다. <b>단조 행렬</b>이란 i번째 행의 최솟값 열 위치를 argmin(i)라 할 때, <b>argmin이 행이 커질수록 단조 증가</b>(argmin(1) ≤ argmin(2) ≤ …)하는 행렬이고, <b>완전단조</b>는 모든 부분행렬이 단조인(더 강한) 조건입니다. 핵심 절차 두 가지: ① <b>REDUCE</b> — 어느 행의 최솟값도 될 수 없는 \"쓸모없는 열\"을 스택으로 골라내, 열 수를 행 수 이하로 줄임(완전단조성으로 \"이 열은 이미 진 열\"을 O(1)에 판정), ② <b>홀수 행만 재귀</b>로 최솟값을 구한 뒤, <b>짝수 행은 위·아래 홀수 행의 argmin 사이</b>(단조성으로 그 범위 안에 있음)에서만 선형 탐색. 재귀가 행을 절반씩 줄이고 각 단계가 선형이라 전체 <b>O(n+m)</b>. 쓰임: 분할정복 최적화·크누스 최적화로도 안 떨어지는 <b>1D1D DP</b>(비용이 완전단조일 때), 최소 넓이/둘레 문제, 가장 가까운 점·다각형 문제, 동적 계획 전이 최소화. \"행마다 최솟값 위치가 뒤로만 간다\"는 기하적 단조성을 끝까지 활용한 선형 알고리즘입니다.",
   "more_en": "<b>SMAWK</b> finds the <b>minimum (or maximum) of each row</b> of a <b>totally monotone matrix</b> in <b>O(n+m)</b> (n rows, m columns). A <b>monotone matrix</b> has its row-minimum column positions argmin(i) <b>non-decreasing as the row grows</b> (argmin(1) ≤ argmin(2) ≤ …); <b>totally monotone</b> (stronger) means every submatrix is monotone. Two key steps: ① <b>REDUCE</b> — use a stack to discard \"dead columns\" that can't be any row's minimum, shrinking columns to at most the number of rows (total monotonicity lets you判 a column \"already lost\" in O(1)); ② <b>recurse on odd rows only</b> to find their minima, then for <b>even rows search only between the argmins of the neighboring odd rows</b> (monotonicity bounds them there). The recursion halves the rows and each step is linear, giving <b>O(n+m)</b>. Uses: <b>1D1D DP</b> that divide-and-conquer or Knuth optimization can't handle (when the cost is totally monotone), minimum area/perimeter problems, closest-point/polygon problems, minimizing DP transitions. A linear algorithm that fully exploits the geometric monotonicity \"each row's minimum only moves forward.\"",
   "problem": {
    "q": "SMAWK가 행렬의 행별 최솟값을 O(nm)이 아닌 O(n+m)에 구할 수 있는 전제와 그 이유는?",
@@ -4029,7 +4087,9 @@
    "  smawk(evenRows, cols);          // 재귀",
    "  interpolateOddRows();",
    "}   // DP 최적화에 활용"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 5
  },
  "algo_br_dinkelbach": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -4138,11 +4198,11 @@
  },
  "algo_br_xorbasis": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "XOR 선형 기저 — 부분집합 XOR의 전부",
   "narr": "여러 수 중 일부를 골라 <b>XOR</b>해 만들 수 있는 값 전체를 다루는 것이 <b>XOR 선형 기저</b>입니다. 각 정수를 GF(2) 위 비트 벡터로 보면 부분집합 XOR은 선형결합이라, 기저 구하기가 <b>가우스 소거의 XOR판</b>이 됩니다. 새 수 x를 넣을 때 <b>최상위 켜진 비트</b>부터 기저가 있으면 x ^= basis[비트]로 지우고 내려가다, 0이 안 되면 그 자리에 새 기저로 추가합니다(선두 비트가 서로 다른 사다리꼴). 기저 크기가 k이면 만들 수 있는 값은 정확히 <b>2ᵏ개</b>이고 각 값 표현이 유일합니다(k개 벡터가 선형독립). 최대 XOR은 큰 비트부터 탐욕적으로, 특정값 가능여부는 소거로 0인지로 답합니다. 삽입·질의 O(B)로 부분집합 최대/최소 XOR·경로 XOR에 쓰입니다.",
   "hint": "",
-  "more": "<b>XOR 선형 기저(linear basis over GF(2))</b>는 정수 집합에서 \"<b>부분집합의 XOR로 만들 수 있는 모든 값</b>\"을 다루는 자료구조입니다. 각 정수를 <b>비트 벡터</b>(2원체 GF(2) 위의 벡터)로 보면, 부분집합 XOR은 <b>벡터들의 선형결합</b>이라 선형대수가 그대로 적용됩니다 — 기저를 구하는 건 <b>가우스 소거의 XOR판</b>. 구현: 배열 basis[비트]를 두고, 새 수 x를 넣을 때 x의 <b>최상위 켜진 비트</b>부터 보며 그 비트의 기저가 있으면 <b>x ^= basis[비트]</b>로 그 비트를 지우고 내려갑니다. 끝까지 0이 안 되면(새로운 최상위 비트가 남으면) 그 자리에 x를 새 기저로 추가합니다(선두 비트가 서로 다른 \"기약행 사다리꼴\"). 성질: 기저 크기가 k이면 만들 수 있는 서로 다른 XOR 값은 정확히 <b>2ᵏ개</b>이며, 각 값은 기저의 부분집합 XOR로 <b>유일</b>하게 표현됩니다. 질의: <b>최대 XOR</b> = 큰 비트 기저부터 \"XOR하면 답이 커지면\" 탐욕적으로 적용, <b>특정값 가능여부</b> = 그 값을 기저로 소거해 0이 되는지, <b>k번째로 작은 XOR값</b> = k의 비트로 기저 선택. 쓰임: 부분집합 최대/최소 XOR, XOR 방정식 해 개수, 경로 XOR 질의(트리에서 DFS XOR + 사이클 기저). 시간은 값 비트수 B에 대해 삽입·질의 O(B).",
+  "more": "​부분집합 XOR의 전부 — <b>XOR 선형 기저</b>. <b>XOR 선형 기저(linear basis over GF(2))</b>는 정수 집합에서 \"<b>부분집합의 XOR로 만들 수 있는 모든 값</b>\"을 다루는 자료구조입니다. 각 정수를 <b>비트 벡터</b>(2원체 GF(2) 위의 벡터)로 보면, 부분집합 XOR은 <b>벡터들의 선형결합</b>이라 선형대수가 그대로 적용됩니다 — 기저를 구하는 건 <b>가우스 소거의 XOR판</b>. 구현: 배열 basis[비트]를 두고, 새 수 x를 넣을 때 x의 <b>최상위 켜진 비트</b>부터 보며 그 비트의 기저가 있으면 <b>x ^= basis[비트]</b>로 그 비트를 지우고 내려갑니다. 끝까지 0이 안 되면(새로운 최상위 비트가 남으면) 그 자리에 x를 새 기저로 추가합니다(선두 비트가 서로 다른 \"기약행 사다리꼴\"). 성질: 기저 크기가 k이면 만들 수 있는 서로 다른 XOR 값은 정확히 <b>2ᵏ개</b>이며, 각 값은 기저의 부분집합 XOR로 <b>유일</b>하게 표현됩니다. 질의: <b>최대 XOR</b> = 큰 비트 기저부터 \"XOR하면 답이 커지면\" 탐욕적으로 적용, <b>특정값 가능여부</b> = 그 값을 기저로 소거해 0이 되는지, <b>k번째로 작은 XOR값</b> = k의 비트로 기저 선택. 쓰임: 부분집합 최대/최소 XOR, XOR 방정식 해 개수, 경로 XOR 질의(트리에서 DFS XOR + 사이클 기저). 시간은 값 비트수 B에 대해 삽입·질의 O(B).",
   "more_en": "An <b>XOR linear basis (over GF(2))</b> handles \"<b>all values formable as the XOR of a subset</b>\" of a set of integers. Viewing each integer as a <b>bit vector</b> over GF(2), subset-XOR is a <b>linear combination</b>, so linear algebra applies directly — building the basis is <b>Gaussian elimination in XOR form</b>. Implementation: keep basis[bit]; to insert x, scan from x's <b>highest set bit</b>; if that bit has a basis vector, do <b>x ^= basis[bit]</b> to clear it and continue down. If x never reaches 0 (a new top bit remains), add x as a new basis vector there (a reduced row echelon form with distinct leading bits). Properties: a basis of size k forms exactly <b>2ᵏ</b> distinct XOR values, each <b>uniquely</b> as a subset-XOR of the basis. Queries: <b>maximum XOR</b> = greedily apply basis vectors from the high bit if they increase the answer; <b>is value v reachable</b> = reduce v by the basis and check it hits 0; <b>k-th smallest XOR</b> = pick basis vectors by k's bits. Uses: subset max/min XOR, counting solutions of XOR equations, path-XOR queries on trees (DFS XOR + cycle basis). Time is O(B) per insert/query for B value bits.",
   "problem": {
    "q": "수들의 XOR 선형 기저 크기가 k일 때, 부분집합 XOR로 만들 수 있는 서로 다른 값은 몇 개인가?",
@@ -4158,7 +4218,9 @@
    "    x ^= basis[b];                 // 소거",
    "  }",
    "}   // 최대 XOR: 기저를 높은 비트부터 탐욕 XOR"
-  ]
+  ],
+  "branchOf": "algo8_07",
+  "ord": 4
  },
  "algo_br_stablematch": {
   "ch": "알고리즘 제6장 그래프",
@@ -4215,11 +4277,11 @@
  },
  "algo_br_partition": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "정수 분할 — n을 합으로 쪼개는 가짓수",
   "narr": "4 = 3+1 = 2+2 = 2+1+1 = 1+1+1+1, 다섯 가지처럼 <b>순서 무관하게</b> n을 양의 정수 합으로 적는 방법의 수 <b>p(n)</b>가 정수 분할입니다. DP는 <b>dp[i][s] = dp[i−1][s] + dp[i][s−i]</b>로, 부품 i를 <b>바깥 루프</b>로 한 번씩만 도입하면 (2+1)과 (1+2)를 같은 것으로 한 번만 세어 순서 중복이 제거됩니다 — 정확히 <b>동전 교환의 가짓수 점화식</b>과 같습니다. 1차원으로 줄여 O(n) 공간이고, <b>오일러 오각수 정리</b>를 쓰면 O(n√n)까지 빨라집니다. <b>페러스 점 그림</b>을 전치하면 켤레 분할이 되어 분할 개수 항등식이 한눈에 보입니다. 서로 다른 부분·홀수 부분 같은 변형이 있습니다.",
   "hint": "",
-  "more": "<b>정수 분할(integer partition)</b>은 양의 정수 n을 <b>순서를 무시하고</b> 양의 정수들의 합으로 나타내는 방법의 수 <b>p(n)</b>을 구하는 문제입니다(p(1)=1, p(2)=2, p(3)=3, p(4)=5, p(5)=7, …). 순서를 따지지 않으므로 3+1과 1+3은 같은 분할입니다. <b>DP</b>: \"1..i의 정수만 사용해 s를 만드는 분할 수\" <b>dp[i][s] = dp[i−1][s](i를 안 씀) + dp[i][s−i](i를 적어도 하나 씀)</b> — 정확히 <b>동전 교환(중복 허용)에서 \"가짓수\"를 세는 점화식</b>과 같습니다(부품 1..n을 한 번씩 바깥 루프로 누적해 순서 중복을 제거). O(n²) 또는 O(n²) 공간을 1차원으로 줄여 O(n) 공간. 더 빠른 길: <b>오일러의 오각수 정리(pentagonal number theorem)</b>로 p(n) = Σ (−1)^(k−1) [ p(n − g_k) + p(n − g_k') ] (g_k=오각수)를 쓰면 <b>O(n√n)</b>. 생성함수로는 <b>p(n) = [xⁿ] ∏_{k≥1} 1/(1−xᵏ)</b>. 시각화 도구는 <b>페러스(Ferrers) 점 그림</b>: 각 분할을 행으로 점을 찍어 그리며, 그림을 <b>전치(전치=대각선 뒤집기)</b>하면 <b>켤레 분할</b>이 되어 \"부분 개수 ≤ k인 분할 수 = 각 부분 ≤ k인 분할 수\" 같은 항등식이 한눈에 보입니다. 변형: 서로 다른 부분만(distinct parts), 홀수 부분만(=서로 다른 부분과 같음, 오일러 항등식), 부분 수 제한.",
+  "more": "​n을 합으로 쪼개는 가짓수 — <b>정수 분할</b>. <b>정수 분할(integer partition)</b>은 양의 정수 n을 <b>순서를 무시하고</b> 양의 정수들의 합으로 나타내는 방법의 수 <b>p(n)</b>을 구하는 문제입니다(p(1)=1, p(2)=2, p(3)=3, p(4)=5, p(5)=7, …). 순서를 따지지 않으므로 3+1과 1+3은 같은 분할입니다. <b>DP</b>: \"1..i의 정수만 사용해 s를 만드는 분할 수\" <b>dp[i][s] = dp[i−1][s](i를 안 씀) + dp[i][s−i](i를 적어도 하나 씀)</b> — 정확히 <b>동전 교환(중복 허용)에서 \"가짓수\"를 세는 점화식</b>과 같습니다(부품 1..n을 한 번씩 바깥 루프로 누적해 순서 중복을 제거). O(n²) 또는 O(n²) 공간을 1차원으로 줄여 O(n) 공간. 더 빠른 길: <b>오일러의 오각수 정리(pentagonal number theorem)</b>로 p(n) = Σ (−1)^(k−1) [ p(n − g_k) + p(n − g_k') ] (g_k=오각수)를 쓰면 <b>O(n√n)</b>. 생성함수로는 <b>p(n) = [xⁿ] ∏_{k≥1} 1/(1−xᵏ)</b>. 시각화 도구는 <b>페러스(Ferrers) 점 그림</b>: 각 분할을 행으로 점을 찍어 그리며, 그림을 <b>전치(전치=대각선 뒤집기)</b>하면 <b>켤레 분할</b>이 되어 \"부분 개수 ≤ k인 분할 수 = 각 부분 ≤ k인 분할 수\" 같은 항등식이 한눈에 보입니다. 변형: 서로 다른 부분만(distinct parts), 홀수 부분만(=서로 다른 부분과 같음, 오일러 항등식), 부분 수 제한.",
   "more_en": "<b>Integer partition</b> counts the ways <b>p(n)</b> to write a positive integer n as a sum of positive integers <b>ignoring order</b> (p(1)=1, p(2)=2, p(3)=3, p(4)=5, p(5)=7, …); 3+1 and 1+3 are the same partition. <b>DP</b>: \"partitions of s using only integers 1..i\" is <b>dp[i][s] = dp[i−1][s] (don't use i) + dp[i][s−i] (use at least one i)</b> — exactly the recurrence that <b>counts ways in coin change (unlimited supply)</b> (accumulate parts 1..n as the outer loop to avoid order duplicates). O(n²) time, reducible to O(n) space. Faster: <b>Euler's pentagonal number theorem</b> gives p(n) = Σ (−1)^(k−1) [ p(n − g_k) + p(n − g_k') ] (g_k pentagonal), in <b>O(n√n)</b>. As a generating function, <b>p(n) = [xⁿ] ∏_{k≥1} 1/(1−xᵏ)</b>. A visual tool is the <b>Ferrers diagram</b>: draw each partition as rows of dots; <b>transposing</b> (flipping across the diagonal) gives the <b>conjugate partition</b>, making identities like \"partitions into ≤ k parts = partitions with each part ≤ k\" obvious. Variants: distinct parts only, odd parts only (= distinct parts, Euler's identity), bounded number of parts.",
   "problem": {
    "q": "정수 분할 p(n)을 세는 DP가 동전 교환(중복 허용) '가짓수' 점화식과 같은 이유는?",
@@ -4235,15 +4297,17 @@
    "  for(int i=part; i<=n; i++)",
    "    dp[i] += dp[i-part];           // part 하나 더 씀",
    "// p(n). 오일러 오각수 정리로 더 빠르게도"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 13
  },
  "algo_br_matrixtree": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "키르히호프 정리 — 신장 트리의 개수를 행렬식으로",
   "narr": "한 그래프에 서로 다른 <b>신장 트리</b>가 몇 개인지를 일일이 세지 않고 <b>행렬식</b> 한 번으로 구하는 것이 <b>키르히호프의 행렬-트리 정리</b>입니다. <b>라플라시안 L = D − A</b>(D=차수 대각, A=인접)를 만든 뒤, <b>한 행과 한 열을 지운 (n−1)×(n−1) 부분행렬의 행렬식</b>이 곧 신장 트리 수입니다. L은 행·열 합이 0이라 고윳값 0을 가져 <b>어느 행·열을 지워도 1차 여인수가 모두 같으므로</b> 결과가 일정합니다. 계산은 가우스 소거로 <b>O(V³)</b>입니다. 완전그래프의 케일리 공식 nⁿ⁻²가 이로부터 나오고, 가중·방향(arborescence) 버전으로 확장됩니다. 세는 문제를 선형대수로 환원하는 대표적 예입니다.",
   "hint": "",
-  "more": "<b>키르히호프의 행렬-트리 정리(Matrix-Tree Theorem)</b>는 그래프의 <b>신장 트리 개수</b>를 <b>행렬식</b>으로 계산합니다. 먼저 <b>라플라시안 행렬 L = D − A</b>를 만듭니다(D=각 정점 차수를 담은 대각행렬, A=인접행렬). 정리: 그래프의 서로 다른 신장 트리의 수는 <b>L에서 임의의 한 행과 같은 번호의 한 열(또는 임의 i행·j열)을 지운 (n−1)×(n−1) 부분행렬의 행렬식</b>(= 라플라시안의 임의의 여인수)과 같습니다. 놀랍게도 <b>어느 행·열을 지워도 결과가 같습니다</b>(L의 모든 1차 여인수가 동일 — 행/열 합이 0이라 고윳값 0을 가지는 구조에서 나옴). 계산은 <b>가우스 소거로 행렬식 O(V³)</b>. 특수 경우로 완전그래프 Kₙ의 신장 트리 수는 <b>케일리 공식 nⁿ⁻²</b>인데, 이는 행렬-트리 정리로 유도됩니다. 확장: <b>가중(간선에 가중치를 곱으로)</b> 버전은 \"신장 트리들의 (간선 가중치 곱)의 합\"을 주고, <b>방향 그래프</b>는 특정 루트로 향하는 <b>arborescence(방향 신장 트리) 수</b>를 \"in-degree 라플라시안\"으로 셉니다. 이름은 전기 회로의 키르히호프 법칙에서 유래(신장 트리 ↔ 회로의 기본 구조). 조합론에서 \"세는 문제를 선형대수(행렬식)로 환원\"하는 대표적 예입니다.",
+  "more": "​신장 트리 수를 행렬식으로 — <b>키르히호프</b>. <b>키르히호프의 행렬-트리 정리(Matrix-Tree Theorem)</b>는 그래프의 <b>신장 트리 개수</b>를 <b>행렬식</b>으로 계산합니다. 먼저 <b>라플라시안 행렬 L = D − A</b>를 만듭니다(D=각 정점 차수를 담은 대각행렬, A=인접행렬). 정리: 그래프의 서로 다른 신장 트리의 수는 <b>L에서 임의의 한 행과 같은 번호의 한 열(또는 임의 i행·j열)을 지운 (n−1)×(n−1) 부분행렬의 행렬식</b>(= 라플라시안의 임의의 여인수)과 같습니다. 놀랍게도 <b>어느 행·열을 지워도 결과가 같습니다</b>(L의 모든 1차 여인수가 동일 — 행/열 합이 0이라 고윳값 0을 가지는 구조에서 나옴). 계산은 <b>가우스 소거로 행렬식 O(V³)</b>. 특수 경우로 완전그래프 Kₙ의 신장 트리 수는 <b>케일리 공식 nⁿ⁻²</b>인데, 이는 행렬-트리 정리로 유도됩니다. 확장: <b>가중(간선에 가중치를 곱으로)</b> 버전은 \"신장 트리들의 (간선 가중치 곱)의 합\"을 주고, <b>방향 그래프</b>는 특정 루트로 향하는 <b>arborescence(방향 신장 트리) 수</b>를 \"in-degree 라플라시안\"으로 셉니다. 이름은 전기 회로의 키르히호프 법칙에서 유래(신장 트리 ↔ 회로의 기본 구조). 조합론에서 \"세는 문제를 선형대수(행렬식)로 환원\"하는 대표적 예입니다.",
   "more_en": "<b>Kirchhoff's Matrix-Tree Theorem</b> computes a graph's <b>number of spanning trees</b> via a <b>determinant</b>. Build the <b>Laplacian L = D − A</b> (D = diagonal of degrees, A = adjacency matrix). Theorem: the number of distinct spanning trees equals the <b>determinant of the (n−1)×(n−1) submatrix obtained by deleting any one row and any one column of L</b> (any cofactor of the Laplacian). Remarkably, <b>any deleted row/column gives the same value</b> (all first cofactors of L are equal — arising from L having row/column sums 0, hence eigenvalue 0). Compute it as a <b>determinant by Gaussian elimination, O(V³)</b>. As a special case, the complete graph Kₙ has <b>nⁿ⁻² spanning trees (Cayley's formula)</b>, derivable from this theorem. Extensions: a <b>weighted</b> version (edge weights multiplied) gives \"the sum over spanning trees of the product of edge weights,\" and for <b>directed graphs</b> it counts <b>arborescences (directed spanning trees) toward a root</b> via an in-degree Laplacian. The name comes from Kirchhoff's circuit laws (spanning trees ↔ a circuit's fundamental structure). A prime example of reducing a counting problem to linear algebra (a determinant).",
   "problem": {
    "q": "키르히호프 정리에서 라플라시안 L의 '어느 행·열을 지워도' 신장 트리 수가 같은 이유의 직관은?",
@@ -4260,7 +4324,9 @@
    "  return determinant(minor(L, 0, 0));",
    "}",
    "// 가중치판: 간선 가중치 곱의 합"
-  ]
+  ],
+  "branchOf": "algo8_07",
+  "ord": 3
  },
  "algo_br_hierholzer": {
   "ch": "알고리즘 제6장 그래프",
@@ -4405,11 +4471,11 @@
  },
  "algo_br_steiner": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "스타이너 트리 — 지정 정점들을 최소 비용으로 잇기",
   "narr": "지정된 <b>단말 정점 k개</b>를 모두 잇는 최소 비용 트리를 찾되 <b>중간 정점을 자유로 추가</b>해도 되는 것이 <b>스타이너 트리</b>입니다(MST는 모든 정점을 잇는 특수 경우). 일반적으로 NP-난해지만 <b>k가 작으면</b> 부분집합 DP(드라이퍼스-와그너)로 정확히 풉니다. <b>dp[S][v]</b>를 단말 부분집합 S를 모두 포함하고 v에 모인 최소 비용으로 두고, ① 병합 dp[S][v]=min(dp[A][v]+dp[B][v])과 ② 간선 따라 뻗는 완화로 채웁니다. 시간은 부분집합 쌍 합이 3ᵏ이라 <b>O(3ᵏ·n + 2ᵏ·(n log n + m))</b>입니다. k가 크면 단말들의 거리 그래프에서 <b>MST</b>를 구하는 근사로 최적의 <b>2배 이내(2−2/k)</b>가 보장됩니다. VLSI 배선·통신망 설계에 쓰입니다.",
   "hint": "",
-  "more": "<b>스타이너 트리(Steiner tree) 문제</b>는 가중 그래프에서 지정된 <b>단말 정점 집합 K(|K|=k)</b>를 모두 연결하는 <b>최소 가중치 트리</b>를 찾는 문제입니다. 단, 트리는 K 밖의 <b>중간 정점(스타이너 점)을 추가로 써도</b> 됩니다 — 이게 \"모든 정점을 잇는\" MST와의 차이입니다(MST는 K=전체인 특수 경우). 일반적으로 <b>NP-난해</b>지만, <b>단말 수 k가 작을 때</b> 부분집합 DP(드라이퍼스-와그너 Dreyfus-Wagner)로 정확히 풉니다: <b>dp[S][v]</b> = 단말 부분집합 S를 모두 포함하고 정점 v에 \"모인\" 최소 트리 비용. 전이 두 가지 — ① <b>병합</b>: dp[S][v] = min over (S=A∪B, A∩B=∅) ( dp[A][v] + dp[B][v] ) (v에서 두 서브트리를 합침), ② <b>완화(확장)</b>: dp[S][v] = min over (u 이웃) ( dp[S][u] + w(u,v) ) (간선 따라 v로 뻗기 — 다익스트라/벨만포드식 완화). 답은 min over v of dp[K][v]. 시간 <b>O(3ᵏ·n + 2ᵏ·(n log n + m))</b>(부분집합 쌍 합이 3ᵏ, 각 S에서 최단경로 완화). k가 크면 못 쓰므로, 그때는 <b>근사</b>: 단말들만의 <b>거리 그래프(metric closure)에서 MST</b>를 구하면 최적의 <b>2배 이내</b>(2−2/k 근사)임이 보장됩니다(더 나은 1.39배 근사도 존재). 쓰임: <b>VLSI 배선</b>(여러 핀 연결), 통신/도로 네트워크 설계, 계통수(phylogenetics). \"필요한 점만, 중간점 도움 받아 최소로\"가 한 줄 요약입니다.",
+  "more": "​단말 부분집합을 비트로 — <b>스타이너 트리</b>. <b>스타이너 트리(Steiner tree) 문제</b>는 가중 그래프에서 지정된 <b>단말 정점 집합 K(|K|=k)</b>를 모두 연결하는 <b>최소 가중치 트리</b>를 찾는 문제입니다. 단, 트리는 K 밖의 <b>중간 정점(스타이너 점)을 추가로 써도</b> 됩니다 — 이게 \"모든 정점을 잇는\" MST와의 차이입니다(MST는 K=전체인 특수 경우). 일반적으로 <b>NP-난해</b>지만, <b>단말 수 k가 작을 때</b> 부분집합 DP(드라이퍼스-와그너 Dreyfus-Wagner)로 정확히 풉니다: <b>dp[S][v]</b> = 단말 부분집합 S를 모두 포함하고 정점 v에 \"모인\" 최소 트리 비용. 전이 두 가지 — ① <b>병합</b>: dp[S][v] = min over (S=A∪B, A∩B=∅) ( dp[A][v] + dp[B][v] ) (v에서 두 서브트리를 합침), ② <b>완화(확장)</b>: dp[S][v] = min over (u 이웃) ( dp[S][u] + w(u,v) ) (간선 따라 v로 뻗기 — 다익스트라/벨만포드식 완화). 답은 min over v of dp[K][v]. 시간 <b>O(3ᵏ·n + 2ᵏ·(n log n + m))</b>(부분집합 쌍 합이 3ᵏ, 각 S에서 최단경로 완화). k가 크면 못 쓰므로, 그때는 <b>근사</b>: 단말들만의 <b>거리 그래프(metric closure)에서 MST</b>를 구하면 최적의 <b>2배 이내</b>(2−2/k 근사)임이 보장됩니다(더 나은 1.39배 근사도 존재). 쓰임: <b>VLSI 배선</b>(여러 핀 연결), 통신/도로 네트워크 설계, 계통수(phylogenetics). \"필요한 점만, 중간점 도움 받아 최소로\"가 한 줄 요약입니다.",
   "more_en": "The <b>Steiner tree problem</b> asks for the <b>minimum-weight tree</b> connecting a set of <b>terminal vertices K (|K|=k)</b> in a weighted graph, where the tree <b>may use extra intermediate (Steiner) vertices</b> outside K — the difference from an MST that spans all vertices (MST is the special case K = all). It is generally <b>NP-hard</b>, but for <b>small k</b> it is solved exactly by subset DP (Dreyfus-Wagner): <b>dp[S][v]</b> = minimum tree cost covering terminal subset S and \"rooted/gathered\" at vertex v. Two transitions — ① <b>merge</b>: dp[S][v] = min over (S=A∪B, A∩B=∅) ( dp[A][v] + dp[B][v] ) (join two subtrees at v); ② <b>relax (extend)</b>: dp[S][v] = min over neighbors u ( dp[S][u] + w(u,v) ) (extend along an edge, Dijkstra/Bellman-Ford style). The answer is min over v of dp[K][v]. Time <b>O(3ᵏ·n + 2ᵏ·(n log n + m))</b> (subset-pair sums total 3ᵏ, shortest-path relaxation per S). For large k it's infeasible, so use an <b>approximation</b>: the <b>MST on the terminals' metric closure</b> (pairwise shortest distances) is within <b>2× optimal</b> (a 2−2/k approximation; a better 1.39× exists). Uses: <b>VLSI routing</b> (connecting many pins), telecom/road network design, phylogenetics. One-liner: \"connect just the needed points, minimally, with help from intermediate vertices.\"",
   "problem": {
    "q": "스타이너 트리와 MST의 차이는? 단말 k가 클 때 흔한 근사법과 그 보장은?",
@@ -4427,7 +4493,9 @@
    "    dijkstraRelax(dp[mask]);        // 간선 따라 전파",
    "  }",
    "// O(3^k V + 2^k E log V)"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 11
  },
  "algo_br_waveletmatrix": {
   "ch": "알고리즘 제2장 자료구조",
@@ -4766,11 +4834,11 @@
  },
  "algo_br_wht": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "월시-아다마르 변환 — XOR 합성곱을 O(n log n)에",
   "narr": "FFT가 자리 올림(덧셈) 합성곱을 빠르게 한다면, <b>월시-아다마르 변환(WHT)</b>은 인덱스를 <b>비트 XOR로 결합</b>하는 합성곱 c[k] = Σ_{i⊕j=k} a[i]·b[j]를 <b>O(n log n)</b>에 합니다. FFT와 절차는 같습니다 — A=WHT(a), B=WHT(b)를 구하고 점별 곱 후 역변환으로 c를 복원합니다. 차이는 WHT가 <b>XOR 군의 푸리에 변환</b>이라 기저(아다마르 행렬)가 <b>±1</b>로만 이뤄져, 나비 연산이 복소 단위근 곱이 아니라 단순 <b>(a,b)→(a+b, a−b)</b>라는 것입니다. 그래서 곱셈근이 필요 없고 정수면 오차도 0입니다. AND·OR 합성곱은 부분집합 제타·뫼비우스 변환으로 같은 시간에 처리합니다. 비트마스크 상태 결합·그런디 수 XOR 분포·GF(2) 선형대수에 쓰이는, FFT의 XOR 버전입니다.",
   "hint": "",
-  "more": "<b>월시-아다마르 변환(Walsh-Hadamard Transform, WHT)</b>은 <b>XOR 합성곱</b> c[k] = Σ_{i⊕j=k} a[i]·b[j] 를 <b>O(n log n)</b>(n=2^m)에 계산하는 변환입니다(⊕=비트 XOR). FFT/NTT가 \"덧셈 합성곱\"(자리 올림 곱셈, c[k]=Σ_{i+j=k})을 단위근으로 빠르게 하듯, WHT는 곱셈근 없이 <b>나비(butterfly) 연산 (a,b) → (a+b, a−b)</b>만으로 같은 분할정복 구조를 이룹니다(아다마르 행렬이 ±1로만 이뤄짐). 절차는 FFT와 동일: <b>A=WHT(a), B=WHT(b)</b>를 각각 O(n log n)에 구하고, <b>점별 곱 C[k]=A[k]·B[k]</b>를 한 뒤, <b>역WHT(C)</b>(같은 변환을 한 번 더 + n으로 나누기)로 c를 복원. 핵심은 WHT가 XOR 군 (ℤ/2)^m의 \"푸리에 변환\"이라, 변환 영역에서 XOR 합성곱이 점곱이 된다는 것. 변형: <b>AND 합성곱·OR 합성곱</b>은 부분집합에 대한 <b>제타 변환(SOS)·뫼비우스 변환</b>으로 같은 O(n log n)에 처리(부분집합 합 DP). 모든 항이 정수면 오차 없이 정확. 쓰임: <b>부분집합/비트마스크 결합</b>(XOR로 상태 합치기), <b>게임 이론</b>(그런디 수의 XOR 분포), 선형대수 over GF(2), 신호처리. \"FFT의 XOR/부분집합 버전\"으로 기억합니다.",
+  "more": "​XOR 합성곱을 같은 틀로 — <b>월시-아다마르</b>. <b>월시-아다마르 변환(Walsh-Hadamard Transform, WHT)</b>은 <b>XOR 합성곱</b> c[k] = Σ_{i⊕j=k} a[i]·b[j] 를 <b>O(n log n)</b>(n=2^m)에 계산하는 변환입니다(⊕=비트 XOR). FFT/NTT가 \"덧셈 합성곱\"(자리 올림 곱셈, c[k]=Σ_{i+j=k})을 단위근으로 빠르게 하듯, WHT는 곱셈근 없이 <b>나비(butterfly) 연산 (a,b) → (a+b, a−b)</b>만으로 같은 분할정복 구조를 이룹니다(아다마르 행렬이 ±1로만 이뤄짐). 절차는 FFT와 동일: <b>A=WHT(a), B=WHT(b)</b>를 각각 O(n log n)에 구하고, <b>점별 곱 C[k]=A[k]·B[k]</b>를 한 뒤, <b>역WHT(C)</b>(같은 변환을 한 번 더 + n으로 나누기)로 c를 복원. 핵심은 WHT가 XOR 군 (ℤ/2)^m의 \"푸리에 변환\"이라, 변환 영역에서 XOR 합성곱이 점곱이 된다는 것. 변형: <b>AND 합성곱·OR 합성곱</b>은 부분집합에 대한 <b>제타 변환(SOS)·뫼비우스 변환</b>으로 같은 O(n log n)에 처리(부분집합 합 DP). 모든 항이 정수면 오차 없이 정확. 쓰임: <b>부분집합/비트마스크 결합</b>(XOR로 상태 합치기), <b>게임 이론</b>(그런디 수의 XOR 분포), 선형대수 over GF(2), 신호처리. \"FFT의 XOR/부분집합 버전\"으로 기억합니다.",
   "more_en": "The <b>Walsh-Hadamard Transform (WHT)</b> computes the <b>XOR convolution</b> c[k] = Σ_{i⊕j=k} a[i]·b[j] in <b>O(n log n)</b> (n=2^m), where ⊕ is bitwise XOR. Just as FFT/NTT speed up \"addition convolution\" (carry multiplication, c[k]=Σ_{i+j=k}) via roots of unity, WHT needs no multiplicative roots — its <b>butterfly is simply (a,b) → (a+b, a−b)</b>, giving the same divide-and-conquer (the Hadamard matrix has only ±1 entries). The procedure mirrors FFT: compute <b>A=WHT(a), B=WHT(b)</b> in O(n log n) each, take the <b>pointwise product C[k]=A[k]·B[k]</b>, then <b>inverse WHT(C)</b> (the same transform again, divided by n) recovers c. The key is that WHT is the \"Fourier transform\" of the XOR group (ℤ/2)^m, so XOR convolution becomes pointwise multiplication in the transformed domain. Variants: <b>AND and OR convolution</b> use subset <b>zeta (SOS) and Möbius transforms</b> in the same O(n log n) (subset-sum DP). With integer inputs it's exact. Uses: <b>subset/bitmask combination</b> (merging states by XOR), <b>game theory</b> (XOR distribution of Grundy numbers), linear algebra over GF(2), signal processing. Remember it as \"the XOR/subset version of FFT.\"",
   "problem": {
    "q": "WHT가 FFT처럼 합성곱을 O(n log n)에 하면서도 곱셈근(단위근)이 필요 없는 이유는?",
@@ -4790,7 +4858,9 @@
    "  if(inv) for(int i = 0; i < n; i++) a[i] /= n;",
    "}",
    "// C = WHT^-1( WHT(A) · WHT(B) )"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 5
  },
  "algo_br_legendre": {
   "ch": "알고리즘 제2장 자료구조",
@@ -4983,11 +5053,11 @@
  },
  "algo_br_brokenprofile": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "윤곽선 DP — 격자를 칸 단위로 채우는 비트마스크",
   "narr": "비트마스크 DP를 한 단계 정교하게 만든 기법입니다. 도미노·타일로 격자를 빈틈없이 채우는 경우의 수를 구합니다. 행을 통째로 전이하는 대신, 왼쪽 위에서 <b>한 칸씩</b> 진행하며 상태로 <b>현재 칸 주변의 경계(윤곽선)</b>를 C+1비트 마스크로 둡니다. 각 칸에서 전이는 비워 두기·가로 도미노·세로 도미노 중 마스크가 허용하는 것뿐이라 단순하고, 마스크의 해당 비트만 갱신해 O(1)입니다. 전이가 한 칸이라 타일 모양·금지 칸 같은 변형으로 일반화하기 쉽습니다. 전체 시간은 <b>O(n·m·2^C)</b>(C는 좁은 쪽 차원)입니다. 타일링 경우의 수·격자 매칭에 표준입니다.",
   "hint": "",
-  "more": "<b>윤곽선 DP(broken profile DP, plug DP)</b>는 격자를 채우는 문제(도미노·타일링, 격자 위 배치)를 <b>칸 단위로 진행</b>하며 비트마스크 상태로 푸는 기법입니다. 단순한 \"행 단위 비트마스크 DP\"는 한 행을 통째로 전이하지만(상태 2^C, 행 간 전이가 복잡), 윤곽선 DP는 <b>왼쪽 위에서 오른쪽 아래로 한 칸씩</b> 처리하며 상태로 <b>\"현재 칸 주변의 경계(윤곽선)\"</b> 즉 \"바로 위 칸들과 왼쪽 칸이 채워졌는지\"를 나타내는 <b>C+1비트 마스크</b>를 유지합니다(C=열 수). 한 칸에서의 전이는 단순합니다: 그 칸을 ① <b>비워 두기</b>(위에서 채워질 것), ② <b>가로 도미노</b>(왼쪽 칸과 짝), ③ <b>세로 도미노</b>(위 칸과 짝) 중 격자·마스크가 허용하는 것으로 — 각 전이가 마스크의 해당 비트만 갱신해 O(1)~O(상수). 전체 시간 <b>O(n·m·2^C)</b>(n·m=칸 수, C=좁은 쪽 차원이 되도록 격자를 회전). 행 단위 DP 대비 장점: 전이가 \"한 칸\"이라 단순하고 일반화(타일 모양·금지 칸·가중치)가 쉬움. 쓰임: <b>도미노/트로미노 타일링 경우의 수</b>, 격자 최대 독립집합/매칭, 좁은 폭 그리드의 최적 배치, 한 변이 작은 직사각형 문제. \"행 전체 말고 칸 하나씩, 경계만 기억\"이 핵심입니다.",
+  "more": "​격자 경계를 상태로 — <b>윤곽선 DP</b>. <b>윤곽선 DP(broken profile DP, plug DP)</b>는 격자를 채우는 문제(도미노·타일링, 격자 위 배치)를 <b>칸 단위로 진행</b>하며 비트마스크 상태로 푸는 기법입니다. 단순한 \"행 단위 비트마스크 DP\"는 한 행을 통째로 전이하지만(상태 2^C, 행 간 전이가 복잡), 윤곽선 DP는 <b>왼쪽 위에서 오른쪽 아래로 한 칸씩</b> 처리하며 상태로 <b>\"현재 칸 주변의 경계(윤곽선)\"</b> 즉 \"바로 위 칸들과 왼쪽 칸이 채워졌는지\"를 나타내는 <b>C+1비트 마스크</b>를 유지합니다(C=열 수). 한 칸에서의 전이는 단순합니다: 그 칸을 ① <b>비워 두기</b>(위에서 채워질 것), ② <b>가로 도미노</b>(왼쪽 칸과 짝), ③ <b>세로 도미노</b>(위 칸과 짝) 중 격자·마스크가 허용하는 것으로 — 각 전이가 마스크의 해당 비트만 갱신해 O(1)~O(상수). 전체 시간 <b>O(n·m·2^C)</b>(n·m=칸 수, C=좁은 쪽 차원이 되도록 격자를 회전). 행 단위 DP 대비 장점: 전이가 \"한 칸\"이라 단순하고 일반화(타일 모양·금지 칸·가중치)가 쉬움. 쓰임: <b>도미노/트로미노 타일링 경우의 수</b>, 격자 최대 독립집합/매칭, 좁은 폭 그리드의 최적 배치, 한 변이 작은 직사각형 문제. \"행 전체 말고 칸 하나씩, 경계만 기억\"이 핵심입니다.",
   "more_en": "<b>Broken profile DP (plug DP)</b> solves grid-filling problems (domino/tiling, placements on a grid) by progressing <b>cell by cell</b> with a bitmask state. Plain \"row-by-row bitmask DP\" transitions a whole row at once (state 2^C, complex inter-row transitions), whereas broken profile DP processes <b>one cell at a time from top-left to bottom-right</b>, keeping as state the <b>\"boundary (profile) around the current cell\"</b> — a <b>(C+1)-bit mask</b> recording whether the cells just above and to the left are filled (C = number of columns). The per-cell transition is simple: place the cell as ① <b>left empty</b> (to be filled from above), ② a <b>horizontal domino</b> (paired with the left cell), or ③ a <b>vertical domino</b> (paired with the cell above), among those the grid/mask allow — each transition updates only the relevant mask bits in O(1)~constant. Total time <b>O(n·m·2^C)</b> (n·m = cells, with the grid rotated so C is the smaller dimension). Advantages over row DP: transitions are \"one cell,\" so they're simpler and easy to generalize (tile shapes, forbidden cells, weights). Uses: <b>counting domino/tromino tilings</b>, grid maximum independent set/matching, optimal placement on narrow grids, rectangle problems with one small side. The crux: \"one cell at a time, remember only the boundary.\"",
   "problem": {
    "q": "윤곽선 DP가 '행 단위' 비트마스크 DP보다 전이가 단순하고 효율적인 이유는?",
@@ -5004,15 +5074,17 @@
    "    transit(dp[pos][mask] -> dp[pos+1][newMask]);",
    "  }",
    "// 도미노 타일링 가짓수 등 O(nm·2^m)"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 10
  },
  "algo_br_expdp": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "기댓값 DP — 확률 점화식으로 평균을 구하기",
   "narr": "DP에 확률을 결합해 평균을 구하는 갈래입니다. 게임이 평균 몇 턴에 끝나는지 같은 <b>기댓값</b>을 점화식으로 푸는 것이 목표입니다. 핵심은 기댓값의 <b>선형성</b>과, 상태를 다음 상태들로 잇는 점화 <b>E[상태]=Σ 확률·(비용+E[다음])</b>입니다. 끝(흡수 상태)의 기댓값이 0으로 확정이므로 보통 <b>거기서부터 거꾸로</b> 채웁니다. 같은 상태로 돌아오는 루프가 있으면 E가 양변에 나타나 <b>연립 일차방정식</b>을 세워 풀고, 무한 반복은 등비급수로 닫힌 형태를 얻습니다. 주사위 기대 턴 수, 랜덤워크 도달 시간, 쿠폰 수집가에 쓰입니다. 상태마다 기댓값을 선형성으로 분해하는 것이 한 줄 요약입니다.",
   "hint": "",
-  "more": "<b>기댓값 DP(expected value DP)</b>는 무작위 과정의 <b>기대 횟수·비용·점수</b>를 동적 계획법으로 구합니다. 핵심은 <b>기댓값의 선형성</b> E[X+Y]=E[X]+E[Y]와, 상태를 다음 상태들의 기댓값으로 잇는 점화식: <b>E[상태] = Σ over 다음 (그 전이 확률) · ( 그 전이 비용 + E[다음 상태] )</b>. 예: 매 턴 확률 p로 한 칸, 1−p로 두 칸 전진하면 E[n] = 1 + p·E[n−1] + (1−p)·E[n−2](경계 E[0]=0 등). 계산 방향: 보통 <b>흡수 상태(끝)부터 거꾸로</b>(역방향 DP) 채웁니다 — 마지막 상태의 기댓값이 0/확정이고, 거기서 앞으로. 주의점: ① <b>자기 참조(같은 상태로 돌아오는 루프)</b>가 있으면 E가 양변에 나타나므로, 그 상태들에 대해 <b>연립 일차방정식</b>을 세워 가우스 소거로 풉니다(예: E[s] = 1 + q·E[s] + … → E[s] 정리). ② 무한히 계속될 수 있으면(예: 성공까지 반복) <b>등비급수</b>로 닫힌 형태(기대 시행 = 1/p 등). ③ \"확률·기댓값을 곱해 더한다\"를 헷갈리지 말 것 — 조건부 기댓값을 전확률로 전개. 쓰임: 주사위/보드게임 <b>기대 턴 수</b>, 랜덤워크 <b>도달/흡수 시간</b>, <b>쿠폰 수집가</b>(모든 종류 모으는 기대 = nHₙ), 카드 뽑기·뽑기 기대 횟수, 무작위 알고리즘 분석. \"상태마다 기댓값, 선형성으로 분해, 루프는 연립\"이 한 줄 요약입니다.",
+  "more": "​확률 점화식으로 평균을 — <b>기댓값 DP</b>. <b>기댓값 DP(expected value DP)</b>는 무작위 과정의 <b>기대 횟수·비용·점수</b>를 동적 계획법으로 구합니다. 핵심은 <b>기댓값의 선형성</b> E[X+Y]=E[X]+E[Y]와, 상태를 다음 상태들의 기댓값으로 잇는 점화식: <b>E[상태] = Σ over 다음 (그 전이 확률) · ( 그 전이 비용 + E[다음 상태] )</b>. 예: 매 턴 확률 p로 한 칸, 1−p로 두 칸 전진하면 E[n] = 1 + p·E[n−1] + (1−p)·E[n−2](경계 E[0]=0 등). 계산 방향: 보통 <b>흡수 상태(끝)부터 거꾸로</b>(역방향 DP) 채웁니다 — 마지막 상태의 기댓값이 0/확정이고, 거기서 앞으로. 주의점: ① <b>자기 참조(같은 상태로 돌아오는 루프)</b>가 있으면 E가 양변에 나타나므로, 그 상태들에 대해 <b>연립 일차방정식</b>을 세워 가우스 소거로 풉니다(예: E[s] = 1 + q·E[s] + … → E[s] 정리). ② 무한히 계속될 수 있으면(예: 성공까지 반복) <b>등비급수</b>로 닫힌 형태(기대 시행 = 1/p 등). ③ \"확률·기댓값을 곱해 더한다\"를 헷갈리지 말 것 — 조건부 기댓값을 전확률로 전개. 쓰임: 주사위/보드게임 <b>기대 턴 수</b>, 랜덤워크 <b>도달/흡수 시간</b>, <b>쿠폰 수집가</b>(모든 종류 모으는 기대 = nHₙ), 카드 뽑기·뽑기 기대 횟수, 무작위 알고리즘 분석. \"상태마다 기댓값, 선형성으로 분해, 루프는 연립\"이 한 줄 요약입니다.",
   "more_en": "<b>Expected value DP</b> computes the <b>expected count, cost, or score</b> of a random process via dynamic programming. The keys are <b>linearity of expectation</b> E[X+Y]=E[X]+E[Y] and a recurrence linking a state to its successors' expectations: <b>E[state] = Σ over next (transition probability) · ( transition cost + E[next state] )</b>. Example: advancing 1 cell with probability p and 2 with 1−p each turn gives E[n] = 1 + p·E[n−1] + (1−p)·E[n−2] (with boundaries like E[0]=0). Direction: usually fill <b>backward from absorbing (end) states</b>, whose expectation is 0/known, toward the front. Caveats: ① if there is a <b>self-loop (returning to the same state)</b>, E appears on both sides, so set up <b>linear equations</b> for those states and solve by Gaussian elimination (e.g. E[s] = 1 + q·E[s] + … → solve for E[s]); ② if it can continue forever (e.g. repeat until success), use a <b>geometric series</b> for a closed form (expected trials = 1/p, etc.); ③ don't confuse the \"sum of probability × expectation\" — expand by total expectation. Uses: expected number of turns in dice/board games, <b>hitting/absorption times</b> of random walks, the <b>coupon collector</b> (expected = nHₙ), expected draws in card/gacha problems, analysis of randomized algorithms. One-liner: \"an expectation per state, decompose by linearity, solve loops as a linear system.\"",
   "problem": {
    "q": "기댓값 DP에서 한 상태가 자기 자신으로 돌아오는(루프) 경우는 어떻게 푸나?",
@@ -5030,15 +5102,17 @@
    "    e += p * (cost + solve(t));",
    "  return e;",
    "}   // 자기참조면 방정식 풀이"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 14
  },
  "algo_br_boundedknapsack": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "다중 배낭 — 개수 제한 물건을 빠르게",
   "narr": "각 물건 1개인 0/1 배낭과 무제한인 완전 배낭의 중간을 다룹니다. 각 물건을 <b>최대 k개</b>까지 담는 다중 배낭 문제로, k개를 하나씩 시도하면 O(N·W·max k)로 느립니다. 가속 두 가지가 있습니다. <b>이진 분할</b>은 개수 k를 1,2,4,…,나머지 묶음으로 쪼개는데, 이 부분합으로 0~k 어떤 개수든 정확히 표현되므로 각 묶음을 한 물건으로 본 <b>0/1 배낭</b>이 되어 O(N·W·Σ log k)입니다. <b>단조 덱</b>은 무게 나머지류별로 점화가 고정 윈도우 최댓값이 되어 <b>O(N·W)</b>로 이론상 최적입니다. 이진 분할이 단순해 실전 1순위입니다. 한정 수량 동전·자원 배분에 쓰입니다.",
   "hint": "",
-  "more": "<b>다중 배낭(bounded knapsack)</b>은 각 물건을 <b>최대 kᵢ개</b>까지 담을 수 있는 배낭 문제입니다(0/1=1개, 완전=무제한의 중간). 순진하게 \"물건 i를 j개 담는다(j=0..kᵢ)\"를 모두 시도하면 O(N·W·max k)로 느립니다. 두 가지 가속: ① <b>이진 분할(binary splitting)</b> — 개수 kᵢ를 <b>1, 2, 4, …, 2^(t-1), (나머지)</b> 묶음으로 쪼갭니다. 이 묶음들의 부분합으로 0~kᵢ 어떤 개수든 정확히 표현되므로(이진 표현), 각 묶음을 \"한 덩어리 물건\"으로 보는 <b>0/1 배낭</b>으로 환원 → 시간 <b>O(N·W·Σ log kᵢ)</b>. 구현이 매우 단순해 실전 1순위. ② <b>단조 덱(monotonic deque) 최적화</b> — 무게 wᵢ로 나눈 <b>나머지(residue)류별</b>로 dp를 보면, 점화가 \"고정 길이 윈도우 안 최댓값(가치 보정 포함)\"이 되어 <b>슬라이딩 윈도우 최대(단조 덱)</b>로 각 W를 상수 시간에 → 전체 <b>O(N·W)</b>(이론상 최적). 양끝 변형: <b>완전 배낭</b>은 1차원 dp를 무게 <b>정방향</b>으로(같은 물건 재사용 허용), <b>0/1 배낭</b>은 <b>역방향</b>으로(한 번만). 다중은 그 사이를 위 두 기법으로 메웁니다. 쓰임: 한정 수량 동전/상품, 자원 배분, 생산 계획. \"개수 제한은 이진 분할(쉬움) 또는 단조 덱(최적)\"이 핵심입니다.",
+  "more": "​개수 제한 물건의 <b>다중 배낭</b>을 빠르게. <b>다중 배낭(bounded knapsack)</b>은 각 물건을 <b>최대 kᵢ개</b>까지 담을 수 있는 배낭 문제입니다(0/1=1개, 완전=무제한의 중간). 순진하게 \"물건 i를 j개 담는다(j=0..kᵢ)\"를 모두 시도하면 O(N·W·max k)로 느립니다. 두 가지 가속: ① <b>이진 분할(binary splitting)</b> — 개수 kᵢ를 <b>1, 2, 4, …, 2^(t-1), (나머지)</b> 묶음으로 쪼갭니다. 이 묶음들의 부분합으로 0~kᵢ 어떤 개수든 정확히 표현되므로(이진 표현), 각 묶음을 \"한 덩어리 물건\"으로 보는 <b>0/1 배낭</b>으로 환원 → 시간 <b>O(N·W·Σ log kᵢ)</b>. 구현이 매우 단순해 실전 1순위. ② <b>단조 덱(monotonic deque) 최적화</b> — 무게 wᵢ로 나눈 <b>나머지(residue)류별</b>로 dp를 보면, 점화가 \"고정 길이 윈도우 안 최댓값(가치 보정 포함)\"이 되어 <b>슬라이딩 윈도우 최대(단조 덱)</b>로 각 W를 상수 시간에 → 전체 <b>O(N·W)</b>(이론상 최적). 양끝 변형: <b>완전 배낭</b>은 1차원 dp를 무게 <b>정방향</b>으로(같은 물건 재사용 허용), <b>0/1 배낭</b>은 <b>역방향</b>으로(한 번만). 다중은 그 사이를 위 두 기법으로 메웁니다. 쓰임: 한정 수량 동전/상품, 자원 배분, 생산 계획. \"개수 제한은 이진 분할(쉬움) 또는 단조 덱(최적)\"이 핵심입니다.",
   "more_en": "The <b>bounded knapsack</b> allows each item up to <b>kᵢ copies</b> (between 0/1 = one copy and unbounded = unlimited). Naively trying \"take j copies of item i (j=0..kᵢ)\" is slow at O(N·W·max k). Two speedups: ① <b>binary splitting</b> — break kᵢ into groups <b>1, 2, 4, …, 2^(t-1), (remainder)</b>. Subset sums of these groups represent any count 0~kᵢ exactly (binary representation), so treating each group as one \"bundled item\" reduces it to a <b>0/1 knapsack</b> → time <b>O(N·W·Σ log kᵢ)</b>. Very simple to implement, the go-to in practice. ② <b>monotonic deque optimization</b> — viewing dp per <b>residue class modulo the weight wᵢ</b>, the recurrence becomes a \"max within a fixed-length window (with a value offset),\" handled by a <b>sliding-window maximum (monotonic deque)</b> in O(1) per W → total <b>O(N·W)</b> (theoretically optimal). The two ends: <b>unbounded knapsack</b> uses 1D dp scanned <b>forward</b> by weight (reuse allowed); <b>0/1 knapsack</b> scans <b>backward</b> (once each); bounded fills the gap with the two techniques above. Uses: limited-supply coins/goods, resource allocation, production planning. The crux: \"a count cap → binary splitting (easy) or monotonic deque (optimal).\"",
   "problem": {
    "q": "다중 배낭에서 개수 13개를 1,2,4,6으로 이진 분할하는 것이 왜 옳은가?",
@@ -5056,7 +5130,9 @@
    "  }",
    "}",
    "// 단조 덱 슬라이딩으로 O(nW)도 가능"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 15
  },
  "algo_br_edmondskarp": {
   "ch": "알고리즘 제6장 그래프",
@@ -5303,11 +5379,11 @@
  },
  "algo_br_cdq": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "CDQ 분할 정복 — 오프라인 다차원 부분순서",
   "narr": "분할 정복을 오프라인 다차원 문제에 적용하는 패러다임입니다. 대표 예는 각 점에 대해 모든 좌표가 자신 이하인 점의 수를 세는 <b>3차원 부분순서</b>입니다. 머지소트로는 2차원까지 자연스럽지만 3차원은 CDQ로 풉니다. 첫 차원으로 정렬해 두고 구간을 절반으로 <b>분할</b>한 뒤, 좌·우를 재귀하고 병합 단계에서 <b>왼쪽 절반이 오른쪽 절반에 주는 기여만</b> 계산합니다. 둘째 차원으로 정렬해 투포인터로 훑으며 셋째 차원은 펜윅으로 누적·질의해 <b>O(n log² n)</b>입니다. 각 쌍이 정확히 한 분할 레벨에서 기여하는 것이 머지소트가 역위쌍을 한 번 세는 원리와 같습니다. 시간을 첫 차원으로 두면 동적 문제를 오프라인으로 변환합니다.",
   "hint": "",
-  "more": "<b>CDQ 분할 정복(천단치 분할정복)</b>은 <b>오프라인</b> 상황에서 다차원 <b>부분순서(dominance)·점 기여</b> 문제를 효율적으로 푸는 분할정복 패러다임입니다. 대표 예: <b>3차원 부분순서 세기</b> — 각 점 (a,b,c)에 대해 \"a'≤a, b'≤b, c'≤c인 다른 점의 수\"를 모두 구하기. 일반 머지소트로는 2차원(역위 세기)까지 자연스럽지만, 3차원은 CDQ로: ① <b>첫 차원(또는 시간순)으로 정렬</b>해 두고, 구간 [L,R]을 [L,M]·[M+1,R]로 <b>분할</b>; ② 좌·우를 재귀; ③ <b>병합 단계</b>에서 \"<b>왼쪽 절반의 점들이 오른쪽 절반의 점들에 주는 기여만</b>\" 계산합니다 — 둘째 차원으로 정렬해 투포인터로 훑으며 셋째 차원은 <b>펜윅 트리</b>로 누적/질의(왼쪽 점을 펜윅에 넣고, 오른쪽 점에서 c 이하 개수를 질의). 첫 차원은 분할이 처리, 둘째는 정렬, 셋째는 펜윅 → <b>O(n log² n)</b>. 핵심 불변: 각 쌍 (i,j)가 \"i가 왼쪽, j가 오른쪽\"인 분할 레벨에서 정확히 한 번 기여(머지소트가 역위쌍을 한 번 세는 것과 같은 원리). <b>동적 → 오프라인 변환</b>의 강력한 도구이기도 합니다: \"시간\"을 첫 차원으로 두면, 갱신(과거)이 질의(미래)에 주는 영향만 병합서 처리해 동적 자료구조 없이 오프라인으로 해결(예: 동적 2D 부분합). 분할정복 최적화 DP(왼쪽 dp가 오른쪽 dp에 기여)도 같은 틀. \"왼쪽이 오른쪽에 주는 기여만, 한 차원씩 줄여 가며\"가 핵심입니다.",
+  "more": "​시간·차원을 반씩 갈라 오프라인 — <b>CDQ</b>. <b>CDQ 분할 정복(천단치 분할정복)</b>은 <b>오프라인</b> 상황에서 다차원 <b>부분순서(dominance)·점 기여</b> 문제를 효율적으로 푸는 분할정복 패러다임입니다. 대표 예: <b>3차원 부분순서 세기</b> — 각 점 (a,b,c)에 대해 \"a'≤a, b'≤b, c'≤c인 다른 점의 수\"를 모두 구하기. 일반 머지소트로는 2차원(역위 세기)까지 자연스럽지만, 3차원은 CDQ로: ① <b>첫 차원(또는 시간순)으로 정렬</b>해 두고, 구간 [L,R]을 [L,M]·[M+1,R]로 <b>분할</b>; ② 좌·우를 재귀; ③ <b>병합 단계</b>에서 \"<b>왼쪽 절반의 점들이 오른쪽 절반의 점들에 주는 기여만</b>\" 계산합니다 — 둘째 차원으로 정렬해 투포인터로 훑으며 셋째 차원은 <b>펜윅 트리</b>로 누적/질의(왼쪽 점을 펜윅에 넣고, 오른쪽 점에서 c 이하 개수를 질의). 첫 차원은 분할이 처리, 둘째는 정렬, 셋째는 펜윅 → <b>O(n log² n)</b>. 핵심 불변: 각 쌍 (i,j)가 \"i가 왼쪽, j가 오른쪽\"인 분할 레벨에서 정확히 한 번 기여(머지소트가 역위쌍을 한 번 세는 것과 같은 원리). <b>동적 → 오프라인 변환</b>의 강력한 도구이기도 합니다: \"시간\"을 첫 차원으로 두면, 갱신(과거)이 질의(미래)에 주는 영향만 병합서 처리해 동적 자료구조 없이 오프라인으로 해결(예: 동적 2D 부분합). 분할정복 최적화 DP(왼쪽 dp가 오른쪽 dp에 기여)도 같은 틀. \"왼쪽이 오른쪽에 주는 기여만, 한 차원씩 줄여 가며\"가 핵심입니다.",
   "more_en": "<b>CDQ divide and conquer</b> is a divide-and-conquer paradigm for solving multi-dimensional <b>dominance / point-contribution</b> problems <b>offline</b>. A canonical example: <b>3D dominance counting</b> — for each point (a,b,c), count other points with a'≤a, b'≤b, c'≤c. Plain merge sort handles 2D (inversion counting) naturally, but 3D uses CDQ: ① sort by the <b>first dimension (or time)</b>, and split a range [L,R] into [L,M] and [M+1,R]; ② recurse on both halves; ③ in the <b>merge step</b>, compute <b>only the contribution of left-half points to right-half points</b> — sort by the second dimension and sweep with two pointers, handling the third dimension with a <b>Fenwick tree</b> (insert left points, query count ≤ c at right points). The first dimension is handled by the split, the second by sorting, the third by the Fenwick → <b>O(n log² n)</b>. Key invariant: each pair (i,j) contributes exactly once, at the split level where i is left and j is right (same principle as merge sort counting an inversion once). It is also a powerful <b>dynamic → offline conversion</b>: putting \"time\" as the first dimension, only updates' (past) effects on queries (future) are handled in the merge, solving dynamic problems offline without a dynamic data structure (e.g. dynamic 2D prefix sums). Divide-and-conquer-optimization DP (left dp contributing to right dp) uses the same frame. The crux: \"only left's contribution to right, peeling one dimension at a time.\"",
   "problem": {
    "q": "CDQ 분할 정복이 3차원 부분순서를 O(n log²n)에 푸는 구조는?",
@@ -5325,15 +5401,17 @@
    "  mergeContribution(l,m,r);",
    "}",
    "// 3차원 LIS·점 지배 등 O(n log^2 n)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 8
  },
  "algo_br_slopetrick": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "슬로프 트릭 — 볼록 비용함수를 기울기로 관리",
   "narr": "DP 응용에서 값함수의 모양을 활용하는 기법입니다. 값함수 <b>f(x)가 조각별 선형이고 볼록</b>일 때, 그런 함수는 기울기가 한 칸씩 변하는 <b>꺾임점</b>들로 완전히 표현됩니다(볼록이라 기울기가 단조). 함수 전체 대신 꺾임점들만 <b>우선순위 큐 두 개</b>(평평한 구간 기준 왼쪽은 최대 힙·오른쪽은 최소 힙)로 관리합니다. 그러면 자주 나오는 연산이 단순한 큐 조작이 됩니다. f(x) += |x−a|는 a를 양쪽 힙에 넣고 교차하면 교환, prefix min은 오른쪽 힙 비우기, 평행이동은 lazy 오프셋으로 각각 O(log n)입니다. 수열을 단조로 만드는 최소 비용이 교과서 문제입니다. 볼록 값함수를 꺾임점 큐로 보는 것이 핵심입니다.",
   "hint": "",
-  "more": "<b>슬로프 트릭(slope trick)</b>은 DP의 값함수 <b>f(x)가 조각별 선형(piecewise linear)이고 볼록(convex)</b>일 때 쓰는 기법입니다. 그런 함수는 \"기울기가 정수로 한 칸씩 변하는 꺾임점(breakpoint)들\"로 완전히 표현됩니다(볼록이라 기울기가 단조 증가). 핵심: 함수 전체가 아니라 <b>꺾임점들만 우선순위 큐 두 개</b>(최솟값을 주는 평평한 구간 기준 <b>왼쪽 기울기들은 최대 힙, 오른쪽은 최소 힙</b>)로 관리합니다. 자주 나오는 연산이 단순한 큐 조작이 됩니다: ① <b>f(x) += |x − a|</b> 추가 → 꺾임점 a를 양쪽 힙에 넣고 교차하면 교환(최솟값 위치 보정), ② <b>prefix min</b>(g(x)=min_{y≤x} f(y), 비감소 제약) → 오른쪽 힙 비우기, ③ <b>좌/우 평행이동</b>(f(x−c) 또는 f(x)±상수) → 힙에 lazy 오프셋, ④ 최솟값은 두 힙 top 사이 평평 구간 값. 각 연산 O(log n), 함수를 통째로 안 들고 다님. 전형 응용: <b>수열을 비감소(또는 단조)로 만드는 최소 비용</b>(각 원소에서 |aᵢ − x| 누적, prefix-min으로 단조 제약) — 슬로프 트릭의 교과서 문제. 또 창고/재고 조정, 작업 마감 페널티, 근접 맞춤(L1) DP. 전제는 <b>각 전이가 볼록성을 보존</b>해야 한다는 것(볼록 + 볼록 = 볼록, min-plus는 조심). \"볼록 값함수 = 꺾임점 큐\"가 한 줄 요약입니다.",
+  "more": "​볼록 비용함수를 기울기로 — <b>슬로프 트릭</b>. <b>슬로프 트릭(slope trick)</b>은 DP의 값함수 <b>f(x)가 조각별 선형(piecewise linear)이고 볼록(convex)</b>일 때 쓰는 기법입니다. 그런 함수는 \"기울기가 정수로 한 칸씩 변하는 꺾임점(breakpoint)들\"로 완전히 표현됩니다(볼록이라 기울기가 단조 증가). 핵심: 함수 전체가 아니라 <b>꺾임점들만 우선순위 큐 두 개</b>(최솟값을 주는 평평한 구간 기준 <b>왼쪽 기울기들은 최대 힙, 오른쪽은 최소 힙</b>)로 관리합니다. 자주 나오는 연산이 단순한 큐 조작이 됩니다: ① <b>f(x) += |x − a|</b> 추가 → 꺾임점 a를 양쪽 힙에 넣고 교차하면 교환(최솟값 위치 보정), ② <b>prefix min</b>(g(x)=min_{y≤x} f(y), 비감소 제약) → 오른쪽 힙 비우기, ③ <b>좌/우 평행이동</b>(f(x−c) 또는 f(x)±상수) → 힙에 lazy 오프셋, ④ 최솟값은 두 힙 top 사이 평평 구간 값. 각 연산 O(log n), 함수를 통째로 안 들고 다님. 전형 응용: <b>수열을 비감소(또는 단조)로 만드는 최소 비용</b>(각 원소에서 |aᵢ − x| 누적, prefix-min으로 단조 제약) — 슬로프 트릭의 교과서 문제. 또 창고/재고 조정, 작업 마감 페널티, 근접 맞춤(L1) DP. 전제는 <b>각 전이가 볼록성을 보존</b>해야 한다는 것(볼록 + 볼록 = 볼록, min-plus는 조심). \"볼록 값함수 = 꺾임점 큐\"가 한 줄 요약입니다.",
   "more_en": "<b>Slope trick</b> applies when a DP's value function <b>f(x) is piecewise linear and convex</b>. Such a function is fully described by its <b>breakpoints where the slope steps up by one integer</b> (convexity makes the slope monotonically increasing). The key: instead of the whole function, manage <b>only the breakpoints with two priority queues</b> (relative to the flat minimum interval, the <b>left slopes in a max-heap, the right slopes in a min-heap</b>). Common operations become simple queue manipulations: ① <b>add f(x) += |x − a|</b> → push breakpoint a into both heaps and swap if they cross (correcting the minimum's position); ② <b>prefix min</b> (g(x)=min_{y≤x} f(y), a non-decreasing constraint) → empty the right heap; ③ <b>shift left/right</b> (f(x−c) or f(x)±const) → a lazy offset on a heap; ④ the minimum value is the flat interval between the two heap tops. Each operation is O(log n), without carrying the whole function. A typical application: the <b>minimum cost to make a sequence non-decreasing (or monotone)</b> (accumulate |aᵢ − x| per element, with prefix-min for the monotone constraint) — the textbook slope-trick problem. Also inventory adjustment, deadline penalties, L1 proximity DP. The prerequisite is that <b>each transition preserves convexity</b> (convex + convex = convex; be careful with min-plus). One-liner: \"a convex value function = a queue of breakpoints.\"",
   "problem": {
    "q": "슬로프 트릭에서 두 개의 힙(최대·최소)으로 무엇을 관리하며, |x−a| 더하기는 어떻게 처리하나?",
@@ -5348,7 +5426,9 @@
    "addAbs(a){ L.push(a); R.push(L.top()); L.pop();",
    "           if(R.top() < L.top()) swap tops; }",
    "// 최솟값 = 바닥 유지. 함수 합·최소 슬라이딩 O(log n)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 6
  },
  "algo_br_parallelbs": {
   "ch": "알고리즘 제4장 탐색",
@@ -5377,11 +5457,11 @@
  },
  "algo_br_polyinv": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "다항식 역원·exp·log — 뉴턴법으로 배가",
   "narr": "형식적 거듭제곱급수에 대한 핵심 연산들입니다. 다항식 A에 대해 mod x^n에서의 <b>역원 1/A·로그 log A·지수 exp A</b>를 구합니다. 도구는 <b>뉴턴 반복으로 정밀도를 배가</b>하는 것으로, mod x^k의 답을 알면 한 번의 갱신으로 mod x^(2k)의 답을 얻습니다. 역원은 B ← B·(2 − A·B), 로그는 ∫(A′/A)dx, 지수는 B ← B·(1 + A − log B)로 갱신합니다. 각 단계가 NTT 곱셈 O(k log k)이고 정밀도가 1,2,4,…,n으로 배가되어 비용의 기하급수 합이 <b>O(n log n)</b>(마지막 단계 지배)입니다. 토대는 NTT로 다항식 곱을 O(n log n)에 하는 것입니다. 생성함수 전개·점화 닫힌 형태에 쓰이는 다항식 알고리즘의 엔진입니다.",
   "hint": "",
-  "more": "<b>다항식 연산(polynomial inverse / exp / log / sqrt)</b>은 형식적 거듭제곱급수 A(x)에 대해 \"mod x^n에서\"의 <b>역원·지수·로그·제곱근</b> 등을 구합니다. 핵심 도구는 <b>뉴턴 반복(Newton iteration)으로 정밀도를 배가</b>하는 것: mod x^k에서의 답 B를 알면, 한 번의 갱신으로 <b>mod x^(2k)에서의 답</b>을 얻습니다. <b>역원</b>(A·B ≡ 1): 갱신식 <b>B ← B·(2 − A·B) mod x^(2k)</b> (스칼라 뉴턴 1/a의 x↦x(2−ax)를 급수로). <b>로그</b>(A(0)=1): log A = ∫ (A′ / A) dx — A′와 A의 역원을 곱해 적분(O(n log n)). <b>지수</b>(A(0)=0): exp는 log의 역이라 <b>뉴턴으로 B ← B·(1 + A − log B)</b>. 각 단계가 정밀도 k→2k이고 그 단계의 NTT 곱셈이 <b>O(k log k)</b>인데, 정밀도가 1,2,4,…,n로 배가되며 비용이 <b>기하급수 합 → 전체 O(n log n)</b>(마지막 단계가 지배). 토대는 <b>NTT(수론 변환)</b>로 다항식 곱을 O(n log n)에 하는 것. 응용: <b>생성함수(OGF/EGF) 연산</b> — 분할수·카탈란수 등의 생성함수를 역원·exp로 한 번에 전개, 선형 점화식의 닫힌 형태(분수 다항식의 급수 전개), 조합론 항 대량 계산, 다항식 나눗셈/다중점 평가/보간의 토대. \"뉴턴으로 정밀도 배가 + NTT\"가 다항식 알고리즘 전체의 엔진입니다.",
+  "more": "​다항식 역원·exp·log를 뉴턴법으로 배가. <b>다항식 연산(polynomial inverse / exp / log / sqrt)</b>은 형식적 거듭제곱급수 A(x)에 대해 \"mod x^n에서\"의 <b>역원·지수·로그·제곱근</b> 등을 구합니다. 핵심 도구는 <b>뉴턴 반복(Newton iteration)으로 정밀도를 배가</b>하는 것: mod x^k에서의 답 B를 알면, 한 번의 갱신으로 <b>mod x^(2k)에서의 답</b>을 얻습니다. <b>역원</b>(A·B ≡ 1): 갱신식 <b>B ← B·(2 − A·B) mod x^(2k)</b> (스칼라 뉴턴 1/a의 x↦x(2−ax)를 급수로). <b>로그</b>(A(0)=1): log A = ∫ (A′ / A) dx — A′와 A의 역원을 곱해 적분(O(n log n)). <b>지수</b>(A(0)=0): exp는 log의 역이라 <b>뉴턴으로 B ← B·(1 + A − log B)</b>. 각 단계가 정밀도 k→2k이고 그 단계의 NTT 곱셈이 <b>O(k log k)</b>인데, 정밀도가 1,2,4,…,n로 배가되며 비용이 <b>기하급수 합 → 전체 O(n log n)</b>(마지막 단계가 지배). 토대는 <b>NTT(수론 변환)</b>로 다항식 곱을 O(n log n)에 하는 것. 응용: <b>생성함수(OGF/EGF) 연산</b> — 분할수·카탈란수 등의 생성함수를 역원·exp로 한 번에 전개, 선형 점화식의 닫힌 형태(분수 다항식의 급수 전개), 조합론 항 대량 계산, 다항식 나눗셈/다중점 평가/보간의 토대. \"뉴턴으로 정밀도 배가 + NTT\"가 다항식 알고리즘 전체의 엔진입니다.",
   "more_en": "<b>Polynomial operations (inverse / exp / log / sqrt)</b> compute, for a formal power series A(x), its <b>inverse, exponential, logarithm, square root</b>, etc. \"mod x^n.\" The key tool is <b>Newton iteration doubling the precision</b>: knowing the answer B mod x^k, one update gives the <b>answer mod x^(2k)</b>. <b>Inverse</b> (A·B ≡ 1): update <b>B ← B·(2 − A·B) mod x^(2k)</b> (the scalar Newton x↦x(2−ax) for 1/a, lifted to series). <b>Log</b> (A(0)=1): log A = ∫ (A′ / A) dx — multiply A′ by the inverse of A and integrate (O(n log n)). <b>Exp</b> (A(0)=0): exp is the inverse of log, so Newton gives <b>B ← B·(1 + A − log B)</b>. Each step lifts precision k→2k with an NTT multiplication costing <b>O(k log k)</b>; as precision doubles 1,2,4,…,n, the cost is a <b>geometric series → O(n log n)</b> overall (the last step dominates). The foundation is <b>NTT</b> for O(n log n) polynomial multiplication. Uses: <b>generating-function operations</b> — expand OGF/EGF of partition numbers, Catalan numbers, etc. via inverse/exp; closed forms of linear recurrences (series expansion of a rational polynomial); bulk combinatorial terms; the basis for polynomial division, multipoint evaluation, and interpolation. \"Newton precision-doubling + NTT\" is the engine behind all polynomial algorithms.",
   "problem": {
    "q": "다항식 역원/exp/log를 O(n log n)에 구하는 두 가지 핵심 도구는?",
@@ -5398,7 +5478,9 @@
    "  B = B * (2 - A*B);               // NTT로 곱",
    "}",
    "// exp·log·나눗셈·sqrt도 같은 배가 틀, O(n log n)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 6
  },
  "algo_br_halfplane": {
   "ch": "알고리즘 제8장 설계 패러다임",
@@ -5674,11 +5756,11 @@
  },
  "algo_br_palindromepart": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "고급 DP(상태·기법)",
   "title": "회문 분할 DP — 최소 횟수로 회문 조각내기",
   "narr": "DP 응용에서 문자열을 회문 조각으로 자릅니다. 모든 조각이 회문이 되도록 최소 몇 번 자르는지를 구하는 것이 목표입니다. <b>dp[i] = 앞 i글자를 회문 조각으로 자르는 최소 컷 수</b>로 두고, 점화 <b>dp[i] = min over j (dp[j]+1)</b>을 s[j..i)가 회문일 때 적용합니다(전체가 회문이면 0). 핵심은 회문 여부를 빠르게 아는 것으로, <b>isPal[j][i]를 2D DP</b>로 미리 계산합니다(양 끝 글자가 같고 안쪽이 회문). 그러면 전체가 <b>O(n²)</b>입니다. 회문 판정을 매내처나 회문트리로 대체하면 더 빠르게 할 수 있습니다. 분할 방법의 수·모든 분할 나열로 변형됩니다. 앞 i까지 최소 컷에 회문 선계산을 더하는 것이 핵심입니다.",
   "hint": "",
-  "more": "<b>회문 분할(palindrome partitioning)</b>은 문자열을 <b>모든 조각이 회문</b>인 부분들로 자르는 문제로, 보통 <b>최소 컷 수</b>(또는 분할 방법의 수)를 구합니다. <b>최소 컷 DP</b>: <b>dp[i] = 앞 i글자 s[0..i)를 회문 조각들로 자르는 최소 컷 수</b>. 점화 <b>dp[i] = min over j (dp[j] + 1)</b> 단, <b>s[j..i)가 회문</b>일 때(전체가 회문이면 dp[i]=0). 핵심은 \"s[j..i)가 회문인가\"를 빠르게 아는 것: <b>isPal[j][i]를 2D DP</b>로 미리 계산 — isPal[j][i] = (s[j]==s[i−1]) && (조각 길이 ≤ 2 또는 isPal[j+1][i−1]) — O(n²) 시간·공간. 그러면 전체도 <b>O(n²)</b>. 변형: ① <b>분할 방법의 수</b>(min 대신 합), ② <b>모든 회문 분할 나열</b>(백트래킹), ③ <b>최장 회문 부분수열</b>은 다른 문제로 LCS(s, reverse(s))로 O(n²), ④ <b>최장 회문 부분문자열</b>은 매내처로 O(n) 또는 회문트리(Eertree)로. 회문 판정을 <b>매내처(각 중심의 반지름)나 회문트리</b>로 대체하면 isPal 선계산을 더 빠르게/적은 메모리로 할 수 있습니다. 쓰임: 텍스트 분할, DNA 회문 구조, 문자열 분해 최적화. \"앞 i까지 최소 컷 + 회문 여부 선계산\"이 핵심이며, 구간 DP와 회문 알고리즘이 만나는 전형적 문제입니다.",
+  "more": "​최소 횟수로 <b>회문</b>으로 쪼개기. <b>회문 분할(palindrome partitioning)</b>은 문자열을 <b>모든 조각이 회문</b>인 부분들로 자르는 문제로, 보통 <b>최소 컷 수</b>(또는 분할 방법의 수)를 구합니다. <b>최소 컷 DP</b>: <b>dp[i] = 앞 i글자 s[0..i)를 회문 조각들로 자르는 최소 컷 수</b>. 점화 <b>dp[i] = min over j (dp[j] + 1)</b> 단, <b>s[j..i)가 회문</b>일 때(전체가 회문이면 dp[i]=0). 핵심은 \"s[j..i)가 회문인가\"를 빠르게 아는 것: <b>isPal[j][i]를 2D DP</b>로 미리 계산 — isPal[j][i] = (s[j]==s[i−1]) && (조각 길이 ≤ 2 또는 isPal[j+1][i−1]) — O(n²) 시간·공간. 그러면 전체도 <b>O(n²)</b>. 변형: ① <b>분할 방법의 수</b>(min 대신 합), ② <b>모든 회문 분할 나열</b>(백트래킹), ③ <b>최장 회문 부분수열</b>은 다른 문제로 LCS(s, reverse(s))로 O(n²), ④ <b>최장 회문 부분문자열</b>은 매내처로 O(n) 또는 회문트리(Eertree)로. 회문 판정을 <b>매내처(각 중심의 반지름)나 회문트리</b>로 대체하면 isPal 선계산을 더 빠르게/적은 메모리로 할 수 있습니다. 쓰임: 텍스트 분할, DNA 회문 구조, 문자열 분해 최적화. \"앞 i까지 최소 컷 + 회문 여부 선계산\"이 핵심이며, 구간 DP와 회문 알고리즘이 만나는 전형적 문제입니다.",
   "more_en": "<b>Palindrome partitioning</b> cuts a string into parts that are <b>all palindromes</b>, usually asking for the <b>minimum number of cuts</b> (or the number of partitions). <b>Minimum-cut DP</b>: <b>dp[i] = the minimum cuts to split the prefix s[0..i) into palindromic parts</b>. Recurrence <b>dp[i] = min over j (dp[j] + 1)</b> when <b>s[j..i) is a palindrome</b> (dp[i]=0 if the whole prefix is a palindrome). The key is testing \"is s[j..i) a palindrome\" quickly: precompute <b>isPal[j][i] by 2D DP</b> — isPal[j][i] = (s[j]==s[i−1]) && (length ≤ 2 or isPal[j+1][i−1]) — O(n²) time/space. Then the whole thing is <b>O(n²)</b>. Variants: ① <b>number of partitions</b> (sum instead of min); ② <b>enumerate all palindrome partitions</b> (backtracking); ③ <b>longest palindromic subsequence</b> is a different problem, LCS(s, reverse(s)) in O(n²); ④ <b>longest palindromic substring</b> via Manacher in O(n) or an Eertree. Replacing the palindrome test with <b>Manacher (radius per center) or an Eertree</b> can make the isPal precomputation faster / lower-memory. Uses: text segmentation, DNA palindrome structure, string-decomposition optimization. The crux: \"minimum cuts to prefix i + precomputed palindrome tests,\" a classic meeting of interval DP and palindrome algorithms.",
   "problem": {
    "q": "회문 분할 최소 컷 DP의 점화식과, O(n²)을 가능케 하는 선계산은?",
@@ -5696,15 +5778,17 @@
    "    if(isPal[j][i-1]) dp[i]=min(dp[i], dp[j]+1);",
    "}",
    "return dp[n]-1;   // O(n^2)"
-  ]
+  ],
+  "branchOf": "algo7_06",
+  "ord": 8
  },
  "algo_br_stirling": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "스털링·벨 수 — 집합을 그룹으로 나누는 가짓수",
   "narr": "DP 응용에서 집합을 그룹으로 나누는 가짓수입니다. <b>제2종 스털링 수 S(n,k)</b>는 구별되는 <b>n개를 비지 않은 k개 그룹으로 분할</b>하는 방법의 수입니다. 점화식 <b>S(n,k) = k·S(n−1,k) + S(n−1,k−1)</b>은 새 원소를 기존 k개 중 하나에 넣거나(k가지) 혼자 새 그룹을 만드는(나머지) 경우로 나뉩니다. <b>벨 수 B(n) = Σ_k S(n,k)</b>는 그룹 수와 무관한 모든 분할의 수입니다. <b>제1종 스털링 수</b>는 순열 중 사이클이 정확히 k개인 것의 수로 순열 사이클 분해와 연결됩니다. 생성함수로 벨 수의 EGF는 e^(eˣ−1)입니다. 분배 문제·집합 분할 세기·멱합 공식에 쓰입니다. 카탈란·이항과 더불어 세는 수의 핵심 가족입니다.",
   "hint": "",
-  "more": "<b>제2종 스털링 수(Stirling number of the second kind) S(n,k)</b>는 구별되는 <b>n개 원소를 비지 않은 k개의 (구별 없는) 그룹으로 분할</b>하는 방법의 수입니다. 점화식: <b>S(n,k) = k·S(n−1,k) + S(n−1,k−1)</b> — 새 원소를 ① 기존 k개 그룹 중 하나에 넣거나(k가지), ② 혼자 새 그룹을 만들거나(S(n−1,k−1)). 경계 S(0,0)=1, S(n,0)=0(n>0). 닫힌 형태(포함배제): S(n,k) = (1/k!)Σ_{j} (−1)^j C(k,j)(k−j)ⁿ. 관련: <b>벨 수 B(n) = Σ_{k=0..n} S(n,k)</b> = n개 집합의 <b>모든 분할</b>의 수(그룹 수 무관, B(0)=1,1,2,5,15,52,…), 점화 B(n+1)=Σ C(n,k)B(k) 또는 벨 삼각형. <b>제1종 스털링 수 c(n,k)</b>(부호 없는)는 <b>n개의 순열 중 사이클이 정확히 k개</b>인 것의 수로, 점화 c(n,k)=(n−1)·c(n−1,k)+c(n−1,k−1)(순열 사이클 분해와 연결). 생성함수: 벨 수의 EGF는 <b>e^(eˣ−1)</b>, 제2종 스털링은 \"멱함수 → 하강 계승\" 변환 계수(xⁿ = Σ S(n,k)·x^(하강 k)). 쓰임: <b>분배 문제</b>(공/상자 구별 여부 4종 중 \"구별 공·구별 없는 상자\"=스털링), 집합 분할 세기, 같은 것 포함배제, 멱합 공식, 조합론 항등식. 카탈란(괄호·트리)·이항(부분집합)과 더불어 \"세는 수\"의 핵심 가족입니다.",
+  "more": "​집합을 그룹으로 나누는 — <b>스털링·벨 수</b>. <b>제2종 스털링 수(Stirling number of the second kind) S(n,k)</b>는 구별되는 <b>n개 원소를 비지 않은 k개의 (구별 없는) 그룹으로 분할</b>하는 방법의 수입니다. 점화식: <b>S(n,k) = k·S(n−1,k) + S(n−1,k−1)</b> — 새 원소를 ① 기존 k개 그룹 중 하나에 넣거나(k가지), ② 혼자 새 그룹을 만들거나(S(n−1,k−1)). 경계 S(0,0)=1, S(n,0)=0(n>0). 닫힌 형태(포함배제): S(n,k) = (1/k!)Σ_{j} (−1)^j C(k,j)(k−j)ⁿ. 관련: <b>벨 수 B(n) = Σ_{k=0..n} S(n,k)</b> = n개 집합의 <b>모든 분할</b>의 수(그룹 수 무관, B(0)=1,1,2,5,15,52,…), 점화 B(n+1)=Σ C(n,k)B(k) 또는 벨 삼각형. <b>제1종 스털링 수 c(n,k)</b>(부호 없는)는 <b>n개의 순열 중 사이클이 정확히 k개</b>인 것의 수로, 점화 c(n,k)=(n−1)·c(n−1,k)+c(n−1,k−1)(순열 사이클 분해와 연결). 생성함수: 벨 수의 EGF는 <b>e^(eˣ−1)</b>, 제2종 스털링은 \"멱함수 → 하강 계승\" 변환 계수(xⁿ = Σ S(n,k)·x^(하강 k)). 쓰임: <b>분배 문제</b>(공/상자 구별 여부 4종 중 \"구별 공·구별 없는 상자\"=스털링), 집합 분할 세기, 같은 것 포함배제, 멱합 공식, 조합론 항등식. 카탈란(괄호·트리)·이항(부분집합)과 더불어 \"세는 수\"의 핵심 가족입니다.",
   "more_en": "The <b>Stirling number of the second kind S(n,k)</b> is the number of ways to <b>partition n distinct elements into k non-empty (unlabeled) groups</b>. Recurrence: <b>S(n,k) = k·S(n−1,k) + S(n−1,k−1)</b> — put the new element ① into one of the existing k groups (k ways), or ② alone in a new group (S(n−1,k−1)). Base S(0,0)=1, S(n,0)=0 (n>0). Closed form (inclusion-exclusion): S(n,k) = (1/k!)Σ_j (−1)^j C(k,j)(k−j)ⁿ. Related: the <b>Bell number B(n) = Σ_{k=0..n} S(n,k)</b> = the number of <b>all partitions</b> of an n-set (any number of groups; B(0)=1,1,2,5,15,52,…), with B(n+1)=Σ C(n,k)B(k) or the Bell triangle. The <b>(unsigned) Stirling number of the first kind c(n,k)</b> counts <b>permutations of n with exactly k cycles</b>, recurrence c(n,k)=(n−1)·c(n−1,k)+c(n−1,k−1) (tied to permutation cycle decomposition). Generating functions: Bell's EGF is <b>e^(eˣ−1)</b>, and second-kind Stirling are the \"power → falling factorial\" change-of-basis coefficients (xⁿ = Σ S(n,k)·x^(falling k)). Uses: <b>distribution problems</b> (of the 4 ball-box variants, \"distinct balls, indistinct boxes\" = Stirling), counting set partitions, inclusion-exclusion with identical items, power-sum formulas, combinatorial identities. With Catalan (parentheses/trees) and binomials (subsets), they are the core family of \"counting numbers.\"",
   "problem": {
    "q": "제2종 스털링 수 점화식 S(n,k)=k·S(n−1,k)+S(n−1,k−1)의 두 항은 각각 무엇을 세나?",
@@ -5720,7 +5804,9 @@
    "  for(int j=1;j<=i;j++)",
    "    S[i][j] = (j*S[i-1][j] + S[i-1][j-1]);",
    "// 벨 수 B(n) = Σ_k S(n,k)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 14
  },
  "algo_br_fastfib": {
   "ch": "알고리즘 제7장 동적 계획법",
@@ -5831,11 +5917,11 @@
  },
  "algo_br_kitamasa": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "키타마사 — 선형 점화식의 N번째 항을 빠르게",
   "narr": "DP 응용에서 선형 점화식의 거대한 N번째 항을 구합니다. 차수 L인 점화식 aₙ = c₁aₙ₋₁ + … + c_L aₙ₋_L의 a_N을, 행렬 거듭제곱(O(L³ log N))보다 빠른 <b>O(L² log N)</b>에 구하는 것이 <b>키타마사</b>입니다. 핵심은 a_N이 초기항의 선형 결합이고, 그 계수가 <b>x^N을 특성 다항식 f(x)로 나눈 나머지</b>의 계수와 같다는 것입니다. 그래서 <b>x^N mod f(x)</b>만 구하면 되고, 이는 빠른 거듭제곱을 <b>다항식 곱셈 + f로 나머지</b> 위에서 수행하는 것입니다. 각 단계가 O(L²)이고 단계가 O(log N)이라 전체 <b>O(L² log N)</b>입니다. 벨캄프-매시로 점화식을 복원한 뒤 키타마사로 N항을 구하는 콤보가 강력합니다.",
   "hint": "",
-  "more": "<b>키타마사법(Kitamasa)</b>은 <b>상수 계수 선형 점화식</b> aₙ = c₁aₙ₋₁ + c₂aₙ₋₂ + … + c_L aₙ₋_L 의 <b>N번째 항 a_N</b>을 빠르게 구합니다(L=차수, N=거대 인덱스). 핵심 아이디어: a_N은 <b>초기항 a₀..a_{L−1}의 선형 결합</b>으로 쓸 수 있고, 그 결합 계수는 <b>x^N 을 특성 다항식 f(x) = xᴸ − c₁xᴸ⁻¹ − … − c_L 로 나눈 나머지</b>(차수 < L)의 계수와 같습니다. 즉 <b>a_N = Σ_{i<L} (x^N mod f(x))의 i차 계수 · a_i</b>. 그래서 <b>x^N mod f(x)</b>만 구하면 되고, 이는 <b>빠른 거듭제곱</b>(N의 비트를 따라 제곱·곱)을 <b>다항식 곱셈 + f(x)로 나머지</b> 위에서 수행하는 것 — 각 단계의 다항식 연산이 <b>O(L²)</b>(단순 곱·나눗셈)이고 단계가 <b>O(log N)</b>이라 전체 <b>O(L² log N)</b>. (다항식 곱·나머지를 <b>NTT</b>로 하면 O(L log L log N)까지.) 이는 <b>행렬 거듭제곱</b> [companion matrix]^N (O(L³ log N))과 수학적으로 같은 결과지만, 행렬 대신 차수 L 다항식을 다뤄 L에 대한 비용이 낮습니다(L³ → L²). 강력한 콤보: 수열의 처음 ~2L항만 알 때 <b>벨캄프-매시로 점화식을 복원</b>한 뒤 <b>키타마사로 N항</b>을 구하면, \"점화식을 모르는 수열의 거대 N항\"을 풀 수 있습니다. 쓰임: 거대 인덱스 피보나치/선형 점화 수열의 mod 값, DP 수열의 닫힌 계산, 조합론 항. \"x^N mod 특성다항식 → 초기항 결합\"이 핵심입니다.",
+  "more": "​N번째 항을 더 빠르게 — <b>키타마사</b>. <b>키타마사법(Kitamasa)</b>은 <b>상수 계수 선형 점화식</b> aₙ = c₁aₙ₋₁ + c₂aₙ₋₂ + … + c_L aₙ₋_L 의 <b>N번째 항 a_N</b>을 빠르게 구합니다(L=차수, N=거대 인덱스). 핵심 아이디어: a_N은 <b>초기항 a₀..a_{L−1}의 선형 결합</b>으로 쓸 수 있고, 그 결합 계수는 <b>x^N 을 특성 다항식 f(x) = xᴸ − c₁xᴸ⁻¹ − … − c_L 로 나눈 나머지</b>(차수 < L)의 계수와 같습니다. 즉 <b>a_N = Σ_{i<L} (x^N mod f(x))의 i차 계수 · a_i</b>. 그래서 <b>x^N mod f(x)</b>만 구하면 되고, 이는 <b>빠른 거듭제곱</b>(N의 비트를 따라 제곱·곱)을 <b>다항식 곱셈 + f(x)로 나머지</b> 위에서 수행하는 것 — 각 단계의 다항식 연산이 <b>O(L²)</b>(단순 곱·나눗셈)이고 단계가 <b>O(log N)</b>이라 전체 <b>O(L² log N)</b>. (다항식 곱·나머지를 <b>NTT</b>로 하면 O(L log L log N)까지.) 이는 <b>행렬 거듭제곱</b> [companion matrix]^N (O(L³ log N))과 수학적으로 같은 결과지만, 행렬 대신 차수 L 다항식을 다뤄 L에 대한 비용이 낮습니다(L³ → L²). 강력한 콤보: 수열의 처음 ~2L항만 알 때 <b>벨캄프-매시로 점화식을 복원</b>한 뒤 <b>키타마사로 N항</b>을 구하면, \"점화식을 모르는 수열의 거대 N항\"을 풀 수 있습니다. 쓰임: 거대 인덱스 피보나치/선형 점화 수열의 mod 값, DP 수열의 닫힌 계산, 조합론 항. \"x^N mod 특성다항식 → 초기항 결합\"이 핵심입니다.",
   "more_en": "<b>Kitamasa's method</b> quickly computes the <b>N-th term a_N</b> of a <b>constant-coefficient linear recurrence</b> aₙ = c₁aₙ₋₁ + … + c_L aₙ₋_L (L = order, N = huge index). Key idea: a_N is a <b>linear combination of the initial terms a₀..a_{L−1}</b>, and the combination coefficients equal the coefficients of <b>x^N reduced modulo the characteristic polynomial f(x) = xᴸ − c₁xᴸ⁻¹ − … − c_L</b> (a polynomial of degree < L). That is, <b>a_N = Σ_{i<L} (coefficient of x^i in x^N mod f(x)) · a_i</b>. So you only need <b>x^N mod f(x)</b>, computed by <b>fast exponentiation</b> (squaring and multiplying along N's bits) over <b>polynomial multiplication + reduction by f(x)</b> — each step's polynomial op is <b>O(L²)</b> (naive) and there are <b>O(log N)</b> steps, for <b>O(L² log N)</b> total (or O(L log L log N) with <b>NTT</b>). This gives the same result as <b>matrix exponentiation</b> of the companion matrix (O(L³ log N)) but works with a degree-L polynomial instead of an L×L matrix, lowering the L-dependence (L³ → L²). A powerful combo: with only the first ~2L terms, <b>recover the recurrence by Berlekamp-Massey</b>, then <b>Kitamasa for the N-th term</b> — solving \"huge N-th term of a sequence with unknown recurrence.\" Uses: mod values of huge-index Fibonacci/linear sequences, closed evaluation of DP sequences, combinatorial terms. The crux: \"x^N mod characteristic polynomial → combine the initial terms.\"",
   "problem": {
    "q": "키타마사가 a_N을 'x^N mod f(x)'로 구하는 원리는?",
@@ -5851,7 +5937,9 @@
    "long ans=0;",
    "for(int i=0;i<k;i++) ans += r[i]*a[i];",
    "// O(k^2 log N) 또는 NTT로 O(k log k log N)"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 9
  },
  "algo_br_hall": {
   "ch": "알고리즘 제6장 그래프",
@@ -5882,11 +5970,11 @@
  },
  "algo_br_altsubseq": {
   "ch": "알고리즘 제7장 동적 계획법",
-  "sec": "7.5 동적 계획법 응용 ▸ 자세히",
+  "sec": "DP 최적화·수열",
   "title": "최장 교대 부분수열 — 오르락내리락 가장 길게",
   "narr": "DP 응용에서 오르락내리락 가장 긴 부분수열을 찾습니다. 인접한 차이의 부호가 <b>증가-감소-증가로 엄격히 번갈아</b> 나타나는 가장 긴 부분수열의 길이입니다. LIS는 O(n log n)이 필요하지만 교대 수열은 <b>O(n)</b>에 풉니다. DP는 두 상태 up[i](마지막이 증가)·down[i](마지막이 감소)를 두고, aᵢ>aᵢ₋₁이면 up=down+1, aᵢ<aᵢ₋₁이면 down=up+1, 답은 max(up,down)입니다. 더 간단히는 <b>연속한 단조 구간을 한 점으로 압축</b>하면 봉우리와 골만 남고 그 <b>방향 전환점 개수 + 1</b>이 답입니다. 단조 구간 안에선 양 끝만 쓰는 게 최선이라 중간을 버려도 손해 없는 탐욕이 최적이기 때문입니다. 추세 전환 횟수·데이터 단순화에 쓰입니다.",
   "hint": "",
-  "more": "<b>최장 교대 부분수열(longest alternating / zigzag subsequence)</b>은 인접한 두 원소의 차이 부호가 <b>증가-감소-증가-…(또는 감소-증가-…)로 엄격히 번갈아</b> 나타나는 가장 긴 부분수열의 길이입니다(예: 1,5,2,7,3 은 ↑↓↑↓로 교대). LIS는 O(n log n)이 필요하지만, 교대 수열은 <b>O(n) 탐욕/DP</b>로 풉니다. <b>DP</b>: 두 상태 <b>up[i]</b>(i에서 끝나며 마지막 차이가 <b>증가(↑)</b>인 최장 길이), <b>down[i]</b>(마지막이 <b>감소(↓)</b>). 점화: aᵢ > aᵢ₋₁ 이면 up = down + 1(직전이 ↓였어야 ↑로 이음), aᵢ < aᵢ₋₁ 이면 down = up + 1, 같으면 둘 다 유지. 답 = max(up, down). 더 간단한 직관: <b>연속한 단조 구간(같은 방향으로 계속 오르거나 내리는 구간)을 한 점으로 압축</b>하면, 남는 것은 <b>봉우리(국소 최대)와 골(국소 최소)</b>이고, 그 <b>방향 전환점의 개수 + 1</b>이 답입니다(단조 구간 안에선 양 끝만 쓰는 게 최선이므로 중간을 버려도 손해 없음 — 탐욕이 최적). 변형: 최장 교대 <b>부분문자열</b>(연속), 부호 약한 교대(≤,≥), <b>주식 거래</b>(여러 번 사고팔기 최대 이익 = 모든 상승 구간 합 = 교대 구조와 연결). 쓰임: 신호의 진동 길이, 추세 전환 횟수, 데이터 단순화(극점만 남기기). \"방향이 바뀔 때마다 +1, max(up,down)\"이 한 줄 요약입니다.",
+  "more": "​오르락내리락 가장 길게 — <b>최장 교대 부분수열</b>. <b>최장 교대 부분수열(longest alternating / zigzag subsequence)</b>은 인접한 두 원소의 차이 부호가 <b>증가-감소-증가-…(또는 감소-증가-…)로 엄격히 번갈아</b> 나타나는 가장 긴 부분수열의 길이입니다(예: 1,5,2,7,3 은 ↑↓↑↓로 교대). LIS는 O(n log n)이 필요하지만, 교대 수열은 <b>O(n) 탐욕/DP</b>로 풉니다. <b>DP</b>: 두 상태 <b>up[i]</b>(i에서 끝나며 마지막 차이가 <b>증가(↑)</b>인 최장 길이), <b>down[i]</b>(마지막이 <b>감소(↓)</b>). 점화: aᵢ > aᵢ₋₁ 이면 up = down + 1(직전이 ↓였어야 ↑로 이음), aᵢ < aᵢ₋₁ 이면 down = up + 1, 같으면 둘 다 유지. 답 = max(up, down). 더 간단한 직관: <b>연속한 단조 구간(같은 방향으로 계속 오르거나 내리는 구간)을 한 점으로 압축</b>하면, 남는 것은 <b>봉우리(국소 최대)와 골(국소 최소)</b>이고, 그 <b>방향 전환점의 개수 + 1</b>이 답입니다(단조 구간 안에선 양 끝만 쓰는 게 최선이므로 중간을 버려도 손해 없음 — 탐욕이 최적). 변형: 최장 교대 <b>부분문자열</b>(연속), 부호 약한 교대(≤,≥), <b>주식 거래</b>(여러 번 사고팔기 최대 이익 = 모든 상승 구간 합 = 교대 구조와 연결). 쓰임: 신호의 진동 길이, 추세 전환 횟수, 데이터 단순화(극점만 남기기). \"방향이 바뀔 때마다 +1, max(up,down)\"이 한 줄 요약입니다.",
   "more_en": "The <b>longest alternating (zigzag) subsequence</b> is the length of the longest subsequence whose consecutive differences strictly alternate in sign — <b>increase-decrease-increase-…(or decrease-increase-…)</b> (e.g. 1,5,2,7,3 alternates ↑↓↑↓). Unlike LIS (O(n log n)), it is solved in <b>O(n)</b> by greedy/DP. <b>DP</b>: two states <b>up[i]</b> (longest ending at i with the last difference <b>increasing (↑)</b>) and <b>down[i]</b> (last <b>decreasing (↓)</b>). Recurrence: if aᵢ > aᵢ₋₁ then up = down + 1 (the previous must have been ↓ to extend with ↑); if aᵢ < aᵢ₋₁ then down = up + 1; if equal, keep both. The answer is max(up, down). Simpler intuition: <b>compress each monotone run (going the same direction) to a single point</b>, leaving only <b>peaks (local maxima) and valleys (local minima)</b>; the answer is the <b>number of turning points + 1</b> (within a monotone run only the endpoints help, so dropping the middle costs nothing — greedy is optimal). Variants: longest alternating <b>substring</b> (contiguous), weak alternation (≤,≥), <b>stock trading</b> (max profit with multiple buy/sell = sum of all rising runs, tied to the zigzag structure). Uses: oscillation length of a signal, number of trend reversals, data simplification (keep only extrema). One-liner: \"+1 at each direction change, take max(up, down).\"",
   "problem": {
    "q": "최장 교대 부분수열이 LIS와 달리 O(n)에 풀리는 이유는?",
@@ -5902,15 +5990,17 @@
    "  else if(a[i]<a[i-1]) down = up+1;",
    "}",
    "return max(up, down);   // O(n) 그리디"
-  ]
+  ],
+  "branchOf": "algo7_07",
+  "ord": 15
  },
  "algo_br_multipoint": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "다항식 다중점 평가·보간 — 곱-나무 + 나머지 트리",
   "narr": "한 다항식을 여러 점에서 한꺼번에 평가하거나 거꾸로 보간합니다. <b>다중점 평가</b>는 P(x)를 n개 점에서 모두 평가하는데, 점마다 호너법은 O(n²)이지만 분할 정복으로 <b>O(n log² n)</b>에 합니다. 핵심은 <b>P(xᵢ) = P(x) mod (x − xᵢ)</b>입니다. 잎이 (x−xᵢ)이고 내부 노드가 두 자식 곱인 <b>곱-나무</b>를 만들고, 루트에서 P를 시작해 각 노드에서 <b>P를 그 노드의 곱으로 나눈 나머지</b>를 자식으로 내려보내면 잎에서 P(xᵢ)가 됩니다. 각 층의 나눗셈이 NTT로 O(n log n)이고 층이 log n개라 O(n log² n)입니다. <b>보간</b>은 역과정으로 같은 곱-나무 위에서 라그랑주를 합칩니다. 샤미르 비밀 분산·리드-솔로몬 부호에 쓰입니다.",
   "hint": "",
-  "more": "<b>다항식 다중점 평가(multipoint evaluation)</b>는 한 다항식 P(x)(차수 < n)를 <b>n개의 점 x₀,…,x_{n−1}에서 모두 평가</b>하는 문제입니다. 점마다 호너법으로 평가하면 O(n²)인데, 분할 정복으로 <b>O(n log² n)</b>에 합니다. 핵심: <b>P(xᵢ) = P(x) mod (x − xᵢ)</b>(나머지 정리). ① 먼저 <b>곱-나무(product/subproduct tree)</b>를 만듭니다 — 잎이 (x−xᵢ)이고, 각 내부 노드가 두 자식의 곱(그 구간 점들의 (x−xⱼ) 전부의 곱). ② 루트에서 P를 시작해, 각 노드에서 <b>P를 그 노드의 곱 다항식으로 나눈 나머지</b>를 두 자식으로 내려보냅니다(왼쪽 자식엔 P mod (왼쪽 절반 점들의 곱), …). ③ 잎에 도달하면 P mod (x−xᵢ) = P(xᵢ). 각 층의 다항식 나눗셈/나머지가 <b>NTT로 O(n log n)</b>, 층이 log n개라 <b>O(n log² n)</b>. <b>보간(interpolation)</b>은 역과정: 같은 곱-나무 위에서 라그랑주 보간을 분할 정복으로 합쳐 n개의 점 (xᵢ, yᵢ)을 지나는 다항식을 O(n log² n)에 복원(곱-나무의 미분으로 분모를 처리). 토대는 <b>NTT(빠른 다항식 곱)</b>와 <b>다항식 역원/나눗셈</b>(뉴턴 배가). 쓰임: <b>샤미르 비밀 분산</b>의 대량 점 평가/복원, 생성함수의 여러 값 추출, <b>리드-솔로몬 부호</b>의 인코딩/디코딩, CRT의 다항식판(여러 (x−xᵢ)로 동시 나머지), 빠른 다항식 알고리즘 라이브러리. \"곱-나무 + 나머지로 평가, 그 역으로 보간, 모두 O(n log²n)\"이 핵심입니다.",
+  "more": "​여러 점 동시 평가·보간 — 곱-나무. <b>다항식 다중점 평가(multipoint evaluation)</b>는 한 다항식 P(x)(차수 < n)를 <b>n개의 점 x₀,…,x_{n−1}에서 모두 평가</b>하는 문제입니다. 점마다 호너법으로 평가하면 O(n²)인데, 분할 정복으로 <b>O(n log² n)</b>에 합니다. 핵심: <b>P(xᵢ) = P(x) mod (x − xᵢ)</b>(나머지 정리). ① 먼저 <b>곱-나무(product/subproduct tree)</b>를 만듭니다 — 잎이 (x−xᵢ)이고, 각 내부 노드가 두 자식의 곱(그 구간 점들의 (x−xⱼ) 전부의 곱). ② 루트에서 P를 시작해, 각 노드에서 <b>P를 그 노드의 곱 다항식으로 나눈 나머지</b>를 두 자식으로 내려보냅니다(왼쪽 자식엔 P mod (왼쪽 절반 점들의 곱), …). ③ 잎에 도달하면 P mod (x−xᵢ) = P(xᵢ). 각 층의 다항식 나눗셈/나머지가 <b>NTT로 O(n log n)</b>, 층이 log n개라 <b>O(n log² n)</b>. <b>보간(interpolation)</b>은 역과정: 같은 곱-나무 위에서 라그랑주 보간을 분할 정복으로 합쳐 n개의 점 (xᵢ, yᵢ)을 지나는 다항식을 O(n log² n)에 복원(곱-나무의 미분으로 분모를 처리). 토대는 <b>NTT(빠른 다항식 곱)</b>와 <b>다항식 역원/나눗셈</b>(뉴턴 배가). 쓰임: <b>샤미르 비밀 분산</b>의 대량 점 평가/복원, 생성함수의 여러 값 추출, <b>리드-솔로몬 부호</b>의 인코딩/디코딩, CRT의 다항식판(여러 (x−xᵢ)로 동시 나머지), 빠른 다항식 알고리즘 라이브러리. \"곱-나무 + 나머지로 평가, 그 역으로 보간, 모두 O(n log²n)\"이 핵심입니다.",
   "more_en": "<b>Multipoint evaluation</b> evaluates one polynomial P(x) (degree < n) at <b>all n points x₀,…,x_{n−1} at once</b>. Evaluating per point by Horner is O(n²); divide and conquer does it in <b>O(n log² n)</b>. Key: <b>P(xᵢ) = P(x) mod (x − xᵢ)</b> (remainder theorem). ① Build a <b>product (subproduct) tree</b> whose leaves are (x−xᵢ) and each internal node is the product of its children (the product of all (x−xⱼ) in its range). ② Starting with P at the root, at each node push down the <b>remainder of P modulo that node's product polynomial</b> to the two children (left child gets P mod (product of the left half's points), …). ③ At a leaf, P mod (x−xᵢ) = P(xᵢ). Each level's polynomial division/remainder is <b>O(n log n) with NTT</b>, and with log n levels, <b>O(n log² n)</b>. <b>Interpolation</b> is the inverse: over the same product tree, combine Lagrange interpolation by divide and conquer to recover the polynomial through n points (xᵢ, yᵢ) in O(n log² n) (handling denominators via the derivative of the product tree). The foundation is <b>NTT (fast polynomial multiplication)</b> and <b>polynomial inverse/division</b> (Newton doubling). Uses: bulk point evaluation/recovery in <b>Shamir secret sharing</b>, extracting many values of a generating function, encoding/decoding of <b>Reed-Solomon codes</b>, the polynomial analogue of CRT (simultaneous remainders by many (x−xᵢ)), fast polynomial libraries. The crux: \"evaluate via product tree + remainders, interpolate by the inverse, all O(n log²n).\"",
   "problem": {
    "q": "다항식 다중점 평가가 P(xᵢ)를 'P mod (x−xᵢ)'와 곱-나무로 O(n log²n)에 구하는 원리는?",
@@ -5927,7 +6017,9 @@
    "  P = P % node.poly;               // 나머지로 줄이기",
    "  return merge(rec(P,left), rec(P,right));",
    "}   // O(n log^2 n)"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 7
  },
  "algo_br_binarygcd": {
   "ch": "알고리즘 제2장 자료구조",
@@ -6282,11 +6374,11 @@
  },
  "algo_br_iddfs": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "반복적 깊이 증가 — DFS의 메모리, BFS의 최단성",
   "narr": "BFS는 최단 깊이를 보장하지만 큐에 한 층을 다 담아 메모리가 <b>O(b^d)</b>로 폭발하고, DFS는 메모리가 <b>O(d)</b>로 작지만 최단을 보장하지 못합니다. <b>반복적 깊이 증가(IDDFS)</b>는 깊이 한계를 0,1,2,…로 늘려 가며 깊이 제한 DFS를 반복해 둘의 장점을 모두 얻습니다. 처음으로 목표를 만나는 한계가 곧 최단 깊이이므로 최단성이 보장됩니다. 얕은 층을 여러 번 다시 방문하는 낭비가 걱정되지만, 분기 계수 b가 1보다 크면 노드 수가 마지막 층에 기하급수로 몰려 <b>총 비용은 단일 BFS와 같은 O(b^d)</b>입니다. 메모리는 DFS처럼 O(d)뿐입니다. 큰 상태공간 탐색의 표준 기법입니다. 한계가 한 단계씩 깊어지는 과정을 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>반복적 깊이 증가(Iterative Deepening DFS, IDDFS)</b>는 <b>깊이 한계(depth limit) L을 0,1,2,…로 하나씩 늘리며 깊이 제한 DFS를 반복</b>하는 탐색입니다. 각 라운드는 \"L 이하 깊이만 가는 DFS\"이고, 목표를 찾으면 멈춥니다. 이 단순한 반복이 <b>BFS의 최단성(가장 얕은 해 먼저 발견)과 DFS의 메모리 효율(O(깊이))을 동시에</b> 얻게 합니다 — BFS는 프런티어를 다 저장해 O(b^d) 메모리지만, IDDFS는 현재 경로만 들고 있어 <b>O(d)</b>. \"같은 노드를 여러 번 방문해 낭비 아니냐?\"는 흔한 오해인데, 분기 계수 b>1이면 <b>마지막(가장 깊은) 레벨이 노드 수를 지배</b>(레벨 d의 노드가 그 위 모든 레벨 합보다 많음)하므로, 재방문 포함 총 노드 방문 수는 여전히 <b>O(b^d)</b>로 BFS와 같은 점근(상수 배 b/(b−1)). 휴리스틱을 더하면 <b>IDA*</b>: 깊이 한계 대신 <b>f=g+h(추정 총비용) 임계값</b>을 늘려 가며 DFS — A*의 최적성을 <b>메모리 O(깊이)</b>로(A*는 열린목록이 폭발). 쓰임: <b>거대 상태공간 퍼즐</b>(15퍼즐·루빅스 큐브의 최적해), 메모리가 빡센 환경의 최단 경로, 게임 트리 탐색의 반복 깊이(체스). \"깊이 늘려가며 DFS 반복 → BFS 최단 + DFS 메모리\"가 핵심이며, IDA*는 그 A* 버전입니다.",
+  "more": "​DFS의 메모리 + BFS의 최단성 — <b>IDDFS</b>. <b>반복적 깊이 증가(Iterative Deepening DFS, IDDFS)</b>는 <b>깊이 한계(depth limit) L을 0,1,2,…로 하나씩 늘리며 깊이 제한 DFS를 반복</b>하는 탐색입니다. 각 라운드는 \"L 이하 깊이만 가는 DFS\"이고, 목표를 찾으면 멈춥니다. 이 단순한 반복이 <b>BFS의 최단성(가장 얕은 해 먼저 발견)과 DFS의 메모리 효율(O(깊이))을 동시에</b> 얻게 합니다 — BFS는 프런티어를 다 저장해 O(b^d) 메모리지만, IDDFS는 현재 경로만 들고 있어 <b>O(d)</b>. \"같은 노드를 여러 번 방문해 낭비 아니냐?\"는 흔한 오해인데, 분기 계수 b>1이면 <b>마지막(가장 깊은) 레벨이 노드 수를 지배</b>(레벨 d의 노드가 그 위 모든 레벨 합보다 많음)하므로, 재방문 포함 총 노드 방문 수는 여전히 <b>O(b^d)</b>로 BFS와 같은 점근(상수 배 b/(b−1)). 휴리스틱을 더하면 <b>IDA*</b>: 깊이 한계 대신 <b>f=g+h(추정 총비용) 임계값</b>을 늘려 가며 DFS — A*의 최적성을 <b>메모리 O(깊이)</b>로(A*는 열린목록이 폭발). 쓰임: <b>거대 상태공간 퍼즐</b>(15퍼즐·루빅스 큐브의 최적해), 메모리가 빡센 환경의 최단 경로, 게임 트리 탐색의 반복 깊이(체스). \"깊이 늘려가며 DFS 반복 → BFS 최단 + DFS 메모리\"가 핵심이며, IDA*는 그 A* 버전입니다.",
   "more_en": "<b>Iterative Deepening DFS (IDDFS)</b> repeats a depth-limited DFS with the <b>depth limit L increasing 0,1,2,…</b>. Each round is \"DFS that goes no deeper than L,\" stopping when the goal is found. This simple repetition gets <b>both BFS's optimality (shallowest solution first) and DFS's memory efficiency (O(depth))</b> — BFS stores the whole frontier (O(b^d) memory), while IDDFS holds only the current path, <b>O(d)</b>. A common misconception is \"isn't revisiting nodes wasteful?\" — but with branching factor b>1, the <b>deepest level dominates the node count</b> (level d has more nodes than all levels above combined), so total visits including re-expansion are still <b>O(b^d)</b>, the same asymptotics as BFS (a constant factor b/(b−1)). Adding a heuristic gives <b>IDA*</b>: instead of a depth limit, increase an <b>f = g + h (estimated total cost) threshold</b> with DFS — achieving A*'s optimality in <b>O(depth) memory</b> (A*'s open list can blow up). Uses: <b>huge state-space puzzles</b> (optimal solutions to the 15-puzzle, Rubik's cube), shortest paths under tight memory, iterative-deepening game-tree search (chess). The crux: \"repeat DFS with growing depth → BFS optimality + DFS memory,\" and IDA* is its A* version.",
   "problem": {
    "q": "IDDFS가 같은 노드를 여러 번 방문하는데도 BFS와 같은 O(b^d)인 이유는?",
@@ -6305,15 +6397,17 @@
    "    if(dfs(v, depth+1, limit)) return true;",
    "  return false;",
    "}   // IDA*는 여기에 휴리스틱 컷"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 12
  },
  "algo_br_bronkerbosch": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.3 P vs NP ▸ 자세히",
+  "sec": "분할정복·다항식·백트래킹",
   "title": "브론-커보시 — 최대 클리크를 모두 열거",
   "narr": "그래프에서 <b>서로 모두 인접한 정점 집합</b>을 클리크라 하고, 더 키울 수 없는 것을 <b>극대 클리크</b>라 합니다. <b>브론-커보시</b>는 이 극대 클리크를 전부 열거하는 고전 백트래킹입니다. R(지금까지 모은 클리크)·P(아직 넣을 수 있는 후보)·X(이미 다룬 제외 정점) 세 집합으로 재귀합니다. 후보 v를 R에 넣고, P와 X를 모두 v의 이웃으로 좁혀 더 깊이 들어갑니다. P와 X가 동시에 비면 R이 극대 클리크입니다. 중복 없이 모든 극대 클리크를 정확히 한 번씩 내는 비결이 X입니다. <b>피벗</b>을 골라 분기를 줄이면 최악 <b>O(3^(n/3))</b>로, 극대 클리크 수의 이론적 상한과 맞아 본질적으로 최적입니다. 세 집합이 재귀로 어떻게 갈라지는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>브론-커보시 알고리즘(Bron-Kerbosch)</b>은 무방향 그래프의 <b>모든 극대 클리크(maximal clique)</b>를 열거하는 백트래킹입니다(클리크 = 서로 모두 인접한 정점 집합; 극대 = 어떤 정점도 더 추가할 수 없음). 세 집합으로 상태를 유지합니다: <b>R</b> = 지금까지 만든 클리크(현재 부분해), <b>P</b> = R에 추가 가능한 후보(R의 모든 정점과 인접), <b>X</b> = 이미 처리해 \"이 가지에서 다시 보면 안 되는\" 정점(중복 열거 방지). 재귀: <b>P와 X가 모두 비면 R이 극대 클리크</b>(보고). 아니면 P의 각 정점 v를 골라 R∪{v}로 내려가되, P·X를 <b>v의 이웃과 교집합</b>으로 좁히고, 처리 후 v를 P에서 X로 옮깁니다. <b>피벗(pivot) 최적화</b>: P∪X에서 피벗 u를 골라 \"<b>u의 비이웃</b>\"만 분기하면(u의 이웃은 u를 통해 어차피 덮임) 가지 수가 크게 줄어 실전 성능이 좋아집니다. <b>차수 축퇴 순서(degeneracy ordering)</b>로 바깥 루프를 돌면 <b>O(d·n·3^(d/3))</b>(d=축퇴도)로, 희소 그래프에 효율적. 최악 극대 클리크 수는 <b>3^(n/3)</b>(문-모저 정리)이라 출력 자체가 지수일 수 있어 \"출력 민감\" 알고리즘입니다(<b>최대 클리크 찾기는 NP-난해</b>, 열거도 본질적으로 비쌈). 쓰임: <b>소셜 네트워크 커뮤니티</b>(서로 다 아는 그룹), <b>생물정보학</b>(단백질 상호작용·유전자 군집), 추천, 충돌 그래프 분석. \"R·P·X 세 집합 + 피벗 가지치기로 극대 클리크 전수\"가 핵심입니다.",
+  "more": "​최대 클리크를 모두 열거 — <b>브론-커보시</b>. <b>브론-커보시 알고리즘(Bron-Kerbosch)</b>은 무방향 그래프의 <b>모든 극대 클리크(maximal clique)</b>를 열거하는 백트래킹입니다(클리크 = 서로 모두 인접한 정점 집합; 극대 = 어떤 정점도 더 추가할 수 없음). 세 집합으로 상태를 유지합니다: <b>R</b> = 지금까지 만든 클리크(현재 부분해), <b>P</b> = R에 추가 가능한 후보(R의 모든 정점과 인접), <b>X</b> = 이미 처리해 \"이 가지에서 다시 보면 안 되는\" 정점(중복 열거 방지). 재귀: <b>P와 X가 모두 비면 R이 극대 클리크</b>(보고). 아니면 P의 각 정점 v를 골라 R∪{v}로 내려가되, P·X를 <b>v의 이웃과 교집합</b>으로 좁히고, 처리 후 v를 P에서 X로 옮깁니다. <b>피벗(pivot) 최적화</b>: P∪X에서 피벗 u를 골라 \"<b>u의 비이웃</b>\"만 분기하면(u의 이웃은 u를 통해 어차피 덮임) 가지 수가 크게 줄어 실전 성능이 좋아집니다. <b>차수 축퇴 순서(degeneracy ordering)</b>로 바깥 루프를 돌면 <b>O(d·n·3^(d/3))</b>(d=축퇴도)로, 희소 그래프에 효율적. 최악 극대 클리크 수는 <b>3^(n/3)</b>(문-모저 정리)이라 출력 자체가 지수일 수 있어 \"출력 민감\" 알고리즘입니다(<b>최대 클리크 찾기는 NP-난해</b>, 열거도 본질적으로 비쌈). 쓰임: <b>소셜 네트워크 커뮤니티</b>(서로 다 아는 그룹), <b>생물정보학</b>(단백질 상호작용·유전자 군집), 추천, 충돌 그래프 분석. \"R·P·X 세 집합 + 피벗 가지치기로 극대 클리크 전수\"가 핵심입니다.",
   "more_en": "<b>Bron-Kerbosch</b> is a backtracking algorithm enumerating <b>all maximal cliques</b> of an undirected graph (a clique = a set of mutually adjacent vertices; maximal = no vertex can be added). It maintains three sets: <b>R</b> = the clique built so far (current partial solution), <b>P</b> = candidates that can extend R (adjacent to all of R), and <b>X</b> = already-processed vertices that must not be reconsidered in this branch (avoiding duplicate enumeration). Recursion: <b>if P and X are both empty, R is a maximal clique</b> (report it). Otherwise pick each v in P, recurse into R∪{v} with P and X <b>intersected with v's neighbors</b>, then move v from P to X. The <b>pivot optimization</b>: choosing a pivot u from P∪X and branching only on the <b>non-neighbors of u</b> (u's neighbors are covered via u anyway) greatly cuts branching and improves practical speed. Running the outer loop in <b>degeneracy order</b> gives <b>O(d·n·3^(d/3))</b> (d = degeneracy), efficient on sparse graphs. The worst-case number of maximal cliques is <b>3^(n/3)</b> (Moon-Moser), so the output itself can be exponential — an \"output-sensitive\" algorithm (<b>finding the maximum clique is NP-hard</b>, and enumeration is inherently costly). Uses: <b>social-network communities</b> (mutually acquainted groups), <b>bioinformatics</b> (protein interactions, gene clusters), recommendation, conflict-graph analysis. The crux: \"three sets R·P·X plus pivot pruning to enumerate all maximal cliques.\"",
   "problem": {
    "q": "브론-커보시에서 집합 X(제외)는 왜 필요한가?",
@@ -6331,7 +6425,9 @@
    "    P.erase(v); X.insert(v);",
    "  }",
    "}"
-  ]
+  ],
+  "branchOf": "algo8_06",
+  "ord": 11
  },
  "algo_br_treeiso": {
   "ch": "알고리즘 제5장 트리",
@@ -6375,26 +6471,28 @@
  },
  "algo_br_substitution": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할 정복 ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "치환법 — 답을 추측하고 귀납으로 증명",
   "narr": "점화식 T(n)=2T(n/2)+n의 해는 짐작에 그치지 않고 <b>증명</b>할 수 있습니다. <b>치환법</b>은 두 단계입니다. 먼저 답의 꼴을 추측하고(예: T(n)≤c·n log n), 그 추측을 가정한 채 <b>수학적 귀납법</b>으로 큰 n에서 성립함을 보입니다. 작은 입력 T(n/2)에 귀납 가정을 대입한 뒤 부등식이 닫히도록 상수 c와 기저 경우를 맞추는 것이 관건입니다. 추측이 약간 빗나가 항이 남으면 더 강한 가정(저차항을 뺀 형태)으로 보강합니다. 마스터 정리가 다루지 못하는 불규칙한 점화식까지 푸는 만능 도구입니다. 추측한 식이 귀납 단계에서 어떻게 닫히는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>치환법(substitution method)</b>은 점화식의 점근 해를 <b>① 추측하고 ② 귀납으로 증명</b>하는 두 단계 기법입니다(마스터 정리·재귀 트리로 답을 짐작한 뒤 엄밀화할 때, 또는 마스터가 안 맞는 형태에 사용). 예시 <b>T(n)=2T(n/2)+n, 추측 T(n)=O(n lg n) (lg n = log₂ n, 밑이 2인 로그)</b>: <b>① 추측</b> — T(n) ≤ c·n·lg n (상수 c>0는 뒤에서 결정). <b>② 귀납 가정</b> — n보다 작은 모든 값, 특히 n/2에 대해 T(n/2) ≤ c·(n/2)·lg(n/2)가 성립한다고 가정. <b>③ 대입</b> — T(n) ≤ 2·[c·(n/2)·lg(n/2)] + n = c·n·lg(n/2) + n = c·n·(lg n − 1) + n = c·n·lg n − c·n + n. 이 값이 c·n·lg n 이하가 되려면 <b>−c·n + n ≤ 0, 즉 c ≥ 1</b>이면 충분. <b>④ 경계(기저)조건</b> — 작은 n(예 n=2,3)에서도 T(n) ≤ c·n·lg n이 성립하도록 c를 충분히 크게 잡으면(점근은 충분히 큰 n만 보면 되므로 작은 유한 개는 상수로 흡수) 귀납이 완성됩니다. <b>흔한 함정</b>: ① 점근 표기를 귀납 안에서 흐릿하게 쓰면 안 됨 — \"T(n) ≤ c·n + O(n) = O(n)\"처럼 O를 가정 안에 숨기면 상수가 매 단계 커져 거짓 증명이 됨. <b>상수 c를 명시</b>해 −c·n+n≤0처럼 정확한 부등식으로 닫아야 함. ② 추측이 약간 빗나가면(예 T(n)=O(n)으로 추측했는데 실제 n lg n) 귀납이 \"닫히지 않아\"(잉여항이 남음) 추측을 고쳐야 함 — 때로 <b>저차항을 빼서 더 강한 가정</b>(T(n) ≤ cn − d 처럼)으로 잡아야 닫히는 경우도. 쓰임: 비표준 점화식(T(n)=T(n−1)+n, T(n)=2T(√n)+lg n 등), 마스터/아크라바지 결과의 엄밀 검증. \"추측 → 귀납 대입 → 상수로 닫기\"가 핵심입니다.",
+  "more": "​답을 추측하고 귀납으로 — <b>치환법</b>. <b>치환법(substitution method)</b>은 점화식의 점근 해를 <b>① 추측하고 ② 귀납으로 증명</b>하는 두 단계 기법입니다(마스터 정리·재귀 트리로 답을 짐작한 뒤 엄밀화할 때, 또는 마스터가 안 맞는 형태에 사용). 예시 <b>T(n)=2T(n/2)+n, 추측 T(n)=O(n lg n) (lg n = log₂ n, 밑이 2인 로그)</b>: <b>① 추측</b> — T(n) ≤ c·n·lg n (상수 c>0는 뒤에서 결정). <b>② 귀납 가정</b> — n보다 작은 모든 값, 특히 n/2에 대해 T(n/2) ≤ c·(n/2)·lg(n/2)가 성립한다고 가정. <b>③ 대입</b> — T(n) ≤ 2·[c·(n/2)·lg(n/2)] + n = c·n·lg(n/2) + n = c·n·(lg n − 1) + n = c·n·lg n − c·n + n. 이 값이 c·n·lg n 이하가 되려면 <b>−c·n + n ≤ 0, 즉 c ≥ 1</b>이면 충분. <b>④ 경계(기저)조건</b> — 작은 n(예 n=2,3)에서도 T(n) ≤ c·n·lg n이 성립하도록 c를 충분히 크게 잡으면(점근은 충분히 큰 n만 보면 되므로 작은 유한 개는 상수로 흡수) 귀납이 완성됩니다. <b>흔한 함정</b>: ① 점근 표기를 귀납 안에서 흐릿하게 쓰면 안 됨 — \"T(n) ≤ c·n + O(n) = O(n)\"처럼 O를 가정 안에 숨기면 상수가 매 단계 커져 거짓 증명이 됨. <b>상수 c를 명시</b>해 −c·n+n≤0처럼 정확한 부등식으로 닫아야 함. ② 추측이 약간 빗나가면(예 T(n)=O(n)으로 추측했는데 실제 n lg n) 귀납이 \"닫히지 않아\"(잉여항이 남음) 추측을 고쳐야 함 — 때로 <b>저차항을 빼서 더 강한 가정</b>(T(n) ≤ cn − d 처럼)으로 잡아야 닫히는 경우도. 쓰임: 비표준 점화식(T(n)=T(n−1)+n, T(n)=2T(√n)+lg n 등), 마스터/아크라바지 결과의 엄밀 검증. \"추측 → 귀납 대입 → 상수로 닫기\"가 핵심입니다.",
   "more_en": "The <b>substitution method</b> proves a recurrence's asymptotic solution in two steps: <b>① guess</b> the answer and <b>② prove it by induction</b> (used to make rigorous a guess from the master theorem/recursion tree, or for forms the master theorem doesn't fit). Example <b>T(n)=2T(n/2)+n, guess T(n)=O(n lg n)</b>: <b>① guess</b> — T(n) ≤ c·n·lg n (constant c>0 fixed later). <b>② inductive hypothesis</b> — assume it holds for all smaller values, in particular T(n/2) ≤ c·(n/2)·lg(n/2). <b>③ substitute</b> — T(n) ≤ 2·[c·(n/2)·lg(n/2)] + n = c·n·lg(n/2) + n = c·n·(lg n − 1) + n = c·n·lg n − c·n + n. This is ≤ c·n·lg n provided <b>−c·n + n ≤ 0, i.e. c ≥ 1</b>. <b>④ base condition</b> — choose c large enough that T(n) ≤ c·n·lg n holds for small n (e.g. n=2,3); since asymptotics only need large n, finitely many small cases are absorbed into the constant, completing the induction. <b>Common pitfalls</b>: ① don't use asymptotic notation sloppily inside the induction — hiding an O in the hypothesis (\"T(n) ≤ c·n + O(n) = O(n)\") lets the constant grow each step, a false proof; <b>state the constant c explicitly</b> and close with an exact inequality like −c·n+n≤0. ② if the guess is slightly off (e.g. you guessed O(n) but it's n lg n), the induction \"won't close\" (a leftover term remains) and you must fix the guess — sometimes by <b>subtracting a lower-order term for a stronger hypothesis</b> (T(n) ≤ cn − d) to make it close. Uses: nonstandard recurrences (T(n)=T(n−1)+n, T(n)=2T(√n)+lg n), and rigorously verifying master/Akra-Bazzi results. The crux: \"guess → substitute into the induction → close with the constant.\"",
   "problem": {
    "q": "치환법으로 T(n)=2T(n/2)+n 을 T(n)=O(n lg n)으로 증명할 때, 상수 c가 만족해야 할 조건은?",
    "solution": "추측 T(n) ≤ c·n·lg n을 귀납 가정 T(n/2) ≤ c·(n/2)lg(n/2)로 대입하면 T(n) ≤ c·n·lg n <b>− c·n + n</b>이 됩니다. 이것이 c·n·lg n 이하가 되려면 <b>−c·n + n ≤ 0, 즉 c ≥ 1</b>이면 충분합니다. 추가로 기저(작은 n)도 성립하도록 c를 충분히 크게 잡으면 증명 완료입니다.",
    "q_en": "When proving T(n)=2T(n/2)+n is O(n lg n) by substitution, what condition must the constant c satisfy?",
    "sol_en": "Substituting the hypothesis T(n/2) ≤ c·(n/2)lg(n/2) into the guess T(n) ≤ c·n·lg n gives T(n) ≤ c·n·lg n <b>− c·n + n</b>. For this to be ≤ c·n·lg n we need <b>−c·n + n ≤ 0, i.e. c ≥ 1</b>. Choosing c also large enough for the base (small n) completes the proof."
-  }
+  },
+  "branchOf": "algo8_07",
+  "ord": 6
  },
  "algo_br_recursiontree": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할 정복 ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "재귀 트리 — 층마다 비용을 더해 답을 추측",
   "narr": "점화식의 답을 손에 쥐기 전에 <b>짐작</b>하는 도구가 <b>재귀 트리</b>입니다. 각 재귀 호출이 직접 한 \"합치는 일\"을 트리 노드에 적어 펼칩니다. 루트는 원래 문제의 비용, 그 아래는 하위 호출들의 비용으로 층층이 내려가며, 잎에 닿으면 기저 경우입니다. <b>각 층의 비용을 가로로 더하고, 그 층별 합을 깊이만큼 세로로 더하면</b> 총비용의 차수가 보입니다. 층 비용이 일정하면 \"층 비용 × 층 수\"가 되고, 기하급수로 변하면 최대 층이 지배합니다. 엄밀한 증명은 아니지만, 치환법에 넣을 추측을 빠르게 얻는 데 최적입니다. 트리가 층마다 어떻게 비용을 쌓는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>재귀 트리 방법(recursion-tree method)</b>은 점화식을 <b>트리로 펼쳐 각 노드의 비용을 모두 더해</b> 해를 추측하는 시각적 기법입니다. 각 노드는 한 번의 재귀 호출이 \"분할·병합에 직접 쓰는 비용\"(점화식의 f(n) 부분)을 담고, 자식은 그 호출이 만드는 하위 호출들입니다. <b>예 T(n)=2T(n/2)+n</b>: 루트 비용 n, 자식 둘은 각각 n/2(합 n), 그 자식 넷은 각각 n/4(합 n), … <b>모든 층의 비용 합이 n으로 같습니다</b>. 잎(크기 1)까지 트리의 <b>높이 = lg n</b>(lg n = log₂ n, 밑 2 로그)(매 층 크기가 절반), 따라서 <b>층 수 = lg n + 1</b>. 총비용 = (층 합 n) × (층 수 lg n) = <b>Θ(n lg n)</b>. 일반화: 각 층 합이 <b>등비수열</b>이면 ① 공비<1(층 합이 줄어듦)→ 루트(맨 위)가 지배 → Θ(f(n)), ② 공비>1(늘어남)→ 잎이 지배 → Θ(잎 수), ③ 공비=1(모두 같음)→ 위 예처럼 ×층수. <b>불균등 분할</b>도 다룸 — 예 T(n)=T(n/3)+T(2n/3)+n: 각 층 합이 여전히 n이지만 트리가 불균형이라 <b>가장 깊은 경로(2/3씩 줄어듦)의 길이 = log_{3/2} n</b>이 높이, 짧은 경로는 더 얕음. 그래도 층 합 ≤ n이고 높이 Θ(log n)이라 상한 O(n log n)을 추측 → 치환법으로 엄밀화. <b>주의</b>: 재귀 트리는 <b>추측을 얻는 도구</b>(빠르고 직관적)이지 그 자체가 엄밀 증명은 아님 — 얻은 추측은 보통 <b>치환법으로 증명</b>합니다(천장·바닥 함수, 불균등 분할의 정확한 상수는 트리만으론 흐릿할 수 있음). 마스터 정리의 세 케이스도 \"층 합이 등비로 감소/증가/일정\"이라는 재귀 트리 직관의 공식화입니다.",
+  "more": "​층마다 비용을 더해 추측 — <b>재귀 트리</b>. <b>재귀 트리 방법(recursion-tree method)</b>은 점화식을 <b>트리로 펼쳐 각 노드의 비용을 모두 더해</b> 해를 추측하는 시각적 기법입니다. 각 노드는 한 번의 재귀 호출이 \"분할·병합에 직접 쓰는 비용\"(점화식의 f(n) 부분)을 담고, 자식은 그 호출이 만드는 하위 호출들입니다. <b>예 T(n)=2T(n/2)+n</b>: 루트 비용 n, 자식 둘은 각각 n/2(합 n), 그 자식 넷은 각각 n/4(합 n), … <b>모든 층의 비용 합이 n으로 같습니다</b>. 잎(크기 1)까지 트리의 <b>높이 = lg n</b>(lg n = log₂ n, 밑 2 로그)(매 층 크기가 절반), 따라서 <b>층 수 = lg n + 1</b>. 총비용 = (층 합 n) × (층 수 lg n) = <b>Θ(n lg n)</b>. 일반화: 각 층 합이 <b>등비수열</b>이면 ① 공비<1(층 합이 줄어듦)→ 루트(맨 위)가 지배 → Θ(f(n)), ② 공비>1(늘어남)→ 잎이 지배 → Θ(잎 수), ③ 공비=1(모두 같음)→ 위 예처럼 ×층수. <b>불균등 분할</b>도 다룸 — 예 T(n)=T(n/3)+T(2n/3)+n: 각 층 합이 여전히 n이지만 트리가 불균형이라 <b>가장 깊은 경로(2/3씩 줄어듦)의 길이 = log_{3/2} n</b>이 높이, 짧은 경로는 더 얕음. 그래도 층 합 ≤ n이고 높이 Θ(log n)이라 상한 O(n log n)을 추측 → 치환법으로 엄밀화. <b>주의</b>: 재귀 트리는 <b>추측을 얻는 도구</b>(빠르고 직관적)이지 그 자체가 엄밀 증명은 아님 — 얻은 추측은 보통 <b>치환법으로 증명</b>합니다(천장·바닥 함수, 불균등 분할의 정확한 상수는 트리만으론 흐릿할 수 있음). 마스터 정리의 세 케이스도 \"층 합이 등비로 감소/증가/일정\"이라는 재귀 트리 직관의 공식화입니다.",
   "more_en": "The <b>recursion-tree method</b> guesses a recurrence's solution by <b>expanding it into a tree and summing every node's cost</b>. Each node holds the cost a call spends \"directly on divide/combine\" (the f(n) part), and its children are the subcalls it spawns. <b>Example T(n)=2T(n/2)+n</b>: root cost n, its two children n/2 each (sum n), their four children n/4 each (sum n), … <b>every level sums to n</b>. The tree's <b>height = lg n</b> down to leaves of size 1 (each level halves the size), so there are <b>lg n + 1 levels</b>. Total = (level sum n) × (number of levels lg n) = <b>Θ(n lg n)</b>. Generalization: if the per-level sums form a <b>geometric series</b> then ① ratio<1 (sums shrink) → the root dominates → Θ(f(n)); ② ratio>1 (grow) → the leaves dominate → Θ(number of leaves); ③ ratio=1 (all equal) → ×(number of levels), as above. <b>Unequal splits</b> too — e.g. T(n)=T(n/3)+T(2n/3)+n: each level still sums to ~n, but the tree is unbalanced, so the <b>longest path (shrinking by 2/3 each step) has length log_{3/2} n</b> as the height, the short path shallower; with level sums ≤ n and height Θ(log n), guess O(n log n) → make rigorous by substitution. <b>Caution</b>: a recursion tree is a <b>tool to obtain a guess</b> (fast and intuitive), not a rigorous proof by itself — verify the guess by <b>substitution</b> (floors/ceilings and exact constants of unequal splits can be fuzzy in the tree). The master theorem's three cases are exactly the formalization of this \"level sums geometric: decrease/increase/constant\" intuition.",
   "problem": {
    "q": "재귀 트리로 T(n)=2T(n/2)+n이 Θ(n lg n)임을 추측하는 두 요소는?",
@@ -6413,22 +6511,26 @@
    "int levels = log2(n);",
    "int perLevel = n;",
    "int total = perLevel * levels;"
-  ]
+  ],
+  "branchOf": "algo8_07",
+  "ord": 7
  },
  "algo_br_akrabazzi": {
   "ch": "알고리즘 제8장 설계 패러다임",
-  "sec": "8.2 분할 정복 ▸ 자세히",
+  "sec": "조합·게임·점화식 분석",
   "title": "아크라-바지 정리 — 불균등 분할 점화식의 마스터",
   "narr": "마스터 정리는 모든 조각이 정확히 n/b인 <b>균등 분할</b>만 다룹니다. 그런데 조각 크기가 제각각(n/3과 2n/3처럼)이거나 항마다 호출 수·계수가 섞이면 적용할 수 없습니다. <b>아크라-바지 정리</b>는 일반형 T(n)=Σ aᵢ·T(bᵢ·n)+g(n)의 차수를 하나의 공식으로 줍니다. 먼저 <b>Σ aᵢ·bᵢ^p = 1</b>을 만족하는 지수 p를 구한 뒤, T(n)=Θ(n^p·(1 + ∫ g(u)/u^(p+1) du))로 답이 나옵니다. 직관은 재귀 트리의 잎이 n^p에 비례하고 적분이 내부 노드의 비용 합을 적분으로 근사한다는 것입니다. 마스터 정리는 이 정리의 특수한 균등 경우입니다. 불균등 분할의 차수를 어떻게 한 공식으로 얻는지 <b>보세요</b>.",
   "hint": "",
-  "more": "<b>아크라-바지 정리(Akra-Bazzi method)</b>는 <b>불균등 분할 분할정복 점화식</b> T(n) = Σ(i=1..k) aᵢ·T(bᵢ·n) + f(n) (각 0 < bᵢ < 1, aᵢ > 0)의 점근 해를 주는, 마스터 정리의 일반화입니다. 절차: <b>① 임계 지수 p</b>를 방정식 <b>Σ(i) aᵢ·bᵢᵖ = 1</b>의 (유일한) 해로 정한다. <b>② 그러면</b> <b>T(n) = Θ( nᵖ · (1 + ∫₁ⁿ f(u)/u^(p+1) du) )</b>. 직관: <b>nᵖ</b>는 분할 트리 <b>잎(base case)들의 총 비용 차수</b>(잎 수가 nᵖ에 비례), <b>적분 항</b>은 내부 층에서 f가 누적 기여하는 양(층마다 f(n/조각)을 모음을 연속화한 것). 마스터 정리는 모든 bᵢ=1/b, Σaᵢ=a인 특수형으로, 그때 p = log_b a가 되고 적분이 세 케이스로 갈립니다(f가 nᵖ보다 작/같/큼 → 잎 지배/×log/루트 지배). <b>예 T(n)=T(n/3)+T(2n/3)+Θ(n)</b>: (1/3)ᵖ+(2/3)ᵖ=1 의 해는 <b>p=1</b>(1/3+2/3=1). 적분 ∫₁ⁿ u/u² du = ∫ 1/u du = ln n. 따라서 T(n)=Θ(n¹·(1+ln n)) = <b>Θ(n log n)</b>. 강점: ① <b>조각 크기가 모두 달라도</b> 한 공식, ② <b>천장·바닥(⌈⌉,⌊⌋)이나 bᵢ의 작은 흔들림</b>(저차 섭동)을 허용 — 실제 알고리즘의 \"n/2가 정확히 안 떨어짐\" 같은 디테일을 무시하고 바로 적용 가능. 쓰임: 불균등 분할 정렬·선택(예 중앙값의 중앙값 T(n)=T(n/5)+T(7n/10)+O(n) → p의 Σ(1/5)ᵖ+(7/10)ᵖ=1<1at p=1이라 잎 비용<f → Θ(n)), 기하·트리 알고리즘 분석. \"임계 지수 p + 적분\"이 핵심이며, 마스터 정리가 못 푸는 불균등 점화식의 정답기입니다.",
+  "more": "​불균등 분할 점화식의 마스터 — <b>아크라-바지</b>. <b>아크라-바지 정리(Akra-Bazzi method)</b>는 <b>불균등 분할 분할정복 점화식</b> T(n) = Σ(i=1..k) aᵢ·T(bᵢ·n) + f(n) (각 0 < bᵢ < 1, aᵢ > 0)의 점근 해를 주는, 마스터 정리의 일반화입니다. 절차: <b>① 임계 지수 p</b>를 방정식 <b>Σ(i) aᵢ·bᵢᵖ = 1</b>의 (유일한) 해로 정한다. <b>② 그러면</b> <b>T(n) = Θ( nᵖ · (1 + ∫₁ⁿ f(u)/u^(p+1) du) )</b>. 직관: <b>nᵖ</b>는 분할 트리 <b>잎(base case)들의 총 비용 차수</b>(잎 수가 nᵖ에 비례), <b>적분 항</b>은 내부 층에서 f가 누적 기여하는 양(층마다 f(n/조각)을 모음을 연속화한 것). 마스터 정리는 모든 bᵢ=1/b, Σaᵢ=a인 특수형으로, 그때 p = log_b a가 되고 적분이 세 케이스로 갈립니다(f가 nᵖ보다 작/같/큼 → 잎 지배/×log/루트 지배). <b>예 T(n)=T(n/3)+T(2n/3)+Θ(n)</b>: (1/3)ᵖ+(2/3)ᵖ=1 의 해는 <b>p=1</b>(1/3+2/3=1). 적분 ∫₁ⁿ u/u² du = ∫ 1/u du = ln n. 따라서 T(n)=Θ(n¹·(1+ln n)) = <b>Θ(n log n)</b>. 강점: ① <b>조각 크기가 모두 달라도</b> 한 공식, ② <b>천장·바닥(⌈⌉,⌊⌋)이나 bᵢ의 작은 흔들림</b>(저차 섭동)을 허용 — 실제 알고리즘의 \"n/2가 정확히 안 떨어짐\" 같은 디테일을 무시하고 바로 적용 가능. 쓰임: 불균등 분할 정렬·선택(예 중앙값의 중앙값 T(n)=T(n/5)+T(7n/10)+O(n) → p의 Σ(1/5)ᵖ+(7/10)ᵖ=1<1at p=1이라 잎 비용<f → Θ(n)), 기하·트리 알고리즘 분석. \"임계 지수 p + 적분\"이 핵심이며, 마스터 정리가 못 푸는 불균등 점화식의 정답기입니다.",
   "more_en": "The <b>Akra-Bazzi method</b> generalizes the master theorem to <b>unequal-split divide-and-conquer recurrences</b> T(n) = Σ(i=1..k) aᵢ·T(bᵢ·n) + f(n) (each 0 < bᵢ < 1, aᵢ > 0). Procedure: <b>① the critical exponent p</b> is the (unique) solution of <b>Σ(i) aᵢ·bᵢᵖ = 1</b>. <b>② Then</b> <b>T(n) = Θ( nᵖ · (1 + ∫₁ⁿ f(u)/u^(p+1) du) )</b>. Intuition: <b>nᵖ</b> is the order of the total cost of the <b>leaves (base cases)</b> (their count scales as nᵖ), and the <b>integral</b> is the accumulated contribution of f over the internal levels (a continuous version of summing f(n/piece) per level). The master theorem is the special case all bᵢ=1/b, Σaᵢ=a, giving p = log_b a, with the integral splitting into three cases (f smaller/equal/larger than nᵖ → leaves dominate / ×log / root dominates). <b>Example T(n)=T(n/3)+T(2n/3)+Θ(n)</b>: (1/3)ᵖ+(2/3)ᵖ=1 solves at <b>p=1</b> (1/3+2/3=1); the integral ∫₁ⁿ u/u² du = ∫ 1/u du = ln n, so T(n)=Θ(n¹·(1+ln n)) = <b>Θ(n log n)</b>. Strengths: ① one formula even when <b>all piece sizes differ</b>; ② it tolerates <b>floors/ceilings and small perturbations of bᵢ</b>, so real-algorithm details like \"n/2 doesn't divide evenly\" are ignored and it applies directly. Uses: unequal-split sorting/selection (e.g. median-of-medians T(n)=T(n/5)+T(7n/10)+O(n): Σ(1/5)ᵖ+(7/10)ᵖ=1 at p=1 gives <1, so leaf cost < f → Θ(n)), and geometric/tree algorithm analysis. The crux is \"critical exponent p + the integral,\" the solver for unequal recurrences the master theorem can't handle.",
   "problem": {
    "q": "아크라-바지로 T(n)=T(n/3)+T(2n/3)+Θ(n)을 풀면? (임계 지수 p와 결과)",
    "solution": "임계 지수는 <b>(1/3)ᵖ + (2/3)ᵖ = 1</b>의 해이며, p=1을 넣으면 1/3+2/3=1로 정확히 성립 → <b>p=1</b>. 그러면 T(n)=Θ(n¹·(1+∫₁ⁿ u/u² du)) = Θ(n·(1+ln n)) = <b>Θ(n log n)</b>. (마스터 정리는 두 조각 크기가 달라 직접 적용 불가.)",
    "q_en": "Solve T(n)=T(n/3)+T(2n/3)+Θ(n) by Akra-Bazzi (critical exponent p and result).",
    "sol_en": "The critical exponent solves <b>(1/3)ᵖ + (2/3)ᵖ = 1</b>; p=1 gives 1/3+2/3=1 exactly → <b>p=1</b>. Then T(n)=Θ(n¹·(1+∫₁ⁿ u/u² du)) = Θ(n·(1+ln n)) = <b>Θ(n log n)</b>. (The master theorem doesn't apply directly since the two piece sizes differ.)"
-  }
+  },
+  "branchOf": "algo8_07",
+  "ord": 8
  },
  "algo_br_buildheap_proof": {
   "ch": "알고리즘 제5장 트리",

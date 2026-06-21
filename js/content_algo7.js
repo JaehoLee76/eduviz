@@ -153,6 +153,34 @@
         ctx.strokeStyle=cur?ORA:add?GRN:shown?BLU:'rgba(255,255,255,0.12)'; ctx.lineWidth=2;
         ctx.fillRect(x,y,cell-3,cell-3); ctx.strokeRect(x,y,cell-3,cell-3);
         if(shown){ ctx.fillStyle=cur?ORA:'#dfeefb'; ctx.font='600 17px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(f.dp[i][j], x+cell/2-1, y+cell/2-1); ctx.textBaseline='alphabetic'; } } }
+  },
+
+  // ══════════ 고급 DP — 상태와 기법 (concept) ══════════
+  { id:'algo7_06', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'고급 DP — 상태와 기법',
+      sub:'무엇을 상태로 잡느냐가 전부. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 고전 격자/수열', items:['LCS','편집 거리','0/1 배낭','LIS','행렬 연쇄','카데인']},
+        {c:'#ffb27a', t:'② 그리디 반례',  items:['동전 교환','회문 분할']},
+        {c:'#f4a0c0', t:'③ 비트마스크·상태', items:['비트마스크 DP','윤곽선 DP','스타이너 트리']},
+        {c:'#7ab8ff', t:'④ 자릿수·집합·확률', items:['자릿수 DP','SOS DP','기댓값 DP','다중 배낭']}
+      ],
+      foot:'표를 채우는 고전 DP → 그리디가 틀리는 곳 → 상태를 비트로 압축 → 자릿수·부분집합·확률로 확장' }); }
+  },
+
+  // ══════════ DP 최적화·수열 (concept) ══════════
+  { id:'algo7_07', concept:true, enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ window.AlgoMap(E, {
+      title:'DP 최적화 · 수열·조합',
+      sub:'O(n²) DP를 O(n log n)으로, 점화식을 로그시간으로. ↓ 심화학습에서 순서대로.',
+      stages:[
+        {c:'#8fe3b5', t:'① 전이 최적화', items:['CHT','리 차오 트리','분할정복 최적화','크누스 최적화','SMAWK']},
+        {c:'#ffb27a', t:'② 볼록·제약',  items:['슬로프 트릭','Aliens 트릭']},
+        {c:'#f4a0c0', t:'③ 선형 점화 가속', items:['행렬 거듭제곱','키타마사','벨캄프-매시']},
+        {c:'#7ab8ff', t:'④ 수열·조합',  items:['뤼카','카탈란','정수 분할','스털링·벨','최장 교대']}
+      ],
+      foot:'직선/단조성으로 전이 가속 → 볼록·k제약 → 점화식을 로그시간에 → 세는 수열·조합' }); }
   }
 
   ];
