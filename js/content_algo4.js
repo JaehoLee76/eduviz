@@ -104,6 +104,34 @@
       for(var i=0;i<rows.length;i++){ var y=y0+i*rh;
         ctx.fillStyle='#cfcdc6'; ctx.font='14px sans-serif'; ctx.textAlign='left'; ctx.fillText(rows[i][0], cx-E.W*0.32, y+18);
         ctx.fillStyle=rows[i][2]; ctx.font='600 14px sans-serif'; ctx.textAlign='right'; ctx.fillText(rows[i][1], cx+E.W*0.32, y+18); } }
+  },
+
+  // ══════════ 4.5 문자열 알고리즘 — 심화 섹션 지도 (concept) ══════════
+  { id:'algo4_05', concept:true,
+    enter:function(E){ this.s={}; E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
+      function rr(x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#dfeefb'; ctx.font='600 19px sans-serif';
+      ctx.fillText('문자열 알고리즘 — 학습 지도', cx, H*0.11);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
+      ctx.fillText('텍스트를 다루는 도구들. ↓ 심화학습에서 아래 순서대로 하나씩 만납니다.', cx, H*0.11+22);
+      var stages=[
+        {c:GRN, t:'① 기초',     items:['문자열 해싱']},
+        {c:ORA, t:'② 패턴 매칭', items:['KMP','KMP 자동자','Z 함수','아호-코라식']},
+        {c:PNK, t:'③ 회문',     items:['매내처','회문 트리']},
+        {c:BLU, t:'④ 접미사 색인', items:['접미사 배열','SA 구축','SA-IS','LCP (Kasai)','접미사 트리','SAM','Lyndon 분해']}
+      ];
+      var n=stages.length, x0=W*0.06, colW=W*0.88/n, top=H*0.26;
+      for(var i=0;i<n;i++){ var s=stages[i], cxi=x0+i*colW+colW*0.5;
+        ctx.fillStyle=s.c; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText(s.t, cxi, top);
+        if(i<n-1){ var ax=x0+(i+1)*colW-colW*0.04; ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.moveTo(ax-10, top-5); ctx.lineTo(ax, top-5); ctx.lineTo(ax-5, top-9); ctx.moveTo(ax,top-5); ctx.lineTo(ax-5,top-1); ctx.stroke(); }
+        for(var k=0;k<s.items.length;k++){ var y=top+22+k*40, bw=colW*0.84, bx=cxi-bw/2;
+          ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=s.c; ctx.lineWidth=1.5; rr(bx,y,bw,30,8); ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(s.items[k], cxi, y+19); } }
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('해싱으로 빠르게 비교 → 한 패턴 찾기 → 여러 패턴 → 회문 → 텍스트를 통째로 색인하는 만능 구조로', cx, H*0.93); }
   }
 
   ];
