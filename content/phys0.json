@@ -1,0 +1,18 @@
+{
+ "phys0_01": {
+  "ch": "물리학 · 시작",
+  "sec": "환영",
+  "title": "물리학 — 자연을 수식으로 예측하다",
+  "narr": "반갑습니다. <b>물리학</b>은 자연이 따르는 규칙을 찾아 <b>수식</b>으로 적고, 그 식으로 <b>아직 일어나지 않은 일까지 예측</b>하는 학문입니다. 화면의 공이 어디에 떨어질지는 신비가 아니라 계산입니다 — 발사 속도와 각도만 알면 식 하나로 정확히 압니다. 이 트랙은 수학 트랙에서 익힌 함수·미분·적분을 <b>실제 세계의 운동·힘·에너지·전기</b>에 적용합니다. 읽고·보고·직접 슬라이더를 움직이며, 공식을 외우는 대신 <b>왜 그런지</b>를 눈으로 확인합니다. 다음 ▸ 으로 첫 정거장 '운동학'으로 갑니다.",
+  "more": "물리는 '<b>측정 → 패턴 → 법칙 → 예측</b>'의 학문입니다. 갈릴레오가 빗면에서 시간을 재고, 뉴턴이 그것을 운동 법칙으로 묶고, 그 법칙으로 행성의 궤도와 로켓의 경로를 예측합니다. EduViz 물리 트랙은 그 과정을 <b>인터랙티브 시각화</b>로 재현합니다 — 표시되는 모든 수치는 실제 물리 식으로 계산된 값입니다(가짜 없음).",
+  "more_en": "Physics is the science of <b>measure → pattern → law → predict</b>. Galileo timed balls on inclines; Newton unified it into laws of motion; those laws predict planetary orbits and rocket paths. Every number shown here is computed from real physics — never faked."
+ },
+ "phys0_02": {
+  "ch": "물리학 · 시작",
+  "sec": "전체 윤곽",
+  "title": "물리의 여정 — 전체 지도",
+  "narr": "본격적으로 들어가기 전에 <b>지도</b>를 펼칩니다. 물리는 흩어진 공식 모음이 아니라, 몇 개의 <b>보존 법칙과 장(field)</b>으로 세상을 설명하는 한 줄기 이야기입니다. <b>역학</b>(운동→힘→에너지→운동량→회전→중력→진동)으로 출발해, 그 진동이 퍼지는 <b>파동</b>과 <b>유체</b>, 무수한 입자의 평균인 <b>열</b>, 그리고 보이지 않는 힘의 무대인 <b>전자기</b>를 지나 <b>현대 물리</b>에 닿습니다. 앞 장이 뒤 장의 도구가 되도록 짜여 있어, 순서대로 가면 개념이 자연스럽게 쌓입니다.",
+  "more": "다섯 묶음: ① <b>역학</b> — 뉴턴의 세 법칙과 보존(에너지·운동량·각운동량)이 모든 운동의 뼈대. ② <b>파동·유체</b> — 매질의 집단 운동. ③ <b>열역학</b> — 에너지의 또 다른 얼굴과 엔트로피. ④ <b>전자기</b> — 전기장·자기장과 그 통일(맥스웰). ⑤ <b>현대</b> — 빛·상대론·양자. 핵심 통찰: 복잡해 보이는 현상도 <b>몇 개의 보존 법칙</b>으로 환원됩니다.",
+  "more_en": "Five units: ① Mechanics (Newton's laws + conservation of energy/momentum/angular momentum), ② Waves & Fluids, ③ Thermodynamics (energy & entropy), ④ Electromagnetism (fields, unified by Maxwell), ⑤ Modern (light, relativity, quanta). Key insight: complex phenomena reduce to a few conservation laws."
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "phys1_01": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.1 위치·변위·거리",
+  "title": "위치와 변위 — 어디서 어디로",
+  "narr": "운동을 다루는 첫걸음은 '<b>어디에 있는가</b>'를 수로 적는 것입니다. 기준점(원점)을 정하고 위치를 좌표로 나타냅니다. 물체가 움직이면 두 양이 생깁니다 — <b>거리</b>는 실제로 지나온 경로의 총 길이(항상 0 이상), <b>변위</b>는 시작점에서 끝점까지의 <b>직선 변화(방향·부호 있음)</b>입니다. 슬라이더를 끝까지 밀어 보세요: 주자가 0→8 m로 갔다가 3 m로 되돌아오면, 거리는 8+5=13 m지만 변위는 +3 m뿐입니다. 이 '방향을 가진 양(벡터)'이라는 발상이 속도·힘·운동량으로 이어집니다.",
+  "more": "<b>거리(scalar)</b>: 지나온 경로 길이의 합, 부호 없음. <b>변위(vector)</b>: Δx = x_끝 − x_시작, 방향·부호 있음. 한 방향으로만 가면 거리=|변위|지만, 되돌아오면 거리 > |변위|. 평균 속력 = 거리/시간(scalar), 평균 속도 = 변위/시간(vector)으로 갈라지는 근원이 바로 이 차이입니다.",
+  "more_en": "<b>Distance</b> (scalar): total path length, never negative. <b>Displacement</b> (vector): Δx = x_final − x_initial, has sign/direction. If motion reverses, distance > |displacement|. This split is why average speed (distance/time) differs from average velocity (displacement/time).",
+  "problem": {
+   "q": "동쪽으로 10 m 간 뒤 서쪽으로 4 m 돌아왔다. 거리와 변위는?",
+   "solution": "거리 = 10 + 4 = <b>14 m</b>. 변위 = 동쪽 10 − 서쪽 4 = <b>동쪽 6 m</b>.",
+   "q_en": "Walk 10 m east, then 4 m back west. Distance and displacement?",
+   "sol_en": "Distance = 10 + 4 = <b>14 m</b>. Displacement = 10 − 4 = <b>6 m east</b>."
+  }
+ },
+ "phys1_02": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.2 속도",
+  "title": "속도 — 위치-시간 그래프의 기울기",
+  "narr": "<b>속도</b>는 '위치가 얼마나 빨리 변하는가'입니다. 위치-시간(x-t) 그래프에서 두 시각을 잇는 직선(할선)의 기울기가 <b>평균 속도</b>(변위/시간)이고, 두 점을 한없이 가깝게 붙이면 한 점에서의 <b>접선 기울기</b> — 곧 <b>순간 속도</b>가 됩니다. 화면은 x = t² 운동입니다. 슬라이더로 t를 옮기면 주황 접선의 기울기(순간속도 = 2t)와 초록 할선의 기울기(평균속도)가 실시간으로 바뀝니다. '한없이 가까이 → 기울기'가 바로 <b>14장에서 배운 미분</b>입니다 — 속도는 위치의 미분(v = dx/dt).",
+  "more": "<b>평균 속도</b> = Δx/Δt(할선 기울기). <b>순간 속도</b> = lim(Δt→0) Δx/Δt = dx/dt(접선 기울기). x = t²이면 v = 2t — 시간이 갈수록 빨라집니다(가속). 그래프가 가파를수록 빠르고, 수평이면 정지, 기울기가 음수면 거꾸로 갑니다. 수학 트랙 17장 '순간의 기울기(#97)'와 정확히 같은 아이디어를 물리량에 적용한 것입니다.",
+  "more_en": "Average velocity = Δx/Δt (secant slope). Instantaneous velocity = dx/dt (tangent slope). For x = t², v = 2t (speeding up). Steeper graph = faster; flat = at rest; negative slope = moving backward. Same idea as the derivative.",
+  "problem": {
+   "q": "x = t² 운동에서 t = 3 s 일 때 순간 속도는?",
+   "solution": "v = dx/dt = 2t = 2·3 = <b>6 m/s</b>.",
+   "q_en": "For x = t², find the instantaneous velocity at t = 3 s.",
+   "sol_en": "v = dx/dt = 2t = <b>6 m/s</b>."
+  }
+ },
+ "phys1_03": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.3 가속도",
+  "title": "가속도 — 속도-시간 그래프의 기울기",
+  "narr": "속도가 위치의 변화율이었듯, <b>가속도</b>는 <b>속도의 변화율</b>입니다(a = dv/dt). 속도-시간(v-t) 그래프에서 기울기가 곧 가속도입니다. 슬라이더로 a를 바꿔 보세요 — a > 0이면 직선이 올라가 점점 빨라지고, a < 0이면 내려가 느려지며, a = 0이면 수평선(등속)입니다. 가속도는 '속도가 변하는 정도'이지 '빠르기' 자체가 아닙니다. 일정한 가속도로 움직이는 운동을 <b>등가속도 운동</b>이라 하며, 자유낙하·포물선·브레이크가 모두 여기 속합니다.",
+  "more": "<b>가속도</b> a = Δv/Δt = dv/dt (v-t 기울기). 부호가 핵심: 속도와 가속도가 <b>같은 부호</b>면 빨라지고, <b>반대 부호</b>면 느려집니다(감속). 가속도가 일정하면 v-t는 직선 → v = v₀ + at. 단위 m/s²은 '1초마다 속도가 몇 m/s씩 변하는가'입니다.",
+  "more_en": "Acceleration a = dv/dt (slope of v-t). Sign matters: same sign as velocity → speeding up; opposite → slowing down. Constant a gives a straight v-t line: v = v₀ + at. Units m/s² = change in velocity per second.",
+  "problem": {
+   "q": "정지 상태에서 a = 3 m/s²로 4초 가속하면 속도는?",
+   "solution": "v = v₀ + at = 0 + 3·4 = <b>12 m/s</b>.",
+   "q_en": "From rest, accelerate at 3 m/s² for 4 s. Final speed?",
+   "sol_en": "v = v₀ + at = 0 + 3·4 = <b>12 m/s</b>."
+  }
+ },
+ "phys1_04": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.4 등가속도 운동",
+  "title": "등가속도 운동 — v-t 넓이가 곧 변위",
+  "narr": "가속도가 일정한 운동의 변위는 어떻게 구할까요? 비결은 <b>v-t 그래프 아래의 넓이</b>입니다. 속도에 시간을 곱하면 거리이므로, 넓이를 모두 더하면 변위가 됩니다. 슬라이더로 시간 t를 늘리면 초록 넓이(사다리꼴)가 커지고, 그 넓이가 공식 <b>x = v₀t + ½at²</b>와 정확히 일치합니다(검산 표시). 위쪽 물체가 그만큼 실제로 이동합니다. '넓이를 더해 양을 구하는' 이 발상이 <b>19장에서 배운 적분</b>입니다 — 변위는 속도의 적분.",
+  "more": "등가속도 3대 공식: ① v = v₀ + at, ② x = v₀t + ½at², ③ v² = v₀² + 2ax. ②는 v-t 사다리꼴 넓이 = (v₀ + v)/2 · t 에서 나옵니다(평균 속도 × 시간). 미분의 반대가 적분이듯, 가속도→속도→위치는 적분으로, 위치→속도→가속도는 미분으로 오갑니다.",
+  "more_en": "Three constant-a equations: v = v₀ + at, x = v₀t + ½at², v² = v₀² + 2ax. The second comes from the trapezoid area (v₀+v)/2·t. Acceleration→velocity→position by integration; the reverse by differentiation.",
+  "problem": {
+   "q": "v₀ = 2 m/s, a = 2 m/s²로 3초 운동한 변위는?",
+   "solution": "x = v₀t + ½at² = 2·3 + ½·2·9 = 6 + 9 = <b>15 m</b>.",
+   "q_en": "With v₀ = 2 m/s, a = 2 m/s² for 3 s, find displacement.",
+   "sol_en": "x = v₀t + ½at² = 6 + 9 = <b>15 m</b>."
+  }
+ },
+ "phys1_05": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.5 자유낙하",
+  "title": "자유낙하 — 무거운 것이 더 빨리 떨어질까?",
+  "narr": "직관과 달리, 공기 저항이 없으면 <b>가벼운 것과 무거운 것이 똑같이 떨어집니다</b>. 갈릴레오의 통찰이자, 아폴로 15호가 달에서 깃털과 망치를 동시에 떨어뜨려 증명한 사실입니다. 슬라이더로 시간을 흘려 보세요 — 두 공이 항상 같은 높이에 있습니다. 자유낙하는 가속도가 <b>g = 9.8 m/s²</b>로 일정한 등가속도 운동이라, 앞 장의 공식이 그대로 적용됩니다: 높이 y = h₀ − ½gt², 속력 v = gt. 질량 m은 식 어디에도 없습니다.",
+  "more": "왜 질량과 무관할까? 무거우면 끌리는 힘(무게 mg)은 크지만, 그만큼 <b>관성(m)</b>도 커서 가속도 a = F/m = mg/m = <b>g</b>로 상쇄됩니다(2장 뉴턴 법칙에서 정확히 증명). 실제 공기 중에서는 저항이 가벼운 것을 더 늦추지만, 그건 g가 아니라 공기의 효과입니다. g는 지구 표면에서 약 9.8 m/s²(달은 1.6).",
+  "more_en": "Why mass-independent? Heavier means more gravitational pull (mg) but equally more inertia (m), so a = mg/m = g cancels out. Air resistance slows light objects more, but that's air, not g. On Earth g ≈ 9.8 m/s² (Moon 1.6).",
+  "problem": {
+   "q": "정지 상태에서 떨어뜨린 공이 2초 후 속력은? (g = 9.8)",
+   "solution": "v = gt = 9.8·2 = <b>19.6 m/s</b>. 떨어진 거리 = ½gt² = 19.6 m.",
+   "q_en": "A dropped ball's speed after 2 s? (g = 9.8)",
+   "sol_en": "v = gt = <b>19.6 m/s</b>; fallen ½gt² = 19.6 m."
+  }
+ },
+ "phys1_06": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.6 포물선 운동",
+  "title": "포물선 운동 — 가로와 세로는 따로 논다",
+  "narr": "공을 비스듬히 던지면 <b>포물선</b>을 그립니다. 비밀은 운동을 <b>가로·세로로 분리</b>하는 것입니다 — 가로는 힘이 없어 <b>등속</b>(x = v₀cosθ·t), 세로는 중력만 받는 <b>자유낙하</b>(y = v₀sinθ·t − ½gt²). 두 운동이 독립이라 합치면 포물선이 됩니다. 슬라이더로 발사각 θ를 바꿔 보세요. 사거리 R = v₀²·sin2θ/g 이고, sin2θ는 <b>θ = 45°</b>에서 최대(=1)라 그때 가장 멀리 날아갑니다. 45°에서 멀어질수록(더 눕히거나 더 세우거나) 사거리는 줄어듭니다.",
+  "more": "포물선 운동 = <b>수평 등속 + 수직 자유낙하</b>(중력은 세로에만 작용). 사거리 R = v₀²sin2θ/g, 최고점 H = v₀²sin²θ/(2g), 비행시간 T = 2v₀sinθ/g. sin2θ = sin(2·45°) = 1이 최대이므로 <b>45°가 최적 발사각</b>(공기 저항 무시). 30°와 60°는 사거리가 같습니다(sin60°=sin120°). 8장 삼각함수가 여기서 도구로 쓰입니다.",
+  "more_en": "Projectile = horizontal constant velocity + vertical free fall (gravity acts only vertically). Range R = v₀²sin2θ/g, peak H = v₀²sin²θ/(2g). sin2θ peaks at θ = 45° (optimal range, ignoring air). 30° and 60° give equal range.",
+  "problem": {
+   "q": "v₀ = 20 m/s로 30°와 60°로 쏘면 사거리는? 어느 쪽이 더 멀까?",
+   "solution": "R = v₀²sin2θ/g. 2·30=60°, 2·60=120°, sin60°=sin120° → <b>둘 다 약 35.3 m로 같음</b>. 45°가 최대.",
+   "q_en": "Launch at 20 m/s, at 30° vs 60°. Which goes farther?",
+   "sol_en": "sin60° = sin120°, so both ≈ 35.3 m — <b>equal</b>. 45° is the max."
+  }
+ }
+}
