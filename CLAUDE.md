@@ -8,8 +8,8 @@
 ## 0. 정체성 / 비전
 EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 브라우저로 바로 열림.
 - 위치: `/Users/quantcommander/EduViz/` (이 폴더가 git 저장소 루트, GitHub Pages 배포).
-- 두 트랙: **수학 26장(238장면=뼈대143+분기95)** · **알고리즘 8장(+시작) 뼈대 42 + 심화분기 268**.
-- 상태(2026-06-21): 알고리즘 애니메이션 전환 **100%(161/161)** · 심화 **14섹션 재구조화 완료**(§3.5) · 수학 트랙 **전수 감사·보강 완료**(§3.6, 빈draw·정적장식·골든룰위반·stale참조·죽은코드 전부 0). 다음은 사령관 지시 대기(품질 고도화·신규 토픽 확장 등).
+- 세 트랙: **수학 26장(238장면)** · **알고리즘 8장(뼈대 42+심화 268)** · **물리학(신규, PhysLab 엔진 기반)**. 홈 `home.html` → math/algo/physics.html.
+- 상태(2026-06-21): 알고리즘 애니메이션 **100%(161/161)** + 심화 **14섹션 재구조화 완료**(§3.5) · 수학 **전수 감사·보강 완료**(§3.6) · 물리학 **출범, 1장 운동학+2장 뉴턴법칙+엔진(PhysLab) 완료**(§3.7, 3~14장 진행 예정).
 - 비전(사령관): "우리 콘텐츠만 학습하면 그 어떤 자료보다 더 빠르고 확실하게 개념·응용을 뇌리에 각인." 세계 최고 품질.
 - 홈 `home.html` → `math.html`(수학) / `algo.html`(알고리즘). morph 단일화면 엔진(`js/engine.js` 공유).
 - 라이브: https://jaeholee76.github.io/eduviz/ (사령관 계정 JaehoLee76/eduviz).
@@ -20,6 +20,7 @@ EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 
 3. **알고리즘 시각화 = 코드+애니메이션 쌍.** 모든 알고리즘 분기는 왼쪽 코드에 **실행 줄 커서**가 단계마다 이동하고(`f.line`), 오른쪽 캔버스에서 알고리즘이 **실제 한 단계씩** 동작해야 한다. 정적 그래픽만 두지 않는다.
 4. **한·영 병기·스토리 연결·학습패널**: 기존 콘텐츠 철학 유지(텍스트는 JSON이 보유, 변환 시 보존됨).
 5. **리포트/문서 커밋 규칙**: EduViz는 의도된 웹사이트 프로젝트이므로 코드·콘텐츠(html/js/json) 커밋 정상. (트레이딩 프로젝트의 "리포트 커밋 금지"는 별개 트랙 규범, 여기 적용 안 됨.) 단 `_content/`(대용량 원본)는 .gitignore.
+6. **물리 동역학 = 엔진 시뮬레이션(사령관 지향점).** "이론을 코드(실시간 수치 적분)로 표현 = 자체 물리 엔진 개발이 곧 콘텐츠 제작." 물리 동역학 장면은 닫힌 공식(예: x=½at²)을 베껴 그리지 말고, **`js/physlab.js`(PhysLab) 엔진으로 F=ma를 매 프레임 적분**해 움직임을 '생성'하고 학습자가 슬라이더·드래그로 조작하게 한다. (단 운동학 1장처럼 본래 닫힌 공식이 본질인 곳은 예외.) §3.7 참조.
 
 ## 2. 아키텍처 (핵심)
 - `algo.html` / `math.html` — 2단 레이아웃. 좌측 `#codeBody`(코드+줄커서)·`#stepCap`(STEP 캡션)·`#conceptExtra`(핵심요약/구현코드/연습문제), 하단 `#stepbar`(◂이전 D/다음·자동재생 S/초기화 X), 우측 `#stage` 캔버스.
@@ -73,6 +74,18 @@ EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 
 **공용 헬퍼**(파일 스코프): `drawBalance(E,L,R)`(저울, ch3), `box(ctx,x,y,w,h,col,label,fs)`(대수타일, ch2·3), `E.Plot`(`.range/.axes/.curve/.dot/.X/.Y`), `E.NL`(수직선), `E.blink()`(깜빡임), `E.tapHint(x,y,text,pulse)`, `E.big(title,sub)`, `E.quiz()`. ※`E.quiz`는 controls 영역을 덮어쓰므로 슬라이더와 공존 불가(둘 중 하나).
 **키**: D=한 설명단위 진행/탭, S=자동, R=풀이 보기/숨기기(toggleSolution), W=학습패널, Q/Z·E/C=스크롤. (math.html, §2 참조)
 **나선형 교차참조**: narr/more에 `#장면번호`(예 "14장 0/0 극한(#84)") 118건. 장면 추가/삭제 시 번호가 어긋나니 보강 후 **번호↔실제 장면 주제 자동 대조**로 stale 검증(이번 감사에서 8건 교정). 검증=preview math 238장면 렌더 스캔(슬라이더·탭 구동) 에러0.
+
+## 3.7 물리학 트랙 (신규 · PhysLab 엔진)
+3번째 트랙. `physics.html`(math.html 복제·초록테마 `#5fd6a8`, 엔진 공유), `home.html`에 ⚛카드. 동작=`js/content_physN.js`(phys0 인트로·phys1 운동학·phys2 뉴턴…), 텍스트=`content/physN.json`. 원서=`_content/물리학/`(Serway 대학물리 10판). **원서 읽기**: poppler 설치됨 → Bash `pdftotext -f a -l b`(텍스트)·`pdftoppm -png -f n -l n`(그림→Read PNG). Read 도구 직접 PDF는 100MB 상한+PATH로 불가.
+
+**PhysLab 엔진(js/physlab.js) — 모든 동역학의 단일 코어.** physics.html 로드 순서: engine.js → **physlab.js** → content_phys*.js.
+- `var w = PhysLab.world({g, floor, ceil, bounds:[xL,xR], rest, linDrag})` — 실제 단위(m), y는 위쪽 +.
+- `w.add({x,y,vx,vy,m,r,color,q,fixed})` → body. `w.force(fn)` 사용자 힘. `w.step(dt,sub)` 적분(반암시적 오일러). `w.collide()` 원-원 탄성충돌. `w.reset()`.
+- 힘 생성기 `PhysLab.F`: `constant(b,fx,fy)`·`spring(b,ax,ay,k,rest)`(후크)·`drag(b,c)`·`friction(b,mu)`·`pointGravity(att,GM)`(1/r²)·`uniformE(Ex,Ey)`(qE)·`lorentzB(Bz)`(qv×B).
+- `var v = PhysLab.view(ox,oy,scale)` → `v.X(x)/v.Y(y)`(월드→화면), `v.wx(px)/v.wy(py)`(화면→월드, 드래그용).
+
+**장면 패턴(엔진 위)**: `enter`에서 world 생성+body/force 추가+슬라이더(E.controls/E.bind)+`this.s={w,view,...}`. `draw`에서 `w.step(1/60,6)` 후 body 렌더(v.X/v.Y). 조작=슬라이더(상수 g·F·k…) + 드래그(`down/move/up`로 body 잡기: v.wx/wy로 좌표변환, held=true 중 위치 갱신·속도 추정, up에서 해제). 골든룰=표시값은 시뮬 상태/실식에서 계산(닫힌 공식 베끼기·`Math.random`/`Date.now` 표시값 금지). 본보기 `phys2_01`(F=ma)·`phys2_02`(중력·충돌 모래상자, 드래그).
+**남은 장(14장 목표)**: 3일·에너지 · 4운동량 · 5회전 · 6중력(pointGravity 궤도) · 7진동(spring SHM) · 8파동 · 9유체 · 10열역학 · 11전기장(uniformE) · 12회로 · 13자기·유도(lorentzB) · 14빛·현대물리.
 
 ## 4. 검증 워크플로우 (변경 후 필수)
 1. `node --check js/content_algo_br.js` (구문).
