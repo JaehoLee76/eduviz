@@ -36,9 +36,15 @@
   },
 
   { id:'ch3_02',
-    enter:function(E){ E.setOn([]); E.big('3x − 4 = 11', '양변 +4 → 3x = 15 → ÷3');
-      E.quiz({q:'3x − 4 = 11 의 해 x는?', choices:['3','5','7','15'], answer:1, explain:'양변 +4 → 3x = 15, ÷3 → x = 5'}); },
-    draw:function(E){}
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(this.s.step?520:400,0.15); },
+    draw:function(E){ var s=this.s, ctx=E.ctx, cx=E.W/2, cy=E.H*0.42;
+      var L=['3x − 4','3x','x'][s.step], R=['11','15','5'][s.step], op=['','양변에 +4  (−4 없애기)','양변을 3으로 나누기'][s.step];
+      drawBalance(E,L,R);
+      if(op){ ctx.fillStyle='#7ab8ff'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('↓ '+op, cx, cy-44); }
+      if(s.step>=2){ ctx.globalAlpha=E.blink(); ctx.fillStyle='#ffb27a'; ctx.font='700 20px sans-serif'; ctx.textAlign='center'; ctx.fillText('x = 5', cx, cy-74); ctx.globalAlpha=1; }
+      E.tapHint(cx, cy+102, s.step<2?'▶ 다음 단계':'↻ 처음부터', s.step<2);
+      E.big(s.step<2?'3x − 4 = 11':'x = 5', s.step<2?'양변에 똑같이 — 균형 유지':'해 x = 5  (검산: 3·5 − 4 = 11 ✓)'); }
   },
 
   // ══════════ 3.2 이차방정식 ══════════

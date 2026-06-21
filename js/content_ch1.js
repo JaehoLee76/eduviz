@@ -205,9 +205,29 @@
   },
 
   { id:'ch1_12',
-    enter:function(E){ this.s={}; E.setOn([]); E.big('√8 = √(4×2) = 2√2', '완전제곱수 4를 밖으로');
+    enter:function(E){ this.s={step:0}; E.setOn([]);
       E.quiz({q:'√18 을 간단히 하면?', choices:['2√3','3√2','√6','9√2'], answer:1, explain:'18 = 9 × 2, √9 = 3 → 3√2'}); },
-    draw:function(E){}
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(this.s.step?520:400,0.15); },
+    draw:function(E){ var ctx=E.ctx, cx=E.W/2, step=this.s.step;
+      var U=Math.min(92,E.W*0.12), r8=Math.sqrt(8), r2=Math.sqrt(2), h=26;
+      var x0=cx-r8*U/2, yA=E.H*0.42, yB=E.H*0.58;
+      if(step>=1){ ctx.fillStyle='#8fe3b5'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText('8 = 4 × 2   (4는 완전제곱수)', cx, E.H*0.30); }
+      // 주황 √8 막대
+      ctx.fillStyle='rgba(255,178,122,0.22)'; ctx.fillRect(x0,yA,r8*U,h);
+      ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(x0,yA,r8*U,h);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('√8'+(step>=2?' = 2√2':''), x0+r8*U/2, yA+h/2); ctx.textBaseline='alphabetic';
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.fillText('길이 √8 ≈ '+r8.toFixed(2), x0+r8*U/2, yA-10);
+      // 두 개의 √2 막대 = 2√2 (같은 길이)
+      if(step>=2){ for(var k=0;k<2;k++){ var bx=x0+k*r2*U; ctx.globalAlpha=E.blink();
+          ctx.fillStyle='rgba(143,227,181,0.22)'; ctx.fillRect(bx,yB,r2*U,h);
+          ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.strokeRect(bx,yB,r2*U,h);
+          ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('√2', bx+r2*U/2, yB+h/2); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
+        ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('√2 + √2 = 2√2 ≈ '+(2*r2).toFixed(2)+'  → √8과 같은 길이!', cx, yB+h+18); }
+      E.tapHint(cx, E.H*0.76, step<2?'▶ 다음 단계':'↻ 처음부터', step<2);
+      var EQ=['√8 = ?','√8 = √(4 × 2)','√8 = √4 · √2 = 2√2'];
+      var SB=['근호 안 8을 더 간단히 — 숨은 완전제곱수를 찾습니다','√(a×b)=√a×√b 로 8=4×2 분리','√4=2 를 밖으로! 두 √2 막대가 √8과 길이가 똑같습니다'];
+      E.big(EQ[step], SB[step]); }
   }
 
   ];

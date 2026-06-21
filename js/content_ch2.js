@@ -256,9 +256,33 @@
   },
 
   { id:'ch2_06',
-    enter:function(E){ this.s={}; E.setOn([]); E.big('(x²−1)/(x+1) = (x+1)(x−1)/(x+1) = x−1', '공통 인수 (x+1) 약분');
+    enter:function(E){ this.s={step:0}; E.setOn([]);
       E.quiz({q:'(x²−4)/(x−2) 를 약분하면?', choices:['x+2','x−2','x+4','(x−2)²'], answer:0, explain:'x²−4=(x+2)(x−2), (x−2) 약분 → x+2'}); },
-    draw:function(E){}
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(this.s.step?520:400,0.15); },
+    draw:function(E){ var s=this.s, ctx=E.ctx, step=s.step, cx=E.W/2;
+      var U=Math.min(58,E.H*0.095), W=4*U, H=2*U, ox=cx-W/2, oy=E.H*0.32;   // (x+1)=4칸, (x−1)=2칸 (x=3 수치 검산)
+      // 분자 직사각형
+      var col=(step>=2)?'#8fe3b5':'#7ab8ff';
+      box(ctx,ox,oy,W,H,col, step===0?'x² − 1':null, 16);
+      if(step>=1){ ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(step>=2?'x − 1':'(x+1)(x−1)', cx, oy+H/2); ctx.textBaseline='alphabetic';
+        // 윗변 = x+1 (분모와 같은 인수), 왼변 = x−1
+        ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=(step>=2?'#6f6e7a':'#ffb27a'); ctx.fillText('x + 1', cx, oy-9);
+        ctx.save(); ctx.translate(ox-14, oy+H/2); ctx.rotate(-Math.PI/2); ctx.fillStyle='#8fe3b5'; ctx.fillText('x − 1', 0,0); ctx.restore(); }
+      // 분모 막대 (x+1)
+      var dy=oy+H+22, dcol=(step>=2)?'#6f6e7a':'#f4a0c0';
+      box(ctx,ox,dy,W,U*0.7,dcol,'x + 1',14);
+      ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('분모', ox-30, dy+U*0.35);
+      // step2: 공통 (x+1) 약분 취소선
+      if(step>=2){ ctx.globalAlpha=E.blink(); ctx.strokeStyle='#f4a0c0'; ctx.lineWidth=2.5;
+        ctx.beginPath(); ctx.moveTo(cx-30,oy-9); ctx.lineTo(cx+30,oy-9); ctx.stroke();           // 분자 x+1 취소
+        ctx.beginPath(); ctx.moveTo(ox+W/2-30,dy+U*0.35); ctx.lineTo(ox+W/2+30,dy+U*0.35); ctx.stroke(); // 분모 x+1 취소
+        ctx.globalAlpha=1; }
+      E.tapHint(cx, dy+U+34, step<2?'▶ 다음 단계':'↻ 처음부터', step<2);
+      var EQ=['(x² − 1) / (x + 1)','= (x+1)(x−1) / (x + 1)','= x − 1'];
+      var SB=['분자·분모를 인수분해해 공통 인수를 찾습니다','분자 = (x+1)(x−1). 분모 (x+1)과 똑같은 인수가 보입니다','공통 (x+1) 약분 → x − 1.  (x=3 검산: 8 / 4 = 2 = 3−1 ✓)'];
+      E.big(EQ[step], SB[step]); }
   }
 
   ];
