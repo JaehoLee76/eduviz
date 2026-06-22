@@ -1,0 +1,72 @@
+{
+ "phys8_01": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.1 파동이란",
+  "title": "파동 — 매질은 제자리, 패턴만 전파한다",
+  "narr": "파도는 물을 해변까지 실어 나르지 않습니다. 물 한 방울은 제자리에서 위아래로 까딱일 뿐, 옆으로 전달되는 것은 <b>물결의 패턴과 에너지</b>입니다. 화면의 줄도 마찬가지 — 파동은 오른쪽으로 흘러가지만, 강조된 주황 점(매질의 한 입자)은 <b>제자리에서 위아래로만</b> 진동합니다. 경기장의 파도타기 응원에서 사람은 제자리에 있고 물결만 도는 것과 같죠. 진동 방향이 진행 방향과 수직이면 <b>횡파</b>(줄·물결·빛), 나란하면 종파(소리)입니다. 슬라이더로 진동수와 진폭을 바꿔 보세요.",
+  "more": "<b>파동</b>: 매질의 진동이 이웃으로 차례차례 전달되는 현상. 매질 자체는 이동하지 않고 <b>에너지와 운동량, 정보</b>만 전파. 횡파(진동⊥진행: 줄·전자기파)와 종파(진동∥진행: 음파·압축파)로 나뉩니다. 빛은 매질 없이도 전파되는 특별한 파동(전자기파). 한 점의 운동은 단순조화운동(7장)입니다.",
+  "more_en": "<b>Wave</b>: a disturbance that propagates energy/momentum/information through a medium without transporting the medium itself. Transverse (string, light) vs longitudinal (sound). Each particle undergoes SHM (Ch.7).",
+  "problem": {
+   "q": "줄을 따라 파동이 오른쪽으로 갈 때, 줄의 한 점은 어떻게 움직이나요?",
+   "solution": "<b>제자리에서 위아래로만</b> 진동합니다. 옆으로 이동하는 것은 패턴(에너지)뿐.",
+   "q_en": "As a wave moves right along a string, how does one point move?",
+   "sol_en": "It only oscillates up and down in place; only the pattern travels."
+  }
+ },
+ "phys8_02": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.2 파동의 요소",
+  "title": "v = fλ — 속력·진동수·파장의 관계",
+  "narr": "파동을 기술하는 세 가지: <b>진동수 f</b>(1초당 진동 횟수, Hz), <b>파장 λ</b>(마루에서 다음 마루까지의 거리), <b>속력 v</b>(파동이 나아가는 빠르기). 이 셋은 <b>v = fλ</b>로 묶입니다. 핵심은 매질(줄·공기)이 정해지면 <b>속력 v가 일정</b>하다는 것 — 그래서 진동수를 높이면 파장이 그만큼 짧아집니다(f↑ → λ↓). 슬라이더로 진동수를 올려 보세요. 파면이 더 촘촘해지지만(λ 감소) 곱 v=fλ는 변하지 않습니다. 높은 음(고주파)이 짧은 파장을 갖는 이유입니다.",
+  "more": "<b>v = fλ</b>: 한 주기 T 동안 파동은 정확히 한 파장 λ를 나아갑니다 → v = λ/T = λf. 속력은 <b>매질의 성질</b>(줄의 장력·밀도, 공기 온도 등)이 결정 — 진동수를 바꿔도 v는 그대로. 소리 ≈340 m/s, 빛 ≈3×10⁸ m/s. 진동수는 음원이, 파장은 v/f로 따라옵니다.",
+  "more_en": "<b>v = fλ</b>: in one period T the wave advances one wavelength, so v = λf. Speed is set by the medium (not by frequency). Sound ≈340 m/s, light ≈3×10⁸ m/s.",
+  "problem": {
+   "q": "속력 340 m/s 소리의 진동수가 170 Hz일 때 파장은?",
+   "solution": "v = fλ → λ = v/f = 340/170 = <b>2 m</b>.",
+   "q_en": "Sound at 340 m/s, 170 Hz. Wavelength?",
+   "sol_en": "λ = v/f = 340/170 = <b>2 m</b>."
+  }
+ },
+ "phys8_03": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.3 중첩과 간섭",
+  "title": "중첩 — 보강과 상쇄",
+  "narr": "두 파동이 같은 곳에서 만나면 어떻게 될까요? 답은 단순하고 강력합니다 — <b>변위가 그대로 더해집니다</b>(중첩 원리). 슬라이더로 오른쪽 펄스의 부호를 바꿔 보세요. 두 펄스가 <b>같은 방향(+)</b>이면 만나는 순간 합쳐져 더 큰 마루가 됩니다(<b>보강 간섭</b>). <b>반대 방향(−)</b>이면 마루와 골이 만나 순간적으로 평평해집니다(<b>상쇄 간섭</b>). 가장 신기한 점: 겹쳐서 더해진 뒤에도 두 파동은 서로 아무 영향 없이 <b>원래 모양 그대로 통과</b>해 지나갑니다. 노이즈캔슬링 이어폰이 바로 상쇄 간섭을 이용합니다.",
+  "more": "<b>중첩 원리</b>: 여러 파동이 겹친 곳의 변위 = 각 파동 변위의 합. 보강(위상 일치)·상쇄(위상 반대) 간섭을 낳습니다. 파동은 입자와 달리 충돌하지 않고 통과 — 선형성 덕분. 물결·소리·빛(이중슬릿)의 간섭무늬, 노이즈캔슬링, 홀로그램이 모두 중첩의 결과. 다음 장면의 정상파도 두 파동의 중첩입니다.",
+  "more_en": "<b>Superposition</b>: the net displacement is the sum of individual displacements → constructive (in phase) or destructive (out of phase) interference. Waves pass through each other unchanged. Basis of interference patterns and noise cancellation.",
+  "problem": {
+   "q": "진폭이 같고 위상이 정반대인 두 파동이 겹치면?",
+   "solution": "<b>완전 상쇄</b> — 변위의 합이 0이 되어 순간적으로 평평해집니다(상쇄 간섭).",
+   "q_en": "Two equal waves exactly out of phase overlap. Result?",
+   "sol_en": "<b>Total cancellation</b> — displacements sum to zero (destructive)."
+  }
+ },
+ "phys8_04": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.4 정상파",
+  "title": "정상파 — 갇힌 파동의 배음",
+  "narr": "양끝이 고정된 줄(기타 줄 같은)에서는 아무 진동수나 살아남지 못합니다. 특정 진동수 — <b>배음</b> — 에서만 안정된 패턴, <b>정상파</b>가 섭니다. 이 화면은 줄을 64개의 점으로 나눠 <b>파동방정식을 직접 적분</b>한 진짜 매질 시뮬레이션입니다(닫힌 공식을 그린 게 아닙니다). 슬라이더로 배음 n을 바꿔 보세요. 전혀 움직이지 않는 점(<b>마디</b>)과 가장 크게 흔들리는 점(<b>배</b>)이 번갈아 나타납니다. 정상파의 정체는 8.3에서 본 <b>반대로 진행하는 두 파동의 중첩</b>입니다. 기타·바이올린·플루트의 음높이가 바로 이 배음으로 정해집니다.",
+  "more": "<b>정상파</b>: 양끝 고정 줄에서 파장이 조건 L = n·(λ/2)를 만족할 때(n=1,2,3…) 형성. 진동수 fₙ = n·v/(2L) — 기본진동수의 정수배(배음/하모닉스). 마디(node)는 변위 0으로 고정, 배(antinode)는 최대 진동. 반대 방향 두 진행파의 중첩 y=2A sin(kx)cos(ωt). 악기의 음색은 어떤 배음이 섞이느냐로 결정됩니다.",
+  "more_en": "<b>Standing wave</b>: forms when L = n(λ/2). Harmonics fₙ = n·v/(2L). Nodes stay fixed; antinodes oscillate maximally. It's the superposition of two oppositely traveling waves: y = 2A sin(kx)cos(ωt). Sets musical pitch and timbre.",
+  "problem": {
+   "q": "양끝 고정 줄의 기본진동수가 100 Hz면 3배음의 진동수는?",
+   "solution": "fₙ = n·f₁. 3배음 → 3 × 100 = <b>300 Hz</b>.",
+   "q_en": "Fundamental is 100 Hz. Third harmonic frequency?",
+   "sol_en": "fₙ = n·f₁ → <b>300 Hz</b>."
+  }
+ },
+ "phys8_05": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.5 도플러 효과",
+  "title": "도플러 — 다가오면 높고, 멀어지면 낮다",
+  "narr": "구급차가 다가올 땐 사이렌이 높게, 지나가면 갑자기 낮게 들립니다. <b>도플러 효과</b>입니다. 음원이 움직이면 진행 방향 <b>앞쪽의 파면은 압축</b>되어(파장↓ → 진동수↑ → 높은 음), <b>뒤쪽은 늘어납니다</b>(낮은 음). 화면에서 음원(주황)이 움직이며 동심원 파면을 내보내는데, 앞쪽 원들이 촘촘히 모이고 뒤쪽은 성기게 벌어지는 것을 보세요. 슬라이더로 음원 속력을 올리면 효과가 커지고, <b>음속을 넘으면</b> 파면이 겹쳐 원뿔형 충격파 — <b>소닉붐</b>이 생깁니다. 별빛의 적색편이(멀어지는 은하)도 빛의 도플러 효과입니다.",
+  "more": "<b>도플러 효과</b>: 관측 진동수 f' = f·(c±v_o)/(c∓v_s). 음원이 다가오면 분모 (c−v_s)로 f'↑, 멀어지면 (c+v_s)로 f'↓. v_s ≥ c면 충격파(소닉붐, 마하원뿔). 빛에서도 일어나 다가오는 별은 청색편이, 멀어지는 은하는 적색편이 — 우주 팽창의 증거(허블). 레이더 속도측정·초음파 혈류검사에도 이용.",
+  "more_en": "<b>Doppler effect</b>: f' = f·(c±v_o)/(c∓v_s). Approaching → higher pitch, receding → lower. v_s ≥ c gives a shock wave (sonic boom). For light: blueshift/redshift — evidence of cosmic expansion (Hubble). Used in radar and ultrasound.",
+  "problem": {
+   "q": "음속 340, 음원이 34 m/s로 다가올 때 진동수는 몇 배로 들리나요? (원래 f)",
+   "solution": "f' = f·c/(c−v) = f·340/306 ≈ <b>1.11 f</b> (약 11% 높게).",
+   "q_en": "Sound 340, source approaching at 34 m/s. Observed frequency?",
+   "sol_en": "f' = f·340/306 ≈ <b>1.11 f</b>."
+  }
+ }
+}
