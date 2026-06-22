@@ -1,0 +1,72 @@
+{
+ "phys14_01": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.1 빛과 전자기파",
+  "title": "빛 = 전자기파 — c = fλ",
+  "narr": "빛의 정체는 무엇일까요? <b>전기장과 자기장이 서로 수직으로 진동하며 퍼져 나가는 전자기파</b>입니다. 13장에서 전류가 자기장을, 변하는 자기장이 전기장을 만든다고 했죠 — 그 둘이 서로를 계속 만들어내며 진공 속을 빛의 속도(c=3×10⁸ m/s)로 달립니다. 전파·마이크로파·적외선·가시광·자외선·X선·감마선은 <b>모두 같은 전자기파</b>이고 진동수(파장)만 다릅니다. 슬라이더로 스펙트럼을 따라 움직여 보세요. 진동수가 높을수록 파장이 짧고 에너지가 큽니다. 우리 눈에 보이는 가시광은 이 거대한 스펙트럼의 아주 좁은 띠일 뿐입니다.",
+  "more": "<b>전자기파</b>: E와 B가 진행 방향에 수직으로 진동(횡파), 진공에서 c=1/√(ε₀μ₀)=3×10⁸ m/s. 맥스웰이 전기·자기 방정식에서 파동을 예언했고 속도가 빛과 일치 → 빛=전자기파. c=fλ로 진동수와 파장은 반비례. 광자 에너지 E=hf(14.4). 매질 없이 전파되는 유일한 파동.",
+  "more_en": "<b>EM wave</b>: oscillating E and B perpendicular to propagation; c = 1/√(ε₀μ₀) = 3×10⁸ m/s. Maxwell predicted it and the speed matched light. c = fλ; photon energy E = hf. Needs no medium.",
+  "problem": {
+   "q": "진공에서 진동수가 2배인 빛의 파장은? (c 일정)",
+   "solution": "c = fλ 일정 → f가 2배면 λ는 <b>절반</b>.",
+   "q_en": "Double the frequency of light in vacuum. Wavelength?",
+   "sol_en": "c = fλ → <b>halved</b>."
+  }
+ },
+ "phys14_02": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.2 반사와 굴절",
+  "title": "굴절 — 스넬의 법칙",
+  "narr": "빛이 한 매질에서 다른 매질로(공기→물·유리) 비스듬히 들어가면 <b>경로가 꺾입니다</b> — 굴절. 매질 속에서 빛의 속도가 달라지기 때문입니다. 빽빽한 매질(굴절률 n이 큰)에서는 느려지고 법선 쪽으로 더 꺾입니다 — <b>스넬의 법칙 n₁sinθ₁ = n₂sinθ₂</b>. 슬라이더로 입사각과 아래 매질의 굴절률을 바꿔 보세요. 입사각을 아주 크게 하면(빽빽→성긴 매질로 갈 때) 빛이 빠져나가지 못하고 전부 되튕기는 <b>전반사</b>가 일어납니다. 물속 빨대가 꺾여 보이고, 렌즈가 상을 맺고, 무지개가 생기고, 광섬유가 빛을 가두는 것이 모두 굴절입니다.",
+  "more": "<b>스넬의 법칙</b>: n₁sinθ₁ = n₂sinθ₂, 굴절률 n = c/v(매질 속 빛 속도비, 공기≈1, 물 1.33, 유리 1.5, 다이아 2.4). 느린 매질로 가면 법선 쪽으로 꺾임. <b>전반사</b>: 성긴 매질로 갈 때 입사각 > 임계각(sinθc=n₂/n₁)이면 100% 반사 — 광섬유 통신·내시경의 원리. 파장에 따라 n이 달라(분산) 프리즘이 무지개를 만듭니다.",
+  "more_en": "<b>Snell's law</b>: n₁sinθ₁ = n₂sinθ₂, n = c/v (water 1.33, glass 1.5, diamond 2.4). Total internal reflection above the critical angle (sinθc = n₂/n₁) powers optical fibers. Dispersion (n varies with λ) makes rainbows.",
+  "problem": {
+   "q": "공기(n=1)에서 30° 입사한 빛이 유리(n=2)로 굴절하면 굴절각은?",
+   "solution": "1·sin30° = 2·sinθ₂ → sinθ₂ = 0.25 → θ₂ ≈ <b>14.5°</b> (법선 쪽으로 꺾임).",
+   "q_en": "Light at 30° from air (n=1) into glass (n=2). Refraction angle?",
+   "sol_en": "sinθ₂ = 0.25 → θ₂ ≈ <b>14.5°</b>."
+  }
+ },
+ "phys14_03": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.3 빛의 간섭",
+  "title": "이중슬릿 — 빛은 파동이다",
+  "narr": "두 개의 가는 틈(이중슬릿)에 빛을 통과시키면, 뒤 스크린에 <b>밝고 어두운 줄무늬</b>가 번갈아 나타납니다. 두 슬릿에서 나온 빛이 만나, 경로 차이가 파장의 정수배인 곳은 보강(밝음), 반파장 어긋난 곳은 상쇄(어둠)되기 때문입니다. 만약 빛이 작은 알갱이라면 슬릿 두 개에 대응하는 <b>두 줄만</b> 생겨야 합니다 — 여러 줄무늬가 생긴다는 것은 <b>빛이 파동</b>이라는 결정적 증거입니다(영의 실험, 1801). 슬라이더로 슬릿 간격을 좁히거나 파장을 늘리면 무늬가 넓어집니다(밝은 무늬 간격 ≈ λL/d). 그런데... 다음 장면에서 빛은 입자이기도 합니다.",
+  "more": "<b>이중슬릿 간섭</b>: 보강 조건 d·sinθ = mλ(m=정수, 밝은 무늬), 상쇄 d·sinθ = (m+½)λ. 스크린 무늬 간격 Δy ≈ λL/d(L=슬릿-스크린 거리). 파동의 중첩(8장)이 빛에서 일어난 것 — 빛의 파동성 증거. 놀랍게도 전자·원자도 이중슬릿에서 간섭무늬를 만듭니다(물질파, 양자역학). 한 개씩 쏴도 무늬가 쌓입니다.",
+  "more_en": "<b>Double-slit interference</b>: bright fringes at d·sinθ = mλ; spacing Δy ≈ λL/d. Demonstrates light's wave nature (Young, 1801). Astonishingly, electrons and atoms also interfere (matter waves) — even one at a time.",
+  "problem": {
+   "q": "이중슬릿에서 줄무늬가 생기는 것은 빛의 무슨 성질 때문인가요?",
+   "solution": "<b>파동성</b>. 두 슬릿의 빛이 중첩·간섭(보강·상쇄)해 밝고 어두운 무늬를 만듭니다.",
+   "q_en": "Double-slit fringes demonstrate which property of light?",
+   "sol_en": "Its <b>wave nature</b> (interference of superposed waves)."
+  }
+ },
+ "phys14_04": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.4 광전효과",
+  "title": "광전효과 — 빛은 알갱이(광자)이기도",
+  "narr": "금속에 빛을 쪼이면 전자가 튀어나옵니다(광전효과). 그런데 충격적인 사실이 있습니다: 빛이 <b>아무리 밝아도 진동수가 문턱보다 낮으면 전자가 전혀 안 나오고</b>, 문턱을 넘으면 아주 약한 빛이라도 즉시 전자가 나옵니다. 빛이 단순한 파동이라면 밝게(에너지를 많이) 쪼이면 나와야 하는데 그렇지 않죠. 답은 빛이 <b>에너지 E = hf의 알갱이(광자)</b> 다발이라는 것입니다 — 광자 하나가 전자 하나를 때려야 하고, 그 에너지가 일함수 W를 넘어야 탈출합니다(KE = hf − W). 슬라이더로 진동수를 올려 문턱을 넘겨 보세요. 아인슈타인은 이 설명으로 노벨상을 받았고, 양자역학이 시작되었습니다. 빛은 파동이자 입자입니다.",
+  "more": "<b>광전효과</b>: 방출 전자의 최대 운동에너지 KE = hf − W(W=일함수, 금속별 문턱). 문턱 진동수 f₀ = W/h 미만이면 밝기와 무관하게 방출 0 — 빛의 입자성 증거. h=플랑크 상수(6.63×10⁻³⁴). 빛은 파동성(간섭)과 입자성(광전효과)을 모두 가짐 — 파동-입자 이중성. 광센서·태양전지·디지털카메라가 광전효과 응용.",
+  "more_en": "<b>Photoelectric effect</b>: ejected electron KE = hf − W. Below threshold f₀ = W/h, no emission regardless of brightness — proof of light's particle nature (photons, E = hf). Wave-particle duality. Powers solar cells and image sensors.",
+  "problem": {
+   "q": "밝기를 아무리 키워도 진동수가 문턱보다 낮으면 전자가 나올까요?",
+   "solution": "<b>안 나옵니다</b>. 광자 하나의 에너지 hf가 일함수 W보다 작으면 방출 불가(빛의 입자성).",
+   "q_en": "Below threshold frequency, does cranking up brightness eject electrons?",
+   "sol_en": "<b>No</b> — each photon's hf < W, so no emission (particle nature)."
+  }
+ },
+ "phys14_05": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.5 특수상대성",
+  "title": "시간 팽창 — 빠르면 시간이 느려진다",
+  "narr": "물리 여정의 마지막 — 시간 자체가 절대적이지 않다는 이야기입니다. 출발점은 단 하나의 사실: <b>빛의 속도는 누구에게나 똑같다</b>(아인슈타인, 1905). 두 거울 사이를 빛이 왕복하는 '광시계'를 생각해 보세요. 시계가 움직이면 빛은 <b>대각선의 더 긴 경로</b>를 가야 하는데, 빛 속도는 같으므로 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느리게 갑니다</b>(시간 팽창, γ=1/√(1−v²/c²)배). 슬라이더로 속도를 광속에 가깝게 올리면 시간이 극적으로 느려집니다. 우주비행사·GPS 위성이 실제로 겪는 효과입니다. 그리고 질량조차 에너지의 한 형태입니다 — <b>E = mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌 세계, 그것이 현대물리입니다.",
+  "more": "<b>특수상대성</b>: 광속 불변 → 시간 팽창 Δt = γΔt₀, 길이 수축 L = L₀/γ, γ = 1/√(1−v²/c²). v가 작으면 γ≈1(일상은 뉴턴 물리), v→c면 γ→∞. 동시성도 상대적. 질량-에너지 등가 E=mc²(핵발전·태양 에너지의 근원). GPS는 상대성 보정 없이는 하루 ~11km 오차. 일반상대성은 중력=시공간 휘어짐으로 확장합니다.",
+  "more_en": "<b>Special relativity</b>: constant light speed → time dilation Δt = γΔt₀, length contraction L = L₀/γ, γ = 1/√(1−v²/c²). E = mc² (mass-energy equivalence, source of nuclear/solar energy). GPS needs relativistic correction (~11 km/day otherwise).",
+  "problem": {
+   "q": "v = 0.8c로 움직이는 시계의 시간 팽창 인자 γ는?",
+   "solution": "γ = 1/√(1−0.8²) = 1/√(0.36) = 1/0.6 ≈ <b>1.67배</b> 느리게.",
+   "q_en": "Time-dilation factor γ at v = 0.8c?",
+   "sol_en": "γ = 1/√(1−0.64) = 1/0.6 ≈ <b>1.67</b>."
+  }
+ }
+}
