@@ -1,0 +1,72 @@
+{
+ "phys4_01": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.1 운동량",
+  "title": "운동량 p = mv — 운동의 양",
+  "narr": "달려오는 트럭과 자전거가 같은 속도라도 트럭을 멈추기가 훨씬 어렵습니다. 왜일까요? <b>운동량(momentum)</b> 때문입니다 — <b>p = m·v</b>, 질량과 속도의 곱. '운동의 양'을 나타내는 양이죠. 화면의 공은 일정한 속도로 움직이고, 파란 화살표는 속도 v를, 주황 화살표는 운동량 p = mv를 나타냅니다. 질량 슬라이더를 키우면 같은 속도라도 운동량 화살표가 길어집니다. 운동량은 <b>벡터</b>라서 방향(부호)도 함께 가집니다 — 다음 장면들에서 이 운동량이 충돌과 반동에서 어떻게 '보존'되는지 봅니다.",
+  "more": "<b>운동량</b>: p = mv (벡터, 단위 kg·m/s). 뉴턴 제2법칙의 원형은 사실 F = dp/dt(운동량의 시간 변화율) — 질량이 일정하면 F = ma가 됩니다. 운동량이 큰 물체일수록 상태를 바꾸기(멈추거나 방향 전환) 어렵습니다. 다음: 힘×시간(충격량)이 이 운동량을 바꿉니다.",
+  "more_en": "<b>Momentum</b>: p = mv (vector, kg·m/s). Newton's 2nd law is really F = dp/dt; with constant mass it becomes F = ma. Larger momentum is harder to stop or redirect.",
+  "problem": {
+   "q": "1500 kg 자동차가 20 m/s로 달릴 때 운동량은?",
+   "solution": "p = mv = 1500 × 20 = <b>30000 kg·m/s</b>.",
+   "q_en": "1500 kg car at 20 m/s. Momentum?",
+   "sol_en": "p = mv = <b>30000 kg·m/s</b>."
+  }
+ },
+ "phys4_02": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.2 충격량",
+  "title": "충격량 J = F·t = Δp",
+  "narr": "운동량을 바꾸려면 <b>힘</b>을 <b>시간</b>동안 가해야 합니다. 그 곱이 <b>충격량(impulse) J = F·t</b>이고, 이것이 곧 운동량의 변화량과 같습니다 — <b>충격량 정리 J = Δp</b>. 정지한 공에 일정한 힘을 주면 운동량이 점점 쌓입니다. 분홍 막대(F·t)와 초록 막대(mΔv)는 <b>항상 같은 높이</b> — 엔진이 적분으로 만든 속도로 독립 계산했는데도 일치합니다. 핵심 응용: 같은 운동량 변화를 <b>긴 시간</b>에 걸쳐 받으면 힘이 작아집니다. 에어백·범퍼·무릎 굽혀 착지가 모두 충돌 시간을 늘려 힘을 줄이는 장치입니다.",
+  "more": "<b>충격량 정리</b>: J = F·Δt = Δp = mΔv. F-t 그래프 아래 넓이가 충격량. 충돌에서 운동량 변화는 정해져 있으므로, 시간 Δt를 늘리면 평균 힘 F = Δp/Δt 가 줄어듭니다 — 안전장치의 원리. 단위: N·s = kg·m/s(운동량과 같음).",
+  "more_en": "<b>Impulse-momentum theorem</b>: J = F·Δt = Δp = mΔv. Area under the F-t curve. Stretching the collision time lowers the average force (airbags, bumpers). Units: N·s = kg·m/s.",
+  "problem": {
+   "q": "2 kg 공(정지)에 6 N의 힘을 3초간 주면 속도는?",
+   "solution": "J = F·t = 18 N·s = Δp = mΔv → 18 = 2·v → <b>v = 9 m/s</b>.",
+   "q_en": "6 N on a resting 2 kg ball for 3 s. Speed?",
+   "sol_en": "J = 18 = 2v → <b>v = 9 m/s</b>."
+  }
+ },
+ "phys4_03": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.3 운동량 보존",
+  "title": "운동량 보존 — 충돌해도 합은 그대로",
+  "narr": "두 공이 부딪치면 각자의 속도는 확 바뀝니다. 하지만 <b>둘의 운동량을 더한 값(총 운동량)은 충돌 전·중·후 변하지 않습니다</b>. 이것이 물리학에서 가장 강력한 법칙 중 하나 — <b>운동량 보존</b>입니다. 외부 힘이 없으면(서로 주고받는 힘만 있으면) 늘 성립합니다. 화면 아래 초록 화살표(총 운동량)를 보세요 — A와 B가 충돌해 각자 튕겨 나가도 그 길이와 방향이 그대로입니다. A가 B를 민 충격량과 B가 A를 민 충격량이 크기 같고 방향 반대(작용-반작용)라서, 서로 상쇄되기 때문입니다. m₂를 바꿔도 보존은 깨지지 않습니다.",
+  "more": "<b>운동량 보존</b>: 외력이 0이면 m₁v₁ + m₂v₂ = 일정. 근거는 뉴턴 제3법칙 — 충돌 중 두 물체가 받는 힘은 크기 같고 반대라서 충격량이 상쇄. 이 법칙은 충돌의 세부(탄성/비탄성)와 무관하게 항상 참이며, 입자물리·로켓·천체까지 적용됩니다. 1차원 탄성충돌 공식: 동일질량이면 속도를 교환합니다.",
+  "more_en": "<b>Conservation of momentum</b>: with zero external force, m₁v₁ + m₂v₂ = constant. Rooted in Newton's 3rd law — collision forces are equal and opposite, so impulses cancel. Holds for any collision type.",
+  "problem": {
+   "q": "2 kg(3 m/s)와 1 kg(정지)이 충돌해 한 덩어리가 되면 속도는?",
+   "solution": "운동량 보존: 2·3 + 0 = (2+1)·v → 6 = 3v → <b>v = 2 m/s</b>.",
+   "q_en": "2 kg(3 m/s) hits 1 kg(rest), they stick. Speed?",
+   "sol_en": "6 = 3v → <b>v = 2 m/s</b>."
+  }
+ },
+ "phys4_04": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.4 탄성 vs 비탄성 충돌",
+  "title": "탄성 vs 비탄성 — 운동E는 보존될까?",
+  "narr": "운동량은 어떤 충돌에서도 보존되지만, <b>운동에너지</b>는 다릅니다. <b>반발계수 e</b> 슬라이더를 움직여 보세요. e=1(완전탄성)이면 운동E도 그대로 보존 — 당구공·기체분자처럼. e<1이면 운동E 일부가 열·소리·변형으로 <b>손실</b>됩니다(점선=충돌 전 운동E와 비교). e=0(완전비탄성)이면 두 공이 <b>붙어서</b> 함께 움직이고 운동E 손실이 최대입니다 — 찰흙 덩어리처럼. 그런데도 초록 막대(총 운동량)는 어느 경우든 미동도 없습니다. 운동량은 절대 법칙, 운동E 보존은 탄성충돌에서만 성립합니다.",
+  "more": "<b>반발계수 e</b> = 충돌 후 상대속도/충돌 전 상대속도. e=1 완전탄성(운동E 보존), 0<e<1 비탄성(운동E 일부 손실), e=0 완전비탄성(붙음, 손실 최대). 모든 경우 운동량은 보존. 손실된 운동E는 사라진 게 아니라 열·변형으로 전환(에너지 보존). 자동차 충돌이 비탄성인 건 차체 변형으로 에너지를 흡수해 탑승자를 보호하기 위함.",
+  "more_en": "<b>Restitution e</b> = relative speed after / before. e=1 elastic (KE conserved), e=0 perfectly inelastic (objects stick, max KE loss). Momentum conserved in all cases; lost KE becomes heat/deformation.",
+  "problem": {
+   "q": "완전비탄성과 완전탄성 중 운동에너지 손실이 큰 쪽은?",
+   "solution": "<b>완전비탄성(e=0)</b>. 두 물체가 붙으며 운동E 손실 최대. 탄성(e=1)은 손실 0.",
+   "q_en": "Which loses more KE: perfectly inelastic or elastic?",
+   "sol_en": "<b>Perfectly inelastic (e=0)</b> — maximum KE loss; elastic loses none."
+  }
+ },
+ "phys4_05": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.5 반동",
+  "title": "반동 — 0에서 밀어내면 양쪽이 반대로",
+  "narr": "정지해 있던(총 운동량 0) 두 물체가 <b>서로를 밀면</b> 어떻게 될까요? 총 운동량은 여전히 0이어야 하므로, 두 운동량은 <b>크기가 같고 방향이 반대</b>가 됩니다(pA = −pB). 화면에서 두 운동량 화살표(초록·주황)는 길이가 같고 반대 방향 — 합은 0. 그런데 <b>가벼운 쪽이 더 빠릅니다</b>: |v| = I/m 이라 질량이 작을수록 속도가 큽니다. 질량 슬라이더를 바꿔 보세요. 이것이 총·대포의 반동, 로켓이 가스를 뒤로 뿜어 앞으로 나아가는 추진, 헤엄칠 때 물을 뒤로 밀어 앞으로 가는 원리입니다 — 모두 운동량 보존(=작용·반작용)의 결과.",
+  "more": "<b>반동</b>: 초기 총 운동량 0 → 분리 후에도 0 = mA·vA + mB·vB. 따라서 vA/vB = −mB/mA — 가벼운 쪽이 빠르게 튕깁니다. 로켓은 이를 연속적으로: 가스를 뒤로 분출한 운동량만큼 로켓이 앞으로 운동량을 얻습니다(추력). 운동E는 0에서 양수로 늘지만(화학·근육 에너지에서 옴) 운동량 총합은 0으로 보존.",
+  "more_en": "<b>Recoil</b>: initial total momentum 0 stays 0 = mA·vA + mB·vB, so vA/vB = −mB/mA — the lighter object flies faster. Rockets apply this continuously (thrust). KE grows from 0 (from chemical/muscle energy) while total momentum stays 0.",
+  "problem": {
+   "q": "정지한 60 kg 사람이 2 kg 공을 5 m/s로 던지면 사람의 반동 속도는?",
+   "solution": "0 = 60·v + 2·5 → v = −10/60 ≈ <b>−0.17 m/s</b> (반대 방향). 무거워서 느림.",
+   "q_en": "A 60 kg person throws a 2 kg ball at 5 m/s. Recoil speed?",
+   "sol_en": "0 = 60v + 10 → v ≈ <b>−0.17 m/s</b>, opposite direction."
+  }
+ }
+}
