@@ -134,6 +134,67 @@
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ox+R*sx,oy,6,0,7); ctx.fill();
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('사거리 '+R.toFixed(1)+' m', ox+R*sx, oy+20);
       E.big('θ='+this.s.ang+'°  →  사거리 R = '+R.toFixed(1)+' m,  최고 '+Hmax.toFixed(1)+' m', 'R = v₀²·sin2θ/g. θ=45°에서 사거리 최대('+Rmax.toFixed(1)+' m)! 45°에서 멀어질수록 짧아집니다. (v₀=20 m/s)'); }
+  },
+
+  // ─── 심화: 상대속도 (강 건너는 보트) ───
+  { id:'phys1_01_relv', branchOf:'phys1_01', ord:1,
+    enter:function(E){ var self=this; this.s={vc:1.2,ang:90,y:0}; var vb=2;
+      E.controls('<div class="ctrl"><label>물살 속도 vc</label><input type="range" id="cc" min="0" max="3" step="0.2" value="1.2"><output id="cco">1.2</output>'
+        +'<label style="margin-left:14px">뱃머리 각도 (도)</label><input type="range" id="ag" min="40" max="140" step="5" value="90"><output id="ago">90</output></div>');
+      E.bind('#cc','input',function(e){ self.s.vc=+e.target.value; document.getElementById('cco').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.bind('#ag','input',function(e){ self.s.ang=+e.target.value; document.getElementById('ago').textContent=e.target.value; E.blip(380,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, vb=2, th=s.ang*Math.PI/180, width=6;
+      var vx=vb*Math.cos(th)+s.vc, vy=vb*Math.sin(th);
+      if(vy>0.05){ s.y += vy*(1/60); } if(s.y>width){ s.y=0; s.x0=undefined; }
+      var ox=W*0.16, oy=H*0.80, sc=Math.min(W*0.10,H*0.085);
+      // 강(양안)
+      ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.fillRect(ox,oy-width*sc,W*0.6,width*sc);
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+W*0.6,oy); ctx.moveTo(ox,oy-width*sc); ctx.lineTo(ox+W*0.6,oy-width*sc); ctx.stroke();
+      // 물살 화살표
+      for(var gx=1;gx<6;gx+=1.2){ ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; var ay=oy-gx/6*width*sc; ctx.beginPath(); ctx.moveTo(ox+40,ay); ctx.lineTo(ox+40+s.vc*16,ay); ctx.stroke(); }
+      // 보트 위치(drift = vx 누적)
+      var driftRate=vx/Math.max(0.01,vy), bx=ox+W*0.18+ (s.y*driftRate)*sc, by=oy-s.y*sc;
+      ctx.fillStyle=ORA; ctx.fillRect(bx-8,by-5,16,10);
+      // 속도벡터(뱃머리·물살·합)
+      function arr(x1,y1,dx,dy,col){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1+dx,y1+dy); ctx.stroke(); var a=Math.atan2(dy,dx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x1+dx,y1+dy); ctx.lineTo(x1+dx-8*Math.cos(a-0.4),y1+dy-8*Math.sin(a-0.4)); ctx.lineTo(x1+dx-8*Math.cos(a+0.4),y1+dy-8*Math.sin(a+0.4)); ctx.fill(); }
+      arr(bx,by, vb*Math.cos(th)*18, -vb*Math.sin(th)*18, GRN);
+      arr(bx,by, s.vc*18, 0, BLU);
+      arr(bx,by, vx*18, -vy*18, ORA);
+      var crossT=vy>0.05?width/vy:Infinity, drift=vy>0.05?vx*crossT:0;
+      E.tapHint(W/2, H*0.92, '뱃머리 각도·물살을 바꿔 합속도를 보세요', true);
+      E.big('합속도 = 뱃머리 + 물살 (건너기 '+ (isFinite(crossT)?crossT.toFixed(1)+'s, 떠내려감 '+drift.toFixed(1):'∞')+')', '속도는 <b>벡터</b>라 더할 때 방향까지 함께 더합니다. 강을 건너는 보트의 실제 속도(주황)는 뱃머리 속도(초록)와 물살(파랑)의 <b>벡터 합</b>. 똑바로 저어도(90°) 물살에 떠내려갑니다. 곧장 건너려면 상류로 비스듬히 저어 물살을 상쇄해야 합니다 — 비행기가 바람에 기수를 트는 것과 같은 상대속도 문제.'); }
+  },
+
+  // ─── 심화: 종단속도 (공기저항, 엔진 적분) ───
+  { id:'phys1_05_drag', branchOf:'phys1_05', ord:1,
+    enter:function(E){ var self=this; this.s={c:0.5};
+      var w=PhysLab.world({g:9.8}); this.s.w=w;
+      var b=w.add({x:0,y:14,m:1,r:0.3,color:GRN}); this.s.b=b;
+      w.force(PhysLab.F.drag(b,self.s.c)); this.s.hist=[];
+      E.controls('<div class="ctrl"><label>공기저항 계수 c</label><input type="range" id="cc" min="0.2" max="2" step="0.1" value="0.5"><output id="cco">0.5</output></div>');
+      E.bind('#cc','input',function(e){ self.s.c=+e.target.value; w.clearForces(); w.force(PhysLab.F.drag(b,self.s.c)); b.y=14; b.vy=0; self.s.hist=[]; document.getElementById('cco').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, w=s.w, b=s.b, ctx=E.ctx, W=E.W, H=E.H;
+      w.step(1/60,6); if(b.y<0.3){ b.y=14; b.vy=0; s.hist=[]; }
+      var spd=-b.vy, vt=1*9.8/s.c;   // 종단속도 mg/c
+      s.hist.push(spd); if(s.hist.length>220) s.hist.shift();
+      var topY=H*0.16, botY=H*0.80, scale=(botY-topY)/15, cx=W*0.22;
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-40,botY); ctx.lineTo(cx+40,botY); ctx.stroke();
+      var py=botY-b.y*scale; ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,py,9,0,7); ctx.fill();
+      // 저항(위)·중력(아래) 화살표
+      ctx.strokeStyle=PNK; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,py); ctx.lineTo(cx,py-Math.min(40,s.c*spd*8)); ctx.stroke();
+      ctx.strokeStyle=ORA; ctx.beginPath(); ctx.moveTo(cx,py); ctx.lineTo(cx,py+30); ctx.stroke();
+      // v-t 그래프 + 종단속도 점근선
+      var gx0=W*0.50, gx1=W*0.93, gy0=H*0.78, gh=H*0.5, vmax=1*9.8/0.2;
+      ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.setLineDash([5,4]); var vty=gy0-(vt/vmax)*gh; ctx.beginPath(); ctx.moveTo(gx0,vty); ctx.lineTo(gx1,vty); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=ORA; ctx.fillText('종단속도 '+vt.toFixed(1), gx1-90, vty-4);
+      ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
+      s.hist.forEach(function(vv,i){ var x=gx0+(gx1-gx0)*i/220, y=gy0-(vv/vmax)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+      E.tapHint(W/2, H*0.92, '저항을 키우면 종단속도가 낮아집니다', true);
+      E.big('종단속도 v_t = mg/c = '+vt.toFixed(1)+' m/s  (현재 v='+spd.toFixed(1)+')', '진공이 아니면 떨어지는 물체엔 속도에 비례하는 <b>공기저항(−cv)</b>이 붙습니다(엔진이 적분). 처음엔 중력으로 가속하지만, 빨라질수록 저항이 커져 어느 순간 <b>중력=저항</b>이 되면 더는 안 빨라집니다 — 그 일정 속도가 <b>종단속도 v_t=mg/c</b>(v-t 곡선이 점근선에 수렴). 빗방울·낙하산·스카이다이버가 일정 속도로 떨어지는 이유. 저항이 클수록(낙하산) 종단속도가 낮습니다.'); }
   }
 
   ];

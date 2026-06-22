@@ -82,5 +82,33 @@
    "q_en": "Launch at 20 m/s, at 30° vs 60°. Which goes farther?",
    "sol_en": "sin60° = sin120°, so both ≈ 35.3 m — <b>equal</b>. 45° is the max."
   }
+ },
+ "phys1_01_relv": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.1 심화 · 상대속도",
+  "title": "상대속도 — 강 건너는 보트",
+  "narr": "속도는 크기뿐 아니라 방향을 가진 <b>벡터</b>라서, 더할 때는 화살표를 이어붙이듯 더합니다. 강을 건너는 보트의 실제 속도(주황)는 뱃머리 속도(초록)와 물살 속도(파랑)의 <b>벡터 합</b>입니다. 슬라이더로 뱃머리 각도와 물살 세기를 바꿔 보세요. 똑바로 저어도(90°) 물살에 떠내려가고, 곧장 건너려면 상류로 비스듬히 저어야 합니다.",
+  "more": "<b>상대속도</b>: v(보트,땅) = v(보트,물) + v(물,땅) — 벡터 합. 강 건너기에서 강을 따라 떠내려간 거리 = (물살속도)×(건너는 시간), 건너는 시간 = 강폭/(뱃머리 속도의 수직 성분). 비행기가 바람 속을 날 때 기수 방향(heading)과 실제 진로(track)가 다른 것도 같은 원리. 기준틀에 따라 속도가 달라집니다.",
+  "more_en": "<b>Relative velocity</b>: v(boat,ground) = v(boat,water) + v(water,ground), a vector sum. Drift = current × crossing time. Same idea as an aircraft's heading vs track in wind.",
+  "problem": {
+   "q": "강물 3 m/s, 보트를 4 m/s로 강에 수직으로 저으면 합속도 크기는?",
+   "solution": "√(3²+4²) = √25 = <b>5 m/s</b> (피타고라스, 비스듬히 떠내려감).",
+   "q_en": "River 3 m/s, boat 4 m/s straight across. Resultant speed?",
+   "sol_en": "√(3²+4²) = <b>5 m/s</b>."
+  }
+ },
+ "phys1_05_drag": {
+  "ch": "물리학 제1장 운동학",
+  "sec": "1.5 심화 · 종단속도",
+  "title": "종단속도 — 공기저항이 잡는 속도",
+  "narr": "진공에서는 끝없이 빨라지지만, 공기 속에서는 다릅니다. 떨어지는 물체에는 속도에 비례하는 <b>공기저항(−cv)</b>이 붙습니다(엔진이 실시간 적분). 처음엔 중력으로 가속하지만 빨라질수록 저항이 커지고, <b>중력 = 저항</b>이 되는 순간부터는 더 빨라지지 않습니다 — 그 일정 속도가 <b>종단속도</b>입니다. 슬라이더로 저항 계수를 키우면 종단속도가 낮아집니다(낙하산!). v-t 곡선이 점근선에 수렴하는 것을 보세요.",
+  "more": "<b>종단속도</b>: mg = cv_t → v_t = mg/c. 그 전까지 v(t)=v_t(1−e^(−ct/m))로 지수적으로 접근. 실제 공기저항은 고속에서 v²에 비례(F=½ρC_dAv²)하지만 원리는 같음. 빗방울이 사람을 안 다치게 하는 이유, 낙하산이 안전 착지를 만드는 이유, 스카이다이버의 자세(면적)로 속도를 조절하는 이유.",
+  "more_en": "<b>Terminal velocity</b>: mg = cv_t → v_t = mg/c; v(t) = v_t(1−e^(−ct/m)). Real drag ∝ v² at high speed, but the idea holds. Why raindrops are harmless and parachutes work.",
+  "problem": {
+   "q": "질량 2 kg, 저항계수 c=4 N·s/m일 때 종단속도는? (g=10)",
+   "solution": "v_t = mg/c = (2×10)/4 = <b>5 m/s</b>.",
+   "q_en": "m=2 kg, c=4. Terminal velocity? (g=10)",
+   "sol_en": "v_t = mg/c = <b>5 m/s</b>."
+  }
  }
 }

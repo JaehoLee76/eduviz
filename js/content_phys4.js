@@ -161,6 +161,61 @@
       var cy=H*0.74; harrow(E, W*0.50, cy, pA*16, GRN, 'pA='+pA.toFixed(1)); harrow(E, W*0.50, cy, pB*16, ORA, 'pB='+pB.toFixed(1));
       E.tapHint(W/2, H*0.88, '화면 탭 = 다시 발사  (질량 바꾸면 즉시 발사)', true);
       E.big('총 운동량 = pA + pB = '+ptot.toFixed(2)+' ≈ 0  (반동)', '정지(총 운동량 0)에서 서로 밀면, 두 운동량은 크기 같고 방향 반대 → 합은 여전히 0. 가벼운 쪽이 더 빠릅니다(|v|=I/m). 총·대포 반동, 로켓 추진, 헤엄의 원리. 작용-반작용(뉴턴 3법칙)의 운동량 표현.'); }
+  },
+
+  // ─── 심화: 2차원 충돌 (당구, 엔진 collide) ───
+  { id:'phys4_03_2d', branchOf:'phys4_03', ord:1,
+    enter:function(E){ var self=this; this.s={off:0.3};
+      var w=PhysLab.world({g:0, rest:1}); this.s.w=w;
+      this.reset(); E.controls('<div class="ctrl"><label>충돌 엇갈림(임팩트 파라미터)</label><input type="range" id="of" min="0" max="0.8" step="0.1" value="0.3"><output id="ofo">0.3</output></div>');
+      E.bind('#of','input',function(e){ self.s.off=+e.target.value; self.reset(); document.getElementById('ofo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.setOn([]); },
+    reset:function(){ var s=this.s, w=s.w; w.reset();
+      s.A=w.add({x:1,y:5,m:1,r:0.45,vx:3,vy:0,color:GRN});
+      s.B=w.add({x:6,y:5+s.off,m:1,r:0.45,vx:0,vy:0,color:ORA}); s.tA=[]; s.tB=[]; },
+    tap:function(E){ this.reset(); E.blip(360,0.12); },
+    draw:function(E){ var s=this.s, w=s.w, A=s.A, B=s.B, ctx=E.ctx, W=E.W, H=E.H;
+      w.step(1/60,6); w.collide();
+      if(A.x>11||B.x>11||A.x<-1||B.x<-1) this.reset();
+      var ox=W*0.08, sc=Math.min(W*0.075,H*0.075), oy=H*0.84, v=PhysLab.view(ox,oy,sc); s.view=v;
+      s.tA.push([A.x,A.y]); s.tB.push([B.x,B.y]); if(s.tA.length>120){s.tA.shift();s.tB.shift();}
+      [['rgba(95,214,168,0.4)',s.tA],['rgba(255,178,122,0.4)',s.tB]].forEach(function(t){ ctx.strokeStyle=t[0]; ctx.lineWidth=1.5; ctx.beginPath(); t[1].forEach(function(p,i){ if(i===0)ctx.moveTo(v.X(p[0]),v.Y(p[1])); else ctx.lineTo(v.X(p[0]),v.Y(p[1])); }); ctx.stroke(); });
+      [A,B].forEach(function(b){ ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),b.r*sc,0,7); ctx.fill(); ctx.globalAlpha=1;
+        ctx.strokeStyle=b.color; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(v.X(b.x),v.Y(b.y)); ctx.lineTo(v.X(b.x)+b.vx*sc*0.4,v.Y(b.y)-b.vy*sc*0.4); ctx.stroke(); });
+      var px=A.m*A.vx+B.m*B.vx, py=A.m*A.vy+B.m*B.vy;
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('총 운동량 p=('+px.toFixed(2)+', '+py.toFixed(2)+')  — 벡터로 보존', W*0.1, H*0.20);
+      E.tapHint(W/2, H*0.93, '엇갈림을 바꿔 — 비스듬히 부딪히면 서로 갈라짐', true);
+      E.big('2차원 충돌 — 운동량은 벡터로 보존', '충돌이 정면이 아니면 두 공이 비스듬히 <b>갈라집니다</b>(엔진의 2D 탄성충돌). 이때도 운동량은 <b>x·y 성분 각각 따로 보존</b>됩니다(벡터 보존). 같은 질량 탄성충돌이면 두 공은 항상 <b>직각으로</b> 흩어집니다 — 당구의 핵심 기술! 엇갈림(임팩트 파라미터)이 클수록 더 비스듬히 갈라집니다. 입자 충돌 실험·기체 분자 충돌도 2D·3D 운동량 보존.'); }
+  },
+
+  // ─── 심화: 로켓 추진 (변질량) ───
+  { id:'phys4_05_rocket', branchOf:'phys4_05', ord:1,
+    enter:function(E){ var self=this; this.s={ve:3,t:0,m:5,v:0,y:0,hist:[]};
+      E.controls('<div class="ctrl"><label>분사 속도 ve</label><input type="range" id="ve" min="1" max="6" step="0.5" value="3"><output id="veo">3.0</output></div>');
+      E.bind('#ve','input',function(e){ self.s.ve=+e.target.value; self.reset(); document.getElementById('veo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      this.reset(); E.setOn([]); },
+    reset:function(){ var s=this.s; s.t=0; s.m=5; s.v=0; s.y=0; s.hist=[]; },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, burn=0.6, m0=5, mdry=1.5;
+      // 연료 소모 + 추력: dv = ve·(−dm/m), 엔진식 적분
+      if(s.m>mdry){ var dm=burn*(1/60); var dv=s.ve*(dm/s.m); s.v+=dv; s.m-=dm; }
+      s.y+=s.v*(1/60); s.t+=1/60; if(s.y>8){ this.reset(); }
+      s.hist.push(s.v); if(s.hist.length>200)s.hist.shift();
+      var cx=W*0.26, botY=H*0.84, topY=H*0.14, py=botY-(s.y/8)*(botY-topY);
+      // 로켓
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.moveTo(cx,py-22); ctx.lineTo(cx-9,py+10); ctx.lineTo(cx+9,py+10); ctx.closePath(); ctx.fill();
+      // 분사 화염(연료 남았을 때)
+      if(s.m>mdry){ ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(cx-6,py+10); ctx.lineTo(cx+6,py+10); ctx.lineTo(cx,py+10+12+s.ve*3); ctx.closePath(); ctx.fill(); }
+      // 연료 게이지
+      var frac=(s.m-mdry)/(m0-mdry); ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(W*0.42,topY,24,botY-topY);
+      ctx.fillStyle=PNK; ctx.fillRect(W*0.42,botY-frac*(botY-topY),24,frac*(botY-topY)); ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('연료', W*0.42+12, botY+16);
+      // v-t 그래프
+      var gx0=W*0.56, gx1=W*0.93, gy0=H*0.78, gh=H*0.5, vmax=6*Math.log(m0/mdry)*1.1;
+      ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); s.hist.forEach(function(vv,i){ var x=gx0+(gx1-gx0)*i/200, y=gy0-(vv/vmax)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+      var dvmax=s.ve*Math.log(m0/mdry);
+      E.tapHint(W/2, H*0.92, '분사 속도를 바꿔 최종 속도를 보세요', true);
+      E.big('로켓 — Δv = ve·ln(m₀/m) (현재 v='+s.v.toFixed(2)+', 최대 '+dvmax.toFixed(2)+')', '로켓은 연료(질량)를 뒤로 분사한 운동량만큼 앞으로 운동량을 얻습니다(반동의 연속). 질량이 계속 줄어드는 <b>변질량 문제</b>라, 같은 연료라도 가벼워질수록 더 잘 가속됩니다. 최종 속도 변화는 <b>치올코프스키 로켓 방정식 Δv = ve·ln(m₀/m)</b> — 분사 속도 ve가 크고, 연료비(m₀/m_dry)가 클수록 빨라집니다. 다단 로켓이 빈 연료통을 버리는 이유.'); }
   }
 
   ];

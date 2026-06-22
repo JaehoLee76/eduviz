@@ -68,5 +68,33 @@
    "q_en": "10 N force, object at 4 m/s. Instantaneous power?",
    "sol_en": "P = F·v = 10 × 4 = <b>40 W</b>."
   }
+ },
+ "phys3_01_spring": {
+  "ch": "물리학 제3장 일·에너지",
+  "sec": "3.1 심화 · 용수철 발사",
+  "title": "용수철 발사 — 탄성E에서 포물선까지",
+  "narr": "용수철을 압축하면 <b>탄성위치에너지 ½kx²</b>가 저장됩니다. 놓는 순간 그 에너지가 모두 운동에너지로 바뀌어 물체가 튀어 나가고(½kx²=½mv² → v=√(k/m)·x), 그 뒤는 1장에서 본 포물선 운동입니다. 슬라이더로 압축량과 발사각을 바꿔 사거리를 보세요. 많이 압축할수록 빠르게, 45°에서 가장 멀리 날아갑니다.",
+  "more": "<b>에너지 변환 사슬</b>: 탄성PE(½kx²) → 운동E(½mv²) → 중력PE↔운동E(포물선). 발사 속력 v=x√(k/m). 사거리 R=v²sin2θ/g. 새총·석궁·핀볼·장난감 발사대·투석기가 모두 저장된 위치에너지를 운동에너지로 푸는 장치. 마찰·공기저항이 없으면 변환 효율 100%.",
+  "more_en": "<b>Energy chain</b>: elastic PE (½kx²) → kinetic (½mv²) → projectile. Launch speed v = x√(k/m), range R = v²sin2θ/g. Slingshots, crossbows, pinball all release stored elastic energy.",
+  "problem": {
+   "q": "k=200 N/m 용수철을 0.1 m 압축해 0.5 kg을 쏘면 발사 속력은?",
+   "solution": "½kx²=½mv² → v=x√(k/m)=0.1×√(400)=0.1×20=<b>2 m/s</b>.",
+   "q_en": "k=200, compress 0.1 m, launch 0.5 kg. Speed?",
+   "sol_en": "v=x√(k/m)=0.1×20=<b>2 m/s</b>."
+  }
+ },
+ "phys3_03_coaster": {
+  "ch": "물리학 제3장 일·에너지",
+  "sec": "3.3 심화 · 롤러코스터",
+  "title": "롤러코스터 — 높이가 곧 속도",
+  "narr": "동력 없는 롤러코스터는 오직 에너지 보존으로 달립니다. 낮은 골에서 가장 빠르고(운동E 최대), 높은 언덕에서 느려집니다(위치E로 전환). 핵심: <b>어떤 언덕도 출발 높이보다 높으면 넘지 못합니다</b> — 에너지가 모자라니까요. 슬라이더로 출발 높이를 바꿔 보세요. 막대에서 위치E↔운동E가 주고받지만 합은 늘 일정합니다.",
+  "more": "<b>역학적 에너지 보존</b>: 마찰 무시 시 임의 높이 y에서 v=√(2g(H₀−y)). 첫 언덕(또는 출발점)이 항상 최고점이어야 함(에너지 한계). 실제는 마찰로 조금씩 손실되어 점점 낮은 언덕만 넘을 수 있음. 루프의 꼭대기에서 떨어지지 않으려면 v²≥gr(구심력 조건)이 추가로 필요. 스키·봅슬레이·계곡 진자도 같은 원리.",
+  "more_en": "<b>Energy conservation</b>: speed v=√(2g(H₀−y)) at any height. No hill can exceed the start height (energy limit). A loop needs v²≥gr at the top. Same for ski runs and bobsleds.",
+  "problem": {
+   "q": "5 m 높이에서 출발한 롤러코스터가 2 m 언덕에서의 속력은? (g=10)",
+   "solution": "v=√(2g(H₀−y))=√(2×10×3)=√60≈<b>7.7 m/s</b>.",
+   "q_en": "Start at 5 m, speed at a 2 m hill? (g=10)",
+   "sol_en": "v=√(2·10·3)=√60≈<b>7.7 m/s</b>."
+  }
  }
 }

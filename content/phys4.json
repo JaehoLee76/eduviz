@@ -68,5 +68,33 @@
    "q_en": "A 60 kg person throws a 2 kg ball at 5 m/s. Recoil speed?",
    "sol_en": "0 = 60v + 10 → v ≈ <b>−0.17 m/s</b>, opposite direction."
   }
+ },
+ "phys4_03_2d": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.3 심화 · 2차원 충돌",
+  "title": "2차원 충돌 — 당구처럼 갈라지다",
+  "narr": "충돌이 정면이 아니면 두 공은 비스듬히 <b>갈라집니다</b>(엔진의 2D 탄성충돌). 이때도 운동량은 x·y 성분이 <b>각각 따로 보존</b>됩니다(벡터 보존). 슬라이더로 엇갈림(임팩트 파라미터)을 바꿔 보세요. 같은 질량 탄성충돌이면 두 공은 충돌 후 항상 <b>직각으로</b> 흩어집니다 — 당구의 핵심!",
+  "more": "<b>2D 운동량 보존</b>: Σp_x, Σp_y 각각 보존. 같은 질량 완전탄성 비스듬 충돌에서는 두 속도가 90° 이룸(운동E도 보존이라 코사인 항이 0). 임팩트 파라미터(엇갈린 정도)가 산란각을 결정 — 러더퍼드 산란(원자핵 발견), 입자가속기 충돌 분석의 원리. 충돌은 벡터 사건.",
+  "more_en": "<b>2D momentum conservation</b>: p_x and p_y each conserved. Equal-mass elastic glancing collisions scatter at 90°. Impact parameter sets the scattering angle — the basis of Rutherford scattering and collider analysis.",
+  "problem": {
+   "q": "같은 질량 두 공의 정면이 아닌 완전탄성 충돌 후 두 속도가 이루는 각은?",
+   "solution": "<b>90°(직각)</b>. 운동량·운동E 동시 보존의 결과 — 당구의 기본.",
+   "q_en": "Equal masses, elastic glancing collision. Angle between velocities after?",
+   "sol_en": "<b>90°</b> (from momentum + energy conservation)."
+  }
+ },
+ "phys4_05_rocket": {
+  "ch": "물리학 제4장 운동량",
+  "sec": "4.5 심화 · 로켓 추진",
+  "title": "로켓 방정식 — 변질량의 추진",
+  "narr": "로켓은 연료를 뒤로 분사한 운동량만큼 앞으로 운동량을 얻습니다 — 반동(4.5)의 연속입니다. 그런데 질량이 계속 줄어드는 <b>변질량 문제</b>라, 같은 연료라도 가벼워질수록 더 잘 가속됩니다. 슬라이더로 분사 속도를 바꿔 최종 속도를 보세요. 연료가 떨어지면 가속이 멈춥니다(v-t 곡선이 평평).",
+  "more": "<b>치올코프스키 로켓 방정식</b>: Δv = ve·ln(m₀/m). 분사 속도 ve가 크고 연료질량비 m₀/m_dry가 클수록 빠름(로그라 연료를 4배 늘려도 Δv는 ln4배만). 그래서 다단 로켓이 빈 연료통을 버려 m을 줄입니다. 추력 = ve·(연료소모율). 우주 비행의 근본 한계를 정하는 식.",
+  "more_en": "<b>Tsiolkovsky rocket equation</b>: Δv = ve·ln(m₀/m). Larger exhaust speed and mass ratio give more Δv (logarithmic — why staging matters). Thrust = ve × (mass flow rate).",
+  "problem": {
+   "q": "분사 속도 3 km/s, 질량비 m₀/m=e(≈2.72)인 로켓의 Δv는?",
+   "solution": "Δv = ve·ln(m₀/m) = 3×ln(e) = 3×1 = <b>3 km/s</b>.",
+   "q_en": "ve=3 km/s, mass ratio e. Δv?",
+   "sol_en": "Δv = 3·ln(e) = <b>3 km/s</b>."
+  }
  }
 }

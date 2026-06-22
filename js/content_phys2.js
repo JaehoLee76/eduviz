@@ -64,6 +64,58 @@
         if(b.held){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,pr+3,0,7); ctx.stroke(); } });
       E.tapHint(W/2, H*0.92, '공을 끌어 던지기 · 빈 곳을 탭하면 공 추가', true);
       E.big('실시간 물리 엔진 — 끌어서 던져 보세요', '중력으로 떨어지고 바닥·벽·서로 부딪혀 튑니다. 전부 F=ma 적분과 충돌(운동량 보존)의 결과 — 공식이 아니라 시뮬레이션입니다. g와 반발 e를 바꿔 보세요.'); }
+  },
+
+  // ─── 심화: 경사면과 마찰 ───
+  { id:'phys2_01_incline', branchOf:'phys2_01', ord:1,
+    enter:function(E){ var self=this; this.s={ang:25,mu:0.3,d:0,v:0};
+      E.controls('<div class="ctrl"><label>경사각 θ (도)</label><input type="range" id="ag" min="5" max="60" step="5" value="25"><output id="ago">25</output>'
+        +'<label style="margin-left:14px">마찰계수 μ</label><input type="range" id="mu" min="0" max="1" step="0.05" value="0.3"><output id="muo">0.30</output></div>');
+      E.bind('#ag','input',function(e){ self.s.ang=+e.target.value; self.s.d=0; self.s.v=0; document.getElementById('ago').textContent=e.target.value; E.blip(360,0.07); });
+      E.bind('#mu','input',function(e){ self.s.mu=+e.target.value; self.s.d=0; self.s.v=0; document.getElementById('muo').textContent=(+e.target.value).toFixed(2); E.blip(340,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8, th=s.ang*Math.PI/180;
+      var sliding = Math.tan(th) > s.mu, a = sliding ? g*(Math.sin(th)-s.mu*Math.cos(th)) : 0;
+      s.v += a*(1/60); s.d += s.v*(1/60); if(s.d>5){ s.d=0; s.v=0; }
+      // 경사면 삼각형
+      var ox=W*0.16, oy=H*0.74, L=Math.min(W*0.5,H*0.55), ex=ox+L*Math.cos(th), ey=oy-L*Math.sin(th);
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.lineTo(ex,oy); ctx.closePath(); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('θ='+s.ang+'°', ox+30, oy-6);
+      // 블록(경사 위, 위→아래로 미끄러짐: 꼭대기에서 d만큼 내려옴)
+      var f=Math.max(0,1-s.d/5), bx=ox+(ex-ox)*(0.15+0.7*(1-f)), by=oy-(oy-ey)*(0.15+0.7*(1-f));
+      var nx=Math.sin(th), ny=Math.cos(th);  // 경사 수직(법선) 방향(바깥)
+      ctx.save(); ctx.translate(bx,by); ctx.rotate(-th); ctx.fillStyle=ORA; ctx.globalAlpha=0.3; ctx.fillRect(-16,-28,32,28); ctx.globalAlpha=1; ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.strokeRect(-16,-28,32,28); ctx.restore();
+      // 힘 화살표: 중력(아래)·경사방향성분
+      function arr(dx,dy,col){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(bx,by-14); ctx.lineTo(bx+dx,by-14+dy); ctx.stroke(); var a2=Math.atan2(dy,dx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(bx+dx,by-14+dy); ctx.lineTo(bx+dx-8*Math.cos(a2-0.4),by-14+dy-8*Math.sin(a2-0.4)); ctx.lineTo(bx+dx-8*Math.cos(a2+0.4),by-14+dy-8*Math.sin(a2+0.4)); ctx.fill(); }
+      arr(0, g*4, PNK);  // 중력 mg
+      arr(Math.cos(th)*g*Math.sin(th)*5, Math.sin(th)*g*Math.sin(th)*5, GRN);  // 경사방향 성분 g sinθ
+      E.tapHint(W/2, H*0.90, '각도·마찰을 바꿔 미끄러지는 조건을 보세요', true);
+      E.big((sliding?'미끄러짐 — 경사방향 가속도 a = g(sinθ−μcosθ) = '+a.toFixed(2):'정지 — 마찰이 충분(tanθ ≤ μ)'), '경사면 위 물체엔 중력을 <b>경사 방향(g sinθ)</b>과 <b>수직 방향(g cosθ)</b>으로 나눠 봅니다. 미끄러지려면 경사 성분이 최대정지마찰(μ·g cosθ)을 이겨야 하므로 조건은 <b>tanθ > μ</b>. 미끄러질 때 가속도는 a = g(sinθ − μcosθ). 각도를 올리거나 마찰을 줄이면 미끄러집니다. 스키·미끄럼틀·사면 안정성의 기본.'); }
+  },
+
+  // ─── 심화: 도르래 (애트우드 기계) ───
+  { id:'phys2_02_pulley', branchOf:'phys2_02', ord:1,
+    enter:function(E){ var self=this; this.s={m1:1,m2:2,y:0,v:0};
+      E.controls('<div class="ctrl"><label>왼쪽 질량 m₁</label><input type="range" id="m1" min="1" max="5" step="1" value="1"><output id="m1o">1</output>'
+        +'<label style="margin-left:14px">오른쪽 질량 m₂</label><input type="range" id="m2" min="1" max="5" step="1" value="2"><output id="m2o">2</output></div>');
+      E.bind('#m1','input',function(e){ self.s.m1=+e.target.value; self.s.y=0; self.s.v=0; document.getElementById('m1o').textContent=e.target.value; E.blip(360,0.07); });
+      E.bind('#m2','input',function(e){ self.s.m2=+e.target.value; self.s.y=0; self.s.v=0; document.getElementById('m2o').textContent=e.target.value; E.blip(360,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8;
+      var a=(s.m2-s.m1)*g/(s.m1+s.m2), T=2*s.m1*s.m2*g/(s.m1+s.m2);
+      s.v += a*(1/60); s.y += s.v*(1/60); if(Math.abs(s.y)>2.5){ s.y=0; s.v=0; }   // m2 양수=내려감
+      var cx=W*0.40, topY=H*0.22, sc=Math.min(W*0.05,H*0.07);
+      // 도르래
+      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,topY,16,0,7); ctx.stroke();
+      var lx=cx-40, rx=cx+40;
+      var y1=topY+ (3 - s.y)*sc, y2=topY + (3 + s.y)*sc;   // m1 올라가고 m2 내려감(y>0)
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(lx,topY); ctx.lineTo(lx,y1); ctx.moveTo(rx,topY); ctx.lineTo(rx,y2); ctx.stroke();
+      // 추
+      function box(x,y,m,col){ var sz=14+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(x-sz/2,y,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(x-sz/2,y,sz,sz); ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',x,y+sz/2+4); }
+      box(lx,y1,s.m1,GRN); box(rx,y2,s.m2,ORA);
+      E.tapHint(W/2, H*0.90, '두 질량을 바꿔 가속도·장력을 보세요', true);
+      E.big('애트우드: a = (m₂−m₁)g/(m₁+m₂) = '+a.toFixed(2)+',  장력 T = '+T.toFixed(1)+' N', '도르래로 두 물체를 잇고 한 줄로 묶으면, 무거운 쪽이 내려가고 가벼운 쪽이 올라갑니다. 계 전체에 뉴턴 2법칙을 적용하면 가속도 <b>a = (m₂−m₁)g/(m₁+m₂)</b> — 질량 차가 클수록 빠르고, 같으면(m₁=m₂) 평형(a=0). 줄의 장력 T는 두 추의 무게 사이 값. 엘리베이터 평형추, 도르래 기계의 원리.'); }
   }
 
   ];

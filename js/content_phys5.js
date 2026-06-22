@@ -153,6 +153,52 @@
       E.tapHint(W/2, H*0.90, s.cut?'화면 탭=줄 다시 매기':'화면을 눌러 줄 끊기', true);
       if(s.cut) E.big('줄을 끊으면 직선으로! (관성)', '구심력이 사라지자 공은 접선 방향으로 곧장 날아갑니다 — 뉴턴 1법칙. 원운동에는 "안쪽으로 당기는 힘"이 끊임없이 필요했던 것. 원심력은 가짜 힘, 진짜는 중심으로 당기는 구심력입니다.');
       else E.big('구심력 F = mv²/r = '+Fc.toFixed(2)+' N (중심 방향)', '등속 원운동도 "가속" 운동입니다 — 속력은 일정해도 속도(방향)가 계속 바뀌니까. 그 방향 변화를 만드는 힘이 구심력 F=mv²/r, 항상 중심을 향합니다. v='+sp.toFixed(2)+' m/s, ω=v/r='+om.toFixed(2)+' rad/s. 끈을 끊어 보세요!'); }
+  },
+
+  // ─── 심화: 굴림운동 경주 (관성모멘트가 결정) ───
+  { id:'phys5_03_rolling', branchOf:'phys5_03', ord:1,
+    enter:function(E){ this.s={ang:25,d:[0,0,0],v:[0,0,0]}; E.setOn([]);
+      var self=this; E.controls('<div class="ctrl"><label>경사각 θ (도)</label><input type="range" id="ag" min="10" max="40" step="5" value="25"><output id="ago">25</output></div>');
+      E.bind('#ag','input',function(e){ self.s.ang=+e.target.value; self.s.d=[0,0,0]; self.s.v=[0,0,0]; document.getElementById('ago').textContent=e.target.value; E.blip(360,0.07); }); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8, th=s.ang*Math.PI/180;
+      // I/mr² : 속찬구 0.4, 원판 0.5, 고리 1.0 → a = g sinθ/(1+I/mr²)
+      var objs=[['속찬 구',0.4,GRN],['원판',0.5,ORA],['고리',1.0,PNK]];
+      var ox=W*0.14, oy=H*0.30, L=Math.min(W*0.62,H*0.6), ex=ox+L*Math.cos(th), ey=oy+L*Math.sin(th);
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.stroke();
+      objs.forEach(function(o,i){ var a=g*Math.sin(th)/(1+o[1]); s.v[i]+=a*(1/60); s.d[i]+=s.v[i]*(1/60); if(s.d[i]>L/40)s.d[i]=L/40;
+        var f=s.d[i]/(L/40), px=ox+(ex-ox)*f, py=oy+(ey-oy)*f-12-i*0; // 약간 위
+        var nx=-Math.sin(th), ny=Math.cos(th); var cx=px+nx*(14+i*0), cy=py+ny*0;
+        ctx.strokeStyle=o[2]; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(px+nx*14,py-ny*0+ny*14-14, 11, 0, 7); ctx.stroke();
+        if(o[1]<0.6){ ctx.fillStyle=o[2]; ctx.globalAlpha=0.3; ctx.beginPath(); ctx.arc(px+nx*14,py+ny*14-14,11,0,7); ctx.fill(); ctx.globalAlpha=1; }
+        ctx.fillStyle=o[2]; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText(o[0]+' (a='+(g*Math.sin(th)/(1+o[1])).toFixed(2)+')', W*0.7, H*0.34+i*22); });
+      E.tapHint(W/2, H*0.92, '경사각을 바꿔 보세요 — 속찬 구가 항상 1등', true);
+      E.big('굴림운동: a = g·sinθ/(1+I/mr²) — 관성모멘트가 순위를 정함', '경사면을 굴러 내려오는 물체의 가속도는 <b>질량·반지름과 무관</b>하게 오직 <b>I/mr²(질량 분포)</b>로 정해집니다 — a = g sinθ/(1+I/mr²). 질량이 안쪽에 몰린 <b>속찬 구</b>(I/mr²=0.4)가 가장 빠르고, 원판(0.5), 가장자리에 몰린 <b>고리</b>(1.0)가 꼴찌. 위치에너지가 병진운동E와 회전운동E로 나뉘는데, I가 클수록 회전에 더 많이 쓰여 천천히 내려옵니다. 갈릴레오 빗면의 회전 버전.'); }
+  },
+
+  // ─── 심화: 토크 평형 (정역학·시소) ───
+  { id:'phys5_02_torqeq', branchOf:'phys5_02', ord:1,
+    enter:function(E){ var self=this; this.s={m1:3,d1:2,m2:2};
+      E.controls('<div class="ctrl"><label>왼쪽 추 m₁ 위치 d₁</label><input type="range" id="d1" min="1" max="3" step="0.5" value="2"><output id="d1o">2.0</output>'
+        +'<label style="margin-left:14px">오른쪽 추 m₂</label><input type="range" id="m2" min="1" max="5" step="1" value="2"><output id="m2o">2</output></div>');
+      E.bind('#d1','input',function(e){ self.s.d1=+e.target.value; document.getElementById('d1o').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.bind('#m2','input',function(e){ self.s.m2=+e.target.value; document.getElementById('m2o').textContent=e.target.value; E.blip(340,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      // d2는 m1·d1 = m2·d2 평형 위치. 불균형이면 기울기 표시
+      var tau1=s.m1*s.d1, d2fix=2.5, tau2=s.m2*d2fix, net=tau2-tau1, ang=Math.max(-0.25,Math.min(0.25,net*0.03));
+      var cx=W*0.42, cy=H*0.46, sc=Math.min(W*0.07,H*0.10);
+      // 받침대
+      ctx.fillStyle=DIM; ctx.beginPath(); ctx.moveTo(cx-14,cy+40); ctx.lineTo(cx+14,cy+40); ctx.lineTo(cx,cy+6); ctx.fill();
+      // 막대(기울기 ang)
+      var c=Math.cos(ang), sn=Math.sin(ang);
+      function pt(dx){ return [cx+dx*sc*c, cy - dx*sc*sn]; }
+      var lp=pt(-3.5), rp=pt(3.5); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(lp[0],lp[1]); ctx.lineTo(rp[0],rp[1]); ctx.stroke();
+      // 추(왼쪽 m1 at d1, 오른쪽 m2 at d2fix)
+      function wt(dx,m,col){ var p=pt(dx), sz=12+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.fillStyle=col; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',p[0],p[1]-sz/2); }
+      wt(-s.d1,s.m1,GRN); wt(d2fix,s.m2,ORA);
+      var bal=Math.abs(net)<0.01;
+      E.tapHint(W/2, H*0.90, '왼쪽 위치·오른쪽 질량을 바꿔 평형을 맞춰 보세요', true);
+      E.big('토크 평형: m₁d₁ = '+tau1.toFixed(1)+' vs m₂d₂ = '+tau2.toFixed(1)+(bal?'  → 평형!':(net>0?'  → 오른쪽으로 기욺':'  → 왼쪽으로 기욺')), '회전이 멈춰 있으려면 <b>양쪽 토크가 같아야</b> 합니다(정역학). 시소는 무게×거리(m·d, 토크)가 같을 때 균형 — 무거운 사람은 받침점에 가까이 앉아야 가벼운 사람과 평형. 알짜 토크가 0이고 알짜 힘도 0이면 물체는 정지 상태를 유지(평형). 다리·건물·크레인·골격이 무너지지 않는 것이 모두 힘과 토크의 평형 — 정역학.'); }
   }
 
   ];

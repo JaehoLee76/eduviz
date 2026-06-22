@@ -20,5 +20,33 @@
   "narr": "이 장면은 EduViz의 <b>자체 물리 엔진(PhysLab)</b>을 그대로 만져 보는 실험실입니다. 공을 <b>마우스로 끌어 던지면</b> 손을 떠나는 순간의 속도로 날아가고, 중력에 끌려 떨어지며, 바닥·벽·다른 공과 <b>부딪혀 튑니다</b>. 화면을 누르면 공이 추가됩니다. 이 모든 움직임은 애니메이션을 미리 그려둔 것이 아니라, 매 프레임 <b>F = ma 적분 + 충돌 시 운동량 보존</b>을 계산한 결과입니다. 슬라이더로 <b>중력 g</b>와 <b>반발계수 e</b>를 바꾸면 — 달처럼 천천히 떨어지게도, 거의 안 튀게도, 끝없이 통통 튀게도 만들 수 있습니다.",
   "more": "엔진이 하는 일: ① 모든 물체에 중력 −mg, ② v·x 적분, ③ 경계(바닥·벽) 충돌 시 법선 속도를 <b>반발계수 e</b>만큼 반사(e=1 완전탄성, e=0 완전비탄성), ④ 공끼리는 충돌 법선을 따라 <b>운동량·에너지를 보존</b>하며 튕김. 던질 때의 속도는 손의 이동에서 추정합니다. 이 엔진이 다음 장들(에너지·운동량·진동·궤도·전자기)에서 그대로 재사용됩니다 — 콘텐츠 제작이 곧 물리 엔진 개발.",
   "more_en": "The engine: (1) gravity −mg on all bodies, (2) integrate v, x, (3) wall/floor collisions reflect normal velocity by restitution e (e=1 elastic, e=0 inelastic), (4) ball-ball collisions conserve momentum & energy along the normal. The same engine is reused for energy, momentum, oscillation, orbits, and electromagnetism — building content is building a physics engine."
+ },
+ "phys2_01_incline": {
+  "ch": "물리학 제2장 뉴턴의 운동 법칙",
+  "sec": "2.1 심화 · 경사면과 마찰",
+  "title": "경사면 — 중력의 분해와 마찰",
+  "narr": "경사면 위 물체는 중력을 두 방향으로 나눠 봅니다 — 경사를 따라 미끄러뜨리는 <b>g sinθ</b>와 면을 누르는 <b>g cosθ</b>. 미끄러지려면 경사 성분이 마찰(μ·g cosθ)을 이겨야 하므로 조건은 <b>tanθ > μ</b>입니다. 슬라이더로 각도와 마찰계수를 바꿔, 언제 미끄러지기 시작하는지·얼마나 빨리 내려오는지 보세요.",
+  "more": "<b>경사면 동역학</b>: 미끄러질 때 가속도 a = g(sinθ − μcosθ). 정지 조건 tanθ ≤ μ_s(최대정지마찰). 수직항력 N = mg cosθ(경사가 셀수록 작아짐 → 마찰도 작아짐). 마찰력은 항상 운동을 방해하는 방향. 스키 슬로프, 미끄럼틀, 산사태·옹벽 안정성 계산의 기본.",
+  "more_en": "<b>Inclined plane</b>: sliding acceleration a = g(sinθ − μcosθ); stays put if tanθ ≤ μ. Normal force N = mg cosθ. Basis of ramps, slopes, and slope-stability analysis.",
+  "problem": {
+   "q": "30° 마찰 없는 경사면에서 물체의 가속도는? (g=10)",
+   "solution": "a = g sinθ = 10×sin30° = 10×0.5 = <b>5 m/s²</b>.",
+   "q_en": "Frictionless 30° incline. Acceleration? (g=10)",
+   "sol_en": "a = g sin30° = <b>5 m/s²</b>."
+  }
+ },
+ "phys2_02_pulley": {
+  "ch": "물리학 제2장 뉴턴의 운동 법칙",
+  "sec": "2.2 심화 · 도르래(애트우드)",
+  "title": "도르래 — 연결된 두 물체",
+  "narr": "줄과 도르래로 두 물체를 이으면 하나의 계가 됩니다. 무거운 쪽이 내려가고 가벼운 쪽이 같은 크기로 올라가죠(줄이 늘어나지 않으니 가속도가 같음). 슬라이더로 두 질량을 바꿔 가속도와 줄의 장력을 보세요. 질량이 같으면 평형(움직이지 않음), 차이가 클수록 빨리 움직입니다.",
+  "more": "<b>애트우드 기계</b>: a = (m₂−m₁)g/(m₁+m₂), 장력 T = 2m₁m₂g/(m₁+m₂). 두 물체에 각각 뉴턴 2법칙을 세우고 연립해 얻습니다(줄: 같은 a, 같은 T). m₁=m₂면 a=0(평형). 엘리베이터의 평형추, 기중기, 도르래로 힘을 분산하는 기계의 원리. g를 측정하는 고전 실험 장치이기도.",
+  "more_en": "<b>Atwood machine</b>: a = (m₂−m₁)g/(m₁+m₂), tension T = 2m₁m₂g/(m₁+m₂). Equal masses balance (a=0). Used in elevators (counterweight) and historically to measure g.",
+  "problem": {
+   "q": "m₁=1 kg, m₂=3 kg 애트우드 기계의 가속도는? (g=10)",
+   "solution": "a = (m₂−m₁)g/(m₁+m₂) = (3−1)×10/4 = 20/4 = <b>5 m/s²</b>.",
+   "q_en": "Atwood: m₁=1, m₂=3 kg. Acceleration? (g=10)",
+   "sol_en": "a = (3−1)·10/4 = <b>5 m/s²</b>."
+  }
  }
 }

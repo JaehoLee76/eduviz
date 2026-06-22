@@ -166,6 +166,60 @@
       s.hist.forEach(function(p,i){ var x=gx0+(gx1-gx0)*i/120, y=gy0-Math.min(1,p/Pmax)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
       E.tapHint(W/2, H*0.955, '화면 탭 = 처음으로', true);
       E.big('순간 일률 P = F·v = '+P.toFixed(1)+' W', '일률 = 단위시간당 한 일 = 힘 × 속도. 속도가 빨라질수록 같은 힘이라도 일률이 커집니다(분홍 곡선↑). 평균 일률 W/t = '+avg.toFixed(1)+' W. 1 W = 1 J/s.'); }
+  },
+
+  // ─── 심화: 용수철 발사 (탄성PE→운동E→포물선) ───
+  { id:'phys3_01_spring', branchOf:'phys3_01', ord:1,
+    enter:function(E){ var self=this; this.s={x:1.5,ang:45};
+      var w=PhysLab.world({g:9.8,floor:0}); this.s.w=w; this.s.b=null; this.s.trail=[]; this.s.k=20; this.s.m=1;
+      E.controls('<div class="ctrl"><label>압축량 x</label><input type="range" id="xx" min="0.5" max="2.5" step="0.1" value="1.5"><output id="xxo">1.5</output>'
+        +'<label style="margin-left:14px">발사각 (도)</label><input type="range" id="ag" min="20" max="80" step="5" value="45"><output id="ago">45</output></div>');
+      E.bind('#xx','input',function(e){ self.s.x=+e.target.value; self.launch(); document.getElementById('xxo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.bind('#ag','input',function(e){ self.s.ang=+e.target.value; self.launch(); document.getElementById('ago').textContent=e.target.value; E.blip(380,0.07); });
+      this.launch(); E.setOn([]); },
+    launch:function(){ var s=this.s; var v=Math.sqrt(s.k*s.x*s.x/s.m), th=s.ang*Math.PI/180;   // ½kx²=½mv² → v=√(k/m)·x
+      s.w.reset(); var b=s.w.add({x:0.5,y:0.3,m:s.m,r:0.2,vx:v*Math.cos(th),vy:v*Math.sin(th),color:GRN}); s.b=b; s.trail=[]; s.v0=v; },
+    tap:function(E){ this.launch(); E.blip(360,0.12); },
+    draw:function(E){ var s=this.s, w=s.w, b=s.b, ctx=E.ctx, W=E.W, H=E.H;
+      w.step(1/60,6); if(b.y<0.2 && b.vy<0){ b.y=0.2; b.vy=0; b.vx=0; }
+      var ox=W*0.10, oy=H*0.86, sc=Math.min(W*0.07,H*0.07), v=PhysLab.view(ox,oy,sc); s.view=v;
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(0)); ctx.lineTo(v.X(12),v.Y(0)); ctx.stroke();
+      // 용수철(왼쪽 아래)
+      ctx.strokeStyle=DIM; ctx.lineWidth=2; var sx=v.X(0); for(var i=0;i<6;i++){ ctx.beginPath(); ctx.moveTo(sx+i*4,v.Y(0)-4); ctx.lineTo(sx+i*4+2,v.Y(0)-12); ctx.stroke(); }
+      s.trail.push([b.x,b.y]); if(s.trail.length>200)s.trail.shift();
+      ctx.strokeStyle='rgba(95,214,168,0.45)'; ctx.lineWidth=1.5; ctx.beginPath(); s.trail.forEach(function(p,i){ if(i===0)ctx.moveTo(v.X(p[0]),v.Y(p[1])); else ctx.lineTo(v.X(p[0]),v.Y(p[1])); }); ctx.stroke();
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),7,0,7); ctx.fill();
+      var PEs=0.5*s.k*s.x*s.x, range=s.v0*s.v0*Math.sin(2*s.ang*Math.PI/180)/9.8;
+      E.tapHint(W/2, H*0.93, '압축량·발사각을 바꿔 사거리를 보세요', true);
+      E.big('탄성PE ½kx² = '+PEs.toFixed(1)+' J → 운동E → 사거리 '+range.toFixed(1)+' m', '용수철에 저장된 탄성위치에너지 ½kx²가 발사 순간 모두 운동에너지 ½mv²로 바뀝니다(에너지 보존) → 발사 속력 v=√(k/m)·x. 그 뒤는 1장의 포물선 운동! 더 많이 압축할수록(x↑) 빠르게 나가고, 45°에서 사거리가 최대. 새총·석궁·핀볼·스프링 발사대가 모두 이 변환(탄성E→운동E→포물선)입니다.'); }
+  },
+
+  // ─── 심화: 롤러코스터 (언덕마다 속도 = 에너지 보존) ───
+  { id:'phys3_03_coaster', branchOf:'phys3_03', ord:1,
+    enter:function(E){ this.s={x:0,H0:5}; E.setOn([]);
+      var self=this; E.controls('<div class="ctrl"><label>출발 높이 H₀</label><input type="range" id="hh" min="3" max="6" step="0.5" value="5"><output id="hho">5.0</output></div>');
+      E.bind('#hh','input',function(e){ self.s.H0=+e.target.value; self.s.x=0; document.getElementById('hho').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); }); },
+    track:function(x){ return 1 + 2.0*Math.pow(Math.cos(x*0.55),2)*Math.exp(-x*0.12); },  // 점점 낮아지는 언덕들
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8;
+      var ox=W*0.10, oy=H*0.82, sc=Math.min(W*0.072,H*0.10), v=PhysLab.view(ox,oy,sc); s.view=v;
+      var yhere=this.track(s.x), speed=Math.sqrt(Math.max(0,2*g*(s.H0-yhere)));   // 에너지 보존 v=√(2g(H0−y))
+      s.x += speed*(1/60)*0.5; if(s.x>11 || this.track(s.x)>s.H0){ s.x=0; }
+      // 트랙
+      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var i=0;i<=120;i++){ var xu=i/120*11, X=v.X(xu), Y=v.Y(this.track(xu)); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+      // 출발 높이선
+      ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(s.H0)); ctx.lineTo(v.X(11),v.Y(s.H0)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('출발 높이 H₀(에너지 한계)', v.X(0)+4, v.Y(s.H0)-4);
+      // 차
+      var cx=v.X(s.x), cy=v.Y(yhere); ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,cy-6,7,0,7); ctx.fill();
+      // 에너지 막대
+      var PE=g*yhere, KE=0.5*speed*speed, tot=PE+KE;
+      var bx=W*0.74, baseY=H*0.74, bh=H*0.4, mx=g*s.H0*1.1;
+      [['위치E',PE,BLU],['운동E',KE,GRN],['합',tot,ORA]].forEach(function(it,i){ var x=bx+i*52, hh=Math.min(1,it[1]/mx)*bh;
+        ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,38,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,38,hh); ctx.globalAlpha=1;
+        ctx.fillStyle='#dfeefb'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(1),x+19,baseY-hh-5); ctx.fillStyle=it[2]; ctx.fillText(it[0],x+19,baseY+16); });
+      E.tapHint(W/2, H*0.92, '출발 높이를 바꿔 보세요 — 더 높은 언덕은 못 넘음', true);
+      E.big('롤러코스터 — 높이마다 v = √(2g(H₀−y)) = '+speed.toFixed(1)+' m/s', '동력 없는 롤러코스터는 에너지 보존으로 달립니다. 낮은 곳(골)에서 빠르고(운동E 최대), 높은 언덕에서 느려집니다(위치E로 전환). 어떤 언덕도 <b>출발 높이 H₀보다 높으면 못 넘습니다</b> — 에너지가 부족하니까(마찰 없을 때). 막대에서 위치E(파랑)↔운동E(초록)가 주고받지만 합(주황)은 일정. 첫 언덕이 항상 가장 높은 이유.'); }
   }
 
   ];

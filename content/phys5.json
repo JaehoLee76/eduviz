@@ -68,5 +68,33 @@
    "q_en": "2 kg ball, 1 m string, 4 m/s. Tension (centripetal force)?",
    "sol_en": "F = mv²/r = 2·16/1 = <b>32 N</b>."
   }
+ },
+ "phys5_03_rolling": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.3 심화 · 굴림운동",
+  "title": "굴림운동 — 누가 먼저 내려올까",
+  "narr": "속찬 구, 원판, 고리를 같은 경사면에서 동시에 굴리면 누가 1등일까요? 놀랍게도 <b>질량·반지름과 무관</b>하게 오직 질량 분포(I/mr²)가 순위를 정합니다. 질량이 안쪽에 몰린 <b>속찬 구</b>가 가장 빠르고, 가장자리에 몰린 <b>고리</b>가 꼴찌. 슬라이더로 경사각을 바꿔도 순위는 그대로입니다.",
+  "more": "<b>굴림운동</b>: a = g sinθ/(1+I/mr²). 위치에너지가 병진(½mv²)과 회전(½Iω²)으로 나뉘는데, I/mr²이 클수록 회전에 더 많이 쓰여 병진이 느려짐. 속찬 구 0.4 < 원판 0.5 < 고리 1.0 → 구가 1등. 미끄러지지 않고 구르는 조건 v=ωr. 굴림마찰이 회전을 만들지만 일은 0(미끄러짐 없음). 갈릴레오 빗면 실험의 회전 버전.",
+  "more_en": "<b>Rolling</b>: a = g sinθ/(1+I/mr²), independent of mass and radius. PE splits into translation (½mv²) and rotation (½Iω²). Solid sphere (0.4) beats disk (0.5) beats hoop (1.0).",
+  "problem": {
+   "q": "속찬 구(I/mr²=0.4)와 고리(1.0) 중 경사면을 빨리 내려오는 것은?",
+   "solution": "<b>속찬 구</b>. a=g sinθ/(1+I/mr²)에서 I/mr²이 작을수록 가속도가 큼.",
+   "q_en": "Solid sphere (0.4) vs hoop (1.0): which rolls down faster?",
+   "sol_en": "<b>The sphere</b> — smaller I/mr² gives larger a."
+  }
+ },
+ "phys5_02_torqeq": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.2 심화 · 토크 평형(정역학)",
+  "title": "토크 평형 — 시소와 정역학",
+  "narr": "회전이 멈춰 있으려면 <b>양쪽 토크(돌림힘)가 같아야</b> 합니다. 시소는 무게×받침점까지 거리(m·d)가 같을 때 균형을 이룹니다 — 무거운 사람은 받침점에 가까이 앉아야 가벼운 사람과 평형이 되죠. 슬라이더로 왼쪽 추 위치와 오른쪽 질량을 바꿔 평형(수평)을 맞춰 보세요.",
+  "more": "<b>정역학(평형)</b>: 알짜 힘 = 0 <b>그리고</b> 알짜 토크 = 0 이면 물체는 정지 유지. 시소 평형 조건 m₁d₁ = m₂d₂(받침점 기준 토크 균형). 무거울수록 받침점 가까이. 다리·건물·크레인·뼈대·자세 유지가 모두 힘·토크 평형 — 토목·건축·생체역학의 기초(원서 12장 정역학). 무게중심이 받침면 밖으로 나가면 넘어짐.",
+  "more_en": "<b>Statics</b>: equilibrium needs net force = 0 AND net torque = 0. Seesaw balance: m₁d₁ = m₂d₂ about the pivot. Basis of bridges, cranes, and biomechanics (Serway Ch.12).",
+  "problem": {
+   "q": "받침점에서 왼쪽 2 m에 4 kg. 오른쪽 1 m에 몇 kg을 놓아야 평형?",
+   "solution": "m₁d₁=m₂d₂ → 4×2 = m₂×1 → m₂ = <b>8 kg</b>.",
+   "q_en": "4 kg at 2 m left of pivot. What mass at 1 m right balances?",
+   "sol_en": "4×2 = m₂×1 → <b>8 kg</b>."
+  }
  }
 }
