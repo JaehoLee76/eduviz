@@ -26,7 +26,7 @@
       // 주자(현재 위치)
       E.NL.dot(x,GRN,9);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('시작', E.NL.px(0), y+30);
-      E.big('변위 = '+x.toFixed(1)+' m,   거리 = '+dist.toFixed(1)+' m', '변위(주황)=시작→끝 직선(부호·방향 O). 거리=실제 지나온 길이. 8까지 갔다 3으로 오면 거리 13, 변위는 3!'); }
+      E.big('변위 = '+x.toFixed(1)+' m,   거리 = '+dist.toFixed(1)+' m', '변위(주황)는 시작→끝 직선, 방향·부호를 품습니다. 거리는 실제로 걸은 길의 길이. 8까지 갔다 3으로 돌아오면 다리는 13 m를 걸었어도, 결국 간 곳은 3!'); }
   },
 
   // ══════════ 1.2 속도 = x-t 그래프의 기울기 (미분 연결) ══════════
@@ -44,7 +44,7 @@
       var dt=1.0; ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(t-dt),P.Y(xt-vinst*dt)); ctx.lineTo(P.X(t+dt),P.Y(xt+vinst*dt)); ctx.stroke();
       P.dot(t,xt,GRN);
       ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('x='+xt.toFixed(2)+' m', P.X(t)+8, P.Y(xt)-6);
-      E.big('순간속도 v = '+vinst.toFixed(2)+' m/s  (= 접선 기울기)', 'x-t 그래프에서 기울기가 곧 속도. 주황 접선=순간속도(dx/dt=2t), 초록 할선=평균속도 '+vavg.toFixed(2)+' m/s. 이것이 14장 미분!'); }
+      E.big('순간속도 v = '+vinst.toFixed(2)+' m/s  (= 접선 기울기)', '속도계가 가리키는 \'지금\'의 빠르기 = x-t 그래프의 기울기. 주황 접선이 순간속도(dx/dt=2t), 초록 할선이 평균속도 '+vavg.toFixed(2)+' m/s. 두 점을 한없이 붙이는 이 묘기가 바로 미분!'); }
   },
 
   // ══════════ 1.3 가속도 = v-t 그래프의 기울기 ══════════
@@ -63,7 +63,7 @@
       ctx.fillText('Δt='+(t2-t1), (P.X(t1)+P.X(t2))/2, P.Y(vy1)+16);
       ctx.textAlign='left'; ctx.fillText('Δv='+((vy2-vy1)).toFixed(1), P.X(t2)+6, (P.Y(vy1)+P.Y(vy2))/2);
       P.dot(0,v0,GRN);
-      E.big('가속도 a = Δv/Δt = '+a.toFixed(1)+' m/s²', 'v-t 그래프의 기울기 = 가속도. a>0이면 빨라지고, a<0이면 느려지며, a=0이면 등속. (v₀='+v0+' m/s)'); }
+      E.big('가속도 a = Δv/Δt = '+a.toFixed(1)+' m/s²', '출발할 때 등이 눌리는 그 느낌 = v-t 그래프의 기울기. a>0이면 빨라지고, a<0이면 느려지며, a=0이면 아무 느낌 없는 등속. (v₀='+v0+' m/s)'); }
   },
 
   // ══════════ 1.4 등가속도 운동 — v-t 넓이 = 변위 ══════════
@@ -87,7 +87,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,trkY); ctx.lineTo(x1,trkY); ctx.stroke();
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(bx,trkY,7,0,7); ctx.fill();
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('이동한 물체 (변위 '+disp.toFixed(1)+' m)', (x0+x1)/2, trkY-12);
-      E.big('변위 x = v₀t + ½at² = '+disp.toFixed(1)+' m', 'v-t 그래프 아래 넓이(초록) = 변위. 사다리꼴 넓이 '+area.toFixed(1)+' m 와 식이 일치 ✓ (v₀=2, a=2). 이것이 19장 적분!'); }
+      E.big('변위 x = v₀t + ½at² = '+disp.toFixed(1)+' m', '시간을 잘게 썰어 \'속도×짧은시간\'을 다 더한 것 = v-t 그래프 아래 넓이(초록) = 변위. 사다리꼴 넓이 '+area.toFixed(1)+' m 와 식이 딱 일치 ✓ (v₀=2, a=2). 이 더하기가 바로 적분!'); }
   },
 
   // ══════════ 1.5 자유낙하 — 질량 무관, g로 떨어진다 ══════════
@@ -108,7 +108,7 @@
       });
       // 지면
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.28,botY); ctx.lineTo(W*0.72,botY); ctx.stroke();
-      E.big('높이 '+y.toFixed(1)+' m,  속력 '+v.toFixed(1)+' m/s', '진공에서는 질량과 무관하게 같은 가속도 g='+G+' m/s²로 떨어집니다. y = h₀ − ½gt², v = gt. 두 공이 늘 같은 높이!'); }
+      E.big('높이 '+y.toFixed(1)+' m,  속력 '+v.toFixed(1)+' m/s', '공기를 빼면 볼링공도 깃털도 똑같이 떨어집니다 — 무게와 상관없이 같은 가속도 g='+G+' m/s². y = h₀ − ½gt², v = gt. 두 공이 늘 나란히!'); }
   },
 
   // ══════════ 1.6 포물선 운동 — 발사각과 사거리 ══════════
@@ -133,7 +133,7 @@
       // 착지점
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ox+R*sx,oy,6,0,7); ctx.fill();
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('사거리 '+R.toFixed(1)+' m', ox+R*sx, oy+20);
-      E.big('θ='+this.s.ang+'°  →  사거리 R = '+R.toFixed(1)+' m,  최고 '+Hmax.toFixed(1)+' m', 'R = v₀²·sin2θ/g. θ=45°에서 사거리 최대('+Rmax.toFixed(1)+' m)! 45°에서 멀어질수록 짧아집니다. (v₀=20 m/s)'); }
+      E.big('θ='+this.s.ang+'°  →  사거리 R = '+R.toFixed(1)+' m,  최고 '+Hmax.toFixed(1)+' m', '가로는 등속, 세로는 자유낙하 — 둘은 서로 간섭하지 않습니다. R = v₀²·sin2θ/g, θ=45°에서 가장 멀리('+Rmax.toFixed(1)+' m)! (v₀=20 m/s)'); }
   },
 
   // ─── 심화: 상대속도 (강 건너는 보트) ───
@@ -163,7 +163,7 @@
       arr(bx,by, vx*18, -vy*18, ORA);
       var crossT=vy>0.05?width/vy:Infinity, drift=vy>0.05?vx*crossT:0;
       E.tapHint(W/2, H*0.92, '뱃머리 각도·물살을 바꿔 합속도를 보세요', true);
-      E.big('합속도 = 뱃머리 + 물살 (건너기 '+ (isFinite(crossT)?crossT.toFixed(1)+'s, 떠내려감 '+drift.toFixed(1):'∞')+')', '속도는 <b>벡터</b>라 더할 때 방향까지 함께 더합니다. 강을 건너는 보트의 실제 속도(주황)는 뱃머리 속도(초록)와 물살(파랑)의 <b>벡터 합</b>. 똑바로 저어도(90°) 물살에 떠내려갑니다. 곧장 건너려면 상류로 비스듬히 저어 물살을 상쇄해야 합니다 — 비행기가 바람에 기수를 트는 것과 같은 상대속도 문제.'); }
+      E.big('합속도 = 뱃머리 + 물살 (건너기 '+ (isFinite(crossT)?crossT.toFixed(1)+'s, 떠내려감 '+drift.toFixed(1):'∞')+')', '정면을 보고 저어도 강물이 보트를 통째로 실어 나릅니다. 속도는 <b>벡터</b>라 더할 때 방향까지 함께 더하니까요. 실제 속도(주황) = 뱃머리 속도(초록) + 물살(파랑)의 <b>벡터 합</b>. 곧장 건너려면 상류로 비스듬히 저어 물살을 미리 상쇄 — 바람 속 비행기가 기수를 트는 것과 똑같은 이야기.'); }
   },
 
   // ─── 심화: 종단속도 (공기저항, 엔진 적분) ───
@@ -194,7 +194,7 @@
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(vv,i){ var x=gx0+(gx1-gx0)*i/220, y=gy0-(vv/vmax)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
       E.tapHint(W/2, H*0.92, '저항을 키우면 종단속도가 낮아집니다', true);
-      E.big('종단속도 v_t = mg/c = '+vt.toFixed(1)+' m/s  (현재 v='+spd.toFixed(1)+')', '진공이 아니면 떨어지는 물체엔 속도에 비례하는 <b>공기저항(−cv)</b>이 붙습니다(엔진이 적분). 처음엔 중력으로 가속하지만, 빨라질수록 저항이 커져 어느 순간 <b>중력=저항</b>이 되면 더는 안 빨라집니다 — 그 일정 속도가 <b>종단속도 v_t=mg/c</b>(v-t 곡선이 점근선에 수렴). 빗방울·낙하산·스카이다이버가 일정 속도로 떨어지는 이유. 저항이 클수록(낙하산) 종단속도가 낮습니다.'); }
+      E.big('종단속도 v_t = mg/c = '+vt.toFixed(1)+' m/s  (현재 v='+spd.toFixed(1)+')', '구름에서 떨어진 빗방울이 사람을 다치게 하지 않는 이유. 떨어지는 물체엔 속도에 비례해 위로 미는 <b>공기저항(−cv)</b>이 붙습니다. 처음엔 중력이 이겨 가속하지만, 빨라질수록 저항이 세져 어느 순간 <b>중력=저항</b>으로 팽팽해지면 더는 안 빨라집니다 — 그 일정 속도가 <b>종단속도 v_t=mg/c</b>. 저항이 클수록(낙하산) 종단속도가 낮습니다.'); }
   }
 
   ];

@@ -24,7 +24,7 @@
       var bx=ox+x*scale, by=oy-y*scale;
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(bx,by,9,0,7); ctx.fill();
       ctx.fillStyle='rgba(95,214,168,0.25)'; ctx.beginPath(); ctx.arc(bx,by,15,0,7); ctx.fill();
-      E.big('물리학 — 자연을 수식으로 예측하다', '던진 공이 어디에 떨어질지, 식 하나로 정확히 압니다. 다음 ▸ 로 여정을 시작하세요'); }
+      E.big('물리학 — 자연을 수식으로 예측하다', '돌은 떨어질 자리를 모르지만, 식 하나는 이미 알고 있습니다. 다음 ▸ 로 여정을 시작하세요'); }
   },
 
   // ── 전체 윤곽: 14장 여정 지도 ──
@@ -34,7 +34,7 @@
       function rr(x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
       ctx.textAlign='center'; ctx.textBaseline='alphabetic';
       ctx.fillStyle='#dfeefb'; ctx.font='600 19px sans-serif'; ctx.fillText('물리의 여정 — 다섯 묶음, 열네 정거장', cx, H*0.12);
-      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.fillText('역학에서 출발해 파동·열·전자기를 지나 현대 물리까지. 앞이 뒤의 도구가 됩니다.', cx, H*0.12+22);
+      ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.fillText('역학에서 출발해 파동·열·전자기를 지나 현대 물리까지 — 앞장이 곧 뒷장의 열쇠입니다.', cx, H*0.12+22);
       var groups=[
         {c:GRN, t:'역학',     items:['운동학','뉴턴 법칙','일·에너지','운동량','회전','중력','진동']},
         {c:'#9fd0ff', t:'파동·유체', items:['파동','유체']},

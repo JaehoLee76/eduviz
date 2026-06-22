@@ -32,7 +32,7 @@
         ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(px+sz/2+aL,ay); ctx.lineTo(px+sz/2+aL-9,ay-5); ctx.lineTo(px+sz/2+aL-9,ay+5); ctx.fill();
         ctx.font='12px sans-serif'; ctx.fillText('F='+s.F+' N', px+sz/2+aL/2, ay-10); }
       E.tapHint(W/2, H*0.76, '화면 탭 = 처음으로', true);
-      E.big('a = F/m = '+(s.F/s.m).toFixed(2)+' m/s²    v = '+b.vx.toFixed(2)+' m/s', '엔진이 매 프레임 a=F/m을 적분해 v·x를 만듭니다(공식 베끼기 아님). 같은 힘이라도 질량이 크면 천천히 가속 — 뉴턴 제2법칙.'); }
+      E.big('a = F/m = '+(s.F/s.m).toFixed(2)+' m/s²    v = '+b.vx.toFixed(2)+' m/s', '힘을 주면 가속이 시작되고 속도 v가 점점 쌓입니다. 같은 힘이라도 무거우면 더 굼뜨게 가속하죠 — 이것이 뉴턴 제2법칙입니다.'); }
   },
 
   // ══════════ 2.2 실시간 물리 엔진 — 중력·충돌 모래상자 (드래그) ══════════
@@ -63,7 +63,7 @@
         ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill(); ctx.globalAlpha=1;
         if(b.held){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,pr+3,0,7); ctx.stroke(); } });
       E.tapHint(W/2, H*0.92, '공을 끌어 던지기 · 빈 곳을 탭하면 공 추가', true);
-      E.big('실시간 물리 엔진 — 끌어서 던져 보세요', '중력으로 떨어지고 바닥·벽·서로 부딪혀 튑니다. 전부 F=ma 적분과 충돌(운동량 보존)의 결과 — 공식이 아니라 시뮬레이션입니다. g와 반발 e를 바꿔 보세요.'); }
+      E.big('힘의 놀이터 — 끌어서 던져 보세요', '공은 중력에 끌려 떨어지고 바닥·벽·서로 부딪혀 튑니다 — 모두 F=ma 하나에서 나오는 일입니다. 중력 g와 반발 e를 바꿔 달의 중력이나 슈퍼볼을 만들어 보세요.'); }
   },
 
   // ─── 심화: 경사면과 마찰 ───
@@ -90,7 +90,7 @@
       arr(0, g*4, PNK);  // 중력 mg
       arr(Math.cos(th)*g*Math.sin(th)*5, Math.sin(th)*g*Math.sin(th)*5, GRN);  // 경사방향 성분 g sinθ
       E.tapHint(W/2, H*0.90, '각도·마찰을 바꿔 미끄러지는 조건을 보세요', true);
-      E.big((sliding?'미끄러짐 — 경사방향 가속도 a = g(sinθ−μcosθ) = '+a.toFixed(2):'정지 — 마찰이 충분(tanθ ≤ μ)'), '경사면 위 물체엔 중력을 <b>경사 방향(g sinθ)</b>과 <b>수직 방향(g cosθ)</b>으로 나눠 봅니다. 미끄러지려면 경사 성분이 최대정지마찰(μ·g cosθ)을 이겨야 하므로 조건은 <b>tanθ > μ</b>. 미끄러질 때 가속도는 a = g(sinθ − μcosθ). 각도를 올리거나 마찰을 줄이면 미끄러집니다. 스키·미끄럼틀·사면 안정성의 기본.'); }
+      E.big((sliding?'미끄러짐 — 경사방향 가속도 a = g(sinθ−μcosθ) = '+a.toFixed(2):'정지 — 마찰이 충분(tanθ ≤ μ)'), '중력을 둘로 쪼개 봅니다 — 끌어내리는 <b>경사 방향(g sinθ)</b>과 면을 누르는 <b>수직 방향(g cosθ)</b>. 끌어내리는 성분이 마찰(μ·g cosθ)을 이겨야 미끄러지니, 문턱은 <b>tanθ > μ</b>입니다. 미끄러지면 가속도는 a = g(sinθ − μcosθ). 가팔라지거나 매끄러워지면 스르륵 — 미끄럼틀과 비탈의 비밀입니다.'); }
   },
 
   // ─── 심화: 도르래 (애트우드 기계) ───
@@ -115,7 +115,7 @@
       function box(x,y,m,col){ var sz=14+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(x-sz/2,y,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(x-sz/2,y,sz,sz); ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',x,y+sz/2+4); }
       box(lx,y1,s.m1,GRN); box(rx,y2,s.m2,ORA);
       E.tapHint(W/2, H*0.90, '두 질량을 바꿔 가속도·장력을 보세요', true);
-      E.big('애트우드: a = (m₂−m₁)g/(m₁+m₂) = '+a.toFixed(2)+',  장력 T = '+T.toFixed(1)+' N', '도르래로 두 물체를 잇고 한 줄로 묶으면, 무거운 쪽이 내려가고 가벼운 쪽이 올라갑니다. 계 전체에 뉴턴 2법칙을 적용하면 가속도 <b>a = (m₂−m₁)g/(m₁+m₂)</b> — 질량 차가 클수록 빠르고, 같으면(m₁=m₂) 평형(a=0). 줄의 장력 T는 두 추의 무게 사이 값. 엘리베이터 평형추, 도르래 기계의 원리.'); }
+      E.big('애트우드: a = (m₂−m₁)g/(m₁+m₂) = '+a.toFixed(2)+',  장력 T = '+T.toFixed(1)+' N', '줄 하나가 두 추를 잇고 도르래를 넘어갑니다. 줄이 안 늘어나니 둘은 한 몸처럼 같은 가속도로 움직이고, 무거운 쪽이 이겨 내려갑니다. 뉴턴 2법칙을 세우면 <b>a = (m₂−m₁)g/(m₁+m₂)</b> — 질량 차가 클수록 빠르고, 같으면(m₁=m₂) 무승부라 a=0. 줄의 장력 T는 두 무게 사이 어딘가. 엘리베이터 평형추가 바로 이것입니다.'); }
   }
 
   ];
