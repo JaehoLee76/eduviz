@@ -1,0 +1,72 @@
+{
+ "phys6_01": {
+  "ch": "물리학 제6장 중력",
+  "sec": "6.1 만유인력",
+  "title": "만유인력 F = GMm/r² — 우주를 묶는 법칙",
+  "narr": "떨어지는 사과와 하늘의 달은 같은 힘에 지배됩니다 — 뉴턴의 깨달음이죠. <b>모든 질량은 서로를 끌어당깁니다</b>. 그 힘은 두 질량의 곱 M·m에 비례하고, 거리 r의 <b>제곱에 반비례</b>합니다: F = GMm/r². 슬라이더로 거리를 바꿔 보세요 — r을 2배로 늘리면 힘은 ¼로 뚝 떨어집니다(역제곱 곡선이 가파르게 내려감). 두 물체는 크기 같고 방향 반대인 힘으로 서로를 당깁니다(작용-반작용). 이 한 줄의 식이 행성의 궤도, 조석, 은하의 회전, 블랙홀까지 설명합니다.",
+  "more": "<b>만유인력</b>: F = G·M·m/r². G = 6.674×10⁻¹¹ N·m²/kg²(매우 작아 일상에선 거대 질량에서만 두드러짐). 역제곱은 우연이 아니라 3차원 공간에서 영향이 구면으로 퍼지기 때문(겉넓이 ∝ r²). 무게(weight)는 곧 행성이 당기는 만유인력입니다: W = mg = GMm/R².",
+  "more_en": "<b>Universal gravitation</b>: F = GMm/r², G = 6.674×10⁻¹¹. Inverse-square arises because influence spreads over a sphere (area ∝ r²). Your weight is this force: W = mg = GMm/R².",
+  "problem": {
+   "q": "두 물체 사이 거리를 3배로 늘리면 중력은 몇 배가 되나요?",
+   "solution": "F ∝ 1/r². 거리 3배 → F는 1/3² = <b>1/9배</b>.",
+   "q_en": "Triple the distance between two masses. Gravity becomes?",
+   "sol_en": "F ∝ 1/r² → <b>1/9</b>."
+  }
+ },
+ "phys6_02": {
+  "ch": "물리학 제6장 중력",
+  "sec": "6.2 중력가속도",
+  "title": "g = GM/R² — 행성마다 다른 중력",
+  "narr": "지구에서 g = 9.8 m/s²인 이유는 무엇일까요? 표면 중력가속도는 행성의 <b>질량 M에 비례</b>하고 <b>반지름 R의 제곱에 반비례</b>합니다: g = GM/R². 슬라이더로 행성의 질량과 반지름을 바꿔 보세요(지구=1 기준). 달처럼 가벼우면 g가 작아 공이 천천히 떨어지고(달 g≈1.6, 지구의 1/6), 목성처럼 무거우면 빠르게 떨어집니다. 막대는 지구 중력(파란 기준선)과 비교한 값입니다. 핵심: 공이 떨어지는 가속도는 공의 질량과는 무관하지만(자유낙하), 행성의 질량·크기에는 결정적으로 의존합니다.",
+  "more": "<b>표면 중력가속도</b>: g = GM/R². 질량이 같아도 반지름이 작으면(밀도 큼) g가 큽니다 — 그래서 작고 무거운 중성자별 표면은 g가 천문학적. 높이 h 올라가면 g는 GM/(R+h)²로 약간 줄어듭니다(그래서 위성 궤도에선 약해짐). 무게 = mg이므로 같은 사람도 달에선 1/6 무게.",
+  "more_en": "<b>Surface gravity</b>: g = GM/R². Same mass but smaller radius (denser) gives larger g — neutron stars have astronomical surface gravity. At height h, g = GM/(R+h)². Weight = mg, so 1/6 on the Moon.",
+  "problem": {
+   "q": "질량은 지구와 같고 반지름이 절반인 행성의 g는? (지구 9.8)",
+   "solution": "g = GM/R². R이 ½이면 R²은 ¼ → g는 4배 = <b>39.2 m/s²</b>.",
+   "q_en": "Same mass as Earth, half the radius. g? (Earth 9.8)",
+   "sol_en": "R is ½ → R² is ¼ → g ×4 = <b>39.2 m/s²</b>."
+  }
+ },
+ "phys6_03": {
+  "ch": "물리학 제6장 중력",
+  "sec": "6.3 궤도 운동",
+  "title": "궤도 — 1/r² 중력이 그리는 원과 타원",
+  "narr": "행성은 보이지 않는 끈에 매여 도는 게 아닙니다. 오직 <b>1/r² 중력</b>만으로 끊임없이 안쪽으로 휘어지며 도는 것입니다(엔진이 매 프레임 중력을 적분해 궤도를 생성 — 미리 그린 타원이 아닙니다). 발사 속력을 바꿔 보세요. 정확히 v = √(GM/r)이면 완벽한 <b>원궤도</b>, 그보다 느리면 안쪽으로 처지는 타원, 빠르면 바깥으로 부푼 <b>타원</b>이 됩니다. 더 빠르면(√2배) 영영 돌아오지 않고 탈출합니다. 5장의 구심력이 떠오르나요? 원운동의 구심력 역할을 여기선 중력이 맡고 있습니다.",
+  "more": "<b>궤도</b>: 원궤도 속력 v = √(GM/r). 케플러 1법칙 — 행성은 태양을 한 <b>초점</b>으로 하는 타원을 그립니다. 속력은 일정하지 않아 근일점(가까움)에서 빠르고 원일점에서 느립니다. '낙하하지만 빗나가서 계속 떨어지는' 상태가 궤도 — 뉴턴의 대포 사고실험. 인공위성·달·국제우주정거장이 모두 자유낙하 중입니다(그래서 무중력감).",
+  "more_en": "<b>Orbit</b>: circular speed v = √(GM/r). Kepler's 1st law — ellipse with the Sun at one focus. An orbit is 'perpetual free-fall that keeps missing the ground' (Newton's cannon). Satellites are in free-fall — hence weightlessness.",
+  "problem": {
+   "q": "원궤도 반지름을 4배로 늘리면 필요한 속력은 몇 배?",
+   "solution": "v = √(GM/r) ∝ 1/√r. r 4배 → v는 1/√4 = <b>½배</b>(느려짐).",
+   "q_en": "Quadruple the circular orbit radius. Required speed?",
+   "sol_en": "v ∝ 1/√r → <b>½</b>."
+  }
+ },
+ "phys6_04": {
+  "ch": "물리학 제6장 중력",
+  "sec": "6.4 케플러 제2법칙",
+  "title": "케플러 2법칙 — 같은 시간, 같은 넓이",
+  "narr": "타원궤도를 도는 행성은 일정한 속력으로 돌지 않습니다 — 태양에 가까우면 빠르게, 멀면 느리게. 그런데 놀라운 규칙이 숨어 있습니다: 태양과 행성을 잇는 선분이 <b>같은 시간 동안 항상 같은 넓이</b>를 쓸어냅니다(초록 부채꼴). 가까울 땐 짧지만 넓게, 멀 땐 길지만 좁게 — 면적은 똑같죠. 오른쪽 막대(면적속도 dA/dt)가 궤도 어디서나 일정함을 보세요. 이것이 케플러 2법칙이며, 그 정체는 사실 <b>각운동량 보존</b>입니다 — 5장에서 본 '팔을 당기면 빨라지는' 그 법칙과 똑같은 뿌리입니다.",
+  "more": "<b>케플러 2법칙(면적속도 일정)</b>: dA/dt = ½ r²(dθ/dt) = L/(2m) = 일정. 중력이 항상 중심(태양)을 향하므로 태양에 대한 토크가 0 → 각운동량 L 보존 → 면적속도 일정. 근일점에서 v 최대, 원일점에서 최소이며 r·v_perp가 일정하게 유지됩니다. 케플러 3법칙은 T² ∝ a³(주기²∝긴반지름³).",
+  "more_en": "<b>Kepler's 2nd law</b>: dA/dt = L/(2m) = constant. Gravity points at the Sun → zero torque → angular momentum conserved → equal areas in equal times. Fast at perihelion, slow at aphelion. (3rd law: T² ∝ a³.)",
+  "problem": {
+   "q": "케플러 2법칙(면적속도 일정)의 근본 원인은 무엇인가요?",
+   "solution": "<b>각운동량 보존</b>. 중력이 중심을 향해 토크가 0이므로 L이 보존되고, dA/dt=L/2m이 일정.",
+   "q_en": "What underlies Kepler's 2nd law (equal areas)?",
+   "sol_en": "<b>Conservation of angular momentum</b> (zero torque about the Sun)."
+  }
+ },
+ "phys6_05": {
+  "ch": "물리학 제6장 중력",
+  "sec": "6.5 탈출속도와 에너지",
+  "title": "탈출속도 — 묶일까, 벗어날까",
+  "narr": "얼마나 빨리 던져야 행성을 영영 벗어날 수 있을까요? 답은 <b>에너지의 부호</b>에 있습니다. 총 역학적 에너지 E = 운동E(½mv²) + 위치E(−GMm/r). 위치에너지가 음수인 게 핵심 — 중력에 '갇혀' 있다는 뜻입니다. 슬라이더로 속력을 올려 보세요. E < 0이면(합 막대가 아래로) 아무리 멀어져도 다시 끌려와 <b>타원궤도</b>에 묶입니다. E ≥ 0이면(합 막대가 0 이상) 중력을 이기고 <b>탈출</b>합니다. 그 경계가 <b>탈출속도 v = √(2GM/r)</b> — 원궤도 속력의 √2배입니다. 로켓이 지구를 떠나려면, 빛조차 블랙홀을 못 벗어나는 것도 모두 이 에너지 부호 이야기입니다.",
+  "more": "<b>탈출속도</b>: ½mv² = GMm/r → v = √(2GM/r) = √2 · v_원궤도. E = ½mv² − GMm/r 에서 E<0 묶임(타원), E=0 포물선(탈출 경계, 무한대에서 v=0), E>0 쌍곡선(여분 속도로 탈출). 지구 탈출속도 ≈ 11.2 km/s. 블랙홀은 탈출속도가 빛속도를 넘는 영역(사건의 지평선).",
+  "more_en": "<b>Escape velocity</b>: v = √(2GM/r) = √2 · v_circular. E<0 bound (ellipse), E=0 parabolic (escape threshold), E>0 hyperbolic. Earth's escape speed ≈ 11.2 km/s. A black hole's escape speed exceeds light speed (event horizon).",
+  "problem": {
+   "q": "원궤도 속력이 5 km/s인 곳에서 탈출속도는?",
+   "solution": "v_탈출 = √2 · v_궤도 = 1.414 × 5 ≈ <b>7.07 km/s</b>.",
+   "q_en": "Circular speed is 5 km/s. Escape speed?",
+   "sol_en": "√2 × 5 ≈ <b>7.07 km/s</b>."
+  }
+ }
+}
