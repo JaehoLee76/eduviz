@@ -160,6 +160,53 @@
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(mxk,myk,5,0,7); ctx.fill();
       E.tapHint(W/2, H*0.92, '화면 탭 = 초기화  (구동 진동수를 ω₀에 맞춰 보세요)', true);
       E.big('구동 ωd = '+s.wd.toFixed(1)+' vs 고유 ω₀ = '+w0.toFixed(1)+'  → 측정 진폭 '+amp.toFixed(2), '주기적인 힘으로 흔들면, 구동 진동수가 <b>고유진동수 ω₀=√(k/m)</b>에 가까울수록 진폭이 폭발적으로 커집니다 — <b>공명</b>. 그네를 타이밍 맞춰 밀면 크게 흔들리는 것, 와인잔이 소리로 깨지는 것, 다리가 바람에 무너진(타코마) 것이 모두 공명. ωd를 ω₀에 맞춰 보세요.'); }
+  },
+
+  // ─── 심화: 감쇠진동 (under/critical/over) ───
+  { id:'phys7_01_damp', branchOf:'phys7_01', ord:1,
+    enter:function(E){ var self=this; this.s={c:1,k:8,m:1,settle:0};
+      this.build(); E.setOn([]);
+      E.controls('<div class="ctrl"><label>감쇠 c</label><input type="range" id="cc" min="0" max="9" step="0.5" value="1"><output id="cco">1.0</output></div>');
+      E.bind('#cc','input',function(e){ self.s.c=+e.target.value; self.build(); document.getElementById('cco').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); }); },
+    build:function(){ var s=this.s; var w=PhysLab.world({g:0}); s.w=w; var b=w.add({x:REST+2,y:0,m:s.m,r:0.3,color:GRN}); s.b=b;
+      w.force(PhysLab.F.spring(b,0,0,s.k,REST)); w.force(PhysLab.F.drag(b,s.c)); s.hist=[]; s.settle=0; },
+    tap:function(E){ this.build(); E.blip(360,0.12); },
+    draw:function(E){ var s=this.s, w=s.w, b=s.b, W=E.W, H=E.H, ctx=E.ctx;
+      w.step(1/60,6); var dx=b.x-REST;
+      if(Math.abs(dx)<0.04 && Math.abs(b.vx)<0.04){ s.settle++; if(s.settle>90) this.build(); } else s.settle=0;
+      s.hist.push(dx); if(s.hist.length>260) s.hist.shift();
+      // 용수철·질량
+      var ox=W*0.10, sc=(W*0.42)/6, baseY=H*0.30; function X(x){return ox+x*sc;}
+      wall(E,X(0),baseY,34); coil(E,X(0),baseY,X(b.x)-12,16,DIM); massBox(E,X(b.x),baseY,24,GRN,'');
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),baseY+18); ctx.lineTo(X(REST),baseY+34); ctx.stroke(); ctx.setLineDash([]);
+      // x-t
+      tgraph(E, W*0.10, H*0.72, W*0.82, H*0.30, s.hist, 2.3, BLU);
+      var ccrit=2*Math.sqrt(s.k*s.m), regime = s.c<ccrit-0.3?'미흡감쇠(진동하며 잦아듦)':(s.c>ccrit+0.3?'과대감쇠(천천히 복귀)':'임계감쇠(가장 빠른 복귀)');
+      E.tapHint(W/2, H*0.95, '감쇠 c를 바꿔 세 가지 거동을 보세요', true);
+      E.big('감쇠진동 — '+regime+' (임계 c_c=2√(km)='+ccrit.toFixed(1)+')', '저항(−cv)이 있으면 진동은 점점 잦아듭니다. <b>미흡감쇠</b>(c 작음): 진폭이 지수적으로 줄며 진동(자동차 낡은 쇼바). <b>임계감쇠</b>(c=2√(km)): 진동 없이 가장 빠르게 평형 복귀 — 자동차 서스펜션·계측기 바늘의 목표. <b>과대감쇠</b>(c 큼): 진동 없이 느리게 복귀(문 닫힘 장치). 같은 용수철도 감쇠에 따라 거동이 완전히 달라집니다.'); }
+  },
+
+  // ─── 심화: 대진폭 진자 (등시성이 깨진다) ───
+  { id:'phys7_04_amp', branchOf:'phys7_04', ord:1,
+    enter:function(E){ var self=this; this.s={L:2,g:9.8,a:[0.3,2.4],om:[0,0],T:[0,0],pk:[0,0],last:[0,0]};
+      E.controls('<div class="ctrl"><label>오른쪽 진자 시작각 (도)</label><input type="range" id="ag" min="20" max="170" step="10" value="137"><output id="ago">137</output></div>');
+      E.bind('#ag','input',function(e){ self.s.a[1]=+e.target.value*Math.PI/180; self.reset(); document.getElementById('ago').textContent=e.target.value; E.blip(360,0.07); });
+      this.s.a[1]=137*Math.PI/180; this.reset(); E.setOn([]); },
+    reset:function(){ var s=this.s; s.th=[s.a[0],s.a[1]]; s.om=[0,0]; },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      var h=1/60/6; for(var k=0;k<6;k++){ for(var i=0;i<2;i++){ s.om[i]+= -(s.g/s.L)*Math.sin(s.th[i])*h; s.th[i]+=s.om[i]*h; } }
+      var L=Math.min(W*0.14,H*0.22)*s.L*0.6;
+      [[W*0.30,'작은 각(≈SHM)',GRN,0],[W*0.62,'큰 각',ORA,1]].forEach(function(c){ var px=c[0],py=H*0.18,th=s.th[c[3]];
+        var bx=px+L*Math.sin(th), by=py+L*Math.cos(th);
+        ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(px-30,py); ctx.lineTo(px+30,py); ctx.stroke();
+        ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py+L+6); ctx.stroke(); ctx.setLineDash([]);
+        ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(bx,by); ctx.stroke();
+        ctx.fillStyle=c[2]; ctx.beginPath(); ctx.arc(bx,by,12,0,7); ctx.fill();
+        ctx.fillStyle=c[2]; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(c[1], px, py+L+30); });
+      var T0=2*Math.PI*Math.sqrt(s.L/s.g), th0=s.a[1];
+      var Tbig=T0*(1+th0*th0/16);   // 대진폭 근사 T≈T0(1+θ0²/16)
+      E.tapHint(W/2, H*0.90, '큰 진폭일수록 주기가 길어집니다(등시성 깨짐)', true);
+      E.big('대진폭 진자 — 작은각 T₀='+T0.toFixed(2)+'s, 큰각 T≈'+Tbig.toFixed(2)+'s', '작은 각에서는 sinθ≈θ라 주기가 진폭과 무관(등시성). 하지만 <b>큰 진폭에서는 sinθ<θ</b>라 복원력이 약해져 주기가 길어집니다 — 등시성이 깨집니다(T≈T₀(1+θ₀²/16+…)). 두 진자를 같은 순간 놓으면 큰 각 진자(주황)가 점점 뒤처지는 것을 보세요. 정밀 진자시계가 작은 진폭을 쓰는 이유, 하위헌스가 사이클로이드 진자를 고안한 이유입니다.'); }
   }
 
   ];

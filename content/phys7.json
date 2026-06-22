@@ -68,5 +68,33 @@
    "q_en": "Resonance is strongest when the drive frequency nears what?",
    "sol_en": "The natural frequency <b>ω₀ = √(k/m)</b>."
   }
+ },
+ "phys7_01_damp": {
+  "ch": "물리학 제7장 진동",
+  "sec": "7.1 심화 · 감쇠진동",
+  "title": "감쇠진동 — 잦아드는 흔들림",
+  "narr": "현실의 진동은 저항(−cv) 때문에 점점 잦아듭니다. 슬라이더로 감쇠 c를 바꾸면 세 가지 거동이 나타납니다 — <b>미흡감쇠</b>(진동하며 천천히 줄어듦), <b>임계감쇠</b>(진동 없이 가장 빠르게 멈춤), <b>과대감쇠</b>(진동 없이 느리게 복귀). 자동차 서스펜션은 임계감쇠를 노려 한 번에 안정시킵니다.",
+  "more": "<b>감쇠진동</b>: m·x'' + c·x' + kx = 0. 임계감쇠계수 c_c=2√(km). c<c_c 미흡감쇠(진폭 e^(−ct/2m)로 감소, 진동수 약간 낮아짐), c=c_c 임계감쇠(진동 없이 최단 복귀), c>c_c 과대감쇠(느린 복귀). 계측기 바늘·문 닫힘 장치(도어클로저)·내진 댐퍼가 임계~과대감쇠를 이용. 공명(7.5)의 봉우리 폭도 감쇠가 정함.",
+  "more_en": "<b>Damped oscillation</b>: mx''+cx'+kx=0. Critical damping c_c=2√(km). Under-damped oscillates while decaying; critically damped returns fastest without oscillating; over-damped returns slowly. Car suspensions aim for critical damping.",
+  "problem": {
+   "q": "k=8, m=2인 진동계의 임계감쇠계수 c_c는?",
+   "solution": "c_c = 2√(km) = 2√(16) = 2×4 = <b>8</b>.",
+   "q_en": "k=8, m=2. Critical damping coefficient?",
+   "sol_en": "c_c = 2√(km) = <b>8</b>."
+  }
+ },
+ "phys7_04_amp": {
+  "ch": "물리학 제7장 진동",
+  "sec": "7.4 심화 · 대진폭 진자",
+  "title": "대진폭 진자 — 등시성이 깨질 때",
+  "narr": "작은 각에서는 진자의 주기가 진폭과 무관합니다(등시성, T=2π√(L/g)). 하지만 <b>크게 흔들면 주기가 길어집니다</b> — 큰 각에서는 sinθ가 θ보다 작아 복원력이 약해지기 때문입니다. 두 진자(작은 각·큰 각)를 같은 순간 놓아 보세요. 큰 각 진자(주황)가 점점 뒤처집니다. 슬라이더로 큰 진자의 시작각을 키울수록 차이가 커집니다.",
+  "more": "<b>비등시성</b>: 정확한 주기 T = T₀·[1 + θ₀²/16 + 11θ₀⁴/3072 + …]. 작은 각(θ₀≲15°)에선 보정항이 무시되어 등시성이 성립하지만, 큰 각에선 주기가 눈에 띄게 길어집니다. 90°에서 약 18%, 더 크면 더. 정밀 진자시계가 작은 진폭을 쓰는 이유. 하위헌스는 사이클로이드 궤도로 진폭 무관 등시성을 실현했습니다.",
+  "more_en": "<b>Non-isochronism</b>: exact period T = T₀[1 + θ₀²/16 + …]. Small angles (≲15°) are isochronous, but large amplitudes lengthen the period (~18% at 90°). Why precision pendulum clocks use small swings.",
+  "problem": {
+   "q": "진자의 진폭을 크게 하면 주기는 어떻게 되나요?",
+   "solution": "작은 각에선 거의 일정하지만, <b>큰 각에서는 길어집니다</b>(sinθ<θ로 복원력 약화).",
+   "q_en": "Increase a pendulum's amplitude. The period?",
+   "sol_en": "Nearly constant for small angles, but <b>increases</b> at large amplitude."
+  }
  }
 }

@@ -141,6 +141,60 @@
       ctx.fillText('왼쪽 '+nL, v.X(2.5), H*0.84); ctx.fillText('오른쪽 '+nR, v.X(7.5), H*0.84);
       E.tapHint(W/2, H*0.92, s.open?'화면 탭=다시 가두기(되감기)':'화면을 눌러 칸막이 제거', true);
       E.big(s.open?'자유팽창 — 분자가 고르게 퍼진다 (엔트로피↑)':'칸막이로 왼쪽에 가둔 기체', '칸막이를 없애면 기체는 <b>저절로 퍼져 양쪽을 고르게</b> 채웁니다(엔트로피 증가). 하지만 퍼진 분자가 <b>스스로 한쪽으로 다시 모이는 일은 결코 없습니다</b> — 통계적으로 거의 불가능하니까요. 이 비가역성이 <b>시간의 화살</b>입니다. 열역학 제2법칙: 고립계의 엔트로피(무질서)는 늘 증가. 컵의 물에 떨어진 잉크가 퍼지기만 하는 것과 같습니다.'); }
+  },
+
+  // ─── 심화: 열전달 3가지(전도·대류·복사) ───
+  { id:'phys10_01_transfer', branchOf:'phys10_01', ord:1,
+    enter:function(E){ var self=this; this.s={dT:60,t:0};
+      E.controls('<div class="ctrl"><label>온도차 ΔT</label><input type="range" id="dt" min="10" max="100" step="10" value="60"><output id="dto">60</output></div>');
+      E.bind('#dt','input',function(e){ self.s.dT=+e.target.value; document.getElementById('dto').textContent=e.target.value; E.blip(360,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+      // 세 모드: 전도(막대), 대류(올라가는 유체), 복사(파동)
+      var rate=s.dT;  // 모두 ΔT에 비례(복사는 사실 T⁴이지만 시각화는 비례)
+      var cols=W/3;
+      // 전도(왼쪽): 뜨거운끝→찬끝 막대, 입자 진동 전달
+      var x0=W*0.06; ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('전도(고체)', x0+cols*0.4, H*0.18);
+      var grd=ctx.createLinearGradient(x0,0,x0+cols*0.8,0); grd.addColorStop(0,'#ff6b4a'); grd.addColorStop(1,'#6ba8ff');
+      ctx.fillStyle=grd; ctx.fillRect(x0,H*0.4,cols*0.8,30);
+      for(var k=0;k<6;k++){ var px=x0+10+k*(cols*0.8-20)/5, jit=Math.sin(s.t*8+k)*3; ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(px+jit,H*0.4+15,3,0,7); ctx.fill(); }
+      // 대류(가운데): 데워진 유체 상승
+      var x1=W*0.40; ctx.fillStyle=DIM; ctx.fillText('대류(유체)', x1+cols*0.4, H*0.18);
+      ctx.strokeStyle='rgba(255,107,74,0.3)'; ctx.lineWidth=2; ctx.strokeRect(x1,H*0.32,cols*0.8,H*0.34);
+      for(var c=0;c<4;c++){ var cy=H*0.62-((s.t*0.5+c*0.25)%1)*H*0.28, cx=x1+cols*0.2+c*cols*0.15; ctx.fillStyle='rgba(255,140,90,0.7)'; ctx.beginPath(); ctx.arc(cx,cy,4,0,7); ctx.fill();
+        ctx.strokeStyle='rgba(255,140,90,0.3)'; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy+10); ctx.stroke(); }
+      ctx.fillStyle='#ff6b4a'; ctx.fillRect(x1,H*0.64,cols*0.8,4);
+      // 복사(오른쪽): 전자기파
+      var x2=W*0.74; ctx.fillStyle=DIM; ctx.fillText('복사(빛)', x2+cols*0.3, H*0.18);
+      ctx.fillStyle='#ff6b4a'; ctx.beginPath(); ctx.arc(x2+10,H*0.5,14,0,7); ctx.fill();
+      for(var w=0;w<3;w++){ var rr=((s.t*1.5+w*0.6)%2.2); ctx.strokeStyle='rgba(255,178,122,'+(0.6-rr*0.2)+')'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x2+10,H*0.5,18+rr*30,-0.9,0.9); ctx.stroke(); }
+      E.tapHint(W/2, H*0.90, '온도차를 키우면 열전달이 빨라집니다', true);
+      E.big('열전달 3가지 — 전도·대류·복사 (모두 ΔT에 비례)', '열은 고온→저온으로 세 방식으로 흐릅니다. <b>전도</b>: 고체에서 분자 진동이 이웃으로 전달(쇠숟가락이 뜨거워짐, 비율 ∝ kAΔT/L). <b>대류</b>: 데워진 유체가 직접 이동(끓는 물·바람·해류). <b>복사</b>: 전자기파로 매질 없이 전달(태양열·난로 앞 따뜻함, 비율 ∝ T⁴). 보온병은 셋 다 차단(진공=전도·대류 차단, 거울=복사 반사). 온도차가 클수록 빨리 전달됩니다.'); }
+  },
+
+  // ─── 심화: 카르노 열기관 효율 ───
+  { id:'phys10_04_carnot', branchOf:'phys10_04', ord:1,
+    enter:function(E){ var self=this; this.s={Th:600,Tc:300,t:0};
+      E.controls('<div class="ctrl"><label>고온 Th (K)</label><input type="range" id="th" min="400" max="900" step="50" value="600"><output id="tho">600</output>'
+        +'<label style="margin-left:14px">저온 Tc (K)</label><input type="range" id="tc" min="200" max="400" step="20" value="300"><output id="tco">300</output></div>');
+      E.bind('#th','input',function(e){ self.s.Th=+e.target.value; document.getElementById('tho').textContent=e.target.value; E.blip(380,0.07); });
+      E.bind('#tc','input',function(e){ self.s.Tc=+e.target.value; document.getElementById('tco').textContent=e.target.value; E.blip(320,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+      var eff=1-s.Tc/s.Th, Qh=100, Wk=Qh*eff, Qc=Qh-Wk;
+      var cx=W*0.36, cy=H*0.46;
+      // 고온 저장조(위)·저온(아래)·엔진(가운데)
+      ctx.fillStyle='rgba(255,107,74,0.25)'; ctx.fillRect(cx-90,H*0.16,180,40); ctx.fillStyle='#ff6b4a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('고온 '+s.Th+' K', cx, H*0.20);
+      ctx.fillStyle='rgba(107,168,255,0.25)'; ctx.fillRect(cx-90,H*0.70,180,40); ctx.fillStyle='#6ba8ff'; ctx.fillText('저온 '+s.Tc+' K', cx, H*0.74);
+      ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,30,0,7); ctx.stroke(); ctx.fillStyle=GRN; ctx.fillText('엔진', cx, cy+4);
+      // Qh 들어옴, Qc 나감, W 옆으로
+      function arr(x1,y1,x2,y2,wd,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=wd; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); var a=Math.atan2(y2-y1,x2-x1); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-9*Math.cos(a-0.4),y2-9*Math.sin(a-0.4)); ctx.lineTo(x2-9*Math.cos(a+0.4),y2-9*Math.sin(a+0.4)); ctx.fill(); ctx.font='12px sans-serif'; ctx.fillText(lab,(x1+x2)/2+24,(y1+y2)/2); }
+      arr(cx,H*0.24,cx,cy-30, Math.max(2,Qh*0.08),'#ff6b4a','Qh='+Qh);
+      arr(cx,cy+30,cx,H*0.70, Math.max(2,Qc*0.08),'#6ba8ff','Qc='+Qc.toFixed(0));
+      arr(cx+30,cy,cx+W*0.22,cy, Math.max(2,Wk*0.12),GRN,'W='+Wk.toFixed(0));
+      E.tapHint(W/2, H*0.90, '온도차가 클수록 효율↑ (Tc/Th↓)', true);
+      E.big('카르노 효율 η = 1 − Tc/Th = '+(eff*100).toFixed(0)+'%  (W='+Wk.toFixed(0)+'/Qh=100)', '열기관은 고온에서 열 Qh를 받아 일부를 일 W로 바꾸고 나머지 Qc를 저온으로 버립니다(2법칙: 100% 일로 못 바꿈). 최대 효율은 <b>카르노 효율 η = 1 − Tc/Th</b> — 두 온도로만 결정! 고온이 뜨겁고 저온이 차가울수록 효율↑. 발전소가 고온·고압 증기를 쓰는 이유, 100% 효율(영구기관 2종)이 불가능한 이유. 자동차 엔진·냉장고(역방향)도 이 한계 안에서 작동.'); }
   }
 
   ];

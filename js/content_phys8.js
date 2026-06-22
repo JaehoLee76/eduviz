@@ -146,6 +146,53 @@
       if(s.vs>c){ ctx.fillStyle=ORA; ctx.fillText('★ 음속 돌파 — 충격파(소닉붐)!', W/2, H*0.72); }
       E.tapHint(W/2, H*0.90, '음원이 빠를수록 앞은 촘촘(고음)·뒤는 성김(저음)', true);
       E.big('도플러: 앞 f\'='+ff.toFixed(2)+' ↑,  뒤 f\'='+fb.toFixed(2)+' ↓', '움직이는 음원은 진행 방향 <b>앞쪽 파면을 압축</b>(파장↓→진동수↑→고음), <b>뒤쪽은 늘립니다</b>(저음). 그래서 구급차가 다가올 땐 높고 지나가면 낮게 들립니다. f\' = f·c/(c∓vs). 음원이 음속을 넘으면 파면이 겹쳐 충격파(소닉붐)가 생깁니다. 별빛의 적색편이도 빛의 도플러!'); }
+  },
+
+  // ─── 심화: 음의 세기와 데시벨 ───
+  { id:'phys8_02_db', branchOf:'phys8_02', ord:1,
+    enter:function(E){ var self=this; this.s={r:2,t:0};
+      E.controls('<div class="ctrl"><label>음원에서 거리 r (m)</label><input type="range" id="rr" min="1" max="10" step="0.5" value="2"><output id="rro">2.0</output></div>');
+      E.bind('#rr','input',function(e){ self.s.r=+e.target.value; document.getElementById('rro').textContent=(+e.target.value).toFixed(1); E.blip(420-self.s.r*30,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+      var P=4, I=P/(4*Math.PI*s.r*s.r), I0=1e-3, db=10*Math.log(I/I0)/Math.LN10;
+      var cx=W*0.30, cy=H*0.46, sc=Math.min(W*0.05,H*0.07);
+      // 음원 + 퍼지는 파면(세기 ∝ 1/r²로 옅어짐)
+      for(var k=1;k<10;k++){ var rr=((s.t*1.2+k*0.5)%9); var al=0.5/(rr*rr*0.3+1); ctx.strokeStyle='rgba(122,184,255,'+al.toFixed(3)+')'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy,rr*sc,0,7); ctx.stroke(); }
+      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(cx,cy,9,0,7); ctx.fill();
+      // 청취자(거리 r)
+      var lx=cx+s.r*sc; ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(lx,cy,7,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(lx,cy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+s.r.toFixed(1), (cx+lx)/2, cy-10);
+      // 세기 막대
+      var bx=W*0.74, baseY=H*0.74, bh=H*0.46, Imax=P/(4*Math.PI);
+      ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh); ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,I/Imax)*bh,46,Math.min(1,I/Imax)*bh); ctx.globalAlpha=1;
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('세기 I', bx+23, baseY+16);
+      E.tapHint(W/2, H*0.90, '멀어지면 세기는 1/r²로 급감(거리 2배=¼)', true);
+      E.big('음의 세기 I = P/4πr² ∝ 1/r²  (소리크기 '+db.toFixed(0)+' dB)', '점음원에서 나온 소리는 구면으로 퍼져, 세기 I(단위면적당 일률)가 <b>거리²에 반비례</b>합니다(I=P/4πr²) — 거리가 2배면 세기는 ¼. 우리 귀는 세기를 <b>로그</b>로 느껴 데시벨(dB)로 잽니다: β=10·log(I/I₀). 세기가 10배면 +10 dB. 거리 2배마다 약 −6 dB. 빛·중력·방사선도 같은 역제곱(구면으로 퍼짐).'); }
+  },
+
+  // ─── 심화: 맥놀이 (beats) ───
+  { id:'phys8_03_beats', branchOf:'phys8_03', ord:1,
+    enter:function(E){ var self=this; this.s={f2:5.5,t:0};
+      E.controls('<div class="ctrl"><label>둘째 진동수 f₂ (f₁=5)</label><input type="range" id="ff" min="4" max="6" step="0.1" value="5.5"><output id="ffo">5.5</output></div>');
+      E.bind('#ff','input',function(e){ self.s.f2=+e.target.value; document.getElementById('ffo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.f2*40,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+      var f1=5, f2=s.f2, x0=W*0.08, x1=W*0.92, midY=H*0.42, A=H*0.13, span=4;
+      function w1(x){ return Math.sin(2*Math.PI*f1*(x-s.t*0.5)); } function w2(x){ return Math.sin(2*Math.PI*f2*(x-s.t*0.5)); }
+      // 두 파동(옅게)
+      [['rgba(95,214,168,0.35)',w1],['rgba(244,160,192,0.35)',w2]].forEach(function(p){ ctx.strokeStyle=p[0]; ctx.lineWidth=1.5; ctx.beginPath();
+        for(var i=0;i<=300;i++){ var xu=i/300*span, X=x0+(x1-x0)*i/300, y=midY-A*0.5*p[1](xu); if(i===0)ctx.moveTo(X,y); else ctx.lineTo(X,y); } ctx.stroke(); });
+      // 합(맥놀이)
+      ctx.strokeStyle=BLU; ctx.lineWidth=2.5; ctx.beginPath();
+      for(var j=0;j<=300;j++){ var xu2=j/300*span, X2=x0+(x1-x0)*j/300, y2=midY-A*(w1(xu2)+w2(xu2))/2; if(j===0)ctx.moveTo(X2,y2); else ctx.lineTo(X2,y2); } ctx.stroke();
+      // 맥놀이 포락선
+      ctx.strokeStyle='rgba(255,178,122,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+      [1,-1].forEach(function(sgn){ ctx.beginPath(); for(var k=0;k<=200;k++){ var xu3=k/200*span, env=Math.abs(Math.cos(Math.PI*(f1-f2)*(xu3-s.t*0.5))), X3=x0+(x1-x0)*k/200, y3=midY-sgn*A*env; if(k===0)ctx.moveTo(X3,y3); else ctx.lineTo(X3,y3); } ctx.stroke(); }); ctx.setLineDash([]);
+      var fbeat=Math.abs(f1-f2);
+      E.tapHint(W/2, H*0.90, 'f₂를 f₁에 가까이 — 맥놀이가 느려짐', true);
+      E.big('맥놀이 진동수 = |f₁−f₂| = '+fbeat.toFixed(1)+' Hz', '비슷한 두 진동수가 겹치면 소리가 <b>주기적으로 커졌다 작아졌다</b> 합니다 — 맥놀이(beats). 두 파동이 같은 위상일 때 보강(큼), 반대 위상일 때 상쇄(작음)를 반복하기 때문. 맥놀이 진동수 = <b>|f₁−f₂|</b>. f₂를 f₁에 가까이 하면 맥놀이가 느려지고, 똑같아지면 사라집니다 — 악기 조율의 원리(맥놀이가 0이 될 때까지 맞춤). 주황 포락선이 소리 크기 변화입니다.'); }
   }
 
   ];

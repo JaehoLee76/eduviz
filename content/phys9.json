@@ -68,5 +68,33 @@
    "q_en": "Per Bernoulli, where flow speeds up, the pressure is?",
    "sol_en": "<b>Lower</b> (P + ½ρv² constant; this gives lift)."
   }
+ },
+ "phys9_01_pascal": {
+  "ch": "물리학 제9장 유체",
+  "sec": "9.1 심화 · 파스칼 원리(유압)",
+  "title": "유압잭 — 작은 힘이 큰 힘으로",
+  "narr": "갇힌 유체에 가한 <b>압력은 모든 곳에 똑같이 전달</b>됩니다(파스칼 원리). 작은 피스톤에 힘을 주면 그 압력이 큰 피스톤에 그대로 걸려, <b>면적비만큼 증폭된 힘</b>이 나옵니다. 슬라이더로 면적비와 입력 힘을 바꿔, 작은 힘으로 얼마나 큰 힘을 만드는지 보세요. 유압잭·자동차 브레이크의 원리입니다.",
+  "more": "<b>파스칼 원리</b>: 갇힌 유체에 가한 압력은 손실 없이 전달 → P=F₁/A₁=F₂/A₂ → <b>F₂=F₁·(A₂/A₁)</b>. 면적비만큼 힘 증폭(힘의 지렛대). 단 에너지(일) 보존이라 큰 피스톤은 거리가 짧음(F₁d₁=F₂d₂). 유압 브레이크·잭·굴착기·프레스. 깊이에 따른 ρgh 항은 보통 무시(같은 높이).",
+  "more_en": "<b>Pascal's principle</b>: pressure in a confined fluid transmits undiminished → F₂=F₁·(A₂/A₁). Force is amplified by the area ratio (but the big piston moves less — work is conserved). Hydraulic jacks, brakes, presses.",
+  "problem": {
+   "q": "A₁=2 cm²에 100 N. A₂=50 cm²에서 나오는 힘은?",
+   "solution": "F₂=F₁·A₂/A₁=100×(50/2)=100×25=<b>2500 N</b>.",
+   "q_en": "100 N on A₁=2 cm². Force at A₂=50 cm²?",
+   "sol_en": "F₂=100×25=<b>2500 N</b>."
+  }
+ },
+ "phys9_02_capillary": {
+  "ch": "물리학 제9장 유체",
+  "sec": "9.2 심화 · 모세관 현상",
+  "title": "모세관 — 표면장력이 끌어올리는 물",
+  "narr": "가는 관을 물에 담그면 물이 <b>저절로 위로 올라갑니다</b> — 표면장력 때문입니다. 물 분자가 유리벽에 끌리고, 표면장력이 물기둥을 끌어올려 무게와 균형을 이루죠. 슬라이더로 관을 가늘게 할수록 물이 더 높이 올라갑니다(h ∝ 1/r). 식물이 물을 빨아올리고 종이타월이 물을 흡수하는 원리입니다.",
+  "more": "<b>모세관 상승</b>: h = 2γcosθ/(ρgr) (γ=표면장력, θ=접촉각). 관이 가늘수록(r↓) 높이↑. 물-유리는 부착력>응집력이라 오목 메니스커스(상승), 수은-유리는 반대(하강). 표면장력 γ는 표면을 줄이려는 분자 인력 — 물방울이 둥근 것, 소금쟁이가 물 위를 걷는 것, 비눗방울도 표면장력. 식물의 물관·종이·스펀지의 흡수.",
+  "more_en": "<b>Capillary rise</b>: h = 2γcosθ/(ρgr). Thinner tube → higher rise. Water-glass adhesion makes a concave meniscus (rise); mercury falls. Surface tension also shapes droplets and lets water striders walk.",
+  "problem": {
+   "q": "모세관의 반지름을 절반으로 줄이면 물이 올라가는 높이는?",
+   "solution": "h ∝ 1/r. 반지름 ½ → 높이 <b>2배</b>.",
+   "q_en": "Halve the capillary radius. Rise height?",
+   "sol_en": "h ∝ 1/r → <b>2×</b>."
+  }
  }
 }

@@ -164,6 +164,53 @@
       var Pn=pres(5), Pw=pres(1.5);
       E.tapHint(W/2, H*0.92, '빠른 곳(주황)일수록 압력이 낮아집니다', true);
       E.big('베르누이: 빠른 흐름 = 낮은 압력  (좁은 곳 P='+Math.round(Pn)+' < 넓은 곳 '+Math.round(Pw)+')', '베르누이 정리: P + ½ρv² = 일정. 유체가 빨라지면(좁은 곳) 압력이 <b>낮아집니다</b>(게이지 기둥이 낮음). 비행기 날개 윗면의 빠른 공기가 낮은 압력→양력, 샤워커튼이 안으로 빨려드는 것, 야구공의 커브가 모두 베르누이. 에너지 보존을 유체로 옮긴 것 — 운동E(½ρv²)가 커지면 압력E가 줄어듭니다.'); }
+  },
+
+  // ─── 심화: 파스칼 원리(유압잭) ───
+  { id:'phys9_01_pascal', branchOf:'phys9_01', ord:1,
+    enter:function(E){ var self=this; this.s={ratio:4,F1:50};
+      E.controls('<div class="ctrl"><label>면적비 A₂/A₁</label><input type="range" id="rt" min="1" max="10" step="1" value="4"><output id="rto">4</output>'
+        +'<label style="margin-left:14px">가한 힘 F₁ (N)</label><input type="range" id="ff" min="20" max="100" step="10" value="50"><output id="ffo">50</output></div>');
+      E.bind('#rt','input',function(e){ self.s.ratio=+e.target.value; document.getElementById('rto').textContent=e.target.value; E.blip(360,0.07); });
+      E.bind('#ff','input',function(e){ self.s.F1=+e.target.value; document.getElementById('ffo').textContent=e.target.value; E.blip(380,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      var F2=s.F1*s.ratio, P=s.F1;   // 압력 동일(면적1=1)
+      var baseY=H*0.62, w1=40, w2=40*Math.sqrt(s.ratio);
+      // U자 유압관
+      var lx=W*0.28, rx=W*0.60;
+      ctx.fillStyle=WAT; ctx.fillRect(lx-w1/2,baseY-10,w1,H*0.18); ctx.fillRect(rx-w2/2,baseY-10,w2,H*0.18); ctx.fillRect(lx,baseY+H*0.16,rx-lx,16);
+      ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=2; ctx.strokeRect(lx-w1/2,baseY-10,w1,H*0.2);  ctx.strokeRect(rx-w2/2,baseY-10,w2,H*0.2);
+      // 피스톤(작은쪽 눌림)
+      ctx.fillStyle=DIM; ctx.fillRect(lx-w1/2,baseY-10,w1,8); ctx.fillRect(rx-w2/2,baseY-22,w2,8);
+      // 힘 화살표
+      function arr(x,y,len,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+len); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x,y+len); ctx.lineTo(x-5,y+len-10); ctx.lineTo(x+5,y+len-10); ctx.fill(); ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,x,y-6); }
+      arr(lx, baseY-60, Math.min(48,s.F1*0.5), PNK, 'F₁='+s.F1+'N');
+      arr(rx, baseY-72, -Math.min(60,F2*0.12), GRN, 'F₂='+F2+'N');   // 위로(들어올림)
+      E.tapHint(W/2, H*0.90, '면적비를 키우면 작은 힘이 큰 힘으로', true);
+      E.big('파스칼 유압: F₂ = F₁·(A₂/A₁) = '+s.F1+'×'+s.ratio+' = '+F2+' N', '갇힌 유체에 가한 <b>압력은 모든 곳에 똑같이 전달</b>됩니다(파스칼 원리). 작은 피스톤(A₁)에 힘 F₁을 주면 압력 P=F₁/A₁이 큰 피스톤(A₂)에 그대로 걸려 <b>F₂ = P·A₂ = F₁·(A₂/A₁)</b> — 면적비만큼 힘이 증폭! 유압잭·자동차 브레이크·굴착기가 작은 힘으로 무거운 것을 듭니다. 단, 일 보존이라 큰 피스톤은 그만큼 조금만 올라갑니다(지렛대처럼).'); }
+  },
+
+  // ─── 심화: 모세관 현상(표면장력) ───
+  { id:'phys9_02_capillary', branchOf:'phys9_02', ord:1,
+    enter:function(E){ var self=this; this.s={r:0.6};
+      E.controls('<div class="ctrl"><label>관 반지름 r (mm)</label><input type="range" id="rr" min="0.2" max="2" step="0.1" value="0.6"><output id="rro">0.6</output></div>');
+      E.bind('#rr','input',function(e){ self.s.r=+e.target.value; document.getElementById('rro').textContent=(+e.target.value).toFixed(1); E.blip(420-self.s.r*100,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, gam=0.073, rho=1000, g=9.8;
+      var hmm = 2*gam/(rho*g*(s.r/1000))*1000;   // 상승 높이 h=2γ/(ρgr), mm
+      var poolY=H*0.66, tubeW=s.r*40, tx=W*0.42;
+      // 물웅덩이
+      ctx.fillStyle=WAT; ctx.fillRect(W*0.16,poolY,W*0.6,H*0.18);
+      ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W*0.16,poolY); ctx.lineTo(W*0.76,poolY); ctx.stroke();
+      // 가는 관 + 상승한 물기둥(h ∝ 1/r, 화면 스케일)
+      var riseP = Math.min(H*0.42, hmm*1.2);
+      ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2; ctx.strokeRect(tx-tubeW/2, poolY-H*0.42, tubeW, H*0.42+H*0.16);
+      ctx.fillStyle='rgba(122,184,255,0.4)'; ctx.fillRect(tx-tubeW/2+2, poolY-riseP, tubeW-4, riseP+H*0.16);
+      // 메니스커스
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('h='+hmm.toFixed(0)+' mm', tx+tubeW/2+8, poolY-riseP+4);
+      E.tapHint(W/2, H*0.90, '관이 가늘수록 물이 더 높이 올라갑니다(h ∝ 1/r)', true);
+      E.big('모세관 상승 h = 2γ/(ρgr) = '+hmm.toFixed(0)+' mm', '가는 관에서 물이 <b>저절로 올라갑니다</b> — 표면장력 때문. 물 분자가 유리벽에 끌리고(부착력), 표면장력이 물기둥을 끌어올려 무게와 균형을 이룹니다: <b>h = 2γ/(ρgr)</b>. 관이 가늘수록(r↓) 더 높이! 식물이 물을 끌어올리는 것, 종이 타월·스펀지가 물을 빨아들이는 것, 촛불 심지가 모세관 현상. γ는 표면장력(물 0.073 N/m).'); }
   }
 
   ];

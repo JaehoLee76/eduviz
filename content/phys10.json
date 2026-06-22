@@ -68,5 +68,33 @@
    "q_en": "In an isolated system over time, entropy does what?",
    "sol_en": "<b>Increases (or stays constant)</b> — the second law; it never spontaneously decreases."
   }
+ },
+ "phys10_01_transfer": {
+  "ch": "물리학 제10장 열역학",
+  "sec": "10.1 심화 · 열전달",
+  "title": "열전달 — 전도·대류·복사",
+  "narr": "열은 고온에서 저온으로 세 가지 방식으로 흐릅니다. <b>전도</b>(고체): 분자 진동이 이웃으로 전달돼 쇠숟가락이 뜨거워집니다. <b>대류</b>(유체): 데워진 물·공기가 직접 이동합니다(끓는 물·바람·해류). <b>복사</b>(빛): 전자기파로 매질 없이 전달돼 태양열·난로 앞이 따뜻하죠. 슬라이더로 온도차를 키우면 모두 빨라집니다.",
+  "more": "<b>전도</b>: Q/t = kAΔT/L (열전도율 k — 금속 큼, 공기 작음). <b>대류</b>: 유체의 부력 순환(자연대류) 또는 강제 흐름. <b>복사</b>: P = εσAT⁴(스테판-볼츠만, 절대온도 4제곱). 보온병은 진공(전도·대류 차단) + 거울 코팅(복사 반사)으로 셋 다 막음. 단열재는 공기를 가둬 전도·대류를 줄임. 지구 온난화는 복사 균형의 문제(온실기체).",
+  "more_en": "<b>Conduction</b>: Q/t = kAΔT/L. <b>Convection</b>: bulk fluid motion. <b>Radiation</b>: P = εσAT⁴ (Stefan-Boltzmann). A thermos blocks all three (vacuum + mirror). Insulation traps air to cut conduction/convection.",
+  "problem": {
+   "q": "매질 없는 진공(우주)에서도 가능한 열전달 방식은?",
+   "solution": "<b>복사</b>. 전자기파라 매질이 필요 없습니다(태양→지구). 전도·대류는 매질 필요.",
+   "q_en": "Which heat transfer works in a vacuum (space)?",
+   "sol_en": "<b>Radiation</b> — EM waves need no medium (Sun→Earth)."
+  }
+ },
+ "phys10_04_carnot": {
+  "ch": "물리학 제10장 열역학",
+  "sec": "10.4 심화 · 카르노 열기관",
+  "title": "열기관 효율 — 카르노 한계",
+  "narr": "열기관은 고온에서 열 Qh를 받아 일부를 일 W로 바꾸고, 나머지 Qc를 저온으로 버립니다 — 열을 100% 일로 바꿀 수는 없습니다(2법칙). 가능한 <b>최대 효율은 두 온도만으로</b> 정해집니다: 카르노 효율 η = 1 − Tc/Th. 슬라이더로 고온을 높이거나 저온을 낮추면 효율이 올라갑니다. 발전소가 고온 증기를 쓰는 이유입니다.",
+  "more": "<b>카르노 효율</b>: η = 1 − Tc/Th (절대온도 K). 어떤 열기관도 이 한계를 못 넘음(2법칙). 효율 = W/Qh, 에너지 보존 Qh = W + Qc. 100% 효율(영구기관 2종)은 Tc=0K이어야 해서 불가능. 냉장고·히트펌프는 역방향(일을 들여 열을 저온→고온으로) — 성능계수 COP. 실제 엔진은 마찰·비가역으로 카르노보다 낮음.",
+  "more_en": "<b>Carnot efficiency</b>: η = 1 − Tc/Th (kelvin). No heat engine can exceed it (2nd law). η = W/Qh, with Qh = W + Qc. 100% needs Tc=0 K (impossible). Refrigerators run it in reverse (COP).",
+  "problem": {
+   "q": "Th=400 K, Tc=300 K 카르노 기관의 최대 효율은?",
+   "solution": "η = 1 − Tc/Th = 1 − 300/400 = 1 − 0.75 = <b>25%</b>.",
+   "q_en": "Th=400 K, Tc=300 K. Max (Carnot) efficiency?",
+   "sol_en": "η = 1 − 300/400 = <b>25%</b>."
+  }
  }
 }

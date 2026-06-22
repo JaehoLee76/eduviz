@@ -68,5 +68,33 @@
    "q_en": "Sound 340, source approaching at 34 m/s. Observed frequency?",
    "sol_en": "f' = f·340/306 ≈ <b>1.11 f</b>."
   }
+ },
+ "phys8_02_db": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.2 심화 · 음의 세기와 데시벨",
+  "title": "음의 세기 — 거리와 데시벨",
+  "narr": "점음원에서 나온 소리는 구면으로 퍼지므로 세기(단위면적당 일률)가 <b>거리의 제곱에 반비례</b>합니다(I=P/4πr²). 거리가 2배면 세기는 ¼로 급감하죠. 슬라이더로 거리를 바꿔 세기와 데시벨(dB)을 보세요. 우리 귀는 세기를 로그로 느껴 dB로 측정합니다.",
+  "more": "<b>음의 세기</b>: I = P/(4πr²) [W/m²], 역제곱. 소리 크기(레벨) β = 10·log₁₀(I/I₀) dB, I₀=10⁻¹² W/m²(가청 문턱). 세기 10배 = +10 dB, 거리 2배 = 약 −6 dB. 빛·중력·방사선도 같은 1/r²(구면 확산). 데시벨이 로그인 이유는 인간 감각이 로그적(베버-페히너)이기 때문 — 속삭임 30 dB, 대화 60 dB, 콘서트 110 dB.",
+  "more_en": "<b>Sound intensity</b>: I = P/(4πr²) (inverse-square). Level β = 10·log₁₀(I/I₀) dB. ×10 intensity = +10 dB; double distance ≈ −6 dB. Light, gravity, radiation share the 1/r² law.",
+  "problem": {
+   "q": "음원에서 거리를 3배로 늘리면 음의 세기는?",
+   "solution": "I ∝ 1/r². 거리 3배 → 세기 <b>1/9배</b>.",
+   "q_en": "Triple the distance from a sound source. Intensity?",
+   "sol_en": "I ∝ 1/r² → <b>1/9</b>."
+  }
+ },
+ "phys8_03_beats": {
+  "ch": "물리학 제8장 파동",
+  "sec": "8.3 심화 · 맥놀이",
+  "title": "맥놀이 — 두 진동수의 간섭",
+  "narr": "진동수가 비슷한 두 소리가 겹치면 소리 크기가 <b>주기적으로 커졌다 작아졌다</b> 합니다 — 맥놀이(beats). 두 파동이 같은 위상이면 보강(큼), 반대 위상이면 상쇄(작음)를 번갈아 하기 때문이죠. 슬라이더로 f₂를 f₁에 가까이 하면 맥놀이가 느려지고, 똑같아지면 사라집니다. 이것이 악기 조율의 원리입니다.",
+  "more": "<b>맥놀이</b>: 두 파동 합 = 2A·cos(2π·(f₁−f₂)/2·t)·cos(2π·(f₁+f₂)/2·t). 평균 진동수로 진동하되 진폭이 |f₁−f₂|로 변조 → <b>맥놀이 진동수 = |f₁−f₂|</b>. 시간 영역의 간섭. 악기 조율(맥놀이 0까지 맞춤), 음향 측정, 도플러 레이더(되돌아온 주파수와의 맥놀이로 속도 측정)에 이용.",
+  "more_en": "<b>Beats</b>: two close frequencies sum to an amplitude modulated at |f₁−f₂| (the beat frequency). Tune instruments by minimizing beats; used in radar speed guns.",
+  "problem": {
+   "q": "440 Hz와 444 Hz 소리굽쇠를 함께 울리면 맥놀이 진동수는?",
+   "solution": "|f₁−f₂| = |440−444| = <b>4 Hz</b> (초당 4번 커졌다 작아짐).",
+   "q_en": "440 Hz and 444 Hz together. Beat frequency?",
+   "sol_en": "|440−444| = <b>4 Hz</b>."
+  }
  }
 }
