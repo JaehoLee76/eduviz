@@ -182,6 +182,37 @@
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx-10,baseY); ctx.lineTo(bx+220,baseY); ctx.stroke();
       E.tapHint(W/2, H*0.93, '화면 탭 = 재발사', true);
       E.big('v = '+v.toFixed(2)+'  vs  탈출속도 '+vesc.toFixed(2)+'  →  '+(bound?'묶임(궤도로 되돌아옴)':'탈출!(영영 떠남)'), '총 역학적 에너지 E = KE + PE(=−GM/r)의 <b>부호</b>가 운명을 가릅니다. E<0이면 묶여 타원궤도(파랑), E≥0이면 탈출(주황). 탈출속도 v=√(2GM/r)에서 E=0 — 무한히 멀리서 속도 0. 로켓·우주탐사선·블랙홀 탈출 불가가 모두 이 에너지 부호 이야기.'); }
+  },
+
+  // ─── 심화: 케플러 3법칙 T²∝a³ (branchOf phys6_03) ───
+  { id:'phys6_03_kepler3', branchOf:'phys6_03', ord:1,
+    enter:function(E){ var self=this; this.s={a:4};
+      var w=PhysLab.world({g:0}); this.s.w=w;
+      var sun=w.add({x:0,y:0,m:1000,r:0.5,fixed:true,color:ORA}); this.s.sun=sun;
+      var p=w.add({x:4,y:0,m:1,r:0.22,vx:0,vy:Math.sqrt(GM/4),color:BLU}); this.s.p=p;
+      w.force(PhysLab.F.pointGravity(sun, GM)); this.s.trail=[];
+      E.controls('<div class="ctrl"><label>궤도 반지름 a</label><input type="range" id="aa" min="2" max="8" step="0.5" value="4"><output id="aao">4.0</output></div>');
+      E.bind('#aa','input',function(e){ self.s.a=+e.target.value; var pp=self.s.p; pp.x=self.s.a; pp.y=0; pp.vx=0; pp.vy=Math.sqrt(GM/self.s.a); self.s.trail=[]; document.getElementById('aao').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, w=s.w, p=s.p, ctx=E.ctx, W=E.W, H=E.H;
+      w.step(1/60,6); var r=Math.hypot(p.x,p.y); if(r<0.6||r>16){ p.x=s.a; p.y=0; p.vx=0; p.vy=Math.sqrt(GM/s.a); s.trail=[]; }
+      var sc=Math.min(W*0.024,H*0.04), ox=W*0.30, oy=H*0.42, v=PhysLab.view(ox,oy,sc); s.view=v;
+      s.trail.push([p.x,p.y]); if(s.trail.length>900) s.trail.shift();
+      ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath();
+      s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(v.X(q[0]),v.Y(q[1])); else ctx.lineTo(v.X(q[0]),v.Y(q[1])); }); ctx.stroke();
+      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,10,0,7); ctx.fill();
+      ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(v.X(p.x),v.Y(p.y),6,0,7); ctx.fill();
+      // T = 2π√(a³/GM), T²/a³ = 4π²/GM 일정
+      var T=2*Math.PI*Math.sqrt(s.a*s.a*s.a/GM), ratio=T*T/(s.a*s.a*s.a);
+      // T²-a³ 직선 그래프
+      var gx0=W*0.60, gx1=W*0.94, gy0=H*0.80, gh=H*0.5;
+      ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('T²',gx0+3,gy0-gh+4); ctx.fillText('a³',gx1-12,gy0+14);
+      var a3max=8*8*8; ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
+      for(var k=0;k<=40;k++){ var aa=2+k/40*6, a3=aa*aa*aa, t2=ratio*a3, x=gx0+(a3/a3max)*(gx1-gx0), y=gy0-(t2/(ratio*a3max))*gh; if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
+      var mx=gx0+(s.a*s.a*s.a/a3max)*(gx1-gx0), my=gy0-(T*T/(ratio*a3max))*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
+      E.tapHint(W/2, H*0.93, '궤도 반지름 a를 바꿔도 T²/a³는 일정', true);
+      E.big('케플러 3법칙: T² ∝ a³  (T='+T.toFixed(1)+', T²/a³='+ratio.toFixed(3)+' 일정)', '행성의 공전주기 제곱은 궤도 긴반지름 세제곱에 비례합니다 — <b>케플러 3법칙 T²=(4π²/GM)·a³</b>. 멀리 도는 행성일수록 더 느리게, 더 오래 걸려 돕니다(해왕성 165년!). a를 바꿔도 T²/a³ 비는 항상 일정(직선 그래프) — 이 비가 중심 질량 GM을 알려줘, 별·블랙홀의 질량을 재는 도구가 됩니다. 만유인력 F=GMm/r²과 원운동 구심력에서 직접 유도됩니다.'); }
   }
 
   ];

@@ -68,5 +68,19 @@
    "q_en": "Circular speed is 5 km/s. Escape speed?",
    "sol_en": "√2 × 5 ≈ <b>7.07 km/s</b>."
   }
+ },
+ "phys6_03_kepler3": {
+  "ch": "물리학 제6장 중력",
+  "sec": "6.3 심화 · 케플러 3법칙",
+  "title": "케플러 3법칙 — T² ∝ a³",
+  "narr": "케플러 2법칙(면적속도)에 이어, 행성들 사이의 규칙이 하나 더 있습니다 — <b>공전주기의 제곱이 궤도 긴반지름의 세제곱에 비례</b>합니다(T² ∝ a³). 슬라이더로 궤도 반지름 a를 바꿔 보세요. 멀리 도는 행성일수록 둘레도 길고 속도도 느려 훨씬 오래 걸려 돕니다. 그런데 T²/a³ 비는 어떤 궤도에서도 <b>항상 같은 값</b>(직선 그래프). 이 일정한 비가 중심 천체의 질량을 알려줍니다.",
+  "more": "<b>케플러 3법칙</b>: T² = (4π²/GM)·a³. 만유인력=구심력(GMm/a² = m·v²/a, v=2πa/T)에서 직접 유도됩니다. 비례상수 4π²/GM은 중심 질량 M에만 의존 → 행성 주기·거리로 별·블랙홀의 질량을 잰다. 수성 88일, 지구 365일, 해왕성 165년 — 모두 같은 T²/a³.",
+  "more_en": "<b>Kepler's 3rd law</b>: T² = (4π²/GM)·a³, derived from gravity = centripetal force. The constant depends only on the central mass M, letting us weigh stars and black holes from orbital periods.",
+  "problem": {
+   "q": "궤도 반지름을 4배로 늘리면 공전주기는 몇 배?",
+   "solution": "T² ∝ a³ → T ∝ a^(3/2). a 4배 → T는 4^1.5 = <b>8배</b>.",
+   "q_en": "Quadruple the orbital radius. Period?",
+   "sol_en": "T ∝ a^(3/2) → 4^1.5 = <b>8×</b>."
+  }
  }
 }
