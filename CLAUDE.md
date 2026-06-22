@@ -8,8 +8,8 @@
 ## 0. 정체성 / 비전
 EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 브라우저로 바로 열림.
 - 위치: `/Users/quantcommander/EduViz/` (이 폴더가 git 저장소 루트, GitHub Pages 배포).
-- 세 트랙: **수학 26장(238장면)** · **알고리즘 8장(뼈대 42+심화 268)** · **물리학(신규, PhysLab 엔진 기반)**. 홈 `home.html` → math/algo/physics.html.
-- 상태(2026-06-21): 알고리즘 애니메이션 **100%(161/161)** + 심화 **14섹션 재구조화 완료**(§3.5) · 수학 **전수 감사·보강 완료**(§3.6) · 물리학 **출범, 1장 운동학+2장 뉴턴법칙+엔진(PhysLab) 완료**(§3.7, 3~14장 진행 예정).
+- 세 트랙: **수학 26장(238장면)** · **알고리즘 8장(뼈대 42+심화 268)** · **물리학 14장(70장면, PhysLab 엔진 기반)**. 홈 `home.html` → math/algo/physics.html.
+- 상태(2026-06-22): 알고리즘 애니메이션 **100%(161/161)** + 심화 **14섹션 재구조화 완료**(§3.5) · 수학 **전수 감사·보강 완료**(§3.6) · 물리학 **14장 70장면 전체 완료**(§3.7, PhysLab 엔진으로 동역학 시뮬레이션).
 - 비전(사령관): "우리 콘텐츠만 학습하면 그 어떤 자료보다 더 빠르고 확실하게 개념·응용을 뇌리에 각인." 세계 최고 품질.
 - 홈 `home.html` → `math.html`(수학) / `algo.html`(알고리즘). morph 단일화면 엔진(`js/engine.js` 공유).
 - 라이브: https://jaeholee76.github.io/eduviz/ (사령관 계정 JaehoLee76/eduviz).
@@ -84,8 +84,9 @@ EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 
 - 힘 생성기 `PhysLab.F`: `constant(b,fx,fy)`·`spring(b,ax,ay,k,rest)`(후크)·`drag(b,c)`·`friction(b,mu)`·`pointGravity(att,GM)`(1/r²)·`uniformE(Ex,Ey)`(qE)·`lorentzB(Bz)`(qv×B).
 - `var v = PhysLab.view(ox,oy,scale)` → `v.X(x)/v.Y(y)`(월드→화면), `v.wx(px)/v.wy(py)`(화면→월드, 드래그용).
 
-**장면 패턴(엔진 위)**: `enter`에서 world 생성+body/force 추가+슬라이더(E.controls/E.bind)+`this.s={w,view,...}`. `draw`에서 `w.step(1/60,6)` 후 body 렌더(v.X/v.Y). 조작=슬라이더(상수 g·F·k…) + 드래그(`down/move/up`로 body 잡기: v.wx/wy로 좌표변환, held=true 중 위치 갱신·속도 추정, up에서 해제). 골든룰=표시값은 시뮬 상태/실식에서 계산(닫힌 공식 베끼기·`Math.random`/`Date.now` 표시값 금지). 본보기 `phys2_01`(F=ma)·`phys2_02`(중력·충돌 모래상자, 드래그).
-**남은 장(14장 목표)**: 3일·에너지 · 4운동량 · 5회전 · 6중력(pointGravity 궤도) · 7진동(spring SHM) · 8파동 · 9유체 · 10열역학 · 11전기장(uniformE) · 12회로 · 13자기·유도(lorentzB) · 14빛·현대물리.
+**장면 패턴(엔진 위)**: `enter`에서 world 생성+body/force 추가+슬라이더(E.controls/E.bind)+`this.s={w,view,...}`. `draw`에서 `w.step(1/60,6)` 후 body 렌더(v.X/v.Y). 조작=슬라이더(상수 g·F·k…) + 드래그(`down/move/up`로 body 잡기: v.wx/wy로 좌표변환, held=true 중 위치 갱신·속도 추정, up에서 해제). 골든룰=표시값은 시뮬 상태/실식에서 계산(닫힌 공식 베끼기·`Math.random`/`Date.now` 표시값 금지; 결정적 해시로 대체).
+**상호작용 규칙(중요·검증됨)**: 슬라이더가 있는 장면은 엔진이 첫 슬라이더에 A/D, 둘째에 F/H 키를 자동 배정(`SLIDER_KEYS`) → **D키는 슬라이더 증가에 쓰이므로 tap 동작은 캔버스 클릭(pointerdown→s.tap)으로 통일**. tapHint는 "화면 탭"으로 표기. **드래그 장면은 `down`+`tap`을 동시 정의하면 클릭 시 둘 다 발화** → 드래그 장면은 `tap` 빼고 reset/spawn을 `down`의 빈곳-클릭 분기로 통합(phys2_02·phys3_03 본보기).
+**14장 전체 완료(70장면)**: 1운동학·2뉴턴법칙(F=ma)·3에너지(일-에너지정리)·4운동량(collide 보존)·5회전(회전적분+구심력 스프링)·6중력(pointGravity 궤도·케플러·탈출)·7진동(spring SHM·진자ODE·공명)·8파동(FD 파동방정식 정상파·도플러)·9유체(부력 힘 아르키메데스·베르누이)·10열역학(기체분자 시뮬·엔트로피 자유팽창)·11전기장(uniformE 포물선·축전기)·12회로(RC ODE)·13자기(lorentzB 사이클로트론·발전기)·14빛·현대물리(이중슬릿·광전효과·시간팽창). 각 장 5장면 = content_physN.js + content/physN.json, physics.html에 N=0~14 배선. 신규 장 추가 시 위 패턴 재사용.
 
 ## 4. 검증 워크플로우 (변경 후 필수)
 1. `node --check js/content_algo_br.js` (구문).
