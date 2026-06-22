@@ -1,0 +1,72 @@
+{
+ "phys5_01": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.1 각속도·각가속도",
+  "title": "회전의 언어 — θ, ω, α 그리고 v = rω",
+  "narr": "지금까지는 직선으로 움직이는 물체를 봤습니다. 이제 <b>도는</b> 물체입니다. 직선운동의 위치·속도·가속도(x, v, a)에 정확히 대응하는 회전의 양이 있습니다 — <b>각도 θ, 각속도 ω, 각가속도 α</b>. 화면의 원판은 각가속도 α로 점점 빨리 돕니다(α가 ω를 키우고, ω가 θ를 키웁니다 — 엔진이 매 프레임 적분). 빨간 막대는 각 위치를, 초록 화살표는 가장자리 한 점의 <b>실제 속력 v = rω</b>를 나타냅니다. 같은 각속도라도 <b>중심에서 멀수록(r↑) 빠릅니다</b> — 회전목마 바깥 자리가 더 스릴 있는 이유죠.",
+  "more": "<b>회전운동학</b>: ω = dθ/dt, α = dω/dt. 등각가속도 공식은 직선과 판박이 — ω = ω₀ + αt, θ = ω₀t + ½αt². 접선속력 v = rω, 접선가속도 a_t = rα. 회전 한 바퀴 = 2π rad ≈ 360°. 직선운동에서 배운 모든 것이 기호만 바뀌어 그대로 적용됩니다.",
+  "more_en": "<b>Rotational kinematics</b> mirrors linear: ω = dθ/dt, α = dω/dt, ω = ω₀ + αt, θ = ω₀t + ½αt². Tangential speed v = rω, farther out = faster. One revolution = 2π rad.",
+  "problem": {
+   "q": "ω = 4 rad/s로 도는 원판의 반지름 0.5 m 지점의 속력은?",
+   "solution": "v = rω = 0.5 × 4 = <b>2 m/s</b>.",
+   "q_en": "Disk at ω = 4 rad/s. Speed at r = 0.5 m?",
+   "sol_en": "v = rω = <b>2 m/s</b>."
+  }
+ },
+ "phys5_02": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.2 토크",
+  "title": "토크 τ = r·F — 회전을 일으키는 힘",
+  "narr": "문을 열 때 손잡이(경첩에서 먼 곳)를 밀지, 경첩 근처를 밀지 않습니다. 왜일까요? 회전을 일으키는 것은 힘 자체가 아니라 <b>토크(돌림힘) τ = r·F</b> — 힘 × 회전축까지의 거리이기 때문입니다. 같은 힘 F라도 멀리(r↑) 작용하면 토크가 커져 더 잘 돕니다. 슬라이더로 지렛대 r과 힘 F를 바꿔 막대가 얼마나 빨리 가속되는지 보세요. 토크가 각가속도를 만듭니다 — <b>τ = Iα</b>, 이것이 회전판의 F = ma입니다.",
+  "more": "<b>토크</b>: τ = r·F·sinφ (여기선 수직이라 sinφ=1). 단위 N·m. 회전의 뉴턴 제2법칙: τ = Iα. 지렛대(r)가 길수록 적은 힘으로 큰 토크 — 렌치에 파이프를 끼우거나, 병뚜껑을 큰 도구로 여는 이유. 두 힘의 토크가 같고 반대면 회전 평형(시소가 균형).",
+  "more_en": "<b>Torque</b>: τ = r·F·sinφ (N·m). Rotational Newton's 2nd law: τ = Iα. A longer lever arm r gives more torque for the same force — why door handles sit far from the hinge.",
+  "problem": {
+   "q": "0.8 m 렌치 끝을 25 N으로 수직으로 밀 때 토크는?",
+   "solution": "τ = r·F = 0.8 × 25 = <b>20 N·m</b>.",
+   "q_en": "Push a 0.8 m wrench end with 25 N (perpendicular). Torque?",
+   "sol_en": "τ = r·F = <b>20 N·m</b>."
+  }
+ },
+ "phys5_03": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.3 관성모멘트",
+  "title": "관성모멘트 I — 질량을 어디 두느냐",
+  "narr": "직선운동에서 질량 m이 '가속에 대한 저항'이었듯, 회전운동에서는 <b>관성모멘트 I</b>가 '각가속에 대한 저항'입니다. 그런데 I는 질량뿐 아니라 <b>질량이 축에서 얼마나 멀리 있는가</b>에 달렸습니다 — I = Σm·r². 같은 토크를 주고 슬라이더로 두 추를 안↔밖으로 옮겨 보세요. 바깥으로 갈수록(d↑) I가 d²로 커져 훨씬 천천히 가속됩니다. 줄타기 곡예사가 긴 장대를 드는 이유, 팽이 가장자리가 무거운 이유가 모두 이것 — 질량 분포가 회전을 좌우합니다.",
+  "more": "<b>관성모멘트</b>: I = Σmᵢrᵢ². 거리의 <b>제곱</b>이라 분포가 결정적. 같은 질량·반지름에서 속이 빈 고리(I=mr²)가 꽉 찬 원판(I=½mr²)보다 돌리기 어렵습니다 — 그래서 경사면을 굴리면 원판이 고리보다 빨리 내려옵니다. 토크가 같으면 α = τ/I 이므로 I 큰 물체가 둔하게 반응.",
+  "more_en": "<b>Moment of inertia</b>: I = Σmᵢrᵢ². Distance is squared, so distribution dominates. A hollow ring (I=mr²) is harder to spin than a solid disk (I=½mr²) of equal mass/radius. Same torque ⇒ α = τ/I.",
+  "problem": {
+   "q": "축에서 2 m 떨어진 3 kg 점질량의 관성모멘트는?",
+   "solution": "I = m·r² = 3 × 2² = <b>12 kg·m²</b>.",
+   "q_en": "Point mass 3 kg at 2 m from axis. Moment of inertia?",
+   "sol_en": "I = mr² = <b>12 kg·m²</b>."
+  }
+ },
+ "phys5_04": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.4 각운동량 보존",
+  "title": "L = Iω 보존 — 팔을 당기면 빨라진다",
+  "narr": "피겨 선수가 팔을 쭉 폈다가 끌어안으면 <b>갑자기 빙글빙글 빨라집니다</b>. 마법이 아니라 <b>각운동량 보존</b>입니다 — 외부 토크가 없으면 <b>L = Iω가 일정</b>. 팔을 당기면(r↓) 관성모멘트 I가 줄고, L을 유지하려면 ω가 커져야 하므로 회전이 빨라집니다. 슬라이더로 팔 길이 r을 줄여 보세요 — 파란 막대(I)가 내려가는 만큼 주황 막대(ω)가 올라가고, 초록 막대(L)는 미동도 없습니다. 다이빙 선수의 회전, 떨어지는 고양이의 자세 잡기, 별이 수축하며 빨라지는 자전이 모두 같은 법칙입니다.",
+  "more": "<b>각운동량 보존</b>: 외부 토크 = 0 → L = Iω = 일정. I를 줄이면 ω가 그만큼 커집니다(Iω = 일정). 운동에너지 ½Iω²는 오히려 늘어나는데(ω가 제곱으로), 그 에너지는 팔을 당기는 근육의 일에서 옵니다. 천체물리: 거대한 성운이 수축하면 회전이 극적으로 빨라져 중성자별은 초당 수백 회 자전합니다.",
+  "more_en": "<b>Conservation of angular momentum</b>: zero external torque → L = Iω = constant. Reduce I, ω rises. KE ½Iω² actually increases — the extra energy comes from the muscles pulling arms in. Neutron stars spin hundreds of times per second from this.",
+  "problem": {
+   "q": "I = 4에서 ω = 3으로 돌던 선수가 I = 2로 줄이면 ω는?",
+   "solution": "L = Iω 보존: 4·3 = 2·ω → ω = 12/2 = <b>6 rad/s</b>. 두 배 빨라짐.",
+   "q_en": "Skater at I=4, ω=3 pulls to I=2. New ω?",
+   "sol_en": "Iω conserved: 12 = 2ω → <b>ω = 6 rad/s</b>."
+  }
+ },
+ "phys5_05": {
+  "ch": "물리학 제5장 회전운동",
+  "sec": "5.5 구심력과 원운동",
+  "title": "구심력 F = mv²/r — 줄을 끊으면?",
+  "narr": "공을 줄에 매달아 빙빙 돌립니다. 속력은 일정한데도 이것은 <b>가속운동</b>입니다 — 속도의 '방향'이 끊임없이 바뀌니까요. 그 방향 변화를 만드는 힘이 <b>구심력 F = mv²/r</b>, 항상 <b>중심을 향합니다</b>(여기선 줄의 장력이 그 역할 — 엔진의 스프링으로 구현). 그런데 <b>줄을 끊으면(화면 누르기)</b> 어떻게 될까요? 공은 바깥으로 휘어 날아가지 않고 <b>접선 방향으로 곧장</b> 날아갑니다 — 힘이 사라지면 직진(뉴턴 1법칙). 흔히 말하는 '원심력'은 사실 가짜 힘이고, 진짜로 필요했던 것은 안쪽으로 당기는 구심력이었습니다.",
+  "more": "<b>구심력</b>: F = mv²/r = mω²r, 방향은 항상 중심. 구심'가속도' a = v²/r. 이 힘은 속력을 바꾸지 않고(속도에 수직이라 한 일 = 0) 방향만 바꿉니다. 줄·중력·마찰·수직항력 등 무엇이든 중심을 향하면 구심력 역할을 합니다(달은 중력이, 자동차는 마찰이). 줄을 끊으면 구심력이 사라져 관성으로 직진 — 원심력은 회전계에서 느껴지는 관성효과(가짜 힘)일 뿐.",
+  "more_en": "<b>Centripetal force</b>: F = mv²/r = mω²r, always toward center. It changes direction, not speed (does zero work). Cut the string → no force → straight-line inertia (Newton's 1st). 'Centrifugal force' is a fictitious effect in the rotating frame.",
+  "problem": {
+   "q": "2 kg 공을 1 m 줄로 4 m/s로 돌릴 때 줄의 장력(구심력)은?",
+   "solution": "F = mv²/r = 2 × 4²/1 = 2 × 16 = <b>32 N</b>.",
+   "q_en": "2 kg ball, 1 m string, 4 m/s. Tension (centripetal force)?",
+   "sol_en": "F = mv²/r = 2·16/1 = <b>32 N</b>."
+  }
+ }
+}

@@ -31,7 +31,7 @@
       if(s.F>0){ ctx.strokeStyle=ORA; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(px+sz/2, ay); ctx.lineTo(px+sz/2+aL, ay); ctx.stroke();
         ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(px+sz/2+aL,ay); ctx.lineTo(px+sz/2+aL-9,ay-5); ctx.lineTo(px+sz/2+aL-9,ay+5); ctx.fill();
         ctx.font='12px sans-serif'; ctx.fillText('F='+s.F+' N', px+sz/2+aL/2, ay-10); }
-      E.tapHint(W/2, H*0.76, '↻ 처음으로 (D) · 슬라이더로 F·m 조절', true);
+      E.tapHint(W/2, H*0.76, '화면 탭=처음으로 · A/D·F/H로 F·m', true);
       E.big('a = F/m = '+(s.F/s.m).toFixed(2)+' m/s²    v = '+b.vx.toFixed(2)+' m/s', '엔진이 매 프레임 a=F/m을 적분해 v·x를 만듭니다(공식 베끼기 아님). 같은 힘이라도 질량이 크면 천천히 가속 — 뉴턴 제2법칙.'); }
   },
 
@@ -45,10 +45,12 @@
       E.bind('#gg','input',function(e){ w.g=+e.target.value; document.getElementById('ggo').textContent=(+e.target.value).toFixed(1); });
       E.bind('#ee','input',function(e){ w.rest=+e.target.value; document.getElementById('eeo').textContent=(+e.target.value).toFixed(2); });
       E.setOn([]); },
-    tap:function(E){ var w=this.s.w; if(w.bodies.length<9){ var cols=[GRN,ORA,BLU,PNK], sp=[[2,8.5],[4,9],[6,8.5],[8,9],[3,9],[7,9]]; var p=sp[this.s.spawn%sp.length]; this.s.spawn++; w.add({x:p[0],y:p[1],r:0.4,m:1,color:cols[w.bodies.length%4]}); E.blip(520,0.12); } },
-    down:function(E,cx,cy){ var s=this.s, v=s.view; if(!v)return; var wx=v.wx(cx), wy=v.wy(cy), best=null, bd=1e9;
-      s.w.bodies.forEach(function(b){ var d=Math.hypot(b.x-wx,b.y-wy); if(d<b.r+0.5 && d<bd){ bd=d; best=b; } });
-      if(best){ best.held=true; best.vx=0; best.vy=0; s.grab=best; } },
+    down:function(E,cx,cy){ var s=this.s, v=s.view, w=s.w; if(!v)return; var wx=v.wx(cx), wy=v.wy(cy), best=null, bd=1e9;
+      w.bodies.forEach(function(b){ var d=Math.hypot(b.x-wx,b.y-wy); if(d<b.r+0.5 && d<bd){ bd=d; best=b; } });
+      if(best){ best.held=true; best.vx=0; best.vy=0; s.grab=best; }                          // 공 근처=잡기
+      else if(w.bodies.length<9){ var cols=[GRN,ORA,BLU,PNK];                                  // 빈 곳=그 자리에 공 추가
+        wx=Math.max(0.5,Math.min(9.5,wx)); wy=Math.max(0.5,Math.min(9,wy)); s.spawn++;
+        w.add({x:wx,y:wy,r:0.4,m:1,color:cols[w.bodies.length%4]}); E.blip(520,0.12); } },
     move:function(E,cx,cy){ var s=this.s; if(s.grab && s.view){ var v=s.view, wx=v.wx(cx), wy=v.wy(cy); s.grab.vx=(wx-s.grab.x)*12; s.grab.vy=(wy-s.grab.y)*12; s.grab.x=wx; s.grab.y=wy; } },
     up:function(E){ var s=this.s; if(s.grab){ s.grab.held=false; s.grab=null; } },
     draw:function(E){ var s=this.s, w=s.w, ctx=E.ctx, W=E.W, H=E.H;
@@ -60,7 +62,7 @@
       w.bodies.forEach(function(b){ var px=v.X(b.x), py=v.Y(b.y), pr=b.r*v.s;
         ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill(); ctx.globalAlpha=1;
         if(b.held){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,pr+3,0,7); ctx.stroke(); } });
-      E.tapHint(W/2, H*0.92, '공을 끌어 던지기 · 화면 누르면 공 추가 (D) · 슬라이더로 중력·반발', true);
+      E.tapHint(W/2, H*0.92, '공을 끌어 던지기 · 빈 곳 탭=공 추가 · A/D·F/H로 중력·반발', true);
       E.big('실시간 물리 엔진 — 끌어서 던져 보세요', '중력으로 떨어지고 바닥·벽·서로 부딪혀 튑니다. 전부 F=ma 적분과 충돌(운동량 보존)의 결과 — 공식이 아니라 시뮬레이션입니다. g와 반발 e를 바꿔 보세요.'); }
   }
 

@@ -37,7 +37,7 @@
       harrow(E, bk.px, bk.py-bk.pr-22, b.vx*14, BLU, 'v='+s.v.toFixed(1));
       var p=s.m*s.v;
       harrow(E, bk.px, bk.py+bk.pr+22, p*9, ORA, 'p='+p.toFixed(1));
-      E.tapHint(W/2, H*0.86, '↻ 처음으로 (D) · 슬라이더로 m·v', true);
+      E.tapHint(W/2, H*0.86, '화면 탭=처음으로 · A/D·F/H로 m·v', true);
       E.big('운동량 p = m·v = '+p.toFixed(1)+' kg·m/s', '운동량은 "운동의 양" — 질량 × 속도. 무거울수록, 빠를수록 큽니다. 같은 속도라도 트럭(큰 m)은 자전거보다 운동량이 훨씬 커서 멈추기 어렵죠. 벡터라서 방향(부호)도 가집니다.'); }
   },
 
@@ -66,7 +66,7 @@
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,48,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,48,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(1), x+24, baseY-hh-6);
         ctx.fillStyle=it[2]; ctx.fillText(it[0], x+24, baseY+18); });
-      E.tapHint(W/2, H*0.90, '↻ 처음으로 (D) · F·m 조절', true);
+      E.tapHint(W/2, H*0.90, '화면 탭=처음으로 · A/D·F/H로 F·m', true);
       E.big('충격량 J = F·t = '+J.toFixed(1)+' = Δp = mΔv = '+dp.toFixed(1), '충격량 정리: 힘 × 작용시간 = 운동량 변화. 두 막대가 늘 같음 — 엔진의 v로 검산한 결과(공식 베끼기 아님). 같은 운동량 변화라도 시간을 길게 하면(에어백) 힘이 작아집니다.'); }
   },
 
@@ -94,7 +94,7 @@
       var cy=H*0.74; ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('총 운동량', W*0.34, cy+4);
       harrow(E, W*0.36, cy, ptot*18, GRN, '');
       ctx.fillStyle=GRN; ctx.textAlign='left'; ctx.fillText(ptot.toFixed(2)+' kg·m/s', W*0.36+Math.abs(ptot*18)+14, cy+4);
-      E.tapHint(W/2, H*0.90, '↻ 다시 충돌 (D) · 슬라이더로 m₂', true);
+      E.tapHint(W/2, H*0.90, '화면 탭=다시 충돌 · A/D로 m₂', true);
       E.big('총 운동량 = '+ptot.toFixed(2)+' kg·m/s  (충돌해도 일정)', '운동량 보존: 외력이 없으면 충돌 전·중·후 총 운동량(p₁+p₂)이 변하지 않습니다. A가 B에 준 충격량 = B가 A에 준 충격량(작용-반작용). 완전탄성이라 운동E도 보존(현재 '+KE.toFixed(1)+' J). m₂를 바꿔 보세요.'); }
   },
 
@@ -126,7 +126,7 @@
         ctx.fillStyle=it[2]; ctx.fillText(it[0], x+26, baseY+18); });
       // KE0 기준선
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.setLineDash([4,3]); var y0=baseY-s.KE0/mx*bh; ctx.beginPath(); ctx.moveTo(W*0.64+78,y0); ctx.lineTo(W*0.64+78+52,y0); ctx.stroke(); ctx.setLineDash([]);
-      E.tapHint(W/2, H*0.90, '↻ 다시 충돌 (D) · e=1 탄성, e=0 완전비탄성', true);
+      E.tapHint(W/2, H*0.90, '화면 탭=다시 충돌 · A/D로 e (1=탄성·0=완전비탄성)', true);
       var lost=s.KE0-KE;
       E.big('운동량 보존 · 운동E '+(s.e>=1?'보존':'손실 '+lost.toFixed(1)+' J'), '어떤 충돌이든 총 운동량(초록)은 항상 보존됩니다. 하지만 운동에너지(파랑)는 e<1이면 열·소리·변형으로 손실 — e=1만 완전탄성(운동E도 보존). e=0이면 두 공이 붙어 함께 움직입니다(완전비탄성). 점선=충돌 전 운동E.'); }
   },
@@ -159,7 +159,7 @@
       var pA=A.m*A.vx, pB=B.m*B.vx, ptot=pA+pB;
       // 운동량 화살표(부호 반대, 길이 같음)
       var cy=H*0.74; harrow(E, W*0.50, cy, pA*16, GRN, 'pA='+pA.toFixed(1)); harrow(E, W*0.50, cy, pB*16, ORA, 'pB='+pB.toFixed(1));
-      E.tapHint(W/2, H*0.88, '↻ 다시 발사 (D) · 질량 바꾸면 즉시 발사', true);
+      E.tapHint(W/2, H*0.88, '화면 탭=다시 발사 · A/D·F/H로 질량(즉시 발사)', true);
       E.big('총 운동량 = pA + pB = '+ptot.toFixed(2)+' ≈ 0  (반동)', '정지(총 운동량 0)에서 서로 밀면, 두 운동량은 크기 같고 방향 반대 → 합은 여전히 0. 가벼운 쪽이 더 빠릅니다(|v|=I/m). 총·대포 반동, 로켓 추진, 헤엄의 원리. 작용-반작용(뉴턴 3법칙)의 운동량 표현.'); }
   }
 
