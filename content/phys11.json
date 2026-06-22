@@ -1,0 +1,72 @@
+{
+ "phys11_01": {
+  "ch": "물리학 제11장 전기장",
+  "sec": "11.1 쿨롱 법칙",
+  "title": "쿨롱 법칙 F = kq₁q₂/r²",
+  "narr": "전하 사이에 작용하는 힘은 중력과 똑같은 모양입니다 — <b>거리의 제곱에 반비례</b>(F = kq₁q₂/r²). 단, 결정적 차이가 있습니다: 전하에는 <b>부호</b>가 있어서 <b>같은 부호끼리는 밀어내고(척력), 다른 부호끼리는 끌어당깁니다(인력)</b>. 슬라이더로 거리를 바꾸면 1/r²로 힘이 급변하고, 전하2의 부호를 바꾸면 힘의 방향(밀당)이 뒤집힙니다. 전기력은 중력보다 어마어마하게 강하지만(전자와 양성자 사이는 중력의 약 10⁴⁰배!), 양전하와 음전하가 거의 상쇄되어 우리는 평소 그 위력을 못 느낍니다.",
+  "more": "<b>쿨롱 법칙</b>: F = k·q₁q₂/r², k = 9×10⁹ N·m²/C². 전하 단위는 쿨롬(C), 전자 전하 e = 1.6×10⁻¹⁹ C. 같은 부호 척력, 반대 인력. 중력과 형태는 같지만 (1)훨씬 강하고 (2)인력·척력 둘 다 가능. 여러 전하의 힘은 벡터로 더합니다(중첩). 원자·분자·화학결합·물질의 단단함이 모두 전기력.",
+  "more_en": "<b>Coulomb's law</b>: F = kq₁q₂/r², k = 9×10⁹. Like charges repel, opposite attract. Same inverse-square form as gravity but far stronger and bidirectional. Underlies atoms, bonds, and the solidity of matter.",
+  "problem": {
+   "q": "두 전하 사이 거리를 2배로 늘리면 쿨롱 힘은?",
+   "solution": "F ∝ 1/r². 거리 2배 → 힘 <b>1/4배</b>.",
+   "q_en": "Double the distance between two charges. Coulomb force?",
+   "sol_en": "F ∝ 1/r² → <b>1/4</b>."
+  }
+ },
+ "phys11_02": {
+  "ch": "물리학 제11장 전기장",
+  "sec": "11.2 전기장",
+  "title": "전기장 E — 공간에 새겨진 힘의 지도",
+  "narr": "전하는 닿지 않고도 멀리 있는 전하에 힘을 줍니다. 어떻게? 전하가 주변 <b>공간 자체에 전기장 E를 새겨</b> 놓기 때문입니다 — 보이지 않지만 곳곳에 방향과 세기가 정해진 ‘힘의 지도’(파란 화살표)입니다. 그 자리에 전하 q를 놓으면 <b>F = qE</b>의 힘을 받습니다. +전하의 장은 바깥으로 뻗고, −전하의 장은 안으로 모입니다. 시험전하(초록)를 마우스로 끌어다 놓아 보세요 — 장을 따라 밀려나는 것을 볼 수 있습니다. 슬라이더로 중심전하 부호를 바꾸면 장 전체가 뒤집힙니다.",
+  "more": "<b>전기장</b>: E = F/q (단위 전하가 받는 힘, 단위 N/C 또는 V/m). 점전하의 장 E = kQ/r²(방향은 +에서 바깥). 장은 전하가 없어도 공간에 존재하는 실체 — 빛(전자기파)도 전기장·자기장의 진동입니다. 전기력선: +에서 나와 −로 들어가며, 촘촘할수록 강한 장. 중첩으로 여러 전하의 장을 합합니다.",
+  "more_en": "<b>Electric field</b>: E = F/q (N/C). Point charge: E = kQ/r², pointing away from +. The field is real (light is oscillating E and B fields). Field lines leave + and enter −; denser = stronger.",
+  "problem": {
+   "q": "전기장 E = 500 N/C 자리에 +2 C 전하를 놓으면 받는 힘은?",
+   "solution": "F = qE = 2 × 500 = <b>1000 N</b> (장 방향).",
+   "q_en": "Place +2 C in a field E = 500 N/C. Force?",
+   "sol_en": "F = qE = <b>1000 N</b>."
+  }
+ },
+ "phys11_03": {
+  "ch": "물리학 제11장 전기장",
+  "sec": "11.3 균일 전기장 속 운동",
+  "title": "전기적 포물선 — 균일장 속 전하",
+  "narr": "평행한 두 금속판 사이에는 <b>균일한 전기장</b>이 생깁니다(어디서나 같은 세기·방향). 이 속으로 전하를 옆에서 쏘아 넣으면, 일정한 힘 F = qE를 계속 받아 — <b>중력 속 포물선 운동과 똑같이</b> — 휘어 날아갑니다(엔진이 uniformE 힘을 적분). 1장에서 본 포물선 운동과 수학이 완전히 같습니다(중력 g 대신 가속도 qE/m). 슬라이더로 전기장 세기를 키우면 더 많이 휘고, 전하 부호를 바꾸면 휘는 방향이 반대가 됩니다. 옛날 브라운관(CRT) TV·오실로스코프가 바로 이렇게 전자빔을 휘어 화면을 그렸습니다.",
+  "more": "<b>균일장 속 운동</b>: 일정한 힘 F=qE → 등가속도 a=qE/m. 수평 등속 + 수직 등가속 = 포물선(1장 포물선과 동형). 평행판 축전기 사이 E=V/d. 전하 부호로 가속 방향 결정. 응용: CRT·오실로스코프(전자빔 편향), 질량분석기, 잉크젯 프린터(전하 띤 잉크방울 편향).",
+  "more_en": "<b>Motion in a uniform field</b>: constant F=qE → constant a=qE/m → parabola (same math as projectile, g→qE/m). E=V/d between plates. Used in CRTs, oscilloscopes, mass spectrometers, inkjet printers.",
+  "problem": {
+   "q": "균일장 운동이 1장의 어떤 운동과 수학적으로 같나요?",
+   "solution": "<b>포물선 운동</b>. 중력가속도 g 대신 a=qE/m인 등가속도 운동입니다.",
+   "q_en": "Motion in a uniform field is mathematically like which Ch.1 motion?",
+   "sol_en": "<b>Projectile motion</b>, with a = qE/m instead of g."
+  }
+ },
+ "phys11_04": {
+  "ch": "물리학 제11장 전기장",
+  "sec": "11.4 전위",
+  "title": "전위 V = kQ/r — 전기적 높이",
+  "narr": "중력에서 '높이'가 위치에너지를 정했듯, 전기에서는 <b>전위(전압) V</b>가 그 역할을 합니다 — 단위 전하가 갖는 위치에너지(V = kQ/r). +전하 둘레는 높은 언덕과 같아서, 다른 +전하는 언덕 아래로 굴러 내려가듯 밀려납니다. 화면의 동심원은 <b>등전위선</b>(같은 높이) — 그 선을 따라 움직이면 일이 0입니다. 슬라이더로 거리를 바꾸면 전위가 1/r로 변합니다(힘·장의 1/r²보다 완만). 전압은 전기 회로에서 전하를 밀어내는 '압력'으로, 다음 12장 회로의 핵심이 됩니다.",
+  "more": "<b>전위</b>: V = kQ/r (단위 볼트 V = J/C). 전기위치에너지 U = qV. 전기장은 전위의 기울기: E = −dV/dr(높이의 경사가 힘). 등전위면은 전기력선과 수직. 양전하는 고전위→저전위로, 음전하는 반대로 이동(에너지가 낮아지는 쪽). 전위는 스칼라라 더하기 쉬워(중첩) 계산에 유용. 1/r²인 장보다 1/r로 완만.",
+  "more_en": "<b>Potential</b>: V = kQ/r (volts = J/C). Energy U = qV. Field is the gradient: E = −dV/dr. Equipotentials are perpendicular to field lines. Potential (a scalar) adds easily and falls as 1/r (gentler than the 1/r² field).",
+  "problem": {
+   "q": "전위 12 V 자리에 +3 C 전하의 전기위치에너지는?",
+   "solution": "U = qV = 3 × 12 = <b>36 J</b>.",
+   "q_en": "Electric PE of +3 C at 12 V?",
+   "sol_en": "U = qV = <b>36 J</b>."
+  }
+ },
+ "phys11_05": {
+  "ch": "물리학 제11장 전기장",
+  "sec": "11.5 축전기",
+  "title": "축전기 — 전기장에 에너지를 담다",
+  "narr": "<b>축전기</b>는 두 금속판에 +전하와 −전하를 갈라 모아, 그 사이 <b>전기장의 형태로 에너지를 저장</b>하는 장치입니다. 전압을 걸면 판에 전하 Q = CV가 쌓이고, 판 사이에는 균일한 전기장 E = V/d가 생깁니다. 슬라이더로 전압을 올리면 더 많은 전하와 에너지가 쌓입니다 — 저장 에너지 U = ½CV²는 전압의 <b>제곱</b>에 비례하므로 전압 2배면 에너지 4배! 판 간격을 좁히면 전기용량 C가 커집니다. 카메라 플래시가 순간 방전하는 큰 에너지, 전자회로의 전압 안정화가 모두 축전기의 역할입니다.",
+  "more": "<b>축전기</b>: 전기용량 C = Q/V = εA/d(판 넓이 A, 간격 d). 저장 에너지 U = ½CV² = ½QV = Q²/2C. 판 사이 균일장 E = V/d. 전하를 한 판씩 옮기는 데 든 일이 전기장 에너지로 저장됩니다(에너지 밀도 ½εE²). 충전·방전의 시간상수 τ=RC(다음 장 회로). 유전체를 넣으면 C 증가.",
+  "more_en": "<b>Capacitor</b>: C = Q/V = εA/d. Stored energy U = ½CV² = ½QV. Uniform field E = V/d. Energy is stored in the field (density ½εE²). Charge/discharge time constant τ = RC.",
+  "problem": {
+   "q": "전기용량 2 F 축전기에 3 V를 걸면 저장 에너지는?",
+   "solution": "U = ½CV² = ½ × 2 × 3² = ½ × 2 × 9 = <b>9 J</b>.",
+   "q_en": "2 F capacitor at 3 V. Stored energy?",
+   "sol_en": "U = ½CV² = ½·2·9 = <b>9 J</b>."
+  }
+ }
+}
