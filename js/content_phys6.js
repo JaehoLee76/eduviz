@@ -42,7 +42,7 @@
       for(var k=0;k<=60;k++){ var rr=1+k/60*5, ff=Gc*M*m/(rr*rr), x=gx0+(rr-1)/5*(gx1-gx0), y=gy0-Math.min(gh,ff/10*gh*0.9); if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var mx=gx0+(s.r-1)/5*(gx1-gx0), my=gy0-Math.min(gh,F/10*gh*0.9);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
-      E.tapHint(W/2, H*0.93, 'A/D로 거리 r 조절 — 1/r² 관계 관찰', true);
+      E.tapHint(W/2, H*0.93, '거리 r을 바꿔 1/r² 관계를 보세요', true);
       E.big('만유인력 F = G·M·m / r² = '+F.toFixed(2), '모든 질량은 서로 당깁니다 — 힘은 두 질량의 곱에 비례, 거리의 <b>제곱에 반비례</b>. r을 2배 하면 F는 ¼로 급감(역제곱 곡선). 같은 법칙이 사과를 떨어뜨리고 달을 붙잡습니다 — 뉴턴의 위대한 통합.'); }
   },
 
@@ -75,7 +75,7 @@
       ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.setLineDash([4,3]); var ey=baseY-(1/3)*bh; ctx.beginPath(); ctx.moveTo(bx-8,ey); ctx.lineTo(bx+48,ey); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('지구 g', bx+52, ey+4);
       ctx.fillStyle=ORA; ctx.textAlign='center'; ctx.fillText('g', bx+20, baseY+16);
-      E.tapHint(W/2, H*0.90, '화면 탭=다시 떨어뜨리기 · A/D·F/H로 M·R', true);
+      E.tapHint(W/2, H*0.90, '화면 탭 = 다시 떨어뜨리기', true);
       E.big('중력가속도 g = GM/R² = '+g.toFixed(2)+' m/s²  (지구의 '+(g/9.8).toFixed(2)+'배)', '행성 표면 중력은 질량 M에 비례, 반지름 R의 제곱에 반비례. 달은 질량이 작아 g≈1.6(지구의 1/6), 목성은 커서 ~2.5배. 같은 공이 행성마다 다른 속도로 떨어집니다 — 질량 자체와는 무관(자유낙하).'); }
   },
 
@@ -106,7 +106,7 @@
       arrow(E,px,py,px+p.vx*sc*0.5,py-p.vy*sc*0.5,GRN,2);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
       var e=0.5*v*v-GM/r, type=Math.abs(s.vf-1)<0.015?'원궤도':(e<-0.02?(s.vf<1?'타원(여기가 원일점)':'타원(여기가 근일점)'):'탈출 궤도');
-      E.tapHint(W/2, H*0.92, '화면 탭=재발사 · A/D로 발사 속력', true);
+      E.tapHint(W/2, H*0.92, '화면 탭 = 재발사', true);
       E.big(type+' — r = '+r.toFixed(2)+', v = '+v.toFixed(2), '행성은 끈에 매여 있지 않습니다 — 오직 1/r² 중력만으로 휘어 도는 것(엔진이 매 프레임 적분). 정확히 v=√(GM/r)면 원궤도, 그보다 느리거나 빠르면 타원. 너무 빠르면(√2배) 영영 탈출. 궤도의 한 초점에 태양이 있습니다(케플러 1법칙).'); }
   },
 
@@ -180,7 +180,7 @@
         ctx.fillStyle='#dfeefb'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(val.toFixed(1), x+23, val>=0?baseY-hh-5:baseY-hh+13);
         ctx.fillStyle=DIM; ctx.fillText(lab, x+23, baseY+bh+14); });
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx-10,baseY); ctx.lineTo(bx+220,baseY); ctx.stroke();
-      E.tapHint(W/2, H*0.93, '화면 탭=재발사 · A/D로 발사 속력', true);
+      E.tapHint(W/2, H*0.93, '화면 탭 = 재발사', true);
       E.big('v = '+v.toFixed(2)+'  vs  탈출속도 '+vesc.toFixed(2)+'  →  '+(bound?'묶임(궤도로 되돌아옴)':'탈출!(영영 떠남)'), '총 역학적 에너지 E = KE + PE(=−GM/r)의 <b>부호</b>가 운명을 가릅니다. E<0이면 묶여 타원궤도(파랑), E≥0이면 탈출(주황). 탈출속도 v=√(2GM/r)에서 E=0 — 무한히 멀리서 속도 0. 로켓·우주탐사선·블랙홀 탈출 불가가 모두 이 에너지 부호 이야기.'); }
   }
 

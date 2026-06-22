@@ -45,7 +45,7 @@
       s.hist.push(b.x-REST); if(s.hist.length>180) s.hist.shift();
       tgraph(E, W*0.10, H*0.74, W*0.80, H*0.26, s.hist, 2.3, BLU);
       var w0=Math.sqrt(s.k/s.m), T=2*Math.PI/w0;
-      E.tapHint(W/2, H*0.95, '화면 탭=다시 당기기 · A/D·F/H로 k·m', true);
+      E.tapHint(W/2, H*0.95, '화면 탭 = 다시 당기기', true);
       E.big('T = 2π√(m/k) = '+T.toFixed(2)+' s   (ω = '+w0.toFixed(2)+' rad/s)', '용수철은 평형에서 벗어난 만큼 되돌리는 힘 F=−kx를 줍니다(후크). 이 힘을 적분하면 저절로 <b>사인 곡선</b>(단순조화운동)이 나옵니다 — 공식을 베낀 게 아니라 −kx에서 생성된 것. k가 클수록(빳빳), m이 작을수록 빨리 진동합니다.'); }
   },
 
@@ -71,7 +71,7 @@
       var T1=2*Math.PI*Math.sqrt(s.m1/s.k), T2=2*Math.PI*Math.sqrt(s.m2/s.k);
       ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('T₁ = '+T1.toFixed(2)+' s', W*0.70, H*0.32);
       ctx.fillStyle=ORA; ctx.fillText('T₂ = '+T2.toFixed(2)+' s', W*0.70, H*0.56);
-      E.tapHint(W/2, H*0.90, '화면 탭=다시 당기기 · A/D·F/H로 k·m₂', true);
+      E.tapHint(W/2, H*0.90, '화면 탭 = 다시 당기기', true);
       E.big('T = 2π√(m/k) — 무거울수록 느리게 진동', '같은 용수철(k 동일)이라도 질량이 클수록 주기가 깁니다(T∝√m). 두 추를 같은 폭으로 당겨 놓아도 무거운 쪽(주황)이 느리게 흔들립니다. 놀랍게도 <b>진폭은 주기에 영향을 주지 않습니다</b>(등시성) — 크게 당기든 작게 당기든 한 번 왕복 시간은 같습니다.'); }
   },
 
@@ -97,7 +97,7 @@
       [['운동E',KE,GRN],['탄성PE',PE,BLU],['합계',tot,ORA]].forEach(function(it,i){ var x=W*0.60+i*66, hh=Math.min(1,it[1]/mx)*bh;
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseB-bh,46,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseB-hh,46,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(1),x+23,baseB-hh-6); ctx.fillStyle=it[2]; ctx.fillText(it[0],x+23,baseB+18); });
-      E.tapHint(W/2, H*0.92, '화면 탭=다시 당기기 · A/D로 k', true);
+      E.tapHint(W/2, H*0.92, '화면 탭 = 다시 당기기', true);
       E.big('운동E '+KE.toFixed(1)+' ⇄ 탄성PE '+PE.toFixed(1)+'  (합 '+tot.toFixed(1)+' 일정)', '진동하는 동안 에너지가 운동E와 탄성위치E(½kx²) 사이를 끊임없이 오갑니다. 평형점에서 속도 최대(운동E 최대), 양끝에서 순간 정지(탄성PE 최대). 마찰이 없으면 합은 일정 — 3장 에너지 보존이 진동으로 되살아납니다.'); }
   },
 
@@ -119,7 +119,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py+L+10); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(bx,by,13,0,7); ctx.fill();
       var w0=Math.sqrt(s.g/s.L), T=2*Math.PI/w0;
-      E.tapHint(W/2, H*0.90, '화면 탭=다시 놓기 · A/D로 실 길이 L', true);
+      E.tapHint(W/2, H*0.90, '화면 탭 = 다시 놓기', true);
       E.big('T = 2π√(L/g) = '+T.toFixed(2)+' s   (θ = '+(s.th*180/Math.PI).toFixed(0)+'°)', '진자도 단순조화운동입니다(작은 각). 복원력이 중력의 접선 성분 −mg·sinθ라서, 작은 각에선 sinθ≈θ가 되어 −kx꼴이 됩니다. 주기는 <b>실 길이 L과 중력 g</b>로만 결정 — 추의 질량·진폭과 무관(갈릴레오의 발견). L을 4배로 늘리면 주기는 2배.'); }
   },
 
@@ -158,7 +158,7 @@
       // 현재 ωd 마커(측정 진폭)
       var mxk=gx0+(s.wd-0.5)/4.5*(gx1-gx0), myk=gy0-Math.min(gh,amp/Amax*gh);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(mxk,myk,5,0,7); ctx.fill();
-      E.tapHint(W/2, H*0.92, '화면 탭=초기화 · A/D로 구동 진동수 ωd', true);
+      E.tapHint(W/2, H*0.92, '화면 탭 = 초기화  (구동 진동수를 ω₀에 맞춰 보세요)', true);
       E.big('구동 ωd = '+s.wd.toFixed(1)+' vs 고유 ω₀ = '+w0.toFixed(1)+'  → 측정 진폭 '+amp.toFixed(2), '주기적인 힘으로 흔들면, 구동 진동수가 <b>고유진동수 ω₀=√(k/m)</b>에 가까울수록 진폭이 폭발적으로 커집니다 — <b>공명</b>. 그네를 타이밍 맞춰 밀면 크게 흔들리는 것, 와인잔이 소리로 깨지는 것, 다리가 바람에 무너진(타코마) 것이 모두 공명. ωd를 ω₀에 맞춰 보세요.'); }
   }
 

@@ -31,7 +31,7 @@
       flow(E,s.ph,x,y,w,h,Math.round(8+s.V),BLU);
       // 전류 방향 표시
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('전류 I →', x+w/2, y-10);
-      E.tapHint(W/2, H*0.90, 'A/D로 전압 — 전하가 더 빨리·많이 흐름', true);
+      E.tapHint(W/2, H*0.90, '전압을 올리면 전하가 더 빨리·많이 흐릅니다', true);
       E.big('전류 I = Q/t = '+I.toFixed(2)+' A — 전하의 흐름', '전류는 <b>전하가 흐르는 양</b>입니다 — 1초에 어떤 단면을 지나는 전하량(I = Q/t, 단위 암페어 A = C/s). 전지가 만든 전압이 전하(금속 속 자유전자)를 밀어 회로를 돕니다. 전압을 올리면 전하가 더 빠르고 많이 흐릅니다(전류↑). 실제 전자는 −극에서 나오지만, 관례상 전류는 +극에서 나오는 방향으로 표시합니다.'); }
   },
 
@@ -53,7 +53,7 @@
       // 전구 밝기(전력)
       var P=s.V*I, br=Math.min(1,P/30); ctx.fillStyle='rgba(255,220,120,'+br+')'; ctx.beginPath(); ctx.arc(x+w/2,y,12+br*10,0,7); ctx.fill();
       ctx.strokeStyle=ORA; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(x+w/2,y,12,0,7); ctx.stroke();
-      E.tapHint(W/2, H*0.90, 'A/D·F/H로 전압·저항 — I=V/R', true);
+      E.tapHint(W/2, H*0.90, '전압·저항을 바꾸면 전류 I=V/R', true);
       E.big('옴의 법칙: I = V/R = '+s.V+'/'+s.R+' = '+I.toFixed(2)+' A', '전류는 전압에 비례하고 저항에 반비례합니다 — <b>옴의 법칙 V = IR</b>. 전압(미는 힘)을 올리면 전류↑, 저항(흐름 방해)을 올리면 전류↓. 저항은 전자가 원자와 부딪혀 받는 방해 — 가늘고 긴 전선일수록, 뜨거울수록 커집니다. 전구가 전류(=전력)에 따라 밝아지는 것을 보세요.'); }
   },
 
@@ -81,7 +81,7 @@
         ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('R₁='+s.R1, x+w*0.72,y+h*0.25-12); ctx.fillStyle=PNK; ctx.fillText('R₂='+s.R2, x+w*0.72,y+h*0.75+20);
         flow(E,s.ph,x,y,w,h,Math.max(4,Math.round(I*3)),BLU);
       }
-      E.tapHint(W/2, H*0.90, 'A/D로 직렬↔병렬 · F/H로 R₂', true);
+      E.tapHint(W/2, H*0.90, '직렬↔병렬, R₂를 바꿔 보세요', true);
       E.big((s.mode?'병렬':'직렬')+': 합성저항 R = '+Rtot.toFixed(2)+'Ω,  전류 '+I.toFixed(2)+' A',
         s.mode? '<b>병렬</b>: 1/R = 1/R₁ + 1/R₂ → 합성저항이 가장 작은 저항보다도 작아집니다(길이 여러 개). 전압은 같고 전류가 갈라집니다. 집안 콘센트가 병렬(하나 꺼도 나머지 작동).'
               : '<b>직렬</b>: R = R₁ + R₂ → 합성저항이 커집니다. 같은 전류가 두 저항을 차례로 지나고, 전압은 저항 비로 나뉩니다(전압 분배). 하나 끊기면 전체 차단(옛 전구 줄).'); }
@@ -109,7 +109,7 @@
       var bx=W*0.74, baseY=H*0.70, bh=H*0.42, mx=12*12/1*0.5+50;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh); ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,P/40)*bh,46,Math.min(1,P/40)*bh); ctx.globalAlpha=1;
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('전력', bx+23, baseY+16);
-      E.tapHint(W/2, H*0.90, 'A/D·F/H로 전압·저항 — 밝기 ∝ 전력', true);
+      E.tapHint(W/2, H*0.90, '전압·저항을 바꾸면 밝기 ∝ 전력', true);
       E.big('전력 P = VI = I²R = '+P.toFixed(1)+' W', '전력은 단위시간당 전기에너지 소비 — <b>P = VI = I²R = V²/R</b>(단위 와트 W). 전구·히터는 이 전력이 빛·열로 나옵니다. 전압을 올리면 전류도 함께 커져 전력은 <b>제곱</b>으로 급증(전구가 확 밝아짐). 전기요금의 kWh = 전력 × 시간 = 소비한 에너지. 송전선을 고전압으로 보내는 건 같은 전력을 작은 전류로 보내 I²R 손실을 줄이려는 것.'); }
   },
 
@@ -144,7 +144,7 @@
       ctx.fillStyle=ORA; ctx.fillText('V='+s.V, gx1-30, vy-4);
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(v,i){ var X=gx0+(gx1-gx0)*i/300, Y=gy0-(v/s.V)*gh*0.92; if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }); ctx.stroke();
-      E.tapHint(W/2, H*0.92, '화면 탭=충전↔방전 · A/D·F/H로 R·C(시정수 τ=RC)', true);
+      E.tapHint(W/2, H*0.92, '화면 탭 = 충전↔방전  (시정수 τ=RC)', true);
       E.big((s.charging?'충전 중':'방전 중')+' — Vc = '+Vc.toFixed(2)+' V,  τ = RC = '+tau.toFixed(1)+' s', '축전기는 저항을 통해 <b>지수적으로</b> 충전·방전됩니다 — 엔진이 dQ/dt=(V−Q/C)/R를 적분해 곡선을 만듭니다(공식 베끼기 아님). 처음엔 빠르게, 차오를수록 느리게(전압차가 줄어드니까). <b>시정수 τ=RC</b>가 속도를 정함 — τ 동안 약 63% 도달. R·C를 키우면 느려집니다. 카메라 플래시 충전, 신호 필터, 타이머 회로의 핵심.'); }
   }
 

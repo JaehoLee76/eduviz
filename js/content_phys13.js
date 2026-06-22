@@ -33,7 +33,7 @@
       ctx.fillStyle=s.pol>0?SBLU:NRED; ctx.fillRect(Math.min(sx,X(0)),Y(0)-16, Math.abs(sx-X(0)),32);
       ctx.fillStyle='#fff'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('N', X(s.pol*1.4), Y(0)); ctx.fillText('S', X(-s.pol*1.4), Y(0)); ctx.textBaseline='alphabetic';
-      E.tapHint(W/2, H*0.90, 'A/D로 극 뒤집기 — 나침반이 따라 돈다', true);
+      E.tapHint(W/2, H*0.90, '극을 뒤집으면 나침반이 따라 돕니다', true);
       E.big('자기장 — N에서 나와 S로 (나침반이 가리킴)', '자석 둘레에는 <b>자기장 B</b>가 있어 나침반 바늘을 정렬시킵니다 — 장은 <b>N극에서 나와 S극으로</b> 들어갑니다(파란 바늘). 극을 뒤집으면 장 전체가 반대로. 전기와 결정적 차이: <b>자기 홀극은 없습니다</b> — 자석을 쪼개도 항상 N·S가 함께 생깁니다. 지구도 거대한 자석이라 나침반 N이 북쪽을 가리킵니다.'); }
   },
 
@@ -67,7 +67,7 @@
       arrow(E,px,py,px+Fx/Fm*30,py-Fy/Fm*30,ORA,2.5);
       ctx.fillStyle=b.q>=0?NRED:SBLU; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
       var r=Math.abs(b.m*sp/(s.q*s.B))||0;
-      E.tapHint(W/2, H*0.92, '화면 탭=재발사 · A/D·F/H로 자기장·전하', true);
+      E.tapHint(W/2, H*0.92, '화면 탭 = 재발사', true);
       E.big('로런츠 힘 F = qv×B → 원운동 (반지름 r = mv/qB = '+r.toFixed(2)+')', '자기장 속을 움직이는 전하는 <b>속도에 수직인 힘 F = qv×B</b>를 받습니다(엔진이 lorentzB 적분). 힘이 항상 운동에 수직이라 속력은 안 변하고 방향만 휘어 — <b>원을 그립니다</b>(구심력!). 자기장이 셀수록(B↑) 원이 작아지고(r=mv/qB), 전하 부호를 바꾸면 회전 방향이 반대. 오로라, 사이클로트론 가속기, 질량분석기의 원리.'); }
   },
 
@@ -88,7 +88,7 @@
         // 방향 화살표(원 위 점들이 도는 느낌)
         for(var k=0;k<n;k++){ var a=s.ph/rr+k/n*6.2832, ax=cx+R*Math.cos(a), ay=cy+R*Math.sin(a), ta=a+Math.PI/2;
           arrow(E,ax-Math.cos(ta)*6,ay-Math.sin(ta)*6,ax+Math.cos(ta)*6,ay+Math.sin(ta)*6,'rgba(122,184,255,0.6)',1.2); } });
-      E.tapHint(W/2, H*0.90, 'A/D로 전류 — 자기장이 전선을 감아 돈다', true);
+      E.tapHint(W/2, H*0.90, '전류를 키우면 자기장이 강해집니다', true);
       E.big('전류는 자기장을 만든다 (B ∝ I/r, 오른손 법칙)', '외르스테드의 발견: <b>전류가 흐르면 둘레에 자기장이 생깁니다</b>. 직선 전선 둘레로 자기장이 동심원을 그리며 감아 돕니다(B = μ₀I/2πr) — 전류가 셀수록, 가까울수록 강합니다. 방향은 <b>오른손 법칙</b>(엄지=전류, 감는 손가락=B). 전선을 코일로 감으면(솔레노이드) 자석처럼 강한 장이 생겨 전자석이 됩니다. 전기와 자기는 하나로 얽혀 있습니다.'); }
   },
 
@@ -117,7 +117,7 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('검류계', gx, gy+24);
       // 연결선
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(coilX+55,cy+34); ctx.lineTo(gx-40,gy+40); ctx.moveTo(coilX+55,cy-34); ctx.lineTo(gx+40,gy+40); ctx.stroke();
-      E.tapHint(W/2, H*0.90, 'A/D로 자석 속도 — 빠를수록 큰 기전력', true);
+      E.tapHint(W/2, H*0.90, '자석이 빠를수록 큰 기전력이 유도됩니다', true);
       E.big('유도 기전력 ∝ 자속 변화율 (EMF = −dΦ/dt)', '코일을 지나는 <b>자기장(자속)이 변하면 전류가 유도</b>됩니다 — 패러데이의 전자기 유도. 자석을 코일에 넣었다 뺄 때 검류계 바늘이 흔들립니다. <b>빠를수록 큰 기전력</b>(EMF = −N·dΦ/dt). 자석이 멈춰 있으면(속도 0) 자속이 안 변해 전류도 0 — 변화가 핵심! 들어갈 때와 나올 때 전류 방향이 반대(렌츠 법칙). 발전기·마이크·무선충전·교통카드의 원리.'); }
   },
 
@@ -147,7 +147,7 @@
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('EMF', gx0+3, gy0-gh+2); ctx.fillText('t', gx1-8, gy0+14);
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(v,i){ var x=gx0+(gx1-gx0)*i/240, y=gy0-(v/5)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
-      E.tapHint(W/2, H*0.90, 'A/D로 회전 속도 — 빠를수록 큰 교류', true);
+      E.tapHint(W/2, H*0.90, '빠르게 돌릴수록 큰 교류가 나옵니다', true);
       E.big('발전기 — 코일 회전이 교류(AC)를 만든다  EMF ∝ ω·sin(ωt)', '발전기는 유도(13.4)를 거꾸로 활용합니다 — 자기장 속에서 <b>코일을 회전</b>시키면 코일을 지나는 자속이 사인형으로 변해, <b>교류(AC) 기전력</b>이 유도됩니다(EMF=NBAω·sinωt). 코일이 자극과 나란할 때 자속 변화율(EMF)이 최대, 수직일 때 0. 빠르게 돌릴수록(ω↑) 전압이 커지고 주파수도 높아집니다. 수력·풍력·화력 발전이 모두 이 원리 — 무언가를 돌려 코일을 회전시킵니다.'); }
   }
 

@@ -34,7 +34,7 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.62,midY-sc-30); ctx.lineTo(W*0.78,midY-sc-30); ctx.stroke();
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.moveTo(W*0.78,midY-sc-30); ctx.lineTo(W*0.78-9,midY-sc-35); ctx.lineTo(W*0.78-9,midY-sc-25); ctx.fill();
       ctx.fillStyle=GRN; ctx.fillText('파동 진행', W*0.70, midY-sc-38);
-      E.tapHint(W/2, H*0.90, 'A/D·F/H로 진동수·진폭 — 패턴은 가도 입자는 제자리', true);
+      E.tapHint(W/2, H*0.90, '패턴은 흘러가도 입자(주황)는 제자리에서 진동', true);
       E.big('파동 = 패턴(에너지)의 전파, 매질은 제자리 진동', '파동은 매질(물·줄·공기)을 실어 나르지 않습니다 — 매질의 각 점은 제자리에서 위아래로 진동만 하고(주황 점), 그 진동의 <b>패턴과 에너지</b>만 옆으로 전달됩니다. 경기장 파도타기처럼 사람은 제자리, 물결만 돕니다. 진동 방향이 진행 방향과 수직이면 횡파(줄·빛).'); }
   },
 
@@ -58,7 +58,7 @@
         ctx.strokeStyle=ORA; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(X1,topY); ctx.lineTo(X2,topY); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(X1,topY-5); ctx.lineTo(X1,midY-sc); ctx.moveTo(X2,topY-5); ctx.lineTo(X2,midY-sc); ctx.stroke();
         ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('λ = '+lambda.toFixed(2), (X1+X2)/2, topY-8); }
-      E.tapHint(W/2, H*0.90, 'A/D로 진동수 f — λ가 반대로 변함(v 일정)', true);
+      E.tapHint(W/2, H*0.90, '진동수 f를 올리면 파장 λ가 줄어듭니다 (v 일정)', true);
       E.big('v = f·λ = '+s.f.toFixed(1)+' × '+lambda.toFixed(2)+' = '+c.toFixed(1)+' (일정)', '파동의 세 요소: 진동수 f(1초당 진동 횟수), 파장 λ(한 주기의 공간 길이), 속력 v. 관계는 <b>v = fλ</b>. 매질이 정해지면 속력 v는 일정하므로, 진동수를 높이면 파장이 그만큼 짧아집니다(f↑ → λ↓). 높은 음(고주파)이 짧은 파장인 이유.'); }
   },
 
@@ -84,7 +84,7 @@
       // 기준선
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,midY); ctx.lineTo(x1,midY); ctx.stroke();
       var overlap=Math.abs(p1c-p2c)<1.2;
-      E.tapHint(W/2, H*0.90, 'A/D로 부호 — 만나는 순간 보강(+)/상쇄(−)', true);
+      E.tapHint(W/2, H*0.90, '두 펄스가 만나는 순간 보강(+)·상쇄(−)', true);
       E.big(s.sign>0?'보강 간섭 — 만나면 더 커진다':'상쇄 간섭 — 만나면 사라진다', '두 파동이 겹치면 변위가 <b>그대로 더해집니다</b>(중첩 원리). 같은 방향(부호 +)이면 만나는 순간 마루가 합쳐져 <b>보강</b>(더 큰 파동), 반대 방향(−)이면 마루와 골이 만나 순간적으로 <b>상쇄</b>(평평). 신기하게도 겹친 뒤 두 파동은 아무 일 없던 듯 원래 모습으로 지나갑니다. 소음제거 이어폰이 상쇄 간섭.'); }
   },
 
@@ -113,7 +113,7 @@
       for(var m=0;m<=s.n;m++){ var xi=Math.round(m/s.n*(N-1)); ctx.beginPath(); ctx.arc(X(xi),midY,3.5,0,7); ctx.fill(); }
       ctx.fillStyle=PNK; ctx.fillText('● 마디(node) — 움직이지 않는 점', W/2, H*0.66);
       var name=['기본 진동(1배음)','2배음','3배음','4배음','5배음'][s.n-1];
-      E.tapHint(W/2, H*0.90, 'A/D로 배음 n — 양끝 고정, 마디·배 패턴', true);
+      E.tapHint(W/2, H*0.90, '배음 n을 바꿔 마디·배 패턴을 보세요 (양끝 고정)', true);
       E.big('정상파 '+name+' — 마디 '+(s.n+1)+'개, 배 '+s.n+'개', '양끝이 고정된 줄에서는 특정 진동수(배음)에서만 <b>정상파</b>가 섭니다 — 줄(매질)을 64점으로 나눠 파동방정식을 적분한 결과입니다. 마디(node)는 전혀 안 움직이고, 배(antinode)는 크게 진동. 정상파는 반대로 진행하는 두 파동의 중첩(8.3)! 기타·바이올린·관악기의 음높이가 이 배음으로 결정됩니다.'); }
   },
 
@@ -144,7 +144,7 @@
       ctx.fillText('앞쪽: f\' = '+ff.toFixed(2)+'  (높은 음)', W*0.80, H*0.30);
       ctx.fillStyle=PNK; ctx.fillText('뒤쪽: f\' = '+fb.toFixed(2)+'  (낮은 음)', W*0.20, H*0.30);
       if(s.vs>c){ ctx.fillStyle=ORA; ctx.fillText('★ 음속 돌파 — 충격파(소닉붐)!', W/2, H*0.72); }
-      E.tapHint(W/2, H*0.90, 'A/D로 음원 속력 — 앞은 촘촘(고음), 뒤는 성김(저음)', true);
+      E.tapHint(W/2, H*0.90, '음원이 빠를수록 앞은 촘촘(고음)·뒤는 성김(저음)', true);
       E.big('도플러: 앞 f\'='+ff.toFixed(2)+' ↑,  뒤 f\'='+fb.toFixed(2)+' ↓', '움직이는 음원은 진행 방향 <b>앞쪽 파면을 압축</b>(파장↓→진동수↑→고음), <b>뒤쪽은 늘립니다</b>(저음). 그래서 구급차가 다가올 땐 높고 지나가면 낮게 들립니다. f\' = f·c/(c∓vs). 음원이 음속을 넘으면 파면이 겹쳐 충격파(소닉붐)가 생깁니다. 별빛의 적색편이도 빛의 도플러!'); }
   }
 

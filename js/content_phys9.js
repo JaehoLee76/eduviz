@@ -31,7 +31,7 @@
       ctx.fillStyle=PNK; ctx.beginPath(); ctx.moveTo(cx,groundY+sink-54); ctx.lineTo(cx-5,groundY+sink-64); ctx.lineTo(cx+5,groundY+sink-64); ctx.fill();
       ctx.fillStyle=PNK; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('F = '+s.F+' N', cx, groundY+sink-96);
       ctx.fillStyle=DIM; ctx.fillText('면적 A = '+s.A.toFixed(2)+' m²', cx, groundY+sink+18);
-      E.tapHint(W/2, H*0.90, 'A/D로 접촉 면적 — 좁으면 깊이 박힘', true);
+      E.tapHint(W/2, H*0.90, '접촉 면적이 좁을수록 압력이 커져 깊이 박힙니다', true);
       E.big('압력 P = F/A = '+Math.round(P)+' Pa', '같은 힘이라도 좁은 면적에 작용하면 압력이 커집니다(P=F/A). 압정·칼날·하이힐이 작은 면적으로 큰 압력을 내고, 눈신발·낙타 발은 넓은 면적으로 압력을 낮춰 안 빠집니다. 면적을 줄이면 자국이 깊어지는 것을 보세요. 1 Pa = 1 N/m².'); }
   },
 
@@ -57,7 +57,7 @@
       // 깊이 화살표
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('수면', tankX-6, topY+4); ctx.fillText('바닥', tankX-6, botY);
       var Pbot=s.rho*g*Hm;
-      E.tapHint(W/2, H*0.90, 'A/D로 액체 밀도 — 깊을수록 세게 분출', true);
+      E.tapHint(W/2, H*0.90, '깊은 구멍일수록 물이 세게 분출됩니다', true);
       E.big('P = ρgh — 바닥 압력 '+(Pbot/1000).toFixed(1)+' kPa', '유체 속 압력은 <b>깊이에 비례</b>해 커집니다: P = ρgh(+대기압). 깊은 구멍일수록 물이 더 세게(멀리) 뿜어 나옵니다(분출속도 v=√(2gh)). 댐이 아래쪽을 두껍게 짓는 이유, 잠수할수록 귀가 아픈 이유. 압력은 깊이에만 의존하고 그릇 모양과는 무관(파스칼의 역설).'); }
   },
 
@@ -98,7 +98,7 @@
       ctx.strokeStyle=GRN; ctx.beginPath(); ctx.moveTo(px-Lpx/2-8,cy0); ctx.lineTo(px-Lpx/2-8,cy0-Math.min(50,Fb*4)); ctx.stroke();
       ctx.fillStyle=GRN; ctx.textAlign='right'; ctx.fillText('부력 '+Fb.toFixed(1), px-Lpx/2-12, cy0-14);
       var frac=Math.round(sub/L*100), state=s.d<1?'뜸(부분 잠김)':(s.d>1?'가라앉음':'중성부력');
-      E.tapHint(W/2, H*0.93, '블록을 끌어 눌러 보기 · A/D로 밀도', true);
+      E.tapHint(W/2, H*0.93, '블록을 끌어 물속으로 눌러 보세요', true);
       E.big('부력 = 밀어낸 물의 무게  ('+state+', 잠김 '+frac+'%)', '아르키메데스: 유체에 잠긴 물체는 <b>밀어낸 유체의 무게만큼</b> 위로 부력을 받습니다(F=ρ_유체·g·V_잠김). 밀도가 물보다 작으면(d<1) 일부만 잠긴 채 떠서 평형 — 잠긴 비율 = 물체밀도/유체밀도. 빙산이 90% 잠기는 이유(얼음 0.9), 쇠는 가라앉지만 배는 뜨는 이유(속이 비어 평균밀도↓). 엔진이 부력을 매 프레임 적분합니다.'); }
   },
 
@@ -129,7 +129,7 @@
       ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('넓음: A₁='+A1+', v₁='+v1.toFixed(1), x0+W*0.10, H*0.66);
       ctx.fillStyle=ORA; ctx.fillText('좁음: A₂='+s.A2.toFixed(2)+', v₂='+v2.toFixed(1), W*0.5, H*0.20);
-      E.tapHint(W/2, H*0.90, 'A/D로 좁은 곳 단면적 — 좁을수록 빠르게', true);
+      E.tapHint(W/2, H*0.90, '좁은 곳일수록 유속이 빨라집니다', true);
       E.big('연속방정식 A₁v₁ = A₂v₂  →  v₂ = '+v2.toFixed(2), '비압축 유체는 좁은 곳에서 빨라집니다 — 단위시간당 지나는 부피(유량 A·v)가 일정해야 하니까요. 호스 끝을 손가락으로 좁히면 물이 빠르게 멀리 나가는 것, 강이 좁아지면 급류가 되는 것이 연속방정식. A가 작아진 만큼 v가 커집니다(A·v=일정).'); }
   },
 
@@ -162,7 +162,7 @@
         var xu=s.parts[idx], X=x0+(x1-x0)*xu/10, r=rad(xu), yoff=((idx*37)%100/100-0.5)*1.4*r;
         ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(X, midY+yoff, 3, 0, 7); ctx.fill(); });
       var Pn=pres(5), Pw=pres(1.5);
-      E.tapHint(W/2, H*0.92, 'A/D로 좁은 곳 — 빠른 곳(주황) 압력↓', true);
+      E.tapHint(W/2, H*0.92, '빠른 곳(주황)일수록 압력이 낮아집니다', true);
       E.big('베르누이: 빠른 흐름 = 낮은 압력  (좁은 곳 P='+Math.round(Pn)+' < 넓은 곳 '+Math.round(Pw)+')', '베르누이 정리: P + ½ρv² = 일정. 유체가 빨라지면(좁은 곳) 압력이 <b>낮아집니다</b>(게이지 기둥이 낮음). 비행기 날개 윗면의 빠른 공기가 낮은 압력→양력, 샤워커튼이 안으로 빨려드는 것, 야구공의 커브가 모두 베르누이. 에너지 보존을 유체로 옮긴 것 — 운동E(½ρv²)가 커지면 압력E가 줄어듭니다.'); }
   }
 

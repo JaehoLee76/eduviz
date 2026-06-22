@@ -35,7 +35,7 @@
       var mx=sx0+(sx1-sx0)*(s.f-0.5)/9; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mx,sy-6); ctx.lineTo(mx,sy+32); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('낮은 진동수·긴 파장', sx0, sy+46); ctx.textAlign='right'; ctx.fillText('높은 진동수·짧은 파장', sx1, sy+46);
       var lam=(10/(0.6+s.f*0.25)).toFixed(2);
-      E.tapHint(W/2, H*0.92, 'A/D로 진동수 — 스펙트럼을 따라 이동', true);
+      E.tapHint(W/2, H*0.92, '진동수를 바꿔 스펙트럼을 따라 이동', true);
       E.big('빛 = 전기장·자기장의 진동 (c = fλ)', '빛은 <b>전기장과 자기장이 서로 수직으로 진동하며 퍼지는 전자기파</b>입니다 — 매질 없이 진공도 통과(c=3×10⁸ m/s). 전파·마이크로파·적외선·가시광·자외선·X선·감마선은 모두 같은 전자기파이며 <b>진동수(파장)만 다릅니다</b>. 진동수가 높을수록 파장이 짧고 에너지가 큽니다(c=fλ 일정). 우리 눈은 그 좁은 가시광 띠만 봅니다. 맥스웰이 전기·자기 통합으로 예언했습니다.'); }
   },
 
@@ -69,7 +69,7 @@
         arrow(E,cx,cy,cx+Math.sin(t1)*L,cy-Math.cos(t1)*L,'#ff5a5a',2.5);
         ctx.fillStyle='#ff8a8a'; ctx.font='13px sans-serif'; ctx.fillText('전반사!', cx+30, cy+40);
         E.big('전반사 — 빛이 빠져나가지 못한다', '입사각이 <b>임계각</b>을 넘으면 빛이 굴절하지 못하고 <b>전부 반사</b>됩니다(전반사). 빽빽한 매질(n₂<n₁ 쪽으로 갈 때)에서만 일어납니다. 광섬유가 빛을 가두어 멀리 보내는 원리, 다이아몬드가 반짝이는 이유. 임계각 sinθc=n₂/n₁.'); }
-      E.tapHint(W/2, H*0.92, 'A/D로 입사각 · F/H로 굴절률 — 큰 각이면 전반사', true);
+      E.tapHint(W/2, H*0.92, '입사각·굴절률을 바꿔 보세요 (큰 각이면 전반사)', true);
     }
   },
 
@@ -95,7 +95,7 @@
       for(var py=-H*0.28;py<=H*0.28;py+=3){ var yu=py/18, theta=Math.atan2(yu, L), I=Math.pow(Math.cos(Math.PI*s.d*Math.sin(theta)/s.lam),2);
         ctx.fillStyle='rgba(255,210,120,'+I+')'; ctx.fillRect(scrX+4, cy+py-1.5, 26, 3); }
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('스크린', scrX+17, H*0.80); ctx.fillText('이중슬릿', slitX, H*0.80);
-      E.tapHint(W/2, H*0.90, 'A/D·F/H로 슬릿간격·파장 — 무늬 간격 변화', true);
+      E.tapHint(W/2, H*0.90, '슬릿 간격·파장을 바꿔 무늬 변화를 보세요', true);
       E.big('이중슬릿 간섭 — 빛은 파동이다 (밝고 어두운 줄무늬)', '두 슬릿을 지난 빛이 겹치면 <b>밝고 어두운 줄무늬</b>(간섭무늬)가 생깁니다 — 두 경로의 차이가 파장의 정수배면 보강(밝음), 반파장 어긋나면 상쇄(어둠). 입자라면 두 줄만 생길 텐데 줄무늬가 생긴다는 건 <b>빛이 파동</b>이라는 결정적 증거(영, 1801). 슬릿 간격을 좁히거나 파장을 늘리면 무늬가 넓어집니다(밝은 무늬 간격 ≈ λL/d). 그런데 다음 장면에선 빛이 입자이기도 합니다...'); }
   },
 
@@ -123,7 +123,7 @@
       // 에너지 막대
       var bx=W*0.10, baseY=H*0.92; ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('광자에너지 hf='+Eph+' vs 일함수 W='+s.W+(emit?' → KE='+KE.toFixed(1):' → 부족'), bx, baseY);
-      E.tapHint(W/2, H*0.84, 'A/D로 진동수 — 문턱 넘어야 전자 방출(밝기 무관)', true);
+      E.tapHint(W/2, H*0.84, '진동수가 문턱을 넘어야 전자 방출 (밝기는 무관)', true);
       E.big('광전효과 — 빛은 알갱이(광자), E = hf', '금속에 빛을 쪼이면 전자가 튀어나옵니다(광전효과). 그런데 충격적인 사실: <b>아무리 밝아도 진동수가 문턱보다 낮으면 전자가 안 나오고</b>, 문턱을 넘으면 약한 빛이라도 즉시 나옵니다. 빛이 파동이라면 설명 불가 — 빛은 <b>에너지 E=hf의 알갱이(광자)</b> 다발이라, 광자 하나가 전자 하나를 때려야 하기 때문입니다(아인슈타인, 노벨상). 빛은 파동이자 입자 — 양자역학의 문.'); }
   },
 
@@ -152,7 +152,7 @@
       var t0=Math.floor(s.t*1.2), t1=Math.floor(s.t*1.2/gamma);
       ctx.fillStyle=GRN; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('틱 '+t0, x1, topY-12);
       ctx.fillStyle=BLU; ctx.fillText('틱 '+t1, bx, topY-12);
-      E.tapHint(W/2, H*0.86, 'A/D로 속도 — 빠를수록 시간이 더 느려짐', true);
+      E.tapHint(W/2, H*0.86, '속도가 빠를수록 시간이 더 느려집니다', true);
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '빛의 속도는 누구에게나 같다 — 이 한 가지 사실에서 시간이 늘어납니다. 움직이는 시계의 빛은 <b>대각선의 긴 경로</b>를 가야 해서, 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느리게 갑니다</b>(시간 팽창, γ배). 빠를수록(β→1) 극적으로 느려집니다. GPS 위성도 이 보정을 합니다. 질량도 에너지의 한 형태 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌 아인슈타인의 세계입니다.'); }
   }
 

@@ -37,7 +37,7 @@
       var tx=-Math.sin(s.th), ty=Math.cos(s.th), vl=v*16;
       arrow(E,rx,ry,rx+tx*vl,ry+ty*vl,GRN,2.5);
       ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('v=rω', rx+tx*vl+6, ry+ty*vl);
-      E.tapHint(W/2, H*0.88, '화면 탭=멈춤·재가속 · A/D로 α', true);
+      E.tapHint(W/2, H*0.88, '화면 탭 = 멈춤·재가속', true);
       E.big('ω = '+s.om.toFixed(2)+' rad/s,   v = rω = '+v.toFixed(2)+' m/s', '회전운동은 각도로 기술합니다: 각가속도 α가 각속도 ω를 키우고(ω=∫α dt), ω가 각도 θ를 키웁니다 — 직선운동의 a→v→x와 완전히 같은 구조. 반지름 r 지점의 실제 속력은 v=rω, 바깥일수록 빠릅니다(r='+s.r+' m).'); }
   },
 
@@ -63,7 +63,7 @@
       arrow(E,ex,ey,ex+tx*s.F*10,ey+ty*s.F*10,ORA,3);
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('F', ex+tx*s.F*10+6, ey+ty*s.F*10);
       ctx.fillStyle=DIM; ctx.fillText('r', (cx+ex)/2+6, (cy+ey)/2-6);
-      E.tapHint(W/2, H*0.88, '화면 탭=정지 · A/D·F/H로 r·F', true);
+      E.tapHint(W/2, H*0.88, '화면 탭 = 정지', true);
       E.big('토크 τ = r·F = '+tau.toFixed(1)+' N·m  →  α = τ/I = '+alpha.toFixed(2)+' rad/s²', '토크는 "회전시키는 능력" = 힘 × 지렛대 길이. 같은 힘이라도 멀리(r↑) 작용하면 토크가 커집니다 — 문손잡이가 경첩에서 먼 이유. 토크가 각가속도를 만듭니다: τ = Iα (회전판 F=ma). I='+s.I+' kg·m².'); }
   },
 
@@ -82,7 +82,7 @@
       var tx=Math.cos(s.th), ty=Math.sin(s.th), L=s.d*scale;
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-tx*L,cy-ty*L); ctx.lineTo(cx+tx*L,cy+ty*L); ctx.stroke();
       [1,-1].forEach(function(sgn){ var mx=cx+sgn*tx*L, my=cy+sgn*ty*L; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,12,0,7); ctx.fill(); });
-      E.tapHint(W/2, H*0.88, '화면 탭=정지 · A/D로 질량을 안↔밖', true);
+      E.tapHint(W/2, H*0.88, '화면 탭 = 정지', true);
       E.big('I = 2m·d² = '+I.toFixed(2)+' kg·m²  →  같은 토크에 α = '+alpha.toFixed(2)+' rad/s²', '관성모멘트 I = 회전의 "관성"(돌리기 어려운 정도) = Σmr². 같은 토크('+s.tau+' N·m)라도 질량이 바깥(d↑)이면 I가 커져 천천히 가속됩니다. 줄타기 장대를 길게 드는 이유, 팽이가 잘 도는 이유가 모두 질량 분포!'); }
   },
 
@@ -112,7 +112,7 @@
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,44,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,44,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(2), x+22, baseY-hh-6);
         ctx.fillStyle=it[2]; ctx.fillText(it[0], x+22, baseY+18); });
-      E.tapHint(W/2, H*0.90, '팔을 당기면(r↓) 빨라짐 · A/D로 r', true);
+      E.tapHint(W/2, H*0.90, '팔을 당기면(r↓) 회전이 빨라집니다', true);
       E.big('L = Iω = '+s.L0.toFixed(2)+' (보존)   ω = '+om.toFixed(2)+' rad/s', '각운동량 L=Iω는 외부 토크가 없으면 보존됩니다. 피겨 선수가 팔을 당기면(r↓) I가 줄어 ω가 커져 더 빨리 돕니다 — L은 그대로(초록 막대 고정). 다이빙·고양이 착지·중성자별의 빠른 자전이 모두 같은 원리!'); }
   },
 
@@ -150,7 +150,7 @@
       arrow(E,px,py,px+b.vx*scale*0.5,py-b.vy*scale*0.5,BLU,2.5);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px,py,8,0,7); ctx.fill();
       var Fc=b.m*sp*sp/r, om=sp/r;
-      E.tapHint(W/2, H*0.90, s.cut?'화면 탭=줄 다시 매기':'화면을 눌러 줄 끊기 · A/D로 v', true);
+      E.tapHint(W/2, H*0.90, s.cut?'화면 탭=줄 다시 매기':'화면을 눌러 줄 끊기', true);
       if(s.cut) E.big('줄을 끊으면 직선으로! (관성)', '구심력이 사라지자 공은 접선 방향으로 곧장 날아갑니다 — 뉴턴 1법칙. 원운동에는 "안쪽으로 당기는 힘"이 끊임없이 필요했던 것. 원심력은 가짜 힘, 진짜는 중심으로 당기는 구심력입니다.');
       else E.big('구심력 F = mv²/r = '+Fc.toFixed(2)+' N (중심 방향)', '등속 원운동도 "가속" 운동입니다 — 속력은 일정해도 속도(방향)가 계속 바뀌니까. 그 방향 변화를 만드는 힘이 구심력 F=mv²/r, 항상 중심을 향합니다. v='+sp.toFixed(2)+' m/s, ω=v/r='+om.toFixed(2)+' rad/s. 끈을 끊어 보세요!'); }
   }

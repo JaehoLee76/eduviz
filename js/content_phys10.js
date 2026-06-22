@@ -31,7 +31,7 @@
       var vmax=Math.sqrt(2*6)*1.4;
       w.bodies.forEach(function(b){ var sp=Math.hypot(b.vx,b.vy); ctx.fillStyle=speedColor(sp,vmax); ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),b.r*sc,0,7); ctx.fill(); });
       var ke=avgKE(w);
-      E.tapHint(W/2, H*0.90, 'A/D로 온도 — 분자가 더 빨라짐', true);
+      E.tapHint(W/2, H*0.90, '온도를 올리면 분자가 빨라집니다', true);
       E.big('온도 ∝ 분자 평균 운동에너지 = '+ke.toFixed(2), '온도의 정체는 <b>분자들의 평균 운동에너지</b>입니다. 뜨겁다 = 분자가 빠르게 움직인다, 차갑다 = 느리다. 슬라이더로 온도를 올리면 분자(빠를수록 붉게)가 격렬히 부딪힙니다 — 30개 분자를 탄성충돌로 적분한 결과입니다. 절대영도(0 K)는 분자 운동이 멈추는 한계. 충돌로 속도가 섞여 자연히 맥스웰 분포가 됩니다.'); }
   },
 
@@ -57,7 +57,7 @@
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh);
       ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,P/mx)*bh,46,Math.min(1,P/mx)*bh); ctx.globalAlpha=1;
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('압력', bx+23, baseY+16);
-      E.tapHint(W/2, H*0.90, 'A/D·F/H로 온도·분자 수 — 압력 변화', true);
+      E.tapHint(W/2, H*0.90, '온도·분자 수를 바꿔 압력 변화를 보세요', true);
       E.big('압력 = 분자들의 벽 충돌 = '+P.toFixed(1), '기체 압력의 정체는 <b>수많은 분자가 벽을 두드리는 충격</b>입니다. 분자가 많을수록(N↑), 빠를수록(T↑) 벽 충돌이 잦고 세져 압력이 커집니다 — P ∝ N·T/V(운동론). 표시 압력은 분자 속도에서 P=N·m·〈v²〉/2A로 측정한 값. 풍선이 빵빵한 것, 더운 날 타이어 공기압이 오르는 것이 이것.'); }
   },
 
@@ -84,7 +84,7 @@
       ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('P = '+P.toFixed(1), W*0.66, H*0.30); ctx.fillText('V ∝ '+s.Vx.toFixed(1), W*0.66, H*0.38); ctx.fillText('T ∝ '+ke.toFixed(2), W*0.66, H*0.46);
       ctx.fillStyle=ORA; ctx.fillText('PV/T ≈ 일정(nR)', W*0.66, H*0.56);
-      E.tapHint(W/2, H*0.90, 'A/D로 부피(피스톤)·F/H로 온도', true);
+      E.tapHint(W/2, H*0.90, '피스톤(부피)과 온도를 바꿔 보세요', true);
       E.big('PV = nRT — 압축하면 압력↑, 데우면 압력↑', '이상기체 법칙 PV=nRT는 앞의 운동론에서 자연히 나옵니다. 피스톤으로 부피를 줄이면(V↓) 같은 분자가 좁은 곳에서 벽을 더 자주 두드려 압력이 오르고(보일 법칙 P∝1/V), 온도를 올리면(T↑) 분자가 빨라져 압력·부피가 커집니다(샤를). n·R은 분자 수가 정하는 상수.'); }
   },
 
@@ -116,7 +116,7 @@
       [['열 Q',s.Q,PNK],['일 W',Wk,GRN],['ΔU',dU,ORA]].forEach(function(it,i){ var x=bx+i*64, hh=it[1]/mx*bh;
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,44,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,44,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(1),x+22,baseY-hh-6); ctx.fillStyle=it[2]; ctx.fillText(it[0],x+22,baseY+18); });
-      E.tapHint(W/2, H*0.90, 'A/D로 가한 열 Q · F/H로 팽창(일)', true);
+      E.tapHint(W/2, H*0.90, '가한 열 Q와 팽창(일) 비율을 바꿔 보세요', true);
       E.big('ΔU = Q − W = '+s.Q+' − '+Wk.toFixed(1)+' = '+dU.toFixed(1), '열역학 제1법칙은 에너지 보존입니다: 기체에 <b>열 Q를 넣으면</b>, 그 에너지는 ① 내부에너지 U를 올리거나(온도↑) ② 기체가 팽창하며 <b>일 W를 하는</b> 데 쓰입니다. ΔU = Q − W. 부피를 고정하면(팽창 0) 모든 열이 온도로, 팽창을 허용하면 일부가 일로 빠져나갑니다. 에너지는 사라지지 않고 형태만 바뀝니다.'); }
   },
 

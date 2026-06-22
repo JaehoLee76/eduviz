@@ -31,7 +31,7 @@
       if(s.F>0){ ctx.strokeStyle=ORA; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(px+sz/2, ay); ctx.lineTo(px+sz/2+aL, ay); ctx.stroke();
         ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(px+sz/2+aL,ay); ctx.lineTo(px+sz/2+aL-9,ay-5); ctx.lineTo(px+sz/2+aL-9,ay+5); ctx.fill();
         ctx.font='12px sans-serif'; ctx.fillText('F='+s.F+' N', px+sz/2+aL/2, ay-10); }
-      E.tapHint(W/2, H*0.76, '화면 탭=처음으로 · A/D·F/H로 F·m', true);
+      E.tapHint(W/2, H*0.76, '화면 탭 = 처음으로', true);
       E.big('a = F/m = '+(s.F/s.m).toFixed(2)+' m/s²    v = '+b.vx.toFixed(2)+' m/s', '엔진이 매 프레임 a=F/m을 적분해 v·x를 만듭니다(공식 베끼기 아님). 같은 힘이라도 질량이 크면 천천히 가속 — 뉴턴 제2법칙.'); }
   },
 
@@ -62,7 +62,7 @@
       w.bodies.forEach(function(b){ var px=v.X(b.x), py=v.Y(b.y), pr=b.r*v.s;
         ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill(); ctx.globalAlpha=1;
         if(b.held){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,pr+3,0,7); ctx.stroke(); } });
-      E.tapHint(W/2, H*0.92, '공을 끌어 던지기 · 빈 곳 탭=공 추가 · A/D·F/H로 중력·반발', true);
+      E.tapHint(W/2, H*0.92, '공을 끌어 던지기 · 빈 곳을 탭하면 공 추가', true);
       E.big('실시간 물리 엔진 — 끌어서 던져 보세요', '중력으로 떨어지고 바닥·벽·서로 부딪혀 튑니다. 전부 F=ma 적분과 충돌(운동량 보존)의 결과 — 공식이 아니라 시뮬레이션입니다. g와 반발 e를 바꿔 보세요.'); }
   }
 

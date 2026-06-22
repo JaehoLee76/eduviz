@@ -39,7 +39,7 @@
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('|F|',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
       for(var kk=0;kk<=60;kk++){ var rr=1+kk/60*5, ff=k*1*Math.max(1,Math.abs(s.q2))/(rr*rr), x=gx0+(rr-1)/5*(gx1-gx0), y=gy0-Math.min(gh,ff/18*gh); if(kk===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
-      E.tapHint(W/2, H*0.93, 'A/D로 거리 · F/H로 전하2 부호 — 같으면 밀고, 다르면 당김', true);
+      E.tapHint(W/2, H*0.93, '거리·전하2 부호를 바꿔 보세요 (같으면 밀고, 다르면 당김)', true);
       E.big('쿨롱 힘 F = k·q₁q₂/r² = '+F.toFixed(2)+'  ('+(s.q2===0?'전하 없음':(repel?'척력':'인력'))+')', '전하 사이의 힘은 중력과 똑같은 1/r² 꼴 — <b>쿨롱 법칙 F=kq₁q₂/r²</b>. 다만 부호가 있어 <b>같은 부호는 밀고(척력), 다른 부호는 당깁니다(인력)</b>. 중력보다 훨씬 강하지만(전자-양성자 간 ~10⁴⁰배) 양·음이 상쇄돼 일상에선 중성. k = 9×10⁹ N·m²/C².'); }
   },
 
@@ -72,7 +72,7 @@
       var dx2=t.x, dy2=t.y, r2=Math.hypot(dx2,dy2)||0.3, Fm=9*s.src.q*t.q/(r2*r2), fl=Math.min(40,Math.abs(Fm)*8)*Math.sign(Fm);
       arrow(E,px,py,px+dx2/r2*fl,py-dy2/r2*fl,ORA,2.5);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
-      E.tapHint(W/2, H*0.92, '시험전하(초록)를 끌어 놓기 · F/H로 Q 부호', true);
+      E.tapHint(W/2, H*0.92, '시험전하(초록)를 끌어 놓아 보세요', true);
       E.big('전기장 E — 시험전하가 받는 힘 F = qE', '전하는 주변 공간에 <b>전기장 E</b>를 만듭니다 — 보이지 않지만 공간 곳곳에 새겨진 "힘의 지도"(파란 화살표). 그 자리에 전하 q를 놓으면 <b>F = qE</b>의 힘을 받습니다. +전하의 장은 바깥으로, −전하는 안으로 향합니다. 시험전하(초록)를 끌어 놓으면 장을 따라 밀려납니다. E = kQ/r².'); }
   },
 
@@ -106,7 +106,7 @@
       s.trail.forEach(function(p,i){ if(i===0)ctx.moveTo(v.X(p[0]),v.Y(p[1])); else ctx.lineTo(v.X(p[0]),v.Y(p[1])); }); ctx.stroke();
       charge(E,v.X(b.x),v.Y(b.y),9,b.q,'');
       var a=s.q*s.Efield/b.m;
-      E.tapHint(W/2, H*0.96, '화면 탭=재발사 · A/D·F/H로 전기장·전하', true);
+      E.tapHint(W/2, H*0.96, '화면 탭 = 재발사', true);
       E.big('전기력 F = qE → 포물선 운동 (a = qE/m = '+a.toFixed(2)+')', '균일한 전기장(평행판 사이) 속 전하는 일정한 힘 F=qE를 받아 — 마치 중력 속 포물선처럼 — 휘어 날아갑니다(엔진이 uniformE를 적분). 1장의 포물선 운동과 똑같은 수학! 전하 부호를 바꾸면 휘는 방향이 반대가 됩니다. 이것이 오래된 브라운관(CRT) TV가 전자빔을 휘어 화면을 그린 원리.'); }
   },
 
@@ -134,7 +134,7 @@
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath();
       for(var i=0;i<=60;i++){ var rr2=0.8+i/60*4.2, vv=k*Q/rr2, x=gx0+(rr2-0.8)/4.2*(gx1-gx0), y=gy0-Math.min(gh,vv/12*gh); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var mx=gx0+(s.r-0.8)/4.2*(gx1-gx0), my=gy0-Math.min(gh,V/12*gh); ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
-      E.tapHint(W/2, H*0.93, 'A/D로 거리 — 가까울수록 전위 높음', true);
+      E.tapHint(W/2, H*0.93, '중심에 가까울수록 전위가 높습니다', true);
       E.big('전위 V = kQ/r = '+V.toFixed(2)+' V', '전위는 전기장의 "높이"입니다 — 단위 전하가 갖는 위치에너지(V=kQ/r). +전하 둘레는 높은 언덕, 다른 +전하는 언덕 아래로 굴러 내려가듯 밀려납니다. 등전위선(파란 원)은 같은 높이 — 그 위에서 움직이면 일이 0. 전기위치E U = qV. 1/r²인 힘(장)과 달리 전위는 1/r로 더 완만합니다(전기장은 전위의 기울기).'); }
   },
 
@@ -162,7 +162,7 @@
       ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,U/mx)*bh,46,Math.min(1,U/mx)*bh); ctx.globalAlpha=1;
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('저장E', bx+23, baseY+16);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('C = '+Cap.toFixed(2), W*0.10, H*0.86); ctx.fillText('Q = CV = '+Q.toFixed(1), W*0.30, H*0.86); ctx.fillText('E장 = V/d = '+Efield.toFixed(1), W*0.52, H*0.86);
-      E.tapHint(W/2, H*0.93, 'A/D·F/H로 전압·판 간격', true);
+      E.tapHint(W/2, H*0.93, '전압·판 간격을 바꿔 보세요', true);
       E.big('축전기 저장 에너지 U = ½CV² = '+U.toFixed(1), '축전기는 두 판에 +·− 전하를 모아 <b>전기장의 형태로 에너지를 저장</b>합니다. 전하량 Q=CV, 판 사이 균일장 E=V/d, 저장 에너지 U=½CV²=½QV. 전압을 올리면 더 많은 전하·에너지가 쌓이고(에너지는 전압의 제곱!), 판 간격을 좁히면 전기용량 C가 커집니다(C=εA/d). 카메라 플래시·전자회로의 에너지 buffer.'); }
   }
 
