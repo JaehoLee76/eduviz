@@ -68,5 +68,33 @@
    "q_en": "Double the generator's rotation speed. Peak voltage?",
    "sol_en": "Peak EMF = NBAω ∝ ω → <b>2×</b> (and double frequency)."
   }
+ },
+ "phys13_03_solenoid": {
+  "ch": "물리학 제13장 자기·전자기유도",
+  "sec": "13.3 심화 · 솔레노이드(전자석)",
+  "title": "솔레노이드 — 전류로 만든 자석",
+  "narr": "전선을 촘촘히 감으면(솔레노이드) 각 고리의 자기장이 합쳐져 <b>내부에 균일하고 강한 자기장</b>이 생깁니다 — 막대자석과 똑같은 N·S 극이죠! 슬라이더로 전류와 감은 수를 키우면 자기장이 강해집니다. 전류를 끄면 자성이 사라지는 <b>전자석</b>입니다 — 크레인 자석, 자기부상열차, MRI의 원리.",
+  "more": "<b>솔레노이드</b>: 내부 균일장 B = μ₀·n·I (n=단위길이당 감은 수 = N/L). 전류·감은 밀도에 비례, 안에 철심(투자율 μ)을 넣으면 수백~수천 배 강해짐(전자석). 전류로 켜고 끄고 세기를 조절 가능 — 영구자석에 없는 장점. 모터·스피커·릴레이·도어록·MRI·입자가속기 자석. 토로이드(도넛형)는 자기장을 안에 가둠.",
+  "more_en": "<b>Solenoid</b>: uniform interior field B = μ₀·n·I (n = turns per length). An iron core multiplies it hundreds of times (electromagnet) — switchable, adjustable. Used in motors, speakers, relays, MRI, accelerators.",
+  "problem": {
+   "q": "솔레노이드의 전류를 2배, 감은 밀도를 2배로 하면 내부 자기장은?",
+   "solution": "B = μ₀nI ∝ n·I. 둘 다 2배 → <b>4배</b>.",
+   "q_en": "Double both current and turn-density. Interior field?",
+   "sol_en": "B ∝ nI → <b>4×</b>."
+  }
+ },
+ "phys13_05_transformer": {
+  "ch": "물리학 제13장 자기·전자기유도",
+  "sec": "13.5 심화 · 변압기",
+  "title": "변압기 — 전압을 바꾸는 상호유도",
+  "narr": "변압기는 상호유도로 <b>교류 전압을 올리거나 내립니다</b>. 1차 코일의 변하는 자속이 철심을 타고 2차 코일에 기전력을 유도하죠 — <b>전압비 = 감은 수 비(Vs/Vp = Ns/Np)</b>. 슬라이더로 2차 감은 수를 1차보다 많게 하면 승압, 적게 하면 강압. 에너지 보존이라 전압을 올리면 전류는 그만큼 줄어듭니다.",
+  "more": "<b>변압기</b>: Vs/Vp = Ns/Np, 이상적 에너지 보존 VpIp = VsIs(전압↑→전류↓). 1차의 변하는 자속이 철심을 공유한 2차에 유도(상호유도). 발전소→초고압 송전(같은 전력을 작은 전류로 → I²R 손실↓)→변전소·가정에서 강압의 핵심. <b>교류 전용</b>(직류는 자속이 안 변해 유도 없음) — 에디슨-테슬라 전류 전쟁에서 AC가 이긴 이유.",
+  "more_en": "<b>Transformer</b>: Vs/Vp = Ns/Np; ideally VpIp = VsIs (raise voltage, lower current). Mutual induction via a shared iron core. Enables high-voltage transmission (low I²R loss). AC only — why AC won the current wars.",
+  "problem": {
+   "q": "1차 100회, 2차 500회 변압기에 1차 12V를 걸면 2차 전압은?",
+   "solution": "Vs = Vp·Ns/Np = 12×(500/100) = 12×5 = <b>60 V</b>(승압).",
+   "q_en": "Np=100, Ns=500, Vp=12 V. Secondary voltage?",
+   "sol_en": "Vs = 12×5 = <b>60 V</b> (step-up)."
+  }
  }
 }

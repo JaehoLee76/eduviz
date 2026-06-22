@@ -149,6 +149,55 @@
       s.hist.forEach(function(v,i){ var x=gx0+(gx1-gx0)*i/240, y=gy0-(v/5)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
       E.tapHint(W/2, H*0.90, '빠르게 돌릴수록 큰 교류가 나옵니다', true);
       E.big('발전기 — 코일 회전이 교류(AC)를 만든다  EMF ∝ ω·sin(ωt)', '발전기는 유도(13.4)를 거꾸로 활용합니다 — 자기장 속에서 <b>코일을 회전</b>시키면 코일을 지나는 자속이 사인형으로 변해, <b>교류(AC) 기전력</b>이 유도됩니다(EMF=NBAω·sinωt). 코일이 자극과 나란할 때 자속 변화율(EMF)이 최대, 수직일 때 0. 빠르게 돌릴수록(ω↑) 전압이 커지고 주파수도 높아집니다. 수력·풍력·화력 발전이 모두 이 원리 — 무언가를 돌려 코일을 회전시킵니다.'); }
+  },
+
+  // ─── 심화: 솔레노이드(전자석) ───
+  { id:'phys13_03_solenoid', branchOf:'phys13_03', ord:1,
+    enter:function(E){ var self=this; this.s={I:4,N:8};
+      E.controls('<div class="ctrl"><label>전류 I</label><input type="range" id="ii" min="1" max="8" step="1" value="4"><output id="iio">4</output>'
+        +'<label style="margin-left:14px">감은 수 N</label><input type="range" id="nn" min="4" max="14" step="1" value="8"><output id="nno">8</output></div>');
+      E.bind('#ii','input',function(e){ self.s.I=+e.target.value; document.getElementById('iio').textContent=e.target.value; E.blip(360,0.07); });
+      E.bind('#nn','input',function(e){ self.s.N=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(340,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      var cx=W*0.42, cy=H*0.44, L=W*0.4, x0=cx-L/2, x1=cx+L/2;
+      // 코일 감김(원들)
+      ctx.strokeStyle=ORA; ctx.lineWidth=2.5;
+      for(var i=0;i<s.N;i++){ var x=x0+L*i/(s.N-1); ctx.beginPath(); ctx.ellipse(x,cy,8,40,0,0,7); ctx.stroke(); }
+      // 내부 균일 자기장(오른쪽으로), 세기 ∝ N·I
+      var B=s.N*s.I; var nl=Math.max(2,Math.round(B/8));
+      for(var k=0;k<nl;k++){ var yy=cy-20+k*(40/(nl-1||1)); arrow(E,x0+6,yy,x1-6,yy,'rgba(122,184,255,0.6)',2); }
+      // 바깥 N/S 표시
+      ctx.fillStyle=NRED; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('N', x1+24, cy+5);
+      ctx.fillStyle=SBLU; ctx.fillText('S', x0-24, cy+5);
+      E.tapHint(W/2, H*0.90, '전류·감은 수를 키우면 내부 자기장이 강해집니다', true);
+      E.big('솔레노이드: 내부 균일 자기장 B = μ₀·n·I  (N·I = '+B+')', '전선을 촘촘히 감으면(솔레노이드) 각 고리의 자기장이 합쳐져 <b>내부에 균일한 강한 자기장</b>이 생깁니다 — 막대자석과 똑같은 N·S 극! 세기 <b>B = μ₀·n·I</b>(n=단위길이당 감은 수). 전류·감은 수에 비례하고, 전류를 끄면 자성도 사라지는 <b>전자석</b> — 크레인의 고철 자석, 자기부상열차, 스피커, MRI, 릴레이가 모두 솔레노이드. 안에 철심을 넣으면 수천 배 강해집니다.'); }
+  },
+
+  // ─── 심화: 변압기(상호유도) ───
+  { id:'phys13_05_transformer', branchOf:'phys13_05', ord:1,
+    enter:function(E){ var self=this; this.s={Np:4,Ns:8,Vp:10,t:0};
+      E.controls('<div class="ctrl"><label>1차 감은 수 Np</label><input type="range" id="np" min="2" max="10" step="1" value="4"><output id="npo">4</output>'
+        +'<label style="margin-left:14px">2차 감은 수 Ns</label><input type="range" id="ns" min="2" max="12" step="1" value="8"><output id="nso">8</output></div>');
+      E.bind('#np','input',function(e){ self.s.Np=+e.target.value; document.getElementById('npo').textContent=e.target.value; E.blip(360,0.07); });
+      E.bind('#ns','input',function(e){ self.s.Ns=+e.target.value; document.getElementById('nso').textContent=e.target.value; E.blip(340,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+      var Vs=s.Vp*s.Ns/s.Np, cy=H*0.44;
+      // 철심(가운데 사각)
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=6; ctx.strokeRect(W*0.40,cy-60,W*0.16,120);
+      // 1차 코일(왼쪽)
+      var px=W*0.38; ctx.strokeStyle=BLU; ctx.lineWidth=2.5; for(var i=0;i<s.Np;i++){ var y=cy-50+i*(100/(s.Np-1||1)); ctx.beginPath(); ctx.ellipse(px,y,10,6,0,0,7); ctx.stroke(); }
+      // 2차 코일(오른쪽)
+      var sx=W*0.58; ctx.strokeStyle=ORA; for(i=0;i<s.Ns;i++){ var y2=cy-50+i*(100/(s.Ns-1||1)); ctx.beginPath(); ctx.ellipse(sx,y2,10,6,0,0,7); ctx.stroke(); }
+      // 자속 표시(철심 따라 도는 화살표)
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('변하는 자속 Φ', W*0.48, cy-70);
+      // 전압 막대
+      ctx.fillStyle=BLU; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('1차 Vp='+s.Vp+'V (Np='+s.Np+')', px, cy+80);
+      ctx.fillStyle=ORA; ctx.fillText('2차 Vs='+Vs.toFixed(1)+'V (Ns='+s.Ns+')', sx, cy+80);
+      var type = s.Ns>s.Np?'승압':(s.Ns<s.Np?'강압':'1:1');
+      E.tapHint(W/2, H*0.90, '감은 수 비를 바꿔 전압을 올리고 내리세요', true);
+      E.big('변압기('+type+'): Vs/Vp = Ns/Np → Vs = '+Vs.toFixed(1)+' V', '변압기는 상호유도로 <b>교류 전압을 바꿉니다</b>. 1차 코일의 변하는 자속이 철심을 타고 2차 코일에 기전력을 유도 — <b>Vs/Vp = Ns/Np</b>(감은 수 비). 2차가 많으면 승압, 적으면 강압. 에너지 보존이라 전압을 올리면 전류는 그만큼 줄어듭니다(VpIp=VsIs). 발전소→고압 송전(I²R 손실↓)→가정용 강압의 핵심. 직류는 자속이 안 변해 작동 안 함(교류 전용).'); }
   }
 
   ];

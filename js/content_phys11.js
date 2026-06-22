@@ -164,6 +164,51 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('C = '+Cap.toFixed(2), W*0.10, H*0.86); ctx.fillText('Q = CV = '+Q.toFixed(1), W*0.30, H*0.86); ctx.fillText('E장 = V/d = '+Efield.toFixed(1), W*0.52, H*0.86);
       E.tapHint(W/2, H*0.93, '전압·판 간격을 바꿔 보세요', true);
       E.big('축전기 저장 에너지 U = ½CV² = '+U.toFixed(1), '축전기는 두 판에 +·− 전하를 모아 <b>전기장의 형태로 에너지를 저장</b>합니다. 전하량 Q=CV, 판 사이 균일장 E=V/d, 저장 에너지 U=½CV²=½QV. 전압을 올리면 더 많은 전하·에너지가 쌓이고(에너지는 전압의 제곱!), 판 간격을 좁히면 전기용량 C가 커집니다(C=εA/d). 카메라 플래시·전자회로의 에너지 buffer.'); }
+  },
+
+  // ─── 심화: 가우스 법칙 ───
+  { id:'phys11_02_gauss', branchOf:'phys11_02', ord:1,
+    enter:function(E){ var self=this; this.s={r:2.5,Q:2};
+      E.controls('<div class="ctrl"><label>가우스면 반지름 r</label><input type="range" id="rr" min="1.5" max="4" step="0.25" value="2.5"><output id="rro">2.5</output>'
+        +'<label style="margin-left:14px">전하 Q</label><input type="range" id="qq" min="1" max="4" step="1" value="2"><output id="qqo">2</output></div>');
+      E.bind('#rr','input',function(e){ self.s.r=+e.target.value; document.getElementById('rro').textContent=(+e.target.value).toFixed(2); E.blip(360,0.07); });
+      E.bind('#qq','input',function(e){ self.s.Q=+e.target.value; document.getElementById('qqo').textContent=e.target.value; E.blip(380,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      var cx=W*0.40, cy=H*0.46, sc=Math.min(W*0.07,H*0.095);
+      // 전기력선 (Q개에 비례한 개수, 방사형)
+      var nlines=s.Q*8;
+      for(var i=0;i<nlines;i++){ var a=i/nlines*6.2832; ctx.strokeStyle='rgba(122,184,255,0.35)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx+12*Math.cos(a),cy+12*Math.sin(a)); ctx.lineTo(cx+sc*4*Math.cos(a),cy+sc*4*Math.sin(a)); ctx.stroke(); }
+      // 가우스면(점선 원)
+      ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(cx,cy,s.r*sc,0,7); ctx.stroke(); ctx.setLineDash([]);
+      // 중심전하
+      charge(E,cx,cy,14,s.Q,'');
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('가우스면', cx, cy-s.r*sc-8);
+      E.tapHint(W/2, H*0.92, '반지름을 바꿔도 면을 뚫는 전기력선 수(선속)는 일정', true);
+      E.big('가우스 법칙: 선속 Φ = Q/ε₀ — 면 크기와 무관, 갇힌 전하만', '닫힌 면을 뚫고 나오는 <b>전기력선의 총 개수(전기 선속 Φ)는 그 안에 든 전하 Q에만 비례</b>합니다(Φ = Q/ε₀) — 가우스면의 크기·모양과 무관! 반지름을 키워도 면은 커지지만 장은 1/r²로 약해져 정확히 상쇄, 뚫는 선 수는 그대로. 이 대칭성을 이용하면 구·원통·평면의 전기장을 적분 없이 구합니다. 맥스웰 방정식의 첫 번째 — 전기장과 전하의 근본 관계.'); }
+  },
+
+  // ─── 심화: 전기 쌍극자 ───
+  { id:'phys11_01_dipole', branchOf:'phys11_01', ord:1,
+    enter:function(E){ var self=this; this.s={th:0.5,Ef:2,om:0};
+      E.controls('<div class="ctrl"><label>외부 전기장 E</label><input type="range" id="ef" min="0" max="5" step="0.5" value="2"><output id="efo">2.0</output></div>');
+      E.bind('#ef','input',function(e){ self.s.Ef=+e.target.value; document.getElementById('efo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      // 쌍극자가 외부장에서 받는 토크 τ = pE sinθ → 정렬 진동(감쇠)
+      var p=1, I=0.5, tau=-p*s.Ef*Math.sin(s.th); s.om += (tau/I)*(1/60); s.om*=0.985; s.th += s.om*(1/60);
+      var cx=W*0.42, cy=H*0.44, d=Math.min(W*0.09,H*0.13);
+      // 외부 균일장 화살표(가로)
+      for(var gx=-3;gx<=3;gx++){ for(var gy=-2;gy<=2;gy++){ if(s.Ef<0.2)continue; arrow(E,cx+gx*48-12,cy+gy*44,cx+gx*48+12,cy+gy*44,'rgba(122,184,255,0.25)',1); } }
+      // 쌍극자(+ 와 − 를 막대 양끝)
+      var ux=Math.cos(s.th), uy=Math.sin(s.th);
+      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-ux*d,cy-uy*d); ctx.lineTo(cx+ux*d,cy+uy*d); ctx.stroke();
+      charge(E,cx+ux*d,cy+uy*d,13,1,''); charge(E,cx-ux*d,cy-uy*d,13,-1,'');
+      // 쌍극자모멘트 화살표 p (−→+)
+      arrow(E,cx-ux*d,cy-uy*d,cx+ux*d,cy+uy*d,ORA,2);
+      var th_deg=((s.th*180/Math.PI)%360+360)%360;
+      E.tapHint(W/2, H*0.92, '외부 전기장을 켜면 쌍극자가 장 방향으로 정렬', true);
+      E.big('전기 쌍극자 — 외부장에서 토크 τ = pE·sinθ로 정렬', '+전하와 −전하가 짝을 이룬 것이 <b>전기 쌍극자</b>입니다. 쌍극자모멘트 p는 −에서 +를 향하는 벡터. 균일한 외부 전기장 속에 놓이면 두 전하가 반대 힘을 받아 <b>회전 토크 τ = pE·sinθ</b>가 생겨 장 방향으로 <b>정렬</b>합니다(나침반처럼). 물 분자(H₂O)가 쌍극자라 전자레인지의 진동하는 장에 정렬·요동하며 데워지고, 유전체가 축전기 용량을 키우는 것도 쌍극자 정렬 때문입니다.'); }
   }
 
   ];

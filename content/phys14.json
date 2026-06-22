@@ -68,5 +68,61 @@
    "q_en": "Time-dilation factor γ at v = 0.8c?",
    "sol_en": "γ = 1/√(1−0.64) = 1/0.6 ≈ <b>1.67</b>."
   }
+ },
+ "phys14_02_lens": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.2 심화 · 렌즈 결상",
+  "title": "렌즈 — 상이 맺히는 원리",
+  "narr": "볼록렌즈는 빛을 모아 <b>상</b>을 맺습니다. 두 주요 광선(축과 나란히 와서 초점으로, 렌즈 중심을 직진)이 만나는 곳이 상점이죠. 슬라이더로 물체 거리와 초점거리를 바꿔 보세요. 물체가 초점 밖이면 거꾸로 된 <b>실상</b>(카메라·눈), 초점 안이면 똑바로 확대된 <b>허상</b>(돋보기)이 생깁니다.",
+  "more": "<b>렌즈 방정식</b>: 1/f = 1/do + 1/di, 배율 m = −di/do(음수=도립). do>f → 실상(도립, 스크린에 맺힘), do<f → 허상(정립 확대, 돋보기). 볼록(수렴)렌즈 f>0, 오목(발산)렌즈 f<0(항상 축소 허상). 카메라·눈(수정체)·현미경·망원경·안경이 모두 결상. 거울도 같은 식(구면거울). 수차·회절이 실제 한계.",
+  "more_en": "<b>Thin-lens equation</b>: 1/f = 1/do + 1/di, magnification m = −di/do. do>f gives a real inverted image (camera, eye); do<f gives a virtual upright image (magnifier). Basis of all optical instruments.",
+  "problem": {
+   "q": "초점거리 10 cm 렌즈에서 물체가 30 cm 앞에 있으면 상거리는?",
+   "solution": "1/f=1/do+1/di → 1/10=1/30+1/di → 1/di=1/10−1/30=1/15 → di=<b>15 cm</b>(실상).",
+   "q_en": "f=10 cm, object at 30 cm. Image distance?",
+   "sol_en": "1/di = 1/10−1/30 = 1/15 → <b>15 cm</b>."
+  }
+ },
+ "phys14_03_diffraction": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.3 심화 · 회절",
+  "title": "회절 — 좁은 틈을 지나면 퍼진다",
+  "narr": "빛이 좁은 틈을 지나면 그 뒤로 <b>퍼집니다</b> — 회절, 파동의 본성입니다. 스크린에 가운데 밝은 무늬와 양옆의 약한 무늬가 나타나죠. 슬라이더로 슬릿을 좁히거나 파장을 늘리면 더 넓게 퍼집니다(중앙폭 ∝ λ/a). 이 회절이 망원경·현미경의 분해능 한계를 정합니다.",
+  "more": "<b>단일슬릿 회절</b>: 세기 I = I₀·sinc²(πa sinθ/λ). 첫 어두운 무늬 a·sinθ = λ. 중앙 극대 각폭 ∝ λ/a — 슬릿이 좁거나 파장이 길수록 넓게 퍼짐. <b>회절한계</b>: 망원경·현미경의 최소 분해각 θ≈1.22λ/D(구경 D) — 더 큰 망원경·짧은 파장이 더 선명. 소리(긴 파장)가 모퉁이를 돌아 들리는 것, CD 무지개도 회절.",
+  "more_en": "<b>Single-slit diffraction</b>: I = I₀·sinc²(πa sinθ/λ); first dark fringe at a·sinθ=λ. Central width ∝ λ/a. Sets the diffraction limit of telescopes/microscopes (θ≈1.22λ/D).",
+  "problem": {
+   "q": "단일슬릿의 폭을 절반으로 줄이면 회절 무늬의 중앙 폭은?",
+   "solution": "폭 ∝ λ/a. 슬릿 폭 ½ → 중앙 무늬 <b>2배</b>로 넓어짐.",
+   "q_en": "Halve the slit width. Central diffraction peak width?",
+   "sol_en": "Width ∝ λ/a → <b>2× wider</b>."
+  }
+ },
+ "phys14_04_bohr": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.4 심화 · 보어 원자모형",
+  "title": "보어 원자 — 양자화된 에너지 준위",
+  "narr": "보어는 전자가 <b>특정 궤도(에너지 준위)에만</b> 있을 수 있다고 했습니다 — 에너지가 양자화된 것이죠. 전자가 높은 준위에서 낮은 준위로 떨어질 때 그 <b>에너지 차이를 광자 하나로 방출</b>합니다(E=hf). 슬라이더로 전이 준위를 바꿔 방출 광자의 색을 보세요. 준위 차가 클수록 큰 에너지(보라), 작을수록 작은 에너지(빨강)입니다.",
+  "more": "<b>보어 모형</b>: 수소 에너지 준위 Eₙ = −13.6/n² eV(n=1,2,3…). 전이 시 광자 에너지 hf = E_i − E_f. 각운동량 양자화 L=nℏ. 방출 파장이 원소마다 고유 → <b>선 스펙트럼</b>(발머 계열 등) — 불꽃반응 색, 네온사인, 별빛 성분 분석(분광학). 흡수도 같은 준위차에서만. 후에 양자역학(슈뢰딩거)이 궤도를 확률 구름(오비탈)으로 정교화.",
+  "more_en": "<b>Bohr model</b>: hydrogen levels Eₙ = −13.6/n² eV; transitions emit photons hf = E_i − E_f. Gives each element's unique line spectrum (flame colors, neon signs, stellar spectroscopy). Refined later by quantum mechanics (orbitals).",
+  "problem": {
+   "q": "보어 원자에서 전자가 n=3(−1.5eV)에서 n=2(−3.4eV)로 떨어질 때 방출 광자 에너지는?",
+   "solution": "hf = E_i − E_f = −1.5 − (−3.4) = <b>1.9 eV</b>(붉은 빛, 발머 Hα).",
+   "q_en": "Electron drops n=3(−1.5eV)→n=2(−3.4eV). Photon energy?",
+   "sol_en": "hf = −1.5−(−3.4) = <b>1.9 eV</b>."
+  }
+ },
+ "phys14_05_decay": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.5 심화 · 방사성 붕괴",
+  "title": "방사성 붕괴 — 반감기의 시계",
+  "narr": "방사성 원자핵은 하나하나는 언제 붕괴할지 알 수 없지만, 집단으로는 <b>지수적으로</b> 줄어듭니다 — 매 <b>반감기</b>마다 정확히 절반으로요. 슬라이더로 반감기를 바꿔 보세요. 핵 격자가 절반씩 사라지고 붕괴 곡선이 그려집니다. 이 일정한 반감기가 화석·유물·암석의 나이를 재는 시계가 됩니다.",
+  "more": "<b>방사성 붕괴</b>: N = N₀·(½)^(t/T½) = N₀·e^(−λt), 반감기 T½ = ln2/λ. 통계적 법칙(개별 핵은 무작위, 집단은 정확). 반감기는 원소 고유 — C-14 5730년(고고학 연대측정), U-238 45억년(암석·지구 나이), I-131 8일(의료). α·β·γ 붕괴로 다른 원소로 변환(핵변환). 핵에너지·PET·방사선치료의 바탕. 4.5절 시간팽창과 함께 현대물리의 두 기둥(상대성·양자).",
+  "more_en": "<b>Radioactive decay</b>: N = N₀·(½)^(t/T½) = N₀e^(−λt), half-life T½ = ln2/λ. Statistical (individual decays random, ensemble exact). Half-lives are element-specific — C-14 (5730 yr) for dating, U-238 (4.5 Gyr). Basis of nuclear energy and medicine.",
+  "problem": {
+   "q": "반감기 5년인 시료가 15년 뒤 남는 비율은?",
+   "solution": "15년 = 3 반감기 → (½)³ = <b>1/8(12.5%)</b> 남음.",
+   "q_en": "Half-life 5 yr. Fraction left after 15 yr?",
+   "sol_en": "3 half-lives → (½)³ = <b>1/8</b>."
+  }
  }
 }

@@ -146,8 +146,66 @@
       s.hist.forEach(function(v,i){ var X=gx0+(gx1-gx0)*i/300, Y=gy0-(v/s.V)*gh*0.92; if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }); ctx.stroke();
       E.tapHint(W/2, H*0.92, '화면 탭 = 충전↔방전  (시정수 τ=RC)', true);
       E.big((s.charging?'충전 중':'방전 중')+' — Vc = '+Vc.toFixed(2)+' V,  τ = RC = '+tau.toFixed(1)+' s', '축전기는 저항을 통해 <b>지수적으로</b> 충전·방전됩니다 — 엔진이 dQ/dt=(V−Q/C)/R를 적분해 곡선을 만듭니다(공식 베끼기 아님). 처음엔 빠르게, 차오를수록 느리게(전압차가 줄어드니까). <b>시정수 τ=RC</b>가 속도를 정함 — τ 동안 약 63% 도달. R·C를 키우면 느려집니다. 카메라 플래시 충전, 신호 필터, 타이머 회로의 핵심.'); }
+  },
+
+  // ─── 심화: 키르히호프 법칙 ───
+  { id:'phys12_02_kirchhoff', branchOf:'phys12_02', ord:1,
+    enter:function(E){ var self=this; this.s={V:12,R1:2,R2:3,R3:6};
+      E.controls('<div class="ctrl"><label>전압 V</label><input type="range" id="vv" min="6" max="18" step="2" value="12"><output id="vvo">12</output>'
+        +'<label style="margin-left:14px">R₂ (병렬)</label><input type="range" id="r2" min="2" max="8" step="1" value="3"><output id="r2o">3</output></div>');
+      E.bind('#vv','input',function(e){ self.s.V=+e.target.value; document.getElementById('vvo').textContent=e.target.value; E.blip(360,0.07); });
+      E.bind('#r2','input',function(e){ self.s.R2=+e.target.value; document.getElementById('r2o').textContent=e.target.value; E.blip(340,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      // R1 직렬 후 R2∥R3. Rp=R2R3/(R2+R3), Rtot=R1+Rp, I=V/Rtot, 분기전류
+      var Rp=s.R2*s.R3/(s.R2+s.R3), Rtot=s.R1+Rp, I=s.V/Rtot, Vp=I*Rp, I2=Vp/s.R2, I3=Vp/s.R3;
+      var x=W*0.16, y=H*0.26, w=W*0.5, h=H*0.4;
+      wire(E,x,y,w,h); battery(E,x,y+h/2);
+      resistor(E,x+w*0.35,y,true,GRN); ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('R₁='+s.R1, x+w*0.35,y-14);
+      // 병렬 두 가지(오른쪽)
+      var midx=x+w*0.62; ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(midx,y); ctx.lineTo(midx,y+h); ctx.stroke();
+      resistor(E,midx+w*0.2,y+h*0.28,true,ORA); resistor(E,midx+w*0.2,y+h*0.72,true,PNK);
+      ctx.beginPath(); ctx.moveTo(midx,y+h*0.28); ctx.lineTo(x+w,y+h*0.28); ctx.lineTo(x+w,y+h*0.72); ctx.lineTo(midx,y+h*0.72); ctx.stroke();
+      ctx.fillStyle=ORA; ctx.fillText('R₂='+s.R2+' (I₂='+I2.toFixed(1)+')', midx+w*0.2,y+h*0.28-10); ctx.fillStyle=PNK; ctx.fillText('R₃='+s.R3+' (I₃='+I3.toFixed(1)+')', midx+w*0.2,y+h*0.72+18);
+      E.tapHint(W/2, H*0.90, 'R₂를 바꿔 분기 전류가 나뉘는 걸 보세요', true);
+      E.big('키르히호프: 들어온 전류 I='+I.toFixed(2)+' = I₂+I₃ = '+(I2+I3).toFixed(2)+' (마디 법칙)', '복잡한 회로는 두 규칙으로 풉니다 — <b>마디 법칙</b>: 한 점에 들어온 전류 = 나간 전류(전하 보존, ΣI=0). <b>고리 법칙</b>: 닫힌 고리를 돌며 전압 변화의 합 = 0(에너지 보존, ΣV=0). 여기서 본류 I가 병렬 갈래로 I₂·I₃로 나뉘는데 그 합은 I와 정확히 같습니다(마디 법칙). 작은 저항으로 더 많은 전류가 흐릅니다(I₂R₂=I₃R₃). 모든 전기회로 분석의 토대.'); }
+  },
+
+  // ─── 심화: LC 진동 (전기 진자, ODE 적분) ───
+  { id:'phys12_05_lc', branchOf:'phys12_05', ord:1,
+    enter:function(E){ var self=this; this.s={L:2,C:2,Q:3,I:0,hist:[]};
+      E.controls('<div class="ctrl"><label>인덕턴스 L</label><input type="range" id="ll" min="1" max="5" step="0.5" value="2"><output id="llo">2.0</output>'
+        +'<label style="margin-left:14px">전기용량 C</label><input type="range" id="cc" min="1" max="5" step="0.5" value="2"><output id="cco">2.0</output></div>');
+      E.bind('#ll','input',function(e){ self.s.L=+e.target.value; self.reset(); document.getElementById('llo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.bind('#cc','input',function(e){ self.s.C=+e.target.value; self.reset(); document.getElementById('cco').textContent=(+e.target.value).toFixed(1); E.blip(340,0.07); });
+      E.setOn([]); },
+    reset:function(){ this.s.Q=3; this.s.I=0; this.s.hist=[]; },
+    tap:function(E){ this.reset(); E.blip(360,0.12); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      // LC ODE: L dI/dt = -Q/C, dQ/dt = I  → 진동 ω=1/√(LC)
+      var h=1/60/8; for(var k=0;k<8;k++){ var dI=-(s.Q/s.C)/s.L; s.I+=dI*h; s.Q+=s.I*h; }
+      var Ec=s.Q*s.Q/(2*s.C), El=0.5*s.L*s.I*s.I, tot=Ec+El;
+      s.hist.push(s.Q); if(s.hist.length>260)s.hist.shift();
+      var x=W*0.12, y=H*0.20, w=W*0.32, hh=H*0.28;
+      wire(E,x,y,w,hh);
+      // 축전기(왼변)·인덕터(윗변 코일)
+      ctx.strokeStyle=BLU; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x-8,y+hh/2-12); ctx.lineTo(x+8,y+hh/2-12); ctx.moveTo(x-8,y+hh/2+12); ctx.lineTo(x+8,y+hh/2+12); ctx.stroke();
+      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('C', x-12, y+hh/2);
+      ctx.strokeStyle=ORA; ctx.lineWidth=2; for(var c=0;c<5;c++){ ctx.beginPath(); ctx.arc(x+w*0.3+c*10,y,5,Math.PI,0); ctx.stroke(); } ctx.fillStyle=ORA; ctx.textAlign='left'; ctx.fillText('L', x+w*0.3+55, y-8);
+      // Q-t 그래프
+      tgraphLC(ctx, W*0.50, H*0.74, W*0.42, H*0.5, s.hist, 3.2);
+      // 에너지 막대
+      var bx=W*0.50, baseY=H*0.30, bh=H*0.16, mx=3*3/(2*1)*1.1;
+      [['전기E(C)',Ec,BLU],['자기E(L)',El,ORA],['합',tot,GRN]].forEach(function(it,i){ var bxx=bx+i*64, hh2=Math.min(1,it[1]/mx)*bh;
+        ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bxx,baseY-bh,44,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(bxx,baseY-hh2,44,hh2); ctx.globalAlpha=1;
+        ctx.fillStyle=it[2]; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[0],bxx+22,baseY+12); });
+      var om=1/Math.sqrt(s.L*s.C), T=2*Math.PI*Math.sqrt(s.L*s.C);
+      E.tapHint(W/2, H*0.92, 'L·C를 바꿔 진동 주기를 보세요(전기 진자)', true);
+      E.big('LC 진동 — 전기E ⇄ 자기E (주기 T=2π√(LC)='+T.toFixed(1)+')', 'LC 회로는 <b>전기의 진자</b>입니다 — 엔진이 L·dI/dt=−Q/C를 적분합니다(7장 SHM과 똑같은 수학!). 축전기의 전기에너지(Q²/2C)와 인덕터의 자기에너지(½LI²)가 끊임없이 주고받지만 합은 일정(저항 없을 때). 각진동수 ω=1/√(LC) — 용수철 ω=√(k/m)에서 1/C↔k, L↔m 대응. 라디오 동조(원하는 방송 주파수에 LC 공명을 맞춤), 발진기·필터의 핵심.'); }
   }
 
   ];
+  function tgraphLC(ctx,gx0,gy0,gw,gh,hist,amp){ ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0+gw,gy0); ctx.stroke();
+    ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); hist.forEach(function(v,i){ var x=gx0+gw*i/hist.length, y=gy0-(v/amp)*gh*0.5; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke(); }
   if(window.Engine) window.Engine.addScenes(scenes);
 })();

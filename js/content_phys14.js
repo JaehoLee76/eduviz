@@ -154,6 +154,127 @@
       ctx.fillStyle=BLU; ctx.fillText('틱 '+t1, bx, topY-12);
       E.tapHint(W/2, H*0.86, '속도가 빠를수록 시간이 더 느려집니다', true);
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '빛의 속도는 누구에게나 같다 — 이 한 가지 사실에서 시간이 늘어납니다. 움직이는 시계의 빛은 <b>대각선의 긴 경로</b>를 가야 해서, 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느리게 갑니다</b>(시간 팽창, γ배). 빠를수록(β→1) 극적으로 느려집니다. GPS 위성도 이 보정을 합니다. 질량도 에너지의 한 형태 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌 아인슈타인의 세계입니다.'); }
+  },
+
+  // ─── 심화: 렌즈 결상(기하광학) ───
+  { id:'phys14_02_lens', branchOf:'phys14_02', ord:1,
+    enter:function(E){ var self=this; this.s={do_:5,f:2};
+      E.controls('<div class="ctrl"><label>물체 거리 do</label><input type="range" id="dd" min="1" max="8" step="0.5" value="5"><output id="ddo">5.0</output>'
+        +'<label style="margin-left:14px">초점거리 f</label><input type="range" id="ff" min="1" max="3.5" step="0.5" value="2"><output id="ffo">2.0</output></div>');
+      E.bind('#dd','input',function(e){ self.s.do_=+e.target.value; document.getElementById('ddo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.bind('#ff','input',function(e){ self.s.f=+e.target.value; document.getElementById('ffo').textContent=(+e.target.value).toFixed(1); E.blip(380,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      var cx=W*0.5, axisY=H*0.46, sc=W*0.075, ho=1.2;
+      var di=1/(1/s.f-1/s.do_), m=-di/s.do_, hi=m*ho;
+      // 광축·렌즈
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W*0.06,axisY); ctx.lineTo(W*0.94,axisY); ctx.stroke();
+      ctx.strokeStyle='rgba(122,184,255,0.7)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,axisY-70); ctx.lineTo(cx,axisY+70); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      [-1,1].forEach(function(sg){ ctx.fillStyle=DIM; ctx.beginPath(); ctx.arc(cx+sg*s.f*sc,axisY,3,0,7); ctx.fill(); ctx.fillText('F', cx+sg*s.f*sc, axisY+16); });
+      // 물체(왼쪽 화살표)
+      var ox=cx-s.do_*sc; arrow(E,ox,axisY,ox,axisY-ho*sc,GRN,2.5);
+      // 주요 광선 2개: ①축평행→초점 ②중심 직진
+      var topO=axisY-ho*sc;
+      ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(ox,topO); ctx.lineTo(cx,topO); ctx.stroke();   // 평행
+      ctx.beginPath(); ctx.moveTo(ox,topO); ctx.lineTo(cx,axisY); ctx.stroke();   // 중심
+      var realimg = di>0;
+      if(realimg){ var ix=cx+di*sc, topI=axisY-hi*sc;
+        ctx.beginPath(); ctx.moveTo(cx,topO); ctx.lineTo(ix,topI); ctx.stroke();   // 평행→상점
+        ctx.beginPath(); ctx.moveTo(cx,axisY); ctx.lineTo(ix,topI); ctx.stroke();
+        arrow(E,ix,axisY,ix,topI,PNK,2.5); ctx.fillStyle=PNK; ctx.fillText('상(실상,거꾸로)', ix, axisY+ (hi<0?-8: 18)); }
+      else { // 허상(같은쪽)
+        var ix2=cx+di*sc, topI2=axisY-hi*sc; ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(244,160,192,0.6)';
+        ctx.beginPath(); ctx.moveTo(ix2,topI2); ctx.lineTo(cx,topO); ctx.stroke(); ctx.setLineDash([]);
+        arrow(E,ix2,axisY,ix2,topI2,PNK,2.5); ctx.fillStyle=PNK; ctx.fillText('상(허상,바로)', ix2, axisY+18); }
+      E.tapHint(W/2, H*0.92, '물체 거리·초점거리를 바꿔 상의 위치·크기를 보세요', true);
+      E.big('렌즈식 1/f = 1/do + 1/di → di = '+di.toFixed(1)+', 배율 m = '+m.toFixed(2), '볼록렌즈는 빛을 모아 <b>상</b>을 맺습니다 — <b>1/f = 1/do + 1/di</b>(렌즈 방정식), 배율 m = −di/do. 물체가 초점 밖(do>f)이면 거꾸로 된 <b>실상</b>(카메라·눈·영사기), 초점 안(do<f)이면 똑바로 확대된 <b>허상</b>(돋보기). 두 주요 광선(축평행→초점, 중심 직진)의 교점이 상점. 안경·현미경·망원경·카메라가 모두 이 결상 원리입니다.'); }
+  },
+
+  // ─── 심화: 단일슬릿 회절 ───
+  { id:'phys14_03_diffraction', branchOf:'phys14_03', ord:1,
+    enter:function(E){ var self=this; this.s={a:2,lam:1};
+      E.controls('<div class="ctrl"><label>슬릿 폭 a</label><input type="range" id="aa" min="1" max="5" step="0.5" value="2"><output id="aao">2.0</output>'
+        +'<label style="margin-left:14px">파장 λ</label><input type="range" id="ll" min="0.5" max="2" step="0.1" value="1"><output id="llo">1.0</output></div>');
+      E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.bind('#ll','input',function(e){ self.s.lam=+e.target.value; document.getElementById('llo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.lam*120,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
+      var slitX=W*0.30, scrX=W*0.82, cy=H*0.44, aw=s.a*14;
+      // 슬릿 벽
+      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath();
+      ctx.moveTo(slitX,H*0.14); ctx.lineTo(slitX,cy-aw/2); ctx.moveTo(slitX,cy+aw/2); ctx.lineTo(slitX,H*0.74); ctx.stroke();
+      // 입사 평면파
+      for(var w=0;w<4;w++){ ctx.strokeStyle='rgba(122,184,255,0.3)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W*0.12+w*14,cy-aw/2); ctx.lineTo(W*0.12+w*14,cy+aw/2); ctx.stroke(); }
+      // 스크린 + 회절 무늬 I=sinc²(πa sinθ/λ)
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(scrX,H*0.12); ctx.lineTo(scrX,H*0.76); ctx.stroke();
+      var Ld=(scrX-slitX)/14;
+      for(var py=-H*0.30;py<=H*0.30;py+=2){ var yu=py/14, theta=Math.atan2(yu,Ld), beta=Math.PI*s.a*Math.sin(theta)/s.lam, I=beta===0?1:Math.pow(Math.sin(beta)/beta,2);
+        ctx.fillStyle='rgba(255,210,120,'+I.toFixed(3)+')'; ctx.fillRect(scrX+4, cy+py-1, 28, 2); }
+      var width=2*s.lam/s.a;   // 중앙 극대 각폭 ∝ λ/a
+      E.tapHint(W/2, H*0.90, '슬릿이 좁을수록 회절이 넓게 퍼집니다(폭 ∝ λ/a)', true);
+      E.big('단일슬릿 회절 — 중앙 밝은 무늬 폭 ∝ λ/a', '빛이 좁은 틈을 지나면 그 뒤로 <b>퍼집니다</b> — 회절. 파동의 본성이죠. 화면 스크린에 가운데 밝은 무늬와 양옆의 약한 무늬가 보입니다. <b>슬릿이 좁을수록(a↓), 파장이 길수록(λ↑) 더 넓게 퍼집니다</b>(중앙폭 ∝ λ/a). 첫 어두운 무늬는 a·sinθ=λ. 회절 때문에 아무리 좋은 망원경·현미경도 분해능에 한계가 있고(회절한계), 좁은 문틈으로도 소리가 새어 나옵니다(파장이 긴 소리는 회절이 큼).'); }
+  },
+
+  // ─── 심화: 보어 원자모형 ───
+  { id:'phys14_04_bohr', branchOf:'phys14_04', ord:1,
+    enter:function(E){ var self=this; this.s={ni:3,nf:2,t:0,phase:0};
+      E.controls('<div class="ctrl"><label>전이: 높은 준위 n</label><input type="range" id="ni" min="2" max="5" step="1" value="3"><output id="nio">3</output>'
+        +'<label style="margin-left:14px">낮은 준위 n</label><input type="range" id="nf" min="1" max="3" step="1" value="2"><output id="nfo">2</output></div>');
+      E.bind('#ni','input',function(e){ self.s.ni=+e.target.value; document.getElementById('nio').textContent=e.target.value; self.s.phase=0; E.blip(360,0.07); });
+      E.bind('#nf','input',function(e){ self.s.nf=+e.target.value; document.getElementById('nfo').textContent=e.target.value; self.s.phase=0; E.blip(340,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60; s.phase=(s.phase+1/60*0.4)%1;
+      var ni=Math.max(s.ni,s.nf+1), nf=Math.min(s.nf,ni-1);
+      var cx=W*0.32, cy=H*0.46, sc=Math.min(W*0.04,H*0.06);
+      // 핵
+      ctx.fillStyle=NRED; ctx.beginPath(); ctx.arc(cx,cy,8,0,7); ctx.fill();
+      // 궤도 n=1..5 (반지름 ∝ n²)
+      for(var n=1;n<=5;n++){ ctx.strokeStyle=(n===ni||n===nf)?'rgba(255,178,122,0.7)':'rgba(255,255,255,0.15)'; ctx.lineWidth=(n===ni||n===nf)?2:1; ctx.beginPath(); ctx.arc(cx,cy,n*n*sc*0.6,0,7); ctx.stroke(); }
+      // 전자: ni→nf로 떨어지는 애니메이션
+      var rn = (ni - (ni-nf)*s.phase); var rr=rn*rn*sc*0.6, a=s.t*2;
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx+rr*Math.cos(a),cy+rr*Math.sin(a),5,0,7); ctx.fill();
+      // 방출 광자(전이 시) — 색은 에너지(파장)
+      var E_i=-13.6/(ni*ni), E_f=-13.6/(nf*nf), dE=E_i-E_f<0? E_f-E_i : E_i-E_f; dE=Math.abs(E_i-E_f);
+      var col = dE>3?'#9b6bff': dE>2.5?'#5c8cff': dE>1.9?'#5cd0ff':'#e2503a';
+      if(s.phase>0.5){ for(var k=0;k<4;k++){ var px=cx+60+((s.phase-0.5)*2*W*0.3+k*12), py=cy-60; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(var w2=0;w2<14;w2++){ var wx=px+w2, wy=py+Math.sin(w2*0.9+s.t*10)*4; if(w2===0)ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy); } ctx.stroke(); } }
+      // 에너지 준위 막대
+      var gx=W*0.66, gy0=H*0.74, gh=H*0.5;
+      for(var n2=1;n2<=5;n2++){ var En=-13.6/(n2*n2), y=gy0-(1+En/13.6)*gh; ctx.strokeStyle=(n2===ni||n2===nf)?ORA:'rgba(255,255,255,0.25)'; ctx.lineWidth=(n2===ni||n2===nf)?2:1; ctx.beginPath(); ctx.moveTo(gx,y); ctx.lineTo(gx+W*0.2,y); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('n='+n2+' ('+En.toFixed(1)+'eV)', gx+W*0.21, y+3); }
+      // 전이 화살표
+      var yi=gy0-(1+E_i/13.6)*gh, yf=gy0-(1+E_f/13.6)*gh; ctx.strokeStyle=col; ctx.lineWidth=2; arrow(E,gx+W*0.1,yi,gx+W*0.1,yf,col,2);
+      E.tapHint(W/2, H*0.90, '전이 준위를 바꿔 방출 광자(색)를 보세요', true);
+      E.big('보어 원자: 전자가 n='+ni+'→'+nf+' 떨어지며 광자 방출 (E=hf='+dE.toFixed(1)+' eV)', '보어는 전자가 <b>특정 궤도(에너지 준위)에만</b> 있을 수 있다고 했습니다 — 에너지가 양자화(E_n=−13.6/n² eV). 전자가 높은 준위에서 낮은 준위로 떨어질 때 그 <b>에너지 차이를 광자 하나로 방출</b>(E=hf=E_i−E_f). 준위 차가 클수록 큰 에너지=짧은 파장(보라). 이것이 원소마다 고유한 <b>선 스펙트럼</b>(불꽃 색·네온사인·별빛 분석)을 만듭니다. 14.4 광전효과의 광자 개념이 원자 속으로 들어온 것.'); }
+  },
+
+  // ─── 심화: 방사성 붕괴 ───
+  { id:'phys14_05_decay', branchOf:'phys14_05', ord:1,
+    enter:function(E){ var self=this; this.s={half:3,t:0};
+      E.controls('<div class="ctrl"><label>반감기 T½ (초)</label><input type="range" id="hh" min="1" max="6" step="0.5" value="3"><output id="hho">3.0</output></div>');
+      E.bind('#hh','input',function(e){ self.s.half=+e.target.value; self.s.t=0; document.getElementById('hho').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
+      E.setOn([]); },
+    tap:function(E){ this.s.t=0; E.blip(360,0.12); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60; if(s.t>s.half*5) s.t=0;
+      var frac=Math.pow(0.5, s.t/s.half), N0=64, N=N0*frac;
+      // 핵 격자(남은 것 채색)
+      var ox=W*0.10, oy=H*0.22, cols2=8;
+      for(var i=0;i<64;i++){ var r=Math.floor(i/cols2), c=i%cols2, x=ox+c*22, y=oy+r*22;
+        // 결정적으로 "남은" N개를 채움(앞에서부터 빠짐: 해시 순서)
+        var alive = i >= (64-Math.round(N));
+        ctx.fillStyle=alive?GRN:'rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.fill(); }
+      // 붕괴 곡선
+      var gx0=W*0.50, gx1=W*0.93, gy0=H*0.78, gh=H*0.5;
+      ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('N',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
+      for(var k=0;k<=60;k++){ var tt=k/60*s.half*5, f2=Math.pow(0.5,tt/s.half), x=gx0+(tt/(s.half*5))*(gx1-gx0), y=gy0-f2*gh; if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
+      // 반감기 표시(절반 지점)
+      for(var hcnt=1;hcnt<=4;hcnt++){ var th=hcnt*s.half; if(th>s.half*5)break; var x=gx0+(th/(s.half*5))*(gx1-gx0), y=gy0-Math.pow(0.5,hcnt)*gh; ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x,gy0); ctx.lineTo(x,y); ctx.lineTo(gx0,y); ctx.stroke(); ctx.setLineDash([]); }
+      // 현재 점
+      var mx=gx0+(Math.min(s.t,s.half*5)/(s.half*5))*(gx1-gx0), my=gy0-frac*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
+      E.tapHint(W/2, H*0.92, '화면 탭=초기화 · 반감기마다 절반으로 줄어듦', true);
+      E.big('방사성 붕괴 N = N₀·(½)^(t/T½) — 남은 핵 '+Math.round(N)+'/'+N0+'  (t='+s.t.toFixed(1)+'s)', '방사성 원자핵은 언제 붕괴할지 개별적으론 알 수 없지만, 집단으로는 <b>지수적으로</b> 줄어듭니다 — 매 <b>반감기 T½</b>마다 정확히 절반으로. N = N₀·(½)^(t/T½) = N₀·e^(−λt). 반감기는 원소마다 고유(탄소-14는 5730년, 우라늄-238은 45억년). 이 일정함이 <b>방사성 연대측정</b>(화석·유물·암석 나이)의 시계가 됩니다. 핵에너지·의료 방사선·원자력의 바탕.'); }
   }
 
   ];

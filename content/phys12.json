@@ -68,5 +68,33 @@
    "q_en": "R = 2 Ω, C = 3 F. Time constant τ?",
    "sol_en": "τ = RC = <b>6 s</b>."
   }
+ },
+ "phys12_02_kirchhoff": {
+  "ch": "물리학 제12장 회로",
+  "sec": "12.2 심화 · 키르히호프 법칙",
+  "title": "키르히호프 법칙 — 복잡한 회로 풀기",
+  "narr": "옴의 법칙만으론 여러 갈래 회로를 못 풉니다. 두 규칙이 더 필요하죠 — <b>마디 법칙</b>: 한 점에 들어온 전류 = 나간 전류(전하 보존). <b>고리 법칙</b>: 닫힌 고리를 한 바퀴 돌면 전압 변화의 합 = 0(에너지 보존). 슬라이더로 병렬 저항을 바꿔, 본류가 두 갈래로 나뉘었다가 다시 합쳐지는 것(I=I₂+I₃)을 보세요.",
+  "more": "<b>키르히호프 법칙</b>: ① 마디(전류) 법칙 ΣI=0(전하 보존), ② 고리(전압) 법칙 ΣV=0(에너지 보존). 미지 전류마다 방정식을 세워 연립해 풉니다. 작은 저항 가지로 더 큰 전류(I₂R₂=I₃R₃=공통 전압). 모든 회로 해석·SPICE 시뮬레이터의 토대. 직렬·병렬 공식도 이 두 법칙의 특수한 경우입니다.",
+  "more_en": "<b>Kirchhoff's laws</b>: junction rule ΣI=0 (charge conservation), loop rule ΣV=0 (energy conservation). Write and solve simultaneous equations for unknown currents. Foundation of all circuit analysis (and SPICE).",
+  "problem": {
+   "q": "한 마디에 3 A가 들어오고 한 가지로 1 A가 나가면 다른 가지의 전류는?",
+   "solution": "마디 법칙 ΣI=0 → 들어온 3 A = 나간 (1 + ?) → <b>2 A</b>.",
+   "q_en": "3 A enters a junction, 1 A leaves one branch. The other branch?",
+   "sol_en": "Junction rule: 3 = 1 + ? → <b>2 A</b>."
+  }
+ },
+ "phys12_05_lc": {
+  "ch": "물리학 제12장 회로",
+  "sec": "12.5 심화 · LC 진동",
+  "title": "LC 회로 — 전기의 진자",
+  "narr": "인덕터(L)와 축전기(C)를 이으면 <b>전기가 진동</b>합니다 — 7장의 용수철-진자와 똑같은 수학입니다(엔진이 L·dI/dt=−Q/C를 적분). 축전기의 전기에너지와 인덕터의 자기에너지가 끊임없이 주고받지만 합은 일정(저항 없을 때). 슬라이더로 L·C를 바꿔 진동 주기를 보세요. 라디오가 방송 주파수를 골라내는 동조 회로의 원리입니다.",
+  "more": "<b>LC 진동</b>: L·d²Q/dt² + Q/C = 0 → Q(t)=Q₀cos(ωt), ω=1/√(LC). SHM과 대응: 1/C↔k(복원), L↔m(관성). 전기E(Q²/2C) ⇄ 자기E(½LI²), 합 보존. 라디오·TV 동조(공명 주파수를 방송에 맞춤), 발진기, 대역통과 필터, 무선통신의 심장. 저항(R)을 넣으면 RLC 감쇠진동(7.1 감쇠와 동형).",
+  "more_en": "<b>LC oscillation</b>: ω=1/√(LC), Q(t)=Q₀cos(ωt) — identical math to mass-spring SHM (1/C↔k, L↔m). Energy swaps between capacitor (Q²/2C) and inductor (½LI²). Basis of radio tuning, oscillators, and filters.",
+  "problem": {
+   "q": "L=2 H, C=2 F인 LC 회로의 각진동수 ω는?",
+   "solution": "ω = 1/√(LC) = 1/√(2×2) = 1/√4 = <b>0.5 rad/s</b>.",
+   "q_en": "L=2 H, C=2 F. Angular frequency ω?",
+   "sol_en": "ω = 1/√(LC) = 1/2 = <b>0.5 rad/s</b>."
+  }
  }
 }
