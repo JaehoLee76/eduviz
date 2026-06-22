@@ -124,5 +124,19 @@
    "q_en": "Half-life 5 yr. Fraction left after 15 yr?",
    "sol_en": "3 half-lives → (½)³ = <b>1/8</b>."
   }
+ },
+ "phys14_05_gr": {
+  "ch": "물리학 제14장 빛·현대물리",
+  "sec": "14.5 심화 · 일반상대성",
+  "title": "휘어진 시공간 — 중력의 진짜 정체",
+  "narr": "인트로에서 본 그 출렁이는 무대, 기억하시나요? 여기가 그 본편입니다. 뉴턴은 '왜 질량이 서로 끌어당기는가'에 끝내 답하지 못했습니다. 아인슈타인의 답은 충격적이었죠 — <b>끌어당기는 게 아니라, 질량이 시공간을 움푹 휘게 하고 모든 것은 그 휜 길을 따라 굴러갈 뿐</b>이라는 것. 슬라이더로 질량을 키워 보세요. 우물이 깊어지고 — 놀랍게도 <b>지나가던 별빛까지 휘며</b>, 질량 근처의 <b>시계는 느려집니다</b>. 중력은 힘이 아니라 시공간의 모양(기하)이었습니다.",
+  "more": "<b>일반상대성(아인슈타인, 1915)</b>: 질량·에너지가 시공간을 휘게 하고, 물체와 빛은 그 안에서 가장 곧은 길(측지선)을 간다 — 그것이 우리가 '중력'이라 부르는 것. 증거: ①<b>빛의 휘어짐</b>(1919 일식, 태양 곁 별빛 1.75″ 꺾임 — 아인슈타인 명성의 시작) ②<b>중력 시간 지연</b>(질량 근처 시간 느려짐, GPS는 하루 ~38μs 보정 안 하면 ~11km 오차) ③<b>블랙홀</b>(우물이 너무 깊어 빛도 못 탈출) ④<b>중력파</b>(시공간의 잔물결, 2015 LIGO 직접 관측). 약하고 느린 극한에서는 뉴턴 중력으로 환원됩니다 — 뉴턴은 큰 그림의 훌륭한 근사.",
+  "more_en": "<b>General relativity (Einstein, 1915)</b>: mass-energy curves spacetime, and objects/light follow the straightest paths (geodesics) in it — that is gravity. Evidence: light bending (1919 eclipse), gravitational time dilation (GPS), black holes, gravitational waves (LIGO 2015). It reduces to Newtonian gravity in the weak, slow limit.",
+  "problem": {
+   "q": "일반상대성에서 중력의 정체는 무엇인가요?",
+   "solution": "<b>휘어진 시공간의 기하</b>입니다. 질량이 시공간을 휘게 하고, 물체·빛은 그 휜 길(측지선)을 따라갑니다 — '힘'이 아니라 시공간의 모양.",
+   "q_en": "In general relativity, what is gravity?",
+   "sol_en": "The <b>curvature of spacetime</b> — mass curves spacetime and things follow its geodesics; not a force but geometry."
+  }
  }
 }

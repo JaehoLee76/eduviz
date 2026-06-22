@@ -275,6 +275,37 @@
       var mx=gx0+(Math.min(s.t,s.half*5)/(s.half*5))*(gx1-gx0), my=gy0-frac*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
       E.tapHint(W/2, H*0.92, '화면 탭=초기화 · 반감기마다 절반으로 줄어듦', true);
       E.big('방사성 붕괴 N = N₀·(½)^(t/T½) — 남은 핵 '+Math.round(N)+'/'+N0+'  (t='+s.t.toFixed(1)+'s)', '핵 하나에게 \'언제 깨질래?\' 물으면 우주 누구도 모릅니다 — 완벽한 무작위입니다. 그런데 수십억 개를 모으면 거짓말처럼 정확해져, 매 <b>반감기 T½</b>마다 어김없이 <b>딱 절반</b>이 사라집니다. N = N₀·(½)^(t/T½) = N₀·e^(−λt). 개별은 예측 불가, 집단은 시계처럼 정확 — 양자 통계의 마법이죠. 반감기는 원소 고유(탄소-14 5730년, 우라늄-238 45억년). 이 멈추지 않는 리듬이 <b>방사성 연대측정</b>(화석·유물·암석 나이)의 시계가 됩니다. 핵에너지·의료 방사선의 바탕입니다.'); }
+  },
+
+  // ─── 심화: 휘어진 시공간 (일반상대성) — 인트로 훅의 본편 ───
+  { id:'phys14_05_gr', branchOf:'phys14_05', ord:1,
+    enter:function(E){ var self=this; this.s={M:1.2};
+      E.controls('<div class="ctrl"><label>질량 M (시공간 굴곡)</label><input type="range" id="mm" min="0" max="2.5" step="0.1" value="1.2"><output id="mmo">1.2</output></div>');
+      E.bind('#mm','input',function(e){ self.s.M=+e.target.value; document.getElementById('mmo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.M*100,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, fr=E.frame;
+      var cx=W*0.40, cy=H*0.44, gw=Math.min(W*0.30,H*0.42), warp=s.M;
+      function dip(dx,dy){ var rr=(dx*dx+dy*dy)/(gw*gw*0.08); return warp*(gw*0.6)/(1+rr); }
+      function P(u,v){ var bx=u*gw,by=v*gw*0.5,d=dip(bx,by),r=Math.hypot(bx,by)||1,pull=d*0.34; return [cx+bx-(bx/r)*pull, cy+by+d]; }
+      // 시공간 격자(휘어진 우물)
+      var N=13;
+      for(var iy=0;iy<=N;iy++){ var v=iy/N*2-1; ctx.strokeStyle='rgba(95,214,168,'+(0.09+0.15*(1-Math.abs(v))).toFixed(3)+')'; ctx.lineWidth=1; ctx.beginPath(); for(var ix=0;ix<=N;ix++){ var p=P(ix/N*2-1,v); if(ix===0)ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); } ctx.stroke(); }
+      for(ix=0;ix<=N;ix++){ var u=ix/N*2-1; ctx.strokeStyle='rgba(122,184,255,'+(0.07+0.12*(1-Math.abs(u))).toFixed(3)+')'; ctx.lineWidth=1; ctx.beginPath(); for(iy=0;iy<=N;iy++){ var p2=P(u,iy/N*2-1); if(iy===0)ctx.moveTo(p2[0],p2[1]); else ctx.lineTo(p2[0],p2[1]); } ctx.stroke(); }
+      // 중심 질량
+      var my=cy+dip(0,0); var grd=ctx.createRadialGradient(cx,my,2,cx,my,18+warp*12); grd.addColorStop(0,'rgba(255,244,210,0.95)'); grd.addColorStop(1,'rgba(255,178,90,0)'); ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(cx,my,18+warp*12,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,my,3+warp*4,0,7); ctx.fill();
+      // 빛(별빛)이 질량 곁을 지나며 휘어짐 — 중력렌즈
+      var beamY=cy-gw*0.42, bx0=cx-gw*1.3; ctx.strokeStyle='#ffe06a'; ctx.lineWidth=2; ctx.beginPath();
+      for(var k=0;k<=80;k++){ var X=bx0+k/80*(gw*2.6), rel=(X-cx), defl=warp*1400/((rel*rel)+gw*gw*0.4); var Y=beamY + defl*(rel>0?-0: 0) + defl;  // 질량 쪽으로 당겨짐
+        Y=beamY + warp* (gw*0.5) * Math.exp(-(rel*rel)/(gw*gw*0.5)) ;   // 가까울수록 아래로 휨
+        if(k===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+      ctx.fillStyle='#ffe06a'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('별빛', bx0, beamY-6);
+      // 시간 느려짐: 멀리·가까이 두 시계
+      function clock(px,py,rate,lab){ ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(px,py,12,0,7); ctx.stroke(); var a=-Math.PI/2 + (fr*0.04*rate)%(2*Math.PI); ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+9*Math.cos(a),py+9*Math.sin(a)); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,px,py+26); }
+      var rateNear=1/Math.sqrt(1+warp*0.8);   // 질량 근처 시계가 느리게(개념적)
+      clock(cx+gw*0.35, cy+gw*0.34, rateNear, '질량 근처(느림)');
+      clock(W*0.88, H*0.30, 1, '먼 곳(빠름)');
+      E.tapHint(W/2, H*0.93, '질량을 키우면 시공간이 더 휘고 빛도 더 꺾입니다', true);
+      E.big('일반상대성 — 중력은 휘어진 시공간이다', '뉴턴은 "왜 끌어당기지?"에 답하지 못했습니다. 아인슈타인의 답: <b>끌어당기는 게 아니다 — 질량이 시공간을 휘게 하고, 모든 것은 그 휜 길을 따라갈 뿐</b>이다. 무거울수록 우물이 깊어지죠. 놀랍게도 <b>빛조차 휩니다</b>(별빛이 태양 곁에서 꺾이는 것을 1919년 일식 때 확인 — 아인슈타인은 하룻밤 새 유명해졌습니다). 질량 근처에서는 <b>시간도 느려집니다</b>(그래서 GPS는 매일 보정). 우물이 너무 깊어 빛조차 못 나오면 블랙홀, 시공간이 출렁이면 중력파(2015 직접 관측). 인트로에서 본 그 휘어진 무대 — 바로 우리가 사는 우주의 진짜 모습입니다.'); }
   }
 
   ];
