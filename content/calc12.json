@@ -1,0 +1,42 @@
+{
+ "calc12_01": {
+  "ch": "미적분 12장 · 공간벡터",
+  "sec": "12.1 3차원 벡터",
+  "title": "평면을 넘어 공간으로",
+  "narr": "지금까지의 미적분은 평면(2D) 위에서였지만, 세상은 <b>3차원</b>입니다. 공간의 한 점·방향은 세 성분 <b>(x, y, z)</b>로 적죠. 벡터 v=(2,2,3)의 크기는 피타고라스를 한 번 더 써서 <b>|v| = √(x²+y²+z²)</b>. 슬라이더로 시점을 빙글 돌려 보세요 — 평면 위 점선 그림자와 함께 입체감이 살아납니다. 여기서부터 미적분은 곡면·온도장·유체·전자기장 같은 ‘진짜 세계’로 확장됩니다.",
+  "more": "<b>3D로의 도약</b>: 2D의 모든 도구(거리·내적·미분)가 성분 하나(z)를 더해 자연스럽게 확장됩니다. |v|=√(x²+y²+z²)는 √((√(x²+y²))²+z²) — 피타고라스를 두 번 쓴 것이죠. 화면의 크기는 성분에서 실제로 계산한 값입니다.",
+  "more_en": "The world is 3D. A point or direction is three components (x,y,z), and a vector's length is |v| = √(x²+y²+z²) — Pythagoras applied twice. Here calculus expands to surfaces, fields, and fluids."
+ },
+ "calc12_02": {
+  "ch": "미적분 12장 · 공간벡터",
+  "sec": "12.2 벡터의 덧셈",
+  "title": "벡터를 더한다 — 평행사변형",
+  "narr": "벡터는 ‘크기와 방향을 가진 화살표’이고, 더하기는 <b>이어 붙이기</b>입니다. u의 끝에 v를 붙이면, 출발점에서 도착점까지의 화살표가 합 <b>u+v</b>죠 — 평행사변형의 대각선입니다. 슬라이더로 v의 방향을 돌려 합이 어떻게 변하는지 보세요. 계산은 간단합니다: <b>성분끼리 더하면 끝</b>. 힘의 합성, 속도의 합성, 변위의 누적이 모두 이 벡터 덧셈입니다.",
+  "more": "<b>성분 덧셈</b>: u+v = (u₁+v₁, u₂+v₂, …). 기하적으로는 평행사변형 법칙(또는 삼각형 법칙)이고, 둘은 같은 것을 말합니다. 뺄셈 u−v는 v를 뒤집어 더한 것. 화면의 합 벡터(보라)는 성분을 실제로 더해 그린 것입니다.",
+  "more_en": "Vectors add tip-to-tail: u+v is the diagonal of the parallelogram. Computationally, just add components: u+v = (u₁+v₁, u₂+v₂). Forces and velocities combine this way."
+ },
+ "calc12_03": {
+  "ch": "미적분 12장 · 공간벡터",
+  "sec": "12.3 내적",
+  "title": "내적 — 두 방향이 얼마나 닮았나",
+  "narr": "<b>내적 u·v = |u||v|cosθ</b>는 ‘두 벡터가 얼마나 같은 방향을 보는가’를 한 숫자로 알려 줍니다. 슬라이더로 사잇각 θ를 바꿔 보세요. 같은 방향(예각)이면 <b>양수</b>, 정확히 <b>수직이면 0</b>, 반대 방향(둔각)이면 <b>음수</b>가 됩니다. 기하적으로는 한 벡터를 다른 벡터 위에 <b>사영(그림자)</b>한 길이(초록)에 크기를 곱한 것이죠. ‘수직이면 내적 0’이라는 사실이 직교·정사영·일(Work=F·d)의 핵심입니다.",
+  "more": "<b>두 얼굴</b>: 내적은 u·v = u₁v₁+u₂v₂+…(성분 곱의 합) = |u||v|cosθ(기하). 둘이 같다는 게 코사인 법칙에서 증명됩니다. cosθ = (u·v)/(|u||v|)로 각도를 구할 수 있고, 일 W = F·d, 사영 등에 쓰입니다. 화면의 내적·사영 길이는 성분으로 실제 계산한 값입니다.",
+  "more_en": "The dot product u·v = |u||v|cosθ measures how aligned two vectors are: positive (acute), zero (perpendicular), negative (obtuse). Geometrically it's the projection length times magnitude. Work = F·d uses it."
+ },
+ "calc12_04": {
+  "ch": "미적분 12장 · 공간벡터",
+  "sec": "12.4 외적",
+  "title": "외적 — 평행사변형의 넓이",
+  "narr": "내적이 한 숫자(스칼라)를 주는 반면, <b>외적 u×v</b>는 두 벡터에 <b>동시에 수직인 새 벡터</b>를 만듭니다 — 그리고 그 크기는 <b>두 벡터가 만드는 평행사변형의 넓이 |u||v|sinθ</b>입니다. 슬라이더로 사잇각을 바꿔 보세요: 두 벡터가 <b>나란하면 넓이(외적) 0</b>, <b>수직일 때 최대</b>가 됩니다. 토크(돌림힘), 각운동량, 자기력(qv×B), 면적벡터가 모두 외적입니다 — 회전과 방향이 얽힌 모든 곳에 등장하죠.",
+  "more": "<b>방향 + 크기</b>: u×v의 방향은 오른손 법칙으로 u,v에 수직, 크기는 |u||v|sinθ(평행사변형 넓이). sinθ라서 나란할 때(θ=0) 0, 수직일 때(θ=90°) 최대입니다. 내적의 cos와 정확히 짝을 이루죠. 화면의 넓이(외적 크기)는 |u₁v₂−u₂v₁|로 실제 계산한 값입니다.",
+  "more_en": "The cross product u×v is a new vector perpendicular to both, with magnitude |u||v|sinθ = the area of the parallelogram. Parallel vectors give zero; perpendicular gives maximum. Torque and magnetic force use it."
+ },
+ "calc12_05": {
+  "ch": "미적분 12장 · 공간벡터",
+  "sec": "12.5 평면과 법선벡터",
+  "title": "평면을 정하는 것 — 법선",
+  "narr": "공간의 <b>평면</b>은 무엇으로 정해질까요? 놀랍게도 ‘한 점 + 그에 수직인 방향(<b>법선벡터 n</b>)’ 하나면 충분합니다. 평면 위 임의의 점 r에 대해, r−r₀는 항상 n과 수직이니 <b>n·(r − r₀) = 0</b> — 이것이 평면의 방정식이죠. 슬라이더로 시점을 돌려 평면과 그 위에 꼿꼿이 선 법선(금색)을 보세요. 빛의 반사, 충돌면, 3D 그래픽의 음영이 모두 이 법선벡터로 계산됩니다.",
+  "more": "<b>법선이 곧 평면</b>: n=(a,b,c)이고 점 (x₀,y₀,z₀)을 지나면 평면은 a(x−x₀)+b(y−y₀)+c(z−z₀)=0. 법선은 외적으로 구할 수 있습니다(평면 위 두 벡터의 u×v). 점과 평면 사이 거리도 법선에 사영해 구하죠. 화면의 평면·법선은 회전 투영으로 그린 것입니다.",
+  "more_en": "A plane is fixed by one point plus a perpendicular direction — the normal vector n. For any point r on it, n·(r − r₀) = 0. Reflection, collision, and 3D shading all use the normal."
+ }
+}
