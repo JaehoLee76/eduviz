@@ -377,26 +377,28 @@
   // ── 애니메이션 재생 제어(물리 등 연속 시뮬) ──
   // 물리 장면은 draw 안에서 매 프레임 시뮬을 한 스텝 적분 → draw 호출을 제어하면 재생/정지/한칸진행.
   // 한 뒤로는 enter(재진입) 후 목표 프레임까지 결정적 리플레이(난수 금지=골든룰 덕에 정확 재현).
-  var animPaused=false, animFrame=0;
-  function drawOneFrame(){ frameN++; animFrame++; ctx.clearRect(0,0,W,H);
+  var animPaused=false, animFrame=0, _frozenFlag=false;
+  // advance=true: 시뮬 적분 진행(+animFrame). false: 적분 동결, 렌더만(일시정지 중 슬라이더·드래그 반영).
+  function drawOneFrame(advance){ frameN++; _frozenFlag=!advance; if(global.PhysLab) global.PhysLab.frozen=!advance;
+    if(advance) animFrame++; ctx.clearRect(0,0,W,H);
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
     if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드면 캔버스 생략
   }
-  function loop(){ if(!animPaused) drawOneFrame(); requestAnimationFrame(loop); }
+  function loop(){ drawOneFrame(!animPaused); requestAnimationFrame(loop); }   // 항상 그림 — 일시정지면 적분만 동결
   var playbackEnabled=false;   // 연속 애니메이션 트랙(물리 등)만 opt-in (Engine.start({playback:true}))
   function playbackEligible(){ if(!playbackEnabled)return false; var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null; return !!(sc && sc.draw && !(sc._viz&&_steps) && !(sc.branchOf!=null&&sc.page)); }
   function setPaused(p){ animPaused=!!p; updatePlayUI(); }
   function togglePlay(){ if(!playbackEligible())return; animPaused=!animPaused; if(!animPaused){} updatePlayUI(); }
-  function frameStepFwd(){ if(!playbackEligible())return; animPaused=true; drawOneFrame(); updatePlayUI(); }
+  function frameStepFwd(){ if(!playbackEligible())return; animPaused=true; drawOneFrame(true); updatePlayUI(); }   // 한 칸: 시뮬 한 스텝 진행
   function frameStepBack(){ if(!playbackEligible())return; animPaused=true; replayTo(Math.max(0,animFrame-1)); updatePlayUI(); }
   function replayTo(target){ var sc=SM.scenes[SM.cur]; if(!sc)return;
     var saved=[]; if(controlsEl){ var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++) saved.push(rs[i].value); }
     if(sc.enter) sc.enter(E);                                  // 처음으로 되돌림(시뮬·상태 리셋)
     if(controlsEl){ var rs2=controlsEl.querySelectorAll('input[type=range]'); for(var j=0;j<rs2.length;j++){ if(j<saved.length){ rs2[j].value=saved[j]; try{ rs2[j].dispatchEvent(new Event('input',{bubbles:true})); }catch(e){} } } }  // 슬라이더 설정 보존
     animFrame=0; if(target>5000)target=5000;                   // 안전 상한
-    for(var f=0; f<target; f++){ drawOneFrame(); }             // 결정적 리플레이로 목표 프레임 재현(animFrame=target)
+    for(var f=0; f<target; f++){ drawOneFrame(true); }         // 결정적 리플레이로 목표 프레임 재현(animFrame=target)
   }
   var playBar=null, playBtn=null;
   function updatePlayUI(){ if(!playBar)return; var elig=playbackEligible(); playBar.style.display=elig?'flex':'none';
@@ -472,7 +474,7 @@
 
   // ---------- engine facade (장면에 전달) ----------
   var E = {
-    get ctx(){return ctx;}, get W(){return W;}, get H(){return H;}, get frame(){return frameN;},
+    get ctx(){return ctx;}, get W(){return W;}, get H(){return H;}, get frame(){return frameN;}, get frozen(){return _frozenFlag;},
     P:P, setOn:setOn, NL:new NumberLine(), Plot:new Plot(), COL:COL, S:function(){return S;},
     say:say, big:big, controls:controls, bind:bind, blip:blip, next:next, quiz:quiz,
     blink:blink, tapHint:tapHint

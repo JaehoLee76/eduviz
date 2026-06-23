@@ -109,7 +109,7 @@
       E.setOn([]); },
     tap:function(E){ this.s.th=this.s.th0; this.s.om=0; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var h=1/60/6; for(var i=0;i<6;i++){ s.om += -(s.g/s.L)*Math.sin(s.th)*h; s.th += s.om*h; }   // 진자 ODE: θ'' = -(g/L)sinθ
+      var h=1/60/6; if(!E.frozen)for(var i=0;i<6;i++){ s.om += -(s.g/s.L)*Math.sin(s.th)*h; s.th += s.om*h; }   // 진자 ODE: θ'' = -(g/L)sinθ
       var px=W*0.40, py=H*0.16, sc=Math.min(W*0.16,H*0.20), L=s.L*sc;
       var bx=px+L*Math.sin(s.th), by=py+L*Math.cos(s.th);
       // 천장·실·추
@@ -194,7 +194,7 @@
       this.s.a[1]=137*Math.PI/180; this.reset(); E.setOn([]); },
     reset:function(){ var s=this.s; s.th=[s.a[0],s.a[1]]; s.om=[0,0]; },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var h=1/60/6; for(var k=0;k<6;k++){ for(var i=0;i<2;i++){ s.om[i]+= -(s.g/s.L)*Math.sin(s.th[i])*h; s.th[i]+=s.om[i]*h; } }
+      var h=1/60/6; if(!E.frozen)for(var k=0;k<6;k++){ for(var i=0;i<2;i++){ s.om[i]+= -(s.g/s.L)*Math.sin(s.th[i])*h; s.th[i]+=s.om[i]*h; } }
       var L=Math.min(W*0.14,H*0.22)*s.L*0.6;
       [[W*0.30,'작은 각(≈SHM)',GRN,0],[W*0.62,'큰 각',ORA,1]].forEach(function(c){ var px=c[0],py=H*0.18,th=s.th[c[3]];
         var bx=px+L*Math.sin(th), by=py+L*Math.cos(th);

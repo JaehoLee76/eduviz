@@ -198,7 +198,7 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, burn=0.6, m0=5, mdry=1.5;
       // 연료 소모 + 추력: dv = ve·(−dm/m), 엔진식 적분
       if(s.m>mdry){ var dm=burn*(1/60); var dv=s.ve*(dm/s.m); s.v+=dv; s.m-=dm; }
-      s.y+=s.v*(1/60); s.t+=1/60; if(s.y>8){ this.reset(); }
+      if(!E.frozen){ s.y+=s.v*(1/60); s.t+=1/60; if(s.y>8){ this.reset(); } }
       s.hist.push(s.v); if(s.hist.length>200)s.hist.shift();
       var cx=W*0.26, botY=H*0.84, topY=H*0.14, py=botY-(s.y/8)*(botY-topY);
       // 로켓

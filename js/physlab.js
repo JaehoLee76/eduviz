@@ -23,7 +23,8 @@
   World.prototype.reset = function(){ this.bodies.length=0; this.forces.length=0; this.t=0; };
 
   // 반암시적(세미-암시적) 오일러 — 안정적. substep으로 강성 힘도 견딤.
-  World.prototype.step = function(dt, sub){ sub=sub||6; var h=dt/sub, i, s, b;
+  World.prototype.step = function(dt, sub){ if(global.PhysLab && global.PhysLab.frozen) return;   // 일시정지: 적분만 멈추고(시뮬 정지) 렌더는 계속 → 슬라이더·드래그 반영
+    sub=sub||6; var h=dt/sub, i, s, b;
     for(s=0;s<sub;s++){
       for(i=0;i<this.bodies.length;i++){ b=this.bodies[i]; b.fx=0; b.fy=-b.m*this.g; }   // 중력
       if(this.linDrag>0) for(i=0;i<this.bodies.length;i++){ b=this.bodies[i]; b.fx-=this.linDrag*b.vx; b.fy-=this.linDrag*b.vy; }
@@ -69,5 +70,5 @@
     wx:function(px){ return (px-ox)/scale; }, wy:function(py){ return (oy-py)/scale; }
   }; }
 
-  global.PhysLab = { world:function(o){ return new World(o); }, F:F, view:view };
+  global.PhysLab = { world:function(o){ return new World(o); }, F:F, view:view, frozen:false };
 })(window);

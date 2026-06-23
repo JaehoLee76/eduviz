@@ -25,7 +25,7 @@
       E.setOn([]); },
     tap:function(E){ this.s.th=0; this.s.om=0; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      spin(s, s.alpha); if(s.om>7){ s.om=0; }
+      if(!E.frozen){ spin(s, s.alpha); if(s.om>7){ s.om=0; } }
       var cx=W*0.40, cy=H*0.46, R=Math.min(W*0.22,H*0.30), v=s.r*s.om;
       disk(E,cx,cy,R,BLU);
       // 회전 표시 반경선 + 점들
@@ -51,7 +51,7 @@
       E.setOn([]); },
     tap:function(E){ this.s.th=-0.4; this.s.om=0; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var tau=s.r*s.F, alpha=tau/s.I; spin(s, alpha); if(s.om>7){ s.om=0; }
+      var tau=s.r*s.F, alpha=tau/s.I; if(!E.frozen){ spin(s, alpha); if(s.om>7){ s.om=0; } }
       var cx=W*0.40, cy=H*0.48, scale=Math.min(W*0.13,H*0.18);
       // 피벗
       ctx.fillStyle=DIM; ctx.beginPath(); ctx.arc(cx,cy,6,0,7); ctx.fill();
@@ -75,7 +75,7 @@
       E.setOn([]); },
     tap:function(E){ this.s.th=0; this.s.om=0; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var I=2*s.m*s.d*s.d, alpha=s.tau/I; spin(s, alpha); if(s.om>7){ s.om=0; }
+      var I=2*s.m*s.d*s.d, alpha=s.tau/I; if(!E.frozen){ spin(s, alpha); if(s.om>7){ s.om=0; } }
       var cx=W*0.40, cy=H*0.46, scale=Math.min(W*0.15,H*0.20);
       ctx.fillStyle=DIM; ctx.beginPath(); ctx.arc(cx,cy,5,0,7); ctx.fill();
       // 막대(축) 양끝에 질량
@@ -97,7 +97,7 @@
     tap:function(E){ this.s.th=0; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var I=s.Icore+2*s.m*s.r*s.r, om=s.L0/I;        // 각운동량 보존: ω = L0 / I
-      var h=1/60/6; for(var i=0;i<6;i++){ s.th += om*h; }
+      var h=1/60/6; if(!E.frozen)for(var i=0;i<6;i++){ s.th += om*h; }
       var cx=W*0.40, cy=H*0.46, scale=Math.min(W*0.13,H*0.18);
       // 몸통
       disk(E,cx,cy,18,BLU);

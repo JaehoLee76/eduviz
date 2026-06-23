@@ -77,7 +77,7 @@
       E.controls('<div class="ctrl"><label>전류 I</label><input type="range" id="ii" min="1" max="8" step="1" value="4"><output id="iio">4</output></div>');
       E.bind('#ii','input',function(e){ self.s.I=+e.target.value; document.getElementById('iio').textContent=e.target.value; E.blip(320,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.ph+=s.I*0.004;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.ph+=s.I*0.004;
       var cx=W*0.40, cy=H*0.46;
       // 전선(수직, 전류 위로)
       ctx.strokeStyle=ORA; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(cx,cy-H*0.32); ctx.lineTo(cx,cy+H*0.32); ctx.stroke();
@@ -182,7 +182,7 @@
       E.bind('#np','input',function(e){ self.s.Np=+e.target.value; document.getElementById('npo').textContent=e.target.value; E.blip(360,0.07); });
       E.bind('#ns','input',function(e){ self.s.Ns=+e.target.value; document.getElementById('nso').textContent=e.target.value; E.blip(340,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var Vs=s.Vp*s.Ns/s.Np, cy=H*0.44;
       // 철심(가운데 사각)
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=6; ctx.strokeRect(W*0.40,cy-60,W*0.16,120);

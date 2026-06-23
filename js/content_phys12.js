@@ -25,7 +25,7 @@
       E.bind('#vv','input',function(e){ self.s.V=+e.target.value; document.getElementById('vvo').textContent=e.target.value; E.blip(300+self.s.V*30,0.07); });
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, R=3;
-      var I=s.V/R; s.ph+=I*0.0012;
+      var I=s.V/R; if(!E.frozen)s.ph+=I*0.0012;
       var x=W*0.24, y=H*0.30, w=W*0.5, h=H*0.34;
       wire(E,x,y,w,h); battery(E,x,y+h/2); resistor(E,x+w,y+h/2,false,GRN);
       flow(E,s.ph,x,y,w,h,Math.round(8+s.V),BLU);
@@ -44,7 +44,7 @@
       E.bind('#rr','input',function(e){ self.s.R=+e.target.value; document.getElementById('rro').textContent=e.target.value; E.blip(360,0.07); });
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var I=s.V/s.R; s.ph+=I*0.0016;
+      var I=s.V/s.R; if(!E.frozen)s.ph+=I*0.0016;
       var x=W*0.22, y=H*0.28, w=W*0.46, h=H*0.34;
       wire(E,x,y,w,h); battery(E,x,y+h/2);
       // 저항(클수록 지그재그 크게)
@@ -66,7 +66,7 @@
       E.bind('#r2','input',function(e){ self.s.R2=+e.target.value; document.getElementById('r2o').textContent=e.target.value; E.blip(340,0.07); });
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var Rtot = s.mode? 1/(1/s.R1+1/s.R2) : (s.R1+s.R2), I=s.V/Rtot; s.ph+=I*0.002;
+      var Rtot = s.mode? 1/(1/s.R1+1/s.R2) : (s.R1+s.R2), I=s.V/Rtot; if(!E.frozen)s.ph+=I*0.002;
       var x=W*0.20, y=H*0.26, w=W*0.5, h=H*0.36;
       wire(E,x,y,w,h); battery(E,x,y+h/2);
       if(!s.mode){ // 직렬: 두 저항 위쪽에 나란히
@@ -96,7 +96,7 @@
       E.bind('#rr','input',function(e){ self.s.R=+e.target.value; document.getElementById('rro').textContent=e.target.value; E.blip(360,0.07); });
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var I=s.V/s.R, P=s.V*I; s.ph+=I*0.0016;
+      var I=s.V/s.R, P=s.V*I; if(!E.frozen)s.ph+=I*0.0016;
       var x=W*0.22, y=H*0.28, w=W*0.42, h=H*0.32;
       wire(E,x,y,w,h); battery(E,x,y+h/2); resistor(E,x+w,y+h/2,false,GRN);
       flow(E,s.ph,x,y,w,h,Math.max(4,Math.round(I*3)),BLU);
@@ -125,8 +125,8 @@
     tap:function(E){ var s=this.s; s.charging=!s.charging; s.t=0; s.hist=[]; E.blip(s.charging?440:240,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       // RC ODE 적분: 충전 dQ/dt=(V-Q/C)/R, 방전 dQ/dt=-(Q/C)/R
-      var h=1/60/6; for(var i=0;i<6;i++){ var Vc=s.Q/s.C; var dQ = s.charging? (s.V-Vc)/s.R : -Vc/s.R; s.Q += dQ*h; if(s.Q<0)s.Q=0; }
-      s.t+=1/60;
+      var h=1/60/6; if(!E.frozen)for(var i=0;i<6;i++){ var Vc=s.Q/s.C; var dQ = s.charging? (s.V-Vc)/s.R : -Vc/s.R; s.Q += dQ*h; if(s.Q<0)s.Q=0; }
+      if(!E.frozen)s.t+=1/60;
       var Vc=s.Q/s.C, I=(s.charging?(s.V-Vc):-Vc)/s.R, tau=s.R*s.C;
       s.hist.push(Vc); if(s.hist.length>300) s.hist.shift();
       // 회로

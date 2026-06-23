@@ -17,7 +17,7 @@
       E.controls('<div class="ctrl"><label>진동수 (스펙트럼 위치)</label><input type="range" id="ff" min="1" max="9" step="1" value="5"><output id="ffo">가시광</output></div>');
       E.bind('#ff','input',function(e){ self.s.f=+e.target.value; var names=['','전파','마이크로파','적외선','가시광(적)','가시광','가시광(자)','자외선','X선','감마선']; document.getElementById('ffo').textContent=names[self.s.f]; E.blip(200+self.s.f*80,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var x0=W*0.10, x1=W*0.90, midY=H*0.36, A=H*0.13, k=0.6+s.f*0.25, w=3;
       // E 필드(세로 사인, 초록)
       ctx.strokeStyle=GRN; ctx.lineWidth=2.5; ctx.beginPath();
@@ -105,7 +105,7 @@
       E.controls('<div class="ctrl"><label>빛 진동수 f (광자 에너지 ∝ f)</label><input type="range" id="ff" min="1" max="10" step="1" value="6"><output id="ffo">6</output></div>');
       E.bind('#ff','input',function(e){ self.s.f=+e.target.value; document.getElementById('ffo').textContent=e.target.value; E.blip(200+self.s.f*70,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var Eph=s.f, KE=Eph-s.W, emit=KE>0, plateX=W*0.46, cy=H*0.44;
       // 금속판
       ctx.fillStyle='rgba(180,180,200,0.25)'; ctx.fillRect(plateX,H*0.18,30,H*0.5);
@@ -133,7 +133,7 @@
       E.controls('<div class="ctrl"><label>속도 v (광속의 배수 β)</label><input type="range" id="bb" min="0" max="0.95" step="0.05" value="0.6"><output id="bbo">0.60</output></div>');
       E.bind('#bb','input',function(e){ self.s.beta=+e.target.value; document.getElementById('bbo').textContent=(+e.target.value).toFixed(2); E.blip(300+self.s.beta*300,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var gamma=1/Math.sqrt(1-s.beta*s.beta);
       // 정지 광시계(왼쪽): 빛이 두 거울 사이 수직 왕복
       var x1=W*0.22, topY=H*0.22, botY=H*0.50, ph0=(s.t*1.2)%1, ly0=topY+(botY-topY)*(ph0<0.5?ph0*2:2-ph0*2);
@@ -225,7 +225,7 @@
       E.bind('#ni','input',function(e){ self.s.ni=+e.target.value; document.getElementById('nio').textContent=e.target.value; self.s.phase=0; E.blip(360,0.07); });
       E.bind('#nf','input',function(e){ self.s.nf=+e.target.value; document.getElementById('nfo').textContent=e.target.value; self.s.phase=0; E.blip(340,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60; s.phase=(s.phase+1/60*0.4)%1;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen){ if(!E.frozen)s.t+=1/60; s.phase=(s.phase+1/60*0.4)%1; }
       var ni=Math.max(s.ni,s.nf+1), nf=Math.min(s.nf,ni-1);
       var cx=W*0.32, cy=H*0.46, sc=Math.min(W*0.04,H*0.06);
       // 핵
@@ -255,7 +255,7 @@
       E.bind('#hh','input',function(e){ self.s.half=+e.target.value; self.s.t=0; document.getElementById('hho').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
       E.setOn([]); },
     tap:function(E){ this.s.t=0; E.blip(360,0.12); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60; if(s.t>s.half*5) s.t=0;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen){ if(!E.frozen)s.t+=1/60; if(s.t>s.half*5) s.t=0; }
       var frac=Math.pow(0.5, s.t/s.half), N0=64, N=N0*frac;
       // 핵 격자(남은 것 채색)
       var ox=W*0.10, oy=H*0.22, cols2=8;

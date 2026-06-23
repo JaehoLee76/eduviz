@@ -39,7 +39,7 @@
       E.controls('<div class="ctrl"><label>액체 밀도 ρ (물=1000)</label><input type="range" id="rr" min="600" max="1400" step="50" value="1000"><output id="rro">1000</output></div>');
       E.bind('#rr','input',function(e){ self.s.rho=+e.target.value; document.getElementById('rro').textContent=e.target.value; E.blip(360,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8; if(!E.frozen)s.t+=1/60;
       var tankX=W*0.14, tankW=W*0.30, topY=H*0.16, botY=H*0.74, Hm=3;   // 탱크 깊이 3 m
       var scaleY=(botY-topY)/Hm, scaleX=(W*0.5)/8;
       // 물탱크
@@ -107,7 +107,7 @@
       E.controls('<div class="ctrl"><label>좁은 곳 단면적 A₂</label><input type="range" id="aa" min="0.15" max="0.9" step="0.05" value="0.3"><output id="aao">0.30</output></div>');
       E.bind('#aa','input',function(e){ self.s.A2=+e.target.value; document.getElementById('aao').textContent=(+e.target.value).toFixed(2); E.blip(360,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var x0=W*0.10, x1=W*0.90, midY=H*0.42, A1=0.9, v1=1.2;
       // 파이프 폭: 넓음 A1 → 좁음 A2 → 넓음 (가운데 좁아짐)
       function rad(xu){ var t=xu/10; var nar=Math.exp(-Math.pow((t-0.5)/0.16,2)); return (A1-(A1-s.A2)*nar)*70; }
@@ -138,7 +138,7 @@
       E.controls('<div class="ctrl"><label>좁은 곳 단면적 A₂</label><input type="range" id="aa" min="0.15" max="0.9" step="0.05" value="0.3"><output id="aao">0.30</output></div>');
       E.bind('#aa','input',function(e){ self.s.A2=+e.target.value; document.getElementById('aao').textContent=(+e.target.value).toFixed(2); E.blip(360,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, rho=1.2, P0=100; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, rho=1.2, P0=100; if(!E.frozen)s.t+=1/60;
       var x0=W*0.10, x1=W*0.90, midY=H*0.46, A1=0.9, v1=2;
       function area(xu){ var t=xu/10, nar=Math.exp(-Math.pow((t-0.5)/0.16,2)); return A1-(A1-s.A2)*nar; }
       function rad(xu){ return area(xu)*60; }

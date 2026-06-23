@@ -16,7 +16,7 @@
       E.bind('#ff','input',function(e){ self.s.f=+e.target.value; document.getElementById('ffo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.f*200,0.07); });
       E.bind('#aa','input',function(e){ self.s.A=+e.target.value; document.getElementById('aao').textContent=(+e.target.value).toFixed(1); E.blip(380,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var c=3, k=2*Math.PI*s.f/c, w=2*Math.PI*s.f, midY=H*0.42, x0=W*0.08, x1=W*0.92, sc=H*0.16;
       function Y(xx){ return midY - s.A*sc*Math.sin(k*xx - w*s.t); }
       // 매질 점들
@@ -44,7 +44,7 @@
       E.controls('<div class="ctrl"><label>진동수 f (Hz)</label><input type="range" id="ff" min="0.3" max="1.5" step="0.1" value="0.6"><output id="ffo">0.6</output></div>');
       E.bind('#ff','input',function(e){ self.s.f=+e.target.value; document.getElementById('ffo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.f*200,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var c=3, lambda=c/s.f, k=2*Math.PI/lambda, w=2*Math.PI*s.f, midY=H*0.42, x0=W*0.08, x1=W*0.92, sc=H*0.16, span=10;
       function Y(xx){ return midY - sc*Math.sin(k*xx - w*s.t); }
       ctx.strokeStyle=BLU; ctx.lineWidth=2.5; ctx.beginPath();
@@ -68,7 +68,7 @@
       E.controls('<div class="ctrl"><label>오른쪽 펄스 부호 (+1 보강 / −1 상쇄)</label><input type="range" id="sg" min="-1" max="1" step="2" value="1"><output id="sgo">+1</output></div>');
       E.bind('#sg','input',function(e){ self.s.sign=+e.target.value; document.getElementById('sgo').textContent=(self.s.sign>0?'+1':'−1'); E.blip(360,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var midY=H*0.46, x0=W*0.08, x1=W*0.92, sc=H*0.18, span=10, c=2.2;
       var period=8, tt=(s.t%period); // 0..8 주기적으로 펄스가 교차
       var p1c=1.5+c*tt, p2c=8.5-c*tt;   // 왼쪽 펄스 오른쪽으로, 오른쪽 펄스 왼쪽으로
@@ -99,7 +99,7 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, N=s.N, c=s.c;
       // 파동방정식 유한차분 적분(양끝 고정): ∂²y/∂t² = c² ∂²y/∂x²
       var sub=10, h=1/60/sub, dx=1;
-      for(var t=0;t<sub;t++){ for(var i=1;i<N-1;i++){ var a=c*c*(s.y[i-1]-2*s.y[i]+s.y[i+1])/(dx*dx); s.vy[i]+=a*h; }
+      if(!E.frozen)for(var t=0;t<sub;t++){ for(var i=1;i<N-1;i++){ var a=c*c*(s.y[i-1]-2*s.y[i]+s.y[i+1])/(dx*dx); s.vy[i]+=a*h; }
         for(i=1;i<N-1;i++) s.y[i]+=s.vy[i]*h; s.y[0]=0; s.y[N-1]=0; }
       var x0=W*0.10, x1=W*0.90, midY=H*0.44, sc=H*0.18;
       function X(i){ return x0+(x1-x0)*i/(N-1); } function Y(i){ return midY - s.y[i]*sc; }
@@ -154,7 +154,7 @@
       E.controls('<div class="ctrl"><label>음원에서 거리 r (m)</label><input type="range" id="rr" min="1" max="10" step="0.5" value="2"><output id="rro">2.0</output></div>');
       E.bind('#rr','input',function(e){ self.s.r=+e.target.value; document.getElementById('rro').textContent=(+e.target.value).toFixed(1); E.blip(420-self.s.r*30,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var P=4, I=P/(4*Math.PI*s.r*s.r), I0=1e-3, db=10*Math.log(I/I0)/Math.LN10;
       var cx=W*0.30, cy=H*0.46, sc=Math.min(W*0.05,H*0.07);
       // 음원 + 퍼지는 파면(세기 ∝ 1/r²로 옅어짐)
@@ -178,7 +178,7 @@
       E.controls('<div class="ctrl"><label>둘째 진동수 f₂ (f₁=5)</label><input type="range" id="ff" min="4" max="6" step="0.1" value="5.5"><output id="ffo">5.5</output></div>');
       E.bind('#ff','input',function(e){ self.s.f2=+e.target.value; document.getElementById('ffo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.f2*40,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var f1=5, f2=s.f2, x0=W*0.08, x1=W*0.92, midY=H*0.42, A=H*0.13, span=4;
       function w1(x){ return Math.sin(2*Math.PI*f1*(x-s.t*0.5)); } function w2(x){ return Math.sin(2*Math.PI*f2*(x-s.t*0.5)); }
       // 두 파동(옅게)

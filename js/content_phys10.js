@@ -149,7 +149,7 @@
       E.controls('<div class="ctrl"><label>온도차 ΔT</label><input type="range" id="dt" min="10" max="100" step="10" value="60"><output id="dto">60</output></div>');
       E.bind('#dt','input',function(e){ self.s.dT=+e.target.value; document.getElementById('dto').textContent=e.target.value; E.blip(360,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       // 세 모드: 전도(막대), 대류(올라가는 유체), 복사(파동)
       var rate=s.dT;  // 모두 ΔT에 비례(복사는 사실 T⁴이지만 시각화는 비례)
       var cols=W/3;
@@ -181,7 +181,7 @@
       E.bind('#th','input',function(e){ self.s.Th=+e.target.value; document.getElementById('tho').textContent=e.target.value; E.blip(380,0.07); });
       E.bind('#tc','input',function(e){ self.s.Tc=+e.target.value; document.getElementById('tco').textContent=e.target.value; E.blip(320,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; s.t+=1/60;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
       var eff=1-s.Tc/s.Th, Qh=100, Wk=Qh*eff, Qc=Qh-Wk;
       var cx=W*0.36, cy=H*0.46;
       // 고온 저장조(위)·저온(아래)·엔진(가운데)
