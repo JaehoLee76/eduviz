@@ -262,6 +262,7 @@
         } else branchPageEl.classList.remove('scrollable'); } }
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
+    animPaused=false; animFrame=0; updatePlayUI();   // 새 장면은 처음부터 재생
     paintTOC(); progress(); blip(660,0.14);
   }
   // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
@@ -373,13 +374,46 @@
 
   // ---------- main loop ----------
   var frameN=0;
-  function loop(){ frameN++; ctx.clearRect(0,0,W,H);
+  // ── 애니메이션 재생 제어(물리 등 연속 시뮬) ──
+  // 물리 장면은 draw 안에서 매 프레임 시뮬을 한 스텝 적분 → draw 호출을 제어하면 재생/정지/한칸진행.
+  // 한 뒤로는 enter(재진입) 후 목표 프레임까지 결정적 리플레이(난수 금지=골든룰 덕에 정확 재현).
+  var animPaused=false, animFrame=0;
+  function drawOneFrame(){ frameN++; animFrame++; ctx.clearRect(0,0,W,H);
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
-    if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드(심화학습 책 페이지)면 캔버스 그리기 생략
-    requestAnimationFrame(loop);
+    if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드면 캔버스 생략
   }
+  function loop(){ if(!animPaused) drawOneFrame(); requestAnimationFrame(loop); }
+  var playbackEnabled=false;   // 연속 애니메이션 트랙(물리 등)만 opt-in (Engine.start({playback:true}))
+  function playbackEligible(){ if(!playbackEnabled)return false; var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null; return !!(sc && sc.draw && !(sc._viz&&_steps) && !(sc.branchOf!=null&&sc.page)); }
+  function setPaused(p){ animPaused=!!p; updatePlayUI(); }
+  function togglePlay(){ if(!playbackEligible())return; animPaused=!animPaused; if(!animPaused){} updatePlayUI(); }
+  function frameStepFwd(){ if(!playbackEligible())return; animPaused=true; drawOneFrame(); updatePlayUI(); }
+  function frameStepBack(){ if(!playbackEligible())return; animPaused=true; replayTo(Math.max(0,animFrame-1)); updatePlayUI(); }
+  function replayTo(target){ var sc=SM.scenes[SM.cur]; if(!sc)return;
+    var saved=[]; if(controlsEl){ var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++) saved.push(rs[i].value); }
+    if(sc.enter) sc.enter(E);                                  // 처음으로 되돌림(시뮬·상태 리셋)
+    if(controlsEl){ var rs2=controlsEl.querySelectorAll('input[type=range]'); for(var j=0;j<rs2.length;j++){ if(j<saved.length){ rs2[j].value=saved[j]; try{ rs2[j].dispatchEvent(new Event('input',{bubbles:true})); }catch(e){} } } }  // 슬라이더 설정 보존
+    animFrame=0; if(target>5000)target=5000;                   // 안전 상한
+    for(var f=0; f<target; f++){ drawOneFrame(); }             // 결정적 리플레이로 목표 프레임 재현(animFrame=target)
+  }
+  var playBar=null, playBtn=null;
+  function updatePlayUI(){ if(!playBar)return; var elig=playbackEligible(); playBar.style.display=elig?'flex':'none';
+    if(playBtn){ playBtn.textContent=animPaused?'▶':'⏸'; playBtn.setAttribute('title',(animPaused?'계속재생':'일시멈춤')+' (Space)'); playBtn.setAttribute('aria-label',animPaused?'계속재생':'일시멈춤'); } }
+  function makePlayBar(){ if(playBar||!document.body||!playbackEnabled) return;
+    var bar=document.createElement('div'); bar.id='playbar';
+    bar.style.cssText='position:fixed;left:50%;bottom:74px;transform:translateX(-50%);z-index:6;display:none;gap:6px;align-items:center;'+
+      'background:rgba(20,20,28,0.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:5px 8px;box-shadow:0 3px 12px rgba(0,0,0,0.4);';
+    function mk(glyph,act,title){ var b=document.createElement('button'); b.textContent=glyph; b.setAttribute('title',title); b.setAttribute('aria-label',title);
+      b.style.cssText='background:none;border:none;color:#e6e3f5;font-size:17px;line-height:1;cursor:pointer;padding:5px 9px;border-radius:8px;font-family:inherit;';
+      b.onmouseenter=function(){ b.style.background='rgba(255,255,255,0.10)'; }; b.onmouseleave=function(){ b.style.background='none'; };
+      b.onclick=function(){ act(); b.blur(); }; return b; }
+    bar.appendChild(mk('⏮', frameStepBack, '한 뒤로 (,)'));
+    playBtn=mk('⏸', togglePlay, '일시멈춤 (Space)'); bar.appendChild(playBtn);
+    bar.appendChild(mk('⏭', frameStepFwd, '한 칸 앞으로 (.)'));
+    var hint=document.createElement('span'); hint.textContent='Space · , · .'; hint.style.cssText='font-size:10px;color:#8a8893;letter-spacing:.04em;margin:0 4px 0 2px;'; bar.appendChild(hint);
+    document.body.appendChild(bar); playBar=bar; }
 
   // ---------- Plot: 좌표평면 + 함수 그래프 (재사용: 함수·미적분까지) ----------
   function Plot(){ this.xmin=-6;this.xmax=6;this.ymin=-4;this.ymax=8; }
@@ -446,11 +480,13 @@
 
   // ---------- boot ----------
   function start(opts){
+    playbackEnabled=!!opts.playback;
     initStage(document.getElementById(opts.canvas));
     bubbleEl=document.getElementById('bubble'); hintEl=document.getElementById('hint');
     titleEl=document.getElementById('sceneTitle'); secEl=document.getElementById('sceneSec');
     controlsEl=document.getElementById('controls'); keyHintEl=document.getElementById('keyhint'); bigEl=document.getElementById('bignum');
     bigN=document.getElementById('bigN'); bigW=document.getElementById('bigW');
+    makePlayBar();   // 재생 제어 바(일시멈춤·한뒤로·한칸앞으로) 동적 생성 → 모든 트랙 페이지에 자동 표시
     // nav
     var nb=document.getElementById('next'), pb=document.getElementById('prev');
     if(nb)nb.onclick=next; if(pb)pb.onclick=prev;
@@ -464,6 +500,12 @@
       var viz=!!(s&&s._viz&&_steps);
       if(k==='ArrowRight'){ next(); e.preventDefault(); return; }
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
+      // 재생 제어(연속 애니메이션 장면): Space 재생/일시정지 · , 한 뒤로 · . 한 칸 앞으로
+      if(!viz && playbackEligible()){
+        if(space){ togglePlay(); e.preventDefault(); return; }
+        if(c==='Comma'){ frameStepBack(); e.preventDefault(); return; }
+        if(c==='Period'){ frameStepFwd(); e.preventDefault(); return; }
+      }
       if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); return; }   // ↓ 자세히(분기)로
       if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); return; }      // ↑ 나가기
       // W 한 키로 자세히 보기(좌측 패널) 펼치기·접기 토글(math). viz(algo)에선 W=다음 단계.
