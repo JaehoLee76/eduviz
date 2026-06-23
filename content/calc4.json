@@ -1,0 +1,42 @@
+{
+ "calc4_01": {
+  "ch": "미적분 4장 · 미분법",
+  "sec": "4.1 곱의 법칙",
+  "title": "곱의 미분 — 한 번에 하나씩",
+  "narr": "두 함수를 곱한 것을 미분할 때, ‘각각 미분해서 곱하면 되겠지’ 하면 <b>틀립니다</b>. 올바른 규칙은 <b>(fg)′ = f′g + fg′</b> — 한 번에 하나씩만 미분하고 나머지는 그대로 두어, 두 경우를 더합니다. x·sin x를 예로 들면 sin x + x·cos x죠. 슬라이더로 점을 옮기며, 이 공식 값이 곡선에서 직접 잰 기울기(실측)와 매번 정확히 같은지 확인하세요. ‘앞 미분×뒤 + 앞×뒤 미분’ — 입에 붙여 두면 평생 씁니다.",
+  "more": "<b>왜 더할까</b>: 넓이가 f×g인 직사각형을 떠올리면, 한 변이 조금 늘 때(f→f+Δf) 넓이 증가는 Δf·g, 다른 변이 늘 때는 f·Δg. 둘을 합친 것이 곱의 변화율입니다. 화면의 ‘f′g+fg′’와 ‘실측’이 같다는 것은 이 규칙이 정의(극한)와 일치함을 매 순간 검산하는 것입니다.",
+  "more_en": "The product rule: (fg)′ = f′g + fg′ — differentiate one factor at a time and add. Think of a rectangle of area f×g: growing one side adds Δf·g, the other adds f·Δg."
+ },
+ "calc4_02": {
+  "ch": "미적분 4장 · 미분법",
+  "sec": "4.2 몫의 법칙",
+  "title": "몫의 미분 — 아래²로 나눈다",
+  "narr": "나눗셈 꼴의 미분은 <b>(f/g)′ = (f′g − fg′)/g²</b>입니다. ‘위를 미분해 아래와 곱하고, 위와 아래 미분을 곱한 것을 빼고, 전체를 아래의 제곱으로 나눈다’ — 순서와 부호(−)가 핵심이죠. x/(x²+1)을 미분하면 (1−x²)/(x²+1)²이 됩니다. 이 함수는 x=±1에서 기울기가 0이 되어 봉우리와 골짜기를 만들죠. 슬라이더로 점을 옮기며 공식과 실측이 일치하는지 확인하세요.",
+  "more": "<b>곱의 법칙에서 유도</b>: f/g = f·g⁻¹로 보고 곱의 법칙과 연쇄법칙을 쓰면 (f′g − fg′)/g²가 나옵니다. 분자의 뺄셈 순서가 바뀌면 부호가 통째로 틀리니 주의하세요. 화면의 두 값(공식·실측)이 같음을 매번 확인합니다.",
+  "more_en": "The quotient rule: (f/g)′ = (f′g − fg′)/g². Order and the minus sign matter. It follows from writing f/g = f·g⁻¹ and applying the product and chain rules."
+ },
+ "calc4_03": {
+  "ch": "미적분 4장 · 미분법",
+  "sec": "4.3 연쇄법칙",
+  "title": "연쇄법칙 — 양파 까듯 안으로",
+  "narr": "함수 안에 함수가 든 ‘합성함수’가 미적분의 진짜 주력입니다. sin(x²)처럼요. 미분은 <b>겉부터 안으로</b>: 겉함수를 미분하고(cos), 속을 그대로 넣은 뒤(cos(x²)), 다시 <b>속함수의 미분(2x)을 곱합니다</b>. 즉 (sin x²)′ = cos(x²)·2x. 이것이 <b>연쇄법칙 (f∘g)′ = f′(g)·g′</b>입니다. 톱니바퀴가 맞물려 도는 것처럼, 변화율이 사슬로 곱해지죠. 슬라이더로 확인해 보세요 — 거의 모든 실제 미분 문제가 이 법칙을 거칩니다.",
+  "more": "<b>변화율의 곱</b>: u=g(x)가 x보다 g′배 빨리 변하고, y=f(u)가 u보다 f′배 빨리 변하면, y는 x보다 f′·g′배 빨리 변합니다 — 그래서 곱입니다. 합성이 3겹, 4겹이어도 같은 방식으로 안쪽까지 계속 곱해 갑니다. 화면의 cos(x²)·2x와 실측이 일치합니다.",
+  "more_en": "The chain rule: (f∘g)′ = f′(g)·g′. Differentiate outside-in: outer derivative at the inner function, times the inner derivative. Rates multiply along the chain, like meshed gears."
+ },
+ "calc4_04": {
+  "ch": "미적분 4장 · 미분법",
+  "sec": "4.4 음함수 미분",
+  "title": "y를 풀지 않고도 기울기를 구한다",
+  "narr": "원 x²+y²=4 위의 한 점에서 접선의 기울기는? y를 x로 깔끔히 풀 수 없어도 괜찮습니다. 양변을 x로 미분하되, <b>y를 ‘x의 함수’로 보고 연쇄법칙</b>을 쓰면 됩니다: 2x + 2y·(dy/dx) = 0 → <b>dy/dx = −x/y</b>. 슬라이더로 점을 원 위에서 돌려 보세요. 위·아래에선 기울기가 완만하고, 좌·우 끝(y=0)에선 접선이 수직(∞)이 됩니다. 식을 풀지 않고도 곡선의 접선을 잡아내는 — 음함수 미분의 힘입니다.",
+  "more": "<b>음함수 미분</b>: ‘y=…’ 꼴로 못 풀어도, 관계식 양변을 미분하면 dy/dx를 끄집어낼 수 있습니다. 핵심은 y를 미분할 때 연쇄법칙으로 dy/dx가 따라 나온다는 것(예: d/dx[y²]=2y·dy/dx). 화면의 −x/y는 점의 좌표로 실제 계산한 접선 기울기입니다.",
+  "more_en": "Implicit differentiation: even when you can't solve for y, differentiate both sides treating y as a function of x. For x²+y²=4: 2x + 2y·y′ = 0, so dy/dx = −x/y. Vertical tangents appear where y=0."
+ },
+ "calc4_05": {
+  "ch": "미적분 4장 · 미분법",
+  "sec": "4.5 선형근사",
+  "title": "가까이선, 곡선도 직선이다",
+  "narr": "복잡한 함수도 한 점 근처에서는 <b>접선</b>으로 거의 완벽히 대신할 수 있습니다 — 이것이 <b>선형근사</b>입니다. f(x) ≈ f(a) + f′(a)(x−a). 예컨대 √4=2를 알면 √4.1 ≈ 2 + (1/4)(0.1) = 2.025처럼, 미분 한 번으로 근삿값이 나오죠. 슬라이더로 기준점 a를 옮기며, a 근처에선 금색 접선과 보라 곡선이 거의 붙어 있다가 멀어질수록 벌어지는 것을 보세요. 공학·물리의 수많은 ‘근사’가 바로 이 한 줄에서 출발합니다.",
+  "more": "<b>미분 = 국소적으로 직선</b>: 미분가능하다는 건 ‘충분히 확대하면 직선으로 보인다’는 뜻입니다. 그래서 접선이 최선의 일차근사이고, 오차는 (x−a)²에 비례해 작아집니다(2차 이상은 무시). 화면의 ‘근사 vs 실제’ 오차는 a에서 멀어질수록 커지는 것을 실제로 보여 줍니다.",
+  "more_en": "Linear approximation: f(x) ≈ f(a) + f′(a)(x−a). Near a, the tangent line nearly equals the curve — differentiability means 'locally straight.' The error shrinks like (x−a)²."
+ }
+}

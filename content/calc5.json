@@ -1,0 +1,42 @@
+{
+ "calc5_01": {
+  "ch": "미적분 5장 · 미분의 응용",
+  "sec": "5.1 극값과 임계점",
+  "title": "기울기가 0이 되는 곳 — 극대·극소",
+  "narr": "산을 오르다 보면, 정상에서 잠깐 길이 ‘평평’해집니다. 함수도 마찬가지죠 — <b>극대(봉우리)와 극소(골짜기)에서는 접선의 기울기가 정확히 0</b>입니다. 그래서 최댓값·최솟값을 찾는 일은 곧 <b>f′(x)=0</b>인 점(임계점)을 찾는 일이 됩니다. f(x)=x³−3x는 x=−1에서 극대, x=1에서 극소죠. 슬라이더로 점을 옮기며 접선이 수평이 되는 순간(초록)을 잡아 보세요. 이것이 모든 최적화의 출발점입니다.",
+  "more": "<b>임계점과 판정</b>: f′(c)=0인 c가 후보(임계점)입니다. 그 점에서 f′이 +→−로 바뀌면 극대, −→+면 극소죠(1계 판정). 또는 f″(c)<0이면 극대, >0이면 극소(2계 판정). 화면의 ‘극점!’ 표시는 실측 기울기가 0에 충분히 가까워질 때 켜집니다.",
+  "more_en": "At a local max or min, the tangent is horizontal: f′(x)=0. Finding extrema means finding critical points. For f=x³−3x, x=−1 is a max and x=1 is a min."
+ },
+ "calc5_02": {
+  "ch": "미적분 5장 · 미분의 응용",
+  "sec": "5.2 평균값 정리",
+  "title": "평균 속도와 똑같은 순간이 반드시 있다",
+  "narr": "서울에서 부산까지 평균 시속 90km로 갔다면, 가는 동안 <b>정확히 시속 90km였던 순간</b>이 적어도 한 번은 반드시 있습니다. 이것이 <b>평균값 정리(MVT)</b>입니다: 구간의 ‘할선 기울기(평균변화율)’와 똑같은 ‘접선 기울기(순간변화율)’를 갖는 점 c가 구간 안에 존재한다. 슬라이더로 c를 옮겨, 금색 접선이 파란 할선과 평행해지는 순간(초록)을 찾아보세요. 당연해 보이지만, 미적분의 수많은 정리가 이 한 줄에 기대고 있습니다.",
+  "more": "<b>MVT</b>: f가 [a,b]에서 연속이고 (a,b)에서 미분가능하면, f′(c) = (f(b)−f(a))/(b−a)인 c가 존재합니다. ‘도함수가 0이면 함수는 상수’, ‘도함수가 같으면 두 함수는 상수 차이’ 같은 핵심 사실이 모두 여기서 나옵니다. 화면의 할선·접선 기울기는 실제로 계산해 비교한 값입니다.",
+  "more_en": "Mean Value Theorem: somewhere in the interval, the instantaneous rate equals the average rate — f′(c) = (f(b)−f(a))/(b−a). If your average speed was 90, you hit exactly 90 at some instant."
+ },
+ "calc5_03": {
+  "ch": "미적분 5장 · 미분의 응용",
+  "sec": "5.3 최적화",
+  "title": "최적화 — 가장 좋은 답을 미분으로",
+  "narr": "‘재료는 정해졌는데 효과를 최대로’ — 현실의 수많은 문제가 <b>최적화</b>입니다. 둘레가 20인 직사각형 중 넓이가 가장 큰 것은? 넓이 = w(10−w)를 슬라이더로 키워 보세요. 가늘고 길면 넓이가 작고, <b>정사각형(5×5)일 때 넓이가 25로 최대</b>가 됩니다. 넓이 함수의 그래프에서 그 꼭대기가 바로 미분이 0이 되는 점이죠. 비용 최소화, 이익 최대화, 최단 경로 — 미분은 ‘가장 좋은 선택’을 콕 집어 줍니다.",
+  "more": "<b>최적화 절차</b>: ①구하려는 양을 한 변수의 함수로 세우고, ②미분해서 0이 되는 점을 찾고, ③그 점이 최대인지 최소인지 확인합니다. 넓이 A(w)=w(10−w)=10w−w², A′(w)=10−2w=0 → w=5. 화면의 넓이값은 매번 w(10−w)를 실제로 계산한 것으로, w=5에서 최대가 됩니다.",
+  "more_en": "Optimization: express the quantity as a function of one variable, set its derivative to zero, and check max/min. For fixed perimeter 20, area w(10−w) is maximized at the square w=5 (area 25)."
+ },
+ "calc5_04": {
+  "ch": "미적분 5장 · 미분의 응용",
+  "sec": "5.4 뉴턴 방법",
+  "title": "접선을 타고 내려가 답을 찾다",
+  "narr": "x²=2의 답(√2)을 손으로는 못 구해도, 컴퓨터는 <b>뉴턴 방법</b>으로 순식간에 찾습니다. 아이디어는 단순합니다: 적당한 추측에서 <b>접선을 긋고, 그 접선이 x축과 만나는 곳을 다음 추측</b>으로 삼는다. 이걸 반복하면 답으로 폭발적으로 빨려 듭니다. 슬라이더로 반복 횟수를 늘려 보세요 — 단 3~4번 만에 √2 = 1.414214…에 소수점 여섯 자리까지 도달합니다. 계산기·내비게이션·AI 학습이 모두 이런 ‘반복 근사’로 돌아갑니다.",
+  "more": "<b>뉴턴 점화식</b>: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). 접선 y = f(xₙ) + f′(xₙ)(x−xₙ)이 0이 되는 x가 바로 이 식입니다. 답 근처에선 오차가 매 단계 ‘제곱으로’ 줄어(2차 수렴) 자릿수가 두 배씩 늘죠. 화면의 xₙ은 x₀=2에서 시작해 실제로 n번 반복한 값입니다.",
+  "more_en": "Newton's method: draw the tangent, take where it hits the x-axis as the next guess, repeat. xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). It converges quadratically — doubling correct digits each step."
+ },
+ "calc5_05": {
+  "ch": "미적분 5장 · 미분의 응용",
+  "sec": "5.5 관련 변화율",
+  "title": "벽을 미끄러지는 사다리",
+  "narr": "벽에 기댄 사다리의 밑동을 일정한 속도로 잡아당기면, 꼭대기는 얼마나 빨리 내려올까요? 사다리 길이는 그대로니 <b>x² + y² = L²</b>이 항상 성립하죠. 이 관계식을 시간으로 미분하면 <b>x·(dx/dt) + y·(dy/dt) = 0</b>, 즉 dy/dt = −(x/y)·dx/dt. 슬라이더로 밑동 거리 x를 키워 보세요 — 사다리가 눕다시피 할수록(y가 작아질수록) 꼭대기의 낙하 속도는 <b>급격히 빨라집니다</b>. 서로 얽힌 두 양의 변화율을 잇는 것이 관련 변화율입니다.",
+  "more": "<b>관련 변화율 절차</b>: 양들을 잇는 관계식을 세우고, 시간 t로 미분해 변화율(d/dt)끼리 연결합니다. 여기선 x²+y²=25, 미분하면 2x·x′+2y·y′=0. 밑동이 1m/s로 밀릴 때(x′=1) 꼭대기 속도 y′=−x/y. 화면의 dy/dt는 점의 x,y로 실제 계산한 값이라, y→0에서 폭발적으로 커집니다.",
+  "more_en": "Related rates: link two changing quantities through an equation and differentiate in time. A sliding ladder keeps x²+y²=L², so x·x′+y·y′=0, giving dy/dt = −(x/y)·dx/dt — the top drops faster as the ladder flattens."
+ }
+}
