@@ -383,8 +383,8 @@
   // 한 뒤로는 enter(재진입) 후 목표 프레임까지 결정적 리플레이(난수 금지=골든룰 덕에 정확 재현).
   var animPaused=false, animFrame=0, _frozenFlag=false;
   // advance=true: 시뮬 적분 진행(+animFrame). false: 적분 동결, 렌더만(일시정지 중 슬라이더·드래그 반영).
-  function drawOneFrame(advance){ frameN++; _frozenFlag=!advance; if(global.PhysLab) global.PhysLab.frozen=!advance;
-    if(advance) animFrame++; ctx.clearRect(0,0,W,H);
+  function drawOneFrame(advance){ if(advance) frameN++; _frozenFlag=!advance; if(global.PhysLab) global.PhysLab.frozen=!advance;
+    if(advance) animFrame++; ctx.clearRect(0,0,W,H);   // 일시정지면 frameN도 동결 → E.frame 기반 애니까지 완전 정지
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
@@ -404,21 +404,25 @@
     animFrame=0; if(target>5000)target=5000;                   // 안전 상한
     for(var f=0; f<target; f++){ drawOneFrame(true); }         // 결정적 리플레이로 목표 프레임 재현(animFrame=target)
   }
-  var playBar=null, playBtn=null;
-  function updatePlayUI(){ if(!playBar)return; var elig=playbackEligible(); playBar.style.display=elig?'flex':'none';
-    if(playBtn){ playBtn.textContent=animPaused?'▶':'⏸'; playBtn.setAttribute('title',(animPaused?'계속재생':'일시멈춤')+' (Space)'); playBtn.setAttribute('aria-label',animPaused?'계속재생':'일시멈춤'); } }
+  function restartScene(){ if(!playbackEligible())return; var sc=SM.scenes[SM.cur]; if(sc&&sc.enter) sc.enter(E); animPaused=false; updatePlayUI(); blip(560,0.12); }   // 처음으로(재진입+재생)
+  var playBar=null, playGlyph=null;
+  function updatePlayUI(){ if(!playBar)return; playBar.style.display=playbackEligible()?'flex':'none';
+    if(playGlyph){ playGlyph.textContent=animPaused?'▶':'⏸'; } }
   function makePlayBar(){ if(playBar||!document.body||!playbackEnabled) return;
     var bar=document.createElement('div'); bar.id='playbar';
-    bar.style.cssText='position:fixed;left:50%;bottom:74px;transform:translateX(-50%);z-index:6;display:none;gap:6px;align-items:center;'+
-      'background:rgba(20,20,28,0.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:5px 8px;box-shadow:0 3px 12px rgba(0,0,0,0.4);';
-    function mk(glyph,act,title){ var b=document.createElement('button'); b.textContent=glyph; b.setAttribute('title',title); b.setAttribute('aria-label',title);
-      b.style.cssText='background:none;border:none;color:#e6e3f5;font-size:17px;line-height:1;cursor:pointer;padding:5px 9px;border-radius:8px;font-family:inherit;';
+    bar.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:8;display:none;gap:4px;align-items:flex-end;'+
+      'background:rgba(20,20,28,0.80);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.14);border-radius:13px;padding:6px 9px;box-shadow:0 3px 14px rgba(0,0,0,0.45);';
+    function mk(glyph,keyLabel,act,title){ var b=document.createElement('button'); b.setAttribute('title',title); b.setAttribute('aria-label',title);
+      b.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:3px 7px;border-radius:9px;font-family:inherit;';
+      var g=document.createElement('span'); g.textContent=glyph; g.style.cssText='font-size:17px;line-height:1;color:#eceaf5;';
+      var kc=document.createElement('span'); kc.textContent=keyLabel; kc.style.cssText='font-size:9px;line-height:1;padding:1.5px 5px;border:1px solid var(--accent,rgba(255,255,255,0.4));border-radius:4px;color:var(--accent-light,#cfcdc6);font-family:ui-monospace,monospace;';
+      b.appendChild(g); b.appendChild(kc); b._g=g;
       b.onmouseenter=function(){ b.style.background='rgba(255,255,255,0.10)'; }; b.onmouseleave=function(){ b.style.background='none'; };
       b.onclick=function(){ act(); b.blur(); }; return b; }
-    bar.appendChild(mk('⏮', frameStepBack, '한 뒤로 (,)'));
-    playBtn=mk('⏸', togglePlay, '일시멈춤 (Space)'); bar.appendChild(playBtn);
-    bar.appendChild(mk('⏭', frameStepFwd, '한 칸 앞으로 (.)'));
-    var hint=document.createElement('span'); hint.textContent='Space · , · .'; hint.style.cssText='font-size:10px;color:#8a8893;letter-spacing:.04em;margin:0 4px 0 2px;'; bar.appendChild(hint);
+    bar.appendChild(mk('↺','0', restartScene, '처음으로 (0)'));
+    bar.appendChild(mk('◂',',', frameStepBack, '한 뒤로 (,)'));
+    var pb=mk('⏯','Space', togglePlay, '재생 / 일시정지 (Space)'); playGlyph=pb._g; bar.appendChild(pb);
+    bar.appendChild(mk('▸','.', frameStepFwd, '한 칸 앞으로 (.)'));
     document.body.appendChild(bar); playBar=bar; }
 
   // ---------- 인트로 엔드카드: 애니메이션이 끝나면 초상화(중앙)+설명(좌우)+다시보기 ----------
@@ -498,6 +502,7 @@
     var hasAuto=!!(sc && sc.s && (typeof sc.s==='object') && ('auto' in sc.s)), isStepText=/^\s*[▶↻]/.test(text);
     var stepScene=!!(sc && sc.tap && !sc.keys && !hasSlider && (hasAuto || isStepText));
     var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); if(hasAuto) chips.push(['S','자동']); chips.push(['X','처음']); }
+    else if(playbackEnabled){ chips.push(['0','처음']); }   // 물리(재생 트랙): 화면 탭과 함께 '0=처음으로' 키 안내
     ctx.save(); ctx.textBaseline='middle';
     ctx.font='600 15px sans-serif'; var tw=text?ctx.measureText(text).width:0;
     ctx.font='11px sans-serif'; var cwid=[], chipW=0;
@@ -547,11 +552,12 @@
       var viz=!!(s&&s._viz&&_steps);
       if(k==='ArrowRight'){ next(); e.preventDefault(); return; }
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
-      // 재생 제어(연속 애니메이션 장면): Space 재생/일시정지 · , 한 뒤로 · . 한 칸 앞으로
+      // 재생 제어(연속 애니메이션 장면): Space 재생/정지 · , 한 뒤로 · . 한 칸 앞으로 · 0 처음으로
       if(!viz && playbackEligible()){
         if(space){ togglePlay(); e.preventDefault(); return; }
         if(c==='Comma'){ frameStepBack(); e.preventDefault(); return; }
         if(c==='Period'){ frameStepFwd(); e.preventDefault(); return; }
+        if(c==='Digit0'||c==='Numpad0'||k==='0'){ restartScene(); e.preventDefault(); return; }
       }
       if(k==='ArrowDown'){ enterBranch(); e.preventDefault(); return; }   // ↓ 자세히(분기)로
       if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); return; }      // ↑ 나가기
