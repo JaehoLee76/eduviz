@@ -1,0 +1,42 @@
+{
+ "calc9_01": {
+  "ch": "미적분 9장 · 미분방정식",
+  "sec": "9.1 기울기장",
+  "title": "변화의 법칙이 그리는 흐름",
+  "narr": "미분방정식은 ‘함수’가 아니라 <b>함수의 변화 법칙</b>을 알려 줍니다. dy/dx = x − y 는 ‘각 점에서 곡선이 가야 할 기울기’를 말해 주죠. 그 기울기들을 화살표로 그린 것이 <b>기울기장</b>입니다. 슬라이더로 초기값 y₀를 바꿔 보세요 — 출발점만 정하면, 해곡선은 화살표의 흐름을 따라 마치 강물에 떠가는 나뭇잎처럼 길을 찾아갑니다. 미분방정식을 ‘푼다’는 건 이 흐름을 따라가는 곡선을 찾는 일입니다.",
+  "more": "<b>방향이 곧 해</b>: 미분방정식 y′=f(x,y)는 평면의 모든 점에 기울기를 부여합니다. 초기조건 (x₀,y₀) 하나가 그 흐름 위 곡선 하나를 결정하죠(존재·유일성). 화면의 해곡선은 공식이 아니라 그 점에서의 기울기를 따라 한 걸음씩 그린 것입니다.",
+  "more_en": "A differential equation gives the slope a curve must have at each point. The slope field draws these as arrows; an initial value picks one solution curve that follows the flow."
+ },
+ "calc9_02": {
+  "ch": "미적분 9장 · 미분방정식",
+  "sec": "9.2 오일러 방법",
+  "title": "접선을 따라 한 걸음씩 — 오일러법",
+  "narr": "기울기를 알면, 공식 없이도 해를 ‘걸어서’ 따라갈 수 있습니다. 현재 점에서 <b>접선 방향으로 한 걸음(h)</b> 내딛고, 새 점에서 다시 기울기를 재서 또 한 걸음 — 이것이 <b>오일러 방법</b>입니다. y′=y, y(0)=1의 참 해는 eˣ이죠. 슬라이더로 걸음 수 n을 늘려 보세요. 큰 걸음은 곡선을 직선으로 뚝뚝 끊어 오차가 크지만, <b>걸음을 잘게 할수록 매끄러운 참값에 수렴</b>합니다. 컴퓨터가 미분방정식을 푸는 가장 기본 원리입니다.",
+  "more": "<b>점화식</b>: yₙ₊₁ = yₙ + h·f(xₙ, yₙ). 한 스텝마다 접선으로 직진하니, 휘어지는 곳에서 안쪽/바깥쪽으로 벗어나 오차가 쌓입니다(오차 ∝ h). 더 정확한 룽게-쿠타(RK4)도 같은 아이디어의 정교한 버전입니다. 화면의 절선과 점은 실제 오일러 반복으로 계산한 것입니다.",
+  "more_en": "Euler's method walks the solution: step along the tangent by h, re-read the slope, step again — yₙ₊₁ = yₙ + h·f(xₙ,yₙ). Smaller steps converge to the true solution eˣ."
+ },
+ "calc9_03": {
+  "ch": "미적분 9장 · 미분방정식",
+  "sec": "9.3 지수 성장과 감쇠",
+  "title": "자기 크기에 비례해 변하면 — 지수",
+  "narr": "자연에서 가장 흔한 변화 법칙은 <b>y′ = ky</b> — ‘변화 속도가 현재 크기에 비례한다’입니다. 그 해는 언제나 <b>지수함수 y = y₀eᵏᵗ</b>이죠. 슬라이더로 k를 바꿔 보세요. k>0이면 점점 빠르게 불어나고(인구·복리·전염 초기), k<0이면 점점 천천히 줄어듭니다(방사성 붕괴·약물 농도·식는 차이). 같은 한 줄의 방정식이 폭발적 성장과 완만한 소멸을 모두 설명합니다 — 그래서 e가 자연의 언어인 것입니다.",
+  "more": "<b>해의 정체</b>: y′=ky의 유일한 해가 y₀eᵏᵗ인 이유는 eˣ가 ‘자기 자신이 도함수’이기 때문입니다(3장). k>0은 성장, k<0은 감쇠. 반감기·배가시간은 모두 |k|로 결정됩니다. 화면의 곡선은 y′=ky를 오일러법으로 실제 적분한 것으로, y₀eᵏᵗ와 일치합니다.",
+  "more_en": "The most common natural law is y′ = ky — change proportional to current size — whose solution is always the exponential y = y₀eᵏᵗ. k>0 grows (population, interest); k<0 decays (radioactivity)."
+ },
+ "calc9_04": {
+  "ch": "미적분 9장 · 미분방정식",
+  "sec": "9.4 로지스틱 방정식",
+  "title": "한계가 있는 성장 — S자 곡선",
+  "narr": "현실의 성장은 영원히 폭발하지 않습니다 — 먹이·공간·자원에 <b>한계(M)</b>가 있죠. 로지스틱 방정식 <b>dy/dt = k·y·(1 − y/M)</b>은 이걸 담습니다: 작을 땐 지수처럼 폭발하지만, 한계 M에 가까워지면 (1−y/M)이 0으로 줄어 성장이 멈춥니다. 슬라이더로 초기 개체수를 바꿔 보세요 — 어디서 출발하든 모두 같은 수용한계 M으로 <b>S자를 그리며 수렴</b>합니다. 전염병 확산, 신제품 보급, 생물 개체수가 모두 이 곡선을 따릅니다.",
+  "more": "<b>두 힘의 균형</b>: ky는 성장을, (1−y/M)은 제동을 담당합니다. y가 M의 절반일 때 성장이 가장 빠르고(변곡점), 그 뒤로는 둔화하죠. y₀>M이면 오히려 줄어 M으로 내려옵니다 — M은 안정한 평형점입니다. 화면의 S자는 로지스틱 방정식을 오일러법으로 실제 적분한 것입니다.",
+  "more_en": "Real growth has a limit M. The logistic equation dy/dt = k·y·(1 − y/M) explodes when small but levels off near M, tracing an S-curve. Epidemics, product adoption, and populations follow it."
+ },
+ "calc9_05": {
+  "ch": "미적분 9장 · 미분방정식",
+  "sec": "9.5 뉴턴의 냉각 법칙",
+  "title": "뜨거운 커피는 어떻게 식는가",
+  "narr": "갓 내린 90° 커피는 처음엔 빠르게, 점점 천천히 식습니다. 왜일까요? <b>식는 속도가 ‘온도 차이’에 비례</b>하기 때문입니다 — 뉴턴의 냉각 법칙 <b>dT/dt = −k(T − T주변)</b>. 차이가 클 때(뜨거울 때)는 빠르게, 주변온도에 가까워지면 느리게 식죠. 슬라이더로 주변 온도를 바꿔 보세요 — 커피는 언제나 그 주변 온도로 부드럽게 수렴합니다(완전히 같아지진 않고 점점 가까워질 뿐). 시신 사망시각 추정, 건물 냉난방이 모두 이 방정식입니다.",
+  "more": "<b>지수 감쇠의 변형</b>: T − T주변 = (T₀ − T주변)e^(−kt). ‘온도차’가 지수적으로 0에 다가갑니다(9.3의 y′=ky에서 y=온도차, k<0). 그래서 그래프는 주변온도를 점근선으로 갖는 지수 곡선이죠. 화면의 곡선은 dT/dt = −k(T−T주변)를 오일러법으로 실제 적분한 것입니다.",
+  "more_en": "Hot coffee cools fast at first, then slowly: the cooling rate is proportional to the temperature difference — Newton's law dT/dt = −k(T − T_env). The temperature approaches ambient exponentially."
+ }
+}
