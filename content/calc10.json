@@ -1,0 +1,42 @@
+{
+ "calc10_01": {
+  "ch": "미적분 10장 · 매개변수와 극좌표",
+  "sec": "10.1 매개변수 곡선",
+  "title": "시간으로 그리는 곡선 — 사이클로이드",
+  "narr": "y=f(x)로는 그릴 수 없는 곡선이 많습니다 — 한 x에 y가 여럿이거나, 빙글 도는 경로처럼요. 그럴 땐 <b>매개변수 t</b>(보통 시간)로 x와 y를 <b>따로</b> 적습니다: x=x(t), y=y(t). 굴러가는 바퀴 테두리의 한 점이 그리는 <b>사이클로이드</b>가 대표적이죠. 슬라이더로 t를 흘려 보세요 — 바퀴가 구르며 그 위의 금색 점이 우아한 아치를 그립니다. 행성 궤도, 로봇 팔 끝, 발사체의 경로가 모두 이 매개변수 방식으로 표현됩니다.",
+  "more": "<b>왜 매개변수인가</b>: ‘언제 어디에 있는가’를 t로 추적하면, 곡선이 자신을 가로질러도(8자 등) 문제없이 그릴 수 있습니다. 사이클로이드 x=t−sin t, y=1−cos t 는 최단강하곡선(브라키스토크론)이자 등시곡선이라 물리에서도 유명하죠. 화면의 점은 매 t마다 (x(t),y(t))를 실제 계산한 위치입니다.",
+  "more_en": "Some curves can't be written as y=f(x). Parametric form gives x and y separately as functions of t (often time): x=x(t), y=y(t). A point on a rolling wheel traces a cycloid x=t−sin t, y=1−cos t."
+ },
+ "calc10_02": {
+  "ch": "미적분 10장 · 매개변수와 극좌표",
+  "sec": "10.2 매개변수 곡선의 미분",
+  "title": "매개변수 곡선의 기울기",
+  "narr": "매개변수 곡선의 접선 기울기는 어떻게 구할까요? x도 y도 t에 따라 변하니, <b>dy/dx = (dy/dt)/(dx/dt)</b> — ‘세로가 변하는 속도 ÷ 가로가 변하는 속도’입니다(연쇄법칙). 타원 x=2cos t, y=sin t 위에서 슬라이더로 t를 옮겨 보세요. 위·아래 꼭짓점에선 접선이 수평, 좌·우 끝(dx/dt=0)에선 수직(∞)이 됩니다. 곡선이 자신을 가로지르거나 수직이 되는 곳도 이 공식으로 문제없이 다룹니다.",
+  "more": "<b>dx/dt=0 주의</b>: 분모 dx/dt가 0이면 접선이 수직입니다(기울기 ∞). 속도벡터 (dx/dt, dy/dt)가 접선 방향을 가리키므로, 그 비가 곧 기울기죠. 화면의 기울기는 x(t),y(t)의 변화율을 실제로 재서 나눈 값입니다.",
+  "more_en": "For a parametric curve, the slope is dy/dx = (dy/dt)/(dx/dt) — vertical rate over horizontal rate. Where dx/dt=0 the tangent is vertical."
+ },
+ "calc10_03": {
+  "ch": "미적분 10장 · 매개변수와 극좌표",
+  "sec": "10.3 극좌표",
+  "title": "거리와 각으로 위치 적기 — 극좌표",
+  "narr": "위치를 ‘가로·세로(x,y)’가 아니라 <b>‘원점에서의 거리 r과 각 θ’</b>로 적는 것이 극좌표입니다. 레이더, 나침반, 회전하는 모든 것에 자연스럽죠. 변환은 간단합니다: <b>x = r cos θ, y = r sin θ</b>. 거리 r이 각 θ에 따라 변하는 r=1+cos θ를 슬라이더로 그려 보세요 — 사랑스러운 <b>심장형(cardioid)</b>이 나타납니다. 직교좌표로는 복잡한 식이 극좌표에선 한 줄로 우아해지는 마법을 느껴 보세요.",
+  "more": "<b>좌표 변환</b>: (r,θ)→(x,y)는 x=r cosθ, y=r sinθ. 반대로 r=√(x²+y²), θ=atan2(y,x). 원·나선·꽃 모양처럼 ‘각에 따라 반지름이 변하는’ 곡선은 극좌표가 훨씬 간결합니다. 화면의 점은 매 θ마다 (r cosθ, r sinθ)를 실제 계산한 위치입니다.",
+  "more_en": "Polar coordinates locate a point by distance r and angle θ instead of (x,y): x = r cosθ, y = r sinθ. The curve r = 1 + cos θ traces a heart-shaped cardioid."
+ },
+ "calc10_04": {
+  "ch": "미적분 10장 · 매개변수와 극좌표",
+  "sec": "10.4 장미곡선",
+  "title": "극좌표가 피우는 꽃 — 장미곡선",
+  "narr": "극좌표의 아름다움이 가장 빛나는 곳 — <b>장미곡선 r = cos(kθ)</b>입니다. 각 θ가 돌아가는 동안 반지름이 주기적으로 커졌다 줄었다 하며 <b>꽃잎</b>을 그리죠. 슬라이더로 k를 바꿔 보세요. 놀랍게도 <b>k가 홀수면 꽃잎이 k장, 짝수면 2k장</b> 핍니다. 단 한 줄의 식 r=cos(kθ)이 이렇게 다양한 꽃을 피운다는 것 — 극좌표가 주는 선물입니다. 안테나 방사 패턴, 음향 지향성도 이런 곡선으로 나타납니다.",
+  "more": "<b>홀짝의 비밀</b>: k가 짝수면 θ가 0~2π 도는 동안 꽃잎이 2k장 그려지고, 홀수면 곡선이 자신을 두 번 겹쳐 그려 k장만 보입니다. r이 음수가 되는 구간은 반대 방향으로 점을 찍습니다. 화면의 곡선은 매 θ의 r=cos(kθ)를 실제 계산해 그린 것입니다.",
+  "more_en": "Rose curves r = cos(kθ) bloom petals as the radius oscillates with angle. Odd k gives k petals; even k gives 2k petals — endless flowers from one formula."
+ },
+ "calc10_05": {
+  "ch": "미적분 10장 · 매개변수와 극좌표",
+  "sec": "10.5 극좌표에서의 넓이",
+  "title": "부채꼴을 쓸어 넓이를 구하다",
+  "narr": "직교좌표에서 넓이를 가느다란 직사각형으로 쪼갰다면, 극좌표에선 원점에서 뻗은 <b>가느다란 부채꼴</b>로 쪼갭니다. 각 부채꼴의 넓이는 ½r²dθ(반지름 r, 각폭 dθ인 작은 파이 조각)이고, 이를 더하면 <b>A = ½∫r² dθ</b>. 슬라이더로 각을 키워 심장형 내부가 부채꼴로 채워지는 것을 보세요. 직사각형이 아니라 부채꼴인 이유는, 극좌표에선 ‘각이 일정하게 변할 때’ 넓이가 r²에 비례하기 때문입니다.",
+  "more": "<b>½r²dθ의 유래</b>: 반지름 r, 중심각 dθ인 부채꼴 넓이는 ½r²dθ(원 넓이 πr²의 dθ/2π배). 그래서 극좌표 넓이는 A=½∫r²dθ. 심장형 r=1+cosθ 전체 넓이는 ½∫₀^2π(1+cosθ)²dθ = 3π/2. 화면의 넓이는 부채꼴 조각 ½r²Δθ를 실제로 더한 값입니다.",
+  "more_en": "In polar coordinates, area is swept by thin sectors of area ½r²dθ (pie slices), giving A = ½∫r² dθ. The full cardioid r=1+cosθ has area 3π/2."
+ }
+}
