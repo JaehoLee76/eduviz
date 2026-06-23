@@ -1,0 +1,114 @@
+{
+ "calc1_05_comp": {
+  "ch": "미적분 1장 · 심화", "sec": "심화 · 함수의 합성",
+  "title": "함수를 잇다 — 합성 f∘g",
+  "narr": "함수 두 개를 사슬처럼 이으면 새 함수가 됩니다. <b>f∘g</b>는 ‘먼저 g, 그 결과를 f에’ 넣는 것이죠. 슬라이더로 입력 x를 옮기면 g(x)를 거쳐 f(g(x))가 나오는 흐름이 보입니다. 합성은 미적분의 주력 — 연쇄법칙(4장)이 바로 이 합성의 미분이고, 거의 모든 실제 함수가 합성으로 이루어져 있습니다.",
+  "more": "<b>순서가 중요</b>: f∘g와 g∘f는 일반적으로 다릅니다(‘양말 신고 신발’ ≠ ‘신발 신고 양말’). 여기 g(x)=x+1, f(t)=t² 이라 f(g(x))=(x+1)². 화면의 값은 g를 먼저 계산해 f에 넣은 실제 결과입니다.",
+  "more_en": "Composition f∘g means 'g first, then f.' Order matters: f∘g ≠ g∘f in general. The chain rule is the derivative of a composition."
+ },
+ "calc2_01_squeeze": {
+  "ch": "미적분 2장 · 심화", "sec": "심화 · 끼임정리",
+  "title": "양옆에 끼우면 답이 나온다 — 끼임정리",
+  "narr": "직접 구하기 힘든 극한도, <b>위아래로 가둘 수 있으면</b> 잡힙니다. 그 유명한 <b>sin x / x</b>는 x→0에서 0/0이라 난감하지만, 모든 x 근처에서 <b>cos x ≤ sin x/x ≤ 1</b>이 성립하죠. 슬라이더로 x를 0에 보내면 아래(cos x)와 위(1)가 둘 다 1로 모이고, 그 사이에 낀 sin x/x도 어쩔 수 없이 <b>1</b>로 빨려듭니다. 이 ‘끼임정리(샌드위치 정리)’는 sin·cos 미분의 출발점입니다.",
+  "more": "<b>왜 1인가</b>: lim(x→0) sin x/x = 1 은 (sin x)′ = cos x 를 증명하는 핵심 보조정리입니다. 부등식 cos x ≤ sin x/x ≤ 1 은 단위원의 넓이 비교에서 나오고, 양 끝이 같은 극한 1로 가므로 가운데도 1. 화면의 세 곡선 값은 모두 실제 계산한 것입니다.",
+  "more_en": "The Squeeze (Sandwich) Theorem: if g ≤ f ≤ h and g, h → L, then f → L too. Since cos x ≤ sin x/x ≤ 1 and both bounds → 1, sin x/x → 1 — the key to differentiating sine."
+ },
+ "calc3_02_corner": {
+  "ch": "미적분 3장 · 심화", "sec": "심화 · 미분가능성",
+  "title": "연속이어도 미분 안 될 수 있다 — 첨점",
+  "narr": "‘연속이면 미분 가능’일까요? 아닙니다. <b>y = |x|</b>는 x=0에서 끊김 없이 이어지지만(연속), 그 점은 <b>뾰족한 첨점</b>이라 접선을 하나로 그릴 수 없습니다. 슬라이더로 점을 0에 가져가 보세요 — 왼쪽에서 온 기울기는 −1, 오른쪽은 +1로 <b>서로 달라</b> 도함수가 정의되지 않습니다. 미분가능 = ‘확대하면 직선으로 보임(매끈함)’이고, 첨점·수직접선·불연속에서는 깨집니다.",
+  "more": "<b>좌·우 도함수</b>: f′(a)가 존재하려면 좌도함수 = 우도함수여야 합니다. |x|는 a=0에서 −1≠+1이라 미분 불가. ‘미분가능 ⇒ 연속’은 참이지만 역은 거짓 — 연속은 미분가능의 필요조건일 뿐입니다. 화면의 ±1 기울기는 실제 측정값입니다.",
+  "more_en": "Continuous does not imply differentiable. y=|x| is continuous everywhere but has a corner at 0, where the left derivative (−1) ≠ right derivative (+1), so f′(0) doesn't exist."
+ },
+ "calc4_03_logdiff": {
+  "ch": "미적분 4장 · 심화", "sec": "심화 · 로그미분법",
+  "title": "ln을 씌워 미분하기 — xˣ",
+  "narr": "<b>y = xˣ</b>처럼 밑과 지수에 동시에 x가 있으면, 거듭제곱 법칙도 지수 법칙도 그대로는 안 통합니다. 비결은 <b>양변에 자연로그를 씌우는 것</b>: ln y = x ln x. 이제 양변을 미분하면(곱법칙+연쇄법칙) y′/y = ln x + 1, 따라서 <b>y′ = xˣ(ln x + 1)</b>. 슬라이더로 접선이 곡선에 정확히 닿는지 확인하세요. 복잡한 곱·몫·거듭제곱이 얽힌 함수를 미분하는 만능 기법입니다.",
+  "more": "<b>로그의 마법</b>: ln은 곱을 합으로, 거듭제곱을 곱으로 바꿔 미분을 쉽게 만듭니다. xˣ는 x>0에서 x=1/e≈0.368에서 최솟값을 가집니다(y′=0 ⇒ ln x+1=0). 화면의 공식값과 실측 기울기가 일치합니다.",
+  "more_en": "Logarithmic differentiation: for y=xˣ, take ln of both sides (ln y = x ln x), then differentiate: y′ = xˣ(ln x + 1). It tames functions where the variable is in both base and exponent."
+ },
+ "calc5_01_lhopital": {
+  "ch": "미적분 5장 · 심화", "sec": "심화 · 로피탈 정리",
+  "title": "0/0을 미분으로 푼다 — 로피탈",
+  "narr": "x→0에서 (eˣ−1)/x 는 분자도 분모도 0 — <b>0/0</b> 꼴이라 그냥은 답이 없습니다. <b>로피탈 정리</b>는 말합니다: 이런 경우 <b>분자·분모를 각각 미분한 비</b>의 극한을 보라고. (eˣ−1)′/(x)′ = eˣ/1 → x=0에서 1. 슬라이더로 x를 0에 보내면 원래 비도 1로 수렴하죠. ‘두 양이 같은 속도로 0이 되면, 그 비는 변화 속도(미분)의 비와 같다’ — 극한과 미분이 손잡는 우아한 도구입니다.",
+  "more": "<b>조건과 주의</b>: 0/0 또는 ∞/∞ 꼴일 때만, 그리고 f′/g′의 극한이 존재할 때 적용합니다(필요하면 반복). 끼임정리로 구하던 sin x/x = 1 도 로피탈로 cos x/1 → 1. 단 0/0 꼴이 아닐 때 쓰면 틀립니다. 화면의 두 비(원래·도함수)가 같은 값으로 모입니다.",
+  "more_en": "L'Hôpital's rule: for a 0/0 or ∞/∞ limit, the limit of f/g equals the limit of f′/g′. For (eˣ−1)/x at 0, that's eˣ/1 → 1. Apply only to indeterminate forms."
+ },
+ "calc6_01_symmetry": {
+  "ch": "미적분 6장 · 심화", "sec": "심화 · 대칭 적분",
+  "title": "대칭이면 적분이 쉬워진다",
+  "narr": "적분 구간이 원점 대칭 [−a, a]일 때, 함수의 대칭성만 봐도 답이 보입니다. <b>우함수</b>(좌우 대칭, f(−x)=f(x))는 좌우 넓이가 같아 <b>절반의 2배</b>, <b>기함수</b>(원점 대칭, f(−x)=−f(x))는 좌우 부호가 반대라 <b>정확히 0</b>으로 상쇄됩니다. 슬라이더로 우/기함수를 바꿔 색칠된 넓이(초록 +, 분홍 −)가 어떻게 합쳐지는지 보세요. 어려운 적분도 대칭 한 줄로 끝나는 경우가 많습니다.",
+  "more": "<b>∫₋ₐᵃ</b>: 우함수면 2∫₀ᵃf, 기함수면 0. 푸리에 급수에서 사인/코사인 항이 갈리는 이유, 물리의 많은 적분이 0이 되는 이유가 이 대칭입니다. 화면의 값은 실제 적분 결과로, 기함수에서 0이 됩니다.",
+  "more_en": "Over a symmetric interval [−a,a]: an even function integrates to twice the half (2∫₀ᵃ), an odd function integrates to exactly 0 (the halves cancel). Symmetry can solve hard integrals instantly."
+ },
+ "calc7_02_shells": {
+  "ch": "미적분 7장 · 심화", "sec": "심화 · 원통 껍질법",
+  "title": "껍질을 벗기듯 — 원통 껍질법",
+  "narr": "회전체 부피를 원판으로 썰 수도 있지만(7장), 축을 ‘세로로’ 둘러쌀 땐 <b>원통 껍질</b>이 훨씬 편합니다. 곡선 아래 영역을 <b>y축</b>으로 돌리면, 양파 껍질 같은 얇은 원통들이 쌓이죠. 껍질 하나의 부피 = 둘레(2πx) × 높이(f(x)) × 두께. 모두 더하면 <b>V = ∫2πx·f(x) dx</b>. 슬라이더로 껍질을 촘촘히 해 참값에 수렴하는 것을 보세요. 원판법과 껍질법은 같은 부피를 다른 방향으로 자른 것 — 문제에 맞춰 고릅니다.",
+  "more": "<b>원판 vs 껍질</b>: x축 회전엔 보통 원판(πr²), y축 회전엔 껍질(2πx·h)이 식이 간단합니다. 껍질을 펴면 가로 2πx·세로 f(x)·두께 dx의 얇은 판 → 부피 2πx f dx. 화면의 부피는 껍질들의 합으로 실제 계산한 값입니다.",
+  "more_en": "The shell method finds volumes of revolution by stacking thin cylindrical shells: each shell has volume (circumference 2πx)(height f)(thickness), so V = ∫2πx·f(x) dx — handy for rotation about the y-axis."
+ },
+ "calc8_04_gauss": {
+  "ch": "미적분 8장 · 심화", "sec": "심화 · 가우스 적분",
+  "title": "부정적분이 없는데 넓이는 √π",
+  "narr": "종형 곡선 <b>e^(−x²)</b>는 통계·확률의 심장(정규분포)이지만, 놀랍게도 <b>깔끔한 부정적분이 존재하지 않습니다</b>. 그런데 −∞에서 ∞까지의 전체 넓이는 정확히 <b>√π ≈ 1.7725</b>죠. 슬라이더로 적분 범위를 넓혀 보세요 — 넓이가 √π로 수렴합니다. 한 점씩의 부정적분은 못 구해도 ‘전체’는 정확히 안다는, 적분의 가장 아름다운 역설 중 하나입니다.",
+  "more": "<b>증명은 2차원에서</b>: (∫e^(−x²)dx)² 을 ∬e^(−(x²+y²))dA 로 보고 극좌표로 풀면 π가 나옵니다(14장 심화). 그래서 ∫ = √π. 정규분포가 ‘전체 확률 1’이 되도록 1/√(2π)로 정규화하는 것도 이 값 덕분이죠. 화면의 넓이는 실제 누적값입니다.",
+  "more_en": "The bell curve e^(−x²) has no elementary antiderivative, yet its total area is exactly √π. The trick: square the integral, switch to polar coordinates (∬e^(−r²)), and get π. It underlies the normal distribution."
+ },
+ "calc9_05_damped": {
+  "ch": "미적분 9장 · 심화", "sec": "심화 · 감쇠진동",
+  "title": "마찰이 있는 흔들림 — 감쇠진동",
+  "narr": "마찰 없는 용수철은 영원히 흔들리지만(7장 단진동), 현실엔 늘 저항이 있습니다. <b>mx″ + cx′ + kx = 0</b> — 2계 미분방정식이 그 거동을 결정하죠. 슬라이더로 감쇠 c를 키워 보세요: 약하면 <b>출렁이며 서서히 잦아들고</b>(미흡감쇠), 너무 세면 <b>출렁임 없이 느릿느릿</b> 돌아오며(과감쇠), 딱 그 경계(<b>c = 2√km</b>)에서 <b>가장 빨리</b> 안정됩니다(임계감쇠). 자동차 서스펜션·문닫힘 장치·건물 제진이 모두 이 임계감쇠를 노립니다.",
+  "more": "<b>세 거동</b>: 판별식 c²−4mk 의 부호로 갈립니다 — 음수(미흡, 진동 감쇠), 0(임계), 양수(과감쇠). 해는 e^(−γt)(진동 또는 지수)로 표현되죠. 화면의 곡선은 2계 ODE를 한 스텝씩 실제 적분한 것입니다.",
+  "more_en": "A damped oscillator mx″ + cx′ + kx = 0: small damping gives decaying oscillation (underdamped); large gives slow non-oscillating return (overdamped); the critical value c = 2√(km) returns fastest. Car suspensions aim for critical damping."
+ },
+ "calc10_03_conic": {
+  "ch": "미적분 10장 · 심화", "sec": "심화 · 원뿔곡선과 이심률",
+  "title": "이심률 하나로 — 원·타원·포물선·쌍곡선",
+  "narr": "원, 타원, 포물선, 쌍곡선 — 따로 배운 이 곡선들이 사실은 <b>한 가족</b>입니다. 초점을 기준으로 한 극좌표식 <b>r = ed/(1 + e cos θ)</b>에서, <b>이심률 e</b> 하나만 바꾸면 모두 이어지죠. 슬라이더로 e를 키워 보세요: <b>e=0 원 → e<1 타원 → e=1 포물선 → e>1 쌍곡선</b>. 행성은 타원(e<1), 일부 혜성은 포물선·쌍곡선 궤도를 그립니다 — 케플러와 뉴턴이 밝힌 하늘의 기하학입니다.",
+  "more": "<b>e = 초점까지/준선까지 거리비</b>: 한 점에서 ‘초점까지 거리 : 준선까지 거리’가 일정하게 e인 점들의 자취가 원뿔곡선입니다. 원뿔을 자르는 각도가 곧 e를 정하죠(그래서 ‘원뿔곡선’). 화면의 곡선은 매 θ의 r을 실제 계산해 그린 것입니다.",
+  "more_en": "Circle, ellipse, parabola, and hyperbola are one family. In polar form r = ed/(1 + e cos θ), the single eccentricity e controls the shape: e=0 circle, e<1 ellipse, e=1 parabola, e>1 hyperbola — the geometry of orbits."
+ },
+ "calc11_03_ratio": {
+  "ch": "미적분 11장 · 심화", "sec": "심화 · 비판정법과 수렴반경",
+  "title": "이웃 항의 비로 운명을 가른다",
+  "narr": "급수가 수렴하는지 가장 강력하게 판정하는 도구 — <b>비판정법</b>입니다. 이웃한 두 항의 비 <b>|aₙ₊₁ / aₙ|</b>의 극한 L을 보죠. <b>L<1이면 수렴, L>1이면 발산</b>(L=1이면 판정 불가). 거듭제곱급수 Σxⁿ/n 에서 이 비는 |x|로 수렴하니, <b>|x|<1</b>일 때만 수렴 — 즉 <b>수렴반경이 1</b>입니다. 슬라이더로 x를 ±1 밖으로 밀면 부분합이 폭주(발산)하는 걸 보세요. 테일러 급수가 ‘어디까지’ 유효한지를 정해 주는 핵심 판정법입니다.",
+  "more": "<b>왜 비인가</b>: L<1이면 항이 결국 등비(공비 L<1)처럼 줄어 기하급수처럼 수렴합니다. eˣ=Σxⁿ/n!의 비는 |x|/(n+1)→0이라 모든 x에서 수렴(반경 ∞), 1/(1−x)=Σxⁿ는 반경 1. 화면의 부분합·비는 실제 계산값입니다.",
+  "more_en": "The Ratio Test: compute L = lim |aₙ₊₁/aₙ|. If L<1 the series converges, L>1 diverges. For a power series Σxⁿ/n, L=|x|, so it converges for |x|<1 — radius of convergence 1, telling you where a Taylor series is valid."
+ },
+ "calc11_04_euler": {
+  "ch": "미적분 11장 · 심화", "sec": "심화 · 오일러 공식",
+  "title": "수학에서 가장 아름다운 식",
+  "narr": "테일러 급수를 복소수까지 밀고 가면, 믿기 힘든 일이 벌어집니다. eˣ·cos·sin의 급수를 맞춰 보면 <b>e^(iθ) = cos θ + i sin θ</b> — 지수함수와 삼각함수가 하나로 묶이죠(<b>오일러 공식</b>). 이는 ‘허수 지수 = 단위원 위의 회전’을 뜻합니다. 슬라이더로 θ를 돌리면 점이 단위원을 돌고, 실부는 cos·허부는 sin이 됩니다. 그리고 <b>θ=π</b>에서 정확히 −1에 닿아 — <b>e^(iπ) + 1 = 0</b>. 자연상수 e, 허수 i, 원주율 π, 1, 0이 한 줄에 모인, 인류가 발견한 가장 아름다운 식입니다.",
+  "more": "<b>회전의 언어</b>: 급수 e^(iθ)=Σ(iθ)ⁿ/n! 을 실부·허부로 가르면 정확히 cos θ·sin θ의 급수가 됩니다. 그래서 곱셈이 회전이 되고, 교류 전기·파동·신호처리·양자역학이 이 한 식 위에서 돌아갑니다. 화면의 점은 (cos θ, sin θ)를 실제 계산한 위치입니다.",
+  "more_en": "Pushing Taylor series into complex numbers gives Euler's formula e^(iθ) = cos θ + i sin θ — exponentials are rotations on the unit circle. At θ=π it gives e^(iπ) + 1 = 0, uniting e, i, π, 1, 0 in one line."
+ },
+ "calc12_04_triple": {
+  "ch": "미적분 12장 · 심화", "sec": "심화 · 스칼라 삼중적",
+  "title": "세 벡터가 만드는 부피",
+  "narr": "두 벡터가 평행사변형 넓이(외적)를 만들었다면, <b>세 벡터</b>는 <b>평행육면체</b>를 만듭니다. 그 부피는 <b>스칼라 삼중적 |u · (v × w)|</b> — 외적으로 밑면 넓이(v×w)를 구하고, 거기에 u를 내적해 높이까지 곱한 것이죠. 슬라이더로 시점을 돌려 입체를 살펴보세요. 이 값은 곧 세 벡터를 행으로 놓은 <b>3×3 행렬식</b>이고, <b>0이면 세 벡터가 한 평면에 깔렸다</b>(부피 없음)는 뜻입니다.",
+  "more": "<b>= 행렬식</b>: u·(v×w)는 세 벡터의 성분으로 만든 행렬식과 같습니다. 부호는 방향(오른손/왼손)을, 절댓값은 부피를 줍니다. 선형대수의 ‘행렬식 = 부피 배율’이 여기서 기하로 드러나죠. 화면의 부피는 행렬식으로 실제 계산한 값입니다.",
+  "more_en": "Three vectors span a parallelepiped whose volume is the scalar triple product |u·(v×w)| — also the 3×3 determinant. If it's zero, the vectors are coplanar (no volume)."
+ },
+ "calc13_03_dir": {
+  "ch": "미적분 13장 · 심화", "sec": "심화 · 방향도함수",
+  "title": "아무 방향으로의 기울기 — 방향도함수",
+  "narr": "편도함수는 동·북 두 방향의 기울기였죠(13장). 그럼 <b>대각선 같은 임의의 방향</b>으로의 가파름은? <b>방향도함수 Dᵤf = ∇f · u</b> — 기울기 벡터를 그 방향 u에 사영한 것입니다. 슬라이더로 방향 u를 돌려 보세요. u가 기울기 ∇f(금색)와 <b>같은 방향일 때 최대</b>(가장 가파른 오르막), 수직이면 0(등고선 방향, 높이 불변), 반대면 최소(가장 가파른 내리막). 산에서 어느 쪽으로 디뎌야 가장 빨리 오르내리는지를 정확히 알려 줍니다.",
+  "more": "<b>∇f·u = |∇f|cosθ</b>: u가 단위벡터일 때, 방향도함수는 기울기 크기에 cos(사잇각)을 곱한 값입니다. 그래서 θ=0(∇f 방향)에서 최대 |∇f|. 경사하강법은 −∇f 방향(가장 가파른 내리막)으로 내려가죠. 화면의 Dᵤf는 실제 사영값입니다.",
+  "more_en": "The directional derivative Dᵤf = ∇f·u gives the slope in any direction u. It's largest when u aligns with the gradient (steepest ascent), zero along level curves, most negative opposite the gradient."
+ },
+ "calc14_03_gauss2d": {
+  "ch": "미적분 14장 · 심화", "sec": "심화 · 가우스 적분의 증명",
+  "title": "극좌표로 √π의 비밀을 풀다",
+  "narr": "8장에서 ∫e^(−x²) = √π라고 했지만 증명은 미뤘죠. 비결은 <b>차원을 하나 올리는 것</b>입니다. 구하려는 값을 I라 하면 <b>I² = ∬e^(−(x²+y²)) dA</b> — 평면 전체에 퍼진 종형 언덕의 부피입니다. 이걸 직교좌표 대신 <b>극좌표(r dr dθ)</b>로 풀면 e^(−r²)·r 이 깔끔히 적분되어 <b>π</b>가 나옵니다. 따라서 I² = π → <b>I = √π</b>. 슬라이더로 반지름을 키워 부피가 π로 수렴하는 걸 보세요. 1차원에선 막혔던 적분이 2차원으로 우회하자 풀리는, 미적분의 가장 영리한 한 수입니다.",
+  "more": "<b>r이 열쇠</b>: ∬e^(−r²) r dr dθ 에서 극좌표 넓이요소의 r 덕분에 u=r² 치환이 통합니다. ∫₀^∞ e^(−r²) r dr = ½, ×2π = π. 그래서 (∫e^(−x²))² = π. 화면의 부피 π(1−e^(−R²))는 실제 누적값으로 R→∞에서 π입니다.",
+  "more_en": "To prove ∫e^(−x²)=√π, square it: I² = ∬e^(−(x²+y²))dA, then switch to polar (r dr dθ). The factor r makes it integrable, giving π. So I = √π — a one-dimensional integral solved by going to two dimensions."
+ },
+ "calc15_05_divthm": {
+  "ch": "미적분 15장 · 심화", "sec": "심화 · 발산 정리",
+  "title": "빠져나가는 흐름 = 안의 샘의 합 — 발산 정리",
+  "narr": "그린 정리에 ‘순환’ 말고 또 하나의 얼굴이 있습니다 — <b>선속(flux) 형태</b>, 곧 <b>발산 정리</b>입니다. 영역의 <b>경계를 빠져나가는 알짜 흐름(∮F·n ds)</b>이 <b>내부의 발산을 모두 더한 것(∬div F dA)</b>과 정확히 같다는 것이죠. 슬라이더로 영역을 키워 두 값이 일치하는 걸 보세요. 직관적으로 — 방 안의 모든 ‘샘’이 뿜은 물의 총량은 결국 문(경계)으로 나간 물의 양과 같습니다. 전기장의 가우스 법칙, 유체의 질량 보존, 열의 흐름이 모두 이 정리입니다.",
+  "more": "<b>경계 = 내부의 합</b>: ∮F·n ds = ∬div F dA. 3차원으로 올리면 ‘면을 통과한 선속 = 부피 내부 발산의 합’(가우스 정리)이 되어 맥스웰 방정식의 적분형이 됩니다. F=(x,y)는 div=2라 선속 = 2·(넓이) = 2πR². 화면의 경계 선속과 내부 적분이 같음을 실제 계산으로 확인합니다.",
+  "more_en": "The Divergence Theorem (flux form of Green's theorem): the net outward flux through a region's boundary equals the total divergence inside, ∮F·n ds = ∬div F dA. In 3D it becomes Gauss's theorem — the basis of Gauss's law and conservation laws."
+ }
+}
