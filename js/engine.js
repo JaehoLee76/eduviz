@@ -407,18 +407,33 @@
 
   // ---------- 깜빡임 / 탭 안내 (전 챕터 공용) ----------
   function blink(){ return 0.32+0.68*(0.5+0.5*Math.sin(frameN*0.13)); }
-  function tapHint(cx,cy,text,pulse){ ctx.save();
-    ctx.font='600 15px sans-serif'; ctx.textBaseline='middle';
-    var kw=26, gap=10, tw=ctx.measureText(text).width, inner=tw+gap+kw;    // 텍스트 + D 키 배지(단계 진행)
-    var w=inner+40, h=40, x=cx-w/2, y=cy-h/2;
+  // 주황 알약 힌트. 키 배지는 장면 종류에 맞게만 표시:
+  //  · 슬라이더 장면 → 키 없음(슬라이더 키는 슬라이더 바가 안내) · 관찰 장면 → 키 없음
+  //  · 단계(tap)장면 → D 다음 · (자동 지원 시) S 자동 · X 처음  ← 표준 모델
+  function tapHint(cx,cy,text,pulse){
+    var sc=(SM&&SM.cur!=null)?SM.scenes[SM.cur]:null;
+    var hasSlider=!!(controlsEl && controlsEl.style.display!=='none' && controlsEl.querySelector('input[type=range]'));
+    // 작성자 텍스트에 섞인 옛 키 표기 제거(이제 칩이 키를 안내)
+    text=(text||'').replace(/\s*\(D\)\s*$/,'').replace(/\s+D\s*·\s*자동\s*S\s*$/,'').replace(/\s*·\s*자동\s*S\s*$/,'').replace(/\s+D\s*$/,'').replace(/\s*\(탭\)\s*$/,'').trim();
+    // 단계 애니메이션 = tap + 슬라이더 없음 + (상태에 auto 플래그 || 텍스트가 ▶/↻로 시작). 물리 연속시뮬·관찰 힌트는 제외
+    var hasAuto=!!(sc && sc.s && (typeof sc.s==='object') && ('auto' in sc.s)), isStepText=/^\s*[▶↻]/.test(text);
+    var stepScene=!!(sc && sc.tap && !sc.keys && !hasSlider && (hasAuto || isStepText));
+    var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); if(hasAuto) chips.push(['S','자동']); chips.push(['X','처음']); }
+    ctx.save(); ctx.textBaseline='middle';
+    ctx.font='600 15px sans-serif'; var tw=text?ctx.measureText(text).width:0;
+    ctx.font='11px sans-serif'; var cwid=[], chipW=0;
+    for(var i=0;i<chips.length;i++){ var lw=ctx.measureText(chips[i][1]).width, w0=22+4+lw; cwid.push(w0); chipW+=w0+(i?11:0); }
+    var gap=(text&&chips.length)?16:0, inner=tw+gap+chipW, w=inner+36, h=38, x=cx-w/2, y=cy-h/2;
     var pa=pulse?(0.55+0.45*Math.sin(frameN*0.10)):0.85;
-    ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,20);ctx.fill();}else ctx.fillRect(x,y,w,h);
-    ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,20);ctx.stroke();}else ctx.strokeRect(x,y,w,h);
-    var tx=cx-inner/2;
-    ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text,tx,cy);
-    var kx=tx+tw+gap, ky=cy-11;                                            // D 키 배지(단계 진행 단축키)
-    ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(kx,ky,kw,22,5);ctx.stroke();}else ctx.strokeRect(kx,ky,kw,22);
-    ctx.font='700 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('D',kx+kw/2,cy+0.5);
+    ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,19);ctx.fill();}else ctx.fillRect(x,y,w,h);
+    ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,19);ctx.stroke();}else ctx.strokeRect(x,y,w,h);
+    var px=cx-inner/2;
+    if(text){ ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text,px,cy); px+=tw+gap; }
+    for(i=0;i<chips.length;i++){
+      ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(px,cy-10,22,20,5);ctx.stroke();}else ctx.strokeRect(px,cy-10,22,20);
+      ctx.font='700 12px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.fillText(chips[i][0],px+11,cy+0.5);
+      ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,178,122,0.85)'; ctx.fillText(chips[i][1],px+26,cy+0.5);
+      px+=cwid[i]+11; }
     ctx.restore(); ctx.textBaseline='alphabetic'; ctx.textAlign='start'; }
 
   // ---------- engine facade (장면에 전달) ----------
@@ -453,7 +468,9 @@
       if(k==='ArrowUp'){ exitBranch(); e.preventDefault(); return; }      // ↑ 나가기
       // W 한 키로 자세히 보기(좌측 패널) 펼치기·접기 토글(math). viz(algo)에선 W=다음 단계.
       if(c==='KeyW'){ if(studyVisible()){ toggleStudy(); e.preventDefault(); return; } if(viz){ stepNext(); e.preventDefault(); } return; }
-      if(c==='KeyX'){ if(viz){ stepReset(); e.preventDefault(); } return; }   // X = viz 초기화
+      if(c==='KeyX'){ if(viz){ stepReset(); e.preventDefault(); return; }    // X = 처음으로(초기화)
+        var hasSl=controlsEl&&controlsEl.style.display!=='none'&&controlsEl.querySelector('input[type=range]');
+        if(s&&s.tap&&!s.keys&&!hasSl){ if(s.enter)s.enter(E); blip(340,0.1); e.preventDefault(); } return; }  // 단계 애니/탭 장면: 재진입 = 처음으로
       if(c==='KeyQ'){ scrollConcept(-1); e.preventDefault(); return; }   // Q 자세히보기 위로(보조)
       if(c==='KeyZ'){ scrollConcept(1); e.preventDefault(); return; }    // Z 자세히보기 아래로(보조)
       if(s&&s.keys){ for(var ki=0;ki<s.keys.length;ki++){ if(c===s.keys[ki].code){ s.keys[ki].act.call(s,E); e.preventDefault(); return; } } }  // 장면별 키 조작(스택/큐 E/C)

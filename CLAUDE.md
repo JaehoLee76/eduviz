@@ -33,7 +33,8 @@ EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 
 - **분기 순서 = `ord` 오름차순(기본 9999)**: `buildHierarchy`가 부모별 `_branches`를 ord로 정렬 후 `_num` 부여. 같은 부모에 **중복 id는 1개만**(교차배치 함정 자동 제거).
 - **viz 분기에서 화면에 보이는 설명 = `stepCap`(스텝 캡션) + `more`(핵심요약, conceptExtra)**. `narr`은 `#bubble`로 가는데 viz 모드는 opacity:0이라 **안 보임**. → 분기 연결어·설명은 `more`에 넣어야 학습자가 본다.
 - **공용 헬퍼**: `window.AlgoMap(E,{title,sub,stages:[{c,t,items}],foot})` = 심화 섹션 '학습 지도' 렌더러(content_algo0.js). 섹션 노드 draw를 데이터만으로.
-- **수학 tap 장면 키**: D=한 설명단위 진행, S=자동(연속 morph는 `{tgt,auto}` boundary 모델, `s.t<tgt`까지만 진행). 풀이 토글 = R키(`toggleSolution`). algo viz는 D=stepNext.
+- **수학 tap 장면 키**: D=한 설명단위 진행, S=자동(연속 morph는 `{tgt,auto}` boundary 모델, `s.t<tgt`까지만 진행), **X=처음으로(재진입 리셋)**. 풀이 토글 = R키(`toggleSolution`). algo viz는 D=stepNext.
+- **주황 알약(tapHint) 키 칩 = 엔진이 장면 종류 보고 자동 표시(작성자는 텍스트에 키 글자 넣지 말 것)**: ①슬라이더 장면 → 칩 없음(키는 슬라이더 바가 안내) ②연속 시뮬·단순 리셋탭(물리) → 칩 없음, 텍스트로 "화면 탭=…" 안내 ③단계 애니메이션(tap+슬라이더無+상태에 `auto` 플래그 OR 텍스트가 `▶`/`↻`로 시작) → **`D 다음 · S 자동(auto有일때만) · X 처음`** 칩. `tapHint`가 옛 표기(`(D)`·`D · 자동 S`)를 자동 strip. → **새 단계 장면은 enter에서 `this.s`에 `auto:false`를 넣어 칩이 뜨게**(또는 힌트 텍스트를 `▶`로 시작).
 
 ## 3. 알고리즘 분기 애니메이션 (✅ 100% 완료 — 본보기/참고용)
 정적 `concept:true` 분기를 **`code+build+draw`** 로 전환하는 작업은 **161/161 완료**. 아래 골드 패턴은 새 분기 추가·수정 시 본보기.
