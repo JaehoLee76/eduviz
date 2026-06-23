@@ -13,12 +13,18 @@
   { id:'calc0_00', cinematic:true,
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame;
-      var CYCLE=1860, ph=(fr%CYCLE)/CYCLE;                       // 0..1 한 사이클(약 31초)
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
-      var seam = ph<0.05? ph/0.05 : (ph>0.95? (1-ph)/0.05 : 1);  // 루프 이음새 페이드
-      // 뉴턴 초상화 — 흐릿한 배경(미적분의 창시자). 호흡하듯 미세하게 밝아짐
-      if(NEWTON_OK){ var ar=NEWTON.width/NEWTON.height, dh=H*0.86, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.52-dh/2;
-        ctx.save(); ctx.globalAlpha=(0.085+0.025*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+      // 한 사이클 = 애니메이션 → 뉴턴 또렷이 공개 → 3초 정지 → 반복
+      var ANIM=1860, TRANS=54, HOLD=180, FADE=22, TOTAL=ANIM+TRANS+HOLD;
+      var fph=fr%TOTAL, ph, rv, contentOn;
+      if(fph<ANIM){ ph=fph/ANIM; rv=0; contentOn=1; }                                  // 애니메이션 진행
+      else if(fph<ANIM+TRANS){ ph=1; rv=ss(0,1,(fph-ANIM)/TRANS); contentOn=1-rv; }     // 콘텐츠 사라지며 뉴턴 또렷이
+      else { ph=1; rv=1; contentOn=0; }                                                // 3초 정지: 뉴턴 공개(안심)
+      var vis=(fph<FADE? fph/FADE : (fph>TOTAL-FADE? (TOTAL-fph)/FADE : 1));            // 루프 경계 페이드
+      var seam=contentOn*vis;                                                          // 애니메이션 요소 가시도
+      // 뉴턴 초상화 — 평소엔 은은한 배경(밝게), 끝나면 또렷이 공개
+      if(NEWTON_OK){ var ar=NEWTON.width/NEWTON.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
+        ctx.save(); ctx.globalAlpha=(0.22+0.70*rv+0.02*Math.sin(fr*0.012))*vis; if('filter' in ctx) ctx.filter='blur('+(3*(1-rv)).toFixed(2)+'px)';
         ctx.drawImage(NEWTON, ix, iy, dw, dh); ctx.restore(); }
       // 실제 곡선 f와 좌표계
       function f(x){ return 0.55 + 1.45*Math.exp(-(x-2.15)*(x-2.15)/1.65); }   // 부드러운 언덕
@@ -101,6 +107,12 @@
         ctx.font=(big2?'600 '+mainF:'400 '+subF)+'px -apple-system, sans-serif';
         ctx.fillStyle=big2?'rgba(206,184,255,'+aa.toFixed(3)+')':'rgba(224,224,245,'+(aa*0.92).toFixed(3)+')';
         ctx.fillText(lines[li], W/2, H*0.13 + li*(mainF+9)); }
+      // 뉴턴 공개 캡션 — 애니메이션이 끝나면 또렷이(학습자 안심)
+      if(rv>0.02){ var ra=rv*vis; ctx.textAlign='center'; ctx.shadowColor='rgba(0,0,0,0.75)'; ctx.shadowBlur=14;
+        ctx.font='700 '+Math.max(22,Math.min(34,W*0.04))+'px -apple-system, sans-serif'; ctx.fillStyle='rgba(255,216,160,'+ra.toFixed(3)+')';
+        ctx.fillText('아이작 뉴턴', W/2, H*0.84);
+        ctx.font='400 '+Math.max(13,Math.min(18,W*0.021))+'px -apple-system, sans-serif'; ctx.fillStyle='rgba(226,224,245,'+(ra*0.92).toFixed(3)+')';
+        ctx.fillText('Isaac Newton · 1643–1727 · 미적분의 창시자', W/2, H*0.84+30); }
       ctx.shadowBlur=0; ctx.textBaseline='alphabetic'; }
   },
 
