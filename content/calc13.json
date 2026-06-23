@@ -1,0 +1,42 @@
+{
+ "calc13_01": {
+  "ch": "미적분 13장 · 다변수 미분",
+  "sec": "13.1 다변수함수",
+  "title": "입력이 둘, 출력은 하나 — 풍경 함수",
+  "narr": "지금까지 함수는 입력 하나(x)였지만, 현실은 보통 여러 요인에 달려 있습니다 — 온도는 위치(x,y)에, 높이는 위도·경도에. <b>다변수함수 z = f(x,y)</b>는 평면의 각 점에 높이 하나를 줘서 <b>산맥 같은 풍경</b>을 만듭니다. 화면의 색이 그 높이예요(밝을수록 높음, 어두울수록 낮음). 두 슬라이더로 점을 옮기며 발밑 높이 z가 어떻게 변하는지 느껴 보세요. 미적분이 평면을 떠나 ‘지형’ 위로 올라서는 순간입니다.",
+  "more": "<b>그래프는 곡면</b>: 1변수 함수의 그래프는 곡선(1D)이지만, 2변수 함수는 3D 공간의 <b>곡면</b>입니다. 그 곡면을 위에서 내려다본 게 색지도(등고선)죠 — 지도의 등고선과 똑같은 원리. f(x,y)=sin x·cos y 는 봉우리와 골짜기가 번갈아 나는 ‘계란판’ 풍경입니다. 화면의 색은 매 점의 f를 실제 계산한 값입니다.",
+  "more_en": "A function of two variables z = f(x,y) assigns a height to each point of the plane, forming a landscape (its graph is a surface in 3D). The color map shows height — brighter is higher, like a topographic map."
+ },
+ "calc13_02": {
+  "ch": "미적분 13장 · 다변수 미분",
+  "sec": "13.2 편도함수",
+  "title": "한 방향만 보고 미분하기",
+  "narr": "산비탈에서 ‘얼마나 가파른가’는 어느 쪽으로 가느냐에 따라 다릅니다. <b>편도함수</b>는 ‘한 방향만 보고’ 미분하는 것입니다. <b>∂f/∂x</b>는 y를 고정한 채 동쪽(x)으로 갈 때의 기울기(빨강), <b>∂f/∂y</b>는 x를 고정한 채 북쪽(y)으로 갈 때의 기울기(초록)죠. 두 슬라이더로 점을 옮겨, 같은 점이라도 두 방향의 가파름이 다른 것을 보세요. 다른 변수를 ‘상수처럼’ 취급하고 평소대로 미분하면 됩니다 — 1변수 미분을 그대로 쓰는 거죠.",
+  "more": "<b>∂(라운드 d)</b>: ∂f/∂x는 ‘y는 상수로 두고 x로만 미분’. f=sin x cos y면 ∂f/∂x = cos x·cos y, ∂f/∂y = −sin x·sin y. 편도함수는 ‘그 방향 단면 곡선의 접선 기울기’입니다. 화면의 두 값은 각 방향의 기울기를 실제 측정한 것입니다.",
+  "more_en": "A partial derivative differentiates in just one direction, holding the others constant. ∂f/∂x is the slope going east (red); ∂f/∂y is the slope going north (green). Treat the other variable as a constant."
+ },
+ "calc13_03": {
+  "ch": "미적분 13장 · 다변수 미분",
+  "sec": "13.3 기울기 벡터",
+  "title": "가장 가파른 오르막 — 기울기 벡터 ∇f",
+  "narr": "두 편도함수를 한데 묶으면 <b>기울기 벡터 ∇f = (∂f/∂x, ∂f/∂y)</b>가 됩니다. 이 벡터는 마법 같은 성질이 있죠: <b>그 점에서 가장 가파르게 오르는 방향</b>을 가리키고, 그 크기는 그 방향의 가파름입니다. 또한 항상 <b>등고선(같은 높이 선)과 수직</b>이죠. 두 슬라이더로 점을 옮겨, 금색 화살표가 늘 ‘밝은 쪽(높은 곳)’으로 가장 가파르게 향하는 것을 보세요. 경사하강법(AI 학습)이 바로 이 기울기의 반대 방향으로 내려가는 것입니다.",
+  "more": "<b>왜 가장 가파른가</b>: 방향도함수(임의 방향 기울기)는 ∇f·û = |∇f|cosθ로, û가 ∇f와 같은 방향(θ=0)일 때 최대입니다. 그래서 ∇f가 ‘최대 증가 방향’이죠. 등고선을 따라가면 높이가 안 변하니(방향도함수 0) ∇f는 등고선과 수직입니다. 화면의 화살표·크기는 편도함수를 실제 계산해 그린 것입니다.",
+  "more_en": "The gradient ∇f = (∂f/∂x, ∂f/∂y) points in the direction of steepest ascent, with magnitude equal to that steepness, and is always perpendicular to level curves. Gradient descent (AI training) goes the opposite way."
+ },
+ "calc13_04": {
+  "ch": "미적분 13장 · 다변수 미분",
+  "sec": "13.4 다변수 극값",
+  "title": "봉우리·골짜기·안장점",
+  "narr": "1변수에서 극값은 ‘기울기 0’인 곳이었죠. 다변수도 똑같습니다: <b>기울기 벡터가 0(∇f=0)</b>인 곳이 극값 후보입니다. 단 종류가 셋이에요 — <b>봉우리</b>(모든 방향 내리막), <b>골짜기</b>(모든 방향 오르막), 그리고 신기한 <b>안장점</b>(한 방향은 오르막, 직각 방향은 내리막, 말안장 모양). 두 슬라이더로 점을 옮겨 금색 화살표가 사라지는(초록=기울기 0) 자리를 찾아보세요. 최적화·머신러닝의 ‘손실 최소점’ 찾기가 모두 여기서 출발합니다.",
+  "more": "<b>안장점의 함정</b>: ∇f=0이라고 다 최대·최소가 아닙니다. 안장점은 한 단면에선 최소, 직각 단면에선 최대죠(예 f=x²−y²의 원점). 2계 편도(헤시안)의 부호로 구분합니다. 경사하강법이 안장점에 갇히는 것도 이 때문. 화면의 |∇f|는 실제 계산한 기울기 크기로, 임계점에서 0이 됩니다.",
+  "more_en": "Critical points occur where the gradient is zero (∇f=0). They come in three kinds: peak, valley, and saddle (up one way, down the perpendicular way). Finding minima underlies optimization and machine learning."
+ },
+ "calc13_05": {
+  "ch": "미적분 13장 · 다변수 미분",
+  "sec": "13.5 라그랑주 승수",
+  "title": "제약 위에서 최적을 찾다 — 라그랑주",
+  "narr": "‘예산은 정해졌는데 효용을 최대로’처럼, 현실의 최적화엔 <b>제약조건</b>이 따릅니다. 원 x²+y²=1 위에서만 다닐 때 f=x+y를 최대로 하려면? 비밀은 <b>두 기울기가 나란해지는 순간</b>입니다: 목표 f의 기울기 ∇f(금색)와 제약 g의 기울기 ∇g(초록, 원의 바깥 방향)가 평행할 때죠. 슬라이더로 원 위를 돌아보세요 — f의 등위선이 원에 <b>살짝 접하는</b> 그 점에서 f가 최대(√2)가 됩니다. 이것이 <b>라그랑주 승수법</b>, 경제학·공학 최적화의 핵심 도구입니다.",
+  "more": "<b>∇f = λ∇g</b>: 제약곡선을 따라 움직일 때 f가 더 이상 안 변하는(접하는) 곳이 최적입니다. 그 순간 ∇f가 제약곡선에 수직, 즉 ∇g와 평행하죠(비례상수 λ가 ‘승수’). f=x+y, g=x²+y²−1이면 (1,1)=λ(2x,2y) → x=y=1/√2, f=√2. 화면의 두 화살표가 나란해질 때 최댓값이 표시됩니다.",
+  "more_en": "Optimization with a constraint: maximize f=x+y on the circle x²+y²=1. The optimum is where the gradients align — ∇f = λ∇g — i.e. where f's level line is tangent to the constraint. Here f=√2 at (1/√2, 1/√2)."
+ }
+}
