@@ -3,6 +3,7 @@
    텍스트는 content/algo0.json. 반드시 content_algo1.js 보다 먼저 로드(시작이 맨 앞). */
 (function(){
   var BLU='#7ab8ff', GRN='#8fe3b5', ORA='#ffb27a', DIM='#9b99a3';
+  var ADA=new Image(); var ADA_OK=false; ADA.onload=function(){ ADA_OK=true; }; ADA.src='assets/ada.jpg';   // 최초의 프로그래머 에이다 러브레이스 — 인트로 배경
   // ── 공용 심화 섹션 '학습 지도' 렌더러 (모든 섹션 노드가 데이터만으로 사용) ──
   // cfg = { title, sub, stages:[{c,t,items:[]}], foot }
   window.AlgoMap = function(E, cfg){ var ctx=E.ctx, W=E.W, H=E.H, cx=W/2;
@@ -31,6 +32,51 @@
     ctx.strokeStyle='#16161f'; ctx.lineWidth=Math.max(2,R*0.05); ctx.beginPath(); ctx.arc(cx,cy+R*0.10,R*0.22,0.18*Math.PI,0.82*Math.PI); ctx.stroke(); }
 
   var scenes=[
+
+  // ══════ 시네마틱 인트로 — 에이다 러브레이스 (끝나면 엔드카드) ══════
+  { id:'algo0_00', cinematic:true, introCard:true,
+    story:{ portrait:'assets/ada.jpg', name:'에이다 러브레이스',
+      sub:'Ada Lovelace · 1815–1852<br>최초의 프로그래머',
+      caps:[
+        ['알고리즘의 세계로 초대합니다'],
+        ['1843년, 에이다 러브레이스가 인류 최초의 알고리즘을 적습니다.','배비지의 ‘해석기관’을 위한 한 줄 한 줄의 절차였죠.'],
+        ['그녀는 내다봤어요 — 기계가 숫자를 넘어','음악도, 무엇이든 ‘절차’로 다룰 수 있다고.'],
+        ['알고리즘이란 ‘문제를 푸는 단계의 레시피’.','컴퓨터는 그 단계를 충실히 밟을 뿐이죠.'],
+        ['정렬하고, 탐색하고, 길을 찾는 수많은 레시피 —','이 세계로, 함께 들어가 볼까요?']
+      ] },
+    enter:function(E){ this.s={ f0:E.frame, ended:false }; E.setOn([]); },
+    tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
+      function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
+      var ANIM=1560, FADE=22, local=fr-s.f0;
+      if(local>=ANIM){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }
+      var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
+      if(ADA_OK){ var ar=ADA.width/ADA.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
+        ctx.save(); ctx.globalAlpha=(0.18+0.02*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+        ctx.drawImage(ADA, ix, iy, dw, dh); ctx.restore(); }
+      // 정렬 알고리즘 시각화: 막대가 단계를 밟아 정렬(선택정렬, 실제 계산)
+      var base=[5,2,8,1,6,4,7,3], nB=base.length;
+      var steps=Math.floor(ss(0.22,0.86,ph)*nB);
+      var arr=base.slice(); for(var p=0;p<steps && p<nB;p++){ var mi=p; for(var j=p+1;j<nB;j++) if(arr[j]<arr[mi]) mi=j; var tmp=arr[p]; arr[p]=arr[mi]; arr[mi]=tmp; }
+      var bw=Math.min(46,W*0.07), gap=bw*0.35, totW=nB*bw+(nB-1)*gap, bx0=W/2-totW/2, baseY=H*0.72, unit=H*0.045;
+      ctx.globalAlpha=seam;
+      for(var b=0;b<nB;b++){ var x=bx0+b*(bw+gap), hh=arr[b]*unit, sorted=(b<steps);
+        ctx.fillStyle=sorted?'rgba(143,227,181,0.85)':'rgba(122,184,255,0.8)'; ctx.fillRect(x,baseY-hh,bw,hh);
+        ctx.fillStyle='#cfe6ff'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText(arr[b], x+bw/2, baseY-hh-6); }
+      ctx.globalAlpha=1;
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.globalAlpha=ss(0.2,0.4,ph)*seam;
+      ctx.fillText('기계가 단계를 밟아 정렬합니다 — 선택정렬 ('+Math.min(steps,nB)+'/'+nB+' 단계)', W/2, H*0.80); ctx.globalAlpha=1;
+      // 대화체 문구
+      var caps=this.story.caps, slot=1/caps.length, ci=Math.floor(ph/slot), lp=(ph-ci*slot)/slot;
+      var aa=(lp<0.2? lp/0.2 : lp>0.8? (1-lp)/0.2 : 1)*seam, lines=caps[ci]||caps[0];
+      var mainF=Math.max(20,Math.min(33,W*0.039)), subF=Math.max(14,Math.min(21,W*0.024));
+      ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.shadowColor='rgba(0,0,0,0.65)'; ctx.shadowBlur=14;
+      for(var li=0;li<lines.length;li++){ var big2=(li===0);
+        ctx.font=(big2?'600 '+mainF:'400 '+subF)+'px -apple-system, sans-serif';
+        ctx.fillStyle=big2?'rgba(180,214,255,'+aa.toFixed(3)+')':'rgba(224,230,245,'+(aa*0.92).toFixed(3)+')';
+        ctx.fillText(lines[li], W/2, H*0.13 + li*(mainF+9)); }
+      ctx.shadowBlur=0; }
+  },
 
   // ══════ 시작 1 — 인사 ══════
   { id:'algo0_01',

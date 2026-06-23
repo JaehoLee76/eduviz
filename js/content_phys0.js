@@ -3,18 +3,36 @@
    엔진(js/engine.js) 공유. 색: 물리=초록 테마(#5fd6a8). */
 (function(){
   var GRN='#5fd6a8', BLU='#7ab8ff', ORA='#ffb27a', PNK='#f4a0c0', DIM='#9b99a3';
+  // 상대성이론의 아버지 알베르트 아인슈타인 — 인트로 배경
+  var EIN=new Image(); var EIN_OK=false; EIN.onload=function(){ EIN_OK=true; }; EIN.src='assets/einstein.jpg';
 
   var scenes = [
 
   // ── 시네마틱 오프닝: 뉴턴의 평평한 무대 → (빨간 사과→흰 질량) → 휘어진 시공간 → 빨려들기 ──
-  { id:'phys0_00', cinematic:true,
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame;
-      var CYCLE=1680, ph=(fr%CYCLE)/CYCLE;                              // 0..1 한 사이클(약 28초)
+  { id:'phys0_00', cinematic:true, introCard:true,
+    story:{ portrait:'assets/einstein.jpg', name:'알베르트 아인슈타인',
+      sub:'Albert Einstein · 1879–1955<br>상대성이론 · 휘어진 시공간',
+      caps:[
+        ['물리의 세계로 초대합니다'],
+        ['뉴턴은 믿었어요.','공간은 멈춰 있는 무대, 시간은 누구에게나 똑같이 흐른다고요.'],
+        ['그런데 아인슈타인이 속삭입니다.','시간과 공간은 따로가 아니라고 — 둘은 하나, ‘시공간’이죠.'],
+        ['보세요, 질량이 이 시공간을 움푹 휘게 합니다.'],
+        ['그러면 모든 것이 그 휜 길을 따라 빨려듭니다.','바로 그게 중력이고, 가속도예요.'],
+        ['자, 이 놀라운 세계로 — 함께 들어가 볼까요?']
+      ] },
+    enter:function(E){ this.s={ f0:E.frame, ended:false }; E.setOn([]); },
+    tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },   // 클릭 = 건너뛰기
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, st=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }   // smoothstep
-      var warp = ss(0.33,0.52,ph);                                      // 평평(뉴턴)→휘어짐(아인슈타인), 매끄럽게
-      var seam = ph<0.05? ph/0.05 : (ph>0.95? (1-ph)/0.05 : 1);         // 루프 이음새 페이드(끝→처음 부드럽게)
+      var ANIM=1620, FADE=22, local=fr-st.f0;
+      if(local>=ANIM){ if(!st.ended){ st.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(아인슈타인+설명)
+      var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
+      var warp = ss(0.33,0.52,ph);                                      // 평평(뉴턴)→휘어짐(아인슈타인)
       var cx=W*0.5, cy=H*0.46, gw=Math.min(W*0.40,H*0.50);
+      // 아인슈타인 초상화 — 애니메이션 중엔 은은한 배경(흐릿)
+      if(EIN_OK){ var ar=EIN.width/EIN.height, dh2=H*0.84, dw2=dh2*ar, ix2=W*0.5-dw2/2, iy2=H*0.50-dh2/2;
+        ctx.save(); ctx.globalAlpha=(0.16+0.02*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+        ctx.drawImage(EIN, ix2, iy2, dw2, dh2); ctx.restore(); }
       function dip(dx,dy){ var rr=(dx*dx+dy*dy)/(gw*gw*0.085); return warp*(gw*0.62)/(1+rr); }
       function P(u,v){ var bx=u*gw, by=v*gw*0.5, d=dip(bx,by), r=Math.hypot(bx,by)||1, pull=d*0.34; return [cx+bx-(bx/r)*pull, cy+by+d]; }
       // 별 배경
@@ -43,16 +61,8 @@
         var pp=P(Math.cos(ang)*rad/gw, Math.sin(ang)*rad/gw), glow=6+sp*6;
         ctx.globalAlpha=seam; ctx.fillStyle='rgba(95,214,168,0.3)'; ctx.beginPath(); ctx.arc(pp[0],pp[1],glow*1.8,0,7); ctx.fill();
         ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(pp[0],pp[1],glow,0,7); ctx.fill(); ctx.globalAlpha=1; }
-      // ── 상단 중앙 대화체 문구 (페이드 인/아웃, 캔버스 직접 그리기) ──
-      var caps=[
-        ['물리의 세계로 초대합니다'],
-        ['뉴턴은 믿었어요.','공간은 멈춰 있는 무대, 시간은 누구에게나 똑같이 흐른다고요.'],
-        ['그런데 아인슈타인이 속삭입니다.','시간과 공간은 따로가 아니라고 — 둘은 하나, ‘시공간’이죠.'],
-        ['보세요, 질량이 이 시공간을 움푹 휘게 합니다.'],
-        ['그러면 모든 것이 그 휜 길을 따라 빨려듭니다.','바로 그게 중력이고, 가속도예요.'],
-        ['자, 이 놀라운 세계로 — 함께 들어가 볼까요?']
-      ];
-      // 한 문구가 완전히 사라진 뒤 다음이 떠오름(슬롯별 페이드 인/홀드/아웃, 겹침 없음)
+      // ── 상단 중앙 대화체 문구 (슬롯별 페이드 인/홀드/아웃) ──
+      var caps=this.story.caps;
       var slot=1/caps.length, ci=Math.floor(ph/slot), lp=(ph-ci*slot)/slot;
       var a=(lp<0.2? lp/0.2 : lp>0.8? (1-lp)/0.2 : 1)*seam;
       var lines=caps[ci]||caps[0], mainF=Math.max(20,Math.min(34,W*0.040)), subF=Math.max(14,Math.min(21,W*0.024));

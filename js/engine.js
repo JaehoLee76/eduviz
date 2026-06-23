@@ -199,7 +199,10 @@
     var sc=SM.scenes; HR.spine=[]; HR.byId={};
     for(var i=0;i<sc.length;i++){ sc[i]._idx=i; sc[i]._branches=null; if(sc[i].id) HR.byId[sc[i].id]=i; }
     var spineNo=0;
-    for(i=0;i<sc.length;i++){ if(!sc[i].branchOf){ spineNo++; sc[i]._isSpine=true; sc[i]._spineNo=spineNo; sc[i]._spinePos=HR.spine.length; sc[i]._num=''+spineNo; HR.spine.push(i); } }
+    for(i=0;i<sc.length;i++){ if(!sc[i].branchOf){ sc[i]._isSpine=true; sc[i]._spinePos=HR.spine.length;
+      if(sc[i].introCard){ sc[i]._spineNo=0; sc[i]._num='✦'; }   // 인트로 엔드카드 장면: 번호 미부여(기존 #N 교차참조 보존)
+      else { spineNo++; sc[i]._spineNo=spineNo; sc[i]._num=''+spineNo; }
+      HR.spine.push(i); } }
     for(i=0;i<sc.length;i++){ var b=sc[i].branchOf; if(b!=null){ var pIdx=HR.byId[b]; sc[i]._isSpine=false; sc[i]._parentIdx=pIdx;
       if(pIdx!=null&&sc[pIdx]){ if(!sc[pIdx]._branches) sc[pIdx]._branches=[];
         var brs=sc[pIdx]._branches, dup=false; for(var j=0;j<brs.length;j++){ if(sc[brs[j]].id===sc[i].id){ dup=true; break; } }  // 교차배치 중복 id(같은 부모)는 1개만
@@ -247,7 +250,7 @@
 
   function goTo(i){ if(i<0||i>=SM.scenes.length) return; SM.cur=i; var sc=SM.scenes[i]; S={};
     say(sc.narr||''); if(hintEl)hintEl.textContent=sc.hint||''; if(titleEl)titleEl.textContent=sc.title||''; if(secEl)secEl.textContent=(sc.ch?sc.ch+' · ':'')+(sc.sec||'');
-    var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent='#'+(sc._num||(i+1));
+    var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent=(sc.introCard?'✦ 인트로':'#'+(sc._num||(i+1)));
     renderCrumb(sc); updateBranchBtn(sc); updateNavBtns(sc);
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
@@ -263,6 +266,7 @@
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
     animPaused=false; animFrame=0; updatePlayUI();   // 새 장면은 처음부터 재생
+    hideIntroEnd();   // 장면 전환 시 인트로 엔드카드 숨김
     paintTOC(); progress(); blip(660,0.14);
   }
   // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
@@ -417,6 +421,45 @@
     var hint=document.createElement('span'); hint.textContent='Space · , · .'; hint.style.cssText='font-size:10px;color:#8a8893;letter-spacing:.04em;margin:0 4px 0 2px;'; bar.appendChild(hint);
     document.body.appendChild(bar); playBar=bar; }
 
+  // ---------- 인트로 엔드카드: 애니메이션이 끝나면 초상화(중앙)+설명(좌우)+다시보기 ----------
+  var introEndEl=null;
+  function makeIntroEnd(){ if(introEndEl||!document.body) return;
+    var st=document.createElement('style'); st.textContent=
+      '#introEnd{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:38px 24px;overflow-y:auto;'+
+      'background:radial-gradient(125% 125% at 50% 0%, rgba(18,18,26,0.975) 0%, rgba(8,8,12,0.99) 72%);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);}'+
+      '#introEnd.show{display:flex;}'+
+      '#introEnd .ie-grid{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:34px;max-width:1080px;width:100%;}'+
+      '#introEnd .ie-side{flex:1 1 0;min-width:0;font-size:15px;line-height:1.74;color:#cdcbd6;}'+
+      '#introEnd .ie-left{text-align:right;} #introEnd .ie-right{text-align:left;}'+
+      '#introEnd .ie-side p{margin:0 0 16px;} #introEnd .ie-side p:last-child{margin-bottom:0;}'+
+      '#introEnd .ie-side b{color:var(--accent-light,#b99cff);font-weight:600;}'+
+      '#introEnd .ie-mid{flex:0 0 auto;width:236px;text-align:center;}'+
+      '#introEnd .ie-portrait{width:198px;height:auto;border-radius:14px;box-shadow:0 12px 44px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.14);}'+
+      '#introEnd .ie-name{font-size:22px;font-weight:700;color:var(--accent-light,#b99cff);margin-top:16px;letter-spacing:.01em;}'+
+      '#introEnd .ie-sub{font-size:12.5px;color:#9b99a3;margin-top:5px;line-height:1.55;}'+
+      '#introEnd .ie-replay{margin-top:20px;padding:10px 26px;font-size:15px;font-family:inherit;cursor:pointer;border-radius:11px;font-weight:600;'+
+      'background:var(--accent,#8b6fd6);border:1px solid var(--accent,#8b6fd6);color:#fff;box-shadow:0 3px 14px rgba(0,0,0,0.4);}'+
+      '#introEnd .ie-replay:hover{filter:brightness(1.13);}'+
+      '@media (max-width:820px){#introEnd .ie-grid{flex-direction:column;gap:18px;} #introEnd .ie-side{text-align:center !important;flex:none;width:100%;max-width:560px;} #introEnd .ie-mid{order:-1;}}';
+    document.head.appendChild(st);
+    var ov=document.createElement('div'); ov.id='introEnd';
+    ov.innerHTML='<div class="ie-grid"><div class="ie-side ie-left"></div>'+
+      '<div class="ie-mid"><img class="ie-portrait" alt=""><div class="ie-name"></div><div class="ie-sub"></div><button class="ie-replay">↻ 다시보기</button></div>'+
+      '<div class="ie-side ie-right"></div></div>';
+    document.body.appendChild(ov); introEndEl=ov; }
+  function showIntroEnd(story){ makeIntroEnd(); if(!introEndEl||!story) return;
+    var q=function(s){return introEndEl.querySelector(s);};
+    q('.ie-portrait').src=story.portrait||''; q('.ie-name').innerHTML=story.name||''; q('.ie-sub').innerHTML=story.sub||'';
+    // 캡션(줄 배열들의 배열)을 문단으로 평탄화 → 글자수 기준 좌우 균형 분배
+    var caps=(story.caps||[]).map(function(g){ return (g.join? g.join(' ') : String(g)); });
+    var total=0,i; for(i=0;i<caps.length;i++) total+=caps[i].length;
+    var acc=0, split=caps.length; for(i=0;i<caps.length;i++){ acc+=caps[i].length; if(acc>=total/2){ split=i+1; break; } }
+    function fill(el,arr){ el.innerHTML=arr.map(function(c){return '<p>'+c+'</p>';}).join(''); }
+    fill(q('.ie-left'), caps.slice(0,split)); fill(q('.ie-right'), caps.slice(split));
+    q('.ie-replay').onclick=function(){ hideIntroEnd(); var sc=SM.scenes[SM.cur]; if(sc&&sc.enter) sc.enter(E); blip(660,0.14); };
+    introEndEl.classList.add('show'); }
+  function hideIntroEnd(){ if(introEndEl) introEndEl.classList.remove('show'); }
+
   // ---------- Plot: 좌표평면 + 함수 그래프 (재사용: 함수·미적분까지) ----------
   function Plot(){ this.xmin=-6;this.xmax=6;this.ymin=-4;this.ymax=8; }
   Plot.prototype.range=function(a,b,c,d){ this.xmin=a;this.xmax=b;this.ymin=c;this.ymax=d; return this; };
@@ -475,6 +518,7 @@
   // ---------- engine facade (장면에 전달) ----------
   var E = {
     get ctx(){return ctx;}, get W(){return W;}, get H(){return H;}, get frame(){return frameN;}, get frozen(){return _frozenFlag;},
+    introEnd:function(story){ showIntroEnd(story); },
     P:P, setOn:setOn, NL:new NumberLine(), Plot:new Plot(), COL:COL, S:function(){return S;},
     say:say, big:big, controls:controls, bind:bind, blip:blip, next:next, quiz:quiz,
     blink:blink, tapHint:tapHint
@@ -489,6 +533,7 @@
     controlsEl=document.getElementById('controls'); keyHintEl=document.getElementById('keyhint'); bigEl=document.getElementById('bignum');
     bigN=document.getElementById('bigN'); bigW=document.getElementById('bigW');
     makePlayBar();   // 재생 제어 바(일시멈춤·한뒤로·한칸앞으로) 동적 생성 → 모든 트랙 페이지에 자동 표시
+    makeIntroEnd();  // 인트로 엔드카드(초상화+설명+다시보기) 동적 생성
     // nav
     var nb=document.getElementById('next'), pb=document.getElementById('prev');
     if(nb)nb.onclick=next; if(pb)pb.onclick=prev;

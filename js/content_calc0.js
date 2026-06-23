@@ -9,22 +9,30 @@
 
   var scenes = [
 
-  // ── 시네마틱 오프닝: 변화(미분=접선) → 누적(적분=넓이) → 기본정리 → 현실 ──
-  { id:'calc0_00', cinematic:true,
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame;
+  // ── 시네마틱 오프닝: 변화(미분=접선) → 누적(적분=넓이) → 기본정리 → 현실. 끝나면 엔드카드(뉴턴+설명) ──
+  { id:'calc0_00', cinematic:true, introCard:true,
+    story:{ portrait:'assets/newton.jpg', name:'아이작 뉴턴',
+      sub:'Isaac Newton · 1643–1727<br>미적분의 창시자 (라이프니츠와 함께)',
+      caps:[
+        ['미적분의 세계로 초대합니다'],
+        ['1665년, 흑사병이 케임브리지를 닫았을 때 —','스물세 살 뉴턴은 고향 농가에 홀로 칩거합니다.'],
+        ['그 ‘기적의 해’에 그가 빚어낸 것이 바로 이 변화의 수학.','(라이프니츠도 곧 독립적으로, ∫ 기호와 함께.)'],
+        ['세상은 끊임없이 변합니다.','그 ‘변화’를 어떻게 한순간에 붙잡을 수 있을까요?'],
+        ['곡선에 살짝 닿는 직선의 기울기 —','그 한순간의 변화율이 바로 ‘미분’입니다.'],
+        ['휘어진 도형의 넓이는 또 어떻게 잴까요?','무수히 잘게 쪼개어, 다시 더합니다.'],
+        ['그 무한한 합이 ‘적분’ —','조각들을 쌓아 전체를 되찾는 마법이죠.'],
+        ['놀랍게도 미분과 적분은 하나로 이어집니다.','이 언어로 우린 로켓을 쏘고 미래를 그립니다 — 함께 가볼까요?']
+      ] },
+    enter:function(E){ this.s={ f0:E.frame, ended:false }; E.setOn([]); },
+    tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },   // 클릭 = 건너뛰기
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
-      // 한 사이클 = 애니메이션 → 뉴턴 또렷이 공개 → 3초 정지 → 반복
-      var ANIM=1860, TRANS=54, HOLD=180, FADE=22, TOTAL=ANIM+TRANS+HOLD;
-      var fph=fr%TOTAL, ph, rv, contentOn;
-      if(fph<ANIM){ ph=fph/ANIM; rv=0; contentOn=1; }                                  // 애니메이션 진행
-      else if(fph<ANIM+TRANS){ ph=1; rv=ss(0,1,(fph-ANIM)/TRANS); contentOn=1-rv; }     // 콘텐츠 사라지며 뉴턴 또렷이
-      else { ph=1; rv=1; contentOn=0; }                                                // 3초 정지: 뉴턴 공개(안심)
-      var vis=(fph<FADE? fph/FADE : (fph>TOTAL-FADE? (TOTAL-fph)/FADE : 1));            // 루프 경계 페이드
-      var seam=contentOn*vis;                                                          // 애니메이션 요소 가시도
-      // 뉴턴 초상화 — 평소엔 은은한 배경(밝게), 끝나면 또렷이 공개
+      var ANIM=1740, FADE=22, local=fr-s.f0;
+      if(local>=ANIM){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(초상화+설명+다시보기)
+      var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
+      // 뉴턴 초상화 — 애니메이션 중엔 은은한 배경(흐릿)
       if(NEWTON_OK){ var ar=NEWTON.width/NEWTON.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
-        ctx.save(); ctx.globalAlpha=(0.22+0.70*rv+0.02*Math.sin(fr*0.012))*vis; if('filter' in ctx) ctx.filter='blur('+(3*(1-rv)).toFixed(2)+'px)';
+        ctx.save(); ctx.globalAlpha=(0.22+0.02*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
         ctx.drawImage(NEWTON, ix, iy, dw, dh); ctx.restore(); }
       // 실제 곡선 f와 좌표계
       function f(x){ return 0.55 + 1.45*Math.exp(-(x-2.15)*(x-2.15)/1.65); }   // 부드러운 언덕
@@ -88,17 +96,8 @@
       }
       ctx.globalAlpha=1; ctx.lineWidth=1;
 
-      // ── 상단 중앙 대화체 문구 (슬롯별 페이드 인/홀드/아웃, 겹침 없음) ──
-      var caps=[
-        ['미적분의 세계로 초대합니다'],
-        ['1665년, 흑사병이 케임브리지를 닫았을 때 —','스물세 살 뉴턴은 고향 농가에 홀로 칩거합니다.'],
-        ['그 ‘기적의 해’에 그가 빚어낸 것이 바로 이 변화의 수학.','(라이프니츠도 곧 독립적으로, ∫ 기호와 함께.)'],
-        ['세상은 끊임없이 변합니다.','그 ‘변화’를 어떻게 한순간에 붙잡을 수 있을까요?'],
-        ['곡선에 살짝 닿는 직선의 기울기 —','그 한순간의 변화율이 바로 ‘미분’입니다.'],
-        ['휘어진 도형의 넓이는 또 어떻게 잴까요?','무수히 잘게 쪼개어, 다시 더합니다.'],
-        ['그 무한한 합이 ‘적분’ —','조각들을 쌓아 전체를 되찾는 마법이죠.'],
-        ['놀랍게도 미분과 적분은 하나로 이어집니다.','이 언어로 우린 로켓을 쏘고 미래를 그립니다 — 함께 가볼까요?']
-      ];
+      // ── 상단 중앙 대화체 문구 (슬롯별 페이드 인/홀드/아웃) ──
+      var caps=this.story.caps;
       var slot=1/caps.length, ci=Math.floor(ph/slot), lp=(ph-ci*slot)/slot;
       var aa=(lp<0.2? lp/0.2 : lp>0.8? (1-lp)/0.2 : 1)*seam;
       var lines=caps[ci]||caps[0], mainF=Math.max(20,Math.min(33,W*0.039)), subF=Math.max(14,Math.min(21,W*0.024));
@@ -107,12 +106,6 @@
         ctx.font=(big2?'600 '+mainF:'400 '+subF)+'px -apple-system, sans-serif';
         ctx.fillStyle=big2?'rgba(206,184,255,'+aa.toFixed(3)+')':'rgba(224,224,245,'+(aa*0.92).toFixed(3)+')';
         ctx.fillText(lines[li], W/2, H*0.13 + li*(mainF+9)); }
-      // 뉴턴 공개 캡션 — 애니메이션이 끝나면 또렷이(학습자 안심)
-      if(rv>0.02){ var ra=rv*vis; ctx.textAlign='center'; ctx.shadowColor='rgba(0,0,0,0.75)'; ctx.shadowBlur=14;
-        ctx.font='700 '+Math.max(22,Math.min(34,W*0.04))+'px -apple-system, sans-serif'; ctx.fillStyle='rgba(255,216,160,'+ra.toFixed(3)+')';
-        ctx.fillText('아이작 뉴턴', W/2, H*0.84);
-        ctx.font='400 '+Math.max(13,Math.min(18,W*0.021))+'px -apple-system, sans-serif'; ctx.fillStyle='rgba(226,224,245,'+(ra*0.92).toFixed(3)+')';
-        ctx.fillText('Isaac Newton · 1643–1727 · 미적분의 창시자', W/2, H*0.84+30); }
       ctx.shadowBlur=0; ctx.textBaseline='alphabetic'; }
   },
 
