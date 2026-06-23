@@ -252,6 +252,7 @@
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
+    if(document.body) document.body.classList.toggle('cinematic', !!sc.cinematic);     // 시네마틱 장면: 좌측 말풍선·자세히보기·bignum 숨김(캔버스 풀스크린)
     var pageMode = !!(sc.branchOf!=null && sc.page);   // 심화학습 책 페이지(중앙 본문). 말풍선·자세히보기·캔버스 숨김
     if(document.body) document.body.classList.toggle('page-mode', pageMode);
     if(branchPageInner){ branchPageInner.innerHTML = pageMode ? sc.page : '';

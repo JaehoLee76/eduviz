@@ -71,6 +71,12 @@
     background: rgba(9,9,15,0.62); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
     padding: 4px 14px; border-radius: 9px; }
 
+  /* 시네마틱 인트로: 좌측 말풍선·자세히보기·bignum 숨기고 캔버스 풀스크린 */
+  body.cinematic #leftStack { display: none !important; }
+  body.cinematic .bignum { display: none !important; }
+  body.cinematic .nav .hint { display: none !important; }
+  body.cinematic .scene-no, body.cinematic .crumb { opacity: 0.35; }
+
   /* 컨트롤(슬라이더 등) */
   #controls { position: fixed; bottom: 176px; left: 50%; transform: translateX(-50%); max-width: 92vw; z-index: 5; display: none; justify-content: center; flex-wrap: wrap; gap: 10px; }
   #keyhint { display: none; position: fixed; bottom: 176px; left: 50%; transform: translateX(-50%); max-width: 92vw; z-index: 5; justify-content: center; gap: 18px; pointer-events: none; }
