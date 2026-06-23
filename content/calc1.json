@@ -1,0 +1,42 @@
+{
+ "calc1_01": {
+  "ch": "미적분 1장 · 함수와 모델",
+  "sec": "1.1 함수의 네 가지 표현",
+  "title": "함수 — 입력 하나에 출력 하나",
+  "narr": "<b>함수는 약속입니다.</b> 입력을 하나 넣으면, 정해진 출력 하나가 나오는 규칙이죠 — 동전을 넣으면 정해진 음료가 나오는 자판기처럼. 같은 함수도 <b>네 가지 얼굴</b>로 나타낼 수 있습니다: 식(f(x)=x²), 표(수들의 짝), 그래프(그림), 그리고 말(‘제곱한다’). 슬라이더로 입력 x를 옮겨 보세요 — 식에 대입한 값, 표의 한 줄, 그래프 위의 한 점이 모두 같은 사실을 가리킵니다. 미적분은 바로 이 ‘함수’ 위에서 펼쳐집니다.",
+  "more": "<b>왜 네 표현인가</b>: 어떤 문제는 식으로, 어떤 문제는 표(실험 데이터)나 그래프로 주어집니다. 같은 함수를 여러 얼굴로 자유롭게 오갈 수 있어야 미적분의 도구(극한·미분·적분)를 상황에 맞게 쓸 수 있습니다. 화면의 표·그래프·식의 값은 모두 같은 규칙 f(x)=x²을 실제로 계산한 것 — 한 점을 옮기면 셋이 함께 움직입니다.",
+  "more_en": "A function assigns exactly one output to each input. The same function can be seen four ways — algebraically (a formula), numerically (a table), visually (a graph), and verbally (in words). Calculus is built on top of functions."
+ },
+ "calc1_02": {
+  "ch": "미적분 1장 · 함수와 모델",
+  "sec": "1.2 수학적 모델 — 성장의 경주",
+  "title": "선형 · 거듭제곱 · 지수, 누가 이길까?",
+  "narr": "현실을 수식으로 옮긴 것이 <b>수학적 모델</b>입니다. 같은 ‘증가’라도 모양이 다르죠. <b>선형</b>(5t)은 일정한 속도로, <b>거듭제곱</b>(t²)은 점점 빠르게, <b>지수</b>(2ᵗ)는 처음엔 굼뜨다가 어느 순간 폭발합니다. 슬라이더로 시간 t를 키워 보세요 — 한참은 선형이 앞서지만, 결국 <b>지수가 모두를 까마득히 앞지릅니다</b>. 복리·박테리아·입소문이 무서운 이유가 바로 이것입니다.",
+  "more": "<b>지수의 위력</b>: 지수함수는 ‘현재 크기에 비례해 증가’합니다. 그래서 작을 땐 느리지만 커질수록 더 빨리 커져, 어떤 거듭제곱·선형도 결국 추월합니다. 화면의 세 값(5t, t², 2ᵗ)과 ‘1등’ 판정은 매 순간 실제로 계산해 비교한 결과입니다.",
+  "more_en": "A mathematical model turns reality into a formula. Linear, power, and exponential growth look similar at first, but exponential growth — proportional to current size — eventually overtakes them all."
+ },
+ "calc1_03": {
+  "ch": "미적분 1장 · 함수와 모델",
+  "sec": "1.3 함수 변환",
+  "title": "옮기고 늘리고 뒤집기 — 함수 변환",
+  "narr": "함수 하나를 알면, 그 친척들도 공짜로 얻습니다. <b>y = a·f(x − c) + d</b> 한 식에 변환의 모든 비밀이 담겨 있죠. <b>c</b>는 좌우로 밀고, <b>d</b>는 위아래로 올리고, <b>a</b>는 세로로 늘이거나(음수면) 뒤집습니다. 흐린 곡선이 원본 f(x)=sin x, 보라 곡선이 변환된 모습입니다. 슬라이더를 움직여 보세요 — 새 함수를 처음부터 그리는 게 아니라, 아는 함수를 ‘이사시키는’ 것뿐입니다.",
+  "more": "<b>변환의 순서</b>: 괄호 안(x−c)은 ‘가로’를, 괄호 밖(a·…+d)은 ‘세로’를 다룹니다. 가로는 직관과 반대로 움직이고(x−c는 오른쪽으로 c만큼), 세로는 직관대로 움직입니다(+d는 위로 d만큼). 화면의 변환 곡선은 매 점에서 a·sin(x−c)+d를 실제로 계산해 그립니다.",
+  "more_en": "Knowing one function gives you its whole family. In y = a·f(x − c) + d: c shifts horizontally, d shifts vertically, a stretches or flips. You relocate a known graph rather than redraw it."
+ },
+ "calc1_04": {
+  "ch": "미적분 1장 · 함수와 모델",
+  "sec": "1.4 지수함수",
+  "title": "지수함수와 배가시간",
+  "narr": "<b>y = bˣ</b>는 ‘일정 시간마다 곱절’이 되는 함수입니다. 밑 b가 클수록 가파르지만, 모든 지수함수는 한 점 <b>(0, 1)</b>을 지나죠(b⁰=1). 슬라이더로 b를 바꾸면 <b>배가시간</b> — 값이 2배가 되는 데 걸리는 x — 이 어떻게 달라지는지 보세요. 이 ‘곱절의 리듬’이 복리 이자, 무어의 법칙, 방사성 붕괴(반감기)의 심장입니다. 나중에 미분을 배우면, 자기 자신과 똑같은 도함수를 갖는 특별한 밑 e를 만나게 됩니다.",
+  "more": "<b>배가시간 Δx = ln2 / ln b</b>: 값이 정확히 2배가 되는 데 필요한 입력 증가량입니다. b가 클수록 짧아지죠. 화면의 배가시간은 공식을 베낀 게 아니라 ln2/ln b를 실제로 계산해 점선으로 표시한 것입니다 — 어떤 b에서도 그 간격마다 값이 곱절이 됩니다.",
+  "more_en": "y = bˣ doubles every fixed step. Every exponential passes through (0,1). The doubling time Δx = ln2/ln b shrinks as b grows — the heartbeat of compound interest, Moore's law, and radioactive decay."
+ },
+ "calc1_05": {
+  "ch": "미적분 1장 · 함수와 모델",
+  "sec": "1.5 역함수와 로그",
+  "title": "역함수 — y = x 거울에 비친 함수",
+  "narr": "<b>역함수</b>는 함수를 거꾸로 되돌립니다. 2ᵗ가 ‘t를 2의 거듭제곱으로’ 보낸다면, <b>로그 log₂</b>는 그것을 ‘다시 t로’ 되돌리죠. 둘은 <b>y = x 직선에 대한 거울상</b>입니다 — 한 함수의 점 (a, b)가 역함수에선 (b, a)로 뒤집힙니다. 슬라이더로 점을 옮겨 보세요. 보라 점과 금색 점이 대각선을 사이에 두고 정확히 마주 보며 움직입니다. 지수와 로그가 짝꿍인 이유가 바로 이 대칭입니다.",
+  "more": "<b>로그 = 지수의 역</b>: 2ᵃ = b 와 log₂b = a 는 같은 사실을 다르게 쓴 것입니다. 그래서 그래프도 y=x에 대해 대칭이죠. 화면의 두 점은 좌표가 (a, 2ᵃ)와 (2ᵃ, a)로 서로 뒤집힌 값 — 실제로 계산해 거울 대칭을 확인할 수 있습니다.",
+  "more_en": "An inverse function undoes the original. log₂ undoes 2ˣ. Their graphs are mirror images across the line y = x: a point (a,b) becomes (b,a). Exponential and logarithm are a matched pair."
+ }
+}
