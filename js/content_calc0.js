@@ -4,6 +4,8 @@
    골든룰: 화면의 기울기·넓이는 모두 실시간 수치미분/리만합으로 계산(베껴 그리기 금지). */
 (function(){
   var VIO='#b99cff', BLU='#7ab8ff', GLD='#ffd27a', GRN='#7ee0b0', PNK='#f4a0c0', DIM='#9b99a3';
+  // 미적분의 창시자 아이작 뉴턴(흑사병의 해 1665~66 '기적의 해'에 유율법 고안) — 인트로 배경
+  var NEWTON=new Image(); var NEWTON_OK=false; NEWTON.onload=function(){ NEWTON_OK=true; }; NEWTON.src='assets/newton.jpg';
 
   var scenes = [
 
@@ -14,6 +16,10 @@
       var CYCLE=1860, ph=(fr%CYCLE)/CYCLE;                       // 0..1 한 사이클(약 31초)
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
       var seam = ph<0.05? ph/0.05 : (ph>0.95? (1-ph)/0.05 : 1);  // 루프 이음새 페이드
+      // 뉴턴 초상화 — 흐릿한 배경(미적분의 창시자). 호흡하듯 미세하게 밝아짐
+      if(NEWTON_OK){ var ar=NEWTON.width/NEWTON.height, dh=H*0.86, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.52-dh/2;
+        ctx.save(); ctx.globalAlpha=(0.085+0.025*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+        ctx.drawImage(NEWTON, ix, iy, dw, dh); ctx.restore(); }
       // 실제 곡선 f와 좌표계
       function f(x){ return 0.55 + 1.45*Math.exp(-(x-2.15)*(x-2.15)/1.65); }   // 부드러운 언덕
       function df(x){ return (f(x+1e-3)-f(x-1e-3))/2e-3; }                      // 수치 도함수(실측)
@@ -79,6 +85,8 @@
       // ── 상단 중앙 대화체 문구 (슬롯별 페이드 인/홀드/아웃, 겹침 없음) ──
       var caps=[
         ['미적분의 세계로 초대합니다'],
+        ['1665년, 흑사병이 케임브리지를 닫았을 때 —','스물세 살 뉴턴은 고향 농가에 홀로 칩거합니다.'],
+        ['그 ‘기적의 해’에 그가 빚어낸 것이 바로 이 변화의 수학.','(라이프니츠도 곧 독립적으로, ∫ 기호와 함께.)'],
         ['세상은 끊임없이 변합니다.','그 ‘변화’를 어떻게 한순간에 붙잡을 수 있을까요?'],
         ['곡선에 살짝 닿는 직선의 기울기 —','그 한순간의 변화율이 바로 ‘미분’입니다.'],
         ['휘어진 도형의 넓이는 또 어떻게 잴까요?','무수히 잘게 쪼개어, 다시 더합니다.'],
@@ -99,7 +107,7 @@
   // ── 환영: 접선이 미끄러지며 도함수 곡선이 그려진다(변화율의 그림) ──
   { id:'calc0_01',
     enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, t=(E.frame%240)/240;   // 0..1 주기
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, t=(E.frame%660)/660;   // 0..1 주기(약 11초 — 느리게)
       function f(x){ return 0.6 + 1.4*Math.exp(-(x-2.1)*(x-2.1)/1.6); }
       function df(x){ return (f(x+1e-3)-f(x-1e-3))/2e-3; }
       var X0=0.2,X1=4.0,FMAX=2.2,DMAX=1.4;
