@@ -48,11 +48,11 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
-      var ANIM=1560, FADE=22, local=fr-s.f0;
+      var ANIM=960, FADE=22, local=fr-s.f0;
       if(local>=ANIM){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }
       var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
       if(ADA_OK){ var ar=ADA.width/ADA.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
-        ctx.save(); ctx.globalAlpha=(0.18+0.02*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+        ctx.save(); ctx.globalAlpha=(0.40+0.03*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
         ctx.drawImage(ADA, ix, iy, dw, dh); ctx.restore(); }
       // 정렬 알고리즘 시각화: 막대가 단계를 밟아 정렬(선택정렬, 실제 계산)
       var base=[5,2,8,1,6,4,7,3], nB=base.length;

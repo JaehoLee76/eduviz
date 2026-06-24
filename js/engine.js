@@ -437,18 +437,21 @@
       '#introEnd .ie-left{text-align:right;} #introEnd .ie-right{text-align:left;}'+
       '#introEnd .ie-side p{margin:0 0 16px;} #introEnd .ie-side p:last-child{margin-bottom:0;}'+
       '#introEnd .ie-side b{color:var(--accent-light,#b99cff);font-weight:600;}'+
-      '#introEnd .ie-mid{flex:0 0 auto;width:236px;text-align:center;}'+
+      '#introEnd .ie-mid{flex:0 0 auto;width:312px;text-align:center;}'+
       '#introEnd .ie-portrait{width:198px;height:auto;border-radius:14px;box-shadow:0 12px 44px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.14);}'+
       '#introEnd .ie-name{font-size:22px;font-weight:700;color:var(--accent-light,#b99cff);margin-top:16px;letter-spacing:.01em;}'+
       '#introEnd .ie-sub{font-size:12.5px;color:#9b99a3;margin-top:5px;line-height:1.55;}'+
-      '#introEnd .ie-replay{margin-top:20px;padding:10px 26px;font-size:15px;font-family:inherit;cursor:pointer;border-radius:11px;font-weight:600;'+
-      'background:var(--accent,#8b6fd6);border:1px solid var(--accent,#8b6fd6);color:#fff;box-shadow:0 3px 14px rgba(0,0,0,0.4);}'+
-      '#introEnd .ie-replay:hover{filter:brightness(1.13);}'+
+      '#introEnd .ie-btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}'+
+      '#introEnd .ie-btn{padding:10px 22px;font-size:15px;font-family:inherit;cursor:pointer;border-radius:11px;font-weight:600;box-shadow:0 3px 14px rgba(0,0,0,0.4);}'+
+      '#introEnd .ie-start{background:var(--accent,#8b6fd6);border:1px solid var(--accent,#8b6fd6);color:#fff;}'+
+      '#introEnd .ie-replay{background:rgba(255,255,255,0.06);border:1px solid var(--accent,#8b6fd6);color:var(--accent-light,#cfcdc6);}'+
+      '#introEnd .ie-btn:hover{filter:brightness(1.14);}'+
       '@media (max-width:820px){#introEnd .ie-grid{flex-direction:column;gap:18px;} #introEnd .ie-side{text-align:center !important;flex:none;width:100%;max-width:560px;} #introEnd .ie-mid{order:-1;}}';
     document.head.appendChild(st);
     var ov=document.createElement('div'); ov.id='introEnd';
     ov.innerHTML='<div class="ie-grid"><div class="ie-side ie-left"></div>'+
-      '<div class="ie-mid"><img class="ie-portrait" alt=""><div class="ie-name"></div><div class="ie-sub"></div><button class="ie-replay">↻ 다시보기</button></div>'+
+      '<div class="ie-mid"><img class="ie-portrait" alt=""><div class="ie-name"></div><div class="ie-sub"></div>'+
+      '<div class="ie-btnrow"><button class="ie-btn ie-start">▶ 학습 시작</button><button class="ie-btn ie-replay">↻ 다시보기</button></div></div>'+
       '<div class="ie-side ie-right"></div></div>';
     document.body.appendChild(ov); introEndEl=ov; }
   function showIntroEnd(story){ makeIntroEnd(); if(!introEndEl||!story) return;
@@ -461,6 +464,7 @@
     function fill(el,arr){ el.innerHTML=arr.map(function(c){return '<p>'+c+'</p>';}).join(''); }
     fill(q('.ie-left'), caps.slice(0,split)); fill(q('.ie-right'), caps.slice(split));
     q('.ie-replay').onclick=function(){ hideIntroEnd(); var sc=SM.scenes[SM.cur]; if(sc&&sc.enter) sc.enter(E); blip(660,0.14); };
+    q('.ie-start').onclick=function(){ hideIntroEnd(); next(); blip(720,0.16); };   // 학습 시작 = 첫 본문 장면으로
     introEndEl.classList.add('show'); }
   function hideIntroEnd(){ if(introEndEl) introEndEl.classList.remove('show'); }
 

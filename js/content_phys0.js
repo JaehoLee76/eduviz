@@ -24,14 +24,14 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },   // 클릭 = 건너뛰기
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, st=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }   // smoothstep
-      var ANIM=1620, FADE=22, local=fr-st.f0;
+      var ANIM=1020, FADE=22, local=fr-st.f0;
       if(local>=ANIM){ if(!st.ended){ st.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(아인슈타인+설명)
       var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
       var warp = ss(0.33,0.52,ph);                                      // 평평(뉴턴)→휘어짐(아인슈타인)
       var cx=W*0.5, cy=H*0.46, gw=Math.min(W*0.40,H*0.50);
       // 아인슈타인 초상화 — 애니메이션 중엔 은은한 배경(흐릿)
       if(EIN_OK){ var ar=EIN.width/EIN.height, dh2=H*0.84, dw2=dh2*ar, ix2=W*0.5-dw2/2, iy2=H*0.50-dh2/2;
-        ctx.save(); ctx.globalAlpha=(0.16+0.02*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+        ctx.save(); ctx.globalAlpha=(0.34+0.03*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
         ctx.drawImage(EIN, ix2, iy2, dw2, dh2); ctx.restore(); }
       function dip(dx,dy){ var rr=(dx*dx+dy*dy)/(gw*gw*0.085); return warp*(gw*0.62)/(1+rr); }
       function P(u,v){ var bx=u*gw, by=v*gw*0.5, d=dip(bx,by), r=Math.hypot(bx,by)||1, pull=d*0.34; return [cx+bx-(bx/r)*pull, cy+by+d]; }

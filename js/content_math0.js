@@ -19,11 +19,11 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
-      var ANIM=1560, FADE=22, local=fr-s.f0;
+      var ANIM=960, FADE=22, local=fr-s.f0;
       if(local>=ANIM){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }
       var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
       if(G_OK){ var ar=GAUSS.width/GAUSS.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
-        ctx.save(); ctx.globalAlpha=(0.20+0.02*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
+        ctx.save(); ctx.globalAlpha=(0.40+0.03*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
         ctx.drawImage(GAUSS, ix, iy, dw, dh); ctx.restore(); }
       // 가우스 합 시각화: 1..n 노드 + 양끝 짝짓기 호(각 쌍의 합 = n+1)
       var n=10, x0=W*0.16, x1=W*0.84, yb=H*0.66;
