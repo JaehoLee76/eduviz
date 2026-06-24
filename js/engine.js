@@ -507,6 +507,12 @@
     var stepScene=!!(sc && sc.tap && !sc.keys && !hasSlider && (hasAuto || isStepText));
     var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); if(hasAuto) chips.push(['S','자동']); chips.push(['X','처음']); }
     else if(playbackEnabled){ chips.push(['0','처음']); }   // 물리(재생 트랙): 화면 탭과 함께 '0=처음으로' 키 안내
+    // 알약이 하단 DOM(말풍선·슬라이더·재생바·내비)에 가리지 않도록 위치 보정
+    // 물리는 하단이 혼잡 → bignum(공식) 실제 하단 바로 아래 상단 빈 영역으로(부제 줄수에 자동 적응)
+    if(playbackEnabled){ var topY=H*0.27, bn=document.getElementById('bignum');
+      if(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none'){ var br=bn.getBoundingClientRect(); if(br.bottom>0) topY=br.bottom+24; }
+      cy=Math.max(H*0.22, Math.min(topY, H*0.42)); }
+    else { cy=Math.min(cy, H-40); }                         // 타 트랙: 너무 아래로만 가지 않게
     ctx.save(); ctx.textBaseline='middle';
     ctx.font='600 15px sans-serif'; var tw=text?ctx.measureText(text).width:0;
     ctx.font='11px sans-serif'; var cwid=[], chipW=0;
