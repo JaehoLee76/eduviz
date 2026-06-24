@@ -392,7 +392,7 @@
   }
   function loop(){ drawOneFrame(!animPaused); requestAnimationFrame(loop); }   // 항상 그림 — 일시정지면 적분만 동결
   var playbackEnabled=false;   // 연속 애니메이션 트랙(물리 등)만 opt-in (Engine.start({playback:true}))
-  function playbackEligible(){ if(!playbackEnabled)return false; var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null; return !!(sc && sc.draw && !(sc._viz&&_steps) && !(sc.branchOf!=null&&sc.page)); }
+  function playbackEligible(){ if(!playbackEnabled)return false; var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null; return !!(sc && sc.draw && !sc.introCard && !(sc._viz&&_steps) && !(sc.branchOf!=null&&sc.page)); }   // 인트로(introCard)는 한 번 재생용 → 재생바 제외
   function setPaused(p){ animPaused=!!p; updatePlayUI(); }
   function togglePlay(){ if(!playbackEligible())return; animPaused=!animPaused; if(!animPaused){} updatePlayUI(); }
   function frameStepFwd(){ if(!playbackEligible())return; animPaused=true; drawOneFrame(true); updatePlayUI(); }   // 한 칸: 시뮬 한 스텝 진행
@@ -556,6 +556,10 @@
       var viz=!!(s&&s._viz&&_steps);
       if(k==='ArrowRight'){ next(); e.preventDefault(); return; }
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
+      // 인트로(시네마틱): Space/Enter = 건너뛰기(엔드카드) / 끝났으면 학습 시작(다음)
+      if(s && s.introCard){
+        if(space||enter){ if(s.s&&s.s.ended){ next(); } else if(s.tap){ s.tap(E, W/2, H/2); } e.preventDefault(); return; }
+      }
       // 재생 제어(연속 애니메이션 장면): Space 재생/정지 · , 한 뒤로 · . 한 칸 앞으로 · 0 처음으로
       if(!viz && playbackEligible()){
         if(space){ togglePlay(); e.preventDefault(); return; }
