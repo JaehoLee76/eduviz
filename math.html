@@ -241,6 +241,11 @@
     .guide .ch { width: 38px; height: 38px; flex-basis: 38px; }
     .guide .bubble { font-size: 13px; }
   }
+  /* 시네마틱 인트로: 좌측 말풍선·자세히보기·bignum 숨기고 캔버스 풀스크린 */
+  body.cinematic #leftStack { display: none !important; }
+  body.cinematic .bignum { display: none !important; }
+  body.cinematic .nav .hint { display: none !important; }
+  body.cinematic .scene-no, body.cinematic .crumb { opacity: 0.35; }
 </style>
 </head>
 <body>

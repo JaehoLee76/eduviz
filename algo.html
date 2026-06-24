@@ -246,6 +246,11 @@
     #codepanel { top: auto; bottom: 0; left: 0; width: 100vw; height: 50vh; padding-top: 10px; border-right: none; border-top: 1px solid var(--border); }
     body.viz #controls { left: 0; right: 0; }
   }
+  /* 시네마틱 인트로: 좌측 말풍선·자세히보기·bignum 숨기고 캔버스 풀스크린 */
+  body.cinematic #leftStack { display: none !important; }
+  body.cinematic .bignum { display: none !important; }
+  body.cinematic .nav .hint { display: none !important; }
+  body.cinematic .scene-no, body.cinematic .crumb { opacity: 0.35; }
 </style>
 </head>
 <body>
