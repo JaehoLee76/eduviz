@@ -27,6 +27,9 @@
     };
     var out={}; for(var k in c){ if(c[k]) out[k]=c[k]; } return out;
   }
+  // 장면별 대화 스레드: 같은 장면이면 최근 대화를 이어 기억, 장면 바뀌면 리셋
+  function sceneKey(){ return (window.Engine && Engine.curId && Engine.curId()) || topic() || ''; }
+  function resetThread(){ history=[]; threadScene=sceneKey(); if(bodyEl) bodyEl.innerHTML=''; }
 
   // ── 무료 티어 상태(서버가 알려주는 공유 카운터) ──
   var Q = { remaining:null, exhausted:false, resetLeft:0 };  // resetLeft: 초(클라이언트가 1초씩 카운트다운)
@@ -88,7 +91,7 @@
     document.head.appendChild(s);
   }
 
-  var ovEl, bodyEl, inEl, sendEl, metaEl, fabEl, fabLabel, subEl, busy=false;
+  var ovEl, bodyEl, inEl, sendEl, metaEl, fabEl, fabLabel, subEl, busy=false, history=[], threadScene=null;
 
   function addMsg(kind, text){ var m=el('div','cw-msg '+kind); m.textContent=text; bodyEl.appendChild(m); bodyEl.scrollTop=bodyEl.scrollHeight; return m; }
 
@@ -119,13 +122,16 @@
     if(q.length>1000){ addMsg('sys','질문이 너무 깁니다 (1000자 이내).'); return; }
     if(Q.exhausted || (typeof Q.remaining==='number' && Q.remaining<=0)){
       addMsg('sys','무료 질문을 모두 사용했습니다. 충전까지 '+fmtTime(Q.resetLeft)+' 남았어요.'); return; }
+    if(sceneKey()!==threadScene){ resetThread(); }   // 장면이 바뀌면 새 대화 스레드
     var ep=endpoint();
     addMsg('u', q); inEl.value=''; inEl.style.height='auto';
     if(!ep){ addMsg('a','⚠️ AI 답변이 아직 설정되지 않았습니다. (관리자가 Worker 주소를 등록하면 활성화됩니다.)'); return; }
     busy=true; refreshMeta();
     var th=addMsg('sys','…생각 중');
+    var ctx=sceneContext();
+    if(history.length){ ctx['이전 대화'] = history.slice(-5).map(function(h){ return 'Q: '+h.q+'\nA: '+h.a; }).join('\n\n'); }
     fetch(ep, { method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ question:q, topic:topic(), context:sceneContext() }) })
+      body: JSON.stringify({ question:q, topic:topic(), context:ctx }) })
       .then(function(r){ return r.json().catch(function(){ return {error:'bad'}; }); })
       .then(function(d){ th.remove();
         if(d && d.error==='no_key'){ addMsg('a','⚠️ AI 키가 설정되지 않았습니다.'); }
@@ -134,6 +140,7 @@
           setExhausted(d.resetSeconds, d.remaining); }
         else if(d && d.answer){
           addMsg('a', d.answer);
+          history.push({ q:q, a:d.answer }); if(history.length>12) history=history.slice(-12);
           if(typeof d.remaining==='number'){ Q.remaining=d.remaining; Q.exhausted=false; stopTick(); }
           renderFab(); }
         else { addMsg('a','답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
@@ -167,6 +174,7 @@
     ov.appendChild(card); document.body.appendChild(ov); document.body.appendChild(wrap);
 
     function open(){ tp.textContent = topic()||'이 장면';
+      if(sceneKey()!==threadScene){ resetThread(); }   // 장면 바뀌면 이전 대화 비우고 새로 시작
       if(!bodyEl.children.length){
         addMsg('sys', endpoint()
           ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. (이해를 돕는 심화 설명도 해 드려요.)'
