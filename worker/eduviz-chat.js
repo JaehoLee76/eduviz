@@ -50,12 +50,12 @@ export default {
       if (!sub) return J({ error: 'unauth' }, 401);
       const uKey = 'user:' + sub;
       if (request.method === 'POST') {
-        const rec = { pos: (pbody && pbody.pos) || {}, memos: (pbody && pbody.memos) || {}, ts: Date.now() };
+        const rec = { pos: (pbody && pbody.pos) || {}, memos: (pbody && pbody.memos) || {}, chat: (pbody && pbody.chat) || {}, ts: Date.now() };
         if (KV) { try { await KV.put(uKey, JSON.stringify(rec)); } catch (e) {} }
         return J({ ok: true });
       }
       const raw = KV && await KV.get(uKey);
-      return J(raw ? JSON.parse(raw) : { pos: {}, memos: {} });
+      return J(raw ? JSON.parse(raw) : { pos: {}, memos: {}, chat: {} });
     }
 
     // ── 일일 소프트 예산(태평양 자정 리셋) ──

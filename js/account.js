@@ -23,22 +23,33 @@
     return JSON.parse(decodeURIComponent(atob(b).split('').map(function(c){ return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2); }).join(''))); }catch(e){ return null; } }
 
   // ── 데이터(위치·메모) ──
-  var data = { pos:{}, memos:{} };
+  var data = { pos:{}, memos:{}, chat:{} };
   function lsKey(){ return 'eduviz_data_'+uid(); }
   function loadLocal(){ try{ data=JSON.parse(localStorage.getItem(lsKey()))||{}; }catch(e){ data={}; }
-    data.pos=data.pos||{}; data.memos=data.memos||{}; }
+    data.pos=data.pos||{}; data.memos=data.memos||{}; data.chat=data.chat||{}; }
   function saveLocal(){ try{ localStorage.setItem(lsKey(), JSON.stringify(data)); }catch(e){} }
   var cloudTimer=null;
   function persist(){ saveLocal();
     if(user && dataUrl()){ clearTimeout(cloudTimer); cloudTimer=setTimeout(cloudSave, 2500); } }   // 디바운스(쓰기 절약)
   function cloudSave(){ if(!user||!dataUrl()) return;
     fetch(dataUrl(), { method:'POST', headers:{'content-type':'application/json','authorization':'Bearer '+user.idToken},
-      body:JSON.stringify({pos:data.pos, memos:data.memos}) }).catch(function(){}); }
+      body:JSON.stringify({pos:data.pos, memos:data.memos, chat:data.chat}) }).catch(function(){}); }
   function cloudLoad(done){ if(!user||!dataUrl()){ done&&done(); return; }
     fetch(dataUrl(), { headers:{'authorization':'Bearer '+user.idToken} })
       .then(function(r){ return r.json(); })
-      .then(function(d){ if(d && (d.pos||d.memos)){ data.pos=d.pos||data.pos; data.memos=d.memos||data.memos; saveLocal(); } done&&done(); })
+      .then(function(d){ if(d && (d.pos||d.memos||d.chat)){ data.pos=d.pos||data.pos; data.memos=d.memos||data.memos; data.chat=d.chat||data.chat; saveLocal(); } done&&done(); })
       .catch(function(){ done&&done(); }); }
+
+  // ── 장면별 대화 기억(요약 발췌 저장) — chat.js가 사용 ──
+  window.EduvizStore = {
+    user: function(){ return user; },
+    getChat: function(sid){ return (sid && data.chat && data.chat[sid]) ? data.chat[sid].slice() : []; },
+    addChat: function(sid, q, a){ if(!sid || !q) return; data.chat = data.chat || {};
+      var arr = (data.chat[sid] || []).slice();
+      arr.push({ q: String(q).slice(0, 300), a: String(a || '').slice(0, 300) });   // 답변은 핵심만(요약 발췌)
+      if(arr.length > 24) arr = arr.slice(-24);
+      data.chat[sid] = arr; persist(); }
+  };
 
   // ── 현재 장면 ──
   function curId(){ return (window.Engine && Engine.curId) ? Engine.curId() : null; }

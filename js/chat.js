@@ -29,7 +29,12 @@
   }
   // 장면별 대화 스레드: 같은 장면이면 최근 대화를 이어 기억, 장면 바뀌면 리셋
   function sceneKey(){ return (window.Engine && Engine.curId && Engine.curId()) || topic() || ''; }
-  function resetThread(){ history=[]; threadScene=sceneKey(); if(bodyEl) bodyEl.innerHTML=''; }
+  function resetThread(){ threadScene=sceneKey();
+    var stored=(window.EduvizStore && EduvizStore.getChat) ? EduvizStore.getChat(threadScene) : [];
+    history = stored.slice();
+    if(bodyEl){ bodyEl.innerHTML='';
+      if(history.length){ addMsg('sys','— 이전 대화 (이어서 질문하세요) —'); history.forEach(function(h){ addMsg('u',h.q); addMsg('a',h.a); }); } }
+  }
 
   // ── 무료 티어 상태(서버가 알려주는 공유 카운터) ──
   var Q = { remaining:null, exhausted:false, resetLeft:0 };  // resetLeft: 초(클라이언트가 1초씩 카운트다운)
@@ -129,7 +134,10 @@
     busy=true; refreshMeta();
     var th=addMsg('sys','…생각 중');
     var ctx=sceneContext();
-    if(history.length){ ctx['이전 대화'] = history.slice(-5).map(function(h){ return 'Q: '+h.q+'\nA: '+h.a; }).join('\n\n'); }
+    if(history.length){ var buf=[], tot=0;
+      for(var hi=history.length-1; hi>=0; hi--){ var ln='Q: '+history[hi].q+'\nA: '+history[hi].a; tot+=ln.length;
+        if(tot>1500 && buf.length>=3) break; buf.unshift(ln); }
+      ctx['이전 대화'] = buf.join('\n\n'); }
     fetch(ep, { method:'POST', headers:{'content-type':'application/json'},
       body: JSON.stringify({ question:q, topic:topic(), context:ctx }) })
       .then(function(r){ return r.json().catch(function(){ return {error:'bad'}; }); })
@@ -140,7 +148,8 @@
           setExhausted(d.resetSeconds, d.remaining); }
         else if(d && d.answer){
           addMsg('a', d.answer);
-          history.push({ q:q, a:d.answer }); if(history.length>12) history=history.slice(-12);
+          history.push({ q:q, a:d.answer }); if(history.length>24) history=history.slice(-24);
+          if(window.EduvizStore && EduvizStore.addChat) EduvizStore.addChat(threadScene, q, d.answer);
           if(typeof d.remaining==='number'){ Q.remaining=d.remaining; Q.exhausted=false; stopTick(); }
           renderFab(); }
         else { addMsg('a','답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
@@ -168,7 +177,7 @@
     inEl=el('textarea','cw-in'); inEl.rows=1;
     sendEl=el('button','cw-send','보내기');
     row.appendChild(inEl); row.appendChild(sendEl);
-    metaEl=el('div','cw-meta','<span class="cw-left"></span><span class="cw-right">최근 5턴 기억 · Enter 전송</span>');
+    metaEl=el('div','cw-meta','<span class="cw-left"></span><span class="cw-right">이 장면 대화 기억 · Enter 전송</span>');
     foot.appendChild(row); foot.appendChild(metaEl);
     card.appendChild(head); card.appendChild(bodyEl); card.appendChild(foot);
     ov.appendChild(card); document.body.appendChild(ov); document.body.appendChild(wrap);
@@ -177,7 +186,7 @@
       if(sceneKey()!==threadScene){ resetThread(); }   // 장면 바뀌면 이전 대화 비우고 새로 시작
       if(!bodyEl.children.length){
         addMsg('sys', endpoint()
-          ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. 이어지는 후속 질문도 됩니다 — 단, 대화는 최근 5턴까지만 기억합니다(그 이전 내용은 잊을 수 있어요).'
+          ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. 이 장면의 지난 대화도 기억해 참고합니다 — 최근 대화는 자세히, 그 이전은 핵심만 요약해서 기억해요.'
           : 'AI 답변이 아직 설정되지 않았습니다. (관리자가 Worker 주소를 등록하면 활성화됩니다.)'); }
       ov.classList.add('open'); refreshMeta(); setTimeout(function(){ if(!inEl.disabled) inEl.focus(); },50); }
     function close(){ ov.classList.remove('open'); }
