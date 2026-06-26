@@ -25,24 +25,28 @@
       if(G_OK){ var ar=GAUSS.width/GAUSS.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
         ctx.save(); ctx.globalAlpha=(0.40+0.03*Math.sin(fr*0.012))*seam; if('filter' in ctx) ctx.filter='blur(3px)';
         ctx.drawImage(GAUSS, ix, iy, dw, dh); ctx.restore(); }
-      // 가우스 합 시각화: 1..n 노드 + 양끝 짝짓기 호(각 쌍의 합 = n+1)
-      var n=10, x0=W*0.16, x1=W*0.84, yb=H*0.66;
+      // 가우스 합 시각화: 1..100 점 + 양끝 짝짓기 호(각 쌍의 합 = 101, 50쌍) — 자막과 일치
+      var n=100, x0=W*0.12, x1=W*0.88, yb=H*0.62, half=n/2, psum=n+1;
       function NX(i){ return x0+(x1-x0)*(i-1)/(n-1); }
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      for(var i=1;i<=n;i++){ ctx.globalAlpha=seam; ctx.fillStyle='rgba(255,178,122,0.18)'; ctx.beginPath(); ctx.arc(NX(i),yb,13,0,7); ctx.fill();
-        ctx.strokeStyle=ORA; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(NX(i),yb,13,0,7); ctx.stroke();
-        ctx.fillStyle='#ffe0c6'; ctx.font='600 13px sans-serif'; ctx.fillText(i, NX(i), yb); }
+      for(var i=1;i<=n;i++){ ctx.globalAlpha=seam*0.92; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(NX(i),yb,2.6,0,7); ctx.fill(); }
+      ctx.globalAlpha=seam; ctx.fillStyle='#ffe0c6'; ctx.font='600 13px sans-serif'; ctx.textBaseline='top';
+      [1,50,100].forEach(function(v){ ctx.fillText(v, NX(v), yb+9); });
       ctx.globalAlpha=1; ctx.textBaseline='alphabetic';
-      // 짝짓기 호가 ph에 따라 차례로 그려짐(1-10, 2-9, …)
-      var pairs=Math.floor(ss(0.25,0.85,ph)*(n/2)+1e-6);
-      for(var k=0;k<pairs && k<n/2;k++){ var L=NX(k+1), R=NX(n-k), mx=(L+R)/2, h=40+k*14;
-        ctx.strokeStyle='rgba(143,227,181,'+(0.85*seam)+')'; ctx.lineWidth=1.8; ctx.beginPath();
-        ctx.moveTo(L,yb-13); ctx.quadraticCurveTo(mx,yb-13-h, R,yb-13); ctx.stroke();
-        ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('11', mx, yb-13-h-4); }
+      // 짝짓기 호가 ph에 따라 차례로 그려짐(1+100, 2+99, …) — 각 쌍의 합 101
+      var pairs=Math.floor(ss(0.2,0.85,ph)*half+1e-6);
+      for(var k=0;k<pairs && k<half;k++){ var L=NX(k+1), R=NX(n-k), mx=(L+R)/2, h=16+k*2.6;
+        ctx.strokeStyle='rgba(143,227,181,'+((0.25+0.55*(k/half))*seam)+')'; ctx.lineWidth=1.2; ctx.beginPath();
+        ctx.moveTo(L,yb-4); ctx.quadraticCurveTo(mx,yb-4-h, R,yb-4); ctx.stroke(); }
+      if(pairs>0){ var topH=16+(Math.min(pairs,half)-1)*2.6;
+        ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.globalAlpha=seam;
+        ctx.fillText('각 쌍의 합 = '+psum+'  ·  '+pairs+'쌍', W/2, yb-4-topH-12); ctx.globalAlpha=1; }
       // 실제 합 1..100 (골든룰: 코드로 계산)
-      var total=0; for(var t=1;t<=100;t++) total+=t;
+      var total=0; for(var t=1;t<=n;t++) total+=t;
       ctx.fillStyle=ORA; ctx.font='600 '+Math.max(17,Math.min(26,W*0.03))+'px sans-serif'; ctx.textAlign='center';
-      ctx.globalAlpha=ss(0.2,0.4,ph)*seam; ctx.fillText('1 + 2 + 3 + … + 100 = '+total, W/2, H*0.82); ctx.globalAlpha=1;
+      ctx.globalAlpha=ss(0.2,0.4,ph)*seam; ctx.fillText(psum+' × '+half+' = '+total, W/2, H*0.80); ctx.globalAlpha=1;
+      ctx.globalAlpha=ss(0.35,0.5,ph)*seam; ctx.font='600 '+Math.max(14,Math.min(21,W*0.025))+'px sans-serif'; ctx.fillStyle=DIM;
+      ctx.fillText('1 + 2 + 3 + … + 100 = '+total, W/2, H*0.86); ctx.globalAlpha=1;
       // 대화체 문구
       var caps=this.story.caps, slot=1/caps.length, ci=Math.floor(ph/slot), lp=(ph-ci*slot)/slot;
       var aa=(lp<0.2? lp/0.2 : lp>0.8? (1-lp)/0.2 : 1)*seam, lines=caps[ci]||caps[0];
