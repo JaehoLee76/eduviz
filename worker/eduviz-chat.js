@@ -1,25 +1,15 @@
-/* EduViz AI 튜터 — Cloudflare Worker 프록시 (Gemini Flash-Lite 무료 티어)
+/* EduViz AI 튜터 — Cloudflare Worker 프록시 (Groq, Llama 3.3 70B 무료 티어)
  * ───────────────────────────────────────────────────────────────────
- * 배포 방법(키는 본인이 직접 입력 — 코드/사이트에 절대 넣지 말 것):
- *  1) Cloudflare 대시보드 → Workers & Pages → Create Worker, 이 파일 내용을 붙여넣고 Deploy.
- *  2) KV namespace 생성(예: 이름 eduviz-quota) → Worker 설정 → Variables → KV Bindings
- *     에서 Variable name = EDUVIZ_KV 로 바인딩.
- *  3) Worker 설정 → Variables and Secrets:
- *       - Secret  GEMINI_API_KEY = (Google AI Studio 무료 키, 본인이 입력)
- *       - (선택) GEMINI_MODEL = gemini-2.5-flash-lite   // 무료 티어 모델
- *       - (선택) RPD_CAP = 900    // 하루 상한(무료 1000 미만으로 여유)
- *       - (선택) RPM_CAP = 12     // 분당 상한(무료 15 미만)
- *       - (로그인/학습기록용) GOOGLE_CLIENT_ID = (OAuth Client ID) — ?data=1 토큰 검증에 사용.
- *
- * 이 Worker는 두 가지를 처리한다:
- *   · AI 튜터 질문(기본 경로)  ·  학습기록 저장 ?data=1 (구글 로그인 사용자별 위치·메모 → KV user:<sub>)
- * 같은 KV 바인딩(EDUVIZ_KV)을 함께 쓴다(키: rpd:* 질문예산, user:* 학습기록).
- *  4) 배포된 주소(https://xxx.workers.dev)를 EduViz의 js/chat-config.js
- *     window.EDUVIZ_CHAT_ENDPOINT 에 붙여넣기.
- *
- * 주의: Gemini 무료 티어 한도는 "키 1개 = 사이트 전체 공유"입니다.
- *  → 남은 횟수/충전 남은시간은 모든 방문자가 공유합니다(개인별 아님).
- *  → KV는 최종적 일관성이라 카운트가 살짝 어긋날 수 있어 RPD_CAP을 1000보다 낮게 둡니다.
+ *  Gemini는 Cloudflare 엣지(한국) 위치를 막아서 Groq로 전환.
+ *  배포:
+ *   1) 이 파일을 Worker에 붙여넣고 Deploy.
+ *   2) KV namespace 바인딩: Variable name = EDUVIZ_KV  (이미 연결돼 있음)
+ *   3) Secret 키:  Name = GROQ_API_KEY  (또는 기존 GEMINI_API_KEY 슬롯에 Groq 키를 넣어도 됨)
+ *        Value = groq.com 에서 발급한 키(gsk_...). 본인이 직접 입력.
+ *      (선택) GROQ_MODEL = llama-3.3-70b-versatile  // 모델 변경 시
+ *      (선택) RPD_CAP=900  RPM_CAP=25  // 하루/분당 소프트 상한
+ *   4) 배포 주소를 js/chat-config.js 의 EDUVIZ_CHAT_ENDPOINT 에.
+ *  처리: AI 질문(기본) + 학습기록 ?data=1(구글 토큰 검증→KV user:<sub>). KV 키: rpd:* 예산, user:* 기록.
  */
 export default {
   async fetch(request, env) {
@@ -30,21 +20,22 @@ export default {
     };
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
 
-    const KV    = env.EDUVIZ_KV;                       // KV 바인딩(없으면 카운트 비활성=무제한 위험 → 반드시 바인딩)
-    const KEY   = env.GEMINI_API_KEY;                  // Secret
-    const MODEL = env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
-    const RPD   = parseInt(env.RPD_CAP || '900', 10);  // 하루 상한
-    const RPM   = parseInt(env.RPM_CAP || '12', 10);   // 분당 상한
+    const KV    = env.EDUVIZ_KV;
+    const KEY   = env.GROQ_API_KEY || env.GEMINI_API_KEY;   // 시크릿 이름 둘 다 허용
+    const MODEL = env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    const RPD   = parseInt(env.RPD_CAP || '900', 10);
+    const RPM   = parseInt(env.RPM_CAP || '25', 10);
     const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...cors, 'content-type': 'application/json' } });
-
-    // ── 학습기록(위치·메모) 저장소: ?data=1 (구글 ID 토큰 검증 → KV user:<sub>) ──
     const U = new URL(request.url);
+
+    // 진단(임시): 값은 노출 안 하고 존재/길이만
+    if (U.searchParams.get('debug')) return J({ hasKey: !!KEY, keyLen: (KEY || '').length, hasKV: !!KV, model: MODEL });
+
+    // ── 학습기록(위치·메모): ?data=1 (구글 ID 토큰 검증 → KV user:<sub>) ──
     if (U.searchParams.get('data')) {
-      // 토큰: Authorization Bearer 또는 (sendBeacon용) 본문 _t
       let token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
       let pbody = null;
       if (request.method === 'POST') { try { pbody = await request.json(); } catch (e) {} if (!token && pbody && pbody._t) token = pbody._t; }
-      // tokeninfo로 검증(서명/만료는 구글이 확인) + audience(우리 Client ID) 일치 확인
       let sub = null;
       if (token) {
         try {
@@ -52,9 +43,7 @@ export default {
           if (tr.ok) {
             const p = await tr.json();
             const aud = env.GOOGLE_CLIENT_ID;
-            const okAud = !aud || p.aud === aud;
-            const okExp = !p.exp || (Date.now() / 1000) < Number(p.exp);
-            if (okAud && okExp) sub = p.sub || null;
+            if ((!aud || p.aud === aud) && (!p.exp || (Date.now() / 1000) < Number(p.exp))) sub = p.sub || null;
           }
         } catch (e) {}
       }
@@ -69,41 +58,33 @@ export default {
       return J(raw ? JSON.parse(raw) : { pos: {}, memos: {} });
     }
 
-    // ── 태평양시(무료 티어 일일 리셋 기준) 날짜 + 자정까지 남은 초 ──
+    // ── 일일 소프트 예산(태평양 자정 리셋) ──
     const now = new Date();
-    const pDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now); // YYYY-MM-DD
+    const pDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
     const pT   = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(now);
     const [hh, mm, ss] = pT.split(':').map(Number);
     const secsToMidnight = 86400 - (hh * 3600 + mm * 60 + ss);
-
     const dayKey = 'rpd:' + pDay;
     const dayCount = async () => parseInt((KV && await KV.get(dayKey)) || '0', 10);
 
-    // ── 상태 조회(GET 또는 ?status) ──
-    const isStatus = request.method === 'GET' || new URL(request.url).searchParams.get('status');
-    if (isStatus) {
+    if (request.method === 'GET' || U.searchParams.get('status')) {
       const c = await dayCount();
       const ex = c >= RPD;
       return J({ remaining: Math.max(0, RPD - c), exhausted: ex, resetSeconds: ex ? secsToMidnight : null });
     }
 
-    // ── 질문(POST) ──
     if (!KEY) return J({ error: 'no_key' });
     let body = {};
     try { body = await request.json(); } catch (e) {}
     const question = (body.question || '').toString().slice(0, 1000);
     if (!question) return J({ error: 'empty' });
 
-    // 일일 예산
     const c = await dayCount();
     if (c >= RPD) return J({ exhausted: true, remaining: 0, resetSeconds: secsToMidnight, scope: 'day' });
 
-    // 분당 예산(거친 슬라이딩 — 버스트로 Gemini 429 맞기 전에 차단)
     const minKey = 'rpm:' + Math.floor(Date.now() / 60000);
     const mc = parseInt((KV && await KV.get(minKey)) || '0', 10);
-    if (mc >= RPM) {
-      return J({ exhausted: true, remaining: Math.max(0, RPD - c), resetSeconds: 60 - (Math.floor(Date.now() / 1000) % 60), scope: 'rate' });
-    }
+    if (mc >= RPM) return J({ exhausted: true, remaining: Math.max(0, RPD - c), resetSeconds: 60 - (Math.floor(Date.now() / 1000) % 60), scope: 'rate' });
 
     // ── 장면 컨텍스트 → 프롬프트 ──
     const ctx = body.context || {};
@@ -117,37 +98,30 @@ export default {
 '4) 확실하지 않으면 추측하지 말고 모른다고 밝혀라. 화면 내용과 모순되는 말 금지.';
     const userMsg = '[현재 장면]\n' + ctxStr + '\n\n[학습자 질문]\n' + question;
 
-    // ── Gemini 호출 ──
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + KEY;
+    // ── Groq 호출 (OpenAI 호환 API) ──
     let resp, data;
     try {
-      resp = await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json' },
+      resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + KEY },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYS }] },
-          contents: [{ role: 'user', parts: [{ text: userMsg }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 600 }
+          model: MODEL,
+          messages: [{ role: 'system', content: SYS }, { role: 'user', content: userMsg }],
+          temperature: 0.3, max_tokens: 600
         })
       });
       data = await resp.json();
     } catch (e) { return J({ error: 'fetch_fail' }); }
 
-    // 429(분당/일일 한도 초과) → Gemini가 주는 retryDelay 우선
-    if (resp.status === 429 || (data && data.error && data.error.code === 429)) {
-      let retry = 30;
-      try {
-        const d = ((data.error && data.error.details) || []).find(x => (x['@type'] || '').includes('RetryInfo'));
-        if (d && d.retryDelay) retry = parseInt(d.retryDelay, 10) || 30;
-      } catch (e) {}
+    if (resp.status === 429) {
+      const retry = parseInt(resp.headers.get('retry-after') || '30', 10) || 30;
       return J({ exhausted: true, remaining: Math.max(0, RPD - c), resetSeconds: retry, scope: 'rate' });
     }
-    if (!data || data.error) return J({ error: (data && data.error && data.error.message) || 'api_error' });
+    if (!data || data.error) return J({ error: (data && data.error && (data.error.message || data.error)) || 'api_error' });
 
-    const parts = (((data.candidates || [])[0] || {}).content || {}).parts || [];
-    const answer = parts.map(p => p.text || '').join('').trim();
-    if (!answer) return J({ error: 'no_answer' });
+    const answer = ((((data.choices || [])[0] || {}).message) || {}).content || '';
+    if (!answer.trim()) return J({ error: 'no_answer' });
 
-    // 카운터 증가(성공 시에만)
     if (KV) {
       try {
         await KV.put(dayKey, String(c + 1), { expirationTtl: 172800 });
@@ -155,6 +129,6 @@ export default {
       } catch (e) {}
     }
 
-    return J({ answer, remaining: Math.max(0, RPD - (c + 1)) });
+    return J({ answer: answer.trim(), remaining: Math.max(0, RPD - (c + 1)) });
   }
 };
