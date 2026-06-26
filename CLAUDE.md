@@ -4,6 +4,7 @@
 > 새 세션은 이 파일만 읽으면 바로 이어서 작업할 수 있어야 한다.
 > 현재 진행 상황(무엇이 끝났고 무엇이 남았는지)은 같은 폴더의 **`eduviz.md`** 참조.
 > 대량 변환 작업은 **`/eduviz-anim` skill** 호출(`.claude/skills/eduviz-anim/`).
+> **콘텐츠 일관성 감사(애니↔설명 불일치)** 요청 시 반드시 **`eduviz_audit.md` 먼저 읽기** — 전 콘텐츠 재독(토큰 폭증) 금지, 무료 렌더 스캔→증분(git diff 기준선) 순서로(§4 끝 참조).
 
 ## 0. 정체성 / 비전
 EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 브라우저로 바로 열림.
@@ -108,6 +109,8 @@ EduViz = 순수 정적 HTML/CSS/바닐라JS 교육 사이트. 빌드 불필요, 
 3. 핵심 장면 스크린샷으로 품질 확인(코드커서 동기·실제 연산값).
 - **수학 변경 시**: `math.html` 로드 → 0..238 goTo + 슬라이더(`#controls input[type=range]` max/min 토글)·D키 다회 구동 + onerror 캡처. 에러0.
 - 미리보기 서버 설정: `.claude/launch.json`(eduviz = python http.server 8077). 끊기면 `preview_start name=eduviz` 다시.
+
+**4.1 콘텐츠 일관성 감사(애니↔설명 불일치) = `eduviz_audit.md` (재사용·토큰 절약).** 전수 감사는 2026-06-26 커밋 `24ab10b`까지 완료(16건 수정). **재요청 시 전 콘텐츠를 12에이전트로 재독 금지**(algo_br.js 1.5MB → 토큰 폭증). 3단 사다리: ①무료 런타임 렌더 스캔(LLM 0토큰, 크래시·throw 선별 — phys14 NRED 크래시를 이걸로 발견) ②`git diff --name-only 24ab10b..HEAD -- 'js/content_*.js' 'content/*.json'`로 **변경 장면만** 에이전트 1~2기 의미 검토 ③불일치 5유형·수정 원장·검증 스니펫은 전부 `eduviz_audit.md`. 검증 함정(키는 `code:'KeyD'`·일부 `KeyE`, 색상상수 파일별 IIFE 스코프, RAF 일시정지)도 거기.
 
 ## 5. 배포
 코드만 커밋 → `version.json` epoch 범프(클라이언트 자동 갱신) → push → Pages 빌드 트리거.
