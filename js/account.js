@@ -1,0 +1,224 @@
+/* EduViz 계정·학습기록 위젯 — math/algo/physics/calculus 공용
+   기능: ① Google 로그인(GIS) ② 학습위치 저장/복원(로그인 시 클라우드 동기화, 아니면 로컬)
+        ③ 장면별 메모(작성·목록·점프)
+   설정(js/chat-config.js):
+     window.EDUVIZ_GOOGLE_CLIENT_ID = "...apps.googleusercontent.com";  // 구글 OAuth Client ID
+     window.EDUVIZ_CHAT_ENDPOINT    = "https://...workers.dev";          // 같은 Worker(데이터 저장 겸용)
+   클라우드 저장은 Worker가 ?data=1 로 처리(ID 토큰 검증 후 KV user:<sub>에 저장).
+   설정이 없어도 로컬(localStorage)로 동작하며, 로그인/클라우드는 값이 채워지면 자동 활성화. */
+(function(){
+  var GIS_SRC = 'https://accounts.google.com/gsi/client';
+  function clientId(){ return window.EDUVIZ_GOOGLE_CLIENT_ID || ''; }
+  function worker(){ return window.EDUVIZ_CHAT_ENDPOINT || ''; }
+  function dataUrl(){ var w=worker(); return w ? (w + (w.indexOf('?')>=0?'&':'?') + 'data=1') : ''; }
+
+  var TRACK = (function(){ var p=location.pathname.toLowerCase();
+    if(p.indexOf('algo')>=0) return 'algo'; if(p.indexOf('phys')>=0) return 'physics';
+    if(p.indexOf('calc')>=0) return 'calculus'; if(p.indexOf('math')>=0) return 'math'; return 'etc'; })();
+
+  // ── 사용자 상태 ──
+  var user = null;   // {sub,name,email,picture,idToken}
+  function uid(){ return user ? user.sub : 'guest'; }
+  function jwtDecode(t){ try{ var b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    return JSON.parse(decodeURIComponent(atob(b).split('').map(function(c){ return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2); }).join(''))); }catch(e){ return null; } }
+
+  // ── 데이터(위치·메모) ──
+  var data = { pos:{}, memos:{} };
+  function lsKey(){ return 'eduviz_data_'+uid(); }
+  function loadLocal(){ try{ data=JSON.parse(localStorage.getItem(lsKey()))||{}; }catch(e){ data={}; }
+    data.pos=data.pos||{}; data.memos=data.memos||{}; }
+  function saveLocal(){ try{ localStorage.setItem(lsKey(), JSON.stringify(data)); }catch(e){} }
+  var cloudTimer=null;
+  function persist(){ saveLocal();
+    if(user && dataUrl()){ clearTimeout(cloudTimer); cloudTimer=setTimeout(cloudSave, 2500); } }   // 디바운스(쓰기 절약)
+  function cloudSave(){ if(!user||!dataUrl()) return;
+    fetch(dataUrl(), { method:'POST', headers:{'content-type':'application/json','authorization':'Bearer '+user.idToken},
+      body:JSON.stringify({pos:data.pos, memos:data.memos}) }).catch(function(){}); }
+  function cloudLoad(done){ if(!user||!dataUrl()){ done&&done(); return; }
+    fetch(dataUrl(), { headers:{'authorization':'Bearer '+user.idToken} })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d && (d.pos||d.memos)){ data.pos=d.pos||data.pos; data.memos=d.memos||data.memos; saveLocal(); } done&&done(); })
+      .catch(function(){ done&&done(); }); }
+
+  // ── 현재 장면 ──
+  function curId(){ return (window.Engine && Engine.curId) ? Engine.curId() : null; }
+  function txt(id){ var e=document.getElementById(id); return e? (e.innerText||e.textContent||'').replace(/\s+/g,' ').trim() : ''; }
+  function curMeta(){ return { id:curId(), crumb:txt('crumb'), title:txt('sceneTitle'), badge:txt('sceneNo') }; }
+
+  // ── 위치 저장(장면 변화 감지) ──
+  var recTimer=null;
+  function recordPos(){ var m=curMeta(); if(!m.id) return;
+    if(m.badge && m.badge.indexOf('인트로')>=0) return;            // 인트로는 저장 안 함
+    data.pos[TRACK] = { id:m.id, crumb:m.crumb, title:m.title, badge:m.badge, ts:Date.now() };
+    persist(); updateMemoBtn(); }
+  function scheduleRecord(){ clearTimeout(recTimer); recTimer=setTimeout(recordPos, 1500); }
+  function watchScene(){ var el=document.getElementById('sceneNo'); if(!el || !window.MutationObserver) return;
+    new MutationObserver(scheduleRecord).observe(el,{childList:true,characterData:true,subtree:true}); }
+
+  // ── 위치 복원 ──
+  function restorePos(){ var p=data.pos[TRACK]; if(!p || !p.id) return;
+    if(!window.Engine || !Engine.indexOfId) return;
+    if(p.id===curId()) return;                                     // 이미 그 장면
+    var i=Engine.indexOfId(p.id); if(i<0) return;                  // 콘텐츠에서 사라진 장면
+    if(user){ Engine.goTo(i); toast('이어서 학습 중입니다 — '+(p.title||p.crumb||''), '처음으로', function(){ Engine.goTo(0); }); }
+    else { banner('이어서 학습 → '+(p.title||p.crumb||''), function(){ Engine.goTo(i); }); }
+  }
+
+  // ── 토스트/배너 ──
+  function toast(msg, actLabel, actFn){ var t=mk('div','acct-toast'); t.appendChild(mk('span',null,msg));
+    if(actLabel){ var b=mk('button','acct-tlink',actLabel); b.onclick=function(){ actFn&&actFn(); t.remove(); }; t.appendChild(b); }
+    document.body.appendChild(t); setTimeout(function(){ t.classList.add('show'); },20);
+    setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); },400); }, 6000); }
+  function banner(msg, actFn){ var t=mk('div','acct-toast show'); t.appendChild(mk('span',null,msg));
+    var b=mk('button','acct-tlink','이동'); b.onclick=function(){ actFn&&actFn(); t.remove(); }; t.appendChild(b);
+    var x=mk('button','acct-tx','×'); x.onclick=function(){ t.remove(); }; t.appendChild(x);
+    document.body.appendChild(t); }
+
+  // ── 유틸 ──
+  function mk(tag,cls,html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+
+  // ── 스타일 ──
+  function injectStyle(){ if(document.getElementById('acct-style')) return; var s=mk('style'); s.id='acct-style';
+    s.textContent=[
+      '#eduToolbar{position:fixed;top:10px;right:62px;z-index:31;display:flex;flex-direction:row;align-items:flex-start;gap:8px;}',
+      '.acct-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--text-1,#f4f3ee);',
+        'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:999px;padding:6px 12px;font-size:13px;',
+        'font-family:inherit;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3);}',
+      '.acct-btn:hover{filter:brightness(1.12);}',
+      '.acct-btn.on{border-color:var(--accent,#4f93d6);}',
+      '.acct-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-light,#7ab8ff);display:none;}',
+      '.acct-btn.has .dot{display:inline-block;}',
+      '.acct-pic{width:20px;height:20px;border-radius:50%;object-fit:cover;}',
+      '.acct-ov{position:fixed;inset:0;z-index:41;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
+      '.acct-ov.open{display:flex;}',
+      '.acct-card{width:min(520px,92vw);max-height:84vh;display:flex;flex-direction:column;background:var(--panel-bg,rgba(22,22,30,.98));',
+        'border:1px solid var(--border,rgba(255,255,255,.14));border-radius:16px;overflow:hidden;color:var(--text-1,#f4f3ee);}',
+      '.acct-head{padding:13px 18px;border-bottom:1px solid var(--border,rgba(255,255,255,.12));display:flex;align-items:center;gap:10px;}',
+      '.acct-head .t{font-weight:600;font-size:15px;}',
+      '.acct-x{margin-left:auto;background:none;border:none;color:var(--text-3,#9b99a3);font-size:20px;cursor:pointer;line-height:1;}',
+      '.acct-body{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px;}',
+      '.acct-ta{width:100%;min-height:120px;resize:vertical;background:rgba(255,255,255,.06);border:1px solid var(--border,rgba(255,255,255,.16));',
+        'border-radius:10px;color:var(--text-1,#f4f3ee);font-family:inherit;font-size:14px;line-height:1.6;padding:10px 12px;box-sizing:border-box;}',
+      '.acct-row{display:flex;gap:8px;align-items:center;}',
+      '.acct-save{background:var(--accent,#4f93d6);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:14px;font-family:inherit;cursor:pointer;}',
+      '.acct-ghost{background:none;border:1px solid var(--border,rgba(255,255,255,.18));color:var(--text-2,#cfcdc6);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;}',
+      '.acct-sec{font-size:12px;color:var(--text-3,#9b99a3);margin-top:4px;}',
+      '.acct-list{display:flex;flex-direction:column;gap:7px;}',
+      '.acct-item{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid var(--border,rgba(255,255,255,.1));border-radius:10px;cursor:pointer;}',
+      '.acct-item:hover{background:rgba(255,255,255,.08);}',
+      '.acct-item .ttl{font-size:13px;font-weight:600;color:var(--accent-light,#9cc3f0);}',
+      '.acct-item .snip{font-size:12.5px;color:var(--text-2,#cfcdc6);line-height:1.5;white-space:pre-wrap;}',
+      '.acct-item .del{margin-left:auto;background:none;border:none;color:var(--text-3,#9b99a3);font-size:15px;cursor:pointer;}',
+      '.acct-empty{font-size:13px;color:var(--text-3,#9b99a3);text-align:center;padding:18px 0;}',
+      '.acct-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);z-index:50;display:flex;align-items:center;gap:10px;',
+        'background:var(--panel-bg,rgba(28,28,36,.98));border:1px solid var(--border,rgba(255,255,255,.16));border-radius:12px;',
+        'padding:10px 14px;font-size:13.5px;color:var(--text-1,#f4f3ee);box-shadow:0 6px 22px rgba(0,0,0,.4);opacity:0;transition:.35s;max-width:90vw;}',
+      '.acct-toast.show{opacity:1;transform:translate(-50%,0);}',
+      '.acct-tlink{background:var(--accent,#4f93d6);color:#fff;border:none;border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;}',
+      '.acct-tx{background:none;border:none;color:var(--text-3,#9b99a3);font-size:17px;cursor:pointer;line-height:1;}',
+      '@media(max-width:560px){ #eduToolbar{gap:5px;} .acct-btn{padding:6px 9px;font-size:12px;} }'
+    ].join(''); document.head.appendChild(s); }
+
+  // ── 툴바(로그인/프로필 + 메모 버튼) + AI버튼 재배치 ──
+  var loginBtn, memoBtn;
+  function buildToolbar(){
+    var bar=mk('div'); bar.id='eduToolbar';
+    loginBtn=mk('button','acct-btn'); renderLogin();
+    memoBtn=mk('button','acct-btn','<span>📝 메모</span><span class="dot"></span>');
+    bar.appendChild(loginBtn); bar.appendChild(memoBtn);
+    document.body.appendChild(bar);
+    // chat.js의 AI버튼(.cw-wrap)을 같은 툴바로 이동(고정위치 해제)
+    var cw=document.querySelector('.cw-wrap');
+    if(cw){ cw.style.position='static'; cw.style.top='auto'; cw.style.right='auto'; bar.appendChild(cw); }
+    loginBtn.onclick=onLoginClick;
+    memoBtn.onclick=openMemo;
+  }
+  function renderLogin(){ if(!loginBtn) return;
+    if(user){ loginBtn.classList.add('on');
+      loginBtn.innerHTML = (user.picture? '<img class="acct-pic" src="'+user.picture+'" alt="">':'👤 ')+'<span>'+(user.name||'로그인됨')+'</span>'; }
+    else { loginBtn.classList.remove('on'); loginBtn.innerHTML='<span>👤 로그인</span>'; } }
+  function updateMemoBtn(){ if(!memoBtn) return; var id=curId();
+    memoBtn.classList.toggle('has', !!(id && data.memos[id] && data.memos[id].text)); }
+
+  // ── 메모 패널 ──
+  var memoOv, memoTa, memoListWrap;
+  function buildMemo(){ var ov=mk('div','acct-ov'); memoOv=ov; var card=mk('div','acct-card');
+    var head=mk('div','acct-head'); head.appendChild(mk('span','t','📝 메모'));
+    var x=mk('button','acct-x','×'); head.appendChild(x);
+    var body=mk('div','acct-body');
+    var lab=mk('div','acct-sec','이 장면의 메모'); var ta=mk('textarea','acct-ta'); memoTa=ta; ta.placeholder='이 장면에서 기억할 점을 적어 두세요…';
+    var row=mk('div','acct-row'); var save=mk('button','acct-save','저장');
+    var del=mk('button','acct-ghost','이 메모 삭제'); row.appendChild(save); row.appendChild(del);
+    var lab2=mk('div','acct-sec','내 메모 전체보기'); memoListWrap=mk('div','acct-list');
+    body.appendChild(lab); body.appendChild(ta); body.appendChild(row); body.appendChild(lab2); body.appendChild(memoListWrap);
+    card.appendChild(head); card.appendChild(body); ov.appendChild(card); document.body.appendChild(ov);
+    x.onclick=closeMemo; ov.addEventListener('click',function(e){ if(e.target===ov) closeMemo(); });
+    save.onclick=function(){ saveMemo(); }; del.onclick=function(){ deleteMemo(); };
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && ov.classList.contains('open')) closeMemo(); }); }
+  function openMemo(){ var id=curId(); if(!id){ return; }
+    memoTa.value = (data.memos[id] && data.memos[id].text) || '';
+    renderMemoList(); memoOv.classList.add('open'); setTimeout(function(){ memoTa.focus(); },50); }
+  function closeMemo(){ if(memoTa && memoTa.value.trim()!==((data.memos[curId()]||{}).text||'')) saveMemo(true); memoOv.classList.remove('open'); }
+  function saveMemo(silent){ var id=curId(); if(!id) return; var v=memoTa.value.trim();
+    if(v){ var m=curMeta(); data.memos[id]={ text:v, title:m.title, crumb:m.crumb, track:TRACK, ts:Date.now() }; }
+    else { delete data.memos[id]; }
+    persist(); updateMemoBtn(); renderMemoList(); if(!silent) toast('메모를 저장했습니다.'); }
+  function deleteMemo(){ var id=curId(); if(id){ delete data.memos[id]; memoTa.value=''; persist(); updateMemoBtn(); renderMemoList(); } }
+  function renderMemoList(){ var keys=Object.keys(data.memos); memoListWrap.innerHTML='';
+    if(!keys.length){ memoListWrap.appendChild(mk('div','acct-empty','아직 메모가 없습니다.')); return; }
+    keys.sort(function(a,b){ return (data.memos[b].ts||0)-(data.memos[a].ts||0); }).forEach(function(k){ var m=data.memos[k];
+      var it=mk('div','acct-item');
+      var col=mk('div'); col.style.flex='1';
+      col.appendChild(mk('div','ttl',(m.title||k)+(m.track&&m.track!==TRACK?' ['+m.track+']':'')));
+      col.appendChild(mk('div','snip', m.text.length>90? m.text.slice(0,90)+'…':m.text));
+      it.appendChild(col);
+      var del=mk('button','del','×'); del.onclick=function(e){ e.stopPropagation(); delete data.memos[k]; persist(); updateMemoBtn(); renderMemoList(); };
+      it.appendChild(del);
+      it.onclick=function(){ jumpToMemo(k, m); };
+      memoListWrap.appendChild(it); }); }
+  function jumpToMemo(id, m){
+    if(m.track && m.track!==TRACK){ // 다른 트랙이면 해당 페이지로 이동(해시로 대상 전달)
+      var page={algo:'algo.html',math:'math.html',physics:'physics.html',calculus:'calculus.html'}[m.track];
+      if(page){ location.href=page+'#scene='+encodeURIComponent(id); return; } }
+    if(window.Engine && Engine.indexOfId){ var i=Engine.indexOfId(id); if(i>=0){ Engine.goTo(i); closeMemo(); return; } }
+    toast('그 장면을 찾지 못했습니다.'); }
+  function applyHashJump(){ var h=location.hash||''; var mt=h.match(/scene=([^&]+)/); if(!mt) return;
+    var id=decodeURIComponent(mt[1]); if(window.Engine && Engine.indexOfId){ var i=Engine.indexOfId(id); if(i>=0) setTimeout(function(){ Engine.goTo(i); },300); }
+    try{ history.replaceState(null,'',location.pathname); }catch(e){} }
+
+  // ── Google 로그인 ──
+  var gisReady=false;
+  function loadGIS(cb){ if(window.google && google.accounts && google.accounts.id){ cb(); return; }
+    var s=document.createElement('script'); s.src=GIS_SRC; s.async=true; s.defer=true; s.onload=cb; s.onerror=function(){}; document.head.appendChild(s); }
+  function initGIS(){ if(!clientId()) return; loadGIS(function(){ if(!(window.google&&google.accounts)) return;
+    google.accounts.id.initialize({ client_id:clientId(), callback:onCredential, auto_select:true });
+    gisReady=true; }); }
+  function onLoginClick(){
+    if(user){ // 로그아웃
+      if(window.google&&google.accounts) google.accounts.id.disableAutoSelect();
+      user=null; loadLocal(); renderLogin(); updateMemoBtn(); toast('로그아웃되었습니다.'); return; }
+    if(!clientId()){ toast('로그인은 곧 활성화됩니다. (관리자 설정 대기)'); return; }
+    if(!gisReady){ toast('로그인 준비 중… 잠시 후 다시 눌러 주세요.'); initGIS(); return; }
+    google.accounts.id.prompt();   // One Tap / 로그인 창
+  }
+  function onCredential(resp){ var t=resp&&resp.credential; if(!t) return; var p=jwtDecode(t); if(!p) return;
+    user={ sub:p.sub, name:p.name||p.email, email:p.email, picture:p.picture, idToken:t };
+    loadLocal();                                  // 사용자 키로 전환
+    renderLogin();
+    cloudLoad(function(){ updateMemoBtn(); restorePos(); });   // 클라우드에서 끌어와 복원
+    toast('로그인되었습니다 — '+(user.name||''));
+  }
+
+  // ── 초기화 ──
+  function init(){
+    injectStyle(); loadLocal(); buildToolbar(); buildMemo();
+    watchScene(); updateMemoBtn();
+    initGIS();
+    // 엔진 준비 후 위치 복원/해시 점프
+    var tries=0; (function wait(){ if(window.Engine && Engine.curId){ applyHashJump(); restorePos(); recordPos(); return; }
+      if(tries++<40) setTimeout(wait,150); })();
+    window.addEventListener('beforeunload', function(){ if(user && dataUrl()){ try{
+      navigator.sendBeacon && navigator.sendBeacon(dataUrl(), new Blob([JSON.stringify({pos:data.pos,memos:data.memos,_t:user.idToken})],{type:'application/json'})); }catch(e){} } });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();

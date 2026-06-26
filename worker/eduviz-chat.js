@@ -9,6 +9,11 @@
  *       - (선택) GEMINI_MODEL = gemini-2.5-flash-lite   // 무료 티어 모델
  *       - (선택) RPD_CAP = 900    // 하루 상한(무료 1000 미만으로 여유)
  *       - (선택) RPM_CAP = 12     // 분당 상한(무료 15 미만)
+ *       - (로그인/학습기록용) GOOGLE_CLIENT_ID = (OAuth Client ID) — ?data=1 토큰 검증에 사용.
+ *
+ * 이 Worker는 두 가지를 처리한다:
+ *   · AI 튜터 질문(기본 경로)  ·  학습기록 저장 ?data=1 (구글 로그인 사용자별 위치·메모 → KV user:<sub>)
+ * 같은 KV 바인딩(EDUVIZ_KV)을 함께 쓴다(키: rpd:* 질문예산, user:* 학습기록).
  *  4) 배포된 주소(https://xxx.workers.dev)를 EduViz의 js/chat-config.js
  *     window.EDUVIZ_CHAT_ENDPOINT 에 붙여넣기.
  *
@@ -31,6 +36,38 @@ export default {
     const RPD   = parseInt(env.RPD_CAP || '900', 10);  // 하루 상한
     const RPM   = parseInt(env.RPM_CAP || '12', 10);   // 분당 상한
     const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...cors, 'content-type': 'application/json' } });
+
+    // ── 학습기록(위치·메모) 저장소: ?data=1 (구글 ID 토큰 검증 → KV user:<sub>) ──
+    const U = new URL(request.url);
+    if (U.searchParams.get('data')) {
+      // 토큰: Authorization Bearer 또는 (sendBeacon용) 본문 _t
+      let token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+      let pbody = null;
+      if (request.method === 'POST') { try { pbody = await request.json(); } catch (e) {} if (!token && pbody && pbody._t) token = pbody._t; }
+      // tokeninfo로 검증(서명/만료는 구글이 확인) + audience(우리 Client ID) 일치 확인
+      let sub = null;
+      if (token) {
+        try {
+          const tr = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token));
+          if (tr.ok) {
+            const p = await tr.json();
+            const aud = env.GOOGLE_CLIENT_ID;
+            const okAud = !aud || p.aud === aud;
+            const okExp = !p.exp || (Date.now() / 1000) < Number(p.exp);
+            if (okAud && okExp) sub = p.sub || null;
+          }
+        } catch (e) {}
+      }
+      if (!sub) return J({ error: 'unauth' }, 401);
+      const uKey = 'user:' + sub;
+      if (request.method === 'POST') {
+        const rec = { pos: (pbody && pbody.pos) || {}, memos: (pbody && pbody.memos) || {}, ts: Date.now() };
+        if (KV) { try { await KV.put(uKey, JSON.stringify(rec)); } catch (e) {} }
+        return J({ ok: true });
+      }
+      const raw = KV && await KV.get(uKey);
+      return J(raw ? JSON.parse(raw) : { pos: {}, memos: {} });
+    }
 
     // ── 태평양시(무료 티어 일일 리셋 기준) 날짜 + 자정까지 남은 초 ──
     const now = new Date();
