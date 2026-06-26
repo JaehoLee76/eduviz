@@ -27,7 +27,7 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },   // 클릭 = 건너뛰기
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
-      var ANIM=675, FADE=18, HOLD=180, local=fr-s.f0;
+      var ANIM=1215, FADE=18, HOLD=180, local=fr-s.f0;
       if(local>=ANIM+HOLD){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(초상화+설명+다시보기)
       var ph=Math.min(local,ANIM)/ANIM, seam=(local<FADE? local/FADE : 1);
       // 뉴턴 초상화 — 애니메이션 중엔 은은한 배경(흐릿)
