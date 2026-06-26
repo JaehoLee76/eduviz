@@ -1,15 +1,16 @@
-/* EduViz AI 튜터 — Cloudflare Worker 프록시 (Groq, Llama 3.3 70B 무료 티어)
+/* EduViz AI 튜터 — Cloudflare Worker 프록시 (Cloudflare Workers AI · Llama 3.3 70B)
  * ───────────────────────────────────────────────────────────────────
- *  Gemini는 Cloudflare 엣지(한국) 위치를 막아서 Groq로 전환.
+ *  외부 AI(Gemini/Groq)는 Cloudflare 한국 엣지 egress를 지역/IP 차단(403/지역오류)함.
+ *  → Cloudflare 자체 Workers AI 사용(외부 호출 없음 = 차단 불가). 무료(하루 10,000 뉴런), 별도 키 불필요.
  *  배포:
  *   1) 이 파일을 Worker에 붙여넣고 Deploy.
- *   2) KV namespace 바인딩: Variable name = EDUVIZ_KV  (이미 연결돼 있음)
- *   3) Secret 키:  Name = GROQ_API_KEY  (또는 기존 GEMINI_API_KEY 슬롯에 Groq 키를 넣어도 됨)
- *        Value = groq.com 에서 발급한 키(gsk_...). 본인이 직접 입력.
- *      (선택) GROQ_MODEL = llama-3.3-70b-versatile  // 모델 변경 시
- *      (선택) RPD_CAP=900  RPM_CAP=25  // 하루/분당 소프트 상한
- *   4) 배포 주소를 js/chat-config.js 의 EDUVIZ_CHAT_ENDPOINT 에.
- *  처리: AI 질문(기본) + 학습기록 ?data=1(구글 토큰 검증→KV user:<sub>). KV 키: rpd:* 예산, user:* 기록.
+ *   2) 바인딩 2개:  KV namespace → Variable name = EDUVIZ_KV  (이미 연결됨)
+ *                  Workers AI    → Variable name = AI         (Bindings → Add → Workers AI)
+ *      (선택) AI_MODEL = @cf/meta/llama-3.3-70b-instruct-fp8-fast  // 모델 변경 시(8B로 바꾸면 한도↑)
+ *      (선택) RPD_CAP=900  RPM_CAP=25
+ *      (로그인용, 선택) GOOGLE_CLIENT_ID
+ *   3) 배포 주소를 js/chat-config.js 의 EDUVIZ_CHAT_ENDPOINT 에.
+ *  처리: AI 질문(기본) + 학습기록 ?data=1(구글 토큰 검증→KV user:<sub>).
  */
 export default {
   async fetch(request, env) {
@@ -21,15 +22,14 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
 
     const KV    = env.EDUVIZ_KV;
-    const KEY   = env.GROQ_API_KEY || env.GEMINI_API_KEY;   // 시크릿 이름 둘 다 허용
-    const MODEL = env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    const AI    = env.AI;                                              // Workers AI 바인딩
+    const MODEL = env.AI_MODEL || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
     const RPD   = parseInt(env.RPD_CAP || '900', 10);
     const RPM   = parseInt(env.RPM_CAP || '25', 10);
     const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...cors, 'content-type': 'application/json' } });
     const U = new URL(request.url);
 
-    // 진단(임시): 값은 노출 안 하고 존재/길이만
-    if (U.searchParams.get('debug')) return J({ hasKey: !!KEY, keyLen: (KEY || '').length, hasKV: !!KV, model: MODEL });
+    if (U.searchParams.get('debug')) return J({ hasAI: !!AI, hasKV: !!KV, model: MODEL });
 
     // ── 학습기록(위치·메모): ?data=1 (구글 ID 토큰 검증 → KV user:<sub>) ──
     if (U.searchParams.get('data')) {
@@ -73,7 +73,7 @@ export default {
       return J({ remaining: Math.max(0, RPD - c), exhausted: ex, resetSeconds: ex ? secsToMidnight : null });
     }
 
-    if (!KEY) return J({ error: 'no_key' });
+    if (!AI) return J({ error: 'no_ai' });   // Workers AI 바인딩(AI) 누락
     let body = {};
     try { body = await request.json(); } catch (e) {}
     const question = (body.question || '').toString().slice(0, 1000);
@@ -98,28 +98,18 @@ export default {
 '4) 확실하지 않으면 추측하지 말고 모른다고 밝혀라. 화면 내용과 모순되는 말 금지.';
     const userMsg = '[현재 장면]\n' + ctxStr + '\n\n[학습자 질문]\n' + question;
 
-    // ── Groq 호출 (OpenAI 호환 API) ──
-    let resp, data;
+    // ── Cloudflare Workers AI 호출(외부 egress 없음) ──
+    let answer = '';
     try {
-      resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + KEY },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [{ role: 'system', content: SYS }, { role: 'user', content: userMsg }],
-          temperature: 0.3, max_tokens: 600
-        })
+      const out = await AI.run(MODEL, {
+        messages: [{ role: 'system', content: SYS }, { role: 'user', content: userMsg }],
+        max_tokens: 600, temperature: 0.3
       });
-      data = await resp.json();
-    } catch (e) { return J({ error: 'fetch_fail' }); }
-
-    if (resp.status === 429) {
-      const retry = parseInt(resp.headers.get('retry-after') || '30', 10) || 30;
-      return J({ exhausted: true, remaining: Math.max(0, RPD - c), resetSeconds: retry, scope: 'rate' });
+      answer = (out && (out.response || out.result || (typeof out === 'string' ? out : ''))) || '';
+    } catch (e) {
+      // 뉴런 일일 한도 초과 등
+      return J({ error: 'ai_fail', detail: (e && e.message) ? String(e.message).slice(0, 160) : '' });
     }
-    if (!data || data.error) return J({ error: (data && data.error && (data.error.message || data.error)) || 'api_error' });
-
-    const answer = ((((data.choices || [])[0] || {}).message) || {}).content || '';
     if (!answer.trim()) return J({ error: 'no_answer' });
 
     if (KV) {
