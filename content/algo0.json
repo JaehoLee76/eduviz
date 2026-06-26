@@ -7,21 +7,6 @@
     "more": "엔드카드의 인물: <b>에이다 러브레이스</b>(1815–1852), 배비지 해석기관을 위한 최초의 알고리즘을 작성한 ‘최초의 프로그래머’.",
     "more_en": "An algorithm is a recipe of steps to solve a problem. Ada Lovelace wrote the first one in 1843."
   },
-  "algo0_01": {
-    "ch": "알고리즘 — 시작",
-    "sec": "시작",
-    "title": "환영합니다 — 길잡이 에이스타",
-    "narr": "반갑습니다. 저는 <b>에이스타</b>입니다. 길찾기 알고리즘 <b>A*</b>에서 따온 이름으로, 복잡한 지도에서도 '가장 좋은 길'을 척척 찾아내는 친구입니다. 알고리즘은 결국 <b>문제를 푸는 분명한 절차</b>를 다루는 공부입니다. 처음이어도 괜찮습니다 — 외워서 떠넘기는 방식이 아니라, 개념과 개념을 잇는 길을 따라 한 걸음씩 함께 걷겠습니다. 이 사이트는 <b>읽고·보고·직접 조작</b>하며 배우도록 설계됐고, 제가 그 길을 헤매지 않게 안내하겠습니다.",
-    "hint": "다음 ▸ 으로 시작",
-    "more": "<b>'A*'를 길잡이로 고른 이유</b> A*(에이스타)는 게임 캐릭터의 이동, 지도 앱의 경로 안내, 로봇의 길찾기에 쓰이는 <b>가장 유명하고 강력한 탐색 알고리즘</b> 중 하나입니다. 핵심은 '지금까지 온 비용 + 앞으로 남은 거리의 어림짐작'을 더해 <b>가장 유망한 길부터</b> 탐색하는 것 — 즉 <b>똑똑하게 길을 찾는</b> 알고리즘입니다. 이 학습 여정도 똑같습니다. 무작정 외우는 게 아니라, 개념과 개념을 잇는 '가장 좋은 길'을 따라가며 배웁니다. 이 사이트는 <b>읽고(설명) · 보고(시각화) · 직접 조작(인터랙션)</b>하면서 개념이 머리에 각인되고, 나아가 응용·실전 문제까지 풀 수 있게 설계됐습니다. 에이스타가 그 길의 안내자입니다.",
-    "more_en": "<b>Why pick 'A*' as the guide?</b> A* (\"A-star\") is one of the most famous and powerful search algorithms — it powers game-character movement, map-app routing, and robot navigation. Its idea: add 'cost so far + an estimate of the distance remaining' and explore <b>the most promising path first</b> — i.e., it finds paths <b>smartly</b>. This learning journey is the same: not rote memorization, but following the best path that connects concept to concept. The site is built so you <b>read (explanations) · see (visualizations) · interact (hands-on)</b>, so ideas truly stick — and you can go on to apply them to real problems. Eta-Star is your guide along that path.",
-    "problem": {
-      "q": "이 학습 사이트가 '읽기'만이 아니라 강조하는 세 가지 학습 방식은?",
-      "solution": "<b>읽고(설명) · 보고(시각화) · 직접 조작(인터랙션)</b>. 세 가지가 함께여야 개념이 각인되고 응용까지 가능해집니다.",
-      "q_en": "Beyond reading, what three modes of learning does this site emphasize?",
-      "sol_en": "<b>Read (explanations) · See (visualizations) · Interact (hands-on)</b> — together they make concepts stick and become applicable."
-    }
-  },
   "algo0_02": {
     "ch": "알고리즘 — 시작",
     "sec": "시작",

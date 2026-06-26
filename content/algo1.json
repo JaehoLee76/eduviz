@@ -3,7 +3,7 @@
     "ch": "알고리즘 제1장 알고리즘과 복잡도",
     "sec": "1.1 알고리즘이란",
     "title": "알고리즘 — 문제를 푸는 명확한 단계",
-    "narr": "에이스타와 첫 걸음입니다. 방금 본 \"가장 큰 수 찾기\"를 컴퓨터의 단계로 뜯어보겠습니다. <b>알고리즘</b>은 요리 레시피처럼 <b>문제를 푸는 분명한 단계들</b>입니다. 첫 값을 '지금까지의 최대'로 두고, 나머지를 하나씩 보며 더 크면 갱신합니다. 단계마다 무엇을 하는지 모호하지 않고(명확성), n개를 한 번씩만 보니 반드시 끝나며(유한성), 숫자 더미를 받아 최댓값을 내놓습니다(입력→출력). 이 세 가지가 알고리즘의 본질입니다. 화면(또는 다음 단계 버튼)을 눌러 한 단계씩 직접 실행해 보세요.",
+    "narr": "첫 걸음입니다. 방금 본 \"가장 큰 수 찾기\"를 컴퓨터의 단계로 뜯어보겠습니다. <b>알고리즘</b>은 요리 레시피처럼 <b>문제를 푸는 분명한 단계들</b>입니다. 첫 값을 '지금까지의 최대'로 두고, 나머지를 하나씩 보며 더 크면 갱신합니다. 단계마다 무엇을 하는지 모호하지 않고(명확성), n개를 한 번씩만 보니 반드시 끝나며(유한성), 숫자 더미를 받아 최댓값을 내놓습니다(입력→출력). 이 세 가지가 알고리즘의 본질입니다. 화면(또는 다음 단계 버튼)을 눌러 한 단계씩 직접 실행해 보세요.",
     "hint": "눌러서 한 단계씩 실행하세요",
     "more": "<b>알고리즘</b>은 입력을 출력으로 바꾸는 <b>명확하고 유한한 단계들의 모음</b>입니다. 좋은 알고리즘의 조건: ① <b>명확성</b>(각 단계가 모호하지 않음) ② <b>유한성</b>(언젠가 끝남) ③ <b>입력·출력</b>이 정의됨 ④ <b>효과성</b>(실제로 수행 가능). \"최댓값 찾기\"는 max를 첫 값으로 두고, 나머지를 훑으며 더 크면 갱신합니다 — 딱 n번 비교(O(n)). 컴퓨터가 하는 모든 일이 이런 단계의 조합이고, 같은 문제도 <b>더 적은 단계로 푸는 법</b>을 찾는 게 이 여정의 핵심입니다.",
     "more_en": "An <b>algorithm</b> is a <b>clear, finite sequence of steps</b> that turns input into output. Good algorithms are ① <b>unambiguous</b> (each step is precise), ② <b>finite</b> (they terminate), ③ have defined <b>input and output</b>, and ④ are <b>effective</b> (actually executable). \"Find the maximum\" sets max to the first value and scans the rest, updating when larger — exactly n comparisons (O(n)). Everything a computer does is a combination of such steps, and finding ways to solve the same problem in <b>fewer steps</b> is the heart of this journey.",

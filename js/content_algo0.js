@@ -78,21 +78,7 @@
       ctx.shadowBlur=0; }
   },
 
-  // ══════ 시작 1 — 인사 ══════
-  { id:'algo0_01',
-    enter:function(E){ this.s={}; E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.48, t=E.frame*0.04;
-      for(var k=0;k<14;k++){ var a=t*0.3+k*0.45, rr=E.H*0.20+Math.sin(t+k)*10, x=cx+Math.cos(a)*rr*1.7, y=cy+Math.sin(a)*rr, sz=1.4+1.3*Math.abs(Math.sin(t*1.2+k));
-        ctx.globalAlpha=0.35+0.45*Math.abs(Math.sin(t*1.3+k)); ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(x,y,sz,0,7); ctx.fill(); }
-      ctx.globalAlpha=1;
-      var R=Math.min(E.W,E.H)*0.12*(1+0.03*Math.sin(t*1.5)), rot=Math.sin(t*0.2)*0.08;
-      ctx.globalAlpha=0.16; star(ctx,cx,cy,R*1.4,0.42,BLU,rot); ctx.globalAlpha=1;
-      star(ctx,cx,cy,R,0.42,BLU,rot); face(ctx,cx,cy,R,(E.frame%210)<8);
-      ctx.fillStyle='#bfe0ff'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.fillText('길잡이 · 에이스타 (A*)', cx, cy+R+34);
-      E.big('알고리즘의 세계에 오신 걸 환영합니다', '저는 최적의 길을 찾는 알고리즘 A*에서 온 길잡이 <b>에이스타</b>입니다. 여러분이 길을 잃지 않도록, 한 걸음씩 함께 가겠습니다.'); }
-  },
-
-  // ══════ 시작 2 — 전체 윤곽(여정 지도) ══════
+  // ══════ 시작 1 — 전체 윤곽(여정 지도) ══════
   { id:'algo0_02',
     enter:function(E){ this.s={step:0}; this.stops=['복잡도','자료구조','정렬','탐색','트리','그래프','DP','패러다임']; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%(this.stops.length+1); E.blip(460+this.s.step*40,0.1); },
