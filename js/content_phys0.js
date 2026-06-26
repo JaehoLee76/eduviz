@@ -24,9 +24,9 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },   // 클릭 = 건너뛰기
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, st=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }   // smoothstep
-      var ANIM=510, FADE=18, local=fr-st.f0;
-      if(local>=ANIM){ if(!st.ended){ st.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(아인슈타인+설명)
-      var ph=local/ANIM, seam=(local<FADE? local/FADE : 1);
+      var ANIM=638, FADE=18, HOLD=180, local=fr-st.f0;
+      if(local>=ANIM+HOLD){ if(!st.ended){ st.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(아인슈타인+설명)
+      var ph=Math.min(local,ANIM)/ANIM, seam=(local<FADE? local/FADE : 1);
       var warp = ss(0.33,0.52,ph);                                      // 평평(뉴턴)→휘어짐(아인슈타인)
       var cx=W*0.5, cy=H*0.46, gw=Math.min(W*0.40,H*0.50);
       // 아인슈타인 초상화 — 애니메이션 중엔 은은한 배경(흐릿)
