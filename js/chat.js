@@ -60,6 +60,7 @@
         'border-radius:999px;padding:7px 14px;font-size:13.5px;font-family:inherit;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3);white-space:nowrap;}',
       '.cw-fab:hover{filter:brightness(1.08);}',
       '.cw-fab.cw-cool{background:#6b6f7a;cursor:default;font-variant-numeric:tabular-nums;}',
+      '.cw-key{display:inline-block;margin-left:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:0 5px;line-height:15px;}',
       '.cw-sub{font-size:11px;color:var(--text-1,#e9e7e0);background:rgba(0,0,0,.42);border-radius:6px;padding:1px 8px;pointer-events:none;line-height:1.5;}',
       '.cw-sub.zero{color:#f0a0a0;}',
       '.cw-ov{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
@@ -95,7 +96,7 @@
   function renderFab(){
     if(!fabEl) return;
     if(Q.exhausted){ fabLabel.textContent='토큰충전 남은시간 '+fmtTime(Q.resetLeft); fabEl.classList.add('cw-cool'); }
-    else { fabLabel.textContent='🤖 AI 질문'; fabEl.classList.remove('cw-cool'); }
+    else { fabLabel.innerHTML='🤖 AI 질문 <span class="cw-key">i</span>'; fabEl.classList.remove('cw-cool'); }
     if(Q.remaining==null){ subEl.textContent=''; subEl.classList.remove('zero'); }
     else { subEl.textContent='추가 질문 '+Q.remaining+'회'; subEl.classList.toggle('zero', Q.remaining<=0); }
     if(metaEl && ovEl && ovEl.classList.contains('open')) refreshMeta();
@@ -178,6 +179,14 @@
     inEl.addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); } });
     inEl.addEventListener('input', function(){ inEl.style.height='auto'; inEl.style.height=Math.min(120,inEl.scrollHeight)+'px'; });
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+    // 'i' = AI 질문 열기/닫기 (입력 중·조합키일 땐 무시)
+    document.addEventListener('keydown', function(e){
+      if(e.code!=='KeyI' || e.metaKey || e.ctrlKey || e.altKey) return;
+      var ae=document.activeElement, tag=ae&&ae.tagName;
+      if(tag==='INPUT'||tag==='TEXTAREA'||(ae&&ae.isContentEditable)) return;
+      e.preventDefault();
+      if(ov.classList.contains('open')) close(); else open();
+    });
 
     renderFab();
     fetchStatus();   // 로드 시 사이트 공유 남은 횟수·충전 상태 조회
