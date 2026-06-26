@@ -57,9 +57,10 @@
       P.axes();
       P.curve(function(x){return Math.sin(x);}, 'rgba(155,153,163,0.5)');   // 기본 f(x)=sin x (흐림)
       P.curve(function(x){return a*Math.sin(x-c)+d;}, VIO);                 // 변환된 함수
-      var aS=(a===1?'':a===-1?'−':a);
-      E.big('y = '+aS+'·f(x'+(c>0?' − '+c:c<0?' + '+(-c):'')+')'+(d>0?' + '+d:d<0?' − '+(-d):''),
-        'a=세로배율 · c=좌우이동 · d=상하이동 (흐린 곡선이 원본 f)'); }
+      function num(v){ return v<0? '−'+(-v) : ''+v; }
+      var coef=(a===1?'':a===-1?'−':num(a)+'·');   // a=1→계수·점 생략, a=−1→−f, 그 외 a·f
+      E.big('y = '+coef+'f(x'+(c>0?' − '+c:c<0?' + '+(-c):'')+')'+(d>0?' + '+d:d<0?' − '+(-d):''),
+        '흐린 곡선 = 원본 f(x) = sin x · a=세로배율 · c=좌우이동 · d=상하이동'); }
   },
 
   // 1.4 지수함수와 배가시간 — y = bˣ
