@@ -48,7 +48,7 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
-      var ANIM=1080, FADE=18, HOLD=180, local=fr-s.f0;
+      var ANIM=1080, FADE=18, HOLD=180; var _n=(typeof performance!=="undefined"&&performance.now)?performance.now():0, _dt=s.last?(_n-s.last):16.7; if(_dt<0||_dt>200)_dt=16.7; s.last=_n; s.acc=(s.acc||0)+_dt*0.06; var local=s.acc;
       if(local>=ANIM+HOLD){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }
       var ph=Math.min(local,ANIM)/ANIM, seam=(local<FADE? local/FADE : 1);
       if(ADA_OK){ var ar=ADA.width/ADA.height, dh=H*0.84, dw=dh*ar, ix=W*0.5-dw/2, iy=H*0.50-dh/2;
