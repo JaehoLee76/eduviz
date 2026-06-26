@@ -98,7 +98,8 @@
       var h=-b/2, k=-3-b*b/4, sq=Math.sqrt(b*b+12)/2;
       var bl=E.blink(); E.ctx.globalAlpha=bl; P.dot(-b/2-sq,0,'#ffb27a'); P.dot(-b/2+sq,0,'#ffb27a'); E.ctx.globalAlpha=1;
       P.dot(h,k,'#8fe3b5','꼭짓점 x=−b/2='+h.toFixed(1));
-      E.big('y = x² '+(b>=0?'+ '+b:'− '+(-b))+'x − 3', 'b'+(b>=0?'=+'+b:'='+b)+' → 꼭짓점 x = −b/2 = '+h.toFixed(1)+'  (b 키울수록 왼쪽)'); }
+      var bx2=(b===0?'':(b>0?' + '+(b===1?'':b)+'x':' − '+(b===-1?'':(-b))+'x'));
+      E.big('y = x²'+bx2+' − 3', 'b'+(b>=0?'=+'+b:'='+b)+' → 꼭짓점 x = −b/2 = '+h.toFixed(1)+'  (b 키울수록 왼쪽)'); }
   },
 
   { id:'ch3_05',
@@ -166,7 +167,8 @@
       E.ctx.globalAlpha=E.blink(); roots.forEach(function(rt){ P.dot(rt,0,'#ffb27a'); }); E.ctx.globalAlpha=1;
       if(b<0){ var t=Math.sqrt(-b/3); // 봉우리(극대)=(-t,f(-t)), 골(극소)=(t,f(t))
         P.dot(-t,(-t)*(-t)*(-t)+b*(-t),'#8fe3b5','봉우리'); P.dot(t,t*t*t+b*t,'#8fe3b5','골'); }
-      E.big('y = x³ '+(b>=0?'+ '+b:'− '+(-b))+'x', b<0?'꺾임 2번 (S자) · 근 3개':(b===0?'y = x³ · 꺾임 없음 · 근 1개':'단조 증가 · 꺾임 없음 · 근 1개')); }
+      var bx3=(b===0?'':(b>0?' + '+(b===1?'':b)+'x':' − '+(b===-1?'':(-b))+'x'));
+      E.big('y = x³'+bx3, b<0?'꺾임 2번 (S자) · 근 3개':(b===0?'y = x³ · 꺾임 없음 · 근 1개':'단조 증가 · 꺾임 없음 · 근 1개')); }
   },
 
   // ══════════ 3.4 연립방정식 ══════════

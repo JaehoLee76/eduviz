@@ -63,7 +63,8 @@
       [1,-1].forEach(function(sgn){ ctx.beginPath(); var on=false;
         for(var i=-30;i<=30;i++){ var tau=i/10, x=sgn*a*Math.cosh(tau), y=b*Math.sinh(tau); if(Math.abs(x)>7||Math.abs(y)>6){on=false;continue;} var X=P.X(x),Y=P.Y(y); if(on)ctx.lineTo(X,Y); else{ctx.moveTo(X,Y);on=true;} } ctx.stroke(); });
       var c=Math.sqrt(a*a+b*b); P.dot(-c,0,'#ffb27a','F₁'); P.dot(c,0,'#ffb27a','F₂');
-      E.big('x²/'+(a*a)+' − y²/'+(b*b)+' = 1', '쌍곡선 = 두 초점까지 거리의 차가 일정 · 점근선 y = ±'+(b/a%1===0?b/a:(b/a).toFixed(2))+'x'); }
+      var sl=b/a, slT=(sl===1?'':(sl%1===0?sl:sl.toFixed(2)));
+      E.big('x²/'+(a*a)+' − y²/'+(b*b)+' = 1', '쌍곡선 = 두 초점까지 거리의 차가 일정 · 점근선 y = ±'+slT+'x'); }
   },
 
   // ══════════ 12.2 통일: 이심률 ══════════

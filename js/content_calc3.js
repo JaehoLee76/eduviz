@@ -39,7 +39,7 @@
       P.dot(xc,num,GRN);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('x=1.2 검산: 실측 '+num.toFixed(2)+' = 공식 '+form.toFixed(2), E.W*0.58, E.H*0.20);
-      E.big('d/dx x'+(['','¹','²','³','⁴'][n])+' = '+n+'x'+(n-1===1?'':['⁰','¹','²','³'][n-1]),
+      E.big('d/dx x'+(['','¹','²','³','⁴'][n])+' = '+(n===1?'1':n+'x'+(n-1===1?'':['⁰','¹','²','³'][n-1])),
         '지수를 앞으로 내리고, 지수는 1 줄입니다 (보라=함수, 금색=도함수)'); }
   },
 

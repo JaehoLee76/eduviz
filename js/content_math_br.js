@@ -492,7 +492,10 @@
         ctx.fillStyle='#8fe3b5'; ctx.font='14px sans-serif'; ctx.textAlign='center';
         ctx.fillText('두 근 합 = '+(r1+r2).toFixed(1)+' = −b('+(-b)+')  ·  곱 = '+(r1*r2).toFixed(1)+' = c('+c+')', E.W/2, E.H*0.80); }
       else { ctx.fillStyle='#f4a0c0'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('D<0 (실근 없음) — 그래도 두 복소근의 합=−b, 곱=c', E.W/2, E.H*0.80); }
-      E.big('x²+('+b+')x+('+c+')  →  합=−b, 곱=c', '근과 계수의 관계(비에트) — 근을 직접 안 구해도 두 근의 합(−b/a)·곱(c/a)을 계수로 즉시! 인수분해·방정식 세우기의 핵심'); }
+      // 계수 b·c 표기: 0→항 생략, ±1→x/−x, 그 외 부호 정리(+ −n → − n)
+      var bt=(b===0?'':b===1?' + x':b===-1?' − x':b>0?' + '+b+'x':' − '+(-b)+'x');
+      var ct=(c===0?'':c>0?' + '+c:' − '+(-c));
+      E.big('x²'+bt+ct+'  →  합=−b, 곱=c', '근과 계수의 관계(비에트) — 근을 직접 안 구해도 두 근의 합(−b/a)·곱(c/a)을 계수로 즉시! 인수분해·방정식 세우기의 핵심'); }
   },
 
   // ══════ 덧셈정리(ch8_04) ▸ 2배각 공식 ══════

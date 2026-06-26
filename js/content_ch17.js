@@ -72,7 +72,11 @@
       P.curve(function(x){return n*Math.pow(x,n-1);}, '#8fe3b5');
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f = xⁿ', P.X(1.3), P.Y(4.3));
       ctx.fillStyle='#8fe3b5'; ctx.fillText("f ' = n·xⁿ⁻¹", P.X(-1.9), P.Y(4.3));
-      E.big("(xⁿ)' = n·xⁿ⁻¹   (n="+n+")", '멱법칙 — 지수를 앞으로 내리고 지수는 1 줄입니다. 예: (x'+n+")' = "+n+"x"+(n-1===1?'':'^'+(n-1))); }
+      // 예시 표기: n=1이면 (x)'=1, 그 외 (xⁿ)'=n·x^(n−1) (지수 1은 생략)
+      var sup={1:'',2:'²',3:'³',4:'⁴'}, ex;
+      if(n===1){ ex="(x)' = 1"; }
+      else { ex="(x"+(sup[n]||'^'+n)+")' = "+n+"x"+(n-1===1?'':(sup[n-1]||'^'+(n-1))); }
+      E.big("(xⁿ)' = n·xⁿ⁻¹   (n="+n+")", '멱법칙 — 지수를 앞으로 내리고 지수는 1 줄입니다. 예: '+ex); }
   },
 
   // ══════════ 17.5 극대·극소 ══════════
@@ -101,7 +105,11 @@
       tangentLine(P,ctx,a,fa,slope,'#ffb27a');
       ctx.globalAlpha=E.blink(); P.dot(a,fa,'#ffb27a','('+a+', '+fa+')'); ctx.globalAlpha=1;
       var b=-a*a;
-      E.big('접선: y = '+slope+'x '+(b>=0?'+ '+b:'− '+(-b)), '접점 ('+a+', '+fa+')에서 기울기 f\'(a)='+slope+' → y−'+fa+' = '+slope+'(x−'+a+')'); }
+      // 계수 1/−1/0·상수항 0 표기 정리: 1x→x, −1x→−x, 0x→항 생략, + 0→생략, + (음수)→− 양수
+      var xt=(slope===0?'':slope===1?'x':slope===-1?'−x':(slope<0?'−'+(-slope):''+slope)+'x');
+      var ct=(b===0?'':(xt===''?(b<0?'−'+(-b):''+b):(b>0?' + '+b:' − '+(-b))));
+      var rhs=(xt+ct)||'0';
+      E.big('접선: y = '+rhs, '접점 ('+a+', '+fa+')에서 기울기 f\'(a)='+slope+' → y−'+fa+' = '+slope+'(x−'+a+')'); }
   }
 
   ];

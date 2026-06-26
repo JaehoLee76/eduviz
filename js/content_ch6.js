@@ -61,7 +61,9 @@
       P.curve(function(x){ return m*(x-ax)+ay; }, '#7ab8ff');
       P.dot(ax,ay,'#ffb27a','A(−1, 1)'); P.dot(bx,by,'#8fe3b5','B('+bx+', '+by+')');
       var mTxt=(m%1===0?m:m.toFixed(2));
-      E.big('기울기 m = Δy/Δx = '+mTxt, 'y − 1 = '+mTxt+'(x + 1)  — 한 점과 기울기로 결정'); }
+      var mCo=(m===1?'':m===-1?'−':mTxt);
+      var ps=(m===0?'y = 1':'y − 1 = '+mCo+'(x + 1)');
+      E.big('기울기 m = Δy/Δx = '+mTxt, ps+'  — 한 점과 기울기로 결정'); }
   },
 
   // 6.2b 평행·수직 (기울기 관계)
@@ -114,6 +116,7 @@
     tap:function(E){ this.s.mode=(this.s.mode+1)%3; E.blip(440+this.s.mode*50,0.15); },
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, g=P.geom(), m=s.m, r=s.r; P.axes();
       var mTxt=(m%1===0?m:m.toFixed(1));
+      var mxT=(m===0?'1':(m===1?'x':m===-1?'−x':mTxt+'x')+' + 1');   // y = m·x + 1 의 우변(계수 1/−1/0 정리)
       // 직선 y = m·x + 1 을 클립 사각형 안에서 채울 사다리꼴 꼭짓점(실계산)
       function fillAbove(){ ctx.beginPath();
         ctx.moveTo(g.left,P.Y(m*P.xmin+1)); ctx.lineTo(g.right,P.Y(m*P.xmax+1)); ctx.lineTo(g.right,g.top); ctx.lineTo(g.left,g.top); ctx.closePath(); ctx.fill(); }
@@ -121,7 +124,7 @@
       if(s.mode===0){ // y > m·x + 1
         ctx.fillStyle='rgba(122,184,255,0.25)'; fillAbove();
         ctx.restore(); ctx.save(); ctx.setLineDash([6,5]); P.curve(function(x){return m*x+1;},'#7ab8ff'); ctx.restore();
-        E.big('y &gt; '+mTxt+'x + 1', '직선 위쪽 영역 (점선 경계=미포함) — 기울기 '+mTxt); return;
+        E.big('y &gt; '+mxT, '직선 위쪽 영역 (점선 경계=미포함) — 기울기 '+mTxt); return;
       } else if(s.mode===1){ // 원 내부 x²+y²<r²
         ctx.fillStyle='rgba(143,227,181,0.25)'; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.fill();
         ctx.restore();
@@ -133,7 +136,7 @@
         fillAbove();
         ctx.restore();
         ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke(); P.curve(function(x){return m*x+1;},'#7ab8ff'); ctx.restore();
-        E.big('y &gt; '+mTxt+'x + 1  그리고  x² + y² &lt; '+(r*r), '두 부등식을 동시에 — 교집합 영역'); return;
+        E.big('y &gt; '+mxT+'  그리고  x² + y² &lt; '+(r*r), '두 부등식을 동시에 — 교집합 영역'); return;
       } }
   }
 

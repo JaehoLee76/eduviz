@@ -25,8 +25,9 @@
       ctx.strokeStyle='rgba(244,160,192,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(0)); ctx.lineTo(P.X(a),P.Y(b)); ctx.lineTo(P.X(0),P.Y(b)); ctx.stroke(); ctx.setLineDash([]);
       phasor(P,ctx,a,b,'#7ab8ff','z');
-      var bs=(b<0?'− '+(-b):'+ '+b);
-      E.big('z = '+a+' '+bs+'i', '복소수 a + bi = 평면의 점 (a, b) — 가로 실수, 세로 허수'); }
+      var bs=(b===0?'':(b<0?' − '+(b===-1?'':(-b)):' + '+(b===1?'':b))+'i');
+      var zS=(a===0?(b===0?'0':(b<0?'−'+(b===-1?'':(-b)):(b===1?'':b))+'i'):a+bs);
+      E.big('z = '+zS, '복소수 a + bi = 평면의 점 (a, b) — 가로 실수, 세로 허수'); }
   },
 
   // 10.1b 복소수의 덧셈 = 벡터 덧셈
@@ -42,7 +43,10 @@
       phasor(P,ctx,ax,ay,'#7ab8ff','z=3+i');
       phasor(P,ctx,wx,wy,'#8fe3b5','w');
       phasor(P,ctx,sx2,sy2,'#ffb27a','z+w');
-      E.big('z + w = ('+(ax+'+'+wx)+') + ('+(ay+'+'+wy)+')i = '+sx2+(sy2<0?' − '+(-sy2):' + '+sy2)+'i', '복소수 덧셈 = 벡터 덧셈 (9장에서 다룸) — 실수·허수부끼리'); }
+      var reSum=ax+(wx<0?' − '+(-wx):' + '+wx), imSum=ay+(wy<0?' − '+(-wy):' + '+wy);
+      var imCo=(sy2===1?'':sy2===-1?'−':sy2);   // 허수부 계수 (1·i→i, −1·i→−i)
+      var sumS=(sx2===0?(sy2===0?'0':imCo+'i'):(sy2===0?''+sx2:sx2+(sy2<0?' − '+(sy2===-1?'':(-sy2)):' + '+(sy2===1?'':sy2))+'i'));
+      E.big('z + w = ('+reSum+') + ('+imSum+')i = '+sumS, '복소수 덧셈 = 벡터 덧셈 (9장에서 다룸) — 실수·허수부끼리'); }
   },
 
   // ══════════ 10.2 복소수와 평면기하 ══════════

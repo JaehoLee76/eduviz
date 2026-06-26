@@ -70,7 +70,7 @@
       ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath();
       for(var a=0;a<=2*Math.PI*2+0.01;a+=0.01){ var R=Math.cos(k*a), x=P.X(R*Math.cos(a)), y=P.Y(R*Math.sin(a)); if(a===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var petals = (k%2===1)? k : 2*k;
-      E.big('r = cos('+k+'θ)   ·   꽃잎 '+petals+'장', 'k가 홀수면 꽃잎 k장, 짝수면 2k장 — 극좌표가 그리는 아름다운 패턴'); }
+      E.big('r = cos('+(k===1?'':k)+'θ)   ·   꽃잎 '+petals+'장', 'k가 홀수면 꽃잎 k장, 짝수면 2k장 — 극좌표가 그리는 아름다운 패턴'); }
   },
 
   // 10.5 극좌표 넓이  A = ½∫r² dθ  심장형

@@ -1,7 +1,11 @@
 /* 제5장 함수 — 5.1 함수와 그래프 · 5.2 이차함수 · 5.3 분수·무리함수
    동작(behavior)만. 텍스트(title/narr/more/문제)는 content/ch5.json */
 (function(){
-  function fmtLin(a,b){ return 'y = '+(a===1?'':a===-1?'−':a)+'x'+(b>=0?' + '+b:' − '+(-b)); }
+  function fmtLin(a,b){
+    var ax=(a===0?'':(a===1?'x':a===-1?'−x':a+'x'));
+    var bp=(b===0?(a===0?'0':''):(a===0?(b>0?''+b:'−'+(-b)):(b>0?' + '+b:' − '+(-b))));
+    return 'y = '+ax+bp;
+  }
 
   var scenes=[
 
@@ -49,8 +53,9 @@
     draw:function(E){ var P=E.Plot, s=this.s, a=s.a, b=s.b, c=s.c; P.axes();
       P.curve(function(x){return a*x*x+b*x+c;}, '#7ab8ff');
       if(a!==0){ var h=-b/(2*a), k=c-b*b/(4*a); E.ctx.globalAlpha=E.blink(); P.dot(h,k,'#8fe3b5','꼭짓점'); E.ctx.globalAlpha=1; }
-      var aL=(a===1?'':a===-1?'−':a);
-      E.big('y = '+aL+'x²'+(b?((b>0?' + '+b:' − '+(-b))+'x'):'')+(c?(c>0?' + '+c:' − '+(-c)):''), a===0?'a = 0 이면 직선! (이차함수 아님)':'a: 폭·방향 · c: 상하 이동'); }
+      var aL=(a===0?'0':a===1?'':a===-1?'−':a);
+      var bx=(b?((b>0?' + '+(b===1?'':b):' − '+(b===-1?'':(-b)))+'x'):'');
+      E.big('y = '+aL+'x²'+bx+(c?(c>0?' + '+c:' − '+(-c)):''), a===0?'a = 0 이면 직선! (이차함수 아님)':'a: 폭·방향 · c: 상하 이동'); }
   },
 
   // 5.2b 꼭짓점·축
