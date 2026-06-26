@@ -62,7 +62,7 @@
       var conv = p>1;
       var limit = conv? 1/(p-1) : Infinity;
       E.big('∫₁^∞ x^(−'+p.toFixed(1)+') dx = '+(conv?limit.toFixed(3)+' (수렴)':'∞ (발산)'),
-        conv?'p>1: 꼬리가 충분히 빨리 0으로 가 넓이가 유한합니다 (≈'+big.toFixed(2)+')':'p≤1: 꼬리가 너무 두꺼워 넓이가 무한대로 커집니다'); }
+        conv?'p>1: 꼬리가 충분히 빨리 0으로 가 넓이가 유한합니다 (x=1~2000 실측 누적 '+big.toFixed(2)+' → 더 멀리 갈수록 '+limit.toFixed(2)+'로 수렴)':'p≤1: 꼬리가 너무 두꺼워 넓이가 무한대로 커집니다'); }
   },
 
   // 8.5 수치적분 — 사다리꼴 vs 심슨  ∫₀^π sin x dx = 2

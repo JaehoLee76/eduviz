@@ -339,17 +339,22 @@
       if(show>=1){ var a1=(show===1)?ez:1, d1=(show===1)?(1-ez)*-16:0;
         ed(cx,top,cx-L,top+dy+d1,'a<b',a1); ed(cx,top,cx+L,top+dy+d1,'a>b',a1);
         nd(cx-L,top+dy+d1,'b:c',false,a1); nd(cx+L,top+dy+d1,'a:c',false,a1); }
-      // 층 2 잎 (6개) — show>=2 비교/잎이 차오름
-      var lv=top+2*dy;
-      var leafX=[cx-L-M, cx-L+M, cx+L-M, cx+L+M];
-      var leafLab=['abc','b<c<a','bac','a<c<b'];  // 단순화된 분기 라벨
-      var leafLab2=['acb','cba'];
+      // 층 2: 왼쪽 b:c → {b<c: 잎 abc, b>c: 내부 a:c}, 오른쪽 a:c → {a<c: 내부 b:c, a>c: 잎 bac}
+      var lv2=top+2*dy, lv3=top+3*dy, M2=E.W*0.058, bcX=cx-L, acX=cx+L;
+      var leafAbcX=bcX-M, nodeAcX=bcX+M, nodeBcX=acX-M, leafBacX=acX+M;
       if(show>=2){ var a2=(show===2)?ez:1, d2=(show===2)?(1-ez)*-14:0;
-        var parents=[cx-L,cx-L,cx+L,cx+L];
-        for(var i=0;i<4;i++){ ed(parents[i],top+dy,leafX[i],lv+d2,i<2?'<':'>',a2);
-          nd(leafX[i],lv+d2,leafLab[i],true,a2); } }
+        ed(bcX,top+dy,leafAbcX,lv2+d2,'<',a2); nd(leafAbcX,lv2+d2,'abc',true,a2);
+        ed(bcX,top+dy,nodeAcX,lv2+d2,'>',a2);   nd(nodeAcX,lv2+d2,'a:c',false,a2);
+        ed(acX,top+dy,nodeBcX,lv2+d2,'<',a2);   nd(nodeBcX,lv2+d2,'b:c',false,a2);
+        ed(acX,top+dy,leafBacX,lv2+d2,'>',a2);  nd(leafBacX,lv2+d2,'bac',true,a2); }
+      // 층 3: 두 내부 노드가 각각 두 잎으로 → 직접 잎 2개 + 여기 4개 = 총 6개 잎 (= 3!)
+      if(show>=3){ var a3l=(show===3)?ez:1, d3=(show===3)?(1-ez)*-14:0;
+        ed(nodeAcX,lv2,nodeAcX-M2,lv3+d3,'<',a3l); nd(nodeAcX-M2,lv3+d3,'acb',true,a3l);
+        ed(nodeAcX,lv2,nodeAcX+M2,lv3+d3,'>',a3l); nd(nodeAcX+M2,lv3+d3,'cab',true,a3l);
+        ed(nodeBcX,lv2,nodeBcX-M2,lv3+d3,'<',a3l); nd(nodeBcX-M2,lv3+d3,'bca',true,a3l);
+        ed(nodeBcX,lv2,nodeBcX+M2,lv3+d3,'>',a3l); nd(nodeBcX+M2,lv3+d3,'cba',true,a3l); }
       // 결론 텍스트
-      var by=lv+62;
+      var by=lv3+56;
       if(show>=3){ var a3=(show===3)?ez:1; ctx.globalAlpha=a3;
         ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
         ctx.fillText('잎 = 가능한 모든 순서 = n! (n=3 → 6개)', cx, by); ctx.globalAlpha=1; }
@@ -10003,7 +10008,7 @@
       // need 표시
       if(f.need>=0){
         ctx.fillStyle=(f.hitIdx>=0)?'#8fe3b5':'#ffb27a'; ctx.font='600 15px monospace'; ctx.textAlign='center';
-        ctx.fillText('need = T − sB = 17 − '+f.T+'... = '+f.need+(f.hitIdx>=0?'  ✓ A에 있음!':'  (A 조회)'), W/2, H*0.50);
+        ctx.fillText('need = T − sB = 17 − '+(17-f.need)+' = '+f.need+(f.hitIdx>=0?'  ✓ A에 있음!':'  (A 조회)'), W/2, H*0.50);
       }
       // 결과
       if(f.found){
@@ -15406,7 +15411,7 @@
       var aux=[];   // 보조 간선 [u,v,cap] (S'/T' 연결)
       var sflow=[]; // 각 aux 간선에 흐른 양
       var st=[];
-      function snap(line,cap_,extra){ var f={line:line, cap:cap_, eg:EG,
+      function snap(line,cap_,_unused,extra){ var f={line:line, cap:cap_, eg:EG,
         excess:excess.slice(), aux:aux.slice(), sflow:sflow.slice(),
         Sp:4, Tp:5}; if(extra) for(var k in extra) f[k]=extra[k]; st.push(f); }
       snap(0,'하한 있는 유량: 각 간선이 [<b>하한 low</b>, 상한 cap]. 원래 s→t 문제를 <b>t→s 무한 간선</b>으로 닫아 순환으로 만듭니다.', null, {curEdge:4});
@@ -18934,24 +18939,22 @@
       tris=newTris;
       snap([4],'그 삼각형을 점 '+p+' 과 세 꼭짓점을 잇는 <b>작은 삼각형 3개</b>로 분할합니다.',tris,p,null,null);
       snap([5],'분할로 생긴 <b>새 변</b>들이 들로네 조건을 깨뜨릴 수 있습니다. 이웃 삼각형마다 외접원을 확인해야 합니다.',tris,p,null,null);
-      // check circumcircle empty test on neighbor edge: test triangle [1,2,3] circumcircle contains p?
-      var testTri=[1,2,3];
-      var c0=circ3(pts[1],pts[2],pts[3]);
+      // 새 변 (1,3)을 공유하는 이웃 삼각형 [0,1,3]의 외접원에 점 p가 들어오는지 검사
+      var testTri=[0,1,3];
+      var c0=circ3(pts[0],pts[1],pts[3]);
       var bad=inCircumcircle(testTri,pts[p]);
-      snap([5,6],'<b>빈 외접원 검사</b>: 이웃 삼각형 [1,2,3] 의 외접원 안에 점 '+p+' 이 들어오는지 봅니다 → '+(bad?'<b>위반!</b>':'통과'),tris,p,c0,null);
+      snap([5,6],'<b>빈 외접원 검사</b>: 변 (1,3)을 공유하는 이웃 [0,1,3] 의 외접원 안에 점 '+p+' 이 들어오는지 봅니다 → '+(bad?'<b>위반!</b>':'통과'),tris,p,c0,null);
       if(bad){
-        // flip the shared edge (1,3) -> (2,4)
-        // remove triangles using edge (1,3): [0,1,3] gone already replaced; here testTri [1,2,3] and one of new [3,1? ]
-        // For visual: replace [1,2,3] and [3,0? ] ... we flip edge 1-3 to 2-4
+        // 변 (1,3)을 가진 두 삼각형([0,1,3]·[3,1,4])을 제거하고 대각선을 (0,4)로 뒤집기
         var flipped=[];
         for(t=0;t<tris.length;t++){ var tr=tris[t];
           var has13=(tr.indexOf(1)>=0&&tr.indexOf(3)>=0);
           if(has13) continue; flipped.push(tr); }
-        // add new flipped triangles around edge 2-4
-        flipped.push([1,2,p]); flipped.push([2,3,p]);
+        // 변 (0,p)를 공유하는 두 삼각형으로 교체 → 모든 점이 중심 p로 이어지는 부채꼴
+        flipped.push([0,1,p]); flipped.push([3,0,p]);
         tris=flipped;
-        snap([6],'위반 → 공유 변 (1,3)을 <b>뒤집어(flip)</b> (2,'+p+') 로 교체합니다. 두 삼각형이 더 \"통통\"해집니다.',tris,p,c0,[1,3]);
-        snap([5,6],'뒤집은 뒤 다시 외접원 검사 → 더 이상 위반이 없으면 멈춥니다(연쇄 flip이 끝남).',tris,p,null,null);
+        snap([6],'위반 → 공유 변 (1,3)을 <b>뒤집어(flip)</b> (0,'+p+') 로 교체합니다. 네 점 모두 중심 '+p+' 에 이어져 더 \"통통\"해집니다.',tris,p,c0,[1,3]);
+        snap([5,6],'뒤집은 뒤 다시 외접원 검사 → 더 이상 위반이 없어 멈춥니다(연쇄 flip 끝).',tris,p,null,null);
       }
       snap(7,'<b>완료!</b> 모든 삼각형의 외접원이 비어 있음 — 들로네 조건 만족. 좁고 긴 삼각형이 사라졌습니다.',tris,-1,null,null);
       return st; },

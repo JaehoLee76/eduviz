@@ -34,7 +34,9 @@
         fill: cur?'rgba(255,178,122,0.38)':(cached?'rgba(143,227,181,0.18)':(dup?'rgba(244,160,192,0.22)':'rgba(122,184,255,0.16)')),
         stroke: cur?ORA:(cached?GRN:(dup?PNK:BLU)),
         text:'#dfeefb', tag: cur?'호출!':(cached?'캐시 적중→생략':(dup?'또 계산':null)) }); });
-    return {visibleCalls:count, totalDFS:DFS.length};
+    // 실제 '계산'한 호출 = 보이는 노드 중 캐시 적중(생략)이 아닌 것. (count는 노출 단계 제어용이라 별도 집계)
+    var computed=count; if(memo){ computed=0; for(var k in vis){ if(!CACHED[k]) computed++; } }
+    return {visibleCalls:computed, totalDFS:DFS.length};
   }
 
   var scenes=[

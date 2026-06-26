@@ -65,7 +65,7 @@
         arrs.forEach(function(a){ a.forEach(function(v){ ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.fillRect(x,y,cell-2,cell-2); ctx.strokeRect(x,y,cell-2,cell-2);
           ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+cell/2,y+cell/2); ctx.textBaseline='alphabetic'; x+=cell; }); x+=20; }); }
       ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      row(L0, top, BLU); row(L1, top+E.H*0.13, BLU); row(L2, top+E.H*0.26, ORA);
+      row(L0, top, BLU); row(L1, top+E.H*0.13, BLU); row(L2, top+E.H*0.26, BLU);
       ctx.fillText('분할 ↓', E.W*0.04, top+E.H*0.15); ctx.fillText('정복·병합 ↑', E.W*0.04, top+E.H*0.43);
       row(merged, top+E.H*0.42, GRN); }
   },

@@ -25,7 +25,7 @@
     enter:function(E){ this.s={mode:0}; E.Plot.range(0,13,-2,5); E.setOn([]); },
     tap:function(E){ this.s.mode=(this.s.mode+1)%2; E.blip(this.s.mode?300:520,0.15); },
     draw:function(E){ var P=E.Plot, m=this.s.mode, ctx=E.ctx; P.axes();
-      for(var n=1;n<=12;n++){ var v = m===0 ? n*0.35 : (n%2===0?1:-1);
+      for(var n=1;n<=12;n++){ var v = m===0 ? n/3 : (n%2===0?1:-1);
         if(v>=P.ymin&&v<=P.ymax) P.dot(n,v, m===0?'#f4a0c0':'#8fe3b5'); }
       E.tapHint(E.W/2, P.geom().bot+40, '▶ 발산 / 진동 바꾸기', true);
       E.big(m===0?'aₙ = n/3 → ∞  (발산)':'aₙ = (−1)ⁿ  (진동)', m===0?'한없이 커져 한 값에 머물지 않습니다 = 발산':'두 값 사이를 오가 극한이 없습니다 = 진동(발산)'); }

@@ -120,20 +120,19 @@
       ctx.save(); ctx.beginPath(); ctx.rect(g.left,g.top,g.w,g.h); ctx.clip();
       if(s.mode===0){ // y > m·x + 1
         ctx.fillStyle='rgba(122,184,255,0.25)'; fillAbove();
-        ctx.restore(); P.curve(function(x){return m*x+1;},'#7ab8ff');
-        E.big('y &gt; '+mTxt+'x + 1', '직선 위쪽 영역 (경계 미포함) — 기울기 '+mTxt); return;
+        ctx.restore(); ctx.save(); ctx.setLineDash([6,5]); P.curve(function(x){return m*x+1;},'#7ab8ff'); ctx.restore();
+        E.big('y &gt; '+mTxt+'x + 1', '직선 위쪽 영역 (점선 경계=미포함) — 기울기 '+mTxt); return;
       } else if(s.mode===1){ // 원 내부 x²+y²<r²
         ctx.fillStyle='rgba(143,227,181,0.25)'; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.fill();
         ctx.restore();
-        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke();
-        E.big('x² + y² &lt; '+(r*r), '중심 O, 반지름 '+r+' 인 원의 내부'); return;
+        ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke(); ctx.restore();
+        E.big('x² + y² &lt; '+(r*r), '중심 O, 반지름 '+r+' 인 원의 내부 (점선 경계=미포함)'); return;
       } else { // 교집합: y > m·x+1 그리고 원 내부
         ctx.fillStyle='rgba(255,178,122,0.30)';
         ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.clip();
         fillAbove();
         ctx.restore();
-        ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke();
-        P.curve(function(x){return m*x+1;},'#7ab8ff');
+        ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke(); P.curve(function(x){return m*x+1;},'#7ab8ff'); ctx.restore();
         E.big('y &gt; '+mTxt+'x + 1  그리고  x² + y² &lt; '+(r*r), '두 부등식을 동시에 — 교집합 영역'); return;
       } }
   }

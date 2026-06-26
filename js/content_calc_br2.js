@@ -168,8 +168,8 @@
 
   // ── ch14 야코비안(변수변환 넓이배율) (branchOf calc14_01) ──
   { id:'calc14_01_jacobian', branchOf:'calc14_01', ord:1,
-    enter:function(E){ var s=this.s={sh:0.6}; E.Plot.range(-0.6,3.4,-0.6,3.4); sld(E,ctrl('변환 c (전단)','jbc',-1,1.5,0.05,0.6),'jbc',function(v){return v.toFixed(2);},function(v){s.sh=v;}); E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,c=s.sh; var a=1.8,d=1.5;  // 변환 e1=(a,0), e2=(c,d)
+    enter:function(E){ var s=this.s={ax:1.5}; E.Plot.range(-0.6,3.4,-0.6,3.4); sld(E,ctrl('가로 늘이기 a','jba',0.5,2.5,0.1,1.5),'jba',function(v){return v.toFixed(2);},function(v){s.ax=v;}); E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s; var a=s.ax,c=0.4,d=1.5;  // a=가로 배율(슬라이더), c=고정 전단, e1=(a,0), e2=(c,d)
       P.axes();
       // 원래 단위정사각형(흐림)
       ctx.strokeStyle='rgba(155,153,163,0.5)'; ctx.lineWidth=1.4; ctx.strokeRect(P.X(0),P.Y(1),P.X(1)-P.X(0),P.Y(0)-P.Y(1));
