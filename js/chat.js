@@ -1,19 +1,53 @@
-/* EduViz AI 튜터 위젯 — math.html / algo.html 공용 (자체 DOM+스타일 주입)
-   - 키(서버리스 프록시 엔드포인트) 미설정 시: "API 키가 제공되지 않았습니다" 안내
-   - 질문 횟수 제한: 등급별(role) 구조. 현재 free=3, admin=무한 (브라우저 localStorage).
-     ★주의: 클라이언트 제한은 우회 가능(시크릿/저장소삭제). 진짜 계정·등급별 게이팅은 로그인+서버DB 필요.
-   - 설정: 프록시 배포 후 HTML에서 window.EDUVIZ_CHAT_ENDPOINT = 'https://...워커.workers.dev' 로 지정.
-           로그인 붙이면 window.EDUVIZ_ROLE = 'admin' | 'free' | 'pro' ... 로 등급 전환. */
+/* EduViz AI 튜터 위젯 — math/algo/physics/calculus 공용 (자체 DOM+스타일 주입)
+   - 모델: Google Gemini Flash-Lite (무료 티어). 키는 Cloudflare Worker 프록시에만 둠.
+   - 무료 티어 한도는 "사이트 전체 공유"(키 1개). 남은 횟수·충전 남은시간은 서버(Worker)가 알려준다.
+   - 장면 컨텍스트(현재 화면의 제목/설명/요약/단계/코드)를 함께 보내 "이 장면 한정 + 필요시 심화" 답변.
+   - 설정: 배포한 Worker 주소를 js/chat-config.js 의 window.EDUVIZ_CHAT_ENDPOINT 에 붙여넣기.
+   서버 응답 규약:
+     POST {question, topic, context}  → 성공 {answer, remaining}  /  소진 {exhausted:true, remaining, resetSeconds, scope}
+     GET  ?status=1                   → {remaining, exhausted, resetSeconds}
+*/
 (function(){
-  // ── 등급별 한도 (나중에 로그인으로 role 주입하면 그대로 동작) ──
-  var LIMITS = { free:3, pro:50, premium:200, admin:Infinity };
-  function role(){ return window.EDUVIZ_ROLE || 'free'; }
-  function limit(){ var l=LIMITS[role()]; return l==null?3:l; }
-  function used(){ return parseInt(localStorage.getItem('eduviz_q_used')||'0',10)||0; }
-  function setUsed(n){ try{ localStorage.setItem('eduviz_q_used', String(n)); }catch(e){} }
-  function remaining(){ var r=limit()-used(); return r<0?0:r; }
   function endpoint(){ return window.EDUVIZ_CHAT_ENDPOINT || ''; }
-  function topic(){ var el=document.getElementById('sceneTitle'); return el?el.textContent.trim():''; }
+
+  // ── 현재 장면 컨텍스트 수집(화면에 보이는 것 그대로 = 학습자가 보는 맥락) ──
+  function txt(id){ var e=document.getElementById(id); if(!e) return '';
+    return (e.innerText||e.textContent||'').replace(/\s+/g,' ').trim(); }
+  function clip(s,n){ return s && s.length>n ? s.slice(0,n)+'…' : (s||''); }
+  function topic(){ return txt('sceneTitle') || ''; }
+  function sceneContext(){
+    var c = {
+      주제: txt('crumb') || (txt('sceneSec')+' '+txt('sceneTitle')).trim(),
+      제목: txt('sceneTitle'),
+      설명: clip(txt('bubble'), 1200),
+      핵심요약: clip(txt('studyMore') || txt('conceptExtra'), 1000),
+      현재단계: clip(txt('stepCap') || txt('stepcap'), 300),
+      연습문제: clip(txt('studyProblem'), 500),
+      코드: clip(txt('codeBody'), 800)
+    };
+    var out={}; for(var k in c){ if(c[k]) out[k]=c[k]; } return out;
+  }
+
+  // ── 무료 티어 상태(서버가 알려주는 공유 카운터) ──
+  var Q = { remaining:null, exhausted:false, resetLeft:0 };  // resetLeft: 초(클라이언트가 1초씩 카운트다운)
+  var tickTimer=null;
+  function stopTick(){ if(tickTimer){ clearInterval(tickTimer); tickTimer=null; } }
+  function startTick(){ stopTick(); tickTimer=setInterval(function(){
+      Q.resetLeft--; if(Q.resetLeft<=0){ stopTick(); Q.exhausted=false; fetchStatus(); }
+      renderFab(); }, 1000); }
+  function setExhausted(secs, remaining){
+    Q.exhausted=true; Q.remaining=(typeof remaining==='number')?remaining:0;
+    Q.resetLeft=Math.max(1, Math.ceil(secs||60)); startTick(); renderFab(); }
+  function fmtTime(secs){ secs=Math.max(0,Math.round(secs));
+    var h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=secs%60;
+    function p(n){ return (n<10?'0':'')+n; }
+    return h>0 ? (p(h)+':'+p(m)+':'+p(s)) : (p(m)+':'+p(s)); }
+
+  function fetchStatus(){ var ep=endpoint(); if(!ep){ Q.remaining=null; renderFab(); return; }
+    fetch(ep+(ep.indexOf('?')>=0?'&':'?')+'status=1').then(function(r){ return r.json(); }).then(function(d){
+      if(d && d.exhausted){ setExhausted(d.resetSeconds, 0); }
+      else { Q.exhausted=false; stopTick(); Q.remaining=(d&&typeof d.remaining==='number')?d.remaining:null; renderFab(); }
+    }).catch(function(){ renderFab(); }); }
 
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
 
@@ -21,10 +55,13 @@
     if(document.getElementById('eduviz-chat-style')) return;
     var s=el('style'); s.id='eduviz-chat-style';
     s.textContent = [
-      '.cw-fab{position:fixed;top:10px;right:62px;z-index:30;display:flex;align-items:center;gap:6px;',
-        'background:var(--accent,#4f93d6);color:#fff;border:none;border-radius:999px;padding:7px 14px;',
-        'font-size:13.5px;font-family:inherit;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3);}',
+      '.cw-wrap{position:fixed;top:10px;right:62px;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:3px;}',
+      '.cw-fab{display:flex;align-items:center;gap:6px;background:var(--accent,#4f93d6);color:#fff;border:none;',
+        'border-radius:999px;padding:7px 14px;font-size:13.5px;font-family:inherit;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3);white-space:nowrap;}',
       '.cw-fab:hover{filter:brightness(1.08);}',
+      '.cw-fab.cw-cool{background:#6b6f7a;cursor:default;font-variant-numeric:tabular-nums;}',
+      '.cw-sub{font-size:11px;color:var(--text-1,#e9e7e0);background:rgba(0,0,0,.42);border-radius:6px;padding:1px 8px;pointer-events:none;line-height:1.5;}',
+      '.cw-sub.zero{color:#f0a0a0;}',
       '.cw-ov{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
       '.cw-ov.open{display:flex;}',
       '.cw-card{width:min(540px,92vw);max-height:84vh;display:flex;flex-direction:column;',
@@ -50,42 +87,67 @@
     document.head.appendChild(s);
   }
 
-  var ovEl, bodyEl, inEl, sendEl, metaEl, busy=false;
+  var ovEl, bodyEl, inEl, sendEl, metaEl, fabEl, fabLabel, subEl, busy=false;
 
   function addMsg(kind, text){ var m=el('div','cw-msg '+kind); m.textContent=text; bodyEl.appendChild(m); bodyEl.scrollTop=bodyEl.scrollHeight; return m; }
+
+  // ── FAB(버튼) + 하단 횟수 라벨 렌더 ──
+  function renderFab(){
+    if(!fabEl) return;
+    if(Q.exhausted){ fabLabel.textContent='토큰충전 남은시간 '+fmtTime(Q.resetLeft); fabEl.classList.add('cw-cool'); }
+    else { fabLabel.textContent='🤖 AI 질문'; fabEl.classList.remove('cw-cool'); }
+    if(Q.remaining==null){ subEl.textContent=''; subEl.classList.remove('zero'); }
+    else { subEl.textContent='추가 질문 '+Q.remaining+'회'; subEl.classList.toggle('zero', Q.remaining<=0); }
+    if(metaEl && ovEl && ovEl.classList.contains('open')) refreshMeta();
+  }
+
   function refreshMeta(){
-    var r=remaining(), lim=limit();
-    metaEl.querySelector('.cw-left').textContent = (lim===Infinity)? '질문 무제한 ('+role()+')' : ('남은 질문 '+r+' / '+lim);
-    var done = (lim!==Infinity && r<=0);
-    inEl.disabled=done; sendEl.disabled=done||busy;
-    inEl.placeholder = done ? '무료 질문을 모두 사용했습니다' : '이 주제에 대해 궁금한 점을 물어보세요…';
+    if(!metaEl) return;
+    var left = Q.exhausted ? ('충전까지 '+fmtTime(Q.resetLeft))
+             : (Q.remaining==null ? '' : ('오늘 남은 질문 '+Q.remaining+'회'));
+    metaEl.querySelector('.cw-left').textContent = left;
+    var blocked = Q.exhausted || (typeof Q.remaining==='number' && Q.remaining<=0) || !endpoint();
+    inEl.disabled = blocked; sendEl.disabled = blocked || busy;
+    inEl.placeholder = Q.exhausted ? ('충전까지 '+fmtTime(Q.resetLeft)+' 남았습니다')
+                     : (blocked && endpoint() ? '무료 질문을 모두 사용했습니다' : '이 장면에 대해 궁금한 점을 물어보세요…');
   }
 
   function send(){
     if(busy) return;
     var q=(inEl.value||'').trim(); if(!q) return;
     if(q.length>1000){ addMsg('sys','질문이 너무 깁니다 (1000자 이내).'); return; }
-    if(limit()!==Infinity && remaining()<=0){ addMsg('sys','질문 횟수를 모두 사용했습니다.'); return; }
-    addMsg('u', q); inEl.value='';
+    if(Q.exhausted || (typeof Q.remaining==='number' && Q.remaining<=0)){
+      addMsg('sys','무료 질문을 모두 사용했습니다. 충전까지 '+fmtTime(Q.resetLeft)+' 남았어요.'); return; }
     var ep=endpoint();
-    if(!ep){ addMsg('a','⚠️ API 키가 제공되지 않았습니다.'); return; }   // 키/프록시 미설정
+    addMsg('u', q); inEl.value=''; inEl.style.height='auto';
+    if(!ep){ addMsg('a','⚠️ AI 답변이 아직 설정되지 않았습니다. (관리자가 Worker 주소를 등록하면 활성화됩니다.)'); return; }
     busy=true; refreshMeta();
     var th=addMsg('sys','…생각 중');
     fetch(ep, { method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ question:q, topic:topic() }) })
+      body: JSON.stringify({ question:q, topic:topic(), context:sceneContext() }) })
       .then(function(r){ return r.json().catch(function(){ return {error:'bad'}; }); })
       .then(function(d){ th.remove();
-        if(d && d.error==='no_key'){ addMsg('a','⚠️ API 키가 제공되지 않았습니다.'); }
-        else if(d && d.answer){ addMsg('a', d.answer); if(limit()!==Infinity) setUsed(used()+1); }
+        if(d && d.error==='no_key'){ addMsg('a','⚠️ AI 키가 설정되지 않았습니다.'); }
+        else if(d && d.exhausted){
+          addMsg('a','무료 질문을 모두 사용했습니다. '+fmtTime(d.resetSeconds)+' 후 다시 질문할 수 있어요.');
+          setExhausted(d.resetSeconds, d.remaining); }
+        else if(d && d.answer){
+          addMsg('a', d.answer);
+          if(typeof d.remaining==='number'){ Q.remaining=d.remaining; Q.exhausted=false; stopTick(); }
+          renderFab(); }
         else { addMsg('a','답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
       })
-      .catch(function(){ th.remove(); addMsg('a','⚠️ API 키가 제공되지 않았습니다.'); })
+      .catch(function(){ th.remove(); addMsg('a','일시적 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); })
       .then(function(){ busy=false; refreshMeta(); });
   }
 
   function build(){
     injectStyle();
-    var fab=el('button','cw-fab','🤖 AI 질문');
+    var wrap=el('div','cw-wrap');
+    fabEl=el('button','cw-fab'); fabLabel=el('span',null,'🤖 AI 질문'); fabEl.appendChild(fabLabel);
+    subEl=el('div','cw-sub','');
+    wrap.appendChild(fabEl); wrap.appendChild(subEl);
+
     var ov=el('div','cw-ov'); ovEl=ov;
     var card=el('div','cw-card');
     var head=el('div','cw-head');
@@ -101,18 +163,24 @@
     metaEl=el('div','cw-meta','<span class="cw-left"></span><span class="cw-right">Enter 전송 · Shift+Enter 줄바꿈</span>');
     foot.appendChild(row); foot.appendChild(metaEl);
     card.appendChild(head); card.appendChild(bodyEl); card.appendChild(foot);
-    ov.appendChild(card); document.body.appendChild(ov); document.body.appendChild(fab);
+    ov.appendChild(card); document.body.appendChild(ov); document.body.appendChild(wrap);
 
-    function open(){ tp.textContent = topic()||'일반'; ov.classList.add('open');
-      if(!bodyEl.children.length){ addMsg('sys', endpoint()? '"'+(topic()||'이 주제')+'"에 대해 무엇이든 물어보세요.' : 'API 키가 제공되지 않았습니다. (관리자가 키를 설정하면 답변이 활성화됩니다.)'); }
-      refreshMeta(); setTimeout(function(){ inEl.focus(); },50); }
+    function open(){ tp.textContent = topic()||'이 장면';
+      if(!bodyEl.children.length){
+        addMsg('sys', endpoint()
+          ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. (이해를 돕는 심화 설명도 해 드려요.)'
+          : 'AI 답변이 아직 설정되지 않았습니다. (관리자가 Worker 주소를 등록하면 활성화됩니다.)'); }
+      ov.classList.add('open'); refreshMeta(); setTimeout(function(){ if(!inEl.disabled) inEl.focus(); },50); }
     function close(){ ov.classList.remove('open'); }
-    fab.onclick=open; x.onclick=close;
+    fabEl.onclick=open; x.onclick=close;
     ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
     sendEl.onclick=send;
     inEl.addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); } });
     inEl.addEventListener('input', function(){ inEl.style.height='auto'; inEl.style.height=Math.min(120,inEl.scrollHeight)+'px'; });
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+
+    renderFab();
+    fetchStatus();   // 로드 시 사이트 공유 남은 횟수·충전 상태 조회
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', build); else build();
