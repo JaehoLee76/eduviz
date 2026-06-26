@@ -168,7 +168,7 @@
     inEl=el('textarea','cw-in'); inEl.rows=1;
     sendEl=el('button','cw-send','보내기');
     row.appendChild(inEl); row.appendChild(sendEl);
-    metaEl=el('div','cw-meta','<span class="cw-left"></span><span class="cw-right">Enter 전송 · Shift+Enter 줄바꿈</span>');
+    metaEl=el('div','cw-meta','<span class="cw-left"></span><span class="cw-right">최근 5턴 기억 · Enter 전송</span>');
     foot.appendChild(row); foot.appendChild(metaEl);
     card.appendChild(head); card.appendChild(bodyEl); card.appendChild(foot);
     ov.appendChild(card); document.body.appendChild(ov); document.body.appendChild(wrap);
@@ -177,7 +177,7 @@
       if(sceneKey()!==threadScene){ resetThread(); }   // 장면 바뀌면 이전 대화 비우고 새로 시작
       if(!bodyEl.children.length){
         addMsg('sys', endpoint()
-          ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. (이해를 돕는 심화 설명도 해 드려요.)'
+          ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. 이어지는 후속 질문도 됩니다 — 단, 대화는 최근 5턴까지만 기억합니다(그 이전 내용은 잊을 수 있어요).'
           : 'AI 답변이 아직 설정되지 않았습니다. (관리자가 Worker 주소를 등록하면 활성화됩니다.)'); }
       ov.classList.add('open'); refreshMeta(); setTimeout(function(){ if(!inEl.disabled) inEl.focus(); },50); }
     function close(){ ov.classList.remove('open'); }
