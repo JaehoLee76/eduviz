@@ -518,7 +518,7 @@
     ctx.font='11px sans-serif'; var cwid=[], chipW=0;
     for(var i=0;i<chips.length;i++){ var lw=ctx.measureText(chips[i][1]).width, w0=22+4+lw; cwid.push(w0); chipW+=w0+(i?11:0); }
     var gap=(text&&chips.length)?16:0, inner=tw+gap+chipW, w=inner+36, h=38, x=cx-w/2, y=cy-h/2;
-    var pa=pulse?(0.55+0.45*Math.sin(frameN*0.10)):0.85;
+    var pa=pulse?(0.55+0.45*Math.sin(frameN*0.05)):0.85;
     ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,19);ctx.fill();}else ctx.fillRect(x,y,w,h);
     ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,19);ctx.stroke();}else ctx.strokeRect(x,y,w,h);
     var px=cx-inner/2;
