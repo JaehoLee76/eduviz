@@ -1,0 +1,62 @@
+{
+  "phys25_01": {
+    "ch": "물리학 제10장 온도와 열",
+    "narr": "앞에서 역학과 파동을 다뤘으니, 이제 <b>열</b>의 세계로 들어갑니다. 가장 먼저, '뜨겁다·차갑다'는 무슨 뜻일까요? 뜨거운 커피잔을 손에 쥐면 잔은 식고 손은 따뜻해지죠 — 둘이 같은 온도가 될 때까지요. 이렇게 온도가 다른 두 물체가 닿으면, <b>열은 언제나 고온에서 저온으로</b> 흐르고, 마침내 <b>같은 온도(열평형)</b>에 도달해 멈춥니다. 거꾸로(저온→고온 저절로)는 결코 일어나지 않죠. 화면에서 뜨거운 A와 차가운 B를 붙여 보면, A는 식고 B는 데워지며 둘이 중간 온도로 수렴합니다. 이 '온도가 같아지면 열교환이 멈춘다'는 당연해 보이는 사실이 바로 <b>열역학 제0법칙</b> — 온도계로 온도를 '측정'할 수 있는 근거입니다(온도계도 대상과 열평형을 이뤄 같은 온도를 가리키니까요).",
+    "more": "<b>온도와 열평형</b>: 온도 = 뜨겁고 찬 정도(분자 평균 운동E의 척도). 열 Q = 온도차로 이동하는 에너지(고온→저온). 접촉한 두 물체는 열교환으로 <b>열평형</b>(같은 온도) 도달. <b>열역학 제0법칙</b>: A·B가 각각 C와 열평형이면 A·B도 열평형 → 온도 측정의 근거. 같은 질량·비열이면 평형온도=평균.",
+    "more_en": "<b>Temperature & equilibrium</b>: temperature measures hotness (mean molecular KE). Heat Q flows from hot to cold until <b>thermal equilibrium</b> (equal T). The <b>zeroth law</b>: if A and B each equal C, they equal each other — the basis for thermometers.",
+    "problem": {
+      "q": "90°C 물과 10°C 물(같은 양)을 섞으면 평형 온도는?",
+      "solution": "같은 질량·비열이라 평균 — <b>(90+10)/2 = 50°C</b>입니다.",
+      "q_en": "Mix equal amounts of 90°C and 10°C water. Equilibrium temperature?",
+      "sol_en": "Equal mass and specific heat, so the average — <b>(90+10)/2 = 50°C</b>."
+    }
+  },
+  "phys25_02": {
+    "ch": "물리학 제10장 온도와 열",
+    "narr": "물질을 데우면 분자들이 더 격렬하게 진동하며 서로를 밀어내, 대부분 <b>부풀어 오릅니다</b> — 열팽창이죠. 늘어나는 길이는 <b>ΔL = α·L·ΔT</b>(α=열팽창계수, 물질 고유)로, 원래 길고(L) 많이 데울수록(ΔT) 크게 늘어납니다. 눈엔 안 보일 만큼 작지만 그 힘은 어마어마해서, 다리·철로엔 일부러 <b>이음매 틈</b>을 두고(여름에 안 휘게), 기차 레일이 폭염에 휘어 사고가 나기도 합니다. 더 영리하게는, <b>팽창계수가 다른 두 금속을 붙인 바이메탈</b>이 온도에 따라 한쪽으로 휘어집니다 — 화면처럼요. 이 휨이 다리미·보일러의 <b>온도조절기(자동 on/off)</b>가 되죠. 참고로 물은 예외라서 4°C 아래선 오히려 팽창해(얼음이 물에 뜸), 호수가 바닥부터 얼지 않아 물고기가 겨울을 납니다.",
+    "more": "<b>열팽창</b>: ΔL = α·L·ΔT(선팽창), 부피는 ΔV ≈ 3α·V·ΔT. α는 물질 고유(금속>유리). 응용·대비: 다리·철로 이음매, 바이메탈 온도조절기, 열간끼워맞춤. <b>물의 이상</b>: 0~4°C서 부피 감소(4°C서 최대 밀도) → 얼음이 뜨고 호수가 위부터 얼어 생명 보호.",
+    "more_en": "<b>Thermal expansion</b>: ΔL = α·L·ΔT (volume ≈ 3α·V·ΔT). α is material-specific. Used in expansion joints and bimetal thermostats. Water is anomalous (densest at 4°C), so ice floats and lakes freeze top-down, protecting life.",
+    "problem": {
+      "q": "여름철 기차 레일 사이에 틈을 두는 이유는?",
+      "solution": "더우면 ΔL=αLΔT로 <b>레일이 늘어나</b>, 틈이 없으면 휘어 버리기 때문입니다(열팽창 대비).",
+      "q_en": "Why leave gaps between railroad rails in summer?",
+      "sol_en": "Heat expands them (ΔL=αLΔT); without gaps the rails would buckle."
+    }
+  },
+  "phys25_03": {
+    "ch": "물리학 제10장 온도와 열",
+    "narr": "같은 불에 같은 양의 물과 철을 올리면, 철이 훨씬 빨리 뜨거워집니다. 왜일까요? 물질마다 <b>1도 올리는 데 필요한 열</b>이 다르기 때문이에요 — 이걸 <b>비열 c</b>라 합니다. 관계식은 <b>Q = m·c·ΔT</b>: 데우는 데 든 열은 질량×비열×온도변화죠. 물의 비열(4.2)은 철(0.45)의 약 10배라, 같은 열을 줘도 물은 천천히 데워지고 천천히 식습니다. 이 '둔함'이 축복이에요 — 바다와 호수가 거대한 열 저장고가 되어 지구 기후를 안정시키고(해안가가 온화한 이유), 우리 몸의 70%인 물이 체온을 일정하게 지켜 줍니다. 자동차 냉각수로 물을 쓰는 것도, 핫팩이 오래 따뜻한 것도 모두 물의 큰 비열 덕분입니다. 화면에서 같은 열 Q를 줘도 비열 작은 철이 훨씬 빨리 뜨거워지는 걸 보세요.",
+    "more": "<b>비열 c</b>: 물질 1kg을 1K 올리는 데 필요한 열. <b>Q = m·c·ΔT</b>. 물 c=4.2 kJ/kg·K(매우 큼)·철 0.45·알루미늄 0.9. 큰 비열=데우기/식히기 어려움. 물의 큰 비열 → 기후 완화·체온 유지·냉각수. 열량계로 비열 측정(에너지 보존: 잃은 열=얻은 열).",
+    "more_en": "<b>Specific heat c</b>: heat to raise 1 kg by 1 K. <b>Q = m·c·ΔT</b>. Water (4.2) is ~10× iron (0.45). High c = hard to heat/cool. Water's large c moderates climate, stabilizes body temperature, and makes good coolant.",
+    "problem": {
+      "q": "같은 열을 받았을 때 물과 철 중 온도가 더 빨리 오르는 쪽은?",
+      "solution": "비열이 작은 <b>철</b>입니다. ΔT=Q/(mc)이므로 c가 작을수록 같은 열에 온도가 더 오릅니다.",
+      "q_en": "Given the same heat, which warms faster — water or iron?",
+      "sol_en": "<b>Iron</b> (smaller c): ΔT=Q/(mc), so smaller specific heat means a bigger temperature rise."
+    }
+  },
+  "phys25_04": {
+    "ch": "물리학 제10장 온도와 열",
+    "narr": "얼음을 계속 가열하면 온도가 쭉 오르다가 — 0°C에서 <b>딱 멈춥니다.</b> 열을 계속 주는데도 얼음이 다 녹을 때까지 온도가 0°C에 머물러요. 다 녹은 뒤에야 다시 오르고, 100°C에서 또 멈춥니다(다 끓을 때까지). 왜 열을 주는데 온도가 안 오를까요? 그 열(<b>잠열</b>)이 온도를 올리는 대신 <b>분자 사이의 결합을 끊는 데</b> 쓰이기 때문입니다 — 얼음 격자를 풀어 물로(융해열), 물 분자를 떼어내 기체로(기화열). 그래서 가열곡선에 <b>두 개의 평탄구간</b>이 생기죠(화면 참고). 이 숨은 열이 일상을 지배합니다: 땀이 증발하며 기화열을 빼앗아 몸을 식히고, 얼음이 음료를 오래 차갑게 유지하며(녹는 데 큰 잠열 흡수), 수증기 화상이 끓는 물보다 위험한 건 응결하며 큰 기화열을 쏟아내기 때문입니다.",
+    "more": "<b>잠열·상변화</b>: 상변화(고↔액↔기) 중에는 가한 열이 온도 대신 <b>결합 끊기/잇기</b>에 쓰여 온도 일정. 융해열(얼음→물)·기화열(물→수증기, 훨씬 큼). 가열곡선에 평탄구간 2개. 응용: 땀(증발 냉각)·얼음 냉각·수증기 화상·히트펌프. Q=mL(L=잠열).",
+    "more_en": "<b>Latent heat / phase change</b>: during a phase change, heat breaks/forms bonds instead of raising T (temperature stays flat). Heat of fusion (ice→water) and vaporization (water→steam, much larger). Two plateaus in the heating curve. Explains sweat cooling, ice's staying power, and steam burns.",
+    "problem": {
+      "q": "0°C 얼음에 열을 주는데도 한동안 온도가 0°C에 머무는 이유는?",
+      "solution": "그 열(<b>융해 잠열</b>)이 온도를 올리는 대신 <b>얼음을 물로 녹이는</b> 데 쓰이기 때문입니다.",
+      "q_en": "Why does 0°C ice stay at 0°C for a while even as you add heat?",
+      "sol_en": "The heat (<b>latent heat of fusion</b>) goes into melting the ice, not raising its temperature."
+    }
+  },
+  "phys25_05": {
+    "ch": "물리학 제10장 온도와 열",
+    "narr": "열은 고온에서 저온으로 흐른다고 했는데, 정확히 <b>어떻게</b> 흐를까요? 세 가지 길이 있습니다. <b>전도</b>: 고체 속에서 분자 진동이 이웃에게 차례로 전달됩니다 — 쇠숟가락을 뜨거운 국에 담그면 손잡이까지 뜨거워지죠(금속이 잘 전도, 나무·공기는 단열). <b>대류</b>: 데워진 액체·기체가 직접 움직여 열을 나릅니다 — 끓는 물이 위아래로 돌고, 따뜻한 공기가 올라가며 바람·해류·날씨를 만듭니다. <b>복사</b>: 매질 없이 전자기파(빛)로 전달됩니다 — 태양열이 진공의 우주를 건너오고, 난로 앞이 따뜻한 것(복사는 T⁴에 비례해 뜨거울수록 급증). 화면에서 세 방식을 동시에 보세요. 보온병이 뜨거운 걸 오래 유지하는 비결이 바로 이 셋을 모두 막는 것입니다 — 진공층(전도·대류 차단) + 은도금 거울(복사 반사). 다음 장에서는 이 열을 분자 하나하나의 눈높이에서, 기체의 운동론으로 파고듭니다.",
+    "more": "<b>열전달 3가지</b>: ①전도(고체, 분자 진동 전달, ∝kAΔT/L) ②대류(유체 이동, 끓는 물·바람·해류) ③복사(전자기파, 매질 불필요, ∝T⁴, 태양·난로). 온도차 클수록 빠름. 단열: 보온병(진공+거울)·이중창·옷(공기층). 모두 고온→저온(2법칙).",
+    "more_en": "<b>Three modes of heat transfer</b>: conduction (solids, ∝kAΔT/L), convection (fluid motion), radiation (EM waves, no medium, ∝T⁴). Faster with larger ΔT. Insulation blocks all three (thermos: vacuum + mirror). Always hot→cold.",
+    "problem": {
+      "q": "태양의 열이 진공의 우주를 건너 지구에 닿는 방식은?",
+      "solution": "<b>복사</b>입니다. 전자기파(빛)는 매질 없이도 전달되므로, 진공을 건너올 수 있습니다.",
+      "q_en": "How does the Sun's heat cross the vacuum of space to Earth?",
+      "sol_en": "By <b>radiation</b> — electromagnetic waves need no medium, so they cross a vacuum."
+    }
+  }
+}

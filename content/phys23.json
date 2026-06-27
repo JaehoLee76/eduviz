@@ -1,6 +1,6 @@
 {
   "phys23_01": {
-    "ch": "물리학 제12장 가우스 법칙",
+    "ch": "물리학 제13장 가우스 법칙",
     "narr": "앞 장에서 전하 둘레에 전기장(전기력선)이 뻗어 나가는 걸 봤습니다. 이제 그 선들이 어떤 '면'을 <b>몇 개나 뚫고 지나가는지</b>를 세어 보겠습니다 — 이걸 <b>전기선속</b>이라 합니다. 비가 내리는 곳에 그물을 들고 있다고 생각해 보세요. 그물을 비에 똑바로(수직) 대면 가장 많은 빗방울이 통과하고, 그물을 옆으로(나란히) 눕히면 한 방울도 안 지나가죠. 전기선속도 똑같습니다 — <b>Φ = E·A·cosθ</b>(E=전기장, A=면 넓이, θ=면 법선과 장 사이 각). 화면에서 면을 기울이면 통과하는 초록 선이 cosθ로 줄어드는 걸 보세요. 이 '면을 뚫는 양'이라는 단순한 개념이, 다음 장면에서 전자기학의 가장 우아한 법칙으로 이어집니다.",
     "more": "<b>전기선속 Φ = E·A·cosθ</b>(단위 N·m²/C). 면에 수직(θ=0) 최대, 나란(θ=90°) 0. 선속 = 면을 뚫는 전기력선의 수. 닫힌 면 전체의 순선속이 가우스 법칙의 주인공(다음 장면). 자기선속(Φ=BAcosθ)과 같은 꼴.",
     "more_en": "<b>Electric flux Φ = E·A·cosθ</b>. Max when the surface is perpendicular to E (θ=0), zero when parallel. Flux = number of field lines crossing the surface. The net flux through a closed surface drives Gauss's law.",
@@ -12,7 +12,7 @@
     }
   },
   "phys23_02": {
-    "ch": "물리학 제12장 가우스 법칙",
+    "ch": "물리학 제13장 가우스 법칙",
     "narr": "이제 전하를 <b>닫힌 면</b>(가우스면)으로 완전히 감싸 봅시다. 전구를 비눗방울로 감싸면, 방울을 뚫고 나오는 빛줄기의 총수는 방울이 크든 작든 똑같죠 — 빛은 전구에서만 나오니까요. 전기장도 정확히 그렇습니다: <b>닫힌 면을 뚫고 나오는 전기선속의 총량은 그 안에 갇힌 전하 Q에만 비례</b>합니다 — <b>가우스 법칙 Φ = Q/ε₀</b>. 가우스면의 크기·모양과는 완전히 무관해요! 화면에서 면의 반지름을 키워 보세요 — 면은 넓어지지만 전기장이 1/r²로 약해져 정확히 상쇄되어, 뚫는 선의 수(선속)는 그대로입니다. 이게 맥스웰 방정식의 첫 번째 — 전기장과 전하의 가장 근본적인 관계입니다. 그리고 이 법칙엔 숨은 초능력이 있습니다(다음 장면).",
     "more": "<b>가우스 법칙: Φ = Q_enc/ε₀</b>. 닫힌 면의 순 전기선속은 내부 갇힌 전하에만 비례(면의 크기·모양 무관). 외부 전하는 들어온 만큼 나가 순선속 0. 맥스웰 방정식 1번(전기). 대칭(구·원통·평면)일 때 전기장을 적분 없이 구하는 강력한 도구.",
     "more_en": "<b>Gauss's law: Φ = Q_enc/ε₀</b>. The net electric flux through a closed surface depends only on the enclosed charge (independent of size/shape). External charges contribute zero net flux. Maxwell's first equation; a powerful shortcut for symmetric fields.",
@@ -24,7 +24,7 @@
     }
   },
   "phys23_03": {
-    "ch": "물리학 제12장 가우스 법칙",
+    "ch": "물리학 제13장 가우스 법칙",
     "narr": "가우스 법칙의 초능력은 이겁니다 — <b>대칭만 있으면 복잡한 적분 없이 전기장을 단숨에</b> 구합니다. 균일하게 대전된 <b>구껍질</b>을 봅시다. 바깥(r>R)에서는 가우스면이 전체 전하 Q를 감싸므로, 마치 모든 전하가 중심에 모인 점전하처럼 <b>E = kQ/r²</b>입니다. 그런데 껍질 <b>안쪽(r<R)</b>은 충격적이에요 — 가우스면 안에 갇힌 전하가 <b>0</b>이라, <b>E = 0</b>! 껍질이 아무리 강하게 대전돼 있어도 그 속은 완벽한 무풍지대입니다. 화면에서 측정 거리 r을 안팎으로 옮기며 E(r) 곡선이 R에서 뚝 떨어져 0이 되는 걸 보세요. 이 '내부 0'이 다음 장면의 도체 차폐로 이어집니다.",
     "more": "<b>가우스 응용(구 대칭)</b>: 대전 구껍질 — 외부(r>R) E=kQ/r²(점전하처럼), 내부(r<R) <b>E=0</b>(갇힌 전하 0). 균일 대전 구(속찬 공)는 내부 E∝r. 적분 없이 대칭+가우스로 유도. 원통(선전하 E∝1/r)·평면에도 같은 방법 적용.",
     "more_en": "<b>Gauss (spherical symmetry)</b>: a charged shell — outside (r>R) E=kQ/r² (like a point charge), inside (r<R) <b>E=0</b> (no enclosed charge). A uniformly charged solid sphere has E∝r inside. Derived without integration via symmetry.",
@@ -36,7 +36,7 @@
     }
   },
   "phys23_04": {
-    "ch": "물리학 제12장 가우스 법칙",
+    "ch": "물리학 제13장 가우스 법칙",
     "narr": "이번엔 무한히 넓은 대전 평면입니다. 직관으로는 멀어질수록 전기장이 약해질 것 같지만 — 가우스 법칙이 놀라운 답을 줍니다: <b>E = σ/2ε₀</b>(σ=면전하밀도), 그리고 이건 평면에서 <b>아무리 멀어져도 변하지 않는 균일한 전기장</b>입니다! 점전하는 1/r²로 급격히 약해지는데, 무한 평면은 왜 그대로일까요? 멀어질수록 '보이는' 전하 면적이 넓어져 약해짐을 정확히 보충하기 때문이죠. 화면에서 화살표(전기장)가 거리와 상관없이 같은 길이인 걸 보세요. 두 평면을 +·−로 마주 보게 하면 사이에 완벽한 균일장이 생기는데 — 이게 바로 우리가 12장(전위·전기용량)에서 본 <b>축전기</b>의 평행판 균일장입니다. 가우스가 그 균일장의 근거였어요.",
     "more": "<b>가우스 응용(평면)</b>: 무한 대전 평면 <b>E = σ/2ε₀</b>(거리 무관, 균일장). 도체 표면 바로 바깥은 E=σ/ε₀. 평행판 축전기 사이 균일장의 근거. 점전하(1/r²)·선전하(1/r)와 달리 평면은 거리 독립 — 무한 대칭의 결과.",
     "more_en": "<b>Gauss (planar)</b>: an infinite charged plane gives <b>E = σ/2ε₀</b> — uniform, independent of distance. Just outside a conductor surface, E=σ/ε₀. This is the origin of the uniform field between capacitor plates. Unlike a point (1/r²), a plane's field doesn't fall off.",
@@ -48,7 +48,7 @@
     }
   },
   "phys23_05": {
-    "ch": "물리학 제12장 가우스 법칙",
+    "ch": "물리학 제13장 가우스 법칙",
     "narr": "가우스 법칙의 가장 실용적인 결론 — <b>도체 내부의 전기장은 항상 0</b>입니다. 왜일까요? 도체 안에는 자유전자가 가득한데, 외부 전기장이 걸리면 이 전자들이 즉시 <b>재배치</b>됩니다 — 한쪽 면엔 −, 반대쪽엔 + 유도전하가 모여, 그들이 만드는 장이 외부 장을 <b>내부에서 정확히 상쇄</b>해요. 결과적으로 도체 속은 완벽한 무풍지대가 됩니다. 그래서 도체로 둘러싸인 공간은 외부 전기장·번개로부터 보호받죠 — <b>패러데이 새장</b>입니다. 자동차나 비행기가 번개에 맞아도 안에 탄 사람이 안전한 이유, 민감한 전자기기를 금속 케이스로 감싸는 이유(전자기 차폐)가 모두 이것입니다. 화면에서 외부 장을 키워도 도체 내부 'E=0'이 유지되는 걸 보세요. (가우스 법칙: 도체 내부에 가우스면을 그리면 갇힌 전하 0 → E=0.)",
     "more": "<b>도체와 가우스</b>: 정전기 평형 도체 — 내부 E=0(자유전하 재배치로 외부장 상쇄), 잉여 전하는 표면에만, 표면 바로 밖 E=σ/ε₀(표면 수직). 내부에 가우스면→갇힌 전하 0→E=0. <b>패러데이 새장</b>: 도체로 감싼 공간은 외부 전기장 차폐(차·비행기 번개 안전·전자기 차폐·전자레인지 문). 첨단부 방전(피뢰침).",
     "more_en": "<b>Conductors & Gauss</b>: in electrostatic equilibrium, interior E=0 (free charges rearrange to cancel any external field), excess charge sits on the surface, just outside E=σ/ε₀. <b>Faraday cage</b>: a conductor shields its interior (cars/planes safe in lightning, EM shielding, microwave door).",
