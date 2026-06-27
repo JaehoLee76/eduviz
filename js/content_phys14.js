@@ -11,35 +11,6 @@
 
   var scenes=[
 
-  // ══════════ 14.4 광전효과 — 빛은 입자(광자)이기도 ══════════
-  { id:'phys14_04',
-    enter:function(E){ var self=this; this.s={f:6,t:0,W:3};
-      E.controls('<div class="ctrl"><label>빛 진동수 f (광자 에너지 ∝ f)</label><input type="range" id="ff" min="1" max="10" step="1" value="6"><output id="ffo">6</output></div>');
-      E.bind('#ff','input',function(e){ self.s.f=+e.target.value; document.getElementById('ffo').textContent=e.target.value; E.blip(200+self.s.f*70,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
-      var Eph=s.f, KE=Eph-s.W, emit=KE>0, plateX=W*0.46, cy=H*0.44;
-      // 금속판
-      ctx.fillStyle='rgba(180,180,200,0.25)'; ctx.fillRect(plateX,H*0.18,30,H*0.5);
-      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2; ctx.strokeRect(plateX,H*0.18,30,H*0.5);
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('금속', plateX+15, H*0.74);
-      // 광자(왼쪽에서 날아옴) — 진동수 높을수록 푸른/보라
-      var ph=(s.t*2)%1; for(var i=0;i<4;i++){ var px=W*0.08+((ph+i*0.25)%1)*(plateX-W*0.08), py=cy-40+i*26;
-        var col=s.f<4?'#e2503a':s.f<7?'#5cd0ff':'#9b6bff'; ctx.strokeStyle=col; ctx.lineWidth=2;
-        ctx.beginPath(); for(var w=0;w<20;w++){ var wx=px+w, wy=py+Math.sin(w*0.8+s.t*10)*4; if(w===0)ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy); } ctx.stroke(); }
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('광자 (E=hf='+Eph+')', W*0.07, cy-58);
-      // 전자 방출 여부
-      if(emit){ var ep=(s.t*1.5)%1; for(var k=0;k<3;k++){ var ex=plateX+30+((ep+k*0.33)%1)*(W*0.4), ey=cy-20+k*20-((ep+k*0.33))*30;
-        ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ex,ey,5,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 9px sans-serif'; ctx.fillText('e', ex, ey+3); }
-        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('전자 방출! KE = hf − W = '+KE.toFixed(1), W*0.6, H*0.24);
-      } else { ctx.fillStyle='#ff7a7a'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('✗ 전자 방출 없음 (hf < W)', W*0.66, H*0.30); }
-      // 에너지 막대
-      var bx=W*0.10, baseY=H*0.92; ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('광자에너지 hf='+Eph+' vs 일함수 W='+s.W+(emit?' → KE='+KE.toFixed(1):' → 부족'), bx, baseY);
-      E.tapHint(W/2, H*0.84, '진동수가 문턱을 넘어야 전자 방출 (밝기는 무관)', true);
-      E.big('광전효과 — 빛은 알갱이(광자), E = hf', '상식대로면 빛을 <b>밝게</b> 쪼일수록 전자가 잘 나와야겠죠. 그런데 붉은빛은 눈부시게 밝혀도 전자가 한 개도 안 나오고, 푸른빛은 희미해도 즉시 튀어나옵니다 — 밝기가 아니라 색(진동수)이 문제입니다. 부드러운 파동으로는 설명 불가. 빛은 <b>에너지 E=hf짜리 알갱이(광자)</b>가 우박처럼 쏟아지는 것이라, 한 알이 충분히 세게 때려야만 전자가 떨어집니다(아인슈타인, 노벨상). 약한 광자는 아무리 많아도 소용없죠. 빛은 파동이자 알갱이 — 양자역학의 문이 열립니다.'); }
-  },
-
   // ══════════ 14.5 시간 팽창 — 특수상대성 ══════════
   { id:'phys14_05',
     enter:function(E){ var self=this; this.s={beta:0.6,t:0};
@@ -68,37 +39,6 @@
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('γ = '+gamma.toFixed(2)+'배 느림', bx, botY+40);
       E.tapHint(W/2, H*0.86, '속도가 빠를수록 시간이 더 느려집니다', true);
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '당신이 빛을 향해 달려가든 도망가든 빛 속도는 늘 같다 — 실험으로 확인된 이 한 줄에서 시간이 늘어납니다. 옆으로 움직이는 시계의 빛은 위아래만이 아니라 <b>비스듬한 더 긴 경로</b>를 달려야 하는데, 빛은 더 빨라질 수 없으니 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느려집니다</b>(γ배). 마법이 아니라 논리의 강제입니다. 빠를수록(β→1) 극적으로 느려져, GPS 위성도 매일 이 보정을 받습니다. 질량조차 잠든 에너지일 뿐 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌, 우리가 사는 우주의 규칙입니다.'); }
-  },
-
-  // ─── 심화: 보어 원자모형 ───
-  { id:'phys14_04_bohr', branchOf:'phys14_04', ord:1,
-    enter:function(E){ var self=this; this.s={ni:3,nf:2,t:0,phase:0};
-      E.controls('<div class="ctrl"><label>전이: 높은 준위 n</label><input type="range" id="ni" min="2" max="5" step="1" value="3"><output id="nio">3</output>'
-        +'<label style="margin-left:14px">낮은 준위 n</label><input type="range" id="nf" min="1" max="3" step="1" value="2"><output id="nfo">2</output></div>');
-      E.bind('#ni','input',function(e){ self.s.ni=+e.target.value; document.getElementById('nio').textContent=e.target.value; self.s.phase=0; E.blip(360,0.07); });
-      E.bind('#nf','input',function(e){ self.s.nf=+e.target.value; document.getElementById('nfo').textContent=e.target.value; self.s.phase=0; E.blip(340,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen){ if(!E.frozen)s.t+=1/60; s.phase=(s.phase+1/60*0.4)%1; }
-      var ni=Math.max(s.ni,s.nf+1), nf=Math.min(s.nf,ni-1);
-      var cx=W*0.32, cy=H*0.46, sc=Math.min(W*0.04,H*0.06);
-      // 핵
-      ctx.fillStyle=NRED; ctx.beginPath(); ctx.arc(cx,cy,8,0,7); ctx.fill();
-      // 궤도 n=1..5 (반지름 ∝ n²)
-      for(var n=1;n<=5;n++){ ctx.strokeStyle=(n===ni||n===nf)?'rgba(255,178,122,0.7)':'rgba(255,255,255,0.15)'; ctx.lineWidth=(n===ni||n===nf)?2:1; ctx.beginPath(); ctx.arc(cx,cy,n*n*sc*0.6,0,7); ctx.stroke(); }
-      // 전자: ni→nf로 떨어지는 애니메이션
-      var rn = (ni - (ni-nf)*s.phase); var rr=rn*rn*sc*0.6, a=s.t*2;
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx+rr*Math.cos(a),cy+rr*Math.sin(a),5,0,7); ctx.fill();
-      // 방출 광자(전이 시) — 색은 에너지(파장)
-      var E_i=-13.6/(ni*ni), E_f=-13.6/(nf*nf), dE=E_i-E_f<0? E_f-E_i : E_i-E_f; dE=Math.abs(E_i-E_f);
-      var col = dE>3?'#9b6bff': dE>2.5?'#5c8cff': dE>1.9?'#5cd0ff':'#e2503a';
-      if(s.phase>0.5){ for(var k=0;k<4;k++){ var px=cx+60+((s.phase-0.5)*2*W*0.3+k*12), py=cy-60; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(var w2=0;w2<14;w2++){ var wx=px+w2, wy=py+Math.sin(w2*0.9+s.t*10)*4; if(w2===0)ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy); } ctx.stroke(); } }
-      // 에너지 준위 막대
-      var gx=W*0.66, gy0=H*0.74, gh=H*0.5;
-      for(var n2=1;n2<=5;n2++){ var En=-13.6/(n2*n2), y=gy0-(1+En/13.6)*gh; ctx.strokeStyle=(n2===ni||n2===nf)?ORA:'rgba(255,255,255,0.25)'; ctx.lineWidth=(n2===ni||n2===nf)?2:1; ctx.beginPath(); ctx.moveTo(gx,y); ctx.lineTo(gx+W*0.2,y); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('n='+n2+' ('+En.toFixed(1)+'eV)', gx+W*0.21, y+3); }
-      // 전이 화살표
-      var yi=gy0-(1+E_i/13.6)*gh, yf=gy0-(1+E_f/13.6)*gh; ctx.strokeStyle=col; ctx.lineWidth=2; arrow(E,gx+W*0.1,yi,gx+W*0.1,yf,col,2);
-      E.tapHint(W/2, H*0.90, '전이 준위를 바꿔 방출 광자(색)를 보세요', true);
-      E.big('보어 원자: 전자가 n='+ni+'→'+nf+' 떨어지며 광자 방출 (E=hf='+dE.toFixed(1)+' eV)', '보어는 전자가 사다리 칸처럼 <b>정해진 궤도(에너지 준위)에만</b> 설 수 있다고 했습니다 — 에너지가 양자화(E_n=−13.6/n² eV). 전자가 높은 칸에서 낮은 칸으로 뚝 떨어질 때, 두 칸의 <b>에너지 차이가 광자 한 알로 튀어나옵니다</b>(E=hf=E_i−E_f). 크게 떨어질수록 큰 에너지=보라빛, 살짝 떨어지면 붉은빛. 이 칸 간격이 원소마다 달라 고유한 <b>선 스펙트럼</b>을 만들고 — 덕분에 한 번도 못 간 별빛만 보고 그 성분을 압니다(분광학). 14.4의 광자가 원자 속으로 들어온 것입니다.'); }
   },
 
   // ─── 심화: 방사성 붕괴 ───
