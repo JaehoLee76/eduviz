@@ -10,7 +10,7 @@
 
   // 6.1 리만합 — 직사각형으로 넓이 근사  f(x)=0.5x²+0.5 on [0,3], 참값 6
   { id:'calc6_01',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.3,-0.5,6);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.3,-0.5,6).lab('x','y');
       E.controls('<div class="ctrl"><label>칸 수 n</label><input type="range" id="rn" min="1" max="50" step="1" value="4"><output id="rno">4</output></div>');
       var self=this; E.bind('#rn','input',function(e){ self.s.n=+e.target.value; document.getElementById('rno').textContent=e.target.value; E.blip(360+self.s.n*8,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, a=0, b=3;
@@ -26,7 +26,7 @@
 
   // 6.2 정적분 = 부호 있는 넓이  f(x)=sin x on [0,b]
   { id:'calc6_02',
-    enter:function(E){ this.s={b:2.0}; E.Plot.range(-0.4,6.6,-1.4,1.4);
+    enter:function(E){ this.s={b:2.0}; E.Plot.range(-0.4,6.6,-1.4,1.4).lab('x','y');
       E.controls('<div class="ctrl"><label>윗끝 b</label><input type="range" id="ub" min="0.2" max="6.28" step="0.04" value="2.0"><output id="ubo">2.00</output></div>');
       var self=this; E.bind('#ub','input',function(e){ self.s.b=+e.target.value; document.getElementById('ubo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b;
@@ -42,7 +42,7 @@
 
   // 6.3 미적분의 기본정리 — 넓이누적함수 A(x)의 기울기 = f(x)
   { id:'calc6_03',
-    enter:function(E){ this.s={x:1.2}; E.Plot.range(-0.3,4.3,-1.5,4);
+    enter:function(E){ this.s={x:1.2}; E.Plot.range(-0.3,4.3,-1.5,4).lab('x','y');
       E.controls('<div class="ctrl"><label>윗끝 x</label><input type="range" id="fx" min="0.1" max="4" step="0.05" value="1.2"><output id="fxo">1.20</output></div>');
       var self=this; E.bind('#fx','input',function(e){ self.s.x=+e.target.value; document.getElementById('fxo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x;
@@ -66,7 +66,7 @@
 
   // 6.4 거리 = 속도의 적분  v(t)=2+1.5·sin(0.8t)
   { id:'calc6_04',
-    enter:function(E){ this.s={t:2}; E.Plot.range(-0.3,8.3,-0.5,4);
+    enter:function(E){ this.s={t:2}; E.Plot.range(-0.3,8.3,-0.5,4).lab('t','v');
       E.controls('<div class="ctrl"><label>시간 t</label><input type="range" id="vt" min="0.1" max="8" step="0.05" value="2"><output id="vto">2.00</output></div>');
       var self=this; E.bind('#vt','input',function(e){ self.s.t=+e.target.value; document.getElementById('vto').textContent=(+e.target.value).toFixed(2); E.blip(380,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, t=s.t;
@@ -83,7 +83,7 @@
 
   // 6.5 부정적분 — 같은 도함수를 갖는 함수 가족  F(x)=x²+C
   { id:'calc6_05',
-    enter:function(E){ this.s={C:0}; E.Plot.range(-3,3,-3,6);
+    enter:function(E){ this.s={C:0}; E.Plot.range(-3,3,-3,6).lab('x','y');
       E.controls('<div class="ctrl"><label>적분상수 C</label><input type="range" id="ic" min="-2" max="3" step="0.5" value="0"><output id="ico">0.0</output></div>');
       var self=this; E.bind('#ic','input',function(e){ self.s.C=+e.target.value; document.getElementById('ico').textContent=(+e.target.value).toFixed(1); E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, C=s.C;

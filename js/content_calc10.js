@@ -8,7 +8,7 @@
 
   // 10.1 매개변수 곡선 — 사이클로이드(굴러가는 바퀴 위 한 점)
   { id:'calc10_01',
-    enter:function(E){ this.s={t:3}; E.Plot.range(-0.5,12.8,-0.5,3);
+    enter:function(E){ this.s={t:3}; E.Plot.range(-0.5,12.8,-0.5,3).lab('x','y');
       E.controls('<div class="ctrl"><label>매개변수 t</label><input type="range" id="ct" min="0" max="12.5" step="0.05" value="3"><output id="cto">3.00</output></div>');
       var self=this; E.bind('#ct','input',function(e){ self.s.t=+e.target.value; document.getElementById('cto').textContent=(+e.target.value).toFixed(2); E.blip(380,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, t=s.t;
@@ -29,7 +29,7 @@
 
   // 10.2 매개변수 미분  dy/dx = (dy/dt)/(dx/dt)  타원 x=2cos t, y=sin t
   { id:'calc10_02',
-    enter:function(E){ this.s={t:0.7}; E.Plot.range(-3,3,-2,2);
+    enter:function(E){ this.s={t:0.7}; E.Plot.range(-3,3,-2,2).lab('x','y');
       E.controls('<div class="ctrl"><label>매개변수 t</label><input type="range" id="pt" min="0" max="6.28" step="0.04" value="0.7"><output id="pto">0.70</output></div>');
       var self=this; E.bind('#pt','input',function(e){ self.s.t=+e.target.value; document.getElementById('pto').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, t=s.t;
@@ -46,7 +46,7 @@
 
   // 10.3 극좌표 — (r, θ)로 점 찍기, 심장형 r=1+cos θ
   { id:'calc10_03',
-    enter:function(E){ this.s={th:1.0}; E.Plot.range(-1.5,2.7,-2.1,2.1);
+    enter:function(E){ this.s={th:1.0}; E.Plot.range(-1.5,2.7,-2.1,2.1).lab('x','y');
       E.controls('<div class="ctrl"><label>각 θ</label><input type="range" id="pth" min="0" max="6.28" step="0.04" value="1.0"><output id="ptho">1.00</output></div>');
       var self=this; E.bind('#pth','input',function(e){ self.s.th=+e.target.value; document.getElementById('ptho').textContent=(+e.target.value).toFixed(2); E.blip(400,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th;
@@ -63,7 +63,7 @@
 
   // 10.4 장미곡선  r = cos(kθ), 꽃잎 수
   { id:'calc10_04',
-    enter:function(E){ this.s={k:3}; E.Plot.range(-1.4,1.4,-1.4,1.4);
+    enter:function(E){ this.s={k:3}; E.Plot.range(-1.4,1.4,-1.4,1.4).lab('x','y');
       E.controls('<div class="ctrl"><label>k (꽃잎 결정)</label><input type="range" id="rk" min="1" max="6" step="1" value="3"><output id="rko">3</output></div>');
       var self=this; E.bind('#rk','input',function(e){ self.s.k=+e.target.value; document.getElementById('rko').textContent=e.target.value; E.blip(360+self.s.k*40,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, k=s.k;
@@ -75,7 +75,7 @@
 
   // 10.5 극좌표 넓이  A = ½∫r² dθ  심장형
   { id:'calc10_05',
-    enter:function(E){ this.s={th:2.0}; E.Plot.range(-1.5,2.7,-2.1,2.1);
+    enter:function(E){ this.s={th:2.0}; E.Plot.range(-1.5,2.7,-2.1,2.1).lab('x','y');
       E.controls('<div class="ctrl"><label>각 θ</label><input type="range" id="ath" min="0.1" max="6.28" step="0.04" value="2.0"><output id="atho">2.00</output></div>');
       var self=this; E.bind('#ath','input',function(e){ self.s.th=+e.target.value; document.getElementById('atho').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th;

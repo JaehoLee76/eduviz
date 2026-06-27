@@ -9,7 +9,7 @@
 
   // 8.1 치환적분 — 연쇄법칙의 역  ∫2x·cos(x²)dx = sin(x²)
   { id:'calc8_01',
-    enter:function(E){ this.s={b:1.4}; E.Plot.range(-0.3,2.6,-3,3);
+    enter:function(E){ this.s={b:1.4}; E.Plot.range(-0.3,2.6,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>윗끝 b</label><input type="range" id="sb" min="0.2" max="2.5" step="0.02" value="1.4"><output id="sbo">1.40</output></div>');
       var self=this; E.bind('#sb','input',function(e){ self.s.b=+e.target.value; document.getElementById('sbo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b;
@@ -22,7 +22,7 @@
 
   // 8.2 부분적분  ∫x·eˣ dx = (x−1)eˣ
   { id:'calc8_02',
-    enter:function(E){ this.s={b:1.5}; E.Plot.range(-0.3,2.3,-1,8);
+    enter:function(E){ this.s={b:1.5}; E.Plot.range(-0.3,2.3,-1,8).lab('x','y');
       E.controls('<div class="ctrl"><label>윗끝 b</label><input type="range" id="pb" min="0.2" max="2" step="0.02" value="1.5"><output id="pbo">1.50</output></div>');
       var self=this; E.bind('#pb','input',function(e){ self.s.b=+e.target.value; document.getElementById('pbo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b;
@@ -35,7 +35,7 @@
 
   // 8.3 부분분수  1/((x−3)(x+1)) = ¼/(x−3) − ¼/(x+1)
   { id:'calc8_03',
-    enter:function(E){ this.s={show:1}; E.Plot.range(-4,5,-1.5,1.5);
+    enter:function(E){ this.s={show:1}; E.Plot.range(-4,5,-1.5,1.5).lab('x','y');
       E.controls('<div class="ctrl"><label>조각 보기(0원본·1분해)</label><input type="range" id="sh" min="0" max="1" step="1" value="1"><output id="sho">1</output></div>');
       var self=this; E.bind('#sh','input',function(e){ self.s.show=+e.target.value; document.getElementById('sho').textContent=e.target.value; E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s;
@@ -50,7 +50,7 @@
 
   // 8.4 이상적분 — 수렴 vs 발산  ∫₁^∞ x^(−p)
   { id:'calc8_04',
-    enter:function(E){ this.s={p:2}; E.Plot.range(0,9,-0.2,1.6);
+    enter:function(E){ this.s={p:2}; E.Plot.range(0,9,-0.2,1.6).lab('x','y');
       E.controls('<div class="ctrl"><label>지수 p</label><input type="range" id="pp" min="0.5" max="2.5" step="0.1" value="2"><output id="ppo">2.0</output></div>');
       var self=this; E.bind('#pp','input',function(e){ self.s.p=+e.target.value; document.getElementById('ppo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, p=s.p;
@@ -67,7 +67,7 @@
 
   // 8.5 수치적분 — 사다리꼴 vs 심슨  ∫₀^π sin x dx = 2
   { id:'calc8_05',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.5,-0.2,1.3);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.5,-0.2,1.3).lab('x','y');
       E.controls('<div class="ctrl"><label>구간 수 n</label><input type="range" id="nn" min="2" max="20" step="2" value="4"><output id="nno">4</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(380+self.s.n*10,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, a=0, b=Math.PI;

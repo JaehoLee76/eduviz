@@ -66,7 +66,7 @@
 
   // ══════════ 21.3 행렬 = 선형변환 ══════════
   { id:'ch21_03',
-    enter:function(E){ this.s={k:0}; E.Plot.range(-4.5,4.5,-3,3);
+    enter:function(E){ this.s={k:0}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>전단 k</label><input type="range" id="kk" min="-1.5" max="1.5" step="0.25" value="0"><output id="kko">0</output></div>');
       var self=this; E.bind('#kk','input',function(e){ self.s.k=+e.target.value; document.getElementById('kko').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.k, ctx=E.ctx; P.axes();
@@ -86,7 +86,7 @@
 
   // ══════════ 21.4 행렬식 = 넓이 배율 ══════════
   { id:'ch21_04',
-    enter:function(E){ this.s={a:2,d:1.5}; E.Plot.range(-4.5,4.5,-3,3);
+    enter:function(E){ this.s={a:2,d:1.5}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>a (가로배율)</label><input type="range" id="aa" min="-1" max="3" step="0.5" value="2"><output id="aao">2</output><label style="margin-left:14px">d (세로배율)</label><input type="range" id="dd" min="-1" max="2.5" step="0.5" value="1.5"><output id="ddo">1.5</output></div>');
       var self=this;
       E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value); E.blip(440,0.1); });
@@ -106,7 +106,7 @@
   { id:'ch21_05',
     enter:function(E){ this.s={}; E.setOn([]);
       E.quiz({q:'행렬식 det=ad−bc 가 0이면 연립방정식의 해는?', choices:['유일','없거나 무수히 많음','항상 0','항상 1'], answer:1, explain:'det=0 → 역행렬 없음 → 두 직선이 평행/일치 → 해 없음 또는 무수히 많음 (3장 #29)'}); },
-    draw:function(E){ var P=E.Plot, ctx=E.ctx; E.Plot.range(-1,5,-2,5); P.axes();
+    draw:function(E){ var P=E.Plot, ctx=E.ctx; E.Plot.range(-1,5,-2,5).lab('x','y'); P.axes();
       // 두 직선의 교점 = 연립방정식 해 (3장 회수)
       P.curve(function(x){return -x+4;},'#7ab8ff');   // x+y=4
       P.curve(function(x){return x-0;},'#8fe3b5');     // x-y=0 → y=x

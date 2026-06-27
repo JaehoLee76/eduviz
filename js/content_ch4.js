@@ -47,7 +47,7 @@
   },
 
   { id:'ch4_03',
-    enter:function(E){ this.s={lt:true}; E.Plot.range(-5,6,-9,5); E.setOn([]); },
+    enter:function(E){ this.s={lt:true}; E.Plot.range(-5,6,-9,5).lab('x','y'); E.setOn([]); },
     tap:function(E){ this.s.lt=!this.s.lt; E.blip(this.s.lt?420:520,0.15); },
     draw:function(E){ var s=this.s, P=E.Plot, ctx=E.ctx; P.axes();
       P.curve(function(x){return x*x-x-6;},'#7ab8ff');

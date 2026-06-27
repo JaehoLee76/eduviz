@@ -9,7 +9,7 @@
 
   // 4.1 곱의 법칙  (fg)′ = f′g + fg′   f=x, g=sin x
   { id:'calc4_01',
-    enter:function(E){ this.s={a:1}; E.Plot.range(-6.5,6.5,-5,5);
+    enter:function(E){ this.s={a:1}; E.Plot.range(-6.5,6.5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>점 a</label><input type="range" id="pa" min="-6" max="6" step="0.1" value="1"><output id="pao">1.0</output></div>');
       var self=this; E.bind('#pa','input',function(e){ self.s.a=+e.target.value; document.getElementById('pao').textContent=(+e.target.value).toFixed(1); E.blip(440,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;
@@ -24,7 +24,7 @@
 
   // 4.2 몫의 법칙  (f/g)′ = (f′g − fg′)/g²   f=x, g=x²+1
   { id:'calc4_02',
-    enter:function(E){ this.s={a:0.6}; E.Plot.range(-5,5,-1.2,1.2);
+    enter:function(E){ this.s={a:0.6}; E.Plot.range(-5,5,-1.2,1.2).lab('x','y');
       E.controls('<div class="ctrl"><label>점 a</label><input type="range" id="qa" min="-4.5" max="4.5" step="0.1" value="0.6"><output id="qao">0.6</output></div>');
       var self=this; E.bind('#qa','input',function(e){ self.s.a=+e.target.value; document.getElementById('qao').textContent=(+e.target.value).toFixed(1); E.blip(440,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;
@@ -39,7 +39,7 @@
 
   // 4.3 연쇄법칙  (f∘g)′ = f′(g)·g′   sin(x²)
   { id:'calc4_03',
-    enter:function(E){ this.s={a:1}; E.Plot.range(-3.2,3.2,-1.4,1.4);
+    enter:function(E){ this.s={a:1}; E.Plot.range(-3.2,3.2,-1.4,1.4).lab('x','y');
       E.controls('<div class="ctrl"><label>점 a</label><input type="range" id="ca" min="-3" max="3" step="0.05" value="1"><output id="cao">1.00</output></div>');
       var self=this; E.bind('#ca','input',function(e){ self.s.a=+e.target.value; document.getElementById('cao').textContent=(+e.target.value).toFixed(2); E.blip(460,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;
@@ -57,7 +57,7 @@
 
   // 4.4 음함수 미분 — 원 x²+y²=4, 접선 기울기 dy/dx = −x/y
   { id:'calc4_04',
-    enter:function(E){ this.s={th:0.9}; E.Plot.range(-3,3,-3,3);
+    enter:function(E){ this.s={th:0.9}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>각도 θ</label><input type="range" id="ith" min="0.1" max="6.1" step="0.05" value="0.9"><output id="itho">0.90</output></div>');
       var self=this; E.bind('#ith','input',function(e){ self.s.th=+e.target.value; document.getElementById('itho').textContent=(+e.target.value).toFixed(2); E.blip(440,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th, R=2;
@@ -77,7 +77,7 @@
 
   // 4.5 선형근사 — 가까이선 곡선이 직선  f(x)=√x
   { id:'calc4_05',
-    enter:function(E){ this.s={a:4}; E.Plot.range(0,9,-0.5,3.5);
+    enter:function(E){ this.s={a:4}; E.Plot.range(0,9,-0.5,3.5).lab('x','y');
       E.controls('<div class="ctrl"><label>기준 a</label><input type="range" id="la" min="1" max="8" step="0.5" value="4"><output id="lao">4.0</output></div>');
       var self=this; E.bind('#la','input',function(e){ self.s.a=+e.target.value; document.getElementById('lao').textContent=(+e.target.value).toFixed(1); E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;

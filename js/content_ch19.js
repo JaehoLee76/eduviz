@@ -6,7 +6,7 @@
 
   // ══════════ 19.1 정적분 = 넓이 (리만 합) ══════════
   { id:'ch19_01',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.3,-0.5,10);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.3,-0.5,10).lab('x','y');
       E.controls('<div class="ctrl"><label>직사각형 개수 n</label><input type="range" id="nn" min="1" max="40" step="1" value="4"><output id="nno">4</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(420+self.s.n*6,0.06); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, n=this.s.n, ctx=E.ctx, a=0, b=3, dx=(b-a)/n; P.axes();
@@ -21,7 +21,7 @@
 
   // ══════════ 19.2 부정적분 = 미분의 역 ══════════
   { id:'ch19_02',
-    enter:function(E){ this.s={c:0}; E.Plot.range(-3,3,-3,7);
+    enter:function(E){ this.s={c:0}; E.Plot.range(-3,3,-3,7).lab('x','y');
       E.controls('<div class="ctrl"><label>적분상수 C</label><input type="range" id="cc" min="-2" max="3" step="1" value="0"><output id="cco">0</output></div>');
       var self=this; E.bind('#cc','input',function(e){ self.s.c=+e.target.value; document.getElementById('cco').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, c=this.s.c, ctx=E.ctx; P.axes();
@@ -33,7 +33,7 @@
 
   // ══════════ 19.3 미적분의 기본정리 ══════════
   { id:'ch19_03',
-    enter:function(E){ this.s={x:2}; E.Plot.range(-0.3,4,-0.5,4.5);
+    enter:function(E){ this.s={x:2}; E.Plot.range(-0.3,4,-0.5,4.5).lab('x','y');
       E.controls('<div class="ctrl"><label>윗끝 x</label><input type="range" id="xx" min="0.5" max="3.5" step="0.25" value="2"><output id="xxo">2</output></div>');
       var self=this; E.bind('#xx','input',function(e){ self.s.x=+e.target.value; document.getElementById('xxo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, x=this.s.x, ctx=E.ctx; P.axes();
@@ -49,7 +49,7 @@
 
   // ══════════ 19.3 정적분 계산 (F(b)−F(a)) ══════════
   { id:'ch19_04',
-    enter:function(E){ this.s={b:2}; E.Plot.range(-0.3,3.3,-0.5,10);
+    enter:function(E){ this.s={b:2}; E.Plot.range(-0.3,3.3,-0.5,10).lab('x','y');
       E.controls('<div class="ctrl"><label>윗끝 b (아랫끝 1)</label><input type="range" id="bb" min="1" max="3" step="0.5" value="2"><output id="bbo">2</output></div>');
       var self=this; E.bind('#bb','input',function(e){ self.s.b=+e.target.value; document.getElementById('bbo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx, a=1; P.axes();
@@ -64,7 +64,7 @@
 
   // ══════════ 19.3 부호 있는 넓이 ══════════
   { id:'ch19_05',
-    enter:function(E){ this.s={a:2}; E.Plot.range(-2.4,2.4,-3,3);
+    enter:function(E){ this.s={a:2}; E.Plot.range(-2.4,2.4,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>구간 [−a, a]의 a</label><input type="range" id="aa" min="0.5" max="2" step="0.25" value="2"><output id="aao">2</output></div>');
       var self=this; E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();

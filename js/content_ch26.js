@@ -7,7 +7,7 @@
 
   // ══════════ 26.1 삼·사차방정식 ══════════
   { id:'ch26_01',
-    enter:function(E){ this.s={q:0}; E.Plot.range(-3,3,-4,4);
+    enter:function(E){ this.s={q:0}; E.Plot.range(-3,3,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>상수항 q</label><input type="range" id="qq" min="-3" max="3" step="0.5" value="0"><output id="qqo">0</output></div>');
       var self=this; E.bind('#qq','input',function(e){ self.s.q=+e.target.value; document.getElementById('qqo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, q=this.s.q, ctx=E.ctx; P.axes();
@@ -33,7 +33,7 @@
 
   // ══════════ 26.4 확률분포와 평균 ══════════
   { id:'ch26_03',
-    enter:function(E){ this.s={s:1}; E.Plot.range(-4,4,-0.1,1.0);
+    enter:function(E){ this.s={s:1}; E.Plot.range(-4,4,-0.1,1.0).lab('값','밀도');
       E.controls('<div class="ctrl"><label>표준편차 σ</label><input type="range" id="ss" min="0.5" max="2" step="0.25" value="1"><output id="sso">1</output></div>');
       var self=this; E.bind('#ss','input',function(e){ self.s.s=+e.target.value; document.getElementById('sso').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s.s, ctx=E.ctx; P.axes();

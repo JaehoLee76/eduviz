@@ -8,7 +8,7 @@
   // ══════════ 12.1 이차곡선 ══════════
   // 12.1a 포물선 — 초점과 준선
   { id:'ch12_01',
-    enter:function(E){ this.s={p:1}; E.Plot.range(-6,6,-2,6);
+    enter:function(E){ this.s={p:1}; E.Plot.range(-6,6,-2,6).lab('x','y');
       E.controls('<div class="ctrl"><label>초점거리 p</label><input type="range" id="pp" min="0.5" max="2" step="0.5" value="1"><output id="ppo">1</output></div>');
       var self=this; E.bind('#pp','input',function(e){ self.s.p=+e.target.value; document.getElementById('ppo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, p=this.s.p, ctx=E.ctx; P.axes();
@@ -28,7 +28,7 @@
 
   // 12.1b 타원 — 두 초점 거리의 합
   { id:'ch12_02',
-    enter:function(E){ this.s={a:4,b:2}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={a:4,b:2}; E.Plot.range(-6,6,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>가로 a</label><input type="range" id="ea" min="2" max="5" step="1" value="4"><output id="eao">4</output><label style="margin-left:14px">세로 b</label><input type="range" id="eb" min="1" max="3" step="1" value="2"><output id="ebo">2</output></div>');
       var self=this;
       E.bind('#ea','input',function(e){ self.s.a=+e.target.value; document.getElementById('eao').textContent=e.target.value; E.blip(440,0.1); });
@@ -50,7 +50,7 @@
 
   // 12.1c 쌍곡선 — 두 초점 거리의 차
   { id:'ch12_03',
-    enter:function(E){ this.s={a:2,b:2}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={a:2,b:2}; E.Plot.range(-6,6,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>a</label><input type="range" id="ha" min="1" max="3" step="1" value="2"><output id="hao">2</output><label style="margin-left:14px">b</label><input type="range" id="hb" min="1" max="3" step="1" value="2"><output id="hbo">2</output></div>');
       var self=this;
       E.bind('#ha','input',function(e){ self.s.a=+e.target.value; document.getElementById('hao').textContent=e.target.value; E.blip(440,0.1); });
@@ -70,7 +70,7 @@
   // ══════════ 12.2 통일: 이심률 ══════════
   // ★이심률 e 하나로 타원→포물선→쌍곡선 morph
   { id:'ch12_04',
-    enter:function(E){ this.s={e:0.6}; E.Plot.range(-7,5,-4,4);
+    enter:function(E){ this.s={e:0.6}; E.Plot.range(-7,5,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>이심률 e</label><input type="range" id="ec" min="0.3" max="1.8" step="0.1" value="0.6"><output id="eco">0.6</output></div>');
       var self=this; E.bind('#ec','input',function(e){ self.s.e=+e.target.value; document.getElementById('eco').textContent=(+e.target.value).toFixed(1); E.blip(420+self.s.e*200,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ee=this.s.e, ctx=E.ctx, l=2.2; P.axes();
@@ -86,7 +86,7 @@
   // ══════════ 12.3 회전 ══════════
   // 타원을 회전 → xy 항 등장 (10장 복소수 회전 회수)
   { id:'ch12_05',
-    enter:function(E){ this.s={deg:0}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={deg:0}; E.Plot.range(-6,6,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>회전각 φ</label><input type="range" id="rt" min="0" max="90" step="15" value="0"><output id="rto">0°</output></div>');
       var self=this; E.bind('#rt','input',function(e){ self.s.deg=+e.target.value; document.getElementById('rto').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, a=3.5, b=1.6, phi=this.s.deg*Math.PI/180, cs=Math.cos(phi), sn=Math.sin(phi); P.axes();

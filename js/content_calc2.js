@@ -8,7 +8,7 @@
 
   // 2.1 극한의 직관 — 구멍이 있어도 극한은 존재  f(x)=(x²−1)/(x−1)=x+1, x=1에 구멍
   { id:'calc2_01',
-    enter:function(E){ this.s={x:1.7}; E.Plot.range(-1,3,-1,5);
+    enter:function(E){ this.s={x:1.7}; E.Plot.range(-1,3,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>x →</label><input type="range" id="lx" min="0" max="2" step="0.02" value="1.7"><output id="lxo">1.70</output></div>');
       var self=this; E.bind('#lx','input',function(e){ self.s.x=+e.target.value; document.getElementById('lxo').textContent=(+e.target.value).toFixed(2); E.blip(380+self.s.x*60,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x;
@@ -27,7 +27,7 @@
 
   // 2.2 좌극한·우극한 — 점프면 극한 없음  f(x)= x<1? x : x+1.5
   { id:'calc2_02',
-    enter:function(E){ this.s={x:0.5}; E.Plot.range(-1,3,-1,5);
+    enter:function(E){ this.s={x:0.5}; E.Plot.range(-1,3,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>x →</label><input type="range" id="jx" min="0" max="2" step="0.02" value="0.5"><output id="jxo">0.50</output></div>');
       var self=this; E.bind('#jx','input',function(e){ self.s.x=+e.target.value; document.getElementById('jxo').textContent=(+e.target.value).toFixed(2); E.blip(360+self.s.x*80,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x;
@@ -47,7 +47,7 @@
 
   // 2.3 접선 = 할선의 극한  f(x)=0.5x², a=1, 슬라이더 h→0
   { id:'calc2_03',
-    enter:function(E){ this.s={h:1.2}; E.Plot.range(-1,4,-1,5);
+    enter:function(E){ this.s={h:1.2}; E.Plot.range(-1,4,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>간격 h</label><input type="range" id="th" min="-1.5" max="1.5" step="0.05" value="1.2"><output id="tho">1.20</output></div>');
       var self=this; E.bind('#th','input',function(e){ self.s.h=+e.target.value; document.getElementById('tho').textContent=(+e.target.value).toFixed(2); E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, h=s.h, a=1;
@@ -66,7 +66,7 @@
 
   // 2.4 ε-δ 엄밀한 정의  f(x)=2x, a=1, L=2, δ=ε/2
   { id:'calc2_04',
-    enter:function(E){ this.s={eps:1.2}; E.Plot.range(-0.5,2.5,-0.5,4.5);
+    enter:function(E){ this.s={eps:1.2}; E.Plot.range(-0.5,2.5,-0.5,4.5).lab('x','y');
       E.controls('<div class="ctrl"><label>허용오차 ε</label><input type="range" id="ep" min="0.2" max="1.6" step="0.05" value="1.2"><output id="epo">1.20</output></div>');
       var self=this; E.bind('#ep','input',function(e){ self.s.eps=+e.target.value; document.getElementById('epo').textContent=(+e.target.value).toFixed(2); E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, eps=s.eps, a=1, L=2;
@@ -86,7 +86,7 @@
 
   // 2.5 연속성 — 끊지 않고 그릴 수 있는가  f(x)= x<1? x+1 : x+c
   { id:'calc2_05',
-    enter:function(E){ this.s={c:0.3}; E.Plot.range(-0.5,3,-0.5,5);
+    enter:function(E){ this.s={c:0.3}; E.Plot.range(-0.5,3,-0.5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>오른쪽 조각 c</label><input type="range" id="cc" min="-1" max="3" step="0.1" value="0.3"><output id="cco">0.3</output></div>');
       var self=this; E.bind('#cc','input',function(e){ self.s.c=+e.target.value; document.getElementById('cco').textContent=(+e.target.value).toFixed(1); E.blip(400,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, c=s.c;

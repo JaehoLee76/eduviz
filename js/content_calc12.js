@@ -33,7 +33,7 @@
 
   // 12.2 벡터 덧셈 — 평행사변형 법칙 (2D)
   { id:'calc12_02',
-    enter:function(E){ this.s={th:1.0}; E.Plot.range(-1,6,-1,5);
+    enter:function(E){ this.s={th:1.0}; E.Plot.range(-1,6,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>v 방향 θ</label><input type="range" id="vt" min="0" max="3.14" step="0.04" value="1.0"><output id="vto">1.00</output></div>');
       var self=this; E.bind('#vt','input',function(e){ self.s.th=+e.target.value; document.getElementById('vto').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th;
@@ -51,7 +51,7 @@
 
   // 12.3 내적  u·v = |u||v|cosθ  (사영)
   { id:'calc12_03',
-    enter:function(E){ this.s={th:0.7}; E.Plot.range(-3,4,-2.5,3);
+    enter:function(E){ this.s={th:0.7}; E.Plot.range(-3,4,-2.5,3).lab('x','y');
       E.controls('<div class="ctrl"><label>사잇각 θ</label><input type="range" id="dt" min="0" max="3.14" step="0.03" value="0.7"><output id="dto">0.70</output></div>');
       var self=this; E.bind('#dt','input',function(e){ self.s.th=+e.target.value; document.getElementById('dto').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th;
@@ -70,7 +70,7 @@
 
   // 12.4 외적  |u×v| = |u||v|sinθ = 평행사변형 넓이
   { id:'calc12_04',
-    enter:function(E){ this.s={th:1.0}; E.Plot.range(-1,5,-1,4);
+    enter:function(E){ this.s={th:1.0}; E.Plot.range(-1,5,-1,4).lab('x','y');
       E.controls('<div class="ctrl"><label>사잇각 θ</label><input type="range" id="ct" min="0.05" max="3.1" step="0.03" value="1.0"><output id="cto">1.00</output></div>');
       var self=this; E.bind('#ct','input',function(e){ self.s.th=+e.target.value; document.getElementById('cto').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th;

@@ -9,7 +9,7 @@
 
   // 5.1 극값 — f′=0 인 곳  f(x)=x³−3x (극대 x=−1, 극소 x=1)
   { id:'calc5_01',
-    enter:function(E){ this.s={a:-1.8}; E.Plot.range(-2.5,2.5,-4,4);
+    enter:function(E){ this.s={a:-1.8}; E.Plot.range(-2.5,2.5,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>점 a</label><input type="range" id="ea" min="-2.2" max="2.2" step="0.05" value="-1.8"><output id="eao">-1.80</output></div>');
       var self=this; E.bind('#ea','input',function(e){ self.s.a=+e.target.value; document.getElementById('eao').textContent=(+e.target.value).toFixed(2); E.blip(440,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;
@@ -27,7 +27,7 @@
 
   // 5.2 평균값 정리 — 할선과 평행한 접선이 존재  f(x)=0.4x³−x on [−2,2]
   { id:'calc5_02',
-    enter:function(E){ this.s={c:-1.5}; E.Plot.range(-2.5,2.5,-3,3);
+    enter:function(E){ this.s={c:-1.5}; E.Plot.range(-2.5,2.5,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>점 c</label><input type="range" id="mc" min="-2" max="2" step="0.02" value="-1.5"><output id="mco">-1.50</output></div>');
       var self=this; E.bind('#mc','input',function(e){ self.s.c=+e.target.value; document.getElementById('mco').textContent=(+e.target.value).toFixed(2); E.blip(440,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, c=s.c, A=-2, B=2;
@@ -46,7 +46,7 @@
 
   // 5.3 최적화 — 둘레 20인 직사각형 최대 넓이  넓이=w(10−w)
   { id:'calc5_03',
-    enter:function(E){ this.s={w:2}; E.Plot.range(0,10,0,28);
+    enter:function(E){ this.s={w:2}; E.Plot.range(0,10,0,28).lab('w','A');
       E.controls('<div class="ctrl"><label>가로 w</label><input type="range" id="ow" min="0.5" max="9.5" step="0.1" value="2"><output id="owo">2.0</output></div>');
       var self=this; E.bind('#ow','input',function(e){ self.s.w=+e.target.value; document.getElementById('owo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, w=s.w, h=10-w, area=w*h;
@@ -63,7 +63,7 @@
 
   // 5.4 뉴턴 방법 — 접선으로 근 찾기  f(x)=x²−2 → √2, 반복 n
   { id:'calc5_04',
-    enter:function(E){ this.s={n:0}; E.Plot.range(0,3,-2.5,7);
+    enter:function(E){ this.s={n:0}; E.Plot.range(0,3,-2.5,7).lab('x','y');
       E.controls('<div class="ctrl"><label>반복 n</label><input type="range" id="nn" min="0" max="6" step="1" value="0"><output id="nno">0</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(420+self.s.n*40,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n;
@@ -81,7 +81,7 @@
 
   // 5.5 관련 변화율 — 미끄러지는 사다리  길이5, 바닥 x, 벽 y=√(25−x²)
   { id:'calc5_05',
-    enter:function(E){ this.s={x:1.5}; E.Plot.range(-0.5,5.5,-0.5,5.5);
+    enter:function(E){ this.s={x:1.5}; E.Plot.range(-0.5,5.5,-0.5,5.5).lab('x','y');
       E.controls('<div class="ctrl"><label>바닥거리 x</label><input type="range" id="lx" min="0.3" max="4.9" step="0.05" value="1.5"><output id="lxo">1.50</output></div>');
       var self=this; E.bind('#lx','input',function(e){ self.s.x=+e.target.value; document.getElementById('lxo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x, L=5;

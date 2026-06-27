@@ -483,7 +483,7 @@
 
   // ══════ 판별식(ch3_05) ▸ 근과 계수의 관계 (비에트) ══════
   { id:'math_br_vieta', branchOf:'ch3_05',
-    enter:function(E){ this.s={b:-1,c:-6}; E.Plot.range(-5,5,-8,6);
+    enter:function(E){ this.s={b:-1,c:-6}; E.Plot.range(-5,5,-8,6).lab('x','y');
       E.controls('<div class="ctrl"><label>b</label><input type="range" id="vb" min="-4" max="4" step="1" value="-1"><output id="vbo">-1</output><label style="margin-left:14px">c</label><input type="range" id="vc" min="-6" max="2" step="1" value="-6"><output id="vco">-6</output></div>');
       var self=this; E.bind('#vb','input',function(e){ self.s.b=+e.target.value; document.getElementById('vbo').textContent=e.target.value; E.blip(440,0.1); });
       E.bind('#vc','input',function(e){ self.s.c=+e.target.value; document.getElementById('vco').textContent=e.target.value; E.blip(420,0.1); }); E.setOn([]); },
@@ -544,7 +544,7 @@
 
   // ══════ 복소수 곱셈(ch10_04) ▸ 드무아브르 정리 ══════
   { id:'math_br_demoivre', branchOf:'ch10_04',
-    enter:function(E){ this.s={n:2}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={n:2}; E.Plot.range(-6,6,-4,4).lab('Re','Im');
       E.controls('<div class="ctrl"><label>거듭제곱 n</label><input type="range" id="dn" min="1" max="4" step="1" value="2"><output id="dno">2</output></div>');
       var self=this; E.bind('#dn','input',function(e){ self.s.n=+e.target.value; document.getElementById('dno').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, n=this.s.n, ctx=E.ctx, r=1.25, t=35*Math.PI/180; P.axes();
@@ -649,7 +649,7 @@
 
   // ══════ 내적(ch9_04) ▸ 벡터의 정사영 ══════
   { id:'math_br_proj', branchOf:'ch9_04',
-    enter:function(E){ this.s={deg:55}; E.Plot.range(-1,7,-1,5);
+    enter:function(E){ this.s={deg:55}; E.Plot.range(-1,7,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>a의 방향</label><input type="range" id="pd" min="10" max="80" step="5" value="55"><output id="pdo">55°</output></div>');
       var self=this; E.bind('#pd','input',function(e){ self.s.deg=+e.target.value; document.getElementById('pdo').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, t=this.s.deg*Math.PI/180, ra=4, ax=ra*Math.cos(t), ay=ra*Math.sin(t), bx=6, by=0; P.axes();
@@ -667,7 +667,7 @@
 
   // ══════ 함수의 극한(ch14_03) ▸ 샌드위치 정리 ══════
   { id:'math_br_squeeze', branchOf:'ch14_03',
-    enter:function(E){ E.setOn([]); E.Plot.range(-2,2,-0.1,1.4); },
+    enter:function(E){ E.setOn([]); E.Plot.range(-2,2,-0.1,1.4).lab('x','y'); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       P.curve(function(x){return 1;}, 'rgba(244,160,192,0.7)');                 // 위 h=1
       P.curve(function(x){return Math.cos(x);}, 'rgba(143,227,181,0.7)');       // 아래 g=cosx
@@ -711,7 +711,7 @@
 
   // ══════ 극형식(ch10_03) ▸ 오일러 공식 ══════
   { id:'math_br_euler', branchOf:'ch10_03',
-    enter:function(E){ this.s={deg:60}; E.Plot.range(-2.2,2.2,-1.5,1.5);
+    enter:function(E){ this.s={deg:60}; E.Plot.range(-2.2,2.2,-1.5,1.5).lab('Re','Im');
       E.controls('<div class="ctrl"><label>θ</label><input type="range" id="eu" min="0" max="180" step="15" value="60"><output id="euo">60°</output></div>');
       var self=this; E.bind('#eu','input',function(e){ self.s.deg=+e.target.value; document.getElementById('euo').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, t=this.s.deg*Math.PI/180; P.axes();
@@ -740,7 +740,7 @@
 
   // ══════ 평행과 수직(ch6_04) ▸ 점과 직선 사이의 거리 ══════
   { id:'math_br_ptline', branchOf:'ch6_04',
-    enter:function(E){ this.s={px:1,py:3}; E.Plot.range(-3,5,-2,5);
+    enter:function(E){ this.s={px:1,py:3}; E.Plot.range(-3,5,-2,5).lab('x','y');
       E.controls('<div class="ctrl"><label>점 x</label><input type="range" id="qx" min="-2" max="4" step="1" value="1"><output id="qxo">1</output><label style="margin-left:14px">점 y</label><input type="range" id="qy" min="-1" max="4" step="1" value="3"><output id="qyo">3</output></div>');
       var self=this; E.bind('#qx','input',function(e){ self.s.px=+e.target.value; document.getElementById('qxo').textContent=e.target.value; E.blip(440,0.1); });
       E.bind('#qy','input',function(e){ self.s.py=+e.target.value; document.getElementById('qyo').textContent=e.target.value; E.blip(420,0.1); }); E.setOn([]); },
@@ -757,7 +757,7 @@
 
   // ══════ 포물선(ch12_01) ▸ 반사 성질 ══════
   { id:'math_br_parabref', branchOf:'ch12_01',
-    enter:function(E){ E.setOn([]); E.Plot.range(-4,4,-0.5,6); },
+    enter:function(E){ E.setOn([]); E.Plot.range(-4,4,-0.5,6).lab('x','y'); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       P.curve(function(x){return x*x/4;}, '#7ab8ff'); // 초점 (0,1)
       P.dot(0,1,'#ffb27a','초점 F');
@@ -786,7 +786,7 @@
 
   // ══════ 평균값정리(ch18_01) ▸ 뉴턴법 ══════
   { id:'math_br_newton', branchOf:'ch18_01',
-    enter:function(E){ this.s={step:1}; E.Plot.range(-0.5,3,-3,7);
+    enter:function(E){ this.s={step:1}; E.Plot.range(-0.5,3,-3,7).lab('x','y');
       E.controls('<div class="ctrl"><label>반복 횟수</label><input type="range" id="nt" min="1" max="5" step="1" value="1"><output id="nto">1</output></div>');
       var self=this; E.bind('#nt','input',function(e){ self.s.step=+e.target.value; document.getElementById('nto').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, k=this.s.step; P.axes();
@@ -805,7 +805,7 @@
 
   // ══════ 두 곡선 사이 넓이(ch20_01) ▸ 적분의 평균값 정리 ══════
   { id:'math_br_intmean', branchOf:'ch20_01',
-    enter:function(E){ E.setOn([]); E.Plot.range(-0.5,3.5,-0.5,5); },
+    enter:function(E){ E.setOn([]); E.Plot.range(-0.5,3.5,-0.5,5).lab('x','y'); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, a=0,b=3; P.axes();
       function f(x){return 0.4*x*x+0.5;}
       var y0=P.Y(0);

@@ -24,7 +24,7 @@
   // ══════════ 7.2 지수함수 · 로그함수 ══════════
   // 7.2a 지수함수 y=a^x
   { id:'ch7_02',
-    enter:function(E){ this.s={a:2}; E.Plot.range(-3,3,-1,8);
+    enter:function(E){ this.s={a:2}; E.Plot.range(-3,3,-1,8).lab('x','y');
       E.controls('<div class="ctrl"><label>밑 a</label><input type="range" id="ea" min="0.5" max="3" step="0.5" value="2"><output id="eao">2</output></div>');
       var self=this; E.bind('#ea','input',function(e){ self.s.a=+e.target.value; document.getElementById('eao').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();
@@ -35,7 +35,7 @@
 
   // 7.2b 로그 = 지수의 역함수 (y=x 대칭)
   { id:'ch7_03',
-    enter:function(E){ this.s={t:1}; E.Plot.range(-3,6,-3,3);
+    enter:function(E){ this.s={t:1}; E.Plot.range(-3,6,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>지수 위 점의 x 좌표</label><input type="range" id="tx" min="-2" max="2.5" step="0.5" value="1"><output id="txo">1</output></div>');
       var self=this; E.bind('#tx','input',function(e){ self.s.t=+e.target.value; document.getElementById('txo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx; P.axes();
@@ -61,7 +61,7 @@
 
   // 7.2c 로그함수 그래프
   { id:'ch7_04',
-    enter:function(E){ this.s={a:2}; E.Plot.range(-1,8,-4,4);
+    enter:function(E){ this.s={a:2}; E.Plot.range(-1,8,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>밑 a</label><input type="range" id="la" min="2" max="5" step="1" value="2"><output id="lao">2</output></div>');
       var self=this; E.bind('#la','input',function(e){ self.s.a=+e.target.value; document.getElementById('lao').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();

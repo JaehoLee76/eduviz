@@ -17,7 +17,7 @@
   // ══════════ 9.1 벡터와 계산 ══════════
   // 9.1a 벡터란 — 크기와 방향
   { id:'ch9_01',
-    enter:function(E){ this.s={x:3,y:4}; E.Plot.range(-2,6,-2,6);
+    enter:function(E){ this.s={x:3,y:4}; E.Plot.range(-2,6,-2,6).lab('x','y');
       E.controls('<div class="ctrl"><label>x 성분</label><input type="range" id="vx" min="-1" max="5" step="1" value="3"><output id="vxo">3</output><label style="margin-left:14px">y 성분</label><input type="range" id="vy" min="-1" max="5" step="1" value="4"><output id="vyo">4</output></div>');
       var self=this;
       E.bind('#vx','input',function(e){ self.s.x=+e.target.value; document.getElementById('vxo').textContent=e.target.value; E.blip(440,0.1); });
@@ -35,7 +35,7 @@
 
   // 9.1b 벡터의 덧셈 — 삼각형/평행사변형 법칙
   { id:'ch9_02',
-    enter:function(E){ this.s={bx:1,by:3}; E.Plot.range(-1,7,-1,6);
+    enter:function(E){ this.s={bx:1,by:3}; E.Plot.range(-1,7,-1,6).lab('x','y');
       E.controls('<div class="ctrl"><label>b의 x</label><input type="range" id="bx" min="-1" max="4" step="1" value="1"><output id="bxo">1</output><label style="margin-left:14px">b의 y</label><input type="range" id="by" min="-1" max="4" step="1" value="3"><output id="byo">3</output></div>');
       var self=this;
       E.bind('#bx','input',function(e){ self.s.bx=+e.target.value; document.getElementById('bxo').textContent=e.target.value; E.blip(440,0.1); });
@@ -52,7 +52,7 @@
 
   // 9.1c 실수배 — 스칼라 곱
   { id:'ch9_03',
-    enter:function(E){ this.s={k:2}; E.Plot.range(-5,5,-4,5);
+    enter:function(E){ this.s={k:2}; E.Plot.range(-5,5,-4,5).lab('x','y');
       E.controls('<div class="ctrl"><label>실수배 k</label><input type="range" id="kk" min="-2" max="2" step="0.5" value="2"><output id="kko">2</output></div>');
       var self=this; E.bind('#kk','input',function(e){ self.s.k=+e.target.value; document.getElementById('kko').textContent=(+e.target.value); E.blip(420+self.s.k*60,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.k, ctx=E.ctx, ax=2,ay=1.5; P.axes();
@@ -66,7 +66,7 @@
   // ══════════ 9.2 벡터의 응용 ══════════
   // 9.2a 내적 — a·b = |a||b|cosθ
   { id:'ch9_04',
-    enter:function(E){ this.s={deg:60}; E.Plot.range(-4,5,-3,5);
+    enter:function(E){ this.s={deg:60}; E.Plot.range(-4,5,-3,5).lab('x','y');
       E.controls('<div class="ctrl"><label>b의 방향 θ (도)</label><input type="range" id="bt" min="0" max="180" step="15" value="60"><output id="bto">60°</output></div>');
       var self=this; E.bind('#bt','input',function(e){ self.s.deg=+e.target.value; document.getElementById('bto').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, ax=4,ay=0, R=3, t=this.s.deg*Math.PI/180, bx=R*Math.cos(t), by=R*Math.sin(t); P.axes();
@@ -79,7 +79,7 @@
 
   // 9.2b 응용 — 내적으로 수직 판정
   { id:'ch9_05',
-    enter:function(E){ this.s={deg:117}; E.Plot.range(-4,4,-3,4);
+    enter:function(E){ this.s={deg:117}; E.Plot.range(-4,4,-3,4).lab('x','y');
       // a=(2,1)의 방향각 ≈ 26.57°. b를 a기준 +90°(=116.57°)로 두면 수직.
       E.controls('<div class="ctrl"><label>b의 방향 θ (도)</label><input type="range" id="bt" min="0" max="180" step="9" value="117"><output id="bto">117°</output></div>');
       var self=this; E.bind('#bt','input',function(e){ self.s.deg=+e.target.value; document.getElementById('bto').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },

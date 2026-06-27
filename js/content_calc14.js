@@ -12,7 +12,7 @@
 
   // 14.1 이중적분 = 부피  z=f(x,y) 아래 부피, n×n 리만
   { id:'calc14_01',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-2,2,-2,2);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-2,2,-2,2).lab('x','y');
       E.controls('<div class="ctrl"><label>격자 n×n</label><input type="range" id="vn" min="1" max="24" step="1" value="4"><output id="vno">4</output></div>');
       var self=this; E.bind('#vn','input',function(e){ self.s.n=+e.target.value; document.getElementById('vno').textContent=e.target.value; E.blip(360+self.s.n*8,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, a=-2, b=2;
@@ -30,7 +30,7 @@
 
   // 14.2 반복적분 — 안쪽 적분(단면) → 바깥 적분(누적)
   { id:'calc14_02',
-    enter:function(E){ this.s={y:-1.8}; E.Plot.range(-2,2,-2,2);
+    enter:function(E){ this.s={y:-1.8}; E.Plot.range(-2,2,-2,2).lab('x','y');
       E.controls('<div class="ctrl"><label>현재 y</label><input type="range" id="iy" min="-2" max="2" step="0.04" value="-1.8"><output id="iyo">-1.80</output></div>');
       var self=this; E.bind('#iy','input',function(e){ self.s.y=+e.target.value; document.getElementById('iyo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, y=s.y, a=-2, b=2;
@@ -49,7 +49,7 @@
 
   // 14.3 극좌표 이중적분 — dA = r dr dθ
   { id:'calc14_03',
-    enter:function(E){ this.s={n:5}; E.Plot.range(-2.4,2.4,-2.4,2.4);
+    enter:function(E){ this.s={n:5}; E.Plot.range(-2.4,2.4,-2.4,2.4).lab('x','y');
       E.controls('<div class="ctrl"><label>분할 n</label><input type="range" id="pn" min="2" max="14" step="1" value="5"><output id="pno">5</output></div>');
       var self=this; E.bind('#pn','input',function(e){ self.s.n=+e.target.value; document.getElementById('pno').textContent=e.target.value; E.blip(360+self.s.n*10,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, R=2;
@@ -65,7 +65,7 @@
 
   // 14.4 무게중심 — ∬ρ dA, 반원판의 중심
   { id:'calc14_04',
-    enter:function(E){ this.s={R:1.6}; E.Plot.range(-2.2,2.2,-0.6,2.4);
+    enter:function(E){ this.s={R:1.6}; E.Plot.range(-2.2,2.2,-0.6,2.4).lab('x','y');
       E.controls('<div class="ctrl"><label>반지름 R</label><input type="range" id="cr" min="0.8" max="2" step="0.05" value="1.6"><output id="cro">1.60</output></div>');
       var self=this; E.bind('#cr','input',function(e){ self.s.R=+e.target.value; document.getElementById('cro').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, R=s.R;
@@ -82,7 +82,7 @@
 
   // 14.5 삼중적분 — 구의 부피, 얇은 원판 적층  V=∫π r(z)² dz
   { id:'calc14_05',
-    enter:function(E){ this.s={n:6}; E.Plot.range(-2.4,2.4,-2.4,2.4);
+    enter:function(E){ this.s={n:6}; E.Plot.range(-2.4,2.4,-2.4,2.4).lab('x','z');
       E.controls('<div class="ctrl"><label>층 수 n</label><input type="range" id="tn" min="2" max="30" step="1" value="6"><output id="tno">6</output></div>');
       var self=this; E.bind('#tn','input',function(e){ self.s.n=+e.target.value; document.getElementById('tno').textContent=e.target.value; E.blip(360+self.s.n*8,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, R=2;

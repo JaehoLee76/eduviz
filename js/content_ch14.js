@@ -7,7 +7,7 @@
   // ══════════ 14.1 수렴·발산 ══════════
   // 14.1a 수열의 수렴
   { id:'ch14_01',
-    enter:function(E){ this.s={N:6}; E.Plot.range(0,13,0,3);
+    enter:function(E){ this.s={N:6}; E.Plot.range(0,13,0,3).lab('n','aₙ');
       E.controls('<div class="ctrl"><label>항의 개수 N</label><input type="range" id="nn" min="2" max="12" step="1" value="6"><output id="nno">6</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.N=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(420+self.s.N*20,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, N=this.s.N, ctx=E.ctx; P.axes();
@@ -22,7 +22,7 @@
 
   // 14.1b 발산 · 진동
   { id:'ch14_02',
-    enter:function(E){ this.s={mode:0}; E.Plot.range(0,13,-2,5); E.setOn([]); },
+    enter:function(E){ this.s={mode:0}; E.Plot.range(0,13,-2,5).lab('n','aₙ'); E.setOn([]); },
     tap:function(E){ this.s.mode=(this.s.mode+1)%2; E.blip(this.s.mode?300:520,0.15); },
     draw:function(E){ var P=E.Plot, m=this.s.mode, ctx=E.ctx; P.axes();
       for(var n=1;n<=12;n++){ var v = m===0 ? n/3 : (n%2===0?1:-1);
@@ -34,7 +34,7 @@
   // ══════════ 14.2 극한의 계산 ══════════
   // 14.2a 함수의 극한 — 0/0 구멍
   { id:'ch14_03',
-    enter:function(E){ this.s={d:0.8}; E.Plot.range(-2,4,-1,5);
+    enter:function(E){ this.s={d:0.8}; E.Plot.range(-2,4,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>1에서 거리 d</label><input type="range" id="ld" min="0.02" max="1.5" step="0.02" value="0.8"><output id="ldo">0.80</output></div>');
       var self=this; E.bind('#ld','input',function(e){ self.s.d=+e.target.value; document.getElementById('ldo').textContent=(+e.target.value).toFixed(2); E.blip(700-self.s.d*300,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, d=this.s.d; P.axes();
@@ -50,7 +50,7 @@
 
   // 14.2b lim x→∞  (1/x → 0)
   { id:'ch14_04',
-    enter:function(E){ this.s={x:2}; E.Plot.range(0,10,-0.5,4);
+    enter:function(E){ this.s={x:2}; E.Plot.range(0,10,-0.5,4).lab('x','y');
       E.controls('<div class="ctrl"><label>x</label><input type="range" id="lx" min="1" max="10" step="0.5" value="2"><output id="lxo">2</output></div>');
       var self=this; E.bind('#lx','input',function(e){ self.s.x=+e.target.value; document.getElementById('lxo').textContent=e.target.value; E.blip(360+self.s.x*28,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, x=this.s.x; P.axes();
@@ -65,7 +65,7 @@
 
   // ══════════ 14.3 e의 정의 ══════════
   { id:'ch14_05',
-    enter:function(E){ this.s={k:1}; E.Plot.range(0,7,0,3.2);
+    enter:function(E){ this.s={k:1}; E.Plot.range(0,7,0,3.2).lab('n','aₙ');
       E.controls('<div class="ctrl"><label>n = 2^</label><input type="range" id="ek" min="0" max="7" step="1" value="1"><output id="eko">2</output></div>');
       var self=this; E.bind('#ek','input',function(e){ self.s.k=+e.target.value; document.getElementById('eko').textContent=Math.pow(2,self.s.k); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.k, ctx=E.ctx; P.axes();

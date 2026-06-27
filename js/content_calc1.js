@@ -8,7 +8,7 @@
 
   // 1.1 함수의 네 가지 표현 — 식·표·그래프·말 (입력 x 슬라이더)
   { id:'calc1_01',
-    enter:function(E){ this.s={x:2}; E.Plot.range(-3.2,3.2,-1,9.5);
+    enter:function(E){ this.s={x:2}; E.Plot.range(-3.2,3.2,-1,9.5).lab('x','y');
       E.controls('<div class="ctrl"><label>입력 x</label><input type="range" id="cx" min="-3" max="3" step="1" value="2"><output id="cxo">2</output></div>');
       var self=this; E.bind('#cx','input',function(e){ self.s.x=+e.target.value; document.getElementById('cxo').textContent=e.target.value; E.blip(420+self.s.x*30,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x, y=x*x;
@@ -27,7 +27,7 @@
 
   // 1.2 수학적 모델 — 선형 vs 거듭제곱 vs 지수 (성장 경주)
   { id:'calc1_02',
-    enter:function(E){ this.s={t:3}; E.Plot.range(0,6,0,40);
+    enter:function(E){ this.s={t:3}; E.Plot.range(0,6,0,40).lab('t','y');
       E.controls('<div class="ctrl"><label>시간 t</label><input type="range" id="mt" min="0" max="6" step="0.25" value="3"><output id="mto">3</output></div>');
       var self=this; E.bind('#mt','input',function(e){ self.s.t=+e.target.value; document.getElementById('mto').textContent=(+e.target.value).toFixed(2); E.blip(360+self.s.t*30,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, t=s.t;
@@ -47,7 +47,7 @@
 
   // 1.3 함수 변환 — y = a·f(x − c) + d  (기본함수 f=sin)
   { id:'calc1_03',
-    enter:function(E){ this.s={a:1,c:0,d:0}; E.Plot.range(-6.5,6.5,-4,4);
+    enter:function(E){ this.s={a:1,c:0,d:0}; E.Plot.range(-6.5,6.5,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>세로배율 a</label><input type="range" id="va" min="-2" max="2" step="0.5" value="1"><output id="vao">1</output><label style="margin-left:12px">좌우이동 c</label><input type="range" id="vc" min="-3" max="3" step="0.5" value="0"><output id="vco">0</output><label style="margin-left:12px">상하이동 d</label><input type="range" id="vd" min="-2" max="2" step="0.5" value="0"><output id="vdo">0</output></div>');
       var self=this;
       E.bind('#va','input',function(e){ self.s.a=+e.target.value; document.getElementById('vao').textContent=e.target.value; E.blip(460,0.08); });
@@ -65,7 +65,7 @@
 
   // 1.4 지수함수와 배가시간 — y = bˣ
   { id:'calc1_04',
-    enter:function(E){ this.s={b:2}; E.Plot.range(-3,5,-0.5,16);
+    enter:function(E){ this.s={b:2}; E.Plot.range(-3,5,-0.5,16).lab('x','y');
       E.controls('<div class="ctrl"><label>밑 b</label><input type="range" id="eb" min="1.1" max="3" step="0.1" value="2"><output id="ebo">2.0</output></div>');
       var self=this; E.bind('#eb','input',function(e){ self.s.b=+e.target.value; document.getElementById('ebo').textContent=(+e.target.value).toFixed(1); E.blip(380+self.s.b*60,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b;
@@ -81,7 +81,7 @@
 
   // 1.5 역함수와 로그 — f=bˣ 와 f⁻¹=log_b, y=x 대칭
   { id:'calc1_05',
-    enter:function(E){ this.s={a:1}; E.Plot.range(-4,8,-4,8);
+    enter:function(E){ this.s={a:1}; E.Plot.range(-4,8,-4,8).lab('x','y');
       E.controls('<div class="ctrl"><label>점 a</label><input type="range" id="ra" min="-2" max="2.5" step="0.25" value="1"><output id="rao">1.00</output></div>');
       var self=this; E.bind('#ra','input',function(e){ self.s.a=+e.target.value; document.getElementById('rao').textContent=(+e.target.value).toFixed(2); E.blip(420,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;

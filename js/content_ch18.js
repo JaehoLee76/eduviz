@@ -9,7 +9,7 @@
 
   // ══════════ 18.1 평균값 정리 ══════════
   { id:'ch18_01',
-    enter:function(E){ this.s={b:3}; E.Plot.range(-0.5,4,-1,9);
+    enter:function(E){ this.s={b:3}; E.Plot.range(-0.5,4,-1,9).lab('x','y');
       E.controls('<div class="ctrl"><label>끝점 b</label><input type="range" id="bb" min="1.5" max="3.5" step="0.5" value="3"><output id="bbo">3</output></div>');
       var self=this; E.bind('#bb','input',function(e){ self.s.b=+e.target.value; document.getElementById('bbo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx, a=0, fa=0, fb=b*b, sl=(fb-fa)/(b-a), c=b/2; P.axes();
@@ -25,7 +25,7 @@
 
   // ══════════ 18.2 요철·변곡점 (2계도함수) ══════════
   { id:'ch18_02',
-    enter:function(E){ this.s={x:-1}; E.Plot.range(-2.5,2.5,-4,4);
+    enter:function(E){ this.s={x:-1}; E.Plot.range(-2.5,2.5,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>점 x</label><input type="range" id="xx" min="-2" max="2" step="0.25" value="-1"><output id="xxo">-1</output></div>');
       var self=this; E.bind('#xx','input',function(e){ self.s.x=+e.target.value; document.getElementById('xxo').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, x=this.s.x, ctx=E.ctx; P.axes();
@@ -40,7 +40,7 @@
 
   // ══════════ 18.3 곡선의 개형 ══════════
   { id:'ch18_03',
-    enter:function(E){ this.s={b:-3}; E.Plot.range(-2.5,2.5,-4,4);
+    enter:function(E){ this.s={b:-3}; E.Plot.range(-2.5,2.5,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>계수 b  (y = x³ + b·x)</label><input type="range" id="bc" min="-4" max="2" step="0.5" value="-3"><output id="bco">-3</output></div>');
       var self=this; E.bind('#bc','input',function(e){ self.s.b=+e.target.value; document.getElementById('bco').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx; P.axes();
@@ -97,7 +97,7 @@
 
   // ══════════ 18.5 테일러 근사 ══════════
   { id:'ch18_05',
-    enter:function(E){ this.s={N:1}; E.Plot.range(-4,4,-2.5,2.5);
+    enter:function(E){ this.s={N:1}; E.Plot.range(-4,4,-2.5,2.5).lab('x','y');
       E.controls('<div class="ctrl"><label>항 개수 N</label><input type="range" id="tn" min="1" max="5" step="1" value="1"><output id="tno">1</output></div>');
       var self=this; E.bind('#tn','input',function(e){ self.s.N=+e.target.value; document.getElementById('tno').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, N=this.s.N, ctx=E.ctx; P.axes();

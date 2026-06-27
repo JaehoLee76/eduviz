@@ -88,7 +88,7 @@
   },
 
   { id:'ch3_04',
-    enter:function(E){ this.s={b:-2}; E.Plot.range(-5,5,-7,7);
+    enter:function(E){ this.s={b:-2}; E.Plot.range(-5,5,-7,7).lab('x','y');
       E.controls('<div class="ctrl"><label>x의 계수 b</label><input type="range" id="sbq" min="-4" max="4" step="1" value="-2"><output id="obq">-2</output></div>');
       var self=this; E.bind('#sbq','input',function(e){ self.s.b=+e.target.value; document.getElementById('obq').textContent=e.target.value; E.blip(360+(self.s.b+4)*36,0.1); });
       var sl=document.getElementById('sbq'); if(sl) sl.value='-2'; E.setOn([]); },
@@ -103,7 +103,7 @@
   },
 
   { id:'ch3_05',
-    enter:function(E){ this.s={c:-3}; E.Plot.range(-4,6,-5,7);
+    enter:function(E){ this.s={c:-3}; E.Plot.range(-4,6,-5,7).lab('x','y');
       E.controls('<div class="ctrl"><label>상수 c</label><input type="range" id="sc" min="-3" max="3" step="1" value="-3"><output id="oc">-3</output></div>');
       var self=this; E.bind('#sc','input',function(e){ self.s.c=+e.target.value; document.getElementById('oc').textContent=e.target.value; E.blip(360+(self.s.c+3)*40,0.1); });
       var sl=document.getElementById('sc'); if(sl) sl.value='-3'; E.setOn([]); },
@@ -117,7 +117,7 @@
   },
 
   { id:'ch3_06',
-    enter:function(E){ this.s={c:0}; E.Plot.range(-3,5,-3,3);
+    enter:function(E){ this.s={c:0}; E.Plot.range(-3,5,-3,3).lab('Re','Im');
       E.controls('<div class="ctrl"><label>상수 c</label><input type="range" id="sc2" min="0" max="4" step="1" value="0"><output id="oc2">0</output></div>');
       var self=this; E.bind('#sc2','input',function(e){ self.s.c=+e.target.value; document.getElementById('oc2').textContent=e.target.value; E.blip(380+self.s.c*45,0.1); });
       E.setOn([]); },
@@ -137,7 +137,7 @@
 
   // ══════════ 3.3 고차방정식 ══════════
   { id:'ch3_07',
-    enter:function(E){ this.s={n:1}; E.Plot.range(-4,5,-8,8); E.setOn([]); },
+    enter:function(E){ this.s={n:1}; E.Plot.range(-4,5,-8,8).lab('x','y'); E.setOn([]); },
     tap:function(E){ this.s.n=this.s.n%3+1; E.blip(420+this.s.n*60,0.15); },
     draw:function(E){ var s=this.s, P=E.Plot, n=s.n; P.axes();
       var fns=[ function(x){return (x+2);}, function(x){return (x+2)*(x-1);}, function(x){return (x+2)*(x-1)*(x-3)/2;} ];
@@ -149,7 +149,7 @@
       E.big(['y = (x+2)','y = (x+2)(x−1)','y = (x+2)(x−1)(x−3)'][n-1], '차수 '+n+' · 근 '+n+'개 · '+turns); }
   },
   { id:'ch3_08',
-    enter:function(E){ this.s={}; E.Plot.range(-4,5,-8,8); E.setOn([]);
+    enter:function(E){ this.s={}; E.Plot.range(-4,5,-8,8).lab('x','y'); E.setOn([]);
       E.quiz({q:'(x+1)(x−2)(x−4) = 0 의 해는?', choices:['−1, 2, 4','1, −2, 4','1, 2, 4','−1, −2, −4'], answer:0, explain:'인수 3개가 각각 0: x+1=0→−1, x−2=0→2, x−4=0→4. 3차라 근도 3개.'}); },
     draw:function(E){ var P=E.Plot; P.axes();
       P.curve(function(x){return (x+2)*(x-1)*(x-3)/2;}, '#7ab8ff');
@@ -157,7 +157,7 @@
   },
 
   { id:'ch3_09',
-    enter:function(E){ this.s={b:-3}; E.Plot.range(-3,3,-9,9);
+    enter:function(E){ this.s={b:-3}; E.Plot.range(-3,3,-9,9).lab('x','y');
       E.controls('<div class="ctrl"><label>계수 b</label><input type="range" id="sb3" min="-4" max="4" step="1" value="-3"><output id="ob3">-3</output></div>');
       var self=this; E.bind('#sb3','input',function(e){ self.s.b=+e.target.value; document.getElementById('ob3').textContent=e.target.value; E.blip(360+(self.s.b+4)*36,0.1); });
       var sl=document.getElementById('sb3'); if(sl) sl.value='-3'; E.setOn([]); },
@@ -173,7 +173,7 @@
 
   // ══════════ 3.4 연립방정식 ══════════
   { id:'ch3_10',
-    enter:function(E){ this.s={m:1}; E.Plot.range(-5,5,-5,5);
+    enter:function(E){ this.s={m:1}; E.Plot.range(-5,5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>파란선 기울기 m</label><input type="range" id="sm" min="-2" max="2" step="0.5" value="1"><output id="om">1</output></div>');
       var self=this; E.bind('#sm','input',function(e){ self.s.m=+e.target.value; document.getElementById('om').textContent=e.target.value; E.blip(420,0.1); });
       E.setOn([]); },

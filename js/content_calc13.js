@@ -21,7 +21,7 @@
 
   // 13.1 다변수함수 — 등고선/색 지도, 점의 높이 z=f(x,y)
   { id:'calc13_01',
-    enter:function(E){ this.s={x:1,y:0.5}; E.Plot.range(-3,3,-3,3);
+    enter:function(E){ this.s={x:1,y:0.5}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>x</label><input type="range" id="px" min="-3" max="3" step="0.1" value="1"><output id="pxo">1.0</output><label style="margin-left:12px">y</label><input type="range" id="py" min="-3" max="3" step="0.1" value="0.5"><output id="pyo">0.5</output></div>');
       var self=this; E.bind('#px','input',function(e){ self.s.x=+e.target.value; document.getElementById('pxo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.05); });
       E.bind('#py','input',function(e){ self.s.y=+e.target.value; document.getElementById('pyo').textContent=(+e.target.value).toFixed(1); E.blip(400,0.05); }); E.setOn([]); },
@@ -32,7 +32,7 @@
 
   // 13.2 편도함수 — 한 방향만 미분
   { id:'calc13_02',
-    enter:function(E){ this.s={x:0.6,y:0.4}; E.Plot.range(-3,3,-3,3);
+    enter:function(E){ this.s={x:0.6,y:0.4}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>x</label><input type="range" id="qx" min="-3" max="3" step="0.1" value="0.6"><output id="qxo">0.6</output><label style="margin-left:12px">y</label><input type="range" id="qy" min="-3" max="3" step="0.1" value="0.4"><output id="qyo">0.4</output></div>');
       var self=this; E.bind('#qx','input',function(e){ self.s.x=+e.target.value; document.getElementById('qxo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.05); });
       E.bind('#qy','input',function(e){ self.s.y=+e.target.value; document.getElementById('qyo').textContent=(+e.target.value).toFixed(1); E.blip(400,0.05); }); E.setOn([]); },
@@ -47,7 +47,7 @@
 
   // 13.3 기울기 벡터 ∇f — 가장 가파른 오르막
   { id:'calc13_03',
-    enter:function(E){ this.s={x:0.8,y:0.6}; E.Plot.range(-3,3,-3,3);
+    enter:function(E){ this.s={x:0.8,y:0.6}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>x</label><input type="range" id="gx" min="-3" max="3" step="0.1" value="0.8"><output id="gxo">0.8</output><label style="margin-left:12px">y</label><input type="range" id="gy" min="-3" max="3" step="0.1" value="0.6"><output id="gyo">0.6</output></div>');
       var self=this; E.bind('#gx','input',function(e){ self.s.x=+e.target.value; document.getElementById('gxo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.05); });
       E.bind('#gy','input',function(e){ self.s.y=+e.target.value; document.getElementById('gyo').textContent=(+e.target.value).toFixed(1); E.blip(400,0.05); }); E.setOn([]); },
@@ -63,7 +63,7 @@
 
   // 13.4 극값 — ∇f=0 인 곳(봉우리·골짜기·안장)
   { id:'calc13_04',
-    enter:function(E){ this.s={x:0.5,y:0.5}; E.Plot.range(-3,3,-3,3);
+    enter:function(E){ this.s={x:0.5,y:0.5}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>x</label><input type="range" id="ex" min="-3" max="3" step="0.05" value="0.5"><output id="exo">0.5</output><label style="margin-left:12px">y</label><input type="range" id="ey" min="-3" max="3" step="0.05" value="0.5"><output id="eyo">0.5</output></div>');
       var self=this; E.bind('#ex','input',function(e){ self.s.x=+e.target.value; document.getElementById('exo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.05); });
       E.bind('#ey','input',function(e){ self.s.y=+e.target.value; document.getElementById('eyo').textContent=(+e.target.value).toFixed(2); E.blip(400,0.05); }); E.setOn([]); },
@@ -79,7 +79,7 @@
 
   // 13.5 라그랑주 승수 — 제약 위에서 최적화  f=x+y, g: x²+y²=1
   { id:'calc13_05',
-    enter:function(E){ this.s={th:0.5}; E.Plot.range(-2,2,-2,2);
+    enter:function(E){ this.s={th:0.5}; E.Plot.range(-2,2,-2,2).lab('x','y');
       E.controls('<div class="ctrl"><label>원 위 위치 θ</label><input type="range" id="lt" min="0" max="6.28" step="0.03" value="0.5"><output id="lto">0.50</output></div>');
       var self=this; E.bind('#lt','input',function(e){ self.s.th=+e.target.value; document.getElementById('lto').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, th=s.th;

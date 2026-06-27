@@ -78,7 +78,7 @@
 
   // ══════════ 1.3 빅오 — 성장 곡선 (concept) ══════════
   { id:'algo1_03', concept:true,
-    enter:function(E){ this.s={}; E.Plot.range(0,20,0,40); E.setOn([]); },
+    enter:function(E){ this.s={}; E.Plot.range(0,20,0,40).lab('n','연산수'); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       P.curve(function(x){return 1;}, GRN);
       P.curve(function(x){return x>0?Math.log2(x):0;}, BLU);

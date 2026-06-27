@@ -9,7 +9,7 @@
 
   // 3.1 도함수 = 기울기 함수  f(x)=0.3x³−x, f′를 점으로 추적
   { id:'calc3_01',
-    enter:function(E){ this.s={a:-1.5}; E.Plot.range(-3,3,-3.5,3.5);
+    enter:function(E){ this.s={a:-1.5}; E.Plot.range(-3,3,-3.5,3.5).lab('x','y');
       E.controls('<div class="ctrl"><label>접점 a</label><input type="range" id="da" min="-2.6" max="2.6" step="0.05" value="-1.5"><output id="dao">-1.50</output></div>');
       var self=this; E.bind('#da','input',function(e){ self.s.a=+e.target.value; document.getElementById('dao').textContent=(+e.target.value).toFixed(2); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;
@@ -27,7 +27,7 @@
 
   // 3.2 거듭제곱 법칙  d/dx xⁿ = n x^(n−1)
   { id:'calc3_02',
-    enter:function(E){ this.s={n:2}; E.Plot.range(-2.2,2.2,-3,5);
+    enter:function(E){ this.s={n:2}; E.Plot.range(-2.2,2.2,-3,5).lab('x','y');
       E.controls('<div class="ctrl"><label>지수 n</label><input type="range" id="pn" min="1" max="4" step="1" value="2"><output id="pno">2</output></div>');
       var self=this; E.bind('#pn','input',function(e){ self.s.n=+e.target.value; document.getElementById('pno').textContent=e.target.value; E.blip(420+self.s.n*40,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n;
@@ -45,7 +45,7 @@
 
   // 3.3 위치 → 속도 → 가속도  s(t)=t³−6t²+9t (앞뒤로 움직이는 물체)
   { id:'calc3_03',
-    enter:function(E){ this.s={t:0.5}; E.Plot.range(0,4.2,-2,6);
+    enter:function(E){ this.s={t:0.5}; E.Plot.range(0,4.2,-2,6).lab('t','s');
       E.controls('<div class="ctrl"><label>시간 t</label><input type="range" id="mt" min="0" max="4" step="0.05" value="0.5"><output id="mto">0.50</output></div>');
       var self=this; E.bind('#mt','input',function(e){ self.s.t=+e.target.value; document.getElementById('mto').textContent=(+e.target.value).toFixed(2); E.blip(360+self.s.t*40,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, t=s.t;
@@ -66,7 +66,7 @@
 
   // 3.4 sin의 도함수는 cos
   { id:'calc3_04',
-    enter:function(E){ this.s={a:0.6}; E.Plot.range(-6.5,6.5,-1.8,1.8);
+    enter:function(E){ this.s={a:0.6}; E.Plot.range(-6.5,6.5,-1.8,1.8).lab('x','y');
       E.controls('<div class="ctrl"><label>접점 a</label><input type="range" id="sa" min="-6" max="6" step="0.1" value="0.6"><output id="sao">0.6</output></div>');
       var self=this; E.bind('#sa','input',function(e){ self.s.a=+e.target.value; document.getElementById('sao').textContent=(+e.target.value).toFixed(1); E.blip(440,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;
@@ -82,7 +82,7 @@
 
   // 3.5 eˣ — 자기 자신이 도함수인 함수
   { id:'calc3_05',
-    enter:function(E){ this.s={a:0.7}; E.Plot.range(-2,2.2,-0.5,7);
+    enter:function(E){ this.s={a:0.7}; E.Plot.range(-2,2.2,-0.5,7).lab('x','y');
       E.controls('<div class="ctrl"><label>접점 a</label><input type="range" id="ea" min="-1.8" max="1.9" step="0.05" value="0.7"><output id="eao">0.70</output></div>');
       var self=this; E.bind('#ea','input',function(e){ self.s.a=+e.target.value; document.getElementById('eao').textContent=(+e.target.value).toFixed(2); E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, a=s.a;

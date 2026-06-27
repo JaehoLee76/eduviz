@@ -9,7 +9,7 @@
 
   // 11.1 수열의 극한  aₙ=(1+1/n)ⁿ → e
   { id:'calc11_01',
-    enter:function(E){ this.s={n:5}; E.Plot.range(0,30,1.5,3);
+    enter:function(E){ this.s={n:5}; E.Plot.range(0,30,1.5,3).lab('n','aₙ');
       E.controls('<div class="ctrl"><label>항 번호 n</label><input type="range" id="sn" min="1" max="30" step="1" value="5"><output id="sno">5</output></div>');
       var self=this; E.bind('#sn','input',function(e){ self.s.n=+e.target.value; document.getElementById('sno').textContent=e.target.value; E.blip(380+self.s.n*8,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, N=s.n;
@@ -24,7 +24,7 @@
 
   // 11.2 기하급수  Σ rᵏ → 1/(1−r)  (|r|<1)
   { id:'calc11_02',
-    enter:function(E){ this.s={r:0.6}; E.Plot.range(-0.5,13,-0.2,3.2);
+    enter:function(E){ this.s={r:0.6}; E.Plot.range(-0.5,13,-0.2,3.2).lab('k','Sₙ');
       E.controls('<div class="ctrl"><label>공비 r</label><input type="range" id="gr" min="-0.95" max="0.95" step="0.05" value="0.6"><output id="gro">0.60</output></div>');
       var self=this; E.bind('#gr','input',function(e){ self.s.r=+e.target.value; document.getElementById('gro').textContent=(+e.target.value).toFixed(2); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, r=s.r;
@@ -39,7 +39,7 @@
 
   // 11.3 수렴 판정 — p급수  Σ1/nᵖ, p>1 수렴·p≤1 발산
   { id:'calc11_03',
-    enter:function(E){ this.s={p:2}; E.Plot.range(0,60,0,6);
+    enter:function(E){ this.s={p:2}; E.Plot.range(0,60,0,6).lab('n','Sₙ');
       E.controls('<div class="ctrl"><label>지수 p</label><input type="range" id="pp" min="0.5" max="2.5" step="0.1" value="2"><output id="ppo">2.0</output></div>');
       var self=this; E.bind('#pp','input',function(e){ self.s.p=+e.target.value; document.getElementById('ppo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, p=s.p;
@@ -55,7 +55,7 @@
 
   // 11.4 테일러 급수  eˣ ≈ Σ xᵏ/k!
   { id:'calc11_04',
-    enter:function(E){ this.s={d:1}; E.Plot.range(-3.5,3,-1,8);
+    enter:function(E){ this.s={d:1}; E.Plot.range(-3.5,3,-1,8).lab('x','y');
       E.controls('<div class="ctrl"><label>차수 d</label><input type="range" id="td" min="0" max="8" step="1" value="1"><output id="tdo">1</output></div>');
       var self=this; E.bind('#td','input',function(e){ self.s.d=+e.target.value; document.getElementById('tdo').textContent=e.target.value; E.blip(380+self.s.d*30,0.07); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, d=s.d;
@@ -67,7 +67,7 @@
 
   // 11.5 테일러 급수  sin x ≈ x − x³/3! + x⁵/5! − …
   { id:'calc11_05',
-    enter:function(E){ this.s={m:1}; E.Plot.range(-7,7,-2.2,2.2);
+    enter:function(E){ this.s={m:1}; E.Plot.range(-7,7,-2.2,2.2).lab('x','y');
       E.controls('<div class="ctrl"><label>항 수 m</label><input type="range" id="tm" min="1" max="7" step="1" value="1"><output id="tmo">1</output></div>');
       var self=this; E.bind('#tm','input',function(e){ self.s.m=+e.target.value; document.getElementById('tmo').textContent=e.target.value; E.blip(380+self.s.m*30,0.07); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, m=s.m;

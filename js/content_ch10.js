@@ -16,7 +16,7 @@
   // ══════════ 10.1 복소평면 ══════════
   // 10.1a 복소수 = 평면의 점
   { id:'ch10_01',
-    enter:function(E){ this.s={a:3,b:2}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={a:3,b:2}; E.Plot.range(-6,6,-4,4).lab('Re','Im');
       E.controls('<div class="ctrl"><label>실수부 a</label><input type="range" id="ca" min="-4" max="4" step="1" value="3"><output id="cao">3</output><label style="margin-left:14px">허수부 b</label><input type="range" id="cb" min="-3" max="3" step="1" value="2"><output id="cbo">2</output></div>');
       var self=this;
       E.bind('#ca','input',function(e){ self.s.a=+e.target.value; document.getElementById('cao').textContent=e.target.value; E.blip(440,0.1); });
@@ -32,7 +32,7 @@
 
   // 10.1b 복소수의 덧셈 = 벡터 덧셈
   { id:'ch10_02',
-    enter:function(E){ this.s={bx:-1,by:2}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={bx:-1,by:2}; E.Plot.range(-6,6,-4,4).lab('Re','Im');
       E.controls('<div class="ctrl"><label>w 실수부</label><input type="range" id="wx" min="-3" max="3" step="1" value="-1"><output id="wxo">-1</output><label style="margin-left:14px">w 허수부</label><input type="range" id="wy" min="-2" max="3" step="1" value="2"><output id="wyo">2</output></div>');
       var self=this;
       E.bind('#wx','input',function(e){ self.s.bx=+e.target.value; document.getElementById('wxo').textContent=e.target.value; E.blip(440,0.1); });
@@ -52,7 +52,7 @@
   // ══════════ 10.2 복소수와 평면기하 ══════════
   // 10.2a 절댓값과 편각 (극형식)
   { id:'ch10_03',
-    enter:function(E){ this.s={r:3,deg:45}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={r:3,deg:45}; E.Plot.range(-6,6,-4,4).lab('Re','Im');
       E.controls('<div class="ctrl"><label>크기 r</label><input type="range" id="pr" min="1" max="3.5" step="0.5" value="3"><output id="pro">3</output><label style="margin-left:14px">편각 θ</label><input type="range" id="pd" min="0" max="180" step="15" value="45"><output id="pdo">45°</output></div>');
       var self=this;
       E.bind('#pr','input',function(e){ self.s.r=+e.target.value; document.getElementById('pro').textContent=(+e.target.value); E.blip(440,0.1); });
@@ -67,7 +67,7 @@
 
   // 10.2b ★복소수의 곱셈 = 회전 + 확대 (각도 합·크기 곱)
   { id:'ch10_04',
-    enter:function(E){ this.s={deg:30}; E.Plot.range(-6,6,-4,4);
+    enter:function(E){ this.s={deg:30}; E.Plot.range(-6,6,-4,4).lab('Re','Im');
       E.controls('<div class="ctrl"><label>w의 편각 (×)</label><input type="range" id="md" min="0" max="150" step="30" value="30"><output id="mdo">30°</output></div>');
       var self=this; E.bind('#md','input',function(e){ self.s.deg=+e.target.value; document.getElementById('mdo').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, r1=2.2, t1=40*D2R, r2=1.4, t2=this.s.deg*D2R; P.axes(); reim(P,ctx);
@@ -81,7 +81,7 @@
 
   // 10.2c i 곱하기 = 90° 회전 (i² = −1)
   { id:'ch10_05',
-    enter:function(E){ this.s={n:0}; E.Plot.range(-3,3,-2,2); E.setOn([]); },
+    enter:function(E){ this.s={n:0}; E.Plot.range(-3,3,-2,2).lab('Re','Im'); E.setOn([]); },
     tap:function(E){ this.s.n=(this.s.n+1)%4; E.blip(440+this.s.n*60,0.15); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, n=this.s.n, r=1.5; P.axes(); reim(P,ctx);
       // 단위원(궤도)

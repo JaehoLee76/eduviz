@@ -31,7 +31,7 @@
 
   // 5.1b 일차함수 그래프
   { id:'ch5_02',
-    enter:function(E){ this.s={a:1,b:1}; E.Plot.range(-5,5,-5,5);
+    enter:function(E){ this.s={a:1,b:1}; E.Plot.range(-5,5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>기울기 a</label><input type="range" id="la" min="-2" max="2" step="1" value="1"><output id="lao">1</output><label style="margin-left:14px">y절편 b</label><input type="range" id="lb" min="-3" max="3" step="1" value="1"><output id="lbo">1</output></div>');
       var self=this; E.bind('#la','input',function(e){ self.s.a=+e.target.value; document.getElementById('lao').textContent=e.target.value; E.blip(440,0.1); });
       E.bind('#lb','input',function(e){ self.s.b=+e.target.value; document.getElementById('lbo').textContent=e.target.value; E.blip(400,0.1); }); E.setOn([]); },
@@ -43,7 +43,7 @@
 
   // 5.2a 이차함수
   { id:'ch5_03',
-    enter:function(E){ this.s={a:1,b:0,c:-2}; E.Plot.range(-5,5,-6,8);
+    enter:function(E){ this.s={a:1,b:0,c:-2}; E.Plot.range(-5,5,-6,8).lab('x','y');
       E.controls('<div class="ctrl"><label>a</label><input type="range" id="qa" min="-2" max="2" step="0.5" value="1"><output id="qao">1</output><label style="margin-left:12px">b</label><input type="range" id="qb" min="-4" max="4" step="1" value="0"><output id="qbo">0</output><label style="margin-left:12px">c</label><input type="range" id="qc" min="-4" max="4" step="1" value="-2"><output id="qco">-2</output></div>');
       var self=this;
       E.bind('#qa','input',function(e){ self.s.a=+e.target.value; document.getElementById('qao').textContent=e.target.value; E.blip(480,0.1); });
@@ -60,7 +60,7 @@
 
   // 5.2b 꼭짓점·축
   { id:'ch5_04',
-    enter:function(E){ this.s={p:1,q:-2}; E.Plot.range(-5,5,-6,6);
+    enter:function(E){ this.s={p:1,q:-2}; E.Plot.range(-5,5,-6,6).lab('x','y');
       E.controls('<div class="ctrl"><label>p (가로)</label><input type="range" id="vp" min="-3" max="3" step="1" value="1"><output id="vpo">1</output><label style="margin-left:14px">q (세로)</label><input type="range" id="vq" min="-4" max="4" step="1" value="-2"><output id="vqo">-2</output></div>');
       var self=this; E.bind('#vp','input',function(e){ self.s.p=+e.target.value; document.getElementById('vpo').textContent=e.target.value; E.blip(440,0.1); });
       E.bind('#vq','input',function(e){ self.s.q=+e.target.value; document.getElementById('vqo').textContent=e.target.value; E.blip(400,0.1); });
@@ -74,7 +74,7 @@
 
   // 5.3a 분수함수
   { id:'ch5_05',
-    enter:function(E){ this.s={k:2}; E.Plot.range(-5,5,-5,5);
+    enter:function(E){ this.s={k:2}; E.Plot.range(-5,5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>k</label><input type="range" id="rk" min="-4" max="4" step="1" value="2"><output id="rko">2</output></div>');
       var self=this; E.bind('#rk','input',function(e){ self.s.k=+e.target.value; document.getElementById('rko').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, k=s.k; P.axes();
@@ -84,7 +84,7 @@
 
   // 5.3b 무리함수
   { id:'ch5_06',
-    enter:function(E){ this.s={p:0}; E.Plot.range(-2,8,-1,5);
+    enter:function(E){ this.s={p:0}; E.Plot.range(-2,8,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>가로 이동 p</label><input type="range" id="sp" min="0" max="4" step="1" value="0"><output id="spo">0</output></div>');
       var self=this; E.bind('#sp','input',function(e){ self.s.p=+e.target.value; document.getElementById('spo').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, p=s.p; P.axes();

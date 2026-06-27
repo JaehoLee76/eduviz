@@ -12,7 +12,7 @@
 
   // ══════════ 22.1 회전변환 ══════════
   { id:'ch22_01',
-    enter:function(E){ this.s={deg:0}; E.Plot.range(-4.5,4.5,-3,3);
+    enter:function(E){ this.s={deg:0}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>회전각 θ</label><input type="range" id="th" min="0" max="180" step="15" value="0"><output id="tho">0°</output></div>');
       var self=this; E.bind('#th','input',function(e){ self.s.deg=+e.target.value; document.getElementById('tho').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, t=this.s.deg*D2R, ctx=E.ctx; P.axes();
@@ -24,7 +24,7 @@
 
   // ══════════ 22.2 대칭(반사)변환 ══════════
   { id:'ch22_02',
-    enter:function(E){ this.s={mode:0}; E.Plot.range(-4.5,4.5,-3,3); E.setOn([]); },
+    enter:function(E){ this.s={mode:0}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y'); E.setOn([]); },
     tap:function(E){ this.s.mode=(this.s.mode+1)%3; E.blip(440+this.s.mode*50,0.15); },
     draw:function(E){ var P=E.Plot, m=this.s.mode, ctx=E.ctx; P.axes();
       var Ms=[[[1,0],[0,-1]], [[-1,0],[0,1]], [[0,1],[1,0]]], labs=['x축 대칭','y축 대칭','y=x 대칭'];
@@ -41,7 +41,7 @@
 
   // ══════════ 22.2 확대·축소 ══════════
   { id:'ch22_03',
-    enter:function(E){ this.s={s:1.5}; E.Plot.range(-4.5,4.5,-3,3);
+    enter:function(E){ this.s={s:1.5}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>배율 k</label><input type="range" id="sk" min="0.5" max="2" step="0.25" value="1.5"><output id="sko">1.5</output></div>');
       var self=this; E.bind('#sk','input',function(e){ self.s.s=+e.target.value; document.getElementById('sko').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.s, ctx=E.ctx; P.axes();
@@ -52,7 +52,7 @@
 
   // ══════════ 22.3 합성변환 ══════════
   { id:'ch22_04',
-    enter:function(E){ this.s={order:0}; E.Plot.range(-4.5,4.5,-3,3); E.setOn([]); },
+    enter:function(E){ this.s={order:0}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y'); E.setOn([]); },
     tap:function(E){ this.s.order=(this.s.order+1)%2; E.blip(this.s.order?520:420,0.15); },
     draw:function(E){ var P=E.Plot, o=this.s.order, ctx=E.ctx; P.axes();
       var R=[[0,-1],[1,0]], F=[[1,0],[0,-1]]; // 90°회전, x축대칭
@@ -66,7 +66,7 @@
 
   // ══════════ 22.3 고유벡터 ══════════
   { id:'ch22_05',
-    enter:function(E){ this.s={deg:20}; E.Plot.range(-4.5,4.5,-3,3);
+    enter:function(E){ this.s={deg:20}; E.Plot.range(-4.5,4.5,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>벡터 방향</label><input type="range" id="vd" min="0" max="180" step="5" value="20"><output id="vdo">20°</output></div>');
       var self=this; E.bind('#vd','input',function(e){ self.s.deg=+e.target.value; document.getElementById('vdo').textContent=e.target.value+'°'; E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, t=this.s.deg*D2R, ctx=E.ctx, M=[[2,1],[1,2]]; P.axes();

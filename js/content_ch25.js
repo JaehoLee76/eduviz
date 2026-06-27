@@ -5,7 +5,7 @@
 
   // ══════════ 25.1 ε-N 논법 ══════════
   { id:'ch25_01',
-    enter:function(E){ this.s={eps:0.4}; E.Plot.range(0,14,0,2.6);
+    enter:function(E){ this.s={eps:0.4}; E.Plot.range(0,14,0,2.6).lab('n','aₙ');
       E.controls('<div class="ctrl"><label>허용오차 ε</label><input type="range" id="ee" min="0.1" max="0.8" step="0.1" value="0.4"><output id="eeo">0.4</output></div>');
       var self=this; E.bind('#ee','input',function(e){ self.s.eps=+e.target.value; document.getElementById('eeo').textContent=(+e.target.value).toFixed(1); E.blip(700-self.s.eps*300,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, eps=this.s.eps, ctx=E.ctx, L=1; P.axes();
@@ -22,7 +22,7 @@
 
   // ══════════ 25.2 ε-δ 논법 ══════════
   { id:'ch25_02',
-    enter:function(E){ this.s={eps:1}; E.Plot.range(-1,4,-1,6);
+    enter:function(E){ this.s={eps:1}; E.Plot.range(-1,4,-1,6).lab('x','y');
       E.controls('<div class="ctrl"><label>목표오차 ε</label><input type="range" id="ee" min="0.4" max="2" step="0.2" value="1"><output id="eeo">1.0</output></div>');
       var self=this; E.bind('#ee','input',function(e){ self.s.eps=+e.target.value; document.getElementById('eeo').textContent=(+e.target.value).toFixed(1); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, eps=this.s.eps, ctx=E.ctx, a=1, L=2; P.axes(); // f(x)=2x, lim x→1 =2
@@ -41,7 +41,7 @@
 
   // ══════════ 25.2 연속의 엄밀한 정의 ══════════
   { id:'ch25_03',
-    enter:function(E){ this.s={}; E.Plot.range(-1,4,-1,6); E.setOn([]); },
+    enter:function(E){ this.s={}; E.Plot.range(-1,4,-1,6).lab('x','y'); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, a=2; P.axes();
       function f(x){return 0.8*x+0.6;}
       P.curve(f,'#7ab8ff');

@@ -15,7 +15,7 @@
 
   // ── ch1 연속복리와 e (branchOf calc1_04) ──
   { id:'calc1_04_compound', branchOf:'calc1_04', ord:1,
-    enter:function(E){ var s=this.s={n:1}; E.Plot.range(0,50,0.8,3); sld(E,ctrl('나누는 횟수 n','cpn',1,48,1,1),'cpn',function(v){return ''+v;},function(v){s.n=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={n:1}; E.Plot.range(0,50,0.8,3).lab('n','(1+1/n)ⁿ'); sld(E,ctrl('나누는 횟수 n','cpn',1,48,1,1),'cpn',function(v){return ''+v;},function(v){s.n=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,N=s.n;
       ctx.strokeStyle='rgba(126,224,176,0.55)'; ctx.lineWidth=1.4; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(Math.E)); ctx.lineTo(P.X(50),P.Y(Math.E)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('e ≈ 2.718', P.X(40),P.Y(Math.E)-6);
@@ -26,7 +26,7 @@
 
   // ── ch2 중간값정리 (branchOf calc2_02) ──
   { id:'calc2_02_ivt', branchOf:'calc2_02', ord:1,
-    enter:function(E){ var s=this.s={y0:0.3}; E.Plot.range(-2,2,-3,3); sld(E,ctrl('목표값 y','ivy',-2.5,2.5,0.05,0.3),'ivy',function(v){return v.toFixed(2);},function(v){s.y0=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={y0:0.3}; E.Plot.range(-2,2,-3,3).lab('x','f(x)'); sld(E,ctrl('목표값 y','ivy',-2.5,2.5,0.05,0.3),'ivy',function(v){return v.toFixed(2);},function(v){s.y0=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,y0=s.y0; function f(x){return x*x*x-2*x+0.3;}
       P.axes(); P.curve(f, VIO);
       ctx.strokeStyle=GLD; ctx.lineWidth=1.8; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(P.X(-2),P.Y(y0)); ctx.lineTo(P.X(2),P.Y(y0)); ctx.stroke(); ctx.setLineDash([]);
@@ -38,7 +38,7 @@
 
   // ── ch3 일반 지수의 도함수 (branchOf calc3_05) ──  (aˣ)′ = aˣ ln a
   { id:'calc3_05_genexp', branchOf:'calc3_05', ord:1,
-    enter:function(E){ var s=this.s={a:2}; E.Plot.range(-2,2.2,-0.5,6); sld(E,ctrl('밑 a','gea',1.2,4,0.1,2),'gea',function(v){return v.toFixed(1);},function(v){s.a=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={a:2}; E.Plot.range(-2,2.2,-0.5,6).lab('x','aˣ'); sld(E,ctrl('밑 a','gea',1.2,4,0.1,2),'gea',function(v){return v.toFixed(1);},function(v){s.a=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,a=s.a; function f(t){return Math.pow(a,t);}
       P.axes(); P.curve(f, VIO); var x0=0.6, y=f(x0), m=y*Math.log(a), num=ndf(f,x0);
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(x0-1.2),P.Y(y+m*(-1.2))); ctx.lineTo(P.X(x0+1.2),P.Y(y+m*1.2)); ctx.stroke(); P.dot(x0,y,GRN);
@@ -47,7 +47,7 @@
 
   // ── ch4 역함수의 미분 (branchOf calc4_02) ──  (f⁻¹)′ = 1/f′
   { id:'calc4_02_invderiv', branchOf:'calc4_02', ord:1,
-    enter:function(E){ var s=this.s={a:0.6}; E.Plot.range(-2,5,-2,5); sld(E,ctrl('점 a','ida',-1.5,1.5,0.05,0.6),'ida',function(v){return v.toFixed(2);},function(v){s.a=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={a:0.6}; E.Plot.range(-2,5,-2,5).lab('x','y'); sld(E,ctrl('점 a','ida',-1.5,1.5,0.05,0.6),'ida',function(v){return v.toFixed(2);},function(v){s.a=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,a=s.a;
       ctx.strokeStyle='rgba(155,153,163,0.45)'; ctx.lineWidth=1.2; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(P.X(-2),P.Y(-2)); ctx.lineTo(P.X(5),P.Y(5)); ctx.stroke(); ctx.setLineDash([]);
       P.curve(function(x){return Math.exp(x);}, VIO);
@@ -60,7 +60,7 @@
 
   // ── ch5 오목·볼록과 변곡점 (branchOf calc5_01, ord:2) ──
   { id:'calc5_01_concave', branchOf:'calc5_01', ord:2,
-    enter:function(E){ var s=this.s={x:-1}; E.Plot.range(-2.5,2.5,-4,4); sld(E,ctrl('점 x','cvx',-2.2,2.2,0.05,-1),'cvx',function(v){return v.toFixed(2);},function(v){s.x=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={x:-1}; E.Plot.range(-2.5,2.5,-4,4).lab('x','f(x)'); sld(E,ctrl('점 x','cvx',-2.2,2.2,0.05,-1),'cvx',function(v){return v.toFixed(2);},function(v){s.x=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,x=s.x; function f(t){return t*t*t-3*t;}
       P.axes(); P.curve(f, VIO);
       P.dot(0,0,'rgba(255,210,122,0.5)');  // 변곡점 x=0
@@ -72,7 +72,7 @@
 
   // ── ch6 적분의 평균값 정리 (branchOf calc6_03) ──
   { id:'calc6_03_mvt', branchOf:'calc6_03', ord:1,
-    enter:function(E){ var s=this.s={c:1}; E.Plot.range(-0.3,4.3,-0.4,2.4); sld(E,ctrl('점 c','imc',0.1,4,0.04,1),'imc',function(v){return v.toFixed(2);},function(v){s.c=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={c:1}; E.Plot.range(-0.3,4.3,-0.4,2.4).lab('x','f(x)'); sld(E,ctrl('점 c','imc',0.1,4,0.04,1),'imc',function(v){return v.toFixed(2);},function(v){s.c=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,c=s.c,b=4; function f(t){return 1+Math.sin(t);}
       var m=integ(f,0,b)/b;
       var n=160,h=b/n; for(var k=0;k<n;k++){ var xm=h*(k+0.5); ctx.fillStyle='rgba(185,156,255,0.16)'; ctx.fillRect(P.X(k*h),P.Y(f(xm)),P.X((k+1)*h)-P.X(k*h),P.Y(0)-P.Y(f(xm))); }
@@ -85,7 +85,7 @@
 
   // ── ch7 워셔법(구멍 뚫린 회전체) (branchOf calc7_02, ord:2) ──
   { id:'calc7_02_washer', branchOf:'calc7_02', ord:2,
-    enter:function(E){ var s=this.s={n:6}; E.Plot.range(-0.3,2.3,-0.3,2.4); sld(E,ctrl('고리 수 n','wsn',2,30,1,6),'wsn',function(v){return ''+v;},function(v){s.n=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={n:6}; E.Plot.range(-0.3,2.3,-0.3,2.4).lab('x','y'); sld(E,ctrl('고리 수 n','wsn',2,30,1,6),'wsn',function(v){return ''+v;},function(v){s.n=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,n=s.n,a=0,b=2; function R(t){return 2;} function r(t){return t*t/2;}
       var h=(b-a)/n, vol=0; for(var k=0;k<n;k++){ var xm=a+(k+0.5)*h, Ro=R(xm), ri=r(xm); vol+=Math.PI*(Ro*Ro-ri*ri)*h;
         ctx.fillStyle='rgba(185,156,255,0.18)'; ctx.fillRect(P.X(a+k*h),P.Y(Ro),P.X(a+(k+1)*h)-P.X(a+k*h),P.Y(ri)-P.Y(Ro));
@@ -96,7 +96,7 @@
 
   // ── ch8 삼각치환 (branchOf calc8_01) ──  ∫√(1−x²)
   { id:'calc8_01_trigsub', branchOf:'calc8_01', ord:1,
-    enter:function(E){ var s=this.s={b:0.6}; E.Plot.range(-0.2,1.15,-0.2,1.2); sld(E,ctrl('윗끝 b','tsb',0.05,1,0.02,0.6),'tsb',function(v){return v.toFixed(2);},function(v){s.b=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={b:0.6}; E.Plot.range(-0.2,1.15,-0.2,1.2).lab('x','√(1−x²)'); sld(E,ctrl('윗끝 b','tsb',0.05,1,0.02,0.6),'tsb',function(v){return v.toFixed(2);},function(v){s.b=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,b=s.b; function f(t){return Math.sqrt(Math.max(0,1-t*t));}
       var n=160,h=b/n; for(var k=0;k<n;k++){ var xm=h*(k+0.5); ctx.fillStyle='rgba(185,156,255,0.22)'; ctx.fillRect(P.X(k*h),P.Y(f(xm)),P.X((k+1)*h)-P.X(k*h),P.Y(0)-P.Y(f(xm))); }
       P.axes(); P.curve(f, VIO);
@@ -106,7 +106,7 @@
 
   // ── ch9 단진동(무마찰) (branchOf calc9_03) ──  mx''+kx=0
   { id:'calc9_03_shm', branchOf:'calc9_03', ord:1,
-    enter:function(E){ var s=this.s={k:4}; E.Plot.range(0,12,-2,2); sld(E,ctrl('탄성 k','shk',1,9,0.2,4),'shk',function(v){return v.toFixed(1);},function(v){s.k=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={k:4}; E.Plot.range(0,12,-2,2).lab('t','x'); sld(E,ctrl('탄성 k','shk',1,9,0.2,4),'shk',function(v){return v.toFixed(1);},function(v){s.k=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,k=s.k,m=1;
       P.axes();
       var t=0,x=1.6,v=0,h=0.003; ctx.strokeStyle=VIO; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(x));
@@ -117,7 +117,7 @@
 
   // ── ch10 매개변수 호의 길이(사이클로이드) (branchOf calc10_01) ──
   { id:'calc10_01_arclen', branchOf:'calc10_01', ord:1,
-    enter:function(E){ var s=this.s={t:3}; E.Plot.range(-0.5,7,-0.5,2.6); sld(E,ctrl('매개변수 t','alt',0,6.28,0.04,3),'alt',function(v){return v.toFixed(2);},function(v){s.t=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={t:3}; E.Plot.range(-0.5,7,-0.5,2.6).lab('x','y'); sld(E,ctrl('매개변수 t','alt',0,6.28,0.04,3),'alt',function(v){return v.toFixed(2);},function(v){s.t=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,t=s.t; function px(u){return u-Math.sin(u);} function py(u){return 1-Math.cos(u);}
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(-0.5),P.Y(0)); ctx.lineTo(P.X(7),P.Y(0)); ctx.stroke();
       ctx.strokeStyle=VIO; ctx.lineWidth=2.4; ctx.beginPath(); for(var u=0;u<=t+1e-9;u+=0.03){ var X=P.X(px(u)),Y=P.Y(py(u)); if(u===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
@@ -128,7 +128,7 @@
 
   // ── ch11 라이프니츠 π 급수 (branchOf calc11_02) ──
   { id:'calc11_02_leibniz', branchOf:'calc11_02', ord:1,
-    enter:function(E){ var s=this.s={N:5}; E.Plot.range(0,60,2.4,4); sld(E,ctrl('항 수 N','lbn',1,60,1,5),'lbn',function(v){return ''+v;},function(v){s.N=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={N:5}; E.Plot.range(0,60,2.4,4).lab('N','근삿값'); sld(E,ctrl('항 수 N','lbn',1,60,1,5),'lbn',function(v){return ''+v;},function(v){s.N=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,N=s.N;
       ctx.strokeStyle='rgba(126,224,176,0.55)'; ctx.lineWidth=1.4; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(Math.PI)); ctx.lineTo(P.X(60),P.Y(Math.PI)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('π ≈ 3.14159', P.X(46),P.Y(Math.PI)-6);
@@ -142,7 +142,7 @@
 
   // ── ch12 벡터 정사영 (branchOf calc12_03) ──
   { id:'calc12_03_proj', branchOf:'calc12_03', ord:1,
-    enter:function(E){ var s=this.s={th:0.8}; E.Plot.range(-2,5,-2,3); sld(E,ctrl('v 방향 θ','prt',0,3.14,0.03,0.8),'prt',function(v){return v.toFixed(2);},function(v){s.th=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={th:0.8}; E.Plot.range(-2,5,-2,3).lab('x','y'); sld(E,ctrl('v 방향 θ','prt',0,3.14,0.03,0.8),'prt',function(v){return v.toFixed(2);},function(v){s.th=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,th=s.th; var u=[3,0], v=[3*Math.cos(th),3*Math.sin(th)]; var O=[P.X(0),P.Y(0)];
       P.axes();
       var d=(v[0]*u[0]+v[1]*u[1])/(u[0]*u[0]+u[1]*u[1]), pjx=d*u[0], pjy=d*u[1];
@@ -155,7 +155,7 @@
 
   // ── ch13 접평면 (branchOf calc13_01) ──  곡면의 선형근사
   { id:'calc13_01_tangplane', branchOf:'calc13_01', ord:1,
-    enter:function(E){ var s=this.s={d:0.4}; E.Plot.range(-3,3,-3,3); sld(E,ctrl('떨어진 거리 d','tpd',0,1.6,0.04,0.4),'tpd',function(v){return v.toFixed(2);},function(v){s.d=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={d:0.4}; E.Plot.range(-3,3,-3,3).lab('x','y'); sld(E,ctrl('떨어진 거리 d','tpd',0,1.6,0.04,0.4),'tpd',function(v){return v.toFixed(2);},function(v){s.d=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,d=s.d; function F(x,y){return Math.sin(x)*Math.cos(y);}
       heat(E,F,-1,1); P.axes();
       var px=0.6,py=0.5, fx=(F(px+1e-3,py)-F(px-1e-3,py))/2e-3, fy=(F(px,py+1e-3)-F(px,py-1e-3))/2e-3;
@@ -168,7 +168,7 @@
 
   // ── ch14 야코비안(변수변환 넓이배율) (branchOf calc14_01) ──
   { id:'calc14_01_jacobian', branchOf:'calc14_01', ord:1,
-    enter:function(E){ var s=this.s={ax:1.5}; E.Plot.range(-0.6,3.4,-0.6,3.4); sld(E,ctrl('가로 늘이기 a','jba',0.5,2.5,0.1,1.5),'jba',function(v){return v.toFixed(2);},function(v){s.ax=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={ax:1.5}; E.Plot.range(-0.6,3.4,-0.6,3.4).lab('u','v'); sld(E,ctrl('가로 늘이기 a','jba',0.5,2.5,0.1,1.5),'jba',function(v){return v.toFixed(2);},function(v){s.ax=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s; var a=s.ax,c=0.4,d=1.5;  // a=가로 배율(슬라이더), c=고정 전단, e1=(a,0), e2=(c,d)
       P.axes();
       // 원래 단위정사각형(흐림)
@@ -184,7 +184,7 @@
 
   // ── ch15 보존장 판정 (branchOf calc15_03) ──  curl=0 ⇔ 퍼텐셜 존재
   { id:'calc15_03_conservative', branchOf:'calc15_03', ord:1,
-    enter:function(E){ var s=this.s={t:0}; E.Plot.range(-3,3,-3,3); sld(E,ctrl('장 (0보존·1회전)','cst',0,1,1,0),'cst',function(v){return v?'회전장':'보존장';},function(v){s.t=v;}); E.setOn([]); },
+    enter:function(E){ var s=this.s={t:0}; E.Plot.range(-3,3,-3,3).lab('x','y'); sld(E,ctrl('장 (0보존·1회전)','cst',0,1,1,0),'cst',function(v){return v?'회전장':'보존장';},function(v){s.t=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s; var Pf,Qf;
       if(s.t){ Pf=function(x,y){return -y;}; Qf=function(x,y){return x;}; } else { Pf=function(x,y){return 2*x;}; Qf=function(x,y){return 2*y;}; }
       // 보존장이면 등위선(퍼텐셜 x²+y²)

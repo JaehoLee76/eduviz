@@ -7,7 +7,7 @@
 
   // ══════════ 20.1 두 곡선 사이 넓이 ══════════
   { id:'ch20_01',
-    enter:function(E){ this.s={}; E.Plot.range(-0.5,3,-0.5,5); E.setOn([]); },
+    enter:function(E){ this.s={}; E.Plot.range(-0.5,3,-0.5,5).lab('x','y'); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       function top(x){return 2*x;} function bot(x){return x*x;}
       // 사이 영역 (교점 0~2)
@@ -24,7 +24,7 @@
 
   // ══════════ 20.2 회전체의 부피 (원판법) ══════════
   { id:'ch20_02',
-    enter:function(E){ this.s={}; E.Plot.range(-0.3,3.3,-2.5,2.5); E.setOn([]); },
+    enter:function(E){ this.s={}; E.Plot.range(-0.3,3.3,-2.5,2.5).lab('x','y'); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       function f(x){return 0.7*Math.sqrt(x+0.05)+0.3;}
       // 위·아래 윤곽
@@ -42,7 +42,7 @@
 
   // ══════════ 20.3 곡선의 길이 ══════════
   { id:'ch20_03',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.3,-0.5,5);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,3.3,-0.5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>선분 개수 n</label><input type="range" id="nn" min="1" max="20" step="1" value="4"><output id="nno">4</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, n=this.s.n, ctx=E.ctx, a=0, b=3, dx=(b-a)/n; P.axes();
@@ -58,7 +58,7 @@
 
   // ══════════ 20.4 미분방정식 ══════════
   { id:'ch20_04',
-    enter:function(E){ this.s={k:0.5}; E.Plot.range(-3,3,-0.5,7);
+    enter:function(E){ this.s={k:0.5}; E.Plot.range(-3,3,-0.5,7).lab('x','y');
       E.controls('<div class="ctrl"><label>비율 k</label><input type="range" id="kk" min="-1" max="1" step="0.25" value="0.5"><output id="kko">0.5</output></div>');
       var self=this; E.bind('#kk','input',function(e){ self.s.k=+e.target.value; document.getElementById('kko').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.k, ctx=E.ctx; P.axes();
@@ -74,7 +74,7 @@
 
   // ══════════ 20 물리 응용: 속도 → 거리 ══════════
   { id:'ch20_05',
-    enter:function(E){ this.s={t:3}; E.Plot.range(0,5,0,6);
+    enter:function(E){ this.s={t:3}; E.Plot.range(0,5,0,6).lab('t','v');
       E.controls('<div class="ctrl"><label>시간 t</label><input type="range" id="tt" min="1" max="5" step="0.5" value="3"><output id="tto">3</output></div>');
       var self=this; E.bind('#tt','input',function(e){ self.s.t=+e.target.value; document.getElementById('tto').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, t=this.s.t, ctx=E.ctx; P.axes();

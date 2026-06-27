@@ -9,7 +9,7 @@
 
   // 7.1 곡선 사이의 넓이  위 y=x+2, 아래 y=x²  (교점 −1, 2)
   { id:'calc7_01',
-    enter:function(E){ this.s={b:2}; E.Plot.range(-2.5,3,-1,5.5);
+    enter:function(E){ this.s={b:2}; E.Plot.range(-2.5,3,-1,5.5).lab('x','y');
       E.controls('<div class="ctrl"><label>오른쪽 끝 b</label><input type="range" id="ab" min="-1" max="2" step="0.05" value="2"><output id="abo">2.00</output></div>');
       var self=this; E.bind('#ab','input',function(e){ self.s.b=+e.target.value; document.getElementById('abo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b, a=-1;
@@ -22,7 +22,7 @@
 
   // 7.2 회전체 부피(원판)  y=√x, x축 회전, V=∫πf² dx
   { id:'calc7_02',
-    enter:function(E){ this.s={n:6}; E.Plot.range(-0.3,4.3,-2.2,2.2);
+    enter:function(E){ this.s={n:6}; E.Plot.range(-0.3,4.3,-2.2,2.2).lab('x','y');
       E.controls('<div class="ctrl"><label>원판 수 n</label><input type="range" id="vn" min="2" max="40" step="1" value="6"><output id="vno">6</output></div>');
       var self=this; E.bind('#vn','input',function(e){ self.s.n=+e.target.value; document.getElementById('vno').textContent=e.target.value; E.blip(360+self.s.n*8,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, a=0, b=4;
@@ -38,7 +38,7 @@
 
   // 7.3 평균값  f(x)=1+sin x on [0,b], 평균 = (1/b)∫f
   { id:'calc7_03',
-    enter:function(E){ this.s={b:4}; E.Plot.range(-0.4,6.6,-0.4,2.4);
+    enter:function(E){ this.s={b:4}; E.Plot.range(-0.4,6.6,-0.4,2.4).lab('x','y');
       E.controls('<div class="ctrl"><label>구간 끝 b</label><input type="range" id="vb" min="1" max="6.28" step="0.04" value="4"><output id="vbo">4.00</output></div>');
       var self=this; E.bind('#vb','input',function(e){ self.s.b=+e.target.value; document.getElementById('vbo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b;
@@ -54,7 +54,7 @@
 
   // 7.4 일(Work) — 늘어나는 용수철  F=kx, W=∫F dx=½kd²
   { id:'calc7_04',
-    enter:function(E){ this.s={d:1.5}; E.Plot.range(-0.3,3.2,-0.5,7);
+    enter:function(E){ this.s={d:1.5}; E.Plot.range(-0.3,3.2,-0.5,7).lab('x','F');
       E.controls('<div class="ctrl"><label>늘인 길이 d</label><input type="range" id="wd" min="0.2" max="3" step="0.05" value="1.5"><output id="wdo">1.50</output></div>');
       var self=this; E.bind('#wd','input',function(e){ self.s.d=+e.target.value; document.getElementById('wdo').textContent=(+e.target.value).toFixed(2); E.blip(420,0.06); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, d=s.d, k=2;
@@ -72,7 +72,7 @@
 
   // 7.5 호의 길이  f(x)=0.5x² on [0,2], n조각 근사 → ∫√(1+f'²)
   { id:'calc7_05',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,2.5,-0.4,2.6);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-0.3,2.5,-0.4,2.6).lab('x','y');
       E.controls('<div class="ctrl"><label>조각 수 n</label><input type="range" id="sn" min="1" max="30" step="1" value="4"><output id="sno">4</output></div>');
       var self=this; E.bind('#sn','input',function(e){ self.s.n=+e.target.value; document.getElementById('sno').textContent=e.target.value; E.blip(380+self.s.n*10,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, a=0, b=2;

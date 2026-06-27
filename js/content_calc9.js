@@ -8,7 +8,7 @@
 
   // 9.1 기울기장 — dy/dx = x − y, 화살표를 따라 흐르는 해곡선
   { id:'calc9_01',
-    enter:function(E){ this.s={y0:1}; E.Plot.range(-4,4,-4,4);
+    enter:function(E){ this.s={y0:1}; E.Plot.range(-4,4,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>초기값 y₀</label><input type="range" id="y0" min="-3" max="3" step="0.2" value="1"><output id="y0o">1.0</output></div>');
       var self=this; E.bind('#y0','input',function(e){ self.s.y0=+e.target.value; document.getElementById('y0o').textContent=(+e.target.value).toFixed(1); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s;
@@ -27,7 +27,7 @@
 
   // 9.2 오일러법 — 근사 vs 참값  y'=y, y(0)=1 → eˣ
   { id:'calc9_02',
-    enter:function(E){ this.s={n:4}; E.Plot.range(-0.2,2.2,-0.3,8);
+    enter:function(E){ this.s={n:4}; E.Plot.range(-0.2,2.2,-0.3,8).lab('x','y');
       E.controls('<div class="ctrl"><label>스텝 수 n</label><input type="range" id="en" min="2" max="40" step="1" value="4"><output id="eno">4</output></div>');
       var self=this; E.bind('#en','input',function(e){ self.s.n=+e.target.value; document.getElementById('eno').textContent=e.target.value; E.blip(360+self.s.n*8,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, n=s.n, a=0, b=2;
@@ -41,7 +41,7 @@
 
   // 9.3 지수 성장·감쇠  y'=ky → y=y₀eᵏᵗ
   { id:'calc9_03',
-    enter:function(E){ this.s={k:0.6}; E.Plot.range(-0.2,5.2,-0.3,7);
+    enter:function(E){ this.s={k:0.6}; E.Plot.range(-0.2,5.2,-0.3,7).lab('t','y');
       E.controls('<div class="ctrl"><label>비율 k</label><input type="range" id="ek" min="-1" max="1" step="0.05" value="0.6"><output id="eko">0.60</output></div>');
       var self=this; E.bind('#ek','input',function(e){ self.s.k=+e.target.value; document.getElementById('eko').textContent=(+e.target.value).toFixed(2); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, k=s.k;
@@ -56,7 +56,7 @@
 
   // 9.4 로지스틱 — dy/dt = k·y·(1−y/M)  S자 곡선, 수용한계 M
   { id:'calc9_04',
-    enter:function(E){ this.s={y0:0.4}; E.Plot.range(-0.2,8.2,-0.3,7);
+    enter:function(E){ this.s={y0:0.4}; E.Plot.range(-0.2,8.2,-0.3,7).lab('t','y');
       E.controls('<div class="ctrl"><label>초기 개체수 y₀</label><input type="range" id="ly" min="0.2" max="6.5" step="0.1" value="0.4"><output id="lyo">0.4</output></div>');
       var self=this; E.bind('#ly','input',function(e){ self.s.y0=+e.target.value; document.getElementById('lyo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, k=1.4, M=6;
@@ -73,7 +73,7 @@
 
   // 9.5 뉴턴 냉각  dT/dt = −k(T − T_env)  커피 식기
   { id:'calc9_05',
-    enter:function(E){ this.s={env:20}; E.Plot.range(-0.3,8.3,-5,95);
+    enter:function(E){ this.s={env:20}; E.Plot.range(-0.3,8.3,-5,95).lab('t','T');
       E.controls('<div class="ctrl"><label>주변온도 T_env</label><input type="range" id="te" min="0" max="40" step="1" value="20"><output id="teo">20</output></div>');
       var self=this; E.bind('#te','input',function(e){ self.s.env=+e.target.value; document.getElementById('teo').textContent=e.target.value; E.blip(420,0.07); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, env=s.env, k=0.6;

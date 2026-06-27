@@ -9,7 +9,7 @@
 
   // ══════════ 17.1 평균변화율 → 순간변화율 ══════════
   { id:'ch17_01',
-    enter:function(E){ this.s={h:2}; E.Plot.range(-1,4,-1,8);
+    enter:function(E){ this.s={h:2}; E.Plot.range(-1,4,-1,8).lab('x','y');
       E.controls('<div class="ctrl"><label>간격 h (→ 0)</label><input type="range" id="hh" min="0.1" max="2.5" step="0.1" value="2"><output id="hho">2.0</output></div>');
       var self=this; E.bind('#hh','input',function(e){ self.s.h=+e.target.value; document.getElementById('hho').textContent=(+e.target.value).toFixed(1); E.blip(700-self.s.h*120,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, h=this.s.h, ctx=E.ctx, a=1, fa=a*a, b=a+h, fb=b*b, slope=(fb-fa)/h; P.axes();
@@ -28,7 +28,7 @@
 
   // ══════════ 17.2 연속성 ══════════
   { id:'ch17_02',
-    enter:function(E){ this.s={mode:0}; E.Plot.range(-1,5,-1,5); E.setOn([]); },
+    enter:function(E){ this.s={mode:0}; E.Plot.range(-1,5,-1,5).lab('x','y'); E.setOn([]); },
     tap:function(E){ this.s.mode=(this.s.mode+1)%3; E.blip(440+this.s.mode*60,0.15); },
     draw:function(E){ var P=E.Plot, m=this.s.mode, ctx=E.ctx; P.axes();
       if(m===0){ P.curve(function(x){return 0.6*x+1;}, '#7ab8ff'); E.big('연속 — 끊김 없음', '한 붓으로 그릴 수 있습니다. 극한값 = 함숫값.'); }
@@ -46,7 +46,7 @@
 
   // ══════════ 17.3 도함수 = 기울기 함수 ══════════
   { id:'ch17_03',
-    enter:function(E){ this.s={a:1}; E.Plot.range(-3,3,-3,6);
+    enter:function(E){ this.s={a:1}; E.Plot.range(-3,3,-3,6).lab('x','y');
       E.controls('<div class="ctrl"><label>접점 위치 a</label><input type="range" id="aa" min="-2.5" max="2.5" step="0.5" value="1"><output id="aao">1</output></div>');
       var self=this; E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx, fa=a*a, slope=2*a; P.axes();
@@ -64,7 +64,7 @@
 
   // ══════════ 17.4 멱법칙 ══════════
   { id:'ch17_04',
-    enter:function(E){ this.s={n:2}; E.Plot.range(-2,2,-4,5);
+    enter:function(E){ this.s={n:2}; E.Plot.range(-2,2,-4,5).lab('x','y');
       E.controls('<div class="ctrl"><label>지수 n</label><input type="range" id="nn" min="1" max="4" step="1" value="2"><output id="nno">2</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, n=this.s.n, ctx=E.ctx; P.axes();
@@ -81,7 +81,7 @@
 
   // ══════════ 17.5 극대·극소 ══════════
   { id:'ch17_05',
-    enter:function(E){ this.s={x:0}; E.Plot.range(-2.5,2.5,-4,4);
+    enter:function(E){ this.s={x:0}; E.Plot.range(-2.5,2.5,-4,4).lab('x','y');
       E.controls('<div class="ctrl"><label>점 x 위치</label><input type="range" id="xx" min="-2" max="2" step="0.25" value="0"><output id="xxo">0</output></div>');
       var self=this; E.bind('#xx','input',function(e){ self.s.x=+e.target.value; document.getElementById('xxo').textContent=(+e.target.value); E.blip(440,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, x=this.s.x, ctx=E.ctx; P.axes();
@@ -97,7 +97,7 @@
 
   // ══════════ 17 접선의 방정식 ══════════
   { id:'ch17_06',
-    enter:function(E){ this.s={a:1}; E.Plot.range(-3,3,-2,8);
+    enter:function(E){ this.s={a:1}; E.Plot.range(-3,3,-2,8).lab('x','y');
       E.controls('<div class="ctrl"><label>접점 a</label><input type="range" id="ta" min="-2.5" max="2.5" step="0.5" value="1"><output id="tao">1</output></div>');
       var self=this; E.bind('#ta','input',function(e){ self.s.a=+e.target.value; document.getElementById('tao').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx, fa=a*a, slope=2*a; P.axes();

@@ -10,7 +10,7 @@
   // ══════════ 6.1 점의 좌표 ══════════
   // 6.1a 두 점 사이의 거리 — 피타고라스 회수
   { id:'ch6_01',
-    enter:function(E){ this.s={bx:4,by:3}; E.Plot.range(-5,6,-3,6);
+    enter:function(E){ this.s={bx:4,by:3}; E.Plot.range(-5,6,-3,6).lab('x','y');
       E.controls('<div class="ctrl"><label>B의 x</label><input type="range" id="bx" min="-4" max="5" step="1" value="4"><output id="bxo">4</output><label style="margin-left:14px">B의 y</label><input type="range" id="by" min="-2" max="5" step="1" value="3"><output id="byo">3</output></div>');
       var self=this;
       E.bind('#bx','input',function(e){ self.s.bx=+e.target.value; document.getElementById('bxo').textContent=e.target.value; E.blip(440,0.1); });
@@ -31,7 +31,7 @@
 
   // 6.1b 내분점·중점
   { id:'ch6_02',
-    enter:function(E){ this.s={t:0.5}; E.Plot.range(-1,9,-1,7);
+    enter:function(E){ this.s={t:0.5}; E.Plot.range(-1,9,-1,7).lab('x','y');
       E.controls('<div class="ctrl"><label>비율 t (A→B)</label><input type="range" id="vt" min="0" max="1" step="0.1" value="0.5"><output id="vto">0.5</output></div>');
       var self=this; E.bind('#vt','input',function(e){ self.s.t=+e.target.value; document.getElementById('vto').textContent=(+e.target.value).toFixed(1); E.blip(420+self.s.t*120,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, t=s.t, ax=1,ay=1,bx=7,by=5; P.axes();
@@ -47,7 +47,7 @@
   // ══════════ 6.2 직선 ══════════
   // 6.2a 직선의 방정식 — 두 점을 지나는 직선(5장 일차함수 회수)
   { id:'ch6_03',
-    enter:function(E){ this.s={bx:4,by:5}; E.Plot.range(-5,6,-4,7);
+    enter:function(E){ this.s={bx:4,by:5}; E.Plot.range(-5,6,-4,7).lab('x','y');
       E.controls('<div class="ctrl"><label>B의 x</label><input type="range" id="lx" min="-3" max="5" step="1" value="4"><output id="lxo">4</output><label style="margin-left:14px">B의 y</label><input type="range" id="ly" min="-3" max="6" step="1" value="5"><output id="lyo">5</output></div>');
       var self=this;
       E.bind('#lx','input',function(e){ self.s.bx=+e.target.value; document.getElementById('lxo').textContent=e.target.value; E.blip(440,0.1); });
@@ -68,7 +68,7 @@
 
   // 6.2b 평행·수직 (기울기 관계)
   { id:'ch6_04',
-    enter:function(E){ this.s={m:1}; E.Plot.range(-5,5,-5,5);
+    enter:function(E){ this.s={m:1}; E.Plot.range(-5,5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>파란선 기울기 m</label><input type="range" id="pm" min="-2" max="2" step="0.5" value="1"><output id="pmo">1</output></div>');
       var self=this; E.bind('#pm','input',function(e){ self.s.m=+e.target.value; document.getElementById('pmo').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, m=s.m, m2=2; P.axes();
@@ -90,7 +90,7 @@
   // 6.3a 원의 방정식
   { id:'ch6_05',
     // x:y span = 15:10 = 1.5 → plot 박스(w≈h*1.5)와 같은 비율 → 픽셀 정사각형 → 원이 둥글게 보임
-    enter:function(E){ this.s={a:0,b:0,r:2}; E.Plot.range(-7.5,7.5,-5,5);
+    enter:function(E){ this.s={a:0,b:0,r:2}; E.Plot.range(-7.5,7.5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>중심 a</label><input type="range" id="ca" min="-2" max="2" step="1" value="0"><output id="cao">0</output><label style="margin-left:12px">중심 b</label><input type="range" id="cb" min="-2" max="2" step="1" value="0"><output id="cbo">0</output><label style="margin-left:12px">반지름 r</label><input type="range" id="cr" min="1" max="3" step="1" value="2"><output id="cro">2</output></div>');
       var self=this;
       E.bind('#ca','input',function(e){ self.s.a=+e.target.value; document.getElementById('cao').textContent=e.target.value; E.blip(440,0.1); });
@@ -108,7 +108,7 @@
 
   // ══════════ 6.4 부등식이 나타내는 영역 ══════════
   { id:'ch6_06',
-    enter:function(E){ this.s={mode:0,m:1,r:3}; E.Plot.range(-7.5,7.5,-5,5);
+    enter:function(E){ this.s={mode:0,m:1,r:3}; E.Plot.range(-7.5,7.5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>직선 기울기 m</label><input type="range" id="rm" min="-2" max="2" step="0.5" value="1"><output id="rmo">1</output><label style="margin-left:14px">원 반지름 r</label><input type="range" id="rr" min="1" max="4" step="1" value="3"><output id="rro">3</output></div>');
       var self=this;
       E.bind('#rm','input',function(e){ self.s.m=+e.target.value; document.getElementById('rmo').textContent=(+e.target.value); E.blip(440,0.1); });
