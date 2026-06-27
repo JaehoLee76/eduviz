@@ -21,19 +21,27 @@
       +'.topbar .titles{min-width:0!important;}.topbar .titles .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
       // 좌상단 세로 스택: 홈(상단바 ~58까지) 아래에 장면번호·브레드크럼을 내려 겹침 방지(툴바로 상단바가 커진 만큼).
       +'.scene-no{top:64px!important;}#crumb,.crumb{top:90px!important;}'
-      // 하단 콘텐츠(설명 띠·슬라이더)만 밴드 중앙, chrome(토글 좌·재생바 중·내비 우)은 가장자리. viz 제외(algo 2단 레이아웃 보존).
+      // 하단 좌측 = [더알아보기 토글 → 기본설명 띠] 세로 스택(중앙정렬 밴드). 토글이 띠의 왼쪽 위에 붙음. 슬라이더는 그 위. 재생바 중·내비 우. viz 제외.
       +'body:not(.viz) #controls,body:not(.viz) #keyhint{bottom:232px!important;}'
-      +'body:not(.viz) #leftStack{position:fixed!important;inset:0!important;width:auto!important;max-width:none!important;transform:none!important;margin:0!important;display:block!important;pointer-events:none!important;}'
-      +'body:not(.viz) #chevBtn{position:fixed!important;left:24px!important;bottom:22px!important;z-index:8!important;pointer-events:auto!important;}'
-      +'body:not(.viz) #study{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;max-width:none!important;pointer-events:auto!important;}'
-      +'body:not(.viz) #leftStack .guide{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;align-items:flex-end!important;pointer-events:auto!important;}'
+      +'body:not(.viz) #leftStack{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:92px!important;transform:translateX(-50%)!important;width:min(1180px,92vw)!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important;pointer-events:none!important;}'
+      +'body:not(.viz) #leftStack>*{pointer-events:auto!important;}'
+      +'body:not(.viz) #study{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:none!important;margin:0!important;}'
+      +'body:not(.viz) #chevBtn{position:static!important;left:auto!important;bottom:auto!important;margin-left:2px!important;z-index:8!important;}'
+      +'body:not(.viz) #leftStack .guide{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:none!important;margin:0!important;align-items:flex-start!important;pointer-events:auto!important;}'
       +'body:not(.viz) #leftStack .guide .ch{display:none!important;}'
+      +'body.study-open #leftStack .guide{display:none!important;}'
       +'#bignum #bigW{display:none!important;}'
       +'body.cinematic .topbar .titles{visibility:hidden!important;}'
-      +'body:not(.viz) #leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:128px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
+      +'body:not(.viz) #leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:82px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar{width:7px!important;}'
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28)!important;border-radius:4px!important;}'
-      +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}';
+      +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}'
+      // 띠가 넘칠 때만(.band-scroll) 우하단에 스크롤 단축키 힌트
+      +'body:not(.viz) #leftStack .guide.band-scroll::after{content:"⇅ Q·Z"!important;position:absolute!important;right:11px!important;bottom:7px!important;font-size:11px!important;font-weight:700!important;color:var(--accent-light,#7ab8ff)!important;background:rgba(8,10,16,.82)!important;border:1px solid currentColor!important;border-radius:7px!important;padding:1px 7px!important;pointer-events:none!important;opacity:.92!important;letter-spacing:.03em!important;}'
+      // 나브 버튼(심화학습·이전·다음) 크고 굵게 — 화살표 잘 보이게(라운드 사각형의 60%+ 차지)
+      +'.nav .btn{font-size:18px!important;font-weight:700!important;padding:9px 18px!important;border-radius:12px!important;}'
+      +'.nav .btn .nav-ar{display:inline-block!important;font-size:1.55em!important;font-weight:800!important;line-height:.5!important;vertical-align:-2px!important;margin:0 1px!important;}'
+      +'.nav .btn .kc{font-size:10.5px!important;opacity:.6!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
@@ -129,7 +137,12 @@
   try{ global.__EDUVIZ_WM='EduViz-WM:JHL2026-7a3f9c © JaehoLee76. All rights reserved. 무단복제·AI개작 추적표식.'; }catch(e){}
   var bubbleEl, hintEl, titleEl, secEl;
   function say(html){ if(!bubbleEl) return; bubbleEl.classList.add('fade');
-    setTimeout(function(){ bubbleEl.innerHTML=(html||'')+WM; bubbleEl.classList.remove('fade'); },170); }
+    setTimeout(function(){ bubbleEl.innerHTML=(html||'')+WM; bubbleEl.classList.remove('fade'); updateBandScroll(); },170); }
+  // 하단 기본설명 띠가 넘치면 부모(.guide)에 band-scroll 클래스 → "⇅ Q·Z" 스크롤 힌트 노출
+  function updateBandScroll(){ if(!bubbleEl) return;
+    var over = bubbleEl.scrollHeight > bubbleEl.clientHeight + 4;
+    var g = bubbleEl.closest ? bubbleEl.closest('.guide') : bubbleEl.parentNode;
+    if(g) g.classList.toggle('band-scroll', over); }
 
   // ---------- generic DOM controls ----------
   var controlsEl, keyHintEl;
@@ -333,13 +346,13 @@
   // 이전/다음 버튼: 뼈대=장면 이동, 분기=형제 분기 이동(끝장 비활성), 단일분기=둘 다 비활성('나가기'만)
   function updateNavBtns(sc){ var pb=document.getElementById('prev'), nb=document.getElementById('next'); if(!pb||!nb) return;
     if(sc.branchOf!=null){ var sibs=SM.scenes[sc._parentIdx]._branches, pos=sibs.indexOf(SM.cur), n=sibs.length;
-      pb.innerHTML=(pos>0?'◂ '+(pos-1):'◂')+kc('←');   // 좌 = 바로 전 페이지 번호(0부터)
+      pb.innerHTML=(pos>0?'<span class="nav-ar">◂</span> '+(pos-1):'<span class="nav-ar">◂</span>')+kc('←');   // 좌 = 바로 전 페이지 번호(0부터)
       nb.innerHTML=(pos+1)+' / '+n+kc('→');            // 우 = 몇 개 중 몇 번째(현재/전체)
       pb.disabled=(pos<=0); nb.disabled=false;          // 마지막에서도 누르면 끝 알림(next()가 처리)
     } else {
-      pb.innerHTML='◂ 이전'+kc('←'); pb.disabled=(sc._spinePos===0);
+      pb.innerHTML='<span class="nav-ar">◂</span> 이전'+kc('←'); pb.disabled=(sc._spinePos===0);
       var lastSpine=(sc._spinePos===HR.spine.length-1);
-      nb.innerHTML=(lastSpine?'처음으로 ↺':'다음 ▸')+kc('→'); nb.disabled=false;
+      nb.innerHTML=(lastSpine?'처음으로 <span class="nav-ar">↺</span>':'다음 <span class="nav-ar">▸</span>')+kc('→'); nb.disabled=false;
     } }
   // 뼈대=선형 이동. 분기 안=형제 분기만 이동(끝에서 멈춤, 복귀는 '나가기'↑).
   function next(){ var sc=SM.scenes[SM.cur];
