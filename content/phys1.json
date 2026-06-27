@@ -3,7 +3,7 @@
   "ch": "물리학 제1장 운동학",
   "sec": "1.1 위치·변위·거리",
   "title": "위치와 변위 — 어디서 어디로",
-  "narr": "산책을 나갔다가 집으로 돌아왔다고 해 봅시다. 다리는 분명 한참 걸었는데, '결국 어디로 갔느냐'고 물으면 답은 '제자리'입니다. 여기에 운동의 첫 번째 비밀이 숨어 있습니다 — <b>실제로 걸은 길이</b>와 <b>출발점에서 도착점까지의 직선 변화</b>는 전혀 다른 양입니다. 앞엣것을 <b>거리</b>(항상 0 이상), 뒤엣것을 <b>변위</b>(방향·부호를 가짐)라 부릅니다. 슬라이더를 밀어 보세요. 주자가 0→8 m로 갔다가 3 m로 되돌아오면 거리는 13 m이지만, 변위는 고작 +3 m입니다. '방향까지 품은 양'이라는 이 작은 발상 하나가, 앞으로 만날 속도·힘·운동량 전부의 뿌리가 됩니다.",
+  "narr": "산책을 나갔다가 집으로 돌아왔다고 해 봅시다. 다리는 분명 한참 걸었는데, '결국 어디로 갔느냐'고 물으면 답은 '제자리'입니다. 여기에 운동의 첫 번째 비밀이 숨어 있습니다 — <b>실제로 걸은 길이</b>와 <b>출발점에서 도착점까지의 직선 변화</b>는 전혀 다른 양입니다. 전자를 <b>거리</b>(항상 0 이상), 후자를 <b>변위</b>(방향·부호를 가짐)라 부릅니다. 슬라이더를 밀어 보세요. 주자가 0→8 m로 갔다가 3 m로 되돌아오면 거리는 13 m이지만, 변위는 고작 +3 m입니다. '방향까지 품은 양'이라는 이 작은 발상 하나가, 앞으로 만날 속도·힘·운동량 전부의 뿌리가 됩니다.",
   "more": "<b>거리(scalar)</b>: 지나온 길의 총 길이, 부호 없음. <b>변위(vector)</b>: Δx = x_끝 − x_시작, 방향·부호 있음. 외길로만 가면 거리=|변위|지만, 한 번이라도 되돌아오면 거리 > |변위|. 왜 굳이 둘로 나눌까요? 바로 이 차이에서 평균 속력(거리/시간)과 평균 속도(변위/시간)가 갈라지기 때문입니다.",
   "more_en": "<b>Distance</b> (scalar): total path length, never negative. <b>Displacement</b> (vector): Δx = x_final − x_initial, carries sign and direction. Go one way and distance = |displacement|; double back even once and distance > |displacement|. Why split them? Because this very difference is what separates average speed (distance/time) from average velocity (displacement/time).",
   "problem": {

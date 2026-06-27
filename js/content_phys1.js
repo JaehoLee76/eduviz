@@ -12,26 +12,36 @@
       E.controls('<div class="ctrl"><label>진행</label><input type="range" id="pp" min="0" max="1" step="0.02" value="0.5"><output id="ppo">0.50</output></div>');
       var self=this; E.bind('#pp','input',function(e){ self.s.p=+e.target.value; document.getElementById('ppo').textContent=(+e.target.value).toFixed(2); E.blip(360+self.s.p*200,0.08); }); E.setOn([]); },
     back:function(E){ E.NL.step(); E.NL.draw({integers:true}); },
-    draw:function(E){ var p=this.s.p, ctx=E.ctx, y=E.NL.yy();
-      // 경로: 0→8 (전반) → 8→3 (후반)
-      var x, dist; if(p<=0.5){ x=16*p; dist=16*p; } else { x=8-10*(p-0.5); dist=8+10*(p-0.5); }
-      // 지나온 경로(가장 오른쪽 도달점까지 옅게)
-      var reached=Math.min(8, p<=0.5?16*p:8);
-      ctx.strokeStyle='rgba(95,214,168,0.25)'; ctx.lineWidth=10; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(E.NL.px(0),y); ctx.lineTo(E.NL.px(reached),y); ctx.stroke(); ctx.lineCap='butt';
-      // 변위 화살표 (시작 0 → 현재 x)
-      ctx.strokeStyle=ORA; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(E.NL.px(0),y-30); ctx.lineTo(E.NL.px(x),y-30); ctx.stroke();
-      ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(E.NL.px(x),y-30); ctx.lineTo(E.NL.px(x)-9,y-35); ctx.lineTo(E.NL.px(x)-9,y-25); ctx.fill();
-      ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('변위', (E.NL.px(0)+E.NL.px(x))/2, y-38);
-      // 주자(현재 위치)
+    draw:function(E){ var p=this.s.p, ctx=E.ctx, y=E.NL.yy(); var OUT=8, BACK=3;
+      // 실제 경로: 0→8(전반) → 8→3(후반). 거리=걸은 총길이, 변위=시작→현재 직선(전부 실측)
+      var x, dist;
+      if(p<=0.5){ x=OUT*(p/0.5); dist=x; }
+      else { x=OUT-(OUT-BACK)*((p-0.5)/0.5); dist=OUT+(OUT-x); }
+      var gone = p<=0.5 ? x : OUT;                 // 오른쪽으로 간 최대 지점
+      function head(px,yy,dir,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(px,yy); ctx.lineTo(px-10*dir,yy-5); ctx.lineTo(px-10*dir,yy+5); ctx.fill(); }
+      // ── 갈 때(윗줄, 초록 ▶): 0 → gone ──
+      var yo=y-17;
+      ctx.strokeStyle=GRN; ctx.lineWidth=7; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(E.NL.px(0),yo); ctx.lineTo(E.NL.px(gone),yo); ctx.stroke(); ctx.lineCap='butt';
+      if(gone>0.2){ head(E.NL.px(gone),yo,1,GRN); ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('갈 때 '+gone.toFixed(1)+' m', (E.NL.px(0)+E.NL.px(gone))/2, yo-8); }
+      // ── 올 때(아랫줄, 파랑 ◀): 8 → x  (되돌아올 때만) ──
+      if(p>0.5){ var yb=y+17;
+        ctx.strokeStyle=BLU; ctx.lineWidth=7; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(E.NL.px(OUT),yb); ctx.lineTo(E.NL.px(x),yb); ctx.stroke(); ctx.lineCap='butt';
+        head(E.NL.px(x),yb,-1,BLU); ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('올 때 '+(OUT-x).toFixed(1)+' m', (E.NL.px(OUT)+E.NL.px(x))/2, yb+18); }
+      // ── 변위(주황 직선, 시작→현재): 맨 위 ──
+      var ya=y-46;
+      ctx.strokeStyle=ORA; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(E.NL.px(0),ya); ctx.lineTo(E.NL.px(x),ya); ctx.stroke();
+      head(E.NL.px(x),ya,(x>=0?1:-1),ORA); ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('변위 '+(x>=0?'+':'')+x.toFixed(1)+' m', (E.NL.px(0)+E.NL.px(x))/2, ya-7);
+      // ── 시작점 · 주자 ──
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('시작', E.NL.px(0), y+40);
       E.NL.dot(x,GRN,9);
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('시작', E.NL.px(0), y+30);
-      E.big('변위 = '+x.toFixed(1)+' m,   거리 = '+dist.toFixed(1)+' m', '변위(주황)는 시작→끝 직선, 방향·부호를 품습니다. 거리는 실제로 걸은 길의 길이. 8까지 갔다 3으로 돌아오면 다리는 13 m를 걸었어도, 결국 간 곳은 3!'); }
+      E.big('걸은 거리 = '+dist.toFixed(1)+' m,   변위 = '+(x>=0?'+':'')+x.toFixed(1)+' m', '초록=갈 때 길, 파랑=올 때 길 — 둘을 더한 실제 걸은 길이가 거리. 주황 직선(시작→현재)이 변위. 8까지 갔다 3으로 오면 거리는 13 m라도 변위는 +3 m!'); }
   },
 
   // ══════════ 1.2 속도 = x-t 그래프의 기울기 (미분 연결) ══════════
   { id:'phys1_02',
-    enter:function(E){ this.s={t:1.5}; E.Plot.range(0,3.2,0,10);
+    enter:function(E){ this.s={t:1.5}; E.Plot.range(0,3.2,0,10).lab('t (초)','x (m)');
       E.controls('<div class="ctrl"><label>시각 t (초)</label><input type="range" id="tt" min="0.3" max="3" step="0.1" value="1.5"><output id="tto">1.5</output></div>');
       var self=this; E.bind('#tt','input',function(e){ self.s.t=+e.target.value; document.getElementById('tto').textContent=(+e.target.value).toFixed(1); E.blip(400+self.s.t*80,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, t=this.s.t; P.axes();
@@ -43,7 +53,12 @@
       // 순간속도 접선(기울기 2t)
       var dt=1.0; ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(t-dt),P.Y(xt-vinst*dt)); ctx.lineTo(P.X(t+dt),P.Y(xt+vinst*dt)); ctx.stroke();
       P.dot(t,xt,GRN);
-      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('x='+xt.toFixed(2)+' m', P.X(t)+8, P.Y(xt)-6);
+      // 접선을 따라다니는 v 계산식(수식 + 실제 대입값 + 결과)
+      var g=P.geom(), ax=P.X(t), ay=P.Y(xt), rightSpace=g.right-ax;
+      var le=rightSpace>210; ctx.textAlign=le?'left':'right'; var ox=le?12:-12;
+      ctx.fillStyle=ORA; ctx.font='600 13px sans-serif';
+      ctx.fillText('v = dx/dt = 2t = 2·'+t.toFixed(1)+' = '+vinst.toFixed(2)+' m/s', ax+ox, ay-24);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.fillText('x = '+xt.toFixed(2)+' m', ax+ox, ay-8);
       E.big('순간속도 v = '+vinst.toFixed(2)+' m/s  (= 접선 기울기)', '속도계가 가리키는 \'지금\'의 빠르기 = x-t 그래프의 기울기. 주황 접선이 순간속도(dx/dt=2t), 초록 할선이 평균속도 '+vavg.toFixed(2)+' m/s. 두 점을 한없이 붙이는 이 묘기가 바로 미분!'); }
   },
 

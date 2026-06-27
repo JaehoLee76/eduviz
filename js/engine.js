@@ -11,11 +11,21 @@
 
   // ---------- Stage ----------
   var cv, ctx, W, H, DPR;
+  var VP_MAXW=1500;  // 와이드 모니터에서 콘텐츠 최대 폭(좌우 레터박스로 시선 집중·UI 겹침 방지). 좁은 화면은 그대로.
+  function injectViewportCSS(){ if(document.getElementById('eduviz-vp-style')||!document.head)return;
+    var st=document.createElement('style'); st.id='eduviz-vp-style';
+    st.textContent=':root{--vpad:0px;}'
+      +'#stage{left:var(--vpad)!important;right:auto!important;width:calc(100vw - 2*var(--vpad))!important;}'
+      +'.topbar,.progress{left:var(--vpad)!important;right:var(--vpad)!important;}'
+      +'.scene-no,.crumb,#leftStack{margin-left:var(--vpad)!important;}'
+      +'.nav,#eduToolbar,.cw-wrap{margin-right:var(--vpad)!important;}';
+    document.head.appendChild(st); }
+  function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
-    cv = canvas; ctx = cv.getContext('2d'); resize();
+    cv = canvas; ctx = cv.getContext('2d'); injectViewportCSS(); resize();
     global.addEventListener('resize', function(){ resize(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
   }
-  function resize(){ DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  function resize(){ setVpad(); DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
   function layoutOnly(s){ if(s.layout) s.layout(E); }
 
   // ---------- Sound (듣고) ----------
@@ -160,12 +170,13 @@
   var _MOP='(?:√\\([^()]*\\)|\\([^()]*\\)|\\d+(?:\\.\\d+)?|[A-Za-zπθαβγλμωΩΔ]+)(?:\\^(?:\\([^()]*\\)|[0-9A-Za-z]+))?';
   var _MFRAC=new RegExp('('+_MOP+')/('+_MOP+')','g');
   var _MUNIT=/^(s|ms|m|cm|mm|km|h|hr|min|kg|g|mol|N|J|W|Hz|rad|deg|L|mL|K)$/;  // 단위 분모는 분수로 만들지 않음(m/s 등)
-  var _MFN=/(arcsin|arccos|arctan|sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|log|ln|lim|exp|max|min|det|dim|gcd|lcm|mod)|\^\(([^()]*)\)|\^([-−]?[0-9]+(?:\.[0-9]+)?|[-−]?[A-Za-z])|([A-Za-z])/g;
-  function mathPlain(t){ return (''+t).replace(_MFN,function(m,fn,s1,s2,vr){
+  var _MFN=/(arcsin|arccos|arctan|sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|log|ln|lim|exp|max|min|det|dim|gcd|lcm|mod)|\^\(([^()]*)\)|\^([-−]?[0-9]+(?:\.[0-9]+)?|[-−]?[A-Za-z])|([A-Za-z]+)/g;
+  function mathPlain(t){ return (''+t).replace(_MFN,function(m,fn,s1,s2,vr,off,str){
     if(fn) return '<span class="mf">'+fn+'</span>';
     if(s1!=null&&s1!=='') return '<sup>'+mathPlain(s1)+'</sup>';
     if(s2!=null&&s2!=='') return '<sup>'+mathPlain(s2)+'</sup>';
-    if(vr) return '<i>'+vr+'</i>';
+    if(vr){ if(/[0-9.]\s$/.test(str.slice(0,off))) return vr;   // 숫자+공백 뒤 글자=단위 → 직립(m, kg 등)
+      return vr.replace(/[A-Za-z]/g,function(c){return '<i>'+c+'</i>';}); }
     return m; }); }
   function mathHTML(s){ if(s==null)return ''; s=''+s;
     if(/<[a-zA-Z\/!]/.test(s)) return s;   // 이미 HTML이 들어온 문자열은 건드리지 않음
@@ -505,7 +516,8 @@
 
   // ---------- Plot: 좌표평면 + 함수 그래프 (재사용: 함수·미적분까지) ----------
   function Plot(){ this.xmin=-6;this.xmax=6;this.ymin=-4;this.ymax=8; }
-  Plot.prototype.range=function(a,b,c,d){ this.xmin=a;this.xmax=b;this.ymin=c;this.ymax=d; return this; };
+  Plot.prototype.range=function(a,b,c,d){ this.xmin=a;this.xmax=b;this.ymin=c;this.ymax=d; this.xlab=null; this.ylab=null; return this; };
+  Plot.prototype.lab=function(xl,yl){ this.xlab=xl; this.ylab=yl; return this; };  // 축 이름(예: 't (초)', 'x (m)')
   Plot.prototype.geom=function(){ var m=70, top=H*0.15, bot=H*0.72, h=bot-top, w=Math.min(W-2*m, h*1.5), left=W/2-w/2; return {left:left,top:top,w:w,h:h,right:left+w,bot:bot}; };
   Plot.prototype.X=function(x){ var g=this.geom(); return g.left+(x-this.xmin)/(this.xmax-this.xmin)*g.w; };
   Plot.prototype.Y=function(y){ var g=this.geom(); return g.bot-(y-this.ymin)/(this.ymax-this.ymin)*g.h; };
@@ -518,7 +530,12 @@
     if(this.xmin<=0&&this.xmax>=0){ ctx.beginPath(); ctx.moveTo(x0,g.top); ctx.lineTo(x0,g.bot); ctx.stroke(); }
     ctx.fillStyle=COL.txt; ctx.font='11px sans-serif';
     ctx.textAlign='center'; for(x=Math.ceil(this.xmin);x<=this.xmax;x++){ if(x!==0) ctx.fillText(x,this.X(x),y0+14); }
-    ctx.textAlign='right'; for(y=Math.ceil(this.ymin);y<=this.ymax;y++){ if(y!==0) ctx.fillText(y,x0-6,this.Y(y)+4); } };
+    ctx.textAlign='right'; for(y=Math.ceil(this.ymin);y<=this.ymax;y++){ if(y!==0) ctx.fillText(y,x0-6,this.Y(y)+4); }
+    // 축 이름 라벨(설정된 경우): 가로축=오른쪽 끝, 세로축=위쪽 끝
+    if(this.xlab||this.ylab){ ctx.fillStyle='#dce6f2'; ctx.font='italic 600 14px sans-serif';
+      var yax=(this.ymin<=0&&this.ymax>=0)?y0:g.bot, xax=(this.xmin<=0&&this.xmax>=0)?x0:g.left;
+      if(this.xlab){ ctx.textAlign='right'; ctx.fillText(this.xlab, g.right-2, yax-9); }
+      if(this.ylab){ ctx.textAlign='left'; ctx.fillText(this.ylab, xax+9, g.top+13); } } };
   Plot.prototype.curve=function(fn,col,wd){ ctx.strokeStyle=col||'#7ab8ff'; ctx.lineWidth=wd||2.5; ctx.beginPath(); var on=false;
     for(var i=0;i<=240;i++){ var x=this.xmin+(this.xmax-this.xmin)*i/240, y=fn(x);
       if(!isFinite(y)||y>this.ymax+3||y<this.ymin-3){ on=false; continue; }
