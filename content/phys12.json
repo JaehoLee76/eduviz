@@ -1,100 +1,100 @@
 {
- "phys12_01": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.1 전류",
-  "title": "전류 I = Q/t — 전하의 흐름",
-  "narr": "<b>전류</b>는 전하가 흐르는 양입니다 — 1초 동안 어떤 단면을 지나는 전하량(I = Q/t, 단위 암페어 A = C/s). 전지가 만든 전압이 금속 속 자유전자를 밀어 회로를 한 바퀴 돌게 합니다. 화면에서 전하(파란 점)가 회로를 따라 흐르는데, 슬라이더로 전압을 올리면 더 빠르고 많이 흐릅니다(전류↑). 실제로 움직이는 것은 −극에서 나오는 전자이지만, 역사적 관례로 전류의 방향은 +극에서 나오는 쪽으로 표시합니다. 전류가 흐르려면 끊김 없는 닫힌 회로가 필요합니다.",
-  "more": "<b>전류</b>: I = Q/t = nqAv_d (n=전하밀도, A=단면적, v_d=드리프트 속도). 단위 암페어(A). 흥미롭게도 전자의 드리프트 속도는 매우 느리지만(~mm/s), 전기 신호(장)는 빛에 가깝게 전달돼 스위치를 켜면 즉시 불이 켜집니다. 직류(DC)는 한 방향, 교류(AC)는 방향이 주기적으로 바뀝니다. 닫힌 회로라야 흐릅니다.",
-  "more_en": "<b>Current</b>: I = Q/t (amperes, A = C/s). Conventional current flows from + (opposite to electron drift). Drift speed is slow (~mm/s) but the field/signal propagates near light speed. Needs a closed loop.",
-  "problem": {
-   "q": "2초 동안 6 C의 전하가 흐르면 전류는?",
-   "solution": "I = Q/t = 6/2 = <b>3 A</b>.",
-   "q_en": "6 C flows in 2 s. Current?",
-   "sol_en": "I = Q/t = <b>3 A</b>."
+  "phys12_01": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.1 전류",
+    "title": "전류 I = Q/t — 전하의 흐름",
+    "narr": "<b>전류</b>는 전하가 흐르는 양입니다 — 1초 동안 어떤 단면을 지나는 전하량(I = Q/t, 단위 암페어 A = C/s). 전지가 만든 전압이 금속 속 자유전자를 밀어 회로를 한 바퀴 돌게 합니다. 화면에서 전하(파란 점)가 회로를 따라 흐르는데, 슬라이더로 전압을 올리면 더 빠르고 많이 흐릅니다(전류↑). 실제로 움직이는 것은 −극에서 나오는 전자이지만, 역사적 관례로 전류의 방향은 +극에서 나오는 쪽으로 표시합니다. 전류가 흐르려면 끊김 없는 닫힌 회로가 필요합니다.",
+    "more": "<b>전류</b>: I = Q/t = nqAv_d (n=전하밀도, A=단면적, v_d=드리프트 속도). 단위 암페어(A). 흥미롭게도 전자의 드리프트 속도는 매우 느리지만(~mm/s), 전기 신호(장)는 빛에 가깝게 전달돼 스위치를 켜면 즉시 불이 켜집니다. 직류(DC)는 한 방향, 교류(AC)는 방향이 주기적으로 바뀝니다. 닫힌 회로라야 흐릅니다.",
+    "more_en": "<b>Current</b>: I = Q/t (amperes, A = C/s). Conventional current flows from + (opposite to electron drift). Drift speed is slow (~mm/s) but the field/signal propagates near light speed. Needs a closed loop.",
+    "problem": {
+      "q": "2초 동안 6 C의 전하가 흐르면 전류는?",
+      "solution": "I = Q/t = 6/2 = <b>3 A</b>.",
+      "q_en": "6 C flows in 2 s. Current?",
+      "sol_en": "I = Q/t = <b>3 A</b>."
+    }
+  },
+  "phys12_02": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.2 옴의 법칙",
+    "title": "옴의 법칙 V = IR",
+    "narr": "회로에 흐르는 전류는 무엇이 정할까요? <b>옴의 법칙 V = IR</b> — 전류는 전압에 비례하고 저항에 반비례합니다(I = V/R). 슬라이더로 전압(전하를 미는 힘)을 올리면 전류가 늘고, 저항(흐름을 방해)을 키우면 전류가 줍니다. 저항은 전자가 도체 속 원자와 부딪히며 받는 방해로, 가늘고 긴 전선일수록·뜨거울수록 커집니다. 전구의 밝기가 전류(전력)에 따라 변하는 것을 보세요. 옴의 법칙은 전기회로 분석의 가장 기본 도구입니다.",
+    "more": "<b>옴의 법칙</b>: V = IR (R=저항, 단위 옴 Ω). 도체에서 전류∝전압(옴성 소자). 저항 R = ρL/A(비저항 ρ, 길이 L, 단면적 A) — 길고 가늘수록 큼. 온도가 오르면 금속 저항 증가(원자 진동↑). 반도체·전구 필라멘트는 비선형(옴 법칙 근사). 직렬·병렬 조합으로 회로를 설계합니다.",
+    "more_en": "<b>Ohm's law</b>: V = IR (R in ohms, Ω). R = ρL/A — longer/thinner = more resistance; metals' R rises with temperature. Foundation of circuit analysis.",
+    "problem": {
+      "q": "12 V 전지에 4 Ω 저항을 연결하면 전류는?",
+      "solution": "I = V/R = 12/4 = <b>3 A</b>.",
+      "q_en": "12 V across 4 Ω. Current?",
+      "sol_en": "I = V/R = <b>3 A</b>."
+    }
+  },
+  "phys12_03": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.3 직렬과 병렬",
+    "title": "직렬 vs 병렬 — 저항을 잇는 두 방법",
+    "narr": "저항을 잇는 데는 두 가지 방법이 있고, 결과가 정반대입니다. <b>직렬</b>(한 줄로): 합성저항이 <b>커집니다</b>(R = R₁ + R₂). 같은 전류가 두 저항을 차례로 지나고 전압이 나뉩니다. 하나가 끊기면 전체가 멈춥니다(옛날 전구 줄). <b>병렬</b>(나란히): 합성저항이 <b>작아집니다</b>(1/R = 1/R₁ + 1/R₂, 가장 작은 저항보다도 작음). 전압은 같고 전류가 갈래로 나뉩니다. 집안 콘센트가 병렬이라 하나를 꺼도 나머지가 작동합니다. 슬라이더로 직렬↔병렬을 전환하며 합성저항과 전류 변화를 보세요.",
+    "more": "<b>직렬</b>: R = R₁+R₂+…(증가), 전류 공통, 전압 분배(V_i=IR_i). <b>병렬</b>: 1/R = Σ1/Rᵢ(감소), 전압 공통, 전류 분배. 직렬은 전류 제한·전압 분배에, 병렬은 독립 작동·전류 증가에 쓰입니다. 가정 전기는 병렬(각 기기 같은 220V, 하나 꺼도 무관). 키르히호프 법칙으로 복잡한 회로도 풀 수 있습니다.",
+    "more_en": "<b>Series</b>: R = ΣRᵢ (increases), shared current, divided voltage. <b>Parallel</b>: 1/R = Σ1/Rᵢ (decreases), shared voltage, divided current. Home wiring is parallel. Kirchhoff's laws solve any network.",
+    "problem": {
+      "q": "4 Ω과 4 Ω을 병렬로 연결한 합성저항은?",
+      "solution": "1/R = 1/4 + 1/4 = 1/2 → R = <b>2 Ω</b> (각각보다 작음).",
+      "q_en": "Two 4 Ω in parallel. Total resistance?",
+      "sol_en": "1/R = 1/4+1/4 = 1/2 → <b>2 Ω</b>."
+    }
+  },
+  "phys12_04": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.4 전력",
+    "title": "전력 P = VI — 전기에너지의 소비율",
+    "narr": "전구가 밝고 히터가 뜨거운 것은 <b>전력</b>을 소비하기 때문입니다. 전력은 단위시간당 전기에너지 소비 — <b>P = VI = I²R = V²/R</b>(단위 와트 W). 전압을 올리면 전류도 함께 커져 전력은 <b>제곱</b>으로 급증합니다(전구가 확 밝아지는 것을 보세요). 이 전기에너지는 저항에서 빛·열로 바뀝니다. 전기요금의 'kWh'는 전력 × 시간 = 소비한 에너지입니다. 고압 송전선은 같은 전력을 작은 전류로 보내 I²R 손실(발열)을 줄이려는 설계입니다.",
+    "more": "<b>전력</b>: P = VI = I²R = V²/R (와트 W = J/s). 저항에서 소비되는 전력은 전부 열(줄 열, Q=I²Rt). 송전: P=VI에서 같은 P를 고전압·저전류로 보내면 손실 P_loss=I²R_선 이 작아짐 → 변전소가 전압을 수십만 V로 올리는 이유. 에너지 = 전력×시간(kWh). 가전제품의 W 표시가 소비 전력.",
+    "more_en": "<b>Power</b>: P = VI = I²R = V²/R (watts). Dissipated as heat (Joule heating, I²R). High-voltage transmission cuts I²R losses. Energy = power × time (kWh).",
+    "problem": {
+      "q": "12 V에서 2 A가 흐르는 전구의 소비 전력은?",
+      "solution": "P = VI = 12 × 2 = <b>24 W</b>.",
+      "q_en": "Bulb at 12 V drawing 2 A. Power?",
+      "sol_en": "P = VI = <b>24 W</b>."
+    }
+  },
+  "phys12_05": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.5 RC 회로",
+    "title": "RC 회로 — 지수적 충전과 방전",
+    "narr": "저항(R)과 축전기(C)를 이으면, 축전기는 한순간에 꽉 차지 않고 <b>지수 곡선을 그리며 서서히</b> 충전됩니다. 빈 컵에 물을 부으면 처음엔 콸콸 들어가지만, 가득 찰수록 더 붓기 어려워지죠. 축전기도 똑같습니다 — 처음엔 벌컥 차오르다가, 차오를수록 남은 전압차가 줄어 흐름이 점점 더뎌집니다. 핵심은 <b>시정수 τ = RC</b> — 이 시간 동안 최종값의 약 63%까지 도달합니다. 슬라이더로 R이나 C를 키우면 충전이 느려지고, 화면을 누르면 충전↔방전이 전환됩니다. 카메라 플래시를 충전할 때 잠깐 기다리는 그 시간, 신호 필터, 깜빡이 타이머가 모두 이 RC 곡선입니다.",
+    "more": "<b>RC 회로</b>: 충전 Vc(t) = V(1 − e^(−t/RC)), 방전 Vc(t) = V₀·e^(−t/RC). 시정수 τ = RC: 1τ에 63%, 5τ에 99% 도달(거의 완료). 전류 I = (V−Vc)/R는 지수적으로 감소. R·C가 클수록 느림. 미분·적분 회로, 저역·고역 통과 필터, 555 타이머의 시간 결정 요소. 다음 장의 LC 회로는 진동(공명)으로 이어집니다.",
+    "more_en": "<b>RC circuit</b>: charging Vc = V(1−e^(−t/RC)), discharging Vc = V₀e^(−t/RC). Time constant τ = RC: 63% in 1τ, ~99% in 5τ. Used in filters, timers (555), and integrator/differentiator circuits.",
+    "problem": {
+      "q": "R = 2 Ω, C = 3 F인 RC 회로의 시정수 τ는?",
+      "solution": "τ = RC = 2 × 3 = <b>6 s</b> (이 시간에 약 63% 충전).",
+      "q_en": "R = 2 Ω, C = 3 F. Time constant τ?",
+      "sol_en": "τ = RC = <b>6 s</b>."
+    }
+  },
+  "phys12_02_kirchhoff": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.2 심화 · 키르히호프 법칙",
+    "title": "키르히호프 법칙 — 복잡한 회로 풀기",
+    "narr": "옴의 법칙만으론 여러 갈래 회로를 못 풉니다. 두 규칙이 더 필요하죠 — <b>마디 법칙</b>: 한 점에 들어온 전류 = 나간 전류(전하 보존). <b>고리 법칙</b>: 닫힌 고리를 한 바퀴 돌면 전압 변화의 합 = 0(에너지 보존). 슬라이더로 병렬 저항을 바꿔, 본류가 두 갈래로 나뉘었다가 다시 합쳐지는 것(I=I₂+I₃)을 보세요.",
+    "more": "<b>키르히호프 법칙</b>: ① 마디(전류) 법칙 ΣI=0(전하 보존), ② 고리(전압) 법칙 ΣV=0(에너지 보존). 미지 전류마다 방정식을 세워 연립해 풉니다. 작은 저항 가지로 더 큰 전류(I₂R₂=I₃R₃=공통 전압). 모든 회로 해석·SPICE 시뮬레이터의 토대. 직렬·병렬 공식도 이 두 법칙의 특수한 경우입니다.",
+    "more_en": "<b>Kirchhoff's laws</b>: junction rule ΣI=0 (charge conservation), loop rule ΣV=0 (energy conservation). Write and solve simultaneous equations for unknown currents. Foundation of all circuit analysis (and SPICE).",
+    "problem": {
+      "q": "한 마디에 3 A가 들어오고 한 가지로 1 A가 나가면 다른 가지의 전류는?",
+      "solution": "마디 법칙 ΣI=0 → 들어온 3 A = 나간 (1 + ?) → <b>2 A</b>.",
+      "q_en": "3 A enters a junction, 1 A leaves one branch. The other branch?",
+      "sol_en": "Junction rule: 3 = 1 + ? → <b>2 A</b>."
+    }
+  },
+  "phys12_05_lc": {
+    "ch": "물리학 제16장 회로",
+    "sec": "12.5 심화 · LC 진동",
+    "title": "LC 회로 — 전기의 진자",
+    "narr": "인덕터(L)와 축전기(C)를 이으면 <b>전기가 진동</b>합니다 — 7장의 용수철-진자와 글자 그대로 똑같은 수학이 흐릅니다. 진자가 한쪽 끝에서 멈췄다 다시 반대로 넘어가듯, 축전기의 전기에너지와 인덕터의 자기에너지가 끊임없이 주고받습니다. 하지만 둘의 합은 늘 일정합니다(저항이 없을 때). 슬라이더로 L·C를 바꿔 진동 주기가 어떻게 변하는지 보세요. 라디오 다이얼을 돌려 듣고 싶은 방송 하나만 골라내는 동조 회로가 바로 이 원리입니다.",
+    "more": "<b>LC 진동</b>: L·d²Q/dt² + Q/C = 0 → Q(t)=Q₀cos(ωt), ω=1/√(LC). SHM과 대응: 1/C↔k(복원), L↔m(관성). 전기E(Q²/2C) ⇄ 자기E(½LI²), 합 보존. 라디오·TV 동조(공명 주파수를 방송에 맞춤), 발진기, 대역통과 필터, 무선통신의 심장. 저항(R)을 넣으면 RLC 감쇠진동(7.1 감쇠와 동형).",
+    "more_en": "<b>LC oscillation</b>: ω=1/√(LC), Q(t)=Q₀cos(ωt) — identical math to mass-spring SHM (1/C↔k, L↔m). Energy swaps between capacitor (Q²/2C) and inductor (½LI²). Basis of radio tuning, oscillators, and filters.",
+    "problem": {
+      "q": "L=2 H, C=2 F인 LC 회로의 각진동수 ω는?",
+      "solution": "ω = 1/√(LC) = 1/√(2×2) = 1/√4 = <b>0.5 rad/s</b>.",
+      "q_en": "L=2 H, C=2 F. Angular frequency ω?",
+      "sol_en": "ω = 1/√(LC) = 1/2 = <b>0.5 rad/s</b>."
+    }
   }
- },
- "phys12_02": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.2 옴의 법칙",
-  "title": "옴의 법칙 V = IR",
-  "narr": "회로에 흐르는 전류는 무엇이 정할까요? <b>옴의 법칙 V = IR</b> — 전류는 전압에 비례하고 저항에 반비례합니다(I = V/R). 슬라이더로 전압(전하를 미는 힘)을 올리면 전류가 늘고, 저항(흐름을 방해)을 키우면 전류가 줍니다. 저항은 전자가 도체 속 원자와 부딪히며 받는 방해로, 가늘고 긴 전선일수록·뜨거울수록 커집니다. 전구의 밝기가 전류(전력)에 따라 변하는 것을 보세요. 옴의 법칙은 전기회로 분석의 가장 기본 도구입니다.",
-  "more": "<b>옴의 법칙</b>: V = IR (R=저항, 단위 옴 Ω). 도체에서 전류∝전압(옴성 소자). 저항 R = ρL/A(비저항 ρ, 길이 L, 단면적 A) — 길고 가늘수록 큼. 온도가 오르면 금속 저항 증가(원자 진동↑). 반도체·전구 필라멘트는 비선형(옴 법칙 근사). 직렬·병렬 조합으로 회로를 설계합니다.",
-  "more_en": "<b>Ohm's law</b>: V = IR (R in ohms, Ω). R = ρL/A — longer/thinner = more resistance; metals' R rises with temperature. Foundation of circuit analysis.",
-  "problem": {
-   "q": "12 V 전지에 4 Ω 저항을 연결하면 전류는?",
-   "solution": "I = V/R = 12/4 = <b>3 A</b>.",
-   "q_en": "12 V across 4 Ω. Current?",
-   "sol_en": "I = V/R = <b>3 A</b>."
-  }
- },
- "phys12_03": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.3 직렬과 병렬",
-  "title": "직렬 vs 병렬 — 저항을 잇는 두 방법",
-  "narr": "저항을 잇는 데는 두 가지 방법이 있고, 결과가 정반대입니다. <b>직렬</b>(한 줄로): 합성저항이 <b>커집니다</b>(R = R₁ + R₂). 같은 전류가 두 저항을 차례로 지나고 전압이 나뉩니다. 하나가 끊기면 전체가 멈춥니다(옛날 전구 줄). <b>병렬</b>(나란히): 합성저항이 <b>작아집니다</b>(1/R = 1/R₁ + 1/R₂, 가장 작은 저항보다도 작음). 전압은 같고 전류가 갈래로 나뉩니다. 집안 콘센트가 병렬이라 하나를 꺼도 나머지가 작동합니다. 슬라이더로 직렬↔병렬을 전환하며 합성저항과 전류 변화를 보세요.",
-  "more": "<b>직렬</b>: R = R₁+R₂+…(증가), 전류 공통, 전압 분배(V_i=IR_i). <b>병렬</b>: 1/R = Σ1/Rᵢ(감소), 전압 공통, 전류 분배. 직렬은 전류 제한·전압 분배에, 병렬은 독립 작동·전류 증가에 쓰입니다. 가정 전기는 병렬(각 기기 같은 220V, 하나 꺼도 무관). 키르히호프 법칙으로 복잡한 회로도 풀 수 있습니다.",
-  "more_en": "<b>Series</b>: R = ΣRᵢ (increases), shared current, divided voltage. <b>Parallel</b>: 1/R = Σ1/Rᵢ (decreases), shared voltage, divided current. Home wiring is parallel. Kirchhoff's laws solve any network.",
-  "problem": {
-   "q": "4 Ω과 4 Ω을 병렬로 연결한 합성저항은?",
-   "solution": "1/R = 1/4 + 1/4 = 1/2 → R = <b>2 Ω</b> (각각보다 작음).",
-   "q_en": "Two 4 Ω in parallel. Total resistance?",
-   "sol_en": "1/R = 1/4+1/4 = 1/2 → <b>2 Ω</b>."
-  }
- },
- "phys12_04": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.4 전력",
-  "title": "전력 P = VI — 전기에너지의 소비율",
-  "narr": "전구가 밝고 히터가 뜨거운 것은 <b>전력</b>을 소비하기 때문입니다. 전력은 단위시간당 전기에너지 소비 — <b>P = VI = I²R = V²/R</b>(단위 와트 W). 전압을 올리면 전류도 함께 커져 전력은 <b>제곱</b>으로 급증합니다(전구가 확 밝아지는 것을 보세요). 이 전기에너지는 저항에서 빛·열로 바뀝니다. 전기요금의 'kWh'는 전력 × 시간 = 소비한 에너지입니다. 고압 송전선은 같은 전력을 작은 전류로 보내 I²R 손실(발열)을 줄이려는 설계입니다.",
-  "more": "<b>전력</b>: P = VI = I²R = V²/R (와트 W = J/s). 저항에서 소비되는 전력은 전부 열(줄 열, Q=I²Rt). 송전: P=VI에서 같은 P를 고전압·저전류로 보내면 손실 P_loss=I²R_선 이 작아짐 → 변전소가 전압을 수십만 V로 올리는 이유. 에너지 = 전력×시간(kWh). 가전제품의 W 표시가 소비 전력.",
-  "more_en": "<b>Power</b>: P = VI = I²R = V²/R (watts). Dissipated as heat (Joule heating, I²R). High-voltage transmission cuts I²R losses. Energy = power × time (kWh).",
-  "problem": {
-   "q": "12 V에서 2 A가 흐르는 전구의 소비 전력은?",
-   "solution": "P = VI = 12 × 2 = <b>24 W</b>.",
-   "q_en": "Bulb at 12 V drawing 2 A. Power?",
-   "sol_en": "P = VI = <b>24 W</b>."
-  }
- },
- "phys12_05": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.5 RC 회로",
-  "title": "RC 회로 — 지수적 충전과 방전",
-  "narr": "저항(R)과 축전기(C)를 이으면, 축전기는 한순간에 꽉 차지 않고 <b>지수 곡선을 그리며 서서히</b> 충전됩니다. 빈 컵에 물을 부으면 처음엔 콸콸 들어가지만, 가득 찰수록 더 붓기 어려워지죠. 축전기도 똑같습니다 — 처음엔 벌컥 차오르다가, 차오를수록 남은 전압차가 줄어 흐름이 점점 더뎌집니다. 핵심은 <b>시정수 τ = RC</b> — 이 시간 동안 최종값의 약 63%까지 도달합니다. 슬라이더로 R이나 C를 키우면 충전이 느려지고, 화면을 누르면 충전↔방전이 전환됩니다. 카메라 플래시를 충전할 때 잠깐 기다리는 그 시간, 신호 필터, 깜빡이 타이머가 모두 이 RC 곡선입니다.",
-  "more": "<b>RC 회로</b>: 충전 Vc(t) = V(1 − e^(−t/RC)), 방전 Vc(t) = V₀·e^(−t/RC). 시정수 τ = RC: 1τ에 63%, 5τ에 99% 도달(거의 완료). 전류 I = (V−Vc)/R는 지수적으로 감소. R·C가 클수록 느림. 미분·적분 회로, 저역·고역 통과 필터, 555 타이머의 시간 결정 요소. 다음 장의 LC 회로는 진동(공명)으로 이어집니다.",
-  "more_en": "<b>RC circuit</b>: charging Vc = V(1−e^(−t/RC)), discharging Vc = V₀e^(−t/RC). Time constant τ = RC: 63% in 1τ, ~99% in 5τ. Used in filters, timers (555), and integrator/differentiator circuits.",
-  "problem": {
-   "q": "R = 2 Ω, C = 3 F인 RC 회로의 시정수 τ는?",
-   "solution": "τ = RC = 2 × 3 = <b>6 s</b> (이 시간에 약 63% 충전).",
-   "q_en": "R = 2 Ω, C = 3 F. Time constant τ?",
-   "sol_en": "τ = RC = <b>6 s</b>."
-  }
- },
- "phys12_02_kirchhoff": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.2 심화 · 키르히호프 법칙",
-  "title": "키르히호프 법칙 — 복잡한 회로 풀기",
-  "narr": "옴의 법칙만으론 여러 갈래 회로를 못 풉니다. 두 규칙이 더 필요하죠 — <b>마디 법칙</b>: 한 점에 들어온 전류 = 나간 전류(전하 보존). <b>고리 법칙</b>: 닫힌 고리를 한 바퀴 돌면 전압 변화의 합 = 0(에너지 보존). 슬라이더로 병렬 저항을 바꿔, 본류가 두 갈래로 나뉘었다가 다시 합쳐지는 것(I=I₂+I₃)을 보세요.",
-  "more": "<b>키르히호프 법칙</b>: ① 마디(전류) 법칙 ΣI=0(전하 보존), ② 고리(전압) 법칙 ΣV=0(에너지 보존). 미지 전류마다 방정식을 세워 연립해 풉니다. 작은 저항 가지로 더 큰 전류(I₂R₂=I₃R₃=공통 전압). 모든 회로 해석·SPICE 시뮬레이터의 토대. 직렬·병렬 공식도 이 두 법칙의 특수한 경우입니다.",
-  "more_en": "<b>Kirchhoff's laws</b>: junction rule ΣI=0 (charge conservation), loop rule ΣV=0 (energy conservation). Write and solve simultaneous equations for unknown currents. Foundation of all circuit analysis (and SPICE).",
-  "problem": {
-   "q": "한 마디에 3 A가 들어오고 한 가지로 1 A가 나가면 다른 가지의 전류는?",
-   "solution": "마디 법칙 ΣI=0 → 들어온 3 A = 나간 (1 + ?) → <b>2 A</b>.",
-   "q_en": "3 A enters a junction, 1 A leaves one branch. The other branch?",
-   "sol_en": "Junction rule: 3 = 1 + ? → <b>2 A</b>."
-  }
- },
- "phys12_05_lc": {
-  "ch": "물리학 제15장 회로",
-  "sec": "12.5 심화 · LC 진동",
-  "title": "LC 회로 — 전기의 진자",
-  "narr": "인덕터(L)와 축전기(C)를 이으면 <b>전기가 진동</b>합니다 — 7장의 용수철-진자와 글자 그대로 똑같은 수학이 흐릅니다. 진자가 한쪽 끝에서 멈췄다 다시 반대로 넘어가듯, 축전기의 전기에너지와 인덕터의 자기에너지가 끊임없이 주고받습니다. 하지만 둘의 합은 늘 일정합니다(저항이 없을 때). 슬라이더로 L·C를 바꿔 진동 주기가 어떻게 변하는지 보세요. 라디오 다이얼을 돌려 듣고 싶은 방송 하나만 골라내는 동조 회로가 바로 이 원리입니다.",
-  "more": "<b>LC 진동</b>: L·d²Q/dt² + Q/C = 0 → Q(t)=Q₀cos(ωt), ω=1/√(LC). SHM과 대응: 1/C↔k(복원), L↔m(관성). 전기E(Q²/2C) ⇄ 자기E(½LI²), 합 보존. 라디오·TV 동조(공명 주파수를 방송에 맞춤), 발진기, 대역통과 필터, 무선통신의 심장. 저항(R)을 넣으면 RLC 감쇠진동(7.1 감쇠와 동형).",
-  "more_en": "<b>LC oscillation</b>: ω=1/√(LC), Q(t)=Q₀cos(ωt) — identical math to mass-spring SHM (1/C↔k, L↔m). Energy swaps between capacitor (Q²/2C) and inductor (½LI²). Basis of radio tuning, oscillators, and filters.",
-  "problem": {
-   "q": "L=2 H, C=2 F인 LC 회로의 각진동수 ω는?",
-   "solution": "ω = 1/√(LC) = 1/√(2×2) = 1/√4 = <b>0.5 rad/s</b>.",
-   "q_en": "L=2 H, C=2 F. Angular frequency ω?",
-   "sol_en": "ω = 1/√(LC) = 1/2 = <b>0.5 rad/s</b>."
-  }
- }
 }
