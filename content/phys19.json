@@ -1,6 +1,6 @@
 {
   "phys19_01": {
-    "ch": "물리학 제18장 양자물리",
+    "ch": "물리학 제19장 양자물리",
     "narr": "앞 장에서 이중슬릿 무늬로 '빛은 파동이다'를 못 박았죠. 그런데 자연은 우리를 골탕 먹입니다. 금속에 빛을 쪼이면 전자가 튀어나오는데(광전효과), 상식대로면 빛을 <b>밝게</b> 쪼일수록 전자가 잘 나와야 합니다. 그런데 — 붉은빛은 눈부시게 밝혀도 전자가 한 개도 안 나오고, 푸른빛은 희미해도 즉시 튀어나옵니다! 밝기가 아니라 <b>색(진동수)</b>이 문제였어요. 부드럽게 퍼진 파동으로는 도저히 설명할 수 없습니다. 아인슈타인의 답: 빛은 <b>에너지 E=hf짜리 알갱이(광자)</b>가 우박처럼 쏟아지는 것이고, 광자 한 알이 충분히 세게(hf>일함수 W) 때려야만 전자가 떨어진다 — 약한 광자는 아무리 많아도 소용없죠. 빛은 파동이자 입자였습니다. 양자역학의 문이 열립니다.",
     "more": "<b>광전효과</b>: 빛=광자(에너지 E=hf, h=플랑크 상수). 전자 방출 조건 hf>W(일함수=문턱). 방출 전자 운동E <b>KE=hf−W</b>. 밝기는 광자 수(전류)만 늘릴 뿐, 진동수가 문턱을 넘어야 방출. 파동론으로 설명 불가 → 빛의 입자성(아인슈타인, 1905, 노벨상). 광센서·태양전지의 원리.",
     "more_en": "<b>Photoelectric effect</b>: light = photons of energy E=hf. Emission needs hf>W (work function). Electron KE=hf−W. Brightness only adds photons; frequency must exceed threshold. Unexplained by waves → light's particle nature (Einstein, 1905). Basis of sensors and solar cells.",
@@ -12,7 +12,7 @@
     }
   },
   "phys19_02": {
-    "ch": "물리학 제18장 양자물리",
+    "ch": "물리학 제19장 양자물리",
     "narr": "사실 양자의 첫 균열은 더 앞에서, 가장 평범한 곳에서 터졌습니다 — <b>뜨거운 물체가 내는 빛</b>입니다. 달궈진 쇠가 붉다가 노랗다가 하얗게 변하죠(온도가 오를수록 피크가 파랑 쪽으로). 그런데 19세기 고전물리로 이걸 계산하면 끔찍한 일이 벌어집니다 — 짧은 파장(자외선) 쪽에서 세기가 <b>무한대로 발산</b>합니다(자외선 파탄). 모든 뜨거운 물체가 무한한 자외선을 뿜는다니, 명백히 틀렸죠. 플랑크가 절박한 심정으로 가정했습니다: \"에너지가 연속이 아니라 <b>E=hf짜리 덩어리로만</b> 주고받아진다면?\" 그러자 곡선이 실측과 완벽히 맞았습니다. 자연이 에너지를 <b>알갱이(양자)로 끊어</b> 다룬다는 첫 신호 — 양자역학의 탄생(1900)입니다. 화면에서 온도를 올리면 피크가 짧은 파장으로 이동합니다(빈 변위 법칙).",
     "more": "<b>흑체복사·플랑크 가설</b>: 고전(레일리-진스)은 자외선서 발산(자외선 파탄). 플랑크: 에너지 양자화 <b>E=hf</b> 가정 → 실측 일치(양자역학의 시작, 1900). 빈 변위 λmax ∝ 1/T(뜨거울수록 파랑). 슈테판-볼츠만 총복사 ∝ T⁴. 별 색으로 온도 측정, 우주배경복사(2.7K)도 흑체.",
     "more_en": "<b>Blackbody radiation / Planck</b>: classical theory diverges in the UV (ultraviolet catastrophe). Planck's quantization <b>E=hf</b> matched experiment — the birth of quantum theory (1900). Wien: λmax ∝ 1/T; Stefan-Boltzmann: power ∝ T⁴. Star colors give temperature.",
@@ -24,7 +24,7 @@
     }
   },
   "phys19_03": {
-    "ch": "물리학 제18장 양자물리",
+    "ch": "물리학 제19장 양자물리",
     "narr": "빛이 파동이자 입자라면 — 드브로이가 대담하게 뒤집어 물었습니다. \"그럼 전자 같은 <b>입자도 파동</b>일 수 있지 않을까?\" 미친 소리 같지만 맞았습니다. 모든 물질은 <b>드브로이 파장 λ = h/p</b>(p=운동량)를 가집니다. 그리고 실제로 전자를 이중슬릿(혹은 결정)에 쏘면, 총알이라면 두 줄만 찍혀야 할 자리에 빛과 똑같은 <b>간섭무늬</b>가 나타납니다 — 전자 하나하나가 파동처럼 두 틈을 동시에 지나는 거죠! 그럼 왜 야구공의 파동성은 안 보일까요? 운동량 p가 어마어마하게 커서 λ=h/p가 원자보다도 훨씬 작아, 무늬가 측정 불가능할 만큼 촘촘하기 때문입니다. 전자현미경은 바로 이 짧은 전자 파장으로 빛보다 훨씬 작은 것을 봅니다. 슬라이더로 운동량을 키우면 물질파 파장이 짧아집니다.",
     "more": "<b>물질파·드브로이</b>: 모든 입자가 파동, <b>λ = h/p</b>. 전자 회절·이중슬릿 간섭으로 실증(데이비슨-거머). 운동량 클수록 파장 짧음 → 거시물체(야구공)는 λ가 너무 작아 파동성 안 보임. 전자현미경(짧은 λ로 고분해능)·중성자 회절의 원리. 파동-입자 이중성의 완성.",
     "more_en": "<b>Matter waves / de Broglie</b>: every particle is a wave, <b>λ = h/p</b>. Confirmed by electron diffraction and double-slit interference. Larger momentum → shorter wavelength, so macroscopic objects show no wave behavior. Basis of the electron microscope.",
@@ -36,7 +36,7 @@
     }
   },
   "phys19_04": {
-    "ch": "물리학 제18장 양자물리",
+    "ch": "물리학 제19장 양자물리",
     "narr": "입자가 파동이라는 사실은 무서운 대가를 치릅니다. 파동은 한 점에 콕 박혀 있을 수 없거든요 — 어딘가 퍼져 있죠. 그래서 양자 세계에선 <b>입자의 위치와 운동량(속도)을 동시에 정확히 알 수가 없습니다.</b> 위치를 좁히려고 파동을 한 점에 욱여넣으면(Δx 작게), 그 대가로 운동량이 사방으로 퍼져 버립니다(Δp 커짐). 반대도 마찬가지죠. 둘의 곱은 절대 어떤 최솟값 아래로 못 내려갑니다 — <b>하이젠베르크의 불확정성 원리 Δx·Δp ≥ ℏ/2</b>. 이건 측정 기술이 부족해서가 아니라 <b>자연의 근본 성질</b>입니다. 신조차 전자의 위치와 속도를 동시에 정확히 말할 수 없어요. 화면에서 위치 분포(파랑)를 좁히면 운동량 분포(주황)가 넓어지는 걸 보세요 — 곱은 늘 일정 이상으로 유지됩니다.",
     "more": "<b>불확정성 원리</b>: <b>Δx·Δp ≥ ℏ/2</b>(ℏ=h/2π). 위치를 정밀히 알수록 운동량이 불확실(반대도). 측정 한계가 아니라 파동성에서 오는 자연의 근본 성질(하이젠베르크). 에너지-시간 형 ΔE·Δt ≥ ℏ/2(가상입자·터널링). 원자가 붕괴 안 하고 안정한 이유, 양자 터널링(태양 핵융합·반도체)의 바탕.",
     "more_en": "<b>Uncertainty principle</b>: <b>Δx·Δp ≥ ℏ/2</b>. Knowing position precisely makes momentum uncertain (and vice versa). Not a measurement flaw but a fundamental property from wave nature. Energy-time form ΔE·Δt ≥ ℏ/2. Underlies atomic stability and quantum tunneling.",
@@ -48,7 +48,7 @@
     }
   },
   "phys19_05": {
-    "ch": "물리학 제18장 양자물리",
+    "ch": "물리학 제19장 양자물리",
     "narr": "이 모든 양자 개념이 한 곳에서 아름답게 만납니다 — <b>원자</b>입니다. 보어는 전자가 사다리 칸처럼 <b>정해진 궤도(에너지 준위)에만</b> 설 수 있다고 했습니다(에너지 양자화, E_n=−13.6/n² eV). 전자가 높은 칸에서 낮은 칸으로 뚝 떨어질 때, 두 칸의 <b>에너지 차이가 광자 한 알로 튀어나옵니다</b>(E=hf=E_i−E_f). 크게 떨어지면 큰 에너지=보라빛, 살짝 떨어지면 붉은빛이죠. 이 칸 간격이 원소마다 달라 저마다 고유한 <b>선 스펙트럼</b>(지문 같은 색선)을 만듭니다 — 덕분에 한 번도 가보지 못한 별의 빛만 보고도 그 성분을 알아냅니다(분광학). 앞에서 본 광전효과의 광자가, 이번엔 원자 속에서 태어나는 셈이죠. 슬라이더로 전이 준위를 바꿔 방출되는 광자의 색을 보세요.",
     "more": "<b>보어 원자모형</b>: 전자는 양자화된 궤도(에너지 준위)에만 존재, <b>E_n = −13.6/n² eV</b>(수소). 전이 시 광자 방출/흡수 <b>E=hf=E_i−E_f</b>. 큰 전이=짧은 파장(보라), 작은 전이=붉은빛. 원소별 고유 선 스펙트럼 → 분광학(별·물질 성분 분석). 발머 계열(가시광)·라이먼(자외선). 양자역학의 첫 성공적 원자 모형.",
     "more_en": "<b>Bohr model</b>: electrons occupy quantized energy levels <b>E_n = −13.6/n² eV</b> (hydrogen). Transitions emit/absorb photons <b>E=hf=E_i−E_f</b>. Bigger jumps = bluer light. Element-specific line spectra → spectroscopy. Balmer (visible), Lyman (UV) series.",

@@ -1,100 +1,58 @@
 {
- "phys13_01": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.1 자기장",
-  "title": "자기장 — 자석과 나침반",
-  "narr": "어렸을 때 나침반 바늘이 늘 같은 쪽을 가리키는 게 신기하지 않았나요? 자석 둘레의 빈 공간에는 눈에 안 보이는 <b>자기장 B</b>가 깔려 있어, 그 안에 놓인 나침반 바늘(실은 작은 자석)을 한 방향으로 정렬시킵니다. 자기장은 <b>N극에서 나와 S극으로</b> 들어갑니다(파란 바늘). 극을 뒤집으면 장 전체가 반대로 돕니다. 전기와의 결정적 차이를 보세요 — <b>자기 홀극(N만, 또는 S만)은 어디에도 없습니다</b>. 자석을 아무리 잘게 쪼개도, 쪼갠 조각마다 매번 N극과 S극이 짝지어 다시 나타납니다. 왜일까요? 그리고 지구 자체가 거대한 자석이라, 나침반 N극이 북쪽을 가리킵니다.",
-  "more": "<b>자기장 B</b>: 단위 테슬라(T). N→S 방향, 폐곡선(시작·끝 없음 → 홀극 없음, ∇·B=0). 나침반·자기력선으로 시각화. 강자성체(철·니켈)는 자기화되어 자석이 됨. 지구 자기장(~50μT)이 우주 방사선을 막아 생명을 보호합니다. 자기력은 움직이는 전하·전류에 작용(다음 장면들).",
-  "more_en": "<b>Magnetic field B</b> (teslas). Points N→S; field lines are closed loops (no monopoles, ∇·B=0). Earth's field (~50 μT) shields us from cosmic rays. Magnetic force acts on moving charges/currents.",
-  "problem": {
-   "q": "막대자석을 반으로 자르면 어떻게 되나요?",
-   "solution": "각 조각이 다시 <b>N극과 S극을 모두</b> 갖습니다 — 자기 홀극은 없습니다.",
-   "q_en": "Cut a bar magnet in half. Result?",
-   "sol_en": "Each piece again has both N and S poles — no magnetic monopoles."
+  "phys13_01": {
+    "ch": "물리학 제14장 자기",
+    "sec": "13.1 자기장",
+    "title": "자기장 — 자석과 나침반",
+    "narr": "어렸을 때 나침반 바늘이 늘 같은 쪽을 가리키는 게 신기하지 않았나요? 자석 둘레의 빈 공간에는 눈에 안 보이는 <b>자기장 B</b>가 깔려 있어, 그 안에 놓인 나침반 바늘(실은 작은 자석)을 한 방향으로 정렬시킵니다. 자기장은 <b>N극에서 나와 S극으로</b> 들어갑니다(파란 바늘). 극을 뒤집으면 장 전체가 반대로 돕니다. 전기와의 결정적 차이를 보세요 — <b>자기 홀극(N만, 또는 S만)은 어디에도 없습니다</b>. 자석을 아무리 잘게 쪼개도, 쪼갠 조각마다 매번 N극과 S극이 짝지어 다시 나타납니다. 왜일까요? 그리고 지구 자체가 거대한 자석이라, 나침반 N극이 북쪽을 가리킵니다.",
+    "more": "<b>자기장 B</b>: 단위 테슬라(T). N→S 방향, 폐곡선(시작·끝 없음 → 홀극 없음, ∇·B=0). 나침반·자기력선으로 시각화. 강자성체(철·니켈)는 자기화되어 자석이 됨. 지구 자기장(~50μT)이 우주 방사선을 막아 생명을 보호합니다. 자기력은 움직이는 전하·전류에 작용(다음 장면들).",
+    "more_en": "<b>Magnetic field B</b> (teslas). Points N→S; field lines are closed loops (no monopoles, ∇·B=0). Earth's field (~50 μT) shields us from cosmic rays. Magnetic force acts on moving charges/currents.",
+    "problem": {
+      "q": "막대자석을 반으로 자르면 어떻게 되나요?",
+      "solution": "각 조각이 다시 <b>N극과 S극을 모두</b> 갖습니다 — 자기 홀극은 없습니다.",
+      "q_en": "Cut a bar magnet in half. Result?",
+      "sol_en": "Each piece again has both N and S poles — no magnetic monopoles."
+    }
+  },
+  "phys13_02": {
+    "ch": "물리학 제14장 자기",
+    "sec": "13.2 로런츠 힘",
+    "title": "로런츠 힘 F = qv×B — 자기장 속 원운동",
+    "narr": "재미있는 질문 하나 — 자기장은 움직이는 전하를 어느 쪽으로 밀까요? 답이 놀랍습니다. <b>로런츠 힘 F = qv×B</b>는 늘 <b>진행 방향에 직각</b>으로 밀어냅니다. 앞도 뒤도 아닌 옆구리만 계속 미는 셈이죠. 그래서 속력(에너지)은 조금도 변하지 않고 방향만 끝없이 휘어 — 전하는 <b>제자리에서 빙글빙글 원을 그립니다</b>(자기력이 곧 구심력!). 자기장을 세게 하면(B↑) 원이 작아지고(반지름 r = mv/qB), 전하 부호를 바꾸면 도는 방향이 뒤집힙니다. 밤하늘의 오로라(태양풍 입자가 지구 자기장에 휘어 극지로 쏟아짐), 사이클로트론 가속기, 질량분석기가 모두 이 원운동입니다.",
+    "more": "<b>로런츠 힘</b>: F = qv×B (속도·자기장에 모두 수직, 크기 qvB sinθ). 속도에 수직 → 일 0 → 속력 일정, 등속원운동. 반지름 r = mv/(qB), 주기 T = 2πm/(qB)(속력 무관!). 자기장만으론 에너지를 못 주므로 가속엔 전기장이 필요(사이클로트론). 나란히 움직이면(v∥B) 힘 0. 전기장까지 더하면 F = q(E + v×B).",
+    "more_en": "<b>Lorentz force</b>: F = qv×B (perpendicular to v and B). Does no work → circular motion, r = mv/(qB), period T = 2πm/(qB) (speed-independent). Behind auroras, cyclotrons, mass spectrometers.",
+    "problem": {
+      "q": "자기장 속 전하의 원 반지름은 자기장을 2배로 하면?",
+      "solution": "r = mv/qB ∝ 1/B. 자기장 2배 → 반지름 <b>절반</b>.",
+      "q_en": "Double B. The circular radius of the charge?",
+      "sol_en": "r = mv/qB ∝ 1/B → <b>halved</b>."
+    }
+  },
+  "phys13_03": {
+    "ch": "물리학 제14장 자기",
+    "sec": "13.3 전류의 자기장",
+    "title": "전류가 만드는 자기장 — 외르스테드",
+    "narr": "1820년 외르스테드는 우연히 거대한 발견을 합니다 — <b>전류가 흐르는 전선 옆의 나침반이 움직인다!</b> 전류는 둘레에 <b>자기장을 만듭니다</b>. 직선 전선 둘레로 자기장이 동심원을 그리며 감아 돕니다(B = μ₀I/2πr). 슬라이더로 전류를 키우면 자기장이 강해지고, 전선에서 멀어질수록(r↑) 약해집니다. 방향은 <b>오른손 법칙</b> — 엄지를 전류 방향으로 두면 감아쥔 손가락이 자기장 방향입니다. 전선을 여러 번 감으면(솔레노이드) 막대자석 같은 강한 자기장이 생겨 <b>전자석</b>이 됩니다. 전기와 자기는 사실 하나로 얽힌 현상(전자기)입니다.",
+    "more": "<b>앙페르 법칙</b>: 직선 전선 B = μ₀I/(2πr), 솔레노이드 B = μ₀nI(n=감은 밀도). 오른손 법칙으로 방향 결정. 전자석은 전류로 켜고 끄는 자석 — 모터·스피커·MRI·자기부상열차의 핵심. 외르스테드+패러데이의 발견이 전기와 자기를 통합(맥스웰 방정식)했고, 그 결론이 빛=전자기파입니다.",
+    "more_en": "<b>Ampère's law</b>: straight wire B = μ₀I/(2πr); solenoid B = μ₀nI. Right-hand rule. Electromagnets power motors, speakers, MRI, maglev. Unified by Maxwell — light is an electromagnetic wave.",
+    "problem": {
+      "q": "전선의 전류를 3배로 하면 둘레 자기장은?",
+      "solution": "B ∝ I. 전류 3배 → 자기장 <b>3배</b>.",
+      "q_en": "Triple the wire's current. Surrounding B field?",
+      "sol_en": "B ∝ I → <b>3×</b>."
+    }
+  },
+  "phys13_03_solenoid": {
+    "ch": "물리학 제14장 자기",
+    "sec": "13.3 심화 · 솔레노이드(전자석)",
+    "title": "솔레노이드 — 전류로 만든 자석",
+    "narr": "전선을 촘촘히 감으면(솔레노이드) 각 고리의 자기장이 합쳐져 <b>내부에 균일하고 강한 자기장</b>이 생깁니다 — 막대자석과 똑같은 N·S 극이죠! 슬라이더로 전류와 감은 수를 키우면 자기장이 강해집니다. 전류를 끄면 자성이 사라지는 <b>전자석</b>입니다 — 크레인 자석, 자기부상열차, MRI의 원리.",
+    "more": "<b>솔레노이드</b>: 내부 균일장 B = μ₀·n·I (n=단위길이당 감은 수 = N/L). 전류·감은 밀도에 비례, 안에 철심(투자율 μ)을 넣으면 수백~수천 배 강해짐(전자석). 전류로 켜고 끄고 세기를 조절 가능 — 영구자석에 없는 장점. 모터·스피커·릴레이·도어록·MRI·입자가속기 자석. 토로이드(도넛형)는 자기장을 안에 가둠.",
+    "more_en": "<b>Solenoid</b>: uniform interior field B = μ₀·n·I (n = turns per length). An iron core multiplies it hundreds of times (electromagnet) — switchable, adjustable. Used in motors, speakers, relays, MRI, accelerators.",
+    "problem": {
+      "q": "솔레노이드의 전류를 2배, 감은 밀도를 2배로 하면 내부 자기장은?",
+      "solution": "B = μ₀nI ∝ n·I. 둘 다 2배 → <b>4배</b>.",
+      "q_en": "Double both current and turn-density. Interior field?",
+      "sol_en": "B ∝ nI → <b>4×</b>."
+    }
   }
- },
- "phys13_02": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.2 로런츠 힘",
-  "title": "로런츠 힘 F = qv×B — 자기장 속 원운동",
-  "narr": "재미있는 질문 하나 — 자기장은 움직이는 전하를 어느 쪽으로 밀까요? 답이 놀랍습니다. <b>로런츠 힘 F = qv×B</b>는 늘 <b>진행 방향에 직각</b>으로 밀어냅니다. 앞도 뒤도 아닌 옆구리만 계속 미는 셈이죠. 그래서 속력(에너지)은 조금도 변하지 않고 방향만 끝없이 휘어 — 전하는 <b>제자리에서 빙글빙글 원을 그립니다</b>(자기력이 곧 구심력!). 자기장을 세게 하면(B↑) 원이 작아지고(반지름 r = mv/qB), 전하 부호를 바꾸면 도는 방향이 뒤집힙니다. 밤하늘의 오로라(태양풍 입자가 지구 자기장에 휘어 극지로 쏟아짐), 사이클로트론 가속기, 질량분석기가 모두 이 원운동입니다.",
-  "more": "<b>로런츠 힘</b>: F = qv×B (속도·자기장에 모두 수직, 크기 qvB sinθ). 속도에 수직 → 일 0 → 속력 일정, 등속원운동. 반지름 r = mv/(qB), 주기 T = 2πm/(qB)(속력 무관!). 자기장만으론 에너지를 못 주므로 가속엔 전기장이 필요(사이클로트론). 나란히 움직이면(v∥B) 힘 0. 전기장까지 더하면 F = q(E + v×B).",
-  "more_en": "<b>Lorentz force</b>: F = qv×B (perpendicular to v and B). Does no work → circular motion, r = mv/(qB), period T = 2πm/(qB) (speed-independent). Behind auroras, cyclotrons, mass spectrometers.",
-  "problem": {
-   "q": "자기장 속 전하의 원 반지름은 자기장을 2배로 하면?",
-   "solution": "r = mv/qB ∝ 1/B. 자기장 2배 → 반지름 <b>절반</b>.",
-   "q_en": "Double B. The circular radius of the charge?",
-   "sol_en": "r = mv/qB ∝ 1/B → <b>halved</b>."
-  }
- },
- "phys13_03": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.3 전류의 자기장",
-  "title": "전류가 만드는 자기장 — 외르스테드",
-  "narr": "1820년 외르스테드는 우연히 거대한 발견을 합니다 — <b>전류가 흐르는 전선 옆의 나침반이 움직인다!</b> 전류는 둘레에 <b>자기장을 만듭니다</b>. 직선 전선 둘레로 자기장이 동심원을 그리며 감아 돕니다(B = μ₀I/2πr). 슬라이더로 전류를 키우면 자기장이 강해지고, 전선에서 멀어질수록(r↑) 약해집니다. 방향은 <b>오른손 법칙</b> — 엄지를 전류 방향으로 두면 감아쥔 손가락이 자기장 방향입니다. 전선을 여러 번 감으면(솔레노이드) 막대자석 같은 강한 자기장이 생겨 <b>전자석</b>이 됩니다. 전기와 자기는 사실 하나로 얽힌 현상(전자기)입니다.",
-  "more": "<b>앙페르 법칙</b>: 직선 전선 B = μ₀I/(2πr), 솔레노이드 B = μ₀nI(n=감은 밀도). 오른손 법칙으로 방향 결정. 전자석은 전류로 켜고 끄는 자석 — 모터·스피커·MRI·자기부상열차의 핵심. 외르스테드+패러데이의 발견이 전기와 자기를 통합(맥스웰 방정식)했고, 그 결론이 빛=전자기파입니다.",
-  "more_en": "<b>Ampère's law</b>: straight wire B = μ₀I/(2πr); solenoid B = μ₀nI. Right-hand rule. Electromagnets power motors, speakers, MRI, maglev. Unified by Maxwell — light is an electromagnetic wave.",
-  "problem": {
-   "q": "전선의 전류를 3배로 하면 둘레 자기장은?",
-   "solution": "B ∝ I. 전류 3배 → 자기장 <b>3배</b>.",
-   "q_en": "Triple the wire's current. Surrounding B field?",
-   "sol_en": "B ∝ I → <b>3×</b>."
-  }
- },
- "phys13_04": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.4 전자기 유도",
-  "title": "패러데이 유도 — 변하는 자속이 전류를 만든다",
-  "narr": "전류가 자기장을 만든다면, 거꾸로 자기장으로 전류를 뽑아낼 수 있을까요? 패러데이가 수없이 실험한 끝에 얻은 답은 의외였습니다 — '<b>변할 때만</b>' 됩니다. 코일을 지나는 <b>자속(자기장)이 변하는 순간에만 전류가 유도</b>됩니다. 자석을 코일에 넣었다 뺐다 하면 검류계 바늘이 흔들리죠. 자석을 빠르게 움직여 보세요 — <b>빠를수록 큰 기전력</b>이 솟습니다(EMF = −N·dΦ/dt). 정말 중요한 건 '변화' 그 자체입니다. 자석이 코일 속에 멈춰 있으면(속도 0) 자속이 안 변하니 전류도 0이에요. 넣을 때와 뺄 때는 전류 방향이 정반대입니다(렌츠 법칙). 발전소·마이크·무선충전·교통카드·인덕션 레인지가 전부 이 한 가지 원리에서 나옵니다.",
-  "more": "<b>패러데이 법칙</b>: EMF = −N·dΦ/dt (Φ=자속=B·A). 자속 변화율에 비례 — 자석을 빠르게, 강하게, 코일을 많이 감을수록 큰 기전력. <b>렌츠 법칙</b>(음의 부호): 유도 전류는 자속 변화를 <b>방해</b>하는 방향으로 흐릅니다(에너지 보존). 변압기·발전기·인덕터·금속탐지기가 응용. 다음 장면의 발전기는 코일을 회전시켜 자속을 주기적으로 변화시킵니다.",
-  "more_en": "<b>Faraday's law</b>: EMF = −N·dΦ/dt. Faster/stronger change and more turns → larger EMF. <b>Lenz's law</b> (minus sign): induced current opposes the flux change. Behind generators, transformers, wireless charging, induction stoves.",
-  "problem": {
-   "q": "자석이 코일 속에 멈춰 있으면 유도 전류는?",
-   "solution": "<b>0</b> — 자속이 변하지 않기 때문. 유도는 '변화'가 있어야 일어납니다.",
-   "q_en": "A magnet sits still inside a coil. Induced current?",
-   "sol_en": "<b>Zero</b> — flux isn't changing; induction needs change."
-  }
- },
- "phys13_05": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.5 발전기",
-  "title": "발전기 — 회전이 만드는 교류 전기",
-  "narr": "발전기는 전자기 유도(13.4)를 거꾸로, 그러나 연속적으로 활용합니다. 자기장 속에서 <b>코일을 빙빙 회전</b>시키면, 코일을 지나는 자속이 사인 곡선으로 계속 변해 — <b>교류(AC) 기전력</b>이 유도됩니다(EMF = NBAω·sinωt). 코일이 자기장과 나란할 때 자속 변화율이 최대라 기전력도 최대, 자기장에 수직일 때는 순간적으로 0입니다. 슬라이더로 회전 속도를 올리면 전압(진폭)도 커지고 주파수도 높아집니다(오른쪽 사인파). 수력(물)·풍력(바람)·화력(증기)·원자력 발전이 모두 '무언가로 터빈을 돌려 코일을 회전'시키는 같은 원리입니다. 우리가 쓰는 전기 대부분이 이렇게 만들어집니다.",
-  "more": "<b>발전기</b>: EMF = NBAω·sin(ωt) — 회전 코일의 자속 Φ=NBA·cos(ωt)를 미분한 것. 교류(AC)를 생성, 주파수 = 회전수(50/60 Hz). 모터는 정반대(전기→회전). 변압기로 전압을 바꿔 송전(고전압 저손실). 대부분의 발전은 운동E/열E→회전→전기E 변환 — 에너지 형태 변환의 정점. 태양전지만 예외(빛→전기 직접).",
-  "more_en": "<b>Generator</b>: EMF = NBAω·sin(ωt), the derivative of flux Φ = NBA·cos(ωt). Produces AC (50/60 Hz). A motor is the reverse. Most generation is motion/heat → rotation → electricity.",
-  "problem": {
-   "q": "발전기 코일의 회전 속도를 2배로 하면 유도 전압의 최대값은?",
-   "solution": "EMF 최대값 = NBAω ∝ ω. 회전 2배 → 전압 <b>2배</b>(주파수도 2배).",
-   "q_en": "Double the generator's rotation speed. Peak voltage?",
-   "sol_en": "Peak EMF = NBAω ∝ ω → <b>2×</b> (and double frequency)."
-  }
- },
- "phys13_03_solenoid": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.3 심화 · 솔레노이드(전자석)",
-  "title": "솔레노이드 — 전류로 만든 자석",
-  "narr": "전선을 촘촘히 감으면(솔레노이드) 각 고리의 자기장이 합쳐져 <b>내부에 균일하고 강한 자기장</b>이 생깁니다 — 막대자석과 똑같은 N·S 극이죠! 슬라이더로 전류와 감은 수를 키우면 자기장이 강해집니다. 전류를 끄면 자성이 사라지는 <b>전자석</b>입니다 — 크레인 자석, 자기부상열차, MRI의 원리.",
-  "more": "<b>솔레노이드</b>: 내부 균일장 B = μ₀·n·I (n=단위길이당 감은 수 = N/L). 전류·감은 밀도에 비례, 안에 철심(투자율 μ)을 넣으면 수백~수천 배 강해짐(전자석). 전류로 켜고 끄고 세기를 조절 가능 — 영구자석에 없는 장점. 모터·스피커·릴레이·도어록·MRI·입자가속기 자석. 토로이드(도넛형)는 자기장을 안에 가둠.",
-  "more_en": "<b>Solenoid</b>: uniform interior field B = μ₀·n·I (n = turns per length). An iron core multiplies it hundreds of times (electromagnet) — switchable, adjustable. Used in motors, speakers, relays, MRI, accelerators.",
-  "problem": {
-   "q": "솔레노이드의 전류를 2배, 감은 밀도를 2배로 하면 내부 자기장은?",
-   "solution": "B = μ₀nI ∝ n·I. 둘 다 2배 → <b>4배</b>.",
-   "q_en": "Double both current and turn-density. Interior field?",
-   "sol_en": "B ∝ nI → <b>4×</b>."
-  }
- },
- "phys13_05_transformer": {
-  "ch": "물리학 제14장 자기·전자기유도",
-  "sec": "13.5 심화 · 변압기",
-  "title": "변압기 — 전압을 바꾸는 상호유도",
-  "narr": "변압기는 상호유도로 <b>교류 전압을 올리거나 내립니다</b>. 1차 코일의 변하는 자속이 철심을 타고 2차 코일에 기전력을 유도하죠 — <b>전압비 = 감은 수 비(Vs/Vp = Ns/Np)</b>. 슬라이더로 2차 감은 수를 1차보다 많게 하면 승압, 적게 하면 강압. 에너지 보존이라 전압을 올리면 전류는 그만큼 줄어듭니다.",
-  "more": "<b>변압기</b>: Vs/Vp = Ns/Np, 이상적 에너지 보존 VpIp = VsIs(전압↑→전류↓). 1차의 변하는 자속이 철심을 공유한 2차에 유도(상호유도). 발전소→초고압 송전(같은 전력을 작은 전류로 → I²R 손실↓)→변전소·가정에서 강압의 핵심. <b>교류 전용</b>(직류는 자속이 안 변해 유도 없음) — 에디슨-테슬라 전류 전쟁에서 AC가 이긴 이유.",
-  "more_en": "<b>Transformer</b>: Vs/Vp = Ns/Np; ideally VpIp = VsIs (raise voltage, lower current). Mutual induction via a shared iron core. Enables high-voltage transmission (low I²R loss). AC only — why AC won the current wars.",
-  "problem": {
-   "q": "1차 100회, 2차 500회 변압기에 1차 12V를 걸면 2차 전압은?",
-   "solution": "Vs = Vp·Ns/Np = 12×(500/100) = 12×5 = <b>60 V</b>(승압).",
-   "q_en": "Np=100, Ns=500, Vp=12 V. Secondary voltage?",
-   "sol_en": "Vs = 12×5 = <b>60 V</b> (step-up)."
-  }
- }
 }
