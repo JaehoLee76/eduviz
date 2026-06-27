@@ -136,3 +136,6 @@ git push origin main && gh api -X POST repos/JaehoLee76/eduviz/pages/builds
    - 알고리즘 심화 섹션 추가/재배치 → §3.5 (AlgoMap + JSON branchOf/ord/sec).
    - 수학 장면 신규/보강 → §3.6 4유형 패턴 (슬라이더·tap-step·드래그·개념, 표시값 실계산).
 3. 검증=preview 렌더 스캔 에러0(§4) → 커밋·version 범프·push·Pages.
+
+## 8. AI 튜터·계정·메모 백엔드 (요약 — 상세 매뉴얼은 `MANUAL.md`)
+정적 프론트(GitHub Pages) + **Cloudflare Worker** 백엔드(`worker/eduviz-chat.js`, URL `https://still-thunder-3989.iamleejaeho.workers.dev` → `js/chat-config.js`의 `EDUVIZ_CHAT_ENDPOINT`). AI=Cloudflare **Workers AI**(`@cf/meta/llama-3.3-70b-instruct-fp8-fast`, 바인딩 `AI`; 외부 egress 없어 지역차단 불가 — Gemini·Groq는 한국 엣지 차단으로 폐기). 데이터=**KV**(`EDUVIZ_KV`: `rpd:*`/`rpm:*`=질문예산, `user:<sub>`=학습위치·메모·대화요약). 로그인=Google OAuth(GIS, 시크릿 없음; Client ID 발급 대기 → 발급 시 사용자별 클라우드 동기화 활성). **요금: 전부 무료 — Cloudflare에 결제수단(카드) 미등록 시 한도 초과해도 요청 실패만 하고 절대 자동 과금 안 됨(유료 전환 명시해야만 과금).** 플랫폼 연동·데이터 흐름·요금표·AI 방식/한계/품질·사용법 전체는 **`MANUAL.md`** 참조.
