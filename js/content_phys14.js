@@ -11,69 +11,6 @@
 
   var scenes=[
 
-  // ══════════ 14.3 이중슬릿 — 빛의 간섭 ══════════
-  { id:'phys14_03',
-    enter:function(E){ var self=this; this.s={d:3,lam:1};
-      E.controls('<div class="ctrl"><label>슬릿 간격 d</label><input type="range" id="dd" min="1.5" max="5" step="0.5" value="3"><output id="ddo">3.0</output>'
-        +'<label style="margin-left:14px">파장 λ</label><input type="range" id="ll" min="0.5" max="2" step="0.1" value="1"><output id="llo">1.0</output></div>');
-      E.bind('#dd','input',function(e){ self.s.d=+e.target.value; document.getElementById('ddo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
-      E.bind('#ll','input',function(e){ self.s.lam=+e.target.value; document.getElementById('llo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.lam*120,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var slitX=W*0.22, scrX=W*0.80, cy=H*0.44, Lsep=s.d*18;
-      var s1y=cy-Lsep/2, s2y=cy+Lsep/2, lamPx=s.lam*16;   // 파장(픽셀)
-      var top=H*0.19, bot=H*0.78, span=scrX-slitX;
-
-      // ── 1) 슬릿→스크린 공간의 간섭 세기장(밝은 빛살이 부채처럼 퍼져 스크린 무늬로 모임) ──
-      //     실제 경로차 r2−r1 로 보강(밝음)·상쇄(어둠) 계산. 슬라이더/리사이즈 때만 오프스크린에 다시 그림.
-      var key=[s.d,s.lam,Math.round(W),Math.round(H)].join('_');
-      if(s.fieldKey!==key){ s.fieldKey=key;
-        if(!s.fc) s.fc=document.createElement('canvas');
-        s.fc.width=W; s.fc.height=H; var fx=s.fc.getContext('2d'); fx.clearRect(0,0,W,H);
-        var step=4;
-        for(var x=slitX; x<=scrX; x+=step){ var dist=x-slitX, fall=0.52+0.4*(1-dist/span);
-          for(var y=top; y<=bot; y+=step){
-            var r1=Math.hypot(x-slitX,y-s1y), r2=Math.hypot(x-slitX,y-s2y);
-            var I=Math.pow(Math.cos(Math.PI*(r2-r1)/lamPx),2);
-            if(I>0.06){ fx.fillStyle='rgba(255,214,122,'+(I*I*0.4*fall)+')'; fx.fillRect(x,y,step,step); } } }
-      }
-      ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.drawImage(s.fc,0,0); ctx.restore();
-
-      // ── 2) 두 슬릿에서 동심 파면 — 스크린까지 닿게, 더 밝게 ──
-      ctx.save(); ctx.globalCompositeOperation='lighter';
-      [s1y,s2y].forEach(function(sy){ for(var rr=lamPx; rr<span+24; rr+=lamPx){
-        var a=0.34*Math.max(0.25, 1-rr/(span+60));
-        ctx.strokeStyle='rgba(150,201,255,'+a+')'; ctx.lineWidth=1.3; ctx.beginPath(); ctx.arc(slitX,sy,rr,-0.95,0.95); ctx.stroke(); } });
-      ctx.restore();
-
-      // ── 3) 슬릿 벽(두 틈) ──
-      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=3.4; ctx.beginPath();
-      ctx.moveTo(slitX,top); ctx.lineTo(slitX,s1y-6); ctx.moveTo(slitX,s1y+6); ctx.lineTo(slitX,s2y-6); ctx.moveTo(slitX,s2y+6); ctx.lineTo(slitX,bot); ctx.stroke();
-      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(slitX,s1y,3.2,0,7); ctx.arc(slitX,s2y,3.2,0,7); ctx.fill();
-
-      // ── 4) 스크린 + 맺히는 상(간섭무늬) — 실제 경로차로, 밝게 발광 ──
-      var L=span/18;   // 슬릿-스크린 거리(단위)
-      ctx.strokeStyle='rgba(255,255,255,0.42)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(scrX,top); ctx.lineTo(scrX,bot); ctx.stroke();
-      ctx.save(); ctx.globalCompositeOperation='lighter';
-      for(var py=-(cy-top);py<=bot-cy;py+=2){ var yy=cy+py;
-        var R1=Math.hypot(scrX-slitX,yy-s1y), R2=Math.hypot(scrX-slitX,yy-s2y);
-        var Is=Math.pow(Math.cos(Math.PI*(R2-R1)/lamPx),2);
-        if(Is>0.04){ ctx.fillStyle='rgba(255,214,128,'+(Is*0.95)+')'; ctx.fillRect(scrX+3, yy-1.4, 34, 3.0);
-          if(Is>0.6){ ctx.fillStyle='rgba(255,245,210,'+((Is-0.6)*1.8)+')'; ctx.fillRect(scrX+3, yy-1.4, 34, 3.0); } } }
-      ctx.restore();
-      // 스크린 밝기 옆모습(세기 곡선) — 상이 밝고 어두운 줄무늬임을 한눈에
-      ctx.strokeStyle='rgba(255,224,150,0.85)'; ctx.lineWidth=1.6; ctx.beginPath();
-      for(var qy=top; qy<=bot; qy+=2){ var Q1=Math.hypot(scrX-slitX,qy-s1y), Q2=Math.hypot(scrX-slitX,qy-s2y);
-        var Iq=Math.pow(Math.cos(Math.PI*(Q2-Q1)/lamPx),2), qx=scrX+42+Iq*40; if(qy===top)ctx.moveTo(qx,qy); else ctx.lineTo(qx,qy); }
-      ctx.stroke();
-
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('스크린', scrX+17, bot+18); ctx.fillText('이중슬릿', slitX, bot+18);
-      ctx.fillStyle='rgba(255,214,128,0.95)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=cos²(πd·sinθ/λ)', scrX+30, H*0.10);
-      var fr=(s.lam*L/s.d).toFixed(1); ctx.fillStyle=DIM; ctx.fillText('무늬 간격 ≈ λL/d = '+fr, scrX+30, bot+34);
-      E.tapHint(W/2, H*0.92, '틈 간격·파장을 바꿔 무늬가 벌어지는 걸 보세요', true);
-      E.big('이중슬릿 간섭 — 빛은 파동이다 (밝고 어두운 줄무늬)', '빛이 총알 같은 알갱이라면 틈 두 개에 <b>밝은 줄 두 개</b>만 찍혀야 합니다. 그런데 실제로는 <b>밝고 어두운 줄무늬가 여러 개</b> 생깁니다 — 두 틈에서 나온 물결이 겹쳐 마루끼리 만나면 더 밝고(보강), 마루와 골이 만나면 서로 지워지기(상쇄) 때문이죠. 알갱이로는 설명 불가 — <b>빛은 파동</b>이라는 결정적 증거(영, 1801). 틈을 좁히거나 파장을 늘리면 무늬가 벌어집니다(밝은 무늬 간격 ≈ λL/d). 마음의 준비를 — 다음 장면에서 이 빛이 알갱이라고 우깁니다...'); }
-  },
-
   // ══════════ 14.4 광전효과 — 빛은 입자(광자)이기도 ══════════
   { id:'phys14_04',
     enter:function(E){ var self=this; this.s={f:6,t:0,W:3};
@@ -131,33 +68,6 @@
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('γ = '+gamma.toFixed(2)+'배 느림', bx, botY+40);
       E.tapHint(W/2, H*0.86, '속도가 빠를수록 시간이 더 느려집니다', true);
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '당신이 빛을 향해 달려가든 도망가든 빛 속도는 늘 같다 — 실험으로 확인된 이 한 줄에서 시간이 늘어납니다. 옆으로 움직이는 시계의 빛은 위아래만이 아니라 <b>비스듬한 더 긴 경로</b>를 달려야 하는데, 빛은 더 빨라질 수 없으니 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느려집니다</b>(γ배). 마법이 아니라 논리의 강제입니다. 빠를수록(β→1) 극적으로 느려져, GPS 위성도 매일 이 보정을 받습니다. 질량조차 잠든 에너지일 뿐 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌, 우리가 사는 우주의 규칙입니다.'); }
-  },
-
-  // ─── 심화: 단일슬릿 회절 ───
-  { id:'phys14_03_diffraction', branchOf:'phys14_03', ord:1,
-    enter:function(E){ var self=this; this.s={a:2,lam:1};
-      E.controls('<div class="ctrl"><label>슬릿 폭 a</label><input type="range" id="aa" min="1" max="5" step="0.5" value="2"><output id="aao">2.0</output>'
-        +'<label style="margin-left:14px">파장 λ</label><input type="range" id="ll" min="0.5" max="2" step="0.1" value="1"><output id="llo">1.0</output></div>');
-      E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
-      E.bind('#ll','input',function(e){ self.s.lam=+e.target.value; document.getElementById('llo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.lam*120,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var slitX=W*0.30, scrX=W*0.82, cy=H*0.44, aw=s.a*14;
-      // 슬릿 벽
-      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath();
-      ctx.moveTo(slitX,H*0.14); ctx.lineTo(slitX,cy-aw/2); ctx.moveTo(slitX,cy+aw/2); ctx.lineTo(slitX,H*0.74); ctx.stroke();
-      // 입사 평면파
-      for(var w=0;w<4;w++){ ctx.strokeStyle='rgba(122,184,255,0.3)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W*0.12+w*14,cy-aw/2); ctx.lineTo(W*0.12+w*14,cy+aw/2); ctx.stroke(); }
-      // 스크린 + 회절 무늬 I=sinc²(πa sinθ/λ)
-      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(scrX,H*0.12); ctx.lineTo(scrX,H*0.76); ctx.stroke();
-      var Ld=(scrX-slitX)/14;
-      for(var py=-H*0.30;py<=H*0.30;py+=2){ var yu=py/14, theta=Math.atan2(yu,Ld), beta=Math.PI*s.a*Math.sin(theta)/s.lam, I=beta===0?1:Math.pow(Math.sin(beta)/beta,2);
-        ctx.fillStyle='rgba(255,210,120,'+I.toFixed(3)+')'; ctx.fillRect(scrX+4, cy+py-1, 28, 2); }
-      var width=2*s.lam/s.a;   // 중앙 극대 각폭 ∝ λ/a
-      ctx.fillStyle='rgba(255,210,120,0.9)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=sinc²(πa·sinθ/λ)', scrX+18, H*0.10);
-      ctx.fillStyle=DIM; ctx.fillText('중앙폭 ∝ 2λ/a = '+width.toFixed(2), scrX+18, H*0.80); ctx.textAlign='center'; ctx.fillText('단일슬릿', slitX, H*0.80);
-      E.tapHint(W/2, H*0.90, '틈이 좁을수록 회절이 넓게 퍼집니다(폭 ∝ λ/a)', true);
-      E.big('단일슬릿 회절 — 중앙 밝은 무늬 폭 ∝ λ/a', '직선으로만 가야 할 빛이 좁은 틈을 지나는 순간 <b>부채처럼 퍼집니다</b> — 회절. 틈 자체가 새로운 물결의 출발점이 되기 때문이죠. 스크린에 가운데 밝은 무늬와 양옆의 희미한 무늬가 보입니다. <b>틈이 좁을수록(a↓), 파장이 길수록(λ↑) 더 넓게 퍼집니다</b>(중앙폭 ∝ λ/a). 첫 어두운 무늬는 a·sinθ=λ. 이 작은 퍼짐 때문에 우주 어떤 망원경·현미경도 흐릿함을 완전히 못 피하고(회절한계), 벽 뒤 목소리도 들립니다(파장 긴 소리는 모퉁이를 잘 돎).'); }
   },
 
   // ─── 심화: 보어 원자모형 ───
