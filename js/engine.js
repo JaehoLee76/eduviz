@@ -18,7 +18,8 @@
       +'#stage{left:var(--vpad)!important;right:auto!important;width:calc(100vw - 2*var(--vpad))!important;}'
       +'.topbar,.progress{left:var(--vpad)!important;right:var(--vpad)!important;}'
       +'.scene-no,.crumb{margin-left:var(--vpad)!important;}'
-      +'.nav,#eduToolbar,.cw-wrap{margin-right:var(--vpad)!important;}'
+      +'.nav{margin-right:var(--vpad)!important;}'   // #eduToolbar는 이제 topbar 안 flex 항목이라 vpad 불필요
+      +'.topbar .titles{min-width:0!important;}.topbar .titles .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'   // 제목은 남는 공간에서 줄어들고 넘치면 …(툴바와 겹침 방지)
       // 하단 레이아웃(겹침 방지): 맨아래 한 줄 = 토글(좌)·재생바(중)·내비(우). 그 위 가운데 = 설명 띠(크게·스크롤). 더 위 = 슬라이더.
       +'#controls,#keyhint{bottom:232px!important;}'
       +'#leftStack{position:fixed!important;inset:0!important;width:auto!important;max-width:none!important;transform:none!important;margin:0!important;display:block!important;pointer-events:none!important;}'

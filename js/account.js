@@ -97,7 +97,8 @@
       'body.eduviz-auth .bubble,body.eduviz-auth .bignum,body.eduviz-auth #conceptExtra,body.eduviz-auth #stepCap,'+
         'body.eduviz-auth #codeBody,body.eduviz-auth #studyPanel,body.eduviz-auth #branchPage,body.eduviz-auth .titles,'+
         'body.eduviz-auth #caption,body.eduviz-auth #bubble{user-select:text;-webkit-user-select:text;cursor:text;}',
-      '#eduToolbar{position:fixed;top:10px;right:62px;z-index:31;display:flex;flex-direction:row;align-items:flex-start;gap:8px;}',
+      '#eduToolbar{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto;}',   /* 상단바 안 flex 항목(제목 오른쪽). 고정위치 해제 */
+      '#eduToolbar .cw-wrap{align-items:center;}',
       '.acct-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--text-1,#f4f3ee);',
         'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:999px;padding:6px 12px;font-size:13px;',
         'font-family:inherit;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3);}',
@@ -150,10 +151,13 @@
     memoBtn=mk('button','acct-btn','<span>📝 메모</span><span class="dot"></span>');
     bar.appendChild(loginBtn);
     if(document.getElementById('sceneNo')) bar.appendChild(memoBtn);   // 학습 페이지에서만 메모 버튼(홈엔 로그인만)
-    document.body.appendChild(bar);
-    // chat.js의 AI버튼(.cw-wrap)을 같은 툴바로 이동(고정위치 해제)
-    var cw=document.querySelector('.cw-wrap');
-    if(cw){ cw.style.position='static'; cw.style.top='auto'; cw.style.right='auto'; bar.appendChild(cw); }
+    // 툴바를 상단바(.topbar) 안 flex 항목으로 삽입 → 가운데 제목이 남는 공간에서 줄어듦(겹침 원천 차단). 없으면 body.
+    var tb=document.querySelector('.topbar'), toc=document.getElementById('toc-toggle');
+    if(tb && toc) tb.insertBefore(bar, toc); else if(tb) tb.appendChild(bar);
+    else { bar.style.position='fixed'; bar.style.top='12px'; bar.style.right='16px'; bar.style.zIndex='31'; document.body.appendChild(bar); }   // 홈 등 상단바 없는 페이지: 우상단 고정
+    // chat.js의 AI버튼(.cw-wrap)을 같은 툴바로 이동(고정위치 해제). 늦게 생기면 재시도.
+    function moveCw(){ var cw=document.querySelector('.cw-wrap'); if(cw && cw.parentNode!==bar){ cw.style.position='static'; cw.style.top='auto'; cw.style.right='auto'; cw.style.margin='0'; bar.appendChild(cw); return true; } return !!(cw&&cw.parentNode===bar); }
+    if(!moveCw()){ var tries=0; var t=setInterval(function(){ if(moveCw()||tries++>20) clearInterval(t); }, 200); }
     loginBtn.onclick=onLoginClick;
     memoBtn.onclick=openMemo;
   }
