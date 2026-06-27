@@ -203,7 +203,9 @@
     var s=document.createElement('script'); s.src=GIS_SRC; s.async=true; s.defer=true; s.onload=cb; s.onerror=function(){}; document.head.appendChild(s); }
   function initGIS(){ if(!clientId()) return; loadGIS(function(){ if(!(window.google&&google.accounts)) return;
     google.accounts.id.initialize({ client_id:clientId(), callback:onCredential, auto_select:true });
-    gisReady=true; }); }
+    gisReady=true;
+    if(!user){ try{ google.accounts.id.prompt(); }catch(e){} }   // 로드 시 One Tap 자동 로그인(이전에 동의한 사용자는 무클릭 로그인)
+  }); }
   function onLoginClick(){
     if(user){ // 로그아웃
       if(window.google&&google.accounts) google.accounts.id.disableAutoSelect();
