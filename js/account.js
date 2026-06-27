@@ -142,7 +142,8 @@
     var bar=mk('div'); bar.id='eduToolbar';
     loginBtn=mk('button','acct-btn'); renderLogin();
     memoBtn=mk('button','acct-btn','<span>📝 메모</span><span class="dot"></span>');
-    bar.appendChild(loginBtn); bar.appendChild(memoBtn);
+    bar.appendChild(loginBtn);
+    if(document.getElementById('sceneNo')) bar.appendChild(memoBtn);   // 학습 페이지에서만 메모 버튼(홈엔 로그인만)
     document.body.appendChild(bar);
     // chat.js의 AI버튼(.cw-wrap)을 같은 툴바로 이동(고정위치 해제)
     var cw=document.querySelector('.cw-wrap');
@@ -213,6 +214,7 @@
     if(!user){ try{ google.accounts.id.prompt(); }catch(e){} }   // 로드 시 One Tap 자동 로그인(이전에 동의한 사용자는 무클릭 로그인)
   }); }
   function logout(){ if(window.google&&google.accounts) google.accounts.id.disableAutoSelect();
+    try{ localStorage.removeItem('eduviz_session'); }catch(e){}
     user=null; loadLocal(); renderLogin(); updateMemoBtn(); hideUserMenu(); toast('로그아웃되었습니다.'); }
   // 로그인 상태에서 알약 클릭 → 즉시 로그아웃 대신 작은 메뉴(이름·이메일 + 로그아웃)
   var userMenu=null;
@@ -234,6 +236,7 @@
   }
   function onCredential(resp){ var t=resp&&resp.credential; if(!t) return; var p=jwtDecode(t); if(!p) return;
     user={ sub:p.sub, name:p.name||p.email, email:p.email, picture:p.picture, idToken:t };
+    try{ localStorage.setItem('eduviz_session', JSON.stringify(user)); }catch(e){}   // 페이지 간 로그인 유지
     loadLocal();                                  // 사용자 키로 전환
     renderLogin();
     cloudLoad(function(){ updateMemoBtn(); restorePos(); });   // 클라우드에서 끌어와 복원
@@ -241,8 +244,9 @@
   }
 
   // ── 초기화 ──
+  function restoreSession(){ try{ var su=JSON.parse(localStorage.getItem('eduviz_session')||'null'); if(su && su.sub) user=su; }catch(e){} }
   function init(){
-    injectStyle(); loadLocal(); buildToolbar(); buildMemo(); buildUserMenu();
+    injectStyle(); restoreSession(); loadLocal(); buildToolbar(); buildMemo(); buildUserMenu();
     watchScene(); updateMemoBtn();
     initGIS();
     // 엔진 준비 후 위치 복원/해시 점프
