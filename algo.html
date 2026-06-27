@@ -155,7 +155,7 @@
   #study.open .chev-c1, #study.open .chev-c2 { animation: none; }
 
   /* ════ VIZ 모드: 왼쪽 = 코드/설명 + 스텝 컨트롤, 오른쪽 = 애니메이션(캔버스). 시선이 왼쪽에 머물게 ════ */
-  body.viz #stage { left: 42vw; width: 58vw; height: calc(100% - 150px); }     /* 캔버스 = 오른쪽 컬럼. 하단 150px = 컨트롤(키힌트·내비) 전용 안전영역 → 캔버스 그림이 버튼과 안 겹침 */
+  body.viz #stage { left: 42vw; width: 58vw; top: 88px; height: calc(100% - 238px); }     /* 캔버스 = 오른쪽 컬럼. 상단 88px = 상단바(홈·브레드크럼·툴바) 안전영역(시각화가 제목/툴바와 안 겹침), 하단 150px = 컨트롤 안전영역 */
   body.viz .guide, body.viz .bignum, body.viz #study, body.viz #leftStack { display: none !important; }  /* viz(코드+시각화) 장면: 좌측 스택 숨김(설명은 좌측 코드 패널로 통합) */
   /* 하단 컨트롤 띠(캔버스 아래): 키힌트=위, 내비=아래. 서로·캔버스와 안 겹치게 고정 */
   body.viz #keyhint { bottom: 98px; }
