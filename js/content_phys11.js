@@ -116,30 +116,6 @@
       E.big('전기력 F = qE → 포물선 운동 (a = qE/m = '+a.toFixed(2)+')', '균일한 전기장(평행판 사이) 속 전하는 어디서나 같은 힘 F=qE를 받아 — 비스듬히 던진 공처럼 — 휘어 날아갑니다. 1장의 포물선 운동과 글자 그대로 똑같은 수학(g 대신 qE/m)! 전하 부호를 바꾸면 휘는 쪽이 반대가 됩니다. 이것이 옛 브라운관(CRT) TV가 전자빔을 휘어 화면을 그린 원리입니다.'); }
   },
 
-  // ─── 심화: 가우스 법칙 ───
-  { id:'phys11_02_gauss', branchOf:'phys11_02', ord:1,
-    enter:function(E){ var self=this; this.s={r:2.5,Q:2};
-      E.controls('<div class="ctrl"><label>가우스면 반지름 r</label><input type="range" id="rr" min="1.5" max="4" step="0.25" value="2.5"><output id="rro">2.5</output>'
-        +'<label style="margin-left:14px">전하 Q</label><input type="range" id="qq" min="1" max="4" step="1" value="2"><output id="qqo">2</output></div>');
-      E.bind('#rr','input',function(e){ self.s.r=+e.target.value; document.getElementById('rro').textContent=(+e.target.value).toFixed(2); E.blip(360,0.07); });
-      E.bind('#qq','input',function(e){ self.s.Q=+e.target.value; document.getElementById('qqo').textContent=e.target.value; E.blip(380,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var cx=W*0.40, cy=H*0.46, sc=Math.min(W*0.07,H*0.095);
-      // 전기력선 (Q개에 비례한 개수, 방사형)
-      var nlines=s.Q*8;
-      for(var i=0;i<nlines;i++){ var a=i/nlines*6.2832; ctx.strokeStyle='rgba(122,184,255,0.35)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx+12*Math.cos(a),cy+12*Math.sin(a)); ctx.lineTo(cx+sc*4*Math.cos(a),cy+sc*4*Math.sin(a)); ctx.stroke(); }
-      // 가우스면(점선 원)
-      ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(cx,cy,s.r*sc,0,7); ctx.stroke(); ctx.setLineDash([]);
-      // 중심전하
-      charge(E,cx,cy,14,s.Q,'');
-      ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Q = +'+s.Q, cx, cy+26);
-      ctx.fillStyle=ORA; ctx.fillText('가우스면 (반지름 r='+s.r.toFixed(1)+')', cx, cy-s.r*sc-8);
-      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('전기력선 '+nlines+'개 (∝ Q)', cx+sc*4*0.7, cy-sc*4*0.7);
-      E.tapHint(W/2, H*0.92, '반지름을 바꿔도 면을 뚫는 전기력선 수(선속)는 일정', true);
-      E.big('가우스 법칙: 선속 Φ = Q/ε₀ — 면 크기와 무관, 갇힌 전하만', '전구를 비눗방울로 감싸면 뚫고 나오는 빛줄기 수는 방울 크기와 무관하듯 — 닫힌 면을 뚫는 <b>전기력선의 총 개수(전기 선속 Φ)는 그 안의 전하 Q에만 비례</b>합니다(Φ = Q/ε₀), 가우스면의 크기·모양과 무관! 반지름을 키우면 면은 넓어져도 장이 1/r²로 약해져 정확히 상쇄, 뚫는 선 수는 그대로. 이 대칭성을 이용하면 구·원통·평면의 전기장을 적분 없이 구합니다. 맥스웰 방정식의 첫 번째 — 전기장과 전하의 근본 관계.'); }
-  },
-
   // ─── 심화: 전기 쌍극자 ───
   { id:'phys11_01_dipole', branchOf:'phys11_01', ord:1,
     enter:function(E){ var self=this; this.s={th:0.5,Ef:2,om:0};
