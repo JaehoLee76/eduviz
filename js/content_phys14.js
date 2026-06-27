@@ -11,69 +11,6 @@
 
   var scenes=[
 
-  // ══════════ 14.1 빛 = 전자기파 ══════════
-  { id:'phys14_01',
-    enter:function(E){ var self=this; this.s={t:0,f:5};
-      E.controls('<div class="ctrl"><label>진동수 (스펙트럼 위치)</label><input type="range" id="ff" min="1" max="9" step="1" value="5"><output id="ffo">가시광</output></div>');
-      E.bind('#ff','input',function(e){ self.s.f=+e.target.value; var names=['','전파','마이크로파','적외선','가시광(적)','가시광','가시광(자)','자외선','X선','감마선']; document.getElementById('ffo').textContent=names[self.s.f]; E.blip(200+self.s.f*80,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
-      var x0=W*0.10, x1=W*0.90, midY=H*0.36, A=H*0.13, k=0.6+s.f*0.25, w=3;
-      // E 필드(세로 사인, 초록)
-      ctx.strokeStyle=GRN; ctx.lineWidth=2.5; ctx.beginPath();
-      for(var i=0;i<=200;i++){ var xu=i/200*12, X=x0+(x1-x0)*i/200, y=midY-A*Math.sin(k*xu-w*s.t); if(i===0)ctx.moveTo(X,y); else ctx.lineTo(X,y); } ctx.stroke();
-      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('전기장 E', x0, midY-A-8);
-      // B 필드(원근 표현: 같은 위상, 옅은 파랑, 가로로 눕힘)
-      ctx.strokeStyle='rgba(122,184,255,0.6)'; ctx.lineWidth=2; ctx.beginPath();
-      for(var j=0;j<=200;j++){ var xu2=j/200*12, X2=x0+(x1-x0)*j/200, off=A*0.5*Math.sin(k*xu2-w*s.t); var y2=midY+off*0.5; if(j===0)ctx.moveTo(X2,y2); else ctx.lineTo(X2,y2); } ctx.stroke();
-      ctx.fillStyle=BLU; ctx.fillText('자기장 B (⊥)', x0, midY+A+18);
-      arrow(E,x1-60,midY,x1-10,midY,ORA,2); ctx.fillStyle=ORA; ctx.fillText('c', x1-40, midY-8);
-      // 스펙트럼 바
-      var sy=H*0.72, sx0=W*0.12, sx1=W*0.88; var cols=['#7a5cff','#5c8cff','#5cd0ff','#e2503a','#ff8a3a','#ffd23a','#b06bff','#9b6bff','#c83a8a'];
-      var names=['전파','마이크로','적외선','적','녹','자','자외선','X선','감마'];
-      for(var b=0;b<9;b++){ var bx=sx0+(sx1-sx0)*b/9, bw=(sx1-sx0)/9; ctx.fillStyle=cols[b]; ctx.globalAlpha=0.5; ctx.fillRect(bx,sy,bw,26); ctx.globalAlpha=1; }
-      var mx=sx0+(sx1-sx0)*(s.f-0.5)/9; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mx,sy-6); ctx.lineTo(mx,sy+32); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('낮은 진동수·긴 파장', sx0, sy+46); ctx.textAlign='right'; ctx.fillText('높은 진동수·짧은 파장', sx1, sy+46);
-      var lam=(10/(0.6+s.f*0.25)).toFixed(2);
-      ctx.fillStyle='#fff'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('λ ∝ '+lam+' (상대값)', mx, sy-10);
-      E.tapHint(W/2, H*0.92, '진동수를 바꿔 스펙트럼을 거닐어 보세요', true);
-      E.big('빛 = 전기장·자기장의 떨림 (c = fλ)', '빛은 물질이 아니라 <b>전기장과 자기장이 서로를 만들어내며 퍼지는 떨림</b>입니다 — 아무것도 붙잡지 않고 텅 빈 진공도 통과(c=3×10⁸ m/s). 전파·적외선·가시광·X선·감마선은 모두 같은 떨림이고 <b>빠르게 떨리냐 천천히 떨리냐(진동수)만 다릅니다</b>. 진동수가 높을수록 파장이 짧고 에너지가 큽니다(c=fλ 일정). 우리 눈은 햇빛이 가장 센 그 손톱만 한 가시광 창문만 봅니다. 맥스웰이 종이 위에서 이 떨림을 먼저 발견했고, 그 속도가 빛과 똑같았습니다.'); }
-  },
-
-  // ══════════ 14.2 반사·굴절 — 스넬의 법칙 ══════════
-  { id:'phys14_02',
-    enter:function(E){ var self=this; this.s={th1:40,n2:1.5};
-      E.controls('<div class="ctrl"><label>입사각 θ₁ (도)</label><input type="range" id="aa" min="5" max="85" step="5" value="40"><output id="aao">40</output>'
-        +'<label style="margin-left:14px">아래 매질 n₂</label><input type="range" id="nn" min="1" max="2.5" step="0.1" value="1.5"><output id="nno">1.5</output></div>');
-      E.bind('#aa','input',function(e){ self.s.th1=+e.target.value; document.getElementById('aao').textContent=e.target.value; E.blip(300+self.s.th1*4,0.07); });
-      E.bind('#nn','input',function(e){ self.s.n2=+e.target.value; document.getElementById('nno').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, n1=1;
-      var cx=W*0.45, cy=H*0.46, L=Math.min(W*0.28,H*0.36);
-      // 경계면
-      ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.fillRect(cx-W*0.35,cy,W*0.7,H*0.4);
-      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-W*0.35,cy); ctx.lineTo(cx+W*0.35,cy); ctx.stroke();
-      // 법선
-      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(cx,cy-L); ctx.lineTo(cx,cy+L); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('n₁=1 (공기)', cx-W*0.34, cy-12); ctx.fillText('n₂='+s.n2.toFixed(1), cx-W*0.34, cy+20);
-      var t1=s.th1*Math.PI/180;
-      // 입사광
-      arrow(E,cx-Math.sin(t1)*L,cy-Math.cos(t1)*L,cx,cy,ORA,2.5);
-      // 반사광
-      arrow(E,cx,cy,cx+Math.sin(t1)*L*0.8,cy-Math.cos(t1)*L*0.8,'rgba(255,178,122,0.45)',1.5);
-      // 굴절광(스넬: sinθ2=(n1/n2)sinθ1)
-      var s2=n1/s.n2*Math.sin(t1);
-      if(s2<=1){ var t2=Math.asin(s2); arrow(E,cx,cy,cx+Math.sin(t2)*L,cy+Math.cos(t2)*L,GRN,2.5);
-        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('θ₂='+(t2*180/Math.PI).toFixed(0)+'°', cx+Math.sin(t2)*L*0.6+8, cy+Math.cos(t2)*L*0.6);
-        E.big('굴절 — 스넬의 법칙 n₁sinθ₁ = n₂sinθ₂ (θ₂='+(t2*180/Math.PI).toFixed(0)+'°)', '빛이 빽빽한 매질에 닿으면 그쪽 가장자리가 먼저 <b>느려져 길을 꺾습니다</b>(굴절) — 잔디밭에서 진흙으로 비스듬히 뛰어든 사람이 돌아가듯이요. 빽빽할수록(n 큼) 법선 쪽으로 더 꺾입니다 — <b>스넬의 법칙 n₁sinθ₁=n₂sinθ₂</b>. 물속 빨대가 꺾여 보이고, 렌즈가 상을 맺고, 무지개·신기루가 생기는 것 — 모두 빛이 느려지며 꺾이는 한 가지 이야기입니다. 굴절률 n=c/v(매질 속에서 빛이 얼마나 느려지나).'); }
-      else { // 전반사
-        arrow(E,cx,cy,cx+Math.sin(t1)*L,cy-Math.cos(t1)*L,'#ff5a5a',2.5);
-        ctx.fillStyle='#ff8a8a'; ctx.font='13px sans-serif'; ctx.fillText('전반사!', cx+30, cy+40);
-        E.big('전반사 — 빛이 갇혀 버린다', '빛을 너무 비스듬히 보내 입사각이 <b>임계각</b>을 넘으면, 빠져나갈 각도가 아예 사라져 <b>전부 되튕깁니다</b>(전반사). 빽빽→성긴 매질(n₂<n₁) 쪽으로 갈 때만 일어납니다. 머리카락보다 가는 유리실(광섬유)이 이렇게 갇힌 빛을 수천 km 나르고, 다이아몬드가 빛을 가두어 반짝입니다. 임계각 sinθc=n₂/n₁.'); }
-      E.tapHint(W/2, H*0.92, '입사각·굴절률을 바꿔 보세요 (너무 비스듬하면 전반사)', true);
-    }
-  },
-
   // ══════════ 14.3 이중슬릿 — 빛의 간섭 ══════════
   { id:'phys14_03',
     enter:function(E){ var self=this; this.s={d:3,lam:1};
@@ -194,42 +131,6 @@
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('γ = '+gamma.toFixed(2)+'배 느림', bx, botY+40);
       E.tapHint(W/2, H*0.86, '속도가 빠를수록 시간이 더 느려집니다', true);
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '당신이 빛을 향해 달려가든 도망가든 빛 속도는 늘 같다 — 실험으로 확인된 이 한 줄에서 시간이 늘어납니다. 옆으로 움직이는 시계의 빛은 위아래만이 아니라 <b>비스듬한 더 긴 경로</b>를 달려야 하는데, 빛은 더 빨라질 수 없으니 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느려집니다</b>(γ배). 마법이 아니라 논리의 강제입니다. 빠를수록(β→1) 극적으로 느려져, GPS 위성도 매일 이 보정을 받습니다. 질량조차 잠든 에너지일 뿐 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌, 우리가 사는 우주의 규칙입니다.'); }
-  },
-
-  // ─── 심화: 렌즈 결상(기하광학) ───
-  { id:'phys14_02_lens', branchOf:'phys14_02', ord:1,
-    enter:function(E){ var self=this; this.s={do_:5,f:2};
-      E.controls('<div class="ctrl"><label>물체 거리 do</label><input type="range" id="dd" min="1" max="8" step="0.5" value="5"><output id="ddo">5.0</output>'
-        +'<label style="margin-left:14px">초점거리 f</label><input type="range" id="ff" min="1" max="3.5" step="0.5" value="2"><output id="ffo">2.0</output></div>');
-      E.bind('#dd','input',function(e){ self.s.do_=+e.target.value; document.getElementById('ddo').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
-      E.bind('#ff','input',function(e){ self.s.f=+e.target.value; document.getElementById('ffo').textContent=(+e.target.value).toFixed(1); E.blip(380,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var cx=W*0.5, axisY=H*0.46, sc=W*0.075, ho=1.2;
-      var di=1/(1/s.f-1/s.do_), m=-di/s.do_, hi=m*ho;
-      // 광축·렌즈
-      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W*0.06,axisY); ctx.lineTo(W*0.94,axisY); ctx.stroke();
-      ctx.strokeStyle='rgba(122,184,255,0.7)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,axisY-70); ctx.lineTo(cx,axisY+70); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
-      [-1,1].forEach(function(sg){ ctx.fillStyle=DIM; ctx.beginPath(); ctx.arc(cx+sg*s.f*sc,axisY,3,0,7); ctx.fill(); ctx.fillText('F', cx+sg*s.f*sc, axisY+16); });
-      // 물체(왼쪽 화살표)
-      var ox=cx-s.do_*sc; arrow(E,ox,axisY,ox,axisY-ho*sc,GRN,2.5);
-      // 주요 광선 2개: ①축평행→초점 ②중심 직진
-      var topO=axisY-ho*sc;
-      ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.moveTo(ox,topO); ctx.lineTo(cx,topO); ctx.stroke();   // 평행
-      ctx.beginPath(); ctx.moveTo(ox,topO); ctx.lineTo(cx,axisY); ctx.stroke();   // 중심
-      var realimg = di>0;
-      if(realimg){ var ix=cx+di*sc, topI=axisY-hi*sc;
-        ctx.beginPath(); ctx.moveTo(cx,topO); ctx.lineTo(ix,topI); ctx.stroke();   // 평행→상점
-        ctx.beginPath(); ctx.moveTo(cx,axisY); ctx.lineTo(ix,topI); ctx.stroke();
-        arrow(E,ix,axisY,ix,topI,PNK,2.5); ctx.fillStyle=PNK; ctx.fillText('상(실상,거꾸로)', ix, axisY+ (hi<0?-8: 18)); }
-      else { // 허상(같은쪽)
-        var ix2=cx+di*sc, topI2=axisY-hi*sc; ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(244,160,192,0.6)';
-        ctx.beginPath(); ctx.moveTo(ix2,topI2); ctx.lineTo(cx,topO); ctx.stroke(); ctx.setLineDash([]);
-        arrow(E,ix2,axisY,ix2,topI2,PNK,2.5); ctx.fillStyle=PNK; ctx.fillText('상(허상,바로)', ix2, axisY+18); }
-      E.tapHint(W/2, H*0.92, '물체 거리·초점거리를 바꿔 상의 위치·크기를 보세요', true);
-      E.big('렌즈식 1/f = 1/do + 1/di → di = '+di.toFixed(1)+', 배율 m = '+m.toFixed(2), '볼록렌즈는 흩어지던 빛을 한 점에 다시 모아 <b>상</b>을 맺습니다 — <b>1/f = 1/do + 1/di</b>(렌즈 방정식), 배율 m = −di/do. 두 줄기만 따라가면 끝: 축과 나란히 온 빛은 초점으로 꺾이고, 한가운데로 온 빛은 곧장 통과 — 둘이 만나는 곳이 상점입니다. 물체가 초점 밖(do>f)이면 거꾸로 뒤집힌 <b>실상</b>(카메라·당신의 망막), 초점 안(do<f)이면 똑바로 커진 <b>허상</b>(돋보기). 갈릴레오의 망원경과 당신의 안경이 똑같은 이 한 식을 따릅니다.'); }
   },
 
   // ─── 심화: 단일슬릿 회절 ───
