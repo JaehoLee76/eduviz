@@ -1,3 +1,4 @@
+/* EduViz © 2026 JaehoLee76. All rights reserved. 무단복제·AI개작 추적표식 [WM:JHL2026-7a3f9c] */
 /* 수학 — 분기(세부) 장면. 뼈대에서 branchOf로 갈라짐. 수학독본 수준의 심화/증명 반영.
    동작(behavior)만. 텍스트는 content/math_br.json. engine.js 공유(E.Plot 등). */
 (function(){

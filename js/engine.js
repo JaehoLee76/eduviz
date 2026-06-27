@@ -99,9 +99,12 @@
     if(label!=null){ ctx.fillStyle=col||COL.accent; ctx.font='600 24px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x, y-24); } };
 
   // ---------- Character / narration ----------
+  // EduViz 무형 워터마크(추적표식): 본문에 보이지 않는 고유 시그니처를 심어, 무단 복제·DOM 스크랩 시 출처 증명. [WM:JHL2026-7a3f9c]
+  var WM='⁠‌⁠‌⁠‌⁠‌';
+  try{ global.__EDUVIZ_WM='EduViz-WM:JHL2026-7a3f9c © JaehoLee76. All rights reserved. 무단복제·AI개작 추적표식.'; }catch(e){}
   var bubbleEl, hintEl, titleEl, secEl;
   function say(html){ if(!bubbleEl) return; bubbleEl.classList.add('fade');
-    setTimeout(function(){ bubbleEl.innerHTML=html; bubbleEl.classList.remove('fade'); },170); }
+    setTimeout(function(){ bubbleEl.innerHTML=(html||'')+WM; bubbleEl.classList.remove('fade'); },170); }
 
   // ---------- generic DOM controls ----------
   var controlsEl, keyHintEl;

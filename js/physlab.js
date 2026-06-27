@@ -1,3 +1,4 @@
+/* EduViz © 2026 JaehoLee76. All rights reserved. 무단복제·AI개작 추적표식 [WM:JHL2026-7a3f9c] */
 /* PhysLab — EduViz 자체 2D 물리 엔진 (이론을 코드로: 매 프레임 뉴턴 적분)
    좌표=실제 단위(미터, y는 위쪽 +). 장면이 world↔screen 변환을 가짐.
    장면 draw에서 world.step(dt) 호출 → 힘 합산 → a=F/m → 반암시적 오일러 적분.

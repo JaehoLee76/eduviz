@@ -1,3 +1,4 @@
+/* EduViz © 2026 JaehoLee76. All rights reserved. 무단복제·AI개작 추적표식 [WM:JHL2026-7a3f9c] */
 /* 알고리즘 — 분기(세부) 장면. 뼈대 장면에서 branchOf로 갈라짐. 자료 충실 반영의 시작.
    동작(behavior)만. 텍스트는 content/algo_br.json. AV 사용. */
 (function(){
