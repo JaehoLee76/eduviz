@@ -124,31 +124,6 @@
       E.big('동시성의 상대성 — \'동시\'는 보는 사람마다 다르다', '시간 순서조차 절대적이지 않습니다.'); }
   },
 
-  // ══════════ 5. 일반상대성 — 중력은 휘어진 시공간이다 ══════════
-  { id:'phys21_05',
-    enter:function(E){ var self=this; this.s={M:1.2};
-      E.controls('<div class="ctrl"><label>질량 M (시공간 굴곡)</label><input type="range" id="mm" min="0" max="2.5" step="0.1" value="1.2"><output id="mmo">1.2</output></div>');
-      E.bind('#mm','input',function(e){ self.s.M=+e.target.value; document.getElementById('mmo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.M*100,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, fr=E.frame;
-      var cx=W*0.40, cy=H*0.44, gw=Math.min(W*0.30,H*0.42), warp=s.M;
-      function dip(dx,dy){ var rr=(dx*dx+dy*dy)/(gw*gw*0.08); return warp*(gw*0.6)/(1+rr); }
-      function P(u,v){ var bx=u*gw,by=v*gw*0.5,d=dip(bx,by),r=Math.hypot(bx,by)||1,pull=d*0.34; return [cx+bx-(bx/r)*pull, cy+by+d]; }
-      var N=13;
-      for(var iy=0;iy<=N;iy++){ var v=iy/N*2-1; ctx.strokeStyle='rgba(95,214,168,'+(0.09+0.15*(1-Math.abs(v))).toFixed(3)+')'; ctx.lineWidth=1; ctx.beginPath(); for(var ix=0;ix<=N;ix++){ var p=P(ix/N*2-1,v); if(ix===0)ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); } ctx.stroke(); }
-      for(ix=0;ix<=N;ix++){ var u=ix/N*2-1; ctx.strokeStyle='rgba(122,184,255,'+(0.07+0.12*(1-Math.abs(u))).toFixed(3)+')'; ctx.lineWidth=1; ctx.beginPath(); for(iy=0;iy<=N;iy++){ var p2=P(u,iy/N*2-1); if(iy===0)ctx.moveTo(p2[0],p2[1]); else ctx.lineTo(p2[0],p2[1]); } ctx.stroke(); }
-      var my=cy+dip(0,0); var grd=ctx.createRadialGradient(cx,my,2,cx,my,18+warp*12); grd.addColorStop(0,'rgba(255,244,210,0.95)'); grd.addColorStop(1,'rgba(255,178,90,0)'); ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(cx,my,18+warp*12,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,my,3+warp*4,0,7); ctx.fill();
-      var beamY=cy-gw*0.42, bx0=cx-gw*1.3; ctx.strokeStyle='#ffe06a'; ctx.lineWidth=2; ctx.beginPath();
-      for(var k=0;k<=80;k++){ var X=bx0+k/80*(gw*2.6), rel=(X-cx); var Y=beamY + warp*(gw*0.5)*Math.exp(-(rel*rel)/(gw*gw*0.5)); if(k===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
-      ctx.fillStyle='#ffe06a'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('별빛(휘어짐)', bx0, beamY-6);
-      function clock(px,py,rate,lab){ ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(px,py,12,0,7); ctx.stroke(); var a=-Math.PI/2 + (fr*0.04*rate)%(2*Math.PI); ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+9*Math.cos(a),py+9*Math.sin(a)); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,px,py+26); }
-      var rateNear=1/Math.sqrt(1+warp*0.8);
-      clock(cx+gw*0.35, cy+gw*0.34, rateNear, '질량 근처(느림)');
-      clock(W*0.88, H*0.30, 1, '먼 곳(빠름)');
-      E.tapHint(W/2, H*0.93, '질량을 키우면 시공간이 더 휘고 빛도 더 꺾입니다', true);
-      E.big('일반상대성 — 중력은 휘어진 시공간이다', '질량이 시공간을 휘게 합니다.'); }
-  }
-
   ];
   if(window.Engine&&Engine.addScenes) Engine.addScenes(scenes);
 })();

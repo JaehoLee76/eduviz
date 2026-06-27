@@ -1,0 +1,62 @@
+{
+  "phys28_01": {
+    "ch": "물리학 제27장 일반상대성과 우주론",
+    "narr": "앞 장 특수상대성은 '등속'으로 움직이는 세계의 규칙이었습니다. 그럼 가속하거나 중력이 있으면? 아인슈타인이 '내 생애 가장 행복한 생각'이라 부른 깨달음에서 출발합니다 — <b>창문 없는 방 안에서는 중력과 가속을 절대 구별할 수 없다</b>(등가원리). 우주에서 a=9.8 m/s²로 가속하는 로켓 안에 있든, 지구 위 가만히 선 방에 있든, 떨어지는 공의 움직임도 발바닥이 느끼는 무게도 <b>완전히 똑같습니다</b>. 거꾸로, 자유낙하하는 엘리베이터 안에선 중력이 사라진 듯 둥둥 뜨죠(그래서 우주정거장은 '무중력'). 이 단순한 사실에서 어마어마한 결론이 나옵니다: 중력이 가속과 같다면, 가속하는 틀에서 휘어 보이는 빛은 <b>중력에서도 휘어야</b> 하고, 시간도 중력 속에서 느려져야 합니다. 화면에서 로켓 가속을 9.8에 맞춰 지구와 똑같아지는 걸 보세요.",
+    "more": "<b>등가원리</b>: 균일 중력장 = 균일 가속틀(국소적으로 구별 불가). 아인슈타인의 출발점. 결과: 자유낙하=무중력(우주정거장), 빛의 휘어짐·중력 적색편이·중력 시간지연 예측. 관성질량=중력질량(실험적 사실)의 깊은 이유. 일반상대성(1915)으로 발전.",
+    "more_en": "<b>Equivalence principle</b>: a uniform gravitational field is locally indistinguishable from uniform acceleration. Einstein's starting point. Implies free-fall = weightlessness, light bending, gravitational redshift, and time dilation. Inertial mass = gravitational mass.",
+    "problem": {
+      "q": "자유낙하하는 엘리베이터 안의 사람이 무중력을 느끼는 이유는?",
+      "solution": "사람과 엘리베이터가 <b>같은 가속도로 함께 떨어져</b> 상대적으로 힘을 못 느끼기 때문입니다(등가원리).",
+      "q_en": "Why does a person in a free-falling elevator feel weightless?",
+      "sol_en": "They and the elevator fall with the <b>same acceleration</b>, so no relative force is felt (equivalence principle)."
+    }
+  },
+  "phys28_02": {
+    "ch": "물리학 제27장 일반상대성과 우주론",
+    "narr": "뉴턴은 '왜 질량이 서로 끌어당기지?'에 끝내 답하지 못했습니다. 아인슈타인의 답은 충격적이었어요: <b>끌어당기는 게 아니다 — 질량이 시공간을 휘게 하고, 모든 것은 그 휜 길을 따라갈 뿐이다.</b> 팽팽한 고무막 위에 볼링공을 올리면 막이 움푹 패고, 그 곁을 지나던 구슬이 휘어 도는 것처럼요. 무거울수록 시공간의 우물이 깊어집니다. 놀랍게도 <b>빛조차 휩니다</b> — 1919년 일식 때 태양 곁 별빛이 꺾이는 게 관측되어 아인슈타인은 하룻밤 새 세계적 스타가 됐죠(중력렌즈). 질량 근처에선 <b>시간도 느려집니다</b>(그래서 GPS 위성은 매일 이 보정을 합니다 — 안 하면 하루 11km씩 오차). 화면에서 질량을 키우면 격자가 휘고 별빛이 꺾이며 가까운 시계가 느려지는 걸 보세요.",
+    "more": "<b>일반상대성(1915)</b>: 중력 = 질량-에너지가 만든 시공간 곡률(끌어당김 아님). 질량↑=곡률↑. 검증: 빛의 휘어짐(중력렌즈, 1919)·중력 적색편이·중력 시간지연(GPS)·수성 근일점 이동. 아인슈타인 방정식 Gμν=8πG·Tμν. 블랙홀·중력파·우주론의 토대.",
+    "more_en": "<b>General relativity (1915)</b>: gravity is the curvature of spacetime caused by mass-energy, not a force. Verified by light bending (1919), gravitational redshift, GPS time, Mercury's perihelion. Foundation of black holes, gravitational waves, and cosmology.",
+    "problem": {
+      "q": "GPS 위성이 매일 시간 보정을 하는 이유는?",
+      "solution": "지상보다 약한 중력(시간 빨라짐)과 빠른 속도(시간 느려짐) 때문 — <b>상대론 효과</b>를 보정하지 않으면 위치 오차가 누적됩니다.",
+      "q_en": "Why do GPS satellites correct their clocks daily?",
+      "sol_en": "Weaker gravity (faster time) and high speed (slower time) — <b>relativistic effects</b> that, uncorrected, cause large position errors."
+    }
+  },
+  "phys28_03": {
+    "ch": "물리학 제27장 일반상대성과 우주론",
+    "narr": "시공간의 우물이 너무 깊어지면 어떻게 될까요? 별을 충분히 작게 압축하면, 표면에서 탈출하는 데 필요한 속도(<b>탈출속도 v=√(2GM/R)</b>)가 점점 커지다가 — 마침내 <b>빛의 속도 c마저 넘어섭니다.</b> 그러면 빛조차 빠져나올 수 없는 곳, <b>블랙홀</b>이 됩니다. 그 경계가 <b>사건지평선</b>(반지름 r_s=2GM/c²)이고, 그 안으로 들어간 것은 무엇도 우주로 되돌아올 수 없죠 — 시간조차 멈춘 듯 보입니다. 블랙홀은 SF가 아니라 실재합니다: 우리 은하 중심엔 태양 400만 배 질량의 블랙홀이 있고, 2019년엔 그 그림자가 직접 촬영됐습니다. 떨어지는 물질이 가열되며 내는 빛(강착원반)으로 그 존재를 압니다. 화면에서 질량을 압축해 탈출속도가 c를 넘는 순간 블랙홀이 되는 걸 보세요.",
+    "more": "<b>블랙홀</b>: 탈출속도 v=√(2GM/R)가 c를 넘으면 빛도 못 나옴. <b>사건지평선 r_s=2GM/c²</b>(슈바르츠실트 반지름) 안은 인과적으로 단절. 항성 붕괴(초신성)·은하 중심 거대블랙홀. 강착원반·제트·호킹 복사. 2019 M87 블랙홀 그림자 직접 촬영. 시공간 곡률의 극한.",
+    "more_en": "<b>Black hole</b>: where escape velocity v=√(2GM/R) exceeds c, so even light can't escape. The <b>event horizon r_s=2GM/c²</b> (Schwarzschild radius) is a causal boundary. From stellar collapse or galactic centers; revealed by accretion disks. M87's shadow imaged in 2019.",
+    "problem": {
+      "q": "블랙홀의 사건지평선이란 무엇일까요?",
+      "solution": "탈출속도가 빛의 속력 c와 같아지는 경계(r_s=2GM/c²)로, 그 <b>안에서는 빛조차 빠져나올 수 없습니다</b>.",
+      "q_en": "What is a black hole's event horizon?",
+      "sol_en": "The boundary (r_s=2GM/c²) where escape velocity equals c — <b>nothing, not even light, escapes</b> from inside."
+    }
+  },
+  "phys28_04": {
+    "ch": "물리학 제27장 일반상대성과 우주론",
+    "narr": "시공간이 휜다면, <b>출렁일 수도 있을까요?</b> 아인슈타인은 1916년 무거운 물체가 가속하면 시공간에 잔물결 — <b>중력파</b> — 이 빛의 속도로 퍼진다고 예측했습니다. 하지만 그 효과가 너무 미약해(원자핵보다 작은 길이 변화) 100년간 검출이 불가능했죠. 그러다 2015년, 13억 광년 밖에서 두 블랙홀이 나선을 그리며 충돌·병합하는 마지막 순간이 만든 중력파를 <b>LIGO가 직접 잡아냈습니다</b> — 인류 과학의 위대한 순간이었어요. 두 천체가 가까워질수록 더 빨리 돌며 더 강하고 높은 음의 파동을 내는데(처프), 화면 아래 파형이 그것입니다. 중력파는 빛으로는 볼 수 없는 우주(블랙홀 충돌, 빅뱅의 메아리)를 '듣는' 완전히 새로운 창을 열었습니다. 화면에서 두 블랙홀이 나선으로 합쳐지며 잔물결을 내보내는 걸 보세요.",
+    "more": "<b>중력파</b>: 가속하는 질량이 시공간에 내보내는 잔물결(c로 전파). 일반상대성 예측(1916). 효과 극미(변형 ~10⁻²¹). <b>LIGO 2015년 직접 관측</b>(쌍성 블랙홀 병합, 노벨상 2017). 처프 신호(병합 직전 주파수·진폭 상승). 빛 안 통하는 우주를 보는 새 관측창(다중신호 천문학).",
+    "more_en": "<b>Gravitational waves</b>: ripples in spacetime from accelerating masses, traveling at c. Predicted by GR (1916), first detected by <b>LIGO in 2015</b> (merging black holes; Nobel 2017). The chirp signal rises in frequency and amplitude before merger. A new window on the dark universe.",
+    "problem": {
+      "q": "중력파는 무엇이 만들고, 무엇으로 전파될까요?",
+      "solution": "<b>가속하는 질량</b>(예: 충돌하는 두 블랙홀)이 시공간에 만든 잔물결로, <b>빛의 속도</b>로 퍼집니다.",
+      "q_en": "What creates gravitational waves, and how fast do they travel?",
+      "sol_en": "<b>Accelerating masses</b> (e.g. merging black holes) create ripples in spacetime that travel at <b>the speed of light</b>."
+    }
+  },
+  "phys28_05": {
+    "ch": "물리학 제27장 일반상대성과 우주론",
+    "narr": "이제 가장 큰 그림 — <b>우주 전체</b>입니다. 1929년 허블이 망원경으로 본 충격적 사실: <b>거의 모든 은하가 우리에게서 멀어지고 있고, 멀리 있을수록 더 빨리 멀어진다</b>(허블 법칙 v=H₀d). 이건 우리가 우주의 중심이라서가 아닙니다 — <b>우주 공간 자체가 부풀어 오르기 때문</b>이에요. 건포도 빵이 부풀면 모든 건포도가 서로 멀어지듯, 은하들은 공간 속을 나는 게 아니라 <b>공간이 늘어나며</b> 함께 멀어집니다. 그렇다면 시간을 거꾸로 감으면? 모든 것이 한 점으로 모입니다 — 약 138억 년 전, 우주가 한 점에서 시작된 <b>빅뱅</b>이죠. 그 증거로 빅뱅의 식은 잔열(우주배경복사, 2.7K)이 온 하늘에서 발견됐습니다. 화면에서 시간(척도)을 키우면 모든 은하가 멀어지고 먼 것일수록 빠른 걸 보세요. 운동학에서 시작한 우리 여정이, 우주의 탄생과 운명에서 끝납니다.",
+    "more": "<b>우주 팽창·빅뱅</b>: <b>허블 법칙 v=H₀d</b>(먼 은하일수록 빨리 후퇴) → 공간 자체가 팽창(은하는 정지, 공간이 늘어남). 거꾸로 = 약 138억 년 전 한 점(<b>빅뱅</b>). 증거: 우주배경복사(2.7K)·경원소 비율·은하 적색편이. 현재 가속 팽창(암흑에너지)·암흑물질이 우주의 95%. 일반상대성이 그리는 우주의 과거와 미래.",
+    "more_en": "<b>Cosmic expansion / Big Bang</b>: <b>Hubble's law v=H₀d</b> — space itself expands (galaxies recede, faster when farther). Run backward → a single point ~13.8 billion years ago (the <b>Big Bang</b>). Evidence: cosmic microwave background (2.7 K), light-element ratios, redshifts. Dark energy and dark matter make up ~95%.",
+    "problem": {
+      "q": "먼 은하가 가까운 은하보다 더 빨리 멀어지는 이유는?",
+      "solution": "공간 자체가 팽창하기 때문 — 허블 법칙 v=H₀d로 <b>거리에 비례</b>해 후퇴 속도가 커집니다.",
+      "q_en": "Why do farther galaxies recede faster than nearer ones?",
+      "sol_en": "Space itself expands; by Hubble's law v=H₀d, recession speed grows <b>in proportion to distance</b>."
+    }
+  }
+}

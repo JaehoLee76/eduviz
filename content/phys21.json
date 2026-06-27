@@ -46,17 +46,5 @@
       "q_en": "If the strikes are simultaneous in the platform frame, which does the forward-moving train rider see first?",
       "sol_en": "The <b>front</b> strike (the one being approached) — so they are not simultaneous for the rider."
     }
-  },
-  "phys21_05": {
-    "ch": "물리학 제26장 특수상대성",
-    "narr": "마지막으로, 가장 웅장한 무대입니다. 뉴턴은 \"왜 질량이 서로 끌어당기지?\"에 끝내 답하지 못했습니다. 아인슈타인의 답은 충격적이었어요: <b>끌어당기는 게 아니다 — 질량이 시공간을 휘게 하고, 모든 것은 그 휜 길을 따라갈 뿐이다.</b> 무거울수록 시공간의 우물이 깊어지죠. 놀랍게도 <b>빛조차 휩니다</b>(별빛이 태양 곁을 지나며 꺾이는 것을 1919년 일식 때 확인 — 아인슈타인은 하룻밤 새 세계적 스타가 됐습니다). 질량 근처에서는 <b>시간도 느려지고요</b>(그래서 GPS는 매일 이중 보정 — 속도에 의한 느려짐과 중력에 의한 빨라짐). 우물이 너무 깊어 빛조차 못 빠져나오면 블랙홀, 시공간이 출렁이며 퍼지면 중력파(2015년 직접 관측)입니다. 이 트랙의 인트로에서 본 그 휘어진 무대 — 바로 우리가 사는 우주의 진짜 모습입니다. 슬라이더로 질량을 키워 시공간이 휘고 빛이 꺾이는 걸 보세요.",
-    "more": "<b>일반상대성</b>: 중력 = 질량이 만든 시공간의 곡률(끌어당김 아님). 질량↑=곡률↑. 예측·검증: 빛의 휘어짐(중력렌즈, 1919)·중력 적색편이·시간 지연(GPS)·수성 근일점·블랙홀·중력파(2015). 등가원리(가속=중력) 출발. 우주론(빅뱅·팽창)의 토대. 인트로 훅의 본편.",
-    "more_en": "<b>General relativity</b>: gravity = curvature of spacetime made by mass (not a pull). More mass = more curvature. Confirmed by light bending (1919), gravitational redshift, GPS time, Mercury's perihelion, black holes, gravitational waves (2015). Foundation of cosmology.",
-    "problem": {
-      "q": "일반상대성에 따르면 빛은 무거운 별 곁을 지날 때 어떻게 될까요?",
-      "solution": "별이 휘게 한 시공간을 따라 <b>경로가 휘어집니다</b>(중력렌즈). 1919년 일식 때 실제로 확인됐습니다.",
-      "q_en": "According to general relativity, what happens to light passing a massive star?",
-      "sol_en": "Its path <b>bends</b> along the curved spacetime (gravitational lensing), confirmed in the 1919 eclipse."
-    }
   }
 }
