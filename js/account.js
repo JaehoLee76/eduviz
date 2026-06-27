@@ -127,6 +127,12 @@
       '.acct-toast.show{opacity:1;transform:translate(-50%,0);}',
       '.acct-tlink{background:var(--accent,#4f93d6);color:#fff;border:none;border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;}',
       '.acct-tx{background:none;border:none;color:var(--text-3,#9b99a3);font-size:17px;cursor:pointer;line-height:1;}',
+      '.acct-umenu{position:fixed;z-index:42;min-width:180px;background:var(--panel-bg,rgba(28,28,36,.98));border:1px solid var(--border,rgba(255,255,255,.16));border-radius:12px;box-shadow:0 8px 26px rgba(0,0,0,.45);overflow:hidden;}',
+      '.acct-uinfo{padding:11px 14px;border-bottom:1px solid var(--border,rgba(255,255,255,.1));}',
+      '.acct-uinfo .nm{font-size:13.5px;font-weight:600;color:var(--text-1,#f4f3ee);}',
+      '.acct-uinfo .em{font-size:12px;color:var(--text-3,#9b99a3);margin-top:2px;word-break:break-all;}',
+      '.acct-uout{display:block;width:100%;text-align:left;background:none;border:none;color:var(--text-1,#f4f3ee);font-family:inherit;font-size:13.5px;padding:10px 14px;cursor:pointer;}',
+      '.acct-uout:hover{background:rgba(255,255,255,.07);color:#f0a0a0;}',
       '@media(max-width:560px){ #eduToolbar{gap:5px;} .acct-btn{padding:6px 9px;font-size:12px;} }'
     ].join(''); document.head.appendChild(s); }
 
@@ -206,10 +212,22 @@
     gisReady=true;
     if(!user){ try{ google.accounts.id.prompt(); }catch(e){} }   // 로드 시 One Tap 자동 로그인(이전에 동의한 사용자는 무클릭 로그인)
   }); }
+  function logout(){ if(window.google&&google.accounts) google.accounts.id.disableAutoSelect();
+    user=null; loadLocal(); renderLogin(); updateMemoBtn(); hideUserMenu(); toast('로그아웃되었습니다.'); }
+  // 로그인 상태에서 알약 클릭 → 즉시 로그아웃 대신 작은 메뉴(이름·이메일 + 로그아웃)
+  var userMenu=null;
+  function buildUserMenu(){ if(userMenu) return; userMenu=mk('div','acct-umenu'); userMenu.style.display='none'; document.body.appendChild(userMenu);
+    document.addEventListener('click', function(e){ if(userMenu.style.display==='block' && !userMenu.contains(e.target) && loginBtn && !loginBtn.contains(e.target)) hideUserMenu(); });
+    window.addEventListener('resize', hideUserMenu); }
+  function showUserMenu(){ if(!userMenu || !user || !loginBtn) return; userMenu.innerHTML='';
+    var info=mk('div','acct-uinfo'); info.appendChild(mk('div','nm', user.name||'로그인됨')); if(user.email) info.appendChild(mk('div','em', user.email));
+    var out=mk('button','acct-uout','로그아웃'); out.onclick=function(e){ e.stopPropagation(); logout(); };
+    userMenu.appendChild(info); userMenu.appendChild(out);
+    var r=loginBtn.getBoundingClientRect(); userMenu.style.top=(r.bottom+6)+'px'; userMenu.style.right=Math.max(8,(window.innerWidth-r.right))+'px'; userMenu.style.display='block'; }
+  function hideUserMenu(){ if(userMenu) userMenu.style.display='none'; }
+  function toggleUserMenu(){ if(userMenu && userMenu.style.display==='block') hideUserMenu(); else showUserMenu(); }
   function onLoginClick(){
-    if(user){ // 로그아웃
-      if(window.google&&google.accounts) google.accounts.id.disableAutoSelect();
-      user=null; loadLocal(); renderLogin(); updateMemoBtn(); toast('로그아웃되었습니다.'); return; }
+    if(user){ toggleUserMenu(); return; }   // 로그인됨 → 메뉴 열기(즉시 로그아웃 안 함)
     if(!clientId()){ toast('로그인은 곧 활성화됩니다. (관리자 설정 대기)'); return; }
     if(!gisReady){ toast('로그인 준비 중… 잠시 후 다시 눌러 주세요.'); initGIS(); return; }
     google.accounts.id.prompt();   // One Tap / 로그인 창
@@ -224,7 +242,7 @@
 
   // ── 초기화 ──
   function init(){
-    injectStyle(); loadLocal(); buildToolbar(); buildMemo();
+    injectStyle(); loadLocal(); buildToolbar(); buildMemo(); buildUserMenu();
     watchScene(); updateMemoBtn();
     initGIS();
     // 엔진 준비 후 위치 복원/해시 점프
