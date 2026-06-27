@@ -702,7 +702,13 @@
     tap:function(E){ this.s.step=(this.s.step+1)%this.snaps.length; E.blip(440+this.s.step*30,0.1); },
     draw:function(E){ var ctx=E.ctx, snap=this.snaps[this.s.step], n=snap.a.length;
       AV.bars(E, snap.a, { baseY:E.H*0.62, maxH:E.H*0.40, bw:52, label:true, cx:E.W/2, hl:function(i){ return i>=n-snap.sorted?'#8fe3b5':(i===0?'#ffb27a':'#7ab8ff'); } });
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('주황=루트(최댓값) → 끝으로 / 초록=정렬 완료', E.W/2, E.H*0.68);
+      var heapSz=n-snap.sorted, bw0=52, gap=10, tot=n*bw0+(n-1)*gap, x0=E.W/2-tot/2;
+      ctx.textAlign='center';
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 12px sans-serif';
+      if(heapSz>0) ctx.fillText('힙 크기 '+heapSz, x0+(heapSz*bw0+(heapSz-1)*gap)/2, E.H*0.645);
+      ctx.fillStyle='#8fe3b5';
+      if(snap.sorted>0) ctx.fillText('정렬됨 '+snap.sorted, x0+heapSz*(bw0+gap)+(snap.sorted*bw0+(snap.sorted-1)*gap)/2, E.H*0.645);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.fillText('주황=루트(최댓값) → 끝으로 / 초록=정렬 완료', E.W/2, E.H*0.68);
       E.tapHint(E.W/2, E.H*0.74, this.s.step>=this.snaps.length-1?'↻ 다시':'▶ 최댓값을 끝으로 빼기', true);
       E.big('힙 정렬 — O(n log n), 제자리', '최대 힙의 루트=최댓값을 끝으로 빼고 힙 크기를 줄여 sift-down 반복. 추가 메모리 없이(in-place) O(n log n)!'); }
   },
@@ -3058,7 +3064,14 @@
         var col=picked?'#8fe3b5':cur?'#ffb27a':'#7ab8ff';
         ctx.fillStyle=picked?'rgba(143,227,181,0.3)':cur?'rgba(255,178,122,0.3)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=col; ctx.lineWidth=2;
         ctx.fillRect(X(a[0]),y,X(a[1])-X(a[0]),rh-8); ctx.strokeRect(X(a[0]),y,X(a[1])-X(a[0]),rh-8);
-        ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('a'+(i+1), X(a[1])+6, y+rh/2-1); }); }
+        ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('a'+(i+1), X(a[1])+6, y+rh/2-1);
+        ctx.fillStyle=col; ctx.font='10px monospace'; ctx.textAlign='center'; ctx.fillText('['+a[0]+','+a[1]+']', (X(a[0])+X(a[1]))/2, y+rh/2-1); });
+      // 선택 개수 + 직전 끝 시각
+      ctx.textAlign='left'; ctx.font='600 14px sans-serif';
+      ctx.fillStyle=f.done?'#8fe3b5':'#7ab8ff';
+      ctx.fillText('선택 '+f.sel.length+'개', x0, y0+f.acts.length*rh+26);
+      if(!f.done && f.last>=0){ ctx.fillStyle='#9b99a3'; ctx.font='12px sans-serif';
+        ctx.fillText('직전 끝 시각 f = '+f.acts[f.last][1], x0+96, y0+f.acts.length*rh+26); } }
   },
 
   // ══════ DP(algo7_03) ▸ 최장 증가 부분수열 LIS (코드+스텝) ══════
@@ -4063,6 +4076,13 @@
         if(k===f.lo)return {fill:'rgba(255,178,122,0.3)',stroke:'#ffb27a',text:'#ffb27a',tag:'lo'};
         if(k===f.hi)return {fill:'rgba(244,160,192,0.3)',stroke:'#f4a0c0',text:'#f4a0c0',tag:'hi'};
         if(k>f.lo&&k<f.hi)return null; return {fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.12)',text:'#4a4955'}; } });
+      // 현재 합 vs target
+      if(f.lo<f.hi || f.found){ var li=f.found?f.found[0]:f.lo, hj=f.found?f.found[1]:f.hi, sum=f.A[li]+f.A[hj];
+        ctx.textAlign='center'; ctx.font='600 18px sans-serif';
+        ctx.fillStyle=(sum===f.target)?'#8fe3b5':(sum<f.target?'#ffb27a':'#f4a0c0');
+        ctx.fillText('A['+li+']+A['+hj+'] = '+f.A[li]+'+'+f.A[hj]+' = '+sum, V.W/2, info.y-22);
+        ctx.fillStyle='#dfeefb'; ctx.font='14px sans-serif';
+        ctx.fillText('target = '+f.target, V.W/2, info.y-2); }
       ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('두 포인터를 안쪽으로 좁혀가며 합을 맞춤 → O(n)', V.W/2, info.y+info.bw+34); }
   },
 
@@ -21935,8 +21955,8 @@
       for(var t=0;t<n;t++){ var p=px(t);
         var sV=f.visS[t]<INF, tV=f.visT[t]<INF, isMet=(t===f.met);
         var fill, stroke, tag=null;
-        if(isMet){ fill='rgba(143,227,181,0.34)'; stroke='#8fe3b5'; tag='만남'; }
-        else if(sV&&tV){ fill='rgba(143,227,181,0.28)'; stroke='#8fe3b5'; }
+        if(isMet){ fill='rgba(143,227,181,0.34)'; stroke='#8fe3b5'; tag='만남 '+f.visS[t]+'+'+f.visT[t]+'='+(f.visS[t]+f.visT[t]); }
+        else if(sV&&tV){ fill='rgba(143,227,181,0.28)'; stroke='#8fe3b5'; tag='S'+f.visS[t]+'/T'+f.visT[t]; }
         else if(sV){ fill='rgba(122,184,255,0.26)'; stroke='#7ab8ff'; tag='S'+f.visS[t]; }
         else if(tV){ fill='rgba(244,160,192,0.26)'; stroke='#f4a0c0'; tag='T'+f.visT[t]; }
         else { fill='rgba(155,153,163,0.10)'; stroke='#9b99a3'; }
