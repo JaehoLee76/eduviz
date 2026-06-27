@@ -1,0 +1,62 @@
+{
+  "phys24_01": {
+    "ch": "물리학 제17장 교류 회로",
+    "narr": "지금까지 다룬 전류는 한 방향으로만 흐르는 직류(DC)였습니다. 그런데 앞 장 발전기에서 봤듯, 콘센트에 오는 전기는 1초에 수십 번 방향을 뒤집는 <b>교류(AC)</b>입니다 — V = V₀sin(ωt)로 끝없이 출렁이죠. 그럼 한 가지 의문이 생깁니다: +로 갔다 −로 갔다 하며 평균이 0인 전압을, 우리는 왜 '220V'라고 부를까요? 평균이 0이면 아무 일도 안 해야 할 텐데요. 답은 <b>실효값(RMS)</b>입니다 — 출렁이는 교류가 실제로 하는 일(열·밝기)을 <b>같은 일을 하는 직류 전압으로 환산</b>한 값이죠. 전력은 전압의 제곱(V²)에 비례하는데, sin²의 평균이 1/2이라서 <b>Vrms = V₀/√2</b>(최대값의 약 0.707배)가 됩니다. 그래서 한국 콘센트의 '220V'는 실효값이고, 실제 최대 전압은 311V까지 치솟습니다. 화면에서 V₀를 바꾸면 실효값(초록선)이 늘 V₀/√2임을 보세요.",
+    "more": "<b>교류(AC)</b>: V=V₀sin(ωt), 주기적 방향 전환(한국 60Hz). 평균은 0이나 일은 함 → <b>실효값 Vrms=V₀/√2</b>(전력 P∝V², sin²평균=½). 콘센트 220V=실효값(최대 ≈311V). 발전기가 자연히 교류 생성, 변압기로 전압 변환 쉬워 송전 표준. 전류도 Irms=I₀/√2.",
+    "more_en": "<b>AC</b>: V=V₀sin(ωt), periodically reversing (60 Hz in Korea). Average is zero but it does work → <b>RMS Vrms=V₀/√2</b> (power ∝ V², mean of sin²=½). Outlet '220V' is RMS (peak ≈311V). Generators make AC naturally; transformers make it the transmission standard.",
+    "problem": {
+      "q": "최대 전압 V₀=311V인 교류의 실효값은?",
+      "solution": "Vrms = V₀/√2 = 311/√2 ≈ <b>220V</b> (한국 콘센트 전압).",
+      "q_en": "AC with peak V₀=311V. What is its RMS value?",
+      "sol_en": "Vrms = V₀/√2 = 311/√2 ≈ <b>220V</b>."
+    }
+  },
+  "phys24_02": {
+    "ch": "물리학 제17장 교류 회로",
+    "narr": "직류에선 저항만 전류를 막았지만, 교류에선 <b>축전기와 인덕터도 전류를 방해</b>합니다 — 그런데 방식이 묘합니다. 그 '교류 저항'을 <b>리액턴스</b>라 부르고, 핵심은 <b>주파수에 따라 달라진다</b>는 거예요. <b>축전기</b>는 빠르게 출렁일수록(ω↑) 충·방전이 쉬워 잘 통합니다 — 용량 리액턴스 <b>Xc = 1/ωC</b>(주파수↑일수록 감소). 반대로 <b>인덕터</b>는 전류 변화를 싫어하니(앞 장의 관성!) 빠른 교류일수록 더 세게 막죠 — 유도 리액턴스 <b>Xl = ωL</b>(주파수↑일수록 증가). 그래서 축전기는 고주파를 통과시키고(저주파 차단), 인덕터는 저주파를 통과시킵니다(고주파 차단) — 오디오의 고음/저음 분리(크로스오버)가 바로 이것입니다. 게다가 위상도 어긋나요: 축전기는 전류가 전압보다 앞서고, 인덕터는 뒤집니다. 화면에서 ω를 키우며 두 곡선이 교차하는 걸 보세요.",
+    "more": "<b>리액턴스</b>(교류에서의 저항): 용량 <b>Xc=1/ωC</b>(주파수↑ 감소, 고주파 통과), 유도 <b>Xl=ωL</b>(주파수↑ 증가, 저주파 통과). 위상: 축전기는 전류가 전압보다 90° 앞섬(ICE), 인덕터는 90° 뒤짐(ELI). 저항은 주파수 무관·동위상. 필터·크로스오버의 원리. 단위 옴(Ω).",
+    "more_en": "<b>Reactance</b> (AC resistance): capacitive <b>Xc=1/ωC</b> (drops with ω, passes high freq), inductive <b>Xl=ωL</b> (rises with ω, passes low freq). Phase: capacitor current leads V by 90°, inductor lags by 90°. Resistor is frequency-independent, in phase. Basis of filters.",
+    "problem": {
+      "q": "주파수를 높이면 축전기와 인덕터 중 전류를 더 잘 통과시키는 쪽은?",
+      "solution": "<b>축전기</b>입니다. Xc=1/ωC가 작아져 잘 통하고, 인덕터는 Xl=ωL이 커져 더 막습니다.",
+      "q_en": "At higher frequency, which passes current more easily — capacitor or inductor?",
+      "sol_en": "The <b>capacitor</b>: Xc=1/ωC drops, while the inductor's Xl=ωL rises (blocks more)."
+    }
+  },
+  "phys24_03": {
+    "ch": "물리학 제17장 교류 회로",
+    "narr": "저항·축전기·인덕터를 한 줄에 잇고 교류를 흘리면, 전류를 막는 총 효과는 어떻게 될까요? 단순히 더하면 안 됩니다 — 셋의 방해가 서로 <b>위상이 달라서</b>죠. 저항(R)은 전압과 동위상, 인덕터(Xl)는 90° 앞, 축전기(Xc)는 90° 뒤 — 그래서 이들을 <b>벡터처럼</b> 더해야 합니다. 인덕터와 축전기는 서로 반대 방향(±90°)이라 <b>Xl−Xc</b>로 일부 상쇄되고, 그 결과 총 '교류 저항'인 <b>임피던스 Z = √(R²+(Xl−Xc)²)</b>가 됩니다(직각삼각형의 빗변!). 전류는 I = V/Z죠. 화면의 임피던스 삼각형에서 R(가로)과 Xl−Xc(세로)의 빗변이 Z입니다. 슬라이더로 ω를 바꾸면 Xl−Xc가 변하며 Z가 출렁이는데 — Xl=Xc가 되는 특별한 순간, 세로 변이 0이 되어 Z가 최소(=R)가 됩니다. 그게 다음 장면의 주인공, 공명입니다.",
+    "more": "<b>RLC 직렬 임피던스</b>: 위상차 때문에 벡터 합 → <b>Z = √(R²+(Xl−Xc)²)</b>(옴). 전류 I=V/Z, 위상각 tanφ=(Xl−Xc)/R. Xl−Xc>0 유도성(전류 뒤짐), <0 용량성(앞섬), =0 순저항(공명). 임피던스 삼각형(R 밑변·X 높이·Z 빗변). 교류 회로 해석의 핵심.",
+    "more_en": "<b>Series RLC impedance</b>: phase differences require vector addition → <b>Z = √(R²+(Xl−Xc)²)</b>. Current I=V/Z, phase tanφ=(Xl−Xc)/R. Xl−Xc>0 inductive, <0 capacitive, =0 resistive (resonance). The impedance triangle (R, X, Z).",
+    "problem": {
+      "q": "RLC 직렬에서 Xl=Xc가 되면 임피던스 Z는?",
+      "solution": "Z=√(R²+0²)=<b>R</b>(최소)가 됩니다 — 전류가 최대! 이것이 공명입니다.",
+      "q_en": "In series RLC, when Xl=Xc, what is the impedance Z?",
+      "sol_en": "Z=√(R²+0²)=<b>R</b> (minimum) — maximum current. This is resonance."
+    }
+  },
+  "phys24_04": {
+    "ch": "물리학 제17장 교류 회로",
+    "narr": "지금 당신 주변엔 수백 개 방송국의 전파가 동시에 날아다닙니다. 라디오는 어떻게 그중 <b>딱 하나</b>만 골라낼까요? 답은 <b>공명</b>입니다. RLC 회로는 특별한 주파수 <b>ω₀ = 1/√(LC)</b>에서 Xl=Xc가 되어 서로 완전히 상쇄됩니다 — 그러면 임피던스가 최소(=R)가 되어 <b>전류가 폭발적으로 커지죠</b>. 그네를 박자에 딱 맞춰 밀면 크게 흔들리듯, 회로도 자기 고유 주파수 ω₀에 맞는 신호에만 크게 반응합니다. 화면의 공명 곡선을 보세요 — ω₀에서 날카로운 봉우리가 솟습니다. 라디오 다이얼을 돌리는 건 사실 <b>L이나 C를 바꿔 ω₀를 원하는 방송 주파수에 맞추는 것</b>이에요. 맞는 순간 그 방송의 전류만 크게 잡히고 나머지는 묻힙니다. 슬라이더(다이얼)를 ω₀에 맞춰 전류가 치솟는 걸 보세요.",
+    "more": "<b>공명</b>: ω₀=1/√(LC)에서 Xl=Xc 상쇄 → Z 최소(=R) → 전류 최대. 공명 곡선 봉우리의 날카로움 = 선택도(Q값=ω₀L/R, R 작을수록 날카로움). 라디오·TV 동조(LC 조절로 ω₀ 맞춤), 금속탐지기, MRI. 그네·소리굽쇠 공명과 같은 원리(고유진동수에 큰 반응).",
+    "more_en": "<b>Resonance</b>: at ω₀=1/√(LC), Xl=Xc cancel → Z minimum (=R) → maximum current. Sharpness = selectivity (Q=ω₀L/R). Radio/TV tuning (adjust LC to set ω₀), metal detectors, MRI. Same idea as pushing a swing at its natural frequency.",
+    "problem": {
+      "q": "라디오에서 다른 방송을 선택하려면 무엇을 바꿔야 할까요?",
+      "solution": "<b>L 또는 C</b>를 바꿔 공명 주파수 ω₀=1/√(LC)를 원하는 방송 주파수에 맞춥니다(동조).",
+      "q_en": "To tune a radio to a different station, what do you change?",
+      "sol_en": "Adjust <b>L or C</b> to set the resonant frequency ω₀=1/√(LC) to the desired station."
+    }
+  },
+  "phys24_05": {
+    "ch": "물리학 제17장 교류 회로",
+    "narr": "공명의 심장을 들여다보면, 아름다운 진동이 숨어 있습니다 — <b>LC 진동</b>입니다. 충전된 축전기를 코일에 연결하면, 축전기가 방전하며 전류를 흘리고(전기장 에너지 → 자기장 에너지), 그 전류가 인덕터의 관성으로 계속 흘러 축전기를 반대로 충전하고, 다시 되돌아오고… <b>에너지가 축전기(전기장)와 인덕터(자기장) 사이를 끝없이 오갑니다.</b> 진자가 위치에너지와 운동에너지를 주고받듯, 또는 용수철이 늘었다 줄었다 하듯이요 — 전기의 진자죠! 마찰(저항)만 없으면 영원히 진동하고, 그 주파수는 <b>f = 1/(2π√(LC))</b>입니다. 화면에서 전하(축전기)와 전류(인덕터)가 90° 어긋나 출렁이고, 두 에너지 막대가 시소처럼 주고받는 걸 보세요(합은 늘 일정 = 에너지 보존). 이 LC 진동이 7장 진동(용수철)의 전기 버전이고, 16장 전자기파에서 이 출렁임이 공간으로 튀어나가 빛이 됩니다.",
+    "more": "<b>LC 진동</b>: 축전기(전기장 에너지 q²/2C) ↔ 인덕터(자기장 에너지 ½LI²) 사이 에너지 교환. 전하 q=q₀cos(ω₀t), 전류 I와 90° 위상차. 진동수 <b>f=1/(2π√(LC))</b>(ω₀=1/√(LC)). 마찰(R) 없으면 무손실 진동 — 역학 단진동(용수철)의 전기 짝(q↔x, I↔v, 1/C↔k, L↔m). 발진기·전자기파 송신의 바탕.",
+    "more_en": "<b>LC oscillation</b>: energy swaps between capacitor (electric, q²/2C) and inductor (magnetic, ½LI²). Charge q=q₀cos(ω₀t), 90° out of phase with current. Frequency <b>f=1/(2π√(LC))</b>. The electrical twin of a mass-spring (q↔x, I↔v, 1/C↔k, L↔m). Basis of oscillators and EM transmission.",
+    "problem": {
+      "q": "LC 진동에서 인덕턴스 L을 4배로 키우면 진동 주파수는 어떻게 될까요?",
+      "solution": "f=1/(2π√(LC))로 √L에 반비례 → L 4배면 f는 <b>1/2배</b>(절반)가 됩니다.",
+      "q_en": "In an LC oscillation, quadruple L. What happens to the frequency?",
+      "sol_en": "f=1/(2π√(LC)) ∝ 1/√L, so quadrupling L <b>halves</b> the frequency."
+    }
+  }
+}
