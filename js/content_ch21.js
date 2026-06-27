@@ -67,7 +67,7 @@
         ctx.fillText('= '+A[ri][0]+'·'+B[0][cj2]+' + '+A[ri][1]+'·'+B[1][cj2]+' = '+p0+' + '+p1+' = '+val, cx, y+146); }
       else { ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center';
         ctx.fillText('행 × 열 의 내적으로 각 칸을 차례로 채웁니다 (9장 내적!)', cx, y+130); }
-      E.tapHint(E.W/2, y+rh*2+80, '▶ 다음 칸 채우기 ('+st+'/4)', true);
+      E.tapHint(E.W/2, y+rh*2+120, '▶ 다음 칸 채우기 ('+st+'/4)', true);   // 내적식(y+146) 아래로
       E.big('행렬 곱셈 = 행 · 열 (내적)', '왼쪽 행렬의 행과 오른쪽 행렬의 열을 내적해 각 칸을 차례로 채웁니다. 순서가 바뀌면 결과가 달라집니다(AB≠BA)'); }
   },
 

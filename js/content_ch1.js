@@ -81,7 +81,7 @@
       // 자릿수: D=한 자리씩, S=자동
       if(s.auto){ s.t++; if(s.t%14===0 && s.dig<ROOT2.length) s.dig++; if(s.dig>=ROOT2.length) s.auto=false; }
       var doneAll=s.dig>=ROOT2.length;
-      E.tapHint(E.W/2, E.NL.yy()+58, doneAll?'↻ 처음부터 (D)':'▶ 다음 자리 D · 자동 S', !doneAll);
+      E.tapHint(E.W/2, E.NL.yy()+82, doneAll?'↻ 처음부터 (D)':'▶ 다음 자리 D · 자동 S', !doneAll);   // 수직선·자리 숫자 아래로
       E.big('√2 = '+ROOT2.slice(0,s.dig)+'<span style="color:#6f6e7a">…</span>', '분수로는 못 쓰는 수');
     }
   },
@@ -184,7 +184,7 @@
         ctx.fillStyle='rgba('+R+','+G+','+B+','+(1-0.72*d)+')'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(v,x+cell/2,y+cell/2);
         if(d>0.5){ ctx.strokeStyle='rgba(226,75,74,'+((d-0.5)*2*0.55)+')'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+9,y+9); ctx.lineTo(x+cell-9,y+cell-9); ctx.stroke(); } }
       ctx.textBaseline='alphabetic';
-      var gy=oy+6*cell+34;
+      var gy=oy+6*cell+60;   // 격자 마지막 행 아래로 충분히(알약이 격자 안 가리게)
       if(s.t>=END) E.tapHint(E.W/2, gy, '↻ 처음부터 (D)', false);
       else if(!s.auto) E.tapHint(E.W/2, gy, s.t<=0?'▶ 다음 단계 D · 자동 S':'▶ 다음 단계 (D)', true);
       var ttl = (s.t<=0)?'에라토스테네스의 체' : (s.t>=END?'소수 '+pc+'개' : (curPhase<4?PR[curPhase]+'의 배수 삭제':'소수 확정!'));
