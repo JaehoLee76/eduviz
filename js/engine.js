@@ -328,7 +328,7 @@
         } else branchPageEl.classList.remove('scrollable'); } }
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
-    animPaused=false; animFrame=0; updatePlayUI();   // 새 장면은 처음부터 재생
+    animPaused=false; animFrame=0; _resetProbe(); updatePlayUI();   // 새 장면은 처음부터 재생 + 정적 감지 리셋
     hideIntroEnd();   // 장면 전환 시 인트로 엔드카드 숨김
     paintTOC(); progress(); blip(660,0.14);
   }
@@ -449,20 +449,29 @@
   // 한 뒤로는 enter(재진입) 후 목표 프레임까지 결정적 리플레이(난수 금지=골든룰 덕에 정확 재현).
   var animPaused=false, animFrame=0, _frozenFlag=false;
   // advance=true: 시뮬 적분 진행(+animFrame). false: 적분 동결, 렌더만(일시정지 중 슬라이더·드래그 반영).
+  // 정적 장면 감지(재생바 프레임버튼 비활성용): 새 장면 첫 프레임들에서 캔버스 중앙이 안 변하면 static(슬라이더 전용 장면 → 재생/스텝이 역할 없음)
+  var _sceneStatic=null, _probeN=0, _probeHash=0, _pbDim=[];
+  function _resetProbe(){ _sceneStatic=null; _probeN=0; _probeHash=0; if(playBar) updatePlayUI(); }
+  function _cvHash(){ try{ var cw=cv.width,ch=cv.height; var d=ctx.getImageData((cw*0.28)|0,(ch*0.24)|0,(cw*0.44)|0,(ch*0.42)|0).data; var s=0; for(var i=0;i<d.length;i+=200){ s=(s*131+d[i]+d[i+1]*3)|0; } return s; }catch(e){ return 0; } }
+  function _probe(){ if(_sceneStatic!==null||animPaused||!playbackEligible())return; var hv=_cvHash(); _probeN++;
+    if(_probeN<=1){ _probeHash=hv; return; }
+    if(hv!==_probeHash){ _sceneStatic=false; updatePlayUI(); }
+    else if(_probeN>=16){ _sceneStatic=true; updatePlayUI(); } }
   function drawOneFrame(advance){ if(advance) frameN++; _frozenFlag=!advance; if(global.PhysLab) global.PhysLab.frozen=!advance;
     if(advance) animFrame++; ctx.clearRect(0,0,W,H);   // 일시정지면 frameN도 동결 → E.frame 기반 애니까지 완전 정지
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
     if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드면 캔버스 생략
+    _probe();
   }
   function loop(){ drawOneFrame(!animPaused); requestAnimationFrame(loop); }   // 항상 그림 — 일시정지면 적분만 동결
   var playbackEnabled=false;   // 연속 애니메이션 트랙(물리 등)만 opt-in (Engine.start({playback:true}))
   function playbackEligible(){ if(!playbackEnabled)return false; var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null; return !!(sc && sc.draw && !sc.introCard && !(sc._viz&&_steps) && !(sc.branchOf!=null&&sc.page)); }   // 인트로(introCard)는 한 번 재생용 → 재생바 제외
   function setPaused(p){ animPaused=!!p; updatePlayUI(); }
-  function togglePlay(){ if(!playbackEligible())return; animPaused=!animPaused; if(!animPaused){} updatePlayUI(); }
-  function frameStepFwd(){ if(!playbackEligible())return; animPaused=true; drawOneFrame(true); updatePlayUI(); }   // 한 칸: 시뮬 한 스텝 진행
-  function frameStepBack(){ if(!playbackEligible())return; animPaused=true; replayTo(Math.max(0,animFrame-1)); updatePlayUI(); }
+  function togglePlay(){ if(!playbackEligible()||_sceneStatic===true)return; animPaused=!animPaused; if(!animPaused){} updatePlayUI(); }   // 정적 장면(슬라이더 전용)은 재생/스텝 무동작
+  function frameStepFwd(){ if(!playbackEligible()||_sceneStatic===true)return; animPaused=true; drawOneFrame(true); updatePlayUI(); }   // 한 칸: 시뮬 한 스텝 진행
+  function frameStepBack(){ if(!playbackEligible()||_sceneStatic===true)return; animPaused=true; replayTo(Math.max(0,animFrame-1)); updatePlayUI(); }
   function replayTo(target){ var sc=SM.scenes[SM.cur]; if(!sc)return;
     var saved=[]; if(controlsEl){ var rs=controlsEl.querySelectorAll('input[type=range]'); for(var i=0;i<rs.length;i++) saved.push(rs[i].value); }
     if(sc.enter) sc.enter(E);                                  // 처음으로 되돌림(시뮬·상태 리셋)
@@ -473,7 +482,9 @@
   function restartScene(){ if(!playbackEligible())return; var sc=SM.scenes[SM.cur]; if(sc&&sc.enter) sc.enter(E); animPaused=false; animFrame=0; frameN=0; updatePlayUI(); blip(560,0.12); }   // 처음으로(재진입+재생). animFrame·frameN도 0으로 → E.frame 기반 애니까지 완전 초기화(goTo와 동일).
   var playBar=null, playGlyph=null;
   function updatePlayUI(){ if(!playBar)return; playBar.style.display=playbackEligible()?'flex':'none';
-    if(playGlyph){ playGlyph.textContent=animPaused?'▶':'⏸'; } }
+    if(playGlyph){ playGlyph.textContent=animPaused?'▶':'⏸'; }
+    var dim=(_sceneStatic===true);   // 정적(슬라이더 전용) 장면 → 프레임 버튼 어둡게 비활성(↺ 처음으로는 유지)
+    for(var i=0;i<_pbDim.length;i++){ var b=_pbDim[i]; b.style.opacity=dim?'0.28':'1'; b.style.pointerEvents=dim?'none':'auto'; b.setAttribute('title', dim?'이 장면은 슬라이더로 조작합니다 (재생 없음)':b._t); } }
   function makePlayBar(){ if(playBar||!document.body||!playbackEnabled) return;
     var bar=document.createElement('div'); bar.id='playbar';
     bar.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:8;display:none;gap:4px;align-items:flex-end;'+
@@ -485,10 +496,11 @@
       b.appendChild(g); b.appendChild(kc); b._g=g;
       b.onmouseenter=function(){ b.style.background='rgba(255,255,255,0.10)'; }; b.onmouseleave=function(){ b.style.background='none'; };
       b.onclick=function(){ act(); b.blur(); }; return b; }
-    bar.appendChild(mk('↺','0', restartScene, '처음으로 (0)'));
-    bar.appendChild(mk('◂',',', frameStepBack, '한 뒤로 (,)'));
-    var pb=mk('⏯','Space', togglePlay, '재생 / 일시정지 (Space)'); playGlyph=pb._g; bar.appendChild(pb);
-    bar.appendChild(mk('▸','.', frameStepFwd, '한 칸 앞으로 (.)'));
+    bar.appendChild(mk('↺','0', restartScene, '처음으로 (0)'));   // ↺는 정적 장면서도 슬라이더 리셋 역할 → 비활성 안 함
+    var bBack=mk('◂',',', frameStepBack, '한 뒤로 (,)'); bBack._t='한 뒤로 (,)'; bar.appendChild(bBack);
+    var pb=mk('⏯','Space', togglePlay, '재생 / 일시정지 (Space)'); pb._t='재생 / 일시정지 (Space)'; playGlyph=pb._g; bar.appendChild(pb);
+    var bFwd=mk('▸','.', frameStepFwd, '한 칸 앞으로 (.)'); bFwd._t='한 칸 앞으로 (.)'; bar.appendChild(bFwd);
+    _pbDim=[bBack,pb,bFwd];   // 정적 장면서 비활성 대상(프레임 컨트롤)
     document.body.appendChild(bar); playBar=bar; }
 
   // ---------- 인트로 엔드카드: 애니메이션이 끝나면 초상화(중앙)+설명(좌우)+다시보기 ----------

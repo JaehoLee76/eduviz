@@ -165,13 +165,15 @@
 
   // ─── 심화: 상대속도 (강 건너는 보트) ───
   { id:'phys1_01_relv', branchOf:'phys1_01', ord:1,
-    enter:function(E){ var self=this; this.s={vc:1.2,ang:90,y:0}; var vb=2;
-      E.controls('<div class="ctrl"><label>물살 속도 vc</label><input type="range" id="cc" min="0" max="3" step="0.2" value="1.2"><output id="cco">1.2</output>'
+    enter:function(E){ var self=this; this.s={vb:2,vc:1.2,ang:90,y:0};
+      E.controls('<div class="ctrl"><label>배 속도 vb</label><input type="range" id="vb" min="0.5" max="4" step="0.2" value="2"><output id="vbo">2.0</output>'
+        +'<label style="margin-left:14px">물살 속도 vc</label><input type="range" id="cc" min="0" max="3" step="0.2" value="1.2"><output id="cco">1.2</output>'
         +'<label style="margin-left:14px">뱃머리 각도 (도)</label><input type="range" id="ag" min="40" max="140" step="5" value="90"><output id="ago">90</output></div>');
+      E.bind('#vb','input',function(e){ self.s.vb=+e.target.value; document.getElementById('vbo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.07); });
       E.bind('#cc','input',function(e){ self.s.vc=+e.target.value; document.getElementById('cco').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
       E.bind('#ag','input',function(e){ self.s.ang=+e.target.value; document.getElementById('ago').textContent=e.target.value; E.blip(380,0.07); });
       E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, vb=2, th=s.ang*Math.PI/180, width=6;
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, vb=s.vb, th=s.ang*Math.PI/180, width=6;
       var vx=vb*Math.cos(th)+s.vc, vy=vb*Math.sin(th);
       if(!E.frozen){ if(vy>0.05){ s.y += vy*(1/60); } if(s.y>width){ s.y=0; } }
       // ── 전체 박스 = 강물 ──
@@ -201,7 +203,7 @@
       ctx.fillStyle='rgba(10,12,20,0.7)'; ctx.fillRect(lx-8,ly-4,186,72);
       ctx.font='12.5px sans-serif'; ctx.textAlign='left';
       function leg(i,col,name,val){ var yy=ly+15+i*21; ctx.strokeStyle=col; ctx.lineWidth=3.5; ctx.beginPath(); ctx.moveTo(lx,yy-4); ctx.lineTo(lx+24,yy-4); ctx.stroke(); ctx.fillStyle=col; ctx.fillText(name+' = '+val, lx+32, yy); }
-      leg(0,GRN,'뱃머리',vb.toFixed(1)+' m/s'); leg(1,BLU,'물살',s.vc.toFixed(1)+' m/s'); leg(2,ORA,'합속도',vmag.toFixed(1)+' m/s');
+      leg(0,GRN,'배 속도',vb.toFixed(1)+' m/s'); leg(1,BLU,'물살',s.vc.toFixed(1)+' m/s'); leg(2,ORA,'합속도',vmag.toFixed(1)+' m/s');
       // 건너기 시간·떠내려간 거리
       var crossT=vy>0.05?width/vy:Infinity, drift=vy>0.05?vx*crossT:0;
       ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
