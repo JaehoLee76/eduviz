@@ -64,7 +64,7 @@
 
   // ══════════ 1.3 가속도 = v-t 그래프의 기울기 ══════════
   { id:'phys1_03',
-    enter:function(E){ this.s={a:2}; E.Plot.range(0,5,-2,12);
+    enter:function(E){ this.s={a:2}; E.Plot.range(0,5,-2,12).lab('t (초)','v (m/s)');
       E.controls('<div class="ctrl"><label>가속도 a (m/s²)</label><input type="range" id="aa" min="-2" max="4" step="0.5" value="2"><output id="aao">2</output></div>');
       var self=this; E.bind('#aa','input',function(e){ self.s.a=+e.target.value; document.getElementById('aao').textContent=(+e.target.value); E.blip(360+(self.s.a+2)*60,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, a=this.s.a, v0=2; P.axes();
@@ -83,7 +83,7 @@
 
   // ══════════ 1.4 등가속도 운동 — v-t 넓이 = 변위 ══════════
   { id:'phys1_04',
-    enter:function(E){ this.s={t:3}; E.Plot.range(0,6,0,14);
+    enter:function(E){ this.s={t:3}; E.Plot.range(0,6,0,14).lab('t (초)','v (m/s)');
       E.controls('<div class="ctrl"><label>경과 시간 t (초)</label><input type="range" id="et" min="0" max="6" step="0.2" value="3"><output id="eto">3.0</output></div>');
       var self=this; E.bind('#et','input',function(e){ self.s.t=+e.target.value; document.getElementById('eto').textContent=(+e.target.value).toFixed(1); E.blip(400+self.s.t*40,0.08); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, t=this.s.t, v0=2, a=2; P.axes();

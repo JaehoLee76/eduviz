@@ -17,8 +17,14 @@
     st.textContent=':root{--vpad:0px;}'
       +'#stage{left:var(--vpad)!important;right:auto!important;width:calc(100vw - 2*var(--vpad))!important;}'
       +'.topbar,.progress{left:var(--vpad)!important;right:var(--vpad)!important;}'
-      +'.scene-no,.crumb,#leftStack{margin-left:var(--vpad)!important;}'
-      +'.nav,#eduToolbar,.cw-wrap{margin-right:var(--vpad)!important;}';
+      +'.scene-no,.crumb{margin-left:var(--vpad)!important;}'
+      +'.nav,#eduToolbar,.cw-wrap{margin-right:var(--vpad)!important;}'
+      // 하단 기본설명: 가운데 와이드 띠(슬라이더 아래·재생바/내비 위), 자세히보기 토글은 그 위. 좁은 폭에서도 겹침 방지.
+      +'#controls,#keyhint{bottom:200px!important;}'
+      +'#leftStack{left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:74px!important;width:min(1180px,94vw)!important;max-width:none!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;margin:0!important;}'
+      +'#leftStack .guide{width:100%!important;align-items:flex-end!important;}'
+      +'#leftStack .guide .ch{display:none!important;}'
+      +'#leftStack .bubble{max-width:none!important;flex:1!important;box-sizing:border-box!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
