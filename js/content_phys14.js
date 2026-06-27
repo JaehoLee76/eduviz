@@ -41,37 +41,6 @@
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '당신이 빛을 향해 달려가든 도망가든 빛 속도는 늘 같다 — 실험으로 확인된 이 한 줄에서 시간이 늘어납니다. 옆으로 움직이는 시계의 빛은 위아래만이 아니라 <b>비스듬한 더 긴 경로</b>를 달려야 하는데, 빛은 더 빨라질 수 없으니 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느려집니다</b>(γ배). 마법이 아니라 논리의 강제입니다. 빠를수록(β→1) 극적으로 느려져, GPS 위성도 매일 이 보정을 받습니다. 질량조차 잠든 에너지일 뿐 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌, 우리가 사는 우주의 규칙입니다.'); }
   },
 
-  // ─── 심화: 방사성 붕괴 ───
-  { id:'phys14_05_decay', branchOf:'phys14_05', ord:1,
-    enter:function(E){ var self=this; this.s={half:3,t:0};
-      E.controls('<div class="ctrl"><label>반감기 T½ (초)</label><input type="range" id="hh" min="1" max="6" step="0.5" value="3"><output id="hho">3.0</output></div>');
-      E.bind('#hh','input',function(e){ self.s.half=+e.target.value; self.s.t=0; document.getElementById('hho').textContent=(+e.target.value).toFixed(1); E.blip(360,0.07); });
-      E.setOn([]); },
-    tap:function(E){ this.s.t=0; E.blip(360,0.12); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen){ if(!E.frozen)s.t+=1/60; if(s.t>s.half*5) s.t=0; }
-      var frac=Math.pow(0.5, s.t/s.half), N0=64, N=N0*frac;
-      // 핵 격자(남은 것 채색)
-      var ox=W*0.10, oy=H*0.22, cols2=8;
-      for(var i=0;i<64;i++){ var r=Math.floor(i/cols2), c=i%cols2, x=ox+c*22, y=oy+r*22;
-        // 결정적으로 "남은" N개를 채움(앞에서부터 빠짐: 해시 순서)
-        var alive = i >= (64-Math.round(N));
-        ctx.fillStyle=alive?GRN:'rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.fill(); }
-      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('남은 핵 N = '+Math.round(N)+' / '+N0, ox, oy-12);
-      // 붕괴 곡선
-      var gx0=W*0.50, gx1=W*0.93, gy0=H*0.78, gh=H*0.5;
-      ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('N',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
-      ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
-      for(var k=0;k<=60;k++){ var tt=k/60*s.half*5, f2=Math.pow(0.5,tt/s.half), x=gx0+(tt/(s.half*5))*(gx1-gx0), y=gy0-f2*gh; if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
-      // 반감기 표시(절반 지점)
-      for(var hcnt=1;hcnt<=4;hcnt++){ var th=hcnt*s.half; if(th>s.half*5)break; var x=gx0+(th/(s.half*5))*(gx1-gx0), y=gy0-Math.pow(0.5,hcnt)*gh; ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x,gy0); ctx.lineTo(x,y); ctx.lineTo(gx0,y); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle='rgba(255,178,122,0.7)'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(hcnt+'T½', x, gy0+12); }
-      // 현재 점
-      var mx=gx0+(Math.min(s.t,s.half*5)/(s.half*5))*(gx1-gx0), my=gy0-frac*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
-      E.tapHint(W/2, H*0.92, '화면 탭=초기화 · 반감기마다 절반으로 줄어듦', true);
-      E.big('방사성 붕괴 N = N₀·(½)^(t/T½) — 남은 핵 '+Math.round(N)+'/'+N0+'  (t='+s.t.toFixed(1)+'s)', '핵 하나에게 \'언제 깨질래?\' 물으면 우주 누구도 모릅니다 — 완벽한 무작위입니다. 그런데 수십억 개를 모으면 거짓말처럼 정확해져, 매 <b>반감기 T½</b>마다 어김없이 <b>딱 절반</b>이 사라집니다. N = N₀·(½)^(t/T½) = N₀·e^(−λt). 개별은 예측 불가, 집단은 시계처럼 정확 — 양자 통계의 마법이죠. 반감기는 원소 고유(탄소-14 5730년, 우라늄-238 45억년). 이 멈추지 않는 리듬이 <b>방사성 연대측정</b>(화석·유물·암석 나이)의 시계가 됩니다. 핵에너지·의료 방사선의 바탕입니다.'); }
-  },
-
   // ─── 심화: 휘어진 시공간 (일반상대성) — 인트로 훅의 본편 ───
   { id:'phys14_05_gr', branchOf:'phys14_05', ord:1,
     enter:function(E){ var self=this; this.s={M:1.2};
