@@ -173,30 +173,41 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, vb=2, th=s.ang*Math.PI/180, width=6;
       var vx=vb*Math.cos(th)+s.vc, vy=vb*Math.sin(th);
-      if(!E.frozen){ if(vy>0.05){ s.y += vy*(1/60); } if(s.y>width){ s.y=0; s.x0=undefined; } }
-      var ox=W*0.16, oy=H*0.80, sc=Math.min(W*0.10,H*0.085);
-      // 강(양안)
-      ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.fillRect(ox,oy-width*sc,W*0.6,width*sc);
-      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+W*0.6,oy); ctx.moveTo(ox,oy-width*sc); ctx.lineTo(ox+W*0.6,oy-width*sc); ctx.stroke();
-      // 물살 화살표
-      for(var gx=1;gx<6;gx+=1.2){ ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; var ay=oy-gx/6*width*sc; ctx.beginPath(); ctx.moveTo(ox+40,ay); ctx.lineTo(ox+40+s.vc*16,ay); ctx.stroke(); }
-      // 보트 위치(drift = vx 누적)
-      var driftRate=vx/Math.max(0.01,vy), bx=ox+W*0.18+ (s.y*driftRate)*sc, by=oy-s.y*sc;
-      ctx.fillStyle=ORA; ctx.fillRect(bx-8,by-5,16,10);
-      // 속도벡터(뱃머리·물살·합)
-      function arr(x1,y1,dx,dy,col){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1+dx,y1+dy); ctx.stroke(); var a=Math.atan2(dy,dx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x1+dx,y1+dy); ctx.lineTo(x1+dx-8*Math.cos(a-0.4),y1+dy-8*Math.sin(a-0.4)); ctx.lineTo(x1+dx-8*Math.cos(a+0.4),y1+dy-8*Math.sin(a+0.4)); ctx.fill(); }
-      arr(bx,by, vb*Math.cos(th)*18, -vb*Math.sin(th)*18, GRN);
-      arr(bx,by, s.vc*18, 0, BLU);
-      arr(bx,by, vx*18, -vy*18, ORA);
-      // 벡터 이름표 + 크기
-      var vmag=Math.hypot(vx,vy);
-      ctx.font='11px sans-serif'; ctx.textAlign='left';
-      ctx.fillStyle=GRN; ctx.fillText('뱃머리 v_b = '+vb.toFixed(1), bx+vb*Math.cos(th)*18+4, by-vb*Math.sin(th)*18-2);
-      ctx.fillStyle=BLU; ctx.fillText('물살 v_c = '+s.vc.toFixed(1), bx+s.vc*18+4, by+12);
-      ctx.fillStyle=ORA; ctx.fillText('합속도 |v| = '+vmag.toFixed(1)+' m/s', bx+vx*18+4, by-vy*18-2);
+      if(!E.frozen){ if(vy>0.05){ s.y += vy*(1/60); } if(s.y>width){ s.y=0; } }
+      // ── 전체 박스 = 강물 ──
+      var rl=W*0.08, rr=W*0.94, rtop=H*0.16, rbot=H*0.86;
+      ctx.fillStyle='rgba(86,148,214,0.18)'; ctx.fillRect(rl,rtop,rr-rl,rbot-rtop);
+      ctx.fillStyle='rgba(118,98,68,0.5)'; ctx.fillRect(rl,rtop-11,rr-rl,11); ctx.fillRect(rl,rbot,rr-rl,11);   // 양 기슭
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('▲ 도착 기슭', rl+4, rtop-16); ctx.fillText('출발 기슭', rl+4, rbot+24);
+      // 물살 흐름선(오른쪽으로 흐름, 세기=물살속도, 흐르는 애니)
+      var flow=(E.frame*(1+s.vc))%50; ctx.strokeStyle='rgba(120,182,255,0.42)'; ctx.fillStyle='rgba(120,182,255,0.42)'; ctx.lineWidth=2;
+      for(var ry=rtop+24; ry<rbot-10; ry+=30){ for(var fx=rl+8+flow; fx<rr-28; fx+=76){ var len=14+s.vc*7;
+        ctx.beginPath(); ctx.moveTo(fx,ry); ctx.lineTo(fx+len,ry); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(fx+len,ry); ctx.lineTo(fx+len-6,ry-3); ctx.lineTo(fx+len-6,ry+3); ctx.fill(); } }
+      // ── 보트 위치(출발 기슭→도착 기슭, 물살에 하류로 떠내려감) ──
+      var scY=(rbot-rtop)/width, driftRate=vx/Math.max(0.01,vy);
+      var startX=W*0.24, bx=startX+s.y*driftRate*scY, by=rbot-s.y*scY; bx=Math.max(rl+16,Math.min(rr-16,bx));
+      ctx.strokeStyle='rgba(255,178,122,0.55)'; ctx.setLineDash([4,4]); ctx.lineWidth=1.5;   // 지나온 항적
+      ctx.beginPath(); ctx.moveTo(startX,rbot); ctx.lineTo(bx,by); ctx.stroke(); ctx.setLineDash([]);
+      // 속도 벡터(보트에서 — 초록 뱃머리·파랑 물살·주황 합속도)
+      var K=20; function arr(dx,dy,col,wd){ ctx.strokeStyle=col; ctx.lineWidth=wd||3; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+dx,by+dy); ctx.stroke(); var a=Math.atan2(dy,dx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(bx+dx,by+dy); ctx.lineTo(bx+dx-9*Math.cos(a-0.42),by+dy-9*Math.sin(a-0.42)); ctx.lineTo(bx+dx-9*Math.cos(a+0.42),by+dy-9*Math.sin(a+0.42)); ctx.fill(); }
+      arr(vb*Math.cos(th)*K, -vb*Math.sin(th)*K, GRN); arr(s.vc*K,0,BLU); arr(vx*K,-vy*K,ORA,3.5);
+      // 보트(명확한 배 모양, 뱃머리=heading 방향)
+      ctx.save(); ctx.translate(bx,by); ctx.rotate(-th); ctx.fillStyle=ORA; ctx.strokeStyle='#22150c'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(15,0); ctx.lineTo(-6,-8); ctx.lineTo(-11,0); ctx.lineTo(-6,8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+      // ── 범례(라벨 겹침 방지: 색·이름·값 한 곳에) ──
+      var vmag=Math.hypot(vx,vy), lx=rl+12, ly=rtop+14;
+      ctx.fillStyle='rgba(10,12,20,0.7)'; ctx.fillRect(lx-8,ly-4,186,72);
+      ctx.font='12.5px sans-serif'; ctx.textAlign='left';
+      function leg(i,col,name,val){ var yy=ly+15+i*21; ctx.strokeStyle=col; ctx.lineWidth=3.5; ctx.beginPath(); ctx.moveTo(lx,yy-4); ctx.lineTo(lx+24,yy-4); ctx.stroke(); ctx.fillStyle=col; ctx.fillText(name+' = '+val, lx+32, yy); }
+      leg(0,GRN,'뱃머리',vb.toFixed(1)+' m/s'); leg(1,BLU,'물살',s.vc.toFixed(1)+' m/s'); leg(2,ORA,'합속도',vmag.toFixed(1)+' m/s');
+      // 건너기 시간·떠내려간 거리
       var crossT=vy>0.05?width/vy:Infinity, drift=vy>0.05?vx*crossT:0;
-      E.tapHint(W/2, H*0.92, '뱃머리 각도·물살을 바꿔 합속도를 보세요', true);
-      E.big('합속도 = 뱃머리 + 물살 (건너기 '+ (isFinite(crossT)?crossT.toFixed(1)+'s, 떠내려감 '+drift.toFixed(1):'∞')+')', '정면을 보고 저어도 강물이 보트를 통째로 실어 나릅니다. 속도는 <b>벡터</b>라 더할 때 방향까지 함께 더하니까요. 실제 속도(주황) = 뱃머리 속도(초록) + 물살(파랑)의 <b>벡터 합</b>. 곧장 건너려면 상류로 비스듬히 저어 물살을 미리 상쇄 — 바람 속 비행기가 기수를 트는 것과 똑같은 이야기.'); }
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(isFinite(crossT)?('건너는 데 '+crossT.toFixed(1)+'초 · 하류로 '+drift.toFixed(1)+' m 떠내려감'):'물살과 평행 — 못 건넘', (rl+rr)/2, rbot+24);
+      E.tapHint(W/2, H*0.93, '뱃머리 각도·물살을 바꿔 보세요', true);
+      E.big('배는 어디로 갈까? 합속도 ≈ '+vmag.toFixed(1)+' m/s', ''); }
   },
 
   // ─── 심화: 종단속도 (공기저항, 엔진 적분) ───
