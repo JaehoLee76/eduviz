@@ -16,4 +16,4 @@ window.EDUVIZ_CHAT_ENDPOINT = "https://still-thunder-3989.iamleejaeho.workers.de
    클라우드 동기화는 위 EDUVIZ_CHAT_ENDPOINT(같은 Worker)가 ?data=1 로 처리합니다.
    (비어 있으면 메모·위치는 이 기기(localStorage)에만 저장되고, 값을 채우면 자동으로
     구글 로그인 + 기기 간 클라우드 동기화가 켜집니다.) */
-window.EDUVIZ_GOOGLE_CLIENT_ID = "";   // 예: "1234567890-abc.apps.googleusercontent.com"
+window.EDUVIZ_GOOGLE_CLIENT_ID = "841411834552-qfrf1atqkcraqf3lnnrndv2q98ichrqb.apps.googleusercontent.com";
