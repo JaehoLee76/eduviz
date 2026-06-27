@@ -192,9 +192,9 @@
     tap:function(E){ this.reset(); E.blip(360,0.12); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       // LC ODE: L dI/dt = -Q/C, dQ/dt = I  → 진동 ω=1/√(LC)
-      var h=1/60/8; for(var k=0;k<8;k++){ var dI=-(s.Q/s.C)/s.L; s.I+=dI*h; s.Q+=s.I*h; }
+      if(!E.frozen){ var h=1/60/8; for(var k=0;k<8;k++){ var dI=-(s.Q/s.C)/s.L; s.I+=dI*h; s.Q+=s.I*h; } }
       var Ec=s.Q*s.Q/(2*s.C), El=0.5*s.L*s.I*s.I, tot=Ec+El;
-      s.hist.push(s.Q); if(s.hist.length>260)s.hist.shift();
+      if(!E.frozen){ s.hist.push(s.Q); if(s.hist.length>260)s.hist.shift(); }
       var x=W*0.12, y=H*0.20, w=W*0.32, hh=H*0.28;
       wire(E,x,y,w,hh);
       // 축전기(왼변)·인덕터(윗변 코일)

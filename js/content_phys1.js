@@ -173,7 +173,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, vb=2, th=s.ang*Math.PI/180, width=6;
       var vx=vb*Math.cos(th)+s.vc, vy=vb*Math.sin(th);
-      if(vy>0.05){ s.y += vy*(1/60); } if(s.y>width){ s.y=0; s.x0=undefined; }
+      if(!E.frozen){ if(vy>0.05){ s.y += vy*(1/60); } if(s.y>width){ s.y=0; s.x0=undefined; } }
       var ox=W*0.16, oy=H*0.80, sc=Math.min(W*0.10,H*0.085);
       // 강(양안)
       ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.fillRect(ox,oy-width*sc,W*0.6,width*sc);

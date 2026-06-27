@@ -210,7 +210,7 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8;
       var ox=W*0.10, oy=H*0.82, sc=Math.min(W*0.072,H*0.10), v=PhysLab.view(ox,oy,sc); s.view=v;
       var yhere=this.track(s.x), speed=Math.sqrt(Math.max(0,2*g*(s.H0-yhere)));   // 에너지 보존 v=√(2g(H0−y))
-      s.x += speed*(1/60)*0.5; if(s.x>11 || this.track(s.x)>s.H0){ s.x=0; }
+      if(!E.frozen){ s.x += speed*(1/60)*0.5; if(s.x>11 || this.track(s.x)>s.H0){ s.x=0; } }
       // 트랙
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2.5; ctx.beginPath();
       for(var i=0;i<=120;i++){ var xu=i/120*11, X=v.X(xu), Y=v.Y(this.track(xu)); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();

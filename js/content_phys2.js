@@ -115,7 +115,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8;
       var a=(s.m2-s.m1)*g/(s.m1+s.m2), T=2*s.m1*s.m2*g/(s.m1+s.m2);
-      s.v += a*(1/60); s.y += s.v*(1/60); if(Math.abs(s.y)>2.5){ s.y=0; s.v=0; }   // m2 양수=내려감
+      if(!E.frozen){ s.v += a*(1/60); s.y += s.v*(1/60); if(Math.abs(s.y)>2.5){ s.y=0; s.v=0; } }   // m2 양수=내려감
       var cx=W*0.40, topY=H*0.22, sc=Math.min(W*0.05,H*0.07);
       // 도르래
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,topY,16,0,7); ctx.stroke();

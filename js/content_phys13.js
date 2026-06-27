@@ -135,7 +135,7 @@
       E.bind('#ww','input',function(e){ self.s.w=+e.target.value; document.getElementById('wwo').textContent=(+e.target.value).toFixed(1); E.blip(300+self.s.w*60,0.07); });
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      s.th += s.w*(1/60);
+      if(!E.frozen) s.th += s.w*(1/60);
       var cx=W*0.30, cy=H*0.42, R=Math.min(W*0.11,H*0.17);
       // 자극(N 위, S 아래) — 균일장 영역
       ctx.fillStyle='rgba(255,122,107,0.15)'; ctx.fillRect(cx-R*1.5,cy-R*1.4,R*3,R*0.4);

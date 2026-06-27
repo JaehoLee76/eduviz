@@ -179,8 +179,8 @@
     tap:function(E){ this.build(); E.blip(360,0.12); },
     draw:function(E){ var s=this.s, w=s.w, b=s.b, W=E.W, H=E.H, ctx=E.ctx;
       w.step(1/60,6); var dx=b.x-REST;
-      if(Math.abs(dx)<0.04 && Math.abs(b.vx)<0.04){ s.settle++; if(s.settle>90) this.build(); } else s.settle=0;
-      s.hist.push(dx); if(s.hist.length>260) s.hist.shift();
+      if(!E.frozen){ if(Math.abs(dx)<0.04 && Math.abs(b.vx)<0.04){ s.settle++; if(s.settle>90) this.build(); } else s.settle=0;
+        s.hist.push(dx); if(s.hist.length>260) s.hist.shift(); }
       // 용수철·질량
       var ox=W*0.10, sc=(W*0.42)/6, baseY=H*0.30; function X(x){return ox+x*sc;}
       wall(E,X(0),baseY,34); coil(E,X(0),baseY,X(b.x)-12,16,DIM); massBox(E,X(b.x),baseY,24,GRN,'');

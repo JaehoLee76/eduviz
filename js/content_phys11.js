@@ -212,7 +212,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       // 쌍극자가 외부장에서 받는 토크 τ = pE sinθ → 정렬 진동(감쇠)
-      var p=1, I=0.5, tau=-p*s.Ef*Math.sin(s.th); s.om += (tau/I)*(1/60); s.om*=0.985; s.th += s.om*(1/60);
+      var p=1, I=0.5, tau=-p*s.Ef*Math.sin(s.th); if(!E.frozen){ s.om += (tau/I)*(1/60); s.om*=0.985; s.th += s.om*(1/60); }
       var cx=W*0.42, cy=H*0.44, d=Math.min(W*0.09,H*0.13);
       // 외부 균일장 화살표(가로)
       for(var gx=-3;gx<=3;gx++){ for(var gy=-2;gy<=2;gy++){ if(s.Ef<0.2)continue; arrow(E,cx+gx*48-12,cy+gy*44,cx+gx*48+12,cy+gy*44,'rgba(122,184,255,0.25)',1); } }

@@ -428,6 +428,9 @@
     var sm=studyBody;   // math: 자세히보기(W) 학습 패널
     if(studyEl&&studyEl.classList.contains('open')&&sm&&sm.scrollHeight>sm.clientHeight+4){
       sm.scrollTop+=dir*Math.max(110,sm.clientHeight*0.7); updateScrollHints(); return true; }
+    var bb=document.querySelector('#leftStack .bubble');   // 하단 기본설명 띠(스크롤되는 긴 설명)
+    if(bb && getComputedStyle(bb).display!=='none' && bb.scrollHeight>bb.clientHeight+4){
+      bb.scrollTop += dir*Math.max(40, bb.clientHeight*0.8); return true; }
     return false; }
 
   // ---------- main loop ----------
