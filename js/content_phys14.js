@@ -84,21 +84,56 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var slitX=W*0.22, scrX=W*0.80, cy=H*0.44, Lsep=s.d*18;
-      // 슬릿 벽
-      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath();
-      ctx.moveTo(slitX,H*0.14); ctx.lineTo(slitX,cy-Lsep/2-6); ctx.moveTo(slitX,cy-Lsep/2+6); ctx.lineTo(slitX,cy+Lsep/2-6); ctx.moveTo(slitX,cy+Lsep/2+6); ctx.lineTo(slitX,H*0.74); ctx.stroke();
-      var s1y=cy-Lsep/2, s2y=cy+Lsep/2;
-      // 동심 파면(두 슬릿에서)
-      [s1y,s2y].forEach(function(sy){ for(var r=1;r<14;r++){ ctx.strokeStyle='rgba(122,184,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(slitX,sy,r*s.lam*16,-1,1); ctx.stroke(); } });
-      // 스크린 + 간섭무늬(세기 I=cos²(π d sinθ/λ))
-      var L=(scrX-slitX)/18;   // 슬릿-스크린 거리(단위)
-      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(scrX,H*0.14); ctx.lineTo(scrX,H*0.74); ctx.stroke();
-      for(var py=-H*0.28;py<=H*0.28;py+=3){ var yu=py/18, theta=Math.atan2(yu, L), I=Math.pow(Math.cos(Math.PI*s.d*Math.sin(theta)/s.lam),2);
-        ctx.fillStyle='rgba(255,210,120,'+I+')'; ctx.fillRect(scrX+4, cy+py-1.5, 26, 3); }
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('스크린', scrX+17, H*0.80); ctx.fillText('이중슬릿', slitX, H*0.80);
-      ctx.fillStyle='rgba(255,210,120,0.9)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=cos²(πd·sinθ/λ)', scrX+17, H*0.13);
-      var fr=(s.lam*L/s.d).toFixed(1); ctx.fillStyle=DIM; ctx.fillText('무늬 간격 ≈ λL/d = '+fr, scrX+17, H*0.86);
-      E.tapHint(W/2, H*0.90, '틈 간격·파장을 바꿔 무늬가 벌어지는 걸 보세요', true);
+      var s1y=cy-Lsep/2, s2y=cy+Lsep/2, lamPx=s.lam*16;   // 파장(픽셀)
+      var top=H*0.19, bot=H*0.78, span=scrX-slitX;
+
+      // ── 1) 슬릿→스크린 공간의 간섭 세기장(밝은 빛살이 부채처럼 퍼져 스크린 무늬로 모임) ──
+      //     실제 경로차 r2−r1 로 보강(밝음)·상쇄(어둠) 계산. 슬라이더/리사이즈 때만 오프스크린에 다시 그림.
+      var key=[s.d,s.lam,Math.round(W),Math.round(H)].join('_');
+      if(s.fieldKey!==key){ s.fieldKey=key;
+        if(!s.fc) s.fc=document.createElement('canvas');
+        s.fc.width=W; s.fc.height=H; var fx=s.fc.getContext('2d'); fx.clearRect(0,0,W,H);
+        var step=4;
+        for(var x=slitX; x<=scrX; x+=step){ var dist=x-slitX, fall=0.52+0.4*(1-dist/span);
+          for(var y=top; y<=bot; y+=step){
+            var r1=Math.hypot(x-slitX,y-s1y), r2=Math.hypot(x-slitX,y-s2y);
+            var I=Math.pow(Math.cos(Math.PI*(r2-r1)/lamPx),2);
+            if(I>0.06){ fx.fillStyle='rgba(255,214,122,'+(I*I*0.4*fall)+')'; fx.fillRect(x,y,step,step); } } }
+      }
+      ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.drawImage(s.fc,0,0); ctx.restore();
+
+      // ── 2) 두 슬릿에서 동심 파면 — 스크린까지 닿게, 더 밝게 ──
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      [s1y,s2y].forEach(function(sy){ for(var rr=lamPx; rr<span+24; rr+=lamPx){
+        var a=0.34*Math.max(0.25, 1-rr/(span+60));
+        ctx.strokeStyle='rgba(150,201,255,'+a+')'; ctx.lineWidth=1.3; ctx.beginPath(); ctx.arc(slitX,sy,rr,-0.95,0.95); ctx.stroke(); } });
+      ctx.restore();
+
+      // ── 3) 슬릿 벽(두 틈) ──
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=3.4; ctx.beginPath();
+      ctx.moveTo(slitX,top); ctx.lineTo(slitX,s1y-6); ctx.moveTo(slitX,s1y+6); ctx.lineTo(slitX,s2y-6); ctx.moveTo(slitX,s2y+6); ctx.lineTo(slitX,bot); ctx.stroke();
+      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(slitX,s1y,3.2,0,7); ctx.arc(slitX,s2y,3.2,0,7); ctx.fill();
+
+      // ── 4) 스크린 + 맺히는 상(간섭무늬) — 실제 경로차로, 밝게 발광 ──
+      var L=span/18;   // 슬릿-스크린 거리(단위)
+      ctx.strokeStyle='rgba(255,255,255,0.42)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(scrX,top); ctx.lineTo(scrX,bot); ctx.stroke();
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(var py=-(cy-top);py<=bot-cy;py+=2){ var yy=cy+py;
+        var R1=Math.hypot(scrX-slitX,yy-s1y), R2=Math.hypot(scrX-slitX,yy-s2y);
+        var Is=Math.pow(Math.cos(Math.PI*(R2-R1)/lamPx),2);
+        if(Is>0.04){ ctx.fillStyle='rgba(255,214,128,'+(Is*0.95)+')'; ctx.fillRect(scrX+3, yy-1.4, 34, 3.0);
+          if(Is>0.6){ ctx.fillStyle='rgba(255,245,210,'+((Is-0.6)*1.8)+')'; ctx.fillRect(scrX+3, yy-1.4, 34, 3.0); } } }
+      ctx.restore();
+      // 스크린 밝기 옆모습(세기 곡선) — 상이 밝고 어두운 줄무늬임을 한눈에
+      ctx.strokeStyle='rgba(255,224,150,0.85)'; ctx.lineWidth=1.6; ctx.beginPath();
+      for(var qy=top; qy<=bot; qy+=2){ var Q1=Math.hypot(scrX-slitX,qy-s1y), Q2=Math.hypot(scrX-slitX,qy-s2y);
+        var Iq=Math.pow(Math.cos(Math.PI*(Q2-Q1)/lamPx),2), qx=scrX+42+Iq*40; if(qy===top)ctx.moveTo(qx,qy); else ctx.lineTo(qx,qy); }
+      ctx.stroke();
+
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('스크린', scrX+17, bot+18); ctx.fillText('이중슬릿', slitX, bot+18);
+      ctx.fillStyle='rgba(255,214,128,0.95)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=cos²(πd·sinθ/λ)', scrX+30, H*0.10);
+      var fr=(s.lam*L/s.d).toFixed(1); ctx.fillStyle=DIM; ctx.fillText('무늬 간격 ≈ λL/d = '+fr, scrX+30, bot+34);
+      E.tapHint(W/2, H*0.92, '틈 간격·파장을 바꿔 무늬가 벌어지는 걸 보세요', true);
       E.big('이중슬릿 간섭 — 빛은 파동이다 (밝고 어두운 줄무늬)', '빛이 총알 같은 알갱이라면 틈 두 개에 <b>밝은 줄 두 개</b>만 찍혀야 합니다. 그런데 실제로는 <b>밝고 어두운 줄무늬가 여러 개</b> 생깁니다 — 두 틈에서 나온 물결이 겹쳐 마루끼리 만나면 더 밝고(보강), 마루와 골이 만나면 서로 지워지기(상쇄) 때문이죠. 알갱이로는 설명 불가 — <b>빛은 파동</b>이라는 결정적 증거(영, 1801). 틈을 좁히거나 파장을 늘리면 무늬가 벌어집니다(밝은 무늬 간격 ≈ λL/d). 마음의 준비를 — 다음 장면에서 이 빛이 알갱이라고 우깁니다...'); }
   },
 
