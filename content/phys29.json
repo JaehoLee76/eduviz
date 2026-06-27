@@ -1,0 +1,62 @@
+{
+  "phys29_01": {
+    "ch": "물리학 제28장 입자물리와 표준모형",
+    "narr": "앞 장에서 우주의 시작(빅뱅)을 봤습니다. 그 첫 순간, 우주는 가장 단순한 부품들 — <b>기본 입자</b>들의 뜨거운 도가니였죠. 그럼 만물은 결국 무엇으로 되어 있을까요? 원자 → 핵 → 양성자·중성자로 파고들었는데, 그 끝에 <b>표준모형</b>이 있습니다. 물질의 부품은 단 두 종류예요: <b>쿼크 6개</b>(u·d·c·s·t·b)와 <b>렙톤 6개</b>(전자·뮤온·타우와 세 중성미자). 각각 무게가 다른 <b>3세대</b>로 묶이는데, 신기하게도 우리 몸과 일상의 모든 물질은 <b>1세대(u·d·쿼크와 전자)만</b>으로 만들어집니다 — 나머지는 가속기나 우주선에서만 잠깐 나타나죠. 그리고 힘을 전달하는 <b>보손</b>(광자·글루온·W/Z·힉스)이 있습니다. 이 17개 입자가 — 별과 은하와 당신을 포함한 — 알려진 우주 만물의 완전한 부품 목록입니다. 슬라이더로 세대를 강조해 보세요.",
+    "more": "<b>표준모형</b>: 물질 입자 = 쿼크 6(u,d,c,s,t,b)·렙톤 6(e,μ,τ + 중성미자 3), 각 3세대. 힘 매개 보손 = 광자(γ,전자기)·글루온(g,강력)·W/Z(약력)·힉스(질량 부여). 일상 물질=1세대(u,d,e). 중력자(중력)는 미발견·미통합. 현대물리의 가장 정밀하게 검증된 이론(but 암흑물질·중력 미포함=미완성).",
+    "more_en": "<b>Standard Model</b>: matter = 6 quarks (u,d,c,s,t,b) and 6 leptons (e,μ,τ + 3 neutrinos) in 3 generations; forces = photon (EM), gluon (strong), W/Z (weak), Higgs (mass). Everyday matter uses only the 1st generation (u,d,e). Gravity isn't included — the model is incomplete.",
+    "problem": {
+      "q": "우리 몸을 이루는 일상 물질은 표준모형의 몇 세대 입자로 되어 있을까요?",
+      "solution": "<b>1세대</b>입니다 — 위/아래 쿼크(u,d)와 전자(e). 2·3세대는 무겁고 불안정해 일상엔 없습니다.",
+      "q_en": "Which generation makes up everyday matter (our bodies)?",
+      "sol_en": "The <b>first generation</b> — up/down quarks and the electron. Heavier generations are unstable."
+    }
+  },
+  "phys29_02": {
+    "ch": "물리학 제28장 입자물리와 표준모형",
+    "narr": "쿼크는 결코 혼자 다니지 않습니다 — 늘 뭉쳐서 더 큰 입자를 이루죠. <b>양성자는 쿼크 셋(u·u·d)</b>, <b>중성자는 u·d·d</b>입니다. 전하를 더해 볼까요? 쿼크 u는 +⅔, d는 −⅓이니, 양성자 = ⅔+⅔−⅓ = <b>+1</b>, 중성자 = ⅔−⅓−⅓ = <b>0</b> — 우리가 아는 양성자·중성자의 전하가 정확히 나옵니다! 쿼크들을 묶는 풀은 <b>강력</b>(글루온)인데, 어찌나 강한지 쿼크를 떼어내려 할수록 힘이 더 세져 결국 홀로 못 빼냅니다(<b>쿼크 가둠</b>). 쿼크 3개로 된 것을 중입자(양성자·중성자), 쿼크+반쿼크로 된 것을 중간자라 합니다. 화면에서 쿼크 조합을 바꿔 전하 합이 어떻게 입자를 정하는지 보세요. 13장에서 본 '양성자 +1, 중성자 0'의 진짜 이유가 바로 이 쿼크 전하의 합이었습니다.",
+    "more": "<b>쿼크와 강입자</b>: 쿼크 전하 u=+⅔, d=−⅓. 양성자(uud)=+1, 중성자(udd)=0. 강력(글루온)으로 결합, <b>쿼크 가둠</b>(홀로 분리 불가, 떼려면 새 쿼크쌍 생성). 중입자(쿼크3)·중간자(쿼크+반쿼크). 색전하(강력의 '전하', 3색). 핵을 묶는 잔류 강력의 근원.",
+    "more_en": "<b>Quarks & hadrons</b>: charges u=+⅔, d=−⅓. Proton (uud)=+1, neutron (udd)=0. Bound by the strong force (gluons); <b>confinement</b> means quarks can't be isolated. Baryons (3 quarks) and mesons (quark+antiquark). Color charge is the strong-force 'charge'.",
+    "problem": {
+      "q": "양성자(uud)의 전하가 +1인 이유를 쿼크 전하로 설명하면?",
+      "solution": "u=+⅔, d=−⅓이므로 ⅔ + ⅔ + (−⅓) = <b>+1</b>입니다.",
+      "q_en": "Why is the proton's (uud) charge +1, in terms of quarks?",
+      "sol_en": "u=+⅔, d=−⅓, so ⅔ + ⅔ − ⅓ = <b>+1</b>."
+    }
+  },
+  "phys29_03": {
+    "ch": "물리학 제28장 입자물리와 표준모형",
+    "narr": "이 모든 입자들은 단 <b>네 가지 기본 힘</b>으로 상호작용합니다 — 우주의 모든 사건이 이 넷으로 환원되죠. <b>강력</b>(글루온): 가장 세지만 핵 크기에서만 작동, 쿼크와 핵을 묶습니다. <b>전자기력</b>(광자): 강력의 약 1/137 세기, 무한히 멀리 미쳐 원자·화학·빛·전자공학 모두를 지배. <b>약력</b>(W/Z 보손): 방사성 붕괴와 별의 핵융합을 일으키는 아주 짧고 약한 힘. <b>중력</b>(중력자, 아직 미발견): 강력의 10⁻³⁹로 압도적으로 약하지만, 인력만 있고 무한히 누적되어 별·은하·우주 전체를 지배합니다. 재미있는 역설이죠 — 가장 약한 힘이 가장 큰 것을 다스립니다. 슬라이더로 각 힘의 세기·범위·매개입자를 비교해 보세요. 앞에서 본 전자기력·중력이 이 큰 그림의 일부였습니다.",
+    "more": "<b>네 기본 힘</b>: ①강력(글루온, 상대세기 1, 핵크기, 쿼크·핵 결합) ②전자기력(광자, ~1/137, 무한, 원자·빛) ③약력(W/Z, ~10⁻⁶, 10⁻¹⁸m, 붕괴·융합) ④중력(중력자?, ~10⁻³⁹, 무한, 천체). 표준모형은 앞 셋을 통합(전자기약 통일), 중력은 미통합(양자중력 미완). 대통일·만물이론이 꿈.",
+    "more_en": "<b>Four fundamental forces</b>: strong (gluon, strength 1, nuclear range), electromagnetic (photon, ~1/137, infinite), weak (W/Z, ~10⁻⁶, decay/fusion), gravity (graviton?, ~10⁻³⁹, infinite). The Standard Model unifies the first three; gravity remains outside (no quantum gravity yet).",
+    "problem": {
+      "q": "가장 약한 힘인데도 우주 규모를 지배하는 힘은?",
+      "solution": "<b>중력</b>입니다. 세기는 10⁻³⁹로 가장 약하지만, 인력만 있고 무한히 미쳐 누적되어 별·은하를 지배합니다.",
+      "q_en": "Which is the weakest force yet dominates at cosmic scales?",
+      "sol_en": "<b>Gravity</b> — strength ~10⁻³⁹, but always attractive, infinite-range, and cumulative, so it rules stars and galaxies."
+    }
+  },
+  "phys29_04": {
+    "ch": "물리학 제28장 입자물리와 표준모형",
+    "narr": "표준모형의 가장 기묘한 예측 — 모든 입자에는 전하만 정반대인 <b>쌍둥이 반입자</b>가 있습니다(반물질). 전자(e⁻)의 반물질은 양전자(e⁺)죠. 그런데 물질과 반물질이 만나면? <b>둘 다 사라지고 순수한 에너지(광자)로 변합니다</b> — 쌍소멸이에요. 질량이 100% 에너지가 되니(E=2mc²), 우주에서 가장 효율적인 에너지 변환입니다(핵분열도 0.1%만 변환). 거꾸로 충분한 에너지(광자)에서 입자-반입자 쌍이 생겨나기도 하죠(쌍생성). 그럼 큰 수수께끼: 빅뱅 때 물질과 반물질이 같이 생겼다면 전부 소멸해 빛만 남아야 하는데 — 왜 우주엔 물질이 있을까요? 답은 <b>물질이 반물질보다 10억분의 1만큼 더 많았고</b>, 그 미세한 잉여가 모두 소멸하고 남은 게 바로 별과 당신입니다. 우리는 그 '잔돈'으로 만들어졌어요. 화면에서 전자와 양전자가 만나 광자로 소멸하는 걸 보세요.",
+    "more": "<b>반물질</b>: 모든 입자의 반입자(전하 반대, 질량 같음). 전자↔양전자. 쌍소멸: 입자+반입자→광자(E=2mc², 100% 변환). 쌍생성: 고에너지 광자→입자쌍. 응용: PET(양전자 단층촬영)·반물질 연구. <b>물질-반물질 비대칭</b>(바리온 생성): 빅뱅서 물질이 ~10⁹분의 1 더 많아 현재 우주 잔존(미해결 난제).",
+    "more_en": "<b>Antimatter</b>: every particle has an antiparticle (opposite charge, same mass). Annihilation: particle+antiparticle→photons (E=2mc², 100% conversion). Used in PET scans. The <b>matter-antimatter asymmetry</b> (a tiny ~1-in-10⁹ excess of matter after the Big Bang) is why anything exists — an open puzzle.",
+    "problem": {
+      "q": "전자와 양전자가 만나면 어떻게 될까요?",
+      "solution": "<b>쌍소멸</b>해 순수 에너지(광자)로 변합니다 — 질량이 100% 에너지로(E=2mc²).",
+      "q_en": "What happens when an electron meets a positron?",
+      "sol_en": "They <b>annihilate</b> into pure energy (photons) — mass fully converted via E=2mc²."
+    }
+  },
+  "phys29_05": {
+    "ch": "물리학 제28장 입자물리와 표준모형",
+    "narr": "이제 가장 작은 입자와 가장 큰 우주가 하나로 만납니다. 우주의 역사는 곧 <b>입자가 식어 온 이야기</b>입니다. 빅뱅 직후 10⁻⁴³초, 우주는 상상할 수 없이 뜨거워 네 힘이 하나였고 입자도 형체가 없었죠. 식으면서 — 힘이 갈라지고(10⁻⁴³s), 쿼크-글루온 플라스마가 뭉쳐 양성자·중성자가 되고(10⁻⁶s), 3분 만에 가벼운 핵(수소·헬륨)이 합성되고, 38만 년 뒤 전자가 핵에 붙어 원자가 생기며 우주가 투명해져 빛이 자유로워졌습니다(이게 지금 보는 우주배경복사). 2억 년 뒤 첫 별이 켜지고, 별 속에서 무거운 원소가 빚어져 — 138억 년 뒤, 그 별먼지가 모여 당신이 되었습니다. 운동학(제1장)에서 시작한 우리의 여정이, 우주가 입자에서 별과 생명으로 진화한 138억 년의 이야기로 완성됩니다. 슬라이더로 우주의 시간을 흘려보내며 입자가 식어 만물이 되는 걸 보세요.",
+    "more": "<b>우주의 입자사</b>: 빅뱅(힘 통일)→힘 분리(10⁻⁴³s)→쿼크-글루온 플라스마→양성자·중성자(10⁻⁶s)→경원소 핵합성(3분, H·He)→재결합/원자(38만년, CMB 방출)→첫 별(2억년)→중원소(별·초신성)→은하·태양계·생명(138억년). 입자물리+일반상대성=우주론. '우리는 별먼지'(원소의 별 기원).",
+    "more_en": "<b>Particle history of the universe</b>: Big Bang → force separation (10⁻⁴³s) → quark-gluon plasma → protons/neutrons (10⁻⁶s) → light nuclei (3 min) → atoms & CMB (380,000 yr) → first stars (200 Myr) → heavy elements → galaxies, life (13.8 Gyr). Particle physics + general relativity = cosmology. We are stardust.",
+    "problem": {
+      "q": "지금 우리가 관측하는 '우주배경복사(CMB)'는 언제 방출된 빛일까요?",
+      "solution": "빅뱅 약 <b>38만 년 후</b>, 전자가 핵에 붙어 원자가 생기며 우주가 투명해진 순간의 빛입니다.",
+      "q_en": "When was the cosmic microwave background (CMB) light released?",
+      "sol_en": "About <b>380,000 years</b> after the Big Bang, when atoms formed and the universe became transparent."
+    }
+  }
+}
