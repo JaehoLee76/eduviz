@@ -104,9 +104,12 @@
       ctx.fillText('타뷸레이션 — 작은 답부터 표(dp)에 차곡차곡 채우기', V.W/2, V.H*0.20);
       ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
       ctx.fillText('dp[i] = dp[i−1] + dp[i−2] (초록 두 칸을 더해 주황 칸을 채움, 재귀 없음)', V.W/2, V.H*0.20+22);
-      AV.arr(V, f.dp, { y:V.H*0.44, bw:52, gap:8, idx:true, hl:function(i){
+      var ar=AV.arr(V, f.dp, { y:V.H*0.44, bw:52, gap:8, idx:true, hl:function(i){
       if(i===f.cur) return {fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'방금 채움'};
-      if(f.add&&(i===f.add[0]||i===f.add[1])) return {fill:'rgba(143,227,181,0.22)',stroke:GRN,text:GRN,tag:'더함'}; return null; } }); }
+      if(f.add&&(i===f.add[0]||i===f.add[1])) return {fill:'rgba(143,227,181,0.22)',stroke:GRN,text:GRN,tag:'더함'}; return null; } });
+      ctx.fillStyle=DIM; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.textBaseline='middle';
+      ctx.fillText('dp[]', ar.x0-12, ar.y+ar.bw/2); ctx.textBaseline='alphabetic';
+      ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('인덱스 i', V.W/2, ar.y+ar.bw+34); }
   },
 
   // ══════════ 7.2 DP의 두 조건 (concept, quiz) ══════════
@@ -147,7 +150,14 @@
       ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif';
       ctx.fillText('격자 경로 세기 — 왼쪽 위에서 오른쪽 아래까지', V.W/2, V.H*0.10);
       ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('오른쪽·아래로만 이동. 각 칸 숫자 = 그 칸까지 오는 경로의 수 (위+왼쪽).', V.W/2, V.H*0.10+22);
+      ctx.fillText('오른쪽·아래로만 이동. 각 칸 숫자 = dp[i][j] = 그 칸까지 오는 경로의 수 (위+왼쪽).', V.W/2, V.H*0.10+22);
+      // 인덱스 머리표: 열 j(위), 행 i(왼쪽)
+      ctx.fillStyle=DIM; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('j→', x0-cell*0.5, y0-16);
+      for(var jh=0;jh<C;jh++) ctx.fillText('j='+jh, x0+jh*cell+cell/2-1, y0-16);
+      ctx.fillText('i↓', x0-cell*0.5, y0-16+14);
+      for(var ih=0;ih<R;ih++) ctx.fillText('i='+ih, x0-cell*0.5, y0+ih*cell+cell/2-1);
+      ctx.textBaseline='alphabetic';
       for(var i=0;i<R;i++)for(var j=0;j<C;j++){ var ord=i*C+j, shown=ord<f.cnt, x=x0+j*cell, y=y0+i*cell;
         var cur=f.cur&&f.cur[0]===i&&f.cur[1]===j;
         var add=f.add&&f.add.some(function(c){return c[0]===i&&c[1]===j;});

@@ -32,6 +32,7 @@
         ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.moveTo(x+bw*0.6,y); ctx.lineTo(x+bw*0.6,y+46); ctx.stroke();
         ctx.fillStyle=on?'#ffb27a':'#dfeefb'; ctx.font='600 20px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(this.A[i], x+bw*0.3, y+23);
         ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('next', x+bw*0.8, y+23); ctx.textBaseline='alphabetic';
+        ctx.fillStyle=on?'#ffb27a':'#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('node['+i+']', x+bw/2, y+46+18);
         if(on) AV.pointer(E, x+bw*0.3, y-14, 'cur', '#ffb27a');
         // 포인터 화살표
         if(i<n-1) AV.arrow(ctx, x+bw+4, y+23, x+bw+gap-4, y+23, '#8fe3b5', 2);

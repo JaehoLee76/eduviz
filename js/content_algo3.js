@@ -7,8 +7,10 @@
     if(title){ ctx.textAlign='center'; ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.fillText(title, V.W/2, V.H*0.12);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('막대 높이 = 값  ·  주황 = 비교 중  ·  분홍 = 교환  ·  초록 = 정렬 확정', V.W/2, V.H*0.12+20); }
-    AV.bars(V, a, { baseY:V.H*0.72, maxH:V.H*0.42, label:true,
-      bw:Math.min(58,(V.W*0.66)/a.length), gap:12, hl:hl }); }
+    var bi=AV.bars(V, a, { baseY:V.H*0.72, maxH:V.H*0.42, label:true,
+      bw:Math.min(58,(V.W*0.66)/a.length), gap:12, hl:hl });
+    ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    for(var k=0;k<a.length;k++){ ctx.fillText('['+k+']', bi.x0+k*(bi.bw+bi.gap)+bi.bw/2, bi.baseY+28); } }
 
   var scenes=[
 
@@ -145,10 +147,10 @@
       ctx.fillText('양쪽 맨 앞(▲)을 비교해 작은 값부터 결과로 옮깁니다.', V.W/2, V.H*0.07+19);
       ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif';
       ctx.fillText('정렬된 왼쪽 L', V.W*0.28, V.H*0.16); ctx.fillText('정렬된 오른쪽 R', V.W*0.72, V.H*0.16);
-      AV.arr(V, f.L, { cx:V.W*0.28, y:V.H*0.20, bw:48, hl:function(i){ return (i===f.li&&!f.done)?{fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'▲'}:(i<f.li?{fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.18)',text:'#5a5f6b'}:null); } });
-      AV.arr(V, f.R, { cx:V.W*0.72, y:V.H*0.20, bw:48, hl:function(i){ return (i===f.ri&&!f.done)?{fill:'rgba(143,227,181,0.3)',stroke:GRN,text:GRN,tag:'▲'}:(i<f.ri?{fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.18)',text:'#5a5f6b'}:null); } });
+      AV.arr(V, f.L, { cx:V.W*0.28, y:V.H*0.20, bw:48, idx:true, hl:function(i){ return (i===f.li&&!f.done)?{fill:'rgba(255,178,122,0.3)',stroke:ORA,text:ORA,tag:'li='+f.li+' ▲'}:(i<f.li?{fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.18)',text:'#5a5f6b'}:null); } });
+      AV.arr(V, f.R, { cx:V.W*0.72, y:V.H*0.20, bw:48, idx:true, hl:function(i){ return (i===f.ri&&!f.done)?{fill:'rgba(143,227,181,0.3)',stroke:GRN,text:GRN,tag:'ri='+f.ri+' ▲'}:(i<f.ri?{fill:'rgba(255,255,255,0.03)',stroke:'rgba(255,255,255,0.18)',text:'#5a5f6b'}:null); } });
       ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.fillText('병합 결과 (작은 것부터)', V.W/2, V.H*0.52);
-      if(f.out.length) AV.arr(V, f.out, { cx:V.W/2, y:V.H*0.56, bw:48, hl:function(i){ return (i===f.out.length-1&&(f.took))?{fill:'rgba(244,160,192,0.25)',stroke:PNK,text:PNK}:{fill:'rgba(122,184,255,0.2)',stroke:BLU,text:'#dfeefb'}; } }); }
+      if(f.out.length) AV.arr(V, f.out, { cx:V.W/2, y:V.H*0.56, bw:48, idx:true, hl:function(i){ return (i===f.out.length-1&&(f.took))?{fill:'rgba(244,160,192,0.25)',stroke:PNK,text:PNK,tag:'방금 넣음'}:{fill:'rgba(122,184,255,0.2)',stroke:BLU,text:'#dfeefb'}; } }); }
   },
 
   // ══════════ 3.3 퀵 정렬 — 피벗 분할(Lomuto) ══════════
