@@ -24,6 +24,11 @@
       // 바퀴살 + 점
       ctx.strokeStyle='rgba(255,210,122,0.7)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(P.X(t),P.Y(1)); ctx.lineTo(P.X(px(t)),P.Y(py(t))); ctx.stroke();
       P.dot(t,1,DIM); P.dot(px(t),py(t),GLD);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('사이클로이드', P.X(0.2), P.Y(2.3));
+      ctx.fillStyle=GLD; ctx.fillText('(x, y) = ('+px(t).toFixed(2)+', '+py(t).toFixed(2)+')', P.X(px(t))+8, P.Y(py(t))+(py(t)>1.6?16:-8));
+      ctx.fillStyle=DIM; ctx.fillText('바퀴 중심', P.X(t)+6, P.Y(1)-6);
       E.big('x = t − sin t,   y = 1 − cos t', '바퀴 테두리의 한 점이 그리는 길 — 시간 t로 x와 y를 따로 적는 매개변수 표현'); }
   },
 
@@ -41,6 +46,10 @@
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(x0-1.3),P.Y(y0+m*(-1.3))); ctx.lineTo(P.X(x0+1.3),P.Y(y0+m*(1.3))); ctx.stroke();
       P.dot(x0,y0,GRN);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('타원', P.X(0.05), P.Y(1.55));
+      ctx.fillStyle=GLD; ctx.fillText('접선  dy/dx = '+(Math.abs(dxdt)<1e-3?'∞':m.toFixed(2)), P.X(x0)+8, P.Y(y0)+(y0>0?-10:18));
       E.big('dy/dx = (dy/dt)/(dx/dt) = '+(Math.abs(dxdt)<1e-3?'∞':m.toFixed(2)), '매개변수 곡선의 기울기 = 세로 변화율 ÷ 가로 변화율'); }
   },
 
@@ -58,6 +67,11 @@
       // 반지름선 + 각호
       ctx.strokeStyle='rgba(255,210,122,0.7)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(px),P.Y(py)); ctx.stroke();
       P.dot(px,py,GLD);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('심장형 r = 1+cos θ', P.X(-1.4), P.Y(-1.7));
+      ctx.fillStyle=GLD; ctx.fillText('r = '+R.toFixed(2), P.X(px*0.5)+6, P.Y(py*0.5)-6);
+      ctx.fillStyle=GLD; ctx.fillText('(r, θ) = ('+R.toFixed(2)+', '+th.toFixed(2)+')', P.X(px)+8, P.Y(py)+(py>0?-8:16));
       E.big('r = 1 + cos θ   ·   (r, θ) = ('+R.toFixed(2)+', '+th.toFixed(2)+')', '원점에서의 거리 r과 각 θ로 위치를 적는 극좌표 — (x,y)=(r cosθ, r sinθ)'); }
   },
 
@@ -70,6 +84,10 @@
       ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath();
       for(var a=0;a<=2*Math.PI*2+0.01;a+=0.01){ var R=Math.cos(k*a), x=P.X(R*Math.cos(a)), y=P.Y(R*Math.sin(a)); if(a===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var petals = (k%2===1)? k : 2*k;
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('장미곡선  r = cos('+(k===1?'':k)+'θ)', P.X(-1.3), P.Y(1.28));
+      ctx.fillStyle=GRN; ctx.textAlign='right'; ctx.fillText('꽃잎 '+petals+'장', P.X(1.3), P.Y(1.28)); ctx.textAlign='left';
       E.big('r = cos('+(k===1?'':k)+'θ)   ·   꽃잎 '+petals+'장', 'k가 홀수면 꽃잎 k장, 짝수면 2k장 — 극좌표가 그리는 아름다운 패턴'); }
   },
 
@@ -88,6 +106,13 @@
       for(var a=0;a<=2*Math.PI+0.01;a+=0.03){ var R=r(a), x=P.X(R*Math.cos(a)), y=P.Y(R*Math.sin(a)); if(a===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // 넓이 = ½∫r²dθ (실계산)
       var area=0, m=2000, hh=th/m; for(var i=0;i<m;i++){ var aa=(i+0.5)*hh; area+=0.5*r(aa)*r(aa)*hh; }
+      // 이름표 — 쓸어간 부채꼴 경계 반지름 + 넓이값
+      var Rt=r(th);
+      ctx.strokeStyle='rgba(255,210,122,0.6)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(Rt*Math.cos(th)),P.Y(Rt*Math.sin(th))); ctx.stroke();
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('r = 1+cos θ', P.X(-1.4), P.Y(-1.7));
+      ctx.fillStyle='rgba(185,156,255,0.95)'; ctx.fillText('쓸어간 넓이 A = '+area.toFixed(3), P.X(0.45), P.Y(0.2));
+      ctx.fillStyle=GLD; ctx.fillText('θ = '+th.toFixed(2), P.X(Rt*Math.cos(th))+6, P.Y(Rt*Math.sin(th))+(Rt*Math.sin(th)>0?-6:14));
       E.big('A = ½∫₀^θ r² dθ ≈ '+area.toFixed(3), '극좌표 넓이는 가느다란 부채꼴(½r²dθ)을 쓸어 더합니다 (전체 심장형 = 3π/2)'); }
   }
 

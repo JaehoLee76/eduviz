@@ -23,6 +23,7 @@
       for(var i=0;i<n;i++)for(var j=0;j<n;j++){ var xm=a+(i+0.5)*h, ym=a+(j+0.5)*h; vol+=f(xm,ym)*h*h;
         ctx.strokeRect(P.X(a+i*h),P.Y(a+(j+1)*h),P.X(a+(i+1)*h)-P.X(a+i*h),P.Y(a+j*h)-P.Y(a+(j+1)*h)); }
       P.axes();
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('리만 격자 Σf·ΔA ≈ '+vol.toFixed(2), P.X(-1.95), P.Y(1.85));
       // 참값(고운 합)
       var tv=0,m=300,hh=(b-a)/m; for(var p=0;p<m;p++)for(var q=0;q<m;q++) tv+=f(a+(p+0.5)*hh,a+(q+0.5)*hh)*hh*hh;
       E.big('∬ f dA ≈ '+vol.toFixed(3)+'   ('+n+'×'+n+'칸)', '곡면 아래 부피 = 작은 기둥(f·ΔA)을 모두 더한 것 (참값 '+tv.toFixed(3)+')'); }
@@ -44,6 +45,9 @@
       // 안쪽 적분 A(y)=∫f dx, 바깥 누적 ∫_{-2}^{y} A dy
       function A(yy){ var s2=0,m=200,h=4/m; for(var i=0;i<m;i++) s2+=f(-2+(i+0.5)*h,yy)*h; return s2; }
       var Ay=A(y), acc=0,m2=200,h2=(y+2)/m2; for(var k=0;k<m2;k++) acc+=A(-2+(k+0.5)*h2)*h2;
+      ctx.font='12px sans-serif';
+      ctx.fillStyle=GLD; ctx.fillText('단면 A(y)='+Ay.toFixed(2), P.X(2)-110, P.Y(y)-6);
+      ctx.fillStyle=GRN; ctx.fillText('누적 ∫A dy='+acc.toFixed(2), P.X(-1.95), P.Y(-1.8));
       E.big('안쪽 A(y)='+Ay.toFixed(2)+'  ·  누적 ∫A dy='+acc.toFixed(3), '먼저 x로 적분해 단면넓이 A(y)를 얻고, 그걸 다시 y로 적분 (푸비니 정리)'); }
   },
 
@@ -60,6 +64,8 @@
       P.axes();
       // 넓이 = Σ r ΔrΔθ (실계산) → πR²
       var area=0, dr=R/n, dth=2*Math.PI/(2*n); for(var i=0;i<n;i++)for(var j=0;j<2*n;j++){ var rmid=(i+0.5)*dr; area+=rmid*dr*dth; }
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('∬ r dr dθ ≈ '+area.toFixed(2), P.X(-2.35), P.Y(2.25));
+      ctx.fillStyle=VIO; ctx.fillText('셀 = r dr dθ', P.X(R*0.55), P.Y(R*0.35));
       E.big('∬ dA = ∬ r dr dθ ≈ '+area.toFixed(3), '극좌표 셀은 바깥일수록 넓습니다 — 넓이에 r이 곱해지는 이유 (원 넓이 πR²='+(Math.PI*4).toFixed(3)+')'); }
   },
 
@@ -76,7 +82,8 @@
       P.axes();
       // 무게중심 ȳ = (∬y dA)/(∬dA) — 반원판은 (0, 4R/3π)
       var cy=4*R/(3*Math.PI);
-      P.dot(0,cy,GLD,'무게중심 (0, '+cy.toFixed(3)+')');
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.fillText('반원판 (넓이 πR²/2='+(Math.PI*R*R/2).toFixed(2)+')', P.X(-R), P.Y(R*0.45));
+      P.dot(0,cy,GLD,'무게중심 ȳ=(0, '+cy.toFixed(3)+')');
       E.big('ȳ = (∬ y dA)/(∬ dA) = 4R/3π = '+cy.toFixed(3), '무게중심 = 영역을 한 점으로 균형 잡는 자리 (좌표를 넓이로 가중평균)'); }
   },
 
@@ -95,6 +102,8 @@
       // 구 윤곽
       ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath(); for(var a=0;a<=6.30;a+=0.05){ var x=P.X(R*Math.cos(a)),yv=P.Y(R*Math.sin(a)); if(a===0)ctx.moveTo(x,yv); else ctx.lineTo(x,yv); } ctx.closePath(); ctx.stroke();
       P.axes();
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.fillText('구 R=2', P.X(R*0.72), P.Y(R*0.72));
+      ctx.fillStyle=GLD; ctx.fillText('층 부피 Σπr²Δz ≈ '+vol.toFixed(2), P.X(-2.35), P.Y(2.25));
       E.big('V = ∭ dV ≈ '+vol.toFixed(3)+'   ('+n+'층)', '입체를 얇은 층으로 쪼개 부피를 더합니다 (구 (4/3)πR³='+(4/3*Math.PI*8).toFixed(3)+')'); }
   }
 

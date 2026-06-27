@@ -21,6 +21,9 @@
         ctx.fillStyle='rgba(185,156,255,0.18)'; ctx.fillRect(rx,ry,rw,rh);
         ctx.strokeStyle='rgba(185,156,255,0.55)'; ctx.lineWidth=0.8; ctx.strokeRect(rx,ry,rw,rh); }
       P.axes(); P.curve(f, VIO);
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('y = f(x)', P.X(2.3), P.Y(f(2.3))-8);
+      ctx.fillStyle=DIM; ctx.fillText('Σ f(xᵢ)Δx ≈ '+sum.toFixed(3)+'   (Δx = '+h.toFixed(3)+')', E.W*0.50, E.H*0.18);
       E.big('리만합 = '+sum.toFixed(3)+'  ('+n+'칸)', '칸을 잘게 쪼갤수록 참값 ∫ = 6 에 수렴합니다 (오차 '+Math.abs(sum-6).toFixed(3)+')'); }
   },
 
@@ -37,6 +40,9 @@
         ctx.fillStyle=fm>=0?'rgba(126,224,176,0.30)':'rgba(240,136,138,0.30)'; ctx.fillRect(rx, fm>=0?P.Y(fm):P.Y(0), rw, rh); }
       P.axes(); P.curve(f, VIO);
       var val=area(f,0,b);   // 1−cos b
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('y = sin x', P.X(b+0.15), P.Y(f(b+0.15)));
+      ctx.fillStyle=DIM; ctx.fillText('부호넓이 ∫₀ᵇ sin x dx = '+val.toFixed(3), E.W*0.50, E.H*0.16);
       E.big('∫₀^'+b.toFixed(2)+' sin x dx = '+val.toFixed(3), 'x축 위는 +(초록), 아래는 −(분홍). 정적분은 그 합(부호넓이)입니다'); }
   },
 
@@ -54,6 +60,9 @@
       P.curve(f, GLD);                                    // f (금색)
       P.curve(A, VIO);                                    // A (보라, 누적넓이)
       var Ax=A(x), slope=ndf(A,x), fx=f(x);
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.fillText('f(x)', P.X(3.6), P.Y(f(3.6))-6);
+      ctx.fillStyle=VIO; ctx.fillText('A(x) = ∫₀ˣ f', P.X(3.4), P.Y(A(3.4))+14);
       P.dot(x,Ax,VIO);
       // A의 접선(기울기=f(x)임을 보임)
       ctx.strokeStyle='rgba(185,156,255,0.8)'; ctx.lineWidth=1.6; ctx.beginPath();
@@ -74,10 +83,14 @@
       var n=200,h=t/n; for(var k=0;k<n;k++){ var x0=k*h, vm=v(x0+h/2); ctx.fillStyle='rgba(126,224,176,0.25)'; ctx.fillRect(P.X(x0),P.Y(vm),P.X(x0+h)-P.X(x0),P.Y(0)-P.Y(vm)); }
       P.axes(); P.curve(v, VIO);
       var dist=area(v,0,t);
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('v(t)', P.X(t*0.5), P.Y(v(t*0.5))+14);
+      ctx.fillStyle=GRN; ctx.fillText('넓이 = 거리 = '+dist.toFixed(2), P.X(0.2), P.Y(0.3));
       // 차 트랙
       var trackY=E.H*0.12, x0=E.W*0.12, x1=E.W*0.55, far=area(v,0,8);
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x0,trackY); ctx.lineTo(x1,trackY); ctx.stroke();
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(x0+(dist/far)*(x1-x0),trackY,8,0,7); ctx.fill();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('s = '+dist.toFixed(2), x0+(dist/far)*(x1-x0)-10, trackY-12);
       E.big('이동거리 = ∫₀^'+t.toFixed(2)+' v dt = '+dist.toFixed(2), '속도곡선 아래 넓이가 곧 달린 거리입니다 (속도×시간의 합)'); }
   },
 
@@ -92,6 +105,9 @@
       // 가족(흐림)
       for(var c=-2;c<=3;c+=0.5){ if(Math.abs(c-C)<0.01)continue; P.curve(function(x){return x*x+c;}, 'rgba(185,156,255,0.22)'); }
       P.curve(function(x){return x*x+C;}, VIO);          // 선택된 F=x²+C
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.fillText('f = 2x', P.X(1.4), P.Y(2*1.4)-6);
+      ctx.fillStyle=VIO; ctx.fillText('F = x² + C', P.X(1.6), P.Y(1.6*1.6+C)+6);
       // 같은 x에서 기울기 = f 확인
       var xc=1, m=ndf(function(x){return x*x+C;},xc);
       P.dot(xc, xc*xc+C, VIO);

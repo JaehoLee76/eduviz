@@ -8,6 +8,8 @@
     var a=Math.atan2(y2-y1,x2-x1),L=9; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-L*Math.cos(a-0.45),y2-L*Math.sin(a-0.45)); ctx.lineTo(x2-L*Math.cos(a+0.45),y2-L*Math.sin(a+0.45)); ctx.fill(); }
   function sld(E,html,id,fmt,set){ E.controls(html); E.bind('#'+id,'input',function(e){ set(+e.target.value); var o=document.getElementById(id+'o'); if(o)o.textContent=fmt(+e.target.value); E.blip(420,0.06); }); }
   function ctrl(label,id,min,max,step,val){ return '<div class="ctrl"><label>'+label+'</label><input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'"><output id="'+id+'o">'+val+'</output></div>'; }
+  // 캔버스 위 작은 이름표(축 라벨과 별개 — 곡선·요소 식별용). 골든룰: 값 인자는 호출부에서 실계산해 넘김.
+  function tag(ctx,px,py,txt,col,align){ ctx.save(); ctx.font='600 12px sans-serif'; ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic'; ctx.fillStyle=col; ctx.fillText(txt,px,py); ctx.restore(); }
 
   var scenes = [
 
@@ -16,7 +18,8 @@
     enter:function(E){ var s=this.s={x:1}; E.Plot.range(-3,3,-2,8).lab('x','f(g(x))'); sld(E,ctrl('입력 x','cmx',-2.5,2.5,0.1,1),'cmx',function(v){return v.toFixed(1);},function(v){s.x=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,x=s.x; function g(t){return t+1;} function f(t){return t*t;}
       P.axes(); P.curve(function(t){return f(g(t));}, VIO);
-      var gx=g(x), fgx=f(gx); P.dot(x,fgx,GRN);
+      var gx=g(x), fgx=f(gx); P.dot(x,fgx,GRN,'f(g(x))');
+      tag(ctx,P.X(2.2),P.Y(f(g(2.2)))-6,'y=f(g(x))=(x+1)²',VIO,'right');
       E.big('f(g('+x.toFixed(1)+')) = f('+gx.toFixed(1)+') = '+fgx.toFixed(2), '함수를 사슬처럼 — g가 먼저, 그 결과를 f가 받습니다'); }
   },
 
@@ -28,6 +31,9 @@
       ctx.strokeStyle='rgba(126,224,176,0.7)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(P.X(-4),P.Y(1)); ctx.lineTo(P.X(4),P.Y(1)); ctx.stroke();
       P.curve(function(t){ return Math.abs(t)<1e-6?1:Math.sin(t)/t; }, VIO);
       P.axes(); var val=Math.abs(x)<1e-6?1:Math.sin(x)/x; P.dot(x,val,GLD);
+      tag(ctx,P.X(-3.9),P.Y(1)-6,'y=1 (위 울타리)',GRN);
+      tag(ctx,P.X(2.1),P.Y(Math.cos(2.1))-6,'y=cos x (아래 울타리)',BLU);
+      tag(ctx,P.X(x),P.Y(val)+18,'sin x/x',VIO,'center');
       E.big('sin x / x = '+val.toFixed(4)+'  (x→0 이면 → 1)', '아래 cos x와 위 1 사이에 갇혀, x→0에서 둘 다 1 — 따라서 sin x/x도 1'); }
   },
 
@@ -36,8 +42,11 @@
     enter:function(E){ var s=this.s={x:1}; E.Plot.range(-3,3,-1,3).lab('x','|x|'); sld(E,ctrl('점 x','cnx',-2.5,2.5,0.05,1),'cnx',function(v){return v.toFixed(2);},function(v){s.x=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,x=s.x; function f(t){return Math.abs(t);}
       P.axes(); P.curve(f, VIO);
+      tag(ctx,P.X(2.4),P.Y(2.4)-6,'y=|x|',VIO,'right');
       var near0=Math.abs(x)<0.08, m=x>0?1:x<0?-1:0;
-      if(!near0){ ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(x-1),P.Y(f(x)-m)); ctx.lineTo(P.X(x+1),P.Y(f(x)+m)); ctx.stroke(); }
+      if(!near0){ ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(x-1),P.Y(f(x)-m)); ctx.lineTo(P.X(x+1),P.Y(f(x)+m)); ctx.stroke();
+        tag(ctx,P.X(x+1),P.Y(f(x)+m)-6,"접선 기울기 f '="+m,GLD); }
+      else { tag(ctx,P.X(0)+10,P.Y(0)+20,'첨점 (미분 불가)',RED); }
       P.dot(x,f(x),near0?RED:GRN);
       E.big(near0?"x=0: 좌도함수 −1 ≠ 우도함수 +1 → 미분 불가!":"f '("+x.toFixed(2)+") = "+m,
         near0?'뾰족한 첨점에선 접선이 하나로 정해지지 않습니다 — 연속이어도 미분 불가':'매끈한 곳에선 기울기 ±1로 일정'); }
@@ -48,9 +57,11 @@
     enter:function(E){ var s=this.s={x:1.2}; E.Plot.range(0,2.6,-1,5).lab('x','xˣ'); sld(E,ctrl('x','lgx',0.2,2.5,0.05,1.2),'lgx',function(v){return v.toFixed(2);},function(v){s.x=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,x=s.x; function f(t){return Math.pow(t,t);}
       P.axes(); P.curve(f, VIO);
+      tag(ctx,P.X(2.45),P.Y(f(2.45))-6,'y=xˣ',VIO,'right');
       var y=f(x), form=y*(Math.log(x)+1), num=ndf(f,x);
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(x-0.6),P.Y(y+form*(-0.6))); ctx.lineTo(P.X(x+0.6),P.Y(y+form*0.6)); ctx.stroke();
-      P.dot(x,y,GRN);
+      tag(ctx,P.X(x+0.6),P.Y(y+form*0.6)-6,"y′="+form.toFixed(2),GLD);
+      P.dot(x,y,GRN,'(x, xˣ)');
       E.big("(xˣ)′ = xˣ(ln x + 1) = "+form.toFixed(3), '지수·밑에 동시에 x가 있어 평범한 법칙이 안 통함 → 양변에 ln을 씌워 미분 (실측 '+num.toFixed(3)+')'); }
   },
 
@@ -61,6 +72,8 @@
       P.axes(); P.curve(f, VIO); P.curve(g, BLU);
       var ratio=Math.abs(x)<1e-6?1:f(x)/g(x), dratio=Math.exp(x)/1;
       P.dot(x,f(x),VIO); P.dot(x,g(x),BLU);
+      tag(ctx,P.X(x)+8,P.Y(f(x))-6,'분자 f=eˣ−1',VIO);
+      tag(ctx,P.X(x)+8,P.Y(g(x))+16,'분모 g=x',BLU);
       E.big('(eˣ−1)/x = '+ratio.toFixed(4)+'   →   f′/g′ = eˣ/1', 'x→0에서 0/0 꼴 — 분자·분모를 각각 미분한 비로 극한을 구합니다 (→ 1)'); }
   },
 
@@ -70,6 +83,9 @@
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,a=2; var f=s.odd?function(t){return 0.6*t*t*t;}:function(t){return t*t-0.5;};
       var n=200,h=2*a/n; for(var k=0;k<n;k++){ var xm=-a+(k+0.5)*h, fm=f(xm); ctx.fillStyle=fm>=0?'rgba(126,224,176,0.28)':'rgba(240,136,138,0.28)'; ctx.fillRect(P.X(-a+k*h),P.Y(Math.max(0,fm)),P.X(-a+(k+1)*h)-P.X(-a+k*h),Math.abs(P.Y(fm)-P.Y(0))); }
       P.axes(); P.curve(f, VIO);
+      tag(ctx,P.X(2.3),P.Y(f(2.3))-6,s.odd?'f(x)=0.6x³ (기함수)':'f(x)=x²−0.5 (우함수)',VIO,'right');
+      if(s.odd){ tag(ctx,P.X(-1.3),P.Y(-1.6),'−넓이',RED,'center'); tag(ctx,P.X(1.3),P.Y(1.6),'+넓이',GRN,'center'); }
+      else { tag(ctx,P.X(-1.4),P.Y(1.6),'좌',GRN,'center'); tag(ctx,P.X(1.4),P.Y(1.6),'= 우',GRN,'center'); }
       var val=integ(f,-a,a);
       E.big('∫₋₂² '+(s.odd?'(기함수)':'(우함수)')+' dx = '+val.toFixed(3), s.odd?'기함수: 좌우 부호가 반대라 정확히 상쇄 → 0':'우함수: 좌우 대칭 → 절반의 2배 (대칭으로 계산 단축)'); }
   },
@@ -78,10 +94,13 @@
   { id:'calc7_02_shells', branchOf:'calc7_02', ord:1,
     enter:function(E){ var s=this.s={n:6}; E.Plot.range(-0.3,3.3,-0.3,2.4).lab('x','f(x)'); sld(E,ctrl('껍질 수 n','shn',2,40,1,6),'shn',function(v){return ''+v;},function(v){s.n=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,n=s.n,a=0,b=3; function f(t){return 2-t*t/4.5;}
-      var h=(b-a)/n, vol=0; for(var k=0;k<n;k++){ var xm=a+(k+0.5)*h, fm=f(xm); vol+=2*Math.PI*xm*fm*h;
-        ctx.fillStyle='rgba(185,156,255,0.18)'; ctx.strokeStyle='rgba(185,156,255,0.5)'; ctx.lineWidth=0.8;
+      var h=(b-a)/n, vol=0, hk=Math.min(n-1,Math.floor(n*0.55)); for(var k=0;k<n;k++){ var xm=a+(k+0.5)*h, fm=f(xm); vol+=2*Math.PI*xm*fm*h;
+        var hi=(k===hk); ctx.fillStyle=hi?'rgba(126,224,176,0.32)':'rgba(185,156,255,0.18)'; ctx.strokeStyle=hi?GRN:'rgba(185,156,255,0.5)'; ctx.lineWidth=hi?1.4:0.8;
         ctx.fillRect(P.X(a+k*h),P.Y(fm),P.X(a+(k+1)*h)-P.X(a+k*h),P.Y(0)-P.Y(fm)); ctx.strokeRect(P.X(a+k*h),P.Y(fm),P.X(a+(k+1)*h)-P.X(a+k*h),P.Y(0)-P.Y(fm)); }
       P.axes(); P.curve(f, GLD);
+      var xh=a+(hk+0.5)*h, fh=f(xh);
+      tag(ctx,P.X(2.9),P.Y(f(2.9))-6,'y=f(x)',GLD,'right');
+      tag(ctx,P.X(xh),P.Y(fh)-10,'껍질 2π·'+xh.toFixed(2)+'·'+fh.toFixed(2)+'·Δx',GRN,'center');
       E.big('V = ∫2πx·f(x) dx ≈ '+vol.toFixed(3), 'y축 회전체를 ‘원통 껍질’로 쪼갬 — 껍질 하나 = 둘레(2πx)×높이(f)×두께'); }
   },
 
@@ -91,6 +110,8 @@
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,b=s.b; function f(t){return Math.exp(-t*t);}
       var n=200,h=2*b/n; for(var k=0;k<n;k++){ var xm=-b+(k+0.5)*h; ctx.fillStyle='rgba(185,156,255,0.22)'; ctx.fillRect(P.X(-b+k*h),P.Y(f(xm)),P.X(-b+(k+1)*h)-P.X(-b+k*h),P.Y(0)-P.Y(f(xm))); }
       P.axes(); P.curve(f, VIO);
+      tag(ctx,P.X(2.0),P.Y(f(2.0))+18,'y=e^(−x²)',VIO,'center');
+      tag(ctx,P.X(0),P.Y(0.34),'넓이 '+integ(f,-b,b).toFixed(3),VIO,'center');
       var val=integ(f,-b,b);
       E.big('∫₋ᵇ^ᵇ e^(−x²) dx = '+val.toFixed(4)+'   (→ √π ≈ 1.7725)', '부정적분이 없는데도 전 구간 넓이는 정확히 √π — 극좌표 트릭(14장 심화)으로 증명'); }
   },
@@ -103,6 +124,9 @@
       var t=0,x=1.6,v=0,h=0.004; ctx.strokeStyle=VIO; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(x));
       while(t<12){ var aacc=(-k*x-c*v)/m; v+=aacc*h; x+=v*h; t+=h; ctx.lineTo(P.X(t),P.Y(x)); } ctx.stroke();
       var crit=2*Math.sqrt(k*m), kind=c<crit-0.05?'미흡감쇠(진동하며 잦아듦)':c>crit+0.05?'과감쇠(천천히)':'임계감쇠(가장 빨리 안정)';
+      tag(ctx,P.X(0.2),P.Y(1.6)-8,'x(t)',VIO);
+      tag(ctx,P.X(11.5),P.Y(0)-6,'평형 x=0',DIM,'right');
+      tag(ctx,P.X(6),P.Y(-1.7),'임계 cᵪ=2√km='+crit.toFixed(2)+' · 현재 c='+c.toFixed(2),GLD,'center');
       E.big('mx″ + cx′ + kx = 0  ·  '+kind, '용수철+마찰: 감쇠 c가 작으면 출렁이며, 임계값(2√km)에서 가장 빨리 멈춥니다'); }
   },
 
@@ -115,6 +139,7 @@
         var x=P.X(r*Math.cos(th)),y=P.Y(r*Math.sin(th)); if(!started){ctx.moveTo(x,y);started=true;} else ctx.lineTo(x,y); } ctx.stroke();
       P.axes(); P.dot(0,0,GLD,'초점');
       var kind=e<0.02?'원':e<0.98?'타원':e<1.02?'포물선':'쌍곡선';
+      tag(ctx,P.X(-4.8),P.Y(2.6),'r = ed/(1+e cosθ),  '+kind+' (e='+e.toFixed(2)+')',VIO);
       E.big('e = '+e.toFixed(2)+'  →  '+kind, '이심률 하나로 모든 원뿔곡선이 이어집니다 — e<1 타원·e=1 포물선·e>1 쌍곡선 (행성·혜성 궤도)'); }
   },
 
@@ -123,9 +148,11 @@
     enter:function(E){ var s=this.s={x:0.7}; E.Plot.range(0,40,-3,3).lab('n','부분합'); sld(E,ctrl('x','rtx',-1.4,1.4,0.05,0.7),'rtx',function(v){return v.toFixed(2);},function(v){s.x=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,x=s.x;
       P.axes();
-      var sum=0; ctx.strokeStyle=VIO; ctx.lineWidth=2.2; ctx.beginPath();
-      for(var n=1;n<=40;n++){ sum+=Math.pow(x,n)/n; var y=Math.max(-3,Math.min(3,sum)); if(n===1)ctx.moveTo(P.X(n),P.Y(y)); else ctx.lineTo(P.X(n),P.Y(y)); } ctx.stroke();
+      var sum=0,lastY=0; ctx.strokeStyle=VIO; ctx.lineWidth=2.2; ctx.beginPath();
+      for(var n=1;n<=40;n++){ sum+=Math.pow(x,n)/n; var y=Math.max(-3,Math.min(3,sum)); lastY=y; if(n===1)ctx.moveTo(P.X(n),P.Y(y)); else ctx.lineTo(P.X(n),P.Y(y)); } ctx.stroke();
       var L=Math.abs(x), conv=L<1;
+      tag(ctx,P.X(40),P.Y(lastY)+(lastY>0?-8:16),'Sₙ='+sum.toFixed(2),VIO,'right');
+      tag(ctx,P.X(2),P.Y(2.7),'Σ xⁿ/n  부분합 Sₙ  ('+(conv?'수렴':'발산')+')',VIO);
       E.big('비 |aₙ₊₁/aₙ| → |x| = '+L.toFixed(2)+'  ('+(conv?'<1 수렴':'≥1 발산')+')', '연속한 항의 비의 극한 L: L<1이면 수렴 — 수렴반경 1 (|x|<1)'); }
   },
 
@@ -138,6 +165,9 @@
       // 사영(cos=Re, sin=Im)
       ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(c),P.Y(sn)); ctx.lineTo(P.X(c),P.Y(0)); ctx.moveTo(P.X(c),P.Y(sn)); ctx.lineTo(P.X(0),P.Y(sn)); ctx.stroke(); ctx.setLineDash([]);
       arr(ctx,O[0],O[1],P.X(c),P.Y(sn),GLD,2.5); P.dot(c,sn,GRN);
+      tag(ctx,P.X(c)+(c>=0?8:-8),P.Y(sn)+(sn>=0?-8:16),'e^{iθ}',GLD,c>=0?'left':'right');
+      tag(ctx,P.X(c),P.Y(0)+(sn>=0?16:-8),'Re=cos θ='+c.toFixed(2),GRN,'center');
+      tag(ctx,P.X(0)+(c>=0?-8:8),P.Y(sn),'Im=sin θ='+sn.toFixed(2),GRN,c>=0?'right':'left');
       var atPi=Math.abs(th-Math.PI)<0.06;
       E.big(atPi?'e^{iπ} = −1   →   e^{iπ} + 1 = 0':'e^{iθ} = cos θ + i sin θ = ('+c.toFixed(2)+', '+sn.toFixed(2)+')',
         atPi?'세상에서 가장 아름다운 식 — 오일러 항등식(e·i·π·1·0 한 줄에)':'허수 지수는 단위원 위의 회전 — 실부=cos, 허부=sin'); }
@@ -153,6 +183,8 @@
       var O=[0,0,0]; function add(a,b){return [a[0]+b[0],a[1]+b[1],a[2]+b[2]];}
       // 평행육면체 12모서리(간단히 주요 모서리)
       L(O,u,'rgba(240,136,138,0.8)',2); L(O,v,'rgba(126,224,176,0.8)',2); L(O,w,'rgba(122,184,255,0.8)',2);
+      var Pu=P3(u[0],u[1],u[2]),Pv=P3(v[0],v[1],v[2]),Pw=P3(w[0],w[1],w[2]);
+      tag(ctx,Pu[0]+4,Pu[1]-4,'u',RED); tag(ctx,Pv[0]+4,Pv[1]-4,'v',GRN); tag(ctx,Pw[0]+4,Pw[1]-4,'w',BLU);
       L(u,add(u,v),DIM); L(v,add(u,v),DIM); L(u,add(u,w),DIM); L(w,add(u,w),DIM); L(v,add(v,w),DIM); L(w,add(v,w),DIM);
       L(add(u,v),add(add(u,v),w),DIM); L(add(u,w),add(add(u,v),w),DIM); L(add(v,w),add(add(u,v),w),DIM);
       var det=u[0]*(v[1]*w[2]-v[2]*w[1])-u[1]*(v[0]*w[2]-v[2]*w[0])+u[2]*(v[0]*w[1]-v[1]*w[0]);
@@ -170,6 +202,8 @@
       var ux=Math.cos(th),uy=Math.sin(th), Du=gx*ux+gy*uy, gmag=Math.hypot(gx,gy);
       arr(ctx,P.X(px),P.Y(py),P.X(px+gx*0.5),P.Y(py+gy*0.5),GLD,3);   // ∇f
       arr(ctx,P.X(px),P.Y(py),P.X(px+ux*0.7),P.Y(py+uy*0.7),'#ffffff',2);  // u
+      tag(ctx,P.X(px+gx*0.5)+6,P.Y(py+gy*0.5),'∇f (최대증가)',GLD);
+      tag(ctx,P.X(px+ux*0.7)+6,P.Y(py+uy*0.7),'방향 u','#ffffff');
       E.big('Dᵤf = ∇f · u = '+Du.toFixed(2)+'   (최대 |∇f| = '+gmag.toFixed(2)+')', '방향 u로의 변화율 = 기울기를 u에 사영. u가 ∇f(금색)와 나란할 때 최대'); }
   },
 
@@ -181,6 +215,7 @@
       for(var i=0;i<nx;i++)for(var j=0;j<ny;j++){ var wx=P.xmin+(i+0.5)/nx*(P.xmax-P.xmin),wy=P.ymax-(j+0.5)/ny*(P.ymax-P.ymin),t=f(wx,wy); var r=40+t*215,g=55+t*155,b=120+t*60; ctx.fillStyle='rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; ctx.fillRect(x0+i*cw,y0+j*ch,cw+1,ch+1); }
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); for(var a=0;a<=6.30;a+=0.05){ var x=P.X(R*Math.cos(a)),y=P.Y(R*Math.sin(a)); if(a===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.closePath(); ctx.stroke();
       P.axes(); var vol=Math.PI*(1-Math.exp(-R*R));   // ∬_{r<R} e^{-r²} r dr dθ = π(1−e^{−R²})
+      tag(ctx,P.X(R*0.71),P.Y(R*0.71)+4,'r=R='+R.toFixed(2),GLD);
       E.big('∬ e^(−r²) dA = π(1−e^(−R²)) = '+vol.toFixed(4)+'  (→ π)', '극좌표로 풀면 전 평면 부피 = π. 그래서 (∫e^(−x²)dx)² = π → ∫ = √π (8장 연결)'); }
   },
 
@@ -192,6 +227,8 @@
       ctx.fillStyle='rgba(185,156,255,0.14)'; ctx.beginPath(); for(var a=0;a<=6.30;a+=0.05){ var x=P.X(R*Math.cos(a)),y=P.Y(R*Math.sin(a)); if(a===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.closePath(); ctx.fill();
       ctx.strokeStyle=GLD; ctx.lineWidth=2.4; ctx.beginPath(); for(var a2=0;a2<=6.30;a2+=0.04){ var x=P.X(R*Math.cos(a2)),y=P.Y(R*Math.sin(a2)); if(a2===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.closePath(); ctx.stroke();
       P.axes();
+      tag(ctx,P.X(2.55),P.Y(2.55),'F=(x,y), div F=2',VIO,'right');
+      tag(ctx,P.X(R*0.71),P.Y(R*0.71)+4,'경계 ∂D (r=R)',GLD);
       var flux=0,m=400,h=2*Math.PI/m; for(var k=0;k<m;k++){ var th=k*h,x=R*Math.cos(th),y=R*Math.sin(th); flux+=(Pf(x,y)*Math.cos(th)+Qf(x,y)*Math.sin(th))*R*h; }
       var dbl=2*Math.PI*R*R;
       E.big('∮F·n ds = '+flux.toFixed(2)+'  =  ∬div F dA = '+dbl.toFixed(2), '경계를 빠져나가는 알짜 선속 = 내부 발산(샘)의 총합 — 발산 정리(가우스). 전자기·유체의 핵심'); }

@@ -16,7 +16,7 @@
       function f(x){return x;} function g(x){return Math.sin(x);} function p(x){return f(x)*g(x);}
       P.axes(); P.curve(p, VIO);
       var num=ndf(p,a), form=ndf(f,a)*g(a)+f(a)*ndf(g,a);   // 실측 vs 곱법칙
-      P.dot(a,p(a),GRN);
+      P.dot(a,p(a),GRN,"(fg)′(a) ≈ "+num.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText("f′g+fg′ = "+form.toFixed(3)+"  =  실측 "+num.toFixed(3), E.W*0.52, E.H*0.18);
       E.big("(x·sin x)′ = sin x + x·cos x", '곱의 미분 = (앞 미분)×뒤 + 앞×(뒤 미분)'); }
@@ -31,7 +31,7 @@
       function f(x){return x;} function g(x){return x*x+1;} function q(x){return f(x)/g(x);}
       P.axes(); P.curve(q, VIO);
       var num=ndf(q,a), form=(ndf(f,a)*g(a)-f(a)*ndf(g,a))/(g(a)*g(a));
-      P.dot(a,q(a),GRN);
+      P.dot(a,q(a),GRN,"(f/g)′(a) ≈ "+num.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText("(f′g−fg′)/g² = "+form.toFixed(3)+"  =  실측 "+num.toFixed(3), E.W*0.50, E.H*0.18);
       E.big("(x / (x²+1))′ = (1 − x²)/(x²+1)²", '몫의 미분 = (위미분×아래 − 위×아래미분) ÷ 아래²'); }
@@ -49,7 +49,8 @@
       var fa=h(a);
       ctx.strokeStyle='rgba(255,210,122,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-0.6),P.Y(fa+num*(-0.6))); ctx.lineTo(P.X(a+0.6),P.Y(fa+num*(0.6))); ctx.stroke();
-      P.dot(a,fa,GRN);
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("기울기 = h′(a) ≈ "+num.toFixed(2), P.X(a)+10, P.Y(fa)-10);
+      P.dot(a,fa,GRN,"h(a) ≈ "+fa.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText("cos(x²)·2x = "+form.toFixed(3)+"  =  실측 "+num.toFixed(3), E.W*0.50, E.H*0.18);
       E.big("(sin x²)′ = cos x² · 2x", '연쇄법칙: 겉함수 미분 × 속함수 미분 (양파 까듯)'); }
@@ -67,9 +68,11 @@
       for(var t=0;t<=6.30;t+=0.05){ var px=P.X(R*Math.cos(t)), py=P.Y(R*Math.sin(t)); if(t===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); } ctx.closePath(); ctx.stroke();
       var x=R*Math.cos(th), y=R*Math.sin(th);
       var m = Math.abs(y)<1e-6 ? 9999 : -x/y;            // dy/dx = −x/y (음함수 미분 결과)
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('x²+y²=4', P.X(R*Math.cos(0.78))+6, P.Y(R*Math.sin(0.78))-6);
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath();
       if(m>9000){ ctx.moveTo(P.X(x),P.Y(-3)); ctx.lineTo(P.X(x),P.Y(3)); }
       else { ctx.moveTo(P.X(x-2),P.Y(y+m*(-2))); ctx.lineTo(P.X(x+2),P.Y(y+m*(2))); } ctx.stroke();
+      ctx.fillStyle=GLD; ctx.fillText('접선 dy/dx = '+(m>9000?'∞':m.toFixed(2)), P.X(x)+10, P.Y(y)-10);
       P.dot(x,y,GRN,'('+x.toFixed(2)+', '+y.toFixed(2)+')');
       E.big('dy/dx = −x/y = '+(m>9000?'∞ (수직)':m.toFixed(2)),
         'y를 x의 함수로 풀지 않고도, 연쇄법칙으로 접선을 구합니다'); }
@@ -87,10 +90,12 @@
       // 선형근사 L(x)=f(a)+f′(a)(x−a)
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath();
       ctx.moveTo(P.X(0),P.Y(fa+m*(0-a))); ctx.lineTo(P.X(9),P.Y(fa+m*(9-a))); ctx.stroke(); ctx.setLineDash([]);
-      P.dot(a,fa,GRN);
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('L(x)=f(a)+f′(a)(x−a)', P.X(7), P.Y(fa+m*(7-a))-8);
+      ctx.fillStyle=VIO; ctx.fillText('f(x)=√x', P.X(7.5), P.Y(f(7.5))+16);
+      P.dot(a,fa,GRN,'기준 a='+a.toFixed(1));
       // a+1 에서 근사 vs 실제 오차
       var xt=a+1, approx=fa+m*(xt-a), real=f(xt);
-      P.dot(xt,real,VIO); P.dot(xt,approx,GLD);
+      P.dot(xt,real,VIO,'실제 √x = '+real.toFixed(2)); P.dot(xt,approx,GLD,'근사 L = '+approx.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('x=a+1: 근사 '+approx.toFixed(3)+' vs 실제 '+real.toFixed(3)+' (오차 '+Math.abs(approx-real).toFixed(3)+')', E.W*0.40, E.H*0.18);
       E.big('√x ≈ √a + (x−a)/(2√a)', '기준점 근처에선 접선(금색)이 곡선을 거의 완벽히 대신합니다'); }

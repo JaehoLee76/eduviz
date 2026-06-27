@@ -19,6 +19,10 @@
       ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('극한 e ≈ 2.718', P.X(22), P.Y(Math.E)-6);
       var aN=1;
       for(var n=1;n<=30;n++){ var a=Math.pow(1+1/n,n); ctx.fillStyle=(n<=N)?VIO:'rgba(185,156,255,0.25)'; ctx.beginPath(); ctx.arc(P.X(n),P.Y(a),(n===N?5:3),0,7); ctx.fill(); if(n===N)aN=a; }
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('항 aₙ = (1+1/n)ⁿ', P.X(2), P.Y(1.72));
+      ctx.fillStyle=GLD; ctx.fillText('a'+'₍'+N+'₎ = '+aN.toFixed(4), P.X(N)+8, P.Y(aN)-8);
       E.big('a₍'+N+'₎ = (1 + 1/'+N+')^'+N+' = '+aN.toFixed(4), 'n이 커질수록 점들이 극한 e에 다가갑니다 — 수열의 극한'); }
   },
 
@@ -34,6 +38,10 @@
       for(var k=0;k<=12;k++){ sum+=Math.pow(r,k); ctx.lineTo(P.X(k),P.Y(sum)); ctx.lineTo(P.X(k+1),P.Y(sum)); P.dot(k,sum,'rgba(185,156,255,0.7)'); } ctx.stroke();
       var lim=1/(1-r);
       ctx.strokeStyle='rgba(126,224,176,0.55)'; ctx.lineWidth=1.4; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(lim)); ctx.lineTo(P.X(13),P.Y(lim)); ctx.stroke(); ctx.setLineDash([]);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('부분합 Sₙ = Σ rᵏ = '+sum.toFixed(3), P.X(4.5), P.Y(Math.min(2.9,sum))-8);
+      ctx.fillStyle=GRN; ctx.fillText('극한 1/(1−r) = '+lim.toFixed(3), P.X(0)+4, P.Y(lim)+(lim<2.9?-6:14));
       E.big('Σ rᵏ = 1/(1−r) = '+lim.toFixed(3), '부분합이 1/(1−r)로 수렴 (|r|<1). 무한히 더해도 유한한 합!'); }
   },
 
@@ -45,10 +53,15 @@
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, p=s.p;
       P.axes();
       var sum=0; ctx.strokeStyle=VIO; ctx.lineWidth=2.2; ctx.beginPath();
-      for(var n=1;n<=60;n++){ sum+=1/Math.pow(n,p); var y=Math.min(6,sum); if(n===1)ctx.moveTo(P.X(n),P.Y(y)); else ctx.lineTo(P.X(n),P.Y(y)); } ctx.stroke();
+      var lastY=0;
+      for(var n=1;n<=60;n++){ sum+=1/Math.pow(n,p); var y=Math.min(6,sum); lastY=y; if(n===1)ctx.moveTo(P.X(n),P.Y(y)); else ctx.lineTo(P.X(n),P.Y(y)); } ctx.stroke();
       // 더 멀리(수렴값 가늠)
       var far=0; for(var m=1;m<=100000;m++) far+=1/Math.pow(m,p);
       var conv=p>1;
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('부분합 S₆₀ = '+Math.min(99,sum).toFixed(3), P.X(30), P.Y(Math.min(5.6,lastY))-8);
+      if(conv){ ctx.fillStyle=GRN; ctx.fillText('수렴 Σ ≈ '+far.toFixed(3), P.X(30), P.Y(Math.min(5.7,far))+(far<lastY?16:-22)); }
       E.big('Σ 1/nᵖ  (p='+p.toFixed(1)+')  →  '+(conv?'수렴 ≈ '+far.toFixed(3):'발산 ∞'),
         conv?'p>1: 부분합이 평평해지며 유한값에 수렴':'p≤1: 부분합이 천천히, 그러나 끝없이 증가(발산)'); }
   },
@@ -58,10 +71,15 @@
     enter:function(E){ this.s={d:1}; E.Plot.range(-3.5,3,-1,8).lab('x','y');
       E.controls('<div class="ctrl"><label>차수 d</label><input type="range" id="td" min="0" max="8" step="1" value="1"><output id="tdo">1</output></div>');
       var self=this; E.bind('#td','input',function(e){ self.s.d=+e.target.value; document.getElementById('tdo').textContent=e.target.value; E.blip(380+self.s.d*30,0.07); }); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, s=this.s, d=s.d;
+    draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, d=s.d;
       P.axes(); P.curve(function(x){return Math.exp(x);}, VIO);
-      P.curve(function(x){ var sum=0; for(var k=0;k<=d;k++) sum+=Math.pow(x,k)/fact(k); return sum; }, GLD);  // 테일러 다항식
+      function Td(x){ var sum=0; for(var k=0;k<=d;k++) sum+=Math.pow(x,k)/fact(k); return sum; }
+      P.curve(Td, GLD);  // 테일러 다항식
       var terms='1'; for(var k=1;k<=d;k++) terms+=' + x'+(k===1?'':'^'+k)+(k>1?'/'+k+'!':'');
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('eˣ (참값)', P.X(1.7), P.Y(Math.min(7.4,Math.exp(1.7)))-6);
+      ctx.fillStyle=GLD; ctx.fillText(d+'차 테일러 Tₙ(x)', P.X(-3.4), P.Y(Math.max(-0.6,Math.min(7.6,Td(-3.4))))+(Td(-3.4)>4?16:-8));
       E.big('eˣ ≈ '+terms, '차수를 올릴수록 다항식(금색)이 eˣ(보라)를 더 넓게 끌어안습니다'); }
   },
 
@@ -70,10 +88,15 @@
     enter:function(E){ this.s={m:1}; E.Plot.range(-7,7,-2.2,2.2).lab('x','y');
       E.controls('<div class="ctrl"><label>항 수 m</label><input type="range" id="tm" min="1" max="7" step="1" value="1"><output id="tmo">1</output></div>');
       var self=this; E.bind('#tm','input',function(e){ self.s.m=+e.target.value; document.getElementById('tmo').textContent=e.target.value; E.blip(380+self.s.m*30,0.07); }); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, s=this.s, m=s.m;
+    draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, m=s.m;
       P.axes(); P.curve(function(x){return Math.sin(x);}, VIO);
-      P.curve(function(x){ var sum=0; for(var j=0;j<m;j++){ var k=2*j+1; sum += (j%2?-1:1)*Math.pow(x,k)/fact(k); } return sum; }, GLD);
+      function Tm(x){ var sum=0; for(var j=0;j<m;j++){ var k=2*j+1; sum += (j%2?-1:1)*Math.pow(x,k)/fact(k); } return sum; }
+      P.curve(Tm, GLD);
       var deg=2*m-1;
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('sin x (참값)', P.X(0.4), P.Y(Math.sin(2.0))+18);
+      ctx.fillStyle=GLD; ctx.fillText(deg+'차 테일러 Tₘ(x)', P.X(-6.6), P.Y(Math.max(-2.0,Math.min(2.0,Tm(-6.6))))+(Tm(-6.6)>0?-8:18));
       E.big('sin x ≈ '+deg+'차 테일러 다항식  ('+m+'항)', '항을 더할수록 다항식이 sin의 물결을 점점 멀리까지 따라갑니다'); }
   }
 

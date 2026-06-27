@@ -17,6 +17,10 @@
       var n=160,h=(b-a)/n; for(var k=0;k<n;k++){ var xm=a+(k+0.5)*h; ctx.fillStyle='rgba(185,156,255,0.22)'; ctx.fillRect(P.X(a+k*h),P.Y(top(xm)),P.X(a+(k+1)*h)-P.X(a+k*h),P.Y(bot(xm))-P.Y(top(xm))); }
       P.axes(); P.curve(top, GLD); P.curve(bot, BLU);
       var ar=integ(function(x){return top(x)-bot(x);}, a, b);
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.fillText('y = x+2 (위)', P.X(1.1), P.Y(top(1.1))-8);
+      ctx.fillStyle=BLU; ctx.fillText('y = x² (아래)', P.X(-2.2), P.Y(bot(-2.2))-6);
+      ctx.fillStyle=VIO; ctx.fillText('넓이 ≈ '+ar.toFixed(3), P.X(0.2), P.Y(1.4));
       E.big('넓이 = ∫(위 − 아래) dx = '+ar.toFixed(3), '두 곡선 사이 넓이 = (위 함수 − 아래 함수)의 적분'); }
   },
 
@@ -33,6 +37,9 @@
         ctx.fillRect(P.X(a+k*h),P.Y(r),P.X(a+(k+1)*h)-P.X(a+k*h),P.Y(-r)-P.Y(r));
         ctx.strokeRect(P.X(a+k*h),P.Y(r),P.X(a+(k+1)*h)-P.X(a+k*h),P.Y(-r)-P.Y(r)); }
       P.axes(); P.curve(f, GLD); P.curve(function(x){return -f(x);}, 'rgba(255,210,122,0.5)');
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.fillText('y = √x', P.X(3.4), P.Y(f(3.4))-8);
+      ctx.fillStyle=VIO; ctx.fillText('Σ π r²Δx ≈ '+vol.toFixed(3), P.X(0.2), P.Y(1.9));
       E.big('부피 = ∫π[f(x)]² dx ≈ '+vol.toFixed(3), '회전체를 얇은 원판으로 쪼개 πr²×두께를 더합니다 (참값 8π≈25.13)'); }
   },
 
@@ -49,6 +56,9 @@
       // 평균 높이 직사각형(같은 넓이)
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(avg)); ctx.lineTo(P.X(b),P.Y(avg)); ctx.stroke(); ctx.setLineDash([]);
       P.axes(); P.curve(f, VIO);
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('y = 1+sin x', P.X(b*0.45), P.Y(f(b*0.45))+14);
+      ctx.fillStyle=GRN; ctx.fillText('평균값 = '+avg.toFixed(3), P.X(0.1), P.Y(avg)-6);
       E.big('평균값 = (1/b)∫f dx = '+avg.toFixed(3), '곡선 아래 넓이를 같은 넓이의 직사각형으로 펴면, 그 높이가 평균입니다'); }
   },
 
@@ -62,6 +72,9 @@
       var n=120,h=d/n; for(var i=0;i<n;i++){ var xm=h*(i+0.5); ctx.fillStyle='rgba(255,210,122,0.22)'; ctx.fillRect(P.X(i*h),P.Y(F(xm)),P.X((i+1)*h)-P.X(i*h),P.Y(0)-P.Y(F(xm))); }
       P.axes(); P.curve(F, VIO);
       var work=integ(F,0,d);
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('F = kx', P.X(d*0.6), P.Y(F(d*0.6))-8);
+      ctx.fillStyle=GLD; ctx.fillText('일 W = ∫F dx ≈ '+work.toFixed(3)+' J', P.X(0.15), P.Y(F(d)*0.45));
       // 용수철 그림(상단)
       var sy=E.H*0.13, x0=E.W*0.12, len=E.W*0.18+d*E.W*0.09;
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x0,sy);
@@ -84,6 +97,9 @@
       ctx.stroke();
       for(var j=0;j<=n;j++){ var xj=a+j*h; P.dot(xj,f(xj),GRN); }
       var exact=integ(function(x){var d=x;return Math.sqrt(1+d*d);},a,b);  // ∫√(1+f'²), f'=x
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('y = ½x²', P.X(1.7), P.Y(f(1.7))-8);
+      ctx.fillStyle=GLD; ctx.fillText('Σ√(Δx²+Δy²) ≈ '+len.toFixed(4), P.X(0.15), P.Y(2.3));
       E.big('호의 길이 ≈ '+len.toFixed(4)+'  ('+n+'조각)', '곡선을 잘게 선분으로 잇고 길이를 더하면 ∫√(1+(f′)²) dx (참값 '+exact.toFixed(4)+')'); }
   }
 

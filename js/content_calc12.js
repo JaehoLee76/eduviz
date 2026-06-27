@@ -28,6 +28,7 @@
       var Vf=pt(v[0],v[1],0); ctx.strokeStyle='rgba(185,156,255,0.35)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(O[0],O[1]); ctx.lineTo(Vf[0],Vf[1]); ctx.lineTo(V[0],V[1]); ctx.stroke(); ctx.setLineDash([]);
       arrow(ctx,O[0],O[1],V[0],V[1],VIO,3);
       var mag=Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+      ctx.fillStyle=VIO; ctx.font='13px sans-serif'; ctx.fillText('v=(2,2,3)', V[0]+8, V[1]-4);
       E.big('v = (2, 2, 3)   ·   |v| = √(2²+2²+3²) = '+mag.toFixed(3), '공간의 벡터는 세 성분 — 크기는 √(x²+y²+z²) (피타고라스의 3D판). 시점을 돌려 보세요'); }
   },
 
@@ -46,6 +47,10 @@
       arrow(ctx,O[0],O[1],Su[0],Su[1],BLU,2.5);
       arrow(ctx,O[0],O[1],Sv[0],Sv[1],GLD,2.5);
       arrow(ctx,O[0],O[1],Sw[0],Sw[1],VIO,3);
+      ctx.font='13px sans-serif';
+      ctx.fillStyle=BLU; ctx.fillText('u', Su[0]+8, Su[1]+4);
+      ctx.fillStyle=GLD; ctx.fillText('v', Sv[0]-4, Sv[1]-8);
+      ctx.fillStyle=VIO; ctx.fillText('u+v', Sw[0]+8, Sw[1]-4);
       E.big('u + v = ('+w[0].toFixed(2)+', '+w[1].toFixed(2)+')', '두 벡터를 이어 붙이면 합 — 평행사변형의 대각선 (성분끼리 더하기)'); }
   },
 
@@ -64,6 +69,10 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(O[0],O[1]); ctx.lineTo(Sp[0],Sp[1]); ctx.stroke();
       arrow(ctx,O[0],O[1],S(u)[0],S(u)[1],BLU,2.5);
       arrow(ctx,O[0],O[1],Sv[0],Sv[1],GLD,2.5);
+      ctx.font='13px sans-serif';
+      ctx.fillStyle=BLU; ctx.fillText('u', S(u)[0]+8, S(u)[1]+4);
+      ctx.fillStyle=GLD; ctx.fillText('v', Sv[0]+6, Sv[1]-6);
+      ctx.fillStyle=GRN; ctx.fillText('사영 '+proj.toFixed(2), (O[0]+Sp[0])/2-18, O[1]+18);
       var sign = dot>0.05?'양수 (예각)':dot<-0.05?'음수 (둔각)':'0 (수직!)';
       E.big('u · v = |u||v|cosθ = '+dot.toFixed(2)+'  ('+sign+')', '내적 = 한 벡터를 다른 벡터에 사영한 길이(초록)×크기. 수직이면 0'); }
   },
@@ -82,6 +91,10 @@
       arrow(ctx,O[0],O[1],S(u)[0],S(u)[1],BLU,2.5);
       arrow(ctx,O[0],O[1],S(v)[0],S(v)[1],GLD,2.5);
       var cross=Math.abs(u[0]*v[1]-u[1]*v[0]);   // |u×v| = 넓이
+      ctx.font='13px sans-serif';
+      ctx.fillStyle=BLU; ctx.fillText('u', S(u)[0]+8, S(u)[1]+4);
+      ctx.fillStyle=GLD; ctx.fillText('v', S(v)[0]+6, S(v)[1]-6);
+      var Sc=S([(w[0]+0)/2,(w[1]+0)/2]); ctx.fillStyle=VIO; ctx.textAlign='center'; ctx.fillText('넓이 |u×v|='+cross.toFixed(2), Sc[0], Sc[1]); ctx.textAlign='left';
       E.big('|u × v| = |u||v|sinθ = '+cross.toFixed(3), '외적의 크기 = 두 벡터가 만드는 평행사변형 넓이. 나란하면 0, 수직이면 최대'); }
   },
 
@@ -98,7 +111,8 @@
       ctx.beginPath(); ctx.moveTo(c1[0],c1[1]); ctx.lineTo(c2[0],c2[1]); ctx.lineTo(c3[0],c3[1]); ctx.lineTo(c4[0],c4[1]); ctx.closePath(); ctx.fill(); ctx.stroke();
       var O=pt(0,0,0), N=pt(0,0,2.6);
       arrow(ctx,O[0],O[1],N[0],N[1],GLD,3);   // 법선
-      ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.fillText('법선 n', N[0]+6, N[1]);
+      ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.fillText('법선 n=(0,0,1)', N[0]+6, N[1]);
+      var pc=pt(-1.4,1.4,0); ctx.fillStyle=VIO; ctx.fillText('평면', pc[0], pc[1]);
       E.big('평면: n · (r − r₀) = 0', '평면은 한 점과 그에 수직인 법선벡터 n으로 완전히 정해집니다 — 시점을 돌려 보세요'); }
   }
 

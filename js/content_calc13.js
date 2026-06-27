@@ -27,6 +27,7 @@
       E.bind('#py','input',function(e){ self.s.y=+e.target.value; document.getElementById('pyo').textContent=(+e.target.value).toFixed(1); E.blip(400,0.05); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s; heat(E,F,-1,1); P.axes();
       P.dot(s.x,s.y,'#ffffff'); var z=F(s.x,s.y);
+      ctx.fillStyle='#ffffff'; ctx.font='13px sans-serif'; ctx.fillText('f='+z.toFixed(2), P.X(s.x)+8, P.Y(s.y)-8);
       E.big('f(x, y) = sin x · cos y = '+z.toFixed(3), '두 입력(x,y)에 높이 하나(z) — 색이 높이입니다(밝을수록 높음). 산맥 같은 풍경'); }
   },
 
@@ -42,6 +43,9 @@
       ctx.strokeStyle=RED; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(s.x-1),P.Y(s.y)); ctx.lineTo(P.X(s.x+1),P.Y(s.y)); ctx.stroke();
       ctx.strokeStyle=GRN; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(s.x),P.Y(s.y-1)); ctx.lineTo(P.X(s.x),P.Y(s.y+1)); ctx.stroke();
       P.dot(s.x,s.y,'#ffffff');
+      ctx.font='12px sans-serif';
+      ctx.fillStyle=RED; ctx.fillText('∂f/∂x='+g[0].toFixed(2), P.X(s.x+1)+4, P.Y(s.y)+4);
+      ctx.fillStyle=GRN; ctx.fillText('∂f/∂y='+g[1].toFixed(2), P.X(s.x)+6, P.Y(s.y+1)-6);
       E.big('∂f/∂x = '+g[0].toFixed(2)+'   ·   ∂f/∂y = '+g[1].toFixed(2), '한 변수만 변화시키고 나머지는 고정 — 빨강=x방향 기울기, 초록=y방향 기울기'); }
   },
 
@@ -58,6 +62,7 @@
       var g=grad(F,s.x,s.y), mag=Math.hypot(g[0],g[1]);
       arrow(ctx,P.X(s.x),P.Y(s.y),P.X(s.x+g[0]*0.6),P.Y(s.y+g[1]*0.6),GLD,3);
       P.dot(s.x,s.y,'#ffffff');
+      ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.fillText('∇f, |∇f|='+mag.toFixed(2), P.X(s.x+g[0]*0.6)+6, P.Y(s.y+g[1]*0.6)-4);
       E.big('∇f = (∂f/∂x, ∂f/∂y)   ·   |∇f| = '+mag.toFixed(2), '기울기 벡터는 가장 가파르게 오르는 방향 — 등고선과 수직(금색 화살표)'); }
   },
 
@@ -70,10 +75,12 @@
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s; heat(E,F,-1,1); P.axes();
       // 임계점 표시(sin x cos y: 봉우리 (π/2,0), 골 (π/2,π) 등)
       var crit=[[Math.PI/2,0,'봉우리'],[ -Math.PI/2,0,'골짜기'],[Math.PI/2,Math.PI,'골짜기'],[0,Math.PI/2,'안장']];
-      for(var c=0;c<crit.length;c++){ P.dot(crit[c][0],crit[c][1],'rgba(255,255,255,0.5)'); }
+      ctx.font='11px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
+      for(var c=0;c<crit.length;c++){ P.dot(crit[c][0],crit[c][1],'rgba(255,255,255,0.5)'); ctx.fillText(crit[c][2], P.X(crit[c][0])+6, P.Y(crit[c][1])-6); }
       var g=grad(F,s.x,s.y), mag=Math.hypot(g[0],g[1]), flat=mag<0.06;
       var gg=grad(F,s.x,s.y); arrow(ctx,P.X(s.x),P.Y(s.y),P.X(s.x+gg[0]*0.6),P.Y(s.y+gg[1]*0.6),flat?GRN:GLD,3);
       P.dot(s.x,s.y,'#ffffff');
+      ctx.fillStyle=flat?GRN:GLD; ctx.font='12px sans-serif'; ctx.fillText('|∇f|='+mag.toFixed(2), P.X(s.x)+8, P.Y(s.y)+16);
       E.big('|∇f| = '+mag.toFixed(3)+(flat?'  ← 임계점!':''), flat?'기울기 0 — 봉우리·골짜기 또는 안장점입니다':'기울기 벡터가 0이 되는 곳을 찾으면 극값 후보'); }
   },
 
@@ -96,6 +103,10 @@
       arrow(ctx,P.X(px),P.Y(py),P.X(px+px*0.6),P.Y(py+py*0.6),GRN,2);
       var aligned=Math.abs(px-py)<0.05 && px>0;
       P.dot(px,py,'#ffffff');
+      ctx.font='12px sans-serif';
+      ctx.fillStyle=GLD; ctx.fillText('∇f', P.X(px+0.5)+4, P.Y(py+0.5));
+      ctx.fillStyle=GRN; ctx.fillText('∇g', P.X(px+px*0.6)+4, P.Y(py+py*0.6)+10);
+      ctx.fillStyle=BLU; ctx.fillText('제약 g: x²+y²=1', P.X(-1.9), P.Y(-1.7));
       E.big('f = x + y = '+fval.toFixed(3)+(aligned?'  ← 최댓값 √2!':''), aligned?'∇f와 ∇g가 나란 — 등위선이 제약곡선에 접할 때 최적':'두 기울기(금=∇f, 초록=∇g)가 나란해지는 곳을 찾으세요'); }
   }
 

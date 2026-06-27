@@ -20,6 +20,7 @@
       var fa=f(a), m=ndf(f,a);
       ctx.strokeStyle='rgba(255,210,122,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-1.3),P.Y(fa+m*(-1.3))); ctx.lineTo(P.X(a+1.3),P.Y(fa+m*(1.3))); ctx.stroke();
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("접선 기울기 = f '("+a.toFixed(2)+") ≈ "+m.toFixed(2), P.X(a)+10, P.Y(fa)-12);
       P.dot(a,fa,VIO); P.dot(a,m,GLD,"f '("+a.toFixed(2)+")="+m.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("보라 f(x) · 금색 f '(x)", E.W*0.70, E.H*0.20);
       E.big("f '("+a.toFixed(2)+") = "+m.toFixed(2), '한 점의 기울기를 모으면 새 곡선(도함수)이 됩니다'); }
@@ -36,7 +37,7 @@
       P.curve(function(x){return n*Math.pow(x,n-1);}, GLD);   // 공식 도함수
       // 검산: x=1.2에서 수치미분 vs 공식
       var xc=1.2, num=ndf(f,xc), form=n*Math.pow(xc,n-1);
-      P.dot(xc,num,GRN);
+      P.dot(xc,num,GRN,"f '(1.2) ≈ "+num.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('x=1.2 검산: 실측 '+num.toFixed(2)+' = 공식 '+form.toFixed(2), E.W*0.58, E.H*0.20);
       E.big('d/dx x'+(['','¹','²','³','⁴'][n])+' = '+(n===1?'1':n+'x'+(n-1===1?'':['⁰','¹','²','³'][n-1])),
@@ -76,7 +77,9 @@
       var fa=Math.sin(a), m=ndf(Math.sin,a);
       ctx.strokeStyle='rgba(255,210,122,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-1.4),P.Y(fa+m*(-1.4))); ctx.lineTo(P.X(a+1.4),P.Y(fa+m*(1.4))); ctx.stroke();
-      P.dot(a,fa,VIO); P.dot(a,m,GLD);
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("기울기 = cos("+a.toFixed(1)+") ≈ "+m.toFixed(2), P.X(a)+10, P.Y(fa)-12);
+      P.dot(a,fa,VIO,"sin x"); P.dot(a,m,GLD,"cos x");
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('보라 sin x · 금색 (sin x)′= cos x', E.W*0.62, E.H*0.18);
       E.big("(sin x)′ = cos x   ·   기울기 = "+m.toFixed(3), 'sin의 기울기 곡선이 정확히 cos과 겹칩니다 (금색)'); }
   },
 
@@ -90,7 +93,8 @@
       var fa=Math.exp(a), m=ndf(Math.exp,a);                 // 기울기 = e^a = 함숫값
       ctx.strokeStyle='rgba(255,210,122,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-1.5),P.Y(fa+m*(-1.5))); ctx.lineTo(P.X(a+1.5),P.Y(fa+m*(1.5))); ctx.stroke();
-      P.dot(a,fa,GRN);
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("기울기 = eˣ ≈ "+m.toFixed(2), P.X(a)+10, P.Y(fa));
+      P.dot(a,fa,GRN,"(a, eᵃ) = ("+a.toFixed(2)+", "+fa.toFixed(2)+")");
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('함숫값 e^a = '+fa.toFixed(3)+'  ·  기울기 = '+m.toFixed(3), E.W*0.50, E.H*0.20);
       E.big("(eˣ)′ = eˣ", '기울기가 언제나 자기 높이와 똑같은 유일한 함수 — 그래서 e가 특별합니다'); }

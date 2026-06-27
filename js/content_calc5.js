@@ -18,9 +18,10 @@
       var fa=f(a), m=ndf(f,a), flat=Math.abs(m)<0.06;
       ctx.strokeStyle=flat?GRN:GLD; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-1),P.Y(fa+m*(-1))); ctx.lineTo(P.X(a+1),P.Y(fa+m*(1))); ctx.stroke();
+      ctx.fillStyle=flat?GRN:GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("f '(a) ≈ "+m.toFixed(2), P.X(a)+10, P.Y(fa)-10);
       P.dot(a,fa,flat?GRN:VIO);
       // 임계점 표시
-      P.dot(-1,f(-1),'rgba(126,224,176,0.5)'); P.dot(1,f(1),'rgba(126,224,176,0.5)');
+      P.dot(-1,f(-1),'rgba(126,224,176,0.5)','극댓값 = '+f(-1).toFixed(2)); P.dot(1,f(1),'rgba(126,224,176,0.5)','극솟값 = '+f(1).toFixed(2));
       E.big("f '("+a.toFixed(2)+") = "+m.toFixed(2)+(flat?'  ← 극점!':''),
         flat?(a<0?'기울기 0 = 극대(언덕 꼭대기)':'기울기 0 = 극소(골짜기 바닥)'):'접선이 수평(기울기 0)이 되는 곳이 극대·극소'); }
   },
@@ -35,10 +36,12 @@
       P.axes(); P.curve(f, VIO);
       var sec=(f(B)-f(A))/(B-A);                          // 할선 기울기(평균변화율)
       ctx.strokeStyle=BLU; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(P.X(A),P.Y(f(A))); ctx.lineTo(P.X(B),P.Y(f(B))); ctx.stroke();
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('할선 기울기 = '+sec.toFixed(2), P.X(0)+6, P.Y((f(A)+f(B))/2)-8);
       P.dot(A,f(A),BLU); P.dot(B,f(B),BLU);
       var mc=ndf(f,c), match=Math.abs(mc-sec)<0.05;
       ctx.strokeStyle=match?GRN:GLD; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(c-1),P.Y(f(c)+mc*(-1))); ctx.lineTo(P.X(c+1),P.Y(f(c)+mc*(1))); ctx.stroke();
+      ctx.fillStyle=match?GRN:GLD; ctx.fillText("접선 f '(c) = "+mc.toFixed(2), P.X(c)+10, P.Y(f(c))-10);
       P.dot(c,f(c),match?GRN:VIO);
       E.big('할선 '+sec.toFixed(2)+' vs 접선 f′(c) '+mc.toFixed(2)+(match?'  ← 일치!':''),
         '구간 어딘가엔 평균변화율과 똑같은 순간변화율이 반드시 있습니다'); }
@@ -51,8 +54,8 @@
       var self=this; E.bind('#ow','input',function(e){ self.s.w=+e.target.value; document.getElementById('owo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, w=s.w, h=10-w, area=w*h;
       P.axes(); P.curve(function(x){return x*(10-x);}, VIO);   // 넓이 함수
-      P.dot(w, area, area>24.9?GRN:GLD);
-      P.dot(5,25,'rgba(126,224,176,0.45)');                    // 최댓값(미분=0)
+      P.dot(w, area, area>24.9?GRN:GLD,'넓이 A = '+area.toFixed(1));
+      P.dot(5,25,'rgba(126,224,176,0.45)','최댓값 A = 25 (w=5)');  // 최댓값(미분=0)
       // 실제 직사각형 미리보기(좌상단)
       var ox=E.W*0.10, oy=E.H*0.30, sc=10;
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.strokeRect(ox, oy-h*sc*0.5, w*sc*0.7, h*sc*0.5);
@@ -74,8 +77,10 @@
         ctx.strokeStyle='rgba(255,210,122,0.8)'; ctx.lineWidth=1.6; ctx.beginPath();
         ctx.moveTo(P.X(x),P.Y(f(x))); ctx.lineTo(P.X(xn),P.Y(0)); ctx.stroke();   // 접선이 x축 만나는 점
         ctx.strokeStyle='rgba(155,153,163,0.4)'; ctx.setLineDash([2,3]); ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(f(x))); ctx.lineTo(P.X(x),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='rgba(155,153,163,0.7)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('x'+k+'='+x.toFixed(3), P.X(x), P.Y(0)+16);
         P.dot(x,f(x),'rgba(185,156,255,0.6)'); x=xn; }
-      P.dot(x,0,GRN);
+      P.dot(x,0,GRN,'x'+n+' = '+x.toFixed(4));
+      if(n>0){ ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('xₙ₊₁ = xₙ − f/f′ = '+x.toFixed(6), E.W*0.42, E.H*0.18); }
       E.big('x'+n+' = '+x.toFixed(6), '√2 = 1.414214… 접선을 타고 내려가면 단 몇 번에 수렴'); }
   },
 
@@ -91,7 +96,8 @@
       ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(5.3)); ctx.lineTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(5.3),P.Y(0)); ctx.stroke();
       // 사다리
       ctx.strokeStyle=VIO; ctx.lineWidth=3.5; ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(0)); ctx.lineTo(P.X(0),P.Y(y)); ctx.stroke();
-      P.dot(x,0,GLD); P.dot(0,y,GRN);
+      ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('사다리 L = '+L, P.X(x/2)+8, P.Y(y/2)-6);
+      P.dot(x,0,GLD,'바닥 x = '+x.toFixed(2)); P.dot(0,y,GRN,'벽 y = '+y.toFixed(2));
       // dx/dt=1 가정 → dy/dt = −x/y
       var dydt = -x/y;
       ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';

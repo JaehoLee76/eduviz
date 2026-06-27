@@ -23,8 +23,9 @@
     enter:function(E){ this.s={t:0}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>장 종류</label><input type="range" id="ft" min="0" max="3" step="1" value="0"><output id="fto">0</output></div>');
       var self=this; E.bind('#ft','input',function(e){ self.s.t=+e.target.value; document.getElementById('fto').textContent=e.target.value; E.blip(380+self.s.t*60,0.08); }); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, s=this.s, F=FIELDS[s.t]; P.axes();
+    draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, F=FIELDS[s.t]; P.axes();
       field(E,P,F.P,F.Q,'rgba(185,156,255,0.8)',1);
+      ctx.fillStyle=VIO; ctx.font='13px sans-serif'; ctx.fillText(F.name, P.X(-2.9), P.Y(2.8));
       E.big(F.name, '벡터장: 공간의 모든 점에 벡터(화살표) 하나 — 바람·물살·전기력·중력장이 모두 벡터장입니다'); }
   },
 
@@ -43,6 +44,10 @@
         if(k>0){ var dx=-R*Math.sin(th)*h, dy=R*Math.cos(th)*h; W+=F.P(x,y)*dx+F.Q(x,y)*dy; } } ctx.stroke();
       var px=R*Math.cos(t), py=R*Math.sin(t); P.dot(px,py,GRN);
       arr(ctx,P.X(px),P.Y(py),P.X(px+F.P(px,py)*0.18),P.Y(py+F.Q(px,py)*0.18),GLD,2);
+      ctx.font='12px sans-serif';
+      ctx.fillStyle=GLD; ctx.fillText('지나온 일 ∫F·dr='+W.toFixed(2), P.X(-2.9), P.Y(2.8));
+      ctx.fillStyle=GLD; ctx.fillText('F', P.X(px+F.P(px,py)*0.18)+4, P.Y(py+F.Q(px,py)*0.18));
+      ctx.fillStyle='rgba(122,184,255,0.9)'; ctx.fillText('경로 C', P.X(R*0.7)+4, P.Y(-R*0.7));
       E.big('∫F·dr = '+W.toFixed(3)+'   (한 바퀴면 '+(2*Math.PI*R*R).toFixed(2)+')', '선적분 = 경로를 따라 장이 한 일의 합. 회전장은 도는 방향으로 +일을 쌓습니다'); }
   },
 
@@ -61,6 +66,7 @@
         var sx=P.X(x),sy=P.Y(y); if(k===0)ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
         if(k>0){ var pu=(k-1)/m, px=A[0]+(B[0]-A[0])*pu+bend*Math.sin(Math.PI*pu)*2, py=A[1]+(B[1]-A[1])*pu-bend*Math.sin(Math.PI*pu)*2; W+=Pf(px,py)*(x-px)+Qf(px,py)*(y-py); } } ctx.stroke();
       P.dot(0,0,GRN,'A'); P.dot(3,3,GLD,'B');
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('∫F·dr='+W.toFixed(2), P.X(-0.9), P.Y(3.7));
       E.big('∫F·dr = f(B) − f(A) = '+W.toFixed(2)+'  (경로 무관!)', '보존장에선 일이 시작·끝점에만 달림 — 길을 휘어도 값은 18로 같습니다 (선적분 기본정리)'); }
   },
 
@@ -69,11 +75,15 @@
     enter:function(E){ this.s={t:0}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>장 종류</label><input type="range" id="dt" min="0" max="3" step="1" value="0"><output id="dto">0</output></div>');
       var self=this; E.bind('#dt','input',function(e){ self.s.t=+e.target.value; document.getElementById('dto').textContent=e.target.value; E.blip(380+self.s.t*60,0.08); }); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, s=this.s, F=FIELDS[s.t]; P.axes();
+    draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, F=FIELDS[s.t]; P.axes();
       field(E,P,F.P,F.Q,'rgba(185,156,255,0.7)',1);
       var e=1e-3, x=0.0001, y=0.0001;
       var div=(F.P(x+e,y)-F.P(x-e,y))/(2*e) + (F.Q(x,y+e)-F.Q(x,y-e))/(2*e);
       var curl=(F.Q(x+e,y)-F.Q(x-e,y))/(2*e) - (F.P(x,y+e)-F.P(x,y-e))/(2*e);
+      ctx.font='12px sans-serif';
+      ctx.fillStyle=VIO; ctx.fillText(F.name, P.X(-2.9), P.Y(2.85));
+      ctx.fillStyle=GLD; ctx.fillText('div F = '+div.toFixed(2), P.X(-2.9), P.Y(2.5));
+      ctx.fillStyle=GRN; ctx.fillText('curl F = '+curl.toFixed(2), P.X(-2.9), P.Y(2.2));
       E.big('div F = '+div.toFixed(2)+'   ·   curl F = '+curl.toFixed(2),
         '발산=퍼져나가는 정도(샘/싱크) · 회전=소용돌이치는 정도. 회전장은 div=0·curl=2, 발산원은 div=2·curl=0'); }
   },
@@ -91,6 +101,9 @@
       // 경계 선적분(실계산)
       var circ=0,m=400,h=2*Math.PI/m; for(var k=0;k<m;k++){ var th=k*h, x=R*Math.cos(th),y=R*Math.sin(th), dx=-R*Math.sin(th)*h, dy=R*Math.cos(th)*h; circ+=F.P(x,y)*dx+F.Q(x,y)*dy; }
       var dblint=2*Math.PI*R*R;  // ∬curl dA = ∬2 dA = 2·πR²
+      ctx.font='12px sans-serif';
+      ctx.fillStyle=GLD; ctx.fillText('경계 ∮F·dr='+circ.toFixed(2), P.X(-2.9), P.Y(2.85));
+      ctx.fillStyle=VIO; ctx.textAlign='center'; ctx.fillText('내부 ∬curl dA='+dblint.toFixed(2), P.X(0), P.Y(0)); ctx.textAlign='left';
       E.big('∮F·dr = '+circ.toFixed(2)+'  =  ∬curl dA = '+dblint.toFixed(2),
         '경계를 도는 총 순환 = 내부 회전(curl)의 총합 — 그린 정리가 선적분과 이중적분을 잇습니다'); }
   }

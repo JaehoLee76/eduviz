@@ -13,6 +13,8 @@
       var self=this; E.bind('#lx','input',function(e){ self.s.x=+e.target.value; document.getElementById('lxo').textContent=(+e.target.value).toFixed(2); E.blip(380+self.s.x*60,0.08); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x;
       P.axes(); P.curve(function(t){return t+1;}, VIO);            // (x²−1)/(x−1) = x+1
+      ctx.fillStyle=VIO; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = (x²−1)/(x−1)', P.X(2.0),P.Y(3.3));
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('극한 L = 2', P.X(2.3),P.Y(2)-8);
       // x=1 구멍(빈 동그라미)
       var hx=P.X(1), hy=P.Y(2); ctx.fillStyle=HOLE; ctx.beginPath(); ctx.arc(hx,hy,5,0,7); ctx.fill();
       ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(hx,hy,5,0,7); ctx.stroke();
@@ -34,6 +36,9 @@
       P.axes();
       P.curve(function(t){ return t<1? t : NaN; }, VIO);          // 왼쪽 조각 y=x (x<1)
       P.curve(function(t){ return t>=1? t+1.5 : NaN; }, BLU);     // 오른쪽 조각 y=x+1.5 (x≥1)
+      ctx.textAlign='left'; ctx.font='12px sans-serif';
+      ctx.fillStyle=VIO; ctx.fillText('y = x', P.X(0.1),P.Y(0.1)-8);
+      ctx.fillStyle=BLU; ctx.fillText('y = x + 1.5', P.X(2.05),P.Y(3.55));
       // x=1 좌(닫힘/빈)·우 표시: 좌극한 1, 우극한 2.5
       var lx=P.X(1); ctx.fillStyle=HOLE; ctx.beginPath(); ctx.arc(lx,P.Y(1),5,0,7); ctx.fill(); ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(lx,P.Y(1),5,0,7); ctx.stroke();
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(lx,P.Y(2.5),5,0,7); ctx.fill();
@@ -53,12 +58,15 @@
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, h=s.h, a=1;
       function f(t){ return 0.5*t*t; }
       P.axes(); P.curve(f, VIO);
+      ctx.fillStyle=VIO; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = 0.5x²', P.X(2.55),P.Y(f(2.55))-6);
       var slope = Math.abs(h)<1e-9 ? a : (f(a+h)-f(a))/h;        // 할선 기울기(실측), h→0 이면 f'(1)=1
-      var fa=f(a);
+      var fa=f(a), near=Math.abs(h)<1e-9;
       // 할선(또는 접선)
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(-1), P.Y(fa+slope*(-1-a))); ctx.lineTo(P.X(4), P.Y(fa+slope*(4-a))); ctx.stroke();
-      P.dot(a, fa, GRN);                                          // 고정점 (1, 0.5)
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif';
+      ctx.fillText((near?'접선':'할선')+' 기울기 = '+slope.toFixed(3), P.X(-0.9),P.Y(fa+slope*(-1-a))-6);
+      P.dot(a, fa, GRN, '(1, 0.5)');                              // 고정점 (1, 0.5)
       if(Math.abs(h)>=1e-9){ P.dot(a+h, f(a+h), GLD); }          // 움직이는 두 번째 점
       E.big('할선 기울기 = '+slope.toFixed(3)+'   (h = '+h.toFixed(2)+')',
         'h를 0으로 보내면 할선이 접선이 되고, 기울기는 f′(1)=1 로 수렴합니다'); }
@@ -76,6 +84,7 @@
       // δ 세로 띠 (a±δ)
       ctx.fillStyle='rgba(126,224,176,0.15)'; ctx.fillRect(P.X(a-delta), P.Y(4.5), P.X(a+delta)-P.X(a-delta), P.Y(-0.5)-P.Y(4.5));
       P.axes(); P.curve(function(t){return 2*t;}, VIO);
+      ctx.fillStyle=VIO; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = 2x', P.X(1.7),P.Y(2*1.7)-6);
       P.dot(a, L, GRN, '(1, 2)');
       ctx.textAlign='left'; ctx.font='12px sans-serif';
       ctx.fillStyle=GLD; ctx.fillText('ε = '+eps.toFixed(2)+' (세로 허용)', E.W*0.66, E.H*0.24);
@@ -93,6 +102,9 @@
       P.axes();
       P.curve(function(t){ return t<1? t+1 : NaN; }, VIO);        // 왼쪽 x+1 → 2
       P.curve(function(t){ return t>=1? t+c : NaN; }, GLD);       // 오른쪽 x+c, x=1에서 1+c
+      ctx.textAlign='left'; ctx.font='12px sans-serif';
+      ctx.fillStyle=VIO; ctx.fillText('y = x + 1', P.X(-0.4),P.Y(0.7));
+      ctx.fillStyle=GLD; ctx.fillText('y = x + c', P.X(2.05),P.Y(2.05+c));
       var left=2, right=1+c, gap=Math.abs(left-right), cont=gap<0.05;
       // x=1 두 끝점
       ctx.fillStyle=cont?GRN:VIO; ctx.beginPath(); ctx.arc(P.X(1),P.Y(left),5,0,7); ctx.fill();

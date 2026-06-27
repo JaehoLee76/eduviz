@@ -22,6 +22,11 @@
       var x=-4, y=s.y0, h=0.02; ctx.strokeStyle=GLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(y));
       while(x<4){ y+=f(x,y)*h; x+=h; ctx.lineTo(P.X(x),P.Y(Math.max(-5,Math.min(5,y)))); } ctx.stroke();
       P.dot(-4,s.y0,GRN);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.fillText('해곡선', P.X(2.0)+6, P.Y(Math.max(-4.5,Math.min(4.5, (function(){var xx=-4,yy=s.y0,hh=0.02; while(xx<2.0){yy+=(xx-yy)*hh;xx+=hh;} return yy;})())))-8);
+      ctx.fillStyle='rgba(185,156,255,0.7)'; ctx.fillText('기울기장', P.X(-3.5), P.Y(3.7));
+      ctx.fillStyle=GRN; ctx.textAlign='right'; ctx.fillText('y₀ = '+s.y0.toFixed(1), P.X(-4)-6, P.Y(s.y0)+4); ctx.textAlign='left';
       E.big('dy/dx = x − y', '기울기장(화살표)은 각 점에서 해가 가야 할 방향. 초기값 y₀가 경로 하나를 고릅니다'); }
   },
 
@@ -36,6 +41,11 @@
       var h=(b-a)/n, x=a, y=1; ctx.strokeStyle=GLD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(y));
       for(var k=0;k<n;k++){ y+=y*h; x+=h; ctx.lineTo(P.X(x),P.Y(y)); P.dot(x,y,'rgba(255,210,122,0.7)'); } ctx.stroke();
       var err=Math.abs(y-Math.exp(2));
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('참값 y = eˣ', P.X(1.45), P.Y(Math.exp(1.45))+2);
+      ctx.fillStyle=GLD; ctx.fillText('오일러 절선', P.X(1.1), P.Y(1.0));
+      ctx.fillStyle=GLD; ctx.textAlign='right'; ctx.fillText('yₙ = yₙ₋₁ + f·h = '+y.toFixed(3), P.X(2)-4, P.Y(y)+4); ctx.textAlign='left';
       E.big('오일러 y(2) ≈ '+y.toFixed(3)+'   (참값 e² ≈ 7.389)', '접선 방향으로 한 걸음씩 — 스텝 n을 늘리면 참값 eˣ에 수렴 (오차 '+err.toFixed(3)+')'); }
   },
 
@@ -51,6 +61,11 @@
       while(t<5){ y+=k*y*h; t+=h; ctx.lineTo(P.X(t),P.Y(Math.min(7,y))); } ctx.stroke();
       P.dot(0,1,GRN);
       var y5=Math.exp(k*5);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('y = e^(kt)', P.X(3.3), P.Y(Math.min(6.5,Math.exp(k*3.3)))-8);
+      ctx.fillStyle=GRN; ctx.fillText('y₀ = 1', P.X(0)+6, P.Y(1)+4);
+      ctx.fillStyle=VIO; ctx.textAlign='right'; ctx.fillText('y(5) = '+Math.min(99,y5).toFixed(2), P.X(5)-4, P.Y(Math.min(6.7,y5))+4); ctx.textAlign='left';
       E.big('dy/dt = '+k.toFixed(2)+'y   →   y = e^('+k.toFixed(2)+'t)', k>0.02?'k>0: 현재 크기에 비례해 증가 — 인구·복리·전염 초기':k<-0.02?'k<0: 비례해 감소 — 방사성 붕괴·약물 농도':'k≈0: 거의 일정'); }
   },
 
@@ -68,6 +83,10 @@
       var t=0, y=s.y0, h=0.01; ctx.strokeStyle=VIO; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(y));
       while(t<8){ y+=k*y*(1-y/M)*h; t+=h; ctx.lineTo(P.X(t),P.Y(y)); } ctx.stroke();
       P.dot(0,s.y0,GLD);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('해곡선 y(t)', P.X(3.4), P.Y(Math.min(5.6, (function(){var tt=0,yy=s.y0,hh=0.01; while(tt<3.4){yy+=k*yy*(1-yy/M)*hh;tt+=hh;} return yy;})()))-8);
+      ctx.fillStyle=GLD; ctx.fillText('y₀ = '+s.y0.toFixed(1), P.X(0)+6, P.Y(s.y0)+(s.y0<M/2?-6:14));
       E.big('dy/dt = k·y·(1 − y/M)', '처음엔 지수처럼 폭발, 한계 M에 다가가면 멈춤 — 현실의 성장은 S자입니다'); }
   },
 
@@ -86,6 +105,11 @@
       while(t<8){ T+=-k*(T-env)*h; t+=h; ctx.lineTo(P.X(t),P.Y(T)); } ctx.stroke();
       P.dot(0,90,GLD);
       var Tend=env+(90-env)*Math.exp(-k*8);
+      // 이름표
+      ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=VIO; ctx.fillText('T(t)', P.X(2.0), P.Y(env+(90-env)*Math.exp(-k*2.0))-10);
+      ctx.fillStyle=GLD; ctx.fillText('T₀ = 90°', P.X(0)+6, P.Y(90)+2);
+      ctx.fillStyle=VIO; ctx.textAlign='right'; ctx.fillText('T(8) = '+Tend.toFixed(1)+'°', P.X(8)-4, P.Y(Tend)-6); ctx.textAlign='left';
       E.big('dT/dt = −k(T − '+env+'°)', '온도차에 비례해 식습니다 — 빠르게 식다가 주변온도('+env+'°)에 다가가며 느려집니다'); }
   }
 

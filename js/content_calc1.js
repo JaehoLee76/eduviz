@@ -13,6 +13,7 @@
       var self=this; E.bind('#cx','input',function(e){ self.s.x=+e.target.value; document.getElementById('cxo').textContent=e.target.value; E.blip(420+self.s.x*30,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, x=s.x, y=x*x;
       P.axes(); P.curve(function(t){return t*t;}, VIO);
+      ctx.fillStyle=VIO; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = x²', P.X(2.1), P.Y(4.4));
       ctx.globalAlpha=E.blink(); P.dot(x,y,GRN,'('+x+', '+y+')'); ctx.globalAlpha=1;
       // 수치적 표현(표) — 우측
       ctx.textAlign='left'; var tx=E.W*0.74, ty=E.H*0.22;
@@ -57,6 +58,9 @@
       P.axes();
       P.curve(function(x){return Math.sin(x);}, 'rgba(155,153,163,0.5)');   // 기본 f(x)=sin x (흐림)
       P.curve(function(x){return a*Math.sin(x-c)+d;}, VIO);                 // 변환된 함수
+      var ctx=E.ctx; ctx.textAlign='left';
+      ctx.fillStyle='rgba(155,153,163,0.75)'; ctx.font='12px sans-serif'; ctx.fillText('원본 f(x) = sin x', P.X(-6.3), P.Y(-2.4));
+      ctx.fillStyle=VIO; ctx.font='600 13px sans-serif'; ctx.fillText('변환된 곡선', P.X(-6.3), P.Y(3.5));
       function num(v){ return v<0? '−'+(-v) : ''+v; }
       var coef=(a===1?'':a===-1?'−':num(a)+'·');   // a=1→계수·점 생략, a=−1→−f, 그 외 a·f
       E.big('y = '+coef+'f(x'+(c>0?' − '+c:c<0?' + '+(-c):'')+')'+(d>0?' + '+d:d<0?' − '+(-d):''),
@@ -70,7 +74,8 @@
       var self=this; E.bind('#eb','input',function(e){ self.s.b=+e.target.value; document.getElementById('ebo').textContent=(+e.target.value).toFixed(1); E.blip(380+self.s.b*60,0.1); }); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s, b=s.b;
       P.axes(); P.curve(function(x){return Math.pow(b,x);}, VIO);
-      P.dot(0,1,GRN);                                  // 모든 지수함수는 (0,1) 통과
+      ctx.fillStyle=VIO; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = bˣ', P.X(2.4)+4, P.Y(Math.pow(b,2.4)));
+      P.dot(0,1,GRN,'(0, 1)');                          // 모든 지수함수는 (0,1) 통과
       var Td=Math.log(2)/Math.log(b);                  // 배가시간(2배 되는 데 걸리는 x)
       // 배가 구간 표시
       ctx.strokeStyle='rgba(255,210,122,0.6)'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
@@ -89,8 +94,11 @@
       // y=x 대칭축
       ctx.strokeStyle='rgba(155,153,163,0.45)'; ctx.lineWidth=1.2; ctx.setLineDash([5,5]);
       ctx.beginPath(); ctx.moveTo(P.X(-4),P.Y(-4)); ctx.lineTo(P.X(8),P.Y(8)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(155,153,163,0.7)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = x (대칭축)', P.X(5.6),P.Y(6.4));
       P.curve(function(x){return Math.pow(2,x);}, VIO);                       // f = 2ˣ
       P.curve(function(x){return x>0?Math.log(x)/Math.log(2):NaN;}, GLD);     // f⁻¹ = log₂
+      ctx.fillStyle=VIO; ctx.font='600 13px sans-serif'; ctx.fillText('f(x) = 2ˣ', P.X(2.1),P.Y(7.2));
+      ctx.fillStyle=GLD; ctx.fillText('f⁻¹(x) = log₂x', P.X(5.3),P.Y(2.0));
       var fy=Math.pow(2,a);                            // (a, 2^a)
       P.dot(a,fy,VIO,'('+a.toFixed(2)+', '+fy.toFixed(2)+')');
       P.dot(fy,a,GLD,'('+fy.toFixed(2)+', '+a.toFixed(2)+')');  // 거울 반사: 좌표 뒤바뀜
