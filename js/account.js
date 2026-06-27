@@ -93,6 +93,10 @@
   // ── 스타일 ──
   function injectStyle(){ if(document.getElementById('acct-style')) return; var s=mk('style'); s.id='acct-style';
     s.textContent=[
+      /* 로그인 시 콘텐츠 텍스트만 드래그 선택·복사 허용(질문·참고용). 비로그인은 기존대로 잠금. */
+      'body.eduviz-auth .bubble,body.eduviz-auth .bignum,body.eduviz-auth #conceptExtra,body.eduviz-auth #stepCap,'+
+        'body.eduviz-auth #codeBody,body.eduviz-auth #studyPanel,body.eduviz-auth #branchPage,body.eduviz-auth .titles,'+
+        'body.eduviz-auth #caption,body.eduviz-auth #bubble{user-select:text;-webkit-user-select:text;cursor:text;}',
       '#eduToolbar{position:fixed;top:10px;right:62px;z-index:31;display:flex;flex-direction:row;align-items:flex-start;gap:8px;}',
       '.acct-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--text-1,#f4f3ee);',
         'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:999px;padding:6px 12px;font-size:13px;',
@@ -154,6 +158,7 @@
     memoBtn.onclick=openMemo;
   }
   function renderLogin(){ if(!loginBtn) return;
+    if(document.body) document.body.classList.toggle('eduviz-auth', !!user);   // 로그인 시 콘텐츠 텍스트 드래그 복사 허용
     if(user){ loginBtn.classList.add('on');
       loginBtn.innerHTML = (user.picture? '<img class="acct-pic" src="'+user.picture+'" alt="">':'👤 ')+'<span>'+(user.name||'로그인됨')+'</span>'; }
     else { loginBtn.classList.remove('on'); loginBtn.innerHTML='<span>👤 로그인</span>'; } }

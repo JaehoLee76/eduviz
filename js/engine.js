@@ -156,9 +156,41 @@
     }); }
   }
 
+  // ---------- 교과서식 수식 렌더러(분수 스택·변수 이탤릭·함수명 직립·위첨자) : bignum 전용 ----------
+  var _MOP='(?:√\\([^()]*\\)|\\([^()]*\\)|\\d+(?:\\.\\d+)?|[A-Za-zπθαβγλμωΩΔ]+)(?:\\^(?:\\([^()]*\\)|[0-9A-Za-z]+))?';
+  var _MFRAC=new RegExp('('+_MOP+')/('+_MOP+')','g');
+  var _MUNIT=/^(s|ms|m|cm|mm|km|h|hr|min|kg|g|mol|N|J|W|Hz|rad|deg|L|mL|K)$/;  // 단위 분모는 분수로 만들지 않음(m/s 등)
+  var _MFN=/(arcsin|arccos|arctan|sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|log|ln|lim|exp|max|min|det|dim|gcd|lcm|mod)|\^\(([^()]*)\)|\^([-−]?[0-9]+(?:\.[0-9]+)?|[-−]?[A-Za-z])|([A-Za-z])/g;
+  function mathPlain(t){ return (''+t).replace(_MFN,function(m,fn,s1,s2,vr){
+    if(fn) return '<span class="mf">'+fn+'</span>';
+    if(s1!=null&&s1!=='') return '<sup>'+mathPlain(s1)+'</sup>';
+    if(s2!=null&&s2!=='') return '<sup>'+mathPlain(s2)+'</sup>';
+    if(vr) return '<i>'+vr+'</i>';
+    return m; }); }
+  function mathHTML(s){ if(s==null)return ''; s=''+s;
+    if(/<[a-zA-Z\/!]/.test(s)) return s;   // 이미 HTML이 들어온 문자열은 건드리지 않음
+    var out='',last=0,m; _MFRAC.lastIndex=0;
+    while((m=_MFRAC.exec(s))){ var den=m[2].replace(/\^.*/,'');
+      if(_MUNIT.test(den)) continue;
+      out+=mathPlain(s.slice(last,m.index));
+      out+='<span class="frac"><span class="fn">'+mathPlain(m[1])+'</span><span class="fd">'+mathPlain(m[2])+'</span></span>';
+      last=m.index+m[0].length; }
+    return out+mathPlain(s.slice(last)); }
+  var _mathCSSdone=false;
+  function injectMathCSS(){ if(_mathCSSdone||!document.head)return; _mathCSSdone=true;
+    var st=document.createElement('style');
+    st.textContent='.bignum #bigN{font-family:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;}'
+     +'.bignum #bigN i,.bignum #bigW i{font-style:italic;font-family:"STIX Two Math","Cambria Math","Times New Roman",Georgia,serif;}'
+     +'.bignum #bigN .mf,.bignum #bigW .mf{font-style:normal;}'
+     +'.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .14em;font-size:.6em;line-height:1.05;}'
+     +'.frac .fn{padding:0 .35em;border-bottom:.07em solid currentColor;}'
+     +'.frac .fd{padding:0 .35em;}';
+    document.head.appendChild(st); }
+  try{ global._mathHTML=mathHTML; }catch(e){}
+
   // ---------- big overlay ----------
   var bigEl,bigN,bigW;
-  function big(n,w){ if(!bigEl)return; if(n==null){ bigEl.classList.add('hidden'); return; } bigEl.classList.remove('hidden'); bigN.innerHTML=n; bigW.innerHTML=w||''; }
+  function big(n,w){ if(!bigEl)return; if(n==null){ bigEl.classList.add('hidden'); return; } injectMathCSS(); bigEl.classList.remove('hidden'); bigN.innerHTML=mathHTML(n); bigW.innerHTML=mathHTML(w||''); }
 
   // ---------- 펼침 학습 패널 (scene.more = 상세설명 HTML, scene.problem = {q, solution}) ----------
   var studyEl, studyBody, studyMore, studyProb, chevLabel, branchPageEl, branchPageInner;
