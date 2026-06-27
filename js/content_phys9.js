@@ -120,7 +120,7 @@
       for(i=0;i<=100;i++){ var xu3=i/100*10, X3=x0+(x1-x0)*i/100; ctx.lineTo(X3,midY-rad(xu3)); }
       for(i=100;i>=0;i--){ var xu4=i/100*10, X4=x0+(x1-x0)*i/100; ctx.lineTo(X4,midY+rad(xu4)); } ctx.fill();
       // 흐르는 입자(좁은 곳에서 빨라짐)
-      s.parts.forEach(function(p,idx){ s.parts[idx]+=vel(p)*(1/60)*1.4; if(s.parts[idx]>10) s.parts[idx]-=10;
+      s.parts.forEach(function(p,idx){ if(!E.frozen){ s.parts[idx]+=vel(p)*(1/60)*1.4; if(s.parts[idx]>10) s.parts[idx]-=10; }
         var xu=s.parts[idx], X=x0+(x1-x0)*xu/10, r=rad(xu); var yoff=((idx*37)%100/100-0.5)*1.4*r;
         ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(X, midY+yoff, 3, 0, 7); ctx.fill(); });
       var v2=v1*A1/s.A2;
@@ -157,7 +157,7 @@
         ctx.fillStyle=(xu===5?ORA:BLU); ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('P='+Math.round(P), X, midY-r-colh-36); });
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('↑ 압력 게이지 (관 높이 = 압력)', W*0.5, H*0.10);
       // 입자
-      s.parts.forEach(function(p,idx){ s.parts[idx]+=vel(p)*(1/60)*1.1; if(s.parts[idx]>10) s.parts[idx]-=10;
+      s.parts.forEach(function(p,idx){ if(!E.frozen){ s.parts[idx]+=vel(p)*(1/60)*1.1; if(s.parts[idx]>10) s.parts[idx]-=10; }
         var xu=s.parts[idx], X=x0+(x1-x0)*xu/10, r=rad(xu), yoff=((idx*37)%100/100-0.5)*1.4*r;
         ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(X, midY+yoff, 3, 0, 7); ctx.fill(); });
       var Pn=pres(5), Pw=pres(1.5);

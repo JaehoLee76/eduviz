@@ -139,7 +139,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var c=3, f=1, dt_emit=0.8;   // 음속 3, 0.8초마다 파면 방출
-      s.X0+=s.vs*(1/60); if(s.X0>6) s.X0=-6;     // 음원 천천히 이동(시각용)
+      if(!E.frozen){ s.X0+=s.vs*(1/60); if(s.X0>6) s.X0=-6; }     // 음원 천천히 이동(시각용)
       var cy=H*0.46, ox=W*0.5, sc=Math.min(W,H)*0.045;
       function SX(x){ return ox+x*sc; }
       // 최근 M개 파면: k번째는 kΔ 전 방출, 그때 음원 위치 X0 - vs·kΔ, 반지름 c·kΔ

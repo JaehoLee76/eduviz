@@ -105,7 +105,7 @@
       this.s.vmag=2; E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       // 자석 왕복 이동
-      s.mx += s.dir*s.vmag*(1/60); if(s.mx>2){ s.mx=2; s.dir=-1; } if(s.mx<-5){ s.mx=-5; s.dir=1; }
+      if(!E.frozen){ s.mx += s.dir*s.vmag*(1/60); if(s.mx>2){ s.mx=2; s.dir=-1; } if(s.mx<-5){ s.mx=-5; s.dir=1; } }
       var cx=W*0.5, cy=H*0.42, sc=Math.min(W*0.06,H*0.09);
       function X(x){return cx+x*sc;}
       // 코일(오른쪽)
@@ -149,7 +149,7 @@
       // 회전 표시 점(앞·뒤)
       ctx.fillStyle=c>0?GRN:DIM; ctx.beginPath(); ctx.arc(cx+w2,cy,5,0,7); ctx.fill();
       // EMF = NBAω sin(ωt) (회전 각속도로 적분된 θ에서)
-      var emf=s.w*Math.sin(s.th); s.hist.push(emf); if(s.hist.length>240) s.hist.shift();
+      var emf=s.w*Math.sin(s.th); if(!E.frozen){ s.hist.push(emf); if(s.hist.length>240) s.hist.shift(); }
       var gx0=W*0.52, gx1=W*0.95, gy0=H*0.44, gh=H*0.30;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0-gh); ctx.lineTo(gx0,gy0+gh); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('EMF', gx0+3, gy0-gh+2); ctx.fillText('t', gx1-8, gy0+14);

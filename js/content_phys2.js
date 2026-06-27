@@ -85,7 +85,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8, th=s.ang*Math.PI/180;
       var sliding = Math.tan(th) > s.mu, a = sliding ? g*(Math.sin(th)-s.mu*Math.cos(th)) : 0;
-      s.v += a*(1/60); s.d += s.v*(1/60); if(s.d>5){ s.d=0; s.v=0; }
+      if(!E.frozen){ s.v += a*(1/60); s.d += s.v*(1/60); if(s.d>5){ s.d=0; s.v=0; } }
       // 경사면 삼각형
       var ox=W*0.16, oy=H*0.74, L=Math.min(W*0.5,H*0.55), ex=ox+L*Math.cos(th), ey=oy-L*Math.sin(th);
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.lineTo(ex,oy); ctx.closePath(); ctx.stroke();

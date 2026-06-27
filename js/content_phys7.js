@@ -42,7 +42,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),baseY+24); ctx.lineTo(X(REST),baseY+44); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('평형', X(REST), baseY+58);
       // x-t 그래프
-      s.hist.push(b.x-REST); if(s.hist.length>180) s.hist.shift();
+      if(!E.frozen){ s.hist.push(b.x-REST); if(s.hist.length>180) s.hist.shift(); }
       tgraph(E, W*0.10, H*0.74, W*0.80, H*0.26, s.hist, 2.3, BLU);
       ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+4, H*0.74-H*0.13+4); ctx.fillStyle=DIM; ctx.textAlign='right'; ctx.fillText('시간 t →', W*0.90, H*0.74+14);
       var w0=Math.sqrt(s.k/s.m), T=2*Math.PI/w0;

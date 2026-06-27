@@ -11,7 +11,7 @@
     enter:function(E){ this.s={p:0.5}; E.NL.range(0,10);
       E.controls('<div class="ctrl"><label>진행</label><input type="range" id="pp" min="0" max="1" step="0.02" value="0.5"><output id="ppo">0.50</output></div>');
       var self=this; E.bind('#pp','input',function(e){ self.s.p=+e.target.value; document.getElementById('ppo').textContent=(+e.target.value).toFixed(2); E.blip(360+self.s.p*200,0.08); }); E.setOn([]); },
-    back:function(E){ E.NL.step(); E.NL.draw({integers:true}); },
+    back:function(E){ if(!E.frozen) E.NL.step(); E.NL.draw({integers:true}); },
     draw:function(E){ var p=this.s.p, ctx=E.ctx, y=E.NL.yy(); var OUT=8, BACK=3;
       // 실제 경로: 0→8(전반) → 8→3(후반). 거리=걸은 총길이, 변위=시작→현재 직선(전부 실측)
       var x, dist;
