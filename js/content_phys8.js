@@ -30,6 +30,9 @@
       ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(mX,midY-sc-10); ctx.lineTo(mX,midY+sc+10); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mX,mY,8,0,7); ctx.fill();
       ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('이 점은 위아래로만!', mX, midY+sc+28);
+      // 진폭 A 표시(변위 최대치)
+      ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(mX+14,midY); ctx.lineTo(mX+14,midY-s.A*sc); ctx.stroke();
+      ctx.fillStyle=ORA; ctx.textAlign='left'; ctx.fillText('A = '+s.A.toFixed(1), mX+18, midY-s.A*sc/2);
       // 진행 방향 화살표
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.62,midY-sc-30); ctx.lineTo(W*0.78,midY-sc-30); ctx.stroke();
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.moveTo(W*0.78,midY-sc-30); ctx.lineTo(W*0.78-9,midY-sc-35); ctx.lineTo(W*0.78-9,midY-sc-25); ctx.fill();
@@ -57,7 +60,9 @@
       if(c1>=0 && c2<=span){ var X1=x0+c1*pxScale, X2=x0+c2*pxScale, topY=midY-sc-16;
         ctx.strokeStyle=ORA; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(X1,topY); ctx.lineTo(X2,topY); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(X1,topY-5); ctx.lineTo(X1,midY-sc); ctx.moveTo(X2,topY-5); ctx.lineTo(X2,midY-sc); ctx.stroke();
-        ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('λ = '+lambda.toFixed(2), (X1+X2)/2, topY-8); }
+        ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('λ = '+lambda.toFixed(2)+' m', (X1+X2)/2, topY-8); }
+      // 현재값 라벨(f·λ)
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f = '+s.f.toFixed(1)+' Hz', x0, midY+sc+30);
       E.tapHint(W/2, H*0.90, '진동수 f를 올리면 파장 λ가 줄어듭니다 (v 일정)', true);
       E.big('v = f·λ = '+s.f.toFixed(1)+' × '+lambda.toFixed(2)+' = '+c.toFixed(1)+' (일정)', '파동의 세 요소: 진동수 f(1초당 진동 횟수), 파장 λ(한 주기의 공간 길이), 속력 v. 관계는 <b>v = fλ</b>. 매질이 정해지면 속력 v는 일정하므로, 진동수를 높이면 파장이 그만큼 짧아집니다(f↑ → λ↓). 높은 음(고주파)이 짧은 파장인 이유.'); }
   },
@@ -84,6 +89,11 @@
       // 기준선
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,midY); ctx.lineTo(x1,midY); ctx.stroke();
       var overlap=Math.abs(p1c-p2c)<1.2;
+      // 각 펄스 + 합 이름표
+      ctx.font='11px sans-serif'; ctx.textAlign='center';
+      if(p1c>=0&&p1c<=span){ ctx.fillStyle=GRN; ctx.fillText('펄스 1', x0+(x1-x0)*p1c/span, midY-sc-6); }
+      if(p2c>=0&&p2c<=span){ ctx.fillStyle=PNK; ctx.fillText('펄스 2', x0+(x1-x0)*p2c/span, (s.sign>0?midY-sc-6:midY+sc+16)); }
+      ctx.fillStyle=BLU; ctx.textAlign='left'; ctx.fillText('합(중첩) y = y₁ + y₂', x0, H*0.80);
       E.tapHint(W/2, H*0.90, '두 펄스가 만나는 순간 보강(+)·상쇄(−)', true);
       E.big(s.sign>0?'보강 간섭 — 만나면 더 커진다':'상쇄 간섭 — 만나면 사라진다', '두 파동이 겹치면 변위가 <b>그대로 더해집니다</b>(중첩 원리). 같은 방향(부호 +)이면 만나는 순간 마루가 합쳐져 <b>보강</b>(더 큰 파동), 반대 방향(−)이면 마루와 골이 만나 순간적으로 <b>상쇄</b>(평평). 신기하게도 겹친 뒤 두 파동은 아무 일 없던 듯 원래 모습으로 지나갑니다. 소음제거 이어폰이 상쇄 간섭.'); }
   },
@@ -111,7 +121,11 @@
       // 마디(node) 표시 — sin(nπx/L)=0 위치
       ctx.fillStyle=PNK; ctx.font='10px sans-serif'; ctx.textAlign='center';
       for(var m=0;m<=s.n;m++){ var xi=Math.round(m/s.n*(N-1)); ctx.beginPath(); ctx.arc(X(xi),midY,3.5,0,7); ctx.fill(); }
-      ctx.fillStyle=PNK; ctx.fillText('● 마디(node) — 움직이지 않는 점', W/2, H*0.66);
+      // 배(antinode) 표시 — 마디 사이 한가운데, 가장 크게 흔들리는 점
+      ctx.fillStyle=ORA;
+      for(var an=0;an<s.n;an++){ var ai=Math.round((an+0.5)/s.n*(N-1)); ctx.beginPath(); ctx.arc(X(ai),Y(ai),4,0,7); ctx.fill(); }
+      ctx.fillStyle=PNK; ctx.fillText('● 마디(node) — 움직이지 않는 점', W*0.33, H*0.66);
+      ctx.fillStyle=ORA; ctx.fillText('● 배(antinode) — 가장 크게 진동', W*0.67, H*0.66);
       var name=['기본 진동(1배음)','2배음','3배음','4배음','5배음'][s.n-1];
       E.tapHint(W/2, H*0.90, '배음 n을 바꿔 마디·배 패턴을 보세요 (양끝 고정)', true);
       E.big('정상파 '+name+' — 마디 '+(s.n+1)+'개, 배 '+s.n+'개', '양끝이 묶인 줄은 아무 진동수나 못 살아남고, 끝에서 되돌아온 파동과 박자가 딱 맞는 특정 진동수(배음)에서만 이렇게 제자리에서 출렁이는 <b>정상파</b>로 섭니다. 전혀 안 움직이는 점이 마디(node), 가장 크게 흔들리는 점이 배(antinode). 정상파의 정체는 반대로 진행하는 두 파동의 중첩(8.3)입니다! 기타·바이올린·관악기의 음높이가 이 배음으로 결정됩니다.'); }
@@ -191,6 +205,9 @@
       ctx.strokeStyle='rgba(255,178,122,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
       [1,-1].forEach(function(sgn){ ctx.beginPath(); for(var k=0;k<=200;k++){ var xu3=k/200*span, env=Math.abs(Math.cos(Math.PI*(f1-f2)*(xu3-s.t*0.5))), X3=x0+(x1-x0)*k/200, y3=midY-sgn*A*env; if(k===0)ctx.moveTo(X3,y3); else ctx.lineTo(X3,y3); } ctx.stroke(); }); ctx.setLineDash([]);
       var fbeat=Math.abs(f1-f2);
+      // 포락선 이름표
+      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('포락선 = 소리 크기 (맥놀이 '+fbeat.toFixed(1)+' Hz)', x0, midY-A-8);
+      ctx.fillStyle=GRN; ctx.fillText('f₁ = 5', x0, midY+A+22); ctx.fillStyle=PNK; ctx.fillText('f₂ = '+f2.toFixed(1), x0+70, midY+A+22);
       E.tapHint(W/2, H*0.90, 'f₂를 f₁에 가까이 — 맥놀이가 느려짐', true);
       E.big('맥놀이 진동수 = |f₁−f₂| = '+fbeat.toFixed(1)+' Hz', '비슷한 두 진동수가 겹치면 소리가 <b>주기적으로 커졌다 작아졌다</b> 합니다 — 맥놀이(beats). 두 파동이 같은 위상일 때 보강(큼), 반대 위상일 때 상쇄(작음)를 반복하기 때문. 맥놀이 진동수 = <b>|f₁−f₂|</b>. f₂를 f₁에 가까이 하면 맥놀이가 느려지고, 똑같아지면 사라집니다 — 악기 조율의 원리(맥놀이가 0이 될 때까지 맞춤). 주황 포락선이 소리 크기 변화입니다.'); }
   }

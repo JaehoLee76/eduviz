@@ -8,6 +8,7 @@
   // ── 에너지 막대 헬퍼: items=[{label,val,color}] 를 maxv 기준으로 세로 막대 ──
   function ebars(E, x0, items, maxv){ var ctx=E.ctx, H=E.H, baseY=H*0.74, bh=H*0.42, bw=46, gap=26;
     ctx.textAlign='center';
+    ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.fillText('에너지 (J)', x0+((items.length*(bw+gap))-gap)/2, baseY-bh-22);
     items.forEach(function(it,i){ var x=x0+i*(bw+gap), h=Math.max(0,Math.min(1,it.val/maxv))*bh;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,bw,bh);
       ctx.fillStyle=it.color; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-h,bw,h); ctx.globalAlpha=1;
@@ -72,7 +73,7 @@
       b.m=s.m; w.step(1/60,6); if(b.x>10){ b.x=0; b.vx=0; }
       var v=PhysLab.view(W*0.10, H*0.50, (W*0.50)/10); s.view=v;
       track(E,v,0,10); var bk=block(E,v,b,s.m,GRN);
-      farrow(E, bk.px+bk.sz/2, bk.top, s.F*7, ORA, 'F');
+      farrow(E, bk.px+bk.sz/2, bk.top, s.F*7, ORA, 'F = '+s.F+' N');
       var Wk=s.F*b.x, KE=0.5*b.m*b.vx*b.vx;   // 둘 다 시뮬 상태에서 계산
       ebars(E, W*0.66, [{label:'일 W',val:Wk,color:ORA},{label:'운동E',val:KE,color:GRN}], 160);
       E.tapHint(W/2, H*0.90, '화면 탭 = 처음으로', true);
@@ -99,6 +100,7 @@
       // 바닥 + 기둥
       ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(v.X(2),v.Y(floor)); ctx.lineTo(v.X(8),v.Y(floor)); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('바닥 (h = 0)', v.X(5), v.Y(floor)+16);
       // 높이 표시선
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(v.X(b.x),v.Y(floor)); ctx.lineTo(v.X(b.x),v.Y(b.y)); ctx.stroke(); ctx.setLineDash([]);
@@ -131,7 +133,9 @@
       track(E,v,0,10); ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
       for(var gx=0;gx<=10;gx+=0.5){ ctx.beginPath(); ctx.moveTo(v.X(gx),v.Y(0)+20); ctx.lineTo(v.X(gx)-6,v.Y(0)+28); ctx.stroke(); }
       var bk=block(E,v,b,2,ORA);
-      if(Math.abs(b.vx)>0.04) farrow(E, bk.px-bk.sz/2, bk.top, -(s.mu*b.m*GREF)*2.2, PNK, '마찰');
+      var ffric=s.mu*b.m*GREF;
+      if(Math.abs(b.vx)>0.04) farrow(E, bk.px-bk.sz/2, bk.top, -ffric*2.2, PNK, 'f = μmg = '+ffric.toFixed(1)+' N');
+      E.ctx.fillStyle=DIM; E.ctx.font='11px sans-serif'; E.ctx.textAlign='left'; E.ctx.fillText('거친 바닥 (μ = '+s.mu.toFixed(2)+')', v.X(0), v.Y(0)+40);
       var KE=0.5*b.m*b.vx*b.vx, tot=KE+s.heat;
       ebars(E, W*0.66, [{label:'운동E',val:KE,color:GRN},{label:'열',val:s.heat,color:PNK},{label:'합계',val:tot,color:ORA}], 0.5*2*7*7*1.1);
       E.tapHint(W/2, H*0.90, '화면 탭 = 다시 밀기', true);
@@ -154,16 +158,17 @@
       s.hist.push(P); if(s.hist.length>120) s.hist.shift();
       var v=PhysLab.view(W*0.10, H*0.34, (W*0.50)/10); s.view=v;
       track(E,v,0,10); var bk=block(E,v,b,2,GRN);
-      farrow(E, bk.px+bk.sz/2, bk.top, s.F*7, ORA, 'F');
+      farrow(E, bk.px+bk.sz/2, bk.top, s.F*7, ORA, 'F = '+s.F+' N');
       // v 화살표(속도)
-      farrow(E, bk.px, bk.top+26, b.vx*9, BLU, 'v='+b.vx.toFixed(1));
+      farrow(E, bk.px, bk.top+26, b.vx*9, BLU, 'v = '+b.vx.toFixed(1)+' m/s');
       // P-t 그래프(아래)
       var gx0=W*0.12, gx1=W*0.88, gy0=H*0.86, gh=H*0.32, Pmax=16*6*1.05;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('P', gx0-6, gy0-gh+8); ctx.textAlign='left'; ctx.fillText('t', gx1-8, gy0+14);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('일률 P (W)', gx0+58, gy0-gh+8); ctx.textAlign='left'; ctx.fillText('시간 t', gx1-30, gy0+14);
       ctx.strokeStyle=PNK; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(p,i){ var x=gx0+(gx1-gx0)*i/120, y=gy0-Math.min(1,p/Pmax)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+      ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('P = F·v', gx1-60, gy0-gh+8);
       E.tapHint(W/2, H*0.955, '화면 탭 = 처음으로', true);
       E.big('순간 일률 P = F·v = '+P.toFixed(1)+' W', '일률 = 단위시간당 한 일 = 힘 × 속도. 속도가 빨라질수록 같은 힘이라도 일률이 커집니다(분홍 곡선↑). 평균 일률 W/t = '+avg.toFixed(1)+' W. 1 W = 1 J/s.'); }
   },
@@ -184,8 +189,10 @@
       w.step(1/60,6); if(b.y<0.2 && b.vy<0){ b.y=0.2; b.vy=0; b.vx=0; }
       var ox=W*0.10, oy=H*0.86, sc=Math.min(W*0.07,H*0.07), v=PhysLab.view(ox,oy,sc); s.view=v;
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(0)); ctx.lineTo(v.X(12),v.Y(0)); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('지면', v.X(12), v.Y(0)+15);
       // 용수철(왼쪽 아래)
       ctx.strokeStyle=DIM; ctx.lineWidth=2; var sx=v.X(0); for(var i=0;i<6;i++){ ctx.beginPath(); ctx.moveTo(sx+i*4,v.Y(0)-4); ctx.lineTo(sx+i*4+2,v.Y(0)-12); ctx.stroke(); }
+      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v₀ = '+s.v0.toFixed(1)+' m/s, θ = '+s.ang+'°', sx, v.Y(0)-20);
       s.trail.push([b.x,b.y]); if(s.trail.length>200)s.trail.shift();
       ctx.strokeStyle='rgba(95,214,168,0.45)'; ctx.lineWidth=1.5; ctx.beginPath(); s.trail.forEach(function(p,i){ if(i===0)ctx.moveTo(v.X(p[0]),v.Y(p[1])); else ctx.lineTo(v.X(p[0]),v.Y(p[1])); }); ctx.stroke();
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),7,0,7); ctx.fill();
@@ -212,9 +219,11 @@
       ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('출발 높이 H₀(에너지 한계)', v.X(0)+4, v.Y(s.H0)-4);
       // 차
       var cx=v.X(s.x), cy=v.Y(yhere); ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,cy-6,7,0,7); ctx.fill();
+      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('v = '+speed.toFixed(1)+' m/s', cx, cy-18);
       // 에너지 막대
       var PE=g*yhere, KE=0.5*speed*speed, tot=PE+KE;
       var bx=W*0.74, baseY=H*0.74, bh=H*0.4, mx=g*s.H0*1.1;
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('단위질량당 에너지 (J/kg)', bx+57, baseY-bh-12);
       [['위치E',PE,BLU],['운동E',KE,GRN],['합',tot,ORA]].forEach(function(it,i){ var x=bx+i*52, hh=Math.min(1,it[1]/mx)*bh;
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,38,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,38,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(1),x+19,baseY-hh-5); ctx.fillStyle=it[2]; ctx.fillText(it[0],x+19,baseY+16); });

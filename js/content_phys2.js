@@ -30,7 +30,13 @@
       var aL=s.F*7, ay=base-sz/2;                          // 힘 화살표
       if(s.F>0){ ctx.strokeStyle=ORA; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(px+sz/2, ay); ctx.lineTo(px+sz/2+aL, ay); ctx.stroke();
         ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(px+sz/2+aL,ay); ctx.lineTo(px+sz/2+aL-9,ay-5); ctx.lineTo(px+sz/2+aL-9,ay+5); ctx.fill();
-        ctx.font='12px sans-serif'; ctx.fillText('F='+s.F+' N', px+sz/2+aL/2, ay-10); }
+        ctx.font='12px sans-serif'; ctx.fillText('F = '+s.F+' N', px+sz/2+aL/2, ay-10); }
+      // 속도 v 화살표(파랑) — 가속으로 쌓인 속도
+      if(b.vx>0.05){ var vL=Math.min(b.vx*8,W*0.2), vy=base-sz-10;
+        ctx.strokeStyle=BLU; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(px, vy); ctx.lineTo(px+vL, vy); ctx.stroke();
+        ctx.fillStyle=BLU; ctx.beginPath(); ctx.moveTo(px+vL,vy); ctx.lineTo(px+vL-8,vy-4); ctx.lineTo(px+vL-8,vy+4); ctx.fill();
+        ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('v = '+b.vx.toFixed(1)+' m/s', px+vL/2, vy-7); }
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('지면 (마찰 없음)', v.X(0), base+34);
       E.tapHint(W/2, H*0.76, '화면 탭 = 처음으로', true);
       E.big('a = F/m = '+(s.F/s.m).toFixed(2)+' m/s²    v = '+b.vx.toFixed(2)+' m/s', '힘을 주면 가속이 시작되고 속도 v가 점점 쌓입니다. 같은 힘이라도 무거우면 더 굼뜨게 가속하죠 — 이것이 뉴턴 제2법칙입니다.'); }
   },
@@ -59,6 +65,9 @@
       ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(0)); ctx.lineTo(v.X(10),v.Y(0)); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(0)); ctx.lineTo(v.X(0),v.Y(9)); ctx.moveTo(v.X(10),v.Y(0)); ctx.lineTo(v.X(10),v.Y(9)); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('바닥', v.X(5), v.Y(0)+16);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('g = '+w.g.toFixed(1)+' m/s²', W*0.97, H*0.10);
+      ctx.fillText('반발 e = '+w.rest.toFixed(2), W*0.97, H*0.10+16);
       w.bodies.forEach(function(b){ var px=v.X(b.x), py=v.Y(b.y), pr=b.r*v.s;
         ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill(); ctx.globalAlpha=1;
         if(b.held){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,pr+3,0,7); ctx.stroke(); } });
@@ -80,15 +89,18 @@
       // 경사면 삼각형
       var ox=W*0.16, oy=H*0.74, L=Math.min(W*0.5,H*0.55), ex=ox+L*Math.cos(th), ey=oy-L*Math.sin(th);
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.lineTo(ex,oy); ctx.closePath(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('θ='+s.ang+'°', ox+30, oy-6);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('θ = '+s.ang+'°', ox+30, oy-6);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.save(); ctx.translate((ox+ex)/2,(oy+ey)/2); ctx.rotate(-th); ctx.fillText('경사면 (μ = '+s.mu.toFixed(2)+')', 0, -20); ctx.restore();
       // 블록(경사 위, 위→아래로 미끄러짐: 꼭대기에서 d만큼 내려옴)
       var f=Math.max(0,1-s.d/5), bx=ox+(ex-ox)*(0.15+0.7*(1-f)), by=oy-(oy-ey)*(0.15+0.7*(1-f));
       var nx=Math.sin(th), ny=Math.cos(th);  // 경사 수직(법선) 방향(바깥)
       ctx.save(); ctx.translate(bx,by); ctx.rotate(-th); ctx.fillStyle=ORA; ctx.globalAlpha=0.3; ctx.fillRect(-16,-28,32,28); ctx.globalAlpha=1; ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.strokeRect(-16,-28,32,28); ctx.restore();
       // 힘 화살표: 중력(아래)·경사방향성분
-      function arr(dx,dy,col){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(bx,by-14); ctx.lineTo(bx+dx,by-14+dy); ctx.stroke(); var a2=Math.atan2(dy,dx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(bx+dx,by-14+dy); ctx.lineTo(bx+dx-8*Math.cos(a2-0.4),by-14+dy-8*Math.sin(a2-0.4)); ctx.lineTo(bx+dx-8*Math.cos(a2+0.4),by-14+dy-8*Math.sin(a2+0.4)); ctx.fill(); }
-      arr(0, g*4, PNK);  // 중력 mg
-      arr(Math.cos(th)*g*Math.sin(th)*5, Math.sin(th)*g*Math.sin(th)*5, GRN);  // 경사방향 성분 g sinθ
+      function arr(dx,dy,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(bx,by-14); ctx.lineTo(bx+dx,by-14+dy); ctx.stroke(); var a2=Math.atan2(dy,dx); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(bx+dx,by-14+dy); ctx.lineTo(bx+dx-8*Math.cos(a2-0.4),by-14+dy-8*Math.sin(a2-0.4)); ctx.lineTo(bx+dx-8*Math.cos(a2+0.4),by-14+dy-8*Math.sin(a2+0.4)); ctx.fill();
+        if(lab){ ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText(lab, bx+dx+4, by-14+dy); } }
+      arr(0, g*4, PNK, 'mg');  // 중력 mg(아래)
+      arr(Math.cos(th)*g*Math.sin(th)*5, Math.sin(th)*g*Math.sin(th)*5, GRN, 'g sinθ');  // 경사방향 성분 g sinθ
+      arr(-Math.sin(th)*g*Math.cos(th)*5, Math.cos(th)*g*Math.cos(th)*5, BLU, 'g cosθ');  // 면 누르는 수직 성분 g cosθ
       E.tapHint(W/2, H*0.90, '각도·마찰을 바꿔 미끄러지는 조건을 보세요', true);
       E.big((sliding?'미끄러짐 — 경사방향 가속도 a = g(sinθ−μcosθ) = '+a.toFixed(2):'정지 — 마찰이 충분(tanθ ≤ μ)'), '중력을 둘로 쪼개 봅니다 — 끌어내리는 <b>경사 방향(g sinθ)</b>과 면을 누르는 <b>수직 방향(g cosθ)</b>. 끌어내리는 성분이 마찰(μ·g cosθ)을 이겨야 미끄러지니, 문턱은 <b>tanθ > μ</b>입니다. 미끄러지면 가속도는 a = g(sinθ − μcosθ). 가팔라지거나 매끄러워지면 스르륵 — 미끄럼틀과 비탈의 비밀입니다.'); }
   },
@@ -111,6 +123,10 @@
       var y1=topY+ (3 - s.y)*sc, y2=topY + (3 + s.y)*sc;   // m1 올라가고 m2 내려감(y>0)
       ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(lx,topY); ctx.lineTo(lx,y1); ctx.moveTo(rx,topY); ctx.lineTo(rx,y2); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('도르래', cx-20, topY-18);
+      // 장력 라벨(양쪽 줄 — 한 줄이라 장력 T는 어디서나 같음)
+      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('T = '+T.toFixed(1)+' N', lx-4, (topY+y1)/2);
+      ctx.textAlign='left'; ctx.fillText('T = '+T.toFixed(1)+' N', rx+4, (topY+y2)/2);
       // 추
       function box(x,y,m,col){ var sz=14+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(x-sz/2,y,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(x-sz/2,y,sz,sz); ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',x,y+sz/2+4); }
       box(lx,y1,s.m1,GRN); box(rx,y2,s.m2,ORA);

@@ -32,11 +32,13 @@
       for(var k=0;k<6;k++){ var a=s.th+k*Math.PI/3; ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a)); ctx.stroke(); }
       var rx=cx+R*Math.cos(s.th), ry=cy+R*Math.sin(s.th);
       arrow(E,cx,cy,rx,ry,ORA,3);
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+s.r+' m', cx+R*0.5*Math.cos(s.th)-12, cy+R*0.5*Math.sin(s.th)-8);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(rx,ry,8,0,7); ctx.fill();
       // 접선 속도 벡터(반경에 수직)
       var tx=-Math.sin(s.th), ty=Math.cos(s.th), vl=v*16;
       arrow(E,rx,ry,rx+tx*vl,ry+ty*vl,GRN,2.5);
-      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('v=rω', rx+tx*vl+6, ry+ty*vl);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('v=rω='+v.toFixed(1), rx+tx*vl+6, ry+ty*vl);
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('ω='+s.om.toFixed(2)+' rad/s', cx, cy-R-10);
       E.tapHint(W/2, H*0.88, '화면 탭 = 멈춤·재가속', true);
       E.big('ω = '+s.om.toFixed(2)+' rad/s,   v = rω = '+v.toFixed(2)+' m/s', '도는 물체는 각도로 이야기합니다: 각가속도 α가 각속도 ω를 키우고(ω=∫α dt), 그 ω가 각도 θ를 늘립니다 — 직선운동의 a→v→x와 한 글자도 다르지 않은 구조죠. 가장자리 한 점이 실제로 내달리는 속력은 v=rω, 중심에서 멀수록 빠릅니다(r='+s.r+' m). 회전목마 바깥 자리가 더 신나는 이유입니다.'); }
   },
@@ -61,8 +63,9 @@
       // 끝에 수직 힘(접선 방향)
       var tx=-Math.sin(s.th), ty=Math.cos(s.th);
       arrow(E,ex,ey,ex+tx*s.F*10,ey+ty*s.F*10,ORA,3);
-      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('F', ex+tx*s.F*10+6, ey+ty*s.F*10);
-      ctx.fillStyle=DIM; ctx.fillText('r', (cx+ex)/2+6, (cy+ey)/2-6);
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('F='+s.F.toFixed(1)+' N', ex+tx*s.F*10+6, ey+ty*s.F*10);
+      ctx.fillStyle=DIM; ctx.fillText('r='+s.r.toFixed(1)+' m', (cx+ex)/2+6, (cy+ey)/2-6);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('τ=r·F='+tau.toFixed(1)+' N·m', cx, cy+scale*0.7+18);
       E.tapHint(W/2, H*0.88, '화면 탭 = 정지', true);
       E.big('토크 τ = r·F = '+tau.toFixed(1)+' N·m  →  α = τ/I = '+alpha.toFixed(2)+' rad/s²', '토크는 "돌리는 능력" = 힘 × 지렛대 길이. 같은 힘이라도 멀리(r↑) 작용하면 토크가 커집니다 — 손잡이가 경첩에서 먼 자리에 달린 이유죠. 그리고 토크는 곧 각가속도가 됩니다: τ = Iα (회전 세계의 F=ma). I='+s.I+' kg·m².'); }
   },
@@ -81,7 +84,11 @@
       // 막대(축) 양끝에 질량
       var tx=Math.cos(s.th), ty=Math.sin(s.th), L=s.d*scale;
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-tx*L,cy-ty*L); ctx.lineTo(cx+tx*L,cy+ty*L); ctx.stroke();
-      [1,-1].forEach(function(sgn){ var mx=cx+sgn*tx*L, my=cy+sgn*ty*L; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,12,0,7); ctx.fill(); });
+      [1,-1].forEach(function(sgn){ var mx=cx+sgn*tx*L, my=cy+sgn*ty*L; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,12,0,7); ctx.fill();
+        ctx.fillStyle='#10141a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('m', mx, my); ctx.textBaseline='alphabetic'; });
+      // 거리 d 라벨(중심→한쪽 질량)
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('d='+s.d.toFixed(1)+' m', cx+tx*L*0.5, cy+ty*L*0.5-8);
+      ctx.fillStyle=BLU; ctx.fillText('I = 2m·d² = '+I.toFixed(2)+' kg·m²', cx, cy-scale-12);
       E.tapHint(W/2, H*0.88, '화면 탭 = 정지', true);
       E.big('I = 2m·d² = '+I.toFixed(2)+' kg·m²  →  같은 토크에 α = '+alpha.toFixed(2)+' rad/s²', '관성모멘트 I = 회전의 "고집"(돌려지지 않으려는 정도) = Σmr². 같은 토크('+s.tau+' N·m)라도 질량이 바깥(d↑)에 있으면 I가 불어나 굼뜨게 돕니다. 곡예사가 긴 장대를 드는 이유, 팽이 가장자리가 묵직한 이유 — 전부 질량을 어디 뒀느냐의 문제!'); }
   },
@@ -106,12 +113,14 @@
       [1,-1].forEach(function(sgn){ var mx=cx+sgn*tx*L, my=cy+sgn*ty*L;
         ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(mx,my); ctx.stroke();
         ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(mx,my,10,0,7); ctx.fill(); });
+      // 팔 길이 r 라벨
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+s.r.toFixed(1)+' m', cx+tx*L*0.5, cy+ty*L*0.5-8);
       // 막대 그래프: L(보존)·I·ω
-      var baseY=H*0.80, bh=H*0.32, items=[['L=Iω',s.L0,GRN],['I',I,BLU],['ω',om,ORA]], mx2=Math.max(s.L0,I,om,1)*1.15;
+      var baseY=H*0.80, bh=H*0.32, items=[['L (kg·m²/s)',s.L0,GRN],['I (kg·m²)',I,BLU],['ω (rad/s)',om,ORA]], mx2=Math.max(s.L0,I,om,1)*1.15;
       items.forEach(function(it,i){ var x=W*0.66+i*64, hh=it[1]/mx2*bh;
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,44,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,44,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(2), x+22, baseY-hh-6);
-        ctx.fillStyle=it[2]; ctx.fillText(it[0], x+22, baseY+18); });
+        ctx.fillStyle=it[2]; ctx.font='9px sans-serif'; ctx.fillText(it[0], x+22, baseY+16); });
       E.tapHint(W/2, H*0.90, '팔을 당기면(r↓) 회전이 빨라집니다', true);
       E.big('L = Iω = '+s.L0.toFixed(2)+' (보존)   ω = '+om.toFixed(2)+' rad/s', '각운동량 L=Iω는 밖에서 비트는 토크가 없으면 끝까지 변하지 않습니다. 피겨 선수가 팔을 당기면(r↓) I가 줄고, L을 지키려고 ω가 솟아 더 빨리 돌죠 — L은 미동도 없습니다(초록 막대 고정). 다이빙 회전·고양이 착지·중성자별의 무서운 자전이 전부 이 한 줄의 약속!'); }
   },
@@ -141,15 +150,17 @@
       ctx.fillStyle=DIM; ctx.beginPath(); ctx.arc(cx,cy,5,0,7); ctx.fill();
       var px=v.X(b.x), py=v.Y(b.y), r=Math.hypot(b.x,b.y), sp=Math.hypot(b.vx,b.vy);
       // 줄(or 끊김)
+      var Fc=b.m*sp*sp/r, om=sp/r;
       if(!s.cut){ ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
         // 구심력 화살표(공→중심 방향, 길이 ∝ F)
         var Fmag=b.m*sp*sp/r, ux=(cx-px), uy=(cy-py), ud=Math.hypot(ux,uy)||1, fl=Math.min(ud*0.85, Fmag*7);
         arrow(E,px,py,px+ux/ud*fl,py+uy/ud*fl,ORA,2.5);
+        ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('F='+Fc.toFixed(1)+' N', px+ux/ud*fl+4, py+uy/ud*fl);
       }
       // 속도 화살표(접선)
       arrow(E,px,py,px+b.vx*scale*0.5,py-b.vy*scale*0.5,BLU,2.5);
+      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+sp.toFixed(1), px+b.vx*scale*0.5+4, py-b.vy*scale*0.5);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px,py,8,0,7); ctx.fill();
-      var Fc=b.m*sp*sp/r, om=sp/r;
       E.tapHint(W/2, H*0.90, s.cut?'화면 탭=줄 다시 매기':'화면을 눌러 줄 끊기', true);
       if(s.cut) E.big('줄을 끊으면 직선으로! (관성)', '당겨 주던 힘이 사라지자 공은 바깥이 아니라 가던 방향, 즉 접선으로 곧장 날아갑니다 — 뉴턴 1법칙. 원운동 내내 "안으로 끌어당기는 힘"이 줄곧 필요했던 것이죠. 원심력은 가짜 힘, 진짜 주인공은 중심으로 당기는 구심력입니다.');
       else E.big('구심력 F = mv²/r = '+Fc.toFixed(2)+' N (중심 방향)', '속력이 한결같은 원운동도 엄연한 "가속" 운동입니다 — 크기는 그대로여도 속도의 방향이 한순간도 안 쉬고 바뀌니까요. 그 방향을 휘어 주는 힘이 구심력 F=mv²/r, 언제나 중심을 향합니다. v='+sp.toFixed(2)+' m/s, ω=v/r='+om.toFixed(2)+' rad/s. 줄을 끊어 보세요!'); }
@@ -197,8 +208,11 @@
       function pt(dx){ return [cx+dx*sc*c, cy - dx*sc*sn]; }
       var lp=pt(-3.5), rp=pt(3.5); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(lp[0],lp[1]); ctx.lineTo(rp[0],rp[1]); ctx.stroke();
       // 추(왼쪽 m1 at d1, 오른쪽 m2 at d2fix)
-      function wt(dx,m,col){ var p=pt(dx), sz=12+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.fillStyle=col; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',p[0],p[1]-sz/2); }
-      wt(-s.d1,s.m1,GRN); wt(d2fix,s.m2,ORA);
+      function wt(dx,m,col,dlab){ var p=pt(dx), sz=12+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.fillStyle=col; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',p[0],p[1]-sz/2);
+        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.fillText('d='+dlab.toFixed(1)+'m',p[0],p[1]+14); }
+      // 받침점 라벨
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('받침점 O', cx, cy+54);
+      wt(-s.d1,s.m1,GRN,s.d1); wt(d2fix,s.m2,ORA,d2fix);
       var bal=Math.abs(net)<0.01;
       E.tapHint(W/2, H*0.90, '왼쪽 위치·오른쪽 질량을 바꿔 평형을 맞춰 보세요', true);
       E.big('토크 평형: m₁d₁ = '+tau1.toFixed(1)+' vs m₂d₂ = '+tau2.toFixed(1)+(bal?'  → 평형!':(net>0?'  → 오른쪽으로 기욺':'  → 왼쪽으로 기욺')), '회전이 멈춰 가만히 있으려면 <b>양쪽이 돌리려는 토크가 똑같아야</b> 합니다(정역학). 시소는 무게×거리(m·d, 토크)가 맞아떨어질 때 균형 — 무거운 사람은 받침점 가까이 다가앉아 거리를 줄여야 가벼운 사람과 평형이 되죠. 알짜 토크도 0, 알짜 힘도 0이면 물체는 가만히 멈춰 있습니다. 다리·건물·크레인, 그리고 똑바로 선 우리 몸뚱이가 무너지지 않는 것이 전부 이 힘과 토크의 줄다리기 — 정역학입니다.'); }

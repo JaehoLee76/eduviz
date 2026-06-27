@@ -30,7 +30,9 @@
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.strokeRect(v.X(0),v.Y(7),v.X(10)-v.X(0),v.Y(0)-v.Y(7));
       var vmax=Math.sqrt(2*6)*1.4;
       w.bodies.forEach(function(b){ var sp=Math.hypot(b.vx,b.vy); ctx.fillStyle=speedColor(sp,vmax); ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),b.r*sc,0,7); ctx.fill(); });
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('기체 분자 ('+w.bodies.length+'개)', v.X(0.2), v.Y(7)-8);
       var ke=avgKE(w);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('½m⟨v²⟩ = '+ke.toFixed(2)+' (∝ T)', v.X(0.2), v.Y(0)+24);
       E.tapHint(W/2, H*0.90, '온도를 올리면 분자가 빨라집니다', true);
       E.big('온도 ∝ 분자 평균 운동에너지 = '+ke.toFixed(2), '온도의 정체는 <b>분자들이 얼마나 빠르게 날뛰는가</b>입니다. 뜨겁다 = 분자가 빠르다, 차갑다 = 느리다. 온도를 올리면 상자 속 분자들이 한층 격렬하게 부딪히며 튀어 다닙니다(빠를수록 붉게). 부딪힐 때마다 속도가 골고루 섞여 자연히 빠른·느린 분자가 공존하는 맥스웰 분포가 됩니다. 끝까지 식히면 분자가 멈추는 한계 — 그것이 절대영도(0 K)입니다.'); }
   },
@@ -55,8 +57,10 @@
       // 압력 막대
       var bx=W*0.74, baseY=H*0.78, bh=H*0.5, mx=44*2*6/(2*area)*100*1.1;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh);
-      ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,P/mx)*bh,46,Math.min(1,P/mx)*bh); ctx.globalAlpha=1;
-      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('압력', bx+23, baseY+16);
+      var ph=Math.min(1,P/mx)*bh; ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-ph,46,ph); ctx.globalAlpha=1;
+      ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('P = '+P.toFixed(1), bx+23, baseY-ph-6);
+      ctx.fillStyle=ORA; ctx.fillText('압력 P', bx+23, baseY+16);
+      ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.fillText('N·m⟨v²⟩ / 2A', bx-4, baseY+34);
       E.tapHint(W/2, H*0.90, '온도·분자 수를 바꿔 압력 변화를 보세요', true);
       E.big('압력 = 분자들의 벽 충돌 = '+P.toFixed(1), '기체 압력의 정체는 <b>수많은 분자가 끊임없이 벽을 두드리는 톡톡의 합</b>입니다. 분자가 많을수록(N↑), 빠를수록(T↑) 벽을 두드리는 일이 잦고 세져 압력이 커집니다 — P ∝ N·T/V. 풍선이 빵빵한 것, 더운 날 타이어 공기압이 오르는 것이 모두 이것입니다.'); }
   },
@@ -80,10 +84,11 @@
       w.bodies.forEach(function(b){ var sp=Math.hypot(b.vx,b.vy); ctx.fillStyle=speedColor(sp,vmax); ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),b.r*sc,0,7); ctx.fill(); });
       // 피스톤
       ctx.fillStyle=DIM; ctx.fillRect(v.X(s.Vx)-3,v.Y(7),12,v.Y(0)-v.Y(7));
-      var ke=avgKE(w), P=w.bodies.length*2*ke/(2*(s.Vx*7))*100, PV=P*s.Vx*7/100, nT=w.bodies.length*2*ke/2;
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('피스톤', v.X(s.Vx)+4, v.Y(7)-8);
+      var ke=avgKE(w), P=w.bodies.length*2*ke/(2*(s.Vx*7))*100, PV=P*s.Vx*7/100, nT=w.bodies.length*2*ke/2, PVT=PV/(ke*100);
       ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('P = '+P.toFixed(1), W*0.66, H*0.30); ctx.fillText('V ∝ '+s.Vx.toFixed(1), W*0.66, H*0.38); ctx.fillText('T ∝ '+ke.toFixed(2), W*0.66, H*0.46);
-      ctx.fillStyle=ORA; ctx.fillText('PV/T ≈ 일정(nR)', W*0.66, H*0.56);
+      ctx.fillText('P = '+P.toFixed(1), W*0.66, H*0.30); ctx.fillText('V = '+(s.Vx*7).toFixed(0)+' (∝ '+s.Vx.toFixed(1)+')', W*0.66, H*0.38); ctx.fillText('T ∝ '+ke.toFixed(2), W*0.66, H*0.46);
+      ctx.fillStyle=ORA; ctx.fillText('PV/T = '+PVT.toFixed(1)+' ≈ nR(일정)', W*0.66, H*0.56);
       E.tapHint(W/2, H*0.90, '피스톤(부피)과 온도를 바꿔 보세요', true);
       E.big('PV = nRT — 압축하면 압력↑, 데우면 압력↑', '이상기체 법칙 PV=nRT는 앞의 운동론에서 자연히 나옵니다. 피스톤으로 부피를 줄이면(V↓) 같은 분자가 좁은 곳에서 벽을 더 자주 두드려 압력이 오르고(보일 법칙 P∝1/V), 온도를 올리면(T↑) 분자가 빨라져 압력·부피가 커집니다(샤를). n·R은 분자 수가 정하는 상수.'); }
   },
@@ -158,6 +163,7 @@
       ctx.fillText('전도(고체)', x0+cols*0.4, H*0.18);
       var grd=ctx.createLinearGradient(x0,0,x0+cols*0.8,0); grd.addColorStop(0,'#ff6b4a'); grd.addColorStop(1,'#6ba8ff');
       ctx.fillStyle=grd; ctx.fillRect(x0,H*0.4,cols*0.8,30);
+      ctx.font='11px sans-serif'; ctx.fillStyle='#ff6b4a'; ctx.textAlign='left'; ctx.fillText('고온', x0, H*0.4-6); ctx.fillStyle='#6ba8ff'; ctx.textAlign='right'; ctx.fillText('저온', x0+cols*0.8, H*0.4-6);
       for(var k=0;k<6;k++){ var px=x0+10+k*(cols*0.8-20)/5, jit=Math.sin(s.t*8+k)*3; ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(px+jit,H*0.4+15,3,0,7); ctx.fill(); }
       // 대류(가운데): 데워진 유체 상승
       var x1=W*0.40; ctx.fillStyle=DIM; ctx.fillText('대류(유체)', x1+cols*0.4, H*0.18);

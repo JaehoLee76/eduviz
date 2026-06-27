@@ -93,6 +93,9 @@
       var bx=ox+x*scale, by=oy-y*scale;
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(bx,by,9,0,7); ctx.fill();
       ctx.fillStyle='rgba(95,214,168,0.25)'; ctx.beginPath(); ctx.arc(bx,by,15,0,7); ctx.fill();
+      // 이름표: 지면 · 예측 자취
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('지면', ox-16, oy+16);
+      ctx.fillStyle='rgba(95,214,168,0.7)'; ctx.fillText('식이 그린 자취 y = v₀sinθ·t − ½gt²', ox+10, oy-H*0.30);
       E.big('물리학 — 자연을 수식으로 예측하다', '돌은 떨어질 자리를 모르지만, 식 하나는 이미 알고 있습니다. 다음 ▸ 로 여정을 시작하세요'); }
   },
 

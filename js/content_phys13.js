@@ -65,6 +65,10 @@
       arrow(E,px,py,px+b.vx*sc*0.4,py-b.vy*sc*0.4,GRN,2);
       var Fx=b.q*b.vy*s.B, Fy=-b.q*b.vx*s.B, Fm=Math.hypot(Fx,Fy)||1;
       arrow(E,px,py,px+Fx/Fm*30,py-Fy/Fm*30,ORA,2.5);
+      ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GRN; ctx.fillText('v', px+b.vx*sc*0.4+4, py-b.vy*sc*0.4);
+      ctx.fillStyle=ORA; ctx.fillText('F=qv×B', px+Fx/Fm*30+4, py-Fy/Fm*30);
+      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.fillText('B (⊙ 화면 밖)', v.X(-4), v.Y(3)+4);
       ctx.fillStyle=b.q>=0?NRED:SBLU; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
       var r=Math.abs(b.m*sp/(s.q*s.B))||0;
       E.tapHint(W/2, H*0.92, '화면 탭 = 재발사', true);
@@ -81,7 +85,8 @@
       var cx=W*0.40, cy=H*0.46;
       // 전선(수직, 전류 위로)
       ctx.strokeStyle=ORA; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(cx,cy-H*0.32); ctx.lineTo(cx,cy+H*0.32); ctx.stroke();
-      arrow(E,cx,cy+30,cx,cy-30,ORA,0); ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('전류 I↑', cx+10, cy-H*0.30);
+      arrow(E,cx,cy+30,cx,cy-30,ORA,0); ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('전류 I='+s.I+'A↑', cx+10, cy-H*0.30);
+      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.fillText('자기장 B (B ∝ I/r)', cx+4*Math.min(W*0.05,H*0.07)+8, cy);
       // 동심원 B (오른손 법칙: 전류 위 → B 시계반대, 앞쪽). 세기 ∝ I/r
       [1,2,3,4].forEach(function(rr){ var R=rr*Math.min(W*0.05,H*0.07), n=Math.max(3,Math.round(s.I*0.8/rr*4));
         ctx.strokeStyle='rgba(122,184,255,'+(0.5-rr*0.07)+')'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
@@ -106,6 +111,7 @@
       // 코일(오른쪽)
       var coilX=X(0); ctx.strokeStyle=DIM; ctx.lineWidth=2.5;
       for(var i=0;i<6;i++){ ctx.beginPath(); ctx.ellipse(coilX+i*10,cy,10,34,0,0,7); ctx.stroke(); }
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('코일', coilX+25, cy-44);
       // 자석
       var magX=X(s.mx); ctx.fillStyle=NRED; ctx.fillRect(magX,cy-16,34,32); ctx.fillStyle=SBLU; ctx.fillRect(magX-34,cy-16,34,32);
       ctx.fillStyle='#fff'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('N',magX+17,cy); ctx.fillText('S',magX-17,cy); ctx.textBaseline='alphabetic';
@@ -115,6 +121,7 @@
       var gx=W*0.78, gy=H*0.42; ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(gx,gy,40,Math.PI,0); ctx.stroke();
       var ang=Math.PI/2 - Math.max(-1.2,Math.min(1.2,emf*0.6)); ctx.strokeStyle=ORA; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx+38*Math.cos(Math.PI+ang),gy-38*Math.sin(ang)); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('검류계', gx, gy+24);
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('유도 EMF ∝ '+(Math.abs(emf)<0.05?'0 (정지)':(emf>0?'+':'−')+Math.abs(emf).toFixed(1)), gx, gy+40);
       // 연결선
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(coilX+55,cy+34); ctx.lineTo(gx-40,gy+40); ctx.moveTo(coilX+55,cy-34); ctx.lineTo(gx+40,gy+40); ctx.stroke();
       E.tapHint(W/2, H*0.90, '자석이 빠를수록 큰 기전력이 유도됩니다', true);
@@ -138,6 +145,7 @@
       // 회전 코일(타원, 각 th)
       var c=Math.cos(s.th), w2=Math.abs(c)*R*1.3+3;
       ctx.strokeStyle=ORA; ctx.lineWidth=3; ctx.beginPath(); ctx.ellipse(cx,cy,w2,R,0,0,7); ctx.stroke();
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('회전 코일 (ω='+s.w.toFixed(1)+')', cx, cy+R*1.6);
       // 회전 표시 점(앞·뒤)
       ctx.fillStyle=c>0?GRN:DIM; ctx.beginPath(); ctx.arc(cx+w2,cy,5,0,7); ctx.fill();
       // EMF = NBAω sin(ωt) (회전 각속도로 적분된 θ에서)
@@ -145,6 +153,7 @@
       var gx0=W*0.52, gx1=W*0.95, gy0=H*0.44, gh=H*0.30;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0-gh); ctx.lineTo(gx0,gy0+gh); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('EMF', gx0+3, gy0-gh+2); ctx.fillText('t', gx1-8, gy0+14);
+      ctx.fillStyle=ORA; ctx.fillText('EMF = '+emf.toFixed(2), gx0+34, gy0-gh+2);
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(v,i){ var x=gx0+(gx1-gx0)*i/240, y=gy0-(v/5)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
       E.tapHint(W/2, H*0.90, '빠르게 돌릴수록 큰 교류가 나옵니다', true);

@@ -51,7 +51,7 @@
         // 포물선 물줄기
         ctx.strokeStyle='rgba(122,184,255,0.7)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(tankX+tankW,hy);
         for(var k=0;k<=30;k++){ var tt=k/30*0.9, x=tankX+tankW+v*tt*scaleX, y=hy+0.5*g*tt*tt*scaleY; if(y>botY)break; ctx.lineTo(x,y); } ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('h='+h+'m  P='+(P/1000).toFixed(1)+' kPa', tankX+tankW+6, hy-6); });
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('h='+h+'m  P='+(P/1000).toFixed(1)+' kPa  v='+v.toFixed(1)+' m/s', tankX+tankW+6, hy-6); });
       // 깊이 화살표
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('수면', tankX-6, topY+4); ctx.fillText('바닥', tankX-6, botY);
       var Pbot=s.rho*g*Hm;
@@ -92,9 +92,9 @@
       // 힘 화살표: 무게(아래)·부력(위)
       var Fb=1000*9.8*L*sub/1000, Wt=b.m*9.8;
       ctx.strokeStyle=PNK; ctx.lineWidth=2.5; var cy0=pyTop+Lpx/2; ctx.beginPath(); ctx.moveTo(px+Lpx/2+8,cy0); ctx.lineTo(px+Lpx/2+8,cy0+Math.min(50,Wt*4)); ctx.stroke();
-      ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('무게 '+Wt.toFixed(1), px+Lpx/2+12, cy0+14);
+      ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('무게 '+Wt.toFixed(1)+' N', px+Lpx/2+12, cy0+14);
       ctx.strokeStyle=GRN; ctx.beginPath(); ctx.moveTo(px-Lpx/2-8,cy0); ctx.lineTo(px-Lpx/2-8,cy0-Math.min(50,Fb*4)); ctx.stroke();
-      ctx.fillStyle=GRN; ctx.textAlign='right'; ctx.fillText('부력 '+Fb.toFixed(1), px-Lpx/2-12, cy0-14);
+      ctx.fillStyle=GRN; ctx.textAlign='right'; ctx.fillText('부력 '+Fb.toFixed(1)+' N', px-Lpx/2-12, cy0-14);
       var frac=Math.round(sub/L*100), state=s.d<1?'뜸(부분 잠김)':(s.d>1?'가라앉음':'중성부력');
       E.tapHint(W/2, H*0.93, '블록을 끌어 물속으로 눌러 보세요', true);
       E.big('부력 = 밀어낸 물의 무게  ('+state+', 잠김 '+frac+'%)', '욕조에 몸을 담그면 몸이 가벼워지죠? 물이 위로 떠받치기 때문입니다 — 이게 부력입니다. 얼마나 떠받칠까요? 아르키메데스가 욕조에서 깨달았듯, 정확히 <b>내가 밀어낸 물의 무게만큼</b>입니다(F=ρ_유체·g·V_잠김). 그래서 물보다 가벼우면(d<1) 딱 무게만큼만 밀어낼 정도로 잠긴 뒤 멈춰서 뜹니다 — 잠긴 비율 = 물체밀도÷물밀도. 빙산이 90% 잠기는 건 얼음 밀도가 0.9라서고, 쇳덩이는 가라앉아도 배가 뜨는 건 속이 비어 평균밀도가 낮기 때문이죠. 블록을 물속으로 눌렀다 놓아 보세요 — 통통 떠오릅니다.'); }
@@ -154,7 +154,8 @@
       [1.5,5,8.5].forEach(function(xu){ var X=x0+(x1-x0)*xu/10, r=rad(xu), P=pres(xu), colh=(P-60)*1.4;
         ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.strokeRect(X-7, midY-r-colh-30, 14, colh+30);
         ctx.fillStyle=(xu===5?ORA:BLU); ctx.globalAlpha=0.7; ctx.fillRect(X-7, midY-r-colh, 14, colh); ctx.globalAlpha=1;
-        ctx.fillStyle=(xu===5?ORA:BLU); ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(Math.round(P), X, midY-r-colh-36); });
+        ctx.fillStyle=(xu===5?ORA:BLU); ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('P='+Math.round(P), X, midY-r-colh-36); });
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('↑ 압력 게이지 (관 높이 = 압력)', W*0.5, H*0.10);
       // 입자
       s.parts.forEach(function(p,idx){ s.parts[idx]+=vel(p)*(1/60)*1.1; if(s.parts[idx]>10) s.parts[idx]-=10;
         var xu=s.parts[idx], X=x0+(x1-x0)*xu/10, r=rad(xu), yoff=((idx*37)%100/100-0.5)*1.4*r;
@@ -185,6 +186,8 @@
       function arr(x,y,len,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+len); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x,y+len); ctx.lineTo(x-5,y+len-10); ctx.lineTo(x+5,y+len-10); ctx.fill(); ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,x,y-6); }
       arr(lx, baseY-60, Math.min(48,s.F1*0.5), PNK, 'F₁='+s.F1+'N');
       arr(rx, baseY-72, -Math.min(60,F2*0.12), GRN, 'F₂='+F2+'N');   // 위로(들어올림)
+      // 압력 동일 라벨(파스칼 원리 핵심)
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('압력 P = '+P+' Pa (양쪽 동일)', (lx+rx)/2, baseY+H*0.16+H*0.10);
       E.tapHint(W/2, H*0.90, '면적비를 키우면 작은 힘이 큰 힘으로', true);
       E.big('파스칼 유압: F₂ = F₁·(A₂/A₁) = '+s.F1+'×'+s.ratio+' = '+F2+' N', '한 손으로 자동차를 들 수 있을까요? 유압잭이 있으면 가능합니다. 비밀은 갇힌 액체입니다 — 갇힌 유체를 누르면 그 <b>압력이 구석구석 똑같이 전달</b>됩니다(파스칼 원리). 작은 피스톤을 살짝 누르면 압력 P=F₁/A₁이 생기고, 이 압력이 넓은 피스톤 전체에 걸리면 면적이 큰 만큼 힘이 불어납니다: <b>F₂ = P·A₂ = F₁·(A₂/A₁)</b>. 면적비만큼 힘이 증폭되는 거죠! 공짜는 아닙니다 — 큰 피스톤은 그만큼 조금밖에 안 올라갑니다(일은 보존, 지렛대와 같음). 자동차 브레이크·굴착기·프레스가 다 이 원리입니다.'); }
   },
@@ -205,8 +208,12 @@
       var riseP = Math.min(H*0.42, hmm*1.2);
       ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2; ctx.strokeRect(tx-tubeW/2, poolY-H*0.42, tubeW, H*0.42+H*0.16);
       ctx.fillStyle='rgba(122,184,255,0.4)'; ctx.fillRect(tx-tubeW/2+2, poolY-riseP, tubeW-4, riseP+H*0.16);
-      // 메니스커스
-      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('h='+hmm.toFixed(0)+' mm', tx+tubeW/2+8, poolY-riseP+4);
+      // 메니스커스 + 이름표
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('h = '+hmm.toFixed(0)+' mm', tx+tubeW/2+8, poolY-riseP+4);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('상승 물기둥', tx+tubeW/2+8, poolY-riseP/2);
+      ctx.fillStyle=BLU; ctx.fillText('γ = 0.073 N/m (표면장력)', tx+tubeW/2+8, poolY-riseP-12);
+      ctx.fillStyle=BLU; ctx.textAlign='left'; ctx.fillText('물', W*0.16+6, poolY+18);
+      ctx.fillStyle=DIM; ctx.fillText('r = '+s.r.toFixed(1)+' mm', tx, poolY+H*0.16+2);
       E.tapHint(W/2, H*0.90, '관이 가늘수록 물이 더 높이 올라갑니다(h ∝ 1/r)', true);
       E.big('모세관 상승 h = 2γ/(ρgr) = '+hmm.toFixed(0)+' mm', '종이 타월 끝을 물에 살짝 대면 물이 위로 스멀스멀 기어 올라가죠 — 펌프도 없는데 말입니다. 물 분자는 유리벽에 들러붙기를 좋아하고(부착력), 그러면서 표면을 끌어올립니다. 물기둥의 무게가 그 끌어올리는 힘과 딱 균형 잡힐 때까지 올라가죠: <b>h = 2γ/(ρgr)</b>. 관이 가늘수록(r가 작을수록) 더 높이 올라갑니다 — 무게는 줄고 끌어올리는 가장자리 효과는 상대적으로 커지니까요. 나무가 펌프 없이 꼭대기 잎까지 물을 보내는 것, 촛불 심지가 기름을 빨아올리는 것이 다 이 현상입니다. γ는 표면장력(물은 0.073 N/m).'); }
   }

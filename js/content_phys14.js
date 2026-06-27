@@ -35,6 +35,7 @@
       var mx=sx0+(sx1-sx0)*(s.f-0.5)/9; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mx,sy-6); ctx.lineTo(mx,sy+32); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('낮은 진동수·긴 파장', sx0, sy+46); ctx.textAlign='right'; ctx.fillText('높은 진동수·짧은 파장', sx1, sy+46);
       var lam=(10/(0.6+s.f*0.25)).toFixed(2);
+      ctx.fillStyle='#fff'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('λ ∝ '+lam+' (상대값)', mx, sy-10);
       E.tapHint(W/2, H*0.92, '진동수를 바꿔 스펙트럼을 거닐어 보세요', true);
       E.big('빛 = 전기장·자기장의 떨림 (c = fλ)', '빛은 물질이 아니라 <b>전기장과 자기장이 서로를 만들어내며 퍼지는 떨림</b>입니다 — 아무것도 붙잡지 않고 텅 빈 진공도 통과(c=3×10⁸ m/s). 전파·적외선·가시광·X선·감마선은 모두 같은 떨림이고 <b>빠르게 떨리냐 천천히 떨리냐(진동수)만 다릅니다</b>. 진동수가 높을수록 파장이 짧고 에너지가 큽니다(c=fλ 일정). 우리 눈은 햇빛이 가장 센 그 손톱만 한 가시광 창문만 봅니다. 맥스웰이 종이 위에서 이 떨림을 먼저 발견했고, 그 속도가 빛과 똑같았습니다.'); }
   },
@@ -95,6 +96,8 @@
       for(var py=-H*0.28;py<=H*0.28;py+=3){ var yu=py/18, theta=Math.atan2(yu, L), I=Math.pow(Math.cos(Math.PI*s.d*Math.sin(theta)/s.lam),2);
         ctx.fillStyle='rgba(255,210,120,'+I+')'; ctx.fillRect(scrX+4, cy+py-1.5, 26, 3); }
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('스크린', scrX+17, H*0.80); ctx.fillText('이중슬릿', slitX, H*0.80);
+      ctx.fillStyle='rgba(255,210,120,0.9)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=cos²(πd·sinθ/λ)', scrX+17, H*0.13);
+      var fr=(s.lam*L/s.d).toFixed(1); ctx.fillStyle=DIM; ctx.fillText('무늬 간격 ≈ λL/d = '+fr, scrX+17, H*0.86);
       E.tapHint(W/2, H*0.90, '틈 간격·파장을 바꿔 무늬가 벌어지는 걸 보세요', true);
       E.big('이중슬릿 간섭 — 빛은 파동이다 (밝고 어두운 줄무늬)', '빛이 총알 같은 알갱이라면 틈 두 개에 <b>밝은 줄 두 개</b>만 찍혀야 합니다. 그런데 실제로는 <b>밝고 어두운 줄무늬가 여러 개</b> 생깁니다 — 두 틈에서 나온 물결이 겹쳐 마루끼리 만나면 더 밝고(보강), 마루와 골이 만나면 서로 지워지기(상쇄) 때문이죠. 알갱이로는 설명 불가 — <b>빛은 파동</b>이라는 결정적 증거(영, 1801). 틈을 좁히거나 파장을 늘리면 무늬가 벌어집니다(밝은 무늬 간격 ≈ λL/d). 마음의 준비를 — 다음 장면에서 이 빛이 알갱이라고 우깁니다...'); }
   },
@@ -115,6 +118,7 @@
       var ph=(s.t*2)%1; for(var i=0;i<4;i++){ var px=W*0.08+((ph+i*0.25)%1)*(plateX-W*0.08), py=cy-40+i*26;
         var col=s.f<4?'#e2503a':s.f<7?'#5cd0ff':'#9b6bff'; ctx.strokeStyle=col; ctx.lineWidth=2;
         ctx.beginPath(); for(var w=0;w<20;w++){ var wx=px+w, wy=py+Math.sin(w*0.8+s.t*10)*4; if(w===0)ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy); } ctx.stroke(); }
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('광자 (E=hf='+Eph+')', W*0.07, cy-58);
       // 전자 방출 여부
       if(emit){ var ep=(s.t*1.5)%1; for(var k=0;k<3;k++){ var ex=plateX+30+((ep+k*0.33)%1)*(W*0.4), ey=cy-20+k*20-((ep+k*0.33))*30;
         ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ex,ey,5,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 9px sans-serif'; ctx.fillText('e', ex, ey+3); }
@@ -152,6 +156,7 @@
       var t0=Math.floor(s.t*1.2), t1=Math.floor(s.t*1.2/gamma);
       ctx.fillStyle=GRN; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('틱 '+t0, x1, topY-12);
       ctx.fillStyle=BLU; ctx.fillText('틱 '+t1, bx, topY-12);
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('γ = '+gamma.toFixed(2)+'배 느림', bx, botY+40);
       E.tapHint(W/2, H*0.86, '속도가 빠를수록 시간이 더 느려집니다', true);
       E.big('시간 팽창 γ = 1/√(1−v²/c²) = '+gamma.toFixed(2)+'배 느리게', '당신이 빛을 향해 달려가든 도망가든 빛 속도는 늘 같다 — 실험으로 확인된 이 한 줄에서 시간이 늘어납니다. 옆으로 움직이는 시계의 빛은 위아래만이 아니라 <b>비스듬한 더 긴 경로</b>를 달려야 하는데, 빛은 더 빨라질 수 없으니 한 번 왕복(1틱)에 더 오래 걸립니다 → <b>움직이는 시계가 느려집니다</b>(γ배). 마법이 아니라 논리의 강제입니다. 빠를수록(β→1) 극적으로 느려져, GPS 위성도 매일 이 보정을 받습니다. 질량조차 잠든 에너지일 뿐 — <b>E=mc²</b>. 시간·공간·질량·에너지가 하나로 얽힌, 우리가 사는 우주의 규칙입니다.'); }
   },
@@ -213,6 +218,8 @@
       for(var py=-H*0.30;py<=H*0.30;py+=2){ var yu=py/14, theta=Math.atan2(yu,Ld), beta=Math.PI*s.a*Math.sin(theta)/s.lam, I=beta===0?1:Math.pow(Math.sin(beta)/beta,2);
         ctx.fillStyle='rgba(255,210,120,'+I.toFixed(3)+')'; ctx.fillRect(scrX+4, cy+py-1, 28, 2); }
       var width=2*s.lam/s.a;   // 중앙 극대 각폭 ∝ λ/a
+      ctx.fillStyle='rgba(255,210,120,0.9)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=sinc²(πa·sinθ/λ)', scrX+18, H*0.10);
+      ctx.fillStyle=DIM; ctx.fillText('중앙폭 ∝ 2λ/a = '+width.toFixed(2), scrX+18, H*0.80); ctx.textAlign='center'; ctx.fillText('단일슬릿', slitX, H*0.80);
       E.tapHint(W/2, H*0.90, '틈이 좁을수록 회절이 넓게 퍼집니다(폭 ∝ λ/a)', true);
       E.big('단일슬릿 회절 — 중앙 밝은 무늬 폭 ∝ λ/a', '직선으로만 가야 할 빛이 좁은 틈을 지나는 순간 <b>부채처럼 퍼집니다</b> — 회절. 틈 자체가 새로운 물결의 출발점이 되기 때문이죠. 스크린에 가운데 밝은 무늬와 양옆의 희미한 무늬가 보입니다. <b>틈이 좁을수록(a↓), 파장이 길수록(λ↑) 더 넓게 퍼집니다</b>(중앙폭 ∝ λ/a). 첫 어두운 무늬는 a·sinθ=λ. 이 작은 퍼짐 때문에 우주 어떤 망원경·현미경도 흐릿함을 완전히 못 피하고(회절한계), 벽 뒤 목소리도 들립니다(파장 긴 소리는 모퉁이를 잘 돎).'); }
   },
@@ -263,6 +270,7 @@
         // 결정적으로 "남은" N개를 채움(앞에서부터 빠짐: 해시 순서)
         var alive = i >= (64-Math.round(N));
         ctx.fillStyle=alive?GRN:'rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.fill(); }
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('남은 핵 N = '+Math.round(N)+' / '+N0, ox, oy-12);
       // 붕괴 곡선
       var gx0=W*0.50, gx1=W*0.93, gy0=H*0.78, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
@@ -270,7 +278,8 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
       for(var k=0;k<=60;k++){ var tt=k/60*s.half*5, f2=Math.pow(0.5,tt/s.half), x=gx0+(tt/(s.half*5))*(gx1-gx0), y=gy0-f2*gh; if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // 반감기 표시(절반 지점)
-      for(var hcnt=1;hcnt<=4;hcnt++){ var th=hcnt*s.half; if(th>s.half*5)break; var x=gx0+(th/(s.half*5))*(gx1-gx0), y=gy0-Math.pow(0.5,hcnt)*gh; ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x,gy0); ctx.lineTo(x,y); ctx.lineTo(gx0,y); ctx.stroke(); ctx.setLineDash([]); }
+      for(var hcnt=1;hcnt<=4;hcnt++){ var th=hcnt*s.half; if(th>s.half*5)break; var x=gx0+(th/(s.half*5))*(gx1-gx0), y=gy0-Math.pow(0.5,hcnt)*gh; ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x,gy0); ctx.lineTo(x,y); ctx.lineTo(gx0,y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='rgba(255,178,122,0.7)'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(hcnt+'T½', x, gy0+12); }
       // 현재 점
       var mx=gx0+(Math.min(s.t,s.half*5)/(s.half*5))*(gx1-gx0), my=gy0-frac*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
       E.tapHint(W/2, H*0.92, '화면 탭=초기화 · 반감기마다 절반으로 줄어듦', true);

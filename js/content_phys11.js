@@ -26,6 +26,7 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, k=9, q1=1;
       var F=k*q1*s.q2/(s.r*s.r), repel=(q1*s.q2)>0, cy=H*0.40, x0=W*0.22, scale=(W*0.5)/6, x1=x0+s.r*scale;
       charge(E,x0,cy,18,q1,'q1'); if(s.q2!==0) charge(E,x1,cy,12,s.q2,'q2');
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('q₁=+1', x0, cy-26); if(s.q2!==0) ctx.fillText('q₂='+(s.q2>0?'+':'')+s.q2, x1, cy-22);
       // 거리선
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.setLineDash([4,4]); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,cy+34); ctx.lineTo(x1,cy+34); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('r = '+s.r.toFixed(2), (x0+x1)/2, cy+50);
@@ -67,11 +68,15 @@
         var px=v.X(gx), py=v.Y(gy); arrow(E,px,py,px+ux/Math.abs(s.Q)*len*Math.sign(s.Q||1),py-uy/Math.abs(s.Q)*len*Math.sign(s.Q||1),'rgba(122,184,255,0.45)',1.2); } }
       // 중심전하
       charge(E,v.X(0),v.Y(0),16,s.Q,'Q');
+      ctx.fillStyle=s.Q>=0?POS:NEG; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('Q', v.X(0), v.Y(0)-24);
       // 시험전하 + 받는 힘
       var t=s.t, px=v.X(t.x), py=v.Y(t.y);
       var dx2=t.x, dy2=t.y, r2=Math.hypot(dx2,dy2)||0.3, Fm=9*s.src.q*t.q/(r2*r2), fl=Math.min(40,Math.abs(Fm)*8)*Math.sign(Fm);
       arrow(E,px,py,px+dx2/r2*fl,py-dy2/r2*fl,ORA,2.5);
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('F = qE', px+10, py-10);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
+      ctx.fillStyle=GRN; ctx.textAlign='center'; ctx.fillText('시험전하 q', px, py+22);
+      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('E (전기장)', v.X(3.6), v.Y(-3.6));
       E.tapHint(W/2, H*0.92, '시험전하(초록)를 끌어 놓아 보세요', true);
       E.big('전기장 E — 시험전하가 받는 힘 F = qE', '닿지도 않았는데 어떻게 힘이 전해질까요? 전하는 주변 공간에 <b>전기장 E</b>를 새겨 둡니다 — 눈엔 안 보이지만 곳곳에 깔린 "힘의 지도"(파란 화살표). 다른 전하 q가 그 자리에 서면 발밑 지도를 읽어 <b>F = qE</b>의 힘을 받습니다. +전하의 지도는 바깥으로, −전하는 안으로 향합니다. 시험전하(초록)를 끌어 놓으면 지도를 따라 밀려납니다. E = kQ/r².'); }
   },
@@ -100,6 +105,7 @@
       ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('+ + + +', v.X(0.3),v.Y(8.5)-6);
       ctx.fillStyle=NEG; ctx.fillText('− − − −', v.X(0.3),v.Y(1.5)+16);
       for(var gx=1;gx<10;gx+=1.5){ arrow(E,v.X(gx),v.Y(8.3),v.X(gx),v.Y(1.7),'rgba(122,184,255,0.25)',1); }
+      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('E = '+s.Efield.toFixed(1)+' N/C', v.X(8.2), v.Y(5));
       // 자취
       s.trail.push([b.x,b.y]); if(s.trail.length>200) s.trail.shift();
       ctx.strokeStyle='rgba(255,138,107,0.5)'; ctx.lineWidth=1.5; ctx.beginPath();
@@ -123,10 +129,13 @@
         ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('V='+V.toFixed(1), cx, cy-rr*scale-3); });
       // 중심전하
       charge(E,cx,cy,15,Q,'Q');
+      ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Q=+1', cx, cy+28);
       // 거리 r 위치의 시험점
       var px=cx+s.r*scale, V=k*Q/s.r;
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+s.r.toFixed(1), (cx+px)/2, cy+15);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(px,cy,7,0,7); ctx.fill();
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('V = '+V.toFixed(1)+' V', px, cy-14);
       // V(r) 곡선
       var gx0=W*0.62, gx1=W*0.93, gy0=H*0.82, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
@@ -156,12 +165,17 @@
       var nq=Math.round(Q); for(var i=0;i<Math.min(12,Math.max(2,nq));i++){ var x=cx-pw/2+pw*(i+0.5)/Math.min(12,Math.max(2,nq)); ctx.fillStyle=POS; ctx.fillText('+',x,cyT-6); ctx.fillStyle=NEG; ctx.fillText('−',x,cyB+16); }
       // 균일장 화살표
       for(var gx=-pw/2+20;gx<pw/2;gx+=34){ arrow(E,cx+gx,cyT+6,cx+gx,cyB-6,'rgba(122,184,255,0.4)',1.5); }
+      ctx.fillStyle='rgba(122,184,255,0.85)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('E', cx+pw/2-16, (cyT+cyB)/2);
+      // 판 간격 d 표시
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([3,3]); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx-pw/2-14,cyT); ctx.lineTo(cx-pw/2-14,cyB); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('d='+s.d.toFixed(1), cx-pw/2-18, (cyT+cyB)/2);
       // 에너지 막대
       var bx=W*0.74, baseY=H*0.74, bh=H*0.46, mx=0.5*(eps*A/1)*100;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh);
-      ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,U/mx)*bh,46,Math.min(1,U/mx)*bh); ctx.globalAlpha=1;
-      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('저장E', bx+23, baseY+16);
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('C = '+Cap.toFixed(2), W*0.10, H*0.86); ctx.fillText('Q = CV = '+Q.toFixed(1), W*0.30, H*0.86); ctx.fillText('E장 = V/d = '+Efield.toFixed(1), W*0.52, H*0.86);
+      var uh=Math.min(1,U/mx)*bh; ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-uh,46,uh); ctx.globalAlpha=1;
+      ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('U = '+U.toFixed(1), bx+23, baseY-uh-6);
+      ctx.fillStyle=ORA; ctx.fillText('저장E', bx+23, baseY+16);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('C = εA/d = '+Cap.toFixed(2), W*0.08, H*0.86); ctx.fillText('Q = CV = '+Q.toFixed(1), W*0.32, H*0.86); ctx.fillText('E = V/d = '+Efield.toFixed(1)+' N/C', W*0.52, H*0.86);
       E.tapHint(W/2, H*0.93, '전압·판 간격을 바꿔 보세요', true);
       E.big('축전기 저장 에너지 U = ½CV² = '+U.toFixed(1), '축전기는 전하를 가둬 두는 작은 댐입니다. 두 판에 +·− 전하를 갈라 모아 <b>전기장의 형태로 에너지를 저장</b>합니다. 전하량 Q=CV, 판 사이 균일장 E=V/d, 저장 에너지 U=½CV²=½QV. 전압을 올리면 전하·에너지가 함께 불고(에너지는 전압의 제곱!), 판 간격을 좁히면 전기용량 C가 커집니다(C=εA/d). 카메라 플래시가 터뜨리는 빛, 전자회로의 전압 버팀목.'); }
   },
@@ -183,7 +197,9 @@
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(cx,cy,s.r*sc,0,7); ctx.stroke(); ctx.setLineDash([]);
       // 중심전하
       charge(E,cx,cy,14,s.Q,'');
-      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('가우스면', cx, cy-s.r*sc-8);
+      ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Q = +'+s.Q, cx, cy+26);
+      ctx.fillStyle=ORA; ctx.fillText('가우스면 (반지름 r='+s.r.toFixed(1)+')', cx, cy-s.r*sc-8);
+      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('전기력선 '+nlines+'개 (∝ Q)', cx+sc*4*0.7, cy-sc*4*0.7);
       E.tapHint(W/2, H*0.92, '반지름을 바꿔도 면을 뚫는 전기력선 수(선속)는 일정', true);
       E.big('가우스 법칙: 선속 Φ = Q/ε₀ — 면 크기와 무관, 갇힌 전하만', '전구를 비눗방울로 감싸면 뚫고 나오는 빛줄기 수는 방울 크기와 무관하듯 — 닫힌 면을 뚫는 <b>전기력선의 총 개수(전기 선속 Φ)는 그 안의 전하 Q에만 비례</b>합니다(Φ = Q/ε₀), 가우스면의 크기·모양과 무관! 반지름을 키우면 면은 넓어져도 장이 1/r²로 약해져 정확히 상쇄, 뚫는 선 수는 그대로. 이 대칭성을 이용하면 구·원통·평면의 전기장을 적분 없이 구합니다. 맥스웰 방정식의 첫 번째 — 전기장과 전하의 근본 관계.'); }
   },
@@ -200,13 +216,17 @@
       var cx=W*0.42, cy=H*0.44, d=Math.min(W*0.09,H*0.13);
       // 외부 균일장 화살표(가로)
       for(var gx=-3;gx<=3;gx++){ for(var gy=-2;gy<=2;gy++){ if(s.Ef<0.2)continue; arrow(E,cx+gx*48-12,cy+gy*44,cx+gx*48+12,cy+gy*44,'rgba(122,184,255,0.25)',1); } }
+      if(s.Ef>=0.2){ ctx.fillStyle='rgba(122,184,255,0.85)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('E = '+s.Ef.toFixed(1), cx+3*48-30, cy-2*44-8); }
       // 쌍극자(+ 와 − 를 막대 양끝)
       var ux=Math.cos(s.th), uy=Math.sin(s.th);
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-ux*d,cy-uy*d); ctx.lineTo(cx+ux*d,cy+uy*d); ctx.stroke();
       charge(E,cx+ux*d,cy+uy*d,13,1,''); charge(E,cx-ux*d,cy-uy*d,13,-1,'');
+      ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('+q', cx+ux*d+ (ux>=0?16:-16), cy+uy*d-12); ctx.fillStyle=NEG; ctx.fillText('−q', cx-ux*d- (ux>=0?16:-16), cy-uy*d+16);
       // 쌍극자모멘트 화살표 p (−→+)
       arrow(E,cx-ux*d,cy-uy*d,cx+ux*d,cy+uy*d,ORA,2);
-      var th_deg=((s.th*180/Math.PI)%360+360)%360;
+      ctx.fillStyle=ORA; ctx.fillText('p', cx+ux*d*0.5+8, cy+uy*d*0.5-8);
+      var th_deg=((s.th*180/Math.PI)%360+360)%360, tauMag=p*s.Ef*Math.abs(Math.sin(s.th));
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('θ = '+th_deg.toFixed(0)+'°   τ = pE·sinθ = '+tauMag.toFixed(2), W*0.10, H*0.80);
       E.tapHint(W/2, H*0.92, '외부 전기장을 켜면 쌍극자가 장 방향으로 정렬', true);
       E.big('전기 쌍극자 — 외부장에서 토크 τ = pE·sinθ로 정렬', '+전하와 −전하가 막대 양끝에 짝지은 것이 <b>전기 쌍극자</b>입니다. 쌍극자모멘트 p는 −에서 +를 향하는 벡터. 균일한 외부장에 비스듬히 놓이면 +쪽·−쪽이 서로 반대로 끌려 앞뒤 힘은 비기지만, 빙글 도는 <b>회전 토크 τ = pE·sinθ</b>가 생겨 나침반처럼 장 방향으로 <b>정렬</b>합니다. 물 분자(H₂O)가 쌍극자라 전자레인지의 흔들리는 장에 정렬·요동하며 데워지고, 유전체가 축전기 용량을 키우는 것도 이 정렬 덕분입니다.'); }
   }

@@ -44,6 +44,7 @@
       // x-t 그래프
       s.hist.push(b.x-REST); if(s.hist.length>180) s.hist.shift();
       tgraph(E, W*0.10, H*0.74, W*0.80, H*0.26, s.hist, 2.3, BLU);
+      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+4, H*0.74-H*0.13+4); ctx.fillStyle=DIM; ctx.textAlign='right'; ctx.fillText('시간 t →', W*0.90, H*0.74+14);
       var w0=Math.sqrt(s.k/s.m), T=2*Math.PI/w0;
       E.tapHint(W/2, H*0.95, '화면 탭 = 다시 당기기', true);
       E.big('T = 2π√(m/k) = '+T.toFixed(2)+' s   (ω = '+w0.toFixed(2)+' rad/s)', '용수철은 평형에서 벗어난 만큼 되돌리는 힘 F=−kx를 줍니다(후크). 멀면 세게, 가까우면 약하게 — 이 힘 하나만 있으면 물체는 저절로 매끄러운 <b>사인 곡선</b>(단순조화운동)을 그리며 왕복합니다. k가 클수록(빳빳), m이 작을수록 빨리 떱니다.'); }
@@ -115,8 +116,13 @@
       // 천장·실·추
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(px-40,py); ctx.lineTo(px+40,py); ctx.stroke();
       ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(bx,by); ctx.stroke();
+      // 실 길이 L 라벨
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('L = '+s.L.toFixed(2)+' m', (px+bx)/2+8, (py+by)/2);
       // 수직 기준선 + 각도 호
       ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py+L+10); ctx.stroke(); ctx.setLineDash([]);
+      // 각도 θ 호
+      ctx.strokeStyle='rgba(255,178,122,0.7)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,34,Math.PI/2,Math.PI/2-s.th,s.th>0); ctx.stroke();
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('θ', px+(s.th>0?22:-22), py+48);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(bx,by,13,0,7); ctx.fill();
       var w0=Math.sqrt(s.g/s.L), T=2*Math.PI/w0;
       E.tapHint(W/2, H*0.90, '화면 탭 = 다시 놓기', true);
@@ -181,6 +187,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),baseY+18); ctx.lineTo(X(REST),baseY+34); ctx.stroke(); ctx.setLineDash([]);
       // x-t
       tgraph(E, W*0.10, H*0.72, W*0.82, H*0.30, s.hist, 2.3, BLU);
+      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+4, H*0.72-H*0.15+4); ctx.fillStyle=DIM; ctx.textAlign='right'; ctx.fillText('시간 t →', W*0.92, H*0.72+14);
       var ccrit=2*Math.sqrt(s.k*s.m), regime = s.c<ccrit-0.3?'미흡감쇠(진동하며 잦아듦)':(s.c>ccrit+0.3?'과대감쇠(천천히 복귀)':'임계감쇠(가장 빠른 복귀)');
       E.tapHint(W/2, H*0.95, '감쇠 c를 바꿔 세 가지 거동을 보세요', true);
       E.big('감쇠진동 — '+regime+' (임계 c_c=2√(km)='+ccrit.toFixed(1)+')', '저항(−cv)이 있으면 진동은 점점 잦아듭니다. <b>미흡감쇠</b>(c 작음): 진폭이 지수적으로 줄며 진동(자동차 낡은 쇼바). <b>임계감쇠</b>(c=2√(km)): 진동 없이 가장 빠르게 평형 복귀 — 자동차 서스펜션·계측기 바늘의 목표. <b>과대감쇠</b>(c 큼): 진동 없이 느리게 복귀(문 닫힘 장치). 같은 용수철도 감쇠에 따라 거동이 완전히 달라집니다.'); }

@@ -29,8 +29,10 @@
       var x=W*0.24, y=H*0.30, w=W*0.5, h=H*0.34;
       wire(E,x,y,w,h); battery(E,x,y+h/2); resistor(E,x+w,y+h/2,false,GRN);
       flow(E,s.ph,x,y,w,h,Math.round(8+s.V),BLU);
-      // 전류 방향 표시
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('전류 I →', x+w/2, y-10);
+      // 전류 방향 표시 + 전지/저항 이름표
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('전류 I = '+I.toFixed(2)+' A →', x+w/2, y-10);
+      ctx.fillStyle=ORA; ctx.textAlign='right'; ctx.fillText('전지 V='+s.V+'V', x-8, y+h/2-18);
+      ctx.fillStyle=GRN; ctx.textAlign='left'; ctx.fillText('저항 R='+R+'Ω', x+w+16, y+h/2);
       E.tapHint(W/2, H*0.90, '전압을 올리면 전하가 더 빨리·많이 흐릅니다', true);
       E.big('전류 I = Q/t = '+I.toFixed(2)+' A — 전하의 흐름', '전류는 <b>전하가 흐르는 양</b>입니다 — 1초에 어떤 단면을 지나는 전하량(I = Q/t, 단위 암페어 A = C/s). 전지가 만든 전압이 전하(금속 속 자유전자)를 밀어 회로를 돕니다. 전압을 올리면 전하가 더 빠르고 많이 흐릅니다(전류↑). 실제 전자는 −극에서 나오지만, 관례상 전류는 +극에서 나오는 방향으로 표시합니다.'); }
   },
@@ -108,7 +110,9 @@
       // 전력 막대
       var bx=W*0.74, baseY=H*0.70, bh=H*0.42, mx=12*12/1*0.5+50;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh); ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,P/40)*bh,46,Math.min(1,P/40)*bh); ctx.globalAlpha=1;
-      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('전력', bx+23, baseY+16);
+      ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('전력 P', bx+23, baseY+16);
+      ctx.fillStyle=ORA; ctx.font='bold 12px sans-serif'; ctx.fillText('P='+P.toFixed(1)+' W', bx+23, baseY-bh-8);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('전구', cx, cy-34-Math.min(1,P/36)*34);
       E.tapHint(W/2, H*0.90, '전압·저항을 바꾸면 밝기 ∝ 전력', true);
       E.big('전력 P = VI = I²R = '+P.toFixed(1)+' W', '전력은 단위시간당 전기에너지 소비 — <b>P = VI = I²R = V²/R</b>(단위 와트 W). 전구·히터는 이 전력이 빛·열로 나옵니다. 전압을 올리면 전류도 함께 커져 전력은 <b>제곱</b>으로 급증(전구가 확 밝아짐). 전기요금의 kWh = 전력 × 시간 = 소비한 에너지. 송전선을 고전압으로 보내는 건 같은 전력을 작은 전류로 보내 I²R 손실을 줄이려는 것.'); }
   },
@@ -132,16 +136,21 @@
       // 회로
       var x=W*0.14, y=H*0.20, w=W*0.34, hh=H*0.30;
       wire(E,x,y,w,hh); battery(E,x,y+hh/2); resistor(E,x+w*0.5,y,true,GRN);
+      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('R='+s.R.toFixed(1)+'Ω', x+w*0.5, y-12);
+      ctx.fillStyle=ORA; ctx.textAlign='right'; ctx.fillText('V='+s.V+'V', x-8, y+hh/2-16);
       // 축전기(오른쪽 변)
       ctx.strokeStyle=BLU; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x+w-10,y+hh/2-12); ctx.lineTo(x+w+10,y+hh/2-12); ctx.moveTo(x+w-10,y+hh/2+12); ctx.lineTo(x+w+10,y+hh/2+12); ctx.stroke();
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('C', x+w+16, y+hh/2);
+      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('C='+s.C.toFixed(1), x+w+16, y+hh/2);
       // Vc-t 그래프
       var gx0=W*0.56, gx1=W*0.93, gy0=H*0.80, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('Vc',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('Vc (V)',gx0+3,gy0-gh+4); ctx.fillText('t (s)',gx1-22,gy0+14);
       // V 최대 기준선
       ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([4,3]); var vy=gy0-(s.V/s.V)*gh*0.92; ctx.beginPath(); ctx.moveTo(gx0,vy); ctx.lineTo(gx1,vy); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=ORA; ctx.fillText('V='+s.V, gx1-30, vy-4);
+      // τ에서 63% 기준선(충전 곡선이 τ에 도달하는 높이)
+      ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.setLineDash([3,3]); var vy63=gy0-0.632*gh*0.92; ctx.beginPath(); ctx.moveTo(gx0,vy63); ctx.lineTo(gx1,vy63); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=BLU; ctx.fillText('0.63V (t=τ='+tau.toFixed(1)+'s)', gx0+6, vy63-4);
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(v,i){ var X=gx0+(gx1-gx0)*i/300, Y=gy0-(v/s.V)*gh*0.92; if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }); ctx.stroke();
       E.tapHint(W/2, H*0.92, '화면 탭 = 충전↔방전  (시정수 τ=RC)', true);
@@ -194,12 +203,14 @@
       ctx.strokeStyle=ORA; ctx.lineWidth=2; for(var c=0;c<5;c++){ ctx.beginPath(); ctx.arc(x+w*0.3+c*10,y,5,Math.PI,0); ctx.stroke(); } ctx.fillStyle=ORA; ctx.textAlign='left'; ctx.fillText('L', x+w*0.3+55, y-8);
       // Q-t 그래프
       tgraphLC(ctx, W*0.50, H*0.74, W*0.42, H*0.5, s.hist, 3.2);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('전하 Q', W*0.50+3, H*0.74-H*0.25+4); ctx.fillText('t', W*0.50+W*0.42-8, H*0.74+14);
       // 에너지 막대
       var bx=W*0.50, baseY=H*0.30, bh=H*0.16, mx=3*3/(2*1)*1.1;
       [['전기E(C)',Ec,BLU],['자기E(L)',El,ORA],['합',tot,GRN]].forEach(function(it,i){ var bxx=bx+i*64, hh2=Math.min(1,it[1]/mx)*bh;
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bxx,baseY-bh,44,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(bxx,baseY-hh2,44,hh2); ctx.globalAlpha=1;
         ctx.fillStyle=it[2]; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[0],bxx+22,baseY+12); });
       var om=1/Math.sqrt(s.L*s.C), T=2*Math.PI*Math.sqrt(s.L*s.C);
+      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('ω = 1/√(LC) = '+om.toFixed(2)+' rad/s', W*0.50+96, baseY+28);
       E.tapHint(W/2, H*0.92, 'L·C를 바꿔 진동 주기를 보세요(전기 진자)', true);
       E.big('LC 진동 — 전기E ⇄ 자기E (주기 T=2π√(LC)='+T.toFixed(1)+')', 'LC 회로는 <b>전기로 된 진자</b>입니다 — 7장의 용수철-진자와 글자 그대로 똑같은 수학이 흐릅니다. 축전기의 전기에너지(Q²/2C)와 인덕터의 자기에너지(½LI²)가 진자가 위치에너지와 운동에너지를 주고받듯 끊임없이 오가지만, 그 합은 늘 일정합니다(저항이 없을 때). 각진동수 ω=1/√(LC) — 용수철 ω=√(k/m)에서 1/C가 용수철 세기 k, L이 질량 m의 역할입니다. 라디오 다이얼을 돌려 한 방송에 주파수를 맞추는 그 동조, 발진기·필터의 심장이 바로 이 진동입니다.'); }
   }

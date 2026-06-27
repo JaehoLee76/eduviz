@@ -34,6 +34,7 @@
       // 인력 화살표(서로 끌림, 길이 ∝ F)
       var al=Math.min(70,F*14);
       arrow(E,x1-12,cy,x1-12-al,cy,GRN,3); arrow(E,x0+22,cy,x0+22+al,cy,GRN,3);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('F = '+F.toFixed(2), (x0+x1)/2, cy-16);
       // 1/r² 곡선
       var gx0=W*0.62, gx1=W*0.93, gy0=H*0.86, gh=H*0.42;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
@@ -101,10 +102,13 @@
       s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(view.X(q[0]),view.Y(q[1])); else ctx.lineTo(view.X(q[0]),view.Y(q[1])); }); ctx.stroke();
       // 태양
       ctx.fillStyle=ORA; ctx.globalAlpha=0.9; ctx.beginPath(); ctx.arc(ox,oy,12,0,7); ctx.fill(); ctx.globalAlpha=1;
+      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+24);
       // 행성 + 속도
       var px=view.X(p.x), py=view.Y(p.y);
       arrow(E,px,py,px+p.vx*sc*0.5,py-p.vy*sc*0.5,GRN,2);
+      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('v='+v.toFixed(2), px+p.vx*sc*0.5+2, py-p.vy*sc*0.5-6);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
+      ctx.fillStyle=BLU; ctx.fillText('행성', px, py+20);
       var e=0.5*v*v-GM/r, type=Math.abs(s.vf-1)<0.015?'원궤도':(e<-0.02?(s.vf<1?'타원(여기가 원일점)':'타원(여기가 근일점)'):'탈출 궤도');
       E.tapHint(W/2, H*0.92, '화면 탭 = 재발사', true);
       E.big(type+' — r = '+r.toFixed(2)+', v = '+v.toFixed(2), '행성은 끈에 매여 있지 않습니다 — 오직 중력에 끊임없이 안쪽으로 휘어지며 도는 것이죠. 정확히 v=√(GM/r)면 원궤도, 그보다 느리거나 빠르면 타원. 너무 빠르면(√2배) 영영 탈출. 결국 궤도란 떨어지면서 지구를 빗나가길 반복하는 것 — 그 한 초점에 태양이 앉아 있습니다(케플러 1법칙).'); }
@@ -136,8 +140,11 @@
       s.sweep.forEach(function(q){ ctx.lineTo(view.X(q[0]),view.Y(q[1])); }); ctx.closePath(); ctx.fill();
       // 태양·행성·반지름선
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(view.X(p.x),view.Y(p.y)); ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+r.toFixed(1), (ox+view.X(p.x))/2, (oy+view.Y(p.y))/2-6);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,11,0,7); ctx.fill();
+      ctx.fillStyle=ORA; ctx.fillText('태양', ox, oy+24);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(view.X(p.x),view.Y(p.y),7,0,7); ctx.fill();
+      ctx.fillStyle=BLU; ctx.fillText('행성 (v='+v.toFixed(2)+')', view.X(p.x), view.Y(p.y)-14);
       // 면적속도 막대
       var bx=W*0.80, baseY=H*0.72, bh=H*0.4;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,40,bh);
@@ -168,8 +175,10 @@
       ctx.strokeStyle='rgba(122,184,255,0.35)'; ctx.lineWidth=1.3; ctx.beginPath();
       s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(view.X(q[0]),view.Y(q[1])); else ctx.lineTo(view.X(q[0]),view.Y(q[1])); }); ctx.stroke();
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,11,0,7); ctx.fill();
+      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+24);
       var px=view.X(p.x), py=view.Y(p.y);
       arrow(E,px,py,px+p.vx*sc*0.5,py-p.vy*sc*0.5,GRN,2);
+      ctx.fillStyle=GRN; ctx.fillText('v='+v.toFixed(2), px+p.vx*sc*0.5+2, py-p.vy*sc*0.5-6);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
       // 에너지: KE=½v², PE=-GM/r, total
       var KE=0.5*v*v, PE=-GM/r, tot=KE+PE, vesc=Math.SQRT2*VC, bound=tot<0;
@@ -201,7 +210,9 @@
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath();
       s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(v.X(q[0]),v.Y(q[1])); else ctx.lineTo(v.X(q[0]),v.Y(q[1])); }); ctx.stroke();
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,10,0,7); ctx.fill();
+      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+22);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(v.X(p.x),v.Y(p.y),6,0,7); ctx.fill();
+      ctx.fillStyle=DIM; ctx.fillText('a='+s.a.toFixed(1), ox+(v.X(p.x)-ox)/2, oy+(v.Y(p.y)-oy)/2-6);
       // T = 2π√(a³/GM), T²/a³ = 4π²/GM 일정
       var T=2*Math.PI*Math.sqrt(s.a*s.a*s.a/GM), ratio=T*T/(s.a*s.a*s.a);
       // T²-a³ 직선 그래프
