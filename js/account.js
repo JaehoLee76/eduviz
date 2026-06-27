@@ -97,7 +97,7 @@
       'body.eduviz-auth .bubble,body.eduviz-auth .bignum,body.eduviz-auth #conceptExtra,body.eduviz-auth #stepCap,'+
         'body.eduviz-auth #codeBody,body.eduviz-auth #studyPanel,body.eduviz-auth #branchPage,body.eduviz-auth .titles,'+
         'body.eduviz-auth #caption,body.eduviz-auth #bubble{user-select:text;-webkit-user-select:text;cursor:text;}',
-      '#eduToolbar{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto;}',   /* 상단바 안 flex 항목(제목 오른쪽). 고정위치 해제 */
+      '#eduToolbar{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto;}',   /* 상단바 안 flex 항목, 오른쪽 끝으로(viz서 제목 숨겨도 우측 유지). non-viz선 titles flex:1이 채워 무해 */
       '#eduToolbar .cw-wrap{align-items:center;}',
       '.acct-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--text-1,#f4f3ee);',
         'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:999px;padding:6px 12px;font-size:13px;',

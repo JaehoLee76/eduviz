@@ -15,28 +15,23 @@
   function injectViewportCSS(){ if(document.getElementById('eduviz-vp-style')||!document.head)return;
     var st=document.createElement('style'); st.id='eduviz-vp-style';
     st.textContent=':root{--vpad:0px;}'
-      +'#stage{left:var(--vpad)!important;right:auto!important;width:calc(100vw - 2*var(--vpad))!important;}'
-      +'.topbar,.progress{left:var(--vpad)!important;right:var(--vpad)!important;}'
-      +'.scene-no,.crumb{margin-left:var(--vpad)!important;}'
-      +'.nav{margin-right:var(--vpad)!important;}'   // #eduToolbar는 이제 topbar 안 flex 항목이라 vpad 불필요
-      +'.topbar .titles{min-width:0!important;}.topbar .titles .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'   // 제목은 남는 공간에서 줄어들고 넘치면 …(툴바와 겹침 방지)
-      // 하단 레이아웃(겹침 방지): 맨아래 한 줄 = 토글(좌)·재생바(중)·내비(우). 그 위 가운데 = 설명 띠(크게·스크롤). 더 위 = 슬라이더.
-      +'#controls,#keyhint{bottom:232px!important;}'
-      +'#leftStack{position:fixed!important;inset:0!important;width:auto!important;max-width:none!important;transform:none!important;margin:0!important;display:block!important;pointer-events:none!important;}'
-      // 더 알아보기 토글: 좌하단 한 줄(재생바/내비와 같은 줄, 가로로 안 겹침)
-      +'#chevBtn{position:fixed!important;left:24px!important;bottom:22px!important;z-index:8!important;pointer-events:auto!important;}'
-      // 펼침 패널(자세히)·기본설명 띠 = 둘 다 가운데 같은 자리(펼치면 띠 숨고 패널이 그 자리)
-      +'#study{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;max-width:none!important;pointer-events:auto!important;}'
-      +'#leftStack .guide{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;align-items:flex-end!important;pointer-events:auto!important;}'
-      +'#leftStack .guide .ch{display:none!important;}'
-      // 설명은 아래 띠 한 곳에만 → 상단 수식 부제(bigW) 숨김.
+      // 캔버스만 밴드 중앙(좌우 레터박스). viz(2단 코드+캔버스)는 algo 자체 레이아웃(42vw/58vw) 쓰므로 제외.
+      +'body:not(.viz) #stage{left:var(--vpad)!important;right:auto!important;width:calc(100vw - 2*var(--vpad))!important;}'
+      // 상단 chrome(홈·제목·툴바)은 밴드 제약 없이 뷰포트 가장자리 — 홈은 맨왼쪽, 툴바 맨오른쪽. 제목은 남는 공간서 줄고 넘치면 ….
+      +'.topbar .titles{min-width:0!important;}.topbar .titles .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+      // 하단 콘텐츠(설명 띠·슬라이더)만 밴드 중앙, chrome(토글 좌·재생바 중·내비 우)은 가장자리. viz 제외(algo 2단 레이아웃 보존).
+      +'body:not(.viz) #controls,body:not(.viz) #keyhint{bottom:232px!important;}'
+      +'body:not(.viz) #leftStack{position:fixed!important;inset:0!important;width:auto!important;max-width:none!important;transform:none!important;margin:0!important;display:block!important;pointer-events:none!important;}'
+      +'body:not(.viz) #chevBtn{position:fixed!important;left:24px!important;bottom:22px!important;z-index:8!important;pointer-events:auto!important;}'
+      +'body:not(.viz) #study{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;max-width:none!important;pointer-events:auto!important;}'
+      +'body:not(.viz) #leftStack .guide{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;align-items:flex-end!important;pointer-events:auto!important;}'
+      +'body:not(.viz) #leftStack .guide .ch{display:none!important;}'
       +'#bignum #bigW{display:none!important;}'
-      // 시네마틱 인트로: 상단 제목이 우상단 툴바(로그인·메모·AI)와 겹침 → 인트로에선 제목 숨김(엔드카드가 안내).
       +'body.cinematic .topbar .titles{visibility:hidden!important;}'
-      +'#leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:128px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
-      +'#leftStack .bubble::-webkit-scrollbar{width:7px!important;}'
-      +'#leftStack .bubble::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28)!important;border-radius:4px!important;}'
-      +'#leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}';
+      +'body:not(.viz) #leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:128px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
+      +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar{width:7px!important;}'
+      +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28)!important;border-radius:4px!important;}'
+      +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
