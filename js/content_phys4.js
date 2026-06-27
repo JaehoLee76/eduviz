@@ -5,16 +5,16 @@
 (function(){
   var GRN='#5fd6a8', BLU='#7ab8ff', ORA='#ffb27a', PNK='#f4a0c0', DIM='#9b99a3';
 
-  function ball(E,v,b,label){ var ctx=E.ctx, px=v.X(b.x), py=v.Y(b.y), pr=b.r*v.s;
+  function ball(E,v,b,label,sc){ sc=sc||1; var ctx=E.ctx, px=v.X(b.x), py=v.Y(b.y), pr=b.r*v.s;
     ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill(); ctx.globalAlpha=1;
-    ctx.fillStyle='#10141a'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#10141a'; ctx.font='bold '+(12*sc)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(label, px, py); ctx.textBaseline='alphabetic';
-    ctx.fillStyle=b.color; ctx.font='11px sans-serif'; ctx.fillText(b.m.toFixed(1)+' kg', px, py-pr-6); return {px:px,py:py,pr:pr}; }
+    ctx.fillStyle=b.color; ctx.font=(11*sc)+'px sans-serif'; ctx.fillText(b.m.toFixed(1)+' kg', px, py-pr-7*sc); return {px:px,py:py,pr:pr}; }
   // 부호 있는 수평 화살표(운동량·속도): cx에서 시작, len(px) 방향
-  function harrow(E,cx,cy,len,col,label){ var ctx=E.ctx; if(Math.abs(len)<3){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx,cy,3,0,7); ctx.fill(); return; }
+  function harrow(E,cx,cy,len,col,label,sc){ sc=sc||1; var ctx=E.ctx; if(Math.abs(len)<3){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx,cy,3,0,7); ctx.fill(); return; }
     var dir=len>0?1:-1; ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+len,cy); ctx.stroke();
     ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(cx+len,cy); ctx.lineTo(cx+len-9*dir,cy-5); ctx.lineTo(cx+len-9*dir,cy+5); ctx.fill();
-    if(label){ ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, cx+len/2, cy-9); } }
+    if(label){ ctx.font=(11*sc)+'px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, cx+len/2, cy-8*sc); } }
 
   var scenes=[
 
@@ -153,14 +153,17 @@
       var v=PhysLab.view(W*0.06, H*0.42, (W*0.88)/11); s.view=v;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(0)+30); ctx.lineTo(v.X(11),v.Y(0)+30); ctx.stroke();
       // 폭발 지점 표시
-      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.setLineDash([3,5]); ctx.beginPath(); ctx.moveTo(v.X(5),v.Y(0)+30); ctx.lineTo(v.X(5),v.Y(0)-60); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('출발점 (Σp=0)', v.X(5), v.Y(0)-66);
-      var ka=ball(E,v,A,''), kb=ball(E,v,B,'');
-      harrow(E, ka.px, ka.py-ka.pr-16, A.vx*16, BLU, 'v='+A.vx.toFixed(1));
-      harrow(E, kb.px, kb.py-kb.pr-16, B.vx*16, BLU, 'v='+B.vx.toFixed(1));
+      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.setLineDash([3,5]); ctx.beginPath(); ctx.moveTo(v.X(5),v.Y(0)+78); ctx.lineTo(v.X(5),v.Y(0)-58); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=DIM; ctx.font='20px sans-serif'; ctx.textAlign='center'; ctx.fillText('출발점 (Σp=0)', v.X(5), v.Y(0)+98);
+      var ka=ball(E,v,A,'',2), kb=ball(E,v,B,'',2);
+      harrow(E, ka.px, ka.py-ka.pr-44, A.vx*16, BLU, 'v='+A.vx.toFixed(1), 2);
+      harrow(E, kb.px, kb.py-kb.pr-44, B.vx*16, BLU, 'v='+B.vx.toFixed(1), 2);
       var pA=A.m*A.vx, pB=B.m*B.vx, ptot=pA+pB;
-      // 운동량 화살표(부호 반대, 길이 같음)
-      var cy=H*0.74; harrow(E, W*0.50, cy, pA*16, GRN, 'pA='+pA.toFixed(1)); harrow(E, W*0.50, cy, pB*16, ORA, 'pB='+pB.toFixed(1));
+      // 운동량 화살표(공통점에서 반대 방향, 크기 같음) — 라벨은 양 끝으로 분리(겹침 방지)
+      var cy=H*0.60, mc=W*0.50; harrow(E, mc, cy, pA*16, GRN, '', 2); harrow(E, mc, cy, pB*16, ORA, '', 2);
+      ctx.font='22px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=GRN; ctx.fillText('pA = '+pA.toFixed(1), mc+pA*16-46, cy-12);
+      ctx.fillStyle=ORA; ctx.fillText('pB = '+pB.toFixed(1), mc+pB*16+46, cy-12);
       E.tapHint(W/2, H*0.88, '화면 탭 = 다시 발사  (질량 바꾸면 즉시 발사)', true);
       E.big('총 운동량 = pA + pB = '+ptot.toFixed(2)+' ≈ 0  (반동)', '멈춰 있던(총 운동량 0) 둘이 서로 밀면, 두 운동량은 크기 같고 방향만 반대 → 합은 여전히 0. 가벼운 쪽이 더 빨리 튕깁니다(|v|=I/m). 총의 반동, 로켓 추진, 헤엄이 전부 이 원리 — 작용-반작용(뉴턴 3법칙)을 운동량으로 말한 것입니다.'); }
   },
