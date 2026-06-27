@@ -19,14 +19,23 @@
       +'.topbar,.progress{left:var(--vpad)!important;right:var(--vpad)!important;}'
       +'.scene-no,.crumb{margin-left:var(--vpad)!important;}'
       +'.nav,#eduToolbar,.cw-wrap{margin-right:var(--vpad)!important;}'
-      // 하단 기본설명: 가운데 와이드 띠(슬라이더 아래·재생바/내비 위), 자세히보기 토글은 그 위. 좁은 폭에서도 겹침 방지.
-      +'#controls,#keyhint{bottom:200px!important;}'
-      +'#leftStack{left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:74px!important;width:min(1180px,94vw)!important;max-width:none!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;margin:0!important;}'
-      +'#leftStack .guide{width:100%!important;align-items:flex-end!important;}'
+      // 하단 레이아웃(겹침 방지): 맨아래 한 줄 = 토글(좌)·재생바(중)·내비(우). 그 위 가운데 = 설명 띠(크게·스크롤). 더 위 = 슬라이더.
+      +'#controls,#keyhint{bottom:232px!important;}'
+      +'#leftStack{position:fixed!important;inset:0!important;width:auto!important;max-width:none!important;transform:none!important;margin:0!important;display:block!important;pointer-events:none!important;}'
+      // 더 알아보기 토글: 좌하단 한 줄(재생바/내비와 같은 줄, 가로로 안 겹침)
+      +'#chevBtn{position:fixed!important;left:24px!important;bottom:22px!important;z-index:8!important;pointer-events:auto!important;}'
+      // 펼침 패널(자세히)·기본설명 띠 = 둘 다 가운데 같은 자리(펼치면 띠 숨고 패널이 그 자리)
+      +'#study{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;max-width:none!important;pointer-events:auto!important;}'
+      +'#leftStack .guide{position:absolute!important;left:0!important;right:0!important;bottom:92px!important;margin:0 auto!important;transform:none!important;width:min(1180px,92vw)!important;align-items:flex-end!important;pointer-events:auto!important;}'
       +'#leftStack .guide .ch{display:none!important;}'
-      // 설명은 아래 띠 한 곳에만 → 상단 수식 부제(bigW) 숨김(위·아래로 갈리지 않게). 긴 설명은 아래 띠에서 스크롤.
+      // 설명은 아래 띠 한 곳에만 → 상단 수식 부제(bigW) 숨김.
       +'#bignum #bigW{display:none!important;}'
-      +'#leftStack .bubble{max-width:none!important;flex:1!important;box-sizing:border-box!important;max-height:84px!important;overflow-y:auto!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.3) transparent!important;}';
+      // 시네마틱 인트로: 상단 제목이 우상단 툴바(로그인·메모·AI)와 겹침 → 인트로에선 제목 숨김(엔드카드가 안내).
+      +'body.cinematic .topbar .titles{visibility:hidden!important;}'
+      +'#leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:128px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
+      +'#leftStack .bubble::-webkit-scrollbar{width:7px!important;}'
+      +'#leftStack .bubble::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28)!important;border-radius:4px!important;}'
+      +'#leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
@@ -461,7 +470,7 @@
     animFrame=0; if(target>5000)target=5000;                   // 안전 상한
     for(var f=0; f<target; f++){ drawOneFrame(true); }         // 결정적 리플레이로 목표 프레임 재현(animFrame=target)
   }
-  function restartScene(){ if(!playbackEligible())return; var sc=SM.scenes[SM.cur]; if(sc&&sc.enter) sc.enter(E); animPaused=false; updatePlayUI(); blip(560,0.12); }   // 처음으로(재진입+재생)
+  function restartScene(){ if(!playbackEligible())return; var sc=SM.scenes[SM.cur]; if(sc&&sc.enter) sc.enter(E); animPaused=false; animFrame=0; frameN=0; updatePlayUI(); blip(560,0.12); }   // 처음으로(재진입+재생). animFrame·frameN도 0으로 → E.frame 기반 애니까지 완전 초기화(goTo와 동일).
   var playBar=null, playGlyph=null;
   function updatePlayUI(){ if(!playBar)return; playBar.style.display=playbackEligible()?'flex':'none';
     if(playGlyph){ playGlyph.textContent=animPaused?'▶':'⏸'; } }

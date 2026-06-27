@@ -258,7 +258,9 @@
     watchScene(); updateMemoBtn();
     initGIS();
     // 엔진 준비 후 위치 복원/해시 점프
-    var tries=0; (function wait(){ if(window.Engine && Engine.curId){ applyHashJump(); restorePos(); recordPos(); return; }
+    var tries=0; (function wait(){ if(window.Engine && Engine.curId){ applyHashJump();
+        if(user && dataUrl()) cloudLoad(restorePos); else restorePos();   // 로그인 상태면 클라우드에서 트랙별 위치 받아 복원(기기 간). recordPos는 호출 안 함(복원지점 덮어쓰기 버그) — 저장은 watchScene이 실제 이동 때만.
+        return; }
       if(tries++<40) setTimeout(wait,150); })();
     window.addEventListener('beforeunload', function(){ if(user && dataUrl()){ try{
       navigator.sendBeacon && navigator.sendBeacon(dataUrl(), new Blob([JSON.stringify({pos:data.pos,memos:data.memos,_t:user.idToken})],{type:'application/json'})); }catch(e){} } });
