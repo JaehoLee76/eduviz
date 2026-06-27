@@ -11,7 +11,7 @@
 
   // ---------- Stage ----------
   var cv, ctx, W, H, DPR;
-  var VP_MAXW=1500;  // 와이드 모니터에서 콘텐츠 최대 폭(좌우 레터박스로 시선 집중·UI 겹침 방지). 좁은 화면은 그대로.
+  var VP_MAXW=1680;  // 콘텐츠 폭 상한(초대형 화면서 과폭 방지). 실제 목표폭은 화면의 65%(setVpad).
   function injectViewportCSS(){ if(document.getElementById('eduviz-vp-style')||!document.head)return;
     var st=document.createElement('style'); st.id='eduviz-vp-style';
     st.textContent=':root{--vpad:0px;}'
@@ -37,13 +37,15 @@
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28)!important;border-radius:4px!important;}'
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}'
       // 띠가 넘칠 때만(.band-scroll) 우하단에 스크롤 단축키 힌트
-      +'body:not(.viz) #leftStack .guide.band-scroll::after{content:"⇅ Q·Z"!important;position:absolute!important;right:11px!important;bottom:7px!important;font-size:11px!important;font-weight:700!important;color:var(--accent-light,#7ab8ff)!important;background:rgba(8,10,16,.82)!important;border:1px solid currentColor!important;border-radius:7px!important;padding:1px 7px!important;pointer-events:none!important;opacity:.92!important;letter-spacing:.03em!important;}'
+      +'body:not(.viz) #leftStack .guide.band-scroll::after{content:"⇅ Q·Z 스크롤"!important;position:absolute!important;right:4px!important;top:-25px!important;font-size:11px!important;font-weight:700!important;color:var(--accent-light,#7ab8ff)!important;background:rgba(8,10,16,.82)!important;border:1px solid currentColor!important;border-radius:7px!important;padding:1px 8px!important;pointer-events:none!important;opacity:.92!important;letter-spacing:.03em!important;}'
       // 나브 버튼(심화학습·이전·다음) 크고 굵게 — 화살표 잘 보이게(라운드 사각형의 60%+ 차지)
       +'.nav .btn{font-size:18px!important;font-weight:700!important;padding:9px 18px!important;border-radius:12px!important;}'
       +'.nav .btn .nav-ar{display:inline-block!important;font-size:1.55em!important;font-weight:800!important;line-height:.5!important;vertical-align:-2px!important;margin:0 1px!important;}'
       +'.nav .btn .kc{font-size:10.5px!important;opacity:.6!important;}';
     document.head.appendChild(st); }
-  function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
+  function setVpad(){ var sw=(global.screen&&global.screen.width)||global.innerWidth;
+    var target=Math.min(VP_MAXW, Math.max(1100, Math.round(sw*0.65)));   // 와이드 화면의 65% = 가장 보기 편한 폭(1100~1680 클램프). 브라우저 창은 못 줄여도 콘텐츠를 이 폭으로 렌더해 동일 효과.
+    var vp=Math.max(0,(global.innerWidth-target)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
     cv = canvas; ctx = cv.getContext('2d'); injectViewportCSS(); resize();
     global.addEventListener('resize', function(){ resize(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
