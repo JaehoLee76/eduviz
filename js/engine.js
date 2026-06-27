@@ -24,7 +24,9 @@
       +'#leftStack{left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:74px!important;width:min(1180px,94vw)!important;max-width:none!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;margin:0!important;}'
       +'#leftStack .guide{width:100%!important;align-items:flex-end!important;}'
       +'#leftStack .guide .ch{display:none!important;}'
-      +'#leftStack .bubble{max-width:none!important;flex:1!important;box-sizing:border-box!important;}';
+      // 설명은 아래 띠 한 곳에만 → 상단 수식 부제(bigW) 숨김(위·아래로 갈리지 않게). 긴 설명은 아래 띠에서 스크롤.
+      +'#bignum #bigW{display:none!important;}'
+      +'#leftStack .bubble{max-width:none!important;flex:1!important;box-sizing:border-box!important;max-height:84px!important;overflow-y:auto!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.3) transparent!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var vp=Math.max(0,(global.innerWidth-VP_MAXW)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
