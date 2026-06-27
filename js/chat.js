@@ -73,12 +73,13 @@
       '.cw-key{display:inline-block;margin-left:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:0 5px;line-height:15px;}',
       '.cw-sub{font-size:11px;color:var(--text-1,#e9e7e0);background:rgba(0,0,0,.42);border-radius:6px;padding:1px 8px;pointer-events:none;line-height:1.5;}',
       '.cw-sub.zero{color:#f0a0a0;}',
-      '.cw-ov{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
-      '.cw-ov.open{display:flex;}',
-      '.cw-card{width:min(540px,92vw);max-height:84vh;display:flex;flex-direction:column;',
-        'background:var(--panel-bg,rgba(22,22,30,.98));border:1px solid var(--border,rgba(255,255,255,.14));',
-        'border-radius:16px;overflow:hidden;color:var(--text-1,#f4f3ee);}',
-      '.cw-head{padding:14px 18px;border-bottom:1px solid var(--border,rgba(255,255,255,.12));display:flex;align-items:center;gap:10px;}',
+      '.cw-ov{position:fixed;inset:0;z-index:40;display:none;pointer-events:none;}',   /* 배경 안 가림(흐림·어둡게 제거)·클릭 통과 → 배경 내용 참고 가능 */
+      '.cw-ov.open{display:block;}',
+      '.cw-card{position:absolute;top:76px;right:20px;width:min(460px,92vw);max-height:80vh;display:flex;flex-direction:column;pointer-events:auto;',   /* 떠다니는 창(드래그 이동) */
+        'background:var(--panel-bg,rgba(22,22,30,.97));border:1px solid var(--border,rgba(255,255,255,.16));',
+        'border-radius:16px;overflow:hidden;color:var(--text-1,#f4f3ee);box-shadow:0 10px 44px rgba(0,0,0,.55);}',
+      '.cw-head{padding:14px 18px;border-bottom:1px solid var(--border,rgba(255,255,255,.12));display:flex;align-items:center;gap:10px;cursor:move;user-select:none;touch-action:none;}',
+      '.cw-head .t::before{content:"⠿ ";color:var(--text-3,#9b99a3);font-size:13px;}',   /* 드래그 핸들 표시 */
       '.cw-head .t{font-weight:600;font-size:15px;}',
       '.cw-head .topic{font-size:12px;color:var(--accent-light,#7ab8ff);background:var(--accent-soft,rgba(79,147,214,.16));border-radius:8px;padding:2px 8px;margin-left:auto;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       '.cw-x{background:none;border:none;color:var(--text-3,#9b99a3);font-size:20px;cursor:pointer;line-height:1;}',
@@ -184,6 +185,21 @@
     foot.appendChild(row); foot.appendChild(metaEl);
     card.appendChild(head); card.appendChild(bodyEl); card.appendChild(foot);
     ov.appendChild(card); document.body.appendChild(ov); document.body.appendChild(wrap);
+
+    // 헤더를 잡고 드래그해 창 이동(× 버튼 제외, 화면 밖 이탈 방지)
+    (function(){ var dragging=false, sx=0, sy=0, startL=0, startT=0;
+      head.addEventListener('pointerdown', function(e){ if(e.target===x) return;
+        var r=card.getBoundingClientRect(); startL=r.left; startT=r.top; sx=e.clientX; sy=e.clientY; dragging=true;
+        card.style.right='auto'; card.style.left=startL+'px'; card.style.top=startT+'px';
+        try{ head.setPointerCapture(e.pointerId); }catch(_){ } e.preventDefault(); });
+      head.addEventListener('pointermove', function(e){ if(!dragging) return;
+        var nl=startL+(e.clientX-sx), nt=startT+(e.clientY-sy);
+        nl=Math.max(6, Math.min(window.innerWidth - 80, nl));
+        nt=Math.max(6, Math.min(window.innerHeight - 44, nt));
+        card.style.left=nl+'px'; card.style.top=nt+'px'; });
+      function end(e){ dragging=false; try{ head.releasePointerCapture(e.pointerId); }catch(_){ } }
+      head.addEventListener('pointerup', end); head.addEventListener('pointercancel', end);
+    })();
 
     function open(){ tp.textContent = topic()||'이 장면';
       if(sceneKey()!==threadScene){ resetThread(); }   // 장면 바뀌면 이전 대화 비우고 새로 시작
