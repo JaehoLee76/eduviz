@@ -1,6 +1,6 @@
 {
   "phys17_01": {
-    "ch": "물리학 제21장 기하광학",
+    "ch": "물리학 제22장 기하광학",
     "narr": "앞 장에서 빛이 전자기파라는 걸 봤습니다. 그런데 빛이 어떻게 휘고 모이는지를 따질 땐, 파동의 잔물결을 일일이 그리는 대신 <b>가느다란 광선</b>으로 다루는 게 훨씬 편합니다. 빛이 한 매질에서 다른 매질로 들어갈 때, 경계에서 <b>방향을 꺾습니다</b> — 굴절이죠. 왜일까요? 빽빽한 매질(유리·물) 속에선 빛이 <b>느려지기</b> 때문입니다. 비스듬히 달려온 행렬의 한쪽 끝이 먼저 진흙에 닿아 느려지면 전체가 그쪽으로 돌아가듯, 빛도 느려지는 쪽으로 꺾입니다. 빽빽할수록(굴절률 n이 클수록) 법선 쪽으로 더 많이 꺾이죠 — <b>스넬의 법칙 n₁sinθ₁ = n₂sinθ₂</b>. 물속 빨대가 꺾여 보이고, 수영장 바닥이 얕아 보이는 것 — 전부 이 한 가지 이야기입니다.",
     "more": "<b>굴절·스넬의 법칙</b>: n₁sinθ₁ = n₂sinθ₂. 굴절률 n = c/v(매질 속 빛의 느려짐, 진공 1·물 1.33·유리 1.5·다이아 2.4). 빽빽한 매질(n 큼)로 들어가면 법선 쪽으로 꺾임. 반사: 입사각=반사각. 경계에선 일부 반사·일부 굴절. 빛이 광선처럼 직진·반사·굴절하는 것만 다루는 분야가 기하광학.",
     "more_en": "<b>Refraction / Snell's law</b>: n₁sinθ₁ = n₂sinθ₂. Index n = c/v (vacuum 1, water 1.33, glass 1.5, diamond 2.4). Entering a denser medium bends light toward the normal. Reflection: angle in = angle out. Geometric optics treats light as straight rays.",
@@ -12,7 +12,7 @@
     }
   },
   "phys17_02": {
-    "ch": "물리학 제21장 기하광학",
+    "ch": "물리학 제22장 기하광학",
     "narr": "이번엔 반대로, 빽빽한 유리 속 빛이 성긴 공기로 <b>나가려는</b> 경우입니다. 스넬의 법칙에 따라 빛은 법선에서 멀어지며 꺾이는데 — 입사각을 점점 키우면 어떻게 될까요? 굴절각이 90°에 닿는 순간(<b>임계각</b> θc)을 넘어서면, 빛이 빠져나갈 각도가 <b>아예 사라집니다</b>. 그러면 빛은 경계에서 한 톨도 새지 않고 <b>전부 되튕깁니다</b> — 전반사죠. 임계각은 <b>sinθc = n₂/n₁</b>으로 정해집니다. 이게 기술의 보물입니다: 머리카락보다 가는 유리실(<b>광섬유</b>) 속에서 빛이 전반사로 계속 갇혀 수천 km를 손실 없이 달려가, 지금 이 화면의 인터넷을 실어 나릅니다. 다이아몬드가 유난히 반짝이는 것도 큰 굴절률(작은 임계각) 덕에 빛을 안에 가뒀다 터뜨리기 때문이에요.",
     "more": "<b>전반사</b>: 빽빽→성긴 매질(n₁>n₂)로 갈 때, 입사각이 <b>임계각 θc=arcsin(n₂/n₁)</b>를 넘으면 굴절 없이 100% 반사. 유리(1.5)→공기 임계각 ≈41.8°, 다이아(2.4)→공기 ≈24.4°(작아서 잘 반짝). 응용: 광섬유(인터넷·내시경), 쌍안경 프리즘, 다이아몬드 광채. 손실이 거의 없는 게 핵심.",
     "more_en": "<b>Total internal reflection</b>: going dense→rare (n₁>n₂), if the angle exceeds the <b>critical angle θc=arcsin(n₂/n₁)</b>, light reflects 100%. Glass→air ≈41.8°, diamond→air ≈24.4°. Powers optical fibers (internet, endoscopes) and diamond sparkle.",
@@ -24,7 +24,7 @@
     }
   },
   "phys17_03": {
-    "ch": "물리학 제21장 기하광학",
+    "ch": "물리학 제22장 기하광학",
     "narr": "굴절을 한쪽으로 휘게도, 한 점에 <b>모으게도</b> 할 수 있습니다 — 그게 <b>렌즈</b>입니다. 볼록렌즈는 흩어지던 빛을 다시 한 점에 모아 <b>상</b>을 맺죠. 복잡해 보이지만 광선 두 줄기만 따라가면 끝납니다: ①광축과 나란히 온 빛은 렌즈를 지나 반대쪽 <b>초점</b>으로 꺾이고, ②렌즈 한가운데로 온 빛은 곧장 통과합니다. 이 둘이 만나는 곳이 상점입니다. 그리고 그 위치는 <b>1/f = 1/do + 1/di</b>(렌즈 방정식) 하나로 정해집니다. 물체가 초점 밖(do>f)에 있으면 거꾸로 뒤집힌 <b>실상</b>이 맺혀요 — 카메라 센서에, 그리고 당신의 망막에 맺히는 바로 그 상입니다(세상은 눈 안에서 거꾸로 맺힙니다!). 물체가 초점 안(do<f)이면 똑바로 커진 <b>허상</b> — 돋보기로 본 글자죠. 슬라이더로 물체를 옮기며 상이 어떻게 변하는지 보세요.",
     "more": "<b>렌즈 방정식 1/f = 1/do + 1/di</b>, 배율 m = −di/do. 주요 광선: 평행→초점, 중심→직진. do>f: 거꾸로 <b>실상</b>(스크린에 맺힘, 카메라·눈·영사기). do<f: 똑바로 확대 <b>허상</b>(돋보기). f>0 볼록(모음), f<0 오목(흩음). 같은 식이 망원경·현미경·안경을 지배.",
     "more_en": "<b>Lens equation 1/f = 1/do + 1/di</b>, magnification m = −di/do. Principal rays: parallel→focus, center→straight. do>f: inverted <b>real image</b> (camera, eye, projector). do<f: upright magnified <b>virtual image</b> (magnifier). Governs telescopes, microscopes, glasses.",
@@ -36,7 +36,7 @@
     }
   },
   "phys17_04": {
-    "ch": "물리학 제21장 기하광학",
+    "ch": "물리학 제22장 기하광학",
     "narr": "렌즈가 굴절로 상을 맺듯, <b>거울</b>은 <b>반사</b>로 똑같은 일을 합니다 — 그리고 놀랍게도 <b>완전히 같은 식</b>을 따릅니다. 오목 거울(안으로 휜 거울)은 평행하게 들어온 빛을 초점에 모읍니다. 광선 두 줄기로 상을 찾죠: ①광축과 나란히 온 빛은 반사 후 초점 F를 지나고, ②거울 꼭짓점에 온 빛은 광축에 대해 대칭으로 되튕깁니다. 둘이 만나는 곳이 상 — 역시 <b>1/f = 1/do + 1/di</b>(초점거리 f = 반지름 R의 절반)입니다. 물체가 초점 밖이면 거꾸로 된 <b>실상</b>(천체망원경·손전등 반사판), 초점 안이면 똑바로 확대된 <b>허상</b>(화장 거울·치과 거울)이 맺힙니다. 볼록 거울은 항상 작은 허상을 만들어 넓게 보여 주죠 — 자동차 사이드미러의 \"사물이 거울에 보이는 것보다 가까이 있음\"이 바로 그것입니다.",
     "more": "<b>거울 방정식 1/f = 1/do + 1/di</b>, f = R/2(R=곡률반지름). 오목(모음, f>0): do>f 거꾸로 실상, do<f 똑바로 확대 허상. 볼록(흩음, f<0): 항상 똑바로 축소 허상(넓은 시야, 사이드미러). 광선: 평행→F, F→평행, 꼭짓점→대칭. 렌즈와 같은 식이지만 상은 거울 앞쪽(반사).",
     "more_en": "<b>Mirror equation 1/f = 1/do + 1/di</b>, f = R/2. Concave (f>0): do>f inverted real, do<f upright enlarged virtual. Convex (f<0): always upright shrunken virtual (wide view, side mirror). Same equation as lenses, but the image forms in front (reflection).",
@@ -48,7 +48,7 @@
     }
   },
   "phys17_05": {
-    "ch": "물리학 제21장 기하광학",
+    "ch": "물리학 제22장 기하광학",
     "narr": "마지막 마법입니다. 굴절률 n이 사실은 <b>색(파장)마다 조금씩 다르다</b>는 걸 아셨나요? 보라색 빛은 빨간색 빛보다 유리 속에서 더 많이 느려져서, 더 크게 꺾입니다. 그래서 하나의 <b>백색광</b>을 프리즘에 비스듬히 넣으면, 안에서 색마다 다른 각도로 꺾이며 부챗살처럼 <b>갈라져</b> 나옵니다 — 빨강은 가장 적게, 보라는 가장 많이. 이게 <b>분산</b>이고, 뉴턴이 프리즘으로 증명한 \"백색광은 모든 색의 합\"이라는 진실입니다. 화면에서 각 색의 굴절률 n과 실제 계산된 편향각 δ를 보세요 — n이 클수록 δ가 큽니다. 비 온 뒤 하늘의 무지개도 똑같아요: 공기 중 물방울 하나하나가 작은 프리즘이 되어 햇빛을 색으로 갈라, 거대한 원호를 그립니다. 앞 장 전자기 스펙트럼에서 본 '색=진동수'가, 여기서 눈앞의 무지개로 펼쳐집니다.",
     "more": "<b>분산</b>: 굴절률 n이 파장에 따라 다름(보라 n 큼 > 빨강 n 작음) → 백색광이 색으로 갈라짐. 프리즘 편향각 δ는 색마다 다르고 n으로 실제 계산(스넬 2회). 무지개: 물방울 속 굴절·내부 반사·굴절로 햇빛 분산(1차 무지개 ~42°, 빨강 바깥). 뉴턴: 백색광=모든 색의 합. 렌즈의 색수차도 같은 원인.",
     "more_en": "<b>Dispersion</b>: index n varies with wavelength (violet > red) → white light splits into colors. The prism deviation δ differs per color, computed from n (two Snell refractions). Rainbows: raindrops act as prisms (refract–reflect–refract). Newton: white light is the sum of all colors. Also causes lens chromatic aberration.",

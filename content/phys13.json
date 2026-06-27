@@ -40,19 +40,5 @@
       "q_en": "Triple the wire's current. Surrounding B field?",
       "sol_en": "B ∝ I → <b>3×</b>."
     }
-  },
-  "phys13_03_solenoid": {
-    "ch": "물리학 제17장 자기",
-    "sec": "13.3 심화 · 솔레노이드(전자석)",
-    "title": "솔레노이드 — 전류로 만든 자석",
-    "narr": "전선을 촘촘히 감으면(솔레노이드) 각 고리의 자기장이 합쳐져 <b>내부에 균일하고 강한 자기장</b>이 생깁니다 — 막대자석과 똑같은 N·S 극이죠! 슬라이더로 전류와 감은 수를 키우면 자기장이 강해집니다. 전류를 끄면 자성이 사라지는 <b>전자석</b>입니다 — 크레인 자석, 자기부상열차, MRI의 원리.",
-    "more": "<b>솔레노이드</b>: 내부 균일장 B = μ₀·n·I (n=단위길이당 감은 수 = N/L). 전류·감은 밀도에 비례, 안에 철심(투자율 μ)을 넣으면 수백~수천 배 강해짐(전자석). 전류로 켜고 끄고 세기를 조절 가능 — 영구자석에 없는 장점. 모터·스피커·릴레이·도어록·MRI·입자가속기 자석. 토로이드(도넛형)는 자기장을 안에 가둠.",
-    "more_en": "<b>Solenoid</b>: uniform interior field B = μ₀·n·I (n = turns per length). An iron core multiplies it hundreds of times (electromagnet) — switchable, adjustable. Used in motors, speakers, relays, MRI, accelerators.",
-    "problem": {
-      "q": "솔레노이드의 전류를 2배, 감은 밀도를 2배로 하면 내부 자기장은?",
-      "solution": "B = μ₀nI ∝ n·I. 둘 다 2배 → <b>4배</b>.",
-      "q_en": "Double both current and turn-density. Interior field?",
-      "sol_en": "B ∝ nI → <b>4×</b>."
-    }
   }
 }

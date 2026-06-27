@@ -1,6 +1,6 @@
 {
   "phys22_01": {
-    "ch": "물리학 제18장 전자기 유도",
+    "ch": "물리학 제19장 전자기 유도",
     "narr": "앞 장에서 전류가 자기장을 만든다는 걸 봤습니다. 그럼 거꾸로, 자기장으로 전류를 만들 수 있을까요? 패러데이가 평생을 매달린 질문이죠. 답을 알려면 먼저 <b>자기선속</b>이라는 개념이 필요합니다 — 코일을 <b>뚫고 지나가는 자기장의 양</b>이에요. 코일이 자기장에 똑바로(수직) 놓이면 가장 많은 장선이 통과해 선속이 최대, 코일을 옆으로 눕혀(나란히) 놓으면 장선이 코일을 못 뚫어 선속이 0이 됩니다. 그 사이는 <b>Φ = B·A·cosθ</b>(B=자기장, A=넓이, θ=법선과 장 사이 각)로 매끄럽게 변하죠. 화면에서 코일을 기울이면 통과하는 초록 장선이 cosθ로 줄어드는 걸 보세요. 이 '뚫고 지나가는 양'이 변할 때 — 바로 그때 마법이 일어납니다(다음 장면).",
     "more": "<b>자기선속 Φ = B·A·cosθ</b>(단위 웨버 Wb). B=자기장, A=코일 넓이, θ=코일 법선과 B 사이 각. 코일이 장에 수직(θ=0)이면 최대, 나란(θ=90°)이면 0. 선속=코일을 뚫는 자기장선의 총수. 이 선속의 <b>변화</b>가 전자기 유도의 핵심(다음 장면).",
     "more_en": "<b>Magnetic flux Φ = B·A·cosθ</b> (weber). Maximum when the coil is perpendicular to B (θ=0), zero when parallel (θ=90°). Flux = number of field lines through the coil. A <b>change</b> in this flux drives induction.",
@@ -12,7 +12,7 @@
     }
   },
   "phys22_02": {
-    "ch": "물리학 제18장 전자기 유도",
+    "ch": "물리학 제19장 전자기 유도",
     "narr": "여기 전자기학에서 가장 아름다운 사실이 있습니다 — 코일을 지나는 <b>자기선속이 변하면, 코일에 전류가 유도</b>됩니다. 자석을 코일에 넣었다 뺄 때 검류계 바늘이 흔들리는 걸 보세요. 결정적인 건 <b>'변화'</b>입니다 — 자석이 아무리 강해도 가만히 있으면(선속이 안 변하면) 전류는 0이에요. 빠르게 움직일수록 큰 기전력이 유도되죠(<b>패러데이 법칙 EMF = −N·dΦ/dt</b>). 그리고 그 앞의 마이너스 부호가 <b>렌츠의 법칙</b>입니다 — 유도 전류는 언제나 <b>자기 자신을 만든 변화를 방해하는</b> 방향으로 흐릅니다(자석이 다가오면 밀어내고, 멀어지면 붙잡아요). 에너지 보존의 명령이죠(공짜 전기는 없다). 발전기·마이크·무선충전·교통카드·인덕션 레인지 — 현대 문명의 전기 대부분이 이 한 줄에서 나옵니다.",
     "more": "<b>패러데이 법칙</b>: 유도기전력 <b>EMF = −N·dΦ/dt</b>(N=감은 수). 자속 변화율이 클수록(빠를수록) 큰 기전력. 정지=변화 없음=0. <b>렌츠 법칙</b>(−부호): 유도 전류는 자신을 만든 자속 변화를 방해하는 방향(에너지 보존). 발전기·변압기·인덕션·무선충전·발전 전체의 바탕.",
     "more_en": "<b>Faraday's law</b>: induced EMF <b>= −N·dΦ/dt</b>. Faster flux change → larger EMF; no change → zero. <b>Lenz's law</b> (the minus sign): induced current opposes the change that made it (energy conservation). Basis of generators, transformers, induction, wireless charging.",
@@ -24,7 +24,7 @@
     }
   },
   "phys22_03": {
-    "ch": "물리학 제18장 전자기 유도",
+    "ch": "물리학 제19장 전자기 유도",
     "narr": "패러데이의 유도를 '거꾸로' 활용하면 — 인류를 먹여 살리는 기계가 나옵니다. <b>발전기</b>죠. 자기장 속에서 <b>코일을 빙빙 돌리면</b>, 코일을 지나는 자기선속이 Φ=BAcosθ를 따라 사인 모양으로 출렁입니다(θ=ωt). 선속이 끊임없이 변하니 기전력이 계속 유도되는데, 회전이라 방향이 주기적으로 뒤집혀 <b>교류(AC)</b>가 나옵니다 — EMF = NBAω·sin(ωt). 코일이 자극과 나란할 때 선속 변화율이 최대(기전력 최대), 수직일 때 0이죠. 빠르게 돌릴수록(ω↑) 전압도 주파수도 커집니다. 수력(물)·풍력(바람)·화력·원자력(증기) 발전이 모두 똑같습니다 — 무언가의 힘으로 <b>코일(또는 자석)을 돌리는 것</b>뿐이에요. 콘센트의 60Hz 전기가 바로 이렇게 어딘가에서 돌고 있는 거대한 코일에서 옵니다.",
     "more": "<b>발전기</b>: 자기장 속 코일 회전 → 자속이 Φ=BAcos(ωt)로 변함 → <b>교류 기전력 EMF = NBAω·sin(ωt)</b>. 회전 빠를수록(ω↑) 전압·주파수↑. 모든 대규모 발전(수력·풍력·화력·원자력)이 이 원리 — 무언가로 터빈·코일을 회전. 전동기는 반대(전기→회전). 가정용 60Hz(한국)·50Hz.",
     "more_en": "<b>Generator</b>: rotating a coil in a field → flux Φ=BAcos(ωt) → AC EMF <b>= NBAω·sin(ωt)</b>. Faster rotation → higher voltage and frequency. All large-scale power (hydro, wind, thermal, nuclear) spins a turbine/coil. A motor is the reverse (electricity → rotation).",
@@ -36,7 +36,7 @@
     }
   },
   "phys22_04": {
-    "ch": "물리학 제18장 전자기 유도",
+    "ch": "물리학 제19장 전자기 유도",
     "narr": "발전소에서 만든 전기를 멀리 보내려면 한 가지 문제가 있습니다 — 전선에서 열로 새어 나가는 손실(I²R)이 전류의 제곱에 비례한다는 것. 그래서 송전할 땐 전압을 <b>수십만 볼트로 확 올려 전류를 낮춰</b> 보내고, 가정 앞에선 다시 <b>안전한 220V로 낮춰야</b> 합니다. 이 전압 변신을 해내는 게 <b>변압기</b>예요. 1차 코일에 흐르는 교류가 철심에 <b>변하는 자속</b>을 만들고, 그 자속이 2차 코일에 기전력을 유도합니다(상호유도). 마법의 비율은 단순합니다 — <b>Vs/Vp = Ns/Np</b>(감은 수의 비). 2차를 더 많이 감으면 승압, 적게 감으면 강압이죠. 단, 공짜는 없어서 전압을 올리면 전류는 그만큼 줄어듭니다(VpIp=VsIs, 에너지 보존). 그리고 변압기는 <b>교류에서만</b> 작동합니다 — 직류는 자속이 안 변해 유도가 안 일어나거든요. 에디슨(직류)이 테슬라(교류)에게 진 결정적 이유입니다.",
     "more": "<b>변압기</b>: 상호유도로 교류 전압 변환. <b>Vs/Vp = Ns/Np</b>(감은 수 비). Ns>Np 승압, Ns<Np 강압. 에너지 보존 VpIp=VsIs(전압↑→전류↓). 교류 전용(직류는 자속 불변→무효). 송전: 발전소→초고압 송전(I²R 손실↓)→가정 강압. 변압기 덕에 교류가 송전 표준이 됨.",
     "more_en": "<b>Transformer</b>: changes AC voltage by mutual induction. <b>Vs/Vp = Ns/Np</b>. More secondary turns = step up; fewer = step down. Energy conservation VpIp=VsIs. AC only (DC gives no flux change). Enables high-voltage transmission (low I²R loss).",
@@ -48,7 +48,7 @@
     }
   },
   "phys22_05": {
-    "ch": "물리학 제18장 전자기 유도",
+    "ch": "물리학 제19장 전자기 유도",
     "narr": "코일에는 숨은 성질이 하나 더 있습니다 — 자기 자신을 흐르는 전류의 변화마저 거부한다는 것. 코일에 전류가 흐르려 하면, 그 전류가 만드는 자속이 변하면서(자기유도) 그 변화를 방해하는 <b>역기전력 ε = −L·dI/dt</b>가 생깁니다(렌츠 법칙의 자기 버전). 결과적으로 코일은 전류가 <b>갑자기 늘거나 줄지 못하게</b> 막아요 — 마치 질량이 속도 변화를 거부하는 '관성'처럼, <b>인덕턴스 L</b>은 전류의 관성입니다. L이 클수록 전류가 더 굼뜨게 변하죠. 화면에서 L을 키우면 전류가 목표값까지 더 천천히 오르는 걸 보세요. 그리고 코일은 흐르는 전류를 <b>자기장의 형태로 에너지를 저장</b>합니다 — U = ½LI²(축전기의 ½CV²와 짝). 이 인덕터가 축전기와 만나면 전기가 출렁이며 진동하고(LC 회로), 그게 라디오 주파수를 고르고 신호를 실어 나릅니다. 다음 장에서 이 출렁임이 공간으로 튀어나가 — 빛(전자기파)이 됩니다.",
     "more": "<b>인덕턴스 L</b>: 코일이 자기 전류 변화를 거부하는 정도(헨리 H). 자기유도 역기전력 <b>ε = −L·dI/dt</b>(전류의 '관성'). 저장 에너지 <b>U = ½LI²</b>(자기장에). 전류 급변 차단(필터·스파크 억제). 축전기와 함께 LC 진동회로(라디오 동조·발진). RL 회로 시상수 τ=L/R. 코일=전류의 관성, 축전기=전압의 관성.",
     "more_en": "<b>Inductance L</b>: a coil's resistance to changing its own current (henry). Self-induced back-EMF <b>ε = −L·dI/dt</b> (current 'inertia'). Stored energy <b>U = ½LI²</b> (in the magnetic field). With a capacitor it forms an LC oscillator (radio tuning). Coil = current inertia; capacitor = voltage inertia.",

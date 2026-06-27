@@ -1,6 +1,6 @@
 {
   "phys18_01": {
-    "ch": "물리학 제22장 파동광학",
+    "ch": "물리학 제23장 파동광학",
     "narr": "앞 장에서 빛을 곧게 나아가는 '광선'으로 다뤘습니다. 그런데 빛이 정말 파동이라면, 물결처럼 <b>겹쳐서 무늬</b>를 만들어야 합니다. 영(Young)이 1801년에 이걸 증명했죠. 빛을 두 개의 가느다란 틈에 통과시키면, 스크린에 밝은 줄 두 개만 찍힐 것 같지만 — 실제로는 <b>밝고 어두운 줄무늬가 여러 개</b> 나타납니다! 두 틈에서 나온 물결이 겹쳐, 마루끼리 만나면 더 밝아지고(보강간섭), 마루와 골이 만나면 서로 지워집니다(상쇄간섭). 알갱이로는 절대 설명할 수 없는 이 무늬가, 빛이 파동이라는 결정적 증거입니다. 화면에서 두 틈으로부터 밝은 빛살이 부채처럼 퍼져 스크린의 줄무늬로 모이는 걸 보세요. 틈을 좁히거나 파장을 늘리면 무늬가 벌어집니다(간격 ≈ λL/d).",
     "more": "<b>이중슬릿 간섭</b>: 두 틈에서 나온 빛의 경로차 = d sinθ. 보강(밝음) d sinθ=mλ, 상쇄(어둠) d sinθ=(m+½)λ. 무늬 간격 Δy ≈ λL/d. 세기 I=cos²(πd sinθ/λ). 빛이 파동이라는 결정적 증거(영, 1801). 같은 원리로 전자·중성자도 무늬를 만듦(물질파).",
     "more_en": "<b>Double-slit interference</b>: path difference d sinθ. Bright when d sinθ=mλ, dark when =(m+½)λ. Fringe spacing Δy≈λL/d, intensity I=cos²(πd sinθ/λ). Young's decisive proof (1801) that light is a wave. Even electrons make this pattern.",
@@ -12,7 +12,7 @@
     }
   },
   "phys18_02": {
-    "ch": "물리학 제22장 파동광학",
+    "ch": "물리학 제23장 파동광학",
     "narr": "틈이 하나뿐이어도 빛은 파동의 본색을 드러냅니다. 직선으로만 가야 할 빛이 좁은 틈을 지나는 순간 <b>부채처럼 퍼집니다</b> — 회절이죠. 왜? 틈의 각 부분이 새로운 물결의 출발점이 되어, 자기들끼리 간섭하기 때문입니다. 스크린엔 가운데 밝은 무늬와 양옆의 희미한 무늬가 생깁니다. 핵심은 <b>틈이 좁을수록(a↓), 파장이 길수록(λ↑) 더 넓게 퍼진다</b>는 것(중앙폭 ∝ λ/a). 이 작은 퍼짐이 우주의 어떤 망원경·현미경도 완벽히 선명할 수 없게 만드는 근본 한계(회절한계)이고, 벽 뒤의 목소리가 들리는 이유(파장이 긴 소리는 모퉁이를 잘 돈다)이기도 합니다.",
     "more": "<b>단일슬릿 회절</b>: 틈의 각 점이 2차 파원(하위헌스). 세기 I=sinc²(πa sinθ/λ). 첫 어두운 무늬 a sinθ=λ, 중앙폭 ∝ λ/a(좁을수록·긴 파장일수록 넓게 퍼짐). 모든 광학기기의 분해능을 제한(회절한계). 소리가 모퉁이를 도는 것도 회절.",
     "more_en": "<b>Single-slit diffraction</b>: each point of the slit is a secondary source (Huygens). Intensity I=sinc²(πa sinθ/λ), first minimum a sinθ=λ, central width ∝ λ/a. Sets the diffraction limit of every instrument; also why sound bends around corners.",
@@ -24,7 +24,7 @@
     }
   },
   "phys18_03": {
-    "ch": "물리학 제22장 파동광학",
+    "ch": "물리학 제23장 파동광학",
     "narr": "틈 두 개가 무늬를 만든다면, <b>수천 개</b>를 나란히 새기면 어떻게 될까요? 무늬가 흐릿한 줄무늬에서 <b>면도날처럼 날카로운 색선</b>으로 변합니다 — 이게 <b>회절격자</b>입니다. 수많은 틈에서 온 빛이 한 방향으로 완벽히 맞아떨어지는 각도에서만 살아남고, 나머지는 서로 지워지기 때문이죠. 그 각도는 <b>d sinθ = mλ</b>로 정확히 정해집니다. 파장(색)마다 각도가 다르니, 백색광을 비추면 차수(m=1,2,…)마다 무지개가 펼쳐집니다. 이 정밀함 덕에 회절격자는 별빛·물질에서 나온 빛을 색으로 정밀하게 분해해 그 성분을 읽어내는 <b>분광기</b>의 심장이 됩니다 — CD·DVD 표면의 무지개도 바로 이 격자 효과예요. 슬라이더로 격자 간격과 파장을 바꿔 선이 벌어지는 걸 보세요.",
     "more": "<b>회절격자</b>: 수많은 등간격 슬릿. 보강 조건 <b>d sinθ = mλ</b>(m=차수). 슬릿이 많을수록 선이 날카로움(분해능↑). 색마다 θ 달라 분광 가능(분광기·천체 성분 분석). d 작을수록(촘촘)·λ 길수록 크게 벌어짐. CD/DVD·곤충 날개의 무지개도 격자.",
     "more_en": "<b>Diffraction grating</b>: many equally spaced slits. Maxima at <b>d sinθ = mλ</b>. More slits → sharper lines (high resolution). Different colors at different θ → spectroscopy (analyzing starlight). CD/DVD rainbows are grating effects.",
@@ -36,7 +36,7 @@
     }
   },
   "phys18_04": {
-    "ch": "물리학 제22장 파동광학",
+    "ch": "물리학 제23장 파동광학",
     "narr": "비눗방울과 길 위의 기름막이 왜 무지갯빛으로 어른거릴까요? 색소가 들어 있어서가 아닙니다 — <b>얇은 막의 간섭</b> 때문이에요. 빛이 막에 닿으면 일부는 <b>윗면</b>에서, 일부는 막을 통과해 <b>아랫면</b>에서 반사됩니다. 이 두 반사광이 겹칠 때, 막을 왕복한 거리(경로차 ≈ 2nt, n=막 굴절률·t=두께)가 어떤 색의 파장과 딱 맞으면 그 색이 <b>보강되어 밝게 보입니다</b>. 막 두께가 위치마다·시간마다 조금씩 다르니 보강되는 색이 계속 바뀌어 무지개가 어른거리죠. 화면에서 막 두께를 바꾸면 보강되어 보이는 색이 달라집니다. 카메라 렌즈의 보랏빛 코팅(반사 방지막), 나비 날개의 금속광택도 모두 이 박막 간섭입니다.",
     "more": "<b>박막 간섭</b>: 윗면·아랫면 반사광의 경로차 ≈ 2nt. 윗면 반사 시 위상 반전(½λ) 고려 → 보강 반사 2nt=(m+½)λ. 두께·각도·n에 따라 보강 색이 바뀜(비눗방울·기름막·나비 날개). 응용: 반사방지 코팅(렌즈·안경), 광학필터. 색소 없이 구조만으로 내는 색(구조색).",
     "more_en": "<b>Thin-film interference</b>: top and bottom reflections differ by ≈ 2nt. With the top's ½λ phase flip, bright reflection at 2nt=(m+½)λ. The reinforced color shifts with thickness/angle/n (soap films, oil, butterfly wings). Used in anti-reflection coatings. Structural color, no pigment.",
@@ -48,7 +48,7 @@
     }
   },
   "phys18_05": {
-    "ch": "물리학 제22장 파동광학",
+    "ch": "물리학 제23장 파동광학",
     "narr": "회절에는 슬픈 대가가 있습니다. 빛이 렌즈나 구멍을 지날 때 회절로 살짝 번지기 때문에, 아무리 완벽한 망원경도 별 하나를 <b>점이 아니라 작은 원반</b>(에어리 원반)으로 맺습니다. 그래서 두 별이 너무 가까이 있으면 두 원반이 겹쳐 <b>하나로 뭉개져</b> 버립니다. '구별 가능한가'의 경계가 바로 <b>레일리 기준 θmin = 1.22 λ/D</b>입니다(D=렌즈/거울 지름). 핵심은 <b>D가 클수록 θmin이 작아져 더 가까운 둘도 구별</b>한다는 것 — 천문학자들이 점점 더 거대한 망원경(큰 D)을 짓는 이유이고, 당신 눈동자(작은 D)가 멀리서는 쌍둥이 별을 하나로 보는 이유입니다. 슬라이더로 두 별의 간격과 렌즈 지름을 바꿔, 언제 둘로 갈라지는지 보세요.",
     "more": "<b>분해능·레일리 기준</b>: 회절로 점광원도 에어리 원반이 됨. 두 점을 구별하는 최소 각 <b>θmin = 1.22 λ/D</b>(D=구경). D 클수록·λ 짧을수록 잘 분해 → 거대 망원경·짧은 파장 현미경(전자현미경). 눈의 분해능도 동공 크기·빛 파장이 결정. 회절이 정한 근본 한계.",
     "more_en": "<b>Resolution / Rayleigh criterion</b>: diffraction turns a point into an Airy disk. Minimum resolvable angle <b>θmin = 1.22 λ/D</b> (D=aperture). Larger D and shorter λ resolve better — hence giant telescopes and electron microscopes. A diffraction-set fundamental limit.",

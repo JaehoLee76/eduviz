@@ -97,29 +97,6 @@
       E.big('전류는 자기장을 만든다 (B ∝ I/r, 오른손 법칙)', '외르스테드의 발견: <b>전류가 흐르면 둘레에 자기장이 생깁니다</b>. 직선 전선 둘레로 자기장이 동심원을 그리며 감아 돕니다(B = μ₀I/2πr) — 전류가 셀수록, 가까울수록 강합니다. 방향은 <b>오른손 법칙</b>(엄지=전류, 감는 손가락=B). 전선을 코일로 감으면(솔레노이드) 자석처럼 강한 장이 생겨 전자석이 됩니다. 전기와 자기는 하나로 얽혀 있습니다.'); }
   },
 
-  // ─── 심화: 솔레노이드(전자석) ───
-  { id:'phys13_03_solenoid', branchOf:'phys13_03', ord:1,
-    enter:function(E){ var self=this; this.s={I:4,N:8};
-      E.controls('<div class="ctrl"><label>전류 I</label><input type="range" id="ii" min="1" max="8" step="1" value="4"><output id="iio">4</output>'
-        +'<label style="margin-left:14px">감은 수 N</label><input type="range" id="nn" min="4" max="14" step="1" value="8"><output id="nno">8</output></div>');
-      E.bind('#ii','input',function(e){ self.s.I=+e.target.value; document.getElementById('iio').textContent=e.target.value; E.blip(360,0.07); });
-      E.bind('#nn','input',function(e){ self.s.N=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(340,0.07); });
-      E.setOn([]); },
-    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
-      var cx=W*0.42, cy=H*0.44, L=W*0.4, x0=cx-L/2, x1=cx+L/2;
-      // 코일 감김(원들)
-      ctx.strokeStyle=ORA; ctx.lineWidth=2.5;
-      for(var i=0;i<s.N;i++){ var x=x0+L*i/(s.N-1); ctx.beginPath(); ctx.ellipse(x,cy,8,40,0,0,7); ctx.stroke(); }
-      // 내부 균일 자기장(오른쪽으로), 세기 ∝ N·I
-      var B=s.N*s.I; var nl=Math.max(2,Math.round(B/8));
-      for(var k=0;k<nl;k++){ var yy=cy-20+k*(40/(nl-1||1)); arrow(E,x0+6,yy,x1-6,yy,'rgba(122,184,255,0.6)',2); }
-      // 바깥 N/S 표시
-      ctx.fillStyle=NRED; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('N', x1+24, cy+5);
-      ctx.fillStyle=SBLU; ctx.fillText('S', x0-24, cy+5);
-      E.tapHint(W/2, H*0.90, '전류·감은 수를 키우면 내부 자기장이 강해집니다', true);
-      E.big('솔레노이드: 내부 균일 자기장 B = μ₀·n·I  (N·I = '+B+')', '전선을 촘촘히 감으면(솔레노이드) 각 고리의 자기장이 합쳐져 <b>내부에 균일한 강한 자기장</b>이 생깁니다 — 막대자석과 똑같은 N·S 극! 세기 <b>B = μ₀·n·I</b>(n=단위길이당 감은 수). 전류·감은 수에 비례하고, 전류를 끄면 자성도 사라지는 <b>전자석</b> — 크레인의 고철 자석, 자기부상열차, 스피커, MRI, 릴레이가 모두 솔레노이드. 안에 철심을 넣으면 수천 배 강해집니다.'); }
-  },
-
   ];
   if(window.Engine) window.Engine.addScenes(scenes);
 })();
