@@ -19,6 +19,8 @@
       +'body:not(.viz) #stage{left:var(--vpad)!important;right:auto!important;width:calc(100vw - 2*var(--vpad))!important;}'
       // 상단 chrome(홈·제목·툴바)은 밴드 제약 없이 뷰포트 가장자리 — 홈은 맨왼쪽, 툴바 맨오른쪽. 제목은 남는 공간서 줄고 넘치면 ….
       +'.topbar .titles{min-width:0!important;}.topbar .titles .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+      // 좌상단 세로 스택: 홈(상단바 ~58까지) 아래에 장면번호·브레드크럼을 내려 겹침 방지(툴바로 상단바가 커진 만큼).
+      +'.scene-no{top:64px!important;}#crumb,.crumb{top:90px!important;}'
       // 하단 콘텐츠(설명 띠·슬라이더)만 밴드 중앙, chrome(토글 좌·재생바 중·내비 우)은 가장자리. viz 제외(algo 2단 레이아웃 보존).
       +'body:not(.viz) #controls,body:not(.viz) #keyhint{bottom:232px!important;}'
       +'body:not(.viz) #leftStack{position:fixed!important;inset:0!important;width:auto!important;max-width:none!important;transform:none!important;margin:0!important;display:block!important;pointer-events:none!important;}'
