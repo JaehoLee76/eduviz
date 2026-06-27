@@ -48,6 +48,9 @@
         for(var j=0;j<hUp;j++){ ctx.fillStyle='rgba(122,184,255,0.4)'; ctx.fillRect(x0+i*cell, baseY-(j+1)*cell, cell-2, cell-2); }
         for(var k2=0;k2<hDn;k2++){ ctx.fillStyle='rgba(255,178,122,0.35)'; ctx.fillRect(x0+i*cell, baseY-(hUp+k2+1)*cell, cell-2, cell-2); } }
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=2; ctx.strokeRect(x0, baseY-(n+1)*cell, n*cell, (n+1)*cell);
+      ctx.fillStyle='#cfcdc6'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('가로 n = '+n, x0+n*cell/2, baseY+18);
+      ctx.save(); ctx.translate(x0-14, baseY-(n+1)*cell/2); ctx.rotate(-Math.PI/2); ctx.fillText('세로 n+1 = '+(n+1), 0, 0); ctx.restore();
       var sum=n*(n+1)/2;
       E.big('1 + 2 + … + '+n+' = '+n+'·'+(n+1)+'/2 = '+sum, '오름+내림 계단 = 직사각형 n×(n+1) → 합은 그 절반 (가우스!)'); }
   },

@@ -15,8 +15,8 @@
       if(s.p>0&&s.p<1){ ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(E.NL.px(0),y-60); ctx.lineTo(E.NL.px(0),y+60); ctx.stroke(); ctx.setLineDash([]); }
       E.NL.dot(a,'#7ab8ff',8); E.NL.dot(b,'#ffb27a',8);
       ctx.font='600 15px sans-serif'; ctx.textAlign='center';
-      ctx.fillStyle='#7ab8ff'; ctx.fillText(Math.round(a),E.NL.px(a),y-20);
-      ctx.fillStyle='#ffb27a'; ctx.fillText(Math.round(b),E.NL.px(b),y-20);
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('a = '+Math.round(a),E.NL.px(a),y-20);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('b = '+Math.round(b),E.NL.px(b),y-20);
       if(s.p<=0) E.tapHint(E.W/2, y+78,'▶ ×(−1) D · 자동 S',true);
       else if(s.p>=1) E.tapHint(E.W/2, y+78,'↻ 다시 보기 (D)',false);
       var done=s.p>=1;
@@ -42,6 +42,7 @@
       ctx.fillStyle=E.COL.accent; ctx.font='700 16px sans-serif'; ctx.textAlign='center';
       var eTxt=(ep%1===0?ep:ep.toFixed(1));
       ctx.fillText('x '+sign+' '+eTxt, (xe+xr)/2, y-18);
+      ctx.font='600 13px sans-serif'; ctx.fillText('끝점 x = '+eTxt, xe, y+22);
       E.tapHint(E.W/2, y+78, '↔ '+(s.incl?'≥ → > (열린 끝점)':'> → ≥ (닫힌 끝점)'), true);
       E.big('2x + 1 '+sign+' '+s.c+'  →  x '+sign+' '+eTxt, s.incl?'끝점 포함(●) — 닫힌 끝점':'끝점 미포함(○) — 열린 끝점'); }
   },
@@ -55,7 +56,7 @@
       ctx.fillStyle=s.lt?'rgba(255,178,122,0.35)':'rgba(143,227,181,0.35)';
       if(s.lt){ ctx.fillRect(P.X(r1), y0-6, P.X(r2)-P.X(r1), 12); }
       else { ctx.fillRect(P.X(-5), y0-6, P.X(r1)-P.X(-5), 12); ctx.fillRect(P.X(r2), y0-6, P.X(6)-P.X(r2), 12); }
-      ctx.globalAlpha=E.blink(); P.dot(r1,0,'#ffb27a'); P.dot(r2,0,'#ffb27a'); ctx.globalAlpha=1;
+      ctx.globalAlpha=E.blink(); P.dot(r1,0,'#ffb27a','x = '+r1); P.dot(r2,0,'#ffb27a','x = '+r2); ctx.globalAlpha=1;
       E.tapHint(E.W/2, P.geom().bot+40, '↔ 부등호 방향 바꾸기', true);
       E.big(s.lt?'(x−3)(x+2) &lt; 0  →  −2 &lt; x &lt; 3':'(x−3)(x+2) &gt; 0  →  x &lt; −2 또는 x &gt; 3', s.lt?'포물선이 x축 아래 (두 근 사이)':'포물선이 x축 위 (두 근 바깥)'); }
   },

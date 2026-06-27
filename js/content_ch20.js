@@ -19,6 +19,7 @@
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y=2x (위)', P.X(2.1), P.Y(4.2));
       ctx.fillStyle='#7ab8ff'; ctx.fillText('y=x² (아래)', P.X(2.1), P.Y(3.0));
       var area=0,NS=2000; for(var s=0;s<NS;s++){ var tt=2*(s+0.5)/NS; area+=(top(tt)-bot(tt))*(2/NS); }   // 리만합 실계산
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('넓이 ≈ '+area.toFixed(3), P.X(1.1), P.Y(1.7));
       E.big('∫₀² (2x − x²) dx ≈ '+area.toFixed(3)+'  (= 4/3)', '두 곡선 사이 넓이 = ∫(위 − 아래). 교점 사이를 적분합니다'); }
   },
 
@@ -29,6 +30,7 @@
       function f(x){return 0.7*Math.sqrt(x+0.05)+0.3;}
       // 위·아래 윤곽
       P.curve(f,'#7ab8ff'); P.curve(function(x){return -f(x);},'#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('반지름 r=f(x)', P.X(2.2), P.Y(f(2.2))+0.4);
       // 단면 원판(타원)
       var sy=(P.Y(0)-P.Y(1));
       for(var k=1;k<=5;k++){ var x=k*0.55, r=f(x);
@@ -37,6 +39,7 @@
         ctx.fillStyle='rgba(143,227,181,0.10)'; ctx.fill(); }
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('← x축 둘레로 회전 →', E.W/2, P.Y(-2.1));
       var V=0,NV=2000,bb=3; for(var s=0;s<NV;s++){ var xv=bb*(s+0.5)/NV; V+=Math.PI*f(xv)*f(xv)*(bb/NV); }   // V=π∫f² 리만합 실계산
+      ctx.fillStyle='#8fe3b5'; ctx.textAlign='left'; ctx.fillText('원판 넓이 πr², V ≈ '+V.toFixed(2), P.X(0.05), P.Y(2.2));
       E.big('V = π ∫₀³ [f(x)]² dx ≈ '+V.toFixed(2), '회전체 부피 = 얇은 원판(반지름 f(x))을 쌓기. 각 원판 넓이 πf² 를 적분'); }
   },
 
@@ -48,11 +51,13 @@
     draw:function(E){ var P=E.Plot, n=this.s.n, ctx=E.ctx, a=0, b=3, dx=(b-a)/n; P.axes();
       function f(x){return 0.5*x*x;}
       P.curve(f,'rgba(122,184,255,0.4)');
+      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=0.5x²', P.X(2.5), P.Y(3.6));
       // 꺾은선 근사
       var len=0; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath();
       for(var i=0;i<=n;i++){ var x=a+i*dx, y=f(x); if(i===0)ctx.moveTo(P.X(x),P.Y(y)); else { ctx.lineTo(P.X(x),P.Y(y)); var px=a+(i-1)*dx; len+=Math.sqrt(dx*dx+(f(x)-f(px))*(f(x)-f(px))); } }
       ctx.stroke();
       for(var k=0;k<=n;k++){ var xx=a+k*dx; P.dot(xx,f(xx),'#ffb27a'); }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('꺾은선 길이 Σ√(Δx²+Δy²) ≈ '+len.toFixed(3), P.X(0.05), P.Y(4.7));
       E.big('길이 ≈ '+len.toFixed(3)+'  (선분 '+n+'개)', '곡선 길이 = 미소 빗변 √(Δx²+Δy²)의 합 → ∫√(1+(f\')²)dx (피타고라스!)'); }
   },
 
@@ -69,6 +74,7 @@
       var kS=(k<0?'−'+(-k):''+k);   // 음수는 − 글리프
       var ky=(k===1?'y':k===-1?'−y':k===0?'0':kS+'y');
       var ex=(k===1?'eˣ':k===-1?'e⁻ˣ':k===0?'1':'e^('+kS+'x)');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = '+ex, P.X(k>=0?-2.8:1.2), P.Y(Math.min(6, Math.max(0.6, Math.exp(k*(k>=0?-2.8:1.2)))+0.6)));
       E.big("y' = "+ky+"  →  y = "+ex, '미분방정식 — 변화율이 자기 크기에 비례! 해는 지수함수. '+note); }
   },
 
@@ -85,6 +91,7 @@
       P.curve(v,'#7ab8ff');
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('속도 v(t)=t', P.X(3.6), P.Y(4.2));
       var dist=t*t/2;
+      ctx.fillStyle='#8fe3b5'; ctx.textAlign='center'; ctx.fillText('거리 ≈ '+dist.toFixed(2), P.X(t*0.6), P.Y(v(t)*0.35));
       E.big('이동거리 = ∫₀^'+t+' v dt = '+dist.toFixed(2), '속도 그래프 아래 넓이 = 이동 거리! (거리→미분→속도→적분→거리, 17·19장 한 바퀴)'); }
   }
 

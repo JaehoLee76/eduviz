@@ -16,6 +16,8 @@
         ctx.fillStyle='rgba(143,227,181,0.28)'; ctx.fillRect(px, P.Y(h), pw, ph);
         ctx.strokeStyle='rgba(143,227,181,0.7)'; ctx.lineWidth=1; ctx.strokeRect(px, P.Y(h), pw, ph); }
       P.curve(f, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=x²', P.X(2.5), P.Y(8.4));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('Σ f(xᵢ)Δx ≈ '+sum.toFixed(3)+'  (n='+n+')', P.X(0.05), P.Y(9.3));
       E.big('직사각형 합 = '+sum.toFixed(3)+'  → (n→∞) → 9', '정적분 = 잘게 쪼갠 직사각형 넓이의 합의 극한 = 곡선 아래 넓이'); }
   },
 
@@ -28,6 +30,7 @@
       // 여러 C의 곡선 옅게 (같은 기울기 = 같은 도함수)
       for(var cc=-2;cc<=3;cc++){ if(cc===c) continue; P.curve(function(x){return x*x+cc;}, 'rgba(122,184,255,0.18)'); }
       P.curve(function(x){return x*x+c;}, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = x² + C  (C='+c+')', P.X(0.3), P.Y(c+5.6));
       E.big('∫ 2x dx = x² + C   (C = '+c+')', '부정적분 = 미분의 역연산. 도함수가 2x인 함수는 x²+C (상수 C는 미분하면 0이라 못 구별)'); }
   },
 
@@ -44,6 +47,7 @@
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(P.X(x),y0); ctx.lineTo(P.X(x),P.Y(f(x))); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(t)=t', P.X(3.2), P.Y(3.4));
       ctx.fillStyle='#ffb27a'; ctx.fillText("넓이 높이 f(x)="+x, P.X(x)+6, P.Y(f(x))-6);
+      ctx.fillStyle='#ffb27a'; ctx.textAlign='center'; ctx.fillText('A(x) ≈ '+area.toFixed(2), P.X(x*0.62), P.Y(f(x)*0.32));
       E.big('A(x) = ∫₀ˣ t dt = x²/2 = '+area.toFixed(2)+',  A\'(x) = x = f(x)', '★미적분 기본정리 — 넓이의 변화율 = 원래 함수! 적분과 미분은 역연산'); }
   },
 
@@ -58,7 +62,9 @@
       ctx.fillStyle='rgba(143,227,181,0.28)'; ctx.beginPath(); ctx.moveTo(P.X(a),y0);
       for(var i=0;i<=60;i++){ var t=a+(b-a)*i/60; ctx.lineTo(P.X(t),P.Y(f(t))); } ctx.lineTo(P.X(b),y0); ctx.closePath(); ctx.fill();
       P.curve(f, '#7ab8ff');
-      ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('a=1', P.X(a), y0+16); ctx.fillText('b='+b, P.X(b), y0+16);
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=x²', P.X(2.6), P.Y(8.4));
+      ctx.fillStyle='#8fe3b5'; ctx.textAlign='center'; ctx.fillText('넓이 = '+val.toFixed(3), P.X((a+b)/2), P.Y(f((a+b)/2)*0.4));
+      ctx.font='12px sans-serif'; ctx.fillText('a=1', P.X(a), y0+16); ctx.fillText('b='+b, P.X(b), y0+16);
       E.big('∫₁^'+b+' x² dx = [x³/3]₁^'+b+' = '+val.toFixed(3), '정적분 계산 = 부정적분 F의 양끝 차이 F(b)−F(a) (기본정리의 선물!)'); }
   },
 
@@ -77,6 +83,7 @@
         ctx.fillStyle = vm>=0?'rgba(143,227,181,0.3)':'rgba(226,75,74,0.3)';
         ctx.beginPath(); ctx.moveTo(P.X(t),y0); ctx.lineTo(P.X(t),P.Y(f(t))); ctx.lineTo(P.X(t2),P.Y(f(t2))); ctx.lineTo(P.X(t2),y0); ctx.closePath(); ctx.fill(); }
       P.curve(f, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=0.6x³', P.X(1.2), P.Y(2.4));
       // 구간 끝 표시선
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(P.X(-a),P.Y(-3)); ctx.lineTo(P.X(-a),P.Y(3)); ctx.moveTo(P.X(a),P.Y(-3)); ctx.lineTo(P.X(a),P.Y(3)); ctx.stroke(); ctx.setLineDash([]);

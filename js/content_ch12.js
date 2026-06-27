@@ -17,12 +17,12 @@
       ctx.strokeStyle='rgba(244,160,192,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(-6),P.Y(-p)); ctx.lineTo(P.X(6),P.Y(-p)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('준선 y = −'+p, P.X(3), P.Y(-p)-6);
       // 초점
-      P.dot(0,p,'#ffb27a','초점 F');
+      P.dot(0,p,'#ffb27a','초점 F(0, '+p+')');
       // 같은 거리 시연: 점 Px=3
       var px=3, py=px*px/(4*p);
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(0),P.Y(p)); ctx.stroke();
       ctx.strokeStyle='rgba(143,227,181,0.9)'; ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(px),P.Y(-p)); ctx.stroke();
-      P.dot(px,py,'#fff');
+      P.dot(px,py,'#fff','P');
       E.big('x² = 4·'+p+'·y', '포물선 = 초점과 준선에서 거리가 같은 점들 (주황=초록 길이)'); }
   },
 
@@ -44,7 +44,7 @@
       ctx.strokeStyle='rgba(143,227,181,0.85)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(f1[0]),P.Y(f1[1])); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(f2[0]),P.Y(f2[1])); ctx.stroke();
-      P.dot(px,py,'#fff');
+      P.dot(px,py,'#fff','P');
       E.big('x²/'+(a*a)+' + y²/'+(b*b)+' = 1', '타원 = 두 초점까지 거리의 합이 일정 (초록 두 선의 합 = 2×'+big+')'); }
   },
 
@@ -59,6 +59,8 @@
       // 점근선 y=±(b/a)x
       ctx.strokeStyle='rgba(244,160,192,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
       [b/a,-b/a].forEach(function(m){ ctx.beginPath(); ctx.moveTo(P.X(-6),P.Y(-6*m)); ctx.lineTo(P.X(6),P.Y(6*m)); ctx.stroke(); }); ctx.setLineDash([]);
+      var asl=b/a, aslT=(asl===1?'':(asl%1===0?asl:asl.toFixed(2)));
+      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 y = ±'+aslT+'x', P.X(3.4), P.Y(3.4*(b/a))-6);
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5;
       [1,-1].forEach(function(sgn){ ctx.beginPath(); var on=false;
         for(var i=-30;i<=30;i++){ var tau=i/10, x=sgn*a*Math.cosh(tau), y=b*Math.sinh(tau); if(Math.abs(x)>7||Math.abs(y)>6){on=false;continue;} var X=P.X(x),Y=P.Y(y); if(on)ctx.lineTo(X,Y); else{ctx.moveTo(X,Y);on=true;} } ctx.stroke(); });
@@ -98,6 +100,7 @@
       for(var j=0;j<=120;j++){ var u=TAU*j/120, x0=a*Math.cos(u), y0=b*Math.sin(u), x=x0*cs-y0*sn, y=x0*sn+y0*cs; var X2=P.X(x),Y2=P.Y(y); if(j===0)ctx.moveTo(X2,Y2); else ctx.lineTo(X2,Y2); } ctx.stroke();
       // 장축 방향
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(-a*cs),P.Y(-a*sn)); ctx.lineTo(P.X(a*cs),P.Y(a*sn)); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('장축 (φ='+this.s.deg+'°)', P.X(a*cs)+6, P.Y(a*sn)-4);
       E.big('φ = '+this.s.deg+'° 회전', this.s.deg===0?'축에 나란한 표준형 (xy 항 없음)':'기울면 식에 xy 항 등장 — 회전변환(10장)으로 표준형 복원'); }
   }
 

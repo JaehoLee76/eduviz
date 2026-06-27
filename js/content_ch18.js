@@ -17,8 +17,11 @@
       // 할선(평균기울기)
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fb)); ctx.stroke();
       P.dot(a,fa,'#ffb27a'); P.dot(b,fb,'#ffb27a');
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('할선 기울기 = '+sl.toFixed(2), P.X((a+b)/2)+6, P.Y((fa+fb)/2)-8);
       // c에서 접선(할선과 평행)
       tline(P,ctx,c,c*c,sl,'#8fe3b5');
+      ctx.fillStyle='#8fe3b5'; ctx.fillText("접선 f'(c) = "+sl.toFixed(2), P.X(c)+8, P.Y(c*c)+24);
       ctx.globalAlpha=E.blink(); P.dot(c,c*c,'#8fe3b5','c='+c); ctx.globalAlpha=1;
       E.big('평균기울기 = '+sl.toFixed(2)+' = f\'(c),  c = '+c, '평균값 정리 — 평균기울기(주황)와 똑같은 접선(초록)을 갖는 점 c가 반드시 존재'); }
   },
@@ -31,8 +34,10 @@
     draw:function(E){ var P=E.Plot, x=this.s.x, ctx=E.ctx; P.axes();
       function f(t){return t*t*t;} var f2=6*x;
       P.curve(f, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=x³', P.X(1.7), P.Y(3.6));
       P.dot(0,0,'rgba(255,178,122,0.7)','변곡점');
       tline(P,ctx,x,f(x),3*x*x,'#8fe3b5');
+      ctx.fillStyle='#8fe3b5'; ctx.fillText("접선 f'("+x+")="+(3*x*x).toFixed(2), P.X(x)+8, P.Y(f(x))-8);
       P.dot(x,f(x),'#fff');
       var st = Math.abs(f2)<0.01?"f''=0 → 변곡점(휨 방향 바뀜)" : f2>0?"f''>0 → 아래로 볼록 (∪)" : "f''<0 → 위로 볼록 (∩)";
       E.big("f(x)=x³,  f''("+x+") = "+f2.toFixed(1), st+' · 2계도함수 부호 = 곡선의 휨(요철)'); }
@@ -46,6 +51,7 @@
     draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx; P.axes();
       function f(t){return t*t*t + b*t;}
       P.curve(f, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = f(x)', P.X(1.6), P.Y(f(1.6))+(b<0?0.5:-0.5));
       // f'(x)=3x²+b=0 → x=±√(−b/3) : b<0 일 때만 극값 두 개 (실계산)
       var disc = -b/3, capExtra;
       if(disc > 1e-9){
@@ -91,7 +97,8 @@
       ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2; ctx.beginPath();
       for(var ww=0;ww<=10;ww+=0.2){ var ar=ww*(10-ww), px=gx+(ww/10)*gw, py=gy0-(ar/25)*gh; if(ww===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); } ctx.stroke();
       var px=gx+(w/10)*gw, py=gy0-(area/25)*gh; ctx.fillStyle=(w===5)?'#ffb27a':'#fff'; ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fill();
-      ctx.fillStyle='#9b99a3'; ctx.textAlign='center'; ctx.fillText('넓이 vs w', gx+gw/2, gy0+18);
+      ctx.fillStyle=(w===5)?'#ffb27a':'#fff'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('A='+area, px, py-9);
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('넓이 A vs w', gx+gw/2, gy0+18);
       E.big('넓이 = w(10−w) = '+area+(w===5?'  ← 최대!':''), '최적화 — 둘레 고정시 넓이 최대는 정사각형(w=5). f\'=10−2w=0 → w=5'); }
   },
 
@@ -107,6 +114,7 @@
       P.curve(function(x){ var s=0; for(var k=0;k<N;k++){ var p=2*k+1, sign=(k%2===0)?1:-1; s+= sign*Math.pow(x,p)/fact(p); } return s; }, '#7ab8ff');
       var degs=[1,3,5,7,9];
       ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('진짜 sin x', P.X(2.2), P.Y(1.3));
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('테일러 '+N+'항 (최고차 '+degs[N-1]+'차)', P.X(-3.9), P.Y(-1.7));
       E.big('sin x ≈ '+N+'항 (최고차 '+degs[N-1]+'차)', '테일러 근사 — 다항식으로 곡선 흉내! 항을 더할수록 더 넓게 sin과 겹칩니다 (17장 접선근사의 확장)'); }
   }
 

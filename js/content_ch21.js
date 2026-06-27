@@ -24,6 +24,9 @@
       var KA=[[k*1,k*2],[k*3,k*0]]; mat(ctx, cx-80, y, A, '#7ab8ff');
       ctx.fillText('=', cx+20, y+38);
       mat(ctx, cx+50, y, KA, '#ffb27a');
+      ctx.font='13px sans-serif';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('A', cx-38, y-12);
+      ctx.fillStyle='#ffb27a'; ctx.fillText(k+'A', cx+92, y-12);
       E.big('행렬의 실수배', '행렬 = 수를 직사각형으로 배열한 것. 덧셈·실수배는 같은 자리끼리 (성분별)'); }
   },
 
@@ -44,6 +47,10 @@
       mat(ctx, axA, y, A, '#7ab8ff'); ctx.fillStyle='#cfcdc6'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.fillText('×', cx-130, y+38);
       mat(ctx, axB, y, B, '#8fe3b5'); ctx.fillText('=', cx+5, y+38);
       mat(ctx, axC, y, C, '#ffb27a');
+      ctx.font='13px sans-serif';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('A', axA+cw, y-12);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('B', axB+cw, y-12);
+      ctx.fillStyle='#ffb27a'; ctx.fillText('C = AB', axC+cw, y-12);
       if(act){ var ri=act[0], cj2=act[1];
         // A의 활성 행
         ctx.fillStyle='rgba(255,178,122,0.18)'; ctx.fillRect(axA+8, y+ri*rh, cw*2, rh);
@@ -81,6 +88,9 @@
       // 기저벡터
       function vec(x,y,col){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke(); }
       var e1=M(1,0), e2=M(0,1); vec(e1[0],e1[1],'#7ab8ff'); vec(e2[0],e2[1],'#8fe3b5');
+      ctx.font='13px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('e₁→('+e1[0]+', '+e1[1]+')', P.X(e1[0])+6, P.Y(e1[1])+16);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('e₂→('+e2[0]+', '+e2[1]+')', P.X(e2[0])+6, P.Y(e2[1])-6);
       E.big('행렬 [[1, '+k+'], [0, 1]] = 전단변환', '행렬은 공간을 바꾸는 변환! 격자가 기웁니다. 기저 e₁→파랑, e₂→초록 (22장 일차변환 예고)'); }
   },
 
@@ -98,6 +108,9 @@
       var sq=[[0,0],[a,0],[a,d],[0,d]];
       ctx.fillStyle=det<0?'rgba(226,75,74,0.28)':'rgba(143,227,181,0.3)'; ctx.strokeStyle=det<0?'#e24b4a':'#8fe3b5'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(P.X(sq[0][0]),P.Y(sq[0][1])); for(var i=1;i<4;i++)ctx.lineTo(P.X(sq[i][0]),P.Y(sq[i][1])); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.fillText('단위정사각형 (넓이 1)', P.X(0.5), P.Y(1)-8);
+      ctx.fillStyle=det<0?'#e24b4a':'#8fe3b5'; ctx.fillText('넓이 = |det| = '+Math.abs(det).toFixed(2), P.X(a/2), P.Y(d/2));
       var note = Math.abs(det)<0.01?'det=0 → 납작하게 붕괴! (역행렬 없음)':det<0?'det<0 → 뒤집힘(거울상) + 넓이 '+Math.abs(det):'넓이가 '+det+'배';
       E.big('det [[a,0],[0,d]] = a·d = '+det.toFixed(2), '행렬식 = 변환의 넓이 배율! 단위정사각형(흰)이 '+Math.abs(det).toFixed(2)+'배 넓이로. '+note); }
   },
@@ -110,6 +123,9 @@
       // 두 직선의 교점 = 연립방정식 해 (3장 회수)
       P.curve(function(x){return -x+4;},'#7ab8ff');   // x+y=4
       P.curve(function(x){return x-0;},'#8fe3b5');     // x-y=0 → y=x
+      ctx.font='13px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('x + y = 4', P.X(3.3), P.Y(0.9));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('x − y = 0', P.X(3.3), P.Y(3.5));
       ctx.globalAlpha=E.blink(); P.dot(2,2,'#ffb27a','해 (2, 2)'); ctx.globalAlpha=1;
       E.big('Ax = b  →  x = A⁻¹b', '연립방정식을 행렬로! 역행렬 A⁻¹로 한 번에 풉니다. det≠0이면 유일한 해(교점)'); }
   }

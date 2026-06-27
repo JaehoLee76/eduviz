@@ -13,10 +13,13 @@
     draw:function(E){ var P=E.Plot, q=this.s.q, ctx=E.ctx; P.axes();
       function f(x){return x*x*x-3*x+q;}
       P.curve(f,'#7ab8ff');
-      // 근(x절편) 표시
-      for(var x=-3;x<=3;x+=0.01){ if(f(x)*f(x+0.01)<0){ ctx.globalAlpha=E.blink(); P.dot(x+0.005,0,'#ffb27a'); ctx.globalAlpha=1; } }
       // 상수항 q: 0→항 생략, 음수→− |q|, 양수→+ q
       var qt=(q===0?'':q>0?' + '+q:' − '+(-q));
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = x³ − 3x'+qt, P.X(1.3), P.Y(f(1.3))-8);
+      // 근(x절편) 표시 + 실근 개수 실측
+      var roots=0;
+      for(var x=-3;x<=3;x+=0.01){ if(f(x)*f(x+0.01)<0){ ctx.globalAlpha=E.blink(); P.dot(x+0.005,0,'#ffb27a'); ctx.globalAlpha=1; roots++; } }
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('실근 '+roots+'개 (x절편)', P.X(0), P.geom().bot+22);
       E.big('x³ − 3x'+qt+' = 0', '삼차방정식 — 카르다노 공식으로 풀립니다(복소수 필요!). q에 따라 실근 1~3개. 5차부턴 일반 공식 없음(갈루아)'); }
   },
 
@@ -37,10 +40,14 @@
       E.controls('<div class="ctrl"><label>표준편차 σ</label><input type="range" id="ss" min="0.5" max="2" step="0.25" value="1"><output id="sso">1</output></div>');
       var self=this; E.bind('#ss','input',function(e){ self.s.s=+e.target.value; document.getElementById('sso').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s.s, ctx=E.ctx; P.axes();
-      P.curve(function(x){ return Math.exp(-x*x/(2*s*s))/(s*Math.sqrt(2*Math.PI)); }, '#7ab8ff');
+      function dens(x){ return Math.exp(-x*x/(2*s*s))/(s*Math.sqrt(2*Math.PI)); }
+      P.curve(dens, '#7ab8ff');
+      var peak=dens(0);   // 최댓값(밀도) 실계산
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('밀도 f(x)', P.X(1.1), P.Y(dens(1.1))-6);
       // 평균(중심)
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(0),P.Y(0.95)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('평균 μ', P.X(0), P.Y(0.95)+0);
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('평균 μ = 0', P.X(0), P.Y(0.95)+0);
+      ctx.fillStyle='#cfcdc6'; ctx.font='12px sans-serif'; ctx.fillText('최고밀도 f(0) = '+peak.toFixed(3), P.X(0), P.geom().bot+22);
       E.big('정규분포 N(0, σ²),  σ = '+s, '확률분포 — 종 모양 곡선. 평균=중심, σ=퍼짐. 곡선 아래 전체 넓이=1(19장 적분!). 큰수의법칙·통계의 정점'); }
   },
 

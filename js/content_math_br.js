@@ -489,7 +489,8 @@
       E.bind('#vc','input',function(e){ self.s.c=+e.target.value; document.getElementById('vco').textContent=e.target.value; E.blip(420,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, b=this.s.b, c=this.s.c, ctx=E.ctx, D=b*b-4*c; P.axes();
       P.curve(function(x){return x*x+b*x+c;}, '#7ab8ff');
-      if(D>=0){ var r1=(-b-Math.sqrt(D))/2, r2=(-b+Math.sqrt(D))/2; P.dot(r1,0,'#ffb27a'); P.dot(r2,0,'#ffb27a');
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = x²+bx+c', P.X(2.2), P.Y((2.2)*(2.2)+b*2.2+c)-8);
+      if(D>=0){ var r1=(-b-Math.sqrt(D))/2, r2=(-b+Math.sqrt(D))/2; P.dot(r1,0,'#ffb27a','x₁='+r1.toFixed(1)); P.dot(r2,0,'#ffb27a','x₂='+r2.toFixed(1));
         ctx.fillStyle='#8fe3b5'; ctx.font='14px sans-serif'; ctx.textAlign='center';
         ctx.fillText('두 근 합 = '+(r1+r2).toFixed(1)+' = −b('+(-b)+')  ·  곱 = '+(r1*r2).toFixed(1)+' = c('+c+')', E.W/2, E.H*0.80); }
       else { ctx.fillStyle='#f4a0c0'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('D<0 (실근 없음) — 그래도 두 복소근의 합=−b, 곱=c', E.W/2, E.H*0.80); }
@@ -507,8 +508,8 @@
     draw:function(E){ var ctx=E.ctx, t=this.s.deg*D2R, cx=E.W/2, cy=E.H*0.46, R=Math.min(E.H*0.24,E.W*0.18);
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx-R*1.3,cy); ctx.lineTo(cx+R*1.3,cy); ctx.moveTo(cx,cy-R*1.3); ctx.lineTo(cx,cy+R*1.3); ctx.stroke();
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R,0,TAU); ctx.stroke();
-      function ray(ang,col){ var px=cx+R*Math.cos(ang),py=cy-R*Math.sin(ang); ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(px,py,5,0,TAU); ctx.fill(); }
-      ray(t,'#7ab8ff'); ray(2*t,'#ffb27a');
+      function ray(ang,col,lab){ var px=cx+R*Math.cos(ang),py=cy-R*Math.sin(ang); ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(px,py,5,0,TAU); ctx.fill(); if(lab){ ctx.font='600 13px sans-serif'; ctx.textAlign=px>=cx?'left':'right'; ctx.fillText(lab,px+(px>=cx?9:-9),py-6); } }
+      ray(t,'#7ab8ff','θ='+this.s.deg+'°'); ray(2*t,'#ffb27a','2θ='+(2*this.s.deg)+'°');
       var s2=Math.sin(2*t), chk=2*Math.sin(t)*Math.cos(t);
       ctx.fillStyle=E.COL.txt; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('파랑 θ, 주황 2θ', cx, cy+R*1.4);
       E.big('sin 2θ = 2 sin θ cos θ   ('+s2.toFixed(3)+' = '+chk.toFixed(3)+')', '2배각 공식 — 덧셈정리(#55)에서 α=β=θ로! sin(θ+θ)=sinθcosθ+cosθsinθ=2sinθcosθ. cos2θ=cos²θ−sin²θ도 마찬가지. 적분·물리에 필수'); }
@@ -549,9 +550,9 @@
       var self=this; E.bind('#dn','input',function(e){ self.s.n=+e.target.value; document.getElementById('dno').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, n=this.s.n, ctx=E.ctx, r=1.25, t=35*Math.PI/180; P.axes();
       function ph(rr,ang,col,lab){ var x=rr*Math.cos(ang),y=rr*Math.sin(ang); ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(P.X(x),P.Y(y),5,0,7); ctx.fill(); if(lab){ctx.font='600 13px sans-serif';ctx.textAlign='left';ctx.fillText(lab,P.X(x)+6,P.Y(y));} }
-      ph(r,t,'rgba(122,184,255,0.5)','z');
-      ph(Math.pow(r,n),n*t,'#ffb27a','zⁿ');
-      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('크기 r → rⁿ, 각 θ → nθ', E.W/2, E.H*0.80);
+      ph(r,t,'rgba(122,184,255,0.5)','z (r='+r.toFixed(2)+', θ=35°)');
+      ph(Math.pow(r,n),n*t,'#ffb27a','zⁿ (rⁿ='+Math.pow(r,n).toFixed(2)+', nθ='+(35*n)+'°)');
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('크기 r → rⁿ ('+r.toFixed(2)+' → '+Math.pow(r,n).toFixed(2)+'), 각 θ → nθ (35° → '+(35*n)+'°)', E.W/2, E.H*0.80);
       E.big('zⁿ = rⁿ(cos nθ + i sin nθ)  (n='+n+')', '드무아브르 정리 — 복소수 거듭제곱 = 크기는 n제곱, 각은 n배! 곱셈=각의 합(#65)을 반복한 결과. 단위근(1의 n제곱근)·FFT의 토대'); }
   },
 
@@ -719,7 +720,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),sx,sy,0,0,Math.PI*2); ctx.stroke();
       var x=Math.cos(t),y=Math.sin(t);
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke();
-      P.dot(x,y,'#ffb27a','e^(iθ)');
+      P.dot(x,y,'#ffb27a','e^(iθ) = ('+x.toFixed(2)+', '+y.toFixed(2)+')');
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('= (cos'+this.s.deg+'°, sin'+this.s.deg+'°)', E.W/2, E.H*0.16);
       if(this.s.deg===180){ ctx.fillStyle='#f4a0c0'; ctx.font='600 16px sans-serif'; ctx.fillText('θ=π → e^(iπ) = −1 → e^(iπ) + 1 = 0  ★', E.W/2, E.H*0.82); }
       E.big('오일러 공식:  e^(iθ) = cos θ + i sin θ', '지수·삼각·복소수를 하나로 묶는 마법! 복소수 극형식(#64)의 정수. θ=π면 e^(iπ)+1=0 — 수학에서 가장 아름다운 등식(5대 상수 e·i·π·1·0). 드무아브르·FFT가 여기서'); }
@@ -747,9 +748,12 @@
     draw:function(E){ var P=E.Plot, ctx=E.ctx, px=this.s.px, py=this.s.py; P.axes();
       // 직선 x - y + 1 = 0  (y = x+1), a=1,b=-1,c=1
       P.curve(function(x){return x+1;}, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('x − y + 1 = 0', P.X(2.6), P.Y(3.6)-6);
       // 수선의 발
       var a=1,b=-1,c=1, t=(a*px+b*py+c)/(a*a+b*b), fx=px-a*t, fy=py-b*t, d=Math.abs(a*px+b*py+c)/Math.sqrt(a*a+b*b);
       ctx.strokeStyle='rgba(244,160,192,0.7)'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(fx),P.Y(fy)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('d = '+d.toFixed(2), P.X((px+fx)/2)+18, P.Y((py+fy)/2));
+      P.dot(fx,fy,'#8fe3b5','수선의 발 H');
       P.dot(px,py,'#ffb27a','P('+px+','+py+')');
       ctx.fillStyle='#8fe3b5'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('거리 = |1·'+px+' −1·'+py+' +1| / √2 = '+d.toFixed(2), E.W/2, E.H*0.80);
       E.big('점과 직선 사이 거리 = |ax₀+by₀+c|/√(a²+b²)', '점에서 직선까지 가장 짧은(수직) 거리 공식. 직선 ax+by+c=0과 점 (x₀,y₀). 정사영(#60.1)·법선벡터로 유도. 충돌·최적화·회귀의 기본'); }
@@ -760,7 +764,8 @@
     enter:function(E){ E.setOn([]); E.Plot.range(-4,4,-0.5,6).lab('x','y'); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx; P.axes();
       P.curve(function(x){return x*x/4;}, '#7ab8ff'); // 초점 (0,1)
-      P.dot(0,1,'#ffb27a','초점 F');
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = x²/4', P.X(2.6), P.Y(2.6*2.6/4)-6);
+      P.dot(0,1,'#ffb27a','초점 F(0,1)');
       // 평행 광선(아래로) → 포물선 → 초점
       [-3,-2,-1,1,2,3].forEach(function(x0){ var y0=x0*x0/4;
         ctx.strokeStyle='rgba(143,227,181,0.6)'; ctx.lineWidth=1.5;
@@ -792,12 +797,14 @@
     draw:function(E){ var P=E.Plot, ctx=E.ctx, k=this.s.step; P.axes();
       function f(x){return x*x-2;} function df(x){return 2*x;}
       P.curve(f, '#7ab8ff');
-      P.dot(Math.sqrt(2),0,'rgba(143,227,181,0.5)','√2');
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = x² − 2', P.X(2.3), P.Y(f(2.3))-6);
+      P.dot(Math.sqrt(2),0,'rgba(143,227,181,0.5)','참값 √2≈1.414');
       var x=2; // x0
       for(var i=0;i<k;i++){ var fx=f(x), slope=df(x), xn=x-fx/slope;
         // 접선
         ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(fx)); ctx.lineTo(P.X(xn),P.Y(0)); ctx.stroke();
         ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(fx)); ctx.lineTo(P.X(x),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('x'+i+'='+x.toFixed(i===0?0:3), P.X(x), P.Y(0)+16);
         P.dot(x,fx,'#ffb27a'); x=xn; }
       P.dot(x,0,'#ffb27a','x'+k+'≈'+x.toFixed(3));
       E.big('뉴턴법:  xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)  →  '+x.toFixed(4), '방정식 f(x)=0의 근을 접선(#102)으로 빠르게! 접선이 x축과 만나는 점을 새 추정값으로 반복. √2를 몇 번 만에 정밀하게 — 컴퓨터의 √·나눗셈 계산법'); }
@@ -814,7 +821,10 @@
       // 평균 높이 직사각형
       var avg=0,N=200; for(var j=0;j<N;j++){avg+=f(a+(b-a)*(j+0.5)/N);} avg/=N;
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,3]); ctx.strokeRect(P.X(a),P.Y(avg),P.X(b)-P.X(a),y0-P.Y(avg)); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(c)='+avg.toFixed(2), P.X(b)+6, P.Y(avg)+4);
       P.curve(f, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = f(x)', P.X(b-0.6), P.Y(f(b-0.6))-8);
+      ctx.fillStyle='#cfdcee'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('∫f = '+(avg*(b-a)).toFixed(2), P.X((a+b)/2), P.Y(0)-26);
       ctx.fillStyle='#ffb27a'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('평균 높이 f(c) = '+avg.toFixed(2)+' (직사각형 넓이 = 곡선 아래 넓이)', E.W/2, E.H*0.82);
       E.big('적분의 평균값 정리', '곡선 아래 넓이를 같은 밑변의 직사각형으로 바꾸면 그 높이가 함수의 "평균값" f(c)=(1/(b−a))∫f. 그 평균과 같아지는 점 c가 반드시 존재(연속이면). 평균속도·평균기온의 적분판'); }
   },

@@ -25,6 +25,7 @@
       ctx.textAlign='left'; ctx.fillText('|Δy|='+Math.abs(dy),P.X(bx)+8,(P.Y(ay)+P.Y(by))/2);
       // 빗변(거리)
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(ax),P.Y(ay)); ctx.lineTo(P.X(bx),P.Y(by)); ctx.stroke();
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.fillText('d = '+(d%1===0?d:d.toFixed(2)),(P.X(ax)+P.X(bx))/2-6,(P.Y(ay)+P.Y(by))/2-6);
       P.dot(ax,ay,'#ffb27a','A(1, 1)'); P.dot(bx,by,'#8fe3b5','B('+bx+', '+by+')');
       E.big('d = √('+(dx*dx)+' + '+(dy*dy)+') = '+(d%1===0?d:d.toFixed(2)), '거리 = √(Δx² + Δy²) — 피타고라스 정리'); }
   },
@@ -74,6 +75,11 @@
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, m=s.m, m2=2; P.axes();
       P.curve(function(x){ return m*x; }, '#7ab8ff');          // 움직이는 선
       P.curve(function(x){ return m2*x+1; }, '#8fe3b5');        // 기준선 y=2x+1
+      // 두 직선 이름표(기울기 동행)
+      var lmTxt=(m%1===0?m:m.toFixed(1));
+      ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('ℓ₁: y = '+(m===1?'x':m===-1?'−x':lmTxt+'x')+'  (m₁ = '+lmTxt+')', P.X(-4.8), P.Y(4.3));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('ℓ₂: y = 2x + 1  (m₂ = 2)', P.X(-4.8), P.Y(3.5));
       var rel, det, parallel=(m===m2), perp=(Math.abs(m*m2+1)<0.001);
       if(parallel){ rel='평행 (m₁ = m₂)'; det='두 직선이 만나지 않습니다'; }
       else if(perp){ rel='수직 (m₁·m₂ = −1)'; det='두 직선이 직각으로 만납니다'; }
@@ -129,6 +135,10 @@
         ctx.fillStyle='rgba(143,227,181,0.25)'; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.fill();
         ctx.restore();
         ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle='#8fe3b5'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0),r*sx(P),r*sy(P),0,0,7); ctx.stroke(); ctx.restore();
+        // 반지름선 + 중심 O(실측값 동행)
+        ctx.strokeStyle='rgba(143,227,181,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(r),P.Y(0)); ctx.stroke();
+        ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('r = '+r,(P.X(0)+P.X(r))/2,P.Y(0)-6);
+        P.dot(0,0,'#8fe3b5','O(0, 0)');
         E.big('x² + y² &lt; '+(r*r), '중심 O, 반지름 '+r+' 인 원의 내부 (점선 경계=미포함)'); return;
       } else { // 교집합: y > m·x+1 그리고 원 내부
         ctx.fillStyle='rgba(255,178,122,0.30)';

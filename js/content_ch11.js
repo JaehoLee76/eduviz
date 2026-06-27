@@ -53,7 +53,7 @@
       line(ctx,p3(v,0,0,0),p3(v,x,y,0),'rgba(255,255,255,0.25)',2,[4,4]);
       line(ctx,p3(v,x,y,0),p3(v,x,y,z),'rgba(255,255,255,0.25)',1.5,[4,4]);
       arrow3(ctx,v,x,y,z,'#7ab8ff');
-      var p=p3(v,x,y,z); ctx.fillStyle='#7ab8ff'; ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillText('v', p[0]+8, p[1]-8);
+      var p=p3(v,x,y,z); ctx.fillStyle='#7ab8ff'; ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillText('v = (3, 2, '+z+')', p[0]+8, p[1]-8);
       E.big('v = (3, 2, '+z+'),  |v| = √(9+4+'+(z*z)+') = '+mag.toFixed(2), '공간벡터 — 9장의 모든 것이 z 하나 추가로 그대로! |v|=√(x²+y²+z²)'); }
   },
 
@@ -100,6 +100,7 @@
       for(var j=0;j<=60;j++){ var ph=TAU*j/60, q=p3(v,r*Math.cos(ph),0,r*Math.sin(ph)); if(j===0)ctx.moveTo(q[0],q[1]); else ctx.lineTo(q[0],q[1]); } ctx.stroke();
       // 반지름선
       line(ctx,o,p3(v,r,0,0),'rgba(255,255,255,0.6)',1.5);
+      var pr=p3(v,r,0,0); ctx.fillStyle='#dfeefb'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('r = '+r, (o[0]+pr[0])/2, (o[1]+pr[1])/2-8);
       ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(o[0],o[1],3,0,TAU); ctx.fill();
       E.big('x² + y² + z² = '+(r*r), '구 = 중심에서 거리 r인 점들 (6장 원의 3차원판, 거리공식 z 추가)'); }
   },

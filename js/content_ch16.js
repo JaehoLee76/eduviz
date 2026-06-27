@@ -41,7 +41,8 @@
       var H=s.hist.length;
       if(H>1){ ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath();
         for(var i=0;i<H;i++){ var px=x0+(x1-x0)*i/(H-1), py=yB-(yB-yT)*s.hist[i]; if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); } ctx.stroke();
-        var lp=s.hist[H-1]; ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(x0+(x1-x0),yB-(yB-yT)*lp,5,0,TAU); ctx.fill(); }
+        var lp=s.hist[H-1]; var lpy=yB-(yB-yT)*lp; ctx.fillStyle='#7ab8ff'; ctx.beginPath(); ctx.arc(x1,lpy,5,0,TAU); ctx.fill();
+        ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('상대도수 = '+lp.toFixed(3), x1-10, lpy-8); }
       E.tapHint(E.W/2, yB+44, s.n>=600?'↻ 다시 (30회씩, 현재 '+s.n+'회)':'▶ 30회 더 던지기 ('+s.n+'회)', true);
       var cur=s.n? (s.h/s.n):0;
       E.big('앞면 '+s.h+' / '+s.n+'회 = '+(s.n?cur.toFixed(3):'—'), '던질수록 상대도수가 0.5에 수렴 = 큰수의 법칙 (확률의 실험적 의미)'); }
@@ -116,6 +117,7 @@
       var br=[['빨강',pR],['파랑',pB]];               // 부모 가지: [라벨, 확률]
       var child=[['빨강',pR],['파랑',pB]];            // 독립 → 자식 가지도 같은 분포
       ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(rootX,rootY,8,0,TAU); ctx.fill();
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('시작', rootX, rootY-16);
       ctx.font='13px sans-serif';
       var sum=0;
       for(var i=0;i<2;i++){ var ty=rootY+(i-0.5)*E.H*0.34, parentP=br[i][1];

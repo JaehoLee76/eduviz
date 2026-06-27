@@ -129,9 +129,11 @@
     back:function(E){ E.NL.step(); E.NL.draw(); },
     draw:function(E){ var s=this.s, ctx=E.ctx, y=E.NL.yy(), x1=E.NL.px(s.a), x2=E.NL.px(s.a+s.b);
       ctx.fillStyle='rgba(230,228,220,0.55)'; ctx.beginPath(); ctx.arc(x1,y,7,0,7); ctx.fill();
+      ctx.fillStyle='rgba(230,228,220,0.8)'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('a = '+s.a, x1, y-16);
       var col=s.b>=0?E.COL.blue:E.COL.pink, mid=(x1+x2)/2, r=Math.abs(x2-x1)/2;
       if(r>1){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(mid,y,r,Math.PI,0,false); ctx.stroke();
-        var dir=(s.b>=0?1:-1); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x2,y); ctx.lineTo(x2-9*dir,y-6); ctx.lineTo(x2-9*dir,y+6); ctx.fill(); }
+        var dir=(s.b>=0?1:-1); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x2,y); ctx.lineTo(x2-9*dir,y-6); ctx.lineTo(x2-9*dir,y+6); ctx.fill();
+        ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText((s.b>=0?'+'+s.b:'−'+(-s.b)), mid, y-r-6); }
       E.NL.marker(s.a+s.b, E.COL.accent, s.a+s.b);
       E.big(s.a+' '+(s.b>=0?'+ '+s.b:'− '+(-s.b))+' = '+(s.a+s.b), '수직선 위의 이동');
     }

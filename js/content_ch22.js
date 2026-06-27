@@ -7,6 +7,9 @@
   function shape(P,ctx,pts,col,fillA){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.fillStyle=fillA||'rgba(122,184,255,0.18)';
     ctx.beginPath(); ctx.moveTo(P.X(pts[0][0]),P.Y(pts[0][1])); for(var i=1;i<pts.length;i++)ctx.lineTo(P.X(pts[i][0]),P.Y(pts[i][1])); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle=col; ctx.beginPath(); ctx.arc(P.X(pts[0][0]),P.Y(pts[0][1]),4,0,7); ctx.fill(); }
+  // 도형 무게중심에 이름표
+  function tag(P,ctx,pts,col,txt){ var mx=0,my=0; for(var i=0;i<pts.length;i++){mx+=pts[i][0];my+=pts[i][1];} mx/=pts.length; my/=pts.length;
+    ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt, P.X(mx), P.Y(my)); ctx.textBaseline='alphabetic'; }
 
   var scenes=[
 
@@ -17,8 +20,11 @@
       var self=this; E.bind('#th','input',function(e){ self.s.deg=+e.target.value; document.getElementById('tho').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, t=this.s.deg*D2R, ctx=E.ctx; P.axes();
       shape(P,ctx,TRI,'rgba(255,255,255,0.25)','rgba(255,255,255,0.05)');
+      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형');
       var M=[[Math.cos(t),-Math.sin(t)],[Math.sin(t),Math.cos(t)]];
-      shape(P,ctx,TRI.map(function(p){return ap(M,p);}),'#7ab8ff');
+      var IMG=TRI.map(function(p){return ap(M,p);});
+      shape(P,ctx,IMG,'#7ab8ff');
+      tag(P,ctx,IMG,'#7ab8ff','상 (×θ회전)');
       E.big('회전변환 [[cos'+this.s.deg+'°, −sin], [sin, cos]]', '원점 둘레로 θ만큼 회전! 10장 복소수 곱(각의 합)과 똑같은 행렬입니다'); }
   },
 
@@ -34,7 +40,10 @@
       else if(m===1){ ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(-3)); ctx.lineTo(P.X(0),P.Y(3)); ctx.stroke(); }
       else { ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(-3)); ctx.lineTo(P.X(3),P.Y(3)); ctx.stroke(); } ctx.setLineDash([]);
       shape(P,ctx,TRI,'rgba(255,255,255,0.25)','rgba(255,255,255,0.05)');
-      shape(P,ctx,TRI.map(function(p){return ap(Ms[m],p);}),'#8fe3b5','rgba(143,227,181,0.2)');
+      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형');
+      var IMG=TRI.map(function(p){return ap(Ms[m],p);});
+      shape(P,ctx,IMG,'#8fe3b5','rgba(143,227,181,0.2)');
+      tag(P,ctx,IMG,'#8fe3b5','상');
       E.tapHint(E.W/2, P.geom().bot+40, '▶ x축 / y축 / y=x 대칭', true);
       E.big('대칭변환 — '+labs[m], '거울에 비춘 상! 분홍 점선이 대칭축. 도형이 뒤집힙니다(det = −1)'); }
   },
@@ -46,7 +55,14 @@
       var self=this; E.bind('#sk','input',function(e){ self.s.s=+e.target.value; document.getElementById('sko').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.s, ctx=E.ctx; P.axes();
       shape(P,ctx,TRI,'rgba(255,255,255,0.25)','rgba(255,255,255,0.05)');
-      shape(P,ctx,TRI.map(function(p){return [k*p[0],k*p[1]];}),'#ffb27a','rgba(255,178,122,0.2)');
+      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형');
+      var IMG=TRI.map(function(p){return [k*p[0],k*p[1]];});
+      shape(P,ctx,IMG,'#ffb27a','rgba(255,178,122,0.2)');
+      tag(P,ctx,IMG,'#ffb27a','상 (×'+k+')');
+      // 넓이비 = 행렬식 = k² (실측)
+      var detV=k*k;
+      ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('넓이비 = det = k² = '+detV.toFixed(2)+'배', P.X(0), P.geom().bot+22);
       E.big('확대변환 [[k,0],[0,k]],  k = '+k, '원점 기준 k배 확대(축소). 넓이는 k² 배 (행렬식 = k²)'); }
   },
 
@@ -59,7 +75,10 @@
       function mul(A,B){ var C=[[0,0],[0,0]]; for(var i=0;i<2;i++)for(var j=0;j<2;j++)C[i][j]=A[i][0]*B[0][j]+A[i][1]*B[1][j]; return C; }
       var M = o===0? mul(F,R) : mul(R,F);  // 순서 다름
       shape(P,ctx,TRI,'rgba(255,255,255,0.25)','rgba(255,255,255,0.05)');
-      shape(P,ctx,TRI.map(function(p){return ap(M,p);}), o===0?'#7ab8ff':'#ffb27a');
+      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형');
+      var IMG=TRI.map(function(p){return ap(M,p);}), col=o===0?'#7ab8ff':'#ffb27a';
+      shape(P,ctx,IMG, col);
+      tag(P,ctx,IMG, col, o===0?'상 (FR)':'상 (RF)');
       E.tapHint(E.W/2, P.geom().bot+40, '▶ 순서 바꾸기 (회전·대칭)', true);
       E.big(o===0?'대칭 ∘ 회전 (회전 먼저)':'회전 ∘ 대칭 (대칭 먼저)', '합성변환 = 행렬 곱! 순서가 바뀌면 결과가 다릅니다 (AB ≠ BA, 21장)'); }
   },
@@ -74,6 +93,8 @@
       ctx.strokeStyle='rgba(255,178,122,0.25)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(-3)); ctx.lineTo(P.X(3),P.Y(3)); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(3)); ctx.lineTo(P.X(3),P.Y(-3)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,178,122,0.6)'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('고유축 (1,1) λ=3', P.X(2.1),P.Y(2.6)); ctx.fillText('고유축 (1,−1) λ=1', P.X(2.1),P.Y(-2.4));
       var v=[Math.cos(t),Math.sin(t)], Mv=ap(M,v);   // v는 단위벡터(축소 없이 Mv를 실제 배율로)
       function arr(p,col,lab){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(p[0]),P.Y(p[1])); ctx.stroke(); var a=Math.atan2(P.Y(p[1])-P.Y(0),P.X(p[0])-P.X(0)); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(P.X(p[0]),P.Y(p[1])); ctx.lineTo(P.X(p[0])-12*Math.cos(a-0.4),P.Y(p[1])-12*Math.sin(a-0.4)); ctx.lineTo(P.X(p[0])-12*Math.cos(a+0.4),P.Y(p[1])-12*Math.sin(a+0.4)); ctx.fill(); if(lab){ctx.font='600 13px sans-serif';ctx.textAlign='left';ctx.fillText(lab,P.X(p[0])+6,P.Y(p[1]));} }
       // 정렬 판정(고유벡터 근처) + 고유값 실계산

@@ -19,6 +19,7 @@
     draw:function(E){ var ctx=E.ctx, m=this.s.m, n=this.s.n, rootX=E.W*0.16, rootY=E.H*0.50;
       var tops=['셔츠A','셔츠B','셔츠C','셔츠D'], bots=['청','반','치','코'];
       ctx.fillStyle='#ffb27a'; ctx.beginPath(); ctx.arc(rootX,rootY,8,0,7); ctx.fill();
+      ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('시작', rootX, rootY-16);
       ctx.font='12px sans-serif'; ctx.textAlign='left';
       var midX=E.W*0.42, leafX=E.W*0.66, cnt=0;
       var topSpan=E.H*0.60, leafSpan=topSpan/m*0.9;   // 잎이 겹치지 않도록 가지 폭에 맞춰 분배

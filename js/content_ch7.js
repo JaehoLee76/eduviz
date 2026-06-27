@@ -29,6 +29,7 @@
       var self=this; E.bind('#ea','input',function(e){ self.s.a=+e.target.value; document.getElementById('eao').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();
       P.curve(function(x){ return Math.pow(a,x); }, '#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = '+a+'ˣ', P.X(1.4), P.Y(Math.min(Math.pow(a,1.4),7.2)));
       E.ctx.globalAlpha=E.blink(); P.dot(0,1,'#ffb27a','(0, 1)'); E.ctx.globalAlpha=1;
       E.big('y = '+a+'ˣ', a>1?'밑 > 1 → 증가 (폭발적 성장)':a<1?'밑 < 1 → 감소 (지수 감쇠)':'밑 = 1 → 상수'); }
   },
@@ -67,7 +68,10 @@
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();
       // 점근선 x=0
       ctx.strokeStyle='rgba(244,160,192,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(-4)); ctx.lineTo(P.X(0),P.Y(4)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(244,160,192,0.85)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 x = 0', P.X(0)+6, P.Y(3.6));
+      var sub=(a===2?'₂':a===3?'₃':a===4?'₄':'₅');
       P.curve(function(x){ return x>0? lg(x,a): NaN; }, '#8fe3b5');
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = log'+sub+' x', P.X(a*1.5), P.Y(lg(a*1.5,a)+0.4));
       E.ctx.globalAlpha=E.blink(); P.dot(1,0,'#ffb27a','(1, 0)'); E.ctx.globalAlpha=1;
       E.big('y = log'+(a===2?'₂':a===3?'₃':a===4?'₄':'₅')+' x', '정의역 x > 0 · 항상 (1, 0)을 지납니다'); }
   },

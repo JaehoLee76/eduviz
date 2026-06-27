@@ -19,9 +19,13 @@
       // 할선
       var sl=(fb-fa)/(b-a); ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5;
       ctx.beginPath(); ctx.moveTo(P.X(a-0.5),P.Y(fa-sl*0.5)); ctx.lineTo(P.X(b+0.3),P.Y(fb+sl*0.3)); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('할선 (기울기 '+slope.toFixed(2)+')', P.X(b+0.3)+4, P.Y(fb+sl*0.3));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('접선 (기울기 2)', P.X(2.4), P.Y(fa+2*(2.4-a)));
       // Δx, Δy
       ctx.strokeStyle='rgba(244,160,192,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fb)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Δx = '+h.toFixed(1), P.X((a+b)/2), P.Y(fa)+16);
+      ctx.textAlign='left'; ctx.fillText('Δy = '+(fb-fa).toFixed(2), P.X(b)+6, P.Y((fa+fb)/2));
       P.dot(a,fa,'#7ab8ff','A'); P.dot(b,fb,'#ffb27a','B');
       E.big('평균변화율 = Δy/Δx = '+slope.toFixed(2)+'  → (h→0) → 2', 'h = 두 점 A·B 사이의 가로 간격(Δx = b−a). h를 0으로 줄이면 할선(주황)이 접선(초록)이 됩니다 = 순간변화율'); }
   },
@@ -37,9 +41,11 @@
         ctx.beginPath(); ctx.moveTo(P.X(-1),P.Y(0.4)); ctx.lineTo(P.X(2),P.Y(1.6)); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(P.X(2),P.Y(3.2)); ctx.lineTo(P.X(5),P.Y(4.4)); ctx.stroke();
         P.dot(2,1.6,'#7ab8ff'); ctx.fillStyle='#0b0b10'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(P.X(2),P.Y(3.2),6,0,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('x = 2 에서 도약', P.X(2)+10, P.Y(2.4));
         E.big('불연속 — 점프(도약)', '좌극한 ≠ 우극한. x=2에서 뚝 끊깁니다.'); }
       else { P.curve(function(x){return 0.6*x+1;}, '#7ab8ff');
         ctx.fillStyle='#0b0b10'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(P.X(2),P.Y(2.2),6,0,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('x = 2 에서 구멍', P.X(2)+10, P.Y(2.2)+2);
         E.big('불연속 — 구멍(제거 가능)', '극한은 있지만 그 점의 값이 없습니다/다릅니다 (14장 #84).'); }
       E.tapHint(E.W/2, P.geom().bot+40, '▶ 연속 / 점프 / 구멍', true); }
   },
@@ -91,6 +97,7 @@
       P.dot(-1,2,'rgba(255,178,122,0.6)','극대'); P.dot(1,-2,'rgba(143,227,181,0.6)','극소');
       tangentLine(P,ctx,x,fx,slope,'#ffb27a');
       P.dot(x,fx,'#fff');
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText("f '("+x+") = "+slope.toFixed(2), P.X(x)+8, P.Y(fx)-6);
       var st = Math.abs(slope)<0.01?"f '=0 → 극값(수평접선)" : slope>0?"f '>0 → 증가 ↗" : "f '<0 → 감소 ↘";
       E.big("f(x)=x³−3x,  f '("+x+") = "+slope.toFixed(2), st+'  · 기울기 부호가 곧 증가·감소!'); }
   },
@@ -103,6 +110,8 @@
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx, fa=a*a, slope=2*a; P.axes();
       P.curve(function(x){return x*x;}, '#7ab8ff');
       tangentLine(P,ctx,a,fa,slope,'#ffb27a');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=x²', P.X(2.2), P.Y(5.5));
+      ctx.fillStyle='#ffb27a'; ctx.fillText("기울기 f '(a) = "+slope, P.X(a)+10, P.Y(fa)+22);
       ctx.globalAlpha=E.blink(); P.dot(a,fa,'#ffb27a','('+a+', '+fa+')'); ctx.globalAlpha=1;
       var b=-a*a;
       // 계수 1/−1/0·상수항 0 표기 정리: 1x→x, −1x→−x, 0x→항 생략, + 0→생략, + (음수)→− 양수

@@ -95,8 +95,8 @@
     draw:function(E){ var s=this.s, P=E.Plot, b=s.b; P.axes();
       P.curve(function(x){return -3-x*x;}, 'rgba(255,255,255,0.28)', 1.5);   // 꼭짓점 자취
       P.curve(function(x){return x*x+b*x-3;}, '#7ab8ff');
-      var h=-b/2, k=-3-b*b/4, sq=Math.sqrt(b*b+12)/2;
-      var bl=E.blink(); E.ctx.globalAlpha=bl; P.dot(-b/2-sq,0,'#ffb27a'); P.dot(-b/2+sq,0,'#ffb27a'); E.ctx.globalAlpha=1;
+      var h=-b/2, k=-3-b*b/4, sq=Math.sqrt(b*b+12)/2, r1=-b/2-sq, r2=-b/2+sq;
+      var bl=E.blink(); E.ctx.globalAlpha=bl; P.dot(r1,0,'#ffb27a','x='+r1.toFixed(1)); P.dot(r2,0,'#ffb27a','x='+r2.toFixed(1)); E.ctx.globalAlpha=1;
       P.dot(h,k,'#8fe3b5','꼭짓점 x=−b/2='+h.toFixed(1));
       var bx2=(b===0?'':(b>0?' + '+(b===1?'':b)+'x':' − '+(b===-1?'':(-b))+'x'));
       E.big('y = x²'+bx2+' − 3', 'b'+(b>=0?'=+'+b:'='+b)+' → 꼭짓점 x = −b/2 = '+h.toFixed(1)+'  (b 키울수록 왼쪽)'); }
@@ -110,8 +110,8 @@
     draw:function(E){ var s=this.s, P=E.Plot, c=s.c; P.axes();
       P.curve(function(x){return x*x-2*x+c;}, '#7ab8ff');
       var disc=1-c, nroots;
-      if(disc>1e-9){ var sq=Math.sqrt(disc); P.dot(1-sq,0,'#ffb27a'); P.dot(1+sq,0,'#ffb27a'); nroots='실근 2개'; }
-      else if(disc>-1e-9){ P.dot(1,0,'#ffb27a'); nroots='중근 1개'; }
+      if(disc>1e-9){ var sq=Math.sqrt(disc); P.dot(1-sq,0,'#ffb27a','x='+(1-sq).toFixed(1)); P.dot(1+sq,0,'#ffb27a','x='+(1+sq).toFixed(1)); nroots='실근 2개'; }
+      else if(disc>-1e-9){ P.dot(1,0,'#ffb27a','x=1'); nroots='중근 1개'; }
       else nroots='실근 0개 → 복소수(허근)';
       E.big('x² − 2x + ('+c+') = 0', '판별식 D = '+(4-4*c)+' → '+nroots); }
   },
@@ -143,7 +143,7 @@
       var fns=[ function(x){return (x+2);}, function(x){return (x+2)*(x-1);}, function(x){return (x+2)*(x-1)*(x-3)/2;} ];
       var roots=[ [-2], [-2,1], [-2,1,3] ];
       P.curve(fns[n-1], '#7ab8ff');
-      E.ctx.globalAlpha=E.blink(); roots[n-1].forEach(function(r){ P.dot(r,0,'#ffb27a'); }); E.ctx.globalAlpha=1;
+      E.ctx.globalAlpha=E.blink(); roots[n-1].forEach(function(r){ P.dot(r,0,'#ffb27a','x='+r); }); E.ctx.globalAlpha=1;
       E.tapHint(E.W/2, P.geom().bot+40, n<3?'▶ 인수 추가':'↻ 처음부터', n<3);
       var turns=['0번 꺾임','1번 꺾임','2번 꺾임'][n-1];
       E.big(['y = (x+2)','y = (x+2)(x−1)','y = (x+2)(x−1)(x−3)'][n-1], '차수 '+n+' · 근 '+n+'개 · '+turns); }
@@ -164,7 +164,7 @@
     draw:function(E){ var s=this.s, P=E.Plot, b=s.b; P.axes();
       P.curve(function(x){return x*x*x+b*x;}, '#7ab8ff');
       var roots=(b<0)?[-Math.sqrt(-b),0,Math.sqrt(-b)]:[0];
-      E.ctx.globalAlpha=E.blink(); roots.forEach(function(rt){ P.dot(rt,0,'#ffb27a'); }); E.ctx.globalAlpha=1;
+      E.ctx.globalAlpha=E.blink(); roots.forEach(function(rt){ P.dot(rt,0,'#ffb27a','x='+rt.toFixed(1)); }); E.ctx.globalAlpha=1;
       if(b<0){ var t=Math.sqrt(-b/3); // 봉우리(극대)=(-t,f(-t)), 골(극소)=(t,f(t))
         P.dot(-t,(-t)*(-t)*(-t)+b*(-t),'#8fe3b5','봉우리'); P.dot(t,t*t*t+b*t,'#8fe3b5','골'); }
       var bx3=(b===0?'':(b>0?' + '+(b===1?'':b)+'x':' − '+(b===-1?'':(-b))+'x'));

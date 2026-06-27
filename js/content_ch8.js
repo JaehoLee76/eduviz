@@ -21,6 +21,8 @@
       var px=cx+R*Math.cos(t), py=cy-R*Math.sin(t);
       // 각 호
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R*0.28,0,-t,true); ctx.stroke();
+      var lt=(deg/2)*D2R; ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('θ='+deg+'°', cx+R*0.50*Math.cos(lt), cy-R*0.50*Math.sin(lt)); ctx.textBaseline='alphabetic';
       // cos(가로), sin(세로)
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
       ctx.strokeStyle='#8fe3b5'; ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
@@ -76,6 +78,8 @@
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R,0,TAU); ctx.stroke();
       // 호(라디안 길이) 강조
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(cx,cy,R,0,-t,true); ctx.stroke();
+      var mt=(deg/2)*D2R; ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('호 = '+t.toFixed(2), cx+R*1.30*Math.cos(mt), cy-R*1.30*Math.sin(mt)); ctx.textBaseline='alphabetic';
       // 반지름선 2개
       ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
@@ -97,8 +101,9 @@
     draw:function(E){ var ctx=E.ctx, a=this.s.a*D2R, b=this.s.b*D2R, cx=E.W/2, cy=E.H*0.48, R=Math.min(E.H*0.25,E.W*0.19);
       axesXY(ctx,cx,cy,R);
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R,0,TAU); ctx.stroke();
-      function ray(ang,col,lab){ var px=cx+R*Math.cos(ang), py=cy-R*Math.sin(ang); ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(px,py,5,0,TAU); ctx.fill(); }
-      ray(a,'#7ab8ff'); ray(a+b,'#ffb27a');
+      function ray(ang,col,lab){ var px=cx+R*Math.cos(ang), py=cy-R*Math.sin(ang); ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(px,py,5,0,TAU); ctx.fill();
+        if(lab){ ctx.font='600 14px sans-serif'; ctx.textAlign=px<cx?'right':'left'; ctx.fillText(lab, px+(px<cx?-8:8), py+(py<cy?-6:14)); } }
+      ray(a,'#7ab8ff','α='+this.s.a+'°'); ray(a+b,'#ffb27a','α+β='+(this.s.a+this.s.b)+'°');
       var lhs=Math.sin(a+b), rhs=Math.sin(a)*Math.cos(b)+Math.cos(a)*Math.sin(b);
       ctx.fillStyle=E.COL.txt; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('파랑 = α, 주황 = α+β', cx, cy+R*1.35);
@@ -127,6 +132,10 @@
       function ang(v,p1,p2){ var u1=[p1[0]-v[0],p1[1]-v[1]], u2=[p2[0]-v[0],p2[1]-v[1]];
         var d=(u1[0]*u2[0]+u1[1]*u2[1])/(Math.hypot(u1[0],u1[1])*Math.hypot(u2[0],u2[1])); return Math.acos(Math.max(-1,Math.min(1,d))); }
       var A=ang(pts[0],pts[1],pts[2]), B=ang(pts[1],pts[0],pts[2]), C=ang(pts[2],pts[0],pts[1]);
+      // 꼭짓점 각도(실계산) — 이름 옆에 작게 표시
+      var angDeg=[A,B,C].map(function(r){ return (r/D2R).toFixed(0); });
+      ctx.fillStyle='rgba(255,217,189,0.75)'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      for(var k=0;k<3;k++){ ctx.fillText('('+angDeg[k]+'°)', pts[k][0]+(pts[k][0]<cx?-16:16), pts[k][1]+(pts[k][1]<cy?-22:30)); }
       // 변 라벨
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif';
       ctx.fillText('a', (pts[1][0]+pts[2][0])/2, (pts[1][1]+pts[2][1])/2+16);

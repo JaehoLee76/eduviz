@@ -13,6 +13,7 @@
       E.controls('<div class="ctrl"><label>수 n</label><input type="range" id="nn" min="12" max="96" step="1" value="60"><output id="nno">60</output></div>');
       var self=this; E.bind('#nn','input',function(e){ self.s.n=+e.target.value; document.getElementById('nno').textContent=e.target.value; E.blip(420+self.s.n,0.08); }); },
     draw:function(E){ var ctx=E.ctx, n=this.s.n, fs=primeFactors(n), cx=E.W/2, y=E.H*0.42;
+      ctx.fillStyle='#cfcdc6'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('n = '+n+'  의 소수 블록', cx, y-26);
       // 소수 블록
       var bw=52, gap=14, total=fs.length*bw+(fs.length-1)*gap, x0=cx-total/2;
       for(var i=0;i<fs.length;i++){ var x=x0+i*(bw+gap);
@@ -56,6 +57,7 @@
         if(on){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,14,0,TAU); ctx.stroke(); } }
       // 바늘
       var tt=-Math.PI/2 + r*TAU/m; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*0.7*Math.cos(tt),cy+R*0.7*Math.sin(tt)); ctx.stroke();
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(n+' mod 12 = '+r, cx, cy+R+34);
       E.big(n+' ≡ '+r+'  (mod 12)', '합동식 = 시계 산술! 12로 나눈 나머지가 같으면 합동. '+n+'시는 '+r+'시와 같습니다'); }
   },
 

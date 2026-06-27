@@ -12,11 +12,14 @@
       // ε 밴드
       ctx.fillStyle='rgba(255,178,122,0.14)'; ctx.fillRect(P.X(0),P.Y(L+eps),P.X(14)-P.X(0),P.Y(L-eps)-P.Y(L+eps));
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(L)); ctx.lineTo(P.X(14),P.Y(L)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('극한 L = 1', P.X(11.6), P.Y(L)-6);
+      ctx.fillText('L ± ε', P.X(11.6), P.Y(L+eps)-4);
       // N 계산: |1/n| < eps → n > 1/eps
       var N=Math.ceil(1/eps);
       ctx.strokeStyle='rgba(143,227,181,0.6)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(N),P.Y(0)); ctx.lineTo(P.X(N),P.Y(2.6)); ctx.stroke();
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('N='+N, P.X(N), P.Y(2.6)+0);
       for(var n=1;n<=13;n++){ var v=1+1/n, inb=(n>=N); P.dot(n,v, inb?'#8fe3b5':'#7ab8ff'); }
+      ctx.fillStyle='#7ab8ff'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('aₙ = 1 + 1/n', P.X(3.3), P.Y(1+1/3)-8);
       E.big('∀ε>0  ∃N  s.t.  n>N ⟹ |aₙ−1|<ε  ('+'ε='+eps.toFixed(1)+'→N='+N+')', 'ε-N 논법 — 아무리 좁은 ε 띠를 줘도, 그 후 모든 항이 띠 안인 N이 존재! 극한의 엄밀한 정의'); }
   },
 
@@ -32,6 +35,7 @@
       ctx.fillStyle='rgba(255,178,122,0.12)'; ctx.fillRect(P.X(-1),P.Y(L+eps),P.X(4)-P.X(-1),P.Y(L-eps)-P.Y(L+eps));
       ctx.fillStyle='rgba(122,184,255,0.14)'; ctx.fillRect(P.X(a-del),P.Y(6),P.X(a+del)-P.X(a-del),P.Y(-1)-P.Y(6));
       P.curve(f,'#8fe3b5');
+      ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = 2x', P.X(2.5), P.Y(f(2.5))-8);
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(P.X(-1),P.Y(L)); ctx.lineTo(P.X(4),P.Y(L)); ctx.stroke(); ctx.setLineDash([]);
       P.dot(a,L,'#ffb27a','(1, 2)');
       ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('ε', P.X(3.4), P.Y(L+eps)-4);
@@ -45,6 +49,7 @@
     draw:function(E){ var P=E.Plot, ctx=E.ctx, a=2; P.axes();
       function f(x){return 0.8*x+0.6;}
       P.curve(f,'#7ab8ff');
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = 0.8x + 0.6', P.X(2.4), P.Y(f(2.4))-8);
       var fa=f(a);
       // 극한값 = 함숫값 = 같은 점
       P.dot(a,fa,'#ffb27a','f(a) = lim');

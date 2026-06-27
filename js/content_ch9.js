@@ -71,8 +71,12 @@
       var self=this; E.bind('#bt','input',function(e){ self.s.deg=+e.target.value; document.getElementById('bto').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, ctx=E.ctx, ax=4,ay=0, R=3, t=this.s.deg*Math.PI/180, bx=R*Math.cos(t), by=R*Math.sin(t); P.axes();
       var dot=ax*bx+ay*by, ma=Math.sqrt(ax*ax+ay*ay), mb=R, perp=Math.abs(dot)<0.001;
-      vec(P,ctx,0,0,ax,ay,'#7ab8ff','a');
-      vec(P,ctx,0,0,bx,by,'#8fe3b5','b');
+      // 사이각 θ 호
+      ctx.strokeStyle='rgba(255,178,122,0.85)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(P.X(0),P.Y(0),24,0,-t,true); ctx.stroke();
+      var mt=t/2; ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText('θ='+this.s.deg+'°', P.X(0)+34*Math.cos(mt), P.Y(0)-34*Math.sin(mt)); ctx.textBaseline='alphabetic';
+      vec(P,ctx,0,0,ax,ay,'#7ab8ff','a  |a|='+ma.toFixed(0));
+      vec(P,ctx,0,0,bx,by,'#8fe3b5','b  |b|='+mb.toFixed(0));
       if(perp){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(P.X(0),P.Y(0)-16,16,16); }
       E.big('a · b = '+dot.toFixed(2)+'  ( = |a||b|cos'+this.s.deg+'° )', perp?'θ=90° → 내적 = 0 → 수직! (6장 #44에서 다룸)':'내적 = 성분곱의 합 = |a||b|cosθ'); }
   },
@@ -94,6 +98,10 @@
       var aA=Math.atan2(ay,ax), bA=Math.atan2(by,bx);
       ctx.strokeStyle=perp?'rgba(255,178,122,0.9)':'rgba(255,255,255,0.4)'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.arc(P.X(0),P.Y(0),22,-aA,-bA,true); ctx.stroke();
+      // 사이각 θ 라벨(두 벡터 사이 실측각)
+      var thBetween=Math.abs((bA-aA)/Math.PI*180), mA=(aA+bA)/2;
+      ctx.fillStyle=perp?'#ffb27a':'rgba(223,238,251,0.9)'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText('θ='+thBetween.toFixed(0)+'°', P.X(0)+34*Math.cos(mA), P.Y(0)-34*Math.sin(mA)); ctx.textBaseline='alphabetic';
       if(perp){ // 직각기호(작은 사각형) — a·b=0 일 때만
         ctx.save(); ctx.translate(P.X(0),P.Y(0)); ctx.scale(1,-1); ctx.rotate(aA);
         ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(0,0,15,15); ctx.restore(); }

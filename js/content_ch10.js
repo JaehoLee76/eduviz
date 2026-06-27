@@ -25,6 +25,7 @@
       ctx.strokeStyle='rgba(244,160,192,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(0)); ctx.lineTo(P.X(a),P.Y(b)); ctx.lineTo(P.X(0),P.Y(b)); ctx.stroke(); ctx.setLineDash([]);
       phasor(P,ctx,a,b,'#7ab8ff','z');
+      ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('('+a+', '+b+')', P.X(a)+8, P.Y(b)+16);
       var bs=(b===0?'':(b<0?' − '+(b===-1?'':(-b)):' + '+(b===1?'':b))+'i');
       var zS=(a===0?(b===0?'0':(b<0?'−'+(b===-1?'':(-b)):(b===1?'':b))+'i'):a+bs);
       E.big('z = '+zS, '복소수 a + bi = 평면의 점 (a, b) — 가로 실수, 세로 허수'); }
@@ -89,7 +90,8 @@
       ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1; ctx.beginPath(); ctx.ellipse(P.X(0),P.Y(0), r*sx, r*sy, 0,0,TAU); ctx.stroke();
       // 이전 자취(옅게)
       for(var k=0;k<=n;k++){ var t=k*90*D2R, x=r*Math.cos(t), y=r*Math.sin(t);
-        ctx.globalAlpha=(k===n)?1:0.25; phasor(P,ctx,x,y,(k===n)?'#ffb27a':'#7ab8ff', null); ctx.globalAlpha=1; }
+        var labs0=['1','i','−1','−i'];
+        ctx.globalAlpha=(k===n)?1:0.25; phasor(P,ctx,x,y,(k===n)?'#ffb27a':'#7ab8ff', (k===n)?('i^'+k+' = '+labs0[k]):null); ctx.globalAlpha=1; }
       var labs=['1','i','−1','−i'], cur=labs[n];
       E.tapHint(E.W/2, P.geom().bot+40, '▶ i 곱하기 (90° 회전)', true);
       E.big('1 → i → −1 → −i → …   지금: i^'+n+' = '+cur, 'i 곱하기 = 90° 회전! i² = −1 (두 번 = 180° = 반대)'); }

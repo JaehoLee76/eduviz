@@ -51,6 +51,10 @@
       ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       for(var p=1;p<=N;p++)for(var q=1;q<=N;q++){ var x=x0+(q-1)*cell, y=y0+(p-1)*cell;
         ctx.fillStyle='#8a8893'; ctx.fillText(p+'/'+q, x, y); }
+      // 격자 머리표 (분자 p / 분모 q)
+      ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif';
+      ctx.fillText('분모 q →', x0+(N-1)*cell*0.5, y0-cell*0.7);
+      ctx.save(); ctx.translate(x0-cell*0.75, y0+(N-1)*cell*0.5); ctx.rotate(-Math.PI/2); ctx.fillText('분자 p →', 0, 0); ctx.restore();
       ctx.textBaseline='alphabetic';
       // 대각선 지그재그 경로 (탭한 데까지)
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath();

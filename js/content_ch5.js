@@ -37,7 +37,7 @@
       E.bind('#lb','input',function(e){ self.s.b=+e.target.value; document.getElementById('lbo').textContent=e.target.value; E.blip(400,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, a=s.a, b=s.b; P.axes();
       P.curve(function(x){return a*x+b;}, '#7ab8ff');
-      P.dot(0,b,'#ffb27a'); var bl=E.blink(); E.ctx.globalAlpha=bl; P.dot(1,a+b,'#8fe3b5','(1, '+(a+b)+')'); E.ctx.globalAlpha=1;
+      P.dot(0,b,'#ffb27a','y절편 (0, '+b+')'); var bl=E.blink(); E.ctx.globalAlpha=bl; P.dot(1,a+b,'#8fe3b5','(1, '+(a+b)+')'); E.ctx.globalAlpha=1;
       E.big(fmtLin(a,b), '기울기 a = '+a+' · y절편 b = '+b); }
   },
 
@@ -52,7 +52,7 @@
       var el=document.getElementById('qc'); if(el) el.value='-2'; E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, a=s.a, b=s.b, c=s.c; P.axes();
       P.curve(function(x){return a*x*x+b*x+c;}, '#7ab8ff');
-      if(a!==0){ var h=-b/(2*a), k=c-b*b/(4*a); E.ctx.globalAlpha=E.blink(); P.dot(h,k,'#8fe3b5','꼭짓점'); E.ctx.globalAlpha=1; }
+      if(a!==0){ var h=-b/(2*a), k=c-b*b/(4*a); var hT=(h%1===0?h:h.toFixed(1)), kT=(k%1===0?k:k.toFixed(1)); E.ctx.globalAlpha=E.blink(); P.dot(h,k,'#8fe3b5','꼭짓점 ('+hT+', '+kT+')'); E.ctx.globalAlpha=1; }
       var aL=(a===0?'0':a===1?'':a===-1?'−':a);
       var bx=(b?((b>0?' + '+(b===1?'':b):' − '+(b===-1?'':(-b)))+'x'):'');
       E.big('y = '+aL+'x²'+bx+(c?(c>0?' + '+c:' − '+(-c)):''), a===0?'a = 0 이면 직선! (이차함수 아님)':'a: 폭·방향 · c: 상하 이동'); }
@@ -67,6 +67,7 @@
       var el=document.getElementById('vq'); if(el) el.value='-2'; E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, p=s.p, q=s.q, ctx=E.ctx; P.axes();
       ctx.strokeStyle='rgba(143,227,181,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(P.X(p),P.Y(6)); ctx.lineTo(P.X(p),P.Y(-6)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(143,227,181,0.85)'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('축 x = '+p, P.X(p), P.Y(6)+14);
       P.curve(function(x){return (x-p)*(x-p)+q;}, '#7ab8ff');
       E.ctx.globalAlpha=E.blink(); P.dot(p,q,'#8fe3b5','꼭짓점 ('+p+', '+q+')'); E.ctx.globalAlpha=1;
       E.big('y = (x − '+p+')² + ('+q+')', '꼭짓점 ('+p+', '+q+') · 축 x = '+p); }
@@ -77,8 +78,13 @@
     enter:function(E){ this.s={k:2}; E.Plot.range(-5,5,-5,5).lab('x','y');
       E.controls('<div class="ctrl"><label>k</label><input type="range" id="rk" min="-4" max="4" step="1" value="2"><output id="rko">2</output></div>');
       var self=this; E.bind('#rk','input',function(e){ self.s.k=+e.target.value; document.getElementById('rko').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, s=this.s, k=s.k; P.axes();
+    draw:function(E){ var P=E.Plot, s=this.s, k=s.k, ctx=E.ctx; P.axes();
       P.curve(function(x){ return Math.abs(x)<0.0001? (1/0) : k/x; }, '#7ab8ff');
+      if(k!==0){ var lx=(k>0?2.6:-2.6), ly=k/lx; ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.textAlign=(k>0?'left':'right'); ctx.fillText('y = '+k+'/x', P.X(lx)+(k>0?8:-8), P.Y(ly)); }
+      // 점근선 표시(x축·y축)
+      ctx.fillStyle='rgba(244,160,192,0.85)'; ctx.font='600 12px sans-serif';
+      ctx.textAlign='left'; ctx.fillText('점근선 y축', P.X(0)+6, P.Y(P.ymax)+14);
+      ctx.fillText('점근선 x축', P.X(P.xmax)-72, P.Y(0)-6);
       E.big('y = '+k+' / x', k===0?'k = 0 이면 y = 0':'점근선(asymptote): x축, y축'); }
   },
 
@@ -87,8 +93,9 @@
     enter:function(E){ this.s={p:0}; E.Plot.range(-2,8,-1,5).lab('x','y');
       E.controls('<div class="ctrl"><label>가로 이동 p</label><input type="range" id="sp" min="0" max="4" step="1" value="0"><output id="spo">0</output></div>');
       var self=this; E.bind('#sp','input',function(e){ self.s.p=+e.target.value; document.getElementById('spo').textContent=e.target.value; E.blip(440,0.1); }); E.setOn([]); },
-    draw:function(E){ var P=E.Plot, s=this.s, p=s.p; P.axes();
+    draw:function(E){ var P=E.Plot, s=this.s, p=s.p, ctx=E.ctx; P.axes();
       P.curve(function(x){ return x>=p? Math.sqrt(x-p): (0/0); }, '#7ab8ff');
+      var lx=p+3.5; if(lx<=7.9){ ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = √(x − '+p+')', P.X(lx)+6, P.Y(Math.sqrt(lx-p))); }
       E.ctx.globalAlpha=E.blink(); P.dot(p,0,'#8fe3b5','시작 ('+p+', 0)'); E.ctx.globalAlpha=1;
       E.big('y = √(x − '+p+')', '정의역: x ≥ '+p+' 에서만'); }
   }
