@@ -9,6 +9,8 @@
 */
 (function(){
   function endpoint(){ return window.EDUVIZ_CHAT_ENDPOINT || ''; }
+  // 로그인 게이팅: Client ID가 설정돼 있고 아직 로그인 안 했으면 AI 질문 잠금
+  function needLogin(){ var st=window.EduvizStore; return !!(window.EDUVIZ_GOOGLE_CLIENT_ID && st && st.loggedIn && !st.loggedIn()); }
 
   // ── 현재 장면 컨텍스트 수집(화면에 보이는 것 그대로 = 학습자가 보는 맥락) ──
   function txt(id){ var e=document.getElementById(id); if(!e) return '';
@@ -115,15 +117,16 @@
     var left = Q.exhausted ? ('충전까지 '+fmtTime(Q.resetLeft))
              : (Q.remaining==null ? '' : ('오늘 남은 질문 '+Q.remaining+'회'));
     metaEl.querySelector('.cw-left').textContent = left;
-    var blocked = Q.exhausted || (typeof Q.remaining==='number' && Q.remaining<=0) || !endpoint();
+    var blocked = Q.exhausted || (typeof Q.remaining==='number' && Q.remaining<=0) || !endpoint() || needLogin();
     inEl.disabled = blocked; sendEl.disabled = blocked || busy;
-    inEl.placeholder = Q.exhausted ? ('충전까지 '+fmtTime(Q.resetLeft)+' 남았습니다')
-                     : (blocked && endpoint() ? '무료 질문을 모두 사용했습니다' : '이 장면에 대해 궁금한 점을 물어보세요…');
+    inEl.placeholder = needLogin() ? '로그인 후 이용 가능' : (Q.exhausted ? ('충전까지 '+fmtTime(Q.resetLeft)+' 남았습니다')
+                     : (blocked && endpoint() ? '무료 질문을 모두 사용했습니다' : '이 장면에 대해 궁금한 점을 물어보세요…'));
   }
 
   function send(){
     if(busy) return;
     var q=(inEl.value||'').trim(); if(!q) return;
+    if(needLogin()){ addMsg('sys','AI 질문은 로그인 후 이용할 수 있어요. 우상단 👤 로그인을 눌러 주세요.'); if(window.EduvizStore&&EduvizStore.promptLogin) EduvizStore.promptLogin(); return; }
     if(q.length>1000){ addMsg('sys','질문이 너무 깁니다 (1000자 이내).'); return; }
     if(Q.exhausted || (typeof Q.remaining==='number' && Q.remaining<=0)){
       addMsg('sys','무료 질문을 모두 사용했습니다. 충전까지 '+fmtTime(Q.resetLeft)+' 남았어요.'); return; }
@@ -184,7 +187,8 @@
 
     function open(){ tp.textContent = topic()||'이 장면';
       if(sceneKey()!==threadScene){ resetThread(); }   // 장면 바뀌면 이전 대화 비우고 새로 시작
-      if(!bodyEl.children.length){
+      if(needLogin()){ bodyEl.innerHTML=''; addMsg('sys','🔒 AI 질문은 로그인 후 이용할 수 있어요. 우상단 👤 로그인을 눌러 주세요.'); }
+      else if(!bodyEl.children.length){
         addMsg('sys', endpoint()
           ? '"'+(topic()||'이 장면')+'" 에 대해 물어보세요. 이 장면의 지난 대화도 기억해 참고합니다 — 최근 대화는 자세히, 그 이전은 핵심만 요약해서 기억해요.'
           : 'AI 답변이 아직 설정되지 않았습니다. (관리자가 Worker 주소를 등록하면 활성화됩니다.)'); }

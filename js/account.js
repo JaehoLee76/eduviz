@@ -43,6 +43,8 @@
   // ── 장면별 대화 기억(요약 발췌 저장) — chat.js가 사용 ──
   window.EduvizStore = {
     user: function(){ return user; },
+    loggedIn: function(){ return !!user; },
+    promptLogin: function(){ if(!user) onLoginClick(); },
     getChat: function(sid){ return (sid && data.chat && data.chat[sid]) ? data.chat[sid].slice() : []; },
     addChat: function(sid, q, a){ if(!sid || !q) return; data.chat = data.chat || {};
       var arr = (data.chat[sid] || []).slice();
@@ -173,7 +175,8 @@
     x.onclick=closeMemo; ov.addEventListener('click',function(e){ if(e.target===ov) closeMemo(); });
     save.onclick=function(){ saveMemo(); }; del.onclick=function(){ deleteMemo(); };
     document.addEventListener('keydown',function(e){ if(e.key==='Escape' && ov.classList.contains('open')) closeMemo(); }); }
-  function openMemo(){ var id=curId(); if(!id){ return; }
+  function openMemo(){ if(!user){ toast('메모는 로그인 후 이용할 수 있어요.'); onLoginClick(); return; }
+    var id=curId(); if(!id){ return; }
     memoTa.value = (data.memos[id] && data.memos[id].text) || '';
     renderMemoList(); memoOv.classList.add('open'); setTimeout(function(){ memoTa.focus(); },50); }
   function closeMemo(){ if(memoTa && memoTa.value.trim()!==((data.memos[curId()]||{}).text||'')) saveMemo(true); memoOv.classList.remove('open'); }
