@@ -87,14 +87,14 @@
         ctx.globalAlpha=hot?1:0.5;
         ctx.fillStyle=F[5]; ctx.fillRect(ox,y,W*0.04,rh*0.7);
         ctx.fillStyle='#fff'; ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillText(F[0]+' ('+F[1]+')',ox+W*0.06,y+18);
-        // 상대 세기 막대(로그)
-        var logS=[0,-2.14,-6,-39][i], bw=(40+logS)/40*W*0.5; ctx.fillStyle=F[5]; ctx.fillRect(ox+W*0.06,y+26,Math.max(4,bw),12);
+        // 상대 세기 막대(로그 차수를 압축해 강력>전자기>약력>중력 차이가 보이게)
+        var logS=[0,-2.14,-6,-39][i], bw=Math.pow((40+logS)/40,2.4)*W*0.52; ctx.fillStyle=F[5]; ctx.fillRect(ox+W*0.06,y+26,Math.max(3,bw),12);
         ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('상대세기 '+F[2]+'  ·  범위 '+F[3],ox+W*0.06,y+rh*0.7+4);
         ctx.globalAlpha=1;
       });
       ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('선택: '+forces[s.sel][0]+' — '+forces[s.sel][4], W/2, H*0.86);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('강력이 가장 세지만 짧고, 중력은 10⁻³⁹로 약하지만 무한·누적 → 우주를 지배', W/2, H*0.92);
-      E.tapHint(W/2, H*0.97, '네 힘의 세기는 10⁴⁰배나 차이 납니다 (강력↔중력)', true);
+      E.tapHint(W/2, H*0.97, '네 힘의 세기는 10³⁹배나 차이 납니다 (강력↔중력)', true);
       E.big('네 가지 기본 힘 — 강력·전자기·약력·중력', '우주의 모든 상호작용은 네 힘으로.'); }
   },
 

@@ -29,13 +29,16 @@
       for(var x=x0;x<=x1;x+=3){ var ph=k*(x-x0)/60 - om*s.t, ey=axY - amp*Math.sin(ph); if(x===x0)ctx.moveTo(x,ey); else ctx.lineTo(x,ey); } ctx.stroke();
       // E 벡터 표본(세로 화살표)
       for(var xv=x0+24;xv<x1;xv+=Math.max(40,90/s.f)){ var ph2=k*(xv-x0)/60-om*s.t, ey2=axY-amp*Math.sin(ph2); arrow(E,xv,axY,xv,ey2,'rgba(255,138,107,0.85)',2); }
-      // 자기장 B (가로 진동, 푸름, 수직 평면 → 원근으로 살짝 기울여 표현) — B는 E와 위상 같음, 크기 B=E/c
+      // 자기장 B (E에 수직인 평면 = 화면 안쪽으로, 원근으로 비스듬히 그려 '수직'을 표현) — B는 E와 위상 같음, 크기 B=E/c
+      var bsx=0.46, bsy=0.30;   // 지면 속으로 향하는 원근 축
       ctx.strokeStyle=BLU; ctx.lineWidth=2.2; ctx.beginPath();
-      for(var x2=x0;x2<=x1;x2+=3){ var ph3=k*(x2-x0)/60-om*s.t, bz=amp*0.62*Math.sin(ph3); if(x2===x0)ctx.moveTo(x2,axY+bz*0.5); else ctx.lineTo(x2,axY+bz*0.5); } ctx.stroke();
+      for(var x2=x0;x2<=x1;x2+=3){ var ph3=k*(x2-x0)/60-om*s.t, bz=amp*0.78*Math.sin(ph3); if(x2===x0)ctx.moveTo(x2+bz*bsx,axY+bz*bsy); else ctx.lineTo(x2+bz*bsx,axY+bz*bsy); } ctx.stroke();
+      // B 벡터 표본(비스듬한 화살표)
+      for(var xb=x0+24;xb<x1;xb+=Math.max(40,90/s.f)){ var ph4=k*(xb-x0)/60-om*s.t, bz2=amp*0.78*Math.sin(ph4); arrow(E,xb,axY,xb+bz2*bsx,axY+bz2*bsy,'rgba(122,184,255,0.7)',1.6); }
       // 범례
       ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle=ERED; ctx.fillText('■ 전기장 E (세로)', x0, H*0.16);
-      ctx.fillStyle=BLU;  ctx.fillText('■ 자기장 B (가로, B=E/c)', x0, H*0.16+20);
+      ctx.fillStyle=BLU;  ctx.fillText('■ 자기장 B (E에 수직인 평면, B=E/c)', x0, H*0.16+20);
       ctx.fillStyle=DIM;  ctx.fillText('E와 B는 서로 수직 · 진행 방향과도 수직 (횡파)', x0, H*0.16+40);
       E.tapHint(W/2, H*0.93, '진동수 f를 바꾸면 파장 λ가 변합니다 (c=fλ는 일정)', true);
       E.big('전자기파 — 스스로 퍼져나가는 빛  (c = f·λ 일정)', '맥스웰의 종합입니다.'); }

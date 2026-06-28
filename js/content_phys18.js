@@ -67,6 +67,11 @@
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath();
       ctx.moveTo(slitX,H*0.14); ctx.lineTo(slitX,cy-aw/2); ctx.moveTo(slitX,cy+aw/2); ctx.lineTo(slitX,H*0.74); ctx.stroke();
       for(var w=0;w<4;w++){ ctx.strokeStyle='rgba(122,184,255,0.3)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W*0.12+w*14,cy-aw/2); ctx.lineTo(W*0.12+w*14,cy+aw/2); ctx.stroke(); }
+      // 슬릿에서 부채처럼 퍼지는 회절 — 각도별 밝기 ∝ sinc²(중앙 채움)
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(var ang=-62;ang<=62;ang+=3){ var ar=ang*Math.PI/180, b2=Math.PI*s.a*Math.sin(ar)/s.lam, Ia=b2===0?1:Math.pow(Math.sin(b2)/b2,2); if(Ia<0.012) continue;
+        ctx.strokeStyle='rgba(255,210,120,'+(Ia*0.5).toFixed(3)+')'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(slitX,cy); ctx.lineTo(slitX+Math.cos(ar)*(scrX-slitX), cy+Math.sin(ar)*(scrX-slitX)); ctx.stroke(); }
+      for(var ri=1;ri<=5;ri++){ var rr=ri*(scrX-slitX)/5.5; ctx.strokeStyle='rgba(122,184,255,0.16)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(slitX,cy,rr,-1.12,1.12); ctx.stroke(); } ctx.restore();
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(scrX,H*0.12); ctx.lineTo(scrX,H*0.76); ctx.stroke();
       var Ld=(scrX-slitX)/14;
       for(var py=-H*0.30;py<=H*0.30;py+=2){ var yu=py/14, theta=Math.atan2(yu,Ld), beta=Math.PI*s.a*Math.sin(theta)/s.lam, I=beta===0?1:Math.pow(Math.sin(beta)/beta,2);

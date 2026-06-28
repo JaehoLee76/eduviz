@@ -54,21 +54,21 @@
       var floorY=H*0.74, pivotX=W*0.42, pivotY=floorY;   // 오른쪽 아래 모서리를 축으로 기울임
       // 무게중심이 받침면(밑변) 밖으로 나가면 넘어짐. CG 수평위치 vs 밑변 오른끝
       // 직육면체 CG는 중심. 회전축=오른아래모서리. CG의 수평위치 = pivot - (bw/2)cosθ + (bh/2)sinθ ... 기울일수록 오른쪽으로
-      ctx.save(); ctx.translate(pivotX,pivotY); ctx.rotate(-th);
+      ctx.save(); ctx.translate(pivotX,pivotY); ctx.rotate(th);   // 오른아래 모서리 축, 오른쪽(시계방향)으로 기울임
       ctx.fillStyle='rgba(122,184,255,0.25)'; ctx.fillRect(-bw,-bh,bw,bh); ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.strokeRect(-bw,-bh,bw,bh);
       // 무게중심 점
       var cgx=-bw/2, cgy=-bh/2; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(cgx,cgy,6,0,7); ctx.fill();
       ctx.restore();
-      // CG의 절대 위치
-      var CGx=pivotX + (cgx*Math.cos(th) + cgy*Math.sin(th));
-      var CGy=pivotY + (-cgx*Math.sin(th) + cgy*Math.cos(th));
+      // CG의 절대 위치 (rotate(+th)) — 기울일수록 CG가 받침 모서리(pivot, 오른끝) 쪽으로 다가가 넘으면 전도
+      var CGx=pivotX + (cgx*Math.cos(th) - cgy*Math.sin(th));
+      var CGy=pivotY + (cgx*Math.sin(th) + cgy*Math.cos(th));
       // 무게(연직 아래) — CG에서
       arrow(E,CGx,CGy,CGx,floorY+10,ORA,2.5);
       ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('무게중심', CGx, CGy-10);
       // 바닥
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.12,floorY); ctx.lineTo(W*0.72,floorY); ctx.stroke();
       // 받침면(밑변): 왼끝 ~ pivot
-      var baseL = pivotX - bw*Math.cos(th); ctx.strokeStyle=GRN; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(baseL,floorY); ctx.lineTo(pivotX,floorY); ctx.stroke();
+      var baseL = pivotX - bw; ctx.strokeStyle=GRN; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(baseL,floorY); ctx.lineTo(pivotX,floorY); ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('받침면', (baseL+pivotX)/2, floorY+18);
       // 판정: CG 수평선이 받침면(baseL~pivotX) 안이면 안정
       var stable = CGx>=baseL && CGx<=pivotX;
