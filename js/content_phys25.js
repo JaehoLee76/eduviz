@@ -70,7 +70,7 @@
       arrow(E,bx+L,cy-th-4,bx+L+dL1,cy-th-4,HOT,2);
       // 바이메탈 휨(아래쪽 그림)
       var bcx=W*0.40, bcy=H*0.74, bend=s.dT/100*1.0;
-      ctx.strokeStyle=tcol(s.dT); ctx.lineWidth=4; ctx.beginPath(); for(var t=0;t<=1;t+=0.05){ var x=bcx-W*0.14+t*W*0.28, y=bcy+Math.sin(t*Math.PI)*0+ (t)*0 - bend*40*Math.sin(t*Math.PI*0.5); ctx.lineTo(x, bcy - bend*60*t*t); } ctx.stroke();
+      ctx.strokeStyle=tcol(s.dT); ctx.lineWidth=4; ctx.beginPath(); for(var t=0;t<=1;t+=0.05){ var x=bcx-W*0.14+t*W*0.28, y=bcy - bend*60*t*t; if(t===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('바이메탈: 두 금속이 다르게 팽창 → 휘어짐 (온도조절기)', bcx, bcy+30);
       ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif'; ctx.fillText('ΔL = α·L·ΔT  (ΔT='+s.dT+'°C → 늘어남 '+(dL1).toFixed(0)+'px)', W/2, H*0.55);
       E.tapHint(W/2, H*0.92, '데우면 늘어나고, 금속마다 팽창 정도(α)가 다릅니다', true);

@@ -37,7 +37,6 @@
       ctx.fillStyle=ERED; ctx.fillText('■ 전기장 E (세로)', x0, H*0.16);
       ctx.fillStyle=BLU;  ctx.fillText('■ 자기장 B (가로, B=E/c)', x0, H*0.16+20);
       ctx.fillStyle=DIM;  ctx.fillText('E와 B는 서로 수직 · 진행 방향과도 수직 (횡파)', x0, H*0.16+40);
-      var lam=(x1-x0)/(k/(2*Math.PI))/60;   // 화면상 파장(표시용 상대값) — c=fλ 관계 강조
       E.tapHint(W/2, H*0.93, '진동수 f를 바꾸면 파장 λ가 변합니다 (c=fλ는 일정)', true);
       E.big('전자기파 — 스스로 퍼져나가는 빛  (c = f·λ 일정)', '맥스웰의 종합입니다.'); }
   },

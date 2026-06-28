@@ -75,7 +75,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, c=10, R=2;
       var vesc=Math.sqrt(2*s.M/R)*4.1;   // 탈출속도 √(2GM/R) (상대). M≈6서 c=10 넘어 블랙홀 (골든룰)
-      var isBH=vesc>=c, rs=2*s.M/(c*c)*100;   // 사건지평선 r_s=2GM/c²
+      var isBH=vesc>=c;   // 사건지평선 r_s=2GM/c²(텍스트 설명) · 블랙홀 판정
       var cx=W*0.34, cy=H*0.44, bodyR=Math.min(70,30+s.M*4);
       // 천체 또는 블랙홀
       if(isBH){ ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(cx,cy,bodyR,0,7); ctx.fill(); ctx.strokeStyle=ORA; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(cx,cy,bodyR,0,7); ctx.stroke();
