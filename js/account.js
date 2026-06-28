@@ -69,12 +69,16 @@
     new MutationObserver(scheduleRecord).observe(el,{childList:true,characterData:true,subtree:true}); }
 
   // ── 위치 복원 ──
-  function restorePos(){ var p=data.pos[TRACK]; if(!p || !p.id) return;
+  // 로그인 여부와 무관하게 저장된 위치가 있으면 항상 그 장면으로 이동(바로가기 일관성).
+  // 토스트의 '처음으로'로 인트로부터 다시 볼 수 있다. (게스트도 localStorage에 위치가 있으면 이어보기)
+  var restored=false;
+  function restorePos(){ if(restored) return;                      // 페이지 로드당 1회만(로그인 후 재호출이 읽는 중 사용자를 끌어가지 않게)
+    var p=data.pos[TRACK]; if(!p || !p.id) return;
     if(!window.Engine || !Engine.indexOfId) return;
-    if(p.id===curId()) return;                                     // 이미 그 장면
     var i=Engine.indexOfId(p.id); if(i<0) return;                  // 콘텐츠에서 사라진 장면
-    if(user){ Engine.goTo(i); toast('이어서 학습 중입니다 — '+(p.title||p.crumb||''), '처음으로', function(){ Engine.goTo(0); }); }
-    else { banner('이어서 학습 → '+(p.title||p.crumb||''), function(){ Engine.goTo(i); }); }
+    if(p.id===curId()){ restored=true; return; }                  // 이미 그 장면
+    Engine.goTo(i); restored=true;
+    toast('이어서 학습 중입니다 — '+(p.title||p.crumb||''), '처음으로', function(){ Engine.goTo(0); });
   }
 
   // ── 토스트/배너 ──
@@ -261,11 +265,13 @@
     injectStyle(); restoreSession(); loadLocal(); buildToolbar(); buildMemo(); buildUserMenu();
     watchScene(); updateMemoBtn();
     initGIS();
-    // 엔진 준비 후 위치 복원/해시 점프
-    var tries=0; (function wait(){ if(window.Engine && Engine.curId){ applyHashJump();
+    // 엔진 준비 후 위치 복원/해시 점프.
+    // ★ Engine.curId() 가 실제 장면 id를 반환할 때까지 대기 — 함수 존재만 보고 일찍 실행하면
+    //   start()/addScenes 전이라 indexOfId가 -1을 줘 복원이 조용히 실패한다(게스트에서 인트로에 머무는 버그 원인).
+    var tries=0; (function wait(){ if(window.Engine && Engine.curId && Engine.curId()){ applyHashJump();
         if(user && dataUrl()) cloudLoad(restorePos); else restorePos();   // 로그인 상태면 클라우드에서 트랙별 위치 받아 복원(기기 간). recordPos는 호출 안 함(복원지점 덮어쓰기 버그) — 저장은 watchScene이 실제 이동 때만.
         return; }
-      if(tries++<40) setTimeout(wait,150); })();
+      if(tries++<80) setTimeout(wait,120); })();
     window.addEventListener('beforeunload', function(){ if(user && dataUrl()){ try{
       navigator.sendBeacon && navigator.sendBeacon(dataUrl(), new Blob([JSON.stringify({pos:data.pos,memos:data.memos,_t:user.idToken})],{type:'application/json'})); }catch(e){} } });
   }
