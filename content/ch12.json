@@ -35,7 +35,7 @@
     "title": "쌍곡선 — 두 초점 거리의 차",
     "narr": "<b>쌍곡선</b>은 타원의 쌍둥이입니다. 타원이 두 초점까지 거리의 \"합\"이 일정했다면, 쌍곡선은 한 글자만 바꿔 <b>두 초점까지 거리의 차가 일정한</b> 점들의 모임입니다. 합 대신 차이를 고정하면 곡선이 두 갈래로 갈라지고, 각 갈래는 중심에서 멀어질수록 <b>점근선</b>(5·7장에서 본, 한없이 가까워지지만 닿지는 않는 직선)에 바싹 붙습니다. 점근선의 기울기는 ±(b/a)로 정해집니다. GPS와 전파 위치측정은 \"두 신호의 도달 시간 차 = 거리 차 일정\"인 이 쌍곡선으로 위치를 찾습니다. a, b를 바꿔 모양과 점근선을 보세요.",
     "hint": "a, b로 모양·점근선을 바꿔보세요",
-    "more": "<b>쌍곡선 x²/a² − y²/b² = 1</b> 은 <b>두 초점까지 거리의 차가 2a로 일정한</b> 점들의 자취입니다. 두 갈래(가지)로 나뉘고, <b>점근선 y = ±(b/a)x</b> 에 점점 가까워집니다(7·5장의 점근선 개념). 초점은 <b>c = √(a²+b²)</b>(타원과 부호만 다름!). GPS·전파 위치측정(LORAN)이 \"두 신호 도달 시간 차 = 거리 차 일정\"인 쌍곡선으로 위치를 찾습니다. 포물선·타원·쌍곡선은 모두 원뿔을 자른 단면 — 다음 장면에서 하나로 묶습니다.",
+    "more": "<b>쌍곡선 x²/a² − y²/b² = 1</b> 은 <b>두 초점까지 거리의 차가 2a로 일정한</b> 점들의 자취입니다. 두 갈래(가지)로 나뉘고, <b>점근선 y = ±(b/a)x</b> 에 점점 가까워집니다(5·7장의 점근선 개념). 초점은 <b>c = √(a²+b²)</b>(타원과 부호만 다름!). GPS·전파 위치측정(LORAN)이 \"두 신호 도달 시간 차 = 거리 차 일정\"인 쌍곡선으로 위치를 찾습니다. 포물선·타원·쌍곡선은 모두 원뿔을 자른 단면 — 다음 장면에서 하나로 묶습니다.",
     "more_en": "A <b>hyperbola x²/a² − y²/b² = 1</b> is the locus of points whose <b>distances to two foci differ by a constant 2a</b>. It splits into two branches and approaches its <b>asymptotes y = ±(b/a)x</b> (the asymptote idea from Ch.5/7). Its foci are at <b>c = √(a²+b²)</b> (only the sign differs from the ellipse!). GPS and radio positioning (LORAN) locate you using hyperbolas of \"constant difference in signal arrival times.\" Parabola, ellipse, and hyperbola are all cross-sections of a cone — unified next.",
     "problem": {
       "q": "쌍곡선 x²/9 − y²/16 = 1 의 점근선은?",

@@ -5,8 +5,8 @@
     "title": "공간좌표 — 차원을 하나 더",
     "narr": "지금까지는 평면 위에서만 점을 다뤘고, 그 위치는 좌표 (x, y) 둘로 정해졌습니다. 이제 평면을 벗어나 <b>공간(3차원)</b>으로 올라갑니다 — 평면에 수직인 <b>높이 축 z</b>를 하나 더 세우면, 점의 위치는 <b>(x, y, z)</b> 세 수로 정해집니다. 우리가 실제로 사는 세상이 바로 이 3차원입니다. 좌표가 하나 늘었을 뿐 거리 공식도 그대로 확장되어, 두 점 사이 거리는 √(Δx²+Δy²+Δz²)가 됩니다. 화면은 입체를 비스듬히 본 등각투영입니다. z를 바꿔 점이 위로 떠오르는 것을 보세요.",
     "hint": "높이 z를 바꿔보세요",
-    "more": "<b>공간좌표</b>는 서로 수직인 세 축 <b>x, y, z</b>로 점의 위치를 <b>(x, y, z)</b> 세 수로 나타냅니다. 평면(2장)에 \"높이\" 한 축을 더한 것입니다. 두 점 사이 거리도 그대로 확장됩니다: <b>d = √(Δx² + Δy² + Δz²)</b>(6장 거리공식 + z항). 화면은 3차원을 비스듬히 본 <b>등각투영</b>으로 그린 것입니다. 입체를 평면 화면에 그리는 이 투영이 컴퓨터그래픽의 기본입니다.",
-    "more_en": "<b>Space coordinates</b> locate a point with three numbers <b>(x, y, z)</b> along three mutually perpendicular axes x, y, z — the plane (Ch.2) plus one \"height\" axis. The distance formula extends directly: <b>d = √(Δx² + Δy² + Δz²)</b> (Ch.6's formula plus a z-term). The screen shows 3D in an <b>isometric projection</b> — drawing solids on a flat screen, the basis of computer graphics.",
+    "more": "<b>공간좌표</b>는 서로 수직인 세 축 <b>x, y, z</b>로 점의 위치를 <b>(x, y, z)</b> 세 수로 나타냅니다. 평면(6장)에 \"높이\" 한 축을 더한 것입니다. 두 점 사이 거리도 그대로 확장됩니다: <b>d = √(Δx² + Δy² + Δz²)</b>(6장 거리공식 + z항). 화면은 3차원을 비스듬히 본 <b>등각투영</b>으로 그린 것입니다. 입체를 평면 화면에 그리는 이 투영이 컴퓨터그래픽의 기본입니다.",
+    "more_en": "<b>Space coordinates</b> locate a point with three numbers <b>(x, y, z)</b> along three mutually perpendicular axes x, y, z — the plane (Ch.6) plus one \"height\" axis. The distance formula extends directly: <b>d = √(Δx² + Δy² + Δz²)</b> (Ch.6's formula plus a z-term). The screen shows 3D in an <b>isometric projection</b> — drawing solids on a flat screen, the basis of computer graphics.",
     "problem": {
       "q": "원점 O와 점 (2, 3, 6) 사이의 거리는?",
       "solution": "√(2² + 3² + 6²) = √(4 + 9 + 36) = √49 = <b>7</b>.",

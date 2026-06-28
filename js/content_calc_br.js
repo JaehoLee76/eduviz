@@ -133,13 +133,13 @@
   // ── ch10 원뿔곡선(이심률) (branchOf calc10_03) ──  r = ed/(1+e cosθ)
   { id:'calc10_03_conic', branchOf:'calc10_03', ord:1,
     enter:function(E){ var s=this.s={e:0.5}; E.Plot.range(-5,3,-3,3).lab('x','y'); sld(E,ctrl('이심률 e','cce',0,1.8,0.05,0.5),'cce',function(v){return v.toFixed(2);},function(v){s.e=v;}); E.setOn([]); },
-    draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,e=s.e,d=1.6;
+    draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,e=s.e,L=1.6;   // L=반직현(고정) → e=0이면 반지름 L의 원
       ctx.strokeStyle=VIO; ctx.lineWidth=2.2; ctx.beginPath(); var started=false;
-      for(var th=-Math.PI;th<=Math.PI;th+=0.01){ var den=1+e*Math.cos(th); if(den<0.05){started=false;continue;} var r=e*d/den; if(r<0||r>12){started=false;continue;}
+      for(var th=-Math.PI;th<=Math.PI;th+=0.01){ var den=1+e*Math.cos(th); if(den<0.05){started=false;continue;} var r=L/den; if(r<0||r>12){started=false;continue;}
         var x=P.X(r*Math.cos(th)),y=P.Y(r*Math.sin(th)); if(!started){ctx.moveTo(x,y);started=true;} else ctx.lineTo(x,y); } ctx.stroke();
       P.axes(); P.dot(0,0,GLD,'초점');
       var kind=e<0.02?'원':e<0.98?'타원':e<1.02?'포물선':'쌍곡선';
-      tag(ctx,P.X(-4.8),P.Y(2.6),'r = ed/(1+e cosθ),  '+kind+' (e='+e.toFixed(2)+')',VIO);
+      tag(ctx,P.X(-4.8),P.Y(2.6),'r = l/(1+e cosθ),  '+kind+' (e='+e.toFixed(2)+')',VIO);
       E.big('e = '+e.toFixed(2)+'  →  '+kind, '이심률 하나로 모든 원뿔곡선이 이어집니다 — e<1 타원·e=1 포물선·e>1 쌍곡선 (행성·혜성 궤도)'); }
   },
 

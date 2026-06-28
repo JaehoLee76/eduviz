@@ -28,8 +28,9 @@
     enter:function(E){ this.s={}; E.setOn([]); },
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, cy=E.H*0.42, sets=[['ℂ 복소수',150],['ℝ 실수',118],['ℚ 유리수',86],['ℤ 정수',56],['ℕ 자연수',28]], cols=['#f4a0c0','#ffb27a','#8fe3b5','#7ab8ff','#cfcdc6'];
       for(var i=0;i<sets.length;i++){ var r=sets[i][1]*Math.min(1,E.H/720);
-        ctx.strokeStyle=cols[i]; ctx.lineWidth=2; ctx.fillStyle=cols[i].replace(')',',0.06)').replace('#','rgba(');
-        ctx.beginPath(); ctx.ellipse(cx,cy,r*1.4,r,0,0,TAU); ctx.stroke();
+        ctx.strokeStyle=cols[i]; ctx.lineWidth=2; var h=cols[i];
+        ctx.fillStyle='rgba('+parseInt(h.substr(1,2),16)+','+parseInt(h.substr(3,2),16)+','+parseInt(h.substr(5,2),16)+',0.12)';
+        ctx.beginPath(); ctx.ellipse(cx,cy,r*1.4,r,0,0,TAU); ctx.fill(); ctx.stroke();
         ctx.fillStyle=cols[i]; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(sets[i][0], cx, cy-r+16); }
       E.big('ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ', '수의 확장 여정 — 1장 자연수에서 복소수까지. ℚ·ℝ·ℂ는 사칙연산이 닫힌 "체(field)"'); }
   },

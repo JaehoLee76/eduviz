@@ -69,8 +69,8 @@
     "problem": {
       "q": "\"자연수이면 정수이다\"에서 \"자연수\"는 어떤 조건일까요?",
       "solution": "자연수 집합 ⊂ 정수 집합 이므로 \"자연수\"는 <b>충분조건</b>입니다. 역인 \"정수이면 자연수\"는 거짓입니다(−1은 정수지만 자연수 아님).",
-      "q_en": "In \"if x = 2 then x² = 4\", what kind of condition is x = 2?",
-      "sol_en": "{2} ⊂ {−2, 2}, so x = 2 is a <b>sufficient condition</b> (the converse is false)."
+      "q_en": "In \"if x is a natural number, then it is an integer\", what kind of condition is \"natural number\"?",
+      "sol_en": "Naturals ⊂ integers, so \"natural number\" is a <b>sufficient condition</b>. The converse (\"integer ⇒ natural\") is false (−1 is an integer but not natural)."
     },
     "more_en": "A <b>proposition</b> is a statement that is true or false. \"p implies q\" (p → q) is true when set P is <b>contained in</b> Q (P ⊂ Q). Then p is a <b>sufficient condition</b> and q is a <b>necessary condition</b>."
   }

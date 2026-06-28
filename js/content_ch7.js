@@ -36,13 +36,13 @@
 
   // 7.2b 로그 = 지수의 역함수 (y=x 대칭)
   { id:'ch7_03',
-    enter:function(E){ this.s={t:1}; E.Plot.range(-3,6,-3,3).lab('x','y');
+    enter:function(E){ this.s={t:1}; E.Plot.range(-3,6,-3,6).lab('x','y');
       E.controls('<div class="ctrl"><label>지수 위 점의 x 좌표</label><input type="range" id="tx" min="-2" max="2.5" step="0.5" value="1"><output id="txo">1</output></div>');
       var self=this; E.bind('#tx','input',function(e){ self.s.t=+e.target.value; document.getElementById('txo').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx; P.axes();
       // y = x (대칭축)
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.5; ctx.setLineDash([5,5]);
-      ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(-3)); ctx.lineTo(P.X(3),P.Y(3)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(P.X(-3),P.Y(-3)); ctx.lineTo(P.X(6),P.Y(6)); ctx.stroke(); ctx.setLineDash([]);
       P.curve(function(x){ return Math.pow(2,x); }, '#7ab8ff');         // 지수
       P.curve(function(x){ return x>0? lg(x,2): NaN; }, '#8fe3b5');     // 로그
       ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = 2ˣ', P.X(1.7), P.Y(5));

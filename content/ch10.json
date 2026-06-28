@@ -68,7 +68,7 @@
     "more": "i = 1·(cos90° + i sin90°)이므로 <b>i를 곱하는 것 = 90° 회전</b>입니다. 그래서 <b>1 → i → −1 → −i → 1</b>로 네 번에 제자리로 돌아옵니다(주기 4). 핵심: <b>i² = i·i = 90° 두 번 = 180° 회전 = −1</b>. 3장에서 \"제곱하면 −1\"이라는 수수께끼 같던 정의가, 복소평면에서는 <b>\"180° 회전\"</b>이라는 또렷한 기하학적 의미가 됩니다. 추상적이던 허수가 눈에 보이는 회전이 된 것입니다 — 이것이 복소평면의 가장 아름다운 선물입니다.",
     "more_en": "Since i = 1·(cos90° + i sin90°), <b>multiplying by i = rotating 90°</b>. So <b>1 → i → −1 → −i → 1</b> returns home after four steps (period 4). The key: <b>i² = i·i = two 90° turns = 180° rotation = −1</b>. The Ch.3 definition \"squares to −1,\" once a riddle, becomes the clear geometric meaning <b>\"a 180° rotation\"</b> in the complex plane. The abstract imaginary unit becomes a visible rotation — the most beautiful gift of the complex plane.",
     "problem": {
-      "q": "복소수 i 에 i 를 세 번 곱하면 (i³)?",
+      "q": "복소수 i 를 세 제곱하면 (i³)?",
       "solution": "90°씩 세 번 = 270° 회전(또는 i·i·i = i²·i = −i). i³ = <b>−i</b>.",
       "q_en": "What is i³ (multiply i by itself three times)?",
       "sol_en": "Three 90° turns = 270° (or i·i·i = i²·i = −i). So i³ = <b>−i</b>."

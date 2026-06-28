@@ -1,107 +1,122 @@
 {
- "calc1_04_compound": {
-  "ch": "미적분 1장 · 심화", "sec": "심화 · 연속복리와 e",
-  "title": "이자를 잘게 쪼개면 — e의 탄생",
-  "narr": "원금 1에 연 100% 이자를 한 번에 받으면 2가 됩니다. 그런데 반년마다 50%씩 두 번 받으면 (1+½)²=2.25, 분기마다면 (1+¼)⁴≈2.44…. <b>더 자주 쪼개 받을수록</b> 액수가 커지지만, 무한히 자주(연속복리) 받아도 폭발하지 않고 정확히 <b>e ≈ 2.718</b>에 멈춥니다. 슬라이더로 나누는 횟수 n을 키워 점들이 e로 수렴하는 걸 보세요. 자연상수 e가 ‘성장의 극한’으로 태어나는 순간 — 미적분에서 e가 왜 특별한지의 출발점입니다.",
-  "more": "<b>(1+1/n)ⁿ → e</b>: 연속복리 한도가 e입니다. 일반 이율 r이면 (1+r/n)ⁿ → eʳ. 그래서 ‘비례 성장(y′=ky)’의 해가 항상 e의 거듭제곱이 되죠(9장). 화면의 점은 매 n마다 (1+1/n)ⁿ을 실제 계산한 값입니다.",
-  "more_en": "Compounding 100% interest more often grows the amount, but even continuous compounding converges to exactly e ≈ 2.718: (1+1/n)ⁿ → e. This is where the natural constant e is born."
- },
- "calc2_02_ivt": {
-  "ch": "미적분 2장 · 심화", "sec": "심화 · 중간값정리",
-  "title": "두 값 사이는 반드시 지난다 — 중간값정리",
-  "narr": "산을 0m에서 출발해 100m 봉우리까지 ‘끊김 없이’ 올랐다면, 도중에 정확히 50m였던 지점이 반드시 있습니다. <b>중간값정리(IVT)</b>의 직관이죠: 연속함수는 두 끝값 f(a), f(b) 사이의 <b>모든 값을 적어도 한 번</b> 지납니다. 슬라이더로 목표값 y를 움직여 보세요 — 곡선이 그 높이를 가로지르는 점 c가 항상 나타납니다. 특히 부호가 +에서 −로 바뀌면 그 사이에 <b>근(f=0)</b>이 반드시 존재하죠. 방정식에 해가 ‘있다’는 것을 푸는 것보다 먼저 보장해 주는 정리입니다.",
-  "more": "<b>존재성 정리</b>: f가 [a,b]에서 연속이고 f(a)<y<f(b)이면 f(c)=y인 c가 (a,b)에 존재합니다. 이분법(bisection)으로 근을 찾는 근거이며, 고정점·부동점 정리로도 확장됩니다. 화면의 c는 부호 변화를 실제로 스캔해 찾은 위치입니다.",
-  "more_en": "The Intermediate Value Theorem: a continuous function on [a,b] takes every value between f(a) and f(b) at least once. If the sign flips, a root must exist between — the basis of bisection root-finding."
- },
- "calc3_05_genexp": {
-  "ch": "미적분 3장 · 심화", "sec": "심화 · 일반 지수의 도함수",
-  "title": "왜 eˣ만 깔끔한가 — (aˣ)′ = aˣ ln a",
-  "narr": "eˣ는 미분해도 자기 자신이었죠(3장). 그럼 2ˣ나 10ˣ 같은 <b>일반 지수</b>는? 미분하면 <b>(aˣ)′ = aˣ · ln a</b> — 자기 자신에 <b>ln a라는 배수</b>가 붙습니다. 슬라이더로 밑 a를 바꿔 접선 기울기가 aˣ의 ln a 배가 되는지 확인하세요. a=e일 때만 ln e=1이라 배수가 사라져 (eˣ)′=eˣ가 되는 것 — 바로 이것이 자연상수 e가 ‘자연스러운’ 밑인 이유입니다. 마찬가지로 (ln x)′ = 1/x 도 e 덕분에 깔끔합니다.",
-  "more": "<b>aˣ = eˣ ˡⁿ ᵃ</b>: 모든 지수를 e로 바꿔 연쇄법칙을 쓰면 (aˣ)′ = eˣ ˡⁿ ᵃ · ln a = aˣ ln a. ln a가 ‘성장률’이죠. 화면의 공식 기울기와 실측이 일치합니다.",
-  "more_en": "A general exponential differentiates to (aˣ)′ = aˣ·ln a — itself times the factor ln a. Only for a=e does ln e=1 make the factor vanish, giving (eˣ)′=eˣ. That's why e is the natural base."
- },
- "calc4_02_invderiv": {
-  "ch": "미적분 4장 · 심화", "sec": "심화 · 역함수의 미분",
-  "title": "거울상의 기울기는 역수 — (f⁻¹)′ = 1/f′",
-  "narr": "함수와 그 역함수는 y=x 거울에 대칭이었죠(1장). 그렇다면 기울기는? 거울에 비치면 가로·세로가 뒤바뀌니, 대응하는 점에서 <b>기울기는 서로 역수</b>가 됩니다: <b>(f⁻¹)′(b) = 1 / f′(a)</b> (단 b=f(a)). 슬라이더로 eˣ 위의 점을 옮기면, 거울 건너 ln 위의 대응점에서 기울기가 정확히 역수로 나타납니다. eˣ의 기울기가 가파른 곳에선 ln의 기울기가 완만하죠. 이 한 줄 덕분에 ln·역삼각함수의 도함수를 외우지 않고도 끌어낼 수 있습니다.",
-  "more": "<b>왜 역수인가</b>: y=x 대칭은 (x,y)→(y,x)라 ‘세로/가로’가 뒤집혀 기울기 dy/dx → dx/dy = 1/(dy/dx). 예: (ln x)′ = 1/(eˡⁿˣ) = 1/x. 화면의 두 기울기가 정확히 역수임을 실제 계산으로 보입니다.",
-  "more_en": "A function and its inverse are mirror images across y=x, so at matching points their slopes are reciprocals: (f⁻¹)′(b) = 1/f′(a). For example, (ln x)′ = 1/x follows from (eˣ)′ = eˣ."
- },
- "calc5_01_concave": {
-  "ch": "미적분 5장 · 심화", "sec": "심화 · 오목·볼록과 변곡점",
-  "title": "휘는 방향을 읽다 — 2계도함수",
-  "narr": "1계도함수가 ‘오르막/내리막’을 알려 줬다면, <b>2계도함수 f″</b>는 곡선이 <b>어느 쪽으로 휘는지</b>를 알려 줍니다. <b>f″>0이면 아래로 볼록(컵 ∪)</b>, <b>f″<0이면 위로 오목(돔 ∩)</b>, 그리고 부호가 바뀌는 곳이 <b>변곡점</b>이죠. 슬라이더로 점을 옮기며 f″의 부호와 곡선이 휘는 방향이 일치하는지 보세요. 곡선 개형 그리기, 극대·극소 판정(2계 판정), 경제의 ‘체증/체감’이 모두 이 2계도함수에서 나옵니다.",
-  "more": "<b>2계 판정</b>: f′(c)=0인 점에서 f″(c)>0이면 극소(컵 바닥), f″(c)<0이면 극대(돔 꼭대기). f=x³−3x는 x=0에서 f″=0이며 오목↔볼록이 뒤집히는 변곡점입니다. 화면의 f″은 수치 2계미분으로 실제 계산한 값입니다.",
-  "more_en": "The second derivative f″ tells how a curve bends: f″>0 is concave up (∪), f″<0 is concave down (∩), and a sign change marks an inflection point. It drives curve sketching and the second-derivative test."
- },
- "calc6_03_mvt": {
-  "ch": "미적분 6장 · 심화", "sec": "심화 · 적분의 평균값 정리",
-  "title": "평균과 똑같은 한 점이 있다",
-  "narr": "함수의 평균값을 적분으로 구했죠(7장). 그런데 연속함수라면, 구간 어딘가에 <b>‘바로 그 평균값’과 똑같은 함숫값을 갖는 점 c가 반드시 존재</b>합니다 — 적분의 평균값 정리입니다. 슬라이더로 c를 옮겨, 곡선이 평균 높이(초록 점선)와 만나는 순간을 찾아보세요. 직관적으로 — 출렁이는 곡선 아래 넓이를 같은 넓이의 납작한 직사각형으로 폈을 때, 곡선은 그 높이를 적어도 한 번 통과합니다. 미적분 기본정리와 함께 적분의 평균을 ‘점의 값’으로 이어 주는 다리입니다.",
-  "more": "<b>∃ c : f(c) = (1/(b−a))∫f</b>: 연속함수에 대해 성립하며, 미분의 평균값 정리(5장)를 넓이누적함수에 적용해 증명합니다. 화면의 ‘일치’ 표시는 |f(c)−평균|이 충분히 작아질 때 켜집니다.",
-  "more_en": "The Mean Value Theorem for integrals: a continuous function attains its own average value at some point c, f(c) = (1/(b−a))∫f. The wavy area, flattened to a rectangle of equal area, is crossed by the curve."
- },
- "calc7_02_washer": {
-  "ch": "미적분 7장 · 심화", "sec": "심화 · 워셔법",
-  "title": "구멍 뚫린 회전체 — 워셔법",
-  "narr": "두 곡선 사이의 영역을 회전시키면, 단면이 꽉 찬 원판이 아니라 <b>가운데가 뚫린 고리(워셔/도넛 단면)</b>가 됩니다. 그 부피는 ‘바깥 원판에서 안쪽 구멍을 뺀 것’ — <b>V = ∫π(R² − r²) dx</b>. 슬라이더로 고리를 촘촘히 해 보세요. 바깥 반지름 R과 안쪽 반지름 r이 각 위치에서 단면 고리의 넓이 π(R²−r²)를 만들고, 그것을 쌓으면 부피가 됩니다. 파이프, 컵, 반지처럼 ‘속이 빈’ 입체의 부피를 구하는 방법입니다.",
-  "more": "<b>원판 − 원판</b>: 워셔는 원판법의 확장입니다(안쪽 반지름 r=0이면 그냥 원판). R, r은 회전축에서 바깥·안쪽 경계까지의 거리. 회전축이 곡선과 떨어져 있을 때 특히 유용합니다. 화면의 부피는 Σπ(R²−r²)Δx를 실제로 더한 값입니다.",
-  "more_en": "Rotating the region between two curves gives ring-shaped (washer) cross-sections. The volume subtracts the inner disk from the outer: V = ∫π(R² − r²) dx — for hollow solids like pipes and rings."
- },
- "calc8_01_trigsub": {
-  "ch": "미적분 8장 · 심화", "sec": "심화 · 삼각치환",
-  "title": "뿌리를 삼각함수로 풀다 — 삼각치환",
-  "narr": "√(1−x²) 같은 <b>제곱근 속 식</b>은 그냥은 적분이 막힙니다. 비결은 <b>x = sin θ</b>로 바꾸는 것 — 그러면 √(1−x²) = √(1−sin²θ) = cos θ 로 뿌리가 사라지죠! 피타고라스 항등식이 √를 녹이는 겁니다. 슬라이더로 윗끝 b를 옮기면 √(1−x²) 아래 넓이(=사분원의 일부)가 쌓이고, b=1에서 정확히 <b>π/4</b>(사분원 넓이)가 됩니다. √(a²−x²)는 a sinθ, √(a²+x²)는 a tanθ, √(x²−a²)는 a secθ 치환 — 원·쌍곡선 모양을 삼각함수로 길들이는 기법입니다.",
-  "more": "<b>피타고라스로 √ 제거</b>: ∫√(1−x²)dx에서 x=sinθ, dx=cosθ dθ → ∫cos²θ dθ = ½(θ+sinθcosθ). 되돌리면 ½(arcsin x + x√(1−x²)). 기하적으로 부채꼴+직각삼각형 넓이죠. 화면의 넓이는 실제 적분값으로 b=1에서 π/4입니다.",
-  "more_en": "For integrals with √(1−x²), substitute x=sin θ so √(1−x²)=cos θ — the Pythagorean identity dissolves the root. The area under √(1−x²) from 0 to 1 is π/4 (a quarter circle)."
- },
- "calc9_03_shm": {
-  "ch": "미적분 9장 · 심화", "sec": "심화 · 단진동",
-  "title": "마찰이 없으면 영원히 — 단진동",
-  "narr": "감쇠진동(9장 심화)에서 마찰 c를 0으로 두면 어떻게 될까요? <b>mx″ + kx = 0</b> — 용수철은 에너지를 잃지 않고 <b>진폭 그대로 영원히 진동</b>합니다(단순조화운동, SHM). 그 해는 순수한 사인파이고, 진동수는 <b>ω = √(k/m)</b>, 주기는 <b>T = 2π√(m/k)</b>죠. 슬라이더로 탄성 k를 키우면 더 빠르게(높은 ω) 떨립니다. 신기하게도 <b>질량·탄성만이 진동수를 정하고, 진폭은 무관</b>합니다 — 진자(7장)와 똑같은 성질이죠. 소리·빛·교류전기·원자의 진동이 모두 이 단진동에서 출발합니다.",
-  "more": "<b>해 = A cos(ωt+φ)</b>: y″=−ω²y의 해는 사인·코사인입니다(2장 sin의 도함수에서 보았듯). ω=√(k/m). 에너지 ½kx²+½mv²가 보존되어 진폭이 유지되죠. 화면의 곡선은 mx″+kx=0을 한 스텝씩 실제 적분(에너지 보존형)한 것입니다.",
-  "more_en": "With no friction (c=0), mx″ + kx = 0 oscillates forever at constant amplitude — simple harmonic motion. Its frequency ω = √(k/m) depends only on mass and stiffness, not amplitude. Sound, light, and AC current all start here."
- },
- "calc10_01_arclen": {
-  "ch": "미적분 10장 · 심화", "sec": "심화 · 매개변수 곡선의 호의 길이",
-  "title": "속도를 적분하면 길이 — 매개변수 호의 길이",
-  "narr": "매개변수 곡선의 길이는 어떻게 잴까요? 시간 t에 따라 움직이는 점의 <b>속도 크기 √((dx/dt)² + (dy/dt)²)</b>를 시간으로 적분하면 됩니다 — ‘얼마나 빨리 가나’를 ‘얼마나 오래’ 더하면 ‘얼마나 멀리’가 되니까요. 슬라이더로 사이클로이드를 따라가며 길이가 쌓이는 걸 보세요. 놀랍게도 굴러가는 바퀴가 그리는 <b>한 아치의 길이는 정확히 8</b>(반지름의 8배)입니다. GPS 경로 거리, 케이블 길이, 로봇 팔 궤적이 모두 이 적분입니다.",
-  "more": "<b>L = ∫√(x′² + y′²) dt</b>: 속도벡터의 크기를 적분한 것으로, y=f(x) 곡선의 ∫√(1+f′²)dx(7장)를 매개변수로 일반화한 것입니다. 사이클로이드 x=t−sin t, y=1−cos t의 한 아치(0~2π) 길이 = 8. 화면의 길이는 실제 적분값입니다.",
-  "more_en": "The length of a parametric curve integrates the speed √((dx/dt)²+(dy/dt)²) over time — how fast, summed over how long, gives how far. One arch of a cycloid is exactly 8 times the radius."
- },
- "calc11_02_leibniz": {
-  "ch": "미적분 11장 · 심화", "sec": "심화 · 라이프니츠 π 급수",
-  "title": "홀수로 π를 만들다 — 교대급수",
-  "narr": "원주율 π를 무한히 더하는 분수만으로 만들 수 있을까요? 놀랍게도 <b>π/4 = 1 − ⅓ + ⅕ − ⅐ + ⅑ − …</b> — 홀수의 역수를 부호만 번갈아 더하면 됩니다(라이프니츠 급수). 슬라이더로 항 수를 늘려 부분합(×4)이 π에 다가가는 걸 보세요. 위로 넘쳤다 아래로 모자랐다 <b>진동하며 수렴</b>하는 것이 교대급수의 특징입니다. 다만 수렴이 <b>매우 느려</b> 소수 둘째 자리를 맞추려 해도 수백 항이 필요하죠 — ‘수렴함’과 ‘빠르게 수렴함’은 다른 문제임을 보여 줍니다.",
-  "more": "<b>교대급수 판정</b>: 항의 크기가 0으로 단조 감소하면 교대급수는 수렴하고(라이프니츠), 오차는 다음 항보다 작습니다. arctan(1)=π/4의 테일러 급수가 이 식이죠. 화면의 4×부분합은 실제로 더한 값으로 π 주위를 진동하며 수렴합니다.",
-  "more_en": "π/4 = 1 − ⅓ + ⅕ − ⅐ + … — alternating reciprocals of odd numbers (Leibniz). It converges (oscillating around π) but very slowly, showing that converging and converging fast are different things."
- },
- "calc12_03_proj": {
-  "ch": "미적분 12장 · 심화", "sec": "심화 · 벡터의 정사영",
-  "title": "그림자를 드리우다 — 벡터 정사영",
-  "narr": "한 벡터 v가 다른 방향 u에 드리우는 ‘그림자’가 <b>정사영 proj_u v</b>입니다. 햇빛이 u에 수직으로 비칠 때 v가 u 위에 만드는 그림자죠. 공식은 <b>proj_u v = (v·u / |u|²) u</b> — 내적으로 ‘얼마나 같은 방향인지’를 재서 u 방향으로 그만큼 깔아 줍니다. 슬라이더로 v의 방향을 돌려 보세요. v가 u와 나란하면 그림자가 가장 길고, 수직이면 0이 되죠. 힘을 빗면 방향으로 분해하기, 최소제곱법(데이터에 가장 가까운 직선 찾기), 그래픽의 조명이 모두 이 정사영입니다.",
-  "more": "<b>분해</b>: v = proj_u v + (수직성분). 평행 성분(그림자)과 수직 성분으로 나누는 것이 정사영입니다. 내적 v·u가 양수면 같은 쪽, 음수면 반대쪽 그림자. 최소제곱·푸리에 계수가 모두 ‘기저로의 정사영’입니다. 화면의 그림자(초록)는 실제 계산한 벡터입니다.",
-  "more_en": "The projection proj_u v = (v·u/|u|²)u is v's shadow onto direction u. It splits v into a parallel part (the shadow) and a perpendicular part — the basis of force decomposition, least squares, and Fourier coefficients."
- },
- "calc13_01_tangplane": {
-  "ch": "미적분 13장 · 심화", "sec": "심화 · 접평면",
-  "title": "곡면도 가까이선 평평하다 — 접평면",
-  "narr": "1변수에서 곡선이 한 점 근처에서 접선으로 근사됐듯(4장), 다변수 <b>곡면</b>은 한 점 근처에서 <b>접평면</b>으로 근사됩니다. 접평면의 기울기는 두 편도함수가 정해 주죠: <b>z ≈ f + fₓ·Δx + f_y·Δy</b>. 슬라이더로 기준점에서 멀어지는 거리를 키워 보세요 — 가까울 땐 접평면 근사(금색 점)가 실제값과 거의 같다가, 멀어질수록 오차가 벌어집니다. 지형도의 한 지점을 ‘평평한 판’으로 보는 것, 그것이 다변수 미분의 핵심이자 경사하강법·오차 전파의 토대입니다.",
-  "more": "<b>전미분</b>: dz = fₓ dx + f_y dy 가 함수값 변화의 선형 근사입니다. 접평면은 두 편도함수(∂x·∂y 방향 기울기)가 만드는 평면이죠. ‘미분가능 = 국소적으로 평면’이 다변수판입니다. 화면의 근사·실제·오차는 모두 실제 계산값으로, 거리가 멀수록 오차가 커집니다.",
-  "more_en": "Just as a curve is approximated by its tangent line, a surface is approximated near a point by its tangent plane: z ≈ f + fₓ·Δx + f_y·Δy. Differentiability means 'locally flat' — the basis of gradient descent and error propagation."
- },
- "calc14_01_jacobian": {
-  "ch": "미적분 14장 · 심화", "sec": "심화 · 야코비안",
-  "title": "좌표를 바꾸면 넓이가 변한다 — 야코비안",
-  "narr": "적분에서 변수를 바꿀 때(예: 직교→극좌표), 단순히 식만 바꾸면 안 됩니다 — <b>넓이 자체가 늘거나 줄기</b> 때문이죠. 그 ‘넓이 배율’이 <b>야코비안 |J|</b>입니다. 슬라이더로 변환을 바꿔 보세요: 흐린 단위 정사각형이 보라 평행사변형으로 변하며, 그 넓이가 정확히 <b>|J| = |ad − bc|</b>가 됩니다. 그래서 이중적분에서 <b>dA → |J| du dv</b>로 바꿔야 합니다. 14장에서 극좌표 넓이요소에 r이 곱해진 것(dA = r dr dθ)도 바로 극좌표 변환의 야코비안이 r이기 때문입니다.",
-  "more": "<b>J = 변환의 도함수 행렬식</b>: 변환 (u,v)→(x,y)의 ∂(x,y)/∂(u,v) 행렬식이 작은 넓이의 배율입니다. 극좌표 x=r cosθ, y=r sinθ의 야코비안은 r. 선형변환이면 |J|=|det|로 일정하죠(행렬식=부피배율, 12장 삼중적과 연결). 화면의 넓이배율은 실제 행렬식 값입니다.",
-  "more_en": "Changing variables in an integral rescales area by the Jacobian |J| (the determinant of the transformation's derivative). So dA → |J| du dv. The factor r in polar area (dA = r dr dθ) is exactly the polar Jacobian."
- },
- "calc15_03_conservative": {
-  "ch": "미적분 15장 · 심화", "sec": "심화 · 보존장 판정",
-  "title": "회전이 0이면 퍼텐셜이 있다",
-  "narr": "어떤 벡터장이 ‘보존장’(경로 무관·퍼텐셜 존재)인지 어떻게 알까요? 간단한 시험이 있습니다: <b>회전(curl)이 0인지</b> 보면 됩니다 — <b>∂Q/∂x = ∂P/∂y</b>. 슬라이더로 장을 바꿔 보세요. 발산형 장 (2x, 2y)는 curl=0이라 <b>보존장</b>(퍼텐셜 x²+y², 등위선과 수직으로 흐름), 회전장 (−y, x)는 curl=2≠0이라 <b>비보존</b>(빙빙 돌아 폐곡선 일이 0이 아님)입니다. ‘소용돌이가 없으면 언덕(퍼텐셜)을 오르내리는 흐름’이라는 직관 — 중력·정전기장이 보존장인 이유이자, 에너지 보존의 수학적 뿌리입니다.",
-  "more": "<b>curl=0 ⇔ 보존(단순연결 영역)</b>: 보존장 F=∇f는 폐곡선 적분이 0이고 선적분이 경로 무관입니다(15장 보존장). 평면에서 ∂Q/∂x − ∂P/∂y = 0이 그 판정이죠(곧 그린/스토크스의 핵심). 화면의 curl은 편도함수로 실제 계산한 값으로, 보존장에서 0이 됩니다.",
-  "more_en": "A field is conservative (path-independent, has a potential) exactly when its curl is zero: ∂Q/∂x = ∂P/∂y. The field (2x,2y) has curl 0 (potential x²+y²); the rotational field (−y,x) has curl 2 ≠ 0. This is the math root of energy conservation."
- }
+  "calc1_04_compound": {
+    "ch": "미적분 1장 · 심화",
+    "sec": "심화 · 연속복리와 e",
+    "title": "이자를 잘게 쪼개면 — e의 탄생",
+    "narr": "원금 1에 연 100% 이자를 한 번에 받으면 2가 됩니다. 그런데 반년마다 50%씩 두 번 받으면 (1+½)²=2.25, 분기마다면 (1+¼)⁴≈2.44…. <b>더 자주 쪼개 받을수록</b> 액수가 커지지만, 무한히 자주(연속복리) 받아도 폭발하지 않고 정확히 <b>e ≈ 2.718</b>에 멈춥니다. 슬라이더로 나누는 횟수 n을 키워 점들이 e로 수렴하는 걸 보세요. 자연상수 e가 ‘성장의 극한’으로 태어나는 순간 — 미적분에서 e가 왜 특별한지의 출발점입니다.",
+    "more": "<b>(1+1/n)ⁿ → e</b>: 연속복리 한도가 e입니다. 일반 이율 r이면 (1+r/n)ⁿ → eʳ. 그래서 ‘비례 성장(y′=ky)’의 해가 항상 e의 거듭제곱이 되죠(9장). 화면의 점은 매 n마다 (1+1/n)ⁿ을 실제 계산한 값입니다.",
+    "more_en": "Compounding 100% interest more often grows the amount, but even continuous compounding converges to exactly e ≈ 2.718: (1+1/n)ⁿ → e. This is where the natural constant e is born."
+  },
+  "calc2_02_ivt": {
+    "ch": "미적분 2장 · 심화",
+    "sec": "심화 · 중간값정리",
+    "title": "두 값 사이는 반드시 지난다 — 중간값정리",
+    "narr": "산을 0m에서 출발해 100m 봉우리까지 ‘끊김 없이’ 올랐다면, 도중에 정확히 50m였던 지점이 반드시 있습니다. <b>중간값정리(IVT)</b>의 직관이죠: 연속함수는 두 끝값 f(a), f(b) 사이의 <b>모든 값을 적어도 한 번</b> 지납니다. 슬라이더로 목표값 y를 움직여 보세요 — 곡선이 그 높이를 가로지르는 점 c가 항상 나타납니다. 특히 부호가 +에서 −로 바뀌면 그 사이에 <b>근(f=0)</b>이 반드시 존재하죠. 방정식에 해가 ‘있다’는 것을 푸는 것보다 먼저 보장해 주는 정리입니다.",
+    "more": "<b>존재성 정리</b>: f가 [a,b]에서 연속이고 f(a)<y<f(b)이면 f(c)=y인 c가 (a,b)에 존재합니다. 이분법(bisection)으로 근을 찾는 근거이며, 고정점·부동점 정리로도 확장됩니다. 화면의 c는 부호 변화를 실제로 스캔해 찾은 위치입니다.",
+    "more_en": "The Intermediate Value Theorem: a continuous function on [a,b] takes every value between f(a) and f(b) at least once. If the sign flips, a root must exist between — the basis of bisection root-finding."
+  },
+  "calc3_05_genexp": {
+    "ch": "미적분 3장 · 심화",
+    "sec": "심화 · 일반 지수의 도함수",
+    "title": "왜 eˣ만 깔끔한가 — (aˣ)′ = aˣ ln a",
+    "narr": "eˣ는 미분해도 자기 자신이었죠(3장). 그럼 2ˣ나 10ˣ 같은 <b>일반 지수</b>는? 미분하면 <b>(aˣ)′ = aˣ · ln a</b> — 자기 자신에 <b>ln a라는 배수</b>가 붙습니다. 슬라이더로 밑 a를 바꿔 접선 기울기가 aˣ의 ln a 배가 되는지 확인하세요. a=e일 때만 ln e=1이라 배수가 사라져 (eˣ)′=eˣ가 되는 것 — 바로 이것이 자연상수 e가 ‘자연스러운’ 밑인 이유입니다. 마찬가지로 (ln x)′ = 1/x 도 e 덕분에 깔끔합니다.",
+    "more": "<b>aˣ = eˣ ˡⁿ ᵃ</b>: 모든 지수를 e로 바꿔 연쇄법칙을 쓰면 (aˣ)′ = eˣ ˡⁿ ᵃ · ln a = aˣ ln a. ln a가 ‘성장률’이죠. 화면의 공식 기울기와 실측이 일치합니다.",
+    "more_en": "A general exponential differentiates to (aˣ)′ = aˣ·ln a — itself times the factor ln a. Only for a=e does ln e=1 make the factor vanish, giving (eˣ)′=eˣ. That's why e is the natural base."
+  },
+  "calc4_02_invderiv": {
+    "ch": "미적분 4장 · 심화",
+    "sec": "심화 · 역함수의 미분",
+    "title": "거울상의 기울기는 역수 — (f⁻¹)′ = 1/f′",
+    "narr": "함수와 그 역함수는 y=x 거울에 대칭이었죠(1장). 그렇다면 기울기는? 거울에 비치면 가로·세로가 뒤바뀌니, 대응하는 점에서 <b>기울기는 서로 역수</b>가 됩니다: <b>(f⁻¹)′(b) = 1 / f′(a)</b> (단 b=f(a)). 슬라이더로 eˣ 위의 점을 옮기면, 거울 건너 ln 위의 대응점에서 기울기가 정확히 역수로 나타납니다. eˣ의 기울기가 가파른 곳에선 ln의 기울기가 완만하죠. 이 한 줄 덕분에 ln·역삼각함수의 도함수를 외우지 않고도 끌어낼 수 있습니다.",
+    "more": "<b>왜 역수인가</b>: y=x 대칭은 (x,y)→(y,x)라 ‘세로/가로’가 뒤집혀 기울기 dy/dx → dx/dy = 1/(dy/dx). 예: (ln x)′ = 1/(eˡⁿˣ) = 1/x. 화면의 두 기울기가 정확히 역수임을 실제 계산으로 보입니다.",
+    "more_en": "A function and its inverse are mirror images across y=x, so at matching points their slopes are reciprocals: (f⁻¹)′(b) = 1/f′(a). For example, (ln x)′ = 1/x follows from (eˣ)′ = eˣ."
+  },
+  "calc5_01_concave": {
+    "ch": "미적분 5장 · 심화",
+    "sec": "심화 · 오목·볼록과 변곡점",
+    "title": "휘는 방향을 읽다 — 2계도함수",
+    "narr": "1계도함수가 ‘오르막/내리막’을 알려 줬다면, <b>2계도함수 f″</b>는 곡선이 <b>어느 쪽으로 휘는지</b>를 알려 줍니다. <b>f″>0이면 아래로 볼록(컵 ∪)</b>, <b>f″<0이면 위로 오목(돔 ∩)</b>, 그리고 부호가 바뀌는 곳이 <b>변곡점</b>이죠. 슬라이더로 점을 옮기며 f″의 부호와 곡선이 휘는 방향이 일치하는지 보세요. 곡선 개형 그리기, 극대·극소 판정(2계 판정), 경제의 ‘체증/체감’이 모두 이 2계도함수에서 나옵니다.",
+    "more": "<b>2계 판정</b>: f′(c)=0인 점에서 f″(c)>0이면 극소(컵 바닥), f″(c)<0이면 극대(돔 꼭대기). f=x³−3x는 x=0에서 f″=0이며 오목↔볼록이 뒤집히는 변곡점입니다. 화면의 f″은 수치 2계미분으로 실제 계산한 값입니다.",
+    "more_en": "The second derivative f″ tells how a curve bends: f″>0 is concave up (∪), f″<0 is concave down (∩), and a sign change marks an inflection point. It drives curve sketching and the second-derivative test."
+  },
+  "calc6_03_mvt": {
+    "ch": "미적분 6장 · 심화",
+    "sec": "심화 · 적분의 평균값 정리",
+    "title": "평균과 똑같은 한 점이 있다",
+    "narr": "함수의 평균값은 적분으로 구할 수 있죠(7장). 그런데 연속함수라면, 구간 어딘가에 <b>‘바로 그 평균값’과 똑같은 함숫값을 갖는 점 c가 반드시 존재</b>합니다 — 적분의 평균값 정리입니다. 슬라이더로 c를 옮겨, 곡선이 평균 높이(초록 점선)와 만나는 순간을 찾아보세요. 직관적으로 — 출렁이는 곡선 아래 넓이를 같은 넓이의 납작한 직사각형으로 폈을 때, 곡선은 그 높이를 적어도 한 번 통과합니다. 미적분 기본정리와 함께 적분의 평균을 ‘점의 값’으로 이어 주는 다리입니다.",
+    "more": "<b>∃ c : f(c) = (1/(b−a))∫f</b>: 연속함수에 대해 성립하며, 미분의 평균값 정리(5장)를 넓이누적함수에 적용해 증명합니다. 화면의 ‘일치’ 표시는 |f(c)−평균|이 충분히 작아질 때 켜집니다.",
+    "more_en": "The Mean Value Theorem for integrals: a continuous function attains its own average value at some point c, f(c) = (1/(b−a))∫f. The wavy area, flattened to a rectangle of equal area, is crossed by the curve."
+  },
+  "calc7_02_washer": {
+    "ch": "미적분 7장 · 심화",
+    "sec": "심화 · 워셔법",
+    "title": "구멍 뚫린 회전체 — 워셔법",
+    "narr": "두 곡선 사이의 영역을 회전시키면, 단면이 꽉 찬 원판이 아니라 <b>가운데가 뚫린 고리(워셔/도넛 단면)</b>가 됩니다. 그 부피는 ‘바깥 원판에서 안쪽 구멍을 뺀 것’ — <b>V = ∫π(R² − r²) dx</b>. 슬라이더로 고리를 촘촘히 해 보세요. 바깥 반지름 R과 안쪽 반지름 r이 각 위치에서 단면 고리의 넓이 π(R²−r²)를 만들고, 그것을 쌓으면 부피가 됩니다. 파이프, 컵, 반지처럼 ‘속이 빈’ 입체의 부피를 구하는 방법입니다.",
+    "more": "<b>원판 − 원판</b>: 워셔는 원판법의 확장입니다(안쪽 반지름 r=0이면 그냥 원판). R, r은 회전축에서 바깥·안쪽 경계까지의 거리. 회전축이 곡선과 떨어져 있을 때 특히 유용합니다. 화면의 부피는 Σπ(R²−r²)Δx를 실제로 더한 값입니다.",
+    "more_en": "Rotating the region between two curves gives ring-shaped (washer) cross-sections. The volume subtracts the inner disk from the outer: V = ∫π(R² − r²) dx — for hollow solids like pipes and rings."
+  },
+  "calc8_01_trigsub": {
+    "ch": "미적분 8장 · 심화",
+    "sec": "심화 · 삼각치환",
+    "title": "뿌리를 삼각함수로 풀다 — 삼각치환",
+    "narr": "√(1−x²) 같은 <b>제곱근 속 식</b>은 그냥은 적분이 막힙니다. 비결은 <b>x = sin θ</b>로 바꾸는 것 — 그러면 √(1−x²) = √(1−sin²θ) = cos θ 로 뿌리가 사라지죠! 피타고라스 항등식이 √를 녹이는 겁니다. 슬라이더로 윗끝 b를 옮기면 √(1−x²) 아래 넓이(=사분원의 일부)가 쌓이고, b=1에서 정확히 <b>π/4</b>(사분원 넓이)가 됩니다. √(a²−x²)는 a sinθ, √(a²+x²)는 a tanθ, √(x²−a²)는 a secθ 치환 — 원·쌍곡선 모양을 삼각함수로 길들이는 기법입니다.",
+    "more": "<b>피타고라스로 √ 제거</b>: ∫√(1−x²)dx에서 x=sinθ, dx=cosθ dθ → ∫cos²θ dθ = ½(θ+sinθcosθ). 되돌리면 ½(arcsin x + x√(1−x²)). 기하적으로 부채꼴+직각삼각형 넓이죠. 화면의 넓이는 실제 적분값으로 b=1에서 π/4입니다.",
+    "more_en": "For integrals with √(1−x²), substitute x=sin θ so √(1−x²)=cos θ — the Pythagorean identity dissolves the root. The area under √(1−x²) from 0 to 1 is π/4 (a quarter circle)."
+  },
+  "calc9_03_shm": {
+    "ch": "미적분 9장 · 심화",
+    "sec": "심화 · 단진동",
+    "title": "마찰이 없으면 영원히 — 단진동",
+    "narr": "감쇠진동(9장 심화)에서 마찰 c를 0으로 두면 어떻게 될까요? <b>mx″ + kx = 0</b> — 용수철은 에너지를 잃지 않고 <b>진폭 그대로 영원히 진동</b>합니다(단순조화운동, SHM). 그 해는 순수한 사인파이고, 진동수는 <b>ω = √(k/m)</b>, 주기는 <b>T = 2π√(m/k)</b>죠. 슬라이더로 탄성 k를 키우면 더 빠르게(높은 ω) 떨립니다. 신기하게도 <b>질량·탄성만이 진동수를 정하고, 진폭은 무관</b>합니다 — 진폭과 무관하게 진동수가 정해지는 성질이죠. 소리·빛·교류전기·원자의 진동이 모두 이 단진동에서 출발합니다.",
+    "more": "<b>해 = A cos(ωt+φ)</b>: y″=−ω²y의 해는 사인·코사인입니다(2장 sin의 도함수에서 보았듯). ω=√(k/m). 에너지 ½kx²+½mv²가 보존되어 진폭이 유지되죠. 화면의 곡선은 mx″+kx=0을 한 스텝씩 실제 적분(에너지 보존형)한 것입니다.",
+    "more_en": "With no friction (c=0), mx″ + kx = 0 oscillates forever at constant amplitude — simple harmonic motion. Its frequency ω = √(k/m) depends only on mass and stiffness, not amplitude. Sound, light, and AC current all start here."
+  },
+  "calc10_01_arclen": {
+    "ch": "미적분 10장 · 심화",
+    "sec": "심화 · 매개변수 곡선의 호의 길이",
+    "title": "속도를 적분하면 길이 — 매개변수 호의 길이",
+    "narr": "매개변수 곡선의 길이는 어떻게 잴까요? 시간 t에 따라 움직이는 점의 <b>속도 크기 √((dx/dt)² + (dy/dt)²)</b>를 시간으로 적분하면 됩니다 — ‘얼마나 빨리 가나’를 ‘얼마나 오래’ 더하면 ‘얼마나 멀리’가 되니까요. 슬라이더로 사이클로이드를 따라가며 길이가 쌓이는 걸 보세요. 놀랍게도 굴러가는 바퀴가 그리는 <b>한 아치의 길이는 정확히 8</b>(반지름의 8배)입니다. GPS 경로 거리, 케이블 길이, 로봇 팔 궤적이 모두 이 적분입니다.",
+    "more": "<b>L = ∫√(x′² + y′²) dt</b>: 속도벡터의 크기를 적분한 것으로, y=f(x) 곡선의 ∫√(1+f′²)dx(7장)를 매개변수로 일반화한 것입니다. 사이클로이드 x=t−sin t, y=1−cos t의 한 아치(0~2π) 길이 = 8. 화면의 길이는 실제 적분값입니다.",
+    "more_en": "The length of a parametric curve integrates the speed √((dx/dt)²+(dy/dt)²) over time — how fast, summed over how long, gives how far. One arch of a cycloid is exactly 8 times the radius."
+  },
+  "calc11_02_leibniz": {
+    "ch": "미적분 11장 · 심화",
+    "sec": "심화 · 라이프니츠 π 급수",
+    "title": "홀수로 π를 만들다 — 교대급수",
+    "narr": "원주율 π를 무한히 더하는 분수만으로 만들 수 있을까요? 놀랍게도 <b>π/4 = 1 − ⅓ + ⅕ − ⅐ + ⅑ − …</b> — 홀수의 역수를 부호만 번갈아 더하면 됩니다(라이프니츠 급수). 슬라이더로 항 수를 늘려 부분합(×4)이 π에 다가가는 걸 보세요. 위로 넘쳤다 아래로 모자랐다 <b>진동하며 수렴</b>하는 것이 교대급수의 특징입니다. 다만 수렴이 <b>매우 느려</b> 소수 둘째 자리를 맞추려 해도 수백 항이 필요하죠 — ‘수렴함’과 ‘빠르게 수렴함’은 다른 문제임을 보여 줍니다.",
+    "more": "<b>교대급수 판정</b>: 항의 크기가 0으로 단조 감소하면 교대급수는 수렴하고(라이프니츠), 오차는 다음 항보다 작습니다. arctan(1)=π/4의 테일러 급수가 이 식이죠. 화면의 4×부분합은 실제로 더한 값으로 π 주위를 진동하며 수렴합니다.",
+    "more_en": "π/4 = 1 − ⅓ + ⅕ − ⅐ + … — alternating reciprocals of odd numbers (Leibniz). It converges (oscillating around π) but very slowly, showing that converging and converging fast are different things."
+  },
+  "calc12_03_proj": {
+    "ch": "미적분 12장 · 심화",
+    "sec": "심화 · 벡터의 정사영",
+    "title": "그림자를 드리우다 — 벡터 정사영",
+    "narr": "한 벡터 v가 다른 방향 u에 드리우는 ‘그림자’가 <b>정사영 proj_u v</b>입니다. 햇빛이 u에 수직으로 비칠 때 v가 u 위에 만드는 그림자죠. 공식은 <b>proj_u v = (v·u / |u|²) u</b> — 내적으로 ‘얼마나 같은 방향인지’를 재서 u 방향으로 그만큼 깔아 줍니다. 슬라이더로 v의 방향을 돌려 보세요. v가 u와 나란하면 그림자가 가장 길고, 수직이면 0이 되죠. 힘을 빗면 방향으로 분해하기, 최소제곱법(데이터에 가장 가까운 직선 찾기), 그래픽의 조명이 모두 이 정사영입니다.",
+    "more": "<b>분해</b>: v = proj_u v + (수직성분). 평행 성분(그림자)과 수직 성분으로 나누는 것이 정사영입니다. 내적 v·u가 양수면 같은 쪽, 음수면 반대쪽 그림자. 최소제곱·푸리에 계수가 모두 ‘기저로의 정사영’입니다. 화면의 그림자(초록)는 실제 계산한 벡터입니다.",
+    "more_en": "The projection proj_u v = (v·u/|u|²)u is v's shadow onto direction u. It splits v into a parallel part (the shadow) and a perpendicular part — the basis of force decomposition, least squares, and Fourier coefficients."
+  },
+  "calc13_01_tangplane": {
+    "ch": "미적분 13장 · 심화",
+    "sec": "심화 · 접평면",
+    "title": "곡면도 가까이선 평평하다 — 접평면",
+    "narr": "1변수에서 곡선이 한 점 근처에서 접선으로 근사됐듯(4장), 다변수 <b>곡면</b>은 한 점 근처에서 <b>접평면</b>으로 근사됩니다. 접평면의 기울기는 두 편도함수가 정해 주죠: <b>z ≈ f + fₓ·Δx + f_y·Δy</b>. 슬라이더로 기준점에서 멀어지는 거리를 키워 보세요 — 가까울 땐 접평면 근사(금색 점)가 실제값과 거의 같다가, 멀어질수록 오차가 벌어집니다. 지형도의 한 지점을 ‘평평한 판’으로 보는 것, 그것이 다변수 미분의 핵심이자 경사하강법·오차 전파의 토대입니다.",
+    "more": "<b>전미분</b>: dz = fₓ dx + f_y dy 가 함수값 변화의 선형 근사입니다. 접평면은 두 편도함수(∂x·∂y 방향 기울기)가 만드는 평면이죠. ‘미분가능 = 국소적으로 평면’이 다변수판입니다. 화면의 근사·실제·오차는 모두 실제 계산값으로, 거리가 멀수록 오차가 커집니다.",
+    "more_en": "Just as a curve is approximated by its tangent line, a surface is approximated near a point by its tangent plane: z ≈ f + fₓ·Δx + f_y·Δy. Differentiability means 'locally flat' — the basis of gradient descent and error propagation."
+  },
+  "calc14_01_jacobian": {
+    "ch": "미적분 14장 · 심화",
+    "sec": "심화 · 야코비안",
+    "title": "좌표를 바꾸면 넓이가 변한다 — 야코비안",
+    "narr": "적분에서 변수를 바꿀 때(예: 직교→극좌표), 단순히 식만 바꾸면 안 됩니다 — <b>넓이 자체가 늘거나 줄기</b> 때문이죠. 그 ‘넓이 배율’이 <b>야코비안 |J|</b>입니다. 슬라이더로 변환을 바꿔 보세요: 흐린 단위 정사각형이 보라 평행사변형으로 변하며, 그 넓이가 정확히 <b>|J| = |ad − bc|</b>가 됩니다. 그래서 이중적분에서 <b>dA → |J| du dv</b>로 바꿔야 합니다. 14장에서 극좌표 넓이요소에 r이 곱해진 것(dA = r dr dθ)도 바로 극좌표 변환의 야코비안이 r이기 때문입니다.",
+    "more": "<b>J = 변환의 도함수 행렬식</b>: 변환 (u,v)→(x,y)의 ∂(x,y)/∂(u,v) 행렬식이 작은 넓이의 배율입니다. 극좌표 x=r cosθ, y=r sinθ의 야코비안은 r. 선형변환이면 |J|=|det|로 일정하죠(행렬식=부피배율, 12장 삼중적과 연결). 화면의 넓이배율은 실제 행렬식 값입니다.",
+    "more_en": "Changing variables in an integral rescales area by the Jacobian |J| (the determinant of the transformation's derivative). So dA → |J| du dv. The factor r in polar area (dA = r dr dθ) is exactly the polar Jacobian."
+  },
+  "calc15_03_conservative": {
+    "ch": "미적분 15장 · 심화",
+    "sec": "심화 · 보존장 판정",
+    "title": "회전이 0이면 퍼텐셜이 있다",
+    "narr": "어떤 벡터장이 ‘보존장’(경로 무관·퍼텐셜 존재)인지 어떻게 알까요? 간단한 시험이 있습니다: <b>회전(curl)이 0인지</b> 보면 됩니다 — <b>∂Q/∂x = ∂P/∂y</b>. 슬라이더로 장을 바꿔 보세요. 발산형 장 (2x, 2y)는 curl=0이라 <b>보존장</b>(퍼텐셜 x²+y², 등위선과 수직으로 흐름), 회전장 (−y, x)는 curl=2≠0이라 <b>비보존</b>(빙빙 돌아 폐곡선 일이 0이 아님)입니다. ‘소용돌이가 없으면 언덕(퍼텐셜)을 오르내리는 흐름’이라는 직관 — 중력·정전기장이 보존장인 이유이자, 에너지 보존의 수학적 뿌리입니다.",
+    "more": "<b>curl=0 ⇔ 보존(단순연결 영역)</b>: 보존장 F=∇f는 폐곡선 적분이 0이고 선적분이 경로 무관입니다(15장 보존장). 평면에서 ∂Q/∂x − ∂P/∂y = 0이 그 판정이죠(곧 그린/스토크스의 핵심). 화면의 curl은 편도함수로 실제 계산한 값으로, 보존장에서 0이 됩니다.",
+    "more_en": "A field is conservative (path-independent, has a potential) exactly when its curl is zero: ∂Q/∂x = ∂P/∂y. The field (2x,2y) has curl 0 (potential x²+y²); the rotational field (−y,x) has curl 2 ≠ 0. This is the math root of energy conservation."
+  }
 }
