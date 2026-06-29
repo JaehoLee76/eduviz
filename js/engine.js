@@ -339,6 +339,7 @@
           var chk=function(){ branchPageEl.classList.toggle('scrollable', branchPageEl.scrollHeight > branchPageEl.clientHeight + 8); };
           requestAnimationFrame(chk); setTimeout(chk, 180);   // SVG·이미지 레이아웃 후 재확인
         } else branchPageEl.classList.remove('scrollable'); } }
+    resize();   // 장면 종류(시네마틱·page·viz)에 따라 #stage 높이가 달라질 수 있으므로 enter 전 캔버스 치수 재계산
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
     animPaused=false; animFrame=0; _resetProbe(); updatePlayUI();   // 새 장면은 처음부터 재생 + 정적 감지 리셋
