@@ -12,6 +12,12 @@
     ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; for(var i=-h;i<h;i+=8){ ctx.beginPath(); ctx.moveTo(x,y+i); ctx.lineTo(x-8,y+i+8); ctx.stroke(); } }
   function massBox(E,cx,cy,s,col,label){ var ctx=E.ctx; ctx.fillStyle=col; ctx.globalAlpha=0.22; ctx.fillRect(cx-s/2,cy-s/2,s,s); ctx.globalAlpha=1;
     ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(cx-s/2,cy-s/2,s,s); if(label){ ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label,cx,cy+4); } }
+  // 천장(매단 용수철 지지) — 수평 빗금 바
+  function ceiling(E,cx,y,hw){ var ctx=E.ctx; ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-hw,y); ctx.lineTo(cx+hw,y); ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; for(var i=-hw;i<hw;i+=8){ ctx.beginPath(); ctx.moveTo(cx+i,y); ctx.lineTo(cx+i-8,y-8); ctx.stroke(); } }
+  // 세로 코일(천장 y1 → 추 y2)
+  function vcoil(E,x,y1,y2,n,col){ var ctx=E.ctx, dy=(y2-y1)/n; ctx.strokeStyle=col||DIM; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,y1); for(var i=1;i<n;i++) ctx.lineTo(x+(i%2?-9:9), y1+dy*(i-0.5)); ctx.lineTo(x,y2); ctx.stroke(); }
   function tgraph(E,gx0,gy0,gw,gh,hist,amp,col){ var ctx=E.ctx, half=gh*0.5;
     // ── 축을 뚜렷하게(흰색·굵게·화살촉) ──
     ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2.5; ctx.lineCap='round';
@@ -40,14 +46,15 @@
     tap:function(E){ this.s.b.x=REST+2; this.s.b.vx=0; this.s.hist=[]; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, w=s.w, b=s.b, W=E.W, H=E.H, ctx=E.ctx;
       w.step(1/60,6);
-      var ox=W*0.10, sc=(W*0.46)/6, baseY=H*0.34;
-      function X(x){ return ox+x*sc; }
-      wall(E,X(0),baseY,42);
-      coil(E,X(0),baseY,X(b.x)-14,16,DIM);
-      massBox(E,X(b.x),baseY,26,GRN,s.m+'kg');
-      // 평형선
-      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),baseY+24); ctx.lineTo(X(REST),baseY+44); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('평형', X(REST), baseY+58);
+      // 천장에 매달린 용수철 — 위아래(세로)로 진동 (tapHint 아래에 배치)
+      var cx=W*0.42, oy=H*0.30, sc=(H*0.26)/6;
+      function Y(x){ return oy+x*sc; }
+      ceiling(E,cx,oy,46);
+      vcoil(E,cx,oy,Y(b.x)-13,16,DIM);
+      massBox(E,cx,Y(b.x),26,GRN,s.m+'kg');
+      // 평형선(수평 점선)
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(cx-38,Y(REST)); ctx.lineTo(cx+38,Y(REST)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('평형', cx+44, Y(REST)+4);
       // x-t 그래프
       if(!E.frozen){ s.hist.push(b.x-REST); if(s.hist.length>180) s.hist.shift(); }
       tgraph(E, W*0.10, H*0.74, W*0.80, H*0.26, s.hist, 2.3, BLU);
@@ -72,14 +79,16 @@
     tap:function(E){ var s=this.s; s.a.x=REST+2; s.a.vx=0; s.b.x=REST+2; s.b.vx=0; E.blip(360,0.12); },
     draw:function(E){ var s=this.s, w=s.w, W=E.W, H=E.H, ctx=E.ctx;
       w.step(1/60,6);
-      var ox=W*0.10, sc=(W*0.5)/6;
-      function X(x){ return ox+x*sc; }
-      [[s.a,H*0.32,GRN,s.m1,'위 m₁='+s.m1],[s.b,H*0.56,ORA,s.m2,'아래 m₂='+s.m2]].forEach(function(o){ var b=o[0], y=o[1];
-        wall(E,X(0),y,32); coil(E,X(0),y,X(b.x)-14,16,DIM); massBox(E,X(b.x),y,24,o[2],o[3]+'kg');
-        ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),y-22); ctx.lineTo(X(REST),y+22); ctx.stroke(); ctx.setLineDash([]); });
+      // 천장에 나란히 매단 두 용수철 — 같은 폭으로 당겨 놓고 주기 비교 (tapHint 아래에 배치)
+      var oy=H*0.30, sc=(H*0.38)/6;
+      function Y(x){ return oy+x*sc; }
+      [[s.a, W*0.34, GRN, s.m1],[s.b, W*0.62, ORA, s.m2]].forEach(function(o){ var b=o[0], cx=o[1];
+        ceiling(E,cx,oy,32); vcoil(E,cx,oy,Y(b.x)-12,16,DIM); massBox(E,cx,Y(b.x),26,o[2],o[3]+'kg');
+        ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(cx-26,Y(REST)); ctx.lineTo(cx+26,Y(REST)); ctx.stroke(); ctx.setLineDash([]); });
       var T1=2*Math.PI*Math.sqrt(s.m1/s.k), T2=2*Math.PI*Math.sqrt(s.m2/s.k);
-      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('T₁ = '+T1.toFixed(2)+' s', W*0.70, H*0.32);
-      ctx.fillStyle=ORA; ctx.fillText('T₂ = '+T2.toFixed(2)+' s', W*0.70, H*0.56);
+      ctx.font='600 16px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=GRN; ctx.fillText('m₁ = '+s.m1+'kg · T₁ = '+T1.toFixed(2)+' s', W*0.34, H*0.72);
+      ctx.fillStyle=ORA; ctx.fillText('m₂ = '+s.m2+'kg · T₂ = '+T2.toFixed(2)+' s', W*0.62, H*0.72);
       E.tapHint(W/2, H*0.90, '화면 탭 = 다시 당기기', true);
       E.big('T = 2π√(m/k) — 무거울수록 느리게 진동', '같은 용수철(k 동일)이라도 질량이 클수록 주기가 깁니다(T∝√m). 두 추를 같은 폭으로 당겨 놓아도 무거운 쪽(주황)이 느리게 흔들립니다. 놀랍게도 <b>진폭은 주기에 영향을 주지 않습니다</b>(등시성) — 크게 당기든 작게 당기든 한 번 왕복 시간은 같습니다.'); }
   },
@@ -189,10 +198,10 @@
       w.step(1/60,6); var dx=b.x-REST;
       if(!E.frozen){ if(Math.abs(dx)<0.04 && Math.abs(b.vx)<0.04){ s.settle++; if(s.settle>90) this.build(); } else s.settle=0;
         s.hist.push(dx); if(s.hist.length>260) s.hist.shift(); }
-      // 용수철·질량
-      var ox=W*0.10, sc=(W*0.42)/6, baseY=H*0.30; function X(x){return ox+x*sc;}
-      wall(E,X(0),baseY,34); coil(E,X(0),baseY,X(b.x)-12,16,DIM); massBox(E,X(b.x),baseY,24,GRN,'');
-      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),baseY+18); ctx.lineTo(X(REST),baseY+34); ctx.stroke(); ctx.setLineDash([]);
+      // 천장에 매단 용수철 — 세로 진동(감쇠)
+      var cx=W*0.42, oy=H*0.31, sc=(H*0.19)/6; function Y(x){return oy+x*sc;}
+      ceiling(E,cx,oy,38); vcoil(E,cx,oy,Y(b.x)-12,16,DIM); massBox(E,cx,Y(b.x),24,GRN,'');
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(cx-30,Y(REST)); ctx.lineTo(cx+30,Y(REST)); ctx.stroke(); ctx.setLineDash([]);
       // x-t
       tgraph(E, W*0.10, H*0.72, W*0.82, H*0.30, s.hist, 2.3, BLU);
       ctx.fillStyle=BLU; ctx.font='700 30px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+14, H*0.72-H*0.15-12);

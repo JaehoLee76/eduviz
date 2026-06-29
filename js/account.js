@@ -45,6 +45,7 @@
     user: function(){ return user; },
     loggedIn: function(){ return !!user; },
     promptLogin: function(){ if(!user) onLoginClick(); },
+    openMemo: function(){ openMemo(); },   // M 단축키(engine.js)에서 호출
     getChat: function(sid){ return (sid && data.chat && data.chat[sid]) ? data.chat[sid].slice() : []; },
     addChat: function(sid, q, a){ if(!sid || !q) return; data.chat = data.chat || {};
       var arr = (data.chat[sid] || []).slice();
@@ -152,7 +153,7 @@
   function buildToolbar(){
     var bar=mk('div'); bar.id='eduToolbar';
     loginBtn=mk('button','acct-btn'); renderLogin();
-    memoBtn=mk('button','acct-btn','<span>📝 메모</span><span class="dot"></span>');
+    memoBtn=mk('button','acct-btn','<span>📝 메모</span> <kbd class="kc">M</kbd><span class="dot"></span>');
     bar.appendChild(loginBtn);
     if(document.getElementById('sceneNo')) bar.appendChild(memoBtn);   // 학습 페이지에서만 메모 버튼(홈엔 로그인만)
     // 툴바를 상단바(.topbar) 안 flex 항목으로 삽입 → 가운데 제목이 남는 공간에서 줄어듦(겹침 원천 차단). 없으면 body.

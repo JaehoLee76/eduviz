@@ -40,7 +40,7 @@
       +'body:not(.viz) #leftStack .guide.band-scroll::after{content:"⇅ Q·Z 스크롤"!important;position:absolute!important;right:4px!important;top:-25px!important;font-size:11px!important;font-weight:700!important;color:var(--accent-light,#7ab8ff)!important;background:rgba(8,10,16,.82)!important;border:1px solid currentColor!important;border-radius:7px!important;padding:1px 8px!important;pointer-events:none!important;opacity:.92!important;letter-spacing:.03em!important;}'
       // 나브 버튼(심화학습·이전·다음) 크고 굵게 — 화살표 잘 보이게(라운드 사각형의 60%+ 차지)
       +'.nav .btn{font-size:18px!important;font-weight:700!important;padding:9px 18px!important;border-radius:12px!important;}'
-      +'.nav .btn .nav-ar{display:inline-block!important;font-size:1.55em!important;font-weight:800!important;line-height:.5!important;vertical-align:-2px!important;margin:0 1px!important;}'
+      +'.nav .btn .nav-ar{display:inline-block!important;font-size:2.7em!important;font-weight:900!important;line-height:.4!important;vertical-align:-4px!important;margin:0 3px!important;}'
       +'.nav .btn .kc{font-size:10.5px!important;opacity:.6!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var sw=(global.screen&&global.screen.width)||global.innerWidth;
@@ -155,7 +155,7 @@
       keyHintEl.innerHTML=h; keyHintEl.style.display='flex'; }
     else keyHintEl.style.display='none'; }
   // 슬라이더마다 다른 키쌍(감소/증가) — 3개 이상도 각자 단축키
-  var SLIDER_KEYS=[['KeyA','KeyD','A','D'],['KeyF','KeyH','F','H'],['KeyJ','KeyL','J','L'],['KeyB','KeyN','B','N']];
+  var SLIDER_KEYS=[['KeyA','KeyD','A','D'],['KeyF','KeyG','F','G'],['KeyJ','KeyL','J','L'],['KeyB','KeyN','B','N']];   // 둘째 슬라이더 F/G (H는 홈 단축키로 비워둠)
   function controls(html){ if(!controlsEl) return; controlsEl.innerHTML=html||''; controlsEl.style.display=html?'flex':'none';
     var rs=controlsEl.querySelectorAll('input[type=range]'); if(!rs.length) return;
     var sliders=[].slice.call(rs), multi=sliders.length>1;
@@ -649,14 +649,18 @@
     // nav
     var nb=document.getElementById('next'), pb=document.getElementById('prev');
     if(nb)nb.onclick=next; if(pb)pb.onclick=prev;
+    var hl=document.querySelector('.home-link'); if(hl && hl.innerHTML.indexOf('class="kc"')<0) hl.innerHTML='← 홈'+kc('H');   // 홈 버튼 단축키 표시
     // 키보드 ← → 로 이전·다음 (슬라이더/입력 포커스 시엔 그쪽이 우선)
     global.addEventListener('keydown',function(e){
       var t=e.target;
       if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;  // 텍스트 입력 중엔 무시(버튼 포커스는 막지 않음)
-      if(document.querySelector('.cw-ov.open')) return;   // AI 채팅 열려 있으면 무시
+      if(document.querySelector('.cw-ov.open')||document.querySelector('.acct-ov.open')) return;   // AI 채팅·메모 패널 열려 있으면 무시
       // ★ e.code 사용: 한글 입력기(IME)·자판배열과 무관하게 물리 키 인식(KeyD 등). e.key는 한글모드서 'ㅇ'로 들어와 실패.
       var s=SM.scenes[SM.cur], k=e.key, c=e.code, space=(k===' '||c==='Space'), enter=(k==='Enter');
       var viz=!!(s&&s._viz&&_steps);
+      // 전역 단축키(모든 장면): H = 홈 · M = 메모
+      if(c==='KeyH'){ var hl=document.querySelector('.home-link'); location.href=(hl&&hl.getAttribute('href'))||'home.html'; e.preventDefault(); return; }
+      if(c==='KeyM'){ if(global.EduvizStore&&EduvizStore.openMemo) EduvizStore.openMemo(); e.preventDefault(); return; }
       if(k==='ArrowRight'){ next(); e.preventDefault(); return; }
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
       // 인트로(시네마틱): Space/Enter = 건너뛰기(엔드카드) / 끝났으면 학습 시작(다음)
