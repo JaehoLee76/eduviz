@@ -26,7 +26,7 @@
   "phys23_03": {
     "ch": "물리학 제14장 가우스 법칙",
     "narr": "가우스 법칙의 초능력은 이겁니다 — <b>대칭만 있으면 복잡한 적분 없이 전기장을 단숨에</b> 구합니다. 균일하게 대전된 <b>구껍질</b>을 봅시다. 바깥(r>R)에서는 가우스면이 전체 전하 Q를 감싸므로, 마치 모든 전하가 중심에 모인 점전하처럼 <b>E = kQ/r²</b>입니다. 그런데 껍질 <b>안쪽(r<R)</b>은 충격적이에요 — 가우스면 안에 갇힌 전하가 <b>0</b>이라, <b>E = 0</b>! 껍질이 아무리 강하게 대전돼 있어도 그 속은 완벽한 무풍지대입니다. 화면에서 측정 거리 r을 안팎으로 옮기며 E(r) 곡선이 R에서 뚝 떨어져 0이 되는 걸 보세요. 이 '내부 0'이 다음 장면의 도체 차폐로 이어집니다.",
-    "more": "<b>가우스 응용(구 대칭)</b>: 대전 구껍질 — 외부(r>R) E=kQ/r²(점전하처럼), 내부(r<R) <b>E=0</b>(갇힌 전하 0). 균일 대전 구(속찬 공)는 내부 E∝r. 적분 없이 대칭+가우스로 유도. 원통(선전하 E∝1/r)·평면에도 같은 방법 적용.",
+    "more": "<b>가우스 응용(구 대칭)</b>: 대전 구껍질 — 외부(r>R) E=kQ/r²(점전하처럼), 내부(r<R) <b>E=0</b>(갇힌 전하 0). 균일 대전 구(속이 꽉 찬 공)는 내부 E∝r. 적분 없이 대칭+가우스로 유도. 원통(선전하 E∝1/r)·평면에도 같은 방법 적용.",
     "more_en": "<b>Gauss (spherical symmetry)</b>: a charged shell — outside (r>R) E=kQ/r² (like a point charge), inside (r<R) <b>E=0</b> (no enclosed charge). A uniformly charged solid sphere has E∝r inside. Derived without integration via symmetry.",
     "problem": {
       "q": "균일하게 대전된 구껍질 내부(r<R)의 전기장은?",

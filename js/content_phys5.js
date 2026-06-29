@@ -172,8 +172,8 @@
       var self=this; E.controls('<div class="ctrl"><label>경사각 θ (도)</label><input type="range" id="ag" min="10" max="40" step="5" value="25"><output id="ago">25</output></div>');
       E.bind('#ag','input',function(e){ self.s.ang=+e.target.value; self.s.d=[0,0,0]; self.s.v=[0,0,0]; document.getElementById('ago').textContent=e.target.value; E.blip(360,0.07); }); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, g=9.8, th=s.ang*Math.PI/180;
-      // I/mr² : 속찬구 0.4, 원판 0.5, 고리 1.0 → a = g sinθ/(1+I/mr²)
-      var objs=[['속찬 구',0.4,GRN],['원판',0.5,ORA],['고리',1.0,PNK]];
+      // I/mr² : 속이 꽉 찬 구 0.4, 원판 0.5, 고리 1.0 → a = g sinθ/(1+I/mr²)
+      var objs=[['속이 꽉 찬 구',0.4,GRN],['원판',0.5,ORA],['고리',1.0,PNK]];
       var dx=Math.cos(th), dy=Math.sin(th), nx=-Math.sin(th), ny=Math.cos(th);   // 진행·법선 방향
       var ox=W*0.14, oy=H*0.42, L=Math.min(W*0.52,H*0.40), laneV=Math.min(H*0.10,58), R=11, fin=L/40;
       objs.forEach(function(o,i){
@@ -185,8 +185,8 @@
         ctx.strokeStyle=o[2]; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
         if(o[1]<0.6){ ctx.fillStyle=o[2]; ctx.globalAlpha=0.28; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill(); ctx.globalAlpha=1; }
         ctx.fillStyle=o[2]; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText(o[0]+' (a='+(g*Math.sin(th)/(1+o[1])).toFixed(2)+')'+(done?'  ✓ 도착':''), lx-2, ly-7); });
-      E.tapHint(W/2, H*0.92, '경사각을 바꿔 보세요 — 속찬 구가 항상 1등', true);
-      E.big('굴림운동: a = g·sinθ/(1+I/mr²) — 관성모멘트가 순위를 정함', '경사면을 굴러 내려오는 물체의 가속도는 <b>질량도 반지름도 상관없이</b> 오직 <b>I/mr²(질량을 어디 뒀느냐)</b>로 정해집니다 — a = g sinθ/(1+I/mr²). 질량이 한가운데 모인 <b>속찬 구</b>(I/mr²=0.4)가 1등, 원판(0.5)이 그다음, 무게가 가장자리로 빠진 <b>고리</b>(1.0)가 꼴찌. 꼭대기의 위치에너지가 내려오는 병진운동E와 빙글빙글 회전운동E로 나뉘는데, I가 클수록 회전 쪽에 더 많이 새 나가 앞으로 나아가는 속도가 처진 거죠. 갈릴레오 빗면 실험의 회전 버전입니다.'); }
+      E.tapHint(W/2, H*0.92, '경사각을 바꿔 보세요 — 속이 꽉 찬 구가 항상 1등', true);
+      E.big('굴림운동: a = g·sinθ/(1+I/mr²) — 관성모멘트가 순위를 정함', '경사면을 굴러 내려오는 물체의 가속도는 <b>질량도 반지름도 상관없이</b> 오직 <b>I/mr²(질량을 어디 뒀느냐)</b>로 정해집니다 — a = g sinθ/(1+I/mr²). 질량이 한가운데 모인 <b>속이 꽉 찬 구</b>(I/mr²=0.4)가 1등, 원판(0.5)이 그다음, 무게가 가장자리로 빠진 <b>고리</b>(1.0)가 꼴찌. 꼭대기의 위치에너지가 내려오는 병진운동E와 빙글빙글 회전운동E로 나뉘는데, I가 클수록 회전 쪽에 더 많이 새 나가 앞으로 나아가는 속도가 처진 거죠. 갈릴레오 빗면 실험의 회전 버전입니다.'); }
   },
 
   // ─── 심화: 토크 평형 (정역학·시소) ───
