@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="240" height="290">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f2024"/>
+      <stop offset="1" stop-color="#080d11"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#2dd4d8" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#2dd4d8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="0.6"/></filter>
+  </defs>
+  <rect width="240" height="290" rx="16" fill="url(#bg)"/>
+  <rect width="240" height="290" rx="16" fill="url(#glow)"/>
+  <!-- 어깨/가슴(흉상) -->
+  <path d="M40 290 C44 232 78 214 120 214 C162 214 196 232 200 290 Z" fill="#13282d" stroke="#2bbec6" stroke-width="1.2" stroke-opacity="0.5"/>
+  <!-- 목 -->
+  <path d="M104 206 L104 224 Q120 232 136 224 L136 206 Z" fill="#163136" stroke="#2bbec6" stroke-opacity="0.4" stroke-width="1"/>
+  <!-- 두상(머리) 윤곽 -->
+  <path d="M120 36 C158 36 178 66 178 104 C178 140 158 176 120 184 C82 176 62 140 62 104 C62 66 82 36 120 36 Z"
+        fill="#11252a" stroke="#3fd6dc" stroke-width="1.6" stroke-opacity="0.75"/>
+  <!-- 안경(힌턴 특징 암시) -->
+  <g stroke="#7fe9ee" stroke-width="1.6" fill="none" opacity="0.7">
+    <rect x="84" y="98" width="22" height="15" rx="4"/>
+    <rect x="116" y="98" width="22" height="15" rx="4"/>
+    <line x1="106" y1="104" x2="116" y2="104"/>
+  </g>
+  <!-- 머릿속 신경망: 3층 노드 + 연결선 -->
+  <g stroke="#2dd4d8" stroke-width="1" stroke-opacity="0.55">
+    <!-- 연결선(입력→은닉→출력) -->
+    <line x1="92" y1="60" x2="120" y2="56"/><line x1="92" y1="60" x2="120" y2="78"/>
+    <line x1="92" y1="84" x2="120" y2="56"/><line x1="92" y1="84" x2="120" y2="78"/>
+    <line x1="148" y1="62" x2="120" y2="56"/><line x1="148" y1="62" x2="120" y2="78"/>
+    <line x1="148" y1="84" x2="120" y2="56"/><line x1="148" y1="84" x2="120" y2="78"/>
+    <line x1="120" y1="56" x2="120" y2="146"/><line x1="120" y1="78" x2="120" y2="146"/>
+    <line x1="120" y1="56" x2="100" y2="150"/><line x1="120" y1="78" x2="140" y2="150"/>
+  </g>
+  <g fill="#0a1417" stroke="#5fe3e8" stroke-width="1.5">
+    <circle cx="92" cy="60" r="5.5"/><circle cx="92" cy="84" r="5.5"/>
+    <circle cx="148" cy="62" r="5.5"/><circle cx="148" cy="84" r="5.5"/>
+    <circle cx="120" cy="56" r="6.5" fill="#123036"/><circle cx="120" cy="78" r="6.5" fill="#123036"/>
+    <circle cx="120" cy="146" r="7" fill="#15464c"/>
+    <circle cx="100" cy="150" r="5"/><circle cx="140" cy="150" r="5"/>
+  </g>
+  <!-- 중앙 발화 스파크 -->
+  <circle cx="120" cy="146" r="3" fill="#9bf0f4"/>
+</svg>
