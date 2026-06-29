@@ -12,10 +12,17 @@
     ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; for(var i=-h;i<h;i+=8){ ctx.beginPath(); ctx.moveTo(x,y+i); ctx.lineTo(x-8,y+i+8); ctx.stroke(); } }
   function massBox(E,cx,cy,s,col,label){ var ctx=E.ctx; ctx.fillStyle=col; ctx.globalAlpha=0.22; ctx.fillRect(cx-s/2,cy-s/2,s,s); ctx.globalAlpha=1;
     ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(cx-s/2,cy-s/2,s,s); if(label){ ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label,cx,cy+4); } }
-  function tgraph(E,gx0,gy0,gw,gh,hist,amp,col){ var ctx=E.ctx;
-    ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0+gw,gy0); ctx.stroke();
-    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
-    hist.forEach(function(v,i){ var x=gx0+gw*i/hist.length, y=gy0-(v/amp)*gh*0.5; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke(); }
+  function tgraph(E,gx0,gy0,gw,gh,hist,amp,col){ var ctx=E.ctx, half=gh*0.5;
+    // ── 축을 뚜렷하게(흰색·굵게·화살촉) ──
+    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2.5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0+gw+24,gy0); ctx.stroke();                 // X축(시간)
+    ctx.beginPath(); ctx.moveTo(gx0,gy0+half); ctx.lineTo(gx0,gy0-half-24); ctx.stroke();          // Y축(변위)
+    ctx.lineCap='butt'; ctx.fillStyle='rgba(255,255,255,0.6)';
+    ctx.beginPath(); ctx.moveTo(gx0+gw+24,gy0); ctx.lineTo(gx0+gw+12,gy0-7); ctx.lineTo(gx0+gw+12,gy0+7); ctx.closePath(); ctx.fill();   // X 화살촉
+    ctx.beginPath(); ctx.moveTo(gx0,gy0-half-24); ctx.lineTo(gx0-7,gy0-half-12); ctx.lineTo(gx0+7,gy0-half-12); ctx.closePath(); ctx.fill();   // Y 화살촉
+    // ── 진동 곡선 ──
+    ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.beginPath();
+    hist.forEach(function(v,i){ var x=gx0+gw*i/hist.length, y=gy0-(v/amp)*half; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke(); }
 
   var scenes=[
 
@@ -44,7 +51,8 @@
       // x-t 그래프
       if(!E.frozen){ s.hist.push(b.x-REST); if(s.hist.length>180) s.hist.shift(); }
       tgraph(E, W*0.10, H*0.74, W*0.80, H*0.26, s.hist, 2.3, BLU);
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+4, H*0.74-H*0.13+4); ctx.fillStyle=DIM; ctx.textAlign='right'; ctx.fillText('시간 t →', W*0.90, H*0.74+14);
+      ctx.fillStyle=BLU; ctx.font='700 30px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+14, H*0.74-H*0.13-12);
+      ctx.fillStyle='#dfeefb'; ctx.textAlign='right'; ctx.fillText('시간 t', W-14, H*0.74+12);
       var w0=Math.sqrt(s.k/s.m), T=2*Math.PI/w0;
       E.tapHint(W/2, H*0.95, '화면 탭 = 다시 당기기', true);
       E.big('T = 2π√(m/k) = '+T.toFixed(2)+' s   (ω = '+w0.toFixed(2)+' rad/s)', '용수철은 평형에서 벗어난 만큼 되돌리는 힘 F=−kx를 줍니다(후크). 멀면 세게, 가까우면 약하게 — 이 힘 하나만 있으면 물체는 저절로 매끄러운 <b>사인 곡선</b>(단순조화운동)을 그리며 왕복합니다. k가 클수록(빳빳), m이 작을수록 빨리 떱니다.'); }
@@ -187,7 +195,8 @@
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(X(REST),baseY+18); ctx.lineTo(X(REST),baseY+34); ctx.stroke(); ctx.setLineDash([]);
       // x-t
       tgraph(E, W*0.10, H*0.72, W*0.82, H*0.30, s.hist, 2.3, BLU);
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+4, H*0.72-H*0.15+4); ctx.fillStyle=DIM; ctx.textAlign='right'; ctx.fillText('시간 t →', W*0.92, H*0.72+14);
+      ctx.fillStyle=BLU; ctx.font='700 30px sans-serif'; ctx.textAlign='left'; ctx.fillText('변위 x', W*0.10+14, H*0.72-H*0.15-12);
+      ctx.fillStyle='#dfeefb'; ctx.textAlign='right'; ctx.fillText('시간 t', W-14, H*0.72+12);
       var ccrit=2*Math.sqrt(s.k*s.m), regime = s.c<ccrit-0.3?'미흡감쇠(진동하며 잦아듦)':(s.c>ccrit+0.3?'과대감쇠(천천히 복귀)':'임계감쇠(가장 빠른 복귀)');
       E.tapHint(W/2, H*0.95, '감쇠 c를 바꿔 세 가지 거동을 보세요', true);
       E.big('감쇠진동 — '+regime+' (임계 c_c=2√(km)='+ccrit.toFixed(1)+')', '저항(−cv)이 있으면 진동은 점점 잦아듭니다. <b>미흡감쇠</b>(c 작음): 진폭이 지수적으로 줄며 진동(자동차 낡은 쇼바). <b>임계감쇠</b>(c=2√(km)): 진동 없이 가장 빠르게 평형 복귀 — 자동차 서스펜션·계측기 바늘의 목표. <b>과대감쇠</b>(c 큼): 진동 없이 느리게 복귀(문 닫힘 장치). 같은 용수철도 감쇠에 따라 거동이 완전히 달라집니다.'); }
