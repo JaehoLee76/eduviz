@@ -161,10 +161,13 @@
         ctx.fillStyle=GRN; ctx.font='600 15px ui-monospace,Menlo,monospace'; ctx.fillText('"'+out+'"   (자식 speak가 부모 것을 덮음)', gx-18, oy+33);
       } else {
         ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('super() — 부모의 기능을 빌려 쓰기', gx-30, oy);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('※ 위 Cat은 __init__이 없어 부모 것을 그대로 씁니다(그래서 super 불필요).', gx-30, oy+20);
+        ctx.fillText('   name 말고 색깔 같은 새 속성을 더하고 싶을 때만 이렇게 씁니다:', gx-30, oy+37);
         ctx.fillStyle=DIM; ctx.font='12.5px ui-monospace,Menlo,monospace';
-        ctx.fillText('def __init__(self, name, color):', gx-30, oy+22);
-        ctx.fillText('    super().__init__(name)  # 부모 init 재사용', gx-30, oy+40);
-        ctx.fillText('    self.color = color      # 내 것만 추가', gx-30, oy+58);
+        ctx.fillText('def __init__(self, name, color):', gx-30, oy+59);
+        ctx.fillText('    super().__init__(name)  # 부모 init 재사용', gx-30, oy+77);
+        ctx.fillText('    self.color = color      # 내 것만 추가', gx-30, oy+95);
       }
       E.tapHint(W/2, H*0.93, '화면 탭 = 다음 (상속 관계 → 오버라이드 → super())', true);
       E.big('상속 — 코드를 물려받아 확장하기', '같은 코드를 두 번 쓰지 않으려면, 공통된 것(name·기본 동작)을 부모 Animal에 모으고 Cat·Dog가 물려받게 합니다. 자식이 같은 이름의 메서드를 다시 쓰면 ‘오버라이드’ — 부모 것을 덮어쓰죠. 부모의 기능이 여전히 필요하면 super()로 불러 재사용합니다. "is-a 관계"(고양이 is-a 동물)일 때 쓰는 도구입니다.'); }
