@@ -1,0 +1,50 @@
+{
+ "ai4_01": {
+  "ch": "인공지능 제4장 · 머신러닝",
+  "sec": "4.1 혼동행렬",
+  "title": "혼동행렬 — 모든 평가의 출발점",
+  "narr": "분류 모델이 잘하는지 어떻게 잴까요? 답은 의외로 간단합니다. 모델의 모든 판정을 단 <b>네 칸</b>으로 줄 세우면 됩니다. 실제로 양성인데 양성이라 맞혔으면 <b>TP(참 양성)</b>, 음성인데 음성이라 맞혔으면 <b>TN(참 음성)</b>. 틀린 경우는 둘 — 음성을 양성이라 우긴 <b>FP(거짓 양성, 헛다리)</b>, 양성을 음성이라 놓친 <b>FN(거짓 음성, 누락)</b>. 이 2×2 표가 <b>혼동행렬</b>입니다. 화면 왼쪽엔 20개 환자의 예측 확률이 점으로 흩어져 있고, <b>임계값 θ</b>를 옮기면 그 선을 기준으로 양·음 판정이 갈리며 네 칸이 통째로 다시 채워집니다. 모든 평가 지표는 바로 이 네 숫자에서 흘러나옵니다.",
+  "more": "<b>왜 정확도 하나로는 부족한가</b>: 100명 중 환자가 1명뿐인데 모델이 ‘전부 정상’이라고만 답해도 정확도는 99%입니다 — 하지만 정작 그 1명을 놓쳤죠. 이것이 <b>불균형 데이터</b>의 함정입니다. 그래서 혼동행렬의 네 칸을 따로 봐야, 헛다리(FP)와 누락(FN) 중 어느 쪽이 문제인지 드러납니다. 의료 진단은 FN(놓침)이 치명적이고, 스팸 차단은 FP(정상 메일 차단)가 거슬립니다. 자격시험에서 TP·FP·FN·TN의 정의와 배치(예측×실제)는 가장 기본이자 단골 출제 지점입니다.",
+  "more_en": "A confusion matrix summarizes a classifier with four counts: TP (correctly predicted positive), TN (correctly predicted negative), FP (false alarm), FN (miss). Moving the decision threshold θ reassigns predictions and changes all four. Accuracy alone misleads on imbalanced data — e.g., predicting 'all negative' scores 99% when only 1% are positive, yet catches none of them."
+ },
+ "ai4_02": {
+  "ch": "인공지능 제4장 · 머신러닝",
+  "sec": "4.2 정확도·정밀도·재현율·F1",
+  "title": "정확도·정밀도·재현율·F1",
+  "narr": "같은 혼동행렬을 네 각도에서 봅니다. <b>정확도(Acc)=(TP+TN)/전체</b>는 ‘전체 중 맞힌 비율’ — 직관적이지만 불균형엔 약합니다. <b>정밀도(Prec)=TP/(TP+FP)</b>는 ‘<b>양성이라 외친 것</b> 중 진짜 양성 비율’(헛다리를 얼마나 안 했나). <b>재현율(Rec)=TP/(TP+FN)</b>은 ‘<b>실제 양성</b> 중 잡아낸 비율’(놓치지 않았나). 그런데 둘은 <b>시소</b>입니다 — 임계값을 높여 신중하게 양성을 외치면 정밀도는 오르지만 그만큼 놓쳐 재현율이 떨어지죠. 그래서 둘의 <b>조화평균</b>인 <b>F1=2PR/(P+R)</b>로 균형을 한 숫자에 담습니다. 슬라이더로 θ를 움직이며 네 막대가 어떻게 엇갈리는지 보세요 — 화면의 모든 값은 위 혼동행렬에서 실제로 계산됩니다.",
+  "more": "<b>정밀도냐 재현율이냐 — 상황이 정한다</b>: 암 검진처럼 <b>놓치면 안 되는</b> 문제는 재현율을 우선합니다(FN을 줄여라). 반대로 스팸 필터·추천처럼 <b>잘못 띄우면 거슬리는</b> 문제는 정밀도를 우선하죠(FP를 줄여라). 둘을 동시에 다 올릴 수 없을 때 F1으로 절충하고, 한쪽을 더 중시하려면 가중치를 둔 <b>Fβ</b>(β&gt;1은 재현율 강조)를 씁니다. <b>왜 조화평균인가</b>: 산술평균과 달리 조화평균은 한쪽이 0에 가까우면 전체를 0 쪽으로 끌어내려, ‘둘 다 높아야만’ 높은 F1이 나옵니다. 정밀도·재현율의 정의와 트레이드오프는 자격시험 핵심 중의 핵심입니다.",
+  "more_en": "Four views of the same matrix: Accuracy=(TP+TN)/N, Precision=TP/(TP+FP) (of predicted positives, how many are right), Recall=TP/(TP+FN) (of actual positives, how many caught). Precision and recall trade off via the threshold, so F1=2PR/(P+R), their harmonic mean, balances both — high only when both are high. Prioritize recall when misses are costly (cancer screening), precision when false alarms hurt (spam filters)."
+ },
+ "ai4_03": {
+  "ch": "인공지능 제4장 · 머신러닝",
+  "sec": "4.3 ROC 곡선과 AUC",
+  "title": "ROC 곡선과 AUC",
+  "narr": "임계값을 하나로 못 박기 전에, 분류기의 <b>분리력 자체</b>를 보고 싶을 때가 있습니다. 임계값 θ를 <b>1에서 0으로 천천히 쓸어내리며</b> 매번 두 값을 찍습니다 — 가로축 <b>FPR=FP/(FP+TN)</b>(음성을 잘못 양성이라 한 비율), 세로축 <b>TPR=재현율</b>(양성을 제대로 잡은 비율). θ가 높을 땐 거의 아무도 양성이라 안 하니 좌하단(0,0)에서 출발해, θ를 낮추면 점이 우상단(1,1)으로 기어오릅니다. 이 궤적이 <b>ROC 곡선</b>입니다. 곡선이 <b>왼쪽 위 모서리에 바짝 붙을수록</b> 좋은 분류기죠. 그 아래 넓이가 <b>AUC</b> — 화면에선 사다리꼴로 실제 적분합니다. 슬라이더의 금색 점이 현재 θ가 곡선 위 어디인지 보여 줍니다.",
+  "more": "<b>AUC의 의미</b>: AUC=1.0이면 완벽히 분리, <b>0.5면 동전 던지기(대각선)</b>, 0.5 미만이면 거꾸로 맞히는 셈입니다. 멋진 해석 하나 — AUC는 ‘무작위로 고른 양성 샘플의 점수가 무작위 음성 샘플보다 높을 확률’과 정확히 같습니다. <b>임계값과 무관</b>하다는 게 핵심 장점이라, 운영 임계값을 정하기 전 모델끼리 비교할 때 즐겨 씁니다. 단 <b>심한 불균형</b>에서는 ROC가 낙관적으로 보일 수 있어 <b>정밀도-재현율(PR) 곡선</b>을 함께 봅니다. ROC·AUC의 축 정의(TPR vs FPR)와 AUC 해석은 자격시험 단골입니다.",
+  "more_en": "Sweep θ from 1 to 0 and plot (FPR, TPR) at each step: the path is the ROC curve, climbing from (0,0) to (1,1). The closer it hugs the top-left, the better. AUC = area under it (computed here by trapezoid integration): 1.0 is perfect, 0.5 is a coin flip. AUC also equals the probability a random positive scores above a random negative, and is threshold-independent — ideal for comparing models. On heavy imbalance, also check the precision-recall curve."
+ },
+ "ai4_04": {
+  "ch": "인공지능 제4장 · 머신러닝",
+  "sec": "4.4 편향-분산과 과적합",
+  "title": "편향-분산과 과적합",
+  "narr": "모델을 복잡하게 만들수록 좋을까요? 다항식 <b>차수(복잡도)</b>를 올려 보세요. 곡선이 점점 구불구불 휘어 <b>훈련 데이터를 완벽히 통과</b>합니다 — 훈련오차는 끝없이 줄죠(왼쪽 시안 곡선). 그런데 오른쪽 그래프의 <b>검증오차</b>는 <b>U자</b>를 그립니다 — 처음엔 내려가다 어느 순간부터 다시 치솟습니다. 모델이 데이터에 섞인 <b>잡음까지 외워</b> 버린 탓, 바로 <b>과적합</b>입니다. 반대로 차수가 너무 낮으면 본질도 못 잡는 <b>과소적합</b>이고요. 너무 단순한 모델은 <b>편향(bias)</b>이 커서 빗나가고, 너무 복잡한 모델은 <b>분산(variance)</b>이 커서 데이터가 조금만 바뀌어도 출렁입니다. 검증오차 U자의 <b>골짜기 바닥</b>이 둘의 합을 최소로 하는 최적 복잡도입니다.",
+  "more": "<b>편향-분산 분해</b>: 모델의 기대 오차 ≈ 편향² + 분산 + (줄일 수 없는) 잡음. 복잡도를 올리면 편향은 줄지만 분산이 커져, 둘의 합이 U자가 됩니다. <b>과적합을 막는 법</b>: ①데이터 늘리기 ②<b>정규화</b>(가중치에 벌점 — L2/Ridge, L1/Lasso) ③드롭아웃 ④<b>조기종료</b>(검증오차가 오르기 시작하면 학습 중단) ⑤<b>교차검증</b>으로 복잡도 고르기(다음 절). 신경망의 거대한 파라미터도 같은 원리로 다뤄집니다. 편향-분산 트레이드오프·과적합·정규화는 모든 AI 자격시험의 핵심 주제입니다.",
+  "more_en": "Raising model complexity drives training error toward zero, but validation error follows a U-curve — dropping, then climbing as the model memorizes noise (overfitting). Too simple means high bias (underfitting); too complex means high variance. Expected error ≈ bias² + variance + irreducible noise; the U's bottom minimizes their sum. Cures: more data, regularization (L1/L2), dropout, early stopping, cross-validation.",
+  "problem": {
+   "q": "차수를 올릴수록 훈련오차는 0에 가까워지는데 검증오차는 도리어 커진다면, 어떤 상태이며 어떻게 완화하는가?",
+   "solution": "<b>과적합(분산이 큰 상태)</b>입니다. 잡음까지 외워 일반화에 실패한 것. 완화: 모델 단순화(차수↓), 데이터 늘리기, <b>정규화</b>(L1/L2), 드롭아웃, <b>조기종료</b>, 교차검증으로 복잡도 선택."
+  }
+ },
+ "ai4_05": {
+  "ch": "인공지능 제4장 · 머신러닝",
+  "sec": "4.5 교차검증",
+  "title": "교차검증 (k-겹)",
+  "narr": "훈련/검증을 한 번만 나누면, 그 <b>한 번의 분할 운</b>에 성적이 휘둘립니다 — 우연히 쉬운 데이터가 검증에 몰리면 실제보다 잘해 보이죠. <b>k-겹 교차검증</b>은 이 운을 없앱니다. 데이터를 <b>k조각(폴드)</b>으로 나누고, 한 조각씩 돌아가며 <b>검증</b>으로 쓰고 나머지 k−1조각으로 학습합니다. 그렇게 k번 반복하면 <b>모든 데이터가 정확히 한 번씩 검증</b>에 쓰이고, k개의 성능을 <b>평균</b> 내 최종 점수로 삼습니다. 화면에서 슬라이더로 k를 바꾸면 띠가 k줄로 나뉘고, 각 줄에서 노란 폴드(검증)가 한 칸씩 이동하며 회차별 검증MSE와 그 평균이 실시간으로 다시 계산됩니다.",
+  "more": "<b>k는 어떻게 고르나</b>: k가 크면 매 회차 훈련 데이터가 많아 추정이 안정되지만 <b>학습을 k번</b> 해야 해 비용이 큽니다. 보통 <b>k=5나 10</b>을 씁니다. 극단적으로 <b>k=N</b>이면 한 샘플만 빼고 학습하는 <b>LOOCV(leave-one-out)</b>가 되죠 — 거의 모든 데이터를 학습에 쓰지만 N번 학습해 매우 비쌉니다. 분류에서 클래스 비율을 폴드마다 유지하면 <b>층화(stratified) k-겹</b>입니다. 핵심 용도는 <b>하이퍼파라미터 선택</b>(차수·학습률·정규화 강도)과 <b>일반화 성능의 정직한 추정</b> — 적은 데이터에서 특히 빛납니다. k-겹·LOOCV·층화 교차검증은 자격시험 단골 개념입니다.",
+  "more_en": "A single train/validation split gambles on one lucky partition. k-fold cross-validation splits data into k folds, using each fold once as validation while training on the other k−1, then averages the k scores — so every sample is validated exactly once. Larger k means more stable estimates but k trainings; k=5 or 10 is typical, k=N is leave-one-out (LOOCV). Used to pick hyperparameters and honestly estimate generalization, especially with little data.",
+  "problem": {
+   "q": "데이터가 적을 때 한 번의 훈련/검증 분할보다 k-겹 교차검증이 나은 이유는?",
+   "solution": "한 번 분할은 <b>그 분할의 운</b>에 성능 추정이 좌우됩니다. k-겹은 모든 데이터를 돌아가며 검증에 한 번씩 써서 k개 점수를 평균하므로, 분할 편차를 줄인 <b>더 안정적이고 정직한 추정</b>을 줍니다. (극단은 k=N의 LOOCV.)"
+  }
+ }
+}
