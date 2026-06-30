@@ -22,7 +22,7 @@
       // 좌상단 세로 스택: 홈(상단바 ~58까지) 아래에 장면번호·브레드크럼을 내려 겹침 방지(툴바로 상단바가 커진 만큼).
       +'.scene-no{top:64px!important;}#crumb,.crumb{top:90px!important;}'
       // 하단 좌측 = [더알아보기 토글 → 기본설명 띠] 세로 스택(중앙정렬 밴드). 토글이 띠의 왼쪽 위에 붙음. 슬라이더는 그 위. 재생바 중·내비 우. viz 제외.
-      +'body:not(.viz) #controls,body:not(.viz) #keyhint{bottom:232px!important;}'
+      +'body:not(.viz) #controls,body:not(.viz) #keyhint{bottom:206px!important;}'
       +'body:not(.viz) #leftStack{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:92px!important;transform:translateX(-50%)!important;width:min(1180px,92vw)!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important;pointer-events:none!important;}'
       +'body:not(.viz) #leftStack>*{pointer-events:auto!important;}'
       +'body:not(.viz) #study{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:none!important;margin:0!important;}'
@@ -43,7 +43,7 @@
       +'.nav .btn .nav-ar{display:inline-block!important;font-size:2.7em!important;font-weight:900!important;line-height:.4!important;vertical-align:-4px!important;margin:0 3px!important;}'
       +'.nav .btn .kc{font-size:10.5px!important;opacity:.6!important;}'
       // 탭 힌트: 정적 행(펄스 알약 대체) — 컨트롤 박스 안, 슬라이더 밑 줄로
-      +'#tapHintRow{flex-basis:100%!important;width:auto!important;max-width:100%!important;margin:3px auto 0!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;flex-wrap:wrap!important;background:rgba(255,255,255,0.05)!important;border:1px solid var(--accent,rgba(255,255,255,0.18))!important;border-radius:11px!important;padding:7px 16px!important;font-size:13.5px!important;font-weight:600!important;color:var(--accent-light,#e8e6dd)!important;text-align:center!important;pointer-events:none!important;box-shadow:0 2px 10px rgba(0,0,0,.3)!important;}'
+      +'#tapHintRow{flex-basis:100%!important;width:auto!important;max-width:100%!important;margin:3px auto 0!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;flex-wrap:wrap!important;background:rgba(255,255,255,0.045)!important;border:1px solid transparent!important;border-radius:11px!important;padding:6px 16px!important;font-size:13.5px!important;font-weight:600!important;color:var(--accent-light,#e8e6dd)!important;text-align:center!important;pointer-events:none!important;}'
       +'#tapHintRow .thk{display:inline-flex!important;align-items:center!important;gap:5px!important;color:var(--accent-light,#cfcdc6)!important;font-weight:500!important;}'
       +'#tapHintRow kbd{display:inline-block!important;min-width:15px!important;text-align:center!important;font-family:ui-monospace,monospace!important;font-size:11px!important;font-weight:700!important;border:1px solid currentColor!important;border-radius:5px!important;padding:1px 5px!important;}';
     document.head.appendChild(st); }
@@ -64,7 +64,10 @@
     var bn=document.getElementById('bignum');
     if(!(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none')) return;   // 제목 아직 없음 → 이전 상태 유지(전환 깜빡임 방지)
     var r=bn.getBoundingClientRect(); if(r.height<=2) return;
-    var winH=global.innerHeight||H, bot=(winH>820?272:winH>680?244:222);   // 하단 예약 = 컨트롤+힌트행(슬라이더 밑)+설명창+재생바까지 캔버스 밖으로
+    var winH=global.innerHeight||H, baseBot=(winH>820?150:winH>680?134:120);   // 최소 예약(재생바·나브)
+    // 컨트롤 박스(슬라이더+힌트행)와 설명창 띠의 실제 상단을 측정해 그 위까지 비움 → 시각화가 안 가려짐(슬라이더·논슬라이더 자동 대응)
+    function topFromBot(id){ var el=document.getElementById(id); if(!el||getComputedStyle(el).display==='none')return 0; var rr=el.getBoundingClientRect(); return rr.height>2?Math.round(winH-rr.top):0; }
+    var bot=Math.max(baseBot, topFromBot('controls')+14, topFromBot('leftStack')+14);
     var topPx=Math.min(Math.round(winH*0.34), Math.round(r.bottom)+10);   // 제목 바로 아래까지 비움(상한 34%)
     cv.style.top=topPx+'px'; cv.style.height=Math.max(120,(winH-topPx-bot))+'px'; resize();
   }
@@ -619,11 +622,19 @@
   function tapHint(cx,cy,text,pulse){
     var sc=(SM&&SM.cur!=null)?SM.scenes[SM.cur]:null, ctrlEl=controlsEl||document.getElementById('controls');
     var hasSlider=!!(ctrlEl && ctrlEl.querySelector('input[type=range]'));
-    // 작성자 텍스트에 섞인 옛 키 표기 제거(칩이 키를 안내)
-    text=(text||'').replace(/\s*\(D\)\s*$/,'').replace(/\s+D\s*·\s*자동\s*S\s*$/,'').replace(/\s*·\s*자동\s*S\s*$/,'').replace(/\s+D\s*$/,'').replace(/\s*\(탭\)\s*$/,'').trim();
-    var hasAuto=!!(sc && sc.s && (typeof sc.s==='object') && ('auto' in sc.s)), isStepText=/^\s*[▶↻]/.test(text);
+    // 텍스트 정리: '화면 탭'·화살표·옛 키표기를 본문에서 떼어내고, 상호작용은 칩이 안내(문구 중복 제거)
+    text=(text||'');
+    var isTap=/화면\s*탭/.test(text);   // 캔버스 탭 장면
+    text=text.replace(/\s*\(D\)\s*$/,'').replace(/\s+D\s*·\s*자동\s*S\s*$/,'').replace(/\s*·\s*자동\s*S\s*$/,'').replace(/\s+D\s*$/,'').replace(/\s*\(탭\)\s*$/,'');
+    text=text.replace(/^\s*화면\s*탭\s*[=:]?\s*/,'').replace(/^\s*[—\-·]\s*/,'');   // '화면 탭 =' 프리픽스 제거
+    var isStepText=/^\s*[▶↻]/.test(text), isRe=/^\s*↻/.test(text);
+    text=text.replace(/^\s*[▶↻]\s*/,'').trim();   // 화살표 제거
+    var hasAuto=!!(sc && sc.s && (typeof sc.s==='object') && ('auto' in sc.s));
     var stepScene=!!(sc && sc.tap && !sc.keys && !hasSlider && (hasAuto || isStepText));
-    var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); chips.push(['X','처음']); }   // 'S 자동' 칩 제거(작동 안 함)
+    if(stepScene){ text=text.replace(/^(다음|다시)\s+/,''); if(/^(단계|보기|처음|처음부터)$/.test(text)) text=''; }   // 칩이 '다음/처음'을 안내하니 일반어 단독은 비움(자리·칸·반복 등 뜻 있는 말은 남김)
+    var chips=[];
+    if(stepScene){ chips.push([ 'D', isRe?'다시':'다음' ]); chips.push(['X','처음']); }   // 키보드 단계 장면
+    else if(isTap){ chips.push(['탭','']); }   // 캔버스 탭 장면 → '탭' 칩
     else if(playbackEnabled){ chips.push(['0','처음']); }
     var esc=function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
     var html=''; if(text) html+='<span class="tht">'+esc(text)+'</span>';
