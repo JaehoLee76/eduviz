@@ -128,7 +128,7 @@
         ctx.fillStyle=blocks[i][2]; ctx.font='600 19px sans-serif'; ctx.fillText(blocks[i][0], W*0.20, by-2);
         ctx.fillStyle='#cfcabf'; ctx.font='14px sans-serif'; ctx.fillText(blocks[i][1], W*0.20, by+22); }
       E.tapHint(W/2, H*0.95, '아래 ▶ 다음으로 1장(첫걸음)으로', true);
-      E.big('파이썬 for AI — 16장의 여정', '기초 문법부터 시작해, NumPy·pandas로 데이터를 다루고, scikit-learn으로 머신러닝을, PyTorch로 딥러닝을 — <b>전부 복사하면 바로 도는 실제 코드</b>로 익힙니다. 표준 공개 데이터셋(iris·MNIST 등)을 쓰니 직접 실행해 볼 수도 있어요.'); }
+      E.big('파이썬 for AI — 16장의 여정', '기초 문법부터 시작해, NumPy·pandas로 데이터를 다루고, scikit-learn으로 머신러닝을, PyTorch로 딥러닝을 — <b>실제로 동작하는 코드</b>로 익힙니다. 표준 공개 데이터셋(iris·MNIST 등)을 다룹니다.'); }
   }
 
   ];

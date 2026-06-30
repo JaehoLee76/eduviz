@@ -174,6 +174,7 @@
     var head=el('div','cw-head');
     head.appendChild(el('span','t','AI 튜터'));
     var tp=el('span','topic',''); head.appendChild(tp);
+    var esc=el('span',null,'ESC 닫기'); esc.style.cssText='font-size:12px;color:var(--text-3,#9b99a3);font-weight:500;margin:0 4px 0 10px;white-space:nowrap;'; head.appendChild(esc);
     var x=el('button','cw-x','×'); head.appendChild(x);
     bodyEl=el('div','cw-body');
     var foot=el('div','cw-foot');

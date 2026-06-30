@@ -212,37 +212,59 @@
       var cell=Math.min(W*0.062,H*0.10), ix=W*0.54, iy=H*0.24;
       ctx.fillStyle='#efe7cf'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('특징맵 4×4', ix, iy-10);
       drawGrid(ctx,ix,iy,cell,fmap,0,vmax,{nums:true,border:'rgba(255,211,67,0.30)'});
-      // 각 2×2 묶음 테두리 + 최댓값 칸 강조
-      for(var pr=0;pr<2;pr++) for(var pc=0;pc<2;pc++){ var col=cols[pr*2+pc];
-        ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.strokeRect(ix+pc*2*cell, iy+pr*2*cell, 2*cell, 2*cell);
-        var bm=-1,bi=0,bj=0; for(var i=0;i<2;i++) for(var j=0;j<2;j++){ var v=fmap[pr*2+i][pc*2+j]; if(v>bm){bm=v;bi=i;bj=j;} }
-        ctx.strokeStyle=col; ctx.lineWidth=3.5; ctx.strokeRect(ix+(pc*2+bj)*cell, iy+(pr*2+bi)*cell, cell-1, cell-1);
-      }
+      // ── 풀링 창이 2×2 묶음을 하나씩 훑는 애니메이션(좌상→우상→좌하→우하) ──
+      var order=[[0,0],[0,1],[1,0],[1,1]];
+      var DWELL=52, step=Math.floor(E.frame/DWELL)%6;   // 0..3 처리중, 4~5 완성 후 잠깐 멈춤→반복
+      var done=Math.min(step,4);                          // 결과로 확정된 묶음 수
+      var blink=0.5+0.5*Math.sin(E.frame*0.26);
 
       // 화살표
       ctx.fillStyle=DIM; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.fillText('→', ix+4*cell+30, iy+2*cell);
       ctx.font='12px sans-serif'; ctx.fillText('2×2 최댓값', ix+4*cell+30, iy+2*cell+22);
 
-      // 풀링 결과(2×2)
       var ocell=cell*1.25, ox=ix+4*cell+62, oy=iy+cell*0.4;
       ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('결과 2×2', ox, oy-10);
-      for(pr=0;pr<2;pr++) for(pc=0;pc<2;pc++){ var col2=cols[pr*2+pc], t=pooled[pr][pc]/(vmax||1), g=Math.round(t*255);
-        ctx.fillStyle='rgb('+g+','+g+','+g+')'; ctx.fillRect(ox+pc*ocell,oy+pr*ocell,ocell-2,ocell-2);
-        ctx.strokeStyle=col2; ctx.lineWidth=2.5; ctx.strokeRect(ox+pc*ocell,oy+pr*ocell,ocell-2,ocell-2);
-        ctx.fillStyle=t>0.5?'#111':'#eee'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(''+pooled[pr][pc], ox+pc*ocell+ocell/2, oy+pr*ocell+ocell/2); }
-      ctx.textBaseline='alphabetic';
 
-      // 검산 한 줄
+      // 각 묶음: 확정=은은한 테두리+최댓값칸, 현재=점멸 창, 아직=대기
+      for(var k=0;k<4;k++){ var pr=order[k][0], pc=order[k][1], col=cols[pr*2+pc];
+        var bm=-1,bi=0,bj=0; for(var i=0;i<2;i++) for(var j=0;j<2;j++){ var v=fmap[pr*2+i][pc*2+j]; if(v>bm){bm=v;bi=i;bj=j;} }
+        var gx=ix+pc*2*cell, gy=iy+pr*2*cell;
+        var solved=(k<done)||(k===done&&step>=4);
+        if(solved){ ctx.globalAlpha=0.5; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(gx,gy,2*cell,2*cell);
+          ctx.globalAlpha=0.85; ctx.lineWidth=3; ctx.strokeRect(ix+(pc*2+bj)*cell, iy+(pr*2+bi)*cell, cell-1, cell-1); ctx.globalAlpha=1;
+        } else if(k===done){ // 처리 중 — 풀링 창 점멸
+          ctx.globalAlpha=blink; ctx.strokeStyle=col; ctx.lineWidth=4; ctx.strokeRect(gx-1,gy-1,2*cell+2,2*cell+2);
+          ctx.lineWidth=4.5; ctx.strokeRect(ix+(pc*2+bj)*cell, iy+(pr*2+bi)*cell, cell-1, cell-1); ctx.globalAlpha=1;
+        }
+        // 결과 칸(점선 대기 → 확정 시 값)
+        var rx=ox+pc*ocell, ry=oy+pr*ocell;
+        if(solved){ var t=pooled[pr][pc]/(vmax||1), g=Math.round(t*255);
+          ctx.fillStyle='rgb('+g+','+g+','+g+')'; ctx.fillRect(rx,ry,ocell-2,ocell-2);
+          ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.strokeRect(rx,ry,ocell-2,ocell-2);
+          ctx.fillStyle=t>0.5?'#111':'#eee'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(''+pooled[pr][pc], rx+ocell/2, ry+ocell/2); ctx.textBaseline='alphabetic';
+        } else if(k===done){ // 지금 채워지는 칸 — 점멸
+          ctx.globalAlpha=blink; ctx.fillStyle=col; ctx.fillRect(rx,ry,ocell-2,ocell-2);
+          ctx.fillStyle='#111'; ctx.font='600 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(''+pooled[pr][pc], rx+ocell/2, ry+ocell/2); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1;
+          ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.strokeRect(rx,ry,ocell-2,ocell-2);
+        } else { ctx.strokeStyle='rgba(255,255,255,0.16)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]); ctx.strokeRect(rx,ry,ocell-2,ocell-2); ctx.setLineDash([]); }
+      }
+
+      // 검산/설명 한 줄(현재 묶음을 실제로 보여줌)
       var by=iy+4*cell+34;
       ctx.fillStyle='#efe7cf'; ctx.font='13px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('같은 색 2×2 묶음의 최댓값(굵은 테두리)만 결과로 갑니다.', ix, by);
-      ctx.fillStyle=GLD; ctx.font='600 12.5px sans-serif';
-      ctx.fillText('왼쪽 위 묶음 max('+[fmap[0][0],fmap[0][1],fmap[1][0],fmap[1][1]].join(',')+') = '+pooled[0][0], ix, by+22);
+      ctx.fillText('풀링 창이 2×2 묶음을 하나씩 훑으며 가장 큰 값만 골라냅니다.', ix, by);
+      if(step<4){ var cr=order[done][0], cc=order[done][1];
+        var vals=[fmap[cr*2][cc*2],fmap[cr*2][cc*2+1],fmap[cr*2+1][cc*2],fmap[cr*2+1][cc*2+1]];
+        ctx.fillStyle=cols[cr*2+cc]; ctx.font='600 12.5px sans-serif';
+        ctx.fillText('묶음 '+(done+1)+'/4 — max('+vals.join(', ')+') = '+pooled[cr][cc], ix, by+22);
+      } else { ctx.fillStyle=GRN; ctx.font='600 12.5px sans-serif';
+        ctx.fillText('네 묶음 완료 → 4×4가 2×2로. 크기 절반, 가장 강한 특징은 보존.', ix, by+22); }
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
       ctx.fillText('크기는 절반, 가장 강한 특징은 보존 — 계산이 가볍고 위치에 둔감.', ix, by+44);
 
-      E.tapHint(W/2, H*0.92, '4×4 → 2×2 다운샘플 (각 묶음의 최댓값)', false);
+      E.tapHint(W/2, H*0.92, '풀링 창이 2×2 묶음을 차례로 훑어 최댓값을 고릅니다', false);
       E.big('nn.MaxPool2d — 다운샘플', '합성곱 다음엔 보통 풀링이 옵니다. nn.MaxPool2d(2, 2)는 특징맵을 2×2 묶음으로 나눠 각 묶음에서 가장 큰 값만 남기죠. 그러면 가로·세로가 절반으로 줄어 계산이 가벼워지고, “이 근처에 강한 특징이 있다”는 핵심은 그대로 지켜집니다. 특징이 한두 칸 옮겨가도 같은 최댓값이 나오니 작은 흔들림에 둔감해지고요. 화면의 모든 최댓값은 그 2×2 안에서 실제로 골라낸 값입니다 — Conv로 뽑고 Pool로 줄이는 이 리듬이 CNN의 심장 박동입니다.'); }
   },
 
@@ -327,7 +349,7 @@
         {t:'    loss = loss_fn(out, yb)', hl:'loss_fn'},
         {t:'    loss.backward(); opt.step()', hl:'backward'}
       ];
-      codePanel(E, W*0.035, H*0.055, W*0.50, code, 'train_cnn.py — 복사하면 Colab에서 동작');
+      codePanel(E, W*0.035, H*0.055, W*0.50, code, 'train_cnn.py');
 
       var tx=W*0.58, ty=H*0.13;
       if(s.step===0){
@@ -378,7 +400,7 @@
         ctx.fillText('미리 배운 필터를 가져와 마지막 층만 갈아 끼웁니다.', gx, by+38);
       }
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (5단계 골격 → 학습 결과·전이학습)', true);
-      E.big('전체 코드 — 복사하면 도는 CNN 분류기', '낱개로 배운 모든 조각을 한 화면에 모았습니다. torchvision으로 CIFAR10을 내려받아 DataLoader로 64장씩 묶고, 앞서 만든 Net()에 Adam과 CrossEntropyLoss를 붙여, zero_grad→forward→loss→backward→step의 학습 루프를 에폭마다 돌립니다. 이 왼쪽 코드를 그대로 Colab에 붙이면 실제로 학습이 돌아가고, 단순한 구조로도 테스트 정확도가 70%를 훌쩍 넘습니다 — 무작위 추측(10%)과는 비교가 안 되죠. 더 욕심이 나면 처음부터 배우지 말고, 수백만 장으로 미리 배운 ResNet 같은 모델을 가져와 마지막 층만 갈아 끼우면 됩니다. 그게 다음 이야기, 전이학습입니다.'); }
+      E.big('전체 코드 — CNN 분류기 완성', '낱개로 배운 모든 조각을 한 화면에 모았습니다. torchvision으로 CIFAR10을 내려받아 DataLoader로 64장씩 묶고, 앞서 만든 Net()에 Adam과 CrossEntropyLoss를 붙여, zero_grad→forward→loss→backward→step의 학습 루프를 에폭마다 돌립니다. 이 코드는 실제로 학습이 돌아가, 단순한 구조로도 테스트 정확도가 70%를 훌쩍 넘습니다 — 무작위 추측(10%)과는 비교가 안 되죠. 더 욕심이 나면 처음부터 배우지 말고, 수백만 장으로 미리 배운 ResNet 같은 모델을 가져와 마지막 층만 갈아 끼우면 됩니다. 그게 다음 이야기, 전이학습입니다.'); }
   }
 
   ];

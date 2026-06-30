@@ -34,7 +34,7 @@
  "py16_04": {
   "ch": "파이썬 제16장 · 딥러닝",
   "sec": "16.4 AI 개발 워크플로",
-  "title": "AI 개발 워크플로 — 도는 사이클",
+  "title": "AI 개발 워크플로 — 한 바퀴 도는 사이클",
   "narr": "실무의 AI는 ‘모델 학습’이라는 한 점이 아니라, <b>빙 도는 사이클</b>입니다. ①<b>데이터 수집</b> — 풀 문제를 정의하고 데이터를 모으고 라벨을 답니다. ②<b>전처리</b> — 정제·결측치 처리·정규화·훈련/검증/시험 분할로 깨끗하게 만듭니다. ③<b>학습</b> — 모델을 고르고 <code>fit</code>하거나, 사전학습 모델을 전이학습합니다. ④<b>평가</b> — 한 번도 못 본 데이터로 정직하게 정확도를 재고 과적합을 점검합니다. ⑤<b>배포</b> — 모델을 파일로 굳혀 API 뒤에 올립니다. ⑥<b>모니터링</b> — 실제 입력으로 성능을 감시하다, 데이터가 바뀌어 성능이 떨어지면(드리프트) <b>다시 ①로</b> 돌아가 재학습합니다. 탭하며 사이클을 한 바퀴 돌아 보세요 — 우리가 배운 도구가 각 자리에 정확히 들어맞습니다.",
   "more": "<b>각 단계의 도구</b>(이 트랙에서 배운 것): 수집=requests·<code>pandas.read_csv</code>·🤗 datasets / 전처리=pandas·NumPy·sklearn / 학습=PyTorch·scikit-learn / 평가=metrics·교차검증 / 배포=<code>torch.save</code>·FastAPI / 모니터링=로그·데이터 드리프트 감시.\n\n<b>가장 흔한 함정</b>: 초보는 ‘학습’에만 시간을 쏟지만, 현업에선 <b>데이터 수집·전처리가 전체의 70~80%</b>를 차지합니다. ‘쓰레기를 넣으면 쓰레기가 나온다(garbage in, garbage out)’ — 좋은 데이터가 좋은 모델보다 먼저입니다.\n\n<b>왜 사이클인가</b>: 세상은 변합니다(소비자 취향·언어·환경). 한 번 잘 맞던 모델도 시간이 지나면 데이터 분포가 어긋나(드리프트) 성능이 떨어집니다. 그래서 끝이 아니라 <b>반복</b>입니다.",
   "more_en": "Real-world AI is a loop, not a single step: collect → preprocess → train → evaluate → deploy → monitor → (back to collect). Data collection and cleaning typically take 70–80% of the effort — garbage in, garbage out. After deployment, monitor for data drift; when performance drops, retrain. Each stage maps to tools you've learned: pandas/NumPy/sklearn for data, PyTorch for training, torch.save/FastAPI for serving."

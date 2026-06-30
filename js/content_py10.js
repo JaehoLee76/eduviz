@@ -112,7 +112,7 @@
       ctx.fillText('SVM·랜덤포레스트·신경망까지 — sklearn은 모두 이 동일한 API로 씁니다.', W*0.06, H*0.90+22);
 
       E.tapHint(W/2, H*0.96, '화면 탭 = 다음 단계 (load → split → model → fit → score)', true);
-      E.big('scikit-learn 워크플로 — fit·predict·score 3박자', 'sklearn으로 머신러닝을 하는 흐름은 언제나 똑같습니다. 데이터를 불러 X(특징)와 y(라벨)로 나누고, 시험용을 따로 숨겨 두고(train_test_split), 모델을 하나 만들어 fit으로 학습시킨 뒤, predict로 예측하고 score로 채점합니다. 왼쪽 코드는 Colab에 그대로 붙여 넣으면 진짜 당뇨 데이터셋으로 도는 코드예요 — 모델만 바꾸면 어떤 알고리즘이든 같은 세 줄로 씁니다.'); }
+      E.big('scikit-learn 워크플로 — fit·predict·score 3박자', 'sklearn으로 머신러닝을 하는 흐름은 언제나 똑같습니다. 데이터를 불러 X(특징)와 y(라벨)로 나누고, 시험용을 따로 숨겨 두고(train_test_split), 모델을 하나 만들어 fit으로 학습시킨 뒤, predict로 예측하고 score로 채점합니다. 왼쪽은 진짜 당뇨 데이터셋을 쓰는 sklearn 코드예요 — 모델만 바꾸면 어떤 알고리즘이든 같은 세 줄로 씁니다.'); }
   },
 
   // ══════════ 2. 선형회귀 학습 — 최소제곱으로 직선 적합 + 잔차 ══════════

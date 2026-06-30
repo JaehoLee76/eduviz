@@ -3,7 +3,7 @@
   "ch": "파이썬 제10장 · 머신러닝",
   "sec": "10.1 scikit-learn 워크플로",
   "title": "scikit-learn 워크플로 — fit·predict·score 3박자",
-  "narr": "이제 직접 손으로 최소제곱을 풀던 것을, <b>scikit-learn</b>이라는 도구가 한 줄로 대신해 줍니다. sklearn으로 머신러닝을 하는 흐름은 어떤 문제든 <b>똑같은 5단계</b>예요. ① 데이터를 불러 <b>X(특징)</b>와 <b>y(라벨)</b>로 나누고, ② 시험용 데이터를 따로 숨겨 두고(<b>train_test_split</b>), ③ 모델을 하나 만들고(<b>model = LinearRegression()</b>), ④ <b>fit</b>으로 학습시킨 뒤, ⑤ <b>predict</b>로 예측하고 <b>score</b>로 채점합니다. 왼쪽 코드는 Colab에 그대로 붙여 넣으면 진짜 <b>당뇨 데이터셋(load_diabetes)</b>으로 도는 코드예요. 화면을 탭하며 다섯 단계가 차례로 켜지는 것을 보세요.",
+  "narr": "이제 직접 손으로 최소제곱을 풀던 것을, <b>scikit-learn</b>이라는 도구가 한 줄로 대신해 줍니다. sklearn으로 머신러닝을 하는 흐름은 어떤 문제든 <b>똑같은 5단계</b>예요. ① 데이터를 불러 <b>X(특징)</b>와 <b>y(라벨)</b>로 나누고, ② 시험용 데이터를 따로 숨겨 두고(<b>train_test_split</b>), ③ 모델을 하나 만들고(<b>model = LinearRegression()</b>), ④ <b>fit</b>으로 학습시킨 뒤, ⑤ <b>predict</b>로 예측하고 <b>score</b>로 채점합니다. 왼쪽은 진짜 <b>당뇨 데이터셋(load_diabetes)</b>을 쓰는 sklearn 코드예요. 화면을 탭하며 다섯 단계가 차례로 켜지는 것을 보세요.",
   "more": "<b>왜 sklearn인가</b>: 핵심은 <b>fit → predict → score</b>라는 일관된 3박자입니다. 선형회귀를 SVR·랜덤포레스트·신경망(MLPRegressor)으로 <b>딱 한 줄만 바꿔도</b> 나머지 코드는 그대로 돌아갑니다 — sklearn의 모든 추정기(estimator)가 같은 API를 따르기 때문이죠.\n\n<b>train_test_split이 먼저인 이유</b>: 모델은 훈련 데이터로만 배우고, 한 번도 못 본 시험 데이터로 실력을 재야 진짜 일반화 성능을 알 수 있습니다(인공지능 1장 ‘훈련/검증 분할’). 시험지를 미리 본 학생의 만점은 의미가 없으니까요.",
   "more_en": "Every scikit-learn workflow follows the same shape: load data → split into train/test → create a model → fit → predict → score. The key is the consistent fit/predict/score API: swap LinearRegression for SVR, RandomForest, or a neural net and the rest of the code is unchanged. The left-side code runs as-is in Colab on the real diabetes dataset."
  },

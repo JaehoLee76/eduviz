@@ -178,6 +178,7 @@
   var memoOv, memoTa, memoListWrap;
   function buildMemo(){ var ov=mk('div','acct-ov'); memoOv=ov; var card=mk('div','acct-card');
     var head=mk('div','acct-head'); head.appendChild(mk('span','t','📝 메모'));
+    var esc=mk('span',null,'ESC 닫기'); esc.style.cssText='margin:0 10px 0 auto;font-size:12px;color:#9b99a3;font-weight:500;letter-spacing:.02em;'; head.appendChild(esc);
     var x=mk('button','acct-x','×'); head.appendChild(x);
     var body=mk('div','acct-body');
     var lab=mk('div','acct-sec','이 장면의 메모'); var ta=mk('textarea','acct-ta'); memoTa=ta; ta.placeholder='이 장면에서 기억할 점을 적어 두세요…';
