@@ -1,0 +1,46 @@
+{
+ "ai2_01": {
+  "ch": "인공지능 제2장 · 기초",
+  "sec": "2.1 데이터의 종류",
+  "title": "데이터의 종류 — 정형·비정형, 수치형·범주형",
+  "narr": "AI의 연료는 <b>데이터</b>입니다. 어떤 모델을 쓸지보다 ‘어떤 데이터를 어떻게 다루는가’가 성패를 가르는 경우가 많죠. 데이터는 크게 표로 깔끔히 떨어지는 <b>정형 데이터</b>(엑셀 같은 테이블 — 행은 샘플, 열은 특징)와 이미지·텍스트·음성처럼 표에 안 들어가는 <b>비정형 데이터</b>로 나뉩니다. 또 각 특징(열)은 키·나이·가격처럼 크기와 순서가 있는 <b>수치형</b>과, 도시·색·혈액형처럼 종류만 있는 <b>범주형</b>으로 갈립니다. 종류에 따라 전처리 방법이 완전히 달라지니, 먼저 내 데이터가 무엇인지 아는 것이 출발점입니다.",
+  "more": "<b>왜 구분하나</b>: 수치형은 그대로 크기 비교가 되지만, 범주형에 ‘서울=1·부산=2’처럼 숫자를 주면 모델이 가짜 순서·거리를 학습합니다(다음 절 원-핫). 비정형 데이터(이미지·텍스트)는 결국 <b>숫자 벡터(임베딩)</b>로 바꿔 모델에 넣습니다(10장). 자격시험에서도 정형/비정형·수치형/범주형 구분과 그에 맞는 전처리는 기본 출제 주제입니다.",
+  "more_en": "Data is AI's fuel. It splits into structured (tables — rows are samples, columns are features) and unstructured (images, text, audio). Features are numerical (size/order meaningful: age, price) or categorical (only type: city, color). The type dictates preprocessing."
+ },
+ "ai2_02": {
+  "ch": "인공지능 제2장 · 기초",
+  "sec": "2.2 스케일링",
+  "title": "스케일링 — 정규화 vs 표준화",
+  "narr": "특징마다 단위와 범위가 제각각이면 문제가 생깁니다. 예를 들어 ‘나이(20~60)’와 ‘연봉(2000~9000만)’을 함께 쓰면, 숫자가 큰 연봉이 거리 계산과 경사하강을 <b>지배</b>해 나이는 거의 무시되죠. 그래서 특징들을 <b>같은 눈금</b>으로 맞춥니다. <b>정규화(Min-Max)</b>는 (x−최소)/(최대−최소)로 모든 값을 <b>0~1</b> 사이로 욱여넣고, <b>표준화(Z-score)</b>는 (x−평균)/표준편차로 <b>평균 0·표준편차 1</b>이 되게 합니다. 슬라이더로 방법을 바꿔, 흩어져 있던 점들이 같은 눈금으로 정렬되는 것을 보세요(변환값은 실제 계산).",
+  "more": "<b>언제 무엇을</b>: 정규화는 값의 범위가 정해진 경우(이미지 픽셀 0~255→0~1)나 경계가 분명할 때, 표준화는 정규분포에 가깝거나 이상치가 있을 때 유리합니다(이상치에 덜 민감). k-NN·SVM·신경망·k-means처럼 <b>거리·내적</b>에 의존하는 모델은 스케일링이 사실상 필수입니다. 반대로 결정트리·랜덤포레스트는 분기 기준이 스케일과 무관해 영향이 적습니다. ★주의: 스케일링의 통계(min/max·평균/표준편차)는 <b>훈련 데이터로만</b> 구해 검증·시험에 그대로 적용해야 정보 누수가 없습니다.",
+  "more_en": "When features have different units/ranges (age vs salary), the large one dominates distances and gradient descent. So we rescale: Min-Max normalization maps to [0,1]; Z-score standardization gives mean 0, std 1. Essential for distance-based models (k-NN, SVM, neural nets, k-means). Fit the scaler on training data only."
+ },
+ "ai2_03": {
+  "ch": "인공지능 제2장 · 기초",
+  "sec": "2.3 인코딩·결측치",
+  "title": "범주형 인코딩 · 결측치",
+  "narr": "모델은 <b>숫자만</b> 먹습니다. 그러니 범주형 특징(도시·색)을 숫자로 바꿔야 하는데, ‘서울=1·부산=2·대구=3’처럼 매기면 모델이 “대구가 서울의 3배”라는 <b>가짜 순서·크기</b>를 배워 버립니다. 그래서 <b>원-핫 인코딩</b>을 씁니다 — 각 범주를 별도의 0/1 열로 펼쳐, ‘서울’이면 서울 열만 1, 나머지는 0. 또 현실 데이터엔 <b>빈 칸(결측치)</b>이 흔합니다. 그 행을 버리거나, 수치형이면 <b>평균·중앙값</b>으로, 범주형이면 <b>최빈값</b>으로 채웁니다. 화면을 탭해 원-핫 결과와 결측치 채우기(실제 평균 계산)를 보세요.",
+  "more": "<b>인코딩 더 보기</b>: 범주가 아주 많으면 원-핫은 열이 폭증하니 임베딩(학습된 저차원 벡터)을 쓰기도 합니다. 순서가 있는 범주(예: 하·중·상)는 순서 인코딩(0·1·2)이 적절할 수 있죠. <b>결측치 채우기(Imputation)</b>는 단순 통계 대신 다른 특징으로 예측해 채우기도 합니다. ‘쓰레기를 넣으면 쓰레기가 나온다(garbage in, garbage out)’ — 전처리 품질이 모델 품질을 좌우합니다.",
+  "more_en": "Models eat only numbers, so categories become numbers — but labeling city as 1/2/3 invents a fake order. Use one-hot encoding: a separate 0/1 column per category. Missing values are dropped or imputed (mean/median for numeric, mode for categorical). Computed live on screen.",
+  "problem": {
+   "q": "‘색깔’(빨강·파랑·초록) 특징을 빨강=1·파랑=2·초록=3으로 인코딩하면 생기는 문제는?",
+   "solution": "모델이 <b>가짜 순서·거리</b>를 학습합니다 — “초록(3)이 빨강(1)의 3배”나 “파랑이 둘 사이”라는 잘못된 관계요. 순서가 없는 범주는 <b>원-핫 인코딩</b>(각 색을 0/1 열로)으로 처리해야 합니다."
+  }
+ },
+ "ai2_04": {
+  "ch": "인공지능 제2장 · 기초",
+  "sec": "2.4 특징 공학",
+  "title": "특징 공학 — 좋은 특징이 모델 절반",
+  "narr": "왼쪽 그림의 두 무리를 보세요 — 안쪽 고리(파랑)와 바깥 고리(빨강)는 어떤 <b>직선을 그어도</b> 가를 수 없습니다. 그런데 단 하나의 <b>새 특징</b>을 만들면 마법처럼 풀립니다: 원점에서의 거리 <b>r=√(x²+y²)</b>. 이 r 하나의 축에 점들을 늘어놓으면, 안쪽(작은 r)과 바깥(큰 r)이 깔끔히 나뉘어 <b>임계값 하나</b>로 완벽히 분리되죠(정확도 실측). 데이터에 숨은 좋은 표현을 사람이 찾아 만들어 주는 것 — 이것이 <b>특징 공학</b>입니다. 복잡한 모델을 쓰기 전에, 더 좋은 특징을 만드는 것이 훨씬 강력할 때가 많습니다.",
+  "more": "<b>특징 공학의 힘</b>: 날짜에서 ‘요일·휴일 여부’를 뽑기, 키·몸무게에서 BMI 만들기, 텍스트에서 단어 빈도 세기처럼 도메인 지식으로 의미 있는 특징을 만들면 단순한 모델도 잘 작동합니다. 딥러닝은 이 ‘특징 만들기’를 신경망이 <b>스스로 학습</b>하게 한 것(표현 학습)이라, 특징 공학의 부담을 줄여 주죠 — 하지만 정형 데이터에선 여전히 좋은 특징이 승부를 가릅니다. 화면의 분리 정확도는 매 프레임 실제로 계산한 값입니다.",
+  "more_en": "The two rings can't be split by any straight line — until you craft one new feature: the radius r=√(x²+y²). On the r-axis, inner (small r) and outer (large r) separate perfectly with a single threshold (accuracy computed live). Crafting good features (feature engineering) often beats using a more complex model. Deep learning learns features automatically."
+ },
+ "ai2_05": {
+  "ch": "인공지능 제2장 · 기초",
+  "sec": "2.5 데이터 양과 성능",
+  "title": "데이터 양과 성능 — 학습 곡선",
+  "narr": "“모델을 더 똑똑하게 만들까, 데이터를 더 모을까?” 종종 답은 <b>데이터</b>입니다. 훈련 데이터 수 N을 슬라이더로 늘려 보세요. 데이터가 적으면 모델이 우연한 잡음에 휘둘려 검증오차가 크고 들쭉날쭉하지만, N이 커질수록 <b>검증오차가 줄고 안정</b>됩니다(오른쪽 학습 곡선은 매 N마다 실제로 적합해 검증오차를 잰 값). 어느 지점부터는 데이터를 더 넣어도 거의 안 좋아지는 ‘포화’도 보이죠. 그래서 현업 AI의 절반은 모델이 아니라 <b>좋은 데이터를 모으고 정제하는 일</b>입니다.",
+  "more": "<b>학습 곡선 읽기</b>: 훈련오차와 검증오차의 간격이 크면 <b>과적합</b>(데이터 더 필요), 둘 다 높으면 <b>과소적합</b>(모델·특징 보강 필요)을 진단할 수 있습니다. 데이터가 부족할 땐 <b>데이터 증강</b>(이미지 회전·자르기), 전이학습(사전학습 모델 활용)으로 보완하죠. 거대 언어 모델의 성능이 데이터·모델·계산 규모와 함께 멱법칙으로 좋아진다는 ‘스케일링 법칙’도 이 연장선입니다(12장). 화면 곡선은 전부 실측입니다.",
+  "more_en": "More data usually beats a fancier model. As training size N grows, the model is less swayed by noise — validation error drops and stabilizes (the learning curve is measured by actually fitting at each N). Curves also reveal overfitting (big train-val gap → need more data) vs underfitting (both high → need a better model/features)."
+ }
+}
