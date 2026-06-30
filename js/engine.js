@@ -32,7 +32,7 @@
       +'body.study-open #leftStack .guide{display:none!important;}'
       +'#bignum #bigW{display:none!important;}'
       +'body.cinematic .topbar .titles{visibility:hidden!important;}'
-      +'body:not(.viz) #leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:82px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
+      +'body:not(.viz) #leftStack .bubble{max-width:none!important;width:100%!important;box-sizing:border-box!important;max-height:108px!important;overflow-y:auto!important;padding-right:10px!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.32) transparent!important;}'
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar{width:7px!important;}'
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28)!important;border-radius:4px!important;}'
       +'body:not(.viz) #leftStack .bubble::-webkit-scrollbar-track{background:transparent!important;margin:4px 0!important;}'
@@ -41,7 +41,11 @@
       // 나브 버튼(심화학습·이전·다음) 크고 굵게 — 화살표 잘 보이게(라운드 사각형의 60%+ 차지)
       +'.nav .btn{font-size:18px!important;font-weight:700!important;padding:9px 18px!important;border-radius:12px!important;}'
       +'.nav .btn .nav-ar{display:inline-block!important;font-size:2.7em!important;font-weight:900!important;line-height:.4!important;vertical-align:-4px!important;margin:0 3px!important;}'
-      +'.nav .btn .kc{font-size:10.5px!important;opacity:.6!important;}';
+      +'.nav .btn .kc{font-size:10.5px!important;opacity:.6!important;}'
+      // 탭 힌트: 정적 행(펄스 알약 대체) — 컨트롤 박스 안, 슬라이더 밑 줄로
+      +'#tapHintRow{flex-basis:100%!important;width:auto!important;max-width:100%!important;margin:3px auto 0!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;flex-wrap:wrap!important;background:rgba(255,255,255,0.05)!important;border:1px solid var(--accent,rgba(255,255,255,0.18))!important;border-radius:11px!important;padding:7px 16px!important;font-size:13.5px!important;font-weight:600!important;color:var(--accent-light,#e8e6dd)!important;text-align:center!important;pointer-events:none!important;box-shadow:0 2px 10px rgba(0,0,0,.3)!important;}'
+      +'#tapHintRow .thk{display:inline-flex!important;align-items:center!important;gap:5px!important;color:var(--accent-light,#cfcdc6)!important;font-weight:500!important;}'
+      +'#tapHintRow kbd{display:inline-block!important;min-width:15px!important;text-align:center!important;font-family:ui-monospace,monospace!important;font-size:11px!important;font-weight:700!important;border:1px solid currentColor!important;border-radius:5px!important;padding:1px 5px!important;}';
     document.head.appendChild(st); }
   function setVpad(){ var sw=(global.screen&&global.screen.width)||global.innerWidth;
     var target=Math.min(VP_MAXW, Math.max(1100, Math.round(sw*0.65)));   // 와이드 화면의 65% = 가장 보기 편한 폭(1100~1680 클램프). 브라우저 창은 못 줄여도 콘텐츠를 이 폭으로 렌더해 동일 효과.
@@ -60,7 +64,7 @@
     var bn=document.getElementById('bignum');
     if(!(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none')) return;   // 제목 아직 없음 → 이전 상태 유지(전환 깜빡임 방지)
     var r=bn.getBoundingClientRect(); if(r.height<=2) return;
-    var winH=global.innerHeight||H, bot=(winH>820?235:winH>680?208:188);   // 하단 예약 = 슬라이더(상단 ~236px)+말풍선+재생바까지 캔버스 밖으로
+    var winH=global.innerHeight||H, bot=(winH>820?272:winH>680?244:222);   // 하단 예약 = 컨트롤+힌트행(슬라이더 밑)+설명창+재생바까지 캔버스 밖으로
     var topPx=Math.min(Math.round(winH*0.34), Math.round(r.bottom)+10);   // 제목 바로 아래까지 비움(상한 34%)
     cv.style.top=topPx+'px'; cv.style.height=Math.max(120,(winH-topPx-bot))+'px'; resize();
   }
@@ -610,37 +614,26 @@
   // 주황 알약 힌트. 키 배지는 장면 종류에 맞게만 표시:
   //  · 슬라이더 장면 → 키 없음(슬라이더 키는 슬라이더 바가 안내) · 관찰 장면 → 키 없음
   //  · 단계(tap)장면 → D 다음 · (자동 지원 시) S 자동 · X 처음  ← 표준 모델
+  // ── 탭 힌트: 펄스 알약(캔버스) 대신 컨트롤 박스 안 정적 행으로 — 슬라이더 있으면 그 아래, 없으면 박스 단독 ──
+  var _thLast='';
   function tapHint(cx,cy,text,pulse){
-    var sc=(SM&&SM.cur!=null)?SM.scenes[SM.cur]:null;
-    var hasSlider=!!(controlsEl && controlsEl.style.display!=='none' && controlsEl.querySelector('input[type=range]'));
-    // 작성자 텍스트에 섞인 옛 키 표기 제거(이제 칩이 키를 안내)
+    var sc=(SM&&SM.cur!=null)?SM.scenes[SM.cur]:null, ctrlEl=controlsEl||document.getElementById('controls');
+    var hasSlider=!!(ctrlEl && ctrlEl.querySelector('input[type=range]'));
+    // 작성자 텍스트에 섞인 옛 키 표기 제거(칩이 키를 안내)
     text=(text||'').replace(/\s*\(D\)\s*$/,'').replace(/\s+D\s*·\s*자동\s*S\s*$/,'').replace(/\s*·\s*자동\s*S\s*$/,'').replace(/\s+D\s*$/,'').replace(/\s*\(탭\)\s*$/,'').trim();
-    // 단계 애니메이션 = tap + 슬라이더 없음 + (상태에 auto 플래그 || 텍스트가 ▶/↻로 시작). 물리 연속시뮬·관찰 힌트는 제외
     var hasAuto=!!(sc && sc.s && (typeof sc.s==='object') && ('auto' in sc.s)), isStepText=/^\s*[▶↻]/.test(text);
     var stepScene=!!(sc && sc.tap && !sc.keys && !hasSlider && (hasAuto || isStepText));
-    var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); if(hasAuto) chips.push(['S','자동']); chips.push(['X','처음']); }
-    else if(playbackEnabled){ chips.push(['0','처음']); }   // 물리(재생 트랙): 화면 탭과 함께 '0=처음으로' 키 안내
-    // 알약을 슬라이더 박스 위로 정밀 clamp(트랙 무관) — 슬라이더 top을 캔버스 좌표로 환산해 그 위에 둠
-    cy=Math.min(cy, H-40);
-    var ctrlEl=document.getElementById('controls');
-    if(ctrlEl && getComputedStyle(ctrlEl).display!=='none' && ctrlEl.querySelector('input,button,.opt')){
-      var crt=ctrlEl.getBoundingClientRect().top - cv.getBoundingClientRect().top; if(crt>60) cy=Math.min(cy, crt-32); }
-    ctx.save(); ctx.textBaseline='middle';
-    ctx.font='600 15px sans-serif'; var tw=text?ctx.measureText(text).width:0;
-    ctx.font='11px sans-serif'; var cwid=[], chipW=0;
-    for(var i=0;i<chips.length;i++){ var lw=ctx.measureText(chips[i][1]).width, w0=22+4+lw; cwid.push(w0); chipW+=w0+(i?11:0); }
-    var gap=(text&&chips.length)?16:0, inner=tw+gap+chipW, w=inner+36, h=38, x=cx-w/2, y=cy-h/2;
-    var pa=pulse?(0.55+0.45*Math.sin(frameN*0.05)):0.85;
-    ctx.globalAlpha=pa*0.22; ctx.fillStyle='#d8814a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,19);ctx.fill();}else ctx.fillRect(x,y,w,h);
-    ctx.globalAlpha=pa; ctx.strokeStyle='#d8814a'; ctx.lineWidth=1.6; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,19);ctx.stroke();}else ctx.strokeRect(x,y,w,h);
-    var px=cx-inner/2;
-    if(text){ ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#ffb27a'; ctx.fillText(text,px,cy); px+=tw+gap; }
-    for(i=0;i<chips.length;i++){
-      ctx.lineWidth=1.3; ctx.strokeStyle='#ffb27a'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(px,cy-10,22,20,5);ctx.stroke();}else ctx.strokeRect(px,cy-10,22,20);
-      ctx.font='700 12px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#ffb27a'; ctx.fillText(chips[i][0],px+11,cy+0.5);
-      ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,178,122,0.85)'; ctx.fillText(chips[i][1],px+26,cy+0.5);
-      px+=cwid[i]+11; }
-    ctx.restore(); ctx.textBaseline='alphabetic'; ctx.textAlign='start'; }
+    var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); chips.push(['X','처음']); }   // 'S 자동' 칩 제거(작동 안 함)
+    else if(playbackEnabled){ chips.push(['0','처음']); }
+    var esc=function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+    var html=''; if(text) html+='<span class="tht">'+esc(text)+'</span>';
+    for(var i=0;i<chips.length;i++) html+='<span class="thk"><kbd>'+esc(chips[i][0])+'</kbd>'+esc(chips[i][1])+'</span>';
+    var row=document.getElementById('tapHintRow'), fresh=false;
+    if(!html){ if(row&&row.parentNode)row.parentNode.removeChild(row); _thLast=''; return; }
+    if(!row){ row=document.createElement('div'); row.id='tapHintRow'; fresh=true; }
+    if(fresh || _thLast!==html){ row.innerHTML=html; _thLast=html; }
+    if(ctrlEl){ if(row.parentNode!==ctrlEl) ctrlEl.appendChild(row); if(getComputedStyle(ctrlEl).display==='none') ctrlEl.style.display='flex'; }
+  }
 
   // ---------- engine facade (장면에 전달) ----------
   var E = {
