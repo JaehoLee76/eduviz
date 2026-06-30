@@ -14,7 +14,8 @@
 
   var TRACK = (function(){ var p=location.pathname.toLowerCase();
     if(p.indexOf('algo')>=0) return 'algo'; if(p.indexOf('phys')>=0) return 'physics';
-    if(p.indexOf('calc')>=0) return 'calculus'; if(p.indexOf('math')>=0) return 'math'; return 'etc'; })();
+    if(p.indexOf('calc')>=0) return 'calculus'; if(p.indexOf('python')>=0) return 'python';
+    if(p.indexOf('ai')>=0) return 'ai'; if(p.indexOf('math')>=0) return 'math'; return 'etc'; })();
 
   // ── 사용자 상태 ──
   var user = null;   // {sub,name,email,picture,idToken}
@@ -188,7 +189,7 @@
     var lab=mk('div','acct-sec','이 장면의 메모'); var ta=mk('textarea','acct-ta'); memoTa=ta; ta.placeholder='이 장면에서 기억할 점을 적어 두세요…';
     var row=mk('div','acct-row'); var save=mk('button','acct-save','저장');
     var del=mk('button','acct-ghost','이 메모 삭제'); row.appendChild(save); row.appendChild(del);
-    var lab2=mk('div','acct-sec','내 메모 전체보기'); memoListWrap=mk('div','acct-list');
+    var lab2=mk('div','acct-sec','이 과목의 메모'); memoListWrap=mk('div','acct-list');
     body.appendChild(lab); body.appendChild(ta); body.appendChild(row); body.appendChild(lab2); body.appendChild(memoListWrap);
     card.appendChild(head); card.appendChild(body); ov.appendChild(card); document.body.appendChild(ov);
     x.onclick=closeMemo; ov.addEventListener('click',function(e){ if(e.target===ov) closeMemo(); });
@@ -204,12 +205,14 @@
     else { delete data.memos[id]; }
     persist(); updateMemoBtn(); renderMemoList(); if(!silent) toast('메모를 저장했습니다.'); }
   function deleteMemo(){ var id=curId(); if(id){ delete data.memos[id]; memoTa.value=''; persist(); updateMemoBtn(); renderMemoList(); } }
-  function renderMemoList(){ var keys=Object.keys(data.memos); memoListWrap.innerHTML='';
-    if(!keys.length){ memoListWrap.appendChild(mk('div','acct-empty','아직 메모가 없습니다.')); return; }
+  function renderMemoList(){ memoListWrap.innerHTML='';
+    // 현재 과목(트랙)의 메모만 표시 — 다른 과목 메모는 그 과목 페이지에서 보임
+    var keys=Object.keys(data.memos).filter(function(k){ return (data.memos[k].track||'etc')===TRACK; });
+    if(!keys.length){ memoListWrap.appendChild(mk('div','acct-empty','이 과목엔 아직 메모가 없습니다.')); return; }
     keys.sort(function(a,b){ return (data.memos[b].ts||0)-(data.memos[a].ts||0); }).forEach(function(k){ var m=data.memos[k];
       var it=mk('div','acct-item');
       var col=mk('div'); col.style.flex='1';
-      col.appendChild(mk('div','ttl',(m.title||k)+(m.track&&m.track!==TRACK?' ['+m.track+']':'')));
+      col.appendChild(mk('div','ttl',(m.title||k)));
       col.appendChild(mk('div','snip', m.text.length>90? m.text.slice(0,90)+'…':m.text));
       it.appendChild(col);
       var del=mk('button','del','×'); del.onclick=function(e){ e.stopPropagation(); delete data.memos[k]; persist(); updateMemoBtn(); renderMemoList(); };
@@ -218,7 +221,7 @@
       memoListWrap.appendChild(it); }); }
   function jumpToMemo(id, m){
     if(m.track && m.track!==TRACK){ // 다른 트랙이면 해당 페이지로 이동(해시로 대상 전달)
-      var page={algo:'algo.html',math:'math.html',physics:'physics.html',calculus:'calculus.html'}[m.track];
+      var page={algo:'algo.html',math:'math.html',physics:'physics.html',calculus:'calculus.html',ai:'ai.html',python:'python.html'}[m.track];
       if(page){ location.href=page+'#scene='+encodeURIComponent(id); return; } }
     if(window.Engine && Engine.indexOfId){ var i=Engine.indexOfId(id); if(i>=0){ Engine.goTo(i); closeMemo(); return; } }
     toast('그 장면을 찾지 못했습니다.'); }
