@@ -21,8 +21,8 @@
  },
  "ai3_03": {
   "ch": "인공지능 제3장 · 머신러닝",
-  "sec": "3.3 결정경계와 정확도",
-  "title": "결정경계와 정확도",
+  "sec": "3.3 결정경계(decision boundary)와 정확도",
+  "title": "결정경계(decision boundary)와 정확도",
   "narr": "분류기가 평면 위에서 하는 일은 의외로 단순합니다 — <b>선 하나 긋기</b>. 선의 한쪽은 ‘클래스 A’, 다른 쪽은 ‘클래스 B’라고 선언하는 거죠. 이 선이 <b>결정경계(decision boundary)</b>입니다. 슬라이더로 경계의 기울기를 돌려 보세요. 잘 맞추면 파란 점은 위, 빨간 점은 아래로 깔끔히 갈라지고, 비뚤어지면 멀쩡한 점들이 엉뚱한 편에 떨어집니다(금색 테두리 = 오분류). 화면의 <b>정확도</b>는 ‘맞힌 점 ÷ 전체 점’을 매 프레임 실제로 세어 보여 줍니다. 경계를 돌려 정확도를 최대로 끌어올려 보세요.",
   "more": "<b>정확도만으로 충분할까</b>: 정확도(accuracy)는 직관적이지만 함정이 있습니다. 100명 중 1명만 환자인 데이터에서 ‘전부 정상’이라 찍으면 정확도 99% — 그러나 정작 환자는 한 명도 못 잡죠. 그래서 실무에서는 <b>정밀도(precision)·재현율(recall)·F1</b>·혼동행렬을 함께 봅니다. 데이터가 한쪽으로 치우치면(불균형) 정확도는 거짓 안심을 줍니다.\n\n<b>선형 vs 비선형 경계</b>: 직선 하나로 못 가르는 데이터(예: 동심원·XOR)는 곡선 경계가 필요합니다 — 커널 SVM이나 신경망이 휘어진 경계를 만듭니다. 결정경계·정확도·정밀도/재현율은 자격시험 단골입니다.",
   "more_en": "A classifier just draws a line: one side is class A, the other is B — the decision boundary. Tilt it well and the colors separate cleanly; tilt it wrong and good points fall on the wrong side (gold ring = misclassified). Accuracy = correct ÷ total, counted live. But accuracy alone misleads on imbalanced data — use precision, recall, F1 too."
