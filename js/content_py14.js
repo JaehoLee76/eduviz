@@ -296,7 +296,7 @@
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(SX(ep),SY(curve.loss[ep]),6,0,7); ctx.fill();
       ctx.strokeStyle='#fff'; ctx.lineWidth=1.2; ctx.stroke();
 
-      ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('손실 곡선 (실제 학습)', ox+6, oy-pv-8);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('손실 곡선 (실제 학습)', ox+pw, oy-pv-8);
 
       // 5단계 라벨
       var px=W*0.04, py=H*0.74;
@@ -316,7 +316,7 @@
       ctx.fillText('훈련 정확도 = '+(curve.tr[ep]*100).toFixed(1)+'%', qx, qy+22);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif';
       var drop = curve.loss[0]-curve.loss[ep];
-      ctx.fillText('시작 손실 '+curve.loss[0].toFixed(3)+'  →  '+(drop>0?'−'+drop.toFixed(3)+' 감소':'—'), qx, qy+42);
+      ctx.fillText('시작 손실 '+curve.loss[0].toFixed(3)+'  →  현재 '+curve.loss[ep].toFixed(3)+(drop>0?'  ('+drop.toFixed(3)+'↓)':''), qx, qy+42);
 
       E.tapHint(W/2, H*0.96, '슬라이더로 에폭을 늘리면 손실이 실제로 줄어듭니다', true);
       E.big('학습 루프 — 다섯 줄이 전부입니다', '신경망 학습의 심장은 이 다섯 줄의 반복입니다. ①순전파로 예측을 내고, ②CrossEntropyLoss로 ‘얼마나 틀렸나’를 재고, ③loss.backward()가 모든 가중치의 기울기를 한 번에 구하고, ④opt.step()이 그 반대로 한 걸음 내려가고, ⑤zero_grad()로 기울기를 비웁니다(안 비우면 쌓입니다). 이 묶음을 수만 번 돌리면 손실이 뚝뚝 떨어지죠 — 오른쪽 곡선은 같은 원리의 축소판 신경망을 브라우저에서 실제로 경사하강시켜 그린 것입니다.'); }
