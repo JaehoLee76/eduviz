@@ -1,0 +1,50 @@
+{
+ "py1_01": {
+  "ch": "파이썬 제1장 · 기초",
+  "sec": "1.1 변수와 타입",
+  "title": "변수와 타입 — 값에 이름표 붙이기",
+  "narr": "프로그램의 첫걸음은 <b>값을 기억하는 것</b>입니다. 파이썬에서 변수는 ‘값을 담는 상자’라기보다 값에 붙인 <b>이름표</b>에 가깝습니다. <code>x = 5</code> 한 줄이면 정수 <b>int</b>, <code>pi = 3.14</code>는 실수 <b>float</b>, <code>name = \"Guido\"</code>는 문자열 <b>str</b>, <code>ok = True</code>는 참/거짓 <b>bool</b>이 됩니다. 자바·C와 달리 <b>타입을 미리 선언하지 않습니다</b> — 담는 값을 보고 파이썬이 알아서 타입을 정하죠(동적 타이핑). 그래서 같은 이름 x에 숫자를 담았다가 다시 문자열을 담아도 됩니다. <code>type(x)</code>로 지금 어떤 타입인지 언제든 확인할 수 있습니다. 위 코드는 그대로 Colab 셀에 붙여 넣으면 실행됩니다.",
+  "more": "<b>네 가지 기본 타입</b>: 정수 <b>int</b>(5, -3, 100000), 실수 <b>float</b>(3.14, 2.0), 문자열 <b>str</b>(\"안녕\", 'Python'), 불리언 <b>bool</b>(True/False). 변수 이름은 영문·숫자·밑줄(_)로 짓되 숫자로 시작 못 하고, 의미가 드러나게(<code>n</code>보다 <code>student_count</code>) 짓는 게 좋은 습관입니다.\n\n<b>동적 타이핑의 양면</b>: 타입 선언이 없어 빠르게 쓸 수 있지만, 의도치 않게 타입이 바뀌어 버그가 날 수도 있습니다. 큰 프로젝트에서는 <code>x: int = 5</code>처럼 <b>타입 힌트</b>를 덧붙여 가독성·안전성을 높이기도 합니다(실행에는 영향 없음).",
+  "more_en": "In Python a variable is a name bound to a value. x=5 makes an int, 3.14 a float, \"Guido\" a str, True a bool. Python is dynamically typed: you never declare types, and the same name can later hold a different type. Use type(x) to inspect the current type."
+ },
+ "py1_02": {
+  "ch": "파이썬 제1장 · 기초",
+  "sec": "1.2 산술과 연산자",
+  "title": "산술과 연산자 — 파이썬을 계산기처럼",
+  "narr": "파이썬은 강력한 <b>계산기</b>이기도 합니다. <code>+ - * </code>는 익숙하죠. 헷갈리기 쉬운 셋만 확실히 익히면 됩니다. <b>/ (나누기)</b>는 결과가 항상 <b>실수(float)</b>입니다 — <code>7 / 2</code>는 3이 아니라 <b>3.5</b>. 정수 몫만 원하면 <b>// (정수 나눗셈)</b>을 쓰세요 — <code>7 // 2 = 3</code>(소수점 아래를 버립니다). <b>% (나머지)</b>는 나눈 뒤 남는 수 — <code>7 % 2 = 1</code>, 짝수·홀수 판별에 단골로 쓰입니다. <b>** (거듭제곱)</b>은 <code>2 ** 10 = 1024</code>. 오른쪽 표의 결과는 전부 실제로 계산한 값이라, 코드를 그대로 Colab에 붙여 넣어도 같은 숫자가 나옵니다.",
+  "more": "<b>연산자 우선순위</b>: 수학과 같습니다 — <code>**</code>(거듭제곱)가 가장 먼저, 그다음 <code>* / // %</code>, 마지막에 <code>+ -</code>. 헷갈리면 괄호로 묶으세요: <code>2 + 3 * 4 = 14</code>지만 <code>(2 + 3) * 4 = 20</code>.\n\n<b>나머지(%)의 쓸모</b>: <code>n % 2 == 0</code>이면 짝수, <code>n % 2 == 1</code>이면 홀수. <code>분 = 전체초 % 60</code>처럼 ‘주기’를 다룰 때도 핵심입니다.\n\n<b>복합 대입</b>: <code>x += 1</code>은 <code>x = x + 1</code>의 줄임이고, <code>-= *= /= //= %= **=</code>도 같은 식으로 씁니다.",
+  "more_en": "Beyond + - *, master three: / always yields a float (7/2=3.5), // is integer floor division (7//2=3), % is remainder (7%2=1, great for even/odd), and ** is power (2**10=1024). Precedence: ** first, then * / // %, then + -. Use parentheses when unsure.",
+  "problem": {
+   "q": "<code>17 // 5</code> 와 <code>17 % 5</code> 의 결과는 각각 무엇일까요?",
+   "solution": "<b>17 // 5 = 3</b>(몫), <b>17 % 5 = 2</b>(나머지)입니다. 17 = 5×3 + 2 이므로, // 는 몫 3을, % 는 나머지 2를 줍니다. 둘을 합치면 원래 수를 복원할 수 있죠: 5×3 + 2 = 17."
+  }
+ },
+ "py1_03": {
+  "ch": "파이썬 제1장 · 기초",
+  "sec": "1.3 문자열 다루기",
+  "title": "문자열 — 글자들의 열",
+  "narr": "문자열은 글자가 줄지어 선 것이고, 각 글자에는 <b>번호(인덱스)</b>가 붙습니다 — 0부터 셉니다. <code>s = \"Python\"</code>에서 <code>s[0]</code>은 첫 글자 <b>'P'</b>, <code>s[-1]</code>은 마지막 <b>'n'</b>(음수는 뒤에서부터!). <b>슬라이싱</b> <code>s[0:3]</code>은 0,1,2번만 잘라 <b>\"Pyt\"</b>를 줍니다 — <b>끝 번호 3은 포함하지 않는다</b>는 게 핵심 규칙이죠. <b>f-string</b> <code>f\"안녕, {name}!\"</code>은 중괄호 안 변수 값을 문장에 끼워 넣어 줍니다(가장 많이 쓰는 문자열 기법). 그리고 <b>메서드</b> <code>.upper()</code>(대문자)·<code>.split(\",\")</code>(쉼표로 쪼개 리스트로) 같은 도구가 문자열을 변형합니다. 화면의 모든 결과는 실제로 계산한 값입니다.",
+  "more": "<b>슬라이싱 더 보기</b>: <code>s[2:]</code>는 2번부터 끝까지, <code>s[:3]</code>은 처음부터 2번까지, <code>s[::2]</code>는 한 칸씩 건너뛰며, <code>s[::-1]</code>은 거꾸로 뒤집습니다. ‘끝 인덱스는 제외’ 규칙 덕분에 <code>len</code>과 깔끔히 맞아떨어집니다.\n\n<b>자주 쓰는 메서드</b>: <code>.lower()</code>·<code>.upper()</code>(대소문자), <code>.strip()</code>(양끝 공백 제거), <code>.replace(a,b)</code>(바꾸기), <code>.split(sep)</code>(쪼개기), <code>sep.join(리스트)</code>(합치기), <code>.startswith()/.endswith()</code>. 문자열은 <b>불변(immutable)</b>이라 <code>s[0]=\"X\"</code>는 안 되고, 메서드는 항상 <b>새 문자열을 돌려줍니다</b>.",
+  "more_en": "A string is a sequence of characters with indexes from 0. s[0] is the first char, s[-1] the last (negatives count from the end). Slicing s[0:3] takes indexes 0,1,2 — the end index 3 is excluded. f-strings embed variables: f\"Hi, {name}!\". Methods like .upper() and .split(\",\") transform strings, returning new ones (strings are immutable)."
+ },
+ "py1_04": {
+  "ch": "파이썬 제1장 · 기초",
+  "sec": "1.4 입력·출력·형변환",
+  "title": "입력·출력·형변환 — 문자열의 함정",
+  "narr": "<b>input()</b>으로 사용자에게 값을 받고, <b>print()</b>로 화면에 출력합니다. 그런데 초보자가 가장 많이 걸리는 함정이 여기 있습니다 — <b>input()이 돌려주는 값은 숫자처럼 보여도 언제나 문자열(str)</b>입니다. 그래서 <code>a = input()</code>으로 \"12\"를, <code>b = input()</code>으로 \"30\"을 받아 <code>a + b</code>를 하면, 42가 아니라 글자가 그냥 이어붙은 <b>\"1230\"</b>이 나옵니다! 숫자로 계산하려면 먼저 <b>int()</b>(정수로)나 <b>float()</b>(실수로) 변환해야 합니다: <code>int(a) + int(b) = 42</code>. 반대로 <b>str()</b>은 숫자를 문자열로 바꿉니다(문장에 끼워 넣을 때). 오른쪽의 결과는 모두 실제로 계산한 값입니다.",
+  "more": "<b>형변환 함수</b>: <code>int(\"12\")→12</code>, <code>float(\"3.14\")→3.14</code>, <code>str(42)→\"42\"</code>, <code>bool(0)→False</code>. 변환이 불가능하면(예: <code>int(\"abc\")</code>) 오류가 납니다.\n\n<b>실전 패턴</b>: 숫자를 받을 땐 보통 <code>n = int(input(\"수: \"))</code>처럼 받는 즉시 변환합니다. <code>print</code>는 여러 값을 콤마로 주면 띄어쓰기로 이어 줍니다: <code>print(\"합:\", 42)</code> → <code>합: 42</code>. <code>print(a, b, sep=\"-\")</code>처럼 구분자도 바꿀 수 있습니다.",
+  "more_en": "input() returns a str even for digits, and print() outputs to the screen. So \"12\" + \"30\" is \"1230\" (concatenation), not 42. Convert first: int(a)+int(b)=42. Use int()/float() to parse numbers, str() to turn numbers into text. A common pattern: n = int(input(\"...\")).",
+  "problem": {
+   "q": "<code>age = input(\"나이: \")</code> 로 사용자가 20을 입력했을 때, <code>age + 1</code> 은 왜 오류가 날까요?",
+   "solution": "<b>age 가 문자열 \"20\" 이기 때문</b>입니다. 문자열 \"20\"에 정수 1을 더할 수 없어 <code>TypeError</code>가 납니다. <code>int(age) + 1</code> 처럼 먼저 int()로 변환하면 21이 됩니다."
+  }
+ },
+ "py1_05": {
+  "ch": "파이썬 제1장 · 기초",
+  "sec": "1.5 첫 프로그램",
+  "title": "첫 프로그램 — 구구단 출력",
+  "narr": "드디어 이 장에서 배운 것을 한데 모읍니다! <b>구구단</b>을 출력하는 프로그램이죠. <b>변수</b>(<code>dan</code>)에 단 번호를 담고, <b>곱셈</b>(<code>dan * i</code>)으로 계산하고, <b>f-string</b>(<code>f\"{dan} x {i} = {result}\"</code>)으로 결과를 보기 좋은 문장으로 만들고, <b>for 반복</b>으로 1부터 9까지를 한 번에 처리합니다(반복은 다음 장에서 자세히 다룹니다 — 지금은 ‘1~9를 차례로 돈다’ 정도면 충분합니다). 슬라이더로 단을 바꿔 보세요 — 코드 속 <code>dan</code>과 오른쪽 출력 표가 함께 바뀝니다. 표의 모든 곱셈은 실제로 계산한 값이니, 이 다섯 줄을 그대로 Colab에 붙여 넣으면 똑같이 출력됩니다. 여러분의 첫 파이썬 프로그램, 축하합니다!",
+  "more": "<b>코드 한 줄씩</b>: ① <code>dan = 3</code> — 출력할 단을 변수에 저장. ② <code>print(f\"=== {dan}단 ===\")</code> — 제목 줄. ③ <code>for i in range(1, 10):</code> — i를 1,2,…,9로 바꿔 가며 아래 블록을 9번 반복(<code>range(1,10)</code>은 10을 포함하지 않음 — 슬라이싱과 같은 규칙!). ④ <code>result = dan * i</code> — 곱셈. ⑤ <code>print(...)</code> — f-string으로 한 줄씩 출력. <b>들여쓰기</b>가 ‘반복 안쪽’을 표시한다는 점이 파이썬의 특징입니다(중괄호 대신 공백 4칸).\n\n<b>다음 장 예고</b>: 제2장에서 <b>조건문(if)</b>과 <b>반복문(for·while)</b>을 본격적으로 배우면, ‘짝수만 출력’, ‘합계 누적’ 같은 진짜 프로그램을 만들 수 있습니다.",
+  "more_en": "Your first program: print a multiplication table. It combines a variable (dan), arithmetic (dan*i), an f-string for formatting, and a for loop over range(1,10) — note 10 is excluded, just like slicing. Indentation (4 spaces) marks the loop body in Python, replacing curly braces. Every product shown is actually computed."
+ }
+}

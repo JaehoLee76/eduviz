@@ -1,0 +1,50 @@
+{
+ "py5_01": {
+  "ch": "파이썬 제5장 · 기초",
+  "sec": "5.1 f-string과 포맷",
+  "title": "f-string — 가장 빠르고 읽기 좋은 포맷",
+  "narr": "옛날 파이썬에서 문자열에 값을 끼워 넣으려면 <b>% 포맷</b>이나 <b>.format()</b>을 거쳐야 했습니다 — 짧은 문장도 길어지고 헷갈렸죠. 3.6부터 들어온 <b>f-string</b>은 따옴표 앞에 <b>f</b> 한 글자만 붙이면 됩니다. <b>{}</b> 안에 변수와 식을 그대로 적으면 그 자리에서 값으로 바뀝니다. 특히 <b>{x=}</b>는 <b>변수명과 값을 한꺼번에</b> 찍어 디버깅을 순식간에 끝내고, <b>{pi:.2f}</b>는 소수 자릿수, <b>{name:>8}</b>는 정렬, <b>{n:,}</b>는 천 단위 콤마를 한 줄로 처리합니다. 탭하며 실제 출력이 어떻게 나오는지 보세요.",
+  "more": "<b>왜 f-string이 표준이 됐나</b>: ① 읽기 쉽다 — 값이 들어갈 자리에 변수가 그대로 보입니다. ② 빠르다 — 내부적으로 가장 효율적으로 처리됩니다. ③ 강력하다 — {식} 안에 함수 호출·연산·조건식까지 들어갑니다. <b>포맷 미니문법</b>: <b>:.2f</b>(소수 2자리)·<b>:>8</b>/<b>:&lt;8</b>/<b>:^8</b>(오른쪽·왼쪽·가운데 정렬)·<b>:,</b>(콤마)·<b>:.1%</b>(백분율)·<b>:08.2f</b>(0으로 8칸 채우기). 화면의 모든 출력값(3.14, 콤마 표기 등)은 실제로 계산한 값입니다.\n\n<b>한 줄 정리</b>: 새 코드에서는 거의 항상 f-string을 씁니다 — 최신 파이썬이 ‘더 읽기 좋다’는 첫 번째 증거입니다.",
+  "more_en": "f-strings (Python 3.6+) embed variables and expressions directly inside {} with a leading f. {x=} prints both the name and value (great for debugging), :.2f controls decimals, :>8 aligns, :, adds thousands separators. They are more readable and faster than old % or .format() styles, and are the modern default."
+ },
+ "py5_02": {
+  "ch": "파이썬 제5장 · 기초",
+  "sec": "5.2 타입 힌트",
+  "title": "타입 힌트 — 코드가 스스로를 설명한다",
+  "narr": "파이썬은 변수 타입을 미리 적지 않아도 되는 언어입니다 — 편하지만, 큰 코드에서는 ‘이 함수가 뭘 받고 뭘 돌려주지?’ 헷갈리기 쉽죠. <b>타입 힌트</b>는 그 답을 코드에 적어 둡니다. <b>def greet(name: str) -&gt; str</b> 처럼 매개변수와 반환에 타입을 표시하면, 코드만 읽어도 의도가 드러납니다. <b>list[int]</b>(정수 리스트)·<b>Optional[str]</b>(문자열 또는 None)처럼 컬렉션 속 타입까지 명시할 수 있고요. 중요한 점 — 힌트는 <b>실행을 강제하지 않습니다</b>. 사람·편집기·검사기를 위한 ‘설명서’일 뿐이죠. 탭하며 세 가지 이점을 보세요.",
+  "more": "<b>세 가지 이점</b>: ① <b>가독성</b> — 타입이 곧 문서가 됩니다. ② <b>IDE 지원</b> — 편집기가 타입을 알아 자동완성·오타 경고를 해 줍니다. ③ <b>버그 예방</b> — <b>mypy</b> 같은 정적 검사기가 실행 전에 타입 오류를 잡습니다(문자열에 숫자 연산을 시키는 실수 등). <b>최신 표기</b>: 3.9+부터 <b>list[int]</b>·<b>dict[str, int]</b>처럼 내장 타입을 직접 쓰고(예전 typing.List 불필요), 3.10+에서는 <b>int | None</b>이 Optional[int]를 대체합니다.\n\n<b>주의</b>: 타입 힌트가 있어도 파이썬은 실행 중 타입을 강제하지 않습니다 — 검사는 별도 도구(mypy·pyright)나 편집기가 합니다.",
+  "more_en": "Type hints annotate parameters and returns: def f(x: int) -> str. They improve readability, enable IDE autocompletion, and let static checkers (mypy) catch type errors before runtime. Modern syntax uses built-in generics like list[int] and dict[str, int] (3.9+) and int | None (3.10+) instead of Optional. Hints are documentation, not enforced at runtime.",
+  "problem": {
+   "q": "타입 힌트 def f(x: int) -> str 를 붙이면 실행 중에 x가 문자열이면 에러가 날까요?",
+   "solution": "<b>기본적으로는 나지 않습니다.</b> 파이썬은 실행 중 타입 힌트를 강제하지 않습니다 — 힌트는 사람·편집기·정적 검사기(mypy 등)를 위한 ‘설명서’입니다. 타입 오류를 실행 전에 잡으려면 mypy 같은 검사기를 따로 돌립니다."
+  }
+ },
+ "py5_03": {
+  "ch": "파이썬 제5장 · 기초",
+  "sec": "5.3 데이터클래스",
+  "title": "데이터클래스 — 보일러플레이트를 지운다",
+  "narr": "데이터를 담는 클래스를 만들 때면 늘 같은 일을 반복했습니다 — <b>__init__</b>으로 필드를 받아 self에 저장하고, <b>__repr__</b>으로 보기 좋게 출력하고, <b>__eq__</b>로 값 비교를 정의하고. 필드 하나 추가할 때마다 세 군데를 손봐야 했죠. <b>@dataclass</b>(3.7+)는 이 모든 보일러플레이트를 없앱니다. <b>@dataclass</b>를 붙이고 <b>x: int</b>처럼 필드만 적으면, 파이썬이 __init__·__repr__·__eq__를 <b>자동 생성</b>합니다. 같은 기능이 8줄에서 4줄로 — 짧아진 만큼 빠뜨릴 실수도 사라집니다. 탭하며 옛 방식과 비교해 보세요.",
+  "more": "<b>@dataclass가 자동으로 만드는 것</b>: <b>__init__</b>(생성자)·<b>__repr__</b>(Point(1,2) 형태 출력)·<b>__eq__</b>(필드 값이 같으면 ==가 True). 옵션도 풍부합니다 — <b>frozen=True</b>(불변 객체, 해시 가능)·<b>order=True</b>(크기 비교 연산자 자동)·<b>field(default_factory=list)</b>(가변 기본값 안전 처리). <b>왜 좋은가</b>: 데이터 묶음을 표현하는 가장 짧고 안전한 방법입니다. 설정값·좌표·레코드처럼 ‘값을 담는’ 클래스에 딱 맞죠.\n\n<b>화면의 == 판정</b>은 실제로 값을 비교해 True/False를 계산한 것입니다(베껴 박지 않음).",
+  "more_en": "@dataclass (Python 3.7+) auto-generates __init__, __repr__, and __eq__ from simple 'field: type' declarations, eliminating boilerplate. Options include frozen=True (immutable/hashable), order=True (comparison operators), and field(default_factory=list) for safe mutable defaults. It is the shortest, safest way to write value-holding classes."
+ },
+ "py5_04": {
+  "ch": "파이썬 제5장 · 기초",
+  "sec": "5.4 match-case (3.10)",
+  "title": "match-case — 구조로 분기하는 패턴 매칭",
+  "narr": "여러 경우를 나누어 처리할 때, 예전에는 <b>if / elif / elif …</b> 사슬을 길게 늘어놓았습니다. 파이썬 3.10이 더한 <b>match-case</b>는 이를 또렷한 한 블록으로 정리합니다. 단순히 값이 같은지만 보는 게 아니라, 데이터의 <b>‘모양(구조)’으로 분기</b>한다는 점이 핵심입니다. 리스트 <b>[\"add\", x]</b>에 맞으면 <b>x를 꺼내</b> 오고, <b>int(n)</b>이면 정수만 잡아 n에 담고, <b>_</b>(언더스코어)는 <b>나머지 전부</b>를 받는 기본 분기입니다. 슬라이더로 입력 command를 바꿔 보세요 — 어느 case가 실제로 잡히는지 코드에서 초록색으로 비춰 드립니다.",
+  "more": "<b>구조적 패턴 매칭(structural pattern matching)</b>: case는 값뿐 아니라 <b>리스트·튜플·딕셔너리·클래스의 구조</b>를 함께 분해합니다. 예: <b>case Point(x=0, y=y)</b>면 x가 0인 점만 잡으며 y를 변수로 묶고, <b>case [a, b, *rest]</b>면 앞 둘과 나머지를 나눕니다. <b>case _</b>는 모든 경우에 맞는 ‘와일드카드’(다른 언어의 default), <b>가드</b> <b>case n if n &gt; 0:</b>로 조건도 덧붙일 수 있습니다. <b>주의</b>: 변수 이름만 쓴 case(예: case x)는 무조건 매칭되어 x에 묶이므로, 상수와 비교하려면 점 표기(예: Color.RED)나 리터럴을 씁니다.\n\n<b>화면의 매칭 결과·반환값</b>은 입력에 따라 실제로 판정해 계산한 값입니다.",
+  "more_en": "match-case (Python 3.10+) is structural pattern matching: it branches on the shape of data, not just equality. Patterns can destructure lists/tuples/dicts/classes and bind variables (case ['add', x] binds x; case int(n) matches integers). case _ is the wildcard default, and guards (case n if n > 0) add conditions. It replaces long if/elif chains with a clear, single block."
+ },
+ "py5_05": {
+  "ch": "파이썬 제5장 · 기초",
+  "sec": "5.5 예외처리 · with · 제너레이터",
+  "title": "예외 · with · 제너레이터 — 안전하고 효율적으로",
+  "narr": "좋은 프로그램은 잘못될 상황에도 무너지지 않습니다. <b>try / except / finally</b>는 위험한 코드를 <b>try</b>에 두고, 오류가 나면 <b>except</b>가 받아 처리하며, <b>finally</b>는 성공이든 실패든 <b>무조건 실행</b>해 뒷정리를 보장합니다. 파일·연결 같은 자원은 <b>with</b>가 챙깁니다 — <b>with open(...) as fp:</b> 블록을 벗어나면, 오류가 나도 자동으로 닫히죠(close 깜빡할 일이 없습니다). 마지막으로 <b>yield</b> 한 줄로 만드는 <b>제너레이터</b>는 값을 미리 다 만들지 않고 <b>필요할 때 하나씩</b> 내놓습니다. 탭하며 세 도구를 차례로 보세요.",
+  "more": "<b>예외처리</b>: <b>except 특정오류</b>로 종류별로 다르게 대응하고, <b>else</b>(오류 없을 때만)·<b>finally</b>(항상)를 덧붙입니다. 모든 오류를 <b>except:</b>로 삼키지 말 것 — 잡을 오류만 명시해야 진짜 버그를 숨기지 않습니다. <b>with(컨텍스트 매니저)</b>: 자원을 ‘열고 → 쓰고 → 반드시 닫는’ 패턴을 한 줄로 보장합니다(파일·락·DB 연결).\n\n<b>제너레이터(지연평가)</b>: <b>yield</b>는 값을 ‘하나 내놓고 멈춥’니다 — 다음을 요청해야 다음 값을 계산하죠. 그래서 1억 개를 다뤄도 <b>한 번에 하나</b>만 메모리에 있어, 리스트와 달리 메모리가 거의 안 듭니다. 무한 수열·대용량 파일 스트리밍에 제격입니다. 화면의 제곱값들은 실제로 i*i를 계산한 값입니다.\n\n<b>한 줄 정리</b>: 예외=안전, with=정리 보장, 제너레이터=메모리 효율 — 셋 다 ‘안전하고 깔끔한’ 현대 파이썬의 기본기입니다.",
+  "more_en": "try/except/finally handles errors safely (except catches, finally always runs cleanup). with (context managers) guarantees resources like files are closed even on error. Generators built with yield produce values lazily — one at a time, on demand — so even billions of items use almost no memory, unlike building a full list. Together they make modern Python safe and efficient.",
+  "problem": {
+   "q": "10억 개의 제곱수를 차례로 처리해야 합니다. 리스트 [i*i for i in range(10**9)] 대신 제너레이터를 쓰면 무엇이 좋을까요?",
+   "solution": "<b>메모리</b>입니다. 리스트 컴프리헨션은 10억 개를 <b>모두 미리 만들어 메모리에 올려</b> 곧 메모리가 터집니다. 제너레이터(yield 또는 (i*i for i in ...))는 <b>한 번에 하나씩 지연 생성</b>하므로, 10억 개라도 메모리에는 사실상 한 칸만 있습니다 — 거대한 데이터를 흘려보내는 데 제격입니다."
+  }
+ }
+}

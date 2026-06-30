@@ -1,0 +1,24 @@
+{
+ "py0_00": {
+  "ch": "파이썬 for AI",
+  "sec": "시작",
+  "title": "파이썬의 세계",
+  "narr": "환영합니다. 화면을 누르면 인트로를 건너뛰고 학습을 시작합니다."
+ },
+ "py0_01": {
+  "ch": "파이썬 for AI · 시작",
+  "sec": "0.1 왜 파이썬인가",
+  "title": "왜 파이썬인가",
+  "narr": "프로그래밍 언어는 많은데, 왜 데이터·AI는 유독 <b>파이썬</b>일까요? 첫째, <b>읽기 쉽습니다</b>. 중괄호·세미콜론 없이 들여쓰기로 블록을 잡아, 같은 일을 절반 분량으로·거의 영어 문장처럼 씁니다 — 떠오른 아이디어를 곧장 코드로 옮기기 좋죠. 둘째, <b>‘배터리 포함’</b> — NumPy(행렬), pandas(표), scikit-learn(머신러닝), PyTorch(딥러닝)까지 필요한 도구가 import 한 줄이면 손에 들어옵니다. 셋째, 무거운 계산은 이 라이브러리들이 내부적으로 <b>C·GPU</b>로 돌려 ‘느리다’는 약점도 사라졌죠. 그래서 세계의 거의 모든 AI 모델·논문 코드가 파이썬으로 쓰입니다. 화면을 탭해 세 가지 이유를 차례로 보세요.",
+  "more": "<b>파이썬의 철학(Zen of Python)</b>: ‘아름다운 것이 추한 것보다 낫다’, ‘단순한 것이 복잡한 것보다 낫다’, ‘가독성이 중요하다’ — 인터프리터에 <b>import this</b>를 치면 나오는 19개 격언입니다. 이 ‘읽히는 코드’ 정신이 협업과 학습을 쉽게 만들어, 연구자·학생·현업이 같은 언어로 모이게 했습니다. 이 트랙의 모든 코드는 그대로 복사해 Colab·주피터에서 실행할 수 있습니다.",
+  "more_en": "Python dominates AI because it is readable (indentation-based blocks, English-like syntax), ‘batteries included’ (NumPy, pandas, scikit-learn, PyTorch one import away), and fast where it counts (heavy math runs in C/GPU under the hood). Nearly all AI models and papers ship Python code."
+ },
+ "py0_02": {
+  "ch": "파이썬 for AI · 시작",
+  "sec": "0.2 16장의 여정",
+  "title": "파이썬 for AI — 16장의 여정",
+  "narr": "이 트랙은 네 묶음으로 흐릅니다. <b>기초 문법(1~5장)</b>에서 변수·자료구조·제어·함수·클래스와 f-string·타입힌트·match-case 같은 최신 문법까지 다집니다. <b>AI 라이브러리(6~9장)</b>에서 NumPy 배열·행렬연산, pandas 표 처리, Matplotlib 시각화로 데이터를 자유자재로 다루죠. <b>머신러닝(10~12장)</b>에서는 scikit-learn으로 실제 데이터셋(iris·캘리포니아 집값 등)에 회귀·분류를 <b>실제로 동작하는 코드</b>로 돌려 봅니다. 마지막 <b>딥러닝·PyTorch(13~16장)</b>에서 텐서·자동미분부터 MNIST 신경망·CNN·전이학습까지 — 전부 복사하면 실행되는 코드로 만들어 봅니다. 자, 1장 첫걸음부터 시작할까요?",
+  "more": "<b>실행 가능</b>을 약속합니다: 모든 코드는 표준 라이브러리·공개 데이터셋만 쓰며, Google Colab(무료 GPU)이나 주피터 노트북에 그대로 붙여 넣으면 돌아갑니다. 화면의 결과(배열 값·정확도·손실 곡선 등)는 그 코드가 실제로 내놓는 값을 시각화한 것입니다(골든룰). 읽고 이해한 뒤 직접 실행해 보면, ‘보는 학습’이 ‘하는 학습’이 됩니다.",
+  "more_en": "Four blocks: Python basics (1–5), AI libraries NumPy/pandas/Matplotlib (6–9), machine learning with scikit-learn on real datasets (10–12), and deep learning with PyTorch — tensors, autograd, MNIST nets, CNNs, transfer learning (13–16). Every code snippet is copy-paste runnable in Colab/Jupyter with public datasets."
+ }
+}

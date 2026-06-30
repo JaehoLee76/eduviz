@@ -1,0 +1,46 @@
+{
+ "py7_01": {
+  "ch": "파이썬 제7장 · AI 라이브러리",
+  "sec": "7.1 행렬곱 @",
+  "title": "행렬곱 @ — A @ B",
+  "narr": "딥러닝은 결국 <b>거대한 행렬곱</b>입니다 — 신경망의 한 층이 하는 일이 입력 벡터에 가중치 행렬을 곱하는 것이거든요. NumPy에서 행렬곱은 <b>@</b> 연산자 한 글자(또는 <code>np.matmul</code>)입니다. 결과 <b>C = A @ B</b>의 한 칸 <b>C[i,j]</b>는, 신기하게도 ‘<b>A의 i행</b>’과 ‘<b>B의 j열</b>’을 짝지어 곱해 더한 <b>내적</b> 하나입니다. 슬라이더로 결과 셀 (i,j)를 옮기면, 그 칸이 어느 행·어느 열의 만남인지, 그리고 곱·합이 실제로 어떻게 계산되는지 한눈에 보입니다.",
+  "more": "<b>차원 규칙(가장 흔한 버그)</b>: A가 (m,k), B가 (k,n)일 때만 곱이 됩니다 — <b>안쪽 차원 k가 일치</b>해야 하고, 결과는 <b>바깥 차원 (m,n)</b>이 됩니다. (2,3)@(3,2)=(2,2)처럼요. 또 <b>행렬곱은 교환법칙이 성립하지 않습니다</b>(A@B ≠ B@A). 원소별 곱 <code>A * B</code>(브로드캐스팅)와 <b>행렬곱 <code>A @ B</code></b>는 완전히 다른 연산이니 혼동 금지. GPU가 빠른 이유가 바로 이 거대한 곱셈을 수천 개 코어로 동시에 처리하기 때문입니다.",
+  "more_en": "Matrix multiplication C = A @ B: each C[i,j] is the dot product of row i of A and column j of B. Inner dimensions must match: (m,k)@(k,n)=(m,n). Not commutative (A@B ≠ B@A). Distinct from element-wise A*B. This is the core operation of every neural-network layer."
+ },
+ "py7_02": {
+  "ch": "파이썬 제7장 · AI 라이브러리",
+  "sec": "7.2 전치·차원",
+  "title": "전치·차원 — A.T · shape · reshape",
+  "narr": "행렬의 ‘몸집’은 <b>shape</b>로 잽니다 — (2,3)은 2행 3열이라는 뜻이죠. <b>전치 A.T</b>는 행과 열을 통째로 맞바꿔, 원소 (i,j)를 (j,i) 자리로 보냅니다 — (2,3)이 (3,2)가 되죠. 역전파에서 가중치 행렬을 ‘거꾸로’ 곱할 때 이 전치가 반드시 등장합니다. 한편 <b>reshape</b>는 값은 그대로 둔 채 <b>모양만 재배열</b>합니다 — 6개의 수를 (2,3)에서 (3,2)로 다시 담는 식이죠. 화면을 탭하며 전치와 reshape가 ‘같은 6칸을 다르게 배열’한다는 걸 비교해 보세요.",
+  "more": "<b>전치 ≠ reshape</b>: 둘 다 (2,3)을 (3,2)로 바꾸지만 <b>값의 순서가 다릅니다</b>. 전치는 (i,j)↦(j,i)로 ‘뒤집고’, reshape는 펼친 순서 [1,2,3,4,5,6] 그대로 다시 채웁니다. 그래서 결과 행렬이 서로 다르죠. <b>차원 불일치 에러</b>(shape mismatch)는 딥러닝에서 가장 흔한 버그라, <code>print(x.shape)</code>로 모양을 확인하는 습관이 중요합니다. <code>reshape(-1, 2)</code>처럼 -1을 쓰면 ‘나머지 차원은 알아서 계산’하라는 뜻입니다.",
+  "more_en": "shape describes a tensor's dimensions, e.g. (2,3). Transpose A.T swaps rows and columns, sending (i,j) to (j,i), turning (2,3) into (3,2) — essential in backpropagation. reshape rearranges the same values into a new shape without reordering them. Transpose and reshape both go (2,3)→(3,2) but give different matrices."
+ },
+ "py7_03": {
+  "ch": "파이썬 제7장 · AI 라이브러리",
+  "sec": "7.3 내적·노름",
+  "title": "내적·노름 — np.dot · np.linalg.norm",
+  "narr": "두 벡터가 <b>얼마나 같은 방향인가</b>를 한 숫자로 압축한 것이 <b>내적 a·b</b>입니다(<code>np.dot(a,b)</code>) — 같은 자리끼리 곱해 모두 더하죠. 내적이 <b>양수</b>면 비슷한 방향(예각), <b>0</b>이면 수직(직교), <b>음수</b>면 반대 방향(둔각)입니다. 벡터의 <b>길이</b>는 <b>노름 ‖a‖</b>(<code>np.linalg.norm</code>)로 재는데, 피타고라스 그대로 <b>√(성분 제곱의 합)</b>이죠. 슬라이더로 벡터 a를 돌려 보세요 — 내적과 사잇각이 실시간으로 계산되며, a·b가 0이 되는 ‘직교 순간’도 찾을 수 있습니다.",
+  "more": "<b>왜 AI의 심장인가</b>: 단어 임베딩의 <b>의미 유사도</b>, 트랜스포머 <b>어텐션의 점수</b>(Q·Kᵀ), 추천 시스템의 ‘비슷한 취향’ — 전부 내적 한 번으로 잽니다. 흔히 길이를 1로 맞춰 정규화한 뒤 내적하면 <b>코사인 유사도</b>(cosθ = a·b /(‖a‖‖b‖))가 되어, 방향만 비교할 수 있죠. 노름에는 L2(유클리드 길이)뿐 아니라 절댓값 합인 L1도 있고, 정규화(regularization)에서 가중치 벌점으로 자주 등장합니다.",
+  "more_en": "The dot product np.dot(a,b) compresses 'how aligned' two vectors are into one number: positive = similar direction, zero = orthogonal, negative = opposite. The norm np.linalg.norm(a) is the vector's length, √(sum of squared components). Cosine similarity cosθ = a·b/(‖a‖‖b‖) powers embeddings and attention scores."
+ },
+ "py7_04": {
+  "ch": "파이썬 제7장 · AI 라이브러리",
+  "sec": "7.4 역행렬·연립방정식",
+  "title": "역행렬·연립방정식 — inv · solve(Ax=b)",
+  "narr": "여러 미지수의 <b>연립방정식</b>을 행렬 한 줄 <b>Ax = b</b>로 적을 수 있습니다. 숫자 5x=10을 x=10/5로 풀듯, 행렬에서는 <b>역행렬 A⁻¹</b>을 곱해 <b>x = A⁻¹b</b>로 풉니다. 2×2 역행렬은 닫힌식 <b>(1/det)·[[d,−b],[−c,a]]</b>로 바로 계산되죠(det≠0일 때). 화면은 역행렬을 실제로 구해 <b>A @ A⁻¹ = I</b>(단위행렬)임을 검산하고, 다시 탭하면 같은 식을 <b>두 직선의 교점</b>으로 보여 줍니다 — 그 교점이 곧 해입니다.",
+  "more": "<b>det=0이면 풀 수 없다</b>: 행렬식 det(A)가 0이면 역행렬이 없습니다(<b>특이행렬</b>) — 두 직선이 평행해 교점이 없거나 무한히 많은 경우죠. <b>실무 팁</b>: <code>x = A⁻¹b</code>처럼 역행렬을 직접 구하지 말고 <b><code>np.linalg.solve(A,b)</code></b>를 쓰세요 — 더 빠르고 수치적으로 안정적입니다(역행렬 계산은 오차가 누적됨). 선형회귀의 <b>정규방정식</b> w=(XᵀX)⁻¹Xᵀy, 물리 시뮬레이션, 3D 그래픽 변환이 모두 이 ‘Ax=b 풀기’ 한 패턴 위에 섭니다.",
+  "more_en": "A system of equations Ax = b is solved with the inverse: x = A⁻¹b (when det(A) ≠ 0). The 2×2 inverse is (1/det)·[[d,−b],[−c,a]], and A @ A⁻¹ = I. If det = 0 the matrix is singular and has no inverse. In practice use np.linalg.solve(A,b) rather than computing the inverse — it's faster and more stable. This underlies regression's normal equation w=(XᵀX)⁻¹Xᵀy."
+ },
+ "py7_05": {
+  "ch": "파이썬 제7장 · AI 라이브러리",
+  "sec": "7.5 고유값·왜 중요한가",
+  "title": "고유값·고유벡터 — np.linalg.eig",
+  "narr": "행렬을 벡터에 곱하면 보통 <b>방향이 틀어집니다</b>. 그런데 어떤 특별한 벡터(<b>고유벡터</b>)는 행렬을 곱해도 <b>방향이 그대로</b>이고, 길이만 <b>λ배</b>로 늘어납니다 — 이것이 <b>A v = λ v</b>이고, λ가 <b>고유값</b>입니다(<code>np.linalg.eig</code>). 이 ‘변하지 않는 축’이 데이터의 <b>본질 방향</b>을 알려 주죠. 화면은 대칭행렬 [[2,1],[1,2]]의 고유값(λ=3, 1)과 고유벡터를 닫힌식으로 실제 계산해, 일반 벡터는 방향이 틀어지는데 고유벡터만 그대로 늘어남을 보여 줍니다. 다시 탭하면 이 모든 것이 AI 어디에 쓰이는지 한눈에 정리됩니다.",
+  "more": "<b>고유값 분해가 떠받치는 것들</b>: <b>PCA(주성분 분석)</b>는 공분산행렬의 고유벡터 중 <b>분산이 가장 큰 방향</b>을 골라 차원을 줄이고, 구글의 <b>PageRank</b>는 웹 링크행렬의 <b>으뜸 고유벡터</b>로 페이지를 줄 세웁니다. 추천·압축·진동 해석도 마찬가지죠. <b>큰 그림</b>: 신경망 한 층은 y=W·x+b(<b>행렬곱</b>), 학습은 전치 Wᵀ를 거꾸로 곱하는 <b>역전파</b>, 어텐션은 Q·Kᵀ <b>내적</b> — 즉 <b>딥러닝은 이 장에서 본 곱·전치·내적·분해의 거대한 연쇄</b>일 뿐입니다. 행렬연산을 손에 쥐면 AI의 속살이 보입니다.",
+  "more_en": "An eigenvector v of A keeps its direction under multiplication, only scaling by λ: A v = λ v. These 'invariant axes' reveal a matrix's essential structure. PCA picks the eigenvector of largest variance for dimensionality reduction; PageRank uses the dominant eigenvector to rank web pages. Big picture: a neural layer is y=Wx+b (matmul), training uses Wᵀ (transpose) in backprop, attention is Q·Kᵀ (dot products) — deep learning is just a vast chain of these matrix operations.",
+  "problem": {
+   "q": "정사각행렬 A의 고유벡터 v가 만족하는 식과, 그 의미는?",
+   "solution": "<b>A v = λ v</b> 입니다. 즉 행렬 A를 고유벡터 v에 곱해도 <b>방향이 바뀌지 않고</b>, 길이만 고유값 <b>λ배</b>로 스케일됩니다. 이런 ‘변하지 않는 축’이 데이터의 본질 방향을 나타내며, PCA·PageRank 등 수많은 AI 기법의 토대가 됩니다."
+  }
+ }
+}
