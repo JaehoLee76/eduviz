@@ -140,6 +140,10 @@
       '.acct-tlink{background:var(--accent,#4f93d6);color:#fff;border:none;border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;}',
       '.acct-tx{background:none;border:none;color:var(--text-3,#9b99a3);font-size:17px;cursor:pointer;line-height:1;}',
       '.acct-umenu{position:fixed;z-index:42;min-width:180px;background:var(--panel-bg,rgba(28,28,36,.98));border:1px solid var(--border,rgba(255,255,255,.16));border-radius:12px;box-shadow:0 8px 26px rgba(0,0,0,.45);overflow:hidden;}',
+      '.acct-loginpop{position:fixed;z-index:43;background:var(--panel-bg,rgba(28,28,36,.99));border:1px solid var(--border,rgba(255,255,255,.16));border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);padding:16px 16px 14px;text-align:center;}',
+      '.acct-lptitle{font-size:14px;font-weight:600;color:var(--text-1,#e8e6e0);margin-bottom:11px;}',
+      '.acct-lpbtn{display:flex;justify-content:center;min-height:40px;}',
+      '.acct-lphint{font-size:11.5px;color:var(--text-3,#9b99a3);margin-top:10px;line-height:1.5;max-width:240px;}',
       '.acct-uinfo{padding:11px 14px;border-bottom:1px solid var(--border,rgba(255,255,255,.1));}',
       '.acct-uinfo .nm{font-size:13.5px;font-weight:600;color:var(--text-1,#f4f3ee);}',
       '.acct-uinfo .em{font-size:12px;color:var(--text-3,#9b99a3);margin-top:2px;word-break:break-all;}',
@@ -246,13 +250,28 @@
     var r=loginBtn.getBoundingClientRect(); userMenu.style.top=(r.bottom+6)+'px'; userMenu.style.right=Math.max(8,(window.innerWidth-r.right))+'px'; userMenu.style.display='block'; }
   function hideUserMenu(){ if(userMenu) userMenu.style.display='none'; }
   function toggleUserMenu(){ if(userMenu && userMenu.style.display==='block') hideUserMenu(); else showUserMenu(); }
+  // ── 공식 'Google로 로그인' 버튼 팝오버(One Tap이 브라우저에 차단돼도 항상 동작) ──
+  var loginPop=null;
+  function buildLoginPop(){ if(loginPop) return; loginPop=mk('div','acct-loginpop'); loginPop.style.display='none'; document.body.appendChild(loginPop);
+    document.addEventListener('click', function(e){ if(loginPop.style.display==='block' && !loginPop.contains(e.target) && loginBtn && !loginBtn.contains(e.target)) hideLoginPop(); });
+    window.addEventListener('resize', hideLoginPop); }
+  function hideLoginPop(){ if(loginPop) loginPop.style.display='none'; }
+  function showLoginPop(){ if(!loginPop || !loginBtn || !(window.google&&google.accounts&&google.accounts.id)) return;
+    loginPop.innerHTML=''; loginPop.appendChild(mk('div','acct-lptitle','Google 계정으로 로그인'));
+    var holder=mk('div','acct-lpbtn'); loginPop.appendChild(holder);
+    loginPop.appendChild(mk('div','acct-lphint','구글 계정만 있으면 됩니다 — 별도 가입은 필요 없습니다.'));
+    try{ google.accounts.id.renderButton(holder, { type:'standard', theme:'filled_blue', size:'large', text:'signin_with', shape:'pill', logo_alignment:'left', width:240 }); }catch(e){}
+    var r=loginBtn.getBoundingClientRect(); loginPop.style.top=(r.bottom+8)+'px'; loginPop.style.right=Math.max(8,(window.innerWidth-r.right))+'px'; loginPop.style.display='block'; }
   function onLoginClick(){
     if(user){ toggleUserMenu(); return; }   // 로그인됨 → 메뉴 열기(즉시 로그아웃 안 함)
     if(!clientId()){ toast('로그인은 곧 활성화됩니다. (관리자 설정 대기)'); return; }
-    if(!gisReady){ toast('로그인 준비 중… 잠시 후 다시 눌러 주세요.'); initGIS(); return; }
-    google.accounts.id.prompt();   // One Tap / 로그인 창
+    if(loginPop && loginPop.style.display==='block'){ hideLoginPop(); return; }   // 토글
+    if(!gisReady){ initGIS(); toast('로그인 준비 중… 잠시 후 다시 눌러 주세요.'); return; }
+    showLoginPop();                       // 공식 Google 버튼(팝업) — One Tap 차단돼도 항상 동작
+    try{ google.accounts.id.prompt(); }catch(e){}   // 가능하면 One Tap도 함께(보조)
   }
   function onCredential(resp){ var t=resp&&resp.credential; if(!t) return; var p=jwtDecode(t); if(!p) return;
+    hideLoginPop();
     user={ sub:p.sub, name:p.name||p.email, email:p.email, picture:p.picture, idToken:t };
     try{ localStorage.setItem('eduviz_session', JSON.stringify(user)); }catch(e){}   // 페이지 간 로그인 유지
     loadLocal();                                  // 사용자 키로 전환
@@ -264,7 +283,7 @@
   // ── 초기화 ──
   function restoreSession(){ try{ var su=JSON.parse(localStorage.getItem('eduviz_session')||'null'); if(su && su.sub) user=su; }catch(e){} }
   function init(){
-    injectStyle(); restoreSession(); loadLocal(); buildToolbar(); buildMemo(); buildUserMenu();
+    injectStyle(); restoreSession(); loadLocal(); buildToolbar(); buildMemo(); buildUserMenu(); buildLoginPop();
     watchScene(); updateMemoBtn();
     initGIS();
     // 엔진 준비 후 위치 복원/해시 점프.
