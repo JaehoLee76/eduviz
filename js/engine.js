@@ -48,9 +48,22 @@
     var vp=Math.max(0,(global.innerWidth-target)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
     cv = canvas; ctx = cv.getContext('2d'); injectViewportCSS(); resize();
-    global.addEventListener('resize', function(){ resize(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
+    global.addEventListener('resize', function(){ fitStage(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
   }
   function resize(){ setVpad(); DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  // 시각화 구역을 제목(상단)·UI(하단)와 독립 분리: 제목 높이를 실측해 캔버스 상단을 그만큼 비운다(1줄/2줄·화면크기 자동 대응).
+  var _needFit=false;
+  function fitStage(){ if(!cv) return;
+    var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
+    if(document.body && document.body.classList.contains('viz')){ cv.style.top=''; cv.style.height=''; resize(); return; }   // algo viz: 자체 CSS(오른쪽 컬럼) 유지
+    if(sc && (sc.cinematic || (sc.branchOf!=null && sc.page))){ cv.style.top='0px'; cv.style.height='100%'; resize(); return; }   // 시네마틱·책페이지: 전체화면
+    var bn=document.getElementById('bignum');
+    if(!(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none')) return;   // 제목 아직 없음 → 이전 상태 유지(전환 깜빡임 방지)
+    var r=bn.getBoundingClientRect(); if(r.height<=2) return;
+    var winH=global.innerHeight||H, bot=(winH>820?235:winH>680?208:188);   // 하단 예약 = 슬라이더(상단 ~236px)+말풍선+재생바까지 캔버스 밖으로
+    var topPx=Math.min(Math.round(winH*0.34), Math.round(r.bottom)+10);   // 제목 바로 아래까지 비움(상한 34%)
+    cv.style.top=topPx+'px'; cv.style.height=Math.max(120,(winH-topPx-bot))+'px'; resize();
+  }
   function layoutOnly(s){ if(s.layout) s.layout(E); }
 
   // ---------- Sound (듣고) ----------
@@ -339,7 +352,8 @@
           var chk=function(){ branchPageEl.classList.toggle('scrollable', branchPageEl.scrollHeight > branchPageEl.clientHeight + 8); };
           requestAnimationFrame(chk); setTimeout(chk, 180);   // SVG·이미지 레이아웃 후 재확인
         } else branchPageEl.classList.remove('scrollable'); } }
-    resize();   // 장면 종류(시네마틱·page·viz)에 따라 #stage 높이가 달라질 수 있으므로 enter 전 캔버스 치수 재계산
+    fitStage();   // 장면 종류(시네마틱·page·viz) 즉시 반영. 제목 있는 장면은 첫 draw 뒤 _needFit으로 제목 실측 보정
+    _needFit=true;
     if(sc.enter) sc.enter(E);
     renderKeyHint(sc);
     animPaused=false; animFrame=0; _resetProbe(); updatePlayUI();   // 새 장면은 처음부터 재생 + 정적 감지 리셋
@@ -477,6 +491,7 @@
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
     if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드면 캔버스 생략
+    if(_needFit){ _needFit=false; fitStage(); }   // 첫 draw로 제목이 그려진 뒤 제목 높이만큼 상단 비움
     _probe();
   }
   function loop(){ drawOneFrame(!animPaused); requestAnimationFrame(loop); }   // 항상 그림 — 일시정지면 적분만 동결
@@ -605,12 +620,11 @@
     var stepScene=!!(sc && sc.tap && !sc.keys && !hasSlider && (hasAuto || isStepText));
     var chips=[]; if(stepScene){ chips.push([ 'D', /^\s*↻/.test(text)?'다시':'다음' ]); if(hasAuto) chips.push(['S','자동']); chips.push(['X','처음']); }
     else if(playbackEnabled){ chips.push(['0','처음']); }   // 물리(재생 트랙): 화면 탭과 함께 '0=처음으로' 키 안내
-    // 알약이 하단 DOM(말풍선·슬라이더·재생바·내비)에 가리지 않도록 위치 보정
-    // 물리는 하단이 혼잡 → bignum(공식) 실제 하단 바로 아래 상단 빈 영역으로(부제 줄수에 자동 적응)
-    if(playbackEnabled){ var topY=H*0.27, bn=document.getElementById('bignum');
-      if(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none'){ var br=bn.getBoundingClientRect(); if(br.bottom>0) topY=br.bottom+24; }
-      cy=Math.max(H*0.22, Math.min(topY, H*0.42)); }
-    else { cy=Math.min(cy, H-40); }                         // 타 트랙: 너무 아래로만 가지 않게
+    // 알약을 슬라이더 박스 위로 정밀 clamp(트랙 무관) — 슬라이더 top을 캔버스 좌표로 환산해 그 위에 둠
+    cy=Math.min(cy, H-40);
+    var ctrlEl=document.getElementById('controls');
+    if(ctrlEl && getComputedStyle(ctrlEl).display!=='none' && ctrlEl.querySelector('input,button,.opt')){
+      var crt=ctrlEl.getBoundingClientRect().top - cv.getBoundingClientRect().top; if(crt>60) cy=Math.min(cy, crt-32); }
     ctx.save(); ctx.textBaseline='middle';
     ctx.font='600 15px sans-serif'; var tw=text?ctx.measureText(text).width:0;
     ctx.font='11px sans-serif'; var cwid=[], chipW=0;
