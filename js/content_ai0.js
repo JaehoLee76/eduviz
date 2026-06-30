@@ -39,7 +39,7 @@
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, s=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
       var ANIM=1215, FADE=18, HOLD=170;
-      var _n=(typeof performance!=="undefined"&&performance.now)?performance.now():0, _dt=s.last?(_n-s.last):16.7; if(_dt<0||_dt>200)_dt=16.7; s.last=_n; s.acc+=_dt*0.06; var local=s.acc;
+      var _n=(typeof performance!=="undefined"&&performance.now)?performance.now():0, _dt=s.last?(_n-s.last):16.7; if(_dt<0||_dt>200)_dt=16.7; s.last=_n; s.acc+=_dt*0.036; var local=s.acc;
       if(local>=ANIM+HOLD){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }
       var ph=Math.min(local,ANIM)/ANIM, seam=(local<FADE? local/FADE : 1);
       // 힌턴 초상(은은한 배경)

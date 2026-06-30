@@ -24,7 +24,7 @@
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },   // 클릭 = 건너뛰기
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, fr=E.frame, st=this.s;
       function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }   // smoothstep
-      var ANIM=1148, FADE=18, HOLD=180; var _n=(typeof performance!=="undefined"&&performance.now)?performance.now():0, _dt=st.last?(_n-st.last):16.7; if(_dt<0||_dt>200)_dt=16.7; st.last=_n; st.acc=(st.acc||0)+_dt*0.06; var local=st.acc;
+      var ANIM=1148, FADE=18, HOLD=180; var _n=(typeof performance!=="undefined"&&performance.now)?performance.now():0, _dt=st.last?(_n-st.last):16.7; if(_dt<0||_dt>200)_dt=16.7; st.last=_n; st.acc=(st.acc||0)+_dt*0.036; var local=st.acc;
       if(local>=ANIM+HOLD){ if(!st.ended){ st.ended=true; E.introEnd(this.story); } return; }   // 애니메이션 끝 → 엔드카드(아인슈타인+설명)
       var ph=Math.min(local,ANIM)/ANIM, seam=(local<FADE? local/FADE : 1);
       var warp = ss(0.33,0.52,ph);                                      // 평평(뉴턴)→휘어짐(아인슈타인)

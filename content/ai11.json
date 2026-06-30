@@ -1,0 +1,46 @@
+{
+  "ai11_01": {
+    "ch": "인공지능 제11장 · Transformer",
+    "sec": "11.1 어텐션의 직관",
+    "title": "Attention — 시점마다 어디에 주목할까",
+    "narr": "기계 번역을 떠올려 봅시다. 입력 “저는 강사 입니다”를 영어로 옮길 때, RNN은 문장 전체를 <b>맥락벡터 하나</b>에 욱여넣어 디코더에 넘겼습니다. 그런데 문장이 길어지면 그 한 벡터에 정보가 뭉개져 버리죠. <b>Attention</b>은 발상을 바꿉니다 — 출력하는 <b>매 시점마다</b> 입력의 <b>어느 단어에 주목할지</b>를 새로 고릅니다. 예컨대 ‘instructor(강사)’를 만들 시점에는 입력의 ‘강사’에 집중하고, 다른 단어는 흘려보내죠. 슬라이더로 출력 시점을 바꿔 보세요 — 주목하는 입력 단어(파란 막대가 높은 곳)가 그때그때 달라집니다. 화면의 주목도(%)는 쿼리와 각 단어의 닮은 정도(내적)를 Softmax한 <b>실제 계산값</b>입니다.",
+    "more": "<b>맥락벡터를 시점마다 새로</b>: 기본 Seq2Seq는 인코더 마지막 은닉벡터 하나를 모든 출력 시점에 그대로 썼습니다. Attention은 현재 출력 시점의 쿼리 s와 입력 단어 벡터 hᵢ의 ‘주목도’ f(s,hᵢ)를 구해, <b>C = Σ f(s,hᵢ)·hᵢ</b> 로 매 시점 다른 맥락벡터를 만듭니다. 덕분에 ‘멀리 있는 입력 단어도 직접’ 볼 수 있어, 긴 문장에서 ‘멀수록 잊혀지는’ 문제가 인코더 쪽에서 크게 완화됩니다. (출처: 「혁펜하임의 Easy! 딥러닝」 8.7)",
+    "more_en": "RNN crammed the whole sentence into one context vector, losing information for long inputs. Attention instead builds a different context vector at every output step, choosing which input words to focus on. The focus weights come from the similarity (dot product) between a query and each word, normalized by Softmax."
+  },
+  "ai11_02": {
+    "ch": "인공지능 제11장 · Transformer",
+    "sec": "11.2 내적과 Softmax",
+    "title": "내적 = 닮은 정도, Softmax = 주목 분포",
+    "narr": "주목도는 어떻게 정할까요? 핵심은 <b>내적(dot product)</b>입니다. 두 벡터의 내적은 <b>|a||b|cosθ</b> — 방향이 비슷할수록(θ가 작을수록) 커집니다. 그래서 내적은 두 단어 벡터의 <b>‘닮은 정도(유사도)’</b>를 재는 좋은 자입니다. 쿼리(지금 만들 단어)와 각 입력 단어(키)의 내적을 구하면, 어느 단어가 쿼리와 가까운지 점수가 나오죠. 슬라이더로 쿼리 방향을 돌려 보세요 — 가까운 키일수록 점수가 커집니다. 이 점수들을 <b>Softmax</b>에 통과시키면 0~1 사이, 합이 1인 <b>주목 분포</b>가 됩니다.",
+    "more": "<b>왜 Softmax인가</b>: ①크기 규제 — 한 단어에 가중치가 폭주하는 걸 막습니다. ②양수 보장 — 주목도는 ‘얼마나 중요한가’라 음수면 해석이 곤란한데 Softmax는 항상 양수. ③분포로 해석 — 합이 1이라 “강사에 70% 주목”처럼 비율로 읽힙니다. 가중치를 직접 외우는 게 아니라, 단어 벡터를 ‘벡터 공간 어디에 둘지’를 학습해 닮은 단어끼리 가까워지게 만드는 것이 어텐션 학습의 본질입니다. (출처: Easy! 딥러닝 8.7.1~8.7.2)",
+    "more_en": "The dot product |a||b|cosθ grows when vectors point the same way, so it measures similarity. Attention scores = query·key dot products, turned into a 0–1 distribution by Softmax (bounded, positive, sums to 1 — interpretable as ‘70% attention on this word’)."
+  },
+  "ai11_03": {
+    "ch": "인공지능 제11장 · Transformer",
+    "sec": "11.3 Query·Key·Value",
+    "title": "Q · K · V — 질문 · 열쇠 · 값",
+    "narr": "어텐션 식 <b>C = Σ ⟨s, hᵢ⟩·hᵢ</b>를 자세히 뜯어보면 세 가지 역할이 보입니다. 현재 시점 벡터 <b>s는 “다음에 무엇에 주목할까?”라 묻는 질문</b> — <b>쿼리(Query)</b>입니다. 입력 단어 벡터 hᵢ는 그 질문에 “나는 이런 단어야”라고 <b>답하는 열쇠 — 키(Key)</b>이자, 동시에 실제로 가중합되어 의미를 전달하는 <b>값(Value)</b>입니다. 즉 맥락벡터는 ‘쿼리와 키의 내적(주목도)으로 값들을 가중합한 것’이죠. 슬라이더로 쿼리를 바꿔 보세요 — 가까운 값 벡터일수록 굵게(큰 가중치) 섞여 맥락벡터 C(금색)가 그쪽으로 기웁니다.",
+    "more": "<b>Transformer의 진화</b>: 기본 어텐션은 키=값=같은 hᵢ를 썼지만, Transformer는 <b>Q·K·V를 각각 별도의 FC(선형) 레이어로 생성</b>합니다. 같은 단어라도 ‘질문할 때의 표현’, ‘답할 때의 표현’, ‘전달할 의미’를 분리해 더 유연하고 강력해지죠. 이 Q·K·V를 묶으면 <b>Attention(Q,K,V) = Softmax(QKᵀ/√d)·V</b> — Transformer 어텐션의 표준 식입니다(√d는 내적이 커지는 걸 눌러 주는 스케일). (출처: Easy! 딥러닝 8.7.2, Vaswani 2017)",
+    "more_en": "Three roles in C = Σ⟨s,hᵢ⟩hᵢ: the current vector s is the Query (‘what should I attend to?’), each input vector is a Key (the answer ‘I am this word’) and a Value (the meaning actually mixed in). Transformer makes Q, K, V with separate linear layers: Attention = Softmax(QKᵀ/√d)·V."
+  },
+  "ai11_04": {
+    "ch": "인공지능 제11장 · Transformer",
+    "sec": "11.4 Self-Attention",
+    "title": "Self-Attention — 문장이 스스로를 본다",
+    "narr": "지금까지는 디코더가 인코더를 바라보는 어텐션이었습니다. <b>Self-Attention</b>은 한 문장이 <b>자기 자신 안의 단어들끼리</b> 어텐션을 하는 것입니다. 각 토큰을 쿼리·키·값으로 만들고, 모든 토큰 쌍의 내적을 Softmax하면 <b>N×N 주목 행렬</b>이 나옵니다(화면은 실제 행렬). 한 행은 ‘그 토큰이 문장의 어느 단어들을 보는가’입니다. 학습된 Q·K에선 동사 ‘앉다’가 주어 ‘고양이’에, 조사 ‘가’가 ‘고양이’에 주목하는 식으로 행마다 의미가 생기죠(화면은 실제 내적·Softmax 계산 그대로 — 이 예시 벡터에선 자기 자신 주목이 큽니다). 슬라이더로 주목 주체 토큰을 바꿔 그 행을 살펴보세요. 결정적 장점: RNN처럼 한 칸씩이 아니라 <b>모든 토큰을 한 번에 병렬로</b> 봅니다.",
+    "more": "<b>RNN을 완전히 버리다</b>: RNN+Attention도 디코더 쪽엔 여전히 ‘멀수록 잊혀짐’이 남았습니다. Transformer는 RNN을 통째로 걷어내고 Self-Attention만으로 인코더·디코더를 만듭니다. 모든 위치가 서로 ‘동등한 거리’에 있어 장거리 의존을 직접 잡고, 순차 계산이 없어 <b>병렬화</b>로 학습이 빨라지죠. 디코더의 Self-Attention은 미래 토큰을 못 보게 <b>마스킹(Masking)</b>을 씌웁니다. (출처: Easy! 딥러닝 8.8)",
+    "more_en": "Self-Attention has a sentence attend to itself: turn each token into Q/K/V, take all pairwise dot products, Softmax each row → an N×N attention matrix. Every token sees every other token at once (parallel), so long-range dependencies are captured directly and training parallelizes — unlike sequential RNNs. Decoder self-attention is masked to hide future tokens."
+  },
+  "ai11_05": {
+    "ch": "인공지능 제11장 · Transformer",
+    "sec": "11.5 위치 인코딩과 병렬성",
+    "title": "위치 인코딩 + 병렬 처리",
+    "narr": "Self-Attention엔 한 가지 빈틈이 있습니다 — 모든 단어를 <b>동시에</b> 보다 보니 <b>순서 정보가 사라집니다</b>. “개가 사람을 물다”와 “사람이 개를 물다”를 구분 못 하면 큰일이죠. 그래서 단어 임베딩에 위치마다 다른 <b>사인/코사인 패턴(위치 인코딩)</b>을 더해 “몇 번째 단어인지”를 새깁니다. 차원마다 주파수가 달라, 각 위치는 고유한 ‘지문’을 갖게 됩니다(화면은 실제 sin/cos 값). 순서를 따로 새기니 RNN처럼 차례로 기다릴 필요가 없어 <b>모든 단어를 병렬로</b> 처리 — 이 병렬성이 거대 모델을 빠르게 학습시킨 비결입니다.",
+    "more": "<b>위치 인코딩</b>: PE(pos,2i)=sin(pos/10000^(2i/d)), PE(pos,2i+1)=cos(pos/10000^(2i/d)). 낮은 차원은 천천히, 높은 차원은 빠르게 진동해 위치를 이진수처럼 인코딩합니다. <b>Transformer 한 블록</b> = (멀티헤드) Self-Attention + 위치별 FC + 잔차연결·정규화. 이 블록을 쌓아 인코더·디코더를 만들고, 같은 구조로 BERT·GPT가 태어났습니다. “Attention Is All You Need” — 순환도 합성곱도 없이 어텐션만으로 충분했죠. (출처: Easy! 딥러닝 8.8, Vaswani 외 2017)",
+    "more_en": "Self-Attention is order-agnostic, so we add positional encodings — sinusoids of different frequencies per dimension — giving each position a unique fingerprint. With order encoded separately, all tokens process in parallel (no sequential wait), the key to training huge models. A Transformer block = (multi-head) self-attention + position-wise FC + residual/norm; stacking them gives BERT and GPT.",
+    "problem": {
+      "q": "Self-Attention에 위치 인코딩이 꼭 필요한 이유는?",
+      "solution": "Self-Attention은 모든 토큰을 동시에·대칭으로 보기 때문에 <b>단어의 순서를 구분하지 못합니다</b>. 위치마다 다른 사인/코사인 패턴을 더해 순서 정보를 주입해야 “개가 사람을 물다 ≠ 사람이 개를 물다”를 구분할 수 있습니다."
+    }
+  }
+}
