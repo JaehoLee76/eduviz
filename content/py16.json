@@ -1,0 +1,50 @@
+{
+ "py16_01": {
+  "ch": "파이썬 제16장 · 딥러닝",
+  "sec": "16.1 전이학습",
+  "title": "전이학습 — 거인의 어깨 위에서",
+  "narr": "딥러닝 모델을 매번 <b>맨바닥부터</b> 학습시켜야 한다면, 우리 같은 개인에겐 가망이 없습니다 — ImageNet 같은 데이터 120만 장, GPU 수십 대, 몇 주가 필요하니까요. 그런데 다행히, 누군가 이미 그 고생을 해 두었습니다. <code>torchvision.models.resnet18(weights=\"IMAGENET1K_V1\")</code> 한 줄이면, ImageNet으로 사전학습된 ResNet을 통째로 내려받습니다. 핵심 발상은 이렇습니다 — 이 모델의 <b>앞부분 층들</b>은 ‘선·모서리·질감·모양’ 같은 <b>보편적 특징</b>을 이미 알고 있고, 그건 강아지든 고양이든 X-ray든 공통입니다. 그래서 앞 층은 그대로 <b>동결</b>(<code>requires_grad=False</code>)하고, 맨 마지막 <b>분류층(fc) 하나만</b> 우리 문제에 맞게 갈아 끼웁니다(<code>nn.Linear(512, 2)</code>). 탭하며 ①어느 층을 빌리고 ②얼마나 적은 파라미터만 학습하며 ③곡선이 얼마나 빨리 오르는지 보세요.",
+  "more": "<b>왜 이렇게 잘 되는가</b>: 신경망의 앞 층은 저수준 특징(에지·색·질감), 뒤로 갈수록 고수준(눈·바퀴·얼굴)을 배웁니다. 저수준 특징은 거의 모든 영상 과제에 공통이라, 처음부터 다시 배울 필요가 없죠. 그래서 사진 <b>수백 장·몇 분</b> 학습만으로도 처음부터 만든 모델을 크게 앞섭니다.\n\n<b>두 가지 방식</b>: ①<b>특징 추출(feature extraction)</b> — 화면처럼 앞을 전부 동결하고 새 fc만 학습(데이터 적을 때). ②<b>미세조정(fine-tuning)</b> — 뒤쪽 몇 층까지 작은 학습률로 함께 갱신(데이터 좀 더 있을 때). 화면의 파라미터 수(11.7M 중 fc 1026개)와 학습 곡선은 모두 실제 ResNet18 구조로 계산한 값입니다.",
+  "more_en": "Transfer learning reuses a model pretrained on a huge dataset (ImageNet) instead of training from scratch. Early layers learn universal features (edges, textures, shapes) common to all vision tasks, so we freeze them (requires_grad=False) and replace only the final classifier (nn.Linear(512, N)) for our task. With a few hundred images and minutes of training, it beats a from-scratch model. Feature extraction freezes everything; fine-tuning also updates later layers with a small learning rate."
+ },
+ "py16_02": {
+  "ch": "파이썬 제16장 · 딥러닝",
+  "sec": "16.2 Transformers pipeline",
+  "title": "🤗 Transformers — LLM을 몇 줄로",
+  "narr": "거대 언어모델(LLM)을 ‘쓰는’ 일은, 놀랍도록 간단합니다. <code>from transformers import pipeline</code> 한 줄과, <code>pipeline(\"sentiment-analysis\")</code> 한 줄이면 끝이에요. 그러면 Hugging Face가 알아서 ①적절한 <b>토크나이저</b>와 ②사전학습된 <b>모델</b>을 내려받고 ③입력 문장을 토큰으로 바꿔 모델에 넣고 ④출력을 <b>라벨과 확률</b>로 정리해 돌려줍니다. <code>clf(\"이 강의 정말 명강의예요!\")</code> → <code>[{label: POSITIVE, score: 0.998}]</code>처럼요. 작업만 바꾸면 같은 방식으로 번역·요약·질의응답·<b>텍스트 생성</b>도 됩니다 — <code>pipeline(\"text-generation\")</code>은 내가 준 프롬프트 뒤에 토큰을 한 개씩 이어 붙여 문장을 만들죠. 탭하며 감정분석의 확률 막대와, 생성이 토큰 단위로 일어나는 모습을 보세요.",
+  "more": "<b>pipeline의 세 단계</b>: 토크나이저(텍스트→숫자) → 모델(추론) → 후처리(숫자→라벨·점수). 직접 하면 여러 줄이지만 pipeline이 한 줄로 포장합니다. <code>model=\"...\"</code> 인자로 Hub의 특정 모델(예: 한국어 모델·gpt2)을 지정할 수 있어요.\n\n<b>softmax</b>: 분류 결과의 두 확률(POSITIVE 0.998 + NEGATIVE 0.002)을 더하면 1입니다 — 모델은 점수를 softmax로 확률 분포로 만들고, 가장 큰 라벨을 답으로 냅니다. 화면의 확률·합은 그 출력을 그대로 재현한 값입니다.\n\n<b>한계</b>: 사전학습 모델은 학습 데이터의 편향·시점을 그대로 가집니다. 중요한 결정엔 출력을 검증하고, 필요하면 우리 데이터로 미세조정(16.1)하세요.",
+  "more_en": "Hugging Face's transformers lets you run state-of-the-art models in a few lines. pipeline(\"sentiment-analysis\") downloads a tokenizer and a pretrained model, then wraps tokenize → infer → post-process into one call, returning a label and probability. Switch the task string for translation, summarization, Q&A, or text-generation (which appends one token at a time). The two class probabilities sum to 1 via softmax; the largest label is the answer.",
+  "problem": {
+   "q": "pipeline(\"text-generation\")이 한 번에 문장 전체를 ‘떠올려’ 내는 게 아니라면, 어떻게 글을 만드나요?",
+   "solution": "<b>토큰을 한 개씩 자기회귀로 이어 붙입니다.</b> 지금까지의 토큰들을 보고 ‘다음에 올 확률이 가장 높은 토큰’을 골라 뒤에 붙이고, 그 새 문장을 다시 입력으로 넣어 그다음 토큰을 고르는 일을 반복합니다. 즉 한 단어씩 예측하며 점점 자라나는 것이지, 문장을 통째로 생성하는 것이 아닙니다."
+  }
+ },
+ "py16_03": {
+  "ch": "파이썬 제16장 · 딥러닝",
+  "sec": "16.3 모델 저장·불러오기·배포",
+  "title": "저장 · 불러오기 · 배포",
+  "narr": "모델은 <b>한 번 학습하고, 수없이 사용</b>합니다. 그러니 어렵게 배운 가중치를 메모리에만 두면 안 되겠죠 — 파일로 굳혀 두어야 합니다. PyTorch의 권장 방식은 모델의 <b>구조(코드)</b>와 <b>가중치(숫자)</b>를 <b>분리</b>하는 것입니다. <code>torch.save(net.state_dict(), \"model.pth\")</code>는 ‘배운 숫자’만 — 층 이름에서 텐서로 가는 딕셔너리(<b>state_dict</b>) — 을 저장합니다. 다른 환경에서는 같은 모델 클래스를 다시 만든 뒤(<code>net = MyNet()</code>), <code>net.load_state_dict(torch.load(\"model.pth\"))</code>로 값을 부어 넣고, <b><code>net.eval()</code></b>로 추론 모드를 켭니다. 이 파일을 서버(FastAPI 등) 뒤에 두면, 누구나 <code>POST /predict</code> 한 번으로 여러분의 AI를 부를 수 있습니다. 탭하며 state_dict의 내용과 배포 흐름을 보세요.",
+  "more": "<b>왜 state_dict만 저장하나</b>: 모델 객체를 통째로(pickle) 저장할 수도 있지만, 클래스 정의·경로에 묶여 잘 깨집니다. state_dict(가중치 딕셔너리)만 저장하면 구조는 코드로 관리되어 이식성·안전성이 높습니다 — 공식 권장 방식이죠.\n\n<b>eval()을 꼭</b>: 추론 전 <code>net.eval()</code>은 드롭아웃을 끄고 배치정규화를 학습 통계로 고정합니다. 빼먹으면 같은 입력에 결과가 흔들립니다. 반대로 다시 학습할 땐 <code>net.train()</code>.\n\n<b>서빙</b>: 저장한 모델을 FastAPI·TorchServe·ONNX Runtime 등에 올려 API로 만듭니다. 입력 전처리는 학습 때와 <b>똑같이</b> 맞춰야 합니다(같은 정규화·토크나이저).",
+  "more_en": "Train once, serve many times — so persist the learned weights. PyTorch recommends separating structure (code) from weights (numbers): torch.save(net.state_dict(), \"model.pth\") stores only the layer→tensor dict. Elsewhere, rebuild the same model class, load_state_dict, then call net.eval() to switch to inference mode (turning off dropout, freezing batch-norm stats). Put the file behind a server (FastAPI, TorchServe) to expose it as an API, keeping preprocessing identical to training.",
+  "problem": {
+   "q": "추론 전에 net.eval()을 호출하지 않으면 무엇이 문제인가요?",
+   "solution": "<b>드롭아웃과 배치정규화가 ‘학습 모드’로 남아, 같은 입력에도 출력이 흔들립니다.</b> 드롭아웃은 무작위로 뉴런을 꺼 버리고, 배치정규화는 현재 배치 통계를 쓰기 때문입니다. eval()은 드롭아웃을 끄고 배치정규화를 학습 때 누적한 고정 통계로 바꿔, 추론 결과를 결정적이고 정확하게 만듭니다."
+  }
+ },
+ "py16_04": {
+  "ch": "파이썬 제16장 · 딥러닝",
+  "sec": "16.4 AI 개발 워크플로",
+  "title": "AI 개발 워크플로 — 도는 사이클",
+  "narr": "실무의 AI는 ‘모델 학습’이라는 한 점이 아니라, <b>빙 도는 사이클</b>입니다. ①<b>데이터 수집</b> — 풀 문제를 정의하고 데이터를 모으고 라벨을 답니다. ②<b>전처리</b> — 정제·결측치 처리·정규화·훈련/검증/시험 분할로 깨끗하게 만듭니다. ③<b>학습</b> — 모델을 고르고 <code>fit</code>하거나, 사전학습 모델을 전이학습합니다. ④<b>평가</b> — 한 번도 못 본 데이터로 정직하게 정확도를 재고 과적합을 점검합니다. ⑤<b>배포</b> — 모델을 파일로 굳혀 API 뒤에 올립니다. ⑥<b>모니터링</b> — 실제 입력으로 성능을 감시하다, 데이터가 바뀌어 성능이 떨어지면(드리프트) <b>다시 ①로</b> 돌아가 재학습합니다. 탭하며 사이클을 한 바퀴 돌아 보세요 — 우리가 배운 도구가 각 자리에 정확히 들어맞습니다.",
+  "more": "<b>각 단계의 도구</b>(이 트랙에서 배운 것): 수집=requests·<code>pandas.read_csv</code>·🤗 datasets / 전처리=pandas·NumPy·sklearn / 학습=PyTorch·scikit-learn / 평가=metrics·교차검증 / 배포=<code>torch.save</code>·FastAPI / 모니터링=로그·데이터 드리프트 감시.\n\n<b>가장 흔한 함정</b>: 초보는 ‘학습’에만 시간을 쏟지만, 현업에선 <b>데이터 수집·전처리가 전체의 70~80%</b>를 차지합니다. ‘쓰레기를 넣으면 쓰레기가 나온다(garbage in, garbage out)’ — 좋은 데이터가 좋은 모델보다 먼저입니다.\n\n<b>왜 사이클인가</b>: 세상은 변합니다(소비자 취향·언어·환경). 한 번 잘 맞던 모델도 시간이 지나면 데이터 분포가 어긋나(드리프트) 성능이 떨어집니다. 그래서 끝이 아니라 <b>반복</b>입니다.",
+  "more_en": "Real-world AI is a loop, not a single step: collect → preprocess → train → evaluate → deploy → monitor → (back to collect). Data collection and cleaning typically take 70–80% of the effort — garbage in, garbage out. After deployment, monitor for data drift; when performance drops, retrain. Each stage maps to tools you've learned: pandas/NumPy/sklearn for data, PyTorch for training, torch.save/FastAPI for serving."
+ },
+ "py16_05": {
+  "ch": "파이썬 제16장 · 딥러닝",
+  "sec": "16.5 마무리",
+  "title": "마무리 — 당신의 첫 AI로",
+  "narr": "긴 계단을 한 칸씩 올라왔습니다. 첫 <code>print(\"Hello\")</code>에서 시작해 — 변수·조건·반복, 함수·클래스·모듈, 그리고 NumPy·pandas로 데이터를 다루는 법, 시각화와 전처리, scikit-learn으로 머신러닝, PyTorch로 신경망을 손수 학습시키는 법, 마침내 사전학습 모델을 전이학습해 ‘거인의 어깨 위에서’ 만드는 법까지요. 처음엔 한 줄 한 줄 더듬었지만, 이제는 <b>데이터를 정제하고, 모델을 학습·전이하고, 저장해 배포하는 한 사이클 전체</b>가 손에 익었습니다. 더 값진 건 ‘스스로 배우는 법’을 익혔다는 것 — 새 라이브러리, 새 논문 앞에서도 더는 막막하지 않죠. 탭하며 지나온 길을 돌아보고, 다음 갈래길을 골라 보세요. 거인들이 쌓아 둔 어깨 위에서, 이제 <b>당신만의 AI</b>를 만들 차례입니다.",
+  "more": "<b>다음 발걸음 — 세 갈래</b>: ①<b>논문 구현</b> — 관심 분야의 논문 한 편을 골라 직접 코드로 재현해 보세요. 읽기와 만들기는 전혀 다른 깊이를 줍니다. ②<b>Kaggle 도전</b> — 실전 대회 데이터로 수집부터 제출까지 전 과정을 끝까지 경험하세요. 리더보드와 공개 노트북이 최고의 교사입니다. ③<b>오픈소스 기여</b> — 좋아하는 라이브러리에 작은 PR(오타·문서·작은 버그)부터 보내며 진짜 코드베이스에 발을 들이세요.\n\n<b>가장 좋은 배움</b>은 언제나 ‘직접 만들어 보는 것’입니다. 완벽한 이해를 기다리지 말고, 작더라도 끝까지 굴러가는 것을 하나 만들어 보세요 — 그 과정에서 가장 많이 배웁니다. 축하합니다. 당신의 첫 AI를 만들 모든 도구가 이제 손안에 있습니다. 즐거운 항해를!",
+  "more_en": "From your first print() to fine-tuning pretrained models, you've climbed the whole staircase: syntax, functions and classes, NumPy/pandas, visualization and preprocessing, scikit-learn, PyTorch neural nets, and transfer learning. More importantly, you've learned how to learn — new libraries and papers are no longer intimidating. Next steps: reproduce a paper, enter a Kaggle competition, or make small open-source contributions. The best way to learn is to build. Congratulations — every tool to build your first AI is now in your hands."
+ }
+}

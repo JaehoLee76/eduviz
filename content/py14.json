@@ -1,0 +1,46 @@
+{
+ "py14_01": {
+  "ch": "파이썬 제14장 · 딥러닝",
+  "sec": "14.1 nn.Module — 신경망 정의",
+  "title": "nn.Module — 신경망을 클래스로",
+  "narr": "드디어 <b>진짜 신경망</b>을 짭니다. PyTorch에서 신경망 하나는 <code>nn.Module</code>을 상속한 <b>클래스</b>입니다. <code>__init__</code>에는 ‘어떤 부품(층)을 쓸지’를 적고 — 여기선 <code>nn.Linear(784,128)</code>과 <code>nn.Linear(128,10)</code> 두 개 — , <code>forward</code>에는 ‘입력이 그 부품들을 어떤 순서로 지나가는지’를 적습니다. 손글씨 한 장은 28×28=<b>784개</b> 숫자로 펼쳐져 들어와(<code>view</code>), 은닉층 128개를 <b>ReLU</b>와 함께 지나, 마지막에 <b>0~9를 가리키는 10개의 점수</b>로 나옵니다. 놀랍게도 우리가 적을 건 ‘앞으로 가는 길’뿐 — 역전파는 PyTorch가 알아서 해 줍니다. <br><br>※ PyTorch는 브라우저에선 못 돕니다. 왼쪽 코드는 Colab/GPU에서 그대로 도는 진짜 코드이고, 오른쪽 그림은 같은 구조를 보여 줍니다.",
+  "more": "<b>왜 클래스인가</b>: 층마다 학습할 가중치가 들어 있어, 모델을 ‘상태를 가진 객체’로 다루는 게 자연스럽습니다. <code>nn.Linear(in, out)</code> 하나는 <b>가중치 행렬 W(out×in) + 편향 b(out)</b>를 품은 ‘y = Wx + b’ 한 층이죠(7장의 행렬곱 그대로!). 이 모델의 학습할 숫자는 784·128 + 128 + 128·10 + 10 = <b>약 10만 개</b> — 전부 학습으로 정해집니다.\n\n<b>ReLU가 왜 필요한가</b>: Linear만 쌓으면 아무리 깊어도 결국 직선 하나입니다. 사이사이 <b>ReLU</b>(음수는 0, 양수는 그대로) 같은 비선형을 끼워야 곡선 경계를 그릴 수 있습니다(6장 활성함수).",
+  "more_en": "In PyTorch a neural network is a class subclassing nn.Module. __init__ declares the layers (here two nn.Linear), and forward describes how the input flows through them: a 28×28 image is flattened to 784 numbers, passes a 128-unit hidden layer with ReLU, and ends as 10 scores (one per digit). You only write the forward path — PyTorch handles backprop. nn.Linear(in,out) is just y = Wx + b, a matrix multiply plus bias."
+ },
+ "py14_02": {
+  "ch": "파이썬 제14장 · 딥러닝",
+  "sec": "14.2 데이터 로드 — MNIST · DataLoader",
+  "title": "datasets.MNIST + DataLoader — 배치로 흘리기",
+  "narr": "모델을 만들었으니 <b>먹일 데이터</b>가 필요합니다. <code>torchvision.datasets.MNIST</code>는 손으로 쓴 숫자 <b>7만 장</b>(학습 6만·시험 1만)을 한 줄로 자동으로 내려받아 줍니다 — 딥러닝의 ‘Hello World’ 데이터셋이죠. <code>transforms.ToTensor()</code>는 이미지를 신경망이 먹는 텐서(숫자 배열)로 바꿉니다. 그런데 6만 장을 <b>한꺼번에</b> 넣으면 메모리가 터집니다. 그래서 <code>DataLoader</code>가 데이터를 <b>64장씩 묶은 ‘배치(batch)’</b>로 잘라, 한 묶음씩 꺼내 줍니다. <code>shuffle=True</code>는 매번 순서를 섞어, 모델이 ‘순서’를 외우지 못하게 막습니다.",
+  "more": "<b>배치가 왜 중요한가</b>: 한 장씩 갱신하면 너무 들쭉날쭉하고, 6만 장 전체로 한 번에 갱신하면 느리고 메모리가 부족합니다. 그 사이의 <b>미니배치</b>(보통 32~256장)가 가장 안정적이라 표준이 됐습니다. 한 배치마다 가중치를 한 번 고치고, 전체 데이터를 한 바퀴 다 도는 것을 <b>1 에폭(epoch)</b>이라 부릅니다.\n\n<b>학습/시험 분리(1장 복습)</b>: <code>train=True</code>(6만 장)로만 배우고, <code>train=False</code>(1만 장)로 채점합니다. 둘은 절대 안 겹쳐야 ‘외운 게 아니라 진짜로 일반화했는지’를 정직하게 잴 수 있습니다.",
+  "more_en": "torchvision.datasets.MNIST downloads 70,000 handwritten digits (60k train, 10k test) in one line — deep learning's 'Hello World'. ToTensor() turns each image into a tensor. You can't feed 60k images at once, so DataLoader cuts the data into mini-batches (here 64) and yields one at a time; shuffle=True reshuffles each epoch so the model can't memorize order. One full pass over the data is one epoch. Train and test sets never overlap, so accuracy is measured honestly."
+ },
+ "py14_03": {
+  "ch": "파이썬 제14장 · 딥러닝",
+  "sec": "14.3 학습 루프 — forward·loss·backward·step",
+  "title": "학습 루프 — 다섯 줄의 반복",
+  "narr": "이 장의 <b>심장</b>입니다. 학습이란 이 다섯 줄을 수없이 반복하는 일이에요. <b>① <code>pred = model(x)</code></b> — 순전파로 예측을 냅니다. <b>② <code>loss = loss_fn(pred, y)</code></b> — <code>CrossEntropyLoss</code>로 ‘정답과 얼마나 다른가’를 한 숫자로 잽니다(분류의 표준 손실). <b>③ <code>loss.backward()</code></b> — 연쇄법칙으로 모든 가중치의 기울기를 <b>한 번에</b> 구합니다(7장 역전파). <b>④ <code>opt.step()</code></b> — 그 기울기의 반대로 한 걸음 내려갑니다(경사하강). <b>⑤ <code>opt.zero_grad()</code></b> — 기울기를 비웁니다(안 비우면 다음 배치 것과 쌓여 버립니다). 슬라이더로 에폭을 늘려 보세요 — 오른쪽 <b>손실 곡선이 실제로 뚝뚝 떨어집니다</b>.",
+  "more": "<b>CrossEntropyLoss</b>: 분류에서는 정답 클래스의 예측 확률이 높을수록 작아지는 교차엔트로피를 씁니다. PyTorch의 <code>nn.CrossEntropyLoss</code>는 내부에 <b>softmax까지 포함</b>하므로, 모델은 softmax 없이 <b>로짓(점수) 10개</b>만 내면 됩니다(흔한 실수 주의 — forward 끝에 softmax를 또 붙이지 말 것).\n\n<b>다섯 줄의 순서</b>가 곧 시험 포인트입니다: forward → loss → backward → step → zero_grad. 특히 <code>zero_grad()</code>를 빠뜨리면 기울기가 누적돼 학습이 망가집니다. 오른쪽 곡선·정확도는 같은 원리의 <b>축소판 신경망(100→16→3)을 브라우저에서 실제로 경사하강</b>시켜 그린 실측값입니다.",
+  "more_en": "The heart of training is five lines, repeated: ① forward (pred = model(x)), ② loss = CrossEntropyLoss(pred, y), ③ loss.backward() computes every gradient at once via the chain rule, ④ opt.step() takes one gradient-descent step, ⑤ opt.zero_grad() clears gradients (they accumulate otherwise). nn.CrossEntropyLoss includes softmax, so the model outputs raw logits — don't add softmax in forward. The loss curve shown is real: a small 100→16→3 net trained by actual gradient descent in your browser."
+ },
+ "py14_04": {
+  "ch": "파이썬 제14장 · 딥러닝",
+  "sec": "14.4 평가·정확도 — no_grad · argmax",
+  "title": "평가 — 본 적 없는 숫자로 채점",
+  "narr": "학습이 끝났으면 <b>한 번도 못 본 시험 데이터</b>로 실력을 잽니다. <code>model.eval()</code>로 평가 모드로 바꾸고, <code>with torch.no_grad():</code> 블록 안에서 예측만 합니다 — 평가 땐 기울기가 필요 없으니 그 계산을 꺼 메모리·속도를 아끼는 장치죠. 모델은 각 숫자에 점수를 매기고, <code>pred.argmax(1)</code>로 <b>가장 높은 점수의 숫자를 답으로</b> 고릅니다. <code>(guess == y)</code>로 맞은 개수를 세어 전체로 나누면 <b>정확도</b>가 나옵니다. 슬라이더로 시험 숫자를 넘기며, 신경망이 각 숫자에 매긴 확률(막대)과 최종 예측을 확인해 보세요.",
+  "more": "<b>argmax</b>: 출력 10개 중 가장 큰 칸의 인덱스가 곧 예측 숫자입니다. softmax를 거치든 안 거치든 ‘가장 큰 칸’은 그대로라, 예측엔 로짓의 argmax만으로 충분합니다(softmax는 사람이 보기 좋은 확률로 바꿔 줄 뿐).\n\n<b>왜 no_grad인가</b>: 학습할 땐 backward를 위해 PyTorch가 모든 중간 계산을 기록(계산그래프)하지만, 평가 땐 갱신이 없으니 그 기록이 낭비입니다. <code>torch.no_grad()</code>가 이를 꺼 줍니다. <b>진짜 MNIST</b>에서 이 단순한 2층 신경망은 보통 <b>97~98%</b>가 나옵니다(CNN을 쓰면 99% 이상). 오른쪽 정확도는 축소판 신경망의 실측값입니다.",
+  "more_en": "After training, score on never-seen test data. Switch with model.eval() and predict inside with torch.no_grad() (no gradients needed at eval — saves memory and time). pred.argmax(1) picks the highest-scoring digit as the answer; (guess == y) counts the correct ones for accuracy. A plain two-layer net reaches about 97–98% on real MNIST (a CNN exceeds 99%). The probability bars and accuracy shown are measured from the live miniature network."
+ },
+ "py14_05": {
+  "ch": "파이썬 제14장 · 딥러닝",
+  "sec": "14.5 전체 코드 — 20줄 MNIST 분류기",
+  "title": "완성 — 20줄로 손글씨를 알아보는 신경망",
+  "narr": "이제 다 모았습니다. 왼쪽 <b>약 18줄</b>이 손글씨를 알아보는 신경망 <b>전부</b>입니다 — 복사해 Colab에 붙이면 그대로 돕니다. 데이터를 받고(<code>MNIST</code>·<code>DataLoader</code>), 층을 쌓고(<code>nn.Sequential</code>로 더 짧게), 손실·옵티마이저를 고르고(<code>CrossEntropyLoss</code>·<code>SGD</code>), 다섯 줄짜리 학습 루프를 돌립니다. 사람이 ‘7은 위가 가로줄이고…’ 같은 규칙을 <b>한 자도 안 적었는데</b>, 컴퓨터가 6만 장을 보며 스스로 규칙을 만들어 <b>97% 넘게</b> 알아봅니다. 이게 딥러닝입니다.",
+  "more": "<b>nn.Sequential</b>: 층을 순서대로 쌓기만 하면 될 땐 클래스를 안 만들고 <code>nn.Sequential(nn.Flatten(), nn.Linear(784,128), nn.ReLU(), nn.Linear(128,10))</code> 한 줄로 끝낼 수 있습니다(forward가 자동으로 위→아래). 복잡한 분기가 필요할 때만 1절의 <code>nn.Module</code> 클래스로 돌아갑니다.\n\n<b>다음 한 걸음</b>: 이미지엔 <b>CNN</b>(합성곱)을 쓰면 99%+, 옵티마이저를 <b>Adam</b>으로 바꾸면 더 빨리 수렴, GPU(<code>.to('cuda')</code>)를 쓰면 수십 배 빨라집니다. 하지만 그 모든 것의 뼈대는 여러분이 이 장에서 본 <b>‘순전파→손실→역전파→갱신’</b> 그대로입니다. 진짜 학습은 GPU에서 돌지만, 안에서 벌어지는 일은 6·7장의 곱·합·경사하강의 반복 — 바로 그것입니다.",
+  "more_en": "About 18 lines is the whole handwritten-digit classifier — copy it into Colab and it runs. Load data (MNIST, DataLoader), stack layers (nn.Sequential keeps it short), pick loss and optimizer (CrossEntropyLoss, SGD), and run the five-line loop. No one wrote rules like 'a 7 has a top bar' — the computer learns them from 60,000 examples and exceeds 97%. Next steps: a CNN reaches 99%+, Adam converges faster, and a GPU (.to('cuda')) is far faster — but the skeleton stays forward → loss → backward → step.",
+  "problem": {
+   "q": "PyTorch 학습 루프의 다섯 단계를 올바른 순서로 나열하면? 그리고 zero_grad()를 빠뜨리면 어떻게 되나?",
+   "solution": "순서는 <b>① 순전파 pred=model(x) → ② 손실 loss=loss_fn(pred,y) → ③ 역전파 loss.backward() → ④ 갱신 opt.step() → ⑤ opt.zero_grad()</b>입니다. <code>zero_grad()</code>를 빠뜨리면 PyTorch가 기울기를 <b>누적(합산)</b>하므로, 이전 배치의 기울기가 다음 배치 것과 더해져 갱신이 엉망이 되고 학습이 망가집니다(또는 발산). 그래서 매 스텝 기울기를 비워 줘야 합니다."
+  }
+ }
+}

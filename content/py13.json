@@ -1,0 +1,46 @@
+{
+ "py13_01": {
+  "ch": "파이썬 제13장 · 딥러닝",
+  "sec": "13.1 텐서 — PyTorch의 기본 자료형",
+  "title": "torch.tensor · shape · dtype · GPU",
+  "narr": "딥러닝을 하려면 <b>PyTorch</b>를 만나야 합니다. 그런데 겁먹을 필요 없어요 — PyTorch의 텐서(tensor)는 우리가 이미 잘 아는 <b>NumPy의 ndarray와 거의 똑같은 다차원 배열</b>입니다. <code>torch.tensor([[1,2,3],[4,5,6]])</code> 하면 2×3 격자가 만들어지고, <code>.shape</code>로 모양을, <code>.dtype</code>으로 자료형(float32)을 봅니다. 그럼 NumPy로 충분한데 왜 PyTorch일까요? 딱 두 가지가 다릅니다 — ① <code>.to('cuda')</code> 한 줄로 텐서를 <b>GPU</b>에 올려 수천 개 코어로 한꺼번에 계산하고, ② 곧 볼 <b>자동미분</b>으로 기울기를 스스로 구합니다. 슬라이더로 cpu ↔ cuda 를 바꿔 보세요. <b>왼쪽 코드는 Colab에 붙여 넣으면 그대로 돌아가고, 오른쪽 격자는 그 텐서를 같은 값으로 재현</b>한 것입니다(PyTorch는 브라우저에서 못 도니까요).",
+  "more": "<b>왜 GPU인가</b>: CPU는 코어가 몇 개~수십 개지만 GPU는 수천 개입니다. 딥러닝의 계산은 거대한 행렬을 더하고 곱하는 일의 반복인데, 이건 ‘서로 독립인 같은 연산 수천 개’라 GPU의 병렬 코어와 완벽히 맞습니다. 그래서 같은 학습이 GPU에서 수십~수백 배 빠르죠. <code>x.to('cuda')</code> 는 텐서를 GPU 메모리로 옮기는 명령이고, 그 뒤 모든 연산은 GPU에서 일어납니다.\n\n<b>NumPy와의 다리</b>: <code>torch.from_numpy(arr)</code> 와 <code>tensor.numpy()</code> 로 서로 자유롭게 오갑니다. 그래서 NumPy로 데이터 전처리하고 PyTorch로 학습하는 흐름이 자연스럽죠.",
+  "more_en": "A PyTorch tensor is essentially a NumPy ndarray with two superpowers: it can live on the GPU (.to('cuda')) for massively parallel computation, and it tracks operations for automatic differentiation. .shape gives the dimensions, .dtype the element type (float32 by default)."
+ },
+ "py13_02": {
+  "ch": "파이썬 제13장 · 딥러닝",
+  "sec": "13.2 텐서 연산 — NumPy 그대로",
+  "title": "+ · * · @(행렬곱) · reshape",
+  "narr": "텐서를 만들었으니 <b>계산</b>해 봅시다 — 그리고 좋은 소식은, <b>NumPy에서 배운 그대로</b>라는 겁니다. <code>a + b</code>는 같은 위치끼리 더하고, <code>a * b</code>는 같은 위치끼리 곱합니다(원소별, Hadamard 곱). 그런데 <b>딥러닝의 심장</b>은 <code>@</code> — <b>행렬곱</b>입니다. <code>A @ B</code>는 A의 행과 B의 열을 내적해 새 행렬을 만드는데, <b>신경망의 한 층</b>이 하는 일이 바로 이거예요(입력 × 가중치). <code>reshape</code>는 데이터 6개는 그대로 둔 채 모양만 (2,3)→(3,2)로 바꿉니다. 슬라이더로 네 연산을 골라 보세요 — <b>오른쪽 결과 격자는 전부 실제로 계산한 값</b>입니다.",
+  "more": "<b>* 와 @ 를 헷갈리지 마세요</b>: 이건 입문자가 가장 자주 틀리는 지점입니다. <code>*</code>는 원소별 곱(모양이 같아야 함), <code>@</code>는 행렬곱(앞 행렬의 열 수 = 뒤 행렬의 행 수). 신경망 한 층 = <code>출력 = 입력 @ 가중치 + 편향</code> 이라 <code>@</code>가 핵심입니다.\n\n<b>브로드캐스팅</b>: 모양이 다른 텐서도 PyTorch가 자동으로 늘려 맞춰 계산합니다(예: 행렬 + 벡터). NumPy의 브로드캐스팅 규칙을 그대로 따르므로, NumPy를 알면 추가로 배울 게 없습니다.",
+  "more_en": "Tensor ops mirror NumPy: + and * are element-wise, @ is matrix multiplication. A neural network layer is just input @ weights + bias, so @ is the workhorse of deep learning. reshape changes the shape while keeping the same underlying data. Don't confuse * (element-wise) with @ (matmul)."
+ },
+ "py13_03": {
+  "ch": "파이썬 제13장 · 딥러닝",
+  "sec": "13.3 자동미분 — autograd",
+  "title": "x.backward() → x.grad = 2x",
+  "narr": "이제 PyTorch가 NumPy와 <b>진짜로 갈라지는 순간</b>입니다. 텐서를 만들 때 <code>requires_grad=True</code>를 붙이면, PyTorch는 그 텐서로 한 <b>모든 계산을 몰래 기록</b>해 둡니다(계산 그래프). 그러고는 <code>y.backward()</code> 한 줄 — PyTorch가 그래프를 <b>거꾸로</b> 따라가며 연쇄법칙을 적용해 <code>x.grad</code>에 기울기 dy/dx를 채워 줍니다. <code>y = x**2</code>이면 미분은 <b>dy/dx = 2x</b>죠. x=3 으로 두면 <code>x.grad</code>는 정확히 <b>6.0</b> — 슬라이더로 x를 옮기면 grad가 2x를 따라 움직입니다. <b>사람이 미분식을 손으로 짤 필요가 전혀 없습니다.</b> 화면 오른쪽 큰 숫자와 검산(2x)이 늘 일치하는 것을 보세요.",
+  "more": "<b>이게 왜 혁명인가</b>: 신경망은 함수를 수십~수백 겹 포갠 거대한 합성함수입니다. 손으로 ∂손실/∂가중치를 일일이 미분하는 건 불가능하죠. autograd는 순전파 때 계산 그래프를 쌓아 두었다가 <code>.backward()</code> 한 번으로 <b>모든 가중치의 기울기를 자동으로</b> 구해 줍니다 — 이것이 딥러닝을 실용화한 결정적 장치입니다.\n\n<b>주의</b>: <code>.backward()</code>는 스칼라(보통 손실)에서만 부르고, 같은 그래프에 또 부르려면 기울기가 누적되니 <code>x.grad.zero_()</code>로 비워야 합니다(다음 장면에서 봅니다).",
+  "more_en": "Set requires_grad=True and PyTorch records every operation into a computation graph. Calling y.backward() walks the graph backward via the chain rule and fills x.grad with dy/dx. For y=x², x.grad = 2x — at x=3 it's exactly 6.0. No hand-derived formulas needed; this autograd engine is what makes training deep networks practical.",
+  "problem": {
+   "q": "x = torch.tensor(2.0, requires_grad=True); y = x**3; y.backward() 후 x.grad 의 값은?",
+   "solution": "<b>12.0</b> 입니다. y=x³의 도함수는 dy/dx = 3x² 이고, x=2 이므로 3 × 2² = 3 × 4 = <b>12</b>. autograd가 손으로 미분한 이 값을 정확히 채워 줍니다."
+  }
+ },
+ "py13_04": {
+  "ch": "파이썬 제13장 · 딥러닝",
+  "sec": "13.4 경사하강 직접 구현",
+  "title": "loss.backward() → w −= lr·w.grad",
+  "narr": "기울기를 자동으로 구할 수 있으니, 이제 <b>학습</b>을 직접 짜 봅시다. 데이터 한 점 x=2, 목표 y=6 이 있고, 모델은 ŷ = w·x. <b>손실</b>은 <code>loss = (w*x - y)**2</code>, 틀린 정도의 제곱이죠. <code>loss.backward()</code>를 부르면 <code>w.grad</code>에 ∂loss/∂w 가 채워집니다. 그러면 손실이 <b>줄어드는 방향</b>(기울기 반대쪽)으로 한 걸음 — <code>w -= lr * w.grad</code>. 이 한 걸음을 반복하면 끝입니다. 데이터가 x=2, y=6 이니 최적은 <b>w=3</b> — 슬라이더로 스텝을 늘리면 공이 손실곡선을 타고 정확히 w=3, 손실 0 으로 굴러 내려갑니다. <b>화면의 w·기울기·손실은 모두 실제 경사하강으로 계산</b>한 값입니다.",
+  "more": "<b>두 가지 약속</b>: ① <code>with torch.no_grad():</code> 안에서 w를 갱신해야 합니다 — 갱신 자체는 학습이 아니라 단순 대입이므로 그래프에 기록하면 안 되니까요. ② 매 스텝 <code>w.grad.zero_()</code>로 기울기를 비웁니다. PyTorch는 기울기를 <b>누적</b>(더하기)하므로, 안 비우면 지난 스텝 기울기가 쌓여 엉뚱한 방향으로 갑니다 — 입문자 단골 실수입니다.\n\n<b>optimizer로 한 줄</b>: 다음 장면에서 보겠지만, <code>w -= lr*w.grad; w.grad.zero_()</code> 이 두 줄을 <code>optimizer.step(); optimizer.zero_grad()</code>가 대신해 줍니다. SGD·Adam 같은 옵티마이저가 바로 이 갱신 규칙입니다.",
+  "more_en": "With gradients automatic, training is a loop: compute loss, call loss.backward() to fill w.grad, then step w -= lr * w.grad (under torch.no_grad()), and zero the gradient. For x=2, y=6 the optimum is w=3 — the loss rolls to zero. PyTorch accumulates gradients, so you must zero them each step. optimizer.step() packages this update."
+ },
+ "py13_05": {
+  "ch": "파이썬 제13장 · 딥러닝",
+  "sec": "13.5 미니 선형회귀 — 학습의 전체 모습",
+  "title": "forward · loss · backward · step 의 고리",
+  "narr": "이제 모든 조각을 합쳐 <b>w와 b를 동시에 학습</b>하는 완전한 선형회귀를 봅시다. 데이터는 참 직선 <b>y = 2x + 1</b> 주변에 흩뿌려져 있고, 모델 ŷ = w·x + b 는 w=b=0 에서 출발합니다. 학습 고리는 단 네 단계 — ① <b>순전파</b> <code>yhat = w*x + b</code>, ② <b>손실</b> <code>loss = ((yhat-y)**2).mean()</code>(MSE), ③ <b>역전파</b> <code>loss.backward()</code>, ④ <b>갱신</b> <code>optimizer.step()</code>. 이 고리를 60번(에폭) 돌리면 w·b 가 <b>스스로 참값 2·1 로 수렴</b>합니다. 슬라이더로 에폭을 늘리면 초록 직선이 점점 데이터에 맞아 가고, 아래 손실곡선이 바닥으로 떨어지는 게 보입니다. <b>이 직선·파라미터·손실은 같은 경사하강을 실제로 돌려 얻은 값</b>입니다.",
+  "more": "<b>이 여덟 줄이 모든 딥러닝의 축소판</b>입니다. 선형회귀든 GPT든 학습 고리의 골격은 똑같아요 — forward로 예측, loss로 오차, backward로 기울기, step으로 갱신. 다른 건 ‘모델이 얼마나 깊고 큰가’뿐입니다. 층을 수십 개 쌓고(그래서 ‘딥’) 파라미터를 수십억 개로 늘리고 데이터를 인터넷 규모로 키우면 — 그것이 바로 거대 언어모델입니다.\n\n<b>실전 한 줄</b>: 실제로는 <code>model = nn.Linear(1,1)</code> 로 w·b를 묶고, <code>loss_fn = nn.MSELoss()</code> 로 손실을, <code>nn.Module</code> 로 층을 조립합니다. 하지만 그 속에서 도는 건 정확히 이 네 단계 고리입니다 — 우리가 직접 다 짜 봤으니 더는 마법이 아니죠.",
+  "more_en": "This eight-line loop is deep learning in miniature: forward (yhat = w*x+b), loss (MSE), backward (gradients), step (update). Run it for 60 epochs and w, b converge to the true 2 and 1 on their own while the loss drops to the floor. Linear regression or GPT, the training loop is identical — the only difference is how deep and how large the model is."
+ }
+}

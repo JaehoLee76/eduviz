@@ -1,0 +1,42 @@
+{
+ "py15_01": {
+  "ch": "파이썬 제15장 · 딥러닝",
+  "sec": "15.1 왜 CNN인가",
+  "title": "왜 CNN — 이미지엔 CNN",
+  "narr": "이미지를 다루는 가장 순진한 방법은 픽셀을 <b>한 줄로 펴서</b> 완전연결망(<code>nn.Linear</code>)에 넣는 것입니다. 그런데 28×28짜리 손글씨 하나만 해도 벌써 <b>784개 입력</b>이고, 첫 층 가중치는 <code>784×128 ≈ 10만 개</code>를 넘습니다. 실제 사진(<code>224×224×3</code>)이라면 <b>15만 픽셀</b>, 첫 층만 1억 개가 넘죠 — 무겁고 과적합하기 쉽습니다. 게다가 펴는 순간 “이 픽셀 <b>옆</b>에 저 픽셀”이라는 <b>공간 구조</b>가 통째로 사라지고, 고양이가 옆으로 한 칸 옮겨가면 완전히 다른 입력이 됩니다. <b>CNN(합성곱 신경망)</b>은 발상을 뒤집습니다 — 작은 필터 하나를 이미지 전체에 미끄러뜨리며 <b>같은 가중치를 재사용</b>합니다. 탭하며 완전연결의 한계 → 합성곱의 해법을 비교해 보세요.",
+  "more": "<b>CNN이 이미지에 강한 세 가지 이유</b>: ① <b>지역성</b> — 의미는 보통 가까운 픽셀끼리 모여 있으니, 작은 필터로 동네부터 봅니다. ② <b>파라미터 공유</b> — 같은 필터를 모든 위치에 쓰므로, 위치마다 새 가중치를 만들지 않습니다(화면의 <code>10만 → 72개</code> 비교처럼). ③ <b>평행이동 불변</b> — 같은 필터가 어디서든 같은 특징을 찾으니, 물체가 옮겨가도 검출됩니다.\n\n<b>학습은 필터를 정하는 일</b>: 필터 숫자(가중치)는 사람이 손으로 넣지 않습니다. 데이터로부터 <b>역전파로 자동으로</b> 정해지죠. CNN은 ‘무엇을 볼지’까지 스스로 배웁니다.",
+  "more_en": "Flattening an image into a fully-connected net explodes the parameter count (a 224x224x3 photo needs ~150k inputs, ~hundreds of millions of weights in the first layer) and destroys spatial structure. A CNN slides a small filter across the whole image, reusing the same weights. Three reasons it suits images: locality (nearby pixels first), parameter sharing (one filter everywhere → far fewer weights), and translation invariance (same feature detected wherever it moves). The filter values are learned by backprop, not hand-set."
+ },
+ "py15_02": {
+  "ch": "파이썬 제15장 · 딥러닝",
+  "sec": "15.2 nn.Conv2d — 합성곱 층",
+  "title": "nn.Conv2d — 필터를 슬라이드",
+  "narr": "PyTorch에서 합성곱 한 줄은 <code>nn.Conv2d(in_channels, out_channels, kernel_size)</code>입니다. <b>in_channels</b>는 입력 채널 수(흑백 1, 컬러 3), <b>out_channels</b>는 만들 <b>필터 개수</b>(=출력 특징맵 수), <b>kernel_size</b>는 필터 크기(보통 3)예요. 동작은 단순합니다 — 작은 3×3 필터를 이미지 위로 한 칸씩 미끄러뜨리며, 겹친 9개 픽셀과 필터를 <b>곱해 더한 ‘내적’</b> 하나를 특징맵 한 칸에 적습니다. 16번 미끄러지면 4×4 특징맵이 완성되죠. 슬라이더로 필터를 끝까지 밀어 보세요 — 화면 오른쪽의 모든 내적값은 그 자리 픽셀로 <b>실제 계산</b>한 것입니다(베껴 넣은 숫자가 아닙니다).",
+  "more": "<b>여기 쓴 필터</b>는 왼쪽 −, 오른쪽 + 인 ‘세로 에지 검출기’입니다. 좌우 밝기차가 큰 자리(가운데 세로선)에서 값이 크게 튀죠. <code>out_channels=8</code>로 두면 이런 필터가 <b>8장</b> 생겨, 서로 다른 특징(가로 에지·곡선·색 경계…)을 동시에 찾습니다. 출력 채널이 8이면 특징맵도 8장이 됩니다.\n\n<b>크기 공식</b>: padding 없는 valid 합성곱에서 출력 크기는 <code>입력 − 커널 + 1</code>입니다(<code>6 − 3 + 1 = 4</code>). 크기를 유지하고 싶으면 <code>padding=1</code>로 가장자리를 0으로 채웁니다(3×3 필터 기준). 화면의 4×4가 바로 이 공식의 결과입니다.\n\n<b>참고(정직)</b>: PyTorch 자체는 브라우저에서 돌지 않습니다. 왼쪽 코드는 Colab·로컬에서 그대로 도는 진짜 코드이고, 오른쪽 합성곱 값은 같은 연산을 JS로 재현해 보여 주는 것입니다.",
+  "more_en": "nn.Conv2d(in_channels, out_channels, kernel_size) defines a convolution: in_channels is input depth (1 for grayscale, 3 for RGB), out_channels is the number of filters (= output feature maps), kernel_size is the filter size (usually 3). It slides the small filter over the image, taking a dot product (multiply-and-sum) at each position. Valid output size = input − kernel + 1 (6−3+1=4); use padding=1 to keep size. Every dot product shown on the right is computed from the actual pixels."
+ },
+ "py15_03": {
+  "ch": "파이썬 제15장 · 딥러닝",
+  "sec": "15.3 nn.MaxPool2d — 풀링",
+  "title": "nn.MaxPool2d — 다운샘플",
+  "narr": "합성곱 다음엔 보통 <b>풀링</b>이 옵니다. <code>nn.MaxPool2d(kernel_size=2, stride=2)</code>는 특징맵을 겹치지 않는 <b>2×2 묶음</b>으로 나눠, 각 묶음에서 <b>가장 큰 값만</b> 남깁니다(max pooling). 그러면 가로·세로가 <b>절반</b>으로 줄어 다음 층의 계산이 가벼워지고, “이 근처에 강한 특징이 있다”는 핵심은 그대로 지켜지죠. 화면처럼 4×4 특징맵이 2×2로 다운샘플됩니다 — 같은 색 묶음의 최댓값(굵은 테두리)이 결과로 갑니다. 모든 최댓값은 그 2×2 안에서 <b>실제로 골라낸</b> 값입니다.",
+  "more": "<b>왜 최댓값인가</b>: 특징맵에서 큰 값은 ‘그 자리에 필터가 찾는 특징이 강하게 있다’는 뜻입니다. 묶음에서 최댓값만 남기면 <b>가장 강한 신호</b>를 보존하면서 크기를 줄이죠. 덕분에 특징이 한두 칸 옮겨가도 같은 최댓값이 나와 <b>작은 평행이동에 둔감</b>해집니다.\n\n<b>평균풀링·전역풀링</b>: 최댓값 대신 평균을 쓰는 <code>nn.AvgPool2d</code>도 있고, 최근 구조는 특징맵 전체를 한 값으로 줄이는 <b>전역 평균 풀링</b>(<code>AdaptiveAvgPool2d(1)</code>)을 FC 직전에 자주 씁니다 — 파라미터가 줄고 과적합에 강합니다.\n\n<b>리듬</b>: <code>Conv로 뽑고 → Pool로 줄이고</code>를 반복하는 이 박자가 CNN의 심장입니다.",
+  "more_en": "nn.MaxPool2d(2, 2) splits the feature map into non-overlapping 2x2 blocks and keeps only the maximum of each, halving height and width. The strongest signal is preserved while the map shrinks, so computation gets lighter and the network becomes insensitive to small shifts (a feature moving a pixel or two still gives the same max). AvgPool2d averages instead; modern nets often use global average pooling before the FC layer. The Conv→Pool rhythm is the heartbeat of a CNN."
+ },
+ "py15_04": {
+  "ch": "파이썬 제15장 · 딥러닝",
+  "sec": "15.4 CNN 구조",
+  "title": "CNN 구조 — Conv·ReLU·Pool을 쌓다",
+  "narr": "낱개 부품(Conv·Pool)을 봤으니 이제 <b>조립</b>할 차례입니다. 전형적인 CNN은 <code>[Conv → ReLU → Pool]</code> 한 묶음을 여러 번 쌓고, 마지막에 <b>완전연결층(FC)</b>으로 마무리합니다. 예시는 <b>CIFAR10</b>(32×32 컬러, 비행기·자동차·새 등 10종)예요. 텐서 모양을 따라가 보세요 — 합성곱을 지날수록 <b>채널 수는 늘고</b>(3→16→32, 더 다양한 특징), 풀링마다 <b>가로·세로는 절반</b>으로 줄어듭니다(32→16→8). 깊어질수록 ‘무엇이 <i>어디에</i>’ 보다 ‘<i>무엇인지</i>’가 또렷해지죠. 마지막에 8×8 특징을 펼쳐 FC에 넣으면 <b>10개 클래스 점수</b>가 나옵니다. 탭하며 한 층씩 모양 변화를 확인하세요.",
+  "more": "<b>왜 채널은 늘고 크기는 주는가</b>: 얕은 층은 에지 같은 단순 특징 몇 종이면 되지만, 깊은 층은 ‘눈·바퀴·질감’ 같은 <b>복잡한 특징을 많이</b> 담아야 하니 채널을 늘립니다. 동시에 풀링으로 해상도를 줄여 <b>위치보다 종류</b>에 집중하게 하죠. 이 ‘좁고 깊게’가 추상화입니다.\n\n<b>FC 입력 크기 계산</b>: 마지막 특징맵이 <code>32채널 × 8 × 8</code>이면 펼쳐서 <code>32×8×8 = 2048</code>이 FC 입력이 됩니다. 이 수를 맞추는 게 초보자가 가장 자주 틀리는 곳이라, <code>x.view(-1, 32*8*8)</code>의 숫자를 모양 변화로부터 직접 계산해 두는 습관이 좋습니다.\n\n<b>ReLU</b>는 합성곱 뒤마다 음수를 0으로 잘라 비선형성을 더합니다 — 없으면 층을 쌓아도 결국 하나의 선형 변환과 같아집니다.",
+  "more_en": "A typical CNN stacks [Conv → ReLU → Pool] blocks, then finishes with fully-connected layers. For CIFAR10 (32x32 color, 10 classes), channels grow (3→16→32, richer features) while height/width shrink by pooling (32→16→8). Deeper means 'what' over 'where' — abstraction. The flattened FC input is channels×H×W (32×8×8 = 2048); getting this number right is a common beginner mistake. ReLU after each conv adds the non-linearity without which stacked layers collapse into one."
+ },
+ "py15_05": {
+  "ch": "파이썬 제15장 · 딥러닝",
+  "sec": "15.5 전체 코드와 학습",
+  "title": "전체 코드 — 복사하면 도는 CNN 분류기",
+  "narr": "이제 모든 조각을 <b>한 화면</b>에 모읍니다. 왼쪽 코드는 그대로 <b>Colab에 붙이면 실제로 학습이 도는</b> 진짜 PyTorch입니다. 흐름은 다섯 토막이에요. ① <code>torchvision</code>이 <b>CIFAR10</b>을 내려받아 텐서로 바꾸고, ② <code>DataLoader</code>가 64장씩 셔플해 공급하고, ③ 앞서 만든 <code>Net()</code> 모델에, ④ <code>Adam</code> 옵티마이저와 <code>CrossEntropyLoss</code>를 붙여, ⑤ <code>zero_grad → forward → loss → backward → step</code> 학습 루프를 에폭마다 돕니다. 탭하며 5단계 골격 → 학습 결과(정확도)를 보세요. 단순한 구조로도 테스트 정확도가 <b>70%를 훌쩍 넘습니다</b> — 무작위 추측(10%)과는 비교가 안 되죠.",
+  "more": "<b>이 다섯 토막은 거의 모든 PyTorch 학습의 골격</b>입니다: 데이터셋 → DataLoader → 모델 → 손실·옵티마이저 → 학습 루프. 분류면 <code>CrossEntropyLoss</code>(소프트맥스+로그우도가 합쳐져 있어 모델 마지막에 softmax를 따로 안 붙입니다), 회귀면 <code>MSELoss</code>로 바꾸면 됩니다. <code>loss.backward()</code>가 모든 가중치의 기울기를 자동으로 채우고, <code>opt.step()</code>이 그만큼 가중치를 갱신합니다.\n\n<b>더 잘하려면 — 전이학습(사전학습)</b>: 처음부터 필터를 배우는 대신, 수백만 장(ImageNet)으로 <b>미리 배운</b> 모델을 가져와 마지막 층만 갈아 끼웁니다: <code>net = tv.models.resnet18(weights='DEFAULT')</code> 후 <code>net.fc = nn.Linear(512, 10)</code>. 적은 데이터로도 훨씬 높은 정확도가 나오죠. 이게 다음 이야기, <b>전이학습</b>으로 가는 다리입니다.\n\n<b>참고(정직)</b>: 화면의 정확도 곡선은 단순 CNN의 전형적 학습 양상을 결정적으로 그린 것이고, 실제 수치는 구조·하이퍼파라미터·시드에 따라 달라집니다. 왼쪽 코드를 직접 돌려 확인해 보세요.",
+  "more_en": "The full training script: torchvision downloads CIFAR10 → DataLoader batches 64 at a time → Net() → Adam + CrossEntropyLoss → the loop zero_grad → forward → loss → backward → step per epoch. These five pieces are the skeleton of almost any PyTorch training. CrossEntropyLoss already includes softmax, so don't add it in the model. A simple CNN clears ~70% test accuracy (random is 10%). To do better, use transfer learning: load a model pretrained on millions of images (resnet18) and swap only the final layer — that's the next chapter."
+ }
+}

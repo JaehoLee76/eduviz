@@ -1,0 +1,50 @@
+{
+ "py10_01": {
+  "ch": "파이썬 제10장 · 머신러닝",
+  "sec": "10.1 scikit-learn 워크플로",
+  "title": "scikit-learn 워크플로 — fit·predict·score 3박자",
+  "narr": "이제 직접 손으로 최소제곱을 풀던 것을, <b>scikit-learn</b>이라는 도구가 한 줄로 대신해 줍니다. sklearn으로 머신러닝을 하는 흐름은 어떤 문제든 <b>똑같은 5단계</b>예요. ① 데이터를 불러 <b>X(특징)</b>와 <b>y(라벨)</b>로 나누고, ② 시험용 데이터를 따로 숨겨 두고(<b>train_test_split</b>), ③ 모델을 하나 만들고(<b>model = LinearRegression()</b>), ④ <b>fit</b>으로 학습시킨 뒤, ⑤ <b>predict</b>로 예측하고 <b>score</b>로 채점합니다. 왼쪽 코드는 Colab에 그대로 붙여 넣으면 진짜 <b>당뇨 데이터셋(load_diabetes)</b>으로 도는 코드예요. 화면을 탭하며 다섯 단계가 차례로 켜지는 것을 보세요.",
+  "more": "<b>왜 sklearn인가</b>: 핵심은 <b>fit → predict → score</b>라는 일관된 3박자입니다. 선형회귀를 SVR·랜덤포레스트·신경망(MLPRegressor)으로 <b>딱 한 줄만 바꿔도</b> 나머지 코드는 그대로 돌아갑니다 — sklearn의 모든 추정기(estimator)가 같은 API를 따르기 때문이죠.\n\n<b>train_test_split이 먼저인 이유</b>: 모델은 훈련 데이터로만 배우고, 한 번도 못 본 시험 데이터로 실력을 재야 진짜 일반화 성능을 알 수 있습니다(인공지능 1장 ‘훈련/검증 분할’). 시험지를 미리 본 학생의 만점은 의미가 없으니까요.",
+  "more_en": "Every scikit-learn workflow follows the same shape: load data → split into train/test → create a model → fit → predict → score. The key is the consistent fit/predict/score API: swap LinearRegression for SVR, RandomForest, or a neural net and the rest of the code is unchanged. The left-side code runs as-is in Colab on the real diabetes dataset."
+ },
+ "py10_02": {
+  "ch": "파이썬 제10장 · 머신러닝",
+  "sec": "10.2 선형회귀 학습",
+  "title": "선형회귀 학습 — fit()이 하는 일",
+  "narr": "<b>model.fit(X, y)</b> 한 줄을 부르면 안에서 무슨 일이 벌어질까요? sklearn은 점들과 직선의 <b>세로 거리(잔차, 분홍선)</b>를 제곱해 모두 더한 값이 가장 작아지는 <b>기울기 w</b>와 <b>절편 b</b>를 찾습니다 — 바로 <b>최소제곱법</b>이죠(7장에서 본 정규방정식). 슬라이더로 ‘fit 진행’을 0에서 100%로 올려 보세요. 직선이 점점 데이터에 들어맞으며 손실 <b>MSE가 최소</b>로 떨어집니다. 학습이 끝나면 그 두 숫자가 <b>model.coef_</b>(기울기)와 <b>model.intercept_</b>(절편)에 담깁니다. 화면의 w·b·MSE는 모두 <b>실제로 계산한 값</b>입니다.",
+  "more": "<b>특징은 2차원 배열</b>: sklearn은 X를 항상 <b>(샘플 수, 특징 수)</b> 모양의 2차원 배열로 받습니다. 특징이 하나뿐이어도 <b>X.reshape(-1, 1)</b>로 열 벡터로 만들어야 합니다 — 가장 흔한 초보 에러(‘Expected 2D array’)가 여기서 납니다.\n\n<b>coef_·intercept_</b>: 학습된 모델의 ‘지식’은 이 두 속성에 들어 있습니다. 특징이 여러 개면 coef_는 각 특징의 가중치 배열이 되죠. 이 값들이 곧 model이 데이터에서 배운 규칙입니다.",
+  "more_en": "model.fit(X, y) finds the slope w and intercept b that minimize the sum of squared residuals (the vertical pink distances) — ordinary least squares. After fitting, those two numbers live in model.coef_ and model.intercept_. Note: sklearn always wants X as a 2D array of shape (n_samples, n_features); reshape(-1, 1) a single feature.",
+  "problem": {
+   "q": "특징이 하나뿐인 데이터를 model.fit(X, y)에 넣었더니 'Expected 2D array, got 1D array' 에러가 났습니다. 왜일까요?",
+   "solution": "sklearn은 X를 <b>(샘플 수, 특징 수)</b> 모양의 <b>2차원 배열</b>로 받기 때문입니다. 특징이 하나여도 <b>X.reshape(-1, 1)</b>로 열 벡터(2D)로 바꿔 주어야 합니다."
+  }
+ },
+ "py10_03": {
+  "ch": "파이썬 제10장 · 머신러닝",
+  "sec": "10.3 평가 — R²와 MSE",
+  "title": "평가 — R²·MSE로 좋은 적합 판정",
+  "narr": "fit만 하고 끝이 아닙니다. 모델이 <b>얼마나 잘 맞췄나</b>를 재야죠. <b>model.score(X, y)</b>는 <b>결정계수 R²</b>를 돌려줍니다. R²는 <b>1 − (잔차제곱합 SS_res) / (평균선 기준 제곱합 SS_tot)</b>로, ‘모델이 y의 변동 중 몇 %를 설명하는가’예요. <b>R²=1</b>이면 완벽, <b>0</b>이면 그냥 평균(빨강 점선)을 찍는 것과 같고, <b>음수</b>면 평균보다도 못합니다. <b>MSE</b>는 오차의 평균 크기죠. 슬라이더로 데이터 흩어짐(잡음)을 키워 보세요 — 같은 모델이라도 점이 흩어질수록 R²가 내려가고 MSE가 올라갑니다. 두 수치 모두 <b>실제로 계산</b>해 보여 줍니다.",
+  "more": "<b>R² vs MSE</b>: MSE는 단위가 y²라 크기를 직관적으로 가늠하기 어렵지만, R²는 <b>0~1로 정규화</b>되어 모델끼리 비교하기 좋습니다. 그래서 sklearn 회귀의 기본 점수(score)가 R²죠. 단, R²는 특징을 늘리면 무조건 올라가는 함정이 있어 <b>조정된 R²(adjusted R²)</b>나 검증셋 R²를 함께 봅니다.\n\n<b>다른 지표</b>: 이상치에 둔감한 <b>MAE</b>(평균절대오차), 큰 오차를 더 벌하는 <b>RMSE</b>(=√MSE) 등 문제에 맞는 지표를 sklearn.metrics에서 골라 씁니다.",
+  "more_en": "score(X, y) returns the coefficient of determination R² = 1 − SS_res/SS_tot — the fraction of variance explained. R²=1 is perfect, 0 means no better than predicting the mean, negative is worse than the mean. MSE is the average squared error. R² is normalized 0–1 so it compares models easily; that's why it's sklearn's default regression score."
+ },
+ "py10_04": {
+  "ch": "파이썬 제10장 · 머신러닝",
+  "sec": "10.4 다중 특징과 과적합",
+  "title": "다중 특징·과적합 — 복잡할수록 좋을까",
+  "narr": "특징을 여러 개 넣거나(<b>다중회귀</b>), 다항식 차수를 올리면(<b>PolynomialFeatures</b>) 모델이 데이터를 더 구불구불 따라갑니다. 슬라이더로 차수를 올려 보세요. <b>훈련 데이터</b>(파란 점)는 점점 완벽히 통과하지만(훈련오차↓), 한 번도 못 본 <b>검증 데이터</b>(흰 테두리 점)에서는 오히려 오차가 <b>치솟습니다</b>(검증오차↑) — 데이터에 섞인 <b>잡음까지 외워</b> 버린 탓이죠. 이것이 <b>과적합(overfitting)</b>입니다. 반대로 차수가 너무 낮으면 본질도 못 잡는 <b>과소적합</b>. 두 오차 막대는 매 차수마다 <b>실제 최소제곱</b>으로 계산한 값이니, 검증오차가 다시 솟는 ‘바로 그 지점’을 직접 찾아 보세요.",
+  "more": "<b>make_pipeline</b>: 다항 특징 생성 → 선형회귀를 <b>파이프라인</b>으로 묶으면, fit·predict가 한 객체로 흐릅니다. 전처리와 모델을 하나로 다루는 sklearn의 핵심 패턴이죠(전처리를 훈련셋에만 맞추는 데이터 누수도 막아 줍니다).\n\n<b>과적합 막는 법</b>: ① 데이터 늘리기, ② <b>정규화</b>(Ridge=L2, Lasso=L1로 큰 가중치에 벌점), ③ 차수·특징 줄이기, ④ <b>교차검증</b>으로 복잡도 고르기. 인공지능 1장의 편향-분산 트레이드오프가 그대로 적용됩니다.",
+  "more_en": "Adding features or raising polynomial degree lets the model wiggle to fit training points (train error ↓), but validation error climbs back up — it memorized noise. That's overfitting; too-low degree is underfitting. Use make_pipeline to chain PolynomialFeatures + LinearRegression, and fight overfitting with more data, regularization (Ridge/Lasso), or cross-validation.",
+  "problem": {
+   "q": "다항회귀에서 차수를 9까지 올렸더니 훈련오차는 거의 0인데 검증오차는 매우 큽니다. 이 모델의 상태와 처방은?",
+   "solution": "<b>과적합</b>입니다 — 잡음까지 외워 일반화에 실패한 상태. 처방: 차수를 낮추거나, 데이터를 늘리거나, <b>Ridge/Lasso 정규화</b>·교차검증으로 적절한 복잡도를 고릅니다."
+  }
+ },
+ "py10_05": {
+  "ch": "파이썬 제10장 · 머신러닝",
+  "sec": "10.5 실전 예측",
+  "title": "실전 예측 — 학습된 모델을 쓰다",
+  "narr": "학습이 끝나면 모델은 <b>‘쓰는’ 단계</b>입니다. <b>model.predict(x_new)</b>에 새 입력 x를 넣으면, 학습으로 찾은 <b>w·b를 곧바로 적용</b>해 ŷ를 계산해 답하죠 — 이게 <b>추론(inference)</b>입니다. 슬라이더로 새 입력 x를 옮길 때마다 화면의 예측값은 학습된 진짜 계수로 계산한 <b>실제 출력</b>입니다. 왼쪽은 데이터 로드부터 예측까지를 한 화면에 줄인 <b>전체 코드</b> — 이게 scikit-learn 회귀의 전부예요. <b>fit으로 배우고, predict로 답하고, score로 채점한다.</b> 이 세 박자가 손에 익으면, 모델만 바꿔 어떤 머신러닝 문제든 같은 틀로 풀 수 있습니다.",
+  "more": "<b>예측 vs 학습</b>: fit은 데이터를 보고 계수를 ‘찾는’ 느린 단계, predict는 찾은 계수를 ‘적용하는’ 빠른 단계입니다. 실서비스에서는 학습된 모델을 <b>joblib.dump/load</b>로 저장해 두고, predict만 반복 호출하죠.\n\n<b>주의 — 외삽(extrapolation)</b>: 모델은 학습 데이터가 놓인 범위 안에서만 믿을 만합니다. 한참 벗어난 x를 넣으면 직선이 무한히 뻗어 엉뚱한 값을 자신만만하게 내놓으니, 예측 범위를 항상 의식해야 합니다.",
+  "more_en": "After training, you use the model: predict(x_new) applies the learned w·b to give ŷ (inference). The left panel is the whole pipeline in one screen — load → fit → predict. That's all of scikit-learn regression: fit to learn, predict to answer, score to grade. Beware extrapolation: predictions are trustworthy only within the training range."
+ }
+}

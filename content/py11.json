@@ -1,0 +1,50 @@
+{
+ "py11_01": {
+  "ch": "파이썬 제11장 · 머신러닝",
+  "sec": "11.1 iris 데이터 적재",
+  "title": "iris 데이터 — 머신러닝의 Hello World",
+  "narr": "프로그래밍을 배울 때 누구나 ‘Hello World’부터 찍어 보듯, 머신러닝에는 <b>붓꽃(iris) 분류</b>가 있습니다. 1936년 통계학자 피셔가 정리한 <b>150 송이</b>의 붓꽃 — 한 송이마다 <b>꽃받침(sepal)·꽃잎(petal)의 길이와 폭</b> 네 가지를 자로 잰 <b>특징(feature)</b>과, <b>setosa·versicolor·virginica</b> 세 품종 중 하나라는 <b>정답 라벨</b>이 붙어 있죠. scikit-learn에는 이 데이터가 통째로 들어 있어서, <b>load_iris()</b> 한 줄이면 특징 행렬 <b>X(150×4)</b>와 라벨 벡터 <b>y(150,)</b>가 손에 들어옵니다. 화면 오른쪽처럼 <b>꽃잎 길이·폭</b> 단 두 특징만 그려 봐도 setosa가 저만치 떨어져 앉는 게 보입니다 — 분류란 이렇게 ‘끼리끼리 모인’ 점들 사이에 선을 긋는 일입니다.",
+  "more": "<b>왜 iris인가</b>: 데이터가 작고(150개), 특징이 적고(4개), 세 종이 적당히 겹쳐서 — 너무 쉽지도 너무 어렵지도 않게 — 분류의 모든 개념(데이터 적재·분할·학습·평가·예측)을 한눈에 보여 주기에 완벽합니다. setosa는 다른 둘과 깔끔히 갈리지만, versicolor와 virginica는 경계에서 살짝 섞이죠.\n\n<b>특징과 라벨</b>: <code>iris.data</code>는 숫자 특징, <code>iris.target</code>은 0/1/2 정수 라벨, <code>iris.target_names</code>가 그 이름입니다. ‘하나의 표본 = 특징(입력) + 라벨(정답)’이라는 지도학습의 기본 구조를 그대로 담고 있습니다.\n\n<b>참고</b>: 화면에는 계산을 또렷이 보이려 대표 30송이만 그리지만, 정확도·혼동행렬 같은 수치는 모두 실제로 분류기를 돌려 잰 값입니다.",
+  "more_en": "The iris dataset (Fisher, 1936) is machine learning's 'Hello World': 150 flowers, 4 features (sepal/petal length & width), 3 species. load_iris() returns X (150×4 feature matrix) and y (150 integer labels). Just two features — petal length and width — already separate the species visibly. A labeled example = features + label, the core of supervised learning."
+ },
+ "py11_02": {
+  "ch": "파이썬 제11장 · 머신러닝",
+  "sec": "11.2 훈련/검증 분할·학습",
+  "title": "훈련/검증 분할 · 학습(fit)",
+  "narr": "시험을 정직하게 보려면 답안지를 미리 봐선 안 됩니다. 그래서 데이터를 둘로 가릅니다 — <b>train_test_split(X, y, test_size=0.2)</b>는 <b>80%로 공부</b>하고 <b>20%는 ‘처음 보는 시험지’</b>로 봉인합니다. <b>random_state=42</b>를 정해 두면 누가 돌려도 똑같이 나뉘어 결과를 재현할 수 있고요. 그다음 <b>model.fit(X_train, y_train)</b> 단 한 줄 — 이게 바로 ‘학습’입니다. 모델은 훈련 꽃들을 보며 ‘이쯤 길고 이쯤 넓으면 versicolor’ 같은 기준(화면의 ★ 기준점)을 스스로 세웁니다. 정답을 통째로 외우는 게 아니라, <b>처음 보는 꽃에도 통할 규칙</b>을 찾는 것이 핵심이죠.",
+  "more": "<b>왜 나누나</b>: 모델을 가진 데이터 전부로 학습시키면, 본 데이터엔 잘하지만 새 데이터엔 약한 ‘가짜 실력’(과적합)을 진단할 수 없습니다. 검증셋은 ‘한 번도 안 본 데이터’라야 정직한 성능을 잽니다.\n\n<b>stratify</b>: 종마다 비율을 맞춰 나누면(<code>stratify=y</code>) 검증셋에 특정 종이 빠지는 사고를 막습니다 — iris처럼 종별 50개씩 균형 잡힌 데이터에서 특히 중요합니다.\n\n<b>fit의 정체</b>: 분류기마다 ‘배운 것’의 형태가 다릅니다 — 로지스틱은 가중치, 결정트리는 분기 규칙, kNN은 훈련점 자체를 기억합니다. 하지만 인터페이스는 모두 <code>.fit()</code>으로 같습니다.",
+  "more_en": "train_test_split(test_size=0.2) holds out 20% as an unseen test set; random_state makes the split reproducible. model.fit(X_train, y_train) is 'learning' — the model derives rules (not memorizing answers) that generalize to new flowers. stratify keeps class proportions balanced across the split.",
+  "problem": {
+   "q": "전체 데이터로 학습시키고 같은 데이터로 정확도를 재면 안 되는 이유는?",
+   "solution": "<b>과적합을 감지하지 못하기 때문</b>입니다. 본 데이터를 외운 것인지 진짜 규칙을 배운 것인지 구별하려면, 학습에 쓰지 않은 검증셋으로 평가해야 정직한 일반화 성능을 알 수 있습니다."
+  }
+ },
+ "py11_03": {
+  "ch": "파이썬 제11장 · 머신러닝",
+  "sec": "11.3 분류기 비교",
+  "title": "분류기 비교 — 결정경계와 정확도",
+  "narr": "같은 iris 데이터를 네 분류기에게 똑같이 던져 봅니다. <b>로지스틱 회귀</b>와 <b>SVM</b>은 영역을 ‘직선’으로 가르고, <b>결정트리</b>는 ‘꽃잎 길이 &lt; 2.45면 setosa’ 같은 <b>계단형 규칙</b>으로, <b>kNN</b>은 ‘가장 가까운 이웃 셋의 다수결’로 판단하죠. 화면의 옅은 색 영역은 각 모델이 ‘여기 떨어진 꽃은 이 종’이라 주장하는 <b>결정영역</b>이고, 검증 꽃(흰 테두리) 중 틀린 것은 빨간 X로 표시됩니다. sklearn의 힘은 <b>fit().score()</b>라는 같은 인터페이스로 무엇이든 갈아 끼울 수 있다는 것 — 정확도는 검증셋에서 실제로 세어 보여 줍니다.",
+  "more": "<b>네 분류기 한눈에</b>: ①<b>LogisticRegression</b> — 선형 경계, 빠르고 해석 쉬움, 확률 출력. ②<b>DecisionTreeClassifier</b> — if/else 규칙의 나무, 사람이 읽을 수 있으나 과적합 주의. ③<b>SVC(SVM)</b> — 두 클래스 사이 ‘여백(margin)’을 최대로, 커널로 비선형도 가능. ④<b>KNeighborsClassifier</b> — 학습은 거의 안 하고 예측 때 이웃을 뒤짐(게으른 학습).\n\n<b>공정한 비교</b>: 모두 같은 훈련셋으로 fit하고 같은 검증셋으로 score해야 비교가 공정합니다. 어느 게 ‘정답’인지는 데이터가 정합니다 — iris처럼 거의 선형 분리되는 데이터에선 선형 모델도 충분히 강합니다.\n\n<b>자격시험 포인트</b>: 각 분류기의 가정·장단점·결정경계 모양 구분은 단골 출제 주제입니다.",
+  "more_en": "Four classifiers on the same iris data: LogisticRegression & SVC draw straight (linear) boundaries; DecisionTree uses step rules (petal_len<2.45 → setosa); kNN votes among nearest neighbors. sklearn's power: the same fit().score() interface swaps any model. Accuracy is measured on the held-out test set; shaded regions show each model's decision regions."
+ },
+ "py11_04": {
+  "ch": "파이썬 제11장 · 머신러닝",
+  "sec": "11.4 모델 평가",
+  "title": "평가 — 혼동행렬·정밀도·재현율",
+  "narr": "정확도 하나로는 모델을 다 알 수 없습니다. <b>confusion_matrix</b>는 ‘실제 versicolor를 virginica로 잘못 봤다’ 같은 <b>혼동의 종류</b>까지 3×3 표로 보여 주죠 — <b>대각선이 정답</b>, 나머지는 헷갈린 칸입니다. 거기서 종마다 <b>정밀도(precision)</b> = ‘이 종이라 외친 것 중 진짜 비율’과 <b>재현율(recall)</b> = ‘진짜 이 종을 얼마나 건졌나’가 흘러나옵니다. <b>classification_report</b> 한 줄이 이 모두를 인쇄해 주고요. iris에서 <b>setosa</b>는 늘 완벽히 맞지만 <b>versicolor·virginica</b>는 경계에서 가끔 섞입니다 — 자연이 칼같이 나뉘지 않기 때문입니다. 슬라이더로 분류기를 바꿔, 어느 모델이 어디서 혼동하는지 비교해 보세요.",
+  "more": "<b>지표 공식</b>: 다중분류에서 각 종을 ‘양성’으로 두고 — 정밀도 = TP/(TP+FP)(예측한 것의 정확성), 재현율 = TP/(TP+FN)(놓치지 않는 능력), F1 = 둘의 조화평균. 혼동행렬 한 칸 M[실제i][예측j]가 모든 지표의 원천입니다.\n\n<b>왜 정확도만으론 부족한가</b>: 데이터가 한 종에 쏠려 있으면(불균형) 다 한 종으로 찍어도 정확도가 높게 나옵니다. 정밀도·재현율은 종별로 쪼개 보기 때문에 이런 착시를 잡아냅니다.\n\n<b>iris의 특성</b>: 꽃잎 두 특징만 써도 setosa는 100%지만, versicolor/virginica 경계의 표본은 모델마다 다르게 갈립니다 — 그 차이가 혼동행렬의 비대각 칸에 드러납니다.\n\n<b>자격시험 포인트</b>: 혼동행렬에서 정밀도·재현율·F1을 직접 계산하는 문제는 매우 흔합니다.",
+  "more_en": "Accuracy alone hides the type of errors. confusion_matrix shows a 3×3 table (diagonal = correct, off-diagonal = confusions). Precision = TP/(TP+FP) (how trustworthy the positive calls are); recall = TP/(TP+FN) (how many true positives were caught); F1 is their harmonic mean. classification_report prints all of them. In iris, setosa is always perfect while versicolor/virginica overlap at the boundary.",
+  "problem": {
+   "q": "정확도는 높은데 어떤 종의 재현율이 매우 낮다면, 무슨 일이 일어난 걸까요?",
+   "solution": "<b>그 종을 자주 놓치고 있다</b>는 뜻입니다(거짓 음성 FN이 많음). 데이터가 다른 종에 쏠려 있으면 전체 정확도는 높아도 소수 종을 거의 못 맞힐 수 있어, 종별 재현율을 따로 봐야 합니다."
+  }
+ },
+ "py11_05": {
+  "ch": "파이썬 제11장 · 머신러닝",
+  "sec": "11.5 새 꽃 예측",
+  "title": "새 꽃 예측 — predict와 확신도",
+  "narr": "학습이 끝난 분류기는 이제 <b>한 번도 못 본 꽃</b>에게도 답할 수 있습니다. 꽃잎 길이와 폭만 알려 주면 <b>model.predict()</b>가 종을 한 단어로 말하고, <b>predict_proba()</b>가 ‘얼마나 확신하는지’를 확률로 덧붙이죠. 화면의 ‘?’ 꽃에서 <b>가장 가까운 이웃 셋(kNN)</b>에게 선을 잇고, 그 셋의 다수결로 종을 정합니다. 슬라이더로 꽃잎을 <b>작게</b> 하면 망설임 없이 setosa, <b>중간 크기</b>로 밀면 versicolor와 virginica 사이에서 확률이 흔들립니다 — 바로 그 경계가 자연이 흐릿하게 그어 놓은 선입니다. 이것이 머신러닝의 <b>한 바퀴</b>: 데이터를 모으고 → 나누고 → 배우고 → 평가하고 → 예측합니다.",
+  "more": "<b>predict vs predict_proba</b>: predict는 ‘최종 답(종)’ 하나를, predict_proba는 ‘각 종일 확률’ 분포를 줍니다. 확률을 보면 모델이 자신만만한지(한 종 0.9+) 헷갈리는지(0.4/0.4 등) 알 수 있어, 애매한 표본을 사람이 다시 보게 하는 등 실무 결정에 씁니다.\n\n<b>kNN의 직관</b>: ‘가까운 것끼리 비슷하다’ — 새 점 주변 k개 이웃의 다수결입니다. k가 작으면 잡음에 민감, 크면 경계가 뭉툭. 학습 비용은 거의 없지만 예측 때 모든 거리를 재므로 데이터가 크면 느려집니다.\n\n<b>한 바퀴의 완성</b>: load_iris(적재) → train_test_split(분할) → fit(학습) → confusion_matrix/score(평가) → predict(예측). 이 다섯 단계는 분류기·데이터가 무엇이든, 작은 모델이든 거대한 신경망이든 똑같습니다 — sklearn으로 그 뼈대를 손에 익혔습니다.",
+  "more_en": "After training, the classifier answers new flowers: predict() gives the species, predict_proba() gives confidence per class. Here kNN connects the new '?' point to its 3 nearest neighbors and votes. Small petals → confidently setosa; mid-size → probability wavers between versicolor and virginica. The full ML loop: load → split → fit → evaluate → predict, identical for any model."
+ }
+}

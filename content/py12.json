@@ -1,0 +1,50 @@
+{
+ "py12_01": {
+  "ch": "파이썬 제12장 · 머신러닝",
+  "sec": "12.1 StandardScaler",
+  "title": "StandardScaler — 특징을 같은 눈금으로",
+  "narr": "모델에 데이터를 넣기 전, 거의 항상 거쳐야 하는 첫 단추가 <b>스케일링</b>입니다. 나이는 20~60, 연봉은 2000~9000만 — 이렇게 특징마다 단위·범위가 천차만별이면, 큰 값을 가진 특징 하나가 거리 계산과 경사하강을 <b>지배</b>해 나머지는 사실상 무시됩니다. <b>StandardScaler</b>는 각 열을 <b>z = (x − 평균) / 표준편차</b>로 바꿔 <b>평균 0, 표준편차 1</b>로 맞춥니다. 화면을 탭해 변환 전후를 비교하면, 변환 후 두 축의 평균과 표준편차가 실제로 0과 1이 되는 걸 검산으로 확인할 수 있습니다.",
+  "more": "<b>fit / transform / fit_transform</b>: <code>scaler.fit(X)</code>는 각 열의 평균·표준편차를 ‘배우고’, <code>scaler.transform(X)</code>는 그 통계로 실제 변환합니다. <code>fit_transform</code>은 둘을 한 번에 하죠. ★중요: <b>훈련셋에만 fit</b>하고, 시험셋은 그 통계로 <b>transform만</b> 해야 합니다 — 시험셋 통계로 fit하면 정보가 새어듭니다(누수, 다음 장). <b>정규화 MinMaxScaler</b>는 [0,1]로 압축하고, 표준화는 평균0·분산1로 만듭니다. 이상치에 강건한 <b>RobustScaler</b>(중앙값·IQR)도 있습니다.",
+  "more_en": "StandardScaler transforms each feature to z = (x − mean) / std, giving mean 0 and standard deviation 1, so features with large ranges no longer dominate distance and gradient descent. Use fit (learn mean/std) then transform; fit only on the training set and transform the test set with those statistics to avoid leakage.",
+  "problem": {
+   "q": "왜 StandardScaler를 시험셋이 아니라 훈련셋에만 fit해야 하나요?",
+   "solution": "<b>데이터 누수를 막기 위해서</b>입니다. 시험셋의 평균·표준편차로 fit하면 ‘미래에 볼 데이터’의 정보가 전처리에 새어들어, 실제보다 부풀려진 성능이 나옵니다. 훈련셋으로만 fit한 통계로 시험셋을 transform해야 정직한 평가가 됩니다."
+  }
+ },
+ "py12_02": {
+  "ch": "파이썬 제12장 · 머신러닝",
+  "sec": "12.2 Pipeline",
+  "title": "Pipeline — 전처리와 모델을 한 몸으로",
+  "narr": "스케일러로 변환하고, 그 결과를 모델에 넣고… 이 단계를 매번 손으로 잇다 보면 빠뜨리거나 순서가 꼬이기 쉽습니다. <b>make_pipeline(StandardScaler(), LogisticRegression())</b>은 전처리와 모델을 <b>하나의 객체</b>로 묶습니다 — <code>pipe.fit(X_train)</code> 한 줄이 ‘스케일러 학습+변환 → 모델 학습’을 순서대로 자동 처리하고, <code>pipe.predict</code>는 입력을 똑같이 변환한 뒤 예측합니다. 화면을 탭해 한 객체로 묶이는 흐름과, 그것이 막아 주는 <b>데이터 누수</b>를 보세요.",
+  "more": "<b>누수(data leakage) 방지가 진짜 이유</b>: 만약 전체 데이터에 스케일러를 fit하면, 시험셋(또는 교차검증의 검증 폴드)의 통계가 훈련에 새어들어 성능이 부풀려집니다. Pipeline을 <code>cross_val_score</code>나 <code>GridSearchCV</code>에 넘기면, <b>매 폴드마다 변환을 그 폴드의 훈련 부분으로만 fit</b>해 자동으로 누수를 차단합니다. 단계 이름으로 하이퍼파라미터도 지정할 수 있어(<code>logisticregression__C</code>) 격자탐색과도 자연스럽게 맞물립니다. <code>ColumnTransformer</code>를 쓰면 수치형·범주형 열에 서로 다른 전처리를 동시에 적용할 수 있습니다.",
+  "more_en": "make_pipeline chains preprocessing and a model into one object: pipe.fit runs scaler.fit_transform then model.fit in order, and pipe.predict applies the same transform before predicting. Its key benefit is preventing data leakage — inside cross-validation it refits the transform on each fold's training part only, so test/validation statistics never leak into training."
+ },
+ "py12_03": {
+  "ch": "파이썬 제12장 · 머신러닝",
+  "sec": "12.3 교차검증",
+  "title": "cross_val_score — 한 번 분할의 운을 제거",
+  "narr": "<code>train_test_split</code>으로 한 번 나눠 잰 점수는, 운 좋은(혹은 나쁜) 분할 하나에 성적을 통째로 맡긴 셈입니다. <b>cross_val_score(pipe, X, y, cv=k)</b>는 데이터를 <b>k조각(폴드)</b>으로 나눠, 돌아가며 한 조각씩 검증으로 쓰고 나머지로 학습합니다. 그렇게 얻은 <b>k개의 점수를 평균±표준편차</b>로 보고하죠. 슬라이더로 k를 바꾸면 분할·회차별 점수·평균·표준편차가 모두 실시간으로 다시 계산됩니다 — 화면의 모든 수치는 실제 분할·평가 결과입니다.",
+  "more": "<b>왜 평균과 표준편차를 함께 보나</b>: 평균은 ‘기대 성능’, 표준편차는 ‘분할에 따른 흔들림(안정성)’을 말합니다. 표준편차가 크면 그 모델은 데이터 나눔에 민감해 신뢰가 낮은 거죠. <b>k 선택</b>: 보통 k=5나 10을 씁니다. k가 클수록 추정이 안정되지만 계산 비용이 늘고, <b>k=N</b>이면 하나씩 빼는 <b>LOOCV</b>입니다. 분류에서 클래스 비율이 치우치면 <b>StratifiedKFold</b>로 각 폴드의 클래스 비율을 보존합니다. Pipeline을 넘기면 변환이 폴드마다 안전하게(누수 없이) 적용됩니다.",
+  "more_en": "cross_val_score splits data into k folds, trains on k−1 and validates on the held-out fold, rotating through all folds, and reports the k scores as mean ± std. Every data point is used for both training and validation, giving an honest estimate even with little data; the std reveals stability. Passing a Pipeline keeps preprocessing leak-free per fold."
+ },
+ "py12_04": {
+  "ch": "파이썬 제12장 · 머신러닝",
+  "sec": "12.4 GridSearchCV",
+  "title": "GridSearchCV — 최적 하이퍼파라미터 찾기",
+  "narr": "모델에는 학습으로 정해지지 않는 손잡이, <b>하이퍼파라미터</b>가 있습니다 — 정규화 강도 <b>C</b>, 트리 깊이 <b>max_depth</b>, 이웃 수 k 등이죠. <b>GridSearchCV</b>는 우리가 적어 준 <b>격자(grid)의 모든 조합</b>을 각각 교차검증으로 평가해, 가장 높은 점수의 조합을 <code>best_params_</code>로 돌려줍니다. 화면의 히트맵은 (max_depth × C) 격자의 모든 칸을 <b>실제로 계산한 교차검증 점수</b>이고, 가장 높은 칸(★)이 최적입니다 — 한쪽 끝은 과소적합, 반대 끝은 과적합, 그 사이 골짜기 바닥이 정답입니다.",
+  "more": "<b>왜 시험셋을 안 쓰고 고르나</b>: 하이퍼파라미터 선택도 ‘학습의 일부’라, 시험셋으로 고르면 그 순간 시험셋이 오염됩니다. 그래서 <b>훈련셋 안의 교차검증 점수</b>만으로 고르고, 시험셋은 끝까지 봉인합니다. <b>비용</b>: 조합 수 × cv 만큼 학습하므로 격자가 커지면 폭증합니다 — 그럴 땐 <b>RandomizedSearchCV</b>(무작위 표본)나 베이지안 최적화를 씁니다. <code>gs.fit</code> 후 <code>gs.best_estimator_</code>는 최적 조합으로 전체 훈련셋에 다시 학습된 모델입니다(바로 예측에 사용 가능).",
+  "more_en": "GridSearchCV evaluates every combination in a parameter grid using cross-validation and returns the best one via best_params_ / best_score_. Selection uses only the training-set cross-validation scores, never the test set (which stays sealed). Cost grows as combinations × cv; RandomizedSearchCV samples a subset when the grid is large. best_estimator_ is the model refit on all training data with the winning parameters.",
+  "problem": {
+   "q": "GridSearchCV로 하이퍼파라미터를 고를 때 시험셋(test set)을 쓰면 안 되는 이유는?",
+   "solution": "하이퍼파라미터 선택은 <b>모델 만들기의 일부</b>이므로, 시험셋으로 고르는 순간 시험셋이 ‘학습에 쓰인’ 셈이 되어 더는 정직한 최종 평가를 줄 수 없습니다(누수). 그래서 훈련셋 안의 <b>교차검증 점수</b>만으로 고르고, 시험셋은 마지막에 딱 한 번만 평가에 씁니다."
+  }
+ },
+ "py12_05": {
+  "ch": "파이썬 제12장 · 머신러닝",
+  "sec": "12.5 전체 파이프라인",
+  "title": "전체 파이프라인 — 한 줄기로 잇기",
+  "narr": "이제 흩어진 조각들을 하나로 잇습니다. 실무 ML의 표준 흐름은 이렇습니다 — <b>① 전체 데이터</b>를 <code>train_test_split</code>으로 나눠 <b>시험셋을 봉인</b>하고, <b>② Pipeline</b>으로 전처리와 모델을 묶고, <b>③ GridSearchCV(cv)</b>로 훈련셋 안에서 교차검증하며 하이퍼파라미터를 튜닝하고, <b>④ 최적 모델</b>을 얻은 뒤, <b>⑤ 봉인했던 시험셋으로 딱 한 번</b> 정직하게 평가합니다. 한 화면에 코드와 흐름도를 나란히 두었으니, 1~11장의 데이터·모델·평가가 어떻게 한 줄기로 이어지는지 보세요.",
+  "more": "<b>재현가능하고 누수 없는 파이프라인의 두 철칙</b>: ① <b>시험셋은 처음 분할 때 봉인</b> — 전처리 통계 학습에도, 하이퍼파라미터 선택에도 절대 쓰지 않습니다. ② <b>전처리는 반드시 Pipeline 안에</b> — 교차검증의 매 폴드마다 변환을 훈련 부분으로만 fit해 누수를 차단합니다. 여기에 <code>random_state</code>를 고정하면 분할·셔플이 결정적이 되어 <b>누구나 같은 결과를 재현</b>합니다. 이 흐름이 캐글 솔루션부터 실서비스 모델까지 공통의 뼈대입니다 — ‘우연히 좋아 보이는’ 모델이 아니라 ‘진짜로 일반화하는’ 모델을 고르는 규율이죠.",
+  "more_en": "The standard ML workflow: split off and seal a test set, wrap preprocessing + model in a Pipeline, tune hyperparameters with GridSearchCV cross-validation on the training set only, then evaluate the best model on the sealed test set exactly once. Two rules keep it reproducible and leak-free: never touch the test set until the final evaluation, and keep all preprocessing inside the Pipeline; fixing random_state makes results reproducible for everyone."
+ }
+}
