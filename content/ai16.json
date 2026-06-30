@@ -1,0 +1,50 @@
+{
+ "ai16_01": {
+  "ch": "인공지능 제16장 · 실무·에이전트",
+  "sec": "16.1 NumPy",
+  "title": "NumPy — 수치계산의 토대",
+  "narr": "여기까지 우리는 ‘무엇을 배우는가’를 봤습니다. 이제 ‘무엇으로 만드는가’ — 파이썬 생태계를 둘러볼 차례입니다. 그 맨 아래 바닥돌이 <b>NumPy</b>입니다. NumPy의 <b>ndarray</b>는 같은 형(dtype)의 수를 격자에 빽빽이 담은 그릇인데, 핵심은 <b>반복문 없이</b> 배열 전체를 한 번에 계산한다는 점입니다(내부는 C로 돌아 수십 배 빠르죠). <code>a + b</code>는 원소별 덧셈, <code>a * 2</code>는 스칼라가 모든 원소로 퍼지고, 모양이 다른 배열도 규칙에 따라 자동으로 맞춰 더하는 <b>브로드캐스팅</b>이 일어납니다. 화면의 결과 숫자는 전부 실제로 계산한 값이에요 — 탭하며 확인해 보세요.",
+  "more": "<b>왜 토대인가</b>: pandas의 표도, PyTorch의 텐서도 결국 ‘여러 차원으로 늘어선 수의 격자 + 벡터연산’이라는 NumPy의 발상 위에 섭니다. <b>브로드캐스팅 규칙</b>: 두 배열의 모양을 끝(오른쪽)부터 맞춰, 한쪽 길이가 1이거나 비면 그 축을 복제해 맞춥니다. 그래서 (2,3) 행렬에 (3,) 벡터를 더하면 벡터가 행마다 복제돼 더해지죠. 반복문을 벡터연산으로 바꾸는 ‘벡터화(vectorization)’는 파이썬 성능의 첫걸음입니다.",
+  "more_en": "NumPy's ndarray is a grid of same-dtype numbers computed all at once (vectorized, in C). a+b is elementwise, a*2 broadcasts a scalar, and arrays of different shapes are auto-aligned by broadcasting rules. pandas and PyTorch are both built on this idea."
+ },
+ "ai16_02": {
+  "ch": "인공지능 제16장 · 실무·에이전트",
+  "sec": "16.2 pandas",
+  "title": "pandas — 표 데이터의 표준",
+  "narr": "현실의 데이터는 대개 <b>표</b> 모양입니다 — 행은 사례, 열은 속성이죠. 이 표를 다루는 사실상의 표준이 <b>pandas</b>의 <b>DataFrame</b>입니다. NumPy 배열에 <b>행·열 라벨</b>을 붙여, 이름으로 골라내고 묶을 수 있게 만든 그릇이에요. <code>df[df.sales &gt; 25]</code> 한 줄로 조건에 맞는 행만 <b>필터</b>하고, <code>df.groupby('city').sales.sum()</code> 한 줄로 도시별 <b>합계</b>를 냅니다. 화면의 필터 결과와 집계 합(서울=120, 부산=30)은 실제로 계산한 값입니다 — 엑셀로 한참 걸릴 일이 즉시 끝나죠.",
+  "more": "<b>실무 흐름</b>: 머신러닝의 절반 이상은 ‘데이터 정제’입니다 — 결측값 채우기, 형 변환, 열 합치기·나누기, 이상치 제거. pandas의 <code>read_csv·merge·pivot_table·apply</code>가 이 일을 맡습니다. 모델에 넣기 전 X(특징)·y(라벨)를 만드는 것도 보통 pandas로 하죠. <b>groupby = 분할-적용-결합</b>(split-apply-combine): 키로 나누고 → 각 그룹에 함수를 적용하고 → 다시 합치는 패턴이며, SQL의 GROUP BY와 같은 발상입니다.",
+  "more_en": "pandas DataFrame is a labeled 2-D table — NumPy with row/column names. Filter rows with df[df.col>v], aggregate by key with groupby. Most ML work is data cleaning (missing values, type conversion, merging), and pandas is the de-facto tool for it. groupby follows split-apply-combine, like SQL GROUP BY.",
+  "problem": {
+   "q": "df.groupby('city').sales.sum()은 무엇을 계산하나요?",
+   "solution": "<b>도시별 sales 합계</b>입니다. 행을 city 값으로 묶고(split), 각 그룹의 sales를 더하고(apply), 도시→합계 표로 결합(combine)합니다. 예시 데이터에서는 서울=30+50+40=120, 부산=20+10=30."
+  }
+ },
+ "ai16_03": {
+  "ch": "인공지능 제16장 · 실무·에이전트",
+  "sec": "16.3 scikit-learn",
+  "title": "scikit-learn — 전통 ML의 표준 인터페이스",
+  "narr": "표 데이터로 모델을 만들 차례입니다. <b>scikit-learn</b>의 아름다움은 <b>모든 모델이 똑같은 사용법</b>을 갖는다는 데 있어요. 데이터를 <code>train_test_split</code>으로 훈련/검증으로 나누고(1장에서 배운 그것!), <code>model.fit(X, y)</code>로 학습시키고, <code>model.predict(X)</code>로 답을 얻고, <code>model.score</code>로 평가합니다. 선형회귀든 결정트리든 랜덤포레스트든, <b>모델 이름 한 줄만 바꿔 끼우면</b> 나머지 코드는 그대로예요. 우측 파이프라인을 한 단계씩 따라가 보세요 — 이 5단계가 전통 ML의 거의 전부입니다.",
+  "more": "<b>일관된 API의 힘</b>: <code>fit</code>(배운다)·<code>predict</code>(추론)·<code>transform</code>(변환)·<code>score</code>(평가)라는 약속을 모든 객체가 지키므로, 전처리(<code>StandardScaler</code>)→모델을 <code>Pipeline</code>으로 묶거나, <code>GridSearchCV</code>로 하이퍼파라미터를 자동 탐색할 수 있습니다. <b>언제 쓰나</b>: 수천~수십만 행의 표 데이터에서는 딥러닝보다 scikit-learn(특히 그래디언트 부스팅·랜덤포레스트)이 더 빠르고 정확한 경우가 많습니다. 자격시험에서도 fit/predict 흐름과 train/test 분리는 단골 주제입니다.",
+  "more_en": "scikit-learn gives every model the same interface: fit(X,y) to learn, predict(X) to infer, score to evaluate. Swap one line to change algorithms (linear regression, trees, random forest). Pipelines chain preprocessing+model; GridSearchCV tunes hyperparameters. For tabular data it often beats deep learning."
+ },
+ "ai16_04": {
+  "ch": "인공지능 제16장 · 실무·에이전트",
+  "sec": "16.4 PyTorch",
+  "title": "PyTorch — 딥러닝 연구의 표준",
+  "narr": "딥러닝으로 가면 <b>PyTorch</b>가 사실상 공용어입니다. <b>텐서(tensor)</b>는 GPU에서 도는 NumPy 배열이라 보면 돼요. 마법은 <b>autograd</b>입니다 — 어떤 계산을 하든 PyTorch가 그 과정을 그래프로 몰래 기록해 두고, <code>backward()</code> 한 번이면 <b>연쇄법칙으로 거꾸로 미분</b>해 모든 기울기를 자동으로 구합니다. 화면 예처럼 <code>y = x²+2x</code>에서 x=3이면 y=15, dy/dx=2x+2=8 — 손으로 미분식을 적지 않아도 정확히 나옵니다. <code>nn.Module</code>로 층을 쌓아 모델을 조립하면, 수십억 파라미터의 그래디언트도 같은 <code>backward()</code> 한 줄로 흐릅니다.",
+  "more": "<b>학습 한 사이클</b>: ①<code>forward</code>로 예측 → ②예측과 정답으로 <b>손실</b> 계산 → ③<code>loss.backward()</code>로 모든 가중치의 grad 계산 → ④<code>optimizer.step()</code>으로 grad 반대 방향으로 갱신(경사하강) → ⑤<code>optimizer.zero_grad()</code>로 초기화. 이 다섯 줄이 모든 신경망 학습의 뼈대입니다. <b>autograd가 곧 역전파</b>: 신경망의 ‘역전파(backpropagation)’는 바로 이 자동미분을 층마다 연쇄적으로 적용하는 것입니다 — 손미분 시대를 끝낸 결정적 도구죠. (TensorFlow/JAX도 같은 발상을 공유합니다.)",
+  "more_en": "PyTorch tensors are GPU-capable NumPy arrays. autograd records every operation into a graph and backward() differentiates it via the chain rule automatically — for y=x²+2x at x=3, dy/dx=2x+2=8. nn.Module stacks layers; the train loop is forward → loss → backward → optimizer.step → zero_grad. autograd is backpropagation made automatic.",
+  "problem": {
+   "q": "y = x² + 2x 이고 x = 3일 때, y.backward() 후 x.grad의 값은?",
+   "solution": "<b>8</b>입니다. dy/dx = 2x + 2 이고, x=3을 넣으면 2·3+2 = 8. autograd가 계산그래프를 거꾸로 따라가 이 도함수를 자동으로 구합니다."
+  }
+ },
+ "ai16_05": {
+  "ch": "인공지능 제16장 · 실무·에이전트",
+  "sec": "16.5 Hugging Face",
+  "title": "Hugging Face — 사전학습 모델을 몇 줄로",
+  "narr": "마지막 조각입니다. 거대 모델을 처음부터 학습하는 데는 수백만 달러가 들지만 — <b>이미 학습해 둔 모델을 내려받아 쓰면</b> 비용이 0에 가깝습니다. 그 모델들이 모여 있는 곳이 <b>Hugging Face Hub</b>이고, <code>transformers</code> 라이브러리의 <code>pipeline()</code> 한 줄이면 감정분석·번역·요약·생성을 즉시 돌립니다. <code>pipeline()</code>은 ①토크나이저(텍스트→숫자) ②사전학습 모델(추론) ③후처리(라벨·점수) 세 단계를 한 줄로 포장한 거예요. 우측에서 그 흐름과 생태계 지도를 보세요. AI 기초부터 여기까지 — 이제 여러분은 <b>남의 어깨 위에서 곧장</b> 만들 수 있습니다.",
+  "more": "<b>‘AI의 깃허브’</b>: Hub에는 <b>Models</b>(수십만 사전학습 모델)·<b>Datasets</b>(공개 학습 데이터)·<b>Spaces</b>(데모 앱 호스팅)가 모여, 모두가 모델을 공유하고 재사용합니다. <b>전이학습(transfer learning)</b>: 사전학습 모델을 그대로 추론에 쓰거나, 내 데이터로 마지막만 다듬는 <b>파인튜닝</b>으로 적은 데이터로도 강력한 성능을 냅니다 — 오늘날 실무 NLP·비전의 기본기죠.\n\n<b>16장 전체를 한 문장으로</b>: NumPy(수치) → pandas(표) → scikit-learn(전통 ML) → PyTorch(딥러닝) → Hugging Face(사전학습 활용)로 이어지는 이 사다리가, 개념을 ‘실제로 돌아가는 것’으로 바꾸는 길입니다.",
+  "more_en": "Pretraining giant models costs millions, but reusing them is nearly free. Hugging Face Hub hosts hundreds of thousands of pretrained Models, Datasets, and Spaces. transformers' pipeline() wraps tokenizer → model → post-processing into one line for sentiment, translation, generation. Transfer learning / fine-tuning adapts them with little data. The stack: NumPy → pandas → scikit-learn → PyTorch → Hugging Face."
+ }
+}

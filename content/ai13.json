@@ -1,0 +1,42 @@
+{
+ "ai13_01": {
+  "ch": "인공지능 제13장 · 정렬과 프롬프트",
+  "sec": "13.1 지시 튜닝(Instruction Tuning)",
+  "title": "지시 튜닝 — 다음 단어 기계를 비서로",
+  "narr": "사전학습만 끝낸 거대 언어모델은 사실 똑똑한 ‘<b>다음 단어 맞히기</b>’ 기계입니다. 인터넷 글 수조 개를 보며 ‘이 뒤엔 어떤 단어가 올까’만 배웠죠. 그래서 “프랑스의 수도를 알려줘”라고 부탁해도, <b>지시를 따르는</b> 게 아니라 그 문장 뒤에 올 법한 말을 줄줄 이어 씁니다 — 면적이 어떻고 인구가 어떻고. 질문엔 답하지 않아요. 여기에 (지시, 모범 응답) 쌍 수만~수십만 개를 보여 주며 <b>미세조정(fine-tuning)</b>하면, 모델은 “요청이 오면 그 요청을 수행한다”는 새 습관을 익힙니다. 슬라이더를 밀어 같은 질문에 두 모델이 얼마나 다르게 행동하는지 보세요. 가중치를 크게 뜯어고친 게 아니라, ‘말투’가 아니라 ‘태도’를 바꾼 겁니다.",
+  "more": "<b>SFT(지도 미세조정)</b>: 이 단계를 Supervised Fine-Tuning이라 부릅니다 — 사람이 쓴 모범 응답을 정답 삼아 그대로 흉내 내게 하는 지도학습이죠. 사전학습이 ‘언어와 세상 지식’을 넣는 단계라면, 지시튜닝은 그 지식을 ‘쓸모 있게 꺼내는 법’을 가르치는 단계입니다.\n\n<b>왜 적은 데이터로 충분한가</b>: 능력은 이미 사전학습에 들어 있고, 지시튜닝은 그 능력을 ‘질문-응답 형식’으로 정렬해 끌어낼 뿐이라, 사전학습보다 훨씬 적은 데이터로도 행동이 확 달라집니다. 자격시험에서는 ‘사전학습 vs 미세조정’의 역할 구분, SFT의 정의가 단골입니다.",
+  "more_en": "A pretrained LLM only predicts the next token — it continues text rather than following instructions. Instruction tuning (Supervised Fine-Tuning, SFT) fine-tunes it on tens of thousands of (instruction, good response) pairs so it learns to actually do what is asked. The capability already exists from pretraining; SFT aligns it into a question-answer format with relatively little data."
+ },
+ "ai13_02": {
+  "ch": "인공지능 제13장 · 정렬과 프롬프트",
+  "sec": "13.2 RLHF — 사람 선호로 정렬",
+  "title": "RLHF — 사람의 선호로 정렬한다",
+  "narr": "“좋은 답”이란 뭘까요? 도움이 되고, 정직하고, 안전하고… 이런 미묘한 기준은 모범 응답 몇 개로 다 가르치기 어렵습니다. 그런데 사람은 두 답을 나란히 놓고 “이게 저것보다 낫다(<b>A&gt;B</b>)”라고 <b>비교</b>는 잘합니다. <b>RLHF</b>(사람 피드백 강화학습)는 이 직관을 영리하게 씁니다. ①먼저 모범 응답으로 기본기를 잡고(SFT), ②사람이 매긴 수많은 ‘A가 B보다 낫다’ 비교로 “답에 점수를 매기는 법”을 배운 <b>보상모델</b>을 만들고, ③그 보상모델의 점수가 높아지도록 모델을 <b>강화학습</b>으로 다듬습니다. 화면을 탭하며 세 단계를 따라가 보세요 — 보상 점수는 도움됨·정직함·안전함·간결함 같은 특징의 가중합으로 실제 계산한 값입니다.",
+  "more": "<b>보상모델과 Bradley-Terry</b>: 사람은 절대 점수 대신 ‘둘 중 뭐가 나은가’만 고릅니다. 보상모델은 이 쌍별 선호를 P(A≻B)=σ(r_A−r_B) 형태로 학습해, 결국 모든 답에 연속 점수 r을 매기는 법을 익힙니다(화면의 σ 확률이 그것).\n\n<b>3단계 파이프라인 + KL 제어</b>: SFT → 보상모델 → PPO(근접정책최적화) 강화학습. 보상만 좇으면 모델이 보상모델을 ‘속이는’ 이상한 답으로 폭주할 수 있어, 원본(SFT) 모델에서 너무 멀어지지 않도록 <b>KL 페널티</b>로 묶어 둡니다. 최근에는 보상모델 없이 선호쌍으로 바로 최적화하는 <b>DPO</b>도 널리 쓰입니다. ‘정렬(alignment)·RLHF·보상모델’은 LLM 자격시험의 핵심 주제입니다.",
+  "more_en": "RLHF aligns a model with human preferences in three stages: (1) SFT on demonstrations, (2) train a reward model from human A>B comparisons — P(A≻B)=σ(r_A−r_B), Bradley-Terry — so it scores any response, (3) reinforcement learning (PPO) to maximize that reward, with a KL penalty keeping the policy near the SFT model. DPO is a popular reward-model-free alternative. The reward shown is a real weighted sum of features."
+ },
+ "ai13_03": {
+  "ch": "인공지능 제13장 · 정렬과 프롬프트",
+  "sec": "13.3 프롬프트 엔지니어링",
+  "title": "프롬프트 — 묻는 법이 답을 바꾼다",
+  "narr": "신기한 사실 하나 — 모델의 가중치는 한 글자도 안 바뀌었는데, <b>어떻게 묻느냐</b>만으로 정답률이 크게 달라집니다. 예시 없이 곧장 묻는 게 <b>zero-shot</b>, 본보기 문제-답을 몇 개 먼저 보여 주고 묻는 게 <b>few-shot</b>(모델이 형식과 패턴을 흉내 냄), 그리고 “<b>단계적으로 생각해 보자</b>”라며 풀이 과정을 한 줄씩 펼치게 하는 게 <b>Chain-of-Thought(생각의 사슬)</b>입니다. 특히 여러 단계를 거쳐야 하는 추론·산수 문제에서, 답만 급히 내놓으면 틀리던 모델이 과정을 풀어 쓰게 하면 확 정확해집니다 — 사람이 암산으로 틀릴 문제를 종이에 적으면 맞히는 것과 똑같죠. 슬라이더로 세 방식을 비교하며 정답률 막대가 오르는 걸 보세요.",
+  "more": "<b>왜 CoT가 통하나</b>: 모델은 토큰을 하나씩 생성하며 ‘생각할 공간’을 그 토큰들 자체에 펼칩니다. 중간 단계를 적게 하면 각 단계가 더 쉬운 다음-단어 예측이 되어, 한 번에 정답을 ‘점프’할 때보다 오류가 줄어듭니다.\n\n<b>실전 기법</b>: few-shot 예시는 형식·난이도를 실제 문제와 맞출 것, CoT는 “단계적으로 생각하라”는 한 문장만으로도 효과(zero-shot CoT), 더 나아가 여러 풀이를 뽑아 다수결하는 <b>self-consistency</b>, 외부 도구를 부르는 <b>ReAct</b> 등이 있습니다. 단 화면의 정답률(41/63/88%)은 ‘zero<few<CoT’ 경향을 보여 주는 예시 수치입니다 — 실제 값은 모델·과제마다 다릅니다.",
+  "more_en": "Prompt engineering changes accuracy without touching weights. Zero-shot asks directly; few-shot prepends a few worked examples so the model mimics the pattern; Chain-of-Thought (\"let's think step by step\") elicits intermediate reasoning, which sharply improves multi-step problems. CoT works because each small step is an easier next-token prediction than jumping to the answer. Related: self-consistency (majority vote over samples), ReAct (tool use)."
+ },
+ "ai13_04": {
+  "ch": "인공지능 제13장 · 정렬과 프롬프트",
+  "sec": "13.4 온도와 샘플링",
+  "title": "온도 — 분포를 뾰족하게·평평하게",
+  "narr": "LLM이 다음 단어를 고를 때, 사실은 후보 단어들에 <b>확률 분포</b>를 매기고 거기서 하나를 ‘뽑습니다’. 「파란 ___」 다음엔 하늘·바다·구름… 이 각자 다른 확률을 갖죠. <b>온도(temperature) T</b>는 이 분포의 모양을 조절하는 손잡이입니다. 후보의 점수(로짓)를 T로 나눠 softmax를 하는데 — <b>T를 낮추면</b> 가장 높은 단어가 더욱 도드라져 분포가 <b>뾰족</b>해지고(거의 항상 같은, 보수적·결정적 답), <b>T를 높이면</b> 후보들의 확률이 서로 비슷해져 분포가 <b>평평</b>해집니다(다양·창의적이지만 엉뚱해지기 쉬움). 슬라이더로 T를 움직이며 막대와 <b>엔트로피</b>(분포가 얼마나 퍼졌는지)가 변하는 걸 보세요 — 화면의 확률·엔트로피는 모두 실제 softmax로 계산한 값입니다.",
+  "more": "<b>식</b>: pᵢ = exp(logitᵢ/T) / Σ exp(logⱼ/T). T→0이면 가장 큰 로짓 하나만 살아남아(argmax, 그리디·결정적), T→∞이면 균등분포에 가까워집니다. 정답이 하나뿐인 사실 질문엔 낮은 T, 브레인스토밍·창작엔 높은 T가 어울립니다.\n\n<b>온도 외의 샘플링</b>: 확률 상위만 남기는 <b>top-k</b>, 누적확률 p까지만 남기는 <b>top-p(뉴클리어스)</b>를 온도와 함께 써 ‘너무 엉뚱한 꼬리’를 잘라냅니다. 엔트로피는 H=−Σpᵢlog₂pᵢ로, 분포의 불확실성(다양성)을 비트로 잰 값입니다. ‘온도·top-p·샘플링’은 생성 제어의 핵심 출제 주제입니다.",
+  "more_en": "An LLM outputs a probability distribution over next tokens and samples one. Temperature T reshapes it via pᵢ = softmax(logitᵢ/T): low T sharpens the distribution (near-deterministic, conservative), high T flattens it (diverse, creative, but more errors). T→0 is greedy argmax; T→∞ approaches uniform. Often combined with top-k / top-p (nucleus) sampling to trim the unlikely tail. Entropy H=−Σpᵢlog₂pᵢ measures the spread."
+ },
+ "ai13_05": {
+  "ch": "인공지능 제13장 · 정렬과 프롬프트",
+  "sec": "13.5 환각과 한계",
+  "title": "환각 — 그럴듯하지만 틀린 답",
+  "narr": "LLM에게 “2019년 노벨 가상문학상 수상자는?”처럼 <b>존재하지 않는 전제</b>를 깐 질문을 던지면, 모델은 곧잘 그럴듯한 이름을 ‘지어냅니다’. 이게 <b>환각(hallucination)</b>입니다. 왜 그럴까요? 모델은 진실을 ‘아는’ 게 아니라 <b>가장 그럴듯한 다음 단어</b>를 고를 뿐이라서요 — “수상자는 ___”라는 빈칸은 사람 이름으로 메우는 게 언어적으로 가장 자연스럽거든요. <b>진실</b>과 <b>언어적 그럴듯함</b>은 서로 다른 축인데, 모델은 후자만 보고 자신 있게 빈칸을 채웁니다. 슬라이더로 <b>근거 자료(RAG)</b>를 주면, 사실 답(“그런 상은 없습니다”)의 확률이 실제로 끌어올려져 환각이 가라앉는 걸 보세요.",
+  "more": "<b>왜 막기 어렵나</b>: 환각은 버그가 아니라 ‘다음 단어 확률’이라는 작동 원리의 그림자입니다. 학습 데이터에 없거나 드문 사실, 최신 사건, 정밀한 숫자·인용에서 특히 잘 생깁니다. 자신감(말투)과 정확성은 별개라, 틀린 답도 매우 단호하게 말하는 게 위험합니다.\n\n<b>완화법</b>: ①<b>RAG</b>(검색 증강 생성) — 질문 시점에 외부 문서를 검색해 근거로 넣어 ‘확률’ 대신 ‘근거’를 보게 함, ②<b>출처 인용·자기검증</b> 요구, ③정렬 단계에서 “모르면 모른다고 답하라”를 학습, ④계산기·코드·검색 같은 <b>외부 도구</b> 연결. 그래도 완전히 사라지진 않으니, 중요한 답은 항상 <b>출처로 교차검증</b>해야 합니다. ‘환각·RAG·근거 검증’은 LLM 활용의 핵심 안전 주제입니다.",
+  "more_en": "Hallucination — confidently producing plausible-but-false content — stems from the core mechanism: the model picks the most likely next token, not the true one. Plausibility ≠ truth, so it fills blanks confidently even when it doesn't know. It's worst on rare facts, recent events, and precise numbers/quotes. Mitigations: RAG (retrieve grounding documents), demand citations/self-checking, alignment to say \"I don't know,\" and external tools. It never fully disappears — always cross-check important answers against sources."
+ }
+}

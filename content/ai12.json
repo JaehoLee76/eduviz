@@ -1,0 +1,46 @@
+{
+  "ai12_01": {
+    "ch": "인공지능 제12장 · 트랜스포머·LLM",
+    "sec": "12.1 토크나이저 (BPE)",
+    "title": "토크나이저 (BPE) — 글자에서 서브워드로",
+    "narr": "모델은 우리가 쓰는 ‘단어’를 그대로 읽지 않습니다. 글자 하나하나로 쪼개면 시퀀스가 너무 길어지고, 단어 통째로 다루면 처음 보는 말(‘새내기말’·오타·외국어)에 무력해집니다. 그래서 그 중간인 <b>토큰(서브워드)</b>을 씁니다. 가장 유명한 방법이 <b>BPE(Byte-Pair Encoding)</b>예요. 처음엔 모든 글자를 따로 두고, 코퍼스에서 <b>가장 자주 붙어 나오는 글자쌍</b>을 하나로 합치기를 반복합니다. 슬라이더로 병합 횟수 k를 올려 보세요 — ‘e’+‘s’→‘es’, ‘es’+‘t’→‘est’처럼 흔한 덩어리가 점점 한 토큰으로 자랍니다. 화면의 병합 순서와 빈도는 작은 결정적 코퍼스에서 <b>실제로 센 값</b>입니다.",
+    "more": "<b>왜 서브워드인가</b>: ①희귀어·신조어를 아는 조각들의 조합으로 표현 — ‘unhappiness’ 못 봤어도 ‘un’+‘happi’+‘ness’로 처리. ②어휘 크기를 적당히(보통 수만 개) 묶어 임베딩 행렬을 작게. ③한 글자 토큰의 긴 시퀀스 문제를 완화. 절차는 단순합니다 — 인접쌍 빈도를 세고(빈도 가중), 최빈쌍을 새 토큰으로 ‘병합 규칙’에 추가하고, 코퍼스를 갱신. 이걸 목표 어휘 크기까지 반복합니다. GPT 계열은 바이트 단위 BPE를 써서 어떤 문자(이모지·한글 자모)도 빠짐없이 다룹니다.",
+    "more_en": "Models read text as subword tokens, not raw words. BPE starts with single characters and repeatedly merges the most frequent adjacent pair into one token. This lets it spell out rare/unseen words from known pieces, keeps the vocabulary at a manageable size, and shortens sequences. The merge order and frequencies shown are counted from a small deterministic corpus."
+  },
+  "ai12_02": {
+    "ch": "인공지능 제12장 · 트랜스포머·LLM",
+    "sec": "12.2 다음 토큰 예측",
+    "title": "다음 토큰 예측 — 자기지도 사전학습",
+    "narr": "거대한 언어 모델은 도대체 무엇을 ‘공부’할까요? 답은 의외로 단 하나입니다 — <b>다음 토큰 맞히기</b>. “나는 학교에 ___” 다음에 무엇이 올지, 모델은 어휘 전체에 점수(로짓)를 매기고 <b>Softmax</b>로 확률 분포를 만듭니다. 그리고 실제 다음 글자와 비교해 틀린 만큼 가중치를 고치죠. 슬라이더로 온도 T를 바꿔 보세요 — T가 낮으면 1등 후보에 확률이 뾰족하게 몰리고(자신만만), 높으면 후보들이 평평해집니다(다양·모험적). 화면의 모든 확률은 로짓에 Softmax를 <b>실제로 적용</b>해 계산한 값입니다.",
+    "more": "<b>자기지도(self-supervised)의 마법</b>: 보통 지도학습은 사람이 일일이 정답(라벨)을 달아야 합니다 — 비싸고 느리죠. 그런데 ‘다음 토큰’의 정답은 <b>텍스트 자체에 이미 들어 있습니다</b>. 문장 “나는 학교에 간다”에서 “나는 학교에”의 정답은 그냥 그다음 글자 ‘간다’예요. 그래서 사람 손 없이 <b>인터넷 전체</b>를 교재로 삼을 수 있습니다. 손실은 정답 토큰의 음의 로그확률(<b>교차엔트로피 −log p</b>) — 정답 확률을 키울수록 손실이 0에 가까워집니다. 이 단순한 과제를 수조 개 토큰에 반복하는 것만으로 문법·상식·추론의 씨앗이 자랍니다.",
+    "more_en": "An LLM's pretraining objective is just next-token prediction: score every vocabulary token, Softmax into probabilities, compare with the actual next token, and reduce the cross-entropy loss −log p of the correct token. The label is already in the text (the next character itself), so no human annotation is needed — that is self-supervision, which lets the model train on the whole internet."
+  },
+  "ai12_03": {
+    "ch": "인공지능 제12장 · 트랜스포머·LLM",
+    "sec": "12.3 사전학습과 미세조정",
+    "title": "사전학습 → 미세조정 (전이학습)",
+    "narr": "과제마다 모델을 처음부터 키우는 건 엄청난 낭비입니다. 그래서 두 단계로 나눕니다. 먼저 <b>사전학습</b> — 인터넷 규모의 텍스트로 ‘다음 토큰 맞히기’를 시켜 언어의 일반 지식(문법·상식·세계)을 한 번 두둑이 쌓습니다. 그다음 <b>미세조정</b> — 감성분류·번역·QA 같은 특정 과제의 <b>소량 데이터</b>로 살짝 다듬습니다. 슬라이더로 단계를 바꿔 보세요. 화면 막대는 두 데이터량의 <b>실제 비율</b>(로그 스케일)입니다 — 사전학습은 미세조정보다 수백만 배 많은 텍스트를 봅니다.",
+    "more": "<b>전이학습(transfer learning)</b>: 사람도 ‘읽고 쓰는 일반 능력’을 먼저 익힌 뒤 ‘법률 문서 읽기’ 같은 전문 과제에 적응하죠. 모델도 같습니다. 사전학습으로 얻은 풍부한 표현(가중치)을 <b>출발점</b>으로 삼아, 과제 데이터로 약간만 더 학습하면 됩니다. 머리(출력층)만 새로 붙여 학습하거나, 전체를 작은 학습률로 다듬거나, LoRA처럼 일부 파라미터만 끼워 넣는 방식이 있습니다. 핵심 비대칭: 비싼 일반 학습은 <b>한 번</b>, 값싼 응용은 <b>여러 번</b>. 이 구조가 하나의 거대 모델을 수많은 과제에 재활용하게 만들어 LLM 시대를 열었습니다.",
+    "more_en": "Instead of training a model from scratch per task, we pretrain once on internet-scale text (general language knowledge), then finetune on a small task-specific dataset. The bars show the real data-size ratio (log scale): pretraining sees millions of times more text. The expensive general learning happens once; cheap task adaptation reuses it many times — this is transfer learning."
+  },
+  "ai12_04": {
+    "ch": "인공지능 제12장 · 트랜스포머·LLM",
+    "sec": "12.4 Scaling Law",
+    "title": "Scaling Law — 크기를 키우면 손실이 내려간다",
+    "narr": "거대 모델은 왜 자꾸 더 커질까요? 놀라운 발견 때문입니다 — 모델·데이터·계산을 키우면 손실이 <b>변덕 없이 매끄럽게</b> 내려갑니다. 그것도 <b>멱법칙</b> L = L∞ + a·N⁻ᵇ을 따라서요. 슬라이더로 모델 크기 N을 키워 보세요. 화면 곡선의 손실은 이 멱법칙을 <b>실제로 계산</b>한 값입니다. 크기를 10배 키울 때마다 손실이 일정한 비율로 줄어드는, 거의 직선 같은 규칙성이 보이죠. 작은 모델 몇 개로 곡선을 그려 두면, 아직 만들지도 않은 큰 모델의 성능을 미리 점칠 수 있다는 뜻입니다.",
+    "more": "<b>예측 가능성과 한계</b>: Kaplan(2020)·Chinchilla(2022) 같은 연구는 손실이 파라미터 수 N, 데이터 토큰 수 D, 계산량 C 각각에 대해 멱법칙을 따름을 보였습니다. 실무적 의미: ①<b>큰 모델은 도박이 아니라 외삽</b> — 소형 실험으로 대형 결과를 예측. ②<b>최적 배분</b> — 같은 계산 예산이면 모델만 키우지 말고 데이터도 함께 늘려야(Chinchilla). 다만 ③<b>바닥(L∞)이 있다</b> — 언어의 본질적 무작위성 탓에 손실은 0으로 못 갑니다. ④<b>수확 체감</b> — 두 배 좋아지려면 자원은 훨씬 더 많이 들어, 결국 데이터·전력이 병목이 됩니다.",
+    "more_en": "Scaling laws say loss falls predictably as a power law L = L∞ + a·N^(−b) when you grow model size, data, and compute. The plotted loss is the actual power-law value. This lets you forecast a large model's performance from small experiments, but there is an irreducible floor L∞ and diminishing returns — doubling quality costs far more than double the resources."
+  },
+  "ai12_05": {
+    "ch": "인공지능 제12장 · 트랜스포머·LLM",
+    "sec": "12.5 BERT vs GPT",
+    "title": "BERT vs GPT — 인코더 vs 디코더",
+    "narr": "같은 Transformer 블록에서 두 갈래의 거대 모델이 갈라져 나왔습니다. <b>BERT(인코더)</b>는 문장 일부를 [MASK]로 가린 뒤, 가린 자리를 <b>앞뒤 양쪽</b> 문맥을 모두 보고 채웁니다(빈칸 채우기, MLM). 양방향이라 문장 ‘이해’(분류·검색·개체인식)에 강하죠. <b>GPT(디코더)</b>는 <b>인과 마스킹</b>으로 미래 토큰을 가린 채, 왼쪽(과거) 문맥만 보고 다음 단어를 이어 씁니다(자기회귀). 그래서 글 ‘생성’에 강합니다. 슬라이더로 모델을 바꿔 보세요 — 화살표(어텐션 방향)와 마스킹이 어떻게 달라지는지, 그리고 각 후보의 확률(Softmax 실계산)을 비교해 보세요.",
+    "more": "<b>마스킹 하나가 가른 두 세계</b>: 둘 다 토큰 임베딩→Self-Attention→FC의 같은 부품을 쓰지만, <b>어디까지 보게 하느냐</b>가 다릅니다. BERT는 양방향이라 빈칸의 뜻을 좌우 맥락으로 정확히 좁히지만, 정의상 ‘다음 단어를 순서대로 생성’하지는 못합니다. GPT는 인과(causal) 마스크로 미래를 못 보게 막아, 한 토큰씩 차례로 생성하는 데 자연스럽습니다 — 이것이 ChatGPT류 생성 모델의 뼈대죠. 이후 T5처럼 인코더+디코더를 함께 쓰는 모델, 그리고 디코더-only 모델이 대형 생성의 주류가 되었습니다. 요지: 같은 부품, 다른 ‘시야(마스킹)’ → ‘읽는 모델’과 ‘쓰는 모델’.",
+    "more_en": "BERT (encoder) masks part of the sentence and fills it using both left and right context (bidirectional) — great for understanding. GPT (decoder) uses causal masking to hide future tokens and predicts the next word from left context only (autoregressive) — great for generation. Same Transformer parts, different masking: one model reads, the other writes. The candidate probabilities shown are real Softmax outputs.",
+    "problem": {
+      "q": "글을 ‘생성’하는 챗봇에는 BERT와 GPT 중 어느 구조가 자연스럽고, 그 이유는 마스킹과 어떻게 연결되나요?",
+      "solution": "<b>GPT(디코더)</b>입니다. GPT는 <b>인과 마스킹</b>으로 미래 토큰을 가린 채 왼쪽 문맥만 보고 다음 토큰을 예측하므로, 한 토큰씩 차례로 이어 붙이는 ‘자기회귀 생성’과 정확히 맞물립니다. 반면 BERT는 양방향으로 [MASK] 자리를 채우는 ‘이해’용이라, 단어를 순서대로 생성하는 데는 부적합합니다."
+    }
+  }
+}

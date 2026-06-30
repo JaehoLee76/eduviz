@@ -1,0 +1,50 @@
+{
+ "ai9_01": {
+  "ch": "인공지능 제9장 · 딥러닝",
+  "sec": "9.1 RNN 구조와 은닉상태",
+  "title": "RNN 구조 — 은닉상태가 기억을 이어 나른다",
+  "narr": "지금까지 본 신경망은 입력을 <b>한 덩어리</b>로 받았습니다. 그런데 문장·음성·주가처럼 <b>순서가 의미인 데이터(시퀀스)</b>는 어떨까요? ‘나는 학교에 간다’의 단어들은 앞뒤 맥락으로 이어집니다. <b>순환신경망(RNN)</b>은 이 시퀀스를 <b>한 단어씩</b> 읽으면서, 매 시점 ‘직전까지의 기억’을 다음으로 이어 나릅니다. 그 기억이 <b>은닉상태 h</b>입니다. 매 시점 같은 셀이 <b>h_t = tanh(Wx·x_t + Wh·h_{t-1} + b)</b> — “지금 입력 x와 직전 기억 h를 섞어 새 기억을 만든다” — 를 반복하죠. 슬라이더로 시점 t를 옮기며, 단어를 하나씩 읽을 때마다 h가 어떻게 갱신되는지 직접 보세요.",
+  "more": "<b>핵심은 ‘가중치 공유’</b>: RNN은 시점이 아무리 많아도 <b>똑같은 Wx·Wh·b</b>를 매번 재사용합니다. 덕분에 길이가 제각각인 문장도 같은 셀 하나로 처리할 수 있고, 파라미터 수가 길이에 따라 늘지 않습니다. 은닉상태 h는 ‘지금까지 읽은 모든 것의 요약’ — 일종의 <b>작동 기억(working memory)</b>입니다.\n\n<b>RNN의 쓰임</b>: 언어 모델(다음 단어 예측)·기계 번역·음성 인식·감성 분석 등 ‘순서가 중요한’ 거의 모든 곳에서 2010년대 표준이었습니다. 화면의 모든 h값은 결정적 입력·가중치로 매 시점 실제 누적 계산한 것입니다.",
+  "more_en": "RNNs read a sequence one step at a time, carrying a hidden state h that summarizes everything seen so far: h_t = tanh(Wx·x_t + Wh·h_{t-1} + b). The same weights (Wx, Wh, b) are reused at every time step (weight sharing), so one cell handles sequences of any length. The hidden state acts as working memory."
+ },
+ "ai9_02": {
+  "ch": "인공지능 제9장 · 딥러닝",
+  "sec": "9.2 다음 토큰 예측",
+  "title": "다음 토큰 예측 — ‘Hello’ 자동완성",
+  "narr": "RNN으로 ‘언어’를 배우는 가장 흔한 방법은 <b>다음 글자(토큰) 맞히기</b>입니다. ‘Hello’를 예로 들면, ‘H’를 봤을 때 다음은 ‘e’, ‘He’ 다음은 ‘l’, ‘Hell’ 다음은 ‘o’ … 이렇게 매 위치마다 ‘다음에 올 것’을 예측합니다. 모델은 은닉상태로 지금까지의 맥락을 요약한 뒤, 어휘 전체에 점수(<b>로짓</b>)를 매기고 <b>Softmax</b>로 확률 분포로 바꿉니다 — “다음 글자는 70% 확률로 l”처럼요. 슬라이더로 위치를 옮기며, 각 시점의 예측 확률 막대와 실제 정답을 비교해 보세요.",
+  "more": "<b>정답을 누가 주나</b>: 놀랍게도 사람이 라벨을 달 필요가 없습니다 — <b>시퀀스 자신</b>이 정답을 제공하니까요(현재 글자의 ‘다음 글자’가 곧 정답). 이렇게 데이터에서 정답이 저절로 나오는 방식을 <b>자기지도학습(self-supervised)</b>이라 부르며, 이것이 바로 오늘날 GPT 같은 대형 언어 모델 사전학습의 원리입니다.\n\n<b>훈련 신호</b>: 예측 확률과 실제 정답(원-핫)의 차이를 <b>교차엔트로피 손실</b>로 재고, 이 손실을 줄이도록 Wx·Wh·b를 고칩니다. 화면의 확률은 결정적 로짓을 실제 Softmax한 값이며, 정답은 ‘Hello’ 시퀀스가 직접 알려 줍니다.",
+  "more_en": "Language-model RNNs predict the next token at every position: given 'H' predict 'e', given 'Hell' predict 'o'. The hidden state summarizes context, logits score the vocabulary, and Softmax turns them into probabilities. No manual labels are needed — the sequence itself supplies the target (self-supervised learning), which is exactly how GPT-style models are pretrained.",
+  "problem": {
+   "q": "RNN 언어 모델이 사람의 수작업 라벨링 없이도 학습할 수 있는 이유는?",
+   "solution": "<b>시퀀스 자체가 정답을 제공</b>하기 때문입니다. 각 시점의 ‘다음 토큰’이 곧 예측의 정답이므로, 따로 라벨을 달지 않아도 됩니다. 이런 방식을 <b>자기지도학습(self-supervised)</b>이라 하며, GPT 등 대형 언어 모델 사전학습의 핵심입니다."
+  }
+ },
+ "ai9_03": {
+  "ch": "인공지능 제9장 · 딥러닝",
+  "sec": "9.3 펼친 RNN과 순전파",
+  "title": "펼친 RNN — 같은 가중치를 반복해 순전파",
+  "narr": "순환(loop)이 들어 있는 RNN은 그림으로 그리기 어렵습니다. 그래서 보통 시간 방향으로 <b>펼쳐서(unroll)</b> 봅니다 — 셀 하나를 시점 수만큼 복제해 옆으로 늘어놓는 거죠. 그러면 평범한 깊은 신경망처럼 보이지만, 결정적 차이가 하나 있습니다: <b>모든 시점이 똑같은 Wx·Wh·b를 공유</b>한다는 것. 슬라이더로 순환 가중치 <b>Wh</b>를 바꿔 보세요 — 이 값이 ‘직전 기억을 다음으로 얼마나 강하게 전달할지’를 정합니다. Wh가 크면 은닉상태가 누적되어 과거가 오래 남고, 0에 가까우면 금방 잊습니다.",
+  "more": "<b>왜 펼쳐 보나</b>: 펼친 그림 위에서 순전파(왼→오른쪽으로 h를 계산)와 역전파(오른→왼쪽으로 기울기를 흘림)를 일반 신경망처럼 다룰 수 있습니다. 이 ‘시간 방향 역전파’를 <b>BPTT(Backpropagation Through Time)</b>라 합니다.\n\n<b>복선</b>: 깊이가 곧 시퀀스 길이라는 점이 함정입니다. 시점이 100개면 100층 깊이의 망 — 다음 장면에서 보듯, 이렇게 깊어지면 먼 과거로 갈수록 기울기가 사라집니다. 화면의 h 추이는 매 시점 실제로 펼쳐 누적 계산한 값입니다.",
+  "more_en": "Unrolling an RNN through time turns the loop into a deep chain of copied cells — but every copy shares the same Wx, Wh, b (weight tying). This lets us run ordinary forward/backward passes; backprop over the unrolled chain is called BPTT (Backpropagation Through Time). A large recurrent weight Wh keeps past memory alive longer."
+ },
+ "ai9_04": {
+  "ch": "인공지능 제9장 · 딥러닝",
+  "sec": "9.4 기울기 소실 문제",
+  "title": "기울기 소실 — 긴 시퀀스에서 초기 기억이 흐려진다",
+  "narr": "RNN의 치명적 약점입니다. 학습은 마지막 손실의 기울기를 <b>시간을 거슬러(BPTT)</b> 흘려보내며 가중치를 고치는데, 한 칸 거슬러 갈 때마다 <b>tanh′·Wh</b>라는 값이 곱해집니다. 문제는 이 값이 대개 1보다 작다는 것 — 길이 L칸을 거슬러 가면 <b>L번 곱</b>해지니 신호가 <b>지수적으로</b> 작아집니다(예: 0.6을 20번 곱하면 0.00004). 슬라이더로 시퀀스 길이 L을 늘려 보세요. 마지막 토큰의 막대는 크지만, <b>첫 토큰</b>으로 갈수록 막대가 순식간에 사라집니다 — 먼 과거가 학습에 거의 기여하지 못한다는 뜻입니다.",
+  "more": "<b>장기 의존 실패</b>: ‘<i>그 고양이는 …(긴 수식)… 배고프<b>다</b>’에서 ‘다’의 단복수를 맞추려면 저 멀리 ‘고양이’를 기억해야 하는데, 기울기가 소실되면 그 연결을 못 배웁니다. 이것이 RNN이 긴 문맥에 약한 근본 이유입니다.\n\n<b>반대 위험</b>: Wh가 너무 크면 거꾸로 <b>기울기 폭발</b>(곱이 발산)이 일어나 학습이 불안정해집니다(보통 ‘그래디언트 클리핑’으로 막음). 화면의 막대·수치는 실제 곱 ∏ tanh′·Wh 입니다. 다음 장면의 LSTM이 이 문제를 푸는 열쇠입니다.",
+  "more_en": "During BPTT, the gradient is multiplied by tanh′·Wh at each step backward. Since this factor is usually below 1, over a length-L sequence it shrinks exponentially — distant early tokens receive a near-zero gradient and can't be learned (vanishing gradient). This is why plain RNNs fail at long-range dependencies. Too large a Wh causes the opposite: exploding gradients.",
+  "problem": {
+   "q": "RNN이 긴 문장의 ‘장기 의존’을 잘 못 배우는 근본 원인은?",
+   "solution": "<b>기울기 소실(vanishing gradient)</b>입니다. 시간을 거슬러 역전파할 때 매 시점 tanh′·Wh(보통 1 미만)가 곱해져, 먼 과거로 갈수록 기울기가 지수적으로 0에 수렴합니다. 그래서 멀리 떨어진 단어 사이의 관계를 학습하지 못합니다. LSTM·GRU·Attention이 이를 완화합니다."
+  }
+ },
+ "ai9_05": {
+  "ch": "인공지능 제9장 · 딥러닝",
+  "sec": "9.5 LSTM과 게이트",
+  "title": "LSTM 게이트 — 셀상태로 장기기억을 지킨다",
+  "narr": "기울기 소실을 어떻게 풀까요? <b>LSTM(Long Short-Term Memory)</b>의 아이디어는 우아합니다: 기억을 곱셈으로 갱신하지 말고, <b>덧셈으로 흘려보내는 별도의 ‘컨베이어 벨트’</b>를 두자 — 이것이 <b>셀상태 c</b>입니다. 그리고 무엇을 지우고·받고·내보낼지를 <b>게이트</b> 셋이 0~1 값(sigmoid)으로 조절합니다. <b>망각 게이트 f</b>: 직전 기억을 얼마나 유지할까. <b>입력 게이트 i</b>: 새 정보를 얼마나 받을까. <b>출력 게이트 o</b>: 기억 중 무엇을 밖으로 낼까. 슬라이더로 시점을 옮기며, 게이트가 정보를 여닫고 셀상태 c가 갱신되는 걸 실제 값으로 보세요.",
+  "more": "<b>왜 기울기 소실이 풀리나</b>: 핵심은 <b>c_t = f·c_{t-1} + i·g</b> — 셀상태가 (RNN처럼 tanh를 거듭 통과하는 곱이 아니라) <b>덧셈</b>으로 이어집니다. 망각 게이트 f가 1에 가까우면 직전 기억 c가 거의 손실 없이 그대로 흐르므로(‘항등 지름길’), 기울기가 먼 과거까지 죽지 않고 전달됩니다. 그래서 <b>장기 의존</b>을 배울 수 있죠.\n\n<b>친척들</b>: 게이트를 둘로 줄여 더 가볍게 만든 <b>GRU</b>도 널리 쓰입니다. LSTM·GRU는 2010년대 번역·음성의 주력이었고, 이후 <b>Attention/Transformer</b>(제11장)가 ‘멀수록 잊힘’을 더 근본적으로 없애며 바통을 이어받습니다. 화면의 게이트·셀상태·은닉상태는 전부 실제 sigmoid·tanh 계산입니다.",
+  "more_en": "LSTM adds a cell-state 'conveyor belt' c updated by addition (c_t = f·c_{t-1} + i·g) instead of repeated multiplication. Three sigmoid gates control it: forget (how much past to keep), input (how much new info to add), output (what to expose). When the forget gate stays near 1, the cell state flows almost untouched — an identity shortcut that lets gradients survive far back, solving vanishing gradients and enabling long-range memory. GRU is a lighter variant."
+ }
+}

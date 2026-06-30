@@ -1,0 +1,54 @@
+{
+ "ai15_01": {
+  "ch": "인공지능 제15장 · 실무·에이전트",
+  "sec": "15.1 도구 사용(Tool Use)",
+  "title": "도구 사용 — 모르면 연장을 든다",
+  "narr": "똑똑한 친구에게 “23 곱하기 47이 뭐야?”라고 물으면 잠깐 멈칫하다 ‘대략 1100쯤?’이라 답할지도 모릅니다. LLM도 똑같아요 — 언어의 <b>패턴</b>으로 답을 ‘지어내는’ 재주는 굉장하지만, 자릿수를 정확히 굴리는 산수나 ‘오늘 날씨’ 같은 최신 사실은 자주 틀립니다. 진짜 똑똑한 사람은 자기가 뭘 못하는지 압니다. 그래서 암산 대신 <b>계산기</b>를 집어 들죠. 에이전트 AI의 첫 번째 능력이 바로 이것 — 스스로 못 하는 일을 알아채고 <b>외부 도구</b>(계산기·검색·코드 실행)를 불러 정확한 결과를 받아오는 <b>도구 사용(Tool Use)</b>입니다. 화면에서 ‘혼자 추측’과 ‘도구 호출’의 결과가 얼마나 다른지 보세요.",
+  "more": "<b>어떻게 도구를 부를까</b>: LLM은 도구의 이름·설명·인자 형식(스키마)을 미리 안내받고, 답하는 대신 <code>calc(\"23*47\")</code> 같은 <b>구조화된 호출</b>을 출력합니다. 바깥의 실행기가 그 함수를 실제로 돌려 결과(관측)를 돌려주면, LLM은 그걸 받아 최종 답을 씁니다. <b>왜 중요한가</b>: 이 한 가지가 LLM을 ‘말하는 상자’에서 ‘일하는 시스템’으로 바꿉니다 — 검색으로 최신 정보를, 코드 실행으로 정확한 계산을, API로 실제 행동을 더할 수 있으니까요. 화면의 23×47=1081은 실제 곱셈 결과이고, 추측값과의 오차도 실측입니다.",
+  "more_en": "Tool use lets an LLM call external functions (calculator, search, code) instead of guessing. The model knows each tool's schema and emits a structured call like calc(\"23*47\"); an executor runs it and returns the result (observation), which the model uses to write its final answer. This turns a 'talking box' into a 'working system' — accurate math, fresh facts, real actions."
+ },
+ "ai15_02": {
+  "ch": "인공지능 제15장 · 실무·에이전트",
+  "sec": "15.2 ReAct(추론+행동)",
+  "title": "ReAct — 생각과 행동을 번갈아",
+  "narr": "도구를 한 번 부르는 걸 넘어, 어려운 문제는 여러 단계를 거쳐야 풀립니다. “에펠탑 높이의 2배는 몇 미터일까?” — 먼저 높이를 <b>찾고</b>, 그다음 2를 <b>곱해야</b> 하죠. <b>ReAct</b>(Reason+Act)는 에이전트가 이 과정을 사람처럼 풀어 갑니다: <b>생각(Thought)</b>으로 ‘지금 뭘 해야 하지?’를 정하고, <b>행동(Action)</b>으로 도구를 부르고, <b>관측(Observation)</b>으로 결과를 받아 다시 생각합니다. 이 고리를 답이 나올 때까지 빙글빙글 돕니다. 생각만 하면 사실 없이 환각에 빠지고, 무작정 행동만 하면 길을 잃어요 — 둘을 <b>엮어야</b> 비로소 똑똑해집니다. 화면을 탭하며 한 스텝씩 따라가 보세요.",
+  "more": "<b>왜 ‘생각’을 소리 내어 적게 할까</b>: LLM에게 행동 전에 추론을 <b>글로 쓰게</b> 하면(‘에펠탑 높이를 모른다 → 먼저 찾자’) 다음 행동의 선택이 눈에 띄게 정확해집니다 — 사고의 사슬(Chain-of-Thought)을 도구 사용과 결합한 셈이죠. <b>실무 형태</b>: 대부분의 에이전트 프레임워크(LangChain·OpenAI/Anthropic의 함수 호출 루프 등)가 이 ‘생각→행동→관측’ 반복을 기본 골격으로 씁니다. 무한 반복을 막으려 <b>최대 스텝 수</b>·<b>종료 조건</b>을 둡니다. 화면의 330 m와 그 2배 660은 단계마다 실제로 계산한 값입니다.",
+  "more_en": "ReAct interleaves Reasoning and Acting: the agent writes a Thought (what to do next), takes an Action (call a tool), reads an Observation (the result), and loops until done. Writing reasoning out loud before acting sharpens tool choices (Chain-of-Thought + tools). Frameworks cap max steps and define stop conditions to avoid infinite loops.",
+  "problem": {
+   "q": "ReAct에서 ‘행동(Action)’만 반복하고 ‘생각(Thought)’을 건너뛰면 무엇이 문제일까요?",
+   "solution": "<b>무엇을·왜 하는지에 대한 추론이 없어 엉뚱한 도구를 부르거나 길을 잃기 쉽습니다.</b> 생각 단계가 다음 행동을 ‘근거 있게’ 고르게 해 줍니다. 반대로 생각만 하고 행동(관측)이 없으면 사실 확인 없이 환각에 빠집니다 — 둘을 번갈아야 합니다."
+  }
+ },
+ "ai15_03": {
+  "ch": "인공지능 제15장 · 실무·에이전트",
+  "sec": "15.3 계획·실행(Plan-Execute)",
+  "title": "계획·실행 — 큰 일을 쪼갠다",
+  "narr": "“보고서 한 편을 써 줘” 같은 큰 목표를 한 방에 풀려고 하면 에이전트도 허둥댑니다. 사람이 하는 대로 하면 됩니다 — <b>먼저 계획을 세우고, 그다음 하나씩 실행</b>. <b>계획자(Planner)</b>가 큰 목표를 작은 <b>하위 작업</b>들로 쪼개고 ‘무엇이 먼저인지’ 순서(의존 관계)를 정합니다: 자료 수집 → 논점 정리·데이터 분석 → 초안 → 검증 → 다듬기. 그러면 <b>실행자(Executor)</b>가 그 순서대로 하나씩 처리하죠. 요리 레시피가 ‘재료 손질 → 볶기 → 간 맞추기’ 순서를 정해 주듯요. 화면을 탭하며 작업이 하나씩 ‘완료’로 바뀌고 진행률이 차오르는 걸 보세요.",
+  "more": "<b>왜 한 번에 풀지 않을까</b>: 긴 작업을 한 프롬프트로 몰아넣으면 중간에 맥락을 잃고 헤맵니다. 쪼개 두면 ①각 작업이 작아 실패해도 <b>그 단계만 다시</b> 하면 되고, ②중간 결과를 <b>검사</b>할 지점이 생기며, ③독립적인 작업은 <b>병렬</b>로 돌릴 수 있습니다. <b>ReAct와의 차이</b>: ReAct는 매 스텝 즉흥적으로 다음 행동을 정하는 ‘근시안’ 방식이고, Plan-and-Execute는 <b>전체 지도를 먼저 그린 뒤</b> 따라갑니다. 실무에선 둘을 섞어, 실행 중 상황이 바뀌면 계획을 <b>다시 세우기도</b>(re-plan) 합니다. 화면의 진행률은 실제 완료 작업 수로 계산합니다.",
+  "more_en": "Plan-and-Execute first decomposes a big goal into smaller sub-tasks with dependencies, then runs them in order. Benefits: retry only the failed step, inspect intermediate results, and parallelize independent tasks. Unlike ReAct's step-by-step improvisation, it draws the whole map first — and may re-plan when conditions change."
+ },
+ "ai15_04": {
+  "ch": "인공지능 제15장 · 실무·에이전트",
+  "sec": "15.4 멀티 에이전트",
+  "title": "멀티 에이전트 — 역할을 나눈 팀",
+  "narr": "정말 어려운 일은 혼자보다 <b>팀</b>이 잘합니다. 에이전트도 마찬가지예요. 한 모델에게 모든 걸 시키는 대신, 역할이 다른 여러 에이전트가 <b>협업</b>합니다: <b>연구원</b>이 자료를 모으고, <b>검증자</b>가 사실을 따져 보고, <b>작성자</b>가 글로 엮습니다. 가운데 <b>오케스트레이터(지휘자)</b>가 일을 나눠 주고 결과를 모으죠. 각 에이전트는 자기 일에 맞는 <b>도구·말투(프롬프트)</b>를 따로 갖고, 무엇보다 <b>한 명의 실수를 다른 한 명이 잡아냅니다</b> — 작성자가 지어낸 사실을 검증자가 걸러내듯요. 회사가 부서를 나누는 이유와 똑같습니다. 화면을 탭하며 에이전트 사이로 메시지가 오가는 흐름을 보세요.",
+  "more": "<b>왜 나누면 좋을까</b>: ①각 에이전트의 <b>맥락(프롬프트)</b>이 자기 일에만 집중돼 짧고 정확해지고, ②<b>역할 분리</b>가 점검 지점을 만들어 환각·오류를 줄이며, ③전문화된 도구를 붙이기 쉽습니다. <b>구조</b>: 지휘자가 모든 걸 조율하는 <b>오케스트레이터형</b>, 에이전트들이 직접 메시지를 주고받는 <b>수평 협업형</b>, 토론으로 답을 다듬는 <b>토론형</b> 등이 있습니다. <b>대가</b>: 에이전트가 많아질수록 메시지·비용·지연이 늘고 조율이 어려워지니, 정말 분업이 이득일 때만 씁니다. 화면 하단의 ‘주고받은 메시지 수’는 실제로 센 값입니다.",
+  "more_en": "Multi-agent systems split work across specialized roles — researcher, verifier, writer — coordinated by an orchestrator. Benefits: focused per-agent context, error-catching via role separation, and easy tool specialization. Patterns include orchestrator-led, peer-to-peer, and debate. The cost is more messages, latency, and coordination — use it only when division of labor truly pays off.",
+  "problem": {
+   "q": "멀티 에이전트에서 ‘검증자’ 역할을 따로 두면 어떤 이점이 있을까요?",
+   "solution": "<b>한 에이전트(예: 작성자)의 환각·오류를 다른 에이전트가 독립적으로 걸러낼 수 있습니다.</b> 역할을 분리하면 자연스러운 ‘점검 지점’이 생겨, 한 모델이 자기 답을 스스로 옳다고 믿는 편향을 줄이고 결과의 신뢰도를 높입니다."
+  }
+ },
+ "ai15_05": {
+  "ch": "인공지능 제15장 · 실무·에이전트",
+  "sec": "15.5 도구 연결(MCP)·안전",
+  "title": "도구 연결(MCP)과 실무 — 힘에는 안전이 따른다",
+  "narr": "에이전트가 진짜로 ‘일’을 하려면 머릿속 생각만으론 안 됩니다 — <b>파일</b>을 읽고 쓰고, <b>API</b>로 서비스를 부르고, <b>데이터베이스</b>에 질의해야 하죠. 문제는 도구마다 연결 방식이 제각각이면 매번 새로 배선해야 한다는 것. <b>MCP(Model Context Protocol)</b>는 이 연결을 위한 <b>표준 규약</b>입니다 — <b>USB-C</b>처럼, 어떤 도구든 같은 모양의 플러그로 꽂으면 에이전트가 바로 씁니다. 그런데 힘이 세지면 위험도 커집니다. 파일을 ‘읽기’는 안전해도 ‘지우기’, DB ‘조회’는 괜찮아도 ‘DROP TABLE’, API ‘조회’는 몰라도 ‘송금’ — 잘못된 한 줄이 큰 사고를 냅니다. 그래서 실무 에이전트의 진짜 핵심은 <b>권한 제한·사람 승인·결과 검증</b>이에요. 화면 마지막에서 위험한 호출이 어떻게 <b>차단</b>되는지 보세요.",
+  "more": "<b>MCP가 푸는 문제</b>: 도구가 N개, 에이전트(앱)가 M개면 예전엔 N×M개의 맞춤 연결이 필요했습니다. MCP는 ‘서버(도구 제공자) ↔ 클라이언트(에이전트)’ 표준을 정해 이를 N+M으로 줄입니다 — 한 번 MCP로 감싼 도구는 어떤 에이전트에서도 재사용되죠. <b>안전 4원칙</b>: ①<b>최소 권한</b>(꼭 필요한 범위만 허용), ②<b>위험 행동엔 사람 승인</b>(삭제·결제·외부 전송), ③<b>입력 검증·샌드박스</b>(악의적 명령 차단, 격리 실행), ④<b>로그·되돌리기</b>(무엇을 했는지 추적, 실수 복구). 에이전트는 강력한 만큼, ‘무엇이든 할 수 있게’가 아니라 ‘안전하게 할 수 있게’ 설계하는 것이 실무의 전부라 해도 과언이 아닙니다. 화면의 허용/차단 수는 실제로 센 값입니다.",
+  "more_en": "To act, agents connect to files, APIs, and databases. MCP (Model Context Protocol) standardizes that connection like USB-C, cutting N×M custom integrations to N+M reusable ones. But power demands safety: read is safe, delete/transfer/DROP TABLE are not. The four pillars — least privilege, human approval for risky actions, input validation/sandboxing, and logging/rollback — are the real core of production agents.",
+  "problem": {
+   "q": "에이전트에 데이터베이스 ‘쓰기/삭제’ 권한을 줄 때 반드시 갖춰야 할 안전장치는?",
+   "solution": "<b>최소 권한 + 위험 행동에 대한 사람 승인 + 입력 검증·로그</b>입니다. 삭제·수정 같은 되돌리기 어려운 명령은 자동 실행 전에 사람이 확인하게 하고, 권한은 꼭 필요한 범위로 제한하며, 모든 호출을 기록해 사고 시 추적·복구할 수 있어야 합니다."
+  }
+ }
+}

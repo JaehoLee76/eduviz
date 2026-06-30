@@ -1,0 +1,46 @@
+{
+  "ai14_01": {
+    "ch": "인공지능 제14장 · 실무·에이전트",
+    "sec": "14.1 임베딩 검색",
+    "title": "임베딩 검색 — 쿼리에 가장 가까운 문서 찾기",
+    "narr": "도서관에서 책을 찾는다고 해 봅시다. 옛날 검색은 ‘제목에 그 단어가 들어있나’만 봤습니다 — ‘강아지’로 검색하면 ‘개’가 나온 책은 놓쳤죠. 우리가 진짜 원하는 건 <b>단어가 아니라 의미</b>로 찾는 것입니다. 비결은 문장을 <b>임베딩 벡터</b>(의미를 담은 화살표)로 바꾸는 것 — 의미가 비슷하면 방향도 비슷해집니다. 쿼리(금색 화살표)와 각 문서 화살표가 <b>얼마나 같은 방향을 가리키나</b>를 <b>코사인 유사도</b>로 재면(1에 가까울수록 닮음), 가장 가까운 문서들(<b>top-k</b>)이 곧 검색 결과입니다. 슬라이더로 쿼리를 돌려 보세요 — 순위표가 실시간으로 바뀝니다. 화면의 유사도·순위는 전부 실제 코사인 계산값입니다.",
+    "more": "<b>왜 코사인인가</b>: 두 벡터 a·b의 코사인 유사도는 <b>(a·b)/(|a||b|)</b> — 내적을 길이로 나눠 ‘방향만’ 비교합니다. 문서가 길어 벡터 크기가 커도 의미(방향)만 보므로 길이에 휘둘리지 않죠. 그래서 검색에선 거리(유클리드)보다 코사인을 즐겨 씁니다. <b>top-k 검색</b>: 모든 문서와 쿼리의 코사인을 구해 큰 순으로 k개를 고릅니다. 이 k개가 다음 단계(RAG)에서 LLM에게 ‘근거’로 넘어갑니다. 실제 임베딩은 2D가 아니라 수백~수천 차원이지만, 원리는 똑같습니다.",
+    "more_en": "Embedding search finds by meaning, not keywords. Both query and documents become embedding vectors; cosine similarity (a·b)/(|a||b|) measures how aligned their directions are (1 = identical meaning), independent of length. The top-k most similar documents become the search result — and later the evidence handed to an LLM in RAG."
+  },
+  "ai14_02": {
+    "ch": "인공지능 제14장 · 실무·에이전트",
+    "sec": "14.2 벡터 공간과 벡터DB",
+    "title": "벡터 공간 · 벡터DB — 의미가 가까우면 가까이",
+    "narr": "임베딩의 마법은 한 발 물러서 <b>전체 지도</b>를 볼 때 드러납니다. 모든 문장을 점으로 흩뿌려 보면, 누가 시키지 않았는데도 <b>동물 문장끼리</b> 한쪽에, <b>음료 문장끼리</b> 다른 쪽에 저절로 모입니다 — 의미가 비슷하면 공간에서 가까워지도록 학습된 덕분이죠. ‘고양이’ 옆엔 ‘강아지’가, ‘커피’ 옆엔 ‘녹차’가 이웃합니다. 슬라이더로 기준 문서를 바꿔 가장 가까운 이웃(초록 점선)이 누구인지 확인해 보세요 — 코사인 값은 실측입니다. 이렇게 점들을 저장하고 ‘쿼리 점에 제일 가까운 이웃’을 찾아 주는 특별한 데이터베이스가 <b>벡터DB</b>입니다.",
+    "more": "<b>벡터DB의 핵심 = 최근접 이웃</b>: 문서 수백만 개를 일일이 쿼리와 비교하면 느립니다. 그래서 벡터DB(예: FAISS·Pinecone·Milvus·pgvector)는 <b>근사 최근접 탐색(ANN, Approximate Nearest Neighbor)</b> 자료구조(HNSW 그래프·IVF 등)로 ‘대충 가까운 후보’만 빠르게 좁혀 검색을 밀리초로 끝냅니다. 약간의 정확도를 내주고 엄청난 속도를 얻는 거래죠. 임베딩 모델이 의미를 ‘공간 위치’로 번역하고, 벡터DB가 그 공간에서 이웃을 찾아 주는 — 이 둘이 RAG의 검색 엔진입니다.",
+    "more_en": "Plotting all sentences as points reveals that similar meanings cluster on their own — animals here, drinks there. A vector database stores these points and finds the nearest neighbors to a query point. To stay fast over millions of vectors it uses Approximate Nearest Neighbor search (HNSW, IVF), trading a little accuracy for millisecond lookups."
+  },
+  "ai14_03": {
+    "ch": "인공지능 제14장 · 실무·에이전트",
+    "sec": "14.3 RAG 파이프라인",
+    "title": "RAG 파이프라인 — 검색해서 답하기",
+    "narr": "LLM의 약점 하나: 모르는 사실을 천연덕스럽게 <b>지어냅니다</b>(환각). 게다가 학습 시점 이후의 일이나 사내 비공개 문서는 아예 모르죠. 해법이 <b>RAG</b>(Retrieval-Augmented Generation, 검색 증강 생성)입니다 — 답하기 전에 먼저 <b>관련 문서를 검색</b>해 와서, 그 내용을 프롬프트에 끼워넣고, LLM이 <b>근거를 읽고</b> 답하게 합니다. 화면을 한 단계씩 따라가 보세요: ①질문 → ②임베딩(질문을 벡터로) → ③검색(벡터DB에서 top-k) → ④증강(찾은 문서를 프롬프트에 추가) → ⑤생성(LLM이 근거 보고 답). ③의 검색 점수(코사인)는 실제 계산값입니다. 이제 LLM은 ‘기억’이 아니라 ‘읽은 근거’로 답하니, 최신 지식도·출처 표시도 가능해집니다.",
+    "more": "<b>두 단계로 나눠 보면</b>: (1) <b>오프라인 인덱싱</b> — 문서를 청크로 쪼개 임베딩해 벡터DB에 미리 저장(14.4). (2) <b>온라인 질의</b> — 질문이 들어오면 임베딩→검색→증강→생성. ‘증강’은 단순히 검색된 청크를 프롬프트 맥락(context)에 붙이는 것이라, <b>모델을 재학습하지 않고도</b> 새 지식을 주입할 수 있다는 게 RAG의 강점입니다. 약점도 분명합니다: 검색이 엉뚱한 문서를 가져오면 답도 엉뚱해지죠(‘garbage in, garbage out’). 그래서 임베딩 품질·청킹·재순위(re-ranking)가 실무의 핵심 노하우입니다.",
+    "more_en": "LLMs hallucinate and don't know recent or private facts. RAG retrieves relevant documents first, inserts them into the prompt, and lets the LLM answer from that evidence: question → embed → search (top-k) → augment → generate. No retraining is needed — new knowledge is injected via the prompt context — but answer quality depends entirely on retrieval quality."
+  },
+  "ai14_04": {
+    "ch": "인공지능 제14장 · 실무·에이전트",
+    "sec": "14.4 청킹과 인덱싱",
+    "title": "청킹 · 인덱싱 — 문서를 조각내 색인",
+    "narr": "책 한 권을 통째로 임베딩 벡터 하나로 만들면 어떻게 될까요? 수백 가지 주제가 한 점에 뭉개져, 무엇을 물어도 ‘대충 가까운’ 흐릿한 결과만 나옵니다. 그래서 RAG는 긴 문서를 먼저 <b>청크(조각)</b>로 쪼개 각 청크를 따로 임베딩·색인합니다. 그런데 ‘얼마나 잘게 쪼개나’가 미묘한 트레이드오프예요. 슬라이더로 청크 크기를 바꿔 보세요: <b>작은 청크</b>는 한 주제로 또렷해 검색이 <b>정밀</b>하지만 앞뒤 맥락이 끊깁니다. <b>큰 청크</b>는 맥락이 <b>풍부</b>하지만 한 조각에 여러 주제가 섞여(화면의 ‘주제 섞임도’는 실제 분산 계산값) 검색이 흐려지죠. 정답은 가운데 어딘가 — 그리고 조각끼리 살짝 겹치게(overlap) 만들어 경계에서 잘린 문맥을 살립니다.",
+    "more": "<b>청킹 전략</b>: ①고정 크기(예 300~800토큰) — 간단하지만 문장 중간을 자를 위험. ②문장·문단 단위 — 의미 경계를 존중. ③재귀적 분할 — 문단→문장→토큰 순으로 한도까지. 보통 <b>10~20% overlap</b>을 두어 청크 경계에 걸친 정보가 양쪽에 다 남게 합니다. <b>인덱싱</b>: 각 청크를 임베딩해 (벡터, 원문, 메타데이터=출처·페이지)로 벡터DB에 저장. 검색 때 메타데이터로 필터링(특정 문서·날짜만)하거나, 1차 검색 후 더 정교한 모델로 <b>재순위(re-rank)</b>해 정밀도를 끌어올립니다. 청킹·인덱싱은 RAG 품질의 8할을 좌우하는 ‘보이지 않는 기초공사’입니다.",
+    "more_en": "Embedding a whole book as one vector blurs hundreds of topics together. RAG splits long documents into chunks, each embedded and indexed separately. Small chunks = sharp, precise retrieval but lost context; large chunks = rich context but mixed topics that blur search (the on-screen 'topic mixing' is a real variance computation). Chunks usually overlap 10–20% so context spanning a boundary survives on both sides."
+  },
+  "ai14_05": {
+    "ch": "인공지능 제14장 · 실무·에이전트",
+    "sec": "14.5 RAG vs 파인튜닝",
+    "title": "RAG vs 파인튜닝 — 언제 무엇을",
+    "narr": "“회사 챗봇을 만드는데, 우리 문서를 가르치려면 모델을 재학습해야 하나요?” — 흔한 오해입니다. <b>지식을 주입</b>하는 일과 <b>능력·말투를 바꾸는</b> 일은 도구가 다릅니다. 화면의 비교표를 한 줄씩 넘겨 보세요. <b>RAG</b>는 모델 밖 문서를 그때그때 검색하니, 지식이 바뀌면 <b>문서만 갈아끼우면</b> 끝이고 <b>출처도 인용</b>할 수 있습니다 — 최신·사내 지식에 최강이죠. 반면 <b>파인튜닝</b>은 모델 가중치를 다시 학습해 <b>말투·출력 형식·새 능력</b>을 모델 <b>안에 각인</b>합니다 — 지식보다 ‘행동 양식’을 바꾸는 데 강합니다. 한 문장으로: <b>무엇을 아는가 → RAG, 어떻게 행동하나 → 파인튜닝</b>. 그리고 실무에선 둘을 <b>함께</b> 씁니다 — 파인튜닝으로 말투를 잡고, RAG로 최신 근거를 댑니다.",
+    "more": "<b>고를 때 체크리스트</b>: ‘자주 바뀌는 사실/내부 문서/출처 필요’ → RAG. ‘일관된 말투·특정 출력 포맷(JSON·코드 스타일)·도메인 용어 습득·분류 같은 새 능력’ → 파인튜닝. RAG는 <b>저렴·즉시</b>(인덱싱만, GPU 재학습 불필요)·환각 감소·근거 추적이 장점이고, 단점은 검색 품질 의존·프롬프트가 길어짐. 파인튜닝은 <b>능력 내재화</b>가 장점, 단점은 GPU 비용·재학습 지연·지식이 학습 시점에 고정(낡으면 다시 학습)·블랙박스. <b>비용 순서</b>로는 보통 프롬프트 엔지니어링 → RAG → 파인튜닝 → 사전학습 순으로 올라가니, 싼 것부터 시도하는 게 정석입니다. 제15장에서 이 위에 ‘도구 사용·계획·메모리’를 얹은 <b>AI 에이전트</b>로 나아갑니다.",
+    "more_en": "Injecting knowledge and changing behavior need different tools. RAG retrieves external documents on the fly — swap the documents to update knowledge, and you can cite sources; best for fresh/private facts. Fine-tuning retrains weights to bake in tone, output format, and new skills — best for changing how the model behaves. Rule of thumb: what it knows → RAG; how it acts → fine-tuning. In practice, combine both.",
+    "problem": {
+      "q": "최신 사내 규정을 정확히 인용해 답하는 챗봇이 필요합니다. RAG와 파인튜닝 중 무엇을 먼저 써야 할까요?",
+      "solution": "<b>RAG</b>가 적합합니다. 규정은 <b>자주 바뀌고</b>, 답에 <b>출처(어느 규정 몇 조)</b>를 표시해야 하기 때문입니다. 규정 문서를 청크로 쪼개 벡터DB에 색인해 두면, 규정이 개정될 때마다 모델 재학습 없이 <b>문서만 교체</b>하면 됩니다. 파인튜닝은 가중치에 지식을 박아 두는 방식이라 개정 때마다 다시 학습해야 하고 출처 추적도 어렵습니다. (말투나 답변 형식을 일관되게 다듬고 싶다면, 그때 파인튜닝을 RAG와 <b>함께</b> 쓰면 됩니다.)"
+    }
+  }
+}
