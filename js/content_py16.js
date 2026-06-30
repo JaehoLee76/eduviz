@@ -7,7 +7,7 @@
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
   // ───────── 등폭 코드 패널 렌더러: lines=[{t:'코드', hl:'tok'}|문자열]. hl 토큰만 노랑 강조 ─────────
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -17,6 +17,7 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -58,7 +59,9 @@
         {t:'net.fc = nn.Linear(512, 2)    # 새 층', hl:'nn.Linear(512, 2)'},
         {t:'# 강아지/고양이 2클래스만 학습', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'transfer_learning.py');
+      // 단계별 실행 줄: step0=앞 층 동결(줄6), step1=새 fc 층(줄8), step2=학습 곡선(여전히 fc 줄8)
+      var act=[6,8,8][s.step];
+      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'transfer_learning.py', act);
 
       var gx=W*0.55, gw=W*0.41;
       if(s.step===0){
@@ -132,7 +135,9 @@
         {t:'gen("In the future, AI will")', hl:'gen'},
         {t:'# "...help people work faster."', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.47, code, 'huggingface_pipeline.py');
+      // 단계별 실행 줄: step0=감정분석 pipeline(줄2), step1=텍스트 생성 pipeline(줄6)
+      var act=[2,6][s.step];
+      codePanel(E, W*0.04, H*0.13, W*0.47, code, 'huggingface_pipeline.py', act);
 
       var gx=W*0.56, gw=W*0.40;
       if(s.step===0){
@@ -192,7 +197,9 @@
         {t:'      torch.load("model.pth"))', hl:'torch.load'},
         {t:'net.eval()        # 추론 모드', hl:'eval'}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.47, code, 'save_load_serve.py');
+      // 단계별 실행 줄: step0=저장 state_dict(줄1), step1=불러오기 load_state_dict(줄6)
+      var act=[1,6][s.step];
+      codePanel(E, W*0.04, H*0.14, W*0.47, code, 'save_load_serve.py', act);
 
       var gx=W*0.56, gw=W*0.40;
       if(s.step===0){

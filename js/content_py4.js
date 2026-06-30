@@ -8,7 +8,7 @@
   function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 
   // 등폭 코드 패널: lines=[{t:'코드', hl:'tok', dim:true}|문자열]. tok이 들어간 부분만 골드 강조.
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -18,6 +18,7 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -70,7 +71,8 @@
         {t:'d = Dog("바둑이", 3)', hl:'Dog'},
         {t:'d.bark()', hl:'bark'}
       ];
-      codePanel(E, W*0.05, H*0.16, W*0.42, code, 'dog.py');
+      var act = s.step===1 ? 7 : (s.step===2 ? 8 : null);   // 객체 생성 / bark() 호출
+      codePanel(E, W*0.05, H*0.16, W*0.42, code, 'dog.py', act);
 
       var gx=W*0.55, gw=W*0.40;
       // 클래스(설계도) → 객체(인스턴스) 그림
@@ -126,7 +128,8 @@
         {t:'    def speak(self):       # 오버라이드', hl:'speak'},
         {t:'        return f"{self.name}: 야옹"', hl:'야옹'}
       ];
-      codePanel(E, W*0.04, H*0.15, W*0.46, code, 'animals.py');
+      var act = s.step===1 ? 8 : null;   // 오버라이드한 speak의 return 실행
+      codePanel(E, W*0.04, H*0.15, W*0.46, code, 'animals.py', act);
 
       var gx=W*0.55, gw=W*0.40, cx=gx+gw*0.5;
       ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('상속 — 부모의 것을 물려받고, 일부만 새로 쓰기', gx-30, H*0.15);
@@ -189,7 +192,8 @@
         {t:'        return f"Vector({self.x},{self.y})"', hl:'__str__'},
         {t:'    def __len__(self):  return 2', hl:'__len__'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.47, code, 'vector.py');
+      var act = s.step===0 ? 4 : (s.step===1 ? 7 : 8);   // __add__ return / __str__ return / __len__
+      codePanel(E, W*0.04, H*0.13, W*0.47, code, 'vector.py', act);
 
       var gx=W*0.56, gw=W*0.40;
       ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('매직메서드 — 파이썬 문법을 내 객체에 연결', gx-20, H*0.14);
@@ -250,7 +254,8 @@
         {t:'import datetime as dt', hl:'datetime'},
         {t:'dt.date(2026, 6, 30)', hl:'date'}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'using_modules.py');
+      var act = s.step===1 ? 3 : null;   // math 모듈 실제 결과값(math.sqrt 등)
+      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'using_modules.py', act);
 
       var gx=W*0.55, gw=W*0.40;
       ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('모듈 = 이미 만들어진 도구상자, import로 꺼내 쓰기', gx-30, H*0.14);
@@ -321,7 +326,8 @@
         {t:'', dim:true},
         {t:'import torch        # 설치된 AI 라이브러리', hl:'torch'}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'setup.sh');
+      var act = s.step===0 ? 5 : (s.step===1 ? 2 : 7);   // 패키지 import / pip install / AI 라이브러리 import
+      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'setup.sh', act);
 
       var gx=W*0.55, gw=W*0.40;
       var oy=H*0.16;

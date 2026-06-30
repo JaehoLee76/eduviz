@@ -8,7 +8,7 @@
 
   // 등폭 코드 패널: lines = [ {t:'코드줄', hl:'강조토큰', dim:false} | '문자열' ].
   // hl이 줄 안에 있으면 그 부분만 노랑(PYL) 강조. 복사하면 바로 도는 진짜 파이썬 코드.
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -18,6 +18,7 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -61,7 +62,8 @@
         {t:'type(x)          # <class \'int\'>', hl:'type'},
         {t:'x = "다섯"        # 같은 이름에 다른 타입!', hl:'"다섯"'}
       ];
-      codePanel(E, W*0.05, H*0.16, W*0.43, code, 'variables.py');
+      var act = s.step===0 ? 0 : 6;
+      codePanel(E, W*0.05, H*0.16, W*0.43, code, 'variables.py', act);
 
       // 우측: 각 변수를 '이름표 → 값 상자(타입)' 로
       var rx=W*0.56, ry=H*0.20, rowh=46, bw=120, bh=34;
@@ -118,7 +120,8 @@
         {t:'7 % 2     # 나머지', hl:'7 % 2'},
         {t:'2 ** 10   # 거듭제곱', hl:'2 ** 10'}
       ];
-      codePanel(E, W*0.05, H*0.15, W*0.42, code, 'arithmetic.py');
+      var act = s.step===1 ? 4 : null;   // step1=// 몫 강조(헷갈리는 줄)
+      codePanel(E, W*0.05, H*0.15, W*0.42, code, 'arithmetic.py', act);
 
       // 우측: 각 연산을 실제 계산해 결과 표로
       var ops=[
@@ -172,7 +175,8 @@
         {t:'s.upper()       # 대문자', hl:'s.upper()'},
         {t:'"a,b,c".split(",")', hl:'.split(",")'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'strings.py');
+      var act = s.step===0 ? 1 : (s.step===1 ? 3 : 5);   // 인덱싱 s[0] / 슬라이싱 s[0:3] / f-string
+      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'strings.py', act);
 
       var rx=W*0.55, ry=H*0.17;
       // 항상: 문자 칸 + 인덱스(양수/음수)
@@ -227,7 +231,8 @@
         {t:'', dim:true},
         {t:'print("합:", int(a)+int(b))', hl:'print'}
       ];
-      codePanel(E, W*0.04, H*0.15, W*0.47, code, 'io_cast.py');
+      var act = s.step===0 ? 3 : 4;   // a+b 이어붙이기 / int()+int() 덧셈
+      codePanel(E, W*0.04, H*0.15, W*0.47, code, 'io_cast.py', act);
 
       var rx=W*0.56, ry=H*0.19;
       var A='12', B='30';

@@ -7,7 +7,7 @@
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
   // ───────── 등폭 코드 패널 렌더러: lines=[{t:'코드', hl:'tok'}|문자열]. hl 토큰만 노랑 강조 ─────────
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -17,6 +17,8 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, ty-13, w-8, 18);
+        ctx.fillStyle=PYL; ctx.fillRect(x+4, ty-13, 3, 18); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -82,7 +84,7 @@
         {t:'df = pd.DataFrame(data)', hl:'DataFrame'},
         {t:'df.head()      # 앞 5행 보기', hl:'head'}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.44, code, 'dataframe_basics.py');
+      codePanel(E, W*0.04, H*0.14, W*0.44, code, 'dataframe_basics.py', s.step===0?7:(s.step===1?5:6));
 
       var tx=W*0.53, ty=H*0.18, cw=[64,46,52];
       ctx.fillStyle=PYL; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
@@ -151,7 +153,7 @@
         {t:'df.loc[0, \'name\']   # 라벨 위치', hl:'.loc'},
         {t:'df.iloc[0, 0]       # 정수 위치', hl:'.iloc'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'select_filter.py');
+      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'select_filter.py', 3);
 
       // 불리언 마스크 실측
       var mask=rows.map(function(r){ return r[1]>th; });
@@ -203,7 +205,7 @@
         {t:"df.groupby('city')", hl:'groupby'},
         {t:"  .sales.count()     # 개수", hl:'count'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'groupby_agg.py');
+      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'groupby_agg.py', s.step===0?1:(s.step===1?4:7));
 
       var tx=W*0.54, ty=H*0.15, cw=[72,56];
       ctx.fillStyle=PYL; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
@@ -272,7 +274,7 @@
         {t:'', dim:true},
         {t:'df.dropna()         # 결측 행 제거', hl:'dropna'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'clean_missing.py');
+      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'clean_missing.py', s.step===0?1:(s.step===1?4:6));
 
       // age 평균(결측 제외) 실측
       var ageVals=raw.filter(function(r){return r[1]!=null;}).map(function(r){return r[1];});
@@ -326,7 +328,7 @@
         {t:'from sklearn... import Model', hl:'sklearn'},
         {t:'model.fit(X, y)   # 학습!', hl:'.fit'}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'ml_prep.py');
+      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'ml_prep.py', s.step===0?0:7);
 
       var tx=W*0.55, ty=H*0.16, ch=26;
       if(s.step===0){

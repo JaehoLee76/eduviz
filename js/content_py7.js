@@ -6,7 +6,7 @@
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
   // 등폭 코드 패널: lines=[{t:'코드', hl:'tok'}|문자열]. hl 토큰만 골드 강조.
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -16,6 +16,8 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, ty-13, w-8, 18);
+        ctx.fillStyle=PYL; ctx.fillRect(x+4, ty-13, 3, 18); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -76,7 +78,7 @@
         {t:'C = A @ B        # 행렬곱 (2,2)', hl:'A @ B'},
         {t:'# C[i,j] = A의 i행 · B의 j열 (내적)', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.15, W*0.44, code, 'matmul.py');
+      codePanel(E, W*0.04, H*0.15, W*0.44, code, 'matmul.py', 6);
 
       var A=[[1,2,3],[4,5,6]], B=[[7,8],[9,10],[11,12]];
       var i=(s.cell/2|0), j=s.cell%2;
@@ -129,7 +131,7 @@
         {t:'A.reshape(3, 2)   # 같은 6개,', hl:'.reshape'},
         {t:'                  # 모양만 재배열', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.15, W*0.44, code, 'transpose.py');
+      codePanel(E, W*0.04, H*0.15, W*0.44, code, 'transpose.py', s.step===0?3:6);
 
       var A=[[1,2,3],[4,5,6]];
       var cw=42, ch=32;
@@ -248,7 +250,7 @@
         {t:'#  A x = b 를 직접 풂', dim:true},
         {t:'#  x = ['+fmt(x0)+', '+fmt(x1)+']', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'inverse_solve.py');
+      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'inverse_solve.py', s.step===0?4:6);
 
       var cw=44, ch=32;
       if(s.step===0){
@@ -327,7 +329,7 @@
         {t:'# PCA·신경망·구글 PageRank …', dim:true},
         {t:'# 전부 고유값 분해 위에 섭니다', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'eigen.py');
+      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'eigen.py', 1);
 
       if(s.step===0){
         // A v = λ v 시각화: 고유벡터 v1은 A를 곱해도 방향 유지, 길이 λ배

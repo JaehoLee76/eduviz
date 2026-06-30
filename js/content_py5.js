@@ -8,7 +8,7 @@
   function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 
   // 등폭 코드 패널: lines=[{t,hl?,dim?}|문자열]. hl 토큰만 노랑 강조. 골드 테마.
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -18,6 +18,7 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -49,8 +50,6 @@
         {t:'f"{name:>8}"   # 오른쪽 정렬(8칸)', hl:'{name:>8}'},
         {t:'f"{1000000:,}" # 천 단위 콤마', hl:'{1000000:,}'}
       ];
-      codePanel(E, W*0.05, H*0.15, W*0.43, code, 'fstrings.py');
-
       // 실제 포맷 결과 — JS로 계산
       var pi=3.14159, x=7, name='도형이';
       function pad(str,n){ str=''+str; while(str.length<n) str=' '+str; return str; }
@@ -62,9 +61,11 @@
         {expr:'f"{1000000:,}"', out:comma(1000000),           note:'큰 수를 읽기 쉽게 콤마로'}
       ];
 
+      var show=Math.min(results.length, 1+s.step*2 < results.length ? 1+s.step*2 : results.length);
+      // 마지막으로 드러난 f-string 줄에 커서(결과 i → 코드줄 4+i)
+      codePanel(E, W*0.05, H*0.15, W*0.43, code, 'fstrings.py', 4+(show-1));
       var rx=W*0.53, ry=H*0.17;
       ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('실제 출력 (실시간 계산)', rx, ry);
-      var show=Math.min(results.length, 1+s.step*2 < results.length ? 1+s.step*2 : results.length);
       for(var i=0;i<results.length;i++){
         var on=(i<show), y=ry+24+i*52, r=results[i];
         ctx.globalAlpha=on?1:0.22;
@@ -265,7 +266,8 @@
         {t:'    for i in range(n):', hl:''},
         {t:'        yield i*i        # 지연 생성', hl:'yield'}
       ];
-      codePanel(E, W*0.04, H*0.10, W*0.46, code, 'safe_python.py');
+      var act = s.step===0 ? 0 : (s.step===1 ? 7 : 12);   // try / with / yield
+      codePanel(E, W*0.04, H*0.10, W*0.46, code, 'safe_python.py', act);
 
       var gx=W*0.55, gw=W*0.41;
       if(s.step===0){

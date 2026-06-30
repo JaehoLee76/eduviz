@@ -5,8 +5,8 @@
 (function(){
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
-  // 등폭 코드 패널: lines=[{t:'코드', hl:'tok'}|문자열]. hl 토큰만 골드 강조.
-  function codePanel(E, x, y, w, lines, title){
+  // 등폭 코드 패널: lines=[{t:'코드', hl:'tok'}|문자열]. hl 토큰만 골드 강조. actLine=현재 실행 줄(줄커서).
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -16,6 +16,8 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
+      ctx.font='13px ui-monospace,Menlo,Consolas,monospace';
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -230,7 +232,9 @@
         {t:'plt.tight_layout()', hl:'tight_layout'},
         {t:'plt.show()', hl:'plt.show'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'subplots.py');
+      // 줄커서: step 0~3 = 각 칸을 그리는 줄(ax[..].plot/scatter/hist/bar = code 인덱스 3~6)
+      var act=3+s.step;
+      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'subplots.py', act);
 
       // 2×2 격자 영역
       var gx=W*0.54, gy=H*0.14, gw=W*0.42, gh=H*0.72, pad=14;

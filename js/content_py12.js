@@ -6,7 +6,7 @@
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
   // ── 등폭 코드 패널: lines=[{t:'코드', hl:'tok'}|문자열]. hl 토큰만 골드 강조 ──
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -16,15 +16,18 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      var isAct=(actLine!=null && i===actLine);
+      if(isAct){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
+      var base=isAct?'#fff7df':DIM;
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
-        ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
+        ctx.fillStyle=base; ctx.fillText(pre, x+pad, ty);
         var wpre=ctx.measureText(pre).width;
         ctx.fillStyle=PYL; ctx.fillText(hl, x+pad+wpre, ty);
         var whl=ctx.measureText(hl).width;
-        ctx.fillStyle=DIM; ctx.fillText(post, x+pad+wpre+whl, ty);
+        ctx.fillStyle=base; ctx.fillText(post, x+pad+wpre+whl, ty);
       } else {
-        ctx.fillStyle=(L.dim?DIM:'#e7ecda'); ctx.fillText(t, x+pad, ty);
+        ctx.fillStyle=isAct?'#fff7df':(L.dim?DIM:'#e7ecda'); ctx.fillText(t, x+pad, ty);
       }
     }
     return top+ht;
@@ -61,7 +64,9 @@
         {t:'#  z = (x - mean) / std', dim:true},
         {t:'#  -> 각 열 평균 0, 표준편차 1', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'scaler.py');
+      // 단계 활성 줄: step0=스케일러 생성(4), step1=fit_transform 실행(5)
+      var act=s.step===0?4:5;
+      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'scaler.py', act);
 
       if(s.step===0){
         // 원본 산점: 연봉이 거리 지배(스케일 천차만별)
@@ -122,7 +127,9 @@
         {t:'pipe.fit(X_train, y_train)   # 둘이 한 몸', hl:'.fit'},
         {t:'pipe.predict(X_test)         # 자동 변환+예측', hl:'.predict'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'pipeline.py');
+      // 단계 활성 줄: step0=fit(7), step1=predict(8)
+      var act=s.step===0?7:8;
+      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'pipeline.py', act);
 
       // 흐름도: 입력 → [Scaler] → [Model] → 예측  (한 박스로 감쌈)
       var bx=W*0.54, by=H*0.30, bw=W*0.40;

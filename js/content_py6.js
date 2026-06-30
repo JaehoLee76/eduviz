@@ -8,7 +8,7 @@
   function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 
   // 등폭 코드 패널 렌더러: lines=[{t:'코드', hl:'tok', dim:bool, on:bool}|문자열]. hl 토큰만 골드 강조. on=true면 현재 실행 줄(왼쪽 마커).
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=21, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -18,8 +18,9 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
-      if(typeof L==='object' && L.on){ ctx.fillStyle='rgba(255,211,67,0.12)'; ctx.fillRect(x+4, ty-13, w-8, 18);
-        ctx.fillStyle=PYL; ctx.fillText('▸', x+5, ty); }
+      var isAct=(actLine!=null && i===actLine);
+      if(isAct || (typeof L==='object' && L.on)){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, ty-13, w-8, 18);
+        ctx.fillStyle=PYL; ctx.fillRect(x+4, ty-13, 3, 18); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);

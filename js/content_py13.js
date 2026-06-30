@@ -11,7 +11,7 @@
 
   // ── 등폭 코드 패널: lines=[{t,hl}|문자열]. hl 토큰만 골드 강조. (py7.js 패턴) ──
   function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=20, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -21,15 +21,18 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      var isAct=(actLine!=null && i===actLine);
+      if(isAct){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
+      var base=isAct?'#fff7df':DIM;
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
-        ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
+        ctx.fillStyle=base; ctx.fillText(pre, x+pad, ty);
         var wpre=ctx.measureText(pre).width;
         ctx.fillStyle=PYL; ctx.fillText(hl, x+pad+wpre, ty);
         var whl=ctx.measureText(hl).width;
-        ctx.fillStyle=DIM; ctx.fillText(post, x+pad+wpre+whl, ty);
+        ctx.fillStyle=base; ctx.fillText(post, x+pad+wpre+whl, ty);
       } else {
-        ctx.fillStyle=(L.dim?DIM:'#e7ecda'); ctx.fillText(t, x+pad, ty);
+        ctx.fillStyle=isAct?'#fff7df':(L.dim?DIM:'#e7ecda'); ctx.fillText(t, x+pad, ty);
       }
     }
     return top+ht;
@@ -77,7 +80,8 @@
             : {t:"# x = x.to('cuda')  # GPU로 보내기", dim:true},
         {t:'x.device   # '+(gpu?'cuda:0':'cpu'), hl:'.device'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.45, code, 'tensor.py');
+      // GPU로 보낼 때만 .to('cuda') 줄(5)이 실제 실행
+      codePanel(E, W*0.04, H*0.13, W*0.45, code, 'tensor.py', gpu?5:null);
 
       // 텐서 격자 (2×3, 실제 값)
       var M=[[1,2,3],[4,5,6]];
@@ -144,7 +148,9 @@
         R=[[1,2],[3,4],[5,6]];
         label='A.reshape(3,2)'; col=PNK;
       }
-      codePanel(E, W*0.04, H*0.14, W*0.45, code, 'ops.py');
+      // 슬라이더 연산 → 실행 줄: +,* 는 index3, @ 는 index2, reshape 는 index1
+      var act=[3,3,2,1][op];
+      codePanel(E, W*0.04, H*0.14, W*0.45, code, 'ops.py', act);
 
       // 좌항/우항 + 결과 격자
       var cw=40, ch=30, ax=W*0.55, ay=H*0.20;

@@ -7,7 +7,7 @@
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
   // ───────── 등폭 코드 패널 렌더러(py8과 동형): lines=[{t,hl,dim}|문자열]. hl 토큰만 노랑 강조 ─────────
-  function codePanel(E, x, y, w, lines, title){
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=20, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -17,6 +17,7 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -76,7 +77,9 @@
         {t:'nn.Conv2d(1, 8, 3)   # 3x3 필터', hl:'Conv2d'},
         {t:'#  → 가중치 1*8*3*3 = 72개', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'why_cnn.py');
+      // 단계별 실행 줄: step0=완전연결(Linear 784) → 줄3, step1=합성곱(Conv2d) → 줄7
+      var act=[3,7][s.step];
+      codePanel(E, W*0.04, H*0.13, W*0.44, code, 'why_cnn.py', act);
 
       var tx=W*0.53, ty=H*0.18;
       if(s.step===0){
@@ -287,7 +290,9 @@
         {t:'  x = x.view(-1, 32*8*8)    # 펼침', hl:'view'},
         {t:'  return fc2(relu(fc1(x)))', hl:'fc2'}
       ];
-      codePanel(E, W*0.035, H*0.10, W*0.46, code, 'cnn_cifar10.py');
+      // 단계별 실행 줄: 입력→def forward(6), conv1(7), pool(7), conv2(8), pool(8), FC→return(10)
+      var act=[6,7,7,8,8,10][s.step];
+      codePanel(E, W*0.035, H*0.10, W*0.46, code, 'cnn_cifar10.py', act);
 
       // 텐서 모양 흐름(채널×H×W). 실제 padding=1 같은 합성곱 → 크기유지, pool → 절반.
       var stages=[
@@ -349,7 +354,9 @@
         {t:'    loss = loss_fn(out, yb)', hl:'loss_fn'},
         {t:'    loss.backward(); opt.step()', hl:'backward'}
       ];
-      codePanel(E, W*0.035, H*0.055, W*0.50, code, 'train_cnn.py');
+      // 단계별 실행 줄: step0=5단계 골격(데이터 로드 줄3), step1=학습 결과(학습 루프 backward 줄15)
+      var act=[3,15][s.step];
+      codePanel(E, W*0.035, H*0.055, W*0.50, code, 'train_cnn.py', act);
 
       var tx=W*0.58, ty=H*0.13;
       if(s.step===0){

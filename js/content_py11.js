@@ -70,8 +70,8 @@
   function confusion3(model,tr,cen,te){ var M=[[0,0,0],[0,0,0],[0,0,0]];
     for(var i=0;i<te.length;i++){ var y=te[i][2], p=model.pred(tr,cen,te[i]); M[y][p]++; } return M; }
 
-  // 등폭 코드 패널(content_py7.js 패턴)
-  function codePanel(E, x, y, w, lines, title){
+  // 등폭 코드 패널(content_py7.js 패턴). actLine=현재 실행 줄(줄커서).
+  function codePanel(E, x, y, w, lines, title, actLine){
     var ctx=E.ctx, lh=20, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
@@ -81,6 +81,8 @@
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
       var ty=cy+i*lh+11;
+      if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(255,211,67,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=PYL; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
+      ctx.font='12.5px ui-monospace,Menlo,Consolas,monospace';
       if(hl && t.indexOf(hl)>=0){
         var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty);
@@ -126,7 +128,9 @@
         {t:'iris.target_names', hl:'.target_names'},
         {t:"# ['setosa','versicolor','virginica']", dim:true}
       ];
-      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'load_iris.py');
+      // 줄커서: 종을 하나씩 드러내는 단계 — 적재→특징/라벨→종 이름
+      var act=[1,3,7][s.step];
+      codePanel(E, W*0.04, H*0.14, W*0.46, code, 'load_iris.py', act);
 
       // 우측: 꽃잎길이·폭 산점 (종별 색)
       var P=planeMaker(W*0.60, H*0.78, W*0.34, H*0.56);
@@ -175,7 +179,9 @@
         {t:'model.fit(X_train, y_train)', hl:'.fit'},
         {t:'# 훈련 '+tr.length+'송이로 규칙을 배움', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.48, code, 'split_fit.py');
+      // 줄커서: step0=분할(train_test_split 줄) · step1=학습(model.fit 줄)
+      var act=[3,8][s.step];
+      var codeBot = codePanel(E, W*0.04, H*0.13, W*0.48, code, 'split_fit.py', act);
 
       if(s.step===0){
         // 분할 비율 막대 (80/20)
@@ -217,9 +223,9 @@
           ctx.beginPath(); ctx.arc(cx,cyp,9,0,7); ctx.fill(); ctx.stroke();
           ctx.fillStyle='#10131a'; ctx.font='700 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(''+i, cx, cyp+1); ctx.textBaseline='alphabetic'; }
         ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
-        ctx.fillText('model.fit() — 훈련점에서 종별 ‘기준점(★)’을 배웠습니다', W*0.05, H*0.16);
+        ctx.fillText('model.fit() — 훈련점에서 종별 ‘기준점(★)’을 배웠습니다', W*0.05, codeBot+30);
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-        for(i=0;i<3;i++) ctx.fillText(SPN[i]+' 중심 = (len '+cen[i][0].toFixed(2)+', wid '+cen[i][1].toFixed(2)+')', W*0.05, H*0.22+i*22);
+        for(i=0;i<3;i++) ctx.fillText(SPN[i]+' 중심 = (len '+cen[i][0].toFixed(2)+', wid '+cen[i][1].toFixed(2)+')', W*0.05, codeBot+54+i*20);
         ctx.fillStyle=PYL; ctx.font='12.5px sans-serif';
         ctx.fillText('이제 새 꽃이 오면 어느 기준점에 가까운지로 종을 답합니다.', W*0.05, H*0.92);
       }
