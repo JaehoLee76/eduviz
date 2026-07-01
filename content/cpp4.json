@@ -1,3 +1,54 @@
 {
- "cpp4_01": { "ch": "C++ 제4장", "sec": "4.1 클래스와 객체", "title": "클래스와 객체", "narr": "이 장은 곧 채워집니다." }
+ "cpp4_01": {
+  "ch": "C++ 제4장 · 객체지향",
+  "sec": "4.1 생성자",
+  "title": "생성자 — 객체가 태어나는 의식",
+  "narr": "객체를 만들어 놓고 초기화를 깜빡하면, 멤버변수에는 <b>정체 모를 쓰레기값</b>이 들어 있습니다. <b>생성자(constructor)</b>는 이 위험을 없앱니다 — 클래스와 <b>같은 이름</b>을 가진 특별한 함수로, 객체가 태어나는 바로 그 순간 <b>자동으로 호출</b>되죠. <b>Point p(3, 4);</b> 라고 쓰면 우리가 부르지 않아도 생성자가 실행되어 x에 3, y에 4를 넣어 줍니다. ‘생성하면서 동시에 초기화한다’ — 미초기화 상태가 존재할 틈을 아예 주지 않는 것입니다.",
+  "more": "<b>기본 생성자</b>: 아무 생성자도 안 쓰면 컴파일러가 인자 없는 <b>기본 생성자</b>를 만들어 줍니다. 하지만 인자 있는 생성자를 하나라도 정의하면 기본 생성자는 자동으로 만들어지지 않으니, 필요하면 직접 선언해야 합니다.\n\n<b>오버로딩</b>: 생성자도 함수라 <b>오버로딩</b>됩니다 — <code>Point()</code>, <code>Point(int,int)</code>처럼 인자 목록만 다르면 여러 개를 둘 수 있고, 만드는 방식에 따라 알맞은 것이 골라집니다.\n\n<b>반환형 없음</b>: 생성자는 반환형을 쓰지 않습니다(void도 아님). 값을 돌려주는 함수가 아니라 ‘객체를 초기화하는 절차’이기 때문입니다.",
+  "more_en": "A constructor is a special function with the same name as the class, called automatically the instant an object is born. Point p(3,4) runs it, setting x=3, y=4 — no separate init call, no window for uninitialized garbage. The compiler provides a default (no-arg) constructor only if you declare none. Constructors can be overloaded and have no return type."
+ },
+ "cpp4_02": {
+  "ch": "C++ 제4장 · 객체지향",
+  "sec": "4.2 소멸자",
+  "title": "소멸자 — 뒷정리는 자동으로",
+  "narr": "생성자가 객체의 탄생 의식이라면, <b>소멸자(destructor)</b>는 장례 의식입니다 — 이름은 클래스명 앞에 물결표(<b>~</b>)를 붙이고, 객체가 사라지는 순간 <b>자동으로</b> 호출됩니다. 지역 객체라면 그 객체가 선언된 블록 <b>{ }</b>이 끝나는 순간이죠. 왜 중요할까요? 객체가 파일·메모리·연결 같은 <b>자원</b>을 쥐고 있었다면, 사라지기 전에 반드시 돌려줘야 합니다. 생성자에서 <b>open()</b>으로 얻고 소멸자에서 <b>close()</b>로 반납하면 — close를 부르는 걸 잊어도 C++이 블록 끝에서 소멸자를 반드시 불러 뒷정리해 줍니다.",
+  "more": "<b>RAII</b>: ‘자원 획득은 초기화(Resource Acquisition Is Initialization)’ — 생성자에서 자원을 얻고 소멸자에서 반납하는 이 관용구가 C++ 자원 관리의 핵심입니다. 객체의 수명에 자원의 수명을 묶으면, 예외가 나든 어디서 return하든 소멸자가 불려 새는 일이 없습니다.\n\n<b>호출 시점</b>: 지역 객체는 블록을 벗어날 때, 동적 객체(<code>new</code>)는 <code>delete</code>할 때 소멸자가 불립니다. 소멸자는 인자도 반환형도 없고, 클래스당 하나뿐입니다.\n\n<b>가상 소멸자</b>: 상속과 다형성을 쓸 때 기반 클래스 소멸자를 <code>virtual</code>로 두어야 파생 객체가 올바로 정리됩니다(상속 장에서 다룹니다).",
+  "more_en": "A destructor (~ClassName) runs automatically the moment an object dies — for a local object, when its block { } ends. If the object held a resource (file, memory, connection), the destructor returns it. Acquire in the constructor (open), release in the destructor (close): this RAII idiom ties resource lifetime to object lifetime, so nothing leaks even on early return or exceptions. One destructor per class, no args, no return type."
+ },
+ "cpp4_03": {
+  "ch": "C++ 제4장 · 객체지향",
+  "sec": "4.3 멤버 이니셜라이저 리스트",
+  "title": "멤버 이니셜라이저 리스트",
+  "narr": "생성자 몸통에서 <b>x = a;</b> 라고 쓰는 건 사실 두 걸음입니다 — 먼저 x가 <b>기본값으로 생성</b>된 뒤, 곧바로 a로 <b>덮어쓰는</b> 것이죠. 반면 <b>Point(int a, int b): x(a), y(b) {}</b> 처럼 콜론(:) 뒤에 적는 <b>멤버 이니셜라이저 리스트</b>는 x를 처음부터 a로 <b>초기화</b>합니다 — 중간에 ‘빈 상태’를 거치지 않는 한 걸음입니다. 결정적인 이유는 따로 있습니다: <b>const 멤버</b>와 <b>참조(&amp;) 멤버</b>는 태어날 때 딱 한 번만 값을 정할 수 있어 나중에 대입이 불가능하고, <b>오직 이니셜라이저 리스트로만</b> 초기화됩니다.",
+  "more": "<b>대입 vs 초기화</b>: 초기화는 ‘처음 값을 정하는 것’, 대입은 ‘이미 있는 값을 바꾸는 것’입니다. 몸통의 <code>x = a</code>는 대입이라, x가 먼저 (기본)초기화된 뒤에 실행됩니다. 이니셜라이저 리스트는 그 (기본)초기화 자리를 곧장 <code>x(a)</code>로 채웁니다.\n\n<b>왜 필요한가</b>: ①<code>const</code> 멤버는 대입이 금지되고, ②참조(<code>int&amp;</code>) 멤버는 선언과 동시에 대상에 묶여야 하며, ③기본 생성자가 없는 멤버 객체는 반드시 인자로 초기화해야 합니다 — 셋 다 이니셜라이저 리스트가 필수입니다.\n\n<b>초기화 순서 주의</b>: 멤버는 리스트에 적은 순서가 아니라 <b>클래스에 선언된 순서</b>대로 초기화됩니다. 한 멤버로 다른 멤버를 초기화할 때는 이 순서에 유의해야 합니다.",
+  "more_en": "Writing x = a in the constructor body is two steps: x is first default-initialized, then assigned. A member initializer list — Point(int a,int b): x(a), y(b) {} — initializes x directly to a in one step, with no intermediate empty state. Crucially, const members and reference (&) members can only be set once at birth and cannot be assigned, so they *require* the initializer list. Members initialize in declaration order, not list order.",
+  "problem": {
+   "q": "const int x; 멤버를 생성자 몸통에서 x = a;로 초기화할 수 있을까요?",
+   "solution": "<b>불가능합니다.</b> <code>x = a</code>는 대입인데, const 멤버는 초기화 후 대입이 금지됩니다. 반드시 <b>멤버 이니셜라이저 리스트</b>(<code>: x(a)</code>)로 태어나는 순간에 초기화해야 합니다. 참조(&amp;) 멤버도 마찬가지입니다."
+  }
+ },
+ "cpp4_04": {
+  "ch": "C++ 제4장 · 객체지향",
+  "sec": "4.4 this 포인터",
+  "title": "this 포인터 — 나 자신을 가리키는 화살표",
+  "narr": "멤버함수의 코드는 클래스마다 <b>딱 하나뿐</b>입니다 — a, b, c 세 객체가 있어도 grow() 코드는 한 벌을 공유하죠. 그렇다면 a.grow()를 부를 때 <b>x += 1</b>은 대체 누구의 x일까요? 답은 <b>this 포인터</b>입니다. 멤버함수가 호출되는 순간, C++은 ‘점(.) 앞에 놓인 그 객체의 주소’를 <b>this</b>라는 숨은 인자로 몰래 넘깁니다. 그래서 <b>this-&gt;x</b>는 언제나 지금 호출한 그 객체의 x가 되죠. 슬라이더로 호출 객체를 바꾸면, 같은 코드인데 this가 가리키는 대상만 바뀌어 그 객체의 x만 늘어납니다.",
+  "more": "<b>언제 명시하나</b>: 보통은 <code>x</code>라고만 써도 <code>this-&gt;x</code>로 해석됩니다. 다만 ①매개변수와 멤버 이름이 겹칠 때(<code>this-&gt;x = x;</code>), ②객체 자신을 넘기거나 돌려줄 때 <code>this</code>를 명시적으로 씁니다.\n\n<b>메서드 체이닝</b>: <code>return *this;</code>로 자기 자신(의 참조)을 돌려주면 <code>a.grow().grow()</code>처럼 호출을 사슬로 이을 수 있습니다. <code>std::cout &lt;&lt; a &lt;&lt; b</code>가 이어지는 것도 같은 원리입니다.\n\n<b>const 멤버함수</b>: <code>int get() const</code>처럼 뒤에 <code>const</code>를 붙이면 그 함수 안에서 this가 ‘읽기 전용’이 되어 멤버를 바꿀 수 없습니다 — 객체를 건드리지 않는 함수임을 보장합니다.",
+  "more_en": "There is only one copy of a member function's code, shared by all objects. So whose x does x += 1 change? The this pointer: when a member function is called, C++ silently passes the address of the object before the dot as a hidden 'this' argument, so this->x always means the calling object's x. Use this explicitly to disambiguate names, or to return the object itself. return *this enables chaining like a.grow().grow(). A trailing const makes this read-only.",
+  "problem": {
+   "q": "세 객체 a, b, c가 같은 grow() 코드를 공유하는데, b.grow()가 왜 b의 x만 바꾸나요?",
+   "solution": "<b>this 포인터</b> 덕분입니다. b.grow() 호출 시 C++은 <b>b의 주소</b>를 숨은 인자 this로 넘기므로, 함수 안의 <code>this-&gt;x += 1</code>은 b의 x만 가리킵니다. a·c의 x는 그대로입니다."
+  }
+ },
+ "cpp4_05": {
+  "ch": "C++ 제4장 · 객체지향",
+  "sec": "4.5 객체 배열·생성/소멸 순서",
+  "title": "객체 배열 — 생성은 순서대로, 소멸은 역순으로",
+  "narr": "<b>Widget arr[3];</b> 라고 쓰면 객체 세 개가 한 줄로 태어납니다 — 각각의 생성자가 <b>arr[0] → arr[1] → arr[2]</b> 순서로, 앞에서 뒤로 호출되죠. 그런데 블록이 끝나 이들이 사라질 때는 순서가 <b>뒤집힙니다</b>: <b>arr[2] → arr[1] → arr[0]</b>, 태어난 역순입니다. 왜 그럴까요? 나중에 만들어진 객체가 먼저 만들어진 객체에 기대고 있을 수 있기 때문입니다. ‘<b>나중에 태어난 것이 먼저 죽는다</b>’(LIFO)는 스택 규칙을 따르면, 소멸 시점에 의존 대상이 아직 살아 있음이 보장됩니다.",
+  "more": "<b>왜 역순인가</b>: 지역 변수·객체는 스택에 쌓이듯 관리됩니다. 뒤에 생긴 것을 먼저 없애야, 앞에 있던(더 오래 산) 객체가 소멸될 때 자신이 참조하던 대상이 아직 파괴되지 않았음을 보장할 수 있습니다 — 의존 관계를 안전하게 되감는 순서입니다.\n\n<b>어디에나 적용</b>: 이 규칙은 배열뿐 아니라 한 블록의 여러 지역 객체, 클래스의 여러 멤버 객체(멤버는 선언 순서로 생성, 역순으로 소멸)에도 똑같이 적용됩니다.\n\n<b>배열과 생성자</b>: <code>Widget arr[3];</code>처럼 인자 없이 배열을 만들면 각 원소가 <b>기본 생성자</b>로 초기화됩니다. 그래서 원소 타입에 기본 생성자가 없으면 컴파일 에러가 나거나, 중괄호 초기화로 각 원소에 인자를 줘야 합니다.",
+  "more_en": "Widget arr[3]; constructs objects front to back: arr[0] → arr[1] → arr[2]. When the block ends, destruction runs in reverse: arr[2] → arr[1] → arr[0]. Later-born dies first (LIFO, like a stack), guaranteeing that when an earlier object is destroyed, whatever it depended on is still alive. The same order applies to local objects in a block and to a class's member objects (constructed in declaration order, destroyed in reverse). Default construction requires a default constructor.",
+  "problem": {
+   "q": "Widget arr[3];가 블록을 벗어날 때, 소멸자는 어떤 순서로 호출될까요?",
+   "solution": "<b>arr[2] → arr[1] → arr[0]</b>, 즉 생성의 <b>역순</b>입니다. 나중에 생성된 객체가 먼저 소멸되는 LIFO(스택) 규칙을 따라, 의존 대상이 소멸 시점까지 살아 있도록 보장합니다."
+  }
+ }
 }

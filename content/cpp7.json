@@ -1,3 +1,43 @@
 {
- "cpp7_01": { "ch": "C++ 제7장", "sec": "7.1 static·const·friend", "title": "static·const·friend", "narr": "이 장은 곧 채워집니다." }
+ "cpp7_01": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.1 상속의 이해 (is-a)",
+  "title": "상속의 이해 — is-a",
+  "narr": "class Cat : public Animal — 이미 만든 부모의 멤버를 그대로 물려받고, 그 위에 자식만의 기능을 얹습니다. '고양이는 동물이다(is-a)'라는 관계를 코드로 옮긴 것이 상속입니다.",
+  "more": "물려받으면 같은 코드를 다시 쓰지 않아도 됩니다 — 재사용과 확장이 객체지향의 핵심입니다.",
+  "more_en": "class Cat : public Animal — a derived class inherits the base class's members and extends them. Inheritance models the natural 'is-a' relationship.",
+  "problem": "Dog 클래스를 Animal 로부터 상속받아 bark() 메서드를 추가로 정의하려면 어떻게 선언할까요?\n\n정답: class Dog : public Animal { public: void bark(){ ... } };  — Animal 의 name·eat·sleep 은 자동으로 물려받고 bark() 만 새로 얹습니다."
+ },
+ "cpp7_02": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.2 protected 접근",
+  "title": "protected — 자식에게만 여는 문",
+  "narr": "private 은 나(부모)만, public 은 누구나, protected 는 딱 자식 클래스까지만. 외부에는 숨기되 상속받은 자식은 쓰게 하고 싶을 때 protected 로 열어 둡니다.",
+  "more": "접근 매트릭스가 규칙 그대로입니다 — private 은 자식도 X, protected 는 자식만 O, public 은 외부까지 O.",
+  "more_en": "private hides even from children; protected opens only to derived classes; public is open to all. protected keeps encapsulation while enabling inheritance."
+ },
+ "cpp7_03": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.3 유도 클래스 생성자",
+  "title": "유도 클래스 생성자 — 부모부터",
+  "narr": "Cat(string n, int a) : Animal(n), age(a) — 자식 생성자는 초기화 리스트에서 부모 생성자를 먼저 호출해 물려받은 부분을 정확히 채웁니다. 안 적으면 부모의 기본 생성자가 자동 호출됩니다(없으면 오류).",
+  "more": "출력이 'Animal(...)' 다음 'Cat(...)' 순인 이유 — 집은 언제나 기초(부모)부터 올립니다.",
+  "more_en": "A derived constructor must invoke a base constructor first (via the initializer list) to build the inherited part before the child's own."
+ },
+ "cpp7_04": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.4 생성/소멸 순서",
+  "title": "생성과 소멸의 순서",
+  "narr": "생성은 부모 → 자식 순으로 기초부터 올라가고, 소멸은 자식 → 부모의 정확한 역순입니다. 자식은 부모 위에 세워졌으니, 부모를 먼저 없애면 자식이 밟고 선 땅이 사라지기 때문입니다.",
+  "more": "스택처럼 나중에 지어진 것부터 헐립니다(LIFO) — 다음 장 '가상 소멸자'의 열쇠가 됩니다.",
+  "more_en": "Construction runs base→derived; destruction runs the exact reverse, derived→base — later-built parts are torn down first (LIFO)."
+ },
+ "cpp7_05": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.5 재정의와 이름 가림",
+  "title": "재정의(overriding)와 이름 가림",
+  "narr": "자식이 부모와 같은 이름의 함수를 재정의하면 자식 것이 부모 것을 가립니다(name hiding). c.speak() 는 자식 것을, 부모 것은 c.Animal::speak() 로 콕 집어 부릅니다.",
+  "more": "아직은 '정적 바인딩' — 변수의 적힌 타입으로 함수가 정해집니다. Animal* 포인터로 부르면? 다음 장 virtual 이 답합니다.",
+  "more_en": "Redefining a same-named function in a child hides the parent's (name hiding). This is still static binding — the vtable/virtual keyword of chapter 8 changes that."
+ }
 }

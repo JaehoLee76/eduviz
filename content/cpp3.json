@@ -1,3 +1,54 @@
 {
- "cpp3_01": { "ch": "C++ 제3장", "sec": "3.1 참조자·동적할당", "title": "참조자·동적할당", "narr": "이 장은 곧 채워집니다." }
+ "cpp3_01": {
+  "ch": "C++ 제3장 · 객체지향",
+  "sec": "3.1 구조체에서 클래스로",
+  "title": "구조체에서 클래스로",
+  "narr": "C의 <b>struct</b>는 서로 관련된 데이터를 한 이름으로 묶는 상자였습니다 — 하지만 그 데이터를 다루는 함수는 밖에 따로 떨어져, Point를 <b>포인터로 건네받아</b> 만졌죠. C++의 <b>class</b>는 여기서 한 걸음 나아갑니다: 데이터(x, y)와 그 데이터를 다루는 함수(move)를 <b>같은 상자 안에 함께</b> 넣습니다. ‘무엇을 담느냐’와 ‘그걸로 무엇을 하느냐’를 한 몸으로 묶는 것 — 이것이 <b>객체지향</b>의 첫 발걸음입니다.",
+  "more": "<b>struct vs class</b>: 두 키워드는 문법이 거의 같고, 유일한 차이는 <b>기본 접근권한</b>입니다 — struct는 기본이 public, class는 기본이 private. 그래서 C의 struct 코드는 C++에서 그대로 컴파일되지만, ‘데이터+함수를 캡슐로 감싼다’는 의도를 드러낼 때는 관례적으로 class를 씁니다.\n\n<b>왜 함께 묶나</b>: 데이터와 그 데이터를 다루는 코드가 흩어져 있으면, 규칙을 어기는 접근을 막기 어렵습니다. 한 클래스 안에 두면 ‘이 데이터는 이 함수들로만 다룬다’는 약속을 강제할 수 있습니다(다음 절의 접근제어·캡슐화로 이어집니다).",
+  "more_en": "C's struct groups related data; the functions that use it live outside and take a pointer. C++'s class goes further: it puts the data (x, y) and the functions that operate on it (move) inside the same box. struct and class differ only in default access (struct: public, class: private). Bundling data with its operations is the first step of object-oriented programming."
+ },
+ "cpp3_02": {
+  "ch": "C++ 제3장 · 객체지향",
+  "sec": "3.2 멤버변수·멤버함수",
+  "title": "멤버변수와 멤버함수",
+  "narr": "클래스 안에는 두 종류의 멤버가 삽니다. <b>멤버변수</b>는 객체의 <b>상태</b> — Point라면 좌표 x, y처럼 ‘지금 이 객체가 어떤 값인지’를 담습니다. <b>멤버함수</b>는 객체의 <b>행동</b> — move(a,b)는 좌표를 옮기고, dist2()는 원점까지의 거리 제곱을 계산해 돌려주죠. 멤버함수의 특별한 점은, 같은 클래스의 멤버변수를 <b>x, y라는 이름만으로</b> 마치 자기 변수처럼 쓴다는 것입니다.",
+  "more": "<b>상태와 행동</b>: 객체지향에서 클래스는 늘 이 두 축으로 설계됩니다 — 무엇을 기억하는가(멤버변수)와 무엇을 할 수 있는가(멤버함수). 좋은 클래스는 관련 있는 상태와 행동만 한 곳에 모읍니다(높은 응집도).\n\n<b>선언과 정의</b>: 멤버함수는 클래스 안에서 곧바로 정의하거나(inline), 클래스 밖에서 <code>void Point::move(int a,int b){ ... }</code>처럼 범위 지정 연산자 <code>::</code>로 나눠 정의할 수 있습니다. 보통 짧은 함수는 안에, 긴 함수는 <code>.cpp</code>에 나눠 둡니다.",
+  "more_en": "A class has two kinds of members: member variables hold the object's state (x, y), and member functions define its behavior (move, dist2). Member functions access the class's own variables by name, as if they were local. Classes are designed around 'what it remembers' (variables) and 'what it can do' (functions). Functions can be defined inline or outside with Point::move(...)."
+ },
+ "cpp3_03": {
+  "ch": "C++ 제3장 · 객체지향",
+  "sec": "3.3 객체 생성·사용",
+  "title": "객체 생성과 사용 — 점(.) 연산자",
+  "narr": "<b>Point p;</b> 라고 쓰면, 클래스라는 <b>설계도</b>로부터 실제 <b>객체 p</b>가 하나 태어납니다 — 자기만의 x, y를 가진 채로요. 그 객체에게 일을 시킬 때는 <b>점(.) 연산자</b>를 씁니다: <b>p.move(3,4)</b>는 ‘p야, 너의 좌표를 (3,4)만큼 옮겨라’라는 명령입니다. 함수는 하나지만, 그 함수가 만지는 x·y는 바로 <b>점 앞에 놓인 그 객체</b>의 것입니다. 화면의 표와 좌표를 보면, move를 부를 때마다 p의 상태가 실제로 변하고 dist2()가 그 값으로 거리를 계산합니다.",
+  "more": "<b>클래스 vs 객체</b>: 클래스는 붕어빵 틀, 객체는 그 틀로 찍어 낸 붕어빵입니다. 같은 클래스로 p, q, r 여러 객체를 만들 수 있고, 각자 독립된 x, y를 가집니다 — 한 객체의 move가 다른 객체를 건드리지 않습니다.\n\n<b>점(.) 과 화살표(→)</b>: 객체를 직접 가질 때는 <code>p.move()</code>, 객체의 <b>포인터</b>를 가질 때는 <code>ptr-&gt;move()</code>를 씁니다. 둘은 ‘대상 객체를 정하고 그 멤버를 부른다’는 점에서 같은 일을 합니다.",
+  "more_en": "Point p; creates a real object from the class blueprint, each with its own x, y. The dot (.) operator sends a message: p.move(3,4) means 'p, shift your coordinates by (3,4)'. The single function operates on the object in front of the dot. A class is the mold; objects are the castings — p, q, r each hold independent state. Use . for objects and -> for pointers.",
+  "problem": {
+   "q": "Point p, q; 두 객체에서 p.move(1,0)을 부르면 q의 좌표도 바뀔까요?",
+   "solution": "<b>아니요.</b> p와 q는 각자 독립된 멤버변수를 가진 별개의 객체입니다. p.move(1,0)은 점 앞의 객체 <b>p의 x</b>만 바꾸고, q에는 아무 영향이 없습니다."
+  }
+ },
+ "cpp3_04": {
+  "ch": "C++ 제3장 · 객체지향",
+  "sec": "3.4 접근제어(public/private)",
+  "title": "접근제어 — public과 private",
+  "narr": "클래스의 멤버는 두 문패 중 하나를 답니다. <b>public</b>은 ‘누구나 써도 되는 대문’, <b>private</b>은 ‘내부 전용, 바깥은 손대지 마시오’입니다. Counter의 count를 private에 두면, 바깥 코드가 <b>c.count = 99</b>처럼 직접 값을 바꾸는 일이 <b>컴파일 단계에서 아예 막힙니다</b>. 대신 c.up()·c.get()처럼 public으로 열어 둔 통로로만 드나들 수 있죠. 이렇게 내부를 감추는 것을 <b>정보 은닉(information hiding)</b>이라 부릅니다.",
+  "more": "<b>왜 감추나</b>: 멤버를 아무 데서나 바꿀 수 있으면, 잘못된 값이 언제 어디서 들어왔는지 추적하기가 지옥이 됩니다. private로 감추고 정해진 함수로만 바꾸게 하면, 상태 변경 지점이 그 함수들로 좁혀져 관리·디버깅이 쉬워집니다.\n\n<b>기본값</b>: <code>class</code>의 멤버는 지정이 없으면 기본 <b>private</b>, <code>struct</code>는 기본 <b>public</b>입니다 — 이것이 두 키워드의 유일한 차이입니다. 그래서 감출 것이 있는 설계에는 class가 자연스럽습니다.\n\n<b>protected</b>: 세 번째 지정자로, 자신과 <b>파생 클래스</b>에게만 열려 있습니다(상속 장에서 다룹니다).",
+  "more_en": "Members carry one of two labels: public (open to anyone) or private (internal only). Making count private blocks c.count = 99 at compile time; access is allowed only through public functions like up()/get(). This is information hiding: narrowing where state can change makes bugs traceable. class defaults to private, struct to public. A third specifier, protected, opens to derived classes.",
+  "problem": {
+   "q": "멤버변수를 private로 두면 어떤 종류의 오류를 컴파일 시점에 막을 수 있나요?",
+   "solution": "<b>외부에서의 직접 접근·수정</b>을 막습니다. 예컨대 <code>c.count = 99</code>처럼 규칙을 거치지 않고 내부 상태를 임의로 바꾸는 코드는 컴파일 에러가 되어, 실행 전에 걸러집니다."
+  }
+ },
+ "cpp3_05": {
+  "ch": "C++ 제3장 · 객체지향",
+  "sec": "3.5 캡슐화",
+  "title": "캡슐화 — 규칙을 지키는 문지기",
+  "narr": "정보 은닉이 벽을 세우는 일이라면, <b>캡슐화(encapsulation)</b>는 그 벽에 ‘규칙을 아는 <b>문지기</b>’를 세우는 일입니다. Account의 balance를 private로 감추고, 오직 <b>deposit()</b>이라는 setter로만 바꾸게 하면 — 그 함수 안에서 ‘0 이하 입금은 거부’ 같은 <b>검증(불변식)</b>을 강제할 수 있습니다. 바깥이 아무리 이상한 값을 넣어도 문지기가 걸러 내니, 잔액은 언제나 올바른 상태를 유지하죠. 슬라이더를 <b>음수</b>로 내리면 deposit이 false를 돌려주고 잔액은 그대로, <b>양수</b>로 올리면 통과해 실제로 더해집니다.",
+  "more": "<b>getter/setter</b>: 값을 읽기만 하는 <b>getter</b>(<code>int get(){ return balance; }</code>)와, 규칙에 맞춰 바꾸는 <b>setter</b>(<code>bool deposit(int)</code>)가 한 쌍입니다. setter를 통로로 두면, 검증·로그·범위 제한 같은 규칙을 한곳에 모아 강제할 수 있습니다.\n\n<b>불변식(invariant)</b>: ‘잔액은 음수가 될 수 없다’처럼 객체가 늘 지켜야 하는 규칙입니다. 캡슐화의 목적은 이 불변식을 <b>깨질 수 없게</b> 만드는 것 — 상태를 바꾸는 유일한 통로에서 검사하면, 어떤 순간에도 규칙 위반 상태가 존재하지 않습니다.\n\n<b>정보 은닉과의 관계</b>: 정보 은닉은 ‘무엇을 감추나(private)’, 캡슐화는 ‘어떤 규칙으로 열어 주나(공개 인터페이스)’입니다. 둘이 합쳐져 견고한 객체를 만듭니다.",
+  "more_en": "If information hiding builds a wall, encapsulation posts a gatekeeper who knows the rules. Hide balance as private and change it only through deposit() (a setter), which enforces validation like 'reject non-positive deposits'. No outside value can violate the invariant (e.g., balance never goes negative). A getter reads, a setter writes with rules — together they keep the object always in a valid state.",
+  "problem": {
+   "q": "잔액(balance)을 public으로 두는 것과, private로 감추고 deposit()으로만 바꾸게 하는 것의 차이는?",
+   "solution": "public이면 외부가 <b>검증 없이</b> 아무 값이나(음수 등) 넣어 불변식을 깰 수 있습니다. private + setter이면 모든 변경이 <b>deposit()의 검사</b>를 거치므로, 잔액이 늘 올바른 상태(예: 음수 불가)로 유지됩니다."
+  }
+ }
 }

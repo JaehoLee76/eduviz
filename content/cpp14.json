@@ -1,3 +1,42 @@
 {
- "cpp14_01": { "ch": "C++ 제14장", "sec": "14.1 예외처리", "title": "예외처리", "narr": "이 장은 곧 채워집니다." }
+ "cpp14_01": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.1 RAII",
+   "title": "RAII — 자원의 수명을 객체에 묶다",
+   "narr": "fopen엔 fclose, new엔 delete, lock엔 unlock — 손으로 짝을 맞추다 return이나 예외가 튀면 뒷정리를 잊어 자원이 샙니다. RAII는 자원을 객체가 소유하게 하고, 생성자에서 획득·소멸자에서 반납합니다.",
+   "more": "객체가 스코프를 벗어나는 순간 언어가 소멸자를 자동 호출해 뒷정리를 합니다 — return이든 예외든 어떤 경로로 나가도. 파일·락·소켓·메모리를 이 한 원리로 다스립니다. 스마트 포인터는 이 RAII를 메모리에 적용한 표준 도구입니다.",
+   "more_en": "RAII (Resource Acquisition Is Initialization) ties a resource's lifetime to an object: acquire in the constructor, release in the destructor. Whatever path leaves the scope — return or exception — the destructor cleans up. Smart pointers apply RAII to memory."
+ },
+ "cpp14_02": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.2 unique_ptr (독점 소유)",
+   "title": "unique_ptr — 홀로 소유하고, 넘겨주다",
+   "narr": "std::make_unique<T>(...)로 만든 unique_ptr 하나만이 힙 객체의 유일한 주인입니다. 주인이 스코프를 벗어나면 자동으로 delete되죠.",
+   "more": "주인은 하나이므로 복사가 금지됩니다 — auto q = p;는 컴파일 에러(둘 다 소멸하며 같은 메모리를 두 번 지울 테니). 대신 std::move(p)로 소유권을 넘기면 p는 nullptr이 됩니다. 크기가 raw 포인터와 같고 비용이 사실상 0이라, 동적 객체엔 기본으로 unique_ptr을 씁니다.",
+   "more_en": "Exactly one unique_ptr owns the object, so copying is forbidden (auto q = p; won't compile). Transfer ownership with std::move(p), leaving p null. Same size and near-zero cost as a raw pointer — make unique_ptr your default for owned dynamic objects."
+ },
+ "cpp14_03": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.3 shared_ptr (공유 소유)",
+   "title": "shared_ptr — 여럿이 나눠 소유하다",
+   "narr": "한 객체를 여러 곳에서 함께 써야 할 때 shared_ptr을 씁니다. 복사할 때마다 참조 카운트가 오르고, 소멸할 때마다 내리며, 카운트가 0이 되는 순간 객체를 delete합니다.",
+   "more": "화면의 카운트는 살아 있는 소유자 수를 실제로 센 값입니다. 편리하지만 제어 블록의 원자적 카운트 증감이 unique_ptr보다 무겁습니다. make_shared는 객체와 제어블록을 한 번에 할당해 더 빠릅니다. 정말 공유가 필요할 때만 shared_ptr, 아니면 unique_ptr이 원칙입니다.",
+   "more_en": "Each copy raises a reference count, each destruction lowers it, and the object is deleted the instant the count hits zero. Convenient but heavier than unique_ptr (atomic counting via a control block). make_shared allocates object and control block together. Share only when you truly must."
+ },
+ "cpp14_04": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.4 weak_ptr (순환 참조 끊기)",
+   "title": "weak_ptr — 붙잡지 않고 지켜보다",
+   "narr": "두 객체가 shared_ptr로 서로를 가리키면 각자의 참조 카운트가 서로 때문에 0이 되지 않아, 바깥 변수가 다 사라져도 아무도 해제되지 못합니다 — 순환 참조 누수입니다.",
+   "more": "해법은 weak_ptr — 관찰하되 소유하지 않아 참조 카운트를 올리지 않고 사이클을 끊습니다. 대신 유효성을 보장하지 않으니, 접근할 땐 w.lock()으로 잠깐 shared_ptr을 얻어 살아 있는지 확인합니다(죽었으면 nullptr). 규칙: 소유 방향은 shared_ptr, 되돌아 가리키는 비소유 방향은 weak_ptr.",
+   "more_en": "A shared_ptr cycle keeps both counts above zero forever — a leak. weak_ptr observes without owning, so it doesn't raise the count and breaks the cycle. Since it doesn't guarantee the object lives, access via w.lock() to get a temporary shared_ptr (null if gone). Owning edges: shared_ptr; back-references: weak_ptr."
+ },
+ "cpp14_05": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.5 자원관리 규칙 (Effective 13~17)",
+   "title": "자원관리 규칙 — new를 직접 쓰지 마라",
+   "narr": "동적 자원은 손으로 관리하지 말고 관리 객체에 맡기세요. new 뒤에 delete를 손수 적으면 그 사이 예외나 이른 return이 끼어 delete가 실행되지 못하고 메모리가 샙니다.",
+   "more": "스마트 포인터는 짝맞추기를 언어에 위임합니다 — make_unique/make_shared로 만들면 어떤 경로로 나가든 소멸자가 정리합니다. 기본은 unique_ptr(비용 0), 정말 공유가 필요할 때만 shared_ptr, 되돌아 가리키는 참조는 weak_ptr. 시그니처도 정직해집니다: 소유 이전은 unique_ptr 값 전달, 잠깐 빌려주면 참조/raw 포인터 — 타입만 봐도 주인이 드러납니다.",
+   "more_en": "Let managing objects own dynamic resources. make_unique/make_shared ensure the destructor cleans up on any exit path. Default to unique_ptr (zero cost), use shared_ptr only when sharing, weak_ptr for back-references. Signatures become honest: pass unique_ptr by value to transfer ownership, a reference/raw pointer to merely borrow."
+ }
 }

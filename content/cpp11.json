@@ -1,3 +1,42 @@
 {
- "cpp11_01": { "ch": "C++ 제11장", "sec": "11.1 템플릿", "title": "템플릿", "narr": "이 장은 곧 채워집니다." }
+ "cpp11_01": {
+   "ch": "C++ 제11장 · 템플릿·STL", "sec": "11.1 vector — 동적 배열",
+   "title": "vector — 크기가 자라는 배열",
+   "narr": "C 배열은 크기를 미리 못 박아야 했지만, vector는 push_back()으로 값을 붙이면 스스로 커집니다. 비결은 여유분(capacity)을 미리 잡아 두는 것 — 칸이 차면 두 배 큰 메모리로 통째로 옮깁니다.",
+   "more": "vector<int> v; v.push_back(3); — 뒤에 값을 얼마든지 붙이면 자동으로 커집니다. 원소는 연속된 한 덩어리라 v[i] 임의접근이 즉시(O(1)), push_back은 상환 O(1)입니다.",
+   "more_en": "vector is a dynamic array. push_back appends; when size exceeds capacity it reallocates to double the capacity. Contiguous storage gives O(1) random access and amortized O(1) push_back.",
+   "problem": "빈 vector에 값을 8번 push_back 할 때 capacity가 0→1→2→4→8로 배증한다면, 재할당(이사)은 총 몇 번 일어날까요? (정답: 4번 — 1,2,4,8로 넘어갈 때마다)"
+ },
+ "cpp11_02": {
+   "ch": "C++ 제11장 · 템플릿·STL", "sec": "11.2 list · deque",
+   "title": "list · deque — 흩어진 노드, 빠른 삽입",
+   "narr": "vector는 중간 삽입 시 뒤를 전부 밀어야 하지만(O(n)), list는 노드가 앞뒤를 포인터로 가리켜 화살표 둘만 고치면 중간 삽입이 O(1)입니다. 대신 n번째 값은 처음부터 따라가야 하죠.",
+   "more": "list<int>는 이중연결리스트 — 중간 삽입/삭제 O(1), 임의접근은 O(n). deque는 절충으로 임의접근이 되면서 양끝 push_front/push_back이 모두 O(1)입니다.",
+   "more_en": "list is a doubly-linked list: O(1) middle insert/erase but O(n) random access. deque supports O(1) access plus O(1) push at both ends. Choose by whether you insert in the middle often or index by position.",
+   "problem": "1000개 원소의 정중앙에 값을 하나 끼워 넣을 때, vector와 list 중 어느 쪽이 유리할까요? (정답: list — 포인터 둘만 고치면 O(1). vector는 뒤 500개를 밀어야 함)"
+ },
+ "cpp11_03": {
+   "ch": "C++ 제11장 · 템플릿·STL", "sec": "11.3 map",
+   "title": "map — 이름표로 꺼내는 사전",
+   "narr": "배열은 정수 번호로만 값을 찾지만, map은 어떤 키든(문자열·날짜·좌표) 값에 매깁니다. score[\"kim\"]=90으로 넣고 같은 대괄호로 꺼내죠. 내부는 균형 이진탐색트리라 키가 항상 정렬돼 있습니다.",
+   "more": "map<string,int> m; m[\"kim\"]=90; — 키→값 매핑. 넣는 순서와 무관하게 키가 사전순으로 정렬 보관되고, 조회·삽입·삭제가 모두 O(log n)입니다.",
+   "more_en": "map maps arbitrary keys to values via a balanced BST. Keys are kept sorted regardless of insertion order; lookup/insert/erase are O(log n). Iterating yields sorted key order.",
+   "problem": "map은 넣은 순서를 기억하지 않고 키 사전순으로 저장합니다. lee·kim·ahn·park을 이 순서로 넣으면 순회 시 어떤 순서로 나올까요? (정답: ahn → kim → lee → park, 사전순)"
+ },
+ "cpp11_04": {
+   "ch": "C++ 제11장 · 템플릿·STL", "sec": "11.4 set",
+   "title": "set — 중복 없는 정렬 집합",
+   "narr": "\"이미 본 것\"을 기억하거나 \"서로 다른 것만\" 모으고 싶을 때의 자료구조입니다. 같은 값을 두 번 넣으면 조용히 무시하고, 남은 원소는 항상 정렬된 채 보관합니다.",
+   "more": "set<int> s; s.insert(x); — 중복은 자동으로 걸러지고 정렬 상태가 유지됩니다. map에서 값을 뺀 키만의 컨테이너(같은 균형 이진탐색트리)로, count(x)로 존재를 O(log n)에 묻습니다.",
+   "more_en": "set stores unique, sorted elements. Duplicate inserts are silently ignored; it is like a map with keys only, backed by the same balanced BST. count(x) tests membership in O(log n).",
+   "problem": "5,2,8,2,1,8을 차례로 set에 insert하면 최종 원소는 무엇일까요? (정답: {1,2,5,8} — 중복 2와 8은 무시, 정렬 유지)"
+ },
+ "cpp11_05": {
+   "ch": "C++ 제11장 · 템플릿·STL", "sec": "11.5 pair · 컨테이너 선택",
+   "title": "pair · 어떤 컨테이너를 고를까",
+   "narr": "pair는 서로 다른 두 값을 한 묶음으로 든 상자로, .first와 .second로 꺼냅니다. map의 각 원소가 바로 pair<key,value>죠. STL 컨테이너는 저마다 잘하는 게 달라, 자주 하는 연산으로 고릅니다.",
+   "more": "pair<int,string> p={3,\"kim\"}; — .first/.second. 임의접근이 잦으면 vector, 중간을 자주 헤집으면 list, 키로 찾고 정렬이 필요하면 map/set, 순서 없이 조회만 최고로 빠르면 unordered_map을 씁니다.",
+   "more_en": "pair bundles two values (.first/.second); each map element is a pair<key,value>. Pick a container by the operation you do most: vector for random access, list for mid inserts, map/set for keyed sorted lookup, unordered_map for fastest unsorted lookup.",
+   "problem": "정수 인덱스로 값을 자주 꺼내 쓰고 정렬은 필요 없다면 어떤 컨테이너가 가장 알맞을까요? (정답: vector — O(1) 임의접근, 연속 메모리로 캐시에도 유리)"
+ }
 }

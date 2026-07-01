@@ -1,3 +1,44 @@
 {
- "cpp9_01": { "ch": "C++ 제9장", "sec": "9.1 다형성·가상함수", "title": "다형성·가상함수", "narr": "이 장은 곧 채워집니다." }
+ "cpp9_01": {
+  "ch": "C++ 제9장 · 객체지향",
+  "sec": "9.1 연산자 오버로딩 이해",
+  "title": "연산자 오버로딩 — + 에 새 뜻을 주다",
+  "narr": "컴퓨터가 아는 <b>+</b>는 원래 <b>1 + 2</b> 같은 숫자 덧셈뿐입니다. 그런데 복소수 <b>(1+2i)</b>와 <b>(3+4i)</b>를 더하고 싶다면요? <b>add(a, b)</b> 같은 함수를 부를 수도 있지만, 수학처럼 그냥 <b>a + b</b>라고 쓰면 훨씬 자연스럽습니다. C++은 <b>operator+</b>라는 이름의 멤버 함수를 정의하게 해 줍니다 — 그러면 컴파일러가 <b>a + b</b>를 몰래 <b>a.operator+(b)</b> 호출로 바꿔 줍니다. 실수부는 실수부끼리, 허수부는 허수부끼리 더한 새 <b>Complex</b>를 돌려주면 끝입니다.",
+  "more": "오른쪽 복소평면에서 화살표 두 개를 이어 붙이면 그 합 (4+6i)가 눈에 보입니다. 화면의 합은 실제로 계산한 값입니다.",
+  "more_en": "operator+(const Complex&) lets a + b work on your own type — the compiler rewrites it as a.operator+(b).",
+  "problem": "Complex(2,3)과 Complex(1,-5)를 operator+로 더하면 결과는 무엇일까요?",
+  "solution": "실수부 2+1=3, 허수부 3+(-5)=-2 → Complex(3, -2), 즉 (3 - 2i)입니다."
+ },
+ "cpp9_02": {
+  "ch": "C++ 제9장 · 객체지향",
+  "sec": "9.2 단항 연산자",
+  "title": "단항 연산자 — 부호와 증가",
+  "narr": "피연산자 <b>하나</b>에만 붙는 연산자도 오버로딩할 수 있습니다. 인자 없는 <b>operator-()</b>는 단항 마이너스로, 점 (3,2)를 (-3,-2)로 <b>부호만</b> 뒤집습니다. 진짜 재미있는 건 <b>++</b>입니다. C++엔 <b>++cnt</b>(전위)와 <b>cnt++</b>(후위) 두 가지가 있고 결과가 다릅니다. 전위 <b>operator++()</b>는 먼저 값을 늘린 뒤 늘어난 자신을 돌려주고, 후위 <b>operator++(int)</b>는 옛 값을 복사해 둔 뒤 늘리고서 그 옛 값을 돌려줍니다.",
+  "more": "후위의 int 매개변수는 값을 쓰지 않는, 그저 ‘이건 후위야’라는 표식일 뿐입니다. 후위는 임시 복사본이 하나 더 생겨 전위가 미세하게 더 빠릅니다 — 반복문에서 ++i를 즐겨 쓰는 이유입니다.",
+  "more_en": "operator-() is unary minus; ++obj is operator++() and obj++ is operator++(int) — the dummy int just marks the postfix form."
+ },
+ "cpp9_03": {
+  "ch": "C++ 제9장 · 객체지향",
+  "sec": "9.3 이항 연산자·교환법칙",
+  "title": "이항 연산자와 교환법칙 — friend의 쓸모",
+  "narr": "수학에서 <b>2 × c</b>와 <b>c × 2</b>는 같아야 합니다. 그런데 멤버 함수로 만든 <b>operator*</b>는 <b>좌변이 반드시 그 클래스</b>여야 한다는 제약이 있습니다. <b>c * 2</b>는 <b>c.operator*(2)</b>로 잘 풀리지만, <b>2 * c</b>는 <b>2.operator*(c)</b>가 되어야 하는데 int인 2에는 멤버 함수를 붙일 수 없죠. 그래서 좌변이 클래스가 아닌 경우엔 클래스 <b>바깥의 전역 함수</b> operator*(double, Complex)를 씁니다.",
+  "more": "이 전역 함수가 클래스의 private 멤버(re, im)에 손대야 하니 friend로 선언해 특별 출입증을 줍니다. 이제 2*c도 c*2도 똑같이 (4+2i) — 교환법칙이 회복됩니다.",
+  "more_en": "When the left operand isn't your class (e.g. 2 * c), define a global friend operator* so both orders compile and stay commutative."
+ },
+ "cpp9_04": {
+  "ch": "C++ 제9장 · 객체지향",
+  "sec": "9.4 << >> 연산자 (cout/cin의 정체)",
+  "title": "<< 의 정체 — cout은 왜 << 로 출력할까",
+  "narr": "C++를 처음 배울 때 외운 <b>cout &lt;&lt; \"Hello\"</b>의 <b>&lt;&lt;</b> — 사실 이것도 <b>오버로딩된 연산자</b>입니다! cout은 마법이 아니라 그저 <b>ostream</b> 타입의 객체이고, &lt;&lt;는 ‘이 스트림에 값을 밀어넣어라’라는 이항 연산자죠. 그래서 우리 Complex를 cout으로 찍고 싶으면 <b>operator&lt;&lt;(ostream&amp;, const Complex&amp;)</b>를 직접 정의하면 됩니다.",
+  "more": "함수 안에서 os에 조각들을 흘려보내고, 마지막에 return os; 로 스트림 자신을 돌려줍니다. 바로 이 반환 덕분에 cout &lt;&lt; a &lt;&lt; b &lt;&lt; c 가 왼쪽부터 차례로 연쇄됩니다. 화면의 출력 문자열은 실제로 조립한 값입니다.",
+  "more_en": "cout is just an ostream object and << is an overloaded operator; defining operator<<(ostream&, const T&) and returning os enables chaining."
+ },
+ "cpp9_05": {
+  "ch": "C++ 제9장 · 객체지향",
+  "sec": "9.5 [] 등 기타 연산자",
+  "title": "[] 등 기타 연산자 — 객체를 배열처럼",
+  "narr": "연산자 오버로딩은 산술에만 쓰이지 않습니다. <b>operator[]</b>를 정의하면 우리 객체에 <b>arr[i]</b>라는 첨자 문법을 붙여, 마치 진짜 배열처럼 다룰 수 있습니다. 게다가 <b>int&amp;</b>(참조)를 돌려주면 <b>arr[i]</b>를 읽는 것뿐 아니라 <b>arr[i] = 99</b>처럼 값을 <b>쓰는</b> 것도 됩니다 — 대입식의 왼쪽에 설 수 있는 것이죠.",
+  "more": "진짜 C 배열은 범위를 넘어가도 조용히 엉뚱한 메모리를 건드립니다. 그래서 operator[] 안에 경계 검사를 넣어, 잘못된 인덱스면 예외를 던지는 ‘안전한 배열’을 만들 수 있습니다. STL의 vector·string·map이 모두 이 operator[]로 대괄호 문법을 제공합니다.",
+  "more_en": "operator[] gives array-like arr[i] syntax; returning a reference makes arr[i] assignable, and bounds-checking inside makes it safe."
+ }
 }

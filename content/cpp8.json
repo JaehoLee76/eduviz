@@ -1,3 +1,43 @@
 {
- "cpp8_01": { "ch": "C++ 제8장", "sec": "8.1 상속", "title": "상속", "narr": "이 장은 곧 채워집니다." }
+ "cpp8_01": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.1 객체 포인터 참조관계",
+  "title": "객체 포인터 참조관계",
+  "narr": "Animal* p = new Cat(); — 부모 타입 포인터가 자식 객체를 가리킬 수 있습니다(Cat is-a Animal). 다만 p 로 보이는 창은 Animal 부분뿐이라 p->eat() 은 되지만 p->meow() 는 컴파일 오류입니다.",
+  "more": "'포인터 타입 vs 실제 객체'의 어긋남이 다형성의 무대입니다 — 둘 다 가진 함수는 누구 걸 부를까요?",
+  "more_en": "A base pointer can point to a derived object, but it only sees the base part's interface. This gap between pointer type and actual object sets the stage for polymorphism."
+ },
+ "cpp8_02": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.2 virtual 함수 (동적 바인딩)",
+  "title": "virtual — 진짜 객체가 대답한다",
+  "narr": "virtual 이 없으면 포인터의 적힌 타입(Animal)으로 함수가 미리 정해집니다(정적 바인딩) — 고양이인데 '...'. virtual 을 붙이면 실행 순간 실제 객체(Cat)가 Cat::speak 를 부릅니다(동적 바인딩) — 'Meow'.",
+  "more": "부모 손잡이 하나로 어떤 자식이든 제 목소리를 내게 하는 것 — C++ 다형성의 문은 오직 virtual 로 열립니다.",
+  "more_en": "Without virtual, the call binds statically to the pointer's declared type. With virtual, it binds dynamically to the actual object — the essence of polymorphism.",
+  "problem": "Animal* p = new Cat(); p->speak(); 가 'Meow' 를 출력하게 하려면 Animal 의 speak() 를 어떻게 선언해야 할까요?\n\n정답: virtual string speak(); — virtual 을 붙여야 동적 바인딩이 일어나 실제 객체(Cat)의 speak 가 호출됩니다. virtual 이 없으면 'Animal' 것이 불려 '...' 이 나옵니다."
+ },
+ "cpp8_03": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.3 순수 가상함수·추상 클래스",
+  "title": "순수 가상함수 · 추상 클래스",
+  "narr": "virtual double area() = 0; 은 몸통 없이 약속만 하는 순수 가상함수입니다. 이런 함수를 가진 Shape 는 추상 클래스가 되어 인스턴스를 만들 수 없고, Circle(πr²)·Rect(w·h)처럼 약속을 이행한 자식만 실체가 됩니다.",
+  "more": "'무엇을 할지(인터페이스)'와 '어떻게 할지(구현)'를 분리하면 도형이 아무리 늘어도 area() 한 이름으로 다룹니다.",
+  "more_en": "A pure virtual function (=0) declares an interface with no body; a class with one is abstract and cannot be instantiated. Concrete children implement it their own way."
+ },
+ "cpp8_04": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.4 가상 소멸자",
+  "title": "가상 소멸자 (Effective C++ 7)",
+  "narr": "Animal* p = new Cat(); delete p; — 부모 소멸자에 virtual 이 없으면 ~Animal 만 불리고 ~Cat 이 건너뛰어져, Cat 이 잡은 힙 자원이 새어 나갑니다. virtual ~Animal() 로 만들면 ~Cat → ~Animal 이 순서대로 불려 누수 0.",
+  "more": "규칙: 다형적으로 쓸(부모 포인터로 delete 할) 기반 클래스에는 반드시 가상 소멸자를 두라 (스콧 마이어스).",
+  "more_en": "Deleting a derived object via a base pointer calls only ~Base unless the base destructor is virtual — leaking the derived resource. Give polymorphic base classes a virtual destructor."
+ },
+ "cpp8_05": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.5 다형성 활용",
+  "title": "다형성의 활용 — 넓이 합",
+  "narr": "Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고 for 문으로 s->area() 를 부릅니다. 코드는 도형 종류를 전혀 모르지만, virtual 덕분에 그 자리의 실제 객체가 제 공식(원 πr²·사각형 w·h)으로 답해 넓이를 실측 누적합니다.",
+  "more": "내일 Triangle 을 추가해도 for 문은 한 글자도 안 바뀝니다 — area() 를 구현한 새 자식만 넣으면 끝. 이 확장성이 다형성의 진짜 힘입니다.",
+  "more_en": "Iterating a Shape* array and calling s->area() lets each object answer with its own formula (real πr² / w·h). Adding a new shape needs no change to the loop — the power of polymorphism."
+ }
 }

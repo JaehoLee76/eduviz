@@ -1,3 +1,50 @@
 {
- "cpp16_01": { "ch": "C++ 제16장", "sec": "16.1 모던 C++", "title": "모던 C++", "narr": "이 장은 곧 채워집니다." }
+ "cpp16_01": {
+  "ch": "C++ 제16장 · 알고리즘",
+  "sec": "16.1 정렬 — 퀵·병합",
+  "title": "정렬 — 퀵정렬과 병합정렬",
+  "narr": "입력 <code>[5,2,8,1,9,3]</code>을 두 명작 알고리즘이 서로 다른 지혜로 정돈합니다. <b>퀵정렬</b>은 피벗 하나를 골라 “그보다 작은 것은 왼쪽, 큰 것은 오른쪽”으로 자리를 나누고(파티션), 두 쪽을 재귀로 반복하죠 — 평균 <b>O(n log n)</b>, 제자리(추가 메모리 거의 0). <b>병합정렬</b>은 반대로 끝까지 반으로 쪼갠 뒤, 정렬된 두 조각을 지퍼처럼 맞물려 합칩니다 — <b>항상 O(n log n)</b>, 안정 정렬. 슬라이더로 두 방식을 오가며, 화면 탭으로 한 단계씩 진행해 보세요. 막대 색·비교·교환·최종 결과는 모두 실제로 코드를 한 줄씩 돌려 얻은 값입니다.",
+  "more": "<b>퀵정렬(분할 정복)</b>: Lomuto 파티션은 마지막 원소를 피벗으로 삼아, 피벗보다 작은 원소를 앞쪽으로 모은 뒤 피벗을 그 경계에 놓습니다. 이제 피벗은 제자리 확정. 좌·우 부분을 재귀. 최악(이미 정렬 등)엔 O(n²)이지만 무작위 피벗으로 회피하며, 상수가 작아 실전에서 가장 빠른 축.\n\n<b>병합정렬(분할 정복)</b>: 항상 절반씩 나눠 O(log n) 깊이, 각 층에서 O(n) 병합 → 최악에도 O(n log n) 보장. 두 정렬 구간을 앞에서부터 비교해 작은 쪽을 뽑아 합칩니다. 안정(같은 값의 상대 순서 보존)하지만 O(n) 추가 배열이 필요.\n\n<b>C++ 표준</b>: 실무에선 <code>std::sort</code>(introsort=퀵+힙+삽입 혼합)를, 안정성이 필요하면 <code>std::stable_sort</code>를 씁니다.",
+  "more_en": "Sort [5,2,8,1,9,3] two ways. Quicksort picks a pivot, partitions smaller/larger, recurses — average O(n log n), in-place. Mergesort splits fully in half then zips sorted halves together — always O(n log n), stable, needs O(n) extra space. Every bar color, comparison, swap and final result shown is computed by actually running the code step by step."
+ },
+ "cpp16_02": {
+  "ch": "C++ 제16장 · 알고리즘",
+  "sec": "16.2 이진 탐색",
+  "title": "이진 탐색 — 매 걸음 절반을 버린다",
+  "narr": "<b>정렬된 배열</b>에서라면, 한복판을 짚어 보는 것만으로 답이 어느 쪽에 있는지 알 수 있습니다. <code>a[mid]</code>가 찾는 값보다 <b>작으면 왼쪽 절반을 통째로 버리고</b>(lo=mid+1), 크면 오른쪽 절반을 버립니다(hi=mid-1). 후보가 매번 반으로 줄기에 1024개라도 단 10번, 100만 개라도 20번이면 끝납니다 — <b>O(log n)</b>의 위력. 단 전제 하나: 배열이 정렬돼 있어야 합니다. 슬라이더로 target을 바꾸고 탭으로 한 단계씩 진행하세요 — 화면의 lo·hi·mid와 <code>a[mid]</code> 비교는 모두 실제로 코드를 돌려 정한 값입니다.",
+  "more": "<b>불변식(invariant)</b>: “찾는 값이 있다면 반드시 [lo, hi] 안에 있다”가 항상 참이도록 구간을 좁힙니다. 이 불변식이 정확성을 보장합니다.\n\n<b>오버플로 주의</b>: <code>mid=(lo+hi)/2</code>는 큰 인덱스에서 <code>lo+hi</code>가 오버플로할 수 있어, 실무에선 <code>lo+(hi-lo)/2</code>로 씁니다.\n\n<b>C++ 표준</b>: <code>std::binary_search</code>(존재 여부), <code>std::lower_bound</code>(≥ 첫 위치)/<code>std::upper_bound</code>(&gt; 첫 위치)가 이미 구현돼 있습니다. lower/upper_bound는 삽입 위치·범위 개수 계산에 두루 쓰입니다.\n\n<b>선형 탐색과 비교</b>: 정렬 안 된 배열은 O(n) 선형 탐색뿐. 한 번 정렬(O(n log n)) 해 두면 이후 탐색이 O(log n)로 급감 — 여러 번 찾을 땐 정렬이 이득입니다.",
+  "more_en": "In a sorted array, probing the middle tells you which half the target is in: if a[mid] < target discard the left half, else the right. Candidates halve each step, so a million elements need only ~20 probes — O(log n). The catch: the array must be sorted. Use lo+(hi-lo)/2 to avoid overflow. std::binary_search / lower_bound / upper_bound implement this in the STL.",
+  "problem": {
+   "q": "정렬되지 않은 배열에 이진 탐색을 쓰면 어떻게 될까요?",
+   "solution": "<b>틀린 답이 나올 수 있습니다.</b> 이진 탐색은 ‘한쪽 절반을 버려도 된다’는 판단을 정렬 순서에 의존합니다. 정렬돼 있지 않으면 버린 쪽에 실제 답이 있을 수 있어, 값이 있어도 못 찾을 수 있습니다. 반드시 먼저 정렬해야 합니다."
+  }
+ },
+ "cpp16_03": {
+  "ch": "C++ 제16장 · 알고리즘",
+  "sec": "16.3 그래프 — BFS·DFS",
+  "title": "그래프 탐색 — BFS와 DFS",
+  "narr": "정점과 간선으로 이루어진 그래프를 어떻게 빠짐없이 훑을까요? 두 가지 성격이 있습니다. <b>BFS(너비 우선)</b>는 <b>큐</b>를 써서 “시작점에서 가까운 이웃부터 물결처럼” 퍼져 나갑니다 — 간선 수 기준 최단 경로를 찾을 때 씁니다. <b>DFS(깊이 우선)</b>는 <b>재귀(스택)</b>로 “한 길을 끝까지 파고들다 막히면 되돌아” 옵니다 — 연결 요소·사이클·위상정렬에 씁니다. 같은 그래프라도 방문 순서가 달라지죠. 슬라이더로 둘을 오가고 탭으로 한 노드씩 진행하세요 — 화면의 방문 순서(#번호)·큐 내용은 모두 실제로 알고리즘을 돌려 얻은 값입니다.",
+  "more": "<b>인접 리스트</b>: <code>vector&lt;int&gt; adj[N]</code>로 각 정점의 이웃을 저장합니다. 간선이 적은 희소 그래프에 메모리 효율적(O(V+E)).\n\n<b>BFS</b>: 큐 + 방문 표시. 정점을 꺼낼 때마다 미방문 이웃을 큐에 넣고 방문 표시. <b>가중치 없는</b> 그래프의 최단 경로(간선 수)를 층별로 보장합니다. 시간 O(V+E).\n\n<b>DFS</b>: 재귀 또는 명시적 스택. 이웃으로 최대한 깊이 내려갔다가 되돌아옵니다(백트래킹). 방문 순서에 진입/종료 시각을 붙이면 위상정렬·강연결요소·사이클 검출로 확장됩니다. 시간 O(V+E).\n\n<b>재귀 깊이 주의</b>: DFS를 재귀로 구현하면 매우 깊은 그래프에서 스택 오버플로가 날 수 있어, 큰 입력엔 명시적 스택을 쓰기도 합니다.",
+  "more_en": "Traverse a graph two ways. BFS uses a queue to spread outward level by level from the start — it finds shortest paths (by edge count) in unweighted graphs. DFS uses recursion (a stack) to plunge down one path until stuck, then backtracks — used for connected components, cycles, topological sort. Both run in O(V+E). Visit order (#numbers) and queue contents are computed by running the algorithm."
+ },
+ "cpp16_04": {
+  "ch": "C++ 제16장 · 알고리즘",
+  "sec": "16.4 최단경로 — 다익스트라",
+  "title": "다익스트라 — 가장 짧은 길 찾기",
+  "narr": "가중치 있는 그래프에서 출발점 0으로부터 <b>모든 정점까지의 최단거리</b>를 구합니다. 핵심 아이디어는 <b>탐욕</b>: “아직 확정 안 된 정점 중 <code>dist</code>가 가장 작은 것”은 더 줄어들 수 없으니 곧장 확정하고, 그 정점을 거쳐 이웃으로 가는 길이 지금까지보다 짧으면 <code>dist</code>를 갱신합니다 — 이를 <b>완화(relax)</b>라 부릅니다. <b>우선순위큐</b>가 “가장 가까운 미확정 정점”을 O(log n)에 꺼내 줘 전체 <b>O(E log V)</b>. 탭으로 한 단계씩 — 정점 확정과 완화를 번갈아 보세요. 화면의 <code>dist[]</code> 값·완화·확정 순서는 모두 실제로 코드를 돌려 계산한 최단거리입니다.",
+  "more": "<b>완화(relaxation)</b>: 간선 (u,v,w)에 대해 <code>dist[u]+w &lt; dist[v]</code>이면 <code>dist[v]=dist[u]+w</code>. 더 짧은 우회로를 찾을 때마다 거리를 줄여 나갑니다.\n\n<b>왜 탐욕이 맞나</b>: 간선 가중치가 <b>음이 아니면</b>, 미확정 정점 중 dist 최소인 것은 그 값이 이미 최종 최단거리입니다(더 짧은 경로는 이미 확정된 더 가까운 정점을 지나야 하는데 그럴 수 없음). 그래서 한 번 확정하면 되돌아볼 필요가 없습니다.\n\n<b>음의 간선</b>: 다익스트라의 탐욕 가정이 깨집니다. 음의 가중치가 있으면 <b>벨만-포드</b>(O(VE))를 써야 합니다.\n\n<b>C++ 구현</b>: <code>priority_queue</code>에 <code>{-dist, v}</code>(최소힙 흉내) 또는 <code>greater</code> 비교자를 쓰고, 꺼낸 정점이 이미 확정이면 건너뜁니다(lazy deletion).",
+  "more_en": "Dijkstra finds shortest distances from source 0 to all vertices in a weighted graph. Greedy idea: the unfinalized vertex with the smallest dist can't improve, so finalize it; then relax its edges (dist[u]+w < dist[v] ⇒ update). A priority queue pops the nearest unfinalized vertex, giving O(E log V). Works only with non-negative edges — use Bellman-Ford for negatives. All dist[] values are computed by running the code.",
+  "problem": {
+   "q": "다익스트라는 왜 음의 가중치 간선에서 실패하나요?",
+   "solution": "<b>탐욕적 확정 가정이 깨지기 때문</b>입니다. 다익스트라는 ‘가장 가까운 미확정 정점의 거리는 최종값’이라 믿고 확정하는데, 뒤에 음의 간선이 있으면 이미 확정한 정점의 거리가 더 줄어들 수 있습니다. 이럴 땐 벨만-포드(O(VE))로 모든 간선을 반복 완화해야 합니다."
+  }
+ },
+ "cpp16_05": {
+  "ch": "C++ 제16장 · 알고리즘",
+  "sec": "16.5 동적계획법 — 0/1 배낭",
+  "title": "동적계획법 — 0/1 배낭",
+  "narr": "용량이 정해진 배낭에 아이템을 골라 담아 <b>가치를 최대로</b> — 각 아이템은 통째로 넣거나 빼거나(0/1)입니다. 무식하게 모든 부분집합을 시도하면 2ⁿ이지만, <b>DP</b>는 작은 문제의 답을 표에 적어 재활용합니다. <code>dp[i][c]</code> = “처음 <b>i</b>개 아이템으로 용량 <b>c</b>를 채운 최대 가치”이고, 각 칸은 딱 두 선택의 <b>max</b> — 이 아이템을 <b>빼거나</b>(위 칸 그대로), <b>담거나</b>(그만큼 용량을 뺀 이전 답 + 이 가치). 표를 왼쪽 위부터 채워 <code>dp[n][W]</code>가 답입니다. 탭으로 셀을 하나씩 채워 보세요 — 모든 값은 실제 점화식으로 계산했고, 최적 가치는 <b>17</b>(아이템 C+D)입니다.",
+  "more": "<b>점화식</b>: <code>dp[i][c] = max(dp[i-1][c], dp[i-1][c-wt[i]]+val[i])</code>. 첫 항은 ‘i번째를 안 담음’, 둘째 항은 ‘담음’(단 <code>wt[i] ≤ c</code>일 때만). 무게가 용량보다 크면 담을 수 없어 위 칸 값을 그대로 가져옵니다.\n\n<b>왜 DP인가</b>: 겹치는 부분 문제(같은 (i,c)를 여러 경로가 다시 물음)와 최적 부분 구조(부분 최적이 전체 최적을 이룸)를 가진 문제에 DP가 통합니다. 표 크기 O(nW), 각 칸 O(1) → 전체 <b>O(nW)</b>(의사 다항).\n\n<b>선택 복원</b>: 표를 오른쪽 아래에서 되짚어(<code>dp[i][c] ≠ dp[i-1][c]</code>이면 i번째를 담은 것) 어떤 아이템을 골랐는지 복원합니다 — 여기선 C(w3,v10)+D(w2,v7)=w5, v17.\n\n<b>변형</b>: 무한 개수 허용이면 무한 배낭(unbounded), 부분 담기 허용이면 탐욕이 통하는 분수 배낭. LCS·편집거리·동전 교환도 같은 표 채우기 패턴입니다.",
+  "more_en": "0/1 knapsack: fill a capacity-W bag to maximize value, each item taken whole or not. Brute force is 2ⁿ; DP records subproblem answers in a table. dp[i][c] = max value using the first i items within capacity c = max(skip: dp[i-1][c], take: dp[i-1][c-wt[i]]+val[i]). Fill top-left to bottom-right; dp[n][W] is the answer. Runs in O(nW). Here the optimum is 17 (items C+D). Every cell is computed via the real recurrence."
+ }
 }

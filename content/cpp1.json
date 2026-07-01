@@ -1,3 +1,46 @@
 {
- "cpp1_01": { "ch": "C++ 제1장", "sec": "1.1 ", "title": "", "narr": "이 장은 곧 채워집니다." }
+ "cpp1_01": {
+   "ch": "C++ 제1장 · 기초",
+   "sec": "1.1 cout · cin · endl",
+   "title": "C++의 입출력",
+   "narr": "C++의 입출력은 '스트림'이라는 흐름으로 다룹니다. std::cout << 값; 은 값을 화면 스트림으로 밀어 넣고, std::cin >> 변수; 는 키보드 스트림에서 값을 꺼내 변수에 담습니다. << 를 여러 번 이어 붙이면 문자열·숫자·줄바꿈이 차례로 얹히죠. C의 printf 처럼 %d·%f 같은 형식 문자열을 외울 필요가 없습니다 — <<가 자료형을 스스로 알아채니까요.",
+   "more": "endl 은 줄을 바꾸면서 출력 버퍼를 즉시 비웁니다(flush). 형식 문자열이 없으니 %d/%f 를 헷갈릴 일도 없습니다.",
+   "more_en": "std::cout << streams values out; std::cin >> reads them in. No format strings — << deduces the type. endl adds a newline and flushes the buffer."
+ },
+ "cpp1_02": {
+   "ch": "C++ 제1장 · 기초",
+   "sec": "1.2 함수 오버로딩",
+   "title": "함수 오버로딩",
+   "narr": "C에서는 함수 이름이 곧 신분증이라 add 하나만 존재할 수 있습니다. C++은 매개변수의 개수와 타입까지 이름의 일부로 삼아, add(int,int)·add(double,double)·add(int,int,int)를 한꺼번에 정의할 수 있습니다. 호출하는 쪽은 그냥 add(...)라고만 쓰면, 컴파일러가 넘긴 인자를 보고 가장 알맞은 함수를 스스로 골라 줍니다.",
+   "more": "구분 기준은 오직 매개변수(개수·타입)입니다. 반환형만 다른 것으로는 오버로딩할 수 없습니다.",
+   "more_en": "Same name, different parameters. The compiler picks the best match from the argument types. Return type alone cannot distinguish overloads.",
+   "problem": {
+     "q": "add(int,int) 와 add(double,double) 이 있을 때 add(2, 3.0) 을 부르면 어떻게 될까요?",
+     "solution": "인자 타입이 (int, double) 로 어느 후보와도 정확히 일치하지 않아, 컴파일러는 암시적 형변환으로 맞추려 시도합니다. 두 후보 모두 한 번의 변환이 필요해 모호(ambiguous)해질 수 있으므로, 의도를 분명히 하려면 add(2.0, 3.0) 처럼 타입을 맞추거나 add<double> 식으로 명시하는 편이 안전합니다."
+   }
+ },
+ "cpp1_03": {
+   "ch": "C++ 제1장 · 기초",
+   "sec": "1.3 디폴트 매개변수",
+   "title": "디폴트 매개변수",
+   "narr": "매개변수에 '= 기본값'을 붙여 두면, 호출할 때 그 인자를 생략할 수 있습니다. int box(int w, int h=1, int d=1) 에서 box(3) 이라 부르면 h와 d는 자동으로 1이 채워지죠. 오버로딩을 여러 개 만드는 수고를 한 함수로 줄여 줍니다.",
+   "more": "규칙은 하나 — 디폴트는 반드시 뒤쪽 매개변수부터 채워야 합니다. 앞을 생략하고 뒤만 줄 수는 없습니다.",
+   "more_en": "Give a parameter a default with '= value' and callers may omit it. Defaults must come from the rightmost parameters inward."
+ },
+ "cpp1_04": {
+   "ch": "C++ 제1장 · 기초",
+   "sec": "1.4 inline 함수",
+   "title": "inline 함수",
+   "narr": "자주 부르는 짧은 함수는 호출 비용이 아깝습니다. C 시절엔 #define 매크로로 그 자리에 코드를 심어 속도를 얻었지만, 매크로는 '글자 그대로' 치환하는 탓에 SQ(2+1)이 어긋나거나 SQ(++n)에서 n이 두 번 증가하는 함정이 있었습니다. inline 함수는 컴파일러에게 '이 호출은 본문으로 펼쳐 넣어 달라'고 부탁하는 것 — 매크로만큼 빠르되 진짜 함수라 안전합니다.",
+   "more": "inline 함수는 타입을 검사하고 인자를 딱 한 번만 계산하므로 매크로의 괄호·부작용 함정이 없습니다.",
+   "more_en": "inline asks the compiler to expand a small function at the call site — as fast as a macro, but type-checked and evaluating each argument exactly once."
+ },
+ "cpp1_05": {
+   "ch": "C++ 제1장 · 기초",
+   "sec": "1.5 namespace",
+   "title": "namespace",
+   "narr": "큰 프로그램에서는 서로 다른 라이브러리가 같은 이름(pi, area 등)을 쓰기 마련이고, 그러면 충돌합니다. namespace는 이름들을 하나의 울타리 안에 묶어, geo::pi 와 phys::pi 처럼 소속을 붙여 구분하게 합니다. :: 는 '이 이름공간 안의 것'을 콕 집는 범위 지정 연산자입니다.",
+   "more": "using namespace geo; 를 선언하면 그 뒤로 geo:: 를 생략할 수 있습니다. std::cout 의 std:: 를 줄이려 using namespace std; 를 쓰는 것도 같은 원리이며, 편하지만 이름 충돌 위험이 있어 헤더에선 자제합니다.",
+   "more_en": "namespace fences off names to avoid collisions. :: reaches into one. 'using namespace' drops the prefix — handy, but risky in headers."
+ }
 }

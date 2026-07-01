@@ -1,3 +1,42 @@
 {
- "cpp6_01": { "ch": "C++ 제6장", "sec": "6.1 복사 생성자", "title": "복사 생성자", "narr": "이 장은 곧 채워집니다." }
+ "cpp6_01": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.1 static 멤버변수",
+  "title": "static 멤버변수",
+  "narr": "보통 멤버변수는 객체마다 따로 있지만, <b>static</b>을 붙이면 <b>클래스 전체에 단 하나</b>만 만들어지고 <b>모든 객체가 공유</b>합니다. 가장 흔한 쓰임이 <b>“객체 개수 세기”</b> — 생성자에서 <code>++count</code>. 탭할 때마다 객체를 하나씩 만들며 공유 <code>count</code>가 <b>실제로 증가</b>하는 걸 보세요.",
+  "more": "static 변수는 특정 객체가 아니라 <b>클래스의 것</b>이므로, 선언만으로는 부족하고 클래스 밖에서 <code>int Widget::count = 0;</code>처럼 <b>딱 한 번 정의</b>해 실제 저장 공간을 잡아야 합니다. 화면의 카운트는 생성자를 부른 만큼 <b>실측</b>한 값 — 세 객체가 <b>하나의 상자</b>를 함께 바라보는 그림이 static의 본질입니다.",
+  "more_en": "A <b>static member variable</b> exists once per class and is shared by all objects — perfect for counting instances (<code>++count</code> in the constructor). Because it belongs to the class, it must be defined once outside: <code>int Widget::count = 0;</code>."
+ },
+ "cpp6_02": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.2 static 멤버함수",
+  "title": "static 멤버함수",
+  "narr": "<b>static 멤버함수</b>는 특정 객체가 아니라 <b>클래스 자체</b>에 소속됩니다. 그래서 인스턴스 없이 <code>Math::square(7)</code>처럼 <b>클래스 이름과 <code>::</code></b>로 곧장 부르죠. 탭해서 정상 호출과, 규칙을 어겼을 때(인스턴스 멤버 접근)를 비교하세요.",
+  "more": "<b>큰 제약 하나</b> — <code>this</code> 포인터가 <b>없습니다</b>. static 함수가 실행될 때는 “어느 객체”라는 맥락이 없으므로 <b>인스턴스 멤버(seed)</b>나 비-static 함수엔 접근할 수 없고, <b>오직 static 멤버만</b> 다룰 수 있습니다. 이 규칙을 어기면 컴파일러가 “어느 객체의 seed냐”며 딱 거부합니다. 팩토리 함수·유틸리티·카운터 조회에 즐겨 씁니다.",
+  "more_en": "A <b>static member function</b> belongs to the class, called as <code>Math::square(7)</code> without an instance. It has <b>no <code>this</code></b>, so it can only touch static members — accessing an instance member is a compile error. Used for factories, utilities, and reading static counters."
+ },
+ "cpp6_03": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.3 const 멤버함수",
+  "title": "const 멤버함수",
+  "narr": "함수 뒤에 붙는 <b>const</b>는 “이 함수는 객체의 상태를 <b>절대 건드리지 않겠다</b>”는 컴파일러와의 계약입니다. <code>int get() const</code> 안에서 실수로 멤버를 수정하면 컴파일이 즉시 거부되죠. 탭해서 const 함수 → const 객체 → 위반 순으로 보세요.",
+  "more": "이 구분이 왜 중요할까요? <b>const 객체나 const 참조</b>로 넘어온 객체는 <b>오직 const 멤버함수만</b> 부를 수 있기 때문입니다. <code>get()</code>에 const를 안 붙였다면 잔액을 읽는 것조차 막힙니다. Effective C++은 <b>“바꾸지 않는 멤버함수엔 반드시 const를 붙이라”</b>고 못 박습니다 — 이 작은 키워드가 <b>const 정확성(const-correctness)</b>이라는 안전망을 짭니다.",
+  "more_en": "A <b>const member function</b> promises not to modify the object; modifying a member inside it is a compile error. Only const member functions can be called on a <b>const object</b> or <b>const reference</b>. Effective C++: mark every non-mutating member function <code>const</code> — this is <b>const-correctness</b>."
+ },
+ "cpp6_04": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.4 friend",
+  "title": "friend",
+  "narr": "캡슐화는 private을 감추는 것이지만, 때로는 <b>특정 외부 함수·클래스에게만</b> 예외적으로 속을 보여 주고 싶을 때가 있습니다. 그럴 때 클래스 안에 <code>friend void peek(...);</code> 또는 <code>friend class B;</code>라고 선언하면, 그 대상은 <b>private 멤버에 직접 접근</b>할 수 있죠. 탭해서 friend 없음(차단)과 friend 선언(허용)을 비교하세요.",
+  "more": "흔한 예가 두 객체를 <b>비교·연산하는 함수</b>(연산자 오버로딩)나 <b>긴밀히 협력하는 짝 클래스</b>입니다. 주의 — friend는 클래스가 스스로 <b>“너를 믿는다”</b>고 내리는 결정이지 외부가 억지로 비집는 게 아닙니다. 그래서 캡슐화를 깨는 게 아니라 <b>“의도된 예외”</b>이며, 남발하면 결합도가 높아지니 <b>꼭 필요한 곳에만</b> 씁니다.",
+  "more_en": "A <b>friend</b> declaration inside a class grants a specific external function or class access to its <b>private</b> members. It's the class deliberately opening a door — an <b>intended exception</b> to encapsulation, common for operator overloads and tightly-coupled partner classes. Use sparingly."
+ },
+ "cpp6_05": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.5 mutable · const 객체",
+  "title": "mutable · const 정리",
+  "narr": "const 함수는 객체를 안 바꾸겠다는 약속이지만, “<b>겉으로는 안 바뀐 것 같아도 속으로는 바뀌어도 되는</b>” 멤버가 있습니다 — 조회수 <code>hits</code>, 캐시, 잠금 플래그처럼요. 그런 멤버에 <b>mutable</b>을 붙이면 <b>const 함수 안에서도, const 객체를 통해서도</b> 수정할 수 있죠. 탭해서 접근 매트릭스와 실측 카운트를 보세요.",
+  "more": "<b>정리(접근 규칙)</b>: ① <b>const 객체·const 참조</b> → const 멤버함수만 호출 가능. ② <b>const 함수 안</b> → 일반 멤버는 <b>읽기만</b>. ③ <b>단, mutable 멤버는 예외</b> — 쓰기 허용. mutable은 객체의 <b>“논리적 상태”가 아니라 “구현상의 부기”</b>일 뿐인 멤버에만 씁니다. 이 규칙들이 모여 C++의 <b>const-correctness</b> 문화를 이룹니다.",
+  "more_en": "<b>mutable</b> members can be modified even inside a const member function or through a const object — used for caches, hit counters, and lock flags (implementation bookkeeping, not logical state). Rules: const objects call only const functions; const functions read normal members but may write <b>mutable</b> ones."
+ }
 }
