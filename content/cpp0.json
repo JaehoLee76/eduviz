@@ -1,0 +1,24 @@
+{
+ "cpp0_00": {
+  "ch": "C++",
+  "sec": "시작",
+  "title": "C++의 세계",
+  "narr": "환영합니다. 화면을 누르면 인트로를 건너뛰고 학습을 시작합니다."
+ },
+ "cpp0_01": {
+  "ch": "C++ · 시작",
+  "sec": "0.1 왜 C++인가",
+  "title": "왜 C++인가",
+  "narr": "수많은 언어 중에 왜 아직도 <b>C++</b>일까요? 핵심은 <b>제로 오버헤드 원칙(zero-overhead principle)</b>입니다 — 클래스·템플릿·STL 같은 높은 수준의 추상을 마음껏 쓰되, <b>쓰지 않은 기능엔 비용을 물지 않습니다</b>. 그래서 <code>vector</code>·<code>sort</code>로 편하게 짠 코드가 손으로 짠 C 루프와 거의 같은 기계어로 컴파일되죠. 여기에 포인터·메모리를 <b>직접 다루는 힘</b>까지 더해져, 게임 엔진(언리얼)·브라우저(크롬)·운영체제·고빈도매매(HFT)·임베디드처럼 <b>1나노초가 아까운 곳</b>은 지금도 C++로 만듭니다. 화면을 탭해 세 가지 이유를 차례로 보세요.",
+  "more": "<b>C의 후예, 그러나 더 멀리</b>: C++는 C와 호환되면서도 <b>객체지향(클래스·상속·다형성)</b>과 <b>제네릭 프로그래밍(템플릿)</b>을 더했습니다. 스트롭스트룹은 “C의 효율과 Simula의 추상화를 한 언어에” 담고자 했죠. 강력한 만큼 조심스러운 언어이기도 합니다 — 이 트랙은 <b>윤성우 열혈 C++</b>의 탄탄한 기본기와 <b>Effective C++</b>의 실전 지혜를 함께 담아, 힘을 안전하게 쓰는 법까지 익힙니다.",
+  "more_en": "C++ endures because of the zero-overhead principle: high-level abstractions (classes, templates, STL) compile down to code as fast as hand-written C — you don't pay for what you don't use. Combined with direct control over pointers and memory, it powers game engines, browsers, operating systems, and high-frequency trading."
+ },
+ "cpp0_02": {
+  "ch": "C++ · 시작",
+  "sec": "0.2 16장의 여정",
+  "title": "C++ — 16장의 여정",
+  "narr": "이 트랙은 네 묶음으로 흐릅니다. <b>기초·문법(1~4장)</b>에서 입출력·함수 오버로딩·참조자·동적할당(new/delete)·클래스·생성자/소멸자로 C++의 뼈대를 세웁니다. <b>객체지향(5~9장)</b>에서 복사 생성자, static·const·friend, 상속, <b>다형성·가상함수</b>, 연산자 오버로딩으로 객체지향을 완성하죠. <b>템플릿·STL(10~12장)</b>에서 템플릿과 <b>STL 컨테이너(vector·map·set)·알고리즘(sort·find)·람다</b>로 재사용의 힘을 얻고, 마지막 <b>안전·모던·알고리즘(13~16장)</b>에서 예외처리, <b>스마트 포인터·RAII</b>, 모던 C++(auto·범위기반 for·이동 시맨틱), 그리고 <b>정렬·탐색·그래프·DP 같은 주요 알고리즘을 실제 C++ 코드로 구현</b>합니다. 자, 1장 첫걸음부터 시작할까요?",
+  "more": "<b>실전 코드</b>를 약속합니다: 이 트랙의 코드는 표준 C++(C++11/17)로 작성되어, g++/clang이나 온라인 컴파일러에 그대로 붙여 넣으면 컴파일·실행됩니다. 화면의 결과(정렬된 배열·출력값·자료구조 상태 등)는 그 코드가 실제로 내놓는 값을 시각화한 것입니다(골든룰). 윤성우 열혈 C++의 기본기 + Effective C++의 모범 사례 + CLRS 기반 알고리즘 구현으로 구성했습니다.",
+  "more_en": "Four blocks: fundamentals & syntax (1–4), object orientation — classes, inheritance, polymorphism, operator overloading (5–9), templates & STL — containers, algorithms, lambdas (10–12), and safety/modern/algorithms — exceptions, smart pointers/RAII, modern C++, and implementing major algorithms (sorting, search, graphs, DP) in real C++ (13–16)."
+ }
+}
