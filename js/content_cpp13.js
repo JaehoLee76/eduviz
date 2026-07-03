@@ -373,6 +373,154 @@
 
       E.tapHint(W/2, H*0.96, '화면 탭 = noexcept 의미 ↔ 예외 vs 오류코드 비교', true);
       E.big('noexcept · 예외를 언제 쓰나', 'noexcept는 “이 함수는 절대 예외를 던지지 않는다”는 강한 선언입니다. 어기고 던지면 스택 풀기도 없이 std::terminate()가 프로그램을 즉시 끝냅니다 — 그러니 함부로 붙이지 말고, 확실할 때만. 대신 붙이면 컴파일러가 예외 전파 코드를 지워 더 빠르고, 무엇보다 이동 연산이 noexcept면 std::vector가 커질 때 복사 대신 이동을 골라 성능이 껑충 뜁니다. 소멸자·swap·이동 연산은 관례상 noexcept죠. 그럼 예외 자체는 언제? 반환값을 무시할 수 있는 오류코드와 달리 예외는 무시할 수 없고, 오류 처리를 정상 로직과 깔끔히 분리하며, 반환값을 낼 수 없는 생성자의 실패도 자연스럽게 알립니다. 다만 흔하고 예상되는 실패(파일 없음, 파싱 실패)는 std::optional·expected 같은 값 반환이 더 정직할 때가 많습니다 — 예외는 “예외적인” 일에.'); }
+  },
+
+  // ══════════ 심화 1. RAII로 예외 안전 완성 (branchOf cpp13_03: 스택 풀기) ══════════
+  { id:'cpp13_04_raii', branchOf:'cpp13_03',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*50,0.06); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // 좌 raw new/delete (중간 throw → 누수), 우 RAII (자동 정리). step 0~3 진행.
+      // step0: raw new(획득), 1: 사이에서 throw, 2: delete 도달 못함(누수), 3: RAII 대비(자동 정리)
+      var raiiSide = (s.step===3);
+      var code = raiiSide ? [
+        {t:'void f() {', dim:true},
+        {t:'    auto p = std::make_unique<Res>();', hl:'make_unique'},
+        {t:'    risky();   // ← 예외 던짐', hl:'risky()'},
+        {t:'    // 아래는 실행 안 되지만...', dim:true},
+        {t:'}   // 스택 풀기: ~Res() 자동 호출', hl:'~Res()'},
+        {t:'    // → 누수 0, 정리 보장', dim:true}
+      ] : [
+        {t:'void f() {', dim:true},
+        {t:'    Res* p = new Res();   // 획득', hl:'new Res()'},
+        {t:'    risky();   // ← 예외 던짐', hl:'risky()'},
+        {t:'    delete p;  // ← 도달 못 함!', hl:'delete p'},
+        {t:'}   // p 정리 못 하고 스코프 이탈', dim:true},
+        {t:'    // → 메모리 누수', dim:true}
+      ];
+      var actMap = raiiSide ? [1,2,4,4] : [1,2,3,3];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.46, code, raiiSide?'raii_safe.cpp':'raw_leak.cpp', actMap[s.step]);
+
+      // 우측: 자원 상태 + 흐름 (우측영역 x∈[0.56W,0.96W])
+      var bx=W*0.56, ty=H*0.10, rw=W*0.40;
+      // 자원 노드 상태 판정(실측 흐름)
+      var acquired = (s.step>=1);
+      // raw측: throw 후엔 leaked, RAII측(step3): freed
+      var leaked = (!raiiSide && s.step>=1 && s.step<=2);
+      var freed  = (raiiSide);
+      var rcol = freed?RED:(leaked?RED:(acquired?GRN:DIM));
+      ctx.textAlign='center';
+      box(ctx, bx+rw*0.30, ty, rw*0.40, 40, acquired?rcol:DIM,
+          freed?'Res 정리됨':(leaked?'Res 누수!':(acquired?'Res 살아있음':'—')), 12.5,
+          (leaked?'rgba(240,136,138,0.10)':(freed?'rgba(240,136,138,0.06)':(acquired?'rgba(126,224,176,0.10)':'rgba(255,255,255,0.03)'))));
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('힙(heap)', bx+rw*0.50, ty-8);
+
+      // 흐름 3단계 박스
+      var fy=ty+64, fh=30, gap=12, pitch=fh+gap, mid=bx+rw*0.5, fbw=rw*0.66, fbx=bx+rw*0.17;
+      var steps3 = raiiSide
+        ? [['make_unique — 스택 객체가 소유', GRN, 1],['risky() throw — 스택 풀기 시작', RED, 2],['소멸자 자동 호출 → 정리', GRN, 3]]
+        : [['new Res() — raw 포인터가 소유', CPB, 1],['risky() throw — 아래로 못 감', RED, 2],['delete p 건너뜀 → 누수', RED, 3]];
+      for(var i=0;i<3;i++){ var y=fy+i*pitch, on=(s.step>=steps3[i][2]);
+        box(ctx, fbx, y, fbw, fh, on?steps3[i][1]:DIM, steps3[i][0], 11, on?(steps3[i][1]===RED?'rgba(240,136,138,0.08)':'rgba(126,224,176,0.06)'):'rgba(255,255,255,0.02)');
+        if(i<2 && s.step>=steps3[i+1][2]) arrow(ctx, mid, y+fh, mid, y+pitch, on?steps3[i+1][1]:DIM);
+      }
+
+      // 상태 캡션 (우측영역, 흐름 아래)
+      var caps = raiiSide
+        ? ['자원을 스택 객체(unique_ptr)에 맡깁니다',
+           'risky()가 예외를 던져도...',
+           '스택 풀기에서 소멸자가 자동 호출',
+           '누수 0 — RAII가 예외 안전을 완성']
+        : ['new로 획득한 raw 포인터',
+           '중간에 예외가 튀면...',
+           'delete 줄에 도달하지 못합니다',
+           '자원이 정리되지 못하고 샙니다'];
+      var cy=fy+3*pitch+8;
+      ctx.textAlign='left';
+      ctx.fillStyle=(raiiSide?GRN:(s.step>=1?RED:CPD)); ctx.font='600 12.5px sans-serif';
+      ctx.fillText(caps[Math.min(s.step,3)], bx, cy);
+
+      // 좌측(코드패널 아래) 요약
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(raiiSide?GLD:DIM); ctx.font='600 11.5px sans-serif';
+        ctx.fillText(raiiSide?'스택 객체 하나면 예외 안전이 공짜로 따라옵니다.':'try/catch로 매번 손수 정리? 실수 나기 쉽고 지저분합니다.',
+          W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = raw 누수 흐름 → RAII 자동 정리', true);
+      E.big('RAII로 예외 안전 완성 — 소멸자가 뒷정리한다', '앞서 스택 풀기를 봤죠 — 예외가 지나가면 각 스코프의 지역 객체 소멸자가 자동으로 불립니다. 이 성질을 자원 관리에 그대로 얹은 것이 RAII의 예외 안전입니다. raw new/delete로 짝을 맞추면, 그 사이에서 예외가 튀는 순간 delete 줄에 영영 도달하지 못해 메모리가 샙니다. try/catch로 일일이 감싸 정리할 수도 있지만, 자원이 여럿이면 코드가 금세 지저분해지고 빠뜨리기 쉽죠. 해법은 자원을 스택 객체에 맡기는 것 — 스마트 포인터, 락 가드처럼. 그러면 예외가 어디서 튀든 스택 풀기가 그 객체의 소멸자를 반드시 불러 정리해 줍니다. 누수도, 꼬임도 0. “예외 안전 코드를 쓰려 애쓰지 말고, 자원을 RAII 객체에 담아라” — 그것이 관용구이자 모범 사례입니다.'); }
+  },
+
+  // ══════════ 심화 2. noexcept와 이동 (branchOf cpp13_05: noexcept) ══════════
+  { id:'cpp13_05_noexcept', branchOf:'cpp13_05',
+    enter:function(E){ var self=this; this.s={ne:1};
+      E.controls('<div class="ctrl"><label>이동 생성자</label><input type="range" id="ne" min="0" max="1" step="1" value="1"><output id="neo">noexcept 있음</output></div>');
+      E.bind('#ne','input',function(e){ self.s.ne=+e.target.value; document.getElementById('neo').textContent=self.s.ne?'noexcept 있음':'noexcept 없음'; E.blip(340+self.s.ne*80,0.06); });
+      E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var hasNe = (s.ne===1);
+      // vector 재할당: n개 원소를 새 버퍼로 옮긴다. noexcept면 move, 아니면 강한 예외 보장 위해 copy.
+      var n=5;
+      var op = hasNe ? '이동(move)' : '복사(copy)';
+      var opCol = hasNe ? GRN : GLD;
+      // 실측 비용 모델: move는 포인터 훔치기(1단위), copy는 깊은 복사(원소 크기 4단위)
+      var perMove=1, perCopy=4;
+      var totalCost = n * (hasNe?perMove:perCopy);
+
+      var code = hasNe ? [
+        {t:'struct Buf {', dim:true},
+        {t:'    Buf(Buf&& o) noexcept;   // 이동', hl:'noexcept'},
+        {t:'    Buf(const Buf&);         // 복사', dim:true},
+        {t:'};', dim:true},
+        {t:'std::vector<Buf> v;', dim:true},
+        {t:'v.push_back(...);  // 용량 초과 → 성장', hl:'push_back'},
+        {t:'// 이동이 noexcept → move로 옮김', hl:'move'},
+        {t:'// (강한 예외 보장 유지)', dim:true}
+      ] : [
+        {t:'struct Buf {', dim:true},
+        {t:'    Buf(Buf&& o);            // 이동(예외 O?)', hl:'Buf&& o'},
+        {t:'    Buf(const Buf&);         // 복사', dim:true},
+        {t:'};', dim:true},
+        {t:'std::vector<Buf> v;', dim:true},
+        {t:'v.push_back(...);  // 용량 초과 → 성장', hl:'push_back'},
+        {t:'// 이동이 던질 수 있어 → copy로 옮김', hl:'copy'},
+        {t:'// (안전하지만 느림)', dim:true}
+      ];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.46, code, hasNe?'move_noexcept.cpp':'move_maythrow.cpp', 6);
+
+      // 우측: vector 성장 — 옛 버퍼 → 새 버퍼로 원소 옮기기 (우측영역 x∈[0.56W,0.96W])
+      var bx=W*0.56, rw=W*0.40, ty=H*0.09;
+      var cell=Math.min(W*0.058, (rw-16)/n), ch=26;
+      ctx.textAlign='center';
+      // 옛 버퍼
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('옛 버퍼 (capacity '+n+')', bx, ty-4);
+      for(var i=0;i<n;i++){ box(ctx, bx+i*cell, ty, cell-4, ch, DIM, 'e'+i, 10.5, 'rgba(255,255,255,0.03)'); }
+      // 새 버퍼
+      var ny=ty+92;
+      ctx.textAlign='left'; ctx.fillStyle=opCol; ctx.font='11px sans-serif';
+      ctx.fillText('새 버퍼 (capacity '+(n*2)+') — '+op+'로 옮김', bx, ny-4);
+      for(i=0;i<n;i++){ box(ctx, bx+i*cell, ny, cell-4, ch, opCol, 'e'+i, 10.5, hasNe?'rgba(126,224,176,0.10)':'rgba(255,211,122,0.10)'); }
+      // 옮김 화살표(각 원소)
+      for(i=0;i<n;i++){ var mx=bx+i*cell+(cell-4)/2; arrow(ctx, mx, ty+ch, mx, ny, opCol, hasNe?null:[4,3]); }
+
+      // 비용 막대 (실측 모델)
+      var costY=ny+ch+30, barX=bx, barMaxW=rw*0.9, maxCost=n*perCopy;
+      ctx.textAlign='left'; ctx.fillStyle='#dfeaf2'; ctx.font='600 12px sans-serif';
+      ctx.fillText('옮김 비용(원소당 '+(hasNe?perMove:perCopy)+') × '+n+' = '+totalCost, barX, costY);
+      ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(barX, costY+8, barMaxW, 14);
+      ctx.fillStyle=opCol; ctx.fillRect(barX, costY+8, barMaxW*(totalCost/maxCost), 14);
+      ctx.fillStyle=opCol; ctx.font='11px sans-serif';
+      ctx.fillText(hasNe?('이동은 포인터만 훔침 — '+Math.round(perCopy/perMove)+'배 빠름'):'복사는 원소를 통째로 — 무겁습니다', barX, costY+40);
+
+      // 경고: noexcept 함수가 던지면
+      ctx.fillStyle=RED; ctx.font='11px sans-serif';
+      ctx.fillText('※ noexcept 함수가 실제로 던지면 → std::terminate() 즉시 종료', barX, costY+62);
+
+      // 좌측(코드패널 아래) 요약
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+        ctx.fillText('이동 연산에 noexcept 한 단어 → vector가 이동을 택합니다.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
+
+      E.tapHint(W/2, H*0.96, '슬라이더로 이동 생성자의 noexcept 유무를 바꿔 보세요', true);
+      E.big('noexcept와 이동 — 한 단어가 성능을 가른다', 'noexcept는 안전 선언일 뿐 아니라 성능 스위치이기도 합니다. std::vector가 용량을 넘겨 커질 때, 옛 버퍼의 원소들을 새 버퍼로 옮겨야 하죠. 이때 vector는 강한 예외 보장을 지키려 합니다 — 옮기다 중간에 예외가 나도 원래 상태가 망가지면 안 되니까요. 그래서 원소의 이동 생성자가 noexcept가 아니면(던질 수 있으면), vector는 안전한 복사를 택합니다 — 원소를 통째로 깊이 복사하니 느리죠. 반대로 이동 생성자에 noexcept를 붙이면, vector는 안심하고 이동을 씁니다 — 포인터만 훔쳐 오니 훨씬 빠릅니다. 화면의 비용 막대는 원소당 옮김 비용을 실제로 계산해 둘을 견줍니다. 그러니 이동 생성자·이동 대입에는 던지지 않는 한 noexcept를 꼭 붙이세요 — 단, 정말 던질 수 있으면 절대 붙이면 안 됩니다(어기면 std::terminate). 이것이 핵심 규칙이자 모범 사례입니다.'); }
   }
 
   ];

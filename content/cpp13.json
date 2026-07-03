@@ -38,5 +38,21 @@
    "narr": "noexcept는 “이 함수는 예외를 던지지 않는다”는 강한 선언입니다. 어기고 던지면 스택 풀기 없이 std::terminate()가 프로그램을 즉시 끝냅니다.",
    "more": "noexcept를 붙이면 컴파일러가 예외 전파 코드를 생략해 더 빠르고, 특히 이동 연산이 noexcept면 std::vector가 성장 시 복사 대신 이동을 택해 성능이 급상승합니다(소멸자·swap·이동 연산은 관례상 noexcept). 예외는 무시할 수 없고 정상 로직과 분리되며 생성자 실패도 알립니다. 다만 흔하고 예상된 실패는 std::optional·expected 같은 값 반환이 더 정직합니다.",
    "more_en": "noexcept lets the compiler drop exception-propagation code; a noexcept move lets std::vector move instead of copy on growth (huge speedup). Destructors, swap, and move ops are conventionally noexcept. Use exceptions for exceptional failures; prefer optional/expected for common, expected ones."
+ },
+ "cpp13_04_raii": {
+   "ch": "C++ 제13장 · 안전·모던",
+   "sec": "13.3 심화 · RAII 예외 안전",
+   "title": "RAII로 예외 안전 완성 — 소멸자가 뒷정리한다",
+   "narr": "raw new/delete로 짝을 맞추면 그 사이에서 예외가 튀는 순간 delete 줄에 도달하지 못해 메모리가 샙니다. 자원을 스택 객체(스마트 포인터·락 가드)에 맡기면, 스택 풀기가 소멸자를 반드시 불러 정리합니다.",
+   "more": "앞선 스택 풀기의 자연스러운 귀결입니다. 자원을 스택 객체에 담으면 예외가 어디서 튀든 소멸자가 자동 호출돼 누수·꼬임이 0이 됩니다. try/catch로 일일이 감싸는 대신 자원을 RAII 객체에 담는 것 — 이것이 예외 안전의 관용구이자 모범 사례입니다.",
+   "more_en": "The natural sequel to stack unwinding. Put a resource in a stack object (smart pointer, lock guard) and its destructor is always called during unwinding — zero leaks on any exception. Prefer wrapping resources in RAII objects over hand-written try/catch cleanup."
+ },
+ "cpp13_05_noexcept": {
+   "ch": "C++ 제13장 · 안전·모던",
+   "sec": "13.5 심화 · noexcept와 이동",
+   "title": "noexcept와 이동 — 한 단어가 성능을 가른다",
+   "narr": "std::vector가 성장할 때 원소를 새 버퍼로 옮깁니다. 이동 생성자가 noexcept가 아니면 강한 예외 보장을 지키려 안전한 복사를 택하고, noexcept면 안심하고 빠른 이동을 씁니다.",
+   "more": "이동은 포인터만 훔쳐 오니 통째로 깊이 복사하는 것보다 훨씬 빠릅니다. 화면의 비용 막대는 원소당 옮김 비용을 실제로 계산해 둘을 견줍니다. 이동 연산에는 던지지 않는 한 noexcept를 붙이세요 — 단, 정말 던질 수 있으면 절대 붙이면 안 됩니다(어기면 std::terminate). 핵심 규칙이자 모범 사례입니다.",
+   "more_en": "On growth, vector moves elements to a new buffer. If the move ctor isn't noexcept it copies (to keep the strong guarantee); if it is, it moves — stealing pointers instead of deep-copying. Mark move ops noexcept when they truly can't throw (violating it calls std::terminate)."
  }
 }

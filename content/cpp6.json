@@ -38,5 +38,21 @@
   "narr": "const 함수는 객체를 안 바꾸겠다는 약속이지만, “<b>겉으로는 안 바뀐 것 같아도 속으로는 바뀌어도 되는</b>” 멤버가 있습니다 — 조회수 <code>hits</code>, 캐시, 잠금 플래그처럼요. 그런 멤버에 <b>mutable</b>을 붙이면 <b>const 함수 안에서도, const 객체를 통해서도</b> 수정할 수 있죠. 탭해서 접근 매트릭스와 실측 카운트를 보세요.",
   "more": "<b>정리(접근 규칙)</b>: ① <b>const 객체·const 참조</b> → const 멤버함수만 호출 가능. ② <b>const 함수 안</b> → 일반 멤버는 <b>읽기만</b>. ③ <b>단, mutable 멤버는 예외</b> — 쓰기 허용. mutable은 객체의 <b>“논리적 상태”가 아니라 “구현상의 부기”</b>일 뿐인 멤버에만 씁니다. 이 규칙들이 모여 C++의 <b>const-correctness</b> 문화를 이룹니다.",
   "more_en": "<b>mutable</b> members can be modified even inside a const member function or through a const object — used for caches, hit counters, and lock flags (implementation bookkeeping, not logical state). Rules: const objects call only const functions; const functions read normal members but may write <b>mutable</b> ones."
+ },
+ "cpp6_03_constoverload": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.3 심화 · const 오버로딩",
+  "title": "const 오버로딩",
+  "narr": "표준 라이브러리의 vector·string이 <code>v[i]</code>로 <b>읽기도 쓰기도</b> 되는 비결이 여기 있습니다 — <code>operator[]</code>를 <b>두 벌</b> 제공하는 것이죠. <code>int&amp; operator[](int)</code>는 비-const 객체용(수정 가능), <code>const int&amp; operator[](int) const</code>는 const 객체용(읽기 전용). 탭해서 어느 객체가 어느 버전을 부르는지 보세요.",
+  "more": "함수 뒤 <b>const의 유무</b>만 다른 두 함수가 정당한 <b>오버로드</b>로 공존합니다 — 컴파일러가 <b>객체의 const 여부</b>로 알맞은 버전을 자동으로 고르죠. 비-const 객체 <code>v</code>는 쓰기 가능한 버전을, const 객체 <code>cv</code>는 읽기 전용 버전을 부릅니다. 본체가 똑같다면 <b>중복 제거 관용구</b>: 비-const 버전이 자신을 잠시 const로 캐스팅해 const 버전을 부른 뒤 <code>const_cast</code>로 const를 벗겨 반환 — 진짜 로직은 <b>const 버전 한 곳</b>에만 둡니다.",
+  "more_en": "Provide <b>two</b> <code>operator[]</code>: <code>int&amp; operator[](int)</code> for non-const objects (writable) and <code>const int&amp; operator[](int) const</code> for const objects (read-only). They overload on the trailing <b>const</b>, and the compiler picks the right one by the object's const-ness. To avoid duplicated bodies, the non-const version can reuse the const one via <code>const_cast</code>."
+ },
+ "cpp6_01_staticorder": {
+  "ch": "C++ 제6장 · 객체지향",
+  "sec": "6.1 심화 · 정적 초기화 순서 문제",
+  "title": "정적 초기화 순서 문제",
+  "narr": "서로 다른 소스 파일(<b>번역 단위</b>)에 놓인 <b>전역 static</b> 객체들은, 프로그램 시작 시 <b>어떤 순서로 초기화될지 표준이 정하지 않습니다(미정)</b>. 한 파일의 전역 <code>config</code>가 생성자에서 다른 파일의 전역 <code>logger</code>를 쓴다면 — logger가 먼저 초기화됐기를 <b>기도</b>하는 셈이죠. 탭해서 운 좋은 순서와 재앙, 그리고 해법을 보세요.",
+  "more": "<b>해법 = 지역 static</b>: 전역 대신 <code>Logger&amp; theLogger(){ static Logger inst; return inst; }</code>처럼 <b>함수 안 static</b>으로 바꿉니다. 함수 안 static은 그 함수가 <b>처음 불릴 때 딱 한 번</b> 초기화되므로, <code>config</code>가 <code>theLogger()</code>를 부르는 순간 logger는 <b>반드시 그 자리에서 생성된 뒤 반환</b>됩니다 — <b>“쓰기 직전에 반드시 존재”</b>가 보장되어 순서 의존이 사라지죠. 이것이 널리 쓰이는 <b>지연 초기화 싱글턴</b>의 뿌리입니다.",
+  "more_en": "Global <code>static</code> objects in different translation units have an <b>unspecified</b> initialization order. If one uses another during construction, it may touch an uninitialized object — undefined behavior. The fix is a <b>local static</b> inside a function (<code>static Logger inst;</code>): initialized on first call, so it always exists just before use — the root of the lazy-initialized singleton idiom."
  }
 }

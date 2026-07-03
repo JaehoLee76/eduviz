@@ -333,6 +333,188 @@
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (사본 생성 → 교환 → 옛 자원 정리)', true);
       E.big('copy-and-swap — 예외에도 무너지지 않는 대입', '실무에서 널리 권하는 우아한 관용구입니다. 대입 연산자의 인자를 참조가 아니라 값(Name rhs)으로 받으세요 — 함수에 들어오는 순간 복사 생성자가 rhs라는 깊은 사본을 만들어 줍니다(자원 할당·복사가 여기서 끝). 그다음 swap(*this, rhs)로 나와 사본의 포인터만 맞바꾸면, 내 옛 자원은 rhs가 넘겨받고 나는 새 자원을 갖죠. 함수가 끝나면 rhs가 소멸하며 내 옛 힙을 자동으로 정리합니다. std::swap은 포인터만 교환해 절대 예외를 던지지 않으므로, new가 도중에 실패해도 원본은 손끝 하나 안 다칩니다(강한 예외 안전성). 자기대입 검사도 따로 필요 없고, 코드 중복도 없습니다 — 복사 로직 하나로 대입까지 해결하는 셈입니다.'); }
+  },
+
+  // ══════════ [심화] cpp5_01 — 세 개의 법칙 / 다섯 개의 법칙 (Rule of Three/Five) ══════════
+  { id:'cpp5_01_rule35', branchOf:'cpp5_01',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(360+this.s.step*70,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'class Buf {', dim:true},
+        {t:'  char* p; int n;         // 힙 자원', hl:'char* p'},
+        {t:'public:', dim:true},
+        {t:'  ~Buf(){ delete[] p; }              // ① 소멸자', hl:'~Buf'},
+        {t:'  Buf(const Buf& o){ /* deep copy */ }  // ② 복사생성', hl:'Buf(const Buf& o)'},
+        {t:'  Buf& operator=(const Buf& o){...}      // ③ 복사대입', hl:'operator='},
+        {t:'  Buf(Buf&& o) noexcept {...}            // ④ 이동생성', hl:'Buf(Buf&& o)'},
+        {t:'  Buf& operator=(Buf&& o) noexcept {...} // ⑤ 이동대입', hl:'Buf&& o'},
+        {t:'};', dim:true},
+        {t:'// 하나라도 손수 정의하면 → 나머지도 필요', dim:true}
+      ];
+      // step0=소멸자만 정의(위험), 1=셋 다(Rule of 3), 2=다섯(Rule of 5), 3=요약
+      var act=[3,4,6,9][s.step];
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.48, code, 'rule_of_five.cpp', act);
+
+      // 우측: 다섯 특수멤버 표 (실제 계산: step에 따라 몇 개가 채워졌는지)
+      var mx=W*0.55, my=H*0.09, rowH=30, rw=W*0.40;
+      var members=[
+        ['① 소멸자',      '~Buf()'],
+        ['② 복사 생성자',  'Buf(const Buf&)'],
+        ['③ 복사 대입',    'operator=(const Buf&)'],
+        ['④ 이동 생성자',  'Buf(Buf&&)'],
+        ['⑤ 이동 대입',    'operator=(Buf&&)']
+      ];
+      // 실제 "정의된 개수" = 규칙에 따라 필요한 수
+      var defined = (s.step===0)?1 : (s.step===1||s.step===3)?3 : 5;
+      ctx.textAlign='left'; ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif';
+      ctx.fillText('특수 멤버 함수 (자원 관리 클래스)', mx, my);
+      for(var i=0;i<5;i++){ var ry=my+12+i*(rowH+4), on=(i<defined);
+        var need = (i<3) ? (s.step>=1) : (s.step>=2);   // ①~③은 Rule of 3부터, ④⑤는 Rule of 5부터
+        var col = on?GRN:DIM;
+        ctx.fillStyle= on?'rgba(126,224,176,0.10)':'rgba(255,255,255,0.03)';
+        ctx.strokeStyle=col; ctx.lineWidth=1.4;
+        roundRect(ctx, mx, ry, rw, rowH, 7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= on?GRN:DIM; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(members[i][0], mx+12, ry+rowH/2+4);
+        ctx.fillStyle= on?'#dfeaf2':DIM; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        ctx.fillText(members[i][1], mx+W*0.12, ry+rowH/2+4);
+        ctx.fillStyle=col; ctx.font='700 13px sans-serif'; ctx.textAlign='right';
+        ctx.fillText(on?'정의 ✔':'빠짐', mx+rw-12, ry+rowH/2+4); ctx.textAlign='left';
+      }
+      ctx.fillStyle=(s.step===0?RED:GLD); ctx.font='700 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('정의된 특수 멤버 = '+defined+' / 5', mx, my+12+5*(rowH+4)+14);
+
+      var px=W*0.05, py=Math.max(H*0.80, codeBot+16);
+      ctx.textAlign='left';
+      if(s.step===0){
+        ctx.fillStyle=RED; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('소멸자만 정의 → 복사 생성자·대입은 컴파일러 기본(얕은 복사)이 남습니다.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('복사하면 두 객체가 같은 힙을 가리키고, 소멸 시 delete[]가 두 번 → 이중 해제 누수·크래시.', px, py+19);
+      } else if(s.step===1){
+        ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('세 개의 법칙(Rule of Three): 소멸자·복사 생성자·복사 대입은 늘 한 세트.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('하나라도 손수 정의했다면 나머지 둘도 반드시 손수 정의해야 자원이 안전합니다.', px, py+19);
+      } else if(s.step===2){
+        ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('다섯 개의 법칙(Rule of Five): 여기에 이동 생성자·이동 대입을 더합니다.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('이동 연산은 자원을 복사하지 않고 소유권만 넘겨(포인터 훔치기) 성능을 끌어올립니다.', px, py+19);
+      } else {
+        ctx.fillStyle=CPD; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('실무 지혜: 아예 손수 자원을 들지 말고 스마트 포인터·컨테이너에 맡기면 → 0의 법칙.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('직접 관리할 땐 셋(또는 다섯)을 빠짐없이, 위임할 땐 하나도 안 쓰는 게 가장 안전합니다.', px, py+19);
+      }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 소멸자만 → 세 법칙 → 다섯 법칙 → 정리', true);
+      E.big('세 개의 법칙 · 다섯 개의 법칙', '자원을 직접 쥐는 클래스에서 소멸자·복사 생성자·복사 대입 중 하나라도 손수 정의했다면, 나머지 둘도 반드시 손수 정의해야 합니다. 이것이 세 개의 법칙입니다. 왜일까요? 소멸자에서 delete[]로 힙을 반납한다는 것은 그 클래스가 자원을 소유한다는 뜻인데, 복사 생성자·대입을 컴파일러 기본에 맡기면 주소만 얕게 베껴 두 객체가 같은 힙을 공유하고, 결국 delete[]가 두 번 떨어져 이중 해제로 무너지기 때문이죠. C++11은 여기에 이동 생성자·이동 대입을 더해 다섯 개의 법칙으로 확장합니다 — 이동 연산은 자원을 복사하지 않고 소유권만 넘겨(포인터를 훔쳐 원본은 빈 상태로) 큰 객체를 값으로 주고받을 때의 비용을 없앱니다. 가장 좋은 결론은 역설적입니다: 자원을 아예 손수 들지 말고 스마트 포인터·표준 컨테이너에 맡기면 이 특수 멤버를 하나도 쓸 필요가 없습니다(0의 법칙). 손수 관리할 땐 빠짐없이, 위임할 땐 아무것도 — 그 중간이 가장 위험합니다.'); }
+  },
+
+  // ══════════ [심화] cpp5_03 — 자기 대입 안전 (self-assignment) ══════════
+  { id:'cpp5_03_selfassign', branchOf:'cpp5_03',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*80,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // step0=위험한 코드 소개, 1=위험 순서 delete 후 힙 사라짐, 2=안전 검사, 3=copy-and-swap
+      var danger=(s.step<=1);
+      var code = danger ? [
+        {t:'// 위험: 자기대입 검사 없는 operator=', dim:true},
+        {t:'Name& operator=(const Name& o){', dim:true},
+        {t:'  delete[] p;                  // ① 헌 힙 반납', hl:'delete[] p'},
+        {t:'  p = new char[strlen(o.p)+1]; // ② o.p 참조!', hl:'strlen(o.p)'},
+        {t:'  strcpy(p, o.p);              // ③ 복사', hl:'strcpy(p, o.p)'},
+        {t:'  return *this;', dim:true},
+        {t:'}', dim:true},
+        {t:'a = a;   // this == &o  → 재앙', hl:'a = a'}
+      ] : (s.step===2) ? [
+        {t:'// 안전 ①: 자기대입 검사', dim:true},
+        {t:'Name& operator=(const Name& o){', dim:true},
+        {t:'  if(this == &o) return *this; // 나 자신이면 즉시 반환', hl:'if(this == &o)'},
+        {t:'  delete[] p;', dim:true},
+        {t:'  p = new char[strlen(o.p)+1];', dim:true},
+        {t:'  strcpy(p, o.p);', dim:true},
+        {t:'  return *this;', dim:true},
+        {t:'}', dim:true}
+      ] : [
+        {t:'// 안전 ②: copy-and-swap (검사조차 불필요)', dim:true},
+        {t:'Name& operator=(Name rhs){   // 값으로 받아 사본 생성', hl:'Name rhs'},
+        {t:'  std::swap(p, rhs.p);       // 포인터만 교환', hl:'std::swap(p, rhs.p)'},
+        {t:'  return *this;', dim:true},
+        {t:'}  // rhs 소멸 → 옛 힙 자동 정리', hl:'rhs 소멸'},
+        {t:'', dim:true},
+        {t:'a = a;   // 사본을 먼저 만들므로 안전', hl:'a = a'},
+        {t:'', dim:true}
+      ];
+      var act = (s.step===0)?7 : (s.step===1)?2 : (s.step===2)?2 : 1;
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.49, code, 'self_assign.cpp', act);
+
+      // 우측: 포인터 p 와 힙 상태 실제 추적
+      var ox=W*0.56, bw=W*0.14, hx=W*0.78, hw=W*0.16;
+      var objY=H*0.14, heapY=H*0.16;
+      // 상태 모델(실제 포인터 상태 시뮬)
+      // step0: p → 0x100("Cat"), 정상
+      // step1: delete[] p 후 → 힙 0x100 해제됨, o.p(=p)가 가리키던 곳이 사라짐 → new/strcpy가 쓰레기 참조
+      // step2: 검사로 즉시 반환 → 힙 그대로
+      // step3: 사본 rhs 존재 → swap
+      var pDead = (s.step===1);
+      var accent = (s.step===1)?RED:(s.step>=2?GRN:CPB);
+      objBox(ctx, ox, objY, bw, 'a  (this)', [['p', pDead?'●(위험)':'●']], accent);
+      if(s.step===3){
+        objBox(ctx, ox, objY+72, bw, 'rhs (사본)', [['p','●']], CPD);
+      }
+
+      if(s.step<=2){
+        // 원본 힙
+        if(!pDead){
+          heapBox(ctx, hx, heapY, hw, '0x100', 'Cat', (s.step>=2?GRN:GLD));
+          arrow(ctx, ox+bw-16, objY+38, hx, heapY+16, accent, [5,4]);
+        } else {
+          // 해제된 힙 표시
+          ctx.fillStyle='rgba(240,136,138,0.06)'; ctx.strokeStyle=RED; ctx.lineWidth=1.6; ctx.setLineDash([5,4]);
+          roundRect(ctx, hx, heapY, hw, 46, 9); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle=RED; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='left';
+          ctx.fillText('0x100 해제됨(dangling)', hx+10, heapY+16);
+          ctx.fillStyle=RED; ctx.font='700 13px sans-serif';
+          ctx.fillText('✗ "Cat" 사라짐', hx+10, heapY+37);
+          arrow(ctx, ox+bw-16, objY+38, hx, heapY+16, RED, [5,4]);
+        }
+      } else {
+        // step3: a와 rhs가 각자 힙, swap
+        heapBox(ctx, hx, heapY, hw, '0x100', 'Cat', GRN);
+        heapBox(ctx, hx, heapY+64, hw, '0x200', 'Cat', CPD);
+        arrow(ctx, ox+bw-16, objY+38, hx, heapY+16, GRN, [5,4]);
+        arrow(ctx, ox+bw-16, objY+72+38, hx, heapY+64+16, CPD, [5,4]);
+      }
+
+      var px=W*0.05, py=Math.max(H*0.78, codeBot+16);
+      ctx.textAlign='left';
+      if(s.step===0){
+        ctx.fillStyle=CPB; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('a = a; 에서는 this == &o — 대입 대상과 원본이 같은 객체입니다.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('이 operator=는 자기대입 검사가 없습니다. 탭해서 그 순서가 왜 위험한지 보세요.', px, py+19);
+      } else if(s.step===1){
+        ctx.fillStyle=RED; ctx.font='700 13.5px sans-serif';
+        ctx.fillText('① delete[] p 로 헌 힙을 먼저 지우면 — o.p 도 같은 힙이라 함께 사라집니다.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('② new 뒤 strcpy(p, o.p)가 이미 해제된(dangling) 메모리를 읽어 쓰레기가 복사됩니다.', px, py+19);
+      } else if(s.step===2){
+        ctx.fillStyle=GRN; ctx.font='700 13.5px sans-serif';
+        ctx.fillText('안전 ①: if(this == &o) return *this; — 자기 자신이면 손대지 않고 즉시 반환.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('힙 0x100은 지워지지 않고 그대로 — "Cat"이 온전히 보존됩니다.', px, py+19);
+      } else {
+        ctx.fillStyle=GRN; ctx.font='700 13.5px sans-serif';
+        ctx.fillText('안전 ②: copy-and-swap — 사본 rhs를 먼저 만든 뒤 포인터만 교환합니다.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('헌 자원을 지우기 전에 새 자원이 이미 준비되므로, 자기대입 검사조차 필요 없습니다.', px, py+19);
+      }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 위험 소개 → 위험한 순서 → 검사 안전 → copy-and-swap', true);
+      E.big('자기 대입 안전 — a = a 가 부수는 것', 'a = a; 처럼 자기 자신에게 대입하는 경우는 드물어 보이지만, 참조나 포인터를 통해 알게 모르게 일어납니다(예: v[i] = v[j] 인데 i==j). 자원을 쥔 클래스의 대입 연산자가 순진하게 짜여 있으면 이 순간 무너집니다. 흔한 실수는 헌 자원을 먼저 delete 하고 그다음 원본을 복사하는 순서입니다 — 대입 대상과 원본이 같은 객체라면, delete가 지운 그 힙이 바로 복사해 와야 할 원본이므로 이미 사라진 메모리(dangling)를 읽어 쓰레기가 들어가거나 크래시가 납니다. 해법은 둘입니다. 첫째, 함수 첫 줄에서 if(this == &o) return *this; 로 자기 자신이면 아무 일도 하지 않고 즉시 반환하는 것. 둘째, 더 우아하게는 copy-and-swap — 인자를 값으로 받아 사본을 먼저 만들고, 헌 자원을 지우기 전에 포인터만 교환하는 방식입니다. 후자는 새 자원이 항상 헌 자원보다 먼저 준비되므로 자기대입 검사가 아예 필요 없고, 예외에도 강합니다. 핵심은 순서입니다: 지우기 전에 확보하라.'); }
   }
 
   ];

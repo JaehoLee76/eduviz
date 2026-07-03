@@ -40,5 +40,29 @@
   "narr": "템플릿은 그 자체로는 코드가 아니라 ‘코드를 찍는 <b>틀</b>’입니다. <b>vector&lt;int&gt;</b>를 실제로 쓰기 전엔 int용 벡터 코드가 세상에 존재하지 않죠. 그러다 vector&lt;int&gt;를 처음 만나는 순간, 컴파일러가 틀의 T 자리에 int를 대입해 그 타입 전용 코드를 즉석에서 만들어냅니다 — 이 과정을 <b>인스턴스화</b>라고 합니다.",
   "more": "필요한 타입만큼만, 필요할 때 코드가 생깁니다. 이 아이디어가 C++ 표준 라이브러리(STL) 전체를 떠받칩니다 — vector·map·set 같은 컨테이너와 sort·find 같은 알고리즘이 모두 템플릿이라 여러분의 어떤 타입에도 그대로 맞춰 씁니다.",
   "more_en": "Templates are code factories; using vector<int> instantiates an int-specific version on demand. The whole STL is built this way."
+ },
+ "cpp10_01_typename": {
+  "ch": "C++ 제10장 · 템플릿·STL",
+  "sec": "10.1 심화 · 의존 이름과 typename",
+  "title": "의존 이름과 typename — 타입임을 알려 주기",
+  "narr": "<b>T::iterator</b>처럼 템플릿 매개변수 T에 <b>기대어(의존해)</b> 정해지는 이름을 <b>의존 이름</b>이라 합니다. 문제는 T가 아직 무엇인지 정해지기 전이라, 컴파일러가 T::iterator를 <b>타입</b>으로 읽어야 할지 <b>값(정적 멤버)</b>으로 읽어야 할지 알 수 없다는 점입니다. <b>T::iterator * it;</b>은 포인터 선언일 수도, 곱셈일 수도 있죠.",
+  "more": "이 모호함 앞에서 규칙은 확신이 없으면 값(곱셈)으로 가정하는 것이라, 의도한 타입 선언이 깨집니다. 그래서 의존 이름이 타입임을 뜻할 땐 앞에 typename을 붙입니다 — typename T::iterator it;. 컴파일러의 오해를 막는 한 단어입니다.",
+  "more_en": "A dependent name like T::iterator is ambiguous before T is known; prefix typename to tell the compiler it names a type."
+ },
+ "cpp10_01_deduction": {
+  "ch": "C++ 제10장 · 템플릿·STL",
+  "sec": "10.1 심화 · 템플릿 타입 추론",
+  "title": "템플릿 타입 추론 — 참조와 const는 어떻게 될까",
+  "narr": "인자만 넘기면 컴파일러가 T를 알아서 맞춥니다. 그런데 매개변수를 <b>값(T)</b>으로 받느냐, <b>참조(T&amp;)</b>로 받느냐, <b>const 참조(const T&amp;)</b>로 받느냐에 따라 벗겨지는 것이 달라집니다. <b>f(T)</b>는 참조·const를 모두 벗겨 항상 T=int, <b>f(T&amp;)</b>는 참조는 벗기되 const 는 T 안에 남깁니다.",
+  "more": "f(const T&)는 매개변수가 이미 const 참조라 남는 T 는 항상 int. 오른쪽 표에서 같은 세 인자(int·int&·const int&)가 형태마다 다른 T로 추론되는 게 실제 규칙 그대로 보입니다. \"값은 다 벗기고, 참조만 const 를 남긴다\"가 뼈대입니다.",
+  "more_en": "f(T) strips references and const; f(T&) keeps const inside T; f(const T&) absorbs const so T stays plain."
+ },
+ "cpp10_03_overloadvsspec": {
+  "ch": "C++ 제10장 · 템플릿·STL",
+  "sec": "10.3 심화 · 특수화 vs 오버로딩",
+  "title": "특수화 vs 오버로딩 — 함수와 클래스는 다르다",
+  "narr": "특정 타입만 다르게 처리하고 싶을 때, <b>함수</b>와 <b>클래스</b>는 방법이 다릅니다 — 아주 흔한 함정입니다. <b>클래스 템플릿</b>은 완전특수화뿐 아니라 <b>부분특수화</b>(Box&lt;T*&gt; — 모든 포인터)까지 되지만, <b>함수 템플릿</b>은 <b>부분특수화가 아예 불가능</b>합니다. 대신 함수는 <b>오버로딩</b>으로 f(int*) 같은 함수를 하나 더 두면 됩니다.",
+  "more": "호출이 일어나면 컴파일러는 오버로드 후보 중 가장 잘 맞는 것을 먼저 고르고, 그 다음에야 그 함수의 특수화를 봅니다. 그래서 함수는 부분특수화 대신 오버로딩이 모범 사례입니다. 요약: 클래스는 특수화, 함수는 오버로딩.",
+  "more_en": "Class templates allow partial specialization; function templates do not — use overloading instead, since overload resolution runs first."
  }
 }

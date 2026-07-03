@@ -39,5 +39,29 @@
   "narr": "자식이 부모와 같은 이름의 함수를 재정의하면 자식 것이 부모 것을 가립니다(name hiding). c.speak() 는 자식 것을, 부모 것은 c.Animal::speak() 로 콕 집어 부릅니다.",
   "more": "아직은 '정적 바인딩' — 변수의 적힌 타입으로 함수가 정해집니다. Animal* 포인터로 부르면? 다음 장 virtual 이 답합니다.",
   "more_en": "Redefining a same-named function in a child hides the parent's (name hiding). This is still static binding — the vtable/virtual keyword of chapter 8 changes that."
+ },
+ "cpp7_01_isa": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.1 심화 · is-a 원칙과 잘못된 상속",
+  "title": "is-a 원칙과 잘못된 상속",
+  "narr": "public 상속의 계약은 '자식은 부모다(is-a)' — 부모를 쓰는 코드가 자식으로 바뀌어도 똑같이 동작해야 합니다. 정사각형이 직사각형을 상속하면 setW(5)·setH(4) 뒤 넓이가 20이 아닌 16이 되어 부모의 기대가 깨집니다.",
+  "more": "수학적 '특수한 경우'와 코드의 '치환 가능'은 다릅니다 — 부모의 모든 동작 계약을 자식이 지키는지 늘 확인하세요.",
+  "more_en": "public inheritance means 'is-a' — a child must behave wherever the parent is expected. Square inheriting Rectangle breaks setW/setH invariants (area becomes 16, not 20). Mathematical specialization is not behavioral substitutability."
+ },
+ "cpp7_05_namehide": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.5 심화 · 이름 가림과 using",
+  "title": "이름 가림(name hiding)과 using",
+  "narr": "자식이 같은 이름 함수를 하나라도 정의하면 부모의 그 이름 오버로드가 전부 가려집니다. Derived 가 f(char*) 만 두면 부모의 f(int)·f(double) 이 숨어 d.f(3) 은 오류 — using Base::f; 로 부모 오버로드를 복구합니다.",
+  "more": "자식이 이름을 재정의하면 그 이름의 부모 오버로드를 using 으로 함께 끌어올리는 것이 안전한 관용구입니다.",
+  "more_en": "If a child declares any function named f, all of the parent's f overloads are hidden. Adding using Base::f; brings them back so d.f(3) resolves to f(int)."
+ },
+ "cpp7_05_novre": {
+  "ch": "C++ 제7장 · 객체지향",
+  "sec": "7.5 심화 · 비가상함수 재정의 금지",
+  "title": "비가상함수를 재정의하지 말라",
+  "narr": "비가상 함수는 정적 바인딩이라 포인터·참조의 '적힌 타입'으로 호출이 정해집니다. 같은 객체 d 를 Derived* 로 부르면 'Derived', Base* 로 부르면 'Base' — 손잡이에 따라 다르게 행동하니 거의 항상 버그입니다.",
+  "more": "행동을 다형적으로 바꾸려면 부모에서 virtual 로 선언하고, 그럴 뜻이 없는 비가상 함수는 자식에서 같은 이름으로 재정의하지 마세요.",
+  "more_en": "Non-virtual functions bind statically to the pointer/reference type, so the same object gives different results through Base* vs Derived* — almost always a bug. Never redefine an inherited non-virtual function."
  }
 }

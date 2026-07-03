@@ -371,6 +371,225 @@
 
       E.tapHint(W/2, H*0.96, '화면 탭 = raw vs 스마트 대비 ↔ 규칙 요약', true);
       E.big('자원관리 규칙 — new를 직접 쓰지 마라', '이 장의 결론은 한 문장으로 압축됩니다: “동적 자원은 손으로 관리하지 말고, 관리 객체에게 맡겨라.” new Widget() 뒤에 delete를 손수 적는 순간, 그 사이에서 예외가 튀거나 이른 return이 끼면 delete는 실행되지 못하고 메모리가 샙니다. 스마트 포인터는 이 짝맞추기를 언어에 위임합니다 — make_unique/make_shared로 만들면, 어떤 경로로 스코프를 나가든 소멸자가 반드시 정리하죠. 기본은 unique_ptr(비용 0), 정말 공유가 필요할 때만 shared_ptr, 되돌아 가리키는 참조는 weak_ptr. new/delete를 코드에서 거의 볼 일이 없어지는 것이 잘 쓴 현대 C++의 표식입니다. 함수 시그니처도 정직해집니다: 소유권을 넘기면 unique_ptr을 값으로, 잠깐 빌려줄 뿐이면 참조나 raw 포인터로 — 타입만 봐도 “누가 이 자원의 주인인지”가 드러나니까요.'); }
+  },
+
+  // ══════════ 심화 1. unique_ptr로 pimpl 관용구 (branchOf cpp14_02: unique_ptr) ══════════
+  { id:'cpp14_02_pimpl', branchOf:'cpp14_02',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(360+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var pimpl=(s.step===1); // 0=노출(재컴파일 전파), 1=pimpl(방화벽)
+      var code = pimpl ? [
+        {t:'// widget.h — 세부는 숨김', dim:true},
+        {t:'class Widget {', dim:true},
+        {t:'    struct Impl;              // 전방 선언만', hl:'struct Impl;'},
+        {t:'    std::unique_ptr<Impl> pImpl;', hl:'unique_ptr<Impl>'},
+        {t:'  public:', dim:true},
+        {t:'    Widget();  ~Widget();     // .cpp에서 정의', hl:'~Widget()'},
+        {t:'};', dim:true},
+        {t:'// widget.cpp 안에서만 Impl 멤버 변경', dim:true},
+        {t:'// → 헤더 불변 → 사용처 재컴파일 없음', dim:true}
+      ] : [
+        {t:'// widget.h — 세부가 다 노출됨', dim:true},
+        {t:'#include <heavy_lib.h>        // 무거운 의존', hl:'heavy_lib.h'},
+        {t:'class Widget {', dim:true},
+        {t:'    HeavyType a;   int b;', hl:'HeavyType a'},
+        {t:'    std::string cache;        // 구현 세부', hl:'cache'},
+        {t:'  public:', dim:true},
+        {t:'    void run();', dim:true},
+        {t:'};', dim:true},
+        {t:'// 멤버 하나만 바꿔도 헤더 변경 → 전파', dim:true}
+      ];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.46, code, pimpl?'widget_pimpl.h':'widget_exposed.h', pimpl?3:3);
+
+      // 우측: widget.h ← 여러 .cpp 사용처 (재컴파일 전파 vs 방화벽) (우측영역 x∈[0.56W,0.96W])
+      var bx=W*0.56, rw=W*0.40, ty=H*0.10;
+      ctx.textAlign='center';
+      // 헤더 노드(변경됨)
+      var hw=rw*0.5, hx=bx+rw*0.25;
+      box(ctx, hx, ty, hw, 34, GLD, 'widget.h 변경', 12, 'rgba(255,211,122,0.10)');
+      // 사용처 3개
+      var users=['a.cpp','b.cpp','c.cpp'], uw=rw*0.26, uy=ty+80, gap=(rw-uw*3)/2;
+      // pimpl이면 헤더 불변 → 재컴파일 0, 노출이면 세 파일 모두 재컴파일
+      var recompiled = pimpl ? 0 : 3;
+      for(var i=0;i<3;i++){ var ux=bx+i*(uw+gap), hit=(!pimpl);
+        box(ctx, ux, uy, uw, 32, hit?RED:GRN, users[i], 11.5, hit?'rgba(240,136,138,0.10)':'rgba(126,224,176,0.08)');
+        var mx=ux+uw/2;
+        if(hit) arrow(ctx, hx+hw*0.2+i*hw*0.3, ty+34, mx, uy, RED);
+        else { // 방화벽: 점선이 헤더에서 끊김
+          ctx.strokeStyle=GRN; ctx.lineWidth=1.6; ctx.setLineDash([4,4]);
+          ctx.beginPath(); ctx.moveTo(hx+hw*0.2+i*hw*0.3, ty+34); ctx.lineTo(mx, uy-14); ctx.stroke(); ctx.setLineDash([]);
+        }
+        ctx.fillStyle=hit?RED:GRN; ctx.font='10.5px sans-serif';
+        ctx.fillText(hit?'재컴파일':'그대로', mx, uy+32+14);
+      }
+      // 방화벽 라벨
+      if(pimpl){ ctx.strokeStyle=GRN; ctx.lineWidth=1.4; ctx.setLineDash([6,4]);
+        ctx.beginPath(); ctx.moveTo(bx, uy-26); ctx.lineTo(bx+rw, uy-26); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=GRN; ctx.font='600 11px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('컴파일 방화벽 (Impl은 .cpp에)', bx+rw/2, uy-30); }
+
+      // 판정(실측 카운트)
+      var jy=uy+78;
+      ctx.textAlign='left';
+      ctx.fillStyle=(pimpl?GRN:RED); ctx.font='600 13px sans-serif';
+      ctx.fillText('구현 세부 1곳 수정 → 재컴파일되는 파일: '+recompiled+' / 3', bx, jy);
+      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillText(pimpl?'헤더가 안 바뀌니 사용처는 손대지 않아도 됩니다.':'헤더에 세부가 노출돼 의존이 다 퍼집니다.', bx, jy+22);
+
+      // 좌측(코드패널 아래) 요약
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(pimpl?GLD:DIM); ctx.font='600 11.5px sans-serif';
+        ctx.fillText(pimpl?'unique_ptr<Impl>이 수명을 관리 — 소멸자는 .cpp에 둡니다.':'세부가 바뀔 때마다 프로젝트 전체가 다시 빌드됩니다.',
+          W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = 세부 노출(전파) ↔ pimpl(방화벽)', true);
+      E.big('unique_ptr로 pimpl — 헤더 뒤에 구현을 숨기다', 'C++ 헤더에 클래스의 멤버 변수를 다 적으면, 그 세부가 사용처에 새어 나갑니다 — 무거운 라이브러리를 #include해야 하고, 구현 세부 하나만 바꿔도 그 헤더를 포함한 모든 .cpp가 다시 컴파일되죠. 큰 프로젝트에선 빌드 시간이 눈덩이처럼 불어납니다. 관용구 pimpl(pointer to implementation)은 이걸 끊습니다: 헤더에는 struct Impl; 전방 선언과 std::unique_ptr<Impl> pImpl 한 줄만 두고, 진짜 멤버들은 .cpp의 Impl 정의 안에 숨깁니다. 그러면 구현 세부를 아무리 바꿔도 헤더는 그대로라, 사용처는 재컴파일할 필요가 없습니다 — 컴파일 방화벽이죠. 수명 관리는 unique_ptr<Impl>이 맡아 자동 정리합니다(불완전 타입이라 소멸자는 반드시 .cpp에서 정의). 라이브러리의 ABI 안정성과 빌드 속도를 함께 얻는 모범 사례입니다. 화면은 세부 하나를 바꿨을 때 재컴파일되는 파일 수를 실제로 세어 둘을 견줍니다.'); }
+  },
+
+  // ══════════ 심화 2. make_shared의 이점 (branchOf cpp14_03: shared_ptr) ══════════
+  { id:'cpp14_03_makeshared', branchOf:'cpp14_03',
+    enter:function(E){ var self=this; this.s={m:1};
+      E.controls('<div class="ctrl"><label>생성 방식</label><input type="range" id="mk" min="0" max="1" step="1" value="1"><output id="mko">make_shared</output></div>');
+      E.bind('#mk','input',function(e){ self.s.m=+e.target.value; document.getElementById('mko').textContent=self.s.m?'make_shared':'shared_ptr(new T)'; E.blip(340+self.s.m*80,0.06); });
+      E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var mk=(s.m===1);
+      // 실측: shared_ptr<T>(new T) = 할당 2회(객체+제어블록), make_shared = 할당 1회(합침)
+      var allocs = mk ? 1 : 2;
+      var code = mk ? [
+        {t:'auto p = std::make_shared<Node>(42);', hl:'make_shared'},
+        {t:'// 할당 1회:', dim:true},
+        {t:'//   [객체 + 제어블록] 한 덩어리', hl:'객체 + 제어블록'},
+        {t:'// 장점 1: 할당 2→1 (빠르고 캐시 친화적)', dim:true},
+        {t:'// 장점 2: 예외 안전 (아래 참조)', dim:true},
+        {t:'f(std::make_shared<Node>(42), risky());', hl:'make_shared'},
+        {t:'// 인자 평가 순서와 무관하게 누수 없음', dim:true}
+      ] : [
+        {t:'std::shared_ptr<Node> p(new Node(42));', hl:'new Node(42)'},
+        {t:'// 할당 2회:', dim:true},
+        {t:'//   ① new Node   ② 제어블록 따로', hl:'② 제어블록 따로'},
+        {t:'// 두 번의 힙 할당 — 느리고 흩어짐', dim:true},
+        {t:'', dim:true},
+        {t:'f(std::shared_ptr<Node>(new Node), risky());', hl:'new Node'},
+        {t:'// new 뒤 risky()가 던지면 → Node 누수 위험', hl:'누수 위험'}
+      ];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.46, code, mk?'make_shared.cpp':'shared_new.cpp', 0);
+
+      // 우측: 힙 할당 시각화 (우측영역 x∈[0.56W,0.96W])
+      var bx=W*0.56, rw=W*0.40, ty=H*0.10;
+      ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('힙 할당', bx, ty-4);
+      if(mk){
+        // 한 덩어리 블록
+        var mw=rw*0.7, mx0=bx+rw*0.15;
+        box(ctx, mx0, ty, mw, 54, GRN, null, 0, 'rgba(126,224,176,0.10)');
+        ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1; ctx.beginPath();
+        ctx.moveTo(mx0+mw*0.5, ty+6); ctx.lineTo(mx0+mw*0.5, ty+48); ctx.stroke();
+        ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('Node', mx0+mw*0.25, ty+30);
+        ctx.fillText('제어블록', mx0+mw*0.75, ty+30);
+        ctx.fillStyle=GRN; ctx.font='11px sans-serif';
+        ctx.fillText('한 번의 할당으로 인접 배치', mx0+mw/2, ty+54+18);
+      } else {
+        // 두 개의 흩어진 블록
+        var bw=rw*0.34;
+        box(ctx, bx, ty, bw, 44, GLD, 'Node', 12, 'rgba(255,211,122,0.10)');
+        box(ctx, bx+rw-bw, ty+22, bw, 44, GLD, '제어블록', 12, 'rgba(255,211,122,0.10)');
+        ctx.fillStyle=GLD; ctx.font='11px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('할당 ①', bx+bw/2, ty-6);
+        ctx.fillText('할당 ②', bx+rw-bw/2, ty+16);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillText('멀리 떨어진 두 할당', bx+rw/2, ty+72);
+      }
+
+      // 할당 횟수 배지 (실측)
+      var ay=ty+96;
+      box(ctx, bx+rw*0.30, ay, rw*0.4, 30, mk?GRN:GLD, '힙 할당 '+allocs+'회', 13, mk?'rgba(126,224,176,0.10)':'rgba(255,211,122,0.10)');
+
+      // 예외 안전 비교
+      var ey=ay+50;
+      ctx.textAlign='left';
+      ctx.fillStyle=(mk?GRN:RED); ctx.font='600 12px sans-serif';
+      ctx.fillText(mk?'예외 안전: 객체 생성과 소유가 원자적':'예외 위험: new 후 소유 전에 예외 나면 누수', bx, ey);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillText(mk?'인자 평가 도중 예외가 나도 새는 객체가 없습니다.':'f(shared_ptr(new T), g())에서 g()가 먼저 던지면 T 누수.', bx, ey+22);
+
+      // 좌측(코드패널 아래) 요약
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(mk?GLD:DIM); ctx.font='600 11.5px sans-serif';
+        ctx.fillText(mk?'할당 2→1 + 예외 안전 — 기본은 make_shared.':'예외로 던질 수 있는 곳에선 new 노출이 위험합니다.',
+          W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
+
+      E.tapHint(W/2, H*0.96, '슬라이더로 make_shared ↔ shared_ptr(new T) 비교', true);
+      E.big('make_shared의 이점 — 한 번에 할당하고, 안전하게', 'shared_ptr은 두 가지를 챙겨야 합니다 — 객체 자신과, 참조 카운트가 담긴 제어 블록. std::shared_ptr<T>(new T)로 만들면 이 둘을 따로 할당합니다: 먼저 new T로 객체를, 그다음 shared_ptr 생성자가 제어 블록을 또 한 번. 힙 할당이 두 번이라 느리고, 둘이 메모리에서 떨어져 있어 캐시에도 불리하죠. std::make_shared<T>(...)는 객체와 제어 블록을 한 덩어리로 합쳐 단 한 번에 할당합니다 — 빠르고 인접해서 캐시 친화적입니다. 게다가 예외 안전까지 챙겨 줍니다: f(std::shared_ptr<T>(new T), g())처럼 인자에서 new를 드러내면, g()가 먼저 던질 때 이미 할당된 T가 소유되기 전이라 누수될 수 있습니다. make_shared는 생성과 소유를 한 호출로 묶어 그 틈을 없앱니다. 화면은 두 방식의 힙 할당 횟수(2 대 1)를 실제로 표시합니다. 그래서 기본은 make_shared — 다만 weak_ptr이 오래 살아 제어 블록만 남기거나 커스텀 deleter가 필요하면 예외입니다. 이것이 핵심 규칙이자 모범 사례입니다.'); }
+  },
+
+  // ══════════ 심화 3. 커스텀 deleter (branchOf cpp14_05: 자원관리 규칙) ══════════
+  { id:'cpp14_04_customdel', branchOf:'cpp14_05',
+    enter:function(E){ var self=this; this.s={sel:0,step:0};
+      E.controls('<div class="ctrl"><label>자원 종류</label><input type="range" id="rk" min="0" max="1" step="1" value="0"><output id="rko">FILE* (fclose)</output></div>');
+      E.bind('#rk','input',function(e){ self.s.sel=+e.target.value; document.getElementById('rko').textContent=self.s.sel?'malloc 메모리 (free)':'FILE* (fclose)'; E.blip(340+self.s.sel*80,0.06); });
+      E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(360+this.s.step*70,0.07); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var isFile=(s.sel===0);
+      var acquireFn = isFile ? 'fopen("d.txt","r")' : 'malloc(1024)';
+      var cleanupFn = isFile ? 'fclose' : 'free';
+      var rtype     = isFile ? 'FILE' : 'void';
+      // step 0: 획득, 1: 사용, 2: 스코프 종료 → 지정한 정리 함수 호출
+      var code = [
+        {t:'auto del = [](' + rtype + '* h){', hl:'del'},
+        {t:'    if (h) ' + cleanupFn + '(h);   // 정리', hl:cleanupFn},
+        {t:'};', dim:true},
+        {t:'std::unique_ptr<' + rtype + ', decltype(del)>', hl:'decltype(del)'},
+        {t:'    r(' + acquireFn + ', del);', hl:acquireFn},
+        {t:'use(r.get());          // 사용', hl:'use'},
+        {t:'}  // 스코프 끝 → del(h) 자동 호출', hl:'del(h)'}
+      ];
+      var actMap=[4,5,6];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.46, code, 'custom_deleter.cpp', actMap[s.step]);
+
+      // 우측: 자원 → 스마트 포인터 → 스코프 종료 시 정리 함수 호출 흐름 (우측영역 x∈[0.56W,0.96W])
+      var bx=W*0.56, rw=W*0.40, ty=H*0.10;
+      ctx.textAlign='center';
+      var acquired=(s.step>=0), using=(s.step===1), cleaned=(s.step>=2);
+      var rcol = cleaned?RED:GRN;
+      // 자원 노드
+      var resLabel = isFile ? 'FILE* 열림' : 'malloc 블록';
+      box(ctx, bx+rw*0.28, ty, rw*0.44, 38, cleaned?RED:GRN, cleaned?(isFile?'파일 닫힘':'메모리 반납'):resLabel, 12,
+          cleaned?'rgba(240,136,138,0.10)':'rgba(126,224,176,0.10)');
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('자원(비-new)', bx+rw*0.5, ty-8);
+
+      // unique_ptr 소유 노드
+      var uy=ty+72;
+      box(ctx, bx+rw*0.20, uy, rw*0.6, 32, cleaned?DIM:CPB, 'unique_ptr r', 12, cleaned?'rgba(255,255,255,0.03)':'rgba(90,180,232,0.10)');
+      if(!cleaned) arrow(ctx, bx+rw*0.5, uy, bx+rw*0.5, ty+38, CPB);
+
+      // 정리 함수 호출 (step2)
+      var dy=uy+64;
+      var dcol = cleaned?RED:DIM;
+      box(ctx, bx+rw*0.18, dy, rw*0.64, 32, dcol, cleaned?('deleter: '+cleanupFn+'(h)'):('deleter = '+cleanupFn), 12,
+          cleaned?'rgba(240,136,138,0.10)':'rgba(255,255,255,0.03)');
+      if(cleaned) arrow(ctx, bx+rw*0.5, uy+32, bx+rw*0.5, dy, RED);
+
+      // 상태 캡션
+      var caps=['커스텀 deleter를 지정해 자원 획득',
+                'r.get()으로 raw 핸들을 빌려 사용',
+                '스코프 종료 → delete가 아닌 ' + cleanupFn + '(h) 호출'];
+      var cy=dy+52;
+      ctx.textAlign='left';
+      ctx.fillStyle=(cleaned?RED:(using?CPB:CPD)); ctx.font='600 12.5px sans-serif';
+      ctx.fillText(caps[s.step], bx, cy);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillText('delete 대신 지정한 정리 함수(' + cleanupFn + ')를 스마트 포인터가 대신 호출합니다.', bx, cy+22);
+
+      // 좌측(코드패널 아래) 요약
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+        ctx.fillText('new/delete가 아닌 자원도 RAII로 — 정리 방법만 위임하면 됩니다.',
+          W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
+
+      E.tapHint(W/2, H*0.96, '슬라이더=자원 종류 · 화면 탭=획득 → 사용 → 정리', true);
+      E.big('커스텀 deleter — delete가 아닌 정리를 위임하다', '스마트 포인터가 정리하는 방식은 기본적으로 delete입니다 — new로 만든 객체를 지우죠. 하지만 세상엔 new/delete로 다루지 않는 자원이 많습니다: C의 FILE*는 fclose로 닫고, malloc한 메모리는 free로 풀고, 소켓은 close로, OS 핸들은 각자의 해제 함수로 닫습니다. 이런 자원에도 RAII의 안전망을 씌우려면, 스마트 포인터에게 “정리할 땐 delete 말고 이 함수를 불러라”라고 커스텀 deleter를 건네면 됩니다. unique_ptr은 타입에 deleter를 담고(decltype(del)), shared_ptr은 생성자 인자로 받죠. 그러면 스코프가 끝나 스마트 포인터가 소멸할 때, 언어가 지정한 정리 함수(fclose·free…)를 자동으로 호출합니다 — 예외로 나가든 return으로 나가든. 손으로 fclose 짝을 맞추다 빠뜨리는 실수가 사라지는 것. 화면은 자원 종류를 바꿔 가며 스코프 종료 시 어떤 정리 함수가 불리는지 흐름으로 보여 줍니다. 이렇게 “획득=초기화, 반납=지정한 정리”로 모든 자원을 RAII 아래 둘 수 있습니다.'); }
   }
 
   ];

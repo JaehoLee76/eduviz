@@ -386,6 +386,262 @@
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (명단 → 점수순 정렬 → 90↑ 세기)', true);
       E.big('람다 + 알고리즘 — 진짜 힘은 조합', '람다와 STL 알고리즘이 만나면 <b>선언적 데이터 처리</b>가 됩니다 — 루프·인덱스·임시변수 없이 <b>"무엇을"</b>만 말하죠. <b>sort(begin, end, [](a,b){return a.second&gt;b.second;})</b>는 <b>pair의 점수로 내림차순</b>, <b>count_if(begin, end, [](p){return p.second&gt;=90;})</b>는 <b>조건을 만족하는 개수</b>를 셉니다. 같은 알고리즘에 <b>람다만 갈아 끼우면</b> 기준·조건이 통째로 바뀌고, 같은 조건 람다를 <b>find_if·copy_if·partition</b>에 재사용할 수 있습니다. C++가 저수준 언어이면서도 <b>파이썬처럼 간결한 데이터 처리</b>를 쓰는 비결 — 이게 모던 STL 스타일입니다. 화면의 정렬 순서·개수는 모두 실제로 계산한 값입니다.'); }
+  },
+
+  // ══════════════════ 심화학습 (branchOf: cpp12_01 · cpp12_02 · cpp12_04) ══════════════════
+
+  // ─── 심화 1. remove-erase 관용구 (branchOf: cpp12_02) ───
+  { id:'cpp12_02_removeerase', branchOf:'cpp12_02', ord:1,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(360+this.s.step*40,0.06); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var orig=[3,7,2,7,5,7,9];        // 7을 지우고 싶음
+      var target=7;
+      // remove: 남길 값만 앞으로 실제로 몰기 → 새 논리적 끝 위치 반환
+      var kept=[]; for(var i=0;i<orig.length;i++){ if(orig[i]!==target) kept.push(orig[i]); }
+      var newEnd=kept.length;          // remove가 반환하는 새 끝(논리적 크기)
+      // remove 직후 물리적 배열: 앞 newEnd개=kept, 뒤는 미지정(관용적으로 옛 값 잔재)
+      var afterRemove=kept.slice();
+      for(i=newEnd;i<orig.length;i++) afterRemove.push(orig[i]); // 뒤쪽 잔재(개념 표현)
+      var step=s.step;                 // 0=원본, 1=remove 후(논리끝), 2=erase 후(실제축소)
+
+      var code=[
+        {t:'vector<int> v = {3,7,2,7,5,7,9};', hl:'vector<int>'},
+        {t:'auto it = remove(v.begin(),', hl:'remove'},
+        {t:'                 v.end(), 7);', dim:true},
+        {t:'//  남길 값을 앞으로 몰고 새 끝 반환', dim:true},
+        {t:'//  아직 크기(size)는 그대로!', dim:true},
+        {t:'v.erase(it, v.end());', hl:'erase'},
+        {t:'//  진짜로 뒤를 잘라 크기 축소', dim:true},
+        {t:'//  → { '+kept.join(', ')+' }', dim:true}
+      ];
+      var act=[1,1,5][step];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.48, code, 'remove_erase.cpp', act);
+      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('erase(remove(v.begin(), v.end(), 7), v.end());  ← 한 줄 관용구', W*0.055, codeBot+22);
+
+      var bx=W*0.55, cw=42, gap=8, cellY;
+      // 상단: 원본
+      cellY=H*0.22;
+      ctx.fillStyle=DIM; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('원본 (7을 모두 지우고 싶음):', bx, cellY-8);
+      for(i=0;i<orig.length;i++){ var cx=bx+i*(cw+gap); var isT=orig[i]===target;
+        vcell(ctx,cx,cellY,cw,34, orig[i], isT?'rgba(240,136,138,0.16)':'rgba(90,180,232,0.16)', isT?RED:CPB, isT?RED:'#dfeaf2', 13);
+      }
+
+      if(step>=1){
+        // remove 후
+        cellY=H*0.22+80;
+        ctx.fillStyle=GLD; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('remove 후 — 남길 값이 앞으로 몰림 (size는 그대로)', bx, cellY-8);
+        for(i=0;i<orig.length;i++){ var cx2=bx+i*(cw+gap); var logical=(i<newEnd);
+          vcell(ctx,cx2,cellY,cw,34, afterRemove[i],
+            logical?'rgba(126,224,176,0.16)':'rgba(120,120,128,0.08)',
+            logical?GRN:'rgba(159,153,163,0.4)',
+            logical?'#dfeaf2':DIM, 13);
+        }
+        // 새 끝(it) 표시
+        var itx=bx+newEnd*(cw+gap)-gap/2;
+        ctx.strokeStyle=GLD; ctx.lineWidth=1.8; ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(itx, cellY-4); ctx.lineTo(itx, cellY+42); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=GLD; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('it (새 끝)', itx, cellY+56);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('뒤쪽 회색 칸 = 미지정 잔재 (지워지지 않음)', bx, cellY+56);
+      }
+
+      if(step>=2){
+        // erase 후
+        cellY=H*0.22+160;
+        ctx.fillStyle=GRN; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('erase(it, end) 후 — 실제로 뒤를 잘라 크기 축소:', bx, cellY-8);
+        for(i=0;i<kept.length;i++){ var cx3=bx+i*(cw+gap);
+          vcell(ctx,cx3,cellY,cw,34, kept[i], 'rgba(126,224,176,0.20)', GRN, '#dfeaf2', 13);
+        }
+        ctx.fillStyle=GLD; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('size: '+orig.length+' → '+kept.length+'  (7이 '+(orig.length-kept.length)+'개 실제로 제거됨)', bx, cellY+52);
+      } else if(step===1){
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('탭하면 erase로 뒤를 잘라 진짜로 지웁니다.', bx, H*0.22+160);
+      } else {
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('탭하면 remove가 남길 값을 앞으로 몹니다.', bx, H*0.22+80);
+      }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 원본 → remove(몰기) → erase(축소)', true);
+      E.big('심화 · remove-erase 관용구', '이름과 달리 <b>remove는 원소를 실제로 지우지 않습니다</b>. 컨테이너의 크기를 바꿀 힘이 없거든요(반복자 한 쌍만 받으니까). 대신 <b>남길 값들을 앞으로 몰아 채우고</b>, <b>새 논리적 끝을 가리키는 반복자</b>를 돌려줍니다 — 뒤쪽 칸에는 옛 값의 <b>미지정 잔재</b>가 남고, <b>size는 그대로</b>입니다. 진짜로 크기를 줄이려면 그 반환값을 받아 <b>v.erase(it, v.end())</b>로 <b>뒤를 잘라내야</b> 하죠. 그래서 둘을 한 줄로 겹친 <b>erase(remove(v.begin(), v.end(), 7), v.end())</b>가 표준 관용구입니다. 화면에서 remove 후 size가 그대로 '+orig.length+'인 것, erase 후 '+kept.length+'로 실제 축소되는 것을 실제 값으로 확인하세요.'); }
+  },
+
+  // ─── 심화 2. 람다 캡처(값 vs 참조)와 수명 (branchOf: cpp12_04) ───
+  { id:'cpp12_04_capture', branchOf:'cpp12_04', ord:1,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(360+this.s.step*40,0.06); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var mode=s.step;                     // 0=값 캡처[=], 1=참조 캡처[&]
+      // base=10일 때 람다 생성 → base가 99로 바뀜 → 람다 호출 시 결과
+      var atCapture=10, afterChange=99;
+      var valResult=5+atCapture;           // [=] 값 스냅샷(10) → 15  (실제 계산)
+      var refResult=5+afterChange;         // [&] 참조 → 바뀐 99 → 104  (실제 계산)
+
+      var code = mode===0 ? [
+        {t:'int base = 10;', hl:'base'},
+        {t:'auto f = [=](int x){', hl:'[=]'},
+        {t:'    return x + base;  // 값 복사', hl:'base'},
+        {t:'};', dim:true},
+        {t:'base = 99;   // 원본을 바꿔도', hl:'base = 99'},
+        {t:'f(5);        // → 5 + 10 = 15', hl:'f(5)'},
+        {t:'//  캡처 시점 값(10)을 스냅샷으로 보관', dim:true},
+        {t:'//  안전 — 원본과 무관', dim:true}
+      ] : [
+        {t:'int base = 10;', hl:'base'},
+        {t:'auto f = [&](int x){', hl:'[&]'},
+        {t:'    return x + base;  // 참조', hl:'base'},
+        {t:'};', dim:true},
+        {t:'base = 99;   // 원본을 바꾸면', hl:'base = 99'},
+        {t:'f(5);        // → 5 + 99 = 104', hl:'f(5)'},
+        {t:'//  원본을 그대로 봄 — 최신 값 반영', dim:true},
+        {t:'//  주의: base가 먼저 사라지면 댕글링', dim:true}
+      ];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.48, code, mode===0?'capture_value.cpp':'capture_ref.cpp', mode===0?1:1);
+      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(mode===0?'[=] : 캡처 시점 값을 복사해 보관 (스냅샷)':'[&] : 원본 변수를 참조 (수명에 주의)', W*0.055, codeBot+22);
+
+      var bx=W*0.56, by=H*0.24;
+      // 원본 base 상자
+      ctx.fillStyle=CPB; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('바깥 변수 base', bx, by-12);
+      vcell(ctx,bx,by,70,44, afterChange, 'rgba(90,180,232,0.16)', CPB, '#dfeaf2', 17);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('지금 base = 99', bx+35, by+62);
+
+      // 람다 상자
+      var lx=bx+W*0.20;
+      ctx.fillStyle= mode===0?GRN:GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(mode===0?'람다 f  [=] 값 캡처':'람다 f  [&] 참조 캡처', lx, by-12);
+      var lw=W*0.20, lh=64;
+      ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle= mode===0?GRN:GLD; ctx.lineWidth=1.6;
+      roundRect(ctx, lx, by, lw, lh, 8); ctx.fill(); ctx.stroke();
+      if(mode===0){
+        // 값: 람다 안에 base=10 스냅샷 저장
+        vcell(ctx,lx+12,by+12,60,32, atCapture, 'rgba(126,224,176,0.18)', GRN, '#dfeaf2', 15);
+        ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('안에 복사본 '+atCapture+' 보관', lx+82, by+32);
+      } else {
+        // 참조: 화살표가 원본을 가리킴
+        ctx.strokeStyle=GLD; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(lx-4, by+lh/2); ctx.lineTo(bx+74, by+22); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bx+74, by+22); ctx.lineTo(bx+82, by+20); ctx.moveTo(bx+74, by+22); ctx.lineTo(bx+80, by+28); ctx.stroke();
+        ctx.fillStyle=GLD; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('원본을 가리킴(참조)', lx+12, by+38);
+      }
+
+      // 호출 결과
+      var gy=by+110;
+      ctx.textAlign='left';
+      ctx.fillStyle='#dfeaf2'; ctx.font='600 15px sans-serif';
+      if(mode===0){
+        ctx.fillText('f(5) = 5 + '+atCapture+' = '+valResult, bx, gy);
+        ctx.fillStyle=GRN; ctx.font='700 17px sans-serif';
+        ctx.fillText('결과 '+valResult+'  (base를 99로 바꿔도 그대로)', bx, gy+28);
+        ctx.fillStyle=GRN; ctx.font='12.5px sans-serif';
+        ctx.fillText('안전 — 캡처한 순간의 스냅샷이라 원본 변화·소멸과 무관.', bx, gy+52);
+      } else {
+        ctx.fillText('f(5) = 5 + '+afterChange+' = '+refResult, bx, gy);
+        ctx.fillStyle=GLD; ctx.font='700 17px sans-serif';
+        ctx.fillText('결과 '+refResult+'  (바뀐 base=99를 반영)', bx, gy+28);
+        ctx.fillStyle=RED; ctx.font='12.5px sans-serif';
+        ctx.fillText('위험: base가 람다보다 먼저 사라지면 참조가 댕글링 → 미정의 동작.', bx, gy+52);
+      }
+      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+      ctx.fillText('[=]=스냅샷(안전) · [&]=최신값(빠름·위험). 지역변수 밖으로 나가는 람다엔 [=]가 안전.', bx, gy+76);
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 값 캡처 [=] ↔ 참조 캡처 [&]', true);
+      E.big('심화 · 람다 캡처 — 값 vs 참조와 수명', '람다의 대괄호 <b>[ ]</b>는 바깥 변수를 <b>어떻게 데려올지</b>를 정합니다. <b>[=]</b>는 <b>값 복사</b> — 캡처하는 <b>그 순간의 값을 스냅샷</b>으로 람다 안에 넣습니다. 그래서 나중에 원본 base를 99로 바꿔도 f(5)는 캡처 시점의 10을 써 <b>'+valResult+'</b>, 원본이 사라져도 안전하죠. <b>[&]</b>는 <b>참조</b> — 원본을 그대로 가리켜, 바뀐 값 99를 반영해 <b>'+refResult+'</b>를 줍니다(최신값·복사 비용 없음). 대신 결정적 함정이 있어요: <b>참조 캡처한 지역변수가 람다보다 먼저 수명을 다하면</b>, 람다가 붙든 참조는 <b>사라진 변수를 가리키는 댕글링</b>이 됩니다 — 미정의 동작이죠. 규칙: <b>람다가 지역 범위를 벗어나 살아남는다면(콜백·저장) [=]로 값 복사가 안전</b>, 즉석에서 쓰고 버리면 [&]가 빠릅니다.'); }
+  },
+
+  // ─── 심화 3. 반복자 카테고리 (branchOf: cpp12_01) ───
+  { id:'cpp12_01_itercat', branchOf:'cpp12_01', ord:1,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(360+this.s.step*40,0.06); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var mode=s.step;                   // 0=카테고리 계층, 1=컨테이너별 연산 표
+
+      var code=[
+        {t:'// 반복자 능력에 따른 4단계 계층', dim:true},
+        {t:'vector<int> v;  list<int> L;', hl:'vector<int>'},
+        {t:'auto rit = v.begin();  // 임의접근', hl:'v.begin()'},
+        {t:'rit += 5;        // OK — 점프 가능', hl:'rit += 5'},
+        {t:'auto lit = L.begin(); // 양방향', hl:'L.begin()'},
+        {t:'++lit; --lit;    // OK — 한 칸씩만', hl:'++lit; --lit'},
+        {t:'// lit += 5;     // 오류! 점프 불가', hl:'lit += 5'},
+        {t:'//  알고리즘은 필요한 카테고리를 요구', dim:true}
+      ];
+      var act = mode===0 ? 3 : 6;
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.48, code, 'iterator_category.cpp', act);
+
+      var bx=W*0.55;
+      if(mode===0){
+        // 4단계 계층 (입력 → 순방향 → 양방향 → 임의접근)
+        ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('반복자 카테고리 — 능력이 쌓이는 계층', bx, H*0.20);
+        var cats=[
+          ['입력(input)',     '한 번 읽기·++',        '#9b99a3'],
+          ['순방향(forward)', '여러 번 읽기·++',      BLU],
+          ['양방향(bidirect)','++ 와 -- (앞뒤)',      GLD],
+          ['임의접근(random)','it+5·it[k]·it<jt',    GRN]
+        ];
+        var ry=H*0.26, rw=W*0.38, rh=34;
+        for(var i=0;i<cats.length;i++){ var yy=ry+i*(rh+10), rx=bx+i*(W*0.008);
+          ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=cats[i][2]; ctx.lineWidth=1.6;
+          roundRect(ctx, rx, yy, rw-i*(W*0.008), rh, 7); ctx.fill(); ctx.stroke();
+          ctx.fillStyle=cats[i][2]; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+          ctx.fillText(cats[i][0], rx+12, yy+rh/2);
+          ctx.fillStyle=DIM; ctx.font='12px ui-monospace,monospace';
+          ctx.fillText(cats[i][1], rx+W*0.15, yy+rh/2); ctx.textBaseline='alphabetic';
+        }
+        // 상향 화살표(능력 누적)
+        ctx.strokeStyle='rgba(159,153,163,0.5)'; ctx.lineWidth=1.4;
+        var axx=bx-14;
+        ctx.beginPath(); ctx.moveTo(axx, ry+cats.length*(rh+10)-10); ctx.lineTo(axx, ry+6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(axx, ry+6); ctx.lineTo(axx-4, ry+14); ctx.moveTo(axx, ry+6); ctx.lineTo(axx+4, ry+14); ctx.stroke();
+        ctx.save(); ctx.translate(axx-6, ry+cats.length*(rh+10)/2); ctx.rotate(-Math.PI/2);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('능력 ↑', 0, 0); ctx.restore();
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('아래로 갈수록 능력이 더해집니다 — 임의접근이 가장 강력.', bx, ry+cats.length*(rh+10)+14);
+      } else {
+        // 컨테이너별 반복자 연산 표
+        ctx.fillStyle='#eaf4fb'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('컨테이너별 반복자 능력 — 어떤 연산이 되나', bx, H*0.18);
+        var head=['컨테이너','카테고리','++','--','it+5','it[k]'];
+        var rows=[
+          ['vector','임의접근','O','O','O','O'],
+          ['deque', '임의접근','O','O','O','O'],
+          ['list',  '양방향',  'O','O','X','X'],
+          ['set/map','양방향', 'O','O','X','X'],
+          ['forward_list','순방향','O','X','X','X']
+        ];
+        var cwc=[W*0.085,W*0.075,W*0.035,W*0.035,W*0.05,W*0.05], rh=26, x0=bx, y0=H*0.22;
+        var cx=x0;
+        for(var c=0;c<head.length;c++){ ctx.fillStyle='rgba(90,180,232,0.16)'; ctx.fillRect(cx,y0,cwc[c],rh); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.strokeRect(cx,y0,cwc[c],rh);
+          ctx.fillStyle=CPB; ctx.font='600 11px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(head[c], cx+5, y0+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; }
+        for(var r=0;r<rows.length;r++){ cx=x0; var ry2=y0+rh*(r+1);
+          for(c=0;c<head.length;c++){ var first=(c===0), v=rows[r][c];
+            ctx.fillStyle= first?'rgba(255,255,255,0.05)':'rgba(255,255,255,0.02)'; ctx.fillRect(cx,ry2,cwc[c],rh);
+            ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(cx,ry2,cwc[c],rh);
+            var col='#cfd8e0';
+            if(v==='O') col=GRN; else if(v==='X') col=RED; else if(first) col=CPB;
+            ctx.fillStyle=col; ctx.font=(first?'600 ':'')+'11px '+(c>=2?'ui-monospace,monospace':'sans-serif'); ctx.textAlign='left'; ctx.textBaseline='middle';
+            ctx.fillText(v, cx+5, ry2+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; } }
+        var ny=y0+rh*(rows.length+1)+22;
+        ctx.fillStyle=GRN; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('O = 가능', bx, ny);
+        ctx.fillStyle=RED; ctx.font='12.5px sans-serif'; ctx.fillText('X = 불가', bx+70, ny);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+        ctx.fillText('sort는 임의접근을 요구 → vector는 되지만 list는 못 씀(list.sort() 멤버 사용).', bx, ny+22);
+        ctx.fillStyle=DIM;
+        ctx.fillText('find는 입력 반복자면 충분 → 어떤 컨테이너에도 통합니다.', bx, ny+42);
+      }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 카테고리 계층 ↔ 컨테이너별 연산 표', true);
+      E.big('심화 · 반복자 카테고리 — 능력의 계층', '모든 반복자가 같은 능력을 갖는 건 아닙니다. STL은 반복자를 능력에 따라 계층으로 나눕니다 — <b>입력(한 번 읽고 ++)</b> → <b>순방향(여러 번 읽기)</b> → <b>양방향(++ 와 --)</b> → <b>임의접근(it+5·it[k]로 점프)</b>. 아래로 갈수록 능력이 쌓이죠. <b>vector·deque</b>는 <b>임의접근</b>이라 <b>it+5</b>로 한 번에 뛸 수 있지만, <b>list·set·map</b>은 <b>양방향</b>뿐이라 <b>++/--로 한 칸씩</b>만 움직입니다. 이 차이는 실전을 가릅니다 — <b>sort는 임의접근 반복자를 요구</b>하므로 vector엔 되지만 list엔 안 되고(대신 list.sort() 멤버를 씀), <b>find</b>는 입력 반복자면 충분해 어디서든 통합니다. 알고리즘이 <b>요구하는 최소 카테고리</b>를 컨테이너가 제공하는지 — 그게 "이 알고리즘을 이 컨테이너에 쓸 수 있나"의 답입니다.'); }
   }
 
   ];

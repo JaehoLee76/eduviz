@@ -333,6 +333,220 @@
 
       E.tapHint(W/2, H*0.96, '화면 탭 = c.speak() → 가림 → c.Animal::speak()', true);
       E.big('재정의(overriding)와 이름 가림', '자식이 부모와 똑같은 이름·형태의 함수를 다시 정의하면, 자식 객체에서는 자식 것이 부모 것을 "가립니다"(name hiding). Cat 이 speak() 를 "Meow" 로 재정의하면 c.speak() 는 "Meow" 를 냅니다 — 부모의 speak 는 그늘에 가려지죠. 정 부모 것을 부르고 싶다면 c.Animal::speak() 처럼 범위를 콕 집어야 합니다. 그런데 여기엔 함정이 있습니다: 지금은 c 라는 변수의 "적힌 타입"만 보고 어느 speak 를 부를지 컴파일 때 미리 정해집니다("정적 바인딩"). Animal* 포인터로 고양이를 가리키면 부모 것이 불려 버리는, 다형성의 벽에 부딪히죠. 이 벽을 허무는 열쇠 virtual 은 바로 다음 장에서 만납니다.'); }
+  },
+
+  // ══════════════════ 심화학습 (제7장 상속) ══════════════════
+
+  // ─── is-a 원칙과 잘못된 상속 (리스코프) ───
+  { id:'cpp7_01_isa', branchOf:'cpp7_01', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*70,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'class Rectangle {', hl:'Rectangle'},
+        {t:'protected: int w, h;', dim:true},
+        {t:'public:', dim:true},
+        {t:'  virtual void setW(int x){ w=x; }', hl:'setW'},
+        {t:'  virtual void setH(int y){ h=y; }', hl:'setH'},
+        {t:'  int area(){ return w*h; }', hl:'area'},
+        {t:'};', dim:true},
+        {t:'class Square : public Rectangle {', hl:': public Rectangle'},
+        {t:'  void setW(int x){ w=h=x; }  // 강제', hl:'w=h=x'},
+        {t:'  void setH(int y){ w=h=y; }  // 정사각!', hl:'w=h=y'},
+        {t:'};', dim:true},
+        {t:'r.setW(5); r.setH(4);  // 기대 area=20', hl:'setW(5)'}
+      ];
+      // 실계산: 같은 호출을 Rectangle / Square 각각에 적용
+      // Rectangle: setW(5)->w=5, setH(4)->h=4 => 5*4=20 (기대대로)
+      // Square: setW(5)->w=h=5, setH(4)->w=h=4 => 4*4=16 (불변식 깨짐)
+      var rw=5, rh=4, rArea=rw*rh;          // 20
+      var sq=5; if(s.step>=2) sq=4;          // setH(4)가 폭도 4로 강제
+      var sArea=sq*sq;                        // 16 (기대 20과 어긋남)
+      var act=[3,4,4,4][s.step];
+      var codeBot=codePanel(E, W*0.03, H*0.09, W*0.50, code, 'liskov_square.cpp', act);
+
+      // 우측 x∈[0.54W,0.97W]: 두 도형 실제 넓이 비교
+      var rx0=W*0.56, topY=H*0.16, boxMax=118, scale=14;
+      // Rectangle 결과
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='700 13px sans-serif';
+      ctx.fillText('Rectangle r', rx0, topY-6);
+      var rW=rw*scale, rH=rh*scale;
+      ctx.strokeStyle=CPB; ctx.lineWidth=2; ctx.strokeRect(rx0, topY+6, rW, rH);
+      ctx.fillStyle='rgba(90,180,232,0.10)'; ctx.fillRect(rx0, topY+6, rW, rH);
+      ctx.fillStyle=CPD; ctx.font='11px ui-monospace,monospace';
+      ctx.fillText('w='+rw+', h='+rh, rx0, topY+6+rH+18);
+      ctx.fillStyle=GRN; ctx.font='700 15px ui-monospace,monospace';
+      ctx.fillText('area = '+rw+'×'+rh+' = '+rArea, rx0, topY+6+rH+40);
+      ctx.fillStyle=GRN; ctx.font='11.5px sans-serif'; ctx.fillText('✓ 기대대로', rx0, topY+6+rH+58);
+
+      // Square 결과 (오른쪽)
+      var sx0=W*0.78;
+      ctx.fillStyle=RED; ctx.font='700 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Square r  (Rectangle 상속)', sx0-W*0.02, topY-6);
+      if(s.step>=1){
+        var sPix=sq*scale;
+        ctx.strokeStyle= (s.step>=2)?RED:CPB; ctx.lineWidth=2; ctx.strokeRect(sx0, topY+6, sPix, sPix);
+        ctx.fillStyle= (s.step>=2)?'rgba(240,136,138,0.10)':'rgba(90,180,232,0.10)'; ctx.fillRect(sx0, topY+6, sPix, sPix);
+        ctx.fillStyle=CPD; ctx.font='11px ui-monospace,monospace';
+        ctx.fillText('w=h='+sq, sx0, topY+6+sPix+18);
+        var sc= (s.step>=2)?RED:GLD;
+        ctx.fillStyle=sc; ctx.font='700 15px ui-monospace,monospace';
+        ctx.fillText('area = '+sq+'×'+sq+' = '+sArea, sx0, topY+6+sPix+40);
+        if(s.step>=2){ ctx.fillStyle=RED; ctx.font='11.5px sans-serif';
+          ctx.fillText('✗ 기대 20 ≠ 실제 '+sArea, sx0, topY+6+sPix+58); }
+      }
+
+      // 좌하 설명 (codeBot+16 이상)
+      var lx=W*0.05, ly=Math.max(codeBot+26, H*0.72); if(ly>H*0.90) ly=H*0.90; ctx.textAlign='left';
+      var msg=[
+        {c:CPB, t:'Rectangle 은 setW·setH 가 서로 독립 — setW(5)·setH(4) 면 넓이 20.'},
+        {c:GLD, t:'Square 는 정사각형 유지를 위해 한 쪽을 바꾸면 다른 쪽도 강제로 바꿉니다.'},
+        {c:RED, t:'그래서 setH(4) 가 폭까지 4로 만들어 area=16 — 부모 코드의 기대(20)가 깨집니다.'},
+        {c:GLD, t:'"정사각형 is-a 직사각형"은 수학은 맞아도 동작 계약은 어긋납니다 → public 상속 부적합.'}
+      ][s.step];
+      ctx.fillStyle=msg.c; ctx.font='600 14px sans-serif'; ctx.fillText(msg.t, lx, ly);
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = setW(5) → setH(4) → 넓이 어긋남 → 결론', true);
+      E.big('심화 · is-a 원칙과 잘못된 상속', 'public 상속에는 엄격한 계약이 있습니다: "자식은 부모다(is-a)" — 부모를 쓰는 모든 코드가 자식으로 바꿔도 똑같이 동작해야 합니다. 언뜻 정사각형은 직사각형의 특수한 경우니 Square 가 Rectangle 을 상속하면 자연스러워 보입니다. 하지만 함정이 있습니다. 부모 Rectangle 은 "폭과 높이를 따로 정할 수 있다"는 것을 전제로 setW·setH 를 둡니다. Square 는 정사각형을 지키려 setH(4) 를 부르는 순간 폭까지 4로 바꿔 버리죠. 그러면 setW(5) 뒤 setH(4) 를 했을 때 부모 코드가 기대한 넓이 20 대신 16 이 나옵니다 — 부모를 믿고 짠 코드가 조용히 틀립니다. 이것이 상속 계약 위반입니다. 수학적 "특수한 경우"와 코드의 "치환 가능"은 다릅니다. 이럴 땐 상속 대신 별개 클래스로 두거나 불변식을 다시 설계해야 합니다. 상속을 쓸 땐 늘 물으세요 — "부모가 약속한 모든 동작을 자식이 그대로 지키는가?"'); }
+  },
+
+  // ─── 이름 가림(name hiding)과 using ───
+  { id:'cpp7_05_namehide', branchOf:'cpp7_05', ord:1,
+    enter:function(E){ var self=this; this.s={u:0};
+      E.controls('<div class="ctrl"><label>using Base::f; 선언</label><input type="range" id="u" min="0" max="1" step="1" value="0"><output id="uo">using 없음</output></div>');
+      E.bind('#u','input',function(e){ self.s.u=+e.target.value; document.getElementById('uo').textContent=self.s.u?'using 있음':'using 없음'; E.blip(self.s.u?420:300,0.07); });
+      E.setOn([]); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var use=(s.u===1);
+      var code=[
+        {t:'class Base {', hl:'Base'},
+        {t:'public:', dim:true},
+        {t:'  void f(int i)   { /* 정수 */ }', hl:'f(int i)'},
+        {t:'  void f(double d){ /* 실수 */ }', hl:'f(double d)'},
+        {t:'};', dim:true},
+        {t:'class Derived : public Base {', hl:': public Base'},
+        {t:'public:', dim:true},
+        use ? {t:'  using Base::f;   // 부모 오버로드 복구', hl:'using Base::f'}
+            : {t:'  // (using 없음)', dim:true},
+        {t:'  void f(char* s) { /* 문자열 */ }', hl:'f(char* s)'},
+        {t:'};', dim:true},
+        {t:'Derived d;',       hl:'Derived d'},
+        {t:'d.f(3);        // f(int) 를 원함', hl:'d.f(3)'}
+      ];
+      var codeBot=codePanel(E, W*0.03, H*0.09, W*0.50, code, use?'name_hiding_using.cpp':'name_hiding.cpp', 12);
+
+      // 골든룰: 규칙으로 어떤 f 가 보이는지 결정
+      // 자식이 f(char*) 하나라도 정의 → 이름 f 전체가 가려짐 (using 없으면 부모 f(int)/f(double) 안 보임)
+      // using Base::f; 있으면 부모 오버로드 복구 → f(int) 후보 존재
+      // d.f(3): int 인자 3
+      var candidates=[
+        {sig:'Base::f(int)',    visible: use, group:'부모'},
+        {sig:'Base::f(double)', visible: use, group:'부모'},
+        {sig:'Derived::f(char*)', visible: true, group:'자식'}
+      ];
+      // 3(int) 에 맞는 호출 결정
+      var chosen, resultOK;
+      if(use){ chosen='Base::f(int)'; resultOK=true; }        // 정확히 f(int)
+      else { chosen='Derived::f(char*)?'; resultOK=false; }   // 부모 가려짐 → int→char* 변환 불가 → 컴파일 오류
+
+      // 우측 x∈[0.55W,0.97W]: 오버로드 후보 가시성
+      var bx=W*0.57, by=H*0.15, bw=W*0.38, rowh=42;
+      ctx.textAlign='left'; ctx.fillStyle=CPD; ctx.font='600 13px sans-serif';
+      ctx.fillText('이름 f 의 오버로드 후보 (보임/가려짐)', bx, by-8);
+      for(var i=0;i<candidates.length;i++){ var c=candidates[i], ry=by+i*rowh;
+        var vis=c.visible;
+        roundRect(ctx,bx,ry,bw,rowh-8,8); ctx.fillStyle= vis?(c.group==='자식'?'rgba(126,224,176,0.10)':'rgba(90,180,232,0.12)'):'rgba(255,255,255,0.03)'; ctx.fill();
+        ctx.strokeStyle= vis?(c.group==='자식'?GRN:CPB):'rgba(255,255,255,0.15)'; ctx.lineWidth= vis?1.6:1.2;
+        ctx.setLineDash(vis?[]:[4,3]); roundRect(ctx,bx,ry,bw,rowh-8,8); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle= vis?(c.group==='자식'?GRN:CPB):DIM; ctx.font='600 13px ui-monospace,monospace';
+        ctx.fillText(c.sig, bx+12, ry+22);
+        ctx.fillStyle= vis?GRN:RED; ctx.font='11px sans-serif'; ctx.textAlign='right';
+        ctx.fillText(vis?'보임':'가려짐', bx+bw-12, ry+22); ctx.textAlign='left';
+      }
+      // 호출 결과
+      var oy=by+candidates.length*rowh+18;
+      ctx.fillStyle='#dfeaf2'; ctx.font='600 14px ui-monospace,monospace';
+      ctx.fillText('d.f(3)  →', bx, oy);
+      if(resultOK){ ctx.fillStyle=GRN; ctx.font='700 17px ui-monospace,monospace';
+        ctx.fillText(chosen+'  ✓', bx+90, oy);
+        ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.fillText('부모 오버로드가 복구되어 정확히 f(int) 이 불립니다.', bx, oy+26); }
+      else { ctx.fillStyle=RED; ctx.font='700 17px ui-monospace,monospace';
+        ctx.fillText('컴파일 오류 ✗', bx+90, oy);
+        ctx.fillStyle=RED; ctx.font='12px sans-serif'; ctx.fillText('부모 f(int)/f(double) 가 가려져 남은 건 f(char*) 뿐 — 3 을 못 받습니다.', bx, oy+26); }
+
+      var lx=W*0.05, ly=Math.max(codeBot+26, H*0.86); if(ly>H*0.92) ly=H*0.92;
+      ctx.fillStyle= use?GRN:GLD; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(use ? '핵심 규칙: 부모 오버로드를 살리려면 자식에 using Base::f; 를 넣습니다.'
+                       : '자식이 같은 이름 함수를 하나라도 정의하면 부모의 그 이름 오버로드가 전부 가려집니다.', lx, ly);
+
+      E.tapHint(W/2, H*0.96, '슬라이더로 using 선언을 켜고 끄며 f(int) 가 살아나는지 보세요', true);
+      E.big('심화 · 이름 가림과 using', '오버로딩과 상속이 만나면 놀라운 함정이 생깁니다. Base 에 f(int) 와 f(double) 두 오버로드가 있는데, Derived 가 f(char*) 하나만 새로 정의했다고 합시다. 상식적으로는 자식이 세 가지 f 를 모두 가질 것 같지만, C++ 의 규칙은 냉정합니다 — 자식이 이름 f 를 하나라도 선언하는 순간, 부모의 이름 f 전체(f(int)·f(double) 모두)가 가려집니다(name hiding). 그래서 d.f(3) 처럼 정수를 넘겨도 부모의 f(int) 은 후보에 없고, 남은 f(char*) 는 정수를 못 받아 컴파일 오류가 납니다. 왜 이렇게 설계했을까요? 상속 깊은 이름들이 뒤섞여 뜻밖의 오버로드가 불리는 사고를 막기 위해서입니다. 살리고 싶으면 자식에 using Base::f; 한 줄을 넣습니다 — 그러면 부모의 오버로드가 다시 후보에 올라와 d.f(3) 이 정확히 f(int) 을 부릅니다. "자식이 이름을 재정의하면 그 이름의 부모 오버로드를 함께 끌어올려라(using)"가 안전한 관용구입니다.'); }
+  },
+
+  // ─── 상속 비가상함수 재정의 금지 ───
+  { id:'cpp7_05_novre', branchOf:'cpp7_05', ord:2,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'class Base {', hl:'Base'},
+        {t:'public:', dim:true},
+        {t:'  void draw(){ cout<<"Base"; }  // 비가상', hl:'void draw'},
+        {t:'};', dim:true},
+        {t:'class Derived : public Base {', hl:': public Base'},
+        {t:'public:', dim:true},
+        {t:'  void draw(){ cout<<"Derived"; } // 재정의', hl:'void draw'},
+        {t:'};', dim:true},
+        {t:'Derived d;', hl:'Derived d'},
+        {t:'Derived* pd = &d;  pd->draw();', hl:'pd->draw()'},
+        {t:'Base*    pb = &d;  pb->draw();', hl:'pb->draw()'}
+      ];
+      var act=[9,9,10][s.step];
+      var codeBot=codePanel(E, W*0.03, H*0.10, W*0.50, code, 'nonvirtual_redefine.cpp', act);
+
+      // 골든룰: 비가상 → 정적 바인딩 → 포인터의 적힌 타입으로 함수 결정
+      // 같은 객체 d 를 가리키는 두 포인터가 타입에 따라 다른 draw 를 부름
+      var calls=[
+        {ptr:'Derived* pd', decl:'Derived', out:'Derived', col:GRN, on: s.step>=1},
+        {ptr:'Base*    pb', decl:'Base',    out:'Base',    col:RED, on: s.step>=2}
+      ];
+
+      // 우측 x∈[0.55W,0.97W]: 같은 객체 d, 두 포인터, 서로 다른 결과
+      var ox=W*0.74, oy=H*0.16, ow=W*0.18;
+      // 실제 객체
+      roundRect(ctx, ox, oy, ow, 60, 9); ctx.fillStyle='rgba(126,224,176,0.08)'; ctx.fill();
+      ctx.strokeStyle=GRN; ctx.lineWidth=1.6; roundRect(ctx,ox,oy,ow,60,9); ctx.stroke();
+      ctx.fillStyle=GRN; ctx.font='700 13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('실제 객체 d', ox+ow/2, oy+24);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('(진짜 타입 = Derived)', ox+ow/2, oy+42);
+
+      // 두 포인터 박스
+      var px=W*0.56, py=H*0.42, pw=W*0.40, rowh=64;
+      for(var i=0;i<calls.length;i++){ var c=calls[i], ry=py+i*rowh;
+        ctx.globalAlpha=c.on?1:0.25;
+        roundRect(ctx,px,ry,pw,rowh-12,8); ctx.fillStyle= c.on?(c.col===GRN?'rgba(126,224,176,0.10)':'rgba(240,136,138,0.12)'):'rgba(255,255,255,0.03)'; ctx.fill();
+        ctx.strokeStyle= c.on?c.col:'rgba(255,255,255,0.15)'; ctx.lineWidth= c.on?1.8:1.2; roundRect(ctx,px,ry,pw,rowh-12,8); ctx.stroke();
+        ctx.fillStyle= c.on?c.col:DIM; ctx.font='600 13px ui-monospace,monospace'; ctx.textAlign='left';
+        ctx.fillText(c.ptr+' = &d', px+14, ry+22);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillText('정적 바인딩 → 포인터 타입('+c.decl+')의 draw', px+14, ry+40);
+        ctx.fillStyle= c.on?c.col:DIM; ctx.font='700 16px ui-monospace,monospace'; ctx.textAlign='right';
+        ctx.fillText('→ "'+c.out+'"', px+pw-14, ry+30);
+        ctx.globalAlpha=1;
+      }
+
+      // 화살표: 두 포인터 → 같은 객체 d
+      if(s.step>=1){ ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+        ctx.beginPath(); ctx.moveTo(px+pw*0.5, py-4); ctx.lineTo(ox+ow/2, oy+62); ctx.stroke(); ctx.setLineDash([]); }
+
+      var lx=W*0.05, ly=Math.max(codeBot+26, H*0.88); if(ly>H*0.93) ly=H*0.93; ctx.textAlign='left';
+      if(s.step>=2){ ctx.fillStyle=RED; ctx.font='600 14px sans-serif';
+        ctx.fillText('같은 객체인데 pb->draw() 는 "Base" — 포인터 타입이 함수를 정해 버립니다.', lx, ly); }
+      else { ctx.fillStyle=GLD; ctx.font='600 14px sans-serif';
+        ctx.fillText('draw() 가 비가상이라 호출은 "적힌 포인터 타입"으로 컴파일 때 못 박힙니다.', lx, ly); }
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = Derived* 호출 → Base* 호출 → 결과 어긋남', true);
+      E.big('심화 · 비가상함수를 재정의하지 말라', '앞에서 배운 재정의(name hiding)에는 위험한 형제가 하나 있습니다 — 비가상 함수를 자식이 다시 정의하는 것입니다. draw() 가 virtual 이 아니면, 그 호출은 "실제 객체가 무엇인가"가 아니라 "포인터·참조에 적힌 타입이 무엇인가"만 보고 컴파일 때 못 박힙니다(정적 바인딩). 오른쪽을 보세요 — 똑같은 객체 d 를 가리키는데도, Derived* 로 부르면 "Derived", Base* 로 부르면 "Base" 가 나옵니다. 같은 물건이 어느 손잡이를 잡았느냐에 따라 다르게 행동하는 셈이죠. 이건 거의 항상 버그입니다: 코드를 읽는 사람은 "d 는 Derived 니까 당연히 Derived::draw 가 불리겠지"라고 믿는데, 어딘가 Base& 로 넘기는 순간 조용히 Base 것이 불려 버립니다. 그래서 규칙은 분명합니다 — 다형적으로 행동을 바꾸고 싶으면 부모에서 virtual 로 선언하고, 그럴 뜻이 없는 비가상 함수라면 자식에서 절대 같은 이름으로 재정의하지 마세요.'); }
   }
 
   ];

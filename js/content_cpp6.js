@@ -341,6 +341,190 @@
 
       E.tapHint(W/2, H*0.95, '화면 탭 = read() 호출 (hits는 mutable이라 계속 증가)', true);
       E.big('mutable — const 안에서도 열리는 작은 예외', 'const 멤버함수는 객체를 안 바꾸겠다는 약속이지만, 현실에는 “겉으로는 안 바뀐 것 같지만 속으로는 바뀌어도 되는” 멤버가 있습니다. 예컨대 조회수를 세는 hits, 결과를 저장해 두는 캐시, 스레드 잠금 플래그 같은 것들 — 이들은 객체의 “논리적 상태”가 아니라 “구현상의 부기”일 뿐이죠. 그런 멤버에 mutable을 붙이면, const 함수 안에서도, 심지어 const 객체를 통해서도 자유롭게 수정할 수 있습니다. 정리하면 이렇습니다. const 객체나 const 참조로는 const 멤버함수만 부를 수 있고, const 함수 안에서 일반 멤버는 읽기만 가능하되, mutable 멤버만은 예외로 쓰기가 허용됩니다. 이 규칙들이 모여 C++의 const-correctness — “바뀌면 안 되는 것은 컴파일러가 지켜 준다”는 안전 문화를 이룹니다.'); }
+  },
+
+  // ══════════ [심화] cpp6_03 — const 오버로딩 (const/비const operator[]) ══════════
+  { id:'cpp6_03_constoverload', branchOf:'cpp6_03',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // step0=두 오버로드 소개, 1=비const 객체 호출(쓰기 가능), 2=const 객체 호출(읽기 전용)
+      var code=[
+        {t:'class Vec {', dim:true},
+        {t:'  int* d; int n;', dim:true},
+        {t:'public:', dim:true},
+        {t:'  int& operator[](int i)      // 비-const 버전', hl:'int& operator[]'},
+        {t:'    { return d[i]; }           // 쓰기 가능', hl:'return d[i]'},
+        {t:'  const int& operator[](int i) const  // const 버전', hl:'const int& operator[]'},
+        {t:'    { return d[i]; }           // 읽기 전용', hl:'const'},
+        {t:'};', dim:true},
+        {t:'Vec v;         v[2] = 9;   // 비-const → int&', hl:'v[2] = 9'},
+        {t:'const Vec cv;  int x = cv[2];  // const → const int&', hl:'cv[2]'}
+      ];
+      var act=[3,8,9][s.step];
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.49, code, 'const_overload.cpp', act);
+
+      // 우측: 두 객체(v / cv) → 어느 오버로드가 선택되는지 (실제 규칙: 객체의 const 여부로 결정)
+      var mx=W*0.55, my=H*0.09;
+      ctx.textAlign='left'; ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif';
+      ctx.fillText('객체의 const 여부 → 선택되는 오버로드', mx, my);
+
+      var objs=[
+        { name:'Vec v',        isConst:false, call:'v[2]',  ret:'int&',        can:'쓰기 O (v[2]=9)', hi:(s.step===1) },
+        { name:'const Vec cv', isConst:true,  call:'cv[2]', ret:'const int&',  can:'읽기만 (수정 ✗)', hi:(s.step===2) }
+      ];
+      for(var i=0;i<2;i++){ var o=objs[i], ry=my+16+i*96;
+        var col = o.isConst?GLD:CPB;
+        var strong = (s.step===0) || o.hi;
+        ctx.globalAlpha = strong?1:0.45;
+        // 객체 상자
+        ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=col; ctx.lineWidth= o.hi?2.2:1.5;
+        roundRect(ctx, mx, ry, W*0.40, 80, 9); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='700 13px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(o.name, mx+14, ry+22);
+        ctx.fillStyle='#dfeaf2'; ctx.font='12.5px ui-monospace,Menlo,monospace';
+        ctx.fillText(o.call+'  →  '+(o.isConst?'const int& operator[](int) const':'int& operator[](int)'), mx+14, ry+44);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('반환 '+o.ret+'  ·  '+o.can, mx+14, ry+64);
+        ctx.globalAlpha=1;
+      }
+
+      // const_cast 관용구 요약(항상 표시, step2에서 강조)
+      var iy=my+16+2*96+14;
+      ctx.fillStyle=(s.step===2?GRN:DIM); ctx.font=(s.step===2?'600 ':'')+'12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('중복 제거 관용구: 비-const 버전이 const 버전을 재사용', mx, iy);
+      ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,Menlo,monospace';
+      ctx.fillText('return const_cast<int&>(static_cast<const Vec&>(*this)[i]);', mx, iy+18);
+
+      var px=W*0.05, py=Math.max(H*0.82, codeBot+16);
+      ctx.textAlign='left';
+      if(s.step===0){
+        ctx.fillStyle=CPB; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('같은 이름 operator[] 두 개 — 하나는 const, 하나는 아님. 오버로드로 공존합니다.', px, py);
+      } else if(s.step===1){
+        ctx.fillStyle=CPB; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('비-const 객체 v → 비-const 버전 선택 → int& 반환 → v[2]=9 로 쓰기 가능.', px, py);
+      } else {
+        ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('const 객체 cv → const 버전 선택 → const int& 반환 → 읽기만, 대입 시 컴파일 에러.', px, py);
+      }
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+      ctx.fillText('const-ness도 오버로드 기준이 됩니다 — 컴파일러가 객체의 const 여부로 알맞은 버전을 고릅니다.', px, py+19);
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 두 버전 → 비-const 객체 → const 객체', true);
+      E.big('const 오버로딩 — 같은 이름, const로 갈리는 두 버전', '표준 라이브러리의 vector나 string이 v[i]로 원소를 읽기도 하고 쓰기도 하는 비결이 여기 있습니다. operator[]를 두 벌 제공하는 것이죠 — int& operator[](int)는 비-const 객체용으로 수정 가능한 참조를 돌려주고, const int& operator[](int) const는 const 객체용으로 읽기 전용 참조를 돌려줍니다. 이 둘은 “함수 뒤 const”의 유무만 다른데, 놀랍게도 정당한 오버로드로 공존합니다. 컴파일러는 호출하는 객체가 const인지 아닌지를 보고 알맞은 버전을 자동으로 고릅니다. 비-const 객체 v는 쓰기 가능한 버전을, const 객체 cv는 읽기 전용 버전을 부르죠. 문제는 두 함수의 본체가 대개 똑같다는 것입니다. 중복을 없애는 관용구는 비-const 버전이 자신을 잠시 const로 캐스팅해 const 버전을 부른 뒤, 돌려받은 const 참조에서 const를 벗겨(const_cast) 반환하는 것입니다 — 진짜 로직은 const 버전 한 곳에만 두고, 비-const 버전은 그것을 재활용하는 셈입니다.'); }
+  },
+
+  // ══════════ [심화] cpp6_01 — 정적 초기화 순서 문제 (지역 static 싱글턴) ══════════
+  { id:'cpp6_01_staticorder', branchOf:'cpp6_01',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*70,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // step0=위험 코드 소개, 1=순서 A먼저(운좋음), 2=순서 B먼저(재앙), 3=지역static 해법
+      var danger=(s.step<=2);
+      var code = danger ? [
+        {t:'// a.cpp (번역 단위 A)', dim:true},
+        {t:'Logger  logger;      // 전역 static', hl:'Logger  logger'},
+        {t:'', dim:true},
+        {t:'// b.cpp (번역 단위 B)', dim:true},
+        {t:'Config  config;      // 생성자에서', hl:'Config  config'},
+        {t:'   logger.write("start");  // logger 사용!', hl:'logger.write'},
+        {t:'', dim:true},
+        {t:'// A,B의 초기화 순서는 표준 미정(unspecified)', dim:true}
+      ] : [
+        {t:'// 해법: 지역 static (함수 안 static)', dim:true},
+        {t:'Logger& theLogger(){', hl:'Logger& theLogger'},
+        {t:'  static Logger inst;   // 첫 호출 때 초기화', hl:'static Logger inst'},
+        {t:'  return inst;', dim:true},
+        {t:'}', dim:true},
+        {t:'// Config 생성자에서:', dim:true},
+        {t:'  theLogger().write("start"); // 늘 먼저 생성됨', hl:'theLogger()'},
+        {t:'', dim:true}
+      ];
+      var act = (s.step===0)?5 : (s.step===1)?1 : (s.step===2)?4 : 2;
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.49, code, 'static_order.cpp', act);
+
+      // 우측: 초기화 타임라인 — 두 전역의 생성 순서 (실제로 순서에 따라 성패 계산)
+      var mx=W*0.55, my=H*0.10, tw=W*0.40;
+      ctx.textAlign='left'; ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif';
+      ctx.fillText('프로그램 시작 시 전역 초기화 타임라인', mx, my);
+
+      // 타임라인 축
+      var axY=my+34, x0=mx+10, x1=mx+tw-10;
+      ctx.strokeStyle=DIM; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x0,axY); ctx.lineTo(x1,axY); ctx.stroke();
+      arrow(ctx, x1-1, axY, x1, axY, DIM);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('시간 →', x1-46, axY+18);
+
+      if(danger){
+        // step1: A(logger) 먼저 → config가 logger 사용 OK
+        // step2: B(config) 먼저 → logger 아직 미초기화 → 재앙
+        var aFirst = (s.step!==2);
+        var first = aFirst ? {n:'logger (A)', c:GRN} : {n:'config (B)', c:RED};
+        var second= aFirst ? {n:'config (B)', c:CPB} : {n:'logger (A)', c:GLD};
+        // 두 마커
+        var m1=x0+tw*0.18, m2=x0+tw*0.55;
+        [[m1,first],[m2,second]].forEach(function(p){ var px2=p[0], o=p[1];
+          ctx.fillStyle=o.c; ctx.beginPath(); ctx.arc(px2, axY, 8, 0, 7); ctx.fill();
+          ctx.fillStyle=o.c; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
+          ctx.fillText(o.n, px2, axY-14); ctx.textAlign='left';
+        });
+        var boxY=axY+40;
+        if(s.step===0){
+          ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+          ctx.fillText('두 전역이 서로 다른 파일에 있습니다. 누가 먼저?', mx, boxY);
+          ctx.fillText('C++ 표준은 이 순서를 정하지 않습니다(미정).', mx, boxY+20);
+        } else if(s.step===1){
+          ctx.fillStyle=GRN; ctx.font='700 13px sans-serif';
+          ctx.fillText('운 좋은 순서: logger 먼저 → config 생성 시 logger 준비됨 ✔', mx, boxY);
+          ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+          ctx.fillText('logger.write("start") 정상 동작 — 하지만 이건 우연입니다.', mx, boxY+20);
+        } else {
+          ctx.fillStyle=RED; ctx.font='700 13px sans-serif';
+          ctx.fillText('나쁜 순서: config 먼저 → logger 아직 미초기화 ✗', mx, boxY);
+          ctx.fillStyle=RED; ctx.font='600 12px sans-serif';
+          ctx.fillText('logger.write() → 초기화 안 된 객체 사용 → 미정의 동작(크래시)', mx, boxY+20);
+          ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+          ctx.fillText('링크·빌드 환경만 바뀌어도 순서가 뒤집혀 산발적으로 터집니다.', mx, boxY+40);
+        }
+      } else {
+        // 해법: 지역 static — 첫 호출 시 반드시 초기화 후 반환
+        var boxY2=axY+24;
+        // logger 박스 (lazy)
+        ctx.fillStyle='rgba(126,224,176,0.10)'; ctx.strokeStyle=GRN; ctx.lineWidth=1.8;
+        roundRect(ctx, mx, boxY2, tw, 60, 9); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=GRN; ctx.font='700 13px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('theLogger() 첫 호출', mx+14, boxY2+22);
+        ctx.fillStyle='#dfeaf2'; ctx.font='12px sans-serif';
+        ctx.fillText('→ static inst를 바로 그 자리에서 초기화 후 반환', mx+14, boxY2+44);
+        arrow(ctx, mx+tw*0.5, boxY2+66, mx+tw*0.5, boxY2+92, GRN);
+        ctx.fillStyle='rgba(90,180,232,0.08)'; ctx.strokeStyle=CPB; ctx.lineWidth=1.6;
+        roundRect(ctx, mx, boxY2+96, tw, 50, 9); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=CPB; ctx.font='600 12.5px sans-serif';
+        ctx.fillText('config가 theLogger()를 부르는 순간 logger는', mx+14, boxY2+118);
+        ctx.fillText('이미 살아 있음 — 순서 문제 원천 소멸 ✔', mx+14, boxY2+136);
+      }
+
+      var px=W*0.05, py=Math.max(H*0.82, codeBot+16);
+      ctx.textAlign='left';
+      if(s.step===0){
+        ctx.fillStyle=CPB; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('서로 다른 번역 단위(.cpp)의 전역 static — 어느 것이 먼저 초기화될지 미정입니다.', px, py);
+      } else if(s.step===1){
+        ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('어쩌다 A가 먼저면 동작합니다 — 하지만 “우연히 동작”은 버그의 다른 이름입니다.', px, py);
+      } else if(s.step===2){
+        ctx.fillStyle=RED; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('B가 먼저면 초기화 안 된 logger를 써 미정의 동작 — 이것이 정적 초기화 순서 문제.', px, py);
+      } else {
+        ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('해법: 전역 대신 지역 static. 함수 안 static은 첫 호출 시 딱 한 번 초기화됩니다.', px, py);
+      }
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+      ctx.fillText(s.step<3 ? '순서를 가정하지 마세요 — 서로 다른 파일의 전역 초기화 순서는 보장되지 않습니다.'
+                            : '“쓰기 직전에 반드시 존재”가 보장되므로 순서 의존이 사라집니다(싱글턴 관용구의 뿌리).', px, py+19);
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 위험 소개 → 운 좋은 순서 → 재앙 → 지역 static 해법', true);
+      E.big('정적 초기화 순서 문제 — 순서를 가정하지 말라', '서로 다른 소스 파일(번역 단위)에 놓인 전역 static 객체들은, 프로그램이 시작할 때 어떤 순서로 초기화될지 C++ 표준이 정해 주지 않습니다. 한 파일의 전역 config가 생성자 안에서 다른 파일의 전역 logger를 쓴다면, logger가 먼저 초기화되었기를 기도하는 셈이죠. 운 좋게 그 순서면 잘 돌아가지만, 컴파일러·링커·빌드 순서가 조금만 바뀌어도 순서가 뒤집혀 아직 태어나지 않은 객체를 건드리는 미정의 동작 — 산발적으로 터지고 재현하기 어려운 최악의 버그가 됩니다. 우아한 해법은 전역 static을 함수 안의 지역 static으로 바꾸는 것입니다. 함수 안 static은 선언 지점을 프로그램이 처음 지날 때, 즉 그 함수가 처음 불릴 때 딱 한 번 초기화됩니다. 그래서 config가 theLogger()를 호출하는 순간 logger는 반드시 그 자리에서 생성된 뒤 반환되죠 — “쓰기 직전에 반드시 존재”가 보장되어 순서 의존 자체가 사라집니다. 이 관용구가 바로 흔히 쓰이는 지연 초기화 싱글턴의 뿌리입니다.'); }
   }
 
   ];

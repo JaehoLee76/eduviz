@@ -374,6 +374,220 @@
 
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (vector<int> → <double> → <string>)', true);
       E.big('인스턴스화, 그리고 STL의 문', '템플릿은 그 자체로는 코드가 아니라 "코드를 찍는 틀"입니다. vector<int>를 실제로 쓰기 전엔 int용 벡터 코드가 세상에 존재하지 않죠. 그러다 vector<int>를 처음 만나는 순간, 컴파일러가 틀의 T 자리에 int를 대입해 그 타입 전용 코드를 즉석에서 만들어냅니다 — 이 과정을 인스턴스화라고 합니다. vector<double>을 또 쓰면 double용 코드가 하나 더 태어나고요. 필요한 타입만큼만, 필요할 때 코드가 생기는 셈입니다. 이 아이디어가 C++ 표준 라이브러리(STL) 전체를 떠받칩니다 — vector, map, set 같은 컨테이너와 sort, find 같은 알고리즘이 모두 템플릿이라, 여러분의 어떤 타입에도 그대로 맞춰 씁니다. 지금까지 배운 함수 템플릿·클래스 템플릿·특수화·비타입 인자가 한데 모여, 다음에 만날 STL이라는 거대한 도구 상자의 열쇠가 됩니다.'); }
+  },
+
+  // ══════════════════ 심화학습 (branchOf:'cpp10_01') ══════════════════
+
+  // ─── 의존 이름과 typename ───
+  { id:'cpp10_01_typename', branchOf:'cpp10_01', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var bad = s.step<=1;
+      var code = bad ? [
+        {t:'template <class T>', hl:'class T'},
+        {t:'void print(const T& c){', dim:true},
+        {t:'  // T::iterator 가 타입인지 값인지', dim:true},
+        {t:'  // 컴파일러는 아직 모른다!', dim:true},
+        {t:'  T::iterator it = c.begin();', hl:'T::iterator'},
+        {t:'  // ↑ "곱셈?" 으로 오해 → 파싱 오류', dim:true},
+        {t:'}', dim:true}
+      ] : [
+        {t:'template <class T>', hl:'class T'},
+        {t:'void print(const T& c){', dim:true},
+        {t:'  // typename 으로 "이건 타입!" 이라', dim:true},
+        {t:'  // 컴파일러에게 알려 준다', dim:true},
+        {t:'  typename T::iterator it = c.begin();', hl:'typename'},
+        {t:'  for(; it != c.end(); ++it) ...', dim:true},
+        {t:'}', dim:true}
+      ];
+      codePanel(E, W*0.04, H*0.13, W*0.50, code, bad?'dependent_bad.cpp':'dependent_ok.cpp', 4);
+
+      // 우측: 의존 이름 T::iterator 의 두 해석
+      var px=W*0.58, py=H*0.15, bw=W*0.37;
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText('T::iterator — 무엇으로 읽을까?', px, py);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+      ctx.fillText('T가 정해지기 전엔 두 갈래로 읽힐 수 있습니다.', px, py+18);
+
+      // 두 해석 카드
+      function card(y,tag,expr,col,ok,detail){
+        ctx.strokeStyle=col; ctx.lineWidth=1.8; ctx.fillStyle='rgba(255,255,255,0.035)';
+        roundRect(ctx,px,y,bw,70,10); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(tag, px+14, y+20);
+        ctx.fillStyle='#dfeaf2'; ctx.font='13px ui-monospace,Menlo,monospace';
+        ctx.fillText(expr, px+14, y+42);
+        ctx.fillStyle=ok?GRN:RED; ctx.font='12px sans-serif';
+        ctx.fillText(detail, px+14, y+62);
+      }
+      // 두 해석 항상 표시 (step0), step1=모호 강조, step2=typename으로 확정
+      card(py+34, '① 타입으로', 'T::iterator it;  // it 은 반복자', s.step>=2?GRN:DIM, s.step>=2, s.step>=2?'typename → 타입으로 확정':'선언인지…');
+      card(py+34+82, '② 값으로 (곱셈)', 'T::iterator * it; // 정적멤버 × it', s.step>=2?RED:GLD, false, s.step>=2?'typename이 이 오해를 막음':'…곱셈식인지 모호!');
+
+      // 하단 캡션(우측)
+      var lpx=px, lpy=Math.min(py+34+82+70+26, H*0.88);
+      ctx.textAlign='left';
+      if(s.step===0){ ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+        ctx.fillText('컴파일러는 T가 뭔지 아직 몰라 ①·② 중 못 고릅니다.', lpx, lpy); }
+      else if(s.step===1){ ctx.fillStyle=RED; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('규칙: 확신 없으면 값(곱셈)으로 가정 → 선언이 깨짐.', lpx, lpy); }
+      else { ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif';
+        ctx.fillText('typename T::iterator → "이건 타입!" 모호성 해소.', lpx, lpy); }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (모호 → 규칙 → typename 해결)', true);
+      E.big('심화 · 의존 이름과 typename — 타입임을 알려 주기', '<b>T::iterator</b>처럼 템플릿 매개변수 T에 <b>기대어(의존해)</b> 정해지는 이름을 <b>의존 이름</b>이라 합니다. 문제는 T가 아직 무엇인지 정해지기 전이라, 컴파일러가 T::iterator를 <b>타입</b>으로 읽어야 할지 <b>값(정적 멤버)</b>으로 읽어야 할지 알 수 없다는 점입니다. 예컨대 <b>T::iterator * it;</b>은 "반복자 타입의 포인터 선언"일 수도, "정적 멤버 iterator와 it의 곱셈"일 수도 있죠. 이 모호함 앞에서 C++의 규칙은 <b>확신이 없으면 값(곱셈)으로 가정</b>하는 것이라, 우리가 의도한 타입 선언이 그대로 깨져 버립니다. 그래서 의존 이름이 <b>타입</b>임을 뜻할 때는 앞에 <b>typename</b>을 붙여 "이건 타입이야"라고 못박아 줍니다 — <b>typename T::iterator it;</b>. 규칙은 간단합니다: 템플릿 안에서 T에 의존하는 이름을 타입으로 쓸 땐 typename을 붙인다. 컴파일러의 오해를 미리 막는 한 단어입니다.'); }
+  },
+
+  // ─── 템플릿 타입 추론 (T · T& · const T&) ───
+  { id:'cpp10_01_deduction', branchOf:'cpp10_01', ord:2,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*80,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // 세 함수형: f(T) 값 / f(T&) 참조 / f(const T&) const참조.  인자 int x, int& r, const int& c
+      // 표준 추론 규칙(실제):
+      //  f(T)      : 참조·const·최상위 모두 벗김 → T=int (항상)
+      //  f(T&)     : 참조는 벗기되 const 유지 → x:int, r:int, c:const int
+      //  f(const T&): const 흡수 → T=int (항상)
+      var forms=[
+        {sig:'template<class T> void f(T  x);',   fname:'f(T)',        title:'값 전달 — 벗겨진다',
+          rows:[['f(x)  // x:int',      'int'],['f(r)  // r:int&',     'int'],['f(c)  // c:const int&','int']],
+          note:'참조·const·최상위가 모두 벗겨져 항상 T=int.'},
+        {sig:'template<class T> void f(T& x);',   fname:'f(T&)',       title:'참조 전달 — const는 남는다',
+          rows:[['f(x)  // x:int',      'int'],['f(r)  // r:int&',     'int'],['f(c)  // c:const int&','const int']],
+          note:'참조는 벗기되 const 는 T 안으로 흡수돼 유지.'},
+        {sig:'template<class T> void f(const T& x);', fname:'f(const T&)', title:'const참조 — const 흡수',
+          rows:[['f(x)  // x:int',      'int'],['f(r)  // r:int&',     'int'],['f(c)  // c:const int&','int']],
+          note:'매개변수가 이미 const& — 남는 T 는 항상 int.'}
+      ];
+      var cur=forms[s.step];
+
+      var code=[
+        {t:'template <class T>', hl:'class T'},
+        {t:cur.sig.replace('template<class T> ',''), hl:cur.fname},
+        {t:'', dim:true},
+        {t:'int       x = 3;', dim:true},
+        {t:'int&      r = x;', dim:true},
+        {t:'const int c = 3;', dim:true},
+        {t:'f(x);  f(r);  f(c);   // T 추론', hl:'f(x)'}
+      ];
+      var codeBot=codePanel(E, W*0.04, H*0.14, W*0.48, code, 'deduction.cpp', 1);
+
+      // 우측: 인자별 추론된 T 표 (실제 규칙)
+      var px=W*0.56, py=H*0.16, tw=W*0.40;
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText(cur.title, px, py);
+      ctx.fillStyle=DIM; ctx.font='12.5px ui-monospace,monospace';
+      ctx.fillText(cur.fname+' 에서 추론된 T', px, py+18);
+
+      // 표 헤더
+      var ty=py+32, rh=44, col2=px+tw*0.60;
+      ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1;
+      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillText('인자 (호출)', px+10, ty+16);
+      ctx.fillText('추론된 T', col2+10, ty+16);
+      ctx.beginPath(); ctx.moveTo(px, ty+24); ctx.lineTo(px+tw, ty+24); ctx.stroke();
+      for(var k=0;k<3;k++){
+        var y=ty+24+k*rh, row=cur.rows[k];
+        // 세로 구분선
+        ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.beginPath(); ctx.moveTo(col2, y); ctx.lineTo(col2, y+rh); ctx.stroke();
+        ctx.fillStyle='#dfeaf2'; ctx.font='12.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        ctx.fillText(row[0], px+10, y+27);
+        // 결과 T: const가 남으면 강조색
+        var kept=(row[1].indexOf('const')>=0);
+        ctx.fillStyle=kept?GLD:GRN; ctx.font='700 15px ui-monospace,Menlo,monospace';
+        ctx.fillText('T = '+row[1], col2+10, y+27);
+        ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.moveTo(px, y+rh); ctx.lineTo(px+tw, y+rh); ctx.stroke();
+      }
+      ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.strokeRect(px, ty+24, tw, rh*3);
+
+      // 노트
+      ctx.fillStyle=CPB; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(cur.note, px, ty+24+rh*3+24);
+
+      // 좌측 하단 캡션
+      var lpx=W*0.05, lpy=Math.min(H*0.90, Math.max(codeBot+22, H*0.78));
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('값(T)은 다 벗기고, 참조(T&)만 const 를 남긴다 — 핵심 규칙.', lpx, lpy);
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (f(T) → f(T&) → f(const T&))', true);
+      E.big('심화 · 템플릿 타입 추론 — 참조와 const는 어떻게 될까', '<b>maxOf(3, 7)</b>처럼 인자만 넘기면 컴파일러가 T를 알아서 맞춥니다. 그런데 매개변수를 <b>값(T)</b>으로 받느냐, <b>참조(T&)</b>로 받느냐, <b>const 참조(const T&)</b>로 받느냐에 따라 벗겨지는 것이 달라집니다. 핵심 규칙 세 가지입니다. ① <b>f(T)</b> — 값으로 받으면 인자의 참조성·const·최상위 한정자가 <b>모두 벗겨져</b> 항상 T=int가 됩니다(어차피 복사본이니까). ② <b>f(T&)</b> — 참조로 받으면 참조는 벗기지만 <b>const 는 T 안으로 흡수</b>돼 남습니다. 그래서 const int를 넘기면 T=const int가 되죠. ③ <b>f(const T&)</b> — 매개변수가 이미 const 참조라, 인자의 const는 여기에 녹아 남는 T는 항상 int입니다. 오른쪽 표에서 같은 세 인자(int·int&·const int&)가 형태마다 다른 T로 추론되는 게 실제 규칙 그대로 보입니다. "값은 다 벗기고, 참조만 const 를 남긴다" — 이 한 줄이 추론의 뼈대입니다.'); }
+  },
+
+  // ══════════════════ 심화학습 (branchOf:'cpp10_03') ══════════════════
+
+  // ─── 특수화 vs 오버로딩 ───
+  { id:'cpp10_03_overloadvsspec', branchOf:'cpp10_03', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(340+this.s.step*100,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var isFunc = s.step===0;
+      var code = isFunc ? [
+        {t:'// 함수: 오버로딩으로 특정 타입 처리', dim:true},
+        {t:'template <class T>', hl:'class T'},
+        {t:'void f(T x){ /* 일반 */ }', dim:true},
+        {t:'', dim:true},
+        {t:'// 부분특수화 X — 대신 오버로딩', dim:true},
+        {t:'void f(int* x){ /* 포인터 전용 */ }', hl:'f(int* x)'},
+        {t:'', dim:true},
+        {t:'f(3);      // 일반 f<int>', hl:'f(3)'},
+        {t:'int a; f(&a); // 오버로드 f(int*)', hl:'f(&a)'}
+      ] : [
+        {t:'// 클래스: 특수화로 특정 타입 처리', dim:true},
+        {t:'template <class T>', hl:'class T'},
+        {t:'struct Box { /* 일반 */ };', dim:true},
+        {t:'', dim:true},
+        {t:'// 부분특수화 O (포인터 전부)', dim:true},
+        {t:'template <class T>', dim:true},
+        {t:'struct Box<T*> { /* 포인터 전용 */ };', hl:'Box<T*>'},
+        {t:'', dim:true},
+        {t:'Box<int>  bi;   // 일반', hl:'Box<int>'},
+        {t:'Box<int*> bp;   // 부분특수화', hl:'Box<int*>'}
+      ];
+      codePanel(E, W*0.04, H*0.11, W*0.50, code, isFunc?'func_overload.cpp':'class_specialize.cpp', isFunc?5:6);
+
+      // 우측: 두 세계 대비 카드
+      var px=W*0.60, py=H*0.16, bw=Math.min(W*0.33, W*0.97-px);
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText(isFunc?'함수 템플릿':'클래스 템플릿', px, py);
+
+      function rule(y,label,ok,detail){
+        ctx.fillStyle=ok?GRN:RED; ctx.font='700 15px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(ok?'✓':'✗', px, y);
+        ctx.fillStyle='#dfeaf2'; ctx.font='13px sans-serif';
+        ctx.fillText(label, px+22, y);
+        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillText(detail, px+22, y+18);
+      }
+      if(isFunc){
+        rule(py+28, '부분특수화 불가',       false, '함수 템플릿은 부분특수화 문법이 없음');
+        rule(py+70, '오버로딩이 우선',        true,  'f(int*) 같은 오버로드로 대체·먼저 고려');
+        rule(py+112,'과부하 해소 규칙 적용',  true,  '가장 잘 맞는 함수를 오버로드 목록에서 선택');
+      } else {
+        rule(py+28, '완전특수화 가능',        true,  'template<> struct Box<int> { … }');
+        rule(py+70, '부분특수화 가능',        true,  'Box<T*> — 포인터 전부를 한 번에');
+        rule(py+112,'오버로딩 개념 없음',     false, '클래스는 특수화로만 타입별 분기');
+      }
+
+      // 선택 결과 박스
+      var oy=py+112+40;
+      ctx.fillStyle='#0c0f16'; ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4;
+      roundRect(ctx,px,oy,bw,52,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='10.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('무엇이 선택되나', px+10, oy+15);
+      ctx.fillStyle=GRN; ctx.font='600 13px ui-monospace,Menlo,monospace';
+      if(isFunc) ctx.fillText('f(&a) → f(int*)  (오버로드)', px+10, oy+36);
+      else       ctx.fillText('Box<int*> → 부분특수화판', px+10, oy+36);
+
+      // 좌측 하단 캡션
+      var lpx=W*0.05, lpy=H*0.88;
+      ctx.textAlign='left';
+      if(isFunc){ ctx.fillStyle=RED; ctx.font='600 12.5px sans-serif';
+        ctx.fillText('흔한 함정: 함수를 부분특수화하려다 막힘 → 오버로딩으로!', lpx, lpy); }
+      else { ctx.fillStyle=CPB; ctx.font='600 12.5px sans-serif';
+        ctx.fillText('클래스는 부분특수화로 "포인터 전부" 같은 묶음도 잡습니다.', lpx, lpy); }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 함수(오버로딩) ↔ 클래스(특수화)', true);
+      E.big('심화 · 특수화 vs 오버로딩 — 함수와 클래스는 다르다', '특정 타입만 다르게 처리하고 싶을 때, <b>함수</b>와 <b>클래스</b>는 방법이 다릅니다 — 이걸 헷갈리는 것이 아주 흔한 함정입니다. <b>클래스 템플릿</b>은 완전특수화(template&lt;&gt; struct Box&lt;int&gt;)뿐 아니라 <b>부분특수화</b>(Box&lt;T*&gt; — 모든 포인터)까지 됩니다. 그래서 "포인터 전부"처럼 타입의 <b>묶음</b>을 한 번에 잡을 수 있죠. 반면 <b>함수 템플릿</b>은 <b>부분특수화가 아예 불가능</b>합니다. 대신 함수는 <b>오버로딩</b>이라는 더 강력한 도구가 있어서, f(int*)처럼 그냥 다른 함수를 하나 더 정의하면 됩니다. 호출이 일어나면 컴파일러는 <b>오버로드 후보들 중 가장 잘 맞는 것을 먼저 고르고</b>, 그 다음에야 그 함수의 특수화를 봅니다. 그래서 함수는 "부분특수화하지 말고 오버로딩하라"가 모범 사례입니다. 요약: <b>클래스는 특수화, 함수는 오버로딩</b> — 화면에서 f(&a)가 오버로드 f(int*)로, Box&lt;int*&gt;가 부분특수화판으로 각각 실제로 선택되는 걸 보세요.'); }
   }
 
   ];

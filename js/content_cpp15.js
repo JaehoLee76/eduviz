@@ -368,6 +368,350 @@
 
       E.tapHint(W/2, H*0.94, '화면 탭 = 옛 C++ ↔ 모던 C++ 비교', true);
       E.big('모던 C++ 종합 — 같은 일, 다른 세상', '2011년의 C++11부터 언어는 딴판이 됐습니다. 손으로 new/delete하고 긴 반복자 타입을 외우던 시절에서, auto로 타입을 맡기고 범위기반 for로 순회하며 스마트 포인터가 알아서 메모리를 정리하고, 람다로 함수를 그 자리에서 만들고, 이동 시맨틱으로 불필요한 복사를 없애는 시절로요. 놀라운 건 이 모든 안전과 간결함이 실행 속도를 한 톨도 희생하지 않는다는 점 — “쓰지 않는 것에는 비용이 없다”는 C++의 약속입니다. 이제 여러분은 옛 코드를 읽고 왜, 어떻게 고쳐야 하는지 압니다.'); }
+  },
+
+  // ══════════ [심화] cpp15_04 — 보편 참조(universal reference) vs 우측값 참조 ══════════
+  { id:'cpp15_04_univref', branchOf:'cpp15_04', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*80,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'// ① 구체 타입 && → 순수 우측값 참조', dim:true},
+        {t:'void f(Widget&& w);      // 우측값만', hl:'Widget&&'},
+        {t:'', dim:true},
+        {t:'// ② 템플릿 T&& → 보편 참조', dim:true},
+        {t:'template<class T>', dim:true},
+        {t:'void g(T&& x);           // 좌·우 모두', hl:'T&&'},
+        {t:'', dim:true},
+        {t:'// ③ auto&& 도 보편 참조', dim:true},
+        {t:'auto&& r = expr;         // 추론 맥락', hl:'auto&&'}
+      ];
+      var act=[1,5,8][s.step];
+      var codeBot=codePanel(E, W*0.04, H*0.09, W*0.47, code, 'universal_reference.cpp', act);
+
+      var tx=W*0.55, ty=H*0.11, botY=H*0.93;
+      ctx.textAlign='left';
+      ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText(s.step===0?'구체 타입 Widget&& — 우측값만 받습니다'
+                 :s.step===1?'템플릿 T&& — 좌값·우값 모두 받습니다'
+                 :'왜 다른가 — 타입 추론이 열쇠', tx, ty);
+
+      // 두 인자(좌값 lv, 우값 rv)가 각 함수에 바인딩되는지 실제 규칙으로 판정
+      // f(Widget&&): 좌값 불가, 우값 가능.  g(T&&): 좌값 가능(T=Widget&), 우값 가능(T=Widget)
+      function bindRow(y, label, srcTxt, ok, note){
+        var col = ok?GRN:RED;
+        ctx.fillStyle= ok?'rgba(126,224,176,0.10)':'rgba(240,136,138,0.10)';
+        ctx.strokeStyle=col; ctx.lineWidth=1.4; roundRect(ctx,tx,y,W*0.40,40,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(label, tx+12, y+16);
+        ctx.fillStyle='#dfeaf2'; ctx.font='11.5px ui-monospace,Menlo,monospace';
+        ctx.fillText(srcTxt, tx+12, y+32);
+        ctx.fillStyle=col; ctx.font='700 13px sans-serif'; ctx.textAlign='right';
+        ctx.fillText(ok?'바인딩 ✔':'바인딩 ✕', tx+W*0.40-12, y+24); ctx.textAlign='left';
+        if(note){ ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(note, tx+W*0.40+8, y+24); }
+      }
+      if(s.step===0){
+        bindRow(ty+18, '좌값 전달  f(w)',     'Widget w;  f(w);',      false, 'w는 이름 있는 좌값');
+        bindRow(ty+72, '우값 전달  f(Widget())','f(Widget());',        true,  '임시값 = 우값');
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('Widget&&는 구체 타입 && → 추론이 없어 오직 우측값에만 묶입니다.', tx, ty+130);
+        ctx.fillText('좌값 w를 넘기면 컴파일 에러 — 이동 대상 전용 오버로드로 안전합니다.', tx, ty+150);
+      } else if(s.step===1){
+        bindRow(ty+18, '좌값 전달  g(w)',     'Widget w;  g(w);   // T=Widget&',  true, 'T=Widget& → 좌값 참조');
+        bindRow(ty+72, '우값 전달  g(Widget())','g(Widget());       // T=Widget', true, 'T=Widget → 우값 참조');
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('템플릿 매개변수 T가 추론되는 T&&는 “보편 참조” — 좌값이면 T=Widget&,', tx, ty+130);
+        ctx.fillText('우값이면 T=Widget으로 추론돼 참조 축약(&& &→&)으로 양쪽을 모두 받습니다.', tx, ty+150);
+      } else {
+        // 판정 규칙 표
+        var rows=[
+          ['Widget&&', '구체 타입 &&', '추론 없음', '우측값만', RED],
+          ['T&&  (추론)', '템플릿 매개변수', '좌·우로 추론', '둘 다', GRN],
+          ['auto&&', 'auto 추론 맥락', '좌·우로 추론', '둘 다', GRN],
+          ['const T&&', 'const 붙음', '추론 아님', '우측값만', RED]
+        ];
+        var ry0=ty+20, rh=Math.max(30, Math.min(38, (botY-ry0-30)/rows.length));
+        ctx.font='12px sans-serif';
+        for(var i=0;i<rows.length;i++){ var ry=ry0+i*rh, col=rows[i][4];
+          ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(tx,ry,W*0.40,rh);
+          ctx.fillStyle=col; ctx.font='600 12px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+          ctx.fillText(rows[i][0], tx+10, ry+rh/2+4);
+          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(rows[i][1], tx+W*0.13, ry+rh/2+4);
+          ctx.fillStyle=col; ctx.font='700 12px sans-serif'; ctx.textAlign='right';
+          ctx.fillText(rows[i][3], tx+W*0.40-10, ry+rh/2+4); ctx.textAlign='left';
+        }
+        ctx.fillStyle=CPB; ctx.font='12.5px sans-serif';
+        ctx.fillText('핵심: 형태가 T&&여도 “타입 추론 맥락”일 때만 보편 참조입니다.', tx, ry0+rows.length*rh+18);
+      }
+      var px=W*0.05, py=Math.max(codeBot+16, H*0.86);
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillText('보편 참조는 완벽 전달의 토대 — 인자의 좌·우값 성질을 그대로 이어받습니다.', px, py);
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 구체 && → 템플릿 T&& → 판정 규칙', true);
+      E.big('보편 참조 vs 우측값 참조 — 같은 && 다른 의미', '<code>&&</code> 기호가 두 가지 전혀 다른 뜻으로 쓰입니다. <code>void f(Widget&&)</code>처럼 타입이 이미 정해진 &&는 순수한 우측값 참조라 오직 임시값(우측값)에만 묶입니다 — 이동 전용 오버로드죠. 그런데 <code>template&lt;class T&gt; void g(T&&)</code>나 <code>auto&& r</code>처럼 T가 추론되는 맥락의 T&&는 완전히 다릅니다. 좌값을 넘기면 T=Widget&로 추론되고 참조 축약(&& 위에 &)이 일어나 좌값 참조가, 우값을 넘기면 T=Widget으로 추론돼 우값 참조가 됩니다. 즉 좌값·우값 어느 쪽이든 받아 냅니다 — 그래서 “보편 참조”라 부릅니다. 형태만 보고 &&를 우측값 참조로 단정하지 마세요. 타입 추론이 끼어 있느냐가 판별의 열쇠입니다. 화면의 바인딩 판정은 실제 참조 축약 규칙으로 계산한 결과입니다.'); }
+  },
+
+  // ══════════ [심화] cpp15_04 — 완벽 전달 (perfect forwarding) ══════════
+  { id:'cpp15_04_forward', branchOf:'cpp15_04', ord:2,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(350+this.s.step*100,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code = s.step===0 ? [
+        {t:'// forward 없이 — 이름이 있으면 좌값!', dim:true},
+        {t:'template<class T>', dim:true},
+        {t:'void wrap(T&& x){', hl:'T&&'},
+        {t:'  sink(x);     // x는 이름→항상 좌값', hl:'sink(x)'},
+        {t:'}', dim:true},
+        {t:'', dim:true},
+        {t:'wrap(makeBig());  // 우값을 넘겨도', dim:true},
+        {t:'//   sink는 복사 생성자를 부름 (낭비)', dim:true}
+      ] : [
+        {t:'// std::forward — 원래 성질 복원', dim:true},
+        {t:'template<class T>', dim:true},
+        {t:'void wrap(T&& x){', hl:'T&&'},
+        {t:'  sink(std::forward<T>(x));', hl:'std::forward<T>(x)'},
+        {t:'}', dim:true},
+        {t:'', dim:true},
+        {t:'wrap(makeBig());  // 우값이면', dim:true},
+        {t:'//   sink는 이동 생성자를 부름 (빠름)', dim:true}
+      ];
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.48, code, s.step===0?'no_forward.cpp':'perfect_forward.cpp', 3);
+
+      var tx=W*0.56, ty=H*0.15, botY=H*0.93;
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText(s.step===0?'forward 없이 — 우값이 좌값으로 강등':'std::forward — 좌·우값 성질 보존', tx, ty);
+
+      // 파이프라인: 호출자 → wrap(x) → sink.  각 단계의 값 카테고리와 최종 선택된 생성자
+      function stageBox(x,y,w,label,cat,catCol){
+        ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=catCol; ctx.lineWidth=1.4; roundRect(ctx,x,y,w,46,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#dfeaf2'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+w/2, y+18);
+        ctx.fillStyle=catCol; ctx.font='700 12px sans-serif'; ctx.fillText(cat, x+w/2, y+36); ctx.textAlign='left';
+      }
+      var bw=W*0.12, gap=W*0.03, sy=ty+22;
+      var x0=tx, x1=tx+bw+gap, x2=tx+2*(bw+gap);
+      // 호출자는 우값(makeBig())
+      stageBox(x0, sy, bw, 'makeBig()', '우값 rvalue', GLD);
+      // 안에서 x는 언제나 좌값
+      stageBox(x1, sy, bw, 'wrap 안의 x', s.step===0? '좌값 lvalue' : '좌값 lvalue', BLU);
+      // sink에 도달할 때의 카테고리
+      var arrivedRvalue = (s.step===1);
+      stageBox(x2, sy, bw, 'sink(...)', arrivedRvalue?'우값 rvalue':'좌값 lvalue', arrivedRvalue?GRN:RED);
+      // 화살표
+      ctx.strokeStyle=DIM; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(x0+bw,sy+23); ctx.lineTo(x1,sy+23); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1+bw,sy+23); ctx.lineTo(x2,sy+23); ctx.stroke();
+      // forward 라벨
+      ctx.fillStyle=(s.step===1?GRN:RED); ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(s.step===1?'forward<T>':'그냥 x', (x1+bw+x2)/2, sy-4); ctx.textAlign='left';
+
+      // 최종 선택 생성자 + 실제 비용
+      var N=1000000;
+      var picked = arrivedRvalue ? '이동 생성자' : '복사 생성자';
+      var cost = arrivedRvalue ? 'O(1) — 포인터만' : ('O(N) — '+N.toLocaleString()+'개 복제');
+      var costCol = arrivedRvalue ? GRN : RED;
+      var yb=sy+64;
+      ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif';
+      ctx.fillText('sink가 고르는 생성자: ', tx, yb);
+      ctx.fillStyle=costCol; ctx.font='700 14px sans-serif'; ctx.fillText(picked, tx+W*0.14, yb);
+      ctx.fillStyle=costCol; ctx.font='600 13px sans-serif'; ctx.fillText('비용: '+cost, tx, yb+24);
+
+      // 비용 막대(실측 카테고리 기반)
+      var by=yb+40, barMax=W*0.34;
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('복사', tx, by+10);
+      ctx.fillStyle=RED; ctx.fillRect(tx+40, by, barMax, 12);
+      ctx.fillStyle=DIM; ctx.fillText('이동', tx, by+30);
+      ctx.fillStyle=GRN; ctx.fillRect(tx+40, by+20, 8, 12);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('← 이동은 N에 무관', tx+56, by+30);
+
+      var px=W*0.05, py=Math.max(codeBot+16, by+56);
+      if(py<botY-16){ ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillText(s.step===0? 'x는 이름이 있어 항상 좌값 — 우값을 넘겨도 sink는 복사만 합니다.'
+                              : 'forward<T>가 T의 추론 결과로 x의 원래 값 카테고리를 되살립니다.', px, py); }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = forward 없이 ↔ forward', true);
+      E.big('완벽 전달 — 인자의 성질을 그대로 넘기다', '보편 참조 <code>T&&</code>로 인자를 받으면 좌값·우값 어느 쪽이든 받을 수 있지만, 함정이 있습니다. 함수 <b>안에서 x는 이름이 있으므로 언제나 좌값</b>입니다 — 호출자가 우값(임시값)을 넘겼더라도요. 그래서 그냥 <code>sink(x)</code>라고 쓰면 sink는 늘 복사 생성자를 골라, 애써 넘긴 우값의 이동 기회를 날려 버립니다. <code>std::forward&lt;T&gt;(x)</code>가 이를 바로잡습니다 — 템플릿 매개변수 T의 추론 결과를 보고, 원래 좌값이었으면 좌값으로, 우값이었으면 우값으로 <b>값 카테고리를 복원</b>해 다음 함수에 넘깁니다. 그 결과 우값이 넘어오면 sink가 이동 생성자를 골라 O(1)에 끝내죠. std::move가 “무조건 우값으로”라면, std::forward는 “원래대로 조건부로”입니다. 라이브러리 래퍼(emplace, make_unique 등)가 인자를 손해 없이 실어 나르는 비결입니다.'); }
+  },
+
+  // ══════════ [심화] cpp15_02 — 람다 캡처 수명 함정 ══════════
+  { id:'cpp15_02_capturelife', branchOf:'cpp15_02', ord:3,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(330+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code = s.step===0 ? [
+        {t:'// [&] 참조 캡처 — 위험할 수 있음', dim:true},
+        {t:'std::function<int()> make(){', dim:true},
+        {t:'  int local = 42;', hl:'int local'},
+        {t:'  return [&]{ return local; };', hl:'[&]'},
+        {t:'}   // local 소멸! 참조는 댕글링', hl:'local 소멸'},
+        {t:'', dim:true},
+        {t:'auto f = make();', dim:true},
+        {t:'f();   // 사라진 local을 읽음 → UB', hl:'UB'}
+      ] : s.step===1 ? [
+        {t:'// [=] 값 캡처 — 복사해 안전', dim:true},
+        {t:'std::function<int()> make(){', dim:true},
+        {t:'  int local = 42;', hl:'int local'},
+        {t:'  return [=]{ return local; };', hl:'[=]'},
+        {t:'}   // 42의 복사본이 람다 안에 산다', hl:'복사본'},
+        {t:'', dim:true},
+        {t:'auto f = make();', dim:true},
+        {t:'f();   // 42 안전하게 반환', hl:'42'}
+      ] : [
+        {t:'// 이동 캡처 (C++14) — 소유권 이전', dim:true},
+        {t:'std::function<void()> make(){', dim:true},
+        {t:'  auto p = std::make_unique<Big>();', hl:'make_unique'},
+        {t:'  return [p=std::move(p)]{', hl:'p=std::move(p)'},
+        {t:'           use(*p); };', dim:true},
+        {t:'}   // p의 소유권이 람다로 이동', dim:true},
+        {t:'auto f = make();', dim:true},
+        {t:'f();   // 람다가 자원을 소유 → 안전', hl:'안전'}
+      ];
+      var act=[3,3,3][s.step];
+      var codeBot=codePanel(E, W*0.04, H*0.10, W*0.48, code, s.step===0?'ref_capture.cpp':s.step===1?'value_capture.cpp':'move_capture.cpp', act);
+
+      var tx=W*0.56, ty=H*0.13, botY=H*0.93;
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText(s.step===0?'[&] 참조 캡처 — local이 죽으면 댕글링'
+                 :s.step===1?'[=] 값 캡처 — 값을 복사해 람다가 소유'
+                 :'[p=move] 이동 캡처 — 소유권을 람다로', tx, ty);
+
+      // 스택 프레임 make() 와 그 안의 local, 그리고 람다 객체
+      var frameW=W*0.40, fy=ty+20;
+      // make() 프레임 (step에 따라 살았다/죽었다)
+      var frameAlive = false; // make()는 반환 후 항상 소멸
+      ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=DIM; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
+      roundRect(ctx,tx,fy,frameW,58,8); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('make() 스택 프레임 — 반환과 동시에 소멸 ✕', tx+10, fy+16);
+      // local 셀
+      var localCol = s.step===0? RED : (s.step===1? DIM : DIM);
+      ctx.fillStyle= s.step===0? 'rgba(240,136,138,0.10)':'rgba(255,255,255,0.04)';
+      ctx.strokeStyle=localCol; ctx.lineWidth=1.4; roundRect(ctx,tx+10,fy+26,W*0.13,24,6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=localCol; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+      ctx.fillText(s.step===2?'p (Big*)':'local=42', tx+10+W*0.065, fy+42); ctx.textAlign='left';
+
+      // 람다 객체 (make 밖에서 산다)
+      var ly=fy+82;
+      var lamCol = s.step===0? RED : GRN;
+      ctx.fillStyle= s.step===0? 'rgba(240,136,138,0.08)':'rgba(126,224,176,0.10)';
+      ctx.strokeStyle=lamCol; ctx.lineWidth=1.6; roundRect(ctx,tx,ly,frameW,58,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=lamCol; ctx.font='600 12px sans-serif'; ctx.fillText('람다 f — make() 밖에서 오래 산다', tx+10, ly+16);
+      // 람다가 품은 것
+      var boxTxt = s.step===0? '참조 → (죽은 local)' : s.step===1? '복사본 42 (자체 보유)' : '유일 소유 Big (이동됨)';
+      ctx.fillStyle= s.step===0?'rgba(240,136,138,0.10)':'rgba(126,224,176,0.12)';
+      ctx.strokeStyle=lamCol; ctx.lineWidth=1.4; roundRect(ctx,tx+10,ly+26,W*0.30,24,6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=lamCol; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+      ctx.fillText(boxTxt, tx+10+W*0.15, ly+42); ctx.textAlign='left';
+
+      // 참조 화살표 (step0: 람다 → 죽은 local, 빨강 끊김)
+      if(s.step===0){
+        ctx.strokeStyle=RED; ctx.lineWidth=1.6; ctx.setLineDash([4,4]);
+        ctx.beginPath(); ctx.moveTo(tx+W*0.16, ly+38); ctx.lineTo(tx+10+W*0.065, fy+50); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=RED; ctx.font='700 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('✕ 댕글링 참조', tx+W*0.20, ly+8);
+      }
+
+      // 결과 판정 (실제 안전성)
+      var safe = (s.step!==0);
+      var resY=ly+74;
+      ctx.fillStyle= safe?GRN:RED; ctx.font='700 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(safe? 'f() 호출 → 안전 (값이 람다 안에 있음)' : 'f() 호출 → 미정의 동작(UB) — 죽은 변수 접근', tx, resY);
+      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      var note = s.step===0? '[&]는 참조만 가둡니다. 원본이 먼저 죽으면 남은 참조는 허공을 가리킵니다.'
+               : s.step===1? '[=]는 캡처 시점에 값을 복사 → 원본 수명과 무관하게 람다가 스스로 보관.'
+               : '[p=std::move(p)]로 unique_ptr 소유권을 람다에 이전 → 복사 불가 자원도 안전 이송.';
+      if(resY+20<botY) ctx.fillText(note, tx, resY+20);
+
+      var px=W*0.05, py=Math.max(codeBot+16, H*0.87);
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillText('규칙: 람다가 만든 스코프보다 오래 살면 참조 캡처는 위험 → 값·이동 캡처로.', px, py);
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 참조 캡처(위험) → 값 캡처 → 이동 캡처', true);
+      E.big('람다 캡처 수명 — 참조를 가두면 언제 무너지나', '람다는 바깥 변수를 <b>캡처</b>해 몸통 안에서 씁니다. <code>[&]</code>는 참조로, <code>[=]</code>는 값(복사)으로 가두죠. 문제는 수명입니다. 함수 안에서 지역 변수 <code>local</code>을 <code>[&]</code>로 참조 캡처한 람다를 반환하거나 어딘가에 저장하면, 그 람다는 <code>local</code>보다 오래 살아남습니다 — 그런데 <code>local</code>은 함수가 끝나는 순간 스택에서 사라지죠. 이제 람다 안의 참조는 이미 죽은 메모리를 가리키는 <b>댕글링 참조</b>가 되고, 호출하면 미정의 동작(UB)입니다. 해법은 소유입니다: <code>[=]</code> 값 캡처는 캡처 시점에 값을 복사해 람다가 스스로 보관하니 원본 수명과 무관하게 안전하고, 복사할 수 없는 자원(예: unique_ptr)은 C++14의 <b>이동 캡처</b> <code>[p=std::move(p)]</code>로 소유권째 람다에 넘깁니다. 규칙 하나: 람다가 자기 스코프보다 오래 살 가능성이 있으면 참조 캡처를 피하고 값·이동으로 소유하게 하세요.'); }
+  },
+
+  // ══════════ [심화] cpp15_03 — constexpr 심화 (컴파일 타임 표 채우기) ══════════
+  { id:'cpp15_03_constexpr2', branchOf:'cpp15_03', ord:4,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(340+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'// constexpr — 컴파일 타임에도 실행', dim:true},
+        {t:'constexpr int fib(int n){', hl:'constexpr'},
+        {t:'  return n<2 ? n', dim:true},
+        {t:'       : fib(n-1)+fib(n-2);', dim:true},
+        {t:'}', dim:true},
+        {t:'// 컴파일 타임: 배열 크기·룩업표', dim:true},
+        {t:'constexpr int T[11] = {', hl:'constexpr int T[11]'},
+        {t:'  fib(0),fib(1),...,fib(10) };', hl:'fib(10)'},
+        {t:'int arr[fib(6)];   // 크기=8, 합법', hl:'fib(6)'}
+      ];
+      var act = s.step===0 ? 7 : 8; // step0: 표 채우기 줄, step1: 배열 크기 줄
+      var codeBot=codePanel(E, W*0.04, H*0.08, W*0.48, code, 'constexpr_deep.cpp', act);
+
+      var tx=W*0.56, ty=H*0.10, botY=H*0.93;
+      // 실제 fib 값 계산 (골든룰)
+      var fib=[]; for(var i=0;i<=10;i++){ fib[i] = i<2? i : fib[i-1]+fib[i-2]; }
+
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillText(s.step===0?'컴파일 타임에 fib 룩업표를 채웁니다'
+                             :'같은 함수를 배열 크기에도 씁니다 (컴파일 상수)', tx, ty);
+
+      if(s.step===0){
+        // 표 T[0..10] — 채워지는 애니(프레임 기반, 결정적)
+        var fillN;
+        if(!E.frozen){ /* 프레임 진행은 엔진 frame */ }
+        var fr = (E.frame||0);
+        fillN = Math.min(11, Math.floor((fr/22)) % 16); // 0..11 반복(잠시 멈춤 포함)
+        var cw=W*0.036, cy=ty+22, x0=tx;
+        for(i=0;i<=10;i++){
+          var on=(i<fillN), cur=(i===fillN);
+          cell(ctx, x0+i*cw, cy, cw-3, 26, on? fib[i] : '·',
+               on?'rgba(126,224,176,0.14)':(cur?'rgba(90,180,232,0.20)':'rgba(255,255,255,0.03)'),
+               on?GRN:(cur?CPB:'rgba(255,255,255,0.12)'), on?GRN:(cur?CPB:DIM), 12);
+          // 인덱스
+          ctx.fillStyle=DIM; ctx.font='9px ui-monospace,monospace'; ctx.textAlign='center';
+          ctx.fillText(i, x0+i*cw+(cw-3)/2, cy-4); ctx.textAlign='left';
+        }
+        // 현재 채워지는 식
+        var yb=cy+40;
+        if(fillN<=10 && fillN>=0){
+          var k=Math.min(fillN,10);
+          var expr = k<2 ? ('fib('+k+') = '+k+'  (기저)')
+                         : ('fib('+k+') = fib('+(k-1)+')+fib('+(k-2)+') = '+fib[k-1]+'+'+fib[k-2]+' = '+fib[k]);
+          ctx.fillStyle=CPB; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.fillText(expr, tx, yb);
+        } else {
+          ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.fillText('표 완성 — 실행 전에 이미 모든 값이 상수로 확정.', tx, yb);
+        }
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('전체 표 T = [ '+fib.join(', ')+' ]', tx, yb+24);
+        ctx.fillText('이 11개 값은 컴파일러가 미리 계산 → 실행 땐 조회만(비용 0).', tx, yb+44);
+      } else {
+        // 배열 크기로 쓰이는 fib(6)
+        var f6=fib[6];
+        ctx.fillStyle='#dfeaf2'; ctx.font='13px ui-monospace,Menlo,monospace';
+        ctx.fillText('int arr[ fib(6) ];', tx, ty+28);
+        // fib(6) 실제 계산
+        ctx.fillStyle=CPB; ctx.font='12.5px ui-monospace,Menlo,monospace';
+        var lines=[
+          'fib(6) = fib(5)+fib(4)',
+          '       = '+fib[5]+' + '+fib[4],
+          '       = '+f6+'   ← 컴파일 상수'
+        ];
+        for(i=0;i<lines.length;i++) ctx.fillText(lines[i], tx, ty+52+i*20);
+        // 실제 크기 arr[8] 시각화
+        var cw2=W*0.038, cy2=ty+128;
+        ctx.fillStyle=GRN; ctx.font='600 12.5px sans-serif'; ctx.fillText('→ arr는 정확히 '+f6+'칸 배열:', tx, cy2-8);
+        for(i=0;i<f6;i++){ cell(ctx, tx+i*cw2, cy2, cw2-3, 24, i, 'rgba(90,180,232,0.10)', CPB, CPD, 11); }
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('배열 크기는 컴파일 타임 상수여야 합니다 — 일반 함수는 못 쓰지만', tx, cy2+42);
+        ctx.fillText('constexpr fib(6)='+f6+'은 컴파일러가 미리 계산하므로 합법입니다.', tx, cy2+60);
+      }
+
+      var px=W*0.05, py=Math.max(codeBot+16, H*0.88);
+      if(py<botY-14){ ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillText('constexpr 함수는 상수 문맥이면 컴파일 타임에, 아니면 런타임에 — 양쪽 모두 씁니다.', px, py); }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 룩업표 채우기 ↔ 배열 크기로 사용', true);
+      E.big('constexpr 심화 — 컴파일러에게 계산을 시키다', '<code>constexpr</code> 함수는 특별한 이중 신분을 가집니다. 상수가 필요한 문맥에서 상수 인자로 부르면 <b>컴파일 타임에</b> 계산되어 결과가 바이너리에 상수로 박히고, 런타임 값으로 부르면 <b>평범한 함수처럼</b> 실행됩니다 — 한 벌의 코드로 둘 다 되는 거죠. 이 성질은 실전에서 강력합니다. 화면처럼 <code>fib(0)</code>부터 <code>fib(10)</code>까지의 값을 <b>룩업 테이블</b>로 미리 채워 두면(각 값은 실제 점화식으로 계산한 0,1,1,2,3,5,8,13,21,34,55입니다) 실행 중엔 곱셈·재귀 없이 배열을 조회만 합니다. 또 배열 크기처럼 “반드시 컴파일 타임 상수여야 하는 자리”에도 쓸 수 있어, <code>int arr[fib(6)]</code>는 컴파일러가 fib(6)=8을 미리 계산해 크기 8짜리 배열을 만듭니다. 일반 함수는 이 자리에 못 오지만 constexpr은 옵니다. 핵심 규칙: 컴파일러가 미리 알 수 있는 계산은 미리 시켜, 런타임 비용을 0으로 만드는 것입니다.'); }
   }
 
   ];

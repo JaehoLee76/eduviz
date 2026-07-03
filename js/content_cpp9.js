@@ -372,6 +372,150 @@
 
       E.tapHint(W/2, H*0.95, '슬라이더로 인덱스 i를 바꿔 접근·경계검사를 보세요', true);
       E.big('[] 등 기타 연산자 — 객체를 배열처럼', '연산자 오버로딩은 산술에만 쓰이지 않습니다. operator[]를 정의하면 우리 객체에 arr[i]라는 첨자 문법을 붙여, 마치 진짜 배열처럼 다룰 수 있습니다. 게다가 int& (참조)를 돌려주면 arr[i]를 읽는 것뿐 아니라 arr[i] = 99처럼 값을 쓰는 것도 됩니다 — 대입식의 왼쪽에 설 수 있는 것이죠. 진짜 C 배열은 범위를 넘어가도 조용히 엉뚱한 메모리를 건드려 버그의 온상이 됩니다. 그래서 operator[] 안에 경계 검사를 넣어, 잘못된 인덱스면 예외를 던지는 "안전한 배열"을 만들 수 있습니다. 슬라이더로 인덱스를 -1이나 5로 밀어 보면, 생 배열이라면 지나쳤을 실수를 이 클래스가 딱 잡아내는 게 보입니다. STL의 vector, string, map이 모두 이 operator[]로 대괄호 문법을 제공합니다 — 다음 장 템플릿과 함께 그 세계로 들어갑니다.'); }
+  },
+
+  // ══════════════════ 심화학습 (branchOf:'cpp9_03') ══════════════════
+
+  // ─── 멤버 vs 비멤버 연산자 ───
+  { id:'cpp9_03_membernonmem', branchOf:'cpp9_03', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*90,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // 실측: Money(2) + 3  및  3 + Money(2)  = Money(5).  멤버판/비멤버판 대비
+      var mv=2, iv=3, sum=mv+iv;   // 실제 계산
+
+      var member = s.step<=1;
+      var code = member ? [
+        {t:'class Money {', dim:true},
+        {t:'  int won;', dim:true},
+        {t:'public:', dim:true},
+        {t:'  Money(int w):won(w){}', hl:'Money(int w)'},
+        {t:'  // 멤버로 정의한 +', dim:true},
+        {t:'  Money operator+(int k) const {', hl:'operator+(int k)'},
+        {t:'    return Money(won + k);', hl:'won + k'},
+        {t:'  }', dim:true},
+        {t:'};', dim:true},
+        {t:'Money m(2);', dim:true},
+        {t:'m + 3;   // m.operator+(3)  OK', hl:'m + 3'},
+        {t:'3 + m;   // 3.operator+(m)  불가!', hl:'3 + m'}
+      ] : [
+        {t:'class Money {', dim:true},
+        {t:'  int won;', dim:true},
+        {t:'public:', dim:true},
+        {t:'  Money(int w):won(w){}', hl:'Money(int w)'},
+        {t:'  int val() const { return won; }', dim:true},
+        {t:'};', dim:true},
+        {t:'// 비멤버(대칭) + — 양쪽 다 됨', dim:true},
+        {t:'Money operator+(Money a, int k){', hl:'Money a, int k'},
+        {t:'  return Money(a.val() + k);', hl:'a.val() + k'},
+        {t:'}', dim:true},
+        {t:'Money operator+(int k, Money a){', hl:'int k, Money a'},
+        {t:'  return Money(k + a.val());', hl:'k + a.val()'},
+        {t:'}', dim:true}
+      ];
+      var act = member ? (s.step===0?10:11) : 7;
+      var codeBot=codePanel(E, W*0.04, H*0.10, W*0.48, code, member?'member_op.cpp':'nonmember_op.cpp', act);
+
+      // 우측: 두 방향 카드 (m+3 · 3+m)
+      var bx=W*0.58, by=H*0.14, bw=W*0.37;
+      function card(y,expr,ok,col,detail){
+        ctx.strokeStyle=col; ctx.lineWidth=1.8; ctx.fillStyle='rgba(255,255,255,0.035)';
+        roundRect(ctx,bx,y,bw,72,10); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='700 18px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        ctx.fillText(expr, bx+16, y+26);
+        ctx.fillStyle=ok?GRN:RED; ctx.font='600 13px sans-serif'; ctx.textAlign='right';
+        ctx.fillText(ok?'✓ 컴파일 OK':'✗ 오류', bx+bw-16, y+26); ctx.textAlign='left';
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText(detail, bx+16, y+50);
+      }
+      // 멤버판: 첫 방향만 OK. 비멤버판(step2): 양쪽 OK
+      card(by,      'm + 3', true, CPB, member?'m.operator+(3) → 멤버 함수 호출':'operator+(Money, int) 호출');
+      if(s.step>=1) card(by+84, '3 + m', !member, member?RED:GRN,
+        member?'3.operator+(m)? int(3)엔 멤버함수 없음':'operator+(int, Money) 대칭판이 처리');
+
+      // 설명 캡션 — 카드 아래 우측(코드패널 침범 방지)
+      var px=bx, py=Math.min(by+84+72+22, H*0.86);
+      ctx.textAlign='left';
+      if(s.step===0){ ctx.fillStyle=DIM; ctx.font='13px sans-serif';
+        ctx.fillText('멤버 +로 m + 3 은 잘 됩니다.', px, py);
+        ctx.fillText('그런데 3 + m 은?  탭 → 문제 → 비멤버로 해결', px, py+22); }
+      else if(s.step===1){ ctx.fillStyle=RED; ctx.font='600 14px sans-serif';
+        ctx.fillText('멤버 연산자는 좌변이 반드시 그 클래스여야 합니다.', px, py);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+        ctx.fillText('3 + m 은 3.operator+(m) 이 되어야 하니 int(3)엔 불가.', px, py+22); }
+      else { ctx.fillStyle=GRN; ctx.font='600 14px sans-serif';
+        ctx.fillText('대칭 연산(+, ==)은 비멤버로 두면 양쪽 다 성립!', px, py);
+        ctx.fillStyle=CPB; ctx.font='600 13px ui-monospace,Menlo,monospace';
+        ctx.fillText('m+'+iv+' = '+iv+'+m = Money('+sum+')  → 대칭 회복', px, py+22); }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (멤버 m+3 → 3+m 문제 → 비멤버 해결)', true);
+      E.big('심화 · 멤버 vs 비멤버 연산자 — 어디에 둘까', '연산자를 멤버로 둘지 클래스 바깥의 비멤버로 둘지는 취향이 아니라 규칙이 있습니다. 핵심 규칙: 산술·비교처럼 <b>대칭</b>인 이항 연산자(+, ==, &lt; 등)는 <b>비멤버</b>로 두어야 양쪽이 모두 자연스럽게 됩니다. 멤버 +는 좌변이 반드시 그 클래스여야 하므로 <b>m + 3</b>은 되지만 <b>3 + m</b>은 막힙니다 — 3에는 멤버 함수를 붙일 수 없으니까요. 특히 좌변에 암시적 변환이 필요한 경우(리터럴이 좌변)엔 멤버판이 아예 후보에 오르지 못합니다. 반면 비멤버 operator+(Money, int)와 operator+(int, Money)를 두면 두 방향 모두 대칭으로 성립합니다. 반대로 대입류(=, +=, [], -&gt;)는 반드시 <b>멤버</b>여야 합니다 — 좌변 객체를 직접 바꿔야 하니까요. 요약: <b>바꾸는 연산은 멤버, 대칭 연산은 비멤버</b>가 모범 사례입니다.'); }
+  },
+
+  // ─── 복합대입 기반 관용구 (operator+ 를 operator+= 로) ───
+  { id:'cpp9_01_compound', branchOf:'cpp9_01', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*80,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      // 실측: a=(1+2i), b=(3+4i).  tmp=a → tmp += b → (4+6i)
+      var a={re:1,im:2}, b={re:3,im:4};
+      var tmp={re:a.re, im:a.im};       // 사본
+      var afterAdd={re:a.re+b.re, im:a.im+b.im};  // += 이후
+
+      var code=[
+        {t:'class Complex {', dim:true},
+        {t:'  double re, im;', dim:true},
+        {t:'public:', dim:true},
+        {t:'  // 핵심 로직은 += 한 곳에만', dim:true},
+        {t:'  Complex& operator+=(const Complex& r){', hl:'operator+='},
+        {t:'    re += r.re;  im += r.im;', hl:'re += r.re'},
+        {t:'    return *this;', hl:'return *this'},
+        {t:'  }', dim:true},
+        {t:'};', dim:true},
+        {t:'// + 는 += 를 재사용해 구현', dim:true},
+        {t:'Complex operator+(Complex a, const Complex& b){', hl:'Complex a'},
+        {t:'  a += b;   // 사본 a 에 += 위임', hl:'a += b'},
+        {t:'  return a;', hl:'return a'},
+        {t:'}', dim:true}
+      ];
+      var act=[4,10,11,12][s.step];
+      var codeBot=codePanel(E, W*0.04, H*0.09, W*0.50, code, 'compound_idiom.cpp', act);
+
+      // 우측: a + b 가 (사본 → += → 반환)으로 흐르는 파이프라인
+      var px=W*0.60, py=H*0.14, bw=Math.min(W*0.32, W*0.97-px), bh=34, gap=14;
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 13px sans-serif';
+      ctx.fillText('a + b  =  operator+(a, b)', px, py);
+      function fbox(y,txt,col){ ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.fillStyle='rgba(255,255,255,0.04)';
+        roundRect(ctx,px,y,bw,bh,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='12.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        ctx.fillText(txt, px+12, y+21); }
+      function down(y){ ctx.strokeStyle=DIM; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(px+bw/2,y); ctx.lineTo(px+bw/2,y+gap); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px+bw/2-4,y+gap-5); ctx.lineTo(px+bw/2,y+gap); ctx.lineTo(px+bw/2+4,y+gap-5); ctx.fillStyle=DIM; ctx.fill(); }
+      var fy=py+16;
+      fbox(fy, 'Complex a = '+cstr(a.re,a.im)+'  (사본)', CPB);
+      if(s.step>=1){ down(fy+bh); fbox(fy+bh+gap, 'a += b   ('+cstr(a.re,a.im)+' += '+cstr(b.re,b.im)+')', GLD); }
+      if(s.step>=2){ down(fy+2*(bh+gap)-gap); fbox(fy+2*(bh+gap), 'a 는 이제 '+cstr(afterAdd.re,afterAdd.im), BLU); }
+      if(s.step>=3){ down(fy+3*(bh+gap)-gap); fbox(fy+3*(bh+gap), 'return a;   → '+cstr(afterAdd.re,afterAdd.im), GRN); }
+
+      // 실제 결과 박스
+      if(s.step>=3){
+        var oy=fy+4*(bh+gap)+2;
+        ctx.fillStyle='#0c0f16'; ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4;
+        roundRect(ctx,px,oy,bw,34,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('결과', px+10, oy+13);
+        ctx.fillStyle=GRN; ctx.font='700 16px ui-monospace,Menlo,monospace'; ctx.fillText('a + b = '+cstr(afterAdd.re,afterAdd.im), px+52, oy+24);
+      }
+
+      // 좌측 하단 캡션 (코드패널 아래 여백)
+      var lpx=W*0.05, lpy=Math.min(H*0.90, Math.max(codeBot+22, H*0.80));
+      ctx.textAlign='left';
+      if(s.step<3){ ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+        ctx.fillText('+ 를 += 로 구현하면 계산 로직이 한 곳에만 삽니다 — 중복 제거.', lpx, lpy); }
+      else { ctx.fillStyle=CPB; ctx.font='600 13px sans-serif';
+        ctx.fillText('+ 와 += 결과가 항상 일치 — 두 곳을 따로 짜다 어긋날 일이 없습니다.', lpx, lpy); }
+
+      E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (사본 → += → 갱신 → 반환)', true);
+      E.big('심화 · 복합대입 기반 관용구 — += 로 + 를 짓다', '<b>a + b</b>와 <b>a += b</b>는 뜻이 겹칩니다 — 둘 다 실수부는 실수부끼리, 허수부는 허수부끼리 더하죠. 그런데 두 연산자를 <b>따로따로</b> 구현하면, 나중에 규칙이 바뀔 때 한쪽만 고치다 서로 어긋나기 쉽습니다. 모범 사례인 관용구는 이렇습니다: 실제 계산 로직은 <b>operator+= 한 곳에만</b> 두고, <b>operator+ 는 += 를 재사용</b>해 만듭니다. 비결은 operator+의 첫 인자를 <b>값(사본)</b>으로 받는 것 — 넘어온 a는 이미 원본의 복사본이니, 여기에 <b>a += b</b>를 한 뒤 그 a를 돌려주면 원본은 그대로 두고 합만 얻습니다. 이렇게 하면 계산식이 한 벌뿐이라 <b>중복이 사라지고 + 와 += 가 항상 일관</b>됩니다. 화면에서 사본 a가 += 로 (4+6i)가 되어 반환되는 흐름이 실제 계산값으로 보입니다 — 이것이 대칭 연산을 짓는 표준 관용구입니다.'); }
   }
 
   ];

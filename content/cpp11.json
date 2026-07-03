@@ -38,5 +38,29 @@
    "more": "pair<int,string> p={3,\"kim\"}; — .first/.second. 임의접근이 잦으면 vector, 중간을 자주 헤집으면 list, 키로 찾고 정렬이 필요하면 map/set, 순서 없이 조회만 최고로 빠르면 unordered_map을 씁니다.",
    "more_en": "pair bundles two values (.first/.second); each map element is a pair<key,value>. Pick a container by the operation you do most: vector for random access, list for mid inserts, map/set for keyed sorted lookup, unordered_map for fastest unsorted lookup.",
    "problem": "정수 인덱스로 값을 자주 꺼내 쓰고 정렬은 필요 없다면 어떤 컨테이너가 가장 알맞을까요? (정답: vector — O(1) 임의접근, 연속 메모리로 캐시에도 유리)"
+ },
+ "cpp11_01_reserve": {
+   "ch": "C++ 제11장 · 템플릿·STL",
+   "sec": "11.1 심화 · reserve로 재할당 방지",
+   "title": "reserve로 이사를 없애다",
+   "narr": "push_back으로 vector가 자랄 때, 칸(capacity)이 차면 두 배 큰 메모리로 통째로 이사합니다. 이미 있던 원소를 전부 새 자리로 복사/이동하죠. 8번 push_back하면 capacity가 0→1→2→4→8로 뛰며 이사가 총 7회 일어납니다. 넣을 개수를 미리 안다면 v.reserve(8) 한 줄로 8칸을 한 덩어리로 먼저 확보해, 이후 push_back은 이사 0회입니다. 반복 삽입 앞에 reserve를 두는 것이 성능의 핵심 규칙입니다.",
+   "more": "capacity가 차면 배증하며 기존 원소를 전부 이사(복사/이동). push_back 8회면 이사 7회. reserve(n)로 미리 확보하면 이사 0회 — 반복 삽입 전 reserve가 핵심 규칙.",
+   "more_en": "When capacity fills, vector reallocates to double and moves all elements. 8 push_backs cause 7 moves. reserve(n) up front reduces reallocations to zero — reserve before bulk push_back is a key rule."
+ },
+ "cpp11_01_invalidation": {
+   "ch": "C++ 제11장 · 템플릿·STL",
+   "sec": "11.1 심화 · 반복자 무효화",
+   "title": "반복자 무효화 — 소리 없는 함정",
+   "narr": "vector의 원소를 가리키는 반복자·포인터·참조는 그 원소의 메모리 주소를 붙듭니다. push_back으로 capacity가 넘치면 vector는 통째로 새 메모리로 이사하고 옛 메모리를 해제합니다. 이때 이사 전에 얻어 둔 it은 여전히 옛(해제된) 주소를 가리키죠. 이를 *it로 읽거나 쓰면 댕글링 — 이미 없어진 자리를 건드리는 미정의 동작이라 조용히 엉뚱한 값을 주거나 프로그램을 무너뜨립니다. 규칙: 재할당을 부를 수 있는 연산(push_back·insert·resize) 뒤엔 반복자를 다시 얻습니다.",
+   "more": "재할당이 일어나면 기존 반복자·포인터·참조는 전부 무효(옛 주소 = 댕글링). push_back·insert·resize 뒤엔 반복자를 다시 얻어야 안전. reserve로 재할당 자체를 막을 수도 있음.",
+   "more_en": "Reallocation invalidates all existing iterators, pointers, and references (they point to freed memory — dangling). Re-obtain iterators after push_back/insert/resize, or use reserve to avoid reallocation entirely."
+ },
+ "cpp11_03_emplace": {
+   "ch": "C++ 제11장 · 템플릿·STL",
+   "sec": "11.3 심화 · emplace vs push/insert",
+   "title": "emplace_back — 제자리에서 만들기",
+   "narr": "push_back(pair(3,\"kim\"))은 세 걸음을 밟습니다. ① 컨테이너 밖에서 임시 pair를 만들고, ② 그걸 컨테이너 안으로 이동/복사한 뒤, ③ 임시 객체를 소멸시키죠. emplace_back(3, \"kim\")은 값 자체가 아니라 생성에 필요한 인자만 넘깁니다. 그러면 컨테이너가 자기 안의 자리에서 직접 객체를 만들어, 임시 생성·이동·소멸이 통째로 사라집니다. 관용구: 이미 만든 객체를 넣을 땐 push_back, 인자로 새로 만들 땐 emplace_back.",
+   "more": "push_back은 임시객체 생성→이동/복사→소멸(3단계), emplace_back은 인자로 컨테이너 안에서 직접 생성(1단계, 임시 없음). 관용구: 새로 만들어 넣으면 emplace, 이미 있으면 push.",
+   "more_en": "push_back builds a temporary, moves/copies it in, then destroys it (3 steps). emplace_back constructs in place from arguments (1 step, no temporary). Idiom: emplace when constructing new, push when you already have the object."
  }
 }

@@ -38,5 +38,29 @@
    "narr": "동적 자원은 손으로 관리하지 말고 관리 객체에 맡기세요. new 뒤에 delete를 손수 적으면 그 사이 예외나 이른 return이 끼어 delete가 실행되지 못하고 메모리가 샙니다.",
    "more": "스마트 포인터는 짝맞추기를 언어에 위임합니다 — make_unique/make_shared로 만들면 어떤 경로로 나가든 소멸자가 정리합니다. 기본은 unique_ptr(비용 0), 정말 공유가 필요할 때만 shared_ptr, 되돌아 가리키는 참조는 weak_ptr. 시그니처도 정직해집니다: 소유 이전은 unique_ptr 값 전달, 잠깐 빌려주면 참조/raw 포인터 — 타입만 봐도 주인이 드러납니다.",
    "more_en": "Let managing objects own dynamic resources. make_unique/make_shared ensure the destructor cleans up on any exit path. Default to unique_ptr (zero cost), use shared_ptr only when sharing, weak_ptr for back-references. Signatures become honest: pass unique_ptr by value to transfer ownership, a reference/raw pointer to merely borrow."
+ },
+ "cpp14_02_pimpl": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.2 심화 · pimpl 관용구",
+   "title": "unique_ptr로 pimpl — 헤더 뒤에 구현을 숨기다",
+   "narr": "헤더에 멤버를 다 적으면 구현 세부가 사용처로 새어 나가, 세부 하나만 바꿔도 그 헤더를 포함한 모든 .cpp가 다시 컴파일됩니다. pimpl은 헤더에 struct Impl; 전방 선언과 unique_ptr<Impl>만 두고 진짜 멤버는 .cpp에 숨깁니다.",
+   "more": "구현 세부를 아무리 바꿔도 헤더가 그대로라 사용처는 재컴파일할 필요가 없습니다 — 컴파일 방화벽입니다. 수명은 unique_ptr<Impl>이 관리하며, 불완전 타입이라 소멸자는 반드시 .cpp에서 정의합니다. ABI 안정성과 빌드 속도를 함께 얻는 모범 사례입니다. 화면은 세부 하나를 바꿨을 때 재컴파일되는 파일 수를 실제로 셉니다.",
+   "more_en": "Put only a struct Impl; forward declaration and unique_ptr<Impl> in the header, hiding real members in the .cpp — a compile firewall. Changing implementation details no longer forces users to recompile. unique_ptr manages the lifetime; define the destructor in the .cpp (Impl is incomplete in the header)."
+ },
+ "cpp14_03_makeshared": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.3 심화 · make_shared의 이점",
+   "title": "make_shared의 이점 — 한 번에 할당하고, 안전하게",
+   "narr": "shared_ptr<T>(new T)는 객체와 제어 블록을 따로 할당합니다(힙 할당 2회) — 느리고 메모리에 흩어집니다. make_shared<T>(...)는 둘을 한 덩어리로 합쳐 단 한 번에 할당합니다(빠르고 캐시 친화적).",
+   "more": "게다가 예외 안전까지 챙깁니다: f(shared_ptr<T>(new T), g())에서 g()가 먼저 던지면 소유되기 전의 T가 누수될 수 있는데, make_shared는 생성과 소유를 한 호출로 묶어 그 틈을 없앱니다. 화면은 두 방식의 힙 할당 횟수(2 대 1)를 실제로 표시합니다. 기본은 make_shared — 다만 weak_ptr이 오래 살거나 커스텀 deleter가 필요하면 예외입니다.",
+   "more_en": "shared_ptr<T>(new T) allocates object and control block separately (two heap allocations); make_shared fuses them into one — faster and cache-friendly. It's also exception-safe: it binds creation and ownership in one call, closing the leak window that new-in-arguments leaves open. Prefer make_shared by default."
+ },
+ "cpp14_04_customdel": {
+   "ch": "C++ 제14장 · 안전·모던",
+   "sec": "14.5 심화 · 커스텀 deleter",
+   "title": "커스텀 deleter — delete가 아닌 정리를 위임하다",
+   "narr": "스마트 포인터의 기본 정리는 delete입니다. 하지만 FILE*는 fclose, malloc 메모리는 free, 소켓은 close로 닫습니다. 이런 자원엔 스마트 포인터에게 커스텀 deleter를 건네 delete 대신 지정한 정리 함수를 부르게 합니다.",
+   "more": "unique_ptr은 타입에 deleter를 담고(decltype(del)), shared_ptr은 생성자 인자로 받습니다. 스코프가 끝나면 언어가 지정한 정리 함수(fclose·free…)를 예외로 나가든 return으로 나가든 자동 호출합니다 — 손으로 짝맞추다 빠뜨리는 실수가 사라집니다. 화면은 자원 종류를 바꿔 스코프 종료 시 어떤 정리 함수가 불리는지 보여 줍니다.",
+   "more_en": "The default cleanup is delete, but FILE* needs fclose, malloc'd memory needs free, sockets need close. Hand the smart pointer a custom deleter and it calls that instead — unique_ptr stores it in the type (decltype(del)), shared_ptr takes it as a ctor argument. Any exit path triggers the right cleanup automatically."
  }
 }

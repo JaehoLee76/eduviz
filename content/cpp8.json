@@ -29,7 +29,7 @@
   "sec": "8.4 가상 소멸자",
   "title": "가상 소멸자 (핵심 규칙)",
   "narr": "Animal* p = new Cat(); delete p; — 부모 소멸자에 virtual 이 없으면 ~Animal 만 불리고 ~Cat 이 건너뛰어져, Cat 이 잡은 힙 자원이 새어 나갑니다. virtual ~Animal() 로 만들면 ~Cat → ~Animal 이 순서대로 불려 누수 0.",
-  "more": "규칙: 다형적으로 쓸(부모 포인터로 delete 할) 기반 클래스에는 반드시 가상 소멸자를 두라 (스콧 마이어스).",
+  "more": "규칙: 다형적으로 쓸(부모 포인터로 delete 할) 기반 클래스에는 반드시 가상 소멸자를 두라.",
   "more_en": "Deleting a derived object via a base pointer calls only ~Base unless the base destructor is virtual — leaking the derived resource. Give polymorphic base classes a virtual destructor."
  },
  "cpp8_05": {
@@ -39,5 +39,29 @@
   "narr": "Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고 for 문으로 s->area() 를 부릅니다. 코드는 도형 종류를 전혀 모르지만, virtual 덕분에 그 자리의 실제 객체가 제 공식(원 πr²·사각형 w·h)으로 답해 넓이를 실측 누적합니다.",
   "more": "내일 Triangle 을 추가해도 for 문은 한 글자도 안 바뀝니다 — area() 를 구현한 새 자식만 넣으면 끝. 이 확장성이 다형성의 진짜 힘입니다.",
   "more_en": "Iterating a Shape* array and calling s->area() lets each object answer with its own formula (real πr² / w·h). Adding a new shape needs no change to the loop — the power of polymorphism."
+ },
+ "cpp8_02_nvi": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.2 심화 · NVI 관용구",
+  "title": "NVI(비가상 인터페이스) 관용구",
+  "narr": "바깥에 드러나는 run() 은 비가상으로 고정하고, 그 안에서 private 가상 doRun() 을 부릅니다. 전·후처리(로깅 등)는 부모가 붙박이로 통제하고, 파생은 가운데 알맹이만 재정의 — 순서는 start → 알맹이 → end 로 항상 같습니다.",
+  "more": "'무엇을 언제 하는지(뼈대)는 부모가, 그 사이 알맹이만 자식이' — 재정의의 범위를 안전하게 좁히는 설계 관용구입니다.",
+  "more_en": "A public non-virtual run() calls a private virtual doRun(). The parent fixes the pre/post steps; derived classes override only the middle. This narrows what can be overridden, keeping the skeleton consistent."
+ },
+ "cpp8_02_defarg": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.2 심화 · 가상함수 기본 인자 함정",
+  "title": "가상함수 기본 매개변수 함정",
+  "narr": "가상 함수의 기본 인자는 정적 바인딩(포인터 타입)으로, 함수 본체는 동적 바인딩(실제 객체)으로 결정됩니다. Shape* p=&circle; p->draw() 면 Circle 의 몸통이 Shape 의 기본값 1로 실행돼 print(\"Circle\",1) 이라는 이상한 조합이 나옵니다.",
+  "more": "가상 함수에는 기본 인자를 걸지 마세요 — 필요하면 비가상 함수에 기본값을 두고 그 안에서 인자 없는 가상 함수를 부릅니다.",
+  "more_en": "A virtual function's default argument binds statically (pointer type), but its body binds dynamically (actual object). Mixing them yields odd results like the child's body run with the parent's default. Never give virtual functions default arguments."
+ },
+ "cpp8_03_purevimpl": {
+  "ch": "C++ 제8장 · 객체지향",
+  "sec": "8.3 심화 · 순수 가상함수에 구현 제공",
+  "title": "순수 가상함수에 구현 제공",
+  "narr": "= 0 은 '몸통이 없다'가 아니라 '파생이 반드시 재정의해야 한다'는 뜻일 뿐 — 순수 가상함수에도 클래스 밖에서 구현을 붙일 수 있습니다. 파생 Dog 는 move() 를 재정의하되 Animal::move() 로 공통 기본동작을 재사용하고 자기 것을 덧붙입니다.",
+  "more": "인터페이스는 강제하되(재정의 필수), 공통 살림은 부모가 한 번만 써 두고 자식이 Base::f() 로 빌려 쓰는 — 중복을 줄이는 관용구입니다.",
+  "more_en": "A pure virtual (=0) still may have a body defined out of class. The class stays abstract, but derived classes can reuse the shared default via Base::f() while adding their own — reducing duplication."
  }
 }

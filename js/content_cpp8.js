@@ -308,7 +308,7 @@
       ctx.fillText('규칙: 부모 포인터로 delete 할 자식이 있다면 부모 소멸자는 반드시 virtual.', W*0.05, H*0.92);
 
       E.tapHint(W/2, H*0.96, '슬라이더로 ~Animal 의 virtual 을 켜고 끄며 누수를 비교하세요', true);
-      E.big('가상 소멸자 — 자원을 새지 않게 (핵심 규칙)', 'Animal* p = new Cat(); delete p; — 부모 포인터로 자식을 지웁니다. 이때 부모 소멸자에 virtual 이 없으면, 컴파일러는 포인터 타입만 보고 ~Animal 만 부릅니다. 자식 ~Cat 은 건너뛰어지죠. 문제는 Cat 이 생성자에서 new int[100] 으로 힙을 잡았고 그 반납을 ~Cat 의 delete[] 에 맡겼다는 것 — ~Cat 이 안 불리면 그 400바이트는 영영 새어 나갑니다. 해결은 한 단어: 부모 소멸자를 virtual ~Animal() 로 만들면, delete p 가 실제 객체가 Cat 임을 알아채 ~Cat → ~Animal 을 순서대로 부릅니다. 자원은 안전히 반납되고 누수는 0. 스콧 마이어스의 격언 그대로 — "다형적으로 쓸 기반 클래스에는 가상 소멸자를 두라."'); }
+      E.big('가상 소멸자 — 자원을 새지 않게 (핵심 규칙)', 'Animal* p = new Cat(); delete p; — 부모 포인터로 자식을 지웁니다. 이때 부모 소멸자에 virtual 이 없으면, 컴파일러는 포인터 타입만 보고 ~Animal 만 부릅니다. 자식 ~Cat 은 건너뛰어지죠. 문제는 Cat 이 생성자에서 new int[100] 으로 힙을 잡았고 그 반납을 ~Cat 의 delete[] 에 맡겼다는 것 — ~Cat 이 안 불리면 그 400바이트는 영영 새어 나갑니다. 해결은 한 단어: 부모 소멸자를 virtual ~Animal() 로 만들면, delete p 가 실제 객체가 Cat 임을 알아채 ~Cat → ~Animal 을 순서대로 부릅니다. 자원은 안전히 반납되고 누수는 0. 한 문장 규칙으로 요약하면 — "다형적으로 쓸 기반 클래스에는 가상 소멸자를 두라."'); }
   },
 
   // ══════════ 5. 다형성 활용 — Shape* 배열 넓이 합 ══════════
@@ -378,6 +378,211 @@
 
       E.tapHint(W/2, H*0.96, '화면 탭 = 도형을 하나씩 순회하며 넓이 누적', true);
       E.big('다형성의 활용 — 하나의 이름, 각자의 답', '이제 다형성이 왜 강력한지 보입니다. Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고, for 문 한 줄로 s->area() 를 부릅니다. 이 코드는 s 가 원인지 사각형인지 전혀 묻지 않습니다 — virtual 덕분에, 매 반복마다 그 자리에 실제로 들어 있는 객체가 제 넓이 공식으로 답하죠. 원이면 πr², 사각형이면 w·h. 오른쪽에서 넓이가 하나씩 실제로 계산되어 total 에 쌓입니다(원 넓이는 π 로 진짜 계산). 만약 내일 Triangle 을 추가해도 이 for 문은 한 글자도 바뀌지 않습니다 — area() 를 구현한 새 자식만 배열에 넣으면 끝. "같은 인터페이스, 다른 구현" — 이 확장성이 객체지향 다형성의 진짜 힘입니다.'); }
+  },
+
+  // ══════════════════ 심화학습 (제8장 다형성) ══════════════════
+
+  // ─── NVI (비가상 인터페이스) 관용구 ───
+  { id:'cpp8_02_nvi', branchOf:'cpp8_02', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*60,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'class Report {', hl:'Report'},
+        {t:'public:', dim:true},
+        {t:'  void run(){          // 비가상 (고정)', hl:'void run'},
+        {t:'    log("start");      // 공통 전처리', hl:'log("start")'},
+        {t:'    doRun();           // 가상 알맹이', hl:'doRun()'},
+        {t:'    log("end");        // 공통 후처리', hl:'log("end")'},
+        {t:'  }', dim:true},
+        {t:'private:', dim:true},
+        {t:'  virtual void doRun() = 0; // 파생이 채움', hl:'virtual void doRun'},
+        {t:'};', dim:true},
+        {t:'class Sales : public Report {', hl:'Sales'},
+        {t:'  void doRun(){ /* 매출 표 */ }', hl:'doRun'},
+        {t:'};   Sales r;  r.run();', hl:'r.run()'}
+      ];
+      var act=[3,4,5,12][s.step];
+      var codeBot=codePanel(E, W*0.03, H*0.08, W*0.50, code, 'nvi_idiom.cpp', act);
+
+      // 골든룰: run() 호출 시 실제 실행 로그를 순서대로 조립
+      var seq=[
+        {t:'log("start")',        note:'부모가 통제하는 전처리', col:CPB, on:s.step>=1},
+        {t:'doRun()  (가상 호출)', note:'실제 객체 Sales::doRun 실행', col:GRN, on:s.step>=2},
+        {t:'log("end")',          note:'부모가 통제하는 후처리', col:CPB, on:s.step>=3}
+      ];
+
+      // 우측 x∈[0.55W,0.97W]: public run() → private doRun() 흐름
+      var bx=W*0.57, by=H*0.14, bw=W*0.38;
+      // public run() 헤더
+      roundRect(ctx,bx,by,bw,38,8); ctx.fillStyle='rgba(90,180,232,0.12)'; ctx.fill();
+      ctx.strokeStyle=CPB; ctx.lineWidth=1.8; roundRect(ctx,bx,by,bw,38,8); ctx.stroke();
+      ctx.fillStyle=CPB; ctx.font='700 13px ui-monospace,monospace'; ctx.textAlign='left';
+      ctx.fillText('public run()  ← 사용자가 부름', bx+12, by+23);
+
+      var sy=by+56, rowh=52;
+      for(var i=0;i<seq.length;i++){ var e=seq[i], ry=sy+i*rowh;
+        ctx.globalAlpha=e.on?1:0.25;
+        var isVirtual=(i===1);
+        roundRect(ctx,bx+18,ry,bw-18,rowh-12,8);
+        ctx.fillStyle= e.on?(isVirtual?'rgba(126,224,176,0.12)':'rgba(90,180,232,0.08)'):'rgba(255,255,255,0.03)'; ctx.fill();
+        ctx.strokeStyle= e.on?e.col:'rgba(255,255,255,0.15)'; ctx.lineWidth= e.on?1.6:1.2;
+        ctx.setLineDash(isVirtual?[5,3]:[]); roundRect(ctx,bx+18,ry,bw-18,rowh-12,8); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle= e.on?e.col:DIM; ctx.font='600 13px ui-monospace,monospace';
+        ctx.fillText((i+1)+'. '+e.t, bx+30, ry+18);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillText(e.note, bx+30, ry+35);
+        ctx.globalAlpha=1;
+        // 연결선
+        if(i<seq.length-1){ ctx.strokeStyle='rgba(90,180,232,0.3)'; ctx.lineWidth=1.5;
+          ctx.beginPath(); ctx.moveTo(bx+30, ry+rowh-12); ctx.lineTo(bx+30, ry+rowh); ctx.stroke(); }
+      }
+      // 실제 출력 로그 조립 (골든룰)
+      var out=''; if(s.step>=1) out+='start '; if(s.step>=2) out+='[Sales] '; if(s.step>=3) out+='end';
+      var oy=sy+seq.length*rowh+8;
+      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('실행 로그:', bx, oy);
+      ctx.fillStyle=GRN; ctx.font='600 15px ui-monospace,monospace'; ctx.fillText(out||'(아직 없음)', bx, oy+22);
+
+      var lx=W*0.05, ly=Math.max(codeBot+26, H*0.86); if(ly>H*0.92) ly=H*0.92; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.font='12.5px sans-serif';
+      ctx.fillText('전·후처리는 부모가 붙박이로 통제하고, 파생은 가운데 알맹이(doRun)만 바꿉니다.', lx, ly);
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = 전처리 → 가상 알맹이 → 후처리', true);
+      E.big('심화 · 비가상 인터페이스(NVI) 관용구', '가상 함수를 public 으로 그냥 노출하면, 파생 클래스마다 전처리·후처리를 잊거나 제각각으로 넣어 일관성이 무너지기 쉽습니다. NVI(비가상 인터페이스) 관용구는 이 순서를 뒤집습니다: 바깥에 드러나는 함수 run() 은 비가상으로 고정하고, 그 안에서 private 가상 함수 doRun() 을 부릅니다. 사용자는 언제나 run() 만 호출하죠. run() 은 항상 같은 골격을 실행합니다 — 먼저 공통 전처리(로깅·락·검증), 그다음 doRun() 으로 파생마다 다른 "알맹이"를 실행, 마지막에 공통 후처리. 파생 클래스 Sales 는 doRun() 만 채우면 되고, 전·후처리를 손댈 수도 없고 잊을 수도 없습니다 — 부모가 뼈대를 완전히 통제하니까요. 오른쪽 로그가 순서 그대로입니다: start → [Sales] → end. "무엇을 언제 하는지(뼈대)는 부모가, 그 사이 알맹이만 자식이" — 재정의의 범위를 안전하게 좁히는 강력한 설계 관용구입니다.'); }
+  },
+
+  // ─── 가상함수 기본 매개변수 함정 ───
+  { id:'cpp8_02_defarg', branchOf:'cpp8_02', ord:2,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*80,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'class Shape {', hl:'Shape'},
+        {t:'public:', dim:true},
+        {t:'  virtual void draw(int color = 1){', hl:'color = 1'},
+        {t:'    print("Shape", color); }', dim:true},
+        {t:'};', dim:true},
+        {t:'class Circle : public Shape {', hl:'Circle'},
+        {t:'  void draw(int color = 5){        // 기본 5', hl:'color = 5'},
+        {t:'    print("Circle", color); }', dim:true},
+        {t:'};', dim:true},
+        {t:'Shape* p = new Circle();', hl:'new Circle()'},
+        {t:'p->draw();   // 기본 인자? 구현?', hl:'p->draw()'}
+      ];
+      var act=[2,6,10][s.step];
+      var codeBot=codePanel(E, W*0.03, H*0.10, W*0.50, code, 'virtual_default_arg.cpp', act);
+
+      // 골든룰: 규칙으로 두 조각을 각각 정적/동적으로 결정
+      // 기본 인자: 정적 바인딩 → 포인터 타입 Shape 의 기본값 = 1
+      // 함수 본체: 동적 바인딩 → 실제 객체 Circle::draw 실행
+      // 결과: Circle 의 코드가 color=1(Shape 기본값!)로 실행 → print("Circle", 1)
+      var argFrom = 'Shape (정적 타입)';   var argVal = 1;
+      var bodyFrom = 'Circle (동적 객체)'; var bodyName = 'Circle::draw';
+      var result = 'print("Circle", '+argVal+')';
+
+      // 우측 x∈[0.55W,0.97W]: 두 조각이 서로 다른 출처에서 온다
+      var bx=W*0.57, by=H*0.15, bw=W*0.38, rowh=70;
+      var rows=[
+        {label:'기본 인자 color', from:argFrom, val:'= '+argVal, bind:'정적 바인딩', col:GLD, on:s.step>=1},
+        {label:'함수 본체 draw',  from:bodyFrom, val:bodyName, bind:'동적 바인딩', col:GRN, on:s.step>=2}
+      ];
+      ctx.textAlign='left'; ctx.fillStyle=CPD; ctx.font='600 13px sans-serif';
+      ctx.fillText('p->draw() 는 두 조각으로 쪼개집니다', bx, by-8);
+      for(var i=0;i<rows.length;i++){ var r=rows[i], ry=by+i*rowh;
+        ctx.globalAlpha=r.on?1:0.25;
+        roundRect(ctx,bx,ry,bw,rowh-14,9); ctx.fillStyle= r.on?(r.col===GLD?'rgba(255,210,122,0.10)':'rgba(126,224,176,0.10)'):'rgba(255,255,255,0.03)'; ctx.fill();
+        ctx.strokeStyle= r.on?r.col:'rgba(255,255,255,0.15)'; ctx.lineWidth= r.on?1.7:1.2; roundRect(ctx,bx,ry,bw,rowh-14,9); ctx.stroke();
+        ctx.fillStyle= r.on?r.col:DIM; ctx.font='600 13px ui-monospace,monospace';
+        ctx.fillText(r.label+'  '+r.val, bx+14, ry+22);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillText('출처: '+r.from+'  ('+r.bind+')', bx+14, ry+42);
+        ctx.globalAlpha=1;
+      }
+      // 뒤섞인 결과
+      var oy=by+rows.length*rowh+6;
+      if(s.step>=2){
+        ctx.fillStyle=RED; ctx.font='700 13px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('⚠ 뒤섞임: Circle 의 몸통이 Shape 의 기본값 1 로 실행', bx, oy);
+        ctx.fillStyle='#dfeaf2'; ctx.font='600 12px sans-serif'; ctx.fillText('실제 출력:', bx, oy+26);
+        ctx.fillStyle=RED; ctx.font='700 17px ui-monospace,monospace'; ctx.fillText(result, bx, oy+50);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillText('기대했던 5(Circle 기본값)도 아니고 "Shape"도 아닌 이상한 조합', bx, oy+70);
+      }
+
+      var lx=W*0.05, ly=Math.max(codeBot+26, H*0.88); if(ly>H*0.93) ly=H*0.93; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.font='12.5px sans-serif';
+      ctx.fillText('기본 인자는 포인터 타입으로, 함수 본체는 실제 객체로 — 출처가 갈려 사고가 납니다.', lx, ly);
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = 기본 인자(정적) → 본체(동적) → 뒤섞인 결과', true);
+      E.big('심화 · 가상함수 기본 매개변수의 함정', '가상 함수 하나에 기본 인자를 걸어 두면, 겉보기엔 편해도 조용한 함정이 생깁니다. p->draw() 한 번의 호출이 사실은 서로 다른 규칙을 따르는 두 조각으로 쪼개지기 때문입니다. 첫째, 기본 인자 color 의 값은 정적 바인딩으로 결정됩니다 — 즉 포인터에 적힌 타입 Shape 를 보고 Shape 의 기본값 1 을 씁니다(실행 시점이 아니라 컴파일 시점에 박힘). 둘째, 실제 실행될 함수 본체는 동적 바인딩으로 결정됩니다 — 진짜 객체가 Circle 이니 Circle::draw 의 코드가 돕니다. 이 둘이 뒤섞이면 결과는 print("Circle", 1) — Circle 의 몸통이 엉뚱하게 Shape 의 기본값 1 로 실행됩니다. 개발자가 기대한 5(Circle 의 기본값)도, 부모의 "Shape"도 아닌 괴상한 조합이죠. 이유를 모르면 몇 시간을 태우는 버그입니다. 안전한 습관은 분명합니다 — 가상 함수에는 기본 인자를 걸지 마세요. 정 필요하면 앞서 본 NVI 처럼 비가상 함수 쪽에 기본값을 두고 그 안에서 인자 없는 가상 함수를 부르면 됩니다.'); }
+  },
+
+  // ─── 순수 가상함수에 구현 제공 ───
+  { id:'cpp8_03_purevimpl', branchOf:'cpp8_03', ord:1,
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; E.blip(340+this.s.step*80,0.08); },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      var code=[
+        {t:'class Animal {', hl:'Animal'},
+        {t:'public:', dim:true},
+        {t:'  virtual void move() = 0;  // 순수 가상', hl:'= 0'},
+        {t:'};', dim:true},
+        {t:'// 하지만 몸통을 줄 수 있다!', dim:true},
+        {t:'void Animal::move(){', hl:'Animal::move'},
+        {t:'  cout << "다리로 걷기(공통 기본)";', hl:'공통 기본'},
+        {t:'}', dim:true},
+        {t:'class Dog : public Animal {', hl:'Dog'},
+        {t:'  void move(){', hl:'move'},
+        {t:'    Animal::move();  // 공통 동작 재사용', hl:'Animal::move()'},
+        {t:'    cout << " + 꼬리 흔들기"; }', hl:'꼬리'},
+        {t:'};', dim:true}
+      ];
+      var act=[2,5,10][s.step];
+      var codeBot=codePanel(E, W*0.03, H*0.08, W*0.50, code, 'pure_virtual_impl.cpp', act);
+
+      // 골든룰: Dog::move() 실행 시 실제로 이어붙는 출력
+      // 1) 선언 =0 → 추상 (Dog 는 반드시 재정의)
+      // 2) 그럼에도 Animal::move 에 몸통 존재 → 공통 기본 동작
+      // 3) Dog::move 가 Animal::move() 를 명시 호출 후 자기 것 추가
+      var base='다리로 걷기(공통 기본)';
+      var extra=' + 꼬리 흔들기';
+      var out=''; if(s.step>=1) out=base; if(s.step>=2) out=base+extra;
+
+      // 우측 x∈[0.55W,0.97W]
+      var bx=W*0.57, by=H*0.14, bw=W*0.38;
+      // Animal (추상, 하지만 구현 보유)
+      roundRect(ctx,bx,by,bw,58,9); ctx.fillStyle='rgba(90,180,232,0.06)'; ctx.fill();
+      ctx.strokeStyle=CPB; ctx.lineWidth=1.6; ctx.setLineDash([6,4]); roundRect(ctx,bx,by,bw,58,9); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=CPB; ctx.font='700 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Animal  (추상: move()=0)', bx+12, by+22);
+      ctx.fillStyle= (s.step>=1)?GRN:DIM; ctx.font='11.5px ui-monospace,monospace';
+      ctx.fillText('▸ 하지만 move() 몸통 존재 → 공통 기본', bx+12, by+44);
+
+      // Dog (구체)
+      var dy=by+80;
+      roundRect(ctx,bx,dy,bw,58,9); ctx.fillStyle='rgba(126,224,176,0.08)'; ctx.fill();
+      ctx.strokeStyle=GRN; ctx.lineWidth=1.6; roundRect(ctx,bx,dy,bw,58,9); ctx.stroke();
+      ctx.fillStyle=GRN; ctx.font='700 13px sans-serif';
+      ctx.fillText('Dog::move()  (구체)', bx+12, dy+22);
+      ctx.fillStyle= (s.step>=2)?GLD:DIM; ctx.font='11.5px ui-monospace,monospace';
+      ctx.fillText('Animal::move() 호출 + 자기 동작 추가', bx+12, dy+44);
+      // 화살표 Dog → Animal (공통 재사용)
+      if(s.step>=2){ ctx.strokeStyle=GLD; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.moveTo(bx+bw-30, dy-2); ctx.lineTo(bx+bw-30, by+60); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=GLD; ctx.font='10px sans-serif'; ctx.textAlign='right';
+        ctx.fillText('공통 재사용', bx+bw-4, (dy+by+60)/2); ctx.textAlign='left'; }
+
+      // 실제 출력
+      var oy=dy+82;
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('d.move() 출력:', bx, oy);
+      ctx.fillStyle=GRN; ctx.font='600 15px ui-monospace,monospace'; ctx.fillText(out||'(아직 없음)', bx, oy+24);
+
+      var lx=W*0.05, ly=Math.max(codeBot+26, H*0.86); if(ly>H*0.92) ly=H*0.92; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.font='12.5px sans-serif';
+      ctx.fillText('=0 이라도 몸통을 줄 수 있어 파생이 공통 기본동작을 Base::f() 로 재사용합니다.', lx, ly);
+
+      E.tapHint(W/2, H*0.96, '화면 탭 = 순수 가상 선언 → 공통 몸통 → Dog 가 재사용', true);
+      E.big('심화 · 순수 가상함수에 구현 제공', '순수 가상함수 = 0 은 흔히 "몸통이 없다"고 배우지만, 정확히는 "파생이 반드시 재정의해야 한다"는 뜻일 뿐 몸통을 못 준다는 말이 아닙니다. C++ 은 = 0 으로 선언한 함수에도 클래스 밖에서 별도로 구현(void Animal::move(){ ... })을 붙이는 것을 허용합니다. 그러면 Animal 은 여전히 추상 클래스라 그 자체로는 객체를 못 만들지만(반드시 파생해야 함), 그 안에는 "모든 동물의 공통 이동 방식" 같은 기본 동작이 담깁니다. 파생 클래스 Dog 는 move() 를 재정의할 의무를 지되, 그 안에서 Animal::move() 를 명시적으로 불러 공통 부분을 그대로 재사용하고 자기만의 동작을 덧붙일 수 있죠. 오른쪽 출력이 그 결과입니다 — "다리로 걷기(공통 기본)" + " 꼬리 흔들기". "인터페이스는 강제하되(재정의 필수), 공통 살림은 부모가 한 번만 써 두고 자식이 빌려 쓴다" — 중복을 줄이는 유용한 관용구입니다.'); }
   }
 
   ];
