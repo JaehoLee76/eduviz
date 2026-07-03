@@ -57,10 +57,10 @@
       ];
       // 줄커서: 입력 → cout 시작 → 값 삽입 → endl(줄바꿈/flush)
       var act=[3,4,5,6][s.step];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'io.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.46, code, 'io.cpp', act);
 
-      // 우측: 입출력 스트림 흐름
-      var bx=W*0.56, cy=H*0.24;
+      // 우측: 입출력 스트림 흐름 (x∈[W*0.54, W*0.97] 안, 위에서부터 조밀하게)
+      var bx=W*0.56, cy=Math.max(H*0.10,20);
       ctx.textAlign='left';
       // 입력 흐름 (cin)
       ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.fillText('키보드 입력', bx, cy);
@@ -71,14 +71,14 @@
       ctx.beginPath(); ctx.moveTo(bx+230,cy-4); ctx.lineTo(bx+222,cy-9); ctx.lineTo(bx+222,cy+1); ctx.closePath(); ctx.fillStyle='rgba(255,211,122,0.6)'; ctx.fill();
       chip(ctx, bx+236, cy-16, 70, 24, GLD, 'n = '+n, 13);
       ctx.fillStyle=(s.step>=0)?GRN:DIM; ctx.font='11.5px ui-monospace,Menlo,monospace';
-      ctx.fillText('std::cin >> n;   // >> 연산자가 n에 값을 채움', bx, cy+30);
+      ctx.fillText('std::cin >> n;   // >> 연산자가 n에 값을 채움', bx, cy+28);
 
       // 출력 스트림 조립 (cout << ... << ...)
-      var oy=cy+72;
+      var oy=cy+62;
       ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.fillText('std::cout  ( << 로 이어붙이기 )', bx, oy);
       // 조립되는 토큰들 (step 진행에 따라 나타남)
       var toks=[{t:'"n^2 = "',on:s.step>=1},{t:''+sq,on:s.step>=2},{t:'\\n',on:s.step>=3}];
-      var tx=bx, ty=oy+18;
+      var tx=bx, ty=oy+14;
       for(var i=0;i<toks.length;i++){ if(!toks[i].on) continue;
         var lab=toks[i].t, wch=ctx.measureText?0:0;
         ctx.font='600 13px ui-monospace,Menlo,monospace'; var wc=ctx.measureText(lab).width+22;
@@ -87,17 +87,18 @@
         tx += wc + 30;
       }
       // 실제 콘솔 출력
-      var conY=oy+72;
+      var conY=oy+58;
       ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('콘솔 화면', bx, conY-8);
-      roundRect(ctx, bx, conY, W*0.34, 54, 8); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fill(); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.stroke();
+      roundRect(ctx, bx, conY, W*0.34, 48, 8); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fill(); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='15px ui-monospace,Menlo,monospace';
       var line = (s.step>=1?'n^2 = ':'') + (s.step>=2?sq:'') ;
-      ctx.fillText(line, bx+12, conY+24);
-      if(s.step>=3){ ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('▮ ← endl 로 줄을 바꾸고 버퍼를 비웠습니다(flush)', bx+12, conY+44); }
+      ctx.fillText(line, bx+12, conY+22);
+      if(s.step>=3){ ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('▮ ← endl 로 줄바꿈+버퍼 비움(flush)', bx+12, conY+40); }
 
-      // C 대비 각주
+      // C 대비 각주 — 코드패널 아래 좌측(패널 침범·하단 잘림 방지)
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('C의  printf("n^2 = %d\\n", n*n);  →  C++은 형식 문자열 없이 << 로 이어붙입니다.', W*0.05, H*0.90);
+      var footY=Math.min(H*0.93, Math.max(codeBot+22, conY+66));
+      ctx.fillText('C의  printf("n^2 = %d\\n", n*n);  →  C++은 << 로 이어붙입니다.', W*0.05, footY);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (입력 → 출력 조립 → endl)', true);
       E.big('cout · cin · endl — C++의 입출력', '<< 는 "값을 스트림으로 밀어 넣는다"는 뜻입니다. std::cout << "n^2 = " << n*n << std::endl; 한 줄을 왼쪽에서 오른쪽으로 읽으면, 문자열·숫자·줄바꿈이 차례로 화면 스트림에 얹힙니다. C의 printf는 "%d"처럼 형식을 미리 선언해야 하지만, C++의 <<는 자료형을 스스로 알아채므로 %d/%f를 헷갈릴 일이 없습니다. 반대 방향 >> 는 std::cin에서 값을 꺼내 변수에 담고요. endl은 줄바꿈에 더해 버퍼를 즉시 비웁니다.'); }
@@ -135,10 +136,10 @@
         {t:'add(1, 2, 3);     // ?', dim:true}
       ];
       var act=[4,5,6][s.step];
-      codePanel(E, W*0.04, H*0.15, W*0.50, code, 'overload.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.15, W*0.50, code, 'overload.cpp', act);
 
-      // 우측: 호출 → 후보 → 선택된 함수 하이라이트
-      var bx=W*0.58, cy=H*0.22;
+      // 우측: 호출 → 후보 → 선택된 함수 하이라이트 (x∈[W*0.54,W*0.97], 위에서부터 조밀하게)
+      var bx=W*0.58, cw=W*0.36, cy=Math.max(H*0.10,20);
       ctx.textAlign='left'; ctx.fillStyle=CPD; ctx.font='600 15px sans-serif';
       ctx.fillText('호출: ', bx, cy);
       chip(ctx, bx+52, cy-18, 132, 26, GLD, call.txt, 13);
@@ -146,26 +147,28 @@
       ctx.fillText('인자 타입 = ('+call.types.join(', ')+')  ·  개수 '+call.types.length, bx, cy+22);
 
       // 세 후보 카드 — 선택된 것만 진하게
-      var oy=cy+44;
-      for(var i=0;i<overloads.length;i++){ var y=oy+i*44, on=(i===sel);
+      var oy=cy+40;
+      for(var i=0;i<overloads.length;i++){ var y=oy+i*40, on=(i===sel);
         ctx.globalAlpha = on?1:0.34;
-        roundRect(ctx, bx, y, W*0.36, 36, 8);
+        roundRect(ctx, bx, y, cw, 34, 8);
         ctx.fillStyle = on?'rgba(90,180,232,0.14)':'rgba(255,255,255,0.03)'; ctx.fill();
         ctx.strokeStyle = on?overloads[i].col:'rgba(255,255,255,0.14)'; ctx.lineWidth=on?2:1; ctx.stroke();
         ctx.fillStyle=overloads[i].col; ctx.font='600 13px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
-        ctx.fillText(overloads[i].sig, bx+14, y+23);
-        if(on){ ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='right'; ctx.fillText('✓ 선택', bx+W*0.36-14, y+23); }
+        ctx.fillText(overloads[i].sig, bx+14, y+22);
+        if(on){ ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='right'; ctx.fillText('✓ 선택', bx+cw-14, y+22); }
         ctx.globalAlpha=1;
       }
       // 결과
-      var ry=oy+3*44+16;
+      var ry=oy+3*40+14;
       ctx.textAlign='left'; ctx.fillStyle='#e7ecda'; ctx.font='14px sans-serif';
       ctx.fillText('실행 결과: ', bx, ry);
-      ctx.fillStyle=GRN; ctx.font='700 22px ui-monospace,Menlo,monospace';
-      ctx.fillText(call.txt.replace(/\)$/,')') + ' = ' + (Number.isInteger(call.res)? call.res : call.res.toFixed(1)), bx, ry+30);
+      ctx.fillStyle=GRN; ctx.font='700 20px ui-monospace,Menlo,monospace';
+      ctx.fillText(call.txt.replace(/\)$/,')') + ' = ' + (Number.isInteger(call.res)? call.res : call.res.toFixed(1)), bx+92, ry);
 
+      // 각주 — 코드패널 아래 좌측(패널 침범·하단 잘림 방지)
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('이름은 같아도 매개변수(개수·타입)가 다르면 다른 함수 — 컴파일러가 가장 알맞은 하나를 고릅니다.', W*0.05, H*0.92);
+      var footY=Math.min(H*0.93, Math.max(codeBot+22, ry+8));
+      ctx.fillText('이름은 같아도 매개변수(개수·타입)가 다르면 다른 함수 — 컴파일러가 최적 후보를 고릅니다.', W*0.05, footY);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 호출 (int,int → double,double → 3개)', true);
       E.big('함수 오버로딩 — 같은 이름, 다른 매개변수', 'C에서는 함수 이름이 곧 신분증이라 add 하나뿐이지만, C++은 매개변수의 개수와 타입까지 이름의 일부로 봅니다(name mangling). 그래서 add(int,int)·add(double,double)·add(int,int,int)가 사이좋게 공존하죠. 호출하는 쪽은 그냥 add(...)라고만 쓰면 됩니다 — 컴파일러가 넘긴 인자를 보고 가장 잘 맞는 후보를 스스로 골라 줍니다. 반환형만 다른 것으로는 오버로딩할 수 없다는 점만 기억하세요. 구분 기준은 오직 매개변수입니다.'); }
@@ -195,29 +198,29 @@
         {t:'box(3, 4, 2);  // 모두 지정', dim:true}
       ];
       var act=[4,5,6][s.step];
-      codePanel(E, W*0.04, H*0.15, W*0.50, code, 'default_args.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.15, W*0.50, code, 'default_args.cpp', act);
 
-      // 우측: 세 인자 슬롯 — 준 값 vs 디폴트 채움
-      var bx=W*0.58, cy=H*0.22;
+      // 우측: 세 인자 슬롯 — 준 값 vs 디폴트 채움 (위에서부터 조밀)
+      var bx=W*0.58, cy=Math.max(H*0.10,20);
       ctx.textAlign='left'; ctx.fillStyle=CPD; ctx.font='600 15px sans-serif';
       ctx.fillText('호출: ', bx, cy); chip(ctx, bx+52, cy-18, 132, 26, GLD, call.txt, 13);
 
       var slots=[{n:'w',v:call.w,def:false},{n:'h',v:call.h,def:call.given.length<2},{n:'d',v:call.d,def:call.given.length<3}];
-      var sy=cy+40;
-      for(var i=0;i<slots.length;i++){ var y=sy+i*46, sl=slots[i];
+      var sy=cy+36;
+      for(var i=0;i<slots.length;i++){ var y=sy+i*42, sl=slots[i];
         ctx.fillStyle=CPD; ctx.font='600 15px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(sl.n+' =', bx, y+22);
-        chip(ctx, bx+50, y, 60, 32, sl.def?PNK:GRN, ''+sl.v, 16);
+        chip(ctx, bx+50, y, 60, 30, sl.def?PNK:GRN, ''+sl.v, 16);
         ctx.fillStyle=sl.def?PNK:GRN; ctx.font='12px sans-serif';
-        ctx.fillText(sl.def?'← 디폴트값 자동 채움':'← 호출에서 준 값', bx+124, y+21);
+        ctx.fillText(sl.def?'← 디폴트값 자동 채움':'← 호출에서 준 값', bx+124, y+20);
       }
-      // 부피 계산 (실측)
-      var ry=sy+3*46+14;
-      ctx.fillStyle='#e7ecda'; ctx.font='14px sans-serif'; ctx.textAlign='left'; ctx.fillText('부피 = w × h × d', bx, ry);
-      ctx.fillStyle=GRN; ctx.font='700 24px ui-monospace,Menlo,monospace';
-      ctx.fillText(call.w+' × '+call.h+' × '+call.d+' = '+vol, bx, ry+34);
+      // 부피 계산 (실측) — 라벨+값 한 줄
+      var ry=sy+3*42+18;
+      ctx.fillStyle='#e7ecda'; ctx.font='14px sans-serif'; ctx.textAlign='left'; ctx.fillText('부피 = w × h × d :', bx, ry);
+      ctx.fillStyle=GRN; ctx.font='700 20px ui-monospace,Menlo,monospace';
+      ctx.fillText(call.w+'×'+call.h+'×'+call.d+' = '+vol, bx+128, ry+1);
 
-      // 3D 상자 미리보기 (크기가 값에 비례 — 실계산)
-      var boxX=bx+250, boxY=ry+8, ux=8;
+      // 3D 상자 미리보기 (크기가 값에 비례 — 실계산) — 슬롯 오른쪽 여백에
+      var boxX=bx+248, boxY=sy+8, ux=8;
       var bw=call.w*ux, bh=call.h*ux, bd=call.d*ux*0.6;
       ctx.strokeStyle=CPB; ctx.lineWidth=1.6; ctx.fillStyle='rgba(90,180,232,0.10)';
       // 앞면
@@ -227,7 +230,8 @@
       ctx.beginPath(); ctx.moveTo(boxX+bw,boxY); ctx.lineTo(boxX+bw+bd,boxY-bd); ctx.lineTo(boxX+bw+bd,boxY+bh-bd); ctx.lineTo(boxX+bw,boxY+bh); ctx.stroke();
 
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('디폴트값은 반드시 뒤쪽 매개변수부터 — 앞을 생략하고 뒤만 줄 수는 없습니다.', W*0.05, H*0.92);
+      var footY=Math.min(H*0.93, Math.max(codeBot+22, ry+14));
+      ctx.fillText('디폴트값은 반드시 뒤쪽 매개변수부터 — 앞을 생략하고 뒤만 줄 수는 없습니다.', W*0.05, footY);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 인자 개수 늘리기 (box(3) → box(3,4) → box(3,4,2))', true);
       E.big('디폴트 매개변수 — 생략하면 기본값', '매개변수에 = 값을 붙여 두면, 호출할 때 그 인자를 생략해도 됩니다. box(int w, int h=1, int d=1)에서 box(3)이라 부르면 h와 d는 자동으로 1이 채워져 부피 3이 나오죠. 오버로딩을 여러 개 만드는 수고를 한 함수로 줄여 주는 셈입니다. 규칙은 하나 — 디폴트는 뒤에서부터 채워야 합니다. h만 생략하고 d를 주는 건 불가능해요. 인자를 순서대로 나열하는 이상, "여기부터 뒤는 알아서"라는 선을 그으려면 그 선이 오른쪽 끝에 붙어 있어야 하니까요.'); }
@@ -247,9 +251,9 @@
         {t:'int c = SQ(++n);      // 부작용 두 번!', hl:'SQ(++n)'}
       ];
       var act=[3,4,5][s.step];
-      codePanel(E, W*0.04, H*0.16, W*0.50, code, 'inline.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.16, W*0.50, code, 'inline.cpp', act);
 
-      var bx=W*0.58, cy=H*0.22;
+      var bx=W*0.58, cy=Math.max(H*0.09,18);
       ctx.textAlign='left';
       if(s.step===0){
         // inline 함수 호출 → 호출부에 코드가 펼쳐짐(인라인화)
@@ -332,25 +336,24 @@
         {t:'using namespace geo;  area(2);', hl:'using namespace'}
       ];
       var act=[8,9,10][s.step];
-      codePanel(E, W*0.04, H*0.12, W*0.52, code, 'namespace.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.48, code, 'namespace.cpp', act);
 
-      // 우측: 두 이름공간 상자 — 같은 이름 pi가 각자 있음
-      var bx=W*0.60, cy=H*0.16;
+      // 우측: 두 이름공간 상자 — 나란히(side-by-side)로 세로 공간 절약
+      var bx=W*0.545, cy=Math.max(H*0.07,14), boxW=W*0.195, gap=W*0.015;
       ctx.textAlign='left';
-      // geo 상자
       function nsBox(x,y,name,col,pi,extra){
-        roundRect(ctx, x, y, W*0.32, extra?96:66, 10);
+        roundRect(ctx, x, y, boxW, extra?86:66, 10);
         ctx.fillStyle='rgba(90,180,232,0.06)'; ctx.fill(); ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.stroke();
-        ctx.fillStyle=col; ctx.font='700 14px ui-monospace,Menlo,monospace'; ctx.fillText('namespace '+name, x+14, y+22);
-        ctx.fillStyle='#e7ecda'; ctx.font='13px ui-monospace,Menlo,monospace';
-        ctx.fillText('pi = '+pi, x+14, y+44);
-        if(extra){ ctx.fillStyle=DIM; ctx.fillText(extra, x+14, y+66); }
+        ctx.fillStyle=col; ctx.font='700 13px ui-monospace,Menlo,monospace'; ctx.fillText('namespace '+name, x+12, y+22);
+        ctx.fillStyle='#e7ecda'; ctx.font='12.5px ui-monospace,Menlo,monospace';
+        ctx.fillText('pi = '+pi, x+12, y+44);
+        if(extra){ ctx.fillStyle=DIM; ctx.fillText(extra, x+12, y+64); }
       }
-      nsBox(bx, cy, 'geo', CPB, GEO_PI.toFixed(5), 'area(r) = pi·r·r');
-      nsBox(bx, cy+112, 'phys', GLD, PHY_PI.toFixed(8), null);
+      nsBox(bx, cy, 'geo', CPB, GEO_PI.toFixed(5), 'area(r)=pi·r·r');
+      nsBox(bx+boxW+gap, cy, 'phys', GLD, PHY_PI.toFixed(8), null);
 
-      // 접근 결과 (step별)
-      var ry=cy+200;
+      // 접근 결과 (step별) — 상자 아래
+      var ry=cy+110;
       ctx.fillStyle='#e7ecda'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('접근 방법', bx, ry);
       ctx.font='13px ui-monospace,Menlo,monospace';
       if(s.step===0){

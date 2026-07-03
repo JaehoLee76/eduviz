@@ -6,15 +6,20 @@
 
   function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function codePanel(E, x, y, w, lines, title, actLine){
-    var ctx=E.ctx, lh=16, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
+    var ctx=E.ctx, pad=14, top=y, n=lines.length;
+    // 줄높이를 남는 세로공간에 맞춰 축소(낮은 창서 코드가 캔버스 밑으로 잘리지 않게). 기본 16, 하한 12.
+    var botLimit=E.H*0.93, avail=botLimit - top - pad*2 - (title?26:0);
+    var lh=Math.max(12, Math.min(16, Math.floor(avail/n)));
+    var ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(90,180,232,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
     var cy=top+pad+(title?26:0);
     if(title){ ctx.fillStyle=CPB; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText(title, x+pad, top+pad+12); }
-    ctx.font='13px ui-monospace,Menlo,Consolas,monospace'; ctx.textAlign='left';
+    var fs=Math.max(11, Math.min(13, lh-3));
+    ctx.font=fs+'px ui-monospace,Menlo,Consolas,monospace'; ctx.textAlign='left';
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
-      var ty=cy+i*lh+11;
+      var ty=cy+i*lh+lh-5;
       if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(90,180,232,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=CPB; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){ var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty); var wpre=ctx.measureText(pre).width;
@@ -57,38 +62,37 @@
       var act=[5,9,10][s.step];
       codePanel(E, W*0.04, H*0.10, W*0.46, code, 'auto_decltype.cpp', act);
 
-      var tx=W*0.55, ty=H*0.16;
+      var tx=W*0.53, ty=H*0.09, botY=H*0.93;
       ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
       ctx.fillText('타입 추론 — 컴파일러가 우변을 보고 타입을 결정', tx, ty);
 
       var longType='std::vector<int>::iterator';
-      var boxw=W*0.40;
+      var boxw=Math.min(W*0.40, W*0.97-tx);
+      // 블록 간격을 남는 높이에 맞춰 조절(낮은 창서도 5번째 줄까지 안 넘침)
+      var gap=Math.max(38, Math.min(52, (botY-ty-118)/2));
       // 옛 방식: 긴 타입 상자
-      var y1=ty+34;
+      var y1=ty+22;
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('옛 방식: 개발자가 긴 타입명을 손으로 적음', tx, y1);
-      ctx.fillStyle='rgba(240,136,138,0.10)'; ctx.strokeStyle=RED; ctx.lineWidth=1.2; roundRect(ctx,tx,y1+10,boxw,30,6); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=RED; ctx.font='12px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText(longType+'  it', tx+boxw/2, y1+30);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('글자 수: '+(longType.length)+'자 · 실수·오타 나기 쉬움', tx, y1+58);
+      ctx.fillStyle='rgba(240,136,138,0.10)'; ctx.strokeStyle=RED; ctx.lineWidth=1.2; roundRect(ctx,tx,y1+8,boxw,26,6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=RED; ctx.font='12px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText(longType+'  it', tx+boxw/2, y1+25);
 
       // 모던: auto
-      var y2=y1+90;
+      var y2=y1+gap;
       ctx.fillStyle=CPB; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('모던: auto — 4글자, 컴파일러가 자동 추론', tx, y2);
-      ctx.fillStyle='rgba(90,180,232,0.12)'; ctx.strokeStyle=CPB; ctx.lineWidth=1.4; roundRect(ctx,tx,y2+10,boxw,30,6); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=CPB; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('auto  it   →   '+longType, tx+boxw/2, y2+30);
+      ctx.fillStyle='rgba(90,180,232,0.12)'; ctx.strokeStyle=CPB; ctx.lineWidth=1.4; roundRect(ctx,tx,y2+8,boxw,26,6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=CPB; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('auto  it   →   '+longType, tx+boxw/2, y2+25);
 
+      var y3=y2+gap;
       if(s.step>=1){
-        var y3=y2+64;
         ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('추론 규칙 — 우변의 실제 타입을 그대로', tx, y3);
         var rows=[['auto x = 5;','int'],['auto d = 3.14;','double'],['auto& r = v;','std::vector<int>&'],['auto p = v.begin();',longType]];
+        if(s.step>=2) rows.push(['decltype(v) t;','std::vector<int>  (표현식 타입 그대로)']);
         ctx.font='12px ui-monospace,Menlo,monospace';
-        for(var i=0;i<rows.length;i++){ var ry=y3+22+i*22;
-          ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.fillText(rows[i][0], tx, ry);
-          ctx.fillStyle=CPB; ctx.fillText('→ '+rows[i][1], tx+W*0.18, ry); }
-      }
-      if(s.step>=2){
-        var y4=y2+64+120;
-        ctx.fillStyle=PNK; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
-        ctx.fillText('decltype(v) = 표현식 v 의 타입을 그대로 가져오기 → std::vector<int>', tx, y4);
+        var rgap=Math.max(16, Math.min(19, (botY-(y3+18))/rows.length));
+        for(var i=0;i<rows.length;i++){ var ry=y3+18+i*rgap;
+          var isDe=(i===4);
+          ctx.fillStyle=isDe?PNK:DIM; ctx.textAlign='left'; ctx.fillText(rows[i][0], tx, ry);
+          ctx.fillStyle=isDe?PNK:CPB; ctx.fillText('→ '+rows[i][1], tx+W*0.15, ry); }
       }
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (긴 타입 → auto → 추론 규칙·decltype)', true);
       E.big('auto·decltype — 타입을 컴파일러에게', 'C++는 타입을 엄격히 따지는 언어라, 반복자 같은 타입 이름이 std::vector<int>::iterator처럼 길고 험합니다. C++11의 auto는 “우변을 보면 타입은 뻔하니, 네가 알아내라”고 컴파일러에게 맡깁니다 — 실행 속도 손해는 전혀 없고(컴파일 때 결정), 코드는 짧고 안전해집니다. decltype은 한 걸음 더 나아가 어떤 표현식의 타입을 그대로 복사해 옵니다. 둘 다 “타입은 이미 우변에 적혀 있는데 왜 또 쓰나”라는 물음의 답입니다.'); }
@@ -176,23 +180,19 @@
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
       var code=[
         {t:'// 1) nullptr — 진짜 널 포인터', dim:true},
-        {t:'int* p = nullptr;', hl:'nullptr'},
-        {t:'// NULL은 사실 정수 0 → 모호', dim:true},
-        {t:'', dim:true},
+        {t:'int* p = nullptr;   // NULL(정수0) 아님', hl:'nullptr'},
         {t:'// 2) enum class — 스코프드', dim:true},
         {t:'enum class Color { Red, Green };', hl:'enum class'},
         {t:'Color c = Color::Green;', hl:'Color::Green'},
-        {t:'', dim:true},
         {t:'// 3) constexpr — 컴파일타임', dim:true},
         {t:'constexpr int fact(int n){', hl:'constexpr'},
-        {t:'  return n<=1 ? 1 : n*fact(n-1);', dim:true},
-        {t:'}', dim:true},
+        {t:'  return n<=1 ? 1 : n*fact(n-1); }', dim:true},
         {t:'constexpr int F = fact(5);', hl:'fact(5)'}
       ];
-      var act=[1,5,12][s.step];
-      codePanel(E, W*0.04, H*0.08, W*0.47, code, 'safety_features.cpp', act);
+      var act=[1,4,8][s.step];
+      codePanel(E, W*0.04, H*0.07, W*0.47, code, 'safety_features.cpp', act);
 
-      var tx=W*0.57, ty=H*0.18;
+      var tx=W*0.57, ty=H*0.10, botY=H*0.93;
       if(s.step===0){
         ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
         ctx.fillText('nullptr — 포인터 전용 널 값', tx, ty);
@@ -221,12 +221,13 @@
         function fact(n){ return n<=1?1:n*fact(n-1); }
         var steps=[]; (function build(n){ if(n<=1){ steps.push('fact(1) = 1'); return 1;} var r=n*build(n-1); steps.push('fact('+n+') = '+n+' × fact('+(n-1)+') = '+r); return r; })(5);
         ctx.font='12.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
-        for(var i=0;i<steps.length;i++){ ctx.fillStyle=(i===steps.length-1)?GRN:DIM; ctx.fillText(steps[i], tx, ty+30+i*22); }
-        var F=fact(5);
-        ctx.fillStyle=GRN; ctx.font='700 20px sans-serif'; ctx.fillText('fact(5) = '+F, tx, ty+30+steps.length*22+14);
+        var sgap=Math.max(17, Math.min(22, (botY-(ty+28)-58)/steps.length));
+        for(var i=0;i<steps.length;i++){ ctx.fillStyle=(i===steps.length-1)?GRN:DIM; ctx.fillText(steps[i], tx, ty+28+i*sgap); }
+        var F=fact(5), yb=ty+28+steps.length*sgap;
+        ctx.fillStyle=GRN; ctx.font='700 18px sans-serif'; ctx.fillText('fact(5) = '+F, tx, yb+12);
         ctx.fillStyle=DIM; ctx.font='12px sans-serif';
-        ctx.fillText('constexpr → 이 '+F+'이 컴파일 결과물(바이너리)에 상수로 박힘.', tx, ty+30+steps.length*22+40);
-        ctx.fillText('실행할 땐 곱셈이 한 번도 안 일어납니다 — 공짜.', tx, ty+30+steps.length*22+58);
+        ctx.fillText('constexpr → 이 '+F+'이 컴파일 결과물(바이너리)에 상수로 박힘.', tx, yb+34);
+        ctx.fillText('실행할 땐 곱셈이 한 번도 안 일어납니다 — 공짜.', tx, yb+50);
       }
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (nullptr → enum class → constexpr)', true);
       E.big('nullptr·enum class·constexpr — 컴파일러를 내 편으로', 'C에서 물려받은 관습엔 함정이 있었습니다. NULL은 사실 숫자 0이라 함수 오버로드를 헷갈리게 했고, 옛 enum은 이름을 전역에 흘리며 슬그머니 int로 변했죠. C++11은 이를 바로잡습니다 — nullptr는 오직 포인터, enum class는 이름을 가두고 암묵 변환을 막습니다. constexpr은 한 술 더 떠, factorial(5)=120 같은 계산을 실행 전에 컴파일러가 미리 끝내 상수로 박아 둡니다. 좋은 언어는 실수를 컴파일 때 잡고, 할 수 있는 일은 미리 해 둡니다.'); }

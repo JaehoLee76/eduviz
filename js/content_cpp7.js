@@ -2,7 +2,7 @@
    동작(behavior)만. 텍스트=content/cpp7.json. 엔진 js/engine.js 공유. 색: C++=하늘색(#5ab4e8).
    골든룰: 화면의 모든 접근 판정·생성/소멸 순서·재정의 결과는 draw에서 실제 규칙으로 계산(베껴 박지 않음).
    좌측=진짜 C++ 코드(줄커서), 우측=상속 다이어그램·접근 매트릭스·생성/소멸 타임라인 실시각화.
-   "class Cat : public Animal — 물려받고 확장한다" (윤성우 열혈C++ 기반). */
+   "class Cat : public Animal — 물려받고 확장한다" (C++ 실무 기반). */
 (function(){
   var CPB='#5ab4e8', CPD='#8fd0f5', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3', RED='#f0888a';
 
@@ -125,7 +125,7 @@
       var cols=['자기 클래스','자식(Cat)','외부 코드'];
       // 규칙표: 각 접근지정자에서 [self, child, outside]
       var rule={ 'private':[true,false,false], 'protected':[true,true,false], 'public':[true,true,true] };
-      var gx=W*0.60, gy=H*0.20, cw=W*0.105, ch=40, lw=W*0.09;
+      var gx=W*0.56, gy=H*0.20, cw=W*0.10, ch=40, lw=W*0.085;
       ctx.textAlign='center'; ctx.font='600 12px sans-serif';
       for(var c=0;c<3;c++){ ctx.fillStyle=CPD; ctx.fillText(cols[c], gx+lw+c*cw+cw/2, gy-10); }
       for(var r=0;r<3;r++){ var ry=gy+r*ch;
@@ -141,7 +141,7 @@
       var hiRow=[0,1,2][s.step]; // private→protected→public
       var hy=gy+hiRow*ch; ctx.strokeStyle='#fff'; ctx.lineWidth=2.2; ctx.strokeRect(gx+lw-2, hy-2, cw*3+4, ch-4+4);
 
-      var lx=W*0.60, ly=gy+3*ch+34; ctx.textAlign='left';
+      var lx=W*0.56, ly=gy+3*ch+34; ctx.textAlign='left';
       var msg=[
         {c:RED, t:'private: 부모 자신만 씀 — 자식 Cat 도 볼 수 없습니다.'},
         {c:GLD, t:'protected: 외부엔 감추되, 자식에게는 열어 줍니다.'},

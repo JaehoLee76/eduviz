@@ -26,7 +26,7 @@
  "cpp13_04": {
    "ch": "C++ 제13장 · 안전·모던",
    "sec": "13.4 예외 안전성 (exception safety)",
-   "title": "예외 안전성 — 세 단계의 약속 (Effective 항목29)",
+   "title": "예외 안전성 — 세 단계의 약속 (예외 안전성 규칙)",
    "narr": "예외를 던질 수 있는 함수는 “예외가 나면 어떤 상태를 보장하는가”를 약속해야 합니다. 기본 보장·강력 보장·무예외 보장 셋 중 하나입니다.",
    "more": "기본 보장은 누수 없음·불변식 유지(값은 바뀔 수 있음). 강력 보장은 성공 아니면 완전 원상복구(트랜잭션의 커밋/롤백) — copy-and-swap 관용구로 얻습니다. 무예외 보장(noexcept)은 절대 실패하지 않음이며 swap·소멸자가 여기 속합니다. 도달 가능한 가장 강한 보장을 골라 문서화하세요.",
    "more_en": "Basic: no leaks, invariants hold (values may change). Strong: succeed fully or roll back to the pre-call state — achieved via copy-and-swap. Nothrow (noexcept): never fails — swap and destructors qualify. Pick and document the strongest guarantee you can reach."

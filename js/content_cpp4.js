@@ -106,7 +106,7 @@
         {t:'}          // 블록 끝 → ~File() close()', hl:'}'}
       ];
       var act=[2,6,7,8][s.step];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'destructor.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.46, code, 'destructor.cpp', act);
 
       // 우측: 생명주기 타임라인 (생성 → 사용 → 소멸)
       var bx=W*0.56, bw=W*0.40, midY=H*0.40;
@@ -141,11 +141,12 @@
       ctx.fillStyle=bcol; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
       ctx.fillText(opened? 'OPEN (열림)':'CLOSED (닫힘)', bx+175, badgeY+2);
 
+      var capY=Math.min(Math.max(H*0.80, codeBot+18), H*0.92);
       ctx.textAlign='left'; ctx.font='12.5px sans-serif';
-      if(s.step===0){ ctx.fillStyle=DIM; ctx.fillText('생성자는 자원을 얻고(open), 소멸자는 되돌려 줍니다(close).', W*0.05, H*0.80); }
-      else if(s.step===1){ ctx.fillStyle=GRN; ctx.fillText('블록에 들어서며 f 생성 → 생성자가 open() 실행.', W*0.05, H*0.80); }
-      else if(s.step===2){ ctx.fillStyle=CPB; ctx.fillText('블록 안에서 f 를 사용하는 동안 자원은 열려 있습니다.', W*0.05, H*0.80); }
-      else { ctx.fillStyle=RED; ctx.fillText('} 를 지나며 f 소멸 → 소멸자가 자동으로 close(). 잊을 수 없습니다.', W*0.05, H*0.80); }
+      if(s.step===0){ ctx.fillStyle=DIM; ctx.fillText('생성자는 자원을 얻고(open), 소멸자는 되돌려 줍니다(close).', W*0.05, capY); }
+      else if(s.step===1){ ctx.fillStyle=GRN; ctx.fillText('블록에 들어서며 f 생성 → 생성자가 open() 실행.', W*0.05, capY); }
+      else if(s.step===2){ ctx.fillStyle=CPB; ctx.fillText('블록 안에서 f 를 사용하는 동안 자원은 열려 있습니다.', W*0.05, capY); }
+      else { ctx.fillStyle=RED; ctx.fillText('} 를 지나며 f 소멸 → 소멸자가 자동으로 close(). 잊을 수 없습니다.', W*0.05, capY); }
 
       E.tapHint(W/2, H*0.94, '화면 탭 = 생명주기 진행 (생성 → 사용 → 소멸)', true);
       E.big('소멸자 — 뒷정리는 자동으로', '생성자가 객체의 탄생 의식이라면, 소멸자는 장례 의식입니다 — 이름은 클래스명 앞에 물결표(~)를 붙이고, 객체가 사라지는 순간 자동으로 호출됩니다. 지역 객체라면 그 객체가 선언된 블록 { } 이 끝나는 순간이죠. 왜 중요할까요? 객체가 파일·메모리·연결 같은 자원을 쥐고 있었다면, 사라지기 전에 반드시 돌려줘야 합니다. 생성자에서 open()으로 자원을 얻고 소멸자에서 close()로 반납하면 — 우리가 close를 부르는 걸 잊어도, C++이 블록 끝에서 소멸자를 반드시 불러 뒷정리해 줍니다. 이 ‘생성=획득, 소멸=반납’ 짝이 C++ 자원 관리(RAII)의 심장입니다.'); }
@@ -242,7 +243,7 @@
         {t:'};', dim:true},
         {t:''+['a','b','c'][sel]+'.grow().grow();  // 체이닝', hl:'.grow()'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'this_pointer.cpp', 4);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.46, code, 'this_pointer.cpp', 4);
 
       // 우측: 세 객체가 하나의 코드(grow)를 공유, this 화살표가 선택 객체를 가리킴
       var codeBoxX=W*0.56, codeBoxY=H*0.16, cbw=W*0.16, cbh=H*0.16;
@@ -253,18 +254,18 @@
       ctx.fillText('this->x += 1', codeBoxX+cbw/2, codeBoxY+cbh*0.55);
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('(단 하나, 공유됨)', codeBoxX+cbw/2, codeBoxY+cbh-12);
 
-      // 세 객체 상자
-      var objX=W*0.80, objY=H*0.15, ow=W*0.15, oh=H*0.14, gap=H*0.03;
+      // 세 객체 상자 (우측 영역 [W*0.78, W*0.945] 안에 배치, 화면밖 방지)
+      var objX=W*0.78, objY=H*0.13, ow=W*0.165, oh=H*0.15, gap=H*0.025;
       for(var i=0;i<3;i++){
         var oy=objY+i*(oh+gap), on=(i===sel);
         var ob=objs[i];
         var dx = on? resX : ob.x, dy = on? resY : ob.y;
         ctx.fillStyle= on?'rgba(90,180,232,0.14)':'rgba(255,255,255,0.04)'; ctx.strokeStyle= on?CPB:'rgba(255,255,255,0.16)'; ctx.lineWidth= on?2:1.3;
         roundRect(ctx,objX,oy,ow,oh,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle= on?CPB:DIM; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('객체 '+ob.n, objX+12, oy+22);
+        ctx.fillStyle= on?CPB:DIM; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('객체 '+ob.n, objX+12, oy+oh*0.32);
         ctx.fillStyle= on?'#dfeaf2':DIM; ctx.font='13px ui-monospace,monospace';
-        ctx.fillText('x = '+dx, objX+12, oy+44);
-        ctx.fillText('y = '+dy, objX+12, oy+62);
+        ctx.fillText('x = '+dx, objX+12, oy+oh*0.62);
+        ctx.fillText('y = '+dy, objX+12, oy+oh*0.88);
         // this 화살표: 공유코드 → 선택 객체
         if(on){ ctx.strokeStyle=GLD; ctx.lineWidth=2.2;
           ctx.beginPath(); ctx.moveTo(codeBoxX+cbw, codeBoxY+cbh/2); ctx.lineTo(objX-4, oy+oh/2); ctx.stroke();
@@ -274,13 +275,12 @@
         }
       }
 
-      // 실측 결과
+      // 실측 결과 (좌측 캡션 = codePanel 아래(codeBot+18) 이면서 화면 밑단(H*0.93) 위, 낮은 창에서도 코드패널 침범·밑단 초과 없이 2줄)
+      var capY1=Math.max(H*0.83, codeBot+18), capY2=Math.min(capY1+22, H*0.92);
       ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
-      ctx.fillText(['a','b','c'][sel]+'.grow() 실행 → this 는 '+o.n+' 를 가리킴', W*0.05, H*0.86);
-      ctx.fillStyle=GRN; ctx.font='13px ui-monospace,monospace';
-      ctx.fillText(o.n+'.x : '+o.x+' → '+resX+'   (다른 객체는 그대로)', W*0.05, H*0.90);
+      ctx.fillText(['a','b','c'][sel]+'.grow() → this 는 '+o.n+' 를 가리킴  ·  '+o.n+'.x : '+o.x+' → '+resX+' (다른 객체는 그대로)', W*0.05, capY1);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif';
-      ctx.fillText('return *this 로 자기 자신을 돌려주니 a.grow().grow() 처럼 연달아 부를 수 있습니다(체이닝).', W*0.05, H*0.94);
+      ctx.fillText('return *this 로 자기 자신을 돌려주니 a.grow().grow() 처럼 연달아 부를 수 있습니다(체이닝).', W*0.05, capY2);
 
       E.tapHint(W/2, H*0.965, '슬라이더로 호출 객체를 바꿔 this 가 누구를 가리키는지 보세요', true);
       E.big('this 포인터 — 나 자신을 가리키는 화살표', '멤버함수의 코드는 클래스마다 딱 하나뿐입니다 — a, b, c 세 객체가 있어도 grow() 코드는 한 벌을 공유하죠. 그렇다면 a.grow()를 부를 때 x += 1은 대체 누구의 x일까요? 답은 this 포인터입니다. 멤버함수가 호출되는 순간, C++은 ‘점(.) 앞에 놓인 그 객체의 주소’를 this라는 숨은 인자로 몰래 넘깁니다. 그래서 this->x는 언제나 지금 호출한 그 객체의 x가 되죠. 슬라이더로 호출 객체를 바꿔 보세요 — 같은 코드인데 this가 가리키는 대상만 바뀌어, 그 객체의 x만 늘어납니다. return *this로 자기 자신을 돌려주면 a.grow().grow()처럼 메서드를 사슬로 이을 수도 있습니다.'); }
@@ -314,7 +314,7 @@
         {t:'  //  (뒤에서 앞으로, 스택처럼)', dim:true}
       ];
       var act = s.step===0?1 : (s.step<=3? 2 : (s.step===4||s.step===5||s.step===6? 6 : 5));
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'array_lifecycle.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.46, code, 'array_lifecycle.cpp', act);
 
       // 우측: 배열 3칸, 생성=쌓임 / 소멸=역순으로 사라짐
       var bx=W*0.58, by=H*0.20, cw=W*0.10, chh=H*0.11, gap=H*0.03;
@@ -337,8 +337,9 @@
       }
 
       // 하단: 순서 화살표 요약
+      // 좌측 3줄 요약: codePanel 아래(codeBot+18)이면서 3줄이 H*0.93 밑단을 넘지 않도록 시작점을 위로 clamp
       ctx.textAlign='left';
-      var conY=H*0.78;
+      var conY=Math.min(Math.max(H*0.72, codeBot+18), H*0.93-48);
       ctx.fillStyle=GRN; ctx.font='600 13px sans-serif';
       ctx.fillText('생성 순서:  arr[0] → arr[1] → arr[2]   (앞→뒤)', W*0.05, conY);
       ctx.fillStyle=RED; ctx.font='600 13px sans-serif';

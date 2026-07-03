@@ -73,32 +73,32 @@
         {t:'Complex c = a + b;   // a.operator+(b)', hl:'a + b'}
       ];
       var act=[3,4,5,10][s.step];
-      codePanel(E, W*0.04, H*0.12, W*0.48, code, 'complex_add.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.46, code, 'complex_add.cpp', act);
 
-      // 우측: 복소평면에서 벡터 덧셈
-      var P=cplane(W*0.72, H*0.52, Math.min(W*0.052,H*0.09));
+      // 우측: 복소평면에서 벡터 덧셈 (라벨 폭을 감안해 오른쪽 여백 확보)
+      var P=cplane(W*0.70, H*0.50, Math.min(W*0.040,H*0.075));
       drawAxes(E,P,5);
-      cvec(E,P,a.re,a.im,CPB,'a = '+cstr(a.re,a.im));
-      if(s.step>=1) cvec(E,P,b.re,b.im,GLD,'b = '+cstr(b.re,b.im));
+      cvec(E,P,a.re,a.im,CPB,'a='+cstr(a.re,a.im));
+      if(s.step>=1) cvec(E,P,b.re,b.im,GLD,'b='+cstr(b.re,b.im));
       if(s.step>=3){
         // 평행이동으로 합 시각화(b를 a 끝에서)
         ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(255,211,67,0.5)'; ctx.lineWidth=1.6;
         ctx.beginPath(); ctx.moveTo(P.X(a.re),P.Y(a.im)); ctx.lineTo(P.X(sum.re),P.Y(sum.im)); ctx.stroke(); ctx.setLineDash([]);
-        cvec(E,P,sum.re,sum.im,GRN,'c = '+cstr(sum.re,sum.im));
+        cvec(E,P,sum.re,sum.im,GRN,'c='+cstr(sum.re,sum.im));
       }
 
-      // 좌하 설명
-      var px=W*0.05, py=H*0.72;
+      // 설명 — 코드패널 아래 여백이 넉넉하면 좌측, 좁으면 우측(평면 아래). 겹침·하단클립 방지.
+      var px, py, roomL=(H*0.90)-(codeBot+24);
+      if(roomL>=42){ px=W*0.05; py=Math.max(codeBot+24, H*0.72); py=Math.min(py, H*0.90-22); }
+      else { px=W*0.55; py=Math.min(H*0.90-22, H*0.80); }
       ctx.textAlign='left';
       if(s.step===0){ ctx.fillStyle=DIM; ctx.font='13px sans-serif';
-        ctx.fillText('+는 원래 int·double에만 쓰는 기호였습니다.', px, py);
-        ctx.fillText('operator+ 함수를 정의하면 Complex끼리도 +로 더할 수 있습니다.', px, py+22); }
-      else { ctx.fillStyle=CPB; ctx.font='600 15px sans-serif';
+        ctx.fillText('+는 원래 int·double에만 쓰던 기호입니다.', px, py);
+        ctx.fillText('operator+ 를 정의하면 Complex끼리도 +로 더합니다.', px, py+20); }
+      else { ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
         ctx.fillText('a + b  =  a.operator+(b)', px, py);
-        ctx.fillStyle='#dfeaf2'; ctx.font='14px ui-monospace,Menlo,monospace';
-        ctx.fillText('('+a.re+' + '+b.re+') + ('+a.im+' + '+b.im+')i  =  '+cstr(sum.re,sum.im), px, py+26);
-        ctx.fillStyle=GRN; ctx.font='600 16px sans-serif';
-        ctx.fillText('c = '+cstr(sum.re,sum.im), px, py+54); }
+        ctx.fillStyle=GRN; ctx.font='600 15px ui-monospace,Menlo,monospace';
+        ctx.fillText('('+a.re+'+'+b.re+') + ('+a.im+'+'+b.im+')i  =  c = '+cstr(sum.re,sum.im), px, py+22); }
 
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (a → b → operator+ → 합 c)', true);
       E.big('연산자 오버로딩 — + 에 새 뜻을 주다', '컴퓨터는 원래 1+2 같은 숫자 덧셈만 압니다. 그런데 복소수 (1+2i)와 (3+4i)를 더하고 싶다면? add(a,b) 같은 함수를 부를 수도 있지만, 수학처럼 그냥 a + b라고 쓰면 훨씬 자연스럽죠. C++은 operator+라는 이름의 멤버 함수를 정의하게 해 줍니다 — 그러면 컴파일러가 a + b를 몰래 a.operator+(b) 호출로 바꿔 줍니다. 실수부는 실수부끼리, 허수부는 허수부끼리 더한 새 Complex를 돌려주면 끝. 오른쪽 복소평면에서 두 화살표를 이어 붙이면 그 합이 바로 눈에 보입니다. 연산자에 우리 타입의 뜻을 입히는 것 — 이것이 연산자 오버로딩입니다.'); }
@@ -128,45 +128,48 @@
         {t:'};', dim:true}
       ];
       var act=[4,7,10][s.step];
-      codePanel(E, W*0.04, H*0.11, W*0.50, code, 'unary_ops.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.11, W*0.48, code, 'unary_ops.cpp', act);
 
-      var px=W*0.05, py=H*0.66;
+      // 시각화·설명은 모두 우측 영역(x>=W*0.55)에 — 좌측 코드패널 침범 금지
+      var px=W*0.56;
       ctx.textAlign='left';
       if(s.step===0){
-        // -v 시각화
-        var P=cplane(W*0.74, H*0.42, Math.min(W*0.05,H*0.08)); drawAxes(E,P,4);
-        cvec(E,P,v.x,v.y,CPB,'v = ('+v.x+','+v.y+')');
-        cvec(E,P,neg.x,neg.y,PNK,'-v = ('+neg.x+','+neg.y+')');
-        ctx.fillStyle=CPB; ctx.font='600 15px sans-serif'; ctx.fillText('단항 -  (부호 뒤집기)', px, py);
-        ctx.fillStyle='#dfeaf2'; ctx.font='14px ui-monospace,Menlo,monospace';
-        ctx.fillText('-v  =  Point(-('+v.x+'), -('+v.y+'))  =  ('+neg.x+', '+neg.y+')', px, py+26);
-        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('인자 없는 operator-()가 단항(하나짜리) 마이너스입니다.', px, py+52);
+        // -v 시각화 (라벨 폭 감안해 평면을 좌측으로 살짝 당김)
+        var P=cplane(W*0.72, H*0.42, Math.min(W*0.036,H*0.072)); drawAxes(E,P,4);
+        cvec(E,P,v.x,v.y,CPB,'v=('+v.x+','+v.y+')');
+        cvec(E,P,neg.x,neg.y,PNK,'-v=('+neg.x+','+neg.y+')');
+        var py=Math.min(H*0.80, H*0.90-52);
+        ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.fillText('단항 -  (부호 뒤집기)', px, py);
+        ctx.fillStyle='#dfeaf2'; ctx.font='13px ui-monospace,Menlo,monospace';
+        ctx.fillText('-v = Point(-'+v.x+', -'+v.y+') = ('+neg.x+', '+neg.y+')', px, py+24);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('인자 없는 operator-()가 단항 마이너스입니다.', px, py+46);
       } else {
-        // 카운터 애니: 전위 vs 후위
+        // 카운터 애니: 전위 vs 후위 (우측 영역에 배치)
         var cnt=5;
         var pre_ret, pre_after, post_ret, post_after;
         pre_ret = cnt+1; pre_after = cnt+1;     // ++cnt: 먼저 증가, 증가값 반환
         post_ret = cnt;  post_after = cnt+1;    // cnt++: 옛값 반환, 뒤에서 증가
-        ctx.fillStyle=CPB; ctx.font='600 15px sans-serif';
-        ctx.fillText(s.step===1?'전위 ++cnt  (먼저 늘리고, 늘어난 값을 씀)':'후위 cnt++  (옛 값을 쓰고, 뒤에서 늘림)', px, py);
-        // 박스로 값 흐름 표시
-        var bx=px, by=py+18, bw=90, bh=44;
+        var py=H*0.20;
+        ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+        ctx.fillText(s.step===1?'전위 ++cnt (먼저 늘리고, 늘어난 값을 씀)':'후위 cnt++ (옛 값을 쓰고, 뒤에서 늘림)', px, py);
+        // 박스로 값 흐름 표시 — 세 박스가 W*0.97 안에 들도록 폭·간격 축소
+        var bw=Math.min(90,(W*0.40-2*20)/3), gap=20, bx=px, by=py+16, bh=42;
         function vbox(x,label,val,col){ ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.fillStyle='rgba(255,255,255,0.04)';
           roundRect(ctx,x,by,bw,bh,8); ctx.fill(); ctx.stroke();
-          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+bw/2, by+16);
-          ctx.fillStyle=col; ctx.font='700 20px ui-monospace,Menlo,monospace'; ctx.fillText(''+val, x+bw/2, by+38); ctx.textAlign='left'; }
-        vbox(bx,        'cnt (전)', cnt, DIM);
-        vbox(bx+bw+30,  '식의 값',  s.step===1?pre_ret:post_ret, s.step===1?GRN:GLD);
-        vbox(bx+2*(bw+30),'cnt (후)', s.step===1?pre_after:post_after, CPB);
+          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+bw/2, by+15);
+          ctx.fillStyle=col; ctx.font='700 19px ui-monospace,Menlo,monospace'; ctx.fillText(''+val, x+bw/2, by+37); ctx.textAlign='left'; }
+        vbox(bx,          'cnt (전)', cnt, DIM);
+        vbox(bx+bw+gap,   '식의 값',  s.step===1?pre_ret:post_ret, s.step===1?GRN:GLD);
+        vbox(bx+2*(bw+gap),'cnt (후)', s.step===1?pre_after:post_after, CPB);
         // 화살표
         ctx.strokeStyle=DIM; ctx.lineWidth=1.4;
-        ctx.beginPath(); ctx.moveTo(bx+bw+4,by+bh/2); ctx.lineTo(bx+bw+26,by+bh/2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(bx+2*bw+34,by+bh/2); ctx.lineTo(bx+2*bw+56,by+bh/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bx+bw+3,by+bh/2); ctx.lineTo(bx+bw+gap-3,by+bh/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bx+2*bw+gap+3,by+bh/2); ctx.lineTo(bx+2*bw+2*gap-3,by+bh/2); ctx.stroke();
         ctx.fillStyle='#dfeaf2'; ctx.font='13px ui-monospace,Menlo,monospace';
-        ctx.fillText(s.step===1? 'int r = ++cnt;  // r='+pre_ret+',  cnt='+pre_after
-                               : 'int r = cnt++;  // r='+post_ret+',  cnt='+post_after, px, by+bh+30);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-        ctx.fillText('후위는 옛 값을 복사해 두려고 임시 객체를 만듭니다 → 전위가 더 빠름.', px, by+bh+52);
+        ctx.fillText(s.step===1? 'int r = ++cnt;  // r='+pre_ret+', cnt='+pre_after
+                               : 'int r = cnt++;  // r='+post_ret+', cnt='+post_after, px, by+bh+26);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('후위는 옛 값 복사용 임시 객체를 만듦 → 전위가 더 빠름.', px, by+bh+48);
       }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (단항 - → 전위 ++ → 후위 ++)', true);
@@ -197,10 +200,10 @@
         {t:'  }', dim:true},
         {t:'};', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.11, W*0.50, code, 'friend_mul.cpp', s.step===1?8:(s.step===2?10:4));
+      codePanel(E, W*0.04, H*0.11, W*0.48, code, 'friend_mul.cpp', s.step===1?8:(s.step===2?10:4));
 
       // 우측: 두 방향 배치 카드
-      var bx=W*0.60, by=H*0.20, bw=W*0.34;
+      var bx=W*0.58, by=H*0.15, bw=W*0.37;
       function card(y,expr,method,ok,col,detail){
         ctx.strokeStyle=col; ctx.lineWidth=1.8; ctx.fillStyle='rgba(255,255,255,0.035)';
         roundRect(ctx,bx,y,bw,72,10); ctx.fill(); ctx.stroke();
@@ -214,23 +217,22 @@
         ctx.fillText(detail, bx+16, y+64);
       }
       card(by,      'c * '+k, 'Complex::operator*(double)', true, CPB, '좌변 c가 자기 멤버함수를 호출');
-      if(s.step>=1) card(by+92, k+' * c', s.step>=2?'friend operator*(double,Complex)':'멤버 함수로는… 불가능', s.step>=2, s.step>=2?GRN:RED, s.step>=2?'좌변 2는 friend 전역함수가 처리':'2.operator*(c)? int엔 멤버함수 못 넣음');
+      if(s.step>=1) card(by+84, k+' * c', s.step>=2?'friend operator*(double,Complex)':'멤버 함수로는… 불가능', s.step>=2, s.step>=2?GRN:RED, s.step>=2?'좌변 2는 friend 전역함수가 처리':'2.operator*(c)? int엔 멤버함수 못 넣음');
 
-      var px=W*0.05, py=H*0.70;
+      // 설명은 카드 아래(우측 영역) — 좌측 코드패널 침범 방지
+      var px=bx, py=Math.min(by+84+72+22, H*0.86);
       ctx.textAlign='left';
       if(s.step===0){ ctx.fillStyle=DIM; ctx.font='13px sans-serif';
-        ctx.fillText('c * 2 는 멤버 operator*로 잘 됩니다. 그런데 2 * c 는?', px, py);
-        ctx.fillText('탭 = 2 * c 를 시도 → 문제 → friend로 해결', px, py+22); }
+        ctx.fillText('c * 2 는 멤버 operator*로 잘 됩니다.', px, py);
+        ctx.fillText('그런데 2 * c 는?  탭 → 문제 → friend로 해결', px, py+22); }
       else if(s.step===1){ ctx.fillStyle=RED; ctx.font='600 14px sans-serif';
         ctx.fillText('멤버 함수는 좌변이 반드시 그 클래스여야 합니다.', px, py);
-        ctx.fillStyle=DIM; ctx.font='13px sans-serif';
-        ctx.fillText('2 * c 는 2.operator*(c) 여야 하는데 int(2)엔 멤버함수를 넣을 수 없죠.', px, py+22); }
-      else { ctx.fillStyle=GRN; ctx.font='600 15px sans-serif';
-        ctx.fillText('friend 전역 함수 operator*(double, Complex)로 해결!', px, py);
-        ctx.fillStyle='#dfeaf2'; ctx.font='14px ui-monospace,Menlo,monospace';
-        ctx.fillText('2 * (2+1i)  =  (4+2i)     (2+1i) * 2  =  (4+2i)', px, py+26);
-        ctx.fillStyle=CPB; ctx.font='600 13px sans-serif';
-        ctx.fillText('두 방향 모두 = '+cstr(res.re,res.im)+'  → 교환법칙 회복', px, py+52); }
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+        ctx.fillText('2*c 는 2.operator*(c) 여야 하는데 int(2)엔 못 넣죠.', px, py+22); }
+      else { ctx.fillStyle=GRN; ctx.font='600 14px sans-serif';
+        ctx.fillText('friend 전역 operator*(double, Complex)로 해결!', px, py);
+        ctx.fillStyle=CPB; ctx.font='600 13px ui-monospace,Menlo,monospace';
+        ctx.fillText('2*(2+1i) = '+cstr(res.re,res.im)+' = (2+1i)*2  → 교환법칙 회복', px, py+22); }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (c*k → k*c 문제 → friend 해결)', true);
       E.big('이항 연산자와 교환법칙 — friend의 쓸모', '수학에서 2 × c와 c × 2는 같아야 합니다. 그런데 멤버 함수로 만든 operator*는 좌변이 반드시 그 클래스여야 한다는 제약이 있습니다. c * 2는 c.operator*(2)로 잘 풀리지만, 2 * c는 2.operator*(c)가 되어야 하는데 int인 2에는 멤버 함수를 붙일 수 없죠. 그래서 좌변이 클래스가 아닌 경우엔 클래스 바깥의 전역 함수 operator*(double, Complex)를 씁니다. 이 전역 함수가 클래스의 private 멤버(re, im)에 손대야 하니 friend로 선언해 특별 출입증을 주는 것입니다. 이제 2*c도 c*2도 똑같이 (4+2i) — 교환법칙이 회복됩니다. friend는 캡슐화를 조금 여는 대신 이렇게 자연스러운 문법을 얻는 도구입니다.'); }
@@ -255,38 +257,38 @@
         {t:'Complex c(3,4);', hl:'c(3,4)'},
         {t:'cout << c << endl;   // (3 + 4i)', hl:'cout << c'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.50, code, 'stream_out.cpp', s.step===0?3:(s.step===1?5:8));
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.48, code, 'stream_out.cpp', s.step===0?3:(s.step===1?5:8));
 
-      // 우측: cout이 << 로 흐르는 파이프라인
-      var px=W*0.58, py=H*0.22;
+      // 우측: cout이 << 로 흐르는 파이프라인 (낮은 창에서도 4단이 들어가게 압축)
+      var px=W*0.56, py=H*0.14;
       ctx.textAlign='left';
-      ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
+      ctx.fillStyle=CPB; ctx.font='600 13px sans-serif';
       ctx.fillText('cout 은 그냥 ostream 객체입니다.', px, py);
-      ctx.fillStyle=DIM; ctx.font='13px sans-serif';
-      ctx.fillText('<< 는 "출력 스트림에 밀어넣기" 연산자.', px, py+22);
+      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+      ctx.fillText('<< 는 "출력 스트림에 밀어넣기" 연산자.', px, py+20);
 
       // 흐름: cout << c  →  operator<<(cout, c)  →  "(3 + 4i)"
-      var fy=py+56, bh=40, bw=W*0.30;
+      var fy=py+38, bh=32, gap=12, bw=Math.min(W*0.34, W*0.97-px);
       function fbox(y,txt,col){ ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.fillStyle='rgba(255,255,255,0.04)';
         roundRect(ctx,px,y,bw,bh,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=col; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
-        ctx.fillText(txt, px+12, y+25); }
-      function down(y){ ctx.strokeStyle=DIM; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(px+bw/2,y); ctx.lineTo(px+bw/2,y+16); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(px+bw/2-4,y+11); ctx.lineTo(px+bw/2,y+16); ctx.lineTo(px+bw/2+4,y+11); ctx.fillStyle=DIM; ctx.fill(); }
+        ctx.fillStyle=col; ctx.font='12.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        ctx.fillText(txt, px+12, y+21); }
+      function down(y){ ctx.strokeStyle=DIM; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(px+bw/2,y); ctx.lineTo(px+bw/2,y+gap); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px+bw/2-4,y+gap-5); ctx.lineTo(px+bw/2,y+gap); ctx.lineTo(px+bw/2+4,y+gap-5); ctx.fillStyle=DIM; ctx.fill(); }
       fbox(fy,           'cout << c', CPB);
-      if(s.step>=1){ down(fy+bh); fbox(fy+bh+16, 'operator<<(cout, c)', GLD); }
-      if(s.step>=2){ down(fy+2*bh+16); fbox(fy+2*bh+32, 'os << "(" << 3 << " + " << 4 << "i)"', BLU); }
+      if(s.step>=1){ down(fy+bh); fbox(fy+bh+gap, 'operator<<(cout, c)', GLD); }
+      if(s.step>=2){ down(fy+2*(bh+gap)-gap); fbox(fy+2*(bh+gap), 'os << "(" << 3 << " + " << 4 << "i)"', BLU); }
 
       // 실제 콘솔 출력 박스
       if(s.step>=2){
-        var oy=fy+3*bh+48;
+        var oy=fy+3*(bh+gap)+4;
         ctx.fillStyle='#0c0f16'; ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4;
-        roundRect(ctx,px,oy,bw,38,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('콘솔 출력', px+10, oy+14);
-        ctx.fillStyle=GRN; ctx.font='700 18px ui-monospace,Menlo,monospace'; ctx.fillText(out, px+10, oy+31);
+        roundRect(ctx,px,oy,bw,36,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('콘솔 출력', px+10, oy+13);
+        ctx.fillStyle=GRN; ctx.font='700 17px ui-monospace,Menlo,monospace'; ctx.fillText(out, px+10, oy+30);
       }
 
-      var lpx=W*0.05, lpy=H*0.78;
+      var lpx=W*0.05, lpy=Math.min(H*0.90, Math.max(codeBot+22, H*0.80));
       ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
       if(s.step<2) ctx.fillText('탭 = cout << c 가 어떻게 함수 호출로 바뀌는지 따라가 보세요.', lpx, lpy);
       else { ctx.fillStyle=CPB; ctx.font='600 13px sans-serif';
@@ -322,10 +324,10 @@
         {t:'int x = arr['+i+'];'+(inRange?'   // = '+val:'   // throw!'), hl:'arr['+i+']'}
       ];
       var act = inRange ? 6 : 5;
-      codePanel(E, W*0.04, H*0.12, W*0.50, code, 'safe_array.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.48, code, 'safe_array.cpp', act);
 
       // 우측: 배열 칸 + 인덱스 포인터
-      var bx=W*0.58, by=H*0.30, cw=Math.min(W*0.062,64), cellH=44;
+      var bx=W*0.58, by=H*0.30, cw=Math.min(W*0.058,60), cellH=44;
       ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('SafeArray  (크기 5)', bx, by-16);
       for(var k=0;k<N;k++){
@@ -362,10 +364,11 @@
         ctx.fillText('생 C 배열이라면 조용히 엉뚱한 메모리를 읽습니다 — 여기선 잡아냅니다.', bx, oy+24);
       }
 
-      var lpx=W*0.05, lpy=H*0.80;
-      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-      ctx.fillText('operator[] 를 정의하면 우리 객체를 arr[i] 처럼 배열같이 쓸 수 있습니다.', lpx, lpy);
-      ctx.fillStyle=CPB; ctx.fillText('여기선 경계검사를 넣어 "안전한 배열"을 만들었습니다.', lpx, lpy+20);
+      // 요약 설명 — 우측 영역, 결과박스 아래(좌측 코드패널 침범 방지)
+      var lpx=bx, lpy=Math.min(H*0.90, oy+50);
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
+      ctx.fillText('operator[] 로 우리 객체를 arr[i] 처럼 쓸 수 있습니다.', lpx, lpy);
+      ctx.fillStyle=CPB; ctx.fillText('경계검사를 넣어 "안전한 배열"을 만들었습니다.', lpx, lpy+20);
 
       E.tapHint(W/2, H*0.95, '슬라이더로 인덱스 i를 바꿔 접근·경계검사를 보세요', true);
       E.big('[] 등 기타 연산자 — 객체를 배열처럼', '연산자 오버로딩은 산술에만 쓰이지 않습니다. operator[]를 정의하면 우리 객체에 arr[i]라는 첨자 문법을 붙여, 마치 진짜 배열처럼 다룰 수 있습니다. 게다가 int& (참조)를 돌려주면 arr[i]를 읽는 것뿐 아니라 arr[i] = 99처럼 값을 쓰는 것도 됩니다 — 대입식의 왼쪽에 설 수 있는 것이죠. 진짜 C 배열은 범위를 넘어가도 조용히 엉뚱한 메모리를 건드려 버그의 온상이 됩니다. 그래서 operator[] 안에 경계 검사를 넣어, 잘못된 인덱스면 예외를 던지는 "안전한 배열"을 만들 수 있습니다. 슬라이더로 인덱스를 -1이나 5로 밀어 보면, 생 배열이라면 지나쳤을 실수를 이 클래스가 딱 잡아내는 게 보입니다. STL의 vector, string, map이 모두 이 operator[]로 대괄호 문법을 제공합니다 — 다음 장 템플릿과 함께 그 세계로 들어갑니다.'); }

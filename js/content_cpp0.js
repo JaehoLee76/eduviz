@@ -119,16 +119,17 @@
         ['기초·문법 (1~4장)','입출력·함수오버로딩 · 참조자·new/delete · 클래스 · 생성자·소멸자',CPB],
         ['객체지향 (5~9장)','복사생성자 · static·const·friend · 상속 · 다형성·가상함수 · 연산자오버로딩',GRN],
         ['템플릿·STL (10~12장)','템플릿 · STL 컨테이너(vector·map) · STL 알고리즘·람다',GLD],
-        ['안전·모던·알고리즘 (13~16장)','예외처리 · 스마트포인터·RAII · 모던 C++(auto·이동) · 주요 알고리즘 구현',PNK]
+        ['안전·모던·알고리즘 (13~16장)','예외처리 · 스마트포인터·RAII · 모던 C++(auto·이동) · 주요 알고리즘 구현',PNK],
+        ['재귀 특별장 (17장)','콜 스택·메모리 실시퀀스 시각화 + 재귀 알고리즘 5문제(심화학습)','#b99cff']
       ];
       ctx.textAlign='left';
-      for(var i=0;i<blocks.length;i++){ var by=H*0.20+i*H*0.165;
+      for(var i=0;i<blocks.length;i++){ var by=H*0.17+i*H*0.145;
         ctx.fillStyle=blocks[i][2]; ctx.beginPath(); ctx.arc(W*0.16, by, 9,0,7); ctx.fill();
         if(i<blocks.length-1){ ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.16,by+12); ctx.lineTo(W*0.16,by+H*0.165-12); ctx.stroke(); }
         ctx.fillStyle=blocks[i][2]; ctx.font='600 19px sans-serif'; ctx.fillText(blocks[i][0], W*0.20, by-2);
         ctx.fillStyle='#cfd8e0'; ctx.font='14px sans-serif'; ctx.fillText(blocks[i][1], W*0.20, by+22); }
       E.tapHint(W/2, H*0.95, '아래 ▶ 다음으로 1장(첫걸음)으로', true);
-      E.big('C++ — 16장의 여정', '기초 문법부터 시작해 <b>클래스·상속·다형성</b>으로 객체지향을, <b>템플릿·STL</b>로 재사용을, <b>예외·스마트포인터·모던 C++</b>로 안전을 익히고, 마지막에 <b>정렬·탐색·그래프·DP</b> 같은 주요 알고리즘을 <b>실제 C++ 코드</b>로 구현합니다. 윤성우 열혈 C++과 Effective C++의 지혜를 바탕으로.'); }
+      E.big('C++ — 17장의 여정', '기초 문법부터 시작해 <b>클래스·상속·다형성</b>으로 객체지향을, <b>템플릿·STL</b>로 재사용을, <b>예외·스마트포인터·모던 C++</b>로 안전을 익히고, <b>정렬·탐색·그래프·DP</b> 같은 주요 알고리즘을 <b>실제 C++ 코드</b>로 구현합니다. 끝으로 <b>재귀 특별장</b>에서 콜 스택·메모리를 눈으로 보며 재귀를 완전히 마스터하죠. 기초부터 실무까지, 스스로 짜 보며 익히도록 엮었습니다.'); }
   }
 
   ];

@@ -58,28 +58,29 @@
         {t:'std::cout << std::boolalpha << r1;', hl:'boolalpha'}
       ];
       var act=[4,5,6][s.step];
-      codePanel(E, W*0.04, H*0.15, W*0.50, code, 'bool.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.15, W*0.50, code, 'bool.cpp', act);
 
-      var bx=W*0.60, cy=H*0.24;
+      var bx=W*0.60, cy=Math.max(H*0.11,22);
       ctx.textAlign='left'; ctx.fillStyle=CPD; ctx.font='600 15px sans-serif';
       ctx.fillText('조건식 평가', bx, cy);
       ctx.fillStyle='#e7ecda'; ctx.font='13px ui-monospace,Menlo,monospace';
-      ctx.fillText('a = 7,  b = 4', bx, cy+26);
+      ctx.fillText('a = 7,  b = 4', bx, cy+24);
       ctx.font='700 22px ui-monospace,Menlo,monospace'; ctx.fillStyle=CPD;
-      ctx.fillText(c.expr, bx, cy+66);
+      ctx.fillText(c.expr, bx, cy+60);
       // 결과 = true/false 칩
       var on=c.val;
-      roundRect(ctx, bx, cy+84, 160, 44, 10); ctx.fillStyle= on?'rgba(126,224,176,0.16)':'rgba(240,136,138,0.14)'; ctx.fill();
+      roundRect(ctx, bx, cy+76, 160, 42, 10); ctx.fillStyle= on?'rgba(126,224,176,0.16)':'rgba(240,136,138,0.14)'; ctx.fill();
       ctx.strokeStyle= on?GRN:RED; ctx.lineWidth=2; ctx.stroke();
       ctx.fillStyle= on?GRN:RED; ctx.font='700 22px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
-      ctx.fillText(on?'true':'false', bx+80, cy+112);
+      ctx.fillText(on?'true':'false', bx+80, cy+103);
       ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-      ctx.fillText('내부적으로 true = 1, false = 0 (1바이트).', bx, cy+156);
-      ctx.fillText('boolalpha 를 쓰면 1/0 대신 true/false 로 출력됩니다.', bx, cy+178);
+      ctx.fillText('내부적으로 true = 1, false = 0 (1바이트).', bx, cy+142);
+      ctx.fillText('boolalpha 를 쓰면 1/0 대신 true/false 로 출력됩니다.', bx, cy+162);
 
-      // C 대비
+      // C 대비 — 코드패널 아래 좌측
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('C에는 bool이 없어 int(0/1)로 대신했지만, C++은 bool·true·false가 정식 키워드입니다.', W*0.05, H*0.92);
+      var footY=Math.min(H*0.93, Math.max(codeBot+22, cy+188));
+      ctx.fillText('C에는 bool이 없어 int(0/1)로 대신했지만, C++은 bool·true·false가 정식 키워드입니다.', W*0.05, footY);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 조건식 (a>b → a==b → 논리곱)', true);
       E.big('bool — 참과 거짓의 자료형', 'C에서는 참/거짓을 int로 흉내 냈습니다 — 0이면 거짓, 그밖은 참. C++은 아예 bool이라는 자료형과 true·false 키워드를 갖췄습니다. 값은 딱 두 가지, 내부적으로는 1과 0이지만 의미가 또렷하죠. 비교 연산(>, ==)과 논리 연산(&&, ||, !)의 결과가 모두 bool입니다. std::boolalpha를 스트림에 끼우면 1/0 대신 true/false로 예쁘게 찍혀 나와, 코드의 뜻이 화면에서도 그대로 읽힙니다.'); }
@@ -104,7 +105,8 @@
       codePanel(E, W*0.04, H*0.17, W*0.48, code, 'reference.cpp', act);
 
       // 우측: 이름 두 개(x, ref)가 한 상자를 가리키는 그림
-      var bx=W*0.60, cy=H*0.34, cw=90, ch=64;
+      var bx=W*0.60, cy=Math.min(H*0.30,H-176), cw=90, ch=64;
+      cy=Math.max(cy,30);
       // 상자 (하나의 메모리)
       cell(ctx, bx+70, cy, cw, ch, CPB, null, x);
       // 이름표 x
@@ -152,9 +154,9 @@
         {t:'swap(x, y);   // 원본이 바뀜', hl:'swap(x, y)'}
       ];
       var act=[5,6,6][s.step];
-      codePanel(E, W*0.04, H*0.15, W*0.50, code, 'swap.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.15, W*0.50, code, 'swap.cpp', act);
 
-      var bx=W*0.60, cy=H*0.26;
+      var bx=W*0.60, cy=Math.max(H*0.12,24);
       ctx.textAlign='left'; ctx.fillStyle=CPD; ctx.font='600 15px sans-serif';
       ctx.fillText(s.step<2 ? 'swap 호출 전' : 'swap 호출 후', bx, cy);
 
@@ -181,9 +183,10 @@
       else { ctx.fillStyle=GRN; ctx.font='600 15px sans-serif'; ctx.fillText('교환 완료 →  x = '+x+',  y = '+y, bx, ty);
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('call-by-reference 라서 원본이 실제로 바뀌었습니다.', bx, ty+24); }
 
-      // C 대비 (포인터 버전)
+      // C 대비 (포인터 버전) — 코드패널 아래 좌측
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('C에서는 swap(int* a,int* b) 로 주소를 넘기고 *a 로 역참조했지만, 참조자는 * 없이 간결합니다.', W*0.05, H*0.92);
+      var footY=Math.min(H*0.93, Math.max(codeBot+22, ty+52));
+      ctx.fillText('C에서는 swap(int* a,int* b) 로 주소를 넘기고 *a 로 역참조했지만, 참조자는 * 없이 간결합니다.', W*0.05, footY);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (호출 전 → 별명 연결 → 교환 후)', true);
       E.big('참조자와 함수 — 원본을 넘기다', '함수에 값을 그냥 넘기면(call-by-value) 사본이 복사되어, 함수 안에서 아무리 바꿔도 원본은 그대로입니다. 그래서 두 변수를 맞바꾸는 swap이 값 전달로는 불가능했죠. 매개변수를 int& a로 선언하면, a는 넘어온 인자 x의 별명이 됩니다 — 함수 안의 a를 고치는 순간 밖의 x가 고쳐지는 것이죠. C에서는 이걸 포인터(int*)와 역참조(*a)로 힘겹게 했지만, C++의 참조자는 * 하나 없이 마치 지역 변수처럼 자연스럽게 원본을 다룹니다.'); }
@@ -207,9 +210,9 @@
         {t:'delete[] arr;          // [] 필수', hl:'delete[]'}
       ];
       var act=[0,1,2,4][s.step];
-      codePanel(E, W*0.04, H*0.13, W*0.50, code, 'new_delete.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.50, code, 'new_delete.cpp', act);
 
-      var bx=W*0.58, topY=H*0.16;
+      var bx=W*0.58, topY=Math.max(H*0.07,16);
       ctx.textAlign='left';
       // 스택 영역 (포인터 p)
       ctx.fillStyle=CPD; ctx.font='600 13px sans-serif'; ctx.fillText('스택 (지역변수)', bx, topY);
@@ -218,7 +221,7 @@
       cell(ctx, bx, topY+10, 120, 46, GLD, 'int* p', (s.step>=2 && s.step<3)?'(dangling)':HEAP_ADDR);
 
       // 힙 영역
-      var heapY=topY+120;
+      var heapY=topY+98;
       ctx.fillStyle=PNK; ctx.font='600 13px sans-serif'; ctx.fillText('힙 (동적 할당 · new)', bx, heapY-10);
 
       if(s.step<3){
@@ -231,15 +234,15 @@
           ctx.beginPath(); ctx.moveTo(bx+60, topY+56); ctx.lineTo(bx+80, heapY); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(bx+80,heapY); ctx.lineTo(bx+72,heapY-8); ctx.lineTo(bx+82,heapY-6); ctx.closePath(); ctx.fillStyle='rgba(255,211,122,0.7)'; ctx.fill();
           ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-          ctx.fillText(s.step===0?'new int(5) → 힙에 5를 담은 상자, 그 주소를 p 에 저장.':'*p 로 힙의 값을 읽습니다 → 5', bx, heapY+90);
+          ctx.fillText(s.step===0?'new int(5) → 힙에 5를 담은 상자, 그 주소를 p 에 저장.':'*p 로 힙의 값을 읽습니다 → 5', bx, heapY+82);
         } else {
           // delete 후: 힙 반납 + p는 dangling
           roundRect(ctx, bx+40, heapY, 80, 56, 8); ctx.fillStyle='rgba(240,136,138,0.10)'; ctx.fill();
           ctx.strokeStyle=RED; ctx.setLineDash([5,4]); ctx.lineWidth=1.6; ctx.stroke(); ctx.setLineDash([]);
           ctx.fillStyle=RED; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('반납됨', bx+80, heapY+32); ctx.textAlign='left';
           ctx.fillStyle=RED; ctx.font='12.5px sans-serif';
-          ctx.fillText('delete p; → 힙 메모리를 OS에 돌려줍니다.', bx, heapY+90);
-          ctx.fillStyle=DIM; ctx.fillText('반납 후 p 는 허공을 가리킴(dangling) — 더 쓰면 위험.', bx, heapY+112);
+          ctx.fillText('delete p; → 힙 메모리를 OS에 돌려줍니다.', bx, heapY+82);
+          ctx.fillStyle=DIM; ctx.fillText('반납 후 p 는 허공을 가리킴(dangling) — 더 쓰면 위험.', bx, heapY+102);
         }
       } else {
         // 배열 할당
@@ -250,12 +253,14 @@
         ctx.beginPath(); ctx.moveTo(bx+40, topY+56); ctx.lineTo(bx+22, heapY); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(bx+22,heapY); ctx.lineTo(bx+16,heapY-8); ctx.lineTo(bx+26,heapY-7); ctx.closePath(); ctx.fillStyle='rgba(255,211,122,0.7)'; ctx.fill();
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
-        ctx.fillText('new int[4] → 연속된 상자 '+n+'칸을 힙에 할당. 합 = '+arr.reduce(function(a,b){return a+b;},0), bx, heapY+80);
-        ctx.fillStyle=RED; ctx.fillText('배열은 delete[] arr; 로 반납 — [] 를 빼면 메모리 누수!', bx, heapY+102);
+        ctx.fillText('new int[4] → 연속된 상자 '+n+'칸을 힙에 할당. 합 = '+arr.reduce(function(a,b){return a+b;},0), bx, heapY+74);
+        ctx.fillStyle=RED; ctx.fillText('배열은 delete[] arr; 로 반납 — [] 를 빼면 메모리 누수!', bx, heapY+94);
       }
 
+      // 요약 각주 — 코드패널 아래 좌측(패널 침범·하단 잘림 방지)
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('new 로 얻은 힙 메모리는 스스로 사라지지 않습니다 — 반드시 delete 로 짝을 맞춰 반납.', W*0.05, H*0.93);
+      var footY=Math.min(H*0.93, Math.max(codeBot+22, heapY+118));
+      ctx.fillText('new 로 얻은 힙 메모리는 스스로 사라지지 않습니다 — 반드시 delete 로 짝을 맞춰 반납.', W*0.05, footY);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (new → *p 읽기 → delete → 배열)', true);
       E.big('new · delete — 힙 동적 할당', '지역 변수는 스택에 자동으로 생겼다 사라지지만, 크기를 실행 중에야 아는 데이터는 힙에서 직접 빌려 와야 합니다. new int(5)는 힙에 int 상자 하나를 만들고 5로 채운 뒤 그 주소를 포인터 p에 건네줍니다. *p로 그 값을 읽고요. 다 쓰면 delete p;로 반드시 돌려줘야 합니다 — 안 그러면 메모리 누수. 배열은 new int[n]으로 여러 칸을 연속 할당하고, 반납은 반드시 delete[]로 [] 를 붙여야 합니다. C의 malloc/free를 대신하는, 타입을 아는 안전한 할당이죠.'); }
@@ -276,9 +281,9 @@
         {t:'// 큰 객체를 복사 없이·안전하게 전달', dim:true}
       ];
       var act=[1,2,3][s.step];
-      codePanel(E, W*0.04, H*0.13, W*0.50, code, 'const_ref.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.50, code, 'const_ref.cpp', act);
 
-      var bx=W*0.58, cy=H*0.24;
+      var bx=W*0.58, cw=W*0.36, cy=Math.max(H*0.10,20);
       ctx.textAlign='left';
       if(s.step===0){
         ctx.fillStyle=CPD; ctx.font='600 15px sans-serif'; ctx.fillText('const int& r = x;', bx, cy);
@@ -305,14 +310,14 @@
           {k:'const 참조',    col:GRN,  d:'큰 객체를 안 바꾸고 빠르게 읽기'},
           {k:'포인터 *',      col:BLU,  d:'재지정·nullptr·동적할당(new)'}
         ];
-        for(var i=0;i<rows.length;i++){ var y=cy+24+i*40;
-          roundRect(ctx, bx, y, W*0.36, 32, 7); ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fill();
+        for(var i=0;i<rows.length;i++){ var y=cy+22+i*36;
+          roundRect(ctx, bx, y, cw, 30, 7); ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fill();
           ctx.strokeStyle=rows[i].col; ctx.lineWidth=1.3; ctx.stroke();
-          ctx.fillStyle=rows[i].col; ctx.font='600 13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(rows[i].k, bx+12, y+21);
-          ctx.fillStyle='#dfeaf2'; ctx.font='12px sans-serif'; ctx.fillText(rows[i].d, bx+130, y+21);
+          ctx.fillStyle=rows[i].col; ctx.font='600 13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(rows[i].k, bx+12, y+20);
+          ctx.fillStyle='#dfeaf2'; ctx.font='12px sans-serif'; ctx.fillText(rows[i].d, bx+130, y+20);
         }
         ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
-        ctx.fillText('참조 = 반드시 초기화·재지정 불가·null 없음 / 포인터 = 유연하되 관리 책임 큼.', bx, cy+24+4*40+16);
+        ctx.fillText('참조 = 반드시 초기화·재지정 불가·null 없음 / 포인터 = 유연하되 관리 책임 큼.', bx, cy+22+4*36+14);
       }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (잠긴 별명 → 읽기/쓰기 → 참조 vs 포인터)', true);

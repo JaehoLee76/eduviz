@@ -1,4 +1,4 @@
-/* C++ 제16장 — 주요 알고리즘 구현 (CLRS 기반, 실제 C++): 정렬(퀵·병합) · 이진탐색 · 그래프(BFS·DFS) · 다익스트라 · DP(0/1 배낭)
+/* C++ 제16장 — 주요 알고리즘 구현 (표준 알고리즘 기반, 실제 C++): 정렬(퀵·병합) · 이진탐색 · 그래프(BFS·DFS) · 다익스트라 · DP(0/1 배낭)
    동작(behavior)만. 텍스트=content/cpp16.json. 엔진 js/engine.js 공유. 색: C++=파랑(#5ab4e8).
    골든룰(엄수): 정렬결과·비교/교환·탐색위치·방문순서·최단거리·DP표 값은 draw에서 실제로 알고리즘을 한 단계씩 돌려 계산.
    고정 입력 배열·그래프. Math.random()/Date.now() 금지. 좌측=진짜 표준 C++ 코드 + 줄커서, 우측=캔버스 단계 실연. */
@@ -7,15 +7,20 @@
 
   function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function codePanel(E, x, y, w, lines, title, actLine){
-    var ctx=E.ctx, lh=16, pad=14, top=y, n=lines.length, ht=n*lh+pad*2+(title?26:0);
+    var ctx=E.ctx, pad=14, top=y, n=lines.length;
+    // 줄높이를 남는 세로공간에 맞춰 축소(낮은 창서 코드가 캔버스 밑으로 잘리지 않게). 기본 16, 하한 12.
+    var botLimit=E.H*0.93, avail=botLimit - top - pad*2 - (title?26:0);
+    var lh=Math.max(12, Math.min(16, Math.floor(avail/n)));
+    var ht=n*lh+pad*2+(title?26:0);
     ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle='rgba(90,180,232,0.30)'; ctx.lineWidth=1;
     roundRect(ctx,x,top,w,ht,10); ctx.fill(); ctx.stroke();
     var cy=top+pad+(title?26:0);
     if(title){ ctx.fillStyle=CPB; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText(title, x+pad, top+pad+12); }
-    ctx.font='13px ui-monospace,Menlo,Consolas,monospace'; ctx.textAlign='left';
+    var fs=Math.max(11, Math.min(13, lh-3));
+    ctx.font=fs+'px ui-monospace,Menlo,Consolas,monospace'; ctx.textAlign='left';
     for(var i=0;i<n;i++){
       var L=lines[i], t=(typeof L==='string')?L:L.t, hl=(typeof L==='object')?L.hl:null;
-      var ty=cy+i*lh+11;
+      var ty=cy+i*lh+lh-5;
       if(actLine!=null && i===actLine){ ctx.fillStyle='rgba(90,180,232,0.16)'; ctx.fillRect(x+4, cy+i*lh+1, w-8, lh-2); ctx.fillStyle=CPB; ctx.fillRect(x+4, cy+i*lh+1, 3, lh-2); }
       if(hl && t.indexOf(hl)>=0){ var a=t.split(hl), pre=a[0], post=a.slice(1).join(hl);
         ctx.fillStyle=DIM; ctx.fillText(pre, x+pad, ty); var wpre=ctx.measureText(pre).width;
@@ -119,9 +124,12 @@
       var act = isQuick ? f.line : (f.line===2?2:(f.line===7?8:f.line));
       codePanel(E, W*0.03, H*0.09, W*0.47, code, isQuick?'quicksort.cpp':'mergesort.cpp', act);
 
-      var tx=W*0.54, tw=W*0.42, ty=H*0.18, bh=140;
+      var tx=W*0.54, tw=W*0.42, ty=H*0.10, botY=H*0.93;
       ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
       ctx.fillText(isQuick?'퀵정렬 — 피벗 기준 분할(파티션)':'병합정렬 — 분할 후 정렬 병합', tx, ty);
+      // 하단 3줄(범례·STEP·결과)을 botY 위에 고정 배치하고, 막대는 그 위 남는 공간을 채움 → 낮은 창서도 안 넘침
+      var resultY=botY-10, stepY=resultY-22, legendY=stepY-24;
+      var bh=Math.max(52, legendY - 14 - 30/*막대 하단 값·인덱스*/ - (ty+18));
 
       if(isQuick){
         bars(ctx, tx, ty+18, tw, bh, f.arr, function(i){
@@ -132,7 +140,7 @@
           return 'rgba(122,184,255,0.55)';
         });
         // 범례
-        var ly=ty+18+bh+42;
+        var ly=legendY;
         ctx.font='11.5px sans-serif'; ctx.textAlign='left';
         ctx.fillStyle=GLD; ctx.fillText('■ 피벗', tx, ly); ctx.fillStyle=CPB; ctx.fillText('■ 비교중 j', tx+70, ly);
         ctx.fillStyle=GRN; ctx.fillText('■ 피벗보다 작음(확정)', tx+170, ly);
@@ -142,17 +150,16 @@
           if(f.L>=0) return 'rgba(120,140,160,0.35)';
           return 'rgba(122,184,255,0.55)';
         });
-        var ly=ty+18+bh+42;
+        var ly=legendY;
         ctx.font='11.5px sans-serif'; ctx.textAlign='left';
         ctx.fillStyle=CPB; ctx.fillText('■ 분할 구간', tx, ly); ctx.fillStyle=GRN; ctx.fillText('■ 병합 완료(정렬됨)', tx+90, ly);
       }
-      // STEP 노트
-      var ny=ty+18+bh+68;
+      // STEP 노트 (하단 고정)
       ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('STEP '+(s.step+1)+'/'+frames.length+' — '+f.note, tx, ny);
+      ctx.fillText('STEP '+(s.step+1)+'/'+frames.length+' — '+f.note, tx, stepY);
       var sorted=frames[frames.length-1].arr;
       ctx.fillStyle=GRN; ctx.font='12.5px ui-monospace,monospace';
-      ctx.fillText('최종 정렬 결과: ['+sorted.join(', ')+']', tx, ny+24);
+      ctx.fillText('최종 정렬 결과: ['+sorted.join(', ')+']', tx, resultY);
 
       E.tapHint(W/2, H*0.95, '슬라이더=알고리즘 전환 · 화면 탭=한 단계 진행', true);
       E.big('정렬 — 퀵정렬과 병합정렬', '입력 [5,2,8,1,9,3]을 두 명작 알고리즘이 서로 다른 지혜로 정돈합니다. 퀵정렬은 피벗 하나를 골라 “그보다 작은 것은 왼쪽, 큰 것은 오른쪽”으로 자리를 나누고(파티션), 두 쪽을 재귀로 반복하죠 — 평균 O(n log n), 제자리(추가 메모리 거의 0). 병합정렬은 반대로 끝까지 반으로 쪼갠 뒤, 정렬된 두 조각을 지퍼처럼 맞물려 합칩니다 — 항상 O(n log n), 안정 정렬. 화면의 막대 색·비교·교환·최종 결과는 모두 실제로 코드를 한 줄씩 돌려 얻은 값입니다.'); }
@@ -189,12 +196,11 @@
         {t:'    if(a[mid]==target) return mid;', hl:'a[mid]==target'},
         {t:'    else if(a[mid]<target) lo=mid+1;', hl:'lo=mid+1'},
         {t:'    else hi=mid-1;', hl:'hi=mid-1'},
-        {t:'  } return -1;  // 없음', dim:true},
-        {t:'}', dim:true}
+        {t:'  } return -1;  // 없음', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.46, code, 'binary_search.cpp', f.line);
+      codePanel(E, W*0.04, H*0.09, W*0.46, code, 'binary_search.cpp', f.line);
 
-      var tx=W*0.54, ty=H*0.22, cw=Math.min(W*0.038, 46), cellY=ty+30, ch=44;
+      var tx=W*0.53, ty=H*0.15, cw=Math.min(W*0.038, 46), cellY=ty+30, ch=44;
       ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
       ctx.fillText('target = '+s.target+' 를 찾는 중 (탐색 구간 절반씩 축소)', tx, ty);
       for(var i=0;i<a.length;i++){
@@ -280,7 +286,11 @@
       ];
       codePanel(E, W*0.04, H*0.11, W*0.46, code, isBFS?'bfs.cpp':'dfs.cpp', f.line);
 
-      var gx=W*0.52, gy=H*0.12, gw=W*0.46, gh=H*0.66;
+      var botY=H*0.93;
+      // 하단 텍스트 블록(STEP + 큐 + 방문순서, 최대 3줄) 높이를 예약하고 그래프는 그 위로 제한
+      var txtLines=isBFS?3:2, txtH=6+txtLines*20;
+      var gx=W*0.52, gy=H*0.10, gw=W*0.46;
+      var gh=Math.max(120, botY - txtH - gy - 22 /*노드 반지름·라벨 여유*/);
       function px(i){ return gx+pos[i][0]*gw; } function py(i){ return gy+pos[i][1]*gh; }
       // 간선
       for(var u in adj){ u=+u; for(var k=0;k<adj[u].length;k++){ var w=adj[u][k]; if(u<w){
@@ -296,12 +306,12 @@
         // 방문 순서 번호
         var ord=f.order.indexOf(i); if(ord>=0){ ctx.fillStyle=GLD; ctx.font='600 11px sans-serif'; ctx.fillText('#'+(ord+1), px(i)+22, py(i)-14); }
       }
-      // 큐/순서 표시
-      var ny=gy+gh+18;
+      // 큐/순서 표시 (하단 예약 영역)
+      var ny=botY - txtH + 16;
       ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('STEP '+(s.step+1)+'/'+frames.length+' — '+f.note, gx, ny);
-      if(isBFS){ ctx.fillStyle=BLU; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('큐: ['+(f.q||[]).join(', ')+']', gx, ny+22); }
-      ctx.fillStyle=GRN; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('방문 순서: '+(f.order.length?f.order.join(' → '):'—'), gx, ny+(isBFS?42:22));
+      if(isBFS){ ctx.fillStyle=BLU; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('큐: ['+(f.q||[]).join(', ')+']', gx, ny+20); }
+      ctx.fillStyle=GRN; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('방문 순서: '+(f.order.length?f.order.join(' → '):'—'), gx, ny+(isBFS?40:20));
 
       E.tapHint(W/2, H*0.95, '슬라이더=BFS↔DFS · 화면 탭=한 노드씩', true);
       E.big('그래프 탐색 — BFS와 DFS', '정점과 간선으로 이루어진 그래프를 어떻게 빠짐없이 훑을까요? 두 가지 성격이 있습니다. BFS(너비 우선)는 큐를 써서 “시작점에서 가까운 이웃부터 물결처럼” 퍼져 나갑니다 — 최단 경로(간선 수)를 찾을 때 씁니다. DFS(깊이 우선)는 재귀(스택)로 “한 길을 끝까지 파고들다 막히면 되돌아” 옵니다 — 연결 요소·사이클·위상정렬에 씁니다. 같은 그래프라도 방문 순서가 달라지죠. 화면의 방문 순서(#번호)와 큐 내용은 실제로 알고리즘을 돌려 얻은 값입니다.'); }
@@ -353,7 +363,11 @@
       ];
       codePanel(E, W*0.03, H*0.10, W*0.47, code, 'dijkstra.cpp', f.line);
 
-      var gx=W*0.52, gy=H*0.10, gw=W*0.46, gh=H*0.52;
+      var botY=H*0.93;
+      // 하단 블록: dist라벨(8) + 표(64) + STEP(18) + 결과(22) ≈ 112px 예약 → 그래프는 그 위로
+      var lowH=8+64+18+22;
+      var gx=W*0.52, gy=H*0.09, gw=W*0.46;
+      var gh=Math.max(96, botY - lowH - gy);
       function px(i){ return gx+pos[i][0]*gw; } function py(i){ return gy+pos[i][1]*gh; }
       // 간선 + 가중치
       edges.forEach(function(e){ var u=e[0],v=e[1],w=e[2];
@@ -375,19 +389,19 @@
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('노랑 = dist[] (0에서의 최단거리)', gx, gy+gh+8);
 
       // dist[] 표
-      var tabY=gy+gh+26, cw=Math.min(W*0.06,54);
+      var tabY=gy+gh+20, cw=Math.min(W*0.06,54);
       ctx.fillStyle='#dfeaf2'; ctx.font='600 12.5px sans-serif'; ctx.fillText('dist[] 배열 (실측)', gx, tabY);
-      cell(ctx,gx,tabY+8,44,24,'정점','rgba(90,180,232,0.14)',CPB,CPB,11.5);
-      cell(ctx,gx,tabY+32,44,24,'dist','rgba(90,180,232,0.14)',CPB,CPB,11.5);
+      cell(ctx,gx,tabY+8,44,22,'정점','rgba(90,180,232,0.14)',CPB,CPB,11.5);
+      cell(ctx,gx,tabY+30,44,22,'dist','rgba(90,180,232,0.14)',CPB,CPB,11.5);
       for(i=0;i<5;i++){ var d2=f.dist[i], dn=f.done[i];
-        cell(ctx,gx+44+i*cw,tabY+8,cw,24,i,'rgba(255,255,255,0.04)','rgba(255,255,255,0.12)','#dfeaf2',12.5);
-        cell(ctx,gx+44+i*cw,tabY+32,cw,24, d2>=1e9?'∞':d2, dn?'rgba(126,224,176,0.16)':'rgba(255,255,255,0.04)', dn?GRN:'rgba(255,255,255,0.12)', dn?GRN:'#dfeaf2',13);
+        cell(ctx,gx+44+i*cw,tabY+8,cw,22,i,'rgba(255,255,255,0.04)','rgba(255,255,255,0.12)','#dfeaf2',12.5);
+        cell(ctx,gx+44+i*cw,tabY+30,cw,22, d2>=1e9?'∞':d2, dn?'rgba(126,224,176,0.16)':'rgba(255,255,255,0.04)', dn?GRN:'rgba(255,255,255,0.12)', dn?GRN:'#dfeaf2',13);
       }
-      var ny=tabY+72;
+      var ny=tabY+66;
       ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('STEP '+(s.step+1)+'/'+this.frames.length+' — '+f.note, gx, ny);
       if(f.fin){ var fin=this.frames[this.frames.length-1].dist;
-        ctx.fillStyle=GRN; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('0→각 정점 최단거리: ['+fin.join(', ')+']', gx, ny+22); }
+        ctx.fillStyle=GRN; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('0→각 정점 최단거리: ['+fin.join(', ')+']', gx, ny+18); }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 한 단계 (정점 확정 → 완화)', true);
       E.big('다익스트라 — 가장 짧은 길 찾기', '가중치 있는 그래프에서 출발점 0으로부터 모든 정점까지의 최단거리를 구합니다. 핵심 아이디어는 탐욕: “아직 확정 안 된 정점 중 dist가 가장 작은 것”은 더 줄어들 수 없으니 곧장 확정하고, 그 정점을 거쳐 이웃으로 가는 길이 지금까지보다 짧으면 dist를 갱신(완화, relax)합니다. 우선순위큐가 “가장 가까운 미확정 정점”을 O(log n)에 꺼내 줘 전체 O(E log V). 화면의 dist[] 값·완화·확정 순서는 모두 실제로 코드를 돌려 계산한 최단거리입니다.'); }
@@ -432,18 +446,21 @@
       ];
       codePanel(E, W*0.03, H*0.10, W*0.47, code, 'knapsack.cpp', f.line);
 
+      var botY=H*0.93;
       // 아이템 목록
-      var ix=W*0.53, iy=H*0.13;
+      var ix=W*0.53, iy=H*0.09;
       ctx.fillStyle=CPB; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('아이템 (용량 W='+CAP+')', ix, iy);
       for(var k=0;k<items.length;k++){ var it=items[k], on=(f.i===k+1);
         ctx.fillStyle=on?'rgba(90,180,232,0.18)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=on?CPB:'rgba(255,255,255,0.12)'; ctx.lineWidth=1.2;
-        roundRect(ctx,ix+k*88,iy+10,82,42,6); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=on?CPB:'#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(it.name, ix+k*88+41, iy+27);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('w='+it.w+' v='+it.v, ix+k*88+41, iy+45); }
+        roundRect(ctx,ix+k*88,iy+8,82,38,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=on?CPB:'#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(it.name, ix+k*88+41, iy+24);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('w='+it.w+' v='+it.v, ix+k*88+41, iy+40); }
 
-      // DP 표
-      var tx=W*0.53, ty=iy+72, cw=Math.min(W*0.052,50), ch=26;
+      // DP 표 — 행 높이 ch를 남는 높이에 맞춰 축소(낮은 창서도 note까지 다 들어오게)
+      var tx=W*0.53, ty=iy+64, cw=Math.min(W*0.052,50);
+      var noteH=60;                                   // STEP+note+결과 예약
+      var ch=Math.max(18, Math.min(26, Math.floor((botY - noteH - ty) / (n+2))));
       ctx.fillStyle='#dfeaf2'; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('DP 표: dp[아이템 i][용량 c]', tx, ty-6);
       // 헤더 (용량 0..CAP)
       cell(ctx,tx,ty,cw,ch,'i\\c','rgba(90,180,232,0.14)',CPB,CPB,11);
@@ -465,12 +482,12 @@
         ctx.strokeStyle=BLU; ctx.lineWidth=1.6; ctx.setLineDash([3,2]);
         ctx.beginPath(); ctx.moveTo(cellX+cw/2, cellY); ctx.lineTo(upX, upY+ch/2); ctx.stroke(); ctx.setLineDash([]); }
 
-      var ny=ty+ch*(n+2)+18;
+      var ny=ty+ch*(n+2)+16;
       ctx.fillStyle='#dfeaf2'; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('STEP '+(s.step+1)+'/'+this.frames.length, tx, ny);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(f.note, tx, ny+18);
+      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(f.note, tx, ny+16);
       if(f.fin){ var ans=this.frames[this.frames.length-1].dp[n][CAP];
-        ctx.fillStyle=GRN; ctx.font='700 17px sans-serif'; ctx.fillText('최적 가치 = '+ans+' (아이템 C+D: w=5, v=17)', tx, ny+42); }
+        ctx.fillStyle=GRN; ctx.font='700 16px sans-serif'; ctx.fillText('최적 가치 = '+ans+' (아이템 C+D: w=5, v=17)', tx, ny+38); }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = DP 셀 하나씩 채우기', true);
       E.big('동적계획법 — 0/1 배낭', '용량이 정해진 배낭에 아이템을 골라 담아 가치를 최대로 — 각 아이템은 통째로 넣거나 빼거나(0/1)입니다. 무식하게 모든 부분집합을 시도하면 2ⁿ이지만, DP는 작은 문제의 답을 표에 적어 재활용합니다. dp[i][c] = “처음 i개 아이템으로 용량 c를 채운 최대 가치”이고, 각 칸은 딱 두 선택의 max — 이 아이템을 빼거나(위 칸 그대로), 담거나(그만큼 용량을 뺀 이전 답 + 이 가치). 표를 왼쪽 위부터 채워 dp[n][W]가 답입니다. 화면의 모든 셀 값은 실제 점화식으로 계산했고, 최적 가치는 17(C+D)입니다.'); }

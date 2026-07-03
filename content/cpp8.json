@@ -27,7 +27,7 @@
  "cpp8_04": {
   "ch": "C++ 제8장 · 객체지향",
   "sec": "8.4 가상 소멸자",
-  "title": "가상 소멸자 (Effective C++ 7)",
+  "title": "가상 소멸자 (핵심 규칙)",
   "narr": "Animal* p = new Cat(); delete p; — 부모 소멸자에 virtual 이 없으면 ~Animal 만 불리고 ~Cat 이 건너뛰어져, Cat 이 잡은 힙 자원이 새어 나갑니다. virtual ~Animal() 로 만들면 ~Cat → ~Animal 이 순서대로 불려 누수 0.",
   "more": "규칙: 다형적으로 쓸(부모 포인터로 delete 할) 기반 클래스에는 반드시 가상 소멸자를 두라 (스콧 마이어스).",
   "more_en": "Deleting a derived object via a base pointer calls only ~Base unless the base destructor is virtual — leaking the derived resource. Give polymorphic base classes a virtual destructor."

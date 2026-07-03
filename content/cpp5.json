@@ -35,8 +35,8 @@
   "ch": "C++ 제5장 · 객체지향",
   "sec": "5.5 copy-and-swap",
   "title": "copy-and-swap 관용구",
-  "narr": "Effective C++이 권하는 <b>예외 안전 대입</b> 관용구입니다. <code>operator=</code>의 인자를 참조가 아니라 <b>값</b>(<code>Name rhs</code>)으로 받으면, 함수에 들어오는 순간 <b>복사 생성자가 깊은 사본을 만들어</b> 줍니다. 그다음 <code>swap(*this, rhs)</code>로 <b>포인터만 맞바꾸면</b> 끝. 탭해서 사본 생성 → 교환 → 옛 자원 정리를 따라가세요.",
+  "narr": "실무에서 널리 권하는 <b>예외 안전 대입</b> 관용구입니다. <code>operator=</code>의 인자를 참조가 아니라 <b>값</b>(<code>Name rhs</code>)으로 받으면, 함수에 들어오는 순간 <b>복사 생성자가 깊은 사본을 만들어</b> 줍니다. 그다음 <code>swap(*this, rhs)</code>로 <b>포인터만 맞바꾸면</b> 끝. 탭해서 사본 생성 → 교환 → 옛 자원 정리를 따라가세요.",
   "more": "<b>왜 안전한가</b>: 자원 할당·복사는 <b>swap 전에</b> 이미 끝났고, <code>std::swap</code>은 포인터만 교환해 <b>절대 예외를 던지지 않습니다</b>(nothrow). 그래서 <code>new</code>가 도중에 실패해도 원본은 손끝 하나 안 다칩니다(<b>강한 예외 안전성</b>). 함수가 끝나면 <code>rhs</code>가 소멸하며 <b>내 옛 힙을 자동 정리</b> — 자기대입 검사도, 코드 중복도 필요 없습니다.",
-  "more_en": "The <b>copy-and-swap</b> idiom (Effective C++): take the parameter <b>by value</b> so the copy constructor makes a deep copy, then <code>swap</code> pointers with <code>*this</code>. Since <code>std::swap</code> is nothrow, the assignment is <b>strongly exception-safe</b>, self-assignment-safe, and free of duplicated code. The old resource is cleaned up when <code>rhs</code> is destroyed."
+  "more_en": "The <b>copy-and-swap</b> idiom (실무 모범 사례): take the parameter <b>by value</b> so the copy constructor makes a deep copy, then <code>swap</code> pointers with <code>*this</code>. Since <code>std::swap</code> is nothrow, the assignment is <b>strongly exception-safe</b>, self-assignment-safe, and free of duplicated code. The old resource is cleaned up when <code>rhs</code> is destroyed."
  }
 }

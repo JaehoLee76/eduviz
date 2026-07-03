@@ -118,12 +118,12 @@
         {t:'};', dim:true},
         {t:'Stack<int> s;   // T = int 스택', hl:'Stack<int>'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.50, code, 'class_template.cpp', st.line);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.48, code, 'class_template.cpp', st.line);
 
       // 우측: 스택 시각화 (아래→위 쌓임)
-      var bx=W*0.66, baseY=H*0.72, cw=W*0.16, chh=34;
+      var bx=W*0.66, baseY=H*0.70, cw=W*0.16, chh=32;
       ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('Stack<int>', bx+cw/2, H*0.16);
+      ctx.fillText('Stack<int>', bx+cw/2, H*0.15);
       // 바닥 선
       ctx.strokeStyle='rgba(90,180,232,0.5)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(bx-6, baseY+4); ctx.lineTo(bx+cw+6, baseY+4);
@@ -147,14 +147,16 @@
         ctx.fillText('(비어 있음)', bx+cw/2, baseY-20);
       }
 
-      // 현재 연산 캡션
-      var lpx=W*0.05, lpy=H*0.66;
-      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 16px sans-serif';
+      // 현재 연산 캡션 — 코드패널 아래 여백에 배치(겹침 방지). 자리가 좁으면 스택 아래(우측)로.
+      var lpx, lpy, room=(H*0.90)-(codeBot+24);
+      if(room>=66){ lpx=W*0.05; lpy=Math.max(codeBot+24, H*0.66); }   // 코드 아래 충분
+      else { lpx=W*0.55; lpy=Math.min(H*0.90-44, baseY+28); }        // 좁으면 스택 아래 우측
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 15px sans-serif';
       ctx.fillText('연산: '+st.act, lpx, lpy);
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-      ctx.fillText('마지막에 넣은 것이 가장 먼저 나옵니다 (LIFO — 후입선출).', lpx, lpy+24);
+      ctx.fillText('마지막에 넣은 것이 먼저 나옴 (LIFO — 후입선출).', lpx, lpy+22);
       ctx.fillStyle='#dfeaf2'; ctx.font='13px ui-monospace,Menlo,monospace';
-      ctx.fillText('현재 크기 n = '+st.stack.length+'   내용 = ['+st.stack.join(', ')+']', lpx, lpy+48);
+      ctx.fillText('n = '+st.stack.length+'   내용 = ['+st.stack.join(', ')+']', lpx, lpy+44);
 
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (push ×3 → top → pop ×2)', true);
       E.big('클래스 템플릿 — 어떤 타입이든 담는 그릇', '함수뿐 아니라 클래스도 타입을 매개변수로 받을 수 있습니다. Stack<T>를 한 번 만들어 두면, Stack<int>는 정수 스택, Stack<string>은 문자열 스택, Stack<Complex>는 복소수 스택 — 담을 타입만 <>안에 바꿔 끼우면 됩니다. 내부의 T data[100]에서 T가 그때그때 실제 타입으로 채워지죠. 스택은 접시 쌓기처럼 마지막에 올린 것을 가장 먼저 꺼내는(LIFO) 자료구조입니다. push로 위에 얹고, top으로 꼭대기를 엿보고, pop으로 걷어냅니다. 화면에서 10·20·30을 쌓았다가 30·20을 꺼내는 과정을 실제 배열 상태로 따라가 보세요. 이 하나의 템플릿이 필요한 만큼의 서로 다른 스택 클래스로 불어납니다.'); }
@@ -265,10 +267,10 @@
         {t:'Array<int, '+N+'> a;   // 스택에 딱 '+N+'칸', hl:'Array<int, '+N+'>'},
         {t:'a.size();  // = '+N+'  (컴파일타임에 확정)', hl:'a.size()'}
       ];
-      codePanel(E, W*0.04, H*0.13, W*0.50, code, 'nontype_param.cpp', 7);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.48, code, 'nontype_param.cpp', 7);
 
-      // 우측: N칸 고정 배열
-      var bx=W*0.58, by=H*0.36, cw=Math.min(W*0.044, (W*0.38)/N), chh=40;
+      // 우측: N칸 고정 배열 (오른쪽 여백 확보 위해 칸 폭·가용폭 축소)
+      var bx=W*0.56, by=H*0.30, cw=Math.min(W*0.042, (W*0.39)/N), chh=40;
       ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
       ctx.fillText('Array<int, '+N+'>  —  정확히 '+N+'칸', bx, by-16);
       for(i=0;i<N;i++){
@@ -285,13 +287,16 @@
       ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('N = '+N, bx+(N*(cw+3))/2, by+chh+44);
 
-      var lpx=W*0.05, lpy=H*0.72;
-      ctx.textAlign='left'; ctx.fillStyle=GRN; ctx.font='600 15px sans-serif';
-      ctx.fillText('a.size() = '+N+'   ·   메모리 = '+N+' × 4바이트 = '+bytes+'바이트', lpx, lpy);
-      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-      ctx.fillText('N은 타입이 아니라 값입니다. Array<int,3>과 Array<int,5>는 서로 다른 타입!', lpx, lpy+24);
-      ctx.fillStyle=CPB; ctx.font='12.5px sans-serif';
-      ctx.fillText('크기가 컴파일타임에 확정되므로 힙 할당 없이 스택에 통째로 얹힙니다 (빠름).', lpx, lpy+46);
+      // 요약 설명 — 코드패널 아래 여백이 넉넉하면 좌측, 좁으면 우측(브레이스 아래). 겹침 방지.
+      var lpx, lpy, roomL=(H*0.90)-(codeBot+24);
+      if(roomL>=70){ lpx=W*0.05; lpy=Math.max(codeBot+24, H*0.72); }
+      else { lpx=W*0.55; lpy=Math.min(H*0.90-44, by+chh+62); }
+      ctx.textAlign='left'; ctx.fillStyle=GRN; ctx.font='600 14px sans-serif';
+      ctx.fillText('a.size() = '+N+'  ·  메모리 = '+N+'×4 = '+bytes+'바이트', lpx, lpy);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+      ctx.fillText('N은 타입 아닌 값. Array<int,3>과 Array<int,5>는 다른 타입!', lpx, lpy+22);
+      ctx.fillStyle=CPB; ctx.font='12px sans-serif';
+      ctx.fillText('컴파일타임 확정 → 힙 할당 없이 스택에 통째로 얹힘 (빠름).', lpx, lpy+44);
 
       E.tapHint(W/2, H*0.94, '슬라이더로 크기 N을 바꿔 배열 칸·타입을 보세요', true);
       E.big('비타입 템플릿 인자 — 값도 매개변수로', '템플릿 인자가 꼭 타입일 필요는 없습니다. 정수 같은 값도 넘길 수 있죠 — 이걸 비타입(non-type) 인자라 부릅니다. template <typename T, int N>에서 T는 원소의 타입, N은 배열의 크기입니다. 핵심은 N이 컴파일타임에 확정되는 상수라는 점 — 그래서 T data[N]처럼 고정 크기 배열을 곧장 잡을 수 있고, 힙 할당(new) 없이 스택에 통째로 올라가 아주 빠릅니다. 재미있는 결과: Array<int,3>과 Array<int,5>는 크기가 다르니 아예 서로 다른 타입입니다 — 실수로 섞어 넣으면 컴파일러가 막아 줍니다. 슬라이더로 N을 바꿔 보면 칸 수와 함께 차지하는 메모리(N×4바이트)까지 그대로 따라 변하는 게 보입니다. 표준 라이브러리의 std::array<int, N>이 바로 이 방식입니다.'); }
@@ -314,16 +319,16 @@
         {t:'// 자동으로 찍어냅니다 = 인스턴스화', hl:'인스턴스화'}
       ];
       var act=[3,4,5][s.step];
-      codePanel(E, W*0.04, H*0.13, W*0.48, code, 'instantiation.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.13, W*0.48, code, 'instantiation.cpp', act);
 
-      // 우측: 하나의 템플릿 → 여러 구체 타입(공장 그림)
-      var mx=W*0.72, my=H*0.24, mw=W*0.20, mh=48;
+      // 우측: 하나의 템플릿 → 여러 구체 타입(공장 그림). 낮은 창에서 3단이 들어가게 압축.
+      var mx=W*0.70, my=H*0.15, mw=W*0.22, mh=42;
       // 틀(공장)
       ctx.strokeStyle=CPB; ctx.lineWidth=2; ctx.fillStyle='rgba(90,180,232,0.10)';
       roundRect(ctx,mx,my,mw,mh,10); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=CPB; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('template', mx+mw/2, my+20);
-      ctx.font='13px ui-monospace,Menlo,monospace'; ctx.fillText('vector<T>', mx+mw/2, my+38);
+      ctx.fillStyle=CPB; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('template', mx+mw/2, my+17);
+      ctx.font='13px ui-monospace,Menlo,monospace'; ctx.fillText('vector<T>', mx+mw/2, my+34);
 
       // 산출물(현재 step까지)
       var outs=[
@@ -331,29 +336,33 @@
         {t:'vector<double>', col:GRN},
         {t:'vector<string>', col:PNK}
       ];
-      var oy0=my+mh+40, oh=42, ow=W*0.24, ox=mx+mw/2-ow/2;
+      var oy0=my+mh+24, oh=34, og=10, ow=Math.min(W*0.24,W*0.97-mx), ox=mx+mw/2-ow/2;
       for(var k=0;k<=s.step;k++){
-        var o=outs[k], y=oy0+k*(oh+14);
+        var o=outs[k], y=oy0+k*(oh+og);
         // 연결선
         ctx.strokeStyle=DIM; ctx.lineWidth=1.4; ctx.setLineDash([4,3]);
         ctx.beginPath(); ctx.moveTo(mx+mw/2, my+mh); ctx.lineTo(ox+ow/2, y); ctx.stroke(); ctx.setLineDash([]);
         ctx.strokeStyle=o.col; ctx.lineWidth=1.8; ctx.fillStyle='rgba(255,255,255,0.04)';
         roundRect(ctx,ox,y,ow,oh,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=o.col; ctx.font='700 15px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
-        ctx.fillText(o.t, ox+ow/2, y+20);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('전용 코드 1벌 생성', ox+ow/2, y+37);
+        ctx.fillStyle=o.col; ctx.font='700 14px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+        ctx.fillText(o.t, ox+ow/2, y+17);
+        ctx.fillStyle=DIM; ctx.font='10.5px sans-serif'; ctx.fillText('전용 코드 1벌 생성', ox+ow/2, y+30);
       }
 
-      var lpx=W*0.05, lpy=H*0.72;
-      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 15px sans-serif';
+      // 설명 — 코드패널 아래 여백이 넉넉하면 좌측, 좁으면 우측(출력 아래). 겹침 방지.
+      var outsBot=oy0+2*(oh+og)+oh;   // 3단 산출물의 최하단
+      var lpx, lpy, roomL=(H*0.90)-(codeBot+22);
+      if(roomL>=64){ lpx=W*0.05; lpy=Math.max(codeBot+22, H*0.72); }
+      else { lpx=W*0.55; lpy=Math.min(H*0.88-40, outsBot+22); }
+      ctx.textAlign='left'; ctx.fillStyle=CPB; ctx.font='600 14px sans-serif';
       ctx.fillText('인스턴스화 — 필요한 타입만 코드가 태어납니다', lpx, lpy);
-      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-      ctx.fillText('vector<int>를 쓰는 순간, 컴파일러가 int 전용 vector 코드를 딱 그때 만듭니다.', lpx, lpy+24);
-      ctx.fillStyle=GRN; ctx.font='12.5px sans-serif';
-      ctx.fillText('STL(표준 템플릿 라이브러리) — vector·map·set·sort … 전부 이 템플릿입니다.', lpx, lpy+46);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+      ctx.fillText('vector<int>를 쓰는 순간 int 전용 vector 코드가 그때 생깁니다.', lpx, lpy+20);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif';
+      ctx.fillText('STL — vector·map·set·sort … 전부 이 템플릿입니다.', lpx, lpy+40);
 
-      // STL 칩
-      var chips=['vector','map','set','sort','pair'], chx=lpx, chy=lpy+64;
+      // STL 칩 — 설명 아래, 화면 하단(H*0.92) 안쪽으로 클램프
+      var chips=['vector','map','set','sort','pair'], chx=lpx, chy=Math.min(lpy+52, H*0.92-20);
       ctx.font='11.5px sans-serif';
       for(k=0;k<chips.length;k++){
         var wch=ctx.measureText(chips[k]).width+18;

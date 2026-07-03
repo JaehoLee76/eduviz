@@ -1,4 +1,4 @@
-/* C++ 제5장 — 복사 생성자 (윤성우 열혈C++ + Effective C++)
+/* C++ 제5장 — 복사 생성자 (C++ 실무 기반)
    복사 생성자 · 얕은복사 vs 깊은복사 · 대입 연산자 · 복사 호출 시점 · copy-and-swap
    동작(behavior)만. 텍스트=content/cpp5.json. 엔진 js/engine.js 공유. 색: C++=블루(#5ab4e8).
    골든룰: 화면의 모든 주소·카운트·값·복사 횟수는 draw에서 실제로 계산(결정적). 베껴 박지 않음. */
@@ -76,27 +76,27 @@
         {t:'Person copy = org;   // 복사!', hl:'copy'}
       ];
       var act=[9,10,6][s.step];
-      codePanel(E, W*0.04, H*0.12, W*0.46, code, 'copy_ctor.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.46, code, 'copy_ctor.cpp', act);
 
       // 우측: 원본 → 사본 복제
-      var ox=W*0.60, oy=H*0.24, bw=W*0.30;
+      var ox=W*0.60, oy=H*0.05, bw=W*0.30;
       objBox(ctx, ox, oy, bw, 'org (원본)', [['name','"Ann"'],['age','23']], CPB);
       if(s.step>=1){
-        var cy=oy+150;
+        var cy=oy+128;
         var accent = (s.step>=2)? GRN : CPD;
         objBox(ctx, ox, cy, bw, 'copy (사본)', [['name','"Ann"'],['age','23']], accent);
-        arrow(ctx, ox+bw*0.5, oy+118, ox+bw*0.5, cy-6, accent, [6,4]);
-        ctx.fillStyle=accent; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
-        ctx.fillText(s.step>=2? 'Person(const Person& p) 호출 → 필드 값 복제' : '복제 중…', ox+bw*0.5+12, oy+140);
+        arrow(ctx, ox+bw*0.5, oy+90, ox+bw*0.5, cy-6, accent, [6,4]);
+        ctx.fillStyle=accent; ctx.font='600 11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(s.step>=2? 'Person(const Person& p) → 필드 값 복제' : '복제 중…', ox+bw*0.5+10, oy+112);
       }
 
-      var px=W*0.05, py=H*0.80;
+      var px=W*0.05, py=Math.max(H*0.80, codeBot+16);
       ctx.textAlign='left';
-      if(s.step===0){ ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.fillText('org 하나가 스택에 만들어졌습니다.', px, py); }
-      else if(s.step===1){ ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.fillText('Person copy = org;  →  새 객체를 org에서 복제', px, py); }
-      else { ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.fillText('두 객체는 서로 독립 — 값만 같고 저장 위치는 다릅니다.', px, py); }
-      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-      ctx.fillText('매개변수는 const 참조(const Person&): 원본을 복사하지 않고(무한 재귀 방지) 읽기만.', px, py+24);
+      if(s.step===0){ ctx.fillStyle=CPB; ctx.font='600 13.5px sans-serif'; ctx.fillText('org 하나가 스택에 만들어졌습니다.', px, py); }
+      else if(s.step===1){ ctx.fillStyle=CPD; ctx.font='600 13.5px sans-serif'; ctx.fillText('Person copy = org;  →  새 객체를 org에서 복제', px, py); }
+      else { ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif'; ctx.fillText('두 객체는 서로 독립 — 값만 같고 저장 위치는 다릅니다.', px, py); }
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+      ctx.fillText('매개변수는 const 참조(const Person&): 원본을 복사하지 않고(무한 재귀 방지) 읽기만.', px, py+19);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (원본 → 복제 → 완료)', true);
       E.big('복사 생성자 — 같은 종류로 태어난 쌍둥이', '기존 객체와 똑같은 새 객체를 만들 때 호출되는 특별한 생성자가 복사 생성자입니다. Person copy = org; 처럼 “같은 타입 객체로 초기화”하면 컴파일러가 Person(const Person& p)를 불러 org의 필드를 하나하나 옮겨 담죠. 매개변수가 왜 참조(&)일까요? 값으로 받으면 그 값을 만들려고 또 복사 생성자를 불러야 하니 무한 재귀에 빠집니다. 왜 const일까요? 원본은 읽기만 하면 되니까요. 만들지 않으면 컴파일러가 “멤버를 그대로 베끼는” 기본 복사 생성자를 자동으로 넣어 줍니다 — 대부분은 그것으로 충분하지만, 다음 장면에서 그 “그대로 베끼기”가 위험해지는 순간을 봅니다.'); }
@@ -189,30 +189,37 @@
         {t:'p2 = p1;   // 이미 만들어진 뒤 대입', hl:'p2 = p1'}
       ];
       var act=[9,1,3][s.step];
-      codePanel(E, W*0.04, H*0.12, W*0.47, code, 'assign_op.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.47, code, 'assign_op.cpp', act);
 
-      var ox=W*0.60, bw=W*0.32;
+      // 우측: p1/p2 상자를 나란히(가로 배치) — 짧은 창에서 세로 겹침 방지
+      var bw=W*0.20, p1x=W*0.54, p2x=W*0.76, boxY=H*0.05;
       var p2name = (s.step>=2)? '"Cat"' : '"Dog"';
-      objBox(ctx, ox, H*0.22, bw, 'p1', [['p','●'],['값','"Cat"']], CPB);
-      objBox(ctx, ox, H*0.46, bw, 'p2 (대상)', [['p','●'],['값',p2name]], (s.step>=2)?GRN:GLD);
+      objBox(ctx, p1x, boxY, bw, 'p1', [['p','●'],['값','"Cat"']], CPB);
+      objBox(ctx, p2x, boxY, bw, 'p2 (대상)', [['p','●'],['값',p2name]], (s.step>=2)?GRN:GLD);
 
-      var px=W*0.05, py=H*0.66;
+      // 좌측 설명은 코드패널 아래로, 우측 설명은 상자 아래로 — 침범 금지
+      var px=W*0.05, py=Math.max(H*0.72, codeBot+16);
+      var rx=W*0.54, ry=boxY+96;
       ctx.textAlign='left';
       if(s.step===0){
-        ctx.fillStyle=GLD; ctx.font='600 15px sans-serif'; ctx.fillText('대입 전:  p2 = "Dog"', px, py);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-        ctx.fillText('복사 생성자와 다른 시점 — p2는 이미 살아 있고, 헌 힙("Dog")을 갖고 있습니다.', px, py+24);
+        ctx.fillStyle=GLD; ctx.font='600 14px sans-serif'; ctx.fillText('대입 전:  p2 = "Dog"', rx, ry);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('복사 생성자와 다른 시점 — p2는 이미 살아 있고,', rx, ry+20);
+        ctx.fillText('헌 힙("Dog")을 갖고 있습니다.', rx, ry+38);
       } else if(s.step===1){
-        ctx.fillStyle=PNK; ctx.font='600 15px sans-serif'; ctx.fillText('① 자기대입 검사:  if(this == &o)', px, py);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-        ctx.fillText('p2 = p2 처럼 자기 자신이면, delete 로 자기 힙을 지웠다가 복사하는 참사를 막습니다.', px, py+24);
-        ctx.fillText('여기선 p2 ≠ p1 이므로 계속 진행합니다.', px, py+44);
+        ctx.fillStyle=PNK; ctx.font='600 14px sans-serif'; ctx.fillText('① 자기대입 검사:  if(this == &o)', rx, ry);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('p2 = p2 처럼 자기 자신이면, delete 로 자기 힙을', rx, ry+20);
+        ctx.fillText('지웠다가 복사하는 참사를 막습니다. (여기선 p2 ≠ p1)', rx, ry+38);
       } else {
-        ctx.fillStyle=GRN; ctx.font='600 15px sans-serif'; ctx.fillText('② 헌 힙 delete → ③ 새 힙 new → ④ 내용 복사', px, py);
-        ctx.fillStyle=GRN; ctx.font='700 16px sans-serif'; ctx.fillText('대입 후:  p2 = "Cat"  (p1과 값만 같고 힙은 각자)', px, py+26);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
-        ctx.fillText('return *this 로 자기 참조를 돌려줘 a = b = c 같은 연쇄 대입이 됩니다.', px, py+50);
+        ctx.fillStyle=GRN; ctx.font='600 13.5px sans-serif'; ctx.fillText('② 헌 힙 delete → ③ 새 힙 new → ④ 내용 복사', rx, ry);
+        ctx.fillStyle=GRN; ctx.font='700 14px sans-serif'; ctx.fillText('대입 후:  p2 = "Cat"  (값만 같고 힙은 각자)', rx, ry+22);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
+        ctx.fillText('return *this 로 자기 참조를 돌려줘 연쇄 대입 지원', rx, ry+40);
       }
+      // 좌측(코드패널 아래) 한 줄 요약
+      ctx.fillStyle=CPD; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('operator= : 이미 태어난 객체에 값을 새로 담는다.', px, py);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (대입 전 → 자기검사 → 대입 후)', true);
       E.big('대입 연산자 — 이미 태어난 객체에 값을 새로 담다', '복사 생성자는 “탄생”의 순간에, 대입 연산자 operator=는 “이미 살아 있는” 객체에 다른 객체의 값을 덮어쓸 때 호출됩니다. p2 = p1; 은 복사 생성자가 아니라 operator=를 부르죠. 포인터 멤버가 있다면 여기서 세 가지를 잊지 말아야 합니다. 첫째, 자기대입 검사(if(this == &o)) — p2 = p2 인데 무턱대고 자기 힙을 delete 하면 복사할 원본이 사라집니다. 둘째, 헌 자원 반납 후 새 힙을 깊게 복사. 셋째, return *this 로 자기 자신을 돌려줘 a = b = c 연쇄 대입을 지원. 복사 생성자·대입 연산자·소멸자, 이 셋은 늘 한 세트로 움직입니다.'); }
@@ -268,7 +275,7 @@
       E.big('복사는 언제 조용히 일어나는가', '복사 생성자는 = 이 없어도 뒤에서 불려 나갑니다. 세 순간을 조심하세요. 첫째, 같은 타입으로 초기화할 때(Person b = a;). 둘째, 객체를 값으로 함수에 넘길 때(greet(a);) — 매개변수라는 새 사본이 태어납니다. 셋째, 객체를 값으로 반환할 때 — 반환용 임시 객체로 한 번 더 복사되죠. 무거운 객체라면 이 “보이지 않는 복사”가 성능을 갉아먹습니다. 그래서 실무에서는 읽기만 할 인자는 const 참조(const Person&)로 받아 복사를 0으로 만들고, 컴파일러도 반환값을 RVO(Return Value Optimization)로 슬쩍 없애 줍니다. “복사가 언제 일어나는지”를 아는 것이 곧 빠른 C++을 쓰는 눈입니다.'); }
   },
 
-  // ══════════ 5. copy-and-swap — 예외 안전 operator= (Effective 항목11) ══════════
+  // ══════════ 5. copy-and-swap — 예외 안전 operator= (핵심 관용구) ══════════
   { id:'cpp5_05',
     enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%4; E.blip(340+this.s.step*80,0.08); },
@@ -325,7 +332,7 @@
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText(msgs[s.step][1], px, py+24);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (사본 생성 → 교환 → 옛 자원 정리)', true);
-      E.big('copy-and-swap — 예외에도 무너지지 않는 대입', 'Effective C++가 권하는 우아한 관용구입니다. 대입 연산자의 인자를 참조가 아니라 값(Name rhs)으로 받으세요 — 함수에 들어오는 순간 복사 생성자가 rhs라는 깊은 사본을 만들어 줍니다(자원 할당·복사가 여기서 끝). 그다음 swap(*this, rhs)로 나와 사본의 포인터만 맞바꾸면, 내 옛 자원은 rhs가 넘겨받고 나는 새 자원을 갖죠. 함수가 끝나면 rhs가 소멸하며 내 옛 힙을 자동으로 정리합니다. std::swap은 포인터만 교환해 절대 예외를 던지지 않으므로, new가 도중에 실패해도 원본은 손끝 하나 안 다칩니다(강한 예외 안전성). 자기대입 검사도 따로 필요 없고, 코드 중복도 없습니다 — 복사 로직 하나로 대입까지 해결하는 셈입니다.'); }
+      E.big('copy-and-swap — 예외에도 무너지지 않는 대입', '실무에서 널리 권하는 우아한 관용구입니다. 대입 연산자의 인자를 참조가 아니라 값(Name rhs)으로 받으세요 — 함수에 들어오는 순간 복사 생성자가 rhs라는 깊은 사본을 만들어 줍니다(자원 할당·복사가 여기서 끝). 그다음 swap(*this, rhs)로 나와 사본의 포인터만 맞바꾸면, 내 옛 자원은 rhs가 넘겨받고 나는 새 자원을 갖죠. 함수가 끝나면 rhs가 소멸하며 내 옛 힙을 자동으로 정리합니다. std::swap은 포인터만 교환해 절대 예외를 던지지 않으므로, new가 도중에 실패해도 원본은 손끝 하나 안 다칩니다(강한 예외 안전성). 자기대입 검사도 따로 필요 없고, 코드 중복도 없습니다 — 복사 로직 하나로 대입까지 해결하는 셈입니다.'); }
   }
 
   ];

@@ -143,16 +143,16 @@
       else { ctx.fillStyle=GRN; ctx.font='600 13px sans-serif';
         ctx.fillText('앞뒤 노드의 화살표(포인터) 2개만 바꿔 끼웁니다 → O(1)', nx0, iy); }
 
-      // vector와 비교 표
-      var cy2=H*0.66, rowh=26, tx0=W*0.06;
-      ctx.fillStyle='#dfeaf2'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      // vector와 비교 표 — 우측 열에 배치(좌측 코드패널 침범·하단 잘림 방지)
+      var cy2=iy+24, rowh=22, tx0=nx0;
+      ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('중간 삽입/삭제:  list vs vector', tx0, cy2);
       var rows=[['','list (연결)','vector (연속)'],
                 ['중간 삽입','O(1) 포인터만','O(n) 뒤를 다 밀기'],
                 ['임의접근 v[i]','O(n) 따라가기','O(1) 즉시'],
                 ['메모리','노드마다 흩어짐','한 덩어리(캐시 유리)']];
-      var cwv=[W*0.16,W*0.20,W*0.22];
-      for(var r=0;r<rows.length;r++){ var rx=tx0, ryy=cy2+14+r*rowh;
+      var cwv=[W*0.10,W*0.14,W*0.16];
+      for(var r=0;r<rows.length;r++){ var rx=tx0, ryy=cy2+12+r*rowh;
         for(var c=0;c<3;c++){ var head=(r===0), first=(c===0);
           ctx.fillStyle = head?'rgba(90,180,232,0.16)':(first?'rgba(255,255,255,0.03)':'rgba(255,255,255,0.02)');
           ctx.fillRect(rx,ryy,cwv[c],rowh); ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(rx,ryy,cwv[c],rowh);
@@ -295,7 +295,8 @@
         {t:'// 구조적 바인딩으로 first/second를 풀기', dim:true}
       ];
       var act = s.step===0 ? 1 : 6;
-      codePanel(E, W*0.04, H*0.13, W*0.48, code, 'pair_choose.cpp', act);
+      // step0=pair 해부(코드패널+우측). step1=컨테이너 선택 표(전체폭 → 코드패널 생략, 겹침 방지).
+      if(s.step===0) codePanel(E, W*0.04, H*0.13, W*0.48, code, 'pair_choose.cpp', act);
 
       if(s.step===0){
         // pair 시각화: 한 상자에 두 칸 (first / second)
@@ -312,8 +313,8 @@
         ctx.fillText('· map의 각 원소가 바로 pair<const Key, Value>.', bx, by+hh+80);
         ctx.fillText('· 세 개 이상 묶으려면 tuple, get<0>(t)로 꺼냅니다.', bx, by+hh+104);
       } else {
-        // 컨테이너 선택 표 (연산 복잡도)
-        var tx=W*0.05, ty=H*0.22;
+        // 컨테이너 선택 표 (연산 복잡도) — 코드패널 없이 전체폭 사용(겹침 방지)
+        var tx=W*0.045, ty=H*0.15;
         ctx.fillStyle='#eaf4fb'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
         ctx.fillText('어떤 상황에 어떤 컨테이너? — 연산별 복잡도', tx, ty-8);
         var head=['컨테이너','임의접근 [i]','끝 삽입','중간 삽입','키로 조회','정렬 유지'];
@@ -325,7 +326,7 @@
           ['set',    '—',     '—',     'O(log n)','O(log n)', '예(값순)'],
           ['u_map',  '—',     '—',     'O(1)평균','O(1)평균', '아니오']
         ];
-        var cwc=[W*0.13,W*0.13,W*0.12,W*0.13,W*0.13,W*0.13], rh=27, x0=tx, y0=ty+8;
+        var cwc=[W*0.135,W*0.155,W*0.13,W*0.155,W*0.155,W*0.155], rh=27, x0=tx, y0=ty+8;
         // 헤더
         var cx=x0;
         for(var c=0;c<head.length;c++){ ctx.fillStyle='rgba(90,180,232,0.16)'; ctx.fillRect(cx,y0,cwc[c],rh); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.strokeRect(cx,y0,cwc[c],rh);

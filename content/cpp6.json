@@ -20,8 +20,8 @@
   "sec": "6.3 const 멤버함수",
   "title": "const 멤버함수",
   "narr": "함수 뒤에 붙는 <b>const</b>는 “이 함수는 객체의 상태를 <b>절대 건드리지 않겠다</b>”는 컴파일러와의 계약입니다. <code>int get() const</code> 안에서 실수로 멤버를 수정하면 컴파일이 즉시 거부되죠. 탭해서 const 함수 → const 객체 → 위반 순으로 보세요.",
-  "more": "이 구분이 왜 중요할까요? <b>const 객체나 const 참조</b>로 넘어온 객체는 <b>오직 const 멤버함수만</b> 부를 수 있기 때문입니다. <code>get()</code>에 const를 안 붙였다면 잔액을 읽는 것조차 막힙니다. Effective C++은 <b>“바꾸지 않는 멤버함수엔 반드시 const를 붙이라”</b>고 못 박습니다 — 이 작은 키워드가 <b>const 정확성(const-correctness)</b>이라는 안전망을 짭니다.",
-  "more_en": "A <b>const member function</b> promises not to modify the object; modifying a member inside it is a compile error. Only const member functions can be called on a <b>const object</b> or <b>const reference</b>. Effective C++: mark every non-mutating member function <code>const</code> — this is <b>const-correctness</b>."
+  "more": "이 구분이 왜 중요할까요? <b>const 객체나 const 참조</b>로 넘어온 객체는 <b>오직 const 멤버함수만</b> 부를 수 있기 때문입니다. <code>get()</code>에 const를 안 붙였다면 잔액을 읽는 것조차 막힙니다. C++ 모범 사례는 <b>“바꾸지 않는 멤버함수엔 반드시 const를 붙이라”</b>고 못 박습니다 — 이 작은 키워드가 <b>const 정확성(const-correctness)</b>이라는 안전망을 짭니다.",
+  "more_en": "A <b>const member function</b> promises not to modify the object; modifying a member inside it is a compile error. Only const member functions can be called on a <b>const object</b> or <b>const reference</b>. Best practice: mark every non-mutating member function <code>const</code> — this is <b>const-correctness</b>."
  },
  "cpp6_04": {
   "ch": "C++ 제6장 · 객체지향",

@@ -194,8 +194,8 @@
       }
       if(s.step===3){ ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.fillText('dist2() = '+st.x+'²+'+st.y+'² = '+d2, bx, by+10+ch*3+22); }
 
-      // 우측 하단: 좌표 평면에 p 위치 실제로 찍기
-      var ox=bx+20, oy=H*0.86, unit=Math.min(bw*0.13, H*0.10);
+      // 우측 하단: 좌표 평면에 p 위치 실제로 찍기 (낮은 창에서 x축·라벨이 H*0.93 밑단을 넘지 않도록)
+      var ox=bx+20, oy=H*0.80, unit=Math.min(bw*0.13, H*0.085);
       ctx.strokeStyle='rgba(90,180,232,0.22)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(ox-unit,oy); ctx.lineTo(ox+unit*6,oy); ctx.moveTo(ox,oy+unit); ctx.lineTo(ox,oy-unit*6); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('x', ox+unit*6-4, oy+16); ctx.fillText('y', ox+6, oy-unit*6+2);
@@ -230,7 +230,7 @@
         {t:'c.count = 99;      // 컴파일 에러!', hl:'c.count'}
       ];
       var act=[2,8,9][s.step];
-      codePanel(E, W*0.04, H*0.12, W*0.46, code, 'access_control.cpp', act);
+      var codeBot=codePanel(E, W*0.04, H*0.12, W*0.46, code, 'access_control.cpp', act);
 
       // 우측: 객체 = 벽(캡슐). private 안쪽 count, public 통로 up/get. 외부 화살표.
       var cx=W*0.74, cy=H*0.42, R=Math.min(W*0.11,H*0.20);
@@ -253,18 +253,20 @@
       ctx.fillStyle=CPB; ctx.font='600 12px sans-serif'; ctx.fillText('public 통로', cx, cy+R-12);
 
       // 외부 접근 화살표 (step에 따라)
+      // 좌측 캡션(x=W*0.05)은 codePanel 아래·밑단 위로 clamp (낮은 창 침범 방지)
+      var capLo=Math.min(Math.max(H*0.86, codeBot+18), H*0.90);
       ctx.textAlign='left';
       if(s.step===0){
         ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('바깥세상', W*0.55, cy-R-10);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('count는 벽 안(private)에 숨어 있습니다.', W*0.05, H*0.86);
-        ctx.fillText('오직 up()·get()이라는 통로로만 손이 닿습니다.', W*0.05, H*0.90);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('count는 벽 안(private)에 숨어 있습니다.', W*0.05, capLo);
+        ctx.fillText('오직 up()·get()이라는 통로로만 손이 닿습니다.', W*0.05, Math.min(capLo+18,H*0.93));
       } else if(s.step===1){
         // c.up() → 통로 통과 OK (초록 화살표)
         ctx.strokeStyle=GRN; ctx.lineWidth=2.4;
         ctx.beginPath(); ctx.moveTo(W*0.55, g1y); ctx.lineTo(g1x-6, g1y); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(g1x-12,g1y-5); ctx.lineTo(g1x-4,g1y); ctx.lineTo(g1x-12,g1y+5); ctx.fillStyle=GRN; ctx.fill();
         ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.fillText('c.up()  ✓ 허용', W*0.44, g1y-14);
-        ctx.fillStyle=GRN; ctx.font='12.5px sans-serif'; ctx.fillText('public 멤버함수로는 count를 안전하게 바꿉니다.', W*0.05, H*0.88);
+        ctx.fillStyle=GRN; ctx.font='12.5px sans-serif'; ctx.fillText('public 멤버함수로는 count를 안전하게 바꿉니다.', W*0.05, capLo);
       } else {
         // c.count=99 → 벽에 막힘 (빨강 X)
         ctx.strokeStyle=RED; ctx.lineWidth=2.4; ctx.setLineDash([6,4]);
@@ -272,7 +274,7 @@
         var wx=cx-R-2, wy=cy;
         ctx.strokeStyle=RED; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(wx-9,wy-9); ctx.lineTo(wx+9,wy+9); ctx.moveTo(wx+9,wy-9); ctx.lineTo(wx-9,wy+9); ctx.stroke();
         ctx.fillStyle=RED; ctx.font='600 13px sans-serif'; ctx.fillText('c.count = 99  ✗ 막힘', W*0.40, cy-R-6);
-        ctx.fillStyle=RED; ctx.font='12.5px sans-serif'; ctx.fillText('private 멤버 직접 접근 → 컴파일 단계에서 거부됩니다.', W*0.05, H*0.88);
+        ctx.fillStyle=RED; ctx.font='12.5px sans-serif'; ctx.fillText('private 멤버 직접 접근 → 컴파일 단계에서 거부됩니다.', W*0.05, capLo);
       }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (숨김 → up() 허용 → 직접접근 거부)', true);
