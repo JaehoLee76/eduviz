@@ -176,7 +176,7 @@
       keyHintEl.innerHTML=h; keyHintEl.style.display='flex'; }
     else keyHintEl.style.display='none'; }
   // 슬라이더마다 다른 키쌍(감소/증가) — 3개 이상도 각자 단축키
-  var SLIDER_KEYS=[['KeyA','KeyD','A','D'],['KeyF','KeyG','F','G'],['KeyJ','KeyL','J','L'],['KeyB','KeyN','B','N']];   // 둘째 슬라이더 F/G (H는 홈 단축키로 비워둠)
+  var SLIDER_KEYS=[['KeyA','KeyD','A','D'],['KeyJ','KeyL','J','L'],['KeyB','KeyN','B','N'],['KeyT','KeyY','T','Y']];   // 둘째 슬라이더 J/L — F/G는 H(홈)와 붙어 있어 오타로 홈 이탈하던 문제 제거
   function controls(html){ if(!controlsEl) return; controlsEl.innerHTML=html||''; controlsEl.style.display=html?'flex':'none';
     var rs=controlsEl.querySelectorAll('input[type=range]'); if(!rs.length) return;
     var sliders=[].slice.call(rs), multi=sliders.length>1;
@@ -679,7 +679,7 @@
       var s=SM.scenes[SM.cur], k=e.key, c=e.code, space=(k===' '||c==='Space'), enter=(k==='Enter');
       var viz=!!(s&&s._viz&&_steps);
       // 전역 단축키(모든 장면): H = 홈 · M = 메모
-      if(c==='KeyH'){ var hl=document.querySelector('.home-link'); location.href=(hl&&hl.getAttribute('href'))||'home.html'; e.preventDefault(); return; }
+      if(c==='KeyH'){ e.preventDefault(); if(confirm('홈으로 돌아가시겠습니까?')){ var hl=document.querySelector('.home-link'); location.href=(hl&&hl.getAttribute('href'))||'home.html'; } return; }
       if(c==='KeyM'){ if(global.EduvizStore&&EduvizStore.openMemo) EduvizStore.openMemo(); e.preventDefault(); return; }
       if(k==='ArrowRight'){ next(); e.preventDefault(); return; }
       if(k==='ArrowLeft'){ prev(); e.preventDefault(); return; }
