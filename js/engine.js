@@ -763,6 +763,7 @@
 
   global.Engine = { start:start, addScenes:addScenes, NumberLine:NumberLine, goTo:goTo, enterBranch:enterBranch, exitBranch:exitBranch,
     cur:function(){ return SM.cur; },                                                  // 현재 평면 인덱스
+    curScene:function(){ return SM.scenes[SM.cur]||null; },                            // 현재 장면 객체(AI 튜터 컨텍스트용 — narr/more/code 원본)
     curId:function(){ var s=SM.scenes[SM.cur]; return s? s.id : null; },                // 현재 장면 id(콘텐츠 바뀌어도 안정)
     indexOfId:function(id){ for(var i=0;i<SM.scenes.length;i++){ if(SM.scenes[i].id===id) return i; } return -1; } };
 })(window);

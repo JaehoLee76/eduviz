@@ -1,5 +1,5 @@
 name = "eduviz-chat"
-main = "eduviz-chat-worker.js"
+main = "eduviz-chat.js"
 compatibility_date = "2024-11-01"
 
 # 배포:

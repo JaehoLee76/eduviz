@@ -17,15 +17,30 @@
     return (e.innerText||e.textContent||'').replace(/\s+/g,' ').trim(); }
   function clip(s,n){ return s && s.length>n ? s.slice(0,n)+'…' : (s||''); }
   function topic(){ return txt('sceneTitle') || ''; }
+  function stripTags(s){ return (s||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(); }
+  // 장면 원본(JSON 머지된 scene 객체) — DOM에 다 안 보여도 수식·설명 전문을 확보
+  function curScene(){ try{ return (window.Engine && Engine.curScene && Engine.curScene()) || null; }catch(e){ return null; } }
+  // 화면의 현재 조작 상태(슬라이더 라벨=값) — "지금 화면" 질문에 필수
+  function sliderState(){ var ctrl=document.getElementById('controls'); if(!ctrl) return '';
+    var out=[], units=ctrl.querySelectorAll('.ctrl, .sl-unit');
+    (units.length?units:[ctrl]).forEach(function(u){ var r=u.querySelector('input[type=range]'); if(!r) return;
+      var lab=(u.querySelector('label')||{}).textContent||'', o=(u.querySelector('output')||{}).textContent||r.value;
+      out.push((lab.trim()||'슬라이더')+' = '+String(o).trim()); });
+    return out.join(' · '); }
   function sceneContext(){
+    var sc=curScene()||{};
+    var big=(txt('bigN')+(txt('bigW')?' — '+txt('bigW'):'')).trim();   // 중앙 큰제목 = 화면의 대표 수식/결과가 실려 있음
+    var code=''; if(sc.code && sc.code.length){ code=sc.code.map(function(L){ return (typeof L==='string')?L:(L&&L.t)||''; }).join('\n'); }
     var c = {
       주제: txt('crumb') || (txt('sceneSec')+' '+txt('sceneTitle')).trim(),
       제목: txt('sceneTitle'),
-      설명: clip(txt('bubble'), 1200),
-      핵심요약: clip(txt('studyMore') || txt('conceptExtra'), 1000),
+      화면수식: clip(big, 300),
+      설명: clip(stripTags(sc.narr) || txt('bubble'), 1400),
+      핵심요약: clip(stripTags(sc.more) || txt('studyMore') || txt('conceptExtra'), 1100),
       현재단계: clip(txt('stepCap') || txt('stepcap'), 300),
-      연습문제: clip(txt('studyProblem'), 500),
-      코드: clip(txt('codeBody'), 800)
+      조작상태: clip(sliderState(), 300),
+      연습문제: clip(stripTags(sc.problem && sc.problem.q) || txt('studyProblem'), 500),
+      코드: clip(code || txt('codeBody'), 900)
     };
     var out={}; for(var k in c){ if(c[k]) out[k]=c[k]; } return out;
   }
