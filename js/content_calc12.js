@@ -5,6 +5,15 @@
   var VIO='#b99cff', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', RED='#f0888a', DIM='#9b99a3';
   // 간단 3D 투영(방위각 az로 회전, z=위)
   function P3(x,y,z,az,cx,cy,sc){ var c=Math.cos(az), s=Math.sin(az), rx=x*c-y*s, ry=x*s+y*c; return [cx+rx*sc, cy-z*sc+ry*sc*0.42]; }
+  // 마우스 드래그 3D 회전용 투영: yaw(z축 기준)→pitch(회전된 x'축 기준) 표준 오일러 회전 후 직교투영
+  function proj3(p, yaw, pitch, cx, cy, scale){
+    var x=p[0], y=p[1], z=p[2];
+    var cyv=Math.cos(yaw), syv=Math.sin(yaw);
+    var x1 = x*cyv - y*syv, y1 = x*syv + y*cyv;   // yaw: z축 둘레 회전
+    var cp=Math.cos(pitch), sp=Math.sin(pitch);
+    var y2 = y1*cp - z*sp, z2 = y1*sp + z*cp;      // pitch: 회전된 x'축 둘레 회전
+    return [cx + x1*scale, cy - z2*scale];          // 화면 X=x1, 화면 Y=-z2(위가 +)
+  }
   function arrow(ctx,x1,y1,x2,y2,col,w){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w||2; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
     var a=Math.atan2(y2-y1,x2-x1); ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-10*Math.cos(a-0.4),y2-10*Math.sin(a-0.4)); ctx.lineTo(x2-10*Math.cos(a+0.4),y2-10*Math.sin(a+0.4)); ctx.fill(); }
 
@@ -12,11 +21,31 @@
 
   // 12.1 3차원 벡터 — 회전하는 좌표축 + 벡터 v=(2,2,3)
   { id:'calc12_01',
-    enter:function(E){ this.s={az:0.6}; E.setOn([]);
-      E.controls('<div class="ctrl"><label>시점 회전</label><input type="range" id="az" min="0" max="6.28" step="0.04" value="0.6"><output id="azo">0.60</output></div>');
-      var self=this; E.bind('#az','input',function(e){ self.s.az=+e.target.value; document.getElementById('azo').textContent=(+e.target.value).toFixed(2); E.blip(380,0.05); }); },
-    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s, az=s.az, cx=W*0.46, cy=H*0.60, sc=Math.min(W,H)*0.11;
-      function pt(x,y,z){ return P3(x,y,z,az,cx,cy,sc); }
+    enter:function(E){ this.s={yaw:0.6,pitch:0.5}; E.setOn([]);
+      E.controls('<div class="ctrl"><label>좌우 회전(yaw)</label><input type="range" id="az" min="0" max="6.28" step="0.04" value="0.6"><output id="azo">0.60</output></div>'
+        +'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">'
+        +'<button class="v3btn" id="vpDefault" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">사선(기본)</button>'
+        +'<button class="v3btn" id="vpFront" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">정면 x-z</button>'
+        +'<button class="v3btn" id="vpSide" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">측면 y-z</button>'
+        +'<button class="v3btn" id="vpTop" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">위 x-y</button>'
+        +'</div>');
+      var self=this;
+      function syncSlider(){ var az=self.s.yaw; document.getElementById('az').value=az; document.getElementById('azo').textContent=az.toFixed(2); }
+      E.bind('#az','input',function(e){ self.s.yaw=+e.target.value; document.getElementById('azo').textContent=(+e.target.value).toFixed(2); E.blip(380,0.05); });
+      E.bind('#vpDefault','click',function(){ self.s.yaw=0.6; self.s.pitch=0.5; syncSlider(); E.blip(380,0.05); });
+      E.bind('#vpFront','click',function(){ self.s.yaw=0.0; self.s.pitch=0.12; syncSlider(); E.blip(380,0.05); });
+      E.bind('#vpSide','click',function(){ self.s.yaw=1.5708; self.s.pitch=0.12; syncSlider(); E.blip(380,0.05); });
+      E.bind('#vpTop','click',function(){ self.s.yaw=0.3; self.s.pitch=1.45; syncSlider(); E.blip(380,0.05); }); },
+    down:function(E,cx,cy){ this.s.drag={x:cx,y:cy}; },
+    move:function(E,cx,cy){ var s=this.s; if(!s.drag) return; var dx=cx-s.drag.x, dy=cy-s.drag.y;
+      s.yaw += dx*0.01; s.pitch += dy*0.01;
+      if(s.pitch>1.4) s.pitch=1.4; if(s.pitch<-1.4) s.pitch=-1.4;
+      s.drag={x:cx,y:cy};
+      var azEl=document.getElementById('az'), azoEl=document.getElementById('azo');
+      if(azEl){ azEl.value=s.yaw; } if(azoEl){ azoEl.textContent=s.yaw.toFixed(2); } },
+    up:function(E){ this.s.drag=null; },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s, cx=W*0.46, cy=H*0.60, sc=Math.min(W,H)*0.095;
+      function pt(x,y,z){ return proj3([x,y,z], s.yaw, s.pitch, cx, cy, sc); }
       var O=pt(0,0,0);
       arrow(ctx,O[0],O[1],pt(3.5,0,0)[0],pt(3.5,0,0)[1],'rgba(240,136,138,0.7)',1.5);   // x
       arrow(ctx,O[0],O[1],pt(0,3.5,0)[0],pt(0,3.5,0)[1],'rgba(126,224,176,0.7)',1.5);   // y
@@ -29,7 +58,8 @@
       arrow(ctx,O[0],O[1],V[0],V[1],VIO,3);
       var mag=Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
       ctx.fillStyle=VIO; ctx.font='13px sans-serif'; ctx.fillText('v=(2,2,3)', V[0]+8, V[1]-4);
-      E.big('v = (2, 2, 3)   ·   |v| = √(2²+2²+3²) = '+mag.toFixed(3), '공간의 벡터는 세 성분 — 크기는 √(x²+y²+z²) (피타고라스의 3D판). 시점을 돌려 보세요'); }
+      E.tapHint(W/2, H*0.95, '드래그 = 회전 · 버튼 = 각도 바로가기', false);
+      E.big('v = (2, 2, 3)   ·   |v| = √(2²+2²+3²) = '+mag.toFixed(3), '공간의 벡터는 세 성분 — 크기는 √(x²+y²+z²) (피타고라스의 3D판). 드래그하거나 버튼으로 시점을 돌려 보세요'); }
   },
 
   // 12.2 벡터 덧셈 — 평행사변형 법칙 (2D)

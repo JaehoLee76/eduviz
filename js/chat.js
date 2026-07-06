@@ -227,7 +227,13 @@
       ov.classList.add('open'); refreshMeta(); setTimeout(function(){ if(!inEl.disabled) inEl.focus(); },50); }
     function close(){ ov.classList.remove('open'); }
     fabEl.onclick=open; x.onclick=close;
-    ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+    // 바깥(카드·FAB 밖) 클릭 시 닫기 — 오버레이는 pointer-events:none(배경 클릭 통과)이라
+    // ov 자체의 click은 발화하지 않으므로 document 레벨에서 판정한다.
+    document.addEventListener('pointerdown', function(e){
+      if(!ov.classList.contains('open')) return;
+      if(card.contains(e.target) || fabEl.contains(e.target)) return;
+      close();
+    });
     sendEl.onclick=send;
     inEl.addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); } });
     inEl.addEventListener('input', function(){ inEl.style.height='auto'; inEl.style.height=Math.min(120,inEl.scrollHeight)+'px'; });

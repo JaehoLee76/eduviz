@@ -739,6 +739,13 @@
     branchPageEl=document.getElementById('branchPage'); branchPageInner=document.getElementById('branchPageInner');
     var chevBtn=document.getElementById('chevBtn');
     if(chevBtn) chevBtn.onclick=toggleStudy;
+    // 바깥(패널·셰브론 밖) 클릭 시 더알아보기 패널 닫기 — 캔버스 탭 등 배경 동작과 공존(메모 패널과 동일 철학)
+    document.addEventListener('pointerdown', function(e){
+      if(!document.body || !document.body.classList.contains('study-open')) return;
+      if(studyEl && studyEl.contains(e.target)) return;
+      if(chevBtn && chevBtn.contains(e.target)) return;
+      closeStudy();
+    });
     if(studyProb) studyProb.addEventListener('click',function(e){ var btn=(e.target&&e.target.closest)?e.target.closest('.sol-toggle'):null; if(btn){ var s=studyProb.querySelector('.prob-sol'); var op=s.classList.toggle('show'); btn.innerHTML=(op?'풀이 숨기기 ▴':'풀이 보기 ▾')+kc('R'); } });
     // pointer routing
     cv.addEventListener('pointerdown',function(e){ var s=SM.scenes[SM.cur]; if(s){ if(s._viz&&_steps){ stepNext(); return; } if(s.down)s.down(E,e.clientX,e.clientY); if(s.tap)s.tap(E,e.clientX,e.clientY);} });

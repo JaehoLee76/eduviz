@@ -8,6 +8,17 @@
     ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
     if(Math.hypot(x2-x1,y2-y1)<3) return; var a=Math.atan2(y2-y1,x2-x1); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x2,y2);
     ctx.lineTo(x2-8*Math.cos(a-0.45),y2-8*Math.sin(a-0.45)); ctx.lineTo(x2-8*Math.cos(a+0.45),y2-8*Math.sin(a+0.45)); ctx.fill(); }
+  // 3D 투영(x,y=공전평면, z=시간축). yaw:x-z평면 회전, pitch:y축 기울이기.
+  // yaw=0,pitch=0 → x-y 평면이 그대로 정면(원운동=완벽한 원, "시간축에서 보기").
+  // yaw=PI/2,pitch=0 → z(시간)가 가로축, y가 세로축("측면=파형").
+  function proj3(p, yaw, pitch, cx, cy, scale){
+    var x=p[0], y=p[1], z=p[2];
+    var cyw=Math.cos(yaw), syw=Math.sin(yaw);
+    var x1 = x*cyw - z*syw, z1 = x*syw + z*cyw;
+    var cp=Math.cos(pitch), sp=Math.sin(pitch);
+    var y2 = y*cp - z1*sp;
+    return [cx + x1*scale, cy - y2*scale];
+  }
 
   var scenes=[
 
@@ -97,28 +108,70 @@
       E.big(isBH?'블랙홀 — 탈출속도 > 빛의 속력':'천체 — 탈출속도 < 빛', '충분히 압축하면 빛조차 가둡니다.'); }
   },
 
-  // ══════════ 4. 중력파 — 시공간의 출렁임 ══════════
+  // ══════════ 4. 중력파 — 시공간의 출렁임 (3D 나선: x-y=공전, z=시간) ══════════
   { id:'phys28_04',
-    enter:function(E){ var self=this; this.s={t:0};
+    enter:function(E){ var self=this; this.s={t:0, yaw:0.55, pitch:0.32, hist:[]};
+      E.controls('<div class="ctrl"><div style="display:flex;gap:6px;flex-wrap:wrap">'
+        +'<button id="vpSpiral" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">사선=나선(기본)</button>'
+        +'<button id="vpTime" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">시간축에서 보기</button>'
+        +'<button id="vpSide" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">측면(파형)</button>'
+        +'</div></div>');
+      E.bind('#vpSpiral','click',function(){ self.s.yaw=0.55; self.s.pitch=0.32; });
+      E.bind('#vpTime','click',function(){ self.s.yaw=0; self.s.pitch=0; });
+      E.bind('#vpSide','click',function(){ self.s.yaw=Math.PI/2; self.s.pitch=0; });
       E.setOn([]); },
+    down:function(E,cx,cy){ this.s.drag={x:cx,y:cy}; },
+    move:function(E,cx,cy){ var s=this.s; if(!s.drag) return; var dx=cx-s.drag.x, dy=cy-s.drag.y;
+      s.yaw += dx*0.01; s.pitch += dy*0.01;
+      if(s.pitch>1.4) s.pitch=1.4; if(s.pitch<-1.4) s.pitch=-1.4;
+      s.drag={x:cx,y:cy}; },
+    up:function(E){ this.s.drag=null; },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx; if(!E.frozen)s.t+=1/60;
-      var cx=W*0.42, cy=H*0.44, cyc=(s.t*0.25)%1;   // 0→1 나선 안쪽으로
+      var cx=W*0.42, cy=H*0.40, cyc=(s.t*0.25)%1;   // 0→1 나선 안쪽으로
       var r=Math.max(8,(1-cyc)*W*0.13), om=2/Math.max(0.1,r)*40, ang=s.t*om;
-      // 중력파 잔물결(바깥으로 퍼짐, 진폭 ∝ 합쳐질수록 커짐)
+      var scl=1, zscale=W*0.11;   // 시간축 화면 스케일
+      // 두 천체의 3D 좌표: x=r cosθ, y=r sinθ, z=시간(상대). 화면좌표는 proj3 경유(골든룰: r/ang/cyc는 실계산, 좌표변환만 3D화)
+      var zt = s.t*zscale;
+      var P1=[r*Math.cos(ang), r*Math.sin(ang), zt], P2=[-r*Math.cos(ang), -r*Math.sin(ang), zt];
+      // 궤적 히스토리 누적(상대 z 계산용으로 절대 t를 같이 저장)
+      if(!E.frozen){ s.hist.push({t:s.t, p1:P1, p2:P2}); if(s.hist.length>200) s.hist.shift(); }
+      var yaw=s.yaw, pitch=s.pitch;
+      function toScreen(p3){ var zrel = p3[2] - zt; return proj3([p3[0],p3[1],zrel], yaw, pitch, cx, cy, scl); }
+      // 중력파 잔물결(공전평면 위 타원, x-y 평면 기준으로 그린 뒤 3D 투영은 생략하고 근사 타원 유지 — 배경 장식)
       for(var w=0;w<5;w++){ var rr=((s.t*1.2+w*0.5)%2.5); var amp=(1-cyc)*0.3+0.1; ctx.strokeStyle='rgba(122,184,255,'+(amp*(0.6-rr*0.2))+')'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,cy,40+rr*W*0.16,(40+rr*W*0.16)*0.6,0,0,7); ctx.stroke(); }
-      // 두 천체(나선 궤도)
-      var x1=cx+r*Math.cos(ang), y1=cy+r*Math.sin(ang)*0.6, x2=cx-r*Math.cos(ang), y2=cy-r*Math.sin(ang)*0.6;
+      // 궤적(나선) — 오래된 점일수록 흐리게, 두 천체 각각 색
+      for(var hi=1; hi<s.hist.length; hi++){
+        var h0=s.hist[hi-1], h1=s.hist[hi];
+        var age = hi/s.hist.length;   // 0(오래됨)→1(최근)
+        var a1=toScreen([h0.p1[0],h0.p1[1], h0.t*zscale]), b1=toScreen([h1.p1[0],h1.p1[1], h1.t*zscale]);
+        var a2=toScreen([h0.p2[0],h0.p2[1], h0.t*zscale]), b2=toScreen([h1.p2[0],h1.p2[1], h1.t*zscale]);
+        ctx.strokeStyle='rgba(255,178,122,'+(age*0.55)+')'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(a1[0],a1[1]); ctx.lineTo(b1[0],b1[1]); ctx.stroke();
+        ctx.strokeStyle='rgba(122,184,255,'+(age*0.55)+')'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(a2[0],a2[1]); ctx.lineTo(b2[0],b2[1]); ctx.stroke();
+      }
+      // 두 천체(현재 위치, z상대=0)
+      var s1=toScreen([P1[0],P1[1],zt]), s2=toScreen([P2[0],P2[1],zt]);
       ctx.fillStyle='#000'; ctx.strokeStyle=ORA; ctx.lineWidth=2;
-      [[x1,y1],[x2,y2]].forEach(function(P){ ctx.beginPath(); ctx.arc(P[0],P[1],10,0,7); ctx.fill(); ctx.stroke(); });
+      ctx.beginPath(); ctx.arc(s1[0],s1[1],9,0,7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#000'; ctx.strokeStyle=BLU; ctx.beginPath(); ctx.arc(s2[0],s2[1],9,0,7); ctx.fill(); ctx.stroke();
+      // 축 라벨(x,y,t) — proj3로 투영, 학습자가 z=시간축임을 알 수 있게
+      var axLen=W*0.10;
+      var ox=toScreen([0,0,zt]);
+      var ax=toScreen([axLen,0,zt]), ay=toScreen([0,axLen,zt]), at=toScreen([0,0,zt-axLen]);
+      arrow(E,ox[0],ox[1],ax[0],ax[1],'rgba(223,238,251,0.55)',1.3);
+      arrow(E,ox[0],ox[1],ay[0],ay[1],'rgba(223,238,251,0.55)',1.3);
+      arrow(E,ox[0],ox[1],at[0],at[1],'rgba(255,214,122,0.75)',1.6);
+      ctx.font='11px sans-serif'; ctx.fillStyle='rgba(223,238,251,0.7)'; ctx.textAlign='center';
+      ctx.fillText('x', ax[0], ax[1]-4); ctx.fillText('y', ay[0], ay[1]-4);
+      ctx.fillStyle='#ffd67a'; ctx.fillText('t(시간)', at[0], at[1]-4);
       // 병합 섬광
-      if(cyc>0.92){ var g=ctx.createRadialGradient(cx,cy,2,cx,cy,60); g.addColorStop(0,'rgba(255,255,255,0.9)'); g.addColorStop(1,'rgba(122,184,255,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,60,0,7); ctx.fill(); }
+      if(cyc>0.92){ var g=ctx.createRadialGradient(s1[0],s1[1],2,s1[0],s1[1],60); g.addColorStop(0,'rgba(255,255,255,0.9)'); g.addColorStop(1,'rgba(122,184,255,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(s1[0],s1[1],60,0,7); ctx.fill(); }
       // 처프 파형(주파수 상승)
-      var gx0=W*0.10, gx1=W*0.92, gy=H*0.78;
+      var gx0=W*0.10, gx1=W*0.92, gy=H*0.80;
       ctx.strokeStyle=GRN; ctx.lineWidth=1.8; ctx.beginPath();
       for(var x=gx0;x<=gx1;x+=2){ var p=(x-gx0)/(gx1-gx0), freq=2+p*p*30, amp2=(8+p*p*40); var y=gy-Math.sin(p*freq*3)*amp2*(p*0.8+0.2); if(x===gx0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('처프: 두 블랙홀이 나선으로 합쳐지며 주파수·진폭 상승 → 병합', W/2, H*0.88);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('처프: 두 블랙홀이 나선으로 합쳐지며 주파수·진폭 상승 → 병합', W/2, H*0.90);
       ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.fillText('가속하는 질량이 시공간에 잔물결을 — 중력파 (LIGO 2015년 직접 관측)', W/2, H*0.71);
-      E.tapHint(W/2, H*0.94, '두 천체가 합쳐지며 시공간의 출렁임(중력파)을 내보냅니다', true);
+      E.tapHint(W/2, H*0.965, '드래그 = 회전 · 버튼 = 각도 바로가기(원운동+시간=나선)', false);
       E.big('중력파 — 시공간의 잔물결 (LIGO 2015)', '질량이 출렁이면 시공간도 출렁입니다.'); }
   },
 
