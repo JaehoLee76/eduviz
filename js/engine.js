@@ -63,13 +63,15 @@
     if(document.body && document.body.classList.contains('viz')){ cv.style.top=''; cv.style.height=''; resize(); return; }   // algo viz: 자체 CSS(오른쪽 컬럼) 유지
     if(sc && (sc.cinematic || (sc.branchOf!=null && sc.page))){ cv.style.top='0px'; cv.style.height='100%'; resize(); return; }   // 시네마틱·책페이지: 전체화면
     var bn=document.getElementById('bignum');
-    if(!(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none')) return;   // 제목 아직 없음 → 이전 상태 유지(전환 깜빡임 방지)
-    var r=bn.getBoundingClientRect(); if(r.height<=2) return;
+    var br=bn?bn.getBoundingClientRect():null;
+    var titleReady=!!(bn && !bn.classList.contains('hidden') && getComputedStyle(bn).display!=='none' && br && br.height>2);
     var winH=global.innerHeight||H, baseBot=(winH>820?150:winH>680?134:120);   // 최소 예약(재생바·나브)
     // 컨트롤 박스(슬라이더+힌트행)와 설명창 띠의 실제 상단을 측정해 그 위까지 비움 → 시각화가 안 가려짐(슬라이더·논슬라이더 자동 대응)
     function topFromBot(id){ var el=document.getElementById(id); if(!el||getComputedStyle(el).display==='none')return 0; var rr=el.getBoundingClientRect(); return rr.height>2?Math.round(winH-rr.top):0; }
     var bot=Math.max(baseBot, topFromBot('controls')+14, topFromBot('leftStack')+14);
-    var topPx=Math.min(Math.round(winH*0.34), Math.round(r.bottom)+10);   // 제목 바로 아래까지 비움(상한 34%)
+    // 제목 렌더 전이면 기본 상단값으로 즉시 확정(조기 반환 금지) — 분기 복귀 시 enter가 옛(분기) 캔버스 크기를 읽어 시각화가 작아지던 버그 방지. 제목 실측은 _needFit 재보정.
+    var topPx = titleReady ? Math.min(Math.round(winH*0.34), Math.round(br.bottom)+10)
+                           : Math.min(Math.round(winH*0.34), Math.round(winH*0.22));
     cv.style.top=topPx+'px'; cv.style.height=Math.max(120,(winH-topPx-bot))+'px'; resize();
   }
   function layoutOnly(s){ if(s.layout) s.layout(E); }
