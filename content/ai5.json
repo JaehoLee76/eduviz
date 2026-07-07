@@ -3,7 +3,7 @@
   "ch": "인공지능 제5장 · 머신러닝",
   "sec": "5.1 k-최근접 이웃 (지도)",
   "title": "k-NN — 가까운 이웃에게 묻는다",
-  "narr": "새로 온 점이 빨강일까요, 파랑일까요? <b>k-최근접 이웃(k-NN)</b>의 대답은 놀랄 만큼 소박합니다 — “주변에 누가 사는지 보라.” 새 점에서 <b>가장 가까운 k개 이웃</b>을 실제 거리로 골라, 그들의 <b>다수결</b>로 라벨을 정합니다. 학습이라 부를 단계가 아예 없죠(그래서 ‘게으른 학습’). k가 1이면 가장 가까운 한 점만 따라 잡음에 휘둘리고, k가 너무 크면 멀리 있는 점까지 끌어들여 경계가 뭉툭해집니다. 질의점을 옮기고 k를 바꾸며, 다수결이 뒤집히는 그 경계선을 직접 더듬어 보세요. 화면의 거리·이웃·예측은 전부 매 순간 다시 계산한 진짜 값입니다.",
+  "narr": "새로 온 점이 빨강일까요, 파랑일까요? <b>k-최근접 이웃(k-NN)</b>의 대답은 놀랄 만큼 소박합니다 — “주변에 누가 사는지 보라.” 새 점에서 <b>가장 가까운 k개 이웃</b>을 실제 거리로 골라, 그들의 <b>다수결</b>로 라벨을 정합니다. 학습이라 부를 단계가 아예 없죠(그래서 ‘게으른 학습’). k가 1이면 가장 가까운 한 점만 따라 잡음에 휘둘리고, k가 너무 크면 멀리 있는 점까지 끌어들여 경계가 뭉툭해집니다. 질의점을 옮기고 k를 바꾸며, 다수결이 뒤집히는 그 경계선을 직접 더듬어 보세요.",
   "more": "<b>거리가 전부</b>: k-NN의 성능은 ‘거리’를 어떻게 재느냐에 달려 있습니다. 키는 cm, 몸무게는 kg처럼 단위가 다르면 큰 숫자 쪽이 거리를 독차지하므로, 보통 각 특징을 <b>표준화(정규화)</b>한 뒤 유클리드 거리를 씁니다. 차원이 아주 높아지면 모든 점이 비슷하게 멀어지는 <b>차원의 저주</b>로 ‘가깝다’는 말이 흐려집니다. 장점은 단순하고 비선형 경계도 자연히 그린다는 것, 단점은 예측 때마다 모든 점과 거리를 재야 해 느리다는 것(KD-트리·근사최근접으로 가속). 자격시험에서는 k의 홀짝(동점 회피)·정규화 필요성·게으른 학습이라는 성질이 단골입니다.",
   "more_en": "k-NN classifies a new point by a majority vote of its k nearest neighbors, measured by actual distance — no training step (lazy learning). Small k is noise-sensitive; large k blurs the boundary. Standardize features first (so units don't dominate the distance), beware the curse of dimensionality, and note prediction is slow since every point's distance is recomputed."
  },
@@ -19,7 +19,7 @@
   "ch": "인공지능 제5장 · 머신러닝",
   "sec": "5.3 서포트 벡터 머신 (지도)",
   "title": "SVM — 가장 넓은 길을 내는 경계",
-  "narr": "두 무리를 가르는 직선은 무수히 많습니다. 그중 어느 것이 가장 좋을까요? <b>SVM</b>의 답은 ‘<b>가장 넓은 길</b>을 내는 직선’입니다. 경계에서 두 진영 중 가장 가까운 점까지의 거리를 <b>마진(margin)</b>이라 하는데, SVM은 이 마진이 <b>최대</b>가 되는 직선을 고릅니다. 마진을 결정하는 그 ‘가장 가까운 점’들이 바로 <b>서포트 벡터</b>(노란 테두리) — 나머지 점은 멀어져도 경계가 꿈쩍 않으니, 경계는 오직 이 몇 점이 떠받칩니다. 기울기와 위치 슬라이더로 직선을 돌려 보세요. 마진 폭이 실시간으로 실측되고, 양쪽 모두를 올바르게 가르면서 폭이 가장 넓어지는 순간이 SVM이 찾는 답입니다.",
+  "narr": "두 무리를 가르는 직선은 무수히 많습니다. 그중 어느 것이 가장 좋을까요? <b>SVM</b>의 답은 ‘<b>가장 넓은 길</b>을 내는 직선’입니다. 경계에서 두 진영 중 가장 가까운 점까지의 거리를 <b>마진(margin)</b>이라 하는데, SVM은 이 마진이 <b>최대</b>가 되는 직선을 고릅니다. 마진을 결정하는 그 ‘가장 가까운 점’들이 바로 <b>서포트 벡터</b>(노란 테두리) — 나머지 점은 멀어져도 경계가 꿈쩍 않으니, 경계는 오직 이 몇 점이 떠받칩니다. 기울기와 위치 슬라이더로 직선을 돌려 보세요. 마진 폭이 실시간으로 바뀌고, 양쪽 모두를 올바르게 가르면서 폭이 가장 넓어지는 순간이 SVM이 찾는 답입니다.",
   "more": "<b>왜 넓은 길인가</b>: 마진이 넓다는 건 경계 주변에 ‘완충지대’가 넓다는 뜻 — 새 점이 조금 흔들려도 잘 분류되어 <b>일반화</b>가 좋습니다. 현실 데이터는 깔끔히 안 갈리므로, 약간의 침범을 벌점으로 허용하는 <b>소프트 마진</b>(C 파라미터로 마진 폭과 오분류를 절충)을 씁니다. 직선으로 못 가르는 경우엔 <b>커널 기법</b>으로 데이터를 고차원에 띄워 거기서 선형으로 가릅니다(RBF 커널 등) — 실제로 좌표를 올리지 않고 내적만 바꿔 계산하는 영리한 ‘커널 트릭’이죠. 시험에서는 마진·서포트 벡터의 정의, 소프트 마진의 C, 커널 트릭이 단골입니다.",
   "more_en": "Among the infinitely many separating lines, SVM picks the one with the widest margin — the largest gap to the nearest points of each class (the support vectors). A wide margin generalizes better. Soft margin (parameter C) tolerates some violations for non-separable data; the kernel trick maps data to higher dimensions to separate non-linear patterns using only inner products."
  },
@@ -27,7 +27,7 @@
   "ch": "인공지능 제5장 · 머신러닝",
   "sec": "5.4 k-평균 군집 (비지도)",
   "title": "k-평균 — 할당과 갱신의 반복",
-  "narr": "여기서부터는 <b>라벨이 없습니다</b>. 정답을 알려 주는 사람 없이, 데이터 스스로 비슷한 것끼리 뭉치게 하는 <b>비지도학습</b>이죠. <b>k-평균</b>은 K개의 ‘중심’을 두고 단 두 단계를 번갈아 반복합니다 — ①<b>할당</b>: 각 점을 가장 가까운 중심에 배정 ②<b>갱신</b>: 중심을 그 군집 점들의 <b>평균</b> 자리로 옮기기. 이 둘을 되풀이하면 중심이 데이터 덩어리 한가운데로 스르르 빨려듭니다. 반복 슬라이더를 0에서 8로 올리며, 처음엔 엉뚱하던 중심이 자리를 잡아가는 <b>수렴</b>을 지켜보세요. 군집 내 거리 제곱합(<b>관성</b>)이 줄어드는 게 바로 좋아지고 있다는 증거이고, 화면의 할당·중심·관성은 매 반복 실제로 계산됩니다.",
+  "narr": "여기서부터는 <b>라벨이 없습니다</b>. 정답을 알려 주는 사람 없이, 데이터 스스로 비슷한 것끼리 뭉치게 하는 <b>비지도학습</b>이죠. <b>k-평균</b>은 K개의 ‘중심’을 두고 단 두 단계를 번갈아 반복합니다 — ①<b>할당</b>: 각 점을 가장 가까운 중심에 배정 ②<b>갱신</b>: 중심을 그 군집 점들의 <b>평균</b> 자리로 옮기기. 이 둘을 되풀이하면 중심이 데이터 덩어리 한가운데로 스르르 빨려듭니다. 반복 슬라이더를 0에서 8로 올리며, 처음엔 엉뚱하던 중심이 자리를 잡아가는 <b>수렴</b>을 지켜보세요. 군집 내 거리 제곱합(<b>관성</b>)이 줄어드는 게 바로 좋아지고 있다는 증거입니다.",
   "more": "<b>몇 개로 나눌까(K)</b>: K는 사람이 정해야 하는데, K를 늘리며 관성이 꺾이는 <b>팔꿈치(elbow)</b> 지점이나 실루엣 점수로 고릅니다. k-평균은 초기 중심에 민감해 <b>나쁜 시작이면 엉뚱한 답</b>에 수렴할 수 있어, 여러 번 시작하거나 <b>k-means++</b>로 초기점을 영리하게 뿌립니다. 또 둥글고 비슷한 크기의 군집을 가정하므로, 길쭉하거나 밀도가 다른 군집엔 약합니다(그땐 DBSCAN·가우시안 혼합 같은 다른 방법). 비지도학습은 정답이 없어 ‘맞다/틀리다’ 대신 ‘구조가 유용한가’로 평가합니다. 시험에서는 두 단계 절차, 관성·엘보, 초기화 민감성이 핵심입니다.",
   "more_en": "k-means (unsupervised — no labels) alternates two steps: assign each point to its nearest centroid, then move each centroid to the mean of its assigned points. Repeating drives centroids into the data's clusters; inertia (within-cluster squared distance) decreases as it converges. K must be chosen (elbow/silhouette), it's sensitive to initialization (use k-means++), and it assumes roughly round, equal-size clusters."
  },
@@ -35,7 +35,7 @@
   "ch": "인공지능 제5장 · 머신러닝",
   "sec": "5.5 주성분 분석 PCA (비지도)",
   "title": "PCA — 분산이 가장 큰 방향",
-  "narr": "점 구름을 가만히 보면 <b>가장 길게 퍼진 방향</b>이 있습니다. <b>주성분 분석(PCA)</b>은 그 방향을 찾는 일입니다 — 데이터의 <b>공분산 행렬</b>을 만들고, 그 <b>최대 고유벡터</b>가 바로 분산이 가장 큰 방향(제1주성분)이거든요. 이 한 축으로 점들을 눌러(<b>투영</b>) 버리면, 2차원이던 데이터가 1차원으로 줄어듭니다. 그런데도 큰 흐름은 거의 그대로 — ‘설명 분산’이 그 보존율을 말해 줍니다. 투영 슬라이더를 0%에서 100%로 올려, 흩어진 점들이 황금색 주성분 축 하나로 가지런히 모이는 <b>차원 축소</b>를 직접 보세요. 공분산·고유값·고유벡터·설명 분산은 전부 화면에서 실제로 계산한 값입니다.",
+  "narr": "점 구름을 가만히 보면 <b>가장 길게 퍼진 방향</b>이 있습니다. <b>주성분 분석(PCA)</b>은 그 방향을 찾는 일입니다 — 데이터의 <b>공분산 행렬</b>을 만들고, 그 <b>최대 고유벡터</b>가 바로 분산이 가장 큰 방향(제1주성분)이거든요. 이 한 축으로 점들을 눌러(<b>투영</b>) 버리면, 2차원이던 데이터가 1차원으로 줄어듭니다. 그런데도 큰 흐름은 거의 그대로 — ‘설명 분산’이 그 보존율을 말해 줍니다. 투영 슬라이더를 0%에서 100%로 올려, 흩어진 점들이 황금색 주성분 축 하나로 가지런히 모이는 <b>차원 축소</b>를 직접 보세요.",
   "more": "<b>왜 차원을 줄이나</b>: 특징이 수백 개면 시각화도, 학습도 어렵고 잡음·중복이 끼기 마련입니다. PCA는 정보(분산)를 가장 많이 담은 <b>소수의 축</b>만 남겨 차원을 줄입니다 — 보통 누적 설명 분산이 90~95%가 되는 만큼의 주성분만 취하죠. 주의: PCA는 분산을 ‘정보’로 보므로 단위가 큰 특징이 축을 독차지하지 않도록 <b>먼저 표준화</b>해야 하고, 분산이 크다고 늘 ‘유용한’ 방향은 아닙니다(분류에 쓸 땐 LDA가 더 나을 수도). 또 새 축은 원래 특징들의 혼합이라 해석이 어렵습니다. 시험에서는 공분산-고유벡터 관계, 설명 분산 비율, 표준화의 필요성이 핵심입니다.",
   "more_en": "PCA (unsupervised) finds the direction of maximum variance — the top eigenvector of the covariance matrix is the first principal component. Projecting points onto it reduces dimensions while preserving most of the spread (explained variance = λ₁/Σλ). Standardize features first so large-unit features don't dominate. Used for visualization, denoising, and compression; the new axes mix original features and are hard to interpret."
  }

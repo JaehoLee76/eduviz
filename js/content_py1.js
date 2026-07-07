@@ -134,7 +134,7 @@
         {ex:'2 ** 10', v:Math.pow(2,10),   note:'2를 10번 곱함',    c:PNK}
       ];
       var rx=W*0.55, ry=H*0.18, rh=30, ew=88, vw=78;
-      ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('실제 계산 결과 (Colab과 동일)', rx, ry-12);
+      ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('계산 결과 (Colab과 동일)', rx, ry-12);
       // 헤더
       cell(ctx, rx, ry, ew, rh, '식', 'rgba(255,211,67,0.14)', PYL, PYL, 12.5);
       cell(ctx, rx+ew, ry, vw, rh, '결과', 'rgba(255,211,67,0.14)', PYL, PYL, 12.5);
@@ -156,7 +156,7 @@
         ctx.fillText('탭하면 — / 와 // 의 차이를 짚어 줍니다.', rx, ny);
       }
       E.tapHint(W/2, H*0.93, '화면 탭 = 다음 (전체 결과 → / vs // 강조)', true);
-      E.big('산술과 연산자 — 파이썬을 계산기처럼', '+ − * 는 익숙하죠. 헷갈리는 셋만 익히면 됩니다: <b>/ 는 항상 실수</b>(7/2=3.5), <b>// 는 몫</b>(7//2=3, 소수 버림), <b>% 는 나머지</b>(7%2=1 — 짝수·홀수 판별에 단골), <b>** 는 거듭제곱</b>(2**10=1024). 화면의 결과는 전부 실제로 계산한 값입니다.'); }
+      E.big('산술과 연산자 — 파이썬을 계산기처럼', '+ − * 는 익숙하죠. 헷갈리는 셋만 익히면 됩니다: <b>/ 는 항상 실수</b>(7/2=3.5), <b>// 는 몫</b>(7//2=3, 소수 버림), <b>% 는 나머지</b>(7%2=1 — 짝수·홀수 판별에 단골), <b>** 는 거듭제곱</b>(2**10=1024).'); }
   },
 
   // ══════════ 3. 문자열 — 인덱싱 · 슬라이싱 · f-string · 메서드 ══════════
@@ -214,7 +214,7 @@
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('f"...{변수}..." 가 변수 값을 문자열에 끼워 넣습니다.', rx, oy+106);
       }
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (인덱싱 → 슬라이싱 → f-string·메서드)', true);
-      E.big('문자열 — 글자들의 열', '문자열은 글자가 줄지어 선 것이고, 각 글자에 <b>번호(인덱스)</b>가 붙습니다: s[0]은 첫 글자, s[-1]은 마지막. <b>슬라이싱</b> s[0:3]은 0,1,2번만 잘라 "Pyt"(끝 번호 3은 제외!). <b>f-string</b> f"안녕, {name}!"은 중괄호 안 변수 값을 문장에 끼워 넣고, <b>.upper()·.split(",")</b> 같은 메서드로 변형합니다 — 화면의 모든 결과는 실제로 계산한 값이라 Colab에서 그대로 재현됩니다.'); }
+      E.big('문자열 — 글자들의 열', '문자열은 글자가 줄지어 선 것이고, 각 글자에 <b>번호(인덱스)</b>가 붙습니다: s[0]은 첫 글자, s[-1]은 마지막. <b>슬라이싱</b> s[0:3]은 0,1,2번만 잘라 "Pyt"(끝 번호 3은 제외!). <b>f-string</b> f"안녕, {name}!"은 중괄호 안 변수 값을 문장에 끼워 넣고, <b>.upper()·.split(",")</b> 같은 메서드로 변형합니다 — 화면의 결과는 Colab에서도 그대로 재현됩니다.'); }
   },
 
   // ══════════ 4. 입력·출력·형변환 — input() print() int() str() ══════════
@@ -264,7 +264,7 @@
         ctx.fillStyle=GRN; ctx.font='600 16px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('출력 →  합: '+sum, rx, oy+134);
       }
       E.tapHint(W/2, H*0.94, '화면 탭 = 다음 (문자열 더하기 → int() 변환 후 덧셈)', true);
-      E.big('입력·출력·형변환 — 문자열의 함정', '<b>input()</b>으로 받은 값은 숫자처럼 보여도 항상 <b>문자열(str)</b>입니다. 그래서 "12"+"30"은 42가 아니라 글자가 붙은 "1230"이 되죠 — 초보자가 가장 많이 걸리는 함정입니다. 숫자로 계산하려면 <b>int()</b>(정수)·<b>float()</b>(실수)로 변환해야 합니다: int("12")+int("30")=42. 반대로 <b>str()</b>은 숫자를 문자열로 바꾸고, <b>print()</b>는 화면에 출력하죠. 위 결과는 모두 실제 계산값입니다.'); }
+      E.big('입력·출력·형변환 — 문자열의 함정', '<b>input()</b>으로 받은 값은 숫자처럼 보여도 항상 <b>문자열(str)</b>입니다. 그래서 "12"+"30"은 42가 아니라 글자가 붙은 "1230"이 되죠 — 초보자가 가장 많이 걸리는 함정입니다. 숫자로 계산하려면 <b>int()</b>(정수)·<b>float()</b>(실수)로 변환해야 합니다: int("12")+int("30")=42. 반대로 <b>str()</b>은 숫자를 문자열로 바꾸고, <b>print()</b>는 화면에 출력하죠.'); }
   },
 
   // ══════════ 5. 첫 프로그램 — 여러 줄 코드 + 실제 출력 표 (구구단) ══════════
@@ -290,7 +290,7 @@
       var rx=W*0.55, ry=H*0.14, lh=24;
       ctx.fillStyle='rgba(0,0,0,0.22)'; ctx.strokeStyle='rgba(255,211,67,0.28)'; ctx.lineWidth=1;
       roundRect(ctx, rx, ry, W*0.40, lh*11+24, 9); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=PYL; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('▶ 출력 (실제 계산)', rx+14, ry+18);
+      ctx.fillStyle=PYL; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('▶ 출력', rx+14, ry+18);
       ctx.font='15px ui-monospace,Menlo,monospace';
       ctx.fillStyle=GLD; ctx.fillText('=== '+dan+'단 ===', rx+14, ry+18+lh);
       for(var i=1;i<=9;i++){
@@ -302,7 +302,7 @@
         ctx.fillStyle=GRN; ctx.fillText(''+r, rx+14+lw, ty);
       }
       E.tapHint(W/2, H*0.95, '슬라이더로 단을 바꿔 보세요 — 코드와 출력이 같이 갱신', true);
-      E.big('첫 프로그램 — 구구단 출력', '드디어 배운 것을 다 모았습니다: <b>변수</b>(dan)에 값을 담고, <b>곱셈</b>(dan*i)으로 계산하고, <b>f-string</b>으로 결과를 문장으로 만들고, <b>for 반복</b>으로 1~9를 한 번에 처리합니다(반복은 다음 장에서 자세히). 슬라이더로 단을 바꾸면 코드의 dan과 오른쪽 출력 표가 함께 바뀌죠 — 표의 모든 곱셈은 실제로 계산한 값입니다. 여러분의 첫 프로그램, 축하합니다!'); }
+      E.big('첫 프로그램 — 구구단 출력', '드디어 배운 것을 다 모았습니다: <b>변수</b>(dan)에 값을 담고, <b>곱셈</b>(dan*i)으로 계산하고, <b>f-string</b>으로 결과를 문장으로 만들고, <b>for 반복</b>으로 1~9를 한 번에 처리합니다(반복은 다음 장에서 자세히). 슬라이더로 단을 바꾸면 코드의 dan과 오른쪽 출력 표가 함께 바뀌죠. 여러분의 첫 프로그램, 축하합니다!'); }
   }
 
   ];

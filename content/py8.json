@@ -4,7 +4,7 @@
   "sec": "8.1 DataFrame과 Series",
   "title": "DataFrame · Series — 표를 다루는 그릇",
   "narr": "엑셀을 써 봤다면 <b>pandas</b>는 그 ‘파이썬 버전’이라 생각하면 됩니다. 핵심 그릇은 둘이에요. <b>DataFrame</b>은 <b>행=샘플, 열=특징</b>으로 이루어진 2차원 표이고, 그 표의 <b>한 열</b>이 바로 <b>Series</b> — 같은 형(dtype)의 값을 담은 라벨 달린 1차원 배열입니다. <code>pd.DataFrame(딕셔너리)</code>로 직접 만들거나, 현실에서는 대개 <code>pd.read_csv('파일.csv')</code>로 파일을 한 줄에 읽어 들이죠. 화면처럼 <code>df.head()</code>로 앞 몇 줄을 엿보고, <code>df.shape</code>로 (행, 열) 크기를, <code>df.describe()</code>로 평균·최소·최대 같은 통계를 즉시 봅니다. 탭하며 표 → 한 열(Series) → 통계 요약 순서를 따라가 보세요.",
-  "more": "<b>왜 NumPy 배열이 아니라 pandas인가</b>: NumPy는 순수 숫자 격자라 빠르지만 열에 ‘이름’이 없습니다. pandas는 행·열에 <b>라벨(인덱스·컬럼명)</b>을 붙여, 사람이 읽는 표 그대로 다룰 수 있게 해 줍니다. 또 한 열 안에 숫자·문자·날짜를 섞어 담을 수 있죠(열마다 다른 dtype). 화면의 shape (5,3)과 describe의 mean·min·max는 전부 표에서 <b>실제로 계산</b>한 값입니다.\n\n<b>현실의 첫 줄</b>: 거의 모든 데이터 분석·머신러닝 노트북의 첫 줄은 <code>import pandas as pd</code>이고, 둘째 줄은 <code>df = pd.read_csv(...)</code>입니다.",
+  "more": "<b>왜 NumPy 배열이 아니라 pandas인가</b>: NumPy는 순수 숫자 격자라 빠르지만 열에 ‘이름’이 없습니다. pandas는 행·열에 <b>라벨(인덱스·컬럼명)</b>을 붙여, 사람이 읽는 표 그대로 다룰 수 있게 해 줍니다. 또 한 열 안에 숫자·문자·날짜를 섞어 담을 수 있죠(열마다 다른 dtype). 화면의 shape (5,3)과 describe의 mean·min·max는 이 표에서 나온 값입니다.\n\n<b>현실의 첫 줄</b>: 거의 모든 데이터 분석·머신러닝 노트북의 첫 줄은 <code>import pandas as pd</code>이고, 둘째 줄은 <code>df = pd.read_csv(...)</code>입니다.",
   "more_en": "pandas gives you two containers: a DataFrame (a 2-D labeled table, rows = samples, columns = features) and a Series (one column — a 1-D labeled array of one dtype). Build one from a dict with pd.DataFrame, or read a file with pd.read_csv. Peek with df.head(), check size with df.shape, and get summary stats with df.describe()."
  },
  "py8_02": {
@@ -35,7 +35,7 @@
   "ch": "파이썬 제8장 · AI 라이브러리",
   "sec": "8.4 결측치와 정제",
   "title": "결측치 정제 — 데이터는 늘 더럽다",
-  "narr": "교과서의 데이터는 깔끔하지만, <b>현실의 표엔 빈칸(NaN)</b>이 가득합니다 — 입력 누락, 센서 고장, 응답 거부. 모델은 빈칸을 먹지 못하니 <b>넣기 전에 반드시 손봐야</b> 합니다. 순서는 늘 같아요. ① <code>df.isna()</code>로 <b>어디가 비었는지</b> 찾고(<code>.sum()</code>으로 열별 개수), ② <code>fillna</code>로 <b>대표값으로 메우거나</b>(흔히 평균·중앙값), ③ <code>dropna</code>로 <b>빈 칸이 있는 행을 통째로 버립니다</b>. 탭하며 더러운 표 → 평균으로 채운 표 → 결측 행을 지운 깨끗한 표로 변하는 걸 보세요. 채워 넣는 평균은 <b>결측을 빼고 실제로 계산</b>한 값입니다(여기선 (23+45)/2=34).",
+  "narr": "교과서의 데이터는 깔끔하지만, <b>현실의 표엔 빈칸(NaN)</b>이 가득합니다 — 입력 누락, 센서 고장, 응답 거부. 모델은 빈칸을 먹지 못하니 <b>넣기 전에 반드시 손봐야</b> 합니다. 순서는 늘 같아요. ① <code>df.isna()</code>로 <b>어디가 비었는지</b> 찾고(<code>.sum()</code>으로 열별 개수), ② <code>fillna</code>로 <b>대표값으로 메우거나</b>(흔히 평균·중앙값), ③ <code>dropna</code>로 <b>빈 칸이 있는 행을 통째로 버립니다</b>. 탭하며 더러운 표 → 평균으로 채운 표 → 결측 행을 지운 깨끗한 표로 변하는 걸 보세요. 채워 넣는 평균은 <b>결측을 빼고 계산</b>한 값입니다(여기선 (23+45)/2=34).",
   "more": "<b>채울까, 버릴까</b>: 데이터가 충분하고 결측이 적으면 <code>dropna</code>로 버리는 게 간단합니다. 하지만 행이 아까우면(또는 결측이 많으면) <code>fillna</code>로 메웁니다 — 수치형은 평균·중앙값, 범주형은 최빈값, 시계열은 앞/뒤 값(<code>ffill</code>/<code>bfill</code>)을 흔히 씁니다. 평균으로 채우면 분포의 분산이 줄어드는 부작용이 있으니, 결측 자체를 ‘비었음’ 표시 열로 남기기도 합니다.\n\n<b>현실의 비중</b>: 데이터 과학자가 시간의 대부분을 쓰는 곳이 바로 이 <b>정제·전처리</b>입니다 — 화려한 모델링보다 청소가 일의 8할이라는 말이 있죠.",
   "more_en": "Real data is full of NaN (missing values), and models can't eat them. The routine: isna() to find where (and isna().sum() to count per column), fillna to impute (often mean/median), or dropna to drop rows with any missing value. The mean used to fill is computed excluding the missing entries. Cleaning is where data scientists spend most of their time.",
   "problem": {

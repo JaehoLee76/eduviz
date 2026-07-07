@@ -371,13 +371,13 @@
       ctx.fillStyle=col; ctx.font='700 22px ui-monospace,Menlo,monospace';
       ctx.fillText('합 = '+total.toFixed(3), tx, sy+30);
       if(visited>=4){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
-        ctx.fillText('= '+(Math.PI*4).toFixed(3)+' + 12 + '+(Math.PI*2.25).toFixed(3)+' + 10  (원 둘은 πr² 실측)', tx, sy+52); }
+        ctx.fillText('= '+(Math.PI*4).toFixed(3)+' + 12 + '+(Math.PI*2.25).toFixed(3)+' + 10  (원 둘은 πr²)', tx, sy+52); }
 
       ctx.fillStyle=GLD; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('코드는 도형 종류를 전혀 모릅니다 — s->area() 가 알아서 각자의 공식을 부릅니다.', W*0.05, H*0.93);
 
       E.tapHint(W/2, H*0.96, '화면 탭 = 도형을 하나씩 순회하며 넓이 누적', true);
-      E.big('다형성의 활용 — 하나의 이름, 각자의 답', '이제 다형성이 왜 강력한지 보입니다. Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고, for 문 한 줄로 s->area() 를 부릅니다. 이 코드는 s 가 원인지 사각형인지 전혀 묻지 않습니다 — virtual 덕분에, 매 반복마다 그 자리에 실제로 들어 있는 객체가 제 넓이 공식으로 답하죠. 원이면 πr², 사각형이면 w·h. 오른쪽에서 넓이가 하나씩 실제로 계산되어 total 에 쌓입니다(원 넓이는 π 로 진짜 계산). 만약 내일 Triangle 을 추가해도 이 for 문은 한 글자도 바뀌지 않습니다 — area() 를 구현한 새 자식만 배열에 넣으면 끝. "같은 인터페이스, 다른 구현" — 이 확장성이 객체지향 다형성의 진짜 힘입니다.'); }
+      E.big('다형성의 활용 — 하나의 이름, 각자의 답', '이제 다형성이 왜 강력한지 보입니다. Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고, for 문 한 줄로 s->area() 를 부릅니다. 이 코드는 s 가 원인지 사각형인지 전혀 묻지 않습니다 — virtual 덕분에, 매 반복마다 그 자리에 실제로 들어 있는 객체가 제 넓이 공식으로 답하죠. 원이면 πr², 사각형이면 w·h. 오른쪽에서 넓이가 하나씩 total 에 쌓입니다. 만약 내일 Triangle 을 추가해도 이 for 문은 한 글자도 바뀌지 않습니다 — area() 를 구현한 새 자식만 배열에 넣으면 끝. "같은 인터페이스, 다른 구현" — 이 확장성이 객체지향 다형성의 진짜 힘입니다.'); }
   },
 
   // ══════════════════ 심화학습 (제8장 다형성) ══════════════════

@@ -58,7 +58,7 @@
       // 플랑크 곡선(실측 일치)
       ctx.strokeStyle=ORA; ctx.lineWidth=2.6; ctx.beginPath();
       for(var l3=0.15;l3<=2;l3+=0.01){ var v3=planck(l3), x=gx0+(l3/2)*(gx1-gx0), y=gy0-Math.min(gh,v3/mx*gh); if(l3===0.15)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
-      ctx.fillStyle=ORA; ctx.fillText('플랑크: E=hf 양자화 → 실측 일치', gx0+W*0.04, gy0-gh+38);
+      ctx.fillStyle=ORA; ctx.fillText('플랑크: E=hf 양자화 → 관측과 일치', gx0+W*0.04, gy0-gh+38);
       // 피크(빈 변위)
       var pkx=gx0+(peakLam/2)*(gx1-gx0); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(pkx,gy0); ctx.lineTo(pkx,gy0-gh*0.95); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('피크 λmax ∝ 1/T = '+peakLam.toFixed(2)+' (뜨거울수록 파랑 쪽)', W/2, H*0.88);

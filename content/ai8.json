@@ -4,14 +4,14 @@
   "sec": "8.1 합성곱",
   "title": "합성곱(Convolution) — 필터를 슬라이드",
   "narr": "사진을 한 픽셀씩 따로 보면 아무 의미도 안 보입니다 — 의미는 <b>이웃한 픽셀들의 관계</b>에 있죠(여기 밝다가 저기 어두워지면 ‘경계’). 그래서 작은 창 하나, <b>필터(커널)</b>를 이미지 위로 한 칸씩 미끄러뜨립니다. 매 위치에서 겹친 9개 값과 필터를 곱해 더한 한 숫자(<b>내적</b>)를 구해, 그 자리의 ‘특징 점수’로 적습니다. 6×6 이미지를 3×3 필터로 훑으면 16번 미끄러지며 <b>4×4 특징맵</b>이 완성되죠. 슬라이더로 필터를 옮기며, 그 자리의 합성곱값이 실제로 어떻게 계산되는지 보세요.",
-  "more": "<b>왜 ‘합성곱’인가</b>: 한 필터를 이미지 전체에 똑같이 적용한다 — 이것이 핵심입니다. 일반 신경망이라면 픽셀마다 따로 가중치를 두지만(36개 입력 × 다음층 = 폭증), CNN은 <b>9개짜리 필터 하나를 모든 위치가 공유</b>합니다. 가중치 수가 확 줄고, ‘가로 에지’ 같은 특징은 사진 어디에 있든 같은 필터로 잡힙니다. 화면의 모든 내적·특징맵 값은 실제로 계산한 값입니다(평균 필터=패치 합÷9).\n\n용어: 필터가 미끄러지는 보폭=<b>스트라이드</b>, 가장자리를 채우는 것=<b>패딩</b>. 출력 크기 = (입력−필터)/스트라이드 + 1 — 자격시험 단골 공식입니다.",
+  "more": "<b>왜 ‘합성곱’인가</b>: 한 필터를 이미지 전체에 똑같이 적용한다 — 이것이 핵심입니다. 일반 신경망이라면 픽셀마다 따로 가중치를 두지만(36개 입력 × 다음층 = 폭증), CNN은 <b>9개짜리 필터 하나를 모든 위치가 공유</b>합니다. 가중치 수가 확 줄고, ‘가로 에지’ 같은 특징은 사진 어디에 있든 같은 필터로 잡힙니다. 화면의 내적·특징맵 값도 같은 방식으로 계산됩니다(평균 필터=패치 합÷9).\n\n용어: 필터가 미끄러지는 보폭=<b>스트라이드</b>, 가장자리를 채우는 것=<b>패딩</b>. 출력 크기 = (입력−필터)/스트라이드 + 1 — 자격시험 단골 공식입니다.",
   "more_en": "A filter (kernel) slides over the image; at each position it computes a dot product of the overlapping pixels and the filter, writing one number into the feature map. A 3×3 filter over a 6×6 image slides 16 times → a 4×4 feature map. The same filter is reused at every position — that's parameter sharing. Output size = (input − filter)/stride + 1."
  },
  "ai8_02": {
   "ch": "인공지능 제8장 · 딥러닝",
   "sec": "8.2 필터 = 특징 검출기",
   "title": "필터 = 특징 검출기",
-  "narr": "필터 안의 숫자 패턴이 곧 <b>‘무엇을 찾을지’</b>를 정합니다. 왼쪽은 −, 오른쪽은 +인 이 필터를 이미지에 합성곱하면, <b>왼쪽이 밝고 오른쪽이 어두운 자리</b>(=세로 경계)에서 값이 크게 튑니다. 평탄한 곳(좌우 밝기가 같음)에서는 +와 −가 상쇄돼 0에 가깝죠. 그래서 결과 <b>에지맵</b>을 보면, 원본에서 밝기가 급변하는 가운데 세로선만 환하게 드러납니다. 필터 하나가 곧 ‘세로 에지 검출기’가 된 셈입니다 — 화면의 모든 에지맵 값은 실제 합성곱으로 계산했습니다.",
+  "narr": "필터 안의 숫자 패턴이 곧 <b>‘무엇을 찾을지’</b>를 정합니다. 왼쪽은 −, 오른쪽은 +인 이 필터를 이미지에 합성곱하면, <b>왼쪽이 밝고 오른쪽이 어두운 자리</b>(=세로 경계)에서 값이 크게 튑니다. 평탄한 곳(좌우 밝기가 같음)에서는 +와 −가 상쇄돼 0에 가깝죠. 그래서 결과 <b>에지맵</b>을 보면, 원본에서 밝기가 급변하는 가운데 세로선만 환하게 드러납니다. 필터 하나가 곧 ‘세로 에지 검출기’가 된 셈입니다.",
   "more": "<b>학습되는 필터</b>: 고전 영상처리에서는 사람이 소벨·프리윗 같은 에지 필터를 손으로 정했습니다. CNN의 혁신은 <b>이 필터 숫자들을 데이터로부터 경사하강으로 학습</b>한다는 점입니다 — 어떤 특징이 분류에 유용한지 모델이 스스로 알아냅니다. 한 합성곱 층에는 보통 필터가 수십~수백 개 있어(각각 다른 특징), 특징맵도 그만큼 쌓입니다(이를 ‘채널’이라 부릅니다).\n\n합성곱 뒤에는 보통 <b>ReLU</b> 같은 활성화로 음수를 0으로 눌러 ‘이 특징이 있다/없다’를 또렷하게 만듭니다.",
   "more_en": "The numbers inside a filter decide what feature it detects. A left-negative, right-positive filter fires on vertical edges (bright→dark transitions) and cancels to ~0 on flat regions. Classical vision hand-designed such filters (Sobel, Prewitt); CNNs learn them from data via gradient descent. One conv layer holds many filters → many feature-map channels.",
   "problem": {
@@ -23,7 +23,7 @@
   "ch": "인공지능 제8장 · 딥러닝",
   "sec": "8.3 풀링",
   "title": "풀링(Pooling) — 다운샘플링",
-  "narr": "특징맵을 그대로 다 들고 다니면 무겁습니다. 게다가 우리가 알고 싶은 건 ‘이 근처 어딘가에 에지가 강했다’이지, 정확히 몇 번째 칸인지가 아니죠. 그래서 특징맵을 작은 묶음(<b>2×2</b>)으로 나눠 <b>각 묶음의 최댓값만</b> 남깁니다(max pooling). 4×4가 2×2로, 크기가 절반으로 줄어 계산이 가벼워지고, ‘가장 강한 특징’이라는 핵심은 보존됩니다. 화면에서 같은 색으로 묶인 네 칸 중 굵은 테두리가 살아남는 최댓값 — 모두 실제로 비교해 고른 값입니다.",
+  "narr": "특징맵을 그대로 다 들고 다니면 무겁습니다. 게다가 우리가 알고 싶은 건 ‘이 근처 어딘가에 에지가 강했다’이지, 정확히 몇 번째 칸인지가 아니죠. 그래서 특징맵을 작은 묶음(<b>2×2</b>)으로 나눠 <b>각 묶음의 최댓값만</b> 남깁니다(max pooling). 4×4가 2×2로, 크기가 절반으로 줄어 계산이 가벼워지고, ‘가장 강한 특징’이라는 핵심은 보존됩니다. 화면에서 같은 색으로 묶인 네 칸 중 굵은 테두리가 살아남는 최댓값입니다.",
   "more": "<b>풀링의 두 효과</b>: ①<b>차원 축소</b>로 계산·메모리 절감, ②<b>작은 평행이동 불변성</b> — 특징이 한두 칸 옆으로 옮겨가도 같은 2×2 묶음 안이면 결과가 같습니다. 최댓값을 쓰면 <b>max pooling</b>, 평균을 쓰면 <b>average pooling</b>입니다(최댓값이 더 흔함). 풀링은 학습할 파라미터가 없습니다 — 그냥 고정 규칙이죠.\n\n최근 구조는 풀링 대신 <b>스트라이드 큰 합성곱</b>으로 다운샘플하기도 합니다. 풀링의 정의·효과(특히 평행이동 불변)는 시험 단골입니다.",
   "more_en": "Pooling splits the feature map into small windows (2×2) and keeps only the max of each (max pooling), halving the size. Benefits: cheaper computation and small translation invariance — a feature shifting a cell within the window gives the same output. Average pooling uses the mean instead. Pooling has no learnable parameters."
  },
@@ -39,7 +39,7 @@
   "ch": "인공지능 제8장 · 딥러닝",
   "sec": "8.5 CNN 전체 흐름",
   "title": "CNN 전체 흐름 — 픽셀에서 분류까지",
-  "narr": "이제 조각을 이어 붙입시다. 이미지가 들어오면 <b>Conv</b>(필터로 특징 뽑기) → <b>Pool</b>(절반으로 압축)을 여러 번 반복하며, 점점 깊고 추상적인 특징맵을 만듭니다. 충분히 추상화되면 그 특징들을 <b>한 줄로 펼쳐</b> <b>완전연결층(FC)</b>에 넣어 종합하고, 마지막 <b>소프트맥스</b>가 ‘고양이 87%·개 11%·새 2%’처럼 <b>클래스별 확률</b>을 냅니다. 화면을 탭하며 입력 → Conv → Pool → … → 분류로 한 단계씩 따라가 보세요(확률은 실제 소프트맥스로 계산).",
+  "narr": "이제 조각을 이어 붙입시다. 이미지가 들어오면 <b>Conv</b>(필터로 특징 뽑기) → <b>Pool</b>(절반으로 압축)을 여러 번 반복하며, 점점 깊고 추상적인 특징맵을 만듭니다. 충분히 추상화되면 그 특징들을 <b>한 줄로 펼쳐</b> <b>완전연결층(FC)</b>에 넣어 종합하고, 마지막 <b>소프트맥스</b>가 ‘고양이 87%·개 11%·새 2%’처럼 <b>클래스별 확률</b>을 냅니다. 화면을 탭하며 입력 → Conv → Pool → … → 분류로 한 단계씩 따라가 보세요(확률은 소프트맥스로 계산).",
   "more": "<b>왜 이미지에 강한가 — 세 가지 이유</b>:\n① <b>지역성(local connectivity)</b>: 작은 필터로 가까운 픽셀끼리 먼저 본다 — 가까운 픽셀이 관련 깊다는 사실을 활용.\n② <b>파라미터 공유</b>: 같은 필터를 모든 위치에 → 가중치 수가 위치 수와 무관하게 적게 유지.\n③ <b>평행이동 불변</b>: 합성곱+풀링 덕에 물체가 사진 어디로 옮겨가도 같은 특징을 검출.\n이 셋이 일반 완전연결망 대비 CNN의 결정적 강점입니다 — 적은 가중치로 더 잘 일반화하죠.\n\n대표 구조: <b>LeNet</b>(손글씨)→<b>AlexNet</b>(2012, 딥러닝 시대 개막)→<b>VGG·ResNet</b>. CNN 구성요소(Conv·Pool·FC)·세 강점·대표 모델은 자격시험 핵심입니다.",
   "more_en": "Full pipeline: Input → (Conv → Pool) repeated → flatten → Fully-Connected → Softmax class probabilities. CNNs excel on images for three reasons: local connectivity (small filters on nearby pixels), parameter sharing (one filter reused everywhere → few weights), and translation invariance (conv + pooling detect a feature wherever it moves). Landmark models: LeNet → AlexNet (2012) → VGG/ResNet.",
   "problem": {

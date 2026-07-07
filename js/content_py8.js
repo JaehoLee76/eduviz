@@ -111,7 +111,7 @@
       } else {
         // shape / 통계 요약 (실측)
         ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
-        ctx.fillText('df.shape  ·  df.describe()  (실제 계산값)', tx, oy);
+        ctx.fillText('df.shape  ·  df.describe()', tx, oy);
         var ages=rows.map(function(r){return r[1];}), scs=rows.map(function(r){return r[2];});
         function mean(a){ var t=0; a.forEach(function(v){t+=v;}); return t/a.length; }
         function mn(a){ return Math.min.apply(null,a); } function mx(a){ return Math.max.apply(null,a); }
@@ -306,7 +306,7 @@
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('Bob·Cho·Eli는 NaN이 있어 빠지고, Ann·Dan만 남았습니다.', tx, ty+h3+46);
       }
       E.tapHint(W/2, H*0.93, '화면 탭 = 다음 (결측 보기 → fillna → dropna)', true);
-      E.big('결측치 정제 — 데이터는 늘 더럽다', '현실의 데이터엔 빈칸(NaN)이 가득합니다 — 입력 누락, 센서 고장, 응답 거부. 모델에 넣기 전 반드시 손봐야 하죠. isna()로 어디가 비었는지 찾고, fillna로 평균·중앙값 같은 값으로 메우거나, dropna로 해당 행을 통째로 버립니다. 채워 넣을 평균은 결측을 빼고 실제로 계산한 값입니다 — 이 ‘청소’가 분석 시간의 대부분을 차지합니다.'); }
+      E.big('결측치 정제 — 데이터는 늘 더럽다', '현실의 데이터엔 빈칸(NaN)이 가득합니다 — 입력 누락, 센서 고장, 응답 거부. 모델에 넣기 전 반드시 손봐야 하죠. isna()로 어디가 비었는지 찾고, fillna로 평균·중앙값 같은 값으로 메우거나, dropna로 해당 행을 통째로 버립니다. 채워 넣을 평균은 결측을 빼고 계산한 값입니다 — 이 ‘청소’가 분석 시간의 대부분을 차지합니다.'); }
   },
 
   // ══════════ 5. 머신러닝 준비 — X·y 분리, df.values → NumPy (pandas→sklearn 다리) ══════════

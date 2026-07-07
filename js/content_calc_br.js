@@ -62,7 +62,7 @@
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(x-0.6),P.Y(y+form*(-0.6))); ctx.lineTo(P.X(x+0.6),P.Y(y+form*0.6)); ctx.stroke();
       tag(ctx,P.X(x+0.6),P.Y(y+form*0.6)-6,"y′="+form.toFixed(2),GLD);
       P.dot(x,y,GRN,'(x, xˣ)');
-      E.big("(xˣ)′ = xˣ(ln x + 1) = "+form.toFixed(3), '지수·밑에 동시에 x가 있어 평범한 법칙이 안 통함 → 양변에 ln을 씌워 미분 (실측 '+num.toFixed(3)+')'); }
+      E.big("(xˣ)′ = xˣ(ln x + 1) = "+form.toFixed(3), '지수·밑에 동시에 x가 있어 평범한 법칙이 안 통함 → 양변에 ln을 씌워 미분 ('+num.toFixed(3)+')'); }
   },
 
   // ── ch5 로피탈 정리 (branchOf calc5_01) ──  (eˣ−1)/x → 1

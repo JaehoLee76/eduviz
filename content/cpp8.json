@@ -36,7 +36,7 @@
   "ch": "C++ 제8장 · 객체지향",
   "sec": "8.5 다형성 활용",
   "title": "다형성의 활용 — 넓이 합",
-  "narr": "Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고 for 문으로 s->area() 를 부릅니다. 코드는 도형 종류를 전혀 모르지만, virtual 덕분에 그 자리의 실제 객체가 제 공식(원 πr²·사각형 w·h)으로 답해 넓이를 실측 누적합니다.",
+  "narr": "Shape* 포인터 배열에 원과 사각형을 뒤섞어 담고 for 문으로 s->area() 를 부릅니다. 코드는 도형 종류를 전혀 모르지만, virtual 덕분에 그 자리의 실제 객체가 제 공식(원 πr²·사각형 w·h)으로 답해 넓이를 누적합니다.",
   "more": "내일 Triangle 을 추가해도 for 문은 한 글자도 안 바뀝니다 — area() 를 구현한 새 자식만 넣으면 끝. 이 확장성이 다형성의 진짜 힘입니다.",
   "more_en": "Iterating a Shape* array and calling s->area() lets each object answer with its own formula (real πr² / w·h). Adding a new shape needs no change to the loop — the power of polymorphism."
  },

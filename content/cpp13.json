@@ -52,7 +52,7 @@
    "sec": "13.5 심화 · noexcept와 이동",
    "title": "noexcept와 이동 — 한 단어가 성능을 가른다",
    "narr": "std::vector가 성장할 때 원소를 새 버퍼로 옮깁니다. 이동 생성자가 noexcept가 아니면 강한 예외 보장을 지키려 안전한 복사를 택하고, noexcept면 안심하고 빠른 이동을 씁니다.",
-   "more": "이동은 포인터만 훔쳐 오니 통째로 깊이 복사하는 것보다 훨씬 빠릅니다. 화면의 비용 막대는 원소당 옮김 비용을 실제로 계산해 둘을 견줍니다. 이동 연산에는 던지지 않는 한 noexcept를 붙이세요 — 단, 정말 던질 수 있으면 절대 붙이면 안 됩니다(어기면 std::terminate). 핵심 규칙이자 모범 사례입니다.",
+   "more": "이동은 포인터만 훔쳐 오니 통째로 깊이 복사하는 것보다 훨씬 빠릅니다. 화면의 비용 막대는 원소당 옮김 비용을 계산해 둘을 견줍니다. 이동 연산에는 던지지 않는 한 noexcept를 붙이세요 — 단, 정말 던질 수 있으면 절대 붙이면 안 됩니다(어기면 std::terminate). 핵심 규칙이자 모범 사례입니다.",
    "more_en": "On growth, vector moves elements to a new buffer. If the move ctor isn't noexcept it copies (to keep the strong guarantee); if it is, it moves — stealing pointers instead of deep-copying. Mark move ops noexcept when they truly can't throw (violating it calls std::terminate)."
  }
 }

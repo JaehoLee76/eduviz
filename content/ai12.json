@@ -27,9 +27,9 @@
     "ch": "인공지능 제12장 · 트랜스포머·LLM",
     "sec": "12.4 Scaling Law",
     "title": "Scaling Law — 크기를 키우면 손실이 내려간다",
-    "narr": "거대 모델은 왜 자꾸 더 커질까요? 놀라운 발견 때문입니다 — 모델·데이터·계산을 키우면 손실이 <b>변덕 없이 매끄럽게</b> 내려갑니다. 그것도 <b>멱법칙</b> L = L∞ + a·N⁻ᵇ을 따라서요. 슬라이더로 모델 크기 N을 키워 보세요. 화면 곡선의 손실은 이 멱법칙을 <b>실제로 계산</b>한 값입니다. 크기를 10배 키울 때마다 손실이 일정한 비율로 줄어드는, 거의 직선 같은 규칙성이 보이죠. 작은 모델 몇 개로 곡선을 그려 두면, 아직 만들지도 않은 큰 모델의 성능을 미리 점칠 수 있다는 뜻입니다.",
+    "narr": "거대 모델은 왜 자꾸 더 커질까요? 놀라운 발견 때문입니다 — 모델·데이터·계산을 키우면 손실이 <b>변덕 없이 매끄럽게</b> 내려갑니다. 그것도 <b>멱법칙</b> L = L∞ + a·N⁻ᵇ을 따라서요. 슬라이더로 모델 크기 N을 키워 보세요. 화면 곡선의 손실은 이 멱법칙을 따라 나온 값입니다. 크기를 10배 키울 때마다 손실이 일정한 비율로 줄어드는, 거의 직선 같은 규칙성이 보이죠. 작은 모델 몇 개로 곡선을 그려 두면, 아직 만들지도 않은 큰 모델의 성능을 미리 점칠 수 있다는 뜻입니다.",
     "more": "<b>예측 가능성과 한계</b>: Kaplan(2020)·Chinchilla(2022) 같은 연구는 손실이 파라미터 수 N, 데이터 토큰 수 D, 계산량 C 각각에 대해 멱법칙을 따름을 보였습니다. 실무적 의미: ①<b>큰 모델은 도박이 아니라 외삽</b> — 소형 실험으로 대형 결과를 예측. ②<b>최적 배분</b> — 같은 계산 예산이면 모델만 키우지 말고 데이터도 함께 늘려야(Chinchilla). 다만 ③<b>바닥(L∞)이 있다</b> — 언어의 본질적 무작위성 탓에 손실은 0으로 못 갑니다. ④<b>수확 체감</b> — 두 배 좋아지려면 자원은 훨씬 더 많이 들어, 결국 데이터·전력이 병목이 됩니다.",
-    "more_en": "Scaling laws say loss falls predictably as a power law L = L∞ + a·N^(−b) when you grow model size, data, and compute. The plotted loss is the actual power-law value. This lets you forecast a large model's performance from small experiments, but there is an irreducible floor L∞ and diminishing returns — doubling quality costs far more than double the resources."
+    "more_en": "Scaling laws say loss falls predictably as a power law L = L∞ + a·N^(−b) when you grow model size, data, and compute. The plotted loss follows this power law. This lets you forecast a large model's performance from small experiments, but there is an irreducible floor L∞ and diminishing returns — doubling quality costs far more than double the resources."
   },
   "ai12_05": {
     "ch": "인공지능 제12장 · 트랜스포머·LLM",

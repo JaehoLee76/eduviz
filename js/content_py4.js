@@ -215,7 +215,7 @@
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
         ctx.fillText('v1 + v2 → 파이썬이 v1.__add__(v2)를 대신 호출', gx-20, ry+74);
         ctx.fillStyle=GRN; ctx.font='600 13.5px ui-monospace,Menlo,monospace';
-        ctx.fillText('(1+3, 2+4) = (4, 6)   ← 실제 계산값', gx-20, ry+98);
+        ctx.fillText('(1+3, 2+4) = (4, 6)', gx-20, ry+98);
       } else if(s.step===1){
         // __str__ : print(v) → "Vector(1,2)"
         ctx.fillStyle=GLD; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('__str__  →  print() / str()', gx-20, oy);

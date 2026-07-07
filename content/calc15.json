@@ -28,7 +28,7 @@
   "sec": "15.4 발산과 회전",
   "title": "벡터장의 미분 — 발산과 회전",
   "narr": "스칼라 함수를 미분하면 기울기였죠. 벡터장의 미분은 둘로 나뉩니다: <b>발산(div)</b>과 <b>회전(curl)</b>. <b>발산</b>은 그 점에서 장이 ‘얼마나 뿜어 나오는가(샘)·빨려드는가(싱크)’를, <b>회전</b>은 ‘얼마나 소용돌이치는가’를 잽니다. 슬라이더로 장을 바꿔 보세요 — 회전장은 발산 0·회전 2(순수 소용돌이), 발산원은 발산 2·회전 0(순수 분출)입니다. 이 둘이 맥스웰 방정식(전자기학)과 유체 연속방정식의 핵심 언어입니다.",
-  "more": "<b>div F = ∂P/∂x + ∂Q/∂y · curl F = ∂Q/∂x − ∂P/∂y</b>: 발산은 작은 상자에서 나가는 알짜 흐름(가우스 정리), 회전은 작은 고리를 도는 순환밀도(스토크스/그린)입니다. 발산이 0이면 ‘비압축’(샘 없음), 회전이 0이면 ‘보존장’이죠. 화면의 div·curl은 편도함수로 실제 계산한 값입니다.",
+  "more": "<b>div F = ∂P/∂x + ∂Q/∂y · curl F = ∂Q/∂x − ∂P/∂y</b>: 발산은 작은 상자에서 나가는 알짜 흐름(가우스 정리), 회전은 작은 고리를 도는 순환밀도(스토크스/그린)입니다. 발산이 0이면 ‘비압축’(샘 없음), 회전이 0이면 ‘보존장’이죠. 화면의 div·curl은 편도함수로 구합니다.",
   "more_en": "A vector field differentiates two ways: divergence (how much it spreads out — source/sink) and curl (how much it swirls). A rotational field has div=0, curl=2; a source has div=2, curl=0. These power Maxwell's equations."
  },
  "calc15_05": {

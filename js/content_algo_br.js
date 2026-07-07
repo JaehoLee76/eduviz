@@ -1699,7 +1699,7 @@
         r[i]=best; bestCut[i]=cut;
         snap(6,'<b>r['+i+'] = '+best+'</b> 확정. 길이 '+i+'의 최적은 첫 토막 '+cut+' + 나머지 '+(i-cut)+'.',{i:i,best:best,cut:cut});
       }
-      snap(7,'<b>완료!</b> r[5] = <b>'+r[5]+'</b>. 표 한 칸당 작은 부분 문제를 한 번만 풀어 O(n²). 가짜 없이 실제 점화로 채웠습니다.',{i:-1});
+      snap(7,'<b>완료!</b> r[5] = <b>'+r[5]+'</b>. 표 한 칸당 작은 부분 문제를 한 번만 풀어 O(n²)입니다.',{i:-1});
       return st; },
     draw:function(V,f){ if(!f)return; var ctx=V.ctx,W=V.W,H=V.H,n=f.n;
       ctx.textAlign='center'; ctx.fillStyle='#cfd8e6'; ctx.font='600 15px sans-serif';

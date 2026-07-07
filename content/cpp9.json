@@ -4,7 +4,7 @@
   "sec": "9.1 연산자 오버로딩 이해",
   "title": "연산자 오버로딩 — + 에 새 뜻을 주다",
   "narr": "컴퓨터가 아는 <b>+</b>는 원래 <b>1 + 2</b> 같은 숫자 덧셈뿐입니다. 그런데 복소수 <b>(1+2i)</b>와 <b>(3+4i)</b>를 더하고 싶다면요? <b>add(a, b)</b> 같은 함수를 부를 수도 있지만, 수학처럼 그냥 <b>a + b</b>라고 쓰면 훨씬 자연스럽습니다. C++은 <b>operator+</b>라는 이름의 멤버 함수를 정의하게 해 줍니다 — 그러면 컴파일러가 <b>a + b</b>를 몰래 <b>a.operator+(b)</b> 호출로 바꿔 줍니다. 실수부는 실수부끼리, 허수부는 허수부끼리 더한 새 <b>Complex</b>를 돌려주면 끝입니다.",
-  "more": "오른쪽 복소평면에서 화살표 두 개를 이어 붙이면 그 합 (4+6i)가 눈에 보입니다. 화면의 합은 실제로 계산한 값입니다.",
+  "more": "오른쪽 복소평면에서 화살표 두 개를 이어 붙이면 그 합 (4+6i)가 눈에 보입니다.",
   "more_en": "operator+(const Complex&) lets a + b work on your own type — the compiler rewrites it as a.operator+(b).",
   "problem": "Complex(2,3)과 Complex(1,-5)를 operator+로 더하면 결과는 무엇일까요?",
   "solution": "실수부 2+1=3, 허수부 3+(-5)=-2 → Complex(3, -2), 즉 (3 - 2i)입니다."
@@ -54,7 +54,7 @@
   "sec": "9.1 심화 · 복합대입 기반 관용구",
   "title": "복합대입 기반 관용구 — += 로 + 를 짓다",
   "narr": "<b>a + b</b>와 <b>a += b</b>는 뜻이 겹칩니다 — 둘 다 실수부는 실수부끼리, 허수부는 허수부끼리 더하죠. 두 연산자를 <b>따로따로</b> 구현하면 나중에 한쪽만 고치다 어긋나기 쉽습니다. 모범 사례인 관용구는 계산 로직을 <b>operator+= 한 곳에만</b> 두고, <b>operator+ 는 += 를 재사용</b>해 만드는 것입니다.",
-  "more": "비결은 operator+의 첫 인자를 값(사본)으로 받는 것 — 넘어온 a에 a += b 한 뒤 그 a를 돌려주면 원본은 그대로 두고 합만 얻습니다. 중복이 사라지고 + 와 += 가 항상 일관됩니다. 화면의 (4+6i)는 실제 계산값입니다.",
+  "more": "비결은 operator+의 첫 인자를 값(사본)으로 받는 것 — 넘어온 a에 a += b 한 뒤 그 a를 돌려주면 원본은 그대로 두고 합만 얻습니다. 중복이 사라지고 + 와 += 가 항상 일관됩니다.",
   "more_en": "Implement operator+ in terms of operator+=: take the left operand by value, do a += b, and return a — one logic, always consistent."
  }
 }

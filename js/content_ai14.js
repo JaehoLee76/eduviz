@@ -106,7 +106,7 @@
       ctx.fillStyle=DIM; ctx.fillText('벡터DB = 이 점들을 저장하고', px2, py2+150);
       ctx.fillStyle=DIM; ctx.fillText('최근접 이웃(ANN)을 빠르게 찾는 DB.', px2, py2+168);
       E.tapHint(W/2, H*0.95, '기준 문서를 바꿔 가장 가까운 이웃(초록)을 확인하세요', true);
-      E.big('벡터 공간 · 벡터DB — 의미가 가까우면 가까이', '임베딩은 문장을 의미가 비슷할수록 <b>가까이</b> 놓이는 공간의 점으로 만듭니다 — 동물 문장끼리, 음료 문장끼리 자연히 모이죠. <b>벡터DB</b>는 이 점 수백만 개를 저장하고, 쿼리 점에 가장 가까운 이웃을 <b>근사 최근접 탐색(ANN)</b>으로 순식간에 찾아 줍니다. 화면의 최근접·코사인은 실측값입니다.'); }
+      E.big('벡터 공간 · 벡터DB — 의미가 가까우면 가까이', '임베딩은 문장을 의미가 비슷할수록 <b>가까이</b> 놓이는 공간의 점으로 만듭니다 — 동물 문장끼리, 음료 문장끼리 자연히 모이죠. <b>벡터DB</b>는 이 점 수백만 개를 저장하고, 쿼리 점에 가장 가까운 이웃을 <b>근사 최근접 탐색(ANN)</b>으로 순식간에 찾아 줍니다.'); }
   },
 
   // ══════════ 3. RAG 파이프라인 — 질문→임베딩→검색→증강→생성 ══════════
@@ -146,7 +146,7 @@
       var dy=H*0.48;
       ctx.textAlign='left';
       if(s.step>=2){
-        ctx.fillStyle='#dfeef0'; ctx.font='600 15px sans-serif'; ctx.fillText('검색된 top-2 문서 (코사인 실측)', W*0.12, dy);
+        ctx.fillStyle='#dfeef0'; ctx.font='600 15px sans-serif'; ctx.fillText('검색된 top-2 문서', W*0.12, dy);
         for(i=0;i<topk.length;i++){ var o=topk[i], yy=dy+30+i*32;
           ctx.fillStyle=BLU; ctx.font='600 14px sans-serif'; ctx.fillText('• '+DOCS[o.i].t, W*0.12, yy);
           ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('cos = '+o.s.toFixed(3), W*0.50, yy);

@@ -76,7 +76,7 @@
       ctx.fillText('E(또는 클릭)로 펼치면, 이미 계산한 F는 "캐시 적중"으로 가지를 통째로 건너뜁니다.', E.W/2, E.H*0.09+18);
       var r=drawFT(E, s.shown, true);
       ctx.textAlign='center'; ctx.fillStyle=GRN; ctx.font='600 15px sans-serif';
-      ctx.fillText('실제 계산한 호출: '+r.visibleCalls+'개  (재귀는 5번이면 끝 → O(n))', E.W/2, E.H*0.86);
+      ctx.fillText('호출 횟수: '+r.visibleCalls+'개  (재귀는 5번이면 끝 → O(n))', E.W/2, E.H*0.86);
       ctx.fillStyle='#8a8893'; ctx.font='12px sans-serif';
       ctx.fillText('초록 = 저장값 재사용(가지 제거). 지수(9+) → 선형(5)으로 줄었습니다', E.W/2, E.H*0.86+20);
       E.big('메모이제이션: 캐시로 가지치기', '겹치는 부분문제를 저장하면 같은 호출을 두 번 안 한다 → 지수 시간이 선형으로. 위→아래 저장이 메모이제이션, 아래→위 표 채우기가 타뷸레이션(다음 화면).'); }

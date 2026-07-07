@@ -390,7 +390,7 @@
 
       // dist[] 표
       var tabY=gy+gh+20, cw=Math.min(W*0.06,54);
-      ctx.fillStyle='#dfeaf2'; ctx.font='600 12.5px sans-serif'; ctx.fillText('dist[] 배열 (실측)', gx, tabY);
+      ctx.fillStyle='#dfeaf2'; ctx.font='600 12.5px sans-serif'; ctx.fillText('dist[] 배열', gx, tabY);
       cell(ctx,gx,tabY+8,44,22,'정점','rgba(90,180,232,0.14)',CPB,CPB,11.5);
       cell(ctx,gx,tabY+30,44,22,'dist','rgba(90,180,232,0.14)',CPB,CPB,11.5);
       for(i=0;i<5;i++){ var d2=f.dist[i], dn=f.done[i];

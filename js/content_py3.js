@@ -257,7 +257,7 @@
       ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.fillText(callTxt+' == '+ret, gx, y3+56);
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText(expl, gx, y3+78);
       E.tapHint(W/2, H*0.93, '화면 탭 = 다음 호출 (전달 → 기본값 → *args)', true);
-      E.big('def 함수 — 입력을 받아 값을 돌려준다', '<b>def</b>로 한 번 정의해 두면, 같은 일을 이름 하나로 반복 호출할 수 있습니다. 매개변수에 <b>기본값</b>(b=10)을 주면 인자를 생략해도 동작하고, <b>*args</b>는 개수가 정해지지 않은 인자를 튜플로 모읍니다. 결과는 <b>return</b>으로 돌려주죠 — <code>add(3,4)</code>를 부르면 함수 안 a·b가 묶이고, a+b가 계산되어 7이 나옵니다. 전부 실제로 계산한 값입니다.'); }
+      E.big('def 함수 — 입력을 받아 값을 돌려준다', '<b>def</b>로 한 번 정의해 두면, 같은 일을 이름 하나로 반복 호출할 수 있습니다. 매개변수에 <b>기본값</b>(b=10)을 주면 인자를 생략해도 동작하고, <b>*args</b>는 개수가 정해지지 않은 인자를 튜플로 모읍니다. 결과는 <b>return</b>으로 돌려주죠 — <code>add(3,4)</code>를 부르면 함수 안 a·b가 묶이고, a+b가 계산되어 7이 나옵니다.'); }
   },
 
   // ══════════ 5. lambda · 고차함수 — map / filter / sorted(key=) (실변환) ══════════
@@ -303,7 +303,7 @@
       var note = st===0?'[1,2,3,4,5] → 각 제곱' : (st===1?'홀수만 통과(2·4 제거)':'큰 값부터 정렬');
       ctx.fillText(note, gx, oy+chh+48);
       E.tapHint(W/2, H*0.93, '화면 탭 = 다음 (map → filter → sorted)', true);
-      E.big('lambda · 고차함수 — 함수를 값처럼 넘긴다', '<b>lambda</b>는 이름 없이 한 줄로 만드는 작은 함수입니다. 파이썬에선 함수도 ‘값’이라, 다른 함수에 <b>인자로 넘길</b> 수 있죠 — 이런 함수를 <b>고차함수</b>라 합니다. <b>map</b>은 모든 원소에 함수를 적용해 변환하고, <b>filter</b>는 조건 참인 것만 남기며, <b>sorted(key=)</b>는 키 함수로 정렬 기준을 정합니다. <code>map(lambda x:x*x,[1,2,3])</code> → [1,4,9], 전부 실제로 계산한 결과입니다.'); }
+      E.big('lambda · 고차함수 — 함수를 값처럼 넘긴다', '<b>lambda</b>는 이름 없이 한 줄로 만드는 작은 함수입니다. 파이썬에선 함수도 ‘값’이라, 다른 함수에 <b>인자로 넘길</b> 수 있죠 — 이런 함수를 <b>고차함수</b>라 합니다. <b>map</b>은 모든 원소에 함수를 적용해 변환하고, <b>filter</b>는 조건 참인 것만 남기며, <b>sorted(key=)</b>는 키 함수로 정렬 기준을 정합니다. <code>map(lambda x:x*x,[1,2,3])</code> → [1,4,9].'); }
   }
 
   ];

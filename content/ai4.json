@@ -11,7 +11,7 @@
   "ch": "인공지능 제4장 · 머신러닝",
   "sec": "4.2 정확도·정밀도·재현율·F1",
   "title": "정확도·정밀도·재현율·F1",
-  "narr": "같은 혼동행렬을 네 각도에서 봅니다. <b>정확도(Acc)=(TP+TN)/전체</b>는 ‘전체 중 맞힌 비율’ — 직관적이지만 불균형엔 약합니다. <b>정밀도(Prec)=TP/(TP+FP)</b>는 ‘<b>양성이라 외친 것</b> 중 진짜 양성 비율’(헛다리를 얼마나 안 했나). <b>재현율(Rec)=TP/(TP+FN)</b>은 ‘<b>실제 양성</b> 중 잡아낸 비율’(놓치지 않았나). 그런데 둘은 <b>시소</b>입니다 — 임계값을 높여 신중하게 양성을 외치면 정밀도는 오르지만 그만큼 놓쳐 재현율이 떨어지죠. 그래서 둘의 <b>조화평균</b>인 <b>F1=2PR/(P+R)</b>로 균형을 한 숫자에 담습니다. 슬라이더로 θ를 움직이며 네 막대가 어떻게 엇갈리는지 보세요 — 화면의 모든 값은 위 혼동행렬에서 실제로 계산됩니다.",
+  "narr": "같은 혼동행렬을 네 각도에서 봅니다. <b>정확도(Acc)=(TP+TN)/전체</b>는 ‘전체 중 맞힌 비율’ — 직관적이지만 불균형엔 약합니다. <b>정밀도(Prec)=TP/(TP+FP)</b>는 ‘<b>양성이라 외친 것</b> 중 진짜 양성 비율’(헛다리를 얼마나 안 했나). <b>재현율(Rec)=TP/(TP+FN)</b>은 ‘<b>실제 양성</b> 중 잡아낸 비율’(놓치지 않았나). 그런데 둘은 <b>시소</b>입니다 — 임계값을 높여 신중하게 양성을 외치면 정밀도는 오르지만 그만큼 놓쳐 재현율이 떨어지죠. 그래서 둘의 <b>조화평균</b>인 <b>F1=2PR/(P+R)</b>로 균형을 한 숫자에 담습니다. 슬라이더로 θ를 움직이며 네 막대가 어떻게 엇갈리는지 보세요 — 화면의 모든 값은 위 혼동행렬에서 계산됩니다.",
   "more": "<b>정밀도냐 재현율이냐 — 상황이 정한다</b>: 암 검진처럼 <b>놓치면 안 되는</b> 문제는 재현율을 우선합니다(FN을 줄여라). 반대로 스팸 필터·추천처럼 <b>잘못 띄우면 거슬리는</b> 문제는 정밀도를 우선하죠(FP를 줄여라). 둘을 동시에 다 올릴 수 없을 때 F1으로 절충하고, 한쪽을 더 중시하려면 가중치를 둔 <b>Fβ</b>(β&gt;1은 재현율 강조)를 씁니다. <b>왜 조화평균인가</b>: 산술평균과 달리 조화평균은 한쪽이 0에 가까우면 전체를 0 쪽으로 끌어내려, ‘둘 다 높아야만’ 높은 F1이 나옵니다. 정밀도·재현율의 정의와 트레이드오프는 자격시험 핵심 중의 핵심입니다.",
   "more_en": "Four views of the same matrix: Accuracy=(TP+TN)/N, Precision=TP/(TP+FP) (of predicted positives, how many are right), Recall=TP/(TP+FN) (of actual positives, how many caught). Precision and recall trade off via the threshold, so F1=2PR/(P+R), their harmonic mean, balances both — high only when both are high. Prioritize recall when misses are costly (cancer screening), precision when false alarms hurt (spam filters)."
  },
@@ -19,7 +19,7 @@
   "ch": "인공지능 제4장 · 머신러닝",
   "sec": "4.3 ROC 곡선과 AUC",
   "title": "ROC 곡선과 AUC",
-  "narr": "임계값을 하나로 못 박기 전에, 분류기의 <b>분리력 자체</b>를 보고 싶을 때가 있습니다. 임계값 θ를 <b>1에서 0으로 천천히 쓸어내리며</b> 매번 두 값을 찍습니다 — 가로축 <b>FPR=FP/(FP+TN)</b>(음성을 잘못 양성이라 한 비율), 세로축 <b>TPR=재현율</b>(양성을 제대로 잡은 비율). θ가 높을 땐 거의 아무도 양성이라 안 하니 좌하단(0,0)에서 출발해, θ를 낮추면 점이 우상단(1,1)으로 기어오릅니다. 이 궤적이 <b>ROC 곡선</b>입니다. 곡선이 <b>왼쪽 위 모서리에 바짝 붙을수록</b> 좋은 분류기죠. 그 아래 넓이가 <b>AUC</b> — 화면에선 사다리꼴로 실제 적분합니다. 슬라이더의 금색 점이 현재 θ가 곡선 위 어디인지 보여 줍니다.",
+  "narr": "임계값을 하나로 못 박기 전에, 분류기의 <b>분리력 자체</b>를 보고 싶을 때가 있습니다. 임계값 θ를 <b>1에서 0으로 천천히 쓸어내리며</b> 매번 두 값을 찍습니다 — 가로축 <b>FPR=FP/(FP+TN)</b>(음성을 잘못 양성이라 한 비율), 세로축 <b>TPR=재현율</b>(양성을 제대로 잡은 비율). θ가 높을 땐 거의 아무도 양성이라 안 하니 좌하단(0,0)에서 출발해, θ를 낮추면 점이 우상단(1,1)으로 기어오릅니다. 이 궤적이 <b>ROC 곡선</b>입니다. 곡선이 <b>왼쪽 위 모서리에 바짝 붙을수록</b> 좋은 분류기죠. 그 아래 넓이가 <b>AUC</b> — 화면에선 사다리꼴로 적분합니다. 슬라이더의 금색 점이 현재 θ가 곡선 위 어디인지 보여 줍니다.",
   "more": "<b>AUC의 의미</b>: AUC=1.0이면 완벽히 분리, <b>0.5면 동전 던지기(대각선)</b>, 0.5 미만이면 거꾸로 맞히는 셈입니다. 멋진 해석 하나 — AUC는 ‘무작위로 고른 양성 샘플의 점수가 무작위 음성 샘플보다 높을 확률’과 정확히 같습니다. <b>임계값과 무관</b>하다는 게 핵심 장점이라, 운영 임계값을 정하기 전 모델끼리 비교할 때 즐겨 씁니다. 단 <b>심한 불균형</b>에서는 ROC가 낙관적으로 보일 수 있어 <b>정밀도-재현율(PR) 곡선</b>을 함께 봅니다. ROC·AUC의 축 정의(TPR vs FPR)와 AUC 해석은 자격시험 단골입니다.",
   "more_en": "Sweep θ from 1 to 0 and plot (FPR, TPR) at each step: the path is the ROC curve, climbing from (0,0) to (1,1). The closer it hugs the top-left, the better. AUC = area under it (computed here by trapezoid integration): 1.0 is perfect, 0.5 is a coin flip. AUC also equals the probability a random positive scores above a random negative, and is threshold-independent — ideal for comparing models. On heavy imbalance, also check the precision-recall curve."
  },

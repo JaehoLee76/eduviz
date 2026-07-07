@@ -97,7 +97,7 @@
         var mZa=mean(zAge), sZa=std(zAge), mZs=mean(zSal), sZs=std(zSal);
         var px=W*0.05, py=H*0.74;
         ctx.fillStyle=GRN; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
-        ctx.fillText('변환 후 검산(실측):', px, py);
+        ctx.fillText('변환 후 검산:', px, py);
         ctx.fillStyle='#e7ecda'; ctx.font='13.5px ui-monospace,Menlo,monospace';
         ctx.fillText('z(나이): 평균 '+mZa.toFixed(3)+'  표준편차 '+sZa.toFixed(3), px, py+26);
         ctx.fillText('z(연봉): 평균 '+mZs.toFixed(3)+'  표준편차 '+sZs.toFixed(3), px, py+48);
@@ -244,7 +244,7 @@
       ctx.fillStyle=DIM; ctx.fillText('표준편차↑ 면 분할에 민감 — 신뢰 낮음', tx, ty+156);
 
       E.tapHint(W/2, H*0.95, 'k를 바꾸면 분할·회차 점수·평균±표준편차가 실시간 재계산됩니다', true);
-      E.big('cross_val_score — 한 번 분할의 운을 제거', '<b>train_test_split</b> 한 번의 점수는 ‘운 좋은 분할’일 수 있습니다. <b>교차검증</b>은 데이터를 k조각으로 나눠 돌아가며 한 조각씩 시험으로 쓰고, k번의 점수를 <b>평균±표준편차</b>로 보고합니다(화면 값은 실측). 모든 데이터가 학습에도 평가에도 쓰여 적은 데이터에서도 정직한 성능을 얻고, 표준편차로 <b>안정성</b>까지 함께 봅니다. Pipeline을 넘기면 변환이 폴드마다 안전하게(누수 없이) 적용됩니다.'); }
+      E.big('cross_val_score — 한 번 분할의 운을 제거', '<b>train_test_split</b> 한 번의 점수는 ‘운 좋은 분할’일 수 있습니다. <b>교차검증</b>은 데이터를 k조각으로 나눠 돌아가며 한 조각씩 시험으로 쓰고, k번의 점수를 <b>평균±표준편차</b>로 보고합니다. 모든 데이터가 학습에도 평가에도 쓰여 적은 데이터에서도 정직한 성능을 얻고, 표준편차로 <b>안정성</b>까지 함께 봅니다. Pipeline을 넘기면 변환이 폴드마다 안전하게(누수 없이) 적용됩니다.'); }
   },
 
   // ══════════ 4. GridSearchCV — 하이퍼파라미터 격자탐색 점수 실계산(히트맵) ══════════
@@ -313,7 +313,7 @@
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
       ctx.fillText('너무 작은 C·낮은 depth → 과소적합, 너무 큰 값 → 과적합. 그 사이 골짜기가 최적.', px, py+46);
 
-      E.tapHint(W/2, H*0.95, '★ 표시가 격자에서 가장 높은 교차검증 점수 — 모든 칸이 실제 계산값', true);
+      E.tapHint(W/2, H*0.95, '★ 표시가 격자에서 가장 높은 교차검증 점수', true);
       E.big('GridSearchCV — 모든 조합을 시도해 최적을 찾기', '하이퍼파라미터(정규화 강도 <b>C</b>, 트리 깊이 <b>max_depth</b> 등)는 직접 골라야 합니다. <b>GridSearchCV</b>는 격자의 <b>모든 조합</b>을 교차검증으로 평가해(화면 점수는 전부 실계산), 가장 높은 점수의 조합을 <code>best_params_</code>로 돌려줍니다. 한쪽 끝은 과소적합·반대 끝은 과적합 — 그 사이 ‘골짜기 바닥(★)’이 최적입니다. 시험셋은 절대 보지 않고 훈련셋 안의 교차검증만으로 고른다는 점이 핵심입니다.'); }
   },
 

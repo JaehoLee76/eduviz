@@ -92,7 +92,7 @@
       var acc=correct/PTS1.length*100;
       // 범례·식
       ctx.fillStyle='#dfeef0'; ctx.font='600 16px sans-serif'; ctx.textAlign='left'; ctx.fillText('σ(z) = 1 / (1 + e^−z),  z = w·(x − 0.5)', W*0.12, H*0.13);
-      ctx.fillStyle=CYA; ctx.font='600 15px sans-serif'; ctx.fillText('정확도(실측) = '+acc.toFixed(0)+'%  ('+correct+'/'+PTS1.length+')', W*0.12, H*0.13+24);
+      ctx.fillStyle=CYA; ctx.font='600 15px sans-serif'; ctx.fillText('정확도 = '+acc.toFixed(0)+'%  ('+correct+'/'+PTS1.length+')', W*0.12, H*0.13+24);
       ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('● 라벨 1', W*0.86, H*0.13); ctx.fillStyle=RED; ctx.fillText('● 라벨 0', W*0.86, H*0.13+20);
       E.tapHint(W/2, H*0.95, 'w를 키워 시그모이드가 가팔라지는 것을 보세요', true);
       E.big('로지스틱 회귀 — 직선을 확률로', '분류인데 왜 ‘회귀’일까요? 먼저 직선 z=w·(x−0.5)로 점수를 내고, 그 점수를 시그모이드 σ에 통과시켜 0~1 사이 확률로 짜부라뜨립니다. 확률이 0.5를 넘으면 ‘예’, 아니면 ‘아니오’. w가 클수록 ‘아니오’에서 ‘예’로 넘어가는 문턱이 가팔라집니다.'); }
@@ -131,7 +131,7 @@
       ctx.fillStyle=col; ctx.font='600 22px sans-serif'; ctx.fillText('정확도 = '+acc.toFixed(1)+'%', px, py+126);
       ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('맞힌 점 '+correct+' / 전체 '+PTS2.length, px, py+150);
       E.tapHint(W/2, H*0.95, '경계 기울기를 돌려 정확도를 최대로', true);
-      E.big('결정경계(decision boundary)와 정확도', '분류기가 하는 일은 결국 평면 위에 ‘선 하나 긋기’입니다. 선의 한쪽은 A, 다른 쪽은 B라고 우기는 거죠. 잘 그으면 거의 다 맞고, 비뚤면 멀쩡한 점들이 엉뚱한 편에 떨어집니다. 정확도는 맞힌 점의 비율 — 화면에서 실제로 세어 보여 줍니다.'); }
+      E.big('결정경계(decision boundary)와 정확도', '분류기가 하는 일은 결국 평면 위에 ‘선 하나 긋기’입니다. 선의 한쪽은 A, 다른 쪽은 B라고 우기는 거죠. 잘 그으면 거의 다 맞고, 비뚤면 멀쩡한 점들이 엉뚱한 편에 떨어집니다. 정확도는 맞힌 점의 비율을 세어 보여 줍니다.'); }
   },
 
   // ══════════ 4. 손실함수: MSE vs 크로스엔트로피 ══════════

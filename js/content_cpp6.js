@@ -91,7 +91,7 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('객체마다 따로 있는 게 아니라, 클래스 전체에 단 하나 — 그래서 "몇 개 만들어졌나"를 셀 수 있죠.', W*0.05, ty0);
       ctx.fillStyle=GRN; ctx.font='600 12.5px sans-serif';
-      ctx.fillText('static 멤버변수는 클래스 밖에서 딱 한 번 정의(int Widget::count = 0;) · 지금 살아있는 Widget = '+made+'개 (실측)', W*0.05, ty0+22);
+      ctx.fillText('static 멤버변수는 클래스 밖에서 딱 한 번 정의(int Widget::count = 0;) · 지금 살아있는 Widget = '+made+'개', W*0.05, ty0+22);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 객체 하나씩 생성 (공유 count 증가)', true);
       E.big('static 멤버변수 — 클래스에 단 하나뿐인 값', '보통 멤버변수는 객체마다 따로 존재하지만, static을 붙이면 클래스 전체에 단 하나만 만들어지고 모든 객체가 그것을 함께 씁니다. 가장 흔한 쓰임이 “객체 개수 세기” — 생성자에서 ++count, 소멸자에서 --count 하면 지금 몇 개가 살아 있는지 언제든 알 수 있죠. static 변수는 특정 객체의 것이 아니라 클래스의 것이므로, 선언만으로는 부족하고 클래스 밖에서 int Widget::count = 0; 처럼 딱 한 번 “정의”해 실제 저장 공간을 잡아 줘야 합니다. 화면의 카운트는 실제로 생성자를 부른 만큼 증가한 값입니다 — 세 객체가 하나의 상자를 함께 바라보는 그림이 static의 본질입니다.'); }

@@ -11,7 +11,7 @@
     "ch": "인공지능 제14장 · 실무·에이전트",
     "sec": "14.2 벡터 공간과 벡터DB",
     "title": "벡터 공간 · 벡터DB — 의미가 가까우면 가까이",
-    "narr": "임베딩의 마법은 한 발 물러서 <b>전체 지도</b>를 볼 때 드러납니다. 모든 문장을 점으로 흩뿌려 보면, 누가 시키지 않았는데도 <b>동물 문장끼리</b> 한쪽에, <b>음료 문장끼리</b> 다른 쪽에 저절로 모입니다 — 의미가 비슷하면 공간에서 가까워지도록 학습된 덕분이죠. ‘고양이’ 옆엔 ‘강아지’가, ‘커피’ 옆엔 ‘녹차’가 이웃합니다. 슬라이더로 기준 문서를 바꿔 가장 가까운 이웃(초록 점선)이 누구인지 확인해 보세요 — 코사인 값은 실측입니다. 이렇게 점들을 저장하고 ‘쿼리 점에 제일 가까운 이웃’을 찾아 주는 특별한 데이터베이스가 <b>벡터DB</b>입니다.",
+    "narr": "임베딩의 마법은 한 발 물러서 <b>전체 지도</b>를 볼 때 드러납니다. 모든 문장을 점으로 흩뿌려 보면, 누가 시키지 않았는데도 <b>동물 문장끼리</b> 한쪽에, <b>음료 문장끼리</b> 다른 쪽에 저절로 모입니다 — 의미가 비슷하면 공간에서 가까워지도록 학습된 덕분이죠. ‘고양이’ 옆엔 ‘강아지’가, ‘커피’ 옆엔 ‘녹차’가 이웃합니다. 슬라이더로 기준 문서를 바꿔 가장 가까운 이웃(초록 점선)이 누구인지 확인해 보세요. 이렇게 점들을 저장하고 ‘쿼리 점에 제일 가까운 이웃’을 찾아 주는 특별한 데이터베이스가 <b>벡터DB</b>입니다.",
     "more": "<b>벡터DB의 핵심 = 최근접 이웃</b>: 문서 수백만 개를 일일이 쿼리와 비교하면 느립니다. 그래서 벡터DB(예: FAISS·Pinecone·Milvus·pgvector)는 <b>근사 최근접 탐색(ANN, Approximate Nearest Neighbor)</b> 자료구조(HNSW 그래프·IVF 등)로 ‘대충 가까운 후보’만 빠르게 좁혀 검색을 밀리초로 끝냅니다. 약간의 정확도를 내주고 엄청난 속도를 얻는 거래죠. 임베딩 모델이 의미를 ‘공간 위치’로 번역하고, 벡터DB가 그 공간에서 이웃을 찾아 주는 — 이 둘이 RAG의 검색 엔진입니다.",
     "more_en": "Plotting all sentences as points reveals that similar meanings cluster on their own — animals here, drinks there. A vector database stores these points and finds the nearest neighbors to a query point. To stay fast over millions of vectors it uses Approximate Nearest Neighbor search (HNSW, IVF), trading a little accuracy for millisecond lookups."
   },

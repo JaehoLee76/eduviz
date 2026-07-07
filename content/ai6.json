@@ -4,14 +4,14 @@
   "sec": "6.1 퍼셉트론",
   "title": "퍼셉트론 — 가장 단순한 인공 뉴런",
   "narr": "신경망의 부품인 <b>인공 뉴런</b> 하나가 하는 일은 놀랍도록 단순합니다. ①입력 <b>x₁, x₂</b>에 각각 <b>가중치 w</b>를 곱해 더하고(<b>가중합 z = w₁x₁ + w₂x₂ + b</b>), ②그 합이 <b>문턱</b>을 넘으면 1, 못 넘으면 0을 내보냅니다(<b>계단함수</b>). 여기서 <b>b(편향)</b>가 바로 문턱을 옮기는 손잡이죠. 신기한 건, 같은 구조에서 <b>가중치와 편향만 바꾸면</b> 논리 게이트가 통째로 바뀐다는 점입니다 — b=−1.5면 둘 다 1일 때만 켜지는 <b>AND</b>, b=−0.5면 하나만 1이어도 켜지는 <b>OR</b>. 슬라이더로 입력을 넣고, 화면을 탭해 AND↔OR을 오가며 가중합이 문턱을 넘는 순간을 직접 보세요.",
-  "more": "<b>왜 ‘퍼셉트론’인가</b>: 1957년 프랭크 로젠블랫이 만든 이 모델은 최초로 ‘스스로 가중치를 조정해 배우는’ 기계였습니다. 생물 뉴런이 여러 신호를 모아 일정 자극을 넘으면 ‘발화’하는 모습을 그대로 본떴죠.\n\n<b>편향 b의 정체</b>: b는 ‘입력이 0이어도 더해지는 상수’ — 결국 활성화의 문턱을 −b로 옮기는 역할입니다. 화면의 출력 0/1은 매번 z를 실제로 계산해 계단함수에 넣은 결과입니다(베껴 그린 값이 아닙니다). 자격시험에서는 ‘가중합 + 활성함수’라는 뉴런의 2단 구조와 편향의 의미가 단골 문항입니다.",
+  "more": "<b>왜 ‘퍼셉트론’인가</b>: 1957년 프랭크 로젠블랫이 만든 이 모델은 최초로 ‘스스로 가중치를 조정해 배우는’ 기계였습니다. 생물 뉴런이 여러 신호를 모아 일정 자극을 넘으면 ‘발화’하는 모습을 그대로 본떴죠.\n\n<b>편향 b의 정체</b>: b는 ‘입력이 0이어도 더해지는 상수’ — 결국 활성화의 문턱을 −b로 옮기는 역할입니다. 화면의 출력 0/1은 매번 z를 계산해 계단함수에 넣은 결과입니다. 자격시험에서는 ‘가중합 + 활성함수’라는 뉴런의 2단 구조와 편향의 의미가 단골 문항입니다.",
   "more_en": "An artificial neuron does two things: compute a weighted sum z = w1x1 + w2x2 + b, then apply an activation (here a step function: 1 if z ≥ 0, else 0). The bias b shifts the threshold. Changing only the weights and bias turns the same neuron into an AND gate (b = −1.5) or an OR gate (b = −0.5)."
  },
  "ai6_02": {
   "ch": "인공지능 제6장 · 딥러닝",
   "sec": "6.2 활성함수",
   "title": "활성함수 — 비선형이라는 마법",
-  "narr": "뉴런의 가중합 뒤에 왜 굳이 함수를 하나 더 끼울까요? <b>계단함수</b>는 0과 1로 뚝 끊겨 미분이 안 돼 학습이 곤란합니다. 그래서 매끄럽게 휜 <b>활성함수</b>를 씁니다. <b>sigmoid</b>는 어떤 값이든 <b>0~1</b>로 눌러 ‘확률’처럼 만들고, <b>tanh</b>는 <b>−1~1</b>로 0을 중심으로 대칭이며, <b>ReLU</b>는 ‘음수면 0, 양수면 그대로’라는 단순함으로 깊은 망에서 가장 널리 쓰입니다. 슬라이더로 입력 z를 움직이며 세 함수가 같은 z를 얼마나 다르게 변환하는지 비교해 보세요 — 모든 출력값은 실제 함수식으로 계산됩니다.",
+  "narr": "뉴런의 가중합 뒤에 왜 굳이 함수를 하나 더 끼울까요? <b>계단함수</b>는 0과 1로 뚝 끊겨 미분이 안 돼 학습이 곤란합니다. 그래서 매끄럽게 휜 <b>활성함수</b>를 씁니다. <b>sigmoid</b>는 어떤 값이든 <b>0~1</b>로 눌러 ‘확률’처럼 만들고, <b>tanh</b>는 <b>−1~1</b>로 0을 중심으로 대칭이며, <b>ReLU</b>는 ‘음수면 0, 양수면 그대로’라는 단순함으로 깊은 망에서 가장 널리 쓰입니다. 슬라이더로 입력 z를 움직이며 세 함수가 같은 z를 얼마나 다르게 변환하는지 비교해 보세요.",
   "more": "<b>비선형이 핵심인 이유</b>: 활성함수가 없으면(=선형이면) 층을 아무리 깊게 쌓아도 <b>전체가 다시 하나의 직선</b>으로 뭉개집니다 — 깊이가 무의미해지죠. 휘어진 활성함수가 끼어야 비로소 곡선·복잡한 경계를 그릴 수 있습니다. <b>ReLU의 승리</b>: sigmoid·tanh는 양 끝에서 기울기가 0에 가까워 깊은 망에서 <b>기울기 소실</b>이 생깁니다. ReLU는 양수 구간 기울기가 항상 1이라 이 문제가 덜해 현대 딥러닝의 표준이 됐습니다. ‘활성함수 종류와 특성·기울기 소실’은 자격시험 핵심 주제입니다.",
   "more_en": "Activation functions add non-linearity. sigmoid squashes any input to 0–1 (probability-like), tanh to −1–1 (zero-centered), ReLU outputs 0 for negatives and the input itself for positives. Without a non-linear activation, stacking layers collapses into a single linear map. ReLU avoids the vanishing-gradient problem of sigmoid/tanh and dominates modern deep nets."
  },
@@ -27,15 +27,15 @@
   "ch": "인공지능 제6장 · 딥러닝",
   "sec": "6.4 순전파",
   "title": "순전파 — 신호가 앞으로 흐르다",
-  "narr": "<b>순전파(forward pass)</b>는 입력에서 출력까지 값이 한 방향으로 흘러가며 답을 계산하는 과정입니다. 규칙은 5장의 뉴런 하나와 똑같습니다 — 각 뉴런이 <b>가중합 → 활성함수(sigmoid)</b>를 한 번씩 수행하고, 그 결과(활성값)가 다음 층의 입력이 됩니다. 슬라이더로 입력 x₁, x₂를 넣으면, 은닉층 세 뉴런 h₁·h₂·h₃이 각자 가중합을 sigmoid로 누른 값을 만들고, 출력 뉴런이 그 셋을 다시 가중합·활성해 최종 <b>ŷ</b>를 냅니다. 노드 안의 숫자와 밝기는 전부 <b>실제로 흘려 계산한 활성값</b>입니다 — 입력을 바꿔 신호가 층층이 갱신되는 걸 보세요.",
-  "more": "<b>행렬로 보면 한 줄</b>: 한 층의 계산은 <b>h = σ(W·x + b)</b>라는 행렬·벡터 연산 한 번입니다. 층마다 이 식을 반복하면 순전파 전체가 되죠 — GPU가 행렬 곱을 병렬로 처리해 거대한 망도 순식간에 통과시킵니다.\n\n<b>학습과의 관계</b>: 순전파로 나온 출력 ŷ를 정답과 비교해 <b>손실</b>을 재고(1장), 그 오차를 거꾸로 흘려 가중치를 고치는 게 다음 장의 <b>역전파</b>입니다. 즉 ‘앞으로 계산 → 뒤로 수정’의 반복이 학습입니다. 화면의 모든 활성값은 결정적 가중치로 매번 순전파를 실제 수행한 결과입니다.",
+  "narr": "<b>순전파(forward pass)</b>는 입력에서 출력까지 값이 한 방향으로 흘러가며 답을 계산하는 과정입니다. 규칙은 5장의 뉴런 하나와 똑같습니다 — 각 뉴런이 <b>가중합 → 활성함수(sigmoid)</b>를 한 번씩 수행하고, 그 결과(활성값)가 다음 층의 입력이 됩니다. 슬라이더로 입력 x₁, x₂를 넣으면, 은닉층 세 뉴런 h₁·h₂·h₃이 각자 가중합을 sigmoid로 누른 값을 만들고, 출력 뉴런이 그 셋을 다시 가중합·활성해 최종 <b>ŷ</b>를 냅니다. 노드 안의 숫자와 밝기는 전부 <b>활성값</b>입니다 — 입력을 바꿔 신호가 층층이 갱신되는 걸 보세요.",
+  "more": "<b>행렬로 보면 한 줄</b>: 한 층의 계산은 <b>h = σ(W·x + b)</b>라는 행렬·벡터 연산 한 번입니다. 층마다 이 식을 반복하면 순전파 전체가 되죠 — GPU가 행렬 곱을 병렬로 처리해 거대한 망도 순식간에 통과시킵니다.\n\n<b>학습과의 관계</b>: 순전파로 나온 출력 ŷ를 정답과 비교해 <b>손실</b>을 재고(1장), 그 오차를 거꾸로 흘려 가중치를 고치는 게 다음 장의 <b>역전파</b>입니다. 즉 ‘앞으로 계산 → 뒤로 수정’의 반복이 학습입니다. 화면의 활성값은 매번 순전파로 갱신된 결과입니다.",
   "more_en": "Forward propagation flows values from input to output. Each neuron does weighted sum → activation (sigmoid), and its output feeds the next layer. A whole layer is one matrix operation: h = σ(W·x + b). Repeating it layer by layer produces the final output ŷ. The activations shown are computed by actually running the forward pass with fixed weights."
  },
  "ai6_05": {
   "ch": "인공지능 제6장 · 딥러닝",
   "sec": "6.5 XOR 문제",
   "title": "XOR 문제 — 깊이가 필요한 이유",
-  "narr": "“두 입력이 <b>서로 다르면</b> 1, 같으면 0” — 사람에겐 너무 쉬운 이 <b>XOR</b>이, 놀랍게도 <b>단층 퍼셉트론으로는 절대 풀 수 없습니다</b>. 왜냐면 단층은 평면을 <b>직선 하나</b>로만 가르는데, XOR의 1인 점(서로 다른 (0,1)·(1,0))과 0인 점(같은 (0,0)·(1,1))은 어떤 직선으로도 갈라지지 않거든요(<b>선형 분리 불가</b>). 화면을 탭해 단층 모드를 보면 한 점이 늘 틀립니다. 그런데 뉴런을 <b>한 층 더</b> 쌓으면 — 은닉 뉴런 둘이 OR과 AND를 만들고 출력 뉴런이 ‘OR이면서 AND는 아닌 것’으로 조합 — 경계가 <b>휘어</b> 네 점이 깔끔히 갈립니다. 결정경계는 실제 분류기 출력으로 칠한 것입니다.",
+  "narr": "“두 입력이 <b>서로 다르면</b> 1, 같으면 0” — 사람에겐 너무 쉬운 이 <b>XOR</b>이, 놀랍게도 <b>단층 퍼셉트론으로는 절대 풀 수 없습니다</b>. 왜냐면 단층은 평면을 <b>직선 하나</b>로만 가르는데, XOR의 1인 점(서로 다른 (0,1)·(1,0))과 0인 점(같은 (0,0)·(1,1))은 어떤 직선으로도 갈라지지 않거든요(<b>선형 분리 불가</b>). 화면을 탭해 단층 모드를 보면 한 점이 늘 틀립니다. 그런데 뉴런을 <b>한 층 더</b> 쌓으면 — 은닉 뉴런 둘이 OR과 AND를 만들고 출력 뉴런이 ‘OR이면서 AND는 아닌 것’으로 조합 — 경계가 <b>휘어</b> 네 점이 깔끔히 갈립니다. 결정경계는 분류기 출력으로 칠한 것입니다.",
   "more": "<b>1969년의 겨울</b>: 민스키와 페퍼트가 <i>Perceptrons</i>에서 ‘단층 퍼셉트론은 XOR도 못 푼다’를 수학적으로 증명하자 신경망 연구는 한동안 침체기(‘AI 겨울’)에 빠졌습니다. 그 돌파구가 바로 <b>은닉층을 둔 다층 퍼셉트론 + 역전파</b>였죠. 한 칸의 깊이가 신경망을 되살린 셈입니다.\n\n<b>핵심 교훈</b>: 층을 깊게 쌓고 그 사이에 <b>비선형 활성함수</b>를 끼우면, 신경망은 직선을 넘어 <b>임의의 복잡한 경계</b>를 그릴 수 있습니다(보편 근사). XOR은 그 필요성을 보여주는 가장 작고 유명한 예제입니다. ‘선형 분리 불가능성·XOR·다층의 필요성’은 자격시험 단골 주제입니다.",
   "more_en": "XOR (output 1 when inputs differ) cannot be solved by a single-layer perceptron — its 1-points and 0-points are not linearly separable, so no single line splits them. Adding one hidden layer (two neurons forming OR and AND, combined as 'OR but not AND') bends the boundary and separates all four points. Minsky & Papert's 1969 proof of this triggered an AI winter; multilayer perceptrons with backpropagation were the way out.",
   "problem": {

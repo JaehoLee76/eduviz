@@ -18,7 +18,7 @@
   "sec": "0.2 16장의 여정",
   "title": "파이썬 for AI — 16장의 여정",
   "narr": "이 트랙은 네 묶음으로 흐릅니다. <b>기초 문법(1~5장)</b>에서 변수·자료구조·제어·함수·클래스와 f-string·타입힌트·match-case 같은 최신 문법까지 다집니다. <b>AI 라이브러리(6~9장)</b>에서 NumPy 배열·행렬연산, pandas 표 처리, Matplotlib 시각화로 데이터를 자유자재로 다루죠. <b>머신러닝(10~12장)</b>에서는 scikit-learn으로 실제 데이터셋(iris·캘리포니아 집값 등)에 회귀·분류를 <b>실제로 동작하는 코드</b>로 돌려 봅니다. 마지막 <b>딥러닝·PyTorch(13~16장)</b>에서 텐서·자동미분부터 MNIST 신경망·CNN·전이학습까지 — 전부 실제로 동작하는 코드로 만들어 봅니다. 자, 1장 첫걸음부터 시작할까요?",
-  "more": "<b>실행 가능</b>을 약속합니다: 모든 코드는 표준 라이브러리·공개 데이터셋만 쓰며, Google Colab(무료 GPU)이나 주피터 노트북에서 실제로 실행됩니다. 화면의 결과(배열 값·정확도·손실 곡선 등)는 그 코드가 실제로 내놓는 값을 시각화한 것입니다(골든룰). 읽고 이해한 뒤 직접 실행해 보면, ‘보는 학습’이 ‘하는 학습’이 됩니다.",
+  "more": "<b>실행 가능</b>을 약속합니다: 모든 코드는 표준 라이브러리·공개 데이터셋만 쓰며, Google Colab(무료 GPU)이나 주피터 노트북에서 실제로 실행됩니다. 화면의 결과(배열 값·정확도·손실 곡선 등)는 그 코드가 실제로 내놓는 값을 그대로 시각화한 것입니다. 읽고 이해한 뒤 직접 실행해 보면, ‘보는 학습’이 ‘하는 학습’이 됩니다.",
   "more_en": "Four blocks: Python basics (1–5), AI libraries NumPy/pandas/Matplotlib (6–9), machine learning with scikit-learn on real datasets (10–12), and deep learning with PyTorch — tensors, autograd, MNIST nets, CNNs, transfer learning (13–16). Every code snippet is copy-paste runnable in Colab/Jupyter with public datasets."
  }
 }

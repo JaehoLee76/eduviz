@@ -32,7 +32,7 @@
   "sec": "1.4 모델·파라미터·손실",
   "title": "모델 = 파라미터, 학습 = 손실 최소화",
   "narr": "가장 단순한 모델, 직선 <b>ŷ = w·x + b</b>를 봅시다. 이 모델이 가진 ‘지식’은 단 두 숫자 — 기울기 <b>w</b>와 절편 <b>b</b>(=<b>파라미터</b>) — 에 전부 들어 있습니다. 예측이 얼마나 틀렸는지는 점들과 직선의 세로 거리(잔차)를 제곱해 평균한 <b>손실(MSE)</b> 하나로 잽니다. <b>학습</b>이란 결국 이 손실을 가장 작게 만드는 w·b를 찾는 일이죠. 슬라이더로 w·b를 직접 움직여 손실을 최소(초록 점선=최적)로 만들어 보세요. 신경망은 똑같은 일을 파라미터 두 개가 아니라 <b>수십억 개</b>로 할 뿐입니다.",
-  "more": "<b>손실함수</b>: 회귀에서는 평균제곱오차 MSE = (1/N)Σ(ŷ−y)²를 많이 씁니다. 손으로 w·b를 맞추는 건 두 개라 가능하지만, 파라미터가 많아지면 불가능 — 그래서 <b>경사하강</b>이 손실의 기울기를 따라 자동으로 최적값을 찾습니다(인트로에서 본 그 원리). 화면의 손실·최적 직선은 모두 실제로 계산한 값입니다(최소제곱 해 = 정답, 경사하강이 도달하는 곳).",
+  "more": "<b>손실함수</b>: 회귀에서는 평균제곱오차 MSE = (1/N)Σ(ŷ−y)²를 많이 씁니다. 손으로 w·b를 맞추는 건 두 개라 가능하지만, 파라미터가 많아지면 불가능 — 그래서 <b>경사하강</b>이 손실의 기울기를 따라 자동으로 최적값을 찾습니다(인트로에서 본 그 원리). 화면의 손실·최적 직선은 최소제곱 해(정답)와 경사하강이 도달하는 지점을 각각 보여줍니다.",
   "more_en": "A model's knowledge lives in its parameters. For the line ŷ = w·x + b, that's just w and b. Loss (MSE) measures total error; learning means finding parameters that minimize it. You can tune two by hand, but networks have billions — so gradient descent does it automatically."
  },
  "ai1_05": {
@@ -40,7 +40,7 @@
   "sec": "1.5 과적합과 일반화",
   "title": "과적합 vs 일반화",
   "narr": "모델을 복잡하게 만들수록 좋을까요? 다항식의 <b>차수</b>를 올려 보세요. 차수가 높을수록 곡선이 구불구불 휘어 <b>훈련 데이터를 점점 완벽히 통과</b>합니다(훈련오차 → 0). 그런데 한 번도 못 본 <b>검증 데이터</b>에서는 오히려 오차가 다시 치솟습니다 — 데이터에 섞인 <b>잡음까지 외워</b> 버린 탓이죠. 이것이 <b>과적합</b>입니다. 반대로 차수가 너무 낮으면 본질도 못 잡는 <b>과소적합</b>. 좋은 모델은 외우지 않고 <b>일반화</b>합니다. 훈련오차는 계속 줄어도 검증오차가 다시 올라가는 ‘딱 그 지점’이 최적 복잡도입니다.",
-  "more": "<b>편향-분산 트레이드오프</b>: 너무 단순한 모델은 <b>편향(bias)</b>이 커서 과소적합, 너무 복잡한 모델은 <b>분산(variance)</b>이 커서 과적합합니다. 둘의 합을 최소로 하는 중간 복잡도가 최적이죠. 과적합을 막는 법: 데이터 늘리기, <b>정규화</b>(가중치에 벌점), 드롭아웃, 조기종료, 교차검증. 화면의 훈련/검증 오차는 매 차수마다 실제 최소제곱 적합으로 계산한 값입니다. 편향-분산·과적합·정규화는 모든 AI 자격시험의 핵심 주제입니다.",
+  "more": "<b>편향-분산 트레이드오프</b>: 너무 단순한 모델은 <b>편향(bias)</b>이 커서 과소적합, 너무 복잡한 모델은 <b>분산(variance)</b>이 커서 과적합합니다. 둘의 합을 최소로 하는 중간 복잡도가 최적이죠. 과적합을 막는 법: 데이터 늘리기, <b>정규화</b>(가중치에 벌점), 드롭아웃, 조기종료, 교차검증. 편향-분산·과적합·정규화는 모든 AI 자격시험의 핵심 주제입니다.",
   "more_en": "More complex isn't always better. Raising the polynomial degree fits training points perfectly (train error → 0) but validation error climbs back up — the model memorized noise. That's overfitting. Too simple is underfitting. The bias–variance tradeoff: minimize their sum. Cures: more data, regularization, dropout, early stopping, cross-validation.",
   "problem": {
    "q": "훈련오차는 매우 낮은데 검증오차가 훨씬 높다면, 이 모델의 상태는?",

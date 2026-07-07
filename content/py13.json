@@ -11,7 +11,7 @@
   "ch": "파이썬 제13장 · 딥러닝",
   "sec": "13.2 텐서 연산 — NumPy 그대로",
   "title": "+ · * · @(행렬곱) · reshape",
-  "narr": "텐서를 만들었으니 <b>계산</b>해 봅시다 — 그리고 좋은 소식은, <b>NumPy에서 배운 그대로</b>라는 겁니다. <code>a + b</code>는 같은 위치끼리 더하고, <code>a * b</code>는 같은 위치끼리 곱합니다(원소별, Hadamard 곱). 그런데 <b>딥러닝의 심장</b>은 <code>@</code> — <b>행렬곱</b>입니다. <code>A @ B</code>는 A의 행과 B의 열을 내적해 새 행렬을 만드는데, <b>신경망의 한 층</b>이 하는 일이 바로 이거예요(입력 × 가중치). <code>reshape</code>는 데이터 6개는 그대로 둔 채 모양만 (2,3)→(3,2)로 바꿉니다. 슬라이더로 네 연산을 골라 보세요 — <b>오른쪽 결과 격자는 전부 실제로 계산한 값</b>입니다.",
+  "narr": "텐서를 만들었으니 <b>계산</b>해 봅시다 — 그리고 좋은 소식은, <b>NumPy에서 배운 그대로</b>라는 겁니다. <code>a + b</code>는 같은 위치끼리 더하고, <code>a * b</code>는 같은 위치끼리 곱합니다(원소별, Hadamard 곱). 그런데 <b>딥러닝의 심장</b>은 <code>@</code> — <b>행렬곱</b>입니다. <code>A @ B</code>는 A의 행과 B의 열을 내적해 새 행렬을 만드는데, <b>신경망의 한 층</b>이 하는 일이 바로 이거예요(입력 × 가중치). <code>reshape</code>는 데이터 6개는 그대로 둔 채 모양만 (2,3)→(3,2)로 바꿉니다. 슬라이더로 네 연산을 골라 보세요 — 오른쪽 결과 격자에서 바로 확인할 수 있습니다.",
   "more": "<b>* 와 @ 를 헷갈리지 마세요</b>: 이건 입문자가 가장 자주 틀리는 지점입니다. <code>*</code>는 원소별 곱(모양이 같아야 함), <code>@</code>는 행렬곱(앞 행렬의 열 수 = 뒤 행렬의 행 수). 신경망 한 층 = <code>출력 = 입력 @ 가중치 + 편향</code> 이라 <code>@</code>가 핵심입니다.\n\n<b>브로드캐스팅</b>: 모양이 다른 텐서도 PyTorch가 자동으로 늘려 맞춰 계산합니다(예: 행렬 + 벡터). NumPy의 브로드캐스팅 규칙을 그대로 따르므로, NumPy를 알면 추가로 배울 게 없습니다.",
   "more_en": "Tensor ops mirror NumPy: + and * are element-wise, @ is matrix multiplication. A neural network layer is just input @ weights + bias, so @ is the workhorse of deep learning. reshape changes the shape while keeping the same underlying data. Don't confuse * (element-wise) with @ (matmul)."
  },

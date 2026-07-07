@@ -163,7 +163,7 @@
       // 패널
       var px=W*0.06, py=H*0.74;
       ctx.textAlign='left'; ctx.fillStyle=PYL; ctx.font='600 16px sans-serif';
-      ctx.fillText('학습된 계수 (실측 최소제곱):', px, py);
+      ctx.fillText('학습된 계수 (최소제곱):', px, py);
       ctx.fillStyle=GLD; ctx.font='600 17px ui-monospace,Menlo,monospace';
       ctx.fillText('w = '+w.toFixed(3)+'    b = '+b.toFixed(3), px, py+26);
       ctx.fillStyle=(s.t>=0.99?GRN:CYAorDim(s.t)); ctx.font='600 15px sans-serif';
@@ -172,7 +172,7 @@
       ctx.fillText('fit()은 분홍 잔차(세로 오차)의 제곱합을 최소로 만드는 직선을 찾습니다.', px, py+76);
 
       E.tapHint(W/2, H*0.95, '슬라이더로 fit 진행 — 직선이 데이터에 들어맞고 MSE가 최소로', true);
-      E.big('선형회귀 학습 — fit()이 하는 일', 'fit(X, y)을 호출하면 sklearn은 점들과 직선의 세로 거리(잔차, 분홍선)를 제곱해 모두 더한 값이 가장 작아지는 기울기 w와 절편 b를 찾습니다. 이게 ‘최소제곱법’이죠. 학습이 끝나면 그 두 숫자가 model.coef_와 model.intercept_에 들어 있습니다 — 화면의 w·b·MSE는 전부 실제로 계산한 값입니다.'); }
+      E.big('선형회귀 학습 — fit()이 하는 일', 'fit(X, y)을 호출하면 sklearn은 점들과 직선의 세로 거리(잔차, 분홍선)를 제곱해 모두 더한 값이 가장 작아지는 기울기 w와 절편 b를 찾습니다. 이게 ‘최소제곱법’이죠. 학습이 끝나면 그 두 숫자가 model.coef_와 model.intercept_에 들어 있습니다.'); }
   },
 
   // ══════════ 3. 평가 R²·MSE — 결정계수와 좋은 적합 판정 ══════════
@@ -231,7 +231,7 @@
       ctx.fillText('R²는 ‘모델이 y의 변동 중 몇 %를 설명하나’ — 1에 가까울수록 좋습니다.', px, py+50);
 
       E.tapHint(W/2, H*0.95, '슬라이더로 흩어짐을 키워 보세요 — R²↓ MSE↑ (적합이 나빠짐)', true);
-      E.big('평가 — R²와 MSE', 'fit만 하고 끝이 아닙니다. score(X,y)는 결정계수 R²를 돌려주는데, R² = 1 − (잔차제곱합)/(평균선 기준 제곱합)이에요. 1이면 완벽, 0이면 그냥 평균을 찍는 것과 같고, 음수면 평균보다도 못합니다. MSE는 오차의 평균 크기죠. 데이터가 흩어질수록 같은 모델이라도 R²가 내려가는 걸 직접 보세요 — 두 수치 모두 실제로 계산해 보여 줍니다.'); }
+      E.big('평가 — R²와 MSE', 'fit만 하고 끝이 아닙니다. score(X,y)는 결정계수 R²를 돌려주는데, R² = 1 − (잔차제곱합)/(평균선 기준 제곱합)이에요. 1이면 완벽, 0이면 그냥 평균을 찍는 것과 같고, 음수면 평균보다도 못합니다. MSE는 오차의 평균 크기죠. 데이터가 흩어질수록 같은 모델이라도 R²가 내려가는 걸 직접 보세요.'); }
   },
 
   // ══════════ 4. 다중 특징·과적합 — 다항회귀 차수↑ 훈련↓검증↑ ══════════

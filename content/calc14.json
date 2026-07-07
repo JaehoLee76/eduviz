@@ -36,7 +36,7 @@
   "sec": "14.5 삼중적분",
   "title": "공간을 채우는 적분 — 삼중적분",
   "narr": "차원을 하나 더 올리면 <b>삼중적분 ∭dV</b> — 3차원 입체를 채웁니다. 구의 부피를 구해 볼까요? 빵을 썰듯 구를 <b>얇은 원판 층</b>으로 쪼개고, 각 층의 부피(πr²·두께)를 더하면 됩니다. 높이 z에서의 단면 반지름은 √(R²−z²)죠. 슬라이더로 층을 촘촘히 해 보세요 — 합이 그 유명한 <b>(4/3)πR³</b>으로 수렴합니다. 질량·전하·확률이 공간에 퍼져 있을 때, 그 총량을 구하는 것이 모두 삼중적분입니다.",
-  "more": "<b>∭dV로 부피·질량</b>: ∭1 dV는 부피, ∭ρ dV는 질량입니다. 직교(dx dy dz)·원기둥(r dr dθ dz)·구면(ρ²sinφ dρ dφ dθ) 좌표 중 입체에 맞는 것을 고릅니다. 구는 원판 적층 ∫πr(z)²dz = ∫π(R²−z²)dz = (4/3)πR³. 화면의 부피는 원판 층의 합으로 실제 계산한 값입니다.",
+  "more": "<b>∭dV로 부피·질량</b>: ∭1 dV는 부피, ∭ρ dV는 질량입니다. 직교(dx dy dz)·원기둥(r dr dθ dz)·구면(ρ²sinφ dρ dφ dθ) 좌표 중 입체에 맞는 것을 고릅니다. 구는 원판 적층 ∫πr(z)²dz = ∫π(R²−z²)dz = (4/3)πR³. 화면의 부피는 얇은 원판 층을 차곡차곡 더해 얻습니다.",
   "more_en": "A triple integral ∭dV fills a 3D solid. A sphere's volume comes from stacking thin disks of radius √(R²−z²): ∫π(R²−z²)dz = (4/3)πR³. Mass, charge, and probability spread through space are triple integrals."
  }
 }

@@ -3,7 +3,7 @@
   "ch": "인공지능 제10장 · 임베딩과 어텐션",
   "sec": "10.1 워드 임베딩",
   "title": "워드 임베딩 — 단어를 벡터로",
-  "narr": "컴퓨터는 ‘사과’라는 글자를 직접 이해하지 못합니다. 숫자만 다룰 줄 알죠. 그래서 단어를 <b>숫자 벡터</b>로 바꿉니다 — 이것이 <b>워드 임베딩</b>입니다. 그냥 아무 번호나 붙이면 안 됩니다. 비결은 <b>의미가 비슷한 단어를 가까운 곳에 두는 것</b>이에요. 그러면 ‘왕’과 ‘여왕’, ‘사과’와 ‘바나나’, ‘자동차’와 ‘버스’가 각각 끼리끼리 무리를 짓습니다. 이제 ‘가깝다’는 기하학적 거리가 곧 ‘뜻이 닮았다’가 되죠. 슬라이더로 단어를 골라, 가장 가까운 이웃이 누구인지 보세요 — 화면의 이웃과 유사도는 실제 좌표로 계산한 값입니다.",
+  "narr": "컴퓨터는 ‘사과’라는 글자를 직접 이해하지 못합니다. 숫자만 다룰 줄 알죠. 그래서 단어를 <b>숫자 벡터</b>로 바꿉니다 — 이것이 <b>워드 임베딩</b>입니다. 그냥 아무 번호나 붙이면 안 됩니다. 비결은 <b>의미가 비슷한 단어를 가까운 곳에 두는 것</b>이에요. 그러면 ‘왕’과 ‘여왕’, ‘사과’와 ‘바나나’, ‘자동차’와 ‘버스’가 각각 끼리끼리 무리를 짓습니다. 이제 ‘가깝다’는 기하학적 거리가 곧 ‘뜻이 닮았다’가 되죠. 슬라이더로 단어를 골라, 가장 가까운 이웃이 누구인지 보세요 — 화면의 이웃과 유사도는 좌표로 계산한 값입니다.",
   "more": "<b>어떻게 그런 좌표가 생길까</b>: 사람이 일일이 정해 주는 게 아닙니다. ‘비슷한 문맥에 나오는 단어는 비슷한 뜻’이라는 가정(분포 가설) 아래, 방대한 텍스트에서 <b>다음/주변 단어를 맞히도록 학습</b>하면 의미가 비슷한 단어가 저절로 가까워집니다(word2vec·GloVe). 실제 임베딩은 2D가 아니라 수백 차원이지만, 원리는 똑같습니다 — <b>의미를 공간 속 위치로 바꾸는 것</b>. 이 ‘단어→벡터’가 모든 언어모델의 첫 관문입니다.",
   "more_en": "Computers only handle numbers, so each word is turned into a vector — an embedding. The trick: place words with similar meaning close together, so geometric distance encodes semantic similarity. Real embeddings have hundreds of dimensions, learned by predicting nearby words (word2vec, GloVe)."
  },
@@ -11,7 +11,7 @@
   "ch": "인공지능 제10장 · 임베딩과 어텐션",
   "sec": "10.2 코사인 유사도",
   "title": "코사인 유사도 — 방향이 닮은 정도",
-  "narr": "두 단어가 ‘얼마나 비슷한가’는 어떻게 잴까요? 벡터 사이의 <b>각도</b>로 잽니다. 길이는 무시하고 <b>방향</b>만 보는 거예요 — 방향이 같으면 cos θ=1, 직각이면 0, 정반대면 −1. 이것이 <b>코사인 유사도</b> <b>cos θ = (A·B)/(|A||B|)</b>입니다. 슬라이더로 단어 B의 방향을 돌려 보세요. 두 벡터가 가까워질수록(사이각 θ↓) cos θ가 1에 가까워지고, 직각에 가까워지면 0으로 떨어집니다. 화면의 cos θ·각도·내적은 전부 실제로 계산한 값입니다.",
+  "narr": "두 단어가 ‘얼마나 비슷한가’는 어떻게 잴까요? 벡터 사이의 <b>각도</b>로 잽니다. 길이는 무시하고 <b>방향</b>만 보는 거예요 — 방향이 같으면 cos θ=1, 직각이면 0, 정반대면 −1. 이것이 <b>코사인 유사도</b> <b>cos θ = (A·B)/(|A||B|)</b>입니다. 슬라이더로 단어 B의 방향을 돌려 보세요. 두 벡터가 가까워질수록(사이각 θ↓) cos θ가 1에 가까워지고, 직각에 가까워지면 0으로 떨어집니다. 화면의 cos θ·각도·내적은 전부 계산한 값입니다.",
   "more": "<b>왜 거리가 아니라 각도인가</b>: 단어 벡터는 ‘많이 등장하는 단어’가 길어지는 등 크기가 들쭉날쭉합니다. 길이에 휘둘리면 ‘자주 나오는 단어끼리 비슷해’ 같은 착시가 생기죠. <b>방향(각도)</b>만 보면 ‘뜻의 방향’만 비교돼 더 안정적입니다. 그래서 검색·추천·문서 비교에서 코사인 유사도가 표준으로 쓰입니다. 그리고 다음에 배울 <b>어텐션</b>도 바로 이 ‘내적으로 닮음 재기’ 위에 서 있습니다 — 내적 A·B = |A||B|cos θ.",
   "more_en": "Similarity between two word vectors is measured by the angle between them — direction, not length. cos θ = (A·B)/(|A||B|): 1 when aligned, 0 at right angles, −1 when opposite. Cosine similarity ignores magnitude (frequent words get long vectors), so it compares meaning robustly — the standard in search and recommendation."
  },
@@ -19,7 +19,7 @@
   "ch": "인공지능 제10장 · 임베딩과 어텐션",
   "sec": "10.3 벡터 산술",
   "title": "벡터 산술 — 의미가 계산이 된다",
-  "narr": "임베딩의 가장 놀라운 성질을 보여 드리죠. 단어 벡터끼리 <b>덧셈·뺄셈</b>을 하면 <b>의미가 계산</b>됩니다. ‘왕(king)’ 벡터에서 ‘남자(man)’를 빼고 ‘여자(woman)’를 더해 보세요. 결과는 — 놀랍게도 ‘여왕(queen)’ 근처에 떨어집니다! 즉 <b>king − man + woman ≈ queen</b>. ‘왕다움’은 그대로 두고 ‘성별’ 방향만 남자→여자로 바꾼 셈이죠. 화면을 탭하며 한 단계씩(king → −man → +woman → 결과) 따라가 보세요. 결과 좌표와 가장 가까운 단어는 실제 벡터 덧뺄셈과 코사인 유사도로 찾은 값입니다.",
+  "narr": "임베딩의 가장 놀라운 성질을 보여 드리죠. 단어 벡터끼리 <b>덧셈·뺄셈</b>을 하면 <b>의미가 계산</b>됩니다. ‘왕(king)’ 벡터에서 ‘남자(man)’를 빼고 ‘여자(woman)’를 더해 보세요. 결과는 — 놀랍게도 ‘여왕(queen)’ 근처에 떨어집니다! 즉 <b>king − man + woman ≈ queen</b>. ‘왕다움’은 그대로 두고 ‘성별’ 방향만 남자→여자로 바꾼 셈이죠. 화면을 탭하며 한 단계씩(king → −man → +woman → 결과) 따라가 보세요. 결과 좌표와 가장 가까운 단어는 벡터 덧뺄셈과 코사인 유사도로 찾은 값입니다.",
   "more": "<b>의미의 ‘방향’이 일정하다</b>: 임베딩 공간에서는 ‘남성→여성’, ‘단수→복수’, ‘수도→나라’ 같은 관계가 <b>일정한 벡터 방향</b>으로 나타납니다. 그래서 king−man+woman≈queen, Paris−France+Italy≈Rome 같은 ‘유추(analogy)’가 덧뺄셈만으로 풀리죠. 이는 임베딩이 단어를 통째로 외운 게 아니라 <b>의미의 축(성별·수·시제…)을 분리해 표현</b>하고 있다는 증거입니다. 단어가 ‘공간 속 위치’가 되니, 의미를 ‘기하학’으로 다룰 수 있게 된 것입니다.",
   "more_en": "Word embeddings support arithmetic: king − man + woman ≈ queen. Semantic relations (male→female, singular→plural, capital→country) appear as consistent vector directions, so analogies are solved by addition/subtraction. This shows embeddings disentangle meaning into axes rather than memorizing words whole.",
   "problem": {
@@ -31,7 +31,7 @@
   "ch": "인공지능 제10장 · 임베딩과 어텐션",
   "sec": "10.4 어텐션 입문",
   "title": "어텐션 입문 — 정보 병목을 푸는 길",
-  "narr": "기계 번역을 떠올려 봅시다. RNN은 입력 문장 전체를 <b>맥락벡터 하나</b>에 욱여넣어 디코더에 넘겼습니다. 그런데 문장이 길어지면 그 한 벡터에 정보가 뭉개져 앞 단어가 잊혀집니다 — <b>정보 병목</b>이죠. <b>어텐션</b>은 발상을 뒤집습니다: 출력할 때마다 입력의 <b>모든 단어를 직접 보고</b>, 지금 관점(쿼리)과 닮은 단어에 더 ‘주목’합니다. 슬라이더로 RNN(병목)과 어텐션을 비교해 보세요. 주목도는 쿼리와 각 단어 벡터의 <b>내적을 Softmax</b>한 실제 계산값입니다 — 바로 앞에서 배운 코사인·내적이 여기서 다시 쓰입니다.",
+  "narr": "기계 번역을 떠올려 봅시다. RNN은 입력 문장 전체를 <b>맥락벡터 하나</b>에 욱여넣어 디코더에 넘겼습니다. 그런데 문장이 길어지면 그 한 벡터에 정보가 뭉개져 앞 단어가 잊혀집니다 — <b>정보 병목</b>이죠. <b>어텐션</b>은 발상을 뒤집습니다: 출력할 때마다 입력의 <b>모든 단어를 직접 보고</b>, 지금 관점(쿼리)과 닮은 단어에 더 ‘주목’합니다. 슬라이더로 RNN(병목)과 어텐션을 비교해 보세요. 주목도는 쿼리와 각 단어 벡터의 <b>내적을 Softmax</b>한 값입니다 — 바로 앞에서 배운 코사인·내적이 여기서 다시 쓰입니다.",
   "more": "<b>왜 어텐션이 혁명이었나</b>: ①긴 문장에서도 멀리 있는 단어를 ‘직접’ 볼 수 있어 정보 손실이 줄고, ②시점마다 다른 곳에 주목하니 ‘instructor를 만들 땐 강사에 집중’ 같은 맥락 선택이 가능해졌습니다. 주목도 = Softmax(쿼리·키 내적)이고, 맥락벡터 = Σ(주목도 × 단어벡터) — 닮은 단어일수록 크게 섞입니다. 이 단순한 ‘내적으로 닮음 재고, Softmax로 분포 만들고, 가중합’ 세 박자가 다음 장 Transformer의 심장입니다. (다음 장 제11장에서 Q·K·V로 정식화)",
   "more_en": "RNNs crammed the whole sentence into one context vector — a bottleneck that loses early words in long inputs. Attention instead looks at every input word directly each output step, focusing more on words similar to the current query. Focus weights = Softmax(query·key dot products); context = Σ(weight × word). This reuses the dot-product similarity from cosine."
  },

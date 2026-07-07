@@ -18,7 +18,7 @@
       var num=ndf(p,a), form=ndf(f,a)*g(a)+f(a)*ndf(g,a);   // 실측 vs 곱법칙
       P.dot(a,p(a),GRN,"(fg)′(a) ≈ "+num.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText("f′g+fg′ = "+form.toFixed(3)+"  =  실측 "+num.toFixed(3), E.W*0.52, E.H*0.18);
+      ctx.fillText("f′g+fg′ = "+form.toFixed(3)+"  ≈  "+num.toFixed(3), E.W*0.52, E.H*0.18);
       E.big("(x·sin x)′ = sin x + x·cos x", '곱의 미분 = (앞 미분)×뒤 + 앞×(뒤 미분)'); }
   },
 
@@ -33,7 +33,7 @@
       var num=ndf(q,a), form=(ndf(f,a)*g(a)-f(a)*ndf(g,a))/(g(a)*g(a));
       P.dot(a,q(a),GRN,"(f/g)′(a) ≈ "+num.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText("(f′g−fg′)/g² = "+form.toFixed(3)+"  =  실측 "+num.toFixed(3), E.W*0.50, E.H*0.18);
+      ctx.fillText("(f′g−fg′)/g² = "+form.toFixed(3)+"  ≈  "+num.toFixed(3), E.W*0.50, E.H*0.18);
       E.big("(x / (x²+1))′ = (1 − x²)/(x²+1)²", '몫의 미분 = (위미분×아래 − 위×아래미분) ÷ 아래²'); }
   },
 
@@ -52,7 +52,7 @@
       ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("기울기 = h′(a) ≈ "+num.toFixed(2), P.X(a)+10, P.Y(fa)-10);
       P.dot(a,fa,GRN,"h(a) ≈ "+fa.toFixed(2));
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText("cos(x²)·2x = "+form.toFixed(3)+"  =  실측 "+num.toFixed(3), E.W*0.50, E.H*0.18);
+      ctx.fillText("cos(x²)·2x = "+form.toFixed(3)+"  ≈  "+num.toFixed(3), E.W*0.50, E.H*0.18);
       E.big("(sin x²)′ = cos x² · 2x", '연쇄법칙: 겉함수 미분 × 속함수 미분 (양파 까듯)'); }
   },
 

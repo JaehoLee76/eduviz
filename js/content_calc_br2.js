@@ -48,7 +48,7 @@
       ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = aˣ (a='+a.toFixed(1)+')', P.X(1.3),P.Y(f(1.55)));
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(x0-1.2),P.Y(y+m*(-1.2))); ctx.lineTo(P.X(x0+1.2),P.Y(y+m*1.2)); ctx.stroke(); P.dot(x0,y,GRN);
       ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('접선 기울기 = aˣln a = '+m.toFixed(3), P.X(x0+0.15),P.Y(y)+18);
-      E.big('(aˣ)′ = aˣ·ln a   ·   기울기 = '+m.toFixed(3), 'eˣ만 (eˣ)′=eˣ로 깔끔한 건 ln e=1이기 때문 — 다른 밑은 ln a 배가 붙습니다 (실측 '+num.toFixed(3)+')'); }
+      E.big('(aˣ)′ = aˣ·ln a   ·   기울기 = '+m.toFixed(3), 'eˣ만 (eˣ)′=eˣ로 깔끔한 건 ln e=1이기 때문 — 다른 밑은 ln a 배가 붙습니다 ('+num.toFixed(3)+')'); }
   },
 
   // ── ch4 역함수의 미분 (branchOf calc4_02) ──  (f⁻¹)′ = 1/f′

@@ -18,7 +18,7 @@
   "sec": "0.2 17장의 여정",
   "title": "C++ — 17장의 여정",
   "narr": "이 트랙은 네 묶음 + 특별장으로 흐릅니다. <b>기초·문법(1~4장)</b>에서 입출력·함수 오버로딩·참조자·동적할당(new/delete)·클래스·생성자/소멸자로 C++의 뼈대를 세웁니다. <b>객체지향(5~9장)</b>에서 복사 생성자, static·const·friend, 상속, <b>다형성·가상함수</b>, 연산자 오버로딩으로 객체지향을 완성하죠. <b>템플릿·STL(10~12장)</b>에서 템플릿과 <b>STL 컨테이너(vector·map·set)·알고리즘(sort·find)·람다</b>로 재사용의 힘을 얻고, 마지막 <b>안전·모던·알고리즘(13~16장)</b>에서 예외처리, <b>스마트 포인터·RAII</b>, 모던 C++(auto·범위기반 for·이동 시맨틱), 그리고 <b>정렬·탐색·그래프·DP 같은 주요 알고리즘을 실제 C++ 코드로 구현</b>합니다. 끝으로 <b>17장 재귀(Recursion) 특별장</b>에서 콜 스택·메모리가 실제로 어떻게 쌓이고 풀리는지 눈으로 보고, 재귀로 푸는 알고리즘 5문제(팩토리얼·피보나치·하노이·순열·병합정렬)를 심화학습으로 완전히 마스터합니다. 자, 1장 첫걸음부터 시작할까요?",
-  "more": "<b>실전 코드</b>를 약속합니다: 이 트랙의 코드는 표준 C++(C++11/17)로 작성되어, g++/clang이나 온라인 컴파일러에 그대로 붙여 넣으면 컴파일·실행됩니다. 화면의 결과(정렬된 배열·출력값·자료구조 상태 등)는 그 코드가 실제로 내놓는 값을 시각화한 것입니다(골든룰). 탄탄한 기본기부터 실무의 모범 사례, 그리고 검증된 알고리즘 구현까지 한 흐름으로 직접 엮었습니다.",
+  "more": "<b>실전 코드</b>를 약속합니다: 이 트랙의 코드는 표준 C++(C++11/17)로 작성되어, g++/clang이나 온라인 컴파일러에 그대로 붙여 넣으면 컴파일·실행됩니다. 화면의 결과(정렬된 배열·출력값·자료구조 상태 등)는 그 코드가 실제로 내놓는 값을 그대로 시각화한 것입니다. 탄탄한 기본기부터 실무의 모범 사례, 그리고 검증된 알고리즘 구현까지 한 흐름으로 직접 엮었습니다.",
   "more_en": "Four blocks: fundamentals & syntax (1–4), object orientation — classes, inheritance, polymorphism, operator overloading (5–9), templates & STL — containers, algorithms, lambdas (10–12), and safety/modern/algorithms — exceptions, smart pointers/RAII, modern C++, and implementing major algorithms (sorting, search, graphs, DP) in real C++ (13–16)."
  }
 }

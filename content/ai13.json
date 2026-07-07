@@ -11,7 +11,7 @@
   "ch": "인공지능 제13장 · 정렬과 프롬프트",
   "sec": "13.2 RLHF — 사람 선호로 정렬",
   "title": "RLHF — 사람의 선호로 정렬한다",
-  "narr": "“좋은 답”이란 뭘까요? 도움이 되고, 정직하고, 안전하고… 이런 미묘한 기준은 모범 응답 몇 개로 다 가르치기 어렵습니다. 그런데 사람은 두 답을 나란히 놓고 “이게 저것보다 낫다(<b>A&gt;B</b>)”라고 <b>비교</b>는 잘합니다. <b>RLHF</b>(사람 피드백 강화학습)는 이 직관을 영리하게 씁니다. ①먼저 모범 응답으로 기본기를 잡고(SFT), ②사람이 매긴 수많은 ‘A가 B보다 낫다’ 비교로 “답에 점수를 매기는 법”을 배운 <b>보상모델</b>을 만들고, ③그 보상모델의 점수가 높아지도록 모델을 <b>강화학습</b>으로 다듬습니다. 화면을 탭하며 세 단계를 따라가 보세요 — 보상 점수는 도움됨·정직함·안전함·간결함 같은 특징의 가중합으로 실제 계산한 값입니다.",
+  "narr": "“좋은 답”이란 뭘까요? 도움이 되고, 정직하고, 안전하고… 이런 미묘한 기준은 모범 응답 몇 개로 다 가르치기 어렵습니다. 그런데 사람은 두 답을 나란히 놓고 “이게 저것보다 낫다(<b>A&gt;B</b>)”라고 <b>비교</b>는 잘합니다. <b>RLHF</b>(사람 피드백 강화학습)는 이 직관을 영리하게 씁니다. ①먼저 모범 응답으로 기본기를 잡고(SFT), ②사람이 매긴 수많은 ‘A가 B보다 낫다’ 비교로 “답에 점수를 매기는 법”을 배운 <b>보상모델</b>을 만들고, ③그 보상모델의 점수가 높아지도록 모델을 <b>강화학습</b>으로 다듬습니다. 화면을 탭하며 세 단계를 따라가 보세요 — 보상 점수는 도움됨·정직함·안전함·간결함 같은 특징의 가중합으로 정해집니다.",
   "more": "<b>보상모델과 Bradley-Terry</b>: 사람은 절대 점수 대신 ‘둘 중 뭐가 나은가’만 고릅니다. 보상모델은 이 쌍별 선호를 P(A≻B)=σ(r_A−r_B) 형태로 학습해, 결국 모든 답에 연속 점수 r을 매기는 법을 익힙니다(화면의 σ 확률이 그것).\n\n<b>3단계 파이프라인 + KL 제어</b>: SFT → 보상모델 → PPO(근접정책최적화) 강화학습. 보상만 좇으면 모델이 보상모델을 ‘속이는’ 이상한 답으로 폭주할 수 있어, 원본(SFT) 모델에서 너무 멀어지지 않도록 <b>KL 페널티</b>로 묶어 둡니다. 최근에는 보상모델 없이 선호쌍으로 바로 최적화하는 <b>DPO</b>도 널리 쓰입니다. ‘정렬(alignment)·RLHF·보상모델’은 LLM 자격시험의 핵심 주제입니다.",
   "more_en": "RLHF aligns a model with human preferences in three stages: (1) SFT on demonstrations, (2) train a reward model from human A>B comparisons — P(A≻B)=σ(r_A−r_B), Bradley-Terry — so it scores any response, (3) reinforcement learning (PPO) to maximize that reward, with a KL penalty keeping the policy near the SFT model. DPO is a popular reward-model-free alternative. The reward shown is a real weighted sum of features."
  },

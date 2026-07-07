@@ -20,7 +20,7 @@
       ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle=VIO; ctx.fillText('y = 2x·cos(x²)', P.X(0.15), P.Y(2.6));
       ctx.fillStyle=DIM; ctx.fillText('부호넓이 ∫₀ᵇ f dx ≈ '+area.toFixed(3), P.X(0.15), P.Y(2.2));
-      E.big('∫₀ᵇ 2x·cos(x²) dx = sin(b²) = '+formula.toFixed(3), '실측 넓이 '+area.toFixed(3)+' — u=x² 치환으로 ∫cos u du 가 됩니다'); }
+      E.big('∫₀ᵇ 2x·cos(x²) dx = sin(b²) = '+formula.toFixed(3), '넓이 '+area.toFixed(3)+' — u=x² 치환으로 ∫cos u du 가 됩니다'); }
   },
 
   // 8.2 부분적분  ∫x·eˣ dx = (x−1)eˣ
@@ -36,7 +36,7 @@
       ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle=VIO; ctx.fillText('y = x·eˣ', P.X(b*0.55), P.Y(f(b*0.55))-8);
       ctx.fillStyle=DIM; ctx.fillText('넓이 ∫₀ᵇ f dx ≈ '+area.toFixed(3), P.X(0.15), P.Y(7.2));
-      E.big('∫₀ᵇ x·eˣ dx = [(x−1)eˣ] = '+formula.toFixed(3), '실측 '+area.toFixed(3)+' — u=x, dv=eˣdx: ∫u dv = uv − ∫v du'); }
+      E.big('∫₀ᵇ x·eˣ dx = [(x−1)eˣ] = '+formula.toFixed(3), '넓이 '+area.toFixed(3)+' — u=x, dv=eˣdx: ∫u dv = uv − ∫v du'); }
   },
 
   // 8.3 부분분수  1/((x−3)(x+1)) = ¼/(x−3) − ¼/(x+1)
@@ -74,7 +74,7 @@
       var conv = p>1;
       var limit = conv? 1/(p-1) : Infinity;
       E.big('∫₁^∞ x^(−'+p.toFixed(1)+') dx = '+(conv?limit.toFixed(3)+' (수렴)':'∞ (발산)'),
-        conv?'p>1: 꼬리가 충분히 빨리 0으로 가 넓이가 유한합니다 (x=1~2000 실측 누적 '+big.toFixed(2)+' → 더 멀리 갈수록 '+limit.toFixed(2)+'로 수렴)':'p≤1: 꼬리가 너무 두꺼워 넓이가 무한대로 커집니다'); }
+        conv?'p>1: 꼬리가 충분히 빨리 0으로 가 넓이가 유한합니다 (x=1~2000 누적 '+big.toFixed(2)+' → 더 멀리 갈수록 '+limit.toFixed(2)+'로 수렴)':'p≤1: 꼬리가 너무 두꺼워 넓이가 무한대로 커집니다'); }
   },
 
   // 8.5 수치적분 — 사다리꼴 vs 심슨  ∫₀^π sin x dx = 2

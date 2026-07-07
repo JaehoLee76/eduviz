@@ -11,7 +11,7 @@
   "ch": "파이썬 제10장 · 머신러닝",
   "sec": "10.2 선형회귀 학습",
   "title": "선형회귀 학습 — fit()이 하는 일",
-  "narr": "<b>model.fit(X, y)</b> 한 줄을 부르면 안에서 무슨 일이 벌어질까요? sklearn은 점들과 직선의 <b>세로 거리(잔차, 분홍선)</b>를 제곱해 모두 더한 값이 가장 작아지는 <b>기울기 w</b>와 <b>절편 b</b>를 찾습니다 — 바로 <b>최소제곱법</b>이죠(7장에서 본 정규방정식). 슬라이더로 ‘fit 진행’을 0에서 100%로 올려 보세요. 직선이 점점 데이터에 들어맞으며 손실 <b>MSE가 최소</b>로 떨어집니다. 학습이 끝나면 그 두 숫자가 <b>model.coef_</b>(기울기)와 <b>model.intercept_</b>(절편)에 담깁니다. 화면의 w·b·MSE는 모두 <b>실제로 계산한 값</b>입니다.",
+  "narr": "<b>model.fit(X, y)</b> 한 줄을 부르면 안에서 무슨 일이 벌어질까요? sklearn은 점들과 직선의 <b>세로 거리(잔차, 분홍선)</b>를 제곱해 모두 더한 값이 가장 작아지는 <b>기울기 w</b>와 <b>절편 b</b>를 찾습니다 — 바로 <b>최소제곱법</b>이죠(7장에서 본 정규방정식). 슬라이더로 ‘fit 진행’을 0에서 100%로 올려 보세요. 직선이 점점 데이터에 들어맞으며 손실 <b>MSE가 최소</b>로 떨어집니다. 학습이 끝나면 그 두 숫자가 <b>model.coef_</b>(기울기)와 <b>model.intercept_</b>(절편)에 담깁니다.",
   "more": "<b>특징은 2차원 배열</b>: sklearn은 X를 항상 <b>(샘플 수, 특징 수)</b> 모양의 2차원 배열로 받습니다. 특징이 하나뿐이어도 <b>X.reshape(-1, 1)</b>로 열 벡터로 만들어야 합니다 — 가장 흔한 초보 에러(‘Expected 2D array’)가 여기서 납니다.\n\n<b>coef_·intercept_</b>: 학습된 모델의 ‘지식’은 이 두 속성에 들어 있습니다. 특징이 여러 개면 coef_는 각 특징의 가중치 배열이 되죠. 이 값들이 곧 model이 데이터에서 배운 규칙입니다.",
   "more_en": "model.fit(X, y) finds the slope w and intercept b that minimize the sum of squared residuals (the vertical pink distances) — ordinary least squares. After fitting, those two numbers live in model.coef_ and model.intercept_. Note: sklearn always wants X as a 2D array of shape (n_samples, n_features); reshape(-1, 1) a single feature.",
   "problem": {
@@ -23,7 +23,7 @@
   "ch": "파이썬 제10장 · 머신러닝",
   "sec": "10.3 평가 — R²와 MSE",
   "title": "평가 — R²·MSE로 좋은 적합 판정",
-  "narr": "fit만 하고 끝이 아닙니다. 모델이 <b>얼마나 잘 맞췄나</b>를 재야죠. <b>model.score(X, y)</b>는 <b>결정계수 R²</b>를 돌려줍니다. R²는 <b>1 − (잔차제곱합 SS_res) / (평균선 기준 제곱합 SS_tot)</b>로, ‘모델이 y의 변동 중 몇 %를 설명하는가’예요. <b>R²=1</b>이면 완벽, <b>0</b>이면 그냥 평균(빨강 점선)을 찍는 것과 같고, <b>음수</b>면 평균보다도 못합니다. <b>MSE</b>는 오차의 평균 크기죠. 슬라이더로 데이터 흩어짐(잡음)을 키워 보세요 — 같은 모델이라도 점이 흩어질수록 R²가 내려가고 MSE가 올라갑니다. 두 수치 모두 <b>실제로 계산</b>해 보여 줍니다.",
+  "narr": "fit만 하고 끝이 아닙니다. 모델이 <b>얼마나 잘 맞췄나</b>를 재야죠. <b>model.score(X, y)</b>는 <b>결정계수 R²</b>를 돌려줍니다. R²는 <b>1 − (잔차제곱합 SS_res) / (평균선 기준 제곱합 SS_tot)</b>로, ‘모델이 y의 변동 중 몇 %를 설명하는가’예요. <b>R²=1</b>이면 완벽, <b>0</b>이면 그냥 평균(빨강 점선)을 찍는 것과 같고, <b>음수</b>면 평균보다도 못합니다. <b>MSE</b>는 오차의 평균 크기죠. 슬라이더로 데이터 흩어짐(잡음)을 키워 보세요 — 같은 모델이라도 점이 흩어질수록 R²가 내려가고 MSE가 올라갑니다.",
   "more": "<b>R² vs MSE</b>: MSE는 단위가 y²라 크기를 직관적으로 가늠하기 어렵지만, R²는 <b>0~1로 정규화</b>되어 모델끼리 비교하기 좋습니다. 그래서 sklearn 회귀의 기본 점수(score)가 R²죠. 단, R²는 특징을 늘리면 무조건 올라가는 함정이 있어 <b>조정된 R²(adjusted R²)</b>나 검증셋 R²를 함께 봅니다.\n\n<b>다른 지표</b>: 이상치에 둔감한 <b>MAE</b>(평균절대오차), 큰 오차를 더 벌하는 <b>RMSE</b>(=√MSE) 등 문제에 맞는 지표를 sklearn.metrics에서 골라 씁니다.",
   "more_en": "score(X, y) returns the coefficient of determination R² = 1 − SS_res/SS_tot — the fraction of variance explained. R²=1 is perfect, 0 means no better than predicting the mean, negative is worse than the mean. MSE is the average squared error. R² is normalized 0–1 so it compares models easily; that's why it's sklearn's default regression score."
  },

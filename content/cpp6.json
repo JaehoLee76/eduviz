@@ -4,7 +4,7 @@
   "sec": "6.1 static 멤버변수",
   "title": "static 멤버변수",
   "narr": "보통 멤버변수는 객체마다 따로 있지만, <b>static</b>을 붙이면 <b>클래스 전체에 단 하나</b>만 만들어지고 <b>모든 객체가 공유</b>합니다. 가장 흔한 쓰임이 <b>“객체 개수 세기”</b> — 생성자에서 <code>++count</code>. 탭할 때마다 객체를 하나씩 만들며 공유 <code>count</code>가 <b>실제로 증가</b>하는 걸 보세요.",
-  "more": "static 변수는 특정 객체가 아니라 <b>클래스의 것</b>이므로, 선언만으로는 부족하고 클래스 밖에서 <code>int Widget::count = 0;</code>처럼 <b>딱 한 번 정의</b>해 실제 저장 공간을 잡아야 합니다. 화면의 카운트는 생성자를 부른 만큼 <b>실측</b>한 값 — 세 객체가 <b>하나의 상자</b>를 함께 바라보는 그림이 static의 본질입니다.",
+  "more": "static 변수는 특정 객체가 아니라 <b>클래스의 것</b>이므로, 선언만으로는 부족하고 클래스 밖에서 <code>int Widget::count = 0;</code>처럼 <b>딱 한 번 정의</b>해 실제 저장 공간을 잡아야 합니다. 화면의 카운트는 생성자를 부른 만큼 늘어난 값 — 세 객체가 <b>하나의 상자</b>를 함께 바라보는 그림이 static의 본질입니다.",
   "more_en": "A <b>static member variable</b> exists once per class and is shared by all objects — perfect for counting instances (<code>++count</code> in the constructor). Because it belongs to the class, it must be defined once outside: <code>int Widget::count = 0;</code>."
  },
  "cpp6_02": {
@@ -35,7 +35,7 @@
   "ch": "C++ 제6장 · 객체지향",
   "sec": "6.5 mutable · const 객체",
   "title": "mutable · const 정리",
-  "narr": "const 함수는 객체를 안 바꾸겠다는 약속이지만, “<b>겉으로는 안 바뀐 것 같아도 속으로는 바뀌어도 되는</b>” 멤버가 있습니다 — 조회수 <code>hits</code>, 캐시, 잠금 플래그처럼요. 그런 멤버에 <b>mutable</b>을 붙이면 <b>const 함수 안에서도, const 객체를 통해서도</b> 수정할 수 있죠. 탭해서 접근 매트릭스와 실측 카운트를 보세요.",
+  "narr": "const 함수는 객체를 안 바꾸겠다는 약속이지만, “<b>겉으로는 안 바뀐 것 같아도 속으로는 바뀌어도 되는</b>” 멤버가 있습니다 — 조회수 <code>hits</code>, 캐시, 잠금 플래그처럼요. 그런 멤버에 <b>mutable</b>을 붙이면 <b>const 함수 안에서도, const 객체를 통해서도</b> 수정할 수 있죠. 탭해서 접근 매트릭스와 카운트를 보세요.",
   "more": "<b>정리(접근 규칙)</b>: ① <b>const 객체·const 참조</b> → const 멤버함수만 호출 가능. ② <b>const 함수 안</b> → 일반 멤버는 <b>읽기만</b>. ③ <b>단, mutable 멤버는 예외</b> — 쓰기 허용. mutable은 객체의 <b>“논리적 상태”가 아니라 “구현상의 부기”</b>일 뿐인 멤버에만 씁니다. 이 규칙들이 모여 C++의 <b>const-correctness</b> 문화를 이룹니다.",
   "more_en": "<b>mutable</b> members can be modified even inside a const member function or through a const object — used for caches, hit counters, and lock flags (implementation bookkeeping, not logical state). Rules: const objects call only const functions; const functions read normal members but may write <b>mutable</b> ones."
  },

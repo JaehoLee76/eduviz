@@ -155,7 +155,7 @@
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
       ctx.fillText('꽃잎 길이·폭 두 특징만 봐도 종이 거의 갈립니다 — 그래서 분류 입문에 딱.', px, py+24);
       ctx.fillStyle=GRN; ctx.font='12.5px sans-serif';
-      ctx.fillText('※ 화면엔 대표 30송이로 그립니다(계산은 실측).', px, py+46);
+      ctx.fillText('※ 화면엔 대표 30송이로 그립니다.', px, py+46);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 종 추가 (setosa → versicolor → virginica)', true);
       E.big('iris 데이터 — 머신러닝의 Hello World', '1936년 통계학자 피셔가 정리한 붓꽃 150송이입니다. 한 송이마다 네 가지 자(꽃받침·꽃잎의 길이·폭)를 재고, setosa·versicolor·virginica 세 품종 중 하나로 이름 붙였죠. load_iris() 한 줄이면 이 전설의 데이터가 X(특징 행렬)와 y(정답 라벨)로 손에 들어옵니다. 꽃잎의 길이와 폭, 단 두 숫자만 그려 봐도 setosa가 저만치 떨어져 앉는 게 보입니다 — 분류란 이렇게 ‘끼리끼리 모인’ 점들 사이에 선을 긋는 일입니다.'); }
@@ -340,7 +340,7 @@
 
       // 종별 정밀도/재현율 표 (좌하)
       var px=W*0.05, py=H*0.62;
-      ctx.fillStyle='#e7ecda'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('classification_report (실측)', px, py);
+      ctx.fillStyle='#e7ecda'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('classification_report', px, py);
       ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,Menlo,monospace';
       ctx.fillText('종            정밀도   재현율', px, py+22);
       for(i=0;i<3;i++){ var pr=precision(i), rc=recall(i);

@@ -118,7 +118,7 @@
 
       // 에지맵(4×4) — |값| 밝게
       var ox=W*0.70, oy=H*0.30, ocell=cell;
-      ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('에지맵 4×4 (실측)', ox, oy-12);
+      ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('에지맵 4×4', ox, oy-12);
       for(r=0;r<edge.length;r++) for(c=0;c<edge[0].length;c++){ var t=Math.abs(edge[r][c])/(amax||1), g=Math.round(t*255);
         ctx.fillStyle='rgb('+g+','+g+','+g+')'; ctx.fillRect(ox+c*ocell,oy+r*ocell,ocell-1,ocell-1);
         ctx.fillStyle=t>0.5?'#111':'#bbb'; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
