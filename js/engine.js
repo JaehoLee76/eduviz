@@ -317,15 +317,17 @@
     return a;
   }
 
+  function tocTitle(sc){ return sc.title || sc.sec || sc.ch || ('장면 '+(sc._num||'')); }   // 제목 없어도 'undefined' 금지(안전망)
   function buildTOC(){
     var toc=document.getElementById('toc'); if(!toc) return; toc.innerHTML='';
-    var lastSec=null;
+    var lastHdr=null;
     HR.spine.forEach(function(idx){ var sc=SM.scenes[idx];
-      if(sc.sec!==lastSec){ var h=document.createElement('div'); h.className='toc-sec'; h.textContent=sc.sec; toc.appendChild(h); lastSec=sc.sec; }
-      var a=document.createElement('div'); a.className='toc-item'; a.textContent='#'+sc._num+'  '+sc.title; a.dataset.i=idx;
+      var hdr=sc.sec||sc.ch||'';   // 섹션 라벨 없으면 장(章)으로 묶기(undefined 헤더 방지)
+      if(hdr && hdr!==lastHdr){ var h=document.createElement('div'); h.className='toc-sec'; h.textContent=hdr; toc.appendChild(h); lastHdr=hdr; }
+      var a=document.createElement('div'); a.className='toc-item'; a.textContent='#'+sc._num+'  '+tocTitle(sc); a.dataset.i=idx;
       a.onclick=function(){ goTo(+this.dataset.i); toggleTOC(false); }; toc.appendChild(a);
       if(sc._branches){ sc._branches.forEach(function(bi){ var b=SM.scenes[bi];
-        var s=document.createElement('div'); s.className='toc-item toc-sub'; s.textContent='↳ #'+b._num+'  '+b.title; s.dataset.i=bi;
+        var s=document.createElement('div'); s.className='toc-item toc-sub'; s.textContent='↳ #'+b._num+'  '+tocTitle(b); s.dataset.i=bi;
         s.onclick=function(){ goTo(+this.dataset.i); toggleTOC(false); }; toc.appendChild(s); }); }
     });
   }
@@ -679,6 +681,7 @@
       if(document.querySelector('.cw-ov.open')||document.querySelector('.acct-ov.open')) return;   // AI 채팅·메모 패널 열려 있으면 무시
       // ★ e.code 사용: 한글 입력기(IME)·자판배열과 무관하게 물리 키 인식(KeyD 등). e.key는 한글모드서 'ㅇ'로 들어와 실패.
       var s=SM.scenes[SM.cur], k=e.key, c=e.code, space=(k===' '||c==='Space'), enter=(k==='Enter');
+      if(k==='Escape'||c==='Escape'){ toggleTOC(false); e.preventDefault(); return; }   // ESC = 목차 닫기
       var viz=!!(s&&s._viz&&_steps);
       // 전역 단축키(모든 장면): H = 홈 · M = 메모
       if(c==='KeyH'){ e.preventDefault(); if(confirm('홈으로 돌아가시겠습니까?')){ var hl=document.querySelector('.home-link'); location.href=(hl&&hl.getAttribute('href'))||'home.html'; } return; }
@@ -728,6 +731,12 @@
       if(c==='KeyS'&&s&&s.tap&&!s.keys){ if(s.s){ s.s.auto=!s.s.auto; s.s.hold=0; if(s.s.auto&&s.s.step>=3){ s.s.step=0; s.s.t=1; } } e.preventDefault(); return; }   // S = 자동 진행
     });
     var tb=document.getElementById('toc-toggle'); if(tb)tb.onclick=function(){toggleTOC();};
+    document.addEventListener('pointerdown',function(e){   // 목차 바깥 클릭 = 닫기
+      var p=document.getElementById('toc-panel'); if(!p||!p.classList.contains('open')) return;
+      var tg=document.getElementById('toc-toggle');
+      if(p.contains(e.target)||(tg&&tg.contains(e.target))) return;
+      toggleTOC(false);
+    });
     // viz 코드 패널 + 스텝 컨트롤 (algo.html에만 존재)
     codeBodyEl=document.getElementById('codeBody'); conceptExtraEl=document.getElementById('conceptExtra'); codeHeadEl=document.getElementById('codeHead');
     codeInputEl=document.getElementById('codeInput'); skUpEl=document.getElementById('skUp'); skDnEl=document.getElementById('skDn');
