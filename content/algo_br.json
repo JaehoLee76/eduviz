@@ -7140,5 +7140,121 @@
       "q_en": "A binary tree has preorder [4,2,1,3,6,5,7] and inorder [1,2,3,4,5,6,7]. What is the root and the left subtree?",
       "sol_en": "Preorder's first element is the root → 4. In the inorder, [1,2,3] left of 4 is the left subtree, [5,6,7] the right. So the left subtree is {1,2,3} (root 2, children 1 and 3). Preorder + inorder uniquely reconstruct the tree."
     }
+  },
+"algo8_08_pipeline": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "branchOf": "algo8_08",
+    "ord": 1,
+    "title": "전체 파이프라인 — 데이터에서 서빙까지",
+    "narr": "프론티어 LLM은 <b>여섯 정거장의 파이프라인</b>을 지나 태어납니다.<br><br>① <b>데이터 수집·정제</b> — 웹 크롤·책·논문·코드 저장소에서 원문 수십조 토큰을 모읍니다. 그대로는 못 씁니다. 중복 제거(같은 글이 수천 번 반복되면 모델이 암기만 합니다), 품질 필터(스팸·기계생성 글 제거), 개인정보·유해물 제거를 거치면 부피가 크게 줄어듭니다. <b>모델 품질의 상한선은 데이터가 정합니다.</b><br>② <b>토크나이저</b> — 텍스트를 자주 나오는 조각(서브워드, BPE)으로 잘라 정수 ID로 바꿉니다. 어휘 크기(보통 3만~25만)와 자르는 방식이 언어별 효율과 비용을 좌우합니다. 모델이 보는 세상은 이 정수열이 전부입니다.<br>③ <b>사전학습</b> — '다음 토큰을 맞혀라'라는 단 하나의 문제를 수조 번 풉니다. 정답을 맞히려면 문법도, 사실도, 추론도 필요하므로 이 단순한 목표에서 <b>능력이 함께 자랍니다</b>. 전체 비용의 몸통이 여기입니다.<br>④ <b>정렬</b> — 사전학습만 마친 모델은 '이어쓰기 기계'일 뿐 지시를 따르지 않습니다. 좋은 답변 예시로 <b>SFT</b>(지도 미세조정)를 하고, 두 답변 중 어느 쪽이 나은지 사람이 고른 비교 데이터로 <b>RLHF</b>나 <b>DPO</b>를 하여 유용하고 안전한 조수로 다듬습니다.<br>⑤ <b>평가</b> — 지식·추론·코딩 벤치마크, 사람 블라인드 선호 비교, 안전 레드팀으로 능력과 위험을 잽니다. 기준에 못 미치면 데이터나 정렬 단계로 되돌아갑니다 — 파이프라인은 일직선이 아니라 <b>순환</b>입니다.<br>⑥ <b>서빙</b> — 완성된 모델을 전 세계 사용자에게 낮은 지연·낮은 비용으로 응답하게 만듭니다. 여기서부터는 완전히 다른 종류의 공학이 시작됩니다(여섯째 분기에서 자세히 다룹니다).",
+    "hint": "D키로 파이프라인의 여섯 단계를 차례로 밟아 보세요.",
+    "more": "<b>핵심 요약</b><br>· 데이터가 상한선: 중복 제거·품질 필터가 최종 성능을 좌우합니다<br>· 사전학습 = <code>다음 토큰 예측</code> 단일 목표 → 능력이 함께 자람<br>· 정렬 = SFT(좋은 예시 모방) + RLHF/DPO(선호 비교 학습)<br>· 평가에서 미달이면 앞 단계로 되돌아감 — 일직선이 아니라 순환<br>· 전체 흐름: <code>수집 → 중복제거 → 필터 → 토크나이즈 → 사전학습 → SFT → RLHF/DPO → 평가 → 서빙</code>",
+    "more_en": "The six-stage pipeline: collect and clean tens of trillions of tokens (dedup and quality filters set the ceiling), tokenize into subword IDs (BPE), pretrain on next-token prediction (abilities grow from this single objective), align with SFT + RLHF/DPO so the model follows instructions safely, evaluate with benchmarks, blind human preference and red-teaming, then serve worldwide. In practice it is a loop, not a line — failed evaluations send you back to data or alignment."
+  },
+  "algo8_08_arch": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "branchOf": "algo8_08",
+    "ord": 2,
+    "title": "트랜스포머와 스케일링 법칙",
+    "narr": "트랜스포머의 심장은 <b>셀프 어텐션</b>입니다. 문장 속 각 토큰이 세 가지 얼굴을 갖습니다 — 내가 찾는 것(<b>Query</b>), 내가 가진 것의 표찰(<b>Key</b>), 실제 내용물(<b>Value</b>). 회의실에 비유하면, 모든 참석자가 동시에 '저는 이런 정보가 필요합니다'(Q)라고 외치고, 서로의 명찰(K)과 대조해 관련도 점수를 매긴 뒤, 관련이 깊은 사람의 발언(V)을 점수만큼 섞어 자기 생각을 갱신하는 것입니다. 수식으로는 <b>softmax(QKᵀ/√d)·V</b> 한 줄입니다. √d로 나누는 이유도 분명합니다 — 차원 d가 크면 내적값의 분산이 d에 비례해 커져 softmax가 한 점에 몰려 버리므로, 표준편차 크기(√d)로 나눠 점수를 완만하게 유지합니다.<br><br>왜 이 구조가 이겼을까요? ①모든 토큰 쌍을 <b>한 번에 병렬로</b> 계산할 수 있어 GPU와 궁합이 완벽하고(순환신경망은 앞에서부터 순서대로만 계산할 수 있었습니다), ②멀리 떨어진 단어끼리도 한 걸음에 연결되며, ③층을 쌓을수록 표현이 깊어집니다.<br><br>그리고 <b>스케일링 법칙</b> — 모델 파라미터 N, 데이터 토큰 D, 컴퓨트 C를 늘리면 손실이 <b>거듭제곱 법칙</b>을 따라 예측 가능하게 내려갑니다. 놀라운 점은 이 곡선이 매끈해서, 작은 실험 몇 개만으로 1000배 큰 모델의 성능을 미리 그려볼 수 있다는 것입니다. 주어진 컴퓨트에서 손실을 최소화하려면 N과 D를 <b>균형</b> 있게 — 대략 <b>D ≈ 20·N</b>(파라미터 1개당 토큰 20개꼴) — 함께 키우는 것이 유리하다고 알려져 있습니다. 초기의 거대 모델들은 데이터가 부족한 '과소학습' 상태였고, 이 균형이 밝혀진 뒤로는 같은 비용으로 훨씬 강한 모델을 만들 수 있게 되었습니다.",
+    "hint": "D키로 어텐션 코드를 한 줄씩 따라가 보세요. 오른쪽 수치는 700억 파라미터 모델 기준입니다.",
+    "more": "<b>핵심 요약</b><br>· 어텐션 = <code>softmax(QKᵀ/√d)·V</code> — 모든 토큰 쌍의 관련도로 가중합<br>· √d 나눗셈 = 내적 분산 폭주 방지(softmax 포화 예방)<br>· 승리 요인은 병렬성: 시퀀스 전체를 행렬곱 몇 번으로 한꺼번에 처리<br>· 스케일링 법칙: 손실이 N·D·C의 거듭제곱으로 예측 가능하게 감소 — 작은 실험으로 큰 모델을 예측<br>· 컴퓨트 최적 배분: <code>D ≈ 20·N</code> — 모델 크기만 키우지 말고 데이터도 함께",
+    "more_en": "Self-attention lets every token attend to every other: softmax(QK^T/√d)·V. Dividing by √d keeps dot-product variance in check so softmax does not saturate. Full parallelism is why transformers won on GPUs. Scaling laws: loss falls as a smooth power law in parameters N, data D and compute C, so small runs predict giant ones; compute-optimal training balances roughly D ≈ 20·N tokens per parameter."
+  },
+  "algo8_08_train": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "branchOf": "algo8_08",
+    "ord": 3,
+    "title": "사전학습 루프와 분산학습",
+    "narr": "사전학습의 심장은 놀랄 만큼 짧습니다 — <b>배치를 읽고, 순전파로 다음 토큰 확률을 뽑고, 정답과의 교차 엔트로피 손실을 재고, 역전파로 기울기를 구해, 옵티마이저(AdamW)가 가중치를 한 걸음 옮깁니다.</b> 이 여섯 줄이 전부입니다. 문제는 규모입니다. 파라미터 700억 개짜리 모델은 가중치만 약 140GB(16비트 기준)라서 <b>GPU 한 대(80GB급)에 아예 들어가지 않고</b>, 학습 중에는 가중치의 몇 배가 되는 옵티마이저 상태·기울기·활성값 메모리가 더 필요합니다. 그래서 모델과 데이터를 세 방향으로 동시에 쪼갭니다 — <b>3D 병렬</b>입니다.<br><br>① <b>데이터 병렬</b>: 모델 복제본 여러 개가 서로 다른 배치를 학습하고 기울기를 평균(all-reduce)합니다. 가장 단순하지만 복제본 하나가 어딘가에는 들어가야 합니다.<br>② <b>텐서 병렬</b>: 한 층의 거대한 행렬곱을 여러 GPU가 열과 행으로 나눠 동시에 계산합니다. 통신이 매우 잦아서 같은 서버 안의 초고속 연결이 필요합니다.<br>③ <b>파이프라인 병렬</b>: 층 1~20은 GPU 그룹 A, 21~40은 그룹 B처럼 층 묶음별로 배정하고, 마이크로배치를 조립 라인처럼 흘립니다. 라인이 비는 시간(버블)을 줄이는 스케줄이 관건입니다.<br><br>예컨대 데이터 128 × 텐서 8 × 파이프라인 8이면 <b>8,192대의 GPU가 하나의 학습</b>을 함께 돌립니다. 여기에 옵티마이저 상태 분산(ZeRO류), 활성값 재계산(메모리↔연산 교환), bf16 혼합 정밀도, 기울기 클리핑까지 얹어야 비로소 '몇 달 동안 죽지 않는 학습'이 됩니다. <b>알고리즘은 6줄, 공학은 수만 줄</b> — 이것이 분산학습의 실제 모습입니다.",
+    "hint": "D키로 학습 루프 여섯 줄을 지나면, 3D 병렬 세 가지가 이어집니다.",
+    "more": "<b>핵심 요약</b><br>· 루프: <code>forward → cross_entropy → backward → optimizer.step()</code> — 이 여섯 줄의 무한 반복<br>· 70B 모델은 가중치만 약 140GB — GPU 한 대에 불가 → 병렬화가 필수<br>· 3D 병렬 = 데이터(복제·기울기 평균) × 텐서(행렬 분할) × 파이프라인(층 구간 분담)<br>· 보조 기술: 옵티마이저 상태 분산(ZeRO) · 활성값 재계산 · bf16 혼합 정밀도 · 기울기 클리핑<br>· 목표는 순간 속도가 아니라 <b>수개월 무중단</b> — 체크포인트가 생명줄입니다",
+    "more_en": "The core loop is six lines — forward, cross-entropy loss, backward, optimizer step — but a 70B model needs about 140GB just for weights, so training is sharded three ways: data parallel (replicas average gradients), tensor parallel (split each matmul across GPUs), pipeline parallel (assign layer ranges to GPU groups and stream microbatches). With 128 x 8 x 8 that is 8,192 GPUs on one job, plus ZeRO optimizer sharding, activation recomputation, bf16 and gradient clipping to survive months of training."
+  },
+  "algo8_08_cost": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "branchOf": "algo8_08",
+    "ord": 4,
+    "title": "컴퓨트와 비용 — C ≈ 6·N·D",
+    "narr": "프론티어 모델의 비용은 어디서 올까요? 몸통은 <b>컴퓨트</b>이고, 좋은 어림식이 있습니다 — 파라미터 N개 모델을 토큰 D개로 학습할 때 필요한 총 연산은 <b>C ≈ 6·N·D FLOPs</b>(순전파에 2·N·D, 역전파에 4·N·D)입니다. 여기서 곧바로 규모 감각이 나옵니다. GPU 한 대의 성능이 초당 10¹⁵ FLOP쯤이라 해도, 실제 학습에서는 통신과 메모리 대기 때문에 <b>이용률 30~50%</b>가 현실입니다. 그래서 총 FLOPs를 (유효 성능 × 이용률)로 나누면 GPU-시간이 나오고, 거기에 시간당 임차 단가를 곱하면 달러가 나옵니다. 오른쪽 계산이 정확히 그 흐름입니다 — 700억 파라미터 모델을 15조 토큰으로 학습하면 GPU-시간이 수백만 시간, 컴퓨트만으로 <b>수백억 원</b> 규모에 이릅니다.<br><br>그런데 최종 청구서는 이보다 훨씬 큽니다. ① <b>데이터</b>: 라이선스 구매, 정제 파이프라인 운영, 사람 라벨링 — 특히 정렬용 선호 비교 데이터는 사람이 일일이 읽고 골라야 해서 비쌉니다. ② <b>인력</b>: 연구자·인프라 엔지니어 수백 명의 연봉. ③ <b>시행착오</b>: 최종 모델 하나의 뒤에는 실패했거나 작게 끝난 실험 수십 개가 있고, 그 컴퓨트도 전부 돈입니다. 실제로는 '본 학습 1회 비용 × 몇 배'가 프로젝트 총비용이 되곤 합니다. 그래서 프론티어 개발의 진짜 기술 가운데 하나는, 스케일링 법칙을 이용해 <b>작은 실험으로 큰 결과를 미리 예측하고 실패를 걸러내는 것</b>입니다.",
+    "hint": "D키로 8B → 70B → 405B 모델의 비용을 견주어 보세요.",
+    "more": "<b>핵심 요약</b><br>· 학습 연산 어림식: <code>C ≈ 6·N·D</code> FLOPs (순전파 2ND + 역전파 4ND)<br>· 환산 사슬: <code>FLOPs ÷ (GPU 유효성능 × 이용률) → GPU-시간 → × 단가 → $</code><br>· 이용률 30~50%가 현실 — 통신·메모리 대기가 절반을 잡아먹습니다<br>· 총비용 = 컴퓨트 + 데이터(라이선스·라벨링) + 인력 + 실패한 실험들<br>· 절약의 핵심: 스케일링 법칙으로 작은 실험에서 큰 결과를 미리 예측",
+    "more_en": "Training compute follows C ≈ 6·N·D FLOPs (2ND forward + 4ND backward). Divide by effective GPU throughput times realistic utilization (30-50%) to get GPU-hours, multiply by hourly price to get dollars — a 70B model on 15T tokens lands in the tens of millions of dollars for compute alone. The full bill adds data licensing and human labeling, staff, and the many failed or exploratory runs behind every final model; predicting big runs from small ones via scaling laws is how teams avoid burning budget."
+  },
+  "algo8_08_hurdles": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "branchOf": "algo8_08",
+    "ord": 5,
+    "title": "여섯 개의 벽 — 실전 허들",
+    "narr": "계획서에는 없지만 반드시 만나게 되는 <b>여섯 개의 벽</b>이 있습니다.<br><br>① <b>데이터 품질·고갈</b> — 웹의 양질 텍스트는 유한하고, 이미 대부분 수집되어 쓰였습니다. 남은 것은 중복·스팸·기계생성 글로 오염되어 있어 필터를 통과시키면 부피가 급감합니다. 코드·수학처럼 정답을 검증할 수 있는 합성 데이터, 라이선스 데이터로 메꾸는 것이 요즘의 최전선입니다.<br>② <b>인프라·하드웨어 고장</b> — GPU 수만 대를 몇 달 돌리면 확률적으로 <b>매일 몇 대씩</b> 고장 납니다(오른쪽 계산). 한 대만 멈춰도 동기식 학습 전체가 서기 때문에, 자동 장애 감지·예비 장비 교체·주기적 체크포인트 저장이 없으면 프로젝트 자체가 성립하지 않습니다.<br>③ <b>학습 안정성</b> — 수십만 스텝 가운데 어느 날 갑자기 손실이 치솟거나(loss spike) 발산합니다. 원인은 나쁜 데이터 뭉치, 수치 정밀도, 학습률 등 복합적입니다. 대응은 체크포인트로 되감아 문제 구간을 건너뛰기, 기울기 클리핑, bf16 안정화 — 그리고 무엇보다 <b>24시간 감시</b>입니다.<br>④ <b>정렬·안전</b> — 능력이 커질수록 그럴듯한 거짓(환각)·유해 답변·악용 시도의 위험도 함께 커집니다. RLHF·원칙 기반 학습과 레드팀(전문가가 일부러 공격해 보는 테스트)의 순환으로 계속 조여야 하며, 한 번으로 끝나지 않고 배포 후에도 계속됩니다.<br>⑤ <b>평가의 어려움</b> — 벤치마크 점수는 시험 문제가 학습 데이터에 새어 들어가면(오염) 쉽게 부풀어, 점수와 실력이 어긋납니다. 사람 블라인드 비교, 새로 만든 비공개 시험, 실사용 지표를 함께 봐야 비로소 '좋은 모델'인지 말할 수 있습니다.<br>⑥ <b>비용·인재</b> — 사전학습 한 번에 수백억 원이 걸린 의사결정을 내릴 수 있는 조직, 그리고 그 실험을 설계하고 디버깅해 본 경험자는 세계적으로 희소합니다. 기술 그 자체보다 이 두 자원이 진입장벽의 본체입니다.",
+    "hint": "D키로 여섯 개의 벽을 하나씩 살펴보세요. 오른쪽에는 하드웨어 고장 계산이 있습니다.",
+    "more": "<b>핵심 요약(허들 체크리스트)</b><br>· 데이터: 중복 제거 · 오염 검사 · 검증 가능한 합성 데이터 파이프라인<br>· 인프라: 자동 장애 감지 + 예비 장비 + <code>체크포인트 주기 = 감당할 수 있는 손실 시간</code><br>· 안정성: loss spike 감시 → 되감기·구간 건너뛰기 · 기울기 클리핑 · bf16<br>· 안전: 레드팀 → 수정 → 재평가 루프를 배포 후에도 상시 가동<br>· 평가: 벤치마크 + 블라인드 사람 비교 + 실사용 지표의 삼중 확인<br>· 예산: 본 학습 1회 비용 × 여유 배수(실패 실험 몫)로 계획",
+    "more_en": "Six recurring walls: data quality and exhaustion (dedup, contamination checks, verifiable synthetic data), hardware failures (tens of thousands of GPUs means several die per day — checkpoints and hot spares are mandatory), training instability (loss spikes: rewind, skip bad data, clip gradients, watch 24/7), alignment and safety (red-team, fix, re-evaluate — forever), evaluation (benchmarks inflate under contamination; use blind human comparison and real usage), and cost plus scarce senior talent — the true barriers to entry."
+  },
+  "algo8_08_serving": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "branchOf": "algo8_08",
+    "ord": 6,
+    "title": "코드보다 어려운 것 — 추론과 서빙",
+    "narr": "많은 팀이 여기서 놀랍니다 — <b>모델을 만드는 것보다 세상에 내놓아 돌리는(서빙하는) 것이 어렵습니다.</b> 이유를 보겠습니다. 생성은 한 번에 한 토큰씩 진행되고, 새 토큰 하나를 만들 때마다 <b>모델 가중치 전체를 메모리에서 읽어야</b> 합니다. 즉 추론은 연산보다 <b>메모리 대역폭</b>에 묶인 작업입니다. 사용자는 첫 글자가 나올 때까지의 지연과 초당 토큰 수에 민감하고, 회사는 GPU 청구서에 민감합니다. 지연·처리량·비용이라는 세 마리 토끼를 동시에 쫓는 게임입니다.<br><br>핵심 무기는 네 가지입니다. ① <b>KV 캐시</b> — 이미 읽은 토큰들의 K·V를 저장해 두면 새 토큰마다 문맥 전체를 다시 계산하지 않아도 됩니다. 대신 문맥이 길수록 메모리를 폭식합니다(오른쪽 계산 — 요청 하나가 GB 단위이고, 동시 사용자 100명이면 수백 GB). 그래서 캐시를 페이지 단위로 관리하는 기법이 표준이 되었습니다. ② <b>연속 배칭</b> — 요청마다 길이가 제각각이라 고정 배치는 GPU를 놀립니다. 끝난 요청 자리에 대기 중인 요청을 즉시 끼워 넣으면 처리량이 몇 배로 뜁니다. ③ <b>양자화</b> — 가중치를 16비트에서 8·4비트로 압축하면 메모리와 대역폭이 급감해 같은 장비로 더 큰 모델·더 많은 사용자를 감당합니다(품질 저하가 없는지 벤치마크로 반드시 검증해야 합니다). ④ <b>추측 디코딩</b> — 작은 모델이 초안 토큰 여러 개를 먼저 쓰고, 큰 모델이 그것을 한 번에 병렬로 검증합니다. 출력 분포는 그대로인데 속도만 2~3배 빨라집니다.<br><br>그리고 이 모든 것 위에 <b>운영</b>이 있습니다 — 출시일의 트래픽 100배 급증, 지역별 GPU 확보, 무중단 모델 교체, 새 버전의 품질 회귀 감시, 남용 차단. 연구에는 끝나는 날이 있지만 서빙은 <b>24시간 365일</b> 끝나지 않습니다. '모델 코드보다 스케일업이 어렵다'는 말의 실체가 바로 이것입니다.",
+    "hint": "D키로 네 가지 추론 최적화를 살펴보세요. 오른쪽에는 KV 캐시 메모리 계산이 있습니다.",
+    "more": "<b>핵심 요약</b><br>· 추론은 메모리 대역폭 병목: 토큰 하나마다 가중치 전체를 읽습니다<br>· KV 캐시 메모리 ≈ <code>2(K,V) × 층수 × KV헤드 × 헤드차원 × 문맥길이 × 2바이트</code><br>· 연속 배칭: 끝난 요청 자리에 즉시 새 요청 — 처리량 수 배<br>· 양자화: FP16 → INT4로 메모리 약 4분의 1 (품질 검증 필수)<br>· 추측 디코딩: 작은 모델 초안 + 큰 모델 병렬 검증 = 같은 출력, 2~3배 속도<br>· 운영: 트래픽 급증·무중단 배포·회귀 감시 — 서빙은 끝나지 않는 일입니다",
+    "more_en": "Serving is often harder than training: generation is one token at a time and every token re-reads all weights, so inference is memory-bandwidth-bound while users demand low latency and the business demands low cost. The four main weapons: KV cache (skip recomputation at the price of GBs per request — see the on-screen math), continuous batching (slot new requests into finished ones for multi-x throughput), quantization (FP16 to INT8/4 slashes memory and bandwidth), and speculative decoding (a small drafter plus parallel verification, 2-3x faster with identical outputs). On top sits operations: traffic spikes, zero-downtime model swaps, regression monitoring — serving never ends."
+  },
+"algo8_09_what": {
+    "branchOf": "algo8_09", "ord": 1,
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "온톨로지와 의사결정 자동화",
+    "title": "팔란티어의 제품과 온톨로지 — 세계를 사물의 그래프로",
+    "narr": "먼저 제품 이름부터 정리하겠습니다. <b>Foundry(파운드리)</b>는 상업·기업용 플랫폼으로, 회사의 모든 데이터를 하나로 모아 그 위에서 분석과 운영을 함께 돌리는 일종의 <b>'데이터 운영체제'</b>입니다. <b>Gotham(고담)</b>은 정부·국방·수사 기관용으로, 흩어진 정보 조각을 연결해 사람·장소·사건 사이의 관계를 추적하는 데 쓰입니다. <b>AIP(Artificial Intelligence Platform)</b>는 가장 최근의 층으로, 대형 언어 모델(LLM)을 기업의 데이터와 실제 운영에 직접 연결해 줍니다. 그리고 이 세 제품을 관통하는 단 하나의 핵심 개념이 바로 <b>온톨로지(Ontology)</b>입니다.<br><br>온톨로지는 본래 철학 용어로 '존재하는 것들의 본질을 따지는 학문'이지만, 여기서는 훨씬 실용적입니다 — <b>현실 세계를 데이터로 다시 조립하는 방법</b>입니다. 공장의 펌프 한 대를 생각해 보세요. 데이터베이스에는 펌프의 온도 로그 테이블, 정비 이력 테이블, 구매 기록 테이블이 각각 따로 존재합니다. 온톨로지는 이 관점을 뒤집어 <b>'펌프 P-101'이라는 객체(Object)</b>를 먼저 세우고, 온도·상태 같은 <b>속성(Property)</b>을 붙이고, 센서·작업지시 같은 다른 객체와 <b>관계(Link)</b>로 잇고, 마지막으로 '정지시킨다' 같은 <b>액션(Action)</b>까지 모델의 일부로 정의합니다. 데이터가 테이블의 행이 아니라 <b>의미 있는 사물의 그래프</b>가 되는 순간, 사람도 AI도 같은 세계를 같은 언어로 보게 됩니다.",
+    "hint": "한 단계씩 — 객체→속성→관계→액션 순으로 그래프가 자랍니다.",
+    "more": "<b>제품 지도</b>: Foundry = 기업용 데이터 운영체제 · Gotham = 정부·국방 정보 분석 · AIP = LLM을 온톨로지와 운영에 연결. 셋의 공통 기반이 온톨로지입니다. <b>온톨로지 4요소</b>: 객체·속성·관계·액션 — 예: <code>Pump(P-101) —measured_by→ Sensor(TS-9)</code>, 그리고 <code>shutdown(pump)</code> 같은 액션까지 데이터 모델 안에 삽니다. 테이블 중심 사고(어느 테이블에 있나)에서 사물 중심 사고(이 펌프에 무슨 일이 있나)로의 전환이 전부입니다.",
+    "more_en": "<b>Product map</b>: Foundry = the commercial data operating system, Gotham = government/defense intelligence analysis, AIP = connecting LLMs to the ontology and operations. All three share one foundation: the ontology. <b>Four elements</b>: objects, properties, links, actions — e.g. <code>Pump(P-101) —measured_by→ Sensor(TS-9)</code> plus actions like <code>shutdown(pump)</code> living inside the data model. The whole shift is from table-centric thinking (which table is it in?) to thing-centric thinking (what is happening to this pump?)."
+  },
+  "algo8_09_build": {
+    "branchOf": "algo8_09", "ord": 2,
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "온톨로지와 의사결정 자동화",
+    "title": "온톨로지 구축 — 통합, 객체·관계·액션 정의",
+    "narr": "온톨로지를 세우는 순서는 놀랄 만큼 일정합니다. <b>1단계, 데이터 통합.</b> ERP·센서·엑셀·로그 등 원천 시스템에서 데이터를 파이프라인으로 끌어와 정제합니다. 여기서 어떤 원천의 '펌프 번호'와 다른 원천의 'EQUIP_ID', 또 다른 곳의 '자산코드'가 사실 같은 것임을 밝혀 <b>키를 맞추는 일</b>이 작업의 절반입니다. <b>2단계, 객체 타입 정의.</b> 펌프·센서·주문·고객처럼 회사가 다루는 사물의 종류마다 스키마(id와 속성 목록)를 선언하고, 원천 테이블의 열을 속성에 매핑합니다. <b>3단계, 관계 정의.</b> '펌프는 센서로 측정된다', '주문은 고객에 속한다'처럼 객체 사이의 링크를 선언하면 그래프가 이어집니다. <b>4단계, 액션 정의.</b> 액션은 현실을 바꾸므로 반드시 <b>권한 검사</b>와 <b>감사 기록</b>(누가 언제 무엇을 바꿨는가)이 함께 따라붙습니다.<br><br>이렇게 완성된 층을 <b>시맨틱 레이어(의미 계층)</b>라 부르고, 그 위에 대시보드·업무 앱·AI가 올라갑니다. 왼쪽 코드는 이 과정을 파이썬풍 의사코드로 압축한 것입니다 — 실제 플랫폼에서는 화면에서 클릭으로 정의하는 경우가 많지만, 본질은 이 몇 줄과 같습니다. 원천이 새로 생기면 1단계로 돌아가 매핑만 추가하면 되고, 위의 앱과 AI는 손대지 않아도 됩니다 — 이 <b>분리</b>가 시맨틱 레이어의 힘입니다.",
+    "hint": "한 단계씩 — 코드 커서가 통합→객체→관계→액션 순으로 내려갑니다.",
+    "more": "<b>구축 체크리스트</b>: ① 원천 키 정합 — 같은 설비를 가리키는 서로 다른 ID를 통일(작업의 절반) ② 객체 타입 스키마 선언 + 원천 열→속성 매핑 ③ 관계 선언 <code>link(Pump, Sensor, name='measured_by')</code> ④ 액션 = 권한 검사 + 감사 로그 필수 <code>@action def shutdown(pump): plc.write(pump.id,'STOP')</code> ⑤ 그 위에 앱·AI. 코드보다 매핑과 합의가 오래 걸립니다 — 통합이 8할입니다.",
+    "more_en": "<b>Build checklist</b>: ① reconcile source keys — unify the different IDs that all point to the same equipment (half the work) ② declare object-type schemas and map source columns to properties ③ declare links: <code>link(Pump, Sensor, name='measured_by')</code> ④ actions = permission checks + audit logs, always: <code>@action def shutdown(pump): plc.write(pump.id,'STOP')</code> ⑤ apps & AI on top. Mapping and agreement take longer than code — integration is 80% of the job."
+  },
+  "algo8_09_special": {
+    "branchOf": "algo8_09", "ord": 3,
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "온톨로지와 의사결정 자동화",
+    "title": "AI 결합과 write-back — 대시보드가 아니라 디지털 트윈",
+    "narr": "대시보드나 BI 도구도 데이터를 모아 보여줍니다. 그런데 왜 온톨로지가 특별할까요? 차이는 세 가지입니다. <b>첫째, 단일한 의미 계층.</b> 영업·생산·재무가 각자 다른 '고객' 정의를 쓰는 대신, 회사 전체가 하나의 객체 그래프를 봅니다. 숫자가 어긋나는 회의가 사라집니다. <b>둘째, 사람과 AI가 같은 모델 위에서 판단합니다.</b> LLM에게 회사 데이터를 날것으로 던지면 환각을 일으키기 쉽지만, 온톨로지가 있으면 AI는 '펌프 P-101의 온도를 조회한다', 'shutdown 액션을 제안한다'처럼 <b>정의된 객체와 액션만</b> 다루게 됩니다. 자연어 질문이 그래프 조회로, AI의 제안이 실행 가능한 액션으로 번역됩니다 — AIP가 하는 일이 바로 이것입니다. <b>셋째, 그리고 결정적으로 — 행동으로 되먹임됩니다(write-back).</b> 분석 결과가 보고서로 끝나지 않고, 승인된 액션이 실제 시스템(PLC·ERP·발주)에 되돌려 써집니다.<br><br>데이터→온톨로지→AI·규칙→의사결정→액션→현실, 그리고 바뀐 현실이 다시 데이터로 — 이 루프가 닫히는 순간 화면 속 그림이 아니라 <b>운영되는 디지털 트윈</b>이 됩니다. 이렇게 세계를 실제로 움직이는 온톨로지를 <b>키네틱(kinetic)</b>하다고 부르기도 합니다. 위 다이어그램의 루프를 한 단계씩 따라가 보세요 — 보통의 BI는 ④의사결정에서 멈추지만, 온톨로지는 여섯 칸을 모두 돌아 다시 ①로 이어집니다.",
+    "hint": "한 단계씩 — 루프 여섯 칸을 따라가 보세요. BI는 4번째 칸에서 멈춥니다.",
+    "more": "<b>BI와의 차이</b>: 대시보드 = 읽기 전용(사람이 보고 끝), 온톨로지 = <code>decision → action.execute() → 현실 → 다시 데이터</code>의 닫힌 루프(write-back). <b>AI 결합의 핵심</b>: LLM이 자유 텍스트가 아니라 정의된 객체를 조회하고 정의된 액션만 제안 — 환각이 줄고, 사람 승인 뒤 실행되므로 통제 가능합니다. 사람·AI가 같은 객체 모델을 공유하는 것이 운영 디지털 트윈(kinetic ontology)의 조건입니다.",
+    "more_en": "<b>Versus BI</b>: a dashboard is read-only (a human looks, and that is the end), while an ontology closes the loop: <code>decision → action.execute() → reality → data again</code> (write-back). <b>The key to combining AI</b>: the LLM queries defined objects and proposes only defined actions rather than free text — fewer hallucinations, and execution happens after human approval, so it stays controllable. Humans and AI sharing one object model is what makes an operational digital twin (a kinetic ontology) possible."
+  },
+  "algo8_09_hurdles": {
+    "branchOf": "algo8_09", "ord": 4,
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "온톨로지와 의사결정 자동화",
+    "title": "현실의 허들 — 통합·정합성·거버넌스·유지보수",
+    "narr": "온톨로지의 개념은 단순하지만, 현실 도입은 어렵습니다. 허들을 정직하게 나열하면 이렇습니다. <b>① 데이터 통합·품질 — 가장 큽니다.</b> 원천 시스템이 8개만 되어도 일대일로 이으면 인터페이스가 28개 필요합니다(온톨로지를 허브로 두면 8개). 게다가 끌어온 데이터의 상당수가 결측·오타·중복이라 정제 없이는 그래프가 서지 않습니다. <b>② 시맨틱 정합성.</b> 영업의 '고객'은 계약 주체, CS의 '고객'은 전화를 건 사람, 물류의 '고객'은 배송지입니다 — 같은 단어, 다른 의미. 하나의 객체 정의로 합의하는 일은 기술이 아니라 <b>회의의 문제</b>이고, 보통 코드보다 오래 걸립니다. <b>③ 거버넌스·권한·보안.</b> 누가 어떤 객체를 볼 수 있고 어떤 액션을 실행할 수 있는가, 액션이 사고를 내면 책임은 누구에게 있는가까지 설계해야 합니다. 액션은 현실을 바꾸기 때문입니다. <b>④ 조직 변화관리.</b> 현장은 쓰던 엑셀을 쉽게 놓지 않습니다. 온톨로지가 기존 도구보다 먼저 더 편해져야 사람이 옮겨옵니다. <b>⑤ 유지보수.</b> 현실이 바뀌면(신규 설비, 조직 개편, 새 상품) 온톨로지도 따라 바뀌어야 합니다. 방치된 온톨로지는 지도가 없는 것보다 위험한 <b>틀린 지도</b>가 됩니다. <b>⑥ 초기 구축 비용.</b> 플랫폼 도입이든 자체 구축이든, 눈에 보이는 가치가 나오기까지 수개월의 정제·모델링 기간을 버틸 스폰서와, 작지만 확실한 첫 성공 사례가 필요합니다.",
+    "hint": "한 단계씩 — 허들 여섯 개를 차례로 살펴봅니다.",
+    "more": "<b>허들 6, 체감 크기 순</b>: ① 데이터 통합·품질 ② 시맨틱 합의(같은 말, 다른 뜻) ③ 거버넌스·권한·보안 ④ 조직 변화관리 ⑤ 유지보수(현실 변경 추적) ⑥ 초기 비용. <b>수학 한 줄</b>: 시스템 n개를 일대일로 이으면 인터페이스 n(n−1)/2, 허브(온톨로지)로 이으면 n — n=8이면 28 대 8입니다. <b>실전 팁</b>: 범위를 좁게 잡아(설비 한 라인, 상품 한 군) 첫 성공을 빨리 만들고 스폰서를 지키세요.",
+    "more_en": "<b>Six hurdles, by felt size</b>: ① data integration & quality ② semantic agreement (same word, different meanings) ③ governance, permissions & security ④ organizational change management ⑤ maintenance (tracking a changing reality) ⑥ upfront cost. <b>One line of math</b>: connecting n systems point-to-point needs n(n−1)/2 interfaces; through a hub (the ontology) it needs n — with n=8 that is 28 versus 8. <b>Practical tip</b>: scope small (one equipment line, one product family), land the first win fast, and keep your sponsor."
+  },
+  "algo8_09_small": {
+    "branchOf": "algo8_09", "ord": 5,
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "온톨로지와 의사결정 자동화",
+    "title": "설비 한 대 미니 온톨로지 — 오픈소스로 시작하기",
+    "narr": "그렇다면 대형 플랫폼 없이, <b>설비 한 대</b>부터 시작할 수 있을까요? 가능합니다. 미니 온톨로지의 재료는 전부 오픈소스로 구할 수 있습니다. <b>1단계 — 모델.</b> 펌프 1대, 센서 8개, 밸브 2개라면 객체 11개와 관계 10개 — SQLite(또는 가벼운 그래프 DB)의 테이블 두 개, <code>obj</code>와 <code>link</code>로 충분히 표현됩니다. <b>2단계 — 수집.</b> 센서를 초당 1회씩 읽으면 하루 약 69만 건, 저장은 하루 수십 MB 수준 — 노트북 한 대로도 넉넉한 규모입니다. <b>3단계 — 규칙과 액션.</b> 규칙 엔진은 거창할 필요 없이 파이썬 if문에서 시작합니다. '온도 90도 초과면 정지'. 단, <b>액션은 처음엔 반드시 사람 승인 후 실행 + 전 건 기록</b>으로 두세요. 자동 액션이 설비를 잘못 세우는 순간 프로젝트의 신뢰가 끝납니다. <b>4단계 — 자연어.</b> 로컬에서 도는 작은 오픈 모델에 객체 그래프를 컨텍스트로 넣으면 '어제 P-101에 무슨 일이 있었나요?' 같은 질문에 답하게 됩니다.<br><br><b>어디서 막히는가:</b> 코드가 아니라 데이터입니다. 센서 태그 이름 정리, 단위 통일, 결측 처리에 시간의 8할이 갑니다. 그리고 현실이 바뀔 때마다(센서 교체, 배관 변경) 모델을 따라 고치는 꾸준함이 필요합니다. 하지만 설비 한 대에서 측정→판단→액션→기록의 루프가 한 번 닫히고 나면, 두 대째부터는 같은 패턴의 복제입니다 — 큰 플랫폼이 하는 일도 본질은 이 루프를 회사 전체 규모로 키운 것입니다.",
+    "hint": "한 단계씩 — 코드 여섯 줄을 지나 아키텍처 전체 그림까지.",
+    "more": "<b>미니 스택</b>: SQLite/그래프DB(객체·링크 두 테이블) + 파이썬 규칙 엔진(<code>if temp > 90: shutdown(pump)</code>) + 로컬 LLM(그래프를 컨텍스트로 자연어 질의). <b>시작 규칙</b>: 액션은 수동 승인 + 전 건 로그부터, 자동화는 신뢰가 쌓인 뒤에. <b>규모 감각</b>: 센서 8개 × 1Hz = 하루 691,200건, 건당 100바이트면 약 69MB/일 — 하드웨어는 문제가 아닙니다. 시간의 8할은 태그 정리·단위 통일 — 관건은 코드가 아니라 데이터입니다.",
+    "more_en": "<b>Mini stack</b>: SQLite or a light graph DB (two tables: objects & links) + a Python rule engine (<code>if temp > 90: shutdown(pump)</code>) + a local LLM answering natural-language questions with the graph as context. <b>Starting rule</b>: actions begin as manual-approval-plus-full-logging; automate only after trust is earned. <b>Sense of scale</b>: 8 sensors × 1 Hz = 691,200 events/day, about 69 MB/day at 100 bytes each — hardware is not the problem. Eighty percent of the time goes to tag cleanup and unit alignment — the bottleneck is data, not code."
   }
 }

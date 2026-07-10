@@ -23817,7 +23817,435 @@
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif';
       ctx.fillText('BST에서 중위 순회는 항상 오름차순 — 재귀가 트리의 좌→중→우 구조를 그대로 따라감', W/2, H*0.92);
       ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif';
-      ctx.fillText('방문 '+E._tvi+' / '+E._tvOrder.length+'   ·   전위=중간을 먼저, 후위=중간을 마지막에', W/2, H*0.97); } }
+      ctx.fillText('방문 '+E._tvi+' / '+E._tvOrder.length+'   ·   전위=중간을 먼저, 후위=중간을 마지막에', W/2, H*0.97); } },
+
+  { id:'algo8_08_pipeline', branchOf:'algo8_08', ord:1, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%6; },
+    draw:function(E){ var s=this.s;
+      var names=['데이터 수집·정제','토크나이저','사전학습','정렬 (SFT·RLHF/DPO)','평가','서빙'];
+      var subs=['웹·책·코드 수십조 토큰','텍스트 → 정수 ID','다음 토큰 예측','사람 선호 반영','능력·안전 측정','전 세계 사용자 응답'];
+      var pos=[[0.05,0.22],[0.38,0.22],[0.71,0.22],[0.71,0.56],[0.38,0.56],[0.05,0.56]];
+      var boxes=[];
+      for(var i=0;i<6;i++){
+        boxes.push({x:pos[i][0], y:pos[i][1], w:0.24, h:0.16,
+          c:(i===s.step?'#ffb27a':(i<s.step?'#8fe3b5':'#7ab8ff')),
+          t:(i+1)+'. '+names[i], s:subs[i]});
+      }
+      var arrows=[
+        {x1:0.29,y1:0.30,x2:0.38,y2:0.30,c:'#9b99a3'},
+        {x1:0.62,y1:0.30,x2:0.71,y2:0.30,c:'#9b99a3'},
+        {x1:0.83,y1:0.38,x2:0.83,y2:0.56,c:'#9b99a3'},
+        {x1:0.71,y1:0.64,x2:0.62,y2:0.64,c:'#9b99a3'},
+        {x1:0.38,y1:0.64,x2:0.29,y2:0.64,c:'#9b99a3'} ];
+      var notes=[
+        '① 데이터: 웹·책·논문·코드에서 수십조 토큰을 모으고 중복 제거·품질 필터링·유해물 제거를 합니다. 모델의 상한선은 여기서 정해집니다.',
+        '② 토크나이저: 텍스트를 자주 나오는 조각(BPE)으로 잘라 정수 ID로 바꿉니다. 모델이 보는 세상은 이 정수열이 전부입니다.',
+        '③ 사전학습: 다음 토큰 하나를 맞히는 단순한 문제를 수조 번 풀면서 문법·지식·추론이 스며듭니다. 전체 비용의 몸통입니다.',
+        '④ 정렬: 지시를 따르고 거짓·유해 답을 피하도록 SFT와 RLHF/DPO로 사람의 선호를 가르칩니다.',
+        '⑤ 평가: 벤치마크·사람 블라인드 비교·안전 레드팀으로 능력과 위험을 재고, 부족하면 앞 단계로 되돌아갑니다.',
+        '⑥ 서빙: 완성된 모델을 전 세계 트래픽에 빠르고 싸게 응답하도록 최적화해 올립니다. 여기서 새로운 공학이 시작됩니다.' ];
+      window.AlgoDoc(E, {
+        title:'LLM 개발 전체 파이프라인',
+        sub:'여섯 정거장 — D키로 단계 이동 ('+(s.step+1)+'/6)',
+        boxes:boxes, arrows:arrows, note:notes[s.step] });
+    } },
+  { id:'algo8_08_arch', branchOf:'algo8_08', ord:2, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%7; },
+    draw:function(E){ var s=this.s;
+      var code=[
+        'def attention(x):             # x: (T, d) 토큰 표현들',
+        '    Q = x @ Wq                # 질의(Query): 무엇을 찾는가',
+        '    K = x @ Wk                # 키(Key): 나는 무엇인가',
+        '    V = x @ Wv                # 값(Value): 전달할 내용',
+        '    S = Q @ K.T / sqrt(d_k)   # 모든 토큰 쌍의 관련도 점수',
+        '    A = softmax(S)            # 행마다 확률로 정규화',
+        '    return A @ V              # 가중합 = 문맥이 섞인 표현' ];
+      var N=70e9;              // 파라미터 수 (700억)
+      var D=20*N;              // 컴퓨트 최적 학습 토큰 ≈ 20·N
+      var dk=128;              // 헤드 차원
+      var T=4096;              // 문맥 길이
+      var pairs=T*T;           // 어텐션이 계산하는 점수 쌍의 수
+      window.AlgoDoc(E, {
+        title:'트랜스포머의 심장 — 셀프 어텐션과 스케일링',
+        sub:'D키로 한 줄씩 따라가 보세요',
+        code:code, codeTitle:'attention.py', actLine:s.step,
+        calc:[
+          {k:'파라미터 N', v:(N/1e9)+'B ('+(N/1e8)+'억 개)', c:'#7ab8ff'},
+          {k:'권장 학습 토큰 D ≈ 20·N', v:(D/1e12).toFixed(1)+'조 개', c:'#ffb27a'},
+          {k:'점수 나눗셈 √d_k (d_k='+dk+')', v:Math.sqrt(dk).toFixed(1), c:'#f4a0c0'},
+          {k:'문맥 '+T+'토큰의 점수 쌍 T²', v:pairs.toLocaleString()+'개', c:'#8fe3b5'} ],
+        note:'모든 토큰이 모든 토큰을 동시에 바라봅니다 — 이 단순한 구조가 규모와 함께 언어를 익힙니다.' });
+    } },
+  { id:'algo8_08_train', branchOf:'algo8_08', ord:3, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%9; },
+    draw:function(E){ var s=this.s;
+      var seqs=2048, seqLen=2048;
+      var batchTok=seqs*seqLen;          // 배치당 토큰 수
+      var dp=128, tp=8, pp=8;
+      var gpus=dp*tp*pp;                 // 전체 GPU 수
+      if(s.step<6){
+        var code=[
+          'for step in range(total_steps):',
+          '    batch = next(loader)               # 토큰 시퀀스 배치',
+          '    logits = model(batch.inputs)       # 순전파',
+          '    loss = cross_entropy(logits, batch.targets)',
+          '    loss.backward()                    # 역전파(기울기)',
+          '    optimizer.step(); optimizer.zero_grad()' ];
+        window.AlgoDoc(E, {
+          title:'사전학습 루프 — 다음 토큰 예측',
+          sub:'D키로 한 줄씩 (여섯 줄 뒤에는 3D 병렬이 이어집니다)',
+          code:code, codeTitle:'pretrain.py', actLine:s.step,
+          calc:[
+            {k:'배치당 토큰 ('+seqs+'×'+seqLen+')', v:(batchTok/1e6).toFixed(1)+'M개', c:'#7ab8ff'},
+            {k:'전체 GPU ('+dp+'×'+tp+'×'+pp+')', v:gpus.toLocaleString()+'대', c:'#8fe3b5'} ],
+          note:'이 여섯 줄이 수천 대의 GPU에서 몇 달 동안 쉬지 않고 반복됩니다.' });
+      } else {
+        var k=s.step-6;
+        var names=['데이터 병렬','텐서 병렬','파이프라인 병렬'];
+        var psubs=['같은 모델 복제 × 다른 데이터','한 행렬곱을 여러 GPU가 분담','층(layer)을 구간별로 분담'];
+        var boxes=[];
+        for(var i=0;i<3;i++){
+          boxes.push({x:0.06+i*0.31, y:0.36, w:0.27, h:0.20,
+            c:(i===k?'#ffb27a':'#7ab8ff'), t:names[i], s:psubs[i]});
+        }
+        var notes=[
+          '데이터 병렬: 모델을 통째로 복제해 GPU 그룹마다 다른 배치를 학습시키고 기울기를 평균(all-reduce)합니다. 가장 단순하지만 복제본이 어딘가에 들어가야 합니다.',
+          '텐서 병렬: 거대한 행렬곱 하나를 여러 GPU가 열·행으로 쪼개어 동시에 계산합니다. 통신이 매우 잦아 같은 서버 안의 초고속 연결이 필요합니다.',
+          '파이프라인 병렬: 층 묶음별로 GPU 그룹을 배정해 마이크로배치를 조립 라인처럼 흘립니다. 라인이 비는 시간(버블)을 줄이는 스케줄이 관건입니다.' ];
+        window.AlgoDoc(E, {
+          title:'3D 병렬 — 모델이 한 대에 안 들어갈 때',
+          sub:'세 방향을 곱해서 씁니다 — D키로 하나씩',
+          boxes:boxes,
+          calc:[
+            {k:'데이터×텐서×파이프라인', v:dp+' × '+tp+' × '+pp, c:'#7ab8ff'},
+            {k:'= 한 학습에 참여하는 GPU', v:gpus.toLocaleString()+'대', c:'#ffb27a'} ],
+          note:notes[k] });
+      }
+    } },
+  { id:'algo8_08_cost', branchOf:'algo8_08', ord:4, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%3; },
+    draw:function(E){ var s=this.s;
+      var presets=[
+        {name:'중형 8B',        N:8e9,   D:15e12},
+        {name:'대형 70B',       N:70e9,  D:15e12},
+        {name:'프론티어급 405B', N:405e9, D:15e12} ];
+      var p=presets[s.step];
+      var flops=6*p.N*p.D;                 // C ≈ 6·N·D
+      var gpuFlops=1e15, util=0.4;         // 유효 FLOP/s, 이용률
+      var gpuSec=flops/(gpuFlops*util);
+      var gpuHours=gpuSec/3600;
+      var rate=2.5;                        // GPU-시간당 대략 단가($)
+      var dollars=gpuHours*rate;
+      var fleet=8192;                      // 동원 GPU 수
+      var days=gpuHours/fleet/24;
+      var boxes=[
+        {x:0.05,y:0.30,w:0.26,h:0.16,c:'#ffb27a',t:'컴퓨트',s:'GPU 임차·전력 — 몸통'},
+        {x:0.34,y:0.30,w:0.26,h:0.16,c:'#7ab8ff',t:'데이터',s:'라이선스·정제·라벨링'},
+        {x:0.05,y:0.52,w:0.26,h:0.16,c:'#f4a0c0',t:'인력',s:'연구·인프라 엔지니어'},
+        {x:0.34,y:0.52,w:0.26,h:0.16,c:'#f0888a',t:'시행착오',s:'실패한 실험들의 컴퓨트'} ];
+      window.AlgoDoc(E, {
+        title:'컴퓨트와 비용 — C ≈ 6·N·D',
+        sub:'D키로 모델 크기 변경 ('+p.name+')',
+        boxes:boxes,
+        calc:[
+          {k:'모델', v:p.name+' (N='+(p.N/1e9)+'B)', c:'#dfeefb'},
+          {k:'학습 토큰 D', v:(p.D/1e12)+'조 개', c:'#dfeefb'},
+          {k:'총 연산 C ≈ 6·N·D', v:flops.toExponential(2)+' FLOPs', c:'#ffb27a'},
+          {k:'GPU-시간 (유효 10¹⁵ FLOP/s · 이용률 40%)', v:Math.round(gpuHours).toLocaleString()+' h', c:'#7ab8ff'},
+          {k:'GPU '+fleet.toLocaleString()+'대를 동원하면', v:days.toFixed(1)+'일', c:'#f4a0c0'},
+          {k:'컴퓨트 비용 (시간당 $'+rate+')', v:'$'+Math.round(dollars).toLocaleString(), c:'#8fe3b5'} ],
+        note:'공개된 스케일링 관계로 추정한 규모 감각이며 정확한 액수는 아닙니다. 최종 청구서에는 데이터·인력·실패 실험이 더해집니다.' });
+    } },
+  { id:'algo8_08_hurdles', branchOf:'algo8_08', ord:5, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%6; },
+    draw:function(E){ var s=this.s;
+      var names=['① 데이터 품질·고갈','② 인프라·하드웨어 고장','③ 학습 안정성','④ 정렬·안전','⑤ 평가의 어려움','⑥ 비용·인재'];
+      var subs=['좋은 텍스트는 유한합니다','수만 GPU = 매일 고장','loss spike · 발산','환각·유해 답변','점수 ≠ 실력','수백억 원 + 희소 전문가'];
+      var boxes=[];
+      for(var i=0;i<6;i++){
+        boxes.push({x:0.04+(i%2)*0.29, y:0.22+Math.floor(i/2)*0.22, w:0.27, h:0.16,
+          c:(i===s.step?'#ffb27a':'#7ab8ff'), t:names[i], s:subs[i]});
+      }
+      var gpus=16384;                      // 가동 GPU 수
+      var annFail=0.09;                    // 연간 고장률 가정 9%
+      var perDay=gpus*annFail/365;         // 하루 예상 고장 대수
+      var notes=[
+        '데이터 품질·고갈: 웹의 양질 텍스트는 유한합니다. 중복·스팸·기계생성 글을 걸러내고, 부족한 영역은 검증 가능한 합성 데이터와 라이선스 데이터로 메꿉니다.',
+        '인프라 고장: GPU 수만 대를 몇 달 돌리면 매일 몇 대씩 죽습니다. 자동 감지·예비 장비 교체와 주기적 체크포인트가 없으면 학습 전체가 무너집니다.',
+        '학습 안정성: 어느 날 갑자기 손실이 치솟거나 발산합니다. 학습률·정밀도(bf16)·데이터를 다듬고, 이상하면 체크포인트로 되감아 문제 구간을 건너뜁니다.',
+        '정렬·안전: 능력이 커질수록 그럴듯한 거짓말(환각)·유해 답변의 위험도 커집니다. RLHF·원칙 기반 학습과 레드팀 공격 테스트로 계속 조입니다.',
+        '평가의 어려움: 벤치마크 점수는 문제 유출·암기로 부풀 수 있습니다. 진짜 실력은 사람 블라인드 비교와 실사용 지표로 재야 합니다.',
+        '비용·인재: 한 번의 사전학습에 수백억 원, 그리고 그 실험을 설계·운영할 소수의 경험자 — 둘 다 세계적으로 희소합니다.' ];
+      window.AlgoDoc(E, {
+        title:'여섯 개의 벽 — 실전 허들',
+        sub:'D키로 하나씩 ('+(s.step+1)+'/6)',
+        boxes:boxes,
+        calc:[
+          {k:'가동 GPU', v:gpus.toLocaleString()+'대', c:'#7ab8ff'},
+          {k:'연간 고장률 '+(annFail*100)+'% 가정 시', v:'하루 약 '+perDay.toFixed(1)+'대 고장', c:'#f0888a'} ],
+        note:notes[s.step] });
+    } },
+  { id:'algo8_08_serving', branchOf:'algo8_08', ord:6, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; },
+    draw:function(E){ var s=this.s;
+      var names=['KV 캐시','연속 배칭','양자화','추측 디코딩'];
+      var subs=['지난 토큰의 K·V 재사용','빈자리에 즉시 새 요청','16비트 → 4비트 압축','작은 모델 초안 + 병렬 검증'];
+      var boxes=[];
+      for(var i=0;i<4;i++){
+        boxes.push({x:0.04+(i%2)*0.29, y:0.28+Math.floor(i/2)*0.24, w:0.27, h:0.18,
+          c:(i===s.step?'#ffb27a':'#7ab8ff'), t:names[i], s:subs[i]});
+      }
+      var L=80, kvH=8, hd=128, T=8192, bytes=2;   // 층수·KV헤드·헤드차원·문맥길이·fp16
+      var kvMem=2*L*kvH*hd*T*bytes;               // K와 V 두 벌
+      var kvGB=kvMem/Math.pow(2,30);
+      var users=100;
+      var totGB=kvGB*users;
+      var wN=70e9;
+      var wFp16=wN*2/Math.pow(2,30);              // FP16 가중치 GB
+      var wInt4=wN*0.5/Math.pow(2,30);            // INT4 가중치 GB
+      var notes=[
+        'KV 캐시: 이미 읽은 토큰의 K·V를 저장해 두면 새 토큰마다 문맥 전체를 다시 계산하지 않아도 됩니다. 대신 메모리를 크게 먹습니다 — 오른쪽 계산을 보세요.',
+        '연속 배칭: 요청마다 길이가 제각각이라 고정 배치는 GPU를 놀립니다. 끝난 요청 자리에 대기 요청을 즉시 끼워 넣으면 처리량이 몇 배로 뜁니다.',
+        '양자화: 가중치를 16비트에서 8·4비트로 압축하면 메모리와 대역폭이 급감해 같은 GPU로 더 큰 모델·더 많은 사용자를 감당합니다. 품질 검증은 필수입니다.',
+        '추측 디코딩: 작은 모델이 토큰 여러 개를 초안으로 쓰고 큰 모델이 한 번에 병렬로 검증합니다. 출력 분포는 동일한데 속도가 2~3배 빨라집니다.' ];
+      window.AlgoDoc(E, {
+        title:'코드보다 어려운 것 — 추론과 서빙',
+        sub:'네 가지 무기 — D키로 하나씩 ('+(s.step+1)+'/4)',
+        boxes:boxes,
+        calc:[
+          {k:'요청 1개 KV 캐시 ('+L+'층·'+kvH+'KV헤드·'+(T/1024)+'K문맥)', v:kvGB.toFixed(2)+' GB', c:'#ffb27a'},
+          {k:'동시 사용자 '+users+'명이면', v:totGB.toFixed(0)+' GB', c:'#f0888a'},
+          {k:'가중치 '+(wN/1e9)+'B: FP16 → INT4', v:wFp16.toFixed(0)+' GB → '+wInt4.toFixed(0)+' GB', c:'#8fe3b5'} ],
+        note:notes[s.step] });
+    } },
+
+  { id:'algo8_09_what', branchOf:'algo8_09', ord:1, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%4; },
+    draw:function(E){ var s=this.s;
+      var objs=[
+        {x:0.05,y:0.32,w:0.18,h:0.16,c:'#7ab8ff',t:'객체 · 펌프 P-101',s:'속성 temp 78.0 · 가동중'},
+        {x:0.38,y:0.10,w:0.18,h:0.16,c:'#7ab8ff',t:'객체 · 센서 TS-9',s:'속성 reading 78.0'},
+        {x:0.38,y:0.52,w:0.18,h:0.16,c:'#7ab8ff',t:'객체 · 작업지시 WO-553',s:'속성 담당 정비1팀'}
+      ];
+      var links=[
+        {x1:0.23,y1:0.36,x2:0.38,y2:0.20,c:'#9b99a3'},
+        {x1:0.23,y1:0.44,x2:0.38,y2:0.58,c:'#9b99a3'}
+      ];
+      var act={x:0.63,y:0.52,w:0.17,h:0.16,c:'#8fe3b5',t:'액션 · shutdown()',s:'PLC로 정지 명령'};
+      var actArrow={x1:0.56,y1:0.60,x2:0.63,y2:0.60,c:'#8fe3b5',dash:true};
+      var caps=[
+        '① 객체(Object) — 현실의 사물이 데이터의 단위가 됩니다',
+        '② 속성(Property) — 객체가 지닌 값이 붙습니다',
+        '③ 관계(Link) — 펌프—센서(measured_by), 펌프—작업지시(repaired_by)',
+        '④ 액션(Action) — 상태를 바꾸는 조작까지 모델의 일부입니다'
+      ];
+      var boxes=[], arrows=[], i;
+      for(i=0;i<objs.length;i++){ var b={x:objs[i].x,y:objs[i].y,w:objs[i].w,h:objs[i].h,c:objs[i].c,t:objs[i].t}; if(s.step>=1)b.s=objs[i].s; boxes.push(b); }
+      if(s.step>=2){ for(i=0;i<links.length;i++)arrows.push(links[i]); }
+      if(s.step>=3){ boxes.push(act); arrows.push(actArrow); }
+      var nLink=(s.step>=2)?links.length:0, nAct=(s.step>=3)?1:0;
+      window.AlgoDoc(E, {
+        title:'온톨로지 = 객체 + 속성 + 관계 + 액션',
+        sub:caps[s.step],
+        boxes:boxes, arrows:arrows,
+        calc:[
+          {k:'객체(Object)', v:objs.length+'개', c:'#7ab8ff'},
+          {k:'관계(Link)', v:nLink+'개', c:'#9b99a3'},
+          {k:'액션(Action)', v:nAct+'개', c:'#8fe3b5'} ],
+        note:'펌프 한 대의 세계가 의미 그래프로 자립니다 — Foundry·Gotham·AIP가 모두 이 그래프 위에서 동작합니다.' });
+    } },
+  { id:'algo8_09_build', branchOf:'algo8_09', ord:2, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%6; },
+    draw:function(E){ var s=this.s;
+      var code=[
+        '# 1단계 — 흩어진 원천 데이터를 객체로',
+        '@object',
+        'class Pump:',
+        '    id: str; temp: float; status: str',
+        '@object',
+        'class Sensor:',
+        '    id: str; reading: float',
+        '# 2단계 — 객체 사이 관계 선언',
+        "link(Pump, Sensor, name='measured_by')",
+        '# 3단계 — 상태를 바꾸는 액션(권한·감사 필수)',
+        '@action',
+        'def shutdown(pump: Pump):',
+        "    plc.write(pump.id, 'STOP')   # write-back",
+        "    pump.status = 'stopped'"
+      ];
+      var actLines=[0,1,4,8,10,12];
+      var subs=[
+        '통합 — 원천 시스템(ERP·센서·로그)의 키를 맞춰 모읍니다',
+        '객체 타입 ① — 펌프: id·온도·상태를 속성으로',
+        '객체 타입 ② — 센서: 측정값을 속성으로',
+        '관계 — 펌프는 센서로 측정됩니다(measured_by)',
+        '액션 — 현실을 바꾸는 조작을 모델에 선언합니다',
+        'write-back — 명령이 실제 장비(PLC)로 나갑니다'
+      ];
+      var nObj=0, nLink=0, nAct=0, i;
+      for(i=0;i<code.length;i++){
+        if(code[i].indexOf('@object')>=0)nObj++;
+        if(code[i].indexOf('link(')>=0)nLink++;
+        if(code[i].indexOf('@action')>=0)nAct++;
+      }
+      window.AlgoDoc(E, {
+        title:'온톨로지 구축 — 통합 → 객체 → 관계 → 액션',
+        sub:subs[s.step],
+        code:code, codeTitle:'ontology.py', actLine:actLines[s.step],
+        calc:[
+          {k:'객체 타입', v:nObj+'개', c:'#7ab8ff'},
+          {k:'관계 타입', v:nLink+'개', c:'#9b99a3'},
+          {k:'액션', v:nAct+'개', c:'#8fe3b5'},
+          {k:'시맨틱 레이어 정의 합계', v:(nObj+nLink+nAct)+'개', c:'#ffb27a'} ],
+        note:'이 몇 줄이 시맨틱 레이어의 본질입니다 — 원천이 늘면 매핑만 추가하고, 위의 앱·AI는 그대로 둡니다.' });
+    } },
+  { id:'algo8_09_special', branchOf:'algo8_09', ord:3, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%6; },
+    draw:function(E){ var s=this.s;
+      var st=[
+        {x:0.04,y:0.16,w:0.15,h:0.14,t:'① 데이터',s:'ERP·센서·로그'},
+        {x:0.24,y:0.16,w:0.15,h:0.14,t:'② 온톨로지',s:'객체·관계 계층'},
+        {x:0.44,y:0.16,w:0.15,h:0.14,t:'③ AI·규칙',s:'LLM·최적화'},
+        {x:0.64,y:0.16,w:0.15,h:0.14,t:'④ 의사결정',s:'사람 + AI'},
+        {x:0.64,y:0.52,w:0.15,h:0.14,t:'⑤ 액션',s:'write-back'},
+        {x:0.24,y:0.52,w:0.31,h:0.14,t:'⑥ 현실',s:'설비·주문·재고가 바뀜'}
+      ];
+      var caps=[
+        '① 데이터 — 흩어진 원천이 흘러 들어옵니다',
+        '② 온톨로지 — 데이터가 객체·관계의 의미 계층이 됩니다',
+        '③ AI·규칙 — LLM·최적화가 같은 모델 위에서 판단합니다',
+        '④ 의사결정 — 사람과 AI가 함께 결정합니다 (보통의 BI는 여기서 멈춥니다)',
+        '⑤ 액션 — 승인된 결정이 실제 시스템에 되돌려 써집니다',
+        '⑥ 현실 — 설비·주문이 바뀌고, 그 결과가 다시 ①의 데이터로'
+      ];
+      var boxes=[], i;
+      for(i=0;i<st.length;i++){
+        var c=(i===s.step)?'#ffb27a':((i===5)?'#8fe3b5':'#7ab8ff');
+        boxes.push({x:st[i].x,y:st[i].y,w:st[i].w,h:st[i].h,c:c,t:st[i].t,s:st[i].s});
+      }
+      var arrows=[
+        {x1:0.19,y1:0.23,x2:0.24,y2:0.23,c:'#9b99a3'},
+        {x1:0.39,y1:0.23,x2:0.44,y2:0.23,c:'#9b99a3'},
+        {x1:0.59,y1:0.23,x2:0.64,y2:0.23,c:'#9b99a3'},
+        {x1:0.715,y1:0.30,x2:0.715,y2:0.52,c:'#9b99a3'},
+        {x1:0.64,y1:0.59,x2:0.55,y2:0.59,c:'#9b99a3'},
+        {x1:0.24,y1:0.59,x2:0.115,y2:0.30,c:'#8fe3b5',dash:true}
+      ];
+      window.AlgoDoc(E, {
+        title:'닫힌 루프 — 분석이 아니라 운영',
+        sub:caps[s.step],
+        boxes:boxes, arrows:arrows,
+        calc:[
+          {k:'루프 단계', v:(s.step+1)+' / '+st.length, c:'#ffb27a'},
+          {k:'현재 위치', v:st[s.step].t, c:'#dfeefb'} ],
+        note:'점선이 루프를 닫습니다 — 이 되먹임이 있어야 대시보드가 아니라 운영되는 디지털 트윈입니다.' });
+    } },
+  { id:'algo8_09_hurdles', branchOf:'algo8_09', ord:4, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%6; },
+    draw:function(E){ var s=this.s;
+      var h=[
+        {t:'① 데이터 통합·품질', s:'가장 큰 허들', d:'원천 8개를 일대일로 이으면 인터페이스 28개 — 온톨로지 허브면 8개면 됩니다. 그래도 결측·오타 정제는 사람 몫입니다.'},
+        {t:'② 시맨틱 정합성', s:'같은 말, 다른 뜻', d:"영업·CS·물류의 '고객'이 서로 다릅니다 — 하나의 정의로 합의하는 회의가 기술보다 오래 걸립니다."},
+        {t:'③ 거버넌스·보안', s:'권한·감사·책임', d:'누가 어떤 객체를 보고 어떤 액션을 실행할 수 있는지, 사고가 나면 책임은 누구인지까지 설계해야 합니다.'},
+        {t:'④ 조직 변화관리', s:'엑셀과의 싸움', d:'현장이 쓰던 도구를 놓게 하려면, 온톨로지가 기존 도구보다 먼저 더 편해져야 합니다.'},
+        {t:'⑤ 유지보수', s:'현실은 계속 바뀝니다', d:'신규 설비·조직 개편마다 모델도 갱신해야 합니다 — 방치된 온톨로지는 틀린 지도가 됩니다.'},
+        {t:'⑥ 초기 구축 비용', s:'가치까지의 시간', d:'수개월의 정제·모델링 기간을 버틸 스폰서와, 작지만 확실한 첫 성공 사례가 필요합니다.'}
+      ];
+      var pos=[
+        {x:0.06,y:0.12},{x:0.36,y:0.12},
+        {x:0.06,y:0.38},{x:0.36,y:0.38},
+        {x:0.06,y:0.64},{x:0.36,y:0.64}
+      ];
+      var boxes=[], i;
+      for(i=0;i<h.length;i++){
+        boxes.push({x:pos[i].x,y:pos[i].y,w:0.26,h:0.17,c:(i===s.step)?'#f0888a':'#7ab8ff',t:h[i].t,s:h[i].s});
+      }
+      var n=8;
+      var p2p=n*(n-1)/2;
+      var hub=n;
+      window.AlgoDoc(E, {
+        title:'현실의 허들 여섯 — 기술보다 데이터와 사람',
+        sub:h[s.step].t+' — '+h[s.step].s,
+        boxes:boxes,
+        calc:[
+          {k:'원천 시스템 수(가정)', v:n+'개', c:'#7ab8ff'},
+          {k:'일대일 통합 n(n−1)/2', v:p2p+'개 인터페이스', c:'#f0888a'},
+          {k:'온톨로지 허브 통합', v:hub+'개 인터페이스', c:'#8fe3b5'} ],
+        note:h[s.step].d });
+    } },
+  { id:'algo8_09_small', branchOf:'algo8_09', ord:5, concept:true,
+    enter:function(E){ this.s={step:0}; E.setOn([]); },
+    tap:function(E){ this.s.step=(this.s.step+1)%7; },
+    draw:function(E){ var s=this.s;
+      var code=[
+        'import sqlite3',
+        "db = sqlite3.connect('plant.db')",
+        "db.execute('CREATE TABLE obj(id,type,props)')",
+        "db.execute('CREATE TABLE link(src,rel,dst)')",
+        'def on_reading(sid, temp):      # 센서 이벤트',
+        "    pump = neighbor(sid, 'measures')",
+        '    if temp > 90.0:             # 규칙 엔진',
+        "        plc.write(pump, 'STOP') # 액션 write-back",
+        "        log_action(pump, 'shutdown')",
+        'def ask(question):              # 자연어 질의',
+        '    ctx = export_subgraph(db)',
+        '    return local_llm(question, ctx)'
+      ];
+      var actLines=[1,2,4,6,7,11];
+      var subs=[
+        '저장소 — SQLite 파일 하나면 충분합니다',
+        '객체·링크 — 테이블 두 개가 미니 온톨로지입니다',
+        '이벤트 — 센서 값이 들어올 때마다 호출됩니다',
+        '규칙 — 90도 초과면 액션 조건이 성립합니다',
+        '액션 — 처음엔 사람 승인 후 실행 + 전 건 기록으로',
+        '질의 — 로컬 LLM이 객체 그래프를 읽고 답합니다',
+        '아키텍처 전체 — 센서→객체 DB→규칙·AI→액션의 루프'
+      ];
+      var pumps=1, sensors=8, valves=2;
+      var objects=pumps+sensors+valves;
+      var links=sensors+valves;
+      var hz=1, evBytes=100;
+      var evDay=sensors*hz*86400;
+      var mbDay=evDay*evBytes/1e6;
+      var cfg={
+        title:'설비 한 대 미니 온톨로지 — 오픈소스 스택',
+        sub:subs[s.step],
+        calc:[
+          {k:'객체(펌프'+pumps+'+센서'+sensors+'+밸브'+valves+')', v:objects+'개', c:'#7ab8ff'},
+          {k:'관계(설비—센서·밸브)', v:links+'개', c:'#9b99a3'},
+          {k:'이벤트/일(센서 '+sensors+'개 × '+hz+'Hz)', v:evDay.toLocaleString()+'건', c:'#ffb27a'},
+          {k:'저장량/일(건당 '+evBytes+'B)', v:mbDay.toFixed(1)+' MB', c:'#8fe3b5'} ],
+        note:'이 규모는 노트북 한 대로 넉넉합니다 — 병목은 하드웨어가 아니라 태그 정리·단위 통일입니다.'
+      };
+      if(s.step<6){
+        cfg.code=code; cfg.codeTitle='mini_ontology.py'; cfg.actLine=actLines[s.step];
+      } else {
+        cfg.boxes=[
+          {x:0.04,y:0.30,w:0.16,h:0.15,c:'#7ab8ff',t:'센서·PLC',s:'초당 '+(sensors*hz)+'건 측정'},
+          {x:0.26,y:0.30,w:0.19,h:0.15,c:'#f4a0c0',t:'SQLite 객체·링크',s:'미니 온톨로지'},
+          {x:0.51,y:0.30,w:0.17,h:0.15,c:'#ffb27a',t:'규칙·로컬 LLM',s:'판단·질의'},
+          {x:0.74,y:0.30,w:0.13,h:0.15,c:'#8fe3b5',t:'액션',s:'승인 후 실행'}
+        ];
+        cfg.arrows=[
+          {x1:0.20,y1:0.375,x2:0.26,y2:0.375,c:'#9b99a3'},
+          {x1:0.45,y1:0.375,x2:0.51,y2:0.375,c:'#9b99a3'},
+          {x1:0.68,y1:0.375,x2:0.74,y2:0.375,c:'#9b99a3'},
+          {x1:0.805,y1:0.45,x2:0.12,y2:0.62,c:'#8fe3b5',dash:true},
+          {x1:0.12,y1:0.62,x2:0.12,y2:0.45,c:'#8fe3b5',dash:true}
+        ];
+      }
+      window.AlgoDoc(E, cfg);
+    } },
 
   ];
   if(window.Engine) window.Engine.addScenes(scenes);

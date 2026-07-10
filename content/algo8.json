@@ -102,5 +102,23 @@
   "hint": "세기 → 비트·게임 → 점화식 분석",
   "more": "큰 그림: 세는 문제는 '<b>겹침을 어떻게 보정하느냐</b>'입니다. 포함배제는 직접 더하고 빼며, 번사이드는 대칭(군 작용)을 같게 보고 평균으로 세고, 키르히호프는 신장 트리 수를 행렬식으로 셉니다. 님·그런디는 게임을 XOR로 환원하고, XOR 선형 기저가 그 토대입니다. 치환법·재귀트리·아크라-바지는 §1에서 본 점화식을 정식으로 푸는 도구입니다.",
   "more_en": "Big picture: counting is about <b>correcting for overlap</b>. Inclusion-exclusion adds and subtracts directly; Burnside counts symmetric configurations as one by averaging over a group action; Kirchhoff counts spanning trees via a determinant. Nim/Grundy reduce games to XOR, with the XOR linear basis as foundation. Substitution, recursion trees, and Akra-Bazzi formally solve the recurrences seen in §1."
- }
+ },
+"algo8_08": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "세계 수준 LLM 개발",
+    "title": "세계 수준 LLM을 만든다는 것",
+    "narr": "ChatGPT·Claude·Gemini 같은 <b>프론티어 LLM</b>은 '하나의 똑똑한 알고리즘'이 아니라, 수십조 개의 토큰과 수만 대의 GPU, 수백 명의 사람이 맞물려 도는 <b>거대한 시스템</b>입니다. 이 섹션에서는 그 전 과정을 순서대로 여행합니다 — ①웹·책·코드에서 <b>데이터</b>를 모으고 씻어내는 일, ②트랜스포머를 수천 GPU에 펼쳐 <b>사전학습</b>하는 일, ③사람의 선호에 맞게 <b>정렬</b>(SFT·RLHF)하는 일, ④무엇이 '좋은 모델'인지 <b>평가</b>하는 일, ⑤전 세계 트래픽에 실시간으로 <b>서빙</b>하는 일까지. 그리고 한 가지 역설을 만나게 됩니다 — 학습 루프의 핵심 코드는 몇십 줄이면 적을 수 있지만, 진짜 어려움은 그 코드를 <b>수만 배 규모로 키우고, 몇 달 동안 멈추지 않게 돌리고, 수백만 명에게 싸고 빠르게 전달하는 일</b>에 있다는 것입니다.",
+    "hint": "학습 지도를 살펴본 뒤, 심화학습 버튼으로 여섯 정거장을 순서대로 둘러보세요.",
+    "more": "<b>핵심 요약</b><br>· 파이프라인: 데이터 수집·정제 → 토크나이저 → 사전학습 → 정렬(SFT·RLHF/DPO) → 평가 → 서빙<br>· 사전학습 = <code>다음 토큰 예측</code> 하나의 목표에서 문법·지식·추론이 함께 자랍니다<br>· 비용의 몸통은 컴퓨트: 총 연산 <code>C ≈ 6·N·D</code> FLOPs<br>· 모델 코드보다 <b>스케일업·서빙</b>이 훨씬 어렵습니다 — 분산학습·학습 안정성·추론 최적화가 실전입니다<br>· 여섯 분기: 전체 파이프라인 → 아키텍처·스케일링 법칙 → 학습 루프·분산 → 비용 → 실전 허들 → 추론·서빙",
+    "more_en": "Key summary — A frontier LLM is a system, not a single algorithm: data collection and cleaning, tokenizer, pretraining (next-token prediction), alignment (SFT, RLHF/DPO), evaluation, and serving. Compute dominates cost (C ≈ 6·N·D FLOPs). The hardest parts are not the model code but scaling it up reliably and serving millions of users cheaply and fast. Six branches walk through the pipeline, architecture and scaling laws, the training loop with 3D parallelism, cost, real-world hurdles, and inference serving."
+  },
+"algo8_09": {
+    "ch": "알고리즘 · 프론티어 AI 시스템",
+    "sec": "온톨로지와 의사결정 자동화",
+    "title": "온톨로지 — 세계를 모델링해 결정을 자동화한다",
+    "narr": "기업의 데이터는 보통 수십 개의 시스템에 흩어져 있습니다. ERP에는 주문이, 센서 서버에는 측정값이, 엑셀에는 정비 일지가 따로 살고, 서로 말을 섞지 않습니다. <b>온톨로지(Ontology)</b>는 이 흩어진 데이터를 '테이블'이 아니라 <b>현실의 사물</b> — 펌프, 주문, 고객, 설비 — 로 다시 조립하는 방법입니다. 사물 하나하나는 <b>객체(Object)</b>가 되고, 그 값은 <b>속성(Property)</b>, 사물 사이의 연결은 <b>관계(Link)</b>, 그리고 상태를 바꾸는 조작은 <b>액션(Action)</b>이 됩니다. 데이터가 행과 열이 아니라 <b>의미 있는 사물의 그래프</b>가 되는 것입니다.<br><br>왜 이것이 기업 의사결정 자동화의 '궁극의 도구'라고 불릴까요? 대시보드는 세계를 <b>보여주기만</b> 하지만, 온톨로지는 판단의 결과를 <b>액션으로 현실에 되돌려 씁니다(write-back)</b>. 데이터→판단→행동→다시 데이터 — 이 루프가 닫히는 순간, 분석은 운영이 되고 회사는 자신의 <b>디지털 트윈</b> 위에서 굴러가기 시작합니다. 사람과 AI가 같은 모델을 보고 같은 언어로 판단한다는 점도 결정적입니다. 심화학습에서 이 아이디어를 대표하는 상용 플랫폼(Foundry·Gotham·AIP)의 구조, 직접 세우는 방법, 왜 특별한지, 현실의 허들, 그리고 설비 한 대짜리 미니 구현까지 차례로 들어갑니다.",
+    "hint": "심화학습(5)에서 제품·구축·AI결합·허들·미니구현으로 이어집니다.",
+    "more": "<b>온톨로지 4요소</b>: 객체(Object) · 속성(Property) · 관계(Link) · 액션(Action). <b>핵심 루프</b>: 데이터 → 온톨로지(의미 계층) → AI·규칙 → 의사결정 → 액션(write-back) → 현실 → 다시 데이터. 대시보드는 '보는 것'에서 멈추지만 온톨로지는 '바꾸는 것'까지 갑니다 — 그래서 운영 디지털 트윈이라 부릅니다. 심화 5분기: ① 제품과 개념 ② 구축 방법 ③ AI 결합·왜 특별한가 ④ 현실의 허들 ⑤ 설비 한 대 미니 구현.",
+    "more_en": "<b>Four elements of an ontology</b>: Objects, Properties, Links, Actions. <b>The core loop</b>: data → ontology (semantic layer) → AI & rules → decision → action (write-back) → the real world → data again. Dashboards stop at 'seeing'; an ontology goes all the way to 'changing' — that is why it is called an operational digital twin. Five deep-dives: ① products & the concept ② how to build one ③ combining AI & why it is special ④ real-world hurdles ⑤ a mini ontology for a single machine."
+  }
 }
