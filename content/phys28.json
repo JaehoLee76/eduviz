@@ -58,5 +58,19 @@
       "q_en": "Why do farther galaxies recede faster than nearer ones?",
       "sol_en": "Space itself expands; by Hubble's law v=H₀d, recession speed grows <b>in proportion to distance</b>."
     }
+  },
+  "phys28_05_origin": {
+    "ch": "물리학 제27장 일반상대성과 우주론",
+    "sec": "심화 · 최고 지성의 답",
+    "title": "우주의 시작 — 시공간은 함께 태어났는가",
+    "narr": "앞에서 우주를 거꾸로 감으니 모든 것이 한 점으로 모였습니다 — 빅뱅. 그렇다면 바로 그 '시작'에서 시간과 공간은 따로 생겼을까요, 함께 생겼을까요? 일반상대성의 답은 분명합니다 — 시간과 공간은 <b>하나의 시공간</b>의 두 얼굴이라, 시작이 있었다면 둘은 따로가 아니라 <b>함께</b> 태어납니다. 그래서 '빅뱅 이전은?'이라 묻는 것은 '북극점보다 더 북쪽은?'이라 묻는 것과 같아요 — 그 방향 자체가 없습니다. 펜로즈와 호킹은 이걸 엄밀히 증명했습니다(특이점 정리, 1965~70): 합리적인 조건 몇 개만 성립하면 우주의 과거는 유한하다 — <b>시작은 피할 수 없다</b>는 것이죠. 하지만 그 시작점에서 곡률과 밀도가 무한대로 치솟는데(특이점), 이건 '우주가 점에서 태어났다'는 답이 아니라 <b>일반상대성이 더는 통하지 않는다는 고장 신호</b>입니다. 진짜 시작을 알려면 아직 완성되지 않은 양자중력이 필요하죠. 화면을 탭해, 인류가 지금까지 내놓은 세 가지 답을 넘겨 보세요.",
+    "more": "<b>가장 견고한 답</b>: 펜로즈–호킹 특이점 정리 — 고전 일반상대성 안에서 우주는 약 138억 년의 유한한 과거를 가지며, 시간과 공간은 별개가 아니라 <b>단일한 시공간으로서 함께</b> 시작합니다. '시공간이 동시에 함께 시작했는가'에 대한 표준 답은 <b>'예, 함께'</b>입니다.\n\n<b>그러나 시작점 자체는 미해결</b>: 플랑크 시대(약 10⁻⁴³초)에는 중력마저 양자적으로 요동쳐, 완성된 <b>양자중력</b> 이론이 필요합니다. 그것이 없는 것이 지금 인류 지성의 정직한 한계죠. 최전선의 후보 답들:\n• <b>하틀–호킹 무경계</b>: 시작 근처에서 시간이 공간과 매끈하게 뒤섞여, 뾰족한 '시작의 경계'가 아예 없는 둥근 바닥이 됩니다(지구 남극점에 '더 남쪽'이 없듯). '시간의 시작'조차 근사적 개념이 되죠.\n• <b>루프양자우주론(빅바운스)</b>: 밀도가 한계에 닿으면 수축이 팽창으로 튕겨, 빅뱅이 <b>시작이 아니라 이전 우주로부터의 전환</b>이 됩니다 — 특이점이 사라집니다.\n• <b>홀로그래피적 창발</b>: 시공간 자체가 근본이 아니라 양자 얽힘에서 <b>피어난</b> 것일 수 있어, '시작 이전'은 시간이라는 개념이 없는 순수 양자 상태입니다.\n한편 BGV 정리(2003)는 평균적으로 팽창하는 우주라면 그 과거를 무한히 미룰 수 없음을 보여, 어떤 그림에서도 '시작'의 문제는 남습니다.\n\n<b>한 문장으로</b>: 시공간은 함께 시작했다 — 다만 '시작했다'는 말 자체가 플랑크 시대 근처에서 의미를 잃으며, 시간은 켜지고 꺼지는 스위치가 아니라 더 깊은 양자 구조에서 서서히 응결되어 나온 것일 가능성이 큽니다.",
+    "more_en": "<b>The firmest answer</b>: the Penrose–Hawking singularity theorems — within classical general relativity the universe has a finite past (~13.8 Gyr), and time and space begin not separately but <b>together, as a single spacetime</b>. So to 'did spacetime begin together?' the standard answer is <b>yes, together</b>. But the starting point itself is unsolved: near the Planck era (~10⁻⁴³ s) gravity itself fluctuates quantum-mechanically and we lack a complete theory of quantum gravity. Frontier candidates: Hartle–Hawking no-boundary (time emerges smoothly from space — no sharp 'edge of the beginning'), loop quantum cosmology (a big bounce — not a beginning but a transition from a prior universe), and holographic emergence (spacetime itself grows out of quantum entanglement). The BGV theorem (2003) shows an expanding universe cannot postpone its past forever. In one line: spacetime began together — but the very verb 'began' loses meaning near the Planck era, where time likely condenses gradually out of a deeper quantum structure rather than switching on.",
+    "problem": {
+      "q": "'빅뱅 이전에는 무엇이 있었나?'라는 질문이 표준 빅뱅 그림에서 잘 성립하지 않는 이유는?",
+      "solution": "일반상대성에서 <b>시간은 시공간의 일부</b>라, 시공간이 빅뱅에서 함께 시작했다면 그 '이전'이라는 시간 자체가 없기 때문입니다 — '북극점보다 더 북쪽'처럼 방향이 없는 질문이 됩니다.",
+      "q_en": "Why is 'what came before the Big Bang?' ill-posed in the standard picture?",
+      "sol_en": "In general relativity <b>time is part of spacetime</b>; if spacetime began at the Big Bang, there is no 'before' — like asking what is north of the North Pole."
+    }
   }
 }

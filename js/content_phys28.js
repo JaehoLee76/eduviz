@@ -199,6 +199,76 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('우주 자체가 팽창 중(은하가 공간 속을 나는 게 아니라 공간이 늘어남). 거꾸로 감으면 한 점 = 빅뱅', W/2, H*0.87);
       E.tapHint(W/2, H*0.93, '시간을 키우면 모든 은하가 멀어지고, 먼 것일수록 빠릅니다(팽창)', true);
       E.big('빅뱅과 우주 팽창 — 허블 법칙 v = H₀·d', '우주는 팽창하고 있고, 시작이 있었습니다.'); }
+  },
+
+  // ══════════ 심화: 우주의 시작 — 시공간은 함께 태어났는가 (a(t)를 프리드만 방정식으로 실제 수치적분) ══════════
+  { id:'phys28_05_origin', branchOf:'phys28_05',
+    enter:function(E){ this.s={mode:0}; E.setOn([]); },
+    tap:function(E){ this.s.mode=(this.s.mode+1)%3; E.blip(300+this.s.mode*120,0.08); },
+    draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, mode=s.mode, RED='#ff6a6a', VIO='#c9a6ff';
+      var ox=W*0.13, oy=H*0.68, pw=W*0.74, ph=H*0.42;
+      function PX(u){ return ox+u*pw; }      // u:0..1 (시간축)
+      function PY(a){ return oy - Math.min(a,1)*ph; }  // a:0..1(정규화)
+      // 축
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+pw,oy); ctx.moveTo(ox,oy); ctx.lineTo(ox,oy-ph); ctx.stroke();
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('척도인자 a (우주의 크기)', ox+2, oy-ph-8);
+      ctx.textAlign='right'; ctx.fillText('시간 →', ox+pw, oy+18);
+      var title, msg, sub, tcol;
+      if(mode===0){
+        // ① 표준 빅뱅: 물질우세 프리드만 da/dt = k·a^(-1/2). a로 균일 적분해 t(a) 누적(골든룰).
+        var Na=400, da=1/Na, k=1.0, t=0, pts=[];
+        for(var i=1;i<=Na;i++){ var a=i*da; t += Math.sqrt(a)/k*da; pts.push([t,a]); }
+        var tmax=t;
+        ctx.strokeStyle=ORA; ctx.lineWidth=2.6; ctx.beginPath();
+        for(i=0;i<pts.length;i++){ var X=PX(pts[i][0]/tmax*0.95), Y=PY(pts[i][1]); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+        ctx.fillStyle=RED; ctx.beginPath(); ctx.arc(PX(0),PY(0),6,0,7); ctx.fill();
+        ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('특이점: a→0, 밀도·곡률 →∞', PX(0)+12, PY(0)-10);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('일반상대성이 여기서 붕괴 — 답이 아니라 고장 신호', PX(0)+12, PY(0)-26);
+        tcol=ORA; title='① 표준 빅뱅 (일반상대성 + 관측)';
+        msg='시간을 거꾸로 감으면 a → 0인 한 점. 시간과 공간이 함께 시작한다.';
+        sub='펜로즈–호킹 특이점 정리: 우주의 과거는 유한하다 — 시작은 피할 수 없다.';
+      } else if(mode===1){
+        // ② 루프양자우주론: H² = ρ(1−ρ/ρc), ρ=a⁻³. 밀도 한계 ρc에서 바운스. a_min=(1/ρc)^(1/3). 대칭 적분(골든룰).
+        var rhoc=9, amin=Math.pow(1/rhoc,1/3), Nb=300, tt=0, prevA=amin, seg=[];
+        for(var j=0;j<=Nb;j++){ var a2=amin+(1-amin)*j/Nb, rho=Math.pow(a2,-3), Hh=Math.sqrt(Math.max(rho*(1-rho/rhoc),1e-9));
+          if(j>0) tt += (a2-prevA)/(a2*Hh); seg.push([tt,a2]); prevA=a2; }
+        var tb=tt;
+        ctx.lineWidth=2.6;
+        ctx.strokeStyle=GRN; ctx.beginPath();   // 팽창(우)
+        for(j=0;j<seg.length;j++){ var X=PX(0.5+seg[j][0]/tb*0.45), Y=PY(seg[j][1]); if(j===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+        ctx.strokeStyle=BLU; ctx.beginPath();    // 수축=이전 우주(좌)
+        for(j=0;j<seg.length;j++){ var X=PX(0.5-seg[j][0]/tb*0.45), Y=PY(seg[j][1]); if(j===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
+        ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(PX(0.5),PY(amin),6,0,7); ctx.fill();
+        ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('빅바운스 a_min > 0', PX(0.5), PY(amin)+24);
+        ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.fillText('이전 우주 (수축)', PX(0.22), oy-ph*0.55);
+        tcol=GRN; title='② 루프양자우주론 (빅바운스)';
+        msg='밀도가 한계에 닿으면 수축이 팽창으로 튕긴다 — a가 0이 되지 않는다.';
+        sub='빅뱅은 시작이 아니라 이전 우주로부터의 전환 — 특이점이 사라진다.';
+      } else {
+        // ③ 하틀–호킹 무경계: 로런츠 팽창 a=a₀·cosh(t) (실계산) + 매끄러운 둥근 바닥(경계 없음).
+        var a0=0.20;
+        ctx.strokeStyle=ORA; ctx.lineWidth=2.6; ctx.beginPath();
+        var f=true;
+        for(var u=0.5; u<=0.96; u+=0.004){ var tl=(u-0.5)*4.3, a3=a0*Math.cosh(tl); var X=PX(u), Y=PY(a3); if(f){ctx.moveTo(X,Y);f=false;} else ctx.lineTo(X,Y); } ctx.stroke();
+        // 유클리드 둥근 바닥(반원 캡) — 뾰족한 시작점이 없음
+        ctx.strokeStyle=VIO; ctx.lineWidth=2.6; ctx.beginPath();
+        ctx.arc(PX(0.5), PY(a0), W*0.05, Math.PI, 2*Math.PI, true); ctx.stroke();
+        ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(201,166,255,0.5)'; ctx.beginPath();
+        ctx.arc(PX(0.5), PY(a0), W*0.05, 0, Math.PI, false); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=VIO; ctx.font='600 12.5px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('매끄러운 바닥 — 뾰족한 시작점도, 경계도 없음', PX(0.5), PY(a0)+W*0.05+22);
+        tcol=VIO; title='③ 하틀–호킹 무경계 (양자중력 후보)';
+        msg='시작 근처에서 시간이 공간과 매끈하게 뒤섞인다 — 시작의 경계가 없다.';
+        sub='지구 남극점에 ‘더 남쪽’이 없듯, ‘시간의 시작’조차 근사적 개념이 된다.';
+      }
+      // 하단 설명
+      ctx.fillStyle=tcol; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(title, W/2, H*0.78);
+      ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.fillText(msg, W/2, H*0.84);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText(sub, W/2, H*0.885);
+      E.tapHint(W/2, H*0.94, '화면 탭 = 다음 답 (①빅뱅 → ②빅바운스 → ③무경계)', true);
+      E.big('우주의 시작 — 시공간은 함께 태어났는가', '시간과 공간은 하나의 시공간이라, 시작이 있었다면 함께 시작합니다. 그 시작점은 아직 인류가 푸는 중입니다.'); }
   }
 
   ];
