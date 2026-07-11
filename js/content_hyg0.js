@@ -1,9 +1,98 @@
-/* 산업위생기술사 제0장 — 시험의 전략 (동작만. 텍스트=content/hyg0.json) */
+/* 산업위생기술사 제0장 — 시험의 전략 (동작만. 텍스트=content/hyg0.json)
+   인트로 = 라마치니(1700 『일하는 사람들의 질병』) 시네마틱 — 초상은 판화풍 SVG(내장 data URI). */
 (function(){
   var AMB='#f2bd55', ORA='#ffb27a', GRN='#8fe3b5', BLU='#7ab8ff', PNK='#f4a0c0', RED='#f0888a', DIM='#9b99a3', TXT='#dfeefb';
+  // 판화풍 초상(내장 SVG): 오벌 프레임 + 17세기 의사(긴 가발·로브) 실루엣 — 앰버 톤
+  var RAMA_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="380" viewBox="0 0 300 380">'
+    +'<rect width="300" height="380" fill="#14141c"/>'
+    +'<ellipse cx="150" cy="185" rx="118" ry="152" fill="#1c1a22" stroke="#8a713b" stroke-width="3"/>'
+    +'<ellipse cx="150" cy="185" rx="106" ry="140" fill="none" stroke="#5c4d2c" stroke-width="1.2"/>'
+    +'<path d="M62 330 Q78 246 128 232 L150 244 L172 232 Q222 246 238 330 Z" fill="#2c2620"/>'
+    +'<path d="M62 330 Q78 246 128 232 L150 244 L172 232 Q222 246 238 330 Z" fill="none" stroke="#8a713b" stroke-width="1.4" opacity="0.7"/>'
+    +'<path d="M136 218 L150 250 L164 218 L158 208 L142 208 Z" fill="#cfc4a8"/>'
+    +'<ellipse cx="150" cy="168" rx="34" ry="44" fill="#d8b98a"/>'
+    +'<path d="M150 150 q10 16 4 34 q-2 8 -4 10" fill="none" stroke="#a8875c" stroke-width="2" opacity="0.7"/>'
+    +'<circle cx="137" cy="160" r="3.2" fill="#3a3026"/><circle cx="163" cy="160" r="3.2" fill="#3a3026"/>'
+    +'<path d="M138 196 q12 8 24 0" fill="none" stroke="#7a5c38" stroke-width="2.4"/>'
+    +'<path d="M150 108 q-52 2 -58 58 q-4 44 10 86 q6 18 22 24 q-14 -46 -12 -84 q2 -34 38 -36 q36 2 38 36 q2 38 -12 84 q16 -6 22 -24 q14 -42 10 -86 q-6 -56 -58 -58 Z" fill="#403428"/>'
+    +'<path d="M112 150 q-6 60 8 108 M188 150 q6 60 -8 108" stroke="#5a4632" stroke-width="3" fill="none" opacity="0.8"/>'
+    +'<text x="150" y="358" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="#c8b070">RAMAZZINI · 1700</text>'
+    +'</svg>');
   var scenes=[
-  { id:'hyg0_01', concept:true,
-    enter:function(E){ this.s={step:0}; E.setOn([]); },
+
+  // ══════ 시네마틱 인트로 — 라마치니 (직업의학의 아버지, 끝나면 엔드카드) ══════
+  { id:'hyg0_00', cinematic:true, introCard:true,
+    story:{ portrait:RAMA_SVG, name:'베르나르디노 라마치니',
+      sub:'Bernardino Ramazzini · 1633–1714<br>직업의학의 아버지',
+      caps:[
+        ['산업위생의 세계로 초대합니다'],
+        ['1700년, 이탈리아의 의사 라마치니가 낯선 책을 펴냅니다.','『일하는 사람들의 질병』 — 인류 최초의 직업병 의학서였죠.'],
+        ['그는 히포크라테스 이래의 문진에 질문 하나를 더했습니다.','"당신의 직업은 무엇입니까?"'],
+        ['병의 원인이 일터에 있다면, 일터를 바꿔 병을 막을 수 있다 —','산업위생학 전체가 이 한 문장에서 자랍니다.'],
+        ['유해인자를 측정하고, 평가하고, 관리한다.','근로자의 건강을 지키는 기술의 정점 — 기술사의 길을 시작합니다.']
+      ] },
+    enter:function(E){ this.s={ ended:false, acc:0, last:0 }; E.setOn([]); },
+    tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;
+      function ss(a,b,x){ x=(x-a)/(b-a); x=x<0?0:x>1?1:x; return x*x*(3-2*x); }
+      function rnd(i){ return ((Math.sin(i*12.9898+78.233)*43758.5453)%1+1)%1; }
+      var ANIM=1050, FADE=18, HOLD=170;
+      var _n=(typeof performance!=='undefined'&&performance.now)?performance.now():0, _dt=s.last?(_n-s.last):16.7; if(_dt<0||_dt>200)_dt=16.7; s.last=_n; s.acc=(s.acc||0)+_dt*0.036; var local=s.acc;
+      if(local>=ANIM+HOLD){ if(!s.ended){ s.ended=true; E.introEnd(this.story); } return; }
+      var ph=Math.min(local,ANIM)/ANIM, seam=(local<FADE? local/FADE : 1);
+      ctx.globalAlpha=seam;
+      // 작업장 분진 입자(결정적) — 후반부, 관리로 기준선 위 입자가 사라진다
+      var clear=ss(0.62,0.92,ph);
+      var stdY=H*0.55, n=54;
+      for(var i=0;i<n;i++){
+        var bx=rnd(i)*W, sway=Math.sin(local*0.05+i)*14;
+        var by=(rnd(i*7+3)*H*0.66)+H*0.12 + Math.sin(local*0.03+i*2)*8;
+        var harmful=by<stdY;
+        var a=harmful? (0.5*(1-clear)) : 0.42;
+        if(a<=0.02) continue;
+        ctx.fillStyle= harmful? 'rgba(240,136,138,'+a+')' : 'rgba(143,227,181,'+(a*0.9)+')';
+        ctx.beginPath(); ctx.arc(bx+sway, by, 2+rnd(i*13)*2.6, 0, 7); ctx.fill();
+      }
+      // 노출기준선(중반부)
+      var lineIn=ss(0.42,0.58,ph);
+      if(lineIn>0){ ctx.strokeStyle='rgba(242,189,85,'+(0.85*lineIn)+')'; ctx.lineWidth=2; ctx.setLineDash([8,6]);
+        ctx.beginPath(); ctx.moveTo(W*0.08, stdY); ctx.lineTo(W*0.08+(W*0.84)*lineIn, stdY); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='rgba(242,189,85,'+lineIn+')'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('노출기준 — 지켜야 할 선', W*0.08, stdY-10); }
+      // 펼친 책(초반부)
+      var bookIn=ss(0.10,0.30,ph)*(1-ss(0.55,0.75,ph));
+      if(bookIn>0.02){ ctx.save(); ctx.globalAlpha=seam*bookIn;
+        var bcx=W*0.5, bcy=H*0.36, bw=Math.min(210,W*0.24), bh=bw*0.62;
+        ctx.fillStyle='#241f18'; ctx.strokeStyle='#8a713b'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(bcx-bw,bcy); ctx.quadraticCurveTo(bcx-bw*0.5,bcy-bh*0.34,bcx,bcy-bh*0.16);
+        ctx.quadraticCurveTo(bcx+bw*0.5,bcy-bh*0.34,bcx+bw,bcy); ctx.lineTo(bcx+bw,bcy+bh*0.5);
+        ctx.quadraticCurveTo(bcx+bw*0.5,bcy+bh*0.2,bcx,bcy+bh*0.38); ctx.quadraticCurveTo(bcx-bw*0.5,bcy+bh*0.2,bcx-bw,bcy+bh*0.5); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bcx,bcy-bh*0.16); ctx.lineTo(bcx,bcy+bh*0.38); ctx.stroke();
+        ctx.fillStyle='#c8b070'; ctx.font='600 13px Georgia,serif'; ctx.textAlign='center';
+        ctx.fillText('De Morbis Artificum', bcx, bcy+bh*0.72);
+        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText('일하는 사람들의 질병 · 1700', bcx, bcy+bh*0.72+18);
+        ctx.restore(); }
+      // 라마치니의 질문(중반부)
+      var qIn=ss(0.34,0.48,ph)*(1-ss(0.60,0.78,ph));
+      if(qIn>0.02){ ctx.globalAlpha=seam*qIn; ctx.fillStyle='#e8ddc0'; ctx.font='600 '+Math.min(30,W*0.032)+'px Georgia,serif'; ctx.textAlign='center';
+        ctx.fillText('"당신의 직업은 무엇입니까?"', W/2, H*0.30); ctx.globalAlpha=seam; }
+      // 자막(하단, 구간별 페이드)
+      var caps=this.story.caps, seg=1/caps.length;
+      for(var c=0;c<caps.length;c++){
+        var t0=c*seg, t1=(c+1)*seg;
+        var a2=ss(t0,t0+seg*0.25,ph)*(1-ss(t1-seg*0.18,t1,ph)); if(c===caps.length-1) a2=ss(t0,t0+seg*0.25,ph);
+        if(a2<=0.02) continue;
+        ctx.globalAlpha=seam*a2; ctx.textAlign='center';
+        var lines=caps[c];
+        for(var L=0;L<lines.length;L++){ ctx.fillStyle=(L===0?'#dfeefb':'#b9b6c4'); ctx.font=(L===0?'600 ':'')+Math.min(21,W*0.023)+'px sans-serif';
+          ctx.fillText(lines[L], W/2, H*0.80+L*30); }
+      }
+      ctx.globalAlpha=1; }
+  },
+
+  { id:'hyg0_01',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%4; },
     draw:function(E){ var s=this.s;
       /* 실계산: 필기 총 시험시간 · 종합 합격률 */
@@ -34,7 +123,7 @@
           {k:'종합 합격률',v:(pW*100).toFixed(1)+'% × '+(pI*100).toFixed(0)+'% ≈ '+(pAll*100).toFixed(1)+'%',c:ORA},
           {k:'필기 과목',v:'산업위생학 · 산업환기 · 측정평가 · 환경관리',c:GRN}],
         note:NOTE[s.step]});
-      E.tapHint(0,0,'화면 탭 = 다음 관문',true);
+      E.tapHint(0,0,'다음 관문',true);
     },
   },
   { id:'hyg0_02',
@@ -77,8 +166,8 @@
       E.big('주 '+s.h+'시간 학습', '완주 약 '+mo.toFixed(1)+'개월 ('+Math.ceil(wk)+'주 · 총 '+tot+'h)');
     },
   },
-  { id:'hyg0_03', concept:true,
-    enter:function(E){ this.s={step:0}; E.setOn([]); },
+  { id:'hyg0_03',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%5; },
     draw:function(E){ var s=this.s;
       /* 실계산: 시간·분량 배분 */
@@ -109,11 +198,11 @@
           {k:'문제당 분량',v:pages+'면÷'+nQ+' = '+pq.toFixed(1)+'면',c:GRN},
           {k:'1면당',v:'약 '+tp.toFixed(1)+'분',c:PNK}],
         note:NOTE[s.step]});
-      E.tapHint(0,0,'화면 탭 = 다음 단락',true);
+      E.tapHint(0,0,'다음 단락',true);
     },
   },
-  { id:'hyg0_04', concept:true,
-    enter:function(E){ this.s={step:0}; E.setOn([]); },
+  { id:'hyg0_04',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%4; },
     draw:function(E){ var s=this.s;
       /* 실계산: 복원 훈련 물량 */
@@ -141,11 +230,11 @@
           {k:'복원 훈련',v:perDay+'주제/일 × '+days+'일 = '+topics+'주제',c:GRN},
           {k:'완성 기준',v:'백지 복원 성공률 100%',c:ORA}],
         note:NOTE[s.step]});
-      E.tapHint(0,0,'화면 탭 = 다음 단계',true);
+      E.tapHint(0,0,'다음 단계',true);
     },
   },
-  { id:'hyg0_05', concept:true,
-    enter:function(E){ this.s={step:0}; E.setOn([]); },
+  { id:'hyg0_05',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%5; },
     draw:function(E){ var s=this.s;
       /* 실계산: 예상 문항 수 */
@@ -175,7 +264,7 @@
           {k:'예상 문항',v:min+'분 ÷ 문항당 '+perQ+'분 ≈ '+nQ+'개',c:ORA},
           {k:'합격 기준',v:'100점 만점 60점 이상',c:GRN}],
         note:NOTE[s.step]});
-      E.tapHint(0,0,'화면 탭 = 다음 평가축',true);
+      E.tapHint(0,0,'다음 평가축',true);
     },
   },
   ];

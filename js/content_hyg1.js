@@ -6,8 +6,8 @@
   var scenes=[
 
   // 1.1 노출기준 3형제 — TWA·STEL·C (개념·탭)
-  { id:'hyg1_01', concept:true,
-    enter:function(E){ this.s={step:0}; E.setOn([]); },
+  { id:'hyg1_01',
+    enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%4; },
     draw:function(E){ var s=this.s, ctx=E.ctx, W=E.W, H=E.H, st=s.step;
       var conc=[45,60,70,55,85,110,140,90,70,55,160,100,65,50,60,45];
@@ -45,7 +45,7 @@
         ctx.beginPath(); ctx.moveTo(mL,cy); ctx.lineTo(mL+pw,cy); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle=RED; ctx.font='bold 12px sans-serif'; ctx.textAlign='right';
         ctx.fillText('천장값 C — 순간도 초과 금지', mL+pw, cy-6); }
-      E.tapHint(0,0,'화면 탭 = 다음 기준',true);
+      E.tapHint(0,0,'다음 기준',true);
       var big=['하루 농도는 시시각각 오르내립니다','TWA = 8시간 시간가중평균','STEL = 15분 단시간 노출','C = 천장값(Ceiling)'][st];
       var sub=['같은 물질도 3가지 잣대로 관리합니다 — 탭하세요','만성 영향 관리 — 하루를 통틀어 평균으로 판단','급성·자극·마취 방지 — 짧고 강한 노출을 잡는다','즉시 위험 물질 — 잠시도 넘어선 안 되는 절대선'][st];
       E.big(big, sub); }

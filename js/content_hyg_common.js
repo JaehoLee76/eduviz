@@ -45,8 +45,11 @@
     }
     if(cfg.boxes){ for(var b=0;b<cfg.boxes.length;b++){ var B=cfg.boxes[b], x=B.x*W, y=B.y*H, w=B.w*W, h=B.h*H, c=B.c||'#7ab8ff';
       ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=c; ctx.lineWidth=1.6; RR(x,y,w,h,8); ctx.fill(); ctx.stroke();
-      ctx.textAlign='center'; ctx.fillStyle=c; ctx.font='600 13px sans-serif'; ctx.fillText(B.t||'', x+w/2, y+(B.s?h*0.42:h*0.6));
-      if(B.s){ ctx.fillStyle=DM; ctx.font='11px sans-serif'; ctx.fillText(B.s, x+w/2, y+h*0.72); } } }
+      ctx.textAlign='center';
+      var small=(h<46);   // 낮은 상자: 폰트·행간 자동 축소(테두리 침범 방지)
+      ctx.fillStyle=c; ctx.font='600 '+(small?12:13)+'px sans-serif';
+      ctx.fillText(B.t||'', x+w/2, y+(B.s?(small?h*0.46:h*0.42):h*0.6)+(small?2:0));
+      if(B.s){ ctx.fillStyle=DM; ctx.font=(small?10.5:11)+'px sans-serif'; ctx.fillText(B.s, x+w/2, y+h*(small?0.86:0.72)); } } }
     if(cfg.arrows){ for(var a=0;a<cfg.arrows.length;a++){ var A=cfg.arrows[a], x1=A.x1*W,y1=A.y1*H,x2=A.x2*W,y2=A.y2*H, col=A.c||'rgba(223,238,251,0.5)';
       ctx.strokeStyle=col; ctx.lineWidth=1.8; if(A.dash)ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
       var an=Math.atan2(y2-y1,x2-x1); ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-9*Math.cos(an-0.4),y2-9*Math.sin(an-0.4)); ctx.lineTo(x2-9*Math.cos(an+0.4),y2-9*Math.sin(an+0.4)); ctx.fill(); } }
