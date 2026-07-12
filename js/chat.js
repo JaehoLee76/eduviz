@@ -32,14 +32,17 @@
     var big=(txt('bigN')+(txt('bigW')?' — '+txt('bigW'):'')).trim();   // 중앙 큰제목 = 화면의 대표 수식/결과가 실려 있음
     var code=''; if(sc.code && sc.code.length){ code=sc.code.map(function(L){ return (typeof L==='string')?L:(L&&L.t)||''; }).join('\n'); }
     var c = {
+      과목: clip((document.title||'').replace(/의 세계$/,''), 60),   // 트랙(과목)명 — 자격시험 트랙이면 튜터가 시험 관점으로 도움
       주제: txt('crumb') || (txt('sceneSec')+' '+txt('sceneTitle')).trim(),
       제목: txt('sceneTitle'),
       화면수식: clip(big, 300),
       설명: clip(stripTags(sc.narr) || txt('bubble'), 1400),
       핵심요약: clip(stripTags(sc.more) || txt('studyMore') || txt('conceptExtra'), 1100),
+      학습힌트: clip(stripTags(sc.hint), 200),
       현재단계: clip(txt('stepCap') || txt('stepcap'), 300),
       조작상태: clip(sliderState(), 300),
       연습문제: clip(stripTags(sc.problem && sc.problem.q) || txt('studyProblem'), 500),
+      모범답안: clip(stripTags(sc.problem && (sc.problem.solution||sc.problem.sol)), 800),
       코드: clip(code || txt('codeBody'), 900)
     };
     var out={}; for(var k in c){ if(c[k]) out[k]=c[k]; } return out;
