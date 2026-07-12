@@ -59,41 +59,47 @@
       var act=[3,4,5,6][s.step];
       var codeBot=codePanel(E, W*0.04, H*0.13, W*0.46, code, 'io.cpp', act);
 
-      // 우측: 입출력 스트림 흐름 (x∈[W*0.54, W*0.97] 안, 위에서부터 조밀하게)
-      var bx=W*0.56, cy=Math.max(H*0.10,20);
-      ctx.textAlign='left';
-      // 입력 흐름 (cin)
-      ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.fillText('키보드 입력', bx, cy);
-      chip(ctx, bx+120, cy-16, 44, 24, GLD, ''+n, 14);
-      ctx.strokeStyle='rgba(255,211,122,0.6)'; ctx.lineWidth=1.6;
-      ctx.beginPath(); ctx.moveTo(bx+164, cy-4); ctx.lineTo(bx+230, cy-4); ctx.stroke();
-      // 화살표 머리
-      ctx.beginPath(); ctx.moveTo(bx+230,cy-4); ctx.lineTo(bx+222,cy-9); ctx.lineTo(bx+222,cy+1); ctx.closePath(); ctx.fillStyle='rgba(255,211,122,0.6)'; ctx.fill();
-      chip(ctx, bx+236, cy-16, 70, 24, GLD, 'n = '+n, 13);
-      ctx.fillStyle=(s.step>=0)?GRN:DIM; ctx.font='11.5px ui-monospace,Menlo,monospace';
-      ctx.fillText('std::cin >> n;   // >> 연산자가 n에 값을 채움', bx, cy+28);
+      // 우측 패널: 모든 요소를 공통 좌측 마진 RX 에 정렬(들쭉날쭉 방지)
+      var RX=W*0.55, boxW=Math.min(W*0.40, W*0.97-RX);
+      ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+      // ── ① 키보드 입력 (cin >>) ──
+      var y1=H*0.16;
+      ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.fillText('① 키보드 입력 (cin >>)', RX, y1);
+      var chY=y1+12;
+      chip(ctx, RX, chY, 46, 26, GLD, ''+n, 14);
+      ctx.strokeStyle='rgba(255,211,122,0.7)'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(RX+54, chY+13); ctx.lineTo(RX+108, chY+13); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(RX+108,chY+13); ctx.lineTo(RX+100,chY+8); ctx.lineTo(RX+100,chY+18); ctx.closePath(); ctx.fillStyle='rgba(255,211,122,0.7)'; ctx.fill();
+      chip(ctx, RX+116, chY, 74, 26, GLD, 'n = '+n, 13);
+      ctx.fillStyle=GRN; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+      ctx.fillText('std::cin >> n;   // n 에 '+n+' 을(를) 저장', RX, chY+46);
 
-      // 출력 스트림 조립 (cout << ... << ...)
-      var oy=cy+62;
-      ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.fillText('std::cout  ( << 로 이어붙이기 )', bx, oy);
-      // 조립되는 토큰들 (step 진행에 따라 나타남)
-      var toks=[{t:'"n^2 = "',on:s.step>=1},{t:''+sq,on:s.step>=2},{t:'\\n',on:s.step>=3}];
-      var tx=bx, ty=oy+14;
+      // ── ② std::cout << 로 이어붙이기 ──
+      var y2=chY+72;
+      ctx.fillStyle=CPD; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('② std::cout << 로 이어붙이기', RX, y2);
+      var toks=[{t:'"n^2 = "',on:s.step>=1,c:CPB},{t:''+sq,on:s.step>=2,c:GRN},{t:'\\n',on:s.step>=3,c:PNK}];
+      var tx=RX, ty=y2+14, GAP=34;
       for(var i=0;i<toks.length;i++){ if(!toks[i].on) continue;
-        var lab=toks[i].t, wch=ctx.measureText?0:0;
+        var lab=toks[i].t;
         ctx.font='600 13px ui-monospace,Menlo,monospace'; var wc=ctx.measureText(lab).width+22;
-        chip(ctx, tx, ty, wc, 26, (i===2?PNK:(i===1?GRN:CPB)), lab, 13);
-        if(i<2 && toks[i+1] && toks[i+1].on){ ctx.fillStyle=DIM; ctx.font='16px sans-serif'; ctx.fillText('<<', tx+wc+4, ty+18); }
-        tx += wc + 30;
+        chip(ctx, tx, ty, wc, 28, toks[i].c, lab, 13);
+        // 다음 토큰이 있으면 상자 사이 '<<' 를 중앙 간격에 배치(겹침 방지)
+        if(i<2 && toks[i+1] && toks[i+1].on){ ctx.fillStyle=DIM; ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.fillText('<<', tx+wc+GAP/2, ty+19); ctx.textAlign='left'; }
+        tx += wc + GAP;
       }
-      // 실제 콘솔 출력
-      var conY=oy+58;
-      ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('콘솔 화면', bx, conY-8);
-      roundRect(ctx, bx, conY, W*0.34, 48, 8); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fill(); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.stroke();
-      ctx.fillStyle=GRN; ctx.font='15px ui-monospace,Menlo,monospace';
-      var line = (s.step>=1?'n^2 = ':'') + (s.step>=2?sq:'') ;
-      ctx.fillText(line, bx+12, conY+22);
-      if(s.step>=3){ ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('▮ ← endl 로 줄바꿈+버퍼 비움(flush)', bx+12, conY+40); }
+
+      // ── ③ 콘솔 화면 (코드패널 밑단까지 채워 정렬) ──
+      var conTop=ty+62;
+      var conBot=Math.max(conTop+56, codeBot);          // 박스 밑단 = 코드패널 밑단
+      ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('③ 콘솔 화면 (실행 결과)', RX, conTop-8);
+      roundRect(ctx, RX, conTop, boxW, conBot-conTop, 8); ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fill(); ctx.strokeStyle='rgba(90,180,232,0.4)'; ctx.lineWidth=1; ctx.stroke();
+      // 터미널 상단 점 3개(콘솔임을 인지시키는 장식)
+      var dc=['#f0888a','#ffd27a','#7ee0b0']; for(var d=0;d<3;d++){ ctx.fillStyle=dc[d]; ctx.beginPath(); ctx.arc(RX+16+d*14, conTop+14, 4, 0, 7); ctx.fill(); }
+      ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.moveTo(RX, conTop+26); ctx.lineTo(RX+boxW, conTop+26); ctx.stroke();
+      ctx.fillStyle=GRN; ctx.font='15px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+      var line = (s.step>=1?'n^2 = ':'') + (s.step>=2?sq:'');
+      ctx.fillText(line || '(아직 출력 없음)', RX+14, conTop+50);
+      if(s.step>=3){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('▮ ← endl 로 줄바꿈 + 버퍼 비움(flush)', RX+14, conTop+72); }
 
       // C 대비 각주 — 코드패널 아래 좌측(패널 침범·하단 잘림 방지)
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
