@@ -165,7 +165,7 @@
       if(s.c2>0){ BX(ctx,x0+s.c1*wU,base-hgt(s.l2),s.c2*wU,hgt(s.l2),PNK,0.8,PNK); TX(ctx,s.l2+'dB',x0+s.c1*wU+s.c2*wU/2,base-hgt(s.l2)+12,'#0b1220',11,'center','700'); TX(ctx,s.c2.toFixed(1)+'h',x0+s.c1*wU+s.c2*wU/2,base+13,PNK,11,'center'); }
       LN(ctx,x0+8*wU,base+4,x0+8*wU,hTop,DIM,1.2,[3,4]); TX(ctx,'8h',x0+8*wU,hTop-4,DIM,10.5,'center');
       /* 중단: D 게이지 */
-      var gy=H*0.72, gh=22, gmax=Math.max(160,D*1.25);
+      var gy=Math.max(H*0.72, base+40), gh=Math.min(22,H*0.05), gmax=Math.max(160,D*1.25);
       TX(ctx,'노출량 게이지 D = C₁/T₁ + C₂/T₂ (×100%)',x0,gy-16,AMB,12.5,'left','700');
       BX(ctx,x0,gy,(x1-x0),gh,'#1c2433',1);
       if(d1>0) BX(ctx,x0,gy,(d1/gmax)*(x1-x0),gh,BLU,0.85);
@@ -175,18 +175,18 @@
       TX(ctx,'100%',x100,gy+gh+20,RED,11,'center','700');
       TX(ctx,'D = '+D.toFixed(1)+'%',x0+(Math.min(D,gmax)/gmax)*(x1-x0)+10,gy+gh/2,(D>100?RED:GRN),13,'left','700');
       /* 우측: 계산 패널(전부 실계산) */
-      var px=W*0.66, py=H*0.38;
+      var px=W*0.66, py=H*0.36, lh=Math.min(22,H*0.052);
       TX(ctx,'노출량계의 셈법',px,py-6,AMB,13,'left','700');
-      TX(ctx,'T₁ = 8/2^(('+s.l1+'−90)/5) = '+tstr(t1),px,py+22,BLU,12);
-      TX(ctx,'C₁/T₁ = '+s.c1.toFixed(1)+'/'+t1.toFixed(2)+' = '+(d1/100).toFixed(3),px,py+44,BLU,12);
-      TX(ctx,'T₂ = 8/2^(('+s.l2+'−90)/5) = '+tstr(t2),px,py+72,PNK,12);
-      TX(ctx,'C₂/T₂ = '+s.c2.toFixed(1)+'/'+t2.toFixed(2)+' = '+(d2/100).toFixed(3),px,py+94,PNK,12);
-      TX(ctx,'D = '+(d1/100).toFixed(3)+' + '+(d2/100).toFixed(3)+' = '+(D/100).toFixed(3)+' → '+D.toFixed(1)+'%',px,py+124,ORA,12.5,'left','700');
-      TX(ctx,(D>100?'기준 초과 — 공학적 대책·작업관리 필요':'기준 이내 (D ≤ 100%)'),px,py+148,(D>100?RED:GRN),12.5,'left','700');
-      TX(ctx,'TWA = 16.61 log(D/100) + 90',px,py+180,TXT,12);
-      TX(ctx,(twa===null?'= — (노출 없음)':'= '+twa.toFixed(1)+' dB(A)'),px,py+202,(twa!==null&&twa>90?RED:GRN),13,'left','700');
-      TX(ctx,'설정: Criteria 90dB · 교환율 5dB · Threshold 80dB',px,py+232,DIM,11);
-      TX(ctx,'(80dB 미만은 노출량 계산에서 제외)',px,py+250,DIM,11);
+      TX(ctx,'T₁ = 8/2^(('+s.l1+'−90)/5) = '+tstr(t1),px,py+lh,BLU,12);
+      TX(ctx,'C₁/T₁ = '+s.c1.toFixed(1)+'/'+t1.toFixed(2)+' = '+(d1/100).toFixed(3),px,py+lh*2,BLU,12);
+      TX(ctx,'T₂ = 8/2^(('+s.l2+'−90)/5) = '+tstr(t2),px,py+lh*3.3,PNK,12);
+      TX(ctx,'C₂/T₂ = '+s.c2.toFixed(1)+'/'+t2.toFixed(2)+' = '+(d2/100).toFixed(3),px,py+lh*4.3,PNK,12);
+      TX(ctx,'D = '+(d1/100).toFixed(3)+' + '+(d2/100).toFixed(3)+' = '+(D/100).toFixed(3)+' → '+D.toFixed(1)+'%',px,py+lh*5.7,ORA,12.5,'left','700');
+      TX(ctx,(D>100?'기준 초과 — 공학적 대책·작업관리 필요':'기준 이내 (D ≤ 100%)'),px,py+lh*6.8,(D>100?RED:GRN),12.5,'left','700');
+      TX(ctx,'TWA = 16.61 log(D/100) + 90',px,py+lh*8.2,TXT,12);
+      TX(ctx,(twa===null?'= — (노출 없음)':'= '+twa.toFixed(1)+' dB(A)'),px,py+lh*9.2,(twa!==null&&twa>90?RED:GRN),13,'left','700');
+      TX(ctx,'설정: Criteria 90dB · 교환율 5dB · Threshold 80dB',px,py+lh*10.5,DIM,11);
+      TX(ctx,'(80dB 미만은 노출량 계산에서 제외)',px,py+lh*11.3,DIM,11);
       E.big('D = Σ(C/T)×100 = '+D.toFixed(1)+'%',(twa===null?'노출이 없습니다':'TWA = '+twa.toFixed(1)+' dB(A) — 100%·90dB이 하루의 한도입니다')); } },
   { id:'hyg4_05',
     enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
