@@ -1,0 +1,67 @@
+{
+  "hyg15_01": {
+    "ch": "산업위생관리기술사 제15장 · 소음·분석 계산 마무리",
+    "sec": "15.1 청력보호구 차음 — NRR",
+    "title": "귀마개의 진짜 실력 — (NRR−7)×0.5",
+    "narr": "귀덮개 포장에는 <b>NRR(Noise Reduction Rating, 차음평가수)</b>이 큼직하게 적혀 있습니다. NRR 29라면 29 dB이 줄어들 것 같지만, 실험실의 완벽한 착용과 현장의 헐거운 착용은 전혀 다릅니다. 그래서 실무에서는 <b>실효 차음효과 = (NRR − 7) × 0.5</b>로 깎아서 봅니다. <b>−7</b>은 NRR이 C특성 음압 기준으로 산정된 것을 A특성 측정값에 적용하기 위한 보정이고, <b>×0.5(50%)</b>는 현장 착용 상태가 실험실보다 못한 것을 반영한 안전 보정입니다. 착용 후 노출 = 작업장 음압 L − 실효 차음효과가 되고, 이 값이 노출기준 <b>90 dB(A)/8시간</b> 미만이어야 보호구가 제 역할을 하는 것입니다. 슬라이더로 음압과 NRR을 바꾸며, NRR이 웬만큼 커도 실효 차음은 절반 이하로 줄어드는 것을 확인해 보세요.",
+    "hint": "슬라이더(A/D·J/L)로 작업장 음압·NRR을 조절합니다.",
+    "more": "<b>필기 포인트</b>: 실효 차음효과 = (NRR − 7) × 0.5 — <b>−7(C→A 보정)을 먼저, ×0.5(현장 보정)를 나중에</b> 적용하는 순서를 바꾸면 값이 달라져 감점입니다. '착용 후 노출 = L − 차음효과'까지 써야 완결된 답안입니다. 보호구는 관리대책 서열상 <b>최후 수단</b>(공학적 대책·저감이 우선)이라는 문장을 곁들이면 논술 점수가 올라갑니다.\n\n<b>실무</b>: 청력보존프로그램에서 보호구 지급 시 이 식으로 적합성을 검토합니다. 95 dB(A) 현장에 NRR 19 귀덮개면 실효 6 dB → 89 dB(A)로 기준 바로 아래 — 여유가 없으므로 이중 착용(귀마개+귀덮개, 큰 쪽 NRR에 +5 dB)이나 저소음 설비 개선을 함께 검토합니다.",
+    "more_en": "The effective attenuation of hearing protection is derated as (NRR − 7) × 0.5: subtract 7 dB for the C-to-A weighting correction, then halve for real-world fit. Exposure after wearing = workplace level − effective attenuation, which must fall below the 90 dB(A)/8h limit. Hearing protectors are the last resort in the hierarchy of controls.",
+    "problem": {
+      "q": "작업장 음압수준이 95 dB(A)인 곳에서 NRR 19인 귀덮개를 착용했을 때의 실효 차음효과와 실제 노출 음압수준을 구하고, 이 보호구 선정이 적절한지 평가하십시오.",
+      "solution": "실효 차음효과 = (NRR − 7) × 0.5 = (19 − 7) × 0.5 = <b>6 dB</b>입니다. 착용 후 노출 = 95 − 6 = <b>89 dB(A)</b>로 노출기준 90 dB(A) 미만이므로 형식상 적합합니다. 다만 여유가 1 dB에 불과하므로 실무적으로는 더 높은 NRR의 보호구 또는 이중 착용을 권장하고, 근본적으로는 소음원 저감 등 공학적 대책을 우선 검토해야 한다고 결론을 맺습니다."
+    }
+  },
+  "hyg15_02": {
+    "ch": "산업위생관리기술사 제15장 · 소음·분석 계산 마무리",
+    "sec": "15.2 흡음 처리 감음량",
+    "title": "흡음재를 붙이면 몇 dB 조용해질까 — NR = 10 log(A₂/A₁)",
+    "narr": "천장과 벽에 흡음재를 붙이면 소리가 <b>반사되어 되돌아오는 몫</b>이 줄어 실내가 조용해집니다. 그 효과를 재는 자가 <b>흡음력 A = Σ(면적 Sᵢ × 흡음률 αᵢ)</b>입니다 — 각 표면의 면적에 그 재료의 흡음률(0~1)을 곱해 모두 더한 값으로, 단위는 m²(sabin)입니다. 흡음력을 전체 표면적으로 나누면 <b>평균흡음률 ᾱ = A/ΣS</b>가 됩니다. 흡음 처리 전 흡음력이 A₁, 처리 후가 A₂일 때 실내 잔향음의 <b>감음량 NR = 10 log(A₂/A₁) dB</b>입니다. 흡음력이 2배면 3 dB, 4배면 6 dB, 10배면 10 dB — 소리 에너지가 흡음력에 반비례해 줄기 때문입니다. 슬라이더로 처리 전후 흡음력을 바꾸며, '배수'가 감음량을 결정하는 것을 확인해 보세요.",
+    "hint": "슬라이더(A/D·J/L)로 처리 전·후 흡음력을 조절합니다.",
+    "more": "<b>필기 포인트</b>: ①흡음력 A = ΣSα(면적×흡음률의 합), ②평균흡음률 ᾱ = ΣSα/ΣS, ③감음량 NR = 10 log(A₂/A₁) — 세 정의를 세트로 외우십시오. 감음량은 절대량이 아니라 <b>비(배수)</b>에만 의존합니다. 흡음은 실내 <b>반사음(잔향음)</b>에만 효과가 있고 음원에서 나오는 직접음은 줄이지 못한다는 한계(흡음 대책의 상한 약 5~10 dB)를 쓰면 고득점입니다.\n\n<b>실무</b>: 기계가 많은 공장 천장에 흡음 뿜칠·흡음판을 시공할 때 기대 감음량을 이 식으로 사전 계산해 투자 대비 효과를 판단합니다. 직접음이 지배하는 근접 작업 위치에는 차음벽(밀폐·칸막이)을 병행해야 합니다.",
+    "more_en": "Room absorption A = Σ(surface area × absorption coefficient), average coefficient ᾱ = A/ΣS. Adding absorptive treatment changes A₁ to A₂ and reduces reverberant noise by NR = 10 log(A₂/A₁) dB — doubling absorption gives 3 dB, tenfold gives 10 dB. Absorption only attenuates the reverberant field, not the direct sound near the source.",
+    "problem": {
+      "q": "어느 작업장의 흡음 처리 전 흡음력이 A₁ = 50 m², 흡음재 시공 후 A₂ = 200 m²가 되었습니다. 잔향음의 감음량을 구하고, 흡음 대책의 적용 한계를 설명하십시오.",
+      "solution": "감음량 NR = 10 log(A₂/A₁) = 10 log(200/50) = 10 log 4 ≈ <b>6 dB</b>입니다. 흡음은 반사에 의한 잔향음만 줄이므로 음원 가까이에서 직접음이 지배하는 위치에는 효과가 작고, 통상 5~10 dB 정도가 실용 상한입니다. 따라서 근접 작업 지점에는 음원 밀폐·차음벽 등 차음 대책을 병행해야 한다고 결론을 맺습니다."
+    }
+  },
+  "hyg15_03": {
+    "ch": "산업위생관리기술사 제15장 · 소음·분석 계산 마무리",
+    "sec": "15.3 옥타브밴드 분석",
+    "title": "소음을 주파수로 썰다 — fc = √(f₁·f₂)",
+    "narr": "같은 90 dB이라도 저음 웅웅거림과 고음 쇳소리는 대책이 완전히 다릅니다. 그래서 소음을 <b>주파수 대역(밴드)별로 썰어서</b> 분석합니다. <b>1/1 옥타브밴드</b>는 상한이 하한의 2배(f₂/f₁ = 2)인 대역이고, 더 촘촘히 보고 싶으면 <b>1/3 옥타브밴드</b>(f₂/f₁ = 2^(1/3) ≈ 1.26)를 씁니다. 대역을 대표하는 <b>중심주파수는 산술평균이 아니라 기하평균 fc = √(f₁·f₂)</b>입니다 — 귀는 주파수를 로그 척도로 느끼기 때문입니다. 여기서 1/1 옥타브의 하한·상한은 <b>f₁ = fc/√2, f₂ = fc×√2</b>가 되고, 밴드폭은 <b>b = f₂ − f₁ = fc × 0.707</b>입니다. 1/3 옥타브는 f₁ = fc/√1.26, f₂ = fc×√1.26로 폭이 fc의 약 23%입니다. 슬라이더로 중심주파수(63~8,000 Hz 표준열)와 밴드 종류를 바꾸며, 로그 축 위에서 대역이 어떻게 잡히는지 보세요.",
+    "hint": "슬라이더(A/D·J/L)로 중심주파수 단계·밴드 종류를 조절합니다.",
+    "more": "<b>필기 포인트</b>: ①fc = √(f₁·f₂)(기하평균 — 산술평균이라 쓰면 오답), ②1/1 옥타브: f₂/f₁ = 2, f₁ = fc/√2, f₂ = fc√2, 밴드폭 b = 0.707fc, ③1/3 옥타브: f₂/f₁ = 2^(1/3), 반폭 계수 √1.26 ≈ 1.12. 표준 중심주파수 열(63·125·250·500·1k·2k·4k·8k Hz — 앞뒤 2배 간격)도 자주 묻습니다.\n\n<b>실무</b>: 옥타브밴드 분석으로 어느 대역이 지배적인지 찾아야 대책이 정해집니다 — 저주파(수백 Hz 이하)는 방진·구조 개선, 고주파는 흡음·차음이 효과적이고, 청력보호구의 대역별 차음성능과 대조해 적정 보호구를 선정합니다.",
+    "more_en": "Octave-band analysis slices noise by frequency. The band center is the geometric mean fc = √(f₁·f₂). For a 1/1 octave band f₂/f₁ = 2, so f₁ = fc/√2, f₂ = fc·√2 and bandwidth b = 0.707·fc; for a 1/3 octave band f₂/f₁ = 2^(1/3) ≈ 1.26. Standard centers run 63–8,000 Hz in doubling steps; the dominant band dictates the control strategy.",
+    "problem": {
+      "q": "중심주파수 1,000 Hz인 1/1 옥타브밴드의 하한주파수 f₁, 상한주파수 f₂와 밴드폭을 구하십시오.",
+      "solution": "1/1 옥타브밴드는 f₂/f₁ = 2이고 fc = √(f₁·f₂)이므로 f₁ = fc/√2 = 1,000/1.414 ≈ <b>707 Hz</b>, f₂ = fc×√2 ≈ <b>1,414 Hz</b>입니다. 밴드폭 b = f₂ − f₁ = fc × 0.707 ≈ <b>707 Hz</b>입니다. 검산: √(707 × 1,414) ≈ 1,000 Hz로 중심주파수가 재현됩니다."
+    }
+  },
+  "hyg15_04": {
+    "ch": "산업위생관리기술사 제15장 · 소음·분석 계산 마무리",
+    "sec": "15.4 채취·분석 정량",
+    "title": "흡광도에서 농도까지 — 검량선 역산과 공기량 나누기",
+    "narr": "작업환경측정의 마지막 관문은 <b>실험실 정량</b>입니다. 흡광광도법(비색법)의 논리는 세 단계입니다. ① 농도를 아는 표준액들로 <b>검량선</b>(흡광도 y = 기울기×농도 x + 절편)을 먼저 그려 둡니다 — 빛의 흡수가 농도에 비례한다는 램버트-비어 법칙이 근거입니다. ② 시료의 흡광도 A를 재서 검량선을 <b>역산</b>합니다: 시료액 농도 x = (A − 절편)/기울기. 여기에 탈착·용해액 부피를 곱하면 필터에 잡힌 <b>분석량(µg)</b>이 나옵니다. ③ 분석량을 <b>채취공기량 V(L)</b>로 나누면 공기 중 농도가 됩니다 — µg/L는 그대로 <b>mg/m³</b>와 같아 단위 환산이 깔끔합니다. 석면은 다른 길을 갑니다: 위상차현미경으로 시야당 <b>섬유 개수를 세고</b>(바탕값 차감), 시야면적 대비 여과지 유효면적 배율을 곱해 필터 전체 섬유수를 추정한 뒤 공기량(cc)으로 나눠 <b>f/cc</b>로 냅니다. 슬라이더로 흡광도와 공기량을 바꾸며 세 단계가 이어지는 것을 보세요.",
+    "hint": "슬라이더(A/D·J/L)로 시료 흡광도·채취공기량을 조절합니다.",
+    "more": "<b>필기 포인트</b>: ①농도 x = (흡광도 − 절편)/기울기 — 검량선 <b>역산</b>이 출발점, ②공기 중 농도 = 분석량(µg) ÷ 채취공기량(L) = mg/m³(µg/L = mg/m³ 단위 일치를 명시하면 깔끔), ③탈착효율·회수율로 나눠 보정하는 단계, ④석면 f/cc = (계수 섬유수/시야수 − 바탕) × (유효여과면적/시야면적) ÷ 공기량(cc). 공기량이 작으면 같은 분석량이라도 농도가 커진다 — 분모를 놓치면 치명적 오답입니다.\n\n<b>실무</b>: 검량선의 직선성(상관계수), 공시료(바탕) 보정, 검출한계(LOD) 미만 처리 같은 정도관리가 측정 신뢰성을 좌우합니다. 석면 계수는 계수자 간 편차가 커서 정도관리 프로그램 참여가 필수입니다.",
+    "more_en": "Spectrophotometric quantitation: build a calibration line (absorbance vs concentration, Beer-Lambert), invert it for the sample — x = (A − intercept)/slope — multiply by desorption volume to get analyte mass (µg), then divide by sampled air volume (L); µg/L equals mg/m³. Asbestos instead is counted under phase-contrast microscopy: (fibers per field − blank) scaled by filter/field area ratio, divided by air volume in cc, giving f/cc.",
+    "problem": {
+      "q": "공기 240 L를 채취한 여과지 시료를 10 mL로 처리해 흡광도 0.310을 얻었습니다. 검량선이 y = 0.050x + 0.010(x: µg/mL)일 때 공기 중 농도(mg/m³)를 구하십시오.",
+      "solution": "시료액 농도 x = (0.310 − 0.010)/0.050 = <b>6.0 µg/mL</b>입니다. 분석량 = 6.0 µg/mL × 10 mL = <b>60 µg</b>입니다. 공기 중 농도 = 60 µg ÷ 240 L = 0.25 µg/L = <b>0.25 mg/m³</b>입니다(µg/L = mg/m³). 실무에서는 여기에 탈착효율 보정과 공시료 차감을 추가로 적용한다고 덧붙이면 완결된 답안이 됩니다."
+    }
+  },
+  "hyg15_05": {
+    "ch": "산업위생관리기술사 제15장 · 소음·분석 계산 마무리",
+    "sec": "15.5 작업생리 심화 — PWC와 적정 작업부하",
+    "title": "하루 8시간 버티는 한계 — 적정 부하는 PWC의 1/3",
+    "narr": "사람마다 낼 수 있는 힘의 최대치가 다릅니다. <b>PWC(육체적작업능력, Physical Work Capacity)</b>는 그 사람이 낼 수 있는 <b>최대 에너지 대사량(kcal/min)</b>입니다. 그런데 최대치로는 몇 분밖에 못 버팁니다. 하루 8시간 <b>연속작업</b>을 지속하려면 작업 대사량이 <b>PWC의 약 1/3 이하</b>여야 한다는 것이 작업생리의 경험칙입니다 — PWC 16 kcal/min인 근로자라면 적정 작업 대사량은 약 5.3 kcal/min입니다. 작업이 이를 넘으면 피로가 누적되므로 <b>휴식을 섞어</b> 평균을 적정 수준으로 끌어내립니다: 휴식시간 비율 <b>Trest/Ttotal = (E작업 − E적정)/(E작업 − E휴식)</b> — 분자는 '넘친 부하', 분모는 '휴식 1분이 벌어주는 여유'입니다. 슬라이더로 PWC와 작업 대사량을 바꾸며, 작업이 적정선을 넘는 순간 시간당 휴식이 얼마나 필요해지는지 보세요.",
+    "hint": "슬라이더(A/D·J/L)로 PWC·작업 대사량을 조절합니다.",
+    "more": "<b>필기 포인트</b>: ①연속작업 적정 대사량 ≈ PWC × 1/3(8시간 기준), ②휴식 배분 Trest/Ttotal = (E작업 − E적정)/(E작업 − E휴식) — 분자·분모의 의미(초과 부하 ÷ 휴식이 만드는 여유)를 말로 풀어 쓰면 논술 점수가 올라갑니다. PWC는 최대산소섭취량(트레드밀·자전거에르고미터)으로 측정하고 연령에 따라 감소한다는 점, 고온 환경에서는 같은 작업도 부하가 커진다는 점을 곁들이십시오.\n\n<b>실무</b>: 중량물 취급·고열 작업의 작업·휴식 시간비 설계, 고령 근로자 배치 적합성 평가에 씁니다. 휴식 배분만으로 부족하면 작업 자체를 기계화·경량화(공학적 개선)하거나 교대 인원을 늘리는 것이 순서입니다.",
+    "more_en": "PWC (Physical Work Capacity) is a worker's maximum metabolic rate. Sustained 8-hour work should stay below about one-third of PWC — e.g., PWC 16 kcal/min gives roughly 5.3 kcal/min as the acceptable workload. If the task exceeds it, allocate rest by Trest/Ttotal = (Etask − Eacceptable)/(Etask − Erest): excess load divided by the margin each minute of rest provides.",
+    "problem": {
+      "q": "PWC가 16 kcal/min인 근로자의 8시간 연속작업 적정 대사량을 구하고, 작업 대사량이 이를 초과하는 경우의 관리 방안을 논하십시오.",
+      "solution": "적정 대사량 = PWC × 1/3 = 16/3 ≈ <b>5.3 kcal/min</b>입니다. 작업 대사량이 이를 초과하면 ①휴식 배분 — Trest/Ttotal = (E작업 − 5.3)/(E작업 − E휴식)으로 시간당 휴식을 산정해 평균 부하를 적정선 이하로 낮추고, ②작업 개선 — 중량 경감·보조기구·기계화 등 공학적 대책으로 E작업 자체를 줄이며, ③작업자 관리 — 교대 인원 확충, 고령·유소견자 배치 조정, 고온 등 가중 요인 관리를 병행합니다. 휴식 배분은 임시 조치이고 부하 저감이 근본 대책이라는 견해로 마무리합니다."
+    }
+  }
+}
