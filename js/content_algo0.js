@@ -50,11 +50,17 @@
         ctx.fillStyle=(i===cfg.actLine)?'#ffd27a':'#cfd8e6'; ctx.fillText(cfg.code[i], cx+pad, yy+i*lh);
       }
     }
-    // 다이어그램 상자
-    if(cfg.boxes){ for(var b=0;b<cfg.boxes.length;b++){ var B=cfg.boxes[b], x=B.x*W, y=B.y*H, w=B.w*W, h=B.h*H, c=B.c||'#7ab8ff';
-      ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=c; ctx.lineWidth=1.6; RR(x,y,w,h,8); ctx.fill(); ctx.stroke();
-      ctx.textAlign='center'; ctx.fillStyle=c; ctx.font='600 13px sans-serif'; ctx.fillText(B.t||'', x+w/2, y+(B.s?h*0.42:h*0.6));
-      if(B.s){ ctx.fillStyle=DM; ctx.font='11px sans-serif'; ctx.fillText(B.s, x+w/2, y+h*0.72); } } }
+    // 다이어그램 상자 (글자 자동 맞춤 — 상자 밖으로 넘치지 않게)
+    if(cfg.boxes){
+      function fitF(txt, weight, base, min, maxW){ if(!txt) return base; var f=base; ctx.font=weight+f+'px sans-serif';
+        while(f>min && ctx.measureText(txt).width>maxW){ f--; ctx.font=weight+f+'px sans-serif'; } return f; }
+      for(var b=0;b<cfg.boxes.length;b++){ var B=cfg.boxes[b], x=B.x*W, y=B.y*H, w=B.w*W, h=B.h*H, c=B.c||'#7ab8ff';
+        ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=c; ctx.lineWidth=1.6; RR(x,y,w,h,8); ctx.fill(); ctx.stroke();
+        ctx.textAlign='center'; var mW=w-12;
+        var tf=fitF(B.t,'600 ',Math.min(14,Math.max(10,Math.floor(h*(B.s?0.34:0.42)))),9,mW);
+        ctx.fillStyle=c; ctx.font='600 '+tf+'px sans-serif'; ctx.fillText(B.t||'', x+w/2, B.s?(y+h*0.42+tf*0.28):(y+h/2+tf*0.35));
+        if(B.s){ var sf=fitF(B.s,'',Math.min(11,Math.max(8,Math.floor(h*0.26))),8,mW);
+          ctx.fillStyle=DM; ctx.font=sf+'px sans-serif'; ctx.fillText(B.s, x+w/2, Math.min(y+h-4, y+h*0.74+sf*0.3)); } } }
     // 화살표
     if(cfg.arrows){ for(var a=0;a<cfg.arrows.length;a++){ var A=cfg.arrows[a], x1=A.x1*W,y1=A.y1*H,x2=A.x2*W,y2=A.y2*H, col=A.c||'rgba(223,238,251,0.5)';
       ctx.strokeStyle=col; ctx.lineWidth=1.8; if(A.dash)ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
