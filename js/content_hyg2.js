@@ -234,8 +234,8 @@
       ctx.fillText('Q(플랜지 없음) = '+Q0.toFixed(1)+' m³/min', px0+12, py0+18);
       ctx.fillText('Q(플랜지 부착) = '+Qf.toFixed(1)+' m³/min (−25%)', px0+12, py0+36);
       ctx.fillStyle=AMB; ctx.fillText('거리 2배(X→2X)면 풍량 ×'+r2.toFixed(2), px0+12, py0+54);
-      E.big('Q = 60×'+(fl?'0.75×':'')+Vc.toFixed(2)+'×(10×'+Xm.toFixed(2)+'² + '+A+') = '+Qsel.toFixed(1)+' m³/min',
-        '흡인력은 거리 제곱으로 죽습니다 — 후드를 발생원에 붙이는 것이 최고의 설계입니다'); }
+      E.big('Q = '+(fl?'0.75·':'')+'60·Vc·(10X²+A) = 60×'+(fl?'0.75×':'')+Vc.toFixed(2)+'×(10×'+Xm.toFixed(2)+'² + '+A+') = '+Qsel.toFixed(1)+' m³/min',
+        '일반식에 제어풍속 Vc·제어거리 X·개구면적 A를 대입한 값입니다 — 흡인력은 거리 제곱으로 죽습니다'); }
   },
 
   // 2.4 덕트와 반송속도 — V = Q/A (슬라이더)
