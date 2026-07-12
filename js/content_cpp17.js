@@ -237,14 +237,9 @@
         {t:'long sum(int n){', hl:'sum'},
         {t:'  if(n == 0) return 0;   // 기저', hl:'return 0'},
         {t:'  return n + sum(n - 1);', hl:'sum(n - 1)'},
-        {t:'}', dim:true},
-        {t:'// 깊이 n 만큼 프레임이 쌓임 → 메모리 O(n)', dim:true},
-        {t:'// n 이 아주 크면 → 스택 오버플로!', dim:true},
-        {t:'', dim:true},
-        {t:'// 꼬리재귀(tail call): 마지막이 순수 호출', dim:true},
-        {t:'long sumT(int n,long acc){', hl:'sumT'},
-        {t:'  if(n==0) return acc;', hl:'acc'},
-        {t:'  return sumT(n-1, acc+n); // 컴파일러가', hl:'sumT(n-1'}
+        {t:'}   // 깊이 n → 메모리 O(n)', dim:true},
+        {t:'// 꼬리재귀면 컴파일러가 반복으로 최적화', dim:true},
+        {t:'  return sumT(n-1, acc+n);  // -O2', hl:'sumT(n-1'}
       ] : [
         {t:'// 반복: 같은 문제를 루프로', dim:true},
         {t:'long sum(int n){', hl:'sum'},
@@ -252,13 +247,9 @@
         {t:'  for(int i = 1; i <= n; ++i)', hl:'i <= n'},
         {t:'    acc += i;', hl:'acc += i'},
         {t:'  return acc;', hl:'return acc'},
-        {t:'}', dim:true},
-        {t:'// 프레임 하나뿐 → 메모리 O(1)', dim:true},
-        {t:'// 스택 오버플로 위험 없음', dim:true},
-        {t:'// 그러나 트리형 문제(하노이·순열)엔', dim:true},
-        {t:'// 재귀가 훨씬 간결·자연스럽다', dim:true}
+        {t:'}', dim:true}
       ];
-      codePanel(E, W*0.04, H*0.10, W*0.47, code, isRec?'recursive.cpp':'iterative.cpp', null);
+      var codeBot = codePanel(E, W*0.04, H*0.10, W*0.47, code, isRec?'recursive.cpp':'iterative.cpp', null);
 
       var gx=W*0.55, gy=H*0.13, gw=W*0.40;
       ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
@@ -294,8 +285,8 @@
         ctx.fillStyle=GRN; ctx.font='11.5px sans-serif'; ctx.fillText('메모리 O(1) — 아무리 커도 스택 오버플로 없음', gx, fy2+fh2+48);
       }
 
-      // 비교표
-      var ty=H*0.80;
+      // 비교표 — 코드패널 밑단 바로 아래에 배치(겹침 방지·클램프 없이)
+      var ty=codeBot+28;
       ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('재귀: 코드 간결·트리형에 자연스러움 · 메모리 O(깊이) · 깊으면 오버플로 위험', W*0.04, ty);
       ctx.fillText('반복: 메모리 O(1)·빠름 · 하지만 하노이·순열처럼 갈래가 많으면 코드가 복잡', W*0.04, ty+18);
