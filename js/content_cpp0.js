@@ -4,7 +4,7 @@
 (function(){
   var CPB='#5ab4e8', CPD='#8fd0f5', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3';
   // C++의 창시자 비야네 스트롭스트룹 — "효율과 추상화, 둘 다"를 꿈꾼 사람(인트로 배경)
-  var BJ=new Image(); var BJ_OK=false; BJ.onload=function(){ BJ_OK=true; }; BJ.src='assets/stroustrup.svg';
+  var BJ=new Image(); var BJ_OK=false; BJ.onload=function(){ BJ_OK=true; }; BJ.src='assets/stroustrup.jpg';
   // 인트로 시네마틱에서 '실행'되는 실제 코드와 결과
   var SQ=[]; for(var i=0;i<8;i++) SQ.push(i*i);   // for(int x=0;x<8;++x) sq.push_back(x*x) = [0,1,4,9,16,25,36,49] (실제 계산)
 
@@ -12,7 +12,7 @@
 
   // ── 시네마틱: C++ 코드가 '실행'되며 결과가 피어남 → 엔드카드(비야네 스트롭스트룹) ──
   { id:'cpp0_00', cinematic:true, introCard:true,
-    story:{ portrait:'assets/stroustrup.svg', name:'비야네 스트롭스트룹',
+    story:{ portrait:'assets/stroustrup.jpg', name:'비야네 스트롭스트룹',
       sub:'Bjarne Stroustrup · 1950–<br>C++의 창시자 (1979 “C with Classes”, 1983 C++)',
       caps:[
         ['C++의 세계에 오신 것을 환영합니다'],

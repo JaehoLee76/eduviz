@@ -23,14 +23,14 @@
 
   // ══════ 시네마틱 인트로 — 라마치니 (직업의학의 아버지, 끝나면 엔드카드) ══════
   { id:'hyg0_00', cinematic:true, introCard:true,
-    story:{ portrait:RAMA_SVG, name:'베르나르디노 라마치니',
+    story:{ portrait:'assets/ramazzini.jpg', name:'베르나르디노 라마치니',
       sub:'Bernardino Ramazzini · 1633–1714<br>직업의학의 아버지',
       caps:[
         ['산업위생의 세계로 초대합니다'],
         ['1700년, 이탈리아의 의사 라마치니가 낯선 책을 펴냅니다.','『일하는 사람들의 질병』 — 인류 최초의 직업병 의학서였죠.'],
         ['그는 히포크라테스 이래의 문진에 질문 하나를 더했습니다.','"당신의 직업은 무엇입니까?"'],
         ['병의 원인이 일터에 있다면, 일터를 바꿔 병을 막을 수 있다 —','산업위생학 전체가 이 한 문장에서 자랍니다.'],
-        ['유해인자를 측정하고, 평가하고, 관리한다.','근로자의 건강을 지키는 기술의 정점 — 기술사의 길을 시작합니다.']
+        ['유해인자를 측정하고, 평가하고, 관리한다.','근로자의 건강을 지키는 기술의 정점 — 산업위생기술사의 길을 시작합니다.']
       ] },
     enter:function(E){ this.s={ ended:false, acc:0, last:0 }; E.setOn([]); },
     tap:function(E){ if(!this.s.ended){ this.s.ended=true; E.introEnd(this.story); } },

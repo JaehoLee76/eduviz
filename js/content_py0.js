@@ -4,7 +4,7 @@
 (function(){
   var PYL='#ffd343', PYB='#6cb6e8', GLD='#ffd27a', GRN='#7ee0b0', BLU='#7ab8ff', PNK='#f4a0c0', DIM='#9b99a3';
   // 파이썬의 창시자 귀도 반 로섬 — "모두를 위한 프로그래밍"을 꿈꾼 사람(인트로 배경)
-  var GUIDO=new Image(); var GUIDO_OK=false; GUIDO.onload=function(){ GUIDO_OK=true; }; GUIDO.src='assets/guido.svg';
+  var GUIDO=new Image(); var GUIDO_OK=false; GUIDO.onload=function(){ GUIDO_OK=true; }; GUIDO.src='assets/guido.jpg';
   // 인트로 시네마틱에서 '실행'되는 실제 코드와 결과
   var SQ=[]; for(var i=0;i<8;i++) SQ.push(i*i);   // [x*x for x in range(8)] = [0,1,4,9,16,25,36,49] (실제 계산)
 
@@ -12,7 +12,7 @@
 
   // ── 시네마틱: 파이썬 코드가 '실행'되며 결과가 피어남 → 엔드카드(귀도 반 로섬) ──
   { id:'py0_00', cinematic:true, introCard:true,
-    story:{ portrait:'assets/guido.svg', name:'귀도 반 로섬',
+    story:{ portrait:'assets/guido.jpg', name:'귀도 반 로섬',
       sub:'Guido van Rossum · 1956–<br>파이썬의 창시자 (1991) · BDFL(자비로운 종신독재자)',
       caps:[
         ['파이썬의 세계에 오신 것을 환영합니다'],
