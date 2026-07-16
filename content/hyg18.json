@@ -1,0 +1,92 @@
+{
+ "hyg18_01": {
+  "ch": "산업위생관리기술사 제18장 · 기출 계산 은행 Ⅱ — 송풍기·덕트",
+  "sec": "18.1 송풍기 상사법칙",
+  "title": "회전수를 조금만 올려도 — 상사법칙 Q∝N·SP∝N²·kW∝N³",
+  "narr": "지난 장(계산은행Ⅰ)에서 농도·환기·후드를 다뤘다면, 이 장부터는 그 공기를 실제로 움직이는 <b>송풍기와 덕트</b>의 계산으로 넘어갑니다. 가장 먼저 알아야 할 것은 <b>같은 송풍기라도 날개 회전수(rpm)를 바꾸면 성능이 어떻게 변하는가</b>입니다 — 현장에서 풀리(도르래) 지름을 바꿔 회전수를 조절하는 일이 흔하기 때문입니다. 답은 <b>상사법칙(Affinity Laws)</b> 세 줄로 요약됩니다: 바람의 양(송풍량 Q)은 회전수에 <b>그대로 비례</b>하고, 바람을 밀어내는 힘(정압 SP)은 회전수의 <b>제곱</b>에 비례하며, 그 힘을 내는 데 드는 전기(동력 kW)는 회전수의 <b>세제곱</b>에 비례합니다. 왜 세제곱일까요 — 동력은 '힘×속도'인데, 힘(압력)도 회전수 제곱에 비례하고 속도(풍량)도 회전수에 비례하니 둘을 곱하면 세제곱이 되는 것입니다. 그래서 회전수를 20%만 올려도(1.2배) 정압은 44%, 전기값은 73%나 뛰어오릅니다. 슬라이더로 회전수를 바꾸며 세 값이 서로 다른 속도로 커지는 것을 직접 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 기준·변경 회전수와 기준 송풍량·정압을 조절합니다.",
+  "more": "<b>필기 포인트</b>: 상사법칙 세 식 Q₂/Q₁=(N₂/N₁), SP₂/SP₁=(N₂/N₁)², kW₂/kW₁=(N₂/N₁)³을 <b>지수(1·2·3)를 헷갈리지 않고</b> 쓰는 것이 핵심입니다. 문제가 '유지비(전력)가 몇 % 증가하는가'를 물으면 (N₂/N₁)³을 구한 뒤 <b>1을 빼고 100을 곱해야</b ⟶ '증가율'이 됩니다(비율 자체와 증가율을 혼동하는 것이 흔한 실수). 이 법칙은 <b>같은 송풍기 계열(동일 형식·크기)에서 회전수만 바뀔 때</b>만 성립하며, 날개 지름이나 형식이 바뀌면 별도의 상사법칙(지름비 관련 식)을 써야 합니다.\n\n<b>실무</b>: 현장에서 풍량이 부족해 회전수를 올리면 전력비가 세제곱으로 늘어나므로, 무작정 회전수를 올리기보다 덕트 저항을 줄이거나 후드를 다시 설계하는 편이 경제적일 때가 많습니다.",
+  "more_en": "Fan affinity laws relate performance to rotational speed: flow rate scales linearly with N, static pressure with N², and power with N³. Because power increases as the cube of speed, even a modest RPM increase produces a large jump in electricity cost — a key economic consideration when tuning fan speed to fix inadequate airflow.",
+  "problem": {
+   "q": "기출 유형(빈출): 송풍량이 100 m³/min인 국소배기장치에서 송풍기의 회전수가 3,000 rpm이었습니다. 송풍기 날개의 회전수를 3,600 rpm으로 증가시키면 유지비(전기 사용량)는 몇 % 증가하는지 구하십시오.",
+   "solution": "회전수비 N₂/N₁ = 3,600/3,000 = <b>1.2</b>입니다. 동력은 회전수의 세제곱에 비례하므로 동력비 = 1.2³ = <b>1.728</b>배입니다. 따라서 유지비(전력 사용량) 증가율 = (1.728−1)×100 ≈ <b>72.8 %</b>로 마무리합니다. 참고로 송풍량은 1.2배(=120 m³/min), 정압은 1.2²=1.44배로 함께 증가한다는 점도 답안에 병기하면 완결도가 높아집니다.",
+   "q_en": "Frequent exam type: a fan runs at 3,000 rpm delivering 100 m³/min. If the speed is raised to 3,600 rpm, find the % increase in maintenance cost (power use).",
+   "sol_en": "Speed ratio 3,600/3,000 = 1.2. Power ratio = 1.2³ = 1.728, so cost rises about 72.8%. Flow rises ×1.2, pressure ×1.44."
+  }
+ },
+ "hyg18_02": {
+  "ch": "산업위생관리기술사 제18장 · 기출 계산 은행 Ⅱ — 송풍기·덕트",
+  "sec": "18.2 송풍기 정압(FSP)",
+  "title": "입구와 출구의 압력차에서 속도압을 다시 빼는 이유 — FSP",
+  "narr": "송풍기를 고를 때 제조사에 알려줘야 하는 핵심 스펙이 <b>송풍기 정압(Fan Static Pressure, FSP)</b>입니다. 언뜻 보면 '배출구 압력에서 흡입구 압력을 빼면 되지 않나' 싶지만, 여기엔 함정이 하나 있습니다. 흡입구 쪽 공기는 정지 상태에서 덕트 속도까지 <b>가속</b>되고 있는데, 이 가속에 쓰인 에너지(속도압 VP_in)는 이미 <b>덕트 설계 자체가 만들어낸 몫</b>이지 송풍기가 추가로 더 일한 몫이 아닙니다. 그래서 단순 압력차 (SP_out − SP_in)에서 이 속도압만큼을 <b>다시 빼줘야</b> 송풍기가 순수하게 감당한 압력, 즉 <b>FSP = (SP_out − SP_in) − VP_in</b>가 나옵니다. 지하철 환기처럼 흡입구가 음압(−)이고 배출구가 양압(+)인 실제 사례를 슬라이더로 조절하며, 속도압을 뺐을 때와 안 뺐을 때 값이 얼마나 달라지는지 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N)로 흡인구·배출구 정압과 흡입측 반송속도를 조절합니다.",
+  "more": "<b>필기 포인트</b>: 부호에 주의해야 합니다 — 흡인구는 대개 <b>음압(SP_in<0)</b>이므로 '(SP_out − SP_in)'은 사실상 두 값을 <b>더하는</b> 셈이 됩니다(음수를 빼면 더해짐). VP_in=(V_in/4.043)²은 언제나 <b>양수</b>이며, 반드시 마지막에 <b>빼야</b> 합니다(더하면 오답). 문제에 따라 배출구 쪽 속도압까지 고려하는 심화형(VP_out도 빼거나 더하는 변형)이 나올 수 있으니, 기본형(입구 속도압만 보정)을 먼저 확실히 익혀둡니다.\n\n<b>실무</b>: FSP는 송풍기 카탈로그의 성능곡선을 읽을 때 가로축(풍량)·세로축(정압) 중 세로축 값에 해당하므로, 이 값을 정확히 계산해야 카탈로그에서 적정 기종을 고를 수 있습니다.",
+  "more_en": "Fan static pressure (FSP) is the pressure the fan itself must generate, found from FSP = (SP_out − SP_in) − VP_in. The inlet velocity pressure is subtracted because it was already 'spent' accelerating the air through the duct system, not additional work performed by the fan. Inlet pressures are typically negative (suction), so the subtraction effectively adds magnitude.",
+  "problem": {
+   "q": "기출 유형(빈출): 지하철에 설치된 송풍기 흡인구의 정압이 −70 mmH₂O, 배출구의 정압이 20 mmH₂O였습니다. 입구측의 반송속도가 13.5 m/s일 때 흡인구의 속도압과 송풍기 정압을 구하십시오.",
+   "solution": "흡입 속도압 VP_in = (13.5÷4.043)² ≈ <b>11.15 mmH₂O</b>입니다. 정압차 SP_out−SP_in = 20−(−70) = <b>90 mmH₂O</b>입니다. 송풍기 정압 FSP = 90 − 11.15 ≈ <b>78.85 mmH₂O</b>로, 이것이 송풍기가 실제로 감당해야 하는 압력이라고 마무리합니다.",
+   "q_en": "Frequent exam type: a subway ventilation fan has inlet static pressure −70 mmH₂O, outlet 20 mmH₂O, inlet velocity 13.5 m/s — find the inlet velocity pressure and fan static pressure.",
+   "sol_en": "VP_in = (13.5/4.043)² ≈ 11.15 mmH₂O. SP_out − SP_in = 90 mmH₂O. FSP = 90 − 11.15 ≈ 78.85 mmH₂O."
+  }
+ },
+ "hyg18_03": {
+  "ch": "산업위생관리기술사 제18장 · 기출 계산 은행 Ⅱ — 송풍기·덕트",
+  "sec": "18.3 확대관 손실·정압회복",
+  "title": "덕트가 넓어지면 속도압 일부가 정압으로 되돌아옵니다",
+  "narr": "덕트가 갑자기 넓어지는 <b>확대관(expansion)</b> 구간에서는 재미있는 일이 벌어집니다. 좁은 관에서는 유속이 빠르고 넓은 관에서는 느리다는 것은 연속의 법칙(V₁A₁=V₂A₂)으로 이미 압니다. 속도가 느려지면 그만큼 속도압(VP=(V/4.043)²)도 줄어드는데, 이 '잃어버린' 속도압이 그냥 사라지는 게 아니라 상당 부분 <b>정압으로 되돌아옵니다</b> — 이것이 <b>정압회복(static regain)</b>입니다. 직경이 d₁에서 d₂로 늘면 단면적은 (d₂/d₁)²배로 커지고, 그만큼 유속은 (d₁/d₂)²배로 줄며, 속도압은 그 <b>제곱</b>인 (d₁/d₂)⁴배로 확 줄어듭니다. 다만 관이 매끄럽게 넓어지지 않으면 소용돌이가 생겨 에너지 일부가 흩어지므로, 되돌아오는 비율을 <b>압력회복계수 R</b>(관 형상에 따라 실험적으로 정하는 값, 0.5~0.95 정도)로 나타냅니다 — 이론상 회복 가능한 양(VP₁−VP₂) 중 R만큼만 실제로 회복되고, 나머지 (1−R)은 손실됩니다. 슬라이더로 두 직경·속도압·압력회복계수를 바꾸며, 직경 차이가 클수록 회복량도 손실량도 함께 커지는 것을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 작은·큰 덕트 직경과 속도압·압력회복계수를 조절합니다.",
+  "more": "<b>필기 포인트</b>: VP₂=VP₁×(d₁/d₂)⁴에서 <b>지수가 4승</b>이라는 점(면적비의 제곱이 속도압비이므로 2×2=4)이 시험에서 가장 자주 틀리는 부분입니다. 압력회복계수 R은 문제에서 주어지지 않으면 <b>가정임을 명시</b>하고 통상 범위(0.5~0.95, 매끄러운 확대관일수록 1에 가까움)를 서술해야 합니다. '확대관의 손실계수'를 물으면 (1−R)을 답하는 것이지 손실량(mmH₂O) 자체를 답하는 것이 아니라는 점(단위 없는 계수 vs 압력값)을 구분해야 합니다.\n\n<b>실무</b>: 급격한 확대(각도가 큰 디퓨저)는 소용돌이가 커져 R이 작아지므로, 실제 설계에서는 확대각을 15° 이내로 완만하게 해 정압회복을 최대화합니다.",
+  "more_en": "In a duct expansion, velocity pressure drops as VP₂=VP₁×(d₁/d₂)⁴ (since area scales with d² and VP with velocity squared). Not all of this drop converts back to static pressure — a pressure recovery coefficient R (typically an assumed value 0.5–0.95 depending on how gradual the expansion is) determines the recovered fraction; the remainder (1−R) is lost to turbulence.",
+  "problem": {
+   "q": "기출 유형(빈출): 그림과 같은 확대관에서 작은 덕트의 직경은 100 mm, 큰 덕트의 직경은 150 mm이며, 작은 덕트에서의 속도압은 13.8 mmH₂O였습니다. 이 확대관의 손실계수를 구하십시오.",
+   "solution": "큰 덕트의 속도압 VP₂ = 13.8×(100/150)⁴ ≈ <b>2.73 mmH₂O</b>입니다. 이론적으로 회복 가능한 정압은 VP₁−VP₂ = 13.8−2.73 ≈ <b>11.07 mmH₂O</b>입니다. 압력회복계수를 가정치 R로 두면(문제에 명시가 없으면 통상값 서술), 손실계수는 <b>(1−R)</b>이며, 실제 손실량은 (1−R)×11.07 mmH₂O로 계산된다고 마무리합니다.",
+   "q_en": "Frequent exam type: an expansion duct narrows from 150mm to 100mm; velocity pressure at the 100mm section is 13.8 mmH₂O — find the expansion loss coefficient.",
+   "sol_en": "VP₂ = 13.8×(100/150)⁴ ≈ 2.73 mmH₂O. Theoretical recoverable pressure = 13.8−2.73 ≈ 11.07 mmH₂O; loss coefficient = (1−R) applied to this value."
+  }
+ },
+ "hyg18_04": {
+  "ch": "산업위생관리기술사 제18장 · 기출 계산 은행 Ⅱ — 송풍기·덕트",
+  "sec": "18.4 장방형 덕트 치수",
+  "title": "단면적은 정해져 있는데, 가로세로는 마음대로 — 측변비",
+  "narr": "원하는 풍량 Q를 원하는 반송속도 V로 흘려보내려면 덕트의 <b>단면적 A=Q/V</b>가 자동으로 정해집니다. 원형 덕트라면 이 단면적에서 직경 하나만 정하면 끝이지만, 공간이 좁아 <b>장방형(사각) 덕트</b>를 써야 할 때는 이야기가 다릅니다 — 같은 넓이 A를 정사각형(1:1)으로 나눌지, 길쭉하게(1:3, 1:4…) 나눌지에 따라 무한히 많은 (a,b) 조합이 가능합니다. 이 비율을 <b>측변비(aspect ratio) 1:k</b>라 부르며, a×(k·a)=A에서 a=√(A/k), b=k·a로 두 변의 길이가 정해집니다. 측변비가 1(정사각형)에 가까울수록 같은 넓이 대비 둘레가 짧아 <b>마찰손실이 작지만</b>, 배관 공간이 좁으면 길쭉한 단면(k↑)을 어쩔 수 없이 씁니다. 사각 덕트는 원형과 성능을 비교하기 위해 <b>상당직경(De)</b>이라는 '등가 원형 직경'을 계산해 쓰는데, De=1.3(ab)^0.625/(a+b)^0.25라는 경험식으로 구합니다. 슬라이더로 풍량·반송속도·측변비를 바꾸며, 같은 단면적이라도 측변비에 따라 변의 길이가 얼마나 달라지는지 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N)로 배출량·반송속도·측변비를 조절합니다.",
+  "more": "<b>필기 포인트</b>: A=Q/V 계산에서 <b>Q의 단위를 m³/min에서 m³/s로(÷60) 바꾸는 것을 빠뜨리지 말 것</b> — 이걸 놓치면 답이 60배 틀립니다. 측변비가 1:k로 주어지면 a·b=A와 b=k·a를 연립해 a=√(A/k)를 도출하는 과정을 답안에 보여야 부분점수가 아닌 만점입니다. 상당직경 공식의 지수(0.625, 0.25)는 암기가 필요한 경험식이며, 시험에서 공식 자체를 제시해주는 경우가 많으므로 <b>대입 순서(ab를 먼저, a+b를 나중에)</b>를 정확히 지키는 것이 핵심입니다.\n\n<b>실무</b>: 측변비가 4:1을 넘으면 모서리 부근에서 유속 분포가 크게 불균일해져 마찰손실이 급증하므로, 설계 지침에서는 통상 측변비를 4 이하로 제한합니다.",
+  "more_en": "Given a target flow rate and transport velocity, cross-sectional area A=Q/V is fixed, but a rectangular duct can realize that area with many aspect ratios (1:k). Solving a×(k·a)=A gives a=√(A/k), b=k·a. An equivalent circular diameter (De) lets rectangular ducts be compared to round ones using the empirical formula De=1.3(ab)^0.625/(a+b)^0.25.",
+  "problem": {
+   "q": "기출 유형(빈출): 배출량이 45 m³/min, 반송속도가 15 m/s인 조건에서 측변비를 1 또는 1/3로 할 경우 장방형 덕트의 두 변의 길이를 각각 구하십시오.",
+   "solution": "단면적 A = (45÷60)÷15 = <b>0.05 m²</b>입니다. 측변비 1:1일 때 a=b=√0.05 ≈ <b>0.224 m</b>입니다. 측변비 1:3일 때 a=√(0.05÷3) ≈ <b>0.129 m</b>, b=3a ≈ <b>0.387 m</b>로 구해집니다. 같은 단면적이라도 비율에 따라 변의 길이가 크게 달라진다는 점을 확인하며 마무리합니다.",
+   "q_en": "Frequent exam type: airflow 45 m³/min at 15 m/s transport velocity — find rectangular duct side lengths for aspect ratios 1:1 and 1:3.",
+   "sol_en": "A = (45/60)/15 = 0.05 m². For 1:1, a=b≈0.224m. For 1:3, a≈0.129m, b≈0.387m."
+  }
+ },
+ "hyg18_05": {
+  "ch": "산업위생관리기술사 제18장 · 기출 계산 은행 Ⅱ — 송풍기·덕트",
+  "sec": "18.5 송풍기 소요동력",
+  "title": "공기를 옮기는 일의 양 ÷ 효율 = 전기가 해야 할 일",
+  "narr": "송풍기 정압(FSP)과 필요풍량(Q)까지 정해졌다면, 마지막으로 이 송풍기를 돌리는 데 <b>전기가 얼마나 필요한지(동력)</b>를 구할 차례입니다. 물리적으로 동력은 '단위시간당 한 일'이고, 여기서 일은 '압력×부피'이므로 Q×SP가 곧 공기를 옮기는 데 필요한 일의 양입니다. 하지만 실제 송풍기는 날개 마찰·누설·와류 때문에 투입한 전기 에너지를 100% 바람의 힘으로 바꾸지 못하고, 그중 <b>효율 η</b>만큼만 유용하게 씁니다. 그래서 <b>축동력(kW) = Q×SP ÷ (6120×η)</b>라는 식이 나옵니다 — 6120은 단위(m³/min·mmH₂O를 kW로)를 맞춰주는 환산상수입니다. 그런데 이 축동력을 딱 맞춰 전동기를 사면, 먼지가 쌓여 저항이 늘거나 순간적으로 부하가 튀는 상황에서 전동기가 못 버팁니다. 그래서 실제 전동기는 이 값보다 <b>여유율 α</b>(보통 1.1~1.2배)만큼 더 큰 것을 선정합니다. 슬라이더로 송풍량·정압·효율·여유율을 바꾸며, 효율이 나쁠수록(η↓) 같은 일을 하는 데도 더 많은 전기가 드는 것을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 송풍량·정압·효율·여유율을 조절합니다.",
+  "more": "<b>필기 포인트</b>: kW=Q×SP÷(6120×η)에서 Q는 <b>m³/min</b>, SP는 <b>mmH₂O</b> 단위 그대로 대입합니다(별도 환산 불필요, 6120이 이미 단위를 흡수한 상수). 효율 η은 <b>분모</b>에 들어가므로 효율이 나쁠수록(η↓) 동력은 <b>커집니다</b>(반비례를 거꾸로 적용해 곱하는 실수가 흔함). 전동기 소요동력을 물으면 축동력에 여유율 α를 <b>곱한</b> 값을 최종 답으로 제시해야 완결됩니다.\n\n<b>실무</b>: 이 식으로 산정한 동력이 표준 전동기 규격(예 3.7, 5.5, 7.5kW 등)의 딱 중간값이면, 안전을 위해 <b>한 단계 위 규격</b>을 선정하는 것이 관례입니다.",
+  "more_en": "Fan shaft power is kW = Q×SP/(6120×η), where efficiency η accounts for mechanical losses converting electrical input into useful airflow work. A safety margin α (typically 1.1–1.2) is then applied to the shaft power when selecting the actual motor, to accommodate fouling and load spikes.",
+  "problem": {
+   "q": "기출 유형(빈출): 송풍량 100 m³/min, 정압 100 mmH₂O, 송풍기 효율 0.6인 조건에서 송풍기의 소요동력(kW)을 구하십시오.",
+   "solution": "축동력 = (100×100)÷(6120×0.6) = 10,000÷3,672 ≈ <b>2.72 kW</b>입니다. 실제 전동기를 선정할 때는 여기에 여유율(예 1.15)을 곱해 약 <b>3.13 kW</b> 이상의 규격을 고른다고 마무리합니다.",
+   "q_en": "Frequent exam type: airflow 100 m³/min, static pressure 100 mmH₂O, fan efficiency 0.6 — find the required shaft power.",
+   "sol_en": "kW = (100×100)/(6120×0.6) ≈ 2.72 kW; applying a margin factor (e.g. 1.15) gives a motor rating of about 3.13 kW or higher."
+  }
+ },
+ "hyg18_06": {
+  "ch": "산업위생관리기술사 제18장 · 기출 계산 은행 Ⅱ — 송풍기·덕트",
+  "sec": "18.6 송풍기 성능곡선·동작점",
+  "title": "송풍기가 낼 수 있는 곡선과 배관이 요구하는 곡선이 만나는 한 점",
+  "narr": "송풍기는 '풍량 X를 내겠다'고 한 번에 약속할 수 없습니다 — 풍량과 정압은 서로 밀고 당기는 관계라서, 제조사는 이 관계를 <b>성능곡선</b>(우하향: 풍량이 늘면 낼 수 있는 정압은 줄어듦)으로 제공합니다. 한편 배관 쪽도 '이만큼 흘리려면 이만큼 저항한다'는 자기만의 곡선을 갖는데, 저항은 유속의 제곱에 비례하므로 <b>시스템곡선 SP=k·Q²</b>(우상향 포물선)로 그려집니다. 송풍기는 이 두 곡선이 만나는 <b>단 하나의 점, 즉 동작점(operating point)</b>에서만 실제로 작동합니다 — 아무리 카탈로그에 큰 풍량이 적혀 있어도, 배관 저항이 크면 그 지점까지 도달하지 못합니다. 만약 설계 단계에서 배관 저항(k)을 <b>과소평가</b>했거나, 시공 후 <b>댐퍼를 조이거나 필터가 막혀</b> 저항이 늘어나면(k↑), 시스템곡선이 더 가팔라지면서 동작점이 왼쪽 위(풍량↓·정압↑)로 이동합니다 — 이것이 '분명 계산은 맞았는데 실제로 틀면 풍량이 예상보다 적게 나온다'는 현장의 흔한 하소연의 정체입니다. 슬라이더로 시스템 저항계수(댐퍼 조임 정도)를 바꾸며 동작점이 이동하는 것을 직접 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 저항계수·최대정압·팬곡선 하강계수·설계기대풍량을 조절합니다.",
+  "more": "<b>필기 포인트</b>: 동작점은 두 곡선을 <b>연립</b>해서 SP가 같아지는 Q를 찾는 것이지, 어느 한 곡선만 봐서는 구할 수 없습니다(SPmax−c·Q²=k·Q² → Q에 대해 정리). '실제 송풍량이 예상보다 적게 나온 이유'를 서술형으로 물으면, <b>시스템(배관) 저항을 설계 시 과소평가했거나 시공 후 저항이 증가</b>(필터 막힘·덕트 굴곡 추가·댐퍼 조임)했기 때문이라고 답해야지, '송풍기가 불량이다'로 단정하면 감점입니다. 이 장면의 성능곡선·시스템곡선 계수(SPmax·c·k)는 실제 카탈로그 값이 아닌 <b>학습용 가정치</b>이며, 실무에서는 제조사 성능곡선 실측 데이터를 그대로 사용합니다.\n\n<b>실무</b>: 현장에서 풍량 부족이 확인되면, 댐퍼를 열거나 필터를 청소해 저항(k)을 낮추는 것이 회전수(N)를 올리는 것보다(상사법칙상 동력이 세제곱으로 뛰므로) 훨씬 경제적인 1차 대응입니다.",
+  "more_en": "A fan only operates where its performance curve (declining with flow) intersects the system's resistance curve (SP=k·Q², rising with the square of flow). If system resistance is underestimated at design time, or increases afterward (clogged filters, closed dampers, added duct bends), the operating point shifts to lower flow and higher pressure — explaining why measured airflow often falls short of the design target even when the fan itself is correctly sized.",
+  "problem": {
+   "q": "기출 유형(빈출): 국소배기시스템을 설계하여 송풍기 정압 등을 계산하고 그에 맞는 송풍기를 구매·장착했습니다. 성능곡선을 참고해 실제 가동해 보니 송풍량이 예상보다 적게 나왔습니다. 그 이유를 송풍기·시스템 곡선 개념으로 설명하십시오.",
+   "solution": "송풍기는 자체 성능곡선(우하향)과 배관의 시스템곡선(SP=k·Q², 우상향)이 만나는 <b>동작점</b>에서만 작동합니다. 설계 시 배관 저항계수 k를 과소평가했거나, 시공 후 필터 막힘·덕트 추가굴곡·댐퍼 조임 등으로 실제 k가 커지면 <b>시스템곡선이 더 가팔라져 동작점이 왼쪽(풍량↓)·위(정압↑)로 이동</b>합니다. 따라서 실제 송풍량이 설계값보다 적게 나온 것은 송풍기 결함이 아니라 <b>시스템 저항이 예상보다 컸기 때문</b>이라고 결론짓고, 해결책으로 저항 원인 제거(필터 청소·댐퍼 개방·덕트 재설계)를 제시하며 마무리합니다.",
+   "q_en": "Frequent exam type: after installing a fan sized from calculated static pressure, actual measured airflow falls short of the design value — explain why using fan-curve/system-curve concepts.",
+   "sol_en": "The fan only runs at the intersection of its own performance curve and the system's resistance curve (SP=k·Q²). If actual system resistance k is higher than assumed (underestimated design, clogged filters, added bends, closed dampers), the operating point shifts to lower flow and higher pressure — the fan itself is not necessarily defective."
+  }
+ }
+}
