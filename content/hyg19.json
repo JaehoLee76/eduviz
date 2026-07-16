@@ -1,0 +1,92 @@
+{
+ "hyg19_01": {
+  "ch": "산업위생관리기술사 제19장 · 기출 계산 은행 Ⅲ — 소음·측정",
+  "sec": "19.1 음력수준(PWL)",
+  "title": "멀리서 잰 소리에 거리로 퍼진 만큼을 되돌려주면 — 음력수준(PWL)",
+  "narr": "지난 두 장(계산은행Ⅰ·Ⅱ)이 농도·환기와 송풍기·덕트였다면, 이 장부터는 <b>소음</b>의 기출 계산으로 넘어갑니다. 가장 먼저 구분해야 할 두 개념이 <b>음압수준(SPL, Lp)</b>과 <b>음력수준(PWL, Lw)</b>입니다 — 음압수준은 '어떤 지점에서 귀(또는 마이크)로 잰 소리'이고, 음력수준은 '음원 자체가 뿜어내는 절대적인 소리 에너지'입니다. 같은 음원이라도 가까이서 재면 크게, 멀리서 재면 작게 들리므로(음압수준은 거리에 따라 변함), 음원 고유의 힘(음력수준)을 알려면 <b>측정 거리만큼 퍼지며 약해진 몫을 다시 더해줘야</b> 합니다. 자유공간(사방이 트인 곳)의 점음원이라면 그 식이 <b>Lw = Lp + 20·log₁₀(r) + 11</b>입니다. 만약 음원이 바닥처럼 반사면 위에 있다면(반자유음장) 소리가 위쪽 반구로만 퍼지므로 상수가 11 대신 8로 줄어듭니다. 슬라이더로 거리·음압·설치조건을 바꾸며, 같은 음압을 재도 거리가 멀수록(또는 설치조건이 다를수록) 역산된 음력수준이 어떻게 달라지는지 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N)로 측정거리·음압수준·설치조건(자유음장/반자유음장)을 조절합니다.",
+  "more": "<b>필기 포인트</b>: 상수 11과 8을 헷갈리지 않는 것이 핵심입니다 — <b>완전자유공간(사방 무반사)=11</b>, <b>반자유공간(바닥 등 한 면이 반사면)=8</b>입니다. 문제에 '자유음장이라 가정함'이라고 명시되면 11을 쓰고, 별도 언급이 없거나 '바닥에 설치'라는 표현이 있으면 8을 검토합니다. 20·log₁₀(r) 항의 부호는 <b>항상 +</b>입니다 — 멀리서 잴수록(r↑) 음압수준은 작아지므로, 음원의 실제 세기(음력수준)를 되짚으려면 그만큼을 <b>더해</b> 보정해야 한다는 논리로 이해하면 부호를 외우지 않아도 됩니다.\n\n<b>실무</b>: 음력수준은 거리에 무관한 음원 고유값이므로, 소음원을 교체·비교할 때(카탈로그 스펙)는 음압수준이 아니라 음력수준(PWL)을 기준으로 삼아야 측정 거리 차이에 흔들리지 않습니다.",
+  "more_en": "Sound power level (PWL, Lw) is the source's intrinsic acoustic output, distinct from sound pressure level (SPL, Lp) measured at a given distance. For a point source in free space, Lw = Lp + 20·log10(r) + 11; if the source sits on a reflecting surface (hemispherical radiation), the constant becomes 8 instead of 11.",
+  "problem": {
+   "q": "기출 유형(빈출): 소음원으로부터 20 m 떨어진 지점에서 소음수준이 90 dB이었습니다. 소음원의 음력수준(sound power level)은 몇 dB인지 구하십시오. (단, 자유음장이라 가정합니다.)",
+   "solution": "자유공간 점음원 공식 Lw = Lp + 20·log₁₀(r) + 11에 대입합니다. 20·log₁₀(20) ≈ <b>26.02 dB</b>이므로, Lw = 90 + 26.02 + 11 ≈ <b>127.0 dB</b>로 마무리합니다. 만약 문제에서 음원이 반사면(바닥)에 설치된 반자유음장이라 명시했다면 상수가 11이 아닌 8이 되어 Lw≈124.0dB로 달라진다는 점도 함께 기억해 둡니다.",
+   "q_en": "Frequent exam type: sound level measured 20 m from a noise source is 90 dB — find the source's sound power level, assuming free-field conditions.",
+   "sol_en": "Lw = Lp + 20log10(r) + 11 = 90 + 26.02 + 11 ≈ 127.0 dB. If the source were mounted on a reflecting floor (hemispherical field), the constant would be 8 instead of 11."
+  }
+ },
+ "hyg19_02": {
+  "ch": "산업위생관리기술사 제19장 · 기출 계산 은행 Ⅲ — 소음·측정",
+  "sec": "19.2 거리감쇠",
+  "title": "거리가 2배 되면 6dB씩 — 점음원 자유음장 거리감쇠",
+  "narr": "앞 장면에서 음력수준을 구했다면, 이번엔 거꾸로 <b>한 지점에서 잰 소음으로 다른 거리의 소음을 추정</b>하는 계산입니다. 자유음장(반사물이 없는 트인 공간)의 점음원은 소리 에너지가 구면으로 고르게 퍼지므로, 거리가 2배로 늘면 같은 에너지가 4배 넓은 면적에 퍼져 <b>강도가 1/4로, 데시벨로는 약 −6dB</b>만큼 줄어듭니다. 이를 일반화하면 두 지점의 소음수준 차이는 <b>ΔL = 20·log₁₀(r₁/r₂)</b>로 계산되고, 알고 있는 지점(r₁, L₁)으로부터 모르는 지점(r₂)의 소음수준을 <b>L₂ = L₁ + ΔL</b>로 추정할 수 있습니다. 현장에서 소음계를 매 지점마다 들고 다니지 않아도, 한 번 측정한 값으로 여러 지점의 소음을 이론적으로 가늠할 수 있다는 것이 이 공식의 실용적 가치입니다. 슬라이더로 두 거리와 기준 소음수준을 바꾸며, 절단기에 가까워질수록(r₂↓) 소음이 얼마나 커지는지 직접 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N)로 두 측정거리와 기준 소음수준을 조절합니다.",
+  "more": "<b>필기 포인트</b>: r₁이 <b>알고 있는(측정한) 지점</b>, r₂가 <b>추정하려는 지점</b>이라는 역할을 헷갈리면 부호가 뒤집힙니다. r₂가 r₁보다 <b>가까우면(r₂<r₁)</b> ΔL은 <b>양수</b>가 되어 소음이 더 커지고, r₂가 더 <b>멀면</b> ΔL은 음수가 되어 작아집니다. '거리가 2배가 될 때마다 6dB'라는 어림규칙(20·log₁₀2≈6.02)을 암산 검산용으로 외워두면 계산 실수를 빠르게 잡아낼 수 있습니다.\n\n<b>실무</b>: 이 식은 <b>점음원·자유음장(반사물 없음)</b>이라는 전제가 있어야 정확합니다 — 벽·바닥 반사가 있는 실내 공간이나 선음원(긴 컨베이어 등)에는 다른 감쇠식을 써야 하므로, 문제에 '자유영역', '반사물 없음' 같은 조건이 명시되어 있는지 반드시 확인합니다.",
+  "more_en": "For a point source in free field, doubling the distance halves the sound pressure and reduces the level by about 6 dB (since ΔL = 20·log10(r1/r2)). Given one measured point (r1, L1), the level at another distance r2 can be estimated as L2 = L1 + ΔL, provided the path between them is free of reflecting or absorbing obstacles.",
+  "problem": {
+   "q": "기출 유형(빈출): 주조된 금속제품을 절단하는 절단기로부터 12 m 떨어진 곳에서 측정한 소음수준은 104 dB(A)였습니다. 4 m 떨어진 곳의 소음수준을 이론적으로 추정하십시오. (단, 절단기 사이는 자유영역으로 가정합니다.)",
+   "solution": "거리비 r₁/r₂ = 12/4 = <b>3</b>이므로, ΔL = 20·log₁₀(3) ≈ <b>9.54 dB</b>입니다. 따라서 L₂ = 104 + 9.54 ≈ <b>113.5 dB(A)</b>로 마무리합니다. 거리가 1/3로 가까워졌으니 소음이 더 커지는 방향(+)으로 보정된 것이 물리적으로 타당한지 검산해 봅니다.",
+   "q_en": "Frequent exam type: noise measured 12 m from a cutting machine is 104 dB(A) — theoretically estimate the level at 4 m, assuming a free field between the points.",
+   "sol_en": "Distance ratio 12/4 = 3, so ΔL = 20log10(3) ≈ 9.54 dB. L2 = 104 + 9.54 ≈ 113.5 dB(A)."
+  }
+ },
+ "hyg19_03": {
+  "ch": "산업위생관리기술사 제19장 · 기출 계산 은행 Ⅲ — 소음·측정",
+  "sec": "19.3 소음노출지수(허용기준 초과판단)",
+  "title": "하루에 여러 세기의 소음을 겪었다면 — 소음노출지수 D",
+  "narr": "16장에서 <b>한 가지 소음수준</b>이 하루 종일 유지될 때의 허용노출시간(T=8/2^((L−90)/5))을 다뤘다면, 실제 현장은 그렇게 단순하지 않습니다 — 오전엔 96dB인 기계 옆에서, 오후엔 91dB인 다른 구역에서 일하는 식으로 <b>여러 세기의 소음에 나눠서</b> 노출됩니다. 이런 경우엔 각 소음수준마다 '내가 실제로 노출된 시간(Cᵢ)'을 '그 세기에서 허용된 시간(Tᵢ)'으로 나눈 <b>부분 노출률(Cᵢ/Tᵢ)</b>을 구하고, 이를 전부 더한 <b>소음노출지수 D = Σ(Cᵢ/Tᵢ)</b>가 1(=100%)을 넘는지로 초과 여부를 판단합니다. 예를 들어 96dB에서 2시간(허용 3.48시간 중 절반 이상 소진), 91dB에서 4시간, 84dB에서 2시간을 겪었다면, 세 부분노출률을 다 더해서 하루 전체의 '소음 예산 사용률'을 계산하는 것입니다. 슬라이더로 세 소음수준을 바꾸며, 허용시간 Tᵢ가 소음수준에 아주 민감하게(5dB마다 절반씩) 줄어드는 것과 그것이 최종 D에 미치는 영향을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N)로 세 소음수준을 조절합니다(노출시간은 기출 원 문제의 2시간·4시간·2시간 고정값).",
+  "more": "<b>필기 포인트</b>: D를 구할 때 <b>세 항을 모두 더해야</b ⟶ 하며, 어느 하나라도 빠뜨리면 오답입니다(부분점수만 받는 흔한 실수). Tᵢ 계산에서 지수 (Lᵢ−90)/5의 <b>부호</b>에 유의해야 합니다 — L=90dB이면 지수가 0이라 T=8시간(당연), L이 90보다 크면 지수가 양수라 T가 8시간보다 <b>작아지고</b>, L이 90보다 작으면 지수가 음수라 T가 8시간보다 <b>커집니다</b>(2의 음수제곱은 분모가 작아지는 효과와 같습니다). D>1이면 '허용기준 초과'로, D=1을 정확히 100%로 표현해야 합니다.\n\n<b>실무</b>: 이 지수 방식은 미국 OSHA·우리나라 고용노동부 고시가 공통으로 채택한 <b>등가소음도(Leq) 기반 누적노출</b> 개념의 손계산 버전으로, 실제로는 개인 소음노출량계(dosimeter)가 이 계산을 자동으로 적산합니다.",
+  "more_en": "Chapter 16 covered a single noise level held for a full day; real shifts mix multiple levels. The noise exposure index sums each level's fractional exposure D = Σ(Ci/Ti), where Ti = 8/2^((Li−90)/5) is the allowable time at level Li and Ci is the actual exposure time. D exceeding 1 (100%) means the daily limit is exceeded.",
+  "problem": {
+   "q": "기출 유형(빈출): 소음부서의 작업환경 측정결과 작업특성상 96 dB(A)의 소음이 2시간, 91 dB(A)의 소음이 4시간, 84 dB(A)의 소음이 2시간 발생하였습니다. 이때 고용노동부 고시에서 정한 소음의 허용기준 초과 여부를 판단하십시오.",
+   "solution": "각 수준의 허용시간을 구하면 T(96)=8/2^1.2≈<b>3.48시간</b>, T(91)=8/2^0.2≈<b>6.96시간</b>, T(84)=8/2^(−1.2)≈<b>18.38시간</b>입니다. 소음노출지수 D=2/3.48+4/6.96+2/18.38≈0.574+0.574+0.109≈<b>1.26</b>으로, 1(=100%)을 넘으므로 <b>허용기준을 초과</b>한다고 판정하며 마무리합니다.",
+   "q_en": "Frequent exam type: a worker is exposed to 96 dB(A) for 2h, 91 dB(A) for 4h, and 84 dB(A) for 2h in one shift — determine whether the Korean MOEL noise exposure limit is exceeded.",
+   "sol_en": "T(96)≈3.48h, T(91)≈6.96h, T(84)≈18.38h. D=2/3.48+4/6.96+2/18.38≈1.26 > 1, so the exposure limit is exceeded."
+  }
+ },
+ "hyg19_04": {
+  "ch": "산업위생관리기술사 제19장 · 기출 계산 은행 Ⅲ — 소음·측정",
+  "sec": "19.4 옥타브밴드·1/3옥타브밴드 범위",
+  "title": "중심주파수 하나로 밴드의 위아래 경계를 정하는 법",
+  "narr": "소음은 여러 주파수 성분이 섞여 있어서, 전체 소음도(dB)만으로는 '어떤 음높이가 문제인지' 알 수 없습니다. 그래서 산업위생에서는 주파수 대역을 <b>옥타브밴드</b>(위아래로 2배씩 벌어지는 폭)로 쪼개 각 대역별 소음도를 따로 관리합니다. 흔히 '1,000Hz 옥타브밴드'라고 하면 이는 <b>중심주파수 fc=1,000Hz</b>를 의미하며, 실제 그 밴드가 커버하는 범위는 <b>하한 fc/√2, 상한 fc·√2</b>로 계산됩니다(옥타브=2배 관계이므로 중심에서 위아래로 각각 √2배씩 벌어져야 전체 폭이 정확히 2배가 됩니다). 더 세밀하게 나누고 싶을 땐 옥타브를 세 등분한 <b>1/3옥타브밴드</b>를 쓰는데, 이때는 √2 대신 2의 6분의 1제곱(2^(1/6))을 곱하고 나눠 훨씬 좁은 범위를 얻습니다. 슬라이더로 중심주파수를 바꾸며, 저음역(작은 fc)일수록 밴드 폭이 좁고 고음역(큰 fc)일수록 밴드 폭이 넓어지는 로그축의 특징을 시각적으로 확인해 보세요.",
+  "hint": "슬라이더(A/D)로 중심주파수를 조절합니다.",
+  "more": "<b>필기 포인트</b>: 옥타브의 √2와 1/3옥타브의 2^(1/6)을 헷갈리지 않아야 합니다 — <b>옥타브=2배 폭 → √2</b>(2의 절반제곱), <b>1/3옥타브=2^(1/3)배 폭(옥타브를 3등분) → 그 절반제곱인 2^(1/6)</b>이 상하한 계수입니다. 계산기에서 2^(1/6)은 <b>2를 6제곱근</b> 하는 것과 같습니다(약 1.1225). 표준 중심주파수(63, 125, 250, 500, 1,000, 2,000, 4,000, 8,000Hz)는 인접 밴드끼리 정확히 2배 관계라는 점도 함께 기억해두면 옥타브밴드 표를 암산으로 채울 수 있습니다.\n\n<b>실무</b>: 청력보호구의 차음성능이나 소음원의 스펙트럼 분석은 전체 dB(A) 하나가 아니라 옥타브밴드별로 제시되는 경우가 많아, 이 범위 계산은 실제 소음 대책(특정 주파수 대역만 흡음·차폐)을 세울 때 기초가 됩니다.",
+  "more_en": "Because an octave band spans a 2:1 frequency ratio, its lower and upper bounds are fc/√2 and fc·√2. A one-third-octave band divides that span into three equal (logarithmic) parts, giving narrower bounds fc/2^(1/6) and fc·2^(1/6) — useful for pinpointing which narrow frequency range dominates a noise spectrum.",
+  "problem": {
+   "q": "기출 유형(빈출): 소음의 주파수를 말할 때는 보통 중심주파수를 씁니다. 중심주파수가 1,000Hz일 때, 옥타브밴드와 1/3옥타브밴드에서 각각의 주파수 범위를 구하십시오.",
+   "solution": "옥타브밴드는 하한 1,000/√2≈<b>707.1Hz</b>, 상한 1,000×√2≈<b>1,414.2Hz</b>입니다. 1/3옥타브밴드는 하한 1,000/2^(1/6)≈<b>890.9Hz</b>, 상한 1,000×2^(1/6)≈<b>1,122.5Hz</b>로, 옥타브밴드보다 훨씬 좁은 범위임을 확인하며 마무리합니다.",
+   "q_en": "Frequent exam type: for a center frequency of 1,000 Hz, find the frequency range of the octave band and the 1/3-octave band.",
+   "sol_en": "Octave band: 1000/√2≈707.1Hz to 1000×√2≈1414.2Hz. 1/3-octave band: 1000/2^(1/6)≈890.9Hz to 1000×2^(1/6)≈1122.5Hz."
+  }
+ },
+ "hyg19_05": {
+  "ch": "산업위생관리기술사 제19장 · 기출 계산 은행 Ⅲ — 소음·측정",
+  "sec": "19.5 실내 총 흡음량(sabin)",
+  "title": "두 거리에서 잰 소리 차이로 방이 소리를 얼마나 삼키는지 거꾸로 잰다",
+  "narr": "지금까지는 자유음장(반사물 없는 트인 공간)만 다뤘지만, 실제 공장 실내는 벽·천장에서 소리가 반사되어 <b>직접음(음원에서 바로 오는 소리)</b>과 <b>잔향음(반사되어 실내 전체에 고르게 퍼진 소리)</b>이 섞입니다. 실내식 <b>Lp = Lw + 10·log₁₀(Q/(4πr²) + 4/R)</b>에서 앞 항(Q/4πr²)이 직접음, 뒤 항(4/R)이 잔향음을 나타내며, <b>R(실정수)</b>은 방이 소리를 얼마나 흡수하는지를 나타내는 값(클수록 잘 흡수하는 '죽은 방')입니다. 가까운 지점(r₁)에서는 직접음이 우세하고 먼 지점(r₂)에서는 잔향음이 우세해지므로, <b>두 거리에서 잰 소음도의 차이</b>만으로 미지수인 R(그리고 음원 자체의 음력수준 Lw)을 동시에 풀어낼 수 있습니다. 이렇게 구한 R은 평균흡음률이 작을 때 <b>총 흡음량 A(sabin, m² 단위)</b>와 거의 같다고 근사합니다. 슬라이더로 두 거리와 두 음압수준을 바꾸며, 두 값의 차이가 클수록(잔향이 약할수록) 또는 작을수록(잔향이 강할수록) R이 어떻게 달라지는지 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 두 지점의 거리와 음압수준을 조절합니다.",
+  "more": "<b>필기 포인트</b>: 이 문제는 <b>가정이 많은 근사 계산</b>입니다 — ①음원이 무지향(모든 방향으로 고르게 방사, Q=1)이라는 가정, ②평균흡음률 ᾱ가 작아 A=Sᾱ/(1−ᾱ)≈R로 단순화한다는 근사가 깔려 있습니다. 실제 시험 답안에서도 이 가정을 <b>명시</b>하고 계산해야 감점이 없습니다. 두 지점 음압차가 아주 작으면(잔향이 강한 방) R이 작게, 차이가 크면(잔향이 약한 방) R이 크게 나온다는 <b>정성적 경향</b>을 먼저 확인한 뒤 숫자를 대입하는 습관을 들이면 계산 실수를 스스로 잡아낼 수 있습니다.\n\n<b>실무</b>: 총 흡음량(sabin)은 잔향시간(T=0.161V/A, Sabine 공식)과 직결되므로, 이렇게 역산한 A값은 산업현장의 소음 잔향대책(흡음재 추가 면적 산정)에 그대로 쓰입니다.",
+  "more_en": "In a reverberant indoor space, sound pressure combines a direct-field term (falling off with distance) and a reverberant-field term (roughly constant everywhere, governed by room constant R). Measuring the level at two distances lets both R and the source's power level be solved algebraically; assuming a small average absorption coefficient, total room absorption A (in sabins) is approximated as A≈R.",
+  "problem": {
+   "q": "기출 유형(빈출): 양식기 공장의 바닥 중앙에서 가동하는 연마기로부터 10 m와 20 m 떨어진 지점에서 1,000Hz의 음압수준을 측정한 결과 각각 100 dB과 97.5 dB이었습니다. 이 작업장의 총 흡음량(sabin)을 구하십시오. (단, 음원은 무지향 점음원으로 가정합니다.)",
+   "solution": "직접음항 D₁=1/(4π·10²)≈7.96×10⁻⁴, D₂=1/(4π·20²)≈1.99×10⁻⁴이고, 두 음압차 비 ratio=10^((100−97.5)/10)≈<b>1.778</b>입니다. 두 식을 연립해 x=4/R=(D₁−ratio·D₂)/(ratio−1)로 풀면 R=4/x≈<b>7,043 m²</b>가 나오며, 평균흡음률이 작다는 가정에서 총 흡음량 A≈R≈<b>7,043 sabin</b>으로 마무리합니다(가정을 명시할 것).",
+   "q_en": "Frequent exam type: sound levels of 100 dB and 97.5 dB are measured 10 m and 20 m from a floor-mounted grinder — find the room's total sound absorption (sabins), assuming a non-directional point source.",
+   "sol_en": "Solving the two-distance system gives room constant R≈7,043 m²; assuming a small average absorption coefficient, total absorption A≈R≈7,043 sabins."
+  }
+ },
+ "hyg19_06": {
+  "ch": "산업위생관리기술사 제19장 · 기출 계산 은행 Ⅲ — 소음·측정",
+  "sec": "19.6 청력보호구 NRR 차음(OSHA 계산법)",
+  "title": "포장에 적힌 NRR을 그대로 믿지 않는 이유 — OSHA 실전 답안 흐름",
+  "narr": "15장에서 NRR(차음평가수)이 왜 절반으로 깎이는지(OSHA 50% 보정) 개념을 배웠다면, 이 장면은 그 계산을 <b>실제 기출문제의 답안 작성 순서</b> 그대로 다시 짚습니다. 시험 답안은 대개 세 단계로 나눠 채점됩니다 — <b>①실효 차음효과 계산 → ②노출음압수준 계산 → ③기준(90dB(A)) 대비 판정</b>입니다. 공식은 동일하게 <b>실효차음=(NRR−7)÷2</b>, <b>노출음압=Lp−실효차음</b>이지만, 실전에서는 이 세 단계를 빠짐없이 <b>순서대로 답안에 써 내려가는 것</b>이 핵심입니다(중간 단계를 생략하면 부분점수만 받습니다). 슬라이더로 작업장 음압수준과 NRR을 바꾸며, 같은 귀덮개(NRR 고정)라도 원래 소음이 클수록 착용 후에도 여전히 기준을 넘을 수 있다는 것 — 즉 보호구 선택은 소음 크기에 맞춰야 한다는 점을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L)로 음압수준과 NRR을 조절합니다.",
+  "more": "<b>필기 포인트</b>: 답안을 <b>①→②→③ 순서로 명확히 구분해 서술</b>하는 것이 15장에서 강조한 공식 자체 이해와는 다른, 이 문제의 채점 포인트입니다. ①에서 (NRR−7)이 <b>음수가 되지 않는지</b> 먼저 확인해야 합니다(NRR<7이면 실효차음이 음수가 되어 보호구가 오히려 무의미해지는 비현실적 상황이므로, 시중 보호구는 대개 NRR≥10 이상입니다). ②에서 뺄셈 순서(Lp에서 실효차음을 뺌, 반대 아님)를 놓치는 실수가 잦습니다. ③ 판정 기준은 문제에서 별도 언급이 없으면 <b>노출기준 90dB(A)</b>를 기본으로 씁니다.\n\n<b>실무</b>: OSHA의 50% 보정은 실험실 이상적 착용(귀 모양 표준화)과 현장의 실제 착용(끈 느슨함, 머리카락, 안경다리 간섭 등) 차이를 반영한 안전계수입니다 — 그래서 카탈로그 NRR을 그대로 믿고 보호구를 선정하면 현장에서 과소보호가 될 위험이 있습니다.",
+  "more_en": "Building on Chapter 15's concept of the OSHA 50% derating, this scene walks through the exam-answer sequence: (1) compute effective attenuation = (NRR−7)/2, (2) compute exposed level = Lp − effective attenuation, (3) judge against the 90 dB(A) limit. Writing all three steps explicitly, in order, is what full exam credit requires.",
+  "problem": {
+   "q": "기출 유형(빈출): M사업장의 음압수준이 95 dB(A)이고, 근로자는 차음평가수(NRR)가 19인 귀덮개를 착용하고 있습니다. 차음효과와 근로자가 노출되는 음압수준을 구하십시오. (단, 차음효과는 미국 OSHA의 계산방법을 이용합니다.)",
+   "solution": "①실효 차음효과 = (19−7)÷2 = <b>6 dB</b>입니다. ②노출음압수준 = 95−6 = <b>89 dB(A)</b>입니다. ③90 dB(A) 노출기준과 비교하면 89 dB(A)는 기준 미만이므로 <b>착용상태가 적합</b>하다고 판정하며 마무리합니다.",
+   "q_en": "Frequent exam type: workplace sound level is 95 dB(A) and a worker wears earmuffs rated NRR 19 — find the attenuation and the exposed sound level using the OSHA calculation method.",
+   "sol_en": "Effective attenuation = (19−7)/2 = 6 dB. Exposed level = 95−6 = 89 dB(A), which is below the 90 dB(A) limit — the protection is adequate."
+  }
+ }
+}
