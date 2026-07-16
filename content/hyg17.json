@@ -1,0 +1,92 @@
+{
+ "hyg17_01": {
+  "ch": "산업위생관리기술사 제17장 · 기출 계산 은행 Ⅰ — 농도·환기·후드",
+  "sec": "17.1 농도 단위환산",
+  "title": "mg/m³을 ppm으로 — 몰부피 24.45가 다리를 놓습니다",
+  "narr": "지금까지 소음·분석·작업생리까지 산업위생의 계산을 두루 훑었습니다. 이 장부터는 실제 기술사 시험에 반복해서 나오는 <b>계산문제 유형</b>을 은행처럼 모아 둡니다. 가장 먼저 마주치는 벽은 <b>단위</b>입니다. 저울로 잰 시료는 무게(mg/m³)로 나오는데, 노출기준·법령은 대부분 부피비인 <b>ppm</b>으로 적혀 있습니다. 둘을 잇는 다리가 <b>표준상태(25℃·1atm)에서 기체 1몰의 부피 24.45 L</b>입니다 — 분자량 M(g/mol)인 기체 1mg은 (1/M) mmol이고, 그것이 차지하는 부피는 (1/M)×24.45 mL이므로, mg/m³에 24.45/M를 곱하면 그대로 ppm(=cm³/m³)이 됩니다. 여기서부터는 십진수 자리만 옮기면 됩니다: ppm을 10⁴로 나누면 %, 1,000배 하면 ppb, 100만 배 하면 ppt입니다. 슬라이더로 농도와 분자량을 바꾸며, 같은 무게라도 분자량이 클수록 ppm이 작아지는 것(가벼운 분자가 더 '많이' 섞여 있다는 뜻)을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L)로 농도·분자량을 조절합니다.",
+  "more": "<b>필기 포인트</b>: ppm = mg/m³ × 24.45 ÷ M — <b>24.45는 25℃·1atm 표준상태의 몰부피</b>(0℃ 표준상태는 22.4 L이므로 온도 조건을 반드시 확인)입니다. % → ppm은 ×10⁴, ppm → ppb는 ×10³, ppb → ppt는 ×10³(즉 ppm → ppt는 ×10⁶) — 배수를 헷갈리면 자릿수가 통째로 틀립니다. 반대로 ppm에서 mg/m³로 되돌릴 때는 M/24.45를 곱합니다(분자·분모 위치를 뒤집지 않도록 주의).\n\n<b>실무</b>: 검지관·직독식 기기는 보통 ppm으로, 중량법 분석은 mg/m³로 결과가 나오므로 현장에서 두 값을 비교하려면 이 환산이 항상 필요합니다. 온도·기압이 표준상태와 다르면 실제 몰부피로 재계산해야 오차가 생기지 않습니다.",
+  "more_en": "Converting mg/m³ to ppm uses the molar volume of an ideal gas at standard conditions (24.45 L/mol at 25°C, 1 atm): ppm = mg/m³ × 24.45 ÷ M. From ppm, dividing by 10,000 gives %, multiplying by 1,000 gives ppb, and by 1,000,000 gives ppt. Heavier molecules occupy less volume per unit mass, so the same mg/m³ yields a smaller ppm as molecular weight rises.",
+  "problem": {
+   "q": "기출 유형(빈출): 표준작업환경 조건에서 공기 중 톨루엔(분자량 92)의 농도가 190 mg/m³입니다. 이 농도를 %, ppm, ppb, ppt로 환산하십시오.",
+   "solution": "ppm = mg/m³ × 24.45 ÷ M = 190 × 24.45 ÷ 92 ≈ <b>50.49 ppm</b>입니다. 이를 기준으로 % = 50.49 ÷ 10⁴ ≈ <b>0.00505 %</b>, ppb = 50.49 × 1,000 ≈ <b>50,495 ppb</b>, ppt = 50.49 × 10⁶ ≈ <b>50,494,565 ppt</b>입니다. 모두 같은 부피비를 자릿수만 옮겨 표현한 것이라는 점을 확인하며 답안을 마무리합니다.",
+   "q_en": "Frequent exam type: air toluene (M=92) concentration is 190 mg/m³ under standard conditions. Convert to %, ppm, ppb, ppt.",
+   "sol_en": "ppm = 190 × 24.45 ÷ 92 ≈ 50.49 ppm. Then % ≈ 0.00505%, ppb ≈ 50,495, ppt ≈ 50,494,565 — all the same ratio at different decimal scales."
+  }
+ },
+ "hyg17_02": {
+  "ch": "산업위생관리기술사 제17장 · 기출 계산 은행 Ⅰ — 농도·환기·후드",
+  "sec": "17.2 전체환기량(희석환기)",
+  "title": "발생 속도를 목표농도로 나누면 — 전체환기량 Q = G ÷ C",
+  "narr": "단위를 다뤘으니, 이제 그 농도를 <b>어떻게 유지할지</b>로 넘어갑니다. 세척공정에서 유기용제가 계속 증발한다고 합시다 — 시간당 몇 그램씩 공기 중으로 흘러나오는 이 값이 <b>발생량 G</b>입니다. 아무 것도 하지 않으면 농도는 계속 올라갑니다. 그래서 신선한 공기를 계속 넣고 오염된 공기를 계속 빼내(전체환기), 발생량과 배출량이 균형을 이루는 지점에서 농도를 <b>목표치 C</b>에 묶어 둡니다. 논리는 간단합니다: 매분 G(mg)만큼 들어오고 있으니, 공기 1m³당 C(mg)만 허용한다면 매분 G÷C(m³)만큼의 공기를 갈아치워야 합니다 — 이것이 <b>필요환기량 Q = G ÷ C</b>입니다. 다만 이 값은 '만약 방 전체가 완벽히 섞인다면'을 가정한 이론치입니다. 실제 현장은 혼합이 불완전하고 발생량도 요동치므로, 이 이론치에 <b>안전계수 K(보통 2~10)</b>를 곱해 실제 설계환기량으로 씁니다. 슬라이더로 발생량·목표농도·분자량·안전계수를 바꾸며, 목표농도를 낮게 잡을수록(더 엄격한 관리) 필요환기량이 급격히 커지는 것을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 발생량·농도·분자량·안전계수를 조절합니다.",
+  "more": "<b>필기 포인트</b>: G는 반드시 <b>질량/시간(mg/min)</b>으로, C는 반드시 <b>질량/부피(mg/m³)</b>로 단위를 맞춘 뒤 나눠야 합니다(ppm 그대로 나누면 오답). C(mg/m³) = ppm×M÷24.45로 먼저 환산하는 단계를 답안에 명시해야 부분점수가 아닌 만점입니다. 안전계수 K는 불완전 혼합·환기 사각지대·발생량 변동을 보정하는 값으로, 문제에 명시되면 그 값을, 없으면 통상 3~5를 가정한다고 서술합니다.\n\n<b>실무</b>: 국소배기가 불가능하거나 오염원이 넓게 퍼져 있을 때(예: 도장 부스 전체, 소규모 세척공정) 전체환기가 쓰입니다. 발생량이 큰 공정에서는 이 식만으로 환기량이 비현실적으로 커질 수 있어, 국소배기·공정 밀폐와 병행하는 것이 원칙입니다.",
+  "more_en": "General (dilution) ventilation balances a contaminant's generation rate G (mass/time) against a target concentration C (mass/volume): Q = G ÷ C. Since real mixing is imperfect, a safety factor K (typically 2–10) multiplies the theoretical Q for design purposes. Units must be reconciled first — ppm must be converted to mg/m³ via M/24.45 before dividing.",
+  "problem": {
+   "q": "기출 유형(빈출): 벤젠(분자량 78) 증기가 시간당 100 g씩 발생하는 세척공정에서 평균농도를 1 ppm으로 유지하려 합니다. 전체환기 시 필요한 환기량(m³/min)을 구하십시오.",
+   "solution": "발생량 G = 100 g/hr = 100,000 mg/hr ÷ 60 ≈ <b>1,666.7 mg/min</b>입니다. 목표농도 C = 1 ppm × 78 ÷ 24.45 ≈ <b>3.19 mg/m³</b>로 먼저 환산합니다. 필요환기량 Q₀ = G ÷ C = 1,666.7 ÷ 3.19 ≈ <b>522.4 m³/min</b>이 이론치입니다. 실제 설계 시에는 여기에 안전계수(예 3)를 곱해 약 <b>1,567 m³/min</b> 수준으로 여유를 둔다고 마무리합니다.",
+   "q_en": "Frequent exam type: benzene vapor (M=78) is generated at 100 g/hr; find the ventilation rate to hold 1 ppm.",
+   "sol_en": "G ≈ 1,666.7 mg/min; C = 1 ppm × 78 ÷ 24.45 ≈ 3.19 mg/m³; Q₀ = G/C ≈ 522.4 m³/min (theoretical), scaled up by a safety factor for design."
+  }
+ },
+ "hyg17_03": {
+  "ch": "산업위생관리기술사 제17장 · 기출 계산 은행 Ⅰ — 농도·환기·후드",
+  "sec": "17.3 시간당 공기치환(ACH)",
+  "title": "사람이 곧 오염원 — CO₂로 재는 시간당 공기치환 ACH",
+  "narr": "전체환기의 논리는 오염원이 화학물질이 아니어도 똑같이 적용됩니다. 교실에 사람이 모이면 <b>날숨의 CO₂ 자체가 오염원</b>입니다. 사람 한 명이 시간당 내뿜는 CO₂ 양은 대체로 일정하므로(약 21 L/hr), 인원수를 곱하면 총 <b>발생량 G</b>가 되고, 앞 장면과 완전히 같은 식 Q = G ÷ (Ci − Co)로 필요환기량을 구합니다 — 다만 여기서는 목표농도 대신 실내 <b>서한도(허용 상한) Ci</b>에서 <b>이미 섞여 들어오는 외기 농도 Co</b>를 뺀 '여유분'으로 나눕니다. 바깥 공기에도 CO₂가 어느 정도(약 0.03~0.04%) 있으므로, 온전히 Ci만큼 채울 수 있는 게 아니라 Ci−Co만큼만 채울 수 있기 때문입니다. 이렇게 구한 환기량 Q를 방의 부피 V로 나누면 <b>시간당 공기치환 횟수 ACH(Air Change per Hour) = Q ÷ V</b>가 나옵니다 — '한 시간에 방 안 공기 전체가 몇 번 바뀌는가'라는 직관적인 숫자입니다. 슬라이더로 인원·부피·서한도·외기농도를 바꾸며, 사람이 늘수록 ACH가 비례해서 커지는 것을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 인원·용적·서한도·외기농도를 조절합니다.",
+  "more": "<b>필기 포인트</b>: 분모는 <b>Ci − Co</b>이지 Ci가 아닙니다 — 외기에도 이미 CO₂가 있다는 점을 빼먹으면 필요환기량이 과소평가됩니다. 발생량 G는 인원×1인당 배출량으로 구하고, 단위를 L/hr에서 m³/hr로(÷1000), %를 분율로(÷100) 정확히 맞춰야 합니다. ACH = Q ÷ V로 정의를 마무리하는 문장까지 답안에 적어야 완결됩니다.\n\n<b>실무</b>: CO₂는 직접 유해하기보다 '실내 공기질 전반이 나쁘다'는 대리지표(surrogate)로 씁니다. 사무실 환기 설계 시 재실 인원 기준 ACH 4~10회/hr을 흔히 목표로 삼고, 이 식으로 최소 환기설비 용량을 산정합니다.",
+  "more_en": "Occupants themselves act as a CO₂ source (~21 L/hr per person). Required ventilation Q = G ÷ (Ci − Co), where Ci is the indoor limit and Co the outdoor background — the denominator is the margin the room can absorb. Dividing Q by room volume V gives ACH = Q/V, the number of full air changes per hour.",
+  "problem": {
+   "q": "기출 유형(빈출): 기적 400 m³ 교실에 학생 30명이 있습니다. CO₂ 서한도를 0.07%, 외기 CO₂를 0.03%, 1인당 CO₂ 배출량을 21 L/hr라 할 때 시간당 공기치환 횟수(ACH)를 구하십시오.",
+   "solution": "CO₂ 발생량 G = 30명 × 21 L/hr ÷ 1000 = <b>0.63 m³/hr</b>입니다. 서한도 여유 Ci−Co = 0.07% − 0.03% = 0.04% = <b>0.0004</b>(분율)입니다. 필요환기량 Q = G ÷ (Ci−Co) = 0.63 ÷ 0.0004 = <b>1,575 m³/hr</b>입니다. ACH = Q ÷ V = 1,575 ÷ 400 ≈ <b>3.94회/hr</b>로, 약 4회 정도 환기가 필요하다고 결론짓습니다.",
+   "q_en": "Frequent exam type: a 400 m³ classroom with 30 students, CO₂ limit 0.07%, outdoor 0.03%, per-person output 21 L/hr — find ACH.",
+   "sol_en": "G = 0.63 m³/hr; Ci−Co = 0.0004; Q = 1,575 m³/hr; ACH = Q/V ≈ 3.94 changes per hour."
+  }
+ },
+ "hyg17_04": {
+  "ch": "산업위생관리기술사 제17장 · 기출 계산 은행 Ⅰ — 농도·환기·후드",
+  "sec": "17.4 슬롯후드 필요환기량·속도압",
+  "title": "좁고 긴 틈이 빨아들이는 힘 — 슬롯후드 Q = 60×2.6×L·V·X",
+  "narr": "전체환기는 방 전체 공기를 갈아치우는 무딘 방법입니다. 오염원의 위치를 안다면, 그 바로 곁에서 빨아들이는 <b>국소배기</b>가 훨씬 효율적입니다. 도금조·용접대처럼 길고 좁은 작업선을 따라 오염원이 늘어서 있을 때 쓰는 것이 <b>슬롯형 후드</b>입니다 — 좁고 긴 틈이 마치 하나의 '선(線) 흡인원'처럼 작동합니다. 오염원이 후드에서 거리 X만큼 떨어져 있을 때, 그 지점에서 <b>제어풍속 V</b>(오염물질을 붙잡아 되돌릴 수 있는 최소 유속)를 만들려면 필요한 환기량은 <b>Q = 60 × 2.6 × L × V × X</b>(L·X는 m, V는 m/s, Q는 m³/min)입니다. 계수 <b>2.6</b>은 후드에 <b>플랜지(테두리 판)</b>가 붙어 뒤쪽 공기가 후드로 빨려 들어가는 것을 막아주기 때문에 나오는 값이고(플랜지가 없으면 뒤로 새는 몫까지 더 빨아야 하므로 3.7로 커집니다), <b>60</b>은 초 단위 유속을 분 단위 환기량으로 바꾸는 환산입니다. 이렇게 정한 환기량이 실제로 슬롯의 좁은 틈(길이×폭)을 통과할 때의 속도가 <b>슬롯유속</b>이고, 여기서 <b>속도압 VP=(Vs/4.043)²</b>가 나와 이후 덕트 설계의 출발점이 됩니다. 슬라이더로 길이·폭·풍속·거리를 바꾸며 필요환기량이 거리 X에 매우 민감한 것을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L·B/N·T/Y)로 슬롯 길이·폭·제어풍속·거리를 조절합니다.",
+  "more": "<b>필기 포인트</b>: Q=60×2.6LVX(플랜지 부착) / Q=60×3.7LVX(플랜지 없음) — <b>플랜지가 있으면 계수가 작아진다(더 효율적)</b>는 방향을 거꾸로 외우면 감점입니다. L·X는 반드시 m 단위로 바꿔서 대입(cm를 그대로 넣으면 100배 오차)해야 합니다. 슬롯유속 Vs = Q ÷ (슬롯 단면적) = Q ÷ (L×W)로 후드 내부 유속을 구하고, VP=(V/4.043)²는 산업환기 표준상태 공기밀도를 전제로 한 근사식임을 답안에 명시하면 좋습니다.\n\n<b>실무</b>: 슬롯후드는 거리 X가 조금만 늘어도 필요환기량이 선형으로 커지므로, 설계·시공 시 후드를 오염원에 최대한 가깝게 배치하는 것이 가장 값싼 개선책입니다. 슬롯 여러 개를 나열해 균등 흡인되도록 슬롯 정압(SP)을 맞추는 것도 실무의 핵심 과제입니다.",
+  "more_en": "Slot hoods act as a line sink along a long, narrow opening. For a flanged slot, Q = 60 × 2.6 × L × V × X (L, X in m; V in m/s; Q in m³/min); an unflanged slot uses 3.7 since it also has to overcome backward leakage. The resulting slot velocity gives velocity pressure VP=(V/4.043)², the starting point for duct design.",
+  "problem": {
+   "q": "기출 유형(빈출): 도금공장에 길이 110 cm, 폭 15 cm인 플랜지 부착 슬롯형 후드를 설치합니다. 제어풍속 1.2 m/s, 제어거리 30 cm일 때 필요환기량(m³/min)과 슬롯 내 속도압(mmH₂O)을 구하십시오.",
+   "solution": "L=1.10 m, X=0.30 m로 환산해 Q = 60×2.6×1.10×1.2×0.30 ≈ <b>61.78 m³/min</b>입니다. 슬롯 단면적 = 1.10×0.15 = 0.165 m²이므로 슬롯유속 Vs = (61.78÷60)÷0.165 ≈ <b>6.24 m/s</b>입니다. 속도압 VP = (6.24÷4.043)² ≈ <b>2.38 mmH₂O</b>로, 이 값이 이후 덕트·후드 정압 계산의 출발점이 된다고 마무리합니다.",
+   "q_en": "Frequent exam type: a flanged slot hood 110cm×15cm, capture velocity 1.2 m/s, distance 30cm — find required airflow and slot velocity pressure.",
+   "sol_en": "Q = 60×2.6×1.10×1.2×0.30 ≈ 61.78 m³/min; slot velocity ≈ 6.24 m/s; VP=(6.24/4.043)² ≈ 2.38 mmH₂O."
+  }
+ },
+ "hyg17_05": {
+  "ch": "산업위생관리기술사 제17장 · 기출 계산 은행 Ⅰ — 농도·환기·후드",
+  "sec": "17.5 후드 정압·유입손실",
+  "title": "송풍기가 이겨내야 할 벽 — 후드정압 SP = VP + He",
+  "narr": "앞 장면에서 슬롯 속도압을 구했으니, 이제 그 공기가 <b>덕트를 타고 흘러가는</b> 관점으로 넘어갑니다. 후드에서 공기를 빨아들이면 두 가지 손실이 생깁니다. 하나는 공기가 정지 상태에서 유속 V까지 가속되며 생기는 <b>속도압(VP)</b> 자체 — 이건 손실이 아니라 '움직이는 데 필요한 에너지'입니다. 다른 하나는 좁은 후드 입구를 지나며 소용돌이가 생겨 에너지가 흩어지는 <b>후드 유입손실(He)</b>입니다. He는 속도압에 비례해서 <b>He = F × VP</b>로 쓰는데, F(유입손실계수)는 후드 모양이 얼마나 매끄럽게 공기를 모아주는지를 나타내는 값입니다(둥글게 다듬은 입구일수록 F가 작습니다). 결국 송풍기가 후드 쪽에서 이겨내야 할 전체 압력, 즉 <b>후드정압 SP = VP + He</b>입니다 — '공기를 움직이는 값 + 입구에서 흩어지는 값'을 더한 것입니다. 계산 순서는 항상 같습니다: ① 덕트 단면적(A=π(d/2)²) → ② 유속(V=Q/A) → ③ 속도압(VP=(V/4.043)²) → ④ 유입손실(He=F·VP) → ⑤ 후드정압(SP=VP+He). 슬라이더로 풍량·직경·손실계수를 바꾸며, 직경이 작아질수록(유속이 빨라질수록) SP가 제곱으로 커지는 것을 확인해 보세요.",
+  "hint": "슬라이더(A/D·J/L)로 소요풍량·덕트직경·유입손실계수를 조절합니다.",
+  "more": "<b>필기 포인트</b>: 단면적 A=π(d/2)²에서 <b>d는 반드시 m 단위</b>로(mm를 그대로 넣으면 자릿수가 크게 틀림), 유속 V=Q(m³/min)÷60÷A로 <b>분→초 환산(÷60)을 빠뜨리지 말 것</b>. He=F×VP, SP=VP+He 순서(속도압을 먼저 구하고 그 배수로 손실을 구하는 순서)를 답안에 명시해야 합니다. 온도가 표준상태(21℃ 부근)와 다르면 VP식의 상수 4.043도 보정해야 한다는 점을 곁들이면 고득점입니다.\n\n<b>실무</b>: 후드정압은 이후 덕트 마찰손실·합류손실을 모두 더해 시스템 전체 정압을 구하고, 그 값으로 송풍기를 선정하는 출발점입니다. 덕트를 무리하게 가늘게 설계하면 유속은 확보되지만 SP가 급증해 송풍기 동력비가 커지므로, 반송속도 기준(분진 종류별 최소 이송속도)과 SP 사이에서 균형을 잡습니다.",
+  "more_en": "Hood static pressure SP is the sum of velocity pressure VP (the energy needed to accelerate air to duct velocity) and hood entry loss He = F×VP (turbulent loss at the hood inlet, F depending on hood shape). The sequence is: duct area → velocity → VP → He → SP = VP+He, which becomes the starting point for fan sizing.",
+  "problem": {
+   "q": "기출 유형(빈출): 외부식 국소배기장치의 소요풍량이 10 m³/min, 덕트 직경이 200 mm, 후드 유입손실계수가 0.40입니다. 후드 유입손실(He)과 후드정압(SP)을 구하십시오.",
+   "solution": "덕트 단면적 A = π×(0.2/2)² ≈ <b>0.0314 m²</b>입니다. 덕트유속 Vd = (10÷60)÷0.0314 ≈ <b>5.31 m/s</b>이고, 속도압 VP = (5.31÷4.043)² ≈ <b>1.72 mmH₂O</b>입니다. 후드유입손실 He = 0.40×1.72 ≈ <b>0.69 mmH₂O</b>이며, 후드정압 SP = VP+He = 1.72+0.69 ≈ <b>2.41 mmH₂O</b>로 마무리합니다.",
+   "q_en": "Frequent exam type: an exterior local exhaust system needs 10 m³/min through a 200mm duct with hood loss factor 0.40 — find He and SP.",
+   "sol_en": "A ≈ 0.0314 m²; Vd ≈ 5.31 m/s; VP ≈ 1.72 mmH₂O; He = 0.40×1.72 ≈ 0.69 mmH₂O; SP = VP+He ≈ 2.41 mmH₂O."
+  }
+ },
+ "hyg17_06": {
+  "ch": "산업위생관리기술사 제17장 · 기출 계산 은행 Ⅰ — 농도·환기·후드",
+  "sec": "17.6 누적오차·최소 시료채취시간",
+  "title": "오차는 더하지 않고 제곱합의 제곱근으로 — 측정의 마지막 관문",
+  "narr": "이 장을 마무리하며 다시 측정의 세계로 돌아옵니다. 작업환경측정은 한 번의 계산이 아니라 <b>전처리 → 표준액 제조 → 분석 → 시료포집</b>이라는 여러 단계를 거칩니다. 각 단계마다 조금씩 오차가 섞여 들어가는데, 이 오차들을 단순히 더하면(3+2+5+12=22%) 실제보다 훨씬 나쁘게 평가하게 됩니다. 서로 독립적인 오차들은 방향이 제각각이라 어느 정도 상쇄되기 때문에, 통계에서는 <b>제곱합의 제곱근(합성표준불확도)</b>으로 합칩니다: <b>총 누적오차 = √(e₁²+e₂²+e₃²+e₄²)</b> — 가장 큰 오차(포집 12%)가 전체를 사실상 지배하는 것도 이 식의 특징입니다. 한편, 측정을 아무리 정확히 해도 <b>실험실이 잴 수 있는 최소량(정량한계, LOQ)</b>보다 적게 채취하면 애초에 답을 낼 수 없습니다. 그래서 노출농도 C(mg/m³)에서 LOQ(mg)를 채우려면 <b>최소 채취공기량 Vmin = LOQ ÷ C</b>가 필요하고, 이를 펌프의 채취유량으로 나누면 <b>최소 채취시간 t = Vmin ÷ Qpump</b>가 나옵니다 — 농도가 낮을수록(측정하기 어려울수록) 더 오래, 더 많은 공기를 모아야 한다는 뜻입니다. 슬라이더로 네 단계 오차와 노출농도·정량한계를 바꾸며, 어느 값이 병목인지 확인해 보세요.",
+  "hint": "슬라이더로 4단계 오차·노출농도·정량한계를 조절합니다.",
+  "more": "<b>필기 포인트</b>: 누적오차 = √(Σeᵢ²)이지 Σeᵢ(단순합)가 아닙니다 — 이 오답이 가장 흔합니다. 최소 채취시간 계산은 ① Vmin = LOQ÷C(단위 L로 환산: ×1000), ② t = Vmin÷Qpump 두 단계이며, 채취유량은 문제에서 주어지지 않으면 사용하는 시료채취기(예: 호흡성분진 사이클론 2.5 L/min, 활성탄관 0.1~0.2 L/min 등)의 표준값을 명시하고 가정해야 합니다. 계산된 시간이 실제 작업시간(예 8시간=480분)보다 길면 측정 자체가 불가능하다는 것도 함께 언급하면 고득점입니다.\n\n<b>실무</b>: 정도관리에서 각 단계 오차를 개별적으로 관리하는 것보다, 이 합성오차가 허용범위(보통 ±25% 이내) 안에 드는지를 최종 판정 기준으로 삼습니다. 저농도 물질을 측정할 때는 최소 채취시간이 근무시간을 넘길 수 있어, 채취유량을 높이거나 더 민감한 분석법으로 바꾸는 것이 현실적 대안입니다.",
+  "more_en": "Independent measurement-stage errors combine as the root-sum-of-squares (RSS), not a simple sum: total error = √(Σeᵢ²). Separately, the minimum sampling volume needed to reach the lab's limit of quantitation is Vmin = LOQ/C, and dividing by the pump's flow rate gives the minimum sampling time — lower exposure concentrations require longer, larger-volume sampling.",
+  "problem": {
+   "q": "기출 유형(빈출) ①: 작업환경측정에서 전처리 3%, 표준액 제조 2%, 분석 5%, 시료포집 12%의 오차가 발생했습니다. 총 누적오차를 구하십시오. ②: 호흡성분진 노출농도가 0.05 mg/m³, 실험실 정량한계가 0.01 mg, 채취유량이 2.5 L/min이라 할 때 최소 시료채취시간을 구하십시오.",
+   "solution": "① 총 누적오차 = √(3²+2²+5²+12²) = √182 ≈ <b>13.49 %</b>입니다(단순합 22%가 아님에 유의). ② 최소 채취공기량 Vmin = 0.01÷0.05×1000 = <b>200 L</b>이고, 최소 채취시간 t = 200÷2.5 = <b>80분</b>입니다. 두 계산 모두 '단계를 어떻게 합치는가'와 '분모가 무엇을 의미하는가'를 명확히 밝히는 것이 만점의 핵심이라고 마무리합니다.",
+   "q_en": "Frequent exam type: (1) find total cumulative error from 3%, 2%, 5%, 12% stage errors. (2) For respirable dust at 0.05 mg/m³ with LOQ 0.01 mg and 2.5 L/min sampling flow, find the minimum sampling time.",
+   "sol_en": "(1) √(3²+2²+5²+12²) = √182 ≈ 13.49% (not the plain sum of 22%). (2) Vmin = 0.01/0.05×1000 = 200 L; t = 200/2.5 = 80 minutes."
+  }
+ }
+}
