@@ -126,7 +126,7 @@
         ctx.fillStyle=it[2]; ctx.fillText(it[0], x+26, baseY+18); });
       // KE0 기준선
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.setLineDash([4,3]); var y0=baseY-s.KE0/mx*bh; ctx.beginPath(); ctx.moveTo(W*0.64+78,y0); ctx.lineTo(W*0.64+78+52,y0); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('충돌 전 KE₀='+s.KE0.toFixed(1), W*0.64+78+26, y0-4);
+      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('충돌 전 KE₀='+s.KE0.toFixed(1), W*0.64+78+26, y0-4);
       E.tapHint(W/2, H*0.90, '화면 탭 = 다시 충돌  (e=1 탄성, e=0 완전비탄성)', true);
       var lost=s.KE0-KE;
       E.big('운동량 보존 · 운동E '+(s.e>=1?'보존':'손실 '+lost.toFixed(1)+' J'), '어떤 충돌이든 총 운동량(초록)은 끄떡없이 보존됩니다. 하지만 운동에너지(파랑)는 e<1이면 열·소리·찌그러짐으로 새어 나갑니다 — 운동E까지 온전한 건 e=1 완전탄성뿐. e=0이면 두 공이 들러붙어 한 덩어리로 갑니다(완전비탄성). 점선은 충돌 전 운동E라 얼마나 줄었는지 보입니다.'); }
@@ -186,9 +186,9 @@
       s.tA.push([A.x,A.y]); s.tB.push([B.x,B.y]); if(s.tA.length>120){s.tA.shift();s.tB.shift();}
       [['rgba(95,214,168,0.4)',s.tA],['rgba(255,178,122,0.4)',s.tB]].forEach(function(t){ ctx.strokeStyle=t[0]; ctx.lineWidth=1.5; ctx.beginPath(); t[1].forEach(function(p,i){ if(i===0)ctx.moveTo(v.X(p[0]),v.Y(p[1])); else ctx.lineTo(v.X(p[0]),v.Y(p[1])); }); ctx.stroke(); });
       [[A,'A'],[B,'B']].forEach(function(bl){ var b=bl[0]; ctx.fillStyle=b.color; ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),b.r*sc,0,7); ctx.fill(); ctx.globalAlpha=1;
-        ctx.fillStyle='#10141a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(bl[1],v.X(b.x),v.Y(b.y)); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#10141a'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(bl[1],v.X(b.x),v.Y(b.y)); ctx.textBaseline='alphabetic';
         ctx.strokeStyle=b.color; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(v.X(b.x),v.Y(b.y)); ctx.lineTo(v.X(b.x)+b.vx*sc*0.4,v.Y(b.y)-b.vy*sc*0.4); ctx.stroke();
-        var sp=Math.hypot(b.vx,b.vy); if(sp>0.05){ ctx.fillStyle=b.color; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+sp.toFixed(1), v.X(b.x)+b.vx*sc*0.4+4, v.Y(b.y)-b.vy*sc*0.4); } });
+        var sp=Math.hypot(b.vx,b.vy); if(sp>0.05){ ctx.fillStyle=b.color; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+sp.toFixed(1), v.X(b.x)+b.vx*sc*0.4+4, v.Y(b.y)-b.vy*sc*0.4); } });
       var px=A.m*A.vx+B.m*B.vx, py=A.m*A.vy+B.m*B.vy;
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('총 운동량 p=(Σpₓ, Σpᵧ)=('+px.toFixed(2)+', '+py.toFixed(2)+') kg·m/s — 벡터로 보존', W*0.1, H*0.20);
       E.tapHint(W/2, H*0.93, '엇갈림을 바꿔 — 빗맞으면 V자로 갈라집니다', true);
@@ -210,21 +210,21 @@
       var cx=W*0.26, botY=H*0.84, topY=H*0.14, py=botY-(s.y/8)*(botY-topY);
       // 로켓
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.moveTo(cx,py-22); ctx.lineTo(cx-9,py+10); ctx.lineTo(cx+9,py+10); ctx.closePath(); ctx.fill();
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+s.v.toFixed(2)+' m/s', cx+14, py-6);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+s.v.toFixed(2)+' m/s', cx+14, py-6);
       ctx.fillStyle=DIM; ctx.fillText('m='+s.m.toFixed(2)+' kg', cx+14, py+8);
       // 분사 화염(연료 남았을 때)
       if(s.m>mdry){ ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(cx-6,py+10); ctx.lineTo(cx+6,py+10); ctx.lineTo(cx,py+10+12+s.ve*3); ctx.closePath(); ctx.fill(); }
       // 연료 게이지
       var frac=(s.m-mdry)/(m0-mdry); ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(W*0.42,topY,24,botY-topY);
-      ctx.fillStyle=PNK; ctx.fillRect(W*0.42,botY-frac*(botY-topY),24,frac*(botY-topY)); ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('연료', W*0.42+12, botY+16);
+      ctx.fillStyle=PNK; ctx.fillRect(W*0.42,botY-frac*(botY-topY),24,frac*(botY-topY)); ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('연료', W*0.42+12, botY+16);
       // v-t 그래프
       var gx0=W*0.56, gx1=W*0.93, gy0=H*0.78, gh=H*0.5, vmax=6*Math.log(m0/mdry)*1.1;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('v',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
       var dvmax=s.ve*Math.log(m0/mdry);
       // Δv_max 점근선(치올코프스키 최종 속도)
       var yMax=gy0-(dvmax/vmax)*gh; ctx.strokeStyle='rgba(244,160,192,0.5)'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(gx0,yMax); ctx.lineTo(gx1,yMax); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=PNK; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('Δv_max='+dvmax.toFixed(2), gx0+4, yMax-4);
+      ctx.fillStyle=PNK; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('Δv_max='+dvmax.toFixed(2), gx0+4, yMax-4);
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); s.hist.forEach(function(vv,i){ var x=gx0+(gx1-gx0)*i/200, y=gy0-(vv/vmax)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
       E.tapHint(W/2, H*0.92, '분사 속도를 바꿔 최종 속도를 보세요', true);
       E.big('로켓 — Δv = ve·ln(m₀/m) (현재 v='+s.v.toFixed(2)+', 최대 '+dvmax.toFixed(2)+')', '로켓은 연료를 뒤로 세게 뿜은 운동량만큼 앞으로 운동량을 얻습니다(반동의 연속). 게다가 연료를 태울수록 자기가 가벼워져, 같은 힘으로도 갈수록 더 잘 가속되죠. 최종 속도 변화는 <b>치올코프스키 로켓 방정식 Δv = ve·ln(m₀/m)</b> — 분사 속도 ve가 빠르고, 연료질량비(m₀/m_dry)가 클수록 멀리 갑니다. 다단 로켓이 빈 연료통을 떼어 버리는 이유가 바로 이것입니다.'); }

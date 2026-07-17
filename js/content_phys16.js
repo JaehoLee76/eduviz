@@ -39,9 +39,9 @@
       ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('+Q', gx0+14, gy0-6);
       // 시험전하 공(언덕 위 r 위치)
       var bx=gx0+(s.r-0.6)/4.2*(gx1-gx0), by=gy0-Math.min(hScale,V/15*hScale);
-      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(bx,by-8,9,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('+'+s.q, bx, by-4);
+      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(bx,by-8,9,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('+'+s.q, bx, by-4);
       arrow(E, bx+14,by-8, bx+38,by-8+ (gy0-by)*0.25, GRN, 2);   // 굴러내려갈 방향(바깥=낮은 전위)
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('낮은 전위로 밀려남 →', bx+50, by-22);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('낮은 전위로 밀려남 →', bx+50, by-22);
       // 수치
       ctx.fillStyle=ORA; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
       ctx.fillText('전위  V = kQ/r = '+V.toFixed(2)+' V', W*0.80, H*0.40);
@@ -60,17 +60,17 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx, k=9, Q=1;
       var cx=W*0.38, cy=H*0.46, scale=Math.min(W*0.06,H*0.085);
       [1,2,3,4].forEach(function(rr){ var V=k*Q/rr; ctx.strokeStyle='rgba(122,184,255,0.35)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,rr*scale,0,7); ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('V='+V.toFixed(1), cx, cy-rr*scale-3); });
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('V='+V.toFixed(1), cx, cy-rr*scale-3); });
       charge(E,cx,cy,15,Q);
       ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Q=+1', cx, cy+28);
       var px=cx+s.r*scale, V=k*Q/s.r;
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+s.r.toFixed(1), (cx+px)/2, cy+15);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+s.r.toFixed(1), (cx+px)/2, cy+15);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(px,cy,7,0,7); ctx.fill();
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('V = '+V.toFixed(1)+' V', px, cy-14);
       var gx0=W*0.62, gx1=W*0.93, gy0=H*0.82, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('V',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('V',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath();
       for(var i=0;i<=60;i++){ var rr2=0.8+i/60*4.2, vv=k*Q/rr2, x=gx0+(rr2-0.8)/4.2*(gx1-gx0), y=gy0-Math.min(gh,vv/12*gh); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var mx=gx0+(s.r-0.8)/4.2*(gx1-gx0), my=gy0-Math.min(gh,V/12*gh); ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
@@ -98,7 +98,7 @@
       // 현재 위치 점 + 국소 E(반지름 방향, 등전위면에 수직)
       var px=cx+s.r*scale, py=cy; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
       arrow(E, px,py, px+34,py, ORA, 2.5);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('E ⊥ 등전위면', px+24, py-12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('E ⊥ 등전위면', px+24, py-12);
       // 수치
       ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('등전위면 V₁='+V1.toFixed(1)+'  V₂='+V2.toFixed(1), W*0.04, H*0.84);
@@ -126,7 +126,7 @@
       for(var gx=-pw/2+20;gx<pw/2;gx+=34){ arrow(E,cx+gx,cyT+6,cx+gx,cyB-6,'rgba(122,184,255,0.4)',1.5); }
       ctx.fillStyle='rgba(122,184,255,0.85)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('E', cx+pw/2-16, (cyT+cyB)/2);
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([3,3]); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx-pw/2-14,cyT); ctx.lineTo(cx-pw/2-14,cyB); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('d='+s.d.toFixed(1), cx-pw/2-18, (cyT+cyB)/2);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('d='+s.d.toFixed(1), cx-pw/2-18, (cyT+cyB)/2);
       var bx=W*0.74, baseY=H*0.74, bh=H*0.46, mx=0.5*(eps*A/1)*100;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,46,bh);
       var uh=Math.min(1,U/mx)*bh; ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-uh,46,uh); ctx.globalAlpha=1;

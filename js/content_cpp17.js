@@ -25,15 +25,15 @@
   // ── 콜 스택 렌더: frames=[{sig, info, ret}] 위→아래로 쌓임(아래가 최근 호출=top). active=top 인덱스.
   function drawStack(E, x, y, frames, active, w, fhIn){
     var ctx=E.ctx, fw=w||E.W*0.30, fh=fhIn||46, gap=6;
-    ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
     ctx.fillText('콜 스택 — 호출마다 프레임 push, 반환마다 pop (낮은 주소로 자람)', x, y-10);
     for(var i=0;i<frames.length;i++){ var f=frames[i], fy=y+i*(fh+gap), isTop=(i===active);
       ctx.fillStyle= isTop?'rgba(90,180,232,0.18)':(f.ret!=null?'rgba(126,224,176,0.08)':'rgba(255,255,255,0.03)');
       roundRect(ctx,x,fy,fw,fh,7); ctx.fill();
       ctx.strokeStyle= isTop?CPB:(f.ret!=null?GRN:'rgba(255,255,255,0.16)'); ctx.lineWidth=isTop?2:1; roundRect(ctx,x,fy,fw,fh,7); ctx.stroke();
       ctx.fillStyle= isTop?CPD:'#dfeaf2'; ctx.font='600 13px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText(f.sig, x+12, fy+19);
-      ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.fillText(f.info||'', x+12, fy+fh-10);
-      ctx.fillStyle='rgba(255,255,255,0.30)'; ctx.font='10px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText('0x7ffe'+(('000'+(240-i*16).toString(16)).slice(-3)), x+fw-8, fy+14);
+      ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.fillText(f.info||'', x+12, fy+fh-10);
+      ctx.fillStyle='rgba(255,255,255,0.30)'; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText('0x7ffe'+(('000'+(240-i*16).toString(16)).slice(-3)), x+fw-8, fy+14);
       if(f.ret!=null){ ctx.fillStyle=GRN; ctx.font='600 12px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText('return '+f.ret, x+fw-8, fy+fh-8); }
     }
   }
@@ -106,7 +106,7 @@
       // 하단 캡션
       stepCap(E, gx, gy+18+bh+30, s.step, this.steps.length, f.cap);
       // 무한재귀 경고
-      ctx.fillStyle=RED; ctx.font='11.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=RED; ctx.font='13.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('※ 기저사례가 없으면? n이 −1,−2,… 로 영원히 → 스택 오버플로(프로그램 강제 종료)', gx, gy+18+bh+72);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 한 단계 (진입 → 더 깊이 → 기저 → 반환)', true);
@@ -156,7 +156,7 @@
       var botY=sy+f.frames.length*(48+6);
       if(f.frames.length){ ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.4; ctx.setLineDash([4,3]);
         ctx.beginPath(); ctx.moveTo(sx-14, sy); ctx.lineTo(sx-14, botY-6); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.save(); ctx.translate(sx-24, (sy+botY)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('push ↓ (스택이 자라는 방향)', 0,0); ctx.restore(); }
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.save(); ctx.translate(sx-24, (sy+botY)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('push ↓ (스택이 자라는 방향)', 0,0); ctx.restore(); }
 
       stepCap(E, W*0.04, H*0.14+7*16+28+20, s.step, this.steps.length, f.cap);
 
@@ -264,14 +264,14 @@
           roundRect(ctx,gx,fy,gw,fh,5); ctx.fill(); ctx.stroke();
           ctx.fillStyle=CPD; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='left';
           ctx.fillText('sum('+(9-d)+')', gx+10, fy+19);
-          ctx.fillStyle='rgba(255,255,255,0.28)'; ctx.font='9.5px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText('0x7ffe'+(('000'+(240-d*16).toString(16)).slice(-3)), gx+gw-8, fy+18); }
+          ctx.fillStyle='rgba(255,255,255,0.28)'; ctx.font='11.5px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText('0x7ffe'+(('000'+(240-d*16).toString(16)).slice(-3)), gx+gw-8, fy+18); }
         // 스택 한계선
         var limY=gy+16+LIM*(fh+gap);
         ctx.strokeStyle=RED; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(gx-6,limY); ctx.lineTo(gx+gw+6,limY); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=RED; ctx.font='600 11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('▲ 스택 크기 한계 (기본 ~1MB)', gx, limY+16);
+        ctx.fillStyle=RED; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('▲ 스택 크기 한계 (기본 ~1MB)', gx, limY+16);
         if(depth>LIM){ ctx.fillStyle=RED; ctx.font='700 15px sans-serif'; ctx.textAlign='center'; ctx.fillText('💥 STACK OVERFLOW', gx+gw/2, limY+42);
-          ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('깊이가 한계를 넘으면 프로그램이 강제 종료됩니다', gx+gw/2, limY+62); }
-        else { ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('탭할수록 더 깊이 — 깊이 = 메모리 O(n)', gx, limY+38); }
+          ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('깊이가 한계를 넘으면 프로그램이 강제 종료됩니다', gx+gw/2, limY+62); }
+        else { ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('탭할수록 더 깊이 — 깊이 = 메모리 O(n)', gx, limY+38); }
       } else {
         // 반복: 프레임 하나 + acc 누적 (실계산)
         var fy2=gy+40, fh2=52;
@@ -281,13 +281,13 @@
         var i=Math.min(s.step+1, 10), acc=i*(i+1)/2;
         ctx.fillStyle='#dfeaf2'; ctx.font='12px ui-monospace,monospace'; ctx.fillText('i = '+i+',  acc = '+acc, gx+12, fy2+40);
         // 누적 막대
-        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('루프 '+i+'회 진행 → 1+2+…+'+i+' = '+acc+' (프레임은 그대로 1개)', gx, fy2+fh2+26);
-        ctx.fillStyle=GRN; ctx.font='11.5px sans-serif'; ctx.fillText('메모리 O(1) — 아무리 커도 스택 오버플로 없음', gx, fy2+fh2+48);
+        ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('루프 '+i+'회 진행 → 1+2+…+'+i+' = '+acc+' (프레임은 그대로 1개)', gx, fy2+fh2+26);
+        ctx.fillStyle=GRN; ctx.font='13.5px sans-serif'; ctx.fillText('메모리 O(1) — 아무리 커도 스택 오버플로 없음', gx, fy2+fh2+48);
       }
 
       // 비교표 — 코드패널 밑단 바로 아래에 배치(겹침 방지·클램프 없이)
       var ty=codeBot+28;
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('재귀: 코드 간결·트리형에 자연스러움 · 메모리 O(깊이) · 깊으면 오버플로 위험', W*0.04, ty);
       ctx.fillText('반복: 메모리 O(1)·빠름 · 하지만 하노이·순열처럼 갈래가 많으면 코드가 복잡', W*0.04, ty+18);
       ctx.fillStyle=GRN; ctx.fillText('꼬리재귀(tail call): 반환이 “순수한 재귀 호출”뿐이면 컴파일러가 반복으로 최적화(-O2) → 스택 절약', W*0.04, ty+38);
@@ -314,7 +314,7 @@
         roundRect(ctx, lx, y, W*0.40, 60, 9); ctx.fill(); ctx.stroke();
         ctx.fillStyle=steps[i][2]; ctx.font='600 13.5px sans-serif'; ctx.fillText(steps[i][0], lx+14, y+22);
         ctx.fillStyle='#dfeaf2'; ctx.font='12px sans-serif'; ctx.fillText(steps[i][1], lx+14, y+43); }
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('“작은 문제는 마법처럼 풀린다고 믿어라” — 이 신뢰의 도약이 재귀의 핵심입니다.', lx, ly+30+3*72+16);
 
       // 우: 5문제 지도
@@ -332,8 +332,8 @@
         ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=probs[i][3]; ctx.lineWidth=1.3;
         roundRect(ctx, rx, py, rw, 52, 8); ctx.fill(); ctx.stroke();
         ctx.fillStyle=probs[i][3]; ctx.font='600 14px sans-serif'; ctx.fillText(probs[i][0], rx+14, py+21);
-        ctx.fillStyle='#dfeaf2'; ctx.font='11.5px sans-serif'; ctx.fillText(probs[i][1], rx+14, py+40);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText(probs[i][2], rx+rw-14, py+34); ctx.textAlign='left';
+        ctx.fillStyle='#dfeaf2'; ctx.font='13.5px sans-serif'; ctx.fillText(probs[i][1], rx+14, py+40);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText(probs[i][2], rx+rw-14, py+34); ctx.textAlign='left';
       }
       ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('▸ 아래 “심화학습(5)” 버튼에서 각 문제를 코드+콜스택 단계로 완전 정복하세요.', rx, ry+22+5*62+14);
@@ -446,14 +446,14 @@
         ctx.fillStyle= memo&&dup ? 'rgba(244,160,192,0.20)' : (!memo&&dup?'rgba(240,136,138,0.18)':'rgba(90,180,232,0.15)');
         ctx.strokeStyle=col; ctx.lineWidth=1.4;
         ctx.beginPath(); ctx.arc(nx,ny,12,0,7); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#dfeaf2'; ctx.font='10px ui-monospace,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(node.n, nx, ny+1); ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#dfeaf2'; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(node.n, nx, ny+1); ctx.textBaseline='alphabetic';
         seen[node.n]=true;
       }
       drawNode(tree);
       // 범례 + 호출 수 비교
       var ny=gy+gh+6;
-      if(memo){ ctx.fillStyle=GRN; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('● 처음 계산', gx, ny); ctx.fillStyle=PNK; ctx.fillText('● 표에서 즉시 조회(재계산 안 함)', gx+80, ny); }
-      else { ctx.fillStyle=CPB; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('● 계산', gx, ny); ctx.fillStyle=RED; ctx.fillText('● 이미 계산한 값을 또 계산(낭비!)', gx+56, ny); }
+      if(memo){ ctx.fillStyle=GRN; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('● 처음 계산', gx, ny); ctx.fillStyle=PNK; ctx.fillText('● 표에서 즉시 조회(재계산 안 함)', gx+80, ny); }
+      else { ctx.fillStyle=CPB; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('● 계산', gx, ny); ctx.fillStyle=RED; ctx.fillText('● 이미 계산한 값을 또 계산(낭비!)', gx+56, ny); }
       ctx.fillStyle='#dfeaf2'; ctx.font='600 13px sans-serif';
       ctx.fillText('순수 재귀 호출 수: '+this.naiveCalls+'회   vs   메모: '+this.memoCalls+'회', gx, ny+24);
       ctx.fillStyle=GRN; ctx.font='700 15px sans-serif'; ctx.fillText('fib(6) = 8', gx, ny+48);
@@ -521,16 +521,16 @@
           ctx.fillStyle= moving?'rgba(255,255,255,0.9)':cols[disk]; ctx.globalAlpha= moving?1:0.85;
           roundRect(ctx,dx,dy,dw,dh,4); ctx.fill(); ctx.globalAlpha=1;
           ctx.strokeStyle= moving?'#fff':'rgba(0,0,0,0.3)'; ctx.lineWidth=1; roundRect(ctx,dx,dy,dw,dh,4); ctx.stroke();
-          ctx.fillStyle='#0b1016'; ctx.font='700 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(disk, cx, dy+dh/2); ctx.textBaseline='alphabetic'; }
+          ctx.fillStyle='#0b1016'; ctx.font='700 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(disk, cx, dy+dh/2); ctx.textBaseline='alphabetic'; }
       }
       // 이동 화살표 표시
       if(f.move){ ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('원반 '+f.move[2]+' :  '+f.move[0]+' → '+f.move[1], gx+gw/2, gy+16); }
 
       // 콜 스택 (간략, 텍스트 목록)
       var sx=gx, sy=baseY+40;
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('콜 스택 (재귀 호출 중첩):', sx, sy);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('콜 스택 (재귀 호출 중첩):', sx, sy);
       for(var i=0;i<f.frames.length;i++){ var fy=sy+8+i*17, isTop=(i===f.active);
-        ctx.fillStyle= isTop?CPD:DIM; ctx.font=(isTop?'600 ':'')+'11.5px ui-monospace,monospace';
+        ctx.fillStyle= isTop?CPD:DIM; ctx.font=(isTop?'600 ':'')+'13.5px ui-monospace,monospace';
         ctx.fillText('  '.repeat(i)+'▸ '+f.frames[i], sx+4, fy+12); }
 
       // 이동 카운터
@@ -594,7 +594,7 @@
         ctx.fillStyle= has?'#dfeaf2':DIM; ctx.font='700 16px ui-monospace,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(has?f.path[k]:'·', bx+18, py+19); ctx.textBaseline='alphabetic'; }
       // 사용 가능 후보
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('남은 후보:', gx, py+62);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('남은 후보:', gx, py+62);
       for(k=0;k<3;k++){ var av=!f.used[k], cx2=gx+80+k*30;
         ctx.fillStyle= av?BLU:'rgba(255,255,255,0.10)'; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center';
         ctx.fillText(av?[1,2,3][k]:'✗', cx2, py+66); }
@@ -669,14 +669,14 @@
         roundRect(ctx,gx+i*cw+2,ay,cw-4,ch,5); ctx.fill(); ctx.stroke();
         ctx.fillStyle= inSeg?'#dfeaf2':DIM; ctx.font='700 15px ui-monospace,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(arr[i], gx+i*cw+cw/2, ay+ch/2); ctx.textBaseline='alphabetic';
-        ctx.fillStyle=DIM; ctx.font='9.5px sans-serif'; ctx.fillText(i, gx+i*cw+cw/2, ay+ch+12); }
+        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(i, gx+i*cw+cw/2, ay+ch+12); }
 
       // 활성 구간 브래킷
       if(act){ var bx0=gx+act[0]*cw+2, bx1=gx+(act[1]+1)*cw-2, by=ay+ch+22;
         ctx.strokeStyle= f.type==='merge'?GRN:(f.type==='split'?CPB:GLD); ctx.lineWidth=2;
         ctx.beginPath(); ctx.moveTo(bx0,by); ctx.lineTo(bx0,by+5); ctx.lineTo(bx1,by+5); ctx.lineTo(bx1,by); ctx.stroke();
         var lab = f.type==='split'?'분할':(f.type==='merge'?'병합(정렬)':(f.type==='base'?'1개=정렬됨':''));
-        ctx.fillStyle= f.type==='merge'?GRN:(f.type==='split'?CPB:GLD); ctx.font='600 11px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle= f.type==='merge'?GRN:(f.type==='split'?CPB:GLD); ctx.font='600 13px sans-serif'; ctx.textAlign='center';
         ctx.fillText(lab, (bx0+bx1)/2, by+18); }
 
       // 원본 vs 결과

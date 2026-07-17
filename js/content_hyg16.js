@@ -58,7 +58,7 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var okO2=(s.o2>=18 && s.o2<23.5), okH2S=(s.h2s<10), overall=okO2&&okH2S;
       var o2State = s.o2<18?'산소결핍':(s.o2>=23.5?'산소과잉(화재위험)':'적정');
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       var bx=W*0.09, bw=W*0.66, bh=FS(H,0.058,20,30);
 
       // 게이지 1: 산소농도
@@ -71,7 +71,7 @@
       ctx.fillStyle='rgba(240,136,138,0.22)'; ctx.fillRect(XO(23.5),y1,XO(25)-XO(23.5),bh);
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.strokeRect(bx,y1,bw,bh);
       [18,23.5].forEach(function(v){ ctx.strokeStyle=RED; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(XO(v),y1-4); ctx.lineTo(XO(v),y1+bh+4); ctx.stroke(); ctx.setLineDash([]);
-        T(ctx,v+'%',XO(v),y1+bh+FS(H,0.026,11,15),RED,FS(H,0.021,9,12),'center'); });
+        T(ctx,v+'%',XO(v),y1+bh+FS(H,0.026,13,15),RED,FS(H,0.021,11,14),'center'); });
       var mx1=Math.max(o2min,Math.min(o2max,s.o2));
       ctx.strokeStyle=okO2?GRN:RED; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(XO(mx1),y1-8); ctx.lineTo(XO(mx1),y1+bh+8); ctx.stroke(); ctx.lineWidth=1;
       T(ctx,s.o2.toFixed(1)+'%',XO(mx1),y1-12,okO2?GRN:RED,fs,'center','700');
@@ -85,7 +85,7 @@
       ctx.fillStyle='rgba(240,136,138,0.22)'; ctx.fillRect(XH(10),y2,XH(30)-XH(10),bh);
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.strokeRect(bx,y2,bw,bh);
       ctx.strokeStyle=RED; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(XH(10),y2-4); ctx.lineTo(XH(10),y2+bh+4); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'10ppm',XH(10),y2+bh+FS(H,0.026,11,15),RED,FS(H,0.021,9,12),'center');
+      T(ctx,'10ppm',XH(10),y2+bh+FS(H,0.026,13,15),RED,FS(H,0.021,11,14),'center');
       var mx2=Math.max(hmin,Math.min(hmax,s.h2s));
       ctx.strokeStyle=okH2S?GRN:RED; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(XH(mx2),y2-8); ctx.lineTo(XH(mx2),y2+bh+8); ctx.stroke(); ctx.lineWidth=1;
       T(ctx,s.h2s+'ppm',XH(mx2),y2-12,okH2S?GRN:RED,fs,'center','700');
@@ -99,7 +99,7 @@
       ];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,bx-8,yy-lh*0.6,bw+16,lh*0.85,7); ctx.fill();
-        T(ctx,rows[i][0],bx,yy,TXT,FS(H,0.023,10,13),'left');
+        T(ctx,rows[i][0],bx,yy,TXT,FS(H,0.023,12,15),'left');
         T(ctx,rows[i][1],bx+bw-2,yy,rows[i][2],FS(H,0.027,12,15),'right','700'); }
 
       // 참고 기준 밴드 (탄산가스·CO·LEL — 산업안전보건기준에 관한 규칙 별표 적정공기 정의 포함)
@@ -107,9 +107,9 @@
       var sy=H*0.885;
       ctx.fillStyle='rgba(242,189,85,0.10)'; RR(ctx,W*0.06,sy-FS(H,0.03,12,17),W*0.88,FS(H,0.075,30,44),8); ctx.fill();
       T(ctx,'참고(산업안전보건기준에 관한 규칙 · 적정공기): 탄산가스 1.5% 미만 · 일산화탄소 30ppm 미만 · 가연성가스는 폭발하한(LEL)의 10% 이하',
-        W*0.10,sy+FS(H,0.006,2,5),AMB,FS(H,0.021,9,12),'left');
+        W*0.10,sy+FS(H,0.006,4,7),AMB,FS(H,0.021,11,14),'left');
       T(ctx,'(예 메탄 LEL '+lelCH4.toFixed(1)+'% × 10% = '+lelLimit.toFixed(2)+'% 초과 시 위험)',
-        W*0.10,sy+FS(H,0.03,13,18),DIM,FS(H,0.021,9,12),'left');
+        W*0.10,sy+FS(H,0.03,13,18),DIM,FS(H,0.021,11,14),'left');
 
       E.tapHint(0,0,'슬라이더로 산소농도·황화수소 조절',true);
       E.big(overall?'적정공기 확인 — 산소 '+s.o2.toFixed(1)+'% · H₂S '+s.h2s+'ppm':'유해공기 — 즉시 환기·대피',
@@ -132,12 +132,12 @@
       var xmax=cur.std*2.2;
       var bx=W*0.09, bw=W*0.68, by=H*0.36, bh=FS(H,0.07,26,38);
       function X(v){ return bx+Math.min(v,xmax)/xmax*bw; }
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       T(ctx,cur.name+' — 관리기준 대조',bx,by-14,TXT,FS(H,0.03,13,17),'left','600');
       ctx.fillStyle='#1c2433'; RR(ctx,bx,by,bw,bh,6); ctx.fill();
       ctx.fillStyle=over?RED:GRN; RR(ctx,bx,by,X(measured)-bx,bh,6); ctx.fill();
       ctx.strokeStyle=AMB; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(X(cur.std),by-6); ctx.lineTo(X(cur.std),by+bh+6); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'기준 '+cur.std+' '+cur.unit,X(cur.std),by-10,AMB,FS(H,0.022,10,13),'center','600');
+      T(ctx,'기준 '+cur.std+' '+cur.unit,X(cur.std),by-10,AMB,FS(H,0.022,12,15),'center','600');
       T(ctx,measured.toFixed(cur.dec)+' '+cur.unit,bx+8,by+bh*0.68,'#0b1220',fs,'left','700');
 
       var ry=by+bh+FS(H,0.08,30,46), lh=FS(H,0.058,20,29);
@@ -149,18 +149,18 @@
       ];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,bx-8,yy-lh*0.6,bw+16,lh*0.85,7); ctx.fill();
-        T(ctx,rows[i][0],bx,yy,TXT,FS(H,0.023,10,13),'left');
+        T(ctx,rows[i][0],bx,yy,TXT,FS(H,0.023,12,15),'left');
         T(ctx,rows[i][1],bx+bw-2,yy,rows[i][2],FS(H,0.027,12,15),'right','700'); }
 
       if(s.idx===2){
         var M=0.022, Co=400, Cs=cur.std;
         var Q=M/((Cs-Co)*1e-6);
         var ny=ry+lh*rows.length+FS(H,0.03,12,18);
-        ctx.fillStyle='rgba(122,184,255,0.10)'; RR(ctx,bx-8,ny-FS(H,0.028,11,16),bw+16,FS(H,0.075,30,44),8); ctx.fill();
+        ctx.fillStyle='rgba(122,184,255,0.10)'; RR(ctx,bx-8,ny-FS(H,0.028,13,16),bw+16,FS(H,0.075,30,44),8); ctx.fill();
         T(ctx,'참고(CO₂ 전용) 요구환기량 Q = M÷(Cs−Co) = '+M+' ÷ (('+Cs+'−'+Co+')×10⁻⁶) ≈ '+Q.toFixed(1)+' m³/h·인',
-          bx,ny,BLU,FS(H,0.022,10,13),'left');
+          bx,ny,BLU,FS(H,0.022,12,15),'left');
         T(ctx,'(M=1인당 CO₂ 발생량 0.022 m³/h 표준값, Co=외기 배경농도 400ppm 표준값)',
-          bx,ny+FS(H,0.03,12,17),DIM,FS(H,0.02,9,11),'left');
+          bx,ny+FS(H,0.03,12,17),DIM,FS(H,0.02,11,13),'left');
       }
 
       E.tapHint(0,0,'슬라이더로 오염물질·측정비율 조절',true);
@@ -234,12 +234,12 @@
       var over=dose>100;
       var dbMin=75,dbMax=118, top=H*0.30, base=H*0.66;
       function dbY(d){ return base-(d-dbMin)/(dbMax-dbMin)*(base-top); }
-      var fs=FS(H,0.024,10,13), d,y;
+      var fs=FS(H,0.024,12,15), d,y;
       for(d=dbMin;d<=dbMax;d+=10){ y=dbY(d);
         ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.beginPath(); ctx.moveTo(W*0.10,y); ctx.lineTo(W*0.46,y); ctx.stroke();
         T(ctx,d+'',W*0.09,y+4,DIM,fs,'right'); }
       y=dbY(90); ctx.strokeStyle=RED; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(W*0.10,y); ctx.lineTo(W*0.46,y); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'노출기준 90 dB(A)/8h',W*0.10,y-6,RED,FS(H,0.022,10,12),'left','600');
+      T(ctx,'노출기준 90 dB(A)/8h',W*0.10,y-6,RED,FS(H,0.022,12,14),'left','600');
       var bw=W*0.12, bxp=W*0.24;
       ctx.fillStyle=over?RED:GRN; RR(ctx,bxp,dbY(s.L),bw,base-dbY(s.L),6); ctx.fill();
       T(ctx,s.L+' dB(A)',bxp+bw/2,dbY(s.L)-8,over?RED:GRN,FS(H,0.026,12,15),'center','700');
@@ -253,16 +253,16 @@
       ];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,rx-8,yy-lh*0.42,W*0.42,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],rx,yy-FS(H,0.006,2,4),DIM,FS(H,0.021,9,12),'left');
-        T(ctx,rows[i][1],rx,yy+FS(H,0.028,12,16),rows[i][2],FS(H,0.026,11,14),'left','700'); }
+        T(ctx,rows[i][0],rx,yy-FS(H,0.006,4,6),DIM,FS(H,0.021,11,14),'left');
+        T(ctx,rows[i][1],rx,yy+FS(H,0.028,12,16),rows[i][2],FS(H,0.026,13,14),'left','700'); }
 
       var spike=10, recover=9.5, deseff=recover/spike*100;
       var sy=H*0.78;
-      ctx.fillStyle='rgba(244,160,192,0.10)'; RR(ctx,W*0.08,sy-FS(H,0.026,10,15),W*0.84,FS(H,0.098,36,54),8); ctx.fill();
+      ctx.fillStyle='rgba(244,160,192,0.10)'; RR(ctx,W*0.08,sy-FS(H,0.026,12,15),W*0.84,FS(H,0.098,36,54),8); ctx.fill();
       T(ctx,'H-56 순음청력검사: 5dB 상승·10dB 하강 규칙(역치결정) · 정밀보정 3년 1회 · 출력음압 허용오차 500~3,000Hz 3dB · 4,000Hz 4dB · 6,000·8,000Hz 5dB',
-        W*0.10,sy+FS(H,0.006,2,5),PNK,FS(H,0.02,9,11.5),'left');
+        W*0.10,sy+FS(H,0.006,4,7),PNK,FS(H,0.02,11,13.5),'left');
       T(ctx,'A-57 포름알데히드(GC법): 2,4-DNPH 흡착관 채취 → 아세토니트릴 탈착 → GC 정량. 탈착효율 예시 = 회수 '+recover+'÷첨가 '+spike+'×100 = '+deseff.toFixed(1)+'%',
-        W*0.10,sy+FS(H,0.033,14,19),PNK,FS(H,0.02,9,11.5),'left');
+        W*0.10,sy+FS(H,0.033,14,19),PNK,FS(H,0.02,11,13.5),'left');
 
       E.tapHint(0,0,'슬라이더로 노출 소음수준 조절',true);
       E.big('L '+s.L+'dB(A) → 허용시간 '+T8.toFixed(2)+'시간 · 노출량 '+dose.toFixed(1)+'%',
@@ -284,23 +284,23 @@
       var y=H*0.21;   // 누적 커서 — 블록마다 실측 높이만큼 내려가므로 캔버스 크기가 달라져도 겹치지 않는다
 
       // 공시 6항목
-      T(ctx,'안전보건 현황공시(제10조의2) — 공시항목 6종',bx,y,TXT,FS(H,0.027,11,15),'left','600');
+      T(ctx,'안전보건 현황공시(제10조의2) — 공시항목 6종',bx,y,TXT,FS(H,0.027,13,15),'left','600');
       y+=FS(H,0.04,14,20);
       var ITEMS=['① 안전보건관리체제','② 산업재해 발생현황','③ 전년도 안전보건활동 실적','④ 해당연도 안전보건활동 계획','⑤ 안전보건 투자현황','⑥ 재발방지대책 및 이행계획'];
-      var cw=bw*0.5, rowh=FS(H,0.03,11,15);
+      var cw=bw*0.5, rowh=FS(H,0.03,13,15);
       for(var i=0;i<ITEMS.length;i++){ var col=Math.floor(i/3), row=i%3;
-        T(ctx,ITEMS[i], bx+col*cw, y+row*rowh, DIM, FS(H,0.02,9,11.5), 'left'); }
+        T(ctx,ITEMS[i], bx+col*cw, y+row*rowh, DIM, FS(H,0.02,11,13.5), 'left'); }
       y+=rowh*3+FS(H,0.032,12,18);
 
       // 근로자수 → 공시대상
       var boxH=FS(H,0.065,22,32);
       ctx.fillStyle='rgba(122,184,255,0.08)'; RR(ctx,bx,y,bw,boxH,8); ctx.fill();
       T(ctx,'근로자 '+s.workers+'인 → '+(disc?'공시의무 대상권 진입(500인 이상, 대통령령 확정 전 "예정")':'공시의무 규모 미만(하위법령 확정 대기)'),
-        bx+W*0.02,y+boxH*0.65,disc?GRN:DIM,FS(H,0.022,10,13),'left','600');
+        bx+W*0.02,y+boxH*0.65,disc?GRN:DIM,FS(H,0.022,12,15),'left','600');
       y+=boxH+FS(H,0.034,13,19);
 
       // 위반유형 → 과태료 막대
-      T(ctx,'위험성평가 제재 — 위반유형별 과태료 상한',bx,y,TXT,FS(H,0.024,10,14),'left','600');
+      T(ctx,'위험성평가 제재 — 위반유형별 과태료 상한',bx,y,TXT,FS(H,0.024,12,14),'left','600');
       y+=FS(H,0.045,17,22);
       var barMaxH=FS(H,0.13,42,64), barBottom=y+barMaxH;
       var n=VIOL.length, gap=8, bw1=(bw-gap*(n-1))/n;
@@ -308,7 +308,7 @@
         var sel=(i===s.vIdx);
         ctx.fillStyle=sel?ORA:'rgba(255,255,255,0.10)'; RR(ctx,vx,barBottom-vh,bw1,vh,5); ctx.fill();
         if(sel){ ctx.strokeStyle=ORA; ctx.lineWidth=1.6; RR(ctx,vx,barBottom-vh,bw1,vh,5); ctx.stroke(); ctx.lineWidth=1; }
-        T(ctx,VIOL[i].fine+'만',vx+bw1/2,barBottom-vh-6,sel?ORA:DIM,FS(H,0.02,9,11.5),'center','700'); }
+        T(ctx,VIOL[i].fine+'만',vx+bw1/2,barBottom-vh-6,sel?ORA:DIM,FS(H,0.02,11,13.5),'center','700'); }
       y=barBottom+FS(H,0.036,14,20);
 
       var lh=FS(H,0.044,16,22);
@@ -318,12 +318,12 @@
       ];
       for(i=0;i<rows.length;i++){ var yy=y+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,bx-8,yy-lh*0.6,bw+16,lh*0.85,7); ctx.fill();
-        T(ctx,rows[i][0],bx,yy,TXT,FS(H,0.02,9,11.5),'left');
-        T(ctx,rows[i][1],bx+bw-2,yy,rows[i][2],FS(H,0.023,10,13),'right','700'); }
-      y+=lh*rows.length+FS(H,0.026,10,15);
+        T(ctx,rows[i][0],bx,yy,TXT,FS(H,0.02,11,13.5),'left');
+        T(ctx,rows[i][1],bx+bw-2,yy,rows[i][2],FS(H,0.023,12,15),'right','700'); }
+      y+=lh*rows.length+FS(H,0.026,12,15);
 
       T(ctx,'시행 2026.6.1 · 공시개시 2026.8.1 · 매년 4.30까지 공시. 위험성평가 제재는 상시 50인 이상 2027.1.1부터, 50인 미만 2028.1.1부터 단계 적용.',
-        bx,y,DIM,FS(H,0.019,8.5,11),'left');
+        bx,y,DIM,FS(H,0.019,10.5,13),'left');
 
       E.tapHint(0,0,'슬라이더로 근로자수·위반유형 조절',true);
       E.big('선택 위반유형 → '+v.fine+'만원 이하',

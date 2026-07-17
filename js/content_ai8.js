@@ -247,7 +247,7 @@
         ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fillRect(cx, cy-bh/2, bw, bh);
         ctx.strokeStyle=st.c; ctx.lineWidth=cur?3:1.6; ctx.strokeRect(cx, cy-bh/2, bw, bh);
         ctx.fillStyle=st.c; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(st.t, cx+bw/2, cy-bh/2-10);
-        ctx.fillStyle='#dfeef0'; ctx.font='11.5px sans-serif';
+        ctx.fillStyle='#dfeef0'; ctx.font='13.5px sans-serif';
         var words=st.d.split(' '); for(var k=0;k<words.length;k++) ctx.fillText(words[k], cx+bw/2, cy-6+k*15);
         ctx.globalAlpha=1; }
 

@@ -804,7 +804,7 @@
         // 접선
         ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(fx)); ctx.lineTo(P.X(xn),P.Y(0)); ctx.stroke();
         ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(fx)); ctx.lineTo(P.X(x),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle='#9b99a3'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('x'+i+'='+x.toFixed(i===0?0:3), P.X(x), P.Y(0)+16);
+        ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('x'+i+'='+x.toFixed(i===0?0:3), P.X(x), P.Y(0)+16);
         P.dot(x,fx,'#ffb27a'); x=xn; }
       P.dot(x,0,'#ffb27a','x'+k+'≈'+x.toFixed(3));
       E.big('뉴턴법:  xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)  →  '+x.toFixed(4), '방정식 f(x)=0의 근을 접선(#102)으로 빠르게! 접선이 x축과 만나는 점을 새 추정값으로 반복. √2를 몇 번 만에 정밀하게 — 컴퓨터의 √·나눗셈 계산법'); }
@@ -894,7 +894,7 @@
     draw:function(E){ var ctx=E.ctx, cx=E.W/2, vals=[1,2,3,4,5,6], baseY=E.H*0.6, bw=54, gap=16, total=6*bw+5*gap, x0=cx-total/2, h=E.H*0.16;
       // 주사위 균등분포 막대
       for(var i=0;i<6;i++){ var x=x0+i*(bw+gap); ctx.fillStyle='rgba(122,184,255,0.3)'; ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.fillRect(x,baseY-h,bw,h); ctx.strokeRect(x,baseY-h,bw,h);
-        ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(vals[i],x+bw/2,baseY+20); ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.fillText('1/6',x+bw/2,baseY-h-8); }
+        ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(vals[i],x+bw/2,baseY+20); ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.fillText('1/6',x+bw/2,baseY-h-8); }
       // 평균선
       var mx=x0+3*(bw+gap)-gap/2; ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(mx,baseY-h-20); ctx.lineTo(mx,baseY+4); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.fillText('평균 μ = 3.5', mx, baseY-h-26);

@@ -14,7 +14,7 @@
     var x=xr*W, y=yr*H, w=wr*W, h=hr*H;
     ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=col||BLU; ctx.lineWidth=1.5;
     RR(ctx,x,y,w,h,9); ctx.fill(); ctx.stroke();
-    var tF=FS(H,0.024,11,14), lF=FS(H,0.021,10,13);
+    var tF=FS(H,0.024,13,14), lF=FS(H,0.021,12,15);
     var pad=Math.max(10,Math.min(16,H*0.022));
     ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillStyle=col||BLU; ctx.font='600 '+tF+'px sans-serif';
@@ -68,7 +68,7 @@
       // ── 우측: 계통 흐름 상자 + 단계별 계산 카드 ─────────────────────
       var flow=[{t:'후드',on:st>=1},{t:'덕트',on:st>=3},{t:'송풍기',on:st>=4},{t:'배기구',on:st>=5}];
       var fy=H*0.235, fh=H*0.075, fx0=W*0.52, fw=W*0.095, fg=W*0.012;
-      var fF=FS(H,0.021,10,13);
+      var fF=FS(H,0.021,12,15);
       for(var i=0;i<flow.length;i++){ var fx=fx0+i*(fw+fg);
         ctx.fillStyle='rgba(255,255,255,0.04)';
         ctx.strokeStyle=flow[i].on? ORA : 'rgba(155,153,163,0.5)'; ctx.lineWidth=1.6;
@@ -170,7 +170,7 @@
       function YY(v){ return y0-(v/Vmax)*(y0-y1); }
       ctx.strokeStyle='rgba(219,238,251,0.3)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y0); ctx.moveTo(x0,y0); ctx.lineTo(x0,y1-H*0.01); ctx.stroke();
-      var aF=FS(H,0.019,9,12);
+      var aF=FS(H,0.019,11,14);
       ctx.fillStyle=DIM; ctx.font=aF+'px sans-serif'; ctx.textAlign='right'; ctx.textBaseline='alphabetic';
       for(var g=0;g<=60;g+=20){ ctx.fillText(g, x0-6, YY(g)+4);
         ctx.strokeStyle='rgba(219,238,251,0.10)'; ctx.beginPath(); ctx.moveTo(x0,YY(g)); ctx.lineTo(x1,YY(g)); ctx.stroke(); }
@@ -194,9 +194,9 @@
       if(st>=4){ var bx2=W*0.545, by2=H*0.775, bw2=W*0.40, bh2=H*0.075;
         ctx.fillStyle='rgba(143,227,181,0.10)'; ctx.strokeStyle=GRN; ctx.lineWidth=1.6;
         RR(ctx,bx2,by2,bw2,bh2,9); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=GRN; ctx.font='600 '+FS(H,0.022,10,14)+'px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=GRN; ctx.font='600 '+FS(H,0.022,12,14)+'px sans-serif'; ctx.textAlign='center';
         ctx.fillText('판정: 노출기준 미만 (95% '+P95.toFixed(1)+' < '+OEL+', 초과확률 '+pex.toFixed(1)+'%)', bx2+bw2/2, by2+bh2*0.42);
-        ctx.fillStyle=DIM; ctx.font=FS(H,0.018,9,12)+'px sans-serif';
+        ctx.fillStyle=DIM; ctx.font=FS(H,0.018,11,14)+'px sans-serif';
         ctx.fillText('단, GM('+GM.toFixed(1)+') > AL('+AL.toFixed(0)+') → 정기측정 유지·공정관리 지속', bx2+bw2/2, by2+bh2*0.80); }
       E.tapHint(0,0,'다음 단계',true);
       var big=['측정값 5개를 있는 그대로 나열하면 0점 답안입니다','로그 변환으로 기하평균과 기하표준편차를 구합니다',
@@ -232,7 +232,7 @@
         note:(st>=5)?'대책형은 위계 순서 자체가 채점 기준입니다 — 보호구부터 쓰면 감점입니다':''
       });
       var xr=0.52, xw=0.43, x=xr*W, xwPx=xw*W;
-      var cF=FS(H,0.020,9,13), sF=FS(H,0.018,9,11);
+      var cF=FS(H,0.020,11,15), sF=FS(H,0.018,11,13);
       // ── 유해인자 칩(2단계) ─────────────────────────────────────────
       if(st>=1){ var chips=[
           {t:'용접흄(Cr⁶⁺·Ni)',c:RED},{t:'오존 O₃',c:PNK},{t:'질소산화물',c:PNK},
@@ -301,7 +301,7 @@
         {k:'적용',   a:['노출기준 설정 물질의','기본값(거의 전 물질)'], b:['TWA 이하라도 1일 4회 이하','회간 60분 이상 간격']},
         {k:'한계',   a:['짧은 고농도 첨두 노출을','평균이 가려버림'],  b:['미설정 물질 많음 →','노출상한 3배·5배로 보완']}
       ];
-      var kF=FS(H,0.022,10,14), cFt=FS(H,0.020,9,13);
+      var kF=FS(H,0.022,12,14), cFt=FS(H,0.020,11,15);
       function fit(txt,weight,base,maxW){ var f=base; ctx.font=weight+f+'px sans-serif';
         while(f>8 && ctx.measureText(txt).width>maxW){ f--; ctx.font=weight+f+'px sans-serif'; } return f; }
       for(var r=0;r<nRow;r++){ var Rw=rows[r], y=top+r*rowH, shown=(r<=st);
@@ -325,7 +325,7 @@
             var ly=y+rowH*(m===1?0.58:(0.38+li*0.34));
             ctx.fillText(t, C.cx, ly); } } }
       // 노출상한 각주(마지막 단계) — 표 아래
-      if(st>=4){ ctx.fillStyle=DIM; ctx.font=FS(H,0.019,9,12)+'px sans-serif'; ctx.textAlign='center';
+      if(st>=4){ ctx.fillStyle=DIM; ctx.font=FS(H,0.019,11,14)+'px sans-serif'; ctx.textAlign='center';
         ctx.fillText('※ STEL 미설정 물질의 노출상한(ACGIH): TWA의 3배는 30분 이내만, 5배는 잠시라도 초과 금지', W/2, top+nRow*rowH+FS(H,0.032,16,22)); }
       E.tapHint(0,0,'다음 행',true);
       var big=['비교형은 표의 틀부터 그립니다','첫 행 — 두 개념의 정의를 나란히 씁니다',
@@ -359,10 +359,10 @@
       var sx=W*0.06, sw=W*0.60, syT=H*0.24, syB=H*0.93;
       ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle='rgba(242,189,85,0.35)'; ctx.lineWidth=1.2;
       RR(ctx,sx,syT,sw,syB-syT,10); ctx.fill(); ctx.stroke();
-      var hF=FS(H,0.021,10,13), bF=FS(H,0.019,9,12);
+      var hF=FS(H,0.021,12,15), bF=FS(H,0.019,11,14);
       var pad=Math.max(10,Math.min(18,W*0.014));
       ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-      ctx.fillStyle=AMB; ctx.font='600 '+FS(H,0.023,11,14)+'px sans-serif';
+      ctx.fillStyle=AMB; ctx.font='600 '+FS(H,0.023,13,14)+'px sans-serif';
       ctx.fillText('주제: WBGT(습구흑구온도지수)', sx+pad, syT+H*0.038);
       function secHead(t,y,col){ ctx.fillStyle=col; ctx.font='600 '+hF+'px sans-serif'; ctx.fillText(t, sx+pad, y); }
       function line(t,y,col){ ctx.fillStyle=col||TXT; ctx.font=bF+'px sans-serif'; ctx.fillText(t, sx+pad+W*0.012, y); }
@@ -406,7 +406,7 @@
       for(var q2=0;q2<items.length;q2++){ var done=(st>=q2+1);
         ctx.fillStyle= done? GRN : DIM; ctx.font=(done?'600 ':'')+bF+'px sans-serif';
         ctx.fillText((done?'☑ ':'☐ ')+items[q2], cx0+pad, cy0+H*0.085+q2*clh); }
-      ctx.fillStyle=DIM; ctx.font=FS(H,0.018,8,11)+'px sans-serif';
+      ctx.fillStyle=DIM; ctx.font=FS(H,0.018,10,13)+'px sans-serif';
       ctx.fillText('막힌 항목 = 내일 아침 첫 복습', cx0+pad, cy0+H*0.44-H*0.018);
       E.tapHint(0,0,'다음 요소',true);
       var big=['백지에서 시작합니다 — 주제만 쓰여 있습니다','① 정의 — 한 줄로 복원합니다',

@@ -132,7 +132,7 @@
         var fill = isCur?'rgba(255,211,67,0.20)' : (processed?'rgba(126,224,176,0.12)':'rgba(255,255,255,0.04)');
         var stroke = isCur?PYL : (processed?GRN:'rgba(255,255,255,0.18)');
         cell(ctx, x, gy, cw, ch, arr[i], fill, stroke, isCur?PYL:(processed?GRN:'#f0e7cf'), 17);
-        ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', x+cw/2, gy+ch+14);
+        ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', x+cw/2, gy+ch+14);
       }
       if(cur!=null){ var ax=gx+cur*(cw+gap)+cw/2; ctx.fillStyle=PYL; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('i='+cur+' ▲', ax, gy-2); }
       // 누적 진행 막대 + total

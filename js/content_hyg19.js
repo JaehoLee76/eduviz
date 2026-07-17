@@ -11,8 +11,8 @@
   function lg(x){ return Math.log(x)/Math.LN10; }
   /* 라벨(위)+값(아래) 2줄 카드를 누적커서로 쌓는다(hyg18 ROW 그대로 이식). 반환값=소비한 세로높이. */
   function ROW(ctx,W,H,x,y,w,rows){
-    var labelFs=FS(H,0.022,9,12), valueFs=FS(H,0.028,11,15);
-    var gap=FS(H,0.008,2,4), rowGap=FS(H,0.010,3,5);
+    var labelFs=FS(H,0.022,11,14), valueFs=FS(H,0.028,13,15);
+    var gap=FS(H,0.008,4,6), rowGap=FS(H,0.010,5,7);
     var blockH=labelFs+gap+valueFs, cy=y;
     for(var i=0;i<rows.length;i++){
       ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x-8,cy-3,w,blockH+6,7); ctx.fill();
@@ -41,24 +41,24 @@
       var c=s.env?8:11;
       var distTerm=20*lg(s.r);
       var Lw=s.Lp+distTerm+c;
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       var y=H*0.20;
-      T(ctx,'자유공간 점음원: Lw = Lp + 20·log₁₀(r) + c   [c=11 자유음장 · c=8 반자유음장(바닥반사)]',W*0.08,y,DIM,FS(H,0.022,9,13),'left');
+      T(ctx,'자유공간 점음원: Lw = Lp + 20·log₁₀(r) + c   [c=11 자유음장 · c=8 반자유음장(바닥반사)]',W*0.08,y,DIM,FS(H,0.022,11,15),'left');
       y+=FS(H,0.045,16,24);
       // 음원 → 측정점 개념도(개념도, 축척 아님) — 파형 확산
       var sy=y+FS(H,0.10,36,52), sx=W*0.16, mx=W*0.52;
-      var rad=FS(H,0.014,5,8);
+      var rad=FS(H,0.014,7,10);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(sx,sy,rad,0,Math.PI*2); ctx.fill();
       for(var i=1;i<=3;i++){ ctx.strokeStyle='rgba(255,178,122,'+(0.5-i*0.12)+')'; ctx.lineWidth=1.5;
-        ctx.beginPath(); ctx.arc(sx,sy,rad+i*FS(H,0.026,9,14),-0.5,0.5); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(sx,sy,rad+i*FS(H,0.026,11,14),-0.5,0.5); ctx.stroke(); }
       ctx.lineWidth=1;
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(mx,sy); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'r = '+s.r+' m',(sx+mx)/2,sy-FS(H,0.02,7,11),TXT,fs,'center','600');
+      T(ctx,'r = '+s.r+' m',(sx+mx)/2,sy-FS(H,0.02,9,13),TXT,fs,'center','600');
       var bw1=FS(H,0.13,46,64), bh1=FS(H,0.075,26,34), by1=sy-bh1/2;
       ctx.fillStyle=BLU; RR(ctx,mx,by1,bw1,bh1,6); ctx.fill();
       T(ctx,'Lp='+s.Lp+'dB',mx+bw1/2,by1+bh1/2+fs*0.32,'#0c1420',fs,'center','700');   // 박스 안=한 줄만(겹침 방지)
-      T(ctx,'음원',sx,sy+FS(H,0.038,13,19),DIM,FS(H,0.02,9,12),'center');
-      T(ctx,(s.env?'반자유음장(c=8)':'자유음장(c=11)'),mx+bw1/2,by1+bh1+FS(H,0.05,18,24),DIM,FS(H,0.02,9,12),'center');   // 박스 '밖'에 별도 배치
+      T(ctx,'음원',sx,sy+FS(H,0.038,13,19),DIM,FS(H,0.02,11,14),'center');
+      T(ctx,(s.env?'반자유음장(c=8)':'자유음장(c=11)'),mx+bw1/2,by1+bh1+FS(H,0.05,18,24),DIM,FS(H,0.02,11,14),'center');   // 박스 '밖'에 별도 배치
       y=by1+bh1+FS(H,0.11,38,50);
       var rows=[
         ['① 거리항 20·log₁₀(r) = 20·log₁₀('+s.r+')', distTerm.toFixed(2)+' dB', BLU],
@@ -66,8 +66,8 @@
         ['③ 음력수준 Lw = Lp + ① + ②', Lw.toFixed(2)+' dB', GRN]
       ];
       var rowsH=ROW(ctx,W,H,W*0.08,y,W*0.84,rows);
-      y+=rowsH+FS(H,0.03,8,16);
-      T(ctx,'검산: '+s.Lp+'+20log₁₀('+s.r+')+'+c+' = '+s.Lp+'+'+distTerm.toFixed(2)+'+'+c+' = '+Lw.toFixed(2)+' dB',W*0.08,y,DIM,FS(H,0.022,9,12),'left');
+      y+=rowsH+FS(H,0.03,10,16);
+      T(ctx,'검산: '+s.Lp+'+20log₁₀('+s.r+')+'+c+' = '+s.Lp+'+'+distTerm.toFixed(2)+'+'+c+' = '+Lw.toFixed(2)+' dB',W*0.08,y,DIM,FS(H,0.022,11,14),'left');
       E.tapHint(0,0,'슬라이더로 거리·음압·설치조건 조절',true);
       E.big('r'+s.r+'m·Lp'+s.Lp+'dB → 음력수준 Lw '+Lw.toFixed(1)+'dB',
             '기출 빈출유형: 음원 자체가 내는 절대적인 힘(음력수준)은 멀리서 잰 소리(음압수준)에 거리로 퍼지며 약해진 만큼을 다시 더해줘야 나옵니다.'); }
@@ -91,17 +91,17 @@
       var L2=s.L1+dL;
       var fs=FS(H,0.028,12,15);
       var y=H*0.22;
-      T(ctx,'점음원 자유음장: ΔL = 20·log₁₀(r₁/r₂)   ·   L₂ = L₁ + ΔL   (거리 2배마다 −6dB)',W*0.08,y,DIM,FS(H,0.024,10,13),'left');
+      T(ctx,'점음원 자유음장: ΔL = 20·log₁₀(r₁/r₂)   ·   L₂ = L₁ + ΔL   (거리 2배마다 −6dB)',W*0.08,y,DIM,FS(H,0.024,12,15),'left');
       y+=FS(H,0.05,18,26);
       var cw=W*0.26, ch=FS(H,0.07,26,36), cx1=W*0.08, cx2=W*0.44;
-      var lblFs=FS(H,0.02,9,12);
-      T(ctx,'r₁='+s.r1+'m',cx1+cw/2,y-FS(H,0.014,4,7),BLU,lblFs,'center','600');   // 라벨은 박스 '밖'(위)에 배치(겹침 방지)
+      var lblFs=FS(H,0.02,11,14);
+      T(ctx,'r₁='+s.r1+'m',cx1+cw/2,y-FS(H,0.014,6,9),BLU,lblFs,'center','600');   // 라벨은 박스 '밖'(위)에 배치(겹침 방지)
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; RR(ctx,cx1,y,cw,ch,8); ctx.fill(); ctx.stroke();
       T(ctx,s.L1+' dB(A)',cx1+cw/2,y+ch/2+fs*0.32,BLU,fs,'center','700');   // 박스 안=값 한 줄만
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx1+cw+8,y+ch/2); ctx.lineTo(cx2-8,y+ch/2); ctx.stroke(); ctx.lineWidth=1;
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(cx2-8,y+ch/2); ctx.lineTo(cx2-16,y+ch/2-5); ctx.lineTo(cx2-16,y+ch/2+5); ctx.fill();
-      T(ctx,(dL>=0?'+':'')+dL.toFixed(2)+'dB',(cx1+cw+cx2)/2,y-FS(H,0.014,4,7),ORA,lblFs,'center','600');
-      T(ctx,'r₂='+s.r2+'m',cx2+cw/2,y-FS(H,0.014,4,7),ORA,lblFs,'center','600');
+      T(ctx,(dL>=0?'+':'')+dL.toFixed(2)+'dB',(cx1+cw+cx2)/2,y-FS(H,0.014,6,9),ORA,lblFs,'center','600');
+      T(ctx,'r₂='+s.r2+'m',cx2+cw/2,y-FS(H,0.014,6,9),ORA,lblFs,'center','600');
       ctx.fillStyle='rgba(255,178,122,0.14)'; ctx.strokeStyle=ORA; RR(ctx,cx2,y,cw,ch,8); ctx.fill(); ctx.stroke();
       T(ctx,L2.toFixed(1)+' dB(A)',cx2+cw/2,y+ch/2+fs*0.32,ORA,fs,'center','700');
       y+=ch+FS(H,0.055,18,26);
@@ -111,8 +111,8 @@
         ['③ 추정 소음수준 L₂=L₁+ΔL', L2.toFixed(2)+' dB(A)', GRN]
       ];
       var rowsH=ROW(ctx,W,H,W*0.08,y,W*0.84,rows);
-      y+=rowsH+FS(H,0.03,8,16);
-      T(ctx,'검산: '+s.L1+'+20log₁₀('+s.r1+'/'+s.r2+')='+s.L1+'+'+dL.toFixed(2)+'='+L2.toFixed(2)+' dB(A)',W*0.08,y,DIM,FS(H,0.022,9,12),'left');
+      y+=rowsH+FS(H,0.03,10,16);
+      T(ctx,'검산: '+s.L1+'+20log₁₀('+s.r1+'/'+s.r2+')='+s.L1+'+'+dL.toFixed(2)+'='+L2.toFixed(2)+' dB(A)',W*0.08,y,DIM,FS(H,0.022,11,14),'left');
       E.tapHint(0,0,'슬라이더로 두 거리·기준 소음수준 조절',true);
       E.big('r₁'+s.r1+'→r₂'+s.r2+'m·L₁'+s.L1+' → L₂ '+L2.toFixed(1)+'dB(A)',
             '기출 빈출유형: 자유음장 점음원은 거리가 절반이 될 때마다 소음이 6dB씩 커집니다 — 반대로 멀어지면 6dB씩 작아집니다.'); }
@@ -138,20 +138,20 @@
       var T1=Ti(s.L1), T2=Ti(s.L2), T3=Ti(s.L3);
       var D=C1/T1+C2/T2+C3/T3;
       var over=D>1;
-      var fs=FS(H,0.024,10,13);
+      var fs=FS(H,0.024,12,15);
       var y=H*0.19;
-      T(ctx,'16장 단일수준 Tᵢ=8/2^((Lᵢ−90)/5)을 하루 전체로 확장: 소음노출지수 D=Σ(Cᵢ/Tᵢ), D>1이면 초과 (시간 C는 기출 고정값 2h·4h·2h)',W*0.08,y,DIM,FS(H,0.02,9,12),'left');
+      T(ctx,'16장 단일수준 Tᵢ=8/2^((Lᵢ−90)/5)을 하루 전체로 확장: 소음노출지수 D=Σ(Cᵢ/Tᵢ), D>1이면 초과 (시간 C는 기출 고정값 2h·4h·2h)',W*0.08,y,DIM,FS(H,0.02,11,14),'left');
       y+=FS(H,0.045,16,22);
       var cols=[['L₁',s.L1,C1,T1],['L₂',s.L2,C2,T2],['L₃',s.L3,C3,T3]];
       var cw=W*0.26, cx0=W*0.08, gap=W*0.03;
       for(var i=0;i<3;i++){ var cx=cx0+i*(cw+gap);
         ctx.fillStyle='rgba(122,184,255,0.08)'; ctx.strokeStyle=BLU; RR(ctx,cx,y,cw,FS(H,0.20,72,110),8); ctx.fill(); ctx.stroke();
-        var iy=y+FS(H,0.03,10,16);
+        var iy=y+FS(H,0.03,12,16);
         T(ctx,cols[i][0]+' = '+cols[i][1]+' dB(A), '+cols[i][2]+'시간',cx+cw/2,iy,TXT,fs,'center','600'); iy+=FS(H,0.045,16,22);
-        T(ctx,'Tᵢ=8/2^(('+cols[i][1]+'−90)/5)',cx+cw/2,iy,DIM,FS(H,0.02,9,12),'center'); iy+=FS(H,0.036,13,18);
+        T(ctx,'Tᵢ=8/2^(('+cols[i][1]+'−90)/5)',cx+cw/2,iy,DIM,FS(H,0.02,11,14),'center'); iy+=FS(H,0.036,13,18);
         T(ctx,'= '+cols[i][3].toFixed(2)+' h',cx+cw/2,iy,ORA,FS(H,0.028,12,16),'center','700'); iy+=FS(H,0.044,15,20);
-        T(ctx,'Cᵢ/Tᵢ = '+cols[i][2]+'/'+cols[i][3].toFixed(2),cx+cw/2,iy,DIM,FS(H,0.02,9,12),'center'); iy+=FS(H,0.036,13,18);
-        T(ctx,'= '+(cols[i][2]/cols[i][3]).toFixed(3),cx+cw/2,iy,GRN,FS(H,0.026,11,14),'center','700');
+        T(ctx,'Cᵢ/Tᵢ = '+cols[i][2]+'/'+cols[i][3].toFixed(2),cx+cw/2,iy,DIM,FS(H,0.02,11,14),'center'); iy+=FS(H,0.036,13,18);
+        T(ctx,'= '+(cols[i][2]/cols[i][3]).toFixed(3),cx+cw/2,iy,GRN,FS(H,0.026,13,14),'center','700');
       }
       y+=FS(H,0.20,72,110)+FS(H,0.05,18,24);
       var rows=[
@@ -159,8 +159,8 @@
         ['판정 (D>1 초과)', over?'허용기준 초과 — 청력보호 대책 필요':'허용기준 이내', over?RED:GRN]
       ];
       var rowsH=ROW(ctx,W,H,W*0.08,y,W*0.84,rows);
-      y+=rowsH+FS(H,0.028,8,15);
-      T(ctx,'검산: '+C1+'/'+T1.toFixed(2)+'+'+C2+'/'+T2.toFixed(2)+'+'+C3+'/'+T3.toFixed(2)+' = '+D.toFixed(3),W*0.08,y,DIM,FS(H,0.02,9,11),'left');
+      y+=rowsH+FS(H,0.028,10,15);
+      T(ctx,'검산: '+C1+'/'+T1.toFixed(2)+'+'+C2+'/'+T2.toFixed(2)+'+'+C3+'/'+T3.toFixed(2)+' = '+D.toFixed(3),W*0.08,y,DIM,FS(H,0.02,11,13),'left');
       E.tapHint(0,0,'슬라이더로 세 소음수준 조절(시간은 기출 고정값)',true);
       E.big('D = '+D.toFixed(2)+' ('+(over?'기준 초과':'기준 이내')+')',
             '기출 빈출유형: 하루에 여러 세기의 소음을 겪었다면 각 소음이 "허용시간 대비 몇 %를 썼는지"를 다 더해서 100%(=1)를 넘는지 봅니다.'); }
@@ -178,9 +178,9 @@
       var lo=s.fc/Math.SQRT2, hi=s.fc*Math.SQRT2;
       var k3=Math.pow(2,1/6);
       var lo3=s.fc/k3, hi3=s.fc*k3;
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       var y=H*0.20;
-      T(ctx,'옥타브밴드: 하한=fc/√2 · 상한=fc·√2   ·   1/3옥타브밴드: 하한=fc/2^(1/6) · 상한=fc·2^(1/6)',W*0.08,y,DIM,FS(H,0.021,9,12),'left');
+      T(ctx,'옥타브밴드: 하한=fc/√2 · 상한=fc·√2   ·   1/3옥타브밴드: 하한=fc/2^(1/6) · 상한=fc·2^(1/6)',W*0.08,y,DIM,FS(H,0.021,11,14),'left');
       y+=FS(H,0.035,12,18);
       // 로그 주파수축(20~10000Hz)
       var fMin=20, fMax=10000;
@@ -191,15 +191,15 @@
       var ticks=[20,50,100,200,500,1000,2000,5000,10000];
       for(var i=0;i<ticks.length;i++){ var xx=px(ticks[i]);
         ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.beginPath(); ctx.moveTo(xx,axY+axH); ctx.lineTo(xx,axY+axH+5); ctx.stroke();
-        T(ctx,ticks[i]+'',xx,axY+axH+FS(H,0.028,11,16),DIM,FS(H,0.019,8,11),'center'); }
+        T(ctx,ticks[i]+'',xx,axY+axH+FS(H,0.028,13,16),DIM,FS(H,0.019,10,13),'center'); }
       // 옥타브밴드(넓은 띠, 아래) · 1/3옥타브밴드(좁은 띠, 위 겹침)
       ctx.fillStyle='rgba(122,184,255,0.30)'; ctx.fillRect(px(lo),axY+axH*0.5,px(hi)-px(lo),axH*0.48);
       ctx.fillStyle='rgba(143,227,181,0.55)'; ctx.fillRect(px(lo3),axY,px(hi3)-px(lo3),axH*0.46);
       var fcx=px(s.fc);
       ctx.strokeStyle=AMB; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(fcx,axY-6); ctx.lineTo(fcx,axY+axH+6); ctx.stroke(); ctx.lineWidth=1;
-      T(ctx,'fc='+s.fc+'Hz',fcx,axY-FS(H,0.018,7,11),AMB,FS(H,0.021,9,12),'center','700');
-      T(ctx,'1/3옥타브',px0-FS(H,0.005,2,4),axY+axH*0.23,GRN,FS(H,0.019,8,11),'right');
-      T(ctx,'옥타브',px0-FS(H,0.005,2,4),axY+axH*0.74,BLU,FS(H,0.019,8,11),'right');
+      T(ctx,'fc='+s.fc+'Hz',fcx,axY-FS(H,0.018,9,13),AMB,FS(H,0.021,11,14),'center','700');
+      T(ctx,'1/3옥타브',px0-FS(H,0.005,4,6),axY+axH*0.23,GRN,FS(H,0.019,10,13),'right');
+      T(ctx,'옥타브',px0-FS(H,0.005,4,6),axY+axH*0.74,BLU,FS(H,0.019,10,13),'right');
       y=axY+axH+FS(H,0.045,15,20);
       var rows=[
         ['옥타브밴드 범위 = fc/√2 ~ fc×√2', lo.toFixed(1)+' ~ '+hi.toFixed(1)+' Hz', BLU],
@@ -240,12 +240,12 @@
       var A=R;   // 근사: ᾱ(평균흡음률)가 작을 때 A=Sᾱ/(1−ᾱ)≈R
       var W1=Math.pow(10,Lp1u/10)/(D1+x);
       var Lw=10*lg(W1);
-      var fs=FS(H,0.023,10,13);
+      var fs=FS(H,0.023,12,15);
       var y=H*0.16;
-      T(ctx,'실내식: Lp=Lw+10log₁₀(Q/(4πr²)+4/R), Q=1(무지향 가정) — 두 지점 차로 R을 대수적으로 직접 해석',W*0.08,y,DIM,FS(H,0.02,9,12),'left');
-      y+=FS(H,0.032,11,15);
-      if(!stable){ T(ctx,'⚠ 현재 조합은 해가 불안정(비물리적) → 대표값(r₁10m·r₂20m·100dB·97.5dB)으로 계산',W*0.08,y,RED,FS(H,0.019,8,11),'left'); }
-      y+=FS(H,0.032,11,15);
+      T(ctx,'실내식: Lp=Lw+10log₁₀(Q/(4πr²)+4/R), Q=1(무지향 가정) — 두 지점 차로 R을 대수적으로 직접 해석',W*0.08,y,DIM,FS(H,0.02,11,14),'left');
+      y+=FS(H,0.032,13,15);
+      if(!stable){ T(ctx,'⚠ 현재 조합은 해가 불안정(비물리적) → 대표값(r₁10m·r₂20m·100dB·97.5dB)으로 계산',W*0.08,y,RED,FS(H,0.019,10,13),'left'); }
+      y+=FS(H,0.032,13,15);
       var rows=[
         ['① 직접음항 D₁=1/(4πr₁²), D₂=1/(4πr₂²)', D1.toExponential(3)+' , '+D2.toExponential(3), BLU],
         ['② 음압차 비 ratio=10^((Lp₁−Lp₂)/10)', ratio.toFixed(4), ORA],
@@ -273,26 +273,26 @@
       var exposed=s.Lp-eff;
       var fs=FS(H,0.027,12,15);
       var y=H*0.18;
-      T(ctx,'OSHA 계산법(기출 답안 흐름): 실효차음 = (NRR − 7) ÷ 2   →   노출음압 = Lp − 실효차음',W*0.08,y,DIM,FS(H,0.023,10,13),'left');
+      T(ctx,'OSHA 계산법(기출 답안 흐름): 실효차음 = (NRR − 7) ÷ 2   →   노출음압 = Lp − 실효차음',W*0.08,y,DIM,FS(H,0.023,12,15),'left');
       y+=FS(H,0.05,18,26);
       // 답안 파이프라인: Lp박스 -> [OSHA 50%보정]화살표 -> eff박스 -> [차감]화살표 -> exposed박스
       var bw=W*0.22, bh=FS(H,0.09,32,44), bx1=W*0.06, bx2=W*0.40, bx3=W*0.74, by=y;
       ctx.fillStyle='rgba(122,184,255,0.12)'; ctx.strokeStyle=BLU; RR(ctx,bx1,by,bw,bh,8); ctx.fill(); ctx.stroke();
       T(ctx,'NRR='+s.nrr+'dB',bx1+bw/2,by+bh*0.42,BLU,fs,'center','700');
-      T(ctx,'(포장 표기값)',bx1+bw/2,by+bh*0.75,DIM,FS(H,0.019,8,11),'center');
+      T(ctx,'(포장 표기값)',bx1+bw/2,by+bh*0.75,DIM,FS(H,0.019,10,13),'center');
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx1+bw+6,by+bh/2); ctx.lineTo(bx2-6,by+bh/2); ctx.stroke(); ctx.lineWidth=1;
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(bx2-6,by+bh/2); ctx.lineTo(bx2-14,by+bh/2-5); ctx.lineTo(bx2-14,by+bh/2+5); ctx.fill();
-      T(ctx,'−7, ÷2',(bx1+bw+bx2)/2,by-FS(H,0.014,5,9),ORA,FS(H,0.02,9,12),'center','600');
+      T(ctx,'−7, ÷2',(bx1+bw+bx2)/2,by-FS(H,0.014,7,11),ORA,FS(H,0.02,11,14),'center','600');
       ctx.fillStyle='rgba(255,178,122,0.14)'; ctx.strokeStyle=ORA; RR(ctx,bx2,by,bw,bh,8); ctx.fill(); ctx.stroke();
       T(ctx,eff.toFixed(1)+' dB',bx2+bw/2,by+bh*0.42,ORA,fs,'center','700');
-      T(ctx,'실효 차음효과',bx2+bw/2,by+bh*0.75,DIM,FS(H,0.019,8,11),'center');
+      T(ctx,'실효 차음효과',bx2+bw/2,by+bh*0.75,DIM,FS(H,0.019,10,13),'center');
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx2+bw+6,by+bh/2); ctx.lineTo(bx3-6,by+bh/2); ctx.stroke(); ctx.lineWidth=1;
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.moveTo(bx3-6,by+bh/2); ctx.lineTo(bx3-14,by+bh/2-5); ctx.lineTo(bx3-14,by+bh/2+5); ctx.fill();
-      T(ctx,'Lp−실효차음',(bx2+bw+bx3)/2,by-FS(H,0.014,5,9),GRN,FS(H,0.02,9,12),'center','600');
+      T(ctx,'Lp−실효차음',(bx2+bw+bx3)/2,by-FS(H,0.014,7,11),GRN,FS(H,0.02,11,14),'center','600');
       var ok=exposed<90;
       ctx.fillStyle=ok?'rgba(143,227,181,0.16)':'rgba(240,136,138,0.16)'; ctx.strokeStyle=ok?GRN:RED; RR(ctx,bx3,by,bw,bh,8); ctx.fill(); ctx.stroke();
       T(ctx,exposed.toFixed(1)+' dB(A)',bx3+bw/2,by+bh*0.42,ok?GRN:RED,fs,'center','700');
-      T(ctx,'실제 노출음압',bx3+bw/2,by+bh*0.75,DIM,FS(H,0.019,8,11),'center');
+      T(ctx,'실제 노출음압',bx3+bw/2,by+bh*0.75,DIM,FS(H,0.019,10,13),'center');
       y=by+bh+FS(H,0.07,24,32);
       var rows=[
         ['1단계) 실효 차음 = (NRR−7)÷2 = ('+s.nrr+'−7)÷2', eff.toFixed(1)+' dB', BLU],

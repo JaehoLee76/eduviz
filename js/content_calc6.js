@@ -90,7 +90,7 @@
       var trackY=E.H*0.12, x0=E.W*0.12, x1=E.W*0.55, far=area(v,0,8);
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x0,trackY); ctx.lineTo(x1,trackY); ctx.stroke();
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(x0+(dist/far)*(x1-x0),trackY,8,0,7); ctx.fill();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('s = '+dist.toFixed(2), x0+(dist/far)*(x1-x0)-10, trackY-12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('s = '+dist.toFixed(2), x0+(dist/far)*(x1-x0)-10, trackY-12);
       E.big('이동거리 = ∫₀^'+t.toFixed(2)+' v dt = '+dist.toFixed(2), '속도곡선 아래 넓이가 곧 달린 거리입니다 (속도×시간의 합)'); }
   },
 

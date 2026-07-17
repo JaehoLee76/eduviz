@@ -8,7 +8,7 @@
   function RB(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
   function DOT(ctx,x,y,r,c){ ctx.save(); ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fill(); ctx.restore(); }
   function fnum(v){ if(v>=1000) return Math.round(v).toLocaleString('en-US'); if(v>=100) return String(Math.round(v)); if(v>=10) return v.toFixed(1); if(v>=1) return v.toFixed(2); return v.toFixed(3); }
-  function chip(ctx,x,y,txt,c){ ctx.save(); ctx.font='600 11.5px Pretendard,"Malgun Gothic",sans-serif'; var w=ctx.measureText(txt).width+18, h=20;
+  function chip(ctx,x,y,txt,c){ ctx.save(); ctx.font='600 13.5px Pretendard,"Malgun Gothic",sans-serif'; var w=ctx.measureText(txt).width+18, h=20;
     ctx.globalAlpha=0.16; ctx.fillStyle=c; RB(ctx,x,y,w,h,10); ctx.fill(); ctx.globalAlpha=1; ctx.strokeStyle=c; ctx.lineWidth=1; RB(ctx,x,y,w,h,10); ctx.stroke();
     ctx.fillStyle=c; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(txt,x+9,y+h/2+0.5); ctx.restore(); return w; }
   function navbar(E,names,step){ var ctx=E.ctx, W=E.W, H=E.H, n=names.length, cw=(W*0.90)/n;

@@ -262,12 +262,12 @@
       // 힙 블록(원소 저장소) 그리기 헬퍼
       function heapBlock(x,y,col,label){
         ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=col; ctx.lineWidth=1.4; roundRect(ctx,x,y,150,44,7); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+75, y+16);
-        ctx.fillStyle=DIM; ctx.font='10px ui-monospace,monospace'; ctx.fillText('[ 5 | 2 | 8 | … | 9 ]', x+75, y+34); }
+        ctx.fillStyle=col; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+75, y+16);
+        ctx.fillStyle=DIM; ctx.font='12px ui-monospace,monospace'; ctx.fillText('[ 5 | 2 | 8 | … | 9 ]', x+75, y+34); }
       function handle(x,y,name,col,ptr){
         ctx.fillStyle='rgba(90,180,232,0.10)'; ctx.strokeStyle=col; ctx.lineWidth=1.2; roundRect(ctx,x,y,64,40,6); ctx.fill(); ctx.stroke();
         ctx.fillStyle=col; ctx.font='600 13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(name, x+32, y+16);
-        ctx.fillStyle=DIM; ctx.font='9.5px sans-serif'; ctx.fillText(ptr, x+32, y+32); }
+        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(ptr, x+32, y+32); }
 
       if(s.step===0){
         ctx.fillStyle=CPB; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('복사: 힙 데이터를 통째로 새로 복제', tx, ty);
@@ -280,7 +280,7 @@
         ctx.strokeStyle=GRN; ctx.beginPath(); ctx.moveTo(tx+64,ty+110); ctx.lineTo(tx+120,ty+110); ctx.stroke();
         // 복제 화살표
         ctx.strokeStyle=RED; ctx.lineWidth=2; ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(tx+195,ty+66); ctx.lineTo(tx+195,ty+88); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('100만 회 복사', tx+205, ty+80);
+        ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('100만 회 복사', tx+205, ty+80);
         ctx.fillStyle=RED; ctx.font='700 16px sans-serif'; ctx.fillText('비용 ∝ N = 1,000,000 (느림)', tx, ty+160);
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('a는 원본 유지, b는 완전히 독립된 사본 — 안전하지만 값비쌈.', tx, ty+184);
       } else {
@@ -292,14 +292,14 @@
         ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(tx+64,ty+110); ctx.lineTo(tx+140,ty+78); ctx.stroke();
         // a→heap 끊긴 선
         ctx.strokeStyle=RED; ctx.lineWidth=1.4; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(tx+64,ty+44); ctx.lineTo(tx+100,ty+62); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('✕ 끊김', tx+70, ty+40);
+        ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('✕ 끊김', tx+70, ty+40);
         ctx.fillStyle=GRN; ctx.font='700 16px sans-serif'; ctx.fillText('비용 = O(1) — 포인터 몇 개만 교환', tx, ty+150);
         ctx.fillStyle=DIM; ctx.font='12px sans-serif';
         ctx.fillText('std::move(a)는 a를 우측값(rvalue&&)으로 만들어 “자원을 훔쳐도 좋다”고 표시.', tx, ty+174);
         ctx.fillText('a는 빈 껍데기가 되지만, 곧 버릴 임시값이면 손해가 없습니다.', tx, ty+194);
         // 속도 대비 막대
         var by=ty+210;
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('복사', tx, by+10); ctx.fillStyle=RED; ctx.fillRect(tx+40, by, W*0.34, 12);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('복사', tx, by+10); ctx.fillStyle=RED; ctx.fillRect(tx+40, by, W*0.34, 12);
         ctx.fillStyle=DIM; ctx.fillText('이동', tx, by+30); ctx.fillStyle=GRN; ctx.fillRect(tx+40, by+20, 8, 12);
         ctx.fillStyle=DIM; ctx.fillText('← 이동은 N에 무관, 거의 즉시', tx+56, by+30);
       }
@@ -404,11 +404,11 @@
         ctx.strokeStyle=col; ctx.lineWidth=1.4; roundRect(ctx,tx,y,W*0.40,40,7); ctx.fill(); ctx.stroke();
         ctx.fillStyle=col; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
         ctx.fillText(label, tx+12, y+16);
-        ctx.fillStyle='#dfeaf2'; ctx.font='11.5px ui-monospace,Menlo,monospace';
+        ctx.fillStyle='#dfeaf2'; ctx.font='13.5px ui-monospace,Menlo,monospace';
         ctx.fillText(srcTxt, tx+12, y+32);
         ctx.fillStyle=col; ctx.font='700 13px sans-serif'; ctx.textAlign='right';
         ctx.fillText(ok?'바인딩 ✔':'바인딩 ✕', tx+W*0.40-12, y+24); ctx.textAlign='left';
-        if(note){ ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(note, tx+W*0.40+8, y+24); }
+        if(note){ ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(note, tx+W*0.40+8, y+24); }
       }
       if(s.step===0){
         bindRow(ty+18, '좌값 전달  f(w)',     'Widget w;  f(w);',      false, 'w는 이름 있는 좌값');
@@ -436,7 +436,7 @@
           ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(tx,ry,W*0.40,rh);
           ctx.fillStyle=col; ctx.font='600 12px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
           ctx.fillText(rows[i][0], tx+10, ry+rh/2+4);
-          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(rows[i][1], tx+W*0.13, ry+rh/2+4);
+          ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(rows[i][1], tx+W*0.13, ry+rh/2+4);
           ctx.fillStyle=col; ctx.font='700 12px sans-serif'; ctx.textAlign='right';
           ctx.fillText(rows[i][3], tx+W*0.40-10, ry+rh/2+4); ctx.textAlign='left';
         }
@@ -444,7 +444,7 @@
         ctx.fillText('핵심: 형태가 T&&여도 “타입 추론 맥락”일 때만 보편 참조입니다.', tx, ry0+rows.length*rh+18);
       }
       var px=W*0.05, py=Math.max(codeBot+16, H*0.86);
-      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('보편 참조는 완벽 전달의 토대 — 인자의 좌·우값 성질을 그대로 이어받습니다.', px, py);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 구체 && → 템플릿 T&& → 판정 규칙', true);
@@ -501,7 +501,7 @@
       ctx.beginPath(); ctx.moveTo(x0+bw,sy+23); ctx.lineTo(x1,sy+23); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x1+bw,sy+23); ctx.lineTo(x2,sy+23); ctx.stroke();
       // forward 라벨
-      ctx.fillStyle=(s.step===1?GRN:RED); ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=(s.step===1?GRN:RED); ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText(s.step===1?'forward<T>':'그냥 x', (x1+bw+x2)/2, sy-4); ctx.textAlign='left';
 
       // 최종 선택 생성자 + 실제 비용
@@ -517,15 +517,15 @@
 
       // 비용 막대(실측 카테고리 기반)
       var by=yb+40, barMax=W*0.34;
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('복사', tx, by+10);
       ctx.fillStyle=RED; ctx.fillRect(tx+40, by, barMax, 12);
       ctx.fillStyle=DIM; ctx.fillText('이동', tx, by+30);
       ctx.fillStyle=GRN; ctx.fillRect(tx+40, by+20, 8, 12);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('← 이동은 N에 무관', tx+56, by+30);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('← 이동은 N에 무관', tx+56, by+30);
 
       var px=W*0.05, py=Math.max(codeBot+16, by+56);
-      if(py<botY-16){ ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      if(py<botY-16){ ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText(s.step===0? 'x는 이름이 있어 항상 좌값 — 우값을 넘겨도 sink는 복사만 합니다.'
                               : 'forward<T>가 T의 추론 결과로 x의 원래 값 카테고리를 되살립니다.', px, py); }
 
@@ -581,12 +581,12 @@
       var frameAlive = false; // make()는 반환 후 항상 소멸
       ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle=DIM; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
       roundRect(ctx,tx,fy,frameW,58,8); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('make() 스택 프레임 — 반환과 동시에 소멸 ✕', tx+10, fy+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('make() 스택 프레임 — 반환과 동시에 소멸 ✕', tx+10, fy+16);
       // local 셀
       var localCol = s.step===0? RED : (s.step===1? DIM : DIM);
       ctx.fillStyle= s.step===0? 'rgba(240,136,138,0.10)':'rgba(255,255,255,0.04)';
       ctx.strokeStyle=localCol; ctx.lineWidth=1.4; roundRect(ctx,tx+10,fy+26,W*0.13,24,6); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=localCol; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+      ctx.fillStyle=localCol; ctx.font='13.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
       ctx.fillText(s.step===2?'p (Big*)':'local=42', tx+10+W*0.065, fy+42); ctx.textAlign='left';
 
       // 람다 객체 (make 밖에서 산다)
@@ -599,7 +599,7 @@
       var boxTxt = s.step===0? '참조 → (죽은 local)' : s.step===1? '복사본 42 (자체 보유)' : '유일 소유 Big (이동됨)';
       ctx.fillStyle= s.step===0?'rgba(240,136,138,0.10)':'rgba(126,224,176,0.12)';
       ctx.strokeStyle=lamCol; ctx.lineWidth=1.4; roundRect(ctx,tx+10,ly+26,W*0.30,24,6); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=lamCol; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+      ctx.fillStyle=lamCol; ctx.font='13.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
       ctx.fillText(boxTxt, tx+10+W*0.15, ly+42); ctx.textAlign='left';
 
       // 참조 화살표 (step0: 람다 → 죽은 local, 빨강 끊김)
@@ -614,14 +614,14 @@
       var resY=ly+74;
       ctx.fillStyle= safe?GRN:RED; ctx.font='700 14px sans-serif'; ctx.textAlign='left';
       ctx.fillText(safe? 'f() 호출 → 안전 (값이 람다 안에 있음)' : 'f() 호출 → 미정의 동작(UB) — 죽은 변수 접근', tx, resY);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       var note = s.step===0? '[&]는 참조만 가둡니다. 원본이 먼저 죽으면 남은 참조는 허공을 가리킵니다.'
                : s.step===1? '[=]는 캡처 시점에 값을 복사 → 원본 수명과 무관하게 람다가 스스로 보관.'
                : '[p=std::move(p)]로 unique_ptr 소유권을 람다에 이전 → 복사 불가 자원도 안전 이송.';
       if(resY+20<botY) ctx.fillText(note, tx, resY+20);
 
       var px=W*0.05, py=Math.max(codeBot+16, H*0.87);
-      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('규칙: 람다가 만든 스코프보다 오래 살면 참조 캡처는 위험 → 값·이동 캡처로.', px, py);
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 참조 캡처(위험) → 값 캡처 → 이동 캡처', true);
@@ -668,7 +668,7 @@
                on?'rgba(126,224,176,0.14)':(cur?'rgba(90,180,232,0.20)':'rgba(255,255,255,0.03)'),
                on?GRN:(cur?CPB:'rgba(255,255,255,0.12)'), on?GRN:(cur?CPB:DIM), 12);
           // 인덱스
-          ctx.fillStyle=DIM; ctx.font='9px ui-monospace,monospace'; ctx.textAlign='center';
+          ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center';
           ctx.fillText(i, x0+i*cw+(cw-3)/2, cy-4); ctx.textAlign='left';
         }
         // 현재 채워지는 식
@@ -707,7 +707,7 @@
       }
 
       var px=W*0.05, py=Math.max(codeBot+16, H*0.88);
-      if(py<botY-14){ ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      if(py<botY-14){ ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText('constexpr 함수는 상수 문맥이면 컴파일 타임에, 아니면 런타임에 — 양쪽 모두 씁니다.', px, py); }
 
       E.tapHint(W/2, H*0.95, '화면 탭 = 룩업표 채우기 ↔ 배열 크기로 사용', true);

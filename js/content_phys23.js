@@ -32,7 +32,7 @@
       var wFace=R*Math.cos(th);
       ctx.strokeStyle=BLU; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-wFace, cy-R); ctx.lineTo(cx+wFace, cy+R); ctx.stroke();
       // 법선
-      var nx=Math.cos(th), ny=Math.sin(th); arrow(E,cx,cy,cx+nx*R*1.1,cy+ny*R*1.1,GRN,2); ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('법선', cx+nx*R*1.1+4, cy+ny*R*1.1);
+      var nx=Math.cos(th), ny=Math.sin(th); arrow(E,cx,cy,cx+nx*R*1.1,cy+ny*R*1.1,GRN,2); ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('법선', cx+nx*R*1.1+4, cy+ny*R*1.1);
       // 면을 뚫는 선 강조
       ctx.strokeStyle='rgba(143,227,181,0.7)'; for(var hy=cy-R*0.8; hy<cy+R*0.8; hy+=18){ arrow(E,cx-wFace-10,hy,cx+wFace+10,hy,'rgba(143,227,181,0.7)',1.6); }
       ctx.fillStyle='#dfeefb'; ctx.font='600 16px sans-serif'; ctx.textAlign='center';
@@ -58,7 +58,7 @@
       charge(E,cx,cy,14,s.Q);
       ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Q = +'+s.Q, cx, cy+26);
       ctx.fillStyle=ORA; ctx.fillText('가우스면 (반지름 r='+s.r.toFixed(1)+')', cx, cy-s.r*sc-8);
-      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('전기력선 '+nlines+'개 (∝ Q)', cx+sc*4*0.7, cy-sc*4*0.7);
+      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('전기력선 '+nlines+'개 (∝ Q)', cx+sc*4*0.7, cy-sc*4*0.7);
       ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('선속 Φ = Q/ε₀ — 면을 뚫는 선 수 = '+nlines+'개 (반지름 r 무관!)', W/2, H*0.84);
       E.tapHint(W/2, H*0.92, '반지름을 바꿔도 면을 뚫는 선속은 일정 — 갇힌 전하 Q에만 비례', true);
       E.big('가우스 법칙: Φ = Q/ε₀ — 갇힌 전하만이 선속을 정한다', '닫힌 면을 뚫는 선속은 안의 전하에만 비례.'); }
@@ -77,7 +77,7 @@
       // 구껍질
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(cx,cy,R*sc,0,7); ctx.stroke();
       ctx.fillStyle='rgba(255,138,107,0.10)'; ctx.beginPath(); ctx.arc(cx,cy,R*sc,0,7); ctx.fill();
-      ctx.fillStyle=POS; ctx.font='11px sans-serif'; ctx.textAlign='center'; for(var a=0;a<12;a++){ var th=a/12*6.28; ctx.fillText('+', cx+R*sc*Math.cos(th), cy+R*sc*Math.sin(th)+4); }
+      ctx.fillStyle=POS; ctx.font='13px sans-serif'; ctx.textAlign='center'; for(var a=0;a<12;a++){ var th=a/12*6.28; ctx.fillText('+', cx+R*sc*Math.cos(th), cy+R*sc*Math.sin(th)+4); }
       ctx.fillStyle=DIM; ctx.fillText('대전 구껍질 R=2', cx, cy+R*sc+22);
       // 가우스면(측정 r)
       ctx.strokeStyle=GRN; ctx.lineWidth=1.8; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.arc(cx,cy,s.r*sc,0,7); ctx.stroke(); ctx.setLineDash([]);
@@ -86,12 +86,12 @@
       // E(r) 곡선
       var gx0=W*0.60, gx1=W*0.94, gy0=H*0.78, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('E',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('E',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
       var Emax=k*Q/(R*R);
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath();
       for(var rr=0.1;rr<=5;rr+=0.05){ var e2=rr<R?0:k*Q/(rr*rr), x=gx0+(rr/5)*(gx1-gx0), y=gy0-Math.min(gh,e2/Emax*gh); if(rr<=0.1)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // R 경계선
-      var Rx=gx0+(R/5)*(gx1-gx0); ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(Rx,gy0); ctx.lineTo(Rx,gy0-gh); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('R', Rx, gy0+12);
+      var Rx=gx0+(R/5)*(gx1-gx0); ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(Rx,gy0); ctx.lineTo(Rx,gy0-gh); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('R', Rx, gy0+12);
       var mx=gx0+(s.r/5)*(gx1-gx0), my=gy0-Math.min(gh,Efield/Emax*gh); ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
       ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(s.r<R?'내부(r<R): E = 0 (갇힌 전하 0!)':'외부(r>R): E = kQ/r² = '+Efield.toFixed(1), W/2, H*0.88);
       E.tapHint(W/2, H*0.94, '구껍질 내부는 E=0, 외부는 점전하처럼 kQ/r² (가우스 대칭)', true);

@@ -72,7 +72,7 @@
         ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=on?'rgba(255,211,67,0.4)':'rgba(255,255,255,0.1)'; ctx.lineWidth=1.2;
         roundRect(ctx,rx,y,W*0.42,42,8); ctx.fill(); ctx.stroke();
         ctx.fillStyle=PYB; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(r.expr, rx+12, y+18);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(r.note, rx+12, y+34);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(r.note, rx+12, y+34);
         ctx.fillStyle=GRN; ctx.font='600 15px ui-monospace,Menlo,monospace'; ctx.textAlign='right'; ctx.fillText('→ '+r.out, rx+W*0.42-12, y+26);
         ctx.globalAlpha=1;
       }
@@ -174,7 +174,7 @@
       ctx.fillText('Point(1,2)            → repr: Point(1,2)', gx, dy);
       ctx.fillStyle=eqpq?GRN:RED; ctx.fillText('Point(1,2)==Point(1,2)  → '+(eqpq?'True':'False'), gx, dy+24);
       ctx.fillStyle=eqpr?GRN:RED; ctx.fillText('Point(1,2)==Point(3,4)  → '+(eqpr?'True':'False'), gx, dy+48);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('값이 같으면 == 가 True — 직접 안 짜도 동작합니다.', gx, dy+72);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('값이 같으면 == 가 True — 직접 안 짜도 동작합니다.', gx, dy+72);
 
       E.tapHint(W/2, H*0.93, '화면 탭 = 옛 class ↔ @dataclass 비교', true);
       E.big('데이터클래스 — 보일러플레이트를 지운다', '데이터를 담는 클래스마다 __init__·__repr__·__eq__를 손으로 적던 시절은 끝났습니다. @dataclass 한 줄과 ‘필드: 타입’ 몇 줄이면 파이썬이 그 메서드들을 자동으로 만들어 줍니다. 코드는 짧아지고, 빠뜨릴 실수도 사라지죠 — 짧은 코드가 곧 안전한 코드입니다.'); }
@@ -226,18 +226,18 @@
       ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('command를 바꾸면 어느 case가 잡힐까', gx, H*0.15);
       // 입력 카드
       ctx.fillStyle='rgba(108,182,232,0.12)'; ctx.strokeStyle=PYB; ctx.lineWidth=1.6; roundRect(ctx,gx,H*0.20,gw,46,9); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('입력 command', gx+14, H*0.20+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('입력 command', gx+14, H*0.20+16);
       ctx.fillStyle=PYB; ctx.font='600 18px ui-monospace,Menlo,monospace'; ctx.fillText(sel.label, gx+14, H*0.20+38);
       // 화살표
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(gx+gw*0.5,H*0.20+46); ctx.lineTo(gx+gw*0.5,H*0.20+72); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(gx+gw*0.5-5,H*0.20+66); ctx.lineTo(gx+gw*0.5,H*0.20+72); ctx.lineTo(gx+gw*0.5+5,H*0.20+66); ctx.fillStyle=GRN; ctx.fill();
       // 매칭된 case
       ctx.fillStyle='rgba(126,224,176,0.10)'; ctx.strokeStyle=GRN; ctx.lineWidth=1.6; roundRect(ctx,gx,H*0.20+78,gw,46,9); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('매칭된 case', gx+14, H*0.20+94);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('매칭된 case', gx+14, H*0.20+94);
       ctx.fillStyle=GRN; ctx.font='600 14px ui-monospace,Menlo,monospace'; ctx.fillText(code[sel.match].t.trim(), gx+14, H*0.20+114);
       // 결과
       ctx.fillStyle='rgba(255,211,67,0.10)'; ctx.strokeStyle=PYL; ctx.lineWidth=1.6; roundRect(ctx,gx,H*0.20+136,gw,46,9); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('반환값', gx+14, H*0.20+152);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('반환값', gx+14, H*0.20+152);
       ctx.fillStyle=PYL; ctx.font='600 16px sans-serif'; ctx.fillText('"'+sel.res+'"', gx+14, H*0.20+172);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('값만 비교하는 게 아니라 ‘모양(구조)’으로 분기 — _ 는 나머지 전부.', gx, H*0.88);

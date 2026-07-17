@@ -104,7 +104,7 @@
         ctx.fillStyle=cur?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=it.c; ctx.lineWidth=cur?2.4:1.3;
         roundRect(ctx,bx,y,bw,bh,8); ctx.fill(); ctx.stroke();
         ctx.fillStyle=it.c; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText(it.t, bx+12, y+19);
-        ctx.fillStyle='#e7ecda'; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.fillText(it.d, bx+12, y+36);
+        ctx.fillStyle='#e7ecda'; ctx.font='13.5px ui-monospace,Menlo,monospace'; ctx.fillText(it.d, bx+12, y+36);
         ctx.globalAlpha=1;
         // 단계 사이 화살표
         if(i<steps.length-1){ ctx.fillStyle=on?it.c:DIM; ctx.globalAlpha=(i<s.step)?1:0.3; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('▼', bx+bw/2, y+bh+9); ctx.globalAlpha=1; }
@@ -149,7 +149,7 @@
       var ox=W*0.58, oy=H*0.78, pw=W*0.36, pv=H*0.56;
       function SX(x){ return ox+x*pw; } function SY(yy){ return oy-(yy/5.2)*pv; }
       plotAxes(E,ox,oy,pw,pv);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('y', ox+4, oy-pv-4); ctx.textAlign='right'; ctx.fillText('x →', ox+pw, oy+16);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('y', ox+4, oy-pv-4); ctx.textAlign='right'; ctx.fillText('x →', ox+pw, oy+16);
       // 잔차(현재 직선 기준 실측)
       for(i=0;i<DATA.length;i++){ var yh=w*DATA[i][0]+b;
         ctx.strokeStyle='rgba(244,160,192,0.55)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(SX(DATA[i][0]),SY(DATA[i][1])); ctx.lineTo(SX(DATA[i][0]),SY(yh)); ctx.stroke();
@@ -206,7 +206,7 @@
       // 평균선(빨강 점선) — SS_tot 기준
       ctx.strokeStyle='rgba(240,136,138,0.55)'; ctx.lineWidth=1.6; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(SX(0),SY(ev.ybar)); ctx.lineTo(SX(1),SY(ev.ybar)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('평균 ȳ (R²=0 기준)', SX(0.02), SY(ev.ybar)-4);
+      ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('평균 ȳ (R²=0 기준)', SX(0.02), SY(ev.ybar)-4);
       // 회귀선
       ctx.strokeStyle=GLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(SX(0),SY(fit.b)); ctx.lineTo(SX(1),SY(fit.w+fit.b)); ctx.stroke();
       for(i=0;i<pts.length;i++){ ctx.fillStyle=PYB; ctx.beginPath(); ctx.arc(SX(pts[i][0]),SY(pts[i][1]),4.2,0,7); ctx.fill(); }
@@ -265,7 +265,7 @@
       for(var x=0;x<=1.0001;x+=0.005){ var y=polyval(co,x), py=SY(y); if(py<H*0.14)py=H*0.14; if(py>oy+4)py=oy+4; if(x===0)ctx.moveTo(SX(x),py); else ctx.lineTo(SX(x),py); } ctx.stroke();
       var i; for(i=0;i<TR.length;i++){ ctx.fillStyle=PYB; ctx.beginPath(); ctx.arc(SX(TR[i][0]),SY(TR[i][1]),4.2,0,7); ctx.fill(); }
       for(i=0;i<TE.length;i++){ ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(SX(TE[i][0]),SY(TE[i][1]),4.2,0,7); ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.4; ctx.stroke(); }
-      ctx.fillStyle=PYB; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('● 훈련', ox, oy-pv-4); ctx.fillStyle=PNK; ctx.fillText('◯ 검증(흰테)', ox+58, oy-pv-4);
+      ctx.fillStyle=PYB; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('● 훈련', ox, oy-pv-4); ctx.fillStyle=PNK; ctx.fillText('◯ 검증(흰테)', ox+58, oy-pv-4);
 
       // 오차 막대(실측)
       var bx=W*0.10, by=H*0.74, bw=W*0.07, scl=H*0.30/Math.max(0.4,Math.max(etr,ete));
@@ -317,7 +317,7 @@
       ctx.beginPath(); ctx.moveTo(SX(s.x),oy); ctx.lineTo(SX(s.x),SY(yh)); ctx.lineTo(SX(0),SY(yh)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(SX(s.x),SY(yh),7,0,7); ctx.fill();
       ctx.strokeStyle=GRN; ctx.lineWidth=1.6; ctx.beginPath(); ctx.arc(SX(s.x),SY(yh),11,0,7); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='center'; ctx.fillText('x='+s.x.toFixed(2), SX(s.x), oy+15);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='center'; ctx.fillText('x='+s.x.toFixed(2), SX(s.x), oy+15);
 
       // 패널: 예측 결과 크게
       var px=W*0.06, py=H*0.74;

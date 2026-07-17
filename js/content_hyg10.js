@@ -10,9 +10,9 @@
     var x=W*0.07, y=H*0.305, w=W*0.86, h=H*0.082;
     card(ctx,x,y,w,h,AMB,'rgba(242,189,85,0.08)');
     ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillStyle=AMB; ctx.font='700 '+FS(H,0.022,10,13)+'px sans-serif';
+    ctx.fillStyle=AMB; ctx.font='700 '+FS(H,0.022,12,15)+'px sans-serif';
     ctx.fillText('면접위원', x+w*0.025, y+h*0.40);
-    ctx.fillStyle=TXT; ctx.font='600 '+FS(H,0.023,10,14)+'px sans-serif';
+    ctx.fillStyle=TXT; ctx.font='600 '+FS(H,0.023,12,14)+'px sans-serif';
     ctx.fillText(text, x+w*0.025, y+h*0.78); }
 
   var scenes=[
@@ -24,20 +24,20 @@
     draw:function(E){ var s=this.s, st=s.step, ctx=E.ctx, W=E.W, H=E.H;
       ctx.textBaseline='alphabetic';
       // ─ 면접장: 위원 3~5명 + 수험자 (항상 표시)
-      var pr=FS(H,0.020,7,12), py=H*0.355;
+      var pr=FS(H,0.020,9,14), py=H*0.355;
       for(var i=0;i<5;i++){ var px=W*0.13+i*W*0.085;
         ctx.fillStyle='rgba(122,184,255,0.75)'; ctx.beginPath(); ctx.arc(px,py,pr,0,6.29); ctx.fill();
         ctx.fillStyle='rgba(122,184,255,0.30)'; ctx.beginPath(); ctx.arc(px,py+pr*2.1,pr*1.35,Math.PI,0); ctx.fill(); }
-      ctx.fillStyle=BLU; ctx.font='600 '+FS(H,0.020,9,12)+'px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=BLU; ctx.font='600 '+FS(H,0.020,11,14)+'px sans-serif'; ctx.textAlign='center';
       ctx.fillText('면접위원 3~5명', W*0.30, py+pr*4.4);
       var cy=H*0.485;
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(W*0.30,cy,pr*1.1,0,6.29); ctx.fill();
       ctx.fillStyle='rgba(255,178,122,0.32)'; ctx.beginPath(); ctx.arc(W*0.30,cy+pr*2.2,pr*1.5,Math.PI,0); ctx.fill();
-      ctx.fillStyle=ORA; ctx.font='600 '+FS(H,0.020,9,12)+'px sans-serif';
+      ctx.fillStyle=ORA; ctx.font='600 '+FS(H,0.020,11,14)+'px sans-serif';
       ctx.fillText('수험자 · 구술 약 30분 · 60점 합격', W*0.30, cy+pr*4.6);
       // ─ 합격률 대비 막대(값→너비 계산)
       var rates=[ {t:'필기 합격률', lo:15, hi:20, c:RED}, {t:'면접 합격률', lo:60, hi:70, c:GRN} ];
-      var lx=W*0.58, tw=W*0.35, bh=H*0.030, lbF=FS(H,0.019,8,11);
+      var lx=W*0.58, tw=W*0.35, bh=H*0.030, lbF=FS(H,0.019,10,13);
       for(var r=0;r<rates.length;r++){ var R=rates[r], by=H*0.355+r*H*0.085;
         ctx.fillStyle=DIM; ctx.font=lbF+'px sans-serif'; ctx.textAlign='left';
         ctx.fillText(R.t+' 약 '+R.lo+'~'+R.hi+'%', lx, by-bh*0.45);
@@ -52,7 +52,7 @@
         {c:AMB, t:'의사소통',  l1:'두괄식·경청·간결함',      l2:'지적에 대한 수용 태도',  bad:'감점: 장황함·방어적 반박'}
       ];
       var gap=W*0.02, cw=(W*0.90-2*gap)/3, chh=H*0.185, cy2=H*0.575;
-      var tF=FS(H,0.023,10,14), bF=FS(H,0.018,8,11);
+      var tF=FS(H,0.023,12,14), bF=FS(H,0.018,10,13);
       for(var a=0;a<axes.length;a++){ if(st<a+1) continue; var A=axes[a], ax=W*0.05+a*(cw+gap);
         card(ctx,ax,cy2,cw,chh,A.c);
         ctx.textAlign='center';
@@ -65,9 +65,9 @@
       // ─ 마지막: 정직+접근법 원칙 배너
       if(st>=4){ var bnY=H*0.805, bnH=H*0.085;
         card(ctx,W*0.10,bnY,W*0.80,bnH,ORA,'rgba(255,178,122,0.10)');
-        ctx.textAlign='center'; ctx.fillStyle=ORA; ctx.font='700 '+FS(H,0.023,10,14)+'px sans-serif';
+        ctx.textAlign='center'; ctx.fillStyle=ORA; ctx.font='700 '+FS(H,0.023,12,14)+'px sans-serif';
         ctx.fillText('"정확한 수치는 기억나지 않습니다. 다만 이런 원리로 접근하겠습니다"', W/2, bnY+bnH*0.42);
-        ctx.fillStyle=TXT; ctx.font=FS(H,0.019,9,12)+'px sans-serif';
+        ctx.fillStyle=TXT; ctx.font=FS(H,0.019,11,14)+'px sans-serif';
         ctx.fillText('정직한 인정 + 접근법 제시 — 아는 척보다 훨씬 높은 점수를 받습니다', W/2, bnY+bnH*0.80); }
       E.tapHint(0,0,'다음 축',true);
       var big=['면접위원 3~5명 앞, 약 30분의 구술','첫째 축 — 전문지식의 정확성','둘째 축 — 실무 판단력','셋째 축 — 의사소통과 태도','모르면, 모른다고 말하세요'][st];
@@ -86,7 +86,7 @@
     draw:function(E){ var s=this.s, st=s.step, ctx=E.ctx, W=E.W, H=E.H;
       ctx.textBaseline='alphabetic';
       qCard(E,'Q. TWA와 STEL의 차이를 설명해 보시오.');
-      var hF=FS(H,0.021,9,13), tF=FS(H,0.020,9,12), dF=FS(H,0.017,8,11);
+      var hF=FS(H,0.021,11,15), tF=FS(H,0.020,11,14), dF=FS(H,0.017,10,13);
       // ─ 왼쪽: 나쁜 답변(미괄식) — 결론이 맨 끝
       var lxx=W*0.05, lw=W*0.42, by0=H*0.455, bh=H*0.062, bg=H*0.012;
       ctx.textAlign='left'; ctx.fillStyle=RED; ctx.font='700 '+hF+'px sans-serif';
@@ -128,16 +128,16 @@
         for(var L=0; L<2; L++){ var ln=lines[L];
           ctx.strokeStyle=ln.c; ctx.setLineDash([5,4]); ctx.lineWidth=1.4;
           ctx.beginPath(); ctx.moveTo(sx0,CY(ln.v)); ctx.lineTo(sx1,CY(ln.v)); ctx.stroke(); ctx.setLineDash([]);
-          ctx.fillStyle=ln.c; ctx.font=FS(H,0.016,8,10)+'px sans-serif'; ctx.textAlign='left';
+          ctx.fillStyle=ln.c; ctx.font=FS(H,0.016,10,12)+'px sans-serif'; ctx.textAlign='left';
           ctx.fillText(ln.t, sx0+4, CY(ln.v)-3); }
-        ctx.fillStyle=DIM; ctx.font=FS(H,0.016,8,10)+'px sans-serif'; ctx.textAlign='center';
-        ctx.fillText('0시간', TX(0), yb+FS(H,0.022,10,13)); ctx.fillText('8시간', TX(8), yb+FS(H,0.022,10,13));
+        ctx.fillStyle=DIM; ctx.font=FS(H,0.016,10,12)+'px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('0시간', TX(0), yb+FS(H,0.022,12,15)); ctx.fillText('8시간', TX(8), yb+FS(H,0.022,12,15));
         ctx.textAlign='left';
         ctx.fillStyle=GRN; ctx.font='600 '+dF+'px sans-serif';
         ctx.fillText('TWA '+twa.toFixed(1)+' ppm ≤ '+tlv+' → 적합', W*0.65, H*0.845);
         ctx.fillStyle=RED;
         ctx.fillText('15분 '+spike+' ppm > STEL '+stel+' → 초과', W*0.65, H*0.895);
-        ctx.fillStyle=DIM; ctx.font=FS(H,0.016,8,10)+'px sans-serif';
+        ctx.fillStyle=DIM; ctx.font=FS(H,0.016,10,12)+'px sans-serif';
         ctx.fillText('같은 하루를 두 기준이 다르게 봅니다', W*0.65, H*0.938); }
       E.tapHint(0,0,'답변 조각',true);
       var big=['질문이 나왔습니다 — 어디서부터 답할까요','① 결론부터 — 두괄식','② 정의와 원리 — 뼈대를 세웁니다','③ 실무 예시 — 경험을 한 스푼','④ 한 줄 마무리 — 답변을 접어 닫습니다'][st];
@@ -166,7 +166,7 @@
         {k:'R', c:GRN, t:'결과 — 수치로', l1:'재측정 '+c1+' → 노출지수 '+ei1.toFixed(1), l2:'농도 '+red+'% 저감 · 유소견자 0명'}
       ];
       var lxx=W*0.05, lw=W*0.52, ry0=H*0.435, rh=H*0.100, rg=H*0.014;
-      var kF=FS(H,0.032,13,20), tF=FS(H,0.020,9,12), dF=FS(H,0.017,8,11);
+      var kF=FS(H,0.032,13,20), tF=FS(H,0.020,11,14), dF=FS(H,0.017,10,13);
       for(var i=0;i<4;i++){ var R=rows[i], ry=ry0+i*(rh+rg), on=(st>=i+1);
         card(ctx,lxx,ry,lw,rh, on?R.c:'rgba(155,153,163,0.35)', on?undefined:'rgba(155,153,163,0.05)');
         ctx.textAlign='left';
@@ -188,7 +188,7 @@
       ctx.fillStyle='rgba(223,238,251,0.10)'; rr(ctx,gx,gy1,gw,gh,4); ctx.fill(); rr(ctx,gx,gy2,gw,gh,4); ctx.fill();
       ctx.strokeStyle=RED; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(XU(1),gy1-H*0.02); ctx.lineTo(XU(1),gy2+gh+H*0.02); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=RED; ctx.font=FS(H,0.016,8,10)+'px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=RED; ctx.font=FS(H,0.016,10,12)+'px sans-serif'; ctx.textAlign='center';
       ctx.fillText('1.0 초과선', XU(1), gy1-H*0.032);
       if(st>=2){ ctx.strokeStyle=AMB; ctx.setLineDash([3,4]); ctx.lineWidth=1.3;
         ctx.beginPath(); ctx.moveTo(XU(0.5),gy1-H*0.012); ctx.lineTo(XU(0.5),gy2+gh+H*0.012); ctx.stroke(); ctx.setLineDash([]);
@@ -200,9 +200,9 @@
       if(st>=4){ ctx.fillStyle=GRN; rr(ctx,gx,gy2,XU(ei1)-gx,gh,4); ctx.fill();
         ctx.fillStyle=GRN; ctx.font='600 '+dF+'px sans-serif';
         ctx.fillText('개선 후 EI '+ei1.toFixed(2), gx, gy2-H*0.012);
-        ctx.fillStyle=GRN; ctx.font='700 '+FS(H,0.024,11,15)+'px sans-serif';
+        ctx.fillStyle=GRN; ctx.font='700 '+FS(H,0.024,13,15)+'px sans-serif';
         ctx.fillText('농도 저감률 '+red+'%', gx, H*0.745);
-        ctx.fillStyle=DIM; ctx.font=FS(H,0.017,8,11)+'px sans-serif';
+        ctx.fillStyle=DIM; ctx.font=FS(H,0.017,10,13)+'px sans-serif';
         ctx.fillText('수치로 닫는 경험담이 진짜 경력입니다', gx, H*0.785); }
       E.tapHint(0,0,'STAR 조각',true);
       var big=['경험 질문 — 위원이 가장 기다리는 순간','S 상황 — 숫자로 그립니다','T 과제 — 목표를 분명히','A 행동 — 주어는 "제가"','R 결과 — 정량으로 닫습니다'][st];
@@ -228,7 +228,7 @@
         {c:ORA, t:'④ 결론', l1:'기준은 관리의 출발점', l2:'증상 호소 = 우선 조사 신호'}
       ];
       var lxx=W*0.05, lw=W*0.50, ry0=H*0.435, rh=H*0.100, rg=H*0.014;
-      var tF=FS(H,0.020,9,12), dF=FS(H,0.017,8,11);
+      var tF=FS(H,0.020,11,14), dF=FS(H,0.017,10,13);
       for(var i=0;i<4;i++){ var R=rows[i], ry=ry0+i*(rh+rg), on=(st>=i+1);
         card(ctx,lxx,ry,lw,rh, on?R.c:'rgba(155,153,163,0.35)', on?undefined:'rgba(155,153,163,0.05)');
         ctx.textAlign='left';
@@ -274,9 +274,9 @@
           ctx.fillText(it.v.toFixed(2)+(k2===2?(ei>1?' > 1 → 초과':' ≤ 1 적합'):' (적합)'), gx+gw+W*0.012, gy+gh*0.75); }
         ctx.strokeStyle=RED; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.moveTo(XU(1),H*0.485); ctx.lineTo(XU(1),H*0.50+2*H*0.095+gh+H*0.012); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=RED; ctx.font=FS(H,0.016,8,10)+'px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=RED; ctx.font=FS(H,0.016,10,12)+'px sans-serif'; ctx.textAlign='center';
         ctx.fillText('1.0', XU(1), H*0.50+2*H*0.095+gh+H*0.042);
-        ctx.fillStyle=DIM; ctx.font=FS(H,0.017,8,11)+'px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle=DIM; ctx.font=FS(H,0.017,10,13)+'px sans-serif'; ctx.textAlign='left';
         ctx.fillText('EI = C₁/T₁ + C₂/T₂ = '+rA.toFixed(2)+' + '+rB.toFixed(2)+' = '+ei.toFixed(2), gx, H*0.80);
         ctx.fillText('물질별 "적합"이 곧 안전은 아닙니다', gx, H*0.845); }
       E.tapHint(0,0,'판단 조각',true);
@@ -295,7 +295,7 @@
     tap:function(E){ this.s.step=(this.s.step+1)%5; },
     draw:function(E){ var s=this.s, st=s.step, ctx=E.ctx, W=E.W, H=E.H;
       ctx.textBaseline='alphabetic';
-      var tF=FS(H,0.021,9,13), dF=FS(H,0.017,8,11), sF=FS(H,0.015,7,10);
+      var tF=FS(H,0.021,11,15), dF=FS(H,0.017,10,13), sF=FS(H,0.015,9,12);
       // ─ 왼쪽: D-day 체크리스트(회고가 진행될수록 체크가 채워짐 — 체크 수 = 단계)
       var lxx=W*0.05, lw=W*0.38, ly0=H*0.335;
       ctx.textAlign='left'; ctx.fillStyle=AMB; ctx.font='700 '+tF+'px sans-serif';
@@ -306,7 +306,7 @@
         {t:'본인 사례 3개 — STAR',  d:'수치로 요약해 소리 내기'},
         {t:'모의 구술 30분',        d:'두괄식 · 경청 · 정직 점검'}
       ];
-      var ih=H*0.105, ig=H*0.018, bx=FS(H,0.020,9,13);
+      var ih=H*0.105, ig=H*0.018, bx=FS(H,0.020,11,15);
       for(var i=0;i<4;i++){ var it=items[i], iy=ly0+H*0.035+i*(ih+ig), done=(i<st);
         card(ctx,lxx,iy,lw,ih, done?GRN:'rgba(155,153,163,0.4)', done?'rgba(143,227,181,0.06)':undefined);
         ctx.strokeStyle=done?GRN:DIM; ctx.lineWidth=1.6;
@@ -331,7 +331,7 @@
       ctx.strokeStyle='rgba(223,238,251,0.25)'; ctx.lineWidth=1.6;
       ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
       for(var p2=1;p2<10;p2++) ctx.lineTo(pts[p2].x,pts[p2].y); ctx.stroke();
-      var nr=FS(H,0.013,5,9);
+      var nr=FS(H,0.013,7,11);
       for(var m=0;m<10;m++){ var P=pts[m], on=lit(m);
         ctx.fillStyle=on?cols[m]:'rgba(155,153,163,0.4)';
         ctx.beginPath(); ctx.arc(P.x,P.y,nr,0,6.29); ctx.fill();
@@ -344,7 +344,7 @@
         ctx.fillStyle=ORA; ctx.beginPath();
         ctx.moveTo(FP.x,FP.y-nr-H*0.055); ctx.lineTo(FP.x+W*0.028,FP.y-nr-H*0.042); ctx.lineTo(FP.x,FP.y-nr-H*0.029);
         ctx.closePath(); ctx.fill();
-        ctx.textAlign='center'; ctx.fillStyle=ORA; ctx.font='700 '+FS(H,0.024,11,15)+'px sans-serif';
+        ctx.textAlign='center'; ctx.fillStyle=ORA; ctx.font='700 '+FS(H,0.024,13,15)+'px sans-serif';
         ctx.fillText('완주를 축하합니다 — 이제 당신의 경험이 답입니다', W*0.66, H*0.935); }
       E.tapHint(0,0,'다음 걸음',true);
       var big=['D-day 전날 — 마지막 점검','알다 — 유해인자와 만나다 (1~4장)','다루다 — 관리와 독성 (5~7장)','쓰다 — 제도와 답안 (8~9장)','말하다 — 면접, 그리고 완주'][st];

@@ -16,8 +16,8 @@
   function RR(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
   /* 라벨(위)+값(아래) 2줄 카드를 누적커서로 쌓는다(hyg18~21 ROW 그대로 이식). 반환값=소비한 세로높이. */
   function ROW(ctx,W,H,x,y,w,rows){
-    var labelFs=FS(H,0.021,9,12), valueFs=FS(H,0.026,11,14);
-    var gap=FS(H,0.008,2,4), rowGap=FS(H,0.009,3,5);
+    var labelFs=FS(H,0.021,11,14), valueFs=FS(H,0.026,13,14);
+    var gap=FS(H,0.008,4,6), rowGap=FS(H,0.009,5,7);
     var blockH=labelFs+gap+valueFs, cy=y;
     for(var i=0;i<rows.length;i++){
       ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x-8,cy-3,w,blockH+6,7); ctx.fill();
@@ -172,18 +172,18 @@
       var corrected=DE>0? fieldMeasured/(DE/100) : NaN;
       var deOk=DE>=75 && DE<=125;
       var y=H*0.10;
-      T(ctx,'활성탄관 등에 알려진 양(첨가량)을 스파이크한 뒤 탈착·분석해 회수율(DE)을 구합니다',W*0.05,y,DIM,FS(H,0.02,9,11),'left');
+      T(ctx,'활성탄관 등에 알려진 양(첨가량)을 스파이크한 뒤 탈착·분석해 회수율(DE)을 구합니다',W*0.05,y,DIM,FS(H,0.02,11,13),'left');
       y+=FS(H,0.04,12,17);
 
       var barX=W*0.06, barMaxW=W*0.55, barH=FS(H,0.045,14,20), maxV=Math.max(spike,desorbed,1);
       var by1=y;
       ctx.fillStyle='rgba(122,184,255,0.16)'; ctx.fillRect(barX,by1,barMaxW*(spike/maxV),barH);
       ctx.strokeStyle=BLU; ctx.strokeRect(barX,by1,barMaxW,barH);
-      T(ctx,'첨가량 '+spike+'㎍',barX+6,by1+barH*0.68,TXT,FS(H,0.02,9,11),'left','600');
-      var by2=by1+barH+FS(H,0.014,4,7);
+      T(ctx,'첨가량 '+spike+'㎍',barX+6,by1+barH*0.68,TXT,FS(H,0.02,11,13),'left','600');
+      var by2=by1+barH+FS(H,0.014,6,9);
       ctx.fillStyle='rgba(255,178,122,0.22)'; ctx.fillRect(barX,by2,barMaxW*(desorbed/maxV),barH);
       ctx.strokeStyle=ORA; ctx.strokeRect(barX,by2,barMaxW,barH);
-      T(ctx,'탈착(분석)량 '+desorbed+'㎍',barX+6,by2+barH*0.68,TXT,FS(H,0.02,9,11),'left','600');
+      T(ctx,'탈착(분석)량 '+desorbed+'㎍',barX+6,by2+barH*0.68,TXT,FS(H,0.02,11,13),'left','600');
       y=by2+barH+FS(H,0.05,14,20);
 
       var rows=[
@@ -194,7 +194,7 @@
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
       y+=rowsH+FS(H,0.035,14,20);
       T(ctx,'RE(회수율)는 여과지 매체에 동일한 방식(회수량÷첨가량×100)을 적용한 이름만 다른 개념입니다. 실험은 보통 저·중·고 3개 농도수준에서 반복 측정해 평균 DE를 구합니다.',
-        W*0.06,y,DIM,FS(H,0.02,9,11),'left');
+        W*0.06,y,DIM,FS(H,0.02,11,13),'left');
 
       E.tapHint(0,0,'슬라이더로 첨가량·탈착량 조절',true);
       E.big('DE '+DE.toFixed(1)+'% → 보정농도 '+(isFinite(corrected)?corrected.toFixed(2):'—')+'㎍',
@@ -280,7 +280,7 @@
       if(CV<10){ precGrade='우수'; precColor=GRN; } else if(CV<20){ precGrade='양호(관리 필요)'; precColor=AMB; } else { precGrade='불량(재실험 권장)'; precColor=RED; }
       var y=H*0.10;
       T(ctx,'바탕시료(blank)를 여러 번 반복측정한 표준편차(σ)로부터 LOD·LOQ를 산출하고, 반복측정 평균값으로 정밀도·정확도를 함께 평가합니다',
-        W*0.05,y,DIM,FS(H,0.02,9,11),'left');
+        W*0.05,y,DIM,FS(H,0.02,11,13),'left');
       y+=FS(H,0.045,13,18);
 
       var rows=[
@@ -293,7 +293,7 @@
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
       y+=rowsH+FS(H,0.035,14,20);
       T(ctx,'LOD 미만은 "검출 안 됨", LOD~LOQ 사이는 "검출은 되나 정량 신뢰 불가", LOQ 이상만 정량값으로 보고합니다.',
-        W*0.06,y,DIM,FS(H,0.02,9,11),'left');
+        W*0.06,y,DIM,FS(H,0.02,11,13),'left');
 
       E.tapHint(0,0,'슬라이더로 σ·평균값 조절',true);
       E.big('LOD '+LOD.toFixed(2)+' / LOQ '+LOQ10.toFixed(2)+' → 정밀도 '+precGrade,
@@ -324,8 +324,8 @@
       var over=TWA>OEL;
       var gg=calcGMGSD(GSAMPLES);
       var y=H*0.09;
-      T(ctx,'TWA=Σ(Ci·Ti)÷8 (8시간 시간가중평균), 구간③(휴게 등)은 자동으로 나머지 시간·0ppm으로 배분됩니다',W*0.05,y,DIM,FS(H,0.02,9,11),'left');
-      y+=FS(H,0.038,11,15);
+      T(ctx,'TWA=Σ(Ci·Ti)÷8 (8시간 시간가중평균), 구간③(휴게 등)은 자동으로 나머지 시간·0ppm으로 배분됩니다',W*0.05,y,DIM,FS(H,0.02,11,13),'left');
+      y+=FS(H,0.038,13,15);
 
       var rows=[
         ['구간합 Σ(Ci·Ti) = C1T1+C2T2+C3T3', C1+'×'+T1+' + '+C2+'×'+T2+' + 0×'+T3.toFixed(1)+' = '+sumCT.toFixed(0), BLU],
@@ -337,7 +337,7 @@
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
       y+=rowsH+FS(H,0.035,14,20);
       T(ctx,'작업장 유해물질 농도는 대체로 대수정규분포를 따르므로, 대표값은 산술평균이 아닌 기하평균(GM)·산포는 기하표준편차(GSD)로 나타냅니다.',
-        W*0.06,y,DIM,FS(H,0.019,9,10.5),'left');
+        W*0.06,y,DIM,FS(H,0.019,11,12.5),'left');
 
       E.tapHint(0,0,'슬라이더로 구간별 농도·시간 조절',true);
       E.big('TWA '+TWA.toFixed(2)+'ppm → '+(over?'노출기준 초과':'노출기준 이하'),

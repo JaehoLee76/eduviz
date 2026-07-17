@@ -37,7 +37,7 @@
       // 1/r² 곡선
       var gx0=W*0.62, gx1=W*0.93, gy0=H*0.84, gh=H*0.42;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('|F|',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('|F|',gx0+3,gy0-gh+4); ctx.fillText('r',gx1-8,gy0+14);
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
       for(var kk=0;kk<=60;kk++){ var rr=1+kk/60*5, ff=k*1*Math.max(1,Math.abs(s.q2))/(rr*rr), x=gx0+(rr-1)/5*(gx1-gx0), y=gy0-Math.min(gh,ff/18*gh); if(kk===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       E.tapHint(W/2, H*0.93, '거리·전하2 부호를 바꿔 보세요 (같으면 밀고, 다르면 당김)', true);
@@ -76,7 +76,7 @@
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('F = qE', px+10, py-10);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
       ctx.fillStyle=GRN; ctx.textAlign='center'; ctx.fillText('시험전하 q', px, py+22);
-      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('E (전기장)', v.X(3.6), v.Y(-3.6));
+      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('E (전기장)', v.X(3.6), v.Y(-3.6));
       E.tapHint(W/2, H*0.92, '시험전하(초록)를 끌어 놓아 보세요', true);
       E.big('전기장 E — 시험전하가 받는 힘 F = qE', '닿지도 않았는데 어떻게 힘이 전해질까요? 전하는 주변 공간에 <b>전기장 E</b>를 새겨 둡니다 — 눈엔 안 보이지만 곳곳에 깔린 "힘의 지도"(파란 화살표). 다른 전하 q가 그 자리에 서면 발밑 지도를 읽어 <b>F = qE</b>의 힘을 받습니다. +전하의 지도는 바깥으로, −전하는 안으로 향합니다. 시험전하(초록)를 끌어 놓으면 지도를 따라 밀려납니다. E = kQ/r².'); }
   },

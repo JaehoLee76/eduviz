@@ -70,7 +70,7 @@
       ctx.strokeStyle='rgba(143,227,181,0.5)'; ctx.lineWidth=1.5; ctx.strokeRect(fx,fy,fw,fh);
       ctx.strokeStyle=ORA; ctx.lineWidth=1.6; ctx.beginPath(); var zx=fx;
       for(var z=0;z<6;z++){ var nx=fx+fw*(z+1)/6, ny=fy+(z%2===0?fh-4:4); if(z===0)ctx.moveTo(fx,fy+4); ctx.lineTo(nx,ny); } ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('광섬유: 전반사로 빛을 나른다', fx+fw/2, fy-6);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('광섬유: 전반사로 빛을 나른다', fx+fw/2, fy-6);
       E.tapHint(W/2, H*0.93, '입사각을 임계각보다 크게 하면 빛이 전부 되튕깁니다', true); }
   },
 
@@ -87,7 +87,7 @@
       var di=1/(1/s.f-1/s.do_), m=-di/s.do_, hi=m*ho;
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W*0.06,axisY); ctx.lineTo(W*0.94,axisY); ctx.stroke();
       ctx.strokeStyle='rgba(122,184,255,0.7)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,axisY-70); ctx.lineTo(cx,axisY+70); ctx.stroke();
-      ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.font='13px sans-serif'; ctx.textAlign='center';
       [-1,1].forEach(function(sg){ ctx.fillStyle=DIM; ctx.beginPath(); ctx.arc(cx+sg*s.f*sc,axisY,3,0,7); ctx.fill(); ctx.fillText('F', cx+sg*s.f*sc, axisY+16); });
       var ox=cx-s.do_*sc; arrow(E,ox,axisY,ox,axisY-ho*sc,GRN,2.5);
       var topO=axisY-ho*sc;
@@ -122,7 +122,7 @@
       // 오목 거울(호) — 곡률중심 C=2f 왼쪽
       var R=2*s.f*sc; ctx.strokeStyle='rgba(122,184,255,0.8)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(mx-R, axisY, R, -0.5, 0.5); ctx.stroke();
       // F, C 표시
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.beginPath(); ctx.arc(mx-s.f*sc,axisY,3,0,7); ctx.fill(); ctx.fillText('F', mx-s.f*sc, axisY+16);
       ctx.beginPath(); ctx.arc(mx-2*s.f*sc,axisY,3,0,7); ctx.fill(); ctx.fillText('C', mx-2*s.f*sc, axisY+16);
       // 물체
@@ -172,7 +172,7 @@
         var dirA=0.30 + (dev-devR)*9;   // 빨강(최소 편향) 기준, 실제 편향차 δ−δ_red 에 비례한 부채
         ctx.strokeStyle=cols[i][2]; ctx.lineWidth=2.2;
         ctx.beginPath(); ctx.moveTo(hitX,hitY); ctx.lineTo(ex,ey); ctx.moveTo(ex,ey); ctx.lineTo(ex+len*Math.cos(dirA), ey+len*Math.sin(dirA)); ctx.stroke();
-        ctx.fillStyle=cols[i][2]; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText(cols[i][0]+' (n='+n.toFixed(3)+', δ='+(dev*180/Math.PI).toFixed(1)+'°)', ex+len*Math.cos(dirA)+6, ey+len*Math.sin(dirA)+4);
+        ctx.fillStyle=cols[i][2]; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText(cols[i][0]+' (n='+n.toFixed(3)+', δ='+(dev*180/Math.PI).toFixed(1)+'°)', ex+len*Math.cos(dirA)+6, ey+len*Math.sin(dirA)+4);
       }
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('굴절률 n은 색(파장)마다 다르다 → 보라가 가장 많이 꺾임', W/2, H*0.88);
       E.tapHint(W/2, H*0.93, '백색광이 무지개로 갈라집니다 (분산) — 입사각을 바꿔 보세요', true);

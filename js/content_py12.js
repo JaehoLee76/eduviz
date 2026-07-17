@@ -90,7 +90,7 @@
         function X(z){ return ox2+z*sc; } function Y(z){ return oy2-z*sc; }
         ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1;
         ctx.beginPath(); ctx.moveTo(X(-3),oy2); ctx.lineTo(X(3),oy2); ctx.moveTo(ox2,Y(-3)); ctx.lineTo(ox2,Y(3)); ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
         ctx.fillText('z(나이) →', X(2.4), oy2+16); ctx.fillText('z(연봉)', ox2, Y(2.7)-4);
         for(i=0;i<N;i++){ ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(X(zAge[i]),Y(zSal[i]),5.5,0,7); ctx.fill(); }
         // 검산: 변환 후 평균·표준편차 실측
@@ -136,7 +136,7 @@
       function stage(x,y,w,h,col,t,sub){
         ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=col; ctx.lineWidth=1.8; roundRect(ctx,x,y,w,h,9); ctx.fill(); ctx.stroke();
         ctx.fillStyle=col; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(t, x+w/2, y+h*0.42);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(sub, x+w/2, y+h*0.78);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(sub, x+w/2, y+h*0.78);
       }
       function arrow(x0,y0,x1,y1,col){ ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
         var an=Math.atan2(y1-y0,x1-x0); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1-9*Math.cos(an-0.4),y1-9*Math.sin(an-0.4)); ctx.lineTo(x1-9*Math.cos(an+0.4),y1-9*Math.sin(an+0.4)); ctx.closePath(); ctx.fillStyle=col; ctx.fill(); }
@@ -228,7 +228,7 @@
         for(var b=0;b<k;b++){ var bbx=ox+b*ow/k, bbw=ow/k-2, isVal=(b===f);
           ctx.fillStyle=isVal?GLD:'rgba(108,182,232,0.5)'; ctx.fillRect(bbx,ry,bbw,rowH); }
         var sc=null; for(i=0;i<scores.length;i++) if(scores[i].f===f) sc=scores[i];
-        if(sc){ ctx.fillStyle=GLD; ctx.font='600 11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        if(sc){ ctx.fillStyle=GLD; ctx.font='600 13.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
           ctx.fillText('정확도 '+sc.acc.toFixed(3), ox+ow+10, ry+rowH*0.85); }
       }
 
@@ -287,7 +287,7 @@
       ctx.fillStyle='#e7ecda'; ctx.font='600 12.5px sans-serif'; ctx.textAlign='center';
       ctx.fillText('교차검증 점수 격자 — 모든 조합을 실제로 평가', gx+Cs.length*cw/2, gy-26);
       // 열 라벨 C
-      for(var c=0;c<Cs.length;c++){ ctx.fillStyle=PYL; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('C='+Cs[c], gx+c*cw+cw/2, gy-8); }
+      for(var c=0;c<Cs.length;c++){ ctx.fillStyle=PYL; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('C='+Cs[c], gx+c*cw+cw/2, gy-8); }
       // 행 라벨 depth
       for(var r=0;r<Ds.length;r++){ ctx.fillStyle=PYB; ctx.textAlign='right'; ctx.fillText('depth='+Ds[r], gx-6, gy+r*ch+ch*0.6); }
       for(r=0;r<Ds.length;r++) for(c=0;c<Cs.length;c++){
@@ -349,7 +349,7 @@
       for(var i=0;i<steps.length;i++){ var y=fy+i*(fh+gap), st=steps[i];
         ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=st.c; ctx.lineWidth=1.6; roundRect(ctx,fx,y,fw,fh,8); ctx.fill(); ctx.stroke();
         ctx.fillStyle=st.c; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText(st.t, fx+12, y+fh*0.42);
-        ctx.fillStyle='#cfe6d8'; ctx.font='11.5px sans-serif'; ctx.fillText(st.d, fx+12, y+fh*0.78);
+        ctx.fillStyle='#cfe6d8'; ctx.font='13.5px sans-serif'; ctx.fillText(st.d, fx+12, y+fh*0.78);
         if(i<steps.length-1) arrowV(fx+fw/2, y+fh+2, y+fh+gap-1, DIM);
       }
 

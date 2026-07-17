@@ -41,7 +41,7 @@
     for(var i=0;i<n;i++){ var bh=arr[i]/mv*h, bx=x+i*bw+3, by=y+h-bh;
       ctx.fillStyle=colOf(i); ctx.fillRect(bx, by, bw-6, bh);
       ctx.fillStyle='#dfeaf2'; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(arr[i], x+i*bw+bw/2, y+h+15);
-      ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.fillText(i, x+i*bw+bw/2, y+h+30);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText(i, x+i*bw+bw/2, y+h+30);
     }
   }
 
@@ -141,7 +141,7 @@
         });
         // 범례
         var ly=legendY;
-        ctx.font='11.5px sans-serif'; ctx.textAlign='left';
+        ctx.font='13.5px sans-serif'; ctx.textAlign='left';
         ctx.fillStyle=GLD; ctx.fillText('■ 피벗', tx, ly); ctx.fillStyle=CPB; ctx.fillText('■ 비교중 j', tx+70, ly);
         ctx.fillStyle=GRN; ctx.fillText('■ 피벗보다 작음(확정)', tx+170, ly);
       } else {
@@ -151,7 +151,7 @@
           return 'rgba(122,184,255,0.55)';
         });
         var ly=legendY;
-        ctx.font='11.5px sans-serif'; ctx.textAlign='left';
+        ctx.font='13.5px sans-serif'; ctx.textAlign='left';
         ctx.fillStyle=CPB; ctx.fillText('■ 분할 구간', tx, ly); ctx.fillStyle=GRN; ctx.fillText('■ 병합 완료(정렬됨)', tx+90, ly);
       }
       // STEP 노트 (하단 고정)
@@ -209,11 +209,11 @@
         var stroke = isFound?GRN:(isMid?CPB:(inRange?'rgba(122,184,255,0.4)':'rgba(255,255,255,0.10)'));
         var tcol = inRange||isFound?'#dfeaf2':DIM;
         cell(ctx, tx+i*cw, cellY, cw-2, ch, a[i], fill, stroke, tcol, 14);
-        ctx.fillStyle=DIM; ctx.font='9.5px sans-serif'; ctx.textAlign='center'; ctx.fillText(i, tx+i*cw+(cw-2)/2, cellY+ch+12);
+        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='center'; ctx.fillText(i, tx+i*cw+(cw-2)/2, cellY+ch+12);
       }
       // lo/hi/mid 포인터
       function ptr(idx,lab,col){ if(idx<0||idx>=a.length) return; var px=tx+idx*cw+(cw-2)/2;
-        ctx.fillStyle=col; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab, px, cellY-6);
+        ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab, px, cellY-6);
         ctx.beginPath(); ctx.moveTo(px,cellY-2); ctx.lineTo(px-4,cellY-9); ctx.lineTo(px+4,cellY-9); ctx.fill(); }
       ptr(f.lo,'lo',BLU); ptr(f.hi,'hi',PNK); if(f.mid>=0) ptr(f.mid,'mid',CPB);
 
@@ -304,7 +304,7 @@
         ctx.beginPath(); ctx.arc(px(i),py(i),18,0,7); ctx.fill(); ctx.stroke();
         ctx.fillStyle= cur||visited?'#0b1016':'#dfeaf2'; ctx.font='700 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(i, px(i),py(i)+1); ctx.textBaseline='alphabetic';
         // 방문 순서 번호
-        var ord=f.order.indexOf(i); if(ord>=0){ ctx.fillStyle=GLD; ctx.font='600 11px sans-serif'; ctx.fillText('#'+(ord+1), px(i)+22, py(i)-14); }
+        var ord=f.order.indexOf(i); if(ord>=0){ ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.fillText('#'+(ord+1), px(i)+22, py(i)-14); }
       }
       // 큐/순서 표시 (하단 예약 영역)
       var ny=botY - txtH + 16;
@@ -386,7 +386,7 @@
         ctx.fillStyle= cur||done?'#0b1016':'#dfeaf2'; ctx.font='700 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(i, px(i),py(i)+1); ctx.textBaseline='alphabetic';
         var d=f.dist[i]; ctx.fillStyle=GLD; ctx.font='600 12px ui-monospace,monospace'; ctx.fillText(d>=1e9?'∞':d, px(i), py(i)-26);
       }
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('노랑 = dist[] (0에서의 최단거리)', gx, gy+gh+8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('노랑 = dist[] (0에서의 최단거리)', gx, gy+gh+8);
 
       // dist[] 표
       var tabY=gy+gh+20, cw=Math.min(W*0.06,54);
@@ -455,7 +455,7 @@
         ctx.fillStyle=on?'rgba(90,180,232,0.18)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=on?CPB:'rgba(255,255,255,0.12)'; ctx.lineWidth=1.2;
         roundRect(ctx,ix+k*88,iy+8,82,38,6); ctx.fill(); ctx.stroke();
         ctx.fillStyle=on?CPB:'#dfeaf2'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(it.name, ix+k*88+41, iy+24);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('w='+it.w+' v='+it.v, ix+k*88+41, iy+40); }
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('w='+it.w+' v='+it.v, ix+k*88+41, iy+40); }
 
       // DP 표 — 행 높이 ch를 남는 높이에 맞춰 축소(낮은 창서도 note까지 다 들어오게)
       var tx=W*0.53, ty=iy+64, cw=Math.min(W*0.052,50);
@@ -485,7 +485,7 @@
       var ny=ty+ch*(n+2)+16;
       ctx.fillStyle='#dfeaf2'; ctx.font='600 12.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('STEP '+(s.step+1)+'/'+this.frames.length, tx, ny);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(f.note, tx, ny+16);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText(f.note, tx, ny+16);
       if(f.fin){ var ans=this.frames[this.frames.length-1].dp[n][CAP];
         ctx.fillStyle=GRN; ctx.font='700 16px sans-serif'; ctx.fillText('최적 가치 = '+ans+' (아이템 C+D: w=5, v=17)', tx, ny+38); }
 

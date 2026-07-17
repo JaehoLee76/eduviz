@@ -60,7 +60,7 @@
       ctx.fillText('γ = 1/√(1−β²) = '+g.toFixed(4), W/2, M.textY(0));
       ctx.font='12px ui-monospace,monospace'; ctx.fillStyle=DIM;
       ctx.fillText('시간 지연 1초→'+g.toFixed(3)+'초 · 길이 수축 1m→'+(1/g).toFixed(4)+'m', W/2, M.textY(1));
-      ctx.font='11.5px sans-serif';
+      ctx.font='13.5px sans-serif';
       ctx.fillText('β를 올리면 초록 축(ct′,x′)이 빛원뿔 쪽으로 가위처럼 접힙니다 — 시간·공간이 서로 섞이는 것', W/2, M.textY(2));
       E.tapHint(W/2, H*0.965, 'β=0이면 두 축이 겹치고, β→1이면 빛원뿔에 달라붙습니다', true);
       E.big('민코프스키 다이어그램 — 로렌츠 부스트', '시간과 공간은 관찰자마다 다른 그림자입니다.'); }
@@ -83,7 +83,7 @@
       function toPrime(e){ return {x:g*(e.x-beta*e.ct), ct:g*(e.ct-beta*e.x)}; }
       var Ap=toPrime(A), Bp=toPrime(B);
       function dot(e,col,lab){ var p=M.px(e.x,e.ct); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(p[0],p[1],7,0,7); ctx.fill();
-        ctx.fillStyle='#10141a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,p[0],p[1]+3.5); }
+        ctx.fillStyle='#10141a'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,p[0],p[1]+3.5); }
       var pa=M.px(A.x,A.ct), pb=M.px(B.x,B.ct);
       ctx.strokeStyle='rgba(223,238,251,0.5)'; ctx.setLineDash([4,4]); ctx.lineWidth=1.2;
       ctx.beginPath(); ctx.moveTo(pa[0],pa[1]); ctx.lineTo(pb[0],pb[1]); ctx.stroke(); ctx.setLineDash([]);
@@ -95,7 +95,7 @@
       ctx.fillStyle=GRN; ctx.fillText('이동계 S′:  cΔt′ = '+dTp.toFixed(3)+'   Δx′ = '+dXp.toFixed(3), W/2, M.textY(1));
       ctx.fillStyle=YLW; ctx.font='700 13.5px ui-monospace,monospace';
       ctx.fillText('Δs² = (cΔt)²−Δx² = '+s2.toFixed(4)+'  =  '+s2p.toFixed(4)+'  (불변)', W/2, M.textY(2));
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('좌표(cΔt, Δx)는 관찰자마다 다르지만, 결합량 Δs²는 완전히 같습니다', W/2, M.textY(3));
       E.tapHint(W/2, H*0.965, '사건 B를 옮기고 β를 바꿔도 Δs²는 항상 같습니다', true);
       E.big('불변 간격 Δs² — 좌표는 그림자, 결합량이 실체', '시간차·거리차는 달라도 결합량은 불변입니다.'); }
@@ -130,18 +130,18 @@
       ctx.globalAlpha=1;
       ctx.fillStyle='rgba(0,0,0,0.85)'; ctx.strokeStyle=RED; ctx.lineWidth=1.6; ctx.beginPath();
       for(j=0;j<=NP;j++){ var ph3=j/NP*2*Math.PI, P3=proj(a*Math.cos(ph3),a*Math.sin(ph3),zfun(a)); j?ctx.lineTo(P3[0],P3[1]):ctx.moveTo(P3[0],P3[1]); } ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; var evP=proj(a,0,zfun(a)); ctx.fillText('사건지평선', evP[0], evP[1]+16);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; var evP=proj(a,0,zfun(a)); ctx.fillText('사건지평선', evP[0], evP[1]+16);
       // 시계 위치(고리 위 표식) — 그림은 Rmax로 잘린 시야이므로 위치만 시야 안으로 클램프, 표시 수치는 실제 rclk로 계산
       var rTrue=s.rclk*a, rShow=Math.min(rTrue,Rmax*0.96), zC=zfun(rShow), dilC=Math.sqrt(Math.max(0,1-a/rTrue));
       var Pc=proj(rShow*Math.cos(0.7),rShow*Math.sin(0.7),zC);
       ctx.fillStyle=dilColor(dilC); ctx.beginPath(); ctx.arc(Pc[0],Pc[1],6,0,7); ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.fillStyle='#dfeefb'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('시계', Pc[0], Pc[1]-12);
+      ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('시계', Pc[0], Pc[1]-12);
       var rsKm=2.953*s.M;
       ctx.textAlign='center'; ctx.font='600 13px ui-monospace,monospace'; ctx.fillStyle='#dfeefb';
       ctx.fillText('r_s = 2GM/c² = '+rsKm.toFixed(1)+' km', W/2, rowY(H,3,0));
       ctx.font='12px ui-monospace,monospace'; ctx.fillStyle=dilColor(dilC);
       ctx.fillText('dτ/dt = √(1−r_s/r) = '+dilC.toFixed(4)+'  → 먼 곳보다 '+((1-dilC)*100).toFixed(1)+'% 느림', W/2, rowY(H,3,1));
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('공간의 휨(깔때기): z(r) = 2√(r_s(r−r_s))  ·  고리 색 = 그 위치의 시간 흐름 속도', W/2, rowY(H,3,2));
       E.tapHint(W/2, H*0.965, '질량을 키우면 깔때기가 깊어지고 시계가 더 느려집니다', true);
       E.big('중력 = 시공간의 휨 — 슈바르츠실트 깔때기', '중력은 힘이 아니라 시공간, 특히 시간의 휨입니다.'); }
@@ -189,7 +189,7 @@
       ctx.fillText('측지선: d²u/dφ² + u = 1/p + (3/2)r_s·u²  (u=1/r, r_s=1)', W/2, rowY(H,3,0));
       ctx.font='700 13.5px ui-monospace,monospace'; ctx.fillStyle=ORA;
       ctx.fillText('세차량 Δφ = 3π·r_s/p = '+prec.toFixed(4)+' rad = '+(prec*180/Math.PI).toFixed(2)+'°/공전', W/2, rowY(H,3,1));
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('뉴턴 중력이면 타원이 닫히지만, u² 항(순수 상대론 효과) 때문에 타원 자체가 회전합니다', W/2, rowY(H,3,2));
       E.tapHint(W/2, H*0.965, '화면 탭 = 궤도 리셋 · p를 줄일수록(가까울수록) 세차가 커집니다', true);
       E.big('측지선과 세차 — 수성 근일점 이동의 원리', '휘어진 시공간에서는 타원 궤도 자체가 돕니다.'); }
@@ -231,7 +231,7 @@
       var Tmin=-22,Tmax=50,Amax=3.6;
       function X(t){ return padL+(t-Tmin)/(Tmax-Tmin)*(W-padL-padR); }
       function Y(a){ return (H-padB)-(a/Amax)*(H-padT-padB); }
-      ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center';
+      ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center';
       var t,a;
       for(t=-20;t<=50;t+=10){ ctx.beginPath(); ctx.moveTo(X(t),padT); ctx.lineTo(X(t),H-padB); ctx.stroke(); ctx.fillText(''+t, X(t), H-padB+16); }
       ctx.textAlign='right';
@@ -255,7 +255,7 @@
       else fateTxt = (s.ol>0? '가속 팽창(영원히)' : '감속 팽창 지속');
       ctx.textAlign='center'; ctx.font='600 12.5px ui-monospace,monospace'; ctx.fillStyle='#dfeefb';
       ctx.fillText('(ȧ/a)² = H₀²(Ω_m/a³+Ω_r/a⁴+Ω_k/a²+Ω_Λ)'+(s.lqc?'·(1−ρ/ρ_c)':''), W/2, 16);
-      ctx.font='11.5px ui-monospace,monospace'; ctx.fillStyle=DIM;
+      ctx.font='13.5px ui-monospace,monospace'; ctx.fillStyle=DIM;
       ctx.fillText('Ω_k = 1−ΣΩ = '+sol.Ok.toFixed(3)+' ('+(Math.abs(sol.Ok)<0.01?'평평':sol.Ok<0?'닫힘':'열림')+')   우주 나이: '+ageTxt+'   운명: '+fateTxt, W/2, 36);
       E.tapHint(W/2, H*0.965, 'Ω_Λ를 낮추면 팽창이 느려지고, 체크박스를 켜면 특이점이 사라집니다', true);
       E.big('우주의 시작 — 프리드만 방정식과 빅바운스', '시공간이 한 몸이므로 우주의 시작에서 시간·공간이 함께 시작합니다.'); }

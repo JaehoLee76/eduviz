@@ -137,8 +137,8 @@
       ctx.strokeStyle=DIM; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(tx,ty+14); ctx.lineTo(lx,by-14); ctx.moveTo(tx,ty+14); ctx.lineTo(rx,by-14); ctx.stroke();
       function node(x,y,c0,c1,g,col,lab){ ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=col; ctx.lineWidth=1.8;
         ctx.beginPath(); ctx.arc(x,y,30,0,7); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#dfeef0'; ctx.font='11px sans-serif'; ctx.textAlign='center';
-        ctx.fillText('A:'+c0+' B:'+c1, x, y-2); ctx.fillStyle=col; ctx.font='600 11px sans-serif'; ctx.fillText('G='+g.toFixed(3), x, y+13);
+        ctx.fillStyle='#dfeef0'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('A:'+c0+' B:'+c1, x, y-2); ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.fillText('G='+g.toFixed(3), x, y+13);
         ctx.fillStyle=col; ctx.font='12px sans-serif'; ctx.fillText(lab, x, y-40); }
       node(tx,ty,P0,P1,giniP,CYA,'부모');
       node(lx,by,L0,L1,giniL,GRN,'왼쪽('+nL+')');
@@ -149,7 +149,7 @@
       ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('Gini = 1 − Σ pᵢ²  (0=순수)', px2, py2+24);
       ctx.fillStyle=CYA; ctx.fillText('분할 전  G = '+giniP.toFixed(4), px2, py2+50);
       ctx.fillStyle=GRN; ctx.fillText('분할 후  G = '+giniAfter.toFixed(4), px2, py2+72);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('= ('+nL+'/'+N+')·'+giniL.toFixed(3)+' + ('+nR+'/'+N+')·'+giniR.toFixed(3), px2, py2+90);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('= ('+nL+'/'+N+')·'+giniL.toFixed(3)+' + ('+nR+'/'+N+')·'+giniR.toFixed(3), px2, py2+90);
       ctx.fillStyle=gain>0.001?GLD:DIM; ctx.font='600 17px sans-serif'; ctx.fillText('정보이득 = '+gain.toFixed(4), px2, py2+122);
       E.tapHint(W/2, H*0.96, '임계값을 옮겨 정보이득(분할 전−후 불순도)이 최대가 되는 곳을 찾으세요', true);
       E.big('결정트리 — 불순도를 가장 많이 줄이는 질문', '트리는 “x가 t보다 작은가?” 같은 예/아니오 질문으로 데이터를 가릅니다. 좋은 질문이란 양쪽이 한 색으로 깔끔해지는 것 — 지니 불순도를 가장 많이 떨어뜨리는(정보이득 최대) 임계값을 계산해 고릅니다.'); }
@@ -264,7 +264,7 @@
       var cnt3=new Array(s.K).fill(0); for(i=0;i<KM.length;i++) cnt3[assign[i]]++;
       for(c=0;c<s.K;c++){ ctx.fillStyle=COL[c]; ctx.font='13px sans-serif'; ctx.fillText('군집 '+(c+1)+': '+cnt3[c]+'개', px, py+102+c*20); }
       ctx.fillStyle=CYA; ctx.font='600 16px sans-serif'; ctx.fillText('관성(거리²합) = '+inertia.toFixed(3), px, py+102+s.K*20+14);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('반복할수록 관성↓ → 수렴', px, py+102+s.K*20+34);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('반복할수록 관성↓ → 수렴', px, py+102+s.K*20+34);
       E.tapHint(W/2, H*0.95, '반복 횟수를 0→8로 올리며 중심이 데이터 한가운데로 수렴하는 걸 보세요', true);
       E.big('k-평균 군집 (비지도) — 할당과 갱신의 반복', '라벨이 없습니다. K개 중심을 두고 ①각 점을 가장 가까운 중심에 배정 ②중심을 그 군집의 평균으로 이동 — 이 두 단계를 번갈아 반복하면 중심이 데이터 덩어리 한가운데로 빨려듭니다. 관성(군집 내 거리 제곱합)이 줄어드는 게 수렴의 증거죠.'); }
   },
@@ -323,7 +323,7 @@
       ctx.fillStyle=DIM; ctx.fillText('         λ₂='+l2.toFixed(4), px, py+106);
       ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('PC1 방향 ('+ex.toFixed(2)+', '+ey.toFixed(2)+')', px, py+128);
       ctx.fillStyle=GRN; ctx.font='600 16px sans-serif'; ctx.fillText('설명 분산 = '+(ratio*100).toFixed(1)+'%', px, py+154);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('λ₁/(λ₁+λ₂) — 한 축으로 줄여도', px, py+174);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('λ₁/(λ₁+λ₂) — 한 축으로 줄여도', px, py+174);
       ctx.fillText('이만큼의 정보가 보존됩니다', px, py+190);
       E.tapHint(W/2, H*0.95, '투영 슬라이더를 올려 2D 점들이 주성분 한 축으로 눌리는 차원축소를 보세요', true);
       E.big('주성분 분석 (PCA · 비지도) — 분산이 가장 큰 방향', '점 구름이 가장 길게 퍼진 방향을 찾는 일입니다. 공분산 행렬의 최대 고유벡터가 바로 그 주성분이죠. 그 한 축으로 점들을 눌러도(투영) 데이터의 큰 흐름은 그대로 — 2차원을 1차원으로 줄이고도 정보를 거의 잃지 않습니다.'); }

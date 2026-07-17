@@ -75,10 +75,10 @@
       var endX = bx + v.length*(cw+gap);
       ctx.strokeStyle=DIM; ctx.setLineDash([4,3]); ctx.lineWidth=1.4;
       ctx.strokeRect(endX, by, cw, 40); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('end()', endX+cw/2, by+24);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('end()', endX+cw/2, by+24);
       ctx.fillText('(마지막 다음)', endX+cw/2, by+56);
       // begin 라벨
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('begin()', xs[0]+cw/2, by+56);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('begin()', xs[0]+cw/2, by+56);
       // it 포인터 (삼각형)
       var px = atEnd ? endX+cw/2 : xs[pos]+cw/2;
       ctx.fillStyle= atEnd?RED:GLD; ctx.beginPath();
@@ -149,7 +149,7 @@
         ctx.fillText('정렬 후:', bx, H*0.24+96);
         var xs=drawArr(ctx, bx, H*0.24+104, sorted, cw, gap, hi, GLD);
         // 인덱스
-        for(var i=0;i<sorted.length;i++){ ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', xs[i]+cw/2, H*0.24+104+56); }
+        for(var i=0;i<sorted.length;i++){ ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', xs[i]+cw/2, H*0.24+104+56); }
         if(s.step===2){
           // find 포인터
           var px=xs[idx]+cw/2, ay=H*0.24+104;
@@ -206,7 +206,7 @@
         for(i=0;i<v.length;i++){ acc+=v[i]; run.push(acc); }
         for(i=0;i<v.length;i++){
           var cx=bx+30+i*(cw+gap);
-          ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center';
+          ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center';
           ctx.fillText('+'+v[i], cx+cw/2, ay+22);
           ctx.fillStyle=GRN; ctx.font='600 13px ui-monospace,monospace';
           ctx.fillText('='+run[i], cx+cw/2, ay+42);
@@ -444,8 +444,8 @@
         var itx=bx+newEnd*(cw+gap)-gap/2;
         ctx.strokeStyle=GLD; ctx.lineWidth=1.8; ctx.setLineDash([3,3]);
         ctx.beginPath(); ctx.moveTo(itx, cellY-4); ctx.lineTo(itx, cellY+42); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=GLD; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('it (새 끝)', itx, cellY+56);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle=GLD; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('it (새 끝)', itx, cellY+56);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
         ctx.fillText('뒤쪽 회색 칸 = 미지정 잔재 (지워지지 않음)', bx, cellY+56);
       }
 
@@ -510,7 +510,7 @@
       ctx.fillStyle=CPB; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('바깥 변수 base', bx, by-12);
       vcell(ctx,bx,by,70,44, afterChange, 'rgba(90,180,232,0.16)', CPB, '#dfeaf2', 17);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('지금 base = 99', bx+35, by+62);
 
       // 람다 상자
@@ -523,14 +523,14 @@
       if(mode===0){
         // 값: 람다 안에 base=10 스냅샷 저장
         vcell(ctx,lx+12,by+12,60,32, atCapture, 'rgba(126,224,176,0.18)', GRN, '#dfeaf2', 15);
-        ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left';
         ctx.fillText('안에 복사본 '+atCapture+' 보관', lx+82, by+32);
       } else {
         // 참조: 화살표가 원본을 가리킴
         ctx.strokeStyle=GLD; ctx.lineWidth=2;
         ctx.beginPath(); ctx.moveTo(lx-4, by+lh/2); ctx.lineTo(bx+74, by+22); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(bx+74, by+22); ctx.lineTo(bx+82, by+20); ctx.moveTo(bx+74, by+22); ctx.lineTo(bx+80, by+28); ctx.stroke();
-        ctx.fillStyle=GLD; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.textAlign='left';
         ctx.fillText('원본을 가리킴(참조)', lx+12, by+38);
       }
 
@@ -604,7 +604,7 @@
         ctx.beginPath(); ctx.moveTo(axx, ry+cats.length*(rh+10)-10); ctx.lineTo(axx, ry+6); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(axx, ry+6); ctx.lineTo(axx-4, ry+14); ctx.moveTo(axx, ry+6); ctx.lineTo(axx+4, ry+14); ctx.stroke();
         ctx.save(); ctx.translate(axx-6, ry+cats.length*(rh+10)/2); ctx.rotate(-Math.PI/2);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('능력 ↑', 0, 0); ctx.restore();
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('능력 ↑', 0, 0); ctx.restore();
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
         ctx.fillText('아래로 갈수록 능력이 더해집니다 — 임의접근이 가장 강력.', bx, ry+cats.length*(rh+10)+14);
       } else {
@@ -622,14 +622,14 @@
         var cwc=[W*0.085,W*0.075,W*0.035,W*0.035,W*0.05,W*0.05], rh=26, x0=bx, y0=H*0.22;
         var cx=x0;
         for(var c=0;c<head.length;c++){ ctx.fillStyle='rgba(90,180,232,0.16)'; ctx.fillRect(cx,y0,cwc[c],rh); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.strokeRect(cx,y0,cwc[c],rh);
-          ctx.fillStyle=CPB; ctx.font='600 11px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(head[c], cx+5, y0+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; }
+          ctx.fillStyle=CPB; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(head[c], cx+5, y0+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; }
         for(var r=0;r<rows.length;r++){ cx=x0; var ry2=y0+rh*(r+1);
           for(c=0;c<head.length;c++){ var first=(c===0), v=rows[r][c];
             ctx.fillStyle= first?'rgba(255,255,255,0.05)':'rgba(255,255,255,0.02)'; ctx.fillRect(cx,ry2,cwc[c],rh);
             ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(cx,ry2,cwc[c],rh);
             var col='#cfd8e0';
             if(v==='O') col=GRN; else if(v==='X') col=RED; else if(first) col=CPB;
-            ctx.fillStyle=col; ctx.font=(first?'600 ':'')+'11px '+(c>=2?'ui-monospace,monospace':'sans-serif'); ctx.textAlign='left'; ctx.textBaseline='middle';
+            ctx.fillStyle=col; ctx.font=(first?'600 ':'')+'13px '+(c>=2?'ui-monospace,monospace':'sans-serif'); ctx.textAlign='left'; ctx.textBaseline='middle';
             ctx.fillText(v, cx+5, ry2+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; } }
         var ny=y0+rh*(rows.length+1)+22;
         ctx.fillStyle=GRN; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('O = 가능', bx, ny);

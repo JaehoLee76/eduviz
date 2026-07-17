@@ -221,7 +221,7 @@
         for(i=0;i<3;i++){ ctx.fillStyle=SPC[i]; ctx.strokeStyle='#fff'; ctx.lineWidth=2;
           var cx=P.X(cen[i][0]), cyp=P.Y(cen[i][1]);
           ctx.beginPath(); ctx.arc(cx,cyp,9,0,7); ctx.fill(); ctx.stroke();
-          ctx.fillStyle='#10131a'; ctx.font='700 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(''+i, cx, cyp+1); ctx.textBaseline='alphabetic'; }
+          ctx.fillStyle='#10131a'; ctx.font='700 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(''+i, cx, cyp+1); ctx.textBaseline='alphabetic'; }
         ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
         ctx.fillText('model.fit() — 훈련점에서 종별 ‘기준점(★)’을 배웠습니다', W*0.05, codeBot+30);
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
@@ -327,21 +327,21 @@
       var gx=W*0.62, gy=H*0.24, cw=Math.min(W*0.075,H*0.105);
       ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
       ctx.fillText('예측 →', gx+cw*1.5, gy-26);
-      for(var c=0;c<3;c++){ ctx.fillStyle=SPC[c]; ctx.font='11px sans-serif'; ctx.fillText(SPN[c].slice(0,5), gx+c*cw+cw/2, gy-8); }
+      for(var c=0;c<3;c++){ ctx.fillStyle=SPC[c]; ctx.font='13px sans-serif'; ctx.fillText(SPN[c].slice(0,5), gx+c*cw+cw/2, gy-8); }
       ctx.save(); ctx.translate(gx-30, gy+cw*1.5); ctx.rotate(-Math.PI/2); ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.fillText('실제 →',0,0); ctx.restore();
       for(var r=0;r<3;r++){
-        ctx.save(); ctx.translate(gx-14, gy+r*cw+cw/2); ctx.rotate(-Math.PI/2); ctx.fillStyle=SPC[r]; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(SPN[r].slice(0,5),0,0); ctx.restore();
+        ctx.save(); ctx.translate(gx-14, gy+r*cw+cw/2); ctx.rotate(-Math.PI/2); ctx.fillStyle=SPC[r]; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(SPN[r].slice(0,5),0,0); ctx.restore();
         for(c=0;c<3;c++){ var x=gx+c*cw, y=gy+r*cw, v=M[r][c], on=(r===c);
           ctx.fillStyle= on ? 'rgba(126,224,176,0.18)' : (v>0?'rgba(240,136,138,0.16)':'rgba(255,255,255,0.03)');
           ctx.fillRect(x,y,cw,cw);
           ctx.strokeStyle= on?GRN:(v>0?RED:'rgba(255,255,255,0.12)'); ctx.lineWidth=1.4; ctx.strokeRect(x,y,cw,cw);
           ctx.fillStyle= on?GRN:(v>0?RED:DIM); ctx.font='700 22px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(''+v, x+cw/2, y+cw/2+1); ctx.textBaseline='alphabetic'; } }
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('대각선 = 정답 · 그 밖 = 혼동', gx, gy+3*cw+18);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('대각선 = 정답 · 그 밖 = 혼동', gx, gy+3*cw+18);
 
       // 종별 정밀도/재현율 표 (좌하)
       var px=W*0.05, py=H*0.62;
       ctx.fillStyle='#e7ecda'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('classification_report', px, py);
-      ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,Menlo,monospace';
+      ctx.fillStyle=DIM; ctx.font='13.5px ui-monospace,Menlo,monospace';
       ctx.fillText('종            정밀도   재현율', px, py+22);
       for(i=0;i<3;i++){ var pr=precision(i), rc=recall(i);
         ctx.fillStyle=SPC[i]; ctx.fillText(SPN[i].padEnd(12).slice(0,12), px, py+42+i*20);

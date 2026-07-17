@@ -32,7 +32,7 @@
       // 방 다이어그램 — 재실 인원 점 + 급기 화살표(폭 ∝ 총환기량)
       var rx=W*0.09, rw=W*0.58, ry=H*0.50, rh=Math.min(H*0.32, H*0.86-H*0.50);
       ctx.fillStyle='rgba(122,184,255,0.06)'; ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=1.6; RR(ctx,rx,ry,rw,rh,10); ctx.fill(); ctx.stroke();
-      T(ctx,'실내 CO₂ ≤ 0.1% 유지',rx+rw/2,ry+FS(H,0.035,14,19),DIM,FS(H,0.026,11,14),'center');
+      T(ctx,'실내 CO₂ ≤ 0.1% 유지',rx+rw/2,ry+FS(H,0.035,14,19),DIM,FS(H,0.026,13,14),'center');
       // 인원 점(그리드)
       var cols=Math.ceil(Math.sqrt(s.N)), rows=Math.ceil(s.N/cols), cnt=0;
       var gx0=rx+rw*0.10, gy0=ry+rh*0.30, gw=rw*0.80, gh=rh*0.55;
@@ -44,12 +44,12 @@
       var aw=Math.max(6,Math.min(rh*0.5, total/1800*rh*0.5)), acy=ry+rh*0.5, ax0=rx-W*0.055;
       ctx.fillStyle='rgba(143,227,181,0.85)';
       ctx.beginPath(); ctx.moveTo(ax0,acy-aw/2); ctx.lineTo(rx-2,acy-aw/2); ctx.lineTo(rx-2,acy-aw); ctx.lineTo(rx+W*0.02,acy); ctx.lineTo(rx-2,acy+aw); ctx.lineTo(rx-2,acy+aw/2); ctx.lineTo(ax0,acy+aw/2); ctx.closePath(); ctx.fill();
-      T(ctx,'급기 '+total.toFixed(0),ax0-4,acy-aw-FS(H,0.012,4,8),GRN,FS(H,0.026,11,14),'left','600');
-      T(ctx,'m³/hr',ax0-4,acy-aw+FS(H,0.02,8,13),GRN,FS(H,0.024,10,13),'left');
+      T(ctx,'급기 '+total.toFixed(0),ax0-4,acy-aw-FS(H,0.012,6,10),GRN,FS(H,0.026,13,14),'left','600');
+      T(ctx,'m³/hr',ax0-4,acy-aw+FS(H,0.02,10,15),GRN,FS(H,0.024,12,15),'left');
       // 우측 요약 패널
       var px=W*0.71, py=H*0.52, lh=FS(H,0.06,22,32);
       var st=[['재실 인원',s.N+' 명',PNK],['1인 발생 M',s.M.toFixed(3)+' m³/hr',BLU],['1인당 Q',per.toFixed(1)+' m³/hr',AMB],['총 필요환기량',total.toFixed(0)+' m³/hr',GRN]];
-      for(var i=0;i<st.length;i++){ var yy=py+lh*i; T(ctx,st[i][0],px,yy,DIM,FS(H,0.026,11,14),'left'); T(ctx,st[i][1],px,yy+FS(H,0.032,13,18),st[i][2],FS(H,0.032,13,19),'left','700'); }
+      for(var i=0;i<st.length;i++){ var yy=py+lh*i; T(ctx,st[i][0],px,yy,DIM,FS(H,0.026,13,14),'left'); T(ctx,st[i][1],px,yy+FS(H,0.032,13,18),st[i][2],FS(H,0.032,13,19),'left','700'); }
       E.tapHint(0,0,'슬라이더로 인원·CO₂ 발생량 조절',true);
       E.big('1인당 '+per.toFixed(1)+' m³/hr · 총 '+total.toFixed(0)+' m³/hr',
             'CO₂를 허용농도 이하로 희석하는 데 필요한 바깥공기량 — 인원이 늘면 그만큼 더 넣어야 합니다.'); }
@@ -66,13 +66,13 @@
         var cx=[x+w*0.02, x+w*0.42, x+w*0.68];
         // 헤더
         ctx.fillStyle='rgba(242,189,85,0.14)'; RR(ctx,x,top,w,rowH,7); ctx.fill();
-        for(var h=0;h<3;h++) T(ctx,colTitles[h],cx[h],top+rowH*0.66,AMB,FS(H,0.026,11,15),'left','700');
+        for(var h=0;h<3;h++) T(ctx,colTitles[h],cx[h],top+rowH*0.66,AMB,FS(H,0.026,13,15),'left','700');
         for(var i=0;i<n;i++){ var y=top+rowH*(i+1);
           if(i%2) { ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x,y,w,rowH,5); ctx.fill(); }
           var f0=fit(ctx,rows[i][0],'600 ',FS(H,0.028,12,16),9,w*0.38);
           T(ctx,rows[i][0],cx[0],y+rowH*0.66,TXT,f0,'left','600');
           T(ctx,rows[i][1],cx[1],y+rowH*0.66,GRN,FS(H,0.028,12,16),'left','700');
-          var f2=fit(ctx,rows[i][2],'',FS(H,0.024,10,14),8,w*0.30);
+          var f2=fit(ctx,rows[i][2],'',FS(H,0.024,12,14),8,w*0.30);
           T(ctx,rows[i][2],cx[2],y+rowH*0.66,DIM,f2,'left'); }
       }
       function panel(lines,top){ var x=W*0.09, w=W*0.82;
@@ -133,12 +133,12 @@
       var rmin=0.5, rmax=1.5, fmax=Math.pow(rmax,3);
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py+ph); ctx.lineTo(px+pw,py+ph); ctx.stroke();
-      T(ctx,'배율',px,py-FS(H,0.012,4,9),DIM,FS(H,0.024,10,13),'left');
-      T(ctx,'N₂/N₁',px+pw,py+ph+FS(H,0.03,12,17),DIM,FS(H,0.024,10,13),'right');
+      T(ctx,'배율',px,py-FS(H,0.012,6,11),DIM,FS(H,0.024,12,15),'left');
+      T(ctx,'N₂/N₁',px+pw,py+ph+FS(H,0.03,12,17),DIM,FS(H,0.024,12,15),'right');
       // N=1 기준 세로선
       var x1=px+pw*(1-rmin)/(rmax-rmin);
       ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(x1,py); ctx.lineTo(x1,py+ph); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'1.0',x1,py+ph+FS(H,0.03,12,17),DIM,FS(H,0.022,10,12),'center');
+      T(ctx,'1.0',x1,py+ph+FS(H,0.03,12,17),DIM,FS(H,0.022,12,14),'center');
       var cols=[ORA,BLU,GRN], labs=['풍량 ∝ N','정압 ∝ N²','동력 ∝ N³'];
       for(var k=1;k<=3;k++){ ctx.strokeStyle=cols[k-1]; ctx.lineWidth=2.4; ctx.beginPath();
         for(var t=0;t<=40;t++){ var rr=rmin+(rmax-rmin)*t/40, f=Math.pow(rr,k);
@@ -146,16 +146,16 @@
           if(t===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
         // 현재 점
         var fc=Math.pow(r,k), Xc=px+pw*(r-rmin)/(rmax-rmin), Yc=py+ph-ph*(fc/fmax);
-        ctx.fillStyle=cols[k-1]; ctx.beginPath(); ctx.arc(Xc,Yc,FS(H,0.01,4,6),0,7); ctx.fill();
-        T(ctx,labs[k-1],px+pw*0.04,py+FS(H,0.045,16,24)*k,cols[k-1],FS(H,0.026,11,15),'left','600'); }
+        ctx.fillStyle=cols[k-1]; ctx.beginPath(); ctx.arc(Xc,Yc,FS(H,0.01,6,8),0,7); ctx.fill();
+        T(ctx,labs[k-1],px+pw*0.04,py+FS(H,0.045,16,24)*k,cols[k-1],FS(H,0.026,13,15),'left','600'); }
       // 우측 계산 패널
       var qx=W*0.70, qy=H*0.36, lh=FS(H,0.072,26,40);
-      T(ctx,'회전수비 r = '+r.toFixed(2),qx,qy-FS(H,0.02,8,13),TXT,FS(H,0.03,13,17),'left','700');
+      T(ctx,'회전수비 r = '+r.toFixed(2),qx,qy-FS(H,0.02,10,15),TXT,FS(H,0.03,13,17),'left','700');
       var st=[['풍량  Q₂ = Q₁·r',Q1+'×'+r.toFixed(2)+' = '+Q2.toFixed(1)+' m³/min',ORA],
               ['정압  P₂ = P₁·r²',P1+'×'+(r*r).toFixed(3)+' = '+P2.toFixed(1)+' mmAq',BLU],
               ['동력  L₂ = L₁·r³',L1+'×'+(r*r*r).toFixed(3)+' = '+L2.toFixed(2)+' kW',GRN]];
       for(var i=0;i<st.length;i++){ var yy=qy+lh*i+FS(H,0.05,18,26);
-        T(ctx,st[i][0],qx,yy,DIM,FS(H,0.026,11,15),'left');
+        T(ctx,st[i][0],qx,yy,DIM,FS(H,0.026,13,15),'left');
         T(ctx,st[i][1],qx,yy+FS(H,0.033,14,19),st[i][2],FS(H,0.03,13,18),'left','700'); }
       E.tapHint(0,0,'슬라이더로 회전수비를 바꿔 세 곡선 비교',true);
       E.big('r='+r.toFixed(2)+' → 풍량 '+Q2.toFixed(1)+' · 정압 '+P2.toFixed(1)+' · 동력 '+L2.toFixed(2),
@@ -183,11 +183,11 @@
       var mx=Math.max(fan,0.001)*1.12;
       function bar(y,val,col,lab){ ctx.fillStyle='#1c2433'; RR(ctx,bx,y,bw,bh,7); ctx.fill();
         ctx.fillStyle=col; RR(ctx,bx,y,bw*val/mx,bh,7); ctx.fill();
-        T(ctx,lab,bx,y-FS(H,0.012,5,9),DIM,FS(H,0.026,11,14),'left');
+        T(ctx,lab,bx,y-FS(H,0.012,7,11),DIM,FS(H,0.026,13,14),'left');
         T(ctx,val.toFixed(2)+' kW',bx+bw*val/mx+10,y+bh*0.68,col,FS(H,0.032,13,19),'left','700'); }
       bar(by,air,GRN,'공기동력(공기에 전달된 유효 동력)');
       bar(by+gap,fan,ORA,'송풍기 소요동력(모터가 내야 하는 동력)');
-      T(ctx,'차이 '+(fan-air).toFixed(2)+' kW = 효율 손실(축·베어링·누기 등) — η가 낮을수록 소요동력↑',bx,by+gap+bh+FS(H,0.05,18,26),DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'차이 '+(fan-air).toFixed(2)+' kW = 효율 손실(축·베어링·누기 등) — η가 낮을수록 소요동력↑',bx,by+gap+bh+FS(H,0.05,18,26),DIM,FS(H,0.026,13,14),'left');
       E.tapHint(0,0,'슬라이더로 풍량·유효전압 조절',true);
       E.big('공기동력 '+air.toFixed(2)+' kW · 소요동력 '+fan.toFixed(2)+' kW',
             '공기에 실제로 전달되는 힘이 공기동력, 여기에 효율을 나눈 것이 모터가 내야 할 소요동력입니다.'); }
@@ -216,10 +216,10 @@
       for(var i=0;i<3;i++){ var x=bx+seg*i;
         ctx.fillStyle='#1c2433'; RR(ctx,x,by,seg*0.82,bh,6); ctx.fill();
         ctx.fillStyle=vals[i][2]; RR(ctx,x,by,seg*0.82*vals[i][1]/mx,bh,6); ctx.fill();
-        T(ctx,vals[i][0],x,by-FS(H,0.012,5,9),DIM,FS(H,0.024,10,13),'left');
-        T(ctx,vals[i][1].toFixed(0)+' mg/m³',x,by+bh+FS(H,0.03,12,16),vals[i][2],FS(H,0.026,11,15),'left','700');
+        T(ctx,vals[i][0],x,by-FS(H,0.012,7,11),DIM,FS(H,0.024,12,15),'left');
+        T(ctx,vals[i][1].toFixed(0)+' mg/m³',x,by+bh+FS(H,0.03,12,16),vals[i][2],FS(H,0.026,13,15),'left','700');
         if(i<2){ T(ctx,'→',x+seg*0.86,by+bh*0.7,DIM,FS(H,0.04,16,22),'left'); } }
-      T(ctx,'포집률 η₁='+s.e1+'% · η₂='+s.e2+'% → 최종 '+a2.toFixed(0)+' mg/m³ 만 빠져나감(총 '+tot.toFixed(1)+'% 제거)',bx,by+bh+FS(H,0.075,28,40),DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'포집률 η₁='+s.e1+'% · η₂='+s.e2+'% → 최종 '+a2.toFixed(0)+' mg/m³ 만 빠져나감(총 '+tot.toFixed(1)+'% 제거)',bx,by+bh+FS(H,0.075,28,40),DIM,FS(H,0.026,13,14),'left');
       // 집진방식 비교 표(적용 입경)
       var tx=W*0.07, tw=W*0.86, ty=H*0.62, n=5, rh=Math.min(FS(H,0.052,18,26),(H*0.86-ty)/(n+1));
       var meth=[['중력식 침강실','> 50 µm','낮음·전처리'],
@@ -227,13 +227,13 @@
                 ['원심력식(사이클론)','3~10 µm','cut size로 평가'],
                 ['여과식(백필터)','0.1 µm~','고효율·건식'],
                 ['전기집진기(ESP)','0.05~1 µm','초고효율·저손실']];
-      T(ctx,'집진방식',tx+tw*0.02,ty+rh*0.68,AMB,FS(H,0.026,11,15),'left','700');
-      T(ctx,'유효 입경',tx+tw*0.42,ty+rh*0.68,AMB,FS(H,0.026,11,15),'left','700');
-      T(ctx,'특징',tx+tw*0.66,ty+rh*0.68,AMB,FS(H,0.026,11,15),'left','700');
+      T(ctx,'집진방식',tx+tw*0.02,ty+rh*0.68,AMB,FS(H,0.026,13,15),'left','700');
+      T(ctx,'유효 입경',tx+tw*0.42,ty+rh*0.68,AMB,FS(H,0.026,13,15),'left','700');
+      T(ctx,'특징',tx+tw*0.66,ty+rh*0.68,AMB,FS(H,0.026,13,15),'left','700');
       for(i=0;i<n;i++){ var yy=ty+rh*(i+1); if(i%2){ ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,tx,yy,tw,rh,4); ctx.fill(); }
-        T(ctx,meth[i][0],tx+tw*0.02,yy+rh*0.68,TXT,FS(H,0.025,11,14),'left','600');
-        T(ctx,meth[i][1],tx+tw*0.42,yy+rh*0.68,BLU,FS(H,0.025,11,14),'left','700');
-        T(ctx,meth[i][2],tx+tw*0.66,yy+rh*0.68,DIM,FS(H,0.023,10,13),'left'); }
+        T(ctx,meth[i][0],tx+tw*0.02,yy+rh*0.68,TXT,FS(H,0.025,13,14),'left','600');
+        T(ctx,meth[i][1],tx+tw*0.42,yy+rh*0.68,BLU,FS(H,0.025,13,14),'left','700');
+        T(ctx,meth[i][2],tx+tw*0.66,yy+rh*0.68,DIM,FS(H,0.023,12,15),'left'); }
       E.tapHint(0,0,'슬라이더로 1·2차 효율을 바꿔 총효율 보기',true);
       E.big('총집진효율 '+tot.toFixed(1)+' %  (η₁='+s.e1+'% · η₂='+s.e2+'%)',
             '직렬로 달면 "통과율의 곱"만 빠져나가 총효율이 각 단보다 높아집니다 — cut size는 50% 잡히는 입경입니다.'); }

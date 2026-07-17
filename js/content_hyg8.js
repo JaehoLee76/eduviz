@@ -19,7 +19,7 @@
         {c:ORA, t:'고시·예규 (고용노동부장관)', d:'세부 기술기준 — 노출기준 고시·측정 및 분석방법 고시'}
       ];
       var top=H*0.325, tierH=H*0.115, gap=H*0.128;
-      var axF=FS(H,0.024,10,14), dF=FS(H,0.020,9,12);
+      var axF=FS(H,0.024,12,14), dF=FS(H,0.020,11,14);
       for(var i=0;i<tiers.length && i<=st;i++){ var T=tiers[i];
         var wFrac=0.34+i*0.14, w=W*wFrac, x=(W-w)/2, y=top+i*gap;
         ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=T.c; ctx.lineWidth=1.8;
@@ -36,7 +36,7 @@
           ctx.beginPath(); ctx.moveTo(W/2, ay); ctx.lineTo(W/2, ay2); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(W/2, ay2); ctx.lineTo(W/2-5, ay2-7); ctx.lineTo(W/2+5, ay2-7); ctx.fillStyle='rgba(223,238,251,0.4)'; ctx.fill(); }
       }
-      if(st>=4){ ctx.fillStyle=DIM; ctx.font=FS(H,0.020,9,12)+'px sans-serif'; ctx.textAlign='center';
+      if(st>=4){ ctx.fillStyle=DIM; ctx.font=FS(H,0.020,11,14)+'px sans-serif'; ctx.textAlign='center';
         ctx.fillText('논술 답안은 "산업안전보건법 제○조 → 시행규칙 제○조 → 고시"로 근거 조문을 인용할수록 설득력이 커집니다', W/2, H*0.955); }
       E.tapHint(0,0,'다음 층',true);
       var big=['맨 위엔 국회가 만든 법률이 있습니다','법이 위임한 것을 대통령령(시행령)이 받습니다','구체적 절차·방법은 고용노동부령(시행규칙)이 정합니다','가장 세부적인 기술기준은 고시·예규가 정합니다','근거 조문을 인용하는 것이 논술의 힘입니다'][st];
@@ -63,7 +63,7 @@
       ];
       var left=W*0.33, right=W*0.95, tw=right-left, top=H*0.335, rowGap=H*0.085;
       function X(m){ return left+m/Mmax*tw; }
-      var axF=FS(H,0.021,9,12), nmF=FS(H,0.022,10,13), lbF=FS(H,0.021,9,12);
+      var axF=FS(H,0.021,11,14), nmF=FS(H,0.022,12,15), lbF=FS(H,0.021,11,14);
       // 월 눈금 축(맨 아래 행 밑)
       var axisY=top+2*rowGap+rowGap*0.6;
       ctx.strokeStyle='rgba(219,238,251,0.28)'; ctx.lineWidth=1;
@@ -84,7 +84,7 @@
         // 라벨(왼쪽)
         ctx.fillStyle=R.c; ctx.font='600 '+lbF+'px sans-serif'; ctx.textAlign='right';
         ctx.fillText(R.name, left-W*0.015, ry+lbF*0.35);
-        ctx.fillStyle=DIM; ctx.font=FS(H,0.018,8,11)+'px sans-serif';
+        ctx.fillStyle=DIM; ctx.font=FS(H,0.018,10,13)+'px sans-serif';
         ctx.fillText(p+'개월 주기', left-W*0.015, ry+lbF*0.35+FS(H,0.026,12,15));
         // 측정 예정 눈금
         var rem = (e % p === 0) ? 0 : p - (e % p);
@@ -93,7 +93,7 @@
         for(var mk=0;mk<=Mmax;mk+=p){
           var due = (mk===nextM);
           ctx.fillStyle= (mk<=e)? 'rgba(155,153,163,0.55)' : R.c;
-          var rad = due? FS(H,0.012,5,8) : FS(H,0.008,3,5);
+          var rad = due? FS(H,0.012,7,10) : FS(H,0.008,5,7);
           ctx.beginPath(); ctx.arc(X(mk), ry, rad, 0, 6.29); ctx.fill();
           if(due){ ctx.strokeStyle='#fff'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.arc(X(mk),ry,rad,0,6.29); ctx.stroke(); }
         }
@@ -106,7 +106,7 @@
         {c:PNK, t:'기록보존', s:'5년 · 발암성 30년'}
       ];
       var fy=H*0.70, fh=H*0.115, fn=flow.length, fgap=W*0.025, fw=(W*0.90-(fn-1)*fgap)/fn, fx0=W*0.05;
-      var ftF=FS(H,0.024,10,14), fsF=FS(H,0.019,8,12);
+      var ftF=FS(H,0.024,12,14), fsF=FS(H,0.019,10,14);
       for(var k=0;k<fn;k++){ var F=flow[k], fx=fx0+k*(fw+fgap);
         ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=F.c; ctx.lineWidth=1.6;
         if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(fx,fy,fw,fh,8); } else { ctx.beginPath(); ctx.rect(fx,fy,fw,fh); }
@@ -178,7 +178,7 @@
       var bname=['낮음 (허용 가능)','보통 (개선 필요)','높음 (즉시 개선·허용 불가)'];
       var n=5, gsz=Math.min(W*0.50, H*0.50), cell=gsz/n;
       var gx0=W*0.52-gsz/2+W*0.06, gy0=H*0.32;
-      var numF=FS(H,0.024,10,15), axF=FS(H,0.022,9,13), lbF=FS(H,0.023,10,14);
+      var numF=FS(H,0.024,12,15), axF=FS(H,0.022,11,15), lbF=FS(H,0.023,12,14);
       ctx.textBaseline='alphabetic';
       for(var r=0;r<n;r++){ for(var c=0;c<n;c++){
         var Sc=c+1, Pc=n-r, Rc=Sc*Pc, bd=band(Rc);
@@ -198,10 +198,10 @@
       ctx.save(); ctx.translate(gx0-FS(H,0.055,26,38), gy0+gsz/2); ctx.rotate(-Math.PI/2);
       ctx.textAlign='center'; ctx.fillStyle=DIM; ctx.fillText('발생가능성 P →', 0, 0); ctx.restore();
       // 범례(왼쪽 세로)
-      var lx=W*0.045, ly=gy0+FS(H,0.02,10,14);
-      ctx.textAlign='left'; ctx.font=FS(H,0.021,9,12)+'px sans-serif';
+      var lx=W*0.045, ly=gy0+FS(H,0.02,12,14);
+      ctx.textAlign='left'; ctx.font=FS(H,0.021,11,14)+'px sans-serif';
       for(var b=0;b<3;b++){ var yy=ly+b*FS(H,0.052,24,34);
-        ctx.fillStyle=bcol[b]; ctx.fillRect(lx, yy-FS(H,0.018,8,11), FS(H,0.026,12,16), FS(H,0.026,12,16));
+        ctx.fillStyle=bcol[b]; ctx.fillRect(lx, yy-FS(H,0.018,10,13), FS(H,0.026,12,16), FS(H,0.026,12,16));
         ctx.fillStyle=TXT; ctx.fillText(bname[b], lx+FS(H,0.034,16,22), yy); }
       var bd=band(R);
       E.big('위험성 = P '+P+' × S '+Sv+' = '+R+'  →  '+bname[bd],

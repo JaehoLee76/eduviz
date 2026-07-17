@@ -77,7 +77,7 @@
       for(var py=-H*0.30;py<=H*0.30;py+=2){ var yu=py/14, theta=Math.atan2(yu,Ld), beta=Math.PI*s.a*Math.sin(theta)/s.lam, I=beta===0?1:Math.pow(Math.sin(beta)/beta,2);
         ctx.fillStyle='rgba(255,210,120,'+I.toFixed(3)+')'; ctx.fillRect(scrX+4, cy+py-1, 28, 2); }
       var width=2*s.lam/s.a;
-      ctx.fillStyle='rgba(255,210,120,0.9)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=sinc²(πa·sinθ/λ)', scrX+18, H*0.10);
+      ctx.fillStyle='rgba(255,210,120,0.9)'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('밝기 I=sinc²(πa·sinθ/λ)', scrX+18, H*0.10);
       ctx.fillStyle=DIM; ctx.fillText('중앙폭 ∝ 2λ/a = '+width.toFixed(2), scrX+18, H*0.80); ctx.textAlign='center'; ctx.fillText('단일슬릿', slitX, H*0.80);
       E.tapHint(W/2, H*0.90, '틈이 좁을수록 회절이 넓게 퍼집니다(폭 ∝ λ/a)', true);
       E.big('단일슬릿 회절 — 중앙 밝은 무늬 폭 ∝ λ/a', '좁은 틈이 빛을 부채처럼 퍼뜨립니다.'); }
@@ -107,7 +107,7 @@
         // 차수 m 선(날카로운 밝은 선)
         ctx.strokeStyle=col; ctx.lineWidth=m===0?3:2.4; ctx.globalAlpha=m===0?1:0.85; ctx.beginPath(); ctx.moveTo(gx,cy); ctx.lineTo(scrX,yy); ctx.stroke(); ctx.globalAlpha=1;
         ctx.fillStyle=col; ctx.fillRect(scrX+2,yy-2,16,4);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('m='+m+(m!==0?' ('+(theta*180/Math.PI).toFixed(0)+'°)':''), scrX+22, yy+3);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('m='+m+(m!==0?' ('+(theta*180/Math.PI).toFixed(0)+'°)':''), scrX+22, yy+3);
         if(m===1) info=(theta*180/Math.PI).toFixed(1);
       }
       ctx.fillStyle=col; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('d sinθ = mλ   →   1차 θ = '+info+'°', W/2, H*0.86);
@@ -168,7 +168,7 @@
       var gx=W*0.66, gw=W*0.26; ctx.strokeStyle='rgba(255,224,150,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       for(var yy=cy-120; yy<=cy+120; yy+=2){ var i1=Math.exp(-Math.pow((yy-y1)/(wDisk*0.6),2)), i2=Math.exp(-Math.pow((yy-y2)/(wDisk*0.6),2)); var I=i1+i2; var xx=gx+I/2*gw; if(yy===cy-120)ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); } ctx.stroke();
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx,cy-120); ctx.lineTo(gx,cy+120); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('합친 밝기', gx, cy-128);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('합친 밝기', gx, cy-128);
       // 판정
       ctx.fillStyle=resolved?GRN:'#ff7a7a'; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
       ctx.fillText(resolved?'✓ 둘로 구별됨 (각 ≥ θmin)':'✗ 하나로 뭉개짐 (각 < θmin)', W/2, H*0.80);

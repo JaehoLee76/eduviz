@@ -234,7 +234,7 @@
       for(var i=0;i<9;i++){ var col=i%3, row=(i/3|0);
         var x=ox+col*(gw+gap), y=oy+row*(gh+22);
         drawGlyph(ctx, x, y, px, sample(samples[i].d, samples[i].s+500), i===hi?'#fff3c4':'#ffe9a8');
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
         ctx.fillText('라벨 '+samples[i].d, x+gw/2, y+gh+13);
       }
 

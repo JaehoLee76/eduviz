@@ -50,14 +50,14 @@
       function ba(A){ for(var i=0;i<data.length-1;i++){ if(A<=data[i+1][0]){ var t=(A-data[i][0])/(data[i+1][0]-data[i][0]); return data[i][1]+t*(data[i+1][1]-data[i][1]); } } return data[data.length-1][1]; }
       var gx0=W*0.12, gx1=W*0.92, gy0=H*0.76, gh=H*0.54;
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('결합E/핵자 (MeV)', gx0+4,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('질량수 A →', gx1, gy0+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('결합E/핵자 (MeV)', gx0+4,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('질량수 A →', gx1, gy0+16);
       // 곡선
       ctx.strokeStyle=GRN; ctx.lineWidth=2.4; ctx.beginPath();
       for(var A2=2;A2<=238;A2+=2){ var v=ba(A2), x=gx0+(A2/238)*(gx1-gx0), y=gy0-(v/9)*gh; if(A2===2)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // 철 peak 표시
-      var fx=gx0+(56/238)*(gx1-gx0), fy=gy0-(8.8/9)*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(fx,fy,4,0,7); ctx.fill(); ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('철 Fe-56 (가장 안정)', fx, fy-10);
+      var fx=gx0+(56/238)*(gx1-gx0), fy=gy0-(8.8/9)*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(fx,fy,4,0,7); ctx.fill(); ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('철 Fe-56 (가장 안정)', fx, fy-10);
       // 융합/분열 방향 화살표
-      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='11px sans-serif'; ctx.fillText('← 핵융합(가벼운 핵 합침)', gx0+W*0.13, gy0-gh*0.3); ctx.fillText('핵분열(무거운 핵 쪼갬) →', gx1-W*0.14, gy0-gh*0.2);
+      ctx.fillStyle='rgba(122,184,255,0.8)'; ctx.font='13px sans-serif'; ctx.fillText('← 핵융합(가벼운 핵 합침)', gx0+W*0.13, gy0-gh*0.3); ctx.fillText('핵분열(무거운 핵 쪼갬) →', gx1-W*0.14, gy0-gh*0.2);
       // 현재 A
       var mx=gx0+(s.A/238)*(gx1-gx0), my=gy0-(ba(s.A)/9)*gh; ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(mx,gy0); ctx.lineTo(mx,my); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
@@ -81,11 +81,11 @@
       ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('남은 핵 N = '+Math.round(N)+' / '+N0, ox, oy-12);
       var gx0=W*0.50, gx1=W*0.93, gy0=H*0.78, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('N',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('N',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
       for(var k=0;k<=60;k++){ var tt=k/60*s.half*5, f2=Math.pow(0.5,tt/s.half), x=gx0+(tt/(s.half*5))*(gx1-gx0), y=gy0-f2*gh; if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       for(var hcnt=1;hcnt<=4;hcnt++){ var th=hcnt*s.half; if(th>s.half*5)break; var x=gx0+(th/(s.half*5))*(gx1-gx0), y=gy0-Math.pow(0.5,hcnt)*gh; ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x,gy0); ctx.lineTo(x,y); ctx.lineTo(gx0,y); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle='rgba(255,178,122,0.7)'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(hcnt+'T½', x, gy0+12); }
+        ctx.fillStyle='rgba(255,178,122,0.7)'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(hcnt+'T½', x, gy0+12); }
       var mx=gx0+(Math.min(s.t,s.half*5)/(s.half*5))*(gx1-gx0), my=gy0-frac*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
       E.tapHint(W/2, H*0.92, '화면 탭=초기화 · 반감기마다 절반으로 줄어듦', true);
       E.big('방사성 붕괴 N = N₀·(½)^(t/T½) — 남은 핵 '+Math.round(N)+'/'+N0, '집단은 시계처럼 정확히 반으로 줄어듭니다.'); }
@@ -125,7 +125,7 @@
       var sep = fuse ? Math.max(14, 70-((s.t*40)%70)) : 70;
       var x1=W*0.40-sep, x2=W*0.40+sep;
       ctx.fillStyle=PROT; ctx.beginPath(); ctx.arc(x1,cy,11,0,7); ctx.fill(); ctx.arc(x2,cy,11,0,7); ctx.fill();
-      ctx.fillStyle='#10141a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.fillText('H',x1,cy+3); ctx.fillText('H',x2,cy+3);
+      ctx.fillStyle='#10141a'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('H',x1,cy+3); ctx.fillText('H',x2,cy+3);
       // 반발(쿨롱) 또는 융합
       if(!fuse){ arrow(E,x1-14,cy,x1-34,cy,'#ff7a7a',2); arrow(E,x2+14,cy,x2+34,cy,'#ff7a7a',2); ctx.fillStyle='#ff8a8a'; ctx.font='13px sans-serif'; ctx.fillText('서로 밀어냄 (쿨롱 장벽) — 온도 부족', W*0.40, cy+50); }
       else if(sep<=16){ // 융합 → 헬륨 + 에너지

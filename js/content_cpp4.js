@@ -124,7 +124,7 @@
         ctx.beginPath(); ctx.arc(g.x, midY, 11, 0,7); ctx.fill(); ctx.stroke();
         ctx.fillStyle= g.on? g.col : DIM; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
         ctx.fillText(g.lab, g.x, midY-26);
-        ctx.fillStyle= g.on? '#dfeaf2' : DIM; ctx.font='11.5px sans-serif';
+        ctx.fillStyle= g.on? '#dfeaf2' : DIM; ctx.font='13.5px sans-serif';
         ctx.fillText(g.sub, g.x, midY+30);
       }
       // 진행 채움
@@ -208,7 +208,7 @@
         for(var i=0;i<badges.length;i++){ var byy=by+82+i*34;
           ctx.fillStyle='rgba(90,180,232,0.10)'; ctx.strokeStyle=CPB; ctx.lineWidth=1.3; roundRect(ctx,bx,byy,bw,28,6); ctx.fill(); ctx.stroke();
           ctx.fillStyle=CPD; ctx.font='12px ui-monospace,monospace'; ctx.fillText(badges[i][0], bx+10, byy+18);
-          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(badges[i][1], bx+130, byy+18);
+          ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(badges[i][1], bx+130, byy+18);
         }
         ctx.fillStyle=GRN; ctx.font='12.5px sans-serif';
         ctx.fillText('이니셜라이저 리스트만이 const·참조 멤버를 초기화할 수 있습니다.', bx, by+168);
@@ -250,9 +250,9 @@
       ctx.fillStyle='rgba(126,224,176,0.10)'; ctx.strokeStyle=GRN; ctx.lineWidth=1.6;
       roundRect(ctx,codeBoxX,codeBoxY,cbw,cbh,9); ctx.fill(); ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('grow() 코드', codeBoxX+cbw/2, codeBoxY+22);
-      ctx.fillStyle='#dfeaf2'; ctx.font='11.5px ui-monospace,monospace';
+      ctx.fillStyle='#dfeaf2'; ctx.font='13.5px ui-monospace,monospace';
       ctx.fillText('this->x += 1', codeBoxX+cbw/2, codeBoxY+cbh*0.55);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('(단 하나, 공유됨)', codeBoxX+cbw/2, codeBoxY+cbh-12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('(단 하나, 공유됨)', codeBoxX+cbw/2, codeBoxY+cbh-12);
 
       // 세 객체 상자 (우측 영역 [W*0.78, W*0.945] 안에 배치, 화면밖 방지)
       var objX=W*0.78, objY=H*0.13, ow=W*0.165, oh=H*0.15, gap=H*0.025;
@@ -328,12 +328,12 @@
         roundRect(ctx,bx,ey,cw*2,chh,8); ctx.fill(); ctx.stroke();
         ctx.fillStyle=col; ctx.font='600 14px ui-monospace,monospace'; ctx.textAlign='left';
         ctx.fillText('arr['+i+']', bx+14, ey+chh*0.6);
-        ctx.font='11.5px sans-serif';
+        ctx.font='13.5px sans-serif';
         var lbl = stt==='alive'? '살아 있음 (생성됨)' : (stt==='dead'? '소멸됨 (~Widget)' : '아직 없음');
         ctx.fillText(lbl, bx+90, ey+chh*0.6);
         // 순서 배지
-        if(stt==='alive'){ ctx.fillStyle=GRN; ctx.font='600 11px sans-serif'; ctx.textAlign='right'; ctx.fillText('생성 #'+(i+1), bx+cw*2-12, ey+18); }
-        if(stt==='dead'){ ctx.fillStyle=RED; ctx.font='600 11px sans-serif'; ctx.textAlign='right'; ctx.fillText('소멸 #'+(N-i), bx+cw*2-12, ey+18); }
+        if(stt==='alive'){ ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.fillText('생성 #'+(i+1), bx+cw*2-12, ey+18); }
+        if(stt==='dead'){ ctx.fillStyle=RED; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.fillText('소멸 #'+(N-i), bx+cw*2-12, ey+18); }
       }
 
       // 하단: 순서 화살표 요약

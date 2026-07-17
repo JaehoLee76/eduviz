@@ -134,7 +134,7 @@
       var A=ang(pts[0],pts[1],pts[2]), B=ang(pts[1],pts[0],pts[2]), C=ang(pts[2],pts[0],pts[1]);
       // 꼭짓점 각도(실계산) — 이름 옆에 작게 표시
       var angDeg=[A,B,C].map(function(r){ return (r/D2R).toFixed(0); });
-      ctx.fillStyle='rgba(255,217,189,0.75)'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(255,217,189,0.75)'; ctx.font='12px sans-serif'; ctx.textAlign='center';
       for(var k=0;k<3;k++){ ctx.fillText('('+angDeg[k]+'°)', pts[k][0]+(pts[k][0]<cx?-16:16), pts[k][1]+(pts[k][1]<cy?-22:30)); }
       // 변 라벨
       ctx.fillStyle='#8fe3b5'; ctx.font='13px sans-serif';

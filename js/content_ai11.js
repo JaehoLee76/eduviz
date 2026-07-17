@@ -133,7 +133,7 @@
         ctx.textAlign='center'; ctx.fillText(toks[i], gx+i*cell+cell/2, gy+n*cell+18); }   // 열 라벨(키)
       for(i=0;i<n;i++) for(var j=0;j<n;j++){ var a=A[i][j], hl=(i===s.focus);
         ctx.fillStyle='rgba(61,214,220,'+(0.08+0.9*a).toFixed(3)+')'; ctx.globalAlpha=hl?1:0.5; ctx.fillRect(gx+j*cell, gy+i*cell, cell-2, cell-2);
-        if(hl){ ctx.fillStyle=a>0.4?'#06222a':'#bfeef0'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText((a*100).toFixed(0), gx+j*cell+cell/2, gy+i*cell+cell*0.6); } ctx.globalAlpha=1; }
+        if(hl){ ctx.fillStyle=a>0.4?'#06222a':'#bfeef0'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText((a*100).toFixed(0), gx+j*cell+cell/2, gy+i*cell+cell*0.6); } ctx.globalAlpha=1; }
       // 선택 토큰의 주목 분포 설명
       var row=A[s.focus], mx=0; for(j=1;j<n;j++) if(row[j]>row[mx])mx=j;
       ctx.fillStyle='#dfeef0'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
@@ -159,7 +159,7 @@
         // 현재 pos 값(실측)
         var v=(i%2===0)?Math.sin(s.pos*freq*6.283):Math.cos(s.pos*freq*6.283);
         var dx=ox+(s.pos/7)*pw; ctx.fillStyle=GLD; ctx.beginPath(); ctx.arc(dx, oy+i*rowH+rowH/2 - v*rowH*0.42, 3.5,0,7); ctx.fill();
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('d'+i, ox-22, oy+i*rowH+rowH/2+3); }
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('d'+i, ox-22, oy+i*rowH+rowH/2+3); }
       ctx.strokeStyle='rgba(255,210,122,0.5)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(ox+(s.pos/7)*pw, oy-4); ctx.lineTo(ox+(s.pos/7)*pw, oy+d*rowH); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('pos='+s.pos, ox+(s.pos/7)*pw, oy+d*rowH+16);
       // RNN(순차) vs Transformer(병렬)

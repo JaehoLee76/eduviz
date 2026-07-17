@@ -144,13 +144,13 @@
       var ay0=py+58, ay1=py+96;
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx, ay0); ctx.lineTo(cx, ay1); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx,ay1); ctx.lineTo(cx-5,ay1-8); ctx.lineTo(cx+5,ay1-8); ctx.closePath(); ctx.fillStyle=GRN; ctx.fill();
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('extends', cx+8, (ay0+ay1)/2+4);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('extends', cx+8, (ay0+ay1)/2+4);
 
       // 자식 박스
       var cyb=ay1, ch2=66, cpx=cx-pw/2;
       ctx.fillStyle='rgba(255,211,67,0.08)'; ctx.strokeStyle=PYL; ctx.lineWidth=2; roundRect(ctx,cpx,cyb,pw,ch2,9); ctx.fill(); ctx.stroke();
       ctx.fillStyle=PYL; ctx.font='600 14px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('Cat (자식)', cx, cyb+22);
-      ctx.fillStyle=GRN; ctx.font='11.5px sans-serif'; ctx.fillText('name  ← 물려받음', cx, cyb+40);
+      ctx.fillStyle=GRN; ctx.font='13.5px sans-serif'; ctx.fillText('name  ← 물려받음', cx, cyb+40);
       ctx.fillStyle=PYL; ctx.fillText('speak() ← 새로 정의(오버라이드)', cx, cyb+57);
 
       // 실행 단계: 실제 문자열 계산
@@ -273,7 +273,7 @@
           ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=f[3]; ctx.lineWidth=1.4; roundRect(ctx,gx-30,y,gw*0.95,44,7); ctx.fill(); ctx.stroke();
           ctx.fillStyle=f[3]; ctx.font='600 12.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(f[0], gx-18, y+18);
           ctx.fillStyle='#cfe6e8'; ctx.font='12px ui-monospace,Menlo,monospace'; ctx.fillText('→ '+f[1], gx-18, y+36);
-          ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='right'; ctx.fillText(f[2], gx-30+gw*0.95-12, y+27); }
+          ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='right'; ctx.fillText(f[2], gx-30+gw*0.95-12, y+27); }
       } else if(s.step===1){
         // 실제 계산값
         ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('math 모듈 — 실제 결과값', gx-30, oy);
@@ -304,7 +304,7 @@
         for(var i=0;i<libs.length;i++){ var col=i%2, rrow=Math.floor(i/2), x=gx-30+col*(gw*0.49), y=oy+16+rrow*46;
           ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=libs[i][2]; ctx.lineWidth=1.4; roundRect(ctx,x,y,gw*0.45,38,7); ctx.fill(); ctx.stroke();
           ctx.fillStyle=libs[i][2]; ctx.font='600 13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(libs[i][0], x+10, y+17);
-          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(libs[i][1], x+10, y+31); }
+          ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(libs[i][1], x+10, y+31); }
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('설치 없이 import만 하면 바로 쓰는 수백 개의 모듈이 기본 내장.', gx-30, oy+16+3*46+12);
       }
       E.tapHint(W/2, H*0.93, '화면 탭 = 다음 (import 방식 → math 실제값 → 표준 라이브러리)', true);
@@ -353,7 +353,7 @@
         // PyPI → pip → venv
         function pillBox(x,y,w,t,d,col){ ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=col; ctx.lineWidth=1.8; roundRect(ctx,x,y,w,46,8); ctx.fill(); ctx.stroke();
           ctx.fillStyle=col; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText(t, x+12, y+20);
-          ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(d, x+12, y+37); }
+          ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText(d, x+12, y+37); }
         pillBox(gx-30, oy+22, gw*0.95, 'PyPI (전 세계 패키지 저장소)', '50만+ 패키지 — numpy, pandas, torch …', PNK);
         ctx.fillStyle=GLD; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText('↓  pip install', gx-30+gw*0.475, oy+86);
         pillBox(gx-30, oy+96, gw*0.95, '.venv (이 프로젝트 전용 환경)', 'numpy 2.0 · pandas 2.2 — 버전 충돌 없음', GRN);

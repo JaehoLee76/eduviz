@@ -51,7 +51,7 @@
         // 포물선 물줄기
         ctx.strokeStyle='rgba(122,184,255,0.7)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(tankX+tankW,hy);
         for(var k=0;k<=30;k++){ var tt=k/30*0.9, x=tankX+tankW+v*tt*scaleX, y=hy+0.5*g*tt*tt*scaleY; if(y>botY)break; ctx.lineTo(x,y); } ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('h='+h+'m  P='+(P/1000).toFixed(1)+' kPa  v='+v.toFixed(1)+' m/s', tankX+tankW+6, hy-6); });
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('h='+h+'m  P='+(P/1000).toFixed(1)+' kPa  v='+v.toFixed(1)+' m/s', tankX+tankW+6, hy-6); });
       // 깊이 화살표
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('수면', tankX-6, topY+4); ctx.fillText('바닥', tankX-6, botY);
       var Pbot=s.rho*g*Hm;
@@ -82,7 +82,7 @@
       // 물(수면 surf 이하)
       ctx.fillStyle=WAT; ctx.fillRect(X(0),Y(s.surf),X(10)-X(0),Y(0)-Y(s.surf));
       ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(X(0),Y(s.surf)); ctx.lineTo(X(10),Y(s.surf)); ctx.stroke();
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('수면', X(10)+6, Y(s.surf)+4);
+      ctx.fillStyle=BLU; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('수면', X(10)+6, Y(s.surf)+4);
       // 블록(잠긴 부분 진하게)
       var half=L/2, px=X(b.x), pyTop=Y(b.y+half), Lpx=L*sc, sub=Math.max(0,Math.min(L,s.surf-(b.y-half)));
       ctx.fillStyle=ORA; ctx.globalAlpha=0.25; ctx.fillRect(px-Lpx/2,pyTop,Lpx,Lpx); ctx.globalAlpha=1;
@@ -92,7 +92,7 @@
       // 힘 화살표: 무게(아래)·부력(위)
       var Fb=1000*9.8*L*sub/1000, Wt=b.m*9.8;
       ctx.strokeStyle=PNK; ctx.lineWidth=2.5; var cy0=pyTop+Lpx/2; ctx.beginPath(); ctx.moveTo(px+Lpx/2+8,cy0); ctx.lineTo(px+Lpx/2+8,cy0+Math.min(50,Wt*4)); ctx.stroke();
-      ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('무게 '+Wt.toFixed(1)+' N', px+Lpx/2+12, cy0+14);
+      ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('무게 '+Wt.toFixed(1)+' N', px+Lpx/2+12, cy0+14);
       ctx.strokeStyle=GRN; ctx.beginPath(); ctx.moveTo(px-Lpx/2-8,cy0); ctx.lineTo(px-Lpx/2-8,cy0-Math.min(50,Fb*4)); ctx.stroke();
       ctx.fillStyle=GRN; ctx.textAlign='right'; ctx.fillText('부력 '+Fb.toFixed(1)+' N', px-Lpx/2-12, cy0-14);
       var frac=Math.round(sub/L*100), state=s.d<1?'뜸(부분 잠김)':(s.d>1?'가라앉음':'중성부력');
@@ -154,8 +154,8 @@
       [1.5,5,8.5].forEach(function(xu){ var X=x0+(x1-x0)*xu/10, r=rad(xu), P=pres(xu), colh=(P-60)*1.4;
         ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.strokeRect(X-7, midY-r-colh-30, 14, colh+30);
         ctx.fillStyle=(xu===5?ORA:BLU); ctx.globalAlpha=0.7; ctx.fillRect(X-7, midY-r-colh, 14, colh); ctx.globalAlpha=1;
-        ctx.fillStyle=(xu===5?ORA:BLU); ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('P='+Math.round(P), X, midY-r-colh-36); });
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('↑ 압력 게이지 (관 높이 = 압력)', W*0.5, H*0.10);
+        ctx.fillStyle=(xu===5?ORA:BLU); ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('P='+Math.round(P), X, midY-r-colh-36); });
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('↑ 압력 게이지 (관 높이 = 압력)', W*0.5, H*0.10);
       // 입자
       s.parts.forEach(function(p,idx){ if(!E.frozen){ s.parts[idx]+=vel(p)*(1/60)*1.1; if(s.parts[idx]>10) s.parts[idx]-=10; }
         var xu=s.parts[idx], X=x0+(x1-x0)*xu/10, r=rad(xu), yoff=((idx*37)%100/100-0.5)*1.4*r;
@@ -210,7 +210,7 @@
       ctx.fillStyle='rgba(122,184,255,0.4)'; ctx.fillRect(tx-tubeW/2+2, poolY-riseP, tubeW-4, riseP+H*0.16);
       // 메니스커스 + 이름표
       ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('h = '+hmm.toFixed(0)+' mm', tx+tubeW/2+8, poolY-riseP+4);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('상승 물기둥', tx+tubeW/2+8, poolY-riseP/2);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('상승 물기둥', tx+tubeW/2+8, poolY-riseP/2);
       ctx.fillStyle=BLU; ctx.fillText('γ = 0.073 N/m (표면장력)', tx+tubeW/2+8, poolY-riseP-12);
       ctx.fillStyle=BLU; ctx.textAlign='left'; ctx.fillText('물', W*0.16+6, poolY+18);
       ctx.fillStyle=DIM; ctx.fillText('r = '+s.r.toFixed(1)+' mm', tx, poolY+H*0.16+2);

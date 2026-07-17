@@ -114,7 +114,7 @@
       // (가) 1D 슬라이스 — 선택 셀 강조 + 인덱스
       ctx.fillStyle=PYL; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('a['+lo+':'+hi+']  →  실제 선택', rx-70, ry-8);
       // 인덱스 라벨
-      ctx.fillStyle=DIM; ctx.font='10px ui-monospace,monospace'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='center';
       for(var i=0;i<a.length;i++) ctx.fillText(i, rx+i*(cw+5)+cw/2, ry-12);
       arrRow(ctx, rx, ry, a, PYB, null, {cw:cw, gap:5, fs:12, hi:function(i){ return i>=lo && i<hi; }});
       ctx.fillStyle=GRN; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='left';
@@ -232,7 +232,7 @@
         ctx.fillText('백만 원소면 반복문보다 수십~수백 배 빠르죠.', rx, ry+162);
         // 속도 막대(개념적 — 상대 비교)
         var sy=ry+186, bw=W*0.30;
-        ctx.fillStyle=PNK; ctx.fillRect(rx, sy, bw, 16); ctx.fillStyle='#1a1a1a'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('  for 루프 (느림)', rx+4, sy+12);
+        ctx.fillStyle=PNK; ctx.fillRect(rx, sy, bw, 16); ctx.fillStyle='#1a1a1a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('  for 루프 (느림)', rx+4, sy+12);
         ctx.fillStyle=GRN; ctx.fillRect(rx, sy+24, bw*0.10, 16); ctx.fillStyle=GRN; ctx.fillText('  np.sum (≈10× 이상 빠름)', rx+bw*0.10+6, sy+36);
       } else {
         // 원소별 곱

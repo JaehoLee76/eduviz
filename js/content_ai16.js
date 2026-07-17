@@ -319,7 +319,7 @@
           ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(cx+Math.cos(ang)*40,cy+Math.sin(ang)*40); ctx.lineTo(sx-Math.cos(ang)*30,sy-Math.sin(ang)*30); ctx.stroke();
           ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=sat[j].c; ctx.lineWidth=1.6; roundRect(ctx,sx-58,sy-22,116,44,8); ctx.fill(); ctx.stroke();
           ctx.fillStyle=sat[j].c; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(sat[j].t, sx, sy-3);
-          ctx.fillStyle='#cfe6e8'; ctx.font='10.5px sans-serif'; ctx.fillText(sat[j].d, sx, sy+13); }
+          ctx.fillStyle='#cfe6e8'; ctx.font='12.5px sans-serif'; ctx.fillText(sat[j].d, sx, sy+13); }
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('“AI의 깃허브” — 모델·데이터·데모를 모두가 공유.', gx, H*0.92);
       }
       E.tapHint(W/2, H*0.95, '화면 탭 = 다음 (pipeline 흐름 → 생태계 지도)', true);

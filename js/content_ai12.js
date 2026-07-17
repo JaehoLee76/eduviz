@@ -168,7 +168,7 @@
       function SX(e){ return ox + (e-e0)/(e1-e0)*pw; }
       function SY(L){ return oy - (L-ymin)/(ymax-ymin)*pv; }
       // x축 눈금
-      for(var e=e0;e<=e1;e++){ ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      for(var e=e0;e<=e1;e++){ ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
         ctx.fillText(e+'', SX(e), oy+16); ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.moveTo(SX(e),oy); ctx.lineTo(SX(e),oy-pv); ctx.stroke(); }
       // 곡선(실계산)
       ctx.strokeStyle=GLD; ctx.lineWidth=2.6; ctx.beginPath();

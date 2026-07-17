@@ -93,7 +93,7 @@
             ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText(fnames[k], x+14, yy+4);
             ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(x+70, yy-9, bw*0.42, 13);
             ctx.fillStyle=col; ctx.fillRect(x+70, yy-9, bw*0.42*f[k], 13);
-            ctx.fillStyle='#cfe6e8'; ctx.font='11px sans-serif'; ctx.fillText((f[k]).toFixed(2), x+70+bw*0.42+8, yy+2); }
+            ctx.fillStyle='#cfe6e8'; ctx.font='13px sans-serif'; ctx.fillText((f[k]).toFixed(2), x+70+bw*0.42+8, yy+2); }
           ctx.fillStyle=col; ctx.font='600 16px sans-serif'; ctx.fillText('보상 r = '+r.toFixed(3), x+14, by+H*0.40-12);
         }
         card(bx,'응답 A',A,rA,GRN,rA>=rB); card(bx+bw+W*0.04,'응답 B',B,rB,PNK,rB>rA);
@@ -140,7 +140,7 @@
       for(i=0;i<3;i++){ var x=gx+i*W*0.085, hh=acc===null?0:[0.41,0.63,0.88][i]*scl, on=(i===m);
         ctx.globalAlpha=on?1:0.32; ctx.fillStyle=cols[i]; ctx.fillRect(x,gy-hh,gw,hh);
         ctx.fillStyle=cols[i]; ctx.font='600 13px sans-serif'; ctx.fillText(([41,63,88][i])+'%', x+gw/2, gy-hh-6);
-        ctx.fillStyle=on?'#dfeef0':DIM; ctx.font='11px sans-serif'; ctx.fillText(['zero','few','CoT'][i], x+gw/2, gy+16); ctx.globalAlpha=1; }
+        ctx.fillStyle=on?'#dfeef0':DIM; ctx.font='13px sans-serif'; ctx.fillText(['zero','few','CoT'][i], x+gw/2, gy+16); ctx.globalAlpha=1; }
       // 현재 방식 모델 답
       ctx.fillStyle=cols[m]; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
       var modelAns=[ '답: 5개 ✘ (성급히 틀림)', '답: 5개 ✘ (형식만 흉내, 5 패턴에 휩쓸림)', '답: 0개 ✔ (과정을 풀어 정답)' ][m];
@@ -171,7 +171,7 @@
         ctx.fillStyle=(i===mx)?CYA:'rgba(61,214,220,0.4)'; ctx.fillRect(x, gy-hh, bw, hh);
         ctx.fillStyle=(i===mx)?CYA:'#cfe6e8'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText((p[i]*100).toFixed(1)+'%', x+bw/2, gy-hh-7);
         ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(toks[i], x+bw/2, gy+18);
-        ctx.fillStyle=DIM; ctx.font='10.5px sans-serif'; ctx.fillText('logit '+logits[i].toFixed(1), x+bw/2, gy+34); }
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('logit '+logits[i].toFixed(1), x+bw/2, gy+34); }
       ctx.strokeStyle='rgba(61,214,220,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx,gy);ctx.lineTo(gx+gw,gy); ctx.stroke();
       // 온도 해석 게이지
       var px=W*0.50, py=H*0.84;

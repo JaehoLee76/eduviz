@@ -195,7 +195,7 @@
           ctx.fillRect(x, by, cw, cw); ctx.strokeStyle=BLU; ctx.lineWidth=1.2; ctx.strokeRect(x, by, cw, cw);
           ctx.fillStyle=bits[i]?BLU:DIM; ctx.font='700 15px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
           ctx.fillText(bits[i]?'1':'0', x+cw/2, by+cw/2+6);
-          ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.fillText('1B', x+cw/2, by+cw+14);
+          ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('1B', x+cw/2, by+cw+14);
         }
         ctx.fillStyle=RED; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
         ctx.fillText('8개 bool = 8 바이트  (참/거짓에 8배 낭비)', bx, by+cw+44);
@@ -229,7 +229,7 @@
           ctx.fillStyle= bits[i]?GRN:DIM; ctx.font='700 16px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
           ctx.fillText(bits[i]?'1':'0', x+bitw/2, by+bh/2+6);
         }
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
         ctx.fillText('1 바이트 = 8 비트', bx+bw/2, by+bh+16);
         ctx.fillStyle=GRN; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
         ctx.fillText('8개 bool = 1 바이트  (8배 절약!)', bx, by+bh+42);
@@ -279,7 +279,7 @@
         ctx.strokeStyle=CPB; ctx.lineWidth=1.4; ctx.strokeRect(x, by, cw, chh);
         ctx.fillStyle='#dfeaf2'; ctx.font='700 14px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
         ctx.fillText(''+data[i], x+cw/2, by+chh/2+5);
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.fillText('['+i+']', x+cw/2, by+chh+14);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('['+i+']', x+cw/2, by+chh+14);
       }
       // 크기 브레이스
       ctx.strokeStyle=GLD; ctx.lineWidth=1.6;
@@ -346,7 +346,7 @@
         roundRect(ctx,ox,y,ow,oh,8); ctx.fill(); ctx.stroke();
         ctx.fillStyle=o.col; ctx.font='700 14px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
         ctx.fillText(o.t, ox+ow/2, y+17);
-        ctx.fillStyle=DIM; ctx.font='10.5px sans-serif'; ctx.fillText('전용 코드 1벌 생성', ox+ow/2, y+30);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('전용 코드 1벌 생성', ox+ow/2, y+30);
       }
 
       // 설명 — 코드패널 아래 여백이 넉넉하면 좌측, 좁으면 우측(출력 아래). 겹침 방지.
@@ -363,7 +363,7 @@
 
       // STL 칩 — 설명 아래, 화면 하단(H*0.92) 안쪽으로 클램프
       var chips=['vector','map','set','sort','pair'], chx=lpx, chy=Math.min(lpy+52, H*0.92-20);
-      ctx.font='11.5px sans-serif';
+      ctx.font='13.5px sans-serif';
       for(k=0;k<chips.length;k++){
         var wch=ctx.measureText(chips[k]).width+18;
         ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=CPB; ctx.lineWidth=1;
@@ -483,7 +483,7 @@
       // 표 헤더
       var ty=py+32, rh=44, col2=px+tw*0.60;
       ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1;
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('인자 (호출)', px+10, ty+16);
       ctx.fillText('추론된 T', col2+10, ty+16);
       ctx.beginPath(); ctx.moveTo(px, ty+24); ctx.lineTo(px+tw, ty+24); ctx.stroke();
@@ -556,7 +556,7 @@
         ctx.fillText(ok?'✓':'✗', px, y);
         ctx.fillStyle='#dfeaf2'; ctx.font='13px sans-serif';
         ctx.fillText(label, px+22, y);
-        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText(detail, px+22, y+18);
       }
       if(isFunc){
@@ -573,7 +573,7 @@
       var oy=py+112+40;
       ctx.fillStyle='#0c0f16'; ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4;
       roundRect(ctx,px,oy,bw,52,8); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='10.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('무엇이 선택되나', px+10, oy+15);
+      ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('무엇이 선택되나', px+10, oy+15);
       ctx.fillStyle=GRN; ctx.font='600 13px ui-monospace,Menlo,monospace';
       if(isFunc) ctx.fillText('f(&a) → f(int*)  (오버로드)', px+10, oy+36);
       else       ctx.fillText('Box<int*> → 부분특수화판', px+10, oy+36);

@@ -200,7 +200,7 @@
         var fx=x0+(n-1)*gap+gap*0.4, fy=by+17;
         ctx.strokeStyle=RED; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(W*0.66,H*0.50); ctx.stroke();
         ctx.fillStyle=RED; ctx.beginPath(); ctx.arc(W*0.66,H*0.50,16,0,7); ctx.fill();
-        ctx.fillStyle='#0a1417'; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('맥락', W*0.66, H*0.50+4);
+        ctx.fillStyle='#0a1417'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('맥락', W*0.66, H*0.50+4);
         ctx.fillStyle=RED; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
         ctx.fillText('정보 병목: 문장 전체를 벡터 하나에 욱여넣음', W*0.18, H*0.66);
         ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
@@ -221,7 +221,7 @@
           // 토큰 박스
           ctx.fillStyle=(i===mx)?CYA:'rgba(255,255,255,0.08)'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(cx2-30,by,60,34,9);ctx.fill();}else ctx.fillRect(cx2-30,by,60,34);
           ctx.fillStyle=(i===mx)?'#0a1417':'#dfeef0'; ctx.font='600 15px sans-serif'; ctx.fillText(words[i].t, cx2, by+22);
-          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('내적 '+scores[i].toFixed(2), cx2, by+50); }
+          ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('내적 '+scores[i].toFixed(2), cx2, by+50); }
         ctx.fillStyle=CYA; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
         ctx.fillText('어텐션: 입력의 모든 단어를 직접 봅니다', W*0.18, H*0.66);
         ctx.fillStyle='#dfeef0'; ctx.font='13.5px sans-serif';

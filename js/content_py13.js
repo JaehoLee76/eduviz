@@ -270,7 +270,7 @@
       for(var v=X0;v<=X1;v+=0.04){ var p=SY(loss(v)); if(v===X0)ctx.moveTo(SX(v),p); else ctx.lineTo(SX(v),p); } ctx.stroke();
       // 최적 w=3 점선
       ctx.strokeStyle='rgba(126,224,176,0.45)'; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(SX(3),oy); ctx.lineTo(SX(3),SY(0)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('최적 w=3', SX(3), oy+15);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('최적 w=3', SX(3), oy+15);
       // 발자국
       for(k=0;k<=s.step;k++){ var a=k/Math.max(1,s.step); ctx.fillStyle='rgba(255,211,67,'+(0.18+0.5*a)+')';
         ctx.beginPath(); ctx.arc(SX(path[k]),SY(loss(path[k])),3,0,7); ctx.fill(); }
@@ -278,7 +278,7 @@
       ctx.strokeStyle=PNK; ctx.lineWidth=1.6; var dd=0.9;
       ctx.beginPath(); ctx.moveTo(SX(wNow-dd),SY(lNow-gNow*dd)); ctx.lineTo(SX(wNow+dd),SY(lNow+gNow*dd)); ctx.stroke();
       ctx.fillStyle=PYB; ctx.beginPath(); ctx.arc(SX(wNow),SY(lNow),7,0,7); ctx.fill();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('loss(w)', ox+pw-30, SY(LMAX)+12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('loss(w)', ox+pw-30, SY(LMAX)+12);
 
       // ── 수치 패널 ──
       var px=W*0.06, py=H*0.66;
@@ -341,7 +341,7 @@
       // 학습된 직선
       ctx.strokeStyle=GRN; ctx.lineWidth=2.4; ctx.beginPath();
       ctx.moveTo(SX(dX0),SY(wN*dX0+bN)); ctx.lineTo(SX(dX1),SY(wN*dX1+bN)); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('데이터 ● · 학습 직선 ━', SX(dX0)+4, SY(dY1)+12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('데이터 ● · 학습 직선 ━', SX(dX0)+4, SY(dY1)+12);
 
       // ── 손실 곡선 ──
       var lx=W*0.57, ly=H*0.96, lw=W*0.39, lv=H*0.16, LMAX=hist[0];
@@ -351,7 +351,7 @@
       ctx.strokeStyle=PYL; ctx.lineWidth=1.8; ctx.beginPath();
       for(var e=0;e<=ep;e++){ var p=LY(hist[e]); if(e===0)ctx.moveTo(LX(e),p); else ctx.lineTo(LX(e),p); } ctx.stroke();
       ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(LX(ep),LY(lossN),4,0,7); ctx.fill();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('손실 ↓ (에폭)', lx+4, ly-lv-2);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('손실 ↓ (에폭)', lx+4, ly-lv-2);
 
       // ── 학습 파라미터 패널 ──
       var px=W*0.04, py=H*0.62;

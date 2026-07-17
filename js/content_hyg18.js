@@ -13,8 +13,8 @@
      하단 콘텐츠가 캔버스 밖으로 밀려나는 역효과를 냄, 2026-07-16 발견·교정).
      반환값 = 소비한 총 세로높이(마지막 rowGap 제외) → 호출부가 y+=ROW(...)로 커서 이동. */
   function ROW(ctx,W,H,x,y,w,rows){
-    var labelFs=FS(H,0.022,9,12), valueFs=FS(H,0.028,11,15);
-    var gap=FS(H,0.008,2,4), rowGap=FS(H,0.010,3,5);
+    var labelFs=FS(H,0.022,11,14), valueFs=FS(H,0.028,13,15);
+    var gap=FS(H,0.008,4,6), rowGap=FS(H,0.010,5,7);
     var blockH=labelFs+gap+valueFs, cy=y;
     for(var i=0;i<rows.length;i++){
       ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x-8,cy-3,w,blockH+6,7); ctx.fill();
@@ -46,7 +46,7 @@
       var ratio=s.N2/s.N1, Qr=ratio, SPr=ratio*ratio, kWr=ratio*ratio*ratio;
       var Q2=s.Q1*Qr, SP2=s.SP1*SPr, powerPct=(kWr-1)*100;
       var y=H*0.24;
-      T(ctx,'상사법칙: Q ∝ N  ·  SP ∝ N²  ·  동력(kW) ∝ N³   (회전수비 N₂/N₁ = '+ratio.toFixed(3)+')',W*0.08,y,DIM,FS(H,0.024,10,13),'left');
+      T(ctx,'상사법칙: Q ∝ N  ·  SP ∝ N²  ·  동력(kW) ∝ N³   (회전수비 N₂/N₁ = '+ratio.toFixed(3)+')',W*0.08,y,DIM,FS(H,0.024,12,15),'left');
       y+=FS(H,0.05,16,26);
       var cw=W*0.28, ch=FS(H,0.07,24,38), cx1=W*0.08, cx2=W*0.42;
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; RR(ctx,cx1,y,cw,ch,8); ctx.fill(); ctx.stroke();
@@ -62,8 +62,8 @@
         ['③ 동력 kW ∝ N³   (×'+kWr.toFixed(3)+')', '유지비(전력) '+powerPct.toFixed(1)+' % 증가', RED]
       ];
       var rowsH=ROW(ctx,W,H,W*0.08,y,W*0.84,rows);
-      y+=rowsH+FS(H,0.03,8,16);
-      T(ctx,'검산: N₂/N₁='+s.N2+'/'+s.N1+'='+ratio.toFixed(3)+' → kW비='+ratio.toFixed(3)+'³='+kWr.toFixed(3),W*0.08,y,DIM,FS(H,0.022,9,12),'left');
+      y+=rowsH+FS(H,0.03,10,16);
+      T(ctx,'검산: N₂/N₁='+s.N2+'/'+s.N1+'='+ratio.toFixed(3)+' → kW비='+ratio.toFixed(3)+'³='+kWr.toFixed(3),W*0.08,y,DIM,FS(H,0.022,11,14),'left');
       E.tapHint(0,0,'슬라이더로 회전수·기준 송풍량·정압 조절',true);
       E.big('N '+s.N1+'→'+s.N2+'rpm → 동력×'+kWr.toFixed(2)+'(유지비 '+powerPct.toFixed(1)+'%↑)',
             '기출 빈출유형: 팬을 더 빨리 돌리면 바람은 회전수만큼(1배), 압력은 회전수의 제곱만큼, 전기값은 회전수의 세제곱만큼 늘어납니다 — 조금만 더 돌려도 전기요금이 확 뛰는 이유입니다.'); }
@@ -84,12 +84,12 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var VPin=Math.pow(s.Vin/4.043,2);
       var FSP=(s.SPout-s.SPin)-VPin;
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       var y=H*0.24;
-      T(ctx,'FSP = (SP_out − SP_in) − VP_in    [VP=(V/4.043)², 산업환기 표준상태]',W*0.08,y,DIM,FS(H,0.024,10,13),'left');
+      T(ctx,'FSP = (SP_out − SP_in) − VP_in    [VP=(V/4.043)², 산업환기 표준상태]',W*0.08,y,DIM,FS(H,0.024,12,15),'left');
       y+=FS(H,0.06,22,32);
       // 덕트 흐름 다이어그램
-      var dy=y+FS(H,0.02,6,10), dh=FS(H,0.08,28,40), dx1=W*0.10, dx2=W*0.62, dw=W*0.24;
+      var dy=y+FS(H,0.02,8,12), dh=FS(H,0.08,28,40), dx1=W*0.10, dx2=W*0.62, dw=W*0.24;
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; RR(ctx,dx1,dy,dw,dh,7); ctx.fill(); ctx.stroke();
       T(ctx,'흡인구 SP_in',dx1+dw/2,dy+dh*0.4,BLU,fs,'center','600');
       T(ctx,s.SPin+' mmH₂O',dx1+dw/2,dy+dh*0.75,BLU,fs,'center','700');
@@ -98,7 +98,7 @@
       T(ctx,s.SPout+' mmH₂O',dx2+dw/2,dy+dh*0.75,ORA,fs,'center','700');
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(dx1+dw+6,dy+dh/2); ctx.lineTo(dx2-6,dy+dh/2); ctx.stroke(); ctx.lineWidth=1;
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.moveTo(dx2-6,dy+dh/2); ctx.lineTo(dx2-14,dy+dh/2-5); ctx.lineTo(dx2-14,dy+dh/2+5); ctx.fill();
-      T(ctx,'송풍기(V_in='+s.Vin.toFixed(1)+'m/s)',(dx1+dw+dx2)/2,dy+dh/2-10,GRN,FS(H,0.02,9,12),'center');
+      T(ctx,'송풍기(V_in='+s.Vin.toFixed(1)+'m/s)',(dx1+dw+dx2)/2,dy+dh/2-10,GRN,FS(H,0.02,11,14),'center');
       y=dy+dh+FS(H,0.06,22,30);
       var rows=[
         ['① 흡입 속도압 VP_in = (V_in/4.043)²', VPin.toFixed(3)+' mmH₂O', BLU],
@@ -135,23 +135,23 @@
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var VP2=s.VP1*Math.pow(s.d1/s.d2,4);
       var theo=s.VP1-VP2, actual=s.R*theo, loss=(1-s.R)*theo;
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       var y=H*0.22;
-      T(ctx,'연속식 V∝1/d² → VP∝1/d⁴  ⇒  VP₂=VP₁×(d₁/d₂)⁴',W*0.08,y,DIM,FS(H,0.024,10,13),'left');
+      T(ctx,'연속식 V∝1/d² → VP∝1/d⁴  ⇒  VP₂=VP₁×(d₁/d₂)⁴',W*0.08,y,DIM,FS(H,0.024,12,15),'left');
       y+=FS(H,0.05,18,26);
       // 확대관 다이어그램 (작은 원→큰 원)
-      var ccy=y+FS(H,0.09,32,44), r1=FS(H,0.05,16,24)*(s.d1/200), r2=FS(H,0.05,16,24)*(s.d2/300)+FS(H,0.02,7,10);
+      var ccy=y+FS(H,0.09,32,44), r1=FS(H,0.05,16,24)*(s.d1/200), r2=FS(H,0.05,16,24)*(s.d2/300)+FS(H,0.02,9,12);
       var cx1=W*0.16, cx2=W*0.46;
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx1,ccy-r1); ctx.lineTo(cx2,ccy-r2); ctx.moveTo(cx1,ccy+r1); ctx.lineTo(cx2,ccy+r2); ctx.stroke();
       ctx.strokeStyle=BLU; ctx.beginPath(); ctx.moveTo(cx1,ccy-r1); ctx.lineTo(cx1,ccy+r1); ctx.stroke();
       ctx.strokeStyle=ORA; ctx.beginPath(); ctx.moveTo(cx2,ccy-r2); ctx.lineTo(cx2,ccy+r2); ctx.stroke();
       ctx.lineWidth=1;
       T(ctx,'d₁='+s.d1+'mm',cx1,ccy+r1+18,BLU,fs,'center','600');
-      T(ctx,'VP₁='+s.VP1.toFixed(1),cx1,ccy+r1+36,DIM,FS(H,0.02,9,12),'center');
+      T(ctx,'VP₁='+s.VP1.toFixed(1),cx1,ccy+r1+36,DIM,FS(H,0.02,11,14),'center');
       T(ctx,'d₂='+s.d2+'mm',cx2,ccy+r2+18,ORA,fs,'center','600');
-      T(ctx,'VP₂='+VP2.toFixed(2),cx2,ccy+r2+36,DIM,FS(H,0.02,9,12),'center');
+      T(ctx,'VP₂='+VP2.toFixed(2),cx2,ccy+r2+36,DIM,FS(H,0.02,11,14),'center');
       // 계산 패널 (우측)
-      var rx=W*0.58, ry=y-FS(H,0.02,6,10);
+      var rx=W*0.58, ry=y-FS(H,0.02,8,12);
       var rows=[
         ['VP₂=VP₁×(d₁/d₂)⁴='+s.VP1.toFixed(1)+'×('+s.d1+'/'+s.d2+')⁴',VP2.toFixed(3)+' mmH₂O',ORA],
         ['이론정압회복=VP₁−VP₂',theo.toFixed(3)+' mmH₂O',BLU],
@@ -162,11 +162,11 @@
       y=ccy+r1+55+rowsH;
       // 비교 막대: 이론 vs 실제회복 vs 손실
       var bx=W*0.08, bw=W*0.84, bh=FS(H,0.06,20,28), bmax=Math.max(theo,0.001)*1.2;
-      T(ctx,'이론회복 대비 실제회복·손실 비교',bx,y-6,TXT,FS(H,0.022,9,13),'left','600');
+      T(ctx,'이론회복 대비 실제회복·손실 비교',bx,y-6,TXT,FS(H,0.022,11,15),'left','600');
       ctx.fillStyle=GRN; RR(ctx,bx,y,bw*Math.min(1,actual/bmax),bh*0.42,5); ctx.fill();
-      T(ctx,'실제회복 '+actual.toFixed(2),bx+bw*Math.min(1,actual/bmax)+6,y+bh*0.3,GRN,FS(H,0.02,9,12),'left','600');
+      T(ctx,'실제회복 '+actual.toFixed(2),bx+bw*Math.min(1,actual/bmax)+6,y+bh*0.3,GRN,FS(H,0.02,11,14),'left','600');
       ctx.fillStyle=RED; RR(ctx,bx,y+bh*0.5,bw*Math.min(1,loss/bmax),bh*0.42,5); ctx.fill();
-      T(ctx,'손실 '+loss.toFixed(2),bx+bw*Math.min(1,loss/bmax)+6,y+bh*0.8,RED,FS(H,0.02,9,12),'left','600');
+      T(ctx,'손실 '+loss.toFixed(2),bx+bw*Math.min(1,loss/bmax)+6,y+bh*0.8,RED,FS(H,0.02,11,14),'left','600');
       E.tapHint(0,0,'슬라이더로 두 직경·속도압·압력회복계수 조절',true);
       E.big('d₁'+s.d1+'→d₂'+s.d2+'mm → VP₂ '+VP2.toFixed(2)+'mmH₂O(회복 '+actual.toFixed(2)+')',
             '기출 빈출유형: 덕트가 갑자기 넓어지면 유속이 줄어 속도압 일부가 정압으로 되돌아오는데, 완벽히 되돌아오지 못하고(압력회복계수 R, 여기선 가정치) 그만큼은 소용돌이로 흩어져 손실됩니다.'); }
@@ -188,9 +188,9 @@
       var A=(s.Q/60)/s.V;
       var a=Math.sqrt(A/s.k), b=s.k*a;
       var De=1.3*Math.pow(a*b,0.625)/Math.pow(a+b,0.25);
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       var y=H*0.22;
-      T(ctx,'A = Q(m³/s) ÷ V   ·   a=√(A/k)·b=k·a (a:b=1:k)   ·   De=1.3(ab)^0.625/(a+b)^0.25',W*0.08,y,DIM,FS(H,0.021,9,12),'left');
+      T(ctx,'A = Q(m³/s) ÷ V   ·   a=√(A/k)·b=k·a (a:b=1:k)   ·   De=1.3(ab)^0.625/(a+b)^0.25',W*0.08,y,DIM,FS(H,0.021,11,14),'left');
       y+=FS(H,0.05,18,26);
       // 단면 사각형 다이어그램 (a,b 비율로 시각화)
       var maxSide=FS(H,0.24,70,120);
@@ -199,9 +199,9 @@
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; ctx.lineWidth=2;
       RR(ctx,rcx-rw/2,rcy-rh/2,rw,rh,4); ctx.fill(); ctx.stroke(); ctx.lineWidth=1;
       T(ctx,'a = '+a.toFixed(3)+' m',rcx,rcy-rh/2-10,BLU,fs,'center','600');
-      T(ctx,'b = '+b.toFixed(3)+' m',rcx+rw/2+10+FS(H,0.02,6,10),rcy,ORA,fs,'left','600');
+      T(ctx,'b = '+b.toFixed(3)+' m',rcx+rw/2+10+FS(H,0.02,8,12),rcy,ORA,fs,'left','600');
       // 계산 패널
-      var rx=W*0.46, ry=y-FS(H,0.02,6,10);
+      var rx=W*0.46, ry=y-FS(H,0.02,8,12);
       var rows=[
         ['단면적 A = ('+s.Q+'/60)÷'+s.V.toFixed(1), A.toFixed(4)+' m²', BLU],
         ['변 a = √(A/k) = √('+A.toFixed(4)+'/'+s.k+')', a.toFixed(3)+' m', ORA],
@@ -210,7 +210,7 @@
       ];
       var rowsH=ROW(ctx,W,H,rx,ry,W*0.48,rows);
       y=rcy+rh/2+55+rowsH;
-      T(ctx,'측변비 1:'+s.k+' — 정사각형(k=1)에 가까울수록 둘레가 짧아 마찰손실이 작고, 길쭉할수록(k↑) 설치공간에는 유리합니다.',W*0.08,y,DIM,FS(H,0.022,9,13),'left');
+      T(ctx,'측변비 1:'+s.k+' — 정사각형(k=1)에 가까울수록 둘레가 짧아 마찰손실이 작고, 길쭉할수록(k↑) 설치공간에는 유리합니다.',W*0.08,y,DIM,FS(H,0.022,11,15),'left');
       E.tapHint(0,0,'슬라이더로 풍량·반송속도·측변비 조절',true);
       E.big('Q'+s.Q+'·V'+s.V.toFixed(0)+'·비1:'+s.k+' → a'+a.toFixed(3)+'m·b'+b.toFixed(3)+'m',
             '기출 빈출유형: 원하는 풍량을 원하는 반송속도로 흘리려면 단면적이 정해집니다 — 그 단면적을 어떤 가로세로 비율(측변비)로 나눌지가 실제 덕트 모양을 결정합니다.'); }
@@ -234,7 +234,7 @@
       var kW=(s.Q*s.SP)/(6120*s.eta);
       var motorKW=kW*s.alpha;
       var y=H*0.25;
-      T(ctx,'kW = Q(m³/min) × SP(mmH₂O) ÷ (6120 × η)   ·   전동기 용량 = kW × 여유율 α',W*0.08,y,DIM,FS(H,0.024,10,13),'left');
+      T(ctx,'kW = Q(m³/min) × SP(mmH₂O) ÷ (6120 × η)   ·   전동기 용량 = kW × 여유율 α',W*0.08,y,DIM,FS(H,0.024,12,15),'left');
       y+=FS(H,0.06,22,32);
       var rows=[
         ['① 송풍기 축동력 = ('+s.Q+'×'+s.SP+') ÷ (6120×'+s.eta.toFixed(2)+')', kW.toFixed(3)+' kW', BLU],
@@ -244,14 +244,14 @@
       y+=rowsH+FS(H,0.06,20,28);
       // 동력 게이지
       var gx=W*0.08, gw=W*0.84, gh=FS(H,0.075,26,38), gmax=Math.max(motorKW,1)*1.3;
-      T(ctx,'전동기 소요동력 게이지',gx,y-8,TXT,FS(H,0.024,10,14),'left','600');
+      T(ctx,'전동기 소요동력 게이지',gx,y-8,TXT,FS(H,0.024,12,14),'left','600');
       ctx.fillStyle='#1c2433'; RR(ctx,gx,y,gw,gh,6); ctx.fill();
       var frac1=Math.min(1,kW/gmax), frac2=Math.min(1,motorKW/gmax);
       ctx.fillStyle=BLU; RR(ctx,gx,y,gw*frac1,gh,6); ctx.fill();
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(gx+gw*frac2,y-3); ctx.lineTo(gx+gw*frac2,y+gh+3); ctx.stroke(); ctx.lineWidth=1;
-      T(ctx,'축동력 '+kW.toFixed(2)+'kW → 전동기 '+motorKW.toFixed(2)+'kW',gx+gw*frac2+10,y+gh*0.65,GRN,FS(H,0.025,10,14),'left','700');
+      T(ctx,'축동력 '+kW.toFixed(2)+'kW → 전동기 '+motorKW.toFixed(2)+'kW',gx+gw*frac2+10,y+gh*0.65,GRN,FS(H,0.025,12,14),'left','700');
       y+=gh+FS(H,0.05,18,24);
-      T(ctx,'검산: '+s.Q+'×'+s.SP+'÷(6120×'+s.eta.toFixed(2)+')='+kW.toFixed(3)+'kW',gx,y,DIM,FS(H,0.022,9,12),'left');
+      T(ctx,'검산: '+s.Q+'×'+s.SP+'÷(6120×'+s.eta.toFixed(2)+')='+kW.toFixed(3)+'kW',gx,y,DIM,FS(H,0.022,11,14),'left');
       E.tapHint(0,0,'슬라이더로 송풍량·정압·효율·여유율 조절',true);
       E.big('Q'+s.Q+'·SP'+s.SP+'·η'+s.eta.toFixed(2)+' → '+kW.toFixed(2)+'kW(여유율 적용 '+motorKW.toFixed(2)+'kW)',
             '기출 빈출유형: 공기를 옮기는 일의 양(풍량×압력)을 효율로 나누면 축동력이 나오고, 실제 전동기는 변동·마모를 감안해 그보다 여유율만큼 더 큰 것을 고릅니다.'); }
@@ -279,14 +279,14 @@
       var SPaxis=s.SPmax*1.15;
       var deficit=s.Qdesign-Qop, deficitPct=(deficit/s.Qdesign)*100;
       var y=H*0.20;
-      T(ctx,'시스템곡선 SP=k·Q²   ·   팬곡선 SP=SPmax−c·Q²   ·   교점(동작점) SP가 같아지는 지점',W*0.08,y,DIM,FS(H,0.022,9,13),'left');
+      T(ctx,'시스템곡선 SP=k·Q²   ·   팬곡선 SP=SPmax−c·Q²   ·   교점(동작점) SP가 같아지는 지점',W*0.08,y,DIM,FS(H,0.022,11,15),'left');
       y+=FS(H,0.04,14,20);
       // 플롯 영역
-      var px0=W*0.10, py0=y+FS(H,0.02,6,10), pw=W*0.62, ph=FS(H,0.40,150,240);
+      var px0=W*0.10, py0=y+FS(H,0.02,8,12), pw=W*0.62, ph=FS(H,0.40,150,240);
       function px(q){ return px0+Math.min(q,Qaxis)/Qaxis*pw; }
       function py(sp){ return py0+ph-Math.max(0,Math.min(sp,SPaxis))/SPaxis*ph; }
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.beginPath(); ctx.moveTo(px0,py0); ctx.lineTo(px0,py0+ph); ctx.lineTo(px0+pw,py0+ph); ctx.stroke();
-      T(ctx,'Q (m³/min) →',px0+pw*0.5,py0+ph+FS(H,0.035,14,20),DIM,FS(H,0.02,9,12),'center');
+      T(ctx,'Q (m³/min) →',px0+pw*0.5,py0+ph+FS(H,0.035,14,20),DIM,FS(H,0.02,11,14),'center');
       // 시스템곡선 (댐퍼 조임) — SPaxis를 넘으면 clamp로 평평해 보이는 착시를 막기 위해 정확한 교차점에서 선을 끊음
       ctx.strokeStyle=RED; ctx.lineWidth=2; ctx.beginPath();
       for(var q=0;q<=Qaxis;q+=Qaxis/60){ var sp=s.k*q*q;
@@ -297,16 +297,16 @@
       ctx.strokeStyle=BLU; ctx.beginPath();
       for(q=0;q<=Qaxis;q+=Qaxis/60){ var spf=s.SPmax-s.c*q*q; if(spf<0)break; var xx2=px(q),yy2=py(spf); if(q===0)ctx.moveTo(xx2,yy2); else ctx.lineTo(xx2,yy2); }
       ctx.stroke(); ctx.lineWidth=1;
-      T(ctx,'팬 성능곡선',px0+pw*0.78,py(s.SPmax-s.c*Math.pow(Qaxis*0.78,2))-8,BLU,FS(H,0.02,9,12),'left','600');
-      T(ctx,'시스템곡선(댐퍼)',px0+pw*0.42,py(s.k*Math.pow(Qaxis*0.42,2))+16,RED,FS(H,0.02,9,12),'left','600');
+      T(ctx,'팬 성능곡선',px0+pw*0.78,py(s.SPmax-s.c*Math.pow(Qaxis*0.78,2))-8,BLU,FS(H,0.02,11,14),'left','600');
+      T(ctx,'시스템곡선(댐퍼)',px0+pw*0.42,py(s.k*Math.pow(Qaxis*0.42,2))+16,RED,FS(H,0.02,11,14),'left','600');
       // 동작점
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px(Qop),py(SPop),FS(H,0.012,4,7),0,Math.PI*2); ctx.fill();
-      T(ctx,'동작점',px(Qop)+10,py(SPop)-8,GRN,FS(H,0.023,10,13),'left','700');
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px(Qop),py(SPop),FS(H,0.012,6,9),0,Math.PI*2); ctx.fill();
+      T(ctx,'동작점',px(Qop)+10,py(SPop)-8,GRN,FS(H,0.023,12,15),'left','700');
       // 설계 기대풍량 점선
       ctx.strokeStyle=AMB; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(px(s.Qdesign),py0); ctx.lineTo(px(s.Qdesign),py0+ph); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'설계기대 Q='+s.Qdesign,px(s.Qdesign),py0-6,AMB,FS(H,0.02,9,12),'center');
+      T(ctx,'설계기대 Q='+s.Qdesign,px(s.Qdesign),py0-6,AMB,FS(H,0.02,11,14),'center');
       // 계산 패널 (우측)
-      var rx=W*0.76, ry=py0+FS(H,0.02,6,10);
+      var rx=W*0.76, ry=py0+FS(H,0.02,8,12);
       var rows=[
         ['동작점 Qop=√(SPmax/(k+c))',Qop.toFixed(1)+' m³/min',GRN],
         ['동작점 SPop=k×Qop²',SPop.toFixed(1)+' mmH₂O',GRN],
@@ -314,7 +314,7 @@
       ];
       ROW(ctx,W,H,rx,ry,W*0.30,rows);
       y=py0+ph+FS(H,0.09,32,44);
-      T(ctx,'댐퍼를 조일수록(k↑) 시스템곡선이 가팔라져 동작점이 좌상향(풍량↓·정압↑) — 저항을 과소평가하면 실제 송풍량이 설계보다 부족해집니다.',W*0.08,y,DIM,FS(H,0.022,9,13),'left');
+      T(ctx,'댐퍼를 조일수록(k↑) 시스템곡선이 가팔라져 동작점이 좌상향(풍량↓·정압↑) — 저항을 과소평가하면 실제 송풍량이 설계보다 부족해집니다.',W*0.08,y,DIM,FS(H,0.022,11,15),'left');
       E.tapHint(0,0,'슬라이더로 저항계수·최대정압·하강계수·설계풍량 조절',true);
       E.big('k'+s.k.toFixed(3)+' → 동작점 Q'+Qop.toFixed(1)+'·SP'+SPop.toFixed(1)+'(부족 '+deficitPct.toFixed(0)+'%)',
             '기출 빈출유형: 송풍기가 낼 수 있는 곡선과 배관이 요구하는 곡선이 만나는 단 한 점에서만 실제로 동작합니다 — 배관 저항을 과소평가해 설계하면 실제 풍량은 늘 예상보다 적게 나옵니다.'); }

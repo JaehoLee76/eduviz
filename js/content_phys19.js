@@ -25,9 +25,9 @@
       var ph=(s.t*2)%1; for(var i=0;i<4;i++){ var px=W*0.08+((ph+i*0.25)%1)*(plateX-W*0.08), py=cy-40+i*26;
         var col=s.f<4?'#e2503a':s.f<7?'#5cd0ff':'#9b6bff'; ctx.strokeStyle=col; ctx.lineWidth=2;
         ctx.beginPath(); for(var w=0;w<20;w++){ var wx=px+w, wy=py+Math.sin(w*0.8+s.t*10)*4; if(w===0)ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy); } ctx.stroke(); }
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('광자 (E=hf='+Eph+')', W*0.07, cy-58);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('광자 (E=hf='+Eph+')', W*0.07, cy-58);
       if(emit){ var ep=(s.t*1.5)%1; for(var k=0;k<3;k++){ var ex=plateX+30+((ep+k*0.33)%1)*(W*0.4), ey=cy-20+k*20-((ep+k*0.33))*30;
-        ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ex,ey,5,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 9px sans-serif'; ctx.fillText('e', ex, ey+3); }
+        ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ex,ey,5,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 11px sans-serif'; ctx.fillText('e', ex, ey+3); }
         ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('전자 방출! KE = hf − W = '+KE.toFixed(1), W*0.6, H*0.24);
       } else { ctx.fillStyle='#ff7a7a'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('✗ 전자 방출 없음 (hf < W)', W*0.66, H*0.30); }
       var bx=W*0.10, baseY=H*0.92; ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
@@ -46,7 +46,7 @@
       var gx0=W*0.14, gx1=W*0.90, gy0=H*0.78, gh=H*0.56, T=s.T;
       // 축
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('세기', gx0+4,gy0-gh+4); ctx.textAlign='right'; ctx.fillText('파장 λ →', gx1, gy0+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('세기', gx0+4,gy0-gh+4); ctx.textAlign='right'; ctx.fillText('파장 λ →', gx1, gy0+16);
       // 플랑크 곡선: I ∝ 1/λ^5 / (exp(c2/(λT))−1).  자외선(작은 λ)서 0으로 떨어짐(파탄 없음)
       function planck(lam){ var x=2.4/(lam*T); return (1/Math.pow(lam,5))/(Math.exp(x)-1); }
       // 정규화 위해 최대값
@@ -54,7 +54,7 @@
       // 고전(레일리-진스): I ∝ T/λ^4 → 작은 λ서 발산(자외선 파탄)
       ctx.strokeStyle='rgba(255,90,90,0.7)'; ctx.lineWidth=1.8; ctx.setLineDash([5,4]); ctx.beginPath();
       for(var l2=0.15;l2<=2;l2+=0.01){ var vc=(T/Math.pow(l2,4))*0.02, x=gx0+(l2/2)*(gx1-gx0), y=gy0-Math.min(gh,vc/mx*gh); if(l2===0.15)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(255,90,90,0.8)'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('고전 예측 → ∞ (자외선 파탄!)', gx0+W*0.04, gy0-gh+20);
+      ctx.fillStyle='rgba(255,90,90,0.8)'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('고전 예측 → ∞ (자외선 파탄!)', gx0+W*0.04, gy0-gh+20);
       // 플랑크 곡선(실측 일치)
       ctx.strokeStyle=ORA; ctx.lineWidth=2.6; ctx.beginPath();
       for(var l3=0.15;l3<=2;l3+=0.01){ var v3=planck(l3), x=gx0+(l3/2)*(gx1-gx0), y=gy0-Math.min(gh,v3/mx*gh); if(l3===0.15)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
@@ -81,7 +81,7 @@
       ctx.strokeStyle='rgba(122,184,255,0.7)'; ctx.lineWidth=2; ctx.beginPath();
       for(var x=x0;x<=x1;x+=3){ var ph=(x-ex)/lam*2*Math.PI - s.t*4, env=Math.exp(-Math.pow((x-ex)/(W*0.12),2)); var y=cy-Math.sin(ph)*40*env; if(x===x0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // 입자
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ex,cy,7,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.fillText('e',ex,cy+3);
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ex,cy,7,0,7); ctx.fill(); ctx.fillStyle='#10141a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('e',ex,cy+3);
       // 파장 표시
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(ex,cy+50); ctx.lineTo(ex+lam,cy+50); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.fillText('λ = h/p', ex+lam/2, cy+66);
@@ -135,7 +135,7 @@
       var col=dE>3?'#9b6bff':dE>2.5?'#5c8cff':dE>1.9?'#5cd0ff':'#e2503a';
       if(s.phase>0.5){ for(var k=0;k<4;k++){ var px=cx+60+((s.phase-0.5)*2*W*0.3+k*12), py=cy-60; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(var w2=0;w2<14;w2++){ var wx=px+w2, wy=py+Math.sin(w2*0.9+s.t*10)*4; if(w2===0)ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy); } ctx.stroke(); } }
       var gx=W*0.66, gy0=H*0.74, gh=H*0.5;
-      for(var n2=1;n2<=5;n2++){ var En=-13.6/(n2*n2), y=gy0-(1+En/13.6)*gh; ctx.strokeStyle=(n2===ni||n2===nf)?ORA:'rgba(255,255,255,0.25)'; ctx.lineWidth=(n2===ni||n2===nf)?2:1; ctx.beginPath(); ctx.moveTo(gx,y); ctx.lineTo(gx+W*0.2,y); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('n='+n2+' ('+En.toFixed(1)+'eV)', gx+W*0.21, y+3); }
+      for(var n2=1;n2<=5;n2++){ var En=-13.6/(n2*n2), y=gy0-(1+En/13.6)*gh; ctx.strokeStyle=(n2===ni||n2===nf)?ORA:'rgba(255,255,255,0.25)'; ctx.lineWidth=(n2===ni||n2===nf)?2:1; ctx.beginPath(); ctx.moveTo(gx,y); ctx.lineTo(gx+W*0.2,y); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('n='+n2+' ('+En.toFixed(1)+'eV)', gx+W*0.21, y+3); }
       var yi=gy0-(1+E_i/13.6)*gh, yf=gy0-(1+E_f/13.6)*gh; arrow(E,gx+W*0.1,yi,gx+W*0.1,yf,col,2);
       E.tapHint(W/2, H*0.90, '전이 준위를 바꿔 방출 광자(색)를 보세요', true);
       E.big('보어 원자: n='+ni+'→'+nf+' 전이로 광자 방출 (E=hf='+dE.toFixed(1)+' eV)', '전자가 정해진 칸 사이를 건너뜁니다.'); }

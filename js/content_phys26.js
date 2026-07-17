@@ -29,7 +29,7 @@
       ctx.save(); ctx.translate(cx,cy); ctx.rotate(tilt);
       ctx.strokeStyle=ORA; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-s.d1*sc-20,0); ctx.lineTo(W*0.3,0); ctx.stroke();
       // 왼쪽 추
-      ctx.fillStyle=BLU; ctx.fillRect(-s.d1*sc-12, 2, 24, s.W1*8); ctx.fillStyle='#fff'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('W₁='+s.W1, -s.d1*sc, s.W1*8+14);
+      ctx.fillStyle=BLU; ctx.fillRect(-s.d1*sc-12, 2, 24, s.W1*8); ctx.fillStyle='#fff'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('W₁='+s.W1, -s.d1*sc, s.W1*8+14);
       arrow(E,-s.d1*sc,2,-s.d1*sc,2+s.W1*10,BLU,2);
       // 오른쪽 추
       ctx.fillStyle=PNK; ctx.fillRect(s.d2*sc-12, 2, 24, s.W2*8); ctx.fillStyle='#fff'; ctx.fillText('W₂='+s.W2, s.d2*sc, s.W2*8+14);
@@ -64,12 +64,12 @@
       var CGy=pivotY + (cgx*Math.sin(th) + cgy*Math.cos(th));
       // 무게(연직 아래) — CG에서
       arrow(E,CGx,CGy,CGx,floorY+10,ORA,2.5);
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('무게중심', CGx, CGy-10);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('무게중심', CGx, CGy-10);
       // 바닥
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.12,floorY); ctx.lineTo(W*0.72,floorY); ctx.stroke();
       // 받침면(밑변): 왼끝 ~ pivot
       var baseL = pivotX - bw; ctx.strokeStyle=GRN; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(baseL,floorY); ctx.lineTo(pivotX,floorY); ctx.stroke();
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('받침면', (baseL+pivotX)/2, floorY+18);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('받침면', (baseL+pivotX)/2, floorY+18);
       // 판정: CG 수평선이 받침면(baseL~pivotX) 안이면 안정
       var stable = CGx>=baseL && CGx<=pivotX;
       ctx.fillStyle=stable?GRN:RED; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
@@ -127,7 +127,7 @@
       // 사다리
       ctx.strokeStyle=safe?ORA:RED; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(footX,floorY); ctx.lineTo(topX,topY); ctx.stroke();
       // 무게(중앙)
-      var mx=(footX+topX)/2, my=(floorY+topY)/2; arrow(E,mx,my,mx,my+40,ORA,2.5); ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('무게 mg', mx+6, my+30);
+      var mx=(footX+topX)/2, my=(floorY+topY)/2; arrow(E,mx,my,mx,my+40,ORA,2.5); ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('무게 mg', mx+6, my+30);
       // 벽 반력(수평), 바닥 수직·마찰
       arrow(E,topX,topY,topX-30,topY,BLU,2); ctx.fillStyle=BLU; ctx.fillText('벽 Nw', topX-54, topY-4);
       arrow(E,footX,floorY,footX,floorY-40,GRN,2); ctx.fillStyle=GRN; ctx.fillText('바닥 Nf', footX-44, floorY-30);
@@ -156,17 +156,17 @@
       ctx.strokeStyle=elastic?ORA:RED; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(cx,topY); ctx.lineTo(cx,topY+L0+dL); ctx.stroke();
       // 원래 길이 기준
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(cx+20,topY+L0); ctx.lineTo(cx+70,topY+L0); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('원래 길이 L₀', cx+24, topY+L0-4);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('원래 길이 L₀', cx+24, topY+L0-4);
       // 당기는 힘
       arrow(E,cx,topY+L0+dL,cx,topY+L0+dL+40,RED,Math.max(2,s.F)); ctx.fillStyle=RED; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('F='+s.F.toFixed(1), cx, topY+L0+dL+58);
       // 응력-변형 곡선
       var gx0=W*0.56, gx1=W*0.92, gy0=H*0.70, gh=H*0.46;
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('응력 σ',gx0+3,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('변형 ε →',gx1,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('응력 σ',gx0+3,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('변형 ε →',gx1,gy0+14);
       // 탄성구간(직선, 기울기=Y) + 소성구간(꺾임)
       ctx.strokeStyle=GRN; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0+(gx1-gx0)*0.5,gy0-gh*0.7); ctx.stroke();
       ctx.strokeStyle=RED; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(gx0+(gx1-gx0)*0.5,gy0-gh*0.7); ctx.lineTo(gx1*0.99,gy0-gh*0.85); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('탄성(σ=Yε)', gx0+(gx1-gx0)*0.25, gy0-gh*0.45);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('탄성(σ=Yε)', gx0+(gx1-gx0)*0.25, gy0-gh*0.45);
       ctx.fillStyle=RED; ctx.fillText('탄성한계→소성·파단', gx0+(gx1-gx0)*0.72, gy0-gh*0.95);
       // 현재 점
       var px=gx0+Math.min(1,s.F/10)*(gx1-gx0)*0.9, py=gy0-Math.min(gh,(elastic?s.F/7*0.7:0.7+(s.F-7)/3*0.15)*gh); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fill();

@@ -101,7 +101,7 @@
       var trkY=E.H*0.16, x0=P.X(0), x1=P.X(6), bx=x0+(x1-x0)*(disp/ (v0*6+0.5*a*36));
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,trkY); ctx.lineTo(x1,trkY); ctx.stroke();
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(bx,trkY,7,0,7); ctx.fill();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('이동한 물체 (변위 '+disp.toFixed(1)+' m)', (x0+x1)/2, trkY-12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('이동한 물체 (변위 '+disp.toFixed(1)+' m)', (x0+x1)/2, trkY-12);
       E.big('변위 x = v₀t + ½at² = '+disp.toFixed(1)+' m', '시간을 잘게 썰어 \'속도×짧은시간\'을 다 더한 것 = v-t 그래프 아래 넓이(초록) = 변위. 사다리꼴 넓이 '+area.toFixed(1)+' m 와 식이 딱 일치 ✓ (v₀=2, a=2). 이 더하기가 바로 적분!'); }
   },
 
@@ -119,11 +119,11 @@
         // 자취
         ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(px,topY); ctx.lineTo(px,py); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle=b[2]; ctx.beginPath(); ctx.arc(px,py,b===null?8: (b[1]==='무거운 공'?12:8),0,7); ctx.fill();
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(b[1], px, topY-10);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(b[1], px, topY-10);
       });
       // 지면
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*0.28,botY); ctx.lineTo(W*0.72,botY); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('지면 (y = 0)', W*0.28, botY+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('지면 (y = 0)', W*0.28, botY+16);
       // 현재 높이·속력 라벨 (가운데, 두 공 사이)
       var midPy=topY+(h0-y)*scale;
       ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center';
@@ -151,15 +151,15 @@
       for(var k2=0;k2<=40;k2++){ var tk2=k2/40*T, xk2=v0*Math.cos(ang)*tk2, yk2=v0*Math.sin(ang)*tk2-0.5*G*tk2*tk2; if(k2===0)ctx.moveTo(ox+xk2*sx,oy-yk2*sy); else ctx.lineTo(ox+xk2*sx,oy-yk2*sy); } ctx.stroke();
       // 발사 벡터
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+Math.cos(ang)*40,oy-Math.sin(ang)*40); ctx.stroke();
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v₀ = '+v0+' m/s', ox+Math.cos(ang)*44, oy-Math.sin(ang)*44-2);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('v₀ = '+v0+' m/s', ox+Math.cos(ang)*44, oy-Math.sin(ang)*44-2);
       // 최고점 높이 표시
       var apexX=ox+(R/2)*sx, apexY=oy-Hmax*sy;
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(apexX,oy); ctx.lineTo(apexX,apexY); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('최고 H = '+Hmax.toFixed(1)+' m', apexX+5, apexY+4);
+      ctx.fillStyle=BLU; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('최고 H = '+Hmax.toFixed(1)+' m', apexX+5, apexY+4);
       // 착지점
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(ox+R*sx,oy,6,0,7); ctx.fill();
       ctx.fillStyle=ORA; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('사거리 R = '+R.toFixed(1)+' m', ox+R*sx, oy+20);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('지면', ox+10, oy+20);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('지면', ox+10, oy+20);
       E.big('θ='+this.s.ang+'°  →  사거리 R = '+R.toFixed(1)+' m,  최고 '+Hmax.toFixed(1)+' m', '가로는 등속, 세로는 자유낙하 — 둘은 서로 간섭하지 않습니다. R = v₀²·sin2θ/g, θ=45°에서 가장 멀리('+Rmax.toFixed(1)+' m)! (v₀=20 m/s)'); }
   },
 
@@ -228,18 +228,18 @@
       var topY=H*0.16, botY=H*0.80, scale=(botY-topY)/15, cx=W*0.22;
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-40,botY); ctx.lineTo(cx+40,botY); ctx.stroke();
       var py=botY-b.y*scale; ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,py,9,0,7); ctx.fill();
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('v = '+spd.toFixed(1)+' m/s', cx-12, py+4);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('v = '+spd.toFixed(1)+' m/s', cx-12, py+4);
       // 저항(위)·중력(아래) 화살표 + 이름표
       var fDrag=s.c*spd, fGrav=1*9.8;
       ctx.strokeStyle=PNK; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,py); ctx.lineTo(cx,py-Math.min(40,fDrag*8)); ctx.stroke();
-      ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('저항 cv = '+fDrag.toFixed(1)+' N', cx+10, py-14);
+      ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('저항 cv = '+fDrag.toFixed(1)+' N', cx+10, py-14);
       ctx.strokeStyle=ORA; ctx.beginPath(); ctx.moveTo(cx,py); ctx.lineTo(cx,py+30); ctx.stroke();
       ctx.fillStyle=ORA; ctx.fillText('중력 mg = '+fGrav.toFixed(1)+' N', cx+10, py+22);
       ctx.fillStyle=DIM; ctx.textAlign='center'; ctx.fillText('지면', cx, botY+14);
       // v-t 그래프 + 종단속도 점근선
       var gx0=W*0.50, gx1=W*0.93, gy0=H*0.78, gh=H*0.5, vmax=1*9.8/0.2;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('v',gx0+3,gy0-gh+4); ctx.fillText('t',gx1-8,gy0+14);
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.setLineDash([5,4]); var vty=gy0-(vt/vmax)*gh; ctx.beginPath(); ctx.moveTo(gx0,vty); ctx.lineTo(gx1,vty); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=ORA; ctx.fillText('종단속도 '+vt.toFixed(1), gx1-90, vty-4);
       ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();

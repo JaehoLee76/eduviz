@@ -41,7 +41,7 @@
         // 가속/중력 화살표
         arrow(E,cx+rw/2+12,ry+rh*0.5,cx+rw/2+12,ry+rh*0.5+acc*2.5,PNK,2);
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, cx, ry-10);
-        ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.fillText((isRocket?'가속 a=':'중력 g=')+acc.toFixed(1), cx+rw/2+30, ry+rh*0.5);
+        ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.fillText((isRocket?'가속 a=':'중력 g=')+acc.toFixed(1), cx+rw/2+30, ry+rh*0.5);
         if(isRocket){ for(var f=0;f<3;f++){ ctx.fillStyle='rgba(255,140,90,0.6)'; ctx.beginPath(); ctx.moveTo(cx-10+f*10,ry+rh); ctx.lineTo(cx-6+f*10,ry+rh+18); ctx.lineTo(cx-2+f*10,ry+rh); ctx.fill(); } }
       }
       room(W*0.28,'우주의 로켓 (가속 a)',s.a,true);
@@ -69,8 +69,8 @@
       var my=cy+dip(0,0); var grd=ctx.createRadialGradient(cx,my,2,cx,my,18+warp*12); grd.addColorStop(0,'rgba(255,244,210,0.95)'); grd.addColorStop(1,'rgba(255,178,90,0)'); ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(cx,my,18+warp*12,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,my,3+warp*4,0,7); ctx.fill();
       var beamY=cy-gw*0.42, bx0=cx-gw*1.3; ctx.strokeStyle='#ffe06a'; ctx.lineWidth=2; ctx.beginPath();
       for(var k=0;k<=80;k++){ var X=bx0+k/80*(gw*2.6), rel=(X-cx); var Y=beamY + warp*(gw*0.5)*Math.exp(-(rel*rel)/(gw*gw*0.5)); if(k===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
-      ctx.fillStyle='#ffe06a'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('별빛(휘어짐)', bx0, beamY-6);
-      function clock(px,py,rate,lab){ ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(px,py,12,0,7); ctx.stroke(); var a=-Math.PI/2 + (fr*0.04*rate)%(2*Math.PI); ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+9*Math.cos(a),py+9*Math.sin(a)); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,px,py+26); }
+      ctx.fillStyle='#ffe06a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('별빛(휘어짐)', bx0, beamY-6);
+      function clock(px,py,rate,lab){ ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(px,py,12,0,7); ctx.stroke(); var a=-Math.PI/2 + (fr*0.04*rate)%(2*Math.PI); ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+9*Math.cos(a),py+9*Math.sin(a)); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,px,py+26); }
       var rateNear=1/Math.sqrt(1+warp*0.8);
       clock(cx+gw*0.35, cy+gw*0.34, rateNear, '질량 근처(느림)');
       clock(W*0.88, H*0.30, 1, '먼 곳(빠름)');
@@ -112,9 +112,9 @@
   { id:'phys28_04',
     enter:function(E){ var self=this; this.s={t:0, yaw:0.55, pitch:0.32, hist:[]};
       E.controls('<div class="ctrl"><div style="display:flex;gap:6px;flex-wrap:wrap">'
-        +'<button id="vpSpiral" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">사선=나선(기본)</button>'
-        +'<button id="vpTime" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">시간축에서 보기</button>'
-        +'<button id="vpSide" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">측면(파형)</button>'
+        +'<button id="vpSpiral" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">사선=나선(기본)</button>'
+        +'<button id="vpTime" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">시간축에서 보기</button>'
+        +'<button id="vpSide" style="background:transparent;border:1px solid #7ab8ff;color:#7ab8ff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">측면(파형)</button>'
         +'</div></div>');
       E.bind('#vpSpiral','click',function(){ self.s.yaw=0.55; self.s.pitch=0.32; });
       E.bind('#vpTime','click',function(){ self.s.yaw=0; self.s.pitch=0; });
@@ -160,7 +160,7 @@
       arrow(E,ox[0],ox[1],ax[0],ax[1],'rgba(223,238,251,0.55)',1.3);
       arrow(E,ox[0],ox[1],ay[0],ay[1],'rgba(223,238,251,0.55)',1.3);
       arrow(E,ox[0],ox[1],at[0],at[1],'rgba(255,214,122,0.75)',1.6);
-      ctx.font='11px sans-serif'; ctx.fillStyle='rgba(223,238,251,0.7)'; ctx.textAlign='center';
+      ctx.font='13px sans-serif'; ctx.fillStyle='rgba(223,238,251,0.7)'; ctx.textAlign='center';
       ctx.fillText('x', ax[0], ax[1]-4); ctx.fillText('y', ay[0], ay[1]-4);
       ctx.fillStyle='#ffd67a'; ctx.fillText('t(시간)', at[0], at[1]-4);
       // 병합 섬광
@@ -186,7 +186,7 @@
       var cx=W*0.5, cy=H*0.42, a=s.scale;
       var gals=[[-3,-1],[-2,1.2],[-1,-1.8],[1,1.5],[2,-1],[3,1],[-1.5,0.5],[2.5,0.3]];
       // 우리 은하(중심)
-      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(cx,cy,7,0,7); ctx.fill(); ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('우리 은하', cx, cy+20);
+      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(cx,cy,7,0,7); ctx.fill(); ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('우리 은하', cx, cy+20);
       gals.forEach(function(G){ var d0=Math.hypot(G[0],G[1]); var x=cx+G[0]*a*W*0.045, y=cy+G[1]*a*H*0.07;
         var d=d0*a, v=H0*d;   // 허블 법칙 v=H₀d
         ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(x,y,5,0,7); ctx.fill();

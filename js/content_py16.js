@@ -73,7 +73,7 @@
           ctx.fillStyle=isFc?'rgba(244,160,192,0.12)':'rgba(122,184,255,0.10)';
           ctx.strokeStyle=isFc?PNK:BLU; ctx.lineWidth=isFc?2:1.4; roundRect(ctx,gx,y,bw,bh,7); ctx.fill(); ctx.stroke();
           ctx.fillStyle=isFc?PNK:BLU; ctx.font='600 13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(labs[i], gx+12, y+20);
-          ctx.fillStyle='#cfe6e8'; ctx.font='11.5px sans-serif'; ctx.textAlign='right';
+          ctx.fillStyle='#cfe6e8'; ctx.font='13.5px sans-serif'; ctx.textAlign='right';
           ctx.fillText(isFc?'출력층(교체 대상)':'특징 추출(동결)', gx+bw-12, y+20);
         }
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
@@ -101,7 +101,7 @@
         var ox=gx+8, oy=H*0.74, pw=gw-20, pv=H*0.46;
         ctx.strokeStyle='rgba(255,211,67,0.22)'; ctx.lineWidth=1; ctx.beginPath();
         ctx.moveTo(ox,oy); ctx.lineTo(ox+pw,oy); ctx.moveTo(ox,oy); ctx.lineTo(ox,oy-pv); ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('정확도', ox-4, oy-pv+4);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('정확도', ox-4, oy-pv+4);
         ctx.textAlign='center'; ctx.fillText('에폭 →', ox+pw/2, oy+16);
         // 결정적 곡선: acc = ceil*(1 - exp(-k*epoch))
         function curve(col, ceil, k, lab, ly){ ctx.strokeStyle=col; ctx.lineWidth=2.4; ctx.beginPath();
@@ -310,7 +310,7 @@
         var n=stairs.length, bx=W*0.14, bottom=H*0.86, sw=(W*0.72)/n, sh=H*0.085;
         for(var i=0;i<n;i++){ var x=bx+i*sw, h=(i+1)*sh, y=bottom-h;
           ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=stairs[i].c; ctx.lineWidth=1.6; roundRect(ctx,x,y,sw-8,h,6); ctx.fill(); ctx.stroke();
-          ctx.save(); ctx.translate(x+(sw-8)/2, y+12); ctx.fillStyle=stairs[i].c; ctx.font='600 11.5px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+          ctx.save(); ctx.translate(x+(sw-8)/2, y+12); ctx.fillStyle=stairs[i].c; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
           ctx.rotate(Math.PI/2); ctx.fillText(stairs[i].t, 0, 0); ctx.restore();
         }
         ctx.textBaseline='alphabetic';

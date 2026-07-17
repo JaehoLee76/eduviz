@@ -45,7 +45,7 @@
         // 입력 단어 박스
         ctx.fillStyle= on?GLD:DIM; ctx.font='600 14px sans-serif';
         ctx.fillText('"'+seq[i]+'"', cx, cy+R+74);
-        ctx.fillStyle= on?'#cfe6e8':DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle= on?'#cfe6e8':DIM; ctx.font='13px sans-serif';
         ctx.fillText('x='+xval[i].toFixed(1), cx, cy+R+90);
         // 현재 셀의 h값
         if(on){ ctx.fillStyle= cur?CYA:'rgba(61,214,220,0.7)'; ctx.font=(cur?'600 ':'')+'12px sans-serif';
@@ -121,17 +121,17 @@
         var prevx=(i===0)?x0:(x0+gap*0.5+(i-1)*gap);
         // 순환 화살표 + Wh 라벨(공유 가중치 강조)
         ctx.strokeStyle=CYA; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(prevx+R, cy); ctx.lineTo(cx-R, cy); ctx.stroke();
-        ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('Wh', (prevx+cx)/2, cy-8);
+        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('Wh', (prevx+cx)/2, cy-8);
         // 입력
         ctx.strokeStyle=GLD; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(cx, cy+R+50); ctx.lineTo(cx, cy+R+4); ctx.stroke();
-        ctx.fillStyle=GLD; ctx.font='10px sans-serif'; ctx.fillText('Wx', cx+12, cy+R+26);
+        ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('Wx', cx+12, cy+R+26);
         // 셀: 색 강도 = |h| (기억 세기 시각화, 실측값 기반)
         var mag=Math.min(1,Math.abs(hs[i+1]));
         ctx.fillStyle='rgba(61,214,220,'+(0.18+0.7*mag).toFixed(3)+')';
         ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill(); ctx.strokeStyle=CYA; ctx.lineWidth=1; ctx.stroke();
         ctx.fillStyle='#06222a'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('h'+(i+1), cx, cy+4);
         ctx.fillStyle= hs[i+1]>=0?GRN:RED; ctx.font='600 12px sans-serif'; ctx.fillText(hs[i+1].toFixed(3), cx, cy-R-8);
-        ctx.fillStyle='#cfe6e8'; ctx.font='11px sans-serif'; ctx.fillText('x='+x[i].toFixed(1), cx, cy+R+66); }
+        ctx.fillStyle='#cfe6e8'; ctx.font='13px sans-serif'; ctx.fillText('x='+x[i].toFixed(1), cx, cy+R+66); }
       // h 추이 미니 그래프(실측 누적)
       var px=W*0.12, py=H*0.86, pw=W*0.76, amp=H*0.14;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+pw,py); ctx.stroke();
@@ -203,9 +203,9 @@
       ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('셀상태 c (장기기억 컨베이어)', x0, topY-12);
       for(k=0;k<n;k++){ var cx=x0+gap*0.5+k*gap, cur=(k===s.t);
         ctx.fillStyle= cur?GRN:'rgba(126,224,176,0.4)'; ctx.beginPath(); ctx.arc(cx, topY, cur?7:4, 0,7); ctx.fill();
-        ctx.fillStyle= cur?GRN:DIM; ctx.font=(cur?'600 ':'')+'11px sans-serif'; ctx.textAlign='center'; ctx.fillText('c='+hist[k].c.toFixed(2), cx, topY-16);
+        ctx.fillStyle= cur?GRN:DIM; ctx.font=(cur?'600 ':'')+'13px sans-serif'; ctx.textAlign='center'; ctx.fillText('c='+hist[k].c.toFixed(2), cx, topY-16);
         // h 출력
-        ctx.fillStyle= cur?CYA:'rgba(61,214,220,0.5)'; ctx.font='11px sans-serif'; ctx.fillText('h='+hist[k].h.toFixed(2), cx, H*0.40);
+        ctx.fillStyle= cur?CYA:'rgba(61,214,220,0.5)'; ctx.font='13px sans-serif'; ctx.fillText('h='+hist[k].h.toFixed(2), cx, H*0.40);
         ctx.fillStyle= cur?GLD:DIM; ctx.fillText('x='+x[k].toFixed(1), cx, H*0.45); }
       // 현재 시점 게이트 패널(실측 sigmoid)
       var gx=W*0.16, gy=H*0.54, gw=W*0.40, rowH=H*0.085;
@@ -216,7 +216,7 @@
                 ['출력 게이트 o','기억 중 얼마를 밖으로 낼까?',st.o,GLD]];
       for(var r=0;r<3;r++){ var yy=gy+r*rowH;
         ctx.fillStyle=rows[r][3]; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText(rows[r][0], gx, yy);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(rows[r][1], gx, yy+16);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(rows[r][1], gx, yy+16);
         var val=rows[r][2], bw=val*gw;
         ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(gx+W*0.20, yy-10, gw, 16);
         ctx.fillStyle=rows[r][3]; ctx.fillRect(gx+W*0.20, yy-10, Math.max(2,bw), 16);

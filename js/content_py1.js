@@ -185,7 +185,7 @@
       for(var i=0;i<word.length;i++){
         var hot = (s.step===0 && (i===0||i===word.length-1));
         cell(ctx, x0+i*cw, ry+8, cw, ch, word[i], hot?'rgba(255,211,67,0.16)':'rgba(255,255,255,0.04)', hot?PYL:'rgba(255,255,255,0.16)', '#efe7d4', 16);
-        ctx.fillStyle=PYB; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(i, x0+i*cw+cw/2, ry+8+ch+13);      // 양수 인덱스
+        ctx.fillStyle=PYB; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(i, x0+i*cw+cw/2, ry+8+ch+13);      // 양수 인덱스
         ctx.fillStyle=DIM; ctx.fillText('-'+(word.length-i), x0+i*cw+cw/2, ry+8+ch+28);                                                  // 음수 인덱스
       }
       var oy=ry+8+ch+50;
@@ -240,7 +240,7 @@
       // 입력 두 칸
       cell(ctx, rx, ry, 90, 32, '"'+A+'"', 'rgba(122,184,255,0.10)', BLU, '#efe7d4', 15);
       cell(ctx, rx+104, ry, 90, 32, '"'+B+'"', 'rgba(122,184,255,0.10)', BLU, '#efe7d4', 15);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('a = "12" (str)', rx, ry+50); ctx.fillText('b = "30" (str)', rx+104, ry+50);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('a = "12" (str)', rx, ry+50); ctx.fillText('b = "30" (str)', rx+104, ry+50);
 
       var oy=ry+72;
       if(s.step===0){

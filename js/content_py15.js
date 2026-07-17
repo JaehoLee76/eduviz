@@ -171,7 +171,7 @@
       var px=ix, py=iy+6*cell+30;
       ctx.fillStyle='#efe7cf'; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('합성곱(내적) = Σ 패치 × 필터', px, py);
-      ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,monospace';
+      ctx.fillStyle=DIM; ctx.font='13.5px ui-monospace,monospace';
       ctx.fillText('패치=['+terms.join(',')+']', px, py+20);
       ctx.fillStyle=GRN; ctx.font='600 15px sans-serif';
       ctx.fillText('= '+prod.join('+').replace(/\+-/g,'−')+' = '+val, px, py+44);
@@ -181,7 +181,7 @@
       ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('특징맵 4×4', ox, oy-8);
       for(r=0;r<fmap.length;r++) for(c=0;c<fmap[0].length;c++){ var t=Math.abs(fmap[r][c])/(amax||1), g=Math.round(t*255);
         ctx.fillStyle='rgb('+g+','+g+','+g+')'; ctx.fillRect(ox+c*ocell,oy+r*ocell,ocell-1,ocell-1);
-        ctx.fillStyle=t>0.5?'#111':'#bbb'; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle=t>0.5?'#111':'#bbb'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(''+fmap[r][c], ox+c*ocell+ocell/2, oy+r*ocell+ocell/2); }
       ctx.textBaseline='alphabetic';
       ctx.strokeStyle=GLD; ctx.lineWidth=3; ctx.strokeRect(ox+fc*ocell-1, oy+fr*ocell-1, ocell, ocell);
@@ -391,7 +391,7 @@
         ctx.stroke();
         for(e=0;e<acc.length;e++){ var X2=gx+gw*e/(acc.length-1), Y2=gy+gh-gh*acc[e];
           ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(X2,Y2,2.5,0,7); ctx.fill(); }
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
         ctx.fillText('0%', gx-22, gy+gh+3); ctx.fillText('100%', gx-30, gy+8);
         ctx.fillText('에폭 →', gx+gw-34, gy+gh+16);
         ctx.fillStyle=GRN; ctx.font='600 15px sans-serif';

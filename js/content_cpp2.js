@@ -316,7 +316,7 @@
           ctx.fillStyle=rows[i].col; ctx.font='600 13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(rows[i].k, bx+12, y+20);
           ctx.fillStyle='#dfeaf2'; ctx.font='12px sans-serif'; ctx.fillText(rows[i].d, bx+130, y+20);
         }
-        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText('참조 = 반드시 초기화·재지정 불가·null 없음 / 포인터 = 유연하되 관리 책임 큼.', bx, cy+22+4*36+14);
       }
 

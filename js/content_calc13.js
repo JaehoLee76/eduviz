@@ -71,9 +71,9 @@
     enter:function(E){ this.s={x:1,y:0.5,yaw:0.6,pitch:0.7,drag:null}; E.Plot.range(-3,3,-3,3).lab('x','y');
       E.controls('<div class="ctrl"><label>x</label><input type="range" id="px" min="-3" max="3" step="0.1" value="1"><output id="pxo">1.0</output><label style="margin-left:12px">y</label><input type="range" id="py" min="-3" max="3" step="0.1" value="0.5"><output id="pyo">0.5</output></div>'
         +'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">'
-        +'<button id="vpDefault" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">사선(기본)</button>'
-        +'<button id="vpTop" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">위=등고선</button>'
-        +'<button id="vpSide" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">측면=단면</button>'
+        +'<button id="vpDefault" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">사선(기본)</button>'
+        +'<button id="vpTop" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">위=등고선</button>'
+        +'<button id="vpSide" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">측면=단면</button>'
         +'</div>');
       var self=this;
       E.bind('#px','input',function(e){ self.s.x=+e.target.value; document.getElementById('pxo').textContent=(+e.target.value).toFixed(1); E.blip(420,0.05); });
@@ -154,7 +154,7 @@
     draw:function(E){ var ctx=E.ctx, P=E.Plot, s=this.s; heat(E,F,-1,1); P.axes();
       // 임계점 표시(sin x cos y: 봉우리 (π/2,0), 골 (π/2,π) 등)
       var crit=[[Math.PI/2,0,'봉우리'],[ -Math.PI/2,0,'골짜기'],[Math.PI/2,Math.PI,'골짜기'],[0,Math.PI/2,'안장']];
-      ctx.font='11px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
+      ctx.font='13px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
       for(var c=0;c<crit.length;c++){ P.dot(crit[c][0],crit[c][1],'rgba(255,255,255,0.5)'); ctx.fillText(crit[c][2], P.X(crit[c][0])+6, P.Y(crit[c][1])-6); }
       var g=grad(F,s.x,s.y), mag=Math.hypot(g[0],g[1]), flat=mag<0.06;
       var gg=grad(F,s.x,s.y); arrow(ctx,P.X(s.x),P.Y(s.y),P.X(s.x+gg[0]*0.6),P.Y(s.y+gg[1]*0.6),flat?GRN:GLD,3);

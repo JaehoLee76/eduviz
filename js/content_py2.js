@@ -83,11 +83,11 @@
         if(s.step>=4 && i===5){ fill='rgba(122,184,255,0.16)'; strk=BLU; tc=BLU; }   // 새로 추가된 'f'
         cell(ctx, rx+i*(cw+gap), ry, cw, ch, work[i], fill, strk, tc, 15);
         // 양수 인덱스(위)
-        ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(i, rx+i*(cw+gap)+cw/2, ry-4);
+        ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(i, rx+i*(cw+gap)+cw/2, ry-4);
         // 음수 인덱스(아래)
         ctx.fillStyle=(i===arr.length-1&&s.step===2)?PYL:'#7a7782'; ctx.fillText('-'+(work.length-i), rx+i*(cw+gap)+cw/2, ry+ch+14);
       }
-      ctx.fillStyle='#7a7782'; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('음수 인덱스 →', rx-6, ry+ch+14);
+      ctx.fillStyle='#7a7782'; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('음수 인덱스 →', rx-6, ry+ch+14);
       ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.fillText('양수 인덱스 →', rx-86+0, ry-4);
 
       // 결과 패널
@@ -134,7 +134,7 @@
         ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('튜플 — 한 번 만들면 못 바꿈 (불변)', gx, H*0.20);
         var tup=[37.5,127.0], cw=84, ch=40, ty=H*0.30;
         for(var i=0;i<tup.length;i++){ cell(ctx, gx+i*(cw+8), ty, cw, ch, tup[i], 'rgba(255,211,67,0.10)', PYL, '#efe6cf', 15);
-          ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', gx+i*(cw+8)+cw/2, ty-4); }
+          ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', gx+i*(cw+8)+cw/2, ty-4); }
         // 자물쇠
         ctx.fillStyle=GLD; ctx.font='22px sans-serif'; ctx.textAlign='left'; ctx.fillText('🔒', gx+2*(cw+8)+10, ty+28);
         ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.fillText('p[0]  →  '+tup[0]+'  (읽기는 OK)', gx, ty+78);
@@ -277,7 +277,7 @@
         ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('[x*x for x in range(6)]  — 각 x를 제곱', gx, ty2-10);
         for(i=0;i<sq.length;i++){ cell(ctx, gx+i*(cw+gap), ty2, cw, ch, sq[i], 'rgba(255,211,67,0.12)', PYL, PYL, 14);
           ctx.strokeStyle='rgba(255,211,67,0.30)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx+i*(cw+gap)+cw/2, ty+ch+4); ctx.lineTo(gx+i*(cw+gap)+cw/2, ty2-4); ctx.stroke();
-          ctx.fillStyle=DIM; ctx.font='10px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(i+'²', gx+i*(cw+gap)+cw/2, ty+ch+24); }
+          ctx.fillStyle=DIM; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(i+'²', gx+i*(cw+gap)+cw/2, ty+ch+24); }
         ctx.textAlign='left'; ctx.fillStyle=GRN; ctx.font='13px ui-monospace,monospace'; ctx.fillText('→ ['+sq.join(', ')+']', gx, ty2+ch+24);
         ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('[식  for  변수 in 반복] — 모든 원소를 변환.', gx, ty2+ch+46);
       } else {
@@ -285,7 +285,7 @@
         var even=[]; for(i=0;i<6;i++) if(i%2===0) even.push(i);   // [0,2,4]
         ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('[x for x in range(6) if x%2==0]  — 짝수만 통과', gx, ty2-10);
         // 입력 위에 통과/탈락 표시
-        ctx.font='11px sans-serif'; ctx.textAlign='center';
+        ctx.font='13px sans-serif'; ctx.textAlign='center';
         for(i=0;i<6;i++){ ctx.fillStyle=(i%2===0)?GRN:PNK; ctx.fillText(i%2===0?'✓':'✗', gx+i*(cw+gap)+cw/2, ty+ch+18); }
         // 결과
         ctx.textAlign='left';
@@ -344,15 +344,15 @@
         ctx.fillStyle=PYL; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('중첩 — 자료구조 안에 자료구조', gx, ty-2);
         // 리스트[ ] 박스
         ctx.strokeStyle=PYL; ctx.lineWidth=1.5; roundRect(ctx, gx, ty+10, W*0.38, H*0.46, 10); ctx.stroke();
-        ctx.fillStyle=PYL; ctx.font='11px ui-monospace,monospace'; ctx.fillText('list students', gx+8, ty+24);
+        ctx.fillStyle=PYL; ctx.font='13px ui-monospace,monospace'; ctx.fillText('list students', gx+8, ty+24);
         for(var i=0;i<students.length;i++){
           var by=ty+34+i*(H*0.20);
           ctx.strokeStyle=GRN; ctx.lineWidth=1.2; roundRect(ctx, gx+14, by, W*0.34, H*0.16, 8); ctx.stroke();
-          ctx.fillStyle=GRN; ctx.font='10.5px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('dict ['+i+']', gx+22, by+15);
+          ctx.fillStyle=GRN; ctx.font='12.5px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('dict ['+i+']', gx+22, by+15);
           ctx.fillStyle=BLU; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText("name: '"+students[i].name+"'", gx+22, by+34);
           // subjects 리스트
           var subj=students[i].subjects, sx=gx+22, sy=by+44, cw=58, ch=24;
-          ctx.fillStyle=PNK; ctx.font='10.5px ui-monospace,monospace'; ctx.fillText('subjects:', sx, sy+15);
+          ctx.fillStyle=PNK; ctx.font='12.5px ui-monospace,monospace'; ctx.fillText('subjects:', sx, sy+15);
           for(var j=0;j<subj.length;j++){ var hiCell=(i===0 && j===1);
             cell(ctx, sx+74+j*(cw+6), sy, cw, ch, "'"+subj[j]+"'", hiCell?'rgba(255,211,67,0.20)':'rgba(255,255,255,0.05)', hiCell?PYL:'rgba(255,255,255,0.14)', hiCell?PYL:'#efe6cf', 11.5); }
         }

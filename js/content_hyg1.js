@@ -17,7 +17,7 @@
       // 축
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(mL,mT); ctx.lineTo(mL,mT+ph); ctx.lineTo(mL+pw,mT+ph); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       for(var h=0;h<=8;h+=2) ctx.fillText(h+'h', X(h), mT+ph+16);
       ctx.textAlign='right';
       for(var c=0;c<=200;c+=50) ctx.fillText(c, mL-8, Y(c)+4);
@@ -38,7 +38,7 @@
       if(st>=2){ var sx0=X(pk*dt), sx1=X((pk+1)*dt);
         ctx.fillStyle='rgba(255,178,122,0.28)'; ctx.fillRect(sx0,mT,sx1-sx0,ph);
         ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.strokeRect(sx0,mT,sx1-sx0,ph); ctx.setLineDash([]);
-        ctx.fillStyle=ORA; ctx.textAlign='center'; ctx.font='11px sans-serif';
+        ctx.fillStyle=ORA; ctx.textAlign='center'; ctx.font='13px sans-serif';
         ctx.fillText('STEL 15분', (sx0+sx1)/2, mT-6); }
       // ③ C — 천장선(절대 초과 금지)
       if(st>=3){ var cy=Y(mx)-2; ctx.strokeStyle=RED; ctx.lineWidth=2.4; ctx.setLineDash([8,5]);
@@ -70,14 +70,14 @@
       function Y(c){return mT+ph-(c/ymax)*ph;}
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(mL,mT); ctx.lineTo(mL,mT+ph); ctx.lineTo(mL+pw,mT+ph); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='right';
       for(var c=0;c<=300;c+=100) ctx.fillText(c, mL-8, Y(c)+4);
       // 구간 막대(폭=시간, 높이=농도 → 넓이=기여도)
       var t0=0, cols=[BLU,ORA,PNK];
       for(var i=0;i<3;i++){ var x0=X(t0), x1=X(t0+T[i]), yb=Y(C[i]);
         ctx.fillStyle=cols[i]; ctx.globalAlpha=0.30; ctx.fillRect(x0,yb,x1-x0,mT+ph-yb); ctx.globalAlpha=1;
         ctx.strokeStyle=cols[i]; ctx.lineWidth=1.6; ctx.strokeRect(x0,yb,x1-x0,mT+ph-yb);
-        ctx.fillStyle=cols[i]; ctx.textAlign='center'; ctx.font='11px sans-serif';
+        ctx.fillStyle=cols[i]; ctx.textAlign='center'; ctx.font='13px sans-serif';
         ctx.fillText('C'+(i+1)+'·T'+(i+1)+' = '+(C[i]*T[i]), (x0+x1)/2, Math.min(yb-6,mT+ph-8));
         ctx.fillStyle=DIM; ctx.fillText(T[i]+'h', (x0+x1)/2, mT+ph+16);
         t0+=T[i]; }
@@ -152,7 +152,7 @@
       // 부피 상자(1 m³ 공기) + 입자 = 부피비(ppm)
       var bx=70, by=80, bw=Math.min(300,W-260), bh=bw;
       ctx.strokeStyle='rgba(219,238,251,0.4)'; ctx.lineWidth=1.6; ctx.strokeRect(bx,by,bw,bh);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('공기 1 m³ (25℃·1기압)', bx, by-8);
       // 입자 개수 ∝ ppm (부피비), 결정적 배치
       var N=Math.round(ppm/12); if(N>40)N=40;
@@ -174,7 +174,7 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(rx,ry+32); ctx.lineTo(rx+140,ry+32); ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='bold 15px sans-serif';
       ctx.fillText(mg.toFixed(1)+' mg/m³', rx, ry+56);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.fillText('24.45 L = 기체 1몰의 부피', rx, ry+86);
       ctx.fillText('(25℃·1기압 표준상태)', rx, ry+102);
       E.big(ppm+' ppm × '+M+' ÷ 24.45 = '+mg.toFixed(1)+' mg/m³',
@@ -197,7 +197,7 @@
       // 원기준선
       ctx.strokeStyle='rgba(219,238,251,0.3)'; ctx.setLineDash([4,4]); ctx.lineWidth=1.2;
       ctx.beginPath(); ctx.moveTo(P.X(8),P.Y(TLV)); ctx.lineTo(P.X(16),P.Y(TLV)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('원기준 '+TLV+' ppm (8h)', P.X(8)+4, P.Y(TLV)-6);
       ctx.fillStyle=DIM; ctx.fillText('OSHA', P.X(15.2), P.Y(TLV*8/15.2)-6);
       P.dot(h, corr, corr<osha?GRN:GRN, 'B&S = '+corr.toFixed(1));

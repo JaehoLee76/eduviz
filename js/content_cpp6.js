@@ -244,7 +244,7 @@
       ctx.fillStyle='rgba(244,160,192,0.12)'; ctx.strokeStyle=PNK; ctx.lineWidth=1.4;
       roundRect(ctx, bxX+14, bxY+40, bxW-28, 40, 7); ctx.fill(); ctx.stroke();
       ctx.fillStyle=PNK; ctx.font='700 13px ui-monospace,monospace'; ctx.fillText('🔒 secret = 42', bxX+26, bxY+65);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('private', bxX+bxW-58, bxY+96);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('private', bxX+bxW-58, bxY+96);
 
       // 외부 함수 peek
       var fx=W*0.58, fy=H*0.52, fw=W*0.24;
@@ -393,7 +393,7 @@
       var iy=my+16+2*96+14;
       ctx.fillStyle=(s.step===2?GRN:DIM); ctx.font=(s.step===2?'600 ':'')+'12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('중복 제거 관용구: 비-const 버전이 const 버전을 재사용', mx, iy);
-      ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,Menlo,monospace';
+      ctx.fillStyle=DIM; ctx.font='13.5px ui-monospace,Menlo,monospace';
       ctx.fillText('return const_cast<int&>(static_cast<const Vec&>(*this)[i]);', mx, iy+18);
 
       var px=W*0.05, py=Math.max(H*0.82, codeBot+16);
@@ -453,7 +453,7 @@
       var axY=my+34, x0=mx+10, x1=mx+tw-10;
       ctx.strokeStyle=DIM; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x0,axY); ctx.lineTo(x1,axY); ctx.stroke();
       arrow(ctx, x1-1, axY, x1, axY, DIM);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('시간 →', x1-46, axY+18);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('시간 →', x1-46, axY+18);
 
       if(danger){
         // step1: A(logger) 먼저 → config가 logger 사용 OK

@@ -37,7 +37,7 @@
       var info=AV.bars(V, A, { baseY:baseY, maxH:maxH, label:true, bw:60, gap:18, hl:function(k){
         if(k===f.maxIdx) return ORA; if(k===f.scan&&f.found==null&&!f.done) return GRN; return BLU; } });
       // 인덱스 라벨 a[0]..a[n-1] → 코드의 a[i] 와 그림이 연결됨
-      ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
       for(var k=0;k<A.length;k++){ var bx=info.x0+k*(info.bw+info.gap)+info.bw/2; ctx.fillText('a['+k+']', bx, baseY+30); }
       // 현재 최대 높이 가로 점선 + 라벨 → "가장 큰 값"이 시각적으로 명확
       if(f.maxIdx!=null && f.maxIdx>=0){ var mv=A[f.maxIdx], ly=baseY-(mv/MAXV)*maxH, rightX=info.x0+A.length*(info.bw+info.gap)-info.gap;

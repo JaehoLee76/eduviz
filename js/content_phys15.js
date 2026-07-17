@@ -83,11 +83,11 @@
       // 스펙트럼 띠(전파→가시→감마, 색상 그라데이션 근사)
       var bands=[['전파',0,0.20,'#3a6ea5'],['적외선',0.20,0.575,'#a5532a'],['가시광',0.575,0.592,'#9b6bff'],['자외선',0.592,0.733,'#6b3aa5'],['X선',0.733,0.867,'#4a9b8f'],['감마선',0.867,1,'#9b3a5a']];
       for(var i=0;i<bands.length;i++){ var b=bands[i]; ctx.fillStyle=b[3]; ctx.globalAlpha=0.55; ctx.fillRect(bx+bw*b[1], by, bw*(b[2]-b[1]), bh); ctx.globalAlpha=1;
-        if(b[0]!=='가시광'){ ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(b[0], bx+bw*(b[1]+b[2])/2, by-8); } }
+        if(b[0]!=='가시광'){ ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(b[0], bx+bw*(b[1]+b[2])/2, by-8); } }
       // 가시광 무지개 강조(매핑상 아주 좁은 한 칸 — 화살표로 가리킴)
       var visA=0.575, visB=0.592, visG=ctx.createLinearGradient(bx+bw*visA,0,bx+bw*visB,0); visG.addColorStop(0,'#ff4444'); visG.addColorStop(0.5,'#44ff44'); visG.addColorStop(1,'#6644ff');
       ctx.fillStyle=visG; ctx.fillRect(bx+bw*visA,by,bw*(visB-visA),bh);
-      ctx.fillStyle='#cfcdc6'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('가시광', bx+bw*(visA+visB)/2, by-8);
+      ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('가시광', bx+bw*(visA+visB)/2, by-8);
       // 지시자
       var ix=bx+bw*s.p; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ix,by-14); ctx.lineTo(ix,by+bh+14); ctx.stroke();
       arrow(E,ix,by+bh+26,ix,by+bh+14,'#fff',2);

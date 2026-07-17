@@ -34,7 +34,7 @@
     ctx.strokeStyle='rgba(90,180,232,0.22)'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(P.X(-rng),P.oy); ctx.lineTo(P.X(rng),P.oy);
     ctx.moveTo(P.ox,P.Y(-rng)); ctx.lineTo(P.ox,P.Y(rng)); ctx.stroke();
-    ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
     ctx.fillText('실수부(Re) →', P.X(rng)-70, P.oy-8);
     ctx.textAlign='left'; ctx.fillText('허수부(Im) ↑', P.ox+8, P.Y(rng)+14); }
   // 복소수 화살표(원점→(re,im))
@@ -156,7 +156,7 @@
         var bw=Math.min(90,(W*0.40-2*20)/3), gap=20, bx=px, by=py+16, bh=42;
         function vbox(x,label,val,col){ ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.fillStyle='rgba(255,255,255,0.04)';
           roundRect(ctx,x,by,bw,bh,8); ctx.fill(); ctx.stroke();
-          ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+bw/2, by+15);
+          ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x+bw/2, by+15);
           ctx.fillStyle=col; ctx.font='700 19px ui-monospace,Menlo,monospace'; ctx.fillText(''+val, x+bw/2, by+37); ctx.textAlign='left'; }
         vbox(bx,          'cnt (전)', cnt, DIM);
         vbox(bx+bw+gap,   '식의 값',  s.step===1?pre_ret:post_ret, s.step===1?GRN:GLD);
@@ -284,7 +284,7 @@
         var oy=fy+3*(bh+gap)+4;
         ctx.fillStyle='#0c0f16'; ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4;
         roundRect(ctx,px,oy,bw,36,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('콘솔 출력', px+10, oy+13);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('콘솔 출력', px+10, oy+13);
         ctx.fillStyle=GRN; ctx.font='700 17px ui-monospace,Menlo,monospace'; ctx.fillText(out, px+10, oy+30);
       }
 
@@ -338,7 +338,7 @@
         ctx.strokeRect(x, by, cw-4, cellH);
         ctx.fillStyle= sel?CPB:'#dfeaf2'; ctx.font='700 18px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
         ctx.fillText(''+data[k], x+(cw-4)/2, by+cellH/2+6);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('['+k+']', x+(cw-4)/2, by+cellH+16);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('['+k+']', x+(cw-4)/2, by+cellH+16);
       }
       // 인덱스 화살표(범위 밖이면 배열 옆 빨간 표시)
       if(inRange){
@@ -502,7 +502,7 @@
         var oy=fy+4*(bh+gap)+2;
         ctx.fillStyle='#0c0f16'; ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4;
         roundRect(ctx,px,oy,bw,34,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='left'; ctx.fillText('결과', px+10, oy+13);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('결과', px+10, oy+13);
         ctx.fillStyle=GRN; ctx.font='700 16px ui-monospace,Menlo,monospace'; ctx.fillText('a + b = '+cstr(afterAdd.re,afterAdd.im), px+52, oy+24);
       }
 

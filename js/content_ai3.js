@@ -74,7 +74,7 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('확률 σ(z)', ox+4, oy-pv-6); ctx.textAlign='right'; ctx.fillText('입력 x →', ox+pw, oy+18);
       // 0.5 결정경계 가로선 + σ=0.5인 x (경계: w(x-0.5)=0 → x=0.5)
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(SX(0),SY(0.5)); ctx.lineTo(SX(1),SY(0.5)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.font='11px sans-serif'; ctx.fillText('σ=0.5 (결정 임계값)', SX(0.02), SY(0.5)-5);
+      ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.font='13px sans-serif'; ctx.fillText('σ=0.5 (결정 임계값)', SX(0.02), SY(0.5)-5);
       // 시그모이드 곡선(실계산): z = w·(x-0.5)
       ctx.strokeStyle=GLD; ctx.lineWidth=2.8; ctx.beginPath();
       for(var x=0;x<=1.0001;x+=0.004){ var p=sigmoid(s.w*(x-0.5)); if(x===0)ctx.moveTo(SX(x),SY(p)); else ctx.lineTo(SX(x),SY(p)); } ctx.stroke();

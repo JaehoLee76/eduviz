@@ -38,7 +38,7 @@
       // 1/r² 곡선
       var gx0=W*0.62, gx1=W*0.93, gy0=H*0.86, gh=H*0.42;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('F', gx0+4, gy0-gh+4); ctx.fillText('r', gx1-8, gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('F', gx0+4, gy0-gh+4); ctx.fillText('r', gx1-8, gy0+14);
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
       for(var k=0;k<=60;k++){ var rr=1+k/60*5, ff=Gc*M*m/(rr*rr), x=gx0+(rr-1)/5*(gx1-gx0), y=gy0-Math.min(gh,ff/10*gh*0.9); if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var mx=gx0+(s.r-1)/5*(gx1-gx0), my=gy0-Math.min(gh,F/10*gh*0.9);
@@ -74,7 +74,7 @@
       ctx.fillStyle=ORA; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,ratio/3)*bh,40,Math.min(1,ratio/3)*bh); ctx.globalAlpha=1;
       // 지구 기준선(ratio=1)
       ctx.strokeStyle='rgba(122,184,255,0.5)'; ctx.setLineDash([4,3]); var ey=baseY-(1/3)*bh; ctx.beginPath(); ctx.moveTo(bx-8,ey); ctx.lineTo(bx+48,ey); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('지구 g', bx+52, ey+4);
+      ctx.fillStyle=BLU; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('지구 g', bx+52, ey+4);
       ctx.fillStyle=ORA; ctx.textAlign='center'; ctx.fillText('g', bx+20, baseY+16);
       E.tapHint(W/2, H*0.90, '화면 탭 = 다시 떨어뜨리기', true);
       E.big('중력가속도 g = GM/R² = '+g.toFixed(2)+' m/s²  (지구의 '+(g/9.8).toFixed(2)+'배)', '발밑 행성이 무거울수록 세게 당기고(M에 비례), 내가 중심에서 멀수록 약해집니다(R²에 반비례). 달은 가벼워 g≈1.6, 지구의 6분의 1뿐이라 공이 느릿느릿 떨어집니다. 그래도 무거운 공이든 가벼운 공이든 떨어지는 빠르기는 똑같죠 — 갈릴레오의 자유낙하.'); }
@@ -102,11 +102,11 @@
       s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(view.X(q[0]),view.Y(q[1])); else ctx.lineTo(view.X(q[0]),view.Y(q[1])); }); ctx.stroke();
       // 태양
       ctx.fillStyle=ORA; ctx.globalAlpha=0.9; ctx.beginPath(); ctx.arc(ox,oy,12,0,7); ctx.fill(); ctx.globalAlpha=1;
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+24);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+24);
       // 행성 + 속도
       var px=view.X(p.x), py=view.Y(p.y);
       arrow(E,px,py,px+p.vx*sc*0.5,py-p.vy*sc*0.5,GRN,2);
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('v='+v.toFixed(2), px+p.vx*sc*0.5+2, py-p.vy*sc*0.5-6);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('v='+v.toFixed(2), px+p.vx*sc*0.5+2, py-p.vy*sc*0.5-6);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill();
       ctx.fillStyle=BLU; ctx.fillText('행성', px, py+20);
       var e=0.5*v*v-GM/r, type=Math.abs(s.vf-1)<0.015?'원궤도':(e<-0.02?(s.vf<1?'타원(여기가 원일점)':'타원(여기가 근일점)'):'탈출 궤도');
@@ -140,7 +140,7 @@
       s.sweep.forEach(function(q){ ctx.lineTo(view.X(q[0]),view.Y(q[1])); }); ctx.closePath(); ctx.fill();
       // 태양·행성·반지름선
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(view.X(p.x),view.Y(p.y)); ctx.stroke();
-      ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+r.toFixed(1), (ox+view.X(p.x))/2, (oy+view.Y(p.y))/2-6);
+      ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+r.toFixed(1), (ox+view.X(p.x))/2, (oy+view.Y(p.y))/2-6);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,11,0,7); ctx.fill();
       ctx.fillStyle=ORA; ctx.fillText('태양', ox, oy+24);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(view.X(p.x),view.Y(p.y),7,0,7); ctx.fill();
@@ -149,7 +149,7 @@
       var bx=W*0.80, baseY=H*0.72, bh=H*0.4;
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx,baseY-bh,40,bh);
       ctx.fillStyle=GRN; ctx.globalAlpha=0.85; ctx.fillRect(bx,baseY-Math.min(1,areal/4)*bh,40,Math.min(1,areal/4)*bh); ctx.globalAlpha=1;
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('dA/dt', bx+20, baseY+16);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('dA/dt', bx+20, baseY+16);
       E.tapHint(W/2, H*0.92, '화면 탭=재시작 — 근일점(빠름)·원일점(느림)', true);
       E.big('면적속도 dA/dt = '+areal.toFixed(2)+'  (어디서나 일정)', '케플러 2법칙: 태양–행성 선분이 <b>같은 시간에 같은 넓이</b>를 쓸어냅니다. 가까우면(근일점) 쏜살같이, 멀면(원일점) 느릿느릿 돌아 부채꼴 넓이는 늘 똑같죠(초록). 피겨 선수가 팔을 당기면 빨라지듯, 행성도 태양에 다가갈수록 빨라지는 — 각운동량 보존입니다.'); }
   },
@@ -175,7 +175,7 @@
       ctx.strokeStyle='rgba(122,184,255,0.35)'; ctx.lineWidth=1.3; ctx.beginPath();
       s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(view.X(q[0]),view.Y(q[1])); else ctx.lineTo(view.X(q[0]),view.Y(q[1])); }); ctx.stroke();
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,11,0,7); ctx.fill();
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+24);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+24);
       var px=view.X(p.x), py=view.Y(p.y);
       arrow(E,px,py,px+p.vx*sc*0.5,py-p.vy*sc*0.5,GRN,2);
       ctx.fillStyle=GRN; ctx.fillText('v='+v.toFixed(2), px+p.vx*sc*0.5+2, py-p.vy*sc*0.5-6);
@@ -186,7 +186,7 @@
       ['KE','PE','합'].forEach(function(lab,i){ var val=(i===0?KE:i===1?PE:tot), x=bx+i*70, hh=val/mx*bh;
         ctx.fillStyle=(i===0?GRN:i===1?PNK:(bound?BLU:ORA)); ctx.globalAlpha=0.85;
         if(hh>=0) ctx.fillRect(x,baseY-hh,46,hh); else ctx.fillRect(x,baseY,46,-hh); ctx.globalAlpha=1;
-        ctx.fillStyle='#dfeefb'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(val.toFixed(1), x+23, val>=0?baseY-hh-5:baseY-hh+13);
+        ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(val.toFixed(1), x+23, val>=0?baseY-hh-5:baseY-hh+13);
         ctx.fillStyle=DIM; ctx.fillText(lab, x+23, baseY+bh+14); });
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx-10,baseY); ctx.lineTo(bx+220,baseY); ctx.stroke();
       E.tapHint(W/2, H*0.93, '화면 탭 = 재발사', true);
@@ -210,7 +210,7 @@
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.lineWidth=1.5; ctx.beginPath();
       s.trail.forEach(function(q,i){ if(i===0)ctx.moveTo(v.X(q[0]),v.Y(q[1])); else ctx.lineTo(v.X(q[0]),v.Y(q[1])); }); ctx.stroke();
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(ox,oy,10,0,7); ctx.fill();
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+22);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('태양', ox, oy+22);
       ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(v.X(p.x),v.Y(p.y),6,0,7); ctx.fill();
       ctx.fillStyle=DIM; ctx.fillText('a='+s.a.toFixed(1), ox+(v.X(p.x)-ox)/2, oy+(v.Y(p.y)-oy)/2-6);
       // T = 2π√(a³/GM), T²/a³ = 4π²/GM 일정
@@ -218,7 +218,7 @@
       // T²-a³ 직선 그래프
       var gx0=W*0.60, gx1=W*0.94, gy0=H*0.80, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('T²',gx0+3,gy0-gh+4); ctx.fillText('a³',gx1-12,gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('T²',gx0+3,gy0-gh+4); ctx.fillText('a³',gx1-12,gy0+14);
       var a3max=8*8*8; ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.beginPath();
       for(var k=0;k<=40;k++){ var aa=2+k/40*6, a3=aa*aa*aa, t2=ratio*a3, x=gx0+(a3/a3max)*(gx1-gx0), y=gy0-(t2/(ratio*a3max))*gh; if(k===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       var mx=gx0+(s.a*s.a*s.a/a3max)*(gx1-gx0), my=gy0-(T*T/(ratio*a3max))*gh; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();

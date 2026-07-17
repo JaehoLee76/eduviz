@@ -26,7 +26,7 @@
       for(var x=gx0;x<=gx1;x+=2){ var ph=(x-gx0)/40 - s.t*3, v=Math.sin(ph)*s.V0; var y=cy-v/6*amp; if(x===gx0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // V₀, Vrms 선
       ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.setLineDash([5,4]);
-      [['V₀',s.V0,'#fff'],['Vrms',Vrms,GRN],['−V₀',-s.V0,'#fff']].forEach(function(L){ var y=cy-L[1]/6*amp; ctx.strokeStyle=L[2]; ctx.beginPath(); ctx.moveTo(gx0,y); ctx.lineTo(gx1,y); ctx.stroke(); ctx.fillStyle=L[2]; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText(L[0], gx1+2, y+3); });
+      [['V₀',s.V0,'#fff'],['Vrms',Vrms,GRN],['−V₀',-s.V0,'#fff']].forEach(function(L){ var y=cy-L[1]/6*amp; ctx.strokeStyle=L[2]; ctx.beginPath(); ctx.moveTo(gx0,y); ctx.lineTo(gx1,y); ctx.stroke(); ctx.fillStyle=L[2]; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText(L[0], gx1+2, y+3); });
       ctx.setLineDash([]);
       ctx.fillStyle='#dfeefb'; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
       ctx.fillText('실효값 Vrms = V₀/√2 = '+s.V0.toFixed(1)+'/√2 = '+Vrms.toFixed(2)+' V', W/2, H*0.80);
@@ -45,7 +45,7 @@
       var Xc=1/(s.w*C), Xl=s.w*L;   // 용량 리액턴스 1/ωC, 유도 리액턴스 ωL (골든룰)
       var gx0=W*0.12, gx1=W*0.90, gy0=H*0.72, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('리액턴스(저항)', gx0+4,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('진동수 ω →', gx1, gy0+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('리액턴스(저항)', gx0+4,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('진동수 ω →', gx1, gy0+16);
       var mxv=8;
       // 저항 R(수평선)
       ctx.strokeStyle=DIM; ctx.lineWidth=2; ctx.beginPath(); var yR=gy0-R/mxv*gh; ctx.moveTo(gx0,yR); ctx.lineTo(gx1,yR); ctx.stroke(); ctx.fillStyle=DIM; ctx.fillText('R (일정)', gx1-60, yR-4);
@@ -99,12 +99,12 @@
       var Imax=V/R;
       var gx0=W*0.12, gx1=W*0.90, gy0=H*0.74, gh=H*0.52;
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('전류 I', gx0+4,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('주파수 ω →', gx1, gy0+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('전류 I', gx0+4,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('주파수 ω →', gx1, gy0+16);
       // I(ω) 공명 곡선
       ctx.strokeStyle=GRN; ctx.lineWidth=2.6; ctx.beginPath(); for(var w=0.5;w<=6;w+=0.03){ var x=gx0+(w-0.5)/5.5*(gx1-gx0), y=gy0-curI(w)/Imax*gh; if(w<=0.5)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
       // 공명 ω₀ 선
       var w0x=gx0+(w0-0.5)/5.5*(gx1-gx0); ctx.strokeStyle='rgba(255,178,122,0.5)'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(w0x,gy0); ctx.lineTo(w0x,gy0-gh); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('ω₀='+w0.toFixed(2), w0x, gy0-gh-2);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('ω₀='+w0.toFixed(2), w0x, gy0-gh-2);
       // 현재 ω
       var mx=gx0+(s.w-0.5)/5.5*(gx1-gx0), my=gy0-curI(s.w)/Imax*gh; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(mx,gy0); ctx.lineTo(mx,my); ctx.stroke(); ctx.setLineDash([]);

@@ -143,7 +143,7 @@
         ctx.fillStyle=litf?'rgba(126,224,176,0.14)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=litf?GRN:'rgba(255,255,255,0.12)'; ctx.lineWidth=1.3;
         roundRect(ctx,bx,fyy,bw,30,6); ctx.fill(); ctx.stroke();
         ctx.fillStyle=litf?GRN:'#dfeaf2'; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText(funcs[i][0], bx+10, fyy+20);
-        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText(funcs[i][1], bx+130, fyy+20);
+        ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText(funcs[i][1], bx+130, fyy+20);
       }
       var oy=fy+10+2*36+30;
       ctx.font='12.5px sans-serif';
@@ -198,7 +198,7 @@
       var ox=bx+20, oy=H*0.80, unit=Math.min(bw*0.13, H*0.085);
       ctx.strokeStyle='rgba(90,180,232,0.22)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(ox-unit,oy); ctx.lineTo(ox+unit*6,oy); ctx.moveTo(ox,oy+unit); ctx.lineTo(ox,oy-unit*6); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('x', ox+unit*6-4, oy+16); ctx.fillText('y', ox+6, oy-unit*6+2);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('x', ox+unit*6-4, oy+16); ctx.fillText('y', ox+6, oy-unit*6+2);
       // 원점→이전위치 흔적
       if(s.step>0){ var pv=states[s.step-1]; ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.setLineDash([4,3]);
         ctx.beginPath(); ctx.moveTo(ox+pv.x*unit,oy-pv.y*unit); ctx.lineTo(ox+st.x*unit,oy-st.y*unit); ctx.stroke(); ctx.setLineDash([]); }
@@ -243,7 +243,7 @@
       ctx.fillStyle=RED; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('private', cx, cy-8);
       ctx.fillStyle='#dfeaf2'; ctx.font='13px ui-monospace,monospace'; ctx.fillText('count', cx, cy+12);
       // public 통로(두 게이트 up/get)
-      ctx.fillStyle=GRN; ctx.font='600 11px sans-serif';
+      ctx.fillStyle=GRN; ctx.font='600 13px sans-serif';
       var g1x=cx+R*0.72, g1y=cy-R*0.55, g2x=cx+R*0.72, g2y=cy+R*0.55;
       ctx.fillStyle='rgba(126,224,176,0.18)'; ctx.strokeStyle=GRN; ctx.lineWidth=1.4;
       roundRect(ctx,g1x-4,g1y-12,50,22,5); ctx.fill(); ctx.stroke();
@@ -336,13 +336,13 @@
       ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('balance (private, 숨겨진 상태)', bx, balY);
       // before
       ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.4; roundRect(ctx,bx,balY+10,120,44,8); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('이전', bx+60, balY+24);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('이전', bx+60, balY+24);
       ctx.fillStyle='#dfeaf2'; ctx.font='700 18px ui-monospace,monospace'; ctx.fillText(''+start, bx+60, balY+46);
       // arrow
       ctx.fillStyle=gc; ctx.font='22px sans-serif'; ctx.fillText('→', bx+150, balY+40);
       // after
       ctx.fillStyle= accepted?'rgba(126,224,176,0.12)':'rgba(255,255,255,0.04)'; ctx.strokeStyle= accepted?GRN:'rgba(255,255,255,0.18)'; ctx.lineWidth=1.6; roundRect(ctx,bx+180,balY+10,120,44,8); ctx.fill(); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('이후', bx+240, balY+24);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('이후', bx+240, balY+24);
       ctx.fillStyle= accepted?GRN:'#dfeaf2'; ctx.font='700 18px ui-monospace,monospace'; ctx.fillText(''+newBal, bx+240, balY+46);
 
       // 결과 메시지 (실측)

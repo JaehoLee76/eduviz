@@ -109,7 +109,7 @@
       if(f.add&&(i===f.add[0]||i===f.add[1])) return {fill:'rgba(143,227,181,0.22)',stroke:GRN,text:GRN,tag:'더함'}; return null; } });
       ctx.fillStyle=DIM; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.textBaseline='middle';
       ctx.fillText('dp[]', ar.x0-12, ar.y+ar.bw/2); ctx.textBaseline='alphabetic';
-      ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('인덱스 i', V.W/2, ar.y+ar.bw+34); }
+      ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('인덱스 i', V.W/2, ar.y+ar.bw+34); }
   },
 
   // ══════════ 7.2 DP의 두 조건 (concept, quiz) ══════════

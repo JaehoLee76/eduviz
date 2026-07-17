@@ -34,7 +34,7 @@
       // 좌표 원·축
       ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
       ctx.strokeStyle='rgba(61,214,220,0.18)'; ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.moveTo(cx,cy-R); ctx.lineTo(cx,cy+R); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('의미 공간(2D)', cx-R, cy-R-8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('의미 공간(2D)', cx-R, cy-R-8);
       // 각 문서의 코사인 유사도 실측 → 순위
       var sims = DOCS.map(function(d,i){ return {i:i, s:cos(q,d.e)}; });
       var ranked = sims.slice().sort(function(a,b){ return b.s-a.s; });
@@ -46,7 +46,7 @@
         ctx.strokeStyle=top?CYA:'rgba(122,184,255,0.30)'; ctx.lineWidth=top?2.2:1.2;
         ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
         ctx.fillStyle=top?CYA:'rgba(122,184,255,0.55)'; ctx.beginPath(); ctx.arc(px,py,top?6:4,0,7); ctx.fill();
-        if(rk===0){ ctx.fillStyle=GLD; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('① 최근접', px, py-12); }
+        if(rk===0){ ctx.fillStyle=GLD; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('① 최근접', px, py-12); }
       }
       // 쿼리 벡터(금색)
       ctx.strokeStyle=GLD; ctx.lineWidth=3.2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+q[0]*R,cy-q[1]*R); ctx.stroke();
@@ -132,7 +132,7 @@
         ctx.fillStyle='rgba(255,255,255,0.05)'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,by,bw,bh,10);ctx.fill();}else ctx.fillRect(x,by,bw,bh);
         ctx.strokeStyle=st.c; ctx.lineWidth=(i===s.step?2.6:1.4); if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,by,bw,bh,10);ctx.stroke();}
         ctx.fillStyle=st.c; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(st.t, x+bw/2, by+24);
-        ctx.fillStyle='#cfe6e8'; ctx.font='11px sans-serif';
+        ctx.fillStyle='#cfe6e8'; ctx.font='13px sans-serif';
         // 줄바꿈 간단 처리
         var words=st.d, line=by+44;
         ctx.fillText(words.length>14?words.slice(0,14):words, x+bw/2, line);
@@ -188,7 +188,7 @@
         ctx.fillStyle='rgba(61,214,220,'+(0.10+0.06*(c%2)).toFixed(3)+')';
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx+1,oy,bw-2,rowH,6);ctx.fill();}else ctx.fillRect(bx+1,oy,bw-2,rowH);
         ctx.strokeStyle=CYA; ctx.lineWidth=1.4; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx+1,oy,bw-2,rowH,6);ctx.stroke();}
-        ctx.fillStyle=CYA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('청크'+(c+1), bx+bw/2, oy+rowH+16);
+        ctx.fillStyle=CYA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('청크'+(c+1), bx+bw/2, oy+rowH+16);
       }
       // 문장 칸(주제색)
       for(i=0;i<NS;i++){ var tp=topic(i), px=ox+i*cellW;

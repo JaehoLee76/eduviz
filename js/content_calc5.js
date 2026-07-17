@@ -77,7 +77,7 @@
         ctx.strokeStyle='rgba(255,210,122,0.8)'; ctx.lineWidth=1.6; ctx.beginPath();
         ctx.moveTo(P.X(x),P.Y(f(x))); ctx.lineTo(P.X(xn),P.Y(0)); ctx.stroke();   // 접선이 x축 만나는 점
         ctx.strokeStyle='rgba(155,153,163,0.4)'; ctx.setLineDash([2,3]); ctx.beginPath(); ctx.moveTo(P.X(x),P.Y(f(x))); ctx.lineTo(P.X(x),P.Y(0)); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle='rgba(155,153,163,0.7)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('x'+k+'='+x.toFixed(3), P.X(x), P.Y(0)+16);
+        ctx.fillStyle='rgba(155,153,163,0.7)'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('x'+k+'='+x.toFixed(3), P.X(x), P.Y(0)+16);
         P.dot(x,f(x),'rgba(185,156,255,0.6)'); x=xn; }
       P.dot(x,0,GRN,'x'+n+' = '+x.toFixed(4));
       if(n>0){ ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('xₙ₊₁ = xₙ − f/f′ = '+x.toFixed(6), E.W*0.42, E.H*0.18); }

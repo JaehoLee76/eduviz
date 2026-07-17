@@ -24,10 +24,10 @@
     enter:function(E){ this.s={yaw:0.6,pitch:0.5}; E.setOn([]);
       E.controls('<div class="ctrl"><label>좌우 회전(yaw)</label><input type="range" id="az" min="0" max="6.28" step="0.04" value="0.6"><output id="azo">0.60</output></div>'
         +'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">'
-        +'<button class="v3btn" id="vpDefault" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">사선(기본)</button>'
-        +'<button class="v3btn" id="vpFront" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">정면 x-z</button>'
-        +'<button class="v3btn" id="vpSide" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">측면 y-z</button>'
-        +'<button class="v3btn" id="vpTop" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer">위 x-y</button>'
+        +'<button class="v3btn" id="vpDefault" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">사선(기본)</button>'
+        +'<button class="v3btn" id="vpFront" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">정면 x-z</button>'
+        +'<button class="v3btn" id="vpSide" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">측면 y-z</button>'
+        +'<button class="v3btn" id="vpTop" style="background:transparent;border:1px solid #b99cff;color:#b99cff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer">위 x-y</button>'
         +'</div>');
       var self=this;
       function syncSlider(){ var az=self.s.yaw; document.getElementById('az').value=az; document.getElementById('azo').textContent=az.toFixed(2); }

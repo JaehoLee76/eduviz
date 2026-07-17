@@ -26,7 +26,7 @@
         ctx.fillStyle=hot?col:'rgba(255,255,255,0.05)'; ctx.globalAlpha=hot?0.85:0.5; ctx.fillRect(x,y,cw-6,ch-6); ctx.globalAlpha=1;
         ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.strokeRect(x,y,cw-6,ch-6);
         ctx.fillStyle='#fff'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(sym,x+(cw-6)/2,y+(ch-6)/2);
-        ctx.fillStyle=hot?'#10141a':DIM; ctx.font='10px sans-serif'; ctx.fillText(q,x+(cw-6)/2,y+(ch-6)-6); }
+        ctx.fillStyle=hot?'#10141a':DIM; ctx.font='12px sans-serif'; ctx.fillText(q,x+(cw-6)/2,y+(ch-6)-6); }
       // 쿼크 2행(위 u c t / 아래 d s b)
       for(var i=0;i<3;i++){ cell(i,0,quarks[i][0],quarks[i][1],ORA,i+1); cell(i,1,quarks[i+3][0],quarks[i+3][1],ORA,i+1); }
       // 렙톤 2행
@@ -34,7 +34,7 @@
       ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('쿼크 6 (강력 느낌)', ox+cw*3+10, oy+ch*0.6);
       ctx.fillStyle=GRN; ctx.fillText('렙톤 6 (전자·중성미자)', ox+cw*3+10, oy+ch*2.8);
       // 보손(힘 매개)
-      var bos=[['γ','광자'],['g','글루온'],['W/Z','약력'],['H','힉스']]; for(var b=0;b<4;b++){ var bx=ox+b*cw, by=oy+ch*4.5; ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.fillRect(bx,by,cw-6,ch*0.7); ctx.fillStyle='#10141a'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(bos[b][0],bx+(cw-6)/2,by+ch*0.3); ctx.fillStyle=DIM; ctx.font='9px sans-serif'; ctx.fillText(bos[b][1],bx+(cw-6)/2,by+ch*0.55); }
+      var bos=[['γ','광자'],['g','글루온'],['W/Z','약력'],['H','힉스']]; for(var b=0;b<4;b++){ var bx=ox+b*cw, by=oy+ch*4.5; ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.fillRect(bx,by,cw-6,ch*0.7); ctx.fillStyle='#10141a'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(bos[b][0],bx+(cw-6)/2,by+ch*0.3); ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(bos[b][1],bx+(cw-6)/2,by+ch*0.55); }
       ctx.fillStyle=BLU; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('보손 (힘 매개 입자)', ox+cw*4+10, oy+ch*4.8);
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('표준모형: 물질=쿼크·렙톤(각 3세대) + 힘=보손. 우리 몸은 1세대(u,d,e)뿐', W/2, H*0.92);
       E.tapHint(W/2, H*0.97, '3세대 중 1세대(u·d·e)가 일상 물질을 이룹니다', true);
@@ -57,7 +57,7 @@
       var n=C[1].length, sum=0;
       for(var i=0;i<n;i++){ var th=i/n*6.2832-1.57, qx=cx+Math.cos(th)*R*0.6, qy=cy+Math.sin(th)*R*0.6; var q=C[1][i]; var ch=qch[q]; sum+=ch;
         ctx.fillStyle=q.indexOf('̄')>=0?BLU:ORA; ctx.beginPath(); ctx.arc(qx,qy,20,0,7); ctx.fill();
-        ctx.fillStyle='#10141a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(q,qx,qy-2); ctx.font='10px sans-serif'; ctx.fillText((ch>0?'+':'')+(ch===2/3?'⅔':ch===-1/3?'−⅓':'+⅓'),qx,qy+12);
+        ctx.fillStyle='#10141a'; ctx.font='600 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(q,qx,qy-2); ctx.font='12px sans-serif'; ctx.fillText((ch>0?'+':'')+(ch===2/3?'⅔':ch===-1/3?'−⅓':'+⅓'),qx,qy+12);
         // 글루온(연결)
         if(i>0){ ctx.strokeStyle='rgba(143,227,181,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx+Math.cos(i/n*6.2832-1.57-6.28/n)*R*0.6,cy+Math.sin(i/n*6.2832-1.57-6.28/n)*R*0.6); ctx.lineTo(qx,qy); ctx.stroke(); }
       }
@@ -89,7 +89,7 @@
         ctx.fillStyle='#fff'; ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillText(F[0]+' ('+F[1]+')',ox+W*0.06,y+18);
         // 상대 세기 막대(로그 차수를 압축해 강력>전자기>약력>중력 차이가 보이게)
         var logS=[0,-2.14,-6,-39][i], bw=Math.pow((40+logS)/40,2.4)*W*0.52; ctx.fillStyle=F[5]; ctx.fillRect(ox+W*0.06,y+26,Math.max(3,bw),12);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('상대세기 '+F[2]+'  ·  범위 '+F[3],ox+W*0.06,y+rh*0.7+4);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('상대세기 '+F[2]+'  ·  범위 '+F[3],ox+W*0.06,y+rh*0.7+4);
         ctx.globalAlpha=1;
       });
       ctx.fillStyle='#dfeefb'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('선택: '+forces[s.sel][0]+' — '+forces[s.sel][4], W/2, H*0.86);
@@ -139,7 +139,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(gx0,gy); ctx.lineTo(gx1,gy); ctx.stroke();
       stages.forEach(function(S,i){ var x=gx0+(i/(stages.length-1))*(gx1-gx0); var hot=(i<=idx);
         ctx.fillStyle=hot?S[2]:'rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.arc(x,gy,i===idx?9:5,0,7); ctx.fill();
-        ctx.save(); ctx.translate(x,gy); ctx.rotate(-0.5); ctx.fillStyle=hot?S[2]:DIM; ctx.font=(i===idx?'600 ':'')+'11px sans-serif'; ctx.textAlign='left'; ctx.fillText(S[0]+' ('+S[1]+')', 12, -4); ctx.restore();
+        ctx.save(); ctx.translate(x,gy); ctx.rotate(-0.5); ctx.fillStyle=hot?S[2]:DIM; ctx.font=(i===idx?'600 ':'')+'13px sans-serif'; ctx.textAlign='left'; ctx.fillText(S[0]+' ('+S[1]+')', 12, -4); ctx.restore();
       });
       // 현재 단계 그림(냉각=색 변화)
       var cur=stages[idx];

@@ -90,7 +90,7 @@
         var jx=bx+bw*0.96;
         ctx.beginPath(); ctx.moveTo(jx, y3+bh/2); ctx.lineTo(jx+10, y3+bh/2); ctx.lineTo(jx+10, y4+bh/2); ctx.lineTo(jx, y4+bh/2); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle=RED; ctx.font='10.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('return·cout 건너뜀', jx-4, (y3+y4)/2+bh/2+4);
+        ctx.fillStyle=RED; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('return·cout 건너뜀', jx-4, (y3+y4)/2+bh/2+4);
         ctx.textAlign='center';
         box(ctx, bx, y4, bw, bh, RED, 'catch: e.what() = "0으로 나눔"', 11.5, 'rgba(240,136,138,0.08)');
         ctx.fillStyle=RED; ctx.font='600 12.5px sans-serif';
@@ -161,13 +161,13 @@
       var iy=y2+42, tx=RX+RW*0.02;
       ctx.textAlign='left'; ctx.fillStyle=RED; ctx.font='600 12.5px sans-serif';
       ctx.fillText('throw std::'+thrown, tx, iy);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.fillText('조상 사슬: '+chain.join(' → '), tx, iy+20);
       ctx.fillStyle=GLD; ctx.font='600 13px sans-serif';
       ctx.fillText('→ catch (std::'+caughtBy+'&) 가 잡습니다', tx, iy+42);
 
       // 좌측(코드패널 아래): 요약 한 줄 (공간 있을 때만)
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText('기반 참조로 파생 예외를 잡습니다(다형성). 좁은 catch를 위쪽에.', W*0.05, Math.min(H*0.90, Math.max(codeBot+22, H*0.86))); }
 
       E.tapHint(W/2, H*0.95, '슬라이더로 던질 예외를 바꿔 어떤 catch가 잡는지 보세요', true);
@@ -216,7 +216,7 @@
           var rcol=resAlive?GRN:RED;
           var rxb=bx+fw+12, rww=W*0.10;
           box(ctx, rxb, fy, rww, fh, rcol, 'Res '+frames[i][1], 11.5, resAlive?'rgba(126,224,176,0.10)':'rgba(240,136,138,0.10)');
-          if(!resAlive && s.step>=4){ ctx.fillStyle=RED; ctx.font='10.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('~Res()', rxb+rww+8, fy+fh/2+4); ctx.textAlign='center'; }
+          if(!resAlive && s.step>=4){ ctx.fillStyle=RED; ctx.font='12.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('~Res()', rxb+rww+8, fy+fh/2+4); ctx.textAlign='center'; }
         }
       }
       // 상태 캡션 + 소멸 순서 로그 (우측영역, 콜스택 아래에 세로로)
@@ -235,9 +235,9 @@
       ctx.fillText('소멸 순서(LIFO): '+(order.length?order.map(function(n){return '~Res('+n+')';}).join(' → '):'—'), tx, ty+22);
 
       // 부가 설명(우측영역, 캡션 아래 한 줄)
-      if(s.step>=5){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+      if(s.step>=5){ ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
         ctx.fillText('자원 A·B 모두 반납된 뒤 catch — RAII+예외의 안전망.', tx, ty+44); }
-      else { ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      else { ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText('지나치는 각 스코프의 지역 객체 소멸자가 자동 호출.', tx, ty+44); }
 
       E.tapHint(W/2, H*0.96, '화면 탭 = 다음 (스택 쌓임 → throw → 소멸 → catch)', true);
@@ -288,7 +288,7 @@
         box(ctx, bx, y, rw, rh, on?levels[i][2]:DIM, null, 0, on?'rgba(90,180,232,0.10)':'rgba(255,255,255,0.03)');
         ctx.textAlign='left'; ctx.fillStyle=on?levels[i][2]:DIM; ctx.font='600 12.5px sans-serif';
         ctx.fillText(levels[i][0], bx+14, y+15);
-        ctx.fillStyle=on?'#dfeaf2':DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle=on?'#dfeaf2':DIM; ctx.font='13px sans-serif';
         ctx.fillText(levels[i][1], bx+14, y+30);
         if(on){ ctx.fillStyle=levels[i][2]; ctx.font='15px sans-serif'; ctx.textAlign='right'; ctx.fillText('◄', bx+rw-10, y+22); }
       }
@@ -297,15 +297,15 @@
       var jy=ty+3*pitch+8, px=bx, bw=W*0.19;
       function badge(label,ok,x){ var col=ok?GRN:RED;
         box(ctx, x, jy, bw, 26, col, null, 0, ok?'rgba(126,224,176,0.10)':'rgba(240,136,138,0.10)');
-        ctx.fillStyle=col; ctx.font='600 11.5px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=col; ctx.font='600 13.5px sans-serif'; ctx.textAlign='center';
         ctx.fillText(label+': '+(ok?'✓':'✗'), x+bw/2, jy+17); }
       badge('자원 누수 없음', !leaks, px);
       badge('상태 롤백', rollback, px+bw+W*0.02);
-      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.fillText('무예외 보장: '+(canThrow?'throw 가능':'noexcept — 절대 실패 안 함'), px, jy+44);
 
       // 좌측(코드패널 아래) 요약 (공간 있을 때만)
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
         ctx.fillText('강력 보장 = 트랜잭션처럼 “전부 아니면 전무”(copy-and-swap).', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.84))); }
 
       E.tapHint(W/2, H*0.96, '슬라이더로 보장 수준을 올려 코드·성질을 비교하세요', true);
@@ -342,8 +342,8 @@
           box(ctx, bx, y, iw, 38, items[i][2], null, 0, 'rgba(255,255,255,0.03)');
           ctx.fillStyle=items[i][2]; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
           ctx.fillText(items[i][0], bx+12, y+15);
-          ctx.fillStyle='#dfeaf2'; ctx.font='11.5px sans-serif'; ctx.fillText(items[i][1], bx+12, y+31); }
-        if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+          ctx.fillStyle='#dfeaf2'; ctx.font='13.5px sans-serif'; ctx.fillText(items[i][1], bx+12, y+31); }
+        if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
           ctx.fillText('move가 noexcept면 vector 성장 시 복사 대신 이동 — 성능 급상승.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.86))); }
       } else {
         // 비교표: 우측영역 x∈[0.55W,0.96W]에 3열, 세로 압축
@@ -361,13 +361,13 @@
         box(ctx, bx+cw*2, ty, cw, rh, GRN, '예외', 12, 'rgba(126,224,176,0.10)');
         for(var r=0;r<rows.length;r++){ var y=ty+rh*(r+1);
           box(ctx, bx, y, cw, rh, DIM, null, 0, 'rgba(255,255,255,0.02)');
-          ctx.fillStyle='#dfeaf2'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(rows[r][0], bx+cw/2, y+rh/2+4);
+          ctx.fillStyle='#dfeaf2'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(rows[r][0], bx+cw/2, y+rh/2+4);
           box(ctx, bx+cw, y, cw, rh, 'rgba(255,211,122,0.4)', null, 0, 'rgba(255,255,255,0.02)');
-          ctx.fillStyle=GLD; ctx.font='10px sans-serif'; ctx.fillText(rows[r][1], bx+cw+cw/2, y+rh/2+4);
+          ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText(rows[r][1], bx+cw+cw/2, y+rh/2+4);
           box(ctx, bx+cw*2, y, cw, rh, 'rgba(126,224,176,0.4)', null, 0, 'rgba(255,255,255,0.02)');
-          ctx.fillStyle=GRN; ctx.font='10px sans-serif'; ctx.fillText(rows[r][2], bx+cw*2+cw/2, y+rh/2+4); }
+          ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.fillText(rows[r][2], bx+cw*2+cw/2, y+rh/2+4); }
         ctx.textAlign='left';
-        if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='13px sans-serif';
           ctx.fillText('흔한 실패는 값 반환(optional/expected), 예외적 실패는 예외로.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.86))); }
       }
 
@@ -413,7 +413,7 @@
       box(ctx, bx+rw*0.30, ty, rw*0.40, 40, acquired?rcol:DIM,
           freed?'Res 정리됨':(leaked?'Res 누수!':(acquired?'Res 살아있음':'—')), 12.5,
           (leaked?'rgba(240,136,138,0.10)':(freed?'rgba(240,136,138,0.06)':(acquired?'rgba(126,224,176,0.10)':'rgba(255,255,255,0.03)'))));
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('힙(heap)', bx+rw*0.50, ty-8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('힙(heap)', bx+rw*0.50, ty-8);
 
       // 흐름 3단계 박스
       var fy=ty+64, fh=30, gap=12, pitch=fh+gap, mid=bx+rw*0.5, fbw=rw*0.66, fbx=bx+rw*0.17;
@@ -441,7 +441,7 @@
       ctx.fillText(caps[Math.min(s.step,3)], bx, cy);
 
       // 좌측(코드패널 아래) 요약
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(raiiSide?GLD:DIM); ctx.font='600 11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(raiiSide?GLD:DIM); ctx.font='600 13.5px sans-serif';
         ctx.fillText(raiiSide?'스택 객체 하나면 예외 안전이 공짜로 따라옵니다.':'try/catch로 매번 손수 정리? 실수 나기 쉽고 지저분합니다.',
           W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
 
@@ -491,12 +491,12 @@
       var cell=Math.min(W*0.058, (rw-16)/n), ch=26;
       ctx.textAlign='center';
       // 옛 버퍼
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('옛 버퍼 (capacity '+n+')', bx, ty-4);
       for(var i=0;i<n;i++){ box(ctx, bx+i*cell, ty, cell-4, ch, DIM, 'e'+i, 10.5, 'rgba(255,255,255,0.03)'); }
       // 새 버퍼
       var ny=ty+92;
-      ctx.textAlign='left'; ctx.fillStyle=opCol; ctx.font='11px sans-serif';
+      ctx.textAlign='left'; ctx.fillStyle=opCol; ctx.font='13px sans-serif';
       ctx.fillText('새 버퍼 (capacity '+(n*2)+') — '+op+'로 옮김', bx, ny-4);
       for(i=0;i<n;i++){ box(ctx, bx+i*cell, ny, cell-4, ch, opCol, 'e'+i, 10.5, hasNe?'rgba(126,224,176,0.10)':'rgba(255,211,122,0.10)'); }
       // 옮김 화살표(각 원소)
@@ -508,15 +508,15 @@
       ctx.fillText('옮김 비용(원소당 '+(hasNe?perMove:perCopy)+') × '+n+' = '+totalCost, barX, costY);
       ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(barX, costY+8, barMaxW, 14);
       ctx.fillStyle=opCol; ctx.fillRect(barX, costY+8, barMaxW*(totalCost/maxCost), 14);
-      ctx.fillStyle=opCol; ctx.font='11px sans-serif';
+      ctx.fillStyle=opCol; ctx.font='13px sans-serif';
       ctx.fillText(hasNe?('이동은 포인터만 훔침 — '+Math.round(perCopy/perMove)+'배 빠름'):'복사는 원소를 통째로 — 무겁습니다', barX, costY+40);
 
       // 경고: noexcept 함수가 던지면
-      ctx.fillStyle=RED; ctx.font='11px sans-serif';
+      ctx.fillStyle=RED; ctx.font='13px sans-serif';
       ctx.fillText('※ noexcept 함수가 실제로 던지면 → std::terminate() 즉시 종료', barX, costY+62);
 
       // 좌측(코드패널 아래) 요약
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
         ctx.fillText('이동 연산에 noexcept 한 단어 → vector가 이동을 택합니다.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
 
       E.tapHint(W/2, H*0.96, '슬라이더로 이동 생성자의 noexcept 유무를 바꿔 보세요', true);

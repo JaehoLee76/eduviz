@@ -182,7 +182,7 @@
       P.curve(function(x){return -x+3;}, '#8fe3b5');
       if(Math.abs(s.m+1)>1e-6){ var ix=2/(s.m+1), iy=-ix+3;
         E.ctx.globalAlpha=E.blink(); P.dot(ix,iy,'#ffb27a','('+ix.toFixed(1)+', '+iy.toFixed(1)+')'); E.ctx.globalAlpha=1; }
-      var sys='<span style="display:inline-flex;align-items:center;gap:10px;font-size:30px;font-weight:400">'
+      var sys='<span style="display:inline-flex;align-items:center;gap:12px;font-size:30px;font-weight:400">'
         +'<span style="font-size:58px;font-weight:200;line-height:0.7">{</span>'
         +'<span style="display:inline-flex;flex-direction:column;line-height:1.45;text-align:left"><span>y = mx + 1</span><span>y = −x + 3</span></span></span>';
       E.big(sys, Math.abs(s.m+1)<1e-6?'평행 — 교점 없음 (해 없음)':'교점 (x, y) = 연립방정식의 해'); }

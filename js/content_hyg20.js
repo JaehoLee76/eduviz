@@ -12,8 +12,8 @@
   function RR(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
   /* 라벨(위)+값(아래) 2줄 카드를 누적커서로 쌓는다(hyg18·hyg19 ROW 그대로 이식). 반환값=소비한 세로높이. */
   function ROW(ctx,W,H,x,y,w,rows){
-    var labelFs=FS(H,0.021,9,12), valueFs=FS(H,0.026,11,14);
-    var gap=FS(H,0.008,2,4), rowGap=FS(H,0.009,3,5);
+    var labelFs=FS(H,0.021,11,14), valueFs=FS(H,0.026,13,14);
+    var gap=FS(H,0.008,4,6), rowGap=FS(H,0.009,5,7);
     var blockH=labelFs+gap+valueFs, cy=y;
     for(var i=0;i<rows.length;i++){
       ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x-8,cy-3,w,blockH+6,7); ctx.fill();
@@ -224,7 +224,7 @@
       var LI=RWL>0? objWeight/RWL : Infinity;
       var over=LI>1;
       var y=H*0.10;
-      T(ctx,'RWL=23×HM×VM×DM×AM×FM×CM(kg) · LI=물체무게÷RWL · 물체무게 '+objWeight+'kg 고정(기출값)',W*0.05,y,DIM,FS(H,0.048,8,11),'left');
+      T(ctx,'RWL=23×HM×VM×DM×AM×FM×CM(kg) · LI=물체무게÷RWL · 물체무게 '+objWeight+'kg 고정(기출값)',W*0.05,y,DIM,FS(H,0.048,10,13),'left');
       y+=FS(H,0.075,15,20);
 
       var items=[
@@ -236,15 +236,15 @@
         ['CM('+COUPLING[s.cIdx].name+','+(Vlt75?'V<75':'V≥75')+')', CM, '#cfd8e6']
       ];
       var gapX=W*0.02, colW=(W*0.90-gapX)/2, rowH=FS(H,0.135,26,34);
-      var barH=FS(H,0.032,6,9), labFs=FS(H,0.05,8.5,11);
+      var barH=FS(H,0.032,8,11), labFs=FS(H,0.05,10.5,13);
       for(var i=0;i<6;i++){ var col=i%2, row=Math.floor(i/2);
         var x=W*0.05+col*(colW+gapX), yy=y+row*rowH, it=items[i];
         T(ctx,it[0]+' = '+it[1].toFixed(3),x,yy+labFs,TXT,labFs,'left','600');
-        var by=yy+labFs+FS(H,0.018,3,6);
+        var by=yy+labFs+FS(H,0.018,5,8);
         ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(x,by,colW,barH);
         ctx.fillStyle=it[2]; ctx.fillRect(x,by,colW*Math.max(0,Math.min(1,it[1])),barH);
       }
-      y+=rowH*3+FS(H,0.03,6,10);
+      y+=rowH*3+FS(H,0.03,8,12);
 
       var rh=FS(H,0.155,30,40);
       ctx.fillStyle=over?'rgba(240,136,138,0.14)':'rgba(143,227,181,0.12)'; ctx.strokeStyle=over?RED:GRN;
@@ -275,13 +275,13 @@
       var bx=W*0.08, bw=W*0.84;
       var y=H*0.19;
       T(ctx,'수립·시행 의무(안전보건규칙 제662조): 요양승인 근로자 연간 10명 이상, 또는 5명 이상+비율 10%이상, 또는 노사이견 지속 시 고용노동부장관 명령',
-        bx,y,DIM,FS(H,0.02,8.5,11.5),'left');
+        bx,y,DIM,FS(H,0.02,10.5,13.5),'left');
       y+=FS(H,0.045,16,22);
 
       var boxH=FS(H,0.10,34,50);
       ctx.fillStyle=mandatory?'rgba(240,136,138,0.14)':'rgba(143,227,181,0.12)'; ctx.strokeStyle=mandatory?RED:GRN;
       RR(ctx,bx,y,bw,boxH,8); ctx.fill(); ctx.stroke();
-      var fs=FS(H,0.026,11,15);
+      var fs=FS(H,0.026,13,15);
       T(ctx,'요양승인 '+s.approved+'명 / 전체 '+s.workers+'명 → 비율 '+ratio.toFixed(1)+'%',bx+W*0.02,y+boxH*0.42,TXT,fs,'left','600');
       T(ctx,mandatory?'수립·시행 의무 발생':'현재 조건상 의무 미발생(자율 예방관리 권장)',bx+W*0.02,y+boxH*0.78,mandatory?RED:GRN,fs,'left','700');
       y+=boxH+FS(H,0.045,16,22);
@@ -295,17 +295,17 @@
       y+=rowsH+FS(H,0.038,14,20);
 
       T(ctx,'프로그램 6대 구성요소(순환) — 정책수립 → 교육·훈련 → 유해요인·의학적 관리 → 작업환경 등 개선활동 → 프로그램 평가 → 피드백',
-        bx,y,TXT,FS(H,0.023,10,13),'left','600');
+        bx,y,TXT,FS(H,0.023,12,15),'left','600');
       y+=FS(H,0.04,14,20);
       var COMP=['①정책수립','②교육·훈련','③유해요인관리','④의학적관리','⑤개선활동','⑥평가·피드백'];
       var cw=(bw-5*8)/6, chh=FS(H,0.075,26,36);
       for(var i=0;i<COMP.length;i++){ var cx=bx+i*(cw+8);
         ctx.fillStyle='rgba(122,184,255,0.08)'; ctx.strokeStyle=BLU; RR(ctx,cx,y,cw,chh,7); ctx.fill(); ctx.stroke();
-        T(ctx,COMP[i],cx+cw/2,y+chh/2+FS(H,0.007,3,5),TXT,FS(H,0.019,8,11),'center','600');
+        T(ctx,COMP[i],cx+cw/2,y+chh/2+FS(H,0.007,5,7),TXT,FS(H,0.019,10,13),'center','600');
         if(i<COMP.length-1){ var ax=cx+cw+2; ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.moveTo(ax,y+chh/2); ctx.lineTo(ax+4,y+chh/2); ctx.stroke(); } }
-      y+=chh+FS(H,0.03,10,16);
+      y+=chh+FS(H,0.03,12,16);
       T(ctx,'평가결과는 다시 정책수립으로 피드백되어 순환합니다. 작성·시행 시 노사협의를 거치고, 필요 시 인간공학·산업의학·산업위생·산업간호 전문가의 지도·조언을 받을 수 있습니다.',
-        bx,y,DIM,FS(H,0.02,8.5,11.5),'left');
+        bx,y,DIM,FS(H,0.02,10.5,13.5),'left');
 
       E.tapHint(0,0,'슬라이더로 요양승인자수·전체근로자수 조절',true);
       E.big(mandatory?'수립·시행 의무 발생 — 비율 '+ratio.toFixed(1)+'%':'의무 미발생 — 비율 '+ratio.toFixed(1)+'%',
@@ -332,24 +332,24 @@
       var sa1=s.deaths>=1;
       var sa2=(s.injured>=2 && s.months>=6);
       var saResult=sa1||sa2;   // 직업성질병자 1년내3명 조건은 슬라이더 변수와 무관해 별도 안내
-      var fs=FS(H,0.024,10,13);
+      var fs=FS(H,0.024,12,15);
       var bx=W*0.06, colW=W*0.43, gap=W*0.02, y0=H*0.24;
 
-      T(ctx,'슬라이더로 재해 규모를 바꾸며, 두 법의 "중대재해" 판정 기준이 어떻게 다른지 비교합니다',W*0.06,H*0.155,DIM,FS(H,0.021,9,12),'left');
+      T(ctx,'슬라이더로 재해 규모를 바꾸며, 두 법의 "중대재해" 판정 기준이 어떻게 다른지 비교합니다',W*0.06,H*0.155,DIM,FS(H,0.021,11,14),'left');
 
       function panel(x,title,rows,result,resColor){
         var y=y0;
-        T(ctx,title,x+colW/2,y,TXT,FS(H,0.027,11,15),'center','700'); y+=FS(H,0.04,14,20);
+        T(ctx,title,x+colW/2,y,TXT,FS(H,0.027,13,15),'center','700'); y+=FS(H,0.04,14,20);
         for(var i=0;i<rows.length;i++){ var ok=rows[i][2];
           ctx.fillStyle=ok?'rgba(143,227,181,0.10)':'rgba(255,255,255,0.03)'; ctx.strokeStyle=ok?GRN:'rgba(255,255,255,0.10)';
           var rh=FS(H,0.058,20,28); RR(ctx,x,y,colW,rh,7); ctx.fill(); ctx.stroke();
-          T(ctx,(ok?'✓ ':'· ')+rows[i][0],x+10,y+rh*0.4,ok?GRN:DIM,FS(H,0.02,8.5,11.5),'left');
-          T(ctx,rows[i][1],x+10,y+rh*0.78,ok?GRN:DIM,FS(H,0.019,8,11),'left');
-          y+=rh+FS(H,0.012,4,7); }
-        y+=FS(H,0.014,5,9);
+          T(ctx,(ok?'✓ ':'· ')+rows[i][0],x+10,y+rh*0.4,ok?GRN:DIM,FS(H,0.02,10.5,13.5),'left');
+          T(ctx,rows[i][1],x+10,y+rh*0.78,ok?GRN:DIM,FS(H,0.019,10,13),'left');
+          y+=rh+FS(H,0.012,6,9); }
+        y+=FS(H,0.014,7,11);
         ctx.fillStyle=result?'rgba(240,136,138,0.16)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=resColor;
         var rh2=FS(H,0.06,21,30); RR(ctx,x,y,colW,rh2,8); ctx.fill(); ctx.stroke();
-        T(ctx,result?'해당 — 중대재해':'해당 없음',x+colW/2,y+rh2*0.65,resColor,FS(H,0.027,11,15),'center','700');
+        T(ctx,result?'해당 — 중대재해':'해당 없음',x+colW/2,y+rh2*0.65,resColor,FS(H,0.027,13,15),'center','700');
         return y+rh2;
       }
       var yEndL=panel(bx,'산업안전보건법 시행규칙 제3조',[
@@ -363,12 +363,12 @@
         ['③ 동일 유해요인 급성중독 등 직업성질병자 1년내 3명↑', '슬라이더로 표현 불가 — 별도 확인 필요', false]
       ], saResult, saResult?RED:GRN);
 
-      var y=Math.max(yEndL,yEndR)+FS(H,0.03,10,16);
+      var y=Math.max(yEndL,yEndR)+FS(H,0.03,12,16);
       T(ctx,'핵심 차이: 요양·치료 기간 기준이 3개월(산안법) vs 6개월(중대재해처벌법)로 더 엄격 — 처벌법이 충족되면 산안법 기준도 항상 충족됩니다.',
-        W*0.06,y,AMB,FS(H,0.021,9,12),'left');
-      y+=FS(H,0.032,11,16);
+        W*0.06,y,AMB,FS(H,0.021,11,14),'left');
+      y+=FS(H,0.032,13,16);
       T(ctx,'2026 개정: 상시 50인 이상 사업장은 2027.1.1부터, 50인 미만은 2028.1.1부터 위험성평가 미실시·근로자 미참여 등에 단계적으로 과태료 제재가 적용됩니다(16장 연계).',
-        W*0.06,y,DIM,FS(H,0.02,8.5,11.5),'left');
+        W*0.06,y,DIM,FS(H,0.02,10.5,13.5),'left');
 
       E.tapHint(0,0,'슬라이더로 사망자·부상자수·요양기간 조절',true);
       E.big((oshaResult||saResult)?'중대재해 해당 — 사업주는 즉시 작업중지·대피조치':'현재 조건은 두 법 모두 중대재해 미해당',

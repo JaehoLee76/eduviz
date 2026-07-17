@@ -160,7 +160,7 @@
         ctx.fillStyle=big?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=big?ORA:BLU; ctx.lineWidth=2;
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,10);ctx.fill();ctx.stroke();}else{ctx.fillRect(x,y,bw,bw);ctx.strokeRect(x,y,bw,bw);}
         ctx.fillStyle=big?ORA:'#dfeefb'; ctx.font='600 26px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(A[i],x+bw/2,y+bw/2); ctx.textBaseline='alphabetic';
-        ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('a['+i+']', x+bw/2, y+bw+18); }
+        ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('a['+i+']', x+bw/2, y+bw+18); }
       var bx=x0+3*(bw+gap)+bw/2; star(ctx, bx, y-42+Math.sin(t)*3, 15, 0.42, ORA, Math.sin(t*0.3)*0.1);
       ctx.fillStyle=ORA; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('가장 큰 수는?', bx, y-66);
       E.big('첫 걸음 — 알고리즘이란 무엇일까?', '거창해 보이지만 알고리즘은 결국 "문제를 푸는 분명한 단계"입니다. 누구나 아는 문제부터 시작합니다 — 숫자 더미에서 <b>가장 큰 수 찾기</b>. 다음 화면에서 그 단계를 하나씩 뜯어봅니다.'); }

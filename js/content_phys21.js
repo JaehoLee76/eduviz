@@ -110,7 +110,7 @@
       var rL=sp*t; ctx.strokeStyle='rgba(255,224,106,0.6)'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.arc(x0,cy,rL,0,7); ctx.stroke(); ctx.beginPath(); ctx.arc(x1,cy,rL,0,7); ctx.stroke();
       // 플랫폼 관찰자(고정 중앙)
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(mid,cy+40,7,0,7); ctx.fill(); ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('플랫폼 관찰자', mid, cy+62);
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(mid,cy+40,7,0,7); ctx.fill(); ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('플랫폼 관찰자', mid, cy+62);
       var reachPlat = rL>=(mid-x0);
       // 기차 관찰자(이동 중앙)
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(trainMid,cy,6,0,7); ctx.fill(); ctx.fillStyle=ORA; ctx.fillText('기차 관찰자', trainMid, cy+16);

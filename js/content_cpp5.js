@@ -44,7 +44,7 @@
     col=col||GLD; var ht=46;
     ctx.fillStyle='rgba(255,211,122,0.08)'; ctx.strokeStyle=col; ctx.lineWidth=1.6;
     roundRect(ctx,x,y,w,ht,9); ctx.fill(); ctx.stroke();
-    ctx.fillStyle=DIM; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText('heap '+addr, x+10, y+16);
+    ctx.fillStyle=DIM; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText('heap '+addr, x+10, y+16);
     ctx.fillStyle=col; ctx.font='700 15px ui-monospace,Menlo,monospace'; ctx.fillText('"'+val+'"', x+10, y+37);
     return y+ht;
   }
@@ -86,7 +86,7 @@
         var accent = (s.step>=2)? GRN : CPD;
         objBox(ctx, ox, cy, bw, 'copy (사본)', [['name','"Ann"'],['age','23']], accent);
         arrow(ctx, ox+bw*0.5, oy+90, ox+bw*0.5, cy-6, accent, [6,4]);
-        ctx.fillStyle=accent; ctx.font='600 11px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle=accent; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
         ctx.fillText(s.step>=2? 'Person(const Person& p) → 필드 값 복제' : '복제 중…', ox+bw*0.5+10, oy+112);
       }
 
@@ -306,7 +306,7 @@
       var heapA_y=H*0.24, heapB_y=H*0.48;
       var heapA_gone = (s.step===3);
       if(!heapA_gone) heapBox(ctx, hx, heapA_y, hw, '0xA00', 'Old', (s.step>=2)?RED:GLD);
-      else { ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('0xA00 정리됨(delete[])', hx, heapA_y+20); }
+      else { ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('0xA00 정리됨(delete[])', hx, heapA_y+20); }
       heapBox(ctx, hx, heapB_y, hw, '0xB00', 'New', (s.step>=2)?GRN:CPD);
 
       var tpX=ox+bw-16, tpY=H*0.22+38, rpX=ox+bw-16, rpY=H*0.46+38;
@@ -377,7 +377,7 @@
         roundRect(ctx, mx, ry, rw, rowH, 7); ctx.fill(); ctx.stroke();
         ctx.fillStyle= on?GRN:DIM; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
         ctx.fillText(members[i][0], mx+12, ry+rowH/2+4);
-        ctx.fillStyle= on?'#dfeaf2':DIM; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+        ctx.fillStyle= on?'#dfeaf2':DIM; ctx.font='13.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
         ctx.fillText(members[i][1], mx+W*0.12, ry+rowH/2+4);
         ctx.fillStyle=col; ctx.font='700 13px sans-serif'; ctx.textAlign='right';
         ctx.fillText(on?'정의 ✔':'빠짐', mx+rw-12, ry+rowH/2+4); ctx.textAlign='left';
@@ -475,7 +475,7 @@
           // 해제된 힙 표시
           ctx.fillStyle='rgba(240,136,138,0.06)'; ctx.strokeStyle=RED; ctx.lineWidth=1.6; ctx.setLineDash([5,4]);
           roundRect(ctx, hx, heapY, hw, 46, 9); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
-          ctx.fillStyle=RED; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='left';
+          ctx.fillStyle=RED; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='left';
           ctx.fillText('0x100 해제됨(dangling)', hx+10, heapY+16);
           ctx.fillStyle=RED; ctx.font='700 13px sans-serif';
           ctx.fillText('✗ "Cat" 사라짐', hx+10, heapY+37);

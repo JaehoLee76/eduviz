@@ -17,8 +17,8 @@
   function RR(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
   /* 라벨(위)+값(아래) 2줄 카드를 누적커서로 쌓는다(hyg18~20 ROW 그대로 이식). 반환값=소비한 세로높이. */
   function ROW(ctx,W,H,x,y,w,rows){
-    var labelFs=FS(H,0.021,9,12), valueFs=FS(H,0.026,11,14);
-    var gap=FS(H,0.008,2,4), rowGap=FS(H,0.009,3,5);
+    var labelFs=FS(H,0.021,11,14), valueFs=FS(H,0.026,13,14);
+    var gap=FS(H,0.008,4,6), rowGap=FS(H,0.009,5,7);
     var blockH=labelFs+gap+valueFs, cy=y;
     for(var i=0;i<rows.length;i++){
       ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x-8,cy-3,w,blockH+6,7); ctx.fill();
@@ -118,27 +118,27 @@
       var allV=SP.concat(TPa).concat(VPa); var mx=Math.max.apply(null,allV.map(Math.abs))*1.15;
       function px(i){ return chX+chW*(i/6); }
       function py(v){ return chY+chH*0.5-(v/mx)*(chH*0.5); }
-      T(ctx,'국소배기 계통 지점별 SP·VP·TP (mmH₂O, V='+V+'m/s 고정)',W*0.5,H*0.095,DIM,FS(H,0.02,8,11),'center');
+      T(ctx,'국소배기 계통 지점별 SP·VP·TP (mmH₂O, V='+V+'m/s 고정)',W*0.5,H*0.095,DIM,FS(H,0.02,10,13),'center');
       // 0선
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.beginPath(); ctx.moveTo(chX,py(0)); ctx.lineTo(chX+chW,py(0)); ctx.stroke();
-      T(ctx,'0',chX-6,py(0)+4,DIM,FS(H,0.016,7,9),'right');
+      T(ctx,'0',chX-6,py(0)+4,DIM,FS(H,0.016,9,11),'right');
       function line(arr,col){ ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
         for(var i=0;i<7;i++){ var x=px(i),y=py(arr[i]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
         for(var i2=0;i2<7;i2++){ var x2=px(i2),y2=py(arr[i2]); ctx.fillStyle=(i2===idx)?TXT:col;
           ctx.beginPath(); ctx.arc(x2,y2,i2===idx?5:3,0,7); ctx.fill(); } ctx.lineWidth=1; }
       line(SP,ORA); line(VPa,BLU); line(TPa,GRN);
-      var legY=chY+chH+FS(H,0.025,8,13);
-      T(ctx,'● SP 정압',chX,legY,ORA,FS(H,0.018,7,10),'left');
-      T(ctx,'● VP 속도압',chX+W*0.16,legY,BLU,FS(H,0.018,7,10),'left');
-      T(ctx,'● TP 전압(=SP+VP)',chX+W*0.32,legY,GRN,FS(H,0.018,7,10),'left');
+      var legY=chY+chH+FS(H,0.025,10,15);
+      T(ctx,'● SP 정압',chX,legY,ORA,FS(H,0.018,9,12),'left');
+      T(ctx,'● VP 속도압',chX+W*0.16,legY,BLU,FS(H,0.018,9,12),'left');
+      T(ctx,'● TP 전압(=SP+VP)',chX+W*0.32,legY,GRN,FS(H,0.018,9,12),'left');
       // 현재 지점 세로 마커
       ctx.strokeStyle='rgba(255,178,122,0.35)'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(px(idx),chY); ctx.lineTo(px(idx),chY+chH); ctx.stroke(); ctx.setLineDash([]);
 
       var y=legY+FS(H,0.045,14,20);
-      T(ctx,'현재 지점: '+LABELS[idx],chX,y,TXT,FS(H,0.024,10,13),'left','700');
+      T(ctx,'현재 지점: '+LABELS[idx],chX,y,TXT,FS(H,0.024,12,15),'left','700');
       y+=FS(H,0.04,12,18);
       T(ctx,'SP '+SP[idx].toFixed(2)+' mmH₂O   ·   VP '+VPa[idx].toFixed(2)+' mmH₂O   ·   TP '+TPa[idx].toFixed(2)+' mmH₂O',
-        chX,y,GRN,FS(H,0.023,9,12),'left','600');
+        chX,y,GRN,FS(H,0.023,11,14),'left','600');
       y+=FS(H,0.05,15,22);
       var notes=[
         '대기 상태이므로 SP=VP=TP=0입니다. 탭하면 이 정지된 공기가 후드로 빨려 들어가기 시작합니다.',
@@ -149,7 +149,7 @@
         '송풍기가 외부 동력으로 전압(TP)을 큰 폭으로 끌어올려 SP가 "−"에서 "+"로 뒤바뀝니다 — 송풍기 전후의 SP 차이가 곧 송풍기가 감당해야 하는 전압상승분입니다.',
         '배출덕트의 마찰손실로 SP가 다시 감소하며, 배출구에서는 대기압과 같아져 SP가 정확히 0으로 수렴합니다(VP는 배출과 동시에 대기 중 난류로 소산).'
       ];
-      T(ctx,notes[idx]||notes[0],W*0.08,y,DIM,FS(H,0.021,9,12),'left');
+      T(ctx,notes[idx]||notes[0],W*0.08,y,DIM,FS(H,0.021,11,14),'left');
 
       E.tapHint(0,0,'화면 탭 = 다음 지점',true);
     }
@@ -173,7 +173,7 @@
       var de2=1.3*Math.pow(a*b,0.625)/Math.pow(a+b,0.25);                // 마찰 등가직경(ASHRAE)
       var diff=de2-de1, diffPct=de1>0? (diff/de1*100) : 0;
       var y=H*0.17;
-      T(ctx,'사각(장방형) 덕트 a×b='+s.a+'×'+s.b+'cm — 두 정의의 상당직경을 동시에 계산합니다',W*0.06,y,DIM,FS(H,0.022,9,12),'left');
+      T(ctx,'사각(장방형) 덕트 a×b='+s.a+'×'+s.b+'cm — 두 정의의 상당직경을 동시에 계산합니다',W*0.06,y,DIM,FS(H,0.022,11,14),'left');
       y+=FS(H,0.05,16,24);
 
       // 단면 도해: 사각형 vs 두 원형(비례 스케일)
@@ -181,14 +181,14 @@
       var rw=a*scl, rh=b*scl;
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; ctx.lineWidth=1.6;
       RR(ctx,boxX+(boxMaxW-rw)/2, boxY+(boxMaxH-rh)/2, rw, rh, 3); ctx.fill(); ctx.stroke(); ctx.lineWidth=1;
-      T(ctx,'장방형 a×b',boxX+boxMaxW/2,boxY+boxMaxH+FS(H,0.026,10,14),BLU,FS(H,0.021,9,12),'center');
+      T(ctx,'장방형 a×b',boxX+boxMaxW/2,boxY+boxMaxH+FS(H,0.026,12,14),BLU,FS(H,0.021,11,14),'center');
 
       var c1x=W*0.44, c2x=W*0.68, cy=boxY+boxMaxH/2, maxR=Math.min(W*0.11,boxMaxH/2)*0.9;
       var rScl=maxR/Math.max(de1,de2)*2;
       ctx.fillStyle='rgba(255,178,122,0.12)'; ctx.strokeStyle=ORA; ctx.beginPath(); ctx.arc(c1x,cy,de1*rScl/2,0,7); ctx.fill(); ctx.stroke();
-      T(ctx,'de①(수력학적)',c1x,boxY+boxMaxH+FS(H,0.026,10,14),ORA,FS(H,0.021,9,12),'center');
+      T(ctx,'de①(수력학적)',c1x,boxY+boxMaxH+FS(H,0.026,12,14),ORA,FS(H,0.021,11,14),'center');
       ctx.fillStyle='rgba(143,227,181,0.12)'; ctx.strokeStyle=GRN; ctx.beginPath(); ctx.arc(c2x,cy,de2*rScl/2,0,7); ctx.fill(); ctx.stroke();
-      T(ctx,'de②(마찰 등가)',c2x,boxY+boxMaxH+FS(H,0.026,10,14),GRN,FS(H,0.021,9,12),'center');
+      T(ctx,'de②(마찰 등가)',c2x,boxY+boxMaxH+FS(H,0.026,12,14),GRN,FS(H,0.021,11,14),'center');
 
       y=boxY+boxMaxH+FS(H,0.09,26,36);
       var rows=[
@@ -197,9 +197,9 @@
         ['차이(②−①)', diff.toFixed(4)+' m  ('+(diffPct>=0?'+':'')+diffPct.toFixed(1)+'%, 정의가 달라 항상 값도 다름)', diff>=0?AMB:RED]
       ];
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
-      y+=rowsH+FS(H,0.025,8,14);
+      y+=rowsH+FS(H,0.025,10,14);
       T(ctx,'①은 "단면적 4배÷둘레"(수력반경×4)로 유속분포가 같은 원형관을 찾는 정의, ②는 "마찰손실이 같은" 원형관을 찾는 정의 — 목적이 다르므로 항상 값이 다릅니다.',
-        W*0.06,y,DIM,FS(H,0.02,8.5,11.5),'left');
+        W*0.06,y,DIM,FS(H,0.02,10.5,13.5),'left');
 
       E.tapHint(0,0,'슬라이더로 장변 a·단변 b 조절',true);
       E.big('de① '+de1.toFixed(3)+'m  vs  de② '+de2.toFixed(3)+'m',
@@ -225,21 +225,21 @@
       ];
       // ★6행 목록 전체가 캔버스 실높이(≈235~295px) 안에 들어오도록 rowH·gap을 좁게 잡는다(hyg21_02와 동일 교정 원칙).
       var y=H*0.11;
-      T(ctx,'건식(중력·관성·원심·여과·전기) + 습식(세정) — 입자직경 '+dp.toFixed(2)+'㎛에 적합한 장치를 실시간 판정합니다',W*0.06,y,DIM,FS(H,0.02,8,11),'left');
-      y+=FS(H,0.035,10,15);
-      var rowH=FS(H,0.078,20,26), gap=FS(H,0.007,2,4);
+      T(ctx,'건식(중력·관성·원심·여과·전기) + 습식(세정) — 입자직경 '+dp.toFixed(2)+'㎛에 적합한 장치를 실시간 판정합니다',W*0.06,y,DIM,FS(H,0.02,10,13),'left');
+      y+=FS(H,0.035,12,15);
+      var rowH=FS(H,0.078,20,26), gap=FS(H,0.007,4,6);
       for(var i=0;i<DEVICES.length;i++){ var D=DEVICES[i], ok=(dp>=D.rng[0]&&dp<=D.rng[1]);
         var by=y+i*(rowH+gap);
         ctx.fillStyle=ok?'rgba(143,227,181,0.12)':'rgba(255,255,255,0.03)'; ctx.strokeStyle=ok?GRN:D.c;
         RR(ctx,W*0.06,by,W*0.88,rowH,6); ctx.fill(); ctx.stroke();
-        var fs1=FS(H,0.021,9,12), fs2=FS(H,0.017,7,9.5);
+        var fs1=FS(H,0.021,11,14), fs2=FS(H,0.017,9,11.5);
         T(ctx,(ok?'✓ ':'· ')+D.t,W*0.08,by+rowH*0.4,ok?GRN:TXT,fs1,'left','700');
         T(ctx,'적용범위 '+D.rng[0]+'~'+D.rng[1]+'㎛ · '+D.note,W*0.08,by+rowH*0.78,DIM,fs2,'left');
         T(ctx,ok?'적합':'범위 밖',W*0.90,by+rowH*0.56,ok?GRN:DIM,fs1,'right','700');
       }
-      y+=DEVICES.length*(rowH+gap)+FS(H,0.018,5,10);
+      y+=DEVICES.length*(rowH+gap)+FS(H,0.018,7,12);
       T(ctx,'선정 시 추가 고려요인: 오염물질 농도·처리가스 유량/온도/습도·집진효율 요구수준·부착성/응집성/전기저항·에너지비용·분진 처분방법',
-        W*0.06,y,DIM,FS(H,0.018,7.5,10),'left');
+        W*0.06,y,DIM,FS(H,0.018,9.5,12),'left');
 
       E.tapHint(0,0,'슬라이더로 입자직경 조절',true);
       E.big('입자 '+dp.toFixed(2)+'㎛ → 적합 장치 '+DEVICES.filter(function(D){return dp>=D.rng[0]&&dp<=D.rng[1];}).length+'종',
@@ -261,13 +261,13 @@
       var pTurboRaw=100*(1-Math.pow((q-0.65)/0.65,2));
       var pTurbo=Math.max(4,pTurboRaw);                                  // 터보형(후향): 65%부근 정점 후 감소(한계부하)
       var y=H*0.16;
-      T(ctx,'풍량비율 '+s.qr+'% 에서 3형식의 소요동력(상대값)을 동시에 계산합니다',W*0.06,y,DIM,FS(H,0.022,9,12),'left');
+      T(ctx,'풍량비율 '+s.qr+'% 에서 3형식의 소요동력(상대값)을 동시에 계산합니다',W*0.06,y,DIM,FS(H,0.022,11,14),'left');
       y+=FS(H,0.045,14,20);
 
       var chX=W*0.10, chW=W*0.80, chY=y, chH=H*0.30;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.beginPath(); ctx.moveTo(chX,chY); ctx.lineTo(chX,chY+chH); ctx.lineTo(chX+chW,chY+chH); ctx.stroke();
-      T(ctx,'동력',chX-FS(H,0.03,8,14),chY+8,DIM,FS(H,0.02,8,11),'right');
-      T(ctx,'풍량%→',chX+chW,chY+chH+FS(H,0.028,10,15),DIM,FS(H,0.02,8,11),'right');
+      T(ctx,'동력',chX-FS(H,0.03,10,14),chY+8,DIM,FS(H,0.02,10,13),'right');
+      T(ctx,'풍량%→',chX+chW,chY+chH+FS(H,0.028,12,15),DIM,FS(H,0.02,10,13),'right');
       var maxP=Math.max(pMulti,180);
       function px(qq){ return chX+chW*(qq-0.1)/1.4; }
       function py(p){ return chY+chH-(p/maxP)*chH; }
@@ -278,9 +278,9 @@
       curve(function(qq){return 88*Math.pow(qq,1.9);}, AMB);
       curve(function(qq){return Math.max(4,100*(1-Math.pow((qq-0.65)/0.65,2)));}, GRN);
       var mx=px(q); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(mx,chY); ctx.lineTo(mx,chY+chH); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'● 다익형(과부하 위험)',chX,chY+chH+FS(H,0.05,16,24),RED,FS(H,0.019,8,11),'left');
-      T(ctx,'● 평판형(방사형)',chX+W*0.24,chY+chH+FS(H,0.05,16,24),AMB,FS(H,0.019,8,11),'left');
-      T(ctx,'● 터보형(후향/익형, 한계부하)',chX+W*0.44,chY+chH+FS(H,0.05,16,24),GRN,FS(H,0.019,8,11),'left');
+      T(ctx,'● 다익형(과부하 위험)',chX,chY+chH+FS(H,0.05,16,24),RED,FS(H,0.019,10,13),'left');
+      T(ctx,'● 평판형(방사형)',chX+W*0.24,chY+chH+FS(H,0.05,16,24),AMB,FS(H,0.019,10,13),'left');
+      T(ctx,'● 터보형(후향/익형, 한계부하)',chX+W*0.44,chY+chH+FS(H,0.05,16,24),GRN,FS(H,0.019,10,13),'left');
 
       y=chY+chH+FS(H,0.09,26,36);
       var rows=[
@@ -289,9 +289,9 @@
         ['터보형(후향/익형) — 현재 상대동력', pTurbo.toFixed(1)+' (65% 부근 정점 후 감소 = 비과부하 특성)', GRN]
       ];
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
-      y+=rowsH+FS(H,0.02,6,12);
+      y+=rowsH+FS(H,0.02,8,14);
       T(ctx,'다익형=저압·대풍량(전체환기·공조용), 터보형(후향/익형)=고압·최고효율·정압변동에도 과부하 없음, 방사형=마모성·고농도 분진 이송 전용',
-        W*0.06,y,DIM,FS(H,0.02,8.5,11.5),'left');
+        W*0.06,y,DIM,FS(H,0.02,10.5,13.5),'left');
 
       E.tapHint(0,0,'슬라이더로 풍량 비율 조절',true);
       E.big('풍량 '+s.qr+'% → 다익형 동력 '+pMulti.toFixed(0)+' vs 터보형 '+pTurbo.toFixed(0),
@@ -312,13 +312,13 @@
       var winter=s.season===0;
       var y=H*0.18;
       T(ctx,'국소배기가 뽑아낸 만큼의 청정 외기를 보충하지 않으면 실내가 음압이 되어, 문틈으로 오염된 옆 공정의 공기가 역류합니다',
-        W*0.06,y,DIM,FS(H,0.021,9,12),'left');
+        W*0.06,y,DIM,FS(H,0.021,11,14),'left');
       y+=FS(H,0.05,16,22);
 
       var bx=W*0.06, bw=W*0.88, bh=FS(H,0.10,32,44);
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; RR(ctx,bx,y,bw,bh,8); ctx.fill(); ctx.stroke();
-      T(ctx,'배기량(Q_exhaust) = '+s.Qexh+' m³/min',bx+W*0.02,y+bh*0.42,TXT,FS(H,0.026,11,15),'left','600');
-      T(ctx,'권장 보충량 = 배기량×(1.10~1.15) = '+Qmin.toFixed(0)+' ~ '+Qmax.toFixed(0)+' m³/min',bx+W*0.02,y+bh*0.78,BLU,FS(H,0.023,10,13),'left','700');
+      T(ctx,'배기량(Q_exhaust) = '+s.Qexh+' m³/min',bx+W*0.02,y+bh*0.42,TXT,FS(H,0.026,13,15),'left','600');
+      T(ctx,'권장 보충량 = 배기량×(1.10~1.15) = '+Qmin.toFixed(0)+' ~ '+Qmax.toFixed(0)+' m³/min',bx+W*0.02,y+bh*0.78,BLU,FS(H,0.023,12,15),'left','700');
       y+=bh+FS(H,0.045,14,20);
 
       var rows=[
@@ -328,9 +328,9 @@
         ['분배 방식', '다점분배(균일 대량공급) vs 일점분배(배플로 재유입 최소화)', DIM]
       ];
       var rowsH=ROW(ctx,W,H,bx,y,bw,rows);
-      y+=rowsH+FS(H,0.03,10,16);
+      y+=rowsH+FS(H,0.03,12,16);
       T(ctx,'국소배기 우선 원칙: 오염원 근접 포집(국소배기)이 실내 전체 공기를 희석하는 전체환기보다 필요환기량이 훨씬 적고 효율적입니다 — 보충용 공기는 그 국소배기가 정상 작동하기 위한 전제조건입니다.',
-        bx,y,DIM,FS(H,0.021,9,12),'left');
+        bx,y,DIM,FS(H,0.021,11,14),'left');
 
       E.tapHint(0,0,'슬라이더로 배출량·계절 조절',true);
       E.big('배기 '+s.Qexh+' → 보충 '+Qmin.toFixed(0)+'~'+Qmax.toFixed(0)+' m³/min',

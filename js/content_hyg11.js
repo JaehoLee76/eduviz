@@ -10,10 +10,10 @@
     ctx.textAlign='center'; ctx.textBaseline='alphabetic';
     function fit(txt,weight,base,mn){ var f=base; ctx.font=weight+f+'px sans-serif';
       while(f>mn && ctx.measureText(txt).width>w-12){ f--; ctx.font=weight+f+'px sans-serif'; } return f; }
-    var tf=fit(t,'600 ',FS(H,0.023,10,14),8);
+    var tf=fit(t,'600 ',FS(H,0.023,12,14),8);
     ctx.fillStyle=c; ctx.font='600 '+tf+'px sans-serif';
     ctx.fillText(t, x+w/2, s? (y+h*0.42+tf*0.28) : (y+h/2+tf*0.36));
-    if(s){ var sf=fit(s,'',FS(H,0.019,8,11.5),7);
+    if(s){ var sf=fit(s,'',FS(H,0.019,10,13.5),7);
       ctx.fillStyle=DIM; ctx.font=sf+'px sans-serif';
       ctx.fillText(s, x+w/2, Math.min(y+h-5, y+h*0.78+sf*0.30)); } }
   function ARROW(ctx,x1,y1,x2,y2,col){ col=col||'rgba(223,238,251,0.5)';
@@ -84,7 +84,7 @@
         {y:0.795, c:GRN, hdr:'관리 방향', items:[
           ['정보 파악·공개','전 과정 화학물질 목록화'],['노출 최소화','밀폐·자동화·정비 절차'],['건강 추적','장기 관찰·건강 감시']]}
       ];
-      var bh=H*0.105, x0=W*0.145, x1=W*0.97, hdF=FS(H,0.022,10,13);
+      var bh=H*0.105, x0=W*0.145, x1=W*0.97, hdF=FS(H,0.022,12,15);
       for(var r=0;r<rows.length && r<=st;r++){ var R=rows[r], y=R.y*H, n=R.items.length;
         var gap=W*0.015, bw=(x1-x0-(n-1)*gap)/n;
         ctx.fillStyle=R.c; ctx.font='600 '+hdF+'px sans-serif'; ctx.textAlign='left';
@@ -92,7 +92,7 @@
         for(var k=0;k<n;k++){ BX(ctx,H, x0+k*(bw+gap), y, bw, bh, R.c, R.items[k][0], R.items[k][1]); }
         if(r>0){ var py=rows[r-1].y*H+bh; ARROW(ctx,(x0+x1)/2, py+2, (x0+x1)/2, y-3); }
       }
-      if(st>=3){ ctx.fillStyle=DIM; ctx.font=FS(H,0.020,9,12)+'px sans-serif'; ctx.textAlign='center';
+      if(st>=3){ ctx.fillStyle=DIM; ctx.font=FS(H,0.020,11,14)+'px sans-serif'; ctx.textAlign='center';
         ctx.fillText('인과가 불확실할수록 관리는 더 보수적으로 — 사전예방 원칙입니다', W/2, H*0.955); }
       E.tapHint(0,0,'다음 고리',true);
       var big=['첨단 공정 뒤에는 수많은 화학물질이 있습니다','노출은 미량이지만 복합적이고, 정비 때 커집니다','인과를 밝히기가 유난히 어렵습니다','그래서 관리는 사전예방으로 갑니다'][st];
@@ -149,7 +149,7 @@
       var nR=Math.pow(d0/d,3);                   // 같은 질량일 때 입자 수 배율 = (d0/d)³
       ctx.textBaseline='alphabetic';
       var R0=Math.min(W,H)*0.105, cy=H*0.44;
-      var lbF=FS(H,0.021,9,13), smF=FS(H,0.019,8,11.5);
+      var lbF=FS(H,0.021,11,15), smF=FS(H,0.019,10,13.5);
       // 왼쪽: 기준 입자 1개(10 μm)
       var lx=W*0.20;
       ctx.fillStyle='rgba(122,184,255,0.25)'; ctx.strokeStyle=BLU; ctx.lineWidth=2;
@@ -159,7 +159,7 @@
       // 가운데 화살표(같은 질량으로 쪼갬)
       ARROW(ctx, W*0.335, cy, W*0.415, cy, 'rgba(223,238,251,0.55)');
       ctx.fillStyle=DIM; ctx.font=smF+'px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('같은 질량', W*0.375, cy-FS(H,0.02,9,13));
+      ctx.fillText('같은 질량', W*0.375, cy-FS(H,0.02,11,15));
       // 오른쪽: 같은 질량을 지름 d nm 입자로 — 개수 nR 중 최대 324개만 대표 표시(수치는 실계산 표기)
       var rx0=W*0.46, rx1=W*0.92, ry0=cy-R0*1.1, ry1=cy+R0*1.1;
       var show=Math.min(324, Math.round(nR)), cols=Math.ceil(Math.sqrt(show*(rx1-rx0)/(ry1-ry0)));
@@ -172,14 +172,14 @@
       ctx.fillStyle=ORA; ctx.font='600 '+lbF+'px sans-serif'; ctx.textAlign='center';
       ctx.fillText('지름 '+d+' nm · '+fmtN(nR)+'개'+(nR>324?' (일부만 표시)':''), (rx0+rx1)/2, ry1+FS(H,0.032,15,20));
       // 표면적 게이지(로그 눈금 ×1~×1000) — 값은 실계산
-      var gy=H*0.665, gx0=W*0.08, gx1=W*0.92, gh=FS(H,0.022,10,14);
+      var gy=H*0.665, gx0=W*0.08, gx1=W*0.92, gh=FS(H,0.022,12,14);
       ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fillRect(gx0,gy,gx1-gx0,gh);
       var frac=Math.min(1, Math.log(saR)/Math.log(1000));
       ctx.fillStyle=saR>=100? RED : (saR>=30? AMB : GRN);
       ctx.fillRect(gx0,gy,(gx1-gx0)*frac,gh);
       ctx.fillStyle=DIM; ctx.font=smF+'px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('총 표면적 ×1', gx0, gy-FS(H,0.012,5,8));
-      ctx.textAlign='right'; ctx.fillText('×1000 (로그 눈금)', gx1, gy-FS(H,0.012,5,8));
+      ctx.fillText('총 표면적 ×1', gx0, gy-FS(H,0.012,7,10));
+      ctx.textAlign='right'; ctx.fillText('×1000 (로그 눈금)', gx1, gy-FS(H,0.012,7,10));
       ctx.textAlign='center'; ctx.fillStyle=TXT; ctx.font='600 '+lbF+'px sans-serif';
       ctx.fillText('표면적 ×'+fmtN(saR)+' — 반응할 수 있는 "겉면"이 이만큼 늘어납니다', W/2, gy+gh+FS(H,0.030,14,19));
       // 하단: 전통 인자를 넘어선 세 갈래

@@ -76,7 +76,7 @@
       P.axes(); P.curve(f, VIO);
       ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = x³−3x', P.X(1.4),P.Y(f(1.7)));
       P.dot(0,0,'rgba(255,210,122,0.5)');  // 변곡점 x=0
-      ctx.fillStyle='rgba(255,210,122,0.75)'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('변곡점 (x=0)', P.X(0),P.Y(0)-12);
+      ctx.fillStyle='rgba(255,210,122,0.75)'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('변곡점 (x=0)', P.X(0),P.Y(0)-12);
       var f2=(f(x+1e-3)-2*f(x)+f(x-1e-3))/1e-6, infl=Math.abs(f2)<0.3;
       P.dot(x,f(x),infl?GLD:GRN);
       ctx.fillStyle=infl?GLD:GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('f″ = '+f2.toFixed(2), P.X(x)+8,P.Y(f(x))-4);
@@ -123,7 +123,7 @@
       P.axes(); P.curve(f, VIO);
       var val=integ(f,0,b);
       ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = √(1−x²) (사분원)', P.X(0.45),P.Y(f(0.35)));
-      ctx.fillStyle='rgba(185,156,255,0.85)'; ctx.font='11px sans-serif'; ctx.fillText('넓이 = '+val.toFixed(4), P.X(0.12),P.Y(0.18));
+      ctx.fillStyle='rgba(185,156,255,0.85)'; ctx.font='13px sans-serif'; ctx.fillText('넓이 = '+val.toFixed(4), P.X(0.12),P.Y(0.18));
       ctx.fillStyle=GLD; ctx.textAlign='center'; ctx.fillText('b='+b.toFixed(2), P.X(b),P.Y(0)+14);
       E.big('∫₀ᵇ √(1−x²) dx = '+val.toFixed(4)+'  (b=1 → π/4 ≈ 0.785)', 'x=sin θ 치환 → √(1−x²)=cos θ. 뿌리(√) 적분이 삼각함수로 풀립니다 (사분원 넓이)'); }
   },
@@ -137,7 +137,7 @@
       while(t<12){ v+=(-k/m*x)*h; x+=v*h; t+=h; ctx.lineTo(P.X(t),P.Y(x)); } ctx.stroke();
       var w=Math.sqrt(k/m), T=2*Math.PI/w;
       ctx.strokeStyle='rgba(126,224,176,0.35)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(1.6)); ctx.lineTo(P.X(12),P.Y(1.6)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('진폭 A=1.6', P.X(9.4),P.Y(1.6)-5);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('진폭 A=1.6', P.X(9.4),P.Y(1.6)-5);
       ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.fillText('x(t)  ·  T='+T.toFixed(2), P.X(0.2),P.Y(-1.5));
       E.big('ω = √(k/m) = '+w.toFixed(2)+'   ·   주기 T = '+T.toFixed(2), '마찰이 없으면 진폭 그대로 영원히 — 에너지 보존 단진동 (감쇠 c=0인 경우)'); }
   },
@@ -147,7 +147,7 @@
     enter:function(E){ var s=this.s={t:3}; E.Plot.range(-0.5,7,-0.5,2.6).lab('x','y'); sld(E,ctrl('매개변수 t','alt',0,6.28,0.04,3),'alt',function(v){return v.toFixed(2);},function(v){s.t=v;}); E.setOn([]); },
     draw:function(E){ var ctx=E.ctx,P=E.Plot,s=this.s,t=s.t; function px(u){return u-Math.sin(u);} function py(u){return 1-Math.cos(u);}
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(P.X(-0.5),P.Y(0)); ctx.lineTo(P.X(7),P.Y(0)); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('구르는 바닥', P.X(5.6),P.Y(0)+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('구르는 바닥', P.X(5.6),P.Y(0)+14);
       ctx.strokeStyle=VIO; ctx.lineWidth=2.4; ctx.beginPath(); for(var u=0;u<=t+1e-9;u+=0.03){ var X=P.X(px(u)),Y=P.Y(py(u)); if(u===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); } ctx.stroke();
       ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.fillText('사이클로이드 (x,y)=(t−sin t, 1−cos t)', P.X(0.1),P.Y(2.45));
       P.dot(px(t),py(t),GLD);
@@ -213,14 +213,14 @@
       P.axes();
       // 원래 단위정사각형(흐림)
       ctx.strokeStyle='rgba(155,153,163,0.5)'; ctx.lineWidth=1.4; ctx.strokeRect(P.X(0),P.Y(1),P.X(1)-P.X(0),P.Y(0)-P.Y(1));
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('단위정사각형 (넓이 1)', P.X(0.5),P.Y(0.5));
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('단위정사각형 (넓이 1)', P.X(0.5),P.Y(0.5));
       // 변환된 평행사변형
       function M(u,v){ return [a*u+c*v, d*v]; }
       var c00=M(0,0),c10=M(1,0),c11=M(1,1),c01=M(0,1);
       ctx.fillStyle='rgba(185,156,255,0.22)'; ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(c00[0]),P.Y(c00[1])); ctx.lineTo(P.X(c10[0]),P.Y(c10[1])); ctx.lineTo(P.X(c11[0]),P.Y(c11[1])); ctx.lineTo(P.X(c01[0]),P.Y(c01[1])); ctx.closePath(); ctx.fill(); ctx.stroke();
       var det=a*d-0*c;
-      var ctr=M(0.5,0.5); ctx.fillStyle=VIO; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('변환 후 (넓이 '+Math.abs(det).toFixed(2)+')', P.X(ctr[0]),P.Y(ctr[1]));
+      var ctr=M(0.5,0.5); ctx.fillStyle=VIO; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('변환 후 (넓이 '+Math.abs(det).toFixed(2)+')', P.X(ctr[0]),P.Y(ctr[1]));
       E.big('넓이 배율 = |J| = |ad − bc| = '+Math.abs(det).toFixed(3), '좌표변환은 작은 넓이를 |야코비안| 배로 늘립니다 — ∬f dA에서 dA→|J| du dv (극좌표의 r도 이 J)'); }
   },
 
@@ -235,7 +235,7 @@
       P.axes();
       ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle=VIO; ctx.fillText(s.t?'F = (−y, x)  (회전장)':'F = (2x, 2y)  (보존장)', P.X(-2.85),P.Y(2.75));
-      if(!s.t){ ctx.fillStyle='rgba(126,224,176,0.8)'; ctx.font='11px sans-serif'; ctx.fillText('등위선 f=x²+y²', P.X(1.0),P.Y(2.45)); }
+      if(!s.t){ ctx.fillStyle='rgba(126,224,176,0.8)'; ctx.font='13px sans-serif'; ctx.fillText('등위선 f=x²+y²', P.X(1.0),P.Y(2.45)); }
       var e=1e-3, curl=(Qf(0.3+e,0.3)-Qf(0.3-e,0.3))/(2*e) - (Pf(0.3,0.3+e)-Pf(0.3,0.3-e))/(2*e);
       E.big('curl F = ∂Q/∂x − ∂P/∂y = '+curl.toFixed(2)+(Math.abs(curl)<0.01?'  = 0 → 보존장!':'  ≠ 0 → 비보존'),
         Math.abs(curl)<0.01?'회전이 0이면 퍼텐셜 f가 존재(F=∇f) — 등위선(초록) 수직으로 흐름, 폐곡선 일=0':'회전이 0이 아니면 퍼텐셜이 없습니다(폐곡선 일≠0)'); }

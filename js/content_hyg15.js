@@ -28,10 +28,10 @@
       // 눈금
       for(d=dbMin;d<=dbMax;d+=10){ y=dbY(d);
         ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.beginPath(); ctx.moveTo(W*0.11,y); ctx.lineTo(W*0.55,y); ctx.stroke();
-        T(ctx,d+'',W*0.10,y+4,DIM,FS(H,0.023,10,13),'right'); }
+        T(ctx,d+'',W*0.10,y+4,DIM,FS(H,0.023,12,15),'right'); }
       // 노출기준 90 dB 선
       y=dbY(90); ctx.strokeStyle=RED; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(W*0.11,y); ctx.lineTo(W*0.55,y); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'노출기준 90 dB(A)/8h',W*0.11,y-6,RED,FS(H,0.024,11,13),'left','600');
+      T(ctx,'노출기준 90 dB(A)/8h',W*0.11,y-6,RED,FS(H,0.024,13,15),'left','600');
       // 막대 1: 작업장
       var bw=W*0.11, bx1=W*0.17, bx2=W*0.40;
       ctx.fillStyle=ORA; RR(ctx,bx1,dbY(s.L),bw,base-dbY(s.L),6); ctx.fill();
@@ -52,7 +52,7 @@
         ['판정 (기준 90 dB(A))',ok?'기준 미만 — 적합':'기준 이상 — 추가 대책 필요',ok?GRN:RED]];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,rx-8,yy-lh*0.42,W*0.36,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],rx,yy-FS(H,0.006,2,4),DIM,FS(H,0.024,11,13),'left');
+        T(ctx,rows[i][0],rx,yy-FS(H,0.006,4,6),DIM,FS(H,0.024,13,15),'left');
         T(ctx,rows[i][1],rx,yy+FS(H,0.028,12,16),rows[i][2],FS(H,0.028,12,16),'left','700'); }
       E.tapHint(0,0,'슬라이더로 음압·NRR 조절',true);
       E.big('NRR '+s.nrr+' → 실효 차음 '+eff.toFixed(1)+' dB · 착용 후 '+Lp.toFixed(1)+' dB(A)',
@@ -72,27 +72,27 @@
       var Ssum=500;                                // 실내 전체 표면적 가정 (m²)
       var al1=s.a1/Ssum, al2=s.a2/Ssum;            // 평균흡음률
       var fs=FS(H,0.028,12,15), y0=H*0.36, lh=FS(H,0.058,20,30);
-      T(ctx,'흡음력 A = Σ(Sᵢ × αᵢ)  ·  평균흡음률 ᾱ = A ÷ ΣS  (ΣS = '+Ssum+' m² 가정)',W*0.10,y0,DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'흡음력 A = Σ(Sᵢ × αᵢ)  ·  평균흡음률 ᾱ = A ÷ ΣS  (ΣS = '+Ssum+' m² 가정)',W*0.10,y0,DIM,FS(H,0.026,13,14),'left');
       // 흡음력 막대 2개
       var bx=W*0.10, bw=W*0.50, bh=FS(H,0.05,18,26), by1=y0+lh*0.8, by2=by1+lh*1.5;
-      T(ctx,'처리 전 A₁',bx,by1-8,DIM,FS(H,0.024,11,13),'left');
+      T(ctx,'처리 전 A₁',bx,by1-8,DIM,FS(H,0.024,13,15),'left');
       ctx.fillStyle='#1c2433'; RR(ctx,bx,by1,bw,bh,6); ctx.fill();
       ctx.fillStyle=ORA; RR(ctx,bx,by1,bw*s.a1/500,bh,6); ctx.fill();
       T(ctx,s.a1+' m² (ᾱ='+al1.toFixed(2)+')',bx+bw+10,by1+bh*0.72,ORA,fs,'left','700');
-      T(ctx,'처리 후 A₂',bx,by2-8,DIM,FS(H,0.024,11,13),'left');
+      T(ctx,'처리 후 A₂',bx,by2-8,DIM,FS(H,0.024,13,15),'left');
       ctx.fillStyle='#1c2433'; RR(ctx,bx,by2,bw,bh,6); ctx.fill();
       ctx.fillStyle=GRN; RR(ctx,bx,by2,bw*s.a2/500,bh,6); ctx.fill();
       T(ctx,s.a2+' m² (ᾱ='+al2.toFixed(2)+')',bx+bw+10,by2+bh*0.72,GRN,fs,'left','700');
       // NR 게이지
       var gy=by2+lh*1.7, gmax=17;
-      T(ctx,'감음량 NR = 10 log(A₂/A₁) = 10 log('+s.a2+'/'+s.a1+')',bx,gy-8,DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'감음량 NR = 10 log(A₂/A₁) = 10 log('+s.a2+'/'+s.a1+')',bx,gy-8,DIM,FS(H,0.026,13,14),'left');
       ctx.fillStyle='#1c2433'; RR(ctx,bx,gy,bw,bh,6); ctx.fill();
       var frac=Math.max(0,Math.min(1,NR/gmax));
       ctx.fillStyle=NR>=0?BLU:RED; RR(ctx,bx,gy,bw*frac,bh,6); ctx.fill();
       T(ctx,NR.toFixed(2)+' dB',bx+bw+10,gy+bh*0.72,NR>=0?BLU:RED,FS(H,0.036,14,20),'left','700');
       // 체감 주석: 3dB=2배, 10dB=10배
       var note=(NR>=10)?'흡음력 10배 이상 — 감음 10 dB 이상 (에너지 1/10)':(NR>=3)?'흡음력 2배 이상 — 감음 3 dB 이상 (에너지 1/2)':(NR>=0)?'흡음력 증가폭이 작아 감음이 미미합니다':'A₂가 A₁보다 작으면 오히려 시끄러워집니다';
-      T(ctx,note,bx,gy+bh+FS(H,0.045,18,26),DIM,FS(H,0.026,11,14),'left');
+      T(ctx,note,bx,gy+bh+FS(H,0.045,18,26),DIM,FS(H,0.026,13,14),'left');
       E.tapHint(0,0,'슬라이더로 처리 전후 흡음력 조절',true);
       E.big('A₁ '+s.a1+' → A₂ '+s.a2+' m² : 감음량 NR = '+NR.toFixed(2)+' dB',
             '흡음재를 붙여 흡음력이 몇 배가 됐는지가 전부입니다 — 10 log(배수)만큼 조용해집니다.'); }
@@ -120,16 +120,16 @@
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.beginPath(); ctx.moveTo(x0,ax); ctx.lineTo(x1,ax); ctx.stroke();
       for(var i=0;i<FR.length;i++){ var tx=X(FR[i]);
         ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(tx,ax-5); ctx.lineTo(tx,ax+5); ctx.stroke();
-        T(ctx,FR[i]>=1000?(FR[i]/1000)+'k':FR[i]+'',tx,ax+FS(H,0.033,14,18),i===s.fi?AMB:DIM,FS(H,0.023,10,13),'center',i===s.fi?'700':''); }
-      T(ctx,'Hz (log)',x1+6,ax+4,DIM,FS(H,0.022,10,12),'left');
+        T(ctx,FR[i]>=1000?(FR[i]/1000)+'k':FR[i]+'',tx,ax+FS(H,0.033,14,18),i===s.fi?AMB:DIM,FS(H,0.023,12,15),'center',i===s.fi?'700':''); }
+      T(ctx,'Hz (log)',x1+6,ax+4,DIM,FS(H,0.022,12,14),'left');
       // 밴드 사각형
       var bt=H*0.42, bb=ax-4;
       ctx.fillStyle='rgba(242,189,85,0.18)'; ctx.fillRect(X(f1),bt,X(f2)-X(f1),bb-bt);
       ctx.strokeStyle=AMB; ctx.strokeRect(X(f1),bt,X(f2)-X(f1),bb-bt);
       ctx.strokeStyle=ORA; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(X(fc),bt-H*0.02); ctx.lineTo(X(fc),bb); ctx.stroke(); ctx.setLineDash([]);
       T(ctx,'fc '+fmt(fc),X(fc),bt-H*0.03,ORA,fs,'center','700');
-      T(ctx,'f₁ '+fmt(f1),X(f1),bt-H*0.005,BLU,FS(H,0.024,11,13),'center','600');
-      T(ctx,'f₂ '+fmt(f2),X(f2),bt-H*0.005,PNK,FS(H,0.024,11,13),'center','600');
+      T(ctx,'f₁ '+fmt(f1),X(f1),bt-H*0.005,BLU,FS(H,0.024,13,15),'center','600');
+      T(ctx,'f₂ '+fmt(f2),X(f2),bt-H*0.005,PNK,FS(H,0.024,13,15),'center','600');
       // 계산 행
       var ry=H*0.70, lh=FS(H,0.052,18,27), rx=W*0.10;
       var rows=[
@@ -139,7 +139,7 @@
         ['상하한비 f₂/f₁ = '+(s.band===1?'2':'2^(1/3)'), (f2/f1).toFixed(3), PNK]];
       for(i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,rx-6,yy-lh*0.6,W*0.80,lh*0.85,7); ctx.fill();
-        T(ctx,rows[i][0],rx,yy,TXT,FS(H,0.026,11,14),'left');
+        T(ctx,rows[i][0],rx,yy,TXT,FS(H,0.026,13,14),'left');
         T(ctx,rows[i][1],rx+W*0.74,yy,rows[i][2],FS(H,0.030,13,17),'right','700'); }
       E.tapHint(0,0,'슬라이더로 중심주파수·밴드 종류 조절',true);
       E.big((s.band===1?'1/1':'1/3')+' 옥타브 fc '+fmt(fc)+' Hz → f₁ '+fmt(f1)+' · f₂ '+fmt(f2)+' · 폭 '+fmt(bwHz)+' Hz',
@@ -160,24 +160,24 @@
       var vol=10;                                  // 탈착·용해액 부피 (mL)
       var mass=x*vol;                              // 분석량 (µg)
       var C=mass/s.V;                              // µg/L = mg/m³
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       // 검량선 그래프 (좌측)
       var px0=W*0.10, px1=W*0.46, py0=H*0.82, py1=H*0.36, xmax=22, ymax=1.15;
       function PX(v){ return px0+v/xmax*(px1-px0); }
       function PY(v){ return py0-v/ymax*(py0-py1); }
       ctx.strokeStyle='rgba(255,255,255,0.25)';
       ctx.beginPath(); ctx.moveTo(px0,py1-6); ctx.lineTo(px0,py0); ctx.lineTo(px1+6,py0); ctx.stroke();
-      T(ctx,'농도 x (µg/mL)',(px0+px1)/2,py0+FS(H,0.036,15,20),DIM,FS(H,0.022,10,12),'center');
-      ctx.save(); ctx.translate(px0-FS(H,0.045,18,26),(py0+py1)/2); ctx.rotate(-Math.PI/2); T(ctx,'흡광도 A',0,0,DIM,FS(H,0.022,10,12),'center'); ctx.restore();
+      T(ctx,'농도 x (µg/mL)',(px0+px1)/2,py0+FS(H,0.036,15,20),DIM,FS(H,0.022,12,14),'center');
+      ctx.save(); ctx.translate(px0-FS(H,0.045,18,26),(py0+py1)/2); ctx.rotate(-Math.PI/2); T(ctx,'흡광도 A',0,0,DIM,FS(H,0.022,12,14),'center'); ctx.restore();
       // 검량선 직선
       ctx.strokeStyle=BLU; ctx.beginPath(); ctx.moveTo(PX(0),PY(b)); ctx.lineTo(PX(xmax),PY(b+m*xmax)); ctx.stroke();
-      T(ctx,'y = 0.050x + 0.010',px1-4,py1+FS(H,0.03,12,17),BLU,FS(H,0.023,10,13),'right','600');
+      T(ctx,'y = 0.050x + 0.010',px1-4,py1+FS(H,0.03,12,17),BLU,FS(H,0.023,12,15),'right','600');
       // 시료점 + 안내선
       ctx.strokeStyle=ORA; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(px0,PY(s.A)); ctx.lineTo(PX(x),PY(s.A)); ctx.lineTo(PX(x),py0); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(PX(Math.min(x,xmax)),PY(s.A),FS(H,0.008,3,5),0,Math.PI*2); ctx.fill();
-      T(ctx,'A='+s.A.toFixed(2),px0+4,PY(s.A)-6,ORA,FS(H,0.022,10,12),'left');
-      T(ctx,'x='+x.toFixed(1),PX(Math.min(x,xmax)),py0-6,ORA,FS(H,0.022,10,12),'center');
+      ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(PX(Math.min(x,xmax)),PY(s.A),FS(H,0.008,5,7),0,Math.PI*2); ctx.fill();
+      T(ctx,'A='+s.A.toFixed(2),px0+4,PY(s.A)-6,ORA,FS(H,0.022,12,14),'left');
+      T(ctx,'x='+x.toFixed(1),PX(Math.min(x,xmax)),py0-6,ORA,FS(H,0.022,12,14),'center');
       // 우측 계산 행
       var rx=W*0.54, ry=H*0.40, lh=FS(H,0.062,22,32);
       var rows=[
@@ -186,7 +186,7 @@
         ['③ 농도 = 분석량 ÷ 채취공기량',mass.toFixed(1)+' µg ÷ '+s.V+' L = '+C.toFixed(3)+' mg/m³',GRN]];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,rx-8,yy-lh*0.42,W*0.42,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],rx,yy-FS(H,0.005,2,4),DIM,FS(H,0.023,10,13),'left');
+        T(ctx,rows[i][0],rx,yy-FS(H,0.005,4,6),DIM,FS(H,0.023,12,15),'left');
         T(ctx,rows[i][1],rx,yy+FS(H,0.028,12,16),rows[i][2],FS(H,0.027,12,15),'left','700'); }
       // 석면 계수법 띠 (고정 예시 — 실계산)
       var N=120, Nb=2, nF=100, Af=0.00785, Ae=385, Va=240;   // 섬유수/바탕/시야수/시야면적/유효여과면적/공기량(L)
@@ -194,7 +194,7 @@
       var sy=H*0.865;
       ctx.fillStyle='rgba(244,160,192,0.10)'; RR(ctx,W*0.08,sy-FS(H,0.03,12,17),W*0.84,FS(H,0.075,28,42),8); ctx.fill();
       T(ctx,'참고 · 석면(위상차현미경): 농도 = (섬유 '+N+'−바탕 '+Nb+')/'+nF+'시야 × (여과면적 '+Ae+'/시야면적 '+Af+') ÷ 공기량 '+(Va*1000).toLocaleString()+' cc = '+fcc.toFixed(2)+' f/cc',
-        W*0.10,sy+FS(H,0.012,4,8),PNK,FS(H,0.021,10,12),'left');
+        W*0.10,sy+FS(H,0.012,6,10),PNK,FS(H,0.021,12,14),'left');
       E.tapHint(0,0,'슬라이더로 흡광도·공기량 조절',true);
       E.big('A '+s.A.toFixed(2)+' → 분석량 '+mass.toFixed(1)+' µg → 농도 '+C.toFixed(3)+' mg/m³',
             '분석기기는 농도를 직접 말해주지 않습니다 — 검량선으로 역산하고 공기량으로 나눠야 농도입니다.'); }
@@ -220,21 +220,21 @@
       function vy(v){ return base-v/vmax*(base-top); }
       var bx=W*0.15, bw=W*0.10;
       ctx.fillStyle='#1c2433'; RR(ctx,bx,vy(s.pwc),bw,base-vy(s.pwc),6); ctx.fill();
-      T(ctx,'PWC '+s.pwc.toFixed(1),bx+bw/2,vy(s.pwc)-8,DIM,FS(H,0.024,11,13),'center','600');
+      T(ctx,'PWC '+s.pwc.toFixed(1),bx+bw/2,vy(s.pwc)-8,DIM,FS(H,0.024,13,15),'center','600');
       // 1/3 적정선
       ctx.strokeStyle=GRN; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(bx-14,vy(Eok)); ctx.lineTo(bx+bw+14,vy(Eok)); ctx.stroke(); ctx.setLineDash([]);
-      T(ctx,'적정 = PWC/3 = '+Eok.toFixed(1),bx+bw+18,vy(Eok)+4,GRN,FS(H,0.024,11,13),'left','600');
+      T(ctx,'적정 = PWC/3 = '+Eok.toFixed(1),bx+bw+18,vy(Eok)+4,GRN,FS(H,0.024,13,15),'left','600');
       // E작업 채움
       ctx.fillStyle=over?RED:BLU; RR(ctx,bx,vy(s.et),bw,base-vy(s.et),6); ctx.fill();
-      T(ctx,'E작업 '+s.et.toFixed(1),bx+bw/2,vy(s.et)+(over?-8:FS(H,0.032,13,18)),over?RED:'#0b1220',FS(H,0.024,11,13),'center','700');
-      T(ctx,'kcal/min',bx+bw/2,base+FS(H,0.034,14,19),DIM,FS(H,0.022,10,12),'center');
+      T(ctx,'E작업 '+s.et.toFixed(1),bx+bw/2,vy(s.et)+(over?-8:FS(H,0.032,13,18)),over?RED:'#0b1220',FS(H,0.024,13,15),'center','700');
+      T(ctx,'kcal/min',bx+bw/2,base+FS(H,0.034,14,19),DIM,FS(H,0.022,12,14),'center');
       // 우측: 60분 작업·휴식 배분 막대
       var gx=W*0.46, gw=W*0.44, gy=H*0.46, gh=FS(H,0.06,22,32);
-      T(ctx,'시간당 배분  Trest/Ttotal = (E작업 − E적정)/(E작업 − E휴식'+Erest.toFixed(1)+')',gx,gy-10,DIM,FS(H,0.024,11,13),'left');
+      T(ctx,'시간당 배분  Trest/Ttotal = (E작업 − E적정)/(E작업 − E휴식'+Erest.toFixed(1)+')',gx,gy-10,DIM,FS(H,0.024,13,15),'left');
       ctx.fillStyle=BLU; RR(ctx,gx,gy,gw*(1-ratio),gh,6); ctx.fill();
       if(ratio>0){ ctx.fillStyle=GRN; RR(ctx,gx+gw*(1-ratio),gy,gw*ratio,gh,6); ctx.fill(); }
-      T(ctx,'작업 '+(60-restMin).toFixed(1)+'분',gx+gw*(1-ratio)/2,gy+gh*0.65,'#0b1220',FS(H,0.026,11,14),'center','700');
-      if(ratio>0.08) T(ctx,'휴식 '+restMin.toFixed(1)+'분',gx+gw*(1-ratio)+gw*ratio/2,gy+gh*0.65,'#0b1220',FS(H,0.026,11,14),'center','700');
+      T(ctx,'작업 '+(60-restMin).toFixed(1)+'분',gx+gw*(1-ratio)/2,gy+gh*0.65,'#0b1220',FS(H,0.026,13,14),'center','700');
+      if(ratio>0.08) T(ctx,'휴식 '+restMin.toFixed(1)+'분',gx+gw*(1-ratio)+gw*ratio/2,gy+gh*0.65,'#0b1220',FS(H,0.026,13,14),'center','700');
       // 계산 행
       var ry=gy+gh+FS(H,0.08,30,46), lh=FS(H,0.056,20,30);
       var rows=[
@@ -245,7 +245,7 @@
             :['여유 = 적정 − E작업',(Eok-s.et).toFixed(2)+' kcal/min',DIM]];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,gx-8,yy-lh*0.6,gw+8,lh*0.85,7); ctx.fill();
-        T(ctx,rows[i][0],gx,yy,TXT,FS(H,0.023,10,13),'left');
+        T(ctx,rows[i][0],gx,yy,TXT,FS(H,0.023,12,15),'left');
         T(ctx,rows[i][1],gx+gw-8,yy,rows[i][2],FS(H,0.028,12,16),'right','700'); }
       E.tapHint(0,0,'슬라이더로 PWC·작업 대사량 조절',true);
       E.big('PWC '+s.pwc.toFixed(1)+' → 적정 '+Eok.toFixed(1)+' kcal/min'+(over?' · 시간당 휴식 '+restMin.toFixed(1)+'분':' · 연속작업 가능'),

@@ -196,14 +196,14 @@
       ctx.beginPath(); ctx.arc(W*orch.x,H*orch.y,34,0,7); ctx.fillStyle='rgba(61,214,220,0.14)'; ctx.fill();
       ctx.strokeStyle=CYA; ctx.lineWidth=2.2; ctx.stroke();
       ctx.fillStyle=CYA; ctx.font='600 12px sans-serif'; ctx.fillText('지휘', W*orch.x, H*orch.y-2);
-      ctx.font='11px sans-serif'; ctx.fillText('(조율)', W*orch.x, H*orch.y+14);
+      ctx.font='13px sans-serif'; ctx.fillText('(조율)', W*orch.x, H*orch.y+14);
       // 역할 노드
       for(i=0;i<3;i++){ var o=agents[i], px=W*o.x, py=H*o.y, hl=(s.step>0 && (msgs[s.step-1] && (msgs[s.step-1].f===i||msgs[s.step-1].to===i)));
         ctx.beginPath(); ctx.arc(px,py,hl?34:28,0,7);
         ctx.fillStyle=hl?'rgba(255,255,255,0.10)':'rgba(255,255,255,0.04)'; ctx.fill();
         ctx.strokeStyle=o.col; ctx.lineWidth=hl?3:1.8; ctx.stroke();
         ctx.fillStyle=o.col; ctx.font='600 14px sans-serif'; ctx.fillText(o.t, px, py+2);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(o.sub, px, py+(o.y<0.5?-40:46)); }
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(o.sub, px, py+(o.y<0.5?-40:46)); }
       // 진행 설명(실측: 메시지 수)
       ctx.fillStyle='#dfeef0'; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('주고받은 메시지: '+Math.max(0,s.step)+' / '+msgs.length, W*0.10, H*0.95);
@@ -228,7 +228,7 @@
       var gx=W*0.45, gy=H*0.45;
       rbox(ctx, gx-W*0.055, gy-H*0.20, W*0.11, H*0.40, GLD, 'rgba(255,210,122,0.06)');
       ctx.fillStyle=GLD; ctx.font='600 14px sans-serif'; ctx.fillText('MCP', gx, gy-H*0.13);
-      ctx.font='11px sans-serif'; ctx.fillStyle=DIM; ctx.fillText('표준', gx, gy-H*0.13+18);
+      ctx.font='13px sans-serif'; ctx.fillStyle=DIM; ctx.fillText('표준', gx, gy-H*0.13+18);
       ctx.fillText('연결규약', gx, gy-H*0.13+34);
       // 가드 표시
       ctx.fillStyle=(s.step>=3)?GRN:DIM; ctx.font='600 12px sans-serif';
@@ -244,7 +244,7 @@
         if(lit) arrow(ctx, gx+W*0.055, gy, rx-W*0.06, ry, o.col);
         rbox(ctx, rx-W*0.06, ry-H*0.05, W*0.12, H*0.10, o.col, lit?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.03)');
         ctx.fillStyle=o.col; ctx.font='600 15px sans-serif'; ctx.fillText(o.t, rx, ry-2);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(o.sub, rx, ry+16);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(o.sub, rx, ry+16);
         ctx.globalAlpha=1; }
       // 마지막 단계: 위험한 DB 삭제 시도 → 가드가 차단(실측 카운트)
       var connected=Math.max(0, Math.min(3, s.step));     // 연결된 리소스 수

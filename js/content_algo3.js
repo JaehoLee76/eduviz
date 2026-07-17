@@ -9,7 +9,7 @@
       ctx.fillText('막대 높이 = 값  ·  주황 = 비교 중  ·  분홍 = 교환  ·  초록 = 정렬 확정', V.W/2, V.H*0.12+20); }
     var bi=AV.bars(V, a, { baseY:V.H*0.72, maxH:V.H*0.42, label:true,
       bw:Math.min(58,(V.W*0.66)/a.length), gap:12, hl:hl });
-    ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center';
     for(var k=0;k<a.length;k++){ ctx.fillText('['+k+']', bi.x0+k*(bi.bw+bi.gap)+bi.bw/2, bi.baseY+28); } }
 
   var scenes=[

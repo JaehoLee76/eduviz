@@ -84,7 +84,7 @@
       w.bodies.forEach(function(b){ var sp=Math.hypot(b.vx,b.vy); ctx.fillStyle=speedColor(sp,vmax); ctx.beginPath(); ctx.arc(v.X(b.x),v.Y(b.y),b.r*sc,0,7); ctx.fill(); });
       // 피스톤
       ctx.fillStyle=DIM; ctx.fillRect(v.X(s.Vx)-3,v.Y(7),12,v.Y(0)-v.Y(7));
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('피스톤', v.X(s.Vx)+4, v.Y(7)-8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('피스톤', v.X(s.Vx)+4, v.Y(7)-8);
       var ke=avgKE(w), P=w.bodies.length*2*ke/(2*(s.Vx*7))*100, PV=P*s.Vx*7/100, nT=w.bodies.length*2*ke/2, PVT=PV/(ke*100);
       ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('P = '+P.toFixed(1), W*0.66, H*0.30); ctx.fillText('V = '+(s.Vx*7).toFixed(0)+' (∝ '+s.Vx.toFixed(1)+')', W*0.66, H*0.38); ctx.fillText('T ∝ '+ke.toFixed(2), W*0.66, H*0.46);

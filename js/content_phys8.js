@@ -29,7 +29,7 @@
       var mxu=5, mX=x0+(x1-x0)*0.5, mY=Y(mxu);
       ctx.strokeStyle='rgba(255,178,122,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(mX,midY-sc-10); ctx.lineTo(mX,midY+sc+10); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mX,mY,8,0,7); ctx.fill();
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('이 점은 위아래로만!', mX, midY+sc+28);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('이 점은 위아래로만!', mX, midY+sc+28);
       // 진폭 A 표시(변위 최대치)
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(mX+14,midY); ctx.lineTo(mX+14,midY-s.A*sc); ctx.stroke();
       ctx.fillStyle=ORA; ctx.textAlign='left'; ctx.fillText('A = '+s.A.toFixed(1), mX+18, midY-s.A*sc/2);
@@ -90,7 +90,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,midY); ctx.lineTo(x1,midY); ctx.stroke();
       var overlap=Math.abs(p1c-p2c)<1.2;
       // 각 펄스 + 합 이름표
-      ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.font='13px sans-serif'; ctx.textAlign='center';
       if(p1c>=0&&p1c<=span){ ctx.fillStyle=GRN; ctx.fillText('펄스 1', x0+(x1-x0)*p1c/span, midY-sc-6); }
       if(p2c>=0&&p2c<=span){ ctx.fillStyle=PNK; ctx.fillText('펄스 2', x0+(x1-x0)*p2c/span, (s.sign>0?midY-sc-6:midY+sc+16)); }
       ctx.fillStyle=BLU; ctx.textAlign='left'; ctx.fillText('합(중첩) y = y₁ + y₂', x0, H*0.80);
@@ -119,7 +119,7 @@
       ctx.strokeStyle=BLU; ctx.lineWidth=2.5; ctx.beginPath();
       for(var k=0;k<N;k++){ if(k===0)ctx.moveTo(X(k),Y(k)); else ctx.lineTo(X(k),Y(k)); } ctx.stroke();
       // 마디(node) 표시 — sin(nπx/L)=0 위치
-      ctx.fillStyle=PNK; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=PNK; ctx.font='12px sans-serif'; ctx.textAlign='center';
       for(var m=0;m<=s.n;m++){ var xi=Math.round(m/s.n*(N-1)); ctx.beginPath(); ctx.arc(X(xi),midY,3.5,0,7); ctx.fill(); }
       // 배(antinode) 표시 — 마디 사이 한가운데, 가장 크게 흔들리는 점
       ctx.fillStyle=ORA;
@@ -206,7 +206,7 @@
       [1,-1].forEach(function(sgn){ ctx.beginPath(); for(var k=0;k<=200;k++){ var xu3=k/200*span, env=Math.abs(Math.cos(Math.PI*(f1-f2)*(xu3-s.t*0.5))), X3=x0+(x1-x0)*k/200, y3=midY-sgn*A*env; if(k===0)ctx.moveTo(X3,y3); else ctx.lineTo(X3,y3); } ctx.stroke(); }); ctx.setLineDash([]);
       var fbeat=Math.abs(f1-f2);
       // 포락선 이름표
-      ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('포락선 = 소리 크기 (맥놀이 '+fbeat.toFixed(1)+' Hz)', x0, midY-A-8);
+      ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('포락선 = 소리 크기 (맥놀이 '+fbeat.toFixed(1)+' Hz)', x0, midY-A-8);
       ctx.fillStyle=GRN; ctx.fillText('f₁ = 5', x0, midY+A+22); ctx.fillStyle=PNK; ctx.fillText('f₂ = '+f2.toFixed(1), x0+70, midY+A+22);
       E.tapHint(W/2, H*0.90, 'f₂를 f₁에 가까이 — 맥놀이가 느려짐', true);
       E.big('맥놀이 진동수 = |f₁−f₂| = '+fbeat.toFixed(1)+' Hz', '비슷한 두 진동수가 겹치면 소리가 <b>주기적으로 커졌다 작아졌다</b> 합니다 — 맥놀이(beats). 두 파동이 같은 위상일 때 보강(큼), 반대 위상일 때 상쇄(작음)를 반복하기 때문. 맥놀이 진동수 = <b>|f₁−f₂|</b>. f₂를 f₁에 가까이 하면 맥놀이가 느려지고, 똑같아지면 사라집니다 — 악기 조율의 원리(맥놀이가 0이 될 때까지 맞춤). 주황 포락선이 소리 크기 변화입니다.'); }

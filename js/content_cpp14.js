@@ -77,14 +77,14 @@
       for(var i=0;i<marks.length;i++){ var mx=tlX+tlW*marks[i][1], on=(s.step>=marks[i][3]);
         ctx.fillStyle=on?marks[i][2]:DIM; ctx.beginPath(); ctx.arc(mx, tlY, on?6:4, 0, 7); ctx.fill();
         var lines2=marks[i][0].split('\n');
-        ctx.font='10.5px sans-serif'; ctx.textAlign='center';
+        ctx.font='12.5px sans-serif'; ctx.textAlign='center';
         for(var k=0;k<lines2.length;k++) ctx.fillText(lines2[k], mx, tlY+20+k*13);
       }
       // 자원 보유 구간(획득~반납)을 초록 띠로
       var aX=tlX+tlW*0.30, bX=tlX+tlW*0.90;
       var holdEnd = s.step>=3 ? bX : (s.step>=1 ? tlX+tlW*(0.30+(s.step-1)*0.30) : aX);
       if(s.step>=1){ ctx.strokeStyle=GRN; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(aX, tlY-14); ctx.lineTo(holdEnd, tlY-14); ctx.stroke();
-        ctx.fillStyle=GRN; ctx.font='10.5px sans-serif'; ctx.fillText('자원 보유 구간', (aX+bX)/2, tlY-20); }
+        ctx.fillStyle=GRN; ctx.font='12.5px sans-serif'; ctx.fillText('자원 보유 구간', (aX+bX)/2, tlY-20); }
 
       // 상태 캡션 (우측영역, 타임라인 아래에 세로로)
       var caps=['블록 { 에 진입 — 아직 자원 없음',
@@ -95,13 +95,13 @@
       ctx.textAlign='left';
       ctx.fillStyle=(s.step>=3?RED:(s.step>=1?GRN:CPD)); ctx.font='600 12.5px sans-serif';
       ctx.fillText(caps[s.step], cx, cyy);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('return이든 예외든, 어떤 경로로 나가도 소멸자는 반드시 불립니다.', cx, cyy+22);
-      if(s.step>=3){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+      if(s.step>=3){ ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
         ctx.fillText('“획득=초기화, 반납=소멸” — 자원 수명을 객체에 못 박는 RAII.', cx, cyy+44); }
 
       // 좌측(코드패널 아래) 요약 (공간 있을 때만)
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText('스마트 포인터 = RAII를 메모리에 적용한 표준 도구.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.86))); }
 
       E.tapHint(W/2, H*0.96, '화면 탭 = 다음 (진입 → 획득 → 사용 → 반납)', true);
@@ -134,7 +134,7 @@
       var alive = (s.step<3);   // step3 마지막에 해제되지만, 이동 후 살아 있다가 스코프 끝에 해제 — 여기선 step3 표시 시점=q소유,값6
       // 힙 노드
       box(ctx, heapX, heapY, W*0.14, 38, alive?GRN:RED, 'int = '+val, 13, alive?'rgba(126,224,176,0.10)':'rgba(240,136,138,0.10)');
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('힙(heap)', heapX+W*0.07, heapY-8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('힙(heap)', heapX+W*0.07, heapY-8);
 
       // p 소유자
       var pOwns = (s.step<=1);
@@ -211,14 +211,14 @@
 
       // 카운트 히스토리 막대 (좌측 코드패널 아래, 하단 예약 안으로)
       var hx=W*0.05, hy=Math.min(H*0.92-52, Math.max(codeBot+20, H*0.64));
-      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.textAlign='left'; ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('use_count() 변화: 1 → 2 → 3 → 2 → 0', hx, hy);
       var seq=[1,2,3,2,0], bw=24, gap=10;
       for(i=0;i<seq.length;i++){ var on2=(i<=s.step), bx2=hx+i*(bw+gap);
         var bh=6+seq[i]*7;
         ctx.fillStyle=on2?(seq[i]===0?RED:CPB):'rgba(255,255,255,0.06)';
         ctx.fillRect(bx2, hy+38-bh, bw, bh);
-        ctx.fillStyle=on2?'#dfeaf2':DIM; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.fillText(seq[i], bx2+bw/2, hy+50);
+        ctx.fillStyle=on2?'#dfeaf2':DIM; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(seq[i], bx2+bw/2, hy+50);
       }
       // 상태 캡션 (우측영역, 소유자 도식 아래)
       ctx.textAlign='left';
@@ -267,16 +267,16 @@
       box(ctx, bx, byy, nw, 40, leak?RED:GRN, 'Node B', 13, leak?'rgba(240,136,138,0.08)':'rgba(126,224,176,0.08)');
       // A.next → B (항상 shared, 실선)
       arrow(ctx, bx+nw*0.35, ay+40, bx+nw*0.35, byy, CPB);
-      ctx.fillStyle=CPB; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('next (shared)', bx+nw*0.4, (ay+byy)/2);
+      ctx.fillStyle=CPB; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('next (shared)', bx+nw*0.4, (ay+byy)/2);
       // B.prev → A (shared=실선 빨강 / weak=점선 초록)
       if(leak){ arrow(ctx, bx+nw*0.75, byy, bx+nw*0.75, ay+40, RED);
-        ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.fillText('prev (shared) ✗', bx+nw*0.8, (ay+byy)/2+16); }
+        ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.fillText('prev (shared) ✗', bx+nw*0.8, (ay+byy)/2+16); }
       else { arrow(ctx, bx+nw*0.75, byy, bx+nw*0.75, ay+40, GRN, [5,4]);
-        ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('prev (weak) ✓', bx+nw*0.8, (ay+byy)/2+16); }
+        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('prev (weak) ✓', bx+nw*0.8, (ay+byy)/2+16); }
 
       // 카운트 표시(실측): shared 순환이면 각 노드 count=2, weak면 A:1 B:1 → 0 가능
       var cA = leak ? 2 : 1, cB = leak ? 2 : 1;
-      ctx.textAlign='center'; ctx.fillStyle=leak?RED:GRN; ctx.font='11px sans-serif';
+      ctx.textAlign='center'; ctx.fillStyle=leak?RED:GRN; ctx.font='13px sans-serif';
       ctx.fillText('use_count '+cA, bx+nw+42, ay+22);
       ctx.fillText('use_count '+cB, bx+nw+42, byy+22);
 
@@ -291,7 +291,7 @@
         ctx.fillText('한쪽을 weak_ptr로 → 소유권 없이 "관찰"만, count 안 올림', W*0.05, jy0);
         ctx.fillStyle=GRN; ctx.font='12px sans-serif';
         ctx.fillText('a,b 소멸 → 강한 참조 0 → 정상 해제. 쓸 땐 w.lock()으로 확인', W*0.05, jy1); }
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText('규칙: 소유는 shared_ptr, 되돌아가는(비소유) 참조는 weak_ptr.', W*0.05, jy2);
 
       E.tapHint(W/2, H*0.96, '화면 탭 = 순환 참조 누수 ↔ weak_ptr 해결', true);
@@ -342,13 +342,13 @@
         box(ctx, bx+cw*2, ty, cw, rh, GRN, '스마트 포인터', 12, 'rgba(126,224,176,0.10)');
         for(var r=0;r<rows.length;r++){ var y=ty+rh*(r+1);
           box(ctx, bx, y, cw, rh, DIM, null, 0, 'rgba(255,255,255,0.02)');
-          ctx.fillStyle='#dfeaf2'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(rows[r][0], bx+cw/2, y+rh/2+4);
+          ctx.fillStyle='#dfeaf2'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(rows[r][0], bx+cw/2, y+rh/2+4);
           box(ctx, bx+cw, y, cw, rh, 'rgba(240,136,138,0.4)', null, 0, 'rgba(255,255,255,0.02)');
-          ctx.fillStyle=RED; ctx.font='10.5px sans-serif'; ctx.fillText(rows[r][1], bx+cw+cw/2, y+rh/2+4);
+          ctx.fillStyle=RED; ctx.font='12.5px sans-serif'; ctx.fillText(rows[r][1], bx+cw+cw/2, y+rh/2+4);
           box(ctx, bx+cw*2, y, cw, rh, 'rgba(126,224,176,0.4)', null, 0, 'rgba(255,255,255,0.02)');
-          ctx.fillStyle=GRN; ctx.font='10.5px sans-serif'; ctx.fillText(rows[r][2], bx+cw*2+cw/2, y+rh/2+4); }
+          ctx.fillStyle=GRN; ctx.font='12.5px sans-serif'; ctx.fillText(rows[r][2], bx+cw*2+cw/2, y+rh/2+4); }
         ctx.textAlign='left';
-        if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+        if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
           ctx.fillText('예외가 나면 raw는 누수, 스마트는 안전 — 위험이 다릅니다.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.86))); }
       } else {
         // 규칙 카드 목록 (우측영역 x∈[0.56W,0.96W])
@@ -364,8 +364,8 @@
           box(ctx, bx, y, rw, 34, rules[i][2], null, 0, 'rgba(255,255,255,0.03)');
           ctx.fillStyle=rules[i][2]; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
           ctx.fillText((i+1)+'. '+rules[i][0], bx+12, y+14);
-          ctx.fillStyle='#dfeaf2'; ctx.font='11px sans-serif'; ctx.fillText(rules[i][1], bx+12, y+29); }
-        if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+          ctx.fillStyle='#dfeaf2'; ctx.font='13px sans-serif'; ctx.fillText(rules[i][1], bx+12, y+29); }
+        if(codeBot+18 <= H*0.92){ ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
           ctx.fillText('이 규칙만 지키면 C++ 메모리 문제의 태반은 안 생깁니다.', W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.86))); }
       }
 
@@ -420,13 +420,13 @@
           ctx.strokeStyle=GRN; ctx.lineWidth=1.6; ctx.setLineDash([4,4]);
           ctx.beginPath(); ctx.moveTo(hx+hw*0.2+i*hw*0.3, ty+34); ctx.lineTo(mx, uy-14); ctx.stroke(); ctx.setLineDash([]);
         }
-        ctx.fillStyle=hit?RED:GRN; ctx.font='10.5px sans-serif';
+        ctx.fillStyle=hit?RED:GRN; ctx.font='12.5px sans-serif';
         ctx.fillText(hit?'재컴파일':'그대로', mx, uy+32+14);
       }
       // 방화벽 라벨
       if(pimpl){ ctx.strokeStyle=GRN; ctx.lineWidth=1.4; ctx.setLineDash([6,4]);
         ctx.beginPath(); ctx.moveTo(bx, uy-26); ctx.lineTo(bx+rw, uy-26); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=GRN; ctx.font='600 11px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
         ctx.fillText('컴파일 방화벽 (Impl은 .cpp에)', bx+rw/2, uy-30); }
 
       // 판정(실측 카운트)
@@ -434,11 +434,11 @@
       ctx.textAlign='left';
       ctx.fillStyle=(pimpl?GRN:RED); ctx.font='600 13px sans-serif';
       ctx.fillText('구현 세부 1곳 수정 → 재컴파일되는 파일: '+recompiled+' / 3', bx, jy);
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
       ctx.fillText(pimpl?'헤더가 안 바뀌니 사용처는 손대지 않아도 됩니다.':'헤더에 세부가 노출돼 의존이 다 퍼집니다.', bx, jy+22);
 
       // 좌측(코드패널 아래) 요약
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(pimpl?GLD:DIM); ctx.font='600 11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(pimpl?GLD:DIM); ctx.font='600 13.5px sans-serif';
         ctx.fillText(pimpl?'unique_ptr<Impl>이 수명을 관리 — 소멸자는 .cpp에 둡니다.':'세부가 바뀔 때마다 프로젝트 전체가 다시 빌드됩니다.',
           W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
 
@@ -478,7 +478,7 @@
       // 우측: 힙 할당 시각화 (우측영역 x∈[0.56W,0.96W])
       var bx=W*0.56, rw=W*0.40, ty=H*0.10;
       ctx.textAlign='center';
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('힙 할당', bx, ty-4);
       if(mk){
         // 한 덩어리 블록
@@ -489,17 +489,17 @@
         ctx.fillStyle=GRN; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
         ctx.fillText('Node', mx0+mw*0.25, ty+30);
         ctx.fillText('제어블록', mx0+mw*0.75, ty+30);
-        ctx.fillStyle=GRN; ctx.font='11px sans-serif';
+        ctx.fillStyle=GRN; ctx.font='13px sans-serif';
         ctx.fillText('한 번의 할당으로 인접 배치', mx0+mw/2, ty+54+18);
       } else {
         // 두 개의 흩어진 블록
         var bw=rw*0.34;
         box(ctx, bx, ty, bw, 44, GLD, 'Node', 12, 'rgba(255,211,122,0.10)');
         box(ctx, bx+rw-bw, ty+22, bw, 44, GLD, '제어블록', 12, 'rgba(255,211,122,0.10)');
-        ctx.fillStyle=GLD; ctx.font='11px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.textAlign='center';
         ctx.fillText('할당 ①', bx+bw/2, ty-6);
         ctx.fillText('할당 ②', bx+rw-bw/2, ty+16);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif';
         ctx.fillText('멀리 떨어진 두 할당', bx+rw/2, ty+72);
       }
 
@@ -512,11 +512,11 @@
       ctx.textAlign='left';
       ctx.fillStyle=(mk?GRN:RED); ctx.font='600 12px sans-serif';
       ctx.fillText(mk?'예외 안전: 객체 생성과 소유가 원자적':'예외 위험: new 후 소유 전에 예외 나면 누수', bx, ey);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.fillText(mk?'인자 평가 도중 예외가 나도 새는 객체가 없습니다.':'f(shared_ptr(new T), g())에서 g()가 먼저 던지면 T 누수.', bx, ey+22);
 
       // 좌측(코드패널 아래) 요약
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(mk?GLD:DIM); ctx.font='600 11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=(mk?GLD:DIM); ctx.font='600 13.5px sans-serif';
         ctx.fillText(mk?'할당 2→1 + 예외 안전 — 기본은 make_shared.':'예외로 던질 수 있는 곳에선 new 노출이 위험합니다.',
           W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
 
@@ -558,7 +558,7 @@
       var resLabel = isFile ? 'FILE* 열림' : 'malloc 블록';
       box(ctx, bx+rw*0.28, ty, rw*0.44, 38, cleaned?RED:GRN, cleaned?(isFile?'파일 닫힘':'메모리 반납'):resLabel, 12,
           cleaned?'rgba(240,136,138,0.10)':'rgba(126,224,176,0.10)');
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('자원(비-new)', bx+rw*0.5, ty-8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('자원(비-new)', bx+rw*0.5, ty-8);
 
       // unique_ptr 소유 노드
       var uy=ty+72;
@@ -580,11 +580,11 @@
       ctx.textAlign='left';
       ctx.fillStyle=(cleaned?RED:(using?CPB:CPD)); ctx.font='600 12.5px sans-serif';
       ctx.fillText(caps[s.step], bx, cy);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.fillText('delete 대신 지정한 정리 함수(' + cleanupFn + ')를 스마트 포인터가 대신 호출합니다.', bx, cy+22);
 
       // 좌측(코드패널 아래) 요약
-      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif';
+      if(codeBot+18 <= H*0.92){ ctx.fillStyle=GLD; ctx.font='600 13.5px sans-serif';
         ctx.fillText('new/delete가 아닌 자원도 RAII로 — 정리 방법만 위임하면 됩니다.',
           W*0.05, Math.min(H*0.90, Math.max(codeBot+24, H*0.85))); }
 

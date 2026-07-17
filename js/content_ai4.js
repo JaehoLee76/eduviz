@@ -76,7 +76,7 @@
       var tx=ox+thr*ow; ctx.strokeStyle=GLD; ctx.lineWidth=2.4; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(tx,oy-4); ctx.lineTo(tx,oy+oh+4); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GLD; ctx.font='600 12px sans-serif'; ctx.textAlign='center'; ctx.fillText('θ='+thr.toFixed(2), tx, oy+oh+20);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('θ 왼쪽 → 음성 예측', ox, oy+oh+20);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('θ 왼쪽 → 음성 예측', ox, oy+oh+20);
       ctx.textAlign='right'; ctx.fillText('θ 오른쪽 → 양성 예측', ox+ow, oy+oh+38);
       ctx.textAlign='left'; ctx.fillStyle=BLU; ctx.fillText('● 실제 양성', ox, oy+oh+38);
       ctx.fillStyle=RED; ctx.fillText('● 실제 음성', ox+92, oy+oh+38);
@@ -97,7 +97,7 @@
         ctx.strokeStyle=ce.col; ctx.lineWidth=1.6; ctx.strokeRect(x,yv,cell,cell);
         ctx.fillStyle=ce.col; ctx.font='700 28px sans-serif'; ctx.textAlign='center'; ctx.fillText(''+ce.v, x+cell/2, yv+cell*0.5+6);
         ctx.fillStyle=ce.col; ctx.font='600 12px sans-serif'; ctx.fillText(ce.t, x+cell*0.5, yv+16);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(ce.sub, x+cell*0.5, yv+cell-8); }
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText(ce.sub, x+cell*0.5, yv+cell-8); }
       // 합계·정확도 미리
       ctx.fillStyle=CYA; ctx.font='600 15px sans-serif'; ctx.textAlign='center';
       ctx.fillText('정확도 = (TP+TN)/N = ('+c.TP+'+'+c.TN+')/'+m.N+' = '+m.acc.toFixed(3), gx+cell, gy+cell*2+34);
@@ -120,7 +120,7 @@
       for(var r=0;r<2;r++)for(var cc=0;cc<2;cc++){ var x=hx+cc*cs, y=hy+r*cs;
         ctx.strokeStyle='rgba(255,255,255,0.14)'; ctx.lineWidth=1; ctx.strokeRect(x,y,cs,cs);
         ctx.fillStyle=gc[r][cc]; ctx.font='700 17px sans-serif'; ctx.textAlign='center'; ctx.fillText(''+grid[r][cc], x+cs/2, y+cs/2+6); }
-      ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center';
       ctx.fillText('TP', hx+cs*0.5, hy+8); ctx.fillText('FN', hx+cs*1.5, hy+8);
       ctx.fillText('FP', hx+cs*0.5, hy+cs+12); ctx.fillText('TN', hx+cs*1.5, hy+cs+12);
 
@@ -132,7 +132,7 @@
       var bx=W*0.40, bw=W*0.30, by0=H*0.20, bh=H*0.13, gap=H*0.155;
       for(var i=0;i<bars.length;i++){ var b=bars[i], yv=by0+i*gap;
         ctx.fillStyle='#dfeef0'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText(b.lab, bx, yv-6);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText(b.f+' = '+b.det, bx+bw, yv-6);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText(b.f+' = '+b.det, bx+bw, yv-6);
         // 트랙
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(bx, yv, bw, bh*0.6);
         ctx.fillStyle=b.col; ctx.fillRect(bx, yv, bw*b.v, bh*0.6);
@@ -143,7 +143,7 @@
       ctx.fillStyle='#dfeef0'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('정밀도 ↔ 재현율', tx, ty);
       ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.fillText('θ↑ : 정밀도↑ 재현율↓', tx, ty+24);
       ctx.fillStyle=GRN; ctx.fillText('θ↓ : 재현율↑ 정밀도↓', tx, ty+44);
-      ctx.fillStyle=PNK; ctx.font='11px sans-serif'; ctx.fillText('F1 = 둘의 조화평균', tx, ty+70);
+      ctx.fillStyle=PNK; ctx.font='13px sans-serif'; ctx.fillText('F1 = 둘의 조화평균', tx, ty+70);
       ctx.fillStyle=DIM; ctx.fillText('(한쪽만 높으면 낮게)', tx, ty+88);
 
       E.tapHint(W/2, H*0.95, 'θ를 올리면 정밀도↑·재현율↓ — F1이 둘의 균형을 한 숫자로', true);
@@ -168,7 +168,7 @@
       // 무작위 기준선(대각선)
       ctx.strokeStyle='rgba(155,153,163,0.5)'; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(SX(0),SY(0)); ctx.lineTo(SX(1),SY(1)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('무작위(AUC=0.5)', SX(0.55),SY(0.45));
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('무작위(AUC=0.5)', SX(0.55),SY(0.45));
 
       // ── ROC 점들: 임계값을 1→0으로 쓸며 (FPR,TPR) 실측 ──
       var thrs=[]; for(var t=1.0; t>=-0.001; t-=0.05) thrs.push(Math.max(0,t));
@@ -231,7 +231,7 @@
       // ── 오른쪽: 차수별 훈련/검증 오차 곡선(실측, 1..9 전부 적합) ──
       var gx=W*0.58, gy=H*0.22, gw=W*0.33, gh=H*0.46;
       ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(gx,gy,gw,gh);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('복잡도(차수) →', gx+gw/2, gy+gh+18);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('복잡도(차수) →', gx+gw/2, gy+gh+18);
       ctx.save(); ctx.translate(gx-12, gy+gh/2); ctx.rotate(-Math.PI/2); ctx.fillText('오차', 0,0); ctx.restore();
       var degs=[1,2,3,4,5,6,7,8,9], etrA=[], eteA=[], maxE=0;
       for(i=0;i<degs.length;i++){ var cc=polyfit(TR,degs[i]); var et=mse(TR,cc), ev=Math.min(mse(TE,cc),0.2); etrA.push(et); eteA.push(ev); maxE=Math.max(maxE,et,ev); }
@@ -288,7 +288,7 @@
       var ox=W*0.08, ow=W*0.56, oy=H*0.16, rowH=Math.min(H*0.55/k, H*0.07), gapR=rowH*1.25;
       ctx.fillStyle='#dfeef0'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText(k+'-겹 교차검증 — 각 줄마다 한 폴드를 검증, 나머지로 학습', ox, oy-10);
       for(f=0;f<k;f++){ var ry=oy+f*gapR;
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('회차 '+(f+1), ox-8, ry+rowH*0.7);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('회차 '+(f+1), ox-8, ry+rowH*0.7);
         for(var b=0;b<k;b++){ var bx=ox+b*ow/k, bw=ow/k-2;
           var isVal=(b===f);
           ctx.fillStyle = isVal? GLD : 'rgba(61,214,220,0.45)';
@@ -298,7 +298,7 @@
         if(sc){ ctx.fillStyle=GLD; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('검증MSE '+sc.e.toFixed(4), ox+ow+12, ry+rowH*0.7); } }
       // 범례
       var ly=oy+k*gapR+6;
-      ctx.fillStyle=GLD; ctx.fillRect(ox, ly, 16, 10); ctx.fillStyle='#dfeef0'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('검증 폴드', ox+22, ly+9);
+      ctx.fillStyle=GLD; ctx.fillRect(ox, ly, 16, 10); ctx.fillStyle='#dfeef0'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('검증 폴드', ox+22, ly+9);
       ctx.fillStyle='rgba(61,214,220,0.45)'; ctx.fillRect(ox+110, ly, 16, 10); ctx.fillStyle='#dfeef0'; ctx.fillText('훈련 폴드', ox+132, ly+9);
 
       // ── 우측: 평균±편차 ──

@@ -70,9 +70,9 @@
         var cx=bx+i*(cw+gap);
         if(i<size){ vcell(ctx,cx,by,cw,42, vec[i], 'rgba(90,180,232,0.16)', CPB, '#dfeaf2', 15); }
         else { vcell(ctx,cx,by,cw,42, '', 'rgba(255,255,255,0.02)', 'rgba(255,255,255,0.14)', DIM, 13);
-          ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('예약', cx+cw/2, by+26); }
+          ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('예약', cx+cw/2, by+26); }
         // 인덱스
-        if(i<size){ ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', cx+cw/2, by+58); }
+        if(i<size){ ctx.fillStyle=DIM; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('['+i+']', cx+cw/2, by+58); }
       }
       // size/capacity 게이지
       var gy=by+96;
@@ -134,7 +134,7 @@
           ctx.strokeStyle='rgba(159,153,163,0.6)'; ctx.beginPath(); ctx.moveTo(bxx-2, ny+27); ctx.lineTo(ax+2, ny+27); ctx.stroke();  // prev
           ctx.beginPath(); ctx.moveTo(ax+2, ny+27); ctx.lineTo(ax+7, ny+23); ctx.moveTo(ax+2, ny+27); ctx.lineTo(ax+7, ny+31); ctx.stroke();
         }
-        if(isNew){ ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('새 노드', cx+nw/2, ny+56); }
+        if(isNew){ ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('새 노드', cx+nw/2, ny+56); }
       }
       // 삽입 설명
       var iy=ny+90;
@@ -330,14 +330,14 @@
         // 헤더
         var cx=x0;
         for(var c=0;c<head.length;c++){ ctx.fillStyle='rgba(90,180,232,0.16)'; ctx.fillRect(cx,y0,cwc[c],rh); ctx.strokeStyle='rgba(90,180,232,0.35)'; ctx.lineWidth=1; ctx.strokeRect(cx,y0,cwc[c],rh);
-          ctx.fillStyle=CPB; ctx.font='600 11.5px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(head[c], cx+6, y0+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; }
+          ctx.fillStyle=CPB; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(head[c], cx+6, y0+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; }
         for(var r=0;r<rows.length;r++){ cx=x0; var ry=y0+rh*(r+1);
           for(c=0;c<head.length;c++){ var first=(c===0); var v=rows[r][c];
             ctx.fillStyle= first?'rgba(255,255,255,0.05)':'rgba(255,255,255,0.02)'; ctx.fillRect(cx,ry,cwc[c],rh);
             ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.strokeRect(cx,ry,cwc[c],rh);
             var good = /O\(1\)/.test(v), tree=/log/.test(v);
             ctx.fillStyle = first?CPB : (good?GRN : (tree?GLD : (v==='—'?DIM:'#cfd8e0')));
-            ctx.font=(first?'600 ':'')+'11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.textBaseline='middle';
+            ctx.font=(first?'600 ':'')+'13.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.textBaseline='middle';
             ctx.fillText(v, cx+6, ry+rh/2+1); ctx.textBaseline='alphabetic'; cx+=cwc[c]; } }
         ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
         ctx.fillText('* vector 끝 삽입은 상환 O(1) (가끔 배증 이사).  u_map = unordered_map(해시).', x0, y0+rh*(rows.length+1)+22);
@@ -395,7 +395,7 @@
         ctx.strokeStyle='rgba(240,136,138,0.7)'; ctx.setLineDash([3,3]); ctx.lineWidth=1.4;
         for(var b=0;b<bnds.length;b++){ var lx=bx+bnds[b]*(cw+gap)-gap/2;
           ctx.beginPath(); ctx.moveTo(lx,by-4); ctx.lineTo(lx,by+52); ctx.stroke();
-          ctx.fillStyle=RED; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.setLineDash([]);
+          ctx.fillStyle=RED; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.setLineDash([]);
           ctx.fillText('이사', lx, by+64); ctx.setLineDash([3,3]);
         }
         ctx.setLineDash([]);
@@ -462,12 +462,12 @@
         var dead=reallocated;
         vcell(ctx,cx,by,cw,36, base[i], dead?'rgba(120,120,128,0.10)':'rgba(90,180,232,0.16)', dead?'rgba(159,153,163,0.4)':CPB, dead?DIM:'#dfeaf2', 13);
       }
-      if(reallocated){ ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('← 버려진(해제된) 메모리', bx+3*(cw+gap)+8, by+22); }
+      if(reallocated){ ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('← 버려진(해제된) 메모리', bx+3*(cw+gap)+8, by+22); }
       // it 포인터(항상 옛 주소의 [1]을 가리킴)
       var itx=bx+1*(cw+gap)+cw/2;
       ctx.fillStyle= reallocated?RED:GLD; ctx.beginPath();
       ctx.moveTo(itx, by-6); ctx.lineTo(itx-6, by-18); ctx.lineTo(itx+6, by-18); ctx.closePath(); ctx.fill();
-      ctx.font='600 11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('it', itx, by-22);
+      ctx.font='600 13px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('it', itx, by-22);
 
       // 새 메모리 블록(재할당 후)
       if(reallocated){
@@ -546,31 +546,31 @@
         ctx.fillText('① 임시 pair 생성 (스택 밖)', bx, by-12);
         vcell(ctx,bx,by,60,contH, 3, 'rgba(255,210,122,0.18)', GLD, '#dfeaf2', 15);
         vcell(ctx,bx+60,by,80,contH, '"kim"', 'rgba(255,210,122,0.14)', GLD, '#dfeaf2', 14);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('임시 객체', bx+70, by+contH+16);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('임시 객체', bx+70, by+contH+16);
         // 이동 화살표 → 컨테이너
         ctx.strokeStyle='rgba(240,136,138,0.8)'; ctx.lineWidth=2;
         var ax0=bx+140, ax1=contX-6;
         ctx.beginPath(); ctx.moveTo(ax0, by+contH/2); ctx.lineTo(ax1, contY+contH/2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(ax1, contY+contH/2); ctx.lineTo(ax1-8, contY+contH/2-4); ctx.moveTo(ax1, contY+contH/2); ctx.lineTo(ax1-8, contY+contH/2+4); ctx.stroke();
-        ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('② 이동/복사', (ax0+ax1)/2, by-8);
+        ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('② 이동/복사', (ax0+ax1)/2, by-8);
         // 컨테이너 슬롯(이동된 결과)
         vcell(ctx,contX,contY,contW,contH, '(3,kim)', 'rgba(90,180,232,0.16)', CPB, '#dfeaf2', 13);
-        ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('③ 임시 소멸', bx+70, by+contH+34);
+        ctx.fillStyle=RED; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('③ 임시 소멸', bx+70, by+contH+34);
       } else {
         // 인자만 → 컨테이너 안에서 제자리 생성
         ctx.fillStyle=GRN; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
         ctx.fillText('인자 (3, "kim") 만 전달', bx, by-12);
         vcell(ctx,bx,by,44,contH, 3, 'rgba(255,255,255,0.03)', 'rgba(90,180,232,0.3)', '#dfeaf2', 15);
         vcell(ctx,bx+44,by,80,contH, '"kim"', 'rgba(255,255,255,0.03)', 'rgba(90,180,232,0.3)', '#dfeaf2', 14);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('인자(값 자체)', bx+62, by+contH+16);
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('인자(값 자체)', bx+62, by+contH+16);
         // 화살표 → 컨테이너 안에서 생성
         ctx.strokeStyle='rgba(126,224,176,0.85)'; ctx.lineWidth=2;
         var bx0=bx+124, bx1=contX-6;
         ctx.beginPath(); ctx.moveTo(bx0, by+contH/2); ctx.lineTo(bx1, contY+contH/2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(bx1, contY+contH/2); ctx.lineTo(bx1-8, contY+contH/2-4); ctx.moveTo(bx1, contY+contH/2); ctx.lineTo(bx1-8, contY+contH/2+4); ctx.stroke();
-        ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('제자리 생성', (bx0+bx1)/2, by-8);
+        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('제자리 생성', (bx0+bx1)/2, by-8);
         vcell(ctx,contX,contY,contW,contH, '(3,kim)', 'rgba(126,224,176,0.18)', GRN, '#dfeaf2', 13);
-        ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('바로 여기서 생성', contX+contW/2, contY+contH+16);
+        ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('바로 여기서 생성', contX+contW/2, contY+contH+16);
       }
 
       // 단계 수 비교

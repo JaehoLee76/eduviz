@@ -64,7 +64,7 @@
         ctx.fillStyle='rgba(255,178,122,0.25)'; ctx.beginPath(); ctx.arc(cxp,cyp,13,0,TAU); ctx.fill();
         ctx.fillStyle='#ffb27a'; ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(order[m][0]+'/'+order[m][1], cxp, cyp);
-        ctx.font='10px sans-serif'; ctx.fillText('#'+(m+1), cxp, cyp-18); }
+        ctx.font='12px sans-serif'; ctx.fillText('#'+(m+1), cxp, cyp-18); }
       ctx.textBaseline='alphabetic';
       E.tapHint(E.W/2, y0+N*cell-cell*0.4, '▶ 지그재그 한 칸 (#'+k+', 중복 건너뜀)', true);
       E.big('유리수도 가산무한 (ℵ₀)', '분수를 격자로 늘어놓고 대각선으로 지그재그 세면 → 자연수와 일대일! 중복(2/2=1/1)은 건너뜁니다. 분수가 무한히 빽빽해도 셀 수 있습니다'); }

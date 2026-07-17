@@ -20,31 +20,31 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, W=E.W, H=E.H, ctx=E.ctx;
       var ppm=s.mgm3*24.45/s.M, pct=ppm/10000, ppb=ppm*1000, ppt=ppm*1e6;
-      var fs=FS(H,0.027,11,15), y=H*0.25;                 // 누적 커서
-      T(ctx,'ppm = mg/m³ × 24.45 ÷ M  (25℃ · 1atm 표준상태, 몰부피 24.45 L/mol)',W*0.08,y,DIM,FS(H,0.025,11,14),'left');
+      var fs=FS(H,0.027,13,15), y=H*0.25;                 // 누적 커서
+      T(ctx,'ppm = mg/m³ × 24.45 ÷ M  (25℃ · 1atm 표준상태, 몰부피 24.45 L/mol)',W*0.08,y,DIM,FS(H,0.025,13,14),'left');
       y+=FS(H,0.055,20,30);
       // 입력 카드 → ppm 카드
       var cw=W*0.30, ch=FS(H,0.085,32,48), cx1=W*0.08, cx2=W*0.42;
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; RR(ctx,cx1,y,cw,ch,8); ctx.fill(); ctx.stroke();
       T(ctx,s.mgm3+' mg/m³',cx1+cw/2,y+ch*0.42,BLU,FS(H,0.03,13,17),'center','700');
-      T(ctx,'M='+s.M+' g/mol',cx1+cw/2,y+ch*0.72,DIM,FS(H,0.021,9,12),'center');
+      T(ctx,'M='+s.M+' g/mol',cx1+cw/2,y+ch*0.72,DIM,FS(H,0.021,11,14),'center');
       // 화살표
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx1+cw+8,y+ch/2); ctx.lineTo(cx2-8,y+ch/2); ctx.stroke(); ctx.lineWidth=1;
       ctx.fillStyle=ORA; ctx.beginPath(); ctx.moveTo(cx2-8,y+ch/2); ctx.lineTo(cx2-16,y+ch/2-5); ctx.lineTo(cx2-16,y+ch/2+5); ctx.fill();
-      T(ctx,'×24.45÷M',(cx1+cw+cx2)/2,y+ch/2-10,ORA,FS(H,0.02,9,12),'center');
+      T(ctx,'×24.45÷M',(cx1+cw+cx2)/2,y+ch/2-10,ORA,FS(H,0.02,11,14),'center');
       ctx.fillStyle='rgba(255,178,122,0.14)'; ctx.strokeStyle=ORA; RR(ctx,cx2,y,cw,ch,8); ctx.fill(); ctx.stroke();
       T(ctx,ppm.toFixed(2)+' ppm',cx2+cw/2,y+ch*0.42,ORA,FS(H,0.032,14,18),'center','700');
-      T(ctx,'기체상 부피비',cx2+cw/2,y+ch*0.72,DIM,FS(H,0.021,9,12),'center');
+      T(ctx,'기체상 부피비',cx2+cw/2,y+ch*0.72,DIM,FS(H,0.021,11,14),'center');
       y+=ch+FS(H,0.06,22,32);
       // 하위 3단위 카드 (ppm 기준 배율)
       var cards=[ ['%','÷ 10,000',pct.toExponential(3)+' %',GRN], ['ppb','× 1,000',ppb.toFixed(1)+' ppb',PNK], ['ppt','× 1,000,000',ppt.toLocaleString(undefined,{maximumFractionDigits:0})+' ppt',AMB] ];
       var gw=W*0.27, gap=W*0.02, gx=W*0.08;
       for(var i=0;i<3;i++){ var bx=gx+i*(gw+gap), bh=FS(H,0.09,32,48);
         ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=cards[i][3]; RR(ctx,bx,y,gw,bh,8); ctx.fill(); ctx.stroke();
-        T(ctx,cards[i][0]+' ( '+cards[i][1]+' )',bx+gw/2,y+bh*0.32,DIM,FS(H,0.02,9,12),'center');
-        T(ctx,cards[i][2],bx+gw/2,y+bh*0.68,cards[i][3],FS(H,0.026,11,15),'center','700'); }
+        T(ctx,cards[i][0]+' ( '+cards[i][1]+' )',bx+gw/2,y+bh*0.32,DIM,FS(H,0.02,11,14),'center');
+        T(ctx,cards[i][2],bx+gw/2,y+bh*0.68,cards[i][3],FS(H,0.026,13,15),'center','700'); }
       y+=FS(H,0.09,32,48)+FS(H,0.045,16,24);
-      T(ctx,'검산: '+s.mgm3+' × 24.45 ÷ '+s.M+' = '+ppm.toFixed(3)+' ppm',W*0.08,y,DIM,FS(H,0.023,10,13),'left');
+      T(ctx,'검산: '+s.mgm3+' × 24.45 ÷ '+s.M+' = '+ppm.toFixed(3)+' ppm',W*0.08,y,DIM,FS(H,0.023,12,15),'left');
       E.tapHint(0,0,'슬라이더로 농도·분자량 조절',true);
       E.big(s.mgm3+' mg/m³ (M='+s.M+') → '+ppm.toFixed(2)+' ppm',
             '기출 유형(빈출): 실험실은 무게(mg/m³)로 재지만 법령 노출기준은 대부분 부피비(ppm)로 적혀 있습니다 — 분자량이 다르면 같은 무게도 다른 ppm이 됩니다.'); }
@@ -68,8 +68,8 @@
       var Cmg=s.C*s.M/24.45;                         // ppm → mg/m³
       var Q0=Gmgmin/Cmg;                              // 안전계수 미적용 필요환기량
       var Q=Q0*s.K;                                   // 안전계수 적용
-      var fs=FS(H,0.027,11,15), y=H*0.26;
-      T(ctx,'Q(m³/min) = G(mg/min) ÷ C(mg/m³)   [C = ppm × M ÷ 24.45]',W*0.08,y,DIM,FS(H,0.025,11,14),'left');
+      var fs=FS(H,0.027,13,15), y=H*0.26;
+      T(ctx,'Q(m³/min) = G(mg/min) ÷ C(mg/m³)   [C = ppm × M ÷ 24.45]',W*0.08,y,DIM,FS(H,0.025,13,14),'left');
       y+=FS(H,0.06,22,32);
       var rows=[
         ['① G = '+s.G+' g/hr = '+s.G+'×1000÷60', Gmgmin.toFixed(1)+' mg/min', BLU],
@@ -80,17 +80,17 @@
       var lh=FS(H,0.062,22,32);
       for(var i=0;i<rows.length;i++){ var yy=y+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,W*0.08-8,yy-lh*0.42,W*0.84,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],W*0.08,yy-FS(H,0.006,2,4),DIM,FS(H,0.023,10,13),'left');
+        T(ctx,rows[i][0],W*0.08,yy-FS(H,0.006,4,6),DIM,FS(H,0.023,12,15),'left');
         T(ctx,rows[i][1],W*0.08,yy+FS(H,0.028,12,16),rows[i][2],FS(H,0.028,12,16),'left','700'); }
       y+=lh*rows.length+FS(H,0.05,18,26);
       // Q0 vs Q 막대 비교
       var bx=W*0.08, bw=W*0.84, bh=FS(H,0.075,26,38), qmax=Math.max(Q,Q0)*1.15;
       function qx(v){ return bx+Math.min(v,qmax)/qmax*bw; }
-      T(ctx,'필요환기량 비교 (K배 안전계수 적용 전후)',bx,y-8,TXT,FS(H,0.024,10,14),'left','600');
+      T(ctx,'필요환기량 비교 (K배 안전계수 적용 전후)',bx,y-8,TXT,FS(H,0.024,12,14),'left','600');
       ctx.fillStyle=ORA; RR(ctx,bx,y,qx(Q0)-bx,bh*0.42,5); ctx.fill();
-      T(ctx,'Q₀ '+Q0.toFixed(1),qx(Q0)+6,y+bh*0.3,ORA,FS(H,0.022,10,13),'left','600');
+      T(ctx,'Q₀ '+Q0.toFixed(1),qx(Q0)+6,y+bh*0.3,ORA,FS(H,0.022,12,15),'left','600');
       ctx.fillStyle=GRN; RR(ctx,bx,y+bh*0.5,qx(Q)-bx,bh*0.42,5); ctx.fill();
-      T(ctx,'Q '+Q.toFixed(1),Math.min(qx(Q)+6,bx+bw-2),y+bh*0.8,GRN,FS(H,0.022,10,13),'left','600');
+      T(ctx,'Q '+Q.toFixed(1),Math.min(qx(Q)+6,bx+bw-2),y+bh*0.8,GRN,FS(H,0.022,12,15),'left','600');
       E.tapHint(0,0,'슬라이더로 발생량·농도·분자량·안전계수 조절',true);
       E.big('G '+s.G+'g/hr·C '+s.C+'ppm → Q₀ '+Q0.toFixed(1)+' m³/min (K='+s.K+'배 시 '+Q.toFixed(1)+')',
             '기출 유형(빈출): 오염물질이 나오는 속도(질량/시간)를 원하는 농도(부피비)로 나누면, 그 농도를 유지하기 위해 매분 갈아치워야 할 공기량이 나옵니다.'); }
@@ -117,7 +117,7 @@
       var Q = over? G_m3/diff : 0;
       var ACH = over? Q/s.V : 0;
       var y=H*0.25;
-      T(ctx,'Q(m³/hr) = 발생량 G ÷ (Ci−Co)   ·   ACH(회/hr) = Q ÷ V',W*0.08,y,DIM,FS(H,0.025,11,14),'left');
+      T(ctx,'Q(m³/hr) = 발생량 G ÷ (Ci−Co)   ·   ACH(회/hr) = Q ÷ V',W*0.08,y,DIM,FS(H,0.025,13,14),'left');
       y+=FS(H,0.055,20,30);
       var rows=[
         ['① CO₂ 발생량 G = '+s.N+'명 × '+perCap+'L/hr÷1000', G_m3.toFixed(3)+' m³/hr', BLU],
@@ -128,12 +128,12 @@
       var lh=FS(H,0.062,22,32);
       for(var i=0;i<rows.length;i++){ var yy=y+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,W*0.08-8,yy-lh*0.42,W*0.84,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],W*0.08,yy-FS(H,0.006,2,4),DIM,FS(H,0.023,10,13),'left');
+        T(ctx,rows[i][0],W*0.08,yy-FS(H,0.006,4,6),DIM,FS(H,0.023,12,15),'left');
         T(ctx,rows[i][1],W*0.08,yy+FS(H,0.028,12,16),rows[i][2],FS(H,0.028,12,16),'left','700'); }
       y+=lh*rows.length+FS(H,0.055,20,28);
       // ACH 게이지
       var bx=W*0.08, bw=W*0.84, bh=FS(H,0.08,28,40), achMax=12;
-      T(ctx,'시간당 공기치환 횟수 게이지 (참고: 사무공간 통상 4~10회/hr)',bx,y-8,TXT,FS(H,0.024,10,14),'left','600');
+      T(ctx,'시간당 공기치환 횟수 게이지 (참고: 사무공간 통상 4~10회/hr)',bx,y-8,TXT,FS(H,0.024,12,14),'left','600');
       ctx.fillStyle='#1c2433'; RR(ctx,bx,y,bw,bh,6); ctx.fill();
       var frac=Math.max(0,Math.min(1,ACH/achMax));
       ctx.fillStyle=over?(ACH>=4?GRN:RED):DIM; RR(ctx,bx,y,bw*frac,bh,6); ctx.fill();
@@ -161,20 +161,20 @@
       var Q = 60*2.6*L*s.Vc*X;                          // 플랜지 부착 슬롯: Q(m³/min)=60×2.6×L×V×X
       var Vslot = (Q/60)/(L*Wd);                        // 슬롯 내 유속
       var VP = Math.pow(Vslot/4.043,2);                 // 속도압 mmH2O
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       // 후드 다이어그램 (좌측)
       var wallX=W*0.30, wallY0=H*0.28, wallY1=H*0.60;
       ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(wallX,wallY0); ctx.lineTo(wallX,wallY1); ctx.stroke(); ctx.lineWidth=1;
-      var slotY0=(wallY0+wallY1)/2-FS(H,0.03,10,16), slotY1=(wallY0+wallY1)/2+FS(H,0.03,10,16);
+      var slotY0=(wallY0+wallY1)/2-FS(H,0.03,12,16), slotY1=(wallY0+wallY1)/2+FS(H,0.03,12,16);
       ctx.fillStyle=AMB; ctx.fillRect(wallX-5,slotY0,10,slotY1-slotY0);
-      T(ctx,'슬롯 L='+s.Lcm+'cm·W='+s.Wcm+'cm',wallX,wallY0-14,AMB,FS(H,0.021,9,12),'center');
+      T(ctx,'슬롯 L='+s.Lcm+'cm·W='+s.Wcm+'cm',wallX,wallY0-14,AMB,FS(H,0.021,11,14),'center');
       // 플랜지(벽 상하 돌출)
       ctx.strokeStyle=DIM; ctx.beginPath(); ctx.moveTo(wallX-W*0.05,wallY0); ctx.lineTo(wallX,wallY0); ctx.moveTo(wallX-W*0.05,wallY1); ctx.lineTo(wallX,wallY1); ctx.stroke();
-      T(ctx,'플랜지',wallX-W*0.05,wallY1+FS(H,0.03,12,17),DIM,FS(H,0.02,9,11),'left');
+      T(ctx,'플랜지',wallX-W*0.05,wallY1+FS(H,0.03,12,17),DIM,FS(H,0.02,11,13),'left');
       // 오염원까지 거리 X
       var srcX=wallX+W*0.16;
       ctx.strokeStyle=BLU; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(wallX,(slotY0+slotY1)/2); ctx.lineTo(srcX,(slotY0+slotY1)/2); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(srcX,(slotY0+slotY1)/2,FS(H,0.01,4,7),0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=BLU; ctx.beginPath(); ctx.arc(srcX,(slotY0+slotY1)/2,FS(H,0.01,6,9),0,Math.PI*2); ctx.fill();
       T(ctx,'X='+s.Xcm+'cm',(wallX+srcX)/2,(slotY0+slotY1)/2-10,BLU,fs,'center','600');
       T(ctx,'제어풍속 V='+s.Vc.toFixed(1)+'m/s',srcX,(slotY0+slotY1)/2+22,GRN,fs,'center','600');
       // 계산 패널 (우측/하단, 누적커서)
@@ -186,11 +186,11 @@
       ];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,rx-8,yy-lh*0.42,W*0.34,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],rx,yy-FS(H,0.005,2,4),DIM,FS(H,0.021,9,12),'left');
-        T(ctx,rows[i][1],rx,yy+FS(H,0.026,11,15),rows[i][2],FS(H,0.026,11,15),'left','700'); }
+        T(ctx,rows[i][0],rx,yy-FS(H,0.005,4,6),DIM,FS(H,0.021,11,14),'left');
+        T(ctx,rows[i][1],rx,yy+FS(H,0.026,13,15),rows[i][2],FS(H,0.026,13,15),'left','700'); }
       // 하단 전체 폭 요약 행
       var by=H*0.72, bh=FS(H,0.06,22,30);
-      T(ctx,'2.6 = 플랜지 부착 슬롯형 계수(플랜지 없으면 3.7) · 60 = m³/s→m³/min 환산',W*0.08,by,DIM,FS(H,0.022,10,13),'left');
+      T(ctx,'2.6 = 플랜지 부착 슬롯형 계수(플랜지 없으면 3.7) · 60 = m³/s→m³/min 환산',W*0.08,by,DIM,FS(H,0.022,12,15),'left');
       E.tapHint(0,0,'슬라이더로 길이·폭·풍속·거리 조절',true);
       E.big('L'+s.Lcm+'·V'+s.Vc.toFixed(1)+'·X'+s.Xcm+' → Q '+Q.toFixed(1)+'m³/min · VP '+VP.toFixed(2)+'mmH₂O',
             '기출 유형(빈출): 슬롯 후드는 좁고 긴 틈이 공기를 빨아들이는 선(線) 흡인원 — 플랜지가 뒤쪽 공기를 막아주는 만큼 계수 2.6(무플랜지 3.7)으로 필요환기량이 줄어듭니다.'); }
@@ -214,12 +214,12 @@
       var VP=Math.pow(Vd/4.043,2);                        // 속도압
       var He=s.F*VP;                                       // 유입손실
       var SP=VP+He;                                        // 후드정압
-      var fs=FS(H,0.026,11,14);
+      var fs=FS(H,0.026,13,14);
       // 덕트 단면 원 (반지름은 슬라이더 d 비례, 화면상 시각적 스케일)
       var ccx=W*0.20, ccy=H*0.40, rMax=FS(H,0.14,45,70), rr=rMax*(s.dmm/400);
       ctx.fillStyle='rgba(122,184,255,0.10)'; ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(ccx,ccy,rr,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.lineWidth=1;
       T(ctx,'d='+s.dmm+'mm',ccx,ccy+rMax+FS(H,0.035,14,20),BLU,fs,'center','600');
-      T(ctx,'A='+A.toFixed(4)+'m²',ccx,ccy+rMax+FS(H,0.06,22,30),DIM,FS(H,0.021,9,12),'center');
+      T(ctx,'A='+A.toFixed(4)+'m²',ccx,ccy+rMax+FS(H,0.06,22,30),DIM,FS(H,0.021,11,14),'center');
       // 유속 화살표
       ctx.strokeStyle=GRN; ctx.beginPath(); ctx.moveTo(ccx-rMax-W*0.02,ccy); ctx.lineTo(ccx+rMax+W*0.02,ccy); ctx.stroke();
       T(ctx,'Vd='+Vd.toFixed(2)+'m/s',ccx,ccy-rMax-10,GRN,fs,'center','600');
@@ -234,14 +234,14 @@
       ];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,rx-8,yy-lh*0.42,W*0.48,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],rx,yy-FS(H,0.005,2,4),DIM,FS(H,0.021,9,12),'left');
-        T(ctx,rows[i][1],rx,yy+FS(H,0.026,11,15),rows[i][2],FS(H,0.026,11,15),'left','700'); }
+        T(ctx,rows[i][0],rx,yy-FS(H,0.005,4,6),DIM,FS(H,0.021,11,14),'left');
+        T(ctx,rows[i][1],rx,yy+FS(H,0.026,13,15),rows[i][2],FS(H,0.026,13,15),'left','700'); }
       // SP 게이지
       var gy=H*0.80, gx=W*0.08, gw=W*0.84, gh=FS(H,0.065,22,30), spMax=6;
       ctx.fillStyle='#1c2433'; RR(ctx,gx,gy,gw,gh,6); ctx.fill();
       var frac=Math.max(0,Math.min(1,SP/spMax));
       ctx.fillStyle=RED; RR(ctx,gx,gy,gw*frac,gh,6); ctx.fill();
-      T(ctx,'후드정압(SP) '+SP.toFixed(2)+' mmH₂O — 송풍기가 이겨내야 할 압력',gx+gw*frac+10,gy+gh*0.65,RED,FS(H,0.026,11,15),'left','700');
+      T(ctx,'후드정압(SP) '+SP.toFixed(2)+' mmH₂O — 송풍기가 이겨내야 할 압력',gx+gw*frac+10,gy+gh*0.65,RED,FS(H,0.026,13,15),'left','700');
       E.tapHint(0,0,'슬라이더로 풍량·직경·손실계수 조절',true);
       E.big('Q'+s.Q+'·d'+s.dmm+'mm·F'+s.F.toFixed(2)+' → SP '+SP.toFixed(2)+' mmH₂O',
             '기출 유형(빈출): 덕트가 좁을수록 유속이 빨라져 속도압이 커지고, 후드 입구에서 그중 일부(F배)를 손실로 잃습니다 — 이 둘을 더한 값이 송풍기가 감당해야 할 후드정압입니다.'); }
@@ -270,22 +270,22 @@
       var Vmin=s.LOQ/s.C*1000;                            // L
       var tmin=Vmin/Qpump;                                 // min
       var y=H*0.24;
-      T(ctx,'① 누적오차 = √(e₁²+e₂²+e₃²+e₄²)',W*0.08,y,TXT,FS(H,0.027,11,15),'left','600');
+      T(ctx,'① 누적오차 = √(e₁²+e₂²+e₃²+e₄²)',W*0.08,y,TXT,FS(H,0.027,13,15),'left','600');
       y+=FS(H,0.045,16,22);
       // 4개 오차 막대
-      var bx=W*0.08, bw=W*0.84, bh=FS(H,0.032,11,16), emax=20;
+      var bx=W*0.08, bw=W*0.84, bh=FS(H,0.032,13,16), emax=20;
       var errs=[['전처리',s.e1,BLU],['표준액',s.e2,GRN],['분석',s.e3,ORA],['포집',s.e4,PNK]];
       for(var i=0;i<4;i++){ var yy=y+i*(bh+6);
-        T(ctx,errs[i][0],bx,yy+bh*0.75,DIM,FS(H,0.02,9,11.5),'left');
+        T(ctx,errs[i][0],bx,yy+bh*0.75,DIM,FS(H,0.02,11,13.5),'left');
         ctx.fillStyle='#1c2433'; RR(ctx,bx+W*0.09,yy,bw-W*0.09,bh,4); ctx.fill();
         ctx.fillStyle=errs[i][2]; RR(ctx,bx+W*0.09,yy,(bw-W*0.09)*Math.min(1,errs[i][1]/emax),bh,4); ctx.fill();
-        T(ctx,errs[i][1]+'%',bx+W*0.09+(bw-W*0.09)*Math.min(1,errs[i][1]/emax)+6,yy+bh*0.78,errs[i][2],FS(H,0.02,9,11.5),'left','700'); }
-      y+=4*(bh+6)+FS(H,0.02,8,12);
+        T(ctx,errs[i][1]+'%',bx+W*0.09+(bw-W*0.09)*Math.min(1,errs[i][1]/emax)+6,yy+bh*0.78,errs[i][2],FS(H,0.02,11,13.5),'left','700'); }
+      y+=4*(bh+6)+FS(H,0.02,10,14);
       ctx.fillStyle='rgba(255,255,255,0.04)'; RR(ctx,bx-6,y,bw+12,FS(H,0.045,16,22),7); ctx.fill();
       T(ctx,'√('+s.e1+'²+'+s.e2+'²+'+s.e3+'²+'+s.e4+'²) = '+totErr.toFixed(2)+' %',bx+bw/2,y+FS(H,0.032,12,16),RED,FS(H,0.028,12,16),'center','700');
       y+=FS(H,0.045,16,22)+FS(H,0.05,18,26);
 
-      T(ctx,'② 최소 시료채취시간 (호흡성분진, 채취유량 '+Qpump+' L/min 가정)',bx,y,TXT,FS(H,0.027,11,15),'left','600');
+      T(ctx,'② 최소 시료채취시간 (호흡성분진, 채취유량 '+Qpump+' L/min 가정)',bx,y,TXT,FS(H,0.027,13,15),'left','600');
       y+=FS(H,0.05,18,26);
       var rows=[
         ['최소 채취공기량 Vmin = LOQ÷C×1000 = '+s.LOQ.toFixed(3)+'÷'+s.C.toFixed(2)+'×1000',Vmin.toFixed(1)+' L',BLU],
@@ -294,7 +294,7 @@
       var lh=FS(H,0.055,20,26);
       for(i=0;i<rows.length;i++){ var yy2=y+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,bx-8,yy2-lh*0.42,bw+16,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],bx,yy2-FS(H,0.005,2,4),DIM,FS(H,0.021,9,12),'left');
+        T(ctx,rows[i][0],bx,yy2-FS(H,0.005,4,6),DIM,FS(H,0.021,11,14),'left');
         T(ctx,rows[i][1],bx,yy2+FS(H,0.028,12,16),rows[i][2],FS(H,0.028,12,16),'left','700'); }
       E.tapHint(0,0,'슬라이더로 오차·노출농도·정량한계 조절',true);
       E.big('누적오차 '+totErr.toFixed(1)+'% · 최소 채취시간 '+tmin.toFixed(1)+'분',

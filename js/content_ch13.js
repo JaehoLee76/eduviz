@@ -18,7 +18,7 @@
         ctx.fillStyle='rgba(122,184,255,0.3)'; ctx.fillRect(x, baseY-h, gap*0.6, h);
         ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=1.5; ctx.strokeRect(x, baseY-h, gap*0.6, h);
         ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(v, x+gap*0.3, baseY-h-8);
-        if(n>0){ ctx.fillStyle='#ffb27a'; ctx.font='11px sans-serif'; ctx.fillText((d>=0?'+':'')+d, x-gap*0.2, baseY-h+18); } }
+        if(n>0){ ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.fillText((d>=0?'+':'')+d, x-gap*0.2, baseY-h+18); } }
       E.big('aₙ = 2 + (n−1)·('+d+')', '등차수열 — 일정한 양 d씩 더해 갑니다 (계단처럼 일정한 기울기)'); }
   },
 
@@ -87,7 +87,7 @@
         ctx.fillStyle = (i===0)?'#ffb27a':(lean>=1?'rgba(143,227,181,0.85)':'rgba(122,184,255,0.8)');
         ctx.fillRect(-dw/2,-dh,dw,dh);
         ctx.restore();
-        ctx.fillStyle='#6f6e7a'; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('P('+(i+1)+')', x, baseY+16); }
+        ctx.fillStyle='#6f6e7a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('P('+(i+1)+')', x, baseY+16); }
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x0,baseY); ctx.lineTo(x0+gap*N,baseY); ctx.stroke();
       if(s.fall<=0) E.tapHint(E.W/2, baseY+50, '▶ 첫 도미노 D · 자동 S', true);
       else if(s.fall>=N) E.tapHint(E.W/2, baseY+50, '↻ 다시 세우기 (D)', false);

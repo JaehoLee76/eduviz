@@ -54,7 +54,7 @@
       roundRect(ctx, px, py, pbw, 54, 8); ctx.fillStyle='rgba(90,180,232,0.10)'; ctx.fill();
       ctx.strokeStyle=CPB; ctx.lineWidth=1.6; roundRect(ctx,px,py,pbw,54,8); ctx.stroke();
       ctx.fillStyle=CPB; ctx.font='600 14px ui-monospace,monospace'; ctx.textAlign='center';
-      ctx.fillText('p', px+pbw/2, py+22); ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.fillText('p', px+pbw/2, py+22); ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.fillText('타입: Animal*', px+pbw/2, py+42);
 
       // 화살표 → 힙 객체
@@ -71,12 +71,12 @@
       ctx.fillStyle= (s.step>=1)?'rgba(90,180,232,0.20)':'rgba(90,180,232,0.08)';
       ctx.fillRect(ox+22, oy+28, owx-24, 26);
       ctx.strokeStyle=CPB; ctx.lineWidth= (s.step>=1)?2:1; ctx.strokeRect(ox+22, oy+28, owx-24, 26);
-      ctx.fillStyle=CPD; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('name·eat()·sleep()', ox+28, oy+45);
+      ctx.fillStyle=CPD; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('name·eat()·sleep()', ox+28, oy+45);
       // Cat 부분 (가려진 창)
       ctx.globalAlpha = (s.step>=2)?1:0.4;
       ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(ox+22, oy+60, owx-24, 26);
       ctx.strokeStyle= (s.step>=2)?RED:'rgba(255,255,255,0.15)'; ctx.lineWidth=1.4; ctx.setLineDash(s.step>=2?[4,3]:[]); ctx.strokeRect(ox+22, oy+60, owx-24, 26); ctx.setLineDash([]);
-      ctx.fillStyle= (s.step>=2)?RED:DIM; ctx.font='11px ui-monospace,monospace'; ctx.fillText('meow() ← p 로는 안 보임', ox+28, oy+77);
+      ctx.fillStyle= (s.step>=2)?RED:DIM; ctx.font='13px ui-monospace,monospace'; ctx.fillText('meow() ← p 로는 안 보임', ox+28, oy+77);
       ctx.globalAlpha=1;
 
       // 설명 (좌측 — 코드패널 아래로). 2번째 줄이 하단(0.92H)을 넘지 않게 상한 클램프.
@@ -196,7 +196,7 @@
       roundRect(ctx, cx-pw/2, py, pw, 50, 9); ctx.fillStyle='rgba(90,180,232,0.06)'; ctx.fill();
       ctx.strokeStyle=CPB; ctx.lineWidth=1.6; ctx.setLineDash([6,4]); roundRect(ctx,cx-pw/2,py,pw,50,9); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=CPB; ctx.font='700 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('Shape (추상)', cx, py+20);
-      ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,monospace'; ctx.fillText('area() = 0  (약속만)', cx, py+38);
+      ctx.fillStyle=DIM; ctx.font='13.5px ui-monospace,monospace'; ctx.fillText('area() = 0  (약속만)', cx, py+38);
 
       // 두 자식
       var chY=py+96, cw2=pw*0.86;
@@ -370,7 +370,7 @@
       var col= (visited>=4)?GRN:GLD;
       ctx.fillStyle=col; ctx.font='700 22px ui-monospace,Menlo,monospace';
       ctx.fillText('합 = '+total.toFixed(3), tx, sy+30);
-      if(visited>=4){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      if(visited>=4){ ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText('= '+(Math.PI*4).toFixed(3)+' + 12 + '+(Math.PI*2.25).toFixed(3)+' + 10  (원 둘은 πr²)', tx, sy+52); }
 
       ctx.fillStyle=GLD; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
@@ -430,7 +430,7 @@
         ctx.setLineDash(isVirtual?[5,3]:[]); roundRect(ctx,bx+18,ry,bw-18,rowh-12,8); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle= e.on?e.col:DIM; ctx.font='600 13px ui-monospace,monospace';
         ctx.fillText((i+1)+'. '+e.t, bx+30, ry+18);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif';
         ctx.fillText(e.note, bx+30, ry+35);
         ctx.globalAlpha=1;
         // 연결선
@@ -440,7 +440,7 @@
       // 실제 출력 로그 조립 (골든룰)
       var out=''; if(s.step>=1) out+='start '; if(s.step>=2) out+='[Sales] '; if(s.step>=3) out+='end';
       var oy=sy+seq.length*rowh+8;
-      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('실행 로그:', bx, oy);
+      ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.textAlign='left'; ctx.fillText('실행 로그:', bx, oy);
       ctx.fillStyle=GRN; ctx.font='600 15px ui-monospace,monospace'; ctx.fillText(out||'(아직 없음)', bx, oy+22);
 
       var lx=W*0.05, ly=Math.max(codeBot+26, H*0.86); if(ly>H*0.92) ly=H*0.92; ctx.textAlign='left';
@@ -494,7 +494,7 @@
         ctx.strokeStyle= r.on?r.col:'rgba(255,255,255,0.15)'; ctx.lineWidth= r.on?1.7:1.2; roundRect(ctx,bx,ry,bw,rowh-14,9); ctx.stroke();
         ctx.fillStyle= r.on?r.col:DIM; ctx.font='600 13px ui-monospace,monospace';
         ctx.fillText(r.label+'  '+r.val, bx+14, ry+22);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif';
         ctx.fillText('출처: '+r.from+'  ('+r.bind+')', bx+14, ry+42);
         ctx.globalAlpha=1;
       }
@@ -505,7 +505,7 @@
         ctx.fillText('⚠ 뒤섞임: Circle 의 몸통이 Shape 의 기본값 1 로 실행', bx, oy);
         ctx.fillStyle='#dfeaf2'; ctx.font='600 12px sans-serif'; ctx.fillText('실제 출력:', bx, oy+26);
         ctx.fillStyle=RED; ctx.font='700 17px ui-monospace,monospace'; ctx.fillText(result, bx, oy+50);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif';
         ctx.fillText('기대했던 5(Circle 기본값)도 아니고 "Shape"도 아닌 이상한 조합', bx, oy+70);
       }
 
@@ -555,7 +555,7 @@
       ctx.strokeStyle=CPB; ctx.lineWidth=1.6; ctx.setLineDash([6,4]); roundRect(ctx,bx,by,bw,58,9); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=CPB; ctx.font='700 13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('Animal  (추상: move()=0)', bx+12, by+22);
-      ctx.fillStyle= (s.step>=1)?GRN:DIM; ctx.font='11.5px ui-monospace,monospace';
+      ctx.fillStyle= (s.step>=1)?GRN:DIM; ctx.font='13.5px ui-monospace,monospace';
       ctx.fillText('▸ 하지만 move() 몸통 존재 → 공통 기본', bx+12, by+44);
 
       // Dog (구체)
@@ -564,12 +564,12 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=1.6; roundRect(ctx,bx,dy,bw,58,9); ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='700 13px sans-serif';
       ctx.fillText('Dog::move()  (구체)', bx+12, dy+22);
-      ctx.fillStyle= (s.step>=2)?GLD:DIM; ctx.font='11.5px ui-monospace,monospace';
+      ctx.fillStyle= (s.step>=2)?GLD:DIM; ctx.font='13.5px ui-monospace,monospace';
       ctx.fillText('Animal::move() 호출 + 자기 동작 추가', bx+12, dy+44);
       // 화살표 Dog → Animal (공통 재사용)
       if(s.step>=2){ ctx.strokeStyle=GLD; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
         ctx.beginPath(); ctx.moveTo(bx+bw-30, dy-2); ctx.lineTo(bx+bw-30, by+60); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=GLD; ctx.font='10px sans-serif'; ctx.textAlign='right';
+        ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='right';
         ctx.fillText('공통 재사용', bx+bw-4, (dy+by+60)/2); ctx.textAlign='left'; }
 
       // 실제 출력

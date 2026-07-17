@@ -253,10 +253,10 @@
         // 라벨
         ctx.fillStyle=e.col; ctx.font='600 15px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
         ctx.fillText(e.t, tx+22, ey+5);
-        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13.5px sans-serif';
         ctx.fillText((e.side==='ctor'?'생성 ':'소멸 ')+e.who, tx+22, ey+22);
         // 번호
-        ctx.fillStyle= on? e.col : DIM; ctx.font='11px sans-serif'; ctx.textAlign='right';
+        ctx.fillStyle= on? e.col : DIM; ctx.font='13px sans-serif'; ctx.textAlign='right';
         ctx.fillText('#'+(i+1), tx-16, ey+4);
         ctx.globalAlpha=1;
       }
@@ -264,7 +264,7 @@
       var midY=ty+2*rowh+2;
       ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(tx-40, midY); ctx.lineTo(tx+W*0.28, midY); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GLD; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('↑ 생성 (부모→자식)', tx+W*0.18, ty+rowh);
       ctx.fillText('↓ 소멸 (자식→부모)', tx+W*0.18, ty+3*rowh);
 
@@ -305,7 +305,7 @@
       ctx.strokeStyle=CPB; ctx.lineWidth=1.4; roundRect(ctx,bx,y1,bw,46,8); ctx.stroke();
       ctx.fillStyle=CPB; ctx.font='600 13px ui-monospace,monospace'; ctx.textAlign='left';
       ctx.fillText('Animal::speak()  → "..."', bx+14, y1+20);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('부모 것 (가려짐 — name hiding)', bx+14, y1+37);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('부모 것 (가려짐 — name hiding)', bx+14, y1+37);
       ctx.globalAlpha=1;
 
       // Cat::speak (앞, 덮음)
@@ -314,7 +314,7 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=1.6; roundRect(ctx,bx+16,y2,bw,46,8); ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='600 13px ui-monospace,monospace';
       ctx.fillText('Cat::speak()  → "Meow"', bx+30, y2+20);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('자식이 재정의 — 기본으로 이게 불림', bx+30, y2+37);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('자식이 재정의 — 기본으로 이게 불림', bx+30, y2+37);
 
       // 호출 결과 (실제 규칙으로 문자열 결정)
       var callName, result, rcol;
@@ -373,11 +373,11 @@
       var rW=rw*scale, rH=rh*scale;
       ctx.strokeStyle=CPB; ctx.lineWidth=2; ctx.strokeRect(rx0, topY+6, rW, rH);
       ctx.fillStyle='rgba(90,180,232,0.10)'; ctx.fillRect(rx0, topY+6, rW, rH);
-      ctx.fillStyle=CPD; ctx.font='11px ui-monospace,monospace';
+      ctx.fillStyle=CPD; ctx.font='13px ui-monospace,monospace';
       ctx.fillText('w='+rw+', h='+rh, rx0, topY+6+rH+18);
       ctx.fillStyle=GRN; ctx.font='700 15px ui-monospace,monospace';
       ctx.fillText('area = '+rw+'×'+rh+' = '+rArea, rx0, topY+6+rH+40);
-      ctx.fillStyle=GRN; ctx.font='11.5px sans-serif'; ctx.fillText('✓ 기대대로', rx0, topY+6+rH+58);
+      ctx.fillStyle=GRN; ctx.font='13.5px sans-serif'; ctx.fillText('✓ 기대대로', rx0, topY+6+rH+58);
 
       // Square 결과 (오른쪽)
       var sx0=W*0.78;
@@ -387,12 +387,12 @@
         var sPix=sq*scale;
         ctx.strokeStyle= (s.step>=2)?RED:CPB; ctx.lineWidth=2; ctx.strokeRect(sx0, topY+6, sPix, sPix);
         ctx.fillStyle= (s.step>=2)?'rgba(240,136,138,0.10)':'rgba(90,180,232,0.10)'; ctx.fillRect(sx0, topY+6, sPix, sPix);
-        ctx.fillStyle=CPD; ctx.font='11px ui-monospace,monospace';
+        ctx.fillStyle=CPD; ctx.font='13px ui-monospace,monospace';
         ctx.fillText('w=h='+sq, sx0, topY+6+sPix+18);
         var sc= (s.step>=2)?RED:GLD;
         ctx.fillStyle=sc; ctx.font='700 15px ui-monospace,monospace';
         ctx.fillText('area = '+sq+'×'+sq+' = '+sArea, sx0, topY+6+sPix+40);
-        if(s.step>=2){ ctx.fillStyle=RED; ctx.font='11.5px sans-serif';
+        if(s.step>=2){ ctx.fillStyle=RED; ctx.font='13.5px sans-serif';
           ctx.fillText('✗ 기대 20 ≠ 실제 '+sArea, sx0, topY+6+sPix+58); }
       }
 
@@ -460,7 +460,7 @@
         ctx.setLineDash(vis?[]:[4,3]); roundRect(ctx,bx,ry,bw,rowh-8,8); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle= vis?(c.group==='자식'?GRN:CPB):DIM; ctx.font='600 13px ui-monospace,monospace';
         ctx.fillText(c.sig, bx+12, ry+22);
-        ctx.fillStyle= vis?GRN:RED; ctx.font='11px sans-serif'; ctx.textAlign='right';
+        ctx.fillStyle= vis?GRN:RED; ctx.font='13px sans-serif'; ctx.textAlign='right';
         ctx.fillText(vis?'보임':'가려짐', bx+bw-12, ry+22); ctx.textAlign='left';
       }
       // 호출 결과
@@ -518,7 +518,7 @@
       ctx.strokeStyle=GRN; ctx.lineWidth=1.6; roundRect(ctx,ox,oy,ow,60,9); ctx.stroke();
       ctx.fillStyle=GRN; ctx.font='700 13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('실제 객체 d', ox+ow/2, oy+24);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('(진짜 타입 = Derived)', ox+ow/2, oy+42);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('(진짜 타입 = Derived)', ox+ow/2, oy+42);
 
       // 두 포인터 박스
       var px=W*0.56, py=H*0.42, pw=W*0.40, rowh=64;
@@ -528,7 +528,7 @@
         ctx.strokeStyle= c.on?c.col:'rgba(255,255,255,0.15)'; ctx.lineWidth= c.on?1.8:1.2; roundRect(ctx,px,ry,pw,rowh-12,8); ctx.stroke();
         ctx.fillStyle= c.on?c.col:DIM; ctx.font='600 13px ui-monospace,monospace'; ctx.textAlign='left';
         ctx.fillText(c.ptr+' = &d', px+14, ry+22);
-        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillStyle=DIM; ctx.font='13px sans-serif';
         ctx.fillText('정적 바인딩 → 포인터 타입('+c.decl+')의 draw', px+14, ry+40);
         ctx.fillStyle= c.on?c.col:DIM; ctx.font='700 16px ui-monospace,monospace'; ctx.textAlign='right';
         ctx.fillText('→ "'+c.out+'"', px+pw-14, ry+30);

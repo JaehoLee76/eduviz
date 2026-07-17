@@ -96,7 +96,7 @@
       // 한 점 실측 라벨
       var tpk=Math.PI/2, ypk=s.amp*Math.sin(tpk);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(X(tpk),Y(ypk),4.5,0,7); ctx.fill();
-      ctx.fillStyle=GRN; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('최대 '+ypk.toFixed(2), X(tpk), Y(ypk)-10);
+      ctx.fillStyle=GRN; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('최대 '+ypk.toFixed(2), X(tpk), Y(ypk)-10);
 
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
       ctx.fillText('plt.plot(x, y)는 (x,y) 점들을 순서대로 선으로 잇습니다.', W*0.06, H*0.90);
@@ -200,12 +200,12 @@
       for(i=0;i<B;i++){ var h=counts[i]/maxc*pv*0.92, bx=ox+i*bw;
         ctx.fillStyle='rgba(255,211,67,0.55)'; ctx.fillRect(bx+1, oy-h, bw-2, h);
         ctx.strokeStyle='rgba(20,20,20,0.7)'; ctx.lineWidth=1; ctx.strokeRect(bx+1, oy-h, bw-2, h);
-        if(counts[i]>0){ ctx.fillStyle='#e7ecda'; ctx.font='10.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText(counts[i], bx+bw/2, oy-h-4); }
+        if(counts[i]>0){ ctx.fillStyle='#e7ecda'; ctx.font='12.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText(counts[i], bx+bw/2, oy-h-4); }
       }
       // 평균선(실측)
       var mxpx=ox+(mean-lo)/span*pw;
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(mxpx,oy); ctx.lineTo(mxpx,oy-pv); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('평균', mxpx, oy-pv-2);
+      ctx.fillStyle=GRN; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText('평균', mxpx, oy-pv-2);
 
       ctx.fillStyle=PYL; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
       ctx.fillText('n=200   평균 '+mean.toFixed(3)+'   표준편차 '+std.toFixed(3), W*0.06, H*0.90);
@@ -246,7 +246,7 @@
         ctx.globalAlpha=on?1:0.22;
         ctx.fillStyle='rgba(255,255,255,0.035)'; ctx.strokeStyle=(q===s.step?PYL:'rgba(255,255,255,0.18)'); ctx.lineWidth=(q===s.step?2:1);
         roundRect(ctx,x,y,cellW,cellH,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=(q===s.step?PYL:DIM); ctx.font='600 11px sans-serif'; ctx.textAlign='left'; ctx.fillText('ax['+r+','+c+'] '+titles[q], x+8, y+15);
+        ctx.fillStyle=(q===s.step?PYL:DIM); ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('ax['+r+','+c+'] '+titles[q], x+8, y+15);
         var ix=x+12, iy=y+cellH-12, iw=cellW-24, iv=cellH-32;
         if(!on){ ctx.globalAlpha=1; continue; }
         if(q===0){ // sin
@@ -263,7 +263,7 @@
         } else { // bar
           var vals=[0.4,0.85,0.6,0.3], names=['A','B','C','D'], bw2=iw/4;
           for(i=0;i<4;i++){ var hh2=vals[i]*iv; ctx.fillStyle=[PYB,PNK,GRN,GLD][i]; ctx.fillRect(ix+i*bw2+3, iy-hh2, bw2-6, hh2);
-            ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(names[i], ix+i*bw2+bw2/2, iy+11); }
+            ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(names[i], ix+i*bw2+bw2/2, iy+11); }
         }
         ctx.globalAlpha=1;
       }
@@ -307,14 +307,14 @@
       ys.push(oyp);
       ctx.fillStyle=RED; ctx.beginPath(); ctx.arc(X(oxp),Y(oyp),7,0,7); ctx.fill();
       ctx.strokeStyle=RED; ctx.lineWidth=1.6; ctx.beginPath(); ctx.arc(X(oxp),Y(oyp),11,0,7); ctx.stroke();
-      if(k>1.2){ ctx.fillStyle=RED; ctx.font='600 11px sans-serif'; ctx.textAlign='center'; ctx.fillText('이상치!', X(oxp), Y(oyp)-16); }
+      if(k>1.2){ ctx.fillStyle=RED; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('이상치!', X(oxp), Y(oyp)-16); }
 
       // 평균·중앙값 실측
       var n=ys.length, sum=0; for(i=0;i<n;i++) sum+=ys[i]; var mean=sum/n;
       var srt=ys.slice().sort(function(a,b){return a-b;}); var med=(n%2)?srt[(n-1)/2]:(srt[n/2-1]+srt[n/2])/2;
       // 평균선(빨강 끌림)·중앙값선(초록 안정)
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(ox,Y(mean)); ctx.lineTo(ox+pw,Y(mean)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GLD; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText('평균 '+mean.toFixed(3), ox+pw-86, Y(mean)-4);
+      ctx.fillStyle=GLD; ctx.font='13px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText('평균 '+mean.toFixed(3), ox+pw-86, Y(mean)-4);
       ctx.strokeStyle=GRN; ctx.lineWidth=2; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(ox,Y(med)); ctx.lineTo(ox+pw,Y(med)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GRN; ctx.fillText('중앙값 '+med.toFixed(3), ox+pw-92, Y(med)+14);
 

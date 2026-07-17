@@ -71,7 +71,7 @@
       ctx.beginPath(); ctx.moveTo(RX+54, chY+13); ctx.lineTo(RX+108, chY+13); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(RX+108,chY+13); ctx.lineTo(RX+100,chY+8); ctx.lineTo(RX+100,chY+18); ctx.closePath(); ctx.fillStyle='rgba(255,211,122,0.7)'; ctx.fill();
       chip(ctx, RX+116, chY, 74, 26, GLD, 'n = '+n, 13);
-      ctx.fillStyle=GRN; ctx.font='11.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+      ctx.fillStyle=GRN; ctx.font='13.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
       ctx.fillText('std::cin >> n;   // n 에 '+n+' 을(를) 저장', RX, chY+46);
 
       // ── ② std::cout << 로 이어붙이기 ──
@@ -99,7 +99,7 @@
       ctx.fillStyle=GRN; ctx.font='15px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
       var line = (s.step>=1?'n^2 = ':'') + (s.step>=2?sq:'');
       ctx.fillText(line || '(아직 출력 없음)', RX+14, conTop+50);
-      if(s.step>=3){ ctx.fillStyle=DIM; ctx.font='11.5px sans-serif'; ctx.fillText('▮ ← endl 로 줄바꿈 + 버퍼 비움(flush)', RX+14, conTop+72); }
+      if(s.step>=3){ ctx.fillStyle=DIM; ctx.font='13.5px sans-serif'; ctx.fillText('▮ ← endl 로 줄바꿈 + 버퍼 비움(flush)', RX+14, conTop+72); }
 
       // C 대비 각주 — 코드패널 아래 좌측(패널 침범·하단 잘림 방지)
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';

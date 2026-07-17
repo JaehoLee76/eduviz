@@ -11,7 +11,7 @@
   function wall(E,x,y,h){ var ctx=E.ctx; ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,y-h); ctx.lineTo(x,y+h); ctx.stroke();
     ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; for(var i=-h;i<h;i+=8){ ctx.beginPath(); ctx.moveTo(x,y+i); ctx.lineTo(x-8,y+i+8); ctx.stroke(); } }
   function massBox(E,cx,cy,s,col,label){ var ctx=E.ctx; ctx.fillStyle=col; ctx.globalAlpha=0.22; ctx.fillRect(cx-s/2,cy-s/2,s,s); ctx.globalAlpha=1;
-    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(cx-s/2,cy-s/2,s,s); if(label){ ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(label,cx,cy+4); } }
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(cx-s/2,cy-s/2,s,s); if(label){ ctx.fillStyle=col; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText(label,cx,cy+4); } }
   // 천장(매단 용수철 지지) — 수평 빗금 바
   function ceiling(E,cx,y,hw){ var ctx=E.ctx; ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-hw,y); ctx.lineTo(cx+hw,y); ctx.stroke();
     ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; for(var i=-hw;i<hw;i+=8){ ctx.beginPath(); ctx.moveTo(cx+i,y); ctx.lineTo(cx+i-8,y-8); ctx.stroke(); } }
@@ -170,7 +170,7 @@
       // 이론 공명 곡선 A(ωd) = F0/m / √((ω0²-ωd²)²+(c/m·ωd)²)
       var gx0=W*0.56, gx1=W*0.95, gy0=H*0.82, gh=H*0.46;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('진폭', gx0+3, gy0-gh+4); ctx.fillText('ωd', gx1-16, gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('진폭', gx0+3, gy0-gh+4); ctx.fillText('ωd', gx1-16, gy0+14);
       function Ath(wd){ var d=(w0*w0-wd*wd), g=(s.c/s.m)*wd; return (s.F0/s.m)/Math.sqrt(d*d+g*g); }
       var Amax=Ath(w0)*1.1;
       ctx.strokeStyle='rgba(122,184,255,0.6)'; ctx.lineWidth=2; ctx.beginPath();

@@ -186,7 +186,7 @@
         var a=Math.max(0,Math.min(1,val)); ctx.fillStyle='rgba('+(col===BLU?'122,184,255':col===GLD?'255,210,122':'126,224,176')+','+(0.10+a*0.40)+')'; ctx.fill();
         ctx.strokeStyle=col; ctx.lineWidth=2.2; ctx.stroke();
         ctx.fillStyle='#fff'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText(val.toFixed(2), x, yy+5);
-        if(lab){ ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.fillText(lab, x, yy-30); } }
+        if(lab){ ctx.fillStyle=col; ctx.font='13px sans-serif'; ctx.fillText(lab, x, yy-30); } }
       node(ix, iy(0,2), BLU, x[0], 'x₁'); node(ix, iy(1,2), BLU, x[1], 'x₂');
       for(j=0;j<3;j++) node(hx, iy(j,3), GLD, h[j], 'h'+(j+1));
       node(ox2, iy(0,1), GRN, out, 'ŷ');

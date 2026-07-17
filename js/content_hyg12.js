@@ -37,7 +37,7 @@
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,fx-6,yy-lh*0.62,W*0.80,lh*0.86,7); ctx.fill();
         T(ctx,rows[i][0],fx,yy,TXT,fs,'left');
         T(ctx,rows[i][1],fx+W*0.72,yy,rows[i][2],FS(H,0.036,14,20),'right','700'); }
-      T(ctx,'도수율 ≈ 연천인율 ÷ 2.4 (환산 관계) — 지금 '+(yeon/2.4).toFixed(2)+' ≈ 도수율 '+FR.toFixed(2),fx,y0+lh*5.5,DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'도수율 ≈ 연천인율 ÷ 2.4 (환산 관계) — 지금 '+(yeon/2.4).toFixed(2)+' ≈ 도수율 '+FR.toFixed(2),fx,y0+lh*5.5,DIM,FS(H,0.026,13,14),'left');
       E.tapHint(0,0,'슬라이더로 재해·손실일·인원 조절',true);
       E.big('도수율 '+FR.toFixed(2)+' · 강도율 '+SR.toFixed(2)+' · 종합재해지수 '+FSI.toFixed(2),
             '같은 회사끼리 재해를 비교하는 세 지표 — 빈도(도수율)·크기(강도율)·종합(FSI)입니다.'); }
@@ -73,7 +73,7 @@
       T(ctx,'작업강도 분류 (RMR 기준) — 현재: '+gname,bx,y3-8,DIM,FS(H,0.028,12,15),'left');
       for(i=0;i<grades.length;i++){ var on=(grades[i][0]===gname);
         ctx.fillStyle=on?grades[i][3]:'rgba(255,255,255,0.05)'; RR(ctx,gx+gw*i,y3,gw-6,FS(H,0.05,18,26),6); ctx.fill();
-        T(ctx,grades[i][0],gx+gw*i+(gw-6)/2,y3+FS(H,0.033,14,18),on?'#0b1220':DIM,FS(H,0.024,11,13),'center','600'); }
+        T(ctx,grades[i][0],gx+gw*i+(gw-6)/2,y3+FS(H,0.033,14,18),on?'#0b1220':DIM,FS(H,0.024,13,15),'center','600'); }
       E.tapHint(0,0,'RMR을 올려 실동률·한계시간 변화 보기',true);
       E.big('RMR '+r.toFixed(1)+' → 실동률 '+duty.toFixed(0)+'% · 계속작업 한계 '+Tlim.toFixed(2)+'분',
             '일이 힘들수록(RMR↑) 계속 일할 수 있는 시간이 급격히 줄어듭니다.'); }
@@ -99,7 +99,7 @@
       var mult=[['LC 부하상수',LC.toFixed(0)],['HM = 25/H = 25/'+s.hh, HM.toFixed(3)],['VM(수직)',VM.toFixed(2)],['DM(이동)',DM.toFixed(2)],['AM(비틀림)',AM.toFixed(2)],['FM(빈도)',FM.toFixed(2)],['CM(손잡이)',CM.toFixed(2)]];
       var lh=FS(H,0.045,15,22);
       for(var i=0;i<mult.length;i++){ var yy=y0+lh*(i+1);
-        T(ctx,mult[i][0],fx,yy,DIM,FS(H,0.026,11,14),'left'); T(ctx,mult[i][1],fx+W*0.28,yy,BLU,FS(H,0.028,12,15),'right','600'); }
+        T(ctx,mult[i][0],fx,yy,DIM,FS(H,0.026,13,14),'left'); T(ctx,mult[i][1],fx+W*0.28,yy,BLU,FS(H,0.028,12,15),'right','600'); }
       var rx=W*0.52, ry=y0+lh;
       T(ctx,'권장무게한계',rx,ry,DIM,fs,'left'); T(ctx,'RWL = '+RWL.toFixed(2)+' kg',rx,ry+FS(H,0.035,15,20),GRN,FS(H,0.038,15,21),'left','700');
       T(ctx,'들기지수  LI = W / RWL = '+s.w+' / '+RWL.toFixed(2),rx,ry+lh*2.4,DIM,fs,'left');
@@ -136,7 +136,7 @@
       var alen=Math.min(bot-top-30, 18+Math.log(1+V)*FS(H,0.06,20,40));
       ctx.strokeStyle=GRN; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(px,top+FS(H,0.06,20,34)+pr); ctx.lineTo(px,top+FS(H,0.06,20,34)+pr+alen); ctx.stroke();
       ctx.fillStyle=GRN; ctx.beginPath(); var ay=top+FS(H,0.06,20,34)+pr+alen; ctx.moveTo(px,ay+7); ctx.lineTo(px-5,ay-2); ctx.lineTo(px+5,ay-2); ctx.fill();
-      T(ctx,'낙하 ∝ V',px+14,top+FS(H,0.06,20,34)+pr+alen*0.6,DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'낙하 ∝ V',px+14,top+FS(H,0.06,20,34)+pr+alen*0.6,DIM,FS(H,0.026,13,14),'left');
       T(ctx,resp?'d ≤ 10 µm — 호흡기 도달(호흡성 영역)':'d > 10 µm — 대부분 상기도서 걸러짐',fx,y0+FS(H,0.16,58,86),resp?PNK:DIM,FS(H,0.028,12,15),'left');
       E.tapHint(0,0,'입경·밀도를 바꿔 침강속도 보기',true);
       E.big('침강속도 V = '+V.toFixed(3)+' cm/s · 공기역학직경 '+dae.toFixed(1)+' µm',
@@ -158,17 +158,17 @@
       var sl2=0, mlog=slog/n; for(i=0;i<n;i++){ var dv=Math.log(data[i])-mlog; sl2+=dv*dv; } var GSD=Math.exp(Math.sqrt(sl2/(n-1)));
       // 막대
       var bx=W*0.08, bw=W*0.60, by=H*0.62, bh=H*0.26, mx=Math.max.apply(null,data)*1.05;
-      T(ctx,'측정치 10개 (ppm) — 파랑=측정값 · 금선=산술평균 · 초록선=기하평균',bx,by-bh-FS(H,0.02,8,12),DIM,FS(H,0.026,11,14),'left');
+      T(ctx,'측정치 10개 (ppm) — 파랑=측정값 · 금선=산술평균 · 초록선=기하평균',bx,by-bh-FS(H,0.02,10,14),DIM,FS(H,0.026,13,14),'left');
       var cw=bw/n;
       for(i=0;i<n;i++){ var hh=data[i]/mx*bh; ctx.fillStyle=BLU; RR(ctx,bx+cw*i+2,by-hh,cw-5,hh,3); ctx.fill();
-        T(ctx,''+data[i],bx+cw*i+cw/2,by+FS(H,0.028,12,15),DIM,FS(H,0.022,10,12),'center'); }
-      function lineAt(v,col,lab){ var yy=by-v/mx*bh; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(bx,yy); ctx.lineTo(bx+bw,yy); ctx.stroke(); ctx.setLineDash([]); T(ctx,lab,bx+bw+6,yy+4,col,FS(H,0.026,11,14),'left','600'); }
+        T(ctx,''+data[i],bx+cw*i+cw/2,by+FS(H,0.028,12,15),DIM,FS(H,0.022,12,14),'center'); }
+      function lineAt(v,col,lab){ var yy=by-v/mx*bh; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(bx,yy); ctx.lineTo(bx+bw,yy); ctx.stroke(); ctx.setLineDash([]); T(ctx,lab,bx+bw+6,yy+4,col,FS(H,0.026,13,14),'left','600'); }
       lineAt(mean,AMB,'M '+mean.toFixed(1)); lineAt(GM,GRN,'GM '+GM.toFixed(1));
       // 통계값 패널
       var px=W*0.72, py=H*0.40, lh=FS(H,0.05,18,26);
       var st=[['산술평균 M',mean.toFixed(1),AMB],['표준편차 SD',SD.toFixed(1),BLU],['기하평균 GM',GM.toFixed(1),GRN],['기하표준편차 GSD',GSD.toFixed(2),PNK],['변이계수 CV(%)',CV.toFixed(1),ORA]];
-      for(i=0;i<st.length;i++){ var yy=py+lh*i; T(ctx,st[i][0],px,yy,DIM,FS(H,0.026,11,14),'left'); T(ctx,st[i][1],px+W*0.24,yy,st[i][2],FS(H,0.034,14,19),'right','700'); }
-      T(ctx,'GM('+GM.toFixed(1)+') < M('+mean.toFixed(1)+') — 대수정규분포의 특징',px,py+lh*5.3,DIM,FS(H,0.024,10,13),'left');
+      for(i=0;i<st.length;i++){ var yy=py+lh*i; T(ctx,st[i][0],px,yy,DIM,FS(H,0.026,13,14),'left'); T(ctx,st[i][1],px+W*0.24,yy,st[i][2],FS(H,0.034,14,19),'right','700'); }
+      T(ctx,'GM('+GM.toFixed(1)+') < M('+mean.toFixed(1)+') — 대수정규분포의 특징',px,py+lh*5.3,DIM,FS(H,0.024,12,15),'left');
       E.tapHint(0,0,'10번째 값을 바꿔 통계량 변화 보기',true);
       E.big('M '+mean.toFixed(1)+' · SD '+SD.toFixed(1)+' · GM '+GM.toFixed(1)+' · GSD '+GSD.toFixed(2),
             '노출 자료는 대수정규분포라, 대표값은 산술평균이 아니라 기하평균으로 봅니다.'); }

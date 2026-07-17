@@ -73,7 +73,7 @@
         ctx.fillStyle=on?'rgba(255,178,122,0.25)':'rgba(122,184,255,0.12)'; ctx.strokeStyle=on?'#ffb27a':'#7ab8ff'; ctx.lineWidth=2;
         if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw,bw,10);ctx.fill();ctx.stroke();}else{ctx.fillRect(x,y,bw,bw);ctx.strokeRect(x,y,bw,bw);}
         ctx.fillStyle=on?'#ffb27a':'#cfcdc6'; ctx.font='600 22px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(cyc[i], x+bw/2, y+bw/2); ctx.textBaseline='alphabetic';
-        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText('3^'+(i+1), x+bw/2, y+bw+16); }
+        ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.fillText('3^'+(i+1), x+bw/2, y+bw+16); }
       ctx.fillStyle='#9b99a3'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('↻ 4개마다 반복 (주기 4)', cx, y+bw+44);
       var last=cyc[(k-1)%4];
       E.big('3^'+k+' 의 일의 자리 = '+last, '합동 응용 — 일의 자리는 3,9,7,1 주기4로 반복. 3^100의 일의자리도 즉시! (암호·RSA의 토대)'); }

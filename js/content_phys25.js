@@ -40,7 +40,7 @@
       var gx0=W*0.58, gx1=W*0.94, gy0=H*0.66, gh=H*0.4;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
       ctx.strokeStyle='rgba(143,227,181,0.4)'; ctx.setLineDash([4,3]); var yeq=gy0-Teq/100*gh; ctx.beginPath(); ctx.moveTo(gx0,yeq); ctx.lineTo(gx1,yeq); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('평형 '+Teq.toFixed(0)+'°', gx1-46, yeq-4);
+      ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('평형 '+Teq.toFixed(0)+'°', gx1-46, yeq-4);
       [['A',HOT,s.TA0],['B',COLD,s.TB0]].forEach(function(L){ ctx.strokeStyle=L[1]; ctx.lineWidth=2; ctx.beginPath(); for(var tt=0;tt<=4;tt+=0.05){ var T=Teq+(L[2]-Teq)*Math.exp(-tt*0.5), x=gx0+(tt/4)*(gx1-gx0), y=gy0-T/100*gh; if(tt===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); });
       var mxp=gx0+Math.min(1,s.t/4)*(gx1-gx0); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.moveTo(mxp,gy0); ctx.lineTo(mxp,gy0-gh); ctx.stroke();
       E.tapHint(W/2, H*0.92, '접촉한 두 물체는 열을 주고받아 같은 온도가 됩니다 (화면 탭=다시)', true);
@@ -64,7 +64,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.strokeRect(bx,cy-th,L+dL1,th); ctx.strokeRect(bx,cy,L+dL2,th);
       // 원래 길이 기준선
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(bx+L,cy-th-10); ctx.lineTo(bx+L,cy+th+10); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('원래 길이', bx+L, cy+th+24);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('원래 길이', bx+L, cy+th+24);
       // 늘어난 끝
       ctx.fillStyle=HOT; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('팽창 큰 금속(α 큼)', bx, cy-th-12); ctx.fillStyle=BLU; ctx.fillText('팽창 작은 금속(α 작음)', bx, cy+th+24+18);
       arrow(E,bx+L,cy-th-4,bx+L+dL1,cy-th-4,HOT,2);
@@ -117,10 +117,10 @@
       var T=temp(s.Q), phase = s.Q<1.5?'얼음':s.Q<3.5?'녹는 중(얼음+물)':s.Q<6?'물':s.Q<9?'끓는 중(물+수증기)':'수증기';
       var gx0=W*0.12, gx1=W*0.90, gy0=H*0.74, gh=H*0.5;
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy0-gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('온도(°C)', gx0+3,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('가한 열 Q →', gx1, gy0+16);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('온도(°C)', gx0+3,gy0-gh+2); ctx.textAlign='right'; ctx.fillText('가한 열 Q →', gx1, gy0+16);
       // 0°C·100°C 기준선
       function Ty(t){ return gy0-(t+20)/150*gh; }
-      ['0','100'].forEach(function(v){ var y=Ty(+v); ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(gx0,y); ctx.lineTo(gx1,y); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='right'; ctx.fillText(v+'°', gx0-2, y+3); });
+      ['0','100'].forEach(function(v){ var y=Ty(+v); ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(gx0,y); ctx.lineTo(gx1,y); ctx.stroke(); ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText(v+'°', gx0-2, y+3); });
       // 가열곡선
       ctx.strokeStyle=ORA; ctx.lineWidth=2.6; ctx.beginPath();
       for(var Q=0;Q<=10;Q+=0.05){ var x=gx0+(Q/10)*(gx1-gx0), y=Ty(temp(Q)); if(Q===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
@@ -128,7 +128,7 @@
       ctx.strokeStyle='rgba(122,184,255,0.6)'; ctx.lineWidth=4;
       ctx.beginPath(); ctx.moveTo(gx0+1.5/10*(gx1-gx0),Ty(0)); ctx.lineTo(gx0+3.5/10*(gx1-gx0),Ty(0)); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(gx0+6/10*(gx1-gx0),Ty(100)); ctx.lineTo(gx0+9/10*(gx1-gx0),Ty(100)); ctx.stroke();
-      ctx.fillStyle=BLU; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('융해 잠열', gx0+2.5/10*(gx1-gx0), Ty(0)+16); ctx.fillText('기화 잠열', gx0+7.5/10*(gx1-gx0), Ty(100)-8);
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('융해 잠열', gx0+2.5/10*(gx1-gx0), Ty(0)+16); ctx.fillText('기화 잠열', gx0+7.5/10*(gx1-gx0), Ty(100)-8);
       // 현재 점
       var mx=gx0+(s.Q/10)*(gx1-gx0), my=Ty(T); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
       ctx.fillStyle='#dfeefb'; ctx.font='600 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('현재: '+T.toFixed(0)+'°C — '+phase, W/2, H*0.84);
@@ -149,7 +149,7 @@
       ctx.fillText('전도(고체)', x0+cols*0.4, H*0.18);
       var grd=ctx.createLinearGradient(x0,0,x0+cols*0.8,0); grd.addColorStop(0,'#ff6b4a'); grd.addColorStop(1,'#6ba8ff');
       ctx.fillStyle=grd; ctx.fillRect(x0,H*0.4,cols*0.8,30);
-      ctx.font='11px sans-serif'; ctx.fillStyle='#ff6b4a'; ctx.textAlign='left'; ctx.fillText('고온', x0, H*0.4-6); ctx.fillStyle='#6ba8ff'; ctx.textAlign='right'; ctx.fillText('저온', x0+cols*0.8, H*0.4-6);
+      ctx.font='13px sans-serif'; ctx.fillStyle='#ff6b4a'; ctx.textAlign='left'; ctx.fillText('고온', x0, H*0.4-6); ctx.fillStyle='#6ba8ff'; ctx.textAlign='right'; ctx.fillText('저온', x0+cols*0.8, H*0.4-6);
       for(var k=0;k<6;k++){ var px=x0+10+k*(cols*0.8-20)/5, jit=Math.sin(s.t*8+k)*3*(s.dT/60); ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(px+jit,H*0.4+15,3,0,7); ctx.fill(); }
       var x1=W*0.40; ctx.fillStyle=DIM; ctx.textAlign='center'; ctx.fillText('대류(유체)', x1+cols*0.4, H*0.18);
       ctx.strokeStyle='rgba(255,107,74,0.3)'; ctx.lineWidth=2; ctx.strokeRect(x1,H*0.32,cols*0.8,H*0.34);

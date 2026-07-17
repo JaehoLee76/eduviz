@@ -379,7 +379,7 @@
         ctx.fillText('scikit-learn·PyTorch 모델로 곧장 들어갑니다.', tx, ay+42);
         // 흐름 칩
         var chips=['pandas DataFrame','.values','NumPy array','model.fit'], chx=tx, chy=ay+58, cc=[PYL,DIM,BLU,GRN];
-        ctx.font='11.5px sans-serif';
+        ctx.font='13.5px sans-serif';
         for(var i=0;i<chips.length;i++){
           var wch=ctx.measureText(chips[i]).width+16;
           ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=cc[i]; ctx.lineWidth=1; roundRect(ctx,chx,chy,wch,20,5); ctx.fill(); ctx.stroke();

@@ -25,8 +25,8 @@
   function RR(ctx,x,y,w,h,r){ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}else{ctx.beginPath();ctx.rect(x,y,w,h);} }
   /* 라벨(위)+값(아래) 2줄 카드를 누적커서로 쌓는다(hyg18~22 ROW 그대로 이식). 반환값=소비한 세로높이. */
   function ROW(ctx,W,H,x,y,w,rows){
-    var labelFs=FS(H,0.021,9,12), valueFs=FS(H,0.026,11,14);
-    var gap=FS(H,0.008,2,4), rowGap=FS(H,0.009,3,5);
+    var labelFs=FS(H,0.021,11,14), valueFs=FS(H,0.026,13,14);
+    var gap=FS(H,0.008,4,6), rowGap=FS(H,0.009,5,7);
     var blockH=labelFs+gap+valueFs, cy=y;
     for(var i=0;i<rows.length;i++){
       ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,x-8,cy-3,w,blockH+6,7); ctx.fill();
@@ -78,12 +78,12 @@
       var top=H*0.20, bot=H*0.46, left=W*0.13, right=W*0.95, pw=right-left, ph=bot-top;
       function X(u){ return left+(u-(-1))/(3-(-1))*pw; }
       function Y(r){ return bot-(r/100)*ph; }
-      var axF=FS(H,0.021,9,11);
+      var axF=FS(H,0.021,11,13);
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(left,top); ctx.lineTo(left,bot); ctx.lineTo(right,bot); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font=axF+'px sans-serif'; ctx.textAlign='center';
       var xt=[['-1','0.1'],['0','1'],['1','10'],['2','100'],['3','1000']];
-      for(var i=0;i<xt.length;i++) T(ctx,xt[i][1],X(+xt[i][0]),bot+FS(H,0.026,11,15),DIM,axF,'center');
+      for(var i=0;i<xt.length;i++) T(ctx,xt[i][1],X(+xt[i][0]),bot+FS(H,0.026,13,15),DIM,axF,'center');
       ctx.textAlign='right';
       for(var r=0;r<=100;r+=50) T(ctx,r+'%',left-6,Y(r)+4,DIM,axF,'right');
       T(ctx,'용량 D (mg/kg, 로그축)',(left+right)/2,bot+FS(H,0.05,20,28),DIM,axF,'center');
@@ -99,12 +99,12 @@
       var cx=X(s.logD);
       ctx.strokeStyle=BLU; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bot); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,Y(rt),FS(H,0.01,3,6),0,6.29); ctx.fill();
-      ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(cx,Y(rl),FS(H,0.01,3,6),0,6.29); ctx.fill();
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,Y(rt),FS(H,0.01,5,8),0,6.29); ctx.fill();
+      ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(cx,Y(rl),FS(H,0.01,5,8),0,6.29); ctx.fill();
       // 범례
       ctx.textAlign='left'; ctx.font=axF+'px sans-serif';
-      T(ctx,'━ 역치형(일반독성)',right-pw*0.34,top+FS(H,0.026,11,15),GRN,axF,'left');
-      T(ctx,'┅ 무역치(발암·변이원)',right-pw*0.34,top+FS(H,0.026,11,15)+FS(H,0.026,11,15),PNK,axF,'left');
+      T(ctx,'━ 역치형(일반독성)',right-pw*0.34,top+FS(H,0.026,13,15),GRN,axF,'left');
+      T(ctx,'┅ 무역치(발암·변이원)',right-pw*0.34,top+FS(H,0.026,13,15)+FS(H,0.026,13,15),PNK,axF,'left');
 
       var y=bot+FS(H,0.04,12,18);
       var rows=[
@@ -115,7 +115,7 @@
       y+=rowsH+FS(H,0.03,12,18);
       T(ctx,mode===1? '역치형(일반독성)은 NOAEL~LOAEL 사이에서 관리기준(TLV)을 설정할 수 있습니다.'
                      : '무역치(발암·변이원)는 안전한 용량이 없다고 가정(LNT)해 ALARA로 최대한 낮춥니다.',
-        W*0.06,y,DIM,FS(H,0.018,9,11),'left');
+        W*0.06,y,DIM,FS(H,0.018,11,13),'left');
 
       E.tapHint(0,0,'슬라이더로 용량·관리모드 조절',true);
       E.big('D='+(D>=10?D.toFixed(0):D.toFixed(2))+'mg/kg → 역치형 '+rt.toFixed(1)+'% · 무역치 '+rl.toFixed(2)+'%',
@@ -189,9 +189,9 @@
       else if(TH<720){ cat='단기(주중)축적형(수일~수주 내 축적)'; catColor=AMB; }
       else { cat='장기(생체)축적형(수개월~수년 축적)'; catColor=RED; }
       var y=H*0.10;
-      T(ctx,'체내 동태(ADME) — 흡수(호흡기>피부>경구)→분포(혈류·표적장기)→대사(간 1상 CYP450+2상 포합)→배설',W*0.05,y,DIM,FS(H,0.019,9,10.5),'left');
-      y+=FS(H,0.032,10,15);
-      T(ctx,'배설 속도를 나타내는 값이 생물학적 반감기(T½)이며, 반감기가 길수록 몸에 오래 남습니다',W*0.05,y,DIM,FS(H,0.019,9,10.5),'left');
+      T(ctx,'체내 동태(ADME) — 흡수(호흡기>피부>경구)→분포(혈류·표적장기)→대사(간 1상 CYP450+2상 포합)→배설',W*0.05,y,DIM,FS(H,0.019,11,12.5),'left');
+      y+=FS(H,0.032,12,15);
+      T(ctx,'배설 속도를 나타내는 값이 생물학적 반감기(T½)이며, 반감기가 길수록 몸에 오래 남습니다',W*0.05,y,DIM,FS(H,0.019,11,12.5),'left');
       y+=FS(H,0.045,13,18);
 
       var barX=W*0.06, barMaxW=W*0.55, barH=FS(H,0.05,15,22);
@@ -199,7 +199,7 @@
       ctx.fillStyle=catColor==RED?'rgba(240,136,138,0.35)':(catColor==AMB?'rgba(242,189,85,0.35)':'rgba(143,227,181,0.35)');
       ctx.fillRect(barX,y,barMaxW*(pct/100),barH);
       ctx.strokeStyle=BLU; ctx.strokeRect(barX,y,barMaxW,barH);
-      T(ctx,'잔류율 '+pct.toFixed(1)+'%',barX+8,y+barH*0.68,TXT,FS(H,0.022,10,13),'left','700');
+      T(ctx,'잔류율 '+pct.toFixed(1)+'%',barX+8,y+barH*0.68,TXT,FS(H,0.022,12,15),'left','700');
       y+=barH+FS(H,0.045,14,20);
 
       var rows=[
@@ -209,9 +209,9 @@
         ['분류 판정', cat, catColor]
       ];
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
-      y+=rowsH+FS(H,0.03,10,16);
+      y+=rowsH+FS(H,0.03,12,16);
       T(ctx,'예: 납(혈액) 반감기 약 21일·무기수은 약 6주(단기축적형) / 카드뮴·납(골격) 수십년(장기축적형) / DMF 약 4시간(즉시배출형)',
-        W*0.06,y,DIM,FS(H,0.018,9,10.5),'left');
+        W*0.06,y,DIM,FS(H,0.018,11,12.5),'left');
 
       E.tapHint(0,0,'슬라이더로 반감기·경과배수 조절',true);
       E.big('T½ '+TH.toFixed(1)+'h, n='+n.toFixed(1)+' → 잔류율 '+pct.toFixed(1)+'% ('+cat+')',
@@ -233,7 +233,7 @@
       var diffDominant=v<=0.001;
       var y=H*0.10;
       T(ctx,'입경이 클수록 관성으로 충돌하고, 작을수록 브라운 운동(확산)으로 침적됩니다 — 그 경계를 슬라이더로 확인하세요',
-        W*0.05,y,DIM,FS(H,0.02,9,11),'left');
+        W*0.05,y,DIM,FS(H,0.02,11,13),'left');
       y+=FS(H,0.045,13,18);
 
       // 입경 스케일 바(0.1~30㎛, 로그) + 현재 위치 마커 + 4구간 색칠
@@ -246,13 +246,13 @@
       ctx.strokeStyle='rgba(223,238,251,0.4)'; ctx.strokeRect(barX,barY,barW,barH);
       var mx=bx(s.logD);
       ctx.strokeStyle=TXT; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(mx,barY-6); ctx.lineTo(mx,barY+barH+6); ctx.stroke();
-      var lblF=FS(H,0.017,9,10);
-      T(ctx,'0.5㎛',bx(Math.log(0.5)/Math.LN10),barY+barH+FS(H,0.024,11,14),DIM,lblF,'center');
-      T(ctx,'1㎛',bx(0),barY+barH+FS(H,0.024,11,14),DIM,lblF,'center');
-      T(ctx,'5㎛',bx(Math.log(5)/Math.LN10),barY+barH+FS(H,0.024,11,14),DIM,lblF,'center');
-      T(ctx,'확산',bx((lo+Math.log(0.5)/Math.LN10)/2),barY+barH*0.62,'#2a1f1f',FS(H,0.02,9,11),'center','700');
-      T(ctx,'침강',bx(Math.log(0.5)/Math.LN10/2),barY+barH*0.62,'#1a2530',FS(H,0.02,9,11),'center','700');
-      T(ctx,'충돌',bx((Math.log(5)/Math.LN10+hi)/2),barY+barH*0.62,'#2a2010',FS(H,0.02,9,11),'center','700');
+      var lblF=FS(H,0.017,11,12);
+      T(ctx,'0.5㎛',bx(Math.log(0.5)/Math.LN10),barY+barH+FS(H,0.024,13,14),DIM,lblF,'center');
+      T(ctx,'1㎛',bx(0),barY+barH+FS(H,0.024,13,14),DIM,lblF,'center');
+      T(ctx,'5㎛',bx(Math.log(5)/Math.LN10),barY+barH+FS(H,0.024,13,14),DIM,lblF,'center');
+      T(ctx,'확산',bx((lo+Math.log(0.5)/Math.LN10)/2),barY+barH*0.62,'#2a1f1f',FS(H,0.02,11,13),'center','700');
+      T(ctx,'침강',bx(Math.log(0.5)/Math.LN10/2),barY+barH*0.62,'#1a2530',FS(H,0.02,11,13),'center','700');
+      T(ctx,'충돌',bx((Math.log(5)/Math.LN10+hi)/2),barY+barH*0.62,'#2a2010',FS(H,0.02,11,13),'center','700');
       y=barY+barH+FS(H,0.075,26,34);
 
       var rows=[
@@ -262,9 +262,9 @@
         ['Stokes 침강속도 v (단위밀도 구형 가정)', v.toFixed(5)+' cm/s → '+(diffDominant?'0.001cm/s 이하(확산 지배)':'0.001cm/s 초과(침강·충돌 지배)'), diffDominant?PNK:GRN]
       ];
       var rowsH=ROW(ctx,W,H,W*0.06,y,W*0.90,rows);
-      y+=rowsH+FS(H,0.03,10,16);
+      y+=rowsH+FS(H,0.03,12,16);
       T(ctx,'차단(Interception)은 길고 가는 섬유(석면)가 기도 표면에 스치며 침착하는 별도 기전으로, 입경과 무관하게 작용합니다. 호흡성분진 절단직경은 약 4㎛(ACGIH).',
-        W*0.06,y,DIM,FS(H,0.018,9,10.5),'left');
+        W*0.06,y,DIM,FS(H,0.018,11,12.5),'left');
 
       E.tapHint(0,0,'슬라이더로 입경 조절',true);
       E.big('d='+d.toFixed(2)+'㎛ → '+dep.m,

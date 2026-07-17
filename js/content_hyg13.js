@@ -11,18 +11,18 @@
   function grid2x2(ctx,x,y,w,h,colLab,rowLab,cells,W,H,hl){
     var cw=w/2, ch=h/2;
     // 열 머리글
-    T(ctx,colLab[0],x+cw*0.5,y-FS(H,0.016,7,10),DIM,FS(H,0.024,10,13),'center','600');
-    T(ctx,colLab[1],x+cw*1.5,y-FS(H,0.016,7,10),DIM,FS(H,0.024,10,13),'center','600');
+    T(ctx,colLab[0],x+cw*0.5,y-FS(H,0.016,9,12),DIM,FS(H,0.024,12,15),'center','600');
+    T(ctx,colLab[1],x+cw*1.5,y-FS(H,0.016,9,12),DIM,FS(H,0.024,12,15),'center','600');
     for(var r=0;r<2;r++)for(var c=0;c<2;c++){
       var cx=x+c*cw, cy=y+r*ch, on=(hl&&hl(r,c));
       ctx.fillStyle=on? (hl(r,c)===2?'rgba(122,184,255,0.18)':'rgba(255,178,122,0.18)') : 'rgba(255,255,255,0.04)';
       RR_(ctx,cx+2,cy+2,cw-4,ch-4,7); ctx.fill();
       ctx.strokeStyle=on? (hl(r,c)===2?BLU:ORA):'rgba(255,255,255,0.18)'; ctx.lineWidth=on?2:1; RR_(ctx,cx+2,cy+2,cw-4,ch-4,7); ctx.stroke();
-      T(ctx,cells[r][c],cx+cw*0.5,cy+ch*0.5+FS(H,0.018,7,10),on?(hl(r,c)===2?BLU:ORA):TXT,FS(H,0.038,15,22),'center','700');
+      T(ctx,cells[r][c],cx+cw*0.5,cy+ch*0.5+FS(H,0.018,9,12),on?(hl(r,c)===2?BLU:ORA):TXT,FS(H,0.038,15,22),'center','700');
     }
     // 행 라벨(왼쪽 바깥)
-    T(ctx,rowLab[0],x-FS(H,0.012,5,8),y+ch*0.5+FS(H,0.014,6,9),DIM,FS(H,0.024,10,13),'right','600');
-    T(ctx,rowLab[1],x-FS(H,0.012,5,8),y+ch*1.5+FS(H,0.014,6,9),DIM,FS(H,0.024,10,13),'right','600');
+    T(ctx,rowLab[0],x-FS(H,0.012,7,10),y+ch*0.5+FS(H,0.014,8,11),DIM,FS(H,0.024,12,15),'right','600');
+    T(ctx,rowLab[1],x-FS(H,0.012,7,10),y+ch*1.5+FS(H,0.014,8,11),DIM,FS(H,0.024,12,15),'right','600');
   }
 
   var scenes=[
@@ -45,11 +45,11 @@
       // 발생률 막대
       var bx=fx, bw=W*0.42, bh=FS(H,0.05,17,26), mx=60;
       var by=y0+FS(H,0.065,24,36);
-      T(ctx,'노출군 Iₑ = '+s.ie+' /1,000',bx,by-FS(H,0.012,5,8),ORA,fs,'left');
+      T(ctx,'노출군 Iₑ = '+s.ie+' /1,000',bx,by-FS(H,0.012,7,10),ORA,fs,'left');
       ctx.fillStyle='#1c2433'; RR_(ctx,bx,by,bw,bh,6); ctx.fill();
       ctx.fillStyle=ORA; RR_(ctx,bx,by,bw*s.ie/mx,bh,6); ctx.fill();
       var by2=by+bh+FS(H,0.075,26,42);
-      T(ctx,'비노출군 I₀ = '+s.io+' /1,000',bx,by2-FS(H,0.012,5,8),BLU,fs,'left');
+      T(ctx,'비노출군 I₀ = '+s.io+' /1,000',bx,by2-FS(H,0.012,7,10),BLU,fs,'left');
       ctx.fillStyle='#1c2433'; RR_(ctx,bx,by2,bw,bh,6); ctx.fill();
       ctx.fillStyle=BLU; RR_(ctx,bx,by2,bw*s.io/mx,bh,6); ctx.fill();
       // RR 결과
@@ -62,10 +62,10 @@
       // 2×2 코호트 개념표(각 군 1,000명 가정)
       var gx=W*0.62, gy=H*0.40, gw=W*0.30, gh=H*0.30;
       var a=s.ie, b=1000-s.ie, c=s.io, d=1000-s.io;
-      T(ctx,'코호트 2×2 (각 군 1,000명 가정)',gx+gw*0.5,gy-FS(H,0.045,18,26),DIM,FS(H,0.026,11,14),'center');
+      T(ctx,'코호트 2×2 (각 군 1,000명 가정)',gx+gw*0.5,gy-FS(H,0.045,18,26),DIM,FS(H,0.026,13,14),'center');
       grid2x2(ctx,gx,gy,gw,gh,['발병','비발병'],['노출','비노출'],
         [[''+a,''+b],[''+c,''+d]],W,H,function(r,cc){ return (cc===0)?1:0; });
-      T(ctx,'Iₑ='+a+'/1,000, I₀='+c+'/1,000 → RR='+RRv.toFixed(2),gx+gw*0.5,gy+gh+FS(H,0.05,20,28),DIM,FS(H,0.024,10,13),'center');
+      T(ctx,'Iₑ='+a+'/1,000, I₀='+c+'/1,000 → RR='+RRv.toFixed(2),gx+gw*0.5,gy+gh+FS(H,0.05,20,28),DIM,FS(H,0.024,12,15),'center');
       E.tapHint(0,0,'슬라이더로 두 군 발생률 조절',true);
       E.big('상대위험비 RR = '+RRv.toFixed(2),
             '코호트 연구 — 노출군이 비노출군보다 몇 배 더 잘 걸리는가를 발생률의 비로 봅니다.'); }
@@ -90,10 +90,10 @@
       T(ctx,'교차비  OR = (a × d) ÷ (b × c)',fx,y0,TXT,FS(H,0.034,15,19),'left','700');
       // 2×2 표(대각 a·d 주황 강조, b·c 파랑)
       var gx=W*0.20, gy=H*0.40, gw=W*0.30, gh=H*0.30;
-      T(ctx,'환자-대조 2×2',gx+gw*0.5,gy-FS(H,0.045,18,26),DIM,FS(H,0.026,11,14),'center');
+      T(ctx,'환자-대조 2×2',gx+gw*0.5,gy-FS(H,0.045,18,26),DIM,FS(H,0.026,13,14),'center');
       grid2x2(ctx,gx,gy,gw,gh,['환자(case)','대조(control)'],['노출','비노출'],
         [[''+s.a,''+s.b],[''+s.c,''+s.d]],W,H,function(r,cc){ return ((r===0&&cc===0)||(r===1&&cc===1))?1:2; });
-      T(ctx,'주황 대각 a·d = '+(s.a*s.d)+'   파랑 대각 b·c = '+(s.b*s.c),gx+gw*0.5,gy+gh+FS(H,0.05,20,28),DIM,FS(H,0.024,10,13),'center');
+      T(ctx,'주황 대각 a·d = '+(s.a*s.d)+'   파랑 대각 b·c = '+(s.b*s.c),gx+gw*0.5,gy+gh+FS(H,0.05,20,28),DIM,FS(H,0.024,12,15),'center');
       // 계산·결과
       var rx=W*0.60, ry=H*0.42, lh=FS(H,0.055,20,30);
       T(ctx,'OR = (a×d) / (b×c)',rx,ry,DIM,FS(H,0.030,13,17),'left');
@@ -122,19 +122,19 @@
       // 노출군 막대 = 배경위험(I₀) + 기여분(AR) 적층
       var bx=fx, bw=W*0.52, bh=FS(H,0.07,26,40), mx=60;
       var by=y0+FS(H,0.09,32,48);
-      T(ctx,'노출군 발생률 Iₑ = '+ie+' /1,000',bx,by-FS(H,0.014,6,9),TXT,fs,'left');
+      T(ctx,'노출군 발생률 Iₑ = '+ie+' /1,000',bx,by-FS(H,0.014,8,11),TXT,fs,'left');
       ctx.fillStyle='#1c2433'; RR_(ctx,bx,by,bw,bh,6); ctx.fill();
       var wIo=bw*io/mx, wAR=bw*AR/mx;
       ctx.fillStyle=BLU; RR_(ctx,bx,by,wIo,bh,6); ctx.fill();          // 배경위험 I₀
       ctx.fillStyle=ORA; ctx.fillRect(bx+wIo,by,wAR,bh);              // 기여분 AR
-      T(ctx,'I₀ '+io,bx+4,by+bh*0.62,'#0b1220',FS(H,0.026,11,14),'left','700');
-      if(wAR>FS(H,0.05,20,30)) T(ctx,'AR '+AR,bx+wIo+4,by+bh*0.62,'#0b1220',FS(H,0.026,11,14),'left','700');
+      T(ctx,'I₀ '+io,bx+4,by+bh*0.62,'#0b1220',FS(H,0.026,13,14),'left','700');
+      if(wAR>FS(H,0.05,20,30)) T(ctx,'AR '+AR,bx+wIo+4,by+bh*0.62,'#0b1220',FS(H,0.026,13,14),'left','700');
       // 결과 3줄
       var ry=by+bh+FS(H,0.10,34,54), lh=FS(H,0.06,22,32);
       T(ctx,'기여위험도  AR = '+ie+' − '+io+' = '+AR+' /1,000',bx,ry,ORA,FS(H,0.034,14,20),'left','700');
       T(ctx,'기여위험분율  AF = '+AR+' / '+ie+' × 100 = '+AF.toFixed(1)+' %',bx,ry+lh,GRN,FS(H,0.034,14,20),'left','700');
-      T(ctx,'→ 노출군 환자 100명 중 약 '+Math.round(AF)+'명은 노출 탓, 노출을 없애면 그만큼 줄어듭니다.',bx,ry+lh*2,DIM,FS(H,0.026,11,15),'left');
-      T(ctx,'배경위험(I₀)은 노출과 무관하게 원래 있던 위험 — RR이 \'몇 배\'라면 AR·AF는 \'얼마나·몇 %\'입니다.',bx,ry+lh*2.9,DIM,FS(H,0.024,10,14),'left');
+      T(ctx,'→ 노출군 환자 100명 중 약 '+Math.round(AF)+'명은 노출 탓, 노출을 없애면 그만큼 줄어듭니다.',bx,ry+lh*2,DIM,FS(H,0.026,13,15),'left');
+      T(ctx,'배경위험(I₀)은 노출과 무관하게 원래 있던 위험 — RR이 \'몇 배\'라면 AR·AF는 \'얼마나·몇 %\'입니다.',bx,ry+lh*2.9,DIM,FS(H,0.024,12,14),'left');
       E.tapHint(0,0,'두 군 발생률로 AR·AF 변화',true);
       E.big('기여위험도 AR = '+AR+'/1,000 · 기여위험분율 AF = '+AF.toFixed(1)+'%',
             '노출로 늘어난 절대 위험(AR)과 노출군 환자 중 노출 탓 비율(AF)입니다.'); }
@@ -155,7 +155,7 @@
       T(ctx,'민감도 = A/(A+C) · 특이도 = D/(B+D) · 양성예측도 = A/(A+B)',fx,y0,TXT,FS(H,0.030,13,17),'left','700');
       // 2×2 표: 행=검사결과(+/−), 열=질병(유/무)
       var gx=W*0.20, gy=H*0.40, gw=W*0.30, gh=H*0.30;
-      T(ctx,'질병 유무 × 검사결과 (C·D 고정)',gx+gw*0.5,gy-FS(H,0.045,18,26),DIM,FS(H,0.026,11,14),'center');
+      T(ctx,'질병 유무 × 검사결과 (C·D 고정)',gx+gw*0.5,gy-FS(H,0.045,18,26),DIM,FS(H,0.026,13,14),'center');
       grid2x2(ctx,gx,gy,gw,gh,['질병 있음','질병 없음'],['검사 +','검사 −'],
         [['A '+A,'B '+B],['C '+C,'D '+D]],W,H,null);
       // 결과 패널
@@ -164,10 +164,10 @@
                 ['특이도 (건강자를 −로)',spec.toFixed(1)+' %',BLU],
                 ['양성예측도 (+가 실제 환자)',ppv.toFixed(1)+' %',GRN]];
       for(var i=0;i<rows.length;i++){ var yy=ry+lh*i;
-        T(ctx,rows[i][0],rx,yy,DIM,FS(H,0.026,11,15),'left');
+        T(ctx,rows[i][0],rx,yy,DIM,FS(H,0.026,13,15),'left');
         T(ctx,rows[i][1],rx+W*0.34,yy,rows[i][2],FS(H,0.04,16,23),'right','700'); }
-      T(ctx,'민감도↑ = 놓치지 않음(선별에 유리)',rx,ry+lh*3.4,DIM,FS(H,0.024,10,14),'left');
-      T(ctx,'양성예측도는 유병률에 크게 좌우됨',rx,ry+lh*4.1,DIM,FS(H,0.024,10,14),'left');
+      T(ctx,'민감도↑ = 놓치지 않음(선별에 유리)',rx,ry+lh*3.4,DIM,FS(H,0.024,12,14),'left');
+      T(ctx,'양성예측도는 유병률에 크게 좌우됨',rx,ry+lh*4.1,DIM,FS(H,0.024,12,14),'left');
       E.tapHint(0,0,'진양성 A·위양성 B를 조절',true);
       E.big('민감도 '+sens.toFixed(1)+'% · 특이도 '+spec.toFixed(1)+'% · 양성예측도 '+ppv.toFixed(1)+'%',
             '좋은 검사는 환자를 놓치지 않고(민감도) 건강자를 잘못 잡지 않습니다(특이도).'); }
@@ -192,21 +192,21 @@
       ctx.fillStyle=vcol; RR_(ctx,bx,by,bw*Math.min(SMR,mx)/mx,bh,6); ctx.fill();
       var mk=bx+bw*100/mx;                          // 100 기준선
       ctx.strokeStyle=TXT; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mk,by-4); ctx.lineTo(mk,by+bh+4); ctx.stroke();
-      T(ctx,'100 (표준집단)',mk,by+bh+FS(H,0.03,12,17),DIM,FS(H,0.024,10,13),'center');
+      T(ctx,'100 (표준집단)',mk,by+bh+FS(H,0.03,12,17),DIM,FS(H,0.024,12,15),'center');
       T(ctx,SMR>105?'SMR>100 — 표준집단보다 사망 많음(초과사망)':(SMR<95?'SMR<100 — 표준집단보다 사망 적음':'SMR≈100 — 표준집단과 비슷'),
-        bx,by-FS(H,0.016,6,10),vcol,FS(H,0.026,11,15),'left','600');
+        bx,by-FS(H,0.016,8,12),vcol,FS(H,0.026,13,15),'left','600');
       // 힐(Hill)의 인과성 판단 기준 3×3
       var hy=H*0.62, hx=W*0.07, hw=W*0.86;
-      T(ctx,'힐(Hill)의 인과성 판단 기준 — 통계적 연관을 인과로 볼 수 있는가',hx,hy-FS(H,0.02,8,12),AMB,FS(H,0.028,12,16),'left','600');
+      T(ctx,'힐(Hill)의 인과성 판단 기준 — 통계적 연관을 인과로 볼 수 있는가',hx,hy-FS(H,0.02,10,14),AMB,FS(H,0.028,12,16),'left','600');
       var hills=['연관의 강도','일관성','특이성','시간성(원인이 먼저)','용량-반응 관계','생물학적 개연성','정합성','실험적 근거','유추'];
-      var cols=3, cw=hw/cols, ch=FS(H,0.055,20,30), gapy=FS(H,0.012,5,8);
+      var cols=3, cw=hw/cols, ch=FS(H,0.055,20,30), gapy=FS(H,0.012,7,10);
       for(var i=0;i<hills.length;i++){ var r=Math.floor(i/cols), c=i%cols;
         var x=hx+c*cw, yy=hy+r*(ch+gapy);
         var key=(i===3||i===4);                     // 시간성·용량반응 강조
         ctx.fillStyle=key?'rgba(242,189,85,0.14)':'rgba(255,255,255,0.04)';
         RR_(ctx,x,yy,cw-8,ch,7); ctx.fill();
         ctx.strokeStyle=key?AMB:'rgba(255,255,255,0.16)'; ctx.lineWidth=key?1.6:1; RR_(ctx,x,yy,cw-8,ch,7); ctx.stroke();
-        T(ctx,hills[i],x+(cw-8)/2,yy+ch*0.62,key?AMB:TXT,FS(H,0.026,11,15),'center','600'); }
+        T(ctx,hills[i],x+(cw-8)/2,yy+ch*0.62,key?AMB:TXT,FS(H,0.026,13,15),'center','600'); }
       E.tapHint(0,0,'관찰·기대 사망자수로 SMR 확인',true);
       E.big('표준화사망비 SMR = '+SMR.toFixed(0),
             '연령구조가 다른 집단의 사망을 표준집단(=100)에 맞춰 비교합니다 — 100 초과면 초과사망.'); }

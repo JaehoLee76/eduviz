@@ -25,7 +25,7 @@
       var top=H*0.335, bot=H*0.88, left=W*0.14, right=W*0.95, pw=right-left, ph=bot-top;
       function X(u){ return left+(u-(-1))/(3-(-1))*pw; }
       function Y(r){ return bot-(r/100)*ph; }
-      var axF=FS(H,0.022,9,12), lbF=FS(H,0.026,11,14);
+      var axF=FS(H,0.022,11,14), lbF=FS(H,0.026,13,14);
       // 축
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(left,top); ctx.lineTo(left,bot); ctx.lineTo(right,bot); ctx.stroke();
@@ -59,10 +59,10 @@
       var cx=X(logD);
       ctx.strokeStyle=BLU; ctx.lineWidth=1.8; ctx.setLineDash([5,4]);
       ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bot); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,Y(rt),FS(H,0.011,4,7),0,6.29); ctx.fill();
-      ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(cx,Y(rl),FS(H,0.011,4,7),0,6.29); ctx.fill();
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(cx,Y(rt),FS(H,0.011,6,9),0,6.29); ctx.fill();
+      ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(cx,Y(rl),FS(H,0.011,6,9),0,6.29); ctx.fill();
       ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.arc(cx,Y(rt),FS(H,0.011,4,7),0,6.29); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx,Y(rt),FS(H,0.011,6,9),0,6.29); ctx.stroke();
       // 범례
       var lx=right-pw*0.30, ly=top+FS(H,0.03,14,20);
       ctx.textAlign='left'; ctx.font=axF+'px sans-serif';
@@ -146,7 +146,7 @@
       var Cmax=0.15, Ymax=90;
       function X(c){ return left+c/Cmax*pw; }
       function Y(p){ return bot-Math.min(p,Ymax)/Ymax*ph; }
-      var axF=FS(H,0.022,9,12);
+      var axF=FS(H,0.022,11,14);
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(left,top); ctx.lineTo(left,bot); ctx.lineTo(right,bot); ctx.stroke();
       ctx.fillStyle=DIM; ctx.font=axF+'px sans-serif'; ctx.textAlign='center';
@@ -169,15 +169,15 @@
       ctx.beginPath(); ctx.moveTo(X(TLV),bot); ctx.lineTo(X(TLV),Y(BEI)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=GRN; ctx.textAlign='center'; ctx.fillText('TLV 0.05', X(TLV), bot-6);
       // 보정점(노출=TLV일 때 지표=BEI) 강조
-      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(X(TLV),Y(BEI),FS(H,0.009,3,5),0,6.29); ctx.fill();
+      ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(X(TLV),Y(BEI),FS(H,0.009,5,7),0,6.29); ctx.fill();
       // 현재 점
       var px=X(C), py=Y(PbB);
       ctx.strokeStyle=over?RED:BLU; ctx.lineWidth=1.6; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(px,bot); ctx.lineTo(px,py); ctx.lineTo(left,py); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=over?RED:GRN; ctx.beginPath(); ctx.arc(px,py,FS(H,0.012,5,8),0,6.29); ctx.fill();
-      ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,FS(H,0.012,5,8),0,6.29); ctx.stroke();
-      ctx.fillStyle=over?RED:GRN; ctx.font='600 '+FS(H,0.024,11,14)+'px sans-serif'; ctx.textAlign='center';
-      ctx.fillText(PbB.toFixed(1)+' µg/dL', px, py-FS(H,0.024,11,15));
+      ctx.fillStyle=over?RED:GRN; ctx.beginPath(); ctx.arc(px,py,FS(H,0.012,7,10),0,6.29); ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,FS(H,0.012,7,10),0,6.29); ctx.stroke();
+      ctx.fillStyle=over?RED:GRN; ctx.font='600 '+FS(H,0.024,13,14)+'px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(PbB.toFixed(1)+' µg/dL', px, py-FS(H,0.024,13,15));
       E.big('공기 중 납 '+C.toFixed(3)+' mg/m³ → 혈중 납(예측) '+PbB.toFixed(1)+' µg/dL',
         over? ('BEI 30 µg/dL 초과 — 이미 몸에 흡수·축적된 상태입니다')
             : ('공기측정=외부노출, 생물학적 모니터링=내부용량 — 피부흡수·개인차까지 반영해 서로 보완합니다')); }

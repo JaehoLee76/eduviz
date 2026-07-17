@@ -31,7 +31,7 @@
       var wEll=R*Math.cos(th);
       ctx.strokeStyle=ORA; ctx.lineWidth=3; ctx.beginPath(); ctx.ellipse(cx,cy,Math.max(2,wEll),R,0,0,7); ctx.stroke();
       // 법선
-      var nx=Math.sin(th), ny=-Math.cos(th); arrow(E,cx,cy,cx+nx*R*1.1,cy+ny*R*1.1,GRN,2); ctx.fillStyle=GRN; ctx.font='11px sans-serif'; ctx.fillText('법선', cx+nx*R*1.1+4, cy+ny*R*1.1);
+      var nx=Math.sin(th), ny=-Math.cos(th); arrow(E,cx,cy,cx+nx*R*1.1,cy+ny*R*1.1,GRN,2); ctx.fillStyle=GRN; ctx.font='13px sans-serif'; ctx.fillText('법선', cx+nx*R*1.1+4, cy+ny*R*1.1);
       // 통과하는 장선 강조(코일 안)
       ctx.strokeStyle='rgba(143,227,181,0.7)'; ctx.lineWidth=2; for(var gx=cx-wEll+4; gx<cx+wEll; gx+=18){ arrow(E,gx,cy+R*0.8,gx,cy-R*0.8,'rgba(143,227,181,0.7)',1.8); }
       // 수치
@@ -87,7 +87,7 @@
       var emf=s.w*Math.sin(s.th); if(!E.frozen){ s.hist.push(emf); if(s.hist.length>240) s.hist.shift(); }
       var gx0=W*0.52, gx1=W*0.95, gy0=H*0.44, gh=H*0.30;
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx1,gy0); ctx.moveTo(gx0,gy0-gh); ctx.lineTo(gx0,gy0+gh); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('EMF', gx0+3, gy0-gh+2); ctx.fillText('t', gx1-8, gy0+14);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('EMF', gx0+3, gy0-gh+2); ctx.fillText('t', gx1-8, gy0+14);
       ctx.fillStyle=ORA; ctx.fillText('EMF = '+emf.toFixed(2), gx0+34, gy0-gh+2);
       ctx.strokeStyle=ORA; ctx.lineWidth=2; ctx.beginPath();
       s.hist.forEach(function(v,i){ var x=gx0+(gx1-gx0)*i/240, y=gy0-(v/5)*gh; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();

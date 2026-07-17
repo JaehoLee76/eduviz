@@ -21,7 +21,7 @@
       var wy=top+(fl-top)*0.30;
       ctx.strokeStyle=BLU; ctx.lineWidth=2;
       for(var li=0;li<4;li++){ ctx.beginPath(); ctx.moveTo(rx0-10, wy+li*12); ctx.lineTo(rx0+10, wy+li*12+6); ctx.stroke(); }
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('급기창', rx0, wy-12);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('급기창', rx0, wy-12);
       // 우측 벽 배기팬(날개 회전)
       var fx=rx1, fy=top+(fl-top)*0.24, fr=16;
       ctx.strokeStyle=(st===1)?ORA:DIM; ctx.lineWidth=2;
@@ -73,7 +73,7 @@
         var frac=cnt/N, gx=rx0, gy=top-26, gw=180;
         ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(gx,gy,gw,10);
         ctx.fillStyle=frac>0.12?RED:(frac>0.04?ORA:GRN); ctx.fillRect(gx,gy,gw*Math.min(1,frac*4),10);
-        ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.font='11px sans-serif';
+        ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.font='13px sans-serif';
         ctx.fillText('호흡영역 오염 지표(입자 '+cnt+'/'+N+')', gx+gw+10, gy+9); }
       // 단계3 — 선택 기준 비교표
       if(st===3){ ctx.globalAlpha=0.25; ctx.fillStyle='#000'; ctx.fillRect(rx0+2,top+2,rw-4,fl-top-4); ctx.globalAlpha=1;
@@ -119,7 +119,7 @@
       var nd=Math.round(48/K);
       for(var i=0;i<nd;i++){ var px=rx0+8+hsh(i+1)*(rx1-rx0-16), py=ry0+8+hsh(i*5+2)*(ry1-ry0-16);
         ctx.fillStyle='rgba(244,160,192,0.75)'; ctx.beginPath(); ctx.arc(px,py,2.6,0,Math.PI*2); ctx.fill(); }
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('작업장 — 환기 평형 상태', (rx0+rx1)/2, ry0-8);
       ctx.fillStyle=PNK; ctx.fillText('발생 G='+G+' L/hr', rx0+70, ry1-10);
       ctx.fillStyle=BLU; ctx.fillText('배기 Q →', rx1-44, ry0+22);
@@ -141,7 +141,7 @@
       ctx.strokeStyle=BLU; ctx.strokeRect(bx, base-hQe, bw, hQe);
       ctx.fillStyle='rgba(255,178,122,0.35)'; ctx.fillRect(bx+bw+34, base-hQ, bw, hQ);
       ctx.strokeStyle=ORA; ctx.strokeRect(bx+bw+34, base-hQ, bw, hQ);
-      ctx.fillStyle=BLU; ctx.textAlign='center'; ctx.font='11px sans-serif';
+      ctx.fillStyle=BLU; ctx.textAlign='center'; ctx.font='13px sans-serif';
       ctx.fillText('유효 Q\'', bx+bw/2, base+16);
       ctx.fillText((Qe/60).toFixed(1)+' m³/min', bx+bw/2, base-hQe-8);
       ctx.fillStyle=ORA; ctx.fillText('실제 Q=Q\'×K', bx+bw+34+bw/2, base+16);
@@ -149,7 +149,7 @@
       ctx.strokeStyle=AMB; ctx.lineWidth=1.6;
       ctx.beginPath(); ctx.moveTo(bx+bw+4, base-hQe/2); ctx.lineTo(bx+bw+30, base-hQe/2); ctx.stroke();
       ctx.fillStyle=AMB; ctx.fillText('×K='+K, bx+bw+17, base-hQe/2-8);
-      ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.font='11px sans-serif';
+      ctx.fillStyle=DIM; ctx.textAlign='left'; ctx.font='13px sans-serif';
       ctx.fillText('K=1 완전혼합 · 2 보통 · 3 불완전 · 5~10 사각지대(불량)', 70, H-108);
       E.big('Q = G/C × K = '+G+'×1,000/'+TLV+' × '+K+' = '+Q.toFixed(0)+' m³/hr = '+Qmin.toFixed(1)+' m³/min',
         '환기량을 K배 늘리면 평형농도는 TLV의 1/K = '+Ceq.toFixed(1)+' ppm까지 내려갑니다'); }
@@ -183,7 +183,7 @@
       ctx.strokeStyle='rgba(219,238,251,0.4)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(hx,hyc-hh/2); ctx.lineTo(hx-46,hyc-16); ctx.lineTo(hx-46,hyc+16); ctx.lineTo(hx,hyc+hh/2); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(hx-46,hyc-16); ctx.lineTo(hx-96,hyc-16); ctx.moveTo(hx-46,hyc+16); ctx.lineTo(hx-96,hyc+16); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('덕트', hx-72, hyc-24);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('덕트', hx-72, hyc-24);
       if(fl){ ctx.strokeStyle=GRN; ctx.lineWidth=4;
         ctx.beginPath(); ctx.moveTo(hx,hyc-hh/2); ctx.lineTo(hx,hyc-hh/2-34); ctx.moveTo(hx,hyc+hh/2); ctx.lineTo(hx,hyc+hh/2+34); ctx.stroke();
         ctx.fillStyle=GRN; ctx.fillText('플랜지(폭 ≥ √A)', hx, hyc-hh/2-42);
@@ -198,7 +198,7 @@
         var pr=rr*scale; if(pr>W*0.46-hx) continue;
         ctx.strokeStyle=fc[k]; ctx.lineWidth=k===0?2.2:1.4; ctx.setLineDash(k===0?[]:[5,4]);
         ctx.beginPath(); ctx.arc(hx,hyc,pr,-Math.PI*0.44,Math.PI*0.44); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle=fc[k]; ctx.textAlign='left'; ctx.font='11px sans-serif';
+        ctx.fillStyle=fc[k]; ctx.textAlign='left'; ctx.font='13px sans-serif';
         ctx.fillText((fr[k]*Vc).toFixed(2)+' m/s', hx+pr*Math.cos(0.35)+4, hyc+pr*Math.sin(0.35)+12); }
       // 발생원 점(거리 X)
       var sxp=hx+Xm*scale;
@@ -214,7 +214,7 @@
       function PY(q){ return py1-(q/ymax)*(py1-py0); }
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(px0,py0); ctx.lineTo(px0,py1); ctx.lineTo(px1,py1); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       for(var xc=0;xc<=60;xc+=20) ctx.fillText(xc+'cm', PX(xc/100), py1+16);
       ctx.textAlign='right';
       ctx.fillText(ymax.toFixed(0), px0-6, py0+8); ctx.fillText('0', px0-6, py1+4);
@@ -264,7 +264,7 @@
       var x0=90, x1=W-90, dh=Math.max(30,s.d*3.4), yc=H*0.36;
       ctx.strokeStyle='rgba(219,238,251,0.45)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(x0,yc-dh/2); ctx.lineTo(x1,yc-dh/2); ctx.moveTo(x0,yc+dh/2); ctx.lineTo(x1,yc+dh/2); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('d = '+s.d+' cm', x1+8, yc+4);
       ctx.textAlign='center'; ctx.fillText('풍량 Q = '+s.q+' m³/min →', (x0+x1)/2, yc-dh/2-12);
       // 입자(속도 ∝ V, 상태별 거동)
@@ -295,7 +295,7 @@
       ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fillRect(gx0,gy,gx1-gx0,16);
       ctx.fillStyle='rgba(143,227,181,0.4)'; ctx.fillRect(GX(lo),gy,GX(Math.min(hi,gmax))-GX(lo),16);
       ctx.strokeStyle=GRN; ctx.lineWidth=1.2; ctx.strokeRect(GX(lo),gy,GX(Math.min(hi,gmax))-GX(lo),16);
-      ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center';
       for(var tv=0;tv<=gmax;tv+=8) ctx.fillText(tv, GX(tv), gy+32);
       ctx.fillStyle=GRN; ctx.fillText('적정 '+lo+'~'+hi+' m/s', (GX(lo)+GX(Math.min(hi,gmax)))/2, gy-8);
       ctx.fillStyle=stc; ctx.beginPath();
@@ -336,7 +336,7 @@
       function PY(y){ return py1-Math.min(y,ymax)/ymax*(py1-py0); }
       ctx.strokeStyle='rgba(219,238,251,0.32)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(px0,py0); ctx.lineTo(px0,py1); ctx.lineTo(px1,py1); ctx.stroke();
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       for(var xt=0;xt<=xmax;xt+=40) ctx.fillText(xt, PX(xt), py1+16);
       ctx.fillText('풍량 Q (m³/min)', (px0+px1)/2, py1+34);
       ctx.textAlign='right';
@@ -359,7 +359,7 @@
       ctx.fillText('시스템 곡선 ΔP∝Q²', PX(lbq)-120, PY(c*lbq*lbq)-10);
       // 탐색점(핑크)·운전점(초록 별)
       ctx.fillStyle=PNK; ctx.beginPath(); ctx.arc(PX(q),PY(pDP),5.5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle=PNK; ctx.textAlign='left'; ctx.font='11px sans-serif';
+      ctx.fillStyle=PNK; ctx.textAlign='left'; ctx.font='13px sans-serif';
       ctx.fillText('탐색점 Q='+q, PX(q)+8, PY(pDP)+4);
       var ox=PX(opQ), oy=PY(opDP);
       ctx.strokeStyle=GRN; ctx.lineWidth=2;
@@ -371,12 +371,12 @@
       var comp=[(1+Fh)*opVP, lam*s.L/D*opVP, Fel*s.n*opVP];
       var cn=['후드정압 VP(1+F)','직관 마찰 λL/D·VP','곡관 F·VP×n'], cc=[GRN,ORA,PNK];
       var bx=W-mRx+46, bw=54, bb=bot, sc=(bot-top)/ymax, yacc=bb;
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('운전점 손실 내역', bx+bw/2, top-6);
       for(var ci=0;ci<3;ci++){ var hgt=comp[ci]*sc;
         ctx.fillStyle=cc[ci]; ctx.globalAlpha=0.45; ctx.fillRect(bx,yacc-hgt,bw,hgt); ctx.globalAlpha=1;
         ctx.strokeStyle=cc[ci]; ctx.strokeRect(bx,yacc-hgt,bw,hgt);
-        ctx.fillStyle=cc[ci]; ctx.textAlign='left'; ctx.font='11px sans-serif';
+        ctx.fillStyle=cc[ci]; ctx.textAlign='left'; ctx.font='13px sans-serif';
         ctx.fillText(cn[ci]+' = '+comp[ci].toFixed(1), bx+bw+8, yacc-hgt/2+4);
         yacc-=hgt; }
       ctx.fillStyle=TXT; ctx.textAlign='left';

@@ -65,7 +65,7 @@
       arrow(E,px,py,px+b.vx*sc*0.4,py-b.vy*sc*0.4,GRN,2);
       var Fx=b.q*b.vy*s.B, Fy=-b.q*b.vx*s.B, Fm=Math.hypot(Fx,Fy)||1;
       arrow(E,px,py,px+Fx/Fm*30,py-Fy/Fm*30,ORA,2.5);
-      ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle=GRN; ctx.fillText('v', px+b.vx*sc*0.4+4, py-b.vy*sc*0.4);
       ctx.fillStyle=ORA; ctx.fillText('F=qv×B', px+Fx/Fm*30+4, py-Fy/Fm*30);
       ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.fillText('B (⊙ 화면 밖)', v.X(-4), v.Y(3)+4);

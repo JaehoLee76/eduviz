@@ -71,7 +71,7 @@
         ctx.beginPath(); ctx.moveTo(bcx,bcy-bh*0.16); ctx.lineTo(bcx,bcy+bh*0.38); ctx.stroke();
         ctx.fillStyle='#c8b070'; ctx.font='600 13px Georgia,serif'; ctx.textAlign='center';
         ctx.fillText('De Morbis Artificum', bcx, bcy+bh*0.72);
-        ctx.fillStyle='#8a8893'; ctx.font='11px sans-serif'; ctx.fillText('일하는 사람들의 질병 · 1700', bcx, bcy+bh*0.72+18);
+        ctx.fillStyle='#8a8893'; ctx.font='13px sans-serif'; ctx.fillText('일하는 사람들의 질병 · 1700', bcx, bcy+bh*0.72+18);
         ctx.restore(); }
       // 라마치니의 질문(중반부)
       var qIn=ss(0.34,0.48,ph)*(1-ss(0.60,0.78,ph));
@@ -148,7 +148,7 @@
         x+=bw; }
       /* 개월 축: 막대 전체 폭 = mo개월 */
       var ax=y+bh+22;
-      ctx.strokeStyle=DIM; ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+      ctx.strokeStyle=DIM; ctx.fillStyle=DIM; ctx.font='13px sans-serif';
       ctx.beginPath(); ctx.moveTo(x0,ax); ctx.lineTo(x1,ax); ctx.stroke();
       var stepM = mo>24? 6 : (mo>10? 3 : 1);
       for(var m=0;m<=mo+1e-9;m+=stepM){ var mx=x0+(x1-x0)*m/mo; if(mx>x1+1) break;

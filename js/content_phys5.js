@@ -85,7 +85,7 @@
       var tx=Math.cos(s.th), ty=Math.sin(s.th), L=s.d*scale;
       ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-tx*L,cy-ty*L); ctx.lineTo(cx+tx*L,cy+ty*L); ctx.stroke();
       [1,-1].forEach(function(sgn){ var mx=cx+sgn*tx*L, my=cy+sgn*ty*L; ctx.fillStyle=ORA; ctx.beginPath(); ctx.arc(mx,my,12,0,7); ctx.fill();
-        ctx.fillStyle='#10141a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('m', mx, my); ctx.textBaseline='alphabetic'; });
+        ctx.fillStyle='#10141a'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('m', mx, my); ctx.textBaseline='alphabetic'; });
       // 거리 d 라벨(중심→한쪽 질량)
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('d='+s.d.toFixed(1)+' m', cx+tx*L*0.5, cy+ty*L*0.5-8);
       ctx.fillStyle=BLU; ctx.fillText('I = 2m·d² = '+I.toFixed(2)+' kg·m²', cx, cy-scale-12);
@@ -120,7 +120,7 @@
       items.forEach(function(it,i){ var x=W*0.66+i*64, hh=it[1]/mx2*bh;
         ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(x,baseY-bh,44,bh); ctx.fillStyle=it[2]; ctx.globalAlpha=0.85; ctx.fillRect(x,baseY-hh,44,hh); ctx.globalAlpha=1;
         ctx.fillStyle='#dfeefb'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(it[1].toFixed(2), x+22, baseY-hh-6);
-        ctx.fillStyle=it[2]; ctx.font='9px sans-serif'; ctx.fillText(it[0], x+22, baseY+16); });
+        ctx.fillStyle=it[2]; ctx.font='11px sans-serif'; ctx.fillText(it[0], x+22, baseY+16); });
       E.tapHint(W/2, H*0.90, '팔을 당기면(r↓) 회전이 빨라집니다', true);
       E.big('L = Iω = '+s.L0.toFixed(2)+' (보존)   ω = '+om.toFixed(2)+' rad/s', '각운동량 L=Iω는 밖에서 비트는 토크가 없으면 끝까지 변하지 않습니다. 피겨 선수가 팔을 당기면(r↓) I가 줄고, L을 지키려고 ω가 솟아 더 빨리 돌죠 — L은 미동도 없습니다(초록 막대 고정). 다이빙 회전·고양이 착지·중성자별의 무서운 자전이 전부 이 한 줄의 약속!'); }
   },
@@ -155,11 +155,11 @@
         // 구심력 화살표(공→중심 방향, 길이 ∝ F)
         var Fmag=b.m*sp*sp/r, ux=(cx-px), uy=(cy-py), ud=Math.hypot(ux,uy)||1, fl=Math.min(ud*0.85, Fmag*7);
         arrow(E,px,py,px+ux/ud*fl,py+uy/ud*fl,ORA,2.5);
-        ctx.fillStyle=ORA; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('F='+Fc.toFixed(1)+' N', px+ux/ud*fl+4, py+uy/ud*fl);
+        ctx.fillStyle=ORA; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('F='+Fc.toFixed(1)+' N', px+ux/ud*fl+4, py+uy/ud*fl);
       }
       // 속도 화살표(접선)
       arrow(E,px,py,px+b.vx*scale*0.5,py-b.vy*scale*0.5,BLU,2.5);
-      ctx.fillStyle=BLU; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+sp.toFixed(1), px+b.vx*scale*0.5+4, py-b.vy*scale*0.5);
+      ctx.fillStyle=BLU; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('v='+sp.toFixed(1), px+b.vx*scale*0.5+4, py-b.vy*scale*0.5);
       ctx.fillStyle=GRN; ctx.beginPath(); ctx.arc(px,py,8,0,7); ctx.fill();
       E.tapHint(W/2, H*0.90, s.cut?'화면 탭=줄 다시 매기':'화면을 눌러 줄 끊기', true);
       if(s.cut) E.big('줄을 끊으면 직선으로! (관성)', '당겨 주던 힘이 사라지자 공은 바깥이 아니라 가던 방향, 즉 접선으로 곧장 날아갑니다 — 뉴턴 1법칙. 원운동 내내 "안으로 끌어당기는 힘"이 줄곧 필요했던 것이죠. 원심력은 가짜 힘, 진짜 주인공은 중심으로 당기는 구심력입니다.');
@@ -208,10 +208,10 @@
       function pt(dx){ return [cx+dx*sc*c, cy - dx*sc*sn]; }
       var lp=pt(-3.5), rp=pt(3.5); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(lp[0],lp[1]); ctx.lineTo(rp[0],rp[1]); ctx.stroke();
       // 추(왼쪽 m1 at d1, 오른쪽 m2 at d2fix)
-      function wt(dx,m,col,dlab){ var p=pt(dx), sz=12+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.fillStyle=col; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',p[0],p[1]-sz/2);
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.fillText('d='+dlab.toFixed(1)+'m',p[0],p[1]+14); }
+      function wt(dx,m,col,dlab){ var p=pt(dx), sz=12+m*4; ctx.fillStyle=col; ctx.globalAlpha=0.3; ctx.fillRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(p[0]-sz/2,p[1]-sz,sz,sz); ctx.fillStyle=col; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+'kg',p[0],p[1]-sz/2);
+        ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.fillText('d='+dlab.toFixed(1)+'m',p[0],p[1]+14); }
       // 받침점 라벨
-      ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText('받침점 O', cx, cy+54);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('받침점 O', cx, cy+54);
       wt(-s.d1,s.m1,GRN,s.d1); wt(d2fix,s.m2,ORA,d2fix);
       var bal=Math.abs(net)<0.01;
       E.tapHint(W/2, H*0.90, '왼쪽 위치·오른쪽 질량을 바꿔 평형을 맞춰 보세요', true);
