@@ -602,8 +602,12 @@
     if(this.ymin<=0&&this.ymax>=0){ ctx.beginPath(); ctx.moveTo(g.left,y0); ctx.lineTo(g.right,y0); ctx.stroke(); }
     if(this.xmin<=0&&this.xmax>=0){ ctx.beginPath(); ctx.moveTo(x0,g.top); ctx.lineTo(x0,g.bot); ctx.stroke(); }
     ctx.fillStyle=COL.txt; ctx.font='11px sans-serif';
-    ctx.textAlign='center'; for(x=Math.ceil(this.xmin);x<=this.xmax;x++){ if(x!==0) ctx.fillText(x,this.X(x),y0+14); }
-    ctx.textAlign='right'; for(y=Math.ceil(this.ymin);y<=this.ymax;y++){ if(y!==0) ctx.fillText(y,x0-6,this.Y(y)+4); }
+    // 적응형 눈금 간격: 라벨이 겹치지 않도록 범위가 크면 5·10 단위로 성기게(작은 범위는 정수마다 그대로)
+    function niceStep(range,target){ if(range<=0||target<=0) return 1; var raw=range/target, p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)), f=raw/p, s=(f<1.5?1:f<3?2:f<7?5:10); return s*p; }
+    function fmtTick(v){ var r=Math.round(v); return Math.abs(v-r)<1e-9?String(r):String(+v.toFixed(2)); }
+    var sx=Math.max(1,niceStep(this.xmax-this.xmin,10)), sy=Math.max(1,niceStep(this.ymax-this.ymin,8)), t;
+    ctx.textAlign='center'; for(t=Math.ceil(this.xmin/sx-1e-9)*sx; t<=this.xmax+1e-9; t+=sx){ if(Math.abs(t)>1e-9) ctx.fillText(fmtTick(t),this.X(t),y0+14); }
+    ctx.textAlign='right'; for(t=Math.ceil(this.ymin/sy-1e-9)*sy; t<=this.ymax+1e-9; t+=sy){ if(Math.abs(t)>1e-9) ctx.fillText(fmtTick(t),x0-6,this.Y(t)+4); }
     // 축 이름 라벨(설정된 경우): 가로축=오른쪽 끝, 세로축=위쪽 끝
     if(this.xlab||this.ylab){ ctx.fillStyle='#dce6f2'; ctx.font='italic 600 14px sans-serif';
       var yax=(this.ymin<=0&&this.ymax>=0)?y0:g.bot, xax=(this.xmin<=0&&this.xmax>=0)?x0:g.left;
