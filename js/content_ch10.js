@@ -10,9 +10,9 @@
     ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(X0,Y0); ctx.lineTo(X1,Y1); ctx.stroke();
     ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X1,Y1,6,0,TAU); ctx.fill();
     if(lab){ ctx.font='600 15px sans-serif';
-      // x<0(음의 실수축 쪽)이면 라벨을 왼쪽으로 펼쳐 y축 눈금열과 안 겹치게
+      // x<0(음의 실수축 쪽)이면 라벨을 왼쪽으로 펼쳐 y축 눈금열과 안 겹치게, 세로도 넉넉히 띄워 x축 눈금 행과 안 겹치게
       ctx.textAlign = x>=0 ? 'left' : 'right';
-      ctx.fillText(lab, X1+(x>=0?8:-8), Y1-8); } }
+      ctx.fillText(lab, X1+(x>=0?8:-8), Y1-14); } }
 
   var scenes=[
 

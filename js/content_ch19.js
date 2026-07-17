@@ -87,10 +87,10 @@
       // 구간 끝 표시선
       ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(P.X(-a),P.Y(-3)); ctx.lineTo(P.X(-a),P.Y(3)); ctx.moveTo(P.X(a),P.Y(-3)); ctx.lineTo(P.X(a),P.Y(3)); ctx.stroke(); ctx.setLineDash([]);
-      // a가 작으면 라벨이 y축 눈금열에 붙으므로 축에서 최소 거리(0.85)를 확보
+      // a가 작으면 라벨이 y축 눈금열에 붙으므로: 축에서 최소 거리 확보 + 라벨을 축 반대쪽으로 펼침(정렬)
       var lax=Math.max(a*0.65,0.85);
-      ctx.fillStyle='#e24b4a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('− 넓이 '+negA.toFixed(3), P.X(-lax), P.Y(-1.6));
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('+ 넓이 '+posA.toFixed(3), P.X(lax), P.Y(1.6));
+      ctx.fillStyle='#e24b4a'; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('− 넓이 '+negA.toFixed(3), P.X(-lax), P.Y(-1.6));
+      ctx.textAlign='left'; ctx.fillStyle='#8fe3b5'; ctx.fillText('+ 넓이 '+posA.toFixed(3), P.X(lax), P.Y(1.6));
       var iv = Math.abs(integ)<1e-6?0:integ;   // 부동소수 잡음 정리
       E.big('∫₋'+a+'^'+a+' (0.6x³) dx ≈ '+iv.toFixed(3)+'  (리만합 N='+N+')', '정적분은 부호 있는 넓이 — 축 아래는 음수. 홀함수라 +넓이('+posA.toFixed(3)+')와 −넓이('+negA.toFixed(3)+')가 상쇄돼 0!'); }
   }

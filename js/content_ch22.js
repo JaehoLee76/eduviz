@@ -7,9 +7,10 @@
   function shape(P,ctx,pts,col,fillA){ ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.fillStyle=fillA||'rgba(122,184,255,0.18)';
     ctx.beginPath(); ctx.moveTo(P.X(pts[0][0]),P.Y(pts[0][1])); for(var i=1;i<pts.length;i++)ctx.lineTo(P.X(pts[i][0]),P.Y(pts[i][1])); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle=col; ctx.beginPath(); ctx.arc(P.X(pts[0][0]),P.Y(pts[0][1]),4,0,7); ctx.fill(); }
-  // 도형 무게중심에 이름표(dy: 픽셀 세로 오프셋 — 원래 도형과 상이 겹칠 때 분리용)
-  function tag(P,ctx,pts,col,txt,dy){ var mx=0,my=0; for(var i=0;i<pts.length;i++){mx+=pts[i][0];my+=pts[i][1];} mx/=pts.length; my/=pts.length;
-    ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt, P.X(mx), P.Y(my)+(dy||0)); ctx.textBaseline='alphabetic'; }
+  // 도형 무게중심에 이름표(dx,dy: 픽셀 오프셋 — 원래 도형과 상이 겹칠 때 분리용. 삼각형이 원점 근처라
+  // 세로로만 떼면 축눈금 행/열에 걸리기 쉬워 가로로 뗀다)
+  function tag(P,ctx,pts,col,txt,dx,dy){ var mx=0,my=0; for(var i=0;i<pts.length;i++){mx+=pts[i][0];my+=pts[i][1];} mx/=pts.length; my/=pts.length;
+    ctx.fillStyle=col; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt, P.X(mx)+(dx||0), P.Y(my)+(dy||0)); ctx.textBaseline='alphabetic'; }
 
   var scenes=[
 
@@ -20,12 +21,12 @@
       var self=this; E.bind('#th','input',function(e){ self.s.deg=+e.target.value; document.getElementById('tho').textContent=e.target.value+'°'; E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, t=this.s.deg*D2R, ctx=E.ctx; P.axes();
       shape(P,ctx,TRI,'rgba(255,255,255,0.25)','rgba(255,255,255,0.05)');
-      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형',-16);
+      // θ=0(항등)이면 원래 도형과 상의 무게중심이 겹침 → 삼각형이 원점 근처라 세로로 떼면 축눈금과 겹치므로 가로로 떼어 분리
+      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형',-38);
       var M=[[Math.cos(t),-Math.sin(t)],[Math.sin(t),Math.cos(t)]];
       var IMG=TRI.map(function(p){return ap(M,p);});
       shape(P,ctx,IMG,'#7ab8ff');
-      // θ=0(항등)이면 원래 도형과 무게중심이 겹치므로 상 라벨을 아래로 살짝 띄움
-      tag(P,ctx,IMG,'#7ab8ff','상 (×θ회전)',16);
+      tag(P,ctx,IMG,'#7ab8ff','상 (×θ회전)',38);
       E.big('회전변환 [[cos'+this.s.deg+'°, −sin], [sin, cos]]', '원점 둘레로 θ만큼 회전! 10장 복소수 곱(각의 합)과 똑같은 행렬입니다'); }
   },
 
@@ -56,11 +57,11 @@
       var self=this; E.bind('#sk','input',function(e){ self.s.s=+e.target.value; document.getElementById('sko').textContent=(+e.target.value); E.blip(440,0.1); }); E.setOn([]); },
     draw:function(E){ var P=E.Plot, k=this.s.s, ctx=E.ctx; P.axes();
       shape(P,ctx,TRI,'rgba(255,255,255,0.25)','rgba(255,255,255,0.05)');
-      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형',-16);
+      // k가 1에 가까우면 원래 도형과 상의 무게중심이 붙음 → 삼각형이 원점 근처라 세로로 떼면 축눈금과 겹치므로 가로로 떼어 분리
+      tag(P,ctx,TRI,'rgba(255,255,255,0.5)','원래 도형',-38);
       var IMG=TRI.map(function(p){return [k*p[0],k*p[1]];});
       shape(P,ctx,IMG,'#ffb27a','rgba(255,178,122,0.2)');
-      // k가 1에 가까우면 원래 도형과 무게중심이 붙으므로 상 라벨을 아래로 살짝 띄움
-      tag(P,ctx,IMG,'#ffb27a','상 (×'+k+')',16);
+      tag(P,ctx,IMG,'#ffb27a','상 (×'+k+')',38);
       // 넓이비 = 행렬식 = k² (실측)
       var detV=k*k;
       ctx.fillStyle='#cfcdc6'; ctx.font='13px sans-serif'; ctx.textAlign='center';

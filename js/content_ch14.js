@@ -50,7 +50,8 @@
       P.dot(xl,yl,'#8fe3b5'); P.dot(xr,yr,'#8fe3b5');
       ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.textAlign='left';
       // d가 작으면 두 점이 (1,2) 가까이 붙으므로 라벨을 점 위/아래로 확실히 갈라 배치
-      ctx.fillText('f = '+yl.toFixed(2), P.X(xl)+8, P.Y(yl)-8); ctx.fillText('f = '+yr.toFixed(2), P.X(xr)+8, P.Y(yr)+14);
+      // (d가 크면 yl이 0.5 근처가 되어 y=1 눈금과 가까워질 수 있어 위쪽 여유를 더 크게)
+      ctx.fillText('f = '+yl.toFixed(2), P.X(xl)+8, P.Y(yl)-22); ctx.fillText('f = '+yr.toFixed(2), P.X(xr)+8, P.Y(yr)+14);
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillStyle='#0b0b10'; ctx.beginPath(); ctx.arc(P.X(1),P.Y(2),6,0,7); ctx.fill(); ctx.stroke();
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = (x²−1)/(x−1) = x+1', P.X(2.1), P.Y(3.1));
       ctx.fillStyle='#ffb27a'; ctx.textAlign='right'; ctx.fillText('구멍 (x=1, 0/0)', P.X(1)-12, P.Y(2)-8);

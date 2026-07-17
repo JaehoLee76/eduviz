@@ -19,10 +19,13 @@
       ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('준선 y = −'+p, P.X(3), P.Y(-p)+16);
       // 초점 — y축 위 점이라 기본(중앙정렬) 라벨은 y축 눈금열과 겹침 → 점 오른쪽으로
       P.dot(0,p,'#ffb27a',null);
-      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('초점 F(0, '+p+')', P.X(0)+10, P.Y(p)-6);
-      // 같은 거리 시연: 점 Px=3
+      // 같은 거리 시연: 점 Px=3 (초점 라벨이 이 점의 'P' 라벨과 겹치지 않게 먼저 계산)
       var px=3, py=px*px/(4*p);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      var focusFY=P.Y(p)-16, pLabelY=P.Y(py)-13;   // 기본 위치 vs 점 P 라벨(Plot.dot 기본오프셋 -13) 높이
+      // p값에 따라 점 P와 초점이 화면에서 비슷한 높이로 올 수 있음(py=9/4p, py=p일 때 정확히 겹침) → 겹치면 그 위로 확실히 밀어올림
+      if(focusFY+14*0.3 > pLabelY-14*0.8-4) focusFY = pLabelY-14*1.1-4;
+      ctx.fillText('초점 F(0, '+p+')', P.X(0)+10, focusFY);
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(0),P.Y(p)); ctx.stroke();
       ctx.strokeStyle='rgba(143,227,181,0.9)'; ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(px),P.Y(-p)); ctx.stroke();
       P.dot(px,py,'#fff','P');
