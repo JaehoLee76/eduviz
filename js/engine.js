@@ -787,5 +787,7 @@
     cur:function(){ return SM.cur; },                                                  // 현재 평면 인덱스
     curScene:function(){ return SM.scenes[SM.cur]||null; },                            // 현재 장면 객체(AI 튜터 컨텍스트용 — narr/more/code 원본)
     curId:function(){ var s=SM.scenes[SM.cur]; return s? s.id : null; },                // 현재 장면 id(콘텐츠 바뀌어도 안정)
-    indexOfId:function(id){ for(var i=0;i<SM.scenes.length;i++){ if(SM.scenes[i].id===id) return i; } return -1; } };
+    indexOfId:function(id){ for(var i=0;i<SM.scenes.length;i++){ if(SM.scenes[i].id===id) return i; } return -1; },
+    sceneCount:function(){ return SM.scenes.length; },                                 // 총 장면 수(감사·계측용)
+    _paint:function(adv){ drawOneFrame(!!adv); } };                                     // 동기 재그리기(RAF 없이 draw 1회 강제 — 백그라운드 계측용 테스트 훅)
 })(window);
