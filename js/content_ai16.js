@@ -229,7 +229,7 @@
       if(s.step===0){
         // autograd 계산그래프: x → x² , 2x → +  → y , backward로 grad 흐름
         ctx.fillStyle=CYA; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('autograd — 계산그래프를 거꾸로 미분', gx, H*0.16);
-        var cy=H*0.34, r=26;
+        var cy=H*0.44, r=26;
         function node(x,y,lab,col){ ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
           ctx.fillStyle=col; ctx.font='600 14px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(lab,x,y+1); ctx.textBaseline='alphabetic'; }
         function arrow(x1,y1,x2,y2,col){ ctx.strokeStyle=col; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();

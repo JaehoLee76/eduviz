@@ -140,9 +140,9 @@
           {t:'    def __eq__(self, o):', hl:'__eq__'},
           {t:'        return (self.x,self.y)==(o.x,o.y)', hl:'__eq__'}
         ];
-        codePanel(E, W*0.05, H*0.14, W*0.48, code, 'plain_class.py  (옛 방식)');
-        ctx.fillStyle=RED; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('8줄 — 반복되는 보일러플레이트', W*0.05, H*0.74);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('필드를 추가할 때마다 __init__·__repr__·__eq__를 손봐야 합니다.', W*0.05, H*0.74+22);
+        var cb0=codePanel(E, W*0.05, H*0.14, W*0.48, code, 'plain_class.py  (옛 방식)');
+        ctx.fillStyle=RED; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('8줄 — 반복되는 보일러플레이트', W*0.05, cb0+26);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('필드를 추가할 때마다 __init__·__repr__·__eq__를 손봐야 합니다.', W*0.05, cb0+46);
       } else {
         var code=[
           {t:'from dataclasses import dataclass', hl:'dataclass'},
@@ -152,9 +152,9 @@
           {t:'    x: int', hl:'x: int'},
           {t:'    y: int', hl:'y: int'}
         ];
-        codePanel(E, W*0.05, H*0.14, W*0.48, code, 'dataclass.py  (현대 방식)');
-        ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('단 4줄 — 같은 기능, 보일러플레이트 0', W*0.05, H*0.62);
-        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('@dataclass가 __init__·__repr__·__eq__를 자동 생성합니다.', W*0.05, H*0.62+22);
+        var cb1=codePanel(E, W*0.05, H*0.14, W*0.48, code, 'dataclass.py  (현대 방식)');
+        ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('단 4줄 — 같은 기능, 보일러플레이트 0', W*0.05, cb1+26);
+        ctx.fillStyle=DIM; ctx.font='12.5px sans-serif'; ctx.fillText('@dataclass가 __init__·__repr__·__eq__를 자동 생성합니다.', W*0.05, cb1+46);
       }
 
       // 우측: 자동 생성되는 것 + 실제 동작 (실계산)

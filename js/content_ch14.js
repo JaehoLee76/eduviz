@@ -51,7 +51,7 @@
       ctx.fillText('f = '+yl.toFixed(2), P.X(xl)+8, P.Y(yl)+4); ctx.fillText('f = '+yr.toFixed(2), P.X(xr)+8, P.Y(yr)+4);
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillStyle='#0b0b10'; ctx.beginPath(); ctx.arc(P.X(1),P.Y(2),6,0,7); ctx.fill(); ctx.stroke();
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = (x²−1)/(x−1) = x+1', P.X(2.1), P.Y(3.1));
-      ctx.fillStyle='#ffb27a'; ctx.textAlign='center'; ctx.fillText('구멍 (x=1, 0/0)', P.X(1), P.Y(2)+24);
+      ctx.fillStyle='#ffb27a'; ctx.textAlign='right'; ctx.fillText('구멍 (x=1, 0/0)', P.X(1)-12, P.Y(2)-8);
       E.big('x = 1 ± '+d.toFixed(2)+'  →  f = '+yl.toFixed(2)+' ,  '+yr.toFixed(2), 'd를 0으로 줄여 보세요 — 양쪽 f가 모두 2로 수렴! x=1은 0/0(구멍)이지만 극한은 2'); }
   },
 
