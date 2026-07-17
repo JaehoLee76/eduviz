@@ -65,7 +65,7 @@
   // ── HUD: 긴 설명 문장은 캔버스에 그리지 않고 이 DOM 오버레이의 코너에 세로로 쌓아 렌더(겹침 구조적 불가). fillText/strokeText를 감싸 문장이면 가로채 버퍼에 담는다.
   var hudEl, _hudBuf=[], _hudOn=false, _hudSig='';
   function isHudSentence(t,fs){ t=String(t); if(fs>=22) return false; var n=t.replace(/\s/g,'').length;
-    if(/[가-힣]/.test(t) && n>=12) return true;                              // 한글 설명 문장
+    if(/[가-힣]/.test(t) && n>=8 && !/\(\s*[-\d]/.test(t)) return true;       // 한글 readout/설명(단, 좌표 라벨 '(숫자,숫자)'는 점에 붙어야 하므로 캔버스 유지)
     if(n>=16 && /[=≈]/.test(t) && /[+\-*/×·²³√]/.test(t)) return true;       // 긴 수식 readout
     return false; }
   function setupHud(){
