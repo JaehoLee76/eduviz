@@ -83,7 +83,9 @@
       // 무게중심 ȳ = (∬y dA)/(∬dA) — 반원판은 (0, 4R/3π)
       var cy=4*R/(3*Math.PI);
       ctx.fillStyle=VIO; ctx.font='12px sans-serif'; ctx.fillText('반원판 (넓이 πR²/2='+(Math.PI*R*R/2).toFixed(2)+')', P.X(-R), P.Y(R*0.45));
-      P.dot(0,cy,GLD,'무게중심 ȳ=(0, '+cy.toFixed(3)+')');
+      P.dot(0,cy,GLD,null);
+      ctx.fillStyle=GLD; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('무게중심 ȳ=(0, '+cy.toFixed(3)+')', P.X(0)+14, P.Y(cy)-8);  // y축 눈금 열과 안 겹치게 오른쪽으로 이격
       E.big('ȳ = (∬ y dA)/(∬ dA) = 4R/3π = '+cy.toFixed(3), '무게중심 = 영역을 한 점으로 균형 잡는 자리 (좌표를 넓이로 가중평균)'); }
   },
 

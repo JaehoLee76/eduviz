@@ -14,7 +14,8 @@
       // 극한선 y=1 + ε밴드
       var eps=0.15; ctx.fillStyle='rgba(255,178,122,0.12)'; ctx.fillRect(P.X(0),P.Y(1+eps),P.X(13)-P.X(0),P.Y(1-eps)-P.Y(1+eps));
       ctx.strokeStyle='#ffb27a'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(1)); ctx.lineTo(P.X(13),P.Y(1)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('극한 L = 1', P.X(10), P.Y(1)-8);
+      // '극한 L=1' 라벨은 플롯 우상단 고정 — N이 커져 aₙ 점이 x=10 근처로 오면 겹치므로 데이터에서 분리
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('극한 L = 1', P.geom().right-8, P.geom().top+18);
       for(var n=1;n<=N;n++){ var v=1+1/n; P.dot(n,v,'#7ab8ff'); }
       var last=1+1/N;
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('aₙ = 1 + 1/n', P.X(1)+8, P.Y(2)-2);
@@ -48,7 +49,8 @@
       [[xl,yl],[xr,yr]].forEach(function(p){ ctx.beginPath(); ctx.moveTo(P.X(p[0]),P.Y(0)); ctx.lineTo(P.X(p[0]),P.Y(p[1])); ctx.lineTo(P.X(-2),P.Y(p[1])); ctx.stroke(); }); ctx.setLineDash([]);
       P.dot(xl,yl,'#8fe3b5'); P.dot(xr,yr,'#8fe3b5');
       ctx.fillStyle='#8fe3b5'; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('f = '+yl.toFixed(2), P.X(xl)+8, P.Y(yl)+4); ctx.fillText('f = '+yr.toFixed(2), P.X(xr)+8, P.Y(yr)+4);
+      // d가 작으면 두 점이 (1,2) 가까이 붙으므로 라벨을 점 위/아래로 확실히 갈라 배치
+      ctx.fillText('f = '+yl.toFixed(2), P.X(xl)+8, P.Y(yl)-8); ctx.fillText('f = '+yr.toFixed(2), P.X(xr)+8, P.Y(yr)+14);
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2; ctx.fillStyle='#0b0b10'; ctx.beginPath(); ctx.arc(P.X(1),P.Y(2),6,0,7); ctx.fill(); ctx.stroke();
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x) = (x²−1)/(x−1) = x+1', P.X(2.1), P.Y(3.1));
       ctx.fillStyle='#ffb27a'; ctx.textAlign='right'; ctx.fillText('구멍 (x=1, 0/0)', P.X(1)-12, P.Y(2)-8);

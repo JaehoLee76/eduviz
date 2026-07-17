@@ -76,8 +76,10 @@
       var mt=t/2; ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
       ctx.fillText('θ='+this.s.deg+'°', P.X(0)+34*Math.cos(mt), P.Y(0)-34*Math.sin(mt)); ctx.textBaseline='alphabetic';
       vec(P,ctx,0,0,ax,ay,'#7ab8ff',null);
-      ctx.fillStyle='#7ab8ff'; ctx.font='600 16px sans-serif'; ctx.textAlign='right';
-      ctx.fillText('a  |a|='+ma.toFixed(0), P.X(ax)-10, P.Y(ay)+22);
+      // a가 x축 위(y=0)에 놓여 있어: 위로 두면 θ 호 라벨과, 축 바로 아래 두면 x축 눈금 행과 겹침
+      // → 벡터 중간 아래 먼 자리(둘 다에서 떨어진 곳)에 중앙정렬로 배치
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 16px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('a  |a|='+ma.toFixed(0), P.X(ax/2), P.Y(ay)+34);
       vec(P,ctx,0,0,bx,by,'#8fe3b5','b  |b|='+mb.toFixed(0));
       if(perp){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(P.X(0),P.Y(0)-16,16,16); }
       E.big('a · b = '+dot.toFixed(2)+'  ( = |a||b|cos'+this.s.deg+'° )', perp?'θ=90° → 내적 = 0 → 수직! (6장 #44에서 다룸)':'내적 = 성분곱의 합 = |a||b|cosθ'); }

@@ -15,9 +15,12 @@
       P.curve(function(x){ return x*x/(4*p); }, '#7ab8ff');
       // 준선 y=-p
       ctx.strokeStyle='rgba(244,160,192,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(-6),P.Y(-p)); ctx.lineTo(P.X(6),P.Y(-p)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('준선 y = −'+p, P.X(3), P.Y(-p)-6);
-      // 초점
-      P.dot(0,p,'#ffb27a','초점 F(0, '+p+')');
+      // 준선 라벨은 선 아래쪽(축에서 먼 방향)에 둬 x축 눈금 행과 안 겹치게
+      ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('준선 y = −'+p, P.X(3), P.Y(-p)+16);
+      // 초점 — y축 위 점이라 기본(중앙정렬) 라벨은 y축 눈금열과 겹침 → 점 오른쪽으로
+      P.dot(0,p,'#ffb27a',null);
+      ctx.fillStyle='#ffb27a'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('초점 F(0, '+p+')', P.X(0)+10, P.Y(p)-6);
       // 같은 거리 시연: 점 Px=3
       var px=3, py=px*px/(4*p);
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(0),P.Y(p)); ctx.stroke();
@@ -100,7 +103,9 @@
       for(var j=0;j<=120;j++){ var u=TAU*j/120, x0=a*Math.cos(u), y0=b*Math.sin(u), x=x0*cs-y0*sn, y=x0*sn+y0*cs; var X2=P.X(x),Y2=P.Y(y); if(j===0)ctx.moveTo(X2,Y2); else ctx.lineTo(X2,Y2); } ctx.stroke();
       // 장축 방향
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(-a*cs),P.Y(-a*sn)); ctx.lineTo(P.X(a*cs),P.Y(a*sn)); ctx.stroke();
-      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('장축 (φ='+this.s.deg+'°)', P.X(a*cs)+6, P.Y(a*sn)-4);
+      // 거의 수직(φ≈90°)이면 장축 끝이 상단에 몰려 y축 이름 라벨과 겹치므로 그때만 아래쪽에
+      var majBelow = Math.abs(cs) < 0.3;
+      ctx.fillStyle='#ffb27a'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('장축 (φ='+this.s.deg+'°)', P.X(a*cs)+6, P.Y(a*sn)+(majBelow?16:-4));
       E.big('φ = '+this.s.deg+'° 회전', this.s.deg===0?'축에 나란한 표준형 (xy 항 없음)':'기울면 식에 xy 항 등장 — 회전변환(10장)으로 표준형 복원'); }
   }
 

@@ -47,7 +47,8 @@
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('밀도 f(x)', P.X(1.1), P.Y(dens(1.1))-6);
       // 평균(중심)
       ctx.strokeStyle='rgba(255,178,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(0),P.Y(0.95)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('평균 μ = 0', P.X(0), P.Y(0.95)+0);
+      // 위치를 아래로 내려 좌상단의 '밀도' 축 이름 라벨과 안 겹치게
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('평균 μ = 0', P.X(0), P.Y(0.95)+22);
       ctx.fillStyle='#cfcdc6'; ctx.font='12px sans-serif'; ctx.fillText('최고밀도 f(0) = '+peak.toFixed(3), P.X(0), P.geom().bot+22);
       E.big('정규분포 N(0, σ²),  σ = '+s, '확률분포 — 종 모양 곡선. 평균=중심, σ=퍼짐. 곡선 아래 전체 넓이=1(19장 적분!). 큰수의법칙·통계의 정점'); }
   },

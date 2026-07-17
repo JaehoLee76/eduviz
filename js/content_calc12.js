@@ -102,7 +102,7 @@
       ctx.font='13px sans-serif';
       ctx.fillStyle=BLU; ctx.fillText('u', S(u)[0]+8, S(u)[1]+4);
       ctx.fillStyle=GLD; ctx.fillText('v', Sv[0]+6, Sv[1]-6);
-      ctx.fillStyle=GRN; ctx.fillText('사영 '+proj.toFixed(2), (O[0]+Sp[0])/2-18, O[1]+18);
+      ctx.fillStyle=GRN; ctx.fillText('사영 '+proj.toFixed(2), (O[0]+Sp[0])/2-18, O[1]+34);  // x축 눈금 행(y0+14)과 안 겹치게 더 아래로
       var sign = dot>0.05?'양수 (예각)':dot<-0.05?'음수 (둔각)':'0 (수직!)';
       E.big('u · v = |u||v|cosθ = '+dot.toFixed(2)+'  ('+sign+')', '내적 = 한 벡터를 다른 벡터에 사영한 길이(초록)×크기. 수직이면 0'); }
   },

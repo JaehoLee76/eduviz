@@ -90,8 +90,11 @@
       // 헤더
       ctx.fillStyle='#dfeef0'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
       ctx.fillText('예측 양성', gx+cell*0.5, gy-22); ctx.fillText('예측 음성', gx+cell*1.5, gy-22);
-      ctx.save(); ctx.translate(gx-26, gy+cell*0.5); ctx.rotate(-Math.PI/2); ctx.fillText('실제 양성',0,0); ctx.restore();
-      ctx.save(); ctx.translate(gx-26, gy+cell*1.5); ctx.rotate(-Math.PI/2); ctx.fillText('실제 음성',0,0); ctx.restore();
+      // 행 라벨(세로글씨)이 자기 행 높이 안에 들어가도록 폰트 자동 축소(최소 11px) — 낮은 셀에서도 두 행이 안 겹치게
+      var rowFS=13, rTw=Math.max(ctx.measureText('실제 양성').width, ctx.measureText('실제 음성').width), rAvail=cell-14;
+      if(rTw>rAvail) rowFS=Math.max(11, 13*rAvail/rTw);
+      ctx.save(); ctx.translate(gx-26, gy+cell*0.5); ctx.rotate(-Math.PI/2); ctx.font='600 '+rowFS.toFixed(1)+'px sans-serif'; ctx.fillText('실제 양성',0,0); ctx.restore();
+      ctx.save(); ctx.translate(gx-26, gy+cell*1.5); ctx.rotate(-Math.PI/2); ctx.font='600 '+rowFS.toFixed(1)+'px sans-serif'; ctx.fillText('실제 음성',0,0); ctx.restore();
       for(i=0;i<4;i++){ var ce=cells[i], x=gx+ce.c*cell, yv=gy+ce.r*cell;
         ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(x,yv,cell,cell);
         ctx.strokeStyle=ce.col; ctx.lineWidth=1.6; ctx.strokeRect(x,yv,cell,cell);

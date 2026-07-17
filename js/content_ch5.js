@@ -55,8 +55,9 @@
       if(a!==0){ var h=-b/(2*a), k=c-b*b/(4*a); var hT=(h%1===0?h:h.toFixed(1)), kT=(k%1===0?k:k.toFixed(1));
         E.ctx.globalAlpha=E.blink(); P.dot(h,k,'#8fe3b5',null);
         var ctx5=E.ctx, vpx=P.X(h), vpy=P.Y(k);
-        ctx5.fillStyle='#8fe3b5'; ctx5.font='600 14px sans-serif'; ctx5.textAlign='left';
-        ctx5.fillText('꼭짓점 ('+hT+', '+kT+')', vpx+12, vpy-16);
+        ctx5.fillStyle='#8fe3b5'; ctx5.font='600 14px sans-serif';
+        ctx5.textAlign = h>=0 ? 'left' : 'right';   // y축 왼쪽 점이면 라벨을 왼쪽으로 펼쳐 y축 눈금열과 안 겹치게
+        ctx5.fillText('꼭짓점 ('+hT+', '+kT+')', vpx+(h>=0?12:-12), vpy-16);
         E.ctx.globalAlpha=1; }
       var aL=(a===0?'0':a===1?'':a===-1?'−':a);
       var bx=(b?((b>0?' + '+(b===1?'':b):' − '+(b===-1?'':(-b)))+'x'):'');
@@ -76,8 +77,9 @@
       P.curve(function(x){return (x-p)*(x-p)+q;}, '#7ab8ff');
       E.ctx.globalAlpha=E.blink(); P.dot(p,q,'#8fe3b5',null);
       var vpx4=P.X(p), vpy4=P.Y(q);
-      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('꼭짓점 ('+p+', '+q+')', vpx4+12, vpy4-16);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif';
+      ctx.textAlign = p>=0 ? 'left' : 'right';   // y축 왼쪽 점이면 라벨을 왼쪽으로 펼쳐 y축 눈금열과 안 겹치게
+      ctx.fillText('꼭짓점 ('+p+', '+q+')', vpx4+(p>=0?12:-12), vpy4-16);
       E.ctx.globalAlpha=1;
       E.big('y = (x − '+p+')² + ('+q+')', '꼭짓점 ('+p+', '+q+') · 축 x = '+p); }
   },

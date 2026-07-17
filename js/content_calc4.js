@@ -79,8 +79,8 @@
       else { ctx.moveTo(P.X(x-2),P.Y(y+m*(-2))); ctx.lineTo(P.X(x+2),P.Y(y+m*(2))); } ctx.stroke();
       ctx.fillStyle=GLD; ctx.fillText('접선 dy/dx = '+(m>9000?'∞':m.toFixed(2)), P.X(x)+10, P.Y(y)-14);
       P.dot(x,y,GRN,null);
-      ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('('+x.toFixed(2)+', '+y.toFixed(2)+')', P.X(x), P.Y(y)+24);  // 접선 라벨과 안 겹치게 점 아래쪽에
+      ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('('+x.toFixed(2)+', '+y.toFixed(2)+')', P.X(x)+12, P.Y(y)+26);  // 점 아래·오른쪽으로 — x축 눈금 열과 안 겹치게 수평으로도 이격
       E.big('dy/dx = −x/y = '+(m>9000?'∞ (수직)':m.toFixed(2)),
         'y를 x의 함수로 풀지 않고도, 연쇄법칙으로 접선을 구합니다'); }
   },

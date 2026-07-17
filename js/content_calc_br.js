@@ -166,7 +166,7 @@
       ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(c),P.Y(sn)); ctx.lineTo(P.X(c),P.Y(0)); ctx.moveTo(P.X(c),P.Y(sn)); ctx.lineTo(P.X(0),P.Y(sn)); ctx.stroke(); ctx.setLineDash([]);
       arr(ctx,O[0],O[1],P.X(c),P.Y(sn),GLD,2.5); P.dot(c,sn,GRN);
       tag(ctx,P.X(c)+(c>=0?8:-8),P.Y(sn)+(sn>=0?-8:16),'e^{iθ}',GLD,c>=0?'left':'right');
-      tag(ctx,P.X(c),P.Y(0)+(sn>=0?16:-8),'Re=cos θ='+c.toFixed(2),GRN,'center');
+      tag(ctx,P.X(c),P.Y(0)+(sn>=0?30:-20),'Re=cos θ='+c.toFixed(2),GRN,'center');  // x축 눈금 행(y0+14)과 안 겹치게 더 멀리
       tag(ctx,P.X(0)+(c>=0?-8:8),P.Y(sn),'Im=sin θ='+sn.toFixed(2),GRN,c>=0?'right':'left');
       var atPi=Math.abs(th-Math.PI)<0.06;
       E.big(atPi?'e^{iπ} = −1   →   e^{iπ} + 1 = 0':'e^{iθ} = cos θ + i sin θ = ('+c.toFixed(2)+', '+sn.toFixed(2)+')',

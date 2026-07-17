@@ -37,7 +37,7 @@
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=x³', P.X(1.7), P.Y(3.6));
       P.dot(0,0,'rgba(255,178,122,0.7)','변곡점');
       tline(P,ctx,x,f(x),3*x*x,'#8fe3b5');
-      ctx.fillStyle='#8fe3b5'; ctx.fillText("접선 f'("+x+")="+(3*x*x).toFixed(2), P.X(x)+8, P.Y(f(x))-8);
+      ctx.fillStyle='#8fe3b5'; ctx.fillText("접선 f'("+x+")="+(3*x*x).toFixed(2), P.X(x)+12, P.Y(f(x))+20);
       P.dot(x,f(x),'#fff');
       var st = Math.abs(f2)<0.01?"f''=0 → 변곡점(휨 방향 바뀜)" : f2>0?"f''>0 → 아래로 볼록 (∪)" : "f''<0 → 위로 볼록 (∩)";
       E.big("f(x)=x³,  f''("+x+") = "+f2.toFixed(1), st+' · 2계도함수 부호 = 곡선의 휨(요철)'); }
@@ -51,7 +51,8 @@
     draw:function(E){ var P=E.Plot, b=this.s.b, ctx=E.ctx; P.axes();
       function f(t){return t*t*t + b*t;}
       P.curve(f, '#7ab8ff');
-      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = f(x)', P.X(1.6), P.Y(f(1.6))+(b<0?0.5:-0.5));
+      // 곡선 라벨을 곡선보다 확실히 위로 띄워 증감화살표(↗↘)와 안 겹치게
+      ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = f(x)', P.X(1.6), P.Y(f(1.6))-16);
       // f'(x)=3x²+b=0 → x=±√(−b/3) : b<0 일 때만 극값 두 개 (실계산)
       var disc = -b/3, capExtra;
       if(disc > 1e-9){

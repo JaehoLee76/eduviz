@@ -310,8 +310,13 @@
         var n=stairs.length, bx=W*0.14, bottom=H*0.86, sw=(W*0.72)/n, sh=H*0.085;
         for(var i=0;i<n;i++){ var x=bx+i*sw, h=(i+1)*sh, y=bottom-h;
           ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle=stairs[i].c; ctx.lineWidth=1.6; roundRect(ctx,x,y,sw-8,h,6); ctx.fill(); ctx.stroke();
-          ctx.save(); ctx.translate(x+(sw-8)/2, y+12); ctx.fillStyle=stairs[i].c; ctx.font='600 13.5px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
-          ctx.rotate(Math.PI/2); ctx.fillText(stairs[i].t, 0, 0); ctx.restore();
+          // 라벨이 자기 계단 상자 안에 들어가도록 폭 맞춰 폰트 자동 축소(최소 11px) + 홀/짝 시작점 지그재그로 인접 계단과 안 겹치게
+          var txt=stairs[i].t, fs=13.5, avail=Math.max(1,h-16);
+          ctx.font='600 '+fs+'px sans-serif'; var tw=ctx.measureText(txt).width;
+          if(tw>avail) fs=Math.max(11, fs*avail/tw);
+          var zig=(i%2===0)?8:16;
+          ctx.save(); ctx.translate(x+(sw-8)/2, y+zig); ctx.fillStyle=stairs[i].c; ctx.font='600 '+fs.toFixed(1)+'px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+          ctx.rotate(Math.PI/2); ctx.fillText(txt, 0, 0); ctx.restore();
         }
         ctx.textBaseline='alphabetic';
         // 오르는 사람(도형이) 위치 = 맨 위 계단

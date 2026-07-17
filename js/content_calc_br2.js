@@ -165,7 +165,7 @@
       var sum=0; ctx.strokeStyle=VIO; ctx.lineWidth=2; ctx.beginPath();
       for(var k=0;k<60;k++){ sum+=(k%2?-1:1)/(2*k+1); var y=4*sum; if(k===0)ctx.moveTo(P.X(k+1),P.Y(y)); else ctx.lineTo(P.X(k+1),P.Y(y)); if(k<N){} }
       ctx.stroke();
-      ctx.fillStyle=VIO; ctx.fillText('부분합 Sₙ', P.X(3),P.Y(3.95));
+      ctx.fillStyle=VIO; ctx.fillText('부분합 Sₙ', P.X(8),P.Y(3.55));  // y축 이름 '근삿값'(좌상단)과 안 겹치게 오른쪽·아래로
       var ssum=0; for(var j=0;j<N;j++) ssum+=(j%2?-1:1)/(2*j+1); var approx=4*ssum; P.dot(N,approx,GLD);
       ctx.fillStyle=GLD; ctx.fillText('S_'+N+'='+approx.toFixed(4), P.X(N)+7,P.Y(approx)+(approx>Math.PI?-6:14));
       P.axes();
@@ -198,9 +198,9 @@
       var qx=px+d*0.707, qy=py+d*0.707, approx=F(px,py)+fx*(qx-px)+fy*(qy-py), actual=F(qx,qy);
       P.dot(px,py,'#ffffff'); P.dot(qx,qy,GLD);
       ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(P.X(px),P.Y(py)); ctx.lineTo(P.X(qx),P.Y(qy)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillStyle='#ffffff'; ctx.fillText('접점 P', P.X(px)+7,P.Y(py)-6);
-      ctx.fillStyle=GLD; ctx.fillText('Q (d='+d.toFixed(2)+')', P.X(qx)+7,P.Y(qy)+4);
+      ctx.font='12px sans-serif';
+      ctx.fillStyle='#ffffff'; ctx.textAlign='right'; ctx.fillText('접점 P', P.X(px)-9,P.Y(py)-10);   // Q와 반대 방향(왼쪽 위)으로 — d가 작아도 안 겹치게
+      ctx.fillStyle=GLD; ctx.textAlign='left'; ctx.fillText('Q (d='+d.toFixed(2)+')', P.X(qx)+9,P.Y(qy)+16);
       ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.fillText('z = sin x·cos y', P.X(-2.85),P.Y(2.7));
       E.big('접평면 근사 '+approx.toFixed(3)+'  vs  실제 '+actual.toFixed(3)+'  (오차 '+Math.abs(approx-actual).toFixed(3)+')',
         '곡면도 한 점 근처에선 평평한 ‘접평면’으로 근사 — z ≈ f + fₓ·Δx + f_y·Δy (다변수 선형근사)'); }

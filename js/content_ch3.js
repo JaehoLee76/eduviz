@@ -183,8 +183,10 @@
       if(Math.abs(s.m+1)>1e-6){ var ix=2/(s.m+1), iy=-ix+3;
         E.ctx.globalAlpha=E.blink(); P.dot(ix,iy,'#ffb27a',null);
         var ctx3=E.ctx, ipx=P.X(ix), ipy=P.Y(iy);
-        ctx3.fillStyle='#ffb27a'; ctx3.font='600 14px sans-serif'; ctx3.textAlign='left';
-        ctx3.fillText('('+ix.toFixed(1)+', '+iy.toFixed(1)+')', ipx+10, ipy-16);
+        ctx3.fillStyle='#ffb27a'; ctx3.font='600 14px sans-serif';
+        // 점이 x축 아래(iy<0)면 축눈금 행(y0+14)과 겹치므로 라벨을 점 아래쪽 더 먼 곳으로, 위면 위쪽으로
+        ctx3.textAlign = ix>=0 ? 'left' : 'right';
+        ctx3.fillText('('+ix.toFixed(1)+', '+iy.toFixed(1)+')', ipx+(ix>=0?10:-10), iy>=0?ipy-16:ipy+22);
         E.ctx.globalAlpha=1; }
       var sys='<span style="display:inline-flex;align-items:center;gap:12px;font-size:30px;font-weight:400">'
         +'<span style="font-size:58px;font-weight:200;line-height:0.7">{</span>'

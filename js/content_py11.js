@@ -328,7 +328,7 @@
       ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
       ctx.fillText('예측 →', gx+cw*1.5, gy-26);
       for(var c=0;c<3;c++){ ctx.fillStyle=SPC[c]; ctx.font='13px sans-serif'; ctx.fillText(SPN[c].slice(0,5), gx+c*cw+cw/2, gy-8); }
-      ctx.save(); ctx.translate(gx-50, gy+cw*1.5); ctx.rotate(-Math.PI/2); ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.fillText('실제 →',0,0); ctx.restore();
+      ctx.save(); ctx.translate(gx-30, gy-14); ctx.fillStyle='#e7ecda'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('실제 ↓',0,0); ctx.restore();  // 행 라벨(세로글씨)과 안 겹치게 격자 위쪽에 가로로
       for(var r=0;r<3;r++){
         ctx.save(); ctx.translate(gx-14, gy+r*cw+cw/2); ctx.rotate(-Math.PI/2); ctx.fillStyle=SPC[r]; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(SPN[r].slice(0,5),0,0); ctx.restore();
         for(c=0;c<3;c++){ var x=gx+c*cw, y=gy+r*cw, v=M[r][c], on=(r===c);

@@ -25,7 +25,8 @@
       ctx.textAlign='left'; ctx.fillText('|Δy|='+Math.abs(dy),P.X(bx)+8,(P.Y(ay)+P.Y(by))/2);
       // 빗변(거리)
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(ax),P.Y(ay)); ctx.lineTo(P.X(bx),P.Y(by)); ctx.stroke();
-      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.fillText('d = '+(d%1===0?d:d.toFixed(2)),P.geom().right-8,P.geom().top+22);
+      // d 값 읽음판은 플롯 아래 중앙에 고정 — B가 슬라이더로 우상단 모서리까지 이동해도 B 라벨과 안 겹치게
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('d = '+(d%1===0?d:d.toFixed(2)),(P.geom().left+P.geom().right)/2,P.geom().bot+22);
       P.dot(ax,ay,'#ffb27a','A(1, 1)'); P.dot(bx,by,'#8fe3b5','B('+bx+', '+by+')');
       E.big('d = √('+(dx*dx)+' + '+(dy*dy)+') = '+(d%1===0?d:d.toFixed(2)), '거리 = √(Δx² + Δy²) — 피타고라스 정리'); }
   },

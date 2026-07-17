@@ -20,12 +20,17 @@
       var sl=(fb-fa)/(b-a); ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2.5;
       ctx.beginPath(); ctx.moveTo(P.X(a-0.5),P.Y(fa-sl*0.5)); ctx.lineTo(P.X(b+0.3),P.Y(fb+sl*0.3)); ctx.stroke();
       ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('할선 (기울기 '+slope.toFixed(2)+')', P.X(b+0.3)+4, P.Y(fb+sl*0.3));
-      ctx.fillStyle='#8fe3b5'; ctx.fillText('접선 (기울기 2)', P.X(2.4), P.Y(fa+2*(2.4-a)));
+      var tanX=P.X(2.4), tanY=P.Y(fa+2*(2.4-a));
+      ctx.fillStyle='#8fe3b5'; ctx.fillText('접선 (기울기 2)', tanX, tanY);
       // Δx, Δy
       ctx.strokeStyle='rgba(244,160,192,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fa)); ctx.lineTo(P.X(b),P.Y(fb)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='#f4a0c0'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Δx = '+h.toFixed(1), P.X((a+b)/2), P.Y(fa)+16);
-      ctx.textAlign='left'; ctx.fillText('Δy = '+(fb-fa).toFixed(2), P.X(b)+6, P.Y((fa+fb)/2));
+      ctx.textAlign='left';
+      var dyX=P.X(b)+6, dyY=P.Y((fa+fb)/2);
+      // h값에 따라 Δy 라벨이 고정된 '접선' 라벨 자리와 가까워질 수 있어, 겹칠 때만 아래로 밀어냄
+      if(Math.abs(dyX-tanX)<70 && Math.abs(dyY-tanY)<24) dyY=tanY+26;
+      ctx.fillText('Δy = '+(fb-fa).toFixed(2), dyX, dyY);
       P.dot(a,fa,'#7ab8ff','A'); P.dot(b,fb,'#ffb27a','B');
       E.big('평균변화율 = Δy/Δx = '+slope.toFixed(2)+'  → (h→0) → 2', 'h = 두 점 A·B 사이의 가로 간격(Δx = b−a). h를 0으로 줄이면 할선(주황)이 접선(초록)이 됩니다 = 순간변화율'); }
   },
@@ -111,7 +116,8 @@
       P.curve(function(x){return x*x;}, '#7ab8ff');
       tangentLine(P,ctx,a,fa,slope,'#ffb27a');
       ctx.fillStyle='#7ab8ff'; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('f(x)=x²', P.X(2.2), P.Y(5.5));
-      ctx.fillStyle='#ffb27a'; ctx.fillText("기울기 f '(a) = "+slope, P.X(a)+10, P.Y(fa)+22);
+      // 접점이 x축 가까이(fa 작음)면 기본 오프셋이 축눈금 행과 겹치므로 더 아래로
+      ctx.fillStyle='#ffb27a'; ctx.fillText("기울기 f '(a) = "+slope, P.X(a)+10, P.Y(fa)+(fa<1?38:22));
       ctx.globalAlpha=E.blink(); P.dot(a,fa,'#ffb27a','('+a+', '+fa+')'); ctx.globalAlpha=1;
       var b=-a*a;
       // 계수 1/−1/0·상수항 0 표기 정리: 1x→x, −1x→−x, 0x→항 생략, + 0→생략, + (음수)→− 양수

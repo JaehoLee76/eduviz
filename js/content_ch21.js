@@ -89,7 +89,8 @@
       function vec(x,y,col){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(0)); ctx.lineTo(P.X(x),P.Y(y)); ctx.stroke(); }
       var e1=M(1,0), e2=M(0,1); vec(e1[0],e1[1],'#7ab8ff'); vec(e2[0],e2[1],'#8fe3b5');
       ctx.font='13px sans-serif'; ctx.textAlign='left';
-      ctx.fillStyle='#7ab8ff'; ctx.fillText('e₁→('+e1[0]+', '+e1[1]+')', P.X(e1[0])+6, P.Y(e1[1])+16);
+      // e₁은 항상 x축 위(y=0)라 아래쪽 오프셋이 x축 눈금 행과 겹침 → 위쪽으로
+      ctx.fillStyle='#7ab8ff'; ctx.fillText('e₁→('+e1[0]+', '+e1[1]+')', P.X(e1[0])+6, P.Y(e1[1])-10);
       ctx.fillStyle='#8fe3b5'; ctx.fillText('e₂→('+e2[0]+', '+e2[1]+')', P.X(e2[0])+6, P.Y(e2[1])-6);
       E.big('행렬 [[1, '+k+'], [0, 1]] = 전단변환', '행렬은 공간을 바꾸는 변환! 격자가 기웁니다. 기저 e₁→파랑, e₂→초록 (22장 일차변환 예고)'); }
   },

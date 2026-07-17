@@ -217,7 +217,7 @@
         ctx.fillStyle=CPD; ctx.font='600 15px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.fillText(sl.n+' =', bx, y+22);
         chip(ctx, bx+50, y, 60, 30, sl.def?PNK:GRN, ''+sl.v, 16);
         ctx.fillStyle=sl.def?PNK:GRN; ctx.font='12px sans-serif';
-        ctx.fillText(sl.def?'← 디폴트값 자동 채움':'← 호출에서 준 값', bx+124, y+20);
+        ctx.fillText(sl.def?'← 디폴트값 자동 채움':'← 호출에서 준 값', bx+142, y+20);  // 값 칩(bx+50~110)에서 더 멀리 — 겹침 방지
       }
       // 부피 계산 (실측) — 라벨+값 한 줄
       var ry=sy+3*42+18;

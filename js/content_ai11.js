@@ -64,7 +64,8 @@
         ctx.fillStyle=cols[i]; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText(keys[i].t, kx+6, ky); }
       // 쿼리 벡터
       ctx.strokeStyle=GLD; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+q[0]*R,cy-q[1]*R); ctx.stroke();
-      ctx.fillStyle=GLD; ctx.font='600 15px sans-serif'; ctx.fillText('쿼리', cx+q[0]*R+6, cy-q[1]*R);
+      ctx.fillStyle=GLD; ctx.font='600 15px sans-serif';
+      ctx.fillText('쿼리', cx+q[0]*(R+24), cy-q[1]*(R+24));  // 원 바깥쪽으로 더 밀어 — 방향이 키 벡터와 겹칠 때도 라벨 분리
       // 내적·softmax 실측
       var scores=keys.map(function(o){ return dot(q,o.v); }), w=softmax(scores.map(function(v){return v*3;}));  // 온도 스케일
       var px=W*0.60, py=H*0.28;
