@@ -126,7 +126,7 @@
         ctx.fillStyle=it[2]; ctx.fillText(it[0], x+26, baseY+18); });
       // KE0 기준선
       ctx.strokeStyle='rgba(122,184,255,0.4)'; ctx.setLineDash([4,3]); var y0=baseY-s.KE0/mx*bh; ctx.beginPath(); ctx.moveTo(W*0.64+78,y0); ctx.lineTo(W*0.64+78+52,y0); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('충돌 전 KE₀='+s.KE0.toFixed(1), W*0.64+78+26, y0-4);
+      ctx.fillStyle='rgba(122,184,255,0.7)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('충돌 전 KE₀='+s.KE0.toFixed(1), W*0.64+78+52+8, y0+4);
       E.tapHint(W/2, H*0.90, '화면 탭 = 다시 충돌  (e=1 탄성, e=0 완전비탄성)', true);
       var lost=s.KE0-KE;
       E.big('운동량 보존 · 운동E '+(s.e>=1?'보존':'손실 '+lost.toFixed(1)+' J'), '어떤 충돌이든 총 운동량(초록)은 끄떡없이 보존됩니다. 하지만 운동에너지(파랑)는 e<1이면 열·소리·찌그러짐으로 새어 나갑니다 — 운동E까지 온전한 건 e=1 완전탄성뿐. e=0이면 두 공이 들러붙어 한 덩어리로 갑니다(완전비탄성). 점선은 충돌 전 운동E라 얼마나 줄었는지 보입니다.'); }
@@ -154,7 +154,7 @@
       ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(v.X(0),v.Y(0)+30); ctx.lineTo(v.X(11),v.Y(0)+30); ctx.stroke();
       // 폭발 지점 표시
       ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.setLineDash([3,5]); ctx.beginPath(); ctx.moveTo(v.X(5),v.Y(0)+78); ctx.lineTo(v.X(5),v.Y(0)-58); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=DIM; ctx.font='20px sans-serif'; ctx.textAlign='center'; ctx.fillText('출발점 (Σp=0)', v.X(5), v.Y(0)+98);
+      ctx.fillStyle=DIM; ctx.font='20px sans-serif'; ctx.textAlign='center'; ctx.fillText('출발점 (Σp=0)', v.X(5), H*0.60+40);
       var ka=ball(E,v,A,'',2), kb=ball(E,v,B,'',2);
       harrow(E, ka.px, ka.py-ka.pr-44, A.vx*16, BLU, 'v='+A.vx.toFixed(1), 2);
       harrow(E, kb.px, kb.py-kb.pr-44, B.vx*16, BLU, 'v='+B.vx.toFixed(1), 2);

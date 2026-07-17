@@ -275,7 +275,7 @@
       bar(bx, etr, PYB, '훈련오차'); bar(bx+W*0.13, ete, PNK, '검증오차');
       var verdict = s.deg<=2 ? '과소적합 — 너무 단순' : (ete>etr*2.2 ? '과적합 — 훈련만 잘함' : '적당 — 잘 일반화');
       ctx.fillStyle = s.deg<=2?GLD : (ete>etr*2.2?RED:GRN); ctx.font='600 16px sans-serif'; ctx.textAlign='left';
-      ctx.fillText(verdict, W*0.06, H*0.40);
+      ctx.fillText(verdict, W*0.06, by+48);
       ctx.fillStyle=DIM; ctx.font='12.5px sans-serif';
       ctx.fillText('특징을 늘리거나(다항·다중) 차수를 올리면 모델이 복잡해집니다.', W*0.06, H*0.94);
 

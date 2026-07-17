@@ -46,15 +46,53 @@
       +'@keyframes ev-thpulse{0%,100%{opacity:1;}50%{opacity:.4;}}'   // 느린 점멸: 1.5s 흐려지고 1.5s 밝아짐(3s 주기)
       +'#tapHintRow{flex-basis:100%!important;width:auto!important;max-width:100%!important;margin:3px auto 0!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;flex-wrap:wrap!important;background:transparent!important;border:1px solid transparent!important;border-radius:11px!important;padding:6px 16px!important;font-size:13.5px!important;font-weight:600!important;color:var(--accent-light,#e8e6dd)!important;text-align:center!important;pointer-events:none!important;animation:ev-thpulse 3s ease-in-out infinite!important;}'
       +'#tapHintRow .thk{display:inline-flex!important;align-items:center!important;gap:5px!important;color:var(--accent-light,#cfcdc6)!important;font-weight:500!important;}'
-      +'#tapHintRow kbd{display:inline-block!important;min-width:15px!important;text-align:center!important;font-family:ui-monospace,monospace!important;font-size:11px!important;font-weight:700!important;border:1px solid currentColor!important;border-radius:5px!important;padding:1px 5px!important;}';
+      +'#tapHintRow kbd{display:inline-block!important;min-width:15px!important;text-align:center!important;font-family:ui-monospace,monospace!important;font-size:11px!important;font-weight:700!important;border:1px solid currentColor!important;border-radius:5px!important;padding:1px 5px!important;}'
+      // ── HUD: 설명 문장 전용 오버레이(캔버스 위 DOM). 문장은 코너별 세로 스택이라 구조적으로 겹치지 않는다(캔버스 fillText 겹침의 근본 해결).
+      +'#stageHud{position:fixed;pointer-events:none;z-index:6;overflow:hidden;}'
+      +'#stageHud .hudc{position:absolute;display:flex;flex-direction:column;gap:6px;max-width:46%;}'
+      +'#stageHud .hudc.r{align-items:flex-end;text-align:right;}'
+      +'#stageHud .hud-tl{left:10px;top:8px;}#stageHud .hud-tr{right:10px;top:8px;}'
+      +'#stageHud .hud-bl{left:10px;bottom:8px;}#stageHud .hud-br{right:10px;bottom:8px;}'
+      +'#stageHud .hud-item{background:rgba(9,11,18,.74);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:4px 10px;font-size:13px;line-height:1.35;font-weight:600;color:var(--accent-light,#e2e8f2);box-shadow:0 2px 10px rgba(0,0,0,.28);white-space:normal;word-break:break-word;}';
     document.head.appendChild(st); }
   function setVpad(){ var sw=(global.screen&&global.screen.width)||global.innerWidth;
     var target=Math.min(VP_MAXW, Math.max(1100, Math.round(sw*0.65)));   // 와이드 화면의 65% = 가장 보기 편한 폭(1100~1680 클램프). 브라우저 창은 못 줄여도 콘텐츠를 이 폭으로 렌더해 동일 효과.
     var vp=Math.max(0,(global.innerWidth-target)/2); document.documentElement.style.setProperty('--vpad',vp+'px'); return vp; }
   function initStage(canvas){
-    cv = canvas; ctx = cv.getContext('2d'); injectViewportCSS(); resize();
+    cv = canvas; ctx = cv.getContext('2d'); injectViewportCSS(); setupHud(); resize();
     global.addEventListener('resize', function(){ fitStage(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
   }
+  // ── HUD: 긴 설명 문장은 캔버스에 그리지 않고 이 DOM 오버레이의 코너에 세로로 쌓아 렌더(겹침 구조적 불가). fillText/strokeText를 감싸 문장이면 가로채 버퍼에 담는다.
+  var hudEl, _hudBuf=[], _hudOn=false, _hudSig='';
+  function isHudSentence(t,fs){ t=String(t); if(fs>=22) return false; var n=t.replace(/\s/g,'').length;
+    if(/[가-힣]/.test(t) && n>=12) return true;                              // 한글 설명 문장
+    if(n>=16 && /[=≈]/.test(t) && /[+\-*/×·²³√]/.test(t)) return true;       // 긴 수식 readout
+    return false; }
+  function setupHud(){
+    if(!document.body) return;
+    hudEl=document.getElementById('stageHud');
+    if(!hudEl){ hudEl=document.createElement('div'); hudEl.id='stageHud';
+      hudEl.innerHTML='<div class="hudc hud-tl" data-c="tl"></div><div class="hudc r hud-tr" data-c="tr"></div><div class="hudc hud-bl" data-c="bl"></div><div class="hudc r hud-br" data-c="br"></div>';
+      document.body.appendChild(hudEl); }
+    var of=ctx.fillText.bind(ctx), os=ctx.strokeText.bind(ctx);
+    ctx.fillText=function(t,x,y){ if(_hudOn && isHudSentence(t,parseFloat(ctx.font)||12)){ _hudBuf.push({t:String(t),x:x,y:y}); return; } return of(t,x,y); };
+    ctx.strokeText=function(t,x,y){ if(_hudOn && isHudSentence(t,parseFloat(ctx.font)||12)) return; return os(t,x,y); };
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function flushHud(){
+    if(!hudEl) return;
+    var r=cv.getBoundingClientRect();
+    if(r.width<40||r.height<40){ hudEl.style.display='none'; return; }   // 캔버스 붕괴(백그라운드) 시 숨김
+    hudEl.style.display='block'; hudEl.style.left=r.left+'px'; hudEl.style.top=r.top+'px'; hudEl.style.width=r.width+'px'; hudEl.style.height=r.height+'px';
+    var slot={tl:[],tr:[],bl:[],br:[]}, sig='';
+    for(var i=0;i<_hudBuf.length;i++){ var b=_hudBuf[i], c=(b.x<W*0.5?'l':'r'), v=(b.y<H*0.44?'t':'b'), key=v+c, arr=slot[key];
+      if(arr.indexOf(b.t)<0){ arr.push(b.t); sig+=key+'|'+b.t+'\n'; } }
+    if(sig===_hudSig) return;   // 내용 동일하면 DOM 재구성 생략(성능·깜빡임 방지)
+    _hudSig=sig;
+    ['tl','tr','bl','br'].forEach(function(k){ var el=hudEl.querySelector('[data-c="'+k+'"]'); if(!el)return;
+      el.innerHTML=slot[k].map(function(t){ return '<div class="hud-item">'+esc(t)+'</div>'; }).join(''); });
+  }
+  function hudHide(){ if(hudEl){ hudEl.style.display='none'; _hudSig='__off'; } }
   function resize(){ setVpad(); DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
   // 시각화 구역을 제목(상단)·UI(하단)와 독립 분리: 제목 높이를 실측해 캔버스 상단을 그만큼 비운다(1줄/2줄·화면크기 자동 대응).
   var _needFit=false;
@@ -500,10 +538,13 @@
   function drawOneFrame(advance){ if(advance) frameN++; _frozenFlag=!advance; if(global.PhysLab) global.PhysLab.frozen=!advance;
     if(advance) animFrame++; ctx.clearRect(0,0,W,H);   // 일시정지면 frameN도 동결 → E.frame 기반 애니까지 완전 정지
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
+    _hudBuf.length=0;   // HUD: 이 프레임의 문장 버퍼 초기화. viz/시네마틱/책페이지는 HUD 미적용(자체 텍스트 연출)
+    _hudOn = !!(sc && sc.draw && !sc._viz && !sc.cinematic && !sc.introCard && !sc.hudOff && !(sc.branchOf!=null&&sc.page));
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
     if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드면 캔버스 생략
     if(_needFit){ _needFit=false; fitStage(); }   // 첫 draw로 제목이 그려진 뒤 제목 높이만큼 상단 비움
+    if(_hudOn) flushHud(); else hudHide();   // HUD: 버퍼에 담긴 설명 문장을 캔버스 위 DOM 코너에 렌더(겹침 불가)
     _probe();
   }
   function loop(){ drawOneFrame(!animPaused); requestAnimationFrame(loop); }   // 항상 그림 — 일시정지면 적분만 동결
@@ -789,5 +830,6 @@
     curId:function(){ var s=SM.scenes[SM.cur]; return s? s.id : null; },                // 현재 장면 id(콘텐츠 바뀌어도 안정)
     indexOfId:function(id){ for(var i=0;i<SM.scenes.length;i++){ if(SM.scenes[i].id===id) return i; } return -1; },
     sceneCount:function(){ return SM.scenes.length; },                                 // 총 장면 수(감사·계측용)
+    _forceSize:function(w,h){ W=w; H=h; DPR=1; if(cv){ cv.width=w; cv.height=h; } ctx.setTransform(1,0,0,1,0,0); },   // W/H 고정 강제(백그라운드 clientWidth 붕괴 무시 — 계측용)
     _paint:function(adv){ drawOneFrame(!!adv); } };                                     // 동기 재그리기(RAF 없이 draw 1회 강제 — 백그라운드 계측용 테스트 훅)
 })(window);

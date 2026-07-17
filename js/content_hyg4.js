@@ -36,18 +36,19 @@
       TX(ctx,spl.toFixed(1)+' dB ▶',ax-40,cy,ORA,13,'right','700');
       /* 우측: 압력/에너지 로그 막대 */
       var px=W*0.62, pw=W*0.30, by=H*0.44, bh=20;
+      var by2=by+bh+54;
       TX(ctx,'같은 소리, 두 가지 배율 (한 칸 = ×10)',px,by-26,AMB,13,'left','700');
-      for(i=0;i<=12;i++){ var tx=px+(i/12)*pw; LN(ctx,tx,by-4,tx,by+bh*2+18,DIM,(i%2===0?1:0.5),[2,3]); }
+      for(i=0;i<=12;i++){ var tx=px+(i/12)*pw; LN(ctx,tx,by-4,tx,by2+bh+4,DIM,(i%2===0?1:0.5),[2,3]); }
+      TX(ctx,'압력 ×'+pow10str(s.ex,ratio),px,by-8,BLU,12,'left','700');
       BX(ctx,px,by,(s.ex/12)*pw,bh,BLU,0.85,BLU);
-      TX(ctx,'압력 ×'+pow10str(s.ex,ratio),px+4,by+bh/2, '#0b1220',12,'left','700');
-      TX(ctx,'→ 20 log = +'+spl.toFixed(1)+' dB',px+(s.ex/12)*pw+8,by+bh/2,BLU,12,'left','600');
-      BX(ctx,px,by+bh+14,(2*s.ex/12)*pw,bh,PNK,0.85,PNK);
-      TX(ctx,'에너지 ×'+pow10str(2*s.ex,energy),px+4,by+bh+14+bh/2,'#0b1220',12,'left','700');
-      TX(ctx,'→ 10 log = +'+(10*lg(energy)).toFixed(1)+' dB',px+(2*s.ex/12)*pw+8,by+bh+14+bh/2,PNK,12,'left','600');
-      TX(ctx,'에너지 = 압력² → 로그 칸 수가 2배, 그래서 계수가 20',px,by+bh*2+40,DIM,12);
-      TX(ctx,'압력 ×10 = +20dB · ×2 = +'+(20*lg(2)).toFixed(1)+'dB',px,by+bh*2+62,TXT,12);
-      TX(ctx,'에너지 ×10 = +10dB · ×2 = +'+(10*lg(2)).toFixed(1)+'dB',px,by+bh*2+84,TXT,12);
-      TX(ctx,'P₀ = 2×10⁻⁵ N/m² = 20μPa (1,000Hz 최소가청음압 실효치)',px,by+bh*2+112,GRN,11.5);
+      TX(ctx,'→ 20 log = +'+spl.toFixed(1)+' dB',px,by+bh+16,BLU,12,'left','600');
+      TX(ctx,'에너지 ×'+pow10str(2*s.ex,energy),px,by2-8,PNK,12,'left','700');
+      BX(ctx,px,by2,(2*s.ex/12)*pw,bh,PNK,0.85,PNK);
+      TX(ctx,'→ 10 log = +'+(10*lg(energy)).toFixed(1)+' dB',px,by2+bh+16,PNK,12,'left','600');
+      TX(ctx,'에너지 = 압력² → 로그 칸 수가 2배, 그래서 계수가 20',px,by2+bh+42,DIM,12);
+      TX(ctx,'압력 ×10 = +20dB · ×2 = +'+(20*lg(2)).toFixed(1)+'dB',px,by2+bh+64,TXT,12);
+      TX(ctx,'에너지 ×10 = +10dB · ×2 = +'+(10*lg(2)).toFixed(1)+'dB',px,by2+bh+86,TXT,12);
+      TX(ctx,'P₀ = 2×10⁻⁵ N/m² = 20μPa (1,000Hz 최소가청음압 실효치)',px,by2+bh+114,GRN,11.5);
       E.big('SPL = 20 log(P/P₀) = '+spl.toFixed(1)+' dB','압력 ×'+pow10str(s.ex,ratio)+' · 에너지 ×'+pow10str(2*s.ex,energy)+' — 귀는 배율을 로그로 셉니다'); } },
   { id:'hyg4_02',
     enter:function(E){ var self=this; this.s={l1:90,l2:90};
@@ -109,14 +110,14 @@
       function Yd(db){ return bot-((db-78)/34)*(bot-top); }
       TX(ctx,'점음원 거리감쇠 SPL = 110 − 20 log r (1m에서 110dB)',ax0,top-26,AMB,12.5,'left','700');
       LN(ctx,ax0,bot,ax1,bot,DIM,1.5); LN(ctx,ax0,bot,ax0,top-8,DIM,1.5);
-      TX(ctx,'거리 r (m)',ax1,bot+18,DIM,11,'right');
+      TX(ctx,'거리 r (m)',ax1,bot+30,DIM,11,'right');
       TX(ctx,'dB',ax0-8,top-8,DIM,11,'right');
       ctx.save(); ctx.strokeStyle=BLU; ctx.lineWidth=2; ctx.beginPath();
       for(r=1;r<=32;r+=0.25){ var xx=Xr(r), yy=Yd(L0-20*lg(r)); if(r===1)ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); }
       ctx.stroke(); ctx.restore();
       var dbl=[1,2,4,8,16,32];
       for(i=0;i<dbl.length;i++){ var dv=L0-20*lg(dbl[i]); DOT(ctx,Xr(dbl[i]),Yd(dv),3.5,GRN); TX(ctx,dv.toFixed(0),Xr(dbl[i])+2,Yd(dv)-13,GRN,10.5,'center'); TX(ctx,String(dbl[i]),Xr(dbl[i]),bot+16,DIM,10.5,'center'); }
-      TX(ctx,'거리 2배 = −'+(20*lg(2)).toFixed(1)+' dB (역2승법칙)',ax0+16,top+14,GRN,11.5,'left','600');
+      TX(ctx,'거리 2배 = −'+(20*lg(2)).toFixed(1)+' dB (역2승법칙)',ax1,top+14,GRN,11.5,'right','600');
       DOT(ctx,Xr(s.r),Yd(splr),6,ORA);
       TX(ctx,s.r+'m · '+splr.toFixed(1)+'dB',Xr(s.r)+10,Yd(splr)-2,ORA,12,'left','700');
       /* 우: 허용노출시간 곡선 */
@@ -125,7 +126,7 @@
       function Yt(t){ return bot-(t/16)*(bot-top); }
       TX(ctx,'허용시간 T = 8 / 2^((L−90)/5) — 5dB 교환율',bx0,top-26,AMB,12.5,'left','700');
       LN(ctx,bx0,bot,bx1,bot,DIM,1.5); LN(ctx,bx0,bot,bx0,top-8,DIM,1.5);
-      TX(ctx,'L (dB(A))',bx1,bot+18,DIM,11,'right');
+      TX(ctx,'L (dB(A))',bx1,bot+30,DIM,11,'right');
       TX(ctx,'T (h)',bx0-8,top-8,DIM,11,'right');
       ctx.save(); ctx.strokeStyle=PNK; ctx.lineWidth=2; ctx.beginPath();
       for(l=85;l<=115;l+=0.5){ var xx2=Xl(l), yy2=Yt(Math.min(16,permT(l))); if(l===85)ctx.moveTo(xx2,yy2); else ctx.lineTo(xx2,yy2); }
@@ -135,7 +136,7 @@
       LN(ctx,Xl(115),bot,Xl(115),top,RED,1.5,[5,4]);
       TX(ctx,'115dB(A) 초과 금지',Xl(115)-6,top+12,RED,11,'right','600');
       DOT(ctx,Xl(s.l),Yt(Math.min(16,T)),6,ORA);
-      TX(ctx,s.l+'dB → '+tstr(T),Xl(s.l)-10,Yt(Math.min(16,T))-14,ORA,12,'right','700');
+      TX(ctx,s.l+'dB → '+tstr(T),Xl(s.l)-14,Math.max(top+14,Yt(Math.min(16,T))-26),ORA,12,'right','700');
       TX(ctx,'+5dB = 허용시간 절반 · 90dB일 때 8시간',bx0+16,bot-14,DIM,11.5);
       E.big('T = 8/2^((L−90)/5) → '+s.l+'dB(A)는 '+tstr(T),'거리 '+s.r+'m에서 '+splr.toFixed(1)+'dB — 두 배 물러서면 −6dB, 5dB 오르면 시간 절반'); } },
   { id:'hyg4_04',
@@ -197,7 +198,7 @@
       var names=['① 소음성 난청','② 청력보존 프로그램','③ 진동'], cw=W*0.26;
       var big1='', big2='';
       if(s.step===0){
-        var fx0=W*0.10, fx1=W*0.56, fy0=H*0.38, fy1=H*0.86;
+        var fx0=W*0.10, fx1=W*0.56, fy0=H*0.42, fy1=H*0.86;
         var fr=[500,1000,2000,3000,4000,6000,8000];
         function Xf(f){ return fx0+(lg(f/500)/lg(16))*(fx1-fx0); }
         function Yh(v){ return fy0+(v/80)*(fy1-fy0); } /* 청력도: 아래로 갈수록 나쁨 */

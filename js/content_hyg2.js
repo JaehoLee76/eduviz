@@ -131,8 +131,10 @@
       ctx.strokeStyle=RED; ctx.setLineDash([6,4]); ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(gx-8,gy0); ctx.lineTo(gx+gw+8,gy0); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle=RED; ctx.textAlign='left'; ctx.fillText('TLV '+TLV+' ppm', gx+gw+12, gy0+4);
-      ctx.fillStyle=GRN; ctx.fillText('C평형 = TLV/K', gx+gw+12, gy1-fh+2);
-      ctx.fillText('= '+Ceq.toFixed(1)+' ppm', gx+gw+12, gy1-fh+18);
+      // K=1이면 평형선(gy1-fh)이 TLV선(gy0)과 같은 높이가 되어 두 라벨이 겹치므로 최소 간격을 확보
+      var ceqY=Math.max(gy1-fh+2, gy0+26);
+      ctx.fillStyle=GRN; ctx.fillText('C평형 = TLV/K', gx+gw+12, ceqY);
+      ctx.fillText('= '+Ceq.toFixed(1)+' ppm', gx+gw+12, ceqY+16);
       ctx.fillStyle=DIM; ctx.textAlign='center'; ctx.fillText('농도 게이지', gx+gw/2, gy0-8);
       // ── 우: 유효 vs 실제 환기량 막대
       var bx=W*0.74, bw=64, base=bot, maxbar=bot-top-16;

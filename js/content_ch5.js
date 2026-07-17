@@ -52,7 +52,12 @@
       var el=document.getElementById('qc'); if(el) el.value='-2'; E.setOn([]); },
     draw:function(E){ var P=E.Plot, s=this.s, a=s.a, b=s.b, c=s.c; P.axes();
       P.curve(function(x){return a*x*x+b*x+c;}, '#7ab8ff');
-      if(a!==0){ var h=-b/(2*a), k=c-b*b/(4*a); var hT=(h%1===0?h:h.toFixed(1)), kT=(k%1===0?k:k.toFixed(1)); E.ctx.globalAlpha=E.blink(); P.dot(h,k,'#8fe3b5','꼭짓점 ('+hT+', '+kT+')'); E.ctx.globalAlpha=1; }
+      if(a!==0){ var h=-b/(2*a), k=c-b*b/(4*a); var hT=(h%1===0?h:h.toFixed(1)), kT=(k%1===0?k:k.toFixed(1));
+        E.ctx.globalAlpha=E.blink(); P.dot(h,k,'#8fe3b5',null);
+        var ctx5=E.ctx, vpx=P.X(h), vpy=P.Y(k);
+        ctx5.fillStyle='#8fe3b5'; ctx5.font='600 14px sans-serif'; ctx5.textAlign='left';
+        ctx5.fillText('꼭짓점 ('+hT+', '+kT+')', vpx+12, vpy-16);
+        E.ctx.globalAlpha=1; }
       var aL=(a===0?'0':a===1?'':a===-1?'−':a);
       var bx=(b?((b>0?' + '+(b===1?'':b):' − '+(b===-1?'':(-b)))+'x'):'');
       E.big('y = '+aL+'x²'+bx+(c?(c>0?' + '+c:' − '+(-c)):''), a===0?'a = 0 이면 직선! (이차함수 아님)':'a: 폭·방향 · c: 상하 이동'); }
@@ -69,7 +74,11 @@
       ctx.strokeStyle='rgba(143,227,181,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(P.X(p),P.Y(6)); ctx.lineTo(P.X(p),P.Y(-6)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle='rgba(143,227,181,0.85)'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('축 x = '+p, P.X(p), P.Y(6)+14);
       P.curve(function(x){return (x-p)*(x-p)+q;}, '#7ab8ff');
-      E.ctx.globalAlpha=E.blink(); P.dot(p,q,'#8fe3b5','꼭짓점 ('+p+', '+q+')'); E.ctx.globalAlpha=1;
+      E.ctx.globalAlpha=E.blink(); P.dot(p,q,'#8fe3b5',null);
+      var vpx4=P.X(p), vpy4=P.Y(q);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('꼭짓점 ('+p+', '+q+')', vpx4+12, vpy4-16);
+      E.ctx.globalAlpha=1;
       E.big('y = (x − '+p+')² + ('+q+')', '꼭짓점 ('+p+', '+q+') · 축 x = '+p); }
   },
 
@@ -83,7 +92,7 @@
       if(k!==0){ var lx=(k>0?2.6:-2.6), ly=k/lx; ctx.fillStyle='#7ab8ff'; ctx.font='600 14px sans-serif'; ctx.textAlign=(k>0?'left':'right'); ctx.fillText('y = '+k+'/x', P.X(lx)+(k>0?8:-8), P.Y(ly)); }
       // 점근선 표시(x축·y축)
       ctx.fillStyle='rgba(244,160,192,0.85)'; ctx.font='600 12px sans-serif';
-      ctx.textAlign='left'; ctx.fillText('점근선 y축', P.X(0)+6, P.Y(P.ymax)+14);
+      ctx.textAlign='left'; ctx.fillText('점근선 y축', P.X(0)+6, P.geom().top+34);
       ctx.fillText('점근선 x축', P.X(P.xmax)-72, P.Y(0)-6);
       E.big('y = '+k+' / x', k===0?'k = 0 이면 y = 0':'점근선(asymptote): x축, y축'); }
   },

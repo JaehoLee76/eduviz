@@ -47,7 +47,8 @@
       }
       /* 우: 잔여 노출 게이지 (노출기준 = 1.0 기준선) */
       var gx=W*0.62, gw=W*0.30, gTop=H*0.36, gBot=H*0.82;
-      function Yv(v){ return gBot-(Math.min(v,E0)/E0)*(gBot-gTop); }
+      var gPlotTop=gTop+22; /* 최대치(5.00) 막대의 값 라벨이 위 제목과 겹치지 않도록 여유 확보 */
+      function Yv(v){ return gBot-(Math.min(v,E0)/E0)*(gBot-gPlotTop); }
       TX(ctx,'잔여 노출지수 (노출기준=1.0)',gx,gTop-16,AMB,12.5,'left','700');
       LN(ctx,gx,gBot,gx+gw,gBot,DIM,1.5);
       var y1line=Yv(1.0);
@@ -283,7 +284,7 @@
         {t:'④ 재평가·기록(Re-evaluation)',      s:'개선효과 확인 · 문서화 · 교육 · 반복 개선', c:PNK}
       ];
       /* 원형 배치 4개 phase */
-      var cx=W*0.30, cy=H*0.58, R=Math.min(W*0.20,H*0.26);
+      var cx=W*0.30, cy=H*0.60, R=Math.min(W*0.20,H*0.23); /* 상단 노드가 위쪽 내비게이션 바('인지')와 겹치지 않도록 원 전체를 아래로·반경을 살짝 축소 */
       var pos=[]; for(i=0;i<4;i++){ var ang=-Math.PI/2+i*Math.PI/2; pos.push([cx+R*Math.cos(ang), cy+R*Math.sin(ang)]); }
       /* 순환 화살표 */
       var activeArc=(s.step-1);   /* step0=개요, step1~4=각 phase */

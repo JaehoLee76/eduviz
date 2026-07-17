@@ -38,7 +38,7 @@
       // 도면 외곽
       ctx.strokeStyle='rgba(219,238,251,0.4)'; ctx.lineWidth=2; ctx.strokeRect(px0,py0,pw,ph);
       ctx.fillStyle='rgba(255,255,255,0.02)'; ctx.fillRect(px0,py0,pw,ph);
-      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('단위작업장소 평면도 (12m × 8m)', px0+6, py0-8);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText('단위작업장소 평면도 (12m × 8m)', px0+6, py0-12);
       // SEG 그룹 배경(step0 이상)
       if(st>=0){ for(var g=0;g<3;g++){ var xs=[],ys=[];
         wk.forEach(function(w){ if(w.seg===g){ xs.push(mapX(w.fx)); ys.push(mapY(w.fy)); } });
@@ -48,7 +48,8 @@
         ctx.strokeStyle=segC[g]; ctx.globalAlpha=0.55; ctx.setLineDash([6,4]); ctx.lineWidth=1.6;
         ctx.beginPath(); ctx.arc(cx,cy,rad+22,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
         ctx.globalAlpha=1; ctx.fillStyle=segC[g]; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
-        ctx.fillText('SEG '+(g+1)+' · '+src[g].n, cx, cy-rad-28); } }
+        var segLY=Math.max(cy-rad-28, py0+22);
+        ctx.fillText('SEG '+(g+1)+' · '+src[g].n, cx, segLY); } }
       // 발생원
       src.forEach(function(S){ var x=mapX(S.fx), y=mapY(S.fy);
         ctx.fillStyle=S.c; ctx.globalAlpha=0.28; ctx.fillRect(x-20,y-14,40,28); ctx.globalAlpha=1;
@@ -229,7 +230,7 @@
       ctx.fillStyle=ORA; ctx.fillText('검출 O·정량 X', (GX(LOD)+GX(LOQ))/2, gy0+56);
       ctx.fillStyle=GRN; ctx.fillText('정량 가능', (GX(LOQ)+gx1)/2, gy0+56);
       // ── 우하: 최소 채취 공기량/시간 패널
-      var qx=gx1-244, qy=gy0+70, qw=236, qh=96;
+      var qx=gx1-244, qy=gy0+70, qw=236, qh=120;
       ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.strokeStyle='rgba(242,189,85,0.30)'; ctx.lineWidth=1;
       if(ctx.roundRect){ctx.beginPath();ctx.roundRect(qx,qy,qw,qh,8);ctx.fill();ctx.stroke();}else{ctx.strokeRect(qx,qy,qw,qh);}
       ctx.textAlign='left'; ctx.fillStyle=AMB; ctx.font='600 12px sans-serif'; ctx.fillText('정량하려면 얼마나 채취?', qx+12, qy+20);
@@ -238,9 +239,9 @@
       ctx.fillStyle=GRN; ctx.font='600 12px sans-serif';
       ctx.fillText('= '+LOQ.toFixed(3)+' ÷ '+C+' = '+Vmin_L.toFixed(2)+' L', qx+12, qy+62);
       ctx.fillStyle=TXT; ctx.font='13.5px sans-serif';
-      ctx.fillText('최소시간 = 공기량 ÷ 유량', qx+12, qy+80);
+      ctx.fillText('최소시간 = 공기량 ÷ 유량', qx+12, qy+82);
       ctx.fillStyle=ORA; ctx.font='600 12px sans-serif';
-      ctx.fillText('= '+Vmin_L.toFixed(2)+' ÷ '+Q.toFixed(2)+' = '+tmin.toFixed(1)+' min', qx+112, qy+80);
+      ctx.fillText('= '+Vmin_L.toFixed(2)+' ÷ '+Q.toFixed(2)+' = '+tmin.toFixed(1)+' min', qx+12, qy+104);
       E.big('LOD = 3σ = '+LOD.toFixed(3)+' mg · LOQ = 10σ = '+LOQ.toFixed(3)+' mg → 최소 채취 '+tmin.toFixed(0)+'분',
         '불검출은 "없다"가 아니라 "이 방법으로는 못 본다"입니다 — 정량하려면 최소 공기량 이상을 채취해야 합니다'); }
   },

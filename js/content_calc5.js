@@ -41,7 +41,8 @@
       var mc=ndf(f,c), match=Math.abs(mc-sec)<0.05;
       ctx.strokeStyle=match?GRN:GLD; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(c-1),P.Y(f(c)+mc*(-1))); ctx.lineTo(P.X(c+1),P.Y(f(c)+mc*(1))); ctx.stroke();
-      ctx.fillStyle=match?GRN:GLD; ctx.fillText("접선 f '(c) = "+mc.toFixed(2), P.X(c)+10, P.Y(f(c))-10);
+      var g52=P.geom();
+      ctx.fillStyle=match?GRN:GLD; ctx.textAlign='left'; ctx.fillText("접선 f '(c) = "+mc.toFixed(2), g52.left+8, g52.top+34);  // 축 눈금과 안 겹치게 플롯 좌상단 고정
       P.dot(c,f(c),match?GRN:VIO);
       E.big('할선 '+sec.toFixed(2)+' vs 접선 f′(c) '+mc.toFixed(2)+(match?'  ← 일치!':''),
         '구간 어딘가엔 평균변화율과 똑같은 순간변화율이 반드시 있습니다'); }

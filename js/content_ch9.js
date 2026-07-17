@@ -75,7 +75,9 @@
       ctx.strokeStyle='rgba(255,178,122,0.85)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(P.X(0),P.Y(0),24,0,-t,true); ctx.stroke();
       var mt=t/2; ctx.fillStyle='#ffb27a'; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
       ctx.fillText('θ='+this.s.deg+'°', P.X(0)+34*Math.cos(mt), P.Y(0)-34*Math.sin(mt)); ctx.textBaseline='alphabetic';
-      vec(P,ctx,0,0,ax,ay,'#7ab8ff','a  |a|='+ma.toFixed(0));
+      vec(P,ctx,0,0,ax,ay,'#7ab8ff',null);
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 16px sans-serif'; ctx.textAlign='right';
+      ctx.fillText('a  |a|='+ma.toFixed(0), P.X(ax)-10, P.Y(ay)+22);
       vec(P,ctx,0,0,bx,by,'#8fe3b5','b  |b|='+mb.toFixed(0));
       if(perp){ ctx.strokeStyle='#ffb27a'; ctx.lineWidth=2; ctx.strokeRect(P.X(0),P.Y(0)-16,16,16); }
       E.big('a · b = '+dot.toFixed(2)+'  ( = |a||b|cos'+this.s.deg+'° )', perp?'θ=90° → 내적 = 0 → 수직! (6장 #44에서 다룸)':'내적 = 성분곱의 합 = |a||b|cosθ'); }

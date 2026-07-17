@@ -126,7 +126,7 @@
   },
 
   // ══════════ 5. 빅뱅에서 지금까지 — 입자의 역사 ══════════
-  { id:'phys29_05',
+  { id:'phys29_05', hudOff:true,
     enter:function(E){ var self=this; this.s={t:0.3};
       E.controls('<div class="ctrl"><label>우주 나이(로그)</label><input type="range" id="tt" min="0" max="1" step="0.02" value="0.3"><output id="tto">초기</output></div>');
       E.bind('#tt','input',function(e){ self.s.t=+e.target.value; E.blip(200+self.s.t*600,0.05); });
@@ -139,7 +139,8 @@
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(gx0,gy); ctx.lineTo(gx1,gy); ctx.stroke();
       stages.forEach(function(S,i){ var x=gx0+(i/(stages.length-1))*(gx1-gx0); var hot=(i<=idx);
         ctx.fillStyle=hot?S[2]:'rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.arc(x,gy,i===idx?9:5,0,7); ctx.fill();
-        ctx.save(); ctx.translate(x,gy); ctx.rotate(-0.5); ctx.fillStyle=hot?S[2]:DIM; ctx.font=(i===idx?'600 ':'')+'13px sans-serif'; ctx.textAlign='left'; ctx.fillText(S[0]+' ('+S[1]+')', 12, -4); ctx.restore();
+        var zig=(i%2===0)?0:22;   // 인접 라벨끼리 세로로 지그재그 띄워 겹침 방지(점·값·항목 수는 그대로)
+        ctx.save(); ctx.translate(x,gy+zig); ctx.rotate(-0.5); ctx.fillStyle=hot?S[2]:DIM; ctx.font=(i===idx?'600 ':'')+'13px sans-serif'; ctx.textAlign='left'; ctx.fillText(S[0]+' ('+S[1]+')', 12, -4); ctx.restore();
       });
       // 현재 단계 그림(냉각=색 변화)
       var cur=stages[idx];

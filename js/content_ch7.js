@@ -68,7 +68,7 @@
     draw:function(E){ var P=E.Plot, a=this.s.a, ctx=E.ctx; P.axes();
       // 점근선 x=0
       ctx.strokeStyle='rgba(244,160,192,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(-4)); ctx.lineTo(P.X(0),P.Y(4)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(244,160,192,0.85)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 x = 0', P.X(0)+6, P.Y(3.6));
+      ctx.fillStyle='rgba(244,160,192,0.85)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('점근선 x = 0', P.X(0)+6, P.geom().top+34);
       var sub=(a===2?'₂':a===3?'₃':a===4?'₄':'₅');
       P.curve(function(x){ return x>0? lg(x,a): NaN; }, '#8fe3b5');
       ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='left'; ctx.fillText('y = log'+sub+' x', P.X(a*1.5), P.Y(lg(a*1.5,a)+0.4));

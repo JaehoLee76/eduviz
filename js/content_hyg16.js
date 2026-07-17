@@ -74,7 +74,7 @@
         T(ctx,v+'%',XO(v),y1+bh+FS(H,0.026,13,15),RED,FS(H,0.021,11,14),'center'); });
       var mx1=Math.max(o2min,Math.min(o2max,s.o2));
       ctx.strokeStyle=okO2?GRN:RED; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(XO(mx1),y1-8); ctx.lineTo(XO(mx1),y1+bh+8); ctx.stroke(); ctx.lineWidth=1;
-      T(ctx,s.o2.toFixed(1)+'%',XO(mx1),y1-12,okO2?GRN:RED,fs,'center','700');
+      T(ctx,s.o2.toFixed(1)+'%',bx+bw,y1-8,okO2?GRN:RED,fs,'right','700');
 
       // 게이지 2: 황화수소
       var y2=H*0.47;
@@ -88,7 +88,7 @@
       T(ctx,'10ppm',XH(10),y2+bh+FS(H,0.026,13,15),RED,FS(H,0.021,11,14),'center');
       var mx2=Math.max(hmin,Math.min(hmax,s.h2s));
       ctx.strokeStyle=okH2S?GRN:RED; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(XH(mx2),y2-8); ctx.lineTo(XH(mx2),y2+bh+8); ctx.stroke(); ctx.lineWidth=1;
-      T(ctx,s.h2s+'ppm',XH(mx2),y2-12,okH2S?GRN:RED,fs,'center','700');
+      T(ctx,s.h2s+'ppm',bx+bw,y2-8,okH2S?GRN:RED,fs,'right','700');
 
       // 계산 패널
       var ry=H*0.63, lh=FS(H,0.056,20,28);

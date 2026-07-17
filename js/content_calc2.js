@@ -64,8 +64,8 @@
       // 할선(또는 접선)
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(-1), P.Y(fa+slope*(-1-a))); ctx.lineTo(P.X(4), P.Y(fa+slope*(4-a))); ctx.stroke();
-      ctx.fillStyle=GLD; ctx.font='12px sans-serif';
-      ctx.fillText((near?'접선':'할선')+' 기울기 = '+slope.toFixed(3), P.X(-0.9),P.Y(fa+slope*(-1-a))-6);
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left';
+      var g23=P.geom(); ctx.fillText((near?'접선':'할선')+' 기울기 = '+slope.toFixed(3), g23.left+8, g23.top+16);  // x축 눈금과 안 겹치게 플롯 좌상단 고정
       P.dot(a, fa, GRN, '(1, 0.5)');                              // 고정점 (1, 0.5)
       if(Math.abs(h)>=1e-9){ P.dot(a+h, f(a+h), GLD); }          // 움직이는 두 번째 점
       E.big('할선 기울기 = '+slope.toFixed(3)+'   (h = '+h.toFixed(2)+')',

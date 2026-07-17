@@ -91,7 +91,7 @@
     enter:function(E){ this.s={t:0}; E.NL.range(-5,5); E.big(null);
       this.edges=[[0,1],[0,2],[1,3],[1,4],[3,5],[2,6]]; this.layout(E); },
     layout:function(E){
-      var cx=E.W/2, top=E.H*0.26, vg=Math.min(90,E.H*0.10), gap=Math.min(150,E.W*0.18), L=[];
+      var cx=E.W/2, top=E.H*0.26, vg=Math.min(90,E.H*0.10), gap=Math.min(150,Math.max(85,E.W*0.18)), L=[];
       this.nodes=[
         {x:cx, y:top, t:'실수', c:E.COL.accent},
         {x:cx-gap, y:top+vg, t:'유리수', c:E.COL.blue},

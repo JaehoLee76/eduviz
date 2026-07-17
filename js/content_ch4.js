@@ -42,7 +42,7 @@
       ctx.fillStyle=E.COL.accent; ctx.font='700 16px sans-serif'; ctx.textAlign='center';
       var eTxt=(ep%1===0?ep:ep.toFixed(1));
       ctx.fillText('x '+sign+' '+eTxt, (xe+xr)/2, y-18);
-      ctx.font='600 13px sans-serif'; ctx.fillText('끝점 x = '+eTxt, xe, y+22);
+      ctx.font='600 13px sans-serif'; ctx.fillText('끝점 x = '+eTxt, xe, y+48);
       E.tapHint(E.W/2, y+78, '↔ '+(s.incl?'≥ → > (열린 끝점)':'> → ≥ (닫힌 끝점)'), true);
       E.big('2x + 1 '+sign+' '+s.c+'  →  x '+sign+' '+eTxt, s.incl?'끝점 포함(●) — 닫힌 끝점':'끝점 미포함(○) — 열린 끝점'); }
   },

@@ -101,7 +101,9 @@
       ctx.fillStyle=GLD; ctx.fillText('f⁻¹(x) = log₂x', P.X(5.3),P.Y(2.0));
       var fy=Math.pow(2,a);                            // (a, 2^a)
       P.dot(a,fy,VIO,'('+a.toFixed(2)+', '+fy.toFixed(2)+')');
-      P.dot(fy,a,GLD,'('+fy.toFixed(2)+', '+a.toFixed(2)+')');  // 거울 반사: 좌표 뒤바뀜
+      P.dot(fy,a,GLD,null);  // 거울 반사: 좌표 뒤바뀜
+      ctx.fillStyle=GLD; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('('+fy.toFixed(2)+', '+a.toFixed(2)+')', P.X(fy), P.Y(a)+24);  // 축 눈금과 안 겹치게 점 아래쪽에
       // 두 점을 잇는 대칭선
       ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
       ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(fy)); ctx.lineTo(P.X(fy),P.Y(a)); ctx.stroke(); ctx.setLineDash([]);

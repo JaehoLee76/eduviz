@@ -110,7 +110,7 @@
       // 대전 평면(세로)
       ctx.strokeStyle='rgba(255,178,122,0.9)'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(px,cy-H*0.30); ctx.lineTo(px,cy+H*0.30); ctx.stroke();
       ctx.fillStyle=POS; ctx.font='12px sans-serif'; ctx.textAlign='center'; for(var y=cy-H*0.26;y<cy+H*0.28;y+=30){ ctx.fillText('+', px, y); }
-      ctx.fillStyle=DIM; ctx.fillText('무한 대전 평면 σ='+s.sigma.toFixed(1), px, cy+H*0.34);
+      ctx.fillStyle=DIM; ctx.fillText('무한 대전 평면 σ='+s.sigma.toFixed(1), px, cy-H*0.34);
       // 균일장(양쪽, 평행·등간격 = 거리 무관)
       var alen=Math.min(70,Efield*16);
       for(var yy=cy-H*0.24; yy<=cy+H*0.24; yy+=30){

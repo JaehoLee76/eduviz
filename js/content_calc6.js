@@ -111,8 +111,9 @@
       // 같은 x에서 기울기 = f 확인
       var xc=1, m=ndf(function(x){return x*x+C;},xc);
       P.dot(xc, xc*xc+C, VIO);
+      var g65=P.geom();
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('x=1 기울기 = '+m.toFixed(2)+' = f(1)=2 (C와 무관)', E.W*0.50, E.H*0.18);
+      ctx.fillText('x=1 기울기 = '+m.toFixed(2)+' = f(1)=2 (C와 무관)', g65.left+8, g65.top+16);  // 축 눈금(y)·F라벨과 안 겹치게 플롯 좌상단 고정
       E.big('∫ 2x dx = x² + C', '미분하면 사라지는 상수 C 때문에, 부정적분은 평행이동한 곡선 가족입니다'); }
   }
 

@@ -164,7 +164,7 @@
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='right'; ctx.fillText('백색광', hitX-92, hitY-22);
       // 색마다 n(λ): 보라 큰 n → 더 꺾임. 근사값으로 출사 방향을 펴서 표현(골든룰: n으로 편향각 계산)
       var cols=[['빨강',1.513,'#ff5555'],['주황',1.517,'#ff9944'],['노랑',1.520,'#ffe23a'],['초록',1.524,'#55dd66'],['파랑',1.529,'#4499ff'],['보라',1.535,'#9b66ff']];
-      var A=60*Math.PI/180, t1=s.th1*Math.PI/180, ex=cxp, ey=(ay+cyp)/2, len=W*0.22, devR=null;
+      var A=60*Math.PI/180, t1=s.th1*Math.PI/180, ex=cxp, ey=(ay+cyp)/2, len=W*0.22, devR=null, lastLabelY=-Infinity;
       for(var i=0;i<cols.length;i++){ var n=cols[i][1];
         // 두 면에서 스넬 2회: 첫 면 굴절 r1, 둘째 면 입사 r2=A−r1, 출사각 t2. 총편향 δ=θ1+t2−A (골든룰: n으로 실제 계산)
         var r1=Math.asin(Math.sin(t1)/n), r2=A-r1, sin_t2=n*Math.sin(r2), t2=(Math.abs(sin_t2)<=1)?Math.asin(sin_t2):Math.PI/2;
@@ -172,9 +172,12 @@
         var dirA=0.30 + (dev-devR)*9;   // 빨강(최소 편향) 기준, 실제 편향차 δ−δ_red 에 비례한 부채
         ctx.strokeStyle=cols[i][2]; ctx.lineWidth=2.2;
         ctx.beginPath(); ctx.moveTo(hitX,hitY); ctx.lineTo(ex,ey); ctx.moveTo(ex,ey); ctx.lineTo(ex+len*Math.cos(dirA), ey+len*Math.sin(dirA)); ctx.stroke();
-        ctx.fillStyle=cols[i][2]; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText(cols[i][0]+' (n='+n.toFixed(3)+', δ='+(dev*180/Math.PI).toFixed(1)+'°)', ex+len*Math.cos(dirA)+6, ey+len*Math.sin(dirA)+4);
+        var lblX=ex+len*Math.cos(dirA)+6, lblY=ey+len*Math.sin(dirA)+4;
+        if(lblY-lastLabelY<16) lblY=lastLabelY+16;   // 인접 색 라벨(특히 파랑·보라)이 세로로 지그재그 떨어지도록(겹침 방지, 값 불변)
+        lastLabelY=lblY;
+        ctx.fillStyle=cols[i][2]; ctx.font='13px sans-serif'; ctx.textAlign='left'; ctx.fillText(cols[i][0]+' (n='+n.toFixed(3)+', δ='+(dev*180/Math.PI).toFixed(1)+'°)', lblX, lblY);
       }
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('굴절률 n은 색(파장)마다 다르다 → 보라가 가장 많이 꺾임', W/2, H*0.88);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('굴절률 n은 색(파장)마다 다르다 → 보라가 가장 많이 꺾임', W/2, Math.min(H*0.90,Math.max(H*0.88,lastLabelY+22)));
       E.tapHint(W/2, H*0.93, '백색광이 무지개로 갈라집니다 (분산) — 입사각을 바꿔 보세요', true);
       E.big('분산 — 프리즘이 무지개를 만든다 (n은 색마다 다르다)', '하나의 빛이 무지개로 갈라집니다.'); }
   }

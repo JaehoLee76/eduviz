@@ -200,7 +200,13 @@
       ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.textAlign='left';
       ctx.fillText('원기준 '+TLV+' ppm (8h)', P.X(8)+4, P.Y(TLV)-6);
       ctx.fillStyle=DIM; ctx.fillText('OSHA', P.X(15.2), P.Y(TLV*8/15.2)-6);
-      P.dot(h, corr, corr<osha?GRN:GRN, 'B&S = '+corr.toFixed(1));
+      // B&S 값 라벨: h가 작을수록 점이 좌상단(축 이름표 자리)으로 몰려 겹치므로,
+      // 그 구간(h<11)만 점의 오른쪽 아래로 라벨을 내려 축 이름표('보정기준 ppm')와 분리한다.
+      var bsLabel='B&S = '+corr.toFixed(1), bsx=P.X(h), bsy=P.Y(corr);
+      P.dot(h, corr, GRN);
+      ctx.fillStyle=GRN; ctx.font='600 14px sans-serif';
+      if(h<11){ ctx.textAlign='left'; ctx.fillText(bsLabel, bsx+12, bsy+18); }
+      else { ctx.textAlign='center'; ctx.fillText(bsLabel, bsx, bsy-13); }
       P.dot(h, osha, DIM);
       E.big('보정기준 = 100 × (8/'+h.toFixed(1)+') × ((24−'+h.toFixed(1)+')/16) = '+corr.toFixed(1)+' ppm',
         '오래 일할수록 회복시간이 줄어 기준을 더 낮춰야 안전 — h가 커지면 곡선이 내려간다'); }

@@ -25,7 +25,7 @@
       ctx.textAlign='left'; ctx.fillText('|Δy|='+Math.abs(dy),P.X(bx)+8,(P.Y(ay)+P.Y(by))/2);
       // 빗변(거리)
       ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(P.X(ax),P.Y(ay)); ctx.lineTo(P.X(bx),P.Y(by)); ctx.stroke();
-      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.fillText('d = '+(d%1===0?d:d.toFixed(2)),(P.X(ax)+P.X(bx))/2-6,(P.Y(ay)+P.Y(by))/2-6);
+      ctx.fillStyle='#7ab8ff'; ctx.font='600 13px sans-serif'; ctx.textAlign='right'; ctx.fillText('d = '+(d%1===0?d:d.toFixed(2)),P.geom().right-8,P.geom().top+22);
       P.dot(ax,ay,'#ffb27a','A(1, 1)'); P.dot(bx,by,'#8fe3b5','B('+bx+', '+by+')');
       E.big('d = √('+(dx*dx)+' + '+(dy*dy)+') = '+(d%1===0?d:d.toFixed(2)), '거리 = √(Δx² + Δy²) — 피타고라스 정리'); }
   },
@@ -56,11 +56,17 @@
     draw:function(E){ var P=E.Plot, s=this.s, ctx=E.ctx, ax=-1,ay=1,bx=s.bx,by=s.by; P.axes();
       var ddx=bx-ax; if(ddx===0){ // 수직선
         ctx.strokeStyle='#7ab8ff'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(P.X(ax),P.Y(P.ymin)); ctx.lineTo(P.X(ax),P.Y(P.ymax)); ctx.stroke();
-        P.dot(ax,ay,'#ffb27a','A(−1, 1)'); P.dot(bx,by,'#8fe3b5','B('+bx+', '+by+')');
+        P.dot(ax,ay,'#ffb27a','A(−1, 1)'); P.dot(bx,by,'#8fe3b5',null);
+        var bpx0=P.X(bx), bpy0=P.Y(by);
+        ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('B('+bx+', '+by+')', bpx0+12, bpy0-16);
         E.big('x = −1  (수직선)', '기울기가 무한대 — x가 일정한 직선'); return; }
       var m=(by-ay)/ddx;
       P.curve(function(x){ return m*(x-ax)+ay; }, '#7ab8ff');
-      P.dot(ax,ay,'#ffb27a','A(−1, 1)'); P.dot(bx,by,'#8fe3b5','B('+bx+', '+by+')');
+      P.dot(ax,ay,'#ffb27a','A(−1, 1)'); P.dot(bx,by,'#8fe3b5',null);
+      var bpx=P.X(bx), bpy=P.Y(by);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('B('+bx+', '+by+')', bpx+12, bpy-16);
       var mTxt=(m%1===0?m:m.toFixed(2));
       var mCo=(m===1?'':m===-1?'−':mTxt);
       var ps=(m===0?'y = 1':'y − 1 = '+mCo+'(x + 1)');
@@ -107,8 +113,10 @@
       ctx.ellipse(P.X(a),P.Y(b), r*sx(P), r*sy(P), 0, 0, 7); ctx.stroke();
       // 반지름선
       ctx.strokeStyle='rgba(255,178,122,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P.X(a),P.Y(b)); ctx.lineTo(P.X(a+r),P.Y(b)); ctx.stroke();
-      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('r='+r,(P.X(a)+P.X(a+r))/2,P.Y(b)-7);
-      P.dot(a,b,'#8fe3b5','중심('+a+', '+b+')');
+      ctx.fillStyle='#ffb27a'; ctx.font='13px sans-serif'; ctx.textAlign='right'; ctx.fillText('r='+r,P.geom().right-8,P.geom().top+22);
+      P.dot(a,b,'#8fe3b5',null);
+      ctx.fillStyle='#8fe3b5'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('중심('+a+', '+b+')', P.geom().left+8, P.geom().top+22);
       E.big('(x − '+a+')² + (y − '+b+')² = '+(r*r), '중심 ('+a+', '+b+'), 반지름 '+r+' — 거리 공식의 자취'); }
   },
 

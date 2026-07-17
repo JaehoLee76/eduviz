@@ -291,11 +291,11 @@
         ['최소 채취공기량 Vmin = LOQ÷C×1000 = '+s.LOQ.toFixed(3)+'÷'+s.C.toFixed(2)+'×1000',Vmin.toFixed(1)+' L',BLU],
         ['최소 채취시간 t = Vmin÷Qpump = '+Vmin.toFixed(1)+'÷'+Qpump,tmin.toFixed(1)+' 분',GRN]
       ];
-      var lh=FS(H,0.055,20,26);
+      var lh=FS(H,0.09,36,48);
       for(i=0;i<rows.length;i++){ var yy2=y+lh*i;
         ctx.fillStyle='rgba(255,255,255,0.03)'; RR(ctx,bx-8,yy2-lh*0.42,bw+16,lh*0.84,7); ctx.fill();
-        T(ctx,rows[i][0],bx,yy2-FS(H,0.005,4,6),DIM,FS(H,0.021,11,14),'left');
-        T(ctx,rows[i][1],bx,yy2+FS(H,0.028,12,16),rows[i][2],FS(H,0.028,12,16),'left','700'); }
+        T(ctx,rows[i][0],bx,yy2-FS(H,0.01,6,8),DIM,FS(H,0.021,11,14),'left');
+        T(ctx,rows[i][1],bx,yy2+FS(H,0.035,16,20),rows[i][2],FS(H,0.028,12,16),'left','700'); }
       E.tapHint(0,0,'슬라이더로 오차·노출농도·정량한계 조절',true);
       E.big('누적오차 '+totErr.toFixed(1)+'% · 최소 채취시간 '+tmin.toFixed(1)+'분',
             '기출 유형(빈출): 여러 단계 오차는 더하지 않고 제곱합의 제곱근(합성표준불확도)으로 합칩니다. 채취시간은 실험실이 잴 수 있는 최소량(LOQ)을 채우는 데 필요한 시간입니다.'); }

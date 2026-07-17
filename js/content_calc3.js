@@ -20,9 +20,10 @@
       var fa=f(a), m=ndf(f,a);
       ctx.strokeStyle='rgba(255,210,122,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-1.3),P.Y(fa+m*(-1.3))); ctx.lineTo(P.X(a+1.3),P.Y(fa+m*(1.3))); ctx.stroke();
-      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("접선 기울기 = f '("+a.toFixed(2)+") ≈ "+m.toFixed(2), P.X(a)+10, P.Y(fa)-12);
+      var g31=P.geom();
+      ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("접선 기울기 = f '("+a.toFixed(2)+") ≈ "+m.toFixed(2), g31.left+8, g31.top+16);  // 축 눈금과 안 겹치게 플롯 좌상단 고정
       P.dot(a,fa,VIO); P.dot(a,m,GLD,"f '("+a.toFixed(2)+")="+m.toFixed(2));
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("보라 f(x) · 금색 f '(x)", E.W*0.70, E.H*0.20);
+      ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("보라 f(x) · 금색 f '(x)", g31.left+8, g31.top+36);
       E.big("f '("+a.toFixed(2)+") = "+m.toFixed(2), '한 점의 기울기를 모으면 새 곡선(도함수)이 됩니다'); }
   },
 
@@ -94,7 +95,10 @@
       ctx.strokeStyle='rgba(255,210,122,0.9)'; ctx.lineWidth=2; ctx.beginPath();
       ctx.moveTo(P.X(a-1.5),P.Y(fa+m*(-1.5))); ctx.lineTo(P.X(a+1.5),P.Y(fa+m*(1.5))); ctx.stroke();
       ctx.fillStyle=GLD; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText("기울기 = eˣ ≈ "+m.toFixed(2), P.X(a)+10, P.Y(fa));
-      P.dot(a,fa,GRN,"(a, eᵃ) = ("+a.toFixed(2)+", "+fa.toFixed(2)+")");
+      P.dot(a,fa,GRN,null);
+      var g35=P.geom();
+      ctx.fillStyle=GRN; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+      ctx.fillText("(a, eᵃ) = ("+a.toFixed(2)+", "+fa.toFixed(2)+")", g35.left+8, g35.top+16);  // 축 눈금과 안 겹치게 플롯 좌상단 고정
       ctx.fillStyle=DIM; ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillText('함숫값 e^a = '+fa.toFixed(3)+'  ·  기울기 = '+m.toFixed(3), E.W*0.50, E.H*0.20);
       E.big("(eˣ)′ = eˣ", '기울기가 언제나 자기 높이와 똑같은 유일한 함수 — 그래서 e가 특별합니다'); }

@@ -123,7 +123,7 @@
       E.setOn([]); },
     draw:function(E){ var s=this.s, P=E.Plot, ctx=E.ctx, c=s.c, D=4-4*c; P.axes();
       ctx.fillStyle=E.COL.txt; ctx.font='12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('실수부 Re', P.X(3.1), P.Y(0)-8); ctx.fillText('허수부 Im', P.X(0)+8, P.Y(2.7));
+      ctx.fillText('실수부 Re', P.X(3.1), P.Y(0)-8); ctx.fillText('허수부 Im', P.X(0)+8, P.geom().top+34);
       ctx.globalAlpha=E.blink();
       if(D>=0){ var sq=Math.sqrt(D)/2; P.dot(1-sq,0,'#ffb27a'); P.dot(1+sq,0,'#ffb27a'); }
       else { var im=Math.sqrt(-D)/2; P.dot(1,im,'#f4a0c0'); P.dot(1,-im,'#f4a0c0'); }
@@ -181,7 +181,11 @@
       P.curve(function(x){return s.m*x+1;}, '#7ab8ff');
       P.curve(function(x){return -x+3;}, '#8fe3b5');
       if(Math.abs(s.m+1)>1e-6){ var ix=2/(s.m+1), iy=-ix+3;
-        E.ctx.globalAlpha=E.blink(); P.dot(ix,iy,'#ffb27a','('+ix.toFixed(1)+', '+iy.toFixed(1)+')'); E.ctx.globalAlpha=1; }
+        E.ctx.globalAlpha=E.blink(); P.dot(ix,iy,'#ffb27a',null);
+        var ctx3=E.ctx, ipx=P.X(ix), ipy=P.Y(iy);
+        ctx3.fillStyle='#ffb27a'; ctx3.font='600 14px sans-serif'; ctx3.textAlign='left';
+        ctx3.fillText('('+ix.toFixed(1)+', '+iy.toFixed(1)+')', ipx+10, ipy-16);
+        E.ctx.globalAlpha=1; }
       var sys='<span style="display:inline-flex;align-items:center;gap:12px;font-size:30px;font-weight:400">'
         +'<span style="font-size:58px;font-weight:200;line-height:0.7">{</span>'
         +'<span style="display:inline-flex;flex-direction:column;line-height:1.45;text-align:left"><span>y = mx + 1</span><span>y = −x + 3</span></span></span>';

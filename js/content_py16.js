@@ -291,7 +291,7 @@
   },
 
   // ══════════ 5. 마무리 — 여정 회고 + 다음 발걸음 ══════════
-  { id:'py16_05',
+  { id:'py16_05', hudOff:true,
     enter:function(E){ this.s={step:0,auto:false}; E.setOn([]); },
     tap:function(E){ this.s.step=(this.s.step+1)%2; E.blip(380+this.s.step*120,0.09); },
     draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H, s=this.s;

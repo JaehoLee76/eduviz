@@ -112,7 +112,7 @@
 
       var rx=W*0.62, ry=H*0.16, cw=Math.min(42,W*0.034);
       // (가) 1D 슬라이스 — 선택 셀 강조 + 인덱스
-      ctx.fillStyle=PYL; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('a['+lo+':'+hi+']  →  실제 선택', rx-70, ry-8);
+      ctx.fillStyle=PYL; ctx.font='600 13px sans-serif'; ctx.textAlign='left'; ctx.fillText('a['+lo+':'+hi+']  →  실제 선택', rx-70, ry-28);
       // 인덱스 라벨
       ctx.fillStyle=DIM; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='center';
       for(var i=0;i<a.length;i++) ctx.fillText(i, rx+i*(cw+5)+cw/2, ry-12);

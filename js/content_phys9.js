@@ -208,10 +208,11 @@
       var riseP = Math.min(H*0.42, hmm*1.2);
       ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2; ctx.strokeRect(tx-tubeW/2, poolY-H*0.42, tubeW, H*0.42+H*0.16);
       ctx.fillStyle='rgba(122,184,255,0.4)'; ctx.fillRect(tx-tubeW/2+2, poolY-riseP, tubeW-4, riseP+H*0.16);
-      // 메니스커스 + 이름표
-      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('h = '+hmm.toFixed(0)+' mm', tx+tubeW/2+8, poolY-riseP+4);
-      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('상승 물기둥', tx+tubeW/2+8, poolY-riseP/2);
-      ctx.fillStyle=BLU; ctx.fillText('γ = 0.073 N/m (표면장력)', tx+tubeW/2+8, poolY-riseP-12);
+      // 메니스커스 + 이름표 — riseP가 작을 때도 겹치지 않도록 튜브 상단 위쪽에 고정 간격으로 배치
+      var lblX=tx+tubeW/2+8, lblTop=poolY-H*0.42-14;
+      ctx.fillStyle=BLU; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('γ = 0.073 N/m (표면장력)', lblX, lblTop);
+      ctx.fillStyle=BLU; ctx.fillText('h = '+hmm.toFixed(0)+' mm', lblX, lblTop+20);
+      ctx.fillStyle=DIM; ctx.font='13px sans-serif'; ctx.fillText('상승 물기둥', lblX, lblTop+40);
       ctx.fillStyle=BLU; ctx.textAlign='left'; ctx.fillText('물', W*0.16+6, poolY+18);
       ctx.fillStyle=DIM; ctx.fillText('r = '+s.r.toFixed(1)+' mm', tx, poolY+H*0.16+2);
       E.tapHint(W/2, H*0.90, '관이 가늘수록 물이 더 높이 올라갑니다(h ∝ 1/r)', true);

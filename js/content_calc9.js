@@ -99,7 +99,7 @@
       P.axes();
       // 주변온도선
       ctx.strokeStyle='rgba(126,224,176,0.5)'; ctx.lineWidth=1.4; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(env)); ctx.lineTo(P.X(8),P.Y(env)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('주변 '+env+'°', P.X(6.4), P.Y(env)-6);
+      ctx.fillStyle=GRN; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('주변 '+env+'°', P.X(3.0), P.Y(env)-6);  // T(8) 라벨과 안 겹치게 왼쪽으로
       // 오일러 적분 T0=90
       var t=0, T=90, h=0.01; ctx.strokeStyle=VIO; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(P.X(0),P.Y(90));
       while(t<8){ T+=-k*(T-env)*h; t+=h; ctx.lineTo(P.X(t),P.Y(T)); } ctx.stroke();
@@ -108,8 +108,8 @@
       // 이름표
       ctx.font='12px sans-serif'; ctx.textAlign='left';
       ctx.fillStyle=VIO; ctx.fillText('T(t)', P.X(2.0), P.Y(env+(90-env)*Math.exp(-k*2.0))-10);
-      ctx.fillStyle=GLD; ctx.fillText('T₀ = 90°', P.X(0)+6, P.Y(90)+2);
-      ctx.fillStyle=VIO; ctx.textAlign='right'; ctx.fillText('T(8) = '+Tend.toFixed(1)+'°', P.X(8)-4, P.Y(Tend)-6); ctx.textAlign='left';
+      ctx.fillStyle=GLD; ctx.fillText('T₀ = 90°', P.X(0)+6, P.Y(90)+28);  // y축 라벨 T와 안 겹치게 아래로
+      ctx.fillStyle=VIO; ctx.textAlign='right'; ctx.fillText('T(8) = '+Tend.toFixed(1)+'°', P.X(8)-4, P.Y(Tend)-14); ctx.textAlign='left';
       E.big('dT/dt = −k(T − '+env+'°)', '온도차에 비례해 식습니다 — 빠르게 식다가 주변온도('+env+'°)에 다가가며 느려집니다'); }
   }
 

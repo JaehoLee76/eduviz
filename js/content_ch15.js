@@ -50,7 +50,7 @@
   },
 
   // ══════════ 15.2 조합 ══════════
-  { id:'ch15_03',
+  { id:'ch15_03', hudOff:true,
     enter:function(E){ this.s={n:4,r:2}; E.setOn([]);
       E.controls('<div class="ctrl"><label>전체 수 n</label><input type="range" id="cn" min="2" max="5" step="1" value="4"><output id="cno">4</output></div>'+
                  '<div class="ctrl"><label>뽑는 수 r</label><input type="range" id="cr" min="0" max="5" step="1" value="2"><output id="cro">2</output></div>');
