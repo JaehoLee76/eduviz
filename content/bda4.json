@@ -21,7 +21,16 @@
   "problem": {
    "q": "두 표를 pd.concat([A, B], axis=1)로 붙였더니 원본에 없던 NaN 행이 생겼습니다. 데이터는 순서대로 잘 정렬돼 있었는데 왜일까요?",
    "solution": "axis=1 결합은 <b>보이는 순서(위치)가 아니라 인덱스로 행을 맞추기</b> 때문입니다. 두 표의 행 순서가 같아도 인덱스가 (0,1,2)와 (1,2,3)처럼 어긋나 있으면 합집합 인덱스로 정렬되며 빈자리가 NaN이 됩니다. 위치로 붙이고 싶다면 두 표 모두 reset_index(drop=True)로 인덱스를 0부터 다시 매긴 뒤 결합하세요."
-  }
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch4_04",
+    "label": "집합의 합",
+    "sub": "수학 4장 · 벤다이어그램",
+    "track": "math"
+   }
+  ]
  },
  "bda4_03": {
   "ch": "빅데이터 분석 제4장 · 데이터 조작 I",
@@ -33,7 +42,16 @@
   "problem": {
    "q": "고객 1,000명 표에 주문 표를 left 조인했더니 결과가 1,430행이 되었습니다. 버그일까요?",
    "solution": "버그가 아니라 <b>1:N 관계의 정상 동작</b>일 가능성이 큽니다. left 조인은 왼쪽 행을 모두 지키되, 주문이 여러 건인 고객은 <b>주문 건수만큼 반복</b>됩니다 — 1,000명 중 일부가 2건 이상 주문했다면 1,430행이 될 수 있죠. 고객당 1행이 필요하면 주문을 먼저 groupby로 고객별 집계(건수·합계)한 뒤 조인합니다. 의도한 관계인지 확인하려면 validate=\"one_to_many\"를 지정해 어긋날 때 에러가 나게 하세요."
-  }
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo2_05",
+    "label": "해시 테이블",
+    "sub": "알고리즘 2장 · 계산으로 찾기",
+    "track": "algo"
+   }
+  ]
  },
  "bda4_04": {
   "ch": "빅데이터 분석 제4장 · 데이터 조작 I",
@@ -41,7 +59,16 @@
   "title": "한 번에 하나씩 — apply·map과 축(axis)의 방향",
   "narr": "표가 하나로 모였으니 이제 <b>계산을 흘려보낼 방향</b>을 정할 차례입니다. <b>axis=0</b>은 열을 따라 위에서 아래로 접어 <b>과목별 평균</b>을, <b>axis=1</b>은 행을 따라 왼쪽에서 오른쪽으로 접어 <b>학생별 평균</b>을 만듭니다 — df.mean()과 df.mean(axis=1)의 차이가 바로 이 방향이죠. 표 단위가 아니라 <b>원소 하나하나</b>를 바꾸고 싶다면 <b>map</b>입니다: 점수마다 함수를 통과시켜 등급을 매기거나, 사전으로 값을 치환합니다. 단, 기억하세요 — 파이썬 함수를 apply로 돌리면 <b>행 수만큼 함수 호출</b>이 일어납니다. 3장의 결론 그대로, 내장 벡터화 연산이 있으면 언제나 그쪽이 먼저입니다.",
   "more": "<b>언제 무엇을 쓰나</b>: ① 합·평균·최대 같은 표준 요약은 <b>내장 메서드</b>(df.mean(axis=..) 등) — C 수준에서 돌아 가장 빠릅니다. ② 원소별 치환·매핑은 <b>Series.map(함수 또는 dict)</b>. ③ 여러 열을 조합하는 행 단위 로직 중 벡터화로 못 쓰는 것만 <b>df.apply(f, axis=1)</b> — 이건 사실상 파이썬 for 루프라, 백만 행이면 백만 번 함수를 호출합니다.\n\n<b>흔한 성능 함정</b>: df.apply(lambda r: r[\"a\"]+r[\"b\"], axis=1)는 df[\"a\"]+df[\"b\"]로 쓰면 수십~수백 배 빨라집니다. 조건 분기도 map이나 apply 대신 <b>np.where(조건, 값1, 값2)</b> 같은 벡터화 표현이 우선입니다. apply는 ‘벡터화가 정말 안 될 때의 최후 수단’으로 남겨 두세요 — 이 원칙 하나가 대용량에서 몇 분과 몇 초를 가릅니다.",
-  "more_en": "axis is direction: axis=0 folds down each column (per-subject mean), axis=1 folds across each row (per-student mean). map transforms element by element — pass a function or a dict for value substitution. Performance rule: built-in methods (df.mean) run in C; df.apply(f, axis=1) is essentially a Python for loop calling f once per row. Prefer vectorized forms (df[\"a\"]+df[\"b\"], np.where) and keep apply as a last resort when no vectorized equivalent exists."
+  "more_en": "axis is direction: axis=0 folds down each column (per-subject mean), axis=1 folds across each row (per-student mean). map transforms element by element — pass a function or a dict for value substitution. Performance rule: built-in methods (df.mean) run in C; df.apply(f, axis=1) is essentially a Python for loop calling f once per row. Prefer vectorized forms (df[\"a\"]+df[\"b\"], np.where) and keep apply as a last resort when no vectorized equivalent exists.",
+  "xref": [
+   {
+    "href": "python.html",
+    "scene": "py3_05",
+    "label": "고차함수·lambda",
+    "sub": "파이썬 3장 · 함수를 값으로",
+    "track": "python"
+   }
+  ]
  },
  "bda4_05": {
   "ch": "빅데이터 분석 제4장 · 데이터 조작 I",
@@ -53,6 +80,15 @@
   "problem": {
    "q": "각 학생 점수에서 ‘자기 반 평균’을 빼 편차 열을 만들려고 합니다. agg와 transform 중 무엇을 왜 써야 할까요?",
    "solution": "<b>transform</b>입니다. agg는 반당 1행으로 <b>줄어들어</b>(길이 2) 원본 8행과 바로 빼기를 할 수 없고, 조인으로 되돌리는 수고가 필요합니다. transform(\"mean\")은 <b>원본과 같은 길이</b>로 각 행에 자기 반 평균을 돌려주므로 df[\"점수\"] - df.groupby(\"반\")[\"점수\"].transform(\"mean\") 한 줄이면 편차 열이 완성됩니다."
-  }
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo3_04",
+    "label": "쪼개고 합치기",
+    "sub": "알고리즘 3장 · 병합 정렬",
+    "track": "algo"
+   }
+  ]
  }
 }

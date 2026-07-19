@@ -17,7 +17,16 @@
   "problem": {
    "q": "동료가 내 코드를 그대로 실행했는데 모델 성능이 나와 다르게 나왔습니다. requirements.txt는 이미 똑같이 맞췄습니다. 다음으로 가장 먼저 의심해야 할 것은?",
    "solution": "<b>난수 시드(random seed)</b>입니다. 버전이 같다면, 데이터 분할·초기 가중치·부트스트랩 표본처럼 난수를 쓰는 지점에서 시드가 고정되지 않았을 가능성이 큽니다. random.seed()·np.random.seed()·(사용 라이브러리별 random_state 인자)를 코드 전체에 일관되게 고정했는지 확인합니다."
-  }
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch16_01",
+    "label": "확률과 난수",
+    "sub": "수학 16장 · 경우의 수의 비율",
+    "track": "math"
+   }
+  ]
  },
  "bda1_03": {
   "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
@@ -25,7 +34,16 @@
   "title": "첫 만남 — 데이터를 읽기 전에 먼저 훑어봅니다",
   "narr": "환경이 준비됐다면, 이제 진짜 데이터를 만날 차례입니다. 처음 보는 데이터를 받으면 곧장 분석부터 하지 않습니다 — 먼저 <b>생김새를 훑습니다</b>. <b>df.shape</b>로 행·열이 몇 개인지, <b>df.dtypes</b>로 각 열이 숫자인지 글자인지, <b>df.head(3)</b>로 위 몇 줄이 어떻게 생겼는지, <b>df.isna().sum()</b>으로 빠진 값이 몇 개인지 봅니다. 이 네 줄이 모든 분석의 첫 문장입니다. 학생 6명의 작은 표로, 탭하며 각 명령이 실제로 무엇을 세는지 확인해 보세요.",
   "more": "<b>dtype이 왜 float64로 바뀌나</b>: age·score 열은 원래 정수·실수지만, 결측(NaN)이 하나라도 있으면 pandas가 열 전체를 <b>float64</b>로 승격합니다(정수형에는 NaN을 담을 수 없기 때문). 문자열이 섞인 name·city는 <b>object</b> 타입으로 표시됩니다. 이 승격 규칙을 모르면 '분명 정수였는데 왜 소수점이 붙지?' 하고 당황하기 쉽습니다.\n\n<b>왜 head()부터 보나</b>: 수백만 행짜리 데이터를 전부 화면에 띄울 수 없습니다. head(3)·tail(3)로 양 끝을 살짝 보는 것만으로 <b>열 이름이 맞는지, 값의 단위가 예상과 같은지, 인코딩이 깨지지 않았는지</b>를 빠르게 점검할 수 있습니다.\n\n<b>화면의 shape·dtypes·결측 개수</b>는 6명 학생의 고정 표에서 실제로 세어 계산한 값입니다 — 이 트랙의 모든 숫자는 이렇게 실제 데이터에서 나옵니다.",
-  "more_en": "Before analyzing, always survey new data first: df.shape (rows/columns), df.dtypes (per-column type), df.head() (first rows), df.isna().sum() (missing counts). Note that a numeric column becomes float64 the moment it contains any missing value, since integer dtypes cannot hold NaN. All figures shown are computed live from a fixed 6-student table."
+  "more_en": "Before analyzing, always survey new data first: df.shape (rows/columns), df.dtypes (per-column type), df.head() (first rows), df.isna().sum() (missing counts). Note that a numeric column becomes float64 the moment it contains any missing value, since integer dtypes cannot hold NaN. All figures shown are computed live from a fixed 6-student table.",
+  "xref": [
+   {
+    "href": "python.html",
+    "scene": "py2_05",
+    "label": "자료구조 고르기",
+    "sub": "파이썬 2장 · list·tuple·dict·set",
+    "track": "python"
+   }
+  ]
  },
  "bda1_04": {
   "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
@@ -37,7 +55,16 @@
   "problem": {
    "q": "round(1250, -2) 는 무엇을 반환할까요? (ndigits가 음수일 때의 규칙을 떠올려 보세요)",
    "solution": "<b>1200</b>입니다. ndigits=-2는 '백의 자리'로 반올림하라는 뜻입니다. 1250을 백 단위로 보면 12.5백 — 파이썬의 은행가 반올림(가장 가까운 짝수로) 규칙에 따라 12(짝수)로 내려가 1200이 됩니다. round()는 항상 위로 올림하지 않는다는 점도 문서를 읽어야 알 수 있는 세부사항입니다."
-  }
+  },
+  "xref": [
+   {
+    "href": "python.html",
+    "scene": "py3_04",
+    "label": "함수의 정의",
+    "sub": "파이썬 3장 · def와 인자",
+    "track": "python"
+   }
+  ]
  },
  "bda1_05": {
   "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",

@@ -5,7 +5,23 @@
   "title": "루프를 버리다 — 벡터화",
   "narr": "2장에서 ndarray와 DataFrame이라는 그릇을 익혔으니, 이제 그 그릇을 <b>파이썬답게 다루는 법</b>을 배울 차례입니다. 첫 원칙은 단순합니다 — <b>루프 대신 배열 연산</b>. 모든 원소를 2배로 만들 때 for 루프는 파이썬이 <b>n번을 직접 돌며</b> 매번 타입을 확인하지만, <b>data * 2</b>는 단 <b>한 번의 호출</b>로 끝납니다. 내부에서는 C로 짜인 루프가 <b>연속 메모리</b>를 기계어 속도로 훑죠. 슬라이더로 n을 키워 보세요 — 알고리즘 트랙에서 배운 복잡도 O(n)은 같아도, 파이썬 레벨 반복 횟수는 n 대 1로 벌어집니다.",
   "more": "<b>왜 빠른가 — 두 가지 이유</b>: ① <b>인터프리터 오버헤드 제거</b> — 파이썬 for 루프는 한 바퀴마다 바이트코드 해석·타입 확인·객체 생성을 반복하지만, 벡터화는 이 비용을 호출 1번으로 줄입니다. ② <b>연속 메모리</b> — list는 흩어진 객체를 가리키는 포인터 모음이라 CPU 캐시가 계속 빗나가는 반면, ndarray는 같은 dtype 값이 한 줄로 붙어 있어 캐시·SIMD에 최적입니다.\n\n<b>실무 감각</b>: 데이터 코드에서 for가 보이면 \"이거 배열 연산으로 안 되나?\"부터 자문하세요. sum·mean 같은 집계, 산술·비교, 문자열 처리(str 액세서)까지 대부분 벡터화 버전이 있습니다. 다만 행마다 복잡한 분기가 얽힌 극소수 경우는 루프가 더 읽기 쉬울 수 있습니다 — 원칙은 \"기본은 벡터화, 예외는 의식적으로\".",
-  "more_en": "Vectorization replaces Python-level loops with single array operations: data * 2 makes one call while a for loop iterates n times with per-step interpretation and type checks. NumPy is fast for two reasons: the interpreter overhead collapses to one call, and ndarrays store same-dtype values in contiguous memory, ideal for CPU caches and C/SIMD loops (unlike lists of scattered object pointers). Rule of thumb: prefer array operations; use loops only deliberately."
+  "more_en": "Vectorization replaces Python-level loops with single array operations: data * 2 makes one call while a for loop iterates n times with per-step interpretation and type checks. NumPy is fast for two reasons: the interpreter overhead collapses to one call, and ndarrays store same-dtype values in contiguous memory, ideal for CPU caches and C/SIMD loops (unlike lists of scattered object pointers). Rule of thumb: prefer array operations; use loops only deliberately.",
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo1_03",
+    "label": "빅오 표기법",
+    "sub": "알고리즘 1장 · 성장의 속도",
+    "track": "algo"
+   },
+   {
+    "href": "python.html",
+    "scene": "py6_04",
+    "label": "벡터화의 힘",
+    "sub": "파이썬 6장 · 반복 대신 배열로",
+    "track": "python"
+   }
+  ]
  },
  "bda3_02": {
   "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
@@ -17,7 +33,16 @@
   "problem": {
    "q": "shape (2,3)인 배열과 shape (4,)인 배열을 더하면 어떻게 될까요?",
    "solution": "<b>ValueError가 납니다.</b> (4,)는 (1,4)로 취급되어 끝 차원부터 비교하면 열 축이 3 vs 4 — 같지도 않고 어느 쪽도 1이 아니므로 브로드캐스팅이 거절합니다. (2,3)과 더해지려면 (3,)·(1,3)·(2,1)·(2,3)처럼 각 축이 '같거나 1'이어야 합니다."
-  }
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch9_03",
+    "label": "실수배와 스케일",
+    "sub": "수학 9장 · 늘이고 뒤집기",
+    "track": "math"
+   }
+  ]
  },
  "bda3_03": {
   "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
@@ -25,7 +50,16 @@
   "title": "조건을 데이터에 적용하기 — 마스크가 곧 필터",
   "narr": "이제 조건문 차례인데, 여기서도 파이썬다운 길은 if를 <b>원소마다 쓰지 않는 것</b>입니다. <b>scores &gt;= t</b> 한 줄이면 True/False가 늘어선 <b>불리언 마스크</b>가 생기고, <b>scores[mask]</b>처럼 대괄호에 넣으면 마스크가 <b>그대로 필터</b>가 됩니다. 값을 조건에 따라 갈아 끼우려면 <b>np.where(조건, A, B)</b>, 범위를 벗어난 값을 잘라 내려면 <b>np.clip</b> — 셋 다 벡터화라 빠르죠. 화면을 탭해 마스크→where→clip을 오가고, 슬라이더로 기준 t를 움직여 보세요. 통과 개수와 평균이 실시간으로 다시 계산됩니다.",
   "more": "<b>세 도구의 용도</b>: ① <b>마스크 필터</b> — df[df.price &gt; 100] 처럼 조건에 맞는 행만 추리기(분석의 절반은 이 문법입니다). ② <b>np.where</b> — 합격/불합격 라벨, 음수→0 치환 등 조건부 값 생성. ③ <b>clip</b> — 이상치를 상·하한으로 눌러 극단값이 평균·모델을 흔드는 것을 완화(윈저라이징).\n\n<b>조합의 힘</b>: 마스크끼리는 <b>&amp;(그리고)·|(또는)·~(부정)</b>으로 결합합니다 — 단 각 조건을 괄호로 감싸야 합니다((a&gt;1) &amp; (b&lt;2)). mask.sum()은 True를 1로 세니 <b>조건을 만족한 개수</b>가 되고, mask.mean()은 곧 <b>비율</b>입니다 — 통계로 이어지는 이 감각은 7장에서 다시 만납니다.",
-  "more_en": "Boolean masks turn conditions into data: scores >= t yields a True/False array, and scores[mask] filters in one step. np.where(cond, A, B) substitutes values conditionally; np.clip caps values to a range (useful against outliers). Combine masks with & | ~ (parenthesize each condition). mask.sum() counts matches and mask.mean() gives the proportion — a bridge straight into statistics."
+  "more_en": "Boolean masks turn conditions into data: scores >= t yields a True/False array, and scores[mask] filters in one step. np.where(cond, A, B) substitutes values conditionally; np.clip caps values to a range (useful against outliers). Combine masks with & | ~ (parenthesize each condition). mask.sum() counts matches and mask.mean() gives the proportion — a bridge straight into statistics.",
+  "xref": [
+   {
+    "href": "python.html",
+    "scene": "py3_01",
+    "label": "조건 분기",
+    "sub": "파이썬 3장 · if·elif·else",
+    "track": "python"
+   }
+  ]
  },
  "bda3_04": {
   "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
@@ -37,7 +71,16 @@
   "problem": {
    "q": "v = arr[2:5]; v[:] = 0 을 실행하면 arr은 어떻게 될까요? (arr = np.arange(6))",
    "solution": "<b>arr[2]·arr[3]·arr[4]가 전부 0이 됩니다</b> — 결과는 [0, 1, 0, 0, 0, 5]. v는 arr의 같은 메모리를 보는 뷰이므로 v 전체에 쓰면 원본의 해당 구간이 그대로 바뀝니다. 원본을 지키려면 v = arr[2:5].copy() 로 독립 사본을 만들어야 합니다."
-  }
+  },
+  "xref": [
+   {
+    "href": "python.html",
+    "scene": "py2_01",
+    "label": "리스트와 참조",
+    "sub": "파이썬 2장 · 값이 공유될 때",
+    "track": "python"
+   }
+  ]
  },
  "bda3_05": {
   "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
@@ -49,6 +92,15 @@
   "problem": {
    "q": "def log(msg, buf=[]) 처럼 리스트를 기본 인자로 두면 왜 위험할까요?",
    "solution": "<b>기본값 리스트가 호출들끼리 공유되기 때문입니다.</b> 기본 인자는 함수를 정의하는 순간 딱 한 번 평가되어 함수 객체에 저장됩니다. 그래서 log(\"a\") 후 log(\"b\")를 부르면 buf에 [\"a\",\"b\"]가 쌓여 있죠 — 호출마다 새 리스트를 기대했다면 버그입니다. 정석은 buf=None으로 받고 함수 안에서 buf = [] if buf is None else buf 로 만드는 것입니다."
-  }
+  },
+  "xref": [
+   {
+    "href": "python.html",
+    "scene": "py3_04",
+    "label": "함수로 묶기",
+    "sub": "파이썬 3장 · def와 재사용",
+    "track": "python"
+   }
+  ]
  }
 }

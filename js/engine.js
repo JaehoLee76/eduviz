@@ -53,7 +53,17 @@
       +'#stageHud .hudc.r{align-items:flex-end;text-align:right;}'
       +'#stageHud .hud-tl{left:10px;top:8px;}#stageHud .hud-tr{right:10px;top:8px;}'
       +'#stageHud .hud-bl{left:10px;bottom:8px;}#stageHud .hud-br{right:10px;bottom:8px;}'
-      +'#stageHud .hud-item{background:rgba(9,11,18,.74);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:4px 10px;font-size:13px;line-height:1.35;font-weight:600;color:var(--accent-light,#e2e8f2);box-shadow:0 2px 10px rgba(0,0,0,.28);white-space:normal;word-break:break-word;}';
+      +'#stageHud .hud-item{background:rgba(9,11,18,.74);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:4px 10px;font-size:13px;line-height:1.35;font-weight:600;color:var(--accent-light,#e2e8f2);box-shadow:0 2px 10px rgba(0,0,0,.28);white-space:normal;word-break:break-word;}'
+      // ── 크로스 트랙 바로가기 버튼(느린 점멸). 빅데이터 장면 → 관련 트랙 장면 점프 / 그 트랙에서 원위치 복귀
+      +'@keyframes xr-pulse{0%,100%{opacity:1;}50%{opacity:.44;}}'
+      +'#xrefBar{position:fixed;top:104px;right:18px;z-index:9;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none;}'
+      +'#xrefBar .xr-btn{pointer-events:auto;display:flex;align-items:center;gap:9px;background:rgba(13,15,23,.9);border:1.5px solid var(--accent-light,#7ab8ff);border-radius:12px;padding:7px 13px;text-decoration:none;color:var(--accent-light,#7ab8ff);box-shadow:0 3px 14px rgba(0,0,0,.42);animation:xr-pulse 3.2s ease-in-out infinite;max-width:280px;transition:background .15s,transform .15s;}'
+      +'#xrefBar .xr-btn:hover{animation:none;background:rgba(28,32,46,.98);transform:translateY(-1px);}'
+      +'#xrefBar .xr-ic{font-size:17px;line-height:1;flex:none;}'
+      +'#xrefBar .xr-tx{display:flex;flex-direction:column;line-height:1.25;min-width:0;}'
+      +'#xrefBar .xr-tx b{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+      +'#xrefBar .xr-tx i{font-size:10.5px;font-style:normal;opacity:.74;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+      +'#xrefBar .xr-back{border-color:#ff7ab8;color:#ff7ab8;}';
     document.head.appendChild(st); }
   function setVpad(){ var sw=(global.screen&&global.screen.width)||global.innerWidth;
     var target=Math.min(VP_MAXW, Math.max(1100, Math.round(sw*0.65)));   // 와이드 화면의 65% = 가장 보기 편한 폭(1100~1680 클램프). 브라우저 창은 못 줄여도 콘텐츠를 이 폭으로 렌더해 동일 효과.
@@ -99,6 +109,41 @@
       el.innerHTML=slot[k].map(function(t){ return '<div class="hud-item">'+esc(t)+'</div>'; }).join(''); });
   }
   function hudHide(){ if(hudEl){ hudEl.style.display='none'; _hudSig='__off'; } }
+
+  // ── 크로스 트랙 바로가기(xref): 장면의 sc.xref = {href,scene,label,sub,track,icon} (배열 가능)
+  //    빅데이터 장면에서 관련 트랙 장면으로 점프하고, 그 트랙에서 원위치로 복귀한다.
+  //    복귀 버튼은 '점프해 왔을 때만' 보인다(sessionStorage 표식) → 그냥 학습 중엔 안 보임.
+  var xrefBar, XR_KEY='eduviz_xref_back';
+  var XR_ICON={math:'📐',calculus:'∫',algo:'🧮',ai:'🤖',python:'🐍',physics:'⚛',bda:'📊',cpp:'⧺',hygiene:'⛑'};
+  function xrefQ(){ try{ return new URLSearchParams(location.search); }catch(e){ return null; } }
+  function xrefSetup(){
+    if(!document.body) return;
+    var q=xrefQ();
+    try{
+      if(q){ var bk=q.get('bk');
+        if(bk) sessionStorage.setItem(XR_KEY,bk);            // 점프해 옴 → 복귀 정보 보관(세션 유지)
+        else if(q.get('xr')) sessionStorage.removeItem(XR_KEY); // 복귀 도착 → 표식 제거
+      }
+    }catch(e){}
+    xrefBar=document.getElementById('xrefBar');
+    if(!xrefBar){ xrefBar=document.createElement('div'); xrefBar.id='xrefBar'; document.body.appendChild(xrefBar); }
+  }
+  function xrefBackVal(){ try{ return sessionStorage.getItem(XR_KEY)||''; }catch(e){ return ''; } }
+  function renderXref(sc){
+    if(!xrefBar) return;
+    var html='', back=xrefBackVal();
+    if(back){ var p=back.split('~');
+      html+='<a class="xr-btn xr-back" href="'+p[0]+'?xr='+encodeURIComponent(p[1]||'')+'">'
+          +'<span class="xr-ic">↩</span><span class="xr-tx"><b>빅데이터로 돌아가기</b><i>보던 자리로</i></span></a>'; }
+    var xs = (sc && sc.xref) ? (sc.xref.length!=null ? sc.xref : [sc.xref]) : [];
+    for(var i=0;i<xs.length && i<2;i++){ var x=xs[i]; if(!x||!x.href||!x.scene) continue;
+      var here=location.pathname.split('/').pop()||'index.html';
+      var bkv=encodeURIComponent(here+'~'+(sc.id||''));
+      html+='<a class="xr-btn" href="'+x.href+'?xr='+encodeURIComponent(x.scene)+'&bk='+bkv+'">'
+          +'<span class="xr-ic">'+(x.icon||XR_ICON[x.track]||'↗')+'</span>'
+          +'<span class="xr-tx"><b>'+esc(x.label||'자세히 보기')+'</b><i>'+esc(x.sub||'')+'</i></span></a>'; }
+    xrefBar.innerHTML=html; xrefBar.style.display=html?'flex':'none';
+  }
   function resize(){ setVpad(); DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
   // 시각화 구역을 제목(상단)·UI(하단)와 독립 분리: 제목 높이를 실측해 캔버스 상단을 그만큼 비운다(1줄/2줄·화면크기 자동 대응).
   var _needFit=false;
@@ -397,6 +442,7 @@
     say(sc.narr||''); if(hintEl)hintEl.textContent=sc.hint||''; if(titleEl)titleEl.textContent=sc.title||''; if(secEl)secEl.textContent=(sc.ch?sc.ch+' · ':'')+(sc.sec||'');
     var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent=(sc.introCard?'✦ 인트로':'#'+(sc._num||(i+1)));
     renderCrumb(sc); updateBranchBtn(sc); updateNavBtns(sc);
+    renderXref(sc);   // 크로스 트랙 바로가기 버튼 갱신
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
@@ -818,7 +864,9 @@
     var eL=document.getElementById('eyeL'), eR=document.getElementById('eyeR');
     if(eL) setInterval(function(){ eL.setAttribute('ry','0.6'); eR.setAttribute('ry','0.6'); setTimeout(function(){ eL.removeAttribute('ry'); eR.removeAttribute('ry'); },140); },3600);
     function relayout(){ resize(); var s=SM.scenes[SM.cur]; if(s&&s.layout) s.layout(E); }
-    function boot(){ buildHierarchy(); buildTOC(); loop(); goTo(0);
+    function boot(){ buildHierarchy(); buildTOC(); xrefSetup(); loop();
+      var _si=0; try{ var _q=xrefQ(), _xr=_q&&_q.get('xr'); if(_xr){ for(var _i=0;_i<SM.scenes.length;_i++){ if(SM.scenes[_i].id===_xr){ _si=_i; break; } } } }catch(e){}
+      goTo(_si);
       global.addEventListener('load', relayout); setTimeout(relayout,200); setTimeout(relayout,600); }
     // ── 콘텐츠(텍스트)는 content/*.json 에서 로드 → 동작(코드)과 분리. 편집은 JSON만 하면 반영 ──
     var cfiles=(opts.content||['content/ch1.json','content/ch2.json','content/ch3.json','content/ch4.json','content/ch5.json']);
