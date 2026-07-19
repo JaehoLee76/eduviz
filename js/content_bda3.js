@@ -504,10 +504,12 @@
         ctx.fillStyle=RED;  ctx.fillText('              add(2) → ['+r2.join(', ')+']  ?!', gx, H*0.20+24);
         ctx.fillStyle=GRN;  ctx.fillText('xs=None 버전: add(1) → ['+s1.join(', ')+']', gx, H*0.20+58);
         ctx.fillStyle=GRN;  ctx.fillText('              add(2) → ['+s2.join(', ')+']', gx, H*0.20+82);
-        ctx.fillStyle=TXT; ctx.font='12.5px sans-serif';
-        ctx.fillText('기본값 리스트는 함수를 정의할 때 딱 한 번 만들어져 호출들끼리 공유됩니다.', gx, H*0.20+118);
-        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
-        ctx.fillText('가변 객체(list·dict·DataFrame)를 기본 인자로 두지 마세요 — None이 정석.', gx, H*0.20+140);
+        ctx.fillStyle=TXT; ctx.font='11px sans-serif';
+        ctx.fillText('기본값 리스트는 함수 정의 때 딱 한 번 만들어져', gx, H*0.20+114);
+        ctx.fillText('호출들끼리 공유됩니다.', gx, H*0.20+130);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif';
+        ctx.fillText('가변 객체(list·dict·DataFrame)를 기본 인자로 두지', gx, H*0.20+150);
+        ctx.fillText('마세요 — None이 정석.', gx, H*0.20+166);
       } else {
         codePanel(E, W*0.04, H*0.12, W*0.46, codeMod, 'pipeline.py — 모듈과 파이프', 3);
         // 파이프라인 각 단계 실계산: dropna → 표준화(ddof=1) → 요약

@@ -332,12 +332,13 @@
       ctx.fillStyle=GLD; ctx.font='600 14px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
       ctx.fillText(R.rows.length+'행', gx, rb+22);
       ctx.fillStyle=nn>0?RED:GRN; ctx.fillText('NaN '+nn+'개', gx+70, rb+22);
-      ctx.fillStyle=DIM; ctx.font='12px sans-serif';
-      var caps={inner:'짝이 있는 행만 — 고객 3(다인)은 주문 2건이라 두 번 등장합니다.',
-                left:'고객은 전원 유지 — 주문 없는 가영·라온의 금액은 NaN.',
-                right:'주문은 전부 유지 — 고객 정보 없는 cid 5의 이름은 NaN.',
-                outer:'양쪽 전부 — 빠진 자리는 모두 NaN으로 채웁니다.'};
-      ctx.fillText(caps[how], gx, rb+44);
+      ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+      var caps={inner:['짝이 있는 행만 — 고객 3(다인)은','주문 2건이라 두 번 등장합니다.'],
+                left:['고객은 전원 유지 — 주문 없는','가영·라온의 금액은 NaN.'],
+                right:['주문은 전부 유지 — 고객 정보 없는','cid 5의 이름은 NaN.'],
+                outer:['양쪽 전부 — 빠진 자리는 모두','NaN으로 채웁니다.']};
+      ctx.fillText(caps[how][0], gx, rb+42);
+      ctx.fillText(caps[how][1], gx, rb+58);
 
       E.tapHint(W/2, H*0.93, '화면 탭 = 조인 종류 (inner → left → right → outer)', true);
       E.big('표를 짝지어 합치기 — merge(조인)', '이어 붙이기가 아니라 열쇠(키)로 짝을 맞추는 결합입니다. how가 결정하는 건 "짝 없는 행의 운명" — inner는 버리고, left/right는 한쪽을 지키고, outer는 전부 살립니다. 내부에서는 한쪽을 해시 표에 적재하고 다른 쪽으로 탐침하는, 알고리즘 트랙에서 본 그 해시 탐색이 돌아갑니다.'); }
@@ -407,8 +408,9 @@
         ctx.fillStyle=BLU; ctx.font='12.5px sans-serif'; ctx.textAlign='left';
         ctx.fillText('행마다 1개 — 결과는 길이 4의 Series(학생별 평균).', gx, tb+24);
         // 벡터화 대비: 함수 호출 횟수를 실제로 셈
-        ctx.fillStyle=DIM; ctx.font='12px sans-serif';
-        ctx.fillText('내장 mean(axis=1)은 C 루프 1번 · 파이썬 함수를 apply하면 행 수만큼('+rowMean.length+'번) 호출됩니다.', gx, tb+48);
+        ctx.fillStyle=DIM; ctx.font='11.5px sans-serif';
+        ctx.fillText('내장 mean(axis=1)은 C 루프 1번 · apply하면', gx, tb+46);
+        ctx.fillText('행 수만큼('+rowMean.length+'번) 호출됩니다.', gx, tb+62);
       } else {
         // 국어 열 → 등급 (원소 단위, 실판정) — 표 오른쪽에 결과 나열
         for(i=0;i<4;i++){ var ay2=gy+14+rh*(i+1)+rh/2+4, gx2=gx+cw*4+14;

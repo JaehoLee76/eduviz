@@ -1,0 +1,89 @@
+{
+ "bda5_01": {
+  "ch": "빅데이터 분석 제5장 · 데이터 조작 II",
+  "sec": "5.1 SQL식 질의",
+  "title": "표를 SQL처럼 질의하기 — DuckDB와 pandas",
+  "narr": "4장에서 불러오고(read_csv), 붙이고(concat·merge), 요약하는(groupby) 조작의 기본기를 갖췄으니, 이제 같은 일을 <b>더 편한 문법으로, 더 큰 데이터에서, 더 빠르게</b> 하는 법을 익힐 차례입니다. 첫걸음은 질의 방법의 선택지 — 데이터베이스 경험자라면 <b>SQL</b>이 손에 익어 있죠. <b>DuckDB</b>를 쓰면 메모리 위의 DataFrame에 <b>SELECT … WHERE … GROUP BY</b>를 그대로 던질 수 있습니다. 탭하며 같은 질문(필터·집계)을 SQL과 pandas 두 방식으로 실행해 보세요 — 행 수와 평균값이 두 경로에서 각각 실제로 계산되어 <b>정확히 일치</b>합니다. 문법은 취향이고, 결과는 하나입니다.",
+  "more": "<b>언제 SQL식이 유리한가</b>: ① 여러 표를 잇는 복잡한 조인+집계는 SELECT 한 문장이 pandas 체인보다 읽기 쉬울 때가 많습니다. ② DuckDB는 <b>열 지향 엔진</b>이라 큰 파일(파케이)을 메모리에 다 올리지 않고도 질의할 수 있습니다 — \"10GB 파일에서 이 조건의 행만\" 같은 작업에 강합니다. ③ 팀에 SQL만 쓰는 동료가 있다면 같은 질의문을 공유할 수 있죠.\n\n<b>언제 pandas가 유리한가</b>: 열 추가·결측 처리·재구조화처럼 <b>단계적으로 표를 다듬는</b> 작업은 표현식 체인이 자연스럽습니다. 실무 감각은 \"탐색·대량 필터링은 SQL식으로, 세밀한 가공은 pandas로\" — 하나만 고집할 이유가 없습니다. DuckDB는 pandas의 DataFrame을 복사 없이 읽으므로 두 방식을 한 노트북 안에서 자유로이 오가도 비용이 거의 없습니다.",
+  "more_en": "DuckDB lets you run plain SQL (SELECT/WHERE/GROUP BY) directly against an in-memory DataFrame, while pandas expresses the same queries as expressions — this scene executes both paths and verifies the row counts and averages match exactly. SQL shines for complex join+aggregate questions and for querying large columnar files without loading them fully; pandas shines for stepwise table wrangling. DuckDB reads DataFrames zero-copy, so mixing both styles in one notebook is essentially free.",
+  "problem": {
+   "q": "수백만 행 파케이 파일에서 \"지역=서울, 금액 상위 10건\"만 필요합니다. pandas로 전체를 read_parquet한 뒤 필터링하는 방법의 문제점과 더 나은 방법은?",
+   "solution": "전체 로드는 <b>필요 없는 행·열까지 전부 메모리에 올리는</b> 낭비입니다(수 GB가 될 수 있음). DuckDB로 <b>SELECT * FROM 'file.parquet' WHERE 지역='서울' ORDER BY 금액 DESC LIMIT 10</b>을 실행하면 열 지향 스캔으로 필요한 부분만 읽어 결과 10행만 DataFrame으로 받습니다. 조건에 맞는 소량만 메모리에 들어오므로 노트북에서도 대용량 파일을 다룰 수 있습니다."
+  }
+ },
+ "bda5_02": {
+  "ch": "빅데이터 분석 제5장 · 데이터 조작 II",
+  "sec": "5.2 재구조화 (melt · pivot)",
+  "title": "긴 형식 ↔ 넓은 형식 — melt와 pivot",
+  "narr": "질의 도구를 갖췄으니 이번엔 <b>표의 모양 자체</b>를 바꿔 봅니다. 같은 성적 데이터도 두 가지 모양이 있습니다 — 과목이 열로 펼쳐진 <b>넓은 형식</b>은 사람이 읽기 좋고, 한 행이 관측 하나(누가·무엇을·몇 점)인 <b>긴 형식</b>은 기계가 다루기 좋죠. <b>melt</b>는 넓은 표를 길게 녹이고, <b>pivot</b>은 긴 표를 다시 넓게 폅니다. 탭하며 실제 변환을 실행해 보세요 — (3, 4)가 (9, 3)이 되고, 다시 (3, 4)로 돌아오며 <b>9개 값이 전부 일치</b>하는 것까지 계산으로 확인합니다. 분석·시각화 코드가 긴 형식을 좋아하는 이유도 함께 보입니다: 과목이 100개로 늘어도 groupby 한 줄은 그대로니까요.",
+  "more": "<b>긴 형식이 분석의 표준인 이유</b>: 넓은 표에서 \"과목별 평균\"을 구하려면 열 이름을 일일이 알아야 하지만, 긴 형식에서는 <b>groupby(\"과목\")</b> 한 줄 — 열이 늘어나도 코드가 불변입니다. 시각화 라이브러리(seaborn 등)의 hue·col 인자, 통계 모델의 입력도 모두 \"변수는 열, 관측은 행\"인 긴 형식(정돈된 데이터)을 전제합니다.\n\n<b>pivot vs pivot_table</b>: pivot은 (index, columns) 조합이 <b>유일할 때</b>만 동작하고, 중복이 있으면 에러를 냅니다. 중복 관측이 있는 현실 데이터는 <b>pivot_table(aggfunc=\"mean\")</b>처럼 요약 함수를 지정해 한 셀에 모인 여러 값을 접어야 하죠 — 사실상 groupby+재배치를 한 번에 하는 셈입니다. melt 시 <b>id_vars를 빠뜨리면</b> 식별자까지 값으로 녹아 버리니, \"무엇이 식별자이고 무엇이 측정값인지\"부터 정하는 게 재구조화의 절반입니다.",
+  "more_en": "The same data has two shapes: wide (subjects as columns, human-friendly) and long (one observation per row, machine-friendly). melt unpivots wide to long; pivot restores it — this scene runs the actual round trip, recomputing shapes (3,4)→(9,3)→(3,4) and verifying all 9 values match. Long format is the analysis standard: groupby, plotting libraries, and statistical models all assume variables-as-columns, observations-as-rows, so code stays unchanged as categories grow. Use pivot_table with an aggfunc when (index, columns) pairs repeat, since plain pivot raises on duplicates.",
+  "problem": {
+   "q": "긴 형식 판매 데이터를 pivot(index=\"날짜\", columns=\"지점\", values=\"매출\")로 폈더니 \"Index contains duplicate entries\" 에러가 났습니다. 왜이고, 어떻게 해결할까요?",
+   "solution": "같은 (날짜, 지점) 조합의 행이 <b>2개 이상</b> 있기 때문입니다 — 한 셀에 값이 여러 개 오면 pivot은 어느 것을 쓸지 몰라 에러를 냅니다. <b>pivot_table(index=\"날짜\", columns=\"지점\", values=\"매출\", aggfunc=\"sum\")</b>처럼 요약 함수를 지정해 한 셀에 모인 값들을 접으세요(합계·평균 등 목적에 맞게). 중복이 데이터 오류라면 pivot 전에 중복부터 확인·제거하는 것이 먼저입니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch21_03",
+    "label": "행렬 = 공간의 변환",
+    "sub": "수학 21장 · 행과 열의 재배치",
+    "track": "math"
+   }
+  ]
+ },
+ "bda5_03": {
+  "ch": "빅데이터 분석 제5장 · 데이터 조작 II",
+  "sec": "5.3 그룹 연산 심화",
+  "title": "그룹 연산의 세 얼굴 — agg · transform · filter",
+  "narr": "4장 groupby에서 <b>쪼개고-계산하고-합치는</b> 틀과 agg·transform의 차이를 맛봤습니다. 이번엔 그 틀 위의 세 연산을 <b>한 데이터에 나란히</b> 적용해 완전히 몸에 새깁니다. 학생 8행(A반 4명·B반 3명·C반 1명)에서 — <b>agg</b>는 그룹당 1행으로 줄여 3행, <b>transform</b>은 원본 길이를 지키며 각 행에 자기 그룹 평균을 돌려줘 8행, <b>filter</b>는 조건(평균 75점 이상)에 못 미치는 그룹을 통째로 떨어뜨려 7행을 만듭니다. 탭하며 확인하세요 — <b>3 · 8 · 7이라는 행 수가 전부 실제 계산</b>에서 나옵니다. \"결과의 단위가 그룹인가, 행인가, 아니면 그룹의 생존인가\" — 이 질문 하나로 셋을 구분합니다.",
+  "more": "<b>세 얼굴 선택법</b>: ① 보고서·요약표 = <b>agg</b>(그룹당 1행). 이름 붙인 다중 집계 agg(평균=(\"점수\",\"mean\"), 인원=(\"점수\",\"size\"))로 한 번에. ② 원본에 그룹 통계를 붙여 파생 열을 만들 때 = <b>transform</b> — \"자기 반 평균 대비 편차\", 그룹별 표준화(x−그룹평균)/그룹표준편차, 그룹 평균으로 결측 채우기가 대표 용례입니다. ③ 표본이 적거나 품질이 낮은 그룹을 분석에서 제외할 때 = <b>filter</b> — 행 단위 조건(df[df.점수>=75])과 달리 <b>그룹 전체의 통계</b>로 판정해 그룹을 통째로 넣거나 뺍니다.\n\n<b>흔한 혼동</b>: filter는 \"조건에 맞는 행\"이 아니라 \"조건에 맞는 <b>그룹의 모든 행</b>\"을 남깁니다 — C반의 55점만 지우는 게 아니라 C반이라는 그룹이 사라지는 것이죠. 또 transform에 넘기는 함수는 그룹과 같은 길이(또는 스칼라)를 돌려줘야 합니다 — 여러 열을 함께 써야 하면 transform 대신 apply를 쓰되, 성능은 5.5절의 원칙대로 재보고 결정하세요.",
+  "more_en": "Three group operations on the same 8 rows: agg reduces to one row per group (3), transform broadcasts each group's statistic back to every original row keeping length (8), and filter drops whole groups failing a condition — class C (mean 55 < 75) vanishes entirely, leaving 7 rows. Choose by asking what the result's unit is: the group (agg), the row (transform), or the group's survival (filter). Note filter keeps or drops all rows of a group based on group-level statistics — unlike row-wise boolean masks — and transform's function must return a group-length or scalar result.",
+  "problem": {
+   "q": "리뷰 데이터에서 \"리뷰가 5건 미만인 상품은 통계가 불안정하니 분석에서 제외\"하려 합니다. df[df[\"리뷰수\"]>=5] 같은 행 필터로 될까요?",
+   "solution": "안 됩니다 — 행에는 \"그 상품의 리뷰가 총 몇 건인지\"가 없기 때문입니다(리뷰수 열이 이미 있다면 모를까, 보통은 세어야 합니다). <b>그룹 단위 판정</b>이 필요하므로 <b>df.groupby(\"상품\").filter(lambda t: len(t) >= 5)</b>가 정답입니다 — 각 상품 그룹의 행 수를 실제로 세어, 5건 미만인 상품의 행을 통째로 떨어뜨립니다. transform(\"size\")로 건수를 열로 붙인 뒤 행 필터를 걸어도 같은 결과를 얻습니다."
+  }
+ },
+ "bda5_04": {
+  "ch": "빅데이터 분석 제5장 · 데이터 조작 II",
+  "sec": "5.4 대용량 처리 전략",
+  "title": "큰 데이터를 견디는 법 — dtype 다이어트와 청크 처리",
+  "narr": "그룹 연산까지 자유로워졌는데, 어느 날 데이터가 <b>천만 행</b>이 되면 어떻게 될까요? 비밀은 산수입니다 — 메모리는 대략 <b>행 수 × 행당 바이트</b>. 기본 설정의 int64·float64는 8바이트, 문자열(object) 열은 수십 바이트를 먹습니다. 값의 범위가 작은 정수는 <b>int8/int32로 다운캐스트</b>하고, 몇 가지 값만 반복되는 문자열은 <b>범주형(category)</b>으로 바꾸면 행당 82바이트가 10바이트로 — 같은 데이터가 8분의 1 크기가 되죠. 그래도 크면 <b>chunksize로 나눠</b> 한 덩이씩 읽어 집계를 누적합니다. 슬라이더로 행 수를 키워 보세요 — 메모리 사용량과 청크 수가 <b>실제 계산</b>으로 갱신됩니다.",
+  "more": "<b>dtype 다이어트 순서</b>: ① df.info(memory_usage=\"deep\")로 <b>진짜 사용량</b>부터 측정(문자열 열은 deep 없이는 과소보고됩니다). ② 정수는 pd.to_numeric(s, downcast=\"integer\") — 값 범위가 0~255면 int8이면 충분합니다. 단 <b>다운캐스트한 열끼리의 곱·합이 상한을 넘치지 않는지</b>(오버플로) 확인하세요. ③ 고유값이 적은 문자열(지역·등급·코드)은 astype(\"category\") — 내부적으로 정수 코드+사전으로 저장되어 극적으로 줄어듭니다. 고유값이 행마다 다른 열(주소·리뷰 본문)은 효과가 없습니다.\n\n<b>청크 처리의 원리</b>: 합계·건수·최댓값처럼 <b>부분 결과를 합쳐도 전체와 같은</b> 집계는 청크 순회로 정확히 계산됩니다(평균은 합과 건수를 따로 누적해 마지막에 나누기). 반면 중앙값·전역 정렬처럼 전체를 봐야 하는 연산은 청크만으로 안 되죠 — 이때가 파케이+DuckDB(5.1절)나 지연 평가 엔진(polars 등)을 꺼낼 순간입니다. 파일을 청크로 읽는 것 자체가 스트리밍 처리의 원형 — 대용량 분산 처리의 사고방식이 여기서 시작됩니다.",
+  "more_en": "Memory is arithmetic: rows × bytes per row. Default int64/float64 cost 8 bytes and object strings tens of bytes; downcasting small-range integers (int8/int32) and converting low-cardinality strings to category shrinks 82 B/row to 10 B/row — an 8× diet, recomputed live by the slider. When data still exceeds RAM, read with chunksize and accumulate: sums, counts, and maxima combine exactly across chunks (means via separate sum and count). Order-dependent statistics like medians need full data — that's when columnar files with DuckDB or lazy engines take over. Always measure real usage with df.info(memory_usage=\"deep\") and watch for overflow after downcasting.",
+  "problem": {
+   "q": "나이(0~120) 열을 int8로 다운캐스트했더니 어떤 계산에서 음수가 나왔습니다. 무엇이 일어난 걸까요?",
+   "solution": "<b>오버플로</b>입니다. int8의 범위는 −128~127이라 나이 자체는 담기지만, 나이끼리 더하거나(80+80=160) 곱하는 <b>중간 계산이 127을 넘는 순간</b> 값이 음수로 감겨 버립니다(160은 int8에서 −96). 해법: ① 집계 전에 astype(\"int32\")로 넓히거나 ② 합계를 s.sum()처럼 pandas 집계로 구하면(내부적으로 넓은 타입 누적) 안전합니다. 다운캐스트는 저장용, 계산은 넉넉한 타입 — 이 분리가 원칙입니다."
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo1_05",
+    "label": "복잡도 등급 비교",
+    "sub": "알고리즘 1장 · 규모가 커질 때",
+    "track": "algo"
+   }
+  ]
+ },
+ "bda5_05": {
+  "ch": "빅데이터 분석 제5장 · 데이터 조작 II",
+  "sec": "5.5 성능 측정과 테스트",
+  "title": "빠른지 어떻게 아는가 — 측정과 검증",
+  "narr": "이 장에서 SQL 질의, 재구조화, 그룹 연산, 대용량 전략까지 — 같은 일을 하는 <b>여러 길</b>을 배웠습니다. 그럼 어느 길이 빠를까요? 정답은 \"<b>추측하지 말고 재라</b>\"입니다. 파이썬은 timeit·time.perf_counter로 어느 코드든 잴 수 있죠. 여기서는 같은 문자열을 만드는 두 구현의 <b>복사량을 실제로 세어</b> 봅니다 — 반복문 +=는 매번 전체를 다시 복사해 15,150회, join은 300회. 50배 차이가 실측으로 드러납니다. 그리고 속도만큼 중요한 것 — <b>빨라진 코드가 여전히 옳은가?</b> assert 한 줄이 두 구현의 답을 대조하고, 수정 중 생긴 실수(구분자 하나!)를 그 자리에서 잡아냅니다. 측정과 테스트, 이 두 바퀴가 성능 작업의 전부입니다.",
+  "more": "<b>올바르게 재는 법</b>: ① 한 번 재지 말고 <b>여러 번 반복해 최솟값</b>을 보세요(timeit이 자동으로 해줍니다) — 다른 프로그램의 간섭으로 생긴 우연한 지연을 걸러냅니다. ② 작은 데이터로 잰 결과를 큰 데이터로 <b>외삽하지 마세요</b> — 복사 반복처럼 n²으로 자라는 코드는 100배 데이터에서 10,000배 느려집니다. ③ 전체가 느리면 어디가 느린지부터 — cProfile로 함수별 시간을 재면 대부분 <b>한두 병목</b>에 시간이 몰려 있습니다. 병목 아닌 곳의 최적화는 코드만 어지럽힙니다.\n\n<b>작은 테스트의 힘</b>: 최적화·리팩터링 전에 <b>정답을 아는 작은 예제</b>로 assert(또는 pytest 테스트 함수)를 만들어 두세요. 수치 비교는 == 대신 <b>math.isclose나 numpy.allclose</b>로(부동소수점 오차, 3장에서 본 그 문제입니다). DataFrame끼리는 pandas.testing.assert_frame_equal이 dtype·인덱스까지 대조해 줍니다. 테스트가 있으면 과감히 고칠 수 있습니다 — 회귀는 사람이 아니라 테스트가 잡는 것이니까요.",
+  "more_en": "Never guess about performance — measure. This scene counts actual character copies for two string-building implementations: repeated += copies everything each time (15,150 operations for 100 words) while join writes once (300), a measured 50× gap that grows quadratically with n. Just as important: verify the fast path is still correct. A single assert compares both results, and when a refactoring slip (a stray separator) changes the output, the same assert catches the regression instantly. Use timeit (repeat, take the minimum), profile before optimizing, compare floats with isclose/allclose, and DataFrames with assert_frame_equal.",
+  "problem": {
+   "q": "함수를 벡터화로 고쳐 10배 빨라졌는데, 며칠 뒤 결과 합계가 미묘하게 달라졌다는 제보를 받았습니다. 이런 사고를 미리 막는 장치는 무엇이었을까요?",
+   "solution": "고치기 <b>전에</b> 만든 <b>작은 검증 테스트</b>입니다. 정답을 손으로 계산할 수 있는 소형 입력(행 5~10개)에 대해 옛 구현의 결과를 기록해 두고, assert numpy.allclose(새구현(소형입력), 기대값)을 테스트로 남겼다면 — 수정 직후 실행에서 즉시 실패해 배포 전에 잡혔습니다. 성능 개선 작업의 절차는 언제나 \"테스트 작성 → 측정 → 수정 → 테스트 재실행 → 재측정\"입니다."
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo1_03",
+    "label": "빅오 표기법",
+    "sub": "알고리즘 1장 · 성장의 속도",
+    "track": "algo"
+   }
+  ]
+ }
+}

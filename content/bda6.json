@@ -1,0 +1,89 @@
+{
+ "bda6_01": {
+  "ch": "빅데이터 분석 제6장 · 데이터 시각화",
+  "sec": "6.1 Figure와 Axes",
+  "title": "그림 한 장의 구조 — Figure와 Axes",
+  "narr": "5장에서 표를 잘게 쪼개고 다시 넓게 펼치며(split-apply-combine·pivot) 대용량도 견디는 법을 익혔으니, 이제 그 결과를 <b>눈으로 보여줄</b> 차례입니다. 맷플롯립 그림은 층이 둘입니다 — <b>Figure</b>는 그림이 놓이는 도화지 전체이고, <b>Axes</b>는 그 위에 실제로 좌표축과 데이터가 그려지는 영역입니다. fig.add_axes([left, bottom, width, height])의 네 숫자는 도화지에 대한 <b>비율</b>일 뿐이라, 실제 픽셀 위치는 도화지 크기를 곱해야 나옵니다. 탭하며 도화지 위에 좌표 영역이 얹히고, 그 안에 선이 그려지고, 라벨과 범례가 붙는 과정을 한 겹씩 확인해 보세요.",
+  "more": "<b>대부분은 subplots로 충분합니다</b>: fig, ax = plt.subplots()가 Figure와 Axes를 한 번에 만드는 가장 흔한 방법이고, plt.subplots(2, 3)처럼 쓰면 Axes가 격자로 여러 개 생겨 ax는 2차원 배열이 됩니다(다음 장면에서 바로 씁니다). add_axes로 비율을 직접 지정하는 건 그림 안에 작은 그림을 끼워 넣는(inset) 등 배치를 세밀하게 제어할 때입니다.\n\n<b>fig와 ax를 구분해 쓰는 이유</b>: plt.plot(...) 같은 pyplot 함수는 ‘현재 활성 Axes’에 암묵적으로 그리기 때문에 여러 그래프를 다룰 때 헷갈리기 쉽습니다. ax.plot(...)처럼 Axes 객체를 직접 다루는 <b>객체지향 방식</b>은 어떤 그림에 그리는지가 코드에 명시돼, 함수로 그래프 그리기 로직을 재사용할 때 훨씬 안전합니다. 실무 코드·라이브러리는 대부분 이 방식을 씁니다.",
+  "more_en": "A matplotlib figure has two layers: the Figure is the whole canvas, and the Axes is the coordinate region inside it where data actually gets drawn. fig.add_axes([left, bottom, width, height]) takes fractions of the figure, so the real pixel position is computed by multiplying by the figure size. plt.subplots() is the common shortcut for making both at once; the object-oriented style (ax.plot(...) instead of plt.plot(...)) makes explicit which Axes you're drawing into, which matters once a figure holds more than one plot.",
+  "problem": {
+   "q": "fig.add_axes([0.1, 0.1, 0.8, 0.8])로 만든 Axes를, 그림 왼쪽 절반에만 오도록 고치려면 네 숫자를 어떻게 바꿔야 할까요?",
+   "solution": "네 숫자는 [왼쪽 여백, 아래 여백, 너비, 높이]가 도화지에 대한 <b>비율(0~1)</b>입니다. 왼쪽 절반에만 오게 하려면 너비를 절반 근처로 줄이면 됩니다 — 예를 들어 [0.1, 0.1, 0.35, 0.8]처럼 너비를 0.8에서 0.35로 줄이면, Axes가 도화지 왼쪽 절반 안에 들어갑니다. 왼쪽 여백(0.1)은 그대로 두고 너비만 조정하는 것이 핵심입니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch5_02",
+    "label": "함수의 그래프",
+    "sub": "수학 5장 · 좌표평면에 그리기",
+    "track": "math"
+   }
+  ]
+ },
+ "bda6_02": {
+  "ch": "빅데이터 분석 제6장 · 데이터 시각화",
+  "sec": "6.2 히스토그램과 상자그림",
+  "title": "분포를 보는 눈 — 히스토그램과 상자그림",
+  "narr": "그림의 뼈대(Figure·Axes)를 봤으니, 이제 그 위에 무엇을 그릴지 — 첫 번째는 <b>분포</b>입니다. 시험 점수 30개가 어디에 몰려 있고 얼마나 퍼져 있을까요? <b>히스토그램</b>은 값의 범위를 구간(bin)으로 나눠 각 구간에 몇 개가 들어가는지 세어 막대로 쌓습니다. 그런데 구간 수가 인상을 바꿉니다 — 슬라이더로 bins를 줄이면 봉우리가 뭉개지고, 늘리면 잡음까지 튀어 보이죠. <b>상자그림</b>은 그런 선택이 필요 없습니다. 중앙값과 사분위수(Q1·Q3)로 중앙 50%를 상자로, 나머지는 수염으로, 그리고 <b>1.5×IQR</b>을 넘는 값은 이상치로 실제 계산해 점으로 찍습니다.",
+  "more": "<b>구간 수, 어떻게 정할까</b>: 정답은 없지만 스터지스 공식(1+log₂n) 같은 경험칙이 출발점이 됩니다. 실무에서는 여러 bins 값을 눈으로 비교해 ‘분포의 모양이 안정적으로 보이는 지점’을 찾는 것이 가장 현실적입니다 — 이번 장면의 슬라이더가 바로 그 과정입니다. 구간이 넓을수록 자료를 더 뭉뚱그리고(편향↑), 구간이 좁을수록 우연한 굴곡까지 드러납니다(분산↑) — 통계학 어디서나 만나는 편향-분산 트레이드오프의 시각화 버전입니다.\n\n<b>사분위수와 이상치 규칙</b>: Q1은 하위 25%, Q3은 상위 25% 지점의 값이고, IQR=Q3−Q1은 중앙 50%가 퍼진 폭입니다. Q1−1.5×IQR보다 작거나 Q3+1.5×IQR보다 크면 관행적으로 이상치로 표시합니다(1.5라는 계수는 존 튜키가 제안한 경험적 기준입니다). 이상치는 무조건 지우는 값이 아니라 — 입력 오류인지, 진짜로 특이한 관측인지 <b>확인해야 할 신호</b>입니다.",
+  "more_en": "A histogram counts how many values fall into each bin across the data's range; the bin count changes the impression — too few bins smooth away real peaks, too many bins turn noise into fake structure (the classic bias-variance tradeoff, visualized). A boxplot needs no such choice: it plots the median, Q1, Q3 (computed by linear interpolation), and flags anything beyond Q1−1.5×IQR or Q3+1.5×IQR as an outlier — Tukey's rule of thumb, not a hard cutoff, so outliers deserve investigation rather than automatic deletion.",
+  "problem": {
+   "q": "같은 데이터인데 bins=4일 때는 봉우리가 하나로 보이고, bins=20일 때는 봉우리가 여러 개로 보입니다. 어느 쪽을 믿어야 할까요?",
+   "solution": "<b>둘 다 그대로 믿으면 안 됩니다.</b> bins=4는 구간이 넓어 진짜 있는 여러 봉우리를 하나로 뭉개버릴 수 있고(편향), bins=20은 구간이 좁아 표본이 적은 구간에서 우연한 요철까지 봉우리처럼 보이게 만듭니다(분산). 여러 bins 값으로 함께 비교하거나, 구간 경계에 영향받지 않는 상자그림·커널밀도추정(KDE)으로 교차 확인하는 것이 안전합니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch26_03",
+    "label": "정규분포",
+    "sub": "수학 26장 · 통계의 종 곡선",
+    "track": "math"
+   }
+  ]
+ },
+ "bda6_03": {
+  "ch": "빅데이터 분석 제6장 · 데이터 시각화",
+  "sec": "6.3 산점도와 상관",
+  "title": "관계를 보는 눈 — 산점도와 상관",
+  "narr": "한 변수의 분포를 봤으니, 이번엔 <b>두 변수의 관계</b>입니다. 공부 시간이 늘면 점수도 오를까요? <b>산점도</b>는 (x,y) 점 하나하나를 그대로 흩뿌려 그 관계를 눈에 보여주고, 회귀선은 그 점들을 관통하는 최소제곱 직선입니다. <b>상관계수 r</b>은 그 관계의 강도를 −1(완벽한 반비례)에서 1(완벽한 비례) 사이 숫자 하나로 요약합니다. 슬라이더로 흔들기 강도를 올려 잡음을 더해 보세요 — 점들이 직선에서 멀어질수록 r이 실제로 작아지는 계산을 확인할 수 있습니다. 그리고 꼭 기억할 것 — <b>r이 크다고 원인이 되는 건 아닙니다.</b>",
+  "more": "<b>r을 읽는 감각</b>: 보통 |r|≥0.7이면 강한 상관, 0.3~0.7이면 중간, 0.3 미만이면 약한 상관으로 봅니다(분야마다 기준은 다릅니다). r은 <b>직선 관계</b>만 잡아냅니다 — U자 곡선처럼 뚜렷한 비선형 관계가 있어도 r은 0에 가깝게 나올 수 있으므로, 숫자만 보지 말고 산점도를 <b>반드시 같이</b> 봐야 합니다(앤스컴 콰르텟이 유명한 예시입니다 — 통계량은 같은데 그림은 전혀 다른 네 데이터셋).\n\n<b>상관과 인과의 경계</b>: 아이스크림 판매량과 익사 사고 건수는 상관이 높지만, 아이스크림이 사람을 물에 빠뜨리지 않습니다 — 둘 다 <b>무더위</b>라는 공통 원인(교란 변수)의 결과일 뿐입니다. 인과를 주장하려면 상관 이상의 근거(실험·시차·다른 설명 배제)가 필요합니다. 이 구분은 8장 회귀분석에서 계수를 해석할 때 다시 만납니다.",
+  "more_en": "A scatter plot shows every (x, y) pair as a point; the correlation coefficient r summarizes the strength of the linear relationship in a single number from −1 to 1. Adding noise pulls points away from the trend line and r shrinks accordingly — but r only captures linear relationships (Anscombe's quartet is the classic warning to always look at the plot, not just the number) and never proves causation on its own: ice cream sales correlate with drowning deaths only because both rise with summer heat.",
+  "problem": {
+   "q": "두 변수의 상관계수가 r=0.02로 거의 0이 나왔습니다. \"두 변수는 아무 관계가 없다\"고 결론 내려도 될까요?",
+   "solution": "<b>아직 안 됩니다.</b> r은 <b>직선</b> 관계만 잡아내므로, 두 변수가 예를 들어 U자형이나 포물선 같은 뚜렷한 비선형 관계를 가지고 있어도 r은 0 근처로 나올 수 있습니다. 반드시 산점도를 직접 그려 눈으로 형태를 확인해야 하며, 필요하면 순위 기반 상관(스피어만)이나 비선형 회귀로 다시 확인해야 합니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch9_04",
+    "label": "내적 — 두 벡터의 곱",
+    "sub": "수학 9장 · 상관의 수학적 뿌리",
+    "track": "math"
+   }
+  ]
+ },
+ "bda6_04": {
+  "ch": "빅데이터 분석 제6장 · 데이터 시각화",
+  "sec": "6.4 막대그래프와 비교",
+  "title": "비교를 보는 눈 — 막대와 그룹 비교",
+  "narr": "이번엔 범주끼리의 <b>비교</b>입니다 — 다섯 개 지역의 매출, 어디가 크고 작을까요? <b>막대그래프</b>는 집계값(합계·평균 등, 여기서는 지역별 매출 합계)을 길이로 비교하는 가장 직관적인 방법입니다. 그런데 막대의 <b>정직함은 두 가지 선택</b>에 달려 있습니다. 첫째, 정렬 — 값 순서대로 늘어놓으면 눈이 바로 훑입니다. 둘째, 기준선 — <b>0에서 시작</b>해야 막대 높이의 비율이 실제 값의 비율과 같아집니다. 탭하며 마지막 단계를 보세요 — 기준선을 값 근처에서 자르면(ylim), 실제로는 몇 퍼센트에 불과한 차이가 화면에서는 몇 배로 부풀려지는 걸 <b>직접 계산해</b> 확인합니다.",
+  "more": "<b>축 자르기가 나쁘기만 할까</b>: 값들이 아주 좁은 범위(예: 99.1~99.6)에서만 오갈 때는 0부터 시작하면 막대가 전부 똑같아 보여 오히려 정보가 사라집니다 — 이럴 땐 축을 자르되 <b>반드시 눈에 띄게 표시</b>합니다(축에 물결 표시(≀), 제목에 '기준선 아님' 명시, 또는 아예 막대 대신 점그래프로 바꾸는 것도 방법). 원칙은 '절대 자르지 마라'가 아니라 <b>'자를 땐 숨기지 마라'</b>입니다.\n\n<b>집계는 실제 연산</b>: 화면의 막대 높이는 언제나 groupby(4장)로 실제로 합산·평균한 결과여야 합니다 — 원본 개별 거래 건수만큼의 값을 지역 키로 쪼개 더하는 연산이 막대 하나 뒤에 숨어 있습니다. 막대그래프를 그리기 전에 ‘이 숫자가 무슨 집계에서 나왔는가’를 스스로 확인하는 습관이 그래프 사고의 절반입니다.",
+  "more_en": "A bar chart compares aggregated values (sums, means) across categories by length. Two choices decide its honesty: sorting (so the eye scans in size order) and the baseline — starting the y-axis at zero keeps bar-height ratios equal to the underlying value ratios. Truncating the axis near the data (a common trick) can inflate a real few-percent difference into an apparent multi-fold one; the rule isn't 'never truncate' but 'never truncate silently' — mark it clearly if you must.",
+  "problem": {
+   "q": "뉴스 기사의 막대그래프를 보니 두 후보의 지지율(38% vs 41%) 막대 높이가 두 배 가까이 차이 나 보였습니다. 무엇을 의심해야 할까요?",
+   "solution": "<b>y축이 0에서 시작하지 않을 가능성</b>을 가장 먼저 의심해야 합니다. 실제 값 차이는 3%p에 불과한데, 축이 예를 들어 35%에서 시작하면 (41−35)/(38−35)=2배 가까운 시각적 차이가 만들어집니다. 축의 시작·끝 눈금을 확인하고, 0부터 시작한 버전으로 다시 그려 실제 격차와 비교하는 것이 첫 대응입니다."
+  }
+ },
+ "bda6_05": {
+  "ch": "빅데이터 분석 제6장 · 데이터 시각화",
+  "sec": "6.5 좋은 그래프의 원칙",
+  "title": "좋은 그래프의 원칙",
+  "narr": "지금까지 그림의 구조(6.1)와 분포(6.2)·관계(6.3)·비교(6.4)를 그리는 법을 봤으니, 마지막으로 <b>어떻게 그리면 더 잘 전달되는가</b>를 정리합니다. 같은 다섯 개 값을 두 가지로 그려 봅니다. 나쁜 그림은 무지개색(뜻 없는 색), 격자선(값을 어림하게 만듦), 멀리 떨어진 범례(눈이 왔다 갔다)로 가득합니다. 좋은 그림은 정렬하고, <b>뜻이 있을 때만</b> 색을 쓰고(최댓값 하나만 강조), 라벨을 막대 옆에 <b>직접</b> 붙입니다. 탭해서 두 그림을 오가며, 격자선 개수·범례 대조 횟수 같은 실제 수치로 '잉크 대비 정보'가 얼마나 달라지는지 확인해 보세요.",
+  "more": "<b>데이터-잉크 비율</b>: 통계학자 에드워드 터프티가 제안한 개념으로, 그림에 쓰인 잉크 중 실제 정보 전달에 기여하는 비율을 뜻합니다. 격자선·그림자·3D 입체 효과·불필요한 테두리는 정보 없이 잉크만 차지하는 <b>차트정크(chartjunk)</b> — 지우거나 최소화할수록 데이터 자체가 도드라집니다.\n\n<b>이 장 전체를 관통하는 세 원칙</b>: ① <b>정직</b> — 축은 0에서 시작하거나, 자를 땐 명시(6.4). ② <b>절제</b> — 색·격자·범례는 뜻이 있을 때만, 필요 없으면 지운다(이번 장면). ③ <b>맥락</b> — 그림 하나만 봐도 무엇을 비교하는지 알 수 있어야 합니다(직접 라벨, 명확한 제목). 이 세 원칙은 7장 통계 분석에서 그래프로 검정 결과를 보여줄 때도, 이후 예측 모델의 성능을 비교할 때도 똑같이 적용됩니다.",
+  "more_en": "Edward Tufte's data-ink ratio measures how much of a chart's ink actually carries information — gridlines, drop shadows, 3D effects, and legends placed far from the data are 'chartjunk' that cost attention without adding meaning. Three principles run through this chapter: honesty (zero baselines, or clearly marked truncation), restraint (color and gridlines only when they carry meaning), and context (a chart should be readable on its own, via direct labels and a clear title) — the same principles apply later when comparing statistical results or model performance.",
+  "problem": {
+   "q": "다섯 개 범주를 파이 차트로 그렸는데, 두 조각(29%와 27%)의 크기 차이를 눈으로 구분하기 어려웠습니다. 어떤 차트로 바꾸면 나을까요?",
+   "solution": "<b>정렬된 막대그래프(가능하면 가로형)</b>가 낫습니다. 사람의 눈은 <b>각도나 면적보다 길이</b>를 훨씬 정확히 비교합니다 — 파이 차트의 조각 두 개가 비슷한 비율일 때 특히 구분이 어려운 이유입니다. 값을 크기순으로 정렬한 막대에 직접 값을 라벨로 붙이면, 29%와 27%의 차이도 막대 길이와 숫자로 명확히 드러납니다."
+  }
+ }
+}
