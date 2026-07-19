@@ -1,0 +1,50 @@
+{
+ "bda1_01": {
+  "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
+  "sec": "1.1 왜 파이썬으로 데이터를 다루는가",
+  "title": "데이터 분석 네 단계 — 그리고 그 자리에 앉은 도구들",
+  "narr": "지금까지 빅데이터가 얼마나 크고(Volume) 빠르고(Velocity) 다양한지(Variety) 실감했습니다. 이제 그 데이터를 실제로 손에 쥐고 다룰 도구가 필요합니다 — 그 답이 바로 <b>파이썬</b>입니다. 분석은 늘 같은 네 걸음을 걷습니다: <b>수집</b>(데이터를 모으고) → <b>정제</b>(지저분한 값을 골라내고) → <b>분석</b>(수를 계산해 패턴을 찾고) → <b>전달</b>(결과를 사람이 알아보게 보여주고). 파이썬은 이 네 자리마다 딱 맞는 도구를 갖고 있습니다 — <b>pandas</b>가 표를 다루고, <b>NumPy</b>가 수치 연산의 엔진이 되고, <b>scikit-learn</b>이 패턴을 학습하고, <b>matplotlib</b>이 그림으로 말합니다. 탭하며 단계마다 실제로 어떤 계산이 일어나는지 확인해 보세요.",
+  "more": "<b>왜 하필 파이썬인가</b>: R·SQL·엑셀도 데이터를 다루지만, 파이썬은 ① 수집(웹·API·DB)부터 ② 정제·분석(pandas·NumPy) ③ 통계·모델링(scikit-learn·statsmodels) ④ 시각화·보고(matplotlib·seaborn)까지 <b>한 언어로 전 과정을 잇는다</b>는 점이 다릅니다. 별도 도구로 옮겨 다닐 필요가 없어 실수도, 재작업도 줄어듭니다.\n\n<b>생태계 지도</b>: <b>NumPy</b>(다차원 배열·수치 연산의 바닥) 위에 <b>pandas</b>(표 형태 DataFrame)가 서고, <b>matplotlib</b>·seaborn이 그림을 그리며, <b>scikit-learn</b>이 이 위에서 학습·예측 모델을 얹습니다. 이 트랙은 이 네 층을 아래에서 위로 차례로 오르는 여정입니다.\n\n<b>화면의 결측·평균·표준편차</b>는 고정된 10명의 점수 배열에서 실제로 계산한 값입니다 — 정제 전후로 몇 건이 빠졌는지, 정제 후 평균이 얼마인지 직접 세고 계산했습니다.",
+  "more_en": "Data analysis follows four steps — collect, clean, analyze, communicate — and Python has a dedicated tool for each: pandas for tabular data, NumPy as the numerical engine, scikit-learn for learning patterns, and matplotlib for visual storytelling. Unlike juggling separate tools per stage, Python lets one language span the entire pipeline. The missing-value counts, mean, and standard deviation shown are computed live from a fixed 10-student score array."
+ },
+ "bda1_02": {
+  "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
+  "sec": "1.2 분석 환경과 재현 가능성",
+  "title": "재현 가능성 — 같은 코드, 같은 결과를 보장하기",
+  "narr": "그런데 이 좋은 도구들도 <b>환경</b>이 다르면 배신할 수 있습니다. 내 컴퓨터에서 돌린 분석이 동료 컴퓨터에서는 다른 결과를 내는 일이 실제로 벌어집니다. 원인은 대개 둘입니다 — <b>라이브러리 버전</b>이 다르거나, <b>난수의 씨앗(시드)</b>이 다르기 때문입니다. <b>requirements.txt</b>에 pandas·numpy 버전을 못박고, <b>가상환경</b>(venv·conda)으로 프로젝트마다 독립된 설치 공간을 두면 버전 문제는 해결됩니다. 그리고 <b>random.seed(42)</b> 한 줄이면, 난수를 쓰는 코드조차 언제 돌려도 같은 결과를 냅니다. 화면을 탭해 시드가 없을 때와 있을 때, 두 환경의 결과가 실제로 같은지 달라지는지 직접 비교해 보세요.",
+  "more": "<b>가상환경이 필요한 이유</b>: 프로젝트 A는 pandas 1.5, 프로젝트 B는 pandas 2.1이 필요할 수 있습니다. 시스템 전체에 하나만 설치하면 한쪽이 깨집니다. <b>venv</b>(파이썬 표준) 또는 <b>conda</b>로 프로젝트마다 독립된 설치 공간(가상환경)을 만들고, <b>requirements.txt</b>(또는 environment.yml)에 정확한 버전을 적어 두면 누구나 같은 환경을 재현할 수 있습니다.\n\n<b>시드 고정</b>: <b>random.seed(n)</b>·<b>np.random.seed(n)</b>은 난수 생성기의 시작점을 고정합니다 — 같은 시드는 항상 같은 순서의 '난수'를 만들어 냅니다(엄밀히는 의사난수). 데이터 분할·부트스트랩·모델 초기화처럼 난수를 쓰는 모든 단계에 시드를 고정해야 결과를 재현·검증할 수 있습니다.\n\n<b>화면의 비교 결과</b>는 실제로 두 개의 독립된 계산을 수행해 값이 정말 같은지(또는 다른지) JS로 판정한 것입니다 — 시드가 같으면 반드시 같고, 다르면(대개) 다릅니다.",
+  "more_en": "Environments betray reproducibility in two ways: mismatched library versions and unfixed random seeds. Virtual environments (venv/conda) plus a pinned requirements.txt solve the first; random.seed(n) solves the second, guaranteeing the same 'random' sequence every run. The comparison shown is a real equality check between two independently computed samples — identical seeds always match, differing seeds (almost) never do.",
+  "problem": {
+   "q": "동료가 내 코드를 그대로 실행했는데 모델 성능이 나와 다르게 나왔습니다. requirements.txt는 이미 똑같이 맞췄습니다. 다음으로 가장 먼저 의심해야 할 것은?",
+   "solution": "<b>난수 시드(random seed)</b>입니다. 버전이 같다면, 데이터 분할·초기 가중치·부트스트랩 표본처럼 난수를 쓰는 지점에서 시드가 고정되지 않았을 가능성이 큽니다. random.seed()·np.random.seed()·(사용 라이브러리별 random_state 인자)를 코드 전체에 일관되게 고정했는지 확인합니다."
+  }
+ },
+ "bda1_03": {
+  "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
+  "sec": "1.3 첫 데이터와 만나기",
+  "title": "첫 만남 — 데이터를 읽기 전에 먼저 훑어봅니다",
+  "narr": "환경이 준비됐다면, 이제 진짜 데이터를 만날 차례입니다. 처음 보는 데이터를 받으면 곧장 분석부터 하지 않습니다 — 먼저 <b>생김새를 훑습니다</b>. <b>df.shape</b>로 행·열이 몇 개인지, <b>df.dtypes</b>로 각 열이 숫자인지 글자인지, <b>df.head(3)</b>로 위 몇 줄이 어떻게 생겼는지, <b>df.isna().sum()</b>으로 빠진 값이 몇 개인지 봅니다. 이 네 줄이 모든 분석의 첫 문장입니다. 학생 6명의 작은 표로, 탭하며 각 명령이 실제로 무엇을 세는지 확인해 보세요.",
+  "more": "<b>dtype이 왜 float64로 바뀌나</b>: age·score 열은 원래 정수·실수지만, 결측(NaN)이 하나라도 있으면 pandas가 열 전체를 <b>float64</b>로 승격합니다(정수형에는 NaN을 담을 수 없기 때문). 문자열이 섞인 name·city는 <b>object</b> 타입으로 표시됩니다. 이 승격 규칙을 모르면 '분명 정수였는데 왜 소수점이 붙지?' 하고 당황하기 쉽습니다.\n\n<b>왜 head()부터 보나</b>: 수백만 행짜리 데이터를 전부 화면에 띄울 수 없습니다. head(3)·tail(3)로 양 끝을 살짝 보는 것만으로 <b>열 이름이 맞는지, 값의 단위가 예상과 같은지, 인코딩이 깨지지 않았는지</b>를 빠르게 점검할 수 있습니다.\n\n<b>화면의 shape·dtypes·결측 개수</b>는 6명 학생의 고정 표에서 실제로 세어 계산한 값입니다 — 이 트랙의 모든 숫자는 이렇게 실제 데이터에서 나옵니다.",
+  "more_en": "Before analyzing, always survey new data first: df.shape (rows/columns), df.dtypes (per-column type), df.head() (first rows), df.isna().sum() (missing counts). Note that a numeric column becomes float64 the moment it contains any missing value, since integer dtypes cannot hold NaN. All figures shown are computed live from a fixed 6-student table."
+ },
+ "bda1_04": {
+  "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
+  "sec": "1.4 도움말과 문서를 읽는 힘",
+  "title": "문서를 읽는 힘 — 모르는 함수를 두려워하지 않기",
+  "narr": "표를 대충 훑었으니, 이제 실제로 함수를 써서 뭔가 계산할 차례입니다. 그런데 처음 보는 함수를 만나면 어떻게 할까요? 무작정 인자를 넣어 보기 전에, <b>help(round)</b>처럼 물음을 던지면 파이썬이 <b>시그니처와 설명(독스트링)</b>을 곧장 보여줍니다. <b>round(number, ndigits=None)</b> — 괄호 안의 <b>ndigits</b> 하나가 결과를 완전히 바꿉니다. 슬라이더로 ndigits를 움직여, 314.159265라는 같은 값이 반올림 자리에 따라 어떻게 달라지는지 실시간으로 확인해 보세요.",
+  "more": "<b>round()의 ndigits 규칙</b>: <b>양수</b>는 소수점 아래 자릿수(ndigits=2 → 소수 둘째 자리까지), <b>0</b>은 정수로, <b>음수</b>는 정수부의 십·백·천의 자리로 반올림합니다(ndigits=-2 → 백의 자리). 이 마지막 음수 규칙은 의외로 잘 알려지지 않은 부분입니다 — 문서를 직접 읽지 않으면 놓치기 쉽습니다.\n\n<b>문서를 읽는 4단계 습관</b>: ① 시그니처부터 — 인자가 몇 개, 이름이 뭔지. ② 기본값 확인 — 안 적으면 무슨 값이 들어가는지(ndigits=None → 정수 반환). ③ 반환 타입 — round(3.7)은 int를, round(3.7, 1)은 float를 돌려주는 것처럼 인자에 따라 반환 타입도 바뀔 수 있습니다. ④ 작은 예시로 직접 실행 — 문서만 읽고 넘어가지 말고 손으로 확인.\n\n<b>실전에서는</b>: 주피터·IDE에서 함수 이름 뒤 <b>Shift+Tab</b>(또는 함수명?)으로 같은 정보를 즉시 볼 수 있고, pandas·NumPy 문서는 각 함수마다 예시 코드를 함께 제공해 학습을 돕습니다.",
+  "more_en": "Before calling an unfamiliar function, read its signature and docstring (help() or ?). round(number, ndigits=None) shows that ndigits controls precision: positive values round decimal places, zero rounds to an integer, and negative values round to the tens/hundreds place — a rule easy to miss without reading the docs. The four-step habit (signature, default, return type, quick test) applies to any new function.",
+  "problem": {
+   "q": "round(1250, -2) 는 무엇을 반환할까요? (ndigits가 음수일 때의 규칙을 떠올려 보세요)",
+   "solution": "<b>1200</b>입니다. ndigits=-2는 '백의 자리'로 반올림하라는 뜻입니다. 1250을 백 단위로 보면 12.5백 — 파이썬의 은행가 반올림(가장 가까운 짝수로) 규칙에 따라 12(짝수)로 내려가 1200이 됩니다. round()는 항상 위로 올림하지 않는다는 점도 문서를 읽어야 알 수 있는 세부사항입니다."
+  }
+ },
+ "bda1_05": {
+  "ch": "빅데이터 분석 제1장 · 데이터 분석 환경과 분석가의 사고법",
+  "sec": "1.5 분석가의 사고법",
+  "title": "분석가의 사고법 — 질문에서 전달로, 그리고 다시 질문으로",
+  "narr": "환경을 갖추고, 데이터를 훑고, 문서를 읽는 법까지 익혔습니다. 하지만 진짜 분석은 코드를 치는 순간이 아니라 <b>좋은 질문</b>에서 시작합니다. <b>질문</b>(무엇이 궁금한가) → <b>데이터</b>(답할 만한 근거를 모으고) → <b>가설</b>(패턴을 짐작하고) → <b>검증</b>(통계·모델로 실제로 확인하고) → <b>전달</b>(결과를 남이 이해하게 보여주는), 이 다섯 걸음은 한 번으로 끝나지 않고 전달한 결과가 다시 새 질문을 낳으며 <b>순환</b>합니다. 탭하며 순환의 한 바퀴를 돌아보고, 앞으로 이 트랙이 어디로 향하는지 지도를 함께 보시죠.",
+  "more": "<b>왜 '질문'이 첫 걸음인가</b>: 데이터부터 들여다보면 '있는 패턴'을 찾다가 <b>그럴듯하지만 무의미한 우연</b>을 진짜 발견으로 착각하기 쉽습니다(다중 검정 문제의 뿌리). 먼저 질문을 명확히 세우면, 어떤 데이터가 필요하고 어떤 검증이 타당한지가 저절로 좁혀집니다.\n\n<b>이 트랙의 여정(전체 31장)</b>: <b>초급(1~4장)</b> — 자료형·표 다루기의 기초. <b>중급(5~7장)</b> — 나누고 합치고 그리고 통계 내기. <b>고급(8~11장)</b> — 회귀·분류로 첫 예측 모델을 만들고 실전 프로젝트로 마무리. <b>심화(12~31장)</b> — 전처리부터 튜닝·앙상블·클래스 불균형·특징 선택까지, 현업 수준의 예측 모델링 전 과정을 사례 연구와 함께 다룹니다.\n\n<b>화면의 진행률</b>은 전체 31장 중 지금이 몇 %인지 실제로 나눗셈해 계산한 값입니다 — 이 순환을 30번 더 돌면 여정이 끝납니다.",
+  "more_en": "Real analysis begins with a good question, not with code. The cycle question → data → hypothesis → verification → communication repeats, since delivered results spawn new questions. This 31-chapter track climbs from basic data handling (1-4) through wrangling and statistics (5-7), first predictive models (8-11), to industry-grade predictive modeling with case studies (12-31). The progress percentage shown is computed from the actual chapter count."
+ }
+}

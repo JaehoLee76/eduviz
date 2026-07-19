@@ -63,10 +63,16 @@
     global.addEventListener('resize', function(){ fitStage(); if(SM.cur!=null){ var s=SM.scenes[SM.cur]; if(s&&s.enter) layoutOnly(s); } });
   }
   // ── HUD: 긴 설명 문장은 캔버스에 그리지 않고 이 DOM 오버레이의 코너에 세로로 쌓아 렌더(겹침 구조적 불가). fillText/strokeText를 감싸 문장이면 가로채 버퍼에 담는다.
-  var hudEl, _hudBuf=[], _hudOn=false, _hudSig='';
-  function isHudSentence(t,fs){ t=String(t); if(fs>=22) return false; var n=t.replace(/\s/g,'').length;
-    if(/[가-힣]/.test(t) && n>=8 && !/\(\s*[-\d]/.test(t)) return true;       // 한글 readout/설명(단, 좌표 라벨 '(숫자,숫자)'는 점에 붙어야 하므로 캔버스 유지)
-    if(n>=16 && /[=≈]/.test(t) && /[+\-*/×·²³√]/.test(t)) return true;       // 긴 수식 readout
+  var hudEl, _hudBuf=[], _hudOn=false, _hudSig='', hudEnabled=true;   // hudEnabled: 트랙별 on/off (코드패널 중심 트랙은 요소 옆 주석이 구조의 핵심이라 off)
+  function isHudSentence(t,fs,font){ t=String(t); if(fs>=22) return false;
+    // ★코드 패널·터미널 출력은 모노스페이스로 그린다 → 코드 줄(한글 주석 포함)이 HUD로 끌려나가지 않게 제외
+    if(font && /mono|menlo|consolas|courier/i.test(font)) return false;
+    var n=t.replace(/\s/g,'').length, ko=/[가-힣]/.test(t), coord=/\(\s*[-\d]/.test(t);
+    // 요소에 붙는 짧은 주석(예 '반올림해 소수 2자리')은 위치가 곧 의미 → 캔버스 유지.
+    // HUD로 보낼 것은 ①긴 설명 문장 ②값 readout('= 값'/'≈ 값') — 둘 다 어디에 두든 뜻이 안 변한다.
+    if(ko && n>=14 && !coord) return true;                                    // 긴 한글 설명 문장
+    if(ko && n>=8 && /[=≈]/.test(t) && /\d/.test(t) && !coord) return true;   // 한글 라벨이 붙은 값 readout
+    if(n>=16 && /[=≈]/.test(t) && /[+\-*/×·²³√]/.test(t)) return true;        // 긴 수식 readout
     return false; }
   function setupHud(){
     if(!document.body) return;
@@ -75,8 +81,8 @@
       hudEl.innerHTML='<div class="hudc hud-tl" data-c="tl"></div><div class="hudc r hud-tr" data-c="tr"></div><div class="hudc hud-bl" data-c="bl"></div><div class="hudc r hud-br" data-c="br"></div>';
       document.body.appendChild(hudEl); }
     var of=ctx.fillText.bind(ctx), os=ctx.strokeText.bind(ctx);
-    ctx.fillText=function(t,x,y){ if(_hudOn && isHudSentence(t,parseFloat(ctx.font)||12)){ _hudBuf.push({t:String(t),x:x,y:y}); return; } return of(t,x,y); };
-    ctx.strokeText=function(t,x,y){ if(_hudOn && isHudSentence(t,parseFloat(ctx.font)||12)) return; return os(t,x,y); };
+    ctx.fillText=function(t,x,y){ if(_hudOn && isHudSentence(t,parseFloat(ctx.font)||12,ctx.font)){ _hudBuf.push({t:String(t),x:x,y:y}); return; } return of(t,x,y); };
+    ctx.strokeText=function(t,x,y){ if(_hudOn && isHudSentence(t,parseFloat(ctx.font)||12,ctx.font)) return; return os(t,x,y); };
   }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function flushHud(){
@@ -539,7 +545,7 @@
     if(advance) animFrame++; ctx.clearRect(0,0,W,H);   // 일시정지면 frameN도 동결 → E.frame 기반 애니까지 완전 정지
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     _hudBuf.length=0;   // HUD: 이 프레임의 문장 버퍼 초기화. viz/시네마틱/책페이지는 HUD 미적용(자체 텍스트 연출)
-    _hudOn = !!(sc && sc.draw && !sc._viz && !sc.cinematic && !sc.introCard && !sc.hudOff && !(sc.branchOf!=null&&sc.page));
+    _hudOn = !!(hudEnabled && sc && sc.draw && !sc._viz && !sc.cinematic && !sc.introCard && !sc.hudOff && !(sc.branchOf!=null&&sc.page));
     if(sc&&sc.back) sc.back(E,ctx);     // 배경(수직선 등) 먼저
     renderParticles();
     if(sc&&sc.draw&&!(sc.branchOf!=null&&sc.page)){ if(sc._viz&&_steps) sc.draw(E,_steps[_stepI]); else sc.draw(E,ctx); }  // viz면 현재 frame 전달. page 모드면 캔버스 생략
@@ -708,6 +714,7 @@
   // ---------- boot ----------
   function start(opts){
     playbackEnabled=!!opts.playback;
+    hudEnabled = (opts.hud!==false);   // 기본 on. 코드패널 트랙(python·cpp·ai·bda)은 hud:false로 끈다
     initStage(document.getElementById(opts.canvas));
     bubbleEl=document.getElementById('bubble'); hintEl=document.getElementById('hint');
     titleEl=document.getElementById('sceneTitle'); secEl=document.getElementById('sceneSec');

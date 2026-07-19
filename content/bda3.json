@@ -1,0 +1,54 @@
+{
+ "bda3_01": {
+  "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
+  "sec": "3.1 벡터화",
+  "title": "루프를 버리다 — 벡터화",
+  "narr": "2장에서 ndarray와 DataFrame이라는 그릇을 익혔으니, 이제 그 그릇을 <b>파이썬답게 다루는 법</b>을 배울 차례입니다. 첫 원칙은 단순합니다 — <b>루프 대신 배열 연산</b>. 모든 원소를 2배로 만들 때 for 루프는 파이썬이 <b>n번을 직접 돌며</b> 매번 타입을 확인하지만, <b>data * 2</b>는 단 <b>한 번의 호출</b>로 끝납니다. 내부에서는 C로 짜인 루프가 <b>연속 메모리</b>를 기계어 속도로 훑죠. 슬라이더로 n을 키워 보세요 — 알고리즘 트랙에서 배운 복잡도 O(n)은 같아도, 파이썬 레벨 반복 횟수는 n 대 1로 벌어집니다.",
+  "more": "<b>왜 빠른가 — 두 가지 이유</b>: ① <b>인터프리터 오버헤드 제거</b> — 파이썬 for 루프는 한 바퀴마다 바이트코드 해석·타입 확인·객체 생성을 반복하지만, 벡터화는 이 비용을 호출 1번으로 줄입니다. ② <b>연속 메모리</b> — list는 흩어진 객체를 가리키는 포인터 모음이라 CPU 캐시가 계속 빗나가는 반면, ndarray는 같은 dtype 값이 한 줄로 붙어 있어 캐시·SIMD에 최적입니다.\n\n<b>실무 감각</b>: 데이터 코드에서 for가 보이면 \"이거 배열 연산으로 안 되나?\"부터 자문하세요. sum·mean 같은 집계, 산술·비교, 문자열 처리(str 액세서)까지 대부분 벡터화 버전이 있습니다. 다만 행마다 복잡한 분기가 얽힌 극소수 경우는 루프가 더 읽기 쉬울 수 있습니다 — 원칙은 \"기본은 벡터화, 예외는 의식적으로\".",
+  "more_en": "Vectorization replaces Python-level loops with single array operations: data * 2 makes one call while a for loop iterates n times with per-step interpretation and type checks. NumPy is fast for two reasons: the interpreter overhead collapses to one call, and ndarrays store same-dtype values in contiguous memory, ideal for CPU caches and C/SIMD loops (unlike lists of scattered object pointers). Rule of thumb: prefer array operations; use loops only deliberately."
+ },
+ "bda3_02": {
+  "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
+  "sec": "3.2 브로드캐스팅",
+  "title": "모양이 다른 것끼리 계산하기 — 브로드캐스팅",
+  "narr": "벡터화가 손에 익으면 곧 궁금해집니다 — <b>모양이 다른 배열끼리도 계산이 될까?</b> NumPy의 답이 <b>브로드캐스팅</b>입니다. (3,1) 열과 (1,4) 행을 더하면 (3,4) 표가 나오죠. 규칙은 단 하나 — <b>끝 차원부터 짝을 맞춰, 같거나 한쪽이 1이면 통과</b>. 1인 축은 복제되어 늘어난 것처럼 계산되고, 둘 다 1이 아닌데 다르면 ValueError로 거절합니다. 슬라이더로 두 배열의 shape를 바꿔 보세요 — 어느 조합이 통과하고 어느 조합이 실패하는지, 결과 shape까지 실제로 판정해 보여 드립니다.",
+  "more": "<b>실무에서 매일 쓰는 곳</b>: 표준화가 대표입니다 — X(1000,5)에서 열 평균 X.mean(axis=0)은 (5,)이고, <b>X - X.mean(axis=0)</b>은 (1000,5)와 (1,5)의 브로드캐스팅이라 루프 없이 열마다 평균이 빠집니다. 요금표(행: 등급, 열: 구간)처럼 조합 표를 만들 때도 열벡터+행벡터 한 줄이면 됩니다.\n\n<b>흔한 실수</b>: (3,)과 (3,1)은 다릅니다 — (3,)+(3,1)은 (1,3)+(3,1)로 취급되어 의도치 않은 (3,3)이 나올 수 있죠. 축을 분명히 하려면 <b>reshape(-1,1)</b>이나 <b>np.newaxis</b>로 명시하세요. 수학 트랙의 행렬 연산과 닮았지만, 브로드캐스팅은 곱셈 규칙이 아니라 <b>원소별 연산의 모양 맞추기</b>라는 점이 다릅니다.",
+  "more_en": "Broadcasting lets arrays of different shapes combine element-wise: align shapes from the trailing dimension; each axis passes if sizes are equal or one of them is 1 (that axis is virtually replicated); otherwise ValueError. It powers everyday idioms like X - X.mean(axis=0) for column-wise centering without loops. Watch out: (3,) + (3,1) silently becomes (3,3); use reshape(-1,1) or np.newaxis to make axes explicit.",
+  "problem": {
+   "q": "shape (2,3)인 배열과 shape (4,)인 배열을 더하면 어떻게 될까요?",
+   "solution": "<b>ValueError가 납니다.</b> (4,)는 (1,4)로 취급되어 끝 차원부터 비교하면 열 축이 3 vs 4 — 같지도 않고 어느 쪽도 1이 아니므로 브로드캐스팅이 거절합니다. (2,3)과 더해지려면 (3,)·(1,3)·(2,1)·(2,3)처럼 각 축이 '같거나 1'이어야 합니다."
+  }
+ },
+ "bda3_03": {
+  "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
+  "sec": "3.3 불리언 마스크 · where · clip",
+  "title": "조건을 데이터에 적용하기 — 마스크가 곧 필터",
+  "narr": "이제 조건문 차례인데, 여기서도 파이썬다운 길은 if를 <b>원소마다 쓰지 않는 것</b>입니다. <b>scores &gt;= t</b> 한 줄이면 True/False가 늘어선 <b>불리언 마스크</b>가 생기고, <b>scores[mask]</b>처럼 대괄호에 넣으면 마스크가 <b>그대로 필터</b>가 됩니다. 값을 조건에 따라 갈아 끼우려면 <b>np.where(조건, A, B)</b>, 범위를 벗어난 값을 잘라 내려면 <b>np.clip</b> — 셋 다 벡터화라 빠르죠. 화면을 탭해 마스크→where→clip을 오가고, 슬라이더로 기준 t를 움직여 보세요. 통과 개수와 평균이 실시간으로 다시 계산됩니다.",
+  "more": "<b>세 도구의 용도</b>: ① <b>마스크 필터</b> — df[df.price &gt; 100] 처럼 조건에 맞는 행만 추리기(분석의 절반은 이 문법입니다). ② <b>np.where</b> — 합격/불합격 라벨, 음수→0 치환 등 조건부 값 생성. ③ <b>clip</b> — 이상치를 상·하한으로 눌러 극단값이 평균·모델을 흔드는 것을 완화(윈저라이징).\n\n<b>조합의 힘</b>: 마스크끼리는 <b>&amp;(그리고)·|(또는)·~(부정)</b>으로 결합합니다 — 단 각 조건을 괄호로 감싸야 합니다((a&gt;1) &amp; (b&lt;2)). mask.sum()은 True를 1로 세니 <b>조건을 만족한 개수</b>가 되고, mask.mean()은 곧 <b>비율</b>입니다 — 통계로 이어지는 이 감각은 7장에서 다시 만납니다.",
+  "more_en": "Boolean masks turn conditions into data: scores >= t yields a True/False array, and scores[mask] filters in one step. np.where(cond, A, B) substitutes values conditionally; np.clip caps values to a range (useful against outliers). Combine masks with & | ~ (parenthesize each condition). mask.sum() counts matches and mask.mean() gives the proportion — a bridge straight into statistics."
+ },
+ "bda3_04": {
+  "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
+  "sec": "3.4 뷰와 복사",
+  "title": "복사인가 뷰인가 — 원본이 몰래 바뀌는 사고",
+  "narr": "빠름에는 대가가 있습니다. NumPy가 슬라이스를 빛처럼 돌려주는 비결은 <b>복사하지 않기 때문</b>입니다 — <b>arr[1:4]</b>는 새 배열이 아니라 <b>같은 메모리를 보는 창(뷰)</b>이죠. 그래서 뷰에 <b>v[0] = 99</b>를 쓰면 <b>원본 arr[1]도 99</b>가 됩니다. 모르고 겪으면 \"데이터가 왜 바뀌었지?\" 하는 미스터리 버그가 되죠. 독립된 사본이 필요하면 <b>copy()</b>를 분명히 부르세요. pandas에도 같은 함정이 있습니다 — <b>df[조건][열] = 값</b>처럼 두 번 연쇄하면 사본에 쓰게 되어 원본이 안 바뀝니다. 탭하며 메모리에서 벌어지는 일을 단계로 추적해 보세요.",
+  "more": "<b>왜 뷰인가</b>: 100만 행 슬라이스를 매번 복사하면 메모리와 시간이 폭발합니다. 뷰는 \"시작 위치와 보폭만 바꾼 창\"이라 공짜에 가깝죠 — 대신 <b>쓰기가 원본에 닿는다</b>는 계약을 기억해야 합니다.\n\n<b>pandas의 연쇄 인덱싱</b>: df[df.s &lt; 60][\"s\"] = 0 은 첫 대괄호가 만든 <b>임시 사본</b>의 열에 대입하는 헛수고입니다. 그래서 경고(SettingWithCopyWarning)가 뜨죠. 정석은 <b>한 번의 인덱싱</b> — df.loc[df.s &lt; 60, \"s\"] = 0. 최근 pandas는 이 모호함을 없애기 위해 <b>Copy-on-Write</b>를 도입해, 연쇄 대입이 아예 원본에 닿지 않는 쪽으로 통일되고 있습니다.\n\n<b>한 줄 정리</b>: \"고칠 거면 loc 한 번으로, 남길 거면 copy()로 분명히\" — 값과 참조를 의식하는 것이 데이터 사고를 막는 안전벨트입니다.",
+  "more_en": "NumPy slices are views — windows into the same memory — so writing v[0]=99 changes the original array too; call copy() when you need independence. In pandas, chained indexing like df[cond][\"col\"] = 0 assigns into a temporary copy (hence SettingWithCopyWarning) and leaves the original untouched; the correct idiom is a single df.loc[cond, \"col\"] = 0. Modern pandas moves to Copy-on-Write to remove this ambiguity.",
+  "problem": {
+   "q": "v = arr[2:5]; v[:] = 0 을 실행하면 arr은 어떻게 될까요? (arr = np.arange(6))",
+   "solution": "<b>arr[2]·arr[3]·arr[4]가 전부 0이 됩니다</b> — 결과는 [0, 1, 0, 0, 0, 5]. v는 arr의 같은 메모리를 보는 뷰이므로 v 전체에 쓰면 원본의 해당 구간이 그대로 바뀝니다. 원본을 지키려면 v = arr[2:5].copy() 로 독립 사본을 만들어야 합니다."
+  }
+ },
+ "bda3_05": {
+  "ch": "빅데이터 분석 제3장 · 파이썬다운 데이터 프로그래밍",
+  "sec": "3.5 함수와 모듈",
+  "title": "함수로 묶고 모듈로 나누기 — 분석 코드도 소프트웨어다",
+  "narr": "벡터화·마스크·복사 규칙까지 익혔으니, 마지막은 그 코드를 <b>어떻게 정리하느냐</b>입니다. 분석 코드는 복사·붙여넣기로 금세 불어나죠 — 도시 A·B·C에 같은 3줄을 세 번 붙이면, 표준화 식을 고칠 때 <b>세 곳을 전부</b> 고쳐야 합니다. <b>함수로 묶으면</b> 줄 수가 줄고 고칠 곳이 한 곳이 됩니다(화면의 줄 수는 실제로 센 값입니다). 단 한 가지 함정 — <b>가변 기본 인자 xs=[]</b>는 함수를 정의할 때 딱 한 번 만들어져 호출들끼리 <b>공유</b>됩니다. 탭하며 중복 제거 → 함정 → 모듈·파이프라인까지 차례로 보세요.",
+  "more": "<b>좋은 분석 함수의 조건</b>: ① <b>순수 함수</b> — 입력을 받아 결과만 돌려주고, 전역 변수나 원본을 몰래 바꾸지 않습니다(3.4의 뷰/복사 감각과 이어지죠). ② <b>한 가지 일</b> — clean·scale·summary처럼 이름이 곧 설명이 되게. ③ <b>가변 기본 인자 금지</b> — list·dict·DataFrame 기본값은 None으로 받고 안에서 만드세요.\n\n<b>모듈</b>: 함수가 쌓이면 prep.py 같은 파일로 나눠 <b>from prep import clean</b> 으로 불러 씁니다 — 내부 구현을 숨기고, 함수의 약속(입력→출력)만 지키면 내부를 마음껏 개선할 수 있습니다. 노트북에서 검증한 함수를 모듈로 승격하는 것이 재현 가능한 분석의 첫걸음입니다.\n\n<b>파이프라인</b>: pandas의 <b>df.pipe(f).pipe(g)</b>는 \"데이터가 함수들을 통과한다\"를 코드 모양 그대로 보여 줍니다 — 파이썬 트랙에서 배운 함수 문법이 실무 분석의 뼈대가 되는 순간입니다.",
+  "more_en": "Refactor duplicated analysis code into functions: fewer lines, one place to fix (the line counts on screen are actually computed). Prefer pure functions that return results without mutating inputs or globals. Never use mutable default arguments (xs=[]) — the default is created once at definition time and shared across calls; use None instead. Group functions into modules (from prep import clean) and chain them with df.pipe(clean).pipe(scale) to make the analysis read as a pipeline.",
+  "problem": {
+   "q": "def log(msg, buf=[]) 처럼 리스트를 기본 인자로 두면 왜 위험할까요?",
+   "solution": "<b>기본값 리스트가 호출들끼리 공유되기 때문입니다.</b> 기본 인자는 함수를 정의하는 순간 딱 한 번 평가되어 함수 객체에 저장됩니다. 그래서 log(\"a\") 후 log(\"b\")를 부르면 buf에 [\"a\",\"b\"]가 쌓여 있죠 — 호출마다 새 리스트를 기대했다면 버그입니다. 정석은 buf=None으로 받고 함수 안에서 buf = [] if buf is None else buf 로 만드는 것입니다."
+  }
+ }
+}
