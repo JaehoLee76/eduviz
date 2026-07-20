@@ -75,6 +75,9 @@
   // 토스트의 '처음으로'로 인트로부터 다시 볼 수 있다. (게스트도 localStorage에 위치가 있으면 이어보기)
   var restored=false;
   function restorePos(){ if(restored) return;                      // 페이지 로드당 1회만(로그인 후 재호출이 읽는 중 사용자를 끌어가지 않게)
+    // ★ 크로스 트랙 바로가기(?xr=장면id)로 특정 장면에 진입한 경우엔 진도 복원 금지 —
+    //   URL이 지정한 장면이 우선이다(이게 없으면 빅데이터에서 점프해도 그 트랙의 '학습 중이던 위치'로 끌려간다).
+    try{ if(new URLSearchParams(location.search).get('xr')){ restored=true; return; } }catch(e){}
     var p=data.pos[TRACK]; if(!p || !p.id) return;
     if(!window.Engine || !Engine.indexOfId) return;
     var i=Engine.indexOfId(p.id); if(i<0) return;                  // 콘텐츠에서 사라진 장면
