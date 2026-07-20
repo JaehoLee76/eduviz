@@ -107,7 +107,7 @@
         ctx.fillRect(ax,ay,aw,ah); ctx.strokeRect(ax,ay,aw,ah);
         ctx.fillStyle=GLD; ctx.font='600 11.5px sans-serif'; ctx.textAlign='left';
         ctx.fillText('Axes (그래프 영역)', ax, ay-6);
-        ctx.fillStyle=DIM; ctx.font='10.5px ui-monospace,Menlo,monospace';
+        ctx.fillStyle=DIM; ctx.font='11px ui-monospace,Menlo,monospace';
         ctx.fillText('픽셀 ('+Math.round(ax)+','+Math.round(ay)+') '+Math.round(aw)+'×'+Math.round(ah)+' — [0.12,0.12,0.80,0.70]에서 계산', ax, ay+ah+16);
 
         if(s.step>=2){
@@ -121,7 +121,7 @@
           for(i=0;i<DAYS.length;i++){ var xx=px(DAYS[i]),yy=py(SCORE[i]); if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); }
           ctx.stroke();
           for(i=0;i<DAYS.length;i++){ ctx.fillStyle=ROSE; ctx.beginPath(); ctx.arc(px(DAYS[i]),py(SCORE[i]),3,0,7); ctx.fill(); }
-          ctx.fillStyle=DIM; ctx.font='10.5px ui-monospace,Menlo,monospace'; ctx.textAlign='right';
+          ctx.fillStyle=DIM; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='right';
           ctx.fillText(''+mx, plotX-4, py(mx)+4);
           ctx.fillText(''+mn, plotX-4, py(mn)+4);
           ctx.textAlign='center'; ctx.fillText('1', px(1), plotY+plotH+13); ctx.fillText('8', px(8), plotY+plotH+13);
@@ -139,7 +139,7 @@
             roundRect(ctx, ax+aw-104, ay+6, 100, 30, 6); ctx.fill(); ctx.stroke();
             ctx.fillStyle=ROSE; ctx.font='600 11px sans-serif'; ctx.textAlign='left';
             ctx.fillText('― 점수', ax+aw-98, ay+20);
-            ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.fillText('평균 '+avg.toFixed(1)+'점', ax+aw-98, ay+32);
+            ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText('평균 '+avg.toFixed(1)+'점', ax+aw-98, ay+32);
           }
         }
       }
@@ -194,9 +194,9 @@
         var bh=(counts[i]/maxC)*(hh-18), bx=hx+i*barW, by=hy+hh-bh;
         ctx.fillStyle='rgba(255,122,184,0.45)'; ctx.strokeStyle=ROSE; ctx.lineWidth=1;
         ctx.fillRect(bx+1,by,barW-2,bh); ctx.strokeRect(bx+1,by,barW-2,bh);
-        if(counts[i]>0){ ctx.fillStyle=TXT; ctx.font='10.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText(''+counts[i], bx+barW/2, by-4); }
+        if(counts[i]>0){ ctx.fillStyle=TXT; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='center'; ctx.fillText(''+counts[i], bx+barW/2, by-4); }
       }
-      ctx.fillStyle=DIM; ctx.font='10.5px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
+      ctx.fillStyle=DIM; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='left';
       ctx.fillText(''+mn, hx, hy+hh+13); ctx.textAlign='right'; ctx.fillText(''+mx, hx+hw, hy+hh+13);
 
       // 우측 하단: 상자그림(실계산 사분위수) — 가로형
@@ -214,7 +214,7 @@
       ctx.fillRect(bxp(q1),byMid-16,bxp(q3)-bxp(q1),32); ctx.strokeRect(bxp(q1),byMid-16,bxp(q3)-bxp(q1),32);
       ctx.strokeStyle=GLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bxp(med),byMid-16); ctx.lineTo(bxp(med),byMid+16); ctx.stroke();
       for(i=0;i<outliers.length;i++){ ctx.fillStyle=RED; ctx.beginPath(); ctx.arc(bxp(outliers[i]),byMid,4,0,7); ctx.fill(); }
-      ctx.fillStyle=TXT; ctx.font='10.5px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
+      ctx.fillStyle=TXT; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
       ctx.fillText('Q1='+q1.toFixed(1), bxp(q1), byMid+32);
       ctx.fillText('중앙값='+med.toFixed(1), bxp(med), byMid-24);
       ctx.fillText('Q3='+q3.toFixed(1), bxp(q3), byMid+32);
@@ -284,7 +284,7 @@
       roundRect(ctx, px0+pw-108, py0, 104, 40, 8); ctx.fill(); ctx.stroke();
       ctx.fillStyle=rCol; ctx.font='600 16px ui-monospace,Menlo,monospace'; ctx.textAlign='center';
       ctx.fillText('r = '+r.toFixed(2), px0+pw-56, py0+22);
-      ctx.fillStyle=DIM; ctx.font='10.5px sans-serif';
+      ctx.fillStyle=DIM; ctx.font='11px sans-serif';
       ctx.fillText(Math.abs(r)>0.7?'강한 상관':(Math.abs(r)>0.3?'중간 상관':'약한 상관'), px0+pw-56, py0+34);
 
       E.tapHint(W/2, H*0.97, '슬라이더로 점을 흔들어 보세요 — 상관계수가 다시 계산됩니다', true);
@@ -340,7 +340,7 @@
         ctx.fillStyle=DIM; ctx.font='11px sans-serif';
         ctx.fillText(REG[idx], x0+bw/2, gy+gh+16);
       }
-      ctx.fillStyle=DIM; ctx.font='10.5px ui-monospace,Menlo,monospace'; ctx.textAlign='right';
+      ctx.fillStyle=DIM; ctx.font='11px ui-monospace,Menlo,monospace'; ctx.textAlign='right';
       ctx.fillText(baseline.toFixed(0), gx-6, gy+gh+4);
       ctx.fillText(top.toFixed(0), gx-6, gy+6);
 
@@ -412,9 +412,9 @@
         roundRect(ctx,lx,ly,gw*0.19,20*n+10,6); ctx.fill(); ctx.stroke();
         for(i=0;i<n;i++){ var ry=ly+10+i*20;
           ctx.fillStyle=BADCOL[i]; ctx.fillRect(lx+8,ry-8,10,10);
-          ctx.fillStyle=TXT; ctx.font='10.5px sans-serif'; ctx.textAlign='left';
+          ctx.fillStyle=TXT; ctx.font='11px sans-serif'; ctx.textAlign='left';
           ctx.fillText(CATS[i], lx+22, ry); }
-        ctx.fillStyle=DIM; ctx.font='10px sans-serif'; ctx.textAlign='right';
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.textAlign='right';
         ctx.fillText(''+base, gx-4, gy+gh+4);
       } else {
         // 좋은 그림: 가로 막대, 정렬, 회색+강조색 1개, 값 직접 라벨, 축 0부터, 격자 없음

@@ -287,8 +287,8 @@
       var ty=base-t/100*maxH;
       ctx.strokeStyle=GLD; ctx.lineWidth=1.4; ctx.setLineDash([6,4]);
       ctx.beginPath(); ctx.moveTo(gx-6,ty); ctx.lineTo(gx+gw*0.92,ty); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=GLD; ctx.font='600 12px sans-serif'; ctx.textAlign='left';
-      ctx.fillText('t='+t, gx+gw*0.92+4, ty+4);
+      ctx.fillStyle=GLD; ctx.font='600 12px sans-serif'; ctx.textAlign='right';
+      ctx.fillText('t='+t, gx-8, ty-6);
 
       // 실계산 readout (긴 문장은 엔진 HUD가 코너로 분리)
       ctx.fillStyle=TXT; ctx.font='12.5px sans-serif'; ctx.textAlign='left';

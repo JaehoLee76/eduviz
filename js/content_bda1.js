@@ -257,8 +257,12 @@
       for(var d=0;d<3;d++){ ctx.beginPath(); ctx.arc(hx+16+d*15,hy+14,4,0,7); ctx.fillStyle=['#f0888a','#ffd27a','#7ee0b0'][d]; ctx.fill(); }
       ctx.fillStyle=DIM; ctx.font='11.5px ui-monospace,monospace'; ctx.textAlign='left'; ctx.fillText('>>> help(round)', hx+14, hy+34);
       ctx.fillStyle=TXT; ctx.font='12px ui-monospace,monospace';
-      ctx.fillText('round(number, ndigits=None)', hx+14, hy+52);
-      ctx.fillStyle=ACC; ctx.fillText('ndigits', hx+14+ctx.measureText('round(number, ').width, hy+52);
+      var rndPre='round(number, ', rndHl='ndigits', rndPost='=None)';
+      ctx.fillText(rndPre, hx+14, hy+52);
+      var rndWpre=ctx.measureText(rndPre).width;
+      ctx.fillStyle=ACC; ctx.fillText(rndHl, hx+14+rndWpre, hy+52);
+      var rndWhl=ctx.measureText(rndHl).width;
+      ctx.fillStyle=TXT; ctx.fillText(rndPost, hx+14+rndWpre+rndWhl, hy+52);
       ctx.fillStyle=DIM; ctx.fillText('Round a number to a given precision', hx+14, hy+68);
       ctx.fillText('in decimal digits (default: nearest int).', hx+14, hy+82);
 
@@ -342,7 +346,7 @@
         ctx.fillStyle=curHere?'rgba(255,122,184,0.16)':'rgba(255,255,255,0.05)'; ctx.strokeStyle=curHere?ACC:'rgba(255,255,255,0.16)'; ctx.lineWidth=curHere?2:1;
         roundRect(ctx,rx+3,ry2,sw-6,40,7); ctx.fill(); ctx.stroke();
         ctx.fillStyle=curHere?ACC:'#cfcdc6'; ctx.font='600 11.5px sans-serif'; ctx.textAlign='center'; ctx.fillText(stages[k].lab, rx+sw/2, ry2+17);
-        ctx.fillStyle=DIM; ctx.font='10.5px sans-serif'; ctx.fillText(stages[k].rng, rx+sw/2, ry2+32);
+        ctx.fillStyle=DIM; ctx.font='11px sans-serif'; ctx.fillText(stages[k].rng, rx+sw/2, ry2+32);
       }
       ctx.fillStyle=ACC; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('지금 여기 — 전체 '+total+'장 중 '+cur+'장 ('+pct+'%)', gx, ry2+58);
 

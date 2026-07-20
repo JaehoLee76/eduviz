@@ -199,7 +199,7 @@
           var v3=SERIES_MIX[k], miss=(v3===null||isNaN(v3)), bx3=gx+k*(cw3+3);
           ctx.fillStyle=miss?'rgba(240,136,138,0.16)':'rgba(126,224,176,0.10)'; ctx.strokeStyle=miss?RED:GRN; ctx.lineWidth=miss?1.6:1;
           roundRect(ctx,bx3,ry3,cw3,32,5); ctx.fill(); ctx.stroke();
-          ctx.fillStyle=miss?RED:'#e8e0c8'; ctx.font='10.5px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(miss?'∅':v3, bx3+cw3/2, ry3+20);
+          ctx.fillStyle=miss?RED:'#e8e0c8'; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText(miss?'∅':v3, bx3+cw3/2, ry3+20);
         }
         var missCnt=SERIES_MIX.filter(function(v){ return v===null||isNaN(v); }).length;
         var present=SERIES_MIX.filter(function(v){ return v!==null&&!isNaN(v); });
@@ -355,7 +355,7 @@
           ctx.fillStyle=(v===null)?RED:'#e8e0c8'; ctx.font='11.5px ui-monospace,monospace'; ctx.fillText(''+disp, colX[c]+6, ry+rh*0.68);
         }
         // 인덱스
-        ctx.fillStyle=DIM; ctx.font='10.5px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText(''+r, tx-4, ry+rh*0.68); ctx.textAlign='left';
+        ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='right'; ctx.fillText(''+r, tx-4, ry+rh*0.68); ctx.textAlign='left';
       }
 
       // 실제 계산: 선택 열 통계 (골든룰)
@@ -423,7 +423,7 @@
           ctx.fillStyle=bad?'rgba(240,136,138,0.18)':'rgba(255,255,255,0.04)'; ctx.strokeStyle=stopped?RED:(bad?RED:DIM); ctx.lineWidth=stopped?2.2:1.1;
           roundRect(ctx,bx,ry,cw,38,6); ctx.fill(); ctx.stroke();
           ctx.fillStyle=bad?RED:'#e8e0c8'; ctx.font='12px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('"'+PRICE_STR[i]+'"', bx+cw/2, ry+24);
-          if(stopped){ ctx.fillStyle=RED; ctx.font='10px sans-serif'; ctx.fillText('여기서 중단', bx+cw/2, ry+52); }
+          if(stopped){ ctx.fillStyle=RED; ctx.font='11px sans-serif'; ctx.fillText('여기서 중단', bx+cw/2, ry+52); }
         }
         ctx.textAlign='left';
         ctx.fillStyle=RED; ctx.font='600 14px ui-monospace,monospace'; ctx.fillText('→ ValueError — 파이프라인 전체가 멈춥니다 (0개 처리)', gx, ry+80);
@@ -434,7 +434,7 @@
           var bx2=gx+j*(cw2+5), ok=validity[j];
           ctx.fillStyle=ok?'rgba(126,224,176,0.12)':'rgba(240,136,138,0.14)'; ctx.strokeStyle=ok?GRN:RED; ctx.lineWidth=1.3;
           roundRect(ctx,bx2,ry2,cw2,50,6); ctx.fill(); ctx.stroke();
-          ctx.fillStyle=DIM; ctx.font='10px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('"'+PRICE_STR[j]+'"', bx2+cw2/2, ry2+16);
+          ctx.fillStyle=DIM; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center'; ctx.fillText('"'+PRICE_STR[j]+'"', bx2+cw2/2, ry2+16);
           ctx.fillStyle=ok?GRN:RED; ctx.font='600 12px ui-monospace,monospace'; ctx.fillText(ok?fmt1(coerced[j]):'NaN', bx2+cw2/2, ry2+38);
         }
         ctx.textAlign='left';

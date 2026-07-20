@@ -1,0 +1,89 @@
+{
+ "bda8_01": {
+  "ch": "빅데이터 분석 제8장 · 선형 회귀",
+  "sec": "8.1 최소제곱법",
+  "title": "직선 하나로 설명하기 — 단순 회귀",
+  "narr": "7장에서 \"두 집단의 차이가 진짜인가\"를 t와 p로 판정했다면, 이제 그 눈을 예측으로 돌려 봅니다. 회귀의 첫 질문은 이것입니다 — 점들이 흩어진 산점도에 <b>가장 잘 맞는 직선</b>을 어떻게 찾을까요? 답은 각 점에서 직선까지의 수직 거리(잔차)를 구해 <b>제곱해서 더한 값 — 잔차제곱합(SSE)</b> — 을 가장 작게 만드는 직선을 고르는 것입니다. 슬라이더로 절편 b0과 기울기 b1을 직접 움직여 보세요. 오른쪽 위 빨간 정사각형들이 바로 그 제곱 항목이고, SSE는 화면에서 실제로 다시 계산됩니다. 그리고 아래쪽 곡선은 \"이 절편에서 기울기를 훑으면 SSE가 이렇게 움직인다\"는 것을 보여줍니다 — 미적분에서 배운 <b>최소를 찾는다</b>는 것이 바로 이 골짜기의 바닥을 찾는 일입니다.",
+  "more": "<b>왜 절댓값이 아니라 제곱인가</b>: 잔차를 그냥 더하면 양수와 음수가 서로 상쇄돼 \"딱 맞다\"는 착시가 생깁니다(부호 없는 오차를 재야 하니까요). 절댓값 대신 제곱을 쓰는 이유는 계산이 매끈해서(미분 가능) — 도함수를 0으로 놓으면 정확한 대수적 해가 나옵니다. 그 결과가 b1 = Sxy/Sxx, b0 = ȳ − b1·x̄ 라는 <b>닫힌 공식</b>입니다. 아래쪽 미니 곡선의 골짜기 바닥이 바로 이 공식이 가리키는 지점과 정확히 일치합니다.\n\n<b>statsmodels vs scikit-learn</b>: 같은 최소제곱해를 구하지만 쓰임이 다릅니다. statsmodels(smf.ols)는 계수의 표준오차·t값·p값·신뢰구간까지 통계적 추론에 특화되어 있고(7장의 가설검정이 회귀계수에도 그대로 적용됩니다), scikit-learn(LinearRegression)은 추론 없이 예측 성능과 파이프라인에 특화되어 있습니다. \"이 변수가 유의한가\"를 물을 땐 statsmodels, \"새 데이터를 얼마나 잘 맞히는가\"를 물을 땐 scikit-learn을 씁니다 — 앞으로 이 장에서 두 관점을 번갈아 씁니다.",
+  "more_en": "The best-fit line minimizes the sum of squared residuals (SSE) — squaring rather than taking absolute values because it stays differentiable, giving the closed-form solution b1 = Sxy/Sxx, b0 = ȳ − b1·x̄. The mini curve shows SSE swept over b1 at the current intercept; its floor is exactly that formula's answer — finding a minimum, the calculus idea, made concrete. statsmodels centers on inference (standard errors, t and p for each coefficient — the same logic as chapter 7's hypothesis tests), while scikit-learn centers on prediction and pipelines; this chapter moves between both lenses.",
+  "problem": {
+   "q": "어떤 직선의 SSE가 현재 슬라이더 위치에서 240인데, 최소제곱해(OLS)의 SSE는 180입니다. 이 직선을 \"가장 잘 맞는 직선\"이라고 부를 수 있을까요?",
+   "solution": "아닙니다. SSE가 240인 직선은 최소값 180보다 <b>더 큰 잔차제곱합</b>을 갖고 있으므로 최적이 아닙니다 — 화면의 슬라이더를 OLS 해(b0*, b1*)로 옮기면 SSE는 180까지 더 내려갑니다. \"가장 잘 맞는 직선\"이라는 말은 정확히 <b>SSE를 최소화하는 단 하나의 직선</b>을 가리키며, 그 이상도 이하도 아닙니다."
+  },
+  "xref": [
+   {
+    "href": "calculus.html",
+    "scene": "calc5_01",
+    "label": "극값과 임계점",
+    "sub": "미적분 5장 · 기울기가 0이 되는 곳",
+    "track": "calculus"
+   }
+  ]
+ },
+ "bda8_02": {
+  "ch": "빅데이터 분석 제8장 · 선형 회귀",
+  "sec": "8.2 계수의 해석",
+  "title": "계수는 무엇을 말하는가",
+  "narr": "최소제곱해를 찾는 법을 알았으니, 이제 그 숫자가 <b>무슨 뜻인지</b> 물어볼 차례입니다. 기울기 b1은 \"X가 1단위 늘 때 Y가 평균적으로 얼마나 느는가\"이고, 절편 b0은 \"X=0일 때의 예측값\"입니다. 그런데 이 숫자는 <b>단위에 종속적</b>입니다 — 슬라이더로 단위 배율 k를 바꿔 보세요. 시간을 k배 다른 단위로 재면 계수는 정확히 1/k로 줄어듭니다(오른쪽 위 반비례 곡선). 그렇다면 단위가 다른 여러 변수의 영향력을 어떻게 비교할까요? 답은 <b>표준화계수 β</b>입니다 — 각 변수를 자신의 표준편차 단위로 잰 계수이고, 단순회귀에서는 놀랍게도 상관계수 r과 정확히 같은 값이 됩니다.",
+  "more": "<b>β = b1 × (Sx/Sy)의 의미</b>: 기울기에 \"X가 1 표준편차 늘 때\"라는 잣대를 곱해 \"Y가 몇 표준편차만큼 느는가\"로 바꾼 것이 β입니다. 단위를 지우는 변환이라 서로 다른 척도의 변수(예: 나이 vs 소득)를 같은 잣대로 비교할 수 있게 해 줍니다. 다중회귀에서는 β가 더 이상 r과 같지 않지만, 여전히 \"어느 변수의 영향력이 더 큰가\"를 비교하는 표준 도구입니다.\n\n<b>절편의 함정</b>: 절편은 X=0일 때의 예측값인데, X=0이 현실적으로 의미 없는 경우가 많습니다(예: 몸무게 0kg인 사람의 혈압). 그럴 땐 절편을 문자 그대로 해석하지 말고, X를 평균 근처로 <b>중심화</b>한 뒤 다시 적합하면 절편이 \"평균적인 X에서의 예측값\"이 되어 해석이 쉬워집니다.",
+  "more_en": "The slope b1 answers \"how much does Y change per unit of X,\" but its size depends on the unit — rescale X by k and b1 shrinks to b1/k, traced by the hyperbola on screen. The standardized coefficient β = b1·(Sx/Sy) removes that unit-dependence, and in simple regression it equals the correlation r exactly. In multiple regression β no longer equals r but remains the standard way to compare predictors measured on different scales. A literal-intercept reading can be meaningless when X=0 is unrealistic; centering X first makes the intercept read as \"the prediction at an average X.\"",
+  "problem": {
+   "q": "공부시간(시간 단위)의 회귀계수가 4.0점이었습니다. 만약 같은 데이터를 \"10분 단위\"로 바꿔 다시 적합한다면 계수는 대략 얼마가 될까요?",
+   "solution": "1시간 = 6×10분이므로 단위 배율은 k=6이고, 계수는 <b>b1/k = 4.0/6 ≈ 0.67</b>점이 됩니다. \"10분 늘 때 점수가 0.67점 오른다\"는 것은 \"1시간(=6×10분) 늘 때 4.0점 오른다\"는 것과 <b>같은 사실을 다른 단위로 말한 것</b>일 뿐입니다 — 화면의 반비례 곡선이 보여준 관계 그대로입니다."
+  }
+ },
+ "bda8_03": {
+  "ch": "빅데이터 분석 제8장 · 선형 회귀",
+  "sec": "8.3 결정계수와 잔차 진단",
+  "title": "얼마나 잘 맞는가 — R²와 잔차",
+  "narr": "계수의 뜻을 알았으니, 이제 \"이 직선이 데이터를 얼마나 잘 설명하는가\"를 재 볼 차례입니다. <b>R² = 1 − SSE/SST</b>는 Y의 전체 변동(SST) 중 모형이 설명해 낸 비율입니다. 그런데 여기 함정이 있습니다 — 슬라이더로 데이터셋을 A(선형)에서 B(체감형)로 바꿔 보세요. 둘 다 R²는 꽤 높게 나오지만, <b>잔차 대 적합값 그림</b>이 전혀 다릅니다. A는 잔차가 무작위로 흩어지는 반면, B는 초반엔 위로 처지고 후반엔 아래로 처지는 뚜렷한 곡선 모양을 남깁니다 — 증가세가 둔화되는 체감 관계를 직선이 억지로 눌러 담았다는 신호입니다. R²라는 숫자 하나만 보고 안심하면 안 되는 이유가 바로 이것입니다.",
+  "more": "<b>R²가 말해 주지 않는 것</b>: R²는 \"직선 관계의 강도\"만 잽니다. 데이터가 완만한 곡선(예: 체감 효과)이어도 그 위에 직선을 그으면 R²가 상당히 높게 나올 수 있습니다 — 전체적인 방향은 직선과 비슷해도 세부 굴곡은 못 잡기 때문입니다. 곡선 패턴이 있는지는 반드시 <b>잔차 그림</b>으로 확인해야 합니다 — 무늬 없이 흩어지면 좋은 신호, 곡선·부채꼴·깔때기 모양이 보이면 모형을 의심할 신호입니다.\n\n<b>실무 체크리스트</b>: ① 잔차 대 적합값 → 곡선 패턴(비선형성) ② 잔차의 절대값이 적합값에 따라 커지는 부채꼴 → 등분산성 위반(이분산) ③ 잔차 히스토그램/Q-Q 플롯 → 정규성. 세 가지를 함께 보는 것이 R² 숫자 하나보다 훨씬 정직한 진단입니다.",
+  "more_en": "R² = 1 − SSE/SST measures the share of Y's total variance the line explains, but it only measures linear strength. A curved (diminishing-returns) relationship can still yield a fairly high R² while its residual-vs-fitted plot shows a clear bowed pattern — evidence the line is missing real curvature. A trustworthy check pairs R² with three residual diagnostics: pattern (nonlinearity), fanning spread (heteroscedasticity), and a histogram or Q-Q plot (normality) — never R² alone.",
+  "problem": {
+   "q": "두 모형 모두 R²=0.90입니다. 모형 A의 잔차는 무작위로 흩어지고, 모형 B의 잔차는 적합값이 커질수록 체계적으로 위로 휘어집니다. 어느 모형을 더 신뢰해야 할까요?",
+   "solution": "<b>모형 A</b>입니다. R²가 같더라도 모형 B의 잔차에 남은 체계적인 곡선 패턴은 \"직선이 놓친 구조가 아직 남아 있다\"는 뜻입니다 — 예측이 특정 구간에서 계속 한쪽으로 치우쳐 틀린다는 의미이기도 합니다. R² 숫자가 같아도 잔차 그림이 다르면 신뢰도는 다릅니다. B는 다항항 추가나 변수 변환 같은 추가 처리가 필요합니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai3_04",
+    "label": "손실함수 MSE",
+    "sub": "인공지능 3장 · 오차를 재는 법",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda8_04": {
+  "ch": "빅데이터 분석 제8장 · 선형 회귀",
+  "sec": "8.4 다중 회귀와 다중공선성",
+  "title": "여러 변수를 함께 — 다중 회귀와 다중공선성",
+  "narr": "하나의 잔차 그림으로 부족함을 확인했으니, 자연스러운 다음 수는 <b>변수를 더 넣는 것</b>입니다. 다중회귀의 계수는 \"다른 변수를 고정했을 때, 이 변수가 1단위 늘 때의 효과\"로 뜻이 살짝 바뀝니다. 그런데 슬라이더로 공선성 강도 α를 올려 보세요 — 새 변수 X2를 경력과 점점 더 닮게 만들면, 두 계수가 요동치고 심지어 <b>부호까지 뒤집힙니다</b>. 데이터가 \"경력의 효과\"와 \"X2의 효과\"를 구분할 정보를 더는 주지 못하기 때문입니다. 오른쪽 위 산점도에서 점들이 대각선에 달라붙는 모습이 바로 그 순간이고, <b>VIF(분산팽창지수)</b>가 이를 숫자로 잡아냅니다.",
+  "more": "<b>VIF는 어떻게 계산되나</b>: 한 예측변수(X2)를 나머지 예측변수들(경력)에 회귀해 얻은 R²를 이용해 VIF = 1/(1−R²)로 계산합니다. X2가 다른 변수들로 거의 완벽히 설명될수록(R²→1) VIF는 폭발적으로 커집니다. 실무 기준은 VIF>5(주의), VIF>10(심각)입니다. 이 장면의 공식은 예측변수 2개짜리 특수한 경우이고, 변수가 3개 이상이면 각 변수마다 \"나머지 전부에 대한 회귀\"로 VIF를 따로 구합니다.\n\n<b>대처법</b>: ① 상관이 높은 변수 중 하나를 제거 ② 능형회귀(Ridge)처럼 계수에 벌점을 주는 방법 ③ 주성분분석(PCA)으로 변수를 합쳐 축을 새로 만들기. 다중공선성은 예측 자체(전체 모형의 R²·RMSE)에는 큰 해가 없을 때도 많지만, <b>개별 계수의 해석</b>(\"이 변수가 얼마나 중요한가\")을 완전히 무너뜨립니다 — 예측이 목적인지 설명이 목적인지에 따라 심각성이 달라진다는 뜻입니다.",
+  "more_en": "Adding a predictor changes a coefficient's meaning to \"the effect holding the other variable fixed.\" Drag α up and X2 becomes a near-copy of experience: the data can no longer separate their individual effects, so both coefficients swing wildly and can flip sign — the diagonal scatter and VIF = 1/(1−R²) both flag it (VIF>5 caution, VIF>10 serious). Fixes include dropping a redundant predictor, ridge regression's coefficient penalty, or PCA to combine correlated axes. Multicollinearity often barely hurts overall prediction (R², RMSE) while destroying individual-coefficient interpretation — its severity depends on whether the goal is prediction or explanation.",
+  "problem": {
+   "q": "두 예측변수의 VIF가 각각 12.4로 나왔습니다. 이 모형의 예측값(RMSE)과 개별 계수의 해석 중 어느 쪽이 더 신뢰할 수 없을까요?",
+   "solution": "<b>개별 계수의 해석</b>이 신뢰할 수 없습니다. VIF가 크다는 것은 두 변수가 서로를 거의 대신 설명한다는 뜻이라, \"이 변수의 순수한 효과가 얼마인가\"를 계수 하나로 딱 잘라 말하기 어렵습니다(부호까지 흔들릴 수 있죠). 반면 전체 모형의 예측 성능(RMSE·R²)은 두 변수를 합친 정보로 계산되므로 공선성의 영향을 상대적으로 덜 받습니다 — \"예측은 괜찮은데 계수 해석은 못 믿는다\"는 상황이 흔한 이유입니다."
+  }
+ },
+ "bda8_05": {
+  "ch": "빅데이터 분석 제8장 · 선형 회귀",
+  "sec": "8.5 회귀 진단 — 레버리지와 영향점",
+  "title": "모델을 진단하다",
+  "narr": "다중공선성이 \"변수 사이의 문제\"였다면, 마지막은 \"<b>점 하나의 문제</b>\"입니다. 경력 15년이라는, 나머지 점들과 멀리 떨어진 위치에 새 점을 하나 놓아 보세요. 슬라이더로 그 점의 값을 극단으로 옮기면 회귀선 전체가 그 점 쪽으로 끌려가는 것이 보입니다. 이를 정량화하는 두 지표가 있습니다 — <b>레버리지(h)</b>는 그 점이 X축에서 얼마나 외딴 곳에 있는지(위치의 극단성)를, <b>Cook's 거리</b>는 그 점을 빼고 다시 적합했을 때 예측이 얼마나 달라지는지(실제 영향력)를 잽니다. 위치만 극단적이고 Y값은 선 근처면 레버리지는 높아도 영향력은 작을 수 있고, 반대로 위치와 값이 둘 다 어긋나면 레버리지와 Cook's D가 함께 치솟습니다.",
+  "more": "<b>레버리지와 영향점은 다른 개념입니다</b>: 레버리지 h는 오직 X 위치만 봅니다(1/n + (x−x̄)²/Sxx) — Y값과 무관합니다. 반면 실제로 회귀선을 끌고 가려면 그 점이 <b>기존 추세에서 벗어난 Y값</b>도 가져야 합니다. 그래서 Cook's 거리는 레버리지와 잔차(그 점이 얼마나 예상을 벗어났는지)를 곱하는 형태 — 레버리지가 높아도 잔차가 작으면(즉 그 점도 추세를 따르면) Cook's D는 작게 유지됩니다. 이번 장면에서 슬라이더로 y11을 회귀선 근처로 두면 레버리지는 그대로인데 Cook's D만 작아지는 것을 확인해 보세요.\n\n<b>실무 대처</b>: 영향점을 발견했다고 무조건 지우면 안 됩니다 — 먼저 ① 입력 오류인지 확인, ② 진짜 데이터라면 왜 다른지 도메인 지식으로 설명, ③ 그래도 결론이 그 점 하나에 좌우된다면 그 점을 포함/제외한 두 결과를 모두 보고하는 것이 정직한 분석입니다. 진단은 \"틀린 점을 지우는 도구\"가 아니라 \"결론이 얼마나 견고한지 확인하는 도구\"입니다.",
+  "more_en": "Leverage h looks only at how far a point sits along X (1/n + (x−x̄)²/Sxx); it says nothing about Y. Cook's distance multiplies leverage by how far that point's residual strays from the trend, so a high-leverage point that still follows the pattern keeps a small Cook's D — drag y11 near the regression line and watch Cook's D fall while leverage stays fixed. Flagging an influential point is not license to delete it: check for a data error first, look for a domain explanation if it's genuine, and if the conclusion still hinges on one point, report results with and without it rather than silently dropping it.",
+  "problem": {
+   "q": "새로 추가한 점의 레버리지는 매우 높은데(0.55), Cook's 거리는 작았습니다(0.02). 이 점을 걱정해야 할까요?",
+   "solution": "크게 걱정할 필요는 없습니다. <b>레버리지가 높다</b>는 것은 그 점이 X축에서 외딴 위치(극단적인 값)에 있다는 뜻일 뿐이고, <b>Cook's 거리가 작다</b>는 것은 그 점의 Y값이 기존 추세를 잘 따르고 있어서 빼고 다시 적합해도 결과가 거의 안 바뀐다는 뜻입니다. \"외딴 곳에 있지만 트렌드는 지키는 점\"입니다 — 위치의 극단성과 실제 영향력은 다른 질문이라는 것을 이 예가 보여 줍니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch6_01",
+    "label": "두 점 사이 거리",
+    "sub": "수학 6장 · 좌표평면의 거리",
+    "track": "math"
+   }
+  ]
+ }
+}

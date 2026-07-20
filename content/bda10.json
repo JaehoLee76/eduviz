@@ -1,0 +1,96 @@
+{
+ "bda10_01": {
+  "ch": "빅데이터 분석 제10장 · 분류 알고리즘",
+  "sec": "10.1 로지스틱 회귀",
+  "title": "확률로 분류하다 — 로지스틱 회귀",
+  "narr": "9장에서 탐색·전처리·분할·평가지표까지 갖췄으니, 이제 드디어 실제 분류기를 만들 차례입니다. 가장 먼저 떠오르는 방법은 8장의 선형회귀를 그대로 가져다 쓰는 것이겠지만, 곧 이상한 일이 생깁니다 — 직선의 출력은 얼마든지 1을 넘거나 음수가 될 수 있는데, 우리가 원하는 것은 <b>0과 1 사이의 확률</b>이니까요. 그래서 직선의 신호(z = w1·개월수 + w2·이용시간)를 <b>시그모이드 함수</b>에 통과시켜 항상 0~1 사이로 눌러 줍니다. 슬라이더로 w1·w2를 움직여 보세요 — 오른쪽 위 S자 곡선과 결정경계가 실제로 다시 계산됩니다. z=0인 지점이 정확히 확률 0.5, 그것이 곧 결정경계입니다. 가장 좋은 가중치는 예측 확률이 실제 정답과 얼마나 다른지를 재는 <b>로그손실</b>을 가장 작게 만드는 값이고, 화면은 경사하강법으로 직접 찾은 값과 비교해 보여 줍니다.",
+  "more": "<b>로그오즈라는 다른 시선</b>: 시그모이드의 역함수를 취하면 z = ln(p/(1-p))가 됩니다 — 이 z를 로그오즈(log-odds)라고 부릅니다. 즉 로지스틱 회귀는 확률 자체가 아니라 <b>오즈의 로그</b>에 대해 선형인 모델입니다. 계수 w1이 1만큼 늘 때 로그오즈가 w1만큼 늘고, 이는 오즈가 exp(w1)배가 된다는 뜻입니다 — 그래서 로지스틱 회귀 계수는 흔히 오즈비(odds ratio)로 해석됩니다. 화면에서 w1이 w2보다 훨씬 큰 값으로 수렴한 것은 개월수 쪽이 더 중요해서가 아니라, 단순히 개월수(0~24)의 눈금 폭이 이용시간(0~100)보다 좁기 때문입니다 — 8장에서 배운 \"계수는 단위에 종속적이다\"라는 교훈이 여기서도 그대로 적용됩니다.\n\n<b>실무에서</b>: scikit-learn의 LogisticRegression은 기본으로 L2 정규화(C 파라미터)를 적용합니다 — 데이터가 완벽히 갈리는 경우(complete separation) 계수가 무한히 커지는 것을 막아 줍니다. 계수의 통계적 유의성(표준오차·p값)이 필요하면 8장에서처럼 statsmodels의 로지스틱 회귀를 함께 씁니다.",
+  "more_en": "Feeding a raw linear signal directly into a 0/1 prediction breaks down — its output can exceed 1 or go negative. The sigmoid squashes that signal into a valid probability, and z=0 marks exactly probability 0.5, the decision boundary. Equivalently, logistic regression is linear in the log-odds ln(p/(1-p)): a one-unit rise in a coefficient multiplies the odds by exp(coefficient), which is why coefficients are often read as odds ratios. The best weights minimize log-loss, found here by direct gradient descent; in practice scikit-learn's LogisticRegression adds L2 regularization to keep coefficients finite when classes are near-perfectly separable.",
+  "problem": {
+   "q": "슬라이더를 움직여 w1=-0.28, w2=-0.03 부근으로 맞추자 로그손실이 0.29까지 내려갔습니다. 이 값을 더 낮출 수 있을까요, 그리고 w1의 절댓값이 w2보다 훨씬 큰 것은 개월수가 이용시간보다 이탈 예측에 더 중요하다는 뜻일까요?",
+   "solution": "이 지점이 경사하강법이 찾은 최적점에 가깝다면 더 낮추기 어렵습니다(화면의 최적값과 비교해 확인). 그리고 w1의 절댓값이 큰 것은 <b>중요도가 아니라 단위의 차이</b> 때문입니다 — 개월수는 0~24, 이용시간은 0~100 범위라 같은 크기의 예측 기여를 만들려면 개월수 쪽 계수가 훨씬 커야 합니다. 정말 어느 변수가 더 중요한지 비교하려면 원래 계수가 아니라 표준화된 계수(8장 2절)를 봐야 합니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai3_02",
+    "label": "로지스틱 회귀",
+    "sub": "인공지능 3장 · 직선을 확률로",
+    "track": "ai"
+   },
+   {
+    "href": "ai.html",
+    "scene": "ai7_03",
+    "label": "경사하강",
+    "sub": "인공지능 7장 · 기울기 반대로 한 걸음",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda10_02": {
+  "ch": "빅데이터 분석 제10장 · 분류 알고리즘",
+  "sec": "10.2 의사결정나무",
+  "title": "질문을 이어 붙이다 — 의사결정나무",
+  "narr": "로지스틱 회귀가 하나의 매끄러운 곡선으로 확률을 그렸다면, 이번엔 전혀 다른 방식입니다 — <b>스무고개처럼 질문을 이어 붙이는 것</b>입니다. \"개월수가 10.5보다 작은가?\"처럼 데이터를 가장 잘 가르는 질문을 하나씩 고르는데, 그 기준은 <b>지니 불순도</b> — 한 무리 안에 서로 다른 클래스가 얼마나 섞여 있는지를 재는 값입니다. 나누기 전과 후의 지니 차이(정보이득)가 가장 큰 질문을 매 단계 선택합니다. 화면 왼쪽에 실제로 계산된 첫 질문(루트 분할)이 나옵니다. 슬라이더로 깊이를 늘려 보세요 — 질문이 하나씩 더 붙을 때마다 오른쪽 결정영역이 점점 잘게 쪼개지고, 우하단 그래프에서 보듯 훈련 정확도는 결국 100%에 닿습니다. 100%라는 숫자에 안심하면 안 됩니다 — 그것은 학습이 아니라 <b>암기</b>일 수 있습니다.",
+  "more": "<b>지니 불순도 계산</b>: 어떤 무리에 클래스 0의 비율이 p0, 클래스 1의 비율이 p1(p0+p1=1)이면 지니 = 1 − p0² − p1²입니다. 완전히 한 클래스만 있으면 0(순수), 반반씩 섞이면 0.5(가장 불순)입니다. 분할 후에는 왼쪽·오른쪽 무리의 지니를 표본 수로 가중평균한 값을 부모의 지니와 비교합니다 — 이 차이가 정보이득이며, 화면 좌측 텍스트가 매 프레임 실제로 이 값을 계산해 보여 줍니다. sklearn은 기본적으로 지니를 쓰지만 criterion='entropy'로 정보 엔트로피 기준도 선택할 수 있습니다(결과는 대개 비슷합니다).\n\n<b>과적합을 막는 법</b>: 이 장면은 max_depth만 조절했지만, 실무에서는 min_samples_leaf(잎 노드 최소 표본 수)·min_samples_split(분할에 필요한 최소 표본 수)·ccp_alpha(비용복잡도 가지치기) 등을 함께 씁니다. 나무 하나의 근본적인 약점 — 자료를 조금만 바꿔도 구조가 크게 흔들리는 불안정성 — 은 5절의 앙상블로 이어집니다.",
+  "more_en": "A decision tree asks a sequence of yes/no questions, each chosen to maximize the drop in Gini impurity (1 − p0² − p1², measuring how mixed a group's classes are) between parent and weighted children. Deeper trees keep splitting until leaves are pure, and training accuracy climbs toward 100% — not because the model generalizes better, but because it starts memorizing individual points, including irreducible noise. Real-world use pairs max_depth with min_samples_leaf, min_samples_split, or cost-complexity pruning to keep trees honest; a single tree's core weakness — instability under small data changes — motivates the ensembles in section 5.",
+  "problem": {
+   "q": "깊이 4에서 훈련정확도가 96.9%였는데 깊이 5에서 100%가 되었습니다. 이 나무를 그대로 실전에 배포해도 될까요?",
+   "solution": "신중해야 합니다. 훈련정확도 100%는 나무가 훈련자료의 <b>모든 점, 심지어 잡음까지</b> 완벽히 구분할 만큼 잘게 쪼개졌다는 뜻일 수 있습니다(과적합). 9장에서 배운 것처럼 진짜 성능은 훈련자료가 아니라 <b>따로 떼어 둔 검증/시험 자료</b>로 재야 합니다. 훈련정확도만 보고 깊이를 계속 늘리면, 훈련자료에서는 완벽해 보여도 새 고객에게는 오히려 성능이 떨어지는 경우가 흔합니다."
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo5_01",
+    "label": "이진 트리",
+    "sub": "알고리즘 5장 · 가지치는 계층 구조",
+    "track": "algo"
+   }
+  ]
+ },
+ "bda10_03": {
+  "ch": "빅데이터 분석 제10장 · 분류 알고리즘",
+  "sec": "10.3 k-최근접이웃(kNN)",
+  "title": "가장 가까운 이웃에게 묻다 — kNN",
+  "narr": "나무가 질문으로 갈랐다면, kNN의 발상은 훨씬 직관적입니다 — <b>\"너와 가장 비슷한 사람들이 어떻게 됐는지 보자.\"</b> 새 고객이 들어오면 기존 고객 중 가장 가까운 k명을 찾아 그들의 다수결로 판정합니다. 그런데 \"가깝다\"를 어떻게 잴지가 뜻밖의 함정입니다. 이용시간(0~100)은 개월수(0~24)보다 값의 폭이 훨씬 넓어서, 원본 거리를 그대로 쓰면 이용시간 혼자 판정을 좌우해 버립니다 — 9장에서 배운 표준화가 왜 필요한지 이번엔 직접 눈으로 확인할 차례입니다. 슬라이더로 거리 기준을 원본↔표준화로 바꿔 보고, k를 키우거나 줄이며 신규 고객의 판정과 전체 정확도(교차검증)가 실제로 다시 계산되는 것을 보세요.",
+  "more": "<b>k의 딜레마</b>: k=1은 가장 가까운 단 한 명만 보므로 잡음(우연히 튄 한 명)에 아주 민감합니다 — 경계가 들쭉날쭉해집니다. k를 키우면 더 많은 이웃의 의견을 반영해 경계가 부드러워지지만, 너무 크면 지역적인 패턴을 놓치고 다수 클래스 쪽으로 쏠리기 쉽습니다. 최적의 k는 보통 교차검증으로 찾습니다 — 이 장면의 그래프가 바로 그 탐색 과정을 보여 줍니다.\n\n<b>왜 LOOCV인가</b>: 자료가 32명뿐이라 9장에서 배운 일반적인 k-폴드 대신 leave-one-out(각 점을 한 번씩 빼고, 나머지로 그 점을 맞혀 보는 극단적인 교차검증)을 씁니다 — 표본이 적을 때 가장 안정적인 평가 방법 중 하나입니다. kNN은 예측할 때마다 전체 훈련자료와 거리를 계산해야 해서(게으른 학습, lazy learning) 자료가 커지면 느려집니다 — 실무에서는 KD-트리·볼-트리 같은 자료구조(2장·5장에서 다룬 자료구조의 응용입니다)로 탐색을 가속하거나, 근사 최근접이웃(ANN) 라이브러리를 씁니다.",
+  "more_en": "kNN's idea is simple: find the k most similar existing customers and let them vote. But \"similar\" depends entirely on the distance metric — since usage hours span a much wider range than tenure months, raw Euclidean distance lets usage dominate the vote, exactly the scaling problem chapter 9 introduced. Small k chases noise (jagged boundaries); large k smooths but can wash out local structure, so k is typically tuned via cross-validation — here, leave-one-out, well suited to this 32-point sample. Because kNN recomputes distances to the whole training set at prediction time (lazy learning), production systems accelerate the search with KD-trees, ball trees, or approximate nearest-neighbor libraries as data grows.",
+  "problem": {
+   "q": "k=1에서는 원본 거리 쪽 정확도가 표준화 거리보다 오히려 높았는데, k=7 이상에서는 표준화 거리가 계속 더 높거나 같았습니다. 왜 이런 차이가 나타날 수 있을까요?",
+   "solution": "k=1은 <b>단 한 명의 최근접 이웃</b>에만 의존하므로, 어느 거리 기준이든 우연히 딱 맞는 한 명을 찾으면 결과가 좋아 보일 수 있습니다 — 표본이 작을 때는 이런 우연이 쉽게 끼어듭니다. 반면 k가 커질수록 <b>여러 이웃의 다수결</b>이 되므로, 거리 기준이 왜곡되어 있으면(원본 거리에서 이용시간이 과도하게 지배) 잘못된 이웃들이 계속 뽑혀 들어와 성능이 꾸준히 나빠집니다. k가 작을 때의 우연한 결과 하나보다, k를 여러 값으로 바꿔 가며 본 <b>전체적인 경향</b>이 훨씬 신뢰할 수 있는 판단 근거입니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch6_01",
+    "label": "두 점 사이 거리",
+    "sub": "수학 6장 · 거리로 이웃 찾기",
+    "track": "math"
+   }
+  ]
+ },
+ "bda10_04": {
+  "ch": "빅데이터 분석 제10장 · 분류 알고리즘",
+  "sec": "10.4 서포트 벡터 머신(SVM)",
+  "title": "여백을 최대로 — 서포트 벡터",
+  "narr": "kNN이 매번 이웃에게 물었다면, 이번엔 처음부터 <b>가장 넓은 길을 내는 직선 하나</b>를 찾는 접근입니다. 두 무리를 가르는 직선은 무수히 많지만, SVM은 그 중에서도 양쪽 클래스에서 가장 가까운 점까지의 거리 — <b>마진</b> — 을 최대로 만드는 직선을 고릅니다. 슬라이더로 방향(θ)과 위치(d)를 바꿔 다양한 직선을 그어 보세요. 그런데 이번 32명 중 두 명은 아무리 직선을 돌려도 반대편으로 넘어가지 않습니다 — 실전 데이터에는 이런 예외가 흔하고, 이를 약간 허용하는 것이 소프트마진입니다. 만약 두 무리가 아예 직선으로 가를 수 없는 모양(오른쪽 아래 작은 예제처럼 안쪽·바깥쪽 관계)이라면, 특징을 하나 더 만들어(φ(x)=(x, x²)) 그 새로운 공간에서 다시 직선을 그어 버립니다 — 이것이 <b>커널 트릭</b>의 핵심 발상입니다.",
+  "more": "<b>마진은 왜 넓을수록 좋은가</b>: 두 클래스를 가까스로 가르는 직선(마진이 좁은 직선)은 새 데이터가 조금만 훈련자료와 달라도 반대편으로 넘어가기 쉽습니다. 반대로 마진이 넓으면 여유 공간이 있어 새로운 점이 다소 다르게 나타나도 여전히 올바르게 분류될 가능성이 높습니다 — 마진을 최대화하는 것이 곧 일반화 성능을 높이는 것과 직결됩니다. 마진의 경계에 정확히 걸쳐 있는 점들만 서포트 벡터라 불리는 이유는, 오직 그 점들만 경계선의 위치를 결정하기 때문입니다(다른 점들을 지우거나 옮겨도 마진 안쪽에만 있다면 경계는 바뀌지 않습니다).\n\n<b>커널의 실무적 의미</b>: 이 장면의 φ(x)=(x, x²)는 커널 트릭을 눈으로 보여 주기 위한 가장 단순한 예입니다. 실전의 SVC(kernel='rbf')는 이런 특징 변환을 명시적으로 계산하지 않고도(커널 함수로 두 점 사이의 유사도만 계산해) 사실상 무한 차원의 새로운 공간에서 직선을 긋는 효과를 냅니다. 특징 수가 매우 많은 텍스트 분류 등에서는 kernel='linear'가, 경계가 복잡하게 휘어야 하는 문제에서는 'rbf'가 흔히 선호됩니다.",
+  "more_en": "SVM looks for the single line that leaves the widest possible street between the two classes — maximizing the margin to the nearest point of each. A wider margin means more room for slightly different new points to still land on the correct side, so maximizing margin is directly tied to generalization. Only the points exactly on the margin's edge — the support vectors — determine where that line sits. When two classes cannot be separated by any straight line at all, mapping into a higher-dimensional feature space (here, φ(x)=(x, x²)) can make them linearly separable again; real kernels like the RBF kernel achieve this effect implicitly, without ever computing the mapping explicitly.",
+  "problem": {
+   "q": "θ를 최적값 근처로 맞췄는데도 오분류가 2개 남아 있습니다. 마진을 0에 가깝게 줄이면(즉 직선을 데이터 쪽으로 바짝 붙이면) 이 2개를 없앨 수 있을까요?",
+   "solution": "없앨 수 없습니다. 이 2개는 반대편 무리 <b>깊숙이</b> 자리잡은 점들이라, 직선의 위치나 방향을 아무리 조정해도(마진을 얼마나 좁히든) 어느 한쪽에는 반드시 걸립니다 — 선형 분류기로는 근본적으로 해결되지 않는 오차입니다. 이럴 때 마진을 극단적으로 좁혀 이 2개를 어떻게든 맞히려 하면, 오히려 다른 정상적인 점들과의 여유가 사라져 새 데이터에 대한 일반화 성능이 나빠집니다. 소프트마진은 바로 이런 상황에서 \"몇 개의 오차를 감수하더라도 넓은 마진을 유지하는 것이 낫다\"는 절충을 택합니다."
+  }
+ },
+ "bda10_05": {
+  "ch": "빅데이터 분석 제10장 · 분류 알고리즘",
+  "sec": "10.5 앙상블 — 배깅과 부스팅",
+  "title": "여럿이 모이면 강해진다 — 앙상블",
+  "narr": "지금까지 본 나무 한 그루는 뜻밖에 불안정합니다 — 자료를 조금만 바꿔도 어느 질문을 먼저 물을지가 흔들리고, 그 여파로 전체 구조가 크게 달라질 수 있습니다. 해법은 단순합니다 — <b>여러 그루를 기르고 다수결로 합치는 것</b>입니다. 훈련자료를 복원추출로 조금씩 다르게 뽑아(붓스트랩) 여러 나무를 독립적으로 기르는 것이 랜덤포레스트입니다. 슬라이더로 나무 개수를 늘려 보세요 — 나무 1그루일 때의 정확도와, 여러 그루가 표를 모았을 때의 정확도가 실제로 계산되어 비교됩니다. 특정 고객 한 명에 대해 몇 대 몇으로 표가 갈리는지도 함께 보여 줍니다. 부스팅은 전혀 다른 전략입니다 — 나무들을 동시에 독립적으로 기르지 않고, <b>앞 나무가 틀린 자리에 다음 나무가 순서대로 더 집중</b>하며 실수를 하나씩 보완해 나갑니다.",
+  "more": "<b>배깅이 분산을 줄이는 원리</b>: 나무 한 그루의 예측은 그 나무가 우연히 어떤 표본을 봤는지에 따라 크게 흔들립니다(높은 분산). 서로 다른 붓스트랩 표본으로 기른 나무 여러 그루의 오차는 서로 어느 정도 독립적이므로, 평균(다수결)을 내면 개별 오차들이 상쇄되어 전체 분산이 줄어듭니다 — 이 장면에서 나무 하나만으로는 흔들리던 예측이, 그루 수가 늘수록 안정된 정확도로 수렴하는 것이 바로 그 효과입니다. 다만 편향(애초에 모델이 못 잡는 구조적 한계)은 배깅으로 줄지 않습니다 — 근본적으로 어려운 지점(2절에서 본 것 같은 잡음 섞인 예외 고객)은 나무를 아무리 늘려도 여전히 틀리기 쉽습니다.\n\n<b>부스팅과의 차이</b>: 랜덤포레스트(배깅)는 나무들이 서로 무관하게, 병렬로 자랄 수 있어 학습이 빠르고 과적합에 비교적 강합니다. 그래디언트 부스팅(GradientBoostingClassifier, XGBoost·LightGBM 등)은 나무를 순서대로 하나씩 추가하며 이전까지의 예측이 남긴 오차를 다음 나무가 줄이도록 학습합니다 — 대체로 더 높은 성능을 내지만 순서에 의존적이라 학습 속도가 느리고 하이퍼파라미터(학습률·나무 수)에 더 민감해 과적합 위험도 커집니다. \"안정적이고 다루기 쉬운 배깅으로 먼저 기준선을 잡고, 성능을 더 짜내야 할 때 부스팅으로 넘어간다\"가 실무의 흔한 순서입니다.",
+  "more_en": "A single tree is unstable — small changes in the data can reshuffle which question it asks first, cascading into a very different structure. Bagging (random forests) tames this by growing many trees on independent bootstrap resamples and voting: since each tree's errors are largely independent, averaging cancels much of that variance, which is exactly the accuracy-vs-n_estimators curve shown here. It doesn't fix bias, though — genuinely ambiguous, noisy points keep tripping up the ensemble no matter how many trees are added. Boosting takes the opposite structure: trees are grown sequentially, each one focused on correcting the errors the previous trees left behind, often reaching higher accuracy at the cost of slower, more hyperparameter-sensitive training and greater overfitting risk — a common workflow is to baseline with bagging, then reach for boosting when more performance is needed.",
+  "problem": {
+   "q": "나무 1그루일 때 정확도가 84.4%였는데, 3그루부터는 93.8%로 오르고 그 뒤로는 그루 수를 늘려도 더 오르지 않았습니다. 8그루까지 늘렸는데 정확도가 그대로인 것은 앙상블이 잘못됐다는 뜻일까요?",
+   "solution": "아닙니다. 정확도가 3그루부터 안정된 것은 앙상블이 <b>제 역할을 다했다는 신호</b>입니다 — 개별 나무들의 흔들림(분산)을 다수결로 상쇄해 더는 그루 수를 늘려도 얻을 게 없는 지점에 도달한 것입니다. 더 오르지 않고 멈춘 이유는 남은 오차가 흔들림 때문이 아니라, <b>이 데이터 자체가 갖는 구조적인 한계</b>(4절에서 본 것처럼 어떤 나무로도 못 맞히는 예외적인 고객) 때문입니다. 이런 편향은 배깅으로는 줄지 않고, 대신 다른 계열의 모델(부스팅·SVM 등)이나 더 나은 특징을 시도해야 합니다."
+  }
+ }
+}

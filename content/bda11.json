@@ -1,0 +1,87 @@
+{
+ "bda11_01": {
+  "ch": "빅데이터 분석 제11장 · 실전 프로젝트",
+  "sec": "11.1 문제정의와 탐색",
+  "title": "문제를 정의하고 데이터를 만나다",
+  "narr": "10장에서 로지스틱회귀·의사결정나무·k-최근접 같은 분류 알고리즘들을 하나씩 배웠습니다. 이제 그 도구들을 서랍에서 다 꺼내 놓고, <b>문제 정의부터 최종 해석까지</b> 하나의 프로젝트를 처음부터 끝까지 걸어가 봅니다. 승객 40명의 기록으로 \"이 사람이 살아남았을까?\"를 예측합니다. 코드를 치기 전에 먼저 데이터를 만나 보죠 — 40행 7열, 목표변수(survived)는 45%대 55%로 크게 치우치진 않았지만, \"무조건 사망\"이라고만 찍어도 정확도는 55%가 나옵니다. 그런데 그 예측기는 생존자를 단 한 명도 못 찾아냅니다(재현율 0%). 그래서 이 프로젝트의 성공 기준을 정확도가 아니라 <b>F1</b>로 미리 못박습니다 — 이 기준은 전처리·모델비교·튜닝·최종평가까지 끝까지 함께 갑니다.",
+  "more": "<b>왜 지표를 맨 처음에 정하나</b>: 분석이 끝난 뒤 결과를 보고 나서 유리한 지표를 고르면 그건 평가가 아니라 사후 합리화입니다. 문제를 정의하는 시점에 \"이 예측을 어디에 쓸 것인가\"를 먼저 묻고, 그에 맞는 지표를 고정한 다음 끝까지 그 잣대로만 채점해야 합니다. 이 프로젝트는 생존자를 놓치는 것(FN)과 사망자를 헛짚는 것(FP)이 둘 다 뼈아프다고 가정했으므로 정밀도·재현율을 함께 재는 F1을 택했습니다. 만약 \"놓치면 절대 안 되는\" 응급 구조 우선순위 문제였다면 재현율을 더 무겁게 봤을 것입니다.\n\n<b>45:55는 왜 여전히 함정인가</b>: 9장에서 다룬 34:66처럼 극단적이진 않지만, 절반에 가까운 비율에서도 \"항상 다수 클래스\"인 예측기가 그럴듯한 정확도를 냅니다. 진짜 위험한 건 비율의 크기가 아니라 <b>정확도 하나만 보고 안심하는 습관</b>입니다.",
+  "more_en": "Before writing any model code, this project fixes its scoring metric — F1 — because a naive majority-class guesser scores a deceptively high 55% accuracy while catching zero survivors (0% recall). Choosing the metric after seeing results would be post-hoc rationalization, not evaluation; the right moment is problem definition, based on which error (missing a survivor vs. false-flagging one) costs more.",
+  "problem": {
+   "q": "이 데이터에서 \"무조건 사망\"이라고만 찍는 예측기의 정확도는 55%로 꽤 높아 보입니다. 그런데도 왜 이 예측기를 \"쓸모없다\"고 말할 수 있을까요?",
+   "solution": "정확도는 전체 40명 중 맞힌 비율만 볼 뿐, <b>어떤 종류를 맞혔는지</b>는 말해 주지 않기 때문입니다. 이 예측기는 사망자 22명은 다 맞히지만 생존자 18명은 단 한 명도 못 찾아냅니다(재현율 0%) — 실제로 아무것도 배우지 않고 다수 쪽에 몰표를 준 것일 뿐입니다. \"누구를 예측하려는 문제인가\"를 생각하면, 생존자를 하나도 못 찾는 모델은 정확도 숫자와 무관하게 프로젝트의 목적을 달성하지 못한 것입니다."
+  }
+ },
+ "bda11_02": {
+  "ch": "빅데이터 분석 제11장 · 실전 프로젝트",
+  "sec": "11.2 전처리와 피처 엔지니어링",
+  "title": "전처리와 피처 엔지니어링",
+  "narr": "성공 기준을 정했고 데이터의 첫인상도 봤으니, 이제 데이터를 모델이 먹을 수 있는 형태로 다듬을 차례입니다. age 열의 빈 8명분은 <b>평균이 아니라 중앙값</b>(27.5세)으로 채웁니다 — 70대 승객 두 명이 평균(33.0세)을 끌어올리기 때문입니다. sex는 순서 없는 값이라 그냥 0/1로, pclass는 이미 1<2<3의 순서가 있어 그대로 씁니다(9장에서 배운 그 구분입니다). 그런데 진짜 힘은 <b>새 변수를 만드는 데서</b> 나옵니다. 형제자매·부모자녀 수를 합쳐 \"혼자인가(alone)\"로 압축하니 생존율이 <b>75% 대 25%</b>로 뚜렷하게 갈리고, 나이를 어린이·성인·고령 구간으로 나누니 <b>71% → 43% → 20%</b>로 계단처럼 낮아집니다. 원래 열 그대로는 흐릿했던 차이가, 파생변수로 바꾸자 눈에 보이는 숫자로 드러났습니다.",
+  "more": "<b>결측을 채우는 순서의 함정</b>: 지금은 개념을 보여주기 위해 전체 40명의 중앙값으로 age를 채웠지만, 실제 파이프라인에서는 이 통계도 <b>훈련 폴드 안에서만</b> 다시 계산해야 합니다(다음 화면에서 그 이유를 다룹니다) — 결측 대체값 하나조차 검증 데이터를 들여다보고 정하면 그것도 누수입니다.\n\n<b>alone이 왜 sibsp·parch보다 나은가</b>: sibsp(형제자매·배우자)와 parch(부모·자녀)는 따로 보면 신호가 약합니다. 그런데 둘을 더해 \"혼자 여행하는가\"라는 하나의 질문으로 압축하면 모델이 훨씬 곧바로 활용할 수 있는 형태가 됩니다 — 원래 정보를 잃지 않으면서 더 강한 신호로 재포장하는 것이 피처 엔지니어링의 핵심입니다. age_grp도 마찬가지로, 나이라는 연속값 안에 숨어 있던 \"어린이 우선\"이라는 계단식 패턴을 모델이 곧바로 읽게 해 줍니다.",
+  "more_en": "Age is filled with the median (27.5), not the mean (33.0), because two passengers in their seventies pull the mean upward. The real payoff comes from engineered features: combining sibsp+parch into a binary \"alone\" flag sharpens a blurry signal into a stark 75%-vs-25% survival split, and bucketing age into child/adult/senior reveals a clean 71%→43%→20% staircase that raw age alone doesn't expose as clearly.",
+  "problem": {
+   "q": "age 열의 결측을 채울 때 평균(33.0세) 대신 중앙값(27.5세)을 선택한 이유는 무엇일까요?",
+   "solution": "평균은 <b>극단값에 민감</b>합니다. 이 데이터에는 70대 승객이 두 명 있는데, 이들이 평균을 실제 \"전형적인\" 나이보다 높게 끌어올립니다. 반면 중앙값은 값을 크기 순으로 세웠을 때 정가운데 위치한 값이라 극단값 몇 개가 있어도 잘 흔들리지 않습니다. 결측을 채울 대표값은 \"이 사람이 대략 몇 살이었을 가능성이 높은가\"를 나타내야 하므로, 이상치에 강한 중앙값이 더 안전한 선택입니다."
+  }
+ },
+ "bda11_03": {
+  "ch": "빅데이터 분석 제11장 · 실전 프로젝트",
+  "sec": "11.3 모델 비교와 파이프라인",
+  "title": "여러 모델을 같은 잣대로 비교",
+  "narr": "전처리와 파생변수를 갖췄다면, 이제 \"어떤 모델을 쓸까\"를 결정할 차례입니다. 그런데 모델 하나만 만들어 점수를 보고 끝내면 그 점수가 좋은 건지 나쁜 건지 알 길이 없습니다. 그래서 전처리와 모델을 <b>파이프라인 하나로 묶고</b>, 같은 5겹 교차검증이라는 잣대 위에 네 개의 모델을 나란히 세웁니다 — 왜 파이프라인이어야 할까요? 9장에서 배운 데이터 누수 경고, 기억하시나요. 결측 대체값도 표준화 통계도 <b>훈련 폴드 안에서만</b> 계산해야 검증 폴드가 정말 처음 보는 데이터로 남습니다. 그렇게 공정하게 재본 결과, 다수결 기준선은 F1 <b>0.06</b>으로 바닥을 치고, 전통적인 \"여성이면 생존\" 규칙과 로지스틱회귀가 각각 <b>0.97</b>, <b>0.93</b>으로 앞서며, k-최근접(k=5)은 <b>0.83</b>으로 그 뒤를 따릅니다.",
+  "more": "<b>단순한 규칙이 왜 이렇게 강한가</b>: \"성별 규칙\"이 로지스틱회귀와 거의 비슷한 점수를 낸 것은 이 데이터에서 성별 하나가 생존 여부를 워낙 강하게 갈라놓기 때문입니다. 실제로 로지스틱회귀의 계수를 봐도(5장면에서 확인합니다) 성별의 가중치가 다른 모든 변수를 압도합니다 — 복잡한 모델이 항상 단순한 규칙을 크게 이기는 것은 아니며, 신호가 이미 강할 때는 단순한 방법도 충분할 수 있다는 정직한 교훈입니다.\n\n<b>Pipeline과 ColumnTransformer의 역할 분담</b>: ColumnTransformer는 \"어느 열에 어떤 전처리를 적용할지\"를 선언하고, Pipeline은 그 전처리와 모델을 하나의 객체로 묶어 fit()·predict() 호출 한 번으로 전체 흐름이 순서대로 실행되게 합니다. cross_val_score에 이 pipe를 통째로 넘기면, 폴드마다 전처리까지 처음부터 다시 학습되므로 손으로 매번 나눠 짜지 않아도 누수 없는 검증이 보장됩니다.",
+  "more_en": "Wrapping preprocessing and model together in a Pipeline matters because of the same leakage warning from chapter 9: imputation and scaling statistics must be recomputed inside each training fold, not once on the full data. Under a fair 5-fold F1 comparison, the majority baseline collapses to 0.06, while a simple \"female survives\" rule and logistic regression both score around 0.93–0.97, with k-NN(5) close behind at 0.83 — a reminder that a strong single signal can make simple rules competitive with fancier models.",
+  "problem": {
+   "q": "결측치를 채우는 중앙값을 훈련 폴드가 아니라 전체 데이터로 미리 한 번 계산해 고정해 두고 5겹 교차검증을 돌리면 어떤 문제가 생길까요?",
+   "solution": "그 중앙값 안에는 <b>검증 폴드로 쓰일 사람들의 나이 정보도 섞여 들어가 있습니다.</b> 겉보기엔 사소해 보여도, 검증 폴드는 \"모델이 한 번도 보지 못한 데이터\"를 흉내 내야 하는데, 결측 대체값 하나에 그 정보가 새어 들어간 순간 완벽하게 순수한 검증이 아니게 됩니다. 데이터가 클 때는 영향이 작을 수 있지만, 이번처럼 작은 데이터에서는 검증 점수가 실제보다 낙관적으로 부풀 수 있습니다 — 그래서 Pipeline이 폴드마다 통계를 다시 계산하도록 강제하는 것입니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai4_04",
+    "label": "편향-분산과 과적합",
+    "sub": "인공지능 4장 · 왜 검증이 필요한가",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda11_04": {
+  "ch": "빅데이터 분석 제11장 · 실전 프로젝트",
+  "sec": "11.4 하이퍼파라미터 탐색",
+  "title": "모델을 다듬다 — 하이퍼파라미터 탐색",
+  "narr": "네 모델을 같은 잣대로 비교했으니, 이번엔 그중 하나(k-최근접)를 더 파고들어 <b>사람이 정해줘야 하는 값</b> — 이웃 수 k — 을 다듬어 봅니다. 슬라이더로 k를 1부터 15까지 움직여 보세요. 훈련 정확도와 검증 정확도가 실시간으로 다시 계산됩니다. k가 작을수록(특히 k=1) 훈련 데이터를 거의 외워버려 훈련 점수는 높은데 검증 점수와 벌어지고, k가 너무 크면 반대로 둘 다 무뎌집니다. 이번 탐색에서는 <b>k*=2</b>일 때 검증 정확도가 93.3%로 가장 높으면서 격차도 3.3%p로 작아, 격자 탐색이 찾아낸 균형점이 됩니다. 그리고 격차가 가장 크게 벌어지는 지점(k=5, 13.3%p)을 직접 보면 \"과적합\"이라는 말이 그래프의 벌어진 틈으로 눈에 보입니다.",
+  "more": "<b>GridSearchCV가 하는 일</b>: 이 화면의 슬라이더는 GridSearchCV가 내부적으로 하는 일을 손으로 재현한 것입니다 — 후보 k 하나마다 5겹 교차검증을 통째로 다시 돌려 평균 점수를 매기고, 그중 가장 높은 점수의 k를 골라줍니다(gs.best_params_). 후보가 많아지고 하이퍼파라미터가 여러 개(예: k와 거리 가중치를 동시에)로 늘어나면 경우의 수가 곱으로 불어나므로, 실무에서는 후보 범위를 상식적으로 좁히거나 무작위 탐색(RandomizedSearchCV)으로 넘어갑니다.\n\n<b>훈련-검증 격차를 읽는 법</b>: 격차가 벌어진다고 무조건 나쁜 게 아닙니다 — 중요한 건 <b>검증 점수 자체</b>가 얼마나 높은가입니다. k=1은 훈련이 완벽해도 검증이 낮으면 매력이 없고, k=13이나 15처럼 너무 크면 훈련·검증 모두 낮아져 버립니다. 탐색의 목표는 격차를 0으로 만드는 게 아니라 검증 점수가 최고인 지점을 찾는 것입니다.",
+  "more_en": "The slider recreates what GridSearchCV automates: refitting 5-fold CV for every candidate k and keeping the one with the best mean validation score. Small k memorizes the training set (perfect training accuracy, a real but modest gap to validation), while very large k blurs both scores together. Here k*=2 wins with 93.3% validation accuracy and only a 3.3-point gap, while k=5 shows the widest gap (13.3 points) — a visible, computed example of overfitting risk.",
+  "problem": {
+   "q": "슬라이더를 k=1에 두면 훈련 정확도는 100%가 나옵니다. 그런데도 왜 k=1을 최종 모델로 채택하면 위험할까요?",
+   "solution": "k=1일 때 훈련 데이터를 채점하면 각 점의 \"가장 가까운 이웃\"이 <b>자기 자신</b>이 되어 항상 정답을 맞히기 때문에 훈련 정확도가 100%로 나오는 것은 당연한 결과이지, 모델이 정말 잘 배웠다는 증거가 아닙니다. 진짜 실력은 한 번도 보지 못한 데이터(검증 폴드)에서 드러나는데, k=1의 검증 정확도는 훈련만큼 높지 않습니다 — 이 격차가 바로 \"외웠을 뿐 이해하지 못했다\"는 과적합의 신호입니다. 탐색이 찾은 k*=2처럼 검증 점수 자체가 높은 지점을 골라야 합니다."
+  },
+  "xref": [
+   {
+    "href": "calculus.html",
+    "scene": "calc5_03",
+    "label": "최적화",
+    "sub": "미적분 5장 · 가장 좋은 답을 미분으로",
+    "track": "calculus"
+   },
+   {
+    "href": "ai.html",
+    "scene": "ai1_05",
+    "label": "과적합 vs 일반화",
+    "sub": "인공지능 1장 · 외운 것과 배운 것",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda11_05": {
+  "ch": "빅데이터 분석 제11장 · 실전 프로젝트",
+  "sec": "11.5 결과 해석과 전달",
+  "title": "결과를 해석하고 전달하다",
+  "narr": "문제를 정의하고, 전처리하고, 모델을 비교하고, 하이퍼파라미터까지 다듬었습니다. 마지막으로 지금까지 <b>단 한 번도 들여다보지 않은</b> 10명으로 최종 모델(로지스틱회귀)을 채점합니다. 격자 탐색은 k-최근접을 다듬어 봤지만, 이해관계자에게 \"왜 이런 예측을 하는지\" 설명하려면 계수를 직접 읽을 수 있는 로지스틱회귀가 낫습니다. 혼동행렬을 채워 보면 10명 중 <b>8명을 맞혔고</b>, 놓친 생존자(FN) 1명과 헛짚은 사망자(FP) 1명이 있습니다 — 정확도 80%, F1 <b>0.75</b>입니다. 계수를 크기 순으로 읽으면 <b>성별</b>이 압도적이고, 그 다음이 요금·객실등급·가족수·나이 순입니다. 숫자를 사람의 언어로 옮기는 것이 분석의 마지막 일입니다 — 다음 파트에서는 예측 모델링을 <b>20장·사례연구 10건</b>으로 더 깊이 파고듭니다.",
+  "more": "<b>지표 하나로 이야기를 다 못 담는 이유</b>: F1 0.75라는 숫자만 보고서에 적으면 \"그래서 뭐가 문제였는데?\"라는 질문에 답할 수 없습니다. 혼동행렬을 함께 보여줘야 \"이 모델은 정밀도와 재현율이 똑같이 75%라서 어느 한쪽으로 치우친 실수를 하지 않는다\"는 이야기를 할 수 있습니다. 숫자 뒤에 있는 구체적인 실수(누구를 놓쳤고 누구를 헛짚었는지)를 짚어 주는 것이 신뢰를 얻는 보고의 기본입니다.\n\n<b>계수 해석과 인과관계</b>: 성별의 계수가 크다는 것은 이 데이터 안에서 \"성별과 생존이 강하게 함께 움직였다\"는 뜻이지, 성별 자체가 생존의 유일한 원인이라는 뜻은 아닙니다(8장에서 다룬 상관과 인과의 구분이 여기서도 그대로 적용됩니다). 실전에서는 이런 계수를 \"어떤 집단에 자원을 더 배분해야 하는가\" 같은 정책적 질문과 연결할 때 신중해야 합니다 — 모델은 패턴을 찾을 뿐, 그 패턴이 왜 생겼는지는 도메인 지식이 답해야 합니다.\n\n<b>이 프로젝트가 보여준 다섯 단계</b>는 데이터가 더 커지고 모델이 더 정교해져도 그대로 반복됩니다 — 문제와 지표를 먼저 정하고, 데이터를 다듬고 파생변수를 만들고, 같은 잣대로 여러 후보를 비교하고, 하이퍼파라미터를 탐색하고, 마지막에 숫자를 사람의 말로 옮기는 것. 다음 파트의 고급 예측 모델링과 사례연구도 이 뼈대 위에 쌓입니다.",
+  "more_en": "A single F1 score can't carry the whole story — pairing it with the confusion matrix lets you say precisely who was missed and who was false-flagged. A large coefficient for sex means it co-varied strongly with survival in this dataset, not that it's a sole cause (the correlation-vs-causation distinction from chapter 8 still applies). The five-stage arc here — define the metric, engineer features, compare fairly, tune, then translate numbers into language — repeats regardless of dataset size or model complexity, and it's the foundation the next part's advanced modeling and case studies build on.",
+  "problem": {
+   "q": "최종 모델의 정밀도와 재현율이 둘 다 75%로 같습니다. 이 모델은 \"생존자를 놓치는 실수\"와 \"사망자를 헛짚는 실수\" 중 어느 쪽을 더 많이 저질렀다고 말할 수 있을까요?",
+   "solution": "held-out 10명 기준으로 <b>FN(놓친 생존자) 1명, FP(헛짚은 사망자) 1명으로 똑같습니다.</b> 정밀도와 재현율이 우연히 같은 값(75%)으로 나온 것도 이 균형 때문입니다 — 이 모델은 어느 한쪽 실수로 치우치지 않고 두 종류의 실수를 비슷한 비율로 저질렀습니다. 만약 이 프로젝트가 \"놓치면 절대 안 되는\" 문제였다면 재현율을 더 높이는 방향(예: 판정 기준선을 낮추기)으로 모델을 다시 조정해야 했을 것입니다."
+  }
+ }
+}
