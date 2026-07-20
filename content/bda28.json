@@ -1,0 +1,71 @@
+{
+ "bda28_01": {
+  "ch": "빅데이터 분석 제28장 · 사례 연구: 작업 스케줄링",
+  "sec": "28.1 문제와 데이터 — 몇 등급으로 나눌까",
+  "title": "사례: 작업 스케줄링 — 몇 등급으로 나눌까",
+  "narr": "27장에서는 두 클래스(가입·비가입) 사이의 불균형을 다뤘습니다. 이번 장은 한 걸음 더 나아가 <b>네 등급</b>을 다루는 사례입니다. 고성능 컴퓨팅 스케줄러는 작업이 대략 얼마나 걸릴지만 알아도 자원 배분을 크게 개선할 수 있습니다. 계산 작업 140건의 입력크기(x1)·반복수(x2)로부터 실행시간(초)을 추정한 뒤, 이를 <b>매우짧음(VF)·짧음(F)·보통(M)·김(L)</b> 네 등급으로 나눠 분류합니다. 실행시간을 그대로 회귀로 예측하면 평균만 맞히는 기준선의 오차가 34.5초로 등급 경계 폭(10·50·130초)보다 훨씬 큽니다 — 소수의 아주 긴 작업이 오차를 지배하기 때문입니다. 다만 등급 분포는 VF 31%·F 49%·M 17%·L 2.9%로 심하게 <b>불균형</b>합니다.",
+  "more": "<b>회귀 대신 등급 분류를 고르는 기준</b>: 실행시간처럼 오른쪽으로 긴 꼬리를 가진 값은 「평균적으로 몇 초」라는 회귀 예측이 실무적으로 별 쓸모가 없을 때가 많습니다. 스케줄러가 실제로 던지는 질문은 「이 작업을 어느 큐에 넣을까」이지 「정확히 몇 초 걸릴까」가 아니기 때문입니다. 등급으로 나누면 예측이 이 질문에 직접 답하고, 또한 회귀 모델이 극단값(아주 긴 작업 하나)에 끌려다니며 전체 예측을 왜곡하는 문제도 피할 수 있습니다.\n\n<b>불균형이 왜 특히 문제인가</b>: 27장에서 본 이진 불균형과 달리, 이번에는 4개 등급 중 가장 중요한 등급(L, 긴 작업)이 가장 드뭅니다(2.9%). 아무 조치 없이 학습하면 모델은 흔한 등급(VF·F)만 잘 맞히고 드문 L은 아예 무시하는 쪽으로 기울기 쉽습니다 — 그런데 하필 L을 놓치는 것이 가장 비싼 실수입니다. 이 어긋남이 이번 장 전체를 이끄는 긴장입니다.",
+  "more_en": "Rather than regressing raw runtime (whose right-skewed distribution makes mean-prediction error of 34.5s dwarf the class boundaries), this case study buckets 140 compute jobs into four duration tiers (VF/F/M/L) that directly serve the scheduler's real question. The resulting class distribution is heavily imbalanced (31%/49%/17%/2.9%), and awkwardly, the rarest tier (L, long jobs) is also the one most costly to miss.",
+  "problem": {
+   "q": "만약 등급 경계를 10·50·130초가 아니라 훨씬 촘촘하게(예: 1초 단위로 수십 개 등급) 나눈다면 어떤 문제가 새로 생길까요?",
+   "solution": "등급이 지나치게 많아지면 각 등급에 속하는 표본 수가 급격히 줄어들어(특히 이미 드문 긴 작업 쪽은 등급마다 겨우 한두 건) 모델이 각 등급의 패턴을 안정적으로 학습하기 어려워집니다. 또한 스케줄러 입장에서도 「38초짜리 큐」와 「39초짜리 큐」를 굳이 나눌 실익이 없습니다 — 등급의 개수는 통계적으로 안정된 추정이 가능한 수준과 실무적으로 의미 있는 구분 수준 사이에서 균형을 잡아야 합니다."
+  }
+ },
+ "bda28_02": {
+  "ch": "빅데이터 분석 제28장 · 사례 연구: 작업 스케줄링",
+  "sec": "28.2 다중 클래스의 평가 — 혼동행렬과 비용",
+  "title": "다중 클래스의 평가 — 혼동행렬과 비용",
+  "narr": "네 등급을 예측하면 오차표는 2×2가 아니라 <b>4×4 혼동행렬</b>이 됩니다(행=예측, 열=실제). 이 데이터에 다항 로지스틱을 5겹 교차검증으로 적합하면 정확도는 0.657이지만, 입력크기·반복수 두 특징만으로는 M·L 등급을 <b>한 번도 예측하지 못합니다</b>(혼동행렬 3·4행이 전부 0). 정확도만 보면 그럴듯하지만, 혼동행렬에 <b>비용행렬을 원소별로 곱해 더하면</b> 총비용은 160입니다. 슬라이더로 L 로짓에 가중치를 더하면 정확도와 비용이 서로 다른 리듬으로 움직입니다 — 실제로 bias=0.0과 bias=0.9는 정확도가 똑같이 0.657인데 총비용은 160과 156으로 다릅니다.",
+  "more": "<b>비용행렬은 왜 비대칭인가</b>: 표 형태로 COST[예측][실제]를 놓고 보면, 「짧다고 예측했는데 실제로는 길었다」(예측 VF, 실제 L → 비용 10)가 가장 비싼 실수이고, 「길다고 예측했는데 실제로는 짧았다」(예측 L, 실제 VF → 비용 1)는 상대적으로 싼 실수입니다. 이는 스케줄러가 짧은 작업용 큐에 긴 작업을 잘못 밀어 넣으면 다른 여러 짧은 작업들의 대기가 줄줄이 밀리는 반면, 긴 작업용 큐에 짧은 작업이 섞여 들어가는 것은 상대적으로 피해가 적기 때문입니다.\n\n<b>정밀도·재현율이 정의되지 않는 경우</b>: 모델이 특정 등급을 단 한 번도 예측하지 않으면(이번 장면의 M·L처럼), 그 행의 「예측 M인 것 중 실제로 M인 비율」(정밀도)은 분모가 0이 되어 정의되지 않습니다(화면에 「—」로 표시). 이는 계산 오류가 아니라, 모델이 그 등급을 아예 시도조차 하지 않았다는 사실 자체를 보여주는 신호입니다.",
+  "more_en": "With four classes, the error table becomes a 4×4 confusion matrix (rows=predicted, columns=actual). A cross-validated multinomial logistic model reaches 65.7% accuracy yet never predicts the M or L tiers at all with just two features — multiplying the confusion matrix elementwise by the cost matrix reveals a total cost of 160 despite the seemingly decent accuracy, and sweeping a bias term shows accuracy and cost moving independently: two settings tie at 65.7% accuracy while costing 160 and 156 respectively.",
+  "problem": {
+   "q": "혼동행렬의 특정 행(예: M행)이 전부 0이라면, 이것이 그 등급에 대한 재현율(recall)에 대해서도 알려주는 바가 있을까요?",
+   "solution": "행이 전부 0이라는 것은 「그 등급으로 예측된 적이 없다」는 뜻이므로 정밀도(precision)는 정의되지 않지만, 재현율(recall)에 대해서는 확실한 답을 줍니다: 실제로 M인 작업 중 M으로 예측된 것이 하나도 없으므로 M의 재현율은 반드시 0입니다. 즉 정밀도는 「분모가 없어 모른다」이지만 재현율은 「분자가 0이라 확실히 0」이라는 점에서 두 지표가 이런 극단적 상황에서 다르게 반응한다는 것을 보여줍니다."
+  }
+ },
+ "bda28_03": {
+  "ch": "빅데이터 분석 제28장 · 사례 연구: 작업 스케줄링",
+  "sec": "28.3 모델 후보 비교",
+  "title": "모델 후보 비교 — 잣대에 따라 순위가 바뀐다",
+  "narr": "선형(다항 로지스틱)·트리(CART)·앙상블(배깅) 세 모델을 같은 데이터에 5겹 교차검증으로 공정하게 비교합니다. 정확도·카파만 보면 앙상블(0.664)이 가장 좋고 선형(0.657)이 그다음이며 트리(0.614)가 가장 낮습니다. 그런데 <b>총비용</b>으로 줄을 세우면 앙상블(143)이 여전히 1위지만, <b>트리(146)가 선형(160)보다 비용이 낮습니다</b> — 정확도·카파에서는 선형이 트리를 앞섰는데 비용에서는 순위가 뒤집힙니다. 트리는 M 등급을 몇 차례 실제로 예측해 큰 벌점(비용 5·10)을 피한 반면, 선형은 M·L을 아예 포기하고 VF·F 사이에서만 안전하게 맞혀 정확도는 높지만 비용이 큰 오류를 그대로 남겼기 때문입니다.",
+  "more": "<b>트리가 실수를 「저지르는」데도 비용이 낮은 이유</b>: 트리(CART)의 혼동행렬을 보면 실제로 F인 작업 상당수를 M으로 잘못 예측합니다 — 이는 정확도를 깎아 먹는 「실수」입니다. 하지만 이 실수의 비용(COST[M][F]=1)은 아주 쌉니다. 반대로 선형 모델이 저지르는 실수(실제 M·L을 VF·F로 예측)는 훨씬 비쌉니다(COST[VF][L]=10, COST[F][M]=5). <b>같은 개수의 오류라도 어떤 종류의 오류인가가 비용을 결정합니다</b> — 정확도는 오류의 개수만 세고 오류의 종류는 구분하지 않기 때문에 이런 역전이 일어납니다.\n\n<b>세 잣대 중 무엇을 우선할까</b>: 정확도는 「전반적으로 얼마나 자주 맞히는가」, 카파는 「우연을 걷어낸 뒤에도 얼마나 잘 맞히는가」, 비용은 「실제 업무에서 이 오류들이 얼마나 아픈가」를 각각 다르게 잰 것입니다. 세 지표가 다른 결론을 내릴 때는, 이번 장의 사례처럼 <b>실제 업무 목적(스케줄러의 자원 낭비를 줄이는 것)에 가장 가까운 잣대(비용)를 우선</b>하는 것이 합리적입니다.",
+  "more_en": "Comparing linear, tree, and bagged-ensemble models via 5-fold CV: by accuracy/kappa the ensemble (0.664) leads, followed by the linear model (0.657), with the tree last (0.614) — but ranked by total cost, the tree (146) actually beats the linear model (160). The tree occasionally predicts the moderate tier and absorbs cheap penalties, while the linear model plays safe between the two common tiers and racks up expensive misses instead, showing that the choice of yardstick changes the winner.",
+  "problem": {
+   "q": "만약 비용행렬의 모든 원소가 똑같이 1(대각선만 0)이었다면, 이번 장면에서 관찰한 「트리가 선형보다 비용이 낮다」는 역전 현상이 그대로 나타날까요?",
+   "solution": "나타나지 않을 가능성이 높습니다. 비용행렬의 모든 오분류 비용이 동일하다면 총비용은 사실상 오분류 「개수」에만 비례하게 되고, 이는 정확도(1−오분류율)와 순서상 완전히 같은 정보를 담게 됩니다. 이번 장면에서 순위가 뒤집힌 이유는 오분류의 「종류」마다 비용이 다르기 때문(긴 작업을 짧다고 오판하면 훨씬 비쌈)이었으므로, 비용이 균일해지면 그 차이가 사라지고 비용 순위는 정확도 순위와 다시 일치하게 됩니다."
+  }
+ },
+ "bda28_04": {
+  "ch": "빅데이터 분석 제28장 · 사례 연구: 작업 스케줄링",
+  "sec": "28.4 ★비용을 반영한 판정",
+  "title": "비용을 반영한 판정 — 기대비용 최소 규칙",
+  "narr": "가장 흔한 규칙은 확률이 가장 높은 등급(argmax)을 고르는 것입니다. 하지만 비용이 등급마다 다르다면, <b>후보 등급 각각의 기대비용 Σ P(a)·COST[c][a]를 실제로 계산</b>해 그 값이 가장 낮은 등급을 고르는 것이 더 합리적입니다. 같은 모델·같은 확률 예측을 두고 규칙만 argmax에서 기대비용 최소로 바꾸면, 총비용이 160에서 <b>82로 48.8% 줄어듭니다</b>(정확도는 오히려 0.414로 낮아지는데도 그렇습니다). argmax 규칙은 M·L 등급을 한 번도 고르지 않았지만, 기대비용 규칙은 「긴 작업을 짧다고 오판하는 값비싼 실수」를 피하려고 훨씬 자주 M을 고릅니다.",
+  "more": "<b>정확도를 포기하고도 비용이 줄어드는 이유</b>: 기대비용 규칙은 확률이 조금 낮은 등급이라도 「틀렸을 때의 손해」가 작다면 그쪽을 선택합니다. 예를 들어 실제로 F인 작업의 확률 분포가 P(F)=0.67, P(M)=0.26이라면, argmax는 확률이 더 높은 F를 고르지만 기대비용 규칙은 F로 잘못 예측했을 때보다 M으로 잘못 예측했을 때의 평균 손해가 더 작다고 판단해 M을 고를 수 있습니다 — <b>확률에서 조금 지고 비용에서 크게 이기는</b> 전략입니다.\n\n<b>이 규칙이 모델 재학습보다 먼저인 이유</b>: 기대비용 규칙은 모델을 다시 학습시킬 필요 없이, 이미 나온 확률 예측 위에 <b>판정 로직만 한 줄 바꾸면</b> 적용됩니다. 반면 28.3장의 앙상블처럼 더 나은 모델을 찾는 것은 데이터 수집·튜닝·검증에 훨씬 큰 노력이 듭니다. 그래서 비용에 민감한 문제를 만나면 「더 좋은 모델」보다 먼저 「이미 있는 모델의 판정 규칙」부터 점검하는 것이 효율적입니다.",
+  "more_en": "Instead of picking the class with maximum probability, computing each candidate class's expected cost (Σ P(actual)·COST[candidate][actual]) and choosing the minimum cuts total cost from 160 to 82 (a 48.8% reduction) using the exact same fitted model and probabilities — even though accuracy itself drops to 0.414. The expected-cost rule deliberately trades a lower hit rate for far fewer expensive misses, most visibly by choosing the moderate tier far more often to head off costly long-job misclassifications.",
+  "problem": {
+   "q": "만약 비용행렬이 완전히 대칭(COST[c][a]=COST[a][c])이었다면, 기대비용 최소 규칙과 argmax 규칙의 결과는 어떻게 달라질까요?",
+   "solution": "비용행렬이 대칭이고 모든 오분류 비용이 같은 값(예: 전부 1)이라면, 기대비용을 최소화하는 것은 결국 「틀릴 확률」을 최소화하는 것과 같아지므로 기대비용 최소 규칙은 argmax 규칙과 정확히 같은 예측을 내놓게 됩니다. 이번 장면에서 두 규칙이 크게 갈린 것은 비용이 비대칭(긴 작업을 짧다고 오판하는 것이 유독 비쌈)이기 때문이며, 비대칭성이 클수록 두 규칙의 차이도 커집니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch16_04",
+    "label": "조건부확률",
+    "sub": "수학 16장 · 기대비용의 계산",
+    "track": "math"
+   }
+  ]
+ },
+ "bda28_05": {
+  "ch": "빅데이터 분석 제28장 · 사례 연구: 작업 스케줄링",
+  "sec": "28.5 운영으로",
+  "title": "운영으로",
+  "narr": "이번 장에서 시도한 네 전략 — 기준(다수 등급)·argmax(확률 최대)·최선 모델(배깅)·기대비용 최소 — 을 같은 140건에 적용한 총비용을 나란히 놓으면 183 → 160 → 143 → <b>82</b>로 꾸준히 줄어듭니다. 흥미로운 점은 <b>모델을 더 정교하게 바꾸는 것(배깅, 22% 절감)보다 같은 모델에 비용을 반영한 판정 규칙을 씌우는 것(기대비용, 55% 절감)이 더 크게 이깁니다</b> — 구현 난도는 오히려 후자가 낮습니다. 실제 스케줄러에 넣을 때는 오판했을 때 되돌릴 수 있는 <b>지연 허용치</b>, 작업 특성이 바뀔 때의 <b>재학습 주기</b>, 그리고 <b>비용행렬 자체가 살아있는 문서</b>여야 한다는 점까지 함께 관리해야 이 절감이 현장에서도 재현됩니다.",
+  "more": "<b>구현 난도와 효과가 반비례하는 순서로 적용하라</b>: 이번 사례가 주는 실무적 교훈은 「가장 어려운 방법이 가장 좋은 방법은 아니다」입니다. 이미 학습된 모델의 판정 규칙만 바꾸는 것(기대비용 규칙)이 배포·재학습 없이 하루 만에 적용 가능한 반면, 더 나은 모델을 찾는 것(앙상블)은 데이터 파이프라인·튜닝·검증에 훨씬 긴 시간이 걸립니다. 그런데도 이번 사례에서는 전자의 효과가 더 컸습니다 — 항상 그런 것은 아니지만, <b>싸고 빠른 개선부터 먼저 시도해 볼 가치</b>가 있다는 것을 보여줍니다.\n\n<b>비용행렬은 한 번 정하고 끝이 아니다</b>: 이번 장에서 쓴 비용행렬(긴 작업 오판에 10배 벌점)은 특정 시점의 업무 우선순위를 반영한 것입니다. 만약 조직의 우선순위가 바뀌어(예: 짧은 작업의 신속한 처리가 더 중요해짐) 비용 구조가 달라진다면, 지금까지 최적이라고 골랐던 판정 규칙도 다시 계산해야 합니다 — 비용행렬은 코드에 박아두는 상수가 아니라, 업무팀과 주기적으로 재검토해야 하는 살아있는 설정값입니다.",
+  "more_en": "Lining up total cost across the four strategies tried in this chapter (baseline majority rule, argmax, best cross-validated model, expected-cost rule) shows a steady drop from 183 to 160 to 143 to 82 — and notably, swapping in a cost-aware decision rule on the existing model (55% reduction) outperforms fitting a fancier model (22% reduction) while being far cheaper to implement. Deploying this in production still requires tracking latency tolerance for correcting misroutes, a retraining cadence as job characteristics drift, and treating the cost matrix itself as a living configuration that must be revisited as business priorities change.",
+  "problem": {
+   "q": "만약 스케줄러 운영팀이 「비용행렬을 다시 만들 여력이 없으니 당분간 그대로 쓰겠다」고 한다면, 그 사이에 작업의 성격(예: 평균 실행시간)이 크게 달라져도 안전할까요?",
+   "solution": "안전하다고 보기 어렵습니다. 비용행렬 자체는 「어떤 오류가 얼마나 아픈가」를 나타내므로 업무 우선순위가 그대로라면 유지해도 괜찮을 수 있지만, 이번 장의 모델과 판정 규칙은 특정 시점의 데이터 분포(등급 경계·특징과 등급의 관계)를 기반으로 학습·계산된 것입니다. 작업 성격이 크게 달라지면(예: 평균 실행시간이 늘어 등급 경계 자체가 더 이상 맞지 않음) 비용행렬이 그대로여도 모델의 예측과 기대비용 계산이 낡은 데이터를 반영하게 되어 실제 운영에서는 최적이 아닌 판정을 내릴 수 있습니다. 그래서 재학습 주기(28.5장에서 언급)는 비용행렬 재검토와 별개로, 데이터 분포 변화를 감시하는 별도의 절차로 관리해야 합니다."
+  }
+ }
+}
