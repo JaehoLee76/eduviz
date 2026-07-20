@@ -1,0 +1,98 @@
+{
+ "bda12_01": {
+  "ch": "빅데이터 분석 제12장 · 예측 모델링의 세계",
+  "sec": "12.1 예측이란 무엇인가",
+  "title": "예측이란 무엇인가",
+  "narr": "11장에서 승객 40명의 생존을 문제정의부터 최종 해석까지 하나의 프로젝트로 완주했습니다. 이제 그 여정 전체를 지탱하는 원리들을 하나씩 짚어보는 <b>고급 파트</b>가 시작됩니다. 같은 아파트 20채 데이터로 두 가지 다른 질문을 던져 보죠. \"왜 비싼가\"를 묻는 <b>설명</b> 모델은 평수 하나만으로 회귀를 돌려 계수의 크기·부호·통계적 믿음직함(t값)을 잣대로 삼습니다. \"다음 집은 얼마일까\"를 묻는 <b>예측</b> 모델은 평수에 연식까지 더해, 계수가 무슨 뜻인지보다 처음 보는 5채에서 오차(RMSE)가 얼마나 줄었는지만 신경 씁니다. 실제로 계산해 보면 평수만으로도 t값이 2를 훌쩍 넘어 믿을 만한 계수를 얻지만, 연식까지 더한 예측 모델은 시험 오차를 더 낮추는 대신 \"한 문장 설명\"이 어려워집니다 — 같은 데이터라도 목적에 따라 변수 선택과 채점 방법이 완전히 갈립니다.",
+  "more": "<b>둘 다 회귀인데 왜 다른 모델인가</b>: 설명 모델과 예측 모델이 서로 다른 알고리즘이라는 뜻이 아닙니다. 똑같은 선형회귀라도 <b>무엇을 최적화 목표로 삼고, 어떤 변수를 왜 넣었는지</b>가 다릅니다. 설명 모델은 흔히 통제변수(confound)를 신중히 골라 계수가 왜곡되지 않게 하는 데 공을 들이고, 예측 모델은 그 변수가 왜 도움이 되는지 몰라도 held-out 오차를 줄인다면 서슴없이 씁니다. 12장에서 소개하는 이 구분은 14장부터 이어지는 모든 모델링 기법을 볼 때 \"이건 지금 무엇을 위해 쓰는가\"를 스스로 묻게 해 줍니다.\n\n<b>t값 2라는 어림값</b>: 통계학에서 t값의 절댓값이 대략 2 이상이면(표본 크기에 따라 정확한 기준은 달라짐) 그 계수가 우연히 0이 아니게 나왔을 가능성이 낮다고 봅니다. 이는 통계적 유의성일 뿐, 실제 크기(효과의 크기)나 실무적 중요성을 보장하지는 않습니다 — 표본이 아주 크면 아주 작은 효과도 t값이 커질 수 있습니다.",
+  "more_en": "Explanation and prediction can use the identical linear regression algorithm yet optimize for different things: an explanatory model on 20 apartments keeps to one interpretable predictor (size) and checks whether its coefficient's t-statistic clears roughly 2 (unlikely to be zero by chance), while a predictive model adds a second real driver (age) purely because it lowers held-out RMSE on 5 unseen units — even though a two-coefficient equation is harder to state as one clean sentence.",
+  "problem": {
+   "q": "평수만 쓴 설명 모델의 t값이 2보다 훨씬 크게 나왔다고 해서, 이 모델이 예측 모델로서도 가장 좋다고 말할 수 있을까요?",
+   "solution": "아닙니다. t값이 크다는 것은 <b>\"평수의 계수가 우연히 0일 가능성은 낮다\"</b>는 뜻일 뿐, <b>\"새 집값을 얼마나 정확히 맞히는가\"</b>와는 별개의 질문입니다. 실제로 이 장면에서 평수에 연식을 더한 예측 모델은 held-out 시험 5채에서 더 낮은 RMSE를 보였습니다. 계수 하나가 통계적으로 믿을 만하다고 해서 그 변수 하나만으로 최선의 예측을 할 수 있다는 뜻은 아닙니다 — 설명의 잣대(계수의 믿음직함)와 예측의 잣대(held-out 오차)는 애초에 다른 것을 재고 있습니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai3_01",
+    "label": "회귀 vs 분류",
+    "sub": "인공지능 3장 · 지도학습의 두 얼굴",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda12_02": {
+  "ch": "빅데이터 분석 제12장 · 예측 모델링의 세계",
+  "sec": "12.2 좋은 예측 모델의 조건",
+  "title": "좋은 예측 모델의 조건",
+  "narr": "예측이 무엇인지 정했으니, 이번엔 \"좋은 예측 모델\"이 무슨 뜻인지 따져 봅니다. 같은 아파트 데이터로 평수만 쓰는 모델, 평수+연식을 쓰는 모델, k-최근접(3)으로 이웃 3채의 평균을 내는 모델을 같은 시험 5채로 채점하면, 정확도(시험 RMSE)만으로는 순위가 하나로 정해집니다. 그런데 해석가능성(계수 몇 개로 요약되는가)과 연산비용(예측 한 번에 실제 몇 번 계산하는가)까지 함께 재면 그림이 달라집니다 — k-최근접은 예측할 때마다 훈련 15채 전부와 거리를 다시 재야 해서 계산량이 선형모델보다 훨씬 큽니다. 실시간 서비스라면 연산비용이, 규제가 있는 분야라면 해석가능성이, 하루 한 번 도는 보고서라면 정확도가 우선순위 맨 앞에 옵니다.",
+  "more": "<b>k-최근접의 연산비용을 어떻게 세나</b>: k-최근접은 새 데이터가 들어올 때마다 저장해 둔 훈련 데이터 전부와 거리를 계산해야 합니다. 특징이 p개, 훈련 표본이 n개, 이웃 수가 k라면 예측 1건에 필요한 연산은 대략 n×(3p−1)+k회입니다(각 훈련점마다 뺄셈 p번·제곱 p번·합산 p−1번, 그리고 k개 값을 평균). 반면 선형회귀는 미리 구해 둔 계수 몇 개를 곱하고 더하기만 하면 되므로 데이터가 아무리 많아도 예측 비용은 늘 일정합니다. 이 차이는 훈련 표본이 수백만 건으로 커지면 실무에서 매우 크게 벌어집니다.\n\n<b>다섯 축의 균형</b>: 정확도·일반화(새 데이터에도 잘 맞는가)·해석가능성·계산비용·운영가능성(배포·유지보수가 쉬운가)은 서로 자주 충돌합니다. 15장에서 다룰 튜닝은 이 중 정확도와 일반화의 균형을, 29~30장의 변수중요도·특징선택은 해석가능성을 더 끌어올리는 방법을 다룹니다.",
+  "more_en": "Comparing three models on the same 5 held-out apartments — size-only, size+age, and 3-NN — the accuracy ranking alone doesn't tell the whole story: k-NN must recompute distances against all 15 training points at prediction time (roughly n×(3p−1)+k operations), far more expensive than a linear model's fixed handful of multiply-adds, and it offers no clean coefficient to explain a prediction. Real-time services, regulated industries, and offline batch reports each weigh accuracy, generalization, interpretability, compute cost, and operability differently.",
+  "problem": {
+   "q": "k-최근접(3) 모델이 세 모델 중 시험 RMSE가 가장 낮게 나왔다고 합시다. 그런데도 이 모델을 매초 수천 건씩 처리해야 하는 실시간 서비스에 그대로 쓰면 안 될 수도 있는 이유는 무엇일까요?",
+   "solution": "k-최근접은 예측 1건마다 <b>훈련 데이터 전체와 거리를 다시 계산</b>해야 합니다. 훈련 표본이 15채뿐이면 큰 문제가 아니지만, 실무에서 훈련 데이터가 수백만 건이라면 이 계산량은 감당하기 어려울 정도로 커집니다. 반면 선형회귀는 미리 구해 둔 계수 몇 개로 곱셈·덧셈만 하면 되므로 데이터 규모와 무관하게 예측 비용이 일정합니다. 정확도가 조금 낮더라도 응답 속도가 생명인 서비스에서는 연산비용이 낮은 모델을 택하는 것이 합리적일 수 있습니다."
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo1_05",
+    "label": "복잡도 등급",
+    "sub": "알고리즘 1장 · 계산 비용의 언어",
+    "track": "algo"
+   }
+  ]
+ },
+ "bda12_03": {
+  "ch": "빅데이터 분석 제12장 · 예측 모델링의 세계",
+  "sec": "12.3 예측을 망치는 것들",
+  "title": "예측을 망치는 것들",
+  "narr": "좋은 모델의 조건을 알았다면, 이번엔 그걸 갉아먹는 네 가지 함정을 실제 수치로 봅니다. 훈련 15채를 5채씩 두 묶음으로 쪼개 각각 기울기를 다시 구하면 전체 훈련으로 구한 기울기와 크게 어긋납니다 — <b>작은 표본</b>은 결과를 흔듭니다. 30평인데 20억짜리 극단값 하나를 끼워 넣으면 회귀선 전체가 그 점 쪽으로 밀립니다 — <b>치우친 분포(이상치)</b>의 힘입니다. 가격과 아무 상관 없이 고정해 둔 우편번호 끝자리를 변수로 더해도 시험 오차는 나아지지 않습니다 — <b>무관한 변수</b>는 도움이 안 됩니다. 마지막으로 시험 6채까지 포함한 20채 전체로 미리 통계를 구해 학습하면 시험 오차가 실제보다 낮게(더 좋게) 나옵니다 — 9·11장에서 배운 그 <b>누수</b>가 여기서도 그대로 재현됩니다. 넷 다 방향은 다르지만 결과는 같습니다 — 모델이 실제보다 더 잘한다고 착각하게 만드는 것입니다.",
+  "more": "<b>작은 표본이 흔드는 이유</b>: 회귀 기울기는 표본에 있는 점들 사이의 관계에서 추정됩니다. 표본이 작을수록 우연히 뽑힌 몇 개의 극단적인 조합이 전체 추정치를 크게 좌우합니다. 표본이 커질수록 이런 우연의 영향은 평균으로 씻겨 나가 추정치가 안정됩니다(4장 리샘플링·13장 훈련/시험 분할에서 이 안정성 문제를 다시 다룹니다).\n\n<b>이상치를 다루는 두 태도</b>: 이상치를 발견했다고 무조건 지우면 안 됩니다. 그 값이 데이터 입력 오류인지, 아니면 실제로 존재하는 특이한 사례(정말 비싼 펜트하우스)인지부터 확인해야 합니다. 14장에서는 이상치에 덜 민감한 변환(로버스트 척도화 등)을 다룹니다.\n\n<b>무관한 변수가 위험한 진짜 이유</b>: 우편번호 끝자리처럼 완전히 무관한 변수는 이번 예제처럼 오차를 거의 바꾸지 않을 수도 있지만, 표본이 작고 변수가 많아지면 <b>우연히 그럴듯해 보이는 상관관계</b>를 만들어내 모델을 과적합시킬 위험이 커집니다. 19장(특징 선택)에서 이 문제를 체계적으로 다룹니다.",
+  "more_en": "Four failure modes, each demonstrated on the same 20-apartment dataset: refitting on two random 5-unit halves swings the slope far from the full-sample estimate (small samples); inserting one $2M outlier apartment visibly tilts the whole regression line (skew/outliers); adding a zip-code digit that was never used to generate price at all leaves test error unchanged or worse (irrelevant variables); and pre-computing statistics on all 20 units — test set included — before splitting makes test RMSE look artificially better (leakage, echoing the chapter 9 and 11 warning).",
+  "problem": {
+   "q": "우편번호 끝자리를 변수로 추가했더니 시험 RMSE가 아주 조금 낮아졌다고 합시다. 이걸 근거로 \"우편번호 끝자리가 집값 예측에 실제로 도움이 된다\"고 결론 내려도 될까요?",
+   "solution": "안 됩니다. 이 변수는 <b>가격을 만드는 과정에 애초에 관여하지 않은 고정값</b>입니다. 시험 표본이 겨우 5채뿐인 상황에서는 아무 의미 없는 변수라도 우연히 오차를 살짝 낮추는 방향으로 작동할 수 있습니다. 표본이 훨씬 크거나, 여러 번 다른 훈련/시험 분할로 반복 검증했을 때도 같은 효과가 꾸준히 나타나는지 확인해야 \"진짜 신호\"와 \"우연한 잡음\"을 구분할 수 있습니다. 변수를 추가할지 판단할 때는 그 변수가 결과와 <b>왜</b> 관련될 수 있는지에 대한 설명이 먼저이고, 시험 오차 개선은 그다음 확인 절차입니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai1_05",
+    "label": "과적합 vs 일반화",
+    "sub": "인공지능 1장 · 외운 것과 배운 것",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda12_04": {
+  "ch": "빅데이터 분석 제12장 · 예측 모델링의 세계",
+  "sec": "12.4 모델링 여정의 지도",
+  "title": "모델링 여정의 지도",
+  "narr": "예측을 망치는 함정까지 봤으니, 이제 앞으로 펼쳐질 20개 장을 한눈에 그려 볼 차례입니다. 장 제목을 하나하나 외울 필요는 없습니다 — 모든 예측 모델링은 결국 <b>데이터 준비 → 모델 후보 → 튜닝 → 평가 → 전달</b>이라는 다섯 단계를 돕니다. 지금 서 있는 12·13장은 이 지도 자체를 그리는 문 앞이고, 14장은 데이터 준비, 15장부터 21장까지 일곱 개 장은 회귀 계열 모델 후보를 만들고 다듬는 가장 두꺼운 구간, 22장부터 28장까지 일곱 개 장은 분류 계열과 평가, 마지막 29~31장 세 장은 무엇이 왜 중요한지 해석해 전달하는 단계입니다.",
+  "more": "<b>왜 지도가 필요한가</b>: 20개 장을 순서대로 읽다 보면 각 장이 다루는 개별 기법(능형회귀, 랜덤포레스트, 서포트벡터머신 등)에 매몰되기 쉽습니다. 하지만 이 기법들은 전부 \"모델 후보\" 단계의 서로 다른 선택지일 뿐, 결국 같은 다섯 단계 뼈대 위에서 움직입니다. 지도를 미리 그려 두면 새로운 장을 만날 때마다 \"이건 지도의 어디쯤인가\"를 스스로 물으며 읽을 수 있습니다.\n\n<b>단계별 두께가 다른 이유</b>: 모델 후보 단계(15~21장)가 유독 두꺼운 것은 \"어떤 모델을 쓸까\"에 대한 답이 문제마다 다르고, 그만큼 알아 둬야 할 도구가 많기 때문입니다. 4장에서 이미 배운 \"공짜 점심은 없다\"는 원리 — 모든 상황에서 항상 이기는 단 하나의 모델은 없다는 것 — 가 이 두꺼운 구간의 존재 이유입니다.",
+  "more_en": "All twenty upcoming chapters fall into the same five-stage arc: prepare data, build model candidates, tune, evaluate, and translate results into language — chapters 12–13 open this map, chapter 14 covers preparation, chapters 15–21 (the thickest stretch) cover regression-family candidates and tuning, 22–28 cover classification and evaluation, and the final three chapters (29–31) turn results into explanations.",
+  "problem": {
+   "q": "15장부터 21장까지 일곱 개 장이 유독 두꺼운 이유는 무엇일까요?",
+   "solution": "이 구간은 \"모델 후보를 만들고 다듬는\" 단계인데, <b>어떤 모델이 가장 좋을지는 문제마다 다르기 때문</b>입니다. 2장(13장에서 다시 다룹니다)에서 \"공짜 점심은 없다\"는 원리를 언급했듯, 모든 상황에서 항상 최고인 단 하나의 모델은 존재하지 않습니다. 그래서 선형모델부터 비선형 회귀, 트리 기반 모델까지 서로 다른 성질을 가진 여러 후보를 알아 둬야 실제 문제를 만났을 때 적합한 도구를 고를 수 있습니다 — 이것이 이 구간이 다른 단계보다 훨씬 많은 장을 필요로 하는 이유입니다."
+  }
+ },
+ "bda12_05": {
+  "ch": "빅데이터 분석 제12장 · 예측 모델링의 세계",
+  "sec": "12.5 성공을 정의하는 법",
+  "title": "성공을 정의하는 법",
+  "narr": "지도를 그렸으니, 고급 파트를 시작하기 전 마지막으로 짚어야 할 것이 하나 남았습니다 — <b>\"잘했다\"의 정의는 문제마다 다르다</b>는 것입니다. 위험점수 12건짜리 사기 탐지 예제로 판정 임계값을 슬라이더로 움직여 보세요. 사기 1건을 놓치는 비용(FN)이 정상 거래를 헛의심하는 비용(FP)의 열 배라고 하면, 정확도가 가장 높은 임계값과 실제 비용이 가장 낮은 임계값이 서로 다른 지점에서 나타납니다. 11장에서 F1을 성공 기준으로 못박았던 것처럼, 오차를 줄일 것인지, 놓치지 않을 것인지, 비용을 아낄 것인지 — 이 선택이 곧 어떤 모델과 어떤 설정을 \"최선\"이라 부를지를 결정합니다.",
+  "more": "<b>정확도와 비용 최적점이 갈리는 이유</b>: 정확도는 맞힌 것과 틀린 것을 똑같은 무게로 셉니다. 하지만 실제 세상에서는 놓친 사기(FN)와 헛짚은 의심거래(FP)의 대가가 같지 않은 경우가 훨씬 많습니다. 임계값을 낮추면(판정을 후하게) 재현율이 오르며 FN이 줄지만 FP가 늘고, 반대로 임계값을 높이면 그 반대가 됩니다. 비용을 명시적으로 정의하고 그 비용을 최소화하는 임계값을 찾는 것이 정확도만 보는 것보다 실무에 훨씬 가깝습니다.\n\n<b>이 원리는 22장·27장에서 훨씬 정교해집니다</b>: 지금은 임계값 하나만 슬라이더로 움직였지만, 22장(분류 모델 성능 측정)에서는 ROC 곡선과 리프트 차트로 이 트레이드오프 전체를 한눈에 보는 법을, 27장(클래스 불균형 처리)에서는 애초에 데이터 자체가 한쪽으로 심하게 치우쳤을 때 이 문제를 어떻게 다룰지를 배웁니다. 지금 여기서 세운 \"비용을 먼저 정의하고 그에 맞는 기준을 고른다\"는 원칙이 그 모든 논의의 출발점입니다.",
+  "more_en": "Sliding the fraud-detection threshold across 12 fixed risk scores shows that the threshold maximizing raw accuracy and the one minimizing a cost function (10× penalty for missed fraud vs. false alarms) land at different points — echoing chapter 11's decision to fix F1 as the success metric up front. Whether a project should minimize error, avoid misses, or minimize cost is a choice made before modeling begins, and it determines which model — and which setting — counts as \"best.\"",
+  "problem": {
+   "q": "슬라이더를 임계값 0.05(가장 후하게 판정)까지 내리면 재현율은 매우 높아지지만 정확도는 오히려 낮아질 수 있습니다. 이런 상황에서도 임계값을 낮게 유지하는 것이 합리적인 경우는 언제일까요?",
+   "solution": "사기 1건을 놓치는 비용이 정상 거래를 헛의심하는 비용보다 <b>훨씬 클 때</b>입니다. 이 장면의 비용 공식(FN×10+FP×1)처럼 놓친 사기의 대가가 크다면, 정확도 숫자가 다소 낮아지더라도 재현율을 높여 사기를 최대한 많이 잡아내는 편이 총비용을 줄입니다. 반대로 오탐 한 건의 비용이 훨씬 크다면(예: 정상 고객에게 반복적으로 카드 정지를 거는 상황) 임계값을 높여 정밀도를 우선해야 합니다. 정확도라는 하나의 숫자만으로는 이런 비대칭적 비용 구조를 담을 수 없습니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai4_01",
+    "label": "혼동행렬",
+    "sub": "인공지능 4장 · 임계값이 바꾸는 것",
+    "track": "ai"
+   }
+  ]
+ }
+}

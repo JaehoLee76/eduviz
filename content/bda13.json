@@ -1,0 +1,89 @@
+{
+ "bda13_01": {
+  "ch": "빅데이터 분석 제13장 · 예측 모델링 과정 훑어보기",
+  "sec": "13.1 사례 소개와 데이터 첫인상",
+  "title": "사례 소개와 데이터 첫인상",
+  "narr": "12장에서 예측 모델링을 지탱하는 원리들을 짚었으니, 이번엔 그 원리들을 <b>회귀 문제 하나로 처음부터 끝까지</b> 따라가 봅니다. 사례는 <b>연비 예측</b>입니다 — 차량 24대의 엔진 배기량(disp, L)으로 고속도로 연비(mpg)를 맞혀 봅니다. 산점도를 그려보면 상관계수가 -0.98 안팎의 매우 큰 음수로 나와 배기량이 클수록 연비가 뚜렷하게 낮아진다는 게 한눈에 보입니다. 그런데 배기량 1.0~2.5L 구간과 4.0~6.2L 구간의 기울기를 따로 구해 비교하면 두 값이 꽤 다릅니다 — 작은 배기량 구간에서 훨씬 가파르게 떨어지고, 큰 배기량으로 갈수록 하락세가 완만해집니다. 데이터가 곧게 뻗은 직선이 아니라 완만하게 휘어 있다는 첫 단서를 코드를 치기도 전에 산점도만으로 발견한 셈입니다.",
+  "more": "<b>왜 산점도부터 그리는가</b>: 모델을 아무리 정교하게 짜도, 데이터의 기본 모양(직선인가 곡선인가, 이상치가 있는가, 몇 개의 군집으로 나뉘는가)을 눈으로 먼저 확인하지 않으면 엉뚱한 모델을 고르게 됩니다. 상관계수 하나(-0.98)만 보고 \"강한 선형 관계\"라고 단정하면, 이번처럼 구간별 기울기가 다른 굽은 관계를 놓칠 수 있습니다.\n\n<b>구간을 나눠 기울기를 비교하는 이유</b>: 전체 데이터에 직선 하나를 맞추면 이 굽음이 평균으로 뭉개져 버립니다. 데이터를 몇 구간으로 나눠 각각 회귀를 해 보는 것은 정식 모델링 기법이라기보다는 탐색적인 진단 방법입니다 — \"직선 하나로 충분한가?\"라는 질문에 답하기 위한 빠른 확인일 뿐, 실제 모델은 3장면과 4장면에서 제대로 만듭니다.",
+  "more_en": "Before writing a line of modeling code, a scatter plot of engine displacement against highway mpg across 24 vehicles shows a strong negative correlation (~-0.98), but splitting the range into a 1.0-2.5L segment and a 4.0-6.2L segment and fitting each separately reveals noticeably different slopes — steeper in the small-displacement range, flatter at the high end. That's the first clue the relationship bends rather than following one straight line.",
+  "problem": {
+   "q": "상관계수 r이 -0.98처럼 절댓값이 1에 매우 가까운데도, 왜 직선 하나로 이 관계를 완전히 설명할 수 없다고 말할 수 있을까요?",
+   "solution": "상관계수는 <b>전체적인 선형 경향의 강도</b>만을 하나의 숫자로 요약합니다. 실제로 이 장면에서 1.0~2.5L 구간의 기울기와 4.0~6.2L 구간의 기울기를 각각 계산해 보면 서로 다르게 나옵니다 — 관계가 구간마다 다른 기울기를 가진다는 것은 직선 하나로는 담을 수 없는 곡선 형태라는 뜻입니다. r이 크다는 것은 \"대체로 우하향한다\"는 강한 신호일 뿐, \"그 하향이 어디서나 똑같은 기울기로 일어난다\"는 보장은 아닙니다."
+  }
+ },
+ "bda13_02": {
+  "ch": "빅데이터 분석 제13장 · 예측 모델링 과정 훑어보기",
+  "sec": "13.2 훈련·시험 분할과 기준 모델",
+  "title": "훈련·시험 분할과 기준 모델",
+  "narr": "데이터의 첫인상을 봤으니, 모델을 만들기 전에 먼저 <b>잣대부터 세웁니다</b>. 차량 24대를 4대 중 1대꼴로 시험 6대와 훈련 18대로 재현 가능하게 나누고, 두 집단의 연비 평균·표준편차가 비슷한지 확인해 비교가 공정한지 점검합니다. 그런 다음 배기량을 아예 무시하고 <b>훈련 평균만 찍는</b> 가장 단순한 기준 모델의 시험 오차(RMSE)를 먼저 계산해 둡니다 — 이후 어떤 정교한 모델을 만들든 이 숫자를 이기지 못하면 배기량이라는 정보는 사실상 아무 쓸모가 없었다는 뜻이 됩니다. 11장의 F1처럼, 여기서도 성공의 잣대를 모델을 만들기 전에 미리 정해 둡니다.",
+  "more": "<b>왜 하필 평균을 기준으로 삼는가</b>: 회귀 문제에서 정보를 전혀 쓰지 않고 할 수 있는 가장 단순한 예측은 \"항상 같은 값을 찍는 것\"입니다. 그 값으로 훈련 데이터의 평균을 쓰면 RMSE 관점에서 가장 낮은 오차를 내는 상수 예측값이 됩니다(평균은 제곱오차를 최소화하는 대표값입니다). 그래서 기준 모델로 평균만 한 잣대로 세우는 것이 공정합니다.\n\n<b>분포 비교를 빼먹으면 생기는 일</b>: 만약 우연히 시험 집단에만 큰 배기량 차들이 몰려 있었다면, 어떤 모델을 만들어도 시험 오차가 실제 실력과 무관하게 나쁘게(혹은 좋게) 나올 수 있습니다. 두 집단의 평균·표준편차를 미리 확인해 두는 것은 나중에 나올 성능 차이가 \"모델의 차이\"인지 \"우연히 나뉜 표본의 차이\"인지를 구분하는 데 중요한 참고 자료가 됩니다.",
+  "more_en": "Before building any model, this scene fixes the yardstick: 24 cars are split (roughly 1-in-4) into 18 training and 6 held-out test vehicles, their mpg distributions are compared for fairness, and a baseline that always predicts the training mean is scored on the test set. Every model built afterward must beat this baseline's RMSE, or displacement carried no useful signal at all — mirroring chapter 11's decision to fix the scoring metric before modeling.",
+  "problem": {
+   "q": "기준 모델이 \"훈련 데이터의 평균\"을 찍는 이유는 무엇이고, 만약 대신 \"훈련 데이터의 최댓값\"을 찍는다면 어떤 문제가 생길까요?",
+   "solution": "평균은 <b>제곱오차(RMSE가 재는 것)를 최소화하는 대표값</b>이기 때문에, 아무 정보 없이 상수 하나만 찍어야 한다면 평균이 가장 합리적인 선택입니다. 만약 최댓값을 찍는다면, 대부분의 차량은 최댓값보다 훨씬 낮은 연비를 가지므로 거의 모든 예측이 실제값보다 한참 높게 나와 오차가 매우 커집니다. 기준 모델의 역할은 \"가장 게으르면서도 합리적인 예측\"이 얼마나 틀리는지를 보여주는 것인데, 최댓값 찍기는 게으르지만 합리적이지 않은 선택이라 공정한 잣대가 되지 못합니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai3_04",
+    "label": "손실함수 MSE",
+    "sub": "인공지능 3장 · 오차를 재는 법",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda13_03": {
+  "ch": "빅데이터 분석 제13장 · 예측 모델링 과정 훑어보기",
+  "sec": "13.3 단순한 모델부터",
+  "title": "단순한 모델부터",
+  "narr": "잣대를 세웠으니, 가장 단순한 <b>선형회귀</b>로 시작합니다. 훈련 18대에 직선을 맞추면 배기량이 1L 늘 때마다 연비가 일정하게 줄어든다는 식이 나오고, 시험 오차는 앞서 정한 기준선(평균 찍기)보다 훨씬 낮아 배기량 정보가 분명히 도움이 된다는 걸 확인합니다. 훈련 R²도 배기량 하나로 연비 변동의 상당 부분을 설명해 냅니다. 그런데 잔차(실제값-예측값)를 배기량별로 그려보면 양 끝 구간에서 한쪽으로 몰리는 무늬가 남습니다 — 1장면에서 구간별 기울기가 서로 달랐던 것과 같은 신호이자, 직선 하나가 아직 담지 못한 굽은 관계가 남아 있다는 뜻입니다.",
+  "more": "<b>잔차 그래프를 읽는 법</b>: 모델이 완벽하다면 잔차는 예측 변수(배기량)와 무관하게 0 주위에 무작위로 흩어져야 합니다. 만약 잔차가 특정 구간에서 계속 양수거나 계속 음수인 무늬(패턴)를 보인다면, 그 패턴 자체가 모델이 아직 포착하지 못한 신호라는 뜻입니다. 이번 사례에서는 양 끝(아주 작은 배기량, 아주 큰 배기량)에서 잔차가 몰리는 무늬가 나타나 곡선형 관계의 흔적을 보여줍니다.\n\n<b>R²와 RMSE, 뭘 봐야 하나</b>: R²는 \"얼마나 많은 변동을 설명했는가\"를 0~1 사이 비율로 보여주고, RMSE는 \"평균적으로 몇 mpg만큼 틀렸는가\"를 원래 단위로 보여줍니다. 두 지표는 같은 정보를 다른 방식으로 요약할 뿐이라 보통 함께 보고합니다 — R²는 상대적 설명력을, RMSE는 실무적으로 와닿는 오차 크기를 전달합니다.",
+  "more_en": "Fitting a straight line to 18 training cars yields a constant per-liter mpg drop and a test RMSE far below the mean-only baseline, confirming displacement genuinely helps. But plotting residuals (actual minus predicted) against displacement reveals a lopsided pattern at both extremes — the same curvature signal spotted in scene 1's segmented slopes, showing the straight line still hasn't captured the full relationship.",
+  "problem": {
+   "q": "선형회귀의 시험 RMSE가 기준 모델보다 훨씬 낮게 나왔는데도, 이 장면 마지막에 왜 \"아직 부족하다\"고 말하는 걸까요?",
+   "solution": "기준선을 이겼다는 것과 <b>남길 오차가 하나도 없다</b>는 것은 다른 이야기입니다. 잔차를 배기량별로 그려보면 양 끝 구간에서 한쪽으로 몰리는 무늬가 뚜렷하게 남아 있습니다. 잔차에 이런 패턴이 남아 있다는 것은 모델이 아직 포착하지 못한 예측 가능한 신호가 데이터에 더 있다는 뜻입니다. 기준선을 이긴 것은 \"배기량이 도움이 된다\"는 확인일 뿐이고, 잔차의 무늬는 \"직선이라는 형태 자체가 아직 최선이 아니다\"라는 다음 개선 방향을 알려줍니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch5_03",
+    "label": "이차함수",
+    "sub": "수학 5장 · 곡선이 필요한 순간",
+    "track": "math"
+   }
+  ]
+ },
+ "bda13_04": {
+  "ch": "빅데이터 분석 제13장 · 예측 모델링 과정 훑어보기",
+  "sec": "13.4 더 유연한 모델과 비교",
+  "title": "더 유연한 모델과 비교",
+  "narr": "직선이 놓친 굽은 관계를 담기 위해 배기량의 제곱, 세제곱 항까지 넣어 더 유연한 <b>다항회귀</b>를 시도합니다. 슬라이더로 차수를 1부터 4까지 움직이면 훈련·시험 오차가 실시간으로 다시 계산됩니다. 1차에서 2차로 올리면 두 오차가 함께 뚝 떨어지지만, 4차까지 밀어붙이면 훈련 오차는 계속 낮아지는 반면 시험 오차는 오히려 벌어집니다. 이번 데이터에서는 <b>2차</b>가 시험 오차를 가장 낮게 만드는 지점입니다. 유연한 모델일수록 무조건 좋은 것이 아니라, 훈련 데이터의 굴곡까지 외워버리는 <b>과적합</b>의 위험이 차수와 함께 커진다는 것을 훈련·시험 오차의 격차로 직접 확인할 수 있습니다.",
+  "more": "<b>다항회귀도 결국 선형회귀다</b>: 배기량의 제곱, 세제곱을 새로운 변수로 취급하면 이 모델은 여전히 \"계수들의 선형결합\"이라는 점에서 선형회귀입니다. 즉 곡선을 그리기 위해 꼭 복잡한 비선형 알고리즘이 필요한 것은 아니고, 입력 변수를 어떻게 가공하느냐가 모델의 표현력을 결정할 수 있습니다.\n\n<b>차수를 늘릴수록 위험해지는 이유</b>: 차수가 오를수록 모델이 표현할 수 있는 곡선의 형태가 다양해지고, 그만큼 훈련 데이터의 특이한 굴곡(잡음 포함)까지 따라 그릴 여지가 커집니다. 4차 모델의 훈련 오차가 계속 낮아지는 것은 실력이 느는 게 아니라 잡음까지 외우고 있다는 신호입니다. 15장(과적합과 모델 튜닝)에서는 이 슬라이더가 하는 일 — 여러 후보를 검증 성능으로 비교해 최적점을 찾는 것 — 을 훨씬 체계적인 교차검증 절차로 확장합니다.",
+  "more_en": "Adding squared and cubed displacement terms lets the model bend the way scene 1's segmented slopes hinted it should. Sweeping the degree slider from 1 to 4 recomputes both train and test RMSE live: degree 2 drops both sharply, but by degree 4 training error keeps falling while test error climbs back up — a directly computed demonstration that more flexibility isn't automatically better, since it starts memorizing training-set noise.",
+  "problem": {
+   "q": "슬라이더를 4차에 두면 훈련 R²가 가장 높게 나옵니다. 그런데도 왜 4차 모델을 최종으로 채택하면 안 될까요?",
+   "solution": "4차 모델의 높은 훈련 R²는 <b>훈련 데이터 18대에 한해서만</b> 잘 맞는다는 뜻입니다. 차수가 오를수록 모델은 훈련 데이터의 특이한 굴곡(잡음 포함)까지 따라 그릴 수 있게 되는데, 그 잡음은 새로운 차량에는 그대로 반복되지 않습니다. 실제로 이 장면에서 4차 모델의 시험 RMSE는 2차보다 오히려 나쁘게 나옵니다 — 훈련 성능과 시험 성능의 격차가 벌어지는 것이 바로 과적합의 신호이며, 진짜 실력은 한 번도 보지 못한 시험 데이터에서의 성능으로 판단해야 합니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai4_04",
+    "label": "편향-분산과 과적합",
+    "sub": "인공지능 4장 · 유연할수록 좋은가",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda13_05": {
+  "ch": "빅데이터 분석 제13장 · 예측 모델링 과정 훑어보기",
+  "sec": "13.5 선택과 마무리",
+  "title": "선택과 마무리",
+  "narr": "기준(평균 찍기)·선형·이차·4차, 네 후보를 같은 시험 6대로 나란히 채점합니다. 4차 모델은 훈련 R²가 가장 높지만 시험 RMSE는 이차보다 오히려 나쁘고, 이차 모델은 배기량과 연비 사이의 굽은 관계를 충분히 담으면서도 4차보다 훨씬 단순합니다 — 같은(혹은 더 나은) 성능이라면 더 단순한 쪽을 고르는 것이 안전하다는 원칙에 따라 <b>이차를 최종 모델</b>로 선택합니다. 데이터를 만나고, 잣대를 세우고, 단순한 모델부터 시작해 더 유연한 후보와 비교하고, 마지막에 성능과 단순함을 함께 저울질하는 이 다섯 단계는 앞으로 20개 장 내내 형태만 바뀐 채 반복됩니다 — 다음 14장부터는 이 다섯 단계 중 \"데이터 준비\"를 세포 분할이라는 새 사례로 더 깊이 파고듭니다.",
+  "more": "<b>왜 \"더 단순한 쪽\"을 원칙으로 삼는가</b>: 이를 흔히 오컴의 면도날이라 부릅니다 — 성능이 비슷하다면 가정과 구성 요소가 더 적은 설명(모델)을 선호해야 한다는 원칙입니다. 단순한 모델은 계수가 적어 해석하기 쉽고, 새로운 데이터의 특이한 잡음에 덜 민감하며(일반화가 안정적), 유지보수와 디버깅도 더 쉽습니다. 12장(좋은 예측 모델의 조건)에서 다룬 다섯 축 중 해석가능성·운영가능성이 여기서 실제로 이차 모델의 손을 들어주는 근거가 됩니다.\n\n<b>이 사례가 왜 \"작은 데카르트\"인가</b>: 차량 24대, 변수 1개라는 아주 작은 문제로 다섯 단계를 완주했지만, 이 뼈대는 14장부터 만날 훨씬 큰 데이터(세포 2,000여 개, 변수 100개가 넘는 문제)에도 형태만 바뀐 채 그대로 적용됩니다. 데이터가 커지고 변수가 늘어도 \"먼저 데이터를 보고, 잣대를 세우고, 단순한 것부터 시도하고, 유연함과 단순함을 저울질한다\"는 순서 자체는 변하지 않습니다.",
+  "more_en": "Scoring baseline, linear, quadratic, and quartic models on the same 6 test cars shows the quartic model's higher training R² doesn't translate to better test RMSE, while the quadratic model captures the curvature nearly as well with far fewer terms — Occam's razor favors it. This five-stage arc (meet the data, fix the yardstick, start simple, compare flexibility, weigh performance against simplicity) repeats, reshaped, across all twenty upcoming chapters, starting with chapter 14's deeper dive into data preparation via a new cell-segmentation case study.",
+  "problem": {
+   "q": "이차 모델과 4차 모델의 시험 RMSE가 거의 똑같이 나왔다고 가정해 봅시다. 이런 경우에도 이차 모델을 선택해야 하는 이유는 무엇일까요?",
+   "solution": "성능이 <b>비슷하다면</b> 더 단순한 모델을 고르는 것이 여러모로 유리하기 때문입니다. 이차 모델은 계수가 셋뿐이라 \"배기량이 늘수록 처음엔 급하게, 나중엔 완만하게 연비가 준다\"처럼 비교적 쉽게 설명할 수 있지만, 4차 모델은 계수가 다섯이고 곡선의 굴곡이 복잡해 직관적으로 이해하기 어렵습니다. 또한 항이 많을수록 새로운 데이터의 특이한 잡음에 더 민감하게 반응할 위험이 있어, 지금 당장의 시험 성능이 같더라도 장기적으로는 더 불안정할 수 있습니다. 이것이 12장에서 다룬 해석가능성·운영가능성이 실제 선택에 반영되는 예입니다."
+  }
+ }
+}
