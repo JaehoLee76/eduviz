@@ -63,7 +63,24 @@
       +'#xrefBar .xr-tx{display:flex;flex-direction:column;line-height:1.25;min-width:0;}'
       +'#xrefBar .xr-tx b{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
       +'#xrefBar .xr-tx i{font-size:10.5px;font-style:normal;opacity:.74;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
-      +'#xrefBar .xr-back{border-color:#ff7ab8;color:#ff7ab8;}';
+      +'#xrefBar .xr-back{border-color:#ff7ab8;color:#ff7ab8;}'
+      // ── 검색 + 즐겨찾기(모든 트랙 공유). 브라우저 자체 기능과 혼동 없게 우리 UI 안에서 동작.
+      +'.ev-tbtn{display:inline-flex;align-items:center;gap:5px;background:rgba(20,20,28,.86);border:1px solid var(--accent);border-radius:10px;padding:6px 10px;font-size:13.5px;font-weight:600;color:var(--text-1,#e8e6dd);cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4);}'
+      +'.ev-tbtn:hover{background:rgba(42,42,55,.96);}.ev-tbtn .ev-star{font-size:15px;line-height:1;color:var(--accent-light);}.ev-tbtn.on .ev-star{color:#ffd34d;}'
+      +'@media(max-width:900px){.ev-tbtn .ev-lbl{display:none;}}'
+      +'#evOverlay{position:fixed;inset:0;z-index:40;background:rgba(4,5,9,.62);display:none;align-items:flex-start;justify-content:center;}'
+      +'#evOverlay.open{display:flex;}'
+      +'.ev-panel{margin-top:74px;width:min(680px,94vw);max-height:74vh;display:flex;flex-direction:column;background:#12131b;border:1px solid var(--accent);border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.6);overflow:hidden;}'
+      +'.ev-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08);}.ev-head .ev-ic{font-size:18px;flex:none;}'
+      +'.ev-input{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px 12px;font-size:15px;color:#fff;outline:none;}.ev-input:focus{border-color:var(--accent-light);}'
+      +'.ev-title{font-size:15px;font-weight:700;color:var(--accent-light);}.ev-close{margin-left:auto;background:none;border:none;color:#9b99a3;font-size:22px;line-height:1;cursor:pointer;padding:0 6px;}'
+      +'.ev-list{overflow-y:auto;padding:6px;}'
+      +'.ev-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;cursor:pointer;}.ev-item:hover{background:var(--accent-soft);}'
+      +'.ev-item .ev-badge{flex:none;font-size:11.5px;font-weight:700;color:var(--accent-light);background:rgba(255,255,255,.06);border:1px solid var(--accent);border-radius:999px;padding:1px 8px;min-width:32px;text-align:center;}'
+      +'.ev-item .ev-tx{min-width:0;flex:1;}.ev-item .ev-tx b{display:block;font-size:14px;font-weight:600;color:#eef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.ev-item .ev-tx i{display:block;font-size:11.5px;font-style:normal;color:#9b99a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+      +'.ev-item .ev-del{flex:none;background:none;border:none;color:#8a8890;font-size:17px;cursor:pointer;padding:0 6px;border-radius:6px;}.ev-item .ev-del:hover{color:#ff7a7a;background:rgba(255,120,120,.12);}'
+      +'.ev-item mark{background:rgba(255,211,77,.30);color:inherit;border-radius:2px;}'
+      +'.ev-empty{padding:22px;text-align:center;color:#8a8890;font-size:13.5px;line-height:1.6;}.ev-foot{padding:7px 12px;border-top:1px solid rgba(255,255,255,.07);font-size:11.5px;color:#77757e;text-align:center;}';
     document.head.appendChild(st); }
   function setVpad(){ var sw=(global.screen&&global.screen.width)||global.innerWidth;
     var target=Math.min(VP_MAXW, Math.max(1100, Math.round(sw*0.65)));   // 와이드 화면의 65% = 가장 보기 편한 폭(1100~1680 클램프). 브라우저 창은 못 줄여도 콘텐츠를 이 폭으로 렌더해 동일 효과.
@@ -116,19 +133,27 @@
   var xrefBar, XR_KEY='eduviz_xref_back';
   var XR_ICON={math:'📐',calculus:'∫',algo:'🧮',ai:'🤖',python:'🐍',physics:'⚛',bda:'📊',cpp:'⧺',hygiene:'⛑'};
   function xrefQ(){ try{ return new URLSearchParams(location.search); }catch(e){ return null; } }
+  function xrefHere(){ return (location.pathname.split('/').pop())||'index.html'; }
   function xrefSetup(){
     if(!document.body) return;
-    var q=xrefQ();
+    var q=xrefQ(), here=xrefHere();
     try{
-      if(q){ var bk=q.get('bk');
-        if(bk) sessionStorage.setItem(XR_KEY,bk);            // 점프해 옴 → 복귀 정보 보관(세션 유지)
-        else if(q.get('xr')) sessionStorage.removeItem(XR_KEY); // 복귀 도착 → 표식 제거
+      if(q && q.get('xr')){
+        var bk=q.get('bk');
+        // 점프해 옴 → 복귀 정보 + '도착한 페이지'를 함께 보관(그 페이지에서만 복귀 버튼이 뜬다)
+        if(bk) sessionStorage.setItem(XR_KEY, JSON.stringify({back:bk, landed:here}));
+        else sessionStorage.removeItem(XR_KEY);   // 복귀 도착(bk 없음) → 표식 제거
+      } else {
+        // 일반 로드(?xr 없음): 도착했던 페이지가 아니면 = 사용자가 스스로 다른 콘텐츠로 이동 → 표식 제거
+        var cur=null; try{ cur=JSON.parse(sessionStorage.getItem(XR_KEY)||'null'); }catch(e2){}
+        if(!cur || cur.landed!==here) sessionStorage.removeItem(XR_KEY);
       }
     }catch(e){}
     xrefBar=document.getElementById('xrefBar');
     if(!xrefBar){ xrefBar=document.createElement('div'); xrefBar.id='xrefBar'; document.body.appendChild(xrefBar); }
   }
-  function xrefBackVal(){ try{ return sessionStorage.getItem(XR_KEY)||''; }catch(e){ return ''; } }
+  // 복귀 버튼은 '점프로 도착한 그 페이지'에서만 유효(다른 트랙으로 이동하면 landed 불일치로 사라짐)
+  function xrefBackVal(){ try{ var c=JSON.parse(sessionStorage.getItem(XR_KEY)||'null'); return (c && c.landed===xrefHere())? (c.back||'') : ''; }catch(e){ return ''; } }
   function renderXref(sc){
     if(!xrefBar) return;
     var html='', back=xrefBackVal();
@@ -143,6 +168,77 @@
           +'<span class="xr-ic">'+(x.icon||XR_ICON[x.track]||'↗')+'</span>'
           +'<span class="xr-tx"><b>'+esc(x.label||'자세히 보기')+'</b><i>'+esc(x.sub||'')+'</i></span></a>'; }
     xrefBar.innerHTML=html; xrefBar.style.display=html?'flex':'none';
+  }
+
+  // ── 검색 + 즐겨찾기 (모든 트랙 공유. 브라우저 자체 검색/북마크와 혼동 없게 우리 UI 안에서만 동작) ──
+  var EV_TRACKS={'math.html':['math','수학'],'calculus.html':['calculus','미적분학'],'algo.html':['algo','알고리즘'],'physics.html':['physics','물리학'],'ai.html':['ai','인공지능'],'python.html':['python','파이썬'],'cpp.html':['cpp','C++'],'hygiene.html':['hygiene','산업위생'],'bda.html':['bda','빅데이터 분석']};
+  var FAV_KEY='eduviz_fav', evOv, evStarBtn;
+  function evTrack(){ return EV_TRACKS[xrefHere()]||['','']; }
+  function evLoadFav(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY)||'[]'); }catch(e){ return []; } }
+  function evSaveFav(a){ try{ localStorage.setItem(FAV_KEY, JSON.stringify(a)); }catch(e){} }
+  function evIsFav(tk,s){ return evLoadFav().some(function(f){ return f.t===tk&&f.s===s; }); }
+  function evHi(s,q){ s=esc(s); if(!q) return s; try{ var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'); return s.replace(re,'<mark>$1</mark>'); }catch(e){ return s; } }
+  function evToggleFav(){ var tr=evTrack(), sc=SM.scenes[SM.cur]; if(!tr[0]||!sc) return;
+    var favs=evLoadFav(), i=-1; for(var k=0;k<favs.length;k++){ if(favs[k].t===tr[0]&&favs[k].s===sc.id){ i=k; break; } }
+    if(i>=0) favs.splice(i,1);
+    else favs.unshift({t:tr[0],tn:tr[1],p:xrefHere(),s:sc.id,ti:sc.title||'',se:(sc.ch?sc.ch+' · ':'')+(sc.sec||'')});
+    evSaveFav(favs); updateFavStar(); }
+  function updateFavStar(){ if(!evStarBtn) return; var tr=evTrack(), sc=SM.scenes[SM.cur];
+    var on=!!(tr[0]&&sc&&evIsFav(tr[0],sc.id)); evStarBtn.classList.toggle('on',on);
+    var st=evStarBtn.querySelector('.ev-star'); if(st) st.textContent=on?'★':'☆';
+    evStarBtn.title=on?'이 장면 즐겨찾기 해제':'이 장면 즐겨찾기에 추가'; }
+  function evEnsure(){ if(evOv) return;
+    evOv=document.createElement('div'); evOv.id='evOverlay';
+    evOv.innerHTML='<div class="ev-panel"><div class="ev-head"></div><div class="ev-list"></div><div class="ev-foot"></div></div>';
+    evOv.addEventListener('click',function(e){ if(e.target===evOv) evClose(); }); document.body.appendChild(evOv); }
+  function evClose(){ if(evOv) evOv.classList.remove('open'); }
+  function evOpenSearch(){ evEnsure();
+    var head=evOv.querySelector('.ev-head');
+    head.innerHTML='<span class="ev-ic">🔍</span><input class="ev-input" placeholder="이 트랙에서 검색 — 제목·설명·내용"><button class="ev-close" aria-label="닫기">×</button>';
+    evOv.querySelector('.ev-foot').textContent=evTrack()[1]+' 트랙 전체에서 검색 · Enter 첫 결과 이동 · Esc 닫기';
+    var inp=head.querySelector('.ev-input'); head.querySelector('.ev-close').onclick=evClose;
+    inp.oninput=function(){ evRenderSearch(inp.value.trim()); };
+    inp.onkeydown=function(e){ if(e.key==='Enter'){ var f=evOv.querySelector('.ev-item'); if(f) f.click(); } e.stopPropagation(); };
+    evRenderSearch(''); evOv.classList.add('open'); setTimeout(function(){ inp.focus(); },30); }
+  function evRenderSearch(q){ var list=evOv.querySelector('.ev-list'), ql=q.toLowerCase(), res=[];
+    if(ql){ for(var i=0;i<SM.scenes.length;i++){ var sc=SM.scenes[i];
+      var hay=((sc.title||'')+' '+(sc.sec||'')+' '+(sc.ch||'')+' '+(sc.narr||'')+' '+(sc.more||'')).toLowerCase();
+      if(hay.indexOf(ql)>=0){ res.push({i:i,sc:sc}); if(res.length>=80) break; } } }
+    if(!ql){ list.innerHTML='<div class="ev-empty">검색어를 입력하세요.<br>이 트랙의 제목·설명·본문 전체에서 찾습니다.</div>'; return; }
+    if(!res.length){ list.innerHTML='<div class="ev-empty">「'+esc(q)+'」 검색 결과가 없습니다.</div>'; return; }
+    list.innerHTML=res.map(function(r){ var sc=r.sc, no=sc.introCard?'✦':('#'+(sc._num||(r.i+1)));
+      return '<div class="ev-item" data-i="'+r.i+'"><span class="ev-badge">'+no+'</span><span class="ev-tx"><b>'+evHi(sc.title||'(제목 없음)',q)+'</b><i>'+evHi((sc.ch?sc.ch+' · ':'')+(sc.sec||''),q)+'</i></span></div>'; }).join('');
+    Array.prototype.forEach.call(list.querySelectorAll('.ev-item'),function(el){ el.onclick=function(){ goTo(+el.getAttribute('data-i')); evClose(); }; }); }
+  function evOpenFav(){ evEnsure();
+    var head=evOv.querySelector('.ev-head');
+    head.innerHTML='<span class="ev-ic">📑</span><span class="ev-title">즐겨찾기</span><button class="ev-close" aria-label="닫기">×</button>';
+    head.querySelector('.ev-close').onclick=evClose;
+    var favs=evLoadFav(), cur=evTrack()[0];
+    favs.sort(function(a,b){ return (a.t===cur?0:1)-(b.t===cur?0:1); });
+    var list=evOv.querySelector('.ev-list');
+    evOv.querySelector('.ev-foot').textContent=favs.length?(favs.length+'개 · 클릭하면 이동, ×로 삭제'):'';
+    if(!favs.length){ list.innerHTML='<div class="ev-empty">아직 즐겨찾기가 없습니다.<br>학습 중 상단 <b>☆</b> 별을 눌러 이 장면을 추가하세요.</div>'; evOv.classList.add('open'); return; }
+    list.innerHTML=favs.map(function(f,k){ var ic=XR_ICON[f.t]||'•';
+      return '<div class="ev-item" data-k="'+k+'"><span class="ev-badge">'+ic+'</span><span class="ev-tx"><b>'+esc(f.ti||f.s)+'</b><i>'+esc(f.tn+(f.se?' · '+f.se:''))+'</i></span><button class="ev-del" data-k="'+k+'" aria-label="삭제">×</button></div>'; }).join('');
+    Array.prototype.forEach.call(list.querySelectorAll('.ev-item'),function(el){ el.onclick=function(ev){ if(ev.target.classList.contains('ev-del')) return;
+      var f=favs[+el.getAttribute('data-k')]; if(f.p===xrefHere()){ var idx=indexOfId(f.s); if(idx>=0){ goTo(idx); evClose(); return; } } location.href=f.p+'#scene='+encodeURIComponent(f.s); }; });
+    Array.prototype.forEach.call(list.querySelectorAll('.ev-del'),function(el){ el.onclick=function(ev){ ev.stopPropagation();
+      var f=favs[+el.getAttribute('data-k')], arr=evLoadFav(); for(var j=0;j<arr.length;j++){ if(arr[j].t===f.t&&arr[j].s===f.s){ arr.splice(j,1); break; } } evSaveFav(arr); evOpenFav(); updateFavStar(); }; });
+    evOv.classList.add('open'); }
+  function setupSearchFav(){
+    var tb=document.querySelector('.topbar'); if(!tb) return;
+    var toc=document.getElementById('toc-toggle');
+    function mkBtn(html,cls){ var b=document.createElement('button'); b.type='button'; b.className='ev-tbtn'+(cls?' '+cls:''); b.innerHTML=html; return b; }
+    var sBtn=mkBtn('<span>🔍</span><span class="ev-lbl">검색</span>'); sBtn.title='검색 (Ctrl+F)'; sBtn.onclick=evOpenSearch;
+    evStarBtn=mkBtn('<span class="ev-star">☆</span>'); evStarBtn.onclick=evToggleFav;
+    var fBtn=mkBtn('<span>📑</span>'); fBtn.title='즐겨찾기 목록'; fBtn.onclick=evOpenFav;
+    [sBtn,evStarBtn,fBtn].forEach(function(b){ if(toc) tb.insertBefore(b,toc); else tb.appendChild(b); });
+    updateFavStar();
+    global.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&(e.key==='f'||e.key==='F')){ e.preventDefault(); e.stopPropagation();
+        if(evOv&&evOv.classList.contains('open')) evClose(); else evOpenSearch(); }
+      else if(e.key==='Escape'&&evOv&&evOv.classList.contains('open')){ evClose(); }
+    },true);
   }
   function resize(){ setVpad(); DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
   // 시각화 구역을 제목(상단)·UI(하단)와 독립 분리: 제목 높이를 실측해 캔버스 상단을 그만큼 비운다(1줄/2줄·화면크기 자동 대응).
@@ -443,6 +539,7 @@
     var snEl=document.getElementById('sceneNo'); if(snEl) snEl.textContent=(sc.introCard?'✦ 인트로':'#'+(sc._num||(i+1)));
     renderCrumb(sc); updateBranchBtn(sc); updateNavBtns(sc);
     renderXref(sc);   // 크로스 트랙 바로가기 버튼 갱신
+    updateFavStar();  // 현재 장면 즐겨찾기 별(채움/빔) 갱신
     controls(''); big(null); setStudy(sc);
     setVizMode(sc);                     // 코드+애니 viz 장면이면 2단 레이아웃 + 스텝, 아니면 레거시 풀스크린
     if(document.body) document.body.classList.toggle('in-branch', sc.branchOf!=null);  // 분기(세부학습) 진입 시 배경 틴트
@@ -864,7 +961,7 @@
     var eL=document.getElementById('eyeL'), eR=document.getElementById('eyeR');
     if(eL) setInterval(function(){ eL.setAttribute('ry','0.6'); eR.setAttribute('ry','0.6'); setTimeout(function(){ eL.removeAttribute('ry'); eR.removeAttribute('ry'); },140); },3600);
     function relayout(){ resize(); var s=SM.scenes[SM.cur]; if(s&&s.layout) s.layout(E); }
-    function boot(){ buildHierarchy(); buildTOC(); xrefSetup(); loop();
+    function boot(){ buildHierarchy(); buildTOC(); xrefSetup(); setupSearchFav(); loop();
       var _si=0; try{ var _q=xrefQ(), _xr=_q&&_q.get('xr'); if(_xr){ for(var _i=0;_i<SM.scenes.length;_i++){ if(SM.scenes[_i].id===_xr){ _si=_i; break; } } } }catch(e){}
       goTo(_si);
       global.addEventListener('load', relayout); setTimeout(relayout,200); setTimeout(relayout,600); }

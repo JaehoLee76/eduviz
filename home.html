@@ -55,6 +55,10 @@
 
 <div class="menu">
   <div class="hi">호기심만 있으면 충분합니다</div>
+  <div class="home-search">
+    <div class="hs-box"><span class="hs-ic">🔍</span><input id="hsInput" type="text" placeholder="전체 검색 — 아홉 트랙의 제목·설명에서 찾기 (Ctrl+F)" autocomplete="off"><button id="hsClear" aria-label="지우기" style="display:none">×</button></div>
+    <div id="hsResults" class="hs-results"></div>
+  </div>
   <div class="choices">
     <a class="choice math" href="math.html">
       <div class="glyph">∫</div>
@@ -124,6 +128,53 @@
     requestAnimationFrame(loop);
   }
   loop();
+})();
+</script>
+<style>
+  .home-search{width:min(680px,92vw);margin:6px auto 30px;position:relative;z-index:5;}
+  .hs-box{display:flex;align-items:center;gap:9px;background:rgba(16,17,24,.86);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 15px;box-shadow:0 6px 26px rgba(0,0,0,.4);}
+  .hs-box:focus-within{border-color:rgba(255,255,255,.42);}
+  .hs-ic{font-size:17px;opacity:.85;flex:none;}
+  #hsInput{flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;font-size:15.5px;}
+  #hsInput::placeholder{color:#8a8890;}
+  #hsClear{background:none;border:none;color:#9b99a3;font-size:20px;line-height:1;cursor:pointer;padding:0 4px;}
+  .hs-results{position:absolute;left:0;right:0;top:calc(100% + 8px);max-height:56vh;overflow-y:auto;background:#12131b;border:1px solid rgba(255,255,255,.16);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.6);padding:6px;display:none;}
+  .hs-results.open{display:block;}
+  .hs-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;cursor:pointer;text-decoration:none;}
+  .hs-item:hover{background:rgba(255,255,255,.07);}
+  .hs-badge{flex:none;font-size:11.5px;font-weight:700;color:#dfe6f2;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:2px 9px;white-space:nowrap;}
+  .hs-tx{min-width:0;flex:1;}
+  .hs-tx b{display:block;font-size:14px;font-weight:600;color:#eef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hs-tx i{display:block;font-size:11.5px;font-style:normal;color:#9b99a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hs-item mark{background:rgba(255,211,77,.30);color:inherit;border-radius:2px;}
+  .hs-empty{padding:18px;text-align:center;color:#8a8890;font-size:13.5px;}
+</style>
+<script>
+(function(){
+  var inp=document.getElementById('hsInput'), box=document.getElementById('hsResults'), clr=document.getElementById('hsClear');
+  var IDX=null, ICON={math:'📐',calculus:'∫',algo:'🧮',ai:'🤖',python:'🐍',physics:'⚛',bda:'📊',cpp:'⧺',hygiene:'⛑'};
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function hi(s,q){ s=esc(s); if(!q) return s; try{ return s.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>'); }catch(e){ return s; } }
+  function load(cb){ if(IDX){ cb(); return; }
+    fetch('content/search_index.json?v='+Date.now()).then(function(r){return r.json();}).then(function(d){ IDX=d; cb(); }).catch(function(){ IDX=[]; cb(); }); }
+  function render(){ var q=inp.value.trim(); clr.style.display=q?'block':'none';
+    if(!q){ box.classList.remove('open'); box.innerHTML=''; return; }
+    load(function(){ var ql=q.toLowerCase(), res=[];
+      for(var i=0;i<IDX.length;i++){ var x=IDX[i];
+        if(((x.ti||'')+' '+(x.se||'')+' '+(x.ch||'')+' '+(x.nr||'')).toLowerCase().indexOf(ql)>=0){ res.push(x); if(res.length>=80) break; } }
+      if(!res.length){ box.innerHTML='<div class="hs-empty">「'+esc(q)+'」 검색 결과가 없습니다.</div>'; box.classList.add('open'); return; }
+      box.innerHTML=res.map(function(x){ return '<a class="hs-item" href="'+x.p+'#scene='+encodeURIComponent(x.s)+'">'
+        +'<span class="hs-badge">'+(ICON[x.t]||'•')+' '+esc(x.tn)+'</span>'
+        +'<span class="hs-tx"><b>'+hi(x.ti||'(제목 없음)',q)+'</b><i>'+hi((x.ch?x.ch+' · ':'')+(x.se||''),q)+'</i></span></a>'; }).join('');
+      box.classList.add('open'); });
+  }
+  inp.addEventListener('input',render);
+  clr.onclick=function(){ inp.value=''; render(); inp.focus(); };
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&(e.key==='f'||e.key==='F')){ e.preventDefault(); inp.focus(); inp.select(); }
+    else if(e.key==='Escape'){ if(document.activeElement===inp){ inp.value=''; render(); inp.blur(); } }
+  },true);
+  document.addEventListener('click',function(e){ if(!e.target.closest('.home-search')) box.classList.remove('open'); });
 })();
 </script>
 <script>document.write('<scr'+'ipt src="js/chat-config.js?v='+Date.now()+'"></scr'+'ipt>');</script>

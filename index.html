@@ -3,145 +3,20 @@
 <head>
 <meta charset="utf-8">
 <!-- EduViz © 2026 JaehoLee76. All rights reserved. 무단 복제·재배포·스크래핑·AI 학습 사용 금지. [WM:JHL2026-7a3f9c] -->
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>수학으로 보는 트레이딩 — 시각 교실</title>
-<link rel="stylesheet" href="css/style.css">
+<title>이해의 세계 — EduViz</title>
+<!-- 루트(/) 진입 시 EduViz 홈으로 즉시 이동. (예전 트레이딩 프로토타입 랜딩을 대체) -->
+<meta http-equiv="refresh" content="0; url=home.html">
+<link rel="canonical" href="home.html">
+<script>try{ location.replace('home.html' + (location.search||'') + (location.hash||'')); }catch(e){ location.href='home.html'; }</script>
+<style>
+  html,body{margin:0;height:100%;background:#0a0b10;color:#cfcdc6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+  .mid{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;letter-spacing:.02em;}
+  .mid a{color:#7ab8ff;text-decoration:none;}
+  .mid a:hover{text-decoration:underline;}
+</style>
 </head>
 <body>
-
-<header class="site-head">
-  <div class="wrap">
-    <div class="brand">수학 시각 교실<span class="dot">.</span></div>
-    <nav class="nav">
-      <a href="#track">커리큘럼</a>
-      <a href="#about">소개</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-  <section class="hero">
-    <div class="wrap">
-      <h1>차트 뒤에 숨은 <span class="hl">수학</span>을,<br>직접 만지면서 이해합니다.</h1>
-      <p>평균과 변동성에서 시작해, 볼린저밴드의 기하학, 그래디언트 부스팅,
-         그리고 "백테스트는 흑자인데 실전은 적자"인 과적합의 함정까지.
-         글이 아니라 슬라이더로 배우는 트레이딩 수학.</p>
-    </div>
-  </section>
-
-  <section id="track" class="wrap">
-
-    <div class="tier">
-      <div class="tier-head">
-        <span class="tier-badge t-intro">입문</span>
-        <h2>가격은 어떻게 움직이는가</h2>
-        <span class="sub">수식 거의 없이, 직관부터</span>
-      </div>
-      <div class="cards">
-        <a class="card soon" href="#">
-          <span class="num">01</span>
-          <h3>평균과 변동성</h3>
-          <p>가격의 "중심"과 "흔들림"을 숫자로. 같은 평균이라도 변동성이 다르면 완전히 다른 시장입니다.</p>
-          <span class="tag">준비 중</span>
-        </a>
-        <a class="card soon" href="#">
-          <span class="num">02</span>
-          <h3>정규분포와 두꺼운 꼬리</h3>
-          <p>왜 "100년에 한 번" 폭락이 몇 년마다 오는가. 종 모양 곡선이 시장을 속이는 방식.</p>
-          <span class="tag">준비 중</span>
-        </a>
-        <a class="card soon" href="#">
-          <span class="num">03</span>
-          <h3>평균회귀 vs 추세</h3>
-          <p>되돌아올 것인가, 계속 갈 것인가. 모든 전략이 둘 중 하나에 베팅합니다.</p>
-          <span class="tag">준비 중</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="tier">
-      <div class="tier-head">
-        <span class="tier-badge t-basic">기초</span>
-        <h2>전략의 재료</h2>
-        <span class="sub">확률·통계가 차트가 되는 순간</span>
-      </div>
-      <div class="cards">
-        <a class="card soon" href="#">
-          <span class="num">04</span>
-          <h3>볼린저밴드의 기하학</h3>
-          <p>밴드는 사실 표준편차입니다. 폭이 좁아졌다 터지는 것을 수학으로 봅니다.</p>
-          <span class="tag">준비 중</span>
-        </a>
-        <a class="card soon" href="#">
-          <span class="num">05</span>
-          <h3>승률이 높아도 망하는 이유</h3>
-          <p>기댓값과 켈리 공식. 10번 중 9번 이겨도 파산할 수 있습니다.</p>
-          <span class="tag">준비 중</span>
-        </a>
-        <a class="card live" href="lessons/overfitting.html">
-          <span class="num">06</span>
-          <h3>신호 vs 노이즈 (과적합)</h3>
-          <p>점들에 완벽히 맞춘 곡선이 왜 미래엔 최악인가. 직접 차수를 올려보세요.</p>
-          <span class="tag">● 체험 가능</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="tier">
-      <div class="tier-head">
-        <span class="tier-badge t-adv">심화</span>
-        <h2>기계가 배우는 법, 그리고 배신하는 법</h2>
-        <span class="sub">실전 트레이딩의 진짜 수학</span>
-      </div>
-      <div class="cards">
-        <a class="card live" href="lessons/gradient-descent.html">
-          <span class="num">07</span>
-          <h3>경사하강법</h3>
-          <p>모든 학습의 심장. 학습률을 잘못 주면 왜 발산하는지 공을 굴려봅니다.</p>
-          <span class="tag">● 체험 가능</span>
-        </a>
-        <a class="card soon" href="#">
-          <span class="num">08</span>
-          <h3>그래디언트 부스팅 직관</h3>
-          <p>약한 규칙 수백 개를 쌓아 강한 예측기를 만드는 XGBoost의 아이디어.</p>
-          <span class="tag">준비 중</span>
-        </a>
-        <a class="card soon" href="#">
-          <span class="num">09</span>
-          <h3>AUC는 높은데 수익은 음수</h3>
-          <p>모델 성능 지표와 실제 돈의 괴리. look-ahead bias가 만드는 신기루.</p>
-          <span class="tag">준비 중</span>
-        </a>
-        <a class="card soon" href="#">
-          <span class="num">10</span>
-          <h3>MDD와 Calmar: 매끄러운 우상향</h3>
-          <p>총수익이 전부가 아닙니다. 같은 수익이라도 낙폭이 작아야 살아남습니다.</p>
-          <span class="tag">준비 중</span>
-        </a>
-      </div>
-    </div>
-
-  </section>
-
-  <section id="about" class="wrap">
-    <div class="tier">
-      <div class="tier-head"><h2>왜 이 사이트인가</h2></div>
-      <p class="muted" style="max-width:720px;">
-        대부분의 강의는 "AUC가 높으면 좋은 모델"이라고 가르칩니다. 하지만 실전에서는
-        AUC 0.86짜리 모델의 수익이 마이너스인 일이 흔합니다. 이 사이트는 교과서가 아니라
-        <strong>실제로 자본을 운용하며 부딪힌 함정</strong>—과적합, look-ahead bias,
-        "신호는 진짜인데 추출 불가"—을 만질 수 있는 그림으로 풀어냅니다.
-      </p>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    수학 시각 교실 · 직접 만지며 배우는 트레이딩 수학 · 2026
-  </div>
-</footer>
-
+  <div class="mid"><a href="home.html">이해의 세계로 이동합니다…</a></div>
 </body>
 </html>
