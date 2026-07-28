@@ -1,0 +1,62 @@
+{
+ "bda40_01": {
+  "ch": "빅데이터 분석 제40장 · 군집 분석",
+  "sec": "40.1 지도학습과 무엇이 다른가",
+  "title": "지도학습과 무엇이 다른가",
+  "narr": "예측 모델링을 한 바퀴 다 돌아본 지금, 지금까지 만나지 않았던 갈래로 갑니다 — 정답(라벨) 없이 데이터 스스로 구조를 찾는 <b>비지도학습</b>입니다. 같은 구매 데이터 40건을 두 가지 방식으로 다룰 수 있습니다. <b>분류</b>는 정답(무리 번호)을 알고 있다는 전제 아래, 훈련 32건으로 각 무리의 중심을 실제로 계산하고 검증 8건을 가장 가까운 중심에 배정합니다 — 정확도 1.000(8/8)으로 「맞았다·틀렸다」를 정답과 대조해 잴 수 있습니다. <b>군집</b>은 정답을 아예 쓰지 않습니다. k=4로 K-평균을 실제로 반복계산해 수렴시키면 SSE(군집 내 거리제곱합, 응집도) 16.68을 얻지만, 이 숫자는 「얼마나 정답을 맞혔는가」가 아니라 「같은 무리로 묶인 점들이 서로 얼마나 가까운가」를 잴 뿐입니다.",
+  "more": "<b>왜 군집분석에는 '정확도'가 없는가</b>: 정확도는 예측과 정답을 짝지어야 계산할 수 있는 지표입니다. 군집분석은 애초에 「정답 무리 번호」를 모델에 주지 않으므로 비교할 대상이 없습니다 — 설령 원래 무리 라벨을 나중에 알게 되어 대조해 본다 해도(이번 장면에서처럼), 그것은 군집화 품질을 검증하는 하나의 사후 참고일 뿐, 알고리즘이 실제로 최적화하는 목표는 아닙니다. 알고리즘이 실제로 최적화하는 것은 SSE 같은 <b>내부 지표</b>(같은 군집끼리는 가깝게, 다른 군집끼리는 멀게)입니다.\n\n<b>지도학습과 비지도학습을 가르는 진짜 기준</b>: 데이터의 형태가 아니라 <b>목적함수</b>입니다. 분류는 「정답과의 차이(오차)」를 줄이도록 학습하고, 군집은 「군집 내부의 퍼짐(응집도)」을 줄이도록 학습합니다. 같은 데이터라도 라벨을 쓰느냐 마느냐에 따라 완전히 다른 문제가 되는 이유가 여기 있습니다.",
+  "more_en": "The same 40-point purchase dataset can be viewed two ways. Classification uses known group labels to fit a nearest-centroid model on 32 training points and scores 1.000 (8/8) accuracy on 8 held-out points — accuracy requires a ground truth to compare against. Clustering discards labels entirely; running K-means (k=4) to convergence yields SSE (within-cluster sum of squares) 16.68, a measure of compactness, not correctness — there is no ground truth to score against.",
+  "problem": {
+   "q": "만약 원래 무리 라벨을 하나도 몰랐다면, k=4로 찾아낸 군집이 「좋은」 군집인지 어떻게 판단할 수 있을까요?",
+   "solution": "정답이 없으므로 SSE 같은 내부 지표(군집 내부가 얼마나 뭉쳐 있는가), 그리고 다음 장면들에서 다룰 실루엣 계수(자기 군집과 가깝고 남의 군집과는 먼가) 같은 지표로 판단합니다. 또한 실무에서는 순수 통계 지표만이 아니라 「이렇게 나뉜 무리가 실제로 의미가 있는가·활용할 수 있는가」(예: 무리별로 다른 마케팅 전략을 쓸 수 있는가)를 사람이 함께 확인합니다 — 정답이 없는 문제이기 때문에 통계적 기준과 실무적 해석을 같이 봐야 합니다."
+  }
+ },
+ "bda40_02": {
+  "ch": "빅데이터 분석 제40장 · 군집 분석",
+  "sec": "40.2 K-means — 중심이 옮겨가며 수렴",
+  "title": "K-means — 중심이 옮겨가며 수렴",
+  "narr": "K-평균은 두 단계를 실제로 번갈아 반복합니다: <b>할당</b>(각 점을 가장 가까운 중심에 배정)과 <b>중심 갱신</b>(배정된 점들의 평균으로 중심을 옮김). k=4일 때 반복 단계 슬라이더를 끝까지 밀면 SSE가 더 이상 줄지 않는 지점(수렴)에 도달합니다. 그런데 <b>초기 중심을 어디서 시작하느냐가 결과를 바꿉니다</b> — 퍼진 시작점으로 출발하면 SSE 16.68에 수렴하지만, 한 무리 안에서만 4개 초기 중심을 고르면(한 무리를 둘로 쪼개고 다른 두 무리를 하나로 묶어버려) SSE 200.15라는 훨씬 나쁜 국소최적에 갇힙니다.",
+  "more": "<b>왜 K-means는 국소최적에 갇히는가</b>: K-means가 최소화하려는 SSE는 초기 중심에 대해 볼록하지 않은(non-convex) 함수입니다 — 할당과 갱신을 반복할 때마다 SSE는 절대 늘지 않지만(단조 감소), 그렇다고 전역 최적(가능한 가장 작은 SSE)에 도달한다는 보장은 없습니다. 나쁜 시작점에서 출발하면 「더 줄일 수 없는 상태」에 빨리 멈춰버리는데, 그 상태가 진짜 최선이 아닐 수 있습니다.\n\n<b>실전 대응 — k-means++</b>: 이 장면의 「좋은 초기화」는 이미 뽑힌 중심들로부터 가장 먼 점을 순서대로 고르는 방식(퍼진 시작점을 결정적으로 보장)을 썼습니다. 사이킷런의 기본값인 k-means++는 비슷한 원리를 확률적으로 적용해(멀수록 뽑힐 확률이 높아지도록) 나쁜 초기화의 위험을 크게 줄이고, 그래도 남는 위험에 대비해 <b>여러 번 다른 초기화로 돌려(n_init) SSE가 가장 낮은 결과를 채택</b>하는 것이 표준적인 관행입니다.",
+  "more_en": "K-means alternates two real steps: assignment (each point to its nearest center) and update (each center to the mean of its assigned points), monotonically decreasing SSE each round. But the starting centers matter — a well-spread deterministic initialization converges to SSE 16.68, while picking all four initial centers from within a single true group collapses to a much worse local optimum, SSE 200.15, despite identical data and k.",
+  "problem": {
+   "q": "SSE가 할당 단계와 갱신 단계 각각에서 왜 절대 늘어나지 않을까요?",
+   "solution": "할당 단계에서는 각 점을 「지금 있는 중심들 중 가장 가까운 것」으로 다시 배정하므로, 어떤 점도 이전보다 더 먼 중심에 배정될 수 없습니다(같은 중심에 그대로 남거나 더 가까운 중심으로 옮깁니다) — 그래서 SSE가 늘지 않습니다. 갱신 단계에서는 각 군집의 새 중심을 그 군집에 속한 점들의 평균으로 옮기는데, 평균은 「그 점들까지의 거리제곱합을 최소화하는 지점」이라는 수학적 사실이 있으므로, 이전 중심보다 새 평균이 그 군집의 SSE를 늘릴 수 없습니다. 두 단계 모두 「지금 상태보다 나쁘게 만들 수 없는」 방향으로만 움직이기 때문에 전체 SSE는 단조 감소합니다(다만 전역 최적이라는 보장은 없습니다)."
+  }
+ },
+ "bda40_03": {
+  "ch": "빅데이터 분석 제40장 · 군집 분석",
+  "sec": "40.3 몇 개로 나눌 것인가",
+  "title": "몇 개로 나눌 것인가",
+  "narr": "군집 수 k는 알고리즘이 정해주지 않습니다. <b>엘보우 방법</b>은 k를 1부터 늘려가며 SSE가 「더 이상 크게 줄지 않는」 꺾이는 지점을 찾습니다 — 실제로 각 k에서 K-평균을 수렴시켜 SSE 곡선을 그리고, 시작점과 끝점을 잇는 직선에서 가장 멀리 벗어난 점을 찾는 방식으로 계산하면 k=3을 가리킵니다. <b>실루엣 계수</b>는 각 점이 「자기 군집과는 얼마나 가깝고 남의 군집과는 얼마나 먼가」(b−a)/max(a,b)를 실제로 재서 평균 낸 값으로, k=4에서 최고점(0.777)을 찍습니다. 이 데이터에서는 두 기준이 서로 다른 k를 가리킵니다.",
+  "more": "<b>SSE는 왜 판단이 필요한가</b>: SSE는 군집을 더 잘게 쪼갤수록 항상(단조롭게) 줄어듭니다 — 극단적으로 k=n(점 개수만큼 군집을 만들면) SSE는 0이 됩니다. 그래서 「SSE가 0이 되는 k」가 아니라 「더 쪼개도 이득이 크지 않아지는 지점」을 찾아야 하는데, 이 판단 자체가 주관적이거나(눈으로 보고 정하기) 이번 장면처럼 알고리즘화(직선에서 가장 먼 점)해도 데이터에 따라 애매할 수 있습니다.\n\n<b>실루엣이 더 원칙적인 이유</b>: 실루엣 계수는 −1(완전히 잘못 묶임)부터 +1(완벽하게 잘 묶임)까지 정해진 범위 안에서 움직이므로, 서로 다른 k끼리 그 값을 직접 비교할 수 있습니다. 이번 데이터가 두 지표에서 다른 답을 낸 이유는, 실제로 두 무리(집단0·집단1)가 눈에 띄게 겹쳐 있어 억지로 나누면(k=3에서 하나로 뭉쳐 있다가 k=4에서 갈라짐) SSE는 계속 줄지만, 그 갈라진 두 조각 사이의 경계에 있는 점들은 실루엣 관점에서 「어느 쪽에 넣어도 어중간한」 상태이기 때문입니다 — 그럼에도 실루엣이 k=3보다 k=4를 더 높게 평가한 것은, 두 무리가 겹치더라도 각자의 중심 쪽 점들은 나누는 편이 전체적으로 더 뚜렷하게 갈린다는 뜻입니다.",
+  "more_en": "K is not chosen by the algorithm. The elbow method sweeps k=1..7, actually converging K-means at each k and locating where the SSE curve bends most (measured as maximum distance from the chord connecting the endpoints) — here it points to k=3. The silhouette coefficient averages each point's actual (b−a)/max(a,b) score and peaks at k=4 (0.777). The two criteria disagree on this dataset: SSE decreases monotonically as k grows so identifying 'the elbow' involves some judgment, while silhouette has a bounded, comparable scale.",
+  "problem": {
+   "q": "만약 실루엣 계수가 어떤 k에서도 뚜렷한 최고점 없이 완만하게 오르내린다면, 이는 데이터에 대해 무엇을 시사할까요?",
+   "solution": "뚜렷한 최고점이 없다는 것은 데이터 안에 「자연스럽게 딱 떨어지는 군집 구조」가 약하다는 뜻일 가능성이 높습니다 — 무리들이 서로 뚜렷이 떨어져 있지 않고 연속적으로 이어져 있거나,애초에 이 두 지표만으로는 잡아내기 어려운 형태(예: 다음 장면에서 다룰 초승달 모양)일 수 있습니다. 이런 경우 k를 억지로 정하기보다, 데이터의 형태를 시각화해 보거나 밀도 기반 방법(DBSCAN)처럼 애초에 군집 수를 미리 정하지 않는 접근을 고려하는 것이 합리적입니다."
+  }
+ },
+ "bda40_04": {
+  "ch": "빅데이터 분석 제40장 · 군집 분석",
+  "sec": "40.4 계층적 군집과 덴드로그램",
+  "title": "계층적 군집과 덴드로그램",
+  "narr": "계층적 군집은 가장 가까운 두 개체(또는 무리)부터 하나씩 실제로 병합해 나갑니다. 「가까움」을 재는 방식이 <b>연결법</b>입니다 — 단일 연결은 두 무리 사이 가장 가까운 점끼리의 거리, 완전 연결은 가장 먼 점끼리의 거리, 평균 연결은 모든 쌍의 평균 거리를 씁니다. 8개 점으로 세 연결법을 모두 실제로 계산해 보면, 처음 네 번의 병합(뚜렷하게 가까운 쌍)은 방식과 무관하게 같지만 6번째 병합부터 단일 연결과 완전 연결의 순서가 실제로 달라집니다. 다 병합된 결과는 <b>덴드로그램</b>(나무 그림)으로 남는데, 이 나무를 어느 <b>높이에서 자르느냐</b>가 곧 최종 군집 수를 정합니다.",
+  "more": "<b>단일 연결의 '사슬 효과'</b>: 단일 연결(최소 거리)은 두 무리 사이에 아주 가까운 점 한 쌍만 있어도 그 둘을 합쳐버립니다 — 그래서 실제 형태가 늘어선 사슬처럼 생긴 데이터를 잘 찾아내는 대신, 서로 다른 두 무리가 우연히 한 점씩 가까이 있으면 잘못 이어붙이는(사슬 효과) 약점이 있습니다. 완전 연결(최대 거리)은 반대로 무리 전체가 조밀하고 둥글게 뭉친 경우를 선호해, 사슬 효과에는 강하지만 크기가 다른 무리를 다룰 때 약할 수 있습니다. 평균 연결은 그 중간적 성격을 가집니다.\n\n<b>K-means와의 근본적 차이</b>: K-means는 매번 k를 미리 정하고 다시 계산해야 다른 군집 수를 볼 수 있지만, 계층적 군집은 <b>단 한 번</b> 전체 병합 나무를 만들어 두면 그 나무를 어느 높이에서 자르든 원하는 군집 수를 즉시 얻을 수 있습니다 — 나무를 다시 계산할 필요가 없습니다. 대신 모든 쌍의 거리를 계산해야 하므로(점이 n개면 대략 n² 규모) 데이터가 아주 클 때는 K-means보다 느립니다.",
+  "more_en": "Hierarchical clustering repeatedly merges the two closest entities. 'Closeness' is defined by the linkage — single (nearest-point distance), complete (farthest-point distance), or average (mean pairwise distance). Computing all three on 8 points shows the first four merges (clearly close pairs) agree regardless of method, but the 6th merge actually diverges between single and complete linkage. The resulting dendrogram can be cut at any height to yield a chosen number of clusters without recomputation.",
+  "problem": {
+   "q": "덴드로그램을 아주 낮은 높이(0에 가깝게)에서 자르면 군집 수는 어떻게 될까요? 반대로 최대 높이보다 높게 자르면요?",
+   "solution": "아주 낮은 높이에서 자르면 아직 병합이 거의 일어나지 않은 상태이므로 군집 수는 원래 점 개수(8개)에 가까워집니다(각 점이 거의 자기 혼자만의 군집). 반대로 병합 나무의 최대 높이보다 높게 자르면 모든 병합이 이미 다 일어난 뒤이므로 군집은 1개(전체가 하나로 묶임)가 됩니다. 즉 자르는 높이를 0부터 최대값까지 움직이면 군집 수는 점 개수부터 1까지 실제로 연속적으로 줄어듭니다 — 이것이 계층적 군집이 「군집 수를 나중에 골라도 되는」 이유입니다."
+  }
+ },
+ "bda40_05": {
+  "ch": "빅데이터 분석 제40장 · 군집 분석",
+  "sec": "40.5 밀도로 묶다 — DBSCAN",
+  "title": "밀도로 묶다 — DBSCAN",
+  "narr": "K-means는 항상 중심으로부터의 거리로 나누기 때문에 초승달처럼 휘어진 모양은 가운데를 가로질러 잘못 잘라버립니다 — 실제로 이 데이터에 K-means(k=2)를 돌리면 한 군집에 두 초승달의 점들이 뒤섞입니다. <b>DBSCAN</b>은 거리 대신 <b>밀도</b>로 접근합니다: 반경 eps 안에 이웃이 minPts개 이상이면 <b>핵심점</b>, 핵심점의 이웃이지만 자신은 이웃이 부족하면 <b>경계점</b>, 어느 핵심점과도 연결되지 않으면 <b>잡음점</b>으로 실제로 분류합니다. eps=0.90, minPts=3에서는 핵심점과 경계점이 서로 연결되어 초승달 모양 그대로 군집 2개를 찾아내고, 일부러 섞어둔 동떨어진 점 4개는 잡음점으로 자동으로 걸러집니다.",
+  "more": "<b>K-means가 원리상 못 푸는 이유</b>: K-means의 목적함수(SSE)는 「각 점과 자기 중심 사이의 직선거리」만 봅니다. 초승달 모양은 같은 무리 안에서도 양 끝 점 사이의 직선거리가 다른 무리의 가까운 점보다 멀 수 있어서, 아무리 반복해도 직선거리 기준으로는 두 초승달을 갈라낼 수 없습니다 — 이것은 초기화나 반복 횟수의 문제가 아니라 <b>거리 기반 방법의 근본적인 한계</b>입니다. DBSCAN은 점과 점을 직접 비교하지 않고 「연쇄적으로 이어진 밀집 영역」을 따라가므로, 모양이 휘어 있어도 밀도만 이어져 있으면 하나의 군집으로 잡아냅니다.\n\n<b>eps·minPts를 고르는 법</b>: eps를 너무 작게 하면 이웃이 부족해 거의 모든 점이 잡음이 되고, 너무 크게 하면 서로 다른 군집이 하나로 뭉쳐버립니다. 실무에서는 각 점의 k번째 최근접 이웃까지의 거리를 오름차순으로 정렬한 「k-거리 그래프」를 그려서, 그 그래프가 급격히 꺾이는 지점을 eps 후보로 삼는 방법을 흔히 씁니다 — 이번 장의 엘보우 방법과 비슷한 발상입니다.",
+  "more_en": "K-means always partitions by straight-line distance to a center, so it cannot separate crescent-shaped groups — running it with k=2 here mixes points from both moons into one cluster. DBSCAN instead follows density: a point with at least minPts neighbors within radius eps is a core point; a point that is a core point's neighbor but lacks enough neighbors itself is a border point; anything unreachable from any core point is noise. At eps=0.90, minPts=3, connected core/border points trace out both crescents as 2 clusters while the 4 deliberately scattered outliers are automatically flagged as noise.",
+  "problem": {
+   "q": "DBSCAN은 K-means와 달리 군집 수(k)를 미리 정하지 않는데, 그렇다면 무엇을 미리 정해야 할까요? 그 선택이 결과에 미치는 영향은 K-means에서 k를 잘못 고르는 것과 어떻게 다를까요?",
+   "solution": "DBSCAN은 군집 수 대신 eps(이웃 반경)와 minPts(최소 이웃 수)를 미리 정해야 합니다. K-means에서 k를 잘못 고르면 무조건 그 개수만큼 군집이 만들어지지만(모든 점이 어딘가에는 배정됨), DBSCAN에서 eps·minPts를 잘못 고르면 극단적으로는 군집이 0개(모든 점이 잡음)가 되거나 1개(모든 점이 하나로 뭉침)가 될 수도 있습니다 — 즉 DBSCAN의 하이퍼파라미터는 군집 수만이 아니라 「애초에 몇 개의 점을 군집으로 인정할지」까지 결정합니다. 이것이 DBSCAN이 이상치(잡음)를 자연스럽게 걸러내는 능력의 대가로, 파라미터 선택에 더 민감할 수 있다는 뜻이기도 합니다."
+  }
+ }
+}

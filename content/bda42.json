@@ -1,0 +1,62 @@
+{
+ "bda42_01": {
+  "ch": "빅데이터 분석 제42장 · 시계열 분석",
+  "sec": "42.1 순서가 정보가 될 때",
+  "title": "순서가 정보가 될 때",
+  "narr": "지금까지는 관측 하나하나가 뒤섞여도 상관없다고 가정했습니다 — 군집 분석은 어느 고객이 몇 번째 줄에 있는지 상관없이 특성만 봤고, 연관 분석도 장바구니의 순서가 아니라 어떤 품목이 함께 담겼는지만 봤습니다. 이제 <b>시간이 데이터 안으로 들어오면</b> 이야기가 완전히 달라집니다. 시계열은 관측이 서로 <b>독립이 아닙니다</b> — 이번 달 값은 지난달 값과 실제로 연결되어 있습니다. 같은 54개월치 신규 수강생 수를 원래 순서 그대로 두면 lag-1(한 달 시차) 자기상관이 0.895로 매우 높지만, 값은 하나도 안 바꾸고 순서만 무작위로 뒤섞으면 자기상관은 -0.181로 거의 사라집니다. 값의 분포(평균·분산)는 두 경우 완전히 같은데도 「관측 사이의 관계」라는 정보 전체가 순서에만 들어 있었다는 뜻입니다 — 시간 순서를 보존하는 것 자체가 이 장의 모든 분석의 출발점입니다.",
+  "more": "<b>자기상관이 실전에서 왜 중요한가</b>: 관측이 독립이라는 가정을 깔고 쓰는 일반적인 통계 기법(예: 보통최소제곱 회귀의 표준오차 계산)을 시계열에 그대로 적용하면 오차를 심각하게 과소평가할 수 있습니다 — 이웃한 관측끼리 서로 닮아 있으니 실제로 「독립적인 정보」의 양이 관측 개수보다 훨씬 적기 때문입니다. 이것이 시계열 전용 기법(이번 장에서 다룰 ACF·정상성 검정·ARIMA)이 따로 필요한 근본적인 이유입니다.\n\n<b>셔플 실험의 의미</b>: 값을 하나도 바꾸지 않고 순서만 섞었는데 자기상관이 사라진다는 것은, 평균·분산·최댓값·최솟값처럼 「분포」만 보는 요약통계로는 시계열의 핵심을 전혀 포착하지 못한다는 뜻입니다. 시계열 분석의 모든 도구는 결국 「순서가 만드는 패턴」을 수치화하려는 시도입니다.",
+  "more_en": "Time series observations are not independent — this month's value is genuinely linked to last month's. Computing lag-1 autocorrelation on 54 months of enrollment data gives 0.895 in the original order, but shuffling the same 54 values (identical mean and variance) collapses it to -0.181. All the information about how observations relate lives in the ordering alone, which is why time series analysis needs its own toolkit.",
+  "problem": {
+   "q": "만약 어떤 시계열의 lag-1 자기상관이 0에 아주 가깝다면(예: 0.02), 그 계열의 과거 값으로 다음 값을 예측하는 것이 얼마나 도움이 될까요?",
+   "solution": "거의 도움이 되지 않습니다. 자기상관이 0에 가깝다는 것은 「이번 값을 알아도 다음 값에 대한 정보를 거의 얻지 못한다」는 뜻이므로, 이런 계열은 사실상 뒤섞인 것과 비슷하게 행동합니다(예: 순수한 백색잡음). 이 경우 과거 값 기반 예측(이동평균·ARIMA 등)은 평균 근처의 값을 내놓는 것 이상의 성능을 내기 어렵고, 오히려 계절성이나 외부 변수 같은 다른 정보원을 찾는 것이 더 유용할 수 있습니다."
+  }
+ },
+ "bda42_02": {
+  "ch": "빅데이터 분석 제42장 · 시계열 분석",
+  "sec": "42.2 네 개의 성분으로 쪼개다",
+  "title": "네 개의 성분으로 쪼개다",
+  "narr": "순서에 의미가 있다는 것을 확인했으니, 이제 그 순서가 만드는 패턴을 실제로 분해해 볼 차례입니다. 시계열은 흔히 네 가지 힘이 겹쳐 만들어집니다 — 장기적으로 밀고 가는 <b>추세</b>, 1년 주기로 되풀이되는 <b>계절</b>, 여러 해에 걸친 느린 <b>순환</b>, 그리고 남는 <b>불규칙(잔차)</b>. 실제로 2×12 중앙화 이동평균으로 추세를 뽑아내면 기울기는 월 2.62명이고, 추세를 뺀 나머지를 월별 위치(1~12월)로 평균 내 계절지수를 구하면 3월이 가장 높아 폭이 36.8명에 이릅니다. 관측에서 추세와 계절을 모두 빼고 남은 잔차의 표준편차는 2.98명 — 이것이 추세·계절만으로는 설명되지 않는 진짜 「잡음」의 크기입니다. 이 데이터는 4.5년치뿐이라 수년 단위의 순환은 따로 분리할 수 없어 추세 성분에 함께 녹아 있습니다.",
+  "more": "<b>왜 「중앙화」 이동평균을 쓰는가</b>: 단순히 최근 12개월 평균을 쓰면 추세 값이 실제 시점보다 뒤로 밀려 그려집니다(지연 편향). 앞뒤로 절반씩 걸치는 중앙화 이동평균(짝수 주기라 0.5×앞끝+가운데 11개+0.5×뒤끝, 총 12로 나눔)을 쓰면 추세 값이 실제로 「그 달」을 대표하도록 시점이 정확히 맞습니다 — 대신 계열의 양끝(앞뒤 6개월씩)은 추세를 계산할 이웃이 부족해 결측으로 남습니다.\n\n<b>가법 분해 vs 승법 분해</b>: 여기서는 관측=추세+계절+잔차로 더하는 가법 모형을 썼습니다. 계절 변동의 폭이 추세 수준에 비례해서 커지는 계열(예: 매출이 커질수록 성수기 변동폭도 같이 커지는 경우)이라면 관측=추세×계절×잔차로 곱하는 승법 모형이 더 적합한데, 로그를 취하면 승법 모형이 가법 모형으로 바뀌므로 실무에서는 로그 변환 후 가법 분해를 쓰는 경우가 많습니다.",
+  "more_en": "Time series are often built from four forces: long-run trend, yearly seasonality, slow multi-year cycles, and leftover irregularity. A centered 2x12 moving average recovers a trend slope of 2.62/month; averaging the detrended values by calendar month yields a seasonal swing of 36.8 (peaking in March); what remains has a residual standard deviation of 2.98 — the true noise unexplained by trend and season.",
+  "problem": {
+   "q": "중앙화 이동평균으로 추세를 구하면 계열의 맨 앞 6개월과 맨 뒤 6개월의 추세값이 비어 있습니다(null). 왜 그럴까요?",
+   "solution": "12개월 주기의 중앙화 이동평균은 어떤 시점 t의 추세값을 계산하려면 그 앞뒤로 총 12개월치 이웃(대략 t-6부터 t+6까지)이 모두 있어야 합니다. 계열의 맨 처음 6개월은 그 이전 이웃이 존재하지 않고, 맨 마지막 6개월은 그 이후 이웃이 존재하지 않으므로 추세를 계산할 수 없어 결측으로 남습니다. 이는 이동평균 기반 분해의 근본적인 한계이며, 최근 데이터의 추세를 알고 싶을 때 최신 몇 개월이 비어 있어 아쉬운 이유이기도 합니다(더 정교한 방법인 STL 분해나 상태공간 모형은 이 문제를 다르게 다룹니다)."
+  }
+ },
+ "bda42_03": {
+  "ch": "빅데이터 분석 제42장 · 시계열 분석",
+  "sec": "42.3 정상성 — 분석의 전제",
+  "title": "정상성 — 분석의 전제",
+  "narr": "성분을 나눠보니 추세가 뚜렷이 존재한다는 것을 확인했습니다. 그런데 많은 시계열 기법은 <b>평균과 분산이 시간에 따라 변하지 않는다(정상성)</b>는 것을 전제로 삼습니다. 원계열을 3구간으로 나눠 구간별 평균을 실제로 재보면 142 → 188 → 236명으로 뚜렷이 계속 뜁니다 — 추세가 있으니 당연합니다. 그런데 <b>1차 차분(이번 달−지난달)</b>을 취한 뒤 같은 구간으로 나누면 구간별 평균이 2.4 → 2.8 → 2.6로 거의 일정한 값(월 성장분 약 2.6명) 주변에 머무릅니다. 차분 하나로 「어디서 봐도 비슷한 계열」을 만들어낸 것이며, ARIMA를 비롯한 여러 예측 기법이 실제로 예측하기 전에 이런 차분을 먼저 적용하는 이유가 바로 이것입니다.",
+  "more": "<b>정상성이 왜 예측을 쉽게 만드는가</b>: 정상 시계열은 「어느 구간을 보든 통계적 성질이 비슷하다」는 뜻이므로, 과거 구간에서 관찰한 패턴(예: 자기상관 구조)을 미래에도 그대로 적용할 수 있다는 근거가 됩니다. 반대로 비정상 계열(추세·계절이 있는 원계열)은 구간마다 성질이 달라 「과거에서 배운 규칙이 미래에도 통한다」고 가정하기 어렵습니다.\n\n<b>차분으로 다 해결되지 않는 경우</b>: 1차 차분은 선형 추세를 제거하는 데 효과적이지만, 계절성이 강하게 남아 있으면 계절 차분(예: 12개월 전 값을 빼는 것)을 추가로 적용하기도 합니다. 또한 분산 자체가 시간에 따라 커지는 계열(변동성이 점점 커지는 경우)은 차분만으로 해결되지 않아 로그 변환 등을 함께 씁니다.",
+  "more_en": "Many time series methods assume stationarity: constant mean and variance over time. Splitting the raw series into thirds shows means climbing 142 -> 188 -> 236 (because of trend), but after first differencing (this month minus last), the same split gives nearly constant means around 2.4-2.8 (the average monthly growth) — a single differencing step manufactured a series that looks similar everywhere, which is exactly why ARIMA differences the series before modeling it.",
+  "problem": {
+   "q": "1차 차분을 해도 계절 성분(1년 주기 패턴)은 그대로 남아 있습니다. 이 데이터를 완전히 정상화하려면 어떤 추가 조치가 필요할까요?",
+   "solution": "12개월 시차의 계절 차분(이번 달 값에서 12개월 전 같은 달의 값을 빼는 것)을 추가로 적용하면 됩니다. 1차 차분이 「추세(느리게 변하는 성분)」를 제거하는 데 초점을 맞춘다면, 계절 차분은 「1년마다 반복되는 패턴」을 제거하는 데 초점을 맞춥니다. 실제로 계절성이 강한 데이터에서는 1차 차분과 계절 차분을 함께 적용한 뒤에야 구간별 평균·분산이 진짜로 안정되는 경우가 많으며, 이런 모형을 SARIMA(계절 ARIMA)라고 부릅니다."
+  }
+ },
+ "bda42_04": {
+  "ch": "빅데이터 분석 제42장 · 시계열 분석",
+  "sec": "42.4 자기상관 — ACF와 PACF",
+  "title": "자기상관 — ACF와 PACF",
+  "narr": "정상성이라는 전제를 확인했으니, 이제 순서가 만드는 관계를 시차별로 정밀하게 재볼 차례입니다. <b>ACF</b>(자기상관함수)는 시차 L만큼 떨어진 값끼리의 상관을 실제로 계산한 것이고, <b>PACF</b>(편자기상관함수, 더빈-레빈슨 재귀로 계산)는 그 사이 시차들의 영향을 제거한 「순수한」 L 시차 관계입니다. 지금 L=6에서 ACF=0.670, PACF=0.036이며, 오른쪽 산점도의 상관계수를 직접 계산해도 같은 값이 나와 서로 다른 두 계산 경로가 일치함을 확인할 수 있습니다. 시차를 1부터 24까지 훑으면 ACF 막대가 12개월·24개월 근처에서 뚜렷이 솟는데, 이것이 계절성이 자기상관에 남기는 「지문」입니다 — 계절 주기와 같은 시차에서 값이 다시 서로 닮아지기 때문입니다.",
+  "more": "<b>ACF와 PACF를 함께 보는 이유</b>: ACF만 보면 「시차 6에서 상관이 있다」는 사실이 진짜 6개월 관계 때문인지, 아니면 시차 1~5의 연쇄적인 영향이 누적되어 시차 6까지 「전염」된 것인지 구분할 수 없습니다. PACF는 중간 시차들의 영향을 실제로 걷어내므로, ARIMA 모형에서 AR 차수(p)와 MA 차수(q)를 정할 때 ACF·PACF가 각각 어느 시차에서 뚝 끊기는지를 단서로 씁니다.\n\n<b>더빈-레빈슨 재귀의 아이디어</b>: PACF를 구하는 더빈-레빈슨 재귀는 「시차 k까지의 최적 선형예측 계수」를 시차 k-1까지의 계수로부터 점화식으로 갱신합니다 — 매번 처음부터 다시 푸는 대신 이전 단계의 계산을 재활용하는 효율적인 방법입니다.",
+  "more_en": "ACF measures raw correlation at lag L; PACF (via Durbin-Levinson recursion) strips out the influence of intervening lags to isolate the pure L-lag relationship. At L=6, ACF=0.670 and PACF=0.036, matching a direct scatter-plot correlation computation. Sweeping lags 1-24 shows ACF bars spiking near 12 and 24 months — seasonality's fingerprint on autocorrelation.",
+  "problem": {
+   "q": "ACF는 시차가 늘어나도 천천히 잦아드는데 PACF는 시차 1 이후 거의 0으로 뚝 끊긴다면, 이 계열은 AR과 MA 중 어느 쪽에 가까울까요?",
+   "solution": "AR(자기회귀) 과정에 가깝습니다. 순수한 AR(p) 과정은 ACF가 지수적으로 서서히 감쇠하지만 PACF는 시차 p 이후 뚝 끊기는(0에 가까워지는) 특징적인 패턴을 보입니다 — 반대로 순수한 MA(q) 과정은 ACF가 시차 q 이후 뚝 끊기고 PACF가 서서히 감쇠합니다. 이런 「끊기는 지점」을 실제로 관찰해 ARIMA의 AR·MA 차수를 고르는 것이 박스-젠킨스 방법론의 핵심 아이디어입니다."
+  }
+ },
+ "bda42_05": {
+  "ch": "빅데이터 분석 제42장 · 시계열 분석",
+  "sec": "42.5 예측 — 평활과 ARIMA",
+  "title": "예측 — 평활과 ARIMA",
+  "narr": "성분·정상성·자기상관까지 실제로 뜯어봤으니, 이제 이 모든 것을 모아 미래를 실제로 예측할 차례입니다. 가장 단순한 예측은 최근 몇 개월의 <b>이동평균</b>을 그대로 다음 달 값으로 쓰는 것으로, 검증 MSE 364.2입니다. <b>지수평활</b>은 최근 값일수록 더 크게, 오래된 값일수록 기하급수적으로 작게 가중해 한 줄 재귀식(수준=α×실제값+(1−α)×이전 수준)으로 계산하는데, 계수 α를 슬라이더로 바꾸면 MSE가 실제로 재계산되어 지금 α=0.30에서 316.9입니다. <b>ARIMA</b>는 세 부품의 조합입니다 — <b>I</b>(차분)가 추세를 제거해 정상성을 만들고, <b>AR</b>이 차분된 값을 과거 차분값들의 선형결합으로, <b>MA</b>가 과거 예측 오차를 보정해 다음 값을 추정합니다. 실제로 φ(AR계수)=-0.10, θ(MA계수)=-0.05를 데이터로부터 추정해 예측하면 검증 MSE 231.6로 이 장의 세 방법 중 가장 정확합니다.",
+  "more": "<b>지수평활의 α를 어떻게 고르는가</b>: α가 크면(1에 가까우면) 최근 값에 거의 전적으로 의존해 계열의 급격한 변화를 빠르게 따라가지만 잡음에도 민감해지고, α가 작으면(0에 가까우면) 오래된 값들을 폭넓게 평균 내 부드럽지만 변화에 둔감해집니다. 실전에서는 슬라이더로 직접 확인한 것처럼 여러 α로 검증 오차를 실제로 비교해 가장 낮은 오차를 내는 값을 고릅니다.\n\n<b>이 장의 ARIMA는 단순화된 버전</b>: 정식 ARIMA는 최대우도추정으로 AR·MA 계수를 동시에 최적화하지만, 여기서는 AR계수를 최소자승으로 먼저 구하고 MA계수는 잔차 제곱합을 최소화하는 격자 탐색으로 구했습니다 — 두 방법 모두 「데이터에 가장 잘 맞는 계수를 실제로 찾는다」는 원리는 같고, 이 장에서는 그 원리를 직접 눈으로 확인할 수 있도록 구현을 단순화했습니다.",
+  "more_en": "Simple moving-average forecasting yields validation MSE 364.2. Exponential smoothing recursively weights recent values more heavily via level = alpha*actual + (1-alpha)*previous level; sweeping alpha shows MSE recalculating live, reaching 316.9 at alpha=0.30. ARIMA combines Integration (differencing removes trend), AutoRegression (past differenced values), and Moving Average (past forecast errors); fitting phi=-0.10 and theta=-0.05 from the data yields the best validation MSE of this chapter, 231.6.",
+  "problem": {
+   "q": "지수평활에서 α=1로 설정하면 예측값은 어떻게 될까요?",
+   "solution": "α=1이면 수준(level) 갱신식이 「수준=1×실제값+0×이전 수준」이 되어, 다음 달 예측값은 언제나 「바로 직전 달의 실제값」과 똑같아집니다. 이것은 소위 「단순 나이브(naive) 예측」과 동일한 특수한 경우이며, 과거의 모든 이력을 완전히 무시하고 가장 최근 관측치 하나에만 의존하는 셈입니다 — 추세나 계절 패턴을 전혀 반영하지 못하므로 대개 좋은 예측이 아니지만, 다른 정교한 모형의 성능을 비교하는 최소한의 기준선(baseline)으로는 자주 쓰입니다."
+  }
+ }
+}

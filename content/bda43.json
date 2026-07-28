@@ -1,0 +1,62 @@
+{
+ "bda43_01": {
+  "ch": "빅데이터 분석 제43장 · 텍스트 마이닝",
+  "sec": "43.1 문서가 행렬이 되기까지",
+  "title": "문서가 행렬이 되기까지",
+  "narr": "시계열이 「순서가 있는 숫자」를 다뤘다면, 이번 장은 숫자가 전혀 아닌 <b>글(텍스트)</b>을 다룹니다. 컴퓨터는 문장을 그대로 이해하지 못하니, <b>토큰화</b>(단어 단위로 쪼개기) → <b>소문자화</b> → <b>불용어 제거</b>(the·was처럼 뜻을 거의 안 싣는 단어를 뺌) → <b>어간 추출</b>(acting→act처럼 어미를 깎아 같은 뜻의 변형을 하나로 합침) 순서로 다듬어 숫자 행렬로 바꿉니다. 8개 문서에 이 단계를 실제로 적용하면 토큰 수는 73개에서 시작해 불용어 제거 후 40개로 줄고, 서로 다른 단어(어휘) 수도 35개에서 어간 추출 후 18개까지 줄어듭니다. 이렇게 남은 어휘를 열(컬럼)로 삼아 각 문서가 각 단어를 몇 번 썼는지 세면, 문장은 마침내 계산 가능한 <b>문서-단어 행렬</b>이 됩니다.",
+  "more": "<b>이 장의 어간 추출은 간이 버전</b>: 실제 포터(Porter) 알고리즘은 정교한 규칙 체계로 어미를 단계적으로 깎지만, 여기서는 학습 목적으로 단순화한 규칙(복수형 s·es, 진행형 ing, 과거형 ed, 부사형 ly를 순서대로 검사)을 씁니다. 그래서 「acting→act」처럼 잘 합쳐지는 경우도 있지만 「actors→actor」처럼 「act」와 완전히 합쳐지지는 않는 한계도 그대로 드러납니다 — 실전 어간 추출기가 더 복잡한 이유입니다.\n\n<b>불용어 목록은 절대적이지 않다</b>: 무엇을 불용어로 볼지는 과제에 따라 달라집니다. 일반적인 주제 분류에서는 the·was 같은 기능어를 빼는 것이 유리하지만, 감성 분석에서는 not처럼 겉보기에 기능어 같은 단어가 극성을 뒤집는 핵심 단서가 되기도 합니다(이 장 마지막 감성 분석 장면에서 이 문제를 다시 다룹니다).",
+  "more_en": "Text must be tokenized, lowercased, stripped of stopwords, and stemmed before it becomes a numeric matrix. Applying this pipeline to 8 short documents shrinks the token count from 73 to 40 after stopword removal, and the vocabulary from 35 to 18 distinct words after stemming — the surviving vocabulary becomes the columns of a document-term matrix.",
+  "problem": {
+   "q": "「actors」와 「acting」은 이 장의 간이 어간 추출 규칙을 거치면 각각 「actor」와 「act」가 되어 서로 다른 단어로 남습니다. 이것이 나중에 TF-IDF나 토픽 모델링 단계에서 어떤 문제를 일으킬 수 있을까요?",
+   "solution": "본래는 같은 개념(배우/연기)을 가리키는 두 단어가 서로 다른 열(어휘)로 취급되어, 각 단어의 문서빈도(df)가 실제보다 낮게 나뉘어 계산됩니다. 그 결과 두 단어 모두 「덜 흔한 단어」로 잘못 인식되어 TF-IDF 가중치가 실제보다 부풀려지거나, 토픽 모델링에서 하나로 뭉쳐야 할 개념이 두 개의 별개 단어로 흩어져 토픽의 일관성이 흐려질 수 있습니다. 실전에서 더 정교한 어간 추출기나 표제어 추출(lemmatization, 사전을 참고해 정확한 원형을 찾는 방법)을 쓰는 이유가 바로 이런 문제를 줄이기 위해서입니다."
+  }
+ },
+ "bda43_02": {
+  "ch": "빅데이터 분석 제43장 · 텍스트 마이닝",
+  "sec": "43.2 TF-IDF — 흔한 단어의 값을 깎다",
+  "title": "TF-IDF — 흔한 단어의 값을 깎다",
+  "narr": "문서-단어 행렬을 만들었으니, 이제 그 안의 숫자(단어 빈도)가 정말로 「중요도」를 뜻하는지 따져볼 차례입니다. 단순 빈도는 「많이 나온 단어=중요한 단어」로 취급하지만, 8개 문서 모두에 걸쳐 자주 등장하는 단어는 사실 어느 문서를 특별히 대표하지 않습니다. <b>IDF</b>(역문서빈도, log((1+N)/(1+df))+1)를 실제로 계산하면 문서빈도(df)가 높은 단어일수록 값이 작아지고, <b>TF-IDF</b>(=빈도×IDF)는 그 단어의 가중치를 실제로 깎습니다. 지금 D2에서 원시 빈도 1위는 「act」이지만 TF-IDF 1위는 「terrible」로, 흔한 단어보다 이 문서에서만 두드러지는 단어가 위로 올라옵니다. 어느 단어가 문서를 대표하는지는 「많이 나오는가」가 아니라 「다른 문서와 비교했을 때도 여전히 눈에 띄는가」로 판정해야 한다는 것을 숫자가 직접 보여줍니다.",
+  "more": "<b>스무딩(+1)이 왜 들어가는가</b>: IDF 공식에 1을 더하는 스무딩(log((1+N)/(1+df))+1)이 없다면, 모든 문서에 등장하는 단어의 df=N일 때 log(N/N)=0이 되어 IDF가 정확히 0이 되고, 그 단어의 TF-IDF도 항상 0이 되어버립니다. 분모·분자에 1을 더하면 이런 극단적인 0을 피하면서도 「흔한 단어일수록 값이 작아진다」는 방향성은 그대로 유지됩니다.\n\n<b>TF도 여러 방식이 있다</b>: 이 장에서는 단순 원시 빈도(단어가 몇 번 나왔는지)를 TF로 썼지만, 실무에서는 문서 길이로 나눈 상대빈도나 log(1+빈도)처럼 빈도를 완만하게 만드는 변형도 자주 씁니다 — 긴 문서일수록 모든 단어의 원시 빈도가 자연히 커지는 「문서 길이 효과」를 줄이기 위해서입니다.",
+  "more_en": "IDF (log((1+N)/(1+df))+1) shrinks toward its minimum for words appearing in almost every document. Multiplying by raw term frequency to get TF-IDF re-ranks importance: in document D2, the raw-frequency leader is \"act\" but the TF-IDF leader is \"terrible\" — a word that stands out relative to the rest of the corpus, not just within one document.",
+  "problem": {
+   "q": "어떤 단어가 8개 문서 중 정확히 1개에서만, 그것도 딱 1번 등장했다면 이 단어의 TF-IDF는 코퍼스 전체에서 어떻게 될까요?",
+   "solution": "이런 단어는 df=1로 가능한 가장 낮은 문서빈도를 가지므로 IDF가 이 코퍼스에서 가질 수 있는 최댓값에 가까워지고, 그 단어가 등장한 유일한 문서에서는 TF-IDF 값도 상대적으로 매우 높게 나옵니다(다른 문서에서는 등장하지 않으니 TF=0이라 TF-IDF도 0입니다). 이것이 TF-IDF가 「단 하나의 문서에서만 나타나는 특이한 단어」를 자동으로 크게 강조하는 방식이며, 이런 단어가 바로 그 문서를 다른 문서와 구별 짓는 핵심 키워드일 가능성이 높습니다."
+  }
+ },
+ "bda43_03": {
+  "ch": "빅데이터 분석 제43장 · 텍스트 마이닝",
+  "sec": "43.3 문서끼리 얼마나 닮았나",
+  "title": "문서끼리 얼마나 닮았나",
+  "narr": "단어마다 가중치를 매겼으니, 이제 문서 전체를 하나의 벡터로 보고 서로 얼마나 닮았는지 재볼 차례입니다. 두 문서가 얼마나 비슷한지 재려면 흔히 <b>코사인 유사도</b>(두 TF-IDF 벡터 사이 각도의 코사인)를 씁니다. 8개 문서 전체 쌍을 실제로 계산한 행렬에서 가장 닮은 쌍은 D2·D6로 코사인 0.734입니다. 왜 유클리드 거리가 아니라 각도를 쓰는지는 이렇게 확인할 수 있습니다 — D2의 단어 수를 전부 그대로 두 배로 늘린(같은 내용을 더 길게 쓴) 가상 문서를 만들어 원본과 비교하면, 유클리드 거리는 3.567로 꽤 커지지만(벡터의 「길이」가 달라졌으니까) 코사인 유사도는 1.000로 그대로입니다(가리키는 「방향」, 즉 내용의 성격은 같으니까). 문서 길이는 주제와 무관하게 다를 수 있으므로, 텍스트 유사도는 길이가 아니라 방향으로 재는 것이 이치에 맞습니다.",
+  "more": "<b>코사인 유사도의 범위</b>: TF-IDF 벡터는 모든 값이 0 이상이므로 두 벡터 사이 각도는 0°~90° 범위에 있고, 코사인 유사도는 0(전혀 겹치는 단어가 없음)에서 1(완전히 같은 방향, 즉 단어 비중 구성이 동일)까지의 값을 가집니다. 일반적인 코사인 유사도(음수 성분이 있는 벡터)는 -1까지 내려갈 수 있지만, 텍스트 빈도 벡터에서는 음수 값이 없어 실질적으로 0~1 범위로 좁혀집니다.\n\n<b>실전에서의 쓰임</b>: 문서 간 코사인 유사도 행렬은 추천 시스템(비슷한 글 추천), 표절 검사(비정상적으로 유사도가 높은 문서쌍 탐지), 중복 문서 제거 등에 그대로 쓰입니다. 이 장의 8x8 행렬을 8000x8000, 나아가 수백만 문서로 확장한 것이 실제 검색엔진·추천엔진의 기초 연산 중 하나입니다.",
+  "more_en": "Cosine similarity measures the angle between TF-IDF vectors, making it insensitive to document length: doubling a document's word counts (same content, written twice as long) changes Euclidean distance from itself dramatically (3.567) while cosine similarity stays exactly 1.000, since the direction — the topical composition — is unchanged. Across all 8 documents, D2 and D6 are most alike (cosine 0.734).",
+  "problem": {
+   "q": "두 문서가 완전히 다른 단어들로만 이루어져 있어(공통 단어가 하나도 없어) TF-IDF 벡터의 겹치는 성분이 전혀 없다면, 코사인 유사도는 얼마가 될까요?",
+   "solution": "0이 됩니다. 코사인 유사도의 분자는 두 벡터의 내적(성분별 곱의 합)인데, 공통으로 0이 아닌 성분이 하나도 없으면 모든 곱이 0이 되어 내적 자체가 0이 되기 때문입니다. 기하학적으로는 두 벡터가 정확히 90도로 직교한다는 뜻이며, 텍스트로 치면 「완전히 다른 주제를 다루는 문서」라는 뜻입니다. 이것이 코사인 유사도가 자연어의 「전혀 안 겹침」을 0이라는 직관적인 값으로 표현하는 방식입니다."
+  }
+ },
+ "bda43_04": {
+  "ch": "빅데이터 분석 제43장 · 텍스트 마이닝",
+  "sec": "43.4 숨은 주제를 찾다 — 토픽 모델링",
+  "title": "숨은 주제를 찾다 — 토픽 모델링",
+  "narr": "문서끼리 얼마나 닮았는지는 재봤지만, 「왜 닮았는지」는 아직 설명하지 못했습니다. 토픽 모델링은 그 이유를 <b>숨은 주제</b>로 설명하려 합니다. LDA는 「문서는 여러 주제의 혼합이고, 주제는 단어들의 확률분포다」라는 가정으로 문서와 단어를 동시에 설명합니다. 깁스 표집(각 단어의 주제 배정을 이웃 배정들의 조건부확률로 반복해서 다시 뽑는 절차)을 400회 실제로 반복해 수렴시키면, 토픽1의 상위 단어는 movie·wonderful·act처럼 나오고 토픽2는 end·excit·bor처럼 나옵니다 — 각 문서의 토픽 비중(막대 높이)도 실제 계산값입니다. 알고리즘은 「단어들이 이렇게 묶여 함께 등장한다」는 것만 찾아낼 뿐, 그 묶음에 「호평」이니 「혹평」이니 하는 <b>이름을 붙이는 일은 언제나 사람의 몫</b>입니다.",
+  "more": "<b>깁스 표집이 하는 일</b>: 각 단어 토큰의 주제를 하나씩 붙잡고, 「이 단어를 빼고 나머지 배정이 고정되어 있다고 할 때, 이 단어가 각 주제에 속할 조건부확률」을 계산해 그 확률대로 다시 뽑는 과정을 모든 단어에 대해 반복합니다. 이렇게 수백 번 반복하면 전체 배정이 점점 데이터에 그럴듯한 상태(사후분포에서 뽑은 표본)로 수렴합니다 — 한 번에 정답을 계산하는 것이 아니라 반복적인 「다시 추측하기」로 답에 다가가는 방식입니다.\n\n<b>토픽 개수 K는 어떻게 정하는가</b>: 이 장에서는 K=2로 고정했지만, 실전에서는 여러 K값으로 모형을 돌려 perplexity(모형이 새 문서를 얼마나 잘 예측하는지)나 토픽 일관성 지표를 비교해 정합니다. K를 너무 크게 잡으면 토픽이 지나치게 잘게 쪼개져 해석하기 어렵고, 너무 작게 잡으면 서로 다른 주제가 하나로 뭉뚱그려집니다.",
+  "more_en": "LDA assumes each document is a mixture of topics, and each topic is a distribution over words. Running 400 iterations of collapsed Gibbs sampling (each token's topic resampled from its conditional probability given all other assignments) converges to real word-topic and document-topic distributions. The algorithm only finds which words co-occur — naming a topic \"positive review\" is always a human judgment call.",
+  "problem": {
+   "q": "만약 토픽 개수를 K=8(문서 개수와 같이)로 설정했다면 어떤 문제가 생길 가능성이 높을까요?",
+   "solution": "토픽이 너무 잘게 쪼개져 각 토픽이 사실상 개별 문서 하나씩과 거의 일대일로 대응하는 형태로 수렴하기 쉽습니다. 이렇게 되면 「여러 문서에 걸쳐 공유되는 숨은 주제를 찾는다」는 토픽 모델링 본래의 목적이 무색해지고, 그냥 문서를 그대로 나열한 것과 큰 차이가 없어집니다. 이것이 토픽 개수를 코퍼스 크기에 비해 너무 크게 잡지 않도록 주의해야 하는 이유이며, 적절한 K는 대개 문서 수보다 훨씬 작은 값에서 찾습니다."
+  }
+ },
+ "bda43_05": {
+  "ch": "빅데이터 분석 제43장 · 텍스트 마이닝",
+  "sec": "43.5 감성 분석",
+  "title": "감성 분석",
+  "narr": "숨은 주제까지 찾아봤으니, 이 장의 마지막은 「이 글이 좋은 뜻인가 나쁜 뜻인가」라는 가장 실용적인 질문입니다. <b>사전 기반</b> 방식은 wonderful=+3, terrible=−3처럼 단어마다 미리 매긴 극성 점수를 문장 안에서 실제로 찾아 더합니다. <b>나이브베이즈</b>(학습 기반)는 라벨이 붙은 문서로 단어별 조건부확률을 학습해 새 문장을 분류합니다. 8개 문서에 교차검증을 실제로 적용하면 사전기반은 7/8, 나이브베이즈는 7/8을 맞힙니다. 함정 문장 두 개를 얹어 보면 각기 다른 방식으로 발목을 잡습니다 — 「This movie was not terrible」은 <b>부정어</b> 처리를 켜면 사전 점수가 +3로 뒤집혀 올바르게 긍정으로 판정되지만 끄면 틀리게 됩니다. 반면 「Oh great, another boring predictable ending」처럼 <b>반어(비꼬기)</b>로 쓰인 great는 boring·predictable의 부정 점수와 정확히 상쇄되어, 부정어 처리를 켜든 끄든 사전 점수가 언제나 0(중립)에 머뭅니다 — 반어의 어조는 단어 점수를 더하는 방식으로는 애초에 잡을 수 없는 함정입니다.",
+  "more": "<b>부정어 처리는 왜 「3단어 이내」로 한정하는가</b>: 부정어의 영향이 문장 끝까지 무한정 이어진다고 가정하면 「not good, but the ending was also great」 같은 문장에서 great까지 잘못 뒤집힐 위험이 있습니다. 몇 단어 이내로 범위를 한정하는 것은 이런 오탐을 줄이기 위한 실용적 타협이지만, 여전히 완벽하지 않습니다 — 진짜로 정확하게 처리하려면 문장의 구문 구조(어느 구절이 부정어의 영향권인지)를 분석해야 합니다.\n\n<b>나이브베이즈가 「나이브(순진)」한 이유</b>: 이 방법은 문장 안의 모든 단어가 서로 독립적으로 극성에 기여한다고 가정합니다(단어 순서·문맥을 무시). 이 가정은 명백히 틀렸지만(실제로 단어들은 서로 관련되어 있으니까), 계산이 간단하고 실전에서도 놀랄 만큼 잘 작동해서 널리 쓰입니다. 반어·비꼬기처럼 「개별 단어는 긍정적인데 전체 뜻은 부정적인」 경우가 나이브베이즈에게도 여전히 어려운 이유가 바로 이 독립 가정 때문입니다.",
+  "more_en": "Dictionary-based scoring sums per-word polarity scores (wonderful=+3, terrible=-3); Naive Bayes learns word-conditional probabilities from labeled documents. Cross-validated on 8 documents, both score 7/8. Two adversarial sentences expose different weaknesses: negation handling correctly flips \"This movie was not terrible\" to positive when enabled, but sarcasm in \"Oh great, another boring predictable ending\" always cancels to a neutral score of 0 regardless of negation handling — irony simply cannot be caught by summing word scores.",
+  "problem": {
+   "q": "나이브베이즈 감성 분류기를 「형편없는 서비스지만 음식은 훌륭했다」처럼 긍정과 부정이 한 문장 안에 섞인 리뷰에 적용하면 어떤 어려움이 있을까요?",
+   "solution": "나이브베이즈는 단어들의 등장을 독립적으로 취급해 전체 확률을 곱(로그 합)으로 계산하므로, 「형편없다」·「훌륭했다」처럼 상반된 극성의 단어가 한 문장에 함께 있으면 두 신호가 서로 상쇄되면서 어느 한쪽으로 애매하게 판정되거나, 훈련 데이터에서 더 자주 나온 극성 쪽으로 쏠리는 경향을 보입니다. 실제로는 이 리뷰가 「서비스는 부정적, 음식은 긍정적」이라는 두 가지 다른 측면(속성)에 대한 평가를 담고 있는데, 문장 전체에 감성 점수 하나만 매기는 방식으로는 이런 세부적인 구분을 표현할 수 없습니다 — 이런 경우를 다루려면 속성 기반 감성 분석(aspect-based sentiment analysis)처럼 문장을 더 잘게 나눠 각 대상(서비스·음식)마다 따로 감성을 매기는 접근이 필요합니다."
+  }
+ }
+}
