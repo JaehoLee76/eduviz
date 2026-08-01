@@ -1,0 +1,87 @@
+{
+ "bda48_01": {
+  "ch": "빅데이터 분석 제48장 · 필기 관문 — 과락을 피하고 서술형을 잡는 법",
+  "sec": "48.1 과락의 산술",
+  "title": "과락의 산술",
+  "narr": "지금까지 다섯 과목(데이터 이해·데이터 처리 기술 이해·데이터 분석 기획·데이터 분석·데이터 시각화)을 다 훑었다면, 이제 남은 것은 시험이라는 관문입니다. ADP 필기는 100점 만점에 70점 이상이면 합격이지만, 과목별로 40% 미만이면 총점과 무관하게 불합격하는 <b>과락</b> 제도가 있습니다. 다섯 과목 달성률을 슬라이더로 조절해 보면, 총점 70.9점(70점 이상)인데도 한 과목이 25%(40% 미만)라 불합격하는 상황이 실제로 만들어집니다 — 총점만 보고 공부하면 위험한 이유입니다.",
+  "more": "<b>왜 '총점 위주 학습'이 위험한가</b>: 사람은 자신 있는 과목을 더 파고드는 경향이 있습니다 — 이미 잘하는 과목은 공부할수록 점수가 잘 오르고 성취감도 크기 때문입니다. 하지만 이 장면의 계산이 보여주듯, 이미 76%인 과목을 91%까지 15%p 올리는 것(같은 노력)은 총점을 4.6점 더 올리면서도 약점 과목의 과락을 전혀 해결하지 못해 불합격으로 남습니다. 반대로 25%인 약점 과목을 40%까지만 겨우 끌어올리면 총점은 덜 오르지만 합격으로 바뀝니다.\n\n<b>실전 시사점</b>: 시험 준비 막판에는 '가장 자신 있는 과목을 더 다듬기'보다 '가장 약한 과목을 40% 이상으로 만들기'가 우선입니다. 다섯 과목 모두를 고르게 올려 합격선을 넘기려면 이 장면 기준 75%p만큼의 상승이 필요하지만, 약점 과목 하나만 targeted로 40%까지 올리면 15%p로 충분합니다 — 다섯 배 차이입니다.",
+  "more_en": "ADP's written exam passes at 70/100, but each of five subjects also needs at least 40% individually — missing that cutoff fails the exam regardless of total score. Sliding all five subjects to 76/76/76/76/25 yields a total of 70.9 (above the 70-point bar) yet fails because subject V sits at 25% (below the 40% cutoff). Spending the same 15-percentage-point effort on the weak subject (raising it to exactly 40%) yields a lower total (72.4) but passes, while spending it on an already-strong subject yields a higher total (76.9) but still fails on the subject cutoff.",
+  "problem": {
+   "q": "총점이 99점이어도 불합격할 수 있는 극단적인 경우를 과목별 40% 과락 규칙으로 설명해 보세요.",
+   "solution": "네 과목에서 만점(각 배점의 100%)을 받아 총점이 이미 99점에 가깝더라도, 나머지 한 과목에서 40% 미만(예: 0~39%)을 받으면 총점과 무관하게 불합격입니다. 예를 들어 이 장면의 배점 가정(15·15·20·40·10)에서 I~IV를 모두 100% 받으면 90점을 이미 확보하지만, V(10점 만점)에서 0%를 받아도 총점은 90점으로 70점을 훌쩍 넘습니다 — 하지만 V의 달성률이 40% 미만이므로 과락으로 불합격입니다. 즉 총점 90점과 불합격이 동시에 성립하는 경우가 실제로 가능합니다."
+  }
+ },
+ "bda48_02": {
+  "ch": "빅데이터 분석 제48장 · 필기 관문 — 과락을 피하고 서술형을 잡는 법",
+  "sec": "48.2 과목별 배점과 학습 배분",
+  "title": "과목별 배점과 학습 배분",
+  "narr": "총점 70점과 과목별 40%를 동시에 만족하려면 남은 학습 시간을 어디에 먼저 써야 할까요? 각 과목을 100%까지 끌어올리는 데 걸리는 시간을 가정하고, 배점을 그 시간으로 나눈 <b>시간당 점수 상승(효율)</b>이 큰 과목부터 채우는 탐욕적 배분을 실제로 계산합니다. 재미있게도 배점이 가장 큰 IV(데이터 분석)는 범위가 넓어 시간이 많이 걸리는 탓에 효율은 가장 낮아 맨 뒤로 밀립니다 — 배점이 크다고 무조건 먼저 공부하는 것이 최선은 아닙니다.",
+  "more": "<b>왜 '배점이 큰 과목부터'가 항상 정답은 아닌가</b>: 배점(가중치)만 보면 IV를 최우선으로 여기기 쉽지만, 실제로 점수를 올리는 것은 '배점 × 그 배점을 실제로 확보하는 데 드는 시간당 비율'입니다. 범위가 좁고 짧은 시간에 100%에 가까워지는 과목(이 모형에서는 시각화·데이터 이해)은 적은 시간으로 확실한 점수를 챙길 수 있어 효율이 높습니다. IV처럼 범위가 넓은 과목은 배점은 크지만 같은 시간을 투입해도 달성률이 더디게 올라 효율이 낮습니다.\n\n<b>과락 관점에서의 함정</b>: 효율 순서대로 배분하면 배점이 가장 큰 과목이 가장 나중에 개선되는데, 이 과목이 40%를 넘기지 못하면 아무리 다른 과목을 채워도 과락으로 불합격입니다. 그래서 순수하게 '시간당 총점 상승'만 좇는 배분은 총점은 빨리 올려도 특정 과목의 과락 해소는 늦출 수 있습니다 — 남은 시간이 넉넉하지 않다면 배점이 큰 과목의 최소 40% 확보를 별도로 챙겨야 합니다.",
+  "more_en": "Given assumed hours-to-mastery per subject, this scene computes a greedy allocation ranked by score-gain-per-hour (weight ÷ hours). Counter-intuitively, Subject IV (Data Analysis) — the highest-weighted subject — has the lowest per-hour efficiency because its scope is broad, so it gets filled last. With the default 25-hour budget, subjects V/I/III reach 100% while II sits at 37.8% and IV remains untouched at 15%, yielding a total of 56.7 — below the passing bar, and IV still fails its own 40% cutoff.",
+  "problem": {
+   "q": "탐욕적 배분(효율 높은 순)이 항상 '가장 빨리 합격선을 넘는' 배분과 같을까요? 다를 수 있다면 어떤 경우인가요?",
+   "solution": "다르지 않을 수 있습니다. 탐욕적 배분은 '시간당 총점 상승'을 최대화할 뿐, 과목별 40% 과락 조건까지 동시에 최소 시간에 만족시킨다는 보장은 없습니다. 이 장면처럼 배점이 가장 큰 과목의 효율이 가장 낮으면, 총점은 빠르게 오르지만 그 과목은 계속 40% 미만에 머물러 과락 상태가 오래 지속됩니다. 만약 목표가 '총점 극대화'가 아니라 '가장 빨리 합격 조건(총점 70·전 과목 40%)을 만족'하는 것이라면, 40% 미만인 과목에 최소한의 시간을 먼저 배분해 과락을 해소한 뒤 나머지 시간을 효율 순으로 배분하는 것이 더 빠를 수 있습니다."
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo_br_fracknap",
+    "label": "분할 가능 배낭",
+    "sub": "알고리즘 8장 · 비율 높은 것부터",
+    "track": "algo"
+   }
+  ]
+ },
+ "bda48_03": {
+  "ch": "빅데이터 분석 제48장 · 필기 관문 — 과락을 피하고 서술형을 잡는 법",
+  "sec": "48.3 객관식을 푸는 순서",
+  "title": "객관식을 푸는 순서",
+  "narr": "180분에서 서술형에 60분을 남기면 객관식 80문항에는 120분(7200초), 문항당 평균 90.0초가 남습니다. 풀이 시간과 실제로 아는지 여부가 고정된 80문항(아는 문항 39개)을 두 전략으로 실제로 풀어 보면, <b>순서대로 풀기</b>는 뒤쪽의 쉬운 문항에 도달하지 못해 36문항을 맞히고, <b>확실한 것부터 풀기</b>는 39문항을 맞힙니다 — 시간이 촉박할수록 무엇을 먼저 푸느냐가 실제 점수를 바꿉니다.",
+  "more": "<b>왜 시간이 넉넉하면 순서가 상관없는가</b>: 슬라이더로 서술형 예약 시간을 줄여 객관식 시간을 넉넉하게(예 20~50분 예약) 하면, 80문항을 모두 풀 시간이 충분해지므로 어떤 순서로 풀든 아는 39문항을 전부 맞힐 수 있습니다 — 이때는 순서 전략이 결과에 영향을 주지 않습니다. 문제는 시간이 빠듯해지는 순간부터입니다.\n\n<b>왜 '순서대로'가 손해를 보는가</b>: 순서대로 풀면 앞쪽에 시간이 오래 걸리는 어려운(또는 모르는) 문항이 섞여 있어도 붙잡고 있다가 시간을 다 쓰고, 정작 뒤쪽에 있는 쉬운 문항까지 가지 못합니다. '확실한 것부터'는 짧고 아는 문항을 먼저 확보해 맞힐 수 있는 문항의 손실을 최소화합니다 — 실전에서 '모르는 문항은 표시만 하고 넘어가라'는 조언이 나오는 이유가 바로 이 시간 배분 효과입니다.",
+  "more_en": "With a 60-minute essay reservation, 120 minutes (7200s) remain for 80 multiple-choice questions — an average of 90.0s each. Simulating a fixed question bank (39 actually-known questions, each with a fixed time cost) shows that answering in original order yields 36 correct (running out of time before reaching easy later questions), while answering known/quick questions first yields 39 correct. When time is generous (a smaller essay reservation), both strategies tie because every question can be attempted.",
+  "problem": {
+   "q": "서술형에 시간을 아주 조금(20분)만 남기면 두 전략의 정답 개수 차이는 어떻게 될까요? 왜 그럴까요?",
+   "solution": "객관식에 쓸 수 있는 시간이 넉넉해지므로(160분) 80문항 전체를 풀이 시간 안에 다 시도할 수 있게 되어, 두 전략 모두 아는 39문항을 전부 맞히고 차이가 사라집니다. 순서 전략이 정답 개수에 영향을 미치는 것은 오직 '시간이 부족해 일부 문항을 아예 시도하지 못하는' 상황에서만입니다 — 시간이 충분하면 어떤 순서로 풀어도 결과는 같습니다. 다만 서술형 시간을 너무 줄이면 서술형 20점 자체를 못 채울 위험이 커지므로, 이는 객관식과 서술형 사이의 별도 트레이드오프입니다."
+  },
+  "xref": [
+   {
+    "href": "algo.html",
+    "scene": "algo_br_fracknap",
+    "label": "분할 가능 배낭",
+    "sub": "알고리즘 8장 · 비율 높은 것부터",
+    "track": "algo"
+   },
+   {
+    "href": "algo.html",
+    "scene": "algo3_02",
+    "label": "선택 정렬",
+    "sub": "알고리즘 3장 · 최솟값을 골라 앞으로",
+    "track": "algo"
+   }
+  ]
+ },
+ "bda48_04": {
+  "ch": "빅데이터 분석 제48장 · 필기 관문 — 과락을 피하고 서술형을 잡는 법",
+  "sec": "48.4 서술형 20점을 잡는 법",
+  "title": "서술형 20점을 잡는 법",
+  "narr": "서술형은 배점이 20점으로 크고, 답안을 정의→절차·단계→장단점·비교→실제 적용 예의 네 항목으로 나누면 항목마다 부분 점수가 있습니다. CRISP-DM 6단계를 예로, 백지(0점)에서 항목을 하나씩 채우면 점수가 5→12→16→20으로 실제로 누적됩니다. 그런데 가장 배점이 큰 절차 항목(7점) 하나만 완벽하게 써도 7점인 반면, 네 항목을 모두 절반씩만 채우면 10점입니다 — 완벽한 한 항목보다 모든 항목에 손을 대는 쪽이 더 높습니다.",
+  "more": "<b>왜 부분 점수 제도에서 '넓게 쓰기'가 유리한가</b>: 이 채점 기준의 어떤 항목도 만점이 전체 절반(10점)을 넘지 않습니다(5·7·4·4점) — 즉 한 항목에 아무리 통달해도 절반을 넘길 수 없습니다. 반면 절반씩이라도 네 항목 모두에 손을 대면 항목 수만큼 부분 점수가 쌓여 합이 더 커집니다. 이것은 이 문제만의 우연이 아니라, 항목이 여러 개로 나뉘고 각 항목의 만점이 전체의 절반보다 작을 때 일반적으로 성립하는 산술입니다.\n\n<b>실전 답안 전략</b>: 시험장에서 한 항목(예: 절차)을 완벽하게 다 쓰려다 시간이 부족해 나머지 항목을 백지로 남기는 것보다, 네 항목 모두를 뼈대만이라도(정의 한 줄, 단계 키워드 나열, 장단점 한 줄, 적용 예 한 줄) 채우는 것이 점수 기대값이 높습니다. 특히 '실제 적용 예'처럼 짧게 써도 부분 점수를 받기 쉬운 항목을 빼먹지 않는 것이 중요합니다.",
+  "more_en": "The 20-point essay question is graded across four rubric items (definition, procedure, pros/cons, real-world example) worth 5/7/4/4 points. Filling them one at a time accumulates 5→12→16→20 points. Critically, no single item's full score exceeds half the total (10 points) — so perfecting even the highest-value item (procedure, 7pts) tops out below the 10 points earned by writing all four items at only 50% completeness each, demonstrating why partial-credit exams reward breadth over depth under time pressure.",
+  "problem": {
+   "q": "만약 채점 기준에서 한 항목의 배점이 전체의 절반을 넘는다면(예: 정의 2점·절차 12점·장단점 3점·적용예 3점, 합 20점), '한 항목만 완벽'과 '전 항목 절반씩' 중 어느 쪽이 더 유리할까요?",
+   "solution": "이 경우 절차 항목 하나만 완벽하게 쓰면 12점을 얻는데, 전 항목을 절반씩 쓰면 2*0.5+12*0.5+3*0.5+3*0.5=1+6+1.5+1.5=10점으로 오히려 절차 항목 하나만 완벽하게 쓰는 쪽(12점)이 더 유리해집니다. 즉 '넓게 쓰기'가 항상 이기는 것이 아니라, 어떤 항목의 배점이 전체의 절반을 넘어서면 그 항목에 집중하는 쪽이 유리해질 수 있습니다 — 이 장면의 결론은 채점 기준이 여러 항목에 고르게 나뉘어 있고 어느 항목도 절반을 넘지 않을 때 성립하는 것이지, 모든 서술형에 무조건 적용되는 법칙은 아닙니다."
+  }
+ },
+ "bda48_05": {
+  "ch": "빅데이터 분석 제48장 · 필기 관문 — 과락을 피하고 서술형을 잡는 법",
+  "sec": "48.5 다섯 과목 자가진단",
+  "title": "다섯 과목 자가진단",
+  "narr": "다섯 과목의 핵심 개념을 과목당 4개씩, 총 20개 항목으로 놓았습니다. 아는 항목을 화면에서 직접 체크하면 48.1과 같은 배점 가정으로 과목별 달성률·예상 총점·과락 여부가 실시간으로 계산됩니다. 아직 아무것도 체크하지 않았다면 예상 총점은 0점, 다섯 과목 모두 과락입니다 — 체크해 가며 어느 과목이 약한지, 이 트랙의 어느 장을 다시 봐야 하는지 직접 확인해 보세요.",
+  "more": "<b>이 자가진단의 한계</b>: 과목당 4개 항목은 그 과목 전체(예: IV 데이터 분석은 이 트랙 37개 장 분량)를 극히 일부만 대표합니다. 20개 항목을 모두 체크했다고 해서 실제 시험에서 그 과목이 100% 달성률이라는 뜻은 아닙니다 — 이 도구는 정밀한 점수 예측이 아니라 <b>다섯 과목 사이의 상대적인 약점을 빠르게 찾는 나침반</b>으로 쓰는 것이 맞습니다.\n\n<b>다시 봐야 할 장 대응표</b>: I 데이터 이해는 32~33장, II 데이터 처리 기술 이해는 34~35장, III 데이터 분석 기획은 36~37장, IV 데이터 분석은 1~31장과 40~45장(가장 분량이 많음), V 데이터 시각화는 38~39장입니다. 과락(40% 미만) 과목이 있다면 총점을 더 올리기 전에 그 과목의 대응 장부터 다시 보는 것이 이 장 전체(48.1~48.5)가 공통으로 강조하는 순서입니다.",
+  "more_en": "Twenty representative items (four per subject) let you self-check what you know; checked items become each subject's achievement rate, feeding the same weighting model from 48.1 to compute an expected total score and per-subject pass/fail live. Starting from zero checked items, the expected total is 0 and every subject fails its 40% cutoff. As weak subjects emerge, the scene maps them back to the track's own chapters — Subject IV (Data Analysis), the largest by far, maps to chapters 1–31 and 40–45.",
+  "problem": {
+   "q": "V(데이터 시각화) 과목 4개 항목을 모두 체크하고 나머지 과목은 하나도 체크하지 않았다면, 과락 판정은 어떻게 나올까요?",
+   "solution": "V는 4/4=100% 달성률로 과락을 면하지만, 나머지 I·II·III·IV는 모두 0%로 40% 미만이라 과락입니다. 예상 총점도 이 장면의 배점 가정(15·15·20·40·10)에서 V의 10점만 확보되어 10점에 그치므로 70점 기준에도 크게 못 미칩니다. 즉 '한 과목만 완벽히 안다'는 48.1의 교훈과 마찬가지로 총점과 과락 두 조건 모두를 만족시키지 못하며, 다시 봐야 할 장은 I~IV에 해당하는 32~37장·1~31장·40~45장 전체가 됩니다."
+  }
+ }
+}

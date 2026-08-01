@@ -1,0 +1,112 @@
+{
+ "bda47_01": {
+  "ch": "빅데이터 분석 제47장 · 실기 240분 ② 모델링부터 답안 제출까지",
+  "sec": "47.1 기준 모델부터 만든다",
+  "title": "기준 모델부터 만든다",
+  "narr": "46장에서 준비한 데이터를 그대로 이어받아 이제 모델링을 시작합니다. 먼저 아무것도 배우지 않는 기준선을 잡습니다. 다수 클래스(정상)만 찍는 모델은 검증셋에서 정확도 0.750(6/8)을 받습니다 — 불균형 데이터에서는 아무것도 예측하지 않고도 꽤 높은 정확도가 나온다는 뜻입니다. 이제 로지스틱 회귀를 경사하강으로 실제로 학습시켜 봅니다. 반복 0회에서는 기준보다도 낮지만, 반복을 늘리면 훈련 손실이 실제로 줄어들고 검증 정확도가 곧 기준을 넘어섭니다.",
+  "more": "<b>불균형 데이터에서 '정확도'가 위험한 이유</b>: 고장이 20%뿐인 데이터에서 항상 정상만 찍으면 정확도는 80%에 가깝습니다. 언뜻 훌륭해 보이지만 이 모델은 고장을 단 한 건도 잡아내지 못합니다(재현율 0). 실기시험에서 정확도만 보고 '이 모델은 성능이 좋다'고 쓰면, 채점자는 바로 이 기준선과 비교했는지를 확인합니다 — 기준선을 명시하지 않은 정확도 보고는 그 자체로 감점 요인입니다.\n\n<b>경사하강의 초깃값이 왜 0.5인가</b>: 로지스틱 회귀의 초기 가중치와 절편을 0으로 두면 모든 입력에 대해 시그모이드(0)=0.5가 나옵니다. 임계값 0.5 기준으로 0.5는 '고장(1)'으로 판정되므로(부등호 규칙에 따라), 학습 전에는 모든 표본을 고장으로 찍는 셈이 되어 오히려 기준선보다 나쁜 정확도로 시작합니다. 이는 버그가 아니라 초기화의 자연스러운 결과이며, 학습이 진행될수록 실제 데이터에 맞춰 가중치가 조정됩니다.",
+  "more_en": "Before modeling, establish a baseline. Predicting the majority class (normal) for every test row scores 0.750 accuracy (6/8) — high despite never catching a single failure, because the data is imbalanced. Training a logistic regression via gradient descent starts worse than baseline (all weights zero means every prediction is exactly 0.5, classified as failure), but as training loss actually decreases the test accuracy quickly surpasses the baseline.",
+  "problem": {
+   "q": "기준 모델(다수 클래스만 찍는 모델)의 정확도가 0.750인데, 이 모델의 재현율(recall)은 얼마일까요? 왜 그런 값이 나올까요?",
+   "solution": "재현율은 0입니다. 재현율은 실제 고장 사례 중 모델이 고장으로 잡아낸 비율(TP/(TP+FN))인데, 다수 클래스만 찍는 모델은 절대로 '고장'을 예측하지 않으므로 TP가 항상 0입니다. 분자가 0이면 분모가 무엇이든 재현율은 0입니다. 이 모델은 정확도 0.750이라는 그럴듯한 숫자 뒤에서 정작 예측하려는 대상(고장)은 하나도 맞히지 못하는 모델이라는 뜻이며, 이것이 정확도 하나만으로 불균형 데이터의 모델을 평가하면 안 되는 이유입니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai7_03",
+    "label": "경사하강",
+    "sub": "인공지능 7장 · 기울기 반대로 한 걸음씩",
+    "track": "ai"
+   },
+   {
+    "href": "ai.html",
+    "scene": "ai7_04",
+    "label": "학습률 η",
+    "sub": "인공지능 7장 · 보폭의 딜레마",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda47_02": {
+  "ch": "빅데이터 분석 제47장 · 실기 240분 ② 모델링부터 답안 제출까지",
+  "sec": "47.2 평가 지표 고르기",
+  "title": "평가 지표 고르기",
+  "narr": "임계값 T=0.50에서 혼동행렬을 실제로 세면 TP 2, FP 0, FN 0, TN 6이고, 정밀도 1.000·재현율 1.000·F1 1.000입니다. 임계값을 0.65 이상으로 올리면 확률 0.643인 경계 사례를 놓쳐 재현율이 0.500으로 뚝 떨어집니다 — 정밀도와 재현율은 임계값에 따라 실제로 맞바뀝니다. ROC 곡선은 모든 임계값에서의 위양성률과 재현율을 이어 그린 것으로, 이 모델의 AUC(곡선 아래 넓이, 사다리꼴로 실제 적분)는 1.000입니다.",
+  "more": "<b>AUC=1.000인데 왜 재현율이 떨어질 수 있는가</b>: AUC는 '모델이 고장 사례에 정상 사례보다 항상 더 높은 확률을 주는가'(순위의 질)를 재는 지표이지, 특정 임계값에서의 분류 성능을 재는 지표가 아닙니다. 이 모델은 실제로 두 고장 사례의 확률(0.643, 0.959)이 여섯 정상 사례의 확률(모두 0.1 미만)보다 항상 높으므로 순위는 완벽합니다. 하지만 임계값을 0.65 이상으로 두면 순위가 완벽해도 그 중 하나(0.643)를 놓칩니다 — AUC가 높다고 아무 임계값이나 골라도 되는 것은 아닙니다.\n\n<b>임계값을 어떻게 고를 것인가</b>: 설비 고장을 놓치는 비용(FN, 갑작스러운 고장으로 인한 손실)과 잘못된 경보를 내는 비용(FP, 불필요한 점검 비용)을 비교해야 합니다. 이번 사례처럼 고장을 놓치는 비용이 훨씬 크다면 임계값을 낮춰 재현율을 우선하는 것이 실무적으로 합리적입니다. ADP 실기에서는 이런 비용 비교를 한 문장이라도 언급하면 기계적으로 F1이 최대인 임계값만 고르는 답안보다 높은 평가를 받습니다.",
+  "more_en": "At threshold T=0.50 the confusion matrix gives TP 2, FP 0, FN 0, TN 6 — perfect precision, recall, and F1. Raising the threshold above 0.65 causes the model to miss a borderline failure case (probability 0.643), dropping recall to 0.500 — precision and recall genuinely trade off as the threshold moves. The ROC curve traces (FPR, TPR) across every threshold, and this model's AUC (area under the curve, computed by real trapezoidal integration) is 1.000, meaning the ranking itself is perfect even though a poor threshold choice can still miss cases.",
+  "problem": {
+   "q": "이 모델의 AUC가 1.000이라면, 실기 답안에 '이 모델은 완벽하다'고 써도 될까요?",
+   "solution": "안 됩니다. AUC=1.000은 검증셋 8건이라는 매우 작은 표본에서 순위가 완벽했다는 뜻일 뿐, 실제 현장에 배치했을 때도 항상 완벽하다는 보장은 아닙니다. 표본이 8건뿐이면 우연히 순위가 깔끔하게 갈릴 가능성도 충분히 있고, 다음 장면(47.3)에서 볼 교차검증에서는 다른 그림이 나올 수 있습니다. 또한 AUC가 완벽해도 특정 임계값에서는 재현율이 떨어질 수 있다는 점(이번 장면에서 실제로 확인)까지 고려하면, '완벽하다'는 단정보다 '이 작은 검증셋에서는 순위 분리가 완벽했지만 표본 크기의 한계가 있다'는 균형 잡힌 서술이 실기 채점에서 더 안전합니다."
+  },
+  "xref": [
+   {
+    "href": "calculus.html",
+    "scene": "calc6_01",
+    "label": "정적분 — 넓이",
+    "sub": "미적분 6장 · 잘게 쪼개 더하기",
+    "track": "calculus"
+   },
+   {
+    "href": "calculus.html",
+    "scene": "calc7_03",
+    "label": "리만합",
+    "sub": "미적분 7장 · 직사각형으로 펴기",
+    "track": "calculus"
+   }
+  ]
+ },
+ "bda47_03": {
+  "ch": "빅데이터 분석 제47장 · 실기 240분 ② 모델링부터 답안 제출까지",
+  "sec": "47.3 모델 두세 개 비교",
+  "title": "모델 두세 개 비교",
+  "narr": "같은 층화 분할에서 결정트리와 로지스틱 회귀를 실제로 학습시켜 검증셋(8건)으로 비교하면 로지스틱 1.000, 트리 0.875로 로지스틱이 이깁니다 — 트리는 진동 하나만으로 나누는 규칙이라 진동이 정상 범위인 고장 사례를 놓칩니다. 그런데 훈련셋 안에서 4겹 교차검증을 실제로 돌리면 로지스틱 평균 0.972(표준편차 0.048) 대 트리 평균 1.000(표준편차 0.000)로 순위가 실제로 뒤집힙니다. 두 모델의 표준편차 구간이 겹치는 것을 보면, 이 정도 표본에서의 차이는 어느 한쪽이 확실히 낫다고 단정할 근거가 못 됩니다.",
+  "more": "<b>왜 검증 1회와 교차검증 평균이 다른 결론을 낼 수 있는가</b>: 검증셋 8건은 우연히 어떤 사례가 포함되느냐에 따라 결과가 흔들릴 수 있는 작은 표본입니다. 반면 교차검증은 훈련셋을 4조각으로 나눠 번갈아 검증에 써서 4번의 독립적인 평가를 평균 내므로, 우연에 덜 휘둘립니다. 이번 데이터에서 로지스틱이 CV 한 폴드(0.889)에서 흔들린 이유는 그 폴드에 결측 대치로 값이 흐려진 사례(idx3, 원래 가동시간이 컸지만 중앙값으로 대치됨)가 포함되었기 때문입니다 — 반면 트리는 오직 진동만 보므로 이 결측 대치의 영향을 받지 않았습니다.\n\n<b>실기 답안에서 모델을 비교하는 올바른 어투</b>: '트리보다 로지스틱이 더 좋다'처럼 단정하기보다, '검증셋 기준으로는 로지스틱이 우세했으나 교차검증 평균과 표준편차를 함께 보면 두 모델의 성능 차이가 통계적으로 뚜렷하다고 보기 어렵다'처럼 근거와 한계를 함께 쓰는 것이 좋은 답안입니다. 표본이 작을 때 이런 신중함은 감점 요소가 아니라 가점 요소입니다.",
+  "more_en": "On the same stratified split, logistic regression scores 1.000 versus the decision tree's 0.875 on the 8-row test set — the tree, splitting on vibration alone, misses a failure case with normal-looking vibration. But 4-fold cross-validation on the training set actually reverses the ranking: logistic mean 0.972 (std 0.048) versus tree mean 1.000 (std 0.000). With overlapping standard-deviation ranges, this small a sample doesn't support declaring either model definitively better.",
+  "problem": {
+   "q": "교차검증 결과 로지스틱의 표준편차(0.048)가 트리(0.000)보다 큽니다. 이것만으로 '트리가 더 안정적인 모델'이라고 결론 내려도 될까요?",
+   "solution": "성급합니다. 트리의 표준편차가 0인 이유는 이번 데이터에서 진동이라는 단일 변수로 모든 폴드를 완벽하게 나눌 수 있었기 때문이지, 트리라는 모델 종류 자체가 로지스틱보다 항상 안정적이어서가 아닙니다. 실제로 결정트리는 데이터가 조금만 바뀌어도 분할 기준이 크게 달라질 수 있어 일반적으로 로지스틱 회귀보다 분산이 크다고 알려져 있습니다. 이번 낮은 표준편차는 이 데이터셋의 특수성(진동만으로 거의 완벽히 분리됨) 때문이므로, 다른 데이터에도 그대로 적용되는 일반적 결론으로 확대 해석하면 안 됩니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "math_br_expvar",
+    "label": "기댓값과 분산",
+    "sub": "수학 · 분포의 중심과 퍼짐",
+    "track": "math"
+   }
+  ]
+ },
+ "bda47_04": {
+  "ch": "빅데이터 분석 제47장 · 실기 240분 ② 모델링부터 답안 제출까지",
+  "sec": "47.4 결과 해석 — 왜 이런 예측인가",
+  "title": "결과 해석 — 왜 이런 예측인가",
+  "narr": "트리의 변수 중요도(지니 불순도 감소량)는 진동 한 변수에 100% 쏠려 있습니다 — 훈련 데이터를 진동 기준 한 번의 분할로 완벽히 나눌 수 있었기 때문입니다. 반면 로지스틱 회귀의 표준화 계수는 진동이 가장 크지만 정비경과일·온도·가동시간에도 실제로 나눠져 있습니다. 이 차이가 실제로 드러나는 사례가 있습니다 — 진동은 정상 범위인데 가동시간·온도·정비경과일이 모두 높은 한 설비를, 트리(진동만 봄)는 놓치지만 회귀(여러 변수를 종합)는 정확히 고장으로 잡아냅니다.",
+  "more": "<b>변수 중요도가 하나로 쏠리는 것이 왜 위험 신호인가</b>: 트리가 진동 하나로 완벽히 나뉜 것은 이번 훈련 데이터에서는 다행이었지만, 실제 현장에서 진동 센서가 고장 나거나 오작동하면 이 모델은 무력해집니다. 여러 변수에 판단이 분산된 모델(로지스틱)은 한 변수의 결측이나 이상에 상대적으로 더 강건합니다. 실기 답안에서 변수 중요도를 제시할 때, 특정 변수에 과도하게 쏠려 있다면 그 자체를 하나의 위험 요인으로 언급하는 것이 좋은 해석입니다.\n\n<b>what-if 분석의 실무적 의미</b>: 특정 변수를 실제로 바꿔보며 예측이 어떻게 달라지는지 보는 것은 모델을 '설명'하는 가장 직관적인 방법입니다. 이번 사례에서 진동을 더 올리면 예측 확률이 더 오른다는 사실은 모델이 상식과 일치하는 방향으로 작동하고 있음을 확인해주는데, 이런 확인(sanity check)은 실기뿐 아니라 실무에서도 모델을 배포하기 전 반드시 거치는 절차입니다.",
+  "more_en": "The tree's feature importance (Gini impurity decrease) concentrates 100% on vibration, since a single split on that variable perfectly separated the training data. The logistic regression's standardized coefficients, in contrast, spread real weight across maintenance-days, temperature, and hours-run too. This difference shows up concretely: a unit with normal-looking vibration but elevated hours, temperature, and days-since-maintenance is missed by the vibration-only tree but correctly flagged as a likely failure by the multi-variable logistic model.",
+  "problem": {
+   "q": "트리의 변수 중요도가 진동 하나에 100% 쏠린 것은 트리 알고리즘의 결함일까요, 아니면 이 데이터의 특성일까요?",
+   "solution": "알고리즘의 결함이 아니라 이 데이터의 특성입니다. 결정트리는 각 단계에서 불순도를 가장 많이 줄이는 변수와 기준값을 그리디(탐욕적)하게 고르는데, 이번 훈련 데이터는 우연히 진동 하나만으로 거의 완벽하게 나뉘는 구조였기 때문에 첫 분할에서 이미 순수한 두 잎이 나와 더 이상의 분할이 필요 없었습니다(불순도가 0이 되면 트리는 멈춥니다). 만약 데이터가 여러 변수를 함께 봐야만 나뉘는 구조였다면 트리도 여러 변수에 걸쳐 분할했을 것입니다 — 즉 중요도의 쏠림은 트리 알고리즘 자체보다 '어떤 데이터가 얼마나 깔끔하게 갈리는가'에 더 크게 좌우됩니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai3_01",
+    "label": "회귀 vs 분류",
+    "sub": "인공지능 3장 · 지도학습의 두 얼굴",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda47_05": {
+  "ch": "빅데이터 분석 제47장 · 실기 240분 ② 모델링부터 답안 제출까지",
+  "sec": "47.5 답안 작성과 시간 관리",
+  "title": "답안 작성과 시간 관리",
+  "narr": "분석 보고의 뼈대는 문제 정의(8점)→데이터 요약(15점)→전처리 근거(20점)→모델 선택 근거(20점)→성능(25점)→한계와 다음 단계(12점)이며 합계 100점, 필요 시간 합계 40분으로 46.1의 답안작성 예산과 같습니다. 항목마다 분당 점수가 달라, 성능과 한계는 효율이 높고 데이터 요약은 상대적으로 낮습니다. 남은 시간이 부족할 때 문서 순서 그대로 쓰면 점수를 덜 건지지만, 분당 점수가 높은 항목부터 쓰면 같은 시간에 더 많은 점수를 건집니다.",
+  "more": "<b>왜 '순서대로 쓰기'가 손해인가</b>: 이 모형에서 문제 정의→데이터 요약→전처리 근거는 배점 대비 시간이 많이 드는 항목이 앞쪽에 몰려 있어(특히 데이터 요약, 분당 1.88점), 시간이 부족해지면 뒤에 있는 고효율 항목(성능 분당 3.13점, 한계 분당 3.0점)을 아예 쓰지 못하고 시험이 끝나버립니다. 반대로 배점 대비 시간이 짧은 항목부터 쓰면 같은 남은 시간으로 더 많은 점수를 확보한 뒤, 남는 시간에 나머지를 채울 수 있습니다 — 이는 고전적인 배낭 문제(knapsack)의 탐욕 전략과 같은 원리입니다.\n\n<b>실전에서 이 원칙을 쓰는 법</b>: 시험 시작 전에 각 항목의 배점을 가늠하고(문제지에 배점이 명시되는 경우가 많음), 시험 종료 20~30분 전에는 남은 항목 중 무엇을 쓸지 우선순위를 다시 점검하는 것이 좋습니다. 특히 '한계와 다음 단계'는 분량이 짧아도 배점이 있는 경우가 많아 시간이 없을 때 가장 먼저 챙길 만한 항목입니다 — 완벽한 모델링보다 완결된 보고서가 최종 점수를 결정합니다.",
+  "more_en": "The report skeleton runs problem definition (8pts) → data summary (15) → preprocessing rationale (20) → model rationale (20) → performance (25) → limitations (12), totaling 100 points and 40 minutes — matching chapter 46.1's report-writing time budget. Each section's points-per-minute rate differs; performance and limitations are efficient, data summary is not. Writing sections in document order under a real time crunch captures fewer points than tackling the highest points-per-minute items first — the classic greedy strategy for a knapsack-style constraint.",
+  "problem": {
+   "q": "이 모형에서 남은 시간이 40분(예산 전체)일 때는 순서대로 쓰든 우선순위대로 쓰든 왜 점수 차이가 없을까요?",
+   "solution": "남은 시간이 필요 시간의 합(40분)과 같거나 많으면, 어떤 순서로 쓰든 결국 모든 항목을 끝까지 채울 수 있기 때문입니다. 이 모형의 점수는 각 항목에 필요한 시간을 다 채웠는지(비율)로 결정되므로, 시간이 충분해 모든 항목이 100% 채워지면 총점은 항상 100점이 되어 순서와 무관해집니다. 순서가 점수를 가르는 것은 오직 <b>시간이 부족해 일부 항목을 끝까지 못 쓸 때</b>뿐입니다 — 시간이 넉넉하면 순서 걱정보다 내용의 정확성에 집중하는 것이 낫다는 뜻이기도 합니다."
+  }
+ }
+}
