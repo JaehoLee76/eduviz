@@ -1,0 +1,62 @@
+{
+ "bda36_01": {
+  "ch": "빅데이터 분석 제36장 · 무엇을 분석할지 정하는 법",
+  "sec": "36.1 분석 기획이란 무엇인가",
+  "title": "분석 기획이란 무엇인가",
+  "narr": "분석을 시작하기 전, 무엇을(What) 어떤 방식으로(How) 분석할지 미리 계획하는 단계가 <b>분석 기획</b>입니다. 모든 분석 주제는 <b>대상(What)을 아는가</b>·<b>방법(How)을 아는가</b> 두 축으로 실제 분류할 수 있습니다 — 둘 다 알면 <b>최적화</b>, 대상은 알지만 방법을 모르면 <b>솔루션</b>, 방법은 알지만 대상이 불명확하면 <b>통찰</b>, 둘 다 모르면 <b>발견</b>입니다. 예시로 든 '고객 이탈 방지 캠페인'은 지금 상태에 따라 이 네 유형 중 하나로 실제 분류되고, 탭할 때마다 같은 classify() 함수가 다른 답을 돌려줍니다.",
+  "more": "<b>왜 하나의 주제가 네 유형을 넘나드는가</b>: 처음엔 '이미 알고 있는 방법으로 개선하면 된다'는 최적화 관점으로 시작했다가, 막상 데이터를 들여다보면 기존 방법이 안 통하거나(→솔루션이 필요해짐) 애초에 무엇을 봐야 할지 재정의해야 하는 경우(→발견으로 이동)가 실무에서 자주 일어납니다. 그래서 4유형은 처음에 과제를 어디에 놓을지 정하는 틀이지, 끝까지 고정되는 딱지가 아닙니다.\n\n<b>단기 과제 vs 장기 마스터플랜</b>: 개별 과제를 빠르게 해결하는 '과제 중심 접근'(Quick-Win)과, 조직 전체의 분석 역량을 키우는 '장기 마스터플랜 접근'은 서로 배타적이지 않습니다. Quick-Win으로 성과를 증명하면서 동시에 장기 로드맵을 그리는 것이 분석 기획의 실전 요령입니다 — 마스터플랜은 다음 장(37장)에서 다룹니다.",
+  "more_en": "Every analytics topic can be classified along two axes: whether the target (What) is known, and whether the method (How) is known. Knowing both yields Optimization; knowing the target but not the method yields Solution; knowing the method but not the target yields Insight; knowing neither yields Discovery. The example case is reclassified live by the same classify() function as its known/unknown state changes, and in practice a single project often drifts between these four types as data reveals unexpected structure.",
+  "problem": {
+   "q": "이미 잘 알려진 방법으로 매출을 예측하는 프로젝트를 '최적화'로 시작했는데, 분석 도중 기존 예측 방법이 새로 생긴 온라인 채널 데이터에는 전혀 맞지 않는다는 것을 알게 되었습니다. 이 프로젝트는 이제 4유형 중 어디로 이동한 것일까요?",
+   "solution": "대상(무엇을 예측할지, 즉 매출)은 여전히 명확히 알고 있지만 방법을 모르게 되었으므로 '솔루션(Solution)' 유형으로 이동한 것입니다. 이런 경우 분석가는 기존에 잘 구현된 유사 시나리오가 있는지 찾아보거나, 온라인 채널 데이터의 특성에 맞는 새로운 기법을 탐색해야 합니다 — 이것이 바로 4유형이 고정된 딱지가 아니라 과정에서 실제로 이동한다는 사실을 보여주는 사례입니다."
+  }
+ },
+ "bda36_02": {
+  "ch": "빅데이터 분석 제36장 · 무엇을 분석할지 정하는 법",
+  "sec": "36.2 분석 방법론과 KDD 절차",
+  "title": "왜 방법론이 필요한가 — KDD 절차를 실제로 돌려본다",
+  "narr": "분석을 개인의 감이 아닌 반복 가능한 절차로 만든 것이 <b>분석 방법론</b>입니다. 단계를 순서대로 밟는 <b>폭포수 모델</b>, 반복하며 완성도를 높이는 <b>나선형 모델</b>, 일단 만들어보고 고치는 <b>프로토타입 모델</b> 중 프로젝트 특성에 맞게 고릅니다. 그중 데이터 마이닝 관점을 구체화한 것이 <b>KDD</b>(선택→전처리→변환→마이닝→해석/평가)입니다. 매장 14건을 이 절차에 실제로 흘려보내면, 결측 매장 3곳을 뺀 11건 중 매출이 비정상적으로 큰 매장 하나를 걸러내고, 남은 10건을 정규화해 실제로 군집화하면 저매출·저방문 6곳과 고매출·고방문 4곳이라는 두 유형이 드러납니다.",
+  "more": "<b>KDD의 원래 9단계</b>: 정식 KDD는 ①비즈니스 도메인 이해 ②데이터셋 선택 ③노이즈·이상값 제거(전처리) ④변수 선정·차원축소(변환) ⑤마이닝 기법 선택 ⑥마이닝 알고리즘 선택 ⑦마이닝 시행 ⑧결과 해석 ⑨발견된 지식 활용의 9단계입니다. 이 장면은 그중 실제로 수치가 오가는 5단계(선택·전처리·변환·마이닝·해석)를 직접 계산해 보여주고, 기법/알고리즘 선택 같은 판단 단계는 코드 주석으로 압축했습니다.\n\n<b>세 모델의 실전 선택 기준</b>: 요건이 처음부터 명확하고 변경 위험이 적으면 폭포수, 처음 시도하는 프로젝트라 불확실성이 크면 나선형(단 반복 관리 체계가 없으면 오히려 복잡도만 커집니다), 데이터·요구사항 자체가 불분명하면 프로토타입이 적합합니다. 빅데이터 분석에서는 프로토타입 성격이 특히 유용한데, 다음 장면의 CRISP-DM도 사실상 '모델링↔평가'를 반복하는 나선형·프로토타입 혼합 구조입니다.",
+  "more_en": "A methodology turns analysis into a repeatable procedure rather than individual intuition — Waterfall (sequential), Spiral (iterative refinement), or Prototype (build-test-revise), chosen by project characteristics. KDD operationalizes this for data mining: Selection, Preprocessing, Transformation, Mining, Interpretation/Evaluation. Run on 14 real store records, dropping 3 with missing footfall and one revenue outlier leaves 10 clean records; clustering them after normalization reveals two real groups — 6 low-revenue/low-footfall stores and 4 high-revenue/high-footfall stores.",
+  "problem": {
+   "q": "KDD의 '변환(Transformation)' 단계에서 매출과 방문객수를 각각 z점수로 정규화한 이유는 무엇일까요? 정규화 없이 원래 값 그대로 군집화하면 어떤 문제가 생길까요?",
+   "solution": "매출(수십~수백)과 방문객수(수백)는 단위와 크기 규모가 서로 다릅니다. 군집화(K-평균)는 거리를 기준으로 점들을 묶는데, 값의 규모가 훨씬 큰 변수가 거리 계산을 사실상 독점해버려 다른 변수는 거의 영향을 미치지 못하게 됩니다. z점수로 정규화하면 두 변수 모두 평균 0, 표준편차 1인 같은 저울 위에 놓이므로, 매출과 방문객수가 군집 결과에 공평하게 반영됩니다."
+  }
+ },
+ "bda36_03": {
+  "ch": "빅데이터 분석 제36장 · 무엇을 분석할지 정하는 법",
+  "sec": "36.3 CRISP-DM 6단계",
+  "title": "CRISP-DM — 평가에서 되돌아가는 반복을 실제로 본다",
+  "narr": "CRISP-DM은 업무 이해→데이터 이해→데이터 준비→모델링→평가→전개의 6단계로, 폭포수처럼 한 방향이 아니라 단계 사이 <b>피드백</b>이 실제로 일어납니다. 특성 1개(f1)만 쓴 첫 모델의 정확도를 실제로 계산하면 0.60으로 임계값 0.75에 못 미쳐, <b>평가 단계가 실제로 모델링 단계로 되돌아갑니다</b>. 특성을 f2로 바꿔 다시 모델링하면 정확도가 0.90으로 오르고 나서야 전개 단계로 넘어갑니다 — 가짜 숫자가 아니라 10건의 데이터에 두 규칙을 실제로 적용해 맞힌 개수를 센 결과입니다.",
+  "more": "<b>왜 f1만으로는 부족했는가</b>: f1은 이탈·상담 만족과 약하게만 연관된 변수였고, f2가 실제 정답을 거의 완벽하게 가르는 변수였습니다. 실무에서는 어떤 변수가 결정적인지 미리 알 수 없기 때문에, 모델링→평가를 여러 번 반복하며 변수를 바꾸거나 추가하는 것이 CRISP-DM의 정상적인 작동 방식입니다. 한 번에 통과하는 모델을 만드는 것이 목표가 아니라, <b>실패를 감지하고 되돌아가는 절차 자체</b>가 방법론의 핵심입니다.\n\n<b>빅데이터 분석 방법론 5단계와의 대응</b>: CRISP-DM을 빅데이터 환경에 맞게 확장한 것이 <b>분석기획→데이터준비→데이터분석→시스템구현→평가및전개</b>의 5단계입니다. 업무·데이터 이해가 분석기획으로, 데이터 준비가 그대로 데이터준비로, 모델링·평가가 데이터분석으로 합쳐지고, 전개가 시스템구현과 평가및전개로 나뉩니다. 여기서도 데이터 분석 단계에서 데이터가 더 필요하면 데이터준비 단계로 돌아가는 피드백이 있습니다 — CRISP-DM의 되돌아가는 화살표와 같은 발상입니다.",
+  "more_en": "CRISP-DM's six phases include real feedback loops rather than one-way progression. A single-feature model scores 0.60 accuracy, missing the 0.75 threshold, so evaluation actually sends the process back to modeling; swapping in a different feature raises accuracy to 0.90, which then passes and proceeds to deployment — both numbers come from applying two literal rules to 10 records and counting correct predictions. The Big Data Analytics Methodology's 5 phases (Planning, Preparing, Analyzing, Developing, Deploying) is CRISP-DM adapted for big-data environments, with the same kind of feedback loop between Analyzing and Preparing.",
+  "problem": {
+   "q": "만약 모델 v2도 평가에서 임계값을 넘지 못했다면, CRISP-DM은 그다음에 어느 단계로 돌아갈 수 있을까요? 모델링 단계로 되돌아가는 것만이 유일한 선택지일까요?",
+   "solution": "모델링을 계속 반복해도 성능이 안 오른다면, CRISP-DM은 더 앞 단계인 <b>데이터 준비</b>(새로운 변수를 추가로 만들거나 다른 데이터를 결합)나 심지어 <b>데이터 이해</b>·<b>업무 이해</b> 단계로도 되돌아갈 수 있습니다. 예를 들어 f1·f2 두 특성 모두 부족하다면 애초에 다른 데이터를 더 수집해야 한다는 뜻이므로 데이터 준비 단계로, 문제 정의 자체가 잘못되었다면 업무 이해 단계로 돌아가야 합니다. CRISP-DM의 화살표가 여러 단계 사이에 그려져 있는 이유가 이것입니다 — 되돌아가는 지점이 항상 바로 이전 단계만은 아닙니다."
+  }
+ },
+ "bda36_04": {
+  "ch": "빅데이터 분석 제36장 · 무엇을 분석할지 정하는 법",
+  "sec": "36.4 분석 과제 발굴 — 하향식 접근",
+  "title": "하향식 접근 — 문제 탐색에서 타당성 검토까지",
+  "narr": "하향식(Top Down) 접근은 문제가 이미 주어진 상태에서 체계적으로 답을 찾아갑니다. <b>문제 탐색</b>은 비즈니스 모델 캔버스의 업무·제품·고객·규제감사·지원인프라 5개 영역을 훑어 후보 10개를 실제로 나열합니다. <b>문제 정의</b>는 그중 하나('콜센터 대기시간 최소화')를 데이터 문제로 바꾸고, <b>해결방안 탐색</b>은 역량 보유 여부와 시스템 방식을 실제로 교차해 '교육/채용 후 활용'으로 판정합니다. <b>타당성 검토</b>는 6개 후보의 데이터확보가능성×기술적용가능성(곱)과 순편익을 실제로 합산해 정렬하면, '고객 이탈 방지'가 34.0점으로 1위, 'SNS 여론 모니터링'이 8.0점으로 꼴찌가 됩니다.",
+  "more": "<b>왜 비즈니스 모델 캔버스를 쓰는가</b>: 개인이 떠올리는 문제 목록은 자기가 익숙한 영역에 쏠리기 마련입니다. 캔버스의 5개 영역을 강제로 다 훑으면 '규제·감사'나 '지원 인프라'처럼 평소 놓치기 쉬운 영역의 기회도 빠짐없이 걸러낼 수 있습니다 — 이것이 개별적으로 문제를 떠올리는 것보다 전체 관점의 기준 모델을 쓰는 이유입니다.\n\n<b>타당성 검토의 두 축</b>: 경제적 타당성(비용 대비 편익)과 데이터·기술적 타당성(데이터가 실제로 있는가, 기술이 검증되었는가)은 서로 다른 질문입니다. 이 장면의 점수식은 feas(데이터×기술)를 곱으로, roi(효과-비용)를 별도로 계산한 뒤 합산해 두 축을 하나의 순위로 통합합니다. 실무에서는 이 가중치를 기업 상황에 맞게 조정하며, 곱셈 항을 늘리면 '당장 할 수 있는 것'이, 편익 항을 늘리면 '가치가 큰 것'이 우선순위에서 앞서게 됩니다.",
+  "more_en": "Top-down discovery scans the five areas of the business model canvas to enumerate candidate problems exhaustively, converts one into a data problem, cross-references capability and system readiness to pick an approach, then ranks candidates by multiplying data-availability and technical-feasibility scores and adding net benefit — yielding 'customer churn prevention' at 34.0 points as the top priority and 'social media sentiment monitoring' at 8.0 as the lowest, computed rather than guessed.",
+  "problem": {
+   "q": "타당성 검토 점수식에서 feas(데이터확보가능성×기술적용가능성)를 곱셈으로 계산하는 이유는 무엇일까요? 덧셈으로 바꾸면 어떤 문제가 생길까요?",
+   "solution": "곱셈으로 계산하면 두 조건 중 하나라도 매우 낮으면(0에 가까우면) 전체 feas 점수도 함께 낮아집니다 — 데이터가 전혀 없는데 기술만 뛰어나거나, 기술이 전혀 없는데 데이터만 풍부한 과제는 어차피 수행이 어렵기 때문에 이런 '동시 충족' 관계를 반영하기에 곱셈이 적합합니다. 반대로 덧셈으로 계산하면 한쪽 점수가 아주 높다는 이유만으로 다른 쪽이 0에 가까워도 전체 점수가 높게 나올 수 있어, 실제로는 수행 불가능한 과제가 순위표에서 과대평가될 위험이 있습니다."
+  }
+ },
+ "bda36_05": {
+  "ch": "빅데이터 분석 제36장 · 무엇을 분석할지 정하는 법",
+  "sec": "36.5 상향식 접근과 분석 프로젝트 관리",
+  "title": "상향식 접근과 분석 프로젝트 관리",
+  "narr": "상향식(Bottom Up)은 정답을 미리 정하지 않고 데이터를 보며 문제를 재정의합니다. 디자인 싱킹의 <b>발산</b> 단계에서 아이디어 8개를 실제로 늘어놓고, <b>수렴</b> 단계에서 영향력×실행가능성 점수를 실제로 곱해 정렬하면 '개인화 추천 강화'가 15점으로 1위가 됩니다. <b>프로토타이핑</b>은 가설→실험→테스트→통찰을 반복하는데, 반복할수록 불확실성이 실제로 줄어듭니다(1회 후 55%, 3회 후 17%). 분석 프로젝트는 일반 IT 프로젝트의 <b>범위·시간·원가·품질·통합</b> 5영역에 더해, 데이터 특유의 5가지 차원을 함께 봐야 하며 그중 <b>정확도·정밀도</b>는 다트 좌표로 실제 계산해 보면 서로 다른 개념임이 뚜렷이 드러납니다.",
+  "more": "<b>발산과 수렴을 오가는 이유</b>: 처음부터 좁게 시작하면 좋은 아이디어를 놓칠 위험이 있고, 계속 넓게만 있으면 결정을 내릴 수 없습니다. 디자인 싱킹은 아이디어를 최대한 늘어놓는 발산과, 기준을 세워 추리는 수렴을 반복적으로 오가며 두 위험을 동시에 줄입니다. 상향식 데이터 분석 역시 비지도학습(정답 없이 구조를 찾는)에 가깝고, 하향식은 지도학습(정답을 알고 맞히는)에 가깝습니다.\n\n<b>정확도(Accuracy)와 정밀도(Precision)는 트레이드오프일 수 있다</b>: 신용평가 모델처럼 해석 가능성이 중요한 경우, 정확도를 올리려고 모델을 복잡하게 만들면 오히려 '왜 이런 결과가 나왔는지' 설명하기 어려워져 실무 활용도가 떨어집니다. 그래서 분석 프로젝트 관리에서는 정확도·정밀도뿐 아니라 Data Size(데이터 규모)·Data Complexity(정형/비정형 혼합)·Speed(배치냐 실시간이냐)·Analytic Complexity(정확도-해석력 트레이드오프)까지 5가지 차원을 사전에 함께 고려해야 합니다.",
+  "more_en": "Bottom-up analysis diverges (listing 8 raw ideas) and converges (sorting by impact×feasibility, ranking 'enhanced personalized recommendations' at score 15) in the design-thinking style; prototyping iterations reduce measured uncertainty from 55% after one round to 17% after three. Analytics projects require the standard PM areas (Scope, Time, Cost, Quality, Integration) plus five data-specific dimensions — Data Size, Data Complexity, Speed, Analytic Complexity, and Accuracy&Precision, the latter pair shown as genuinely distinct via computed dart-board bias and spread.",
+  "problem": {
+   "q": "'정확도는 높지만 정밀도는 낮다'는 상태를 실무에서 만난다면, 어떻게 개선을 시작해야 할까요? 이것이 '정확도도 낮고 정밀도도 낮은' 상태와 어떻게 다른 처방이 필요할까요?",
+   "solution": "정확도가 높다는 것은 여러 번 시도한 결과의 평균이 정답 근처에 있다는 뜻이므로, 모델 자체의 방향(편향)은 맞습니다. 문제는 시도마다 결과가 들쭉날쭉한 것(분산이 큼)이므로, 데이터를 더 모으거나 모델을 안정화하는 방향(정규화, 앙상블 등)으로 개선해야 합니다. 반대로 정확도·정밀도가 둘 다 낮다면 평균 자체가 정답에서 벗어나 있다는 뜻이므로, 분산을 줄이는 처방만으로는 부족하고 모델의 가정이나 사용한 변수 자체를 재검토해야 합니다 — 같은 '성능이 낮다'는 증상이라도 정확도·정밀도를 나눠 보면 처방이 완전히 달라집니다."
+  }
+ }
+}

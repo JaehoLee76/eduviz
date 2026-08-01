@@ -1,0 +1,62 @@
+{
+ "bda34_01": {
+  "ch": "빅데이터 분석 제34장 · 데이터가 흘러 모이는 길",
+  "sec": "34.1 ETL — 추출·변환·적재",
+  "title": "ETL — 추출·변환·적재",
+  "narr": "지금까지는 이미 깨끗하게 정리된 표를 놓고 분석 기법을 다뤘습니다. 이제 그 표가 애초에 어떻게 모이는지 살펴봅니다. 주문 원본 12행이 시스템 A·B에서 나와 하나의 데이터 웨어하우스로 모이는 과정을 실제로 밟아봅니다. <b>추출(Extract)</b>은 12건을 형식·결측이 뒤섞인 채 그대로 가져옵니다. <b>변환(Transform)</b>은 결측 금액 2건을 중앙값 15,500원으로 채우고, 금액 형식 4건과 날짜 형식 5건을 통일합니다. <b>적재(Load)</b>는 고객ID가 없어 되살릴 수 없는 2건을 제외하고 10건만 최종 적재합니다.",
+  "more": "<b>왜 ETL은 세 단계로 나뉘는가</b>: 원천 시스템에서 곧바로 분석용 표로 옮기면 원본과 목적지가 강하게 얽혀, 원천 시스템 하나가 바뀔 때마다 모든 목적지 코드를 고쳐야 합니다. 추출·변환·적재를 분리하면 스테이징(임시 저장) 단계에서 데이터 품질을 점검하고 보정할 여유가 생기고, 여러 원천을 같은 변환 규칙으로 통일해 목적지(데이터 웨어하우스·데이터 마트)를 오염 없이 유지할 수 있습니다.\n\n<b>ODS와 데이터 웨어하우스</b>: 이 장면의 「적재」는 단순화한 것이고, 실무에서는 추출된 데이터가 먼저 ODS(운영 데이터 스토어)에 모여 실시간에 가깝게 정제·통합되고, 이후 데이터 웨어하우스(주제 중심·읽기 전용·시계열 이력을 갖는 저장소)나 특정 부서용 데이터 마트로 옮겨지는 경우가 많습니다.\n\n<b>제외된 행은 사라지는가</b>: 고객ID가 없는 2건을 적재에서 제외한 것은 「버림」이 아니라 「보류」에 가깝습니다 — 실무에서는 이런 행을 별도 오류 테이블에 남겨 원인을 추적하고, 원천 시스템 담당자에게 되돌려 보정하도록 합니다.",
+  "more_en": "ETL splits data movement into three real stages. Extraction pulls 12 raw order rows from two source systems as-is. Transformation actually fills 2 missing amounts with the median (15,500), and normalizes 4 amount formats and 5 date formats. Loading drops 2 rows lacking a customer ID (unrecoverable for downstream joins) and loads the remaining 10 — every count on screen comes from processing the 12 rows one by one.",
+  "problem": {
+   "q": "변환 단계에서 결측 금액을 평균이 아니라 중앙값으로 채운 이유는 무엇일까요?",
+   "solution": "평균은 극단값(예: 이례적으로 큰 주문 금액 하나)에 크게 흔들리지만, 중앙값은 가운데 순위의 값 하나(또는 가운데 두 값의 평균)만 보므로 극단값의 영향을 덜 받습니다. 결측을 채우는 목적은 「있을 법한 값」으로 대체해 이후 분석이 크게 틀어지지 않게 하는 것인데, 실제로 이 12건 중에는 8,500원부터 31,000원까지 흩어진 금액이 섞여 있어 중앙값(15,500원)이 평균보다 더 안전한 대표값입니다."
+  }
+ },
+ "bda34_02": {
+  "ch": "빅데이터 분석 제34장 · 데이터가 흘러 모이는 길",
+  "sec": "34.2 CDC — 바뀐 것만 옮기기",
+  "title": "CDC — 바뀐 것만 옮기기",
+  "narr": "앞 장면에서 적재까지 마쳤다면, 다음 날도 같은 파이프라인을 다시 돌려야 할까요? 고객 잔액 10행에서 마지막 동기화 이후 실제로 3건을 변경합니다. <b>전체 재적재</b>는 매번 전체 10건을 통째로 다시 옮기지만, <b>CDC(변경 데이터 캡처)</b>는 타임스탬프가 마지막 동기화(ts=100)를 넘는 3건만 골라 옮깁니다 — 같은 결과에 도달하는 데 70% 적은 데이터만 움직입니다.",
+  "more": "<b>CDC를 구현하는 다섯 갈래 방식</b>: 이 장면은 <b>타임스탬프</b> 방식(변경 시점을 컬럼에 기록)을 썼지만, 그 밖에도 레코드마다 <b>버전 번호</b>를 매겨 더 높은 버전만 골라내는 방식, <b>상태(True/False)</b> 값으로 변경 여부를 표시하는 방식, 데이터베이스 <b>트리거</b>로 변경이 일어나는 즉시 대상 시스템에 전파하는 방식, DBMS가 이미 기록해 두는 <b>트랜잭션 로그</b>를 훑어 변경 내역을 읽어내는 방식이 있습니다. 트리거 방식은 구현이 직관적이지만 시스템 부담과 유지보수 복잡도를 늘리고, 로그 스캐너 방식은 원천 시스템에 주는 부담이 가장 적어 널리 쓰이지만 DBMS마다 로그 형식이 달라 이기종 환경에서는 구현이 번거롭습니다.\n\n<b>푸시 대 풀</b>: CDC로 찾아낸 변경분을 대상 시스템에 즉시 밀어넣는 방식을 <b>푸시</b>, 대상 시스템이 주기적으로 원천을 들여다보고 변경분을 끌어오는 방식을 <b>풀</b>이라고 합니다.\n\n<b>절감폭은 변경 비율에 달렸다</b>: 이번 동기화에서는 10건 중 3건만 바뀌어 70% 절감했지만, 만약 10건 모두가 바뀌었다면 CDC도 전체 재적재와 똑같이 10건을 옮겨야 합니다 — CDC의 이득은 「평소에는 대부분의 데이터가 안 바뀐다」는 사실에서 나옵니다.",
+  "more_en": "Having just loaded 10 rows, the next sync need not move all of them again. This scene actually changes 3 of 10 balance rows, then compares full reload (always moves all 10) against timestamp-based CDC (moves only rows whose timestamp exceeds the last sync mark, ts=100) — a real, counted 70% reduction. Other real CDC mechanisms include version numbers, boolean status flags, database triggers, and transaction-log scanning.",
+  "problem": {
+   "q": "트랜잭션 로그를 스캔하는 CDC 방식이 트리거 방식보다 원천 시스템에 부담을 덜 주는 이유는 무엇일까요?",
+   "solution": "트리거는 데이터가 바뀔 때마다 원천 데이터베이스 안에서 추가 코드(트리거 로직)를 실행해야 하므로, 트랜잭션이 일어날 때마다 원천 시스템의 처리 부담이 늘어나고 트랜잭션 무결성에도 영향을 줄 수 있습니다. 반면 트랜잭션 로그는 DBMS가 장애 복구 등을 위해 어차피 기록해 두는 정보이므로, CDC 도구는 그 로그를 나중에 별도로 읽기만 하면 됩니다 — 원천 시스템의 정상적인 트랜잭션 처리 경로에 끼어들지 않으므로 영향이 최소화됩니다."
+  }
+ },
+ "bda34_03": {
+  "ch": "빅데이터 분석 제34장 · 데이터가 흘러 모이는 길",
+  "sec": "34.3 EAI — 연결의 폭증과 허브",
+  "title": "EAI — 연결의 폭증과 허브",
+  "narr": "ETL과 CDC가 데이터 한 건 한 건을 다루는 방식이었다면, 이번에는 시스템과 시스템을 잇는 배선 자체의 문제입니다. 시스템끼리 필요할 때마다 직접 잇는 <b>포인트 투 포인트</b> 방식은 연결 수가 n(n-1)/2로 늘어나 시스템 5개면 실제로 10개의 선을 그어야 합니다. 가운데 <b>허브(브로커)</b>를 두고 모든 시스템이 허브하고만 연결되는 <b>허브 앤 스포크</b>(EAI) 방식은 같은 5개 시스템이라도 연결이 5개로 끝납니다. n을 3에서 8로 늘려보면 포인트투포인트 선은 3개에서 28개까지 가파르게 치솟지만 허브 방식은 3에서 8로 직선으로 늘어납니다.",
+  "more": "<b>EAI 허브를 이루는 네 부품</b>: 각 정보 시스템과 EAI 엔진을 잇는 <b>어댑터</b>(연결 통로), 어댑터들 사이 데이터가 오가는 통로인 <b>버스</b>, 연동 규칙을 통제하는 <b>브로커</b>, 서로 다른 데이터 형식을 맞춰주는 <b>트랜스포머</b>로 구성됩니다.\n\n<b>EAI의 두 동작 방식</b>: 한 시스템에서 의미 있는 이벤트(신규 생성·갱신·커밋)가 생기면 미리 구독해 둔 다른 시스템들에 허브가 알아서 뿌려주는 방식을 <b>Mediation</b>(발행/구독 모델)이라 하고, 외부 시스템의 요청을 허브가 받아 필요한 데이터를 돌려주는 방식을 <b>Federation</b>(요청/응답 모델)이라 합니다.\n\n<b>허브가 만능은 아니다</b>: 연결 수는 확실히 줄지만, 모든 데이터가 허브 하나를 거쳐야 하므로 허브가 느려지거나 멈추면 전체 연동이 함께 멈추는 단일 장애점이 될 수 있습니다 — 연결의 복잡도를 낮추는 대신 허브 자체의 안정성·성능에 더 크게 의존하게 되는 맞교환입니다.",
+  "more_en": "Point-to-point integration among n systems requires n(n-1)/2 direct links — actually drawn, 5 systems need 10 lines. A hub-and-spoke (EAI) architecture routes everything through a central broker, so the same 5 systems need only 5 links. Sweeping n from 3 to 8 shows point-to-point connections rocketing from 3 to 28 while hub connections grow linearly from 3 to 8 — the reason enterprises adopt an EAI hub (adapters, bus, broker, transformer) in one graph.",
+  "problem": {
+   "q": "시스템이 10개로 늘어나면 포인트투포인트 연결 수는 몇 개가 될까요? 허브 방식과 비교해 보세요.",
+   "solution": "n=10이면 n(n-1)/2 = 10×9/2 = 45개의 직접 연결이 필요합니다. 허브 앤 스포크 방식은 여전히 10개의 연결(각 시스템→허브)만 있으면 됩니다. 시스템이 n=8일 때 이미 28 대 8로 3배 넘게 벌어졌는데, n=10에서는 45 대 10으로 격차가 더 벌어집니다 — 시스템 수가 늘어날수록 허브 방식의 이점이 제곱 규모로 커진다는 뜻입니다."
+  }
+ },
+ "bda34_04": {
+  "ch": "빅데이터 분석 제34장 · 데이터가 흘러 모이는 길",
+  "sec": "34.4 배치냐 실시간이냐 — 지연시간과 처리량",
+  "title": "배치냐 실시간이냐 — 지연시간과 처리량",
+  "narr": "ETL과 CDC로 무엇을 옮길지, EAI로 어떻게 연결할지를 봤다면, 이제 언제 옮길지가 남았습니다. 같은 이벤트 흐름 21건을 두 방식으로 실제 시뮬레이션합니다. <b>배치</b>는 1.0초 창(window)마다 모아서 한꺼번에 처리하므로, 창이 끝나기 직전에 도착한 사건도 창이 닫힐 때까지 기다려야 해 평균 지연 0.87초가 걸립니다 — 대신 6번의 실행만으로 전부 처리됩니다. <b>스트림</b>은 도착 즉시(서비스 시간 0.05초) 처리해 평균 지연이 0.090초로 훨씬 짧지만, 사건이 몰리는 순간에는 한 대기열에 쌓여 지연이 순간적으로 늘어나고, 21번의 개별 처리 오버헤드를 그대로 떠안습니다.",
+  "more": "<b>일괄(Batch) 통합의 자리</b>: ETL로 운영 시스템 데이터를 정기적으로 모아 ODS·데이터 웨어하우스·데이터 마트를 구성한 뒤 OLAP 질의로 경영 분석을 하는 흐름이 대표적인 배치 사례입니다 — 대용량을 다루기 좋고, 처리 로직이 복잡해도 여유 있게 실행할 수 있습니다.\n\n<b>동기식 실시간 통합의 자리</b>: 공장·항만의 센서에서 실시간으로 데이터를 받아 즉시 상태를 감시하고 필요하면 작업을 통제하는 경우처럼, 빠른 파악과 대응이 목적일 때는 실시간(또는 근접 실시간) 통합을 씁니다. 이런 구조를 흔히 복합 이벤트 처리(Complex Event Processing)라고 부릅니다.\n\n<b>버스트가 스트림의 약점을 드러낸다</b>: 이번 시뮬레이션에서 사건이 2.00~2.06초 사이에 몰리는 구간을 보면, 스트림 방식의 지연이 그 구간에서만 순간적으로 늘어나는 것을 확인할 수 있습니다 — 이는 스트림 처리기가 감당할 수 있는 처리 용량(서버 수·처리 속도)을 미리 넉넉히 확보해야 하는 이유입니다. 배치는 창 하나에 사건이 아무리 몰려도 다음 창까지만 기다리면 되므로 이런 순간적 지연 폭증에서는 오히려 자유롭습니다.",
+  "more_en": "The same 21-event stream is actually simulated two ways. Batching into 1.0s windows yields average latency 0.87s (an event just missing a window must wait for the next) but needs only 6 executions total. Streaming processes on arrival (0.05s service time) for a much lower average latency of 0.090s, but a burst of near-simultaneous arrivals (2.00–2.06s) causes real queueing that spikes per-event latency, and it pays 21 separate processing overheads instead of 6 bulk runs.",
+  "problem": {
+   "q": "배치 윈도우 크기 W를 아주 크게(예: 10초) 늘리면 평균 지연시간과 실행 횟수는 각각 어떻게 바뀔까요?",
+   "solution": "창이 커질수록 사건이 창 안에서 기다리는 시간이 늘어나므로 평균 지연시간은 커집니다(극단적으로 창 하나에 모든 사건이 들어가면 지연은 사건마다 「창이 끝나는 시각 − 도착 시각」이 되어 전반적으로 더 길어집니다). 반대로 실행 횟수(배치 처리 횟수)는 줄어듭니다 — 창이 커질수록 더 적은 횟수로 전체를 처리할 수 있기 때문입니다. 즉 창 크기는 지연시간과 처리 오버헤드(실행 횟수) 사이의 맞교환을 조절하는 손잡이입니다."
+  }
+ },
+ "bda34_05": {
+  "ch": "빅데이터 분석 제34장 · 데이터가 흘러 모이는 길",
+  "sec": "34.5 대용량 비정형 로그, 구조를 얻다",
+  "title": "대용량 비정형 로그, 구조를 얻다",
+  "narr": "지금까지는 표 형태의 정형 데이터를 다뤘습니다. 서버에서 쏟아지는 로그 원문 10줄은 형식이 제각각인 <b>비정형 데이터</b>입니다. LEVEL·시각·메시지 순서를 검사하는 정규식으로 실제로 한 줄씩 파싱해 보면 7줄은 구조를 얻어 레벨(INFO 4·WARN 1·ERROR 2)별로 나뉘어 저장되고, 3줄은 형식이 안 맞아 재처리 대기함(quarantine)으로 빠집니다.",
+  "more": "<b>로그가 비정형 데이터의 대표 격인 이유</b>: 로그는 원래 시스템 문제를 진단하려고 사람이 눈으로 읽으려는 목적으로 설계된 경우가 많아, 표(정형)가 아니라 자유 형식 문장에 가깝습니다. 최근에는 이런 로그가 사용자 행태 분석·마케팅 전략 같은 핵심 비즈니스 정보의 원천으로 쓰이면서, 이를 정형 데이터로 바꾸는 <b>변환</b> 능력이 빅데이터 처리 기술의 핵심 특성이 되었습니다.\n\n<b>왜 실패한 줄을 버리지 않고 남겨두는가</b>: 재처리 대기함에 남은 3줄은 「쓸모없는 줄」이 아니라 「지금 규칙으로는 못 읽은 줄」입니다. 실무에서는 이런 줄들을 모아 두었다가 패턴을 분석해 파싱 규칙을 넓히거나, 새로운 로그 형식이 등장했다는 신호로 활용합니다 — 규칙에 안 맞는다고 버리면 그 신호 자체를 잃어버립니다.\n\n<b>맵리듀스와의 연결</b>: 이 장면의 파싱은 로그 한 줄 단위로 이뤄지는데, 실제 서비스에서는 이런 규칙을 수백만·수억 줄에 병렬로 적용해야 합니다 — 다음 장에서 다룰 맵리듀스가 바로 이런 대량의 단순 반복 작업을 나눠 처리하는 방식입니다.",
+  "more_en": "Ten raw log lines exhibit the free-form, non-tabular shape typical of unstructured data. Actually applying a regex that expects LEVEL, timestamp, then message parses 7 lines into structured fields (INFO 4, WARN 1, ERROR 2) while 3 malformed lines fail the pattern and are routed to a quarantine bucket rather than discarded — a real per-line parsing pipeline, not an invented headline statistic.",
+  "problem": {
+   "q": "재처리 대기함에 쌓인 로그가 계속 늘어난다면, 이는 파이프라인에 대해 무엇을 시사할까요?",
+   "solution": "재처리 대기함이 계속 늘어난다는 것은 현재의 파싱 규칙이 실제로 들어오는 로그 형식의 상당 부분을 놓치고 있다는 뜻입니다 — 예를 들어 새로운 애플리케이션이 배포되면서 로그 형식이 바뀌었거나, 애초에 규칙을 설계할 때 고려하지 못한 형식이 섞여 있을 수 있습니다. 이 경우 대기함에 쌓인 원문을 실제로 열어 공통 패턴을 찾아 파싱 규칙을 넓히거나, 형식별로 규칙을 여러 개 두는 방향으로 파이프라인을 보완해야 합니다."
+  }
+ }
+}

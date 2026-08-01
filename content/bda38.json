@@ -1,0 +1,62 @@
+{
+ "bda38_01": {
+  "ch": "빅데이터 분석 제38장 · 시각화로 인사이트를 얻는 과정",
+  "sec": "38.1 숫자만 보면 안 보이는 것",
+  "title": "숫자만 보면 안 보이는 것",
+  "narr": "예측 모델링과 여러 분석 기법을 다뤄본 지금, 한 걸음 물러나 「시각화 자체」를 다시 봅니다. 두 지점 A·B의 광고비 대비 매출증가 자료 11건씩을 실제로 계산해 보면 평균·분산·상관계수가 소수 셋째 자리까지 사실상 같습니다 — 표만 보고서라면 두 지점을 「똑같다」고 결론 내렸을 것입니다. 그런데 같은 좌표축 위에 실제로 점을 찍어보면 A지점은 고르게 늘어나는 직선에 가까운 관계지만, B지점은 뚜렷한 곡선입니다. 요약 숫자로는 완전히 가려져 있던 차이가 그림에서는 한눈에 드러납니다.",
+  "more": "<b>이 장면이 보여주는 것은 통계의 함정이 아니라 시각화의 역할입니다</b>: 평균·분산·상관계수는 데이터를 몇 개의 숫자로 압축(요약)하는 과정이고, 압축은 필연적으로 정보를 버립니다. 두 지점의 관계가 「직선이냐 곡선이냐」라는 정보는 애초에 이 세 숫자(평균·분산·상관계수)가 담을 수 있는 범위 밖에 있습니다 — 계산이 틀린 게 아니라, 그 숫자들이 원래 답할 수 없는 질문이었던 것입니다.\n\n<b>그래서 시각화 인사이트 프로세스는 결과 보고가 아니라 분석 도구</b>입니다: 흔히 시각화를 「분석이 끝난 뒤 예쁘게 포장해 보여주는 것」으로 오해하지만, 이 장면처럼 시각화를 <b>분석 과정 중간에</b> 끼워 넣어야 요약 통계가 놓친 구조(비선형 관계, 이상값, 부분집단)를 실제로 찾아낼 수 있습니다. 이후 이어지는 탐색·분석·활용 세 단계 모두 이 원칙 위에 서 있습니다.",
+  "more_en": "Two branches' advertising-vs-sales-growth data (11 points each) turn out to have nearly identical mean, variance, and correlation to three decimal places — a summary table would call them identical. But plotting the same points on shared axes reveals branch A follows a fairly straight relationship while branch B is clearly curved. Summary statistics necessarily discard information a picture preserves; visualization is not a reporting polish step but an analytical tool for catching what numbers alone hide.",
+  "problem": {
+   "q": "평균·분산·상관계수가 모두 같은 두 데이터가 있다면, 이 세 숫자만으로는 절대 구분할 수 없는 차이에는 또 어떤 것들이 있을까요?",
+   "solution": "이번 장면의 직선-vs-곡선 관계 외에도, 예를 들어 한쪽에는 아주 동떨어진 이상값이 하나 섞여 있어서 전체적인 인상은 비슷해 보이지만 실제로는 「대부분의 점 + 극단값 하나」로 이루어진 데이터일 수 있습니다(이상값 하나가 상관계수를 원하는 방향으로 끌어올리거나 끌어내릴 수 있기 때문입니다). 또한 데이터가 여러 개의 뚜렷이 구분되는 무리(군집)로 나뉘어 있는데도 전체 평균·분산·상관계수는 하나로 뭉뚱그려진 값만 보여줄 수도 있습니다. 세 숫자는 「데이터를 요약한 결과」이지 「데이터 자체」가 아니므로, 그림으로 직접 확인하기 전까지는 이런 차이를 절대 알 수 없습니다."
+  }
+ },
+ "bda38_02": {
+  "ch": "빅데이터 분석 제38장 · 시각화로 인사이트를 얻는 과정",
+  "sec": "38.2 탐색(1단계) — 구조·분포·결측·이상값을 훑다",
+  "title": "탐색(1단계) — 구조·분포·결측·이상값을 훑다",
+  "narr": "탐색 단계에서 가장 먼저 할 일은 정답을 찾는 것이 아니라 <b>질문을 만드는 것</b>입니다. 12개월×3제품 원자료를 실제로 훑어보면 P1(가전)의 7월 칸이 비어 있습니다 — 결측을 세어 보면 남은 값들로 평균·중앙값·사분위수를 실제로 계산할 수 있습니다. P2(의류)는 6월 값이 유독 큰데, 「눈으로 튀어 보인다」를 실제 규칙(사분위범위 1.5배)으로 검증하면 실제로 상한을 넘어서므로 이상값으로 판정됩니다. P3(식품)은 결측·이상값 모두 없습니다.",
+  "more": "<b>왜 이상값을 '규칙'으로 판정하는가</b>: 「눈으로 봤을 때 커 보인다」는 사람마다 기준이 다르고 데이터가 커지면 눈으로 다 훑을 수도 없습니다. 사분위범위(IQR) 규칙은 1사분위와 3사분위 사이의 폭(IQR)의 1.5배를 3사분위에 더한 값을 상한으로 삼는데, 이 「1.5배」라는 계수는 정규분포를 가정했을 때 극히 드문 값(약 0.7% 확률)만 이상값으로 잡히도록 존 튜키(John Tukey)가 제안한 경험적 기준입니다 — 절대적인 진리가 아니라 널리 쓰이는 관행적 임계값입니다.\n\n<b>탐색 단계 질문의 유형</b>: 이 장면에서 실제로 던진 질문들 — 「이 칸은 왜 비었는가?」(결측), 「이 값은 왜 다른 값들과 다른가?」(이상값), 「전체적으로 어떤 모양인가?」(분포) — 은 모두 <b>개별 값보다 전체 패턴</b>을 먼저 살피는 데서 나옵니다. 결측이나 이상값을 발견했다고 곧바로 지우거나 고치는 것이 아니라, 「왜 그런지」를 다음 분석 단계로 넘기는 것이 탐색의 역할입니다.",
+  "more_en": "Exploration starts by forming questions, not finding answers. Scanning the raw 12-month x 3-product table reveals a missing July cell for P1; summary statistics (mean, median, quartiles) are then computed from the remaining values. P2's June value looks unusually large, and applying an actual rule (1.5x interquartile range above Q3) confirms it exceeds the threshold and is flagged as an outlier. P3 has neither issue.",
+  "problem": {
+   "q": "이상값으로 판정된 값을 발견했다고 해서 곧바로 데이터에서 지워버리는 것이 왜 위험할 수 있을까요?",
+   "solution": "이상값 판정 규칙(예: IQR 1.5배)은 「통계적으로 드문 값」을 찾아낼 뿐, 그 값이 「잘못된 값(오류)」인지 「실제로 일어난 특별한 사건」인지는 알려주지 않습니다. 예를 들어 6월의 급증이 실제로는 대형 프로모션 때문에 정말로 많이 팔린 것이라면, 그 값을 지우는 것은 오히려 중요한 사실을 감추는 것입니다. 그래서 탐색 단계에서 이상값을 「발견」한 뒤에는 곧바로 삭제·보정하지 않고, 다음 분석 단계에서 그 원인을 실제로 확인한 뒤에 처리 방법(그대로 둘지, 보정할지, 별도로 표시할지)을 결정해야 합니다."
+  }
+ },
+ "bda38_03": {
+  "ch": "빅데이터 분석 제38장 · 시각화로 인사이트를 얻는 과정",
+  "sec": "38.3 분석(2단계) — 비교·분해·관계를 확인하다",
+  "title": "분석(2단계) — 비교·분해·관계를 확인하다",
+  "narr": "탐색에서 「6월이 왜 튀었을까?」라는 질문을 만들었다면, 분석 단계는 실제로 답을 냅니다. 월별 총합을 계산해 보면 6월이 다음으로 큰 5월보다 훨씬 큰데, 6월만 제품별로 <b>분해</b>해 보면 P2(의류)가 6월 총합의 대부분을 차지합니다 — 전체가 늘어난 게 아니라 제품 하나 때문이었습니다. 이 이상값을 인접월 평균으로 보정하면 P2의 평균과 표준편차가 실제로 크게 바뀝니다. 그런데 성장률(1월 대비 12월)은 원본이든 보정본이든 똑같습니다 — 이상값이 양 끝이 아닌 중간(6월)에 있었기 때문입니다.",
+  "more": "<b>같은 이상값인데 지표마다 영향이 다른 이유</b>: 평균과 표준편차는 '모든 값을 다 써서' 계산하므로, 극단값 하나가 끼어들면 그 값이 통째로 계산에 반영되어 크게 흔들립니다. 반면 이번 장면의 성장률은 오직 <b>맨 처음 값과 맨 마지막 값</b>만 사용하는 지표이므로, 중간에 있는 이상값은 아예 계산식에 들어가지도 않습니다. 「이상값에 강한 지표」와 「이상값에 취약한 지표」가 따로 있다는 것 자체가, 분석 단계에서 한 가지 지표만 보고 끝내면 안 되는 이유입니다.\n\n<b>분해(decomposition)가 비교보다 먼저 필요한 경우</b>: 「6월 총합이 크다」는 사실만 비교했다면 「전체 시장이 좋았다」는 잘못된 결론에 이르렀을 수 있습니다. 총합을 구성 요소(제품별)로 쪼개어 보는 분해 과정을 거쳐야만 「제품 하나의 일시적 사건」과 「전체적인 추세」를 구분할 수 있습니다 — 분석 단계에서 비교에 앞서 분해가 필요한 이유입니다.",
+  "more_en": "Breaking down June's inflated monthly total by product reveals P2 alone accounts for most of it — not an overall market surge. Correcting that outlier to the neighboring months' average sharply changes P2's mean and standard deviation, yet its first-to-last-month growth rate stays identical, because growth rate only uses the endpoints while mean and standard deviation use every value. Different metrics are differently sensitive to the same outlier — a key finding of the analysis stage itself.",
+  "problem": {
+   "q": "만약 이상값이 6월이 아니라 1월이나 12월(양 끝)에 있었다면, 성장률 계산은 어떻게 달라졌을까요?",
+   "solution": "성장률은 (마지막값-처음값)/처음값으로 계산되므로, 이상값이 처음 값이나 마지막 값 자리에 있었다면 성장률 자체가 크게 왜곡됐을 것입니다. 예를 들어 1월 값이 실제보다 훨씬 작게 잘못 기록됐다면 분모가 작아져 성장률이 비정상적으로 크게 계산되고, 12월 값이 이상값이었다면 분자가 왜곡되어 성장률이 실제보다 과장되거나 축소됩니다. 즉 「이상값이 지표에 영향을 주는지」는 이상값의 크기뿐 아니라 <b>그 이상값이 계산식의 어느 위치(중간이냐 끝이냐)에 있는지</b>에도 좌우됩니다 — 그래서 이상값을 발견하면 그것이 실제로 사용할 지표에 영향을 주는지를 반드시 따로 확인해야 합니다."
+  }
+ },
+ "bda38_04": {
+  "ch": "빅데이터 분석 제38장 · 시각화로 인사이트를 얻는 과정",
+  "sec": "38.4 활용(3단계) — 정보 구조화 → 시각화 → 시각 표현",
+  "title": "활용(3단계) — 정보 구조화 → 시각화 → 시각 표현",
+  "narr": "분석에서 얻은 같은 결론(P2가 가장 빨리 컸다)을 세 가지 표현으로 실제로 그려 비교합니다. <b>표</b>는 정밀한 값을 다 보여주지만 「누가 가장 큰가」를 알려면 세 숫자를 마음속으로 대조해야 합니다. <b>막대그래프</b>는 높이만 보면 계산 없이 한 번에 순위가 보입니다 — 대신 정확한 소수점 값은 감춥니다. <b>선그래프</b>(12개월×3제품)는 결론을 읽으려면 표·막대보다 눈이 더 많이 움직여야 하지만, 그 대가로 6월에 무슨 일이 있었는지(이상값의 타이밍)라는, 표와 막대에는 아예 없는 정보를 보여줍니다.",
+  "more": "<b>활용 단계의 세 하위 과정</b>: ①정보 구조화 — 무엇을 비교·강조할지 먼저 정합니다(이번엔 「세 제품 중 어느 것이 가장 빨리 컸는가」). ②정보 시각화 — 정한 메시지에 맞는 그래프 형태(표/막대/선 등)로 실제로 옮깁니다. ③정보 시각 표현 — 누구에게 보여줄 것인지, 무엇을 강조하고 무엇을 덜어낼지 다듬습니다. 세 하위 과정을 거치지 않고 「일단 갖고 있는 데이터를 다 집어넣은 그래프」를 그리면, 보는 사람이 스스로 결론을 찾아내야 하는 부담을 지게 됩니다.\n\n<b>표현을 고르는 기준은 '정답'이 아니라 '목적'</b>: 이 장면에서 막대그래프가 표보다 우월하다는 뜻이 아닙니다 — 「누가 가장 빨랐는가」라는 단순 비교에는 막대가 빠르지만, 「왜 그런 흐름이 나왔는가」를 설명하려면 선그래프가 필요하고, 정확한 수치를 감사(audit)해야 하는 상황에서는 표가 필요합니다. 활용 단계의 핵심은 <b>전달하려는 메시지에 맞는 표현을 고르는 것</b>이지, 가장 화려하거나 가장 단순한 표현을 고르는 것이 아닙니다.",
+  "more_en": "The same conclusion (P2 grew fastest) is rendered three ways. A table shows exact values but requires mentally comparing three numbers. A bar chart shows the ranking at a glance with no calculation, at the cost of hiding precise decimals. A 12-month, 3-series line chart requires scanning far more points to reach the same conclusion, but uniquely reveals when the outlier occurred — information the table and bar chart simply do not contain. Choosing a representation is about matching the message, not picking a universally 'best' chart.",
+  "problem": {
+   "q": "만약 전달하려는 메시지가 「어느 제품이 가장 빨리 컸는가」가 아니라 「6월에 이상값이 있었다는 사실을 감사팀에 보고한다」였다면, 어떤 표현을 골라야 할까요?",
+   "solution": "이 경우에는 순위 비교가 목적이 아니라 「특정 시점에 발생한 특정 사건」을 정확히 전달하는 것이 목적이므로, 시점별 변화를 보여주는 선그래프(또는 해당 월만 확대한 막대그래프)가 막대그래프(전체 기간을 하나의 숫자로 뭉뚱그리는 성장률 막대)보다 훨씬 적합합니다. 더 나아가 감사 목적이라면 정확한 수치 확인이 중요하므로 그래프에 원자료 표를 함께 첨부하는 것이 좋습니다. 이처럼 같은 데이터라도 전달 목적이 바뀌면 가장 적합한 표현도 함께 바뀝니다 — 이것이 활용 단계에서 '정보 구조화'를 표현을 그리기 전에 먼저 해야 하는 이유입니다."
+  }
+ },
+ "bda38_05": {
+  "ch": "빅데이터 분석 제38장 · 시각화로 인사이트를 얻는 과정",
+  "sec": "38.5 세 단계를 관통하는 질문",
+  "title": "세 단계를 관통하는 질문",
+  "narr": "이 장에서 다룬 12개월×3제품 판매 자료 하나가 세 단계를 실제로 관통했습니다. <b>탐색</b>은 「무엇이 있는가?」를 묻고 결측과 이상값을 실제 규칙으로 찾아냈습니다. <b>분석</b>은 「왜 그런가?」를 물어 6월 총합 급증의 원인을 분해로 확인하고, 보정한 값으로 세 제품의 성장률을 실제로 비교했습니다. <b>활용</b>은 「누구에게 어떻게 전달할까?」를 물어, 같은 결론이라도 목적에 맞는 표현을 골랐습니다.",
+  "more": "<b>세 단계는 일방통행이 아닙니다</b>: 이 장면들은 탐색→분석→활용 순서로 진행됐지만, 실제 업무에서는 활용 단계에서 그린 그림을 보다가 미처 몰랐던 패턴을 발견해 다시 탐색으로 돌아가는 일이 흔합니다. 시각화 인사이트 프로세스는 「한 번 거치면 끝나는 절차」가 아니라 <b>반복해서 순환하는 과정</b>으로 이해하는 것이 정확합니다.\n\n<b>각 단계의 질문을 미리 알아두는 이유</b>: 탐색 단계에서 「분석 단계의 질문(비교하면 어떤가)」을 미리 던지면 성급한 결론으로 이어지기 쉽고, 반대로 활용 단계에서까지 「이 값은 왜 이런가(탐색 질문)」를 계속 묻고 있으면 결론을 전달하는 데까지 이르지 못합니다. 지금 자신이 어느 단계에 있는지, 그 단계에 맞는 질문을 던지고 있는지를 스스로 점검하는 것이 시각화 인사이트 프로세스를 제대로 활용하는 습관입니다. 다음 장에서는 활용(시각 표현) 단계를 더 깊이 파고들어, 무엇을 어떻게 그릴지의 구체적인 방법들을 다룹니다.",
+  "more_en": "One sales dataset actually flowed through all three stages: exploration surfaced a missing value and a rule-verified outlier; analysis decomposed the June spike to find its cause and compared corrected growth rates; delivery chose a representation matched to the intended message. The stages are not strictly linear — a delivery-stage chart often prompts a return to exploration. Knowing which stage's questions apply at a given moment is the real skill.",
+  "problem": {
+   "q": "탐색 단계에서 발견한 사실(결측·이상값)을 건너뛰고 곧바로 활용 단계(그래프 그리기)로 넘어가면 어떤 문제가 생길 수 있을까요?",
+   "solution": "결측을 처리하지 않고 그대로 그래프를 그리면 그 달은 0으로 잘못 표시되거나 선이 끊겨 보여, 실제로는 「값이 없다」는 뜻인데 「값이 0이다」로 오독될 수 있습니다. 이상값을 그대로 둔 채 막대·선그래프를 그리면 그 값 하나 때문에 축의 범위가 늘어나 나머지 값들의 차이가 시각적으로 뭉개져 버립니다(이번 장 6월 P2=270이 그대로 있었다면 나머지 11개월의 변화가 훨씬 작아 보였을 것입니다). 즉 탐색에서 발견한 결측·이상값을 분석 단계에서 어떻게 처리할지 결정하지 않은 채 활용 단계로 건너뛰면, 그래프 자체가 왜곡된 인상을 전달하는 결과로 이어집니다."
+  }
+ }
+}

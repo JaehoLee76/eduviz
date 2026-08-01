@@ -1,0 +1,62 @@
+{
+ "bda32_01": {
+  "ch": "빅데이터 분석 제32장 · 데이터와 데이터베이스",
+  "sec": "32.1 데이터란 무엇인가",
+  "title": "데이터란 무엇인가",
+  "narr": "예측 모델링과 사례연구를 한 바퀴 다 돌아본 지금, 잠시 멈춰 가장 기초로 내려갑니다 — 우리가 그동안 다뤄온 <b>데이터</b> 자체는 무엇일까요. 데이터는 형태에 따라 언어·문자로 기술되는 <b>정성 데이터</b>와 수치·기호로 표시되는 <b>정량 데이터</b>로 나뉩니다. 10건의 원본 데이터를 파이썬으로 실제 분류해 보면(각 값이 숫자인지 판정) 정량 5건, 정성 5건입니다. 데이터는 또한 지식경영의 재료이기도 합니다. 자전거 타는 감각처럼 몸에 밴 <b>암묵지</b>는 공유가 어렵고, 매뉴얼이나 DB처럼 형상화된 <b>형식지</b>는 전달·공유가 쉽습니다.",
+  "more": "<b>왜 '형태'로 나누는가</b>: 옥스퍼드 대사전은 데이터를 '추론과 추정의 근거를 이루는 사실'로 정의합니다 — 단순한 객체가 아니라 다른 데이터와의 관계 속에서 가치를 갖는다는 뜻입니다. 정량 데이터(수치·도형·기호)는 형태가 정해져 있어 DBMS에 저장·검색·분석하기 쉽지만, 정성 데이터 중에서도 형태와 형식이 정해지지 않은 것(트위터 글, 설문 주관식 등)은 <b>비정형 데이터</b>라 부르며 다루는 데 상대적으로 많은 비용과 기술 투자가 듭니다.\n\n<b>암묵지 → 형식지 순환</b>: 지식경영에서는 개인의 암묵지를 언어·기호·숫자로 표출화(externalization)하고, 다른 사람이 그것을 자신의 지식에 연결(combination)해 다시 내면화(internalization)하는 순환을 통해 조직의 지식이 늘어난다고 봅니다. 이 순환 중 암묵지가 형식지로 바뀌는 표출화 단계가 바로 개인의 경험을 객관적 데이터로 문서·매체에 저장·가공·분석하는 과정입니다 — 데이터가 지식 형성의 기초를 이루는 이유입니다.",
+  "more_en": "Data splits by form into qualitative (language/text) and quantitative (numbers/symbols) types; classifying 10 sample records by whether each value is numeric yields 5 quantitative and 5 qualitative. Data also mediates tacit knowledge (embodied, hard to share, e.g. a cyclist's balance) and explicit knowledge (documented, easy to share, e.g. a manual) — externalizing tacit experience into data is the first step of knowledge formation.",
+  "problem": {
+   "q": "설문지의 '만족도: 5점 만점에 4점'이라는 응답과 '배송이 너무 느렸어요'라는 주관식 응답은 각각 정성·정량 중 어느 쪽일까요?",
+   "solution": "'5점 만점에 4점'은 수치로 표시되므로 정량 데이터입니다(파이썬으로 표현하면 숫자 타입). '배송이 너무 느렸어요'는 언어·문자로 기술된 정성 데이터이며, 형태와 형식이 사람마다 제각각이므로 비정형 데이터이기도 합니다 — 같은 설문지 안에서도 문항 설계에 따라 정량·정성 데이터가 함께 나올 수 있고, 정성 응답을 분석하려면(예: 감정 분석) 정량 응답보다 더 많은 처리 기술이 필요합니다."
+  }
+ },
+ "bda32_02": {
+  "ch": "빅데이터 분석 제32장 · 데이터와 데이터베이스",
+  "sec": "32.1 DIKW 피라미드",
+  "title": "DIKW 피라미드 — 데이터에서 지혜로",
+  "narr": "데이터란 무엇인지 살펴보았으니, 이제 그 데이터가 어떻게 더 높은 가치로 올라가는지를 실제로 계산하며 따라가 봅니다. 같은 가격표 3×5칸이 단계를 오르며 다른 것이 됩니다. <b>데이터</b>는 아직 비교하지 않은 순수한 수치(가격표 그 자체)입니다. <b>정보</b>는 품목마다 최저가를 실제로 비교해 의미를 붙인 것입니다. <b>지식</b>은 그 비교를 5개 품목 전체로 반복해 패턴을 찾은 것 — 어느 마트가 대체로 저렴한지가 드러납니다. <b>지혜</b>는 그 패턴 위에서 실제 행동 규칙을 계산해 낸 것으로, 실제 절약액으로 이어집니다.",
+  "more": "<b>왜 순서가 중요한가</b>: DIKW 피라미드에서 각 층은 아래층 없이는 존재할 수 없습니다 — 비교할 원본 수치(데이터) 없이는 최저가(정보)를 계산할 수 없고, 개별 비교들을 모으지 않고는 패턴(지식)을 볼 수 없으며, 패턴을 실제 상황에 적용해 보지 않고는 행동 규칙(지혜)이 나오지 않습니다. 이 장면에서는 각 단계를 건너뛰지 않고 실제 코드로 한 단계씩 밟아 올라갑니다.\n\n<b>지식경영과의 연결</b>: 앞 장면(32.1)의 암묵지·형식지 순환과 이 피라미드는 같은 이야기의 다른 표현입니다 — 데이터를 모아 정보로, 정보를 구조화해 지식으로, 지식에 경험을 결합해 지혜로 만드는 과정 자체가 암묵지를 형식지로 표출화하고 다시 내면화하는 순환과 맞닿아 있습니다. 데이터의 정확성이 향후 모든 상위 단계(정보·지식·지혜)의 품질을 좌우하는 이유가 여기 있습니다.",
+  "more_en": "The same 3-store, 5-item price table climbs through four levels: Data (raw, uncompared numbers), Information (per-item cheapest store actually computed via comparison), Knowledge (the pattern found by counting which store wins most often), and Wisdom (an actual spending rule derived from that pattern, yielding a computed real savings amount). Each level strictly depends on the one below it — no step is skipped.",
+  "problem": {
+   "q": "만약 세 마트의 가격이 품목마다 들쭉날쭉해서 어느 마트도 두드러지게 자주 최저가를 차지하지 못한다면, '지식' 단계에서 어떤 패턴을 얻게 될까요?",
+   "solution": "세 마트가 최저가 횟수를 고르게 나눠 가진다면 '어느 한 마트가 대체로 저렴하다'는 뚜렷한 패턴을 얻지 못합니다 — 이 경우 지혜 단계의 행동 규칙은 '한 마트만 이용해도 무방하다'가 아니라 '품목별로 최저가 마트를 매번 따져야 한다'가 됩니다. 즉 지식 단계에서 드러나는 패턴이 약할수록, 지혜 단계의 규칙은 더 정교하고 품목별로 세분화되어야 한다는 뜻입니다."
+  }
+ },
+ "bda32_03": {
+  "ch": "빅데이터 분석 제32장 · 데이터와 데이터베이스",
+  "sec": "32.2 데이터베이스 정의와 특징",
+  "title": "데이터베이스는 통합된 데이터",
+  "narr": "DIKW의 맨 아래층, 데이터를 안전하게 담아 두는 그릇이 바로 데이터베이스입니다. 그 첫 번째 특징은 <b>통합(integrated data)</b> — 동일한 내용이 중복 저장되지 않는다는 것입니다. 영업부·인사부·회계부가 각자 파일로 직원 명단을 관리한다고 하면, 3개 파일의 행을 그냥 더한 값은 12건이지만, 실제로 서로 다른 사람만 세어 보면(중복 제거) 7명뿐입니다 — 5건이 여러 파일에 똑같이 중복 저장된 셈입니다. 이 중복은 <b>갱신 문제</b>로 이어집니다: 한 직원의 연락처를 한 파일에서만 고치면, 그 사람의 기록을 가진 나머지 파일들은 그대로 옛 값에 머뭅니다.",
+  "more": "<b>데이터베이스의 나머지 세 특징</b>: 데이터베이스는 통합된 데이터 외에도 ①<b>저장된 데이터(stored data)</b> — 컴퓨터가 접근 가능한 저장 매체에 있어야 하고, ②<b>공용 데이터(shared data)</b> — 여러 사용자가 서로 다른 목적으로 공동 이용하며, ③<b>변화되는 데이터</b> — 삽입·삭제·갱신으로 상태가 계속 바뀌면서도 항상 현재의 정확한 데이터를 유지해야 합니다. 이 장면의 '갱신 문제'는 통합성과 변화성이 함께 얽힌 예시입니다 — 통합되지 않은 데이터는 변화(갱신)가 일어날 때마다 어느 사본이 최신인지 알 수 없게 됩니다.\n\n<b>DBMS와 데이터베이스의 구분</b>: 이용자가 쉽게 데이터베이스를 구축·유지하도록 돕는 소프트웨어가 DBMS(Database Management System)이며, 데이터베이스와는 구분되는 개념입니다 — 일반적으로 둘을 합쳐 '데이터베이스 시스템'이라 부릅니다. 다음 장면에서는 이 DBMS가 SQL을 통해 실제로 어떻게 쓰이는지(OLTP·OLAP)를 살펴봅니다.",
+  "more_en": "A database's first defining trait is integration — no duplicate storage of the same content. Modeling three departments each keeping their own employee file, the raw row count across files is 12, but the actual number of distinct people (deduplicated by ID) is only 7 — 5 rows are redundant copies. This redundancy directly causes an update problem: updating one department's copy of a phone number leaves the other departments' copies stale, since there is no single authoritative record.",
+  "problem": {
+   "q": "만약 이 회사가 3개 부서 파일을 그대로 둔 채 '통합 DB'라고만 이름 붙이고 실제로는 데이터를 합치지 않았다면, 통합의 어떤 효과도 얻지 못하는 이유는 무엇일까요?",
+   "solution": "통합은 이름이 아니라 실제 저장 구조의 문제입니다 — 여전히 3개의 별도 파일(사본)이 존재한다면, 그 중 하나를 갱신해도 나머지는 자동으로 반영되지 않으므로 갱신 문제가 그대로 남습니다. 진짜 통합은 같은 내용의 데이터를 물리적으로 한 곳에만 두고, 여러 부서가 그 하나의 사본을 함께 조회·수정하도록 만드는 것입니다. 이름만 '데이터베이스'라고 부른다고 해서 통합·공용·변화라는 실제 특징이 저절로 생기지는 않습니다."
+  }
+ },
+ "bda32_04": {
+  "ch": "빅데이터 분석 제32장 · 데이터와 데이터베이스",
+  "sec": "32.3 데이터베이스 활용 — OLTP와 OLAP",
+  "title": "DBMS와 SQL — OLTP와 OLAP",
+  "narr": "DBMS(데이터베이스 관리 시스템)로 만든 데이터베이스는 SQL로 저장·검색·집계합니다. 같은 주문 원장 24건을 놓고 두 가지 전혀 다른 방식으로 씁니다. <b>OLTP</b>(온라인 거래처리)는 '지금 이 순간의 거래 하나'를 즉시 반영합니다 — 주문 하나의 반품을 처리해 금액을 고치면 딱 1개 행만 바뀝니다. <b>OLAP</b>(온라인 분석처리)는 반대로 '쌓인 전체를 훑어 경향을 찾는' 집계 질의입니다 — 24건을 상품별·월별로 실제 합산해 매출 경향을 봅니다. 1990년대 중반을 기점으로 기업 데이터베이스가 단순 자동화(OLTP)에서 분석 중심(OLAP)으로 무게중심을 옮겼습니다.",
+  "more": "<b>OLTP와 OLAP은 왜 다른 시스템으로 나뉘는가</b>: OLTP는 '지금 이 거래가 정확히 반영되었는가'가 생명이라 행 단위 갱신을 빠르고 안전하게 처리하도록 설계됩니다(짧고 잦은 트랜잭션). OLAP는 '전체 경향이 무엇인가'를 찾는 것이 목적이라 대량의 행을 훑어 집계하는 데 최적화됩니다(길고 무거운 질의). 같은 데이터베이스에 두 부하를 함께 걸면 서로 방해가 되기 쉬워서, 실무에서는 거래 처리용 DB와 별도로 분석용 <b>데이터 웨어하우스(DW)</b>를 두고 그 위에 CRM·SCM·ERP·BI 같은 상위 시스템을 얹습니다.\n\n<b>2000년대 이후 흐름</b>: 2000년대 들어 기업 DB 구축의 화두는 CRM(고객관계관리)·SCM(공급망관리)으로 바뀌었습니다 — CRM은 고객별 구매이력 DB를 분석해 마케팅 전략을 세우고, SCM은 외부 공급업체와 정보시스템을 연계해 시간과 비용을 최적화합니다. 이 장면의 OLAP 집계(상품별·월별 매출)는 바로 이런 CRM·BI 분석의 가장 기초적인 형태입니다.",
+  "more_en": "The same 24-row order ledger is used two different ways. OLTP (online transaction processing) reflects a single transaction immediately — processing one order's return updates exactly one row. OLAP (online analytical processing) instead scans the whole ledger to find trends — summing all 24 rows by product and by month. This split is why enterprises separate transactional databases from analytical data warehouses feeding CRM, SCM, ERP, and BI systems.",
+  "problem": {
+   "q": "쇼핑몰의 '결제 확인' 화면과 '이번 달 베스트셀러 순위' 화면은 각각 OLTP·OLAP 중 어느 쪽에 가까울까요?",
+   "solution": "'결제 확인'은 방금 일어난 거래 하나(내 주문)가 정확히 처리되었는지 즉시 확인하는 것이므로 OLTP에 가깝습니다 — 행 하나를 빠르고 정확하게 다룹니다. '이번 달 베스트셀러 순위'는 그 달에 쌓인 모든 주문을 상품별로 집계해 순위를 매기는 것이므로 OLAP에 가깝습니다 — 많은 행을 훑어 요약합니다. 실제 서비스에서는 결제 확인은 거래 DB에서, 베스트셀러 순위는 별도의 분석용 DW나 배치 집계에서 계산하는 경우가 많습니다."
+  }
+ },
+ "bda32_05": {
+  "ch": "빅데이터 분석 제32장 · 데이터와 데이터베이스",
+  "sec": "32.3 사회기반구조로서의 데이터베이스",
+  "title": "데이터베이스는 사회의 바탕 시설",
+  "narr": "1990년대부터 정부부처를 중심으로 물류·지리·교통·의료·교육 등 사회 전반의 데이터베이스가 구축되었습니다. 착수 연도를 실제로 나열해 보면 물류·지리가 1995년으로 가장 이르고, 가장 늦은 교통(1998년)까지 3년의 격차가 있습니다. 종합물류정보망이 내세운 대표 서비스가 <b>실시간 차량추적</b>입니다 — 차량의 위치를 시간마다 DB에 계속 기록하면, 두 지점 사이 거리를 실제로 계산할 수 있습니다. 5개 위치 기록으로 이동 궤적을 실측하면 총 6.13km를 20분에 이동해 평균 속도 18.4km/h가 나옵니다.",
+  "more": "<b>왜 정부 주도로 먼저 구축되었나</b>: 무역·통관·물류·조세·국세·조달 등 사회간접자본(SOC) 차원에서 EDI(전자문서교환) 활용이 본격화되면서 부가가치통신망(VAN)을 통한 정보망이 구축되기 시작했습니다. 이렇게 구축된 데이터베이스는 공공 DB로 활용될 뿐만 아니라, 관련 산업 전체가 딛고 서는 <b>인프라</b>로 기능합니다 — 물류정보망 위에 민간 택배사의 배송조회 서비스가, 지리정보망 위에 내비게이션 서비스가 얹히는 식입니다.\n\n<b>실시간 추적이 가능한 진짜 이유</b>: 이 계산이 실시간으로 가능한 것 자체가 '위치 데이터가 DB로 통합·저장되어 즉시 조회 가능하다'는 전제 위에서만 성립합니다 — 흩어진 종이 기록으로는 방금 지나간 위치를 즉시 조회할 수 없습니다. 지리·교통·의료·교육 데이터베이스도 같은 원리로, 흩어진 기록을 한 곳에 모아 국민 누구나 조회할 수 있게 한 것이 사회기반구조로서 데이터베이스의 역할입니다.",
+  "more_en": "Beginning in the 1990s, government-led databases for logistics, geography, transportation, healthcare, and education were built in sequence — logistics and geography started earliest (1995), transportation latest (1998), a 3-year spread. Logistics infrastructure's signature service, real-time vehicle tracking, only works because position data is continuously stored and instantly queryable in a database; computing distance and speed from 5 logged positions here (6.13km over 20 minutes, 18.4km/h average) illustrates the underlying mechanism.",
+  "problem": {
+   "q": "실시간 차량추적처럼 '위치를 계속 기록해 거리·속도를 계산'하는 서비스가, 만약 데이터베이스가 아니라 종이 기록으로 이루어진다면 어떤 점이 불가능해질까요?",
+   "solution": "종이 기록은 그 순간 어디에 있는지를 즉시 조회할 수 없고(누군가 찾아서 읽어야 함), 여러 사람이 동시에 같은 기록을 보거나 갱신할 수 없으며(공용성 부족), 방금 지나간 여러 지점의 위치를 모아 거리·속도를 계산하려면 사람이 일일이 손으로 대조해야 합니다 — 데이터베이스의 통합·저장·공용·변화라는 네 특징이 모두 있어야 '지금 이 순간의 위치를 조회하고 실시간으로 계산한다'는 서비스가 가능해집니다."
+  }
+ }
+}

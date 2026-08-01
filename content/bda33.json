@@ -1,0 +1,62 @@
+{
+ "bda33_01": {
+  "ch": "빅데이터 분석 제33장 · 빅데이터의 가치와 데이터 사이언스",
+  "sec": "33.1 빅데이터의 출현과 3V",
+  "title": "3V로 보는 빅데이터의 출현",
+  "narr": "데이터와 데이터베이스라는 기초를 다졌으니, 이제 '빅'데이터가 왜 예전과 다른 문제인지 실제로 만져 봅니다. 빅데이터가 만든 새로운 도전과 기회를 요약한 특징이 <b>3V</b>입니다 — 데이터의 양(Volume), 형태와 소스의 다양성(Variety), 수집·처리 속도(Velocity)가 한꺼번에 급격히 커진 상태를 가리킵니다. 슬라이더로 세 값을 바꾸면, 저장장치 1대=500GB·레코드 1건=2.5KB라는 이 모형의 가정 위에서 필요한 저장장치 대수·변환 규칙 수·초당 처리량이 실제로 재계산됩니다.",
+  "more": "<b>왜 세 가지가 함께 문제인가</b>: Volume만 커지는 것은 사실 예전에도 있던 문제(더 큰 디스크를 사면 됨)에 가깝습니다. 빅데이터가 새로운 이유는 Variety(정형·반정형·비정형이 뒤섞임)와 Velocity(실시간에 가깝게 쏟아짐)가 <b>동시에</b> 커진다는 데 있습니다 — 이 장면에서 형식이 늘수록 변환 규칙이 조합적으로(n×(n-1)/2) 늘어나는 것을 실제로 보여주는 이유입니다. 형식 2개면 규칙 1개면 충분하지만, 4개면 규칙이 6개나 필요해집니다.\n\n<b>이 장면 수치의 성격</b>: 저장장치 1대=500GB, 레코드 1건=2.5KB라는 값은 이 모형이 설명을 위해 정한 가정입니다 — 특정 회사나 통계 조사의 실제 수치를 주장하는 것이 아닙니다. 중요한 것은 절대 숫자가 아니라, Volume·Variety·Velocity 세 축을 슬라이더로 함께 올렸을 때 저장·통합·처리 세 방향의 부하가 동시에 커지는 <b>구조</b>입니다.",
+  "more_en": "3V summarizes what makes big data a genuinely new challenge: Volume, Variety, and Variety growing together. Sliding all three recomputes, from declared modeling assumptions (1 storage unit = 500GB, 1 record = 2.5KB), the actual disk units needed, the combinatorial number of format-conversion rules (n·(n-1)/2 — 6 rules for 4 formats vs 1 for 2), and the real-time throughput in MB/s — showing why storage, integration, and processing loads all spike at once rather than one at a time.",
+  "problem": {
+   "q": "Variety(형식 수)가 2에서 4로 늘면 필요한 변환 규칙 수는 왜 2배가 아니라 그 이상으로 늘어날까요?",
+   "solution": "변환 규칙은 형식 하나가 아니라 형식들의 '쌍'마다 필요하기 때문입니다. 형식이 n개면 만들 수 있는 쌍의 수는 n×(n-1)/2입니다 — 형식 2개면 쌍이 1개(규칙 1개)지만, 형식 4개면 쌍이 6개(규칙 6개)입니다. 형식 수는 2배(2→4)로 늘었는데 규칙 수는 6배(1→6)로 늘어난 것이 바로 '조합적으로' 늘어난다는 뜻입니다 — Variety가 느는 것이 Volume이 느는 것보다 통합 비용 면에서 훨씬 위협적인 이유입니다."
+  }
+ },
+ "bda33_02": {
+  "ch": "빅데이터 분석 제33장 · 빅데이터의 가치와 데이터 사이언스",
+  "sec": "33.2 빅데이터가 만드는 본질적 변화 — 표본에서 전수로",
+  "title": "표본조사에서 전수조사로",
+  "narr": "매장 200곳의 하루 매출을 모집단으로 놓고, 표본 크기 n을 슬라이더로 바꿔 가며 실제로 뽑아 봅니다. n=20일 때 표본평균은 75.70만원으로 전수평균 74.18만원과 1.53만원 차이가 나고, 일부러 섞어 둔 희귀 고매출 매장 3곳 중 1곳만 표본에 걸렸습니다. 기존에는 데이터 수집·처리 비용 때문에 <b>표본조사</b>에 의존했지만, 빅데이터 시대에는 그 제약이 사라지며 <b>전수조사</b>가 가능해졌습니다 — n을 200까지 올리면 오차는 정확히 0이 되고 희귀 매장도 3/3 모두 포착됩니다.",
+  "more": "<b>표본이 놓치는 것</b>: 정유사 배관의 부식 패턴이나 신용카드사의 불법거래 패턴처럼, 일정한 시차를 두고 뽑는 표본은 애초에 '드물지만 결정적인' 패턴을 볼 기회 자체가 적습니다. 전수조사는 일단 모든 데이터를 모아 두면 나중에 질문이 바뀌어도 같은 데이터를 다시 가공해 답할 수 있다는 <b>활용의 융통성</b>도 함께 줍니다 — 출구조사에서 10번째 유권자만 표본으로 뽑으면 당락 예측에는 쓸모 있지만 학력별 지지 성향 분석에는 무용지물인 것과 대비됩니다.\n\n<b>질보다 양, 그리고 사전처리 → 사후처리</b>: 이 장면의 실험은 '질보다 양'이라는 변화와도 맞닿아 있습니다 — 데이터가 많아질수록 사소한 오류 몇 개가 대세에 주는 영향은 작아지고, 반대로 희귀하지만 진짜 중요한 패턴은 양이 충분해야 비로소 잡힙니다. 표본조사는 미리 정한 질문에 필요한 정보만 모으는 <b>사전처리</b>적 접근이었다면, 가능한 한 많은 데이터를 모아 두고 나중에 다양하게 조합해 숨은 정보를 찾는 것이 빅데이터 시대의 <b>사후처리</b>적 접근입니다.",
+  "more_en": "Drawing samples of varying size n from a fixed 200-store population shows the mechanism directly: at n=20, the sample mean (75.70) differs from the true population mean (74.18) by 1.53, and only 1 of 3 deliberately seeded rare high-value stores gets captured. As n approaches the full population, the error shrinks to exactly 0 and all 3 rare stores are found — illustrating why big data enables exhaustive census-taking over sampling, and why more volume alone can surface rare-but-real patterns that small, careful samples miss.",
+  "problem": {
+   "q": "표본 크기를 n=20에서 n=100으로 늘리면 오차와 희귀 매장 포착 수는 일반적으로 어떻게 달라질까요? 반드시 매번 더 나아질까요?",
+   "solution": "일반적으로 n이 커질수록 표본평균은 전수평균에 더 가까워지고(오차 감소 경향) 희귀 매장을 포착할 확률도 높아집니다 — 표본에 포함될 기회 자체가 늘어나기 때문입니다. 다만 이것은 '경향'이지 '항상 그렇다'는 보장은 아닙니다 — 어떤 고정된 순서로 20개를 뽑았을 때 우연히 21~100번째 안에 포착하기 쉬운 항목이 몰려 있었다면 특정 구간에서 오차가 일시적으로 커질 수도 있습니다. 그럼에도 n=200(전수)에 이르면 어떤 뽑기 순서를 쓰든 오차는 반드시 0, 포착은 반드시 3/3이 됩니다 — 이것이 표본조사와 전수조사의 근본적 차이입니다."
+  }
+ },
+ "bda33_03": {
+  "ch": "빅데이터 분석 제33장 · 빅데이터의 가치와 데이터 사이언스",
+  "sec": "33.2 빅데이터가 만드는 본질적 변화 — 인과에서 상관으로",
+  "title": "인과관계보다 상관관계 — 그리고 숨은 변수",
+  "narr": "12개월치 아이스크림 판매량과 익사 사고 건수를 실제로 상관계수를 계산해 보면 r=0.989로 매우 높게 나옵니다. 빅데이터 시대는 <b>인과관계보다 상관관계</b>를 앞세웁니다 — 왜 그런지 몰라도 상관만 확실하면 실무적으로 충분한 경우가 많기 때문입니다. 하지만 이 숫자를 '아이스크림이 익사를 부른다'고 읽으면 틀립니다. 월평균 기온이라는 <b>숨은 변수(교란 변수)</b>가 둘 다에 영향을 주기 때문입니다. 기온을 실제로 통제한 <b>부분상관</b>을 계산하면 -0.123으로 크게 줄어듭니다 — 두 변수가 함께 움직인 것은 더운 날씨라는 공통 원인 때문이었습니다.",
+  "more": "<b>왜 상관관계로 충분한 경우가 많은가</b>: 구글이 발견한 45개 검색 키워드가 독감 발생과 높은 상관관계를 보였을 때, 확산 경로를 예측하는 데는 그 키워드의 검색 빈도만 살펴도 충분했습니다 — 왜 그 키워드가 독감과 관련되는지 설명하는 일은 부수적이고 나중에 해도 되는 작업입니다. 보험사 아비바는 혈액·소변 검사 없이 소득 추정치·취미·TV 시청 습관 같은 변수의 상관관계만으로 고혈압·당뇨 위험을 예측해, 검사 1인당 125달러였던 비용을 5달러 수준으로 낮췄습니다.\n\n<b>그래도 인과관계가 필요한 순간</b>: 이 장면의 부분상관 계산은 상관관계를 '그냥 믿지 않고 의심해 보는' 절차를 보여줍니다 — 숨은 제3변수(교란 변수)를 실제로 통제했을 때 상관이 사라지거나 뒤집힌다면, 원래 상관은 인과가 아니라 공통 원인의 결과였다는 뜻입니다. 신속한 의사결정이 필요한 상황(주식 거래, 타이어 교체 시기 등)에서는 상관관계만으로 행동하는 것이 합리적이지만, 정책처럼 되돌리기 어려운 결정 앞에서는 이런 교란 변수 점검이 특히 중요합니다.",
+  "more_en": "Computing the actual Pearson correlation between 12 months of ice-cream sales and drowning incidents yields r=0.989 — deceptively high. Big data favors correlation over causation because knowing 'what' is often enough for action without knowing 'why' (as in Google's flu-prediction keywords or Aviva's health-risk scoring from lifestyle data). But treating this as causal would be wrong: average monthly temperature is a confounding variable driving both series. Actually controlling for temperature via partial correlation collapses the coefficient to -0.123, revealing the original correlation was spurious — a shared cause, not a causal link.",
+  "problem": {
+   "q": "만약 어떤 변수를 통제해도 상관계수가 거의 줄어들지 않는다면, 그 변수는 진짜 원인일 가능성이 높을까요, 낮을까요?",
+   "solution": "통제해도 상관이 거의 줄지 않는다면, 그 변수는 두 대상 사이의 관계를 '설명'하는 숨은 공통 원인이 아닐 가능성이 높습니다 — 만약 그것이 진짜 교란 변수였다면 통제했을 때 상관이 크게 줄어들어야 합니다(이 장면에서 기온을 통제하자 0.989에서 -0.123으로 줄어든 것처럼). 반대로 통제 후에도 상관이 그대로 유지된다면, 그 관계는 그 변수만으로는 설명되지 않는 다른 이유(어쩌면 실제 인과관계, 혹은 또 다른 숨은 변수)를 가질 가능성이 남아 있다는 뜻이며, 여전히 성급하게 인과로 단정할 수는 없습니다."
+  }
+ },
+ "bda33_04": {
+  "ch": "빅데이터 분석 제33장 · 빅데이터의 가치와 데이터 사이언스",
+  "sec": "33.3 빅데이터의 가치 산정과 위기 요인",
+  "title": "가치는 어떻게 커지고, 무엇이 위험한가",
+  "narr": "빅데이터의 가치 산정이 어려운 첫째 이유는 <b>재사용·재조합</b>입니다 — 전기차 배터리 데이터가 충전 시간 안내(1차 목적)뿐 아니라 충전소 입지 선정(2차 목적)에도 쓰이듯, CCTV 데이터도 방범뿐 아니라 고객 동선 분석·재고 확인에 함께 쓰일 수 있습니다. 이 모형의 가정값으로 실제로 더해 보면, 세 용도를 공유 재사용할 때 누적 효용 22를 얻으면서도, 각 용도를 따로 구축하는 비용 18보다 공유 구축 비용 12가 더 적게 듭니다. 하지만 이런 자유로운 재사용은 <b>사생활 침해·책임 원칙 훼손·데이터 오용</b>이라는 어두운 면도 함께 만듭니다.",
+  "more": "<b>가치 산정이 어려운 나머지 두 이유</b>: ①재사용·재조합 외에도, ②데이터가 <b>기존에 없던 새로운 가치</b>를 창출하기 때문에 측정이 어렵습니다 — 아마존이 킨들 독서 데이터로 저자에게 알려주는 '독자가 어디서 읽기를 멈추는가' 같은 정보는 이전에 존재하지 않던 가치입니다. ③<b>분석 기술의 발전</b>도 가치를 바꿉니다 — 예전에는 분석 비용이 높아 버려지던 텍스트·댓글 데이터가 텍스트 마이닝 기법이 등장하면서 갑자기 가치 있는 재료가 됩니다. 즉 같은 데이터라도 활용 방식·창출되는 새 가치·분석 기술의 발전에 따라 가치가 계속 달라지므로, 고정된 가격을 매기기 어렵습니다.\n\n<b>위기 요인과 통제 방안의 짝</b>: <b>사생활 침해</b>는 본래 목적 밖으로 2차·3차 활용될 가능성이 커지며 심각해지는데, 매번 동의를 구하는 것이 비효율적이므로 <b>결과에 기반한 책임</b>으로 무게중심을 옮기는 방안이 제시됩니다. <b>책임 원칙 훼손</b>은 빅데이터 예측이 아직 일어나지 않은 일에 대해 사전에 처벌·차별하는 데 악용될 위험을 말하며, 행동 결과에 근거한 책임 원칙 강화로 대응합니다. <b>데이터 오용</b>은 알고리즘 자체가 불투명해 무엇이 잘못됐는지 알기 어려운 문제이며, 그 알고리즘에 대한 <b>접근권</b>을 보장하는 것이 통제 방안입니다.",
+  "more_en": "Big data's value is hard to price because of (1) reuse/recombination across purposes, (2) genuinely new value creation (e.g., Amazon mining Kindle reading patterns for authors), and (3) advancing analysis techniques turning previously worthless data (text, comments) valuable. Modeling CCTV footage reused across 3 purposes shows cumulative utility of 22 at a shared build cost of 12, versus 18 if each purpose were built separately — reuse both raises value and lowers cost. This same freedom creates three risks — privacy invasion, erosion of accountability, and data misuse — each paired with a control: shifting from consent to outcome-based responsibility, and granting algorithmic access rights.",
+  "problem": {
+   "q": "위기 요인 통제 방안 중 '동의에서 책임으로'는 왜 필요할까요? 매번 동의를 구하면 더 안전하지 않을까요?",
+   "solution": "빅데이터는 애초에 수집 시점에 어떤 목적으로, 언제, 누가 사용할지 알 수 없는 경우가 많아서 매번 사전 동의를 구하는 것이 현실적으로 불가능하거나 극도로 비효율적입니다(2차·3차 재사용이 일반적이기 때문입니다). '동의'라는 사전 절차에만 의존하면, 형식적으로 동의를 받았다는 이유로 실제 피해가 발생해도 책임 소재가 흐려질 수 있습니다. 그래서 사전 동의 대신 '실제로 어떤 결과가 발생했는가'에 초점을 맞춰 데이터를 이용한 쪽이 결과에 책임을 지도록 하는 방식이 제안됩니다 — 이렇게 하면 데이터 활용의 유연성을 지키면서도 피해에 대한 책임은 명확히 남길 수 있습니다."
+  }
+ },
+ "bda33_05": {
+  "ch": "빅데이터 분석 제33장 · 빅데이터의 가치와 데이터 사이언스",
+  "sec": "33.4 데이터 사이언스와 데이터 사이언티스트",
+  "title": "데이터 사이언스 — 기술과 사람이 만나는 곳",
+  "narr": "데이터 사이언스는 데이터 처리와 관련된 <b>IT 영역</b>, 수학·머신러닝 같은 <b>분석 영역</b>, 그리고 커뮤니케이션·프레젠테이션 같은 <b>비즈니스 컨설팅 영역</b>이 겹치는 자리입니다 — 세 원을 실제 좌표로 그리고 격자로 셈해 보면 세 영역이 함께 겹치는 부분의 넓이가 540px²로 계산됩니다. 필요한 능력을 세어 보면 통계·머신러닝·프로그래밍 같은 <b>하드 스킬</b> 4개와, 통찰력 있는 분석·설득력 있는 전달·협력 같은 <b>소프트 스킬</b> 4개로 정확히 절반씩입니다 — 하드 스킬은 훌륭한 데이터 사이언티스트가 갖춰야 할 능력의 절반에 불과합니다.",
+  "more": "<b>왜 데이터 마이닝·통계학과 다른가</b>: 데이터 마이닝이 주로 분석 자체에 초점을 둔다면, 데이터 사이언스는 정형·비정형을 막론하고 데이터를 수집하는 단계부터 분석 결과를 효과적으로 구현·전달하는 과정까지 포함하는 <b>총체적(holistic)</b> 접근입니다. 기존 통계학과 다른 점도 바로 이 총체성에 있습니다 — 전략적 통찰을 추구하고 비즈니스의 성과를 내는 데까지 나아간다는 점에서 BI(비즈니스 인텔리전스)·BA(비즈니스 애널리틱스)와도 겹치지만 더 포괄적입니다.\n\n<b>소프트 스킬이 왜 절반이나 차지하는가</b>: 실제로 데이터 사이언티스트를 채용할 때 통계적 지식·분석력만으로 뽑지 않는 기업들이 있습니다 — '고객들에 대한 공감 능력' 같은 전략적 통찰과 관련된 소프트 스킬을 함께 봅니다. 아무리 정교한 분석도 조직 안에서 설득력 있게 전달되지 못하면 전략으로 이어지지 못하기 때문입니다. 이를 두고 '데이터 사이언스는 과학과 인문의 교차로에 서 있다'고 표현하기도 합니다. 미래에는 <b>모든 것의 데이터화</b>가 진행되며 가치를 찾는 <b>데이터 사이언티스트</b>와 그 힘을 감시하는 <b>알고리즈미스트</b>라는 두 역할이 함께 중요해질 전망입니다.",
+  "more_en": "Data science sits at the actual geometric overlap of IT, analytics, and business consulting — computed here via grid integration over three fixed circles (540px² of triple overlap). A data scientist's required skills split exactly evenly: 4 hard skills (stats, machine learning, programming, data processing) and 4 soft skills (insightful analysis, persuasive communication, collaboration, curiosity) — hard skills are only half of what a good data scientist needs. Looking ahead, as datafication expands to 'everything,' both data scientists (who extract value) and algorithmists (who guard against its misuse) are expected to grow in importance.",
+  "problem": {
+   "q": "왜 '수학·통계를 잘하는 사람'만으로는 훌륭한 데이터 사이언티스트가 되기 부족할까요?",
+   "solution": "이 장면에서 실제로 센 것처럼, 필요한 능력의 절반은 통계·머신러닝·프로그래밍 같은 하드 스킬이지만 나머지 절반은 통찰력 있는 분석, 설득력 있는 전달, 협력, 호기심 같은 소프트 스킬입니다. 아무리 정확한 분석 결과를 냈어도 그것을 조직의 의사결정자에게 설득력 있게 전달하지 못하거나, 문제를 정의하는 단계에서 비즈니스 맥락에 대한 통찰이 없다면 그 분석은 실제 전략으로 이어지지 못합니다. 데이터 사이언스가 '과학과 인문의 교차로'라 불리는 이유가 여기 있습니다 — 기술적 정확성과 인간적 설득력이 함께 있어야 비로소 가치가 조직 안에서 실현됩니다."
+  }
+ }
+}

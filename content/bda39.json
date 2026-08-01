@@ -1,0 +1,62 @@
+{
+ "bda39_01": {
+  "ch": "빅데이터 분석 제39장 · 무엇을 어떻게 그릴 것인가",
+  "sec": "39.1 원과 막대 — 판독 정확도",
+  "title": "원과 막대 — 판독 정확도",
+  "narr": "지난 장에서 「같은 결론도 표현에 따라 읽는 속도가 다르다」는 것을 봤다면, 이번 장은 그 표현 방법 자체를 하나씩 뜯어봅니다. 같은 다섯 항목 점유율을 원그래프와 막대그래프로 각각 실제로 그려 비교합니다. 가장 가까운 두 항목의 차이를 원그래프의 <b>각도</b>로 실제 계산하면 몇 도, 막대그래프의 <b>길이</b>로 계산하면 몇 픽셀입니다. 사람의 눈은 각도·넓이보다 위치·길이를 비교하는 일을 더 정확하게 해냅니다.",
+  "more": "<b>왜 위치·길이가 더 정확하게 읽히는가</b>: 그래픽 인지 연구에서는 사람이 시각 정보를 판단할 때 쓰는 기본 단서들을 정확도 순서로 줄 세워 볼 수 있다고 봅니다 — 공통된 축 위의 위치나 길이 비교가 가장 정확하고, 각도·기울기가 그다음, 넓이·부피, 마지막으로 색상의 진하기 순으로 갈수록 오차가 커지는 경향이 있습니다. 원그래프는 정보를 각도(그리고 넓이)로 인코딩하기 때문에, 애초에 사람이 상대적으로 서툰 판단 방식을 쓰는 셈입니다.\n\n<b>그렇다고 원그래프가 항상 나쁜 것은 아닙니다</b>: 항목이 2~3개뿐이고 값 차이가 뚜렷하면(예: 70% vs 30%) 원그래프도 직관적으로 잘 읽힙니다. 문제는 항목이 많아지거나(5개 이상) 값들이 서로 비슷해질 때입니다 — 이번 장면처럼 24%와 22%처럼 가까운 두 조각을 각도만으로 구분하려면 눈을 가늘게 뜨고 견주어봐야 하지만, 막대그래프는 두 막대 끝의 높이 차이가 곧바로 보입니다.",
+  "more_en": "Plotting the same five-category share data as a pie and a bar chart, the closest pair of values differs by only a couple of percentage points. Measuring that gap in degrees (pie) versus pixels (bar) shows why position/length judgments generally outperform angle/area judgments in graphical perception research — pies work fine with few, clearly distinct slices, but struggle once categories multiply or values converge.",
+  "problem": {
+   "q": "다섯 항목이 아니라 두 항목(예: 52% vs 48%)만 있는 원그래프라면, 이번 장면과 같은 판독 문제가 여전히 발생할까요?",
+   "solution": "항목이 두 개뿐이면 원그래프는 단순히 반원을 살짝 넘는 조각과 살짝 못 미치는 조각으로 나뉘는데, 이 경우에도 「어느 쪽이 더 큰가」를 정확한 비율까지 읽어내기는 여전히 쉽지 않습니다(52%와 48%의 차이는 각도로 7.2도뿐입니다). 다만 두 조각 중 어느 것이 절반을 넘는지 정도의 대략적 판단은 비교적 쉽습니다. 즉 항목 수가 줄어들어도 「정확한 값의 차이」를 읽는 문제는 그대로 남고, 「어느 쪽이 대충 더 큰가」 정도의 거친 판단만 쉬워지는 것입니다 — 그래서 정밀한 비교가 목적이라면 항목 수와 무관하게 막대그래프 쪽이 더 안전한 선택입니다."
+  }
+ },
+ "bda39_02": {
+  "ch": "빅데이터 분석 제39장 · 무엇을 어떻게 그릴 것인가",
+  "sec": "39.2 왜곡된 축",
+  "title": "왜곡된 축",
+  "narr": "A지점 매출과 B지점 매출은 실제로는 7%밖에 차이 나지 않습니다. 그런데 그래프의 y축 시작값(기준선)을 0이 아닌 값으로 올리면, 막대의 보이는 높이 비율이 실제 값 비율과 달라집니다. 이것은 두 값 자체를 조작한 것이 아니라(막대 위 숫자는 그대로입니다), 오직 기준선의 위치만 바꿔서 같은 숫자를 다른 인상으로 전달하는 방법입니다. 슬라이더로 기준선을 올려보면 별것 아닌 차이가 몇 배로 과장되어 보이는 것을 실제로 확인할 수 있습니다.",
+  "more": "<b>왜 이런 일이 생기는가</b>: 그래프를 그리는 도구들은 대부분 기본값으로 「보이는 범위(y축 최소~최대)를 데이터에 맞춰 자동으로 좁혀서」 그립니다 — 화면 공간을 최대한 활용해 값의 변화를 잘 보이게 하려는 배려입니다. 그런데 막대그래프처럼 <b>막대의 길이 자체가 값의 크기를 의미하는</b> 표현에서 이 자동 축소를 그대로 적용하면, 사람은 「막대 길이가 곧 값의 크기」라고 무의식적으로 해석하기 때문에 실제보다 훨씬 큰 차이로 오독하게 됩니다.\n\n<b>선그래프는 왜 예외적으로 허용되기도 하는가</b>: 선그래프의 목적이 절대적인 크기 비교가 아니라 「오르내리는 흐름(추세)」을 보여주는 것이라면, 축을 확대해서 미세한 변화를 잘 보이게 하는 것이 오히려 유용할 수 있습니다(예: 체온 변화를 36.0~37.5도 범위로 확대해서 보여주는 경우). 다만 이 경우에도 축 범위를 확대했다는 사실을 라벨이나 각주로 분명히 밝혀야 하며, 「이 그래프는 절대적 크기가 아니라 변화의 흐름을 보여준다」는 것을 읽는 사람이 알 수 있어야 합니다.",
+  "more_en": "Branch A and B's sales differ by only 7% in reality, but raising the bar chart's y-axis baseline away from zero visually exaggerates that gap by several times, even though the printed values stay unchanged. This happens because charting tools auto-fit the visible range to the data by default — useful for line charts tracking trends, but misleading for bar charts where length itself encodes magnitude and must start at zero.",
+  "problem": {
+   "q": "막대그래프의 y축은 반드시 0에서 시작해야 한다는 원칙이 있는데, 그렇다면 「미세한 변화를 잘 보이게 하고 싶다」는 요구는 어떻게 해결해야 할까요?",
+   "solution": "막대그래프에서 미세한 차이를 강조하고 싶다면 y축 기준선을 옮기는 대신, 값 자체를 다른 형태로(예: 원래 값이 아니라 「기준 대비 증감률」이나 「전월 대비 변화량」으로) 바꾸어 막대그래프를 다시 그리는 방법이 정직합니다. 또는 막대그래프 대신 애초에 미세한 변화를 보여주기에 적합한 선그래프나 점그래프로 표현을 바꾸는 것도 방법입니다. 즉 「기준선을 속여서 크게 보이게」 하는 대신, 「그 목적에 애초에 맞는 값이나 그래프 형태를 고르는」 것이 시각 표현 원칙에 맞는 해결책입니다."
+  }
+ },
+ "bda39_03": {
+  "ch": "빅데이터 분석 제39장 · 무엇을 어떻게 그릴 것인가",
+  "sec": "39.3 눈에 먼저 들어오는 것 — 전주의적 속성",
+  "title": "눈에 먼저 들어오는 것 — 전주의적 속성",
+  "narr": "같은 30개 항목 중 딱 하나 다른 것을 찾는 과제를 색과 모양 두 가지로 실제로 비교합니다. 색으로 구분할 때(파란 원 29개 속 빨간 원 1개)는 눈이 그림 전체를 인식하는 순간 저절로 튀어 보입니다 — 실제로 몇 번째 항목을 순서대로 훑었는지 셀 필요가 없는 1회입니다. 모양으로 구분할 때(파란 원 29개 속 파란 사각형 1개, 색은 같음)는 그렇지 않습니다 — 한 칸씩 순서대로 확인해야 하는 순차 탐색이 되어, 목표 위치에 따라 수십 번을 확인해야 찾아질 수 있습니다.",
+  "more": "<b>전주의적(preattentive) 속성이란</b>: 뇌가 「의식적으로 하나하나 주의를 기울이기 전에(前注意的)」 이미 처리해 버리는 시각 정보를 말합니다. 색상·명도·크기·기울기·움직임 등 일부 속성은 이런 즉각 처리가 되지만, 모양이나 글자처럼 더 복잡한 정보는 그렇지 않아서 하나하나 순서대로 확인(순차 탐색)해야 합니다. 이 차이는 실험실에서 반응 시간을 재서 확인된 것으로, 항목 수가 늘어나도 전주의적 속성을 이용한 탐색은 걸리는 시간이 거의 늘지 않는 반면, 순차 탐색은 항목 수에 비례해 시간이 늘어납니다.\n\n<b>시각화 설계에 주는 시사점</b>: 강조하고 싶은 항목이 있다면 모양이나 굵기보다 <b>색이나 크기</b>로 구분하는 것이 훨씬 빠르게 눈에 띕니다 — 이것이 「이상값만 빨간 점으로」, 「선택된 항목만 진하게, 나머지는 회색으로」 같은 관행의 근거입니다. 반대로 지도의 범례처럼 여러 범주를 동등하게 구분해야 하는 경우에는 색만으로는 색약·색맹 사용자에게 전달이 안 될 수 있으므로 모양이나 패턴을 함께 쓰는 것이 접근성 측면에서 필요합니다.",
+  "more_en": "Searching a 30-item grid for one odd item works very differently depending on the differentiating attribute. A color outlier (one red dot among blue) pops out instantly regardless of grid size — a preattentive attribute processed before conscious attention. A shape outlier (one blue square among blue circles, same color) requires serial, item-by-item search whose cost scales with position in the grid. Preattentive attributes like color and size are the right tool for drawing the eye to what matters.",
+  "problem": {
+   "q": "지도에서 여러 범주(예: 5개 산업군)를 색으로만 구분했는데, 항목이 30개가 아니라 3만 개라면 색으로 구분하는 방식에는 어떤 새로운 문제가 생길까요?",
+   "solution": "이번 장면의 「색으로 구분」은 「나머지와 다른 색 하나」를 찾는 상황에서는 강력하지만, 30개가 아니라 3만 개의 점이 5가지 범주색으로 칠해져 화면을 가득 채우면 오히려 <b>색이 뒤섞여 뭉개지는 과밀(overplotting)</b> 문제가 생깁니다 — 색이 서로 겹쳐 칠해지면서 특정 범주가 실제보다 많아 보이거나 적어 보일 수 있고, 점들이 너무 촘촘해 개별 색을 구분하기도 어려워집니다. 즉 전주의적 속성(색)이 「하나를 찾는 것」에는 유리해도, 데이터 양이 아주 많아지면 그 자체가 다음 장면에서 다루는 「과밀」이라는 새로운 문제를 만들어낼 수 있습니다 — 그래서 항목 수가 아주 많을 때는 색을 그대로 쓰기보다 격자 집계나 표본추출 같은 방법을 함께 써야 합니다."
+  }
+ },
+ "bda39_04": {
+  "ch": "빅데이터 분석 제39장 · 무엇을 어떻게 그릴 것인가",
+  "sec": "39.4 목적별 시각화 5분류",
+  "title": "목적별 시각화 5분류 — 한 데이터를 다섯 방식으로",
+  "narr": "서울·부산·대구·광주·대전 5개 지역의 매출·고객수·성장률·반품률, 그리고 전사 12개월 매출 추이라는 같은 자료를 목적이 다른 다섯 방식으로 실제로 그려 비교합니다. 시간 시각화(선그래프)는 흐름을 보여주지만 지역별 몫은 감춥니다. 분포 시각화(도넛)는 몫을 보여주지만 시간 흐름은 없습니다. 관계 시각화(산점도)는 두 지표의 관계를 보여주지만 다른 지표는 등장하지 않습니다. 비교 시각화(히트맵)는 여러 지표를 한눈에 대비하지만 정밀한 값은 색으로만 어림합니다. 공간 시각화(도트맵)는 지리적 분포를 보여주지만 정확한 수치 비교에는 약합니다.",
+  "more": "<b>다섯 분류는 '무엇을 묻는가'로 나뉩니다</b>: 시간 시각화는 「언제 어떻게 변했는가」, 분포 시각화는 「구성 요소들이 전체에서 얼마씩 차지하는가」, 관계 시각화는 「두 지표가 함께 움직이는가」, 비교 시각화는 「여러 대상을 여러 기준으로 한꺼번에 견주면 누가 두드러지는가」, 공간 시각화는 「어디에서 일어나는가」를 묻는 데 각각 최적화돼 있습니다. 같은 데이터라도 던지는 질문이 바뀌면 적합한 시각화 방식도 함께 바뀝니다.\n\n<b>실무에서는 한 가지만 쓰지 않습니다</b>: 보고서나 대시보드를 만들 때는 보통 이 다섯 분류 중 두세 가지를 함께 배치해, 시간 시각화로 「무슨 일이 있었는지」를 먼저 보여준 뒤 비교 시각화로 「어디서 그런 일이 있었는지」를 짚어주는 식으로 서로의 빈틈을 메웁니다. 하나의 그래프에 모든 정보를 다 담으려 하기보다, 여러 개의 목적이 분명한 그래프를 나란히 두는 편이 오히려 더 명확하게 전달됩니다.",
+  "more_en": "The same five-region, four-metric dataset (plus a 12-month company-wide sales series) is rendered five different ways. Time visualization shows the trend but hides regional shares; distribution (donut) shows shares but no time axis; relationship (scatter) reveals how two metrics co-move but drops the rest; comparison (heatmap) contrasts many metrics at once at the cost of precision; spatial (dot map) shows geographic distribution but is weak for exact comparisons. No single method is 'correct' — the right one depends on the question being asked.",
+  "problem": {
+   "q": "「전 지역에서 반품률이 가장 낮은 곳은 어디이고, 그곳의 매출은 언제 가장 많이 늘었는가」라는 질문에 답하려면 이 다섯 분류 중 몇 가지를 함께 봐야 할까요?",
+   "solution": "이 질문은 두 부분으로 나뉩니다 — 「반품률이 가장 낮은 지역」을 찾는 것은 비교 시각화(히트맵)나 지역별 막대그래프로 바로 확인할 수 있고, 「그 지역의 매출이 언제 가장 늘었는가」는 그 지역만 따로 뽑은 시간 시각화(선그래프)가 있어야 답할 수 있습니다. 즉 하나의 시각화만으로는 이 질문에 답할 수 없고, 비교 시각화로 「어디」를 먼저 좁힌 뒤 시간 시각화로 「언제」를 확인하는 두 단계가 필요합니다 — 이것이 실무에서 여러 시각화를 조합해 쓰는 이유입니다."
+  }
+ },
+ "bda39_05": {
+  "ch": "빅데이터 분석 제39장 · 무엇을 어떻게 그릴 것인가",
+  "sec": "39.5 빅데이터의 과제 — 과밀과 상호작용",
+  "title": "빅데이터의 과제 — 과밀과 상호작용",
+  "narr": "점 800개(세 지역에 몰린 자료, 고정 배치) 중 앞 N개만 표시하도록 슬라이더로 조절합니다. N을 늘릴수록 다른 점과 화면상 몇 픽셀 이내로 붙어 서로 가리는 점의 비율이 실제로 커져서, 점이 아주 많아지면 산점도는 그냥 하나의 뭉뚱그려진 얼룩이 되어버립니다(과밀·overplotting). 해결책 중 하나가 격자 집계입니다 — 화면을 여러 칸으로 나누고 각 칸에 몇 개의 점이 들어왔는지 실제로 세어 색으로 표현하면, 점이 아무리 많아도 「어디에 몰려 있는가」라는 구조는 여전히 읽힙니다.",
+  "more": "<b>왜 지금까지의 원칙들이 빅데이터에서 더 중요해지는가</b>: 이 장에서 다룬 각도 대 길이, 축의 기준선, 전주의적 속성은 데이터가 5개든 500만 개든 똑같이 적용되는 원칙입니다. 그런데 데이터 양이 늘어나면 <b>원칙을 어겼을 때 생기는 피해도 함께 커집니다</b> — 점 30개가 겹쳐서 안 보이는 것과 점 300만 개가 겹쳐서 안 보이는 것은 질적으로 다른 문제입니다. 후자는 단순히 점을 작게 그리는 정도로는 해결되지 않고, 격자 집계·표본추출·밀도 추정 같은 아예 다른 접근이 필요합니다.\n\n<b>상호작용이 필요한 이유</b>: 정적인 그림 한 장에 수백만 건을 다 담으려 하면 반드시 무언가를 잃습니다. 대신 사용자가 확대(zoom)해서 관심 있는 구간만 자세히 보거나, 필터로 일부 범주만 남기거나, 이번 장면의 슬라이더처럼 표시량 자체를 조절할 수 있게 하면, 「전체의 개요」와 「부분의 detail」을 사용자가 스스로 오가며 확인할 수 있습니다. 빅데이터 시각화의 상호작용은 화려한 기능이 아니라, 한 장의 정적 그림으로는 애초에 불가능한 정보 전달을 가능하게 하는 필수 장치입니다.",
+  "more_en": "Displaying an increasing prefix of 800 fixed points clustered in three regions shows the fraction of points visually overlapping (within ~4.5 screen pixels of another) growing in real time — eventually the raw scatter degenerates into a blob (overplotting). Binning the same points into a grid and coloring by actual per-cell counts preserves the underlying density structure regardless of point count. This is why big-data visualization needs both aggregation techniques and interactivity (zoom, filter, adjustable sampling) that static single charts cannot provide.",
+  "problem": {
+   "q": "격자 집계(히트맵)로 과밀 문제를 해결했다면, 이 방법이 새로 잃어버리는 정보는 무엇일까요?",
+   "solution": "격자 집계는 한 칸 안에 있는 개별 점들의 정확한 위치를 더 이상 구분하지 못하고 「그 칸에 몇 개가 있었다」는 집계값 하나로 뭉뚱그립니다 — 즉 칸의 크기(해상도)보다 작은 수준의 세부 구조(예: 한 칸 안에서 점들이 특정 방향으로 치우쳐 있는지)는 사라집니다. 또한 이상값처럼 「하나뿐이지만 중요한」 개별 점은 집계값 속에 묻혀 버려 눈에 띄지 않게 될 수 있습니다. 그래서 실무에서는 전체 구조를 볼 때는 격자 집계를, 특정 구간을 확대해 개별 점을 확인할 때는 원시 산점도를 상호작용으로 오가며 함께 씁니다 — 이 장면의 탭 전환이 그 축소판입니다."
+  }
+ }
+}

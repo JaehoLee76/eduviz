@@ -1,0 +1,62 @@
+{
+ "bda35_01": {
+  "ch": "빅데이터 분석 제35장 · 나누어 저장하고 나누어 계산한다",
+  "sec": "35.1 분산 파일 시스템 — 청크·복제·장애 대응",
+  "title": "분산 파일 시스템 — 청크·복제·장애 대응",
+  "narr": "앞 장에서 데이터가 어떻게 흘러 모이는지 봤다면, 이번 장은 그렇게 모인 데이터를 어떻게 나누어 저장하고 나누어 계산하는지를 다룹니다. 300MB 파일을 60MB 청크로 쪼개면 실제로 5개의 청크가 생기고, 각 청크는 해시로 정해진 노드부터 시작해 2개 노드에 복제됩니다(구글 GFS·하둡 HDFS가 마스터-청크서버 구조로 하는 일입니다). 탭으로 노드 하나를 실제로 죽여 보면, 사본이 그 노드에 있던 청크 가운데 완전히 사라진 청크가 몇 개인지 실제로 셀 수 있습니다.",
+  "more": "<b>왜 마스터를 따로 두는가</b>: GFS·HDFS는 파일이 어느 청크로 쪼개져 어느 서버에 있는지(메타데이터)를 관리하는 마스터(네임노드)와, 실제 데이터를 들고 있는 청크서버(데이터노드)를 분리합니다. 메타데이터는 크기가 작아 마스터의 메모리에 다 올려두고 빠르게 찾을 수 있고, 실제 대용량 데이터 입출력은 청크서버가 클라이언트와 직접 주고받아 마스터가 병목이 되지 않습니다. 대신 마스터가 죽으면 전체 파일 시스템을 찾을 방법이 없어지는 단일 장애점이 되므로, 마스터의 상태는 별도로 복제·백업합니다.\n\n<b>청크 크기가 64MB인 이유</b>: 청크가 너무 작으면 파일 하나당 메타데이터(청크 위치 정보)가 너무 많아져 마스터의 부담이 커지고, 너무 크면 작은 파일을 다룰 때 낭비가 커집니다. 큰 파일을 순차적으로 많이 읽는 작업 부하를 가정한 GFS는 이 균형점을 64MB로 잡았습니다.\n\n<b>복제는 어디에 두는가</b>: 이 장면은 같은 랙에 있다고 가정한 단순 순환 배치를 썼지만, 실제 시스템은 복제본을 서로 다른 랙·서버실에 흩어 두어 랙 전체가 정전되는 상황에서도 데이터를 지킵니다.",
+  "more_en": "A 300MB file split into 60MB chunks actually yields 5 chunks, each replicated onto 2 of 6 nodes chosen by a deterministic hash — the same master/chunkserver split that Google's GFS and Hadoop's HDFS use. Tapping to kill a node and counting survivors shows replication's real payoff: with R≥2 no chunk is fully lost, but with R=1 a killed node's chunks vanish entirely.",
+  "problem": {
+   "q": "복제 계수 R을 6(=노드 수)으로 설정하면 노드 하나가 죽었을 때 잃는 청크는 몇 개일까요? 이렇게 하지 않는 이유는 무엇일까요?",
+   "solution": "R=6이면 모든 청크가 6개 노드 전부에 복제되므로 노드가 하나(심지어 여러 개) 죽어도 잃는 청크는 0개입니다. 하지만 이렇게 하지 않는 이유는 비용입니다 — 청크마다 6배의 저장 공간을 쓰고, 쓰기 연산마다 6개 노드에 모두 복제를 완료해야 하므로 쓰기 성능도 크게 떨어집니다. 실무에서는 감당 가능한 장애 확률과 저장 비용을 저울질해 R=2~3 정도로 절충하는 경우가 많습니다."
+  }
+ },
+ "bda35_02": {
+  "ch": "빅데이터 분석 제35장 · 나누어 저장하고 나누어 계산한다",
+  "sec": "35.2 해시 파티셔닝 — 키를 나눠 담다",
+  "title": "해시 파티셔닝 — 키를 나눠 담다",
+  "narr": "청크를 노드에 흩뿌리는 방식을 봤다면, 이번엔 레코드 하나하나(키)를 노드에 나누는 방식입니다. NoSQL 저장소는 각 키의 해시값(문자 코드 합)을 노드 수로 나눈 나머지로 저장 위치를 정합니다. 노드 4개를 기준으로 배치한 뒤 노드 수를 바꿔보면, 거의 모든 키의 나머지 값이 달라져 12개 키 대부분이 다른 노드로 옮겨져야 합니다.",
+  "more": "<b>NoSQL의 네 가지 자료 모델</b>: 키·값(Key-Value, 가장 단순한 키→값 매핑), 컬럼패밀리(구글 빅테이블처럼 row-key + column-key + timestamp로 정렬된 다차원 구조), 문서(JSON 같은 구조를 그대로 한 덩어리로 저장), 그래프(노드와 엣지로 관계 자체를 저장) — 넷 다 전통적 RDBMS의 복잡한 조인(Join)을 포기하는 대신 대용량과 수평 확장성을 얻습니다. 하지만 자료를 <b>어떻게</b> 담느냐(모델)와 <b>어디에</b> 담느냐(파티셔닝)는 별개의 문제이고, 이 장면의 나머지 연산은 네 모델 어디에서나 똑같이 쓰입니다.\n\n<b>단순 나머지 연산의 약점</b>: 이 장면처럼 노드 수가 바뀔 때마다 대부분의 키가 재배치되는 것은 단순 모듈로(나머지) 해싱의 근본적인 약점입니다 — 노드 하나를 늘리려고 거의 모든 데이터를 다시 옮겨야 한다면 확장이 매우 부담스럽습니다. 그래서 실무의 많은 분산 저장소는 해시 값을 원형(링) 위에 배치해 노드가 늘거나 줄 때 그 주변의 일부 키만 옮기면 되는 <b>일관 해싱(Consistent Hashing)</b>을 씁니다.",
+  "more_en": "NoSQL stores route each key to a node via hash(key) mod (number of nodes) — here, the sum of character codes. Rebasing from a 4-node layout and sweeping the node count shows that almost every one of 12 keys lands on a different node whenever the node count changes, regardless of whether the underlying model is key-value, column-family, document, or graph. This actually-computed churn motivates consistent hashing as a real improvement.",
+  "problem": {
+   "q": "노드 수가 4에서 8로 늘어나면(두 배) 재배치되는 키의 비율은 대략 어느 정도로 예상되나요? 왜 그럴까요?",
+   "solution": "단순 나머지(모듈로) 해싱에서는 노드 수가 바뀌면 거의 모든 키의 「해시값 % 노드수」 결과가 이전과 달라지므로, 재배치 비율은 거의 100%에 가깝습니다 — 정확히는 새 노드 수와 예전 노드 수의 최대공약수 등 수론적 관계에 따라 일부만 우연히 같은 나머지를 유지하지만, 일반적으로 절대다수가 옮겨집니다. 이는 노드 수를 두 배로 늘리는 것 같은 흔한 확장 작업조차 전체 데이터를 거의 다시 섞어야 함을 뜻하며, 바로 이 문제 때문에 일관 해싱 같은 기법이 필요합니다."
+  }
+ },
+ "bda35_03": {
+  "ch": "빅데이터 분석 제35장 · 나누어 저장하고 나누어 계산한다",
+  "sec": "35.3 CAP 정리 — 갈라진 네트워크에서 무엇을 지킬 것인가",
+  "title": "CAP 정리 — 갈라진 네트워크에서 무엇을 지킬 것인가",
+  "narr": "데이터를 여러 노드에 나눠 담다 보면 반드시 마주치는 질문이 있습니다 — 노드끼리 연결이 끊기면 어떻게 할 것인가. 노드 3개(다수파 2개·소수파 1개)가 값 150으로 합의된 상태에서 네트워크가 실제로 갈라집니다. 분단 중 일어난 이벤트 7건을 두 정책으로 시뮬레이션하면: <b>CP(일관성 우선)</b>는 다수파의 4건은 모두 성공시키지만 소수파의 3건은 전부 응답을 거부합니다. <b>AP(가용성 우선)</b>는 7건 모두 응답하지만, 소수파의 읽기 3건 중 2건은 실제로 오래된 값을 돌려줍니다.",
+  "more": "<b>C·A·P, 세 글자의 뜻</b>: 일관성(Consistency, 모든 노드가 같은 순간에 같은 값을 본다), 가용성(Availability, 요청을 보내면 항상 응답을 받는다), 분단 내성(Partition tolerance, 네트워크가 갈라져도 시스템이 계속 동작한다)입니다. CAP 정리는 분단이 실제로 일어난 순간에는 일관성과 가용성을 <b>동시에 완전히</b> 지킬 수 없다는 것이지, 평상시에도 셋 중 둘만 골라야 한다는 뜻이 아닙니다 — 분단이 없으면 셋 다 만족할 수 있습니다.\n\n<b>왜 대부분의 NoSQL은 AP를 택하는가</b>: 구글 빅테이블 계열이나 은행 코어 시스템처럼 정확성이 생명인 곳은 CP를 택하지만, 아마존 다이나모DB 계열의 많은 NoSQL(SimpleDB 등)은 AP를 택하고 <b>최종 일관성(Eventual Consistency)</b>으로 타협합니다 — 분단이 풀리고 나면 뒤늦게라도 초 단위 지연을 두고 모든 노드의 값을 맞춥니다. 쇼핑몰 장바구니처럼 「지금 당장 응답이 오는 것」이 「완벽하게 최신인 것」보다 중요한 서비스에 잘 맞습니다.\n\n<b>이 시뮬레이션의 한계</b>: 실제로는 소수파에서도 쓰기를 허용하면(이 장면은 단순화를 위해 소수파를 읽기만 하는 것으로 두었습니다) 분단이 풀린 뒤 두 값이 서로 다른 「충돌」이 생기고, 이를 해소하는 규칙(마지막에 쓴 값을 채택 등)이 따로 필요합니다.",
+  "more_en": "Splitting 3 nodes (majority 2, minority 1) actually simulates 7 events during a real network partition. CP fails all 3 minority requests outright to avoid returning unconfirmed data, while AP answers all 7 but 2 of the minority's 3 reads genuinely return values that predate a majority-side write — an actually-computed staleness count, not an assumed one. Most NoSQL systems choose AP and reconcile later via eventual consistency.",
+  "problem": {
+   "q": "이 시뮬레이션에서 소수파(B)의 첫 번째 읽기(①)는 AP에서 신선한 값으로 나왔습니다. 왜 그럴까요?",
+   "solution": "분단이 시작된 직후 첫 번째 이벤트인 소수파의 읽기는, 다수파(A)에서 아직 어떤 쓰기도 일어나기 전이었기 때문입니다. 그 시점까지는 A와 B의 값이 똑같이 150이었으므로, B가 자신의(분단 전과 같은) 로컬 값을 돌려줘도 실제 최신값과 우연히 일치합니다. 그 뒤 A에서 쓰기가 일어나면서부터(180으로 갱신) 비로소 B의 값이 실제 최신값과 어긋나기 시작해 이후의 읽기가 오래된 값이 됩니다 — 즉 AP에서 「오래된 값」은 분단이 시작된 순간부터가 아니라 실제로 값이 갈라지기 시작한 순간부터 생깁니다."
+  }
+ },
+ "bda35_04": {
+  "ch": "빅데이터 분석 제35장 · 나누어 저장하고 나누어 계산한다",
+  "sec": "35.4 맵리듀스 — 흩어져 세다",
+  "title": "맵리듀스 — 흩어져 세다",
+  "narr": "청크로 나눠 저장했다면, 이제 그 조각들 위에서 계산도 나눠 해야 합니다. 고정 문장 4개에서 시작해 단어 개수를 실제로 세어 봅니다. <b>map</b>은 각 문장을 단어로 쪼개 (단어,1) 쌍 14개를 만듭니다. <b>shuffle</b>은 같은 단어의 쌍들을 한 곳으로 실제로 모읍니다: 사과 4개·바나나 4개·포도 6개. <b>reduce</b>는 모인 1들을 더해 최종 개수(사과 4·바나나 4·포도 6)를 만들고, 그 합(14)은 원래 단어 총수와 정확히 일치합니다.",
+  "more": "<b>왜 map은 독립적이어야 하는가</b>: map 함수는 한 문장(레코드)만 보고 결과를 내며 다른 문장의 결과에 의존하지 않습니다. 이 독립성 덕분에 문장 4개를 4대(또는 그 이상)의 서로 다른 서버에 흩어 동시에 map을 돌릴 수 있습니다 — 문장이 4백만 개라도 원리는 같습니다.\n\n<b>shuffle이 병목이 되는 이유</b>: map의 출력을 같은 단어끼리 모으려면 네트워크로 데이터를 주고받아야 합니다(파티셔너가 키의 해시값으로 어느 reduce로 보낼지 정합니다). 원본 데이터 크기가 줄지 않는 작업(예: 정렬)은 이 shuffle 단계의 데이터 이동량이 크게 줄지 않아 맵리듀스에 잘 안 맞고, 반대로 이 장면 같은 단어 세기나 필터링처럼 map 단계에서 데이터가 확 줄어드는 작업은 shuffle 부담도 줄어 맵리듀스의 장점이 극대화됩니다.\n\n<b>실제 규모에서는</b>: 하둡은 기본적으로 파일을 블록(64MB 또는 128MB) 단위로 나눠 그 블록 하나당 map 작업 하나를 실행합니다. 320MB 파일이면 map 작업이 5개 생기는 식입니다 — 이 장면의 4개 문장을 4백만 줄짜리 로그 파일로 바꿔도 map→shuffle→reduce의 흐름은 완전히 같습니다.",
+  "more_en": "Having split storage into chunks, computation must split too. Four fixed sentences actually map into 14 (word,1) pairs, shuffle groups them by word (사과×4, 바나나×4, 포도×6), and reduce sums each group — the totals sum back to exactly 14, matching the input word count. Hadoop MapReduce applies this same three-stage flow across thousands of machines, one map task per 64MB block, handling parallelism and fault recovery so developers write only map and reduce.",
+  "problem": {
+   "q": "만약 4개의 문장이 아니라 400만 개의 로그 줄이 입력이라면, map 단계와 reduce 단계 중 어느 쪽의 작업 개수를 사용자가 직접 정해야 할까요?",
+   "solution": "map 작업의 개수는 보통 입력 파일이 블록(기본 64MB 또는 128MB) 단위로 얼마나 쪼개지는지에 따라 프레임워크가 자동으로 정합니다 — 사용자가 일일이 정할 필요가 없습니다. 반면 reduce 작업의 개수는 사용자가 직접 지정하는 경우가 일반적입니다. 이 장면에서도 map은 문장(레코드) 수만큼 자연히 정해졌지만, reduce는 「단어별로 하나씩 모은다」는 로직 자체가 곧 reduce 작업 수(그룹 수)를 결정한 것과 같습니다."
+  }
+ },
+ "bda35_05": {
+  "ch": "빅데이터 분석 제35장 · 나누어 저장하고 나누어 계산한다",
+  "sec": "35.5 클라우드 인프라 — 가상화와 탄력적 확장",
+  "title": "클라우드 인프라 — 가상화와 탄력적 확장",
+  "narr": "분산 저장·분산 계산이 실제로 돌아가는 물리적 바탕이 클라우드 인프라입니다. 가상화는 물리 서버 한 대를 여러 개의 논리적 서버로 쪼개, 필요한 만큼만 서버를 만들었다 지울 수 있게 합니다. 하루 24시간의 요청량을 놓고, 피크에 맞춰 서버를 고정으로 3대 켜 두는 방식은 하루 72 서버·시간을 쓰지만, 시간마다 필요한 만큼만 늘리고 줄이는 탄력적 확장은 실제로 50 서버·시간만 씁니다 — 같은 일을 하고도 30.6% 적은 자원입니다.",
+  "more": "<b>가상화가 탄력성의 전제 조건인 이유</b>: 물리 서버를 통째로 새로 들여오고 설치하는 데는 며칠이 걸리지만, 하이퍼바이저가 만든 가상머신은 몇 분(또는 몇 초) 안에 만들고 없앨 수 있습니다. 이 속도 덕분에 「지금 이 시간에만 필요한 만큼」 자원을 맞추는 탄력적 확장(오토스케일링)이 현실적으로 가능해집니다.\n\n<b>IaaS·PaaS·SaaS — 무엇을 직접 다루는가</b>: 인프라(IaaS, 아마존 EC2·S3 같은)는 서버·스토리지·네트워크만 제공자가 관리하고 운영체제부터 애플리케이션까지는 사용자 몫입니다. 플랫폼(PaaS)은 운영체제와 실행 환경(런타임)까지 제공자가 관리해 사용자는 코드와 데이터만 다루면 됩니다. 소프트웨어(SaaS)는 애플리케이션까지 통째로 제공되어 사용자는 그냥 씁니다. 세 모델은 「내가 직접 관리하고 책임질 범위」를 얼마나 제공자에게 넘기느냐의 차이입니다.\n\n<b>이 절감폭이 뜻하는 것</b>: 30.6%라는 숫자는 이 장면의 가상 수요 곡선과 서버 1대 용량(슬라이더)에 따라 달라집니다 — 수요가 하루 중 더 들쭉날쭉할수록(피크와 평균의 차이가 클수록) 탄력적 확장의 이득도 커집니다. 반대로 수요가 하루 종일 거의 일정하다면 고정 프로비저닝과 탄력적 확장의 차이는 별로 없습니다.",
+  "more_en": "Virtualization slices one physical server into many logical ones, making elastic scaling practical. Against a real 24-hour demand curve, fixed provisioning sized to the peak costs 72 server-hours/day while hour-by-hour elastic scaling actually needs only 50 — a real, computed 30.6% saving. IaaS, PaaS, and SaaS differ in how much of the stack (from virtualization up through the application) the provider manages versus the user.",
+  "problem": {
+   "q": "만약 수요 곡선이 하루 종일 거의 똑같이 100 안팎이라면(피크와 평균의 차이가 거의 없다면), 탄력적 확장의 절감률은 어떻게 될까요?",
+   "solution": "수요가 하루 종일 거의 일정하다면 시간마다 필요한 서버 수(need)도 거의 일정해지므로, 고정 프로비저닝(피크에 맞춘 서버 수 × 24시간)과 탄력적 확장(시간별 필요 서버 수의 합)이 거의 같아져 절감률은 0%에 가까워집니다. 즉 탄력적 확장의 이득은 수요가 들쭉날쭉할 때(피크와 평균의 차이가 클 때) 커지는 것이지, 항상 큰 이득을 주는 마법이 아닙니다 — 이 장면의 슬라이더로 용량을 바꿔가며 절감률이 변하는 것도 같은 원리입니다."
+  }
+ }
+}

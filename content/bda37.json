@@ -1,0 +1,62 @@
+{
+ "bda37_01": {
+  "ch": "빅데이터 분석 제37장 · 분석 마스터 플랜과 거버넌스",
+  "sec": "37.1 마스터 플랜 수립 — 우선순위 평가기준(ROI)",
+  "title": "우선순위 평가기준 — ROI 관점",
+  "narr": "개별 과제를 잘 수행하는 것도 중요하지만, 지속적으로 분석의 가치를 관리하려면 중·장기 <b>마스터 플랜</b>이 필요합니다. 그 첫 단계가 과제들의 우선순위를 정하는 일입니다. 빅데이터의 3V(Volume·Variety·Velocity)는 저장·가공·처리에 드는 <b>투자비용</b> 요소이고, 분석 결과로 얻는 <b>비즈니스 효과(Value)</b>는 그 대가로 얻는 편익입니다. 이 둘의 비율(ROI)을 실제로 계산하면, 기본 가중치에서 8개 과제 중 7개가 임계값 1.0을 넘습니다. 슬라이더로 투자비용·효과 가중치를 바꾸면 임계선을 넘는 과제 수가 실제로 바뀝니다.",
+  "more": "<b>3V가 왜 '비용' 요소인가</b>: 크기(Volume)가 크면 저장·처리 인프라에 투자해야 하고, 다양성(Variety)이 높으면 정형·비정형을 통합하는 데 비용이 들며, 속도(Velocity)가 빠르면 실시간 처리 기술을 갖춰야 합니다. 반대로 Value(비즈니스 효과)는 그 투자로 얻는 대가이므로, ROI=Value/Investment 구도가 자연스럽게 성립합니다.\n\n<b>왜 절대 점수가 아니라 비율인가</b>: 투자비용이 큰 과제라도 그만큼 효과가 크면 우선순위에서 밀릴 이유가 없습니다. 절대적인 비용 크기가 아니라 비용 대비 효과의 <b>비율</b>로 비교해야, 작은 과제와 큰 과제를 공평한 기준으로 비교할 수 있습니다. 실무에서는 이 가중치를 기업의 재무 상황(자본 여유가 있으면 wCost를 낮춰 더 많은 과제를 허용)이나 전략(단기 성과가 급하면 wValue를 높여 임계선을 낮춤)에 맞게 조정합니다.",
+  "more_en": "Prioritizing analytics projects starts with ROI: the big data 3Vs (Volume, Variety, Velocity) represent investment cost, while business effect (Value) is the return. Computing value×wValue / (cost×wCost) against a 1.0 threshold shows 7 of 8 projects passing at default weights; raising the cost weight or lowering the value weight lets fewer projects clear the bar in real time, and vice versa — priority is a live ratio, not a fixed ranking.",
+  "problem": {
+   "q": "투자비용 가중치(wCost)를 2.0까지 올렸더니 8개 과제 전부가 임계값 1.0 아래로 떨어졌습니다. 이것이 실무에서 의미하는 상황은 무엇이고, 이런 경우 마스터 플랜 수립자는 어떻게 대응해야 할까요?",
+   "solution": "투자비용 가중치를 극단적으로 높였다는 것은, 데이터의 규모·다양성·속도가 요구하는 인프라 투자 부담이 실제 예산 여건보다 훨씬 크다고 판단한 상황을 뜻합니다. 이 경우 모든 과제가 ROI 기준을 통과하지 못하므로, 무리하게 전체를 추진하기보다 데이터 범위를 줄이거나(예: 내부 데이터만 우선 활용) 시범 과제(Pilot) 형태로 축소해 투자 규모 자체를 낮추는 방향으로 재기획해야 합니다 — 이것이 다음 장면에서 다룰 '난이도 조정을 통한 우선순위 재조정'과 이어집니다."
+  }
+ },
+ "bda37_02": {
+  "ch": "빅데이터 분석 제37장 · 분석 마스터 플랜과 거버넌스",
+  "sec": "37.1 마스터 플랜 수립 — 시급성·난이도 포트폴리오",
+  "title": "시급성·난이도 포트폴리오",
+  "narr": "ROI 다음으로 볼 기준은 시급성과 난이도입니다. 분석 과제 9개를 두 축으로 실제 배치하면 4개 영역이 나뉩니다 — 시급하고 쉬운 <b>III영역</b>이 가장 먼저, 시급하지 않고 어려운 <b>II영역</b>이 가장 나중입니다. 그런데 '빠른 성과 우선'과 '장기 가치 우선' 중 어느 전략을 택하느냐에 따라 실행 순서는 실제로 달라집니다 — 빠른 성과 우선으로 정렬하면 1위는 '고객 이탈 방지'이지만, 장기 가치 우선으로 바꾸면 1위가 '실시간 이상거래 탐지'로 실제로 바뀝니다.",
+  "more": "<b>I영역(시급+어려움)은 조정 가능한 영역</b>: 시급성이 높고 난이도도 높은 과제는 경영진의 의사결정에 따라 우선순위를 조정할 수 있습니다. 예를 들어 분석 범위를 줄이거나(전사 데이터 대신 일부 부서 데이터로 시작) 기존 시스템에 미치는 영향을 최소화하는 방식으로 난이도를 낮추면, I영역에서 III영역으로 사실상 이동시켜 우선 추진이 가능해집니다.\n\n<b>전략에 따라 순서가 바뀌는 이유</b>: '빠른 성과 우선' 전략은 당장 눈에 보이는 성과로 분석 문화를 조직에 정착시키려는 목적이 강하고, '장기 가치 우선' 전략은 난이도가 높더라도 전략적으로 중요한 과제에 먼저 투자해 장기적인 경쟁우위를 만들려는 목적입니다. 어느 쪽이 옳다고 정해진 것이 아니라, 조직이 지금 어떤 단계에 있는지(막 시작하는 단계인지, 이미 어느 정도 정착된 단계인지)에 따라 선택이 달라집니다.",
+  "more_en": "Placing 9 candidate projects on urgency and difficulty axes yields four regions, with quadrant III (urgent, easy) always prioritized first. Which project ranks #1 depends on strategy: a 'quick-win' weighting (favoring ease) ranks 'customer churn prevention' first, while a 'long-term value' weighting (favoring urgency) ranks 'real-time fraud detection' first instead — the execution order is recomputed live from the same fixed dataset.",
+  "problem": {
+   "q": "IV영역(비시급+쉬움)에 속한 과제는 왜 II영역(비시급+어려움)보다는 우선하지만 I·III영역보다는 뒤로 밀릴까요?",
+   "solution": "IV영역 과제는 당장 급하지 않지만 실행이 쉬워 비용과 위험 부담이 적습니다. 그래서 시급한 과제(I·III영역)들을 먼저 처리한 뒤, 남는 여력으로 손쉽게 추가할 수 있는 '저비용 저위험' 과제로 취급됩니다. 반면 II영역은 비시급한데도 난이도까지 높아 지금 투자할 이유가 가장 적으므로, 우선순위가 가장 낮게 매겨지는 것이 합리적입니다 — 급함과 쉬움이라는 두 조건 중 하나라도 유리하면 그만큼 순서가 앞으로 당겨진다고 이해할 수 있습니다."
+  }
+ },
+ "bda37_03": {
+  "ch": "빅데이터 분석 제37장 · 분석 마스터 플랜과 거버넌스",
+  "sec": "37.1 마스터 플랜 수립 — 이행계획(로드맵)",
+  "title": "이행계획 수립 — 로드맵",
+  "narr": "포트폴리오 사분면에서 정한 우선순위를 그대로 로드맵에 옮깁니다. III영역(시급+쉬움) 과제 2개는 Pilot으로 먼저 검증하는 <b>Stage1(도입)</b>로, I·IV영역 과제 4개는 유효성이 검증된 뒤 업무에 내재화하는 <b>Stage2(검증)</b>로, II영역(비시급+어려움) 과제 3개는 시스템을 고도화하며 확산하는 <b>Stage3(확산)</b>로 실제 배정됩니다. 이 배정은 임의로 정한 것이 아니라, 앞 장면에서 계산한 사분면 결과를 그대로 규칙에 넣어 나온 결과입니다.",
+  "more": "<b>단계별 목표가 다른 이유</b>: Stage1은 '이게 정말 되는가'를 검증하는 단계이므로 위험이 작은 과제로 시작합니다. Stage2는 검증된 방식을 실제 업무 프로세스에 심고 변화관리를 병행하는 단계이므로 성공 가능성이 어느 정도 확인된 과제(I·IV영역)가 적합합니다. Stage3는 이미 조직에 분석 문화가 자리 잡은 뒤이므로, 어렵더라도 장기적으로 가치가 큰 과제(II영역)에 도전할 여력이 생깁니다.\n\n<b>데이터 아키텍처와의 연결</b>: 로드맵은 과제 배정뿐 아니라 데이터 저장·처리 구조(개별 시스템 방식 대신 확장 가능한 플랫폼 구조)를 함께 설계해야 합니다. Stage마다 요구하는 데이터 규모와 처리 속도가 다르므로, 처음부터 장기적으로 확장 가능한 플랫폼을 염두에 두고 설계해야 나중에 시스템을 다시 짓는 비용을 줄일 수 있습니다.",
+  "more_en": "Quadrant-based priorities translate directly into a staged roadmap: quadrant-III (urgent, easy) projects become Stage 1 pilots, quadrant I/IV projects become Stage 2 validation-and-adoption work, and quadrant-II (non-urgent, difficult) projects become Stage 3 diffusion work — the staging is computed straight from the earlier quadrant classification, not assigned by hand.",
+  "problem": {
+   "q": "만약 Stage1에서 진행한 Pilot 과제가 기대한 성과를 내지 못했다면, 로드맵 전체를 처음부터 다시 짜야 할까요?",
+   "solution": "반드시 그렇지는 않습니다. 로드맵은 반복적 정련 방식(순차 진행이 아니라 모델링 단계처럼 반복 가능한 부분과, 데이터 수집·준비처럼 순차적으로 진행해야 하는 부분이 섞인 혼합형)을 전제로 만들어지므로, Pilot 결과가 나쁘면 해당 과제만 Stage1 안에서 재시도하거나(다른 데이터·다른 기법으로) 아예 사분면 재평가를 거쳐 다른 Stage로 재배정할 수 있습니다. 로드맵 전체를 다시 짜야 하는 경우는 Pilot 실패가 개별 과제의 문제가 아니라 조직의 분석 준비도 자체가 낮다는 신호일 때인데, 이는 다음 장면의 '분석 준비도·성숙도 진단'으로 확인할 수 있습니다."
+  }
+ },
+ "bda37_04": {
+  "ch": "빅데이터 분석 제37장 · 분석 마스터 플랜과 거버넌스",
+  "sec": "37.2 분석 거버넌스 체계 수립 — 준비도·성숙도",
+  "title": "분석 준비도·성숙도 진단",
+  "narr": "로드맵이 잘 실행되려면 <b>분석 거버넌스 체계</b>(조직·프로세스·시스템·데이터·교육이 유기적으로 맞물려야 함)가 뒷받침되어야 합니다. 그 현재 위치를 재는 것이 <b>준비도</b>(분석업무·인력및조직·분석기법·분석데이터·분석문화·IT인프라 6영역)와 <b>성숙도</b>(비즈니스·조직역량·IT 3부문, 도입→활용→확산→최적화 단계)입니다. 지금 6개 항목의 평균은 40.0, 3개 항목의 평균은 51.0으로, 두 값을 50 기준으로 실제 판정하면 <b>정착형</b>에 해당합니다. 슬라이더로 점수를 올리거나 내리면 평균과 유형이 그 자리에서 실제로 재계산됩니다.",
+  "more": "<b>네 유형과 각각의 처방</b>: '준비형'(둘 다 낮음)은 데이터·조직·기법이 아직 갖춰지지 않아 사전 준비가 필요합니다. '정착형'(준비도 낮음·성숙도 높음)은 이미 제한적으로나마 분석을 쓰고 있지만 기반이 약해 정착이 급선무입니다. '도입형'(준비도 높음·성숙도 낮음)은 조직·인력은 갖췄지만 아직 실제 활용 사례가 부족해 바로 도입할 수 있는 상태입니다. '확산형'(둘 다 높음)은 6가지 구성요소를 모두 갖췄고 지속적인 확산만 남은 상태입니다.\n\n<b>왜 준비도와 성숙도를 따로 재는가</b>: 준비도는 '지금 시작할 수 있는 여건이 되는가'(정적인 스냅샷)를, 성숙도는 '실제로 얼마나 잘 활용하고 있는가'(누적된 실행 수준)를 봅니다. 조직에 따라 준비는 잘 되어 있어도 실행 경험이 없거나(도입형), 반대로 준비는 부족해도 일부 부서에서 제한적으로 잘 활용하고 있는 경우(정착형)가 있어, 두 지표를 각각 재야 정확한 처방이 나옵니다.",
+  "more_en": "Governance (organization, process, system, data, education working together) is assessed via readiness (6 areas: analytics work, people/org, techniques, data, culture, IT infrastructure) and maturity (3 areas: business, org/capability, IT, staged as introduction→utilization→diffusion→optimization). Averaging the current scores gives readiness 40.0 and maturity 51.0, which — thresholded at 50 — classifies the organization as 'consolidating type' in real time; sliders recompute both averages and the resulting quadrant type live.",
+  "problem": {
+   "q": "'도입형'(준비도 높음, 성숙도 낮음)인 조직과 '정착형'(준비도 낮음, 성숙도 높음)인 조직에 똑같이 '분석 인력을 더 채용하라'는 처방을 내리면 왜 둘 다에게 최선이 아닐 수 있을까요?",
+   "solution": "도입형은 이미 조직·인력·IT 기반이 갖춰져 있으므로, 인력을 더 뽑는 것보다 실제 분석 업무를 시작해 활용 경험(성숙도)을 쌓는 것이 급선무입니다. 반대로 정착형은 실제 활용 사례는 있지만 기반(데이터·조직·문화)이 약하므로, 사람을 더 뽑아도 뒷받침할 데이터·프로세스가 없으면 효과가 제한적입니다 — 이 경우는 데이터 정비와 조직 체계 구축이 우선입니다. 같은 처방이라도 준비도·성숙도 중 어느 쪽이 부족한지에 따라 우선순위가 달라져야 한다는 뜻입니다."
+  }
+ },
+ "bda37_05": {
+  "ch": "빅데이터 분석 제37장 · 분석 마스터 플랜과 거버넌스",
+  "sec": "37.2 분석 거버넌스 체계 수립 — 조직구조",
+  "title": "분석 조직구조 3유형",
+  "narr": "같은 분석 요청을 세 조직구조에 실제로 흘려보내면 결과가 다릅니다. <b>집중형</b>은 전담조직이 전사 우선순위를 조정하지만 현업과 이원화될 위험이 있어 총 13일(병목: 분석 수행 5일)이 걸립니다. <b>기능형</b>은 부서 내에서 바로 처리해 단계는 2개뿐이지만 중복분석 확인이 붙어 8일, <b>분산형</b>은 현업에 배치된 인력이 전사 우선순위까지 반영하면서도 지연 없이 7일로 가장 빠릅니다. 이 계산은 각 구조의 단계 수·소요일을 실제로 더한 결과입니다.",
+  "more": "<b>속도만이 기준은 아니다</b>: 분산형이 가장 빠르지만, 집중형은 전사 차원에서 전략적 중요도에 따라 우선순위를 정할 수 있다는 장점이 있고, 기능형은 부서 업무에 밀착된 빠른 분석이 가능한 대신 전사 핵심 분석은 어렵습니다. 조직구조 선택은 속도만이 아니라 '전사 일관성이 중요한가, 현장 밀착이 중요한가'라는 질문과 함께 판단해야 합니다.\n\n<b>데이터 표준화와 분석 교육</b>: 어느 조직구조를 택하든, 데이터 표준 용어·명명 규칙·메타데이터·데이터 사전을 갖추는 <b>데이터 표준화</b>가 없으면 부서마다 같은 지표를 다르게 정의해 결과를 신뢰할 수 없게 됩니다. 또한 조직 구성원의 분석 역량이 하루아침에 자라지 않으므로, 관리자의 기초 통계 이해부터 분석 전문가의 심화 기법까지 계층별 <b>분석 교육</b> 체계를 병행해야 조직구조가 실제 속도를 낼 수 있습니다.",
+  "more_en": "Routing the same analytics request through three organizational structures yields different outcomes: centralized (13 days total, bottlenecked at 5-day analysis, but risks duplicating work with business units), functional (8 days, only 2 hops but needs cross-department duplicate checks), and distributed (7 days, fastest, reflecting enterprise priorities while acting locally) — each total is a real sum of station days plus structure-specific delay, not a pre-judged ranking. Whichever structure is chosen, it only performs at this speed if backed by data standardization and tiered analytics education.",
+  "problem": {
+   "q": "빠른 신제품 출시 주기로 부서별 독립성이 매우 중요한 회사와, 전사 규제 준수(컴플라이언스)가 최우선인 금융회사가 있다면, 각각 어떤 조직구조가 더 적합할까요?",
+   "solution": "부서별 독립성과 신속한 현장 대응이 중요한 회사는 <b>기능형</b>이나 <b>분산형</b>이 적합합니다 — 특히 분산형은 전사 우선순위까지 반영하면서 현장에 밀착해 빠르게 움직일 수 있어 균형이 좋습니다. 반대로 전사 규제 준수처럼 모든 부서가 동일한 기준과 통제를 따라야 하는 금융회사는 <b>집중형</b>이 적합합니다 — 속도는 느리더라도 전담조직이 전사 차원에서 일관된 기준으로 우선순위와 품질을 통제할 수 있기 때문입니다. 조직구조 선택은 속도뿐 아니라 '무엇이 통일되어야 하고 무엇이 현장에 맡겨져야 하는가'의 문제입니다."
+  }
+ }
+}
