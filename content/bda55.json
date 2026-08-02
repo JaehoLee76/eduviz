@@ -1,0 +1,103 @@
+{
+ "bda55_01": {
+  "ch": "빅데이터 분석 제55장 · 실기에 자주 나오는 특수 기법",
+  "sec": "55.1 생존분석 — 중도절단을 실제로 처리하다",
+  "title": "생존분석 — 중도절단을 실제로 처리하다",
+  "narr": "지금까지 다룬 검정들은 「사건이 일어났는가 아닌가」만 봤지만, 생존분석은 「사건이 일어나기까지 걸린 시간」을 다룹니다. 신약(A집단)과 표준치료(B집단) 각 10명을 관찰하는데, 일부는 추적이 끝날 때까지 사건(재발)이 안 일어난 <b>중도절단</b> 관측치입니다. 카플란-마이어 추정은 이런 중도절단을 실제로 반영해, 사건이 일어난 시점마다 생존확률 계수를 구간별로 곱해 나가며 생존곡선을 계산합니다.",
+  "more": "<b>중도절단을 그냥 무시하면 안 되는 이유</b>: 중도절단된 사람을 관찰 대상에서 통째로 빼버리면(완전한 사례만 쓰면) 표본이 줄어드는 것은 물론, 「끝까지 사건이 안 일어난 사람이 많다」는 정보 자체가 사라져 생존확률을 실제보다 낮게(비관적으로) 추정하게 됩니다. 카플란-마이어는 중도절단된 사람을 그 시점까지는 위험집합(아직 사건이 안 일어난 채 관찰 중인 사람들)에 포함시키고, 절단된 이후에만 위험집합에서 빼는 방식으로 이 정보를 살립니다.\n\n<b>로그순위검정이 실제로 재는 것</b>: 두 집단의 생존곡선이 그림으로는 달라 보여도 우연일 수 있습니다. 로그순위검정은 각 사건 시점마다 「두 집단이 똑같은 위험에 놓여 있었다면 기대되는 사건 수」와 「실제 관측된 사건 수」의 차이를 전 시점에 걸쳐 누적해, 그 누적 차이가 우연으로 보기엔 너무 크다는 것을 카이제곱분포로 판정합니다. 실기 서술형에서는 「χ² 값이 크다」로 끝내지 말고, 자유도·유의수준과 비교해 귀무가설(두 곡선이 같다) 기각 여부까지 문장으로 적어야 부분점수를 받습니다.",
+  "more_en": "Survival analysis models time-to-event data, not just whether an event occurred. The Kaplan-Meier estimator multiplies a survival factor (1-d/n) at each event time, correctly keeping censored subjects in the risk set until their censoring time instead of discarding them. The log-rank test then accumulates observed-versus-expected event counts across all event times to test whether two survival curves differ, yielding χ²=7.31 (df=1), p=0.007 here — a statistically significant difference.",
+  "problem": {
+   "q": "B집단의 생존곡선은 9개월 시점 S=0.117에서 더 이상 내려가지 않고 평평하게 멈춥니다. 왜 0으로 끝나지 않을까요?",
+   "solution": "9개월 시점 이후 B집단에 남은 관측치가 사건(재발)이 아니라 중도절단(추적 종료)이었기 때문입니다. 카플란-마이어 곡선은 실제 사건이 일어날 때만 계단이 내려가므로, 마지막까지 남은 사람이 사건 없이 관찰이 끝나면 그 시점의 생존확률 수준에서 곡선이 옆으로 평평하게 이어지고 더 낮아지지 않습니다 — A집단처럼 마지막 관측치가 사건이었다면 S=0까지 내려갔을 것입니다."
+  }
+ },
+ "bda55_02": {
+  "ch": "빅데이터 분석 제55장 · 실기에 자주 나오는 특수 기법",
+  "sec": "55.2 분위수 회귀 — 이상값에도 흔들리지 않는 선",
+  "title": "분위수 회귀 — 이상값에도 흔들리지 않는 선",
+  "narr": "최소제곱(OLS) 회귀는 평균을 맞추도록 학습되어 있어, 극단적인 이상값 하나에도 크게 끌려갑니다. <b>분위수 회귀</b>는 평균이 아니라 중위수(또는 원하는 분위수)를 맞추도록 학습되어 있어 훨씬 덜 흔들립니다. 같은 12개 자료에 이상값 하나를 더해 최소제곱과 중위수 회귀를 실제로 다시 적합해 보면, 이 차이가 숫자로 그대로 드러납니다.",
+  "more": "<b>왜 중위수는 흔들리지 않는가</b>: 최소제곱은 오차의 제곱합을 최소화하므로 값이 클수록(멀수록) 벌점이 제곱으로 커져, 극단값 하나가 전체 적합선을 크게 끌어당깁니다. 분위수 회귀(τ=0.5인 중위수 회귀)는 오차의 절댓값(비대칭 가중)을 최소화합니다 — 이상값이 아무리 멀리 있어도 벌점은 딱 「거리 1」만큼만 늘어나므로, 자료 하나의 위치보다 「전체 자료의 순위 배열」이 적합선을 정합니다. 이 자료에서는 이상값을 더해도 중위수 회귀 기울기가 0.01%밖에 안 바뀌었지만 최소제곱 기울기는 68% 가까이 뛰었습니다.\n\n<b>실기에서 쓰는 법</b>: 자료에 이상값이 의심되는데 제거할 근거가 부족할 때, 평균 대신 중위수 기반 회귀로 결론을 내리면 「이상값 하나에 좌우되지 않는 더 안정적인 결론」이라는 근거를 답안에 쓸 수 있습니다. 또한 하위·중위·상위 분위수 선을 함께 그리면, 평균 회귀 하나로는 볼 수 없는 「x가 커질수록 y의 흩어짐(분산)이 커지는 패턴」도 확인할 수 있습니다 — 등분산 가정이 깨지는 자료를 진단하는 용도로도 씁니다.",
+  "more_en": "OLS regression minimizes squared error and is heavily pulled by outliers because the penalty grows quadratically with distance. Quantile regression (median regression at τ=0.5) minimizes an absolute-error-type loss, so a single extreme point only adds a penalty proportional to its rank, not its distance. Refitting both on the same 12 points plus one outlier moves the OLS slope by about 68% but the median regression slope by only 0.01%.",
+  "problem": {
+   "q": "τ=0.9(상위 분위수) 회귀선은 이상값을 넣었을 때 중위수보다 훨씬 크게 움직입니다. 왜 상위 분위수는 중위수만큼 안정적이지 않을까요?",
+   "solution": "τ=0.9는 「위에서부터 10%에 해당하는 지점」을 맞추도록 학습됩니다. 이상값이 자료의 맨 위쪽 극단에 놓이면 상위 10% 구간 자체의 순위 구성이 그 이상값 때문에 바뀌므로, 상위 분위수 선은 그 영향을 어느 정도 받을 수밖에 없습니다. 반면 중위수(τ=0.5)는 자료의 가운데 순위를 보므로, 이상값이 아무리 극단적이어도 「맨 끝 순위 하나가 더 멀어질 뿐」이라 가운데 순위 자체는 거의 안 바뀝니다 — 그래서 이상값에 대한 민감도는 분위수 τ가 0.5에서 멀어질수록(0이나 1에 가까울수록) 대체로 커집니다."
+  },
+  "xref": [
+   {
+    "href": "ai.html",
+    "scene": "ai7_03",
+    "label": "경사하강",
+    "sub": "인공지능 7장 · 기울기 반대로 한 걸음씩",
+    "track": "ai"
+   }
+  ]
+ },
+ "bda55_03": {
+  "ch": "빅데이터 분석 제55장 · 실기에 자주 나오는 특수 기법",
+  "sec": "55.3 베이즈 정리로 확률을 갱신하다",
+  "title": "베이즈 정리로 확률을 갱신하다",
+  "narr": "24장에서 다룬 나이브 베이즈는 베이즈 정리를 이용한 <b>분류기</b>였습니다. 여기서는 분류기가 아니라 <b>정리 자체</b>를 계산 문제로 씁니다. 검사 정확도(민감도=특이도)와 유병률(사전확률)을 슬라이더로 두면, 양성 판정 후 실제로 병이 있을 확률(사후확률)이 실제로 계산되어 나옵니다 — 결과는 직관과 다르게, 정확도가 높아도 병이 드물면 양성 대부분이 오진입니다.",
+  "more": "<b>기저율 오류(base rate fallacy)</b>: 사람들은 「정확도 95%」라는 숫자만 보고 「양성이면 95% 확률로 병이 있겠지」라고 착각하기 쉽습니다. 하지만 실제로는 검사 대상 인구 전체를 생각해야 합니다 — 유병률이 1%면 인구 10만 명 중 실제 환자는 1,000명뿐인데, 나머지 9만 9,000명의 건강한 사람 중에도 5%(=1-특이도)인 4,950명이 거짓양성으로 걸립니다. 그 결과 검사양성 5,900명 중 실제 환자는 950명(16.1%)뿐입니다 — 「정확도」와 「양성일 때 실제로 아플 확률」은 전혀 다른 숫자입니다.\n\n<b>왜 반복 검사가 효과적인가</b>: 첫 검사의 사후확률(16.1%)을 두 번째 검사의 사전확률로 그대로 넘겨 다시 베이즈 정리를 적용하면, 두 번의 독립적인 양성이 겹치는 경우의 수가 줄어들어 사후확률이 78.5%로 뛰어오릅니다. 이것이 건강검진에서 1차 양성 후 정밀 재검사를 하는 이유의 통계적 근거입니다 — 검사를 반복할수록(그리고 독립성이 유지될수록) 증거가 쌓여 확신이 기하급수적으로 커집니다.",
+  "more_en": "This scene applies Bayes' theorem itself as a computation problem, not as a classifier (unlike the naive Bayes classifier covered earlier). Even with 95% sensitivity and specificity, a 1% prevalence means the posterior probability after one positive test (positive predictive value) is only 16.1% — most positives are false alarms. Feeding that posterior back in as the next prior and repeating the test shows the probability climbing to 78.5%, 98.6%, and 99.9% after two, three, and four consecutive positives.",
+  "problem": {
+   "q": "유병률을 10%로 올리면(같은 정확도 95%), 1회 양성 후 사후확률은 어떻게 바뀔까요? 방향만 먼저 예상해 보고 슬라이더로 확인해 보세요.",
+   "solution": "유병률이 높아지면(병이 흔해지면) 사후확률도 함께 높아집니다. 베이즈 정리에서 사후확률은 사전확률에 비례해서 커지는 방향으로 움직이기 때문입니다 — 유병률 10%, 정확도 95%를 슬라이더로 맞추면 사후확률이 1% 유병률일 때의 16.1%보다 훨씬 높은 값으로 계산되는 것을 확인할 수 있습니다. 이것이 「같은 정확도의 검사라도 어떤 집단(고위험군 vs 일반 인구)에 적용하느냐에 따라 결과 해석이 달라지는」 이유이며, 선별검사를 고위험군부터 우선 적용하는 근거이기도 합니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "math_br_bayes",
+    "label": "베이즈 정리",
+    "sub": "수학 16장 · 증거로 믿음을 갱신",
+    "track": "math"
+   },
+   {
+    "href": "math.html",
+    "scene": "math_br_totalprob",
+    "label": "전확률 정리",
+    "sub": "수학 16장 · 확률",
+    "track": "math"
+   }
+  ]
+ },
+ "bda55_04": {
+  "ch": "빅데이터 분석 제55장 · 실기에 자주 나오는 특수 기법",
+  "sec": "55.4 선형계획법 — 운송 최적화와 꼭짓점 정리",
+  "title": "선형계획법 — 운송 최적화와 꼭짓점 정리",
+  "narr": "창고 두 곳에서 매장 두 곳으로 물건을 배송하는 비용을 최소화하는 문제입니다. 배송량 제약을 만족하는 모든 경우의 수를 그림으로 그리면 <b>실행가능영역</b>이라는 다각형이 되는데, 이 안의 어느 점을 골라도 비용을 계산할 수 있습니다. 실제로 꼭짓점 4개와 내부의 임의의 점들을 전부 계산해 비교하면, 최소 비용은 항상 꼭짓점에서만 나온다는 것이 눈으로 확인됩니다.",
+  "more": "<b>왜 최적해가 꼭짓점에서만 나오는가</b>: 목적함수(총비용)가 x·y에 대한 1차식이면, 같은 비용을 내는 점들을 이으면 항상 직선(등비용선)이 됩니다. 이 직선을 비용이 줄어드는 방향으로 계속 밀어 보면, 볼록다각형인 실행가능영역과 마지막으로 맞닿는 지점은 변의 중간이 아니라 반드시 꼭짓점입니다(변 전체와 딱 맞아떨어지는 특수한 경우를 빼면). 그래서 최적화 알고리즘(단체법 등)은 다각형 전체를 다 뒤지지 않고 꼭짓점들만 옮겨 다니며 더 나은 꼭짓점이 없을 때까지 반복합니다.\n\n<b>운송문제의 특수성</b>: 이번 문제는 공급지 2곳·수요지 2곳이라는 작은 예라서 변수 2개(x, y)로 정리해 2차원 그림으로 그릴 수 있었지만, 실제 운송문제는 공급지·수요지가 늘어날수록 변수가 급격히 늘어 그림으로 그릴 수 없습니다 — 대신 같은 「꼭짓점에서 최적해가 나온다」는 원리를 그대로 이용해 단체법(simplex method)이나 전용 알고리즘(북서코너법+최소비용법으로 초기해를 만들고 개선하는 방식)으로 풉니다. 실기에서는 손으로 2~3개 변수짜리 소규모 문제를 표나 그림으로 풀 수 있어야 합니다.",
+  "more_en": "A two-warehouse, two-store shipping problem reduces to two decision variables once the supply/demand balance equations are substituted in, producing a visible feasible-region polygon. Evaluating cost at all 4 vertices plus interior points confirms the minimum cost (390) always lands on a vertex — because a linear objective's equal-cost lines are straight, and pushing that line through a convex polygon last touches a corner, not an edge midpoint or interior point.",
+  "problem": {
+   "q": "슬라이더로 내부점 (x=37.5, y=27.5)을 골라 보면 비용이 495로, 최적 꼭짓점(390)보다는 높지만 가장 비싼 꼭짓점(590)보다는 낮습니다. 이 결과는 무엇을 말해줄까요?",
+   "solution": "내부점의 비용은 그 점을 둘러싼 꼭짓점들의 비용 사이 어딘가에 놓인다는 것을 보여줍니다 — 실제로 볼록다각형 내부의 모든 점은 꼭짓점들의 가중평균(볼록조합)으로 나타낼 수 있고, 목적함수가 1차식이면 그 점의 비용도 꼭짓점 비용들의 같은 가중평균이 되기 때문입니다. 그래서 내부점은 최적 꼭짓점보다 결코 더 낮은 비용을 가질 수 없습니다(가중평균은 최솟값보다 작을 수 없으므로) — 이것이 바로 최적해를 찾을 때 다각형 내부를 뒤질 필요 없이 꼭짓점만 비교하면 충분한 이유입니다."
+  },
+  "xref": [
+   {
+    "href": "calculus.html",
+    "scene": "calc5_03",
+    "label": "최적화",
+    "sub": "미적분 5장 · 가장 좋은 답을 미분으로",
+    "track": "calculus"
+   },
+   {
+    "href": "algo.html",
+    "scene": "algo_br_fracknap",
+    "label": "분할 가능 배낭",
+    "sub": "알고리즘 8장 · 비율 높은 것부터",
+    "track": "algo"
+   }
+  ]
+ },
+ "bda55_05": {
+  "ch": "빅데이터 분석 제55장 · 실기에 자주 나오는 특수 기법",
+  "sec": "55.5 결론을 답안 문장으로 옮기기",
+  "title": "결론을 답안 문장으로 옮기기",
+  "narr": "생존분석·분위수 회귀·베이즈 정리·선형계획법, 네 기법의 계산 방식은 저마다 다르지만 실기 답안을 쓰는 순서는 똑같습니다 — 가정을 확인하고, 기법을 고른 근거를 밝히고, 공식대로 실제 계산하고, 기준과 비교해 판단하고, 그 판단을 문장으로 씁니다. 모델링 문제의 답안 골격은 앞서 다뤘으니, 여기서는 이번 장에서 실제로 계산한 수치들을 결론 문장으로 옮기는 연습에 집중합니다.",
+  "more": "<b>왜 「숫자만」 적으면 감점인가</b>: 실기 채점 기준은 최종 답 하나가 아니라 「거기까지 가는 논리」를 봅니다. 「χ²=7.31이니까 다르다」는 계산은 맞아도 판단 근거(자유도·유의수준과의 비교, 귀무가설을 기각한다는 명시)가 빠져 부분점수만 받습니다. 「χ²=7.31(자유도1), p=0.007로 유의수준 0.05보다 작으므로 귀무가설(두 생존곡선이 같다)을 기각하고, 신약 집단의 생존확률이 유의하게 더 높다고 판단한다」처럼 <b>수치 → 비교 기준 → 판단 → 실질적 의미</b>의 네 조각이 한 문장 또는 이어지는 문장에 다 들어가야 합니다.\n\n<b>네 기법의 결론이 공유하는 패턴</b>: 생존분석·베이즈 정리는 「기준값(유의수준·확률)과 비교해 판단」하는 통계적 추론이고, 분위수 회귀는 「두 모형을 나란히 비교해 어느 쪽이 더 믿을 만한지 판단」하는 모형 비교이며, 선형계획법은 「가능한 모든 경우 중 최선을 찾는」 최적화입니다. 성격은 다르지만 셋 다 <b>실제로 계산한 수치를 근거로 삼아 결론을 정당화한다</b>는 점은 같습니다 — 이 원칙이 이 트랙 전체를 관통하는 골든룰이기도 합니다.",
+  "more_en": "Survival analysis, quantile regression, Bayesian updating, and linear programming use different math, but the exam-answer sequence is identical: state assumptions, justify the chosen method, compute the statistic from the formula, compare against a criterion, and write the conclusion as a sentence linking the number, the criterion, the judgment, and its practical meaning. Grading rewards showing that chain of reasoning, not just the final number.",
+  "problem": {
+   "q": "이 장 네 기법의 결론 문장에 공통으로 들어가야 하는 요소 세 가지는 무엇일까요?",
+   "solution": "①실제로 계산한 수치(χ², 회귀계수, 사후확률, 최소비용 등) ②그 수치를 판단하는 기준(유의수준, 다른 모형과의 비교, 실행가능영역의 다른 후보들) ③기준과 비교한 뒤 내리는 명시적 판단(귀무가설 기각/채택, 어느 회귀가 더 안정적인지, 어느 배분이 최적인지)입니다. 이 세 요소를 빠짐없이 문장으로 연결해야 계산 과정과 결론이 모두 채점에 반영됩니다."
+  }
+ }
+}

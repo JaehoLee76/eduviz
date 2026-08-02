@@ -1,0 +1,78 @@
+{
+ "bda49_01": {
+  "ch": "빅데이터 분석 제49장 · 과목 I 총정리 — 데이터 이해",
+  "sec": "49.1 데이터베이스, 그리고 그것을 채운 조직들",
+  "title": "데이터베이스, 그리고 그것을 채운 조직들",
+  "narr": "이론 과목을 한 바퀴 돈 지금, 필기시험이 실제로 묻는 명명된 목록·분류·기관을 놓치지 않았는지 되짚어 봅니다. 32장에서 데이터베이스의 '통합(integrated data)' 특성 하나는 부서별 파일과 대조해 실측했지만, 시험은 그보다 훨씬 많은 이름을 요구합니다 — 이 말이 언제 어디서 나왔는지, 법과 표준이 각각 무엇이라 정의하는지, 일반 데이터베이스와 데이터웨어하우스가 서로 다른 어떤 성질을 갖는지, 그리고 지리·교통·의료·교육 같은 사회기반 데이터베이스와 CRM·SCM 같은 기업 데이터베이스가 부문별로 어떻게 자랐는지. 탭으로 네 갈래를 하나씩 짚습니다.",
+  "more": "<b>왜 정의가 여럿인가</b>: 1950년대 미국에서 군비 관리용 전산 도서관으로 태어난 '데이터베이스'는 이후 EU·국내 저작권법·표준용어사전이 저마다 다른 각도(저작물로서의 보호, 편집물로서의 구조, 기술적 편성)에서 정의를 붙였습니다. 시험은 이 정의들의 <b>공통점</b>(체계적으로 정리되고 개별 접근 가능하다는 점)보다 <b>어느 기관이 무엇을 강조했는가</b>를 구분점으로 묻는 경우가 많습니다.\n\n<b>일반 DB의 성질 vs 데이터웨어하우스의 특성</b>: 기계가독성·검색가능성·원격조작성은 데이터베이스 일반이 갖는 성질이고, 주제지향성·통합성·시계열성·비휘발성은 그중에서도 분석을 위해 따로 쌓아 둔 데이터웨어하우스(DW)만의 네 특성입니다. 32장의 OLTP(거래 처리)가 앞엣것에, OLAP(분석 처리)가 뒤엣것에 각각 더 가깝습니다.\n\n<b>사회기반·기업 데이터베이스는 착수 시기를 함께 기억</b>: 32장에서 물류(1995)·지리(1995)·교통(1998)의 순서를 실측했다면, 이번 장에서는 의료(1996 상용화)·교육(2003 적용)까지 더해 다섯 갈래 전체의 순서가 완성됩니다. CRM·SCM은 2000년대를 기점으로 제조·금융·유통 세 부문이 서로 다른 계기(SCM 확장, IMF 이후 e-CRM, EDI 본격화)로 도입했습니다.",
+  "more_en": "Beyond the 'integrated data' property already measured in Ch.32, this scene maps four remaining strands: the term's 1950s US origin and how EU law, domestic copyright law, and standard dictionaries each define it differently; the general DB properties (machine-readability, searchability, remote operability) versus the data warehouse's four traits (subject-orientation, integration, time-variance, non-volatility); four social-infrastructure databases (geography, transport, medical, education) alongside the already-measured logistics network; and how CRM/SCM were adopted differently across manufacturing, finance, and retail.",
+  "problem": {
+   "q": "일반 데이터베이스의 '성질'과 데이터웨어하우스의 '특성'을 굳이 나눠서 외워야 하는 이유는 무엇일까요?",
+   "solution": "일반 DB는 '지금 이 순간의 거래를 정확히 반영하는 것'(OLTP)이 목적이라 기계가독성·검색가능성·원격조작성처럼 접근·처리의 성질이 중요합니다. 반면 데이터웨어하우스는 '쌓인 과거 전체를 훑어 경향을 찾는 것'(OLAP)이 목적이라, 굳이 원본 업무 절차가 아니라 주제 중심으로 모으고(주제지향성), 여러 원천을 하나로 합치고(통합성), 시간이 지나도 지우지 않고 쌓으며(비휘발성·시계열성) 과거 이력 자체를 보존해야 합니다. 즉 두 특성 집합은 서로 다른 목적(거래 처리 vs 분석)에서 파생된 것이라 섞어 쓰면 안 됩니다."
+  }
+ },
+ "bda49_02": {
+  "ch": "빅데이터 분석 제49장 · 과목 I 총정리 — 데이터 이해",
+  "sec": "49.2 빅데이터, 왜 지금 왔고 무엇에 비유되나",
+  "title": "빅데이터, 왜 지금 왔고 무엇에 비유되나",
+  "narr": "33장이 3V(Volume·Variety·Velocity)로 빅데이터의 '특징'을 짚었다면, 이번엔 그 앞뒤를 채웁니다 — 컨설팅 회사·조사기관·저술가가 각각 다른 각도에서 내린 정의, 산업계·학계·기술 발전이라는 세 출현 배경, 그리고 시험에 자주 나오는 네 가지 비유(산업혁명의 석탄과 철, 21세기의 원유, 렌즈, 플랫폼)까지 탭으로 한 갈래씩 짚습니다.",
+  "more": "<b>정의가 갈리는 이유는 관점의 폭</b>: 컨설팅 회사의 정의는 '기존 소프트웨어로 다루기 힘든 규모'처럼 데이터 자체의 크기에, 조사기관의 정의는 '저렴한 비용으로 가치를 뽑는 기술·아키텍처'처럼 처리 기술에, 저술가의 정의는 '시장·정부·시민의 관계를 바꾸는 일'처럼 사회적 효과에 초점을 둡니다. 좁은 정의(3V)일수록 데이터 자체를, 넓은 정의일수록 그 데이터를 다루는 인재·조직까지 포함합니다.\n\n<b>네 비유는 저마다 다른 것을 강조</b>: '석탄과 철'은 <i>동력원</i>으로서의 역할(차세대 산업을 움직이는 힘), '원유'는 <i>가공이 필요함</i>(원석 그대로는 못 씀), '렌즈'는 <i>관찰 도구</i>로서의 역할(현미경처럼 안 보이던 것을 보게 함), '플랫폼'은 <i>공동 활용 기반</i>(OS처럼 여러 주체가 함께 올라섬)입니다. 넷을 헷갈리지 않으려면 '무엇에 빗댔는지'가 아니라 '그 비유가 강조하는 성질이 무엇인지'로 구분하세요.\n\n<b>맵리듀스는 기술 발전의 한 조각</b>: 이번 장의 '기술 발전' 항목이 가리키는 나눠 저장·계산하는 방식은 35장에서 직접 손으로 map→shuffle→reduce를 돌려 실측했습니다.",
+  "more_en": "Beyond Ch.33's 3V, this scene covers who defines big data differently (consulting firms focus on scale, research institutes on processing technology, authors on societal impact), the three-factor emergence story (industry's accumulated customer data, academia's large-scale science, and technology advances), and the four canonical metaphors — coal and iron of the industrial revolution, 21st-century oil, a lens, and a platform — each spotlighting a different property of big data.",
+  "problem": {
+   "q": "네 가지 비유 중 '원유'와 '석탄과 철' 비유는 둘 다 산업의 동력원에 빗댄 것처럼 보입니다. 두 비유의 차이는 무엇일까요?",
+   "solution": "'석탄과 철'은 산업혁명이라는 특정 시대적 전환의 동력원에 빗댄 것으로, 빅데이터가 '차세대 산업혁명'을 일으킬 원동력이 될 것이라는 시대 전환의 의미를 강조합니다. 반면 '원유'는 정제 과정 자체에 초점을 둔 비유입니다 — 원유가 땅에서 캐낸 그대로는 쓸모가 없고 반드시 정제해야 연료·화학원료가 되듯, 빅데이터도 수집한 원본 그대로는 가치가 없고 반드시 분석(정제)을 거쳐야 정보가 된다는 점을 강조합니다. 즉 하나는 '시대를 바꾸는 힘'에, 다른 하나는 '가공이 필수라는 조건'에 초점이 있습니다."
+  }
+ },
+ "bda49_03": {
+  "ch": "빅데이터 분석 제49장 · 과목 I 총정리 — 데이터 이해",
+  "sec": "49.3 빅데이터의 가치, 활용, 지켜야 할 선",
+  "title": "빅데이터의 가치, 활용, 지켜야 할 선",
+  "narr": "33장이 재사용·재조합에서 오는 위기 요인(사생활 침해·책임 원칙 훼손·데이터 오용)을 다뤘다면, 이번엔 그 앞뒤를 마저 채웁니다 — 빅데이터가 가치를 만드는 다섯 방식, 실제로 쓰인 다섯 자리, 비즈니스 모델 개발의 기본 테크닉 일곱 가지, 그리고 사생활 침해에 대한 세 가지 권고까지 탭으로 짚습니다.",
+  "more": "<b>가치창출 5가지와 활용사례 5가지는 짝을 이룹니다</b>: 투명성 제고는 정부의 상황 공유에, 시뮬레이션은 대형 유통의 진열 최적화에, 고객 세분화는 검색엔진의 개인화에, 알고리즘 의사결정은 질의응답 시스템에, 비즈니스 모델 혁신은 선거·문화산업의 새로운 활용법에 각각 대응한다고 보면 외우기 쉽습니다.\n\n<b>테크닉 7가지는 질문의 형태로 구분</b>: 이 표를 헷갈리지 않는 방법은 각 기법이 답하려는 질문의 형태를 먼저 떠올리는 것입니다 — '함께 사는가'는 연관규칙, '어느 집단인가'는 유형분석, '최적 조합은'은 유전 알고리즘, '다음엔 무엇을'은 기계학습, '무엇이 무엇에 영향을'은 회귀분석, '긍정인가 부정인가'는 감정분석, '몇 다리 건너인가'는 소셜네트워크분석입니다. 이 가운데 다섯은 우리 트랙에서 이미 실제로 돌려 봤고(more의 각 항목 참고), 유전 알고리즘만 우리 트랙에 없습니다.\n\n<b>프라이버시 3대 권고는 '예방'에 초점</b>: 세 권고(설계 단계부터 보호·선택권 간소화·투명성 강화) 모두 사고가 난 뒤의 처벌이 아니라, 애초에 침해가 일어나지 않도록 상품·절차를 설계하는 데 초점이 있습니다. 33장에서 다룬 '동의에서 책임으로'라는 더 포괄적인 통제 방안과는 다른, 더 구체적이고 좁은 가이드라인입니다.",
+  "more_en": "Following Ch.33's crisis factors, this scene covers the five ways big data creates value, five real domains where it has been applied, seven foundational techniques for building data business models (five of which this track has already computed in other chapters), and three consumer-privacy recommendations focused on prevention by design rather than after-the-fact penalty.",
+  "problem": {
+   "q": "테크닉 7가지 중 '유형분석'과 '기계학습'은 둘 다 데이터로 무언가를 예측·분류하는 것처럼 보입니다. 두 기법을 구분하는 기준은 무엇일까요?",
+   "solution": "유형분석(classification tree analysis)은 '이 새로운 대상이 미리 정해 둔 범주 중 어디에 속하는가'를 판정하는, 비교적 좁고 구체적인 통계적 분류 기법입니다 — 문서를 분류하거나 학생을 유형별로 나누는 것처럼 결과가 몇 개의 정해진 범주 중 하나로 떨어집니다. 기계학습은 그보다 훨씬 넓은 우산 개념으로, 유형분석을 포함해 회귀분석·군집분석 등 '데이터로부터 학습해 예측하는' 다양한 방법론 전체를 가리킵니다. 즉 유형분석은 기계학습이라는 큰 범주 안에 속하는 구체적인 한 기법입니다."
+  }
+ },
+ "bda49_04": {
+  "ch": "빅데이터 분석 제49장 · 과목 I 총정리 — 데이터 이해",
+  "sec": "49.4 데이터에서 통찰로 — 전략과 인문학",
+  "title": "데이터에서 통찰로 — 전략과 인문학",
+  "narr": "지금까지 데이터·데이터베이스·빅데이터를 다뤘다면, 원본 과목 I의 마지막 장(데이터 사이언스와 전략 인사이트)은 데이터가 있어도 통찰로 이어지지 않으면 소용없다는 경고로 채워져 있습니다 — 다섯 가지 경고 사례, 데이터 사이언스가 인문학을 다시 불러온 사회경제적 배경 셋, 가치 패러다임의 세 단계, 그리고 그 배경 위에서 인문학이 필요한 이유를 탭으로 짚습니다.",
+  "more": "<b>다섯 경고의 공통점</b>: 열풍과 회의론(포장만 바꾼 CRM), 싸이월드 사례(경영문화 부재), 'Big'이 핵심 아님(Variety가 관건), 전략적 통찰 없는 분석의 함정(조사에서도 소수만 갖춘 역량), 2008년 금융위기(가정이 무너지면 모델도 무너짐) — 다섯 모두 '데이터를 가졌다는 사실'과 '그 데이터로 옳은 판단을 내리는 능력'이 다르다는 하나의 메시지로 모입니다.\n\n<b>가치 패러다임 3단계는 순서가 핵심</b>: 디지털화(아날로그를 0과 1로 옮기는 힘, 빌 게이츠의 시대) → 연결(옮겨진 정보를 잇는 힘, 구글이 야후를 이긴 방식) → 에이전시(복잡해진 연결을 대신 관리해 주는 힘, 웨어러블 기기의 다음 과제)라는 순서 자체가 출제 포인트입니다. 각 단계는 앞 단계가 만든 조건 위에서만 성립합니다 — 연결할 게 없으면 연결이 안 되고, 연결이 단순하면 관리가 필요 없습니다.\n\n<b>인문학이 돌아온 이유는 '큰 그림'</b>: 정량 분석(과학)만으로는 '이 업계가 어디로 향하는지' 같은 통합적인 그림을 그리기 어렵기 때문에, 익숙한 것을 낯설게 보고 왜 그렇게 생각해왔는지 캐묻는 인문학적 사고(비판)가 함께 필요합니다. 같은 분석이라도 '과거에 무슨 일이 있었나'(정보)와 '왜 그런 일이 일어났나'(통찰력)는 전혀 다른 수준의 답이라는 것이 이 장의 핵심 프레임입니다.",
+  "more_en": "This scene compiles the largely-uncovered Chapter 3: five cautionary cases showing that having data is not the same as having insight, three socioeconomic shifts (complex globalization, product-to-service, production-to-market-creation) behind the humanities revival, the three-stage value paradigm (digitalization → connection → agency, each building on the last), and why humanities thinking — questioning why we've always framed things a certain way — is needed alongside quantitative analysis.",
+  "problem": {
+   "q": "가치 패러다임의 세 단계(디지털화 → 연결 → 에이전시)에서, 왜 '연결'이 '디지털화'보다 먼저 올 수 없을까요?",
+   "solution": "연결이라는 가치는 '이미 디지털화되어 있는 대상들을 서로 잇는 것'을 전제로 합니다. 아날로그 상태의 정보(종이 문서, 손으로 쓴 기록 등)는애초에 컴퓨터가 접근해 연결할 수 없기 때문에, 먼저 디지털화라는 단계를 거쳐 '연결할 수 있는 형태'로 바뀌어야만 연결이라는 다음 가치가 성립합니다. 실제로 야후·구글의 경쟁에서도 웹사이트라는 디지털 콘텐츠가 이미 존재했기 때문에 그것을 얼마나 잘 연결(검색)해 주느냐가 승부처가 될 수 있었습니다 — 디지털화된 대상이 없었다면애초에 연결 경쟁 자체가 성립하지 않았을 것입니다."
+  }
+ },
+ "bda49_05": {
+  "ch": "빅데이터 분석 제49장 · 과목 I 총정리 — 데이터 이해",
+  "sec": "49.5 네 가지를 직접 계산해 보다",
+  "title": "네 가지를 직접 계산해 보다",
+  "narr": "이번 장 나머지 항목 중 네 가지는 목록이 아니라 실제로 계산할 수 있는 것들입니다 — 저장장치 가격이 얼마나 빨리 떨어져 왔는지, 정보량이 EB에서 ZB로 넘어가는 데 얼마나 걸리는지, 같은 데이터가 기업·정부·개인에게 어떻게 다른 숫자로 갈리는지, 그리고 일차적 분석과 가치기반 분석이 실제로 어떻게 다른 결과를 내는지. 탭으로 네 계산을 순서대로 봅니다.",
+  "more": "<b>모든 수치는 이 모형이 정한 가정</b>: 저장장치 가격의 반감 주기(18개월)·정보량 증가율(연 40%)·교차로 통행량 공식·부서별 개선율은 전부 화면에 밝힌 가정값이며, 실제 공표 통계가 아닙니다. 다만 그 가정 위에서 저장 배수·ZB 전환 연도·혼잡시간대 개수·절약 시간·부서 커버리지는 전부 이 파일이 로드될 때 실제로 계산한 값입니다.\n\n<b>같은 소재, 다른 계산</b>: 무어의 법칙(저장장치 가격 하락)과 ZB·EB 단위 증가 추이는 둘 다 '빅데이터가 왜 지금 가능해졌는가'라는 같은 질문(49.2의 '기술 발전' 항목)에 서로 다른 각도(비용 하락 vs 정보량 폭증)로 답합니다.\n\n<b>기업·정부·개인 패널은 49.3의 '빅데이터 영향' 구조와 짝</b>: 기업=혁신·경쟁력·생산성, 정부=환경탐색·상황분석·미래대응, 개인=목적에 따른 활용이라는 구조를 교차로 통행량이라는 하나의 데이터로 실제로 나눠 계산해 보입니다.\n\n<b>일차적 분석 vs 가치기반 분석 패널은 49.4의 다섯 경고 사례와 이어집니다</b> — 싸이월드가 갇혀 있던 것이 바로 부서 단위의 일차적 분석이었습니다.",
+  "more_en": "Four remaining items are computable rather than list-like: how fast storage cost has actually fallen under a stated halving-period assumption, how many years it takes information volume to cross from EB to ZB under a stated growth-rate assumption, how the same 24-hour traffic dataset yields three different real numbers for business/government/individual stakeholders, and how a primary (narrow, deep) analysis versus a value-based (broad, shallow-but-larger-total) analysis differ across six departments — all figures computed live from declared model assumptions, never hardcoded as claimed real-world statistics.",
+  "problem": {
+   "q": "일차적 분석(부서 2곳, 평균 개선율이 더 높음)과 가치기반 분석(전 부서, 평균 개선율은 더 낮지만 합계가 더 큼) 중 어느 쪽이 '더 나은 분석'이라고 단정할 수 있을까요?",
+   "solution": "단정할 수 없습니다. 이 계산은 두 분석이 서로 다른 것을 최적화한다는 사실을 보여줄 뿐입니다. 당장 특정 부서의 문제를 빠르고 확실하게 해결해야 한다면 일차적 분석의 높은 부서당 개선율이 유리하고, 조직 전체의 경쟁력을 장기적으로 끌어올리려 한다면 가치기반 분석의 넓은 커버리지와 더 큰 합계가 유리합니다. 실제로 49.4장에서 다룬 것처럼, 문제는 '어느 하나만 해야 한다'가 아니라 일차적 분석에서 얻은 작은 성공 경험을 발판 삼아 점차 가치기반 분석으로 넓혀가지 못하는 조직(싸이월드 같은)이 뒤처진다는 데 있습니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch7_02",
+    "label": "지수함수 y=aˣ",
+    "sub": "수학 7장 · 지수·로그",
+    "track": "math"
+   },
+   {
+    "href": "calculus.html",
+    "scene": "calc1_04",
+    "label": "지수함수와 배가시간",
+    "sub": "미적분 1장 · 함수와 모델",
+    "track": "calculus"
+   }
+  ]
+ }
+}

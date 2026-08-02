@@ -1,0 +1,62 @@
+{
+ "bda51_01": {
+  "ch": "빅데이터 분석 제51장 · 과목 III 총정리 — 분석 기획",
+  "sec": "51.1 해결방안 탐색 — 2×2 매트릭스로 실제 판정",
+  "title": "해결방안 탐색 — 2×2 매트릭스로 실제 판정",
+  "narr": "문제를 무엇으로 풀지 정한 다음에는 <b>어떻게</b> 풀 것인가를 정해야 합니다. 그 판단을 감이 아니라 구조로 하는 것이 해결방안 탐색 매트릭스입니다 — 가로축은 분석 노하우(기법 지식)를 충분히 쌓았는가, 세로축은 기존 정보시스템을 그대로 활용할 수 있는가입니다. 두 축을 실제로 교차하면 네 칸이 나옵니다: 시스템도 있고 노하우도 있으면 <b>그대로 활용</b>, 시스템은 있는데 노하우가 없으면 <b>교육/채용 후 활용</b>, 노하우는 있는데 시스템이 없으면 <b>시스템 구축 후 해결</b>, 둘 다 없으면 <b>전문업체 소싱</b>입니다. 슬라이더로 두 축의 값을 바꾸면 판정이 그 자리에서 실제로 재계산되고, 네 개의 사례를 같은 규칙에 넣으면 네 칸이 하나씩 빠짐없이 채워집니다.",
+  "more": "<b>36장과 무엇이 다른가</b>: 36장 하향식 접근(4단계)의 '해결방안 탐색' 단계에서도 이미 이 매트릭스로 후보 하나를 판정한 적이 있습니다(역량 미확보·시스템 개선 가능 → 교육/채용 후 활용). 그 장면은 하향식 4단계라는 큰 흐름 안에서 이 판정이 어디에 놓이는지를 보여 주는 데 집중했다면, 이 장면은 매트릭스 그 자체를 네 칸 모두 펼쳐 놓고 구조를 봅니다 — 같은 개념이라도 '어디서 쓰이는가'와 '그 자체가 무엇인가'는 따로 봐야 시험에서 헷갈리지 않습니다.\n\n<b>네 칸의 공통점</b>: 어느 칸이든 결국 '지금 가진 것으로 안 되면 무엇을 채워야 하는가'를 답합니다. 시스템이 없으면 만들고, 노하우가 없으면 배우거나 빌려 옵니다 — 이 매트릭스가 하는 일은 부족한 것이 시스템인지 사람(역량)인지를 먼저 가려내는 것입니다.",
+  "more_en": "After defining the problem, the solution-search matrix decides how to solve it by crossing two real axes: whether existing systems can be reused, and whether in-house analytics know-how is sufficient. The four resulting cells are: use as-is, train/hire then use, build a new system then solve, or outsource to a specialist vendor. Sliders recompute the verdict live, and four fixed example projects are classified by the same rule to populate all four cells.",
+  "problem": {
+   "q": "어떤 회사가 '기존 CRM 시스템은 이번 분석에 그대로 쓸 수 있지만, 사내에 이런 분석을 해 본 사람이 아무도 없다'고 말합니다. 매트릭스의 어느 칸에 해당하며, 처방은 무엇일까요?",
+   "solution": "시스템은 있음(sys=1), 노하우는 없음(know=0)이므로 '교육/채용 후 활용' 칸에 해당합니다. 처방은 기존 CRM 시스템을 새로 만들 필요 없이 그대로 쓰되, 내부 인력을 교육시키거나 해당 분야 경험이 있는 인력을 채용해 역량 부족을 메운 뒤 분석을 진행하는 것입니다 — 시스템을 새로 짓는 것보다 사람을 채우는 쪽이 더 빠르고 비용이 적게 듭니다."
+  }
+ },
+ "bda51_02": {
+  "ch": "빅데이터 분석 제51장 · 과목 III 총정리 — 분석 기획",
+  "sec": "51.2 분석 과제 관리 프로세스 7단계",
+  "title": "분석 과제 관리 프로세스 7단계",
+  "narr": "과제를 하나 확정했다고 끝이 아닙니다 — 아이디어부터 결과 공유까지 실제로 흘려보내는 관리 절차가 있습니다. 아이디어 10건이 <b>아이디어 발굴</b>로 들어와, 영향도 기준으로 걸러 <b>과제 후보 제안</b> 8건이 되고, 영향도−난이도 상위 4건이 <b>과제 확정</b>됩니다. 확정된 4건에 <b>팀이 구성</b>되고(합계 9명), <b>과제가 실행</b>되어(병렬 진행이므로 전체 기간은 가장 오래 걸리는 과제 기준 14주), <b>진행 관리</b> 중 10주를 넘긴 1건이 지연 위험으로 표시되며, <b>결과 공유·개선</b> 단계에서 성공 3건·지연 1건, 아이디어 대비 전환율 40%로 마무리됩니다.",
+  "more": "<b>왜 단계마다 숫자가 줄어드는가</b>: 아이디어 발굴은 걸러내지 않고 최대한 많이 늘어놓는 단계이고, 과제 후보 제안부터는 기준(영향도)으로 실제로 솎아냅니다. 10건 중 8건만 통과하는 이유는 나머지 두 건(직원 만족도 예측·문서 검색 개선)의 영향도가 기준을 넘지 못했기 때문입니다 — 아이디어가 나쁘다는 뜻이 아니라 지금 이 라운드의 우선순위에서 밀렸다는 뜻입니다.\n\n<b>팀 구성과 실행이 따로인 이유</b>: 과제가 확정되었다고 바로 실행되지 않습니다. 먼저 사람을 배정(팀 구성)해야 실행할 수 있고, 여러 과제가 동시에(병렬로) 진행되므로 전체 소요 기간은 가장 오래 걸리는 과제 하나가 정합니다 — 나머지 과제가 먼저 끝나도 전체 일정은 그 병목 과제를 기다려야 합니다. 진행 관리 단계에서 '지연 위험'을 미리 표시해 두는 것은, 결과 공유 단계에 가서야 실패를 아는 것보다 중간에 자원을 더 투입하거나 범위를 줄이는 대응을 할 수 있게 하기 위함입니다.",
+  "more_en": "Confirming a project is not the end. Ten freely proposed ideas enter, an impact filter narrows them to 8 candidates, and the top 4 by (impact − cost) are confirmed. Those 4 get teams (9 people total), run in parallel so total duration equals the longest task's 14 weeks, one task exceeding 10 weeks is flagged at-risk during monitoring, and the review stage closes with 3 successes and 1 delay — a 40% idea-to-completion conversion rate, all counted from the same fixed dataset at each stage.",
+  "problem": {
+   "q": "만약 '진행 관리' 단계에서 지연 위험으로 표시된 과제를 그냥 두지 않고 팀원을 추가 투입해 기간을 단축했다면, 이는 7단계 중 어느 단계로 되돌아가 자원을 재조정한 것일까요?",
+   "solution": "'팀 구성' 단계로 되돌아가 자원(인력)을 재조정한 것입니다. 진행 관리 단계는 문제를 '발견'하는 단계이지 그 자체로 문제를 '해결'하는 단계가 아니므로, 실제 대응(팀원 추가·범위 조정 등)은 더 앞선 단계의 산출물(팀 구성 결과)을 다시 손보는 형태로 이루어집니다 — CRISP-DM의 평가 단계가 모델링 단계로 되돌아가는 피드백 구조(36장)와 같은 발상입니다."
+  }
+ },
+ "bda51_03": {
+  "ch": "빅데이터 분석 제51장 · 과목 III 총정리 — 분석 기획",
+  "sec": "51.3 분석가의 자격과 출발점",
+  "title": "분석가의 자격과 출발점",
+  "narr": "분석 프로젝트는 사람과 준비물에서 시작합니다. 데이터 사이언스의 3대 역량은 수학·통계 지식 · IT 기술 · 도메인 지식이며, 이 셋이 겹치는 자리에 서야 진짜 통찰이 나옵니다. 실무의 분석가에게는 그보다 더 넓게 분석·비즈니스·IT/프로그래밍·의사소통·프로젝트관리·리더십까지 여섯 영역이 요구됩니다. 프로젝트를 기획할 때는 가용한 데이터가 있는가 · 참고할 활용 사례가 있는가 · 수행을 가로막는 장애요소는 없는가 세 가지를 먼저 점검하고, 다룰 데이터 유형은 정형 · 반정형 · 비정형 셋으로 나뉩니다.",
+  "more": "<b>왜 역량과 요구 영역이 따로 있는가</b>: '데이터 사이언스 3대 역량'은 이 일을 잘하는 사람이 갖춰야 할 <b>바탕</b>을 말하고, '분석가에게 요구되는 영역'은 실제 프로젝트 현장에서 부딪히는 <b>역할</b>을 말합니다. 도메인 지식이라는 바탕 위에 비즈니스 역량·의사소통 역량이라는 역할이 서고, IT 기술이라는 바탕 위에 IT/프로그래밍 역량이라는 역할이 섭니다 — 프로젝트관리·리더십은 혼자서는 나오지 않는, 팀으로 일할 때 비로소 필요해지는 역량입니다.\n\n<b>고려사항 3가지가 기획의 출발점인 이유</b>: 아무리 좋은 아이디어라도 데이터가 없으면 시작할 수 없고, 참고할 사례가 없으면 어디서부터 손대야 할지 막막하며, 조직의 규제나 문화가 발목을 잡으면 기술적으로는 가능해도 실행되지 않습니다. 세 가지 중 하나라도 크게 어긋나면 기획 단계에서 미리 조정해야, 실행 단계에 가서 뒤엎는 낭비를 막을 수 있습니다.",
+  "more_en": "Analytics projects start with people and prerequisites. The three core competencies of data science are math/statistics, IT skills, and domain knowledge; practicing analysts additionally need analytical, business, IT/programming, communication, project-management, and leadership capabilities. Planning checks three things — available data, applicable use cases, and organizational obstacles — and the data to be handled falls into structured, semi-structured, or unstructured types.",
+  "problem": {
+   "q": "수학·통계 지식과 IT 기술은 뛰어나지만 도메인 지식이 부족한 분석가가 프로젝트를 진행하면 어떤 문제가 생기기 쉬울까요?",
+   "solution": "통계적으로는 정교하지만 현장에서 의미 없는 결과를 낼 위험이 큽니다. 예를 들어 통계적으로 유의미한 상관관계를 찾아도, 그것이 실제 업무에서 왜 그런 관계가 생기는지, 그 결과를 어떻게 활용해야 하는지를 판단할 도메인 지식이 없으면 '숫자는 맞는데 쓸모는 없는' 결과물이 나오기 쉽습니다. 그래서 3대 역량은 어느 하나만 뛰어나서는 부족하고, 세 영역이 겹치는 지점에 서야 한다고 보는 것입니다."
+  }
+ },
+ "bda51_04": {
+  "ch": "빅데이터 분석 제51장 · 과목 III 총정리 — 분석 기획",
+  "sec": "51.4 방법론의 뼈대 — 구성요소·계층모델·KDD·5단계 태스크",
+  "title": "방법론의 뼈대",
+  "narr": "방법론은 절차 · 방법 · 도구와 기법 · 템플릿과 산출물 네 조각으로 이루어지고, 이를 담는 그릇이 계층적 프로세스 모델(단계→태스크→스텝, 작업분해구조에 대응)입니다. CRISP-DM은 이 발상을 단계 · 일반 과제 · 세부 과제 · 프로세스 실행의 4계층으로 구체화했는데, 36장에서 실제로 모델링↔평가 피드백을 시뮬레이션한 그 CRISP-DM입니다. 데이터 마이닝 절차의 원형인 KDD는 원래 9단계이며, 36장에서 실제로 계산까지 해 본 선택·전처리·변환·마이닝·해석 5단계는 그중 수치가 오가는 부분만 추린 것입니다. 이를 빅데이터 환경에 맞게 다시 쓴 분석 방법론 5단계는 15개 안팎의 세부 태스크로 구성됩니다.",
+  "more": "<b>계층적 프로세스 모델과 WBS</b>: 단계(Phase)는 작업분해구조(WBS)의 대분류, 태스크(Task)는 중분류, 스텝(Step)은 입력-처리-출력으로 이루어진 최소 실행 단위인 소분류에 대응합니다. 이렇게 계층을 나누면 전체 프로젝트를 한눈에 보는 것(단계)과 오늘 당장 무엇을 할지 정하는 것(스텝)을 같은 틀 안에서 다룰 수 있습니다.\n\n<b>KDD 9단계와 5단계 방법론의 관계</b>: KDD는 학술적으로 정의된 데이터 마이닝의 절차이고, 빅데이터 분석 방법론 5단계(분석기획·데이터준비·데이터분석·시스템구현·평가및전개)는 이를 실무 프로젝트에 맞게 확장한 것입니다. KDD의 '비즈니스 도메인 이해'는 분석기획의 '비즈니스 이해·범위 설정'으로, '마이닝 시행'은 데이터분석의 '모델링'으로 이어지는 식입니다 — 이름은 달라도 절차의 정신은 같습니다.",
+  "more_en": "A methodology is made of procedure, method, tools & techniques, and templates & outputs, held together by a hierarchical process model (phase → task → step, mirroring a work breakdown structure). CRISP-DM formalizes this as four layers (phase, generic task, specialized task, process instance) — the same CRISP-DM whose modeling-evaluation feedback loop was simulated in chapter 36. KDD, the original data-mining procedure, has 9 steps; the 5 steps actually computed in chapter 36 (selection, preprocessing, transformation, mining, interpretation) are the numeric subset. The Big Data Analytics Methodology adapts this into 5 phases comprising roughly 15 detailed tasks.",
+  "problem": {
+   "q": "KDD의 '⑥ 마이닝 알고리즘 선택'과 '⑤ 마이닝 기법 선택'은 언뜻 비슷해 보입니다. 두 단계는 어떻게 다를까요?",
+   "solution": "'마이닝 기법 선택'은 더 큰 범주의 결정입니다 — 예를 들어 '분류를 쓸 것인가, 군집을 쓸 것인가'를 정하는 단계입니다. '마이닝 알고리즘 선택'은 그 기법 범주 안에서 구체적으로 어떤 알고리즘을 쓸지 정하는 더 세부적인 결정입니다 — 예를 들어 기법으로 '분류'를 골랐다면, 알고리즘 단계에서는 의사결정나무를 쓸지 로지스틱 회귀를 쓸지를 정합니다. 큰 범주에서 세부 도구로 좁혀가는 두 단계로 나뉘어 있다는 점이 핵심입니다."
+  }
+ },
+ "bda51_05": {
+  "ch": "빅데이터 분석 제51장 · 과목 III 총정리 — 분석 기획",
+  "sec": "51.5 거버넌스와 데이터 관리 체계 총정리",
+  "title": "거버넌스와 데이터 관리 체계 총정리",
+  "narr": "과제 하나의 성공을 넘어 조직 전체가 분석을 계속 잘 해내려면 거버넌스가 필요합니다. 데이터 거버넌스는 원칙 · 조직 · 프로세스 3요소로 이루어지고, 그 성숙도를 재는 분석 성숙도 모델은 원래 조직 역량 전반을 재던 능력성숙도통합모델을 가져온 것입니다 — 37장에서 실제로 계산했던 준비도·성숙도 점수의 이론적 뿌리가 이것입니다. 그 아래에는 데이터 저장소·표준화·생명주기 관리라는 살림살이가 있고, 프로젝트 관리는 범위·시간·원가·품질·통합(37장이 다룬 5영역)에 이해관계자·자원·리스크·조달·의사소통 5영역이 더해져 10대 주제그룹을 이룹니다.",
+  "more": "<b>정의서→계획→거버넌스로 이어지는 흐름</b>: 개별 과제는 분석과제 정의서(비즈니스 문제·데이터·분석 기법과 방법·예상 결과·기대효과)로 구체화되고, 여러 과제를 묶는 상위 계획이 정보전략계획(ISP)을 분석에 맞게 확장한 분석 마스터플랜입니다. 이 마스터플랜이 실제로 잘 돌아가게 뒷받침하는 것이 데이터 거버넌스이고, 그 성숙도가 낮으면 아무리 좋은 과제 정의서를 써도 데이터 저장소·표준화가 뒷받침되지 않아 실행이 흔들립니다.\n\n<b>세부 이행계획은 왜 이 장에 없는가</b>: 추진 과제들의 기간을 실제로 쌓아 총 소요기간과 병렬 가능 구간을 계산하는 간트 형태의 세부 일정은, 37장의 로드맵 장면(Stage1 도입→Stage2 검증→Stage3 확산)이 이미 큰 틀을 실제 사분면 분류로 보여 주었습니다. 이 장은 그 로드맵이 실행될 수 있게 뒷받침하는 거버넌스·데이터 관리 체계 쪽의 빈칸을 채우는 데 집중합니다.",
+  "more_en": "Beyond a single project's success, sustaining analytics across an organization requires governance: three components (principle, organization, process), whose maturity is assessed via an analytics maturity model adapted from the general capability maturity model — the theoretical root of the readiness/maturity scores actually computed in chapter 37. Underneath sit data-store, standardization, and lifecycle management, and project management's 10 knowledge-area groups combine the 5 areas chapter 37 covered (scope, time, cost, quality, integration) with 5 more (stakeholders, resources, risk, procurement, communication).",
+  "problem": {
+   "q": "어느 조직이 '분석 마스터플랜'은 훌륭하게 세웠지만 '데이터 거버넌스'가 전혀 없다면, 실제로 어떤 문제가 발생할 가능성이 높을까요?",
+   "solution": "마스터플랜대로 여러 과제를 동시에 진행하려 해도, 데이터 저장소가 표준화되어 있지 않아 부서마다 같은 지표를 다르게 정의하거나(예: '고객'의 정의가 부서마다 다름), 데이터의 출처·품질을 관리할 책임 조직이 없어 분석 결과의 신뢰도가 흔들리기 쉽습니다. 계획(마스터플랜)은 '무엇을, 언제' 할지를 정하는 것이고 거버넌스(원칙·조직·프로세스)는 그것이 '일관되고 믿을 수 있게' 돌아가도록 뒷받침하는 기반이므로, 계획만 있고 기반이 없으면 개별 과제마다 데이터를 다시 정의하고 검증하는 데 시간을 낭비하게 됩니다."
+  }
+ }
+}

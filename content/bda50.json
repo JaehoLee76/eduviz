@@ -1,0 +1,62 @@
+{
+ "bda50_01": {
+  "ch": "빅데이터 분석 제50장 · 과목 II 총정리 — 데이터 처리 기술",
+  "sec": "50.1 데이터가 흐르는 다섯 단계, 그 옆 갈래들",
+  "title": "데이터가 흐르는 다섯 단계, 그 옆 갈래들",
+  "narr": "34장에서 ETL·CDC·EAI가 실제로 하는 일(결측 보정·변경분만 옮기기·연결 수 절감)을 직접 돌려봤습니다. 이번 장은 그 위에 시험이 실제로 묻는 <b>이름표</b>를 채웁니다. ETL은 인터페이스 → 스테이징 → 프로파일링 → 클렌징 → 익스포트, 다섯 켜(레이어)로 나뉩니다. CDC는 앞서 다룬 다섯 갈래에 시각·버전·상태를 함께 쓰는 <b>복합 기법</b>과 감지 로직을 애플리케이션에 심는 <b>이벤트 프로그래밍 방식</b>이 더해집니다. 데이터 연계는 배치·실시간 둘이 아니라 그 사이의 <b>비동기식 근접 실시간</b>을 포함해 세 갈래이고, EAI는 연결 수 절감을 발판으로 네 가지 실질적 효과를 냅니다.",
+  "more": "<b>왜 ETL을 다섯 켜로 쪼개는가</b>: 34장의 「3단계(추출·변환·적재)」는 데이터가 겪는 <b>변화의 종류</b>를 나눈 것이고, 이번 장의 「다섯 레이어」는 그 변화가 조직 안에서 <b>어느 물리적 단계를 통과하는지</b>를 나눈 것입니다 — 관점이 다를 뿐 같은 파이프라인입니다. 스테이징 단계는 정규화하지 않고 원본 형태 그대로 임시 테이블에 부려놓는데, 이는 원천 시스템의 부담을 줄이고(옮기기만 하면 끝) 이후 단계에서 여유 있게 검증·보정할 시간을 벌기 위해서입니다.\n\n<b>CDC 일곱 갈래를 가르는 기준</b>: 트리거·이벤트 프로그래밍은 「변경을 어디서 감지하느냐」(DB 안 vs 애플리케이션 안)가 다르고, 타임스탬프·버전·상태·복합 기법은 「변경 여부를 어떤 값으로 판단하느냐」가 다릅니다. 로그 스캔은 이미 DBMS가 남기는 기록을 읽기만 하므로 원천 시스템에 새 코드를 심을 필요가 없어 부담이 가장 적습니다.\n\n<b>세 갈래 데이터 연계가 필요한 이유</b>: 배치와 실시간 사이에 <b>근접 실시간</b>이 있는 것은, 모든 상황이 「하루에 한 번 몰아서」거나 「밀리초 단위로 즉시」의 양극단만은 아니기 때문입니다 — 몇 초에서 몇 분 지연은 허용하되 배치처럼 오래 기다리지는 않는 업무(예: 재고 현황 갱신)가 실무에는 훨씬 많습니다.",
+  "more_en": "ETL splits into five real layers — interface, staging, profiling, cleansing, export — layered on top of the three functional stages (extract/transform/load) already covered. CDC gains two more mechanisms beyond the five already run: a composite technique combining timestamp+version+status, and application-embedded event programming. Data linkage is a three-way split (batch, asynchronous near-real-time, synchronous real-time), not just batch vs. stream. EAI's real payoff spans four effects built on the connection-count savings already measured.",
+  "problem": {
+   "q": "CDC의 '로그 스캔 방식'이 '트리거 방식'보다 원천 시스템 부담이 적은 이유를 한 문장으로 설명해 보세요.",
+   "solution": "트리거는 트랜잭션이 일어날 때마다 원천 DB 안에서 추가 코드를 실행해야 하지만, 로그 스캔은 DBMS가 장애 복구 목적으로 어차피 남기는 트랜잭션 로그를 나중에 별도로 읽기만 하므로 원천 시스템의 정상적인 처리 경로에 끼어들지 않습니다."
+  }
+ },
+ "bda50_02": {
+  "ch": "빅데이터 분석 제50장 · 과목 II 총정리 — 데이터 처리 기술",
+  "sec": "50.2 저장을 나눈 이름들",
+  "title": "저장을 나눈 이름들",
+  "narr": "35장에서 청크·복제·해시 파티셔닝을 실제로 돌려봤다면, 이번엔 그 아래 깔린 <b>설계 가정</b>과 <b>이름표</b>입니다. 구글식 분산파일시스템은 저가 서버가 흔히 고장난다고 가정하고, 대용량 파일·순차 읽기·추가(append) 위주 쓰기·응답 지연보다 처리율을 우선한다는 다섯 가지 전제 위에 서 있습니다. NoSQL 두 갈래(컬럼 지향 저장소·키-값 저장소) 중 키-값 저장소는 <b>일관 해싱</b>을 쓰면 노드를 4개에서 5개로 늘려도 12개 키 중 3개만 실제로 재배치됩니다 — 35장의 단순 나머지 해싱은 같은 변화에 9개가 재배치됐습니다. 고성능컴퓨팅(HPC)용 클러스터 파일시스템은 메타데이터 서버와 객체 저장 서버를 아예 분리해 둡니다.",
+  "more": "<b>일관 해싱이 이기는 이유</b>: 단순 나머지 해싱(hash%N)은 N이 바뀌면 거의 모든 키의 나머지 값이 통째로 달라지지만, 일관 해싱은 노드를 원형 고리(ring) 위의 한 점으로 배치하고 각 키를 「자기보다 큰 값 중 가장 가까운 노드」에 배정합니다. 노드를 하나 추가하면 그 노드의 바로 앞 구간에 있던 키들만 옮겨가면 되고, 나머지 구간은 그대로입니다 — 이번 계산에서 12개 중 9개가 아니라 3개만 옮겨간 이유입니다. 실제 시스템은 노드 하나를 고리 위 여러 점(가상 노드)으로 흩어 배치해 부하를 더 고르게 나눕니다.\n\n<b>메타데이터 서버를 분리하는 이유</b>: 파일이 어디 있는지(이름·위치)를 관리하는 정보는 크기가 작아 메모리에 다 올려두고 빠르게 찾을 수 있지만, 실제 파일 데이터는 훨씬 크고 자주 오갑니다. 이 둘을 분리하면 대용량 데이터 입출력이 메타데이터 서버를 거치지 않고 객체 저장 서버와 직접 이뤄져, 메타데이터 서버가 병목이 되는 것을 막습니다 — 구글식 분산파일시스템의 마스터-청크서버 구조(35장)와 같은 발상을 고성능컴퓨팅 환경에 맞게 정교화한 것입니다.\n\n<b>병렬 DBMS, 리소스를 나누는 세 방식</b>: 공유 디스크는 모든 노드가 같은 저장소를 보므로 장애 노드의 서비스를 다른 노드가 즉시 이어받을 수 있지만 디스크 자체가 병목이 될 수 있습니다. 공유 메모리는 여러 CPU가 메모리까지 공유해 응답은 빠르지만 물리적으로 한 대의 대형 서버를 벗어나기 어렵습니다. 무공유는 노드마다 자기 데이터만 책임지므로 확장에 제한이 없어, 실제 제품군 대부분이 이 방식을 택하고 있습니다.",
+  "more_en": "Google-style distributed file systems are designed on five assumptions: frequent cheap-server failure, mostly large files, mostly sequential reads, append-heavy writes, and throughput over latency. Consistent hashing (computed here on a real hash ring) relocates only 3 of 12 keys when nodes grow from 4 to 5, versus 9 of 12 under the simple modulo hashing measured in chapter 35. HPC-oriented cluster file systems separate a metadata server (names/locations, small, memory-resident) from object storage servers (the actual data, accessed directly by clients).",
+  "problem": {
+   "q": "일관 해싱에서 노드를 5개에서 6개로 한 번 더 늘리면, 이번에 옮겨야 하는 키는 어느 노드 주변의 키일까요?",
+   "solution": "새로 추가되는 6번째 노드가 원형 고리 위에 자리 잡는 지점의 「바로 앞(시계 방향 이전) 구간」에 있던 키들만 옮겨갑니다 — 그 구간을 원래 맡고 있던 노드에서 새 노드로 넘어가는 키들입니다. 나머지 노드들이 맡고 있던 구간은 전혀 영향을 받지 않으므로, 노드를 몇 개 더 늘리더라도 매번 전체 키의 일부만 재배치하면 됩니다."
+  }
+ },
+ "bda50_03": {
+  "ch": "빅데이터 분석 제50장 · 과목 II 총정리 — 데이터 처리 기술",
+  "sec": "50.3 처리·질의·플랫폼의 이름들",
+  "title": "처리·질의·플랫폼의 이름들",
+  "narr": "35장에서 map→shuffle→reduce로 단어를 실제로 세어 봤다면, 이번엔 그 위아래에 무엇이 이름 붙어 돌아가는지입니다. 대용량 로그 수집 시스템은 초고속 수집·전송 보장·다양한 플러그인·인터페이스 확장, 네 가지를 갖춰야 하고, 분산 병렬 처리 플랫폼은 선형 확장·고장 감내·비즈니스 로직 집중·풍부한 생태계를 갖춰야 합니다. 맵리듀스 위에는 <b>작업 추적자(마스터)</b>가 태스크를 쪼개 <b>태스크 추적자(워커)</b>들에게 배정하는 구조가 있고, 그 위에는 절차형·데이터흐름형·SQL유사형 세 갈래의 질의 언어와 맵리듀스를 아예 거치지 않는 <b>즉시질의 SQL 엔진</b>이 얹혀 있습니다.",
+  "more": "<b>4대 특징이 서로 맞물리는 방식</b>: 분산 병렬 처리 플랫폼이 무공유 구조이기 때문에 서버를 더하면 그만큼 선형적으로 성능이 늘고(선형 확장), 데이터가 여러 복제본으로 흩어져 있기 때문에 한 서버가 죽어도 유실이 없으며(고장 감내), 이 둘을 플랫폼이 알아서 처리해 주기 때문에 개발자는 맵·리듀스 두 함수만 작성하면 됩니다(비즈니스 로직 집중) — 앞의 두 특징이 세 번째 특징을 가능하게 하는 전제 조건인 셈입니다. 풍부한 생태계는 이 기반 위에서 수집·연동·질의 같은 응용 기술들이 쌓여 온 결과입니다.\n\n<b>작업 추적자·태스크 추적자와 map/shuffle/reduce의 관계</b>: 35장에서 본 map·shuffle·reduce는 「데이터가 어떻게 처리되는가」였고, 작업 추적자·태스크 추적자는 「그 처리를 누가 어떻게 나눠 실행시키는가」입니다. 작업 추적자는 사용자가 제출한 작업을 여러 태스크(맵 태스크·리듀스 태스크)로 쪼개고, 데이터가 이미 저장된 서버 근처에서 태스크가 실행되도록 배치를 정한 뒤, 태스크 추적자들이 주기적으로 보내는 생존 신호(하트비트)로 진행 상황을 관제합니다. 태스크가 응답을 멈추면 작업 추적자가 이를 감지해 다른 서버에서 다시 실행시킵니다 — 고장 감내성이 실제로 구현되는 지점입니다.\n\n<b>세 갈래 질의 언어와 즉시질의 엔진의 자리</b>: 절차형·데이터흐름형·SQL유사형 언어는 모두 결국 맵리듀스 작업으로 번역되어 실행되므로, 작업을 새로 띄우는 지연을 피할 수 없습니다. 즉시질의 SQL 엔진은 각 노드에 미리 상주하는 데몬이 캐시해 둔 메타데이터로 곧장 질의를 처리해 이 지연을 없앤 것으로, 대화형으로 빠른 응답이 필요한 질의에 적합합니다.",
+  "more_en": "Log-collection systems need four qualities (ultra-fast throughput, delivery guarantees, plug-in diversity, interface extensibility); distributed platforms need four others (linear scaling, fault tolerance, focus on business logic, a rich ecosystem) — and the first two of these actually enable the third. Above the MapReduce mechanics run earlier, a master (job tracker) splits work into tasks for worker processes (task trackers), monitored via heartbeats. Three families of query languages (procedural, dataflow-script, SQL-like) all compile down to MapReduce jobs, while a separate class of always-resident SQL engines skips MapReduce entirely for lower latency.",
+  "problem": {
+   "q": "분산 병렬 처리 플랫폼의 '고장 감내성'이 없다면, '핵심 비즈니스 로직에 집중'하는 특징은 왜 성립하기 어려울까요?",
+   "solution": "고장 감내성이 없다면 서버 장애나 태스크 실패가 일어날 때마다 개발자가 직접 그 상황을 감지하고 재시도·복구 로직을 짜야 합니다. 그러면 개발자는 더 이상 맵·리듀스 함수(비즈니스 로직)만 작성하는 데 집중할 수 없고, 시스템 수준의 장애 처리 코드까지 떠안게 됩니다 — 즉 고장 감내성은 비즈니스 로직 집중을 가능하게 하는 전제 조건입니다."
+  }
+ },
+ "bda50_04": {
+  "ch": "빅데이터 분석 제50장 · 과목 II 총정리 — 데이터 처리 기술",
+  "sec": "50.4 스타 스키마 vs 스노우플레이크 스키마",
+  "title": "스타 스키마 vs 스노우플레이크 스키마",
+  "narr": "점포 8개·매출 30건을 놓고 같은 질의(계층별 매출 합계)를 두 스키마로 실제로 실행해 봅니다. <b>스타 스키마</b>는 점포 차원 테이블에 도시·지역·국가 이름을 전부 미리 펼쳐(비정규화) 담아 두어, 어느 깊이를 조회하든 조인이 항상 1회, 읽는 행 수도 38행으로 고정됩니다. <b>스노우플레이크 스키마</b>는 같은 정보를 store→city→region→country로 정규화해 쪼개 두어, 조회 깊이가 도시·지역·국가로 깊어질수록 조인이 2회·3회·4회로, 읽는 행 수도 43·46·48행으로 실제로 늘어납니다. 두 방식으로 계산한 결과는 완전히 일치합니다 — 다만 그 답에 도달하는 비용이 다를 뿐입니다.",
+  "more": "<b>왜 결과는 같은데 비용이 다른가</b>: 두 스키마는 같은 정보를 서로 다르게 조직했을 뿐 담고 있는 정보 자체는 동일합니다(이번 장면에서 매 깊이마다 그룹 수와 매출 합계가 정확히 일치하는 것으로 확인됩니다). 스타 스키마는 그 정보를 <b>미리 펼쳐(비정규화)</b> 두어 질의 시점의 계산(조인)을 줄이는 대신, 적재 시점에 이름 문자열을 반복 저장합니다 — 이번 예시에서는 점포 8개에 도시·지역·국가 이름을 반복해 14칸이 중복됩니다. 스노우플레이크는 반대로 저장은 정규화해 아끼지만, 질의 때마다 그 계층을 다시 조인으로 복원해야 합니다.\n\n<b>깊이가 깊을수록 격차가 커지는 이유</b>: 스타 스키마의 조인 횟수가 항상 1인 것은, 필요한 모든 이름이 이미 한 테이블(점포 차원)에 나란히 앉아 있기 때문입니다. 반면 스노우플레이크는 국가 이름 하나를 얻으려 해도 store→city→region→country 사슬을 전부 타고 내려가야 하므로, 계층이 깊을수록(정규화 단계가 많을수록) 조인 비용이 그만큼 쌓입니다 — 이 격차는 데이터 웨어하우스처럼 계층이 깊고 조회가 잦은 환경에서 실무적으로 스타 스키마를 더 널리 쓰는 이유이기도 합니다.\n\n<b>그래도 스노우플레이크를 쓰는 경우</b>: 차원 자체가 매우 크고(예: 수백만 개 상품) 상위 계층 값이 자주 바뀌는 경우, 비정규화된 스타 스키마는 그 값을 가진 모든 행을 찾아 고쳐야 하지만 스노우플레이크는 정규화된 상위 테이블 한 행만 고치면 됩니다 — 적재(갱신)가 잦고 조회보다 쓰기가 중요한 환경에서는 스노우플레이크의 정규화가 오히려 유리합니다.",
+  "more_en": "Running the same hierarchical-sum query against a fixed 8-store, 30-row fact table on both schemas: the star schema (dimension pre-flattened/denormalized) always costs exactly 1 join and reads a fixed 38 rows regardless of query depth, while the snowflake schema (store→city→region→country, normalized) costs 2/3/4 joins and reads 43/46/48 rows as depth increases — verified to produce identical aggregated results at every depth. The trade is real: star duplicates 14 name-string cells that snowflake stores once each.",
+  "problem": {
+   "q": "만약 점포가 8개가 아니라 8,000개이고 도시·지역·국가 수는 지금과 비슷하다면, 스타 스키마의 '중복 저장 칸 수'는 어떻게 달라질까요?",
+   "solution": "중복 칸 수는 (점포 수 − 해당 계층의 고유 개수)로 계산되므로, 점포 수가 8에서 8,000으로 늘어나면 도시·지역·국가 이름의 중복 칸 수도 그만큼 커집니다(예: 도시가 여전히 5개라면 도시 이름 중복은 8,000−5=7,995칸). 반면 조인 횟수는 점포 수와 무관하게 여전히 스타는 1회, 스노우플레이크는 깊이+1회로 그대로입니다 — 즉 점포 수가 커질수록 스타 스키마의 '저장 중복' 비용은 커지지만 '조인 비용 절감'이라는 이점은 그대로 유지됩니다."
+  }
+ },
+ "bda50_05": {
+  "ch": "빅데이터 분석 제50장 · 과목 II 총정리 — 데이터 처리 기술",
+  "sec": "50.5 가상화의 자원 분할과 오버헤드",
+  "title": "가상화의 자원 분할과 오버헤드",
+  "narr": "물리 서버 한 대(CPU 16코어·메모리 128GB·I/O 800MB/s — 이 장면이 정한 가정)를 가상머신 여러 대로 나눕니다. 하이퍼바이저를 거치는 데는 대가가 있습니다 — <b>완전가상화</b>는 특권 명령마다 하이퍼바이저가 가로채 대신 실행(trap)하므로 게스트 운영체제를 고칠 필요가 없는 대신 오버헤드가 크고, <b>반가상화</b>는 게스트가 하이퍼콜로 하이퍼바이저를 직접 호출하므로 커널 일부를 고쳐야 하는 대신 오버헤드가 작습니다. VM 4대·완전가상화 기준으로 CPU는 VM당 4코어를 할당받지만 오버헤드 8.6%를 뗀 3.65코어만 실제로 씁니다.",
+  "more": "<b>왜 완전가상화가 더 무거운가</b>: 완전가상화에서 게스트 운영체제는 자신이 진짜 하드웨어 위에서 돈다고 믿고 특권 명령(Ring 0 수준)을 그대로 내립니다. 하이퍼바이저는 그 명령이 실행되는 순간을 가로채(trap) 안전하게 대신 처리한 뒤 결과를 돌려줘야 하므로, 명령 하나하나마다 「가로채기 → 해석 → 대신 실행 → 결과 반환」이라는 우회 경로를 거칩니다. 반가상화는 게스트 운영체제의 커널 일부를 수정해, 애초에 특권 명령을 내리는 대신 하이퍼바이저에게 「이 작업을 해 달라」고 직접 요청(하이퍼콜)하므로 이 우회 경로 자체가 짧아집니다 — 그 대신 커널을 고쳐야 하니 아무 운영체제나 그대로 올릴 수는 없습니다.\n\n<b>VM을 늘릴수록 손해가 커지는 이유</b>: 이 장면은 VM 수가 늘수록 하이퍼바이저가 더 많은 VM의 스케줄링·문맥전환을 관리해야 해 오버헤드 비율 자체도 조금씩 커진다고 가정합니다(기준 오버헤드 × (1+0.04×(VM수−2))). 그래서 VM당 할당량이 자원총량/VM수로 줄어드는 것과, 오버헤드 비율이 커지는 것, 두 가지가 함께 작용해 총 사용가능량은 VM을 늘릴수록 서서히 줄어듭니다 — 완전가상화 기준 VM 2대에서 총 사용가능 CPU 14.72코어였던 것이 VM 8대에서는 14.41코어로 줄어드는 식입니다. 즉 「가상머신을 잘게 쪼갤수록 관리 비용이 조금씩 더 든다」는 것이 이 모형의 결론입니다.\n\n<b>CPU·메모리·I/O 세 자원의 온도차</b>: 이 장면의 가정에서 I/O 가상화의 기준 오버헤드(완전 15%·반 6%)가 CPU(8%·3%)나 메모리(10%·4%)보다 큽니다 — I/O는 실제로 존재하지 않는 장치를 흉내 내는 에뮬레이션까지 거치는 경우가 있어 가로채기 경로가 가장 복잡해지기 쉽기 때문입니다. 그래서 I/O 위주 작업(대용량 파일 전송 등)은 CPU 위주 작업보다 가상화의 성능 손실을 더 크게 체감하는 경우가 많습니다.",
+  "more_en": "A physical server (16 CPU cores, 128GB memory, 800MB/s I/O — this scene's stated assumption) is divided evenly across N virtual machines. Full virtualization traps every privileged instruction for the hypervisor to emulate (no guest OS changes needed, but heavier), while paravirtualization has the guest issue hypercalls directly (lighter, but requires a modified kernel). This scene's overhead model also grows with VM count (scheduling/context-switch contention), so total usable capacity actually shrinks as N increases — real numbers, not an assumed constant.",
+  "problem": {
+   "q": "완전가상화의 I/O 오버헤드(15%)가 CPU 오버헤드(8%)보다 큰 이유를, 이 장면이 설명하는 '특권 명령 가로채기' 개념으로 설명해 보세요.",
+   "solution": "I/O 가상화는 물리적으로 존재하지 않는 장치(가상 네트워크 카드 등)를 소프트웨어로 흉내 내는 에뮬레이션까지 필요한 경우가 많아, 단순히 명령을 가로채 대신 실행하는 것을 넘어 장치의 동작 자체를 처음부터 다시 구현해 보여줘야 합니다. CPU 가상화는 상대적으로 명령 하나를 가로채 대신 실행하고 결과만 돌려주면 되는 경우가 많아 우회 경로가 더 짧습니다 — I/O 쪽이 가로채는 경로 자체가 더 복잡하기 때문에 오버헤드도 더 크게 나타납니다."
+  }
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "bda53_01": {
+  "ch": "빅데이터 분석 제53장 · 과목 V 총정리 — 데이터 시각화",
+  "sec": "53.1 시각 이해의 위계 — DIKW 4분 구분",
+  "title": "시각 이해의 위계 — 데이터에서 인포그래픽까지",
+  "narr": "38·39장에서 실제로 그려 본 그래프들을 한 걸음 물러나 이름 붙여 봅니다. 맥캔들레스가 정리한 「데이터 위계 모델」은 이해의 단계를 데이터·정보·지식·지혜 넷으로 나누고, 각 단계에 대응하는 시각화 활동을 시각화(Visualization)·디자인(Design)·매핑(Mapping)·정의되지 않음으로 짝짓습니다. 우리 트랙에서는 이 네 층을 <b>데이터 시각화·정보 시각화·정보 디자인·인포그래픽</b>이라는 이름으로 씁니다 — 데이터 시각화(38장의 표·기본 그래프)에서 39장의 5분류로 관계를 짜 넣으면 정보 시각화, 이 장의 체계도처럼 구조를 재배치하면 정보 디자인, 원자료보다 주장을 앞세우면 인포그래픽입니다. 탭으로 네 계층을 하나씩 짚어보면 총 16개 대응(계층·활동·핵심 동사·예)을 확인할 수 있습니다.",
+  "more": "<b>정보형 메시지 vs 설득형 메시지</b>: 같은 자료라도 무엇을 전달하려느냐에 따라 결과물이 갈립니다. 워싱턴 지하철 노선도처럼 실제 지형을 왜곡해서라도 이해를 돕는 그림은 인포그래픽(설득·안내형)이고, 39장에서 다룬 5분류 그래프들은 원자료를 왜곡하지 않고 그대로 전달하는 정보형 메시지에 가깝습니다. 빅데이터 시각화는 원자료를 직접 다루는 일이 많아 정보형 메시지(데이터·정보 시각화) 쪽에 무게가 실립니다.\n\n<b>왜 이 구분이 시험 포인트인가</b>: ADP 필기는 「데이터 시각화와 인포그래픽의 차이는?」 같은 정의 문제를 자주 냅니다. 핵심은 인포그래픽이 <b>원데이터를 거의 취급하지 않는다</b>는 점 — 데이터 시각화·정보 시각화는 값 자체를 정확히 전달하는 것이 목적이지만, 인포그래픽은 차트·다이어그램·일러스트레이션을 동원해 메시지를 압축 전달하는 것이 목적입니다.",
+  "more_en": "McCandless's Data Hierarchy Model maps data-information-knowledge-wisdom to visualization-design-mapping-undefined. Our track labels these four layers data visualization, information visualization, information design, and infographics. Data/information visualization aim at accurate, undistorted transfer of raw values (informational messages), while infographics rarely handle raw data at all, favoring persuasive storytelling — like a subway map that distorts real geography for legibility.",
+  "problem": {
+   "q": "지하철 노선도는 실제 지형을 상당히 왜곡합니다. 그런데도 「좋은 인포그래픽」으로 꼽히는 이유는 무엇일까요?",
+   "solution": "인포그래픽의 목적은 원자료(정확한 위경도)를 그대로 전달하는 것이 아니라, 사용자가 실제로 필요로 하는 정보(어느 역에서 갈아타야 하는가, 몇 정거장 남았는가)를 가장 빠르게 이해하도록 돕는 것이기 때문입니다. 실제 지형 그대로 그리면 노선 간격이 들쭉날쭉해 오히려 읽기 어려워집니다. 노선을 직선·직각 위주로 단순화하고 역 간격을 균등하게 왜곡하면, 위치 정보의 정확도는 떨어지지만 「경로 이해」라는 목적에는 훨씬 잘 맞습니다 — 이것이 데이터 시각화(정확성 우선)와 인포그래픽(전달 목적 우선)의 근본적인 차이입니다."
+  }
+ },
+ "bda53_02": {
+  "ch": "빅데이터 분석 제53장 · 과목 V 총정리 — 데이터 시각화",
+  "sec": "53.2 방법론과 절차 — 무엇을, 어떻게 만드나",
+  "title": "빅데이터 시각화, 어떻게 설계할 것인가",
+  "narr": "같은 목표(데이터를 그림으로)라도 이론가마다 단계를 다르게 쪼갭니다. 정보디자인 4단계(조직화된 데이터→시각적 매핑→시각적 형태→전달 방식)는 교과서적 뼈대이고, 샤피로 3단계(질문 만들기→데이터 수집→시각 표현 적용)는 일반적인 시각화에 맞습니다. 빅데이터처럼 다뤄야 할 양이 클수록 벤 프라이의 7단계(획득→분해→선별→마이닝→표현→정제→상호작용)가 더 세밀합니다 — 데이터를 모으고 분석하는 앞 네 단계가 나머지 방법론보다 더 잘게 나뉜 것이 특징입니다. 실행 절차로 내려가면 정보 구조화 4단계와 설득형 메시지를 만드는 인포그래픽 10단계가 있고, 마지막으로 도구는 이름이 아니라 성격으로, 상호작용은 개요→확대·필터→세부 요청 순서로 다룹니다.",
+  "more": "<b>왜 세 방법론이 다 시험에 나오는가</b>: ADP 필기는 「~단계로 구성되지 않은 것은?」 식으로 단계 수를 헷갈리게 하는 문제를 냅니다. 4단계(정보디자인)·3단계(샤피로)·7단계(벤 프라이)를 서로 섞어 오답 보기를 만들기 쉬우므로, 각 방법론의 <b>단계 개수와 이름 순서</b>를 정확히 구분해 기억해야 합니다. 벤 프라이의 7단계 중 특히 「마이닝」과 「정제」를 「선별」이나 「표현」과 혼동하지 않는 것이 핵심입니다.\n\n<b>상호작용 원칙과 39장의 연결</b>: 「개요 먼저 → 확대·필터 → 세부는 요청 시」라는 순서는 39장에서 실제로 다룬 격자 집계(개요)와 원시 산점도 확대(세부)의 관계와 그대로 맞닿습니다 — 800개 점을 한꺼번에 다 보여주는 대신 격자로 뭉쳐 개요를 먼저 준 뒤, 필요하면 확대해 세부를 보여주는 순서였습니다.",
+  "more_en": "Different theorists slice the same goal differently: the information-design model has 4 stages, Shapiro's model has 3, and Ben Fry's (better suited to big data) has 7 — acquire, parse, filter, mine, represent, refine, interact, with the front-end data stages more finely subdivided. Below that sits the 4-step information-structuring process and the 10-step infographic-production process. Tools should be chosen by category (static image / interactive web / dashboard / map-specific), and interaction should follow overview-first, then zoom-and-filter, then details-on-demand.",
+  "problem": {
+   "q": "벤 프라이의 7단계가 샤피로의 3단계보다 데이터를 모으고 분석하는 앞부분을 더 세분화한 이유는 무엇일까요?",
+   "solution": "벤 프라이는 실제로 거대한 데이터세트를 프로그래밍(프로세싱)으로 다룬 사람입니다. 빅데이터는 원자료 자체가 방대하고 지저분하므로, 「데이터 수집」이라는 한 단계로 뭉뚱그리면 실무에서 놓치는 부분이 많습니다 — 파일에서 정보를 모으는 일(획득)과, 모은 정보를 의미별로 구조화하는 일(분해)과, 그중 필요 없는 것을 걷어내는 일(선별)은 실제로 서로 다른 기술과 판단을 요구합니다. 샤피로의 3단계는 일반적인(작은 규모의) 시각화를 염두에 둔 것이라 이 구분이 덜 필요했던 반면, 벤 프라이는 데이터 규모가 커질수록 앞단의 정제 작업이 전체 작업 시간의 대부분을 차지한다는 것을 반영해 단계를 더 잘게 나눴습니다."
+  }
+ },
+ "bda53_03": {
+  "ch": "빅데이터 분석 제53장 · 과목 V 총정리 — 데이터 시각화",
+  "sec": "53.3 그래픽 요소·지각 원리·디자인 원칙",
+  "title": "그래픽 요소·지각 원리·디자인 원칙 총정리",
+  "narr": "자크 베르탱은 게슈탈트 이론(뇌가 색·형태 조각을 하나의 집합으로 지각한다는 원리)에 근거해 정보 표현의 그래픽 요소 위치·크기·모양·색·명도·기울기·질감 7가지를 정리했습니다. 이 가운데 위치와 크기만 수치로 정확히 표현할 수 있고, 모양·색은 구분에는 강하지만 순서나 양을 나타내기엔 부적합합니다. 이 지각 능력에는 한계가 있는데, 조지 밀러가 1956년 밝힌 단기기억의 매직넘버 7±2와 구분 가능한 색상 약 8종이 그것입니다. 그래픽을 완성하는 마지막 단계는 색채(색상·명도·채도, 보색, 팔레트를 미리 정해두기)와 타이포그래피(서체는 최대 두 가지, 굵기·크기로 위계 표현) 원리이며, 이 모든 것을 관통하는 체크리스트가 에드워드 터프티의 시각정보 디자인 7원칙입니다.",
+  "more": "<b>7가지 그래픽 요소를 어떻게 골라 쓰는가</b>: 강조하고 싶은 것이 하나라면 색이나 크기(전주의적 속성, 39장)가 가장 빠르게 눈에 띄고, 여러 범주를 동등하게 구분해야 한다면 모양이나 질감을 함께 써야 색약·색맹 사용자도 구분할 수 있습니다. 순서나 위계를 보여줘야 한다면 위치·크기·명도처럼 수치로 대응 가능한 요소를 우선하고, 색은 「같다/다르다」만 확실히 구분하는 용도로 제한하는 것이 원칙입니다.\n\n<b>7원칙은 왜 '마지막' 체크리스트인가</b>: 정보 구조화·시각화·시각표현의 세 단계(53.2)를 다 거친 뒤에도 그래픽이 실제로 효과적인지는 별개 문제입니다. 터프티의 7원칙은 완성된 결과물을 놓고 「비교가 되는가·인과관계가 보이는가·다중변수가 담겼는가·라벨이 도표에 녹아 있는가·진실한가·공간순인가·정량성을 잃지 않았는가」를 하나씩 검증하는 사후 점검표입니다.",
+  "more_en": "Bertin's 7 graphic elements (position, size, shape, color, value, orientation, texture) rest on Gestalt perception theory; only position and size map cleanly to quantity, while shape and color excel at categorical distinction but not ordering. Human perception has real limits — Miller's magic number 7±2 for short-term memory and roughly 8 reliably distinguishable colors. Color and typography principles finish the visual, and Tufte's 7 principles serve as a final checklist for the completed graphic.",
+  "problem": {
+   "q": "지도에서 8개보다 훨씬 많은(예: 20개) 범주를 색만으로 구분해야 한다면, 그래픽 요소 이론에 따라 어떤 대안을 쓸 수 있을까요?",
+   "solution": "색 하나만으로는 사람이 뚜렷이 구분하는 한계(약 8종)를 넘어서므로, 다른 그래픽 요소를 함께 동원해야 합니다. 예를 들어 색상을 큰 상위 범주(4~5개)로 묶어 쓰고, 그 안의 세부 범주는 명도나 채도의 단계(순서 표현이 가능한 요소)로 나누거나, 모양이나 질감을 추가해 「같은 색 계열 안에서도 다른 하위 범주」임을 구분할 수 있습니다. 즉 20개를 하나의 그래픽 요소에 다 떠넘기지 않고, 위계를 만들어 여러 요소(색+명도, 또는 색+모양)에 나눠 싣는 것이 그래픽 요소 이론이 제시하는 해법입니다."
+  }
+ },
+ "bda53_04": {
+  "ch": "빅데이터 분석 제53장 · 과목 V 총정리 — 데이터 시각화",
+  "sec": "53.4 값이 그림이 되는 방식을 믿을 수 있는가",
+  "title": "값이 그림이 되는 방식을 믿을 수 있는가",
+  "narr": "값을 면적이나 색으로 바꾸는 순간 왜곡이 끼어들 여지가 생깁니다. 트리맵은 매출 164억원을 대분류 폭과 세부 항목 높이로 실제로 쪼갠 것이므로 면적 자체가 곧 값입니다. 버블차트는 반지름을 값에 비례시키면(흔한 실수) 넓이가 제곱으로 커져 실제 4배 차이가 화면에서는 4배가 아니라 16배 넓이 차이(왜곡 배율 4.00배)로 과장되지만, 넓이를 값에 비례시키면 왜곡이 사라집니다. 단계구분도는 지역의 원값을 명목 면적에 색칠하는데, 서울처럼 인구가 압도적으로 많은 지역은 원값 1위라도 인구 대비로는 5위(가장 낮음)일 수 있습니다 — 카토그램은 면적 자체를 인구에 비례시켜 이런 인구 대비 왜곡을 바로잡습니다. 히트맵은 행을 점수순으로 정렬하면 흩어져 있던 값들 사이에서 실제 패턴이 드러나고, 데이터-잉크 비율은 같은 막대그래프에서 그리드·테두리·그림자·입체선을 걷어내는 것만으로 잉크 비율이 44%에서 99%로 오릅니다.",
+  "more": "<b>버블차트의 왜곡이 특히 흔한 이유</b>: 대부분의 사람은 원을 볼 때 지름(또는 반지름)을 기준으로 크기를 비교합니다 — 넓이를 눈으로 정확히 어림하기는 어렵기 때문입니다. 그런데 「값에 비례해서 그린다」는 지시를 문자 그대로 반지름에 적용하면, 사람이 실제로 지각하는 넓이는 값의 제곱에 비례하게 되어 항상 실제보다 과장된 차이로 읽힙니다. 이 장면에서 값 비율 4배가 넓이 비율 16배로 뻥튀기된 것이 바로 이 원리입니다 — 올바른 버블차트는 반드시 <b>넓이</b>를 값에 비례시켜야 합니다.\n\n<b>단계구분도와 카토그램, 둘 다 필요한 이유</b>: 단계구분도(실제 지리 면적 + 색)는 「이 지역이 지도 위 어디에, 얼마나 큰 땅에 있는가」를 정확히 보여주지만 인구가 적은 넓은 지역이 시각적으로 과대평가됩니다. 카토그램(인구 비례 면적 + 인구 대비 색)은 그 왜곡을 바로잡아 「인구당 실제 수준」을 정확히 비교하게 해주지만, 대신 실제 지리적 형태를 잃습니다. 그래서 실무에서는 둘을 나란히 두고 「어디에 있는가」와 「인구 대비 얼마나 심한가」를 각각 따로 확인합니다.\n\n<b>도넛차트·도트맵도 같은 인코딩 가족입니다</b>: 도넛차트는 원그래프와 똑같이 조각의 각도로 값을 표시하지만 중심을 비워, 그 여백에 합계나 강조 수치를 따로 적거나 여러 계열을 겹친 링으로 쌓을 수 있다는 점이 다릅니다. 도트맵은 39장에서 이미 과밀·격자 집계로 실제로 다뤘는데, 좌표 하나하나를 점으로 찍어 <b>개별 위치</b>가 살아 있는 반면, 단계구분도는 행정구역 전체를 색 하나로 뭉뚱그려 개별 위치를 포기하는 대신 지역 전체의 값을 한눈에 비교하게 해줍니다 — 점을 지리 좌표에 그대로 투영하느냐, 행정구역 단위로 묶어 색칠하느냐의 차이입니다.",
+  "more_en": "Encoding value as area or color invites distortion. A treemap's area is literally the value (164 total across 3 categories). A bubble chart scaled by radius (a common mistake) turns a real 4x value gap into a 16x area gap — a 4.00x visual exaggeration; scaling by area removes it. A choropleth colors regions by raw value on nominal land area, so a populous region can rank #1 by raw value yet dead last (#5) per capita — a population cartogram corrects this by making area proportional to population. Sorting a heatmap's rows by score reveals a real underlying pattern, and stripping gridlines/border/shadow/fake-depth from a bar chart raises its data-ink ratio from 44% to 99% without changing the data itself.",
+  "problem": {
+   "q": "버블차트에서 「값에 비례해 그린다」를 반지름이 아니라 지름에 적용해도 같은 왜곡이 생길까요?",
+   "solution": "네, 지름도 반지름에 비례하는 값이므로(지름 = 반지름×2) 지름을 값에 비례시키는 것은 결국 반지름을 값에 비례시키는 것과 수학적으로 같습니다 — 어느 쪽이든 넓이는 반지름의 제곱에 비례하므로 똑같이 왜곡이 생깁니다. 왜곡을 없애려면 지름도 반지름도 아니라, 최종적으로 사람 눈에 보이는 <b>넓이</b> 자체가 값에 정비례하도록 반지름을 넓이의 제곱근(r = sqrt(value/π × 상수))으로 계산해야 합니다 — 이 장면의 「넓이 비례(올바른 계산)」가 바로 이 식을 쓴 것입니다."
+  }
+ },
+ "bda53_05": {
+  "ch": "빅데이터 분석 제53장 · 과목 V 총정리 — 데이터 시각화",
+  "sec": "53.5 같은 데이터를 세 개의 얼굴로",
+  "title": "같은 데이터를 세 개의 얼굴로 — 그리고 색의 한계",
+  "narr": "매장 6곳의 같은 4개 지표(성장률·만족도·반품률·재구매율)를 세 가지 방식으로 실제로 그립니다. 체르노프 페이스는 각 지표를 얼굴 폭·눈 크기·눈썹 기울기·입꼬리에 대응시켜, 사람이 표정을 직관적으로 읽는 능력을 빌립니다 — F매장은 모든 지표에서 앞서 웃는 큰 얼굴로, A매장은 작고 처진 얼굴로 나타납니다. 스타차트는 같은 값을 4개 축의 중심으로부터의 거리로 표현해 다각형 크기로 종합 성과를 비교합니다. 평행좌표계는 4개 축을 나란히 세우고 매장마다 선으로 이어, 성장률과 재구매율처럼 상관계수 0.99에 이르는 강한 관계를 두 축 사이 선의 기울기가 나란한 모습으로 보여줍니다. 마지막으로 색상 하나로 범주를 늘려가 보면, N=8일 때 색상환 간격은 정확히 45도(밀러가 말한 구분 가능 한계)이고 N=10부터는 36도로 좁아져 인접한 색이 헷갈리기 시작합니다.",
+  "more": "<b>세 방식이 서로 무엇을 감추는가</b>: 체르노프 페이스는 사람의 얼굴 인식 능력을 빌려 「전반적으로 좋아 보이는가」를 직관적으로 전달하지만, 정확한 수치나 어느 지표가 특히 강한지는 감춥니다(엄밀한 데이터 그래픽으로 인정받지 못하는 이유이기도 합니다 — 보는 사람마다 인상이 다르게 읽힐 수 있습니다). 스타차트는 다각형의 「크기」로 종합 수준은 보여주지만, 축이 많아지고 값이 비슷하면 다각형 모양이 서로 겹쳐 알아보기 어려워집니다. 평행좌표계는 변수 사이의 관계(경향성)를 가장 잘 보여주지만, 대상이 많아지면 선이 뒤엉켜(과밀, 39장) 오히려 못 읽게 됩니다.\n\n<b>45도라는 숫자가 갖는 의미</b>: 이 장면에서 실제로 계산한 「색상 8개일 때 정확히 45도 간격」은 우연이 아니라 360도를 8등분한 값입니다. 색상 수를 늘릴수록 이 간격은 좁아지고(360/N), 어느 시점부터는 인접한 두 색이 사람 눈에 거의 같은 색으로 보이기 시작합니다 — 밀러가 실험으로 확인한 「약 8종」이라는 한계와, 색상환을 등분한 기하학적 계산이 실제로 맞아떨어지는 지점을 눈으로 확인한 것입니다.",
+  "more_en": "The same 6-store, 4-metric dataset is drawn three ways. Chernoff faces borrow human facial-expression recognition to convey overall impression but hide exact values and which metric drives it. A star chart shows overall magnitude via polygon size but overlapping polygons get hard to read as more axes or series are added. Parallel coordinates best reveal relationships between variables — a 0.99 correlation between growth and revisit rate shows up as near-parallel line segments — but too many series causes clutter (overplotting, ch.39). Spacing swatches evenly around the color wheel shows the gap is exactly 45 degrees at N=8 (matching Miller's cited ~8-color limit) and narrows to 36 degrees at N=10, where adjacent hues start to be confused.",
+  "problem": {
+   "q": "성장률과 재구매율의 상관계수가 0.99로 매우 높다면, 평행좌표계에서 이 두 축을 서로 멀리 떨어뜨려 놓는 것과 바로 옆에 붙여 놓는 것 중 어느 쪽이 관계를 더 잘 보여줄까요?",
+   "solution": "바로 옆에 붙여 놓는 쪽이 관계를 더 잘 보여줍니다. 평행좌표계에서 상관관계는 인접한 두 축을 잇는 선분들의 기울기 패턴으로 드러나는데, 상관계수가 높을수록(강한 양의 상관) 선분들이 서로 거의 평행하게(기울기가 비슷하게) 나타납니다. 두 축이 멀리 떨어져 있으면 그 사이에 다른 축들이 끼어들어 선이 여러 번 꺾이므로 두 축만의 관계를 눈으로 바로 잡아내기 어렵습니다. 그래서 평행좌표계를 설계할 때는 강하게 연관된 변수끼리 축 순서를 인접하게 배치하는 것이 실무 팁입니다."
+  }
+ }
+}

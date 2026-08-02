@@ -1,0 +1,71 @@
+{
+ "bda54_01": {
+  "ch": "빅데이터 분석 제54장 · 가설검정을 넓히다",
+  "sec": "54.1 다중비교의 함정과 일원배치 분산분석",
+  "title": "다중비교의 함정과 일원배치 분산분석",
+  "narr": "지금까지 두 집단을 비교할 때는 t검정 하나면 충분했습니다. 그런데 <b>세 집단 이상</b>이라면 어떨까요? \"짝지어 t검정을 세 번(A-B, B-C, A-C) 하면 되지 않을까\"라는 생각이 들 수 있습니다. 하지만 실제로 아무 차이가 없는 세계(세 집단 모두 같은 모집단)에서 이 짓을 1200번 반복 시뮬레이션해 보면, <b>적어도 하나가 우연히 유의(p&lt;0.05)했던 비율은 11.1%</b>였습니다 — 검정 하나의 유의수준 5%보다 두 배 이상 큽니다. <b>분산분석(ANOVA)</b>은 세 집단을 \"한 번에\" 비교해 이 문제를 피합니다. 총제곱합 SST=577.11을 집단간 SSB=507.11과 집단내 SSW=70으로 실제로 쪼개고, F=MSB/MSW=54.33을 F_crit=3.68과 비교합니다 — F가 훨씬 크므로(p≈0) 세 학습법의 평균은 같지 않다고 판정합니다.",
+  "more": "<b>1종 오류가 왜 누적되는가</b>: 검정 하나의 유의수준을 α=0.05로 정했다는 것은 \"귀무가설이 참일 때 잘못 기각할 확률이 5%\"라는 뜻입니다. 그런데 검정을 여러 번 하면, 그중 <b>하나라도</b> 잘못 기각할 확률이 훨씬 커집니다 — 세 번의 독립적인 검정이라면 이론적으로 1−(1−0.05)³≈14.3%까지 오릅니다(화면의 실제 시뮬레이션은 세 쌍이 데이터를 공유해 완전히 독립은 아니므로 11.1%로 이보다 낮게 나왔습니다 — 그래도 5%보다는 훨씬 큽니다). 비교 횟수가 늘어날수록 이 값은 계속 커집니다.\n\n<b>ANOVA가 주는 것과 안 주는 것</b>: F검정은 \"적어도 한 집단은 다르다\"까지만 말해 줄 뿐, <b>어느 집단이 다른지</b>는 알려주지 않습니다. 그것을 알려면 ANOVA로 전체 유의성을 먼저 확인한 뒤 <b>사후검정(Tukey HSD 등, 다중비교를 감안해 유의수준을 보정하는 절차)</b>으로 넘어가야 합니다 — 처음부터 보정 없이 짝비교만 반복하면 이번 장면에서 본 함정에 다시 빠집니다.\n\n<b>F통계량의 의미</b>: F=MSB/MSW는 \"집단간 변동을 집단내 변동(오차)의 크기로 잰 비율\"입니다. 만약 집단 간에 진짜 차이가 없다면 두 변동은 비슷한 크기여야 하므로 F는 1 근처에 머뭅니다. F가 F_crit보다 훨씬 크다는 것은, 집단간 변동이 순전한 우연(표본의 흔들림)만으로는 설명하기 어려울 만큼 크다는 뜻입니다.",
+  "more_en": "Running pairwise t-tests across three groups inflates the false-positive rate: simulating 1200 replicates where all three groups truly share one population, at least one of the three pairwise tests came out 'significant' 11.1% of the time — over twice the nominal 5%. One-way ANOVA avoids this by comparing all groups at once: it splits total sum of squares SST=577.11 into between-group SSB=507.11 and within-group SSW=70, then compares F=MSB/MSW=54.33 against F_crit=3.68. Since F is far larger (p≈0), the three teaching methods do not share the same mean. Note ANOVA only says 'at least one group differs' — identifying which one requires a post-hoc test that corrects for multiple comparisons.",
+  "problem": {
+   "q": "일원배치 분산분석에서 F값이 1보다 훨씬 작게(예: 0.3) 나왔다면, 이것을 어떻게 해석해야 할까요?",
+   "solution": "F=MSB/MSW가 1보다 훨씬 작다는 것은 집단간 변동(MSB)이 집단내 변동(MSW)보다도 작다는 뜻으로, 집단들이 서로 다르다고 볼 근거가 전혀 없다는 신호입니다(귀무가설을 기각할 수 없습니다). 극단적으로 작은 F는 흔히 데이터를 잘못 나눴거나(예: 무작위 배정 오류), 혹은 우연히 집단들이 비정상적으로 비슷하게 뽑힌 경우에 나타날 수 있습니다 — 어느 쪽이든 \"집단간 차이가 있다\"는 결론과는 정반대 방향입니다."
+  },
+  "xref": [
+   {
+    "href": "math.html",
+    "scene": "ch16_05",
+    "label": "곱셈정리와 독립",
+    "sub": "수학 16장 · 확률",
+    "track": "math"
+   }
+  ]
+ },
+ "bda54_02": {
+  "ch": "빅데이터 분석 제54장 · 가설검정을 넓히다",
+  "sec": "54.2 이원배치 분산분석과 교호작용",
+  "title": "이원배치 분산분석과 교호작용",
+  "narr": "요인이 두 개(학습법·사전지식)라면 이원배치 분산분석으로 두 요인의 효과와 <b>교호작용</b>까지 한 번에 봅니다. 총제곱합 SST=419.75를 SSA(학습법)=182.25, SSB(사전지식)=6.25, SSAB(교호작용)=132.25, SSE(잔차)=99로 실제로 쪼갠 결과, 학습법의 주효과는 유의(F=22.09, p=0.0005)하지만 사전지식의 주효과는 유의하지 않습니다(F=0.76, p=0.401). 그런데 <b>교호작용은 강하게 유의</b>합니다(F=16.03, p=0.0017) — 강의식은 사전지식이 높을수록 점수가 오르지만(66.5→73.5), 토론식은 오히려 낮을수록 점수가 높습니다(79→74.5점). 두 선이 교차하는 그림이 바로 이 현상입니다.",
+  "more": "<b>주효과만 보면 위험한 이유</b>: 만약 교호작용을 확인하지 않고 사전지식의 주효과(F=0.76, p=0.401)만 봤다면 \"사전지식은 점수에 영향이 없다\"고 잘못 결론 내릴 뻔했습니다. 실제로는 사전지식의 영향이 <b>0이 아니라 학습법에 따라 방향이 반대로 뒤바뀌어서 평균적으로 상쇄</b>된 것입니다 — 두 효과가 서로 지워버려 주효과 검정에는 안 잡히지만, 교호작용 검정에는 뚜렷이 잡힙니다.\n\n<b>제곱합의 자유도</b>: 2×2 설계에서 dfA=dfB=dfAB=(2−1)×(2−1)=1이고, 잔차의 자유도는 ab(n−1)=2×2×(4−1)=12입니다. 요인의 수준이 늘어날수록(예: 3×3) 자유도도 늘어나 F_crit이 달라지므로, 각 효과마다 F_crit을 따로 구해 비교해야 합니다.\n\n<b>실무에서 읽는 순서</b>: 이원배치는 반드시 <b>교호작용부터</b> 확인합니다. 교호작용이 유의하면 주효과의 해석은 조심스러워야 합니다(\"학습법의 효과\"가 아니라 \"이 사전지식 수준에서 이 학습법의 효과\"로 좁혀 말해야 합니다). 교호작용이 유의하지 않을 때만 주효과를 독립적으로 해석하는 것이 안전합니다.",
+  "more_en": "With two factors, two-way ANOVA reveals both main effects and their interaction in one test. Splitting SST=419.75 into SSA(method)=182.25, SSB(prior knowledge)=6.25, SSAB(interaction)=132.25, and SSE(residual)=99 shows the method's main effect is significant (F=22.09, p=0.0005) while prior knowledge's main effect is not (F=0.76, p=0.401) — yet the interaction is strongly significant (F=16.03, p=0.0017): lecture-style scores rise with prior knowledge (66.5→73.5) while discussion-style scores fall (79→74.5), crossing lines on the plot. Reading main effects before checking interaction is a classic trap — here the seemingly 'no effect' of prior knowledge is really two opposite effects canceling out.",
+  "problem": {
+   "q": "교호작용 그래프에서 두 선이 완전히 평행하다면, 이는 무엇을 의미할까요?",
+   "solution": "두 선이 평행하다는 것은 한 요인의 효과가 다른 요인의 수준과 무관하게 항상 같은 크기·방향으로 나타난다는 뜻입니다 — 즉 교호작용이 없다는 신호입니다(SSAB가 작고 F도 F_crit 아래에 머물게 됩니다). 이 경우에는 두 주효과를 각각 독립적으로 해석해도 안전합니다: \"학습법의 효과는 사전지식 수준과 상관없이 일정하다\"고 말할 수 있습니다. 이번 장면처럼 선이 교차하거나 기울기가 크게 다르면 교호작용이 있다는 뜻이고, 주효과 해석에 반드시 단서를 달아야 합니다."
+  }
+ },
+ "bda54_03": {
+  "ch": "빅데이터 분석 제54장 · 가설검정을 넓히다",
+  "sec": "54.3 이항분포 확률과 두 모집단 비율 검정",
+  "title": "이항분포 확률과 두 모집단 비율 검정",
+  "narr": "불량률 p=0.12인 공정에서 n=15개를 검사할 때 \"불량이 1개 이하일 확률\"은 조합 C(n,k)로 직접 계산하는 <b>이항 정확확률</b>입니다: P(X≤1) = 0.4476. 정규분포로 근사하면(연속성 수정 포함) 0.4058로, 오차는 0.0418입니다 — n이 작고 p가 한쪽으로 치우칠수록 정규근사가 눈에 띄게 어긋남을 실측으로 확인할 수 있습니다. 이 근사가 바로 <b>두 모집단 비율 검정</b>의 토대입니다: 공장1(25/200=12.5%)과 공장2(6/150=4.0%)의 불량률 차이가 진짜인지, 두 표본을 합친 <b>합동비율</b> 0.0886으로 표준오차를 구해 z=2.770을 계산하면 p=0.0056 — 0.05보다 작으므로 두 공장의 불량률은 우연이라 보기 어려운 차이입니다.",
+  "more": "<b>왜 조합(nCk)으로 직접 계산하는가</b>: 이항확률 P(X=k)=C(n,k)p^k(1−p)^(n−k)는 \"n번 중 정확히 k번 성공하는 경우의 수 × 그 순서 하나의 확률\"입니다. C(n,k)는 어떤 k개가 성공인지 순서를 고려하지 않고 세는 조합의 수이므로, 확률 계산이 곧 경우의 수 세기와 직결됩니다 — 근사가 아니라 정확한 값입니다.\n\n<b>정규근사가 왜 필요한가</b>: n이 커지면 C(n,k)를 직접 계산하기 번거롭고(큰 수의 곱), 무엇보다 <b>두 비율의 차이</b>처럼 이항분포 두 개를 결합한 통계량은 정확분포를 다루기 어렵습니다. 중심극한정리 덕분에 np와 n(1−p)가 충분히 크면(관행적으로 둘 다 5 이상) 이항분포는 평균 np, 분산 np(1−p)인 정규분포로 잘 근사되고, 연속형과 이산형의 차이를 메우는 <b>연속성 수정(±0.5)</b>을 더하면 정확도가 더 올라갑니다. 화면의 예처럼 np=1.8로 5에 못 미치면 근사 오차가 커질 수 있다는 것을 실측으로 보여 준 것입니다.\n\n<b>합동비율을 쓰는 이유</b>: 귀무가설 H₀: p1=p2(두 비율이 같다)을 참이라고 가정하면, 두 표본은 사실 <b>같은 모비율</b>에서 나온 것이므로 그 공통 비율을 가장 잘 추정하는 방법은 두 표본을 합쳐서(x1+x2)/(n1+n2)로 계산하는 것입니다 — 각 표본의 개별 비율을 따로 쓰면 귀무가설의 전제(p1=p2)와 모순됩니다.",
+  "more_en": "Exact binomial probability via combinatorics: with defect rate p=0.12 and n=15 inspected, P(X≤1)=0.4476 computed directly from C(n,k). The normal approximation (with continuity correction) gives 0.4058, an error of 0.0418 — visible because np=1.8 falls short of the rule-of-thumb threshold of 5. This same approximation underlies the two-proportion z-test: comparing factory 1 (25/200=12.5%) against factory 2 (6/150=4.0%), pooling under the null hypothesis p1=p2 gives a pooled proportion of 0.0886, yielding z=2.770 and p=0.0056 — small enough to conclude the difference is real.",
+  "problem": {
+   "q": "두 모집단 비율 검정에서 왜 각 표본의 비율(p1, p2)이 아니라 '합동비율'로 표준오차를 계산할까요?",
+   "solution": "검정의 출발점인 귀무가설 H₀는 \"p1=p2, 즉 두 모비율이 같다\"는 것입니다. 이 가정이 참이라면 두 표본은 사실상 하나의 공통된 모비율에서 나온 것이므로, 그 공통 비율을 가장 정확하게 추정하는 방법은 두 표본을 합쳐 (x1+x2)/(n1+n2)로 계산하는 것입니다. 만약 대신 p1과 p2를 각각 따로 써서 표준오차를 구하면, 이미 \"두 비율이 다르다\"는 것을 전제로 계산하는 셈이 되어 귀무가설 하의 검정 논리와 모순됩니다."
+  }
+ },
+ "bda54_04": {
+  "ch": "빅데이터 분석 제54장 · 가설검정을 넓히다",
+  "sec": "54.4 분포 적합도 검정 — 콜모고로프-스미르노프",
+  "title": "분포 적합도 검정 — 콜모고로프-스미르노프",
+  "narr": "이 자료가 정말 평균 10개월인 지수분포를 따를까요? <b>경험분포함수</b> Fn(x)(표본을 크기순으로 세워 만든 계단 모양 누적확률)와 <b>이론분포</b> F(x)=1−e^(−x/10)를 겹쳐 그리고, 둘 사이의 <b>가장 큰 수직 거리 D</b>를 실제로 잽니다 — 이 표본(부품 수명 12건)에서는 x=5개월 지점에서 D=0.310이 최댓값입니다. D의 확률분포(콜모고로프 분포)를 급수로 근사해 p=0.199를 얻고, 유의수준 0.05의 임계값 D_crit=0.392보다 D가 작으므로, 이 표본은 \"평균 10개월 지수분포\"라는 가정과 충돌하지 않는다고 판정합니다.",
+  "more": "<b>D는 왜 '가장 큰' 거리를 쓰는가</b>: 경험분포와 이론분포가 전체적으로는 비슷해도 어느 한 구간에서 크게 어긋난다면, 그 지점이 \"이 분포가 아니다\"라는 가장 강한 증거입니다. 평균적인 어긋남 대신 최댓값을 쓰는 것이 콜모고로프-스미르노프 검정의 핵심 아이디어입니다. 계단(경험분포) 하나에서 한 관측값 지점 좌우로 값이 뛰므로, D는 항상 각 표본점의 <b>바로 앞과 뒤</b> 두 지점에서 후보를 확인해야 정확히 잡을 수 있습니다.\n\n<b>모수를 미리 정했다는 것의 의미</b>: 이번 검정은 평균 10개월이라는 값을 표본에서 추정하지 않고 <b>미리 주어진 값</b>으로 썼습니다. 만약 표본의 평균을 그대로 지수분포의 모수로 써서 검정한다면(예: 릴리포스 검정), 데이터가 그 분포에 맞춰지도록 모수를 뽑은 셈이라 표준 콜모고로프 임계값보다 더 엄격한 임계값을 써야 합니다 — 안 그러면 적합도를 과대평가하게 됩니다.\n\n<b>p값이 크다고 '증명된 것'은 아닙니다</b>: p=0.199는 \"이 정도 D가 우연히 나올 확률이 낮지 않다\"는 뜻으로, 지수분포 가정을 기각할 근거가 부족하다는 것이지 그 가정이 옳다고 증명하는 것이 아닙니다. 표본이 더 커지면 같은 정도의 어긋남도 더 쉽게 유의해질 수 있습니다 — 다른 모든 가설검정과 같은 논리입니다.",
+  "more_en": "Does this sample really follow an exponential distribution with mean 10 months? Overlaying the empirical distribution function (a step function built from the sorted sample) against the theoretical F(x)=1−e^(−x/10), and measuring the largest vertical gap D between them, gives D=0.310 at x=5 months for this 12-item sample. Approximating the Kolmogorov distribution of D by its series expansion yields p=0.199; since D falls below the 0.05 critical value D_crit=0.392, the sample is consistent with the assumed exponential(10) distribution — insufficient evidence to reject it, not proof that it's correct.",
+  "problem": {
+   "q": "표본 크기 n이 두 배로 늘어나면, 똑같은 D값이라도 p값은 커질까요 작아질까요?",
+   "solution": "p값은 작아집니다(더 유의해집니다). 콜모고로프 통계량의 근사에서 λ=D√n이므로, n이 커지면 같은 D라도 λ가 커지고, p=2Σ(−1)^(k−1)e^(−2k²λ²)는 λ가 클수록 빠르게 작아집니다. 이는 표본이 클수록 \"우연히 이 정도 어긋날 확률\"이 낮아진다는 뜻으로, 다른 가설검정들과 같은 논리입니다 — 표본이 크면 작은 어긋남도 더 쉽게 통계적으로 유의해집니다."
+  }
+ },
+ "bda54_05": {
+  "ch": "빅데이터 분석 제54장 · 가설검정을 넓히다",
+  "sec": "54.5 대응자료 검정 — 맥니마와 비모수로 가는 길",
+  "title": "대응자료 검정 — 맥니마와 비모수로 가는 길",
+  "narr": "같은 대상을 전후로 비교하는 <b>대응 이분형 자료</b>는 2×2표에서 <b>바뀐 칸(b, c)만</b>이 진짜 변화를 말해 줍니다 — 있음→있음(40명)과 없음→없음(30명)은 변화가 없었으니 방향 판단에 아무 정보가 없습니다. 맥니마 통계량 (|b−c|−1)²/(b+c) = 5.633, p=0.0176으로 변화가 한쪽으로(없음→있음 쪽으로) 쏠렸음을 확인합니다. 그런데 대응자료가 <b>연속형</b>이고 <b>정규성이 깨지면</b> 이야기가 달라집니다 — 14명의 스트레스지수 변화에서 13명은 줄었지만 1명이 +45로 튀자, 대응표본 t검정은 이 이상값이 분산을 부풀려 p=0.475(유의하지 않음)를 내놓습니다. 하지만 값 대신 <b>순위</b>만 쓰는 윌콕슨 부호순위 검정은 이상값의 크기에 휘둘리지 않아 p=0.017(유의함)을 내놓습니다 — 같은 데이터, 정반대 결론입니다.",
+  "more": "<b>맥니마 검정이 대각선(a, d)을 버리는 이유</b>: a(있음→있음)와 d(없음→없음)는 광고를 보기 전이나 후나 결론이 똑같은 사람들입니다 — \"바뀌었는가\"를 묻는 질문에는 아무 정보를 주지 않습니다. 오직 b(있음→없음)와 c(없음→있음)만 실제로 마음이 바뀐 사람들이고, 그 두 방향의 크기가 비슷한지(우연한 요동)와 한쪽으로 쏠렸는지(진짜 변화)를 판정하는 것이 맥니마 검정의 논리입니다. 연속성 수정 (|b−c|−1)²을 쓰는 이유는 이산적인 도수 자료를 연속분포(χ²)로 근사할 때 생기는 오차를 줄이기 위함입니다.\n\n<b>t검정과 윌콕슨이 갈리는 이유</b>: 대응표본 t검정은 <b>차이의 평균과 표준편차</b>를 그대로 씁니다 — 이상값 하나가 표준편차를 크게 부풀리면 t=평균/(표준편차/√n)의 분모가 커져 통계량 자체가 작아집니다. 반면 윌콕슨 부호순위 검정은 차이의 <b>절댓값 크기 순위</b>만 씁니다 — 이상값이 아무리 커도 \"가장 큰 순위 하나\"를 차지할 뿐, 그 순위의 크기(1등인지 14등인지)만 중요하고 실제 값(+45인지 +4500인지)은 통계량에 영향을 주지 않습니다. 이것이 순위 기반 방법이 이상값에 <b>강건(robust)</b>하다고 불리는 이유입니다.\n\n<b>실무 판단 순서</b>: 대응표본 t검정을 쓰기 전에 차이값들의 분포를 반드시 살펴봐야 합니다(히스토그램·정규성 검정·이상값 확인). 정규성이 뚜렷이 깨지거나 이상값이 있으면 윌콕슨으로 바꾸는 것이 안전합니다 — 이번 장면처럼 두 검정의 결론이 정반대일 수 있기 때문입니다. 반대로 차이가 대체로 종 모양이면 t검정이 검정력(진짜 차이를 잡아낼 확률)이 더 높으므로 굳이 순위 기반으로 바꿀 필요는 없습니다.",
+  "more_en": "For paired binary data, only the discordant cells (b, c) of a 2×2 table carry information about change — concordant cells (a, d) represent people whose answer didn't change. McNemar's statistic (|b−c|−1)²/(b+c)=5.633 (p=0.0176) detects a lopsided shift. For paired continuous data, things differ when normality breaks: with 14 paired stress-index measurements where 13 decreased but one spiked +45, the paired t-test's variance is inflated by that single outlier, giving p=0.475 (not significant). The Wilcoxon signed-rank test, which uses only the rank of each difference's magnitude rather than its raw value, stays robust to the outlier and gives p=0.017 (significant) — the same data, opposite conclusions. Always inspect the distribution of paired differences before trusting a t-test; switch to a rank-based test when normality is doubtful.",
+  "problem": {
+   "q": "맥니마 표에서 b=c(예: b=15, c=15)라면 통계량과 판정은 어떻게 될까요?",
+   "solution": "b=c이면 |b−c|=0이므로 통계량 (|b−c|−1)²/(b+c)의 분자는 (0−1)²=1이 되어 아주 작은 값(1/(b+c))이 나오고, p값은 1에 가까워 귀무가설을 기각할 근거가 전혀 없습니다. 이는 \"있음→없음\"과 \"없음→있음\"으로 바뀐 사람 수가 똑같다는 뜻이므로, 변화가 있었더라도 방향이 상쇄되어 전체적으로는 어느 쪽으로도 쏠리지 않았다고 판정하는 것이 논리적으로 타당합니다."
+  }
+ }
+}
