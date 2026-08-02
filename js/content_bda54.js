@@ -541,7 +541,7 @@
           ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x1,y1,4.2,0,7); ctx.fill();
           ctx.beginPath(); ctx.arc(x2,y2,4.2,0,7); ctx.fill();
           ctx.font='600 11.5px sans-serif'; ctx.textAlign='left';
-          ctx.fillText(nm, x2+8, y2+4);
+          ctx.fillText(nm, x2+8, y2+(mi===0?-8:16));
         });
         judgeBox(ctx, bx0, pBot+22, bx1-bx0, 30, true, '학습법 효과가 사전지식에 따라 달라짐 → 두 요인을 따로 못 봅니다');
       }
@@ -787,7 +787,7 @@
         ctx.font='12px sans-serif'; ctx.fillStyle=DIM;
         ctx.fillText('이번엔 연속형 대응자료 — 프로그램 전후 스트레스지수 14명', W*0.04, ry);
         var bx0=W*0.49, bx1=W*0.965, pTop=30, pBot=170, xmax=14;
-        frame(bx0,bx1,pTop,pBot,'참가자','전후 차이(after−before)')(ctx);
+        frame(bx0,bx1,pTop,pBot,null,'전후 차이(after−before)')(ctx);
         function PXp(i2){ return bx0+(i2+0.5)/14*(bx1-bx0); }
         var ymin=-15, ymax=48;
         function PYp(v){ return pBot-(v-ymin)/(ymax-ymin)*(pBot-pTop); }
