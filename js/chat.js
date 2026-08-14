@@ -88,7 +88,7 @@
         'border-radius:999px;padding:7px 14px;font-size:13.5px;font-family:inherit;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3);white-space:nowrap;}',
       '.cw-fab:hover{filter:brightness(1.08);}',
       '.cw-fab.cw-cool{background:#6b6f7a;cursor:default;font-variant-numeric:tabular-nums;}',
-      '.cw-key{display:inline-block;margin-left:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:0 5px;line-height:15px;}',
+      '.cw-key{display:inline-block;margin-left:5px;font-size:11px;font-weight:700;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:0 5px;line-height:15px;}',
       '.cw-sub{font-size:11px;color:var(--text-1,#e9e7e0);background:rgba(0,0,0,.42);border-radius:6px;padding:1px 8px;pointer-events:none;line-height:1.5;}',
       '.cw-sub.zero{color:#f0a0a0;}',
       '.cw-ov{position:fixed;inset:0;z-index:40;display:none;pointer-events:none;}',   /* 배경 안 가림(흐림·어둡게 제거)·클릭 통과 → 배경 내용 참고 가능 */
