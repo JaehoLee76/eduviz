@@ -164,3 +164,20 @@ git push origin main && gh api -X POST repos/JaehoLee76/eduviz/pages/builds
 
 ## 8. AI 튜터·계정·메모 백엔드 (요약 — 상세 매뉴얼은 `MANUAL.md`)
 정적 프론트(GitHub Pages) + **Cloudflare Worker** 백엔드(`worker/eduviz-chat.js`, URL `https://still-thunder-3989.iamleejaeho.workers.dev` → `js/chat-config.js`의 `EDUVIZ_CHAT_ENDPOINT`). AI=Cloudflare **Workers AI**(`@cf/meta/llama-3.3-70b-instruct-fp8-fast`, 바인딩 `AI`; 외부 egress 없어 지역차단 불가 — Gemini·Groq는 한국 엣지 차단으로 폐기). 데이터=**KV**(`EDUVIZ_KV`: `rpd:*`/`rpm:*`=질문예산, `user:<sub>`=학습위치·메모·대화요약). 로그인=Google OAuth(GIS, 시크릿 없음; Client ID 발급 대기 → 발급 시 사용자별 클라우드 동기화 활성). **요금: 전부 무료 — Cloudflare에 결제수단(카드) 미등록 시 한도 초과해도 요청 실패만 하고 절대 자동 과금 안 됨(유료 전환 명시해야만 과금).** 플랫폼 연동·데이터 흐름·요금표·AI 방식/한계/품질·사용법 전체는 **`MANUAL.md`** 참조.
+
+## 9. ADP Master — 시험대비 학습 트랙 (사령관 개인 학습 + 콘텐츠화, 2026-08-14 착수)
+목표: **ADP(데이터분석전문가) 실기 합격.** 방식: 실제 문제를 조작 시각화로 이해 → 질문으로 근본 돌파 → 반복·암기노트로 굳힘. `/teach` 스킬 기반 개인 학습이자, 성숙하면 EduViz 콘텐츠로 승격.
+- **워크스페이스(비배포)**: `_content/BDA/_teach/`. 마스터플랜·로드맵·진행률 = **`_content/BDA/_teach/ADP_MASTER_PLAN.md`**(새 세션은 이 파일부터 읽기). 미션=`MISSION.md`, 학습기록=`learning-records/`, 실제 시험정보·복원문제 출처=`RESOURCES.md`, 원본=`_content/BDA/ADP0[1-3].pdf`+추출본 `_extract/`.
+- **시험 실체(확인)**: 4시간·실데이터·**R/Python 택일(Python 정식)**·오픈북. **통계 40 + 머신러닝 60 = 100, 75점 합격**. 답안=코드+표·결론 서술.
+- **전략 = 정상정복**: 실기부터 정복 → 필기·순수이론은 암기노트로 보충(실기 실력이 필기 IV·II·V 과반 커버).
+- **콘텐츠 3종**: ①실전 실험실(lab) ②암기노트(note, 인쇄·회상용) ③질문정리 장면(recap, 간격반복).
+- **★lab 골드 템플릿(모든 실험실 필수 준수)**:
+  1. **주어진 데이터 필수** — 문제에 구체적 숫자표를 제시하고 그 숫자를 실계산. 슬라이더로 데이터를 만들어내 '풀 문제'를 없애지 말 것(슬라이더는 '탐구 모드'로 분리). **[문제]/[풀이] 경계를 화면에 명시.**
+  2. **실기 답안 5단계 관통**: ①가설 ②전제검정(정규성·등분산…, 깨지면 대체검정) ③검정통계량 실계산(표) ④판정 ⑤결론 서술(+사후검정).
+  3. **골든룰**: 표시값 전부 실계산. p값은 분포 CDF 직접 적분(불완전베타 betacf/betai 등), **node로 이론값 대조 검증 후** 배포. 난수 고정 시드.
+  4. **자기완결 단일 HTML**(인라인 CSS/JS·외부의존 0) → 더블클릭 열림. 여는 법 안내는 VS Code Live Server(다중파일용)도 가능.
+  5. **Python 전용**(scipy·statsmodels·numpy·pandas·sklearn), **R 함수·패키지명 노출 금지**, 출처 표기 금지, 존댓말, 폰트 11px+.
+  6. Q&A 유도 블록으로 학습자가 튜터에게 근본 질문을 하게.
+- **로드맵(요약)**: 통계 파트 11유형(분산분석✅·이항·카이제곱·비율·t·베이즈·이원배치·비모수·편상관·생존/분위수·선형계획) → 머신러닝 파트(전처리·분할·회귀3종+RMSE·분류+AUC·PCA·시계열) → 필기·이론 암기노트(격차분석 `_extract/gap_subj*.md`). 상세·체크리스트는 `ADP_MASTER_PLAN.md`.
+- **스킬화**: lab 제작 반복 공정은 `.claude/skills/adp-lab/`(실제문제 확보→데이터 고정·정답 node검증→템플릿 HTML→열기)로 만들 것.
+- **등록 형태**: 1단계 워크스페이스 허브 `index.html`(진행률·목록), 2단계 성숙 후 배포 EduViz 콘텐츠(bda 트랙 'ADP 실기 마스터' 장 묶음 또는 별도 트랙)로 승격.

@@ -1,0 +1,180 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실제 ADP 예제 · 회귀모형 선택 실험실</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#c0398f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#c0398f;--accent2:#e86fbf;--ink:#2b2730;--soft:#5c5663;--paper:#faf7fb;--card:#fff;
+ --rule:#e4d7e4;--code:#f4eef4;--good:#1f9d6b;--warn:#c9772a;--pt:#4a86e8;--fit:#c0398f;--res:#e0952b;}
+@media(prefers-color-scheme:dark){:root{--accent:#e86fbf;--accent2:#f3a3d6;--ink:#ece7ef;--soft:#b3a9b8;
+ --paper:#171319;--card:#211a24;--rule:#3a2f3c;--code:#2a2230;--good:#5fd6a8;--warn:#e0a35a;--pt:#6fa8ff;--fit:#f078c4;--res:#f0b45a;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.55rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.94rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.1rem;margin:1.7rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)} .prob .src{font-size:.76rem;color:var(--soft);margin-top:.4rem}
+.data{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;background:var(--code);border-radius:8px;padding:.5rem .7rem;margin:.5rem 0;overflow-x:auto}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.seg{display:inline-flex;border:1.5px solid var(--rule);border-radius:9px;overflow:hidden;margin:.3rem 0}
+.seg button{font:inherit;font-size:.9rem;font-weight:700;padding:.5rem .95rem;background:var(--card);color:var(--soft);border:0;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.55rem;margin:.9rem 0}
+.stat{background:var(--code);border-radius:9px;padding:.55rem .7rem}
+.stat .k{font-size:.66rem;letter-spacing:.05em;color:var(--soft);text-transform:uppercase}
+.stat .v{font-size:1.08rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:.1rem}
+.match{font-size:.8rem;color:var(--good);margin-top:.3rem}
+.eq{font-family:"SF Mono",monospace;font-size:.92rem;background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:8px;padding:.5rem .7rem;margin:.5rem 0;overflow-x:auto}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.95rem}
+.note{border-left:3px solid var(--res);padding:.3rem .8rem;margin:.7rem 0;color:var(--soft);font-size:.9rem}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.79rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.92rem}
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.3em}
+small.src2{display:block;color:var(--soft);font-size:.78rem;margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.7rem}
+</style></head><body><div class="wrap">
+
+<p class="eyebrow">봉우리 ① · 실제 ADP 예제 (원본 그대로)</p>
+<h1>회귀모형 선택 실험실<small>지어낸 문제가 아닙니다 — ADP 가이드 과목 IV의 실제 예제입니다. 차수를 바꾸며 R²·잔차를 직접 보세요.</small></h1>
+
+<div class="prob">
+  <b>[예제]</b> 다음 데이터세트에 <b>적절한 회귀모형을 찾으시오.</b>
+  <div class="data">x = 1, 2, 3, 4, 5, 6, 7, 8, 9<br>y = 5, 3, 2, 3, 4, 6, 10, 12, 18</div>
+  <div class="src">출처: 데이터 분석 전문가 가이드, 과목 IV 통계분석(원본 <code>subj4_데이터분석.txt</code> 9110~9520). 원본은 R(<code>lm</code>). 여기선 Python·실계산으로 재현.</div>
+</div>
+
+<div class="lab">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+    <div class="seg" id="seg">
+      <button data-d="1">1차 (직선)</button>
+      <button data-d="2" class="on">2차 (곡선)</button>
+      <button data-d="3">3차</button>
+      <button data-d="4">4차</button>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--pt)"></span>실제 데이터 9개</span>
+      <span><span class="dot" style="background:var(--fit)"></span>적합 곡선</span>
+    </div>
+  </div>
+  <canvas id="cv" height="300"></canvas>
+  <div class="eq" id="eq"></div>
+  <canvas id="rv" height="150" style="margin-top:.6rem"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--res)"></span>잔차(실제−예측) · 0 주위로 흩어지면 좋고, 곡선 패턴이 남으면 차수가 부족</span></div>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="match" id="match"></div>
+<div class="concl" id="concl"></div>
+<div class="note" id="note"></div>
+
+<h2>Python으로 (실기 답안)</h2>
+<pre id="py"></pre>
+
+<div class="ask">
+  <b>이제 차수를 눌러 보며 물으세요 — 근본까지.</b>
+  <ul>
+    <li><b>1차</b>를 누르면: 잔차도가 <b>U자로 휘죠?</b> 교재가 "x²를 추가하라"고 판단한 바로 그 증거입니다. 왜 잔차가 휘면 항을 더해야 하나요?</li>
+    <li><b>2차</b>: 잔차가 흩어지고 adjR²=0.986. 왜 이게 "적절한 모형"인가요?</li>
+    <li><b>3차·4차</b>: R²는 계속 오르는데 <b>adjR²는 오히려 떨어집니다.</b> 왜죠? (이게 과적합입니다)</li>
+    <li>R²와 adjR²(수정결정계수)는 정확히 무엇이 다른가요? 왜 모형 선택은 adjR²로 하나요?</li>
+  </ul>
+</div>
+
+<small class="src2">표시되는 계수·R²·수정R²·잔차표준오차·F·p는 화면의 실제 9개 점에서 최소제곱으로 매 순간 계산됩니다(가짜 없음, 골든룰). node 검증: 1차·2차 결과가 교재 R 출력과 소수점까지 일치(절편 −1.1667, 기울기 1.6333, R² 0.7083, F 16.99, p 0.004446 / 2차 계수 7.1667·−2.9121·0.4545, adjR² 0.9864).</small>
+
+<script>
+// F분포 p값
+function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=200;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<3e-12)break;}return h;}
+function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+function fpval(F,d1,d2){if(F<=0)return 1;return 1-betai(d1/2,d2/2,d1*F/(d1*F+d2));}
+// 최소제곱 다항적합
+function solve(A,b){var n=b.length;for(var i=0;i<n;i++){var p=i;for(var r=i+1;r<n;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;var t=A[i];A[i]=A[p];A[p]=t;var tb=b[i];b[i]=b[p];b[p]=tb;for(var r=i+1;r<n;r++){var f=A[r][i]/A[i][i];for(var c=i;c<n;c++)A[r][c]-=f*A[i][c];b[r]-=f*b[i];}}var x=new Array(n);for(var i=n-1;i>=0;i--){var s=b[i];for(var c=i+1;c<n;c++)s-=A[i][c]*x[c];x[i]=s/A[i][i];}return x;}
+function polyfit(xs,ys,deg){var n=xs.length,m=deg+1,A=[],B=[];for(var i=0;i<m;i++){A.push(new Array(m).fill(0));B.push(0);}for(var k=0;k<n;k++){var pw=[],v=1;for(var j=0;j<2*deg+1;j++){pw.push(v);v*=xs[k];}for(var i=0;i<m;i++){for(var j=0;j<m;j++)A[i][j]+=pw[i+j];B[i]+=pw[i]*ys[k];}}return solve(A,B);}
+function eval_(b,x){var y=0,v=1;for(var j=0;j<b.length;j++){y+=b[j]*v;v*=x;}return y;}
+function stats(xs,ys,deg){var b=polyfit(xs,ys,deg),n=xs.length,ybar=ys.reduce((a,c)=>a+c,0)/n,ssr=0,sst=0,res=[];
+ for(var k=0;k<n;k++){var yh=eval_(b,xs[k]);res.push(ys[k]-yh);ssr+=(ys[k]-yh)**2;sst+=(ys[k]-ybar)**2;}
+ var p=deg,dfR=n-p-1,R2=1-ssr/sst,adj=1-(1-R2)*(n-1)/dfR,se=Math.sqrt(ssr/dfR),F=(R2/p)/((1-R2)/dfR),pv=fpval(F,p,dfR);
+ return {b,R2,adj,se,F,pv,dfR,res,ssr};}
+
+var X=[1,2,3,4,5,6,7,8,9], Y=[5,3,2,3,4,6,10,12,18], DEG=2;
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.width=w*dpr;cv.height=h*dpr;var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function fmt(v,d){return v.toFixed(d);}
+
+function drawMain(S){
+ var cv=document.getElementById('cv'),o=setup(cv,300),x=o.x,W=o.w,H=o.h;x.clearRect(0,0,W,H);
+ var pL=38,pR=14,pT=14,pB=26,ymin=0,ymax=20;
+ function PX(v){return pL+(W-pL-pR)*((v-0.4)/(9.2-0.4));}
+ function PY(v){return pT+(H-pT-pB)*(1-(v-ymin)/(ymax-ymin));}
+ x.strokeStyle=css('--rule');x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';x.lineWidth=1;
+ for(var t=0;t<=20;t+=5){var yy=PY(t);x.globalAlpha=.35;x.beginPath();x.moveTo(pL,yy);x.lineTo(W-pR,yy);x.stroke();x.globalAlpha=1;x.textAlign='right';x.fillText(t,pL-5,yy+3);}
+ for(var xi=1;xi<=9;xi++){x.textAlign='center';x.fillText(xi,PX(xi),H-9);}
+ // 적합 곡선
+ x.strokeStyle=css('--fit');x.lineWidth=2.4;x.beginPath();var st=true;
+ for(var xx=0.4;xx<=9.2;xx+=0.05){var yy=eval_(S.b,xx);if(yy<-2)yy=-2;if(yy>22)yy=22;var py=PY(yy);if(st){x.moveTo(PX(xx),py);st=false;}else x.lineTo(PX(xx),py);}x.stroke();
+ // 데이터 점 + 잔차 세로선
+ for(var k=0;k<X.length;k++){var px=PX(X[k]),py=PY(Y[k]),pyh=PY(eval_(S.b,X[k]));
+  x.strokeStyle=css('--res');x.globalAlpha=.5;x.lineWidth=1;x.beginPath();x.moveTo(px,py);x.lineTo(px,pyh);x.stroke();x.globalAlpha=1;
+  x.fillStyle=css('--pt');x.beginPath();x.arc(px,py,4,0,7);x.fill();}
+}
+function drawRes(S){
+ var cv=document.getElementById('rv'),o=setup(cv,150),x=o.x,W=o.w,H=o.h;x.clearRect(0,0,W,H);
+ var pL=38,pR=14,pT=12,pB=22;var mx=Math.max(1,Math.max.apply(null,S.res.map(Math.abs))*1.3);
+ function PX(v){return pL+(W-pL-pR)*((v-0.4)/(9.2-0.4));}
+ function PY(v){return pT+(H-pT-pB)*(1-(v+mx)/(2*mx));}
+ x.strokeStyle=css('--rule');x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';
+ var z=PY(0);x.lineWidth=1.5;x.beginPath();x.moveTo(pL,z);x.lineTo(W-pR,z);x.stroke();
+ x.textAlign='right';x.fillText('잔차 0',pL-5,z+3);x.textAlign='left';x.fillText('잔차도 (residuals)',pL,10);
+ // 잔차 점 + 부드러운 연결선(패턴 시각화)
+ x.strokeStyle=css('--res');x.lineWidth=1.5;x.globalAlpha=.55;x.beginPath();
+ for(var k=0;k<X.length;k++){var px=PX(X[k]),py=PY(S.res[k]);if(k==0)x.moveTo(px,py);else x.lineTo(px,py);}x.stroke();x.globalAlpha=1;
+ for(var k=0;k<X.length;k++){x.fillStyle=css('--res');x.beginPath();x.arc(PX(X[k]),PY(S.res[k]),3.5,0,7);x.fill();}
+}
+function render(){
+ var S=stats(X,Y,DEG);
+ drawMain(S);drawRes(S);
+ // 식
+ var terms=S.b.map((c,i)=>{var t=(i==0?fmt(c,3):(c>=0?'+ ':'− ')+fmt(Math.abs(c),3)+(i==1?'·x':'·x'+String.fromCharCode(8304+i)));return t;});
+ document.getElementById('eq').textContent='ŷ = '+terms.join(' ').replace('x²','x²').replace('x³','x³').replace('x⁴','x⁴');
+ document.getElementById('stats').innerHTML=[
+  ['차수',DEG+'차'],['R² (결정계수)',fmt(S.R2,4)],['수정 R² (adj)',fmt(S.adj,4)],
+  ['잔차 표준오차',fmt(S.se,3)],['F 통계량',fmt(S.F,2)],['p값',S.pv<1e-4?S.pv.toExponential(2):fmt(S.pv,5)]
+ ].map(s=>'<div class="stat"><div class="k">'+s[0]+'</div><div class="v">'+s[1]+'</div></div>').join('');
+ // 교재 대조
+ var m='';
+ if(DEG==1)m='✔ 교재 R 출력과 일치: 절편 −1.167, 기울기 1.633, R² 0.708, F 16.99, p 0.0044';
+ else if(DEG==2)m='✔ 교재 R 출력과 일치: 계수 7.167 / −2.912 / 0.455, 수정 R² 0.9864';
+ document.getElementById('match').textContent=m;
+ // 결론
+ var c=document.getElementById('concl'),note=document.getElementById('note');
+ if(DEG==1){c.innerHTML='<b>1차(직선):</b> R²=0.708로 71%만 설명. 유의하긴 하나(p=0.004), <b>잔차도가 U자로 휨</b> → "오차가 평균 0·등분산"이라는 가정 위반. 교재는 여기서 <b>x² 항 추가</b>를 지시합니다.';note.textContent='▶ 아래 잔차도를 보세요. 곡선 패턴이 뚜렷하면 모형이 데이터의 휘어짐을 못 잡은 것 — 차수를 올려야 한다는 신호입니다.';}
+ else if(DEG==2){c.innerHTML='<b>2차(곡선) = 적절한 모형:</b> ŷ = 7.167 − 2.912·x + 0.455·x². 수정 R²=0.986으로 98.6% 설명, 잔차의 곡선 패턴이 사라졌습니다. <b>이것이 교재가 고른 답</b>입니다.';note.textContent='▶ 잔차가 0 주위로 무작위하게 흩어졌습니다 = 좋은 적합. 실기 답안엔 "잔차도로 가정을 점검했다"를 반드시 씁니다.';}
+ else{c.innerHTML='<b>'+DEG+'차 = 과적합:</b> R²는 '+fmt(S.R2,4)+'로 더 오르지만, <b>수정 R²는 '+fmt(S.adj,4)+'로 2차(0.9864)보다 낮습니다.</b> 항을 늘려 얻은 설명력이 잃은 자유도만큼의 값을 못 합니다 = 불필요하게 복잡.';note.textContent='▶ R²만 보면 항상 고차가 이겨서 속습니다. 그래서 모형 선택은 벌점이 붙은 수정 R²(또는 교차검증)로 합니다.';}
+ // Python
+ document.getElementById('py').textContent=
+  'import numpy as np\nimport statsmodels.api as sm\n\n'+
+  'x = np.array([1,2,3,4,5,6,7,8,9])\ny = np.array([5,3,2,3,4,6,10,12,18])\n\n'+
+  '# '+DEG+'차 다항회귀 설계행렬\n'+
+  'X = np.column_stack([x**k for k in range(1,'+(DEG+1)+')])\n'+
+  'X = sm.add_constant(X)\nmodel = sm.OLS(y, X).fit()\n'+
+  'print(model.params)          # 계수\n'+
+  'print(model.rsquared, model.rsquared_adj)   # R², 수정 R²\n'+
+  '# 잔차도로 가정 점검: model.resid 를 적합값에 대해 그려 곡선 패턴 확인';
+ document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',+b.dataset.d===DEG));
+}
+document.getElementById('seg').addEventListener('click',e=>{var b=e.target.closest('button');if(!b)return;DEG=+b.dataset.d;render();});
+window.addEventListener('resize',render);
+render();
+</script>
+</div></body></html>

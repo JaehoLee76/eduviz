@@ -1,0 +1,328 @@
+<meta charset="utf-8">
+<title>레슨 01 · 연비로 배우는 예측모델링 흐름</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#c0398f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+/* ==========================================================================
+   EduViz · ADP 교습 워크스페이스 — 공용 레슨 스타일 (Tufte 풍, 인쇄·다크 대응)
+   빅데이터 트랙 정체성: 로즈 마젠타 📊
+   (adp/ 오프라인 자기완결 사본: 원본 ../assets/lesson.css 인라인화)
+   ========================================================================== */
+
+:root{
+  --accent:#c0398f;          /* 로즈 마젠타 */
+  --accent-soft:#e86fbf;
+  --ink:#2b2730;
+  --ink-soft:#5c5663;
+  --paper:#faf7fb;
+  --card:#ffffff;
+  --rule:#e4d7e4;
+  --good:#1f9d6b;
+  --warn:#c9772a;
+  --code-bg:#f4eef4;
+  --maxw:760px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --accent:#e86fbf; --accent-soft:#f3a3d6;
+    --ink:#ece7ef; --ink-soft:#b3a9b8;
+    --paper:#171319; --card:#211a24;
+    --rule:#3a2f3c; --code-bg:#2a2230;
+    --good:#5fd6a8; --warn:#e0a35a;
+  }
+}
+:root[data-theme="dark"]{
+  --accent:#e86fbf; --accent-soft:#f3a3d6;
+  --ink:#ece7ef; --ink-soft:#b3a9b8;
+  --paper:#171319; --card:#211a24;
+  --rule:#3a2f3c; --code-bg:#2a2230;
+  --good:#5fd6a8; --warn:#e0a35a;
+}
+:root[data-theme="light"]{
+  --accent:#c0398f; --accent-soft:#e86fbf;
+  --ink:#2b2730; --ink-soft:#5c5663;
+  --paper:#faf7fb; --card:#ffffff;
+  --rule:#e4d7e4; --code-bg:#f4eef4;
+  --good:#1f9d6b; --warn:#c9772a;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Nanum Myeongjo",serif;
+  font-size:19px; line-height:1.62; letter-spacing:.1px;
+  padding:2.2rem 1.2rem 5rem;
+}
+.wrap{max-width:var(--maxw); margin:0 auto}
+
+/* --- 상단 배지 / 브레드크럼 --- */
+.eyebrow{
+  font-family:-apple-system,"Helvetica Neue","Apple SD Gothic Neo",sans-serif;
+  font-size:.72rem; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--accent); font-weight:700; margin:0 0 .3rem;
+}
+.crumbs{
+  font-family:-apple-system,"Helvetica Neue","Apple SD Gothic Neo",sans-serif;
+  font-size:.8rem; color:var(--ink-soft); margin:.2rem 0 1.6rem;
+}
+.crumbs a{color:var(--ink-soft)}
+
+/* --- 제목 --- */
+h1{
+  font-size:2.05rem; line-height:1.15; margin:.2rem 0 .5rem;
+  font-weight:600; letter-spacing:-.01em;
+}
+h1 .sub{display:block; font-size:1.05rem; color:var(--ink-soft); font-weight:400; margin-top:.4rem}
+h2{
+  font-size:1.32rem; margin:2.4rem 0 .7rem; font-weight:600;
+  padding-bottom:.3rem; border-bottom:2px solid var(--rule);
+}
+h3{font-size:1.06rem; margin:1.6rem 0 .5rem; font-weight:600; color:var(--accent)}
+p{margin:.7rem 0}
+a{color:var(--accent); text-decoration-color:var(--accent-soft); text-underline-offset:2px}
+strong{font-weight:600}
+em{color:var(--ink-soft)}
+
+/* --- 인용/근거 각주 --- */
+sup.cite{font-size:.62em; line-height:0}
+sup.cite a{
+  font-family:-apple-system,sans-serif; font-weight:700; text-decoration:none;
+  padding:0 .12em; color:var(--accent);
+}
+.sources{
+  font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;
+  font-size:.78rem; color:var(--ink-soft); line-height:1.5;
+  margin-top:2.4rem; padding-top:1rem; border-top:1px solid var(--rule);
+}
+.sources li{margin:.3rem 0}
+
+/* --- 콜아웃 박스 --- */
+.box{
+  background:var(--card); border:1px solid var(--rule); border-left:4px solid var(--accent);
+  border-radius:8px; padding:.9rem 1.1rem; margin:1.3rem 0;
+  font-size:.96em;
+}
+.box.key{border-left-color:var(--accent)}
+.box.good{border-left-color:var(--good)}
+.box.warn{border-left-color:var(--warn)}
+.box .lab{
+  font-family:-apple-system,sans-serif; font-size:.7rem; letter-spacing:.12em;
+  text-transform:uppercase; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:.25rem;
+}
+
+/* --- 워크플로우 스텝 --- */
+.flow{list-style:none; counter-reset:s; padding:0; margin:1.2rem 0}
+.flow li{
+  position:relative; padding:.55rem 0 .55rem 2.7rem; counter-increment:s;
+  border-bottom:1px dashed var(--rule);
+}
+.flow li:last-child{border-bottom:0}
+.flow li::before{
+  content:counter(s); position:absolute; left:0; top:.5rem;
+  width:1.7rem; height:1.7rem; border-radius:50%;
+  background:var(--accent); color:#fff; font-family:-apple-system,sans-serif;
+  font-weight:700; font-size:.85rem; display:flex; align-items:center; justify-content:center;
+}
+.flow b{font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}
+
+/* --- 코드 --- */
+code{
+  font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace; font-size:.85em;
+  background:var(--code-bg); padding:.1em .35em; border-radius:4px;
+}
+pre{
+  background:var(--code-bg); border:1px solid var(--rule); border-radius:8px;
+  padding:1rem 1.1rem; overflow-x:auto; font-size:.82rem; line-height:1.5;
+}
+pre code{background:none; padding:0; font-size:1em}
+
+/* --- 표 --- */
+table{border-collapse:collapse; width:100%; margin:1.2rem 0; font-size:.9rem;
+  font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}
+th,td{border:1px solid var(--rule); padding:.45rem .7rem; text-align:left}
+th{background:var(--code-bg); font-weight:600; color:var(--accent)}
+.tbl-scroll{overflow-x:auto}
+
+/* --- 퀴즈 위젯 --- */
+.quiz{
+  background:var(--card); border:1px solid var(--rule); border-radius:10px;
+  padding:1.1rem 1.2rem; margin:1.5rem 0;
+}
+.quiz .q{font-weight:600; margin:0 0 .8rem; font-size:1rem}
+.quiz .opts{list-style:none; padding:0; margin:0; display:grid; gap:.5rem}
+.quiz button.opt{
+  font-family:-apple-system,"Apple SD Gothic Neo",sans-serif; font-size:.92rem;
+  text-align:left; width:100%; padding:.6rem .8rem; cursor:pointer;
+  background:var(--paper); color:var(--ink); border:1.5px solid var(--rule);
+  border-radius:8px; transition:.14s;
+}
+.quiz button.opt:hover{border-color:var(--accent-soft)}
+.quiz button.opt.correct{border-color:var(--good); background:color-mix(in srgb,var(--good) 12%,transparent)}
+.quiz button.opt.wrong{border-color:var(--warn); background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.quiz button.opt:disabled{cursor:default; opacity:.85}
+.quiz .fb{
+  margin-top:.8rem; font-size:.9rem; color:var(--ink-soft); min-height:1.2em;
+  font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;
+}
+.quiz .fb.show{color:var(--ink)}
+
+/* --- 학습 카드(자기설명/회상 프롬프트) --- */
+.recall{
+  border:1.5px dashed var(--accent-soft); border-radius:10px; padding:1rem 1.1rem;
+  margin:1.4rem 0; background:transparent;
+}
+.recall .lab{color:var(--accent); font-weight:700; font-family:-apple-system,sans-serif;
+  font-size:.72rem; letter-spacing:.12em; text-transform:uppercase}
+.recall details{margin-top:.5rem}
+.recall summary{cursor:pointer; font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;
+  font-size:.9rem; color:var(--ink-soft)}
+.recall details[open] summary{color:var(--accent)}
+
+/* --- 다음 할 일 / 튜터 안내 --- */
+.tutor{
+  margin-top:2.6rem; padding:1rem 1.2rem; border-radius:10px;
+  background:color-mix(in srgb,var(--accent) 8%,transparent);
+  border:1px solid var(--accent-soft); font-size:.92rem;
+}
+.tutor b{color:var(--accent)}
+
+footer.nav{
+  margin-top:3rem; padding-top:1rem; border-top:1px solid var(--rule);
+  display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  font-family:-apple-system,"Apple SD Gothic Neo",sans-serif; font-size:.85rem;
+}
+footer.nav a{text-decoration:none}
+
+/* --- 인쇄 --- */
+@media print{
+  :root{--paper:#fff; --card:#fff; --ink:#1a1a1a; --ink-soft:#555; --rule:#ccc; --code-bg:#f2f2f2}
+  body{font-size:11pt; padding:0}
+  .quiz button.opt{border-color:#bbb}
+  .tutor,.quiz .fb{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  a{color:var(--ink); text-decoration:none}
+  h2{break-after:avoid}
+  .box,.quiz,.recall{break-inside:avoid}
+}
+@media (max-width:520px){ body{font-size:17px} h1{font-size:1.7rem} }
+</style>
+<script>
+/* EduViz ADP 교습 — 재사용 퀴즈 위젯 (바닐라, 의존성 없음)
+   (adp/ 오프라인 자기완결 사본: 원본 ../assets/quiz.js 인라인화)
+   즉시 피드백(회상 연습). 정답 인덱스는 0부터. */
+(function(){
+  function wire(q){
+    var ans = parseInt(q.getAttribute('data-answer'),10);
+    var btns = Array.prototype.slice.call(q.querySelectorAll('button.opt'));
+    var fb = q.querySelector('.fb');
+    btns.forEach(function(b,i){
+      b.addEventListener('click',function(){
+        if(q.dataset.done) return;
+        q.dataset.done='1';
+        btns.forEach(function(x){ x.disabled=true; });
+        btns[ans].classList.add('correct');
+        if(i!==ans) b.classList.add('wrong');
+        if(fb){
+          fb.textContent = (i===ans ? (fb.getAttribute('data-ok')||'정답입니다.')
+                                     : (fb.getAttribute('data-no')||'다시 생각해 보세요.'));
+          fb.classList.add('show');
+        }
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.quiz').forEach(wire);
+  });
+})();
+</script>
+<div class="wrap">
+  <p class="eyebrow">레슨 01 · ADP 데이터 분석</p>
+  <div class="crumbs">사례연구 ①/⑩ · 연비 (Fuel Economy) · 회귀</div>
+
+  <h1>연비 한 사례로, 열 사례의 뼈대를 잡다<span class="sub">엔진 배기량으로 고속도로 연비를 예측해 보며 '예측모델링 작업흐름'을 몸에 새깁니다.</span></h1>
+
+  <p>ADP 실기의 사례연구는 데이터도 기법도 제각각이지만, <strong>속뼈대는 하나</strong>입니다. 그 뼈대를 가장 단순한 사례 — 변수 <em>하나</em>로 연비를 예측하는 문제 — 로 먼저 손에 익히면, 나머지 아홉 사례는 살을 붙이는 일이 됩니다. 이번 레슨의 win은 <strong>"작업흐름 6단계를 연비 사례에 얹어 설명할 수 있다"</strong> 입니다.</p>
+
+  <h2>1. 사례: 배기량 → 연비</h2>
+  <p>2010–2011년형 자동차 자료입니다. 설명변수 (predictor) 는 <strong>엔진 배기량</strong>(리터) 하나, 반응변수 (response) 는 <strong>고속도로 연비</strong>(MPG) 입니다. 반응변수가 수치이므로 이것은 <strong>회귀 (regression)</strong> 문제입니다.<sup class="cite"><a href="#s1">1</a></sup></p>
+
+  <div class="box key">
+    <span class="lab">숫자로 잡는 감각</span>
+    훈련 자료 <strong>1,107대</strong>, 봉인한 테스트 <strong>245대</strong>. 직선(선형회귀) 하나를 적합했더니 10-겹 교차검증 <strong>RMSE ≈ 4.6 MPG</strong> — 즉 예측이 평균적으로 약 4.6 연비만큼 빗나갔습니다.
+  </div>
+
+  <p>그런데 산점도를 보면 배기량이 <em>아주 크거나 아주 작은</em> 양 끝에서 점들이 직선을 벗어나 <strong>휘어집니다</strong>. 관계가 직선이 아니라 곡선이었던 겁니다. 그래서 배기량의 제곱 항을 하나 더한 <strong>이차 모델</strong>로 바꾸자 그 휘어짐을 잡아내 오차가 줄었습니다. 이 작은 사건에 예측모델링의 핵심 교훈이 들어 있습니다.</p>
+
+  <div class="box good">
+    <span class="lab">핵심 통찰</span>
+    모델이 좋은지는 <strong>훈련 자료에 얼마나 잘 붙었나</strong>로 판단하지 않습니다. <strong>보지 않은 데이터에서의 성능</strong>(교차검증·테스트)으로 판단합니다. 연비 사례에서 "직선으로 충분한가?"의 답도, 눈대중이 아니라 <em>교차검증 RMSE가 줄었는가</em>로 확정했습니다.
+  </div>
+
+  <h2>2. 그 뼈대 = 6단계 작업흐름</h2>
+  <p>연비 사례를 이 흐름에 그대로 얹어 읽어 보세요. 상세 표·성능지표·함정은 <b>작업흐름 레퍼런스 시트</b>에 정리해 두었습니다(사례마다 다시 펼칠 문서입니다).</p>
+
+  <ol class="flow">
+    <li><b>문제 정의·데이터 이해</b> — 반응변수=고속도로 연비(수치)→회귀. 산점도로 관계를 먼저 본다.</li>
+    <li><b>데이터 분할</b> — 1,107 훈련 / 245 테스트. 테스트는 끝까지 봉인.</li>
+    <li><b>전처리</b> — 이 사례는 변수 하나라 가볍다(척도화·변환 정도). 사례가 커지면 여기가 커진다.</li>
+    <li><b>모델 적합</b> — 먼저 직선(선형회귀)을 적합.</li>
+    <li><b>리샘플링 검증</b> — 10-겹 교차검증으로 RMSE≈4.6 추정. 직선 vs 이차를 <em>여기서</em> 비교해 이차 선택.</li>
+    <li><b>성능 평가·결론 서술</b> — 봉인한 245대로 최종 확인 → "배기량으로 연비를 평균 약 □ 오차로 예측한다"로 문장화.</li>
+  </ol>
+
+  <h2>3. 회상 연습</h2>
+
+  <div class="quiz" data-answer="0">
+    <p class="q">연비 사례에서 직선(선형) 모델만으로 부족했던 이유는 무엇입니까?</p>
+    <ul class="opts">
+      <li><button class="opt">배기량이 커질수록 관계가 곡선으로 휘어서</button></li>
+      <li><button class="opt">훈련 자료의 개수가 지나치게 적어서만</button></li>
+      <li><button class="opt">테스트 자료에 정보가 새어 들어가서요</button></li>
+      <li><button class="opt">반응변수가 수치가 아니라 범주여서죠</button></li>
+    </ul>
+    <p class="fb" data-ok="맞습니다. 양 끝의 곡선성을 직선이 못 잡아 이차 항을 더했습니다." data-no="아닙니다. 양 끝에서 관계가 휘어(곡선성) 직선이 부족했습니다."></p>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <p class="q">직선과 이차 중 어느 모델을 쓸지, 무엇을 근거로 골라야 합니까?</p>
+    <ul class="opts">
+      <li><button class="opt">리샘플링으로 추정한 보지 않은 성능</button></li>
+      <li><button class="opt">훈련 자료에 대한 최종 적합도 수치</button></li>
+      <li><button class="opt">봉인해 둔 테스트 자료의 성능 결과</button></li>
+      <li><button class="opt">산점도에서 눈으로 본 대략적 추세</button></li>
+    </ul>
+    <p class="fb" data-ok="맞습니다. 교차검증(리샘플링) 성능으로 고릅니다. 테스트는 최종 확인용이라 선택에 쓰면 봉인이 깨집니다." data-no="선택 근거는 교차검증 성능입니다. 테스트로 고르면 봉인이 깨져 성능이 부풀려집니다."></p>
+  </div>
+
+  <div class="recall">
+    <span class="lab">자기설명 (Self-explanation)</span>
+    <p>화면을 보지 말고, 6단계를 <strong>순서대로 소리 내어</strong> 말해 보세요. 특히 <em>2단계에서 테스트를 봉인하는 이유</em>와 <em>5단계에서 모델을 고르는 이유</em>를 한 문장씩.</p>
+    <details><summary>말한 뒤 펼쳐서 대조</summary>
+      <p>정의·이해 → 분할(테스트 봉인: 일반화를 정직하게 재려고) → 전처리 → 적합 → <strong>리샘플링 검증(보지 않은 성능으로 모델 선택)</strong> → 평가·결론. 봉인과 선택, 이 둘이 과적합을 막는 두 빗장입니다.</p>
+    </details>
+  </div>
+
+  <div class="tutor">
+    <b>이 레슨의 실습 산출물 →</b> 빅데이터 트랙엔 분류 사례(10장)·설명vs예측(12장)은 있지만 <em>연비 같은 회귀 사례를 6단계로 관통하는 장면</em>은 없습니다. 다음으로 이 사례를 <b>실제로 계산되는 빅데이터 장면</b>(직선 vs 이차의 교차검증 RMSE를 골든룰대로 실측)으로 만들어 트랙에 더할 수 있습니다. 진행할지 말씀해 주세요.
+  </div>
+
+  <div class="tutor" style="background:transparent;border-color:var(--rule)">
+    <b>튜터에게 물어보세요.</b> 저는 이 과정의 선생입니다. RMSE 계산법, 교차검증이 왜 훈련적합보다 정직한지, "왜 테스트로 모델을 고르면 안 되나" 등 <em>무엇이든</em> 막히면 바로 질문하세요. 헷갈리는 지점이 다음 레슨의 재료가 됩니다.
+  </div>
+
+  <p class="sources">
+    <strong>추천 1차 자료</strong> — 가장 좋은 출발점: Kuhn &amp; Johnson, <em>Applied Predictive Modeling</em>, 2장 "A Short Tour of the Predictive Modeling Process"(연비 사례 원문). 로컬 PDF <code>_content/BDA/BDA_Applied Predictive Modeling by R_01.pdf</code>.
+  </p>
+  <ol class="sources" id="s1">
+    <li id="s1">연비 사례 수치(훈련 1,107 / 테스트 245, 배기량→고속도로 MPG, 선형 RMSE≈4.6, 양 끝 곡선성→이차): 위 교재 2.1절.</li>
+  </ol>
+
+  <footer class="nav">
+    <span>← 레슨 00 (없음 · 이번이 첫 레슨)</span>
+    <a href="../index.html">← ADP Master 목록</a>
+  </footer>
+</div>
