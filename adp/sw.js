@@ -1,7 +1,7 @@
 /* ADP Master — 서비스워커
    목적: 홈 화면에 추가한 뒤 오프라인에서도 허브·실험실이 열리게 한다.
    전략: cache-first (설치 시 핵심 파일을 미리 저장, 이후 요청은 캐시 우선·실패 시 네트워크). */
-const CACHE_NAME = 'adp-master-v2';
+const CACHE_NAME = 'adp-master-v3';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -34,6 +34,29 @@ self.addEventListener('activate', function(evt){
 
 self.addEventListener('fetch', function(evt){
   if(evt.request.method !== 'GET') return;
+
+  // 문서(HTML)는 network-first: 새 내용이 있으면 항상 최신을 먼저 보여주고,
+  // 캐시는 오프라인일 때만 쓴다. (cache-first면 색·내용을 바꿔도 옛 화면이 남는다.)
+  var isDoc = evt.request.mode === 'navigate' ||
+              (evt.request.headers.get('accept') || '').indexOf('text/html') >= 0;
+  if(isDoc){
+    evt.respondWith(
+      fetch(evt.request).then(function(res){
+        if(res && res.status === 200){
+          var clone = res.clone();
+          caches.open(CACHE_NAME).then(function(cache){ cache.put(evt.request, clone); });
+        }
+        return res;
+      }).catch(function(){
+        return caches.match(evt.request).then(function(cached){
+          return cached || caches.match('./index.html');
+        });
+      })
+    );
+    return;
+  }
+
+  // 그 외 자산(아이콘 등)은 cache-first 유지.
   evt.respondWith(
     caches.match(evt.request).then(function(cached){
       if(cached) return cached;
