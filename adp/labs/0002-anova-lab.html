@@ -56,7 +56,20 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
 .legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
 .dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
 small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.7rem}
+
+/* --- 페이지 이동(홈·이전·다음) --- */
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);
+  color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
 </style></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">2 / 3 · 통계 · 분산분석</span></nav>
 
 <p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
 <h1>일원배치 분산분석 — 주어진 데이터를 푼다<small>ADP 29회 실기 문7 유형: 차종별 범퍼 파손 정도. <b>데이터가 주어지고</b>, 그것을 검정한다.</small></h1>
@@ -201,4 +214,10 @@ function render(){
 var sD=document.getElementById('sD'),oD=document.getElementById('oD');
 sD.addEventListener('input',render);window.addEventListener('resize',render);render();
 </script>
+
+<nav class="labnav bot">
+  <a href="./0001-fuel-economy-workflow.html">← 실기 전체 지도</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <a href="./0003-real-regression-problem.html">회귀모형 선택 →</a>
+</nav>
 </div></body></html>

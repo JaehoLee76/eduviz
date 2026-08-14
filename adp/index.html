@@ -162,6 +162,10 @@ footer.foot{
 
 <script>
 var LABS = [
+  { no:'0001', href:'labs/0001-fuel-economy-workflow.html', badge:'가이드 · 실기 전체 지도',
+    title:'예측모델링 작업흐름', sub:'연비 (Fuel Economy)',
+    desc:'엔진 배기량 하나로 고속도로 연비를 예측하며, 열 개 사례연구를 관통하는 6단계 작업흐름을 몸에 새긴다.',
+    done:true, statPart:false },
   { no:'0002', href:'labs/0002-anova-lab.html', badge:'통계 · 분산분석',
     title:'일원배치 분산분석 + 사후검정', sub:'29회 문7 유형',
     desc:'차종별 범퍼 손상지수를 F검정으로 비교하고, 유의하면 본페로니 사후검정으로 어느 쌍이 다른지까지 찾는다.',
@@ -169,11 +173,7 @@ var LABS = [
   { no:'0003', href:'labs/0003-real-regression-problem.html', badge:'통계 · 회귀',
     title:'회귀모형 선택', sub:'단순 vs 다항',
     desc:'직선(1차)이 못 잡는 곡선성을 잔차도로 확인하고, 2차·3차를 수정 R²로 비교해 과적합을 피해 고른다.',
-    done:true, statPart:true },
-  { no:'0001', href:'labs/0001-fuel-economy-workflow.html', badge:'개념',
-    title:'예측모델링 작업흐름', sub:'연비 (Fuel Economy)',
-    desc:'엔진 배기량 하나로 고속도로 연비를 예측하며, 열 개 사례연구를 관통하는 6단계 작업흐름을 몸에 새긴다.',
-    done:true, statPart:false }
+    done:true, statPart:true }
 ];
 
 function render(){
