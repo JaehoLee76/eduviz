@@ -93,7 +93,7 @@
       '.cw-sub.zero{color:#f0a0a0;}',
       '.cw-ov{position:fixed;inset:0;z-index:40;display:none;pointer-events:none;}',   /* 배경 안 가림(흐림·어둡게 제거)·클릭 통과 → 배경 내용 참고 가능 */
       '.cw-ov.open{display:block;}',
-      '.cw-card{position:absolute;top:76px;right:20px;width:min(460px,92vw);max-height:80vh;display:flex;flex-direction:column;pointer-events:auto;',   /* 떠다니는 창(드래그 이동) */
+      '.cw-card{position:absolute;top:76px;right:20px;width:min(460px,92vw);max-height:80vh;display:flex;flex-direction:column;pointer-events:auto;overscroll-behavior:contain;',   /* 떠다니는 창(드래그 이동) */
         'background:var(--panel-bg,rgba(22,22,30,.97));border:1px solid var(--border,rgba(255,255,255,.16));',
         'border-radius:16px;overflow:hidden;color:var(--text-1,#f4f3ee);box-shadow:0 10px 44px rgba(0,0,0,.55);}',
       '.cw-head{padding:14px 18px;border-bottom:1px solid var(--border,rgba(255,255,255,.12));display:flex;align-items:center;gap:10px;cursor:move;user-select:none;touch-action:none;}',
@@ -101,7 +101,7 @@
       '.cw-head .t{font-weight:600;font-size:15px;}',
       '.cw-head .topic{font-size:12px;color:var(--accent-light,#7ab8ff);background:var(--accent-soft,rgba(79,147,214,.16));border-radius:8px;padding:2px 8px;margin-left:auto;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       '.cw-x{background:none;border:none;color:var(--text-3,#9b99a3);font-size:20px;cursor:pointer;line-height:1;}',
-      '.cw-body{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;min-height:120px;}',
+      '.cw-body{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 18px;display:flex;flex-direction:column;gap:10px;min-height:120px;}',
       '.cw-msg{font-size:14.5px;line-height:1.6;padding:9px 13px;border-radius:12px;max-width:88%;white-space:pre-wrap;}',
       '.cw-msg.u{align-self:flex-end;background:var(--accent-soft,rgba(79,147,214,.18));border:1px solid var(--accent,#4f93d6);}',
       '.cw-msg.a{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border,rgba(255,255,255,.12));}',

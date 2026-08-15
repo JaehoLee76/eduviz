@@ -41,9 +41,10 @@
     if(document.querySelector('.topbar')) return;
     var css = document.createElement('style');
     css.textContent = [
-      '.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;',
+      // 본문과 완전히 분리된 고정 영역 — 어떤 스크롤에도 따라 움직이지 않는다.
+      '.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;',
       ' gap:.5rem;flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper,#0f1a20);',
-      ' border-bottom:1px solid var(--rule,#2b4451);margin:0 0 1rem}',
+      ' border-bottom:1px solid var(--rule,#2b4451);margin:0}',
       '.topbar .tb-home{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;',
       ' border:1px solid var(--rule,#2b4451);border-radius:9px;color:var(--accent,#2fa8d8);',
       ' text-decoration:none;font-weight:700;font-size:.85rem}',
@@ -65,6 +66,14 @@
     // 본문 위쪽의 옛 이동줄은 상단바와 역할이 겹치므로 숨긴다(아래쪽 이전·다음 줄은 유지).
     var top = document.querySelector('.labnav:not(.bot)');
     if(top) top.style.display = 'none';
+
+    // 고정 영역이 본문을 가리지 않도록 그 높이만큼 자리를 비워 둔다.
+    // 로그인·AI 버튼이 나중에 붙거나 화면이 좁아져 줄이 접히면 높이가 바뀌므로 계속 따라간다.
+    function reserve(){ document.body.style.paddingTop = (bar.offsetHeight + 10) + 'px'; }
+    reserve();
+    if(window.ResizeObserver) new ResizeObserver(reserve).observe(bar);
+    window.addEventListener('resize', reserve);
+    setTimeout(reserve, 1200);                 // 공용 위젯이 늦게 붙는 경우 대비
   }
 
   // ── ② 온라인일 때만 공용 위젯 로드 ──────────────────────────────────

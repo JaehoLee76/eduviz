@@ -123,7 +123,7 @@
       '.acct-head{padding:13px 18px;border-bottom:1px solid var(--border,rgba(255,255,255,.12));display:flex;align-items:center;gap:10px;}',
       '.acct-head .t{font-weight:600;font-size:15px;}',
       '.acct-x{margin-left:auto;background:none;border:none;color:var(--text-3,#9b99a3);font-size:20px;cursor:pointer;line-height:1;}',
-      '.acct-body{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px;}',
+      '.acct-body{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 18px;display:flex;flex-direction:column;gap:12px;}',
       '.acct-ta{width:100%;min-height:120px;resize:vertical;background:rgba(255,255,255,.06);border:1px solid var(--border,rgba(255,255,255,.16));',
         'border-radius:10px;color:var(--text-1,#f4f3ee);font-family:inherit;font-size:14px;line-height:1.6;padding:10px 12px;box-sizing:border-box;}',
       '.acct-row{display:flex;gap:8px;align-items:center;}',

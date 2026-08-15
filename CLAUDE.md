@@ -165,6 +165,11 @@ git push origin main && gh api -X POST repos/JaehoLee76/eduviz/pages/builds
 ## 8. AI 튜터·계정·메모 백엔드 (요약 — 상세 매뉴얼은 `MANUAL.md`)
 정적 프론트(GitHub Pages) + **Cloudflare Worker** 백엔드(`worker/eduviz-chat.js`, URL `https://still-thunder-3989.iamleejaeho.workers.dev` → `js/chat-config.js`의 `EDUVIZ_CHAT_ENDPOINT`). AI=Cloudflare **Workers AI**(`@cf/meta/llama-3.3-70b-instruct-fp8-fast`, 바인딩 `AI`; 외부 egress 없어 지역차단 불가 — Gemini·Groq는 한국 엣지 차단으로 폐기). 데이터=**KV**(`EDUVIZ_KV`: `rpd:*`/`rpm:*`=질문예산, `user:<sub>`=학습위치·메모·대화요약). 로그인=Google OAuth(GIS, 시크릿 없음; Client ID 발급 대기 → 발급 시 사용자별 클라우드 동기화 활성). **요금: 전부 무료 — Cloudflare에 결제수단(카드) 미등록 시 한도 초과해도 요청 실패만 하고 절대 자동 과금 안 됨(유료 전환 명시해야만 과금).** 플랫폼 연동·데이터 흐름·요금표·AI 방식/한계/품질·사용법 전체는 **`MANUAL.md`** 참조.
 
+## 8.5 작업 방식 메타규범 (2026-08-15 사령관 지시 — 전 트랙 적용)
+- **개선은 말하지 않아도 룰이 된다.** 사령관 지적으로 고친 것, 스스로 찾아 고친 것 중 **재발 가능한 것**은 그때그때 이 파일(또는 해당 절)에 규칙으로 적는다. 같은 지적을 두 번 받지 않는 것이 목표.
+- **창의력을 유지한다.** 규칙은 바닥이지 천장이 아니다. 더 나은 방법이 보이면 규칙을 지키는 선에서 먼저 시도한다.
+- **판단 기준**: 더 나은 결과를 위해 필요한데 **기존 룰과 충돌하면 사령관에게 묻는다.** 충돌하지 않으면 **먼저 조치하고 사후 보고**한다(허락을 기다리며 멈추지 않는다).
+
 ## 9. ADP Master — 시험대비 학습 트랙 (사령관 개인 학습 + 콘텐츠화, 2026-08-14 착수)
 목표: **ADP(데이터분석전문가) 실기 합격.** 방식: 실제 문제를 조작 시각화로 이해 → 질문으로 근본 돌파 → 반복·암기노트로 굳힘. `/teach` 스킬 기반 개인 학습이자, 성숙하면 EduViz 콘텐츠로 승격.
 - **워크스페이스(비배포)**: `_content/BDA/_teach/`. 마스터플랜·로드맵·진행률 = **`_content/BDA/_teach/ADP_MASTER_PLAN.md`**(새 세션은 이 파일부터 읽기). 미션=`MISSION.md`, 학습기록=`learning-records/`, 실제 시험정보·복원문제 출처=`RESOURCES.md`, 원본=`_content/BDA/ADP0[1-3].pdf`+추출본 `_extract/`.
@@ -180,6 +185,7 @@ git push origin main && gh api -X POST repos/JaehoLee76/eduviz/pages/builds
   6. Q&A 유도 블록으로 학습자가 튜터에게 근본 질문을 하게.
   7. **★장면별 Q&A는 본문에 풀어 쓰지 말고 팝업으로(2026-08-15 사령관 지시).** 학습 중 나온 질문과 답을 본문에 이어 붙이면 화면이 길어져 가독성이 죽는다 → 절마다 `<div class="qna" data-q="질문">답변 HTML</div>` 블록만 두면 `adp/qna.js` 가 **[💬 질문] 버튼**으로 바꾸고, 누르면 팝업(모바일=아래에서 올라오는 시트, PC=가운데 카드)으로 보여 준다. `data-label` 로 버튼 글자를 따로 줄 수 있다. 배경 스크롤 잠금·ESC/배경탭 닫기·노치 여백·본문 내부 스크롤은 부품이 처리하므로 작성자는 내용만 쓴다. **로딩은 `adp/tutor.js` 가 자동**(페이지에 스크립트 추가 불필요), 오프라인에서도 동작. 검사기가 **팝업을 하나씩 열어 그 안까지 겹침·잘림을 잰다.**
 - **로드맵(요약)**: 통계 파트 11유형(분산분석✅·이항·카이제곱·비율·t·베이즈·이원배치·비모수·편상관·생존/분위수·선형계획) → 머신러닝 파트(전처리·분할·회귀3종+RMSE·분류+AUC·PCA·시계열) → 필기·이론 암기노트(격차분석 `_extract/gap_subj*.md`). 상세·체크리스트는 `ADP_MASTER_PLAN.md`.
+- **★스크롤 격리 3원칙 (2026-08-15 사령관 지시)**: ①**떠 있는 패널**(AI 질문창·계정 메뉴)은 그 안에서 굴린 스크롤이 본문으로 새면 안 된다 → `overscroll-behavior:contain`(+`-webkit-overflow-scrolling:touch`)을 스크롤 컨테이너와 카드 양쪽에. ②**모달**(Q&A 팝업)은 배경 자체를 잠근다(`body{position:fixed;top:-scrollY}` 후 복원). ③**상단바는 본문과 분리된 고정 영역**(`position:fixed`) — sticky는 처음 한 번 따라 올라가므로 쓰지 않는다. 대신 바 높이만큼 `body{padding-top}` 을 잡아 주고, 버튼이 늦게 붙거나 줄이 접혀 높이가 바뀌면 `ResizeObserver` 로 계속 따라간다(`adp/tutor.js` 구현). **검증은 눈이 아니라 실제 굴림으로**: 크롬 디버깅 프로토콜의 `Input.dispatchMouseEvent{type:'mouseWheel'}` 을 패널 위에 쏜 뒤 `scrollY` 가 변하지 않아야 통과.
 - **★UI 겹침 자동 검증 (2026-08-14 사령관 지시 — 생성 단계부터 필수, 예외 없음)**: 사령관이 겹침을 지적하는 일이 반복되어 **기계 검사**로 대체한다. 페이지를 새로 만들거나 고친 뒤 **커밋 전에 반드시** `node tools/ui_check.mjs` 를 돌려 **전부 ✅ 여야 커밋**한다.
   - 검사기: `tools/ui_check.mjs`(크롬 디버깅 프로토콜로 기기 폭 에뮬레이션) + `adp/uicheck.js`(페이지 안에서 실측). 주소에 `?uicheck=1` 을 붙이면 사람도 같은 검사를 볼 수 있다.
   - 잡는 것: ①요소 겹침(사각형 교차 6px² 초과) ②가로 넘침 ③11px 미만 글자 ④화면 밖으로 나간 요소. **PC 1440×900 + 모바일 390×844(실기기 폭) 두 조건 모두.**
