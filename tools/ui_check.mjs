@@ -78,7 +78,7 @@ for(const page of PAGES){
       width: s.width, height: s.height, deviceScaleFactor: s.dpr, mobile: s.mobile,
     });
     await tab.send('Page.navigate', { url });
-    await sleep(3200);                                   // 위젯 붙고 글꼴 적용될 때까지
+    await sleep(4800);                                   // 위젯 붙고 글꼴 적용될 때까지
     const { result } = await tab.send('Runtime.evaluate', {
       expression: `(document.getElementById('uicheck-report')||{}).textContent || 'NO-REPORT'`,
       returnByValue: true,
@@ -93,10 +93,15 @@ for(const page of PAGES){
     } else if(text.startsWith('UICHECK FAIL')){
       console.log(`❌ ${s.name}  ${page}`);
       const r = JSON.parse(text.slice(text.indexOf('\n') + 1));
-      for(const o of r.overlaps.slice(0, 12)) console.log(`   겹침 ${o.area}px²: ${o.a}  ↔  ${o.b}`);
-      if(r.overflowX) console.log(`   가로 넘침: 내용 ${r.overflowX.scrollWidth}px > 화면 ${r.overflowX.viewport}px`);
-      for(const t of r.tinyFont.slice(0, 8)) console.log(`   작은 글자 ${t.px}px: ${t.el}`);
-      for(const o of r.offscreen.slice(0, 8)) console.log(`   화면 밖: ${o.el} (left ${o.left}, right ${o.right})`);
+      for(const st of r.states){
+        const n = st.overlaps.length + st.tinyFont.length + st.offscreen.length + (st.overflowX ? 1 : 0);
+        if(!n) continue;
+        console.log(`   [${st.state}]`);
+        for(const o of st.overlaps.slice(0, 10)) console.log(`     겹침 ${o.area}px²: ${o.a}  ↔  ${o.b}`);
+        if(st.overflowX) console.log(`     가로 넘침: 내용 ${st.overflowX.scrollWidth}px > 폭 ${st.overflowX.viewport}px`);
+        for(const t of st.tinyFont.slice(0, 8)) console.log(`     작은 글자 ${t.px}px: ${t.el}`);
+        for(const o of st.offscreen.slice(0, 8)) console.log(`     화면 밖: ${o.el} (left ${o.left}, right ${o.right})`);
+      }
       failed = 1;
     } else {
       console.log(`⚠️  ${s.name}  ${page} — 검사기가 실행되지 않았습니다(uicheck.js 연결 확인)`);

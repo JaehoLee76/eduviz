@@ -83,6 +83,9 @@
   function start(){
     plant();
     topbar();                                            // 버튼들이 들어앉을 자리를 먼저 만든다
+    var qna = document.createElement('script');          // 장면별 Q&A 팝업(오프라인에서도 동작)
+    qna.src = (/\/labs\//.test(location.pathname) ? '../qna.js' : './qna.js');
+    document.head.appendChild(qna);
     if(location.search.indexOf('uicheck') >= 0){          // 겹침 자동 검사 모드(개발용)
       var u = document.createElement('script');
       u.src = (/\/labs\//.test(location.pathname) ? '../uicheck.js' : './uicheck.js');
