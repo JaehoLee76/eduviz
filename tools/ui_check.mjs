@@ -78,11 +78,16 @@ for(const page of PAGES){
       width: s.width, height: s.height, deviceScaleFactor: s.dpr, mobile: s.mobile,
     });
     await tab.send('Page.navigate', { url });
-    await sleep(4800);                                   // 위젯 붙고 글꼴 적용될 때까지
-    const { result } = await tab.send('Runtime.evaluate', {
-      expression: `(document.getElementById('uicheck-report')||{}).textContent || 'NO-REPORT'`,
-      returnByValue: true,
-    });
+    // 검사 시간은 페이지마다 다르다(Q&A 팝업이 많을수록 길어진다) → 결과가 나올 때까지 기다린다.
+    let result = { value: 'NO-REPORT' };
+    for(let w = 0; w < 60; w++){
+      await sleep(500);
+      ({ result } = await tab.send('Runtime.evaluate', {
+        expression: `(document.getElementById('uicheck-report')||{}).textContent || 'NO-REPORT'`,
+        returnByValue: true,
+      }));
+      if(result.value !== 'NO-REPORT') break;
+    }
     const tag = `${page.replace(/[/.]/g, '_')}_${s.name}`;
     const shot = await tab.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     if(shot?.data) writeFileSync(`${OUT}/${tag}.png`, Buffer.from(shot.data, 'base64'));
