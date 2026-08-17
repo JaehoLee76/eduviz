@@ -5,6 +5,11 @@
  * 장면에서 쓰는 법:  <div class="qna" data-topic="qq-plot"></div>
  */
 window.ADP_TOPIC_INDEX = [
+  { slug: 'test-statistic',
+    title: '검정통계량 — 자료를 판단 가능한 숫자 하나로',
+    tags: ['검정 기본', '분산분석', 'p값'],
+    sum: '신호를 잡음으로 나누는 이유, F=6.724가 나온 과정, p값의 정체까지.' },
+
   { slug: 'qq-plot',
     title: 'Q-Q 상관 r — 어떻게 구하고 어떻게 읽나',
     tags: ['정규성', '전제 확인', '분산분석'],
