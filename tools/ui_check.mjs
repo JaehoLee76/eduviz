@@ -10,7 +10,7 @@
  *          스크린샷은 /tmp/uicheck/ 에 저장(눈으로도 확인 가능).
  */
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readdirSync } from 'node:fs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -20,11 +20,8 @@ const SIZES = [
   { name: '모바일', width: 390,  height: 844, dpr: 3, mobile: true  },
 ];
 const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : [
-  'adp/index.html',
-  'adp/topics.html',
-  'adp/labs/0001-fuel-economy-workflow.html',
-  'adp/labs/0002-anova-lab.html',
-  'adp/labs/0003-real-regression-problem.html',
+  'adp/index.html', 'adp/topics.html',
+  ...readdirSync(new URL('../adp/labs', import.meta.url).pathname).filter(f => f.endsWith('.html')).sort().map(f => 'adp/labs/' + f),
 ];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));

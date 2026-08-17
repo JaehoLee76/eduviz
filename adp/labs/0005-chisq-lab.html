@@ -1,0 +1,295 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실기 통계 ⑤ · 카이제곱 독립성 검정 (주어진 데이터 풀이)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;
+ --gA:#4a86e8;--gB:#e0952b;--gC:#3aa76d;--gD:#9b6ae0;--gE:#e0577a;--gF:#4bb8c4;--grand:#7a7580;}
+@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--gE:#f08bab;--gF:#6fe0ec;--grand:#9b93a2;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.08rem;margin:1.7rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}.prob .src{font-size:.75rem;color:var(--soft);margin-top:.5rem}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.6rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.82rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.probban{font-weight:800;color:var(--accent);font-size:.86rem;letter-spacing:.03em;margin-bottom:-.3rem}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.verdict{margin:.6rem 0;padding:.7rem .9rem;border-radius:9px;font-weight:700}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:.4rem;margin:.5rem 0}
+.pc{border:1px solid var(--rule);border-radius:8px;padding:.4rem .55rem;font-size:.82rem;font-variant-numeric:tabular-nums}
+.pc.sig{border-color:var(--good);background:color-mix(in srgb,var(--good) 10%,transparent)}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.trap{border:1.5px dashed var(--warn);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.trap .v{font-weight:800;color:var(--warn)}
+.chk{font-size:.86rem;color:var(--soft);margin:.3rem 0}
+.explore{background:var(--code);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.explore .t{font-size:.8rem;font-weight:800;color:var(--warn);letter-spacing:.05em}
+.ctrl{display:grid;grid-template-columns:190px 1fr 80px;align-items:center;gap:.6rem;font-size:.87rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.7rem}
+
+/* --- 페이지 이동(홈·이전·다음) --- */
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);
+  color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">5 / 5 · 통계 · 카이제곱</span></nav>
+
+<p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
+<h1>카이제곱 독립성 검정 — 학과와 성적은 관련이 있는가<small>ADP 23회 실기 문3 유형: 학과별 입학 성적 분포. <b>도수표가 주어지고</b>, 두 범주형 변수의 관련성을 검정한다.</small></h1>
+
+<div class="prob">
+  <b>[문제]</b> 학과별 학생들의 평점 분포에 관한 연구다. 사회과학·자연과학·공학 등 여섯 개 학과(A~F) 학생들의 <b>입학 성적 분포</b>를 조사하였다.
+  <b>학과와 성적 구간은 서로 관련이 있는가?</b> 유의수준 5%에서 검정하시오.
+  <table class="gday">
+    <tr><th>점수 구간</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr>
+    <tr><td><b>50–66</b></td><td>90</td><td>35</td><td>45</td><td>40</td><td>50</td><td>60</td></tr>
+    <tr><td><b>67–83</b></td><td>50</td><td>55</td><td>55</td><td>50</td><td>45</td><td>40</td></tr>
+    <tr><td><b>84–100</b></td><td>20</td><td>70</td><td>60</td><td>70</td><td>65</td><td>60</td></tr>
+  </table>
+  <div class="src">유형 출처: ADP 실기 23회 복원. <b>위 도수표는 원문 그대로</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+
+<div class="lab">
+  <canvas id="cv" height="320"></canvas>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="qna" data-label="독립성 검정과 동질성 검정은 무엇이 다른가요?"
+     data-q="카이제곱 독립성 검정과 동질성 검정은 어떻게 다른가요?">
+  <p><b>계산은 똑같습니다. 데이터를 어떻게 모았는지가 다릅니다.</b></p>
+  <ul>
+    <li><b>독립성 검정 (test of independence)</b> — 학생 960명을 한 번에 뽑은 다음, 각자의 <b>학과</b>와 <b>성적 구간</b>을 동시에 기록합니다. 묻는 것은 "이 두 특성이 서로 관련 있는가"입니다. 이번 문제가 이 경우입니다 — 학과도 성적도 미리 정해 둔 게 아니라 뽑고 보니 그렇게 나온 것입니다.</li>
+    <li><b>동질성 검정 (test of homogeneity)</b> — 학과별로 <b>표본 크기를 먼저 정해서</b>(예: 각 학과 160명씩) 따로 뽑은 다음, 성적 구간 비율이 학과마다 같은지를 봅니다. 행(또는 열) 합계가 <b>설계로 고정</b>되어 있다는 점이 다릅니다.</li>
+  </ul>
+  <p>공교롭게도 이 문제는 여섯 학과 모두 합계가 정확히 160명이라, 계산 결과만 보면 동질성 검정과 똑같아 보입니다. 하지만 <b>표본을 뽑은 방식</b>(학과를 미리 정해 각 160명을 뽑았는지, 그냥 960명을 뽑았는지)이 둘을 가릅니다. 실기에서는 문제 지문에 "각 학과에서 n명씩 조사하였다"처럼 표본설계가 명시되면 동질성, 그냥 "조사하였더니 이런 표가 나왔다"면 독립성으로 서술하면 됩니다. 검정통계량 식과 자유도 (행수−1)(열수−1)은 두 경우 모두 같습니다.</p>
+</div>
+<div class="qna" data-label="기대도수 5 미만 규칙은 왜 있나요?" data-q="기대도수 5 미만 칸이 있으면 왜 문제가 되나요?">
+  <p><b>카이제곱 검정은 근사(approximation)입니다.</b> 관측도수는 원래 이산적인 값(포아송·이항 성질)인데, 검정통계량 Σ(관측−기대)²/기대 가 <b>연속인 카이제곱 분포를 따른다고 가정</b>하고 p값을 구합니다. 이 근사가 성립하려면 각 칸의 기대도수가 충분히 커야 합니다 — 표본이 커야 이산 분포가 연속 분포에 가까워지기 때문입니다(중심극한정리(central limit theorem)와 같은 이치).</p>
+  <p><b>관행적 기준</b>은 "기대도수 5 미만인 칸이 전체의 20%를 넘지 않아야 한다"는 것입니다(Cochran의 규칙). 이 문제는 3×6=18칸 중 <b>0칸</b>이 5 미만이라 전제를 넉넉히 만족합니다 — 아래 ②전제 확인에서 직접 세어 보여드립니다.</p>
+  <p><b>깨졌을 때는</b> ①범주를 합쳐 칸 수를 줄이거나 ②2×2 표라면 <b>연속성 수정(Yates' correction)</b>을 적용하거나 ③표가 작으면 <b>피셔의 정확검정 (Fisher's exact test)</b>으로 갈아탑니다. 피셔 정확검정은 근사 없이 초기하분포(hypergeometric distribution)로 정확한 확률을 구하므로 표본이 작을 때 안전하지만, 칸 수가 많은 표(이번처럼 3×6)로는 계산량이 커져 잘 쓰지 않습니다.</p>
+</div>
+<div class="qna" data-label="표본이 커지면 왜 다 유의해지나요?" data-q="탐구 모드에서 표본을 키우기만 해도 왜 카이제곱과 유의성이 커지나요?">
+  <p><b>검정통계량 식 자체에 표본 크기가 곱해져 들어가기 때문입니다.</b> 비율을 그대로 두고 전체 인원만 k배로 늘리면, 관측도수도 기대도수도 똑같이 k배가 됩니다. 그런데 카이제곱 기여도는</p>
+  <pre>(관측−기대)² / 기대  =  (k·관측₀ − k·기대₀)² / (k·기대₀)  =  k · (관측₀−기대₀)² / 기대₀</pre>
+  <p>즉 <b>카이제곱 통계량 전체가 정확히 k배로 커집니다.</b> 비율 차이는 조금도 안 바뀌었는데 말입니다. 그래서 통계적 유의성(p&lt;0.05)은 "차이가 실제로 크다"가 아니라 "<b>이 정도 차이가 우연히 생길 확률이 낮다</b>"는 뜻일 뿐이고, 표본이 크면 아주 작은 차이도 우연으로 보기 어려워져 쉽게 유의해집니다. 그래서 실기 답안에서는 p값만 보고할 게 아니라 <b>기여도가 큰 칸이 어디인지, 실질적으로 의미 있는 차이인지</b>를 함께 서술해야 합니다(통계적 유의성과 실질적 중요성은 다릅니다).</p>
+</div>
+
+<h2><span class="step">1</span>가설 설정</h2>
+<p style="font-size:.94rem">H₀: 학과와 성적 구간은 <b>서로 독립이다</b>(관련이 없다) · H₁: 학과와 성적 구간은 <b>서로 관련이 있다</b>.</p>
+
+<h2><span class="step">2</span>전제 확인</h2>
+<div class="chk">카이제곱 검정은 <b>기대도수가 충분히 커야</b> 카이제곱 분포로의 근사가 성립합니다. 관행 기준은 <b>기대도수 5 미만 칸이 전체의 20% 이하</b>. 아래 값은 위 도수표에서 그대로 계산한 것입니다.</div>
+<table id="assump"></table>
+<div id="assumpV"></div>
+
+<h2><span class="step">3</span>검정통계량 — 관측·기대·기여도 <span style="font-size:.75rem;color:var(--soft)">(주어진 숫자에서 실계산)</span></h2>
+<div class="chk">기대도수 = 행합계 × 열합계 ÷ 전체합계. 기여도 = (관측−기대)²÷기대 를 18칸 모두 계산해 더한 것이 카이제곱 통계량입니다.</div>
+<table id="exp"></table>
+<table id="contrib"></table>
+<div id="verdict"></div>
+
+<h2><span class="step">4</span>판정</h2>
+<table id="anova"></table>
+
+<h2><span class="step">5</span>결론 서술 (실기 답안)</h2>
+<div class="concl" id="concl"></div>
+
+<div class="explore">
+  <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관)</div>
+  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">비율은 그대로 두고 <b>표본 크기만</b> 배수로 늘리거나 줄여, 카이제곱과 p값이 어떻게 바뀌는지 보세요. <b>1.0배 = 주어진 원본 데이터</b>.</div>
+  <div class="ctrl"><label>표본 크기 배수</label><input id="sN" type="range" min="0.5" max="3" step="0.1" value="1"><output id="oN"></output></div>
+</div>
+
+<h2>Python 답안</h2>
+<pre id="py"></pre>
+
+<div class="ask">
+  <b>물으세요 — 근본까지.</b>
+  <ul>
+    <li>탐구 슬라이더로 배수를 0.5배까지 내리면 판정이 바뀌나요? 왜 그런가요?</li>
+    <li>자유도가 왜 (행수−1)×(열수−1) = 10인가요? 행 합계·열 합계가 고정된다는 것과 무슨 관계인가요?</li>
+    <li>어느 학과, 어느 성적 구간이 가장 크게 벗어났나요? 그 칸의 잔차 부호(관측&gt;기대인지 &lt;인지)는 무엇을 의미하나요?</li>
+    <li>기대도수가 모든 학과에서 똑같이 나온 이유는 무엇인가요? (열 합계를 확인해 보세요)</li>
+  </ul>
+</div>
+
+<small class="src2">기대도수·카이제곱·자유도·p값·임계값 전부 위 <b>주어진 3×6 도수표</b>에서 실계산(골든룰). node 검증: χ²(10)=71.749, p=2.035e-11, 임계값(.05)=18.307 — 화면 값과 일치. p값은 카이제곱 분포의 상측 확률 Q(자유도/2, χ²/2)를 불완전감마함수(incomplete gamma function)로 직접 적분.</small>
+
+<script>
+function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+var GITMAX=200,GEPS=3e-12,GFPMIN=1e-300;
+// 불완전감마함수: 급수전개(x가 작을 때)와 연분수(x가 클 때)로 각각 gammp/gammq를 구한다.
+function gser(a,x){var gln=gammln(a);if(x<=0)return [0,gln];var ap=a,sum=1/a,del=sum;for(var n=1;n<=GITMAX;n++){ap+=1;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*GEPS)break;}return [sum*Math.exp(-x+a*Math.log(x)-gln),gln];}
+function gcf(a,x){var gln=gammln(a),b=x+1-a,c=1/GFPMIN,d=1/b,h=d;for(var i=1;i<=GITMAX;i++){var an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<GFPMIN)d=GFPMIN;c=b+an/c;if(Math.abs(c)<GFPMIN)c=GFPMIN;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<GEPS)break;}return [Math.exp(-x+a*Math.log(x)-gln)*h,gln];}
+function gammq(a,x){if(x<0||a<=0)return NaN;if(x<a+1)return 1-gser(a,x)[0];return gcf(a,x)[0];}
+// 카이제곱 분포의 상측확률(=p값) = Q(자유도/2, 통계량/2)
+function chi2pval(x,df){if(x<=0)return 1;return gammq(df/2,x/2);}
+function chi2crit(p,df){var lo=0,hi=300;for(var i=0;i<100;i++){var m=(lo+hi)/2;if(chi2pval(m,df)>p)lo=m;else hi=m;}return (lo+hi)/2;}
+
+var DATA=[[90,35,45,40,50,60],[50,55,55,50,45,40],[20,70,60,70,65,60]];
+var ROWN=['50–66','67–83','84–100'],COLN=['A','B','C','D','E','F'],COL=['--gA','--gB','--gC','--gD','--gE','--gF'];
+var R3=DATA.length,C6=DATA[0].length;
+function compute(mult){
+ var o=DATA.map(function(r){return r.map(function(v){return v*mult;})});
+ var rowSum=o.map(function(r){return r.reduce(function(a,b){return a+b},0);});
+ var colSum=COLN.map(function(_,j){var s=0;for(var i=0;i<R3;i++)s+=o[i][j];return s;});
+ var N=rowSum.reduce(function(a,b){return a+b},0);
+ var exp=o.map(function(r,i){return r.map(function(_,j){return rowSum[i]*colSum[j]/N;});});
+ var contrib=o.map(function(r,i){return r.map(function(v,j){return Math.pow(v-exp[i][j],2)/exp[i][j];});});
+ var chi2=0;for(var i=0;i<R3;i++)for(var j=0;j<C6;j++)chi2+=contrib[i][j];
+ var df=(R3-1)*(C6-1);
+ var p=chi2pval(chi2,df),fc=chi2crit(0.05,df);
+ var below5=0;for(i=0;i<R3;i++)for(j=0;j<C6;j++)if(exp[i][j]<5)below5++;
+ return {o,rowSum,colSum,N,exp,contrib,chi2,df,p,fc,below5,total:R3*C6};
+}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.width=w*dpr;cv.height=h*dpr;var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function fmt(v,d){return v.toFixed(d===undefined?2:d);}
+
+// 시각화: 학과별 성적구성 100% 누적막대 — 비율이 다르면 눈에 보이고, 기여도가 큰 칸을 테두리로 강조.
+function drawMain(R){
+ var cv=document.getElementById('cv'),o=setup(cv,320),x=o.x,W=o.w,H=o.h;x.clearRect(0,0,W,H);
+ var pL=44,pR=14,pT=18,pB=34;
+ var maxContrib=0;for(var i=0;i<R3;i++)for(var j=0;j<C6;j++)maxContrib=Math.max(maxContrib,R.contrib[i][j]);
+ var barW=(W-pL-pR)/C6,barPad=barW*.18,bw=barW-barPad,plotTop=pT,plotBot=H-pB,plotH=plotBot-plotTop;
+ var rowCol=['#8fa6c9','#c9a26a','#7ab89a']; // 배경 톤용(막대 세그먼트는 학과색 톤 대신 성적구간 톤을 쓰고, 기여도 큰 칸만 강조)
+ x.strokeStyle=css('--rule');x.lineWidth=1;x.globalAlpha=.5;
+ [0,.25,.5,.75,1].forEach(function(f){var yy=plotTop+plotH*(1-f);x.beginPath();x.moveTo(pL,yy);x.lineTo(W-pR,yy);x.stroke();});
+ x.globalAlpha=1;x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';x.textAlign='right';
+ [0,25,50,75,100].forEach(function(f){var yy=plotTop+plotH*(1-f/100);x.fillText(f+'%',pL-6,yy+3);});
+ var segCol=[css('--gA'),css('--gC'),css('--gE')]; // 성적구간 3색(낮음/중간/높음)
+ for(var j=0;j<C6;j++){
+  var cx=pL+barW*j+barPad/2,total=R.colSum[j],acc=0;
+  for(var i=0;i<R3;i++){
+   var v=R.o[i][j],frac=v/total,y0=plotTop+plotH*(1-acc/100*1),y1;
+   var accPct=acc, nextPct=acc+frac*100;
+   var yTop=plotTop+plotH*(1-nextPct/100), yBot=plotTop+plotH*(1-accPct/100);
+   var strong=R.contrib[i][j]>=maxContrib*.55 && R.contrib[i][j]>3;
+   x.fillStyle=segCol[i];x.globalAlpha=.82;x.fillRect(cx,yTop,bw,yBot-yTop);x.globalAlpha=1;
+   if(strong){x.strokeStyle=css('--warn');x.lineWidth=2.4;x.strokeRect(cx+1.2,yTop+1.2,bw-2.4,(yBot-yTop)-2.4);}
+   if((yBot-yTop)>14){x.fillStyle='#fff';x.font='700 11px -apple-system,sans-serif';x.textAlign='center';x.fillText(''+v,cx+bw/2,(yTop+yBot)/2+4);}
+   acc=nextPct;
+  }
+  x.fillStyle=css('--ink');x.font='700 12px -apple-system,sans-serif';x.textAlign='center';
+  x.fillText(COLN[j],cx+bw/2,plotBot+18);
+  x.fillStyle=css('--soft');x.font='10.5px -apple-system,sans-serif';x.fillText('n='+total,cx+bw/2,plotBot+31);
+ }
+ var lg=document.getElementById('legend');
+ lg.innerHTML='<span><span class="dot" style="background:'+segCol[0]+'"></span>'+ROWN[0]+'점</span>'+
+  '<span><span class="dot" style="background:'+segCol[1]+'"></span>'+ROWN[1]+'점</span>'+
+  '<span><span class="dot" style="background:'+segCol[2]+'"></span>'+ROWN[2]+'점</span>'+
+  '<span>주황 테두리 = 기여도가 큰 칸(관측이 기대에서 크게 벗어남)</span>';
+}
+function render(){
+ var mult=+sN.value;oN.textContent='×'+fmt(mult,1);
+ var R=compute(mult);drawMain(R);
+
+ // ② 전제 확인
+ var rowsHtml='<tr><th>기대도수(행\\열)</th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>';
+ document.getElementById('assump').innerHTML=
+  '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'<th>합계</th></tr>'+
+  R.o.map(function(row,i){return '<tr><td><b>'+ROWN[i]+'</b></td>'+row.map(function(v){return '<td>'+v+'</td>'}).join('')+'<td><b>'+R.rowSum[i]+'</b></td></tr>';}).join('')+
+  '<tr><td><b>합계</b></td>'+R.colSum.map(function(v){return '<td><b>'+v+'</b></td>'}).join('')+'<td><b>'+R.N+'</b></td></tr>';
+ var okE=R.below5/R.total<=0.2;
+ document.getElementById('assumpV').innerHTML='<div class="verdict '+(okE?'keep':'rej')+'">'+
+  '기대도수 5 미만 칸: '+R.below5+' / '+R.total+'칸 ('+fmt(100*R.below5/R.total,1)+'%) '+
+  (okE?'→ 20% 이하이므로 카이제곱 근사를 그대로 사용 가능':'→ 20%를 넘어 근사가 불안정 — 범주를 합치거나 피셔 정확검정으로 갈아타야 함')+
+  '<br>최소 기대도수: '+fmt(Math.min.apply(null,[].concat.apply([],R.exp)),2)+
+  '<br>→ '+(okE?'전제를 만족하므로 <b>카이제곱 독립성 검정</b>을 그대로 적용합니다.':'전제가 깨졌습니다. 범주 병합 또는 <b>피셔의 정확검정</b>을 검토합니다.')+'</div>';
+
+ // ③ 기대도수 표 + 기여도 표
+ document.getElementById('exp').innerHTML=
+  '<tr><th colspan="'+(C6+1)+'" style="background:var(--card);color:var(--ink);text-align:left;border:none;font-weight:800;padding-top:.6rem">기대도수 = 행합계 × 열합계 ÷ 전체('+fmt(R.N,0)+')</th></tr>'+
+  '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>'+
+  R.exp.map(function(row,i){return '<tr><td><b>'+ROWN[i]+'</b></td>'+row.map(function(v){return '<td>'+fmt(v,2)+'</td>'}).join('')+'</tr>';}).join('');
+ var maxC=0;for(var i=0;i<R3;i++)for(var j=0;j<C6;j++)maxC=Math.max(maxC,R.contrib[i][j]);
+ document.getElementById('contrib').innerHTML=
+  '<tr><th colspan="'+(C6+1)+'" style="background:var(--card);color:var(--ink);text-align:left;border:none;font-weight:800;padding-top:.6rem">칸별 기여도 (관측−기대)² ÷ 기대</th></tr>'+
+  '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>'+
+  R.contrib.map(function(row,i){return '<tr><td><b>'+ROWN[i]+'</b></td>'+row.map(function(v){
+    var strong=v>=maxC*.55 && v>3;
+    return '<td'+(strong?' style="background:color-mix(in srgb,var(--warn) 20%,transparent);font-weight:800;color:var(--warn)"':'')+'>'+fmt(v,3)+'</td>';
+  }).join('')+'</tr>';}).join('')+
+  '<tr><td><b>합계 = χ²</b></td><td colspan="'+C6+'" style="font-weight:800;color:var(--accent)">'+fmt(R.chi2,3)+'</td></tr>';
+
+ // ④ 판정
+ var rej=R.p<0.05;
+ document.getElementById('anova').innerHTML=
+  '<tr><th>검정통계량 χ²</th><th>자유도</th><th>임계값(.05)</th><th>p값</th><th>판정</th></tr>'+
+  '<tr><td style="font-weight:800;color:var(--accent)">'+fmt(R.chi2,3)+'</td><td>'+R.df+'</td><td>'+fmt(R.fc,3)+'</td><td style="font-weight:800">'+(R.p<0.0001?R.p.toExponential(3):fmt(R.p,4))+'</td><td>'+(rej?'<b style="color:var(--good)">기각</b>':'<b style="color:var(--warn)">기각 못 함</b>')+'</td></tr>';
+ document.getElementById('verdict').innerHTML='<div class="verdict '+(rej?'rej':'keep')+'">'+
+  (rej?'χ²='+fmt(R.chi2,2)+' > 임계값 '+fmt(R.fc,2)+', p='+(R.p<0.0001?R.p.toExponential(2):fmt(R.p,4))+' → H₀ 기각 : 학과와 성적 구간은 서로 관련이 있다(독립이 아니다)'
+      :'χ²='+fmt(R.chi2,2)+' ≤ 임계값 '+fmt(R.fc,2)+', p='+fmt(R.p,4)+' → H₀ 기각 못 함 : 학과와 성적 구간이 관련 있다고 볼 근거가 부족하다')+'</div>';
+
+ // ⑤ 결론 — 기여도 최댓값 칸을 찾아 서술
+ var best={i:0,j:0,v:-1};
+ for(i=0;i<R3;i++)for(j=0;j<C6;j++)if(R.contrib[i][j]>best.v)best={i:i,j:j,v:R.contrib[i][j]};
+ var sign=R.o[best.i][best.j]>R.exp[best.i][best.j]?'훨씬 많고':'훨씬 적고';
+ document.getElementById('concl').innerHTML='카이제곱 독립성 검정 결과 χ²('+R.df+') = '+fmt(R.chi2,2)+', p '+(R.p<0.0001?'= '+R.p.toExponential(2):'= '+fmt(R.p,4))+' 로 유의수준 0.05에서 '+
+  (rej?('귀무가설을 <b>기각한다</b> → 학과에 따라 성적 구간 분포에 <b>유의한 관련이 있다</b>. 기여도가 가장 큰 칸은 <b>'+COLN[best.j]+'학과 · '+ROWN[best.i]+'점 구간</b>(기여도 '+fmt(best.v,2)+')으로, 관측도수('+R.o[best.i][best.j]+')가 기대도수('+fmt(R.exp[best.i][best.j],1)+')보다 '+sign+' 있어, 이 칸이 전체 관련성을 주도한다고 볼 수 있다.')
+    :'귀무가설을 <b>기각하지 못한다</b> → 학과와 성적 구간 사이에 통계적으로 유의한 관련성이 확인되지 않는다.');
+
+ document.getElementById('py').textContent=
+  'import numpy as np\nfrom scipy import stats\n\n'+
+  'o = np.array([\n'+
+  R.o.map(function(row){return '    ['+row.map(function(v){return Math.round(v);}).join(', ')+'],';}).join('\n')+'\n'+
+  '])  # 행: 점수구간(50-66/67-83/84-100), 열: 학과(A~F)\n\n'+
+  '# 2. 전제: 기대도수 5 미만 칸이 20% 이하인지 확인\n'+
+  'chi2, p, dof, expected = stats.chi2_contingency(o)\n'+
+  'print("기대도수 5 미만:", (expected < 5).sum(), "/", expected.size)\n\n'+
+  '# 3~4. 검정통계량·자유도·p값\n'+
+  'print(f"chi2={chi2:.3f}, dof={dof}, p={p:.3e}")\n\n'+
+  '# 전제 위배(작은 표, 기대도수 부족) 시:\n'+
+  '# stats.fisher_exact(o)  # 2x2 표에서만 사용 가능';
+}
+var sN=document.getElementById('sN'),oN=document.getElementById('oN');
+sN.addEventListener('input',render);window.addEventListener('resize',render);render();
+</script>
+
+<nav class="labnav bot">
+  <a href="./0004-binomial-lab.html">← 이항분포</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <span class="sp"></span>
+</nav>
+</div>
+<script src="../tutor.js"></script>
+</body></html>

@@ -1,0 +1,380 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실기 통계 ④ · 이항분포 (주어진 데이터 풀이)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;
+ --gA:#4a86e8;--gB:#e0952b;--gC:#3aa76d;--gD:#9b6ae0;--grand:#7a7580;}
+@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.08rem;margin:1.7rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+h3{font-size:.94rem;margin:1.1rem 0 .4rem;color:var(--accent)}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}.prob .src{font-size:.75rem;color:var(--soft);margin-top:.5rem}
+.probn{font-weight:800;color:var(--accent);font-size:.86rem;letter-spacing:.02em;margin:.9rem 0 .3rem}
+.probn:first-child{margin-top:0}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.6rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.82rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+td.hi{background:color-mix(in srgb,var(--warn) 16%,transparent);font-weight:800}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.lab h3{margin-top:0}
+canvas{width:100%;display:block;border-radius:8px}
+.verdict{margin:.6rem 0;padding:.7rem .9rem;border-radius:9px;font-weight:700}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.trap{border:1.5px dashed var(--warn);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.trap .v{font-weight:800;color:var(--warn)}
+.chk{font-size:.86rem;color:var(--soft);margin:.3rem 0}
+.explore{background:var(--code);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.explore .t{font-size:.8rem;font-weight:800;color:var(--warn);letter-spacing:.05em}
+.ctrl{display:grid;grid-template-columns:190px 1fr 80px;align-items:center;gap:.6rem;font-size:.87rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+.bar{display:inline-block;width:1.1em;height:.7em;border-radius:2px;margin-right:.25em;vertical-align:-.05em}
+small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.7rem}
+
+/* --- 미니 막대(문제2 1단계 표) --- */
+.minibar{display:flex;align-items:center;gap:.5rem}
+.minibar .track{flex:1;height:14px;background:var(--code);border-radius:4px;overflow:hidden}
+.minibar .fill{height:100%;background:var(--accent);border-radius:4px}
+.minibar .fill.hi{background:var(--warn)}
+.minibar .val{width:4.6em;text-align:right;font-variant-numeric:tabular-nums;font-size:.8rem}
+
+/* --- 페이지 이동(홈·이전·다음) --- */
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);
+  color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">4 / 4 · 통계 · 이항분포</span></nav>
+
+<p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
+<h1>이항분포 — 주어진 조건에서 확률을 계산한다<small>ADP 29회 실기 문5 · 30회 실기 문7 유형: 불량률과 자녀 성별 확률. <b>같은 조건의 시행이 정해진 횟수만큼 독립으로 반복될 때</b>, 특정 결과가 나올 확률을 구한다.</small></h1>
+
+<div class="prob">
+  <p class="probn">[문제 1] 29회 실기 문5 유형</p>
+  <p>제품 A의 불량률은 0.03이다. 25개의 제품을 뽑았을 때 <b>3개가 불량일 확률</b>을 구하시오. (소수점 다섯째 자리에서 반올림)</p>
+  <table class="gday">
+    <tr><th>시행 횟수 n</th><th>성공(불량) 확률 p</th><th>구하는 값</th></tr>
+    <tr><td>25</td><td>0.03</td><td>P(X = 3)</td></tr>
+  </table>
+
+  <p class="probn">[문제 2] 30회 실기 문7 유형</p>
+  <p>각각 6명의 자녀를 가진 다섯 가족이 있다. 각각의 자녀가 아들 또는 딸일 확률은 0.5일 때,
+  <b>① 4명 이상의 딸을 가진 가족이 세 가족 이상일 확률</b>을 구하고,
+  <b>② 다섯 가족 중 몇 가족이 4명 이상의 딸을 가질 것으로 기대되는지</b> 계산하시오. (소수점 셋째 자리까지)</p>
+  <table class="gday">
+    <tr><th>단계</th><th>시행 횟수 n</th><th>성공 확률 p</th><th>구하는 값</th></tr>
+    <tr><td>1단계 · 한 가족의 딸 수</td><td>6</td><td>0.5</td><td>P(딸 ≥ 4)</td></tr>
+    <tr><td>2단계 · 다섯 가족 중 해당 가족 수</td><td>5</td><td>1단계 결과값</td><td>① P(Z ≥ 3)  ② E[Z]</td></tr>
+  </table>
+  <div class="src">유형 출처: ADP 실기 29회·30회 복원. <b>위 숫자는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+</div>
+
+<div class="solban">여기서부터 위 두 문제를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+
+<div class="lab">
+  <h3>문제 1 — X ~ B(25, 0.03)의 확률 막대그래프</h3>
+  <canvas id="cv1" height="240"></canvas>
+  <div class="legend">
+    <span><span class="bar" style="background:var(--accent)"></span>P(X=k)</span>
+    <span><span class="bar" style="background:var(--warn)"></span>구하는 값 k=3</span>
+    <span><span class="bar" style="background:var(--good);opacity:.55"></span>정규근사 곡선(점선)</span>
+  </div>
+</div>
+
+<div class="qna" data-label="이항분포와 정규분포는 무슨 관계인가요?" data-q="이항분포와 정규분포는 무슨 관계인가요?">
+  <p><b>시행 횟수 n이 충분히 크면, 이항분포의 막대 모양이 정규분포 곡선에 가까워집니다.</b> 성공 하나하나는 동전을 던지는 것처럼 들쭉날쭉하지만, 그것을 아주 많이 더하면(중심극한정리) 결과는 종 모양으로 몰립니다. 그래서 n이 크고 p가 너무 0이나 1에 치우치지 않을 때는, 계산이 번거로운 이항분포 대신 정규분포로 <b>근사</b>해서 값을 구해도 됩니다.</p>
+  <p>문제는 "충분히 크다"의 기준입니다. 실무에서 널리 쓰는 기준은 <b>np ≥ 5 이고 n(1−p) ≥ 5</b> 입니다. 이 화면의 문제 1은 np = 25×0.03 = 0.75로 이 기준에 한참 못 미칩니다 — 막대그래프가 왼쪽(0 근처)에 완전히 쏠려 있고 정규곡선과 크게 어긋나는 것을 위 그래프에서 직접 볼 수 있습니다.</p>
+</div>
+<div class="qna" data-label="왜 25개 중 3개인데 조합을 곱하나요?" data-q="25개 중 3개가 불량인 경우인데, 왜 조합 C(25,3)을 곱하나요?">
+  <p><b>"몇 번째가 불량이냐"까지는 관심이 없기 때문입니다.</b> 25개 제품을 순서대로 나열하면, 3개가 불량이고 22개가 정상인 배열은 한 가지가 아닙니다 — 어느 자리 3곳이 불량이냐에 따라 여러 가지 배열이 나옵니다. 그 배열의 가짓수가 바로 조합 C(25,3) = 2300가지입니다.</p>
+  <p>각 배열 하나가 일어날 확률은 전부 같습니다 — 불량 하나마다 p=0.03을, 정상 하나마다 (1−p)=0.97을 곱한 값 p³(1−p)²². 배열이 서로 겹치지 않는 별개의 경우이므로(어느 한 배열이 일어나면 다른 배열은 못 일어남), <b>전체 확률은 이 값을 배열 가짓수만큼 더한 것</b> — 곧 C(25,3)×p³×(1−p)²²이 됩니다.</p>
+</div>
+<div class="qna" data-label="포아송 근사는 언제 쓰나요?" data-q="이항분포를 포아송분포로 근사하는 것은 언제 쓰나요?">
+  <p><b>n이 아주 크고 p가 아주 작아서, 정규근사의 조건(np≥5)조차 못 채울 때 씁니다.</b> 대략 <b>n이 크고(보통 n≥100 안팎) p가 작으며(보통 p≤0.05), np가 5~10 이하로 작게 유지될 때</b> 이항분포는 평균이 λ=np인 포아송분포에 가까워집니다. "아주 많은 기회 중 아주 드물게 일어나는 사건의 개수"(콜센터 시간당 불량 접수 건수 등)를 셀 때 쓰는 이유입니다.</p>
+  <p>이 화면의 문제 1(n=25, p=0.03, np=0.75)은 n이 100 안팎에 못 미쳐 교과서적 포아송 근사 조건도 딱 들어맞진 않습니다 — 실기에서는 <b>n이 크지 않으면 근사를 쓰지 말고 이항분포로 직접 계산하는 것</b>이 가장 안전합니다. 이 문제도 마찬가지로, 25번이라는 시행 횟수를 그대로 이항분포 공식에 넣어 정확히 계산합니다.</p>
+</div>
+
+<h2><span class="step">1</span>무엇을 묻는가 — 확률변수 정의</h2>
+<p style="font-size:.94rem"><b>문제 1</b> — 제품 하나가 불량일 확률은 매번 p=0.03으로 같고, 25개를 독립으로 뽑습니다. "25개 중 불량 개수"를 확률변수 X라 하면 <b>X ~ B(n=25, p=0.03)</b>이고, 구하는 값은 P(X=3)입니다.</p>
+<p style="font-size:.94rem"><b>문제 2</b> — 한 자녀가 딸일 확률은 매번 0.5로 같고, 한 가족의 자녀 6명은 독립입니다. "한 가족의 딸 수"를 Y라 하면 <b>Y ~ B(6, 0.5)</b>. "딸이 4명 이상"이라는 사건 하나를 다시 성공/실패로 보면, 그 성공확률은 p₁=P(Y≥4)이고, "다섯 가족 중 그 사건이 일어난 가족 수"를 Z라 하면 <b>Z ~ B(5, p₁)</b> — 이항분포 안에서 나온 확률이 다음 이항분포의 성공확률로 다시 쓰이는 이단 구조입니다.</p>
+
+<h2><span class="step">2</span>이항분포를 쓸 조건 확인</h2>
+<div class="chk">이항분포는 <b>①매 시행이 서로 독립이고 ②성공확률이 매번 일정하며 ③시행 횟수가 미리 고정</b>되어 있을 때만 성립합니다. 세 조건이 깨지면 이항분포를 쓸 수 없으므로, 계산 전에 먼저 확인합니다.</div>
+<table>
+  <tr><th>조건</th><th>문제 1 (불량 검사)</th><th>문제 2 (자녀 성별)</th></tr>
+  <tr><td>① 독립시행</td><td>제품마다 불량 여부가 다른 제품에 영향을 주지 않음</td><td>자녀마다 성별이 다른 자녀에 영향을 주지 않음(가정)</td></tr>
+  <tr><td>② 성공확률 일정</td><td>매 제품 p=0.03로 동일</td><td>매 자녀 p=0.5로 동일 · 2단계는 매 가족 p₁로 동일</td></tr>
+  <tr><td>③ 시행 횟수 고정</td><td>n=25 (뽑는 개수를 미리 정함)</td><td>n=6(자녀 수) → n=5(가족 수)로 각각 고정</td></tr>
+  <tr><td>판정</td><td colspan="2" style="font-weight:800;color:var(--good)">세 조건 모두 만족 → 이항분포 적용 가능</td></tr>
+</table>
+
+<h2><span class="step">3</span>확률 계산 — 문제 1</h2>
+<p style="font-size:.87rem;color:var(--soft)">P(X=k) = C(25,k) × 0.03ᵏ × 0.97²⁵⁻ᵏ 을 k별로 계산한 뒤, k=3 자리를 읽습니다. k=9 이상은 확률이 0.00001 미만으로 사실상 0이라 생략합니다.</p>
+<table id="t1"></table>
+<div id="v1"></div>
+
+<h2><span class="step">3</span>확률 계산 — 문제 2</h2>
+<h3>2-1) 한 가족의 딸 수 Y ~ B(6, 0.5) — "성공" p₁ 만들기</h3>
+<p style="font-size:.87rem;color:var(--soft)">먼저 한 가족에서 "딸 4명 이상"이 나올 확률 p₁을 구합니다. 이것이 다음 단계(가족 5개)의 성공확률이 됩니다.</p>
+<table id="t2a"></table>
+<div id="v2a"></div>
+<h3>2-2) 다섯 가족 중 "딸 4명 이상"인 가족 수 Z ~ B(5, p₁)</h3>
+<canvas id="cv2" height="220"></canvas>
+<div class="legend">
+  <span><span class="bar" style="background:var(--accent)"></span>P(Z=k)</span>
+  <span><span class="bar" style="background:var(--warn)"></span>구간 k≥3 (①의 답)</span>
+  <span><span class="bar" style="background:var(--good);opacity:.55"></span>정규근사 곡선(점선)</span>
+</div>
+<table id="t2b"></table>
+<div id="v2b"></div>
+
+<h2><span class="step">4</span>정규근사, 써도 되는가 — np·n(1−p) 판정</h2>
+<div class="chk">정규분포로 근사해 빠르게 어림잡을 수 있는지는, <b>np와 n(1−p)가 모두 5 이상인지</b>로 판정합니다. 둘 중 하나라도 5 미만이면 분포가 한쪽으로 심하게 치우쳐 있어 정규곡선(좌우대칭 종 모양)과 잘 안 맞습니다 — 이때는 근사하지 말고 이항분포로 직접 계산해야 합니다.</div>
+<table id="t4"></table>
+<div class="trap" id="trap1"></div>
+
+<h2><span class="step">5</span>결론 서술 (실기 답안)</h2>
+<div class="concl" id="concl1"></div>
+<div class="concl" id="concl2"></div>
+
+<div class="explore">
+  <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관)</div>
+  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">n과 p를 움직여 막대그래프와 정규근사 곡선이 함께 변하는 모습을 보세요. <b>기본값은 문제 1(n=25, p=0.03)</b>입니다. np가 5를 넘는 순간부터 곡선이 막대를 훨씬 잘 따라가는 것을 확인할 수 있습니다.</div>
+  <div class="ctrl"><label>시행 횟수 n</label><input id="sN" type="range" min="3" max="50" step="1" value="25"><output id="oN"></output></div>
+  <div class="ctrl"><label>성공확률 p</label><input id="sP" type="range" min="0.02" max="0.98" step="0.01" value="0.03"><output id="oP"></output></div>
+  <canvas id="cv3" height="220" style="margin-top:.6rem"></canvas>
+  <div id="v3" style="font-size:.87rem;margin-top:.4rem"></div>
+</div>
+
+<h2>Python 답안</h2>
+<pre id="py"></pre>
+
+<div class="ask">
+  <b>물으세요 — 근본까지.</b>
+  <ul>
+    <li>왜 정규근사 조건은 "np≥5"이지 "n≥30"이 아닌가요? p가 0.5에 가까울 때와 0.03일 때 필요한 n이 왜 다른가요?</li>
+    <li>문제 2에서 p₁=P(Y≥4)를 구하는 것과, 2단계에서 그 p₁을 다시 성공확률로 쓰는 것 — 왜 이렇게 두 번 이항분포를 써도 되나요?</li>
+    <li>탐구 모드에서 p=0.5로 두고 n을 키우면 막대그래프가 정규곡선에 가장 빨리 가까워집니다. 왜 p=0.5일 때 근사가 가장 잘 맞나요?</li>
+    <li>기댓값 E[X]=np는 왜 그냥 n과 p를 곱하기만 하면 나오나요? (한 번의 시행에서 기댓값이 왜 p인지부터.)</li>
+  </ul>
+</div>
+
+<small class="src2">이항확률·정규근사 값 전부 위 <b>주어진 n·p·k</b>에서 실계산(골든룰). 조합은 곱셈 누적(nCk = ∏(n−k+i)/i)으로 팩토리얼 오버플로를 피했습니다. node 검증: P(X=3)=0.031774(scipy 0.03177384…와 일치), P(Z≥3)=0.225546, E[Z]=1.71875 — 화면 값과 일치. 정규분포 누적분포는 Abramowitz-Stegun erf 근사로 직접 계산.</small>
+
+<script>
+/* ---- 이항분포 핵심 계산 (골든룰: 전부 여기서 실계산) ---- */
+function comb(n,k){ if(k<0||k>n) return 0; k=Math.min(k,n-k); var r=1; for(var i=1;i<=k;i++) r=r*(n-k+i)/i; return r; }
+function pmf(n,p,k){ if(k<0||k>n) return 0; return comb(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k); }
+function cdf(n,p,K){ var s=0; for(var k=0;k<=K;k++) s+=pmf(n,p,k); return s; }
+function sfAtLeast(n,p,K){ if(K<=0) return 1; return 1-cdf(n,p,K-1); } // P(X>=K)
+function mean(n,p){ return n*p; }
+function sd(n,p){ return Math.sqrt(n*p*(1-p)); }
+/* 표준정규 누적분포 — Abramowitz & Stegun 7.1.26 근사(오차<1.5e-7) */
+function erf(x){
+  var sign=x<0?-1:1; x=Math.abs(x);
+  var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,pp=0.3275911;
+  var t=1/(1+pp*x);
+  var y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return sign*y;
+}
+function normcdf(x,m,s){ if(s<=0) return x<m?0:1; return 0.5*(1+erf((x-m)/(s*Math.SQRT2))); }
+function normpdf(x,m,s){ if(s<=0) return 0; var z=(x-m)/s; return Math.exp(-0.5*z*z)/(s*Math.sqrt(2*Math.PI)); }
+function approxCC(n,p,k){ var m=mean(n,p),s=sd(n,p); return normcdf(k+0.5,m,s)-normcdf(k-0.5,m,s); }
+
+/* ---- 고정값 (문제 그대로) ---- */
+var N1=25, P1=0.03, K1=3;
+var N2a=6, P2a=0.5, K2a=4;          // 한 가족: 딸 4명 이상
+var p1 = sfAtLeast(N2a,P2a,K2a);     // = P(Y>=4)
+var N2b=5, K2b=3;                    // 다섯 가족 중 3가족 이상
+
+/* ---- 공용: 캔버스 준비 / 서식 ---- */
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.width=w*dpr;cv.height=h*dpr;var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function fmt(v,d){return v.toFixed(d===undefined?4:d);}
+function niceStep(r){var p=Math.pow(10,Math.floor(Math.log10(r)));var f=r/p;var n=f<1.5?1:f<3?2:f<7?5:10;return Math.max(1e-9,n*p);}
+
+/* ---- 이항 막대그래프 + 정규근사 곡선 그리기 ---- */
+function drawBinom(cv,n,p,hiFn){
+  var o=setup(cv,cv.height||220),x=o.x,W=o.w,H=o.h;x.clearRect(0,0,W,H);
+  var pL=40,pR=12,pT=14,pB=26;
+  var arr=[];for(var k=0;k<=n;k++) arr.push(pmf(n,p,k));
+  var ymax=Math.max.apply(null,arr)*1.18||0.1;
+  function X(k){ return pL+(W-pL-pR)*((k+0.5)/(n+1)); }
+  function Y(v){ return pT+(H-pT-pB)*(1-v/ymax); }
+  var bw=(W-pL-pR)/(n+1);
+  /* 그리드 + y축 */
+  x.strokeStyle=css('--rule');x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';x.lineWidth=1;
+  var step=niceStep(ymax/4);
+  for(var t=0;t<=ymax;t+=step){ var yy=Y(t); x.globalAlpha=.32;x.beginPath();x.moveTo(pL,yy);x.lineTo(W-pR,yy);x.stroke();x.globalAlpha=1;
+    x.textAlign='right';x.fillText(t.toFixed(2),pL-6,yy+3); }
+  x.beginPath();x.moveTo(pL,Y(0));x.lineTo(W-pR,Y(0));x.stroke();
+  /* 막대 */
+  var lstep=bw<10?5:bw<16?2:1;
+  for(var k=0;k<=n;k++){
+    var hi=hiFn(k), bx=X(k)-bw*0.38, by=Y(arr[k]), bh=Y(0)-by;
+    x.fillStyle=hi?css('--warn'):css('--accent'); x.globalAlpha=hi?0.95:0.75;
+    x.fillRect(bx,by,bw*0.76,bh); x.globalAlpha=1;
+    if(k%lstep===0||hi){ x.fillStyle=css('--soft'); x.font=(hi?'700 ':'')+'11px -apple-system,sans-serif'; x.textAlign='center'; x.fillText(''+k,X(k),H-8); }
+  }
+  /* 정규근사 곡선 */
+  var m=mean(n,p),s=sd(n,p);
+  x.strokeStyle=css('--good');x.setLineDash([5,4]);x.lineWidth=2;x.beginPath();
+  var first=true;
+  for(var xi=0;xi<=n;xi+=Math.max(n/140,0.15)){
+    var yv=normpdf(xi,m,s), py=Y(yv), px=X(xi);
+    if(first){x.moveTo(px,py);first=false;} else x.lineTo(px,py);
+  }
+  x.stroke();x.setLineDash([]);
+  /* 라벨 */
+  x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';x.textAlign='left';
+  x.fillText('k (성공 횟수)',pL,pT-2);
+  x.textAlign='right';x.fillText('확률',W-pR,pT-2);
+}
+
+/* ---- 문제1 표 + 그래프 ---- */
+function renderP1(){
+  var rows=[],cum=0;
+  for(var k=0;k<=8;k++){ var pk=pmf(N1,P1,k); cum+=pk;
+    rows.push('<tr'+(k===K1?' style="background:color-mix(in srgb,var(--warn) 14%,transparent)"':'')+'>'+
+      '<td>'+k+'</td><td>'+fmt(comb(N1,k),0)+'</td><td>'+fmt(Math.pow(P1,k),6)+'</td><td>'+fmt(Math.pow(1-P1,N1-k),6)+'</td>'+
+      '<td'+(k===K1?' class="hi"':'')+'>'+fmt(pk,5)+'</td><td>'+fmt(cum,5)+'</td></tr>');
+  }
+  document.getElementById('t1').innerHTML=
+    '<tr><th>k</th><th>C(25,k)</th><th>0.03ᵏ</th><th>0.97²⁵⁻ᵏ</th><th>P(X=k)</th><th>누적 P(X≤k)</th></tr>'+rows.join('')+
+    '<tr><td colspan="4" style="color:var(--soft)">k=9~25 (생략, 합 &lt; 0.00001)</td><td colspan="2" style="color:var(--soft)">누적 → 1</td></tr>';
+  var pk3=pmf(N1,P1,K1);
+  document.getElementById('v1').innerHTML='<div class="verdict rej">P(X=3) = C(25,3) × 0.03³ × 0.97²² = '+fmt(pk3,7)+' → 소수점 다섯째 자리 반올림 = <b>'+fmt(pk3,4)+'</b></div>';
+  drawBinom(document.getElementById('cv1'),N1,P1,function(k){return k===K1;});
+}
+
+/* ---- 문제2 1단계 표(미니 막대) ---- */
+function renderP2a(){
+  var rows=[],mx=0,arr=[];for(var k=0;k<=N2a;k++){arr.push(pmf(N2a,P2a,k));mx=Math.max(mx,arr[k]);}
+  for(var k=0;k<=N2a;k++){ var hi=k>=K2a;
+    rows.push('<tr><td>'+k+'</td><td>'+fmt(comb(N2a,k),0)+'</td><td'+(hi?' class="hi"':'')+'>'+fmt(arr[k],5)+'</td>'+
+      '<td><div class="minibar"><div class="track"><div class="fill'+(hi?' hi':'')+'" style="width:'+(arr[k]/mx*100).toFixed(1)+'%"></div></div><div class="val">'+(hi?'딸 ≥4':'')+'</div></div></td></tr>');
+  }
+  document.getElementById('t2a').innerHTML=
+    '<tr><th>딸 수 k</th><th>C(6,k)</th><th>P(Y=k)</th><th></th></tr>'+rows.join('')+
+    '<tr><td colspan="2" style="font-weight:800">p₁ = P(Y≥4) = ('+comb(N2a,4)+'+'+comb(N2a,5)+'+'+comb(N2a,6)+') / 2⁶</td><td colspan="2" style="font-weight:800;color:var(--warn)">'+fmt(p1,5)+'</td></tr>';
+  document.getElementById('v2a').innerHTML='<div class="verdict rej">한 가족이 "딸 4명 이상"일 확률 p₁ = '+fmt(p1,5)+' (= 22/64) — 이 값이 다음 단계의 성공확률이 됩니다.</div>';
+}
+
+/* ---- 문제2 2단계 표 + 그래프 ---- */
+function renderP2b(){
+  drawBinom(document.getElementById('cv2'),N2b,p1,function(k){return k>=K2b;});
+  var rows=[],cum=0;
+  for(var k=0;k<=N2b;k++){ var pk=pmf(N2b,p1,k); cum+=pk; var hi=k>=K2b;
+    rows.push('<tr><td>'+k+'</td><td>'+fmt(comb(N2b,k),0)+'</td><td'+(hi?' class="hi"':'')+'>'+fmt(pk,5)+'</td><td>'+fmt(cum,5)+'</td></tr>');
+  }
+  document.getElementById('t2b').innerHTML=
+    '<tr><th>가족 수 k</th><th>C(5,k)</th><th>P(Z=k)</th><th>누적 P(Z≤k)</th></tr>'+rows.join('');
+  var pz=sfAtLeast(N2b,p1,K2b), ez=mean(N2b,p1);
+  document.getElementById('v2b').innerHTML='<div class="verdict rej">① P(Z≥3) = P(Z=3)+P(Z=4)+P(Z=5) = '+fmt(pz,6)+' → 소수점 셋째 자리 = <b>'+fmt(pz,3)+'</b><br>② E[Z] = 5 × p₁ = 5 × '+fmt(p1,5)+' = <b>'+fmt(ez,5)+'</b> → 소수점 셋째 자리 = <b>'+fmt(ez,3)+'</b></div>';
+  return {pz:pz,ez:ez};
+}
+
+/* ---- 4단계: 정규근사 판정표 ---- */
+function renderStep4(){
+  var rows=[
+    {label:'문제 1 · X~B(25, 0.03)', n:N1,p:P1},
+    {label:'문제 2 1단계 · Y~B(6, 0.5)', n:N2a,p:P2a},
+    {label:'문제 2 2단계 · Z~B(5, p₁)', n:N2b,p:p1},
+  ];
+  var html='<tr><th>확률변수</th><th>np</th><th>n(1−p)</th><th>판정</th></tr>';
+  rows.forEach(function(r){
+    var a=r.n*r.p,b=r.n*(1-r.p),ok=a>=5&&b>=5;
+    html+='<tr><td>'+r.label+'</td><td'+(a<5?' class="hi"':'')+'>'+fmt(a,3)+'</td><td'+(b<5?' class="hi"':'')+'>'+fmt(b,3)+'</td>'+
+      '<td style="font-weight:800;color:'+(ok?'var(--good)':'var(--warn)')+'">'+(ok?'근사 가능':'근사 부적절')+'</td></tr>';
+  });
+  document.getElementById('t4').innerHTML=html;
+  var m1=mean(N1,P1),s1=sd(N1,P1),ap=approxCC(N1,P1,K1),ex=pmf(N1,P1,K1);
+  document.getElementById('trap1').innerHTML='<b>왜 이 문제엔 정규근사를 쓰면 안 되나 — 숫자로 확인</b><br>'+
+    '문제 1은 np = 25×0.03 = <span class="v">0.75</span>로 5에 한참 못 미칩니다(기준: np≥5 그리고 n(1−p)≥5). '+
+    '그런데도 정규근사(연속성 보정 포함)로 P(X=3)을 어림잡으면 어떻게 될까요.<br>'+
+    '<pre style="margin:.5rem 0 0">이항분포로 정확히 계산: P(X=3) = '+fmt(ex,5)+'\n정규분포로 근사(연속성 보정): P(2.5&lt;X&lt;3.5) ≈ '+fmt(ap,5)+'\n상대 오차 ≈ '+fmt(Math.abs(ap-ex)/ex*100,0)+'%</pre>'+
+    '평균 '+fmt(m1,2)+', 표준편차 '+fmt(s1,3)+'인 <b>좌우대칭 종 모양</b> 곡선이, 0 근처에 완전히 몰려 있고 오른쪽으로 길게 늘어진(왼쪽으로 갈 곳이 없는) <b>비대칭 막대그래프</b>를 흉내 낼 수 없기 때문입니다. → <b>근사하지 말고 이항분포로 직접 계산해야 합니다.</b>';
+}
+
+/* ---- 5단계: 결론 ---- */
+function renderConcl(r2){
+  var pk3=pmf(N1,P1,K1);
+  document.getElementById('concl1').innerHTML='<b>문제 1 결론</b> — 제품 A의 불량률이 0.03인 모집단에서 25개를 뽑을 때, 불량이 정확히 3개일 확률은 이항분포 X~B(25, 0.03)에서 직접 계산하여 P(X=3) = C(25,3)×0.03³×0.97²² ≈ <b>'+fmt(pk3,4)+'</b>이다(소수점 다섯째 자리 반올림). np=0.75&lt;5이므로 정규근사는 적용하지 않았다.';
+  document.getElementById('concl2').innerHTML='<b>문제 2 결론</b> — 한 가족이 딸 4명 이상을 가질 확률은 Y~B(6,0.5)에서 p₁=P(Y≥4)='+fmt(p1,5)+'이다. 이를 성공확률로 하여 다섯 가족을 다시 이항분포 Z~B(5, '+fmt(p1,5)+')로 보면, ① 세 가족 이상일 확률은 P(Z≥3) ≈ <b>'+fmt(r2.pz,3)+'</b>이고, ② 기대되는 가족 수는 E[Z]=5p₁ ≈ <b>'+fmt(r2.ez,3)+'</b>가족이다.';
+}
+
+/* ---- 탐구 모드 ---- */
+var sN=document.getElementById('sN'),oN=document.getElementById('oN'),sP=document.getElementById('sP'),oP=document.getElementById('oP');
+function renderExplore(){
+  var n=+sN.value,p=+sP.value; oN.textContent=n; oP.textContent=p.toFixed(2);
+  drawBinom(document.getElementById('cv3'),n,p,function(){return false;});
+  var a=n*p,b=n*(1-p),ok=a>=5&&b>=5;
+  document.getElementById('v3').innerHTML='np = '+fmt(a,2)+' · n(1−p) = '+fmt(b,2)+' → <b style="color:'+(ok?'var(--good)':'var(--warn)')+'">'+(ok?'정규근사 가능(막대와 곡선이 잘 맞음)':'정규근사 부적절(막대와 곡선이 어긋남)')+'</b>';
+}
+sN.addEventListener('input',renderExplore); sP.addEventListener('input',renderExplore);
+
+/* ---- Python 답안 ---- */
+function renderPy(){
+  document.getElementById('py').textContent=
+'from scipy import stats\n\n'+
+'# 문제 1: X ~ B(25, 0.03)\n'+
+'p_x3 = stats.binom.pmf(3, 25, 0.03)\n'+
+'print(round(p_x3, 4))                      # 0.0318\n\n'+
+'# 문제 2, 1단계: Y ~ B(6, 0.5), 한 가족이 딸 4명 이상일 확률\n'+
+'p1 = stats.binom.sf(3, 6, 0.5)              # P(Y>=4) = 1-P(Y<=3)\n'+
+'print(round(p1, 5))                         # 0.34375\n\n'+
+'# 문제 2, 2단계: Z ~ B(5, p1)\n'+
+'p_ge3 = stats.binom.sf(2, 5, p1)            # P(Z>=3) = 1-P(Z<=2)\n'+
+'ez = 5 * p1                                 # 기댓값 E[Z] = n*p\n'+
+'print(round(p_ge3, 3), round(ez, 3))        # 0.226  1.719\n\n'+
+'# 정규근사 조건 확인(둘 다 5 이상이어야 근사 가능)\n'+
+'for n, p, name in [(25, 0.03, "문제1"), (6, 0.5, "2-1"), (5, p1, "2-2")]:\n'+
+'    print(name, n*p, n*(1-p))';
+}
+
+renderP1(); renderP2a(); var r2=renderP2b(); renderStep4(); renderConcl(r2); renderExplore(); renderPy();
+window.addEventListener('resize',function(){renderP1();renderP2b();renderExplore();});
+</script>
+
+<nav class="labnav bot">
+  <a href="./0003-real-regression-problem.html">← 회귀모형 선택</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <span class="sp"></span>
+</nav>
+</div>
+<script src="../tutor.js"></script>
+</body></html>

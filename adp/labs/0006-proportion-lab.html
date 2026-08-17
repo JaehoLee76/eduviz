@@ -1,0 +1,400 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실기 통계 ⑥ · 모비율 검정 (주어진 데이터 풀이)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;
+ --gC:#4a86e8;--gD:#e0952b;--g1:#4a86e8;--g2:#3aa76d;--g3:#9b6ae0;--grand:#7a7580;}
+@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;
+ --gC:#6fa8ff;--gD:#f0b45a;--g1:#6fa8ff;--g2:#5fd6a8;--g3:#b48bf0;--grand:#9b93a2;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h1.sub2{font-size:1.15rem;margin-top:2.2rem}
+h2{font-size:1.08rem;margin:1.7rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}.prob .src{font-size:.75rem;color:var(--soft);margin-top:.5rem}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.6rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.82rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.probban{font-weight:800;color:var(--accent);font-size:.86rem;letter-spacing:.03em;margin-bottom:-.3rem}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.verdict{margin:.6rem 0;padding:.7rem .9rem;border-radius:9px;font-weight:700}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.chk{font-size:.86rem;color:var(--soft);margin:.3rem 0}
+.explore{background:var(--code);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.explore .t{font-size:.8rem;font-weight:800;color:var(--warn);letter-spacing:.05em}
+.ctrl{display:grid;grid-template-columns:190px 1fr 80px;align-items:center;gap:.6rem;font-size:.87rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.qna{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent2);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+.bardot{display:inline-block;width:.9em;height:.55em;border-radius:2px;margin-right:.25em;vertical-align:-1px}
+.divider{border:0;border-top:2px dashed var(--rule);margin:2.6rem 0 1rem}
+small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.7rem}
+
+/* --- 페이지 이동(홈·이전·다음) --- */
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);
+  color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">6 / 6 · 통계 · 비율 검정</span></nav>
+
+<p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
+<h1>모비율 검정 — 주어진 데이터를 푼다<small>ADP 29회 실기 문6(두 모집단 비율)·26회 실기 문5(세 모집단 비율) 유형. <b>데이터가 주어지고</b>, 그것을 검정한다.</small></h1>
+
+<p class="probban">예제 1 · 두 모집단 비율 — z검정</p>
+<div class="prob">
+  <b>[문제]</b> C사 생산 제품 1000개 중 양품이 600개, D사 생산 제품 500개 중 양품이 200개이다.
+  <b>두 회사의 양품률에 차이가 있는지</b> 유의수준 5%에서 검정하시오.
+  <table class="gday">
+    <tr><th></th><th>표본크기 n</th><th>양품 개수</th><th>양품률 p̂</th></tr>
+    <tr><td><b>C사</b></td><td>1000</td><td>600</td><td>60.0%</td></tr>
+    <tr><td><b>D사</b></td><td>500</td><td>200</td><td>40.0%</td></tr>
+  </table>
+  <div class="src">유형 출처: ADP 실기 29회 복원. 위 숫자는 <b>고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+
+<div class="lab">
+  <canvas id="cv1" height="260"></canvas>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gC)"></span>C사</span>
+    <span><span class="dot" style="background:var(--gD)"></span>D사</span>
+    <span>세로 막대 = 표본 양품률 p̂ · 위아래 수염 = 95% 신뢰구간(각 비율 자체 분산)</span>
+  </div>
+</div>
+
+<div class="qna" data-label="신뢰구간이 겹치면 차이가 없는 건가요?" data-q="두 비율의 95% 신뢰구간이 겹치면, 차이가 없다고 봐도 되나요?">
+  <p><b>아닙니다 — 흔한 오해입니다.</b> 두 그룹 각각의 신뢰구간을 눈으로 겹쳐 보는 것과, <b>차이(p₁−p₂) 자체의 신뢰구간</b>이 0을 포함하는지 보는 것은 다른 계산입니다. 원본 데이터(C 60% vs D 40%, 표본 1000·500)에서는 두 구간이 <span id="qnaCiBase"></span>로 애초에 겹치지 않아 헷갈릴 일이 없지만, 표본이 작아지면 사정이 달라집니다.</p>
+  <p>아래 탐구 슬라이더를 <b>0.1배</b>(원본의 10분의 1 — C사 100개 중 60개, D사 50개 중 20개)로 내려 보면 이렇게 됩니다.</p>
+  <p id="qnaCiSmall" class="chk" style="font-size:.9rem"></p>
+  <p>개별 신뢰구간은 겹치는데(위 수치), <b>차이의 z검정은 여전히 유의</b>합니다. 이유는 개별 구간을 눈대중으로 겹쳐 보는 방법이 <b>실제보다 훨씬 보수적</b>이기 때문입니다 — 두 구간이 아주 조금 겹쳐도 차이 검정은 기각되는 경우가 흔합니다(반대로 두 구간이 딱 붙어야 겨우 유의해지는 것도 아닙니다). <b>결론은 항상 차이 자체의 검정통계량·신뢰구간으로 내려야 합니다.</b></p>
+</div>
+
+<h2><span class="step">1</span>가설 설정</h2>
+<p style="font-size:.94rem">H₀: p_C = p_D (두 회사의 양품률은 같다) · H₁: p_C ≠ p_D (양측검정)</p>
+
+<h2><span class="step">2</span>전제 확인</h2>
+<div class="chk">모비율 z검정의 정규근사는 각 표본에서 <b>np ≥ 5 그리고 n(1−p) ≥ 5</b>일 때 성립합니다(표본비율 p̂를 그대로 써서 확인). 이 조건이 깨지면 정확검정(피셔의 정확검정 등)으로 갈아타야 하므로 <b>먼저</b> 확인합니다.</div>
+<table id="assump1"></table>
+<div id="assumpV1"></div>
+
+<h2><span class="step">3</span>검정통계량 계산</h2>
+<div class="chk">두 비율의 차이를 검정할 때는 <b>귀무가설(두 비율이 같다)을 가정한 합동비율 p̂</b>로 표준오차를 만들어 z를 구합니다. 반면 <b>차이의 신뢰구간</b>은 귀무가설을 가정하지 않으므로 <b>각 비율 자신의 분산을 그대로 더한</b> 표준오차를 씁니다 — 같은 문제 안에서 표준오차를 두 번, 서로 다르게 계산한다는 점이 실기에서 자주 틀리는 지점입니다.</div>
+<table id="teststat1"></table>
+<table id="citable1"></table>
+
+<h2><span class="step">4</span>판정</h2>
+<div id="verdict1"></div>
+
+<h2><span class="step">5</span>결론 서술 (실기 답안)</h2>
+<div class="concl" id="concl1"></div>
+
+<div class="explore">
+  <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관)</div>
+  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">두 회사의 양품률 60% vs 40%는 그대로 두고, <b>표본 크기만</b> 배수로 늘리거나 줄여 보세요. <b>1.0× = 주어진 원본 데이터</b>. 위 캔버스가 함께 갱신됩니다.</div>
+  <div class="ctrl"><label>표본 크기 배수</label><input id="sMult" type="range" min="0.1" max="5" step="0.1" value="1"><output id="oMult"></output></div>
+  <div id="exploreNote" class="chk" style="margin-top:.5rem"></div>
+</div>
+
+<h2>Python 답안 (문제 1)</h2>
+<pre id="py1"></pre>
+
+<hr class="divider">
+
+<p class="eyebrow">봉우리 ① · 실기 통계 파트</p>
+<h1 class="sub2">세 모집단 비율 — 카이제곱 동일성 검정<small>ADP 26회 실기 문5 유형: 세 선거구의 후보 지지율. <b>비율이 셋 이상</b>이면 z검정이 아니라 카이제곱 동일성 검정으로 간다.</small></h1>
+
+<div class="prob">
+  <b>[문제]</b> 어느 도시의 세 개 선거구에서 후보 A 지지율을 비교하려 각 선거구에서 300명을 무작위 추출했다. 유의수준 5%에서 세 선거구의 지지율이 같은지 검정하시오.
+  <table class="gday">
+    <tr><th></th><th>선거구1</th><th>선거구2</th><th>선거구3</th></tr>
+    <tr><td><b>지지함</b></td><td>176</td><td>193</td><td>159</td></tr>
+    <tr><td><b>지지 안 함</b></td><td>124</td><td>107</td><td>141</td></tr>
+    <tr><td><b>합계</b></td><td>300</td><td>300</td><td>300</td></tr>
+  </table>
+  <div class="src">유형 출처: ADP 실기 26회 복원. 위 숫자는 <b>고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다.</div>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+
+<div class="lab">
+  <canvas id="cv2" height="260"></canvas>
+  <div class="legend">
+    <span><span class="bardot" style="background:var(--g1)"></span>선거구1</span>
+    <span><span class="bardot" style="background:var(--g2)"></span>선거구2</span>
+    <span><span class="bardot" style="background:var(--g3)"></span>선거구3</span>
+    <span>— — 전체 지지율(합동)</span>
+  </div>
+</div>
+
+<h2><span class="step">1</span>가설 설정</h2>
+<p style="font-size:.94rem">H₀: p₁ = p₂ = p₃ (세 선거구의 지지율은 같다) · H₁: 적어도 한 선거구의 지지율은 다르다.</p>
+
+<h2><span class="step">2</span>전제 확인</h2>
+<div class="chk">카이제곱 동일성 검정의 정규근사는 <b>모든 칸의 기대도수가 5 이상</b>일 때 성립합니다(표본이 크더라도 칸 하나가 작으면 위험합니다). 아래는 세 선거구가 모두 같다고 가정했을 때(귀무가설 하)의 기대도수입니다.</div>
+<table id="assump2"></table>
+<div id="assumpV2"></div>
+
+<h2><span class="step">3</span>검정통계량 계산</h2>
+<div class="chk">칸마다 <b>(관측−기대)²/기대</b>를 구해 전부 더한 값이 카이제곱 통계량입니다. 자유도는 (행수−1)×(열수−1) = (3−1)×(2−1) = 2 입니다.</div>
+<table id="teststat2"></table>
+
+<h2><span class="step">4</span>판정</h2>
+<div id="verdict2"></div>
+
+<h2><span class="step">5</span>결론 서술 (실기 답안)</h2>
+<div class="concl" id="concl2"></div>
+
+<h2>Python 답안 (문제 2)</h2>
+<pre id="py2"></pre>
+
+<div class="qna" data-label="z검정과 카이제곱 검정은 왜 같은 결론을 주나요?" data-q="두 비율 비교에서 z검정과 카이제곱 검정을 둘 다 쓸 수 있다는데, 왜 같은 결론이 나오나요?">
+  <p><b>두 집단(2×2)일 때는 사실 같은 검정입니다.</b> 문제 1의 C사·D사 데이터를 2×2 분할표(양품/불량 × C사/D사)로 바꿔 카이제곱 동일성 검정을 돌리면 이렇게 나옵니다.</p>
+  <p id="qnaZChi" class="chk" style="font-size:.9rem"></p>
+  <p><b>왜 정확히 제곱 관계인가.</b> 표준정규분포를 따르는 값을 제곱하면 자유도 1인 카이제곱분포가 됩니다. 2×2표의 카이제곱 통계량을 대수적으로 풀어 보면 정확히 (두 비율 차이의 z통계량)²과 같아집니다 — 우연의 일치가 아니라 <b>같은 계산을 다른 경로로 한 것</b>입니다. 그래서 판정도 항상 일치합니다. 다만 <b>집단이 셋 이상</b>(문제 2처럼)이면 "차이"를 하나의 z로 요약할 수 없으므로 그때는 카이제곱만 남습니다 — 이것이 두 검정을 나눠 쓰는 진짜 이유입니다.</p>
+</div>
+
+<div class="ask">
+  <b>물으세요 — 근본까지.</b>
+  <ul>
+    <li>탐구 슬라이더로 표본을 줄이면 z는 작아지고 p는 커집니다. 비율(60% vs 40%)은 그대로인데 왜 검정 결과가 바뀌나요?</li>
+    <li>차이의 신뢰구간과 개별 비율의 신뢰구간은 왜 표준오차 계산식이 다른가요?</li>
+    <li>카이제곱 동일성 검정에서 자유도는 왜 (행−1)×(열−1)인가요?</li>
+    <li>기대도수가 5 미만인 칸이 있으면 무슨 검정으로 갈아타나요?</li>
+  </ul>
+</div>
+
+<small class="src2">문제1: 합동비율·표준오차·z·p·신뢰구간 전부 위 <b>주어진 1000/600, 500/200</b> 숫자에서 실계산(골든룰). node 검증: z=7.319, p&lt;0.0001(statsmodels proportions_ztest 일치), 차이 95% CI=[0.147, 0.253]. 문제2: 기대도수·카이제곱·p값 전부 위 <b>주어진 2×3 분할표</b>에서 실계산. node 검증: χ²=7.945, df=2, p=0.0188(scipy chi2_contingency 일치). p값은 표준정규 누적분포(오차함수 erf 직접 구현)와 카이제곱 누적분포(불완전감마 직접 구현)로 계산.</small>
+
+<script>
+/* ---- 공용 통계 함수 ---- */
+function erf(x){var sign=x<0?-1:1;x=Math.abs(x);var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;var t=1/(1+p*x);var y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return sign*y;}
+function normCdf(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function invnorm(p){var a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00],b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01],c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00],d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00],pl=0.02425,q,r;
+ if(p<pl){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+ if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+ q=p-0.5;r=q*q;return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+function gser(a,x){if(x<=0)return 0;var gln=gammln(a);var ap=a,sum=1/a,del=sum;for(var n=1;n<=200;n++){ap+=1;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*3e-12)break;}return sum*Math.exp(-x+a*Math.log(x)-gln);}
+function gcf(a,x){var gln=gammln(a);var b=x+1-a,c=1/1e-300,d=1/b,h=d;for(var i=1;i<=200;i++){var an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-300)d=1e-300;c=b+an/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<3e-12)break;}return Math.exp(-x+a*Math.log(x)-gln)*h;}
+function chi2p(x,df){if(x<=0)return 1;var a=df/2,xx=x/2;return xx<a+1?1-gser(a,xx):gcf(a,xx);}
+function chi2crit(p,df){var lo=0,hi=200;for(var i=0;i<90;i++){var m=(lo+hi)/2;if(chi2p(m,df)>p)lo=m;else hi=m;}return (lo+hi)/2;}
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.width=w*dpr;cv.height=h*dpr;var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x,w,h};}
+function fmt(v,d){return v.toFixed(d===undefined?2:d);}
+function pfmt(p){return p<0.0001?'<0.0001':fmt(p,4);}
+function pct(v){return fmt(v*100,1)+'%';}
+function niceStep(r){var p=Math.pow(10,Math.floor(Math.log10(r)));var f=r/p;var n=f<1.5?1:f<3?2:f<7?5:10;return Math.max(1,n*p);}
+
+/* ---- 문제1: 두 모집단 비율 z검정 ---- */
+var ZCRIT=invnorm(0.975);
+function ztest(x1,n1,x2,n2){
+ var p1=x1/n1,p2=x2/n2,phat=(x1+x2)/(n1+n2);
+ var sePool=Math.sqrt(phat*(1-phat)*(1/n1+1/n2));
+ var z=sePool>1e-12?(p1-p2)/sePool:0;
+ var p=2*(1-normCdf(Math.abs(z)));
+ var seDiff=Math.sqrt(p1*(1-p1)/n1+p2*(1-p2)/n2);
+ var diff=p1-p2;
+ var se1=Math.sqrt(p1*(1-p1)/n1),se2=Math.sqrt(p2*(1-p2)/n2);
+ return {n1,x1,n2,x2,p1,p2,phat,sePool,z,p,seDiff,diff,
+  ci1:[p1-ZCRIT*se1,p1+ZCRIT*se1],ci2:[p2-ZCRIT*se2,p2+ZCRIT*se2],
+  ciDiff:[diff-ZCRIT*seDiff,diff+ZCRIT*seDiff]};
+}
+function drawCI(R){
+ var cv=document.getElementById('cv1'),o=setup(cv,260),x=o.x,W=o.w,H=o.h;x.clearRect(0,0,W,H);
+ var pL=44,pR=16,pT=16,pB=30;
+ function Y(v){return pT+(H-pT-pB)*(1-v);}
+ x.strokeStyle=css('--rule');x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';x.lineWidth=1;
+ for(var t=0;t<=1.0001;t+=0.2){var yy=Y(t);x.globalAlpha=.32;x.beginPath();x.moveTo(pL,yy);x.lineTo(W-pR,yy);x.stroke();x.globalAlpha=1;x.textAlign='right';x.fillText(fmt(t*100,0)+'%',pL-6,yy+3);}
+ var cols=[css('--gC'),css('--gD')],names=['C사','D사'],ps=[R.p1,R.p2],cis=[R.ci1,R.ci2],ns=[R.n1,R.n2],xs=[R.x1,R.x2];
+ var cw=(W-pL-pR)/2;
+ for(var g=0;g<2;g++){
+  var cx=pL+cw*(g+.5),bw=cw*.34;
+  var yTop=Y(Math.min(1,cis[g][1])),yBot=Y(Math.max(0,cis[g][0])),yP=Y(ps[g]);
+  x.strokeStyle=cols[g];x.lineWidth=2;x.beginPath();x.moveTo(cx,yTop);x.lineTo(cx,yBot);x.stroke();
+  x.beginPath();x.moveTo(cx-bw*.4,yTop);x.lineTo(cx+bw*.4,yTop);x.stroke();
+  x.beginPath();x.moveTo(cx-bw*.4,yBot);x.lineTo(cx+bw*.4,yBot);x.stroke();
+  x.fillStyle=cols[g];x.beginPath();x.arc(cx,yP,6,0,7);x.fill();
+  x.font='700 12px -apple-system,sans-serif';x.textAlign='center';
+  x.fillText(names[g]+'  p̂='+pct(ps[g]),cx,H-16);
+  x.font='11px -apple-system,sans-serif';x.fillStyle=css('--soft');
+  x.fillText('n='+ns[g]+' (양품 '+xs[g]+')',cx,H-4);
+ }
+}
+function fillMult(R,mult){
+ document.getElementById('assump1').innerHTML=
+  '<tr><th>확인 항목</th><th>C사</th><th>D사</th></tr>'+
+  '<tr><td>n·p̂ (양품 기대개수)</td><td>'+fmt(R.n1*R.p1,1)+'</td><td>'+fmt(R.n2*R.p2,1)+'</td></tr>'+
+  '<tr><td>n·(1−p̂) (불량 기대개수)</td><td>'+fmt(R.n1*(1-R.p1),1)+'</td><td>'+fmt(R.n2*(1-R.p2),1)+'</td></tr>';
+ var okN=Math.min(R.n1*R.p1,R.n1*(1-R.p1),R.n2*R.p2,R.n2*(1-R.p2))>=5;
+ document.getElementById('assumpV1').innerHTML='<div class="verdict '+(okN?'keep':'rej')+'">'+
+  '두 표본 모두 np̂, n(1−p̂)가 전부 5 이상'+(okN?' → 정규근사 조건을 만족하여 z검정을 그대로 적용합니다.':' → 조건이 깨져 정규근사가 위태로우니 정확검정(피셔의 정확검정)을 고려합니다.')+'</div>';
+ document.getElementById('teststat1').innerHTML=
+  '<tr><th>p̂_C</th><th>p̂_D</th><th>합동비율 p̂</th><th>표준오차(합동)</th><th>z</th><th>p값(양측)</th></tr>'+
+  '<tr><td>'+pct(R.p1)+'</td><td>'+pct(R.p2)+'</td><td>'+pct(R.phat)+'</td><td>'+fmt(R.sePool,4)+'</td>'+
+  '<td style="font-weight:800;color:var(--accent)">'+fmt(R.z,3)+'</td><td style="font-weight:800">'+pfmt(R.p)+'</td></tr>';
+ document.getElementById('citable1').innerHTML=
+  '<tr><th></th><th>표준오차(자기 분산)</th><th>95% 신뢰구간</th></tr>'+
+  '<tr><td>C사 양품률</td><td>'+fmt(Math.sqrt(R.p1*(1-R.p1)/R.n1),4)+'</td><td>['+pct(R.ci1[0])+', '+pct(R.ci1[1])+']</td></tr>'+
+  '<tr><td>D사 양품률</td><td>'+fmt(Math.sqrt(R.p2*(1-R.p2)/R.n2),4)+'</td><td>['+pct(R.ci2[0])+', '+pct(R.ci2[1])+']</td></tr>'+
+  '<tr><td>양품률 차이(C−D)</td><td>'+fmt(R.seDiff,4)+'</td><td>['+pct(R.ciDiff[0])+', '+pct(R.ciDiff[1])+']</td></tr>';
+ var rej=R.p<0.05;
+ document.getElementById('verdict1').innerHTML='<div class="verdict '+(rej?'rej':'keep')+'">'+
+  (rej?'|z|='+fmt(Math.abs(R.z),3)+' > 임계값 '+fmt(ZCRIT,3)+' (p='+pfmt(R.p)+' < 0.05) → H₀ 기각 : 두 회사의 양품률에 차이가 있다'
+      :'|z|='+fmt(Math.abs(R.z),3)+', p='+pfmt(R.p)+' ≥ 0.05 → H₀ 기각 못 함 : 차이가 유의하지 않다')+'</div>';
+ document.getElementById('concl1').innerHTML=
+  'z검정 결과 z='+fmt(R.z,3)+', p'+(R.p<0.0001?'&lt;0.0001':'='+fmt(R.p,4))+'로 유의수준 0.05에서 '+
+  (rej?('귀무가설을 <b>기각한다</b> → C사 양품률('+pct(R.p1)+')과 D사 양품률('+pct(R.p2)+')은 통계적으로 유의하게 <b>차이가 있다</b>. 차이의 95% 신뢰구간 ['+pct(R.ciDiff[0])+', '+pct(R.ciDiff[1])+']이 0을 포함하지 않아 결과를 뒷받침한다. 실무적으로도 '+pct(Math.abs(R.diff))+'p라는 양품률 격차는 두 공정의 품질관리 수준이 <b>실제로 다름</b>을 시사하므로 D사 공정 점검이 필요하다.')
+    :'귀무가설을 <b>기각하지 못한다</b> → 두 회사의 양품률 차이는 <b>통계적으로 유의하지 않다</b>.');
+ document.getElementById('exploreNote').innerHTML=
+  '현재 배수 '+fmt(mult,1)+'× → n_C='+R.n1+', n_D='+R.n2+' · z='+fmt(R.z,3)+', p='+pfmt(R.p)+
+  ' — 비율은 60% vs 40%로 <b>그대로</b>인데 표본이 커질수록(→오른쪽) 표준오차가 줄어 z는 커지고 p는 작아집니다. <b>차이의 크기(효과크기)와 통계적 유의성은 다른 개념입니다.</b>';
+ document.getElementById('py1').textContent=
+  'import numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest, proportion_confint\n\n'+
+  'count = np.array(['+R.x1+', '+R.x2+'])\nnobs  = np.array(['+R.n1+', '+R.n2+'])\n\n'+
+  '# 3. 검정통계량 (합동비율 표준오차)\nz, p = proportions_ztest(count, nobs)\nprint(f"z={z:.3f}, p={p:.5f}")\n\n'+
+  '# 개별 비율의 신뢰구간(자기 분산)\nprint(proportion_confint('+R.x1+', '+R.n1+', method="normal"))\nprint(proportion_confint('+R.x2+', '+R.n2+', method="normal"))';
+}
+var sMult=document.getElementById('sMult'),oMult=document.getElementById('oMult');
+function render1(){
+ var mult=+sMult.value;oMult.textContent=fmt(mult,1)+'×';
+ var n1=Math.max(1,Math.round(1000*mult)),n2=Math.max(1,Math.round(500*mult));
+ var x1=Math.round(n1*0.6),x2=Math.round(n2*0.4);
+ var R=ztest(x1,n1,x2,n2);
+ drawCI(R);fillMult(R,mult);
+}
+sMult.addEventListener('input',render1);window.addEventListener('resize',render1);
+
+/* qna 데모 값(고정, 원본 데이터 기준) */
+(function(){
+ var base=ztest(600,1000,200,500);
+ document.getElementById('qnaCiBase').textContent='['+pct(base.ci1[0])+', '+pct(base.ci1[1])+'] vs ['+pct(base.ci2[0])+', '+pct(base.ci2[1])+']';
+ var small=ztest(60,100,20,50);
+ document.getElementById('qnaCiSmall').innerHTML=
+  'C사 95% CI = ['+pct(small.ci1[0])+', '+pct(small.ci1[1])+'] · D사 95% CI = ['+pct(small.ci2[0])+', '+pct(small.ci2[1])+'] → 두 구간이 <b>겹칩니다</b>('+pct(small.ci1[0])+' &lt; '+pct(small.ci2[1])+'). 그런데 차이의 z검정은 z='+fmt(small.z,3)+', p='+pfmt(small.p)+' &lt; 0.05로 <b>여전히 유의합니다.</b>';
+ function chi2_2x2(a,b,c,d){var n=a+b+c+d,row1=a+b,row2=c+d,col1=a+c,col2=b+d;
+  var Ea=row1*col1/n,Eb=row1*col2/n,Ec=row2*col1/n,Ed=row2*col2/n;
+  return (a-Ea)*(a-Ea)/Ea+(b-Eb)*(b-Eb)/Eb+(c-Ec)*(c-Ec)/Ec+(d-Ed)*(d-Ed)/Ed;}
+ var c2=chi2_2x2(600,400,200,300);
+ document.getElementById('qnaZChi').innerHTML=
+  'z='+fmt(base.z,3)+' → z²='+fmt(base.z*base.z,3)+' · 같은 데이터를 2×2 분할표로 카이제곱 동일성 검정하면 χ²='+fmt(c2,3)+' — <b>두 값이 정확히 같습니다.</b>';
+})();
+
+/* ---- 문제2: 세 모집단 비율 카이제곱 동일성 검정 ---- */
+var OBS=[[176,124],[193,107],[159,141]];
+var DNAME=['선거구1','선거구2','선거구3'],DCOL=['--g1','--g2','--g3'];
+function compute2(){
+ var rowT=OBS.map(function(r){return r[0]+r[1];});
+ var colT=[OBS.reduce(function(s,r){return s+r[0];},0),OBS.reduce(function(s,r){return s+r[1];},0)];
+ var N=colT[0]+colT[1];
+ var E=[],chi2=0;
+ for(var i=0;i<3;i++){
+  var e0=rowT[i]*colT[0]/N,e1=rowT[i]*colT[1]/N;E.push([e0,e1]);
+  chi2+=(OBS[i][0]-e0)*(OBS[i][0]-e0)/e0+(OBS[i][1]-e1)*(OBS[i][1]-e1)/e1;
+ }
+ var df=2,p=chi2p(chi2,df),crit=chi2crit(0.05,df);
+ var props=OBS.map(function(r){return r[0]/(r[0]+r[1]);});
+ var overall=colT[0]/N;
+ return {rowT,colT,N,E,chi2,df,p,crit,props,overall};
+}
+function drawBars2(R){
+ var cv=document.getElementById('cv2'),o=setup(cv,260),x=o.x,W=o.w,H=o.h;x.clearRect(0,0,W,H);
+ var pL=44,pR=16,pT=16,pB=30;
+ var ymax=Math.max.apply(null,R.props)*1.25;ymax=Math.max(ymax,R.overall*1.25,0.2);
+ function Y(v){return pT+(H-pT-pB)*(1-v/ymax);}
+ x.strokeStyle=css('--rule');x.fillStyle=css('--soft');x.font='11px -apple-system,sans-serif';x.lineWidth=1;
+ var step=niceStep(ymax/5);
+ for(var t=0;t<=ymax+1e-9;t+=step){var yy=Y(t);x.globalAlpha=.32;x.beginPath();x.moveTo(pL,yy);x.lineTo(W-pR,yy);x.stroke();x.globalAlpha=1;x.textAlign='right';x.fillText(fmt(t*100,0)+'%',pL-6,yy+3);}
+ var oY=Y(R.overall);x.strokeStyle=css('--grand');x.setLineDash([6,5]);x.lineWidth=1.5;x.beginPath();x.moveTo(pL,oY);x.lineTo(W-pR,oY);x.stroke();x.setLineDash([]);
+ x.fillStyle=css('--grand');x.textAlign='left';x.fillText('전체 지지율 '+pct(R.overall),pL+2,oY-4);
+ var cw=(W-pL-pR)/3;
+ for(var g=0;g<3;g++){
+  var cx=pL+cw*(g+.5),col=css(DCOL[g]),bw=cw*.5,y0=Y(0),y1=Y(R.props[g]);
+  x.fillStyle=col;x.globalAlpha=.85;x.fillRect(cx-bw/2,y1,bw,y0-y1);x.globalAlpha=1;
+  x.strokeStyle=col;x.lineWidth=1.5;x.strokeRect(cx-bw/2,y1,bw,y0-y1);
+  x.fillStyle=col;x.font='700 12px -apple-system,sans-serif';x.textAlign='center';
+  x.fillText(DNAME[g]+' '+pct(R.props[g]),cx,H-16);
+  x.font='11px -apple-system,sans-serif';x.fillStyle=css('--soft');
+  x.fillText('('+OBS[g][0]+'/'+R.rowT[g]+')',cx,H-4);
+ }
+}
+function fill2(R){
+ document.getElementById('assump2').innerHTML=
+  '<tr><th>기대도수</th><th>선거구1</th><th>선거구2</th><th>선거구3</th></tr>'+
+  '<tr><td>지지함 E</td>'+R.E.map(function(e){return '<td>'+fmt(e[0],1)+'</td>';}).join('')+'</tr>'+
+  '<tr><td>지지 안 함 E</td>'+R.E.map(function(e){return '<td>'+fmt(e[1],1)+'</td>';}).join('')+'</tr>';
+ var minE=Math.min.apply(null,R.E.map(function(e){return Math.min(e[0],e[1]);}));
+ document.getElementById('assumpV2').innerHTML='<div class="verdict '+(minE>=5?'keep':'rej')+'">'+
+  '가장 작은 기대도수도 '+fmt(minE,1)+'로 5 이상'+(minE>=5?' → 정규근사 조건을 만족하여 카이제곱 동일성 검정을 그대로 적용합니다.':' → 조건이 깨져 칸을 합치거나 정확검정을 고려해야 합니다.')+'</div>';
+ var rows='';
+ for(var i=0;i<3;i++){
+  rows+='<tr><td>'+DNAME[i]+' · 지지함</td><td>'+OBS[i][0]+'</td><td>'+fmt(R.E[i][0],1)+'</td><td>'+fmt(Math.pow(OBS[i][0]-R.E[i][0],2)/R.E[i][0],3)+'</td></tr>';
+  rows+='<tr><td>'+DNAME[i]+' · 안함</td><td>'+OBS[i][1]+'</td><td>'+fmt(R.E[i][1],1)+'</td><td>'+fmt(Math.pow(OBS[i][1]-R.E[i][1],2)/R.E[i][1],3)+'</td></tr>';
+ }
+ document.getElementById('teststat2').innerHTML=
+  '<tr><th>칸</th><th>관측 O</th><th>기대 E</th><th>(O−E)²/E</th></tr>'+rows+
+  '<tr><td colspan="3" style="text-align:right;font-weight:800">χ² 합계 (df='+R.df+')</td><td style="font-weight:800;color:var(--accent)">'+fmt(R.chi2,3)+'</td></tr>';
+ var rej=R.p<0.05;
+ document.getElementById('verdict2').innerHTML='<div class="verdict '+(rej?'rej':'keep')+'">'+
+  (rej?'χ²='+fmt(R.chi2,3)+' > 임계값 '+fmt(R.crit,3)+' (p='+pfmt(R.p)+' < 0.05) → H₀ 기각 : 선거구에 따라 지지율이 다르다'
+      :'χ²='+fmt(R.chi2,3)+', p='+pfmt(R.p)+' ≥ 0.05 → H₀ 기각 못 함 : 지지율 차이가 유의하지 않다')+'</div>';
+ document.getElementById('concl2').innerHTML=
+  '카이제곱 동일성 검정 결과 χ²('+R.df+')='+fmt(R.chi2,3)+', p='+fmt(R.p,4)+'로 유의수준 0.05에서 '+
+  (rej?('귀무가설을 <b>기각한다</b> → 세 선거구의 후보 A 지지율은 통계적으로 유의하게 <b>다르다</b>. 지지율은 선거구2('+pct(R.props[1])+')가 가장 높고 선거구3('+pct(R.props[2])+')이 가장 낮아, 선거구2를 중심으로 지지가 쏠려 있다고 볼 수 있다. 다만 카이제곱 검정은 "다르다"까지만 말하므로 <b>어느 선거구끼리 다른지</b>는 사후에 쌍별 비교(본페로니 보정)로 추가 확인이 필요하다.')
+    :'귀무가설을 <b>기각하지 못한다</b> → 세 선거구 간 지지율 차이는 <b>통계적으로 유의하지 않다</b>.');
+ document.getElementById('py2').textContent=
+  'import numpy as np\nfrom scipy import stats\n\n'+
+  'table = np.array([\n'+
+  '    ['+OBS[0][0]+', '+OBS[0][1]+'],  # 선거구1\n'+
+  '    ['+OBS[1][0]+', '+OBS[1][1]+'],  # 선거구2\n'+
+  '    ['+OBS[2][0]+', '+OBS[2][1]+'],  # 선거구3\n'+
+  '])\n\n'+
+  '# 3. 검정통계량 (동일성 검정)\n'+
+  'chi2, p, dof, expected = stats.chi2_contingency(table, correction=False)\n'+
+  'print(f"chi2={chi2:.3f}, dof={dof}, p={p:.5f}")\nprint(expected)';
+}
+(function(){var R=compute2();drawBars2(R);fill2(R);window.addEventListener('resize',function(){drawBars2(compute2());});})();
+render1();
+</script>
+
+<nav class="labnav bot">
+  <a href="./0005-chisq-lab.html">← 카이제곱 검정</a>
+  <a class="ghost" href="../index.html">홈</a>
+</nav>
+</div>
+<script src="../tutor.js"></script>
+</body></html>
