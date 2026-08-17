@@ -141,24 +141,47 @@ footer.foot{
   background:var(--card);border:1px solid var(--rule);border-radius:12px;color:var(--ink);text-decoration:none;font-size:.92rem}
 .recent-item b{color:var(--accent);font-weight:800}
 .empty{color:var(--soft);font-size:.9rem;padding:1rem 0}
+/* --- 고정 영역 안의 진행률 줄(배너 대신) --- */
+#barExtra{flex:1 1 100%;margin:.15rem 0 0}
+.hp{display:flex;align-items:baseline;gap:.5rem;font-size:.76rem;color:var(--soft)}
+.hp-n{margin-left:auto;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.hp-track{height:5px;border-radius:20px;background:var(--track);overflow:hidden;margin:.25rem 0 0}
+.hp-bar{height:100%;background:var(--accent);border-radius:20px;transition:width .4s}
+main.wrap{padding-top:.4rem}
+/* --- 학습 지도(파트 → 유형 → 실험실). 유형만 보이므로 실험실이 수백 개여도 화면은 짧다 --- */
+.part{margin:0 0 1.2rem}
+.part-h{display:flex;align-items:baseline;gap:.5rem;margin:0 0 .5rem}
+.part-h .nm{font-weight:800;font-size:1rem}
+.part-h .pr{margin-left:auto;font-size:.8rem;color:var(--soft);font-variant-numeric:tabular-nums}
+.type{border:1px solid var(--rule);border-radius:12px;background:var(--card);margin:0 0 .5rem;overflow:hidden}
+.type-h{display:flex;align-items:center;gap:.55rem;width:100%;min-height:52px;padding:.5rem .9rem;
+  background:transparent;border:0;color:var(--ink);font-family:inherit;font-size:.94rem;font-weight:700;
+  text-align:left;cursor:pointer}
+.type-h .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--track)}
+.type-h .dot.on{background:var(--good)}
+.type-h .dot.half{background:var(--warn)}
+.type-h .cnt{margin-left:auto;font-size:.78rem;color:var(--soft);font-weight:600}
+.type-h .ar{flex:none;color:var(--soft);font-size:.8rem;transition:transform .15s}
+.type.open .type-h .ar{transform:rotate(90deg)}
+.type-b{display:none;padding:0 .9rem .7rem}
+.type.open .type-b{display:block}
+.lab-row{display:flex;align-items:center;gap:.5rem;min-height:46px;padding:.35rem .6rem;margin:.3rem 0;
+  border:1px solid var(--rule);border-radius:10px;color:var(--ink);text-decoration:none;font-size:.9rem}
+.lab-row .n{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;color:var(--accent);font-weight:800}
+.lab-row .sub{margin-left:auto;font-size:.76rem;color:var(--soft)}
+.soon-row{color:var(--soft);font-size:.86rem;padding:.5rem .6rem}
+.today-row{display:flex;align-items:center;gap:.6rem;min-height:52px;padding:.5rem .9rem;margin:0 0 .5rem;
+  background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:12px;
+  color:var(--ink);text-decoration:none;font-size:.92rem}
+.today-row .why{margin-left:auto;font-size:.76rem;color:var(--soft);flex:none}
+.today-row b{color:var(--accent)}
 </style>
 </head><body>
 
-<header class="hero">
-  <div class="wrap">
-    <p class="eyebrow">ADP Master</p>
-    <h1>ADP Master</h1>
-    <p class="tagline">실기 합격 훈련 · 시각화로 이해하고 문제를 푼다</p>
-    <div class="progress-card">
-      <div class="progress-top">
-        <span class="lab">통계 파트 진행률</span>
-        <span class="num" id="progNum">2 / 11 유형</span>
-      </div>
-      <div class="track"><div class="bar" id="progBar" style="width:0%"></div></div>
-      <p class="progress-note">정상정복: 실기부터.</p>
-    </div>
-  </div>
-</header>
+<div id="barExtra">
+  <div class="hp"><span class="hp-t">통계 파트</span><span class="hp-n" id="progNum">0 / 12 유형</span></div>
+  <div class="hp-track"><div class="hp-bar" id="progBar" style="width:0%"></div></div>
+</div>
 
 <main class="wrap">
   <div class="tools">
@@ -172,13 +195,20 @@ footer.foot{
     <a class="dict" href="./topics.html">📖 개념 사전 — 배운 개념 다시 찾아보기</a>
   </div>
 
-  <div id="recentBox" style="display:none">
-    <h2 class="sec">이어서 보기</h2>
-    <div id="recent"></div>
-  </div>
+  <section id="todayBox" style="display:none">
+    <h2 class="sec">오늘 할 것</h2>
+    <div id="today"></div>
+  </section>
 
-  <h2 class="sec">실험실 <span id="hitCount" style="font-size:.8rem;color:var(--soft);font-weight:600"></span></h2>
-  <div class="cards" id="cardList"></div>
+  <section id="treeBox">
+    <h2 class="sec">학습 지도</h2>
+    <div id="tree"></div>
+  </section>
+
+  <section id="searchBox" style="display:none">
+    <h2 class="sec">검색 결과 <span id="hitCount" style="font-size:.8rem;color:var(--soft);font-weight:600"></span></h2>
+    <div class="cards" id="cardList"></div>
+  </section>
 
   <div class="install-note">
     <b>이 페이지를 폰 홈 화면에 추가하면 앱처럼 열립니다.</b>
@@ -187,61 +217,120 @@ footer.foot{
     <div class="step"><span class="ic">3</span><span>추가된 아이콘으로 열면 전체화면·오프라인으로 실행된다</span></div>
   </div>
 
-  <footer class="foot">
-    질문·심화 학습은 PC의 EduViz 빅데이터 트랙에서.
-  </footer>
+  <footer class="foot">정상정복 — 실기부터 점령한다.</footer>
 </main>
 
 <script>
+/* 실험실 목록 — 새 실험실은 여기 한 줄만 추가하면 학습 지도·검색·오늘 할 것에 자동 반영됩니다. */
 var LABS = [
-  { no:'0001', href:'labs/0001-fuel-economy-workflow.html', badge:'가이드 · 실기 전체 지도',
-    title:'예측모델링 작업흐름', sub:'연비 (Fuel Economy)',
-    desc:'엔진 배기량 하나로 고속도로 연비를 예측하며, 열 개 사례연구를 관통하는 6단계 작업흐름을 몸에 새긴다.',
-    done:true, statPart:false },
-  { no:'0002', href:'labs/0002-anova-lab.html', badge:'통계 · 분산분석',
+  { no:'0001', href:'labs/0001-fuel-economy-workflow.html', part:'가이드', type:'실기 전체 지도',
+    title:'ADP 실기, 4시간 안에 무엇을 하는가', sub:'연비 사례로 관통',
+    desc:'합격에 필요한 다섯 가지 힘, 시험 형식, 4시간 배분, 통계 유형 지도, 머신러닝 6단계와 파이썬 틀.',
+    done:true },
+  { no:'0002', href:'labs/0002-anova-lab.html', part:'통계', type:'분산분석',
     title:'일원배치 분산분석 + 사후검정', sub:'29회 문7 유형',
     desc:'차종별 범퍼 손상지수를 F검정으로 비교하고, 유의하면 본페로니 사후검정으로 어느 쌍이 다른지까지 찾는다.',
-    done:true, statPart:true },
-  { no:'0003', href:'labs/0003-real-regression-problem.html', badge:'통계 · 회귀',
+    done:true },
+  { no:'0003', href:'labs/0003-real-regression-problem.html', part:'통계', type:'회귀·모형 선택',
     title:'회귀모형 선택', sub:'단순 vs 다항',
-    desc:'직선(1차)이 못 잡는 곡선성을 잔차도로 확인하고, 2차·3차를 수정 R²로 비교해 과적합을 피해 고른다.',
-    done:true, statPart:true }
+    desc:'직선이 못 잡는 곡선성을 잔차도로 확인하고, 2차·3차를 수정 R²로 비교해 과적합을 피해 고른다.',
+    done:true }
+];
+
+/* 로드맵 — 아직 만들지 않은 유형도 자리를 잡아 둔다(무엇이 남았는지가 보이도록). */
+var ROADMAP = [
+  { part:'가이드', types:['실기 전체 지도'] },
+  { part:'통계', types:['분산분석','회귀·모형 선택','이항분포','카이제곱 독립성','두 모집단 비율','t검정(대응·독립)','베이즈 정리','이원배치·교호작용','비모수 검정','편상관','생존분석·분위수회귀','선형계획법'] },
+  { part:'머신러닝', types:['탐색·전처리','분할·교차검증','회귀 3종 + RMSE','분류 + AUC','차원축소(PCA)','파생변수·시계열'] }
 ];
 
 var FQ = '', FF = '';
-function render(){
-  var list = document.getElementById('cardList');
+function labsOf(part, type){ return LABS.filter(function(l){ return l.part === part && l.type === type; }); }
+function srs(){ try{ return JSON.parse(localStorage.getItem('adp_srs') || '{}'); }catch(e){ return {}; } }
+function recent(){ try{ return JSON.parse(localStorage.getItem('adp_recent') || '[]'); }catch(e){ return []; } }
+
+/* ── 오늘 할 것: ①복습할 때가 된 것 ②보던 것 이어서 ③아직 안 본 새 실험실 ── */
+function drawToday(){
+  var S = srs(), now = Date.now(), rows = [];
+  Object.keys(S).forEach(function(h){
+    if(S[h].due && S[h].due <= now) rows.push({ href:h, title:S[h].title, why:'복습할 때', b:'↻' });
+  });
+  var r = recent()[0];
+  if(r && !rows.some(function(x){ return x.href === r.href; }) && S[r.href] === undefined)
+    rows.push({ href:r.href, title:r.title, why:'보던 것', b:'↩' });
+  var fresh = LABS.filter(function(l){ return l.done && !S[l.href] && !recent().some(function(x){ return x.href===l.href; }); })[0];
+  if(fresh) rows.push({ href:fresh.href, title:fresh.title, why:'새 학습', b:'＋' });
+
+  var box = document.getElementById('todayBox');
+  if(!rows.length){ box.style.display='none'; return; }
+  box.style.display = '';
+  document.getElementById('today').innerHTML = rows.slice(0,4).map(function(x){
+    return '<a class="today-row" href="'+x.href+'"><b>'+x.b+'</b><span>'+x.title+'</span><span class="why">'+x.why+'</span></a>';
+  }).join('');
+}
+
+/* ── 학습 지도: 파트 → 유형(접힘) → 실험실 ── */
+function drawTree(){
+  var S = srs();
+  document.getElementById('tree').innerHTML = ROADMAP.filter(function(p){
+    return !FF || p.part === FF;
+  }).map(function(p){
+    var doneTypes = p.types.filter(function(t){ return labsOf(p.part,t).some(function(l){ return l.done; }); }).length;
+    return '<div class="part"><div class="part-h"><span class="nm">'+p.part+'</span>'+
+      '<span class="pr">'+doneTypes+' / '+p.types.length+' 유형</span></div>'+
+      p.types.map(function(t){
+        var ls = labsOf(p.part, t), has = ls.some(function(l){ return l.done; });
+        var seen = ls.some(function(l){ return S[l.href]; });
+        var dot = has ? (seen ? 'dot on' : 'dot half') : 'dot';
+        return '<div class="type"><button class="type-h" type="button">'+
+          '<span class="'+dot+'"></span><span>'+t+'</span>'+
+          '<span class="cnt">'+(has ? ls.length+'개' : '준비중')+'</span><span class="ar">›</span></button>'+
+          '<div class="type-b">'+ (has ? ls.map(function(l){
+            return '<a class="lab-row" href="'+l.href+'"><span class="n">'+l.no+'</span><span>'+l.title+'</span>'+
+                   '<span class="sub">'+l.sub+'</span></a>';
+          }).join('') : '<p class="soon-row">아직 만들지 않은 유형입니다. 순서가 오면 여기에 들어갑니다.</p>') +
+          '</div></div>';
+      }).join('') + '</div>';
+  }).join('');
+}
+
+/* ── 검색: 글자를 치면 계층을 접고 결과만 평면으로 ── */
+function drawSearch(){
   var hits = LABS.filter(function(l){
-    if(FF && l.badge.indexOf(FF) < 0) return false;
-    if(!FQ) return true;
-    var hay = (l.no+' '+l.badge+' '+l.title+' '+l.sub+' '+l.desc).toLowerCase();
+    if(FF && l.part !== FF) return false;
+    var hay = (l.no+' '+l.part+' '+l.type+' '+l.title+' '+l.sub+' '+l.desc).toLowerCase();
     return FQ.toLowerCase().split(/\s+/).every(function(w){ return hay.indexOf(w) >= 0; });
   });
-  document.getElementById('hitCount').textContent = (FQ||FF) ? hits.length+' / '+LABS.length : '';
-  if(!hits.length){ list.innerHTML = '<p class="empty">조건에 맞는 실험실이 없습니다.</p>'; }
-  else list.innerHTML = hits.map(function(l){
-    var statusCls = l.done ? 'done' : 'soon';
-    var statusTxt = l.done ? '완료' : '준비중';
-    var tag = l.done ? 'a' : 'div';
-    var hrefAttr = l.done ? ' href="'+l.href+'"' : '';
-    return '<'+tag+' class="card'+(l.done?'':' disabled')+'"'+hrefAttr+'>'+
-      '<div class="card-top">'+
-        '<span class="no">'+l.no+'</span>'+
-        '<span class="badge">'+l.badge+'</span>'+
-        '<span class="status '+statusCls+'">'+statusTxt+'</span>'+
-      '</div>'+
+  document.getElementById('hitCount').textContent = hits.length+' / '+LABS.length;
+  document.getElementById('cardList').innerHTML = hits.length ? hits.map(function(l){
+    return '<a class="card" href="'+l.href+'">'+
+      '<div class="card-top"><span class="no">'+l.no+'</span>'+
+      '<span class="badge">'+l.part+' · '+l.type+'</span>'+
+      '<span class="status done">완료</span></div>'+
       '<p class="card-title">'+l.title+' <span style="color:var(--soft);font-weight:600;font-size:.85em">— '+l.sub+'</span></p>'+
-      '<p class="card-desc">'+l.desc+'</p>'+
-      (l.done ? '<div class="card-arrow">실험실 열기 →</div>' : '')+
-    '</'+tag+'>';
-  }).join('');
+      '<p class="card-desc">'+l.desc+'</p><div class="card-arrow">실험실 열기 →</div></a>';
+  }).join('') : '<p class="empty">찾는 실험실이 없습니다. 개념을 찾으신다면 개념 사전을 열어 보세요.</p>';
+}
 
-  var total = 11;
-  var doneCount = LABS.filter(function(l){ return l.statPart && l.done; }).length;
-  document.getElementById('progNum').textContent = doneCount+' / '+total+' 유형';
-  document.getElementById('progBar').style.width = Math.round(doneCount/total*100)+'%';
+function render(){
+  var searching = !!FQ;
+  document.getElementById('searchBox').style.display = searching ? '' : 'none';
+  document.getElementById('treeBox').style.display = searching ? 'none' : '';
+  document.getElementById('todayBox').style.display = searching ? 'none' : document.getElementById('todayBox').style.display;
+  if(searching) drawSearch(); else { drawTree(); drawToday(); }
+
+  var st = ROADMAP.filter(function(p){ return p.part === '통계'; })[0];
+  var doneTypes = st.types.filter(function(t){ return labsOf('통계',t).some(function(l){ return l.done; }); }).length;
+  document.getElementById('progNum').textContent = doneTypes+' / '+st.types.length+' 유형';
+  document.getElementById('progBar').style.width = Math.round(doneTypes/st.types.length*100)+'%';
 }
 render();
+
+// 유형 펼치기·접기
+document.getElementById('tree').addEventListener('click', function(e){
+  var h = e.target.closest('.type-h'); if(!h) return;
+  h.parentNode.classList.toggle('open');
+});
 
 // 검색·필터
 document.getElementById('q').addEventListener('input', function(e){ FQ = e.target.value.trim(); render(); });
@@ -252,16 +341,7 @@ document.getElementById('chips').addEventListener('click', function(e){
   render();
 });
 
-// 이어서 보기 — 최근 연 실험실(이 기기에 저장)
-(function(){
-  var r = [];
-  try{ r = JSON.parse(localStorage.getItem('adp_recent') || '[]'); }catch(e){}
-  if(!r.length) return;
-  document.getElementById('recentBox').style.display = '';
-  document.getElementById('recent').innerHTML = r.slice(0,3).map(function(x){
-    return '<a class="recent-item" href="'+x.href+'"><b>↩</b><span>'+x.title+'</span></a>';
-  }).join('');
-})();
+
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
