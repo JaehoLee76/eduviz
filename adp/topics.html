@@ -1,0 +1,101 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8">
+<title>개념 사전 · ADP Master</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b}
+@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--paper);color:var(--ink);line-height:1.55;
+ font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+ padding:0 0 3rem}
+.wrap{max-width:640px;margin:0 auto;padding:0 1rem}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem}
+.lead{color:var(--soft);font-size:.9rem;margin:0 0 1rem}
+/* 검색 — 개수가 늘어도 첫 화면에서 바로 찾게 한다 */
+.search{position:sticky;top:0;z-index:20;background:var(--paper);padding:.6rem 0 .5rem}
+.search input{width:100%;min-height:46px;padding:.6rem .9rem;font-size:1rem;font-family:inherit;
+ color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:12px}
+.search input:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.55rem 0 0}
+.chip{min-height:36px;padding:.25rem .7rem;border:1px solid var(--rule);border-radius:20px;
+ background:var(--card);color:var(--soft);font-size:.82rem;font-family:inherit;font-weight:600;cursor:pointer}
+.chip.on{border-color:var(--accent);color:var(--accent)}
+.count{color:var(--soft);font-size:.8rem;margin:.7rem 0 .4rem}
+.item{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--rule);
+ border-radius:12px;padding:.85rem 1rem;margin:0 0 .6rem;font-family:inherit;color:var(--ink);cursor:pointer}
+.item:active{border-color:var(--accent)}
+.item .t{font-weight:800;font-size:.98rem;margin:0 0 .25rem;color:var(--accent)}
+.item .s{font-size:.86rem;color:var(--soft);margin:0}
+.item .g{margin-top:.45rem;display:flex;gap:.3rem;flex-wrap:wrap}
+.item .g span{font-size:.75rem;color:var(--soft);border:1px solid var(--rule);border-radius:12px;padding:.05rem .5rem}
+.empty{color:var(--soft);font-size:.9rem;padding:1.2rem 0}
+</style>
+</head><body>
+<div class="wrap">
+  <nav class="labnav"><a href="./index.html">← 홈</a><span class="pos">개념 사전</span></nav>
+  <h1>개념 사전</h1>
+  <p class="lead">한 번 설명한 개념은 여기에 모읍니다. 어느 실험실에서든 같은 설명을 불러 씁니다.</p>
+
+  <div class="search">
+    <input id="q" type="search" placeholder="개념 검색 (예: 정규성, 웰치, 사후검정)" autocomplete="off">
+    <div class="chips" id="chips"></div>
+  </div>
+  <p class="count" id="count"></p>
+  <div id="list"></div>
+</div>
+
+<script src="./topics/index.js"></script>
+<script src="./tutor.js"></script>
+<script>
+(function(){
+  var IDX = window.ADP_TOPIC_INDEX || [];
+  var tag = '';
+  var qEl = document.getElementById('q'), listEl = document.getElementById('list'),
+      cntEl = document.getElementById('count'), chipEl = document.getElementById('chips');
+
+  var tags = [];
+  IDX.forEach(function(t){ (t.tags||[]).forEach(function(x){ if(tags.indexOf(x)<0) tags.push(x); }); });
+  chipEl.innerHTML = ['<button class="chip on" data-t="">전체</button>']
+    .concat(tags.map(function(x){ return '<button class="chip" data-t="'+x+'">'+x+'</button>'; })).join('');
+  chipEl.addEventListener('click', function(e){
+    var b = e.target.closest('.chip'); if(!b) return;
+    tag = b.getAttribute('data-t');
+    Array.prototype.forEach.call(chipEl.children, function(c){ c.classList.toggle('on', c===b); });
+    draw();
+  });
+
+  function match(t, q){
+    if(tag && (t.tags||[]).indexOf(tag) < 0) return false;
+    if(!q) return true;
+    var hay = (t.title + ' ' + (t.sum||'') + ' ' + (t.tags||[]).join(' ')).toLowerCase();
+    return q.toLowerCase().split(/\s+/).every(function(w){ return hay.indexOf(w) >= 0; });
+  }
+  function draw(){
+    var q = qEl.value.trim();
+    var hits = IDX.filter(function(t){ return match(t, q); });
+    cntEl.textContent = hits.length + '개' + (q || tag ? ' (전체 ' + IDX.length + '개 중)' : '');
+    listEl.innerHTML = hits.length ? hits.map(function(t){
+      return '<button class="item" data-slug="'+t.slug+'">' +
+             '<p class="t">'+t.title+'</p>' +
+             (t.sum ? '<p class="s">'+t.sum+'</p>' : '') +
+             '<div class="g">'+(t.tags||[]).map(function(x){ return '<span>'+x+'</span>'; }).join('')+'</div>' +
+             '</button>';
+    }).join('') : '<p class="empty">찾는 개념이 없습니다. 다른 말로 검색해 보시거나, 튜터에게 물어보세요 — 답을 여기에 쌓아 둡니다.</p>';
+  }
+  listEl.addEventListener('click', function(e){
+    var b = e.target.closest('.item'); if(!b) return;
+    if(window.AdpQna) AdpQna.openTopic(b.getAttribute('data-slug'), b);
+  });
+  qEl.addEventListener('input', draw);
+  draw();
+})();
+</script>
+</body></html>

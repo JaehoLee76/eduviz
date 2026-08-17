@@ -138,6 +138,8 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 <table id="assump"></table>
 <div id="assumpV"></div>
 
+<div class="qna" data-topic="qq-plot"></div>
+<div class="qna" data-topic="assumption-failure"></div>
 <div class="qna" data-label="전제 확인은 실제로 어떻게 하나요?" data-q="정규성·등분산 확인, 실기에서는 실제로 어떻게 하나요?">
   <p><b>무엇을 확인하나.</b> 분산분석은 세 가지를 전제합니다 — ①각 조가 정규분포에 가깝다 ②조마다 흩어짐(분산)이 비슷하다 ③관측값이 서로 독립이다. ③은 계산으로 보는 게 아니라 <b>설계로 보장</b>합니다(무작위 배정·서로 다른 개체). 그래서 실제로 검사하는 것은 ①과 ②입니다.</p>
   <p><b>①정규성 — 샤피로-윌크 검정 + Q-Q 그림.</b> 귀무가설이 "정규분포다"이므로 <b>p가 크면(≥0.05) 통과</b>입니다. 평소와 방향이 반대라 헷갈리기 쉽습니다. 표본이 작으면 검정력이 약해 웬만하면 통과되므로 <b>그림을 함께</b> 봐야 합니다. 이 데이터의 값은 A 0.493 · B 0.761 · C 0.600 · D 0.622 로 전부 통과입니다. 화면의 Q-Q 상관 r도 같은 것을 봅니다 — 자료를 정규분포 눈금에 세웠을 때 얼마나 직선인지이고, 1에 가까울수록 정규에 가깝습니다.</p>

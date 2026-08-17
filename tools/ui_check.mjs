@@ -21,6 +21,7 @@ const SIZES = [
 ];
 const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : [
   'adp/index.html',
+  'adp/topics.html',
   'adp/labs/0001-fuel-economy-workflow.html',
   'adp/labs/0002-anova-lab.html',
   'adp/labs/0003-real-regression-problem.html',

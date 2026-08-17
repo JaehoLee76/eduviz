@@ -85,26 +85,71 @@
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && ov.classList.contains('on')) close(); });
 
   // 본문의 .qna 블록을 버튼으로 바꾼다(내용은 감춰 두고 팝업에서만 보여 줌).
+  /* ── 공용 설명 창고 ────────────────────────────────────────────────
+     같은 개념을 여러 장면에서 다시 설명하지 않도록, 설명 한 편을
+     adp/topics/<슬러그>.js 파일 하나로 두고 필요할 때만 불러온다.
+     장면 작성자는 이 한 줄만 쓰면 된다:  <div class="qna" data-topic="qq-plot"></div>
+     (제목·태그·본문은 주제 파일이 갖고 있다. 버튼 글자만 바꾸려면 data-label 추가) */
+  var TOPICS = {};
+  var loading = {};
+  window.AdpTopics = {
+    add: function(slug, def){ TOPICS[slug] = def; },
+    get: function(slug){ return TOPICS[slug]; },
+    all: function(){ return TOPICS; },
+    // 주제 파일을 script 로 불러온다(파일을 직접 열어도 동작하도록 fetch 를 쓰지 않는다).
+    load: function(slug, cb){
+      if(TOPICS[slug]) return cb(TOPICS[slug]);
+      if(loading[slug]) return loading[slug].push(cb);
+      loading[slug] = [cb];
+      var base = /\/labs\//.test(location.pathname) ? '../topics/' : './topics/';
+      var s = document.createElement('script');
+      s.src = base + slug + '.js';
+      s.onload = s.onerror = function(){
+        var waiting = loading[slug] || []; loading[slug] = null;
+        waiting.forEach(function(f){ f(TOPICS[slug]); });
+      };
+      document.head.appendChild(s);
+    }
+  };
+
+  function openTopic(slug, btn){
+    AdpTopics.load(slug, function(t){
+      if(!t) return open('설명을 불러오지 못했습니다', '<p>인터넷 연결을 확인하고 다시 눌러 주세요.</p>', btn);
+      open(t.title, t.html + tagLine(t), btn);
+    });
+  }
+  function tagLine(t){
+    if(!t.tags || !t.tags.length) return '';
+    return '<p><small>주제: ' + t.tags.join(' · ') + '</small></p>';
+  }
+
   function build(){
     var list = document.querySelectorAll('.qna');
     Array.prototype.forEach.call(list, function(box){
       if(box.dataset.built) return;
       box.dataset.built = '1';
+      var slug = box.getAttribute('data-topic');
       var q = box.getAttribute('data-q') || '질문';
       var html = box.innerHTML;
-      var label = box.getAttribute('data-label') || q;
+      var label = box.getAttribute('data-label') || (slug ? (TOPIC_LABEL[slug] || slug) : q);
       box.innerHTML = '';
       var btn = document.createElement('button');
       btn.className = 'qna-btn';
       btn.type = 'button';
       btn.innerHTML = '<span aria-hidden="true">💬</span><span>' + label + '</span>';
-      btn.addEventListener('click', function(){ open(q, html, btn); });
+      btn.addEventListener('click', function(){
+        if(slug) openTopic(slug, btn); else open(q, html, btn);
+      });
       box.appendChild(btn);
     });
   }
+  // 목록 파일(topics/index.js)이 먼저 실려 있으면 버튼 글자를 제목으로 채운다.
+  var TOPIC_LABEL = window.ADP_TOPIC_INDEX ?
+    window.ADP_TOPIC_INDEX.reduce(function(m, t){ m[t.slug] = t.title; return m; }, {}) : {};
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
 
   // 검사기(uicheck)가 팝업 상태도 잴 수 있도록 최소한의 조작 창구를 남긴다.
-  window.AdpQna = { open: open, close: close, count: function(){ return document.querySelectorAll('.qna-btn').length; },
+  window.AdpQna = { open: open, close: close, openTopic: openTopic, build: build,
+    count: function(){ return document.querySelectorAll('.qna-btn').length; },
     openIndex: function(i){ var b = document.querySelectorAll('.qna-btn')[i]; if(b) b.click(); return !!b; } };
 })();

@@ -125,6 +125,22 @@ footer.foot{
   h1{font-size:1.8rem}
   .card-title{font-size:1.05rem}
 }
+
+/* --- 검색·필터·최근(항목이 수백 개가 되어도 찾을 수 있게) --- */
+.tools{margin:0 0 1.2rem}
+.tools input{width:100%;min-height:46px;padding:.6rem .9rem;font-size:1rem;font-family:inherit;
+  color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:12px}
+.tools input:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.55rem 0 .6rem}
+.chip{min-height:36px;padding:.25rem .75rem;border:1px solid var(--rule);border-radius:20px;background:var(--card);
+  color:var(--soft);font-size:.82rem;font-weight:700;font-family:inherit;cursor:pointer}
+.chip.on{border-color:var(--accent);color:var(--accent)}
+.dict{display:block;text-align:center;min-height:44px;line-height:44px;border:1px solid var(--rule);
+  border-radius:12px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem}
+.recent-item{display:flex;align-items:center;gap:.5rem;min-height:46px;padding:.4rem .9rem;margin:0 0 .5rem;
+  background:var(--card);border:1px solid var(--rule);border-radius:12px;color:var(--ink);text-decoration:none;font-size:.92rem}
+.recent-item b{color:var(--accent);font-weight:800}
+.empty{color:var(--soft);font-size:.9rem;padding:1rem 0}
 </style>
 </head><body>
 
@@ -145,7 +161,23 @@ footer.foot{
 </header>
 
 <main class="wrap">
-  <h2 class="sec">실험실</h2>
+  <div class="tools">
+    <input id="q" type="search" placeholder="검색 (예: 분산분석, 회귀, 29회)" autocomplete="off">
+    <div class="chips" id="chips">
+      <button class="chip on" data-f="">전체</button>
+      <button class="chip" data-f="가이드">가이드</button>
+      <button class="chip" data-f="통계">통계</button>
+      <button class="chip" data-f="머신러닝">머신러닝</button>
+    </div>
+    <a class="dict" href="./topics.html">📖 개념 사전 — 배운 개념 다시 찾아보기</a>
+  </div>
+
+  <div id="recentBox" style="display:none">
+    <h2 class="sec">이어서 보기</h2>
+    <div id="recent"></div>
+  </div>
+
+  <h2 class="sec">실험실 <span id="hitCount" style="font-size:.8rem;color:var(--soft);font-weight:600"></span></h2>
   <div class="cards" id="cardList"></div>
 
   <div class="install-note">
@@ -176,9 +208,18 @@ var LABS = [
     done:true, statPart:true }
 ];
 
+var FQ = '', FF = '';
 function render(){
   var list = document.getElementById('cardList');
-  list.innerHTML = LABS.map(function(l){
+  var hits = LABS.filter(function(l){
+    if(FF && l.badge.indexOf(FF) < 0) return false;
+    if(!FQ) return true;
+    var hay = (l.no+' '+l.badge+' '+l.title+' '+l.sub+' '+l.desc).toLowerCase();
+    return FQ.toLowerCase().split(/\s+/).every(function(w){ return hay.indexOf(w) >= 0; });
+  });
+  document.getElementById('hitCount').textContent = (FQ||FF) ? hits.length+' / '+LABS.length : '';
+  if(!hits.length){ list.innerHTML = '<p class="empty">조건에 맞는 실험실이 없습니다.</p>'; }
+  else list.innerHTML = hits.map(function(l){
     var statusCls = l.done ? 'done' : 'soon';
     var statusTxt = l.done ? '완료' : '준비중';
     var tag = l.done ? 'a' : 'div';
@@ -201,6 +242,26 @@ function render(){
   document.getElementById('progBar').style.width = Math.round(doneCount/total*100)+'%';
 }
 render();
+
+// 검색·필터
+document.getElementById('q').addEventListener('input', function(e){ FQ = e.target.value.trim(); render(); });
+document.getElementById('chips').addEventListener('click', function(e){
+  var b = e.target.closest('.chip'); if(!b) return;
+  FF = b.getAttribute('data-f');
+  Array.prototype.forEach.call(this.children, function(c){ c.classList.toggle('on', c === b); });
+  render();
+});
+
+// 이어서 보기 — 최근 연 실험실(이 기기에 저장)
+(function(){
+  var r = [];
+  try{ r = JSON.parse(localStorage.getItem('adp_recent') || '[]'); }catch(e){}
+  if(!r.length) return;
+  document.getElementById('recentBox').style.display = '';
+  document.getElementById('recent').innerHTML = r.slice(0,3).map(function(x){
+    return '<a class="recent-item" href="'+x.href+'"><b>↩</b><span>'+x.title+'</span></a>';
+  }).join('');
+})();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
