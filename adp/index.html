@@ -170,6 +170,9 @@ main.wrap{padding-top:.4rem}
 .lab-row .n{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;color:var(--accent);font-weight:800}
 .lab-row .sub{margin-left:auto;font-size:.76rem;color:var(--soft)}
 .soon-row{color:var(--soft);font-size:.86rem;padding:.5rem .6rem}
+.mapnote{font-size:.84rem;color:var(--soft);line-height:1.5;margin:-.2rem 0 .9rem}
+.lab-row .ord{flex:none;font-size:.72rem;font-weight:800;color:var(--good);
+  border:1px solid var(--good);border-radius:10px;padding:.02rem .38rem}
 .today-row{display:flex;align-items:center;gap:.6rem;min-height:52px;padding:.5rem .9rem;margin:0 0 .5rem;
   background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:12px;
   color:var(--ink);text-decoration:none;font-size:.92rem}
@@ -202,6 +205,7 @@ main.wrap{padding-top:.4rem}
 
   <section id="treeBox">
     <h2 class="sec">학습 지도</h2>
+    <p class="mapnote">순서는 <b>0001 지도 → 0002 분산분석</b>까지만 지키시면 됩니다. 통계 파트의 뼈대(가설 → 전제 확인 → 검정통계량 → 판정 → 결론)가 0002에 다 들어 있어, 나머지 유형은 그 변형이라 아무 순서로 보셔도 됩니다.</p>
     <div id="tree"></div>
   </section>
 
@@ -223,11 +227,11 @@ main.wrap{padding-top:.4rem}
 <script>
 /* 실험실 목록 — 새 실험실은 여기 한 줄만 추가하면 학습 지도·검색·오늘 할 것에 자동 반영됩니다. */
 var LABS = [
-  { no:'0001', href:'labs/0001-fuel-economy-workflow.html', part:'가이드', type:'실기 전체 지도',
+  { no:'0001', href:'labs/0001-fuel-economy-workflow.html', part:'가이드', type:'실기 전체 지도', order:'먼저',
     title:'ADP 실기, 4시간 안에 무엇을 하는가', sub:'연비 사례로 관통',
     desc:'합격에 필요한 다섯 가지 힘, 시험 형식, 4시간 배분, 통계 유형 지도, 머신러닝 6단계와 파이썬 틀.',
     done:true },
-  { no:'0002', href:'labs/0002-anova-lab.html', part:'통계', type:'분산분석',
+  { no:'0002', href:'labs/0002-anova-lab.html', part:'통계', type:'분산분석', order:'기초',
     title:'일원배치 분산분석 + 사후검정', sub:'29회 문7 유형',
     desc:'차종별 범퍼 손상지수를 F검정으로 비교하고, 유의하면 본페로니 사후검정으로 어느 쌍이 다른지까지 찾는다.',
     done:true },
@@ -302,8 +306,9 @@ function drawTree(){
           '<span class="'+dot+'"></span><span>'+t+'</span>'+
           '<span class="cnt">'+(has ? ls.length+'개' : '준비중')+'</span><span class="ar">›</span></button>'+
           '<div class="type-b">'+ (has ? ls.map(function(l){
-            return '<a class="lab-row" href="'+l.href+'"><span class="n">'+l.no+'</span><span>'+l.title+'</span>'+
-                   '<span class="sub">'+l.sub+'</span></a>';
+            return '<a class="lab-row" href="'+l.href+'"><span class="n">'+l.no+'</span>'+
+                   (l.order ? '<span class="ord">'+l.order+'</span>' : '')+
+                   '<span>'+l.title+'</span><span class="sub">'+l.sub+'</span></a>';
           }).join('') : '<p class="soon-row">아직 만들지 않은 유형입니다. 순서가 오면 여기에 들어갑니다.</p>') +
           '</div></div>';
       }).join('') + '</div>';
