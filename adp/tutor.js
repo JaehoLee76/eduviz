@@ -151,6 +151,25 @@
     });
   }
 
+
+  // ── ①-5 이전·홈·다음 이동줄 자동 생성 ────────────────────────────
+  // 각 실험실 파일에 링크를 손으로 박으면 실험실을 추가할 때마다 앞뒤 파일을 함께 고쳐야 한다.
+  // 공유 목록(labs.js)의 순서를 보고 이 파일이 매번 만들어 준다. 앞이나 뒤가 없으면 그 버튼은 감춘다.
+  function chain(){
+    if(!/\/labs\//.test(location.pathname)) return;
+    var bot = document.querySelector('.labnav.bot');
+    if(!bot || !window.ADP_LABS) return;
+    var here = 'labs/' + location.pathname.split('/').pop();
+    var i = ADP_LABS.map(function(l){ return l.href; }).indexOf(here);
+    var prev = i > 0 ? ADP_LABS[i - 1] : null;
+    var next = (i >= 0 && i < ADP_LABS.length - 1) ? ADP_LABS[i + 1] : null;
+    var html = '';
+    html += prev ? '<a href="../' + prev.href + '">← ' + prev.title + '</a>' : '<span class="sp"></span>';
+    html += '<a class="ghost" href="../index.html">홈</a>';
+    html += next ? '<a href="../' + next.href + '">' + next.title + ' →</a>' : '<span class="sp"></span>';
+    bot.innerHTML = html;
+  }
+
   // ── ② 온라인일 때만 공용 위젯 로드 ──────────────────────────────────
   function load(list, done){
     var i = 0;
@@ -168,6 +187,10 @@
     plant();
     topbar();                                            // 버튼들이 들어앉을 자리를 먼저 만든다
     var up = /\/labs\//.test(location.pathname) ? '../' : './';
+    var labs = document.createElement('script');         // 실험실 목록(이동줄 생성용, 허브와 공유)
+    labs.src = up + 'labs.js';
+    labs.onload = labs.onerror = chain;
+    document.head.appendChild(labs);
     var idx = document.createElement('script');          // 설명 주제 목차(버튼 글자·개념 사전용)
     idx.src = up + 'topics/index.js';
     document.head.appendChild(idx);
