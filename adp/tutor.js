@@ -194,9 +194,11 @@
     var idx = document.createElement('script');          // 설명 주제 목차(버튼 글자·개념 사전용)
     idx.src = up + 'topics/index.js';
     document.head.appendChild(idx);
+    var drill = document.createElement('script');        // 훈련 장치(새 문제 뽑기·백지 훈련)
+    drill.src = up + 'drill.js';
     var qna = document.createElement('script');          // 장면별 Q&A 팝업(오프라인에서도 동작)
     qna.src = up + 'qna.js';
-    idx.onload = idx.onerror = function(){ document.head.appendChild(qna); };
+    idx.onload = idx.onerror = function(){ document.head.appendChild(qna); document.head.appendChild(drill); };
     remember();                                          // 최근 본 실험실 기록(허브에서 다시 찾아가기 쉽게)
     rateBar();                                           // 학습 기록 줄(간격 반복)
     if(location.search.indexOf('uicheck') >= 0){          // 겹침 자동 검사 모드(개발용)

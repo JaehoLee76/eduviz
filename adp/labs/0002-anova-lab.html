@@ -364,6 +364,35 @@ function render(){
 }
 var sD=document.getElementById('sD'),oD=document.getElementById('oD');
 sD.addEventListener('input',render);window.addEventListener('resize',render);render();
+
+window.ADP_NEWDATA=function(rnd){
+ function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+ var same=rnd()<(1/3);
+ var means;
+ if(same){
+  var m=12+rnd()*8;
+  means=[m,m,m,m];
+ }else{
+  means=[0,0,0,0].map(function(){return 12+rnd()*8;});
+ }
+ var fresh=means.map(function(m){
+  var sd=2+rnd()*2,row=[];
+  for(var i=0;i<8;i++){
+   var v=Math.round(m+gauss()*sd);
+   if(v<1)v=1;
+   row.push(v);
+  }
+  return row;
+ });
+ DATA=fresh;
+ var rows=document.querySelectorAll('.prob table.gday tr');
+ for(var g=0;g<K;g++){
+  var tds=rows[g+1].querySelectorAll('td');
+  for(var i=0;i<8;i++)tds[i+1].textContent=fresh[g][i];
+ }
+ sD.value=sD.defaultValue;
+ render();
+};
 </script>
 
 <nav class="labnav bot">

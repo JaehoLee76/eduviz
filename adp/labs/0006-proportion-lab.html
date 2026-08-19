@@ -222,6 +222,7 @@ function niceStep(r){var p=Math.pow(10,Math.floor(Math.log10(r)));var f=r/p;var 
 
 /* ---- 문제1: 두 모집단 비율 z검정 ---- */
 var ZCRIT=invnorm(0.975);
+var N1BASE=1000,N2BASE=500,P1BASE=0.6,P2BASE=0.4;
 function ztest(x1,n1,x2,n2){
  var p1=x1/n1,p2=x2/n2,phat=(x1+x2)/(n1+n2);
  var sePool=Math.sqrt(phat*(1-phat)*(1/n1+1/n2));
@@ -282,7 +283,7 @@ function fillMult(R,mult){
     :'귀무가설을 <b>기각하지 못한다</b> → 두 회사의 양품률 차이는 <b>통계적으로 유의하지 않다</b>.');
  document.getElementById('exploreNote').innerHTML=
   '현재 배수 '+fmt(mult,1)+'× → n_C='+R.n1+', n_D='+R.n2+' · z='+fmt(R.z,3)+', p='+pfmt(R.p)+
-  ' — 비율은 60% vs 40%로 <b>그대로</b>인데 표본이 커질수록(→오른쪽) 표준오차가 줄어 z는 커지고 p는 작아집니다. <b>차이의 크기(효과크기)와 통계적 유의성은 다른 개념입니다.</b>';
+  ' — 비율은 '+pct(P1BASE)+' vs '+pct(P2BASE)+'로 <b>그대로</b>인데 표본이 커질수록(→오른쪽) 표준오차가 줄어 z는 커지고 p는 작아집니다. <b>차이의 크기(효과크기)와 통계적 유의성은 다른 개념입니다.</b>';
  document.getElementById('py1').textContent=
   'import numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest, proportion_confint\n\n'+
   'count = np.array(['+R.x1+', '+R.x2+'])\nnobs  = np.array(['+R.n1+', '+R.n2+'])\n\n'+
@@ -292,8 +293,8 @@ function fillMult(R,mult){
 var sMult=document.getElementById('sMult'),oMult=document.getElementById('oMult');
 function render1(){
  var mult=+sMult.value;oMult.textContent=fmt(mult,1)+'×';
- var n1=Math.max(1,Math.round(1000*mult)),n2=Math.max(1,Math.round(500*mult));
- var x1=Math.round(n1*0.6),x2=Math.round(n2*0.4);
+ var n1=Math.max(1,Math.round(N1BASE*mult)),n2=Math.max(1,Math.round(N2BASE*mult));
+ var x1=Math.round(n1*P1BASE),x2=Math.round(n2*P2BASE);
  var R=ztest(x1,n1,x2,n2);
  drawCI(R);fillMult(R,mult);
 }
@@ -389,6 +390,59 @@ function fill2(R){
 }
 (function(){var R=compute2();drawBars2(R);fill2(R);window.addEventListener('resize',function(){drawBars2(compute2());});})();
 render1();
+
+/* ---- 새 문제 뽑기 (drill.js 계약) ---- */
+function clampR(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+window.ADP_NEWDATA=function(rnd){
+ /* 문제1: 두 모집단 비율 z검정 */
+ N1BASE=200+Math.round(rnd()*1300);
+ N2BASE=200+Math.round(rnd()*1300);
+ P1BASE=Math.round((0.2+rnd()*0.6)*100)/100;
+ var diff;
+ if(rnd()<0.5){ diff=0.15+rnd()*0.25; if(rnd()<0.5)diff=-diff; } /* 뚜렷한 차이 */
+ else{ diff=rnd()*0.1-0.05; } /* 거의 없음 */
+ P2BASE=Math.round(clampR(P1BASE+diff,0.05,0.95)*100)/100;
+
+ var n1=N1BASE,n2=N2BASE,x1=Math.round(n1*P1BASE),x2=Math.round(n2*P2BASE);
+ var p1a=x1/n1,p2a=x2/n2;
+ var prob1=document.querySelectorAll('.prob')[0];
+ prob1.innerHTML=
+  '<b>[문제]</b> C사 생산 제품 '+n1+'개 중 양품이 '+x1+'개, D사 생산 제품 '+n2+'개 중 양품이 '+x2+'개이다.\n'+
+  '  <b>두 회사의 양품률에 차이가 있는지</b> 유의수준 5%에서 검정하시오.\n'+
+  '  <table class="gday">\n'+
+  '    <tr><th></th><th>표본크기 n</th><th>양품 개수</th><th>양품률 p̂</th></tr>\n'+
+  '    <tr><td><b>C사</b></td><td>'+n1+'</td><td>'+x1+'</td><td>'+pct(p1a)+'</td></tr>\n'+
+  '    <tr><td><b>D사</b></td><td>'+n2+'</td><td>'+x2+'</td><td>'+pct(p2a)+'</td></tr>\n'+
+  '  </table>\n'+
+  '  <div class="src">유형 출처: ADP 실기 29회 복원. 위 숫자는 <b>고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>';
+ sMult.value=sMult.defaultValue;
+ render1();
+
+ /* 문제2: 세 모집단 비율 카이제곱 동일성 검정 */
+ var ns=[0,1,2].map(function(){return 200+Math.round(rnd()*300);});
+ var ps;
+ if(rnd()<0.5){
+  var base=0.3+rnd()*0.4;
+  ps=[0,1,2].map(function(){return clampR(base+(rnd()*0.06-0.03),0.05,0.95);}); /* 거의 같음 */
+ }else{
+  ps=[0,1,2].map(function(){return clampR(0.2+rnd()*0.5,0.05,0.95);}); /* 뚜렷이 다름 */
+ }
+ var supp=ns.map(function(n,i){return Math.round(n*ps[i]);});
+ var against=ns.map(function(n,i){return n-supp[i];});
+ OBS=[[supp[0],against[0]],[supp[1],against[1]],[supp[2],against[2]]];
+
+ var prob2=document.querySelectorAll('.prob')[1];
+ prob2.innerHTML=
+  '<b>[문제]</b> 어느 도시의 세 개 선거구에서 후보 A 지지율을 비교하려 각 선거구에서 무작위로 표본을 추출했다(선거구1 '+ns[0]+'명, 선거구2 '+ns[1]+'명, 선거구3 '+ns[2]+'명). 유의수준 5%에서 세 선거구의 지지율이 같은지 검정하시오.\n'+
+  '  <table class="gday">\n'+
+  '    <tr><th></th><th>선거구1</th><th>선거구2</th><th>선거구3</th></tr>\n'+
+  '    <tr><td><b>지지함</b></td><td>'+supp[0]+'</td><td>'+supp[1]+'</td><td>'+supp[2]+'</td></tr>\n'+
+  '    <tr><td><b>지지 안 함</b></td><td>'+against[0]+'</td><td>'+against[1]+'</td><td>'+against[2]+'</td></tr>\n'+
+  '    <tr><td><b>합계</b></td><td>'+ns[0]+'</td><td>'+ns[1]+'</td><td>'+ns[2]+'</td></tr>\n'+
+  '  </table>\n'+
+  '  <div class="src">유형 출처: ADP 실기 26회 복원. 위 숫자는 <b>고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다.</div>';
+ (function(){var R=compute2();drawBars2(R);fill2(R);})();
+};
 </script>
 
 <nav class="labnav bot">

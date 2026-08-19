@@ -283,6 +283,61 @@ function render(){
 }
 var sN=document.getElementById('sN'),oN=document.getElementById('oN');
 sN.addEventListener('input',render);window.addEventListener('resize',render);render();
+
+// 새 문제 뽑기: 표본 크기·독립/관련 패턴을 매번 새로 만들어 3×6 도수표를 다시 채운다.
+window.ADP_NEWDATA=function(rnd){
+ var total=300+Math.round(rnd()*600); // 300~900명
+
+ // 학과별(열) 표본 크기: 대략 균등 + 약간의 변동, 합계는 정확히 total
+ var w=[];for(var j=0;j<C6;j++)w.push(0.8+rnd()*0.4);
+ var wsum=w.reduce(function(a,b){return a+b;},0);
+ var colSize=[],acc=0;
+ for(j=0;j<C6-1;j++){var v=Math.max(20,Math.round(total*w[j]/wsum));colSize.push(v);acc+=v;}
+ colSize.push(Math.max(20,total-acc));
+
+ var independent=rnd()<0.5;
+ var commonP=null;
+ if(independent){
+  var r0=0.2+rnd()*0.3,r1=0.2+rnd()*0.3,r2=0.2+rnd()*0.3,rs=r0+r1+r2;
+  commonP=[r0/rs,r1/rs,r2/rs];
+ }
+
+ var newData=[[],[],[]];
+ for(j=0;j<C6;j++){
+  var p;
+  if(independent){
+   // 관련 없음: 모든 열이 같은 비율 + 작은 잡음
+   var n0=Math.max(0.05,commonP[0]+(rnd()-0.5)*0.05);
+   var n1=Math.max(0.05,commonP[1]+(rnd()-0.5)*0.05);
+   var n2=Math.max(0.05,commonP[2]+(rnd()-0.5)*0.05);
+   var ns=n0+n1+n2;p=[n0/ns,n1/ns,n2/ns];
+  }else{
+   // 관련 있음: 열마다 행 비율이 뚜렷이 다르게(넓은 범위에서 독립적으로 뽑음)
+   var a0=0.1+rnd()*0.8,a1=0.1+rnd()*0.8,a2=0.1+rnd()*0.8,as=a0+a1+a2;
+   p=[a0/as,a1/as,a2/as];
+  }
+  var cs=colSize[j];
+  var v0=Math.max(1,Math.round(cs*p[0]));
+  var v1=Math.max(1,Math.round(cs*p[1]));
+  var v2=cs-v0-v1;
+  while(v2<1){ // 나머지 보정: 음수/0이면 v0·v1에서 1씩 덜어와 v2를 최소 1로
+   if(v0>=v1&&v0>1)v0--;else if(v1>1)v1--;else if(v0>1)v0--;else break;
+   v2=cs-v0-v1;
+  }
+  newData[0].push(v0);newData[1].push(v1);newData[2].push(v2);
+ }
+
+ DATA=newData;
+
+ var trs=document.querySelectorAll('.prob table.gday tr');
+ for(var i=0;i<3;i++){
+  var tds=trs[i+1].querySelectorAll('td');
+  for(j=0;j<C6;j++)tds[j+1].textContent=DATA[i][j];
+ }
+
+ sN.value=sN.defaultValue;
+ render();
+};
 </script>
 
 <nav class="labnav bot">

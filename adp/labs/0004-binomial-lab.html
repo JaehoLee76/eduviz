@@ -137,13 +137,13 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 <table>
   <tr><th>조건</th><th>문제 1 (불량 검사)</th><th>문제 2 (자녀 성별)</th></tr>
   <tr><td>① 독립시행</td><td>제품마다 불량 여부가 다른 제품에 영향을 주지 않음</td><td>자녀마다 성별이 다른 자녀에 영향을 주지 않음(가정)</td></tr>
-  <tr><td>② 성공확률 일정</td><td>매 제품 p=0.03로 동일</td><td>매 자녀 p=0.5로 동일 · 2단계는 매 가족 p₁로 동일</td></tr>
-  <tr><td>③ 시행 횟수 고정</td><td>n=25 (뽑는 개수를 미리 정함)</td><td>n=6(자녀 수) → n=5(가족 수)로 각각 고정</td></tr>
+  <tr><td>② 성공확률 일정</td><td id="condP1">매 제품 p=0.03로 동일</td><td>매 자녀 p=0.5로 동일 · 2단계는 매 가족 p₁로 동일</td></tr>
+  <tr><td>③ 시행 횟수 고정</td><td id="condN1">n=25 (뽑는 개수를 미리 정함)</td><td>n=6(자녀 수) → n=5(가족 수)로 각각 고정</td></tr>
   <tr><td>판정</td><td colspan="2" style="font-weight:800;color:var(--good)">세 조건 모두 만족 → 이항분포 적용 가능</td></tr>
 </table>
 
 <h2><span class="step">3</span>확률 계산 — 문제 1</h2>
-<p style="font-size:.87rem;color:var(--soft)">P(X=k) = C(25,k) × 0.03ᵏ × 0.97²⁵⁻ᵏ 을 k별로 계산한 뒤, k=3 자리를 읽습니다. k=9 이상은 확률이 0.00001 미만으로 사실상 0이라 생략합니다.</p>
+<p id="p1desc" style="font-size:.87rem;color:var(--soft)">P(X=k) = C(25,k) × 0.03ᵏ × 0.97²⁵⁻ᵏ 을 k별로 계산한 뒤, k=3 자리를 읽습니다.</p>
 <table id="t1"></table>
 <div id="v1"></div>
 
@@ -268,17 +268,19 @@ function drawBinom(cv,n,p,hiFn){
 /* ---- 문제1 표 + 그래프 ---- */
 function renderP1(){
   var rows=[],cum=0;
-  for(var k=0;k<=8;k++){ var pk=pmf(N1,P1,k); cum+=pk;
+  for(var k=0;k<=N1;k++){ var pk=pmf(N1,P1,k); cum+=pk;
     rows.push('<tr'+(k===K1?' style="background:color-mix(in srgb,var(--warn) 14%,transparent)"':'')+'>'+
       '<td>'+k+'</td><td>'+fmt(comb(N1,k),0)+'</td><td>'+fmt(Math.pow(P1,k),6)+'</td><td>'+fmt(Math.pow(1-P1,N1-k),6)+'</td>'+
       '<td'+(k===K1?' class="hi"':'')+'>'+fmt(pk,5)+'</td><td>'+fmt(cum,5)+'</td></tr>');
   }
   document.getElementById('t1').innerHTML=
-    '<tr><th>k</th><th>C(25,k)</th><th>0.03ᵏ</th><th>0.97²⁵⁻ᵏ</th><th>P(X=k)</th><th>누적 P(X≤k)</th></tr>'+rows.join('')+
-    '<tr><td colspan="4" style="color:var(--soft)">k=9~25 (생략, 합 &lt; 0.00001)</td><td colspan="2" style="color:var(--soft)">누적 → 1</td></tr>';
+    '<tr><th>k</th><th>C('+N1+',k)</th><th>'+P1+'ᵏ</th><th>'+fmt(1-P1,2)+'ⁿ⁻ᵏ</th><th>P(X=k)</th><th>누적 P(X≤k)</th></tr>'+rows.join('');
   var pk3=pmf(N1,P1,K1);
-  document.getElementById('v1').innerHTML='<div class="verdict rej">P(X=3) = C(25,3) × 0.03³ × 0.97²² = '+fmt(pk3,7)+' → 소수점 다섯째 자리 반올림 = <b>'+fmt(pk3,4)+'</b></div>';
+  document.getElementById('v1').innerHTML='<div class="verdict rej">P(X='+K1+') = C('+N1+','+K1+') × '+P1+'^'+K1+' × '+fmt(1-P1,2)+'^'+(N1-K1)+' = '+fmt(pk3,7)+' → 소수점 다섯째 자리 반올림 = <b>'+fmt(pk3,4)+'</b></div>';
   drawBinom(document.getElementById('cv1'),N1,P1,function(k){return k===K1;});
+  document.getElementById('condP1').textContent='매 제품 p='+P1+'로 동일';
+  document.getElementById('condN1').textContent='n='+N1+' (뽑는 개수를 미리 정함)';
+  document.getElementById('p1desc').textContent='P(X=k) = C('+N1+',k) × '+P1+'ᵏ × '+fmt(1-P1,2)+'ⁿ⁻ᵏ 을 k별로 계산한 뒤, k='+K1+' 자리를 읽습니다.';
 }
 
 /* ---- 문제2 1단계 표(미니 막대) ---- */
@@ -311,7 +313,7 @@ function renderP2b(){
 /* ---- 4단계: 정규근사 판정표 ---- */
 function renderStep4(){
   var rows=[
-    {label:'문제 1 · X~B(25, 0.03)', n:N1,p:P1},
+    {label:'문제 1 · X~B('+N1+', '+P1+')', n:N1,p:P1},
     {label:'문제 2 1단계 · Y~B(6, 0.5)', n:N2a,p:P2a},
     {label:'문제 2 2단계 · Z~B(5, p₁)', n:N2b,p:p1},
   ];
@@ -322,18 +324,33 @@ function renderStep4(){
       '<td style="font-weight:800;color:'+(ok?'var(--good)':'var(--warn)')+'">'+(ok?'근사 가능':'근사 부적절')+'</td></tr>';
   });
   document.getElementById('t4').innerHTML=html;
+  var a1=N1*P1,b1=N1*(1-P1),okNorm=a1>=5&&b1>=5;
   var m1=mean(N1,P1),s1=sd(N1,P1),ap=approxCC(N1,P1,K1),ex=pmf(N1,P1,K1);
-  document.getElementById('trap1').innerHTML='<b>왜 이 문제엔 정규근사를 쓰면 안 되나 — 숫자로 확인</b><br>'+
-    '문제 1은 np = 25×0.03 = <span class="v">0.75</span>로 5에 한참 못 미칩니다(기준: np≥5 그리고 n(1−p)≥5). '+
-    '그런데도 정규근사(연속성 보정 포함)로 P(X=3)을 어림잡으면 어떻게 될까요.<br>'+
-    '<pre style="margin:.5rem 0 0">이항분포로 정확히 계산: P(X=3) = '+fmt(ex,5)+'\n정규분포로 근사(연속성 보정): P(2.5&lt;X&lt;3.5) ≈ '+fmt(ap,5)+'\n상대 오차 ≈ '+fmt(Math.abs(ap-ex)/ex*100,0)+'%</pre>'+
-    '평균 '+fmt(m1,2)+', 표준편차 '+fmt(s1,3)+'인 <b>좌우대칭 종 모양</b> 곡선이, 0 근처에 완전히 몰려 있고 오른쪽으로 길게 늘어진(왼쪽으로 갈 곳이 없는) <b>비대칭 막대그래프</b>를 흉내 낼 수 없기 때문입니다. → <b>근사하지 말고 이항분포로 직접 계산해야 합니다.</b>';
+  var trapHtml;
+  if(okNorm){
+    trapHtml='<b>이 문제는 정규근사를 써도 무난한가 — 숫자로 확인</b><br>'+
+      '문제 1은 np = '+N1+'×'+P1+' = <span class="v">'+fmt(a1,2)+'</span>, n(1−p) = '+N1+'×'+fmt(1-P1,2)+' = <span class="v">'+fmt(b1,2)+'</span>로 둘 다 5 이상입니다(기준: np≥5 그리고 n(1−p)≥5). '+
+      '그렇다면 정규근사(연속성 보정 포함)로 P(X='+K1+')을 어림잡으면 실제값과 얼마나 가까울까요.<br>'+
+      '<pre style="margin:.5rem 0 0">이항분포로 정확히 계산: P(X='+K1+') = '+fmt(ex,5)+'\n정규분포로 근사(연속성 보정): P('+fmt(K1-0.5,1)+'&lt;X&lt;'+fmt(K1+0.5,1)+') ≈ '+fmt(ap,5)+'\n상대 오차 ≈ '+fmt(Math.abs(ap-ex)/ex*100,1)+'%</pre>'+
+      '평균 '+fmt(m1,2)+', 표준편차 '+fmt(s1,3)+'인 <b>좌우대칭 종 모양</b> 곡선이 실제 막대그래프와 잘 겹칩니다. → <b>이 경우는 정규근사로 어림잡아도 큰 무리가 없지만, 실기 답안은 여전히 이항분포로 정확히 계산해 제시하는 것이 안전합니다.</b>';
+  }else{
+    trapHtml='<b>왜 이 문제엔 정규근사를 쓰면 안 되나 — 숫자로 확인</b><br>'+
+      '문제 1은 np = '+N1+'×'+P1+' = <span class="v">'+fmt(a1,2)+'</span>'+(b1<5?', n(1−p) = '+N1+'×'+fmt(1-P1,2)+' = <span class="v">'+fmt(b1,2)+'</span>':'')+'로 기준(np≥5 그리고 n(1−p)≥5)에 못 미칩니다. '+
+      '그런데도 정규근사(연속성 보정 포함)로 P(X='+K1+')을 어림잡으면 어떻게 될까요.<br>'+
+      '<pre style="margin:.5rem 0 0">이항분포로 정확히 계산: P(X='+K1+') = '+fmt(ex,5)+'\n정규분포로 근사(연속성 보정): P('+fmt(K1-0.5,1)+'&lt;X&lt;'+fmt(K1+0.5,1)+') ≈ '+fmt(ap,5)+'\n상대 오차 ≈ '+fmt(Math.abs(ap-ex)/ex*100,0)+'%</pre>'+
+      '평균 '+fmt(m1,2)+', 표준편차 '+fmt(s1,3)+'인 <b>좌우대칭 종 모양</b> 곡선이, 한쪽으로 심하게 몰려 있는 <b>비대칭 막대그래프</b>를 흉내 낼 수 없기 때문입니다. → <b>근사하지 말고 이항분포로 직접 계산해야 합니다.</b>';
+  }
+  document.getElementById('trap1').innerHTML=trapHtml;
 }
 
 /* ---- 5단계: 결론 ---- */
 function renderConcl(r2){
   var pk3=pmf(N1,P1,K1);
-  document.getElementById('concl1').innerHTML='<b>문제 1 결론</b> — 제품 A의 불량률이 0.03인 모집단에서 25개를 뽑을 때, 불량이 정확히 3개일 확률은 이항분포 X~B(25, 0.03)에서 직접 계산하여 P(X=3) = C(25,3)×0.03³×0.97²² ≈ <b>'+fmt(pk3,4)+'</b>이다(소수점 다섯째 자리 반올림). np=0.75&lt;5이므로 정규근사는 적용하지 않았다.';
+  var a1=N1*P1,b1=N1*(1-P1),okNorm=a1>=5&&b1>=5;
+  var npNote=okNorm
+    ? 'np='+fmt(a1,2)+'≥5이고 n(1−p)='+fmt(b1,2)+'≥5로 정규근사도 쓸 수 있었으나, 정확한 값을 위해 이항분포로 직접 계산했다.'
+    : 'np='+fmt(a1,2)+'&lt;5이므로 정규근사는 적용하지 않았다.';
+  document.getElementById('concl1').innerHTML='<b>문제 1 결론</b> — 제품 A의 불량률이 '+P1+'인 모집단에서 '+N1+'개를 뽑을 때, 불량이 정확히 '+K1+'개일 확률은 이항분포 X~B('+N1+', '+P1+')에서 직접 계산하여 P(X='+K1+') = C('+N1+','+K1+')×'+P1+'^'+K1+'×'+fmt(1-P1,2)+'^'+(N1-K1)+' ≈ <b>'+fmt(pk3,4)+'</b>이다(소수점 다섯째 자리 반올림). '+npNote;
   document.getElementById('concl2').innerHTML='<b>문제 2 결론</b> — 한 가족이 딸 4명 이상을 가질 확률은 Y~B(6,0.5)에서 p₁=P(Y≥4)='+fmt(p1,5)+'이다. 이를 성공확률로 하여 다섯 가족을 다시 이항분포 Z~B(5, '+fmt(p1,5)+')로 보면, ① 세 가족 이상일 확률은 P(Z≥3) ≈ <b>'+fmt(r2.pz,3)+'</b>이고, ② 기대되는 가족 수는 E[Z]=5p₁ ≈ <b>'+fmt(r2.ez,3)+'</b>가족이다.';
 }
 
@@ -368,6 +385,25 @@ function renderPy(){
 
 renderP1(); renderP2a(); var r2=renderP2b(); renderStep4(); renderConcl(r2); renderExplore(); renderPy();
 window.addEventListener('resize',function(){renderP1();renderP2b();renderExplore();});
+
+/* ---- 새 문제 뽑기: 문제 1(제품 불량률)만 재생성. 문제 2는 서사 구조상 고정 ---- */
+window.ADP_NEWDATA=function(rnd){
+  N1=10+Math.floor(rnd()*31);                       // 10~40
+  P1=Math.round((0.02+rnd()*0.48)*100)/100;          // 0.02~0.50, 소수 둘째 자리
+  var m=N1*P1, s=Math.sqrt(N1*P1*(1-P1));
+  var k=Math.round(m+(rnd()+rnd()-1)*s);             // 평균 근처에서 표준편차 폭으로 흔들기
+  if(k<0)k=0; if(k>N1)k=N1;
+  K1=k;
+
+  var probP=document.querySelectorAll('.prob p:not(.probn)');
+  probP[0].innerHTML='제품 A의 불량률은 '+P1+'이다. '+N1+'개의 제품을 뽑았을 때 <b>'+K1+'개가 불량일 확률</b>을 구하시오. (소수점 다섯째 자리에서 반올림)';
+  var probT=document.querySelectorAll('.prob table.gday');
+  probT[0].innerHTML='<tr><th>시행 횟수 n</th><th>성공(불량) 확률 p</th><th>구하는 값</th></tr>'+
+    '<tr><td>'+N1+'</td><td>'+P1+'</td><td>P(X = '+K1+')</td></tr>';
+
+  sN.value=sN.defaultValue; sP.value=sP.defaultValue;
+  renderP1(); renderP2a(); var r2n=renderP2b(); renderStep4(); renderConcl(r2n); renderExplore(); renderPy();
+};
 </script>
 
 <nav class="labnav bot">
