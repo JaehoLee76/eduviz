@@ -5,6 +5,11 @@
  * 장면에서 쓰는 법:  <div class="qna" data-topic="qq-plot"></div>
  */
 window.ADP_TOPIC_INDEX = [
+  { slug: 'sampling-distributions',
+    title: '카이제곱·t·F는 어디서 왔나 — 표본분포의 정체',
+    tags: ['검정 기본', '분포', 'p값', '전제 확인'],
+    sum: '세 분포가 정규분포에서 유도되는 과정과, 모의로 확인한 임계값의 출처.' },
+
   { slug: 'test-statistic',
     title: '검정통계량 — 자료를 판단 가능한 숫자 하나로',
     tags: ['검정 기본', '분산분석', 'p값'],
