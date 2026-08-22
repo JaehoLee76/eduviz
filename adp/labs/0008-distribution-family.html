@@ -1,0 +1,1277 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>토대 · 자유도와 분포의 계보 (z · χ² · t · F)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;--bad:#c2453f;
+ --gA:#4a86e8;--gB:#e0952b;--gC:#3aa76d;--gD:#9b6ae0;--grand:#7a7580;}
+@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.08rem;margin:1.9rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+h3{font-size:.97rem;margin:1.2rem 0 .35rem;color:var(--accent)}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+td.l,th.l{text-align:left}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.key{background:color-mix(in srgb,var(--good) 10%,transparent);border:1px solid var(--good);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.94rem}
+.key b{color:var(--good)}
+.trap{border:1.5px dashed var(--warn);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.trap .v{font-weight:800;color:var(--warn)}
+.ctrl{display:grid;grid-template-columns:150px 1fr 74px;align-items:center;gap:.5rem;font-size:.86rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btnrow{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 0}
+.btn{min-height:44px;padding:.4rem .9rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);font-weight:700;font-size:.86rem;cursor:pointer;font-family:inherit}
+.btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+.readout{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.8rem;color:var(--soft);
+ margin-top:.5rem;font-variant-numeric:tabular-nums;line-height:1.7}
+.readout b{color:var(--ink)}
+small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.7rem}
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);
+  color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">토대 · 분포와 자유도</span></nav>
+
+<p class="eyebrow">토대 · 분산분석을 읽기 전에</p>
+<h1>자유도와 분포의 계보<small>표준정규 z 하나에서 카이제곱 · t · F 가 어떻게 태어나는가. <b>이 장면만 보면 다음 실험실(분산분석)의 모든 기호가 읽힙니다.</b></small></h1>
+
+<div class="prob">
+  <b>[출발점]</b> 다음 실험실의 결론은 이 한 줄입니다.
+  <pre style="margin:.6rem 0 .4rem">F(3, 28) = 6.724,   p = 0.0015   →  차종 간 손상지수 차이가 유의하다</pre>
+  이 한 줄에 물음이 셋 들어 있습니다.
+  <table>
+    <tr><th style="width:24%">기호</th><th class="l">물음</th><th style="width:22%">답하는 절</th></tr>
+    <tr><td><b>F</b></td><td class="l">F 라는 자는 대체 무엇이고, 누가 왜 만들었나</td><td>§6 · §7</td></tr>
+    <tr><td><b>3, 28</b></td><td class="l">이 두 수는 어디서 나왔고, 왜 굳이 빼는가</td><td>§3 · §4 · §5</td></tr>
+    <tr><td><b>p</b></td><td class="l">0.0015 라는 넓이는 어느 곡선의 어디를 잰 것인가</td><td>§7 · §8</td></tr>
+  </table>
+  <div style="font-size:.8rem;color:var(--soft);margin-top:.5rem">아래 그림·표의 모든 수치는 이 페이지가 그 자리에서 실제로 계산한 값입니다(미리 적어 둔 숫자가 없습니다). 분포는 라이브러리 없이 정의대로 적분해서 그립니다.</div>
+</div>
+
+<h2><span class="step">§1</span>한 장으로 보는 계보</h2>
+<p>통계 검정에 쓰는 분포는 제각각 태어난 게 아닙니다. <b>표준정규 z 하나에서 전부 파생됩니다.</b> 아래 네 상자를 눌러 보십시오 — 각 곡선은 정의대로 계산해 그린 진짜 모양입니다.</p>
+
+<div class="lab">
+  <canvas id="cvMap" height="330"></canvas>
+  <div id="mapCap" class="concl" style="margin:.8rem 0 0"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   분포 계산 엔진 — 외부 라이브러리 0. 정의대로 계산합니다.
+   (표준 임계값표와 대조 검증 완료: χ²·t·F 모두 소수 넷째 자리까지 일치)
+   ══════════════════════════════════════════════════════════════ */
+function lgam(x){
+  var g=[676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,
+         12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(x<0.5) return Math.log(Math.PI/Math.sin(Math.PI*x))-lgam(1-x);
+  x-=1; var a=0.99999999999980993,t=x+7.5;
+  for(var i=0;i<8;i++) a+=g[i]/(x+i+1);
+  return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a);
+}
+function gser(a,x){ var ap=a,sum=1/a,del=sum;
+  for(var n=1;n<500;n++){ ap++; del*=x/ap; sum+=del; if(Math.abs(del)<Math.abs(sum)*1e-14) break; }
+  return sum*Math.exp(-x+a*Math.log(x)-lgam(a)); }
+function gcf(a,x){ var FP=1e-300,b=x+1-a,c=1/FP,d=1/b,h=d;
+  for(var i=1;i<500;i++){ var an=-i*(i-a); b+=2; d=an*d+b; if(Math.abs(d)<FP)d=FP;
+    c=b+an/c; if(Math.abs(c)<FP)c=FP; d=1/d; var del=d*c; h*=del; if(Math.abs(del-1)<1e-14) break; }
+  return Math.exp(-x+a*Math.log(x)-lgam(a))*h; }
+function gammaP(a,x){ return x<=0?0:(x<a+1?gser(a,x):1-gcf(a,x)); }
+function betacf(a,b,x){ var FP=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FP)d=FP; d=1/d; var h=d;
+  for(var m=1;m<300;m++){ var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d; if(Math.abs(d)<FP)d=FP; c=1+aa/c; if(Math.abs(c)<FP)c=FP; d=1/d; h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d; if(Math.abs(d)<FP)d=FP; c=1+aa/c; if(Math.abs(c)<FP)c=FP; d=1/d;
+    var del=d*c; h*=del; if(Math.abs(del-1)<1e-14) break; }
+  return h; }
+function betaI(x,a,b){ if(x<=0)return 0; if(x>=1)return 1;
+  var f=Math.exp(lgam(a+b)-lgam(a)-lgam(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)? f*betacf(a,b,x)/a : 1-f*betacf(b,a,1-x)/b; }
+function normPdf(z){ return Math.exp(-z*z/2)/Math.sqrt(2*Math.PI); }
+function normCdf(z){ return z>=0?0.5*(1+gammaP(0.5,z*z/2)):0.5*(1-gammaP(0.5,z*z/2)); }
+function chi2Pdf(x,k){ return x<=0?0:Math.exp((k/2-1)*Math.log(x)-x/2-(k/2)*Math.log(2)-lgam(k/2)); }
+function chi2Cdf(x,k){ return x<=0?0:gammaP(k/2,x/2); }
+function tPdf(t,v){ return Math.exp(lgam((v+1)/2)-lgam(v/2))/Math.sqrt(v*Math.PI)*Math.pow(1+t*t/v,-(v+1)/2); }
+function tCdf(t,v){ var p=0.5*betaI(v/(v+t*t),v/2,0.5); return t>0?1-p:p; }
+function fPdf(x,d1,d2){ if(x<=0) return 0;
+  return Math.exp((d1/2)*Math.log(d1/d2)+(d1/2-1)*Math.log(x)-((d1+d2)/2)*Math.log(1+d1*x/d2)
+       -(lgam(d1/2)+lgam(d2/2)-lgam((d1+d2)/2))); }
+function fCdf(x,d1,d2){ return x<=0?0:betaI(d1*x/(d1*x+d2),d1/2,d2/2); }
+function qOf(cdf,p,lo,hi){ for(var i=0;i<200;i++){ var m=(lo+hi)/2; cdf(m)<p?lo=m:hi=m; } return (lo+hi)/2; }
+
+/* 고정 씨앗 난수 — 새로 고쳐도 같은 그림이 나옵니다(재현 가능) */
+function rngOf(seed){ var a=seed>>>0; return function(){ a|=0; a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function gaussOf(rnd){ return function(){ var u=1-rnd(),v=rnd();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }; }
+
+/* ── 그리기 공통 ── */
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function setup(cv,h){ var dpr=window.devicePixelRatio||1,w=cv.clientWidth;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+'px';
+  var x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,w,h);
+  return {x:x,w:w,h:h}; }
+function fmt(v,d){ return v.toFixed(d===undefined?2:d); }
+/* 색 + 투명도 — canvas 는 브라우저마다 color-mix 지원이 갈려서 직접 섞습니다 */
+function alpha(c,a){ c=(c||'').trim();
+  if(c[0]==='#'){ if(c.length===4) c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];
+    return 'rgba('+parseInt(c.substr(1,2),16)+','+parseInt(c.substr(3,2),16)+','+parseInt(c.substr(5,2),16)+','+a+')'; }
+  var m=c.match(/-?\d+\.?\d*/g); return m&&m.length>=3?'rgba('+m[0]+','+m[1]+','+m[2]+','+a+')':c; }
+function roundRect(x,a,b,w,h,r){ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r);
+  x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath(); }
+function arrow(x,x1,y1,x2,y2,col){ x.strokeStyle=col; x.fillStyle=col; x.lineWidth=1.6;
+  x.beginPath(); x.moveTo(x1,y1); x.lineTo(x2,y2); x.stroke();
+  var a=Math.atan2(y2-y1,x2-x1);
+  x.beginPath(); x.moveTo(x2,y2); x.lineTo(x2-8*Math.cos(a-.4),y2-8*Math.sin(a-.4));
+  x.lineTo(x2-8*Math.cos(a+.4),y2-8*Math.sin(a+.4)); x.closePath(); x.fill(); }
+/* 곡선 한 개를 상자 안에 그린다(값은 pdf 로 실제 계산) */
+function miniCurve(x,bx,by,bw,bh,pdf,x0,x1,col,fill){
+  var n=90,pk=0,ys=[];
+  for(var i=0;i<=n;i++){ var v=pdf(x0+(x1-x0)*i/n); ys.push(v); if(v>pk) pk=v; }
+  if(pk<=0) return;
+  x.beginPath();
+  for(var i=0;i<=n;i++){ var px=bx+bw*i/n, py=by+bh-(ys[i]/pk)*bh*0.94;
+    i?x.lineTo(px,py):x.moveTo(px,py); }
+  if(fill){ x.lineTo(bx+bw,by+bh); x.lineTo(bx,by+bh); x.closePath();
+    x.fillStyle=fill; x.fill(); }
+  x.strokeStyle=col; x.lineWidth=1.8; x.stroke();
+}
+/* 화면에 보일 때만 애니메이션을 돌린다(배터리·성능) */
+var TICKS=[], VIS=new WeakMap();
+var IO=window.IntersectionObserver?new IntersectionObserver(function(es){
+  es.forEach(function(e){ VIS.set(e.target,e.isIntersecting); }); },{rootMargin:'120px'}):null;
+function tick(cv,fn){ if(IO) IO.observe(cv); TICKS.push({cv:cv,fn:fn}); }
+(function loop(){ for(var i=0;i<TICKS.length;i++){ var k=TICKS[i];
+    if(VIS.get(k.cv)!==false){ try{ k.fn(); }catch(e){} } }
+  requestAnimationFrame(loop); })();
+var REDRAW=[];
+function onResize(fn){ REDRAW.push(fn); }
+var rt=null;
+window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){
+  REDRAW.forEach(function(f){ try{ f(); }catch(e){} }); },120); });
+
+/* ══════════ §1 계보 지도 ══════════ */
+(function(){
+ var cv=document.getElementById('cvMap'), cap=document.getElementById('mapCap'), sel=0, boxes=[];
+ var NODE=[
+  { k:'z', t:'표준정규  z', s:'모든 자의 원점',
+    pdf:function(u){return normPdf(u);}, x0:-3.6, x1:3.6, col:'--accent',
+    cap:'<b>표준정규 z</b> — 중심 0, 흩어짐 1 로 <b>자를 하나로 통일</b>한 분포입니다. 키든 몸무게든 손상지수든, (값 − 평균) ÷ 표준편차 로 옮기면 전부 이 하나의 곡선 위로 포개집니다. 그래서 넓이(확률)를 <b>딱 한 번만</b> 계산해 두면 모든 문제에 씁니다. 나머지 셋은 전부 여기서 만들어집니다.' },
+  { k:'chi', t:'카이제곱  χ²(k)', s:'z 를 k개 제곱해 더함',
+    pdf:function(u){return chi2Pdf(u,4);}, x0:0, x1:16, col:'--gC',
+    cap:'<b>카이제곱 χ²(k)</b> — 독립인 z 를 <b>k개 제곱해서 더한</b> 값의 분포입니다. 흩어짐은 언제나 제곱합으로 재므로, "이 제곱합이 우연히 얼마나 커질 수 있나"를 재려면 이 자가 필요합니다. k 가 곧 <b>자유도</b> — 제곱해 더한 <b>독립적인 방향의 개수</b>입니다. 그림은 k=4.' },
+  { k:'t', t:'스튜던트  t(v)', s:'z ÷ √(χ²/v)',
+    pdf:function(u){return tPdf(u,4);}, x0:-4.2, x1:4.2, col:'--gB',
+    cap:'<b>t 분포</b> — 진짜 흩어짐 σ 를 모를 때 표본에서 잰 s 로 대신하면, 분자뿐 아니라 <b>분모까지 흔들립니다.</b> 그 이중의 흔들림을 반영해 z 보다 <b>꼬리가 두껍게</b> 만든 자입니다. 정의는 z 를 √(χ²(v)/v) 로 나눈 것. 자유도가 커지면 z 로 수렴합니다. 그림은 v=4.' },
+  { k:'F', t:'피셔  F(d₁,d₂)', s:'(χ²/d₁) ÷ (χ²/d₂)',
+    pdf:function(u){return fPdf(u,3,28);}, x0:0, x1:6, col:'--gD',
+    cap:'<b>F 분포</b> — <b>흩어짐 두 개의 비율</b>이 우연히 얼마나 커질 수 있는지 재는 자입니다. 카이제곱 둘을 각자의 자유도로 나눈 뒤 나눗셈한 것 — 자유도로 나누는 이유는 방향 수가 다르면 그냥은 견줄 수 없기 때문입니다. 분산분석의 심장이며, 그림이 바로 다음 실험실의 <b>F(3, 28)</b> 입니다.' }
+ ];
+ function draw(){
+  var o=setup(cv,330), x=o.x, W=o.w, H=o.h;
+  var narrow = W<560;
+  var cols = narrow?2:4, rows = narrow?2:1;
+  var gapX=narrow?12:10, gapY=16, padT=narrow?6:34;
+  var bw=(W-gapX*(cols-1))/cols, bh=narrow?(H-padT-gapY-30)/2:(H-padT-40);
+  boxes=[];
+  for(var i=0;i<4;i++){
+   var c=i%cols, r=Math.floor(i/cols);
+   var bx=c*(bw+gapX), by=padT+r*(bh+gapY);
+   boxes.push({x:bx,y:by,w:bw,h:bh,i:i});
+  }
+  /* 화살표 먼저(상자 뒤로) */
+  x.save();
+  for(var i=0;i<3;i++){
+   var a=boxes[i], b=boxes[i+1];
+   if(a.y===b.y) arrow(x,a.x+a.w+1,a.y+a.h/2,b.x-1,b.y+b.h/2,css('--soft'));
+   else { /* 줄바꿈: 아래로 내려가는 갈고리 */
+     var y1=a.y+a.h, y2=b.y;
+     x.strokeStyle=css('--soft'); x.lineWidth=1.6; x.setLineDash([4,3]);
+     x.beginPath(); x.moveTo(a.x+a.w/2,y1); x.lineTo(a.x+a.w/2,(y1+y2)/2);
+     x.lineTo(b.x+b.w/2,(y1+y2)/2); x.stroke(); x.setLineDash([]);
+     arrow(x,b.x+b.w/2,(y1+y2)/2,b.x+b.w/2,y2-1,css('--soft'));
+   }
+  }
+  x.restore();
+  for(var i=0;i<4;i++){
+   var b=boxes[i], on=(i===sel), col=css(NODE[i].col);
+   roundRect(x,b.x,b.y,b.w,b.h,11);
+   x.fillStyle=on?alpha(col,0.13):css('--card'); x.fill();
+   x.strokeStyle=on?col:css('--rule'); x.lineWidth=on?2.4:1.2; x.stroke();
+   x.fillStyle=col; x.font='700 '+(b.w<130?12:13)+'px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(NODE[i].t, b.x+b.w/2, b.y+20);
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+   x.fillText(NODE[i].s, b.x+b.w/2, b.y+36);
+   miniCurve(x,b.x+10,b.y+44,b.w-20,b.h-58,NODE[i].pdf,NODE[i].x0,NODE[i].x1,col,
+     alpha(col,on?0.22:0.09));
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+   x.fillText(on?'선택됨':'누르면 설명', b.x+b.w/2, b.y+b.h-6);
+  }
+  if(!narrow){
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+   x.fillText('만들어지는 순서 →  하나의 z 에서 나머지 셋이 파생됩니다', 2, 16);
+  }
+  cap.innerHTML=NODE[sel].cap;
+ }
+ cv.addEventListener('click',function(e){
+  var r=cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  for(var i=0;i<boxes.length;i++){ var b=boxes[i];
+   if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){ sel=i; draw(); return; } }
+  sel=(sel+1)%4; draw();
+ });
+ onResize(draw); draw();
+})();
+</script>
+
+<div class="qna" data-topic="sampling-distributions"></div>
+
+<h2><span class="step">§2</span>표준정규 — 자를 하나로 통일하려고 만들었다</h2>
+<p>키는 센티미터, 손상지수는 점, 시험은 100점 만점. <b>단위도 중심도 흩어짐도 전부 다릅니다.</b> 그런데 우리가 묻는 것은 늘 같습니다 — "이 값이 <b>얼마나 드문가</b>". 그래서 모든 자를 하나로 포개는 변환을 만들었습니다.</p>
+<pre>z = (값 − 평균) ÷ 표준편차        →  "평균에서 표준편차 몇 개만큼 떨어졌나"</pre>
+<p>아래 슬라이더를 움직여 보십시오. 세 문제는 눈금이 완전히 다른데도 <b>드문 정도(칠한 넓이)는 언제나 똑같습니다.</b></p>
+
+<div class="lab">
+  <canvas id="cvZ" height="330"></canvas>
+  <div class="ctrl"><label for="sZ">z — 평균에서 몇 σ</label><input id="sZ" type="range" min="-3" max="3" step="0.05" value="1.33"><output id="oZ"></output></div>
+  <div id="roZ" class="readout"></div>
+</div>
+
+<div class="key"><b>왜 만들었나</b> — 정규분포는 평균과 표준편차에 따라 <b>무한히 많습니다.</b> 그 하나하나마다 넓이표를 만들 수는 없습니다. z 로 옮기면 표가 <b>딱 한 장</b>이면 됩니다. 카이제곱·t·F 도 전부 이 z 를 재료로 만들어집니다.</div>
+
+<script>
+/* ══════════ §2 표준화 ══════════ */
+(function(){
+ var cv=document.getElementById('cvZ'), sZ=document.getElementById('sZ'), oZ=document.getElementById('oZ'), ro=document.getElementById('roZ');
+ var CASE=[ {n:'성인 남성 키', u:'cm', mu:172, sd:6, col:'--gA', d:0},
+            {n:'범퍼 손상지수', u:'점', mu:16.125, sd:3.12, col:'--gC', d:2},
+            {n:'모의고사 점수', u:'점', mu:60, sd:15, col:'--gD', d:1} ];
+ function draw(){
+  var narrow=cv.clientWidth<520;
+  var z=+sZ.value, o=setup(cv,narrow?366:330), x=o.x, W=o.w, H=o.h;
+  var gap=8, pw=(W-gap*2)/3, ph=narrow?152:136, top=22;
+  CASE.forEach(function(c,i){
+   var bx=i*(pw+gap), col=css(c.col), lo=c.mu-3.6*c.sd, hi=c.mu+3.6*c.sd;
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+   x.fillText(c.n, bx+2, top-8);
+   /* 곡선 + 오른쪽 꼬리 칠하기(실제 정규 pdf) */
+   var n=110, ys=[], pk=normPdf(0);
+   for(var k=0;k<=n;k++){ ys.push(normPdf(-3.6+7.2*k/n)); }
+   var by=top, bh=ph-30;
+   x.beginPath();
+   for(var k=0;k<=n;k++){ var px=bx+pw*k/n, py=by+bh-(ys[k]/pk)*bh*0.92; k?x.lineTo(px,py):x.moveTo(px,py); }
+   x.strokeStyle=col; x.lineWidth=1.8; x.stroke();
+   var k0=Math.max(0,Math.min(n,Math.round((z+3.6)/7.2*n)));
+   x.beginPath(); x.moveTo(bx+pw*k0/n, by+bh);
+   for(var k=k0;k<=n;k++){ x.lineTo(bx+pw*k/n, by+bh-(ys[k]/pk)*bh*0.92); }
+   x.lineTo(bx+pw, by+bh); x.closePath(); x.fillStyle=alpha(col,0.30); x.fill();
+   /* 축 + 값 */
+   x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(bx,by+bh); x.lineTo(bx+pw,by+bh); x.stroke();
+   var vx=bx+pw*k0/n, val=c.mu+z*c.sd;
+   x.strokeStyle=col; x.lineWidth=2; x.setLineDash([3,3]);
+   x.beginPath(); x.moveTo(vx,by+6); x.lineTo(vx,by+bh); x.stroke(); x.setLineDash([]);
+   x.fillStyle=col; x.beginPath(); x.arc(vx,by+bh,3.5,0,7); x.fill();
+   x.font='700 12px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(fmt(val,c.d)+' '+c.u, Math.max(bx+30,Math.min(bx+pw-30,vx)), by+bh+16);
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+   if(narrow){ x.fillText('평균 '+fmt(c.mu,c.d), bx+pw/2, by+bh+30);
+               x.fillText('표준편차 '+fmt(c.sd,c.d), bx+pw/2, by+bh+44); }
+   else x.fillText('평균 '+fmt(c.mu,c.d)+' · 표준편차 '+fmt(c.sd,c.d), bx+pw/2, by+bh+30);
+  });
+  /* 아래: 하나로 포갠 표준정규 */
+  var by2=top+ph+26, bh2=H-by2-26, bx2=0, bw2=W;
+  x.fillStyle=css('--accent'); x.font='700 12px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('셋을 z 로 옮기면 → 곡선 하나', 2, by2-8);
+  var n=200, pk=normPdf(0), ys=[];
+  for(var k=0;k<=n;k++) ys.push(normPdf(-3.8+7.6*k/n));
+  x.beginPath();
+  for(var k=0;k<=n;k++){ var px=bx2+bw2*k/n, py=by2+bh2-(ys[k]/pk)*bh2*0.9; k?x.lineTo(px,py):x.moveTo(px,py); }
+  x.strokeStyle=css('--accent'); x.lineWidth=2.2; x.stroke();
+  var k0=Math.max(0,Math.min(n,Math.round((z+3.8)/7.6*n)));
+  x.beginPath(); x.moveTo(bx2+bw2*k0/n, by2+bh2);
+  for(var k=k0;k<=n;k++) x.lineTo(bx2+bw2*k/n, by2+bh2-(ys[k]/pk)*bh2*0.9);
+  x.lineTo(bx2+bw2, by2+bh2); x.closePath(); x.fillStyle=alpha(css('--accent'),0.28); x.fill();
+  x.strokeStyle=css('--rule'); x.beginPath(); x.moveTo(0,by2+bh2); x.lineTo(W,by2+bh2); x.stroke();
+  for(var t=-3;t<=3;t++){ var px=bx2+bw2*(t+3.8)/7.6;
+   x.strokeStyle=css('--rule'); x.beginPath(); x.moveTo(px,by2+bh2); x.lineTo(px,by2+bh2+4); x.stroke();
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(t, px, by2+bh2+16); }
+  var vx=bx2+bw2*(z+3.8)/7.6;
+  x.strokeStyle=css('--accent'); x.lineWidth=2; x.setLineDash([3,3]);
+  x.beginPath(); x.moveTo(vx,by2); x.lineTo(vx,by2+bh2); x.stroke(); x.setLineDash([]);
+  var tail=1-normCdf(z);
+  x.fillStyle=css('--accent'); x.font='700 12px -apple-system,sans-serif'; x.textAlign=vx>W*0.7?'right':'left';
+  x.fillText('오른쪽 넓이 '+fmt(tail*100,1)+'%', vx+(vx>W*0.7?-8:8), by2+14);
+  oZ.textContent=fmt(z,2);
+  ro.innerHTML='공통 z = <b>'+fmt(z,2)+'</b> · 이보다 클 확률 = <b>'+fmt(tail*100,2)+'%</b>  (세 문제 모두 같은 값)<br>'+
+   CASE.map(function(c){ return c.n+' <b>'+fmt(c.mu+z*c.sd,c.d)+' '+c.u+'</b>'; }).join(' · ');
+ }
+ sZ.addEventListener('input',draw); onResize(draw); draw();
+})();
+</script>
+
+<div class="qna" data-label="z 로 바꾸면 정보가 사라지는 것 아닌가요?"
+     data-q="원래 단위를 버리고 z 로 바꾸면 정보가 사라지는 것 아닌가요?">
+  <p><b>사라지지 않습니다. 되돌릴 수 있으니까요.</b> z = (값 − 평균) ÷ 표준편차 는 <b>일대일 변환</b>이라, 값 = 평균 + z × 표준편차 로 언제든 원래 눈금으로 돌아옵니다. 위 그림에서 슬라이더를 하나 움직이면 세 문제의 값이 <b>동시에</b> 정해지는 것이 그 증거입니다.</p>
+  <p>바뀌는 것은 <b>질문의 종류</b>입니다. "몇 센티미터인가"는 원래 눈금의 질문이고, "얼마나 드문가"는 z 의 질문입니다. 검정은 언제나 두 번째만 묻습니다. 그래서 검정통계량은 하나같이 <b>(관측 − 기대) ÷ 흔들림</b> 꼴을 하고 있습니다 — 전부 z 의 친척입니다.</p>
+</div>
+
+<h2><span class="step">§3</span>자유도 ① — 마음대로 정할 수 있는 칸이 몇 개인가</h2>
+<p>자유도의 정체를 손으로 만져 보겠습니다. <b>막대를 끌어(또는 눌러 고른 뒤 슬라이더로) 값을 바꿔 보십시오.</b> 단 조건이 하나 있습니다 — <b>평균은 반드시 10</b>이어야 합니다.</p>
+
+<div class="lab">
+  <canvas id="cvFree" height="300"></canvas>
+  <div class="ctrl"><label for="sN">칸 개수 n</label><input id="sN" type="range" min="3" max="8" step="1" value="5"><output id="oN"></output></div>
+  <div class="ctrl"><label for="sV">고른 칸의 값</label><input id="sV" type="range" min="2" max="18" step="0.5" value="12"><output id="oV"></output></div>
+  <div id="roFree" class="readout"></div>
+</div>
+
+<div class="key"><b>무엇을 보셨습니까</b> — 아무리 애써도 <b>마지막 칸은 절대 만질 수 없습니다.</b> 평균을 10으로 묶는 순간 그 칸은 계산으로 결정되어 버립니다. 칸은 n개인데 자유로운 칸은 <b>n − 1</b>개. 이것이 자유도입니다.</div>
+
+<script>
+/* ══════════ §3 자유도 — 제약 ══════════ */
+(function(){
+ var cv=document.getElementById('cvFree'), sN=document.getElementById('sN'), oN=document.getElementById('oN'),
+     sV=document.getElementById('sV'), oV=document.getElementById('oV'), ro=document.getElementById('roFree');
+ var MEAN=10, n=5, sel=0, vals=[12,7,11,13,7], bars=[];
+ function fix(){ /* 마지막 칸을 평균 조건으로 되계산 — 이것이 '잠긴 칸' */
+  var s=0; for(var i=0;i<n-1;i++) s+=vals[i];
+  vals[n-1]=MEAN*n-s; }
+ function resize(){ while(vals.length<n) vals.push(10); vals.length=n;
+  if(sel>n-2) sel=n-2; fix(); }
+ function draw(){
+  var o=setup(cv,300), x=o.x, W=o.w, H=o.h;
+  var pT=46, pB=70, bw=Math.min(56,(W-16)/n-10), gap=(W-bw*n)/(n+1);
+  var lo=0, hi=20;
+  function Y(v){ return pT+(H-pT-pB)*(1-(v-lo)/(hi-lo)); }
+  bars=[];
+  var ym=Y(MEAN), y0=Y(0);
+  for(var i=0;i<n;i++){
+   var bx=gap+(bw+gap)*i, v=vals[i], y=Y(v), locked=(i===n-1);
+   bars.push({x:bx,w:bw,i:i});
+   var col=locked?css('--grand'):(i===sel?css('--accent'):css('--gA'));
+   /* 바닥부터 값까지 = 자료 자체 */
+   roundRect(x,bx,y,bw,y0-y,5);
+   x.fillStyle=alpha(col,locked?0.16:0.26); x.fill();
+   x.strokeStyle=alpha(col,locked?0.6:0.9); x.lineWidth=locked?1.4:1.8; x.stroke();
+   /* 평균선 위·아래 조각 = 편차 */
+   x.save();
+   x.beginPath(); x.rect(bx,Math.min(y,ym),bw,Math.abs(ym-y)); x.clip();
+   x.fillStyle=alpha(col,locked?0.34:0.62); x.fillRect(bx,Math.min(y,ym),bw,Math.abs(ym-y));
+   x.restore();
+   x.strokeStyle=col; x.lineWidth=locked?1.4:2;
+   x.strokeRect(bx+0.5,Math.min(y,ym)+0.5,bw-1,Math.abs(ym-y));
+   if(locked){ x.save(); x.setLineDash([4,3]); x.strokeStyle=css('--warn'); x.lineWidth=1.6;
+    x.strokeRect(bx+0.5,Math.min(y,ym)+0.5,bw-1,Math.abs(ym-y)); x.restore(); }
+   /* 값 — 막대 안에 넣어 편차 라벨과 겹치지 않게 */
+   x.fillStyle=css('--ink'); x.font='700 12px -apple-system,sans-serif'; x.textAlign='center';
+   if(y0-y>34) x.fillText(fmt(v,1), bx+bw/2, y0-10); else x.fillText(fmt(v,1), bx+bw/2, y-7);
+   /* 편차 값 — 평균선과 막대 끝 사이 띠 안에 */
+   var d=v-MEAN;
+   if(Math.abs(ym-y)>19){ x.fillStyle=locked?css('--warn'):css('--ink'); x.font='700 11px -apple-system,sans-serif';
+    x.fillText((d>0?'+':'')+fmt(d,1), bx+bw/2, (ym+y)/2+4); }
+   /* 칸 이름 */
+   x.fillStyle=locked?css('--grand'):css('--soft'); x.font='11px -apple-system,sans-serif';
+   x.fillText('x'+(i+1), bx+bw/2, y0+18);
+   x.fillStyle=locked?css('--warn'):css('--good'); x.font='700 11px -apple-system,sans-serif';
+   x.fillText(locked?'🔒 잠김':(i===sel?'고른 칸':'자유'), bx+bw/2, y0+34);
+   if(locked){ x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+    x.fillText('자동 결정', bx+bw/2, y0+48); }
+  }
+  /* 평균선 */
+  x.strokeStyle=css('--accent'); x.lineWidth=1.8; x.setLineDash([6,4]);
+  x.beginPath(); x.moveTo(0,ym); x.lineTo(W,ym); x.stroke(); x.setLineDash([]);
+  var mtxt=(W<520?'평균 10 고정':'평균 10 으로 고정 (조건)');
+  x.font='700 11px -apple-system,sans-serif'; x.textAlign='right';
+  var tw=x.measureText(mtxt).width;
+  roundRect(x,W-tw-10,ym-19,tw+8,16,4);            /* 막대에 가리지 않도록 칩 배경 */
+  x.fillStyle=alpha(css('--paper'),0.92); x.fill();
+  x.strokeStyle=alpha(css('--accent'),0.45); x.lineWidth=1; x.stroke();
+  x.fillStyle=css('--accent'); x.fillText(mtxt, W-6, ym-7);
+  /* 바닥선 */
+  x.strokeStyle=css('--rule'); x.lineWidth=1;
+  x.beginPath(); x.moveTo(0,y0); x.lineTo(W,y0); x.stroke();
+  /* 요약 */
+  x.textAlign='left'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText('칸 '+n+'개 중 내가 정할 수 있는 칸', 2, 16);
+  x.fillStyle=css('--good'); x.font='800 21px -apple-system,sans-serif';
+  x.fillText((n-1)+' 개', 2, 38);
+  x.textAlign='right'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText('자유도 = n − 1 =', W-44, 34);
+  x.fillStyle=css('--good'); x.font='800 21px -apple-system,sans-serif';
+  x.fillText(''+(n-1), W-2, 38);
+  var sum=vals.reduce(function(a,b){return a+b;},0);
+  var ds=vals.reduce(function(a,b){return a+(b-MEAN);},0);
+  oN.textContent=n; oV.textContent=fmt(vals[sel],1);
+  ro.innerHTML='값 <b>'+vals.map(function(v,i){return (i===n-1?'⟨':'')+fmt(v,1)+(i===n-1?'⟩':'');}).join(' · ')+'</b>'+
+   '<br>합 <b>'+fmt(sum,1)+'</b> = 10 × '+n+' · 평균 <b>'+fmt(sum/n,3)+'</b> · 편차의 합 <b>'+fmt(ds,10).replace(/(\.\d*?)0+$/,'$1')+'</b> ← 언제나 0'+
+   '<br>⟨ ⟩ 안이 잠긴 칸입니다. 진한 부분이 <b>편차</b>이고, 위쪽 넓이와 아래쪽 넓이가 <b>정확히 맞물립니다</b>(그래서 합이 0).';
+ }
+ function pick(e){
+  var r=cv.getBoundingClientRect(), mx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  for(var i=0;i<bars.length-1;i++){ var b=bars[i];
+   if(mx>=b.x-6&&mx<=b.x+b.w+6){ sel=i; sV.value=vals[i]; draw(); return; } }
+ }
+ var drag=false;
+ cv.addEventListener('pointerdown',function(e){ pick(e); drag=true; });
+ cv.addEventListener('pointermove',function(e){
+  if(!drag) return;
+  var r=cv.getBoundingClientRect(), my=e.clientY-r.top, H=300, pT=46, pB=70;
+  var v=20*(1-(my-pT)/(H-pT-pB));
+  v=Math.max(2,Math.min(18,Math.round(v*2)/2));
+  vals[sel]=v; sV.value=v; fix(); draw(); e.preventDefault();
+ });
+ window.addEventListener('pointerup',function(){ drag=false; });
+ sV.addEventListener('input',function(){ vals[sel]=+sV.value; fix(); draw(); });
+ sN.addEventListener('input',function(){ n=+sN.value; resize(); sV.value=vals[sel]; draw(); });
+ onResize(draw); resize(); draw();
+})();
+</script>
+
+<h2><span class="step">§4</span>자유도 ② — 편차는 어떤 '평면' 안에서만 움직인다</h2>
+<p>이제 한 겹 더 들어갑니다. 자유도의 정확한 정체는 <b>"그 벡터가 살고 있는 공간의 차원"</b> 입니다. 자료 세 개를 3차원 공간의 점 하나로 보면 눈으로 확인할 수 있습니다.</p>
+<p><b>그림을 손가락으로 돌려 보십시오.</b> 어느 각도에서 봐도 주황색 편차 벡터는 반투명 평면을 <b>절대 벗어나지 않습니다.</b></p>
+
+<div class="lab">
+  <canvas id="cvGeo" height="340" style="touch-action:pan-y"></canvas>
+  <div class="ctrl"><label for="sG">자료 x₃ 의 값</label><input id="sG" type="range" min="2" max="20" step="0.5" value="11"><output id="oG"></output></div>
+  <div class="btnrow"><button class="btn" id="bGeo">자동 회전 멈춤</button></div>
+  <div id="roGeo" class="readout"></div>
+</div>
+
+<div class="key"><b>여기가 핵심입니다.</b> 평균을 자료에서 추정한다는 것은 <b>대각선 방향(1 방향) 성분을 뽑아 써 버린다</b>는 뜻입니다. 남은 편차는 그 방향과 수직인 평면 — <b>3차원이 아니라 2차원</b> — 안에서만 움직입니다. 그래서 정보가 3이 아니라 2입니다. 회귀에서 기울기 k개와 절편을 추정하면 n − k − 1, 카이제곱 표에서 행·열 합계를 빌려 쓰면 (r−1)(c−1). <b>규칙이 여러 개가 아니라, 뽑아 쓴 방향의 수만큼 빼는 규칙 하나</b>입니다.</div>
+
+<script>
+/* ══════════ §4 자유도 — 기하 ══════════ */
+(function(){
+ var cv=document.getElementById('cvGeo'), sG=document.getElementById('sG'), oG=document.getElementById('oG'),
+     bt=document.getElementById('bGeo'), ro=document.getElementById('roGeo');
+ var yaw=-0.9, pitch=0.5, auto=true, drag=null, V=[14,7,11];
+ function draw(){
+  V[2]=+sG.value;
+  var o=setup(cv,340), x=o.x, W=o.w, H=o.h;
+  var m=(V[0]+V[1]+V[2])/3, M=[m,m,m], E=[V[0]-m,V[1]-m,V[2]-m];
+  var AXL=17, R=Math.max(5.5, Math.sqrt(E[0]*E[0]+E[1]*E[1]+E[2]*E[2])*1.32);
+  var sc=Math.min(W,H)/27, cx=W*0.5, cy=H*0.52, C=AXL*0.42;
+  function P(q){
+   var p=[q[0]-C,q[1]-C,q[2]-C];   /* 그림 전체를 대각선 한가운데에 맞춘다 */
+   var X=p[0]*Math.cos(yaw)-p[1]*Math.sin(yaw);
+   var Y=p[0]*Math.sin(yaw)+p[1]*Math.cos(yaw);
+   return [cx+X*sc, cy-(p[2]*Math.cos(pitch)-Y*Math.sin(pitch))*sc];
+  }
+  function line(a,b,col,w,dash){ var A=P(a),B=P(b);
+   x.strokeStyle=col; x.lineWidth=w||1; if(dash)x.setLineDash(dash);
+   x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke(); x.setLineDash([]); }
+  /* 좌표축 */
+  [[[0,0,0],[AXL,0,0],'x₁'],[[0,0,0],[0,AXL,0],'x₂'],[[0,0,0],[0,0,AXL],'x₃']].forEach(function(a){
+   line(a[0],a[1],css('--rule'),1.4);
+   var T=P(a[1]); x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(a[2],T[0],T[1]-5); });
+  /* 대각선 = 1 방향 */
+  line([0,0,0],[AXL*0.95,AXL*0.95,AXL*0.95],css('--grand'),1.6,[6,4]);
+  /* 평면(1 에 수직, M 을 지남) */
+  var u1=[1/Math.SQRT2,-1/Math.SQRT2,0], u2=[1/Math.sqrt(6),1/Math.sqrt(6),-2/Math.sqrt(6)];
+  var quad=[[1,1],[1,-1],[-1,-1],[-1,1]].map(function(c){
+   return [M[0]+R*(c[0]*u1[0]+c[1]*u2[0]), M[1]+R*(c[0]*u1[1]+c[1]*u2[1]), M[2]+R*(c[0]*u1[2]+c[1]*u2[2])]; });
+  x.beginPath();
+  quad.forEach(function(q,i){ var A=P(q); i?x.lineTo(A[0],A[1]):x.moveTo(A[0],A[1]); });
+  x.closePath(); x.fillStyle=alpha(css('--gC'),0.14); x.fill();
+  x.strokeStyle=alpha(css('--gC'),0.75); x.lineWidth=1.2; x.stroke();
+  for(var g=-1;g<=1;g+=2){ var f=g*R/2;
+   line([M[0]+f*u1[0]-R*u2[0],M[1]+f*u1[1]-R*u2[1],M[2]+f*u1[2]-R*u2[2]],
+        [M[0]+f*u1[0]+R*u2[0],M[1]+f*u1[1]+R*u2[1],M[2]+f*u1[2]+R*u2[2]], alpha(css('--gC'),0.30),1);
+   line([M[0]+f*u2[0]-R*u1[0],M[1]+f*u2[1]-R*u1[1],M[2]+f*u2[2]-R*u1[2]],
+        [M[0]+f*u2[0]+R*u1[0],M[1]+f*u2[1]+R*u1[1],M[2]+f*u2[2]+R*u1[2]], alpha(css('--gC'),0.30),1); }
+  var Op=P([0,0,0]), A=P(M), B=P(V);
+  /* 평균 성분 O→M */
+  x.strokeStyle=css('--accent'); x.lineWidth=3.4;
+  x.beginPath(); x.moveTo(Op[0],Op[1]); x.lineTo(A[0],A[1]); x.stroke();
+  /* 편차 벡터 M→P */
+  x.strokeStyle=css('--warn'); x.lineWidth=3.6;
+  x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
+  var ang=Math.atan2(B[1]-A[1],B[0]-A[0]);
+  x.fillStyle=css('--warn'); x.beginPath(); x.moveTo(B[0],B[1]);
+  x.lineTo(B[0]-10*Math.cos(ang-0.42),B[1]-10*Math.sin(ang-0.42));
+  x.lineTo(B[0]-10*Math.cos(ang+0.42),B[1]-10*Math.sin(ang+0.42)); x.closePath(); x.fill();
+  /* 직각 표시 */
+  var v1=[Op[0]-A[0],Op[1]-A[1]], L1=Math.hypot(v1[0],v1[1])||1;
+  var v2=[B[0]-A[0],B[1]-A[1]], L2=Math.hypot(v2[0],v2[1])||1, sq=13;
+  x.strokeStyle=alpha(css('--soft'),0.9); x.lineWidth=1.4;
+  if(L1>30&&L2>30){ x.beginPath();
+  x.moveTo(A[0]+v1[0]/L1*sq, A[1]+v1[1]/L1*sq);
+  x.lineTo(A[0]+v1[0]/L1*sq+v2[0]/L2*sq, A[1]+v1[1]/L1*sq+v2[1]/L2*sq);
+  x.lineTo(A[0]+v2[0]/L2*sq, A[1]+v2[1]/L2*sq); x.stroke(); }
+  /* 점·라벨 */
+  x.fillStyle=css('--soft'); x.beginPath(); x.arc(Op[0],Op[1],3.5,0,7); x.fill();
+  x.font='11px -apple-system,sans-serif';
+  var ov=[Op[0]-A[0],Op[1]-A[1]], oL=Math.hypot(ov[0],ov[1])||1;
+  x.textAlign=ov[0]<0?'right':'left';
+  x.fillText('원점', Op[0]+ov[0]/oL*9, Op[1]+ov[1]/oL*9+4);
+  x.fillStyle=css('--accent'); x.beginPath(); x.arc(A[0],A[1],4.5,0,7); x.fill();
+  x.fillStyle=css('--warn'); x.beginPath(); x.arc(B[0],B[1],5.5,0,7); x.fill();
+  /* 평균 성분 라벨 — 선 중간에서 수직으로 살짝 띄움 */
+  var mid=[(Op[0]+A[0])/2,(Op[1]+A[1])/2], nx=-v1[1]/L1, ny=v1[0]/L1;
+  x.fillStyle=css('--accent'); x.font='700 12px -apple-system,sans-serif';
+  x.textAlign=nx<0?'right':'left';
+  if(L1>70) x.fillText('평균 성분 x̄·(1,1,1)', mid[0]+nx*16, mid[1]+ny*16+4);
+  /* 편차 라벨 */
+  var md=[(A[0]+B[0])/2,(A[1]+B[1])/2], mx2=-v2[1]/L2, my2=v2[0]/L2;
+  x.fillStyle=css('--warn'); x.textAlign='center';
+  if(L2>46) x.fillText('편차', md[0]+mx2*16, md[1]+my2*16+4);
+  x.textAlign=B[0]>W*0.55?'right':'left';
+  x.fillText('자료 ('+fmt(V[0],1)+', '+fmt(V[1],1)+', '+fmt(V[2],1)+')', B[0]+(B[0]>W*0.55?-12:12), B[1]-12);
+  var D=P([AXL*0.95,AXL*0.95,AXL*0.95]), D0=P([AXL*0.6,AXL*0.6,AXL*0.6]);
+  var dv=[D[0]-D0[0],D[1]-D0[1]], dL=Math.hypot(dv[0],dv[1])||1;
+  x.fillStyle=css('--grand'); x.font='700 11px -apple-system,sans-serif'; x.textAlign='center';
+  var lx=Math.max(62,Math.min(W-62, D[0]-dv[1]/dL*14));
+  x.fillText('1 = (1,1,1) 방향', lx, Math.max(56,D[1]+dv[0]/dL*14+4));
+  /* 범례 */
+  x.textAlign='left'; x.font='11px -apple-system,sans-serif';
+  x.fillStyle=css('--accent'); x.fillText('■ 평균이 쓰는 방향 (1개)', 2, 14);
+  x.fillStyle=css('--warn'); x.fillText('■ 편차 벡터 = 남은 정보', 2, 28);
+  x.fillStyle=css('--gC'); x.fillText('■ 자유도 2 평면 (1 에 수직)', 2, 42);
+  x.fillStyle=css('--soft'); x.textAlign='right';
+  x.fillText('끌어서 돌려 보십시오', W-2, 14);
+  var dot=E[0]+E[1]+E[2], ss=E[0]*E[0]+E[1]*E[1]+E[2]*E[2];
+  oG.textContent=fmt(V[2],1);
+  ro.innerHTML='평균 x̄ = <b>'+fmt(m,3)+'</b> · 편차 ('+E.map(function(v){return fmt(v,2);}).join(', ')+')'+
+   '<br>편차 · 1 = <b>'+fmt(dot,10).replace(/(\.\d*?)0+$/,'$1')+'</b> ← 언제나 0 이므로 <b>수직</b>. 그래서 평면을 벗어날 수 없습니다.'+
+   '<br>편차 제곱합 Σ(x−x̄)² = <b>'+fmt(ss,3)+'</b> · 이것을 <b>2(=자유도)</b> 로 나눈 것이 표본분산 <b>'+fmt(ss/2,3)+'</b>';
+ }
+ cv.addEventListener('pointerdown',function(e){ drag={x:e.clientX,y:e.clientY,yaw:yaw,pitch:pitch}; });
+ window.addEventListener('pointermove',function(e){ if(!drag) return;
+  yaw=drag.yaw+(e.clientX-drag.x)*0.012;
+  pitch=Math.max(-1.2,Math.min(1.35,drag.pitch+(e.clientY-drag.y)*0.008)); });
+ window.addEventListener('pointerup',function(){ drag=null; });
+ bt.addEventListener('click',function(){ auto=!auto; bt.textContent=auto?'자동 회전 멈춤':'자동 회전 시작'; bt.classList.toggle('on',!auto); });
+ sG.addEventListener('input',draw);
+ tick(cv,function(){ if(auto&&!drag) yaw+=0.004; draw(); });
+})();
+</script>
+
+<div class="qna" data-topic="degrees-of-freedom"></div>
+
+<h2><span class="step">§5</span>자유도 ③ — 그래서 왜 <b>빼고</b> 나누는가</h2>
+<p>여기서 가장 흔한 오해를 걷어내겠습니다. <b>n−1 은 분산이라는 개념에 원래 붙어 있는 것이 아닙니다.</b> 진짜 평균 μ 를 알고 있다면 n 으로 나누는 것이 완벽하게 옳습니다.</p>
+<pre>진짜 평균을 알 때   σ² = Σ(xᵢ − μ)² / n      ← n 이 맞다
+모를 때(=늘 그렇다)  s² = Σ(xᵢ − x̄)² / (n−1)   ← x̄ 를 대신 썼으므로 갚아야 한다</pre>
+<p>문제는 x̄ 가 <b>그 표본에 가장 가깝게 자리 잡는 값</b>이라는 데 있습니다. Σ(xᵢ − a)² 는 a = x̄ 일 때 최솟값이 되므로, 무엇을 넣어도 μ 를 넣었을 때보다 작습니다. <b>그러니 구조적으로 과소평가합니다.</b> 아래에서 직접 확인하십시오 — 진짜 분산이 4인 곳에서 표본을 계속 뽑습니다.</p>
+
+<div class="lab">
+  <canvas id="cvBias" height="300"></canvas>
+  <div class="ctrl"><label for="sB">표본 크기 n</label><input id="sB" type="range" min="2" max="10" step="1" value="5"><output id="oB"></output></div>
+  <div class="btnrow">
+    <button class="btn on" id="bPlay">⏸ 멈춤</button>
+    <button class="btn" id="bReset">↺ 처음부터</button>
+  </div>
+  <div id="roBias" class="readout"></div>
+</div>
+
+<script>
+/* ══════════ §5 n 과 n−1 — 실시간 실험 ══════════ */
+(function(){
+ var cv=document.getElementById('cvBias'), sB=document.getElementById('sB'), oB=document.getElementById('oB'),
+     bP=document.getElementById('bPlay'), bR=document.getElementById('bReset'), ro=document.getElementById('roBias');
+ var SIG2=4, SD=2, MU=10, n=5, run=true, rnd, gs, cnt=0, sumN=0, sumN1=0, hist=[], last=[];
+ function reset(){ rnd=rngOf(20260822); gs=gaussOf(rnd); cnt=0; sumN=0; sumN1=0; hist=[]; last=[]; }
+ function step(){
+  for(var b=0;b<14;b++){
+   var xs=[], s=0;
+   for(var i=0;i<n;i++){ var v=MU+gs()*SD; xs.push(v); s+=v; }
+   var m=s/n, ss=0;
+   for(var i=0;i<n;i++) ss+=(xs[i]-m)*(xs[i]-m);
+   sumN+=ss/n; sumN1+=ss/(n-1); cnt++; last=xs;
+   if(cnt<=60||cnt%12===0) hist.push([cnt,sumN/cnt,sumN1/cnt]);
+   if(cnt>=4000){ run=false; bP.textContent='▶ 다시 재생'; bP.classList.remove('on'); break; }
+  }
+ }
+ function draw(){
+  var o=setup(cv,300), x=o.x, W=o.w, H=o.h;
+  var narrow=W<520, rightW=Math.min(120,W*0.28), pL=44, pR=rightW+16, pT=26, pB=narrow?48:32;
+  var gw=W-pL-pR, gh=H-pT-pB;
+  var ymin=SIG2*0.45, ymax=SIG2*1.55;
+  function X(i){ return pL+gw*Math.log(1+i)/Math.log(1+Math.max(60,cnt)); }
+  function Y(v){ return pT+gh*(1-(v-ymin)/(ymax-ymin)); }
+  /* 격자 */
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.font='11px -apple-system,sans-serif'; x.textAlign='right';
+  for(var v=2;v<=6;v++){ var y=Y(v); if(y<pT||y>pT+gh) continue;
+   x.beginPath(); x.moveTo(pL,y); x.lineTo(pL+gw,y); x.stroke();
+   x.fillStyle=css('--soft'); x.fillText(v.toFixed(0), pL-6, y+4); }
+  /* 목표선 */
+  var tgtN=SIG2*(n-1)/n;
+  x.setLineDash([5,4]); x.lineWidth=1.6;
+  x.strokeStyle=css('--good'); x.beginPath(); x.moveTo(pL,Y(SIG2)); x.lineTo(pL+gw,Y(SIG2)); x.stroke();
+  x.strokeStyle=css('--bad'); x.beginPath(); x.moveTo(pL,Y(tgtN)); x.lineTo(pL+gw,Y(tgtN)); x.stroke();
+  x.setLineDash([]);
+  x.textAlign='left'; x.font='700 11px -apple-system,sans-serif';
+  x.fillStyle=css('--good'); x.fillText('진짜 분산 4', pL+4, Y(SIG2)-5);
+  x.fillStyle=css('--bad'); x.fillText('n 으로 나누면 여기로 → '+fmt(tgtN,2), pL+4, Y(tgtN)+14);
+  /* 곡선 두 개 */
+  [[2,'--good'],[1,'--bad']].forEach(function(c){
+   x.strokeStyle=css(c[1]); x.lineWidth=2.2; x.beginPath();
+   hist.forEach(function(h,i){ var px=X(h[0]), py=Y(Math.max(ymin,Math.min(ymax,h[c[0]])));
+     i?x.lineTo(px,py):x.moveTo(px,py); });
+   x.stroke(); });
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,pT+gh); x.lineTo(pL+gw,pT+gh); x.stroke();
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+  [10,100,1000,4000].forEach(function(t){ if(t>Math.max(60,cnt)) return; var px=X(t);
+   x.strokeStyle=css('--rule'); x.beginPath(); x.moveTo(px,pT+gh); x.lineTo(px,pT+gh+4); x.stroke();
+   x.fillStyle=css('--soft'); x.fillText(t+'번', px, pT+gh+16); });
+  x.fillText(narrow?'뽑은 표본 수':'뽑은 표본 수 (로그 눈금)', pL+gw/2, H-6);
+  x.textAlign='left'; x.fillStyle=css('--soft'); x.fillText('누적 평균 추정값', 2, 14);
+  /* 오른쪽: 방금 뽑은 표본 */
+  var rx=W-rightW+8, ry=pT, rh=gh;
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('방금 표본 '+n+'개', rx, ry-8);
+  var lo=MU-3.4*SD, hi=MU+3.4*SD;
+  function VY(v){ return ry+rh*(1-(v-lo)/(hi-lo)); }
+  x.strokeStyle=css('--rule'); x.beginPath(); x.moveTo(rx+22,ry); x.lineTo(rx+22,ry+rh); x.stroke();
+  x.strokeStyle=css('--grand'); x.setLineDash([4,3]); x.lineWidth=1.4;
+  x.beginPath(); x.moveTo(rx,VY(MU)); x.lineTo(rx+rightW-16,VY(MU)); x.stroke(); x.setLineDash([]);
+  x.textAlign='right'; x.fillStyle=css('--grand'); x.fillText('진짜 μ', rx+rightW-18, VY(MU)-5); x.textAlign='left';
+  if(last.length){
+   var m=last.reduce(function(a,b){return a+b;},0)/last.length;
+   last.forEach(function(v){ x.fillStyle=alpha(css('--gA'),0.85);
+     x.beginPath(); x.arc(rx+22,VY(v),4,0,7); x.fill(); });
+   x.strokeStyle=css('--accent'); x.lineWidth=2;
+   x.beginPath(); x.moveTo(rx+6,VY(m)); x.lineTo(rx+38,VY(m)); x.stroke();
+   x.fillStyle=css('--accent'); x.font='700 11px -apple-system,sans-serif';
+   x.fillText('x̄', rx+42, VY(m)+(Math.abs(VY(m)-VY(MU))<14?14:4));
+  }
+  oB.textContent=n;
+  var eN=cnt?sumN/cnt:0, eN1=cnt?sumN1/cnt:0;
+  ro.innerHTML='뽑은 표본 <b>'+cnt+'</b>개 (n='+n+')<br>'+
+   'n 으로 나눔 &nbsp;<b>'+fmt(eN,3)+'</b> → 이론적으로 도달하는 곳 '+fmt(tgtN,3)+' (진짜 4 에 <b>못 미침</b>)<br>'+
+   'n−1 로 나눔 <b>'+fmt(eN1,3)+'</b> → 이론값 4.000 (<b>맞음</b>)';
+ }
+ bP.addEventListener('click',function(){ if(cnt>=4000) reset(); run=!run;
+  bP.textContent=run?'⏸ 멈춤':'▶ 재생'; bP.classList.toggle('on',run); });
+ bR.addEventListener('click',function(){ reset(); run=true; bP.textContent='⏸ 멈춤'; bP.classList.add('on'); draw(); });
+ sB.addEventListener('input',function(){ n=+sB.value; reset(); draw(); });
+ tick(cv,function(){ if(run) step(); draw(); });
+ reset();
+})();
+</script>
+
+<div class="concl"><b>정리</b> — 평균 하나를 추정하느라 정확히 <b>σ² 한 개분</b>의 정보를 써 버립니다. 계산으로 확인하면 이렇습니다.
+<pre>E[ Σ(xᵢ − x̄)² ] = Σ E[(xᵢ − μ)²]  −  n · E[(x̄ − μ)²]
+                 =      n σ²        −  n · (σ²/n)
+                 =      n σ²        −      σ²        =  (n − 1) σ²</pre>
+가운데 줄의 σ²/n 은 <b>표본평균 자신이 흔들리는 폭</b>입니다. 그것이 n번 곱해지며 딱 하나가 사라집니다. 그래서 (n−1)로 나눠야 제자리로 돌아옵니다.</div>
+
+<div class="trap"><span class="v">가장 선명한 증거 — 자료가 하나뿐일 때</span><br>
+값 하나로 흩어짐을 알 수 있습니까? 없습니다. 흩어짐은 둘 이상이 있어야 생기는 개념입니다. 그런데
+<pre>n 으로 나누면   0 / 1 = 0        "흩어짐이 전혀 없다"고 단언한다 (거짓말)
+n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"고 말한다 (정직)</pre>
+자유도는 <b>자료가 대답할 자격이 있는지를 세는 수</b>이기도 합니다.</div>
+
+<h2><span class="step">§6</span>카이제곱 — 흩어짐을 재는 자를 만들다</h2>
+<p>이제 분포를 <b>직접 만들어</b> 보겠습니다. 카이제곱분포의 정의는 놀랍도록 단순합니다.</p>
+<pre>χ²(k) = Z₁² + Z₂² + … + Z_k²        (독립인 표준정규를 k개 제곱해서 더한다)</pre>
+<p>아래에서 왼쪽이 <b>공장</b>입니다. 매번 z 를 k개 뽑아 제곱해 쌓고, 그 합 하나를 오른쪽 히스토그램에 던져 넣습니다. <b>곡선을 그려 준 것이 아니라, 던져 넣은 값들이 저절로 그 모양을 만듭니다.</b> 겹쳐 놓은 굵은 선이 정의대로 계산한 이론 곡선입니다 — 던질수록 히스토그램이 그 선에 붙습니다.</p>
+
+<div class="lab">
+  <canvas id="cvChi" height="330"></canvas>
+  <div class="ctrl"><label for="sK">자유도 k — 제곱해 더할 개수</label><input id="sK" type="range" min="1" max="12" step="1" value="4"><output id="oK"></output></div>
+  <div class="btnrow">
+    <button class="btn on" id="bChi">⏸ 멈춤</button>
+    <button class="btn" id="bChiR">↺ 처음부터</button>
+  </div>
+  <div id="roChi" class="readout"></div>
+</div>
+
+<div class="key"><b>왜 만들었나</b> — 흩어짐은 언제나 <b>제곱해서 더한 값</b>으로 잽니다(부호를 없애야 하니까). 그렇다면 "차이가 전혀 없을 때도 이 제곱합이 우연히 얼마나 커질 수 있나"를 알아야 판정할 수 있습니다. 그 <b>우연의 폭을 담은 자</b>가 카이제곱입니다. 그리고 그 자의 눈금은 <b>제곱해 더한 독립적인 방향의 개수 = 자유도</b> 하나로 정해집니다.</div>
+
+<script>
+/* ══════════ §6 카이제곱 공장 ══════════ */
+(function(){
+ var cv=document.getElementById('cvChi'), sK=document.getElementById('sK'), oK=document.getElementById('oK'),
+     bP=document.getElementById('bChi'), bR=document.getElementById('bChiR'), ro=document.getElementById('roChi');
+ var k=4, run=true, rnd, gs, bins, cnt, sum, sum2, cur=[], BN=44;
+ function xmax(){ return Math.max(10, k+4*Math.sqrt(2*k)); }
+ function reset(){ rnd=rngOf(777); gs=gaussOf(rnd); bins=new Array(BN).fill(0); cnt=0; sum=0; sum2=0; cur=[]; }
+ function step(){
+  for(var b=0;b<5;b++){
+   var zs=[], s=0;
+   for(var i=0;i<k;i++){ var z=gs(); zs.push(z); s+=z*z; }
+   cur=zs; cnt++; sum+=s; sum2+=s*s;
+   var bi=Math.floor(s/xmax()*BN); if(bi>=0&&bi<BN) bins[bi]++;
+  }
+ }
+ function draw(){
+  var o=setup(cv,330), x=o.x, W=o.w, H=o.h;
+  var narrow=W<520, lw=narrow?W*0.34:W*0.30, gap=14;
+  /* ── 왼쪽 공장 ── */
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('① 표준정규에서 '+k+'개 뽑아', 2, 14);
+  var ax=8, aw=lw-16, ay=54;
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(ax,ay); x.lineTo(ax+aw,ay); x.stroke();
+  [-2,0,2].forEach(function(t){ var px=ax+aw*(t+3.2)/6.4;
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(t, px, ay+14); });
+  var n=60, pk=normPdf(0);
+  x.beginPath();
+  for(var i=0;i<=n;i++){ var z=-3.2+6.4*i/n, px=ax+aw*i/n, py=ay-normPdf(z)/pk*26;
+   i?x.lineTo(px,py):x.moveTo(px,py); }
+  x.strokeStyle=alpha(css('--accent'),0.8); x.lineWidth=1.4; x.stroke();
+  cur.forEach(function(z){ var px=ax+aw*(Math.max(-3.2,Math.min(3.2,z))+3.2)/6.4;
+   x.fillStyle=css('--accent'); x.beginPath(); x.arc(px,ay,3.5,0,7); x.fill(); });
+  /* 제곱해서 쌓기 — 전체 높이를 넘지 않게 두 번에 나눠 계산 */
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('② 제곱해서 쌓으면', 2, 150);
+  var by=H-62, bx=ax+aw/2-20, sc=105/Math.max(4,k*1.15);
+  var hs=cur.map(function(z){ return Math.max(2,z*z*sc); });
+  var raw=hs.reduce(function(a,b){return a+b;},0);
+  if(raw>104){ var f=104/raw; hs=hs.map(function(h){ return h*f; }); }
+  var tot=0;
+  cur.forEach(function(z,i){
+   var hgt=hs[i];
+   x.fillStyle=alpha(css('--gC'),0.28+0.06*(i%4)); x.strokeStyle=alpha(css('--gC'),0.9); x.lineWidth=1;
+   x.fillRect(bx,by-tot-hgt,40,hgt); x.strokeRect(bx,by-tot-hgt,40,hgt);
+   if(hgt>13){ x.fillStyle=css('--gC'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+     x.fillText(fmt(z*z,1), bx+20, by-tot-hgt/2+4); }
+   tot+=hgt;
+  });
+  x.strokeStyle=alpha(css('--gC'),0.5); x.lineWidth=1;
+  x.beginPath(); x.moveTo(bx-6,by+0.5); x.lineTo(bx+46,by+0.5); x.stroke();
+  var s=cur.reduce(function(a,z){return a+z*z;},0);
+  x.fillStyle=css('--gC'); x.font='700 13px -apple-system,sans-serif'; x.textAlign='center';
+  x.fillText('합 '+fmt(s,2), bx+20, by-tot-9);
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText('③ 이 합 하나를 →', bx+20, by+20);
+  /* ── 오른쪽 히스토그램 ── */
+  var hx=lw+gap, hw=W-hx, hy=30, hh=H-hy-34;
+  var mx=xmax(), maxTheory=0;
+  for(var i=0;i<200;i++){ var v=chi2Pdf(mx*i/200,k); if(v>maxTheory) maxTheory=v; }
+  var binW=mx/BN, scale=cnt?1/(cnt*binW):0, obsMax=0;
+  for(var i=0;i<BN;i++){ var dv=bins[i]*scale; if(dv>obsMax) obsMax=dv; }
+  var pk2=Math.max(maxTheory, obsMax, 0.0001);
+  for(var i=0;i<BN;i++){
+   var dens=bins[i]*scale, hgt=dens/pk2*hh*0.92;
+   if(hgt<=0) continue;
+   x.fillStyle=alpha(css('--gC'),0.45);
+   x.fillRect(hx+hw*i/BN+0.5, hy+hh-hgt, hw/BN-1, hgt);
+  }
+  x.beginPath();
+  for(var i=0;i<=160;i++){ var v=mx*i/160, py=hy+hh-chi2Pdf(v,k)/pk2*hh*0.92, px=hx+hw*i/160;
+   i?x.lineTo(px,py):x.moveTo(px,py); }
+  x.strokeStyle=css('--ink'); x.lineWidth=2; x.stroke();
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(hx,hy+hh); x.lineTo(hx+hw,hy+hh); x.stroke();
+  var stepT=mx<=12?2:(mx<=30?5:10);
+  for(var t=0;t<=mx;t+=stepT){ var px=hx+hw*t/mx;
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(t, px, hy+hh+15); }
+  x.textAlign='left'; x.fillStyle=css('--gC'); x.font='700 12px -apple-system,sans-serif';
+  x.fillText('χ²('+k+') 가 스스로 자란다', hx, 16);
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText(narrow?'— 굵은 선 = 이론 곡선':'— 굵은 선 = 정의대로 계산한 이론 곡선(라이브러리 없음)', hx, hy+hh+29);
+  /* 임계값 표시 */
+  var crit=qOf(function(v){return chi2Cdf(v,k);},0.95,0,300);
+  if(crit<mx){ var cxp=hx+hw*crit/mx;
+   x.strokeStyle=css('--warn'); x.lineWidth=1.6; x.setLineDash([4,3]);
+   x.beginPath(); x.moveTo(cxp,hy); x.lineTo(cxp,hy+hh); x.stroke(); x.setLineDash([]);
+   x.fillStyle=css('--warn'); x.font='700 11px -apple-system,sans-serif'; x.textAlign=cxp>hx+hw*0.6?'right':'left';
+   x.fillText('상위 5% 경계 '+fmt(crit,2), cxp+(cxp>hx+hw*0.6?-4:4), hy+12); }
+  oK.textContent=k;
+  var mean=cnt?sum/cnt:0, vr=cnt?sum2/cnt-mean*mean:0;
+  ro.innerHTML='던져 넣은 값 <b>'+cnt+'</b>개<br>'+
+   '실측 평균 <b>'+fmt(mean,3)+'</b> ↔ 이론 평균 = k = <b>'+k+'</b> &nbsp;·&nbsp; 실측 분산 <b>'+fmt(vr,3)+'</b> ↔ 이론 분산 = 2k = <b>'+(2*k)+'</b><br>'+
+   '상위 5% 경계(임계값) <b>'+fmt(crit,3)+'</b> — 이 값보다 크면 "우연으로 보기 어렵다"고 판정합니다.';
+ }
+ bP.addEventListener('click',function(){ run=!run; bP.textContent=run?'⏸ 멈춤':'▶ 재생'; bP.classList.toggle('on',run); });
+ bR.addEventListener('click',function(){ reset(); draw(); });
+ sK.addEventListener('input',function(){ k=+sK.value; reset(); draw(); });
+ tick(cv,function(){ if(run) step(); draw(); });
+ reset();
+})();
+</script>
+
+<div class="concl"><b>자유도와의 연결</b> — 자료 n개에서 평균을 추정하면 편차 벡터는 (n−1)차원 평면에 갇힙니다(§4). 그래서
+<pre>Σ(xᵢ − x̄)² / σ²  ~  χ²(n − 1)</pre>
+§5 실험에서 n=5 로 재 보면 이 값의 평균이 4, 분산이 8 로 나옵니다 — 정확히 <b>자유도 4</b>인 카이제곱의 평균(k)과 분산(2k)입니다. 값은 다섯 개인데 카이제곱은 4. <b>독립적인 방향이 넷뿐이었기 때문</b>입니다.</div>
+
+<div class="qna" data-label="왜 하필 제곱해서 더하나요? 절댓값은 안 되나요?"
+     data-q="왜 하필 제곱해서 더하나요? 절댓값으로 더하면 안 되나요?">
+  <p><b>절댓값으로 더해도 흩어짐은 잽니다.</b> 실제로 그런 방법(평균절대편차)도 있습니다. 그런데 검정을 만들려면 재는 것만으로 부족하고, <b>그 값이 우연히 어떻게 흩어지는지를 정확히 알아야</b> 합니다. 여기서 제곱이 압도적으로 유리합니다.</p>
+  <p>첫째, <b>제곱합은 쪼개집니다.</b> 피타고라스 정리 그대로, 서로 수직인 방향으로 나누면 전체 제곱합 = 조각들의 제곱합이 됩니다. 분산분석의 301.50 = 126.25 + 175.25 가 바로 이것입니다. 절댓값은 이렇게 깨끗이 쪼개지지 않습니다.</p>
+  <p>둘째, <b>제곱은 거리입니다.</b> 그래서 §4의 기하 그림(직각·평면·차원)이 통째로 성립하고, 자유도라는 개념이 <b>차원</b>이라는 정확한 뜻을 갖게 됩니다.</p>
+  <p>셋째, 정규분포를 제곱해 더한 것의 분포가 <b>카이제곱이라는 이름으로 완전히 계산 가능</b>합니다. 절댓값 합의 분포는 그만큼 다루기 쉽지 않습니다. 요약하면 — 제곱은 쪼개지고, 거리이고, 계산됩니다.</p>
+</div>
+
+<h2><span class="step">§7</span>t 분포 — 분모까지 흔들릴 때</h2>
+<p>z 를 쓰려면 <b>진짜 표준편차 σ 를 알아야</b> 합니다. 그런데 현실에서 아는 경우가 있습니까? 없습니다. 그래서 표본에서 잰 s 를 대신 씁니다. 그 순간 분자만이 아니라 <b>분모까지 표본마다 흔들립니다.</b></p>
+<pre>z = (x̄ − μ) / (σ/√n)      분모가 고정 — 흔들리는 것은 분자뿐
+t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자주 나온다 → 꼬리가 두껍다</pre>
+
+<div class="lab">
+  <canvas id="cvT" height="290"></canvas>
+  <div class="ctrl"><label for="sV2">자유도 v</label><input id="sV2" type="range" min="1" max="40" step="1" value="4"><output id="oV2"></output></div>
+  <div id="roT" class="readout"></div>
+</div>
+
+<p>왜 꼬리가 두꺼워지는지, 실제 표본 400개로 확인하겠습니다. 가로축은 평균이 얼마나 빗나갔나, 세로축은 그 표본에서 잰 s 입니다.</p>
+
+<div class="lab">
+  <canvas id="cvT2" height="280"></canvas>
+  <div id="roT2" class="readout"></div>
+</div>
+
+<script>
+/* ══════════ §7 t 곡선 ══════════ */
+(function(){
+ var cv=document.getElementById('cvT'), sV=document.getElementById('sV2'), oV=document.getElementById('oV2'), ro=document.getElementById('roT');
+ function draw(){
+  var narrow=cv.clientWidth<520;
+  var v=+sV.value, o=setup(cv,narrow?410:290), x=o.x, W=o.w, H=o.h;
+  var pL=8, pR=8, pT=narrow?176:24, pB=34, gw=W-pL-pR, gh=H-pT-pB, R=4.6, pk=normPdf(0);
+  function X(t){ return pL+gw*(t+R)/(2*R); }
+  function Y(d){ return pT+gh-(d/pk)*gh*0.94; }
+  /* t 꼬리 칠하기 */
+  var crit=qOf(function(a){return tCdf(a,v);},0.975,0,60);
+  x.beginPath(); x.moveTo(X(crit),Y(0));
+  for(var t=crit;t<=R;t+=0.04) x.lineTo(X(t),Y(tPdf(t,v)));
+  x.lineTo(X(R),Y(0)); x.closePath(); x.fillStyle=alpha(css('--gB'),0.35); x.fill();
+  x.beginPath(); x.moveTo(X(-R),Y(0));
+  for(var t=-R;t<=-crit;t+=0.04) x.lineTo(X(t),Y(tPdf(t,v)));
+  x.lineTo(X(-crit),Y(0)); x.closePath(); x.fillStyle=alpha(css('--gB'),0.35); x.fill();
+  /* 곡선 */
+  x.beginPath();
+  for(var t=-R;t<=R;t+=0.02){ var px=X(t),py=Y(normPdf(t)); t===-R?x.moveTo(px,py):x.lineTo(px,py); }
+  x.strokeStyle=css('--accent'); x.lineWidth=2; x.stroke();
+  x.beginPath();
+  for(var t=-R;t<=R;t+=0.02){ var px=X(t),py=Y(tPdf(t,v)); t===-R?x.moveTo(px,py):x.lineTo(px,py); }
+  x.strokeStyle=css('--gB'); x.lineWidth=2.4; x.stroke();
+  /* 축 */
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,Y(0)); x.lineTo(pL+gw,Y(0)); x.stroke();
+  for(var t=-4;t<=4;t++){ var px=X(t); x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(t, px, Y(0)+15); }
+  /* 임계선 */
+  [[crit,'--gB'],[1.959964,'--accent']].forEach(function(c){
+   x.strokeStyle=css(c[1]); x.lineWidth=1.5; x.setLineDash([4,3]);
+   x.beginPath(); x.moveTo(X(c[0]),pT); x.lineTo(X(c[0]),Y(0)); x.stroke(); x.setLineDash([]); });
+  x.textAlign='left'; x.font='700 12px -apple-system,sans-serif';
+  x.fillStyle=css('--accent'); x.fillText('정규 z (분모를 안다고 가정)', pL, narrow?pT+14:14);
+  x.fillStyle=css('--gB'); x.fillText('t(v='+v+') (분모도 흔들린다)', pL, narrow?pT+30:H-8);
+  x.font='700 11px -apple-system,sans-serif'; x.textAlign='right';
+  x.fillStyle=css('--gB'); x.fillText('t 경계 '+fmt(crit,3), W-2, pT+12);
+  x.fillStyle=css('--accent'); x.fillText('z 경계 1.960', X(1.959964)-5, pT+12);
+  /* 꼬리 확대 — 두 곡선의 차이가 실제로 보이도록 */
+  var jx=narrow?pL:pL+4, jy=narrow?24:26, jw=narrow?(W-pL*2):Math.max(120,W*0.27), jh=narrow?134:gh*0.46, t0=1.5, t1=4.4;
+  x.fillStyle=alpha(css('--card'),0.93); roundRect(x,jx,jy,jw,jh,8); x.fill();
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.stroke();
+  var jpk=tPdf(t0,v), pad=8, ax0=jx+pad, aw0=jw-pad*2, ay0=jy+18, ah0=jh-30;
+  function JX(t){ return ax0+aw0*(t-t0)/(t1-t0); }
+  function JY(d){ return ay0+ah0-(d/jpk)*ah0*0.92; }
+  [[function(t){return normPdf(t);},'--accent'],[function(t){return tPdf(t,v);},'--gB']].forEach(function(c){
+   x.beginPath();
+   for(var t=t0;t<=t1;t+=0.02){ var px=JX(t),py=JY(c[0](t)); t===t0?x.moveTo(px,py):x.lineTo(px,py); }
+   x.strokeStyle=css(c[1]); x.lineWidth=2; x.stroke(); });
+  x.strokeStyle=css('--rule'); x.beginPath(); x.moveTo(ax0,JY(0)); x.lineTo(ax0+aw0,JY(0)); x.stroke();
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('꼬리 확대 — t 가 위에 있다', ax0, jy+13);
+  x.textAlign='center';
+  for(var t=2;t<=4;t++) x.fillText(t, JX(t), JY(0)+13);
+  oV.textContent=v;
+  ro.innerHTML='양쪽 2.5% 를 자르는 경계값 — t(v='+v+') <b>'+fmt(crit,4)+'</b> vs 정규 <b>1.9600</b>'+
+   '<br>차이 <b>'+fmt(crit-1.959964,4)+'</b> — 자유도가 작을수록 <b>더 확실한 증거를 요구</b>합니다. v=40 쯤이면 거의 같아집니다.'+
+   '<br>t 곡선 아래 전체 넓이 = <b>'+fmt(tCdf(60,v)-tCdf(-60,v),6)+'</b> (1 이어야 정상 — 정의대로 적분한 결과입니다)';
+ }
+ sV.addEventListener('input',draw); onResize(draw); draw();
+})();
+
+/* ══════════ §7-2 왜 꼬리가 두꺼워지나 ══════════ */
+(function(){
+ var cv=document.getElementById('cvT2'), ro=document.getElementById('roT2');
+ var n=5, v=n-1, MU=10, SD=2, N=400, pts=[], crit=qOf(function(a){return tCdf(a,v);},0.975,0,60);
+ (function(){ var rnd=rngOf(31337), gs=gaussOf(rnd);
+  for(var j=0;j<N;j++){ var xs=[],s=0;
+   for(var i=0;i<n;i++){ var val=MU+gs()*SD; xs.push(val); s+=val; }
+   var m=s/n, ss=0; for(var i=0;i<n;i++) ss+=(xs[i]-m)*(xs[i]-m);
+   var sd=Math.sqrt(ss/(n-1)), t=(m-MU)/(sd/Math.sqrt(n));
+   pts.push({d:m-MU, s:sd, t:t}); } })();
+ function draw(){
+  var o=setup(cv,280), x=o.x, W=o.w, H=o.h;
+  var pL=44, pR=12, pT=22, pB=34, gw=W-pL-pR, gh=H-pT-pB;
+  var dm=3.2, sm=5.0;
+  function X(d){ return pL+gw*(d+dm)/(2*dm); }
+  function Y(s){ return pT+gh*(1-s/sm); }
+  /* 판정 경계: |평균차| = t임계 × s/√n  → 부채꼴 두 줄 */
+  x.strokeStyle=css('--bad'); x.lineWidth=1.8; x.setLineDash([5,4]);
+  [1,-1].forEach(function(sg){ x.beginPath();
+   for(var s=0;s<=sm;s+=0.05){ var d=sg*crit*s/Math.sqrt(n), px=X(d), py=Y(s);
+    s===0?x.moveTo(px,py):x.lineTo(px,py); } x.stroke(); });
+  x.setLineDash([]);
+  pts.forEach(function(p){
+   var sig=Math.abs(p.t)>crit;
+   x.fillStyle=sig?alpha(css('--bad'),0.85):alpha(css('--gA'),0.45);
+   x.beginPath(); x.arc(X(Math.max(-dm,Math.min(dm,p.d))),Y(Math.min(sm,p.s)),sig?4:2.6,0,7); x.fill(); });
+  x.strokeStyle=css('--rule'); x.lineWidth=1;
+  x.beginPath(); x.moveTo(pL,Y(0)); x.lineTo(pL+gw,Y(0)); x.stroke();
+  x.beginPath(); x.moveTo(X(0),pT); x.lineTo(X(0),Y(0)); x.stroke();
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+  for(var d=-3;d<=3;d++) x.fillText(d, X(d), Y(0)+15);
+  x.fillText('표본평균 − 진짜 평균', pL+gw/2, H-6);
+  x.textAlign='right';
+  for(var s=1;s<=4;s++) x.fillText(s, pL-6, Y(s)+4);
+  x.textAlign='left'; x.fillStyle=css('--soft'); x.fillText('표본에서 잰 s', 2, 12);
+  x.fillStyle=css('--bad'); x.font='700 11px -apple-system,sans-serif';
+  x.fillText('■ |t| > '+fmt(crit,3) + ' 인 표본', pL+4, pT+12);
+  var hit=pts.filter(function(p){return Math.abs(p.t)>crit;}).length;
+  ro.innerHTML='표본 <b>'+N+'</b>개 중 경계를 넘은 것 <b>'+hit+'</b>개 = <b>'+fmt(hit/N*100,1)+'%</b> (설계값 5%)'+
+   '<br><b>붉은 점들이 왼쪽·오른쪽 아래에 몰린 것이 보이십니까.</b> 평균이 크게 빗나가서가 아니라 <b>s 가 작게 나오는 바람에</b> 유의해진 표본들입니다. 판정 경계가 수직선이 아니라 <b>부채꼴</b>인 이유가 이것이고, 그래서 t 는 꼬리가 두꺼워야 공정합니다.';
+ }
+ onResize(draw); draw();
+})();
+</script>
+
+<div class="qna" data-topic="test-statistic"></div>
+
+<h2><span class="step">§8</span>F 분포 — 흩어짐 두 개의 비율</h2>
+<p>마지막입니다. 분산분석이 묻는 것은 <b>"조 사이의 흩어짐이 조 안의 흩어짐보다 유난히 큰가"</b> 입니다. 크기를 견주려면 나눗셈을 해야 하고, 그 <b>비율이 우연히 얼마나 커질 수 있는지</b>를 담은 자가 F 입니다.</p>
+<pre>F = (χ²(d₁) / d₁) ÷ (χ²(d₂) / d₂)      두 카이제곱을 각자의 자유도로 나눈 뒤 나눈다</pre>
+<p>왜 굳이 <b>자유도로 나누고</b> 비교할까요. 조 간 제곱합은 방향 3개에서, 조 내 제곱합은 방향 28개에서 모은 것입니다. 그냥 견주면 방향이 많은 쪽이 무조건 커 보입니다. <b>방향 하나당 평균 몇인지</b>로 환산해야 공정합니다 — 그것이 평균제곱(MS)입니다.</p>
+
+<div class="lab">
+  <canvas id="cvF" height="340"></canvas>
+  <div class="ctrl"><label for="sD1">위쪽 자유도 d₁</label><input id="sD1" type="range" min="1" max="10" step="1" value="3"><output id="oD1"></output></div>
+  <div class="ctrl"><label for="sD2">아래쪽 자유도 d₂</label><input id="sD2" type="range" min="2" max="60" step="1" value="28"><output id="oD2"></output></div>
+  <div id="roF" class="readout"></div>
+</div>
+
+<script>
+/* ══════════ §8 F 분포 ══════════ */
+(function(){
+ var cv=document.getElementById('cvF'), s1=document.getElementById('sD1'), o1=document.getElementById('oD1'),
+     s2=document.getElementById('sD2'), o2=document.getElementById('oD2'), ro=document.getElementById('roF');
+ var FOBS=6.7237; /* 다음 실험실에서 실제로 계산되는 값 — §9 에서 이 페이지가 직접 계산해 확인합니다 */
+ var CACHE={};
+ function simulate(d1,d2){          /* F 의 정의 그대로 표본을 만든다(고정 씨앗) */
+  var key=d1+'_'+d2; if(CACHE[key]) return CACHE[key];
+  var rnd=rngOf(4242+d1*97+d2), gs=gaussOf(rnd), out=[];
+  for(var t=0;t<1000;t++){
+   var a=0,b=0,i;
+   for(i=0;i<d1;i++){ var z=gs(); a+=z*z; }
+   for(i=0;i<d2;i++){ var w=gs(); b+=w*w; }
+   out.push((a/d1)/(b/d2));
+  }
+  return CACHE[key]=out;
+ }
+ function draw(){
+  var d1=+s1.value, d2=+s2.value, o=setup(cv,340), x=o.x, W=o.w, H=o.h;
+  var topH=104, gap=10, pw=(W-gap*3)/2.35;
+  /* 위: 두 재료 */
+  [[d1,'--gC','χ²('+d1+') / '+d1],[d2,'--gA','χ²('+d2+') / '+d2]].forEach(function(c,i){
+   var bx=i*(pw+gap*3.2), col=css(c[1]), df=c[0];
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+   x.fillText(i?'② 아래쪽(조 안의 흩어짐)':'① 위쪽(조 사이의 흩어짐)', bx, 12);
+   x.fillStyle=col; x.font='700 12px -apple-system,sans-serif';
+   x.fillText(c[2], bx, 28);
+   miniCurve(x,bx,34,pw,topH-42,function(u){ return chi2Pdf(u*df,df)*df; },0.001,4,col,alpha(col,0.22));
+   x.strokeStyle=css('--rule'); x.lineWidth=1;
+   x.beginPath(); x.moveTo(bx,34+topH-42); x.lineTo(bx+pw,34+topH-42); x.stroke();
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText('평균 1 근처로 맞춰짐', bx+pw/2, 34+topH-28);
+  });
+  x.fillStyle=css('--ink'); x.font='800 22px -apple-system,sans-serif'; x.textAlign='center';
+  x.fillText('÷', pw+gap*1.6, 34+topH/2-6);
+  x.fillStyle=css('--gD'); x.font='800 15px -apple-system,sans-serif'; x.textAlign='right';
+  x.fillText('= F('+d1+', '+d2+')', W, 34+topH/2-6);
+  /* 아래: F 곡선 */
+  var pT=topH+34, pB=32, pL=8, pR=8, gw=W-pL-pR, gh=H-pT-pB;
+  var mx=Math.max(5, FOBS*1.35), pk=0;
+  for(var i=1;i<=300;i++){ var v=fPdf(mx*i/300,d1,d2); if(v>pk) pk=v; }
+  function X(u){ return pL+gw*u/mx; }
+  function Y(d){ return pT+gh-(d/pk)*gh*0.92; }
+  var crit=qOf(function(u){return fCdf(u,d1,d2);},0.95,0,500);
+  /* 5% 꼬리 */
+  if(crit<mx){ x.beginPath(); x.moveTo(X(crit),Y(0));
+   for(var u=crit;u<=mx;u+=mx/400) x.lineTo(X(u),Y(fPdf(u,d1,d2)));
+   x.lineTo(X(mx),Y(0)); x.closePath(); x.fillStyle=alpha(css('--warn'),0.22); x.fill(); }
+  /* 관측값 오른쪽 꼬리 = p값 */
+  if(FOBS<mx){ x.beginPath(); x.moveTo(X(FOBS),Y(0));
+   for(var u=FOBS;u<=mx;u+=mx/400) x.lineTo(X(u),Y(fPdf(u,d1,d2)));
+   x.lineTo(X(mx),Y(0)); x.closePath(); x.fillStyle=alpha(css('--bad'),0.55); x.fill(); }
+  x.beginPath();
+  for(var i=0;i<=400;i++){ var u=mx*i/400, px=X(u), py=Y(fPdf(u,d1,d2)); i?x.lineTo(px,py):x.moveTo(px,py); }
+  x.strokeStyle=css('--gD'); x.lineWidth=2.4; x.stroke();
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,Y(0)); x.lineTo(pL+gw,Y(0)); x.stroke();
+  for(var t=0;t<=mx;t+=1){ x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(t, X(t), Y(0)+15); }
+  [[crit,'--warn','임계값 '+fmt(crit,3),pT+12],[FOBS,'--bad','관측 F = '+fmt(FOBS,3),Y(0)-10]].forEach(function(c,i){
+   if(c[0]>mx) return;
+   x.strokeStyle=css(c[1]); x.lineWidth=2; x.setLineDash(i?[]:[4,3]);
+   x.beginPath(); x.moveTo(X(c[0]),pT); x.lineTo(X(c[0]),Y(0)); x.stroke(); x.setLineDash([]);
+   x.fillStyle=css(c[1]); x.font='700 11px -apple-system,sans-serif';
+   var rightSide=(i===0)||X(c[0])>W*0.62;   /* 임계값 라벨은 점 격자와 겹치지 않게 왼쪽에 */
+   x.textAlign=rightSide?'right':'left';
+   x.fillText(c[2], X(c[0])+(rightSide?-5:5), c[3]); });
+  /* ── p값을 눈으로 세기: 귀무가설이 맞다고 두고 1000번 되풀이한 결과 ── */
+  var sim=simulate(d1,d2), over=0, overC=0;
+  var ix=W*0.40, iy=pT+2, iw=W*0.585, ih=gh*0.60;
+  x.fillStyle=alpha(css('--card'),0.94); roundRect(x,ix,iy,iw,ih,8); x.fill();
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.stroke();
+  var narrow=W<560, headH=narrow?34:22;
+  var pad=10, bw2=iw-pad*2, bh2=ih-headH-12;
+  var rows=Math.max(8,Math.round(Math.sqrt(1000*bh2/bw2))), cols=Math.ceil(1000/rows);
+  var gx=bw2/cols, gy=bh2/rows;
+  for(var i=0;i<1000;i++){
+   var v=sim[i], c=Math.floor(i/rows), r=i%rows;
+   var px=ix+pad+gx*(c+0.5), py=iy+headH+2+gy*(r+0.5);
+   var big=v>FOBS, mid=!big&&v>crit;
+   if(big) over++; if(mid) overC++;
+   x.fillStyle=big?css('--bad'):(mid?alpha(css('--warn'),0.8):alpha(css('--soft'),0.30));
+   x.beginPath(); x.arc(px,py,big?3.4:(mid?2.1:1.5),0,7); x.fill();
+  }
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText(narrow?'차이가 없다고 두고 1000번 되풀이':'차이가 전혀 없다고 두고 1000번 되풀이 — 점 하나가 실험 하나', ix+pad, iy+14);
+  x.fillStyle=css('--bad'); x.font='700 11px -apple-system,sans-serif';
+  if(narrow){ x.fillText('● '+over+'번만 '+fmt(FOBS,2)+' 초과 (붉은 점)', ix+pad, iy+29); }
+  else { x.textAlign='right'; x.fillText('● '+over+'번만 '+fmt(FOBS,2)+' 초과', ix+iw-pad, iy+14); }
+  var p=1-fCdf(FOBS,d1,d2);
+  o1.textContent=d1; o2.textContent=d2;
+  ro.innerHTML='붉게 칠한 부분이 <b>p값</b>입니다 — "차이가 전혀 없어도 F 가 '+fmt(FOBS,3)+' 이상 나올 확률".<br>'+
+   'F('+d1+', '+d2+') 에서 p = <b>'+(p<0.0001?'0.0000':fmt(p,4))+'</b> · 유의수준 0.05 의 임계값 = <b>'+fmt(crit,4)+'</b> → '+
+   (FOBS>crit?'<b style="color:var(--good)">기각(유의함)</b>':'<b style="color:var(--warn)">기각 못 함</b>')+
+   '<br>위 점 격자는 <b>차이가 전혀 없는 세상에서 1000번 실험한 결과</b>입니다(F 의 정의 그대로 만든 표본). 붉은 점 = 관측값보다 큰 F 가 나온 횟수이고, 이론 기댓값은 <b>'+fmt(p*1000,1)+'번</b>입니다 — 1000번밖에 안 되므로 이 정도는 흔들립니다.'+'<br>자유도를 바꿔 보십시오. <b>같은 F 값이라도 자유도에 따라 판정이 달라집니다</b> — 자가 달라지기 때문입니다.';
+ }
+ s1.addEventListener('input',draw); s2.addEventListener('input',draw); onResize(draw); draw();
+})();
+</script>
+
+<div class="qna" data-label="F 는 왜 오른쪽 꼬리만 봅니까?"
+     data-q="다른 검정은 양쪽을 보는데 F 는 왜 오른쪽 꼬리만 봅니까?">
+  <p><b>질문이 한쪽 방향이기 때문입니다.</b> 분산분석이 묻는 것은 "조 사이의 흩어짐이 조 안의 흩어짐보다 <b>유난히 큰가</b>"입니다. 조 간 흩어짐이 <b>작은</b> 것은 "차이가 없다"는 귀무가설과 아무 모순이 없습니다 — 오히려 귀무가설이 맞다는 쪽 증거입니다. 그러니 왼쪽 꼬리는 놀랄 일이 아닙니다.</p>
+  <p>F 자체가 <b>비율</b>이라 0보다 크고, 귀무가설이 맞으면 1 근처에서 놉니다. 위 그림에서 곡선의 봉우리가 1 부근인 것이 그 뜻입니다. 그래서 판정은 "1보다 얼마나 크냐" 한 방향으로만 합니다.</p>
+  <p>다만 <b>두 분산이 같은지</b>를 묻는 등분산 검정처럼 양쪽이 다 의미 있는 경우에는 F 를 양측으로 쓰기도 합니다. 꼬리를 한쪽만 보느냐 양쪽을 보느냐는 분포의 성질이 아니라 <b>가설이 무엇이냐</b>가 정합니다.</p>
+</div>
+
+<h2><span class="step">§9</span>착지 — 다음 실험실의 31 = 3 + 28</h2>
+<p>이제 전부 모입니다. 다음 실험실의 자료는 차종 4조 × 8개 = <b>32개</b>입니다. 아래 세 단추를 눌러 자료가 어떻게 <b>두 조각으로 쪼개지는지</b> 보십시오.</p>
+
+<div class="lab">
+  <canvas id="cvAn" height="320"></canvas>
+  <div class="btnrow">
+    <button class="btn on" id="bA0">① 자료 그대로</button>
+    <button class="btn" id="bA1">② 조 사이 (자유도 3)</button>
+    <button class="btn" id="bA2">③ 조 안 (자유도 28)</button>
+  </div>
+  <div id="roAn" class="readout"></div>
+</div>
+
+<div id="anTable"></div>
+
+<script>
+/* ══════════ §9 분산분석 분해 ══════════ */
+(function(){
+ var cv=document.getElementById('cvAn'), ro=document.getElementById('roAn'), tb=document.getElementById('anTable');
+ var DATA=[[14,18,15,13,13,15,11,13],[19,14,9,16,14,13,18,20],[15,18,13,15,16,18,14,17],[19,21,23,18,20,17,17,20]];
+ var NAME=['A','B','C','D'], COL=['--gA','--gB','--gC','--gD'], mode=0;
+ var all=[].concat.apply([],DATA), N=all.length, K=DATA.length;
+ var gm=all.reduce(function(a,b){return a+b;},0)/N;
+ var gmean=DATA.map(function(r){ return r.reduce(function(a,b){return a+b;},0)/r.length; });
+ var SSB=DATA.reduce(function(s,r,g){ return s+r.length*Math.pow(gmean[g]-gm,2); },0);
+ var SSW=DATA.reduce(function(s,r,g){ return s+r.reduce(function(t,v){ return t+Math.pow(v-gmean[g],2); },0); },0);
+ var SST=all.reduce(function(s,v){ return s+Math.pow(v-gm,2); },0);
+ var d1=K-1, d2=N-K, MSB=SSB/d1, MSW=SSW/d2, F=MSB/MSW, p=1-fCdf(F,d1,d2);
+ var crit=qOf(function(u){ return fCdf(u,d1,d2); },0.95,0,100);
+ function draw(){
+  var o=setup(cv,320), x=o.x, W=o.w, H=o.h;
+  var pT=26, pB=76, pL=34, pR=8, gh=H-pT-pB, gw=W-pL-pR;
+  var lo=7, hi=24;
+  function Y(v){ return pT+gh*(1-(v-lo)/(hi-lo)); }
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.textAlign='right'; x.font='11px -apple-system,sans-serif';
+  for(var v=8;v<=24;v+=4){ x.beginPath(); x.moveTo(pL,Y(v)); x.lineTo(pL+gw,Y(v)); x.stroke();
+   x.fillStyle=css('--soft'); x.fillText(v, pL-5, Y(v)+4); }
+  /* 전체평균 */
+  x.strokeStyle=css('--grand'); x.lineWidth=1.8; x.setLineDash([6,4]);
+  x.beginPath(); x.moveTo(pL,Y(gm)); x.lineTo(pL+gw,Y(gm)); x.stroke(); x.setLineDash([]);
+  x.fillStyle=css('--grand'); x.font='700 11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('전체평균 '+fmt(gm,3), pL+3, Y(gm)-5);
+  var bw=gw/K;
+  DATA.forEach(function(row,g){
+   var col=css(COL[g]), bx=pL+bw*g, cx=bx+bw/2;
+   /* 조평균 굵은 선 */
+   x.strokeStyle=col; x.lineWidth=3;
+   x.beginPath(); x.moveTo(bx+bw*0.12,Y(gmean[g])); x.lineTo(bx+bw*0.88,Y(gmean[g])); x.stroke();
+   row.forEach(function(v,i){
+    var px=bx+bw*(0.16+0.68*i/(row.length-1));
+    if(mode===1){ /* 조 사이: 조평균 → 전체평균 막대 */
+     x.strokeStyle=alpha(col,0.25); x.beginPath(); x.arc(px,Y(v),3,0,7); x.stroke();
+    } else if(mode===2){ /* 조 안: 각 점 → 조평균 선 */
+     x.strokeStyle=alpha(col,0.55); x.lineWidth=1.4;
+     x.beginPath(); x.moveTo(px,Y(v)); x.lineTo(px,Y(gmean[g])); x.stroke();
+     x.fillStyle=col; x.beginPath(); x.arc(px,Y(v),3,0,7); x.fill();
+    } else {
+     x.fillStyle=alpha(col,0.8); x.beginPath(); x.arc(px,Y(v),3.2,0,7); x.fill();
+    }
+   });
+   if(mode===1){ /* 조평균과 전체평균 사이를 굵게 */
+    x.strokeStyle=col; x.lineWidth=8;
+    x.beginPath(); x.moveTo(cx,Y(gm)); x.lineTo(cx,Y(gmean[g])); x.stroke();
+   }
+   x.fillStyle=col; x.font='700 12px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(NAME[g], cx, pT+gh+16);
+   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+   x.fillText(fmt(gmean[g],2), cx, pT+gh+30);
+  });
+  /* 아래 막대: 자유도 분해 */
+  var by=H-30, bx0=pL, bwid=gw;
+  var wB=bwid*d1/(N-1), wW=bwid*d2/(N-1);
+  x.fillStyle=alpha(css('--warn'),mode===1?0.85:0.45); x.fillRect(bx0,by,wB,16);
+  x.fillStyle=alpha(css('--accent'),mode===2?0.85:0.45); x.fillRect(bx0+wB,by,wW,16);
+  var narrow=W<520;
+  x.font='700 11px -apple-system,sans-serif'; x.textAlign='center';
+  x.fillStyle=css('--ink');
+  if(wB>26) x.fillText(narrow?'3':'자유도 3', bx0+wB/2, by+11);
+  x.fillText(narrow?'28':'자유도 28', bx0+wB+wW/2, by+11);
+  x.textAlign='right'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText(narrow?'31 = 3 + 28':'전체 31 칸이 3 + 28 로 갈라집니다 (조 사이 3 · 조 안 28)', W, by-5);
+  x.textAlign='left'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText(mode===0?'32개 값 · 조마다 8개':(mode===1?'조평균이 전체평균에서 얼마나 떨어졌나 → SSB':'각 값이 자기 조평균에서 얼마나 떨어졌나 → SSW'), 2, 14);
+  ro.innerHTML=(mode===1?'<b>조 사이 제곱합 SSB = '+fmt(SSB,3)+'</b> — 조평균 4개가 전체평균 1개에 묶이므로 자유로운 방향은 <b>3</b>개.'
+    :(mode===2?'<b>조 안 제곱합 SSW = '+fmt(SSW,3)+'</b> — 32개 값이 조평균 4개에 묶이므로 자유로운 방향은 <b>28</b>개.'
+    :'<b>전체 제곱합 SST = '+fmt(SST,3)+'</b> — 32개 값이 전체평균 1개에 묶이므로 자유로운 방향은 <b>31</b>개.'))
+   +'<br>확인: SSB + SSW = <b>'+fmt(SSB+SSW,3)+'</b> = SST <b>'+fmt(SST,3)+'</b> (차이 '+fmt(SSB+SSW-SST,12).replace(/0+$/,'0')+') · 3 + 28 = 31'
+   +'<br>제곱합이 쪼개지면 <b>자유도도 같이 쪼개집니다.</b> 이것이 §4에서 본 직각(수직) 분해의 결과입니다.';
+ }
+ [0,1,2].forEach(function(i){
+  document.getElementById('bA'+i).addEventListener('click',function(){
+   mode=i; [0,1,2].forEach(function(j){ document.getElementById('bA'+j).classList.toggle('on',i===j); }); draw(); });
+ });
+ tb.innerHTML='<table><tr><th class="l">요인</th><th>제곱합 SS</th><th>자유도 df</th><th>평균제곱 MS</th><th>F</th><th>p</th></tr>'+
+  '<tr><td class="l">조 사이(차종)</td><td>'+fmt(SSB,3)+'</td><td><b>'+d1+'</b></td><td>'+fmt(MSB,3)+'</td><td rowspan="2"><b>'+fmt(F,3)+'</b></td><td rowspan="2"><b>'+fmt(p,5)+'</b></td></tr>'+
+  '<tr><td class="l">조 안(오차)</td><td>'+fmt(SSW,3)+'</td><td><b>'+d2+'</b></td><td>'+fmt(MSW,3)+'</td></tr>'+
+  '<tr><td class="l">전체</td><td>'+fmt(SST,3)+'</td><td><b>'+(N-1)+'</b></td><td colspan="3" class="l" style="color:var(--soft)">임계값 F(0.05; '+d1+', '+d2+') = '+fmt(crit,4)+' → '+(F>crit?'기각(유의함)':'기각 못 함')+'</td></tr></table>';
+ onResize(draw); draw();
+})();
+</script>
+
+<div class="concl"><b>이 표가 그냥 읽히면 준비가 끝난 것입니다.</b> MS 는 제곱합을 자유도로 나눈 것(방향 하나당 평균), F 는 그 둘의 비, p 는 §8에서 붉게 칠한 오른쪽 꼬리 넓이입니다. 세 물음이 모두 답해졌습니다.</div>
+
+<h2><span class="step">§10</span>한 장으로 굳히기</h2>
+
+<table>
+ <tr><th class="l" style="width:22%">분포</th><th class="l">정의 — 무엇으로 만들어졌나</th><th class="l" style="width:30%">왜 만들었나</th></tr>
+ <tr><td class="l"><b>정규 z</b></td><td class="l">(값 − 평균) ÷ 표준편차</td><td class="l">단위가 제각각인 자를 하나로 통일해, 넓이표를 한 장만 쓰려고</td></tr>
+ <tr><td class="l"><b>카이제곱 χ²(k)</b></td><td class="l">Z₁² + … + Z_k²</td><td class="l">흩어짐(제곱합)이 우연히 얼마나 커질 수 있는지 재려고</td></tr>
+ <tr><td class="l"><b>t(v)</b></td><td class="l">Z ÷ √(χ²(v)/v)</td><td class="l">σ 를 모르고 s 로 대신할 때, 분모까지 흔들리는 것을 반영하려고</td></tr>
+ <tr><td class="l"><b>F(d₁,d₂)</b></td><td class="l">(χ²(d₁)/d₁) ÷ (χ²(d₂)/d₂)</td><td class="l">흩어짐 두 개의 <b>비율</b>이 우연히 얼마나 커질 수 있는지 재려고</td></tr>
+</table>
+
+<h3>자유도 — 규칙은 하나뿐입니다</h3>
+<pre>자유도 = 값의 개수 − 자료에서 빌려 쓴(추정한) 값의 개수
+
+표본분산      n − 1            평균 하나를 추정
+회귀          n − k − 1        기울기 k개 + 절편 하나
+카이제곱 표   (r−1)(c−1)       행 합계·열 합계·전체 합계를 빌려 씀
+분산분석      3 = 4 − 1        조평균 4개가 전체평균 1개에 묶임
+              28 = 32 − 4      32개 값이 조평균 4개에 묶임</pre>
+
+<div class="key"><b>세 문장으로 각인</b><br>
+① 자유도는 <b>자료에 남은 진짜 정보의 양</b>이고, 기하로는 <b>편차 벡터가 사는 공간의 차원</b>입니다.<br>
+② 빼는 이유는 단 하나 — <b>모르는 값을 자료 자신에게서 빌려 썼기</b> 때문입니다. 빌린 개수만큼 방향이 죽습니다.<br>
+③ 그 방향의 개수가 <b>자(분포)의 눈금</b>을 정합니다. 그래서 χ²·t·F 에는 언제나 자유도가 따라다닙니다.</div>
+
+<h3>이해 점검 — 아래 일곱 문장을 스스로 말할 수 있으면 통과입니다</h3>
+<ol style="font-size:.93rem;line-height:1.8;padding-left:1.2rem">
+ <li>진짜 평균 μ 를 <b>알고 있다면</b> 분산은 n 으로 나눠야 하는가, n−1 로 나눠야 하는가. 왜인가.</li>
+ <li>Σ(xᵢ − a)² 가 a = x̄ 에서 최소가 된다는 사실이, n 으로 나눌 때의 <b>과소평가</b>와 어떻게 이어지는가.</li>
+ <li>자료가 하나뿐일 때 n−1 로 나누면 무슨 일이 벌어지고, 그것이 왜 <b>정직한</b> 답인가.</li>
+ <li>편차 벡터가 (1,1,1) 방향과 수직인 이유를 <b>한 줄 계산</b>으로 보일 수 있는가.</li>
+ <li>카이제곱의 자유도 k 는 무엇을 세는 수인가. 자료 5개에서 왜 χ²(4) 가 나오는가.</li>
+ <li>t 가 z 보다 꼬리가 두꺼운 이유를 <b>분모</b>라는 말을 써서 설명할 수 있는가.</li>
+ <li>F 에서 두 제곱합을 각자의 자유도로 나눈 뒤 비교하는 이유는 무엇인가.</li>
+</ol>
+
+<h2>Python 답안 — 시험장에서 쓰는 형태</h2>
+<p>실기에서는 위 계산을 라이브러리가 대신 해 줍니다. <b>중요한 것은 어떤 자를 왜 골랐는지 서술하는 것</b>입니다.</p>
+<pre id="py"></pre>
+
+<div class="ask">
+ <b>튜터에게 물어볼 만한 근본 질문</b>
+ <ul>
+  <li>자유도가 <b>정수가 아닌</b> 경우(웰치 t검정의 12.7 같은)는 무슨 뜻입니까?</li>
+  <li>표본이 정규분포가 아니면 위 계보 전체가 무너집니까? 중심극한정리는 어디까지 구해 줍니까?</li>
+  <li>카이제곱 적합도 검정에서 <b>모수를 추정하면</b> 자유도를 또 빼야 하는 이유는 무엇입니까?</li>
+  <li>분산분석의 F 와 두 집단 t검정의 관계는 무엇입니까? (힌트: F = t² 인 경우가 있습니다)</li>
+ </ul>
+</div>
+
+<div class="qna" data-label="자유도가 12.7 처럼 소수로 나오는 건 무슨 뜻인가요?"
+     data-q="자유도가 12.7 처럼 소수로 나오는 건 무슨 뜻인가요?">
+  <p><b>그 경우의 자유도는 '개수'가 아니라 '근사한 눈금'입니다.</b> 두 집단의 분산이 서로 다를 때 쓰는 웰치(Welch) t검정이 대표적입니다. 이때 검정통계량의 분포는 <b>정확히는 t 분포가 아닙니다.</b> 다만 t 분포 중에서 <b>모양이 가장 비슷한 것</b>을 골라 쓰면 실용적으로 충분히 정확한데, 그 "가장 비슷한 t"의 자유도가 12.7 처럼 소수로 나오는 것입니다.</p>
+  <p>정수 자유도가 <b>세는 수</b>(독립적인 방향의 개수)라면, 소수 자유도는 <b>맞추는 수</b>(분포 모양을 맞춘 값)입니다. 둘은 이름만 같을 뿐 성격이 다릅니다. 시험 답안에서는 "웰치 보정으로 자유도 12.7 이 산출되었다"처럼 <b>보정했다는 사실을 함께 적으면</b> 충분합니다.</p>
+</div>
+
+<script>
+document.getElementById('py').textContent =
+ 'import numpy as np\n'+
+ 'from scipy import stats\n\n'+
+ '# 1) 분포의 임계값 — "이 값보다 크면 우연으로 보기 어렵다"는 경계\n'+
+ 'print(stats.norm.ppf(0.975))            # 1.9600   정규\n'+
+ 'print(stats.t.ppf(0.975, df=4))         # 2.7764   t (자유도 4)\n'+
+ 'print(stats.chi2.ppf(0.95, df=4))       # 9.4877   카이제곱\n'+
+ 'print(stats.f.ppf(0.95, dfn=3, dfd=28)) # 2.9467   F\n\n'+
+ '# 2) p값 — 관측값보다 극단일 확률(오른쪽 꼬리)\n'+
+ 'print(1 - stats.f.cdf(6.7237, 3, 28))   # 0.001472\n'+
+ 'print(2 * (1 - stats.t.cdf(abs(2.31), df=4)))   # 양측 t검정\n\n'+
+ '# 3) 표본분산 — 자유도를 직접 지정한다(가장 흔한 실수 지점)\n'+
+ 'x = np.array([14, 18, 15, 13, 13, 15, 11, 13])\n'+
+ 'print(x.var())          # ddof=0 → n 으로 나눔 (모분산 취급, 과소평가)\n'+
+ 'print(x.var(ddof=1))    # ddof=1 → n-1 로 나눔 ★표본분산은 이것\n'+
+ 'print(x.std(ddof=1))    # 표본표준편차\n'+
+ '# pandas 는 기본이 ddof=1, numpy 는 기본이 ddof=0 — 서로 다릅니다\n\n'+
+ '# 4) 분산분석 — 자유도 (조 수 - 1, 전체 - 조 수)\n'+
+ 'A=[14,18,15,13,13,15,11,13]; B=[19,14,9,16,14,13,18,20]\n'+
+ 'C=[15,18,13,15,16,18,14,17]; D=[19,21,23,18,20,17,17,20]\n'+
+ 'F, p = stats.f_oneway(A, B, C, D)\n'+
+ 'print(f"F(3, 28) = {F:.3f}, p = {p:.5f}")   # F(3, 28) = 6.724, p = 0.00147';
+</script>
+
+<div class="trap"><span class="v">시험에서 실제로 점수를 깎는 자리</span><br>
+파이썬에서 <code>numpy</code> 의 <code>var()</code> 는 기본이 <b>n 으로 나눔</b>(ddof=0)이고, <code>pandas</code> 의 <code>var()</code> 는 기본이 <b>n−1</b>(ddof=1) 입니다. 같은 자료인데 도구에 따라 답이 달라집니다. 표본에서 모집단을 추정하는 상황이면 <b>언제나 ddof=1</b> 입니다.</div>
+
+<small class="src2">이 페이지의 모든 곡선·넓이·검정값은 브라우저에서 그 자리에서 계산했습니다(외부 라이브러리 없음). 분포 함수는 표준 임계값표와 대조해 소수 넷째 자리까지 일치를 확인했습니다: χ²(0.95;1)=3.8415 · t(0.975;4)=2.7764 · F(0.95;3,28)=2.9467 · F(0.95;2,10)=4.1028. 난수는 고정 씨앗을 써서 새로 고쳐도 같은 그림이 나옵니다.</small>
+
+<nav class="labnav bot">
+  <a href="./0001-fuel-economy-workflow.html">← 실기 전체 지도</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <a href="./0002-anova-lab.html">일원배치 분산분석 →</a>
+</nav>
+</div>
+<script src="../tutor.js"></script>
+</body></html>
