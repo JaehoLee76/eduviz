@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><title>실기 통계 ⑤ · 카이제곱 독립성 검정 (주어진 데이터 풀이)</title>
+<meta charset="utf-8"><title>실기 통계 5) · 카이제곱 독립성 검정 (주어진 데이터 풀이)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a6fa8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -71,7 +71,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 
 <nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">5 / 5 · 통계 · 카이제곱</span></nav>
 
-<p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
+<p class="eyebrow">봉우리 1) · 실기 통계 파트 (40점 구간)</p>
 <h1>카이제곱 독립성 검정 — 학과와 성적은 관련이 있는가<small>ADP 23회 실기 문3 유형: 학과별 입학 성적 분포. <b>도수표가 주어지고</b>, 두 범주형 변수의 관련성을 검정한다.</small></h1>
 
 <div class="prob">
@@ -86,7 +86,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
   <div class="src">유형 출처: ADP 실기 23회 복원. <b>위 도수표는 원문 그대로</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <canvas id="cv" height="320"></canvas>
@@ -104,8 +104,8 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 </div>
 <div class="qna" data-label="기대도수 5 미만 규칙은 왜 있나요?" data-q="기대도수 5 미만 칸이 있으면 왜 문제가 되나요?">
   <p><b>카이제곱 검정은 근사(approximation)입니다.</b> 관측도수는 원래 이산적인 값(포아송·이항 성질)인데, 검정통계량 Σ(관측−기대)²/기대 가 <b>연속인 카이제곱 분포를 따른다고 가정</b>하고 p값을 구합니다. 이 근사가 성립하려면 각 칸의 기대도수가 충분히 커야 합니다 — 표본이 커야 이산 분포가 연속 분포에 가까워지기 때문입니다(중심극한정리(central limit theorem)와 같은 이치).</p>
-  <p><b>관행적 기준</b>은 "기대도수 5 미만인 칸이 전체의 20%를 넘지 않아야 한다"는 것입니다(Cochran의 규칙). 이 문제는 3×6=18칸 중 <b>0칸</b>이 5 미만이라 전제를 넉넉히 만족합니다 — 아래 ②전제 확인에서 직접 세어 보여드립니다.</p>
-  <p><b>깨졌을 때는</b> ①범주를 합쳐 칸 수를 줄이거나 ②2×2 표라면 <b>연속성 수정(Yates' correction)</b>을 적용하거나 ③표가 작으면 <b>피셔의 정확검정 (Fisher's exact test)</b>으로 갈아탑니다. 피셔 정확검정은 근사 없이 초기하분포(hypergeometric distribution)로 정확한 확률을 구하므로 표본이 작을 때 안전하지만, 칸 수가 많은 표(이번처럼 3×6)로는 계산량이 커져 잘 쓰지 않습니다.</p>
+  <p><b>관행적 기준</b>은 "기대도수 5 미만인 칸이 전체의 20%를 넘지 않아야 한다"는 것입니다(Cochran의 규칙). 이 문제는 3×6=18칸 중 <b>0칸</b>이 5 미만이라 전제를 넉넉히 만족합니다 — 아래 2) 전제 확인에서 직접 세어 보여드립니다.</p>
+  <p><b>깨졌을 때는</b> 1) 범주를 합쳐 칸 수를 줄이거나 2) 2×2 표라면 <b>연속성 수정(Yates' correction)</b>을 적용하거나 3) 표가 작으면 <b>피셔의 정확검정 (Fisher's exact test)</b>으로 갈아탑니다. 피셔 정확검정은 근사 없이 초기하분포(hypergeometric distribution)로 정확한 확률을 구하므로 표본이 작을 때 안전하지만, 칸 수가 많은 표(이번처럼 3×6)로는 계산량이 커져 잘 쓰지 않습니다.</p>
 </div>
 <div class="qna" data-label="표본이 커지면 왜 다 유의해지나요?" data-q="탐구 모드에서 표본을 키우기만 해도 왜 카이제곱과 유의성이 커지나요?">
   <p><b>검정통계량 식 자체에 표본 크기가 곱해져 들어가기 때문입니다.</b> 비율을 그대로 두고 전체 인원만 k배로 늘리면, 관측도수도 기대도수도 똑같이 k배가 됩니다. 그런데 카이제곱 기여도는</p>
@@ -223,7 +223,7 @@ function render(){
  var mult=+sN.value;oN.textContent='×'+fmt(mult,1);
  var R=compute(mult);drawMain(R);
 
- // ② 전제 확인
+ // 2) 전제 확인
  var rowsHtml='<tr><th>기대도수(행\\열)</th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>';
  document.getElementById('assump').innerHTML=
   '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'<th>합계</th></tr>'+
@@ -236,7 +236,7 @@ function render(){
   '<br>최소 기대도수: '+fmt(Math.min.apply(null,[].concat.apply([],R.exp)),2)+
   '<br>→ '+(okE?'전제를 만족하므로 <b>카이제곱 독립성 검정</b>을 그대로 적용합니다.':'전제가 깨졌습니다. 범주 병합 또는 <b>피셔의 정확검정</b>을 검토합니다.')+'</div>';
 
- // ③ 기대도수 표 + 기여도 표
+ // 3) 기대도수 표 + 기여도 표
  document.getElementById('exp').innerHTML=
   '<tr><th colspan="'+(C6+1)+'" style="background:var(--card);color:var(--ink);text-align:left;border:none;font-weight:800;padding-top:.6rem">기대도수 = 행합계 × 열합계 ÷ 전체('+fmt(R.N,0)+')</th></tr>'+
   '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>'+
@@ -251,7 +251,7 @@ function render(){
   }).join('')+'</tr>';}).join('')+
   '<tr><td><b>합계 = χ²</b></td><td colspan="'+C6+'" style="font-weight:800;color:var(--accent)">'+fmt(R.chi2,3)+'</td></tr>';
 
- // ④ 판정
+ // 4) 판정
  var rej=R.p<0.05;
  document.getElementById('anova').innerHTML=
   '<tr><th>검정통계량 χ²</th><th>자유도</th><th>임계값(.05)</th><th>p값</th><th>판정</th></tr>'+
@@ -260,7 +260,7 @@ function render(){
   (rej?'χ²='+fmt(R.chi2,2)+' > 임계값 '+fmt(R.fc,2)+', p='+(R.p<0.0001?R.p.toExponential(2):fmt(R.p,4))+' → H₀ 기각 : 학과와 성적 구간은 서로 관련이 있다(독립이 아니다)'
       :'χ²='+fmt(R.chi2,2)+' ≤ 임계값 '+fmt(R.fc,2)+', p='+fmt(R.p,4)+' → H₀ 기각 못 함 : 학과와 성적 구간이 관련 있다고 볼 근거가 부족하다')+'</div>';
 
- // ⑤ 결론 — 기여도 최댓값 칸을 찾아 서술
+ // 5) 결론 — 기여도 최댓값 칸을 찾아 서술
  var best={i:0,j:0,v:-1};
  for(i=0;i<R3;i++)for(j=0;j<C6;j++)if(R.contrib[i][j]>best.v)best={i:i,j:j,v:R.contrib[i][j]};
  var sign=R.o[best.i][best.j]>R.exp[best.i][best.j]?'훨씬 많고':'훨씬 적고';

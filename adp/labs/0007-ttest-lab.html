@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><title>실기 통계 ⑦ · 대응표본·독립표본 t검정 (주어진 데이터 풀이)</title>
+<meta charset="utf-8"><title>실기 통계 7) · 대응표본·독립표본 t검정 (주어진 데이터 풀이)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a6fa8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -73,7 +73,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 
 <nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">7 / 7 · 통계 · t검정</span></nav>
 
-<p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
+<p class="eyebrow">봉우리 1) · 실기 통계 파트 (40점 구간)</p>
 <h1>대응표본·독립표본 t검정 — 짝을 지었는가, 짓지 않았는가<small>ADP 실기 26·27·28회 반복 출제 유형: 교육 전후 비교, 두 공장 비교. 겉모습(두 집단의 평균 비교)은 같아 보여도 <b>자료를 어떻게 모았는지</b>에 따라 완전히 다른 검정을 써야 한다.</small></h1>
 
 <div class="prob">
@@ -96,7 +96,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
   <div class="src">유형 출처: ADP 실기 26~28회 복원 유형. 원문 데이터는 비공개 → 위 <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <div class="labtitle">문제 1 시각화 — 같은 사람의 전·후를 잇는 선</div>
@@ -131,7 +131,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
     <li><b>대응표본(paired sample)</b> — 같은 사람·같은 설비·같은 지역을 <b>전후로</b>, 또는 짝을 지어 비교. 문제 1처럼 "10명"이 등장하고 그 10명 각각에게서 두 값(전·후)이 나오면 대응입니다. 데이터 개수는 <b>쌍(10쌍)</b>으로 셉니다.</li>
     <li><b>독립표본(independent samples)</b> — 애초에 <b>서로 다른 개체</b>에서 각각 표본을 뽑습니다. 문제 2의 공장1 제품 12개와 공장2 제품 12개는 서로 다른 개체이고, 한쪽 표본이 몇 개든 다른 쪽과 <b>1:1로 짝지을 이유가 없습니다.</b></li>
   </ul>
-  <p><b>실전 판별법.</b> ①표에서 두 열(전/후, A/B)의 표본 크기가 항상 같고 ②같은 행(같은 사람·같은 개체)이라는 사실을 명시하면 대응, ③표본 크기가 우연히 같더라도 서로 다른 개체를 모았다면 독립입니다. 이 실험실의 두 문제가 정확히 그 대비입니다 — 문제 1은 "같은 사람 10명"(대응), 문제 2는 "두 공장에서 각 12개씩"(독립, 공장1과 공장2 제품은 서로 짝지을 이유가 없는 별개 개체).</p>
+  <p><b>실전 판별법.</b> 1) 표에서 두 열(전/후, A/B)의 표본 크기가 항상 같고 2) 같은 행(같은 사람·같은 개체)이라는 사실을 명시하면 대응, 3) 표본 크기가 우연히 같더라도 서로 다른 개체를 모았다면 독립입니다. 이 실험실의 두 문제가 정확히 그 대비입니다 — 문제 1은 "같은 사람 10명"(대응), 문제 2는 "두 공장에서 각 12개씩"(독립, 공장1과 공장2 제품은 서로 짝지을 이유가 없는 별개 개체).</p>
 </div>
 
 <h2><span class="step">1</span>가설 설정</h2>

@@ -241,7 +241,7 @@ function labsOf(part, type){ return LABS.filter(function(l){ return l.part === p
 function srs(){ try{ return JSON.parse(localStorage.getItem('adp_srs') || '{}'); }catch(e){ return {}; } }
 function recent(){ try{ return JSON.parse(localStorage.getItem('adp_recent') || '[]'); }catch(e){ return []; } }
 
-/* ── 오늘 할 것: ①복습할 때가 된 것 ②보던 것 이어서 ③아직 안 본 새 실험실 ── */
+/* ── 오늘 할 것: 1) 복습할 때가 된 것 2) 보던 것 이어서 3) 아직 안 본 새 실험실 ── */
 function drawToday(){
   var S = srs(), now = Date.now(), rows = [];
   Object.keys(S).forEach(function(h){

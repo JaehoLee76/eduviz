@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><title>실기 통계 ④ · 이항분포 (주어진 데이터 풀이)</title>
+<meta charset="utf-8"><title>실기 통계 4) · 이항분포 (주어진 데이터 풀이)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a6fa8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -80,7 +80,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 
 <nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">4 / 4 · 통계 · 이항분포</span></nav>
 
-<p class="eyebrow">봉우리 ① · 실기 통계 파트 (40점 구간)</p>
+<p class="eyebrow">봉우리 1) · 실기 통계 파트 (40점 구간)</p>
 <h1>이항분포 — 주어진 조건에서 확률을 계산한다<small>ADP 29회 실기 문5 · 30회 실기 문7 유형: 불량률과 자녀 성별 확률. <b>같은 조건의 시행이 정해진 횟수만큼 독립으로 반복될 때</b>, 특정 결과가 나올 확률을 구한다.</small></h1>
 
 <div class="prob">
@@ -93,17 +93,17 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 
   <p class="probn">[문제 2] 30회 실기 문7 유형</p>
   <p>각각 6명의 자녀를 가진 다섯 가족이 있다. 각각의 자녀가 아들 또는 딸일 확률은 0.5일 때,
-  <b>① 4명 이상의 딸을 가진 가족이 세 가족 이상일 확률</b>을 구하고,
-  <b>② 다섯 가족 중 몇 가족이 4명 이상의 딸을 가질 것으로 기대되는지</b> 계산하시오. (소수점 셋째 자리까지)</p>
+  <b>1) 4명 이상의 딸을 가진 가족이 세 가족 이상일 확률</b>을 구하고,
+  <b>2) 다섯 가족 중 몇 가족이 4명 이상의 딸을 가질 것으로 기대되는지</b> 계산하시오. (소수점 셋째 자리까지)</p>
   <table class="gday">
     <tr><th>단계</th><th>시행 횟수 n</th><th>성공 확률 p</th><th>구하는 값</th></tr>
     <tr><td>1단계 · 한 가족의 딸 수</td><td>6</td><td>0.5</td><td>P(딸 ≥ 4)</td></tr>
-    <tr><td>2단계 · 다섯 가족 중 해당 가족 수</td><td>5</td><td>1단계 결과값</td><td>① P(Z ≥ 3)  ② E[Z]</td></tr>
+    <tr><td>2단계 · 다섯 가족 중 해당 가족 수</td><td>5</td><td>1단계 결과값</td><td>1) P(Z ≥ 3)  2) E[Z]</td></tr>
   </table>
   <div class="src">유형 출처: ADP 실기 29회·30회 복원. <b>위 숫자는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 두 문제를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 두 문제를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <h3>문제 1 — X ~ B(25, 0.03)의 확률 막대그래프</h3>
@@ -133,12 +133,12 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 <p style="font-size:.94rem"><b>문제 2</b> — 한 자녀가 딸일 확률은 매번 0.5로 같고, 한 가족의 자녀 6명은 독립입니다. "한 가족의 딸 수"를 Y라 하면 <b>Y ~ B(6, 0.5)</b>. "딸이 4명 이상"이라는 사건 하나를 다시 성공/실패로 보면, 그 성공확률은 p₁=P(Y≥4)이고, "다섯 가족 중 그 사건이 일어난 가족 수"를 Z라 하면 <b>Z ~ B(5, p₁)</b> — 이항분포 안에서 나온 확률이 다음 이항분포의 성공확률로 다시 쓰이는 이단 구조입니다.</p>
 
 <h2><span class="step">2</span>이항분포를 쓸 조건 확인</h2>
-<div class="chk">이항분포는 <b>①매 시행이 서로 독립이고 ②성공확률이 매번 일정하며 ③시행 횟수가 미리 고정</b>되어 있을 때만 성립합니다. 세 조건이 깨지면 이항분포를 쓸 수 없으므로, 계산 전에 먼저 확인합니다.</div>
+<div class="chk">이항분포는 <b>1) 매 시행이 서로 독립이고 2) 성공확률이 매번 일정하며 3) 시행 횟수가 미리 고정</b>되어 있을 때만 성립합니다. 세 조건이 깨지면 이항분포를 쓸 수 없으므로, 계산 전에 먼저 확인합니다.</div>
 <table>
   <tr><th>조건</th><th>문제 1 (불량 검사)</th><th>문제 2 (자녀 성별)</th></tr>
-  <tr><td>① 독립시행</td><td>제품마다 불량 여부가 다른 제품에 영향을 주지 않음</td><td>자녀마다 성별이 다른 자녀에 영향을 주지 않음(가정)</td></tr>
-  <tr><td>② 성공확률 일정</td><td id="condP1">매 제품 p=0.03로 동일</td><td>매 자녀 p=0.5로 동일 · 2단계는 매 가족 p₁로 동일</td></tr>
-  <tr><td>③ 시행 횟수 고정</td><td id="condN1">n=25 (뽑는 개수를 미리 정함)</td><td>n=6(자녀 수) → n=5(가족 수)로 각각 고정</td></tr>
+  <tr><td>1) 독립시행</td><td>제품마다 불량 여부가 다른 제품에 영향을 주지 않음</td><td>자녀마다 성별이 다른 자녀에 영향을 주지 않음(가정)</td></tr>
+  <tr><td>2) 성공확률 일정</td><td id="condP1">매 제품 p=0.03로 동일</td><td>매 자녀 p=0.5로 동일 · 2단계는 매 가족 p₁로 동일</td></tr>
+  <tr><td>3) 시행 횟수 고정</td><td id="condN1">n=25 (뽑는 개수를 미리 정함)</td><td>n=6(자녀 수) → n=5(가족 수)로 각각 고정</td></tr>
   <tr><td>판정</td><td colspan="2" style="font-weight:800;color:var(--good)">세 조건 모두 만족 → 이항분포 적용 가능</td></tr>
 </table>
 
@@ -156,7 +156,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 <canvas id="cv2" height="220"></canvas>
 <div class="legend">
   <span><span class="bar" style="background:var(--accent)"></span>P(Z=k)</span>
-  <span><span class="bar" style="background:var(--warn)"></span>구간 k≥3 (①의 답)</span>
+  <span><span class="bar" style="background:var(--warn)"></span>구간 k≥3 (1) 의 답)</span>
   <span><span class="bar" style="background:var(--good);opacity:.55"></span>정규근사 곡선(점선)</span>
 </div>
 <table id="t2b"></table>
@@ -306,7 +306,7 @@ function renderP2b(){
   document.getElementById('t2b').innerHTML=
     '<tr><th>가족 수 k</th><th>C(5,k)</th><th>P(Z=k)</th><th>누적 P(Z≤k)</th></tr>'+rows.join('');
   var pz=sfAtLeast(N2b,p1,K2b), ez=mean(N2b,p1);
-  document.getElementById('v2b').innerHTML='<div class="verdict rej">① P(Z≥3) = P(Z=3)+P(Z=4)+P(Z=5) = '+fmt(pz,6)+' → 소수점 셋째 자리 = <b>'+fmt(pz,3)+'</b><br>② E[Z] = 5 × p₁ = 5 × '+fmt(p1,5)+' = <b>'+fmt(ez,5)+'</b> → 소수점 셋째 자리 = <b>'+fmt(ez,3)+'</b></div>';
+  document.getElementById('v2b').innerHTML='<div class="verdict rej">1) P(Z≥3) = P(Z=3)+P(Z=4)+P(Z=5) = '+fmt(pz,6)+' → 소수점 셋째 자리 = <b>'+fmt(pz,3)+'</b><br>2) E[Z] = 5 × p₁ = 5 × '+fmt(p1,5)+' = <b>'+fmt(ez,5)+'</b> → 소수점 셋째 자리 = <b>'+fmt(ez,3)+'</b></div>';
   return {pz:pz,ez:ez};
 }
 
@@ -351,7 +351,7 @@ function renderConcl(r2){
     ? 'np='+fmt(a1,2)+'≥5이고 n(1−p)='+fmt(b1,2)+'≥5로 정규근사도 쓸 수 있었으나, 정확한 값을 위해 이항분포로 직접 계산했다.'
     : 'np='+fmt(a1,2)+'&lt;5이므로 정규근사는 적용하지 않았다.';
   document.getElementById('concl1').innerHTML='<b>문제 1 결론</b> — 제품 A의 불량률이 '+P1+'인 모집단에서 '+N1+'개를 뽑을 때, 불량이 정확히 '+K1+'개일 확률은 이항분포 X~B('+N1+', '+P1+')에서 직접 계산하여 P(X='+K1+') = C('+N1+','+K1+')×'+P1+'^'+K1+'×'+fmt(1-P1,2)+'^'+(N1-K1)+' ≈ <b>'+fmt(pk3,4)+'</b>이다(소수점 다섯째 자리 반올림). '+npNote;
-  document.getElementById('concl2').innerHTML='<b>문제 2 결론</b> — 한 가족이 딸 4명 이상을 가질 확률은 Y~B(6,0.5)에서 p₁=P(Y≥4)='+fmt(p1,5)+'이다. 이를 성공확률로 하여 다섯 가족을 다시 이항분포 Z~B(5, '+fmt(p1,5)+')로 보면, ① 세 가족 이상일 확률은 P(Z≥3) ≈ <b>'+fmt(r2.pz,3)+'</b>이고, ② 기대되는 가족 수는 E[Z]=5p₁ ≈ <b>'+fmt(r2.ez,3)+'</b>가족이다.';
+  document.getElementById('concl2').innerHTML='<b>문제 2 결론</b> — 한 가족이 딸 4명 이상을 가질 확률은 Y~B(6,0.5)에서 p₁=P(Y≥4)='+fmt(p1,5)+'이다. 이를 성공확률로 하여 다섯 가족을 다시 이항분포 Z~B(5, '+fmt(p1,5)+')로 보면, 1) 세 가족 이상일 확률은 P(Z≥3) ≈ <b>'+fmt(r2.pz,3)+'</b>이고, 2) 기대되는 가족 수는 E[Z]=5p₁ ≈ <b>'+fmt(r2.ez,3)+'</b>가족이다.';
 }
 
 /* ---- 탐구 모드 ---- */

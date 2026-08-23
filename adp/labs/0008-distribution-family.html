@@ -75,14 +75,65 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
   이 한 줄에 물음이 셋 들어 있습니다.
   <table>
     <tr><th style="width:24%">기호</th><th class="l">물음</th><th style="width:22%">답하는 절</th></tr>
-    <tr><td><b>F</b></td><td class="l">F 라는 자는 대체 무엇이고, 누가 왜 만들었나</td><td>§6 · §7</td></tr>
-    <tr><td><b>3, 28</b></td><td class="l">이 두 수는 어디서 나왔고, 왜 굳이 빼는가</td><td>§3 · §4 · §5</td></tr>
+    <tr><td><b>F</b></td><td class="l">F 라는 자는 대체 무엇이고, 누가 왜 만들었나</td><td>§7 · §8</td></tr>
+    <tr><td><b>3, 28</b></td><td class="l">이 두 수는 어디서 나왔고, 왜 굳이 빼는가</td><td>§4 · §5 · §6</td></tr>
     <tr><td><b>p</b></td><td class="l">0.0015 라는 넓이는 어느 곡선의 어디를 잰 것인가</td><td>§7 · §8</td></tr>
   </table>
   <div style="font-size:.8rem;color:var(--soft);margin-top:.5rem">아래 그림·표의 모든 수치는 이 페이지가 그 자리에서 실제로 계산한 값입니다(미리 적어 둔 숫자가 없습니다). 분포는 라이브러리 없이 정의대로 적분해서 그립니다.</div>
 </div>
 
-<h2><span class="step">§1</span>한 장으로 보는 계보</h2>
+<h2>먼저 — 이 페이지에서 쓰는 말 열두 개</h2>
+<p>설명을 읽다가 모르는 낱말이 나와서 막히는 일이 없도록, <b>여기서 쓰는 말을 미리 전부 풀어 둡니다.</b> 아래 열두 개 말고 새로 나오는 낱말은 없습니다.</p>
+<table>
+ <tr><th class="l" style="width:24%">낱말</th><th class="l">뜻 (이 페이지에서 쓰는 의미 그대로)</th></tr>
+ <tr><td class="l"><b>자료 · 값</b></td><td class="l">우리가 실제로 잰 숫자들. 여기서는 차 32대의 손상지수.</td></tr>
+ <tr><td class="l"><b>평균</b></td><td class="l">다 더해서 개수로 나눈 값. 그 무리의 중심 자리.</td></tr>
+ <tr><td class="l"><b>편차</b></td><td class="l">값 하나가 평균에서 얼마나 떨어졌나. (값 − 평균)</td></tr>
+ <tr><td class="l"><b>흩어짐</b></td><td class="l">편차들이 전체적으로 얼마나 큰가. 부호를 없애려고 <b>제곱해서 더해</b> 잽니다.</td></tr>
+ <tr><td class="l"><b>표준편차</b></td><td class="l">"보통 이 정도 벗어난다"는 대표 크기. <b>최대치가 아니라 눈금</b>입니다.</td></tr>
+ <tr><td class="l"><b>우연의 폭</b></td><td class="l">차이가 전혀 없어도 저절로 생기는 흔들림의 크기. 검정의 비교 상대.</td></tr>
+ <tr><td class="l"><b>검정통계량</b></td><td class="l">내가 본 차이가 <b>우연의 폭 몇 칸인지</b> 나타낸 숫자 하나. (§1)</td></tr>
+ <tr><td class="l"><b>분포</b></td><td class="l">어떤 값이 얼마나 자주 나오는지 정해 놓은 규칙. 곡선으로 그립니다.</td></tr>
+ <tr><td class="l"><b>확률밀도</b></td><td class="l">분포 곡선의 <b>세로축</b>. 그 근처가 얼마나 빽빽한가. <b>확률은 높이가 아니라 넓이</b>입니다.</td></tr>
+ <tr><td class="l"><b>자유도</b></td><td class="l">자료에 남은 진짜 정보의 개수. 이 수가 자의 눈금을 정합니다. (§4~§6)</td></tr>
+ <tr><td class="l"><b>p값</b></td><td class="l">차이가 전혀 없는 세상에서 이만한 값이 나올 확률. 곡선 꼬리의 넓이.</td></tr>
+ <tr><td class="l"><b>유의수준 0.05</b></td><td class="l">p가 이보다 작으면 우연으로 보지 않기로 한 <b>약속</b>. 자연법칙이 아니라 관례입니다.</td></tr>
+</table>
+
+<h2><span class="step">§1</span>검정통계량 — 이 페이지가 하려는 일 한 가지</h2>
+
+<p>먼저 이 한 절만 이해하시면 나머지는 전부 곁가지입니다. 우리가 자료를 놓고 묻는 것은 언제나 하나뿐입니다.</p>
+<div class="concl" style="font-size:1.02rem"><b>"이 차이는 진짜인가, 아니면 그냥 우연인가?"</b></div>
+
+<p>그런데 <b>차이 하나만 보고는 답할 수가 없습니다.</b> 차종 D가 A보다 5.4점 높다고 합시다. 5.4점이 큰 겁니까? 알 수 없습니다. 무엇과 견주느냐에 따라 다르니까요.</p>
+<p>그러면 무엇과 견줘야 합니까. <b>차이가 전혀 없어도 저절로 생기는 흔들림</b>과 견줘야 합니다. 똑같은 차 여덟 대를 부숴도 손상지수는 제각각 나옵니다. 그 제각각인 폭이 3점쯤이라면 5.4점 차이는 대단할 게 없고, 그 폭이 0.5점이라면 5.4점은 엄청난 차이입니다.</p>
+
+<div class="key"><b>그래서 나눕니다.</b> 이것이 전부입니다.
+<pre>검정통계량 = 내가 본 차이  ÷  우연이 만들어 내는 흔들림의 크기</pre>
+결과는 <b>"우연의 폭 몇 칸이냐"</b>라는 숫자 하나입니다. 이 숫자가 검정통계량입니다. 대단한 게 아니라 <b>자를 하나 만들어서 몇 칸인지 센 것</b>입니다.</div>
+
+<p>아래에서 직접 만들어 보십시오. 위 막대가 내가 본 차이이고, 아래 눈금 한 칸이 우연의 폭입니다.</p>
+
+<div class="lab">
+  <canvas id="cvRuler" height="250"></canvas>
+  <div class="ctrl"><label for="sSig">내가 본 차이 (신호)</label><input id="sSig" type="range" min="0" max="60" step="0.5" value="42"><output id="oSig"></output></div>
+  <div class="ctrl"><label for="sNoi">우연의 폭 (잡음)</label><input id="sNoi" type="range" min="1" max="20" step="0.25" value="6.25"><output id="oNoi"></output></div>
+  <div id="roRuler" class="readout"></div>
+</div>
+
+<p><b>그러면 몇 칸부터 "우연이 아니다"라고 할 수 있습니까.</b> 여기서부터가 이 페이지의 나머지 전부입니다. 몇 칸이 놀라운 일인지는 <b>재는 방법과 자료의 양</b>에 따라 달라지고, 그 기준을 담아 놓은 것이 z·카이제곱·t·F 라는 네 개의 자입니다.</p>
+
+<table>
+  <tr><th class="l" style="width:26%">무엇을 재나</th><th class="l">그때 쓰는 자</th><th class="l" style="width:34%">이 페이지에서 다루는 곳</th></tr>
+  <tr><td class="l">값 하나가 얼마나 드문가</td><td class="l"><b>z</b> (표준정규)</td><td class="l">§3</td></tr>
+  <tr><td class="l">흩어짐(제곱합)이 얼마나 큰가</td><td class="l"><b>χ²</b> (카이제곱)</td><td class="l">§7</td></tr>
+  <tr><td class="l">평균이 얼마나 벗어났나 (흔들림을 자료에서 잰 경우)</td><td class="l"><b>t</b></td><td class="l">§8</td></tr>
+  <tr><td class="l">흩어짐 둘을 견주면 얼마나 차이 나나</td><td class="l"><b>F</b></td><td class="l">§9</td></tr>
+</table>
+<p>이름이 넷이라 복잡해 보이지만 <b>하는 일은 하나</b>입니다 — 전부 "내가 본 것 ÷ 우연의 폭"이고, 다만 무엇을 재느냐에 따라 계산식과 눈금이 달라질 뿐입니다.</p>
+
+
+<h2><span class="step">§2</span>한 장으로 보는 계보</h2>
 <p>통계 검정에 쓰는 분포는 제각각 태어난 게 아닙니다. <b>표준정규 z 하나에서 전부 파생됩니다.</b> 아래 네 상자를 눌러 보십시오 — 각 곡선은 정의대로 계산해 그린 진짜 모양입니다.</p>
 
 <div class="lab">
@@ -258,9 +309,73 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 })();
 </script>
 
+<script>
+/* ══════════ §1 검정통계량 = 우연의 폭 몇 칸인가 ══════════ */
+(function(){
+ var cv=document.getElementById('cvRuler'), s1=document.getElementById('sSig'), o1=document.getElementById('oSig'),
+     s2=document.getElementById('sNoi'), o2=document.getElementById('oNoi'), ro=document.getElementById('roRuler');
+ function draw(){
+  var sig=+s1.value, noi=+s2.value, ratio=sig/noi;
+  var o=setup(cv,250), x=o.x, W=o.w, H=o.h;
+  var pad=14, gw=W-pad*2;
+  var span=Math.max(sig*1.12, noi*8);        /* 화살표와 눈금 여덟 칸은 늘 보이게 */
+  var sc=gw/span;
+  var yArrow=64, yRule=150;
+  /* 1) 내가 본 차이 */
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('1) 내가 본 차이 — 이만큼 벌어졌다', pad, 26);
+  var aw=sig*sc;
+  x.fillStyle=alpha(css('--warn'),0.45); x.fillRect(pad,yArrow-16,aw,26);
+  x.strokeStyle=css('--warn'); x.lineWidth=2; x.strokeRect(pad+0.5,yArrow-16+0.5,Math.max(1,aw-1),25);
+  x.fillStyle=css('--warn'); x.font='700 13px -apple-system,sans-serif';
+  x.textAlign = aw>90?'right':'left';
+  x.fillText(fmt(sig,2), pad+aw+(aw>90?-8:8), yArrow+2);
+  /* 2) 우연의 폭을 눈금으로 */
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText('2) 우연의 폭 — 차이가 전혀 없어도 이만큼은 흔들린다 (한 칸 = '+fmt(noi,2)+')', pad, yRule-30);
+  var step=noi*sc, k=0, px=pad;
+  x.strokeStyle=css('--rule'); x.lineWidth=1;
+  x.beginPath(); x.moveTo(pad,yRule); x.lineTo(pad+gw,yRule); x.stroke();
+  while(px<=pad+gw+0.5 && k<=200){
+   var tall=(k%5===0);
+   x.strokeStyle=k<=ratio?css('--accent'):alpha(css('--soft'),0.45);
+   x.lineWidth=tall?2:1;
+   x.beginPath(); x.moveTo(px,yRule-(tall?13:8)); x.lineTo(px,yRule+(tall?13:8)); x.stroke();
+   if(step>26 || tall){
+    x.fillStyle=k<=ratio?css('--accent'):alpha(css('--soft'),0.7);
+    x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+    x.fillText(k, px, yRule+26);
+   }
+   k++; px=pad+step*k;
+  }
+  /* 칸을 색으로 채워 '몇 칸인지' 보이기 */
+  x.fillStyle=alpha(css('--accent'),0.22);
+  x.fillRect(pad,yRule-13,Math.min(gw,ratio*step),26);
+  /* 화살표: 차이의 끝이 눈금 몇 칸에 닿는가 */
+  x.strokeStyle=css('--warn'); x.lineWidth=1.6; x.setLineDash([4,3]);
+  x.beginPath(); x.moveTo(pad+aw,yArrow+12); x.lineTo(pad+aw,yRule-14); x.stroke(); x.setLineDash([]);
+  /* 3) 결과 */
+  x.textAlign='left'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText('3) 그래서 내가 본 차이는 우연의 폭', pad, H-42);
+  x.fillStyle=css('--good'); x.font='800 30px -apple-system,sans-serif';
+  var big=fmt(ratio,2)+' 칸';
+  x.fillText(big, pad, H-10);
+  var bw=x.measureText(big).width;
+  x.fillStyle=css('--soft'); x.font='12px -apple-system,sans-serif';
+  x.fillText(W<520?'= 검정통계량':'만큼입니다  =  이 숫자가 검정통계량입니다', pad+bw+12, H-14);
+  o1.textContent=fmt(sig,2); o2.textContent=fmt(noi,2);
+  ro.innerHTML='<b>'+fmt(sig,2)+' ÷ '+fmt(noi,2)+' = '+fmt(ratio,3)+'</b> — 내가 본 차이가 우연의 폭보다 '+fmt(ratio,2)+'배 큽니다.'+
+   '<br>기본값은 다음 실험실(분산분석)의 실제 숫자입니다 — 차종 사이가 벌어진 정도 <b>42.08</b>, 같은 차종 안에서 그냥 흔들리는 정도 <b>6.26</b>, 그래서 <b>F = 6.72</b>.'+
+   '<br>슬라이더를 움직여 보십시오. <b>차이가 같아도 우연의 폭이 크면 칸 수가 줄어듭니다</b> — 그래서 차이만 봐서는 판단할 수 없는 것입니다.';
+ }
+ s1.addEventListener('input',draw); s2.addEventListener('input',draw); onResize(draw); draw();
+})();
+</script>
+
+
 <div class="qna" data-topic="sampling-distributions"></div>
 
-<h2><span class="step">§2</span>표준정규 — 자를 하나로 통일하려고 만들었다</h2>
+<h2><span class="step">§3</span>표준정규 — 자를 하나로 통일하려고 만들었다</h2>
 <p>키는 센티미터, 손상지수는 점, 시험은 100점 만점. <b>단위도 중심도 흩어짐도 전부 다릅니다.</b> 그런데 우리가 묻는 것은 늘 같습니다 — "이 값이 <b>얼마나 드문가</b>". 그래서 모든 자를 하나로 포개는 변환을 만들었습니다.</p>
 <pre>z = (값 − 평균) ÷ 표준편차        →  "평균에서 표준편차 몇 개만큼 떨어졌나"</pre>
 <p>아래 슬라이더를 움직여 보십시오. 세 문제는 눈금이 완전히 다른데도 <b>드문 정도(칠한 넓이)는 언제나 똑같습니다.</b></p>
@@ -426,7 +541,7 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   <p>바뀌는 것은 <b>질문의 종류</b>입니다. "몇 센티미터인가"는 원래 눈금의 질문이고, "얼마나 드문가"는 z 의 질문입니다. 검정은 언제나 두 번째만 묻습니다. 그래서 검정통계량은 하나같이 <b>(관측 − 기대) ÷ 흔들림</b> 꼴을 하고 있습니다 — 전부 z 의 친척입니다.</p>
 </div>
 
-<h2><span class="step">§3</span>자유도 ① — 마음대로 정할 수 있는 칸이 몇 개인가</h2>
+<h2><span class="step">§4</span>자유도 1) — 마음대로 정할 수 있는 칸이 몇 개인가</h2>
 <p>자유도의 정체를 손으로 만져 보겠습니다. <b>막대를 끌어(또는 눌러 고른 뒤 슬라이더로) 값을 바꿔 보십시오.</b> 단 조건이 하나 있습니다 — <b>평균은 반드시 10</b>이어야 합니다.</p>
 
 <div class="lab">
@@ -538,7 +653,7 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 })();
 </script>
 
-<h2><span class="step">§4</span>자유도 ② — 편차는 어떤 '평면' 안에서만 움직인다</h2>
+<h2><span class="step">§5</span>자유도 2) — 편차는 어떤 '평면' 안에서만 움직인다</h2>
 <p>이제 한 겹 더 들어갑니다. 자유도의 정확한 정체는 <b>"그 벡터가 살고 있는 공간의 차원"</b> 입니다. 자료 세 개를 3차원 공간의 점 하나로 보면 눈으로 확인할 수 있습니다.</p>
 <p><b>그림을 손가락으로 돌려 보십시오.</b> 어느 각도에서 봐도 주황색 편차 벡터는 반투명 평면을 <b>절대 벗어나지 않습니다.</b></p>
 
@@ -661,7 +776,7 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 
 <div class="qna" data-topic="degrees-of-freedom"></div>
 
-<h2><span class="step">§5</span>자유도 ③ — 그래서 왜 <b>빼고</b> 나누는가</h2>
+<h2><span class="step">§6</span>자유도 3) — 그래서 왜 <b>빼고</b> 나누는가</h2>
 <p>여기서 가장 흔한 오해를 걷어내겠습니다. <b>n−1 은 분산이라는 개념에 원래 붙어 있는 것이 아닙니다.</b> 진짜 평균 μ 를 알고 있다면 n 으로 나누는 것이 완벽하게 옳습니다.</p>
 <pre>진짜 평균을 알 때   σ² = Σ(xᵢ − μ)² / n      ← n 이 맞다
 모를 때(=늘 그렇다)  s² = Σ(xᵢ − x̄)² / (n−1)   ← x̄ 를 대신 썼으므로 갚아야 한다</pre>
@@ -775,7 +890,7 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"고 말한다 (정직)</pre>
 자유도는 <b>자료가 대답할 자격이 있는지를 세는 수</b>이기도 합니다.</div>
 
-<h2><span class="step">§6</span>카이제곱 — 흩어짐을 재는 자를 만들다</h2>
+<h2><span class="step">§7</span>카이제곱 — 흩어짐을 재는 자를 만들다</h2>
 <p>이제 분포를 <b>직접 만들어</b> 보겠습니다. 카이제곱분포의 정의는 놀랍도록 단순합니다.</p>
 <pre>χ²(k) = Z₁² + Z₂² + … + Z_k²        (독립인 표준정규를 k개 제곱해서 더한다)</pre>
 <p>아래에서 왼쪽이 <b>공장</b>입니다. 매번 z 를 k개 뽑아 제곱해 쌓고, 그 합 하나를 오른쪽 히스토그램에 던져 넣습니다. <b>곡선을 그려 준 것이 아니라, 던져 넣은 값들이 저절로 그 모양을 만듭니다.</b> 겹쳐 놓은 굵은 선이 정의대로 계산한 이론 곡선입니다 — 던질수록 히스토그램이 그 선에 붙습니다.</p>
@@ -813,7 +928,7 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
   var narrow=W<520, lw=narrow?W*0.34:W*0.30, gap=14;
   /* ── 왼쪽 공장 ── */
   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
-  x.fillText('① 표준정규를 따르는 값을 '+k+'개 뽑아', 2, 14);
+  x.fillText('1) 표준정규를 따르는 값을 '+k+'개 뽑아', 2, 14);
   var ax=8, aw=lw-16, ay=54;
   x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(ax,ay); x.lineTo(ax+aw,ay); x.stroke();
   [-2,0,2].forEach(function(t){ var px=ax+aw*(t+3.2)/6.4;
@@ -830,7 +945,7 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
   x.fillText('z = ('+cur.map(function(z){return fmt(z,2);}).join(', ')+')', 2, ay+30);
   /* 제곱해서 쌓기 — 전체 높이를 넘지 않게 두 번에 나눠 계산 */
   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
-  x.fillText('② 제곱해서 쌓으면', 2, 150);
+  x.fillText('2) 제곱해서 쌓으면', 2, 150);
   var by=H-62, bx=ax+aw/2-20, sc=105/Math.max(4,k*1.15);
   var hs=cur.map(function(z){ return Math.max(2,z*z*sc); });
   var raw=hs.reduce(function(a,b){return a+b;},0);
@@ -850,7 +965,7 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
   x.fillStyle=css('--gC'); x.font='700 13px -apple-system,sans-serif'; x.textAlign='center';
   x.fillText('합 '+fmt(s,2), bx+20, by-tot-9);
   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
-  x.fillText('③ 이 합 하나를 →', bx+20, by+20);
+  x.fillText('3) 이 합 하나를 →', bx+20, by+20);
   /* ── 오른쪽 히스토그램 ── */
   var hx=lw+gap, hw=W-hx, hy=30, hh=H-hy-34;
   var mx=xmax(), maxTheory=0;
@@ -910,7 +1025,7 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
   <p>셋째, 정규분포를 제곱해 더한 것의 분포가 <b>카이제곱이라는 이름으로 완전히 계산 가능</b>합니다. 절댓값 합의 분포는 그만큼 다루기 쉽지 않습니다. 요약하면 — 제곱은 쪼개지고, 거리이고, 계산됩니다.</p>
 </div>
 
-<h2><span class="step">§7</span>t 분포 — 분모까지 흔들릴 때</h2>
+<h2><span class="step">§8</span>t 분포 — 분모까지 흔들릴 때</h2>
 <p>z 를 쓰려면 <b>진짜 표준편차 σ 를 알아야</b> 합니다. 그런데 현실에서 아는 경우가 있습니까? 없습니다. 그래서 표본에서 잰 s 를 대신 씁니다. 그 순간 분자만이 아니라 <b>분모까지 표본마다 흔들립니다.</b></p>
 <pre>z = (x̄ − μ) / (σ/√n)      분모가 고정 — 흔들리는 것은 분자뿐
 t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자주 나온다 → 꼬리가 두껍다</pre>
@@ -1038,7 +1153,7 @@ t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자
 
 <div class="qna" data-topic="test-statistic"></div>
 
-<h2><span class="step">§8</span>F 분포 — 흩어짐 두 개의 비율</h2>
+<h2><span class="step">§9</span>F 분포 — 흩어짐 두 개의 비율</h2>
 <p>마지막입니다. 분산분석이 묻는 것은 <b>"조 사이의 흩어짐이 조 안의 흩어짐보다 유난히 큰가"</b> 입니다. 크기를 견주려면 나눗셈을 해야 하고, 그 <b>비율이 우연히 얼마나 커질 수 있는지</b>를 담은 자가 F 입니다.</p>
 <pre>F = (χ²(d₁) / d₁) ÷ (χ²(d₂) / d₂)      두 카이제곱을 각자의 자유도로 나눈 뒤 나눈다</pre>
 <p>왜 굳이 <b>자유도로 나누고</b> 비교할까요. 조 간 제곱합은 방향 3개에서, 조 내 제곱합은 방향 28개에서 모은 것입니다. 그냥 견주면 방향이 많은 쪽이 무조건 커 보입니다. <b>방향 하나당 평균 몇인지</b>로 환산해야 공정합니다 — 그것이 평균제곱(MS)입니다.</p>
@@ -1075,7 +1190,7 @@ t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자
   [[d1,'--gC','χ²('+d1+') / '+d1],[d2,'--gA','χ²('+d2+') / '+d2]].forEach(function(c,i){
    var bx=i*(pw+gap*3.2), col=css(c[1]), df=c[0];
    x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
-   x.fillText(i?'② 아래쪽(조 안의 흩어짐)':'① 위쪽(조 사이의 흩어짐)', bx, 12);
+   x.fillText(i?'2) 아래쪽(조 안의 흩어짐)':'1) 위쪽(조 사이의 흩어짐)', bx, 12);
    x.fillStyle=col; x.font='700 12px -apple-system,sans-serif';
    x.fillText(c[2], bx, 28);
    miniCurve(x,bx,34,pw,topH-42,function(u){ return chi2Pdf(u*df,df)*df; },0.001,4,col,alpha(col,0.22));
@@ -1157,15 +1272,15 @@ t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자
   <p>다만 <b>두 분산이 같은지</b>를 묻는 등분산 검정처럼 양쪽이 다 의미 있는 경우에는 F 를 양측으로 쓰기도 합니다. 꼬리를 한쪽만 보느냐 양쪽을 보느냐는 분포의 성질이 아니라 <b>가설이 무엇이냐</b>가 정합니다.</p>
 </div>
 
-<h2><span class="step">§9</span>착지 — 다음 실험실의 31 = 3 + 28</h2>
+<h2><span class="step">§10</span>착지 — 다음 실험실의 31 = 3 + 28</h2>
 <p>이제 전부 모입니다. 다음 실험실의 자료는 차종 4조 × 8개 = <b>32개</b>입니다. 아래 세 단추를 눌러 자료가 어떻게 <b>두 조각으로 쪼개지는지</b> 보십시오.</p>
 
 <div class="lab">
   <canvas id="cvAn" height="320"></canvas>
   <div class="btnrow">
-    <button class="btn on" id="bA0">① 자료 그대로</button>
-    <button class="btn" id="bA1">② 조 사이 (자유도 3)</button>
-    <button class="btn" id="bA2">③ 조 안 (자유도 28)</button>
+    <button class="btn on" id="bA0">1) 자료 그대로</button>
+    <button class="btn" id="bA1">2) 조 사이 (자유도 3)</button>
+    <button class="btn" id="bA2">3) 조 안 (자유도 28)</button>
   </div>
   <div id="roAn" class="readout"></div>
 </div>
@@ -1260,7 +1375,7 @@ t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자
 
 <div class="concl"><b>이 표가 그냥 읽히면 준비가 끝난 것입니다.</b> MS 는 제곱합을 자유도로 나눈 것(방향 하나당 평균), F 는 그 둘의 비, p 는 §8에서 붉게 칠한 오른쪽 꼬리 넓이입니다. 세 물음이 모두 답해졌습니다.</div>
 
-<h2><span class="step">§10</span>한 장으로 굳히기</h2>
+<h2><span class="step">§11</span>한 장으로 굳히기</h2>
 
 <table>
  <tr><th class="l" style="width:22%">분포</th><th class="l">정의 — 무엇으로 만들어졌나</th><th class="l" style="width:30%">왜 만들었나</th></tr>
@@ -1280,9 +1395,9 @@ t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자
               28 = 32 − 4      32개 값이 조평균 4개에 묶임</pre>
 
 <div class="key"><b>세 문장으로 각인</b><br>
-① 자유도는 <b>자료에 남은 진짜 정보의 양</b>이고, 기하로는 <b>편차 벡터가 사는 공간의 차원</b>입니다.<br>
-② 빼는 이유는 단 하나 — <b>모르는 값을 자료 자신에게서 빌려 썼기</b> 때문입니다. 빌린 개수만큼 방향이 죽습니다.<br>
-③ 그 방향의 개수가 <b>자(분포)의 눈금</b>을 정합니다. 그래서 χ²·t·F 에는 언제나 자유도가 따라다닙니다.</div>
+1) 자유도는 <b>자료에 남은 진짜 정보의 양</b>이고, 기하로는 <b>편차 벡터가 사는 공간의 차원</b>입니다.<br>
+2) 빼는 이유는 단 하나 — <b>모르는 값을 자료 자신에게서 빌려 썼기</b> 때문입니다. 빌린 개수만큼 방향이 죽습니다.<br>
+3) 그 방향의 개수가 <b>자(분포)의 눈금</b>을 정합니다. 그래서 χ²·t·F 에는 언제나 자유도가 따라다닙니다.</div>
 
 <h3>이해 점검 — 아래 일곱 문장을 스스로 말할 수 있으면 통과입니다</h3>
 <ol style="font-size:.93rem;line-height:1.8;padding-left:1.2rem">

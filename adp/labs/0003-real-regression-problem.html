@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><title>실기 통계 ③ · 회귀모형 선택 (주어진 데이터 풀이)</title>
+<meta charset="utf-8"><title>실기 통계 3) · 회귀모형 선택 (주어진 데이터 풀이)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a6fa8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -85,7 +85,7 @@ small.src2{display:block;color:var(--soft);font-size:.78rem;margin-top:1.6rem;bo
   <div class="src">유형 출처: ADP 실기 기출 복원(다항회귀·모형 선택). <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (①→⑤ 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
@@ -114,7 +114,7 @@ small.src2{display:block;color:var(--soft);font-size:.78rem;margin-top:1.6rem;bo
 <p id="hypP" style="font-size:.9rem;color:var(--soft)"></p>
 
 <h2><span class="step">2</span>전제 확인</h2>
-<div class="chk">회귀는 <b>①선형성(진짜 관계가 이 식의 형태를 따른다) ②등분산성(오차가 x에 관계없이 고르게 흩어진다) ③정규성(오차가 정규분포에 가깝다) ④독립성(관측이 서로 영향을 주지 않는다)</b> 네 전제 위에 서 있습니다. 이 중 앞의 셋은 <b>잔차</b>로 직접 확인합니다. 차수를 바꾸면 잔차가 바뀌므로 아래 값도 함께 바뀝니다.</div>
+<div class="chk">회귀는 <b>1) 선형성(진짜 관계가 이 식의 형태를 따른다) 2) 등분산성(오차가 x에 관계없이 고르게 흩어진다) 3) 정규성(오차가 정규분포에 가깝다) 4) 독립성(관측이 서로 영향을 주지 않는다)</b> 네 전제 위에 서 있습니다. 이 중 앞의 셋은 <b>잔차</b>로 직접 확인합니다. 차수를 바꾸면 잔차가 바뀌므로 아래 값도 함께 바뀝니다.</div>
 <div class="twrap"><table id="assump"></table></div>
 <div id="assumpV"></div>
 
@@ -151,20 +151,20 @@ small.src2{display:block;color:var(--soft);font-size:.78rem;margin-top:1.6rem;bo
 <p style="font-size:.9rem;color:var(--soft)">네 차수를 나란히 놓고 <b>수정 R²가 가장 높은 지점</b>을 찾습니다. 그 지점을 지나 더 올라간 차수는 새로 추가한 항의 t검정 p값도 함께 보면 왜 필요 없는지 알 수 있습니다.</p>
 <div class="qna" data-label="과적합인지 어떻게 아나요?" data-q="어떤 차수가 과적합인지 어떻게 판단하나요?">
   <p><b>신호는 두 가지, 함께 봅니다.</b></p>
-  <p>① <b>수정 R²가 정점을 지나 내려가기 시작한다.</b> 이 데이터는 2차에서 0.9864로 가장 높고, 3차 0.9848, 4차 0.9844로 항을 더할수록 낮아집니다 — 더 복잡한 모형이 오히려 벌점을 못 갚는다는 뜻입니다.</p>
-  <p>② <b>새로 넣은 항의 t검정이 유의하지 않다.</b> 3차 모형의 x³ 계수는 p=0.586, 4차 모형의 x⁴ 계수는 p=0.399로 둘 다 <b>0.05를 한참 넘습니다</b> — "이 항이 정말 필요하다"는 증거가 자료에 없다는 뜻입니다. 반대로 2차 모형의 x² 계수는 p=0.0000134로 뚜렷하게 유의합니다.</p>
+  <p>1) <b>수정 R²가 정점을 지나 내려가기 시작한다.</b> 이 데이터는 2차에서 0.9864로 가장 높고, 3차 0.9848, 4차 0.9844로 항을 더할수록 낮아집니다 — 더 복잡한 모형이 오히려 벌점을 못 갚는다는 뜻입니다.</p>
+  <p>2) <b>새로 넣은 항의 t검정이 유의하지 않다.</b> 3차 모형의 x³ 계수는 p=0.586, 4차 모형의 x⁴ 계수는 p=0.399로 둘 다 <b>0.05를 한참 넘습니다</b> — "이 항이 정말 필요하다"는 증거가 자료에 없다는 뜻입니다. 반대로 2차 모형의 x² 계수는 p=0.0000134로 뚜렷하게 유의합니다.</p>
   <p>정점을 넘긴 뒤에도 R²만 보면 계속 오르는 것처럼 보여 속기 쉽습니다. <b>수정 R²의 정점 + 새 항의 무의미한 p값</b>, 이 둘이 겹치면 과적합으로 판단합니다.</p>
 </div>
 <div class="twrap"><table id="cmpT"></table></div>
 <div id="pickV"></div>
 
 <h2><span class="step">5</span>결론 서술 (실기 답안)</h2>
-<p style="font-size:.9rem;color:var(--soft)">실기 답안은 숫자에서 끝나지 않습니다. <b>①F검정 결과 ②전제 확인 결과 ③차수 선택 근거(수정 R² 비교) ④최종 모형식</b>을 문장으로 적어야 점수가 됩니다. 아래가 그대로 옮겨 쓸 수 있는 형태입니다.</p>
+<p style="font-size:.9rem;color:var(--soft)">실기 답안은 숫자에서 끝나지 않습니다. <b>1) F검정 결과 2) 전제 확인 결과 3) 차수 선택 근거(수정 R² 비교) 4) 최종 모형식</b>을 문장으로 적어야 점수가 됩니다. 아래가 그대로 옮겨 쓸 수 있는 형태입니다.</p>
 <div class="concl" id="concl"></div>
 
 <div class="explore">
   <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관)</div>
-  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">위 문제의 y값에 잡음을 더 얹어 보세요. <b>0 = 원본 데이터</b>. 잡음이 커질수록 고차 모형의 수정 R²가 어떻게 무너지는지 봅니다(이 값은 위 ①~⑤ 풀이에는 영향을 주지 않습니다).</div>
+  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">위 문제의 y값에 잡음을 더 얹어 보세요. <b>0 = 원본 데이터</b>. 잡음이 커질수록 고차 모형의 수정 R²가 어떻게 무너지는지 봅니다(이 값은 위 1) ~5) 풀이에는 영향을 주지 않습니다).</div>
   <div class="ctrl"><label>자료에 얹는 잡음 크기</label><input id="sN" type="range" min="0" max="3" step="0.25" value="0"><output id="oN"></output></div>
   <div id="expBars" style="margin-top:.5rem"></div>
 </div>
@@ -288,14 +288,14 @@ function render(){
  var cc=curveCorr(X,S.res,DEG),het=heteroTest(X,S.res),qq=qqr(S.res),thr=QQTHR[n]||0.9;
  document.getElementById('assump').innerHTML=
   '<tr><th>확인 항목</th><th>재는 값</th><th>결과</th></tr>'+
-  '<tr><td>①선형성 — 남은 곡률 상관</td><td>다음 차수 항과의 상관 = '+fmt(cc,3)+'</td><td>'+(Math.abs(cc)>=0.5?'뚜렷한 곡선 패턴 남음':'남은 곡률 거의 없음')+'</td></tr>'+
-  '<tr><td>②등분산성 — 레빈류 검정</td><td>|잔차|~x 상관 t='+fmt(het.t,3)+', p='+pfmt(het.p)+'</td><td>'+(het.p>=0.05?'등분산 의심 근거 없음':'등분산 의심')+'</td></tr>'+
-  '<tr><td>③정규성 — Q-Q 상관</td><td>r='+fmt(qq,3)+' (n='+n+' 기준선 '+fmt(thr,3)+')</td><td>'+(qq>=thr?'통과':'경계 아래 — 의심')+'</td></tr>'+
-  '<tr><td>④독립성</td><td>서로 다른 대상에서 1회씩 측정 (설계)</td><td>계산 대상 아님 — 설계로 보장</td></tr>';
+  '<tr><td>1) 선형성 — 남은 곡률 상관</td><td>다음 차수 항과의 상관 = '+fmt(cc,3)+'</td><td>'+(Math.abs(cc)>=0.5?'뚜렷한 곡선 패턴 남음':'남은 곡률 거의 없음')+'</td></tr>'+
+  '<tr><td>2) 등분산성 — 레빈류 검정</td><td>|잔차|~x 상관 t='+fmt(het.t,3)+', p='+pfmt(het.p)+'</td><td>'+(het.p>=0.05?'등분산 의심 근거 없음':'등분산 의심')+'</td></tr>'+
+  '<tr><td>3) 정규성 — Q-Q 상관</td><td>r='+fmt(qq,3)+' (n='+n+' 기준선 '+fmt(thr,3)+')</td><td>'+(qq>=thr?'통과':'경계 아래 — 의심')+'</td></tr>'+
+  '<tr><td>4) 독립성</td><td>서로 다른 대상에서 1회씩 측정 (설계)</td><td>계산 대상 아님 — 설계로 보장</td></tr>';
  var okLin=Math.abs(cc)<0.5,okVar=het.p>=0.05,okNorm=qq>=thr,okAll=okLin&&okVar&&okNorm;
  document.getElementById('assumpV').innerHTML='<div class="verdict '+(okAll?'rej':'keep')+'">'+
   (okAll?'세 전제 모두 문제 없음 → 이 '+DEG+'차 모형의 계수·F·p를 그대로 신뢰할 수 있습니다.'
-        :'①선형성 '+(okLin?'✔':'✘ 곡률 상관 '+fmt(cc,3)+'로 큼(차수 부족 신호)')+' · ②등분산 '+(okVar?'✔':'✘')+' · ③정규성 '+(okNorm?'✔':'✘')+
+        :'1) 선형성 '+(okLin?'✔':'✘ 곡률 상관 '+fmt(cc,3)+'로 큼(차수 부족 신호)')+' · 2) 등분산 '+(okVar?'✔':'✘')+' · 3) 정규성 '+(okNorm?'✔':'✘')+
           ' — 위반된 항목이 있으므로 이 차수로는 계수 해석·검정을 그대로 믿기 어렵습니다.')+'</div>';
 
  // ── 3단계: 검정통계량 ──
