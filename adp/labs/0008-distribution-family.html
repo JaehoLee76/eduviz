@@ -91,8 +91,9 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
  <tr><td class="l"><b>편차</b></td><td class="l">값 하나가 평균에서 얼마나 떨어졌나. (값 − 평균)</td></tr>
  <tr><td class="l"><b>흩어짐</b></td><td class="l">편차들이 전체적으로 얼마나 큰가. 부호를 없애려고 <b>제곱해서 더해</b> 잽니다.</td></tr>
  <tr><td class="l"><b>표준편차</b></td><td class="l">"보통 이 정도 벗어난다"는 대표 크기. <b>최대치가 아니라 눈금</b>입니다.</td></tr>
- <tr><td class="l"><b>우연의 폭</b></td><td class="l">차이가 전혀 없어도 저절로 생기는 흔들림의 크기. 검정의 비교 상대.</td></tr>
- <tr><td class="l"><b>검정통계량</b></td><td class="l">내가 본 차이가 <b>우연의 폭 몇 칸인지</b> 나타낸 숫자 하나. (§1)</td></tr>
+ <tr><td class="l"><b>분산</b></td><td class="l">흩어짐을 <b>제곱 단위</b>로 잰 값. 표준편차를 제곱한 것.</td></tr>
+ <tr><td class="l"><b>표준오차</b></td><td class="l">표본에서 계산한 값(평균·평균 차이·비율)이 <b>표본마다 달라지는 정도</b>. 표준편차와 다릅니다 — 자료가 많을수록 작아집니다.</td></tr>
+ <tr><td class="l"><b>검정통계량</b></td><td class="l">관측된 값이 <b>표준오차 몇 개분</b> 벗어났는지를 나타내는 단위 없는 수. (§1)</td></tr>
  <tr><td class="l"><b>분포</b></td><td class="l">어떤 값이 얼마나 자주 나오는지 정해 놓은 규칙. 곡선으로 그립니다.</td></tr>
  <tr><td class="l"><b>확률밀도</b></td><td class="l">분포 곡선의 <b>세로축</b>. 그 근처가 얼마나 빽빽한가. <b>확률은 높이가 아니라 넓이</b>입니다.</td></tr>
  <tr><td class="l"><b>자유도</b></td><td class="l">자료에 남은 진짜 정보의 개수. 이 수가 자의 눈금을 정합니다. (§4~§6)</td></tr>
@@ -100,38 +101,52 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
  <tr><td class="l"><b>유의수준 0.05</b></td><td class="l">p가 이보다 작으면 우연으로 보지 않기로 한 <b>약속</b>. 자연법칙이 아니라 관례입니다.</td></tr>
 </table>
 
-<h2><span class="step">§1</span>검정통계량 — 이 페이지가 하려는 일 한 가지</h2>
+<h2><span class="step">§1</span>검정통계량 — 정확히 무엇인가</h2>
 
-<p>먼저 이 한 절만 이해하시면 나머지는 전부 곁가지입니다. 우리가 자료를 놓고 묻는 것은 언제나 하나뿐입니다.</p>
-<div class="concl" style="font-size:1.02rem"><b>"이 차이는 진짜인가, 아니면 그냥 우연인가?"</b></div>
+<p>이 한 절만 정확히 잡으면 나머지는 전부 이것의 변형입니다. 정의부터 세우겠습니다.</p>
+<pre>검정통계량 = (관측된 값 − 귀무가설이 정한 값)  ÷  (그 값의 표준오차)</pre>
 
-<p>그런데 <b>차이 하나만 보고는 답할 수가 없습니다.</b> 차종 D가 A보다 5.4점 높다고 합시다. 5.4점이 큰 겁니까? 알 수 없습니다. 무엇과 견주느냐에 따라 다르니까요.</p>
-<p>그러면 무엇과 견줘야 합니까. <b>차이가 전혀 없어도 저절로 생기는 흔들림</b>과 견줘야 합니다. 똑같은 차 여덟 대를 부숴도 손상지수는 제각각 나옵니다. 그 제각각인 폭이 3점쯤이라면 5.4점 차이는 대단할 게 없고, 그 폭이 0.5점이라면 5.4점은 엄청난 차이입니다.</p>
+<p>여기서 <b>표준편차와 표준오차를 구별하는 것</b>이 전부입니다. 둘은 다른 것인데 자주 뒤섞입니다.</p>
+<table>
+ <tr><th class="l" style="width:22%">용어</th><th class="l">무엇의 흔들림을 재는가</th><th class="l" style="width:26%">이 자료에서의 값</th></tr>
+ <tr><td class="l"><b>표준편차</b> s</td><td class="l">개별 값 하나하나가 평균에서 벗어나는 정도 (차 한 대 한 대의 손상지수)</td><td class="l">2.068</td></tr>
+ <tr><td class="l"><b>표준오차</b> SE</td><td class="l">자료로 계산한 값(여기서는 두 조의 <b>평균 차이</b>)이 표본을 다시 뽑을 때마다 달라지는 정도</td><td class="l">1.034</td></tr>
+</table>
+<p>표준오차가 더 작은 것이 보이십니까. 개별 값은 제각각이어도 <b>여덟 대를 평균 내면 그 평균은 훨씬 덜 흔들립니다.</b> 그래서 표준오차는 표준편차를 √n 으로 나눈 꼴로 줄어듭니다.</p>
 
-<div class="key"><b>그래서 나눕니다.</b> 이것이 전부입니다.
-<pre>검정통계량 = 내가 본 차이  ÷  우연이 만들어 내는 흔들림의 크기</pre>
-결과는 <b>"우연의 폭 몇 칸이냐"</b>라는 숫자 하나입니다. 이 숫자가 검정통계량입니다. 대단한 게 아니라 <b>자를 하나 만들어서 몇 칸인지 센 것</b>입니다.</div>
+<div class="key"><b>왜 표준오차로 나누는가.</b> 분자가 흔들리는 바로 그 폭으로 나눠야 <b>"표준오차 몇 개분 벗어났나"</b>가 됩니다. 이때 단위(점·cm·kg)가 위아래에서 사라져, 어떤 문제든 같은 눈금으로 견줄 수 있게 됩니다. 검정통계량이 <b>단위 없는 수</b>인 이유가 이것입니다.</div>
 
-<p>아래에서 직접 만들어 보십시오. 위 막대가 내가 본 차이이고, 아래 눈금 한 칸이 우연의 폭입니다.</p>
+<p>다음 실험실 자료에서 A차종과 D차종만 꺼내 실제로 계산한 것입니다. 슬라이더로 두 수를 바꿔 보십시오.</p>
 
 <div class="lab">
   <canvas id="cvRuler" height="250"></canvas>
-  <div class="ctrl"><label for="sSig">내가 본 차이 (신호)</label><input id="sSig" type="range" min="0" max="60" step="0.5" value="42"><output id="oSig"></output></div>
-  <div class="ctrl"><label for="sNoi">우연의 폭 (잡음)</label><input id="sNoi" type="range" min="1" max="20" step="0.25" value="6.25"><output id="oNoi"></output></div>
+  <div class="ctrl"><label for="sSig">관측된 평균 차이 (분자)</label><input id="sSig" type="range" min="0" max="12" step="0.125" value="5.375"><output id="oSig"></output></div>
+  <div class="ctrl"><label for="sNoi">표준오차 SE (분모)</label><input id="sNoi" type="range" min="0.25" max="4" step="0.002" value="1.034"><output id="oNoi"></output></div>
   <div id="roRuler" class="readout"></div>
 </div>
 
-<p><b>그러면 몇 칸부터 "우연이 아니다"라고 할 수 있습니까.</b> 여기서부터가 이 페이지의 나머지 전부입니다. 몇 칸이 놀라운 일인지는 <b>재는 방법과 자료의 양</b>에 따라 달라지고, 그 기준을 담아 놓은 것이 z·카이제곱·t·F 라는 네 개의 자입니다.</p>
+<div class="trap"><span class="v">여기서 오해가 갈립니다</span><br>
+<b>검정통계량은 표준편차가 아닙니다.</b> 표준편차(그리고 그것으로 만든 표준오차)는 <b>분모에 들어가는 재료</b>이고, 검정통계량은 분자를 그것으로 나눈 <b>비율</b>입니다. 위에서 나온 5.198 은 점도 kg도 아니고 <b>"표준오차 5.198 개분"</b>이라는 뜻입니다.</div>
 
+<h3>카이제곱과 F 는 같은 원리의 제곱 단위 판입니다</h3>
+<p>z 와 t 는 표준오차로 나눠 <b>단위를 없앱니다.</b> 카이제곱과 F 는 제곱한 세계에서 같은 일을 합니다 — 제곱합을 <b>분산</b>으로 나눕니다.</p>
+<pre>t  =  평균 차이  ÷  표준오차                  = 5.375 ÷ 1.034 = 5.198
+F  =  조 사이 분산 ÷ 조 안 분산                = 42.083 ÷ 6.259 = 6.724
+χ² =  Σ (관측도수 − 기대도수)² ÷ 기대도수      ← 기대도수가 그 칸의 분산 구실을 합니다</pre>
+<p>제곱 단위라는 말이 추상적이면 두 조만 비교해 보면 바로 확인됩니다. 같은 두 조를 t 로도 풀고 F 로도 풀면</p>
+<pre>t = 5.1982  →  t² = 27.021
+F(1, 14)   =   27.021        ← 정확히 같은 수, p 도 0.000135 로 같음</pre>
+<p><b>t 와 F 는 서로 다른 자가 아니라 같은 자를 제곱했는지 아닌지의 차이</b>입니다. t 는 어느 쪽이 큰지 방향을 남기고, F 는 제곱하면서 방향을 버리고 크기만 봅니다.</p>
+
+<h3>검정마다 분모에 무엇이 오는가</h3>
 <table>
-  <tr><th class="l" style="width:26%">무엇을 재나</th><th class="l">그때 쓰는 자</th><th class="l" style="width:34%">이 페이지에서 다루는 곳</th></tr>
-  <tr><td class="l">값 하나가 얼마나 드문가</td><td class="l"><b>z</b> (표준정규)</td><td class="l">§3</td></tr>
-  <tr><td class="l">흩어짐(제곱합)이 얼마나 큰가</td><td class="l"><b>χ²</b> (카이제곱)</td><td class="l">§7</td></tr>
-  <tr><td class="l">평균이 얼마나 벗어났나 (흔들림을 자료에서 잰 경우)</td><td class="l"><b>t</b></td><td class="l">§8</td></tr>
-  <tr><td class="l">흩어짐 둘을 견주면 얼마나 차이 나나</td><td class="l"><b>F</b></td><td class="l">§9</td></tr>
+ <tr><th class="l" style="width:26%">무엇을 재나</th><th class="l">분모(흔들림)에 오는 것</th><th class="l" style="width:16%">이름</th><th class="l" style="width:14%">다루는 곳</th></tr>
+ <tr><td class="l">평균 하나 (σ 를 아는 경우)</td><td class="l">σ ÷ √n — 표본평균의 표준오차</td><td class="l"><b>z</b></td><td class="l">§3</td></tr>
+ <tr><td class="l">평균 하나 (σ 를 모르는 경우)</td><td class="l">s ÷ √n — 자료에서 추정한 표준오차</td><td class="l"><b>t</b></td><td class="l">§8</td></tr>
+ <tr><td class="l">도수(몇 개인가)</td><td class="l">기대도수 — 그 칸의 분산 구실</td><td class="l"><b>χ²</b></td><td class="l">§7</td></tr>
+ <tr><td class="l">흩어짐 둘의 비교</td><td class="l">조 안의 분산(오차분산)</td><td class="l"><b>F</b></td><td class="l">§9</td></tr>
 </table>
-<p>이름이 넷이라 복잡해 보이지만 <b>하는 일은 하나</b>입니다 — 전부 "내가 본 것 ÷ 우연의 폭"이고, 다만 무엇을 재느냐에 따라 계산식과 눈금이 달라질 뿐입니다.</p>
-
+<p>넷 다 <b>(관측된 것 − 기대되는 것) ÷ (그것이 흔들리는 정도)</b> 라는 같은 뼈대입니다. 달라지는 것은 <b>분모를 무엇으로 계산하느냐</b>뿐이고, 분모를 어떻게 계산했느냐에 따라 결과를 재는 자(z·χ²·t·F)가 정해집니다. 그 자가 어떻게 생겼는지가 이 페이지의 나머지입니다.</p>
 
 <h2><span class="step">§2</span>한 장으로 보는 계보</h2>
 <p>통계 검정에 쓰는 분포는 제각각 태어난 게 아닙니다. <b>표준정규 z 하나에서 전부 파생됩니다.</b> 아래 네 상자를 눌러 보십시오 — 각 곡선은 정의대로 계산해 그린 진짜 모양입니다.</p>
@@ -310,32 +325,31 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 </script>
 
 <script>
-/* ══════════ §1 검정통계량 = 우연의 폭 몇 칸인가 ══════════ */
+/* ══════════ §1 검정통계량 = 표준오차 몇 개분인가 ══════════ */
 (function(){
  var cv=document.getElementById('cvRuler'), s1=document.getElementById('sSig'), o1=document.getElementById('oSig'),
      s2=document.getElementById('sNoi'), o2=document.getElementById('oNoi'), ro=document.getElementById('roRuler');
  function draw(){
-  var sig=+s1.value, noi=+s2.value, ratio=sig/noi;
-  var o=setup(cv,250), x=o.x, W=o.w, H=o.h;
+  var sig=+s1.value, se=+s2.value, ratio=sig/se;
+  var o=setup(cv,250), x=o.x, W=o.w, H=o.h, narrow=W<520;
   var pad=14, gw=W-pad*2;
-  var span=Math.max(sig*1.12, noi*8);        /* 화살표와 눈금 여덟 칸은 늘 보이게 */
-  var sc=gw/span;
-  var yArrow=64, yRule=150;
-  /* 1) 내가 본 차이 */
+  var span=Math.max(sig*1.12, se*8);
+  var sc=gw/span, yBar=64, yRule=150;
   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
-  x.fillText('1) 내가 본 차이 — 이만큼 벌어졌다', pad, 26);
+  x.fillText('1) 관측된 평균 차이 — 분자', pad, 26);
   var aw=sig*sc;
-  x.fillStyle=alpha(css('--warn'),0.45); x.fillRect(pad,yArrow-16,aw,26);
-  x.strokeStyle=css('--warn'); x.lineWidth=2; x.strokeRect(pad+0.5,yArrow-16+0.5,Math.max(1,aw-1),25);
+  x.fillStyle=alpha(css('--warn'),0.45); x.fillRect(pad,yBar-16,aw,26);
+  x.strokeStyle=css('--warn'); x.lineWidth=2; x.strokeRect(pad+0.5,yBar-16+0.5,Math.max(1,aw-1),25);
   x.fillStyle=css('--warn'); x.font='700 13px -apple-system,sans-serif';
-  x.textAlign = aw>90?'right':'left';
-  x.fillText(fmt(sig,2), pad+aw+(aw>90?-8:8), yArrow+2);
-  /* 2) 우연의 폭을 눈금으로 */
+  x.textAlign=aw>90?'right':'left';
+  x.fillText(fmt(sig,3), pad+aw+(aw>90?-8:8), yBar+2);
   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left';
-  x.fillText('2) 우연의 폭 — 차이가 전혀 없어도 이만큼은 흔들린다 (한 칸 = '+fmt(noi,2)+')', pad, yRule-30);
-  var step=noi*sc, k=0, px=pad;
+  x.fillText('2) 표준오차 SE — 분모. 눈금 한 칸 = '+fmt(se,3), pad, yRule-30);
+  var step=se*sc, k=0, px=pad;
   x.strokeStyle=css('--rule'); x.lineWidth=1;
   x.beginPath(); x.moveTo(pad,yRule); x.lineTo(pad+gw,yRule); x.stroke();
+  x.fillStyle=alpha(css('--accent'),0.22);
+  x.fillRect(pad,yRule-13,Math.min(gw,ratio*step),26);
   while(px<=pad+gw+0.5 && k<=200){
    var tall=(k%5===0);
    x.strokeStyle=k<=ratio?css('--accent'):alpha(css('--soft'),0.45);
@@ -344,29 +358,23 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
    if(step>26 || tall){
     x.fillStyle=k<=ratio?css('--accent'):alpha(css('--soft'),0.7);
     x.font='11px -apple-system,sans-serif'; x.textAlign='center';
-    x.fillText(k, px, yRule+26);
-   }
+    x.fillText(k, px, yRule+26); }
    k++; px=pad+step*k;
   }
-  /* 칸을 색으로 채워 '몇 칸인지' 보이기 */
-  x.fillStyle=alpha(css('--accent'),0.22);
-  x.fillRect(pad,yRule-13,Math.min(gw,ratio*step),26);
-  /* 화살표: 차이의 끝이 눈금 몇 칸에 닿는가 */
   x.strokeStyle=css('--warn'); x.lineWidth=1.6; x.setLineDash([4,3]);
-  x.beginPath(); x.moveTo(pad+aw,yArrow+12); x.lineTo(pad+aw,yRule-14); x.stroke(); x.setLineDash([]);
-  /* 3) 결과 */
+  x.beginPath(); x.moveTo(pad+aw,yBar+12); x.lineTo(pad+aw,yRule-14); x.stroke(); x.setLineDash([]);
   x.textAlign='left'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
-  x.fillText('3) 그래서 내가 본 차이는 우연의 폭', pad, H-42);
+  x.fillText('3) 관측된 차이는 표준오차', pad, H-42);
   x.fillStyle=css('--good'); x.font='800 30px -apple-system,sans-serif';
-  var big=fmt(ratio,2)+' 칸';
+  var big=fmt(ratio,3)+' 개분';
   x.fillText(big, pad, H-10);
   var bw=x.measureText(big).width;
   x.fillStyle=css('--soft'); x.font='12px -apple-system,sans-serif';
-  x.fillText(W<520?'= 검정통계량':'만큼입니다  =  이 숫자가 검정통계량입니다', pad+bw+12, H-14);
-  o1.textContent=fmt(sig,2); o2.textContent=fmt(noi,2);
-  ro.innerHTML='<b>'+fmt(sig,2)+' ÷ '+fmt(noi,2)+' = '+fmt(ratio,3)+'</b> — 내가 본 차이가 우연의 폭보다 '+fmt(ratio,2)+'배 큽니다.'+
-   '<br>기본값은 다음 실험실(분산분석)의 실제 숫자입니다 — 차종 사이가 벌어진 정도 <b>42.08</b>, 같은 차종 안에서 그냥 흔들리는 정도 <b>6.26</b>, 그래서 <b>F = 6.72</b>.'+
-   '<br>슬라이더를 움직여 보십시오. <b>차이가 같아도 우연의 폭이 크면 칸 수가 줄어듭니다</b> — 그래서 차이만 봐서는 판단할 수 없는 것입니다.';
+  x.fillText(narrow?'= 검정통계량 t':'입니다  =  이것이 검정통계량 t 입니다', pad+bw+12, H-14);
+  o1.textContent=fmt(sig,3); o2.textContent=fmt(se,3);
+  ro.innerHTML='<b>'+fmt(sig,3)+' ÷ '+fmt(se,3)+' = '+fmt(ratio,3)+'</b> — 관측된 평균 차이가 표준오차의 '+fmt(ratio,2)+'배입니다. 단위는 없습니다.'+
+   '<br>기본값은 다음 실험실 자료(A차종·D차종 각 8대)의 실제 값입니다 — 평균 차이 <b>5.375</b>, 표준오차 <b>1.034</b>, 그래서 <b>t = 5.198</b>(자유도 14, p = 0.000135).'+
+   '<br>분모를 키워 보십시오. <b>같은 차이라도 표준오차가 크면 검정통계량이 작아집니다</b> — 차이의 크기만으로는 판단할 수 없는 이유입니다.';
  }
  s1.addEventListener('input',draw); s2.addEventListener('input',draw); onResize(draw); draw();
 })();
