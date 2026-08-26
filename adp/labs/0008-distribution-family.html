@@ -663,115 +663,129 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 })();
 </script>
 
-<h2><span class="step">§5</span>자유도 2) — 편차는 어떤 '평면' 안에서만 움직인다</h2>
-<p>이제 한 겹 더 들어갑니다. 자유도의 정확한 정체는 <b>"그 벡터가 살고 있는 공간의 차원"</b> 입니다. 자료 세 개를 3차원 공간의 점 하나로 보면 눈으로 확인할 수 있습니다.</p>
-<p><b>그림을 손가락으로 돌려 보십시오.</b> 어느 각도에서 봐도 주황색 편차 벡터는 반투명 평면을 <b>절대 벗어나지 않습니다.</b></p>
+<h2><span class="step">§5</span>자유도 2) — 편차를 만드는 손잡이는 몇 개인가</h2>
+
+<p>자유도의 정확한 뜻은 <b>"자유롭게 돌릴 수 있는 손잡이가 몇 개인가"</b> 입니다. 값 세 개짜리 자료로 직접 세어 보겠습니다.</p>
+
+<p>아래에는 손잡이가 <b>셋</b> 있습니다. 하나는 평균을 옮기고, 둘은 평균 둘레에서 값들을 흩뜨립니다. <b>이 셋으로 만들 수 없는 자료는 없습니다</b> — 값 세 개짜리 자료라면 무엇이든 만들어집니다.</p>
 
 <div class="lab">
   <canvas id="cvGeo" height="340" style="touch-action:pan-y"></canvas>
-  <div class="ctrl"><label for="sG">자료 x₃ 의 값</label><input id="sG" type="range" min="2" max="20" step="0.5" value="11"><output id="oG"></output></div>
+  <div class="ctrl"><label for="sGM">손잡이 0 — 평균을 옮긴다</label><input id="sGM" type="range" min="5" max="16" step="0.5" value="11"><output id="oGM"></output></div>
+  <div class="ctrl"><label for="sGA">손잡이 1 — 평면 안 첫째 방향</label><input id="sGA" type="range" min="-6" max="6" step="0.25" value="4.5"><output id="oGA"></output></div>
+  <div class="ctrl"><label for="sGB">손잡이 2 — 평면 안 둘째 방향</label><input id="sGB" type="range" min="-6" max="6" step="0.25" value="-2.75"><output id="oGB"></output></div>
   <div class="btnrow"><button class="btn" id="bGeo">자동 회전 멈춤</button></div>
   <div id="roGeo" class="readout"></div>
 </div>
 
-<div class="key"><b>여기가 핵심입니다.</b> 평균을 자료에서 추정한다는 것은 <b>대각선 방향(1 방향) 성분을 뽑아 써 버린다</b>는 뜻입니다. 남은 편차는 그 방향과 수직인 평면 — <b>3차원이 아니라 2차원</b> — 안에서만 움직입니다. 그래서 정보가 3이 아니라 2입니다. 회귀에서 기울기 k개와 절편을 추정하면 n − k − 1, 카이제곱 표에서 행·열 합계를 빌려 쓰면 (r−1)(c−1). <b>규칙이 여러 개가 아니라, 뽑아 쓴 방향의 수만큼 빼는 규칙 하나</b>입니다.</div>
+<p><b>손잡이 0을 돌리면</b> 세 값이 나란히 올라가고 내려갑니다. 값은 바뀌는데 <b>흩어짐은 그대로</b>입니다 — 평면이 대각선을 따라 미끄러질 뿐 편차 화살표는 꼼짝하지 않습니다.</p>
+<p><b>손잡이 1과 2를 돌리면</b> 편차 화살표가 평면 위를 돌아다닙니다. 둘을 조합하면 <b>평면 위 어디든</b> 갈 수 있습니다. 그런데 <b>평면을 벗어나는 손잡이는 없습니다.</b> 아무리 돌려도 화살표가 평면 밖으로 나가지 않습니다.</p>
+
+<div class="key"><b>여기서 자유도 2 를 셉니다.</b> 흩어짐을 만드는 손잡이가 <b>정확히 둘</b>입니다. 셋째 손잡이가 없는 이유는 세 편차의 합이 언제나 0 이어야 하기 때문이고, 그 조건이 평면 하나를 정해 버린 것입니다.
+<pre>값 3 개를 정하는 손잡이 3 개  =  평균 1 개  +  편차 2 개
+                                          ↑ 이것이 자유도</pre>
+같은 분해가 다음 실험실에서 <b>31 = 3 + 28</b> 로 나타납니다(§10).</div>
+
+<div class="key"><b>왜 이것이 핵심입니다.</b> 평균을 자료에서 추정한다는 것은 <b>대각선 방향(1 방향) 성분을 뽑아 써 버린다</b>는 뜻입니다. 남은 편차는 그 방향과 수직인 평면 — <b>3차원이 아니라 2차원</b> — 안에서만 움직입니다. 그래서 정보가 3이 아니라 2입니다. 회귀에서 기울기 k개와 절편을 추정하면 n − k − 1, 카이제곱 표에서 행·열 합계를 빌려 쓰면 (r−1)(c−1). <b>규칙이 여러 개가 아니라, 뽑아 쓴 방향의 수만큼 빼는 규칙 하나</b>입니다.</div>
 
 <script>
-/* ══════════ §4 자유도 — 기하 ══════════ */
+/* ══════════ §5 자유도 = 편차를 만드는 손잡이의 개수 ══════════ */
 (function(){
- var cv=document.getElementById('cvGeo'), sG=document.getElementById('sG'), oG=document.getElementById('oG'),
-     bt=document.getElementById('bGeo'), ro=document.getElementById('roGeo');
- var yaw=-0.9, pitch=0.5, auto=true, drag=null, V=[14,7,11];
+ var cv=document.getElementById('cvGeo'), bt=document.getElementById('bGeo'), ro=document.getElementById('roGeo');
+ var sM=document.getElementById('sGM'), oM=document.getElementById('oGM');
+ var sA=document.getElementById('sGA'), oA=document.getElementById('oGA');
+ var sB=document.getElementById('sGB'), oB=document.getElementById('oGB');
+ var yaw=-0.9, pitch=0.5, auto=true, drag=null;
+ /* 평면 안의 두 방향. 둘 다 대각선 (1,1,1) 에 수직이고 서로도 수직이다 */
+ var U1=[1/Math.SQRT2,-1/Math.SQRT2,0], U2=[1/Math.sqrt(6),1/Math.sqrt(6),-2/Math.sqrt(6)];
  function draw(){
-  V[2]=+sG.value;
+  var m=+sM.value, a=+sA.value, b=+sB.value;
+  var E=[a*U1[0]+b*U2[0], a*U1[1]+b*U2[1], a*U1[2]+b*U2[2]];
+  var V=[m+E[0], m+E[1], m+E[2]], M=[m,m,m];
   var o=setup(cv,340), x=o.x, W=o.w, H=o.h;
-  var m=(V[0]+V[1]+V[2])/3, M=[m,m,m], E=[V[0]-m,V[1]-m,V[2]-m];
-  var AXL=17, R=Math.max(5.5, Math.sqrt(E[0]*E[0]+E[1]*E[1]+E[2]*E[2])*1.32);
+  var AXL=17, R=Math.max(5.5, Math.sqrt(a*a+b*b)*1.35);
   var sc=Math.min(W,H)/27, cx=W*0.5, cy=H*0.52, C=AXL*0.42;
   function P(q){
-   var p=[q[0]-C,q[1]-C,q[2]-C];   /* 그림 전체를 대각선 한가운데에 맞춘다 */
+   var p=[q[0]-C,q[1]-C,q[2]-C];
    var X=p[0]*Math.cos(yaw)-p[1]*Math.sin(yaw);
    var Y=p[0]*Math.sin(yaw)+p[1]*Math.cos(yaw);
    return [cx+X*sc, cy-(p[2]*Math.cos(pitch)-Y*Math.sin(pitch))*sc];
   }
-  function line(a,b,col,w,dash){ var A=P(a),B=P(b);
+  function line(p,q,col,w,dash){ var A=P(p),B=P(q);
    x.strokeStyle=col; x.lineWidth=w||1; if(dash)x.setLineDash(dash);
    x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke(); x.setLineDash([]); }
+  function add(p,u,t){ return [p[0]+u[0]*t, p[1]+u[1]*t, p[2]+u[2]*t]; }
   /* 좌표축 */
-  [[[0,0,0],[AXL,0,0],'x₁'],[[0,0,0],[0,AXL,0],'x₂'],[[0,0,0],[0,0,AXL],'x₃']].forEach(function(a){
-   line(a[0],a[1],css('--rule'),1.4);
-   var T=P(a[1]); x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
-   x.fillText(a[2],T[0],T[1]-5); });
-  /* 대각선 = 1 방향 */
+  [[[0,0,0],[AXL,0,0],'x1'],[[0,0,0],[0,AXL,0],'x2'],[[0,0,0],[0,0,AXL],'x3']].forEach(function(q){
+   line(q[0],q[1],css('--rule'),1.4);
+   var T=P(q[1]); x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(q[2],T[0],T[1]-5); });
   line([0,0,0],[AXL*0.95,AXL*0.95,AXL*0.95],css('--grand'),1.6,[6,4]);
-  /* 평면(1 에 수직, M 을 지남) */
-  var u1=[1/Math.SQRT2,-1/Math.SQRT2,0], u2=[1/Math.sqrt(6),1/Math.sqrt(6),-2/Math.sqrt(6)];
-  var quad=[[1,1],[1,-1],[-1,-1],[-1,1]].map(function(c){
-   return [M[0]+R*(c[0]*u1[0]+c[1]*u2[0]), M[1]+R*(c[0]*u1[1]+c[1]*u2[1]), M[2]+R*(c[0]*u1[2]+c[1]*u2[2])]; });
+  /* 평면 */
+  var quad=[[1,1],[1,-1],[-1,-1],[-1,1]].map(function(c2){
+   return add(add(M,U1,R*c2[0]),U2,R*c2[1]); });
   x.beginPath();
   quad.forEach(function(q,i){ var A=P(q); i?x.lineTo(A[0],A[1]):x.moveTo(A[0],A[1]); });
-  x.closePath(); x.fillStyle=alpha(css('--gC'),0.14); x.fill();
-  x.strokeStyle=alpha(css('--gC'),0.75); x.lineWidth=1.2; x.stroke();
+  x.closePath(); x.fillStyle=alpha(css('--gC'),0.13); x.fill();
+  x.strokeStyle=alpha(css('--gC'),0.7); x.lineWidth=1.2; x.stroke();
   for(var g=-1;g<=1;g+=2){ var f=g*R/2;
-   line([M[0]+f*u1[0]-R*u2[0],M[1]+f*u1[1]-R*u2[1],M[2]+f*u1[2]-R*u2[2]],
-        [M[0]+f*u1[0]+R*u2[0],M[1]+f*u1[1]+R*u2[1],M[2]+f*u1[2]+R*u2[2]], alpha(css('--gC'),0.30),1);
-   line([M[0]+f*u2[0]-R*u1[0],M[1]+f*u2[1]-R*u1[1],M[2]+f*u2[2]-R*u1[2]],
-        [M[0]+f*u2[0]+R*u1[0],M[1]+f*u2[1]+R*u1[1],M[2]+f*u2[2]+R*u1[2]], alpha(css('--gC'),0.30),1); }
-  var Op=P([0,0,0]), A=P(M), B=P(V);
-  /* 평균 성분 O→M */
-  x.strokeStyle=css('--accent'); x.lineWidth=3.4;
-  x.beginPath(); x.moveTo(Op[0],Op[1]); x.lineTo(A[0],A[1]); x.stroke();
-  /* 편차 벡터 M→P */
+   line(add(add(M,U1,f),U2,-R), add(add(M,U1,f),U2,R), alpha(css('--gC'),0.28),1);
+   line(add(add(M,U2,f),U1,-R), add(add(M,U2,f),U1,R), alpha(css('--gC'),0.28),1); }
+  var Op=P([0,0,0]), A0=P(M), B0=P(V);
+  /* 평균 성분 */
+  x.strokeStyle=css('--accent'); x.lineWidth=3.2;
+  x.beginPath(); x.moveTo(Op[0],Op[1]); x.lineTo(A0[0],A0[1]); x.stroke();
+  /* 평면 안의 두 방향(손잡이) 표시 */
+  [[U1,'1'],[U2,'2']].forEach(function(u){
+   var tip=add(M,u[0],R*0.98), tip2=add(M,u[0],-R*0.98);
+   line(tip2,tip,alpha(css('--gC'),0.9),1.4,[3,3]);
+   var T=P(tip), M2=P(M);
+   var vx=T[0]-M2[0], vy=T[1]-M2[1], L=Math.hypot(vx,vy)||1;
+   x.fillStyle=css('--gC'); x.font='700 11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText('손잡이 '+u[1], T[0]+vx/L*14, T[1]+vy/L*14+4);
+  });
+  /* 성분 분해: a·U1 과 b·U2 로 만든 평행사변형 */
+  var Pa=add(M,U1,a), Pb=add(M,U2,b);
+  line(M,Pa,css('--gA'),3);
+  line(Pa,V,alpha(css('--gA'),0.5),1.6,[4,3]);
+  line(M,Pb,css('--gA'),3);
+  line(Pb,V,alpha(css('--gA'),0.5),1.6,[4,3]);
+  x.font='700 11px -apple-system,sans-serif'; x.fillStyle=css('--gA'); x.textAlign='center';
+  var MM=P(M);
+  [[add(M,U1,a/2),a],[add(M,U2,b/2),b]].forEach(function(c2){
+   if(Math.abs(c2[1])<=0.8) return;
+   var T=P(c2[0]), vx=T[0]-MM[0], vy=T[1]-MM[1], L=Math.hypot(vx,vy)||1;
+   x.fillText(fmt(c2[1],2), T[0]-vy/L*13, T[1]+vx/L*13+4);   /* 자기 선분에 수직으로 밀어낸다 */
+  });
+  /* 편차 벡터 */
   x.strokeStyle=css('--warn'); x.lineWidth=3.6;
-  x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
-  var ang=Math.atan2(B[1]-A[1],B[0]-A[0]);
-  x.fillStyle=css('--warn'); x.beginPath(); x.moveTo(B[0],B[1]);
-  x.lineTo(B[0]-10*Math.cos(ang-0.42),B[1]-10*Math.sin(ang-0.42));
-  x.lineTo(B[0]-10*Math.cos(ang+0.42),B[1]-10*Math.sin(ang+0.42)); x.closePath(); x.fill();
-  /* 직각 표시 */
-  var v1=[Op[0]-A[0],Op[1]-A[1]], L1=Math.hypot(v1[0],v1[1])||1;
-  var v2=[B[0]-A[0],B[1]-A[1]], L2=Math.hypot(v2[0],v2[1])||1, sq=13;
-  x.strokeStyle=alpha(css('--soft'),0.9); x.lineWidth=1.4;
-  if(L1>30&&L2>30){ x.beginPath();
-  x.moveTo(A[0]+v1[0]/L1*sq, A[1]+v1[1]/L1*sq);
-  x.lineTo(A[0]+v1[0]/L1*sq+v2[0]/L2*sq, A[1]+v1[1]/L1*sq+v2[1]/L2*sq);
-  x.lineTo(A[0]+v2[0]/L2*sq, A[1]+v2[1]/L2*sq); x.stroke(); }
+  x.beginPath(); x.moveTo(A0[0],A0[1]); x.lineTo(B0[0],B0[1]); x.stroke();
+  var ang=Math.atan2(B0[1]-A0[1],B0[0]-A0[0]);
+  x.fillStyle=css('--warn'); x.beginPath(); x.moveTo(B0[0],B0[1]);
+  x.lineTo(B0[0]-10*Math.cos(ang-0.42),B0[1]-10*Math.sin(ang-0.42));
+  x.lineTo(B0[0]-10*Math.cos(ang+0.42),B0[1]-10*Math.sin(ang+0.42)); x.closePath(); x.fill();
   /* 점·라벨 */
   x.fillStyle=css('--soft'); x.beginPath(); x.arc(Op[0],Op[1],3.5,0,7); x.fill();
-  x.font='11px -apple-system,sans-serif';
-  var ov=[Op[0]-A[0],Op[1]-A[1]], oL=Math.hypot(ov[0],ov[1])||1;
-  x.textAlign=ov[0]<0?'right':'left';
-  x.fillText('원점', Op[0]+ov[0]/oL*9, Op[1]+ov[1]/oL*9+4);
-  x.fillStyle=css('--accent'); x.beginPath(); x.arc(A[0],A[1],4.5,0,7); x.fill();
-  x.fillStyle=css('--warn'); x.beginPath(); x.arc(B[0],B[1],5.5,0,7); x.fill();
-  /* 평균 성분 라벨 — 선 중간에서 수직으로 살짝 띄움 */
-  var mid=[(Op[0]+A[0])/2,(Op[1]+A[1])/2], nx=-v1[1]/L1, ny=v1[0]/L1;
-  x.fillStyle=css('--accent'); x.font='700 12px -apple-system,sans-serif';
-  x.textAlign=nx<0?'right':'left';
-  if(L1>70) x.fillText('평균 성분 x̄·(1,1,1)', mid[0]+nx*16, mid[1]+ny*16+4);
-  /* 편차 라벨 */
-  var md=[(A[0]+B[0])/2,(A[1]+B[1])/2], mx2=-v2[1]/L2, my2=v2[0]/L2;
-  x.fillStyle=css('--warn'); x.textAlign='center';
-  if(L2>46) x.fillText('편차', md[0]+mx2*16, md[1]+my2*16+4);
-  x.textAlign=B[0]>W*0.55?'right':'left';
-  x.fillText('자료 ('+fmt(V[0],1)+', '+fmt(V[1],1)+', '+fmt(V[2],1)+')', B[0]+(B[0]>W*0.55?-12:12), B[1]-12);
-  var D=P([AXL*0.95,AXL*0.95,AXL*0.95]), D0=P([AXL*0.6,AXL*0.6,AXL*0.6]);
-  var dv=[D[0]-D0[0],D[1]-D0[1]], dL=Math.hypot(dv[0],dv[1])||1;
-  x.fillStyle=css('--grand'); x.font='700 11px -apple-system,sans-serif'; x.textAlign='center';
-  var lx=Math.max(62,Math.min(W-62, D[0]-dv[1]/dL*14));
-  x.fillText('1 = (1,1,1) 방향', lx, Math.max(56,D[1]+dv[0]/dL*14+4));
+  x.fillStyle=css('--accent'); x.beginPath(); x.arc(A0[0],A0[1],4.5,0,7); x.fill();
+  x.fillStyle=css('--warn'); x.beginPath(); x.arc(B0[0],B0[1],5.5,0,7); x.fill();
+  x.font='700 12px -apple-system,sans-serif';
+  x.textAlign=B0[0]>W*0.55?'right':'left';
+  x.fillText('자료 ('+V.map(function(v){return fmt(v,1);}).join(', ')+')', B0[0]+(B0[0]>W*0.55?-14:14), B0[1]-20);
   /* 범례 */
   x.textAlign='left'; x.font='11px -apple-system,sans-serif';
-  x.fillStyle=css('--accent'); x.fillText('■ 평균이 쓰는 방향 (1개)', 2, 14);
-  x.fillStyle=css('--warn'); x.fillText('■ 편차 벡터 = 남은 정보', 2, 28);
-  x.fillStyle=css('--gC'); x.fillText('■ 자유도 2 평면 (1 에 수직)', 2, 42);
+  x.fillStyle=css('--accent'); x.fillText('■ 손잡이 0 — 평균(대각선 방향)', 2, 14);
+  x.fillStyle=css('--gC'); x.fillText('■ 손잡이 1·2 — 평면 안의 두 방향', 2, 28);
+  x.fillStyle=css('--warn'); x.fillText('■ 편차 = 손잡이 1·2 를 합친 것', 2, 42);
   x.fillStyle=css('--soft'); x.textAlign='right';
   x.fillText('끌어서 돌려 보십시오', W-2, 14);
+  /* 읽기 */
   var dot=E[0]+E[1]+E[2], ss=E[0]*E[0]+E[1]*E[1]+E[2]*E[2];
-  oG.textContent=fmt(V[2],1);
-  ro.innerHTML='평균 x̄ = <b>'+fmt(m,3)+'</b> · 편차 ('+E.map(function(v){return fmt(v,2);}).join(', ')+')'+
-   '<br>편차 · 1 = <b>'+fmt(dot,10).replace(/(\.\d*?)0+$/,'$1')+'</b> ← 언제나 0 이므로 <b>수직</b>. 그래서 평면을 벗어날 수 없습니다.'+
-   '<br>편차 제곱합 Σ(x−x̄)² = <b>'+fmt(ss,3)+'</b> · 이것을 <b>2(=자유도)</b> 로 나눈 것이 표본분산 <b>'+fmt(ss/2,3)+'</b>';
+  oM.textContent=fmt(m,1); oA.textContent=fmt(a,2); oB.textContent=fmt(b,2);
+  ro.innerHTML=
+   '자료 <b>('+V.map(function(v){return fmt(v,2);}).join(', ')+')</b> · 평균 <b>'+fmt(m,2)+'</b>'+
+   '<br>편차 <b>('+E.map(function(v){return fmt(v,2);}).join(', ')+')</b> · 합 <b>'+fmt(dot,10).replace(/(\.\d*?)0+$/,'$1')+'</b> ← 손잡이를 어떻게 돌려도 0'+
+   '<br>편차를 적는 두 가지 방법 — 숫자 <b>세 개</b>로 ('+E.map(function(v){return fmt(v,2);}).join(', ')+') 또는 손잡이 <b>두 개</b>로 ('+fmt(a,2)+', '+fmt(b,2)+'). <b>둘은 같은 것</b>이고, 두 개면 충분하다는 것이 자유도 2 입니다.'+
+   '<br>제곱합도 어느 쪽으로 세든 같습니다 — 세 숫자로 <b>'+fmt(ss,3)+'</b>, 두 손잡이로 '+fmt(a,2)+'² + '+fmt(b,2)+'² = <b>'+fmt(a*a+b*b,3)+'</b>';
  }
  cv.addEventListener('pointerdown',function(e){ drag={x:e.clientX,y:e.clientY,yaw:yaw,pitch:pitch}; });
  window.addEventListener('pointermove',function(e){ if(!drag) return;
@@ -779,7 +793,7 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   pitch=Math.max(-1.2,Math.min(1.35,drag.pitch+(e.clientY-drag.y)*0.008)); });
  window.addEventListener('pointerup',function(){ drag=null; });
  bt.addEventListener('click',function(){ auto=!auto; bt.textContent=auto?'자동 회전 멈춤':'자동 회전 시작'; bt.classList.toggle('on',!auto); });
- sG.addEventListener('input',draw);
+ [sM,sA,sB].forEach(function(el){ el.addEventListener('input',draw); });
  tick(cv,function(){ if(auto&&!drag) yaw+=0.004; draw(); });
 })();
 </script>
