@@ -70,17 +70,23 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 <h1>자유도와 분포의 계보<small>표준정규 z 하나에서 카이제곱 · t · F 가 어떻게 태어나는가. <b>이 장면만 보면 다음 실험실(분산분석)의 모든 기호가 읽힙니다.</b></small></h1>
 
 <div class="prob">
-  <b>[출발점]</b> 다음 실험실의 결론은 이 한 줄입니다.
-  <pre style="margin:.6rem 0 .4rem">F(3, 28) = 6.724,   p = 0.0015   →  차종 간 손상지수 차이가 유의하다</pre>
-  이 한 줄에 물음이 셋 들어 있습니다.
-  <table>
-    <tr><th style="width:24%">기호</th><th class="l">물음</th><th style="width:22%">답하는 절</th></tr>
-    <tr><td><b>F</b></td><td class="l">F 라는 자는 대체 무엇이고, 누가 왜 만들었나</td><td>§7 · §8</td></tr>
-    <tr><td><b>3, 28</b></td><td class="l">이 두 수는 어디서 나왔고, 왜 굳이 빼는가</td><td>§4 · §5 · §6</td></tr>
-    <tr><td><b>p</b></td><td class="l">0.0015 라는 넓이는 어느 곡선의 어디를 잰 것인가</td><td>§7 · §8</td></tr>
-  </table>
-  <div style="font-size:.8rem;color:var(--soft);margin-top:.5rem">아래 그림·표의 모든 수치는 이 페이지가 그 자리에서 실제로 계산한 값입니다(미리 적어 둔 숫자가 없습니다). 분포는 라이브러리 없이 정의대로 적분해서 그립니다.</div>
+  <b>[문제]</b> 4개 차종(A·B·C·D)에 <b>같은 조건으로 저속 충돌 시험</b>을 하고 <b>범퍼 손상지수</b>를 차종마다 8대씩, 모두 32대 측정했습니다. 아래가 그 자료 전부입니다.
+  <div id="tbData"></div>
+  묻는 것은 하나입니다 — <b>차종에 따라 평균 손상지수가 다른가?</b> (유의수준 0.05)
 </div>
+
+<p>표를 보면 A가 가장 낮고 D가 가장 높아 <b>보입니다.</b> 그런데 "보인다"는 판정이 아닙니다. 네 차종이 실제로는 똑같더라도 8대씩 다시 뽑을 때마다 조 평균은 매번 달라지므로, <b>이 정도 차이는 우연만으로도 생기는 것인지</b>를 재 줄 <b>눈금</b>이 있어야 합니다. 그 눈금을 처음부터 만들어 보는 것이 이 페이지가 하는 일입니다.</p>
+
+<p>다음 실험실(분산분석)에서 위 문제의 답은 결국 이 한 줄로 나옵니다.</p>
+<pre style="margin:.4rem 0 .6rem">F(3, 28) = 6.724,   p = 0.0015   →  차종 간 손상지수 차이가 유의하다</pre>
+<p>이 줄을 <b>스스로 읽을 수 있게</b> 되는 것이 목표입니다. 지금 이 줄에는 모르는 것이 셋 들어 있습니다.</p>
+<table>
+  <tr><th style="width:22%">기호</th><th class="l">물음</th><th style="width:26%">답하는 절</th></tr>
+  <tr><td><b>F</b></td><td class="l">F 라는 눈금은 대체 무엇이고, 왜 만들었나</td><td>§1 · §9</td></tr>
+  <tr><td><b>3, 28</b></td><td class="l">이 두 수는 어디서 나왔고, 왜 굳이 빼는가</td><td>§4 · §5 · §6 · §10</td></tr>
+  <tr><td><b>p</b></td><td class="l">0.0015 라는 넓이는 어느 곡선의 어디를 잰 것인가</td><td>§7 · §8 · §9</td></tr>
+</table>
+<div style="font-size:.8rem;color:var(--soft);margin-top:.5rem">위 32개 숫자만 주어진 자료이고, <b>조 평균부터 아래의 모든 수치는 이 페이지가 그 자리에서 실제로 계산한 값</b>입니다(미리 적어 둔 숫자가 없습니다). 분포 곡선도 라이브러리 없이 정의대로 적분해서 그립니다.</div>
 
 <h2>먼저 — 이 페이지에서 쓰는 말 열두 개</h2>
 <p>설명을 읽다가 모르는 낱말이 나와서 막히는 일이 없도록, <b>여기서 쓰는 말을 미리 전부 풀어 둡니다.</b> 아래 열두 개 말고 새로 나오는 낱말은 없습니다.</p>
@@ -92,7 +98,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
  <tr><td class="l"><b>흩어짐</b></td><td class="l">편차들이 전체적으로 얼마나 큰가. 부호를 없애려고 <b>제곱해서 더해</b> 잽니다.</td></tr>
  <tr><td class="l"><b>표준편차</b></td><td class="l">"보통 이 정도 벗어난다"는 대표 크기. <b>최대치가 아니라 눈금</b>입니다.</td></tr>
  <tr><td class="l"><b>분산</b></td><td class="l">흩어짐을 <b>제곱 단위</b>로 잰 값. 표준편차를 제곱한 것.</td></tr>
- <tr><td class="l"><b>표준오차</b></td><td class="l">표본에서 계산한 값(평균·평균 차이·비율)이 <b>표본마다 달라지는 정도</b>. 표준편차와 다릅니다 — 자료가 많을수록 작아집니다.</td></tr>
+ <tr><td class="l"><b>표준오차</b></td><td class="l">표본에서 계산한 값(평균·평균 차이·비율)이 <b>표본마다 달라지는 정도</b>. 표준편차와 다르고, 자료가 많을수록 작아집니다. <b>무엇의</b> 표준오차인지를 늘 함께 말합니다. (§1)</td></tr>
  <tr><td class="l"><b>검정통계량</b></td><td class="l">관측된 값이 <b>표준오차 몇 개분</b> 벗어났는지를 나타내는 단위 없는 수. (§1)</td></tr>
  <tr><td class="l"><b>분포</b></td><td class="l">어떤 값이 얼마나 자주 나오는지 정해 놓은 규칙. 곡선으로 그립니다.</td></tr>
  <tr><td class="l"><b>확률밀도</b></td><td class="l">분포 곡선의 <b>세로축</b>. 그 근처가 얼마나 빽빽한가. <b>확률은 높이가 아니라 넓이</b>입니다.</td></tr>
@@ -101,24 +107,108 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
  <tr><td class="l"><b>유의수준 0.05</b></td><td class="l">p가 이보다 작으면 우연으로 보지 않기로 한 <b>약속</b>. 자연법칙이 아니라 관례입니다.</td></tr>
 </table>
 
-<h2><span class="step">§1</span>검정통계량 — 정확히 무엇인가</h2>
+<h2><span class="step">§1</span>두 조만 먼저 — 검정통계량은 이렇게 만들어집니다</h2>
 
-<p>이 한 절만 정확히 잡으면 나머지는 전부 이것의 변형입니다. 정의부터 세우겠습니다.</p>
-<pre>검정통계량 = (관측된 값 − 귀무가설이 정한 값)  ÷  (그 값의 표준오차)</pre>
+<p>네 조를 한꺼번에 보면 복잡하니, 위 자료에서 <b>가장 낮아 보이는 A와 가장 높아 보이는 D 두 조만</b> 떼어내 끝까지 따라가 보겠습니다. 여기서 세우는 뼈대가 뒤에 나오는 z · χ² · t · F 전부에 그대로 쓰입니다.</p>
 
-<p>여기서 <b>표준편차와 표준오차를 구별하는 것</b>이 전부입니다. 둘은 다른 것인데 자주 뒤섞입니다.</p>
-<table>
- <tr><th class="l" style="width:22%">용어</th><th class="l">무엇의 흔들림을 재는가</th><th class="l" style="width:26%">이 자료에서의 값</th></tr>
- <tr><td class="l"><b>표준편차</b> s</td><td class="l">개별 값 하나하나가 평균에서 벗어나는 정도 (차 한 대 한 대의 손상지수)</td><td class="l">2.068</td></tr>
- <tr><td class="l"><b>표준오차</b> SE</td><td class="l">자료로 계산한 값(여기서는 두 조의 <b>평균 차이</b>)이 표본을 다시 뽑을 때마다 달라지는 정도</td><td class="l">1.034</td></tr>
-</table>
-<p>표준오차가 더 작은 것이 보이십니까. 개별 값은 제각각이어도 <b>여덟 대를 평균 내면 그 평균은 훨씬 덜 흔들립니다.</b> 그래서 표준오차는 표준편차를 √n 으로 나눈 꼴로 줄어듭니다.</p>
+<div id="tbAD"></div>
+
+<p><b>두 조의 평균 차이 <span id="v_diff"></span>점.</b> 이 값은 큰 값입니까? — 지금은 대답할 수 없습니다. 손상지수 <span id="v_diff2"></span>점이 큰지 작은지 견줄 <b>기준</b>이 없기 때문입니다. 기준이 될 수 있는 것은 하나뿐입니다.</p>
+
+<div class="concl">두 차종이 <b>실제로는 똑같더라도</b>, 8대씩 다시 뽑으면 두 조의 평균 차이는 매번 달라집니다. <b>그 흔들림의 크기</b>와 견주어야 <span id="v_diff3"></span>이 큰지 작은지 말할 수 있습니다.</div>
+
+<p>그래서 아래 순서로 흔들림을 세 번 잽니다. 셋은 이름이 비슷하지만 <b>무엇의</b> 흔들림인지가 전부 다릅니다.</p>
+
+<h3>1) 차 한 대의 흔들림 — 표준편차 s</h3>
+<p>같은 차종 안에서도 차 한 대 한 대의 손상지수는 제각각입니다. 조 안에서 (값 − 그 조의 평균)을 제곱해 모두 더한 뒤, 개수 대신 <b>자유도</b>로 나누고 제곱근을 씁니다.</p>
+<pre id="preS"></pre>
+<p>16개 값을 더해 놓고 <b>16이 아니라 14로 나눈 것</b>이 눈에 걸리실 겁니다. 그 14가 바로 <b>자유도</b>이고, 이 페이지의 §4~§6이 통째로 그 이야기입니다. 지금은 "조마다 평균을 하나씩 이미 써 버렸으니 16 − 2 = 14"라고만 해 두고 넘어가겠습니다.</p>
+
+<h3>2) 조 평균 하나의 흔들림 — 평균의 표준오차</h3>
+<p>이제 한 대가 아니라 <b>여덟 대의 평균</b>을 봅니다. 여덟 대를 평균 내면 위로 벗어난 차와 아래로 벗어난 차가 서로 상쇄되므로, 평균은 개별 값보다 훨씬 덜 흔들립니다. 얼마나 덜 흔들리는가 하면 정확히 √8 배입니다.</p>
+<pre id="preSEm"></pre>
+
+<h3>3) 두 평균의 <b>차이</b>가 흔들리는 정도 — 우리가 나눌 표준오차 SE</h3>
+<p>그런데 우리가 본 값은 평균 하나가 아니라 <b>평균 두 개의 차이</b>입니다. A 평균도 흔들리고 D 평균도 흔들리니, 그 차이는 두 흔들림이 겹쳐 더 크게 흔들립니다. 흔들림을 합칠 때는 그냥 더하지 않고 <b>제곱해서 더한 뒤 다시 제곱근</b>을 씁니다(더해지는 것은 표준편차가 아니라 분산이기 때문입니다).</p>
+<pre id="preSE"></pre>
+
+<div class="trap"><span class="v">여기서 자주 틀립니다</span><br>
+표준편차를 √n 으로 나눈 <span id="v_sem2"></span> 은 <b>평균 하나</b>의 표준오차입니다. 우리가 재는 것은 <b>평균 두 개의 차이</b>이므로 분모에 들어갈 값은 <span id="v_se2"></span> 입니다. 검정통계량의 분모에는 언제나 <b>분자에 놓인 바로 그 값의</b> 표준오차가 들어갑니다 — "표준오차"라고만 하지 말고 <b>무엇의</b> 표준오차인지 늘 함께 말해야 하는 이유입니다.</div>
+
+<table id="tbSpread"></table>
 
 <div class="qna" data-topic="spread-terms"></div>
 
+<h3>4) 나누기 — 여기서 검정통계량이 나옵니다</h3>
+<p>귀무가설은 "두 차종의 평균은 같다", 즉 차이가 <b>0</b>이라는 주장입니다. 그러니 분자는 관측된 차이에서 0을 뺀 그대로이고, 분모는 방금 구한 그 차이의 표준오차입니다.</p>
+<pre id="preT"></pre>
+
 <div class="key"><b>왜 표준오차로 나누는가.</b> 분자가 흔들리는 바로 그 폭으로 나눠야 <b>"표준오차 몇 개분 벗어났나"</b>가 됩니다. 이때 단위(점·cm·kg)가 위아래에서 사라져, 어떤 문제든 같은 눈금으로 견줄 수 있게 됩니다. 검정통계량이 <b>단위 없는 수</b>인 이유가 이것입니다.</div>
 
-<p>다음 실험실 자료에서 A차종과 D차종만 꺼내 실제로 계산한 것입니다. 슬라이더로 두 수를 바꿔 보십시오.</p>
+<p>아래 그림이 방금 한 그 나눗셈입니다. 위쪽 막대가 관측된 평균 차이, 아래 눈금자의 한 칸이 표준오차 — <b>막대가 몇 칸인지 세는 것</b>이 검정통계량의 전부입니다. 슬라이더로 두 수를 바꿔 가며 확인해 보십시오.</p>
+
+<script>
+/* ══════════ [문제] 자료 표 + §1 두 조 계산 — 32개 원자료 말고는 전부 여기서 계산 ══════════ */
+(function(){
+ var CAR={A:[14,18,15,13,13,15,11,13],B:[19,14,9,16,14,13,18,20],
+          C:[15,18,13,15,16,18,14,17],D:[19,21,23,18,20,17,17,20]};
+ var KEY=['A','B','C','D'];
+ function mean(a){ var s=0; for(var i=0;i<a.length;i++) s+=a[i]; return s/a.length; }
+ function ssq(a){ var m=mean(a),s=0; for(var i=0;i<a.length;i++) s+=(a[i]-m)*(a[i]-m); return s; }
+ function f(v,d){ return v.toFixed(d); }
+ function put(id,txt){ var e=document.getElementById(id); if(e) e.innerHTML=txt; }
+
+ var all=[]; KEY.forEach(function(k){ all=all.concat(CAR[k]); });
+
+ /* 주어진 자료 표 — 값은 원자료, 평균은 계산 */
+ var h='<table><tr><th style="width:15%">차종</th><th class="l">범퍼 손상지수 (8대)</th><th style="width:20%">조 평균</th></tr>';
+ KEY.forEach(function(k){
+  h+='<tr><td><b>'+k+'</b></td><td class="l gday">'+CAR[k].join(',  ')+'</td><td><b>'+f(mean(CAR[k]),3)+'</b></td></tr>'; });
+ h+='<tr><td class="l" colspan="2">전체 32대 (총평균)</td><td><b>'+f(mean(all),3)+'</b></td></tr></table>';
+ put('tbData',h);
+
+ /* §1 — A와 D 두 조만 */
+ var A=CAR.A, D=CAR.D;
+ var mA=mean(A), mD=mean(D), diff=mD-mA;
+ var sA=ssq(A), sD=ssq(D), sp=sA+sD, df=(A.length-1)+(D.length-1), mse=sp/df, s=Math.sqrt(mse);
+ var sem=s/Math.sqrt(A.length), se=Math.sqrt(sem*sem+sem*sem), t=diff/se;
+
+ put('tbAD','<table><tr><th style="width:15%">차종</th><th class="l">손상지수 (8대)</th><th style="width:20%">조 평균</th></tr>'
+  +'<tr><td><b>A</b></td><td class="l gday">'+A.join(',  ')+'</td><td><b>'+f(mA,3)+'</b></td></tr>'
+  +'<tr><td><b>D</b></td><td class="l gday">'+D.join(',  ')+'</td><td><b>'+f(mD,3)+'</b></td></tr>'
+  +'<tr><td class="l" colspan="2">두 조의 평균 차이  (D − A)</td><td><b>'+f(diff,3)+'</b></td></tr></table>');
+
+ put('v_diff',f(diff,3)); put('v_diff2',f(diff,3)); put('v_diff3','<b>'+f(diff,3)+'점</b>');
+
+ put('preS','A조 : Σ(값 − '+f(mA,3)+')² = '+f(sA,3)+'      (8대)\n'
+   +'D조 : Σ(값 − '+f(mD,3)+')² = '+f(sD,3)+'      (8대)\n'
+   +'──────────────────────────────────────────\n'
+   +'제곱합 합계 '+f(sp,3)+'  ÷  자유도 '+df+'  =  '+f(mse,3)+'   (조 안 분산)\n'
+   +'표준편차  s = √'+f(mse,3)+' = '+f(s,3));
+
+ put('preSEm','평균의 표준오차 = s ÷ √8 = '+f(s,3)+' ÷ '+f(Math.sqrt(8),3)+' = '+f(sem,3));
+
+ put('preSE','SE = √( '+f(sem,3)+'² + '+f(sem,3)+'² ) = √( '+f(sem*sem,4)+' + '+f(sem*sem,4)+' ) = '+f(se,3));
+
+ put('v_sem2','<b>'+f(sem,3)+'</b>'); put('v_se2','<b>'+f(se,3)+'</b>');
+
+ put('tbSpread','<tr><th class="l" style="width:30%">무엇의 흔들림인가</th><th class="l">뜻</th><th style="width:18%">값</th></tr>'
+  +'<tr><td class="l"><b>표준편차 s</b></td><td class="l">차 <b>한 대</b>가 자기 조의 평균에서 벗어나는 정도</td><td><b>'+f(s,3)+'</b></td></tr>'
+  +'<tr><td class="l"><b>평균의 표준오차</b></td><td class="l"><b>조 평균 하나</b>가 표본을 다시 뽑을 때마다 달라지는 정도</td><td><b>'+f(sem,3)+'</b></td></tr>'
+  +'<tr><td class="l"><b>차이의 표준오차 SE</b></td><td class="l"><b>두 조 평균의 차이</b>가 표본을 다시 뽑을 때마다 달라지는 정도 — 우리가 나눌 값</td><td><b>'+f(se,3)+'</b></td></tr>');
+
+ put('preT','검정통계량 = (관측된 값 − 귀무가설이 정한 값) ÷ (그 값의 표준오차)\n\n'
+   +'t = ( '+f(diff,3)+' − 0 ) ÷ '+f(se,3)+' = '+f(t,3)+'     ← 단위 없는 수, "표준오차 '+f(t,3)+' 개분"');
+
+ /* 눈금자 그림의 기본값도 같은 계산에서 받아 둡니다 */
+ var gm=mean(all), ssb=0, ssw=0;
+ KEY.forEach(function(k){ ssb+=CAR[k].length*(mean(CAR[k])-gm)*(mean(CAR[k])-gm); ssw+=ssq(CAR[k]); });
+ var dfB=KEY.length-1, dfW=all.length-KEY.length, msb=ssb/dfB, msw=ssw/dfW;
+ window.ADP_AD={diff:diff,se:se,t:t,s:s,sem:sem,df:df,msb:msb,msw:msw,F:msb/msw,dfB:dfB,dfW:dfW};
+ var s1=document.getElementById('sSig'), s2=document.getElementById('sNoi');
+ if(s1) s1.value=diff; if(s2) s2.value=se;
+})();
+</script>
 
 <div class="lab">
   <canvas id="cvRuler" height="250"></canvas>
@@ -132,12 +222,9 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 
 <h3>카이제곱과 F 는 같은 원리의 제곱 단위 판입니다</h3>
 <p>z 와 t 는 표준오차로 나눠 <b>단위를 없앱니다.</b> 카이제곱과 F 는 제곱한 세계에서 같은 일을 합니다 — 제곱합을 <b>분산</b>으로 나눕니다.</p>
-<pre>t  =  평균 차이  ÷  표준오차                  = 5.375 ÷ 1.034 = 5.198
-F  =  조 사이 분산 ÷ 조 안 분산                = 42.083 ÷ 6.259 = 6.724
-χ² =  Σ (관측도수 − 기대도수)² ÷ 기대도수      ← 기대도수가 그 칸의 분산 구실을 합니다</pre>
-<p>제곱 단위라는 말이 추상적이면 두 조만 비교해 보면 바로 확인됩니다. 같은 두 조를 t 로도 풀고 F 로도 풀면</p>
-<pre>t = 5.1982  →  t² = 27.021
-F(1, 14)   =   27.021        ← 정확히 같은 수, p 도 0.000135 로 같음</pre>
+<pre id="preRel1"></pre>
+<p>둘째 줄의 F 는 네 조를 <b>전부</b> 쓴 값이라 아직 낯설 것입니다 — 그것을 만드는 과정이 §9·§10입니다. 지금 확인할 것은 t 와 F 의 관계이고, 그것은 방금 다룬 <b>A·D 두 조</b>만으로 바로 보입니다. 같은 두 조를 t 로도 풀고 F 로도 풀면</p>
+<pre id="preRel2"></pre>
 <p><b>t 와 F 는 서로 다른 자가 아니라 같은 자를 제곱했는지 아닌지의 차이</b>입니다. t 는 어느 쪽이 큰지 방향을 남기고, F 는 제곱하면서 방향을 버리고 크기만 봅니다.</p>
 
 <h3>검정마다 분모에 무엇이 오는가</h3>
@@ -331,6 +418,7 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 (function(){
  var cv=document.getElementById('cvRuler'), s1=document.getElementById('sSig'), o1=document.getElementById('oSig'),
      s2=document.getElementById('sNoi'), o2=document.getElementById('oNoi'), ro=document.getElementById('roRuler');
+ var AD=window.ADP_AD||{diff:5.375,se:1.034,t:5.198,df:14};
  function draw(){
   var sig=+s1.value, se=+s2.value, ratio=sig/se;
   var o=setup(cv,250), x=o.x, W=o.w, H=o.h, narrow=W<520;
@@ -375,9 +463,22 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   x.fillText(narrow?'= 검정통계량 t':'입니다  =  이것이 검정통계량 t 입니다', pad+bw+12, H-14);
   o1.textContent=fmt(sig,3); o2.textContent=fmt(se,3);
   ro.innerHTML='<b>'+fmt(sig,3)+' ÷ '+fmt(se,3)+' = '+fmt(ratio,3)+'</b> — 관측된 평균 차이가 표준오차의 '+fmt(ratio,2)+'배입니다. 단위는 없습니다.'+
-   '<br>기본값은 다음 실험실 자료(A차종·D차종 각 8대)의 실제 값입니다 — 평균 차이 <b>5.375</b>, 표준오차 <b>1.034</b>, 그래서 <b>t = 5.198</b>(자유도 14, p = 0.000135).'+
+   '<br>기본값은 §1에서 계산한 A·D 두 조의 실제 값입니다 — 평균 차이 <b>'+fmt(AD.diff,3)+'</b>, 차이의 표준오차 <b>'+fmt(AD.se,3)+'</b>, 그래서 <b>t = '+fmt(AD.t,3)+'</b>'+
+   ' (자유도 '+AD.df+', p = '+fmt(2*(1-tCdf(Math.abs(AD.t),AD.df)),6)+').'+
    '<br>분모를 키워 보십시오. <b>같은 차이라도 표준오차가 크면 검정통계량이 작아집니다</b> — 차이의 크기만으로는 판단할 수 없는 이유입니다.';
  }
+ if(window.ADP_AD){ s1.value=AD.diff; s2.value=AD.se; }
+ /* 같은 두 조를 t 로도 F 로도 풀어 t² = F(1, df) 를 그 자리에서 확인합니다 */
+ (function(){
+  var p1=document.getElementById('preRel1'), p2=document.getElementById('preRel2');
+  if(!p1||!p2||!window.ADP_AD) return;
+  var pt=2*(1-tCdf(Math.abs(AD.t),AD.df)), pf=1-fCdf(AD.t*AD.t,1,AD.df);
+  p1.textContent='t  =  평균 차이  ÷  차이의 표준오차        = '+fmt(AD.diff,3)+' ÷ '+fmt(AD.se,3)+' = '+fmt(AD.t,3)+'\n'
+   +'F  =  조 사이 분산 ÷ 조 안 분산              = '+fmt(AD.msb,3)+' ÷ '+fmt(AD.msw,3)+' = '+fmt(AD.F,3)+'   (네 조 전부)\n'
+   +'χ² =  Σ (관측도수 − 기대도수)² ÷ 기대도수     ← 기대도수가 그 칸의 분산 구실을 합니다';
+  p2.textContent='t = '+fmt(AD.t,4)+'   →   t² = '+fmt(AD.t*AD.t,3)+'      p = '+fmt(pt,6)+'\n'
+   +'F(1, '+AD.df+')  =  '+fmt(AD.t*AD.t,3)+'      p = '+fmt(pf,6)+'      ← 값도 p도 정확히 같습니다';
+ })();
  s1.addEventListener('input',draw); s2.addEventListener('input',draw); onResize(draw); draw();
 })();
 </script>
