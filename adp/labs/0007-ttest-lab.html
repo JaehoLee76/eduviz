@@ -96,7 +96,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
   <div class="src">유형 출처: ADP 실기 26~28회 복원 유형. 원문 데이터는 비공개 → 위 <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다 (1→5 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <div class="labtitle">문제 1 시각화 — 같은 사람의 전·후를 잇는 선</div>
@@ -154,7 +154,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 <h3 class="sub">독립표본(문제 2) — 두 집단의 정규성 + 등분산</h3>
 <div id="assumpI"></div>
 
-<h2><span class="step">3</span>검정통계량 <span style="font-size:.75rem;color:var(--soft)">(주어진 숫자에서 실계산)</span></h2>
+<h2><span class="step">3</span>검정통계량 <span style="font-size:.75rem;color:var(--soft)">(위 자료 기준)</span></h2>
 <h3 class="sub">대응표본(문제 1)</h3>
 <div class="tbwrap"><table id="statP"></table></div>
 <div id="ciP" class="note"></div>
@@ -207,7 +207,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
   </ul>
 </div>
 
-<small class="src2">t·df·p·신뢰구간·코헨의 d·레빈 F·Q-Q 상관 r 전부 위 <b>주어진 데이터</b>에서 실계산(골든룰). node 검증: 대응 t=9.858(df=9, p&lt;0.001), 독립 합동 t=−4.514(df=22, p&lt;0.001), 웰치 t=−4.514(df=21.90, p&lt;0.001), 레빈 F=0.055(p=0.816) — scipy(stats.ttest_rel/ttest_ind/levene) 대조값과 일치. p값은 t분포·F분포 누적분포를 정규화 불완전베타로 직접 적분. Q-Q 5% 기준선(n=8→0.905 · 9→0.912 · 10→0.918 · 11→0.923 · 12→0.928 · 13→0.932 · 14→0.935 · 15→0.938)은 표준정규분포에서 각 크기로 5×10⁵회 모의추출해 구함.</small>
+<small class="src2">t·df·p·신뢰구간·코헨의 d·레빈 F·Q-Q 상관 r은 모두 위 <b>데이터</b>에서 나온 값입니다(대응 t=9.858(df=9, p&lt;0.001), 독립 합동 t=−4.514(df=22, p&lt;0.001), 웰치 t=−4.514(df=21.90, p&lt;0.001), 레빈 F=0.055(p=0.816)). p값은 t분포·F분포의 누적분포를 정규화 불완전베타함수(incomplete beta function)로 구합니다. Q-Q 5% 기준선(n=8→0.905 · 9→0.912 · 10→0.918 · 11→0.923 · 12→0.928 · 13→0.932 · 14→0.935 · 15→0.938)은 표준정규분포에서 각 표본크기로 5×10⁵회 모의추출해 구한 값입니다.</small>
 
 <script>
 function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}

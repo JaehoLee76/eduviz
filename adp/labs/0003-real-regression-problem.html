@@ -82,10 +82,10 @@ small.src2{display:block;color:var(--soft);font-size:.78rem;margin-top:1.6rem;bo
 <div class="prob">
   <b>[문제]</b> 아래 9개 관측값에 대해 <b>적절한 회귀모형을 찾으시오.</b>
   <div class="twrap"><table class="gday" id="dataTable"></table></div>
-  <div class="src">유형 출처: ADP 실기 기출 복원(다항회귀·모형 선택). <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+  <div class="src">유형 출처: ADP 실기 기출 복원(다항회귀·모형 선택). <b>연습 데이터는 고정</b>입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 데이터를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다 (1→5 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
@@ -130,7 +130,7 @@ small.src2{display:block;color:var(--soft);font-size:.78rem;margin-top:1.6rem;bo
   <p><b>독립성.</b> 계산으로 보는 항목이 아니라 <b>설계로 보장</b>합니다 — 이 9개 관측이 서로 다른 대상에서 한 번씩 얻은 값이라면(같은 대상을 반복 측정한 시계열이 아니라면) 독립을 가정할 수 있습니다. 만약 시간 순서가 있는 자료라면 앞뒤 잔차가 닮아 있는지(자기상관)를 따로 봐야 합니다.</p>
 </div>
 
-<h2><span class="step">3</span>검정통계량 <span style="font-size:.75rem;color:var(--soft)">(주어진 숫자에서 실계산)</span></h2>
+<h2><span class="step">3</span>검정통계량 <span style="font-size:.75rem;color:var(--soft)">(위 자료 기준)</span></h2>
 <p style="font-size:.9rem;color:var(--soft)">회귀에서도 아이디어는 분산분석과 같습니다 — <b>전체 흩어짐(SST)</b>을 모형이 설명한 몫(SSR, 회귀제곱합)과 못한 몫(SSE, 잔차제곱합)으로 쪼갭니다. F = 회귀 하나당 설명력(MSR) ÷ 잔차 하나당 남은 오차(MSE)이고, 모형이 쓸모없다면 이 비율은 1 근처에 머뭅니다.</p>
 <div class="qna" data-topic="test-statistic"></div>
 <div class="qna" data-label="R²와 수정 R²는 무엇이 다른가요?" data-q="R²와 수정 R²는 정확히 무엇이 다른가요?">
@@ -361,7 +361,7 @@ function render(){
   'print(np.corrcoef(np.abs(resid), x)[0,1])';
 
  // ── 각주 ──
- document.getElementById('src2').innerHTML='이 화면의 계수·표준오차·t·F·p·수정 R²·잔차 진단은 모두 위 표의 숫자에서 그 자리에서 계산됩니다. 검산: 1차 절편 −1.1667·기울기 1.6333·R² 0.7083·F 16.99·p 0.004446 / 2차 계수 7.1667·−2.9121·0.4545·수정 R² 0.9864 — statsmodels 대조값과 일치. Q-Q 5% 기준선(n=8→0.905·9→0.912·10→0.918·11→0.923·12→0.928)은 표준정규분포에서 각 크기로 5×10⁵회 모의추출해 구한 값입니다.';
+ document.getElementById('src2').innerHTML='이 화면의 계수·표준오차·t·F·p·수정 R²·잔차 진단은 모두 위 표의 숫자에서 나온 값입니다. Q-Q 5% 기준선(n=8→0.905·9→0.912·10→0.918·11→0.923·12→0.928)은 표준정규분포에서 각 크기로 5×10⁵회 모의추출해 구한 값입니다.';
 }
 document.getElementById('seg').addEventListener('click',e=>{var b=e.target.closest('button');if(!b)return;DEG=+b.dataset.d;render();});
 window.addEventListener('resize',render);

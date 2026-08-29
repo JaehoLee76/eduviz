@@ -100,10 +100,10 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
     <tr><td>1단계 · 한 가족의 딸 수</td><td>6</td><td>0.5</td><td>P(딸 ≥ 4)</td></tr>
     <tr><td>2단계 · 다섯 가족 중 해당 가족 수</td><td>5</td><td>1단계 결과값</td><td>1) P(Z ≥ 3)  2) E[Z]</td></tr>
   </table>
-  <div class="src">유형 출처: ADP 실기 29회·30회 복원. <b>위 숫자는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+  <div class="src">유형 출처: ADP 실기 29회·30회 복원. <b>위 숫자는 고정</b>입니다. 실기 답안은 Python으로 씁니다.</div>
 </div>
 
-<div class="solban">여기서부터 위 두 문제를 실제로 계산한 풀이입니다 (1) →5) 순서 = 실기 답안 흐름)</div>
+<div class="solban">여기서부터 위 두 문제를 이용한 풀이입니다 (1→5 순서 = 실기 답안 흐름)</div>
 
 <div class="lab">
   <h3>문제 1 — X ~ B(25, 0.03)의 확률 막대그래프</h3>
@@ -193,7 +193,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
   </ul>
 </div>
 
-<small class="src2">이항확률·정규근사 값 전부 위 <b>주어진 n·p·k</b>에서 실계산(골든룰). 조합은 곱셈 누적(nCk = ∏(n−k+i)/i)으로 팩토리얼 오버플로를 피했습니다. node 검증: P(X=3)=0.031774(scipy 0.03177384…와 일치), P(Z≥3)=0.225546, E[Z]=1.71875 — 화면 값과 일치. 정규분포 누적분포는 Abramowitz-Stegun erf 근사로 직접 계산.</small>
+<small class="src2">이항확률·정규근사 값은 모두 위 <b>주어진 n·p·k</b>에서 나온 값입니다.</small>
 
 <script>
 /* ---- 이항분포 핵심 계산 (골든룰: 전부 여기서 실계산) ---- */
