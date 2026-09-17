@@ -10,9 +10,12 @@
 :root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
  --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;
  --gA:#4a86e8;--gB:#e0952b;--gC:#3aa76d;--gD:#9b6ae0;--grand:#7a7580;}
-@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
  --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;
  --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}}
+:root[data-theme="dark"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
  font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
@@ -67,7 +70,9 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 .labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
 .labnav .sp{flex:1}
 .labnav.bot a{flex:1;justify-content:center;text-align:center}
-</style></head><body><div class="wrap">
+</style><script>/* 테마: 저장된 선택을 첫 그림 전에 적용(깜빡임 방지). 선택이 없으면 라이트. */
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body><div class="wrap">
 
 <nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">2 / 3 · 통계 · 분산분석</span></nav>
 
@@ -101,6 +106,7 @@ small.src2{display:block;color:var(--soft);font-size:.77rem;margin-top:1.6rem;bo
 </div>
 
 
+<div class="qna" data-topic="population-definition"></div>
 <div class="qna" data-label="그래프만 봐도 차이가 보이는데, 왜 검정이 필요한가요?"
      data-q="그래프만 봐도 평균이 다른 게 보이는데, 왜 검정이 필요한가요?">
   <p><b>그래프와 검정은 서로 다른 질문에 답합니다.</b> 그래프는 "이번에 시험한 32대에서 D가 높았나"에 답합니다 — 이건 눈으로 맞힐 수 있습니다. 검정은 "<b>차종 A·B·C·D 자체가 다른가</b>, 아니면 이번에 뽑힌 차들이 우연히 그렇게 나온 건가"에 답합니다. 알고 싶은 건 두 번째인데, 그래프는 거기에 답하지 못합니다.</p>

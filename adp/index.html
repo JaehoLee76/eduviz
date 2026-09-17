@@ -17,13 +17,16 @@
   --ink:#22303a; --soft:#5a6a76; --paper:#f5fbfd; --card:#fff;
   --rule:#d5e6ee; --good:#1f9d6b; --warn:#c9772a; --track:#dff0f6;
 }
-@media(prefers-color-scheme:dark){
-  :root{
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#2fa8d8; --accent2:#6fcfe8;
+    --ink:#e6f0f4; --soft:#a3b4bd; --paper:#0f1a20; --card:#182831;
+    --rule:#2b4451; --good:#5fd6a8; --warn:#e0a35a; --track:#233743;
+  }}
+:root[data-theme="dark"]{
     --accent:#2fa8d8; --accent2:#6fcfe8;
     --ink:#e6f0f4; --soft:#a3b4bd; --paper:#0f1a20; --card:#182831;
     --rule:#2b4451; --good:#5fd6a8; --warn:#e0a35a; --track:#233743;
   }
-}
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{
@@ -179,6 +182,8 @@ main.wrap{padding-top:.4rem}
 .today-row .why{margin-left:auto;font-size:.76rem;color:var(--soft);flex:none}
 .today-row b{color:var(--accent)}
 </style>
+<script>/* 테마: 저장된 선택을 첫 그림 전에 적용(깜빡임 방지). 선택이 없으면 라이트. */
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
 </head><body>
 
 <div id="barExtra">

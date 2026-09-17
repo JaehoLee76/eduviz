@@ -33,6 +33,62 @@
     hidden('conceptExtra', (wrap.innerText || wrap.textContent || '').replace(/\s+/g, ' ').trim());
   }
 
+  // ── 1) -1.5 테마(라이트 · 다크 · 기기 설정) ──────────────────────────
+  // 기본은 우리가 설계한 라이트. 기기가 다크여도 따라가지 않는다(따라가길 원하면 '기기'를 고르면 된다).
+  // 고른 값은 이 기기(localStorage)에 바로 남고, 로그인해 두면 계정(KV)에도 올라가
+  // 다른 기기에서 같은 계정으로 열 때 그 테마로 보인다. 늦게 쓴 쪽이 이긴다(시각 비교).
+  var THEMES = [
+    { v:'light', label:'☀ 라이트' },
+    { v:'dark',  label:'🌙 다크' },
+    { v:'auto',  label:'🖥 기기' }
+  ];
+  function thGet(){ try{ return localStorage.getItem('adp_theme') || 'light'; }catch(e){ return 'light'; } }
+  function thTs(){ try{ return parseInt(localStorage.getItem('adp_theme_ts') || '0', 10) || 0; }catch(e){ return 0; } }
+  function thApply(v){
+    var root = document.documentElement;
+    if(v === 'light') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', v);
+    // 주소창·상태바 색도 같이 맞춘다(홈 화면에 추가해 쓰는 경우).
+    var paper = getComputedStyle(root).getPropertyValue('--paper').trim();
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if(meta && paper) meta.setAttribute('content', paper);
+    var btn = document.querySelector('.tb-theme');
+    if(btn){ for(var i=0;i<THEMES.length;i++) if(THEMES[i].v===v) btn.textContent = THEMES[i].label; }
+    // 캔버스 그림은 그릴 때 CSS 변수에서 색을 읽어 가므로, 이미 그려진 그림은 다시 그려야 새 색이 된다.
+    // 실험실들은 크기 변화에 맞춰 다시 그리는 길을 이미 열어 두었으니 그 길을 쓴다.
+    try{ window.dispatchEvent(new Event('resize')); }catch(e){}
+  }
+  function thSet(v, ts, push){
+    try{ localStorage.setItem('adp_theme', v); localStorage.setItem('adp_theme_ts', String(ts)); }catch(e){}
+    thApply(v);
+    if(push !== false) thPush(v, ts);
+  }
+  function thPush(v, ts){                                 // 계정에 올리기(로그인 상태에서만)
+    var S = window.EduvizStore;
+    if(S && S.setPref && S.loggedIn && S.loggedIn()) S.setPref('theme', { v:v, ts:ts });
+  }
+  function thPull(){                                      // 계정에서 내려받기(늦게 쓴 쪽이 이김)
+    var S = window.EduvizStore;
+    if(!(S && S.getPref && S.loggedIn && S.loggedIn())) return;
+    var cloud = S.getPref('theme'), mine = thGet(), myTs = thTs();
+    if(cloud && cloud.v && (cloud.ts || 0) > myTs){ if(cloud.v !== mine) thSet(cloud.v, cloud.ts, false);
+      else { try{ localStorage.setItem('adp_theme_ts', String(cloud.ts)); }catch(e){} } }
+    else if(myTs > ((cloud && cloud.ts) || 0)) thPush(mine, myTs);   // 이 기기 선택이 더 최신이면 올려 둔다
+  }
+  function themeBtn(bar){
+    var b = document.createElement('button');
+    b.className = 'tb-theme';
+    b.type = 'button';
+    b.title = '테마 — 누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다';
+    b.setAttribute('aria-label', '테마 바꾸기');
+    b.onclick = function(){
+      var cur = thGet(), i = 0;
+      for(var k=0;k<THEMES.length;k++) if(THEMES[k].v===cur) i = k;
+      thSet(THEMES[(i+1) % THEMES.length].v, Date.now(), true);
+    };
+    bar.appendChild(b);
+    thApply(thGet());                                     // 버튼 글자를 현재 상태로
+  }
+
   // ── 1) -2 상단바 만들기 (겹침 방지의 핵심) ────────────────────────────
   // 공용 로그인·AI 버튼은 .topbar 가 있으면 그 안에 '흐름대로' 들어가고,
   // 없으면 화면 우상단에 고정(fixed)으로 떠서 본문 글자와 겹친다.
@@ -48,6 +104,10 @@
       '.topbar .tb-home{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;',
       ' border:1px solid var(--rule,#2b4451);border-radius:9px;color:var(--accent,#2fa8d8);',
       ' text-decoration:none;font-weight:700;font-size:.85rem}',
+      '.topbar .tb-theme{display:inline-flex;align-items:center;gap:.25rem;min-height:38px;',
+      ' padding:.25rem .6rem;border:1px solid var(--rule,#2b4451);border-radius:9px;',
+      ' background:var(--card,#182831);color:var(--accent,#2fa8d8);font-family:inherit;',
+      ' font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}',
       '.topbar .tb-pos{font-size:.8rem;color:var(--soft,var(--ink-soft,#a3b4bd))}',
       '.topbar .tb-grow{flex:1 1 12px}',
       '.topbar .acct-bar,.topbar .cw-wrap{position:static!important;margin:0!important}',
@@ -67,6 +127,7 @@
       '<span class="tb-grow"></span>';
     document.body.insertBefore(bar, document.body.firstChild);
     // 허브의 진행률 줄은 고정 영역 안(둘째 줄)으로 올린다 — 스크롤해도 늘 보이게.
+    themeBtn(bar);                                       // 테마 버튼(라이트·다크·기기)
     var extra = document.getElementById('barExtra');
     if(extra) bar.appendChild(extra);
 
@@ -201,6 +262,8 @@
     idx.onload = idx.onerror = function(){ document.head.appendChild(qna); document.head.appendChild(drill); };
     remember();                                          // 최근 본 실험실 기록(허브에서 다시 찾아가기 쉽게)
     rateBar();                                           // 학습 기록 줄(간격 반복)
+    window.addEventListener('eduviz-prefs', thPull);     // 계정 기록이 도착하면 테마를 맞춘다
+    setTimeout(thPull, 2500); setTimeout(thPull, 6000);   // 로그인·복원이 늦어도 한 번 더 확인
     if(location.search.indexOf('uicheck') >= 0){          // 겹침 자동 검사 모드(개발용)
       var u = document.createElement('script');
       u.src = (/\/labs\//.test(location.pathname) ? '../uicheck.js' : './uicheck.js');

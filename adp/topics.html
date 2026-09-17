@@ -10,8 +10,10 @@
 <style>
 :root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
  --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b}
-@media(prefers-color-scheme:dark){:root{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
  --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8}}
+:root[data-theme="dark"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--paper);color:var(--ink);line-height:1.55;
  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
@@ -38,6 +40,8 @@ h1{font-size:1.5rem;margin:.2rem 0 .3rem}
 .item .g span{font-size:.75rem;color:var(--soft);border:1px solid var(--rule);border-radius:12px;padding:.05rem .5rem}
 .empty{color:var(--soft);font-size:.9rem;padding:1.2rem 0}
 </style>
+<script>/* 테마: 저장된 선택을 첫 그림 전에 적용(깜빡임 방지). 선택이 없으면 라이트. */
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
 </head><body>
 <div class="wrap">
   <nav class="labnav"><a href="./index.html">← 홈</a><span class="pos">개념 사전</span></nav>

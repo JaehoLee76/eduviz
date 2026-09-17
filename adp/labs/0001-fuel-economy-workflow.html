@@ -27,7 +27,7 @@
   --maxw:760px;
 }
 @media (prefers-color-scheme: dark){
-  :root{
+  :root[data-theme="auto"]{
     --accent:#2fa8d8; --accent-soft:#6fcfe8;
     --ink:#e6f0f4; --ink-soft:#a3b4bd;
     --paper:#0f1a20; --card:#182831;
@@ -199,6 +199,8 @@ th{background:var(--code-bg); font-weight:600; color:var(--accent)}
 }
 @media (max-width:480px){ body{font-size:16px} h1{font-size:1.7rem} }
 </style>
+<script>/* 테마: 저장된 선택을 첫 그림 전에 적용(깜빡임 방지). 선택이 없으면 라이트. */
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
 <script>
 /* EduViz ADP 교습 — 재사용 퀴즈 위젯 (바닐라, 의존성 없음)
    (adp/ 오프라인 자기완결 사본: 원본 ../assets/quiz.js 인라인화)
