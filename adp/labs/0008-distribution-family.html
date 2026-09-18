@@ -233,6 +233,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <canvas id="cvRuler" height="250"></canvas>
   <div class="ctrl"><label for="sSig">관측된 평균 차이 (분자)</label><input id="sSig" type="range" min="0" max="12" step="0.125" value="5.375"><output id="oSig"></output></div>
   <div class="ctrl"><label for="sNoi">표준오차 SE (분모)</label><input id="sNoi" type="range" min="0.25" max="4" step="0.002" value="1.034"><output id="oNoi"></output></div>
+  <div class="btnrow"><button class="btn" id="bRuler">↺ §1 의 실제 값으로</button></div>
   <div id="roRuler" class="readout"></div>
 </div>
 
@@ -485,16 +486,26 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   /* 슬라이더를 움직이면 t 만이 아니라 판정(p)까지 함께 움직여야 한다.
      자유도는 자료가 정하는 수이므로 §1 의 14 로 고정하고, 분자·분모만 바꿔 본다. */
   var dfNow=(window.ADP_AD?AD.df:14), pNow=2*(1-tCdf(Math.abs(ratio),dfNow));
+  /* 슬라이더는 눈금(step) 위에만 설 수 있으므로, §1 의 실제 값을 그 눈금에 맞춘 자리와 견준다 */
+  function snap(v,mn,st){ return mn+Math.round((v-mn)/st)*st; }
+  var homeS=snap(AD.diff,0,0.125), homeN=snap(AD.se,0.25,0.002);
+  var dS=sig-homeS, dN=se-homeN, atHome=(Math.abs(dS)<1e-6&&Math.abs(dN)<1e-6);
+  var pHome=2*(1-tCdf(Math.abs(AD.t),AD.df));
+  var bH=document.getElementById('bRuler');
+  if(bH){ bH.classList.toggle('on',atHome); bH.disabled=atHome; bH.style.opacity=atHome?0.5:1; }
   var pTxt=(pNow<1e-6?'0.000001 미만':fmt(pNow,6));
   ro.innerHTML='<b>'+fmt(sig,3)+' ÷ '+fmt(se,3)+' = '+fmt(ratio,3)+'</b> — 관측된 평균 차이가 표준오차의 '+fmt(ratio,2)+'배입니다. 단위는 없습니다.'+
    '<br>이때 <b>p = '+pTxt+'</b> 입니다 (자유도 '+dfNow+' 기준, 양쪽 꼬리) — '+
    (pNow<0.05?'<b style="color:var(--good)">유의수준 0.05 에서 기각</b>':'<b style="color:var(--warn)">기각하지 못함</b>')+
    '. 슬라이더를 움직이면 t 와 함께 p 도 같이 움직입니다. 자유도는 자료가 정하는 수라 여기서는 §1 의 '+dfNow+' 로 고정해 둡니다.'+
-   '<br>슬라이더를 처음 자리로 되돌리면 §1에서 계산한 A·D 두 조의 실제 값입니다 — 평균 차이 <b>'+fmt(AD.diff,3)+'</b>, 차이의 표준오차 <b>'+fmt(AD.se,3)+'</b>, 그래서 <b>t = '+fmt(AD.t,3)+'</b>'+
-   ' (p = '+fmt(2*(1-tCdf(Math.abs(AD.t),AD.df)),6)+').'+
+   '<br>'+(atHome
+     ? '<b>지금 이 값이 §1에서 계산한 A·D 두 조의 실제 값입니다</b> — 평균 차이 <b>'+fmt(AD.diff,3)+'</b>, 차이의 표준오차 <b>'+fmt(AD.se,3)+'</b>, 그래서 t = <b>'+fmt(AD.t,3)+'</b> (p = '+fmt(pHome,6)+'). 여기서 슬라이더를 움직이면 "만약 이랬다면" 을 따져 보는 것입니다.'
+     : '지금은 실제 자료에서 <b>분자 '+(dS>=0?'+':'−')+fmt(Math.abs(dS),3)+' · 분모 '+(dN>=0?'+':'−')+fmt(Math.abs(dN),3)+'</b> 만큼 옮겨 놓은 가정입니다. 실제 값(평균 차이 '+fmt(AD.diff,3)+' · 표준오차 '+fmt(AD.se,3)+' · t '+fmt(AD.t,3)+' · p '+fmt(pHome,6)+')으로는 아래 단추로 돌아갑니다.')+
    '<br>분모를 키워 보십시오. <b>같은 차이라도 표준오차가 크면 검정통계량이 작아지고 p 는 커집니다</b> — 차이의 크기만으로는 판단할 수 없는 이유입니다.';
  }
  if(window.ADP_AD){ s1.value=AD.diff; s2.value=AD.se; }
+ (function(){ var b=document.getElementById('bRuler'); if(!b||!window.ADP_AD) return;
+  b.addEventListener('click',function(){ s1.value=AD.diff; s2.value=AD.se; draw(); }); })();
  /* 같은 두 조를 t 로도 F 로도 풀어 t² = F(1, df) 를 그 자리에서 확인합니다 */
  (function(){
   var p1=document.getElementById('preRel1'), p2=document.getElementById('preRel2');
