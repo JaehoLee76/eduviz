@@ -482,10 +482,17 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   x.fillStyle=css('--soft'); x.font='12px -apple-system,sans-serif';
   x.fillText(narrow?'= 검정통계량 t':'입니다  =  이것이 검정통계량 t 입니다', pad+bw+12, H-14);
   o1.textContent=fmt(sig,3); o2.textContent=fmt(se,3);
+  /* 슬라이더를 움직이면 t 만이 아니라 판정(p)까지 함께 움직여야 한다.
+     자유도는 자료가 정하는 수이므로 §1 의 14 로 고정하고, 분자·분모만 바꿔 본다. */
+  var dfNow=(window.ADP_AD?AD.df:14), pNow=2*(1-tCdf(Math.abs(ratio),dfNow));
+  var pTxt=(pNow<1e-6?'0.000001 미만':fmt(pNow,6));
   ro.innerHTML='<b>'+fmt(sig,3)+' ÷ '+fmt(se,3)+' = '+fmt(ratio,3)+'</b> — 관측된 평균 차이가 표준오차의 '+fmt(ratio,2)+'배입니다. 단위는 없습니다.'+
-   '<br>기본값은 §1에서 계산한 A·D 두 조의 실제 값입니다 — 평균 차이 <b>'+fmt(AD.diff,3)+'</b>, 차이의 표준오차 <b>'+fmt(AD.se,3)+'</b>, 그래서 <b>t = '+fmt(AD.t,3)+'</b>'+
-   ' (자유도 '+AD.df+', p = '+fmt(2*(1-tCdf(Math.abs(AD.t),AD.df)),6)+').'+
-   '<br>분모를 키워 보십시오. <b>같은 차이라도 표준오차가 크면 검정통계량이 작아집니다</b> — 차이의 크기만으로는 판단할 수 없는 이유입니다.';
+   '<br>이때 <b>p = '+pTxt+'</b> 입니다 (자유도 '+dfNow+' 기준, 양쪽 꼬리) — '+
+   (pNow<0.05?'<b style="color:var(--good)">유의수준 0.05 에서 기각</b>':'<b style="color:var(--warn)">기각하지 못함</b>')+
+   '. 슬라이더를 움직이면 t 와 함께 p 도 같이 움직입니다. 자유도는 자료가 정하는 수라 여기서는 §1 의 '+dfNow+' 로 고정해 둡니다.'+
+   '<br>슬라이더를 처음 자리로 되돌리면 §1에서 계산한 A·D 두 조의 실제 값입니다 — 평균 차이 <b>'+fmt(AD.diff,3)+'</b>, 차이의 표준오차 <b>'+fmt(AD.se,3)+'</b>, 그래서 <b>t = '+fmt(AD.t,3)+'</b>'+
+   ' (p = '+fmt(2*(1-tCdf(Math.abs(AD.t),AD.df)),6)+').'+
+   '<br>분모를 키워 보십시오. <b>같은 차이라도 표준오차가 크면 검정통계량이 작아지고 p 는 커집니다</b> — 차이의 크기만으로는 판단할 수 없는 이유입니다.';
  }
  if(window.ADP_AD){ s1.value=AD.diff; s2.value=AD.se; }
  /* 같은 두 조를 t 로도 F 로도 풀어 t² = F(1, df) 를 그 자리에서 확인합니다 */
