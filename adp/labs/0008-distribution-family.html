@@ -705,9 +705,20 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   var narrow=W<520;
   x.textAlign='left'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
   x.fillText(narrow?'점 하나 = 뽑은 값 하나 (200개)':'점 하나 = 뽑은 값 하나 (200개). 쌓인 모양이 곧 곡선입니다.', 2, 14);
-  x.fillStyle=css('--warn'); x.font='700 11px -apple-system,sans-serif';
-  if(narrow){ x.fillText('주황 = |z| > 1 인 값 '+c1+'개', 2, H-8); }
-  else { x.textAlign='right'; x.fillText('주황 = |z| 가 1 을 넘은 값 '+c1+'개', W-2, 14); }
+  /* 색이 무엇을 뜻하는지 두 색 모두 그 자리에서 밝힌다(한쪽만 적으면 나머지 색이 수수께끼가 된다) */
+  (function(){
+   var items=[[alpha(css('--accent'),0.6),'|z| ≤ 1 (평균에서 표준편차 1 개 안)  '+(zs.length-c1)+'개'],
+              [alpha(css('--warn'),0.85),'|z| > 1 (그 바깥)  '+c1+'개']];
+   /* 왼쪽 정렬로 둘째 줄에 놓는다 — 오른쪽 끝에 붙이면 글자가 캔버스 밖으로 밀린다 */
+   var fs=narrow?10.5:11.5, gapX=narrow?0:20, cx=2, cy=narrow?H-8:30;
+   items.forEach(function(it,i){
+    var yy=narrow?cy-(items.length-1-i)*14:cy;
+    x.fillStyle=it[0]; x.beginPath(); x.arc(cx+4,yy-4,3.6,0,7); x.fill();
+    x.fillStyle=(i?css('--warn'):css('--accent')); x.textAlign='left';
+    x.font='700 '+fs+'px -apple-system,sans-serif';
+    x.fillText(it[1], cx+12, yy);
+    if(!narrow) cx+=12+x.measureText(it[1]).width+gapX; });
+  })();
   x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
   if(narrow){ x.textAlign='right'; x.fillText('세로 = 쌓인 개수', W-2, H-8); }
   else { x.textAlign='center';
@@ -715,7 +726,8 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   ro.innerHTML='|z| > 1 : <b>'+c1+'개 ('+fmt(c1/2,1)+'%)</b> — 이론 31.73% &nbsp;·&nbsp; '+
    '|z| > 2 : <b>'+c2+'개 ('+fmt(c2/2,1)+'%)</b> — 이론 4.55% &nbsp;·&nbsp; '+
    '|z| > 3 : <b>'+c3+'개</b> — 이론 0.27%'+
-   '<br>이번에 나온 가장 큰 값 <b>'+fmt(mx,2)+'</b> — 표준편차가 1이어도 값은 얼마든지 더 나갈 수 있습니다. 1 을 넘는 것은 <b>예외가 아니라 예사</b>입니다.';
+   '<br>이번에 나온 가장 큰 값 <b>'+fmt(mx,2)+'</b> — 표준편차가 1이어도 값은 얼마든지 더 나갈 수 있습니다. 1 을 넘는 것은 <b>예외가 아니라 예사</b>입니다.'+
+   '<br><b>기둥 하나에 두 색이 섞여 보이는 곳</b>이 있습니다 — 기둥 하나는 좁은 구간(폭 '+fmt(2*R/BN,3)+')에 떨어진 값들을 모아 쌓은 것이라, <b>경계 ±1 을 걸친 기둥</b>에는 1 보다 조금 작은 값(파랑)과 조금 큰 값(주황)이 함께 들어갑니다.';
  }
  bt.addEventListener('click',function(){ si++; make(); draw(); });
  onResize(draw); make(); draw();
@@ -1250,6 +1262,60 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
   <p>둘째, <b>제곱은 거리입니다.</b> 그래서 §5의 기하 그림(직각·평면·차원)이 통째로 성립하고, 자유도라는 개념이 <b>차원</b>이라는 정확한 뜻을 갖게 됩니다.</p>
   <p>셋째, 정규분포를 제곱해 더한 것의 분포가 <b>카이제곱이라는 이름으로 완전히 계산 가능</b>합니다. 절댓값 합의 분포는 그만큼 다루기 쉽지 않습니다. 요약하면 — 제곱은 쪼개지고, 거리이고, 계산됩니다.</p>
 </div>
+
+<h3>그래서 카이제곱은 어디에 씁니까</h3>
+<p>쓰임이 <b>둘</b>입니다. 하나는 이 페이지가 지금 하고 있는 일이고, 다른 하나는 카이제곱이 <b>혼자서 검정을 맡는</b> 자리입니다.</p>
+<p><b>쓰임 1 — 부품으로.</b> 방금 본 대로 제곱합을 σ² 으로 나누면 카이제곱입니다. s² 이 바로 그 카이제곱을 자유도로 나눈 것이므로, <b>s 가 들어가는 모든 검정의 분모 속에 카이제곱이 숨어 있습니다.</b> §8 의 t 와 §9 의 F 를 만들 때 그 부품을 꺼내 씁니다.</p>
+<p><b>쓰임 2 — 도수(개수) 자료의 검정.</b> 손상지수처럼 <b>재는 값</b>이 아니라 "몇 대가 어느 칸에 들어갔나" 같은 <b>세는 값</b>을 다룰 때는 카이제곱 자체가 검정이 됩니다. 두 낱말만 세워 두면 됩니다.</p>
+<table>
+ <tr><th class="l" style="width:24%">낱말</th><th class="l">뜻</th></tr>
+ <tr><td class="l"><b>관측도수</b></td><td class="l">실제로 세어 보니 그 칸에 있던 개수.</td></tr>
+ <tr><td class="l"><b>기대도수</b></td><td class="l">"차이가 없다"는 가정이 맞다면 그 칸에 있었을 개수. 교차표에서는 (그 행의 합계 × 그 열의 합계) ÷ 전체입니다.</td></tr>
+</table>
+<div class="eq">
+  <span class="eqlab">관측도수가 기대도수에서 벗어난 정도를 제곱해 모으고, 기대도수로 나눈다</span>
+  <math display="block"><msup><mi>χ</mi><mn>2</mn></msup><mo>=</mo>
+    <mo>Σ</mo><mfrac>
+      <msup><mrow><mo stretchy="false">(</mo><mi>관측도수</mi><mo>−</mo><mi>기대도수</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup>
+      <mi>기대도수</mi></mfrac></math>
+  <span class="note">기대도수로 나누는 이유 — 기대가 100 인 칸에서 10 벗어난 것과 기대가 4 인 칸에서 10 벗어난 것은 무게가 다릅니다</span>
+</div>
+<p><b>손으로 한 번 해 보겠습니다.</b> 같은 네 차종을 100대 더 가져와, 저속 충돌 뒤 <b>수리가 필요했는지</b>만 세었다고 합시다. 이번에는 점수가 아니라 <b>개수</b>입니다.</p>
+<div id="chiTable"></div>
+<p>표의 모든 칸에서 기대도수가 <b>12.5</b> 로 같습니다 — 차종마다 25대씩이고 전체에서 수리가 필요한 비율이 절반이니, 차이가 없다면 각 칸에 12.5대가 들어가야 합니다. <b>기대도수가 5 이상이어야</b> 카이제곱을 쓸 수 있는데(작으면 정확검정으로 갑니다) 여기서는 넉넉합니다.</p>
+<div id="chiCalc"></div>
+<p><b>자유도는 (행 − 1) × (열 − 1) 입니다.</b> 행 합계와 열 합계를 이미 자료에서 가져다 썼으므로, 표의 칸을 자유롭게 채울 수 있는 자리는 그만큼 줄어듭니다 — 4행 2열이면 (4−1) × (2−1) = <b>3</b> 입니다. §4~§6 에서 본 "빌려 쓴 만큼 뺀다"가 표에서는 이렇게 나타납니다.</p>
+<div class="key"><b>정리하면</b> — 재는 값(손상지수)이면 평균을 견주는 t·F 로 가고, <b>세는 값(대수·건수)이면 카이제곱</b>으로 갑니다. 같은 자료라도 무엇을 물었느냐에 따라 자가 달라집니다.</div>
+<pre># 시험장에서는 표만 넘기면 기대도수·자유도까지 한 번에 나옵니다
+from scipy.stats import chi2_contingency
+표 = [[6, 19], [10, 15], [13, 12], [21, 4]]
+chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
+
+<script>
+/* ══════════ §7 카이제곱으로 도수 자료 검정하기 ══════════ */
+(function(){
+ var tb=document.getElementById('chiTable'), cal=document.getElementById('chiCalc');
+ if(!tb||!cal) return;
+ var NAME=['A','B','C','D'], COL=['수리 필요','수리 불필요'];
+ var O=[[6,19],[10,15],[13,12],[21,4]];                 /* 관측도수(고정 자료) */
+ var rt=O.map(function(r){return r[0]+r[1];});
+ var ct=[0,1].map(function(j){ return O.reduce(function(s,r){return s+r[j];},0); });
+ var N=rt.reduce(function(a,b){return a+b;},0);
+ var chi=0, rows='';
+ O.forEach(function(r,i){ r.forEach(function(o,j){ var e=rt[i]*ct[j]/N; chi+=(o-e)*(o-e)/e; }); });
+ var df=(O.length-1)*(COL.length-1), pv=1-chi2Cdf(chi,df), crit=qOf(function(u){return chi2Cdf(u,df);},0.95,0,80);
+ var h='<table><tr><th class="l">차종</th><th>'+COL[0]+'</th><th>'+COL[1]+'</th><th>합계</th></tr>';
+ O.forEach(function(r,i){ h+='<tr><td class="l"><b>'+NAME[i]+'</b></td><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+rt[i]+'</td></tr>'; });
+ h+='<tr><th class="l">합계</th><th>'+ct[0]+'</th><th>'+ct[1]+'</th><th>'+N+'</th></tr></table>';
+ tb.innerHTML=h;
+ var det='';
+ O.forEach(function(r,i){ r.forEach(function(o,j){ var e=rt[i]*ct[j]/N;
+  det+=NAME[i]+' · '+COL[j]+'   관측 '+o+'  기대 '+fmt(e,1)+'   ('+o+' − '+fmt(e,1)+')² ÷ '+fmt(e,1)+' = '+fmt((o-e)*(o-e)/e,3)+'\n'; }); });
+ cal.innerHTML='<pre>'+det+'─────────────────────────────────────────────\n'+
+  'χ² = '+fmt(chi,3)+'   자유도 '+df+'   임계값(0.05) '+fmt(crit,3)+'   p = '+fmt(pv,5)+
+  '\n판정 : '+(chi>crit?'귀무가설(차종과 수리 여부는 무관하다)을 기각 — 관련이 있다':'기각하지 못함')+'</pre>';
+})();
+</script>
 
 <h2><span class="step">§8</span>t 분포 — 분모까지 흔들릴 때</h2>
 <p>z 를 쓰려면 <b>진짜 표준편차 σ 를 알아야</b> 합니다. 그런데 현실에서 아는 경우가 있습니까? 없습니다. 그래서 표본에서 잰 s 를 대신 씁니다. 그 순간 분자만이 아니라 <b>분모까지 표본마다 흔들립니다.</b></p>
