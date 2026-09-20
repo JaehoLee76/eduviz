@@ -385,10 +385,10 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
   { k:'chi', t:'카이제곱  χ²(k)', s:'z 를 k개 제곱해 더함',
     pdf:function(u){return chi2Pdf(u,4);}, x0:0, x1:16, col:'--gC',
     cap:'<b>카이제곱 χ²(k)</b> — 독립인 z 를 <b>k개 제곱해서 더한</b> 값의 분포입니다. 흩어짐은 언제나 제곱합으로 재므로, "이 제곱합이 우연히 얼마나 커질 수 있나"를 재려면 이 자가 필요합니다. k 가 곧 <b>자유도</b>입니다 — 앞서 말한 "자료에 남은 진짜 정보의 개수"를 기하로 보면 <b>서로 겹치지 않고 혼자 움직일 수 있는 방향이 몇 개인가</b>와 같은 말입니다(§5). 그림은 k=4.' },
-  { k:'t', t:'스튜던트  t(v)', s:'z ÷ √(χ²/v)',
+  { k:'t', t:'스튜던트  t(v)', s:'Z ÷ √(V/v),  V ~ χ²(v)',
     pdf:function(u){return tPdf(u,4);}, x0:-4.2, x1:4.2, col:'--gB',
-    cap:'<b>t 분포</b> — 진짜 흩어짐 σ 를 모를 때 표본에서 잰 s 로 대신하면, 분자뿐 아니라 <b>분모까지 흔들립니다.</b> 그 이중의 흔들림을 반영해 z 보다 <b>꼬리가 두껍게</b> 만든 자입니다. 정의는 z 를 √(χ²(v)/v) 로 나눈 것이고, 여기서 <b>v 는 자유도</b>입니다(§4~§6 에서 만집니다). 자유도가 커지면 z 로 수렴합니다. 그림은 자유도 v=4 인 경우.' },
-  { k:'F', t:'피셔  F(d₁,d₂)', s:'(χ²/d₁) ÷ (χ²/d₂)',
+    cap:'<b>t 분포</b> — 진짜 흩어짐 σ 를 모를 때 표본에서 잰 s 로 대신하면, 분자뿐 아니라 <b>분모까지 흔들립니다.</b> 그 이중의 흔들림을 반영해 z 보다 <b>꼬리가 두껍게</b> 만든 자입니다. 정의는 <b>표준정규 Z 를 √(V/v) 로 나눈 것</b>입니다 — 여기서 V 는 자유도 v 인 카이제곱을 따르는 값이고, <b>Z 와 V 는 서로 독립</b>이어야 합니다. v 는 자유도입니다(§4~§6 에서 만집니다). 자유도가 커지면 z 로 수렴합니다. 그림은 자유도 v=4 인 경우.' },
+  { k:'F', t:'피셔  F(d₁,d₂)', s:'(V₁/d₁) ÷ (V₂/d₂)',
     pdf:function(u){return fPdf(u,3,28);}, x0:0, x1:6, col:'--gD',
     cap:'<b>F 분포</b> — <b>흩어짐 두 개의 비율</b>이 우연히 얼마나 커질 수 있는지 재는 자입니다. 카이제곱 둘을 각자의 자유도로 나눈 뒤 나눗셈한 것 — 자유도로 나누는 이유는 방향 수가 다르면 그냥은 견줄 수 없기 때문입니다. <b>F(d₁, d₂) 의 두 수는 위쪽·아래쪽 각각의 자유도</b>입니다. 분산분석의 심장이며, 그림이 바로 다음 실험실의 <b>F(3, 28)</b> 입니다.' }
  ];
@@ -1126,11 +1126,13 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
 <h2><span class="step">§7</span>카이제곱 — 흩어짐을 재는 자를 만들다</h2>
 <p>흩어짐은 언제나 <b>제곱해서 더한 값</b>으로 잽니다. 그렇다면 판정을 하려면 하나를 더 알아야 합니다 — <b>차이가 전혀 없을 때도 이 제곱합이 우연히 얼마나 커질 수 있는가.</b> 그 폭을 담아 둔 자가 카이제곱이고, 만드는 방법은 놀랍도록 단순합니다.</p>
 <div class="eq">
-  <span class="eqlab">독립인 표준정규를 k 개 제곱해서 더한다 (k = 자유도)</span>
-  <math display="block"><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>=</mo>
+  <span class="eqlab">서로 독립인 표준정규를 k 개 제곱해서 더하면, 그 합이 자유도 k 인 카이제곱을 따른다</span>
+  <math display="block">
     <msubsup><mi>Z</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo>
     <msubsup><mi>Z</mi><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mo>⋯</mo><mo>+</mo>
-    <msubsup><mi>Z</mi><mi>k</mi><mn>2</mn></msubsup></math>
+    <msubsup><mi>Z</mi><mi>k</mi><mn>2</mn></msubsup>
+    <mo>∼</mo><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></math>
+  <span class="note">"∼" 는 <b>그 분포를 따른다</b>는 뜻이고, χ²(k) 는 <b>분포의 이름</b>입니다 — 값이 아니라 자의 이름입니다</span>
 </div>
 <p>아래에서 왼쪽이 <b>공장</b>입니다. 매번 z 를 k개 뽑아 제곱해 쌓고, 그 합 하나를 오른쪽 히스토그램에 던져 넣습니다. <b>던져 넣은 값이 쌓이면서 히스토그램의 모양이 만들어집니다.</b> 겹쳐 놓은 굵은 선이 이론 곡선입니다 — 던질수록 히스토그램이 그 선에 가까워집니다.</p>
 
@@ -1330,11 +1332,13 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
   <span class="eqlab">σ 를 몰라 s 로 대신할 때 — 분모까지 흔들린다 → 꼬리가 두꺼워진다</span>
   <math display="block"><mi>t</mi><mo>=</mo><mfrac><mrow><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><mi>μ</mi></mrow><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac></math>
 </div>
-<p><b>그 흔들리는 분모의 정체는 방금 §7 에서 만들었습니다.</b> Σ(x − x̄)² ÷ σ² 이 χ²(n−1) 을 따른다고 했으니, s² 은 바로 그 카이제곱을 (n−1) 로 나눈 것입니다. 그러면 t 는 이렇게 읽힙니다 — <b>z 하나를 √(χ²(v)/v) 로 나눈 값</b>. 새로 만든 자가 아니라, z 와 카이제곱을 겹쳐 만든 자입니다.</p>
+<p><b>그 흔들리는 분모의 정체는 방금 §7 에서 만들었습니다.</b> Σ(x − x̄)² ÷ σ² 이 χ²(n−1) 을 따른다고 했으니, s² 은 바로 그 카이제곱을 (n−1) 로 나눈 것입니다. 그러면 t 는 이렇게 읽힙니다 — <b>표준정규 하나를, 카이제곱을 자유도로 나눈 뒤 제곱근 씌운 것으로 나눈 값</b>. 새로 만든 자가 아니라, z 와 카이제곱을 겹쳐 만든 자입니다.</p>
+<p><b>여기에 조건이 하나 붙습니다 — 위의 Z 와 아래의 V 가 서로 독립이어야 합니다.</b> 다행히 정규분포에서 뽑은 자료에서는 <b>표본평균 x̄ 와 표본분산 s² 이 실제로 독립</b>입니다. 분자는 x̄ 로 만들고 분모는 s 로 만드는데 그 둘이 서로 간섭하지 않는다는 뜻이고, 그래서 이 조립이 성립합니다. 정규분포라는 전제가 필요한 자리가 바로 여기입니다.</p>
 <div class="eq">
-  <span class="eqlab">분자는 z, 분모는 방금 만든 카이제곱 (v = 자유도, 이 자료에서는 14)</span>
-  <math display="block"><mi>t</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>=</mo>
-    <mfrac><mi>z</mi><msqrt><mfrac><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></mrow><mi>v</mi></mfrac></msqrt></mfrac></math>
+  <span class="eqlab">분자는 표준정규 Z, 분모는 방금 만든 카이제곱 V (v = 자유도, 이 자료에서는 14)</span>
+  <math display="block"><mi>T</mi><mo>=</mo>
+    <mfrac><mi>Z</mi><msqrt><mfrac><mi>V</mi><mi>v</mi></mfrac></msqrt></mfrac></math>
+  <span class="note">Z ~ N(0, 1) · V ~ χ²(v) · <b>Z 와 V 는 서로 독립</b> — 이때 T 가 자유도 v 인 t 분포를 따릅니다</span>
 </div>
 
 <div class="lab">
@@ -1464,13 +1468,13 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
 <h2><span class="step">§9</span>F 분포 — 흩어짐 두 개의 비율</h2>
 <p>마지막입니다. 분산분석이 묻는 것은 <b>"조 사이의 흩어짐이 조 안의 흩어짐보다 유난히 큰가"</b> 입니다. 크기를 견주려면 나눗셈을 해야 하고, 그 <b>비율이 우연히 얼마나 커질 수 있는지</b>를 담은 자가 F 입니다.</p>
 <div class="eq">
-  <span class="eqlab">두 카이제곱을 각자의 자유도로 나눈 뒤, 그 둘을 나눈다</span>
+  <span class="eqlab">카이제곱을 따르는 값 둘을 각자의 자유도로 나눈 뒤, 그 둘을 나눈다</span>
   <math display="block"><mi>F</mi><mo>=</mo>
     <mfrac>
-      <mfrac><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><msub><mi>d</mi><mn>1</mn></msub><mo stretchy="false">)</mo></mrow><msub><mi>d</mi><mn>1</mn></msub></mfrac>
-      <mfrac><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><msub><mi>d</mi><mn>2</mn></msub><mo stretchy="false">)</mo></mrow><msub><mi>d</mi><mn>2</mn></msub></mfrac>
+      <mfrac><msub><mi>V</mi><mn>1</mn></msub><msub><mi>d</mi><mn>1</mn></msub></mfrac>
+      <mfrac><msub><mi>V</mi><mn>2</mn></msub><msub><mi>d</mi><mn>2</mn></msub></mfrac>
     </mfrac></math>
-  <span class="note">d₁ · d₂ 는 위쪽·아래쪽 각각의 자유도입니다</span>
+  <span class="note">V₁ ~ χ²(d₁) · V₂ ~ χ²(d₂) · <b>둘은 서로 독립</b> — d₁ · d₂ 는 위쪽·아래쪽 각각의 자유도입니다</span>
 </div>
 <p>여기 나오는 <b>관측 F = 6.724 는 이 페이지 맨 앞에서 본 그 값</b>입니다. 차종 네 조 32대 자료에서 나온 수이고, 아래 그림의 붉은 선이 그것입니다.</p>
 <p>왜 굳이 <b>자유도로 나누고</b> 비교할까요. 조 간 제곱합은 방향 3개에서, 조 내 제곱합은 방향 28개에서 모은 것입니다. 그냥 견주면 방향이 많은 쪽이 무조건 커 보입니다. <b>방향 하나당 평균 몇인지</b>로 환산해야 공정합니다 — 그것이 평균제곱(MS)입니다.</p>
@@ -1699,9 +1703,9 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
 <table>
  <tr><th class="l" style="width:22%">분포</th><th class="l">정의 — 무엇으로 만들어졌나</th><th class="l" style="width:30%">왜 만들었나</th></tr>
  <tr><td class="l"><b>정규 z</b></td><td class="l">(값 − 평균) ÷ 표준편차</td><td class="l">단위가 제각각인 자를 하나로 통일해, 넓이표를 한 장만 쓰려고</td></tr>
- <tr><td class="l"><b>카이제곱 χ²(k)</b></td><td class="l">Z₁² + … + Z_k²</td><td class="l">흩어짐(제곱합)이 우연히 얼마나 커질 수 있는지 재려고</td></tr>
- <tr><td class="l"><b>t(v)</b></td><td class="l">Z ÷ √(χ²(v)/v)</td><td class="l">σ 를 모르고 s 로 대신할 때, 분모까지 흔들리는 것을 반영하려고</td></tr>
- <tr><td class="l"><b>F(d₁,d₂)</b></td><td class="l">(χ²(d₁)/d₁) ÷ (χ²(d₂)/d₂)</td><td class="l">흩어짐 두 개의 <b>비율</b>이 우연히 얼마나 커질 수 있는지 재려고</td></tr>
+ <tr><td class="l"><b>카이제곱 χ²(k)</b></td><td class="l">Z₁² + … + Z_k² ~ χ²(k) · 각 Z 는 서로 독립</td><td class="l">흩어짐(제곱합)이 우연히 얼마나 커질 수 있는지 재려고</td></tr>
+ <tr><td class="l"><b>t(v)</b></td><td class="l">Z ÷ √(V/v) · V ~ χ²(v) · Z ⊥ V</td><td class="l">σ 를 모르고 s 로 대신할 때, 분모까지 흔들리는 것을 반영하려고</td></tr>
+ <tr><td class="l"><b>F(d₁,d₂)</b></td><td class="l">(V₁/d₁) ÷ (V₂/d₂) · V₁ ~ χ²(d₁) · V₂ ~ χ²(d₂) · 서로 독립</td><td class="l">흩어짐 두 개의 <b>비율</b>이 우연히 얼마나 커질 수 있는지 재려고</td></tr>
 </table>
 
 <h3>자유도 — 규칙은 하나뿐입니다</h3>
