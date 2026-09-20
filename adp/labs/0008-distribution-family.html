@@ -542,8 +542,11 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 
 <h3>잠깐 — 그림의 가로축·세로축이 각각 무엇입니까</h3>
 <pre>가로축 = 값 그 자체 (z 는 "평균에서 표준편차 몇 개만큼 떨어졌나")
-세로축 = 확률밀도.  <b>확률은 높이가 아니라 곡선 아래 넓이입니다.</b>
-         봉우리 높이 0.3989 는 "z=0 일 확률 39.89%"라는 뜻이 아닙니다.</pre>
+세로축 = 확률밀도.  <b>확률은 높이가 아니라 곡선 아래 넓이입니다.</b></pre>
+<p><b>그 세로축 값이 어디서 나오는지부터 보겠습니다.</b> 정규분포 곡선의 높이는 식 하나로 정해집니다.</p>
+<pre id="preHgt"></pre>
+<p>가장 높은 자리는 한가운데인 z = 0 이고, 거기에 z = 0 을 넣으면 지수 부분이 1 이 되어 <b>1 ÷ √(2π)</b> 만 남습니다. 그래서 봉우리 높이가 <span id="v_phi0"></span> 입니다 — 곡선 모양에서 저절로 따라 나오는 수이지 따로 정해 준 수가 아닙니다.</p>
+<p><b>이 수는 확률이 아닙니다.</b> "z = 0 일 확률이 39.89%"라는 뜻이 아니라, 그 근처가 가장 빽빽하다는 뜻입니다. 확률로 바꾸려면 <b>폭을 곱해야</b> 합니다 — 높이 × 폭 = 넓이이기 때문입니다. 예를 들어 z = 0 을 감싸는 폭 0.01 짜리 좁은 구간의 확률은 <span id="v_slab"></span> 정도, 즉 0.4% 도 되지 않습니다.</p>
 <p>그리고 <b>표준편차가 1이라고 해서 값이 1을 넘지 못하는 것이 아닙니다.</b> 표준편차는 울타리가 아니라 <b>"보통 이 정도 벗어난다"는 눈금</b>입니다. 아래에서 직접 200개를 뽑아 세어 보십시오 — 세 번에 한 번꼴로 1을 넘습니다.</p>
 
 <div class="lab">
@@ -561,6 +564,12 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 /* ══════════ §2 표준화 ══════════ */
 (function(){
  var cv=document.getElementById('cvZ'), sZ=document.getElementById('sZ'), oZ=document.getElementById('oZ'), ro=document.getElementById('roZ');
+ /* 봉우리 높이는 곡선 식에서 그대로 나오는 수이므로 식과 값을 함께 보여 준다 */
+ (function(){ function set(id,t){ var e=document.getElementById(id); if(e) e.innerHTML=t; }
+  set('preHgt','높이(z) =  e^(−z² ÷ 2)  ÷  √(2π)\n\n'
+   +'z = 0 → e⁰ = 1 이므로   높이 = 1 ÷ √(2π) = 1 ÷ '+fmt(Math.sqrt(2*Math.PI),4)+' = '+fmt(normPdf(0),4));
+  set('v_phi0','<b>'+fmt(normPdf(0),4)+'</b>');
+  set('v_slab','<b>'+fmt(normCdf(0.005)-normCdf(-0.005),6)+'</b>'); })();
  var CASE=[ {n:'성인 남성 키', u:'cm', mu:172, sd:6, col:'--gA', d:0},
             {n:'범퍼 손상지수', u:'점', mu:16.125, sd:3.12, col:'--gC', d:2},
             {n:'모의고사 점수', u:'점', mu:60, sd:15, col:'--gD', d:1} ];
