@@ -47,6 +47,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .btn{min-height:44px;padding:.4rem .9rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);
  color:var(--accent);font-weight:700;font-size:.86rem;cursor:pointer;font-family:inherit}
 .btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+math{font-size:1.25rem;color:var(--ink)}
+math sup,math msup{font-size:inherit}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;margin:.7rem 0;
+ overflow-x:auto;text-align:center;line-height:1.7}
+.eq .eqlab{display:block;font-size:.8rem;color:var(--soft);margin-bottom:.15rem;text-align:left}
+.eq .note{display:block;font-size:.84rem;color:var(--soft);margin:.5rem 0 .1rem}
 pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
 .ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
@@ -544,7 +550,24 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 <pre>가로축 = 값 그 자체 (z 는 "평균에서 표준편차 몇 개만큼 떨어졌나")
 세로축 = 확률밀도.  <b>확률은 높이가 아니라 곡선 아래 넓이입니다.</b></pre>
 <p><b>그 세로축 값이 어디서 나오는지부터 보겠습니다.</b> 정규분포 곡선의 높이는 식 하나로 정해집니다. 먼저 원래 단위(키는 cm, 손상지수는 점) 그대로 쓴 모양이 있고, 그것을 z 로 옮긴 모양이 있습니다. <b>둘은 같은 식</b>입니다.</p>
-<pre id="preHgt"></pre>
+<div class="eq">
+  <span class="eqlab">일반 정규분포의 높이</span>
+  <math display="block"><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac><mn>1</mn><mrow><mi>σ</mi><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mrow></mfrac>
+    <msup><mi>e</mi><mrow><mo>−</mo>
+      <mfrac><msup><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup>
+             <mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac></mrow></msup></math>
+  <span class="note">z = (x − μ) / σ 로 옮기면 μ = 0, σ = 1 이 되어</span>
+  <span class="eqlab">표준정규분포의 높이</span>
+  <math display="block"><mi>φ</mi><mo stretchy="false">(</mo><mi>z</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mfrac>
+    <msup><mi>e</mi><mrow><mo>−</mo><mfrac><msup><mi>z</mi><mn>2</mn></msup><mn>2</mn></mfrac></mrow></msup></math>
+  <span class="note">봉우리는 한가운데. z = 0 이면 e<sup>0</sup> = 1 이므로</span>
+  <math display="block"><mi>φ</mi><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mfrac>
+    <mo>=</mo><mfrac><mn>1</mn><mn id="m_root2pi">2.5066</mn></mfrac>
+    <mo>=</mo><mn id="m_phi0">0.3989</mn></math>
+</div>
 <p>두 식에서 달라진 것은 <b>단위를 벗겨 낸 것뿐</b>입니다. σ 로 나눠 옮겼으므로 μ 와 σ 가 식에서 사라지고, 남는 것은 z 하나입니다 — 표준정규 곡선이 <b>모든 문제에 공통으로 쓰이는</b> 이유가 여기에 있습니다. 기호 φ(파이)는 표준정규의 높이를 가리키는 관례적인 이름입니다.</p>
 <p>가장 높은 자리는 한가운데인 z = 0 이고, 거기에 z = 0 을 넣으면 지수 부분이 1 이 되어 <b>1/√(2π)</b> 만 남습니다. 그래서 봉우리 높이가 <span id="v_phi0"></span> 입니다 — 곡선 모양에서 저절로 따라 나오는 수이지 따로 정해 준 수가 아닙니다.</p>
 <p><b>이 수는 확률이 아닙니다.</b> "z = 0 일 확률이 39.89%"라는 뜻이 아니라, 그 근처가 가장 빽빽하다는 뜻입니다. 확률로 바꾸려면 <b>폭을 곱해야</b> 합니다 — 높이 × 폭 = 넓이이기 때문입니다. 예를 들어 z = 0 을 감싸는 폭 0.01 짜리 좁은 구간의 확률은 <span id="v_slab"></span> 정도, 즉 0.4% 도 되지 않습니다.</p>
@@ -567,11 +590,8 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
  var cv=document.getElementById('cvZ'), sZ=document.getElementById('sZ'), oZ=document.getElementById('oZ'), ro=document.getElementById('roZ');
  /* 봉우리 높이는 곡선 식에서 그대로 나오는 수이므로 식과 값을 함께 보여 준다 */
  (function(){ function set(id,t){ var e=document.getElementById(id); if(e) e.innerHTML=t; }
-  set('preHgt','일반 정규분포의 높이    f(x) = 1/(σ·√(2π)) · e^(−(x − μ)²/(2σ²))\n\n'
-   +'                        z = (x − μ)/σ 로 옮기면 μ = 0, σ = 1 이 되어\n\n'
-   +'표준정규분포의 높이    φ(z) = 1/√(2π) · e^(−z²/2)\n\n'
-   +'봉우리는 한가운데       z = 0 → e⁰ = 1 이므로\n'
-   +'                        φ(0) = 1/√(2π) = 1/'+fmt(Math.sqrt(2*Math.PI),4)+' = '+fmt(normPdf(0),4));
+  set('m_root2pi',fmt(Math.sqrt(2*Math.PI),4));
+  set('m_phi0',fmt(normPdf(0),4));
   set('v_phi0','<b>'+fmt(normPdf(0),4)+'</b>');
   set('v_slab','<b>'+fmt(normCdf(0.005)-normCdf(-0.005),6)+'</b>'); })();
  var CASE=[ {n:'성인 남성 키', u:'cm', mu:172, sd:6, col:'--gA', d:0},
@@ -968,8 +988,14 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 <h2><span class="step">§6</span>자유도 3) — 그래서 왜 <b>빼고</b> 나누는가</h2>
 <p><b>여기서 질문이 바뀝니다.</b> §4 와 §5 는 "자유도가 몇 개인가"를 두 가지 방법으로 세었습니다. 답은 둘 다 n − 1 이었습니다. 이제 남은 물음은 <b>"그 수가 왜 하필 나누는 자리에 들어가는가"</b> 입니다. 세는 것과 나누는 것은 별개의 주장이므로, 세 번째 증거가 필요합니다.</p>
 <p>그 전에 가장 흔한 오해를 걷어내겠습니다. <b>n−1 은 분산이라는 개념에 원래 붙어 있는 것이 아닙니다.</b> 진짜 평균 μ 를 알고 있다면 n 으로 나누는 것이 완벽하게 옳습니다.</p>
-<pre>진짜 평균을 알 때   σ² = Σ(x − μ)² / n      ← n 이 맞다
-모를 때(=늘 그렇다)  s² = Σ(x − x̄)² / (n−1)   ← x̄ 를 대신 썼으므로 갚아야 한다</pre>
+<div class="eq">
+  <span class="eqlab">진짜 평균 μ 를 알 때 — n 으로 나누는 것이 맞습니다</span>
+  <math display="block"><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo>
+    <mfrac><mrow><mo>Σ</mo><msup><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow><mi>n</mi></mfrac></math>
+  <span class="eqlab">모를 때(= 늘 그렇습니다) — x̄ 를 대신 썼으므로 하나를 갚습니다</span>
+  <math display="block"><msup><mi>s</mi><mn>2</mn></msup><mo>=</mo>
+    <mfrac><mrow><mo>Σ</mo><msup><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mover><mi>x</mi><mo>‾</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></mfrac></math>
+</div>
 <p>문제는 x̄ 가 <b>그 표본에 가장 가깝게 자리 잡는 값</b>이라는 데 있습니다. Σ(x − a)² 는 a 에 <b>x̄ 를 넣었을 때 가장 작아집니다</b>. 그러니 진짜 평균 μ 를 넣었을 때보다도 반드시 작거나 같습니다. <b>즉 구조적으로 과소평가합니다.</b> 아래에서 직접 확인하십시오 — 진짜 분산이 4인 곳에서 표본을 계속 뽑습니다.</p>
 
 <div class="lab">
@@ -1082,7 +1108,13 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
 
 <h2><span class="step">§7</span>카이제곱 — 흩어짐을 재는 자를 만들다</h2>
 <p>흩어짐은 언제나 <b>제곱해서 더한 값</b>으로 잽니다. 그렇다면 판정을 하려면 하나를 더 알아야 합니다 — <b>차이가 전혀 없을 때도 이 제곱합이 우연히 얼마나 커질 수 있는가.</b> 그 폭을 담아 둔 자가 카이제곱이고, 만드는 방법은 놀랍도록 단순합니다.</p>
-<pre>χ²(k) = Z₁² + Z₂² + … + Z_k²        (독립인 표준정규를 k개 제곱해서 더한다)</pre>
+<div class="eq">
+  <span class="eqlab">독립인 표준정규를 k 개 제곱해서 더한다 (k = 자유도)</span>
+  <math display="block"><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <msubsup><mi>Z</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo>
+    <msubsup><mi>Z</mi><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mo>⋯</mo><mo>+</mo>
+    <msubsup><mi>Z</mi><mi>k</mi><mn>2</mn></msubsup></math>
+</div>
 <p>아래에서 왼쪽이 <b>공장</b>입니다. 매번 z 를 k개 뽑아 제곱해 쌓고, 그 합 하나를 오른쪽 히스토그램에 던져 넣습니다. <b>던져 넣은 값이 쌓이면서 히스토그램의 모양이 만들어집니다.</b> 겹쳐 놓은 굵은 선이 이론 곡선입니다 — 던질수록 히스토그램이 그 선에 가까워집니다.</p>
 
 <div class="lab">
@@ -1204,7 +1236,11 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
 </script>
 
 <div class="concl"><b>자유도와의 연결</b> — 자료 n개에서 평균을 추정하면 편차 벡터는 (n−1)차원 평면에 갇힙니다(§5). 여기에 <b>표준정규는 어느 방향에서 봐도 모양이 같다</b>는 성질을 더하면, 갇힌 차원의 수가 그대로 자유도가 됩니다. 그래서
-<pre>Σ(x − x̄)² / σ²  ~  χ²(n − 1)</pre>
+<div class="eq">
+  <math display="block"><mfrac><mrow><mo>Σ</mo><msup><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mover><mi>x</mi><mo>‾</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow><msup><mi>σ</mi><mn>2</mn></msup></mfrac>
+    <mo>∼</mo><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></math>
+  <span class="note">"∼" 는 <b>그 분포를 따른다</b>는 뜻입니다</span>
+</div>
 §6 실험에서 n=5 로 재 보면 이 값의 평균이 4, 분산이 8 로 나옵니다 — 정확히 <b>자유도 4</b>인 카이제곱의 평균(k)과 분산(2k)입니다. 값은 다섯 개인데 카이제곱은 4. <b>독립적인 방향이 넷뿐이었기 때문</b>입니다.</div>
 
 <div class="qna" data-label="왜 하필 제곱해서 더하나요? 절댓값은 안 되나요?"
@@ -1217,11 +1253,18 @@ n−1 로 나누면  0 / 0 = 정의 안 됨  "이 자료로는 알 수 없다"�
 
 <h2><span class="step">§8</span>t 분포 — 분모까지 흔들릴 때</h2>
 <p>z 를 쓰려면 <b>진짜 표준편차 σ 를 알아야</b> 합니다. 그런데 현실에서 아는 경우가 있습니까? 없습니다. 그래서 표본에서 잰 s 를 대신 씁니다. 그 순간 분자만이 아니라 <b>분모까지 표본마다 흔들립니다.</b></p>
-<pre>z = (x̄ − μ) / (σ/√n)      분모가 고정 — 흔들리는 것은 분자뿐
-t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자주 나온다 → 꼬리가 두껍다</pre>
+<div class="eq">
+  <span class="eqlab">σ 를 알 때 — 분모가 고정, 흔들리는 것은 분자뿐</span>
+  <math display="block"><mi>z</mi><mo>=</mo><mfrac><mrow><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><mi>μ</mi></mrow><mrow><mi>σ</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac></math>
+  <span class="eqlab">σ 를 몰라 s 로 대신할 때 — 분모까지 흔들린다 → 꼬리가 두꺼워진다</span>
+  <math display="block"><mi>t</mi><mo>=</mo><mfrac><mrow><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><mi>μ</mi></mrow><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac></math>
+</div>
 <p><b>그 흔들리는 분모의 정체는 방금 §7 에서 만들었습니다.</b> Σ(x − x̄)² ÷ σ² 이 χ²(n−1) 을 따른다고 했으니, s² 은 바로 그 카이제곱을 (n−1) 로 나눈 것입니다. 그러면 t 는 이렇게 읽힙니다 — <b>z 하나를 √(χ²(v)/v) 로 나눈 값</b>. 새로 만든 자가 아니라, z 와 카이제곱을 겹쳐 만든 자입니다.</p>
-<pre>t(v) = z ÷ √( χ²(v) / v )      분자는 z, 분모는 방금 만든 카이제곱
-                               v = 자유도 (이 자료에서는 14)</pre>
+<div class="eq">
+  <span class="eqlab">분자는 z, 분모는 방금 만든 카이제곱 (v = 자유도, 이 자료에서는 14)</span>
+  <math display="block"><mi>t</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac><mi>z</mi><msqrt><mfrac><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></mrow><mi>v</mi></mfrac></msqrt></mfrac></math>
+</div>
 
 <div class="lab">
   <canvas id="cvT" height="290"></canvas>
@@ -1349,7 +1392,15 @@ t = (x̄ − μ) / (s/√n)      분모도 흔들린다 → 극단값이 더 자
 
 <h2><span class="step">§9</span>F 분포 — 흩어짐 두 개의 비율</h2>
 <p>마지막입니다. 분산분석이 묻는 것은 <b>"조 사이의 흩어짐이 조 안의 흩어짐보다 유난히 큰가"</b> 입니다. 크기를 견주려면 나눗셈을 해야 하고, 그 <b>비율이 우연히 얼마나 커질 수 있는지</b>를 담은 자가 F 입니다.</p>
-<pre>F = (χ²(d₁) / d₁) ÷ (χ²(d₂) / d₂)      두 카이제곱을 각자의 자유도로 나눈 뒤 나눈다</pre>
+<div class="eq">
+  <span class="eqlab">두 카이제곱을 각자의 자유도로 나눈 뒤, 그 둘을 나눈다</span>
+  <math display="block"><mi>F</mi><mo>=</mo>
+    <mfrac>
+      <mfrac><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><msub><mi>d</mi><mn>1</mn></msub><mo stretchy="false">)</mo></mrow><msub><mi>d</mi><mn>1</mn></msub></mfrac>
+      <mfrac><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><msub><mi>d</mi><mn>2</mn></msub><mo stretchy="false">)</mo></mrow><msub><mi>d</mi><mn>2</mn></msub></mfrac>
+    </mfrac></math>
+  <span class="note">d₁ · d₂ 는 위쪽·아래쪽 각각의 자유도입니다</span>
+</div>
 <p>여기 나오는 <b>관측 F = 6.724 는 이 페이지 맨 앞에서 본 그 값</b>입니다. 차종 네 조 32대 자료에서 나온 수이고, 아래 그림의 붉은 선이 그것입니다.</p>
 <p>왜 굳이 <b>자유도로 나누고</b> 비교할까요. 조 간 제곱합은 방향 3개에서, 조 내 제곱합은 방향 28개에서 모은 것입니다. 그냥 견주면 방향이 많은 쪽이 무조건 커 보입니다. <b>방향 하나당 평균 몇인지</b>로 환산해야 공정합니다 — 그것이 평균제곱(MS)입니다.</p>
 
