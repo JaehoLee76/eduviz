@@ -1,0 +1,437 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실기 통계 6) · 베이즈 정리와 확률 갱신 (주어진 데이터 풀이)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;--bad:#c2453f;
+ --gA:#4a86e8;--gB:#e0952b;--gC:#3aa76d;--gD:#9b6ae0;--grand:#7a7580;}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}}
+:root[data-theme="dark"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.08rem;margin:1.8rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+h3{font-size:.95rem;margin:1.2rem 0 .4rem;color:var(--accent)}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}.prob .src{font-size:.75rem;color:var(--soft);margin-top:.5rem}
+.probn{font-weight:800;color:var(--accent);font-size:.88rem;margin:.8rem 0 .2rem}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.5rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.82rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+td.l,th.l{text-align:left}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.key{background:color-mix(in srgb,var(--good) 10%,transparent);border:1px solid var(--good);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.94rem}
+.key b{color:var(--good)}
+.trap{border:1.5px dashed var(--warn);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.trap .v{font-weight:800;color:var(--warn)}
+.ctrl{display:grid;grid-template-columns:170px 1fr 78px;align-items:center;gap:.5rem;font-size:.86rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btnrow{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 0}
+.btn{min-height:42px;padding:.35rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit}
+.btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+math{font-size:1.18rem;color:var(--ink)}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem .8rem;margin:.7rem 0;
+ overflow-x:auto;text-align:center;line-height:1.65}
+.eq .eqlab{display:block;font-size:.8rem;color:var(--soft);margin-bottom:.15rem;text-align:left}
+.eq .note{display:block;font-size:.83rem;color:var(--soft);margin:.4rem 0 .1rem}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.readout{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.8rem;color:var(--soft);
+ margin-top:.5rem;font-variant-numeric:tabular-nums;line-height:1.7}
+.readout b{color:var(--ink)}
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+ border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style><script>
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}
+</script></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">통계 · 베이즈 정리</span></nav>
+
+<p class="eyebrow">실기 통계 6) · 조건부확률과 사후확률</p>
+<h1>베이즈 정리 — 주어진 데이터를 푼다<small>ADP 29회 실기 기출 유형: 정밀 진단과 확률 갱신. <b>정확도 95% 검사에서 양성이 나왔을 때 실제 발병 확률은 왜 16%에 불과한가?</b></small></h1>
+
+<div class="prob">
+  <b>[문제]</b> 정밀 부품을 생산하는 어느 공장에서 특정 부품의 <b>불량률은 1%</b>(= 0.01)로 알려져 있습니다. 공장에 새로 도입된 자동 판별 센서는 다음과 같은 성능을 가집니다.
+  <ul style="margin:.4rem 0 0;padding-left:1.1rem;font-size:.9rem">
+    <li>실제 불량 부품을 불량(양성)으로 정확히 판별할 확률(<b>민감도</b>): <b>95%</b> (= 0.95)</li>
+    <li>실제 정상 부품을 정상(음성)으로 정확히 판별할 확률(<b>특이도</b>): <b>95%</b> (= 0.95)</li>
+  </ul>
+  <p class="probn">[물음 1] 임의로 추출한 부품을 검사한 결과 <b>불량(양성)</b> 판정이 나왔을 때, 이 부품이 <b>실제로 불량일 확률</b>을 구하시오.</p>
+  <p class="probn">[물음 2] 위에서 양성 판정이 나온 부품을 대상으로 독립적인 2차 재검사를 실시하여 <b>다시 한 번 불량(양성)</b> 판정이 나왔을 때, 이 부품이 <b>실제로 불량일 확률(베이즈 갱신)</b>을 구하시오.</p>
+  <div class="src">유형 출처: ADP 실기 29회 복원 유형. 실기 답안은 Python 스크립트로 작성합니다.</div>
+</div>
+
+<div class="concl">
+  <b>상식을 깨는 직관</b> — 검사 정확도가 95%라는 말을 들으면 누구나 "양성이 나왔으니 95% 확률로 불량이겠지"라고 생각하기 쉽습니다. 그러나 실제 계산 결과는 <b>겨우 16.10%</b>입니다. 왜 84%에 달하는 대부분의 양성 판정이 '가짜 양성'이 되는지, 그 원리를 10만 개 부품의 분할표로 먼저 확인해 보겠습니다.
+</div>
+
+<h2><span class="step">§1</span>직관 — 100,000개 부품 분할표로 보기</h2>
+<p>부품 10만 개가 담긴 거대한 상자를 검사한다고 상상해 보십시오. 불량률이 1%이므로 실제 불량 부품은 1,000개뿐이고, 나머지 99,000개는 정상 부품입니다.</p>
+
+<table id="tbPop">
+  <tr><th class="l">구분</th><th>실제 불량 (1%)</th><th>실제 정상 (99%)</th><th>합계</th></tr>
+  <tr><td class="l"><b>센서 양성 (불량 판정)</b></td><td id="c_tp"><b>950</b></td><td id="c_fp" style="color:var(--bad)"><b>4,950</b></td><td id="c_pos"><b>5,900</b></td></tr>
+  <tr><td class="l"><b>센서 음성 (정상 판정)</b></td><td id="c_fn">50</td><td id="c_tn">94,050</td><td id="c_neg">94,100</td></tr>
+  <tr><th class="l">전체 부품</th><th>1,000</th><th>99,000</th><th>100,000</th></tr>
+</table>
+
+<p>표에서 <b>양성(불량 판정)</b> 줄을 보십시오.</p>
+<ul style="margin:.4rem 0 .6rem;padding-left:1.1rem;font-size:.92rem">
+  <li>센서가 불량이라고 알람을 울린 부품은 모두 <b>5,900개</b>입니다.</li>
+  <li>그런데 그중 진짜 불량은 <b>950개</b>뿐이고, 무려 <b>4,950개</b>는 멀쩡한 정상 부품인데 센서가 실수로 양성 판정을 내린 것입니다.</li>
+</ul>
+
+<div class="key">
+  <b>기저율 오류 (Base Rate Fallacy)</b> — 정상 부품이 99,000개로 워낙 압도적으로 많기 때문에, 센서가 저지르는 단 5%의 사소한 실수가 전체 불량 부품의 수(1,000개)를 가볍게 압도해 버립니다.
+  <br>따라서 양성 판정이 났을 때 실제로 불량일 확률은 다음과 같습니다.
+  <pre style="margin:.4rem 0">실제 불량 확률 = 950 ÷ 5,900 = 0.161017... ≈ 16.10%</pre>
+</div>
+
+<h2><span class="step">§2</span>물음 1 풀이 — 베이즈 정리 수식 유도</h2>
+
+<div class="solban">물음 1 공식 풀이</div>
+
+<h3>1) 사건 정의 및 주어진 확률</h3>
+<table>
+  <tr><th class="l" style="width:28%">기호</th><th class="l">통계학적 명칭</th><th style="width:20%">문제의 값</th></tr>
+  <tr><td class="l">P(A)</td><td class="l">사전확률 (Prior: 검사 전 불량률)</td><td>0.01 (1%)</td></tr>
+  <tr><td class="l">P(A<sup>c</sup>)</td><td class="l">정상 부품일 확률 (1 − P(A))</td><td>0.99 (99%)</td></tr>
+  <tr><td class="l">P(B | A)</td><td class="l">민감도 (우도 Likelihood: 불량일 때 양성일 확률)</td><td>0.95 (95%)</td></tr>
+  <tr><td class="l">P(B | A<sup>c</sup>)</td><td class="l">위양성률 (False Positive: 정상일 때 양성일 확률 = 1 − 특이도)</td><td>0.05 (5%)</td></tr>
+</table>
+
+<h3>2) 전확률 정리 — 분모 P(B) 구하기</h3>
+<p>센서가 양성 판정을 내리는 사건 B는 <b>'진짜 불량이어서 양성이 된 경우'</b>와 <b>'정상인데 센서가 오판하여 양성이 된 경우'</b> 둘뿐입니다.</p>
+<div class="eq">
+  <span class="eqlab">전확률 정리 (Law of Total Probability)</span>
+  <math display="block">
+    <mi>P</mi><mo stretchy="false">(</mo><mi>B</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <mi>P</mi><mo stretchy="false">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo><mo>+</mo>
+    <mi>P</mi><mo stretchy="false">(</mo><mi>B</mi><mo>∣</mo><msup><mi>A</mi><mi>c</mi></msup><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><msup><mi>A</mi><mi>c</mi></msup><mo stretchy="false">)</mo>
+  </math>
+  <span class="note">P(B) = (0.95 × 0.01) + (0.05 × 0.99) = 0.0095 + 0.0495 = <b>0.0590 (5.90%)</b></span>
+</div>
+
+<h3>3) 베이즈 정리 — 사후확률 P(A | B) 계산</h3>
+<div class="eq">
+  <span class="eqlab">베이즈 정리 (Bayes' Theorem)</span>
+  <math display="block">
+    <mi>P</mi><mo stretchy="false">(</mo><mi>A</mi><mo>∣</mo><mi>B</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac>
+      <mrow><mi>P</mi><mo stretchy="false">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo></mrow>
+      <mrow><mi>P</mi><mo stretchy="false">(</mo><mi>B</mi><mo stretchy="false">)</mo></mrow>
+    </mfrac><mo>=</mo>
+    <mfrac><mn>0.0095</mn><mn>0.0590</mn></mfrac>
+    <mo>≈</mo><mn>0.1610</mn>
+  </math>
+</div>
+
+<p><b>[답안 1]</b> 1회 검사 결과 양성 판정이 나왔을 때 실제 불량일 확률은 <b>16.10%</b> (또는 약 0.161) 입니다.</p>
+
+<h2><span class="step">§3</span>인터랙티브 캔버스 — 면적으로 보는 베이즈 정리</h2>
+<p>아래 슬라이더를 움직여 보십시오. 불량률이 낮을 때(희귀할 때)는 특이도가 조금만 떨어져도 가짜 양성(주황색) 면적이 진짜 양성(녹색)을 순식간에 집어삼키는 현상을 직접 확인할 수 있습니다.</p>
+
+<div class="lab">
+  <canvas id="cvBayes" height="300"></canvas>
+  <div class="ctrl"><label for="sPrior">사전 불량률 P(A)</label><input id="sPrior" type="range" min="0.002" max="0.10" step="0.002" value="0.01"><output id="oPrior"></output></div>
+  <div class="ctrl"><label for="sSens">민감도 P(B|A)</label><input id="sSens" type="range" min="0.80" max="0.999" step="0.005" value="0.95"><output id="oSens"></output></div>
+  <div class="ctrl"><label for="sSpec">특이도 P(Bᶜ|Aᶜ)</label><input id="sSpec" type="range" min="0.80" max="0.999" step="0.005" value="0.95"><output id="oSpec"></output></div>
+  <div class="btnrow"><button class="btn on" id="bReset">↺ 문제 원래 값(1% · 95% · 95%)</button></div>
+  <div id="roBayes" class="readout"></div>
+</div>
+
+<h2><span class="step">§4</span>물음 2 풀이 — 순차적 베이즈 갱신 (Bayesian Update)</h2>
+
+<div class="solban">물음 2 공식 풀이</div>
+
+<p><b>"그렇다면 16%밖에 안 되는 검사는 쓸모없는 것인가?"</b> — 전혀 그렇지 않습니다. 검사를 받기 전에는 불량 확률이 겨우 <b>1%</b>였는데, 한 번의 양성 판정만으로 확률이 <b>16.10%로 16배나 폭등</b>했습니다.</p>
+<p>이제 이 의심스러운 부품을 대상으로 <b>독립적인 2차 재검사</b>를 실시합니다. 이때 <b>1차 검사에서 얻은 사후확률(16.10%)이 2차 검사의 새로운 사전확률</b>로 들어갑니다. 이것이 바로 <b>베이즈 갱신(Bayesian Update)</b>입니다.</p>
+
+<div class="eq">
+  <span class="eqlab">2차 검사의 새로운 조건</span>
+  새로운 사전확률 P(A) = <b>0.161017</b> · P(A<sup>c</sup>) = <b>0.838983</b>
+  <br>민감도 = 0.95 · 위양성률 = 0.05
+  <span class="note">2차 전확률 P(B₂) = (0.95 × 0.161017) + (0.05 × 0.838983) = 0.152966 + 0.041949 = <b>0.194915</b></span>
+  <span class="eqlab">2차 연속 양성 후 최종 사후확률</span>
+  <math display="block">
+    <mi>P</mi><mo stretchy="false">(</mo><mi>A</mi><mo>∣</mo><msub><mi>B</mi><mn>1</mn></msub><mo>∩</mo><msub><mi>B</mi><mn>2</mn></msub><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac>
+      <mrow><mn>0.95</mn><mo>×</mo><mn>0.161017</mn></mrow>
+      <mn>0.194915</mn>
+    </mfrac><mo>≈</mo>
+    <mn mathvariant="bold">0.7848</mn>
+  </math>
+</div>
+
+<p><b>[답안 2]</b> 2차 재검사에서도 다시 양성이 나왔을 때 실제로 불량일 확률은 <b>78.48%</b> (약 0.785) 로 껑충 뜁니다.</p>
+
+<div class="lab">
+  <canvas id="cvStep" height="220"></canvas>
+  <div id="roStep" class="readout"></div>
+</div>
+
+<div class="key">
+  <b>증거가 누적될수록 확신이 된다</b><br>
+  1회 검사만으로는 가짜 양성에 휘말려 16.10%에 머물렀지만, 두 번째 검사 결과가 결합되자 78.48%로 치솟습니다. 같은 센서로 3회 연속 양성이 나오면 <b>98.58%</b>, 4회 연속이면 <b>99.92%</b>에 도달합니다. 현대 건강검진 시스템에서 1차 선별검사 양성자에게 즉각 확진을 내리지 않고 반드시 <b>2차 정밀 재검</b>을 요구하는 통계학적 근거가 바로 여기에 있습니다.
+</div>
+
+<h2><span class="step">§5</span>Python 답안 — 시험장 제출 형태</h2>
+<p>시험장에서는 아래와 같이 기본 파이썬 연산 또는 함수를 작성하여 서술형 단계별로 답안을 작성합니다.</p>
+
+<pre id="pyCode"></pre>
+
+<div class="trap">
+  <span class="v">시험장에서 점수를 깎이는 3대 함정</span>
+  <ul style="margin:.3rem 0 0;padding-left:1.1rem;font-size:.88rem">
+    <li><b>함정 1</b>: 문제에 주어진 민감도 95%를 그대로 사후확률 답으로 적어버리는 실수 (P(B|A) 와 P(A|B) 는 완전히 다릅니다).</li>
+    <li><b>함정 2</b>: 2차 검사 확률을 구할 때 사전확률을 1%로 다시 리셋해 버리는 실수 (1차 사후확률이 2차의 사전확률이 되어야 합니다).</li>
+    <li><b>함정 3</b>: 전확률 정리 분모 P(B)를 적을 때 정상 집단의 위양성 P(B|Aᶜ)P(Aᶜ) 항을 누락하는 실수.</li>
+  </ul>
+</div>
+
+<div class="qna" data-label="왜 병원에서는 1차 검사 양성만으로 확진 판정을 내리지 않나요?"
+     data-q="왜 병원에서는 1차 검사 양성만으로 확진 판정을 내리지 않나요?">
+  <p><b>기저율(유병률)이 낮은 질환일수록 1차 검사 양성의 대다수가 '가짜 양성'이기 때문입니다.</b></p>
+  <p>유병률이 1%인 질환에서 정확도 95% 검사로 양성이 나와도 실제 환자일 확률은 16%에 불과합니다. 만약 1회 양성만으로 위험한 수술이나 독한 약물 치료를 시작한다면 10명 중 8명 이상의 건강한 사람이 억울한 피해를 보게 됩니다. 따라서 의학계에서는 1차 검사로 고위험군을 좁힌 뒤(1% → 16%), 독립적인 2차 정밀 검사를 통해 사후확률을 80%~99% 이상으로 끌어올린 후에 비로소 최종 확진을 내립니다.</p>
+</div>
+
+<div class="qna" data-label="1차 검사와 2차 검사가 독립이 아니라면 어떻게 되나요?"
+     data-q="1차 검사와 2차 검사가 서로 독립이 아니라면 어떻게 되나요?">
+  <p><b>베이즈 갱신 공식이 사후확률을 실제보다 과대평가하게 됩니다.</b></p>
+  <p>2차 검사에서 확률이 78.5%로 뛰어오르는 계산은 "1차 검사의 오류 원인과 2차 검사의 오류 원인이 서로 독립"이라는 전제 위에 성립합니다. 만약 특정 정상 부품이 가진 독특한 화학 성분 때문에 1차에서 센서가 오작동했다면, 같은 센서로 다시 검사해도 똑같이 오작동할 확률이 높습니다. 따라서 실전에서는 같은 키트로 반복하기보다 <b>원리가 다른 검사법(예: 신속항원검사 후 PCR 검사)</b>을 교차 적용하여 독립성을 확보합니다.</p>
+</div>
+
+<div class="ask">
+  <b>튜터에게 물어볼 만한 근본 질문</b>
+  <ul>
+    <li>나이브 베이즈(Naive Bayes) 분류기에서는 이 베이즈 정리가 어떻게 머신러닝 알고리즘으로 확장됩니까?</li>
+    <li>불량률(사전확률)이 0.01%처럼 극도로 희귀한 희귀 질환에서는 검사 정확도가 몇 %여야 사후확률이 50%를 넘습니까?</li>
+    <li>연속형 확률분포에서 사전분포와 사후분포가 같은 형태를 띠는 <b>켤레사전분포(Conjugate Prior)</b>란 무엇입니까?</li>
+  </ul>
+</div>
+
+<nav class="labnav bot">
+  <a href="./0007-ttest-lab.html">← t검정 (대응·독립)</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <a href="./0002-anova-lab.html">분산분석 (ANOVA) →</a>
+</nav>
+
+</div>
+
+<script>
+/* ══════════ 계산 및 화면 렌더링 스크립트 ══════════ */
+(function(){
+ function f(v,d){ return v.toFixed(d===undefined?2:d); }
+ function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+ function alpha(c,a){ c=(c||'').trim();
+  if(c[0]==='#'){ if(c.length===4) c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];
+    return 'rgba('+parseInt(c.substr(1,2),16)+','+parseInt(c.substr(3,2),16)+','+parseInt(c.substr(5,2),16)+','+a+')'; }
+  var m=c.match(/-?\d+\.?\d*/g); return m&&m.length>=3?'rgba('+m[0]+','+m[1]+','+m[2]+','+a+')':c; }
+ function setup(cv,h){ var dpr=window.devicePixelRatio||1,w=cv.clientWidth;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+'px';
+  var x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,w,h);
+  return {x:x,w:w,h:h}; }
+
+ /* ── §3 베이즈 면적 다이어그램 ── */
+ var cv1=document.getElementById('cvBayes'), sP=document.getElementById('sPrior'), oP=document.getElementById('oPrior'),
+     sSe=document.getElementById('sSens'), oSe=document.getElementById('oSens'),
+     sSp=document.getElementById('sSpec'), oSp=document.getElementById('oSpec'),
+     ro1=document.getElementById('roBayes'), bRst=document.getElementById('bReset');
+
+ function calcBayes(p, sens, spec){
+  var tp = p * sens;
+  var fp = (1 - p) * (1 - spec);
+  var fn = p * (1 - sens);
+  var tn = (1 - p) * spec;
+  var pB = tp + fp;
+  var post = tp / pB;
+  return { tp:tp, fp:fp, fn:fn, tn:tn, pB:pB, post:post };
+ }
+
+ function drawBayes(){
+  var p = +sP.value, sens = +sSe.value, spec = +sSp.value;
+  var res = calcBayes(p, sens, spec);
+  oP.textContent = (p*100).toFixed(1)+'%';
+  oSe.textContent = (sens*100).toFixed(1)+'%';
+  oSp.textContent = (spec*100).toFixed(1)+'%';
+
+  var o=setup(cv1, 300), x=o.x, W=o.w, H=o.h;
+  var narrow = W < 520;
+  var pL=10, pR=10, pT=36, pB=40, gw=W-pL-pR, gh=H-pT-pB;
+
+  /* 상단 설명 */
+  x.font = '700 12px -apple-system,sans-serif';
+  x.fillStyle = css('--accent');
+  x.textAlign = 'left';
+  x.fillText('■ 양성 판정 전체 영역 (분모 P(B) = '+f(res.pB*100, 2)+'%)', pL, 18);
+
+  /* 가로 분할: 실제 불량 vs 실제 정상 */
+  var wDis = Math.max(28, gw * Math.pow(p, 0.45)); /* 시각적 판독을 위해 비선형 너비 스케일 적용하되 라벨은 실제값 */
+  var wHlt = gw - wDis;
+
+  /* 불량 칸 (왼쪽 열) */
+  var hTP = gh * sens;
+  var hFN = gh - hTP;
+  /* 진양성 (불량 & 양성) */
+  x.fillStyle = alpha(css('--good'), 0.85);
+  x.fillRect(pL, pT, wDis, hTP);
+  x.strokeStyle = css('--good'); x.lineWidth = 1.5;
+  x.strokeRect(pL+0.5, pT+0.5, wDis-1, hTP-1);
+
+  /* 위음성 (불량 & 음성) */
+  x.fillStyle = alpha(css('--grand'), 0.25);
+  x.fillRect(pL, pT+hTP, wDis, hFN);
+  x.strokeStyle = css('--rule');
+  x.strokeRect(pL+0.5, pT+hTP+0.5, wDis-1, hFN-1);
+
+  /* 정상 칸 (오른쪽 열) */
+  var hFP = gh * (1 - spec);
+  var hTN = gh - hFP;
+  /* 위양성 (정상 & 양성) - 가짜 양성 */
+  x.fillStyle = alpha(css('--bad'), 0.75);
+  x.fillRect(pL+wDis, pT, wHlt, hFP);
+  x.strokeStyle = css('--bad'); x.lineWidth = 1.5;
+  x.strokeRect(pL+wDis+0.5, pT+0.5, wHlt-1, hFP-1);
+
+  /* 진음성 (정상 & 음성) */
+  x.fillStyle = alpha(css('--paper'), 0.6);
+  x.fillRect(pL+wDis, pT+hFP, wHlt, hTN);
+  x.strokeStyle = css('--rule');
+  x.strokeRect(pL+wDis+0.5, pT+hFP+0.5, wHlt-1, hTN-1);
+
+  /* 텍스트 라벨 */
+  x.textAlign = 'center';
+  x.font = '700 11px -apple-system,sans-serif';
+  if(wDis > 45 && hTP > 20){
+   x.fillStyle = '#fff';
+   x.fillText('진짜 양성', pL+wDis/2, pT+hTP/2-3);
+   x.fillText(f(res.tp*100, 2)+'%', pL+wDis/2, pT+hTP/2+12);
+  }
+  if(wHlt > 60 && hFP > 16){
+   x.fillStyle = '#fff';
+   x.fillText(narrow?'가짜 양성':'가짜 양성 (위양성)', pL+wDis+wHlt/2, pT+hFP/2+4);
+  }
+
+  /* 하단 열 구분 표시 */
+  x.fillStyle = css('--soft');
+  x.font = '11px -apple-system,sans-serif';
+  x.fillText('실제 불량 '+f(p*100, 1)+'%', pL+wDis/2, H-12);
+  x.fillText('실제 정상 '+f((1-p)*100, 1)+'%', pL+wDis+wHlt/2, H-12);
+
+  ro1.innerHTML = '사전 불량률 <b>'+f(p*100, 2)+'%</b> · 센서 양성 판정률 P(B) = <b>'+f(res.pB*100, 2)+'%</b><br>'+
+    '양성 판정 중 실제 불량(사후확률 P(A|B)) = <b>'+f(res.post*100, 2)+'%</b> &nbsp;·&nbsp; 가짜 양성 비율 = <b>'+f((1-res.post)*100, 2)+'%</b>'+
+    '<br>녹색 면적(진짜 불량)이 양성 전체(녹색+빨간색)에서 차지하는 비율이 바로 <b>사후확률</b>입니다.';
+ }
+
+ [sP, sSe, sSp].forEach(function(el){ el.addEventListener('input', drawBayes); });
+ bRst.addEventListener('click', function(){
+  sP.value = 0.01; sSe.value = 0.95; sSp.value = 0.95;
+  drawBayes();
+ });
+
+ /* ── §4 베이즈 갱신 단계별 차트 ── */
+ var cv2=document.getElementById('cvStep'), ro2=document.getElementById('roStep');
+ function drawStep(){
+  var o=setup(cv2, 220), x=o.x, W=o.w, H=o.h;
+  var stages = [
+   { name:'검사 전 (사전)', prob: 0.01 },
+   { name:'1회 양성 후', prob: 0.161017 },
+   { name:'2회 연속 양성', prob: 0.784783 },
+   { name:'3회 연속 양성', prob: 0.985772 },
+   { name:'4회 연속 양성', prob: 0.999241 }
+  ];
+  var pL=14, pR=14, pT=26, pB=40, gw=W-pL-pR, gh=H-pT-pB;
+  var bw = gw / stages.length;
+
+  x.strokeStyle = css('--rule'); x.lineWidth = 1;
+  x.beginPath(); x.moveTo(pL, pT+gh); x.lineTo(pL+gw, pT+gh); x.stroke();
+
+  stages.forEach(function(st, i){
+   var bx = pL + bw * i + bw*0.15;
+   var barW = bw * 0.7;
+   var barH = Math.max(4, gh * st.prob);
+   var by = pT + gh - barH;
+
+   var col = i===0 ? css('--soft') : (i===1 ? css('--warn') : css('--good'));
+   x.fillStyle = alpha(col, 0.85);
+   x.fillRect(bx, by, barW, barH);
+   x.strokeStyle = col; x.lineWidth = 1.5;
+   x.strokeRect(bx+0.5, by+0.5, barW-1, barH-1);
+
+   /* 상단 수치 라벨 */
+   x.fillStyle = col;
+   x.font = '700 11.5px -apple-system,sans-serif';
+   x.textAlign = 'center';
+   x.fillText((st.prob*100).toFixed(1)+'%', bx+barW/2, by - 6);
+
+   /* 하단 단계명 라벨 */
+   x.fillStyle = css('--ink');
+   x.font = '11px -apple-system,sans-serif';
+   x.fillText(st.name, bx+barW/2, H - 12);
+  });
+
+  ro2.innerHTML = '1회차(16.1%) 사후확률이 2회차의 사전확률로 투입되어 <b>78.5%</b>로 급등하고, 3회차에는 <b>98.6%</b>로 거의 확실해집니다.';
+ }
+
+ window.addEventListener('resize', function(){ drawBayes(); drawStep(); });
+ drawBayes();
+ drawStep();
+
+ /* 파이썬 코드 블록 채우기 */
+ document.getElementById('pyCode').textContent =
+  '# [ADP 실기 29회 기출 유형] 베이즈 정리와 순차적 갱신\n\n'+
+  'def bayes_update(prior, sensitivity, specificity):\n'+
+  '    # 1) 전확률 정리: 전체 양성 판정 확률 P(B)\n'+
+  '    p_b = (sensitivity * prior) + ((1 - specificity) * (1 - prior))\n'+
+  '    # 2) 베이즈 정리: 양성일 때 실제 불량일 확률 P(A|B)\n'+
+  '    posterior = (sensitivity * prior) / p_b\n'+
+  '    return p_b, posterior\n\n'+
+  '# ── [물음 1] 1회 검사 양성 판정 시 실제 불량 확률 ──\n'+
+  'prior_1 = 0.01          # 사전 불량률 (1%)\n'+
+  'sens = 0.95             # 민감도 (95%)\n'+
+  'spec = 0.95             # 특이도 (95%)\n\n'+
+  'p_b1, post_1 = bayes_update(prior_1, sens, spec)\n'+
+  'print(f"1차 양성 확률 P(B1) : {p_b1:.4f} ({p_b1*100:.2f}%)")\n'+
+  'print(f"물음 1 사후확률 P(A|B1): {post_1:.4f} ({post_1*100:.2f}%)\\n")\n'+
+  '# 출력: 물음 1 사후확률 P(A|B1): 0.1610 (16.10%)\n\n'+
+  '# ── [물음 2] 독립 2차 재검사 양성 시 베이즈 갱신 ──\n'+
+  '# 1차의 사후확률(post_1)이 2차 검사의 새로운 사전확률이 됨\n'+
+  'prior_2 = post_1\n'+
+  'p_b2, post_2 = bayes_update(prior_2, sens, spec)\n'+
+  'print(f"2차 양성 확률 P(B2) : {p_b2:.4f} ({p_b2*100:.2f}%)")\n'+
+  'print(f"물음 2 사후확률 P(A|B1∩B2): {post_2:.4f} ({post_2*100:.2f}%)")\n'+
+  '# 출력: 물음 2 사후확률 P(A|B1∩B2): 0.7848 (78.48%)';
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
