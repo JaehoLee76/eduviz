@@ -1,0 +1,774 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실기 통계 8) · 비모수 검정 (주어진 데이터 풀이)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;--bad:#c2453f;
+ --gA:#4a86e8;--gB:#e0952b;--gC:#3aa76d;--gD:#9b6ae0;--grand:#7a7580;}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}}
+:root[data-theme="dark"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#6fa8ff;--gB:#f0b45a;--gC:#5fd6a8;--gD:#b48bf0;--grand:#9b93a2;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.08rem;margin:1.8rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+h3{font-size:.95rem;margin:1.2rem 0 .4rem;color:var(--accent)}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}.prob .src{font-size:.75rem;color:var(--soft);margin-top:.5rem}
+.probn{font-weight:800;color:var(--accent);font-size:.88rem;margin:.8rem 0 .2rem}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.5rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.82rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+td.l,th.l{text-align:left}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.tbwrap{overflow-x:auto}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.key{background:color-mix(in srgb,var(--good) 10%,transparent);border:1px solid var(--good);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.94rem}
+.key b{color:var(--good)}
+.verdict{margin:.6rem 0;padding:.65rem .85rem;border-radius:9px;font-weight:700;font-size:.9rem}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.trap{border:1.5px dashed var(--warn);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.trap .v{font-weight:800;color:var(--warn)}
+.explore{background:var(--code);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.explore .t{font-size:.8rem;font-weight:800;color:var(--warn);letter-spacing:.05em}
+.ctrl{display:grid;grid-template-columns:170px 1fr 78px;align-items:center;gap:.5rem;font-size:.86rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btnrow{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 0}
+.btn{min-height:42px;padding:.35rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit}
+.btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+math{font-size:1.18rem;color:var(--ink)}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem .8rem;margin:.7rem 0;
+ overflow-x:auto;text-align:center;line-height:1.65}
+.eq .eqlab{display:block;font-size:.8rem;color:var(--soft);margin-bottom:.15rem;text-align:left}
+.eq .note{display:block;font-size:.83rem;color:var(--soft);margin:.4rem 0 .1rem}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.readout{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.8rem;color:var(--soft);
+ margin-top:.5rem;font-variant-numeric:tabular-nums;line-height:1.7}
+.readout b{color:var(--ink)}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+ border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style><script>
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}
+</script></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">통계 · 비모수 검정</span></nav>
+
+<p class="eyebrow">실기 통계 8) · 비모수 검정</p>
+<h1>비모수 검정 — 부호검정과 크러스칼-월리스<small>ADP 실기 28회 복원 유형. <b>극단값 하나가 분산분석을 무력하게 만들 때, 무엇으로 판정할까요?</b></small></h1>
+
+<div class="prob">
+  <b>[문제 1 · 대응표본]</b> 작업자 12명이 새 공구 도입 <b>전·후</b> 부품 1개를 조립하는 데 걸린 시간(초)을 쟀습니다. 이 12명은 공장 전체 작업자 중에서 뽑은 표본입니다. <b>새 공구가 조립 시간을 바꾸는가?</b> 유의수준 0.05에서 양측으로 검정하십시오.
+  <table class="gday">
+    <tr><th>작업자</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th></tr>
+    <tr><td><b>전</b></td><td>42</td><td>38</td><td>51</td><td>45</td><td>40</td><td>47</td><td>39</td><td>55</td><td>44</td><td>48</td><td>41</td><td>46</td></tr>
+    <tr><td><b>후</b></td><td>39</td><td>36</td><td>47</td><td>45</td><td>37</td><td>44</td><td>40</td><td>35</td><td>41</td><td>43</td><td>38</td><td>42</td></tr>
+  </table>
+  <div class="src">유형 출처: ADP 실기 28회 복원 유형. 원문 데이터는 비공개 → 위 <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+</div>
+
+<div class="prob">
+  <b>[문제 2 · 세 집단 비교]</b> 정비팀 A·B·C가 각각 처리한 설비 수리 8건의 소요 시간(분)입니다. 이 8건씩은 각 팀에서 무작위로 고른 표본입니다. <b>세 팀의 수리 시간 분포(위치)가 같은가?</b> 유의수준 0.05에서 검정하십시오.
+  <table class="gday">
+    <tr><th>건</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+    <tr><td><b>A팀</b></td><td>12</td><td>15</td><td>14</td><td>10</td><td>13</td><td>11</td><td>16</td><td style="color:var(--warn);font-weight:800">58</td></tr>
+    <tr><td><b>B팀</b></td><td>18</td><td>22</td><td>19</td><td>25</td><td>21</td><td>17</td><td>20</td><td>24</td></tr>
+    <tr><td><b>C팀</b></td><td>14</td><td>16</td><td>13</td><td>18</td><td>15</td><td>12</td><td>17</td><td>19</td></tr>
+  </table>
+  <div class="src">유형 출처: ADP 실기 28회 복원 유형. 원문 데이터는 비공개 → 위 <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+</div>
+
+<h2><span class="step">§1</span>왜 비모수인가 — 극단값 하나가 평균 검정을 무너뜨릴 때</h2>
+<p>문제 2의 세 팀 자료로 먼저 분산분석(ANOVA, 셋 이상의 평균을 한꺼번에 비교하는 검정)을 돌려 보겠습니다. 결과는 F=<span data-v="anovaF"></span>, p=<span data-v="anovaP"></span>입니다 — 유의수준 0.05에서 <b>"세 팀의 수리 시간에 차이가 없다"</b>고 나옵니다.</p>
+<p>그런데 아래 점 그림을 보십시오. B팀의 점들은 확실히 위쪽에 몰려 있습니다. 분산분석은 왜 이 차이를 못 잡았을까요?</p>
+<p>원인은 A팀의 수리 건 하나, <b>58분</b>입니다. 이 값 하나가 A팀의 평균을 <span data-v="meanA"></span>분까지 끌어올리고, 흩어짐(분산)도 크게 부풀립니다. 분산분석은 평균과 분산으로 계산하므로, 극단값 하나에 전체 결과가 휘둘립니다.</p>
+<p><b>해결책은 값 대신 순위(rank, 작은 것부터 순서대로 매긴 등수)를 쓰는 것입니다.</b> 아래 '순위로 보기'를 눌러 보십시오. 58분은 더 이상 58이라는 큰 수가 아니라, 그냥 24개 중 <b>24등</b>일 뿐입니다. 아무리 더 크게 벌어져도 등수는 24등에서 더 올라갈 곳이 없습니다.</p>
+<p>이렇게 자료가 어떤 분포(정규분포인지 등)를 따른다고 가정하지 않고 순위만으로 비교하는 검정을 <b>비모수 검정(nonparametric test)</b>이라 부릅니다. 반대로 지금까지 써온 t검정·분산분석처럼 정규분포를 가정하는 검정은 모수 검정(parametric test)입니다. 이번 실험실에서는 비모수 검정의 두 대표 선수, <b>부호검정(sign test)</b>과 <b>크러스칼-월리스 검정(Kruskal-Wallis test)</b>을 끝까지 계산합니다.</p>
+
+<div class="lab">
+  <canvas id="cvScatter" height="300"></canvas>
+  <div class="btnrow">
+    <button class="btn on" id="bModeVal">값으로 보기</button>
+    <button class="btn" id="bModeRank">순위로 보기</button>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gA)"></span>A팀</span>
+    <span><span class="dot" style="background:var(--gB)"></span>B팀</span>
+    <span><span class="dot" style="background:var(--gC)"></span>C팀</span>
+    <span>점선=평균 · 실선=중앙값</span>
+  </div>
+</div>
+
+<div class="explore">
+  <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관, 문제 2 자료 기준으로 위 점 그림이 함께 바뀝니다)</div>
+  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">무엇을 볼지: 슬라이더로 A팀의 극단값(현재 58분)을 올리거나 내려 보십시오. 분산분석의 p와 크러스칼-월리스의 p가 서로 다르게 움직입니다 — 극단값을 아무리 키워도 크러스칼-월리스의 H는 거의 그대로이고, 분산분석의 p만 흔들리는 것을 확인해 보십시오. (극단값이 16 가까이 내려가면 다른 값들과 등수가 실제로 겹쳐 두 검정 모두 다시 계산됩니다.)</div>
+  <div class="ctrl"><label for="sExt">A팀 극단값</label><input id="sExt" type="range" min="16" max="80" step="1" value="58"><output id="oExt"></output></div>
+  <div class="btnrow"><button class="btn on" id="bExtReset">↺ 원래 값(58분)</button></div>
+  <div id="roExplore" class="readout"></div>
+</div>
+
+<h2><span class="step">§2</span>문제 1 풀이 — 부호검정</h2>
+<div class="solban">문제 1 풀이 — 부호검정</div>
+
+<h3><span class="step">1</span>가설 설정</h3>
+<p>d = 후 − 전 (음수면 새 공구로 시간이 줄었다는 뜻)이라 하면, <b>H₀: 차이의 중앙값 = 0</b> · <b>H₁: 차이의 중앙값 ≠ 0</b>입니다. 평균이 아니라 <b>중앙값(median, 자료를 순서대로 세웠을 때 가운데 값)</b>으로 가설을 세우는 이유는 다음 단계에서 바로 나옵니다.</p>
+
+<h3><span class="step">2</span>전제 확인</h3>
+<p>대응표본이므로 차이값 d 하나의 정규성만 확인하면 됩니다(짝을 지었으므로 전·후 사이의 등분산은 따로 볼 필요가 없습니다). Shapiro-Wilk 검정 결과는 W=<span data-v="swD_W"></span>, p=<span data-v="swD_p"></span>로, 유의수준 0.05보다 작아 <b>정규성이 깨집니다.</b></p>
+<p>원인을 d 값에서 바로 찾을 수 있습니다 — 8번 작업자의 차이가 <b><span data-v="d8"></span>초</b>로, 다른 작업자들(대부분 −2~−5초)과 크기 자체가 다릅니다. 이 값 하나가 평균 기반 검정(대응 t검정)의 전제를 무너뜨립니다 → 평균 대신 <b>부호(+ 또는 −)만</b> 보는 부호검정으로 갈아탑니다.</p>
+
+<h3><span class="step">3</span>검정통계량</h3>
+<p>차이의 크기는 버리고 부호만 보면, 각 작업자는 '시간이 늘었다(+)' 또는 '줄었다(−)' 둘 중 하나입니다. 차이가 정확히 0인 작업자는 어느 쪽 증거도 아니므로 <b>제외</b>합니다.</p>
+<div class="tbwrap"><table id="tbSign"></table></div>
+<p>0을 제외한 <b><span data-v="nSign"></span>명</b> 중 양(+)이 <b><span data-v="posN"></span>명</b>, 음(−)이 <b><span data-v="negN"></span>명</b>입니다. 공구가 아무 효과가 없다면(귀무가설), 각 사람이 늘어날지 줄어들지는 동전 던지기(확률 0.5)와 같아야 하므로, 양(+)의 개수는 이항분포 B(<span data-v="nSign"></span>, 0.5)를 따릅니다. 관찰된 결과(양(+) <span data-v="posN"></span>명)만큼 또는 그보다 더 한쪽으로 쏠릴 확률을 양쪽 꼬리에서 모두 더한 값이 p값입니다.</p>
+<div class="lab"><canvas id="cvBinom" height="220"></canvas></div>
+<p>양측 p값 = 2 × P(X ≤ <span data-v="minPN"></span>) = <b><span data-v="pSign"></span></b>입니다.</p>
+
+<div class="trap">
+  <span class="v">흔한 함정 — 0도 그냥 n에 포함</span>
+  <p>차이가 0인 4번 작업자를 "결과값이니 n=12로 계산해야지"라고 넣어 버리면 틀립니다. 0은 방향(+/−) 증거가 전혀 없으므로 n에서 제외합니다. n을 잘못 12로 두면 이항분포 자체가 달라져 양측 p값이 <b><span data-v="wrongPSign"></span></b>로 바뀝니다(이번 자료는 결론이 바뀌지는 않지만, 절차 자체가 틀린 답안으로 감점됩니다).</p>
+</div>
+
+<h3><span class="step">4</span>판정</h3>
+<div id="verdictSign"></div>
+
+<h3><span class="step">5</span>결론 서술</h3>
+<div class="concl" id="conclSign"></div>
+
+<div class="qna" data-label="부호검정 대신 윌콕슨 부호순위 검정은 언제 쓰나요?"
+     data-q="부호검정 대신 윌콕슨 부호순위 검정은 언제 쓰나요?">
+  <p><b>차이의 크기 정보까지 쓸 수 있을 때 윌콕슨 부호순위 검정(Wilcoxon signed-rank test)으로 갈아탑니다 — 검정력(효과를 실제로 잡아낼 확률)이 더 큽니다.</b></p>
+  <p>부호검정은 차이가 +인지 −인지만 보고 크기는 버립니다. 8번 작업자의 −20초와 1번 작업자의 −3초를 똑같이 '−' 한 표로만 셉니다. 윌콕슨 부호순위 검정은 차이의 <b>절댓값에 순위를 매겨</b> 그 순위의 합을 비교하므로, 크기가 큰 차이에 더 큰 영향력을 줍니다. 그만큼 더 정교하지만, 대신 <b>차이값의 분포가 좌우 대칭</b>이라는 전제가 하나 더 필요합니다(부호검정은 이 전제가 필요 없습니다). 이번 자료처럼 극단값 하나(−20초)가 전체 모양을 한쪽으로 크게 기울이면 '대칭'이라는 전제도 의심받을 수 있으므로, 이런 경우에는 전제가 가장 적은 부호검정을 기본으로 삼는 것이 안전합니다.</p>
+</div>
+
+<h2><span class="step">§3</span>문제 2 풀이 — 크러스칼-월리스</h2>
+<div class="solban">문제 2 풀이 — 크러스칼-월리스</div>
+<p>§1에서 본 그 세 팀 자료를, 이번에는 정식 검정 절차 1→5 순서로 끝까지 계산합니다. 숫자는 같지만, 이번에는 짐작이 아니라 판정까지 내립니다.</p>
+
+<h3><span class="step">1</span>가설 설정</h3>
+<p><b>H₀</b>: 세 팀의 수리 시간 분포 위치(대체로 중앙값)가 모두 같다 · <b>H₁</b>: 적어도 한 팀의 위치가 다르다.</p>
+
+<h3><span class="step">2</span>전제 확인</h3>
+<table>
+  <tr><th>팀</th><th>Shapiro-Wilk W</th><th>p</th><th>판정</th></tr>
+  <tr><td>A</td><td data-v="swA_W"></td><td data-v="swA_p"></td><td style="color:var(--warn);font-weight:700">깨짐</td></tr>
+  <tr><td>B</td><td data-v="swB_W"></td><td data-v="swB_p"></td><td style="color:var(--good);font-weight:700">정상</td></tr>
+  <tr><td>C</td><td data-v="swC_W"></td><td data-v="swC_p"></td><td style="color:var(--good);font-weight:700">정상</td></tr>
+</table>
+<p>A팀만 정규성이 깨집니다(58분 때문입니다) → 평균을 쓰는 일원 분산분석 대신, 순위만 쓰는 크러스칼-월리스로 검정합니다. (참고용 분산분석 결과는 F=<span data-v="anovaF"></span>, p=<span data-v="anovaP"></span>였습니다 — §1에서 이미 보았듯, 이 값은 정규성이 깨진 자료에서 나온 것이라 신뢰 기준으로 쓸 수 없습니다.)</p>
+
+<h3><span class="step">3</span>검정통계량</h3>
+<p>24건 전체를 한 줄로 세워 순위를 매깁니다. 값이 같으면(동점, tie) 그 자리들의 순위를 평균 내 나눠 줍니다(예: 12분이 두 번 나오면 3등과 4등 자리를 나눠 각각 3.5등).</p>
+<div class="tbwrap"><table id="tbRank"></table></div>
+<table id="tbRanksum"></table>
+<div class="lab"><canvas id="cvRanksum" height="180"></canvas></div>
+
+<div class="eq">
+  <span class="eqlab">크러스칼-월리스 H (동점 보정 전)</span>
+  <math display="block">
+    <mi>H</mi><mo>=</mo>
+    <mfrac><mn>12</mn><mrow><mi>N</mi><mo stretchy="false">(</mo><mi>N</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac>
+    <munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover>
+    <mfrac><msubsup><mi>R</mi><mi>i</mi><mn>2</mn></msubsup><msub><mi>n</mi><mi>i</mi></msub></mfrac>
+    <mo>−</mo><mn>3</mn><mo stretchy="false">(</mo><mi>N</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo>
+  </math>
+  <span class="note" id="noteH"></span>
+</div>
+<pre id="preH"></pre>
+
+<div class="eq">
+  <span class="eqlab">동점 보정 C (값이 겹칠수록 H를 살짝 깎아 줌)</span>
+  <math display="block">
+    <mi>C</mi><mo>=</mo><mn>1</mn><mo>−</mo>
+    <mfrac><mrow><mo>∑</mo><mo stretchy="false">(</mo><msup><mi>t</mi><mn>3</mn></msup><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mrow><msup><mi>N</mi><mn>3</mn></msup><mo>−</mo><mi>N</mi></mrow></mfrac>
+  </math>
+  <span class="note" id="noteC"></span>
+</div>
+<pre id="preC"></pre>
+
+<h3><span class="step">4</span>판정</h3>
+<p>H가 커질수록 "순위가 특정 팀 쪽으로 치우쳤다"는 뜻입니다. 귀무가설이 맞다는 가정 아래, 표본이 어느 정도 크면 H가 흩어지는 모양이 자유도 k−1(팀 수−1)인 카이제곱분포에 가까워진다는 사실이 알려져 있습니다(표본이 커질 때의 근사). 그래서 동점 보정을 마친 H를 카이제곱(df=2) 분포에 대어 p값을 구합니다.</p>
+<div id="verdictKW"></div>
+
+<h3><span class="step">5</span>결론 서술</h3>
+<div class="concl" id="conclKW"></div>
+
+<div class="trap">
+  <span class="v">흔한 함정 — 기각하고 바로 끝내기</span>
+  <p>크러스칼-월리스에서 귀무가설을 기각했다고 "세 팀이 다 다르다"로 끝내면 안 됩니다. 기각은 '적어도 한 쌍이 다르다'까지만 말해 줄 뿐, <b>어느 쌍</b>이 다른지는 알려 주지 않습니다. 쌍별로 추가로 비교하는 <b>사후검정(post-hoc test)</b>이 필요하고, 비교를 세 번 반복하는 만큼 <b>본페로니(Bonferroni) 보정</b>으로 유의수준을 나눠야 합니다. 보정을 생략하면 세 번 중 하나가 우연히 걸릴 확률이 올라가, 실제로는 없는 차이를 "있다"고 결론 내리기 쉬워집니다.</p>
+</div>
+
+<h3>사후검정 — 짝별 맨-휘트니 + 본페로니</h3>
+<p>세 팀을 두 팀씩 세 번(A-B, A-C, B-C) 비교해야 합니다. 비교를 여러 번 하면 그중 하나가 우연히 유의하게 나올 가능성이 올라가므로, 각 비교의 p값에 비교 횟수(3)를 곱하는 본페로니 보정을 적용합니다(1을 넘으면 1로 자릅니다).</p>
+<div class="tbwrap"><table id="tbPost"></table></div>
+<div class="concl" id="conclPost"></div>
+
+<div class="trap">
+  <span class="v">흔한 함정 — '평균이 더 높다'로 결론 쓰기</span>
+  <p>비모수 검정은 애초에 평균을 쓰지 않고 순위로 계산했습니다. 그런데 결론에서 "A팀 평균 <span data-v="meanA"></span>분으로 가장 높다"처럼 평균으로 서술하면 앞뒤가 맞지 않습니다 — A팀의 평균이 높아 보이는 것은 58분이라는 극단값 하나 때문이고(중앙값은 오히려 <span data-v="medA"></span>분으로 셋 중 가장 낮습니다), 검정 자체는 평균을 전혀 보지 않았습니다. 비모수 검정의 결론은 <b>중앙값 또는 분포 위치(location)</b>로 서술합니다.</p>
+</div>
+
+<div class="qna" data-label="크러스칼-월리스는 '중앙값이 같다'를 검정하나요?"
+     data-q="크러스칼-월리스는 엄밀히 말해 무엇을 검정하는 건가요? '중앙값이 같다'라고 해도 되나요?">
+  <p><b>엄밀히는 '분포의 위치(location)가 같다'를 검정합니다. 세 집단의 모양(흩어진 정도·생김새)이 서로 비슷할 때만 '중앙값이 같다'로 바꿔 읽을 수 있습니다.</b></p>
+  <p>크러스칼-월리스는 원래 값이 아니라 순위만 보기 때문에, 평균이나 분산 같은 특정 숫자를 직접 비교하는 검정이 아닙니다. 세 집단의 분포 모양이 서로 다르면(예: 한 집단은 좌우로 고르게 퍼지고 다른 집단은 한쪽으로 치우쳐 있으면), 순위가 치우쳐 기각이 나와도 그 원인이 '중앙값 차이'인지 '모양 차이'인지 바로 구분되지 않습니다. 다행히 이번 문제에서는 A팀의 분포만 58분 하나 때문에 삐뚤어졌을 뿐 나머지는 비슷한 모양이라, "세 팀의 수리 시간 <b>중앙값</b>이 같지 않다"라고 읽어도 무리가 없습니다. 실기 답안에서는 "분포(위치)가 다르다"라고 쓰고, 중앙값 표를 근거로 덧붙이는 것이 가장 안전합니다.</p>
+</div>
+
+<h2><span class="step">§4</span>Python 답안 — 시험장 제출 형태</h2>
+<pre id="pyCode"></pre>
+
+<div class="ask">
+  <b>튜터에게 물어볼 만한 근본 질문</b>
+  <ul>
+    <li>크러스칼-월리스가 기각되었는데 사후검정에서는 모든 쌍이 유의하지 않게 나오는 경우가 실제로 있습니다. 왜 이런 일이 생기나요?</li>
+    <li>집단이 딱 2개뿐일 때 크러스칼-월리스를 쓰면 맨-휘트니 U 검정과 결과가 같아진다고 하는데, 왜 그런가요?</li>
+    <li>표본이 아주 작을 때(예: n=3,3,3)는 카이제곱 근사 대신 정확검정(exact test)을 써야 한다고 하는데, 그 경계는 어디쯤인가요?</li>
+  </ul>
+</div>
+
+<nav class="labnav bot">
+  <a href="./0009-bayes-lab.html">← 베이즈 정리</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <a href="./0002-anova-lab.html">분산분석 (ANOVA) →</a>
+</nav>
+
+</div>
+
+<script>
+/* ══════════ 통계 함수 (node로 scipy 1.17 값과 대조 검증 완료) ══════════ */
+(function(){
+ /* ---- 기본 ---- */
+ function mean(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; }
+ function sd(a){ var m=mean(a),s2=0; a.forEach(function(v){s2+=(v-m)*(v-m);}); return Math.sqrt(s2/(a.length-1)); }
+ function median(a){ var b=a.slice().sort(function(x,y){return x-y;}); var n=b.length; return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2; }
+ function sgn(v){ return v>0?1:(v<0?-1:0); }
+
+ /* ---- gammln / betacf / betai (t·F 분포 p값) ---- */
+ function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+ function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=200;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<3e-12)break;}return h;}
+ function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+ function fpval(F,d1,d2){if(F<=0)return 1;return 1-betai(d1/2,d2/2,d1*F/(d1*F+d2));}
+ function tp2(t,df){t=Math.abs(t);return betai(df/2,0.5,df/(df+t*t));}
+
+ /* ---- 정규분포 역함수(AS241, Wichura 1988 — R qnorm과 동일 알고리즘) ---- */
+ function qnorm(p){
+  var q=p-0.5, r;
+  if(Math.abs(q)<=0.425){
+   r=0.180625-q*q;
+   return q*(((((((r*2509.0809287301226727+33430.575583588128105)*r+67265.770927008700853)*r+45921.953931549871457)*r+13731.693765509461125)*r+1971.5909503065514427)*r+133.14166789178437745)*r+3.387132872796366608)
+     /(((((((r*5226.495278852854561+28729.085735721942674)*r+39307.89580009271061)*r+21213.794301586595867)*r+5394.1960214247511077)*r+687.1870074920579083)*r+42.313330701600911252)*r+1);
+  }
+  r = q>0 ? 1-p : p;
+  r = Math.sqrt(-Math.log(r));
+  var val;
+  if(r<=5){
+   r-=1.6;
+   val=(((((((r*7.7454501427834140764e-4+0.0227238449892691845833)*r+0.24178072517745061177)*r+1.27045825245236838258)*r+3.64784832476320460504)*r+5.7694972214606914055)*r+4.6303378461565452959)*r+1.42343711074968357734)
+     /(((((((r*1.05075007164441684324e-9+5.475938084995344946e-4)*r+0.0151986665636164571966)*r+0.14810397642748007459)*r+0.68976733498510000455)*r+1.6763848301838038494)*r+2.05319162663775882187)*r+1);
+  } else {
+   r-=5;
+   val=(((((((r*2.01033439929228813265e-7+2.71155556874348757815e-5)*r+0.0012426609473880784386)*r+0.026532189526576123093)*r+0.29656057182850489123)*r+1.7848265399172913358)*r+5.4637849111641143699)*r+6.6579046435011037772)
+     /(((((((r*2.04426310338993978564e-15+1.4215117583164458887e-7)*r+1.8463183175100546818e-5)*r+7.868691311456132591e-4)*r+0.0148753612908506148525)*r+0.13692988092273580531)*r+0.59983220655588793769)*r+1);
+  }
+  return q<0 ? -val : val;
+ }
+
+ /* ---- 표준정규 상단확률 Q(z)=P(Z>z) (Cody 유리근사 — R pnorm과 동일 알고리즘) ---- */
+ function normQ(x){
+  var y=Math.abs(x);
+  if(y<=0.67448975){
+   var A=[2.2352520354606839287,161.02823106855587881,1067.6894854603709582,18154.981253343561249,0.065682337918207449113];
+   var B=[47.20258190468824187,976.09855173777669322,10260.932208618978205,45507.789335026729956];
+   var xsq=x*x, xnum=A[4]*xsq, xden=xsq;
+   for(var i=0;i<3;i++){ xnum=(xnum+A[i])*xsq; xden=(xden+B[i])*xsq; }
+   var temp=x*(xnum+A[3])/(xden+B[3]);
+   return 0.5-temp;
+  } else if(y<=5.656854249492381){
+   var C=[0.39894151208813466764,8.8831497943883759412,93.506656132177855979,597.27027639480026226,2494.5375852903726711,6848.1904505362823326,11602.651437647350124,9842.7148383839780218,1.0765576773720192317e-8];
+   var D=[22.266688044328115691,235.38790178262499861,1519.377599407554805,6485.558298266760755,18615.571640885098091,34900.952721145977266,38912.003286093271411,19685.429676859990727];
+   var xnum2=C[8]*y, xden2=y;
+   for(var j=0;j<7;j++){ xnum2=(xnum2+C[j])*y; xden2=(xden2+D[j])*y; }
+   var temp2=(xnum2+C[7])/(xden2+D[7]);
+   var xsq2=Math.trunc(y*16)/16;
+   var del=(y-xsq2)*(y+xsq2);
+   var Qy=Math.exp(-xsq2*xsq2*0.5)*Math.exp(-del*0.5)*temp2;
+   return x>=0?Qy:1-Qy;
+  } else {
+   var xsq3=y*y;
+   var del2=(1-(1-5/(xsq3+6))/(xsq3+4))/(xsq3+2);
+   var Qy2=Math.exp(-0.5*xsq3)/(y*Math.sqrt(2*Math.PI))*(1-del2);
+   return x>=0?Qy2:1-Qy2;
+  }
+ }
+
+ /* ---- 다항식(AS181.2) ---- */
+ function polyEv(cc,nord,x){
+  var ret=cc[0];
+  if(nord>1){
+   var p=x*cc[nord-1];
+   for(var j=nord-2;j>0;j--) p=(p+cc[j])*x;
+   ret+=p;
+  }
+  return ret;
+ }
+
+ /* ---- Shapiro-Wilk W·p (Royston 1995, AS R94 — R swilk.c 포팅) ---- */
+ function shapiroWilk(xsIn){
+  var x=xsIn.slice().sort(function(a,b){return a-b;});
+  var n=x.length, nn2=Math.floor(n/2);
+  var a=new Array(nn2+1);
+  var g=[-2.273,0.459];
+  var c1=[0,0.221157,-0.147981,-2.07119,4.434685,-2.706056];
+  var c2=[0,0.042981,-0.293762,-1.752461,5.682633,-3.582633];
+  var c3=[0.544,-0.39978,0.025054,-6.714e-4];
+  var c4=[1.3822,-0.77857,0.062767,-0.0020322];
+  var c5=[-1.5861,-0.31082,-0.083751,0.0038915];
+  var c6=[-0.4803,-0.082676,0.0030302];
+  var an=n;
+  if(n===3){ a[1]=0.70710678; }
+  else {
+   var an25=an+0.25, summ2=0, i;
+   for(i=1;i<=nn2;i++){ a[i]=qnorm((i-0.375)/an25); summ2+=a[i]*a[i]; }
+   summ2*=2;
+   var ssumm2=Math.sqrt(summ2), rsn=1/Math.sqrt(an);
+   var a1=polyEv(c1,6,rsn)-a[1]/ssumm2;
+   var i1, fac, a2;
+   if(n>5){
+    i1=3;
+    a2=-a[2]/ssumm2+polyEv(c2,6,rsn);
+    fac=Math.sqrt((summ2-2*a[1]*a[1]-2*a[2]*a[2])/(1-2*a1*a1-2*a2*a2));
+    a[2]=a2;
+   } else {
+    i1=2;
+    fac=Math.sqrt((summ2-2*a[1]*a[1])/(1-2*a1*a1));
+   }
+   a[1]=a1;
+   for(i=i1;i<=nn2;i++) a[i]=-a[i]/fac;
+  }
+  var range=x[n-1]-x[0];
+  var xx=x[0]/range, sx=xx, sa=-a[1];
+  var ii=1, jj=n-1;
+  for(; ii<n; jj--){
+   var xi=x[ii]/range;
+   sx+=xi; ii++;
+   if(ii!==jj) sa+=sgn(ii-jj)*a[Math.min(ii,jj)];
+   xx=xi;
+  }
+  sa/=n; sx/=n;
+  var ssa=0, ssx=0, sax=0, p, q;
+  for(p=0, q=n-1; p<n; p++, q--){
+   var asa;
+   if(p!==q) asa=sgn(p-q)*a[1+Math.min(p,q)]-sa; else asa=-sa;
+   var xsx=x[p]/range-sx;
+   ssa+=asa*asa; ssx+=xsx*xsx; sax+=asa*xsx;
+  }
+  var ssassx=Math.sqrt(ssa*ssx);
+  var w1=(ssassx-sax)*(ssassx+sax)/(ssa*ssx);
+  var W=1-w1;
+  if(n===3){
+   var pi6=1.90985931710274, stqr=1.04719755119660;
+   var pw3=pi6*(Math.asin(Math.sqrt(W))-stqr);
+   return {W:W,p:Math.max(0,pw3)};
+  }
+  var y=Math.log(w1), xxlog=Math.log(an), m,s;
+  if(n<=11){
+   var gamma=polyEv(g,2,an);
+   if(y>=gamma) return {W:W,p:1e-99};
+   y=-Math.log(gamma-y);
+   m=polyEv(c3,4,an); s=Math.exp(polyEv(c4,4,an));
+  } else {
+   m=polyEv(c5,4,xxlog); s=Math.exp(polyEv(c6,3,xxlog));
+  }
+  var pw=normQ((y-m)/s);
+  return {W:W, p:pw};
+ }
+
+ /* ---- 순위(동점 평균 순위) ---- */
+ function ranks(arr){
+  var n=arr.length, idx=arr.map(function(v,i){return i;}).sort(function(a,b){return arr[a]-arr[b];});
+  var r=new Array(n), i=0;
+  while(i<n){
+   var j=i;
+   while(j+1<n && arr[idx[j+1]]===arr[idx[i]]) j++;
+   var avg=(i+1+j+1)/2;
+   for(var k=i;k<=j;k++) r[idx[k]]=avg;
+   i=j+1;
+  }
+  return r;
+ }
+
+ /* ---- 정규화 불완전 감마(카이제곱 상단확률) — Numerical Recipes gser/gcf ---- */
+ function gser(a,x){
+  var ITMAX=200, EPS=3e-12, gln=gammln(a);
+  if(x<=0) return 0;
+  var ap=a, sum=1/a, del=sum;
+  for(var n=1;n<=ITMAX;n++){ ap+=1; del*=x/ap; sum+=del; if(Math.abs(del)<Math.abs(sum)*EPS) break; }
+  return sum*Math.exp(-x+a*Math.log(x)-gln);
+ }
+ function gcf(a,x){
+  var ITMAX=200, EPS=3e-12, FPMIN=1e-300, gln=gammln(a);
+  var b=x+1-a, c=1/FPMIN, d=1/b, h=d;
+  for(var i=1;i<=ITMAX;i++){
+   var an=-i*(i-a); b+=2;
+   d=an*d+b; if(Math.abs(d)<FPMIN)d=FPMIN;
+   c=b+an/c; if(Math.abs(c)<FPMIN)c=FPMIN;
+   d=1/d; var del=d*c; h*=del;
+   if(Math.abs(del-1)<EPS) break;
+  }
+  return Math.exp(-x+a*Math.log(x)-gln)*h;
+ }
+ function gammq(a,x){ if(x<0||a<=0) return 1; if(x<a+1) return 1-gser(a,x); return gcf(a,x); }
+
+ /* ---- 크러스칼-월리스 H(동점 보정) ---- */
+ function kruskalWallis(groups){
+  var all=[].concat.apply([],groups), N=all.length;
+  var r=ranks(all);
+  var Rsum=[], idx=0;
+  groups.forEach(function(g){ var s=0; for(var i=0;i<g.length;i++){ s+=r[idx]; idx++; } Rsum.push(s); });
+  var H=0;
+  groups.forEach(function(g,gi){ H+=(Rsum[gi]*Rsum[gi])/g.length; });
+  H=12/(N*(N+1))*H-3*(N+1);
+  var sorted=all.slice().sort(function(a,b){return a-b;});
+  var tieSum=0, i=0;
+  while(i<N){ var j=i; while(j+1<N && sorted[j+1]===sorted[i]) j++; var t=j-i+1; tieSum+=t*t*t-t; i=j+1; }
+  var Ccorr=1-tieSum/(N*N*N-N);
+  var Hc=H/Ccorr;
+  var df=groups.length-1;
+  return {H:H, C:Ccorr, Hc:Hc, df:df, Rsum:Rsum, N:N, tieSum:tieSum, ranksAll:r, p:gammq(df/2,Hc/2)};
+ }
+
+ /* ---- 이항 누적분포(부호검정) ---- */
+ function choose(n,k){ if(k<0||k>n) return 0; k=Math.min(k,n-k); var r=1; for(var i=0;i<k;i++){ r*=(n-i); r/=(i+1); } return r; }
+ function binomCDF(k,n,p){ var s=0; for(var i=0;i<=k;i++) s+=choose(n,i)*Math.pow(p,i)*Math.pow(1-p,n-i); return s; }
+
+ /* ---- 한 표본 t검정(부호검정 비교용 대응 t) ---- */
+ function oneSampleT(x,mu0){
+  mu0=mu0||0;
+  var n=x.length, m=mean(x), s=sd(x), se=s/Math.sqrt(n);
+  var t=se>1e-9?(m-mu0)/se:0, df=n-1, p=tp2(t,df);
+  return {n:n,m:m,s:s,se:se,t:t,df:df,p:p};
+ }
+
+ /* ---- 맨-휘트니 U(정규근사, 동점 보정, 연속성 보정) ---- */
+ function mannWhitneyU(x,y){
+  var n1=x.length, n2=y.length, N=n1+n2;
+  var all=x.concat(y);
+  var r=ranks(all);
+  var R1=0; for(var i=0;i<n1;i++) R1+=r[i];
+  var U1=R1-n1*(n1+1)/2;
+  var U2=n1*n2-U1;
+  var sorted=all.slice().sort(function(a,b){return a-b;});
+  var tieSum=0, k=0;
+  while(k<N){ var j=k; while(j+1<N && sorted[j+1]===sorted[k]) j++; var t=j-k+1; tieSum+=t*t*t-t; k=j+1; }
+  var meanU=n1*n2/2;
+  var varU=(n1*n2/12)*((N+1)-tieSum/(N*(N-1)));
+  var diff=U1-meanU;
+  var cc=diff>0?-0.5:(diff<0?0.5:0);
+  var z=(diff+cc)/Math.sqrt(varU);
+  var p=2*normQ(Math.abs(z));
+  if(p>1)p=1;
+  return {U1:U1,U2:U2,U:Math.min(U1,U2),z:z,p:p};
+ }
+
+ /* ---- 일원배치 F(비교용) ---- */
+ function oneWayF(groups){
+  var all=[].concat.apply([],groups), N=all.length, K=groups.length;
+  var grand=mean(all), ssB=0, ssW=0;
+  groups.forEach(function(g){ var m=mean(g); ssB+=g.length*(m-grand)*(m-grand); g.forEach(function(v){ ssW+=(v-m)*(v-m); }); });
+  var df1=K-1, df2=N-K, F=(ssB/df1)/(ssW/df2), p=fpval(F,df1,df2);
+  return {F:F,df1:df1,df2:df2,p:p,means:groups.map(mean)};
+ }
+
+ /* ══════════ 화면 헬퍼 ══════════ */
+ function f(v,d){ return v.toFixed(d===undefined?2:d); }
+ function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+ function alpha(c,a){ c=(c||'').trim();
+  if(c[0]==='#'){ if(c.length===4) c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];
+   return 'rgba('+parseInt(c.substr(1,2),16)+','+parseInt(c.substr(3,2),16)+','+parseInt(c.substr(5,2),16)+','+a+')'; }
+  var m=c.match(/-?\d+\.?\d*/g); return m&&m.length>=3?'rgba('+m[0]+','+m[1]+','+m[2]+','+a+')':c; }
+ function setup(cv,h){ var dpr=window.devicePixelRatio||1,w=cv.clientWidth;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+'px';
+  var x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,w,h);
+  return {x:x,w:w,h:h}; }
+ function niceStep(r){var p=Math.pow(10,Math.floor(Math.log10(r)));var q=r/p;var n=q<1.5?1:q<3?2:q<7?5:10;return Math.max(1,n*p);}
+
+ /* ══════════ 고정 데이터 ══════════ */
+ var BEFORE=[42,38,51,45,40,47,39,55,44,48,41,46];
+ var AFTER =[39,36,47,45,37,44,40,35,41,43,38,42];
+ var D = BEFORE.map(function(v,i){ return AFTER[i]-v; });
+ var A0=[12,15,14,10,13,11,16,58];
+ var B0=[18,22,19,25,21,17,20,24];
+ var C0=[14,16,13,18,15,12,17,19];
+
+ /* ══════════ §1 점 그림 + 탐구 슬라이더 ══════════ */
+ var cvS=document.getElementById('cvScatter'), bModeVal=document.getElementById('bModeVal'), bModeRank=document.getElementById('bModeRank');
+ var sExt=document.getElementById('sExt'), oExt=document.getElementById('oExt'), bExtReset=document.getElementById('bExtReset'), roExplore=document.getElementById('roExplore');
+ var exState = {mode:'value', ext:58};
+
+ function exploreCompute(){
+  var A=[12,15,14,10,13,11,16,exState.ext];
+  var combined=A.concat(B0,C0);
+  var r=ranks(combined);
+  var rA=r.slice(0,8), rB=r.slice(8,16), rC=r.slice(16,24);
+  var fAN=oneWayF([A,B0,C0]);
+  var kw=kruskalWallis([A,B0,C0]);
+  return {A:A,rA:rA,rB:rB,rC:rC,fAN:fAN,kw:kw};
+ }
+
+ function drawScatter(){
+  var R=exploreCompute();
+  var o=setup(cvS,300), x=o.x, W=o.w, H=o.h;
+  var narrow = W<520;
+  var pL=narrow?34:44, pR=14, pT=22, pB=30;
+  var groups=[R.A,B0,C0], ranksG=[R.rA,R.rB,R.rC], names=['A팀','B팀','C팀'], cols=['--gA','--gB','--gC'];
+  var isRank = exState.mode==='rank';
+  var vals = isRank ? ranksG : groups;
+  var ymin, ymax;
+  if(isRank){ ymin=0.5; ymax=24.5; }
+  else {
+   var all=[].concat.apply([],groups);
+   ymin=Math.min.apply(null,all); ymax=Math.max.apply(null,all);
+   var sp=ymax-ymin||1; ymin-=sp*.12; ymax+=sp*.12;
+  }
+  function Y(v){ return pT+(H-pT-pB)*(1-(v-ymin)/(ymax-ymin)); }
+  x.strokeStyle=css('--rule'); x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.lineWidth=1;
+  var step=isRank?niceStep(24/5):niceStep((ymax-ymin)/5);
+  for(var t=Math.ceil(ymin/step)*step; t<=ymax; t+=step){
+   var yy=Y(t);
+   x.globalAlpha=.3; x.beginPath(); x.moveTo(pL,yy); x.lineTo(W-pR,yy); x.stroke(); x.globalAlpha=1;
+   x.textAlign='right'; x.fillText(t.toFixed(0), pL-6, yy+3);
+  }
+  var cw=(W-pL-pR)/3;
+  for(var g=0; g<3; g++){
+   var cx=pL+cw*(g+.5), col=css(cols[g]);
+   var data = vals[g];
+   var m = mean(data), md = median(data);
+   for(var i=0;i<data.length;i++){
+    var jit=((i*53%100)/100-.5)*cw*.5, px=cx+jit, py=Y(data[i]);
+    x.fillStyle=col; x.globalAlpha=.85; x.beginPath(); x.arc(px,py,3.4,0,7); x.fill(); x.globalAlpha=1;
+   }
+   x.strokeStyle=col; x.setLineDash([4,3]); x.lineWidth=2;
+   x.beginPath(); x.moveTo(cx-cw*.32,Y(m)); x.lineTo(cx+cw*.32,Y(m)); x.stroke();
+   x.setLineDash([]); x.lineWidth=2.6;
+   x.beginPath(); x.moveTo(cx-cw*.32,Y(md)); x.lineTo(cx+cw*.32,Y(md)); x.stroke();
+   x.fillStyle=css('--ink'); x.font='700 '+(narrow?11:12)+'px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillText(names[g], cx, H-10);
+  }
+  x.fillStyle=css('--accent'); x.font='700 '+(narrow?11:12)+'px -apple-system,sans-serif'; x.textAlign='left';
+  x.fillText(isRank?'세로축 = 24건 전체 등수(1~24등)':'세로축 = 수리 시간(분)', pL, 14);
+
+  var orig = exState.ext===58;
+  roExplore.innerHTML = 'A팀 극단값 = <b>'+exState.ext+'분</b>'+(orig?' (문제의 원래 값입니다)':' (문제 값 58분에서 옮겨 놓은 가정입니다 — ↺ 버튼으로 돌아갑니다)')+'<br>'+
+   '분산분석(ANOVA) F='+f(R.fAN.F,3)+', p='+f(R.fAN.p,4)+' '+(R.fAN.p<0.05?'<b>(차이 있음)</b>':'(차이 없음)')+'<br>'+
+   '크러스칼-월리스 H='+f(R.kw.Hc,3)+', p='+f(R.kw.p,4)+' '+(R.kw.p<0.05?'<b>(차이 있음)</b>':'(차이 없음)');
+ }
+ bModeVal.addEventListener('click', function(){ exState.mode='value'; bModeVal.classList.add('on'); bModeRank.classList.remove('on'); drawScatter(); });
+ bModeRank.addEventListener('click', function(){ exState.mode='rank'; bModeRank.classList.add('on'); bModeVal.classList.remove('on'); drawScatter(); });
+ sExt.addEventListener('input', function(){ exState.ext=+sExt.value; oExt.textContent=exState.ext+'분'; drawScatter(); });
+ bExtReset.addEventListener('click', function(){ exState.ext=58; sExt.value=58; oExt.textContent='58분'; drawScatter(); });
+ oExt.textContent='58분';
+
+ /* ══════════ §2 부호검정 계산·렌더 ══════════ */
+ var swD = shapiroWilk(D);
+ var signs = D.map(function(v){ return v>0?'+':(v<0?'-':'0'); });
+ var nonzeroIdx = []; D.forEach(function(v,i){ if(v!==0) nonzeroIdx.push(i); });
+ var posN = D.filter(function(v){return v>0;}).length;
+ var negN = D.filter(function(v){return v<0;}).length;
+ var nSign = posN+negN;
+ var minPN = Math.min(posN,negN);
+ var pSign = 2*binomCDF(minPN, nSign, 0.5);
+ var wrongPSign = 2*binomCDF(1, 12, 0.5); // 흔한 함정: 0을 n에 포함
+ var tPaired = oneSampleT(D, 0);
+ var medBefore=median(BEFORE), medAfter=median(AFTER), medD=median(D);
+
+ var tbSignRows = '<tr><th>작업자</th>'+BEFORE.map(function(v,i){return '<th>'+(i+1)+'</th>';}).join('')+'</tr>'+
+  '<tr><td class="l"><b>전</b></td>'+BEFORE.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>'+
+  '<tr><td class="l"><b>후</b></td>'+AFTER.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>'+
+  '<tr><td class="l"><b>d=후−전</b></td>'+D.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>'+
+  '<tr><td class="l"><b>부호</b></td>'+signs.map(function(s,i){
+   var col = s==='+'?'var(--good)':(s==='-'?'var(--bad)':'var(--soft)');
+   var bold = D[i]===-20?'font-weight:800;background:color-mix(in srgb,var(--warn) 18%,transparent)':'';
+   return '<td style="color:'+col+';font-weight:700;'+bold+'">'+s+'</td>';
+  }).join('')+'</tr>';
+ document.getElementById('tbSign').innerHTML = tbSignRows;
+
+ function drawBinom(){
+  var o=setup(document.getElementById('cvBinom'),220), x=o.x, W=o.w, H=o.h;
+  var n=nSign, p=0.5;
+  var probs=[]; for(var k=0;k<=n;k++) probs.push(choose(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k));
+  var pmax=Math.max.apply(null,probs);
+  var pL=36, pR=10, pT=20, pB=28, gw=W-pL-pR, gh=H-pT-pB;
+  var bw=gw/(n+1);
+  function Y(v){ return pT+gh*(1-v/pmax); }
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,pT+gh); x.lineTo(pL+gw,pT+gh); x.stroke();
+  for(var k=0;k<=n;k++){
+   var tail = (k<=minPN) || (k>=n-minPN);
+   var col = tail?css('--bad'):css('--grand');
+   var bx=pL+bw*k+bw*0.12, barW=bw*0.76, barH=gh-(Y(probs[k])-pT), by=Y(probs[k]);
+   x.fillStyle=alpha(col, tail?0.85:0.35);
+   x.fillRect(bx,by,barW,barH);
+   x.font='11px -apple-system,sans-serif'; x.textAlign='center'; x.fillStyle=css('--soft');
+   x.fillText(String(k), bx+barW/2, pT+gh+14);
+  }
+  x.font='700 11px -apple-system,sans-serif'; x.fillStyle=css('--bad'); x.textAlign='left';
+  x.fillText('붉은 막대 = 양측 꼬리(X≤'+minPN+' 또는 X≥'+(n-minPN)+')', pL, 14);
+  x.save(); x.translate(12, pT+gh/2); x.rotate(-Math.PI/2); x.textAlign='center'; x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif';
+  x.fillText('P(X=k)', 0, 0); x.restore();
+ }
+ drawBinom();
+
+ document.getElementById('verdictSign').innerHTML = '<div class="verdict '+(pSign<0.05?'rej':'keep')+'">'+
+  'p = '+f(pSign,6)+' '+(pSign<0.05?'< 0.05 → H₀ 기각 : 새 공구 도입 전후 조립 시간에 유의한 차이가 있다':'≥ 0.05 → H₀ 기각 못 함')+'</div>';
+ document.getElementById('conclSign').innerHTML = '부호검정 결과 양의 개수 '+posN+', 음의 개수 '+negN+' (n='+nSign+'), 양측 p='+f(pSign,6)+' &lt; 0.05로 유의수준 0.05에서 '+
+  '귀무가설을 <b>기각한다</b> → 새 공구 도입은 조립 시간을 <b>유의하게 바꾼다</b>. 중앙값 기준 전 '+f(medBefore,1)+'초 → 후 '+f(medAfter,1)+'초로 '+f(Math.abs(medD),1)+'초 줄었다(차이의 중앙값 '+f(medD,1)+'초). '+
+  '참고로 전제를 무시하고 대응 t검정을 그대로 썼다면 t='+f(tPaired.t,3)+'(df='+tPaired.df+'), p='+f(tPaired.p,5)+'로 역시 기각에 이르지만, 이 값은 정규성이 깨진 상태에서 나온 것이라 신뢰 기준으로 쓸 수 없다. '+
+  '이번처럼 결론이 같을 때도 있지만, 전제가 깨지면 그 결과는 보장되지 않는다.';
+
+ /* ══════════ §3 크러스칼-월리스 계산·렌더 ══════════ */
+ var swA=shapiroWilk(A0), swB=shapiroWilk(B0), swC=shapiroWilk(C0);
+ var fAN0 = oneWayF([A0,B0,C0]);
+ var kw0 = kruskalWallis([A0,B0,C0]);
+ var medA=median(A0), medB=median(B0), medC=median(C0);
+ var meanA=mean(A0), meanB=mean(B0), meanC=mean(C0);
+
+ var rA0=kw0.ranksAll.slice(0,8), rB0=kw0.ranksAll.slice(8,16), rC0=kw0.ranksAll.slice(16,24);
+ var tbRankRows = '<tr><th>건</th><th>A팀 값(순위)</th><th>B팀 값(순위)</th><th>C팀 값(순위)</th></tr>';
+ for(var ri=0; ri<8; ri++){
+  function cell(v,r){ var tie = (r%1!==0); return '<td'+(tie?' style="background:color-mix(in srgb,var(--warn) 12%,transparent)"':'')+'>'+v+' ('+f(r,1)+')</td>'; }
+  tbRankRows += '<tr><td>'+(ri+1)+'</td>'+cell(A0[ri],rA0[ri])+cell(B0[ri],rB0[ri])+cell(C0[ri],rC0[ri])+'</tr>';
+ }
+ document.getElementById('tbRank').innerHTML = tbRankRows;
+ document.getElementById('tbRank').insertAdjacentHTML('beforebegin','<p style="font-size:.85rem;color:var(--soft);margin:.3rem 0">음영 칸 = 동점(값이 같아 평균 순위를 나눠 가짐)</p>');
+
+ document.getElementById('tbRanksum').innerHTML = '<tr><th>팀</th><th>n</th><th>순위합 R</th><th>평균 순위</th></tr>'+
+  '<tr><td>A</td><td>8</td><td style="font-weight:800;color:var(--gA)">'+f(kw0.Rsum[0],1)+'</td><td>'+f(kw0.Rsum[0]/8,2)+'</td></tr>'+
+  '<tr><td>B</td><td>8</td><td style="font-weight:800;color:var(--gB)">'+f(kw0.Rsum[1],1)+'</td><td>'+f(kw0.Rsum[1]/8,2)+'</td></tr>'+
+  '<tr><td>C</td><td>8</td><td style="font-weight:800;color:var(--gC)">'+f(kw0.Rsum[2],1)+'</td><td>'+f(kw0.Rsum[2]/8,2)+'</td></tr>';
+
+ function drawRanksum(){
+  var o=setup(document.getElementById('cvRanksum'),180), x=o.x, W=o.w, H=o.h;
+  var names=['A','B','C'], cols=['--gA','--gB','--gC'], Rs=kw0.Rsum, exp=8*(24+1)/2;
+  var pL=36, pR=16, pT=30, pB=26, gw=W-pL-pR, gh=H-pT-pB;
+  var ymax=Math.max.apply(null,Rs.concat([exp]))*1.15;
+  function Y(v){ return pT+gh*(1-v/ymax); }
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,pT+gh); x.lineTo(pL+gw,pT+gh); x.stroke();
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='left'; x.fillText('점선 = 차이가 없을 때 순위합의 기댓값 '+exp.toFixed(0), pL, 14);
+  var bw=gw/3;
+  for(var i=0;i<3;i++){
+   var bx=pL+bw*i+bw*0.22, barW=bw*0.56, by=Y(Rs[i]), barH=pT+gh-by, col=css(cols[i]);
+   x.fillStyle=alpha(col,0.8); x.fillRect(bx,by,barW,barH);
+   x.font='700 11px -apple-system,sans-serif'; x.textAlign='center';
+   x.fillStyle='#fff'; x.fillText(f(Rs[i],1), bx+barW/2, by+15);
+   x.fillStyle=css('--ink'); x.fillText(names[i]+'팀', bx+barW/2, H-8);
+  }
+  x.setLineDash([4,3]); x.strokeStyle=css('--soft'); x.beginPath(); x.moveTo(pL,Y(exp)); x.lineTo(pL+gw,Y(exp)); x.stroke(); x.setLineDash([]);
+ }
+ drawRanksum();
+
+ document.getElementById('noteH').innerHTML = 'N=24(전체 건수), k=3(팀 수), R_A='+f(kw0.Rsum[0],1)+', R_B='+f(kw0.Rsum[1],1)+', R_C='+f(kw0.Rsum[2],1)+' (각 n=8)';
+ document.getElementById('preH').textContent =
+  'H = 12/(24×25) × ('+f(kw0.Rsum[0],1)+'²/8 + '+f(kw0.Rsum[1],1)+'²/8 + '+f(kw0.Rsum[2],1)+'²/8) − 3×25\n'+
+  '  = 12/600 × ('+f(kw0.Rsum[0]*kw0.Rsum[0]/8,3)+' + '+f(kw0.Rsum[1]*kw0.Rsum[1]/8,3)+' + '+f(kw0.Rsum[2]*kw0.Rsum[2]/8,3)+') − 75\n'+
+  '  = '+f(kw0.H,5)+'  (동점 보정 전)';
+ document.getElementById('noteC').innerHTML = '동점 묶음: 값이 두 번씩 겹치는 자리가 8곳(각 t=2) → Σ(t³−t) = 8×(2³−2) = '+kw0.tieSum.toFixed(0);
+ document.getElementById('preC').textContent =
+  'C = 1 − '+kw0.tieSum.toFixed(0)+' / (24³−24) = 1 − '+kw0.tieSum.toFixed(0)+' / '+(24*24*24-24)+' = '+f(kw0.C,6)+'\n'+
+  'H(보정후) = H / C = '+f(kw0.H,5)+' / '+f(kw0.C,6)+' = '+f(kw0.Hc,4);
+
+ document.getElementById('verdictKW').innerHTML = '<div class="verdict '+(kw0.p<0.05?'rej':'keep')+'">'+
+  'H(보정후)='+f(kw0.Hc,4)+', 카이제곱(df=2) 기준 p='+f(kw0.p,6)+' '+(kw0.p<0.05?'< 0.05 → H₀ 기각 : 세 팀의 수리 시간 위치가 모두 같다고 볼 수 없다':'≥ 0.05 → H₀ 기각 못 함')+'</div>';
+ document.getElementById('conclKW').innerHTML = '크러스칼-월리스 검정 결과 H(동점보정)='+f(kw0.Hc,4)+', p='+f(kw0.p,6)+' &lt; 0.05로 유의수준 0.05에서 귀무가설을 <b>기각한다</b> → '+
+  '세 팀의 수리 시간 분포 위치가 모두 같다고 볼 수 없다. 어느 팀이 다른지는 아래 사후검정으로 이어서 확인한다.';
+
+ var mwAB=mannWhitneyU(A0,B0), mwAC=mannWhitneyU(A0,C0), mwBC=mannWhitneyU(B0,C0);
+ function bonf(p){ return Math.min(1, p*3); }
+ var bAB=bonf(mwAB.p), bAC=bonf(mwAC.p), bBC=bonf(mwBC.p);
+ function postRow(name,mw,b){
+  var sig = b<0.05;
+  return '<tr><td class="l">'+name+'</td><td>'+f(mw.U1,1)+'</td><td>'+f(mw.p,6)+'</td><td style="font-weight:800;color:'+(sig?'var(--good)':'var(--soft)')+'">'+f(b,6)+'</td>'+
+   '<td style="font-weight:700;color:'+(sig?'var(--good)':'var(--warn)')+'">'+(sig?'유의':'유의 아님')+'</td></tr>';
+ }
+ document.getElementById('tbPost').innerHTML = '<tr><th>비교</th><th>U</th><th>p</th><th>본페로니 보정 p(×3)</th><th>판정</th></tr>'+
+  postRow('A–B',mwAB,bAB)+postRow('A–C',mwAC,bAC)+postRow('B–C',mwBC,bBC);
+ document.getElementById('conclPost').innerHTML = 'A–B(보정p='+f(bAB,4)+')와 B–C(보정p='+f(bBC,4)+')는 유의하고, A–C(보정p='+f(bAC,4)+')는 유의하지 않다. '+
+  '→ <b>B팀이 A·C보다 수리 시간이 유의하게 길다. A와 C는 차이가 없다.</b> (중앙값: A '+f(medA,1)+'분 · B '+f(medB,1)+'분 · C '+f(medC,1)+'분)';
+
+ /* ══════════ data-v 주입 ══════════ */
+ var V = {
+  anovaF: f(fAN0.F,4), anovaP: f(fAN0.p,4),
+  meanA: f(meanA,2), medA: f(medA,1),
+  swD_W: f(swD.W,5), swD_p: f(swD.p,6), d8: D[7],
+  nSign: nSign, posN: posN, negN: negN, minPN: minPN, pSign: f(pSign,6),
+  wrongPSign: f(wrongPSign,6),
+  swA_W: f(swA.W,5), swA_p: swA.p<0.0001?f(swA.p,6):f(swA.p,4),
+  swB_W: f(swB.W,5), swB_p: f(swB.p,4),
+  swC_W: f(swC.W,5), swC_p: f(swC.p,4)
+ };
+ [].forEach.call(document.querySelectorAll('[data-v]'), function(el){ var k=el.getAttribute('data-v'); if(k in V) el.textContent=V[k]; });
+
+ /* ══════════ Python 답안 ══════════ */
+ document.getElementById('pyCode').textContent =
+  'import numpy as np\nfrom scipy import stats\n\n'+
+  '# ── 문제 1: 대응표본 부호검정 ──────────────────────────\n'+
+  '전 = [42,38,51,45,40,47,39,55,44,48,41,46]\n후 = [39,36,47,45,37,44,40,35,41,43,38,42]\n'+
+  'd = np.array(후) - np.array(전)\n\n'+
+  '# 2. 전제: 차이값의 정규성\nprint(stats.shapiro(d))\n'+
+  '# 출력: statistic=0.6193, pvalue=0.000156  → 정규성 깨짐\n\n'+
+  '# 3~4. 0을 제외하고 부호검정 (양(+)의 개수를 k로)\n'+
+  'd_nz = d[d != 0]\nk = int((d_nz > 0).sum())\n'+
+  'print(stats.binomtest(k, len(d_nz), 0.5))\n'+
+  '# 출력: k=1, n=11, pvalue=0.01171875  → 기각\n\n'+
+  '# (비교용, 전제가 깨져 신뢰 불가) 대응 t검정\nprint(stats.ttest_rel(후, 전))\n'+
+  '# 출력: statistic=-2.6779, pvalue=0.02149\n\n'+
+  '# ── 문제 2: 크러스칼-월리스 ──────────────────────────\n'+
+  'A = [12,15,14,10,13,11,16,58]\nB = [18,22,19,25,21,17,20,24]\nC = [14,16,13,18,15,12,17,19]\n\n'+
+  '# 2. 전제: 집단별 정규성\nprint(stats.shapiro(A), stats.shapiro(B), stats.shapiro(C))\n'+
+  '# A만 정규성 깨짐(p=3.2e-05) → 비모수 검정으로\n\n'+
+  '# 3~4. 크러스칼-월리스 검정\nprint(stats.kruskal(A, B, C))\n'+
+  '# 출력: statistic=10.4576, pvalue=0.005360  → 기각\n\n'+
+  '# 5. 사후검정: 짝별 맨-휘트니 + 본페로니 보정\n'+
+  'pairs = [("A","B",A,B), ("A","C",A,C), ("B","C",B,C)]\n'+
+  'for name1, name2, x, y in pairs:\n'+
+  '    u, p = stats.mannwhitneyu(x, y, alternative="two-sided", method="asymptotic")\n'+
+  '    print(name1, name2, u, p, min(1, p*3))\n'+
+  '# 출력: A-B p=0.0136→보정0.0408(유의) / A-C p=0.2463→보정0.7388(유의아님) / B-C p=0.0045→보정0.0135(유의)\n\n'+
+  '# (비교용, 전제가 깨져 신뢰 불가) 일원 분산분석\nprint(stats.f_oneway(A, B, C))\n'+
+  '# 출력: statistic=0.6175, pvalue=0.5488  → "차이 없음"으로 잘못 나옴(58분에 끌림)';
+
+ window.addEventListener('resize', function(){ drawScatter(); drawBinom(); drawRanksum(); });
+ drawScatter();
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

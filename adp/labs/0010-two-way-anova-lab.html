@@ -1,0 +1,804 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><title>실기 통계 7) · 이원배치 분산분석과 교호작용 (주어진 데이터 풀이)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a6fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root{--accent:#0a6fa8;--accent2:#1497c4;--ink:#22303a;--soft:#5a6a76;--paper:#f5fbfd;--card:#fff;
+ --rule:#d5e6ee;--code:#eef7fb;--good:#1f9d6b;--warn:#c9772a;--bad:#c2453f;
+ --gA:#2b7de9;--gB:#e67e22;--gAB:#9b59b6;--gErr:#7f8c8d;}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#5c9eff;--gB:#f39c12;--gAB:#be79df;--gErr:#95a5a6;}}
+:root[data-theme="dark"]{--accent:#2fa8d8;--accent2:#6fcfe8;--ink:#e6f0f4;--soft:#a3b4bd;
+ --paper:#0f1a20;--card:#182831;--rule:#2b4451;--code:#152632;--good:#5fd6a8;--warn:#e0a35a;--bad:#f0888a;
+ --gA:#5c9eff;--gB:#f39c12;--gAB:#be79df;--gErr:#95a5a6;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);padding:1.6rem 1.1rem 4rem;
+ font-family:-apple-system,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0}
+h1{font-size:1.5rem;margin:.2rem 0 .3rem;letter-spacing:-.01em}
+h1 small{display:block;font-size:.93rem;color:var(--soft);font-weight:400;margin-top:.3rem}
+h2{font-size:1.08rem;margin:1.8rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.25rem}
+h3{font-size:.95rem;margin:1.2rem 0 .4rem;color:var(--accent)}
+.step{font-size:.7rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b{color:var(--accent)}.prob .src{font-size:.75rem;color:var(--soft);margin-top:.5rem}
+.probn{font-weight:800;color:var(--accent);font-size:.88rem;margin:.8rem 0 .2rem}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.5rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.82rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+td.l,th.l{text-align:left}
+.gday{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+canvas{width:100%;display:block;border-radius:8px}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}
+.key{background:color-mix(in srgb,var(--good) 10%,transparent);border:1px solid var(--good);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.94rem}
+.key b{color:var(--good)}
+.verdict{margin:.6rem 0;padding:.65rem .85rem;border-radius:9px;font-weight:700;font-size:.88rem}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.trap{border:1.5px dashed var(--warn);border-radius:10px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.trap .v{font-weight:800;color:var(--warn)}
+.btnrow{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 0}
+.btn{min-height:42px;padding:.35rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit}
+.btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+math{font-size:1.15rem;color:var(--ink)}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem .8rem;margin:.7rem 0;
+ overflow-x:auto;text-align:center;line-height:1.65}
+.eq .eqlab{display:block;font-size:.8rem;color:var(--soft);margin-bottom:.15rem;text-align:left}
+.eq .note{display:block;font-size:.83rem;color:var(--soft);margin:.4rem 0 .1rem}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+ font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.ask ul{margin:.4rem 0 0;padding-left:1.1rem}.ask li{margin:.25rem 0;font-size:.91rem}
+.readout{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.8rem;color:var(--soft);
+ margin-top:.5rem;font-variant-numeric:tabular-nums;line-height:1.7}
+.readout b{color:var(--ink)}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1.2rem}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;
+ border:1px solid var(--rule);border-radius:9px;background:var(--card);
+ color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.8rem;margin-left:auto}
+.labnav.bot a{flex:1;justify-content:center;text-align:center}
+</style><script>
+try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")document.documentElement.setAttribute("data-theme",_t);}catch(e){}
+</script></head><body><div class="wrap">
+
+<nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">통계 · 이원배치 분산분석</span></nav>
+
+<p class="eyebrow">실기 통계 7) · 두 요인의 분해와 상호작용</p>
+<h1>이원배치 분산분석 — 주어진 데이터를 푼다<small>ADP 27회 실기 기출 유형: 교육방식 × 사전지식 수준. <b>주효과보다 교호작용(상호작용)을 먼저 점검해야 하는 통계적 이유.</b></small></h1>
+
+<div class="prob">
+  <b>[문제]</b> 새로운 교육 프로그램의 효과를 평가하기 위해 <b>교육 방식(강의식 vs 토론식)</b>과 학생들의 <b>사전지식 수준(낮음 vs 높음)</b>에 따른 시험 성적을 조사하였습니다. 총 16명의 학생을 4개 집단에 4명씩 무작위로 균등 배정하여 교육을 진행한 후 시험 점수(100점 만점)를 측정한 결과는 다음과 같습니다.
+  <table style="margin:.6rem 0">
+    <tr><th>교육 방식 (요인 A)</th><th>사전지식 수준 (요인 B)</th><th>학생별 시험 점수 (각 n = 4)</th><th>집단 평균</th></tr>
+    <tr><td rowspan="2"><b>강의식</b></td><td>사전지식 낮음</td><td>65, 68, 63, 70</td><td><b data-v="cLL"></b></td></tr>
+    <tr><td>사전지식 높음</td><td>72, 75, 70, 77</td><td><b data-v="cLH"></b></td></tr>
+    <tr><td rowspan="2"><b>토론식</b></td><td>사전지식 낮음</td><td>78, 82, 76, 80</td><td><b data-v="cDL"></b></td></tr>
+    <tr><td>사전지식 높음</td><td>74, 77, 71, 76</td><td><b data-v="cDH"></b></td></tr>
+  </table>
+  <p class="probn">[물음 1] 교육 방식 주효과, 사전지식 수준 주효과, 그리고 두 요인 간 교호작용(상호작용) 효과에 대한 가설을 각각 설정하시오.</p>
+  <p class="probn">[물음 2] 이원배치 분산분석표(ANOVA Table)를 작성하고, 유의수준 0.05에서 각 요인의 통계적 유의성을 판정하시오.</p>
+  <p class="probn">[물음 3] 교호작용 그래프를 바탕으로 두 요인이 시험 점수에 미치는 효과를 종합적으로 해석하고 최적의 교육 전략을 제시하시오.</p>
+  <div class="src">유형 출처: ADP 실기 27회 복원 유형. 원문 데이터는 비공개 → 위 <b>연습 데이터는 고정</b>이며 아래 풀이는 이 숫자를 그대로 계산한 결과입니다. 실기 답안은 Python으로 씁니다.</div>
+</div>
+
+<div class="concl">
+  <b>주효과만 보면 중대한 오판을 내릴 수 있다</b> — 사전지식 수준별 평균만 보면 낮음(<span data-v="mB0"></span>)과 높음(<span data-v="mB1"></span>)의 차이가 작아 "사전지식은 시험 점수에 영향이 없다"고 결론짓기 쉽습니다.
+  <br>그런데 교육 방식별로 나누어 보면 다릅니다. 강의식에서는 사전지식이 높을수록 점수가 크게 오르고(<span data-v="cLL"></span> → <span data-v="cLH"></span>, <span data-v="slopeLec"></span>점), 토론식에서는 거꾸로 사전지식이 낮을 때 점수가 더 높습니다(<span data-v="cDL"></span> → <span data-v="cDH"></span>, <span data-v="slopeDis"></span>점). 두 선의 기울기가 반대 방향이라 전체 평균을 보면 서로 상쇄되어 작아 보였을 뿐입니다. <b>두 선이 교차하지 않아도 기울기 방향이 다르면(평행하지 않으면) 그 자체가 교호작용(상호작용)의 증거</b>입니다 — 이 차이가 우연인지는 §3 분산분석표에서 직접 판정합니다.
+</div>
+
+<h2><span class="step">§1</span>물음 1 풀이 — 세 쌍의 가설 설정</h2>
+
+<div class="solban">물음 1 공식 풀이</div>
+
+<p>이원배치 분산분석은 요인이 둘이므로 세 가지 독립적인 가설 검정을 동시에 수행합니다.</p>
+
+<p>아래 표의 α(알파)는 교육방식 각 수준이 전체 평균에서 더하거나 빼는 몫(효과), β(베타)는 사전지식 각 수준이 전체 평균에서 더하거나 빼는 몫입니다. (αβ)는 그 둘만으로는 설명되지 않고 두 요인이 특정 조합을 이룰 때만 따로 생기는 추가적인 몫, 즉 상호작용 효과입니다.</p>
+
+<table class="gday">
+  <tr><th class="l" style="width:20%">구분</th><th class="l">귀무가설 (H₀)</th><th class="l">대립가설 (H₁)</th></tr>
+  <tr>
+    <td class="l"><b>1) 교육방식 주효과</b></td>
+    <td class="l">교육 방식(강의식, 토론식)에 따른 평균 시험 점수에는 차이가 없다. (두 교육방식의 α가 모두 0)</td>
+    <td class="l">두 교육 방식의 평균 점수가 다르다.</td>
+  </tr>
+  <tr>
+    <td class="l"><b>2) 사전지식 주효과</b></td>
+    <td class="l">사전지식 수준(낮음, 높음)에 따른 평균 시험 점수에는 차이가 없다. (두 사전지식 수준의 β가 모두 0)</td>
+    <td class="l">두 사전지식 수준의 평균 점수가 다르다.</td>
+  </tr>
+  <tr>
+    <td class="l"><b>3) 교호작용 효과</b></td>
+    <td class="l">교육 방식과 사전지식 수준 간에는 상호작용(교호작용) 효과가 없다. (모든 조합에서 (αβ)가 0)</td>
+    <td class="l">교육 방식과 사전지식 수준 간에는 유의한 상호작용(교호작용) 효과가 존재한다.</td>
+  </tr>
+</table>
+
+<h2><span class="step">§2</span>전제 검정 — 정규성과 등분산성 확인</h2>
+<p>분산분석을 적용하기 전, 각 집단 표본이 정규분포를 따르고 네 집단의 모분산이 동일한지 검정합니다.</p>
+<ul>
+  <li><b>정규성 검정 (Shapiro-Wilk)</b>: 네 개 집단 모두 p값이 각각 <span data-v="swP1"></span>, <span data-v="swP2"></span>, <span data-v="swP3"></span>, <span data-v="swP4"></span>로 0.05를 크게 상회하여 정규성 가정을 만족합니다.</li>
+  <li><b>등분산성 검정 (Levene 검정, 중앙값 기준)</b>: 검정통계량 W = <span data-v="levW"></span>, p = <span data-v="levP"></span> > 0.05로 귀무가설을 기각하지 못하여 등분산성 가정을 온전히 충족합니다.</li>
+</ul>
+
+<h2><span class="step">§3</span>물음 2 풀이 — 이원배치 분산분석표 (ANOVA Table)</h2>
+
+<div class="solban">물음 2 공식 풀이</div>
+
+<p>총제곱합 SST(<span data-v="sstNote"></span>)는 교육방식(SSA), 사전지식(SSB), 교호작용(SSAB), 오차(SSE)라는 서로 겹치지 않는 네 조각으로 나뉩니다. 이렇게 깔끔하게 나뉘는 것은 네 집단의 표본 수가 모두 4명으로 같은 <b>균형설계</b>이기 때문입니다 — 표본 수가 집단마다 다른 불균형설계라면 네 조각의 합이 SST와 정확히 같지 않습니다.</p>
+
+<div class="eq">
+  <span class="eqlab">이원배치 제곱합 분해 공식</span>
+  <math display="block">
+    <mi>S</mi><msub><mi>S</mi><mi>T</mi></msub><mo>=</mo>
+    <mi>S</mi><msub><mi>S</mi><mi>A</mi></msub><mo>+</mo>
+    <mi>S</mi><msub><mi>S</mi><mi>B</mi></msub><mo>+</mo>
+    <mi>S</mi><msub><mi>S</mi><mrow><mi>A</mi><mi>B</mi></mrow></msub><mo>+</mo>
+    <mi>S</mi><msub><mi>S</mi><mi>E</mi></msub>
+  </math>
+  <span class="note"><span data-v="sstNote2"></span> = <span data-v="ssaNote"></span> (교육방식) + <span data-v="ssbNote"></span> (사전지식) + <span data-v="ssabNote"></span> (교호작용) + <span data-v="sseNote"></span> (잔차)</span>
+</div>
+
+<table id="tbAnova">
+  <thead>
+    <tr><th class="l">요인 (Source)</th><th>제곱합 (SS)</th><th>자유도 (df)</th><th>평균제곱 (MS)</th><th>F 통계량</th><th>p-value</th><th>판정 (α = 0.05)</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="l"><b>교육방식 (A)</b></td>
+      <td data-v="t_ssa"></td><td data-v="t_dfa"></td><td data-v="t_msa"></td><td data-v="t_fa"></td><td data-v="t_pa"></td>
+      <td id="judgeA"></td>
+    </tr>
+    <tr>
+      <td class="l"><b>사전지식 (B)</b></td>
+      <td data-v="t_ssb"></td><td data-v="t_dfb"></td><td data-v="t_msb"></td><td data-v="t_fb"></td><td data-v="t_pb"></td>
+      <td id="judgeB"></td>
+    </tr>
+    <tr>
+      <td class="l"><b>상호작용 (A × B)</b></td>
+      <td data-v="t_ssab"></td><td data-v="t_dfab"></td><td data-v="t_msab"></td><td data-v="t_fab"></td><td data-v="t_pab"></td>
+      <td id="judgeAB"></td>
+    </tr>
+    <tr>
+      <td class="l"><b>오차 (Residual)</b></td>
+      <td data-v="t_sse"></td><td data-v="t_dfe"></td><td data-v="t_mse"></td><td>—</td><td>—</td><td>—</td>
+    </tr>
+    <tr style="background:var(--code);font-weight:700">
+      <td class="l"><b>총계 (Total)</b></td>
+      <td data-v="t_sst"></td><td data-v="t_dftot"></td><td>—</td><td>—</td><td>—</td><td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="verdict rej">
+  <b>판정 결과</b>: 교호작용(A × B)의 p값이 <span data-v="t_pab_txt"></span>로 유의수준 0.05보다 훨씬 작으므로, 두 요인 간의 상호작용 효과는 통계적으로 매우 유의합니다.
+</div>
+
+<h2><span class="step">§4</span>물음 3 풀이 — 인터랙티브 교호작용 그래프</h2>
+
+<div class="solban">물음 3 공식 풀이</div>
+
+<p>아래 교호작용 그래프를 보십시오. 파란 선(강의식)과 주황 선(토론식)은 <b>교차하지 않고</b> 사전지식 두 수준 모두에서 토론식이 더 높습니다. 그런데도 두 선의 <b>기울기 방향이 서로 반대</b>입니다 — 강의식은 사전지식이 높을수록 올라가지만(<span data-v="slopeLec"></span>점), 토론식은 오히려 내려갑니다(<span data-v="slopeDis"></span>점). <b>두 선이 교차하지 않아도 평행하지 않으면 그 자체로 교호작용(상호작용)</b>입니다.</p>
+
+<div class="lab">
+  <canvas id="cvInteract" height="280"></canvas>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gA)"></span>강의식 (낮음 <span data-v="cLL"></span> → 높음 <span data-v="cLH"></span>)</span>
+    <span><span class="dot" style="background:var(--gB)"></span>토론식 (낮음 <span data-v="cDL"></span> → 높음 <span data-v="cDH"></span>)</span>
+  </div>
+  <div class="btnrow">
+    <button class="btn on" id="bReal">↺ 문제 데이터 (교호작용 있음 · 기울기 반대)</button>
+    <button class="btn" id="bParallel">가상 비교: 평행선 (교호작용 없음 · 상호작용 0)</button>
+  </div>
+  <div id="roInteract" class="readout"></div>
+</div>
+
+<p>전체 분산(SST = <span data-v="sstNote"></span>) 중 각 요인이 차지하는 비중을 아래 분해 막대로 비교해 보십시오.</p>
+
+<div class="lab">
+  <canvas id="cvBar" height="180"></canvas>
+  <div id="roBar" class="readout"></div>
+</div>
+
+<div class="key">
+  <b>[답안 3] 종합 해석 및 교육 전략</b><br>
+  1. <b>교호작용 우선 해석</b>: 교육방식과 사전지식 간 상호작용 효과가 유의하므로(F = <span data-v="t_fab"></span>, p = <span data-v="t_pab"></span>), 한 요인의 효과는 다른 요인의 수준에 따라 달라집니다.<br>
+  2. <b>조건별 차별성</b> (아래는 표본 평균을 비교한 것이며, 그 차이가 통계적으로 의미 있는지는 수준별로 따로 나누어 보는 단순주효과 검정으로 확인합니다 — 튜터 질문 블록 참고):
+     - <b>사전지식이 낮은 집단</b>: 토론식(<span data-v="cDL"></span>점)이 강의식(<span data-v="cLL"></span>점)보다 <b><span data-v="diffLow"></span>점</b> 높습니다.<br>
+     - <b>사전지식이 높은 집단</b>: 강의식(<span data-v="cLH"></span>점)과 토론식(<span data-v="cDH"></span>점)의 표본 평균 차이는 <span data-v="diffHigh"></span>점으로, 낮은 집단에 비해 두 방식의 차이가 훨씬 작습니다.<br>
+  3. <b>최적 제언</b>: 모든 학생에게 일괄적인 단일 방식을 적용해서는 안 되며, <b>사전지식이 부족한 학습자에게는 참여형 토론식을 우선 배정</b>하고 사전지식이 충분한 학습자에게는 자율 또는 강의식을 병행하는 맞춤형 교육 전략이 가장 효과적입니다.
+</div>
+
+<h2><span class="step">§5</span>Python 답안 — 시험장 제출 형태</h2>
+<p>실기 시험장에서는 `statsmodels`의 `ols`와 `anova_lm(typ=2)`를 사용하여 아래와 같이 분석하고 결과를 서술합니다.</p>
+
+<pre id="pyCode"></pre>
+
+<div class="trap">
+  <span class="v">시험장에서 점수를 깎이는 3대 함정</span>
+  <ul style="margin:.3rem 0 0;padding-left:1.1rem;font-size:.88rem">
+    <li><b>함정 1 (교호작용 무시)</b>: 교호작용이 유의함에도 불구하고, 사전지식의 p값(<span data-v="t_pb"></span>)만 보고 "사전지식은 시험성적에 영향이 없다"고 단순 서술하는 오류. 교호작용이 유의하면 반드시 교호작용을 중심에 두고 조건부 해석을 작성해야 합니다.</li>
+    <li><b>함정 2 (일원배치를 두 번 따로 수행)</b>: 두 요인을 각각 따로 일원배치 분산분석하면, 상호작용 제곱합 SSAB가 오차제곱합 SSE로 들어가 버려 오차(MSE)가 부풀려지고 검정력이 크게 떨어집니다.</li>
+    <li><b>함정 3 (Type I vs Type II/III 제곱합)</b>: `anova_lm`에서 기본값(`typ=1`)을 쓰면 공식에 넣는 변수 순서에 따라 제곱합이 달라질 수 있습니다. 이 데이터는 균형설계라 typ=1·2·3 결과가 모두 같지만, 집단별 표본 수가 다른 불균형설계에서는 변수 순서에 영향을 받지 않는 `typ=2`(또는 `typ=3`)를 지정하는 것이 안전합니다.</li>
+  </ul>
+</div>
+
+<div class="qna" data-label="왜 교호작용이 유의하면 주효과 단독 해석을 멈춰야 하나요?"
+     data-q="왜 교호작용이 유의하면 주효과 단독 해석을 멈춰야 하나요?">
+  <p><b>"어느 교육 방식이 더 좋은가?"라는 질문 자체에 단 하나의 정답이 없기 때문입니다.</b></p>
+  <p>교호작용이 유의하다는 것은 "교육 방식의 효과는 학생의 사전지식 수준에 따라 다르다"는 뜻입니다. 이 데이터에서 전체 평균만 보면 토론식(<span data-v="mA1"></span>점)이 강의식(<span data-v="mA0"></span>점)보다 우세해 보이지만, 사전지식이 높은 학생들에게는 두 방식의 차이가 <span data-v="diffHigh"></span>점에 불과합니다. 따라서 주효과 평균만으로 "토론식이 무조건 더 우수하다"고 말하는 것은 절반의 진실에 불과하며, 실전에서는 반드시 조건별 단순주효과(Simple Effect)를 분리해서 보고해야 합니다.</p>
+</div>
+
+<div class="qna" data-label="이원배치 분산분석에서 Type I, II, III 제곱합은 어떻게 다른가요?"
+     data-q="이원배치 분산분석에서 Type I, II, III 제곱합은 어떻게 다른가요?">
+  <p><b>각 셀의 표본 크기가 같을 때(균형설계)는 셋이 완전히 동일하지만, 표본 크기가 다를 때(불균형설계) 결과가 갈립니다.</b></p>
+  <p>Type I(순차적 제곱합)은 모형 식에 먼저 들어간 변수가 변동을 먼저 가져가므로 변수 입력 순서에 따라 F값이 바뀝니다. 반면 Type II는 다른 주효과를 통제한 상태에서 순수 효과를 보고, Type III는 상호작용까지 통제합니다. 실기 시험에서 균형 데이터일 때는 차이가 없지만, 불균형 데이터가 주어질 경우 순서 편향이 없는 Type II(`typ=2`) 또는 Type III(`typ=3`)를 적용하는 것이 안전합니다.</p>
+</div>
+
+<div class="ask">
+  <b>튜터에게 물어볼 만한 근본 질문</b>
+  <ul>
+    <li>교호작용이 유의하게 나왔을 때, 각 수준별로 쪼개어 실시하는 <b>단순주효과(Simple Main Effect) 검정</b>은 어떻게 계산합니까?</li>
+    <li>반복이 없는 이원배치 분산분석(각 셀에 관측치가 1개인 경우)에서는 왜 상호작용 효과를 검정할 수 없습니까?</li>
+    <li>요인이 세 개 이상인 삼원배치 분산분석에서는 2차 상호작용(A×B×C)을 어떻게 직관적으로 해석합니까?</li>
+  </ul>
+</div>
+
+<nav class="labnav bot">
+  <a href="./0009-bayes-lab.html">← 베이즈 정리와 갱신</a>
+  <a class="ghost" href="../index.html">홈</a>
+  <a href="./0011-nonparam-lab.html">비모수 검정 →</a>
+</nav>
+
+</div>
+
+<script>
+/* ══════════ 이원배치 분산분석 실계산 및 시각화 엔진 ══════════ */
+(function(){
+ function f(v,d){ return v.toFixed(d===undefined?2:d); }
+ function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+ function alpha(c,a){ c=(c||'').trim();
+  if(c[0]==='#'){ if(c.length===4) c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];
+    return 'rgba('+parseInt(c.substr(1,2),16)+','+parseInt(c.substr(3,2),16)+','+parseInt(c.substr(5,2),16)+','+a+')'; }
+  var m=c.match(/-?\d+\.?\d*/g); return m&&m.length>=3?'rgba('+m[0]+','+m[1]+','+m[2]+','+a+')':c; }
+ function setup(cv,h){ var dpr=window.devicePixelRatio||1,w=cv.clientWidth;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+'px';
+  var x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,w,h);
+  return {x:x,w:w,h:h}; }
+
+ /* ── F분포 survival function (불완전베타) ── */
+ function lgamma(x){
+  var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.001208650973866179,-5.395239384953e-6];
+  var y=x,tmp=x+5.5; tmp-=(x+0.5)*Math.log(tmp); var ser=1.000000000190015;
+  for(var j=0;j<6;j++) ser+=c[j]/++y; return -tmp+Math.log(2.5066282746310005*ser/x);
+ }
+ function betacf(a,b,x){
+  var m=1,m2,aa,c=1,d=1- (a+b)*x/(a+1); if(Math.abs(d)<1e-30) d=1e-30; d=1/d; var h=d;
+  for(m=1;m<=120;m++){
+   m2=2*m; aa=m*(b-m)*x/((a+m2-1)*(a+m2)); d=1+aa*d; if(Math.abs(d)<1e-30) d=1e-30;
+   c=1+aa/c; if(Math.abs(c)<1e-30) c=1e-30; d=1/d; h*=d*c;
+   aa=-(a+m)*(a+b+m)*x/((a+m2)*(a+m2+1)); d=1+aa*d; if(Math.abs(d)<1e-30) d=1e-30;
+   c=1+aa/c; if(Math.abs(c)<1e-30) c=1e-30; d=1/d; var del=d*c; h*=del;
+   if(Math.abs(del-1)<1e-9) break;
+  }
+  return h;
+ }
+ function ibeta(x,a,b){
+  if(x<=0) return 0; if(x>=1) return 1;
+  var bt=Math.exp(lgamma(a+b)-lgamma(a)-lgamma(b)+a*Math.log(x)+b*Math.log(1-x));
+  if(x<(a+1)/(a+b+2)) return bt*betacf(a,b,x)/a;
+  return 1 - bt*betacf(b,a,1-x)/b;
+ }
+ function Fsf(fval,df1,df2){
+  if(fval<=0) return 1;
+  var x=df2/(df2+df1*fval);
+  return ibeta(x,df2/2,df1/2);
+ }
+
+ /* ── Shapiro-Wilk W·p (Royston 1995, AS R94 — 0011 실험실과 동일 함수) ── */
+ function sgn(v){ return v>0?1:(v<0?-1:0); }
+ function qnorm(p){
+  var q=p-0.5, r;
+  if(Math.abs(q)<=0.425){
+   r=0.180625-q*q;
+   return q*(((((((r*2509.0809287301226727+33430.575583588128105)*r+67265.770927008700853)*r+45921.953931549871457)*r+13731.693765509461125)*r+1971.5909503065514427)*r+133.14166789178437745)*r+3.387132872796366608)
+     /(((((((r*5226.495278852854561+28729.085735721942674)*r+39307.89580009271061)*r+21213.794301586595867)*r+5394.1960214247511077)*r+687.1870074920579083)*r+42.313330701600911252)*r+1);
+  }
+  r = q>0 ? 1-p : p;
+  r = Math.sqrt(-Math.log(r));
+  var val;
+  if(r<=5){
+   r-=1.6;
+   val=(((((((r*7.7454501427834140764e-4+0.0227238449892691845833)*r+0.24178072517745061177)*r+1.27045825245236838258)*r+3.64784832476320460504)*r+5.7694972214606914055)*r+4.6303378461565452959)*r+1.42343711074968357734)
+     /(((((((r*1.05075007164441684324e-9+5.475938084995344946e-4)*r+0.0151986665636164571966)*r+0.14810397642748007459)*r+0.68976733498510000455)*r+1.6763848301838038494)*r+2.05319162663775882187)*r+1);
+  } else {
+   r-=5;
+   val=(((((((r*2.01033439929228813265e-7+2.71155556874348757815e-5)*r+0.0012426609473880784386)*r+0.026532189526576123093)*r+0.29656057182850489123)*r+1.7848265399172913358)*r+5.4637849111641143699)*r+6.6579046435011037772)
+     /(((((((r*2.04426310338993978564e-15+1.4215117583164458887e-7)*r+1.8463183175100546818e-5)*r+7.868691311456132591e-4)*r+0.0148753612908506148525)*r+0.13692988092273580531)*r+0.59983220655588793769)*r+1);
+  }
+  return q<0 ? -val : val;
+ }
+ function normQ(x){
+  var y=Math.abs(x);
+  if(y<=0.67448975){
+   var A=[2.2352520354606839287,161.02823106855587881,1067.6894854603709582,18154.981253343561249,0.065682337918207449113];
+   var B=[47.20258190468824187,976.09855173777669322,10260.932208618978205,45507.789335026729956];
+   var xsq=x*x, xnum=A[4]*xsq, xden=xsq;
+   for(var i=0;i<3;i++){ xnum=(xnum+A[i])*xsq; xden=(xden+B[i])*xsq; }
+   var temp=x*(xnum+A[3])/(xden+B[3]);
+   return 0.5-temp;
+  } else if(y<=5.656854249492381){
+   var C=[0.39894151208813466764,8.8831497943883759412,93.506656132177855979,597.27027639480026226,2494.5375852903726711,6848.1904505362823326,11602.651437647350124,9842.7148383839780218,1.0765576773720192317e-8];
+   var D=[22.266688044328115691,235.38790178262499861,1519.377599407554805,6485.558298266760755,18615.571640885098091,34900.952721145977266,38912.003286093271411,19685.429676859990727];
+   var xnum2=C[8]*y, xden2=y;
+   for(var j=0;j<7;j++){ xnum2=(xnum2+C[j])*y; xden2=(xden2+D[j])*y; }
+   var temp2=(xnum2+C[7])/(xden2+D[7]);
+   var xsq2=Math.trunc(y*16)/16;
+   var del=(y-xsq2)*(y+xsq2);
+   var Qy=Math.exp(-xsq2*xsq2*0.5)*Math.exp(-del*0.5)*temp2;
+   return x>=0?Qy:1-Qy;
+  } else {
+   var xsq3=y*y;
+   var del2=(1-(1-5/(xsq3+6))/(xsq3+4))/(xsq3+2);
+   var Qy2=Math.exp(-0.5*xsq3)/(y*Math.sqrt(2*Math.PI))*(1-del2);
+   return x>=0?Qy2:1-Qy2;
+  }
+ }
+ function polyEv(cc,nord,x){
+  var ret=cc[0];
+  if(nord>1){
+   var p=x*cc[nord-1];
+   for(var j=nord-2;j>0;j--) p=(p+cc[j])*x;
+   ret+=p;
+  }
+  return ret;
+ }
+ function shapiroWilk(xsIn){
+  var x=xsIn.slice().sort(function(a,b){return a-b;});
+  var n=x.length, nn2=Math.floor(n/2);
+  var a=new Array(nn2+1);
+  var g=[-2.273,0.459];
+  var c1=[0,0.221157,-0.147981,-2.07119,4.434685,-2.706056];
+  var c2=[0,0.042981,-0.293762,-1.752461,5.682633,-3.582633];
+  var c3=[0.544,-0.39978,0.025054,-6.714e-4];
+  var c4=[1.3822,-0.77857,0.062767,-0.0020322];
+  var c5=[-1.5861,-0.31082,-0.083751,0.0038915];
+  var c6=[-0.4803,-0.082676,0.0030302];
+  var an=n;
+  if(n===3){ a[1]=0.70710678; }
+  else {
+   var an25=an+0.25, summ2=0, i;
+   for(i=1;i<=nn2;i++){ a[i]=qnorm((i-0.375)/an25); summ2+=a[i]*a[i]; }
+   summ2*=2;
+   var ssumm2=Math.sqrt(summ2), rsn=1/Math.sqrt(an);
+   var a1=polyEv(c1,6,rsn)-a[1]/ssumm2;
+   var i1, fac, a2;
+   if(n>5){
+    i1=3;
+    a2=-a[2]/ssumm2+polyEv(c2,6,rsn);
+    fac=Math.sqrt((summ2-2*a[1]*a[1]-2*a[2]*a[2])/(1-2*a1*a1-2*a2*a2));
+    a[2]=a2;
+   } else {
+    i1=2;
+    fac=Math.sqrt((summ2-2*a[1]*a[1])/(1-2*a1*a1));
+   }
+   a[1]=a1;
+   for(i=i1;i<=nn2;i++) a[i]=-a[i]/fac;
+  }
+  var range=x[n-1]-x[0];
+  var xx=x[0]/range, sx=xx, sa=-a[1];
+  var ii=1, jj=n-1;
+  for(; ii<n; jj--){
+   var xi=x[ii]/range;
+   sx+=xi; ii++;
+   if(ii!==jj) sa+=sgn(ii-jj)*a[Math.min(ii,jj)];
+   xx=xi;
+  }
+  sa/=n; sx/=n;
+  var ssa=0, ssx=0, sax=0, p, q;
+  for(p=0, q=n-1; p<n; p++, q--){
+   var asa;
+   if(p!==q) asa=sgn(p-q)*a[1+Math.min(p,q)]-sa; else asa=-sa;
+   var xsx=x[p]/range-sx;
+   ssa+=asa*asa; ssx+=xsx*xsx; sax+=asa*xsx;
+  }
+  var ssassx=Math.sqrt(ssa*ssx);
+  var w1=(ssassx-sax)*(ssassx+sax)/(ssa*ssx);
+  var W=1-w1;
+  if(n===3){
+   var pi6=1.90985931710274, stqr=1.04719755119660;
+   var pw3=pi6*(Math.asin(Math.sqrt(W))-stqr);
+   return {W:W,p:Math.max(0,pw3)};
+  }
+  var y=Math.log(w1), xxlog=Math.log(an), m,s;
+  if(n<=11){
+   var gamma=polyEv(g,2,an);
+   if(y>=gamma) return {W:W,p:1e-99};
+   y=-Math.log(gamma-y);
+   m=polyEv(c3,4,an); s=Math.exp(polyEv(c4,4,an));
+  } else {
+   m=polyEv(c5,4,xxlog); s=Math.exp(polyEv(c6,3,xxlog));
+  }
+  var pw=normQ((y-m)/s);
+  return {W:W, p:pw};
+ }
+
+ /* ── Levene(중앙값 기준) — |x − 집단 중앙값| 에 대한 일원분산분석 F·p ── */
+ function median(a){ var b=a.slice().sort(function(x,y){return x-y;}); var n=b.length; return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2; }
+ function leveneMedian(groups){
+  var dev = groups.map(function(g){ var med=median(g); return g.map(function(v){ return Math.abs(v-med); }); });
+  var k=dev.length, N=0, grand=0;
+  dev.forEach(function(g){ N+=g.length; g.forEach(function(v){ grand+=v; }); });
+  grand/=N;
+  var SSB=0, SSW=0;
+  dev.forEach(function(g){
+   var m=g.reduce(function(a,b){return a+b;},0)/g.length;
+   SSB += g.length*(m-grand)*(m-grand);
+   g.forEach(function(v){ SSW += (v-m)*(v-m); });
+  });
+  var dfB=k-1, dfW=N-k, MSB=SSB/dfB, MSW=SSW/dfW;
+  var F=MSW>0?MSB/MSW:0;
+  return {F:F, p:Fsf(F,dfB,dfW)};
+ }
+
+ /* 데이터 정의 (균형 2 × 2, n=4) */
+ var REAL_CELL = [
+  [ [65,68,63,70], [72,75,70,77] ], /* 강의식: 낮음(66.5), 높음(73.5) */
+  [ [78,82,76,80], [74,77,71,76] ]  /* 토론식: 낮음(79.0), 높음(74.5) */
+ ];
+ var PARALLEL_CELL = [
+  [ [65,68,63,70], [72,75,70,77] ], /* 강의식: 66.5, 73.5 (+7.0) */
+  [ [73,76,71,78], [80,83,78,85] ]  /* 가상 토론식: 74.5, 81.5 (+7.0 평행) */
+ ];
+
+ var currentCell = REAL_CELL;
+ var isParallelMode = false;
+
+ function calcAnova2(cell){
+  var a = cell.length, b = cell[0].length, n = cell[0][0].length;
+  var all = [];
+  var meanCell = [[0,0],[0,0]];
+  var meanA = [0,0], meanB = [0,0];
+  var grand = 0;
+
+  for(var i=0;i<a;i++){
+   for(var j=0;j<b;j++){
+    var sum = 0;
+    for(var k=0;k<n;k++){ sum += cell[i][j][k]; all.push(cell[i][j][k]); }
+    meanCell[i][j] = sum / n;
+    meanA[i] += sum;
+    meanB[j] += sum;
+    grand += sum;
+   }
+   meanA[i] /= (b*n);
+  }
+  for(var j=0;j<b;j++) meanB[j] /= (a*n);
+  grand /= (a*b*n);
+
+  var SST = 0;
+  for(var k=0;k<all.length;k++) SST += Math.pow(all[k] - grand, 2);
+
+  var SSA = 0;
+  for(var i=0;i<a;i++) SSA += b * n * Math.pow(meanA[i] - grand, 2);
+
+  var SSB = 0;
+  for(var j=0;j<b;j++) SSB += a * n * Math.pow(meanB[j] - grand, 2);
+
+  var SSAB = 0;
+  for(var i=0;i<a;i++){
+   for(var j=0;j<b;j++){
+    var d = meanCell[i][j] - meanA[i] - meanB[j] + grand;
+    SSAB += n * d * d;
+   }
+  }
+  var SSE = SST - SSA - SSB - SSAB;
+  if(SSE < 1e-9) SSE = 0;
+
+  var dfA = a - 1, dfB = b - 1, dfAB = (a - 1) * (b - 1), dfE = a * b * (n - 1);
+  var MSA = SSA / dfA, MSB = SSB / dfB, MSAB = SSAB / dfAB, MSE = SSE / dfE;
+
+  var FA = MSE>0 ? MSA / MSE : 0;
+  var FB = MSE>0 ? MSB / MSE : 0;
+  var FAB = MSE>0 ? MSAB / MSE : 0;
+
+  var pA = Fsf(FA, dfA, dfE);
+  var pB = Fsf(FB, dfB, dfE);
+  var pAB = Fsf(FAB, dfAB, dfE);
+
+  return {
+   a:a, b:b, n:n, grand:grand,
+   meanCell:meanCell, meanA:meanA, meanB:meanB,
+   SST:SST, SSA:SSA, SSB:SSB, SSAB:SSAB, SSE:SSE,
+   dfA:dfA, dfB:dfB, dfAB:dfAB, dfE:dfE,
+   MSA:MSA, MSB:MSB, MSAB:MSAB, MSE:MSE,
+   FA:FA, FB:FB, FAB:FAB,
+   pA:pA, pB:pB, pAB:pAB
+  };
+ }
+
+ /* ── 고정 데이터(실제 기출 값)로 본문 수치를 계산해 §1~§3·답안·함정·Q&A에 주입 ── */
+ var R = calcAnova2(REAL_CELL);
+ var swGroups = [REAL_CELL[0][0], REAL_CELL[0][1], REAL_CELL[1][0], REAL_CELL[1][1]];
+ var SW = swGroups.map(shapiroWilk);
+ var LEV = leveneMedian(swGroups);
+
+ function judgeHtml(p){
+  return p<0.05
+   ? '<span style="color:var(--good);font-weight:700">기각 (유의함)</span>'
+   : '<span style="color:var(--soft)">기각 실패 (유의하지 않음)</span>';
+ }
+
+ function pm(v,d){ return (v<0?'−':'+')+f(Math.abs(v),d); }
+
+ var cLL=R.meanCell[0][0], cLH=R.meanCell[0][1], cDL=R.meanCell[1][0], cDH=R.meanCell[1][1];
+ var slopeLec=cLH-cLL, slopeDis=cDH-cDL;
+ var diffLow=cDL-cLL, diffHigh=cDH-cLH;
+
+ var V = {
+  swP1: f(SW[0].p,4), swP2: f(SW[1].p,4), swP3: f(SW[2].p,4), swP4: f(SW[3].p,4),
+  levW: f(LEV.F,3), levP: f(LEV.p,4),
+  sstNote: f(R.SST,2), sstNote2: f(R.SST,2),
+  ssaNote: f(R.SSA,2), ssbNote: f(R.SSB,2), ssabNote: f(R.SSAB,2), sseNote: f(R.SSE,2),
+  t_ssa: f(R.SSA,2), t_dfa: R.dfA, t_msa: f(R.MSA,2), t_fa: f(R.FA,2), t_pa: f(R.pA,4),
+  t_ssb: f(R.SSB,2), t_dfb: R.dfB, t_msb: f(R.MSB,2), t_fb: f(R.FB,2), t_pb: f(R.pB,4),
+  t_ssab: f(R.SSAB,2), t_dfab: R.dfAB, t_msab: f(R.MSAB,2), t_fab: f(R.FAB,2), t_pab: f(R.pAB,4),
+  t_sse: f(R.SSE,2), t_dfe: R.dfE, t_mse: f(R.MSE,2),
+  t_sst: f(R.SST,2), t_dftot: (R.dfA+R.dfB+R.dfAB+R.dfE),
+  t_pab_txt: f(R.pAB,4),
+  cLL: f(cLL,2), cLH: f(cLH,2), cDL: f(cDL,2), cDH: f(cDH,2),
+  mA0: f(R.meanA[0],2), mA1: f(R.meanA[1],2), mB0: f(R.meanB[0],2), mB1: f(R.meanB[1],2),
+  diffLow: f(diffLow,1), diffHigh: f(diffHigh,1),
+  slopeLec: pm(slopeLec,1), slopeDis: pm(slopeDis,1)
+ };
+ [].forEach.call(document.querySelectorAll('[data-v]'), function(el){ var k=el.getAttribute('data-v'); if(k in V) el.textContent=V[k]; });
+ var jA=document.getElementById('judgeA'), jB=document.getElementById('judgeB'), jAB=document.getElementById('judgeAB');
+ if(jA) jA.innerHTML = judgeHtml(R.pA);
+ if(jB) jB.innerHTML = judgeHtml(R.pB);
+ if(jAB) jAB.innerHTML = judgeHtml(R.pAB);
+
+ /* ── 교호작용 플롯 캔버스 ── */
+ var cv1 = document.getElementById('cvInteract'), ro1 = document.getElementById('roInteract');
+ var bR = document.getElementById('bReal'), bP = document.getElementById('bParallel');
+
+ function drawInteract(){
+  var res = calcAnova2(currentCell);
+  var o = setup(cv1, 280), x = o.x, W = o.w, H = o.h;
+  var narrowTop = W < 480;
+  var pL = 50, pR = 40, pT = narrowTop ? 52 : 36, pB = 46;
+  var gw = W - pL - pR, gh = H - pT - pB;
+
+  var yMin = 60, yMax = 86;
+  function yPos(val){ return pT + gh - ((val - yMin)/(yMax - yMin)) * gh; }
+
+  /* 배경 그리드 */
+  x.strokeStyle = css('--rule'); x.lineWidth = 1;
+  [65, 70, 75, 80, 85].forEach(function(gy){
+   var yp = yPos(gy);
+   x.beginPath(); x.moveTo(pL, yp); x.lineTo(pL+gw, yp); x.stroke();
+   x.font = '11px -apple-system,sans-serif';
+   x.fillStyle = css('--soft');
+   x.textAlign = 'right';
+   x.fillText(gy, pL - 8, yp + 4);
+  });
+
+  var x1 = pL + gw * 0.25;
+  var x2 = pL + gw * 0.75;
+
+  /* x축 라벨 */
+  x.font = '700 12px -apple-system,sans-serif';
+  x.fillStyle = css('--ink');
+  x.textAlign = 'center';
+  x.fillText('사전지식 낮음', x1, H - 16);
+  x.fillText('사전지식 높음', x2, H - 16);
+
+  /* 상단 상태 라벨(좁은 화면은 두 줄로 나눠 잘리지 않게) */
+  x.font = '700 12.5px -apple-system,sans-serif';
+  x.textAlign = 'left';
+  var statHead = !isParallelMode ? '■ 교호작용 유의 (기울기 반대 방향)' : '■ 교호작용 없음 (완전 평행선)';
+  var statStat = 'F = '+f(res.FAB,2)+', p = '+f(res.pAB,4);
+  x.fillStyle = !isParallelMode ? css('--bad') : css('--good');
+  if(narrowTop){
+   x.fillText(statHead, pL, 18);
+   x.fillText(statStat, pL, 36);
+  } else {
+   x.fillText(statHead.slice(0,-1)+' · '+statStat+')', pL, 20);
+  }
+
+  /* 선 1: 강의식 (파란색) */
+  var m11 = res.meanCell[0][0], m12 = res.meanCell[0][1];
+  var y11 = yPos(m11), y12 = yPos(m12);
+
+  x.strokeStyle = css('--gA'); x.lineWidth = 3;
+  x.beginPath(); x.moveTo(x1, y11); x.lineTo(x2, y12); x.stroke();
+
+  [ {x:x1, y:y11}, {x:x2, y:y12} ].forEach(function(pt){
+   x.fillStyle = css('--card');
+   x.beginPath(); x.arc(pt.x, pt.y, 6, 0, Math.PI*2); x.fill();
+   x.fillStyle = css('--gA');
+   x.beginPath(); x.arc(pt.x, pt.y, 4, 0, Math.PI*2); x.fill();
+  });
+
+  /* 선 2: 토론식 (주황색) */
+  var m21 = res.meanCell[1][0], m22 = res.meanCell[1][1];
+  var y21 = yPos(m21), y22 = yPos(m22);
+
+  x.strokeStyle = css('--gB'); x.lineWidth = 3;
+  x.beginPath(); x.moveTo(x1, y21); x.lineTo(x2, y22); x.stroke();
+
+  [ {x:x1, y:y21}, {x:x2, y:y22} ].forEach(function(pt){
+   x.fillStyle = css('--card');
+   x.beginPath(); x.arc(pt.x, pt.y, 6, 0, Math.PI*2); x.fill();
+   x.fillStyle = css('--gB');
+   x.beginPath(); x.arc(pt.x, pt.y, 4, 0, Math.PI*2); x.fill();
+  });
+
+  /* 점 라벨 — 같은 x열의 두 값이 가까우면(사전지식 높음 쪽) 겹치지 않도록 위/아래로 충분히 벌린다 */
+  x.font = '700 11.5px -apple-system,sans-serif';
+  x.textAlign = 'center';
+  [ [ {y:y11, val:m11, col:css('--gA')}, {y:y21, val:m21, col:css('--gB')} ],
+    [ {y:y12, val:m12, col:css('--gA')}, {y:y22, val:m22, col:css('--gB')} ] ].forEach(function(col, ci){
+   var cx = ci===0 ? x1 : x2;
+   var top = col[0].y <= col[1].y ? col[0] : col[1];
+   var bot = col[0].y <= col[1].y ? col[1] : col[0];
+   var topLabelY = top.y - 10;
+   var botLabelY = Math.max(bot.y + 20, topLabelY + 20);
+   x.fillStyle = top.col; x.fillText(f(top.val, 2), cx, topLabelY);
+   x.fillStyle = bot.col; x.fillText(f(bot.val, 2), cx, botLabelY);
+  });
+
+  if(!isParallelMode){
+   var dLow = f(res.meanCell[1][0]-res.meanCell[0][0],1), dHigh = f(res.meanCell[1][1]-res.meanCell[0][1],1);
+   ro1.innerHTML = '강의식은 사전지식이 높을수록 성적이 오르지만('+f(m11,2)+' → '+f(m12,2)+'), 토론식은 사전지식이 낮을 때 오히려 더 높습니다('+f(m21,2)+' → '+f(m22,2)+').<br>'+
+     '두 수준 모두에서 토론식이 더 높아 순위가 뒤집히지는 않지만, 그 우위의 크기가 '+dLow+'점에서 '+dHigh+'점으로 크게 줄어듭니다. <b>두 직선이 교차하지 않아도 기울기 방향이 반대라 평행하지 않으며, 이것이 바로 교호작용(상호작용)</b>입니다.';
+  } else {
+   ro1.innerHTML = '가상 비교: 두 직선이 완벽히 평행하면 상호작용 제곱합 SS(A×B) = '+f(res.SSAB,2)+' 이 되어 교호작용이 사라집니다.<br>'+
+     '이 경우에만 "사전지식 수준과 상관없이 토론식이 항상 일정 점수만큼 더 효과적이다"라고 주효과를 단독 해석할 수 있습니다.';
+  }
+ }
+
+ bR.addEventListener('click', function(){
+  currentCell = REAL_CELL; isParallelMode = false;
+  bR.classList.add('on'); bP.classList.remove('on');
+  drawInteract(); drawBar();
+ });
+ bP.addEventListener('click', function(){
+  currentCell = PARALLEL_CELL; isParallelMode = true;
+  bP.classList.add('on'); bR.classList.remove('on');
+  drawInteract(); drawBar();
+ });
+
+ /* ── 제곱합 직교 분해 누적 막대 캔버스 ── */
+ var cv2 = document.getElementById('cvBar'), ro2 = document.getElementById('roBar');
+
+ function drawBar(){
+  var res = calcAnova2(currentCell);
+  var o = setup(cv2, 180), x = o.x, W = o.w, H = o.h;
+  var pL = 20, pR = 20, pT = 24, pB = 30;
+  var gw = W - pL - pR;
+  var barH = 34, by = pT + 30;
+
+  var sst = res.SST;
+  var parts = [
+   { name: '교육방식 (SSA)', val: res.SSA, col: css('--gA') },
+   { name: '사전지식 (SSB)', val: res.SSB, col: css('--gB') },
+   { name: '상호작용 (SSAB)', val: res.SSAB, col: css('--gAB') },
+   { name: '오차 (SSE)', val: res.SSE, col: css('--gErr') }
+  ];
+
+  x.font = '700 12px -apple-system,sans-serif';
+  x.fillStyle = css('--accent');
+  x.textAlign = 'left';
+  x.fillText('■ 총제곱합(SST = '+f(sst,2)+')을 겹치지 않는 네 조각으로 나누기', pL, pT);
+
+  var curX = pL;
+  parts.forEach(function(pt){
+   var wSeg = gw * (pt.val / sst);
+   x.fillStyle = alpha(pt.col, 0.85);
+   x.fillRect(curX, by, wSeg, barH);
+   x.strokeStyle = pt.col; x.lineWidth = 1.5;
+   x.strokeRect(curX+0.5, by+0.5, wSeg-1, barH-1);
+
+   /* 라벨 */
+   var pct = (pt.val / sst) * 100;
+   if(wSeg > 40){
+    x.fillStyle = '#fff';
+    x.font = '700 11px -apple-system,sans-serif';
+    x.textAlign = 'center';
+    x.fillText(f(pct, 1)+'%', curX + wSeg/2, by + barH/2 + 4);
+   }
+   curX += wSeg;
+  });
+
+  /* 하단 범례(좁은 화면은 2×2로) */
+  var legItems = [
+   { lab: '교육방식: '+f(res.SSA,1), col: css('--gA') },
+   { lab: '사전지식: '+f(res.SSB,1), col: css('--gB') },
+   { lab: '상호작용: '+f(res.SSAB,1), col: css('--gAB') },
+   { lab: '오차: '+f(res.SSE,1), col: css('--gErr') }
+  ];
+  var narrow = W < 480;
+  var legY = by + barH + 28;
+  if(!narrow){
+   var colW = gw / legItems.length;
+   legItems.forEach(function(it, i){
+    x.fillStyle = it.col;
+    x.fillRect(pL + colW*i, legY - 9, 8, 8);
+    x.fillStyle = css('--soft');
+    x.font = '11px -apple-system,sans-serif';
+    x.textAlign = 'left';
+    x.fillText(it.lab, pL + colW*i + 12, legY);
+   });
+  } else {
+   var colW2 = gw / 2, rowH2 = 20;
+   legItems.forEach(function(it, i){
+    var cx = pL + colW2*(i%2), cy = legY + rowH2*Math.floor(i/2);
+    x.fillStyle = it.col;
+    x.fillRect(cx, cy - 9, 8, 8);
+    x.fillStyle = css('--soft');
+    x.font = '11px -apple-system,sans-serif';
+    x.textAlign = 'left';
+    x.fillText(it.lab, cx + 12, cy);
+   });
+  }
+
+  var pctA = res.SSA/sst*100, pctB = res.SSB/sst*100, pctAB = res.SSAB/sst*100;
+  ro2.innerHTML = '총제곱합 <b>'+f(sst,2)+'</b> = SSA(<b>'+f(res.SSA,2)+'</b>) + SSB(<b>'+f(res.SSB,2)+'</b>) + SSAB(<b>'+f(res.SSAB,2)+'</b>) + SSE(<b>'+f(res.SSE,2)+'</b>)<br>'+
+    '네 조각 중 교육방식(SSA)이 전체의 <b>'+f(pctA,1)+'%</b>로 가장 크고, 상호작용(SSAB)이 <b>'+f(pctAB,1)+'%</b>로 그 다음입니다. 상호작용은 사전지식 단독 효과(SSB, '+f(pctB,1)+'%)보다는 훨씬 크지만, 교육방식 단독 효과보다는 작습니다.';
+ }
+
+ window.addEventListener('resize', function(){ drawInteract(); drawBar(); });
+ drawInteract();
+ drawBar();
+
+ /* 파이썬 코드 블록 채우기 */
+ document.getElementById('pyCode').textContent =
+  'import pandas as pd\n'+
+  'import statsmodels.api as sm\n'+
+  'from statsmodels.formula.api import ols\n'+
+  'from scipy import stats\n\n'+
+  '# 1. 데이터 구축 (균형설계 2x2, n=4)\n'+
+  'data = {\n'+
+  '    "method": ["lecture"]*8 + ["discussion"]*8,\n'+
+  '    "knowledge": (["low"]*4 + ["high"]*4) * 2,\n'+
+  '    "score": [65,68,63,70, 72,75,70,77,  78,82,76,80, 74,77,71,76]\n'+
+  '}\n'+
+  'df = pd.DataFrame(data)\n\n'+
+  '# 2. 전제 검정 (정규성 & 등분산성)\n'+
+  'groups = [df[(df["method"]==m) & (df["knowledge"]==k)]["score"].values\n'+
+  '          for m in ["lecture","discussion"] for k in ["low","high"]]\n'+
+  'for g in groups:\n'+
+  '    print("Shapiro-Wilk:", stats.shapiro(g))\n'+
+  'lev_stat, lev_p = stats.levene(*groups, center="median")\n'+
+  'print(f"Levene 등분산 검정: 통계량={lev_stat:.4f}, p값={lev_p:.4f}")\n\n'+
+  '# 3. 이원배치 분산분석 모형 적합 (OLS + anova_lm typ=2)\n'+
+  'model = ols("score ~ C(method) + C(knowledge) + C(method):C(knowledge)", data=df).fit()\n'+
+  'anova_table = sm.stats.anova_lm(model, typ=2)\n'+
+  'print("\\n=== 이원배치 분산분석표 ===")\n'+
+  'print(anova_table)\n\n'+
+  '# 4. 집단별 평균 출력\n'+
+  'cell_means = df.groupby(["method", "knowledge"])["score"].mean()\n'+
+  'print("\\n=== 각 셀별 평균 점수 ===")\n'+
+  'print(cell_means)\n\n'+
+  '# ── 결과 판정 ──\n'+
+  '# C(method)             : F='+f(R.FA,2)+', p='+f(R.pA,4)+' (기각, 유의함)\n'+
+  '# C(knowledge)          : F='+f(R.FB,2)+', p='+f(R.pB,4)+' (기각 실패, 유의하지 않음)\n'+
+  '# C(method):C(knowledge): F='+f(R.FAB,2)+', p='+f(R.pAB,4)+' (기각, 교호작용 매우 유의함)';
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

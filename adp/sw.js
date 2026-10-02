@@ -1,7 +1,7 @@
 /* ADP Master — 서비스워커
    목적: 홈 화면에 추가한 뒤 오프라인에서도 허브·실험실이 열리게 한다.
    전략: cache-first (설치 시 핵심 파일을 미리 저장, 이후 요청은 캐시 우선·실패 시 네트워크). */
-const CACHE_NAME = 'adp-master-v24';
+const CACHE_NAME = 'adp-master-v25';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -32,7 +32,9 @@ const CORE_ASSETS = [
   './labs/0005-chisq-lab.html',
   './labs/0006-proportion-lab.html',
   './labs/0007-ttest-lab.html',
-  './labs/0009-bayes-lab.html'
+  './labs/0009-bayes-lab.html',
+  './labs/0010-two-way-anova-lab.html',
+  './labs/0011-nonparam-lab.html'
 ];
 
 self.addEventListener('install', function(evt){
