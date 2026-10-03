@@ -10,7 +10,7 @@
  *          스크린샷은 /tmp/uicheck/ 에 저장(눈으로도 확인 가능).
  */
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync, readdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -27,6 +27,8 @@ const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : [
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 mkdirSync(OUT, { recursive: true });
 
+/* 프로필을 매번 비운다 — 남아 있으면 서비스워커 캐시가 옛 페이지를 내어 줘 수정 전 화면을 검사하게 된다. */
+rmSync('/tmp/uicheck-profile', { recursive: true, force: true });
 const server = spawn('python3', ['-m', 'http.server', String(PORT)], { cwd: ROOT, stdio: 'ignore' });
 const chrome = spawn(CHROME, [
   '--headless=new', `--remote-debugging-port=${DBG}`, '--disable-gpu', '--no-first-run',
