@@ -1,0 +1,357 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>Manufacturing Agent Lab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="제조 AI 에이전트 연구소 · 공정 전용 분석 에이전트를 설계하고 그 AI가 배울 데이터 자산을 쌓는 길">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --track:#dcefef; --tint:#e6f4f4;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:1000px;margin:0 auto;padding:0 1.1rem}
+
+/* 상단바: 본문과 분리된 고정 영역 */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+/* 히어로 */
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2.6rem 0 2.2rem;border-radius:0 0 26px 26px;margin-bottom:1.6rem}
+.eyebrow{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800;margin:0 0 .4rem;opacity:.9}
+h1{font-size:2.3rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.sub{font-size:1.15rem;font-weight:600;margin:0 0 1.1rem;opacity:.95}
+.goal{margin:0;padding:1rem 1.1rem;border-radius:14px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.3);font-size:1.02rem;line-height:1.7}
+:root[data-theme="dark"] .goal,:root[data-theme="auto"] .goal{background:rgba(0,0,0,.18)}
+
+section{margin:0 0 2.4rem}
+h2{font-size:1.45rem;margin:0 0 .35rem;letter-spacing:-.01em;line-height:1.3}
+h2 .no{color:var(--accent);margin-right:.4rem}
+.lead{color:var(--soft);margin:0 0 1rem;font-size:1rem}
+p{margin:0 0 .8rem}
+.grid{display:grid;gap:.9rem}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem}
+.card h3{font-size:1.05rem;margin:0 0 .4rem;line-height:1.35}
+.card p{font-size:.95rem;color:var(--soft);margin:0}
+.card p.main{color:var(--ink)}
+.tag{display:inline-block;font-size:.8rem;font-weight:800;color:var(--accent);margin-bottom:.35rem}
+
+/* 업무 흐름 */
+.flow{display:flex;align-items:stretch;gap:0;margin:1rem 0 .4rem;padding:0;list-style:none}
+.step{flex:1 1 0;background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:.7rem .75rem;
+  font-size:.92rem;line-height:1.45;position:relative;min-width:0}
+.step b{display:block;color:var(--accent);font-size:.8rem;margin-bottom:.15rem}
+.step.warn{border-color:var(--warn)}
+.arrow{flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:1.2rem;font-weight:800}
+.note{font-size:.9rem;color:var(--soft)}
+
+/* 기둥 */
+.pillar{display:grid;grid-template-columns:44px 1fr;gap:.9rem;background:var(--card);border:1px solid var(--rule);
+  border-radius:14px;padding:1rem 1.05rem}
+.pillar+.pillar{margin-top:.8rem}
+.pnum{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;
+  align-items:center;justify-content:center;font-weight:800;font-size:1.05rem}
+.pillar h3{font-size:1.08rem;margin:0 0 .25rem;line-height:1.35}
+.pillar .can{margin:0 0 .6rem;font-size:.97rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:0;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .65rem;
+  font-size:.82rem;color:var(--ink)}
+
+/* 구조도 */
+.diagram{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:.8rem}
+.diagram svg{display:block;width:100%;height:auto}
+.diagram .dwide{display:block}.diagram .dtall{display:none}
+.sv-box{fill:var(--tint);stroke:var(--rule);stroke-width:1.5}
+.sv-main{fill:var(--accent);stroke:var(--accent)}
+.sv-out{fill:var(--card);stroke:var(--accent);stroke-width:2}
+.sv-t{fill:var(--ink);font-size:15px;font-weight:700;font-family:inherit}
+.sv-s{fill:var(--soft);font-size:13px;font-family:inherit}
+.sv-w{fill:var(--accent-ink);font-size:15px;font-weight:800;font-family:inherit}
+.sv-ws{fill:var(--accent-ink);font-size:13px;font-family:inherit}
+.sv-l{stroke:var(--accent);stroke-width:2;fill:none}
+.sv-a{fill:var(--accent)}
+.quote{margin:1rem 0 0;padding:.8rem 1rem;border-left:4px solid var(--accent);background:var(--tint);
+  border-radius:0 10px 10px 0;font-weight:700}
+
+/* 로드맵 */
+.tl{list-style:none;margin:0;padding:0 0 0 1.4rem;border-left:3px solid var(--track)}
+.tl li{position:relative;padding:0 0 1.2rem 1rem}
+.tl li::before{content:"";position:absolute;left:-2.05rem;top:.35rem;width:16px;height:16px;border-radius:50%;
+  background:var(--card);border:3px solid var(--accent)}
+.tl li:first-child::before{background:var(--accent)}
+.tl .when{font-size:.82rem;font-weight:800;color:var(--accent)}
+.tl h3{font-size:1.05rem;margin:.1rem 0 .2rem}
+.tl p{margin:0;color:var(--soft);font-size:.95rem}
+.badge{display:inline-block;margin-left:.4rem;padding:.05rem .55rem;border-radius:999px;font-size:.78rem;font-weight:800;
+  background:var(--accent);color:var(--accent-ink);vertical-align:middle}
+
+.labitem{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--card);border:1px dashed var(--accent);
+  border-radius:14px;padding:.9rem 1.05rem}
+.labitem .tt{font-weight:800;flex:1 1 200px}
+.labitem .ss{font-size:.9rem;color:var(--soft);flex:1 1 100%}
+footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
+
+@media(max-width:760px){
+  h1{font-size:1.85rem}
+  .g3,.g2{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .arrow{flex:0 0 28px;font-size:0}
+  .arrow::before{content:"↓";font-size:1.2rem}
+  .diagram .dwide{display:none}.diagram .dtall{display:block}
+  .pillar{grid-template-columns:1fr}
+}
+@media(max-width:520px){.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../home.html">← 홈</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">Manufacturing Agent Lab</p>
+  <h1>Manufacturing Agent Lab</h1>
+  <p class="sub">제조 AI 에이전트 연구소</p>
+  <p class="goal">이 공정, 이 설비를 스스로 모니터링하고 분석해서, 무엇을 왜 검정했고 결론이 무엇인지까지 사람에게 보고하는 전용 AI 에이전트 — 그것을 설계하고, 그 AI가 배울 데이터 자산을 가진 사람이 되는 것.</p>
+</div></header>
+
+<main class="wrap">
+
+<section id="why">
+  <h2><span class="no">1</span>왜 이 길인가</h2>
+  <p class="lead">범용 도구를 넓게 아는 것보다, 한 공정을 깊게 아는 도구를 갖는 쪽이 이깁니다.</p>
+  <div class="grid g3">
+    <div class="card"><h3>공정 전용 AI가 이깁니다</h3><p class="main">범용 AI나 범용 자격은 어느 공장에든 맞지만 어느 공장에도 딱 맞지 않습니다. 특정 공정 전용 AI는 쓸 곳이 좁은 대신 비용이 적게 들고, 그 공정에서는 성능이 더 높습니다.</p></div>
+    <div class="card"><h3>코드는 AI가 짜도 기초는 내 몫입니다</h3><p class="main">코드는 AI가 대신 써 줄 수 있습니다. 하지만 이론, 수식, 기본 코드를 아는 사람만이 결과가 맞는지 가려낼 수 있고, 그 차이가 결과의 품질을 가릅니다.</p></div>
+    <div class="card"><h3>쌓인 현장 데이터가 자산입니다</h3><p class="main">현장 데이터와 분석 사례는 오랜 시간이 걸려야 쌓입니다. 그래서 남이 단기간에 따라올 수 없는 자산이 됩니다.</p></div>
+  </div>
+</section>
+
+<section id="data">
+  <h2><span class="no">2</span>다룰 데이터와 업무</h2>
+  <p class="lead">세 종류의 데이터가 아래 업무 흐름 곳곳에서 나옵니다.</p>
+  <div class="grid g3">
+    <div class="card"><span class="tag">데이터 1</span><h3>설비 FDC 시계열</h3><p>설비가 공정 중에 남기는 센서 값의 시간 기록입니다. FDC는 Fault Detection and Classification, 곧 이상 감지와 분류를 뜻합니다.</p></div>
+    <div class="card"><span class="tag">데이터 2</span><h3>PPA 2차원 데이터</h3><p>PPA(Pixel Position Alignment)는 증착 결과의 위치 정렬 품질입니다. 화면 위 각 지점의 어긋남을 2차원 지도로 얻습니다.</p></div>
+    <div class="card"><span class="tag">데이터 3</span><h3>생산 Loss 기록</h3><p>생산이 계획대로 되지 못한 손실을 항목별로 남긴 기록입니다.</p></div>
+  </div>
+  <h3 style="margin:1.4rem 0 .2rem;font-size:1.05rem">업무 흐름</h3>
+  <ol class="flow">
+    <li class="step"><b>1단계</b>증착용 마스크 제작</li><li class="arrow" aria-hidden="true">→</li>
+    <li class="step"><b>2단계</b>세정</li><li class="arrow" aria-hidden="true">→</li>
+    <li class="step"><b>3단계</b>증착 품질(PPA) 해석</li><li class="arrow" aria-hidden="true">→</li>
+    <li class="step warn"><b>문제가 있으면</b>마스크 리페어: 파손 수리 · PPA 보정 · 세정 후 이물 제거</li><li class="arrow" aria-hidden="true">→</li>
+    <li class="step"><b>마지막</b>결과 확인</li>
+  </ol>
+  <p class="note">리페어(repair)는 고쳐 쓰는 일입니다. 고친 뒤에는 PPA를 다시 재서 정말 나아졌는지 확인합니다.</p>
+</section>
+
+<section id="pillars">
+  <h2><span class="no">3</span>다섯 기둥</h2>
+  <p class="lead">번호는 곧 학습 순서입니다. 각 기둥은 &ldquo;무엇을 할 수 있게 되는가&rdquo;로 시작합니다.</p>
+
+  <div class="pillar"><div class="pnum">1</div><div>
+    <h3>변경점 전후 유의차 분석</h3>
+    <p class="can">대책을 적용하거나 리페어·세정을 한 전후에 정말 달라졌는지 판정할 수 있게 됩니다.</p>
+    <ul class="chips"><li>Welch t검정</li><li>맨-휘트니 (Mann-Whitney)</li><li>Levene (산포 변화)</li><li>대응표본 검정</li><li>효과 크기·신뢰구간</li><li>동등성 검정 (TOST)</li><li>자기상관·교란 주의</li></ul>
+  </div></div>
+
+  <div class="pillar"><div class="pnum">2</div><div>
+    <h3>가성 인터락을 배제하는 최적 spec</h3>
+    <p class="can">설비를 쓸데없이 세우는 가성 인터락(false interlock, 실제 이상이 아닌데 울리는 정지 신호)은 줄이고 진짜 이상은 놓치지 않는 한계선을 정할 수 있게 됩니다.</p>
+    <ul class="chips"><li>궤적→특징</li><li>1종·2종 오류</li><li>3σ의 세 가정(정규성·독립성·깨끗한 기준)</li><li>분위수 한계</li><li>로버스트 추정(중앙값·MAD)</li><li>다중 비교</li><li>평균 런 길이 (ARL)</li><li>EWMA·CUSUM</li><li>드리프트 적응</li><li>비용 기반 최적화</li></ul>
+  </div></div>
+
+  <div class="pillar"><div class="pnum">3</div><div>
+    <h3>PPA 2차원 해석</h3>
+    <p class="can">어긋남 지도를 평행이동·회전·배율 같은 큰 성분과 국소 결함으로 갈라, 보정할지 리페어할지 판단할 수 있게 됩니다.</p>
+    <ul class="chips"><li>벡터장 (dx, dy)</li><li>최소제곱 성분 분해(평행이동·회전·배율·직교도)</li><li>잔차 = 국소 결함</li><li>반복 위치 = 마스크 기인</li><li>리페어 전후 맵 비교</li></ul>
+  </div></div>
+
+  <div class="pillar"><div class="pnum">4</div><div>
+    <h3>보고하는 AI 에이전트</h3>
+    <p class="can">앞의 세 기둥에서 만든 부품을 묶어, 분석하고 보고서까지 쓰는 에이전트를 설계할 수 있게 됩니다.</p>
+    <ul class="chips"><li>검증된 함수 = 도구</li><li>분석 사례 은행</li><li>검정 선택 규칙</li><li>과거 사례 검색 (RAG)</li><li>보고서 생성</li><li>사람 판단과의 일치율로 평가</li></ul>
+  </div></div>
+
+  <div class="pillar"><div class="pnum">5</div><div>
+    <h3>생산 Loss</h3>
+    <p class="can">손실이 어디서 생기는지 분류하고, 어떤 항목이 서로 엮여 있는지 보고, 앞으로의 손실을 예측할 수 있게 됩니다.</p>
+    <ul class="chips"><li>Loss 분류 체계</li><li>파레토 (Pareto)</li><li>항목 간 상관(가짜 상관 주의)</li><li>ML Loss 예측</li><li>공정 추적 기반 예측</li></ul>
+  </div></div>
+</section>
+
+<section id="agent">
+  <h2><span class="no">4</span>에이전트 구조</h2>
+  <p class="lead">에이전트(agent)는 스스로 도구를 골라 쓰고 결과를 보고하는 프로그램입니다. 그 부품이 어디서 나오는지 보여 드립니다.</p>
+  <div class="diagram">
+    <svg class="dwide" viewBox="0 0 900 400" role="img" aria-label="실험실의 검증된 함수와 분석 사례 은행이 에이전트로 모이고 사람에게 보고하는 구조도">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="sv-a"/></marker></defs>
+      <rect class="sv-box" x="10" y="20" width="250" height="100" rx="12"/>
+      <text class="sv-t" x="135" y="55" text-anchor="middle">실험실마다 남기는</text>
+      <text class="sv-s" x="135" y="80" text-anchor="middle">검증된 함수 + 보고서 양식</text>
+      <rect class="sv-box" x="10" y="270" width="250" height="110" rx="12"/>
+      <text class="sv-t" x="135" y="298" text-anchor="middle">분석 사례 은행</text>
+      <text class="sv-s" x="135" y="322" text-anchor="middle">질문 · 데이터 · 고른 검정 · 이유</text>
+      <text class="sv-s" x="135" y="342" text-anchor="middle">결과 · 결론 · 조치 · 사후 결과</text>
+      <rect class="sv-box" x="330" y="20" width="170" height="100" rx="12"/>
+      <text class="sv-t" x="415" y="76" text-anchor="middle">도구 상자</text>
+      <rect class="sv-box" x="330" y="270" width="170" height="110" rx="12"/>
+      <text class="sv-t" x="415" y="330" text-anchor="middle">과거 사례 검색</text>
+      <rect class="sv-main" x="560" y="140" width="150" height="120" rx="12"/>
+      <text class="sv-w" x="635" y="190" text-anchor="middle">에이전트</text>
+      <text class="sv-ws" x="635" y="213" text-anchor="middle">검정 선택 규칙</text>
+      <text class="sv-ws" x="635" y="233" text-anchor="middle">+ 판단</text>
+      <rect class="sv-out" x="760" y="100" width="135" height="200" rx="12"/>
+      <text class="sv-t" x="827" y="130" text-anchor="middle">사람에게 보고</text>
+      <text class="sv-s" x="827" y="160" text-anchor="middle">숫자</text>
+      <text class="sv-s" x="827" y="184" text-anchor="middle">분석 과정</text>
+      <text class="sv-s" x="827" y="208" text-anchor="middle">어떤 검정을 왜</text>
+      <text class="sv-s" x="827" y="232" text-anchor="middle">결론</text>
+      <text class="sv-s" x="827" y="256" text-anchor="middle">권고 조치</text>
+      <path class="sv-l" d="M260 70 H330" marker-end="url(#ah)"/>
+      <path class="sv-l" d="M260 325 H330" marker-end="url(#ah)"/>
+      <path class="sv-l" d="M500 70 H535 V180 H560" marker-end="url(#ah)"/>
+      <path class="sv-l" d="M500 325 H535 V220 H560" marker-end="url(#ah)"/>
+      <path class="sv-l" d="M710 200 H760" marker-end="url(#ah)"/>
+      <path class="sv-l" d="M135 270 V120" stroke-dasharray="5 5"/>
+    </svg>
+    <svg class="dtall" viewBox="0 0 360 760" role="img" aria-label="실험실의 검증된 함수와 분석 사례 은행이 에이전트로 모이고 사람에게 보고하는 구조도(세로)">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="sv-a"/></marker></defs>
+      <rect class="sv-box" x="10" y="10" width="300" height="76" rx="12"/>
+      <text class="sv-t" x="160" y="42" text-anchor="middle">실험실마다 남기는</text>
+      <text class="sv-s" x="160" y="66" text-anchor="middle">검증된 함수 + 보고서 양식</text>
+      <path class="sv-l" d="M160 86 V116" marker-end="url(#ah2)"/>
+      <rect class="sv-box" x="10" y="116" width="300" height="52" rx="12"/>
+      <text class="sv-t" x="160" y="148" text-anchor="middle">도구 상자</text>
+      <rect class="sv-box" x="10" y="210" width="300" height="104" rx="12"/>
+      <text class="sv-t" x="160" y="238" text-anchor="middle">분석 사례 은행</text>
+      <text class="sv-s" x="160" y="262" text-anchor="middle">질문 · 데이터 · 고른 검정 · 이유</text>
+      <text class="sv-s" x="160" y="284" text-anchor="middle">결과 · 결론 · 조치 · 사후 결과</text>
+      <path class="sv-l" d="M160 314 V342" marker-end="url(#ah2)"/>
+      <rect class="sv-box" x="10" y="342" width="300" height="52" rx="12"/>
+      <text class="sv-t" x="160" y="374" text-anchor="middle">과거 사례 검색</text>
+      <path class="sv-l" d="M160 394 V446" marker-end="url(#ah2)"/>
+      <path class="sv-l" d="M310 142 H340 V494 H310" marker-end="url(#ah2)"/>
+      <text class="sv-s" x="160" y="196" text-anchor="middle">+</text>
+      <rect class="sv-main" x="10" y="446" width="300" height="96" rx="12"/>
+      <text class="sv-w" x="160" y="482" text-anchor="middle">에이전트</text>
+      <text class="sv-ws" x="160" y="508" text-anchor="middle">검정 선택 규칙 + 판단</text>
+      <path class="sv-l" d="M160 542 V574" marker-end="url(#ah2)"/>
+      <rect class="sv-out" x="10" y="574" width="300" height="176" rx="12"/>
+      <text class="sv-t" x="160" y="606" text-anchor="middle">사람에게 보고</text>
+      <text class="sv-s" x="160" y="636" text-anchor="middle">숫자</text>
+      <text class="sv-s" x="160" y="660" text-anchor="middle">분석 과정</text>
+      <text class="sv-s" x="160" y="684" text-anchor="middle">어떤 검정을 왜</text>
+      <text class="sv-s" x="160" y="708" text-anchor="middle">결론 · 권고 조치</text>
+    </svg>
+  </div>
+  <p class="quote">공부하는 과정이 곧 에이전트의 부품을 만드는 과정입니다.</p>
+</section>
+
+<section id="roadmap">
+  <h2><span class="no">5</span>학습·실행 로드맵</h2>
+  <p class="lead">기간은 대략입니다. 일과 병행하며 단계마다 실제로 쓸 수 있는 결과를 하나씩 남깁니다.</p>
+  <ol class="tl">
+    <li><span class="when">0~3개월</span><h3>단계 1 · 기초 <span class="badge">다음 단계</span></h3><p>변경점 검정과 궤적→특징을 익히고, 분석 사례 은행에 기록을 시작합니다.</p></li>
+    <li><span class="when">3~6개월</span><h3>단계 2 · 첫 실무 성과</h3><p>실제 변경점의 판정을 보고합니다. 가성 인터락을 줄이는 spec을 과거 데이터로 다시 만들어 보며 검증합니다.</p></li>
+    <li><span class="when">6~12개월</span><h3>단계 3 · PPA</h3><p>성분 분해로 보정할지 리페어할지 가르는 판단 기준을 만듭니다.</p></li>
+    <li><span class="when">12~18개월</span><h3>단계 4 · 에이전트 시제품</h3><p>도구 상자와 사례 검색을 묶어 보고서 초안을 자동으로 씁니다.</p></li>
+    <li><span class="when">18~24개월</span><h3>단계 5 · Loss와 확장</h3><p>생산 Loss 분석을 더하고, 다른 설비와 공정으로 넓힙니다.</p></li>
+  </ol>
+</section>
+
+<section id="labs">
+  <h2><span class="no">6</span>실험실 목록</h2>
+  <p class="lead">첫 실험실은 기둥 2의 첫 걸음이며, 단계 1에 놓입니다.</p>
+  <div class="labitem">
+    <span class="tt">궤적에서 특징으로 — FDC 데이터의 모양</span>
+    <span class="badge">다음 단계</span>
+    <span class="ss">기둥 2 · 설비가 남긴 시간 곡선(궤적)에서 최댓값, 기울기 같은 숫자(특징)를 뽑는 법.</span>
+  </div>
+</section>
+
+<section id="strategy">
+  <h2><span class="no">7</span>실무 적용 전략</h2>
+  <div class="grid g2">
+    <div class="card"><h3>매일 루틴</h3><p>개념 하나, 함수 하나, 실무 적용 한 건의 기록을 매일 남깁니다.</p></div>
+    <div class="card"><h3>사례 은행은 첫날부터</h3><p>엑셀 한 장으로 시작해도 됩니다. 질문, 고른 검정과 이유, 결과, 조치, 사후 결과를 한 줄씩 적습니다.</p></div>
+    <div class="card"><h3>결과는 숫자 한 장으로</h3><p>보고는 한 장의 숫자로 끝냅니다. 예를 들면 &ldquo;가성 인터락 몇 % 감소&rdquo;, &ldquo;이상을 몇 시간 먼저 탐지&rdquo; 같은 꼴입니다. 이 문장은 형식을 보이는 예시이며 실제 수치가 아닙니다.</p></div>
+    <div class="card"><h3>현장 짝 한 명</h3><p>현장 엔지니어 한 명과 짝(champion, 함께 성과를 만드는 지지자)을 이뤄 그 설비에서 먼저 성과를 냅니다.</p></div>
+    <div class="card"><h3>매일 쓰이는 작은 도구로</h3><p>분석으로 끝내지 않고, 매일 쓰이는 작은 도구로 남깁니다. 쓰이지 않는 분석은 자산이 되지 않습니다.</p></div>
+    <div class="card"><h3>GPU 없이 시작</h3><p>이 로드맵의 대부분은 사무용 PC의 CPU로 충분합니다.</p></div>
+    <div class="card" style="grid-column:1/-1"><h3>데이터 경계</h3><p>회사 데이터와 분석 사례 은행은 회사 안에서만 다룹니다. 이 사이트의 실험실은 공개 데이터와 가상 데이터만 씁니다.</p></div>
+  </div>
+</section>
+
+<section id="kinds">
+  <h2><span class="no">8</span>콘텐츠 세 종류</h2>
+  <div class="grid g3">
+    <div class="card"><span class="tag">학습자료</span><h3>개념을 이해합니다</h3><p>검정, 수식, 용어를 읽는 순서대로 풀어 설명한 글입니다.</p></div>
+    <div class="card"><span class="tag">실험실</span><h3>직접 계산하고 조작합니다</h3><p>주어진 데이터를 직접 계산하고 조작하며, Python 코드와 검증된 함수를 함께 얻습니다.</p></div>
+    <div class="card"><span class="tag">연구실</span><h3>내 데이터에 적용합니다</h3><p>자기 데이터에 적용해 기록하는 양식입니다. 내용은 회사 안에서만 보관합니다.</p></div>
+  </div>
+</section>
+
+<footer>Manufacturing Agent Lab · 제조 AI 에이전트 연구소</footer>
+</main>
+
+<script>
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function get(){ var v=root.getAttribute('data-theme'); return v||'light'; }
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++) if(THEMES[i].v===v) btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m) m.setAttribute('content', v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(), i=0;
+    for(var k=0;k<THEMES.length;k++) if(THEMES[k].v===cur) i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  apply(get());
+  /* 상단바는 고정 영역 — 높이만큼 본문을 내린다 */
+  var bar=document.getElementById('topbar');
+  function reserve(){ document.body.style.paddingTop=bar.offsetHeight+'px'; }
+  reserve();
+  if(window.ResizeObserver) new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  if(location.search.indexOf('uicheck')>=0){
+    var u=document.createElement('script'); u.src='../adp/uicheck.js'; document.head.appendChild(u);
+  }
+})();
+</script>
+</body></html>
