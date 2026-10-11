@@ -22,6 +22,8 @@ const SIZES = [
 const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : [
   'adp/index.html', 'adp/topics.html',
   ...readdirSync(new URL('../adp/labs', import.meta.url).pathname).filter(f => f.endsWith('.html')).sort().map(f => 'adp/labs/' + f),
+  'agentlab/index.html',
+  ...readdirSync(new URL('../agentlab/labs', import.meta.url).pathname).filter(f => f.endsWith('.html')).sort().map(f => 'agentlab/labs/' + f),
 ];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));

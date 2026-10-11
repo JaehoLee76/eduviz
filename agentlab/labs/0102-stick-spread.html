@@ -1,0 +1,960 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>0102 평균은 그대로인데 산포가 줄었다 · Manufacturing Agent Lab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="마스크 스틱 교체 전후 PPA 산포 비교 · 분산비 F검정의 약점, 레빈(브라운-포사이스) 검정, 순위로 위치를 비교하는 맨-휘트니 U">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --track:#dcefef; --tint:#e6f4f4;
+  --code:#eef6f6; --gB:#3b6bc4; --gA:#c2611a; --bad:#c0392b;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+    --code:#122124; --gB:#8fb0ff; --gA:#f0a566; --bad:#ef8a7d;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+    --code:#122124; --gB:#8fb0ff; --gA:#f0a566; --bad:#ef8a7d;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.7;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.5rem}
+.eyebrow{font-size:.8rem;letter-spacing:.14em;font-weight:800;margin:0 0 .4rem;opacity:.9}
+h1{font-size:1.9rem;margin:0 0 .5rem;font-weight:800;line-height:1.25}
+.goal{margin:0;padding:.9rem 1.05rem;border-radius:14px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.3);font-size:1.02rem;line-height:1.7}
+:root[data-theme="dark"] .goal,:root[data-theme="auto"] .goal{background:rgba(0,0,0,.18)}
+
+section{margin:0 0 2.2rem}
+h2{font-size:1.4rem;margin:0 0 .5rem;line-height:1.3}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1rem 0 .3rem;line-height:1.4}
+p{margin:0 0 .8rem}
+.soft{color:var(--soft)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:0 0 1rem}
+.card h3{margin-top:0}
+.card ol,.card ul{margin:.3rem 0 .3rem 1.1rem;padding:0}
+.card li{margin:.25rem 0}
+.ban{display:inline-block;font-size:.85rem;font-weight:800;padding:.1rem .7rem;border-radius:999px;margin:0 0 .6rem;
+  background:var(--accent);color:var(--accent-ink)}
+.ban.sol{background:var(--good);color:#fff}
+.ban.exp{background:var(--warn);color:#fff}
+:root[data-theme="dark"] .ban.sol{color:#06282b}
+:root[data-theme="dark"] .ban.exp{color:#1b1206}
+.prob{border-left:5px solid var(--accent)}
+.solb{border-left:5px solid var(--good)}
+.expb{border-left:5px solid var(--warn)}
+.bridge{border-left:4px solid var(--accent);background:var(--tint);border-radius:0 10px 10px 0;padding:.7rem 1rem;margin:0 0 1rem}
+.tblw{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.92rem;background:var(--card)}
+th,td{border:1px solid var(--rule);padding:.35rem .55rem;text-align:right;white-space:nowrap}
+th{background:var(--tint);color:var(--accent);text-align:center}
+td:first-child,th:first-child{text-align:left}
+table.terms td,table.terms th{white-space:normal;text-align:left}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.6rem 0 1rem}
+.eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;font-size:.88rem;color:var(--soft);margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.8rem;overflow-x:auto;
+  font-size:.82rem;line-height:1.55;margin:.5rem 0 1rem;font-family:ui-monospace,Menlo,Consolas,monospace}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em}
+canvas{display:block;width:100%;background:var(--card);border:1px solid var(--rule);border-radius:10px;margin:.4rem 0 .2rem}
+.cap{font-size:.88rem;color:var(--soft);margin:.2rem 0 1rem}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.85rem;color:var(--soft);margin:.2rem 0 .8rem}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:.35rem;vertical-align:-1px}
+.legend i.sq{border-radius:2px}
+.ctrls{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0 1rem}
+.ctrls.one{grid-template-columns:1fr}
+.ctrl{background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:.8rem .9rem}
+.ctrl label{display:block;font-weight:800;font-size:.92rem;margin-bottom:.2rem}
+.ctrl input[type=range]{width:100%;margin:.5rem 0;accent-color:var(--accent)}
+.ctrl .val{font-weight:800;color:var(--accent);font-size:1.05rem}
+.ctrl .state{font-size:.88rem;color:var(--soft);margin:.2rem 0 .4rem}
+.btn{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .8rem;border:1px solid var(--accent);border-radius:9px;
+  background:transparent;color:var(--accent);font-weight:700;font-size:.88rem;font-family:inherit;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:default}
+.chip{display:inline-block;font-size:.82rem;font-weight:800;padding:.05rem .6rem;border-radius:999px;color:#fff;background:var(--soft)}
+.chip.sig{background:var(--good)}
+:root[data-theme="dark"] .chip.sig,:root[data-theme="dark"] .chip{color:#06282b}
+.verdict{background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0 1rem}
+.verdict b{color:var(--accent)}
+.stuck{border:2px solid var(--warn);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0 1rem;background:var(--card)}
+.stuck b.t{color:var(--warn)}
+.concl{border:2px solid var(--accent);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0 1rem;background:var(--card)}
+.box{border:1px dashed var(--accent);border-radius:12px;padding:.8rem 1rem;margin:0 0 1rem;background:var(--card)}
+.box h3{margin:0 0 .3rem;color:var(--accent)}
+.box ul{margin:.2rem 0 0 1.1rem;padding:0}
+.box li{margin:.25rem 0}
+.qrow{margin:.2rem 0 1rem}
+.labnav{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.4rem}
+.labnav a{display:inline-flex;align-items:center;min-height:42px;padding:.3rem .9rem;border:1px solid var(--accent);border-radius:10px;
+  color:var(--accent);font-weight:700;text-decoration:none;background:var(--card)}
+.labnav .grow{flex:1 1 20px;border:0;background:none;min-height:0;padding:0}
+@media(max-width:760px){.ctrls{grid-template-columns:1fr}h1{font-size:1.6rem}}
+@media(max-width:520px){.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}table{font-size:.84rem}th,td{white-space:normal;padding:.3rem .28rem;word-break:keep-all;overflow-wrap:anywhere}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">실험실 0102</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">MANUFACTURING AGENT LAB · 기둥 1 · 실험실 0102</p>
+  <h1>평균은 그대로인데 산포가 줄었다</h1>
+  <p class="goal">이 실험실의 물음은 한 줄입니다. 마스크의 불량 스틱을 새것으로 갈아 끼웠더니 PPA 지표의 평균은 그대로인데 흩어짐만 눈에 띄게 줄어 보입니다. 이것이 우연이 아니라고 숫자로 말하려면 어떤 검정을 어떤 순서로 써야 하는가.</p>
+</div></header>
+
+<main class="wrap">
+
+<section id="intro">
+  <div class="bridge">
+    <p><b>실험실 0101 에서 이어집니다.</b> 0101 에서는 PM 전후로 압력의 <b>평균</b>이 옮겨 갔는지를 재는 법을 배웠습니다. 평균은 &ldquo;중심이 어디냐&rdquo;를 묻는 숫자입니다. 그런데 PPA 에서는 중심 못지않게 &ldquo;얼마나 흩어졌느냐&rdquo;가 곧 품질입니다. 평균이 목표에 딱 맞아도 점마다 들쭉날쭉하면 화소가 서로 겹치거나 비어 불량이 되기 때문입니다. 그래서 이번에는 평균이 아니라 <b>산포(흩어진 정도)</b>가 줄었는지를 묻는 법을 배웁니다.</p>
+  </div>
+  <div class="card">
+    <h3>이미 알고 계신 것</h3>
+    <ul>
+      <li>평균·중앙값·표준편차, 정규분포, 평균 ±3σ 로 그은 관리선</li>
+      <li>p값과 유의수준 5%, 귀무가설, 자유도</li>
+      <li>웰치 t검정 (실험실 0101), 분산분석의 제곱합</li>
+    </ul>
+    <h3>이번에 새로 배우는 말 (다섯 개)</h3>
+    <table class="terms">
+      <tr><th>말</th><th>한 줄 뜻</th></tr>
+      <tr><td>분산비와 F검정</td><td>두 집단의 분산(표준편차의 제곱)을 나눈 값 F 로 산포가 같은지 보는 검정</td></tr>
+      <tr><td>레빈 검정 (Levene test)</td><td>각 값이 자기 집단의 중심에서 떨어진 거리를 새 자료로 만들어, 그 평균을 비교하는 산포 검정</td></tr>
+      <tr><td>브라운-포사이스 (Brown–Forsythe)</td><td>레빈 검정에서 중심을 평균 대신 중앙값으로 잡은 형태</td></tr>
+      <tr><td>순위 (rank)</td><td>두 집단을 섞어 작은 값부터 1등, 2등 &hellip; 으로 줄을 세운 등수</td></tr>
+      <tr><td>맨-휘트니 U (Mann–Whitney U)</td><td>순위만 써서 한쪽이 전체적으로 더 큰 경향이 있는지 보는 검정</td></tr>
+    </table>
+    <p class="soft" style="margin:.6rem 0 0">이 실험실의 데이터는 학습용 가상 데이터입니다. 표에서 p값이 아주 작을 때는 <code>1.20e-5</code> 처럼 적습니다. 이는 0.0000120, 곧 1.20 에 10의 −5제곱을 곱한 수입니다.</p>
+  </div>
+</section>
+
+<section id="s1">
+  <h2><span class="no">1</span>문제와 주어진 데이터</h2>
+  <div class="card prob">
+    <span class="ban">문제</span>
+    <p>마스크 <b>B05-B3</b> (블록 B05 G EML 층, 챔버 CH3 전용)는 11개의 스틱으로 이루어져 있고, 그중 4번째 스틱이 불량으로 판정되어 새것으로 교체되었습니다. 교체 전 유리 <b data-k="n_b"></b>장, 교체 후 유리 <b data-k="n_a"></b>장에서 PPA 를 쟀습니다.</p>
+    <p>PPA (Pixel Position Accuracy, 화소 위치 정확도)는 유리 한 장 위의 77개 점(가로 11 × 세로 7)에서 화소가 목표 위치에서 얼마나 벗어났는지 잰 값입니다. 여기서는 가로 방향 오차 dx (µm)를 씁니다. 유리 한 장마다 77개 값에서 지표 하나를 만듭니다. 지표가 작을수록 좋습니다.</p>
+    <div class="eq">
+      <span class="eqlab">유리 한 장의 품질 지표 (µm)</span>
+      <math display="block"><mi>지표</mi><mo>=</mo><mrow><mo stretchy="false">|</mo><mover><mi>x</mi><mo stretchy="false">¯</mo></mover><mo stretchy="false">|</mo></mrow><mo>+</mo><mn>3</mn><mi>s</mi></math>
+      <span class="note">x̄ 와 s 는 그 유리의 77개 dx 값의 평균과 표준편차입니다. 중심이 어긋난 만큼과 흩어진 만큼을 한 숫자로 더한 것입니다.</span>
+    </div>
+    <p><b>질문:</b> 스틱 교체는 효과가 있었는가. 곧 교체 전후의 유리 지표가 달라졌는가.</p>
+    <p class="soft">전제: 이 40장은 같은 마스크와 같은 챔버에서 이어서 처리된 유리 가운데 모은 표본이며, 앞으로 같은 조건에서 나올 유리를 대표한다고 봅니다. 유리 한 장이 다음 장의 값을 따라가지 않는다(서로 독립)고 가정합니다. 이웃한 값이 서로 닮는 경우는 실험실 0104 에서 다룹니다.</p>
+  </div>
+
+  <h3>유리 한 장의 dx 를 눈으로 보기</h3>
+  <p><b>먼저 볼 것.</b> 아래 그림은 같은 번호의 유리를 교체 전과 교체 후로 나란히 놓은 것입니다. 칸 하나가 측정점 하나이고, 11개 열이 11개 스틱입니다. 교체 전 그림에서 <b>4번째 열</b>의 색이 어떻게 달라지는지 보세요. 유리 번호를 바꿔 가며 그 열의 색이 같은 방향인지 확인해 보시기 바랍니다.</p>
+  <div class="ctrls one"><div class="ctrl">
+    <label for="gi">보고 싶은 유리 번호 <span class="val" id="gio">2</span></label>
+    <input type="range" id="gi" min="1" max="20" step="1" value="2">
+    <div class="state">교체 전과 교체 후 모두 이 번호의 유리를 보여 줍니다.</div>
+  </div></div>
+  <canvas id="cvField" height="520"></canvas>
+  <div class="legend"><span><i class="sq" style="background:rgba(214,96,77,.7)"></i>x 방향으로 +쪽 오차</span><span><i class="sq" style="background:rgba(38,166,154,.7)"></i>−쪽 오차</span><span>칸 안 숫자 = dx (µm), 아래 막대 = 열 평균</span></div>
+  <div class="verdict" id="fldRead"></div>
+  <p>한 유리만 보아서는 알 수 없지만, 20장을 모아 열마다 평균을 내고 그 평균이 유리마다 얼마나 흔들렸는지(표준편차)를 보면 이렇습니다. 교체 전에는 스틱 4 열이 <b data-k="colsd_b4"></b> µm 로 흔들리고 나머지 열은 가장 큰 것이 <b data-k="colsd_bother"></b> µm 입니다. 교체 후에는 스틱 4 열이 <b data-k="colsd_a4"></b> µm, 나머지 열의 최대가 <b data-k="colsd_aother"></b> µm 로 모든 열이 비슷해졌습니다. 불량 스틱은 중심을 옮긴 것이 아니라 <b>유리마다 다른 방향으로 흔들리게</b> 만들고 있었습니다. 유리 20장의 지표 평균이 비슷한데도 흩어짐이 다른 까닭이 여기 있습니다.</p>
+
+  <h3>주어진 데이터</h3>
+  <p>유리별 지표 <code>dx_metric_um</code> (µm) 입니다. 번호는 처리 순서입니다.</p>
+  <div class="tblw"><table><thead><tr><th>번호</th><th>교체 전</th><th>교체 후</th><th>번호</th><th>교체 전</th><th>교체 후</th></tr></thead><tbody id="rawtb"></tbody></table></div>
+  <div class="tblw"><table><thead><tr><th>집단</th><th>장 수</th><th>평균</th><th>중앙값</th><th>표준편차</th><th>최솟값</th><th>최댓값</th></tr></thead><tbody id="sumtb"></tbody></table></div>
+  <div class="qrow">
+    <div class="qna" data-label="77개 점을 그대로 비교하면 안 되나요?" data-q="유리마다 지표를 만들지 말고 77개 점 전부를 교체 전·후로 묶어서 비교하면 안 되나요?"><p>한 유리 안의 77개 점은 같은 유리, 같은 마스크 배치, 같은 온도를 공유하므로 서로 닮아 있습니다. 독립적인 관측이 아닙니다.</p><p>이것을 20장 × 77점 = 1540개의 독립 관측처럼 세면 자유도를 부풀려 p값이 실제보다 훨씬 작게 나옵니다. 독립에 가까운 관측 단위는 &ldquo;유리 한 장&rdquo;이므로, 유리마다 지표 하나로 줄여 20개 대 20개로 비교하는 것이 안전합니다.</p></div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>먼저 평균으로 비교해 본다</h2>
+  <div class="card solb">
+    <span class="ban sol">풀이</span>
+    <p>풀이도 현행 방식에서 출발합니다. 현장에서는 교체 후 값이 교체 전의 3σ 관리선 안에 들어오는지, 그리고 평균이 달라졌는지를 봅니다.</p>
+    <h3>단계 1 · 가설 (평균)</h3>
+    <p>귀무가설 H0: 교체 전후 유리 지표의 모평균은 같다. 대립가설 H1: 다르다 (양측).</p>
+    <h3>단계 2 · 전제 점검</h3>
+    <p>웰치 t검정은 두 집단의 분산이 같다고 가정하지 않으므로 이 점은 걱정하지 않아도 됩니다. 다만 평균 비교이므로 정규분포에 가까워야 하는데, 이 지표는 0 아래로 내려갈 수 없는 양수이고 값이 한쪽으로 쏠릴 수 있어 §3 과 §5 에서 다시 따져 봅니다.</p>
+    <h3>단계 3 · 현행 3σ 비교법과 웰치 t의 계산</h3>
+    <div class="verdict" id="v3s"></div>
+    <canvas id="cvStrip" height="238"></canvas>
+    <div class="legend"><span><i style="background:var(--gB)"></i>교체 전 유리 한 장</span><span><i style="background:var(--gA)"></i>교체 후 유리 한 장</span><span>점선 = 교체 전 평균 ± 3σ 관리선 &nbsp; 굵은 세로선 = 평균</span></div>
+    <div class="tblw"><table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+      <tr><td>평균 차이 (교체 후 − 교체 전)</td><td data-k="w_diff"></td></tr>
+      <tr><td>표준오차</td><td data-k="w_se"></td></tr>
+      <tr><td>t</td><td data-k="w_t"></td></tr>
+      <tr><td>자유도 (웰치)</td><td data-k="w_df"></td></tr>
+      <tr><td>양측 p값</td><td data-k="w_p"></td></tr>
+    </tbody></table></div>
+    <h3>단계 4 · 판정</h3>
+    <p>p = <b data-k="w_p"></b> 이므로 유의수준 5% 에서 평균 차이는 <b data-k="w_verdict"></b>. 3σ 비교법과 웰치 t검정이 같은 결론입니다.</p>
+    <h3>단계 5 · 결론 서술 (여기까지)</h3>
+    <p>&ldquo;교체 전후 평균 지표에 차이가 있다는 증거가 없다. 교체 효과가 없었다.&rdquo; 이렇게 쓰면 안 되는 이유가 바로 다음 대목입니다.</p>
+  </div>
+  <div class="stuck">
+    <p><b class="t">여기서 막힙니다.</b> 위 그림을 다시 보십시오. 교체 후 점들은 가운데 좁은 구간에 모여 있고, 교체 전 점들은 양쪽으로 넓게 퍼져 있습니다. 표준편차는 교체 전 <b data-k="sd_b"></b>, 교체 후 <b data-k="sd_a"></b> 입니다. 3σ 관리선은 &ldquo;교체 후 값이 교체 전의 흩어진 범위를 벗어났는가&rdquo;만 묻기 때문에, 흩어짐이 줄어 범위 안쪽으로 더 모인 것은 아예 볼 수 없습니다. 웰치 t검정도 평균만 비교합니다. PPA 에서 품질은 평균이 아니라 산포이므로 <b>평균이 아닌 산포를 비교하는 도구</b>가 필요합니다.</p>
+  </div>
+  <div class="qrow">
+    <div class="qna" data-label="유의하지 않다는 건 같다는 뜻인가요?" data-q="평균 차이가 유의하지 않다고 나왔는데, 그럼 평균이 같다는 뜻인가요?"><p>아닙니다. p값이 크다는 것은 &ldquo;차이가 있다는 증거가 충분하지 않다&rdquo;는 뜻이지 &ldquo;같다&rdquo;를 증명한 것이 아닙니다. 20장씩으로는 작은 평균 차이를 우연과 구별하지 못할 수 있습니다.</p><p>&ldquo;바뀌지 않았다&rdquo;를 숫자로 보이려면 허용폭을 정해 놓고 그 안에 들어오는지 확인하는 별도의 검정(동등성 검정)이 필요합니다. 실험실 0103 에서 다룹니다.</p></div>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>산포를 비교하는 첫 번째 도구: 분산비와 F검정</h2>
+  <p><b>왜 필요한가.</b> 평균의 차이는 &ldquo;뺄셈&rdquo;으로 쟀습니다. 흩어짐은 뺄셈보다 &ldquo;몇 배냐&rdquo;가 자연스럽습니다. 교체 전이 교체 후보다 몇 배 흩어져 있는가를 물으려면 두 집단의 분산(표준편차의 제곱)을 나누면 됩니다. 이 비 <b>F</b> 는 영국 통계학자 피셔(Fisher)의 머리글자를 딴 이름이고, 두 집단의 산포가 정말 같다면 1 근처의 값이 나옵니다. 우연만으로 1 에서 얼마나 멀어질 수 있는지 알려 주는 분포가 F분포이며, 분자와 분모 자유도 두 개가 필요합니다.</p>
+  <div class="card solb">
+    <span class="ban sol">풀이</span>
+    <h3>단계 1 · 가설 (산포)</h3>
+    <p>H0: 교체 전후 지표의 모분산은 같다 (σ 전 = σ 후). H1: 다르다 (양측).</p>
+    <div class="eq">
+      <span class="eqlab">분산비 F</span>
+      <math display="block"><mi>F</mi><mo>=</mo><mfrac><msubsup><mi>s</mi><mtext>전</mtext><mn>2</mn></msubsup><msubsup><mi>s</mi><mtext>후</mtext><mn>2</mn></msubsup></mfrac><mo>=</mo><mfrac><mn data-k="f_var_b"></mn><mn data-k="f_var_a"></mn></mfrac><mo>=</mo><mn data-k="f_F"></mn></math>
+      <span class="note">자유도는 분자 <span data-k="f_d1"></span>, 분모 <span data-k="f_d2"></span> (각각 장 수 − 1)입니다.</span>
+    </div>
+    <h3>단계 2 · 전제 점검: 정규분포</h3>
+    <p>이 p값은 <b>두 자료가 정규분포에서 나왔다</b>는 가정이 있을 때만 맞습니다. 이 가정이 깨지면 어떻게 되는지 아래에서 직접 확인합니다. 이 자료의 모양은 교체 전 왜도(좌우 비대칭 정도, 0 이면 대칭) <b data-k="skew_b"></b>, 교체 후 <b data-k="skew_a"></b> 입니다. 20개 값으로는 정규분포인지 아닌지를 가려내는 힘이 약해서 &ldquo;정규라고 확인했다&rdquo;고도 &ldquo;아니라고 확인했다&rdquo;고도 말하기 어렵습니다.</p>
+    <h3>단계 3 · 계산</h3>
+    <div class="tblw"><table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+      <tr><td>F</td><td data-k="f_F"></td></tr>
+      <tr><td>자유도 (분자, 분모)</td><td><span data-k="f_d1"></span>, <span data-k="f_d2"></span></td></tr>
+      <tr><td>F 가 이만큼 크거나 작을 한쪽 꼬리 확률</td><td data-k="f_pone"></td></tr>
+      <tr><td>양측 p값 (한쪽 꼬리 × 2)</td><td data-k="f_p"></td></tr>
+    </tbody></table></div>
+    <h3>단계 4 · 판정</h3>
+    <p>p = <b data-k="f_p"></b> 이므로 5% 에서 산포 차이는 <b data-k="f_verdict"></b>. 평균 비교에서 보이지 않던 차이가 산포 비교에서는 드러납니다.</p>
+  </div>
+  <div class="stuck">
+    <p><b class="t">그런데 이 결과를 그대로 믿어도 될까요?</b> F검정은 정규분포에서 조금만 벗어나도 흔들립니다. 특히 한쪽으로 긴 꼬리가 있으면 &ldquo;산포가 다르다&rdquo;는 거짓 경보를 자주 냅니다. 같은 분포에서 뽑은 표본 두 개는 산포가 같으므로 검정이 5% 기준으로 경보를 울린다면 그것은 모두 거짓 경보여야 합니다. 그 비율을 직접 세어 봅니다.</p>
+    <p>두 종류의 분포를 정합니다. 하나는 좌우 대칭인 정규분포, 다른 하나는 오른쪽 꼬리가 긴 치우친 분포(로그정규분포)입니다. 각각에서 20개씩 두 표본을 <b data-k="sim_trials"></b>번 뽑아, 두 표본은 언제나 같은 분포에서 나왔으므로 정답은 항상 &ldquo;산포가 같다&rdquo;입니다.</p>
+    <canvas id="cvDist" height="230"></canvas>
+    <div class="tblw"><table><thead><tr><th>모집단 모양</th><th>F검정이 거짓 경보를 낸 비율</th><th>레빈 검정(중앙값 기준, §4)이 거짓 경보를 낸 비율</th></tr></thead><tbody>
+      <tr><td>정규분포 (대칭)</td><td data-k="sim_n_F"></td><td data-k="sim_n_L"></td></tr>
+      <tr><td>치우친 분포 (꼬리가 긺)</td><td data-k="sim_s_F"></td><td data-k="sim_s_L"></td></tr>
+    </tbody></table></div>
+    <p>유의수준을 5% 로 정했으므로 거짓 경보는 5% 안팎이어야 합니다. 정규분포에서는 F검정이 그 약속을 지키지만, 꼬리가 긴 분포에서는 약속이 깨집니다. 이 자료가 정규에 가까운지 20개로는 확신할 수 없으므로 <b>정규성에 기대지 않는 산포 검정</b>이 필요합니다. 거짓 경보 비율은 이 쪽의 고정된 난수 열로 센 값이므로 난수를 달리 쓰면 몇 퍼센트포인트는 달라집니다.</p>
+  </div>
+  <div class="qrow">
+    <div class="qna" data-label="양측 p값은 왜 두 배로 하나요?" data-q="F검정에서 양측 p값을 한쪽 꼬리의 두 배로 하는 이유가 무엇인가요? F가 1보다 작게 나와도 되나요?"><p>대립가설이 &ldquo;전의 산포가 더 크다&rdquo;가 아니라 &ldquo;다르다&rdquo;이므로, F 가 아주 크거나 아주 작은 두 경우를 모두 치우친 것으로 칩니다. F 가 1 보다 작아도 분모가 더 큰 것뿐이므로 문제없습니다.</p><p>한쪽 꼬리 확률(F 보다 더 극단적인 쪽)에 2 를 곱하고, 1 이 넘으면 1 로 자릅니다. 분자·분모를 바꾸어 F 를 거꾸로 해도 같은 p값이 나옵니다.</p></div>
+    <div class="qna" data-label="정규성은 20개로 어떻게 확인하나요?" data-q="정규분포인지 확인하는 방법은 없나요? 20개 자료로도 확인할 수 있나요?"><p>Q-Q 그림이나 샤피로-윌크(Shapiro–Wilk) 검정을 씁니다. 하지만 20개로는 정규에서 꽤 벗어나 있어도 &ldquo;벗어났다는 증거가 부족하다&rdquo;로 나오는 일이 흔합니다.</p><p>그래서 정규성을 먼저 확인하고 검정을 고르는 순서보다, 정규성이 깨져도 잘 버티는 검정을 기본으로 삼는 편이 안전합니다. 에이전트의 검정 선택 규칙도 이 방식으로 만듭니다.</p></div>
+  </div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>꼬리에 속지 않는 산포 검정: 레빈 검정 (중앙값 기준)</h2>
+  <p><b>왜 필요한가.</b> F검정은 분산을 직접 비교해서 꼬리에 흔들렸습니다. 발상을 바꿉니다. 산포 비교를 우리가 이미 잘 아는 <b>평균 비교</b>로 바꾸는 것입니다. 각 값이 자기 집단의 중심에서 얼마나 떨어져 있는지를 새 자료 z 로 만들면, 산포가 큰 집단은 z 의 평균이 큽니다. 그 z 들의 평균을 비교하면 됩니다. 이 방법이 <b>레빈 검정</b>이고, 중심을 평균 대신 <b>중앙값</b>으로 잡은 형태가 <b>브라운-포사이스</b>입니다. 평균은 꼬리 쪽 값에 끌려가 중심이 이동하지만 중앙값은 끌려가지 않아서 치우친 자료에서 훨씬 안정적입니다.</p>
+  <div class="eq">
+    <span class="eqlab">1) 새 자료 만들기 &nbsp;&nbsp; 2) 그 평균을 분산분석 F 로 비교</span>
+    <math display="block"><mi>z</mi><mo>=</mo><mrow><mo stretchy="false">|</mo><mi>x</mi><mo>&#x2212;</mo><mtext>자기 집단의 중앙값</mtext><mo stretchy="false">|</mo></mrow></math>
+    <math display="block"><mi>W</mi><mo>=</mo><mo stretchy="false">(</mo><mi>N</mi><mo>&#x2212;</mo><mn>2</mn><mo stretchy="false">)</mo><mo>&#x22C5;</mo><mfrac><mtext>집단 사이 제곱합</mtext><mtext>집단 안 제곱합</mtext></mfrac></math>
+    <math display="block"><mtext>집단 사이 제곱합</mtext><mo>=</mo><msub><mi>n</mi><mtext>전</mtext></msub><msup><mrow><mo stretchy="false">(</mo><msub><mover><mi>z</mi><mo stretchy="false">¯</mo></msub><mtext>전</mtext></msub><mo>&#x2212;</mo><mover><mi>z</mi><mo stretchy="false">¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>+</mo><msub><mi>n</mi><mtext>후</mtext></msub><msup><mrow><mo stretchy="false">(</mo><msub><mover><mi>z</mi><mo stretchy="false">¯</mo></msub><mtext>후</mtext></msub><mo>&#x2212;</mo><mover><mi>z</mi><mo stretchy="false">¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></math>
+    <math display="block"><mtext>집단 안 제곱합</mtext><mo>=</mo><mo>&#x2211;</mo><msup><mrow><mo stretchy="false">(</mo><mi>z</mi><mo>&#x2212;</mo><mtext>자기 집단의 z 평균</mtext><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></math>
+    <span class="note">z̄ 에 &lsquo;전&rsquo;·&lsquo;후&rsquo;가 붙은 것은 그 집단의 z 평균이고, 붙지 않은 것은 40개 전체 z 의 평균입니다. 분산분석의 F 와 같은 모양이고 자유도는 (1, N − 2)입니다.</span>
+  </div>
+  <div class="card solb">
+    <span class="ban sol">풀이</span>
+    <h3>단계 1 · 가설</h3>
+    <p>H0: 교체 전후 지표의 산포는 같다. H1: 다르다 (§3 과 같음).</p>
+    <h3>단계 2 · 전제 점검</h3>
+    <p>원자료가 정규분포라는 가정에는 직접 기대지 않습니다. 대신 z 값들이 서로 독립이라는 가정이 남습니다(유리끼리 독립이라는 §1 의 전제와 같습니다).</p>
+    <h3>단계 3 · 계산</h3>
+    <canvas id="cvZ" height="350"></canvas>
+    <div class="legend"><span><i style="background:var(--gB)"></i>교체 전</span><span><i style="background:var(--gA)"></i>교체 후</span><span>위 그림 = 원래 값과 각 집단의 중앙값(세로 눈금), 점에서 중앙값까지의 선 길이가 z &nbsp; 아래 그림 = 그 z 들과 평균(굵은 세로선)</span></div>
+    <div class="tblw"><table><thead><tr><th>집단</th><th>중앙값</th><th>z 평균</th></tr></thead><tbody>
+      <tr><td>교체 전</td><td data-k="lm_cb"></td><td data-k="lm_zb"></td></tr>
+      <tr><td>교체 후</td><td data-k="lm_ca"></td><td data-k="lm_za"></td></tr>
+    </tbody></table></div>
+    <div class="tblw"><table><thead><tr><th>항목</th><th>중앙값 기준 (브라운-포사이스)</th><th>평균 기준 (원래 레빈)</th></tr></thead><tbody>
+      <tr><td>집단 사이 제곱합</td><td data-k="lm_ssb"></td><td data-k="le_ssb"></td></tr>
+      <tr><td>집단 안 제곱합</td><td data-k="lm_ssw"></td><td data-k="le_ssw"></td></tr>
+      <tr><td>W</td><td data-k="lm_W"></td><td data-k="le_W"></td></tr>
+      <tr><td>자유도</td><td>1, <span data-k="lm_df2"></span></td><td>1, <span data-k="lm_df2"></span></td></tr>
+      <tr><td>p값</td><td data-k="lm_p"></td><td data-k="le_p"></td></tr>
+    </tbody></table></div>
+    <h3>단계 4 · 판정</h3>
+    <p>중앙값 기준 p = <b data-k="lm_p"></b> 이므로 5% 에서 산포 차이는 <b data-k="lm_verdict"></b>. 평균 기준(원래 레빈)도 p = <b data-k="le_p"></b> 로 같은 결론입니다. 이 자료는 두 방식이 갈리지 않지만, 꼬리가 긴 자료에서 거짓 경보를 덜 내는 쪽은 §3 의 표에서 본 대로 중앙값 기준입니다.</p>
+    <h3>단계 5 · 결론 서술</h3>
+    <p>&ldquo;교체 전후 지표의 평균에는 차이가 없으나 산포는 교체 후에 <b data-k="sd_ratio"></b>배 수준으로 줄었고(표준편차 <span data-k="sd_b"></span> → <span data-k="sd_a"></span>), 이 차이는 우연으로 보기 어렵다(레빈 검정 p = <span data-k="lm_p"></span>).&rdquo;</p>
+  </div>
+  <div class="qrow">
+    <div class="qna" data-label="왜 평균이 아니라 중앙값을 기준으로 하나요?" data-q="중심을 평균이 아니라 중앙값으로 잡으면 뭐가 좋은가요?"><p>값 하나가 아주 크면 평균은 그쪽으로 끌려가고, 그러면 그 값은 &ldquo;중심에서 별로 안 멀다&rdquo;고 계산되어 산포가 작게 보입니다. 중앙값은 극단값이 하나쯤 있어도 거의 움직이지 않으므로 그 값이 정직하게 멀리 있는 것으로 계산됩니다.</p><p>그 결과 꼬리가 긴 자료에서도 거짓 경보 비율이 약속한 5% 근처에 머뭅니다.</p></div>
+    <div class="qna" data-label="레빈과 브라운-포사이스 중 무엇을 쓰나요?" data-q="레빈 검정과 브라운-포사이스는 같은 건가요? 실무에서는 어느 쪽을 쓰나요?"><p>같은 틀이고 중심만 다릅니다. 정규에 가까운 자료에서는 평균 기준이 힘이 조금 더 좋지만, 모양을 모르는 현장 자료에서는 중앙값 기준을 기본으로 쓰는 편이 안전합니다.</p><p>이 실험실의 함수 <code>levene_test(a, b, center='median')</code> 는 기본이 중앙값이고, <code>center='mean'</code> 으로 바꿔 두 방식을 비교할 수 있습니다.</p></div>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>위치를 확인하는 도구: 순위로 바꾸는 맨-휘트니 U</h2>
+  <p><b>왜 필요한가.</b> §2 의 웰치 t검정은 평균을 비교하므로, 이 지표처럼 값이 한쪽으로 쏠릴 수 있는 자료에서는 극단값 몇 개에 끌려갈 수 있습니다. 값의 크기를 버리고 <b>순서만</b> 쓰면 극단값의 영향이 사라집니다. 40개 값을 교체 전후 구분 없이 섞어 작은 것부터 1등, 2등 &hellip; 40등으로 줄 세우고(같은 값이면 등수의 평균), 각 집단이 받은 등수를 더합니다. 이것이 <b>순위(rank)</b>입니다.</p>
+  <div class="eq">
+    <span class="eqlab">맨-휘트니 U</span>
+    <math display="block"><msub><mi>U</mi><mtext>전</mtext></msub><mo>=</mo><msub><mi>R</mi><mtext>전</mtext></msub><mo>&#x2212;</mo><mfrac><mrow><msub><mi>n</mi><mtext>전</mtext></msub><mo stretchy="false">(</mo><msub><mi>n</mi><mtext>전</mtext></msub><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac><mo>=</mo><mn data-k="mw_Rb"></mn><mo>&#x2212;</mo><mn data-k="mw_minR"></mn><mo>=</mo><mn data-k="mw_U1"></mn></math>
+    <span class="note">R 전은 교체 전 값들이 받은 등수의 합입니다. U 전은 &ldquo;교체 전 값 하나와 교체 후 값 하나를 짝지을 때 전 쪽이 더 큰 짝의 수(같으면 반 개)&rdquo;이고, 전체 짝은 <span data-k="n_b"></span> × <span data-k="n_a"></span> = <span data-k="mw_pairs"></span>개입니다.</span>
+  </div>
+  <div class="eq">
+    <span class="eqlab">p값을 구하는 표준화 (표본이 클 때의 근사)</span>
+    <math display="block"><mi>z</mi><mo>=</mo><mfrac><mrow><mo stretchy="false">|</mo><mi>U</mi><mo>&#x2212;</mo><mi>&#x3BC;</mi><mo stretchy="false">|</mo><mo>&#x2212;</mo><mn>0.5</mn></mrow><mi>&#x3C3;</mi></mfrac></math>
+    <math display="block"><mi>z</mi><mo>=</mo><mfrac><mrow><mo stretchy="false">|</mo><mn data-k="mw_U1"></mn><mo>&#x2212;</mo><mn data-k="mw_mu"></mn><mo stretchy="false">|</mo><mo>&#x2212;</mo><mn>0.5</mn></mrow><mn data-k="mw_s"></mn></mfrac><mo>=</mo><mn data-k="mw_z"></mn></math>
+    <span class="note">U 의 평균 μ = n 전 × n 후 / 2 입니다. 0.5 는 연속성 보정(계단처럼 떨어지는 U 를 매끄러운 정규분포에 맞추려고 0.5 만큼 깎는 것)이고, σ 는 같은 값이 여럿(동점)인 정도를 반영해 줄인 값입니다.</span>
+  </div>
+  <div class="card solb">
+    <span class="ban sol">풀이</span>
+    <h3>단계 1 · 가설</h3>
+    <p>H0: 교체 전 값이 교체 후 값보다 클 확률과 작을 확률이 같다 (한쪽이 전체적으로 앞서지 않는다). H1: 한쪽이 전체적으로 더 크다 (양측).</p>
+    <h3>단계 2 · 전제 점검</h3>
+    <p>정규분포는 필요 없습니다. 이 검정의 가설을 &ldquo;중앙값이 같다&rdquo;로 읽으려면 두 집단의 분포 모양이 같아야 하는데, 이 자료는 산포가 달라 모양이 같지 않습니다. 그래서 여기서는 &ldquo;한쪽이 전체적으로 앞서는가&rdquo;로만 읽습니다.</p>
+    <h3>단계 3 · 계산</h3>
+    <canvas id="cvRank" height="240"></canvas>
+    <div class="legend"><span><i class="sq" style="background:var(--gB)"></i>교체 전 (위 숫자 = 등수, 아래 = 값)</span><span><i class="sq" style="background:var(--gA)"></i>교체 후</span></div>
+    <div class="tblw"><table><thead><tr><th>집단</th><th>순위합 R</th><th>평균 등수</th><th>U</th></tr></thead><tbody>
+      <tr><td>교체 전</td><td data-k="mw_Rb"></td><td data-k="mw_mrb"></td><td data-k="mw_U1"></td></tr>
+      <tr><td>교체 후</td><td data-k="mw_Ra"></td><td data-k="mw_mra"></td><td data-k="mw_U2"></td></tr>
+    </tbody></table></div>
+    <div class="tblw"><table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+      <tr><td>μ = n 전 × n 후 / 2</td><td data-k="mw_mu"></td></tr>
+      <tr><td>σ (동점 보정)</td><td data-k="mw_s"></td></tr>
+      <tr><td>z</td><td data-k="mw_z"></td></tr>
+      <tr><td>양측 p값</td><td data-k="mw_p"></td></tr>
+      <tr><td>U 전 / (n 전 × n 후)</td><td data-k="mw_A"></td></tr>
+    </tbody></table></div>
+    <h3>단계 4 · 판정</h3>
+    <p>p = <b data-k="mw_p"></b> 이므로 5% 에서 &ldquo;한쪽이 전체적으로 앞선다&rdquo;는 증거는 <b data-k="mw_verdict"></b>. 짝 가운데 교체 전 쪽이 큰 비율은 <b data-k="mw_A"></b> 로 0.5 에 가깝습니다. 웰치 t검정과 같은 결론이므로 평균(위치)이 그대로라는 §2 의 결과가 극단값 때문이 아님을 순위로도 확인한 셈입니다.</p>
+    <h3>단계 5 · 순위로 바꾸면 무엇이 남고 무엇이 사라지나</h3>
+    <ul>
+      <li><b>남는 것</b>: 어느 쪽이 전체적으로 큰 경향인가. 극단값이 하나쯤 있어도 끄떡없습니다.</li>
+      <li><b>사라지는 것</b>: 차이가 몇 µm 인가라는 크기 정보와 신뢰구간. 그리고 <b>산포</b>. 위 그림에서 교체 전 값은 줄의 양쪽 끝에 몰려 있고 교체 후 값은 가운데 모여 있습니다. 그래도 어느 쪽도 전체적으로 앞서지 않으므로 순위합은 비슷하게 나옵니다. 곧 이 검정은 산포가 변한 것을 <b>보지 못합니다</b>. 산포를 보는 일은 §4 의 몫입니다.</li>
+    </ul>
+  </div>
+  <div class="qrow">
+    <div class="qna" data-label="순위로 바꾸면 정보를 버리는 것 아닌가요?" data-q="값을 순위로 바꾸면 정보를 버리는 것 아닌가요? 그냥 t검정을 쓰면 안 되나요?"><p>버리는 것이 맞습니다. 크기 정보를 버리는 대신 극단값과 분포 모양에 흔들리지 않는 안정성을 얻습니다. 자료가 정규에 가까우면 t검정이 약간 더 힘이 좋고, 모양을 믿기 어려우면 순위 검정이 안전합니다.</p><p>그래서 이 실험실에서는 둘 다 돌려 같은 결론인지 확인했습니다. 결론이 같다면 어느 쪽으로 보고해도 됩니다.</p></div>
+    <div class="qna" data-label="맨-휘트니는 중앙값 비교 검정인가요?" data-q="맨-휘트니 검정을 &quot;두 집단의 중앙값이 같은지 보는 검정&quot;이라고 해도 되나요?"><p>두 집단의 분포 모양(산포 포함)이 같다고 볼 수 있을 때만 그렇게 읽을 수 있습니다. 정확한 가설은 &ldquo;한쪽이 다른 쪽보다 클 확률이 반반인가&rdquo;입니다.</p><p>이 문제처럼 산포가 다른 두 집단에서는 중앙값 비교라고 단정하지 말고 &ldquo;한쪽이 전체적으로 앞서는 경향이 있는가&rdquo;로 보고하는 것이 정확합니다.</p></div>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>답안으로 정리한다</h2>
+  <div class="card solb">
+    <span class="ban sol">풀이 정리</span>
+    <div class="tblw"><table><thead><tr><th>검정</th><th>무엇을 보나</th><th>통계량</th><th>p값</th><th>5% 판정</th></tr></thead><tbody>
+      <tr><td>웰치 t</td><td>평균</td><td>t = <span data-k="w_t"></span></td><td data-k="w_p"></td><td><span class="chip" data-chip="w_p"></span></td></tr>
+      <tr><td>맨-휘트니 U</td><td>위치(순위)</td><td>z = <span data-k="mw_z"></span></td><td data-k="mw_p"></td><td><span class="chip" data-chip="mw_p"></span></td></tr>
+      <tr><td>분산비 F</td><td>산포 (정규 가정)</td><td>F = <span data-k="f_F"></span></td><td data-k="f_p"></td><td><span class="chip" data-chip="f_p"></span></td></tr>
+      <tr><td>레빈 (중앙값)</td><td>산포</td><td>W = <span data-k="lm_W"></span></td><td data-k="lm_p"></td><td><span class="chip" data-chip="lm_p"></span></td></tr>
+    </tbody></table></div>
+    <ol>
+      <li><b>가설</b>: 평균 비교 H0 &ldquo;전후 평균 같다&rdquo;, 산포 비교 H0 &ldquo;전후 산포 같다&rdquo;.</li>
+      <li><b>전제 점검</b>: 20개로는 정규성을 확인할 수 없고, 지표가 양수라 꼬리가 길 수 있습니다. 그래서 정규성에 기대는 F검정 대신 중앙값 기준 레빈 검정을 산포 검정으로 삼고, 위치는 웰치 t와 맨-휘트니 둘로 확인합니다.</li>
+      <li><b>검정통계량</b>: 위 표.</li>
+      <li><b>판정</b>: 평균은 5% 에서 차이를 잡지 못하고(두 검정 모두), 산포는 레빈 p = <span data-k="lm_p"></span> 로 차이가 유의합니다.</li>
+      <li><b>결론</b>: 스틱 교체는 평균을 옮기지 않고 흩어짐을 줄였습니다. PPA 의 품질이 산포이므로 교체는 효과가 있었다고 보고합니다.</li>
+    </ol>
+  </div>
+  <p><b>처음 물음으로 돌아갑니다.</b> &ldquo;평균은 그대로인데 산포가 줄었다&rdquo;를 숫자로 말하라는 물음이었습니다. §2 에서 평균은 그대로(p = <span data-k="w_p"></span>)이고, §4 에서 산포는 줄었음(p = <span data-k="lm_p"></span>)이 확인되었습니다. 이것이 바로 그 줄입니다.</p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>탐구 모드: 불량 스틱이 얼마나 나빴을 때 잡히나</h2>
+  <div class="card expb">
+    <span class="ban exp">탐구 모드</span>
+    <p>여기부터는 주어진 문제가 아니라 &ldquo;만약 불량이 이 정도였다면&rdquo;를 시험하는 가정 놀이입니다. 슬라이더는 <b>교체 전 불량 스틱이 정상 스틱보다 몇 배 흔들리는가</b>(배율)를 바꿉니다. 교체한 새 스틱은 정상이므로 교체 후 값은 배율과 무관하게 그대로입니다. 장 수 20 + 20 은 이미 모은 자료의 크기라 고정입니다.</p>
+    <p><b>먼저 볼 것.</b> 슬라이더를 1 로 내려 보세요. 불량이 사라지면 산포 검정이 잠잠해지는 대신, 교체 전후 평균 차이가 새로 잡히는 것을 볼 수 있습니다. 새 스틱을 다시 장착하면서 생긴 약 1 µm 의 위치 이동 때문입니다. 반대로 올리면 산포 검정이 점점 더 강하게 반응합니다. 아래 곡선에서 각 검정이 5% 선(점선) 아래로 내려가는 배율을 비교해 보세요.</p>
+    <div class="ctrls one"><div class="ctrl">
+      <label for="bm">불량 스틱의 흔들림 배율 <span class="val" id="bmo">4</span></label>
+      <input type="range" id="bm" min="1" max="6" step="0.5" value="4">
+      <div class="state" id="bmState"></div>
+      <button class="btn" id="bmReset" type="button">실제 값(4배)으로 되돌리기</button>
+    </div></div>
+    <div class="verdict" id="xInterp"></div>
+    <canvas id="cvStrip2" height="238"></canvas>
+    <div class="tblw"><table><thead><tr><th>검정</th><th>표준편차(전 → 후) / 통계량</th><th>p값</th><th>5% 판정</th></tr></thead><tbody>
+      <tr><td>웰치 t (평균)</td><td>평균 <span data-k="x_mean_b"></span> → <span data-k="x_mean_a"></span></td><td data-k="x_w_p"></td><td><span class="chip" data-chip="x_w_p"></span></td></tr>
+      <tr><td>맨-휘트니 (위치)</td><td>z = <span data-k="x_mw_z"></span></td><td data-k="x_mw_p"></td><td><span class="chip" data-chip="x_mw_p"></span></td></tr>
+      <tr><td>분산비 F (산포, 정규 가정)</td><td>표준편차 <span data-k="x_sd_b"></span> → <span data-k="x_sd_a"></span>, F = <span data-k="x_f_F"></span></td><td data-k="x_f_p"></td><td><span class="chip" data-chip="x_f_p"></span></td></tr>
+      <tr><td>레빈 (산포, 중앙값)</td><td>W = <span data-k="x_lm_W"></span></td><td data-k="x_lm_p"></td><td><span class="chip" data-chip="x_lm_p"></span></td></tr>
+    </tbody></table></div>
+    <canvas id="cvSweep" height="270"></canvas>
+    <div class="legend"><span><i style="background:var(--warn)"></i>웰치 t (평균)</span><span><i class="sq" style="background:var(--gB)"></i>분산비 F</span><span><i style="background:var(--accent)"></i>레빈 (중앙값)</span><span><i class="sq" style="background:var(--soft)"></i>맨-휘트니</span></div>
+    <p class="cap">세로축은 p값(로그 눈금, 아래로 갈수록 작음). 점선은 0.05. 세로선은 지금의 배율.</p>
+    <canvas id="cvField2" height="520"></canvas>
+    <p class="cap">§1 에서 고른 번호의 유리를 지금의 배율로 다시 그린 것입니다. 배율이 커질수록 교체 전 4번째 열이 더 크게 흔들립니다.</p>
+  </div>
+  <div class="qrow">
+    <div class="qna" data-label="약한 불량은 못 잡나요?" data-q="불량이 약하면 산포 검정으로도 못 잡나요? 20장이면 충분한가요?"><p>못 잡는 구간이 있습니다. 곡선에서 레빈 선이 점선 아래로 내려가기 전의 배율에서는 20장씩으로 차이를 우연과 구별하지 못합니다. 장 수를 늘리면 더 약한 불량도 잡히지만, 그것이 공정에서 문제가 되는 크기인지는 통계가 아니라 지표의 허용 범위(spec)가 정합니다.</p><p>잡히지 않았다고 해서 불량이 없다는 뜻은 아닙니다.</p></div>
+  </div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>보고서 양식</h2>
+  <div class="card">
+    <p><b>무엇을</b>: 마스크 B05-B3 의 불량 스틱 교체 전 <span data-k="n_b"></span>장·교체 후 <span data-k="n_a"></span>장에서 유리별 PPA dx 지표(|평균|+3σ)가 달라졌는지 검토했습니다.</p>
+    <p><b>왜 이 검정</b>: 품질이 산포이므로 산포 비교가 핵심입니다. 지표가 양수이고 20개로 정규성을 확인할 수 없어 정규성에 기대지 않는 레빈 검정(중앙값 기준)을 썼고, 평균은 웰치 t와 순위 기반 맨-휘트니로 확인했습니다. 분산비 F검정은 참고로만 계산했습니다.</p>
+    <p><b>결과</b>: 지표 평균 <span data-k="mean_b"></span> → <span data-k="mean_a"></span> µm (웰치 p = <span data-k="w_p"></span>, 맨-휘트니 p = <span data-k="mw_p"></span>). 표준편차 <span data-k="sd_b"></span> → <span data-k="sd_a"></span> µm (레빈 W = <span data-k="lm_W"></span>, p = <span data-k="lm_p"></span>; 분산비 F = <span data-k="f_F"></span>, p = <span data-k="f_p"></span>).</p>
+    <p><b>결론</b>: 평균은 <span data-k="w_verdict"></span>(차이 없음으로 보되 같음을 증명한 것은 아님). 산포는 교체 후 줄었고 그 차이는 5% 에서 <span data-k="lm_verdict"></span>.</p>
+    <p><b>조치</b>: 교체 효과를 인정합니다. 이후 유리에서도 산포가 유지되는지 일정 장 수마다 레빈 검정으로 확인하고, 같은 마스크 세트의 다른 마스크에서 특정 스틱 열만 유리마다 크게 흔들리는 패턴이 있는지 열 평균의 유리 간 표준편차로 점검합니다.</p>
+  </div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>회사 PC에서 같은 결과 내기 (Python)</h2>
+  <p>저장소의 <code>agentlab/data/csv/s2_stick_replace.csv</code> 를 읽어 이 페이지와 같은 값을 냅니다. 필요한 것은 pandas·numpy·scipy 입니다.</p>
+<pre id="pycode">import numpy as np
+import pandas as pd
+from scipy import stats
+
+
+def variance_ratio_test(a, b):
+    """분산비 F검정(양측). 두 자료가 정규분포일 때만 믿을 수 있다."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    F = a.var(ddof=1) / b.var(ddof=1)
+    d1, d2 = len(a) - 1, len(b) - 1
+    p = min(1.0, 2 * min(stats.f.sf(F, d1, d2), stats.f.cdf(F, d1, d2)))
+    return {"F": F, "df1": d1, "df2": d2, "p": p}
+
+
+def levene_test(a, b, center="median"):
+    """두 집단의 산포 비교(레빈; center='median' 이면 브라운-포사이스).
+    각 값이 자기 집단 중심에서 떨어진 거리 z 를 만들어 그 평균을 분산분석 F 로 비교한다."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    mid = np.median if center == "median" else np.mean
+    za, zb = np.abs(a - mid(a)), np.abs(b - mid(b))
+    n1, n2 = len(a), len(b)
+    N = n1 + n2
+    m1, m2 = za.mean(), zb.mean()
+    mt = np.concatenate([za, zb]).mean()
+    between = n1 * (m1 - mt) ** 2 + n2 * (m2 - mt) ** 2
+    within = ((za - m1) ** 2).sum() + ((zb - m2) ** 2).sum()
+    W = (N - 2) * between / within
+    return {"W": W, "df1": 1, "df2": N - 2, "p": stats.f.sf(W, 1, N - 2),
+            "center": center, "z_mean_a": m1, "z_mean_b": m2}
+
+
+def mannwhitney(a, b):
+    """맨-휘트니 U(양측, 정규 근사·연속성 보정·동점 보정). U 는 a 쪽 값이다.
+    prob_a_gt_b = U/(n1*n2) : a 값이 b 값보다 클 확률(동점은 반)."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    n1, n2 = len(a), len(b)
+    N = n1 + n2
+    ranks = stats.rankdata(np.concatenate([a, b]))
+    Ra, Rb = ranks[:n1].sum(), ranks[n1:].sum()
+    U1 = Ra - n1 * (n1 + 1) / 2
+    mu = n1 * n2 / 2
+    t = np.unique(ranks, return_counts=True)[1]
+    s = np.sqrt(n1 * n2 / 12 * ((N + 1) - (t ** 3 - t).sum() / (N * (N - 1))))
+    z = max(abs(U1 - mu) - 0.5, 0) / s
+    p = stats.mannwhitneyu(a, b, alternative="two-sided", method="asymptotic").pvalue
+    return {"U": U1, "z": z, "p": p, "rank_sum_a": Ra, "rank_sum_b": Rb,
+            "prob_a_gt_b": U1 / (n1 * n2)}
+
+
+df = pd.read_csv("agentlab/data/csv/s2_stick_replace.csv")
+before = df.loc[df.phase == "before", "dx_metric_um"].to_numpy()
+after = df.loc[df.phase == "after", "dx_metric_um"].to_numpy()
+
+w = stats.ttest_ind(after, before, equal_var=False)
+f = variance_ratio_test(before, after)
+lev = levene_test(before, after, center="median")
+levm = levene_test(before, after, center="mean")
+mw = mannwhitney(before, after)
+assert abs(lev["p"] - stats.levene(before, after, center="median").pvalue) &lt; 1e-12
+
+print(f"평균 {before.mean():.3f} -> {after.mean():.3f}  표준편차 {before.std(ddof=1):.3f} -> {after.std(ddof=1):.3f}")
+print(f"웰치 t={w.statistic:.3f} p={w.pvalue:.4g}")
+print(f"맨-휘트니 U={mw['U']:.1f} z={mw['z']:.3f} p={mw['p']:.4g}")
+print(f"분산비 F={f['F']:.3f} p={f['p']:.4g}")
+print(f"레빈(중앙값) W={lev['W']:.3f} p={lev['p']:.4g}   레빈(평균) W={levm['W']:.3f} p={levm['p']:.4g}")
+same = "차이 없음" if w.pvalue >= 0.05 else "차이 있음"
+disp = "줄었다" if lev["p"] &lt; 0.05 and after.std(ddof=1) &lt; before.std(ddof=1) else "차이 확인 안 됨"
+print(f"보고: 평균은 {same}, 산포는 교체 후 {disp} (레빈 p={lev['p']:.3g}).")</pre>
+  <p>이 코드가 내는 값은 이 페이지의 표와 같습니다.</p>
+<pre id="pyout"></pre>
+</section>
+
+<section id="s10">
+  <h2><span class="no">10</span>앞으로 기록해 둘 데이터</h2>
+  <div class="box">
+    <h3>이 분석을 에이전트가 자동으로 하려면 현장에서 남겨야 할 것</h3>
+    <ul>
+      <li>스틱 교체 이력: 마스크 ID, 교체한 스틱 번호, 교체 일시, 교체 사유(어떤 PPA 패턴을 보고 불량으로 판정했는지), 재장착 후 첫 유리 번호.</li>
+      <li>PPA 77개 점 원자료를 유리 지표와 함께 보관: 열 평균의 유리 간 흔들림처럼 불량 스틱 열을 짚는 분석은 원자료가 있어야 합니다.</li>
+      <li>유리마다 처리 순번(턴 안 위치)과 챔버 온도: 교체 전후를 같은 조건으로 맞춰 비교하는 데 필요합니다.</li>
+      <li>교체 전후 구분 라벨과 비교 기간의 시작·끝: 에이전트가 &ldquo;전&rdquo;과 &ldquo;후&rdquo;를 스스로 가르게 합니다.</li>
+      <li>측정 장비와 측정 반복성(같은 유리를 다시 쟀을 때의 흔들림): 산포 감소가 측정이 안정된 덕분인지 구분할 수 있습니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s11">
+  <h2><span class="no">11</span>에이전트 도구 상자</h2>
+  <div class="box">
+    <h3>이 실험실이 남기는 검증된 함수</h3>
+    <ul>
+      <li><code>levene_test(a, b, center='median') -&gt; {W, df1, df2, p, center, z_mean_a, z_mean_b}</code> &mdash; 두 집단의 산포를 비교합니다. 각 값이 자기 집단 중심에서 떨어진 거리를 만들어 그 평균을 분산분석 F 로 비교합니다. 기본이 중앙값(브라운-포사이스)이고 <code>center='mean'</code> 이 원래 레빈입니다. scipy 의 <code>stats.levene</code> 와 같은 값을 냅니다.</li>
+      <li><code>mannwhitney(a, b) -&gt; {U, z, p, rank_sum_a, rank_sum_b, prob_a_gt_b}</code> &mdash; 순위로 위치를 비교합니다. 양측 정규 근사에 연속성 보정과 동점 보정을 넣었고 U 는 a 쪽 값입니다. 산포 변화는 보지 못하므로 산포 검정과 짝으로 씁니다.</li>
+      <li><code>variance_ratio_test(a, b) -&gt; {F, df1, df2, p}</code> &mdash; 분산비 F검정. 정규성에 민감하므로 에이전트는 기본으로 쓰지 않고 레빈 결과의 참고로만 붙입니다.</li>
+      <li>검정 선택 규칙 한 줄: 산포를 묻는 질문이면 레빈(중앙값)을 기본으로, 위치를 확인할 때는 웰치 t와 맨-휘트니를 함께 돌려 결론이 같은지 봅니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s12">
+  <h2><span class="no">12</span>다음으로: 같은 마스크의 전후는 짝이다</h2>
+  <p>이 실험실의 교체 전 20장과 교체 후 20장은 <b>서로 다른 유리</b>였습니다. 그런데 리페어 전후처럼 <b>같은 마스크의 같은 77개 점을 전후로 다시 재면</b> 점마다 원래 다른 몫(위치마다 크기가 다른 오차)을 지우고 변화분만 비교할 수 있습니다. 같은 대상을 전후로 짝지어 비교하는 것을 대응 비교라고 하며, 같은 자료에서 p값이 훨씬 작아집니다. 다음 실험실 0103 은 이것과 &ldquo;나빠지지 않았음&rdquo;을 증명하는 법을 다룹니다.</p>
+  <div class="labnav">
+    <a href="0101-pm-mean-shift.html">← 0101 · PM 후 평균이 옮겨 갔는가</a>
+    <a href="../index.html#labs">허브</a>
+    <span class="grow"></span>
+    <a href="0103-repair-paired-tost.html">다음 0103 · 같은 마스크 전후 →</a>
+  </div>
+</section>
+
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+  /* ───── 테마 ───── */
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function getT(){ return root.getAttribute('data-theme')||'light'; }
+  function applyT(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++) if(THEMES[i].v===v) btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m) m.setAttribute('content', v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=getT(), i=0;
+    for(var k=0;k<THEMES.length;k++) if(THEMES[k].v===cur) i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    applyT(nv);
+  };
+  applyT(getT());
+  var bar=document.getElementById('topbar');
+  function reserve(){ document.body.style.paddingTop=bar.offsetHeight+'px'; }
+  reserve();
+  if(window.ResizeObserver) new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  if(location.search.indexOf('uicheck')>=0){
+    var u=document.createElement('script'); u.src='../../adp/uicheck.js'; document.head.appendChild(u);
+  }
+
+  /* ───── 통계 함수 ───── */
+  var MS=window.MfgSim, GIVEN=4;
+  function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+  function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+  function median(a){var b=a.slice().sort(function(x,y){return x-y;}),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;}
+  function skew(a){var m=mean(a),n=a.length,m2=0,m3=0;a.forEach(function(v){m2+=Math.pow(v-m,2);m3+=Math.pow(v-m,3);});m2/=n;m3/=n;return m3/Math.pow(m2,1.5);}
+  function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+  function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=300;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<3e-14)break;}return h;}
+  function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+  function tp2(t,df){t=Math.abs(t);return betai(df/2,0.5,df/(df+t*t));}
+  function fsf(F,d1,d2){return betai(d2/2,d1/2,d2/(d2+d1*F));}            // F 분포 위쪽 꼬리 확률
+  function gser(a,x){var ap=a,sum=1/a,del=sum;for(var n=0;n<400;n++){ap+=1;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*1e-16)break;}return sum*Math.exp(-x+a*Math.log(x)-gammln(a));}
+  function gcf(a,x){var FP=1e-300,b=x+1-a,c=1/FP,d=1/b,h=d;for(var i=1;i<400;i++){var an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<FP)d=FP;c=b+an/c;if(Math.abs(c)<FP)c=FP;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<1e-16)break;}return Math.exp(-x+a*Math.log(x)-gammln(a))*h;}
+  function erfc(x){if(x<0)return 2-erfc(-x);var x2=x*x;return x2<1.5?1-gser(0.5,x2):gcf(0.5,x2);}
+
+  function welch(b,a){
+    var nb=b.length,na=a.length,vb=sd(b)*sd(b)/nb,va=sd(a)*sd(a)/na,se=Math.sqrt(vb+va);
+    var diff=mean(a)-mean(b),t=diff/se,df=(vb+va)*(vb+va)/(vb*vb/(nb-1)+va*va/(na-1));
+    return {diff:diff,se:se,t:t,df:df,p:tp2(t,df)};
+  }
+  function ftest(b,a){
+    var vb=Math.pow(sd(b),2),va=Math.pow(sd(a),2),F=vb/va,d1=b.length-1,d2=a.length-1;
+    var up=fsf(F,d1,d2),pone=Math.min(up,1-up);
+    return {F:F,d1:d1,d2:d2,vb:vb,va:va,pone:pone,p:Math.min(1,2*pone)};
+  }
+  function levene(b,a,center){
+    var f=center==='mean'?mean:median,cb=f(b),ca=f(a);
+    var zb=b.map(function(v){return Math.abs(v-cb);}),za=a.map(function(v){return Math.abs(v-ca);});
+    var nb=b.length,na=a.length,N=nb+na,mzb=mean(zb),mza=mean(za),mzt=(mzb*nb+mza*na)/N;
+    var ssb=nb*Math.pow(mzb-mzt,2)+na*Math.pow(mza-mzt,2),ssw=0;
+    zb.forEach(function(v){ssw+=Math.pow(v-mzb,2);}); za.forEach(function(v){ssw+=Math.pow(v-mza,2);});
+    var W=(N-2)*ssb/ssw;
+    return {cb:cb,ca:ca,zb:zb,za:za,mzb:mzb,mza:mza,ssb:ssb,ssw:ssw,W:W,df2:N-2,p:fsf(W,1,N-2)};
+  }
+  function ranksOf(v){
+    var idx=v.map(function(_,i){return i;}).sort(function(x,y){return v[x]-v[y];}),r=new Array(v.length),ties=[],i=0;
+    while(i<idx.length){var j=i;while(j+1<idx.length&&v[idx[j+1]]===v[idx[i]])j++;
+      var avg=(i+j)/2+1;for(var k=i;k<=j;k++)r[idx[k]]=avg;ties.push(j-i+1);i=j+1;}
+    return {r:r,ties:ties};
+  }
+  function mannwhitney(b,a){
+    var n1=b.length,n2=a.length,N=n1+n2,all=b.concat(a),rk=ranksOf(all),Rb=0,Ra=0,i;
+    for(i=0;i<n1;i++)Rb+=rk.r[i]; for(i=n1;i<N;i++)Ra+=rk.r[i];
+    var U1=Rb-n1*(n1+1)/2,U2=n1*n2-U1,mu=n1*n2/2,tc=0;
+    rk.ties.forEach(function(t){tc+=t*t*t-t;});
+    var s=Math.sqrt(n1*n2/12*((N+1)-tc/(N*(N-1))));
+    var z=Math.max(Math.abs(U1-mu)-0.5,0)/s,p=Math.min(1,erfc(z/Math.SQRT2));
+    return {Rb:Rb,Ra:Ra,U1:U1,U2:U2,mu:mu,s:s,z:z,p:p,A:U1/(n1*n2),ranks:rk.r,minR:n1*(n1+1)/2,pairs:n1*n2};
+  }
+  function analyze(b,a){
+    var A={b:b,a:a};
+    A.mb=mean(b);A.ma=mean(a);A.medb=median(b);A.meda=median(a);A.sb=sd(b);A.sa=sd(a);
+    A.lo3=A.mb-3*A.sb;A.hi3=A.mb+3*A.sb;
+    A.inside=a.filter(function(v){return v>=A.lo3&&v<=A.hi3;}).length;
+    A.w=welch(b,a);A.f=ftest(b,a);A.lm=levene(b,a,'median');A.le=levene(b,a,'mean');A.mw=mannwhitney(b,a);
+    return A;
+  }
+
+  /* ───── 자료 ───── */
+  var cache={};
+  function scen(mult){
+    var key=String(mult);
+    if(cache[key])return cache[key];
+    var s=MS.scenario('S2',{bad_mult:mult}),b=[],a=[];
+    s.rows.forEach(function(r){(r.phase==='before'?b:a).push(r.dx_metric_um);});     // 표에 보이는 값(소수 넷째 자리)을 그대로 씀
+    return (cache[key]=analyze(b,a));
+  }
+  function pad(n,w){var s=String(n);while(s.length<w)s='0'+s;return s;}
+  var MASKS=(function(){
+    var C=MS.CFG,base=MS.makeMask('B05-B3',{bad_stick:3,bad_jitter_k:1,defects:[],Mx0:0,My0:0.15,K0:0.1,Cx0:0.2,Cy0:0.2,theta0:0,Tx0:0,Ty0:0});
+    var T60=MS.chamberTemp('CH3',60);
+    base.Mx0=-((C.ALPHA_M-C.ALPHA_G)*(T60-C.T0)*1e6)+C.AGE_PPM_PER_TURN*-9;
+    return {before:base,after:MS.replaceStick(base,1.0)};
+  })();
+  var gcache={};
+  function grid(ph,i,mult){
+    var key=ph+'|'+i+'|'+mult;
+    if(gcache[key])return gcache[key];
+    var g=50+i,ctx={glass_id:'S2'+(ph?'A':'B')+pad(i+1,3),block:'B05',chamber:'CH3',turn:ph?10:9,glass_in_turn:g,chamber_temp:MS.chamberTemp('CH3',g)};
+    return (gcache[key]=MS.ppa(ctx,ph?MASKS.after:MASKS.before,{badMult:mult,seed:MS.SEEDS.S2}).grid);
+  }
+  function colMeans(g){var o=[];for(var j=0;j<11;j++){var t=0;for(var k=0;k<7;k++)t+=g[k*11+j].dx_um;o.push(t/7);}return o;}
+  function colSDs(ph,mult){
+    var per=[];for(var j=0;j<11;j++)per.push([]);
+    for(var i=0;i<20;i++){var cm=colMeans(grid(ph,i,mult));for(var j2=0;j2<11;j2++)per[j2].push(cm[j2]);}
+    return per.map(sd);
+  }
+
+  /* ───── 표시 도우미 ───── */
+  var KEYS={};
+  Array.prototype.forEach.call(document.querySelectorAll('[data-k]'),function(e){var k=e.getAttribute('data-k');(KEYS[k]=KEYS[k]||[]).push(e);});
+  function setK(k,txt){(KEYS[k]||[]).forEach(function(e){e.textContent=txt;});}
+  function f(x,d){return Number(x).toFixed(d);}
+  function fp(p){return p>=0.001?p.toFixed(4):p.toExponential(2).replace('e-0','e-').replace('e+0','e+');}
+  function verdictSig(p){return p<0.05?'유의합니다':'유의하지 않습니다';}
+  function chip(k){Array.prototype.forEach.call(document.querySelectorAll('[data-chip="'+k+'"]'),function(e){var p=chipVal[k];e.textContent=p<0.05?'유의 (p < 0.05)':'유의하지 않음';e.className='chip'+(p<0.05?' sig':'');});}
+  var chipVal={};
+  function setP(k,p){chipVal[k]=p;setK(k,fp(p));chip(k);}
+
+  function fill(A,pre,pn){            // pre: 키 앞 글자(탐구 모드는 'x_')
+    function S(k,t){setK(pre+k,t);}
+    S('mean_b',f(A.mb,3));S('mean_a',f(A.ma,3));S('sd_b',f(A.sb,3));S('sd_a',f(A.sa,3));
+    S('w_diff',f(A.w.diff,3));S('w_se',f(A.w.se,3));S('w_t',f(A.w.t,3));S('w_df',f(A.w.df,2));setP(pre+'w_p',A.w.p);
+    S('f_F',f(A.f.F,3));S('f_var_b',f(A.f.vb,3));S('f_var_a',f(A.f.va,3));S('f_d1',A.f.d1);S('f_d2',A.f.d2);S('f_pone',fp(A.f.pone));setP(pre+'f_p',A.f.p);
+    S('lm_W',f(A.lm.W,3));S('lm_df2',A.lm.df2);setP(pre+'lm_p',A.lm.p);
+    S('mw_z',f(A.mw.z,3));setP(pre+'mw_p',A.mw.p);
+  }
+
+  /* ───── 캔버스 도우미 ───── */
+  function cvs(id){
+    var c=document.getElementById(id),dpr=window.devicePixelRatio||1,w=c.clientWidth||600,h=parseInt(c.getAttribute('height'),10)||200;
+    if(c.__w!==w||c.__dpr!==dpr||c.__h!==h){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.__w=w;c.__dpr=dpr;c.__h=h;}
+    var ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    return {ctx:ctx,W:w,H:h,el:c};
+  }
+  function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+  function pal(){return {ink:css('--ink'),soft:css('--soft'),rule:css('--rule'),acc:css('--accent'),B:css('--gB'),A:css('--gA'),warn:css('--warn'),tint:css('--tint'),card:css('--card'),paper:css('--paper')};}
+  function fnt(ctx,px,bold){ctx.font=(bold?'700 ':'')+px+'px -apple-system,"Apple SD Gothic Neo",sans-serif';}
+  function isDark(P){var m=/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(P.paper);if(!m)return false;return (parseInt(m[1],16)*0.3+parseInt(m[2],16)*0.59+parseInt(m[3],16)*0.11)<110;}
+  function jit(i){return ((i*7)%5-2)*5;}
+  function niceMax(v){return Math.max(6,Math.ceil(v+0.4));}
+
+  /* 점그림 한 행 */
+  function dots(ctx,vals,X,yc,color,r){
+    ctx.fillStyle=color;ctx.globalAlpha=0.85;
+    vals.forEach(function(v,i){ctx.beginPath();ctx.arc(X(v),yc+jit(i),r,0,6.2832);ctx.fill();});
+    ctx.globalAlpha=1;
+  }
+  function axis(ctx,P,x0,x1,y,mx,step,label){
+    ctx.strokeStyle=P.rule;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke();
+    fnt(ctx,12);ctx.fillStyle=P.soft;ctx.textAlign='center';
+    for(var v=0;v<=mx+1e-9;v+=step){var x=x0+(x1-x0)*v/mx;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+5);ctx.stroke();ctx.fillText(String(v),x,y+19);}
+    if(label){ctx.textAlign='right';ctx.fillText(label,x1,y+34);}
+  }
+  function vline(ctx,x,y0,y1,color,w,dash){ctx.strokeStyle=color;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.beginPath();ctx.moveTo(x,y0);ctx.lineTo(x,y1);ctx.stroke();ctx.setLineDash([]);}
+
+  /* 그림 1: 점그림 + 3σ 관리선 */
+  function drawStrip(id,A){
+    var o=cvs(id),ctx=o.ctx,W=o.W,P=pal(),x0=16,x1=W-16;
+    var mx=niceMax(Math.max(A.hi3,Math.max.apply(null,A.b),Math.max.apply(null,A.a)));
+    function X(v){return x0+(x1-x0)*v/mx;}
+    var yB=70,yA=150;
+    var lo=Math.max(0,A.lo3),hi=Math.min(mx,A.hi3);
+    ctx.fillStyle=P.tint;ctx.globalAlpha=0.7;ctx.fillRect(X(lo),30,X(hi)-X(lo),158);ctx.globalAlpha=1;
+    vline(ctx,X(lo),30,188,P.soft,1.5,[5,4]);vline(ctx,X(hi),30,188,P.soft,1.5,[5,4]);
+    fnt(ctx,12);ctx.fillStyle=P.soft;ctx.textAlign='left';ctx.fillText('교체 전 평균 ± 3σ 관리선',x0,16);
+    fnt(ctx,13,true);ctx.fillStyle=P.B;ctx.textAlign='left';ctx.fillText('교체 전 (표준편차 '+f(A.sb,2)+')',x0+4,yB-26);
+    ctx.fillStyle=P.A;ctx.fillText('교체 후 (표준편차 '+f(A.sa,2)+')',x0+4,yA-26);
+    dots(ctx,A.b,X,yB,P.B,5);dots(ctx,A.a,X,yA,P.A,5);
+    vline(ctx,X(A.mb),yB-20,yB+20,P.B,3);vline(ctx,X(A.ma),yA-20,yA+20,P.A,3);
+    fnt(ctx,12);ctx.textAlign='left';ctx.fillStyle=P.B;ctx.fillText('평균 '+f(A.mb,2),X(A.mb)+6,yB+32);
+    ctx.fillStyle=P.A;ctx.fillText('평균 '+f(A.ma,2),X(A.ma)+6,yA+32);
+    axis(ctx,P,x0,x1,198,mx,mx>12?2:1,'지표 |평균|+3σ (µm)');
+  }
+
+  /* 그림 2: 77점 필드 + 열 평균 */
+  function drawField(id,mult){
+    var gi=+document.getElementById('gi').value-1,el=document.getElementById(id);
+    var W0=el.clientWidth||600,side=W0>=720,ph=300;
+    el.setAttribute('height',side?ph+14:2*ph+22);
+    var o=cvs(id),ctx=o.ctx,W=o.W,P=pal();
+    var gb=grid(0,gi,mult),ga=grid(1,gi,mult);
+    var pw=side?(W-16)/2:W-8,cw=Math.min(60,Math.floor((pw-10)/11)),ch=24,gw=cw*11;
+    var neg='38,166,154',pos='214,96,77';
+    function panel(g,ox,oy,title,color){
+      fnt(ctx,13,true);ctx.fillStyle=color;ctx.textAlign='left';ctx.fillText(title,ox,oy+14);
+      fnt(ctx,12);ctx.fillStyle=P.soft;ctx.textAlign='center';
+      for(var j=0;j<11;j++)ctx.fillText(String(j+1),ox+cw*j+cw/2,oy+34);
+      var top=oy+40;
+      for(var k=0;k<7;k++)for(var j2=0;j2<11;j2++){
+        var v=g[k*11+j2].dx_um,a=Math.min(0.62,Math.abs(v)/6*0.62+0.05);
+        ctx.fillStyle='rgba('+(v>=0?pos:neg)+','+a+')';ctx.fillRect(ox+cw*j2+1,top+ch*k+1,cw-2,ch-2);
+        fnt(ctx,11);ctx.fillStyle=P.ink;ctx.textAlign='center';ctx.fillText(f(v,1),ox+cw*j2+cw/2,top+ch*k+ch/2+4);
+      }
+      var cm=colMeans(g),by=top+ch*7+12+30,scale=26/4;
+      ctx.strokeStyle=P.rule;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ox,by);ctx.lineTo(ox+gw,by);ctx.stroke();
+      for(var j3=0;j3<11;j3++){
+        var m=Math.max(-4.5,Math.min(4.5,cm[j3])),hgt=m*scale;
+        ctx.fillStyle='rgba('+(m>=0?pos:neg)+',.85)';
+        ctx.fillRect(ox+cw*j3+cw*0.2,hgt>=0?by-hgt:by,cw*0.6,Math.abs(hgt));
+      }
+      ctx.strokeStyle=color;ctx.lineWidth=2;ctx.strokeRect(ox+cw*3+1,top-3,cw-2,(by+30)-(top-3));
+      fnt(ctx,11);ctx.fillStyle=P.soft;ctx.textAlign='left';ctx.fillText('열 평균 (µm)',ox,by+46);
+      ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText('스틱 4',ox+cw*3+cw/2,by+46);
+    }
+    panel(gb,4,0,'교체 전 · 유리 '+(gi+1)+'번',P.B);
+    if(side)panel(ga,pw+12,0,'교체 후 · 유리 '+(gi+1)+'번',P.A); else panel(ga,4,ph+8,'교체 후 · 유리 '+(gi+1)+'번',P.A);
+  }
+
+  /* 그림 3: 두 모집단 모양 */
+  var SIM=null;
+  function simulate(){
+    var r=MS.rng(MS.hashSeed('F-tail',2026)),T=2000,res={},kinds=['n','s'];
+    kinds.forEach(function(k){
+      var rf=0,rl=0,keep=[];
+      function draw(){return k==='n'?r.normal(0,1):r.lognormal(1,0.8);}
+      for(var t=0;t<T;t++){
+        var x=[],y=[],i;
+        for(i=0;i<20;i++)x.push(draw()); for(i=0;i<20;i++)y.push(draw());
+        if(t<150)keep=keep.concat(x,y);
+        if(ftest(x,y).p<0.05)rf++;
+        if(levene(x,y,'median').p<0.05)rl++;
+      }
+      res[k]={F:rf/T,L:rl/T,keep:keep};
+    });
+    res.T=T;return res;
+  }
+  function drawDist(){
+    var el0=document.getElementById('cvDist'),side=(el0.clientWidth||600)>=560;
+    el0.setAttribute('height',side?200:400);
+    var o=cvs('cvDist'),ctx=o.ctx,W=o.W,P=pal();
+    if(!SIM)return;
+    var pw=side?(W-30)/2:W-20;
+    function hist(vals,ox,oy,lo,hi,title,color,note){
+      var nb=20,cnt=new Array(nb).fill(0),out=0,bw=(hi-lo)/nb;
+      vals.forEach(function(v){if(v<lo||v>=hi){out++;return;}cnt[Math.floor((v-lo)/bw)]++;});
+      var mxc=Math.max.apply(null,cnt),hh=120,x0=ox+6,ww=pw-12,bwp=ww/nb;
+      fnt(ctx,13,true);ctx.fillStyle=color;ctx.textAlign='left';ctx.fillText(title,ox+6,oy+14);
+      for(var i=0;i<nb;i++){var hgt=hh*cnt[i]/mxc;ctx.fillStyle=color;ctx.globalAlpha=0.75;ctx.fillRect(x0+i*bwp+1,oy+30+hh-hgt,bwp-2,hgt);}
+      ctx.globalAlpha=1;ctx.strokeStyle=P.rule;ctx.beginPath();ctx.moveTo(x0,oy+30+hh);ctx.lineTo(x0+ww,oy+30+hh);ctx.stroke();
+      fnt(ctx,12);ctx.fillStyle=P.soft;ctx.textAlign='left';ctx.fillText(String(lo),x0,oy+30+hh+16);ctx.textAlign='right';ctx.fillText(String(hi)+(out?' 이상 '+out+'개 생략':''),x0+ww,oy+30+hh+16);
+      ctx.textAlign='left';ctx.fillText(note,x0,oy+30+hh+34);
+    }
+    hist(SIM.n.keep,4,0,-3,3,'정규분포 (좌우 대칭)',P.acc,'꼬리가 얇고 양쪽이 같음');
+    if(side)hist(SIM.s.keep,pw+22,0,0,6,'치우친 분포 (오른쪽 꼬리가 긴 분포)',P.warn,'작은 값이 많고 큰 값이 길게 이어짐');
+    else hist(SIM.s.keep,4,200,0,6,'치우친 분포 (오른쪽 꼬리가 긴 분포)',P.warn,'작은 값이 많고 큰 값이 길게 이어짐');
+  }
+
+  /* 그림 4: 레빈 — 원래 값과 중심까지의 거리, 그 거리 z */
+  function drawZ(A){
+    var o=cvs('cvZ'),ctx=o.ctx,W=o.W,P=pal(),x0=16,x1=W-16;
+    var mx1=niceMax(Math.max(Math.max.apply(null,A.b),Math.max.apply(null,A.a)));
+    var mxz=Math.max(2,Math.ceil(Math.max(Math.max.apply(null,A.lm.zb),Math.max.apply(null,A.lm.za))+0.3));
+    function X1(v){return x0+(x1-x0)*v/mx1;}
+    function X2(v){return x0+(x1-x0)*v/mxz;}
+    fnt(ctx,13,true);ctx.fillStyle=P.ink;ctx.textAlign='left';ctx.fillText('1) 원래 값과 각 집단의 중앙값',x0,16);
+    var rows=[[A.b,A.lm.cb,P.B,50,'교체 전'],[A.a,A.lm.ca,P.A,100,'교체 후']];
+    rows.forEach(function(r){
+      fnt(ctx,12,true);ctx.fillStyle=r[2];ctx.textAlign='left';ctx.fillText(r[4],x0+2,r[3]-20);
+      ctx.strokeStyle=r[2];ctx.globalAlpha=0.35;ctx.lineWidth=1.5;
+      r[0].forEach(function(v,i){ctx.beginPath();ctx.moveTo(X1(v),r[3]+jit(i));ctx.lineTo(X1(r[1]),r[3]+jit(i));ctx.stroke();});
+      ctx.globalAlpha=1;dots(ctx,r[0],X1,r[3],r[2],4.5);vline(ctx,X1(r[1]),r[3]-18,r[3]+18,P.ink,2.5);
+    });
+    axis(ctx,P,x0,x1,132,mx1,mx1>12?2:1,'지표 (µm), 세로 눈금 = 중앙값');
+    var oy=184;
+    fnt(ctx,13,true);ctx.fillStyle=P.ink;ctx.textAlign='left';ctx.fillText('2) 새 자료 z = 중앙값에서 떨어진 거리',x0,oy);
+    var rows2=[[A.lm.zb,A.lm.mzb,P.B,oy+38,'교체 전'],[A.lm.za,A.lm.mza,P.A,oy+88,'교체 후']];
+    rows2.forEach(function(r){
+      fnt(ctx,12,true);ctx.fillStyle=r[2];ctx.textAlign='left';ctx.fillText(r[4]+' · z 평균 '+f(r[1],2),x0+2,r[3]-20);
+      dots(ctx,r[0],X2,r[3],r[2],4.5);vline(ctx,X2(r[1]),r[3]-18,r[3]+18,r[2],3.5);
+    });
+    axis(ctx,P,x0,x1,oy+120,mxz,mxz>10?2:1,'z (µm)');
+  }
+
+  /* 그림 5: 순위 */
+  function drawRank(A){
+    var el0=document.getElementById('cvRank'),wide=(el0.clientWidth||600)>=700;
+    el0.setAttribute('height',wide?118:228);
+    var o=cvs('cvRank'),ctx=o.ctx,W=o.W,P=pal(),dark=isDark(P);
+    var all=A.b.map(function(v,i){return {v:v,g:0,r:A.mw.ranks[i]};}).concat(A.a.map(function(v,i){return {v:v,g:1,r:A.mw.ranks[A.b.length+i]};}));
+    all.sort(function(x,y){return x.v-y.v||x.g-y.g;});
+    var cols=W>=700?20:10,cw=Math.floor((W-8)/cols),chh=50;
+    all.forEach(function(c,i){
+      var cx=4+(i%cols)*cw,cy=6+Math.floor(i/cols)*(chh+4);
+      ctx.fillStyle=c.g?P.A:P.B;ctx.globalAlpha=0.9;ctx.fillRect(cx+1,cy,cw-2,chh);ctx.globalAlpha=1;
+      fnt(ctx,12,true);ctx.fillStyle=dark?'#081416':'#ffffff';ctx.textAlign='center';
+      ctx.fillText(String(c.r%1?c.r.toFixed(1):c.r),cx+cw/2,cy+20);
+      fnt(ctx,11);ctx.fillText(f(c.v,2),cx+cw/2,cy+38);
+    });
+  }
+
+  /* 그림 6: 배율에 따른 p값 곡선 */
+  var SWEEP=null;
+  function sweep(){
+    if(SWEEP)return SWEEP;
+    SWEEP=[];for(var m=1;m<=6.001;m+=0.5)SWEEP.push({m:m,A:scen(m)});
+    return SWEEP;
+  }
+  function drawSweep(mult){
+    var o=cvs('cvSweep'),ctx=o.ctx,W=o.W,H=o.H,P=pal(),l=54,r=14,t=14,b=40;
+    var S=sweep(),ymin=-9;
+    function X(m){return l+(W-l-r)*(m-1)/5;}
+    function Y(p){var e=Math.max(ymin,Math.log10(Math.max(p,1e-12)));return t+(H-t-b)*(-e)/(-ymin);}
+    ctx.strokeStyle=P.rule;ctx.lineWidth=1;fnt(ctx,12);ctx.fillStyle=P.soft;
+    [0,-3,-6,-9].forEach(function(e){var y=Y(Math.pow(10,e));ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(W-r,y);ctx.stroke();ctx.textAlign='right';ctx.fillText(e===0?'1':'1e'+e,l-6,y+4);});
+    ctx.textAlign='center';for(var m=1;m<=6;m++){ctx.fillText(String(m),X(m),H-b+18);}
+    ctx.fillText('불량 스틱 배율',(l+W-r)/2,H-8);
+    ctx.setLineDash([6,4]);ctx.strokeStyle=P.ink;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(l,Y(0.05));ctx.lineTo(W-r,Y(0.05));ctx.stroke();ctx.setLineDash([]);
+    ctx.textAlign='left';ctx.fillStyle=P.ink;ctx.fillText('0.05',l+4,Y(0.05)-5);
+    var defs=[['w',P.warn,'c'],['f',P.B,'s'],['lm',P.acc,'t'],['mw',P.soft,'d']];
+    defs.forEach(function(d){
+      ctx.strokeStyle=d[1];ctx.fillStyle=d[1];ctx.lineWidth=2;ctx.beginPath();
+      S.forEach(function(s,i){var p=d[0]==='mw'?s.A.mw.p:s.A[d[0]].p,x=X(s.m),y=Y(p);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});
+      ctx.stroke();
+      S.forEach(function(s){var p=d[0]==='mw'?s.A.mw.p:s.A[d[0]].p,x=X(s.m),y=Y(p);ctx.beginPath();
+        if(d[2]==='c')ctx.arc(x,y,4,0,6.2832);
+        else if(d[2]==='s')ctx.rect(x-3.5,y-3.5,7,7);
+        else if(d[2]==='t'){ctx.moveTo(x,y-5);ctx.lineTo(x+5,y+4);ctx.lineTo(x-5,y+4);ctx.closePath();}
+        else{ctx.moveTo(x,y-5);ctx.lineTo(x+5,y);ctx.lineTo(x,y+5);ctx.lineTo(x-5,y);ctx.closePath();}
+        ctx.fill();});
+    });
+    vline(ctx,X(mult),t,H-b,P.ink,1.5);
+    fnt(ctx,12,true);ctx.fillStyle=P.ink;ctx.textAlign=mult>5?'right':'left';ctx.fillText('지금 '+mult+'배',X(mult)+(mult>5?-5:5),H-b-8);
+  }
+
+  /* ───── 계산과 채우기: 주어진 데이터 ───── */
+  var G=scen(GIVEN);
+  var skewB=skew(G.b),skewA=skew(G.a);
+  fill(G,'',null);
+  setK('n_b',G.b.length);setK('n_a',G.a.length);
+  setK('skew_b',f(skewB,2));setK('skew_a',f(skewA,2));
+  setK('sd_ratio',f(G.sa/G.sb,2));
+  setK('w_verdict',verdictSig(G.w.p));setK('f_verdict',verdictSig(G.f.p));setK('lm_verdict',verdictSig(G.lm.p));setK('mw_verdict',verdictSig(G.mw.p));
+  setK('lm_cb',f(G.lm.cb,3));setK('lm_ca',f(G.lm.ca,3));setK('lm_zb',f(G.lm.mzb,3));setK('lm_za',f(G.lm.mza,3));
+  setK('lm_ssb',f(G.lm.ssb,3));setK('lm_ssw',f(G.lm.ssw,3));
+  setK('le_ssb',f(G.le.ssb,3));setK('le_ssw',f(G.le.ssw,3));setK('le_W',f(G.le.W,3));setP('le_p',G.le.p);
+  setK('mw_Rb',f(G.mw.Rb,1));setK('mw_Ra',f(G.mw.Ra,1));setK('mw_U1',f(G.mw.U1,1));setK('mw_U2',f(G.mw.U2,1));
+  setK('mw_mrb',f(G.mw.Rb/G.b.length,2));setK('mw_mra',f(G.mw.Ra/G.a.length,2));
+  setK('mw_minR',f(G.mw.minR,0));setK('mw_pairs',G.mw.pairs);setK('mw_mu',f(G.mw.mu,1));setK('mw_s',f(G.mw.s,3));setK('mw_A',f(G.mw.A,3));
+  (function(){
+    var cb=colSDs(0,GIVEN),ca=colSDs(1,GIVEN),oB=0,oA=0;
+    cb.forEach(function(v,j){if(j!==3)oB=Math.max(oB,v);});ca.forEach(function(v,j){if(j!==3)oA=Math.max(oA,v);});
+    setK('colsd_b4',f(cb[3],2));setK('colsd_bother',f(oB,2));setK('colsd_a4',f(ca[3],2));setK('colsd_aother',f(oA,2));
+  })();
+  (function(){
+    var rows='';
+    for(var i=0;i<10;i++)rows+='<tr><td>'+(i+1)+'</td><td>'+f(G.b[i],2)+'</td><td>'+f(G.a[i],2)+'</td><td>'+(i+11)+'</td><td>'+f(G.b[i+10],2)+'</td><td>'+f(G.a[i+10],2)+'</td></tr>';
+    document.getElementById('rawtb').innerHTML=rows;
+    function mm(a){return [Math.min.apply(null,a),Math.max.apply(null,a)];}
+    var m1=mm(G.b),m2=mm(G.a);
+    document.getElementById('sumtb').innerHTML=
+      '<tr><td>교체 전</td><td>'+G.b.length+'</td><td>'+f(G.mb,3)+'</td><td>'+f(G.medb,3)+'</td><td>'+f(G.sb,3)+'</td><td>'+f(m1[0],2)+'</td><td>'+f(m1[1],2)+'</td></tr>'+
+      '<tr><td>교체 후</td><td>'+G.a.length+'</td><td>'+f(G.ma,3)+'</td><td>'+f(G.meda,3)+'</td><td>'+f(G.sa,3)+'</td><td>'+f(m2[0],2)+'</td><td>'+f(m2[1],2)+'</td></tr>';
+    document.getElementById('v3s').innerHTML='교체 전 평균 <b>'+f(G.mb,3)+'</b>, 표준편차 <b>'+f(G.sb,3)+'</b> 이므로 3σ 관리선은 <b>'+f(G.lo3,3)+' ~ '+f(G.hi3,3)+'</b> µm 입니다. 교체 후 '+G.a.length+'장 가운데 관리선 안은 <b>'+G.inside+'장</b>, 밖은 <b>'+(G.a.length-G.inside)+'장</b> → 3σ 비교법의 판정: <b>'+(G.inside===G.a.length?'변화 없음':'변화 있음')+'</b>.';
+  })();
+  SIM=simulate();
+  setK('sim_trials',SIM.T);
+  function pc(x){return f(x*100,1)+'%';}
+  setK('sim_n_F',pc(SIM.n.F));setK('sim_n_L',pc(SIM.n.L));setK('sim_s_F',pc(SIM.s.F));setK('sim_s_L',pc(SIM.s.L));
+
+  /* 파이썬 출력 예: 위 값에서 같은 형식으로 만든다 */
+  function pyg(x,prec){                       // 파이썬 format 의 'g' 와 같은 표기
+    if(x===0)return '0';
+    var ex=Math.floor(Math.log10(Math.abs(x)));
+    var r=Number(x).toExponential(prec-1);ex=parseInt(r.split('e')[1],10);
+    if(ex<-4||ex>=prec){var m=r.split('e')[0];if(m.indexOf('.')>=0)m=m.replace(/0+$/,'').replace(/\.$/,'');var sgn=ex<0?'-':'+',ae=Math.abs(ex);return m+'e'+sgn+(ae<10?'0'+ae:ae);}
+    var d=Number(x).toFixed(Math.max(0,prec-1-ex));if(d.indexOf('.')>=0)d=d.replace(/0+$/,'').replace(/\.$/,'');return d;
+  }
+  function g4(p){return pyg(p,4);}
+  (function(){
+    var s='평균 '+f(G.mb,3)+' -> '+f(G.ma,3)+'  표준편차 '+f(G.sb,3)+' -> '+f(G.sa,3)+'\n'+
+      '웰치 t='+f(G.w.t,3)+' p='+g4(G.w.p)+'\n'+
+      '맨-휘트니 U='+f(G.mw.U1,1)+' z='+f(G.mw.z,3)+' p='+g4(G.mw.p)+'\n'+
+      '분산비 F='+f(G.f.F,3)+' p='+g4(G.f.p)+'\n'+
+      '레빈(중앙값) W='+f(G.lm.W,3)+' p='+g4(G.lm.p)+'   레빈(평균) W='+f(G.le.W,3)+' p='+g4(G.le.p)+'\n'+
+      '보고: 평균은 '+(G.w.p>=0.05?'차이 없음':'차이 있음')+', 산포는 교체 후 '+(G.lm.p<0.05&&G.sa<G.sb?'줄었다':'차이 확인 안 됨')+' (레빈 p='+pyg(G.lm.p,3)+').';
+    document.getElementById('pyout').textContent=s;
+    window.__labResult={w:G.w,f:G.f,lm:{W:G.lm.W,p:G.lm.p},le:{W:G.le.W,p:G.le.p},mw:{U:G.mw.U1,z:G.mw.z,p:G.mw.p,Rb:G.mw.Rb,Ra:G.mw.Ra},mb:G.mb,ma:G.ma,sb:G.sb,sa:G.sa,sim:{nF:SIM.n.F,nL:SIM.n.L,sF:SIM.s.F,sL:SIM.s.L}};
+  })();
+
+  /* ───── 조작: 유리 번호, 배율 ───── */
+  var gi=document.getElementById('gi'),bm=document.getElementById('bm');
+  function fldRead(){
+    var i=+gi.value-1,mb=MS.ppaMetric(grid(0,i,GIVEN)),ma=MS.ppaMetric(grid(1,i,GIVEN));
+    var cb=colMeans(grid(0,i,GIVEN)),ca=colMeans(grid(1,i,GIVEN));
+    document.getElementById('gio').textContent=gi.value;
+    document.getElementById('fldRead').innerHTML='유리 '+gi.value+'번 · 교체 전: 스틱 4 열 평균 <b>'+f(cb[3],1)+'</b> µm, 지표 <b>'+f(mb.dx_metric,2)+'</b> µm (77점 표준편차 '+f(mb.dx_sd,2)+') &nbsp;|&nbsp; 교체 후: 스틱 4 열 평균 <b>'+f(ca[3],1)+'</b> µm, 지표 <b>'+f(ma.dx_metric,2)+'</b> µm (표준편차 '+f(ma.dx_sd,2)+')';
+  }
+  function bmUpdate(){
+    var m=+bm.value,X=scen(m);
+    document.getElementById('bmo').textContent=String(m);
+    document.getElementById('bmState').textContent=m===GIVEN?'지금 이 값이 문제의 실제 값입니다.':'지금은 실제 값(4배)에서 '+(m>GIVEN?'+':'−')+f(Math.abs(m-GIVEN),1)+'배 옮겨 놓은 가정입니다. 문제의 실제 자료가 아닙니다.';
+    document.getElementById('bmReset').disabled=(m===GIVEN);
+    fill(X,'x_',null);
+    setK('x_mean_b',f(X.mb,3));setK('x_mean_a',f(X.ma,3));setK('x_sd_b',f(X.sb,3));setK('x_sd_a',f(X.sa,3));
+    var ws=X.w.p<0.05,ls=X.lm.p<0.05,t;
+    if(ls&&!ws)t='산포는 달라졌고(레빈 p = '+fp(X.lm.p)+') 평균은 같다고 봅니다(웰치 p = '+fp(X.w.p)+'). 이 실험실의 처음 장면과 같은 모양입니다.';
+    else if(!ls&&ws)t='평균 비교만 유의합니다(웰치 p = '+fp(X.w.p)+'). 산포 차이는 잡히지 않습니다(레빈 p = '+fp(X.lm.p)+'). 새 스틱을 다시 장착하며 생긴 평균 이동만 보이는 경우입니다.';
+    else if(ls&&ws)t='평균(웰치 p = '+fp(X.w.p)+')과 산포(레빈 p = '+fp(X.lm.p)+') 둘 다 달라졌다고 나옵니다.';
+    else t='평균(웰치 p = '+fp(X.w.p)+')도 산포(레빈 p = '+fp(X.lm.p)+')도 5% 기준에서는 차이를 잡지 못합니다. 20장씩으로는 이 정도 불량을 알아보기 어렵습니다.';
+    document.getElementById('xInterp').textContent=t;
+    redraw();
+  }
+  function redraw(){
+    drawStrip('cvStrip',G);drawField('cvField',GIVEN);drawDist();drawZ(G);drawRank(G);
+    var m=+bm.value;drawStrip('cvStrip2',scen(m));drawSweep(m);drawField('cvField2',m);
+  }
+  gi.addEventListener('input',function(){fldRead();redraw();});
+  bm.addEventListener('input',bmUpdate);
+  document.getElementById('bmReset').addEventListener('click',function(){bm.value=GIVEN;bmUpdate();});
+  window.addEventListener('resize',redraw);
+  fldRead();bmUpdate();
+})();
+</script>
+</body></html>

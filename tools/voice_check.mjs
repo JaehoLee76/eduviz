@@ -6,7 +6,7 @@ import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, extname } from 'path';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const TARGET_DIRS = ['adp', 'content', 'js'];
+const TARGET_DIRS = ['adp', 'agentlab', 'content', 'js'];
 const SKIP = /node_modules|\.git|_content|tools/;
 
 const PATTERNS = [

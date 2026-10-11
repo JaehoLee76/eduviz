@@ -1,0 +1,693 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>0101 PM 후 평균이 옮겨 갔는가 · Manufacturing Agent Lab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="PM 전후 압력 평균 비교 · 3σ 비교법의 한계, 표준오차, Welch t검정, 효과 크기와 신뢰구간">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --track:#dcefef; --tint:#e6f4f4;
+  --code:#eef6f6; --gB:#3b6bc4; --gA:#c2611a; --bad:#c0392b;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+    --code:#122124; --gB:#8fb0ff; --gA:#f0a566; --bad:#ef8a7d;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+    --code:#122124; --gB:#8fb0ff; --gA:#f0a566; --bad:#ef8a7d;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.7;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.5rem}
+.eyebrow{font-size:.8rem;letter-spacing:.14em;font-weight:800;margin:0 0 .4rem;opacity:.9}
+h1{font-size:1.9rem;margin:0 0 .5rem;font-weight:800;line-height:1.25}
+.goal{margin:0;padding:.9rem 1.05rem;border-radius:14px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.3);font-size:1.02rem;line-height:1.7}
+:root[data-theme="dark"] .goal,:root[data-theme="auto"] .goal{background:rgba(0,0,0,.18)}
+
+section{margin:0 0 2.2rem}
+h2{font-size:1.4rem;margin:0 0 .5rem;line-height:1.3}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1rem 0 .3rem;line-height:1.4}
+p{margin:0 0 .8rem}
+.soft{color:var(--soft)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:0 0 1rem}
+.card h3{margin-top:0}
+.card ol,.card ul{margin:.3rem 0 .3rem 1.1rem;padding:0}
+.card li{margin:.25rem 0}
+.ban{display:inline-block;font-size:.85rem;font-weight:800;padding:.1rem .7rem;border-radius:999px;margin:0 0 .6rem;
+  background:var(--accent);color:var(--accent-ink)}
+.ban.sol{background:var(--good);color:#fff}
+:root[data-theme="dark"] .ban.sol{color:#06282b}
+.prob{border-left:5px solid var(--accent)}
+.solb{border-left:5px solid var(--good)}
+.bridge{border-left:4px solid var(--accent);background:var(--tint);border-radius:0 10px 10px 0;padding:.7rem 1rem;margin:0 0 1rem}
+.tblw{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.86rem;background:var(--card)}
+th,td{border:1px solid var(--rule);padding:.3rem .4rem;text-align:right;overflow-wrap:anywhere}
+th{background:var(--tint);color:var(--accent);text-align:center}
+td:first-child,th:first-child{text-align:left}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.6rem 0 1rem}
+.eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;font-size:.88rem;color:var(--soft);margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.8rem;overflow-x:auto;
+  font-size:.82rem;line-height:1.55;margin:.5rem 0 1rem;font-family:ui-monospace,Menlo,Consolas,monospace}
+canvas{display:block;width:100%;background:var(--card);border:1px solid var(--rule);border-radius:10px;margin:.4rem 0 .2rem}
+.cap{font-size:.88rem;color:var(--soft);margin:.2rem 0 1rem}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.85rem;color:var(--soft);margin:.2rem 0 .8rem}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:.35rem;vertical-align:-1px}
+.ctrls{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0 1rem}
+.ctrl{background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:.8rem .9rem}
+.ctrl label{display:block;font-weight:800;font-size:.92rem;margin-bottom:.2rem}
+.ctrl input[type=range]{width:100%;margin:.5rem 0;accent-color:var(--accent)}
+.ctrl .val{font-weight:800;color:var(--accent);font-size:1.05rem}
+.ctrl .state{font-size:.88rem;color:var(--soft);margin:.2rem 0 .4rem}
+.btn{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .8rem;border:1px solid var(--accent);border-radius:9px;
+  background:transparent;color:var(--accent);font-weight:700;font-size:.88rem;font-family:inherit;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:default}
+.bdg{display:inline-block;font-size:.8rem;font-weight:800;padding:.05rem .6rem;border-radius:999px;margin-right:.3rem}
+.bdg.base{background:var(--good);color:#fff}
+:root[data-theme="dark"] .bdg.base{color:#06282b}
+.bdg.what{background:var(--warn);color:#fff}
+:root[data-theme="dark"] .bdg.what{color:#1b1206}
+.verdict{background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0 1rem}
+.verdict b{color:var(--accent)}
+.concl{border:2px solid var(--accent);border-radius:12px;padding:.8rem 1rem;margin:.6rem 0 1rem;background:var(--card)}
+.box{border:1px dashed var(--accent);border-radius:12px;padding:.8rem 1rem;margin:0 0 1rem;background:var(--card)}
+.box h3{margin:0 0 .3rem;color:var(--accent)}
+.box ul{margin:.2rem 0 0 1.1rem;padding:0}
+.box li{margin:.25rem 0}
+details{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.6rem 1rem;margin:0 0 1rem}
+summary{font-weight:800;color:var(--accent);cursor:pointer;min-height:28px}
+.labnav{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.4rem}
+.labnav a{display:inline-flex;align-items:center;min-height:42px;padding:.3rem .9rem;border:1px solid var(--accent);border-radius:10px;
+  color:var(--accent);font-weight:700;text-decoration:none;background:var(--card)}
+.labnav .grow{flex:1 1 20px;border:0;background:none;min-height:0;padding:0}
+@media(max-width:760px){.ctrls{grid-template-columns:1fr}h1{font-size:1.6rem}}
+@media(max-width:520px){.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">실험실 0101</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">MANUFACTURING AGENT LAB · 기둥 1 · 실험실 0101</p>
+  <h1>PM 후 평균이 옮겨 갔는가</h1>
+  <p class="goal">이 실험실의 물음은 한 줄입니다. 설비를 점검하고 나서 30장을 모았을 때, 압력의 평균이 점검 전과 달라졌다고 말할 수 있는가. 달라졌다면 그 차이가 공정에서 문제가 되는 크기인가.</p>
+</div></header>
+
+<main class="wrap">
+
+<section id="intro">
+  <div class="bridge">
+    <p><b>허브에서 이어집니다.</b> 라인에서는 PM(preventive maintenance, 예방정비)을 한 번 하고 나면 어김없이 같은 질문이 따라옵니다. 점검 뒤에 공정이 달라졌는가. 달라졌다면 조건을 다시 봐야 하고, 달라지지 않았다면 그대로 흘려보내면 됩니다. 지금 현장에서는 이 판정을 관리선(3σ 선)에 점이 들어오는지 보는 것으로 해 왔습니다. 이 실험실은 그 방법이 어디서 막히는지 보고, 막힌 자리에서 새 도구를 하나씩 만들어 갑니다. 첫 실험실이므로 천천히 갑니다.</p>
+  </div>
+  <div class="card">
+    <h3>이미 알고 계신 것</h3>
+    <ul>
+      <li>평균과 표준편차, 그리고 평균 ±3σ 로 그은 관리선</li>
+      <li>PM 이 무엇인지, 한 장(유리 한 장)마다 챔버 압력이 목표값에 안정되는 구간이 있다는 것</li>
+      <li>표본(sample, 실제로 잰 장들)과 모집단(앞으로 같은 조건에서 나올 모든 장)이 다르다는 것</li>
+    </ul>
+    <h3>이번에 새로 배우는 말 (아홉 개)</h3>
+    <ol>
+      <li>표준오차 (standard error) — 평균이 얼마나 흔들리는지 재는 자</li>
+      <li>합동 방식 (pooled) — 두 표본의 산포를 하나로 합쳐 쓰는 방식</li>
+      <li>Welch t검정 — 산포가 같다고 가정하지 않는 평균 비교</li>
+      <li>자유도 (degrees of freedom) — 산포 추정을 얼마나 믿을지 알려 주는 수</li>
+      <li>가설 (hypothesis) — 검정에서 맞서는 두 주장</li>
+      <li>p값 (p-value)과 유의수준 — 우연의 가능성을 재는 값과 그 판정선</li>
+      <li>효과 크기 (effect size, Cohen d) — 차이를 산포 단위로 잰 크기</li>
+      <li>95% 신뢰구간 (confidence interval) — 참 차이가 있을 만한 범위</li>
+      <li>허용폭 (spec) — 공정이 정한 &ldquo;이만큼까지는 괜찮다&rdquo;의 선</li>
+    </ol>
+    <p class="soft" style="margin-top:.6rem">이 실험실의 데이터는 학습용 가상 데이터입니다. 위 아홉 개 밖의 새 용어는 쓰지 않습니다.</p>
+  </div>
+</section>
+
+<section id="s1">
+  <h2><span class="no">1</span>문제와 데이터</h2>
+  <div class="card prob">
+    <span class="ban">문제</span>
+    <p>블록 B03, 챔버 CH2(R EML 증착 챔버)에서 PM 을 했습니다. PM 전 30장과 PM 후 30장의 <b>정상구간 압력 평균</b>(한 장을 처리하는 동안 압력이 목표에 안정된 구간의 평균, 단위 mTorr)을 장마다 하나씩 뽑았습니다. 목표 압력은 <b><span id="tgt"></span> mTorr</b> 입니다. 두 묶음은 같은 챔버에서 PM 앞뒤로 연달아 모은 30장씩이고, 한 묶음 안의 장들은 서로 독립이라고 봅니다.</p>
+    <p><b>질문:</b> PM 후에 이 챔버의 압력 평균이 달라졌습니까? 달라졌다면 허용폭(이 실험실에서는 목표의 ±<span id="specpct"></span>%, 즉 ±<span id="specabs"></span> mTorr 로 가정합니다)에 비추어 조치가 필요한 크기입니까?</p>
+    <div class="tblw"><table>
+      <thead><tr><th>구분</th><th>장 수</th><th>평균</th><th>표준편차 s</th><th>가장 작은 값</th><th>가장 큰 값</th></tr></thead>
+      <tbody id="sumtb"></tbody>
+    </table></div>
+    <div class="qna" data-label="60장의 값을 모두 보기" data-q="60장의 값 (mTorr)">
+      <table><thead><tr><th>순번</th><th>PM 전</th><th>PM 후</th></tr></thead><tbody id="rawtb"></tbody></table>
+    </div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>먼저 지금 방식으로 판정해 봅니다</h2>
+  <p>현행 3σ 비교법은 이렇습니다. PM 전 30장의 평균과 표준편차로 평균 ±3σ 띠를 긋고, PM 후의 점이 그 띠를 벗어나면 &ldquo;달라졌다&rdquo;, 전부 안에 있으면 &ldquo;변화 없음&rdquo;으로 봅니다.</p>
+  <canvas id="cv1" height="220" aria-label="PM 전후 점과 3σ 띠"></canvas>
+  <div class="legend"><span><i style="background:var(--gB)"></i>PM 전 각 장</span><span><i style="background:var(--gA)"></i>PM 후 각 장</span><span>음영 = PM 전 평균 ±3σ 띠</span><span>짧은 세로선 = 각 묶음의 평균</span></div>
+  <div class="verdict" id="v3s"></div>
+  <p>띠 안에 전부 들어옵니다. 이 방법으로는 <b>변화 없음</b>입니다. 그런데 그림을 잘 보시면 주황색 점 묶음이 파란 점 묶음보다 조금 오른쪽에 모여 있습니다. 이 느낌이 착각인지 사실인지를 따져 볼 도구가 지금은 없습니다.</p>
+  <div class="qna" data-label="띠 안에 다 들어오는데 왜 변화 없다고 하면 안 되나요?" data-q="3σ 띠 안에 다 들어오는데 왜 변화가 없다고 하면 안 되나요?">
+    <p>3σ 띠가 답하는 물음은 &ldquo;이 한 장이 PM 전의 장들 가운데 끼어 있어도 이상하지 않은가&rdquo;입니다. 한 장의 값은 장마다 σ 정도로 크게 출렁이니, 띠가 넓은 건 당연합니다.</p>
+    <p>우리가 알고 싶은 것은 한 장이 아니라 <b>이 챔버가 앞으로 내놓을 값들의 평균</b>이 옮겨 갔는가입니다. 평균은 30장을 모아 내므로 훨씬 덜 출렁입니다. 그래서 개별 점의 띠로는 안 보이는 작은 이동이, 평균을 비교하면 뚜렷이 보일 수 있습니다. 다음 절에서 그 이유를 수로 만듭니다.</p>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>막힌 자리: 물어야 할 것은 한 장이 아니라 평균입니다</h2>
+  <p>2절의 판정은 &ldquo;점 하나가 띠에 드는가&rdquo;를 물었습니다. 지금 물어야 하는 것은 &ldquo;PM 후 30장의 평균이 PM 전 30장의 평균에서 우연히 이 정도 벗어날 수 있는가&rdquo;입니다. 이 물음에 답하려면 <b>평균이 얼마나 흔들리는지</b>를 재는 자가 필요합니다.</p>
+  <p>한 장의 값이 σ 만큼 흔들린다면, n장을 평균 내면 흔들림이 1/√n 로 줄어듭니다. 이 자의 이름이 <b>표준오차 (standard error, SE)</b> 입니다. 표준편차 s 는 장 하나가 흔들리는 폭이고, 표준오차는 <b>평균이 흔들리는 폭</b>입니다.</p>
+  <div class="eq">
+    <span class="eqlab">표본 평균 하나의 표준오차</span>
+    <math display="block"><mrow><mi>SE</mi><mo>=</mo><mfrac><mi>s</mi><msqrt><mi>n</mi></msqrt></mfrac></mrow></math>
+    <span class="note">s 는 한 묶음의 표준편차, n 은 그 묶음의 장 수입니다. 이 실험실에서는 PM 전을 표본 1, PM 후를 표본 2 라 부르고 s₁, n₁, s₂, n₂ 로 씁니다.</span>
+  </div>
+  <p>평균 차이(x̄₂ − x̄₁)가 우연이라면 얼마나 벗어날 수 있는지는, 두 평균이 각자 흔들리는 폭을 합쳐서 정합니다. 두 평균이 서로 독립이므로 흔들림은 제곱해서 더합니다.</p>
+  <div class="eq">
+    <span class="eqlab">평균 차이의 표준오차</span>
+    <math display="block"><mrow><mi>SE</mi><mo>=</mo><msqrt><mrow><mfrac><msup><msub><mi>s</mi><mn>1</mn></msub><mn>2</mn></msup><msub><mi>n</mi><mn>1</mn></msub></mfrac><mo>+</mo><mfrac><msup><msub><mi>s</mi><mn>2</mn></msub><mn>2</mn></msup><msub><mi>n</mi><mn>2</mn></msub></mfrac></mrow></msqrt></mrow></math>
+    <span class="note">두 묶음의 산포를 각자의 s 로 따로 씁니다. 이것이 Welch 방식의 핵심입니다.</span>
+  </div>
+  <h3>왜 두 산포를 합치지 않고 따로 쓰는가</h3>
+  <p>이 문제를 흔한 교재 방식으로 풀면 두 묶음의 산포를 하나로 합쳐 쓰는 <b>합동 방식 (pooled)</b> 이 나옵니다. 그 방식에는 <b>두 묶음의 산포가 같다</b>는 가정이 숨어 있습니다. PM 은 부품을 바꾸거나 청소하는 일이어서, PM 후에 값의 흔들림 자체가 달라졌을 수 있고, 그걸 미리 알 방법이 없습니다. 이 자료에서도 표준편차는 PM 전 <span id="s3sd1"></span>, PM 후 <span id="s3sd2"></span> 로 같지 않습니다.</p>
+  <p>가정이 틀리면 합동 방식의 p값은 틀어집니다. 특히 두 묶음의 장 수가 다를 때 심합니다(이 점은 아래 [풀이]의 표에서 합동 방식 p값을 나란히 놓아 보여 드립니다). 산포가 같다는 보장이 없으니, 처음부터 그 가정을 하지 않는 방식을 기본으로 삼습니다. 이름이 <b>Welch t검정</b> 입니다.</p>
+  <p>t 라는 이름도 뜻이 있습니다. 모집단의 σ 를 알고 있을 때 평균 차이를 SE 로 나눈 값은 z 라 부르고, σ 를 모르고 표본에서 구한 s 로 대신하면 그 값을 t 라 부릅니다. 즉 <b>t 는 &ldquo;우리가 가진 자로 잰 평균 차이&rdquo;</b>입니다. s 가 표본마다 흔들리는 만큼 t 값의 분포도 조금 더 넓게 퍼지고, 그 퍼짐을 알려 주는 수가 <b>자유도 (degrees of freedom, df)</b> 입니다. 표본이 클수록 s 가 믿을 만해서 df 가 커지고 t 곡선이 정규분포에 가까워집니다. Welch 방식에서는 df 를 두 묶음의 크기와 산포로 따로 계산합니다(식은 아래 4절).</p>
+  <div class="qna" data-label="표준편차와 표준오차는 뭐가 다른가요?" data-q="표준편차와 표준오차는 뭐가 다른가요? 보고서에 어느 쪽을 써야 하죠?">
+    <p>표준편차 s 는 <b>장 하나하나가 평균에서 흩어진 폭</b>입니다. 장 수를 늘려도 s 는 줄지 않고 일정한 값에 가까워질 뿐입니다.</p>
+    <p>표준오차 s/√n 은 <b>평균이 흔들리는 폭</b>입니다. 장을 많이 모을수록 계속 줄어듭니다.</p>
+    <p>보고서에서 &ldquo;개별 장이 얼마나 흩어지는가&rdquo;를 말하려면 s 를, &ldquo;평균을 얼마나 정확히 알아냈는가&rdquo;를 말하려면 SE 를 씁니다. 평균 비교의 근거는 항상 SE 입니다.</p>
+  </div>
+  <div class="qna" data-label="합동 방식이 더 쉬운데 꼭 Welch여야 하나요?" data-q="합동 방식이 더 쉬운데 꼭 Welch여야 하나요? 두 산포가 비슷하면 같은 결과 아닌가요?">
+    <p>두 묶음의 장 수가 같고 산포도 비슷하면 두 방식의 p값은 거의 같습니다. 그래서 Welch 를 기본으로 써도 손해가 거의 없습니다.</p>
+    <p>반대로 장 수가 다르고 산포도 다르면 합동 방식은 p값이 실제보다 작게도, 크게도 나옵니다. 어느 쪽으로 틀어질지 미리 알 수 없습니다. 에이전트가 사람 없이 자동으로 돌릴 때는 &ldquo;산포가 같은지 먼저 검정하고 방식을 고르는&rdquo; 두 단계보다 처음부터 Welch 를 쓰는 편이 단순하고 안전합니다.</p>
+  </div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>풀이: 답안 다섯 단계</h2>
+  <div class="card solb">
+    <span class="ban sol">풀이</span>
+    <p>여기서부터가 [풀이]입니다. 아래 표와 그림은 모두 지금 조작판의 상태를 따라 움직입니다. 먼저 조작판을 한 번 보고, 무엇을 볼지 정한 뒤에 다섯 단계를 읽으시면 됩니다.</p>
+  </div>
+
+  <h3>조작판 — 무엇을 눌러 무엇을 볼지</h3>
+  <div class="bridge">
+    <p><b>관찰 목표:</b> 1) 이후 장 수 n 을 5 에서 60 으로 움직이면 p값이 어떻게 변하는지, 같은 이동량인데 n 이 작으면 왜 잡히지 않는지 보세요. 2) 탐구 모드에서 평균을 더 옮겨 보면 t, p, 신뢰구간, 3σ 판정이 함께 움직이는 것을 보세요. 3σ 띠를 처음으로 벗어나는 지점이 어디인지 찾아보세요.</p>
+  </div>
+  <div class="ctrls">
+    <div class="ctrl">
+      <label for="rn">이후 장 수 n</label>
+      <div><span class="val" id="rnv"></span> 장</div>
+      <input type="range" id="rn" min="5" max="60" step="1" value="30">
+      <div class="state" id="rnst"></div>
+      <button class="btn" id="rnrst" type="button">기준 30장으로 되돌리기</button>
+    </div>
+    <div class="ctrl">
+      <label for="rd">탐구 모드 — 이후 값 전체를 추가로 옮겨 놓은 가정</label>
+      <div><span class="val" id="rdv"></span></div>
+      <input type="range" id="rd" min="-1.5" max="1.5" step="0.1" value="0">
+      <div class="state" id="rdst"></div>
+      <button class="btn" id="rdrst" type="button">실제 자료로 되돌리기</button>
+    </div>
+  </div>
+  <p class="cap">자유도(df)는 두 묶음의 크기와 산포가 정하는 수라 직접 움직이는 조작이 아니고, 표가 매번 새로 계산해 보여 줍니다. PM 전 30장은 실제 자료로 고정입니다. n 을 30 보다 크게 하면 같은 조건에서 장을 더 모았다고 가정한 값이 이어 붙습니다.</p>
+
+  <canvas id="cv2" height="250" aria-label="현재 상태의 두 묶음과 평균의 표준오차"></canvas>
+  <div class="legend"><span><i style="background:var(--gB)"></i>PM 전</span><span><i style="background:var(--gA)"></i>PM 후</span><span>짧은 굵은 선 = 평균, 가로 막대 = 평균 ± 2 표준오차</span><span>음영 = PM 전 평균 ±3σ 띠</span></div>
+  <div class="verdict" id="v3live"></div>
+
+  <h3>단계 1 — 가설</h3>
+  <p>검정은 맞서는 두 주장을 세우는 것으로 시작합니다. 이 두 주장을 <b>가설 (hypothesis)</b> 이라 부릅니다. μ₁ 은 PM 전 챔버가 내놓는 정상구간 압력 평균의 참값, μ₂ 는 PM 후 참값입니다(우리가 가진 x̄ 는 그 추정치입니다).</p>
+  <ul>
+    <li>H0 (변화 없음): μ₂ = μ₁. 보인 차이는 우연히 생긴 것입니다.</li>
+    <li>H1 (변화 있음): μ₂ ≠ μ₁. 어느 방향이든 달라졌습니다. 올라갔는지 내려갔는지 미리 정하지 않았으므로 양쪽을 다 봅니다.</li>
+  </ul>
+
+  <h3>단계 2 — 전제 점검</h3>
+  <p>이 검정이 믿을 만하려면 세 가지가 성립해야 합니다. 지금 자료로 하나씩 확인합니다.</p>
+  <ul>
+    <li><b>장끼리 독립:</b> 한 장의 값이 바로 앞 장의 값을 따라가지 않아야 합니다. 이 자료는 독립으로 모은 값입니다. 이웃한 값이 서로 닮는 센서라면 이 전제가 깨지며, 그 경우는 실험실 0104 에서 다룹니다.</li>
+    <li><b>치우침이 크지 않을 것:</b> 값의 분포가 한쪽으로 크게 기울면 평균이 대표값 구실을 못 합니다. 평균과 중앙값이 가까우면 크게 기울지 않았다고 봅니다. 지금 PM 전은 평균 <span id="pm1"></span>, 중앙값 <span id="pmd1"></span>, PM 후는 평균 <span id="pm2"></span>, 중앙값 <span id="pmd2"></span> 입니다. 서로 가깝습니다.</li>
+    <li><b>산포가 같다는 가정은 하지 않음:</b> 3절에서 정한 대로 두 산포를 따로 씁니다. 현재 표준편차의 비는 <span id="sdr"></span> 배입니다.</li>
+  </ul>
+  <p>세 번째 전제를 일부러 두지 않았으므로, 전제가 깨져서 방식을 바꿔야 하는 일은 지금 문제에서는 생기지 않습니다. 전제 하나가 깨지는 경우(산포 비교, 비정규, 자기상관)는 뒤의 실험실에서 하나씩 다룹니다.</p>
+
+  <h3>단계 3 — 검정통계량 실계산</h3>
+  <div class="tblw"><table>
+    <thead><tr><th>구분</th><th>장 수 n</th><th>평균 x̄</th><th>표준편차 s</th><th>표준오차 s/√n</th></tr></thead>
+    <tbody id="t3a"></tbody>
+  </table></div>
+  <div class="eq">
+    <span class="eqlab">t 값 — 평균 차이를 표준오차 자로 잰 값</span>
+    <math display="block"><mrow><mi>t</mi><mo>=</mo><mfrac><mrow><msub><mover><mi>x</mi><mo>¯</mo></msub><mn>2</mn></msub><mo>−</mo><msub><mover><mi>x</mi><mo>¯</mo></msub><mn>1</mn></msub></mrow><mi>SE</mi></mfrac><mo>=</mo><mfrac><mn id="m_diff">0</mn><mn id="m_se">0</mn></mfrac><mo>=</mo><mn id="m_t">0</mn></mrow></math>
+    <span class="note">평균 차이가 표준오차의 몇 배인지가 t 입니다. 절댓값이 클수록 우연으로 보기 어렵습니다.</span>
+  </div>
+  <div class="eq">
+    <span class="eqlab">Welch 자유도</span>
+    <math display="block"><mrow><mi>df</mi><mo>=</mo><mfrac><msup><mrow><mo stretchy="false">(</mo><mfrac><msup><msub><mi>s</mi><mn>1</mn></msub><mn>2</mn></msup><msub><mi>n</mi><mn>1</mn></msub></mfrac><mo>+</mo><mfrac><msup><msub><mi>s</mi><mn>2</mn></msub><mn>2</mn></msup><msub><mi>n</mi><mn>2</mn></msub></mfrac><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mrow><mfrac><msup><mrow><mo stretchy="false">(</mo><mfrac><msup><msub><mi>s</mi><mn>1</mn></msub><mn>2</mn></msup><msub><mi>n</mi><mn>1</mn></msub></mfrac><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mrow><msub><mi>n</mi><mn>1</mn></msub><mo>−</mo><mn>1</mn></mrow></mfrac><mo>+</mo><mfrac><msup><mrow><mo stretchy="false">(</mo><mfrac><msup><msub><mi>s</mi><mn>2</mn></msub><mn>2</mn></msup><msub><mi>n</mi><mn>2</mn></msub></mfrac><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><mn>1</mn></mrow></mfrac></mrow></mfrac><mo>=</mo><mn id="m_df">0</mn></mrow></math>
+    <span class="note">두 묶음이 같은 크기와 같은 산포일 때 가장 커서 n₁ + n₂ − 2 에 가까워지고, 한쪽이 작거나 흔들림이 다를수록 줄어듭니다.</span>
+  </div>
+  <div class="tblw"><table>
+    <thead><tr><th>항목</th><th>값</th><th>읽는 법</th></tr></thead>
+    <tbody id="t3b"></tbody>
+  </table></div>
+
+  <h3>단계 4 — 판정</h3>
+  <p><b>p값 (p-value)</b> 은 &ldquo;H0 가 참이라고 치고, 우연히 지금 본 차이만큼 혹은 그보다 큰 차이(양쪽 방향)가 나올 확률&rdquo;입니다. 작을수록 우연으로 설명하기 어렵습니다. 어디부터 &ldquo;작다&rdquo;고 볼지의 선을 <b>유의수준</b> 이라 하며 관례로 5% (0.05)를 씁니다. p값이 이 선보다 작으면 H0 를 버리고 H1 을 택합니다.</p>
+  <div class="verdict" id="v4"></div>
+  <canvas id="cv4" height="210" aria-label="이후 장 수에 따른 p값"></canvas>
+  <div class="cap">가로축은 이후 장 수 n, 세로축은 p값의 상용로그에 마이너스를 붙인 값(클수록 p값이 작음)입니다. 점선은 5% 선입니다. 같은 이동량이라도 n 이 작으면 선에 겨우 닿거나 못 미쳐 &ldquo;변화 없음&rdquo;으로 보일 수 있고, n 이 커지면 선에서 멀어집니다. 탐구 모드에서 추가 이동을 음수로 줄여 이동을 작게 만들면 n 이 작을 때 선 아래로 내려가는 것을 볼 수 있습니다. 굵은 점이 지금 n 입니다.</div>
+
+  <h3>단계 5 — 결론 서술</h3>
+  <div class="concl" id="v5"></div>
+  <div class="qna" data-label="p값이 작으면 '달라졌을 확률이 높다'는 뜻인가요?" data-q="p값이 0.001이면 '달라졌을 확률이 99.9%'라고 보고해도 되나요?">
+    <p>그렇게 쓰시면 안 됩니다. p값은 &ldquo;H0 가 참이라고 가정한 세계에서 이만큼의 차이가 우연히 나올 확률&rdquo;입니다. 달라졌을 확률이 아닙니다.</p>
+    <p>보고서에서는 이렇게 쓰는 것이 정확합니다. &ldquo;변화가 없다면 이만한 차이가 우연히 나올 확률은 p입니다. 그래서 변화가 있었다고 판단합니다.&rdquo;</p>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>p값만으로는 모자랍니다: 효과 크기와 신뢰구간</h2>
+  <p>p값은 &ldquo;차이가 우연이 아닌가&rdquo;에만 답합니다. 차이가 <b>얼마나 큰가</b>는 말해 주지 않습니다. 장을 충분히 모으면 아주 작은 차이도 p값이 작아지기 때문입니다. 그래서 크기를 따로 두 가지로 나타냅니다.</p>
+  <div class="eq">
+    <span class="eqlab">효과 크기 Cohen d — 차이를 장 하나의 산포 단위로 잰 값</span>
+    <math display="block"><mrow><mi>d</mi><mo>=</mo><mfrac><mrow><msub><mover><mi>x</mi><mo>¯</mo></msub><mn>2</mn></msub><mo>−</mo><msub><mover><mi>x</mi><mo>¯</mo></msub><mn>1</mn></msub></mrow><msub><mi>s</mi><mi>p</mi></msub></mfrac><mo>=</mo><mfrac><mn id="m_diff2">0</mn><mn id="m_sp">0</mn></mfrac><mo>=</mo><mn id="m_d">0</mn></mrow></math>
+    <span class="note">분모 sp 는 두 묶음의 표준편차를 장 수로 가중해 합친 값입니다. 장 수가 늘어도 d 는 거의 변하지 않습니다. 관례로 0.2 안팎은 작은 효과, 0.5 는 중간, 0.8 이상은 큰 효과라 부릅니다.</span>
+  </div>
+  <div class="eq">
+    <span class="eqlab">평균 차이의 95% 신뢰구간 — 참 차이가 있을 만한 범위</span>
+    <math display="block"><mrow><mo stretchy="false">(</mo><msub><mover><mi>x</mi><mo>¯</mo></msub><mn>2</mn></msub><mo>−</mo><msub><mover><mi>x</mi><mo>¯</mo></msub><mn>1</mn></msub><mo stretchy="false">)</mo><mo>±</mo><msub><mi>t</mi><mrow><mn>0.975</mn></mrow></msub><mo>×</mo><mi>SE</mi><mo>=</mo><mn id="m_ci1">0</mn><mo>~</mo><mn id="m_ci2">0</mn></mrow></math>
+    <span class="note">t0.975 는 같은 자유도의 t 곡선에서 양쪽 끝을 합쳐 5% 를 남기는 자리(여기서는 <span id="tcrit"></span>)입니다. 같은 방식으로 표본을 계속 뽑아 구간을 만들면 그중 95% 가 참 차이를 품습니다.</span>
+  </div>
+  <canvas id="cv3" height="190" aria-label="평균 차이의 신뢰구간과 허용폭"></canvas>
+  <div class="legend"><span><i style="background:var(--accent)"></i>평균 차이와 95% 신뢰구간</span><span>가운데 점선 = 차이 0</span><span>음영 = 허용폭 ±<span id="specabs2"></span> mTorr</span></div>
+  <div class="verdict" id="v6"></div>
+  <h3>실무 의미는 통계가 정하지 않습니다</h3>
+  <p>검정은 &ldquo;달라졌다&rdquo;까지만 말합니다. 달라진 크기가 공정에 문제가 되는지는 <b>허용폭 (spec)</b> 이 정합니다. 이 실험실에서는 목표 압력의 ±<span id="specpct2"></span>% 를 허용폭으로 가정했고, 신뢰구간 전체가 그 안에 들어오면 조치가 필요 없고, 전체가 밖이면 조치하며, 걸쳐 있으면 장을 더 모으거나 추적 관찰합니다. 실제 허용폭은 공정 담당 부서의 spec 문서가 정합니다.</p>
+  <div class="qna" data-label="p값은 작은데 d는 작을 수 있나요?" data-q="p값은 아주 작은데 효과 크기 d는 작을 수 있나요? 그러면 어떻게 판단하죠?">
+    <p>가능합니다. 장 수가 아주 많으면 SE 가 작아져 아주 작은 차이도 p값이 작아집니다. 이때 d 는 작게 남습니다. &ldquo;통계적으로는 분명히 달라졌지만 공정에는 거의 의미 없는 차이&rdquo;입니다.</p>
+    <p>반대로 d 는 큰데 장 수가 적어서 p값이 크게 나오는 경우도 있습니다. 이때는 &ldquo;차이가 없다&rdquo;가 아니라 &ldquo;아직 판단하기에 장이 부족하다&rdquo;입니다. 그래서 p값, d, 신뢰구간을 항상 함께 보고합니다.</p>
+  </div>
+  <div class="qna" data-label="허용폭은 누가 어떻게 정하나요?" data-q="허용폭(spec)은 누가 어떻게 정하나요? 모르면 분석을 못 하나요?">
+    <p>허용폭은 이 압력 변화가 증착 품질과 PPA 같은 결과 품질에 얼마나 영향을 주는지 아는 공정 담당이 정합니다. 통계가 대신 정해 줄 수 없습니다.</p>
+    <p>허용폭을 아직 모르면 분석은 &ldquo;달라졌는가, 얼마나 달라졌는가(신뢰구간)&rdquo;까지만 보고하고, 판정란은 &ldquo;허용폭 확인 필요&rdquo;로 비워 둡니다. 비워 둔 자리를 에이전트가 임의로 채우지 않는 것이 원칙입니다.</p>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>실제 자료로 낸 보고와 회사 PC 코드</h2>
+  <div class="box">
+    <h3>보고서 양식</h3>
+    <ul>
+      <li><b>무엇을:</b> B03 CH2 의 PM 전 <span id="rp_nb"></span>장과 PM 후 <span id="rp_na"></span>장, 정상구간 압력 평균(목표 <span id="rp_tg"></span> mTorr).</li>
+      <li><b>왜 이 검정:</b> 두 묶음의 평균을 비교하되 산포가 같다는 보장이 없어 Welch t검정을 썼습니다.</li>
+      <li><b>결과:</b> <span id="rp_res"></span></li>
+      <li><b>결론:</b> <span id="rp_con"></span></li>
+      <li><b>조치:</b> <span id="rp_act"></span></li>
+    </ul>
+  </div>
+  <p>아래 코드는 회사 PC 에서 같은 계산을 하는 코드입니다. 압력 파일(CSV)을 읽어 3σ 비교법과 Welch 검정을 차례로 돌리고 보고 문장까지 출력합니다. 위 표와 같은 수가 나옵니다(CSV 에는 기준 30장이 들어 있어 조작판이 기준 상태일 때의 값과 같습니다).</p>
+<pre id="pycode">import numpy as np
+import pandas as pd
+from scipy import stats
+
+SPEC = 3.0   # mTorr, 허용폭(목표 300 mTorr 의 1%)
+
+def three_sigma_screen(before, after, k=3):
+    """PM 전 평균 ±kσ 띠를 긋고 띠 밖으로 나간 후 값의 개수를 센다."""
+    m, s = np.mean(before), np.std(before, ddof=1)
+    lo, hi = m - k * s, m + k * s
+    n_out = int(np.sum((np.asarray(after) < lo) | (np.asarray(after) > hi)))
+    return {"lo": lo, "hi": hi, "n_out": n_out}
+
+def welch_test(before, after, alpha=0.05):
+    """두 독립 표본의 평균 차이를 Welch t검정으로 비교한다.
+    반환: diff, se, t, df, p, ci95, cohen_d (diff = after 평균 - before 평균)."""
+    b, a = np.asarray(before, float), np.asarray(after, float)
+    nb, na = len(b), len(a)
+    vb, va = b.var(ddof=1) / nb, a.var(ddof=1) / na
+    diff = a.mean() - b.mean()
+    se = np.sqrt(vb + va)
+    t = diff / se
+    df = (vb + va) ** 2 / (vb ** 2 / (nb - 1) + va ** 2 / (na - 1))
+    p = 2 * stats.t.sf(abs(t), df)
+    half = stats.t.ppf(1 - alpha / 2, df) * se
+    sp = np.sqrt(((nb - 1) * b.var(ddof=1) + (na - 1) * a.var(ddof=1)) / (nb + na - 2))
+    return {"diff": diff, "se": se, "t": t, "df": df, "p": p,
+            "ci95": (diff - half, diff + half), "cohen_d": diff / sp}
+
+d = pd.read_csv("agentlab/data/csv/s1_pm_shift.csv")
+before = d.loc[d.phase == "before", "steady_pressure_mean"].to_numpy()
+after = d.loc[d.phase == "after", "steady_pressure_mean"].to_numpy()
+
+scr = three_sigma_screen(before, after)
+r = welch_test(before, after)
+pooled_p = stats.ttest_ind(after, before, equal_var=True).pvalue
+
+print(f"3σ 띠 {scr['lo']:.3f} ~ {scr['hi']:.3f}, 띠 밖 {scr['n_out']}장")
+print(f"차이 {r['diff']:.3f}, SE {r['se']:.4f}, t {r['t']:.3f}, df {r['df']:.2f}")
+print(f"p(Welch) {r['p']:.3e}, p(합동) {pooled_p:.3e}")
+print(f"95% 신뢰구간 {r['ci95'][0]:.3f} ~ {r['ci95'][1]:.3f}, d {r['cohen_d']:.3f}")
+
+lo, hi = r["ci95"]
+if r["p"] >= 0.05:
+    verdict = "변화 있다고 말할 근거가 부족합니다. 장을 더 모읍니다."
+elif lo > -SPEC and hi < SPEC:
+    verdict = "달라졌지만 차이 전체가 허용폭 안입니다. 조치 없이 기록합니다."
+elif lo > SPEC or hi < -SPEC:
+    verdict = "달라졌고 차이 전체가 허용폭 밖입니다. 조건 점검을 요청합니다."
+else:
+    verdict = "달라졌지만 허용폭을 넘는지는 아직 단정할 수 없습니다. 추적 관찰합니다."
+print(f"B03 CH2 PM 전 {len(before)}장·후 {len(after)}장 압력 평균은 "
+      f"{r['diff']:+.2f} mTorr 달라졌습니다(p={r['p']:.2g}). {verdict}")</pre>
+  <div class="box">
+    <h3>앞으로 기록해 둘 데이터</h3>
+    <ul>
+      <li>PM 이벤트의 시작·종료 시각과 교체한 부품 이름: 전후 구간을 사람이 눈대중으로 자르지 않게 됩니다.</li>
+      <li>PM 직후 몇 장을 안정화 장으로 따로 표시: 안정화 전 장이 &ldquo;후&rdquo; 묶음에 섞이지 않게 합니다.</li>
+      <li>장마다 정상구간 압력 평균을 FDC 특징으로 남기고, 챔버·마스크 세트 번호와 함께 저장.</li>
+      <li>비교할 때 쓴 허용폭(spec) 값과 그 기준 문서 번호: 판정란을 에이전트가 스스로 채울 수 있게 됩니다.</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h3>에이전트 도구 상자</h3>
+    <ul>
+      <li><code>welch_test(before, after, alpha=0.05) -&gt; {diff, se, t, df, p, ci95, cohen_d}</code> — 두 독립 표본의 평균 차이를 산포가 같다고 가정하지 않고 비교합니다. diff 는 after 평균에서 before 평균을 뺀 값입니다.</li>
+      <li><code>three_sigma_screen(before, after, k=3) -&gt; {lo, hi, n_out}</code> — 현행 관리선 판정. 결과가 &ldquo;변화 없음&rdquo;이어도 평균 비교를 대신하지 못한다는 점을 보고서에 함께 적습니다.</li>
+      <li>보고 문장: 위 양식의 &ldquo;결과&rdquo;는 diff, p, ci95, cohen_d 를 그대로 넣고, 판정란은 허용폭이 있을 때만 채웁니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>정리하고 다음으로</h2>
+  <p>맨 처음 물음으로 돌아갑니다. 3σ 띠만 보면 변화가 없다고 했던 같은 자료에서, 평균을 표준오차 자로 재니 PM 후에 평균이 옮겨 갔다는 것이 보입니다. 이것이 바로 처음의 그 물음에 대한 답입니다. 이동의 크기는 신뢰구간으로 말하고, 조치가 필요한지는 허용폭이 정합니다.</p>
+  <p>지금까지는 <b>평균</b>이 옮겨 갔는지를 물었습니다. 그런데 PM 이나 부품 교체의 효과는 평균은 그대로인데 <b>흩어짐(산포)</b>만 줄거나 늘어나는 모양으로 나타나기도 합니다. 평균만 비교하면 이때는 &ldquo;차이 없음&rdquo;이 나옵니다. 다음 실험실 0102 는 바로 그 경우를 다룹니다.</p>
+  <details>
+    <summary>정답 공개 (직접 풀어 본 뒤에 열어 보세요)</summary>
+    <p>이 자료를 만들 때 정해 둔 참 이동량은 목표의 <span id="tr_pct"></span>%, 즉 <span id="tr_abs"></span> mTorr 였고 산포는 바뀌지 않게 해 두었습니다. 장 수가 한정되어 표본에서 보인 차이(기준 30장에서 <span id="tr_obs"></span> mTorr)는 참 이동량과 같지 않고 그 주변에서 흔들립니다. 기준 30장의 95% 신뢰구간 <span id="tr_ci"></span> 은 참 이동량을 <span id="tr_in"></span>.</p>
+    <p>3σ 비교법은 이 이동을 놓쳤고(띠 밖 <span id="tr_out"></span>장), Welch 검정은 <span id="tr_p"></span> 로 변화를 잡아냈습니다.</p>
+  </details>
+  <div class="labnav">
+    <a href="../index.html#labs">← 허브</a>
+    <span class="grow"></span>
+    <a href="0102-stick-spread.html">다음 0102 · 평균은 그대로인데 산포가 줄었다 →</a>
+  </div>
+</section>
+
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+  /* ───── 테마 ───── */
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function getT(){ return root.getAttribute('data-theme')||'light'; }
+  function applyT(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++) if(THEMES[i].v===v) btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m) m.setAttribute('content', v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=getT(), i=0;
+    for(var k=0;k<THEMES.length;k++) if(THEMES[k].v===cur) i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    applyT(nv);
+  };
+  applyT(getT());
+  var bar=document.getElementById('topbar');
+  function reserve(){ document.body.style.paddingTop=bar.offsetHeight+'px'; }
+  reserve();
+  if(window.ResizeObserver) new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  if(location.search.indexOf('uicheck')>=0){
+    var u=document.createElement('script'); u.src='../../adp/uicheck.js'; document.head.appendChild(u);
+  }
+
+  /* ───── 자료 ───── */
+  var St=MfgSim.stats;
+  var SC=MfgSim.scenario('S1',{n_after:60});          // 앞 30장 = 기준 자료, 31~60장 = 같은 조건으로 더 모았다고 가정한 장
+  var TG=SC.truth.target, BEFORE=SC.before, EXT=SC.after;
+  var N0=30, SPEC_PCT=1.0, SPEC=TG*SPEC_PCT/100;
+  var S={n:N0, dl:0};
+
+  function $(id){return document.getElementById(id);}
+  function f(x,d){return Number(x).toFixed(d);}
+  function sg(x,d){return (x>=0?'+':'−')+Math.abs(x).toFixed(d);}
+  function sp(s,pct){var e=$(s); if(e) e.textContent=pct;}
+  function fp(p){ return p<0.001 ? p.toExponential(2).replace('e-',' × 10^−').replace('e+',' × 10^') : p.toFixed(4); }
+
+  /* t 분포 양쪽 5% 임계값 — tp2 를 이분법으로 뒤집는다 */
+  function tcrit(df){
+    var lo=0, hi=50;
+    for(var i=0;i<80;i++){ var mid=(lo+hi)/2; if(St.tp2(mid,df)>0.05) lo=mid; else hi=mid; }
+    return (lo+hi)/2;
+  }
+  function afterOf(n,dl){ var sh=dl*TG/100; return EXT.slice(0,n).map(function(v){return v+sh;}); }
+  function analyze(b,a){
+    var w=St.welch(b,a), nb=b.length, na=a.length, sb=St.sd(b), sa=St.sd(a);
+    var mb=St.mean(b), ma=St.mean(a);
+    var se1=sb/Math.sqrt(nb), se2=sa/Math.sqrt(na);
+    var spool=Math.sqrt(((nb-1)*sb*sb+(na-1)*sa*sa)/(nb+na-2));
+    var tc=tcrit(w.df), half=tc*w.se;
+    var sePool=spool*Math.sqrt(1/nb+1/na), tPool=w.diff/sePool, pPool=St.tp2(tPool,nb+na-2);
+    var lo3=mb-3*sb, hi3=mb+3*sb, out=0;
+    a.forEach(function(v){ if(v<lo3||v>hi3) out++; });
+    return {w:w,nb:nb,na:na,sb:sb,sa:sa,mb:mb,ma:ma,se1:se1,se2:se2,spool:spool,d:w.diff/spool,tc:tc,
+            ci:[w.diff-half,w.diff+half],pPool:pPool,lo3:lo3,hi3:hi3,out:out,
+            medb:St.median(b),meda:St.median(a)};
+  }
+  function minmax(a){ return [Math.min.apply(null,a),Math.max.apply(null,a)]; }
+
+  var ACT=analyze(BEFORE,EXT.slice(0,N0));            // 기준 30장
+
+  /* ───── 정적 부분: 1·2·3절 ───── */
+  $('tgt').textContent=TG; $('specpct').textContent=SPEC_PCT; $('specpct2').textContent=SPEC_PCT;
+  $('specabs').textContent=f(SPEC,1); $('specabs2').textContent=f(SPEC,1);
+  (function(){
+    var mm1=minmax(BEFORE), a0=EXT.slice(0,N0), mm2=minmax(a0);
+    $('sumtb').innerHTML=
+      '<tr><td>PM 전</td><td>'+BEFORE.length+'</td><td>'+f(ACT.mb,3)+'</td><td>'+f(ACT.sb,3)+'</td><td>'+f(mm1[0],2)+'</td><td>'+f(mm1[1],2)+'</td></tr>'+
+      '<tr><td>PM 후</td><td>'+a0.length+'</td><td>'+f(ACT.ma,3)+'</td><td>'+f(ACT.sa,3)+'</td><td>'+f(mm2[0],2)+'</td><td>'+f(mm2[1],2)+'</td></tr>';
+    var rows='';
+    for(var i=0;i<N0;i++) rows+='<tr><td>'+(i+1)+'</td><td>'+f(BEFORE[i],2)+'</td><td>'+f(a0[i],2)+'</td></tr>';
+    $('rawtb').innerHTML=rows;
+    $('s3sd1').textContent=f(ACT.sb,3); $('s3sd2').textContent=f(ACT.sa,3);
+    $('v3s').innerHTML='PM 전 평균 <b>'+f(ACT.mb,3)+'</b>, 표준편차 <b>'+f(ACT.sb,3)+'</b> 이므로 띠는 <b>'+f(ACT.lo3,3)+' ~ '+f(ACT.hi3,3)+'</b> mTorr 입니다. PM 후 '+a0.length+'장 가운데 띠 밖은 <b>'+ACT.out+'장</b> → 3σ 비교법의 판정: <b>'+(ACT.out===0?'변화 없음':'변화 있음')+'</b>.';
+  })();
+
+  /* ───── 캔버스 공통 ───── */
+  function cvs(id){
+    var c=$(id), dpr=window.devicePixelRatio||1, w=c.clientWidth||600, h=parseInt(c.getAttribute('height'),10)||200;
+    if(c.__w!==w||c.__dpr!==dpr){ c.width=Math.round(w*dpr); c.height=Math.round(h*dpr); c.__w=w; c.__dpr=dpr; }
+    var ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+    return {ctx:ctx,W:w,H:h};
+  }
+  function col(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function palette(){ return {ink:col('--ink'),soft:col('--soft'),rule:col('--rule'),acc:col('--accent'),B:col('--gB'),A:col('--gA'),good:col('--good'),warn:col('--warn'),tint:col('--tint'),card:col('--card')}; }
+  function font(ctx,px,bold){ ctx.font=(bold?'700 ':'')+px+'px -apple-system,"Apple SD Gothic Neo",sans-serif'; }
+  function rgba(hex,a){ var h=hex.replace('#',''); if(h.length===3) h=h.split('').map(function(c){return c+c;}).join('');
+    return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')'; }
+  function axisX(ctx,P,x0,x1,y,lo,hi,step,fmt){
+    ctx.strokeStyle=P.rule; ctx.fillStyle=P.soft; ctx.lineWidth=1; font(ctx,12); ctx.textAlign='center';
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    for(var v=Math.ceil(lo/step)*step; v<=hi+1e-9; v+=step){
+      var x=x0+(v-lo)/(hi-lo)*(x1-x0);
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+5); ctx.stroke();
+      ctx.fillText(fmt?fmt(v):v.toFixed(0),x,y+19);
+    }
+  }
+  /* 줄 하나에 점을 흩뿌린다(겹치는 점은 위아래로 약간 퍼뜨림 — 같은 값이면 같은 높이가 되도록 순번 기준) */
+  function dots(ctx,vals,color,xf,yc,jit){
+    ctx.fillStyle=rgba(color,0.8);
+    vals.forEach(function(v,i){
+      var yy=yc+(((i*7)%9)-4)/4*jit;
+      ctx.beginPath(); ctx.arc(xf(v),yy,4,0,6.2832); ctx.fill();
+    });
+  }
+
+  /* ───── 그림 1 (실제 자료) ───── */
+  function drawCv1(){
+    var o=cvs('cv1'), ctx=o.ctx, W=o.W, H=o.H, P=palette();
+    var a0=EXT.slice(0,N0), all=BEFORE.concat(a0), lo=Math.min(ACT.lo3,Math.min.apply(null,all))-2, hi=Math.max(ACT.hi3,Math.max.apply(null,all))+2;
+    var x0=16, x1=W-16;
+    function xf(v){return x0+(v-lo)/(hi-lo)*(x1-x0);}
+    ctx.fillStyle=rgba(P.acc,0.14); ctx.fillRect(xf(ACT.lo3),14,xf(ACT.hi3)-xf(ACT.lo3),H-62);
+    ctx.strokeStyle=P.acc; ctx.setLineDash([5,4]); [ACT.lo3,ACT.hi3].forEach(function(v){ctx.beginPath();ctx.moveTo(xf(v),14);ctx.lineTo(xf(v),H-48);ctx.stroke();}); ctx.setLineDash([]);
+    var yB=H*0.32, yA=H*0.64;
+    dots(ctx,BEFORE,P.B,xf,yB,16); dots(ctx,a0,P.A,xf,yA,16);
+    [[ACT.mb,yB,P.B],[ACT.ma,yA,P.A]].forEach(function(m){ ctx.strokeStyle=m[2]; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(xf(m[0]),m[1]-24); ctx.lineTo(xf(m[0]),m[1]+24); ctx.stroke(); ctx.lineWidth=1; });
+    ctx.fillStyle=P.ink; font(ctx,12,true); ctx.textAlign='left'; ctx.fillText('PM 전',x0+2,yB-26); ctx.fillText('PM 후',x0+2,yA-26);
+    axisX(ctx,P,x0,x1,H-44,lo,hi,Math.max(1,Math.round((hi-lo)/8)));
+    ctx.fillStyle=P.soft; font(ctx,12); ctx.textAlign='right'; ctx.fillText('mTorr',x1,H-6);
+  }
+
+  /* ───── 조작판 상태에 따른 갱신 ───── */
+  function refresh(){
+    var a=afterOf(S.n,S.dl), R=analyze(BEFORE,a), w=R.w;
+    var baseN=(S.n===N0), baseD=(Math.abs(S.dl)<0.05);
+    $('rnv').textContent=S.n; $('rdv').textContent=sg(S.dl,1)+'%  ('+sg(S.dl*TG/100,2)+' mTorr)';
+    $('rnst').innerHTML= baseN ? '<span class="bdg base">기준값</span>지금 이 값이 실제 자료의 30장입니다.' :
+      '<span class="bdg what">가정</span>'+(S.n<N0?'실제 30장 중 앞 '+S.n+'장만 쓴 상태입니다.':'실제 30장에 같은 조건으로 '+(S.n-N0)+'장을 더 모았다고 가정한 상태입니다.');
+    $('rdst').innerHTML= baseD ? '<span class="bdg base">기준값</span>지금 이 값이 실제 자료입니다(추가 이동 없음).' :
+      '<span class="bdg what">가정</span>실제 자료에서 이후 값 전체를 '+sg(S.dl*TG/100,2)+' mTorr 만큼 옮겨 놓은 가정입니다.';
+    $('rnrst').disabled=baseN; $('rdrst').disabled=baseD;
+
+    /* 3σ 판정 한 줄 */
+    $('v3live').innerHTML='3σ 비교법: PM 후 '+R.na+'장 중 띠(<b>'+f(R.lo3,2)+' ~ '+f(R.hi3,2)+'</b>) 밖 <b>'+R.out+'장</b> → <b>'+(R.out===0?'변화 없음':'변화 있음')+'</b>. Welch 검정: p = <b>'+fp(w.p)+'</b> → <b>'+(w.p<0.05?'변화 있음':'변화 있다고 말할 근거 부족')+'</b>.';
+
+    /* 전제 점검 */
+    $('pm1').textContent=f(R.mb,2); $('pmd1').textContent=f(R.medb,2); $('pm2').textContent=f(R.ma,2); $('pmd2').textContent=f(R.meda,2);
+    $('sdr').textContent=f(R.sa/R.sb,2);
+
+    /* 단계 3 표 */
+    $('t3a').innerHTML=
+      '<tr><td>PM 전</td><td>'+R.nb+'</td><td>'+f(R.mb,3)+'</td><td>'+f(R.sb,3)+'</td><td>'+f(R.se1,3)+'</td></tr>'+
+      '<tr><td>PM 후</td><td>'+R.na+'</td><td>'+f(R.ma,3)+'</td><td>'+f(R.sa,3)+'</td><td>'+f(R.se2,3)+'</td></tr>';
+    $('m_diff').textContent=f(w.diff,3); $('m_se').textContent=f(w.se,3); $('m_t').textContent=f(w.t,3); $('m_df').textContent=f(w.df,2);
+    $('t3b').innerHTML=
+      '<tr><td>평균 차이 (후 − 전)</td><td>'+sg(w.diff,3)+' mTorr</td><td>PM 후 평균이 이만큼 높습니다(음수면 낮습니다).</td></tr>'+
+      '<tr><td>차이의 표준오차 SE</td><td>'+f(w.se,3)+'</td><td>우연히 흔들릴 때의 평균 차이 폭입니다.</td></tr>'+
+      '<tr><td>t</td><td>'+f(w.t,3)+'</td><td>평균 차이가 SE 의 '+f(Math.abs(w.t),2)+'배입니다.</td></tr>'+
+      '<tr><td>자유도 df</td><td>'+f(w.df,2)+'</td><td>두 묶음의 크기와 산포로 정해진 값입니다.</td></tr>'+
+      '<tr><td>p값 (양측, Welch)</td><td>'+fp(w.p)+'</td><td>H0 가 참일 때 이만큼 큰 차이가 나올 확률입니다.</td></tr>'+
+      '<tr><td>참고: 합동 방식 p값</td><td>'+fp(R.pPool)+'</td><td>두 산포가 같다고 가정했을 때의 값으로, 비교용입니다.</td></tr>';
+
+    /* 단계 4·5 판정 */
+    var sig=w.p<0.05;
+    $('v4').innerHTML='p = <b>'+fp(w.p)+'</b> '+(sig?'&lt;':'&ge;')+' 0.05 → H0 를 '+(sig?'<b>버립니다</b>. PM 후 평균이 달라졌다고 판단합니다.':'<b>버리지 못합니다</b>. 지금 장 수로는 달라졌다고 말할 근거가 부족합니다(같다는 증명이 아닙니다).');
+    var lo=R.ci[0], hi=R.ci[1], verdict, act;
+    if(!sig){ verdict='달라졌다고 말할 근거가 부족합니다.'; act='장을 더 모아 다시 비교합니다.'; }
+    else if(lo>-SPEC && hi<SPEC){ verdict='달라졌지만 신뢰구간 전체가 허용폭 안입니다.'; act='조치 없이 기록하고 추이를 봅니다.'; }
+    else if(lo>SPEC || hi<-SPEC){ verdict='달라졌고 신뢰구간 전체가 허용폭 밖입니다.'; act='조건 점검을 요청합니다.'; }
+    else { verdict='달라졌지만 허용폭을 넘는지는 아직 단정할 수 없습니다(신뢰구간이 허용폭 선에 걸칩니다).'; act='장을 더 모으거나 추적 관찰합니다.'; }
+    var dsz=Math.abs(R.d)<0.2?'작은':Math.abs(R.d)<0.5?'작거나 중간':Math.abs(R.d)<0.8?'중간':'큰';
+    var resTxt='PM 후 평균이 PM 전보다 '+sg(w.diff,2)+' mTorr(95% 신뢰구간 '+sg(lo,2)+' ~ '+sg(hi,2)+'), t = '+f(w.t,2)+', df = '+f(w.df,1)+', p = '+fp(w.p)+', 효과 크기 d = '+f(R.d,2)+'('+dsz+' 효과)입니다.';
+    $('v5').innerHTML='<b>결론:</b> '+(sig?'PM 후 챔버의 압력 평균은 PM 전과 다릅니다. ':'PM 전후 평균 차이가 우연의 범위를 벗어난다고 말하기 어렵습니다. ')+resTxt+' 허용폭(±'+f(SPEC,1)+' mTorr)과 견주면 '+verdict+' <b>조치:</b> '+act;
+    $('rp_nb').textContent=R.nb; $('rp_na').textContent=R.na; $('rp_tg').textContent=TG;
+    $('rp_res').textContent=resTxt; $('rp_con').textContent=(sig?'평균이 달라졌습니다. ':'달라졌다고 말할 근거가 부족합니다. ')+verdict; $('rp_act').textContent=act;
+
+    /* 5절 */
+    $('m_diff2').textContent=f(w.diff,3); $('m_sp').textContent=f(R.spool,3); $('m_d').textContent=f(R.d,3);
+    $('m_ci1').textContent=sg(lo,3); $('m_ci2').textContent=sg(hi,3); $('tcrit').textContent=f(R.tc,3);
+    $('v6').innerHTML='효과 크기 d = <b>'+f(R.d,2)+'</b> (관례상 <b>'+dsz+'</b> 효과). 차이 <b>'+sg(w.diff,2)+'</b> mTorr 의 95% 신뢰구간은 <b>'+sg(lo,2)+' ~ '+sg(hi,2)+'</b>. 허용폭 ±'+f(SPEC,1)+' 와 견주면: <b>'+verdict+'</b>';
+
+    drawCv2(R,a); drawCv3(R); drawCv4();
+    ST.last=R;
+  }
+  var ST={};
+
+  /* 그림 2: 현재 상태 */
+  function drawCv2(R,a){
+    var o=cvs('cv2'), ctx=o.ctx, W=o.W, H=o.H, P=palette();
+    var all=BEFORE.concat(a), lo=Math.min(R.lo3,Math.min.apply(null,all))-2, hi=Math.max(R.hi3,Math.max.apply(null,all))+2;
+    var x0=16, x1=W-16;
+    function xf(v){return x0+(v-lo)/(hi-lo)*(x1-x0);}
+    ctx.fillStyle=rgba(P.acc,0.14); ctx.fillRect(xf(R.lo3),12,xf(R.hi3)-xf(R.lo3),H-60);
+    ctx.strokeStyle=P.acc; ctx.setLineDash([5,4]); [R.lo3,R.hi3].forEach(function(v){ctx.beginPath();ctx.moveTo(xf(v),12);ctx.lineTo(xf(v),H-48);ctx.stroke();}); ctx.setLineDash([]);
+    var yB=H*0.27, yA=H*0.64;
+    dots(ctx,BEFORE,P.B,xf,yB,14); dots(ctx,a,P.A,xf,yA,14);
+    [[R.mb,R.se1,yB,P.B],[R.ma,R.se2,yA,P.A]].forEach(function(m){
+      ctx.strokeStyle=m[3]; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(xf(m[0]),m[2]-30); ctx.lineTo(xf(m[0]),m[2]+30); ctx.stroke();
+      ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(xf(m[0]-2*m[1]),m[2]+38); ctx.lineTo(xf(m[0]+2*m[1]),m[2]+38); ctx.stroke(); ctx.lineWidth=1;
+    });
+    ctx.fillStyle=P.ink; font(ctx,12,true); ctx.textAlign='left'; ctx.fillText('PM 전',x0+2,yB-34); ctx.fillText('PM 후 ('+R.na+'장)',x0+2,yA-34);
+    axisX(ctx,P,x0,x1,H-44,lo,hi,Math.max(1,Math.round((hi-lo)/8)));
+    ctx.fillStyle=P.soft; font(ctx,12); ctx.textAlign='right'; ctx.fillText('mTorr',x1,H-6);
+  }
+
+  /* 그림 3: 평균 차이의 신뢰구간 */
+  function drawCv3(R){
+    var o=cvs('cv3'), ctx=o.ctx, W=o.W, H=o.H, P=palette();
+    var ext=Math.max(Math.abs(R.ci[0]),Math.abs(R.ci[1]),SPEC)*1.25, lo=-ext, hi=ext;
+    var x0=24, x1=W-24;
+    function xf(v){return x0+(v-lo)/(hi-lo)*(x1-x0);}
+    ctx.fillStyle=rgba(P.good,0.18); ctx.fillRect(xf(-SPEC),14,xf(SPEC)-xf(-SPEC),H-70);
+    ctx.fillStyle=P.good; font(ctx,12,true); ctx.textAlign='center'; ctx.fillText('허용폭 안',xf(0),28);
+    ctx.strokeStyle=P.soft; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(xf(0),14); ctx.lineTo(xf(0),H-54); ctx.stroke(); ctx.setLineDash([]);
+    var y=H*0.5;
+    ctx.strokeStyle=P.acc; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(xf(R.ci[0]),y); ctx.lineTo(xf(R.ci[1]),y); ctx.stroke();
+    ctx.lineWidth=2; [R.ci[0],R.ci[1]].forEach(function(v){ctx.beginPath();ctx.moveTo(xf(v),y-12);ctx.lineTo(xf(v),y+12);ctx.stroke();}); ctx.lineWidth=1;
+    ctx.fillStyle=P.acc; ctx.beginPath(); ctx.arc(xf(R.w.diff),y,7,0,6.2832); ctx.fill();
+    ctx.fillStyle=P.ink; font(ctx,12,true); ctx.textAlign='center';
+    ctx.fillText(sg(R.w.diff,2),xf(R.w.diff),y-18);
+    font(ctx,12); ctx.fillStyle=P.soft; ctx.fillText(sg(R.ci[0],2),xf(R.ci[0]),y+32); ctx.fillText(sg(R.ci[1],2),xf(R.ci[1]),y+32);
+    axisX(ctx,P,x0,x1,H-38,lo,hi,Math.max(1,Math.round(ext/3)),function(v){return v.toFixed(0);});
+    ctx.fillStyle=P.soft; font(ctx,12); ctx.textAlign='right'; ctx.fillText('평균 차이 (mTorr)',x1,H-6);
+  }
+
+  /* 그림 4: n 에 따른 p값 */
+  function drawCv4(){
+    var o=cvs('cv4'), ctx=o.ctx, W=o.W, H=o.H, P=palette();
+    var pts=[], mx=2;
+    for(var n=5;n<=60;n++){ var p=St.welch(BEFORE,afterOf(n,S.dl)).p; var y=-Math.log(Math.max(p,1e-300))/Math.LN10; pts.push([n,y]); if(y>mx) mx=y; }
+    mx=Math.ceil(mx);
+    var L=44, R2=W-14, T=14, B=H-34;
+    function xf(n){return L+(n-5)/55*(R2-L);} function yf(v){return B-v/mx*(B-T);}
+    ctx.strokeStyle=P.rule; ctx.fillStyle=P.soft; font(ctx,12); ctx.textAlign='right';
+    var st=mx>8?2:1;
+    for(var v=0; v<=mx; v+=st){ ctx.beginPath(); ctx.moveTo(L,yf(v)); ctx.lineTo(R2,yf(v)); ctx.stroke(); ctx.fillText(v,L-6,yf(v)+4); }
+    ctx.textAlign='center'; [5,10,20,30,40,50,60].forEach(function(n){ ctx.fillText(n,xf(n),H-16); });
+    var yth=-Math.log(0.05)/Math.LN10;
+    ctx.strokeStyle=P.warn; ctx.setLineDash([6,4]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(L,yf(yth)); ctx.lineTo(R2,yf(yth)); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth=1;
+    ctx.fillStyle=P.warn; font(ctx,12,true); ctx.textAlign='right'; ctx.fillText('p = 0.05',R2-4,yf(yth)-6);
+    ctx.strokeStyle=P.acc; ctx.lineWidth=2.5; ctx.beginPath();
+    pts.forEach(function(q,i){ if(i) ctx.lineTo(xf(q[0]),yf(q[1])); else ctx.moveTo(xf(q[0]),yf(q[1])); }); ctx.stroke(); ctx.lineWidth=1;
+    var cur=pts[S.n-5]; ctx.fillStyle=P.acc; ctx.beginPath(); ctx.arc(xf(cur[0]),yf(cur[1]),7,0,6.2832); ctx.fill();
+    ctx.fillStyle=P.soft; font(ctx,12); ctx.textAlign='left'; ctx.fillText('−log10(p)',L+4,T+10);
+  }
+
+  /* ───── 조작 ───── */
+  $('rn').addEventListener('input',function(){ S.n=parseInt(this.value,10); refresh(); });
+  $('rd').addEventListener('input',function(){ S.dl=parseFloat(this.value); refresh(); });
+  $('rnrst').addEventListener('click',function(){ S.n=N0; $('rn').value=N0; refresh(); });
+  $('rdrst').addEventListener('click',function(){ S.dl=0; $('rd').value=0; refresh(); });
+
+  /* ───── 정답 공개 접힘 ───── */
+  (function(){
+    var t=SC.truth, ci=ACT.ci;
+    $('tr_pct').textContent=t.shift_pct; $('tr_abs').textContent=f(t.shift_abs,1);
+    $('tr_obs').textContent=sg(ACT.w.diff,2); $('tr_ci').textContent=sg(ci[0],2)+' ~ '+sg(ci[1],2);
+    $('tr_in').textContent=(t.shift_abs>=ci[0]&&t.shift_abs<=ci[1])?'품고 있습니다':'품지 못했습니다';
+    $('tr_out').textContent=ACT.out; $('tr_p').textContent='p = '+fp(ACT.w.p);
+  })();
+
+  function drawAll(){ drawCv1(); refresh(); }
+  window.addEventListener('resize',drawAll);
+  drawAll();
+  window.__lab0101=function(){ return {act:ACT,state:S,last:ST.last}; };
+})();
+</script>
+</body></html>

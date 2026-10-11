@@ -1,0 +1,1068 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>유의한데 가짜다 · 자기상관과 교란 — Manufacturing Agent Lab 0104</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="p값이 작아도 믿으면 안 되는 두 경우: 이웃 값이 닮은 센서 자료(자기상관)와 같은 시기에 다른 일이 겹친 전후 비교(교란). 실효 표본 수와 이중차분.">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eaf4f4;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --track:#dcefef; --tint:#e6f4f4;
+  --gA:#3b78d8; --gB:#d9861c; --gC:#8a5bd0;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#12231f;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+    --gA:#6fa8ff; --gB:#f0b45a; --gC:#b48bf0;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#12231f;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32;
+    --gA:#6fa8ff; --gB:#f0b45a; --gC:#b48bf0;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+/* 상단바: 본문과 분리된 고정 영역 */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+.eyebrow{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:1.3rem 0 0}
+h1{font-size:1.65rem;margin:.2rem 0 .4rem;letter-spacing:-.01em;line-height:1.3}
+h1 small{display:block;font-size:.95rem;color:var(--soft);font-weight:400;margin-top:.4rem;line-height:1.6}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;border-bottom:2px solid var(--rule);padding-bottom:.3rem;line-height:1.35}
+h2 .no{color:var(--accent);margin-right:.35rem}
+h3{font-size:1rem;margin:1.2rem 0 .4rem;color:var(--accent);line-height:1.4}
+p{margin:0 0 .8rem}
+.step{font-size:.76rem;font-weight:800;color:var(--accent-ink);background:var(--accent);border-radius:20px;padding:.1rem .6rem;margin-right:.4rem;white-space:nowrap}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:1rem 0 .4rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav a.ghost{color:var(--soft);font-weight:500}
+.labnav .pos{color:var(--soft);font-size:.82rem;margin-left:auto}
+.labnav.bot a{flex:1 1 180px;justify-content:center;text-align:center}
+
+.intro{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:12px;padding:1rem 1.1rem;margin:1rem 0}
+.intro p{margin:0 0 .6rem}
+.intro dl{margin:.4rem 0 0;display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;font-size:.93rem}
+.intro dt{font-weight:800;color:var(--accent);white-space:nowrap}
+.intro dd{margin:0;color:var(--ink)}
+
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tag{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:var(--paper);border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.probban{display:flex;align-items:center;gap:.6rem;margin:1.2rem 0 .2rem;font-weight:800;color:var(--accent)}
+.probban::before{content:"[문제]";background:var(--accent);color:var(--accent-ink);border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+
+table{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+td.l{text-align:left}
+.tbwrap{overflow-x:auto}
+.scrollbox{max-height:260px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border:1px solid var(--rule);border-radius:8px}
+.scrollbox table{margin:0}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+canvas{width:100%;display:block;border-radius:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.verdict{margin:.6rem 0;padding:.7rem .9rem;border-radius:9px;font-weight:700;line-height:1.55}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.note{font-size:.9rem;color:var(--soft);margin:.4rem 0}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;font-size:.95rem}
+.lesson{background:color-mix(in srgb,var(--warn) 9%,transparent);border:1px solid var(--warn);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.lesson b.h{color:var(--warn)}
+.stuck{background:color-mix(in srgb,var(--warn) 9%,transparent);border:1px solid var(--warn);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.stuck b.h{color:var(--warn)}
+.explore{background:var(--code);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.explore .t{font-size:.82rem;font-weight:800;color:var(--warn);letter-spacing:.05em}
+.look{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px dashed var(--accent);border-radius:10px;padding:.7rem .9rem;margin:.8rem 0;font-size:.93rem}
+.look b{color:var(--accent)}
+.ctrl{display:grid;grid-template-columns:200px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin-top:.5rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent);min-height:30px}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:.35rem .9rem;border:1px solid var(--accent);border-radius:10px;
+  background:transparent;color:var(--accent);font-weight:700;font-size:.9rem;font-family:inherit;cursor:pointer}
+.btn:active{opacity:.7}
+.refline{font-size:.9rem;color:var(--soft);margin:.6rem 0 0;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.refline .st{flex:1 1 240px}
+.refline .st.on{color:var(--good);font-weight:700}
+.refline .st.off{color:var(--warn);font-weight:700}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.84rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.25em}
+.bar{display:inline-block;width:1.1em;height:.24em;border-radius:2px;margin-right:.25em;vertical-align:middle}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;margin:.9rem 0;overflow-x:auto;text-align:center;line-height:1.7}
+.eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.4rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.8rem;line-height:1.5;margin:.7rem 0}
+code{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.86em;background:var(--code);padding:.05em .35em;border-radius:5px}
+pre code{background:none;padding:0;font-size:inherit}
+
+.box{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.box h3{margin:.1rem 0 .5rem}
+.box ul{margin:.3rem 0 0;padding-left:1.15rem}
+.box li{margin:.3rem 0;font-size:.94rem}
+.box dl{margin:0}.box dt{font-weight:800;color:var(--accent);margin-top:.5rem;font-size:.92rem}.box dd{margin:.1rem 0 0;font-size:.94rem}
+.tool{display:grid;grid-template-columns:auto 1fr;gap:.3rem .8rem;font-size:.92rem}
+.tool code{align-self:start;white-space:nowrap}
+
+/* 결정 흐름 */
+.dq{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;margin:.55rem 0;position:relative}
+.dq .qn{font-size:.78rem;font-weight:800;color:var(--accent);letter-spacing:.06em}
+.dq .qt{font-weight:700;margin:.1rem 0 .5rem;line-height:1.5}
+.dq.skip{opacity:.55}
+.opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.opt{min-height:44px;padding:.35rem .9rem;border:1px solid var(--rule);border-radius:10px;background:var(--paper);color:var(--ink);
+  font-family:inherit;font-size:.92rem;cursor:pointer;text-align:left;line-height:1.4}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--tint);color:var(--accent);font-weight:800}
+.leaf{margin:.6rem 0 0;padding:.6rem .8rem;border-left:4px solid var(--good);background:color-mix(in srgb,var(--good) 8%,transparent);border-radius:0 8px 8px 0;font-size:.92rem}
+.leaf.none{border-left-color:var(--warn);background:color-mix(in srgb,var(--warn) 8%,transparent)}
+.leaf a{color:var(--accent);font-weight:700}
+.arrowdn{text-align:center;color:var(--accent);font-weight:800;line-height:1;margin:.1rem 0}
+.recipe{background:var(--tint);border:2px solid var(--accent);border-radius:12px;padding:.8rem 1rem;margin:1rem 0}
+.recipe ol{margin:.4rem 0 0;padding-left:1.2rem}.recipe li{margin:.3rem 0;font-size:.94rem}
+.presets{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}
+
+.landing{margin:1.2rem 0;padding:.9rem 1.1rem;border-left:5px solid var(--accent);background:var(--tint);border-radius:0 10px 10px 0;font-weight:800;font-size:1.05rem;line-height:1.55}
+.bridge{background:var(--card);border:1px dashed var(--accent);border-radius:12px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.bridge b{color:var(--accent)}
+
+@media(max-width:700px){
+  .g2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr 80px}
+  .ctrl label{grid-column:1/-1}
+  .intro dl{grid-template-columns:1fr;gap:.1rem}
+  .intro dt{margin-top:.4rem}
+  .tool{grid-template-columns:1fr}
+  h1{font-size:1.45rem}
+}
+@media(max-width:520px){.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="#" data-lab="0103">← 이전 실험실 0103</a><span class="pos">기둥 1 · 실험실 4 / 4 · 마지막</span></nav>
+
+<p class="eyebrow">기둥 1 · 변경점 전후 유의차 분석 · 실험실 0104</p>
+<h1>유의한데 가짜다 — 자기상관과 교란<small>p값이 작은데도 믿으면 안 되는 경우가 두 가지 있습니다. 이웃한 값이 서로 닮은 센서 자료, 그리고 같은 시기에 다른 일이 함께 일어난 전후 비교입니다.</small></h1>
+
+<div class="intro">
+  <p><b>이 실험실의 한 문장.</b> 전후 비교에서 p값이 작게 나와도, 값들이 서로 독립이고 변경 말고는 같은 조건이었을 때만 그 p값을 믿을 수 있습니다.</p>
+  <p><b>이미 아는 것.</b> 평균·표준편차·3σ 관리 한계, Welch t검정과 p값, 표준오차와 95% 신뢰구간, 대응 비교, 그리고 &ldquo;유의하지 않다 ≠ 같다&rdquo;는 교훈입니다.</p>
+  <p style="margin-bottom:.2rem"><b>이번에 새로 나오는 용어는 일곱 개입니다.</b></p>
+  <dl>
+    <dt>자기상관</dt><dd>시간 순서로 얻은 값에서 이웃한 값끼리 서로 닮는 성질입니다.</dd>
+    <dt>자기상관계수 φ</dt><dd>바로 앞 값과 이번 값이 얼마나 닮았는지를 0(전혀 안 닮음)에서 1(똑같음)로 나타낸 수입니다.</dd>
+    <dt>실효 표본 수 n<sub>eff</sub></dt><dd>이웃이 닮은 값 n개가 실제로 가진 정보량을, 서로 독립인 값 몇 개와 같은지로 환산한 수입니다.</dd>
+    <dt>장변 배율 Mx</dt><dd>유리의 긴 변 방향으로 어긋남이 늘어나는 정도입니다. 단위는 ppm(백만분의 일)이고, 77점 어긋남 지도에 최소제곱으로 직선을 맞춰 얻습니다.</dd>
+    <dt>교란 (confounding)</dt><dd>변경과 같은 시기에 다른 요인이 함께 바뀌어, 결과의 변화가 어느 쪽 때문인지 가려낼 수 없게 되는 일입니다.</dd>
+    <dt>대조군 (control)</dt><dd>같은 시기, 같은 환경에 있지만 변경을 적용하지 않은 비교 대상입니다.</dd>
+    <dt>이중차분 (difference-in-differences)</dt><dd>변경한 쪽의 전후 차이에서 대조군의 전후 차이를 한 번 더 빼는 계산입니다.</dd>
+  </dl>
+  <p style="margin:.6rem 0 0" class="note">이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+</div>
+
+<div class="bridge">
+  <p style="margin:0"><b>0103에서 이어집니다.</b> 앞의 세 실험실에서는 p값이 작으면 &ldquo;달라졌다&rdquo;, 신뢰구간이 허용폭 안이면 &ldquo;나빠지지 않았다&rdquo;로 읽었습니다. 그 읽기에는 말없이 깔린 두 약속이 있습니다. 하나는 <b>값 하나하나가 서로 독립</b>이라는 것, 다른 하나는 <b>변경 말고는 조건이 같았다</b>는 것입니다. 이번에는 이 두 약속이 깨진 자료를 하나씩 봅니다. 첫째는 센서 자료(A), 둘째는 챔버 전후 비교(B)입니다.</p>
+</div>
+
+<!-- ================= A ================= -->
+<h2><span class="no">1</span>[A] 이웃이 닮은 센서 — 문제</h2>
+<div class="probban">문제 A · 센서 전후</div>
+<div class="prob">
+  <p><b class="tag">[문제 A]</b> 어느 센서의 값(vac_level, 상대 단위)을 측정한 순서대로 기록했습니다. 어떤 변경점 전 50번, 후 50번입니다. <b>변경 뒤에 이 센서의 평균이 달라졌습니까?</b> 유의수준 0.05로 판정하세요.</p>
+  <div class="tbwrap"><table id="tabA1">
+    <tr><th></th><th>측정 수</th><th>평균</th><th>표준편차</th><th>3σ 한계(전 평균 ± 3σ)</th></tr>
+    <tr><td class="l"><b>변경 전</b></td><td id="r_n1"></td><td id="r_mb"></td><td id="r_sb"></td><td id="r_lim" rowspan="2"></td></tr>
+    <tr><td class="l"><b>변경 후</b></td><td id="r_n2"></td><td id="r_ma"></td><td id="r_sa"></td></tr>
+  </table></div>
+  <details id="detA"><summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--accent);font-weight:700">측정값 100개 전부 보기</summary><div class="scrollbox" id="rawA"></div></details>
+  <p class="note" style="margin:.6rem 0 0">자료 파일: <code>agentlab/data/csv/s5_autocorr.csv</code> (열: idx, phase, vac_level)</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<h2><span class="no">2</span>먼저 지금 쓰는 방식으로 — 3σ 비교와 Welch</h2>
+<p>현행 방식은 변경 전 평균 ± 3σ 안에 변경 후 값이 들어오는지 보는 것입니다. 아래 그림의 옅은 띠가 그 한계입니다.</p>
+<div class="lab">
+  <div class="labtitle">측정 순서대로 본 센서 값 (왼쪽 50번 = 변경 전, 오른쪽 50번 = 변경 후)</div>
+  <canvas id="cvA1" height="250"></canvas>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gA)"></span>변경 전</span>
+    <span><span class="dot" style="background:var(--gB)"></span>변경 후</span>
+    <span>점선 = 각 구간의 평균</span><span>옅은 띠 = 변경 전 평균 ± 3σ</span>
+  </div>
+</div>
+<p id="r_txt3s"></p>
+<p>그래도 평균은 조금 올라 보입니다. 평균이 달라졌는지는 0101에서 배운 대로 Welch t검정으로 물어야 합니다. 먼저 가설을 세웁니다.</p>
+<div class="concl"><span class="step">1단계 가설</span>변경 전 센서의 장기 평균을 μ<sub>전</sub>, 변경 후 센서의 장기 평균을 μ<sub>후</sub>라 합니다. 귀무가설 H₀는 μ<sub>전</sub> = μ<sub>후</sub>, 대립가설 H₁은 μ<sub>전</sub> ≠ μ<sub>후</sub>입니다.</div>
+<p id="r_txtW"></p>
+<div class="qna" data-label="3σ 안에 다 들어왔는데 왜 t검정은 유의하다고 하나요?" data-q="3σ 안에 다 들어왔는데 왜 t검정은 유의하다고 하나요?">
+  <p>두 방법은 서로 다른 질문을 합니다.</p>
+  <ul>
+    <li><b>3σ 비교</b>는 &ldquo;값 하나가 평소 흩어짐 범위를 벗어났는가&rdquo;를 묻습니다. 흩어짐(표준편차)이 평균의 이동보다 훨씬 크면 이동은 묻혀 버립니다.</li>
+    <li><b>Welch t</b>는 &ldquo;평균 둘의 차이가 평균의 흔들림(표준오차)보다 큰가&rdquo;를 묻습니다. 값이 50개씩이면 평균의 흔들림은 표준편차의 1/√50 정도로 작아지므로 작은 이동도 잡힙니다.</li>
+  </ul>
+  <p>그래서 3σ는 &ldquo;변화 없음&rdquo;, Welch는 &ldquo;변화 있음&rdquo;으로 엇갈릴 수 있습니다. 어느 쪽이 맞는지는 Welch가 깔고 있는 전제가 지켜졌는지로 가려집니다.</p>
+</div>
+
+<h2><span class="no">3</span>막힘 — 값 50개가 정보 50개가 아닙니다</h2>
+<div class="stuck"><b class="h">여기서 막힙니다.</b> Welch의 p값은 &ldquo;값 하나하나가 서로 독립&rdquo;이라는 약속 위에서 계산됩니다. 그런데 위 그림의 선을 보면 이웃한 값끼리 서로 닮았습니다. 한 번 높아지면 다음 값도 높고, 낮아지면 낮은 채로 한동안 머뭅니다. 이웃이 닮았다면 50개를 쟀어도 새 정보는 50개보다 훨씬 적습니다. 그러면 p값이 너무 작게 나왔을 수 있습니다.</div>
+<div class="concl"><span class="step">2단계 전제 점검</span>독립인지 확인하려면 &ldquo;바로 앞 값&rdquo;과 &ldquo;이번 값&rdquo;을 짝지어 점으로 찍어 봅니다. 독립이면 점이 구름처럼 흩어지고, 닮았으면 오른쪽 위로 뻗은 띠가 됩니다.</div>
+<div class="lab">
+  <div class="labtitle">바로 앞 값(가로)과 이번 값(세로)의 짝 — 변경 전과 후를 따로</div>
+  <canvas id="cvA2" height="260"></canvas>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gA)"></span>변경 전의 49쌍</span>
+    <span><span class="dot" style="background:var(--gB)"></span>변경 후의 49쌍</span>
+    <span>실선 = 짝에 맞춘 직선(기울기가 φ)</span><span>점선 = 두 값이 똑같은 선</span>
+  </div>
+</div>
+<p>띠의 기울기를 수로 나타낸 것이 <b>자기상관계수</b>입니다. 이름은 &ldquo;자기 자신과의 상관&rdquo;에서 왔습니다. 같은 센서의 값을 한 칸 밀어서 짝지은 뒤 그 둘의 상관을 잰 것이고, 기호는 φ(파이)를 씁니다. 1에 가까울수록 이웃이 똑같고, 0이면 이웃이 서로 상관이 없습니다.</p>
+<div class="eq">
+  <span class="eqlab">자기상관계수 φ의 추정값 (바로 앞 한 칸 밀어서 잰 값)</span>
+  <math display="block"><mrow>
+    <mover accent="true"><mi>φ</mi><mo>^</mo></mover><mo>=</mo>
+    <mfrac>
+      <mrow><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>2</mn></mrow><mi>n</mi></munderover>
+        <mo stretchy="false">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>−</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo>
+        <mo stretchy="false">(</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo></mrow>
+      <mrow><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+        <msup><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>−</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow>
+    </mfrac>
+  </mrow></math>
+  <span class="note">위쪽은 이웃한 두 값이 평균에서 같은 방향으로 벗어난 정도의 합이고, 아래쪽은 평균에서 벗어난 정도의 제곱합(분산의 분자)입니다. x<sub>t</sub>는 t번째 측정값, x<sub>t−1</sub>은 그 바로 앞 값입니다.</span>
+</div>
+<p id="r_txtPhi"></p>
+
+<h2><span class="no">4</span>이름 — 실효 표본 수</h2>
+<p>이웃이 닮으면 평균의 흔들림이 독립일 때보다 커집니다. 닮은 이웃은 같은 방향으로 함께 치우치기 때문에, 평균을 내도 치우침이 서로 상쇄되지 않고 남기 때문입니다. n이 충분히 클 때 평균의 분산은 근사적으로 아래처럼 늘어납니다.</p>
+<div class="eq">
+  <span class="eqlab">이웃이 닮았을 때 평균의 분산 (AR(1) 근사)</span>
+  <math display="block"><mrow>
+    <mi>Var</mi><mo stretchy="false">(</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo><mo>≈</mo>
+    <mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mo>·</mo>
+    <mfrac><mrow><mn>1</mn><mo>+</mo><mi>φ</mi></mrow><mrow><mn>1</mn><mo>−</mo><mi>φ</mi></mrow></mfrac>
+    <mo>=</mo>
+    <mfrac><msup><mi>σ</mi><mn>2</mn></msup><msub><mi>n</mi><mtext>eff</mtext></msub></mfrac>
+  </mrow></math>
+  <span class="note">독립이면 φ = 0이라 곱해진 분수가 1이 되어 평소의 σ²/n으로 돌아갑니다.</span>
+</div>
+<p>같은 식을 &ldquo;독립인 값 몇 개와 같은 정보인가&rdquo;로 읽은 것이 <b>실효 표본 수</b> n<sub>eff</sub>입니다. 이름의 &ldquo;eff&rdquo;는 effective(실질적으로 쓸모 있는)의 줄임말입니다.</p>
+<div class="eq">
+  <span class="eqlab">실효 표본 수</span>
+  <math display="block"><mrow>
+    <msub><mi>n</mi><mtext>eff</mtext></msub><mo>=</mo><mi>n</mi><mo>·</mo>
+    <mfrac><mrow><mn>1</mn><mo>−</mo><mi>φ</mi></mrow><mrow><mn>1</mn><mo>+</mo><mi>φ</mi></mrow></mfrac>
+  </mrow></math>
+  <math display="block"><mrow>
+    <msub><mi>n</mi><mtext>eff</mtext></msub><mo>=</mo><mn id="m_n">50</mn><mo>×</mo>
+    <mfrac><mrow><mn>1</mn><mo>−</mo><mn id="m_phi1">0</mn></mrow><mrow><mn>1</mn><mo>+</mo><mn id="m_phi2">0</mn></mrow></mfrac>
+    <mo>=</mo><mn id="m_neff">0</mn>
+  </mrow></math>
+  <span class="note">아래 식은 이 자료의 값을 넣은 것입니다. φ는 변경 전·후 각각 잰 값의 평균을 씁니다.</span>
+</div>
+<div class="stuck"><b class="h">계산에 들어간 가정입니다.</b> 1) 이웃 닮음이 &ldquo;바로 앞 값 하나&rdquo;로 설명되는 모양(AR(1))이라고 봅니다. 2) 변경 전과 후의 φ가 같다고 봅니다. 3) 위 식은 n이 클 때의 근사이고, 짧은 자료에서는 φ̂이 실제보다 작게 나오는 경향이 있어 n<sub>eff</sub>가 다소 낙관적일 수 있습니다. 4) φ̂이 음수로 나오면 0으로 두고, n<sub>eff</sub>가 2보다 작아지면 2로 둡니다. 가정이 깨지면 n<sub>eff</sub>를 잘못 잡아 p값이 여전히 작게 나올 수 있습니다.</div>
+<div class="qna" data-label="센서 값은 원래 이웃끼리 닮지 않나요? 늘 보정해야 하나요?" data-q="센서 값은 원래 이웃끼리 닮지 않나요? 늘 보정해야 하나요?">
+  <p>시간 순서로 촘촘하게 얻은 센서 값은 대부분 어느 정도 닮습니다. 늘 보정하라는 뜻이 아니라, <b>φ̂을 먼저 재서 판단하라</b>는 뜻입니다.</p>
+  <ul>
+    <li>φ̂이 0.1 정도로 작으면 n<sub>eff</sub> = n × 0.9/1.1 ≈ 0.82n이라 영향이 작습니다. 그대로 Welch를 써도 됩니다.</li>
+    <li>φ̂이 0.5를 넘으면 n<sub>eff</sub>가 n의 1/3 이하로 줄어 p값이 크게 달라집니다. 이때는 보정이 필수입니다.</li>
+  </ul>
+  <p>또 샘플링 간격을 넓혀(예: 10번에 한 번만 쓰면) 이웃 닮음이 줄지만, 버린 값만큼 정보도 버립니다. 기록은 촘촘하게 남기고 보정으로 푸는 쪽이 낫습니다.</p>
+</div>
+
+<h2><span class="no">5</span>다시 계산 — 독립으로 본 결과와 나란히</h2>
+<p>이제 같은 자료로 두 번 계산합니다. 하나는 값이 독립이라 보고 n = 50을 그대로 쓴 Welch이고, 다른 하나는 n<sub>eff</sub>로 갈아 끼운 계산입니다. 갈아 끼운 쪽의 검정통계량은 아래와 같습니다.</p>
+<div class="eq">
+  <span class="eqlab">실효 표본 수를 쓴 t (두 구간의 표준편차를 합친 s<sub>p</sub> 사용)</span>
+  <math display="block"><mrow>
+    <mi>t</mi><mo>=</mo>
+    <mfrac><mrow><msub><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mtext>후</mtext></msub><mo>−</mo><msub><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mtext>전</mtext></msub></mrow>
+    <mrow><msub><mi>s</mi><mi>p</mi></msub><msqrt><mfrac><mn>2</mn><msub><mi>n</mi><mtext>eff</mtext></msub></mfrac></msqrt></mrow></mfrac>
+    <mo>,</mo><mspace width="1.5em"/>
+    <msub><mi>s</mi><mi>p</mi></msub><mo>=</mo><msqrt><mfrac><mrow><msubsup><mi>s</mi><mtext>전</mtext><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>s</mi><mtext>후</mtext><mn>2</mn></msubsup></mrow><mn>2</mn></mfrac></msqrt>
+    <mo>,</mo><mspace width="1.5em"/>
+    <mtext>자유도</mtext><mo>=</mo><mn>2</mn><msub><mi>n</mi><mtext>eff</mtext></msub><mo>−</mo><mn>2</mn>
+  </mrow></math>
+  <span class="note">독립일 때의 t는 이 식에서 n<sub>eff</sub> 자리에 n이 들어간 꼴입니다. 두 구간의 표준편차를 합쳐 쓴다는 것은 두 구간의 흩어짐이 비슷하다고 보는 가정입니다(여기서는 두 표준편차가 거의 같습니다).</span>
+</div>
+<div class="concl"><span class="step">3단계 검정통계량</span>변경 후 평균 − 변경 전 평균을 차이로 둡니다.</div>
+<div class="tbwrap"><table>
+  <tr><th></th><th>독립으로 본 Welch</th><th>실효 표본 수로 본 t</th></tr>
+  <tr><td class="l">쓴 표본 수</td><td id="r_useN"></td><td id="r_useNe"></td></tr>
+  <tr><td class="l">차이 (후 − 전)</td><td id="r_d1"></td><td id="r_d2"></td></tr>
+  <tr><td class="l">표준오차</td><td id="r_se1"></td><td id="r_se2"></td></tr>
+  <tr><td class="l">t</td><td id="r_t1"></td><td id="r_t2"></td></tr>
+  <tr><td class="l">자유도</td><td id="r_df1"></td><td id="r_df2"></td></tr>
+  <tr><td class="l"><b>p값</b></td><td id="r_p1"></td><td id="r_p2"></td></tr>
+  <tr><td class="l">차이의 95% 신뢰구간</td><td id="r_ci1"></td><td id="r_ci2"></td></tr>
+</table></div>
+<p id="r_txtSE"></p>
+<div class="concl"><span class="step">4단계 판정</span><span id="r_judge"></span></div>
+<div class="concl"><span class="step">5단계 결론</span><span id="r_concl"></span></div>
+
+<div class="lab">
+  <div class="labtitle">차이의 95% 신뢰구간 — 독립으로 본 구간과 실효 표본 수로 본 구간</div>
+  <canvas id="cvA3" height="170"></canvas>
+  <div class="legend">
+    <span><span class="bar" style="background:var(--gA)"></span>독립으로 본 구간</span>
+    <span><span class="bar" style="background:var(--gB)"></span>실효 표본 수로 본 구간</span>
+    <span>점선 = 차이 0</span>
+  </div>
+</div>
+
+<h3>탐구 모드 — 이웃이 덜 닮았거나 더 닮았다면</h3>
+<div class="look"><b>조작 전에 볼 것.</b> 아래 φ 슬라이더를 오른쪽으로 밀면 1) 위 그림의 선이 더 길게 한쪽에 머물고, 2) 실효 표본 수가 줄어들며, 3) 독립으로 본 p값은 거의 그대로인데 4) 실효 표본 수로 본 p값만 커져 가는지 확인해 보세요. 슬라이더는 같은 방식으로 자료를 새로 만들어 보여 주고, 기준 위치(<span id="refPhiTxt"></span>)가 위에서 푼 자료입니다.</div>
+<div class="lab explore">
+  <div class="t">탐구 모드</div>
+  <div class="ctrl"><label for="sA_phi">센서의 이웃 닮음 φ (만든 설정)</label><input type="range" id="sA_phi" min="0" max="0.9" step="0.05" value="0.7"><output id="oA_phi"></output></div>
+  <div class="ctrl"><label for="sA_sh">변경으로 실제 옮겨진 크기</label><input type="range" id="sA_sh" min="0" max="0.5" step="0.01" value="0.13"><output id="oA_sh"></output></div>
+  <div class="refline"><span class="st" id="stA"></span><button class="btn" type="button" id="rstA">기준값으로 되돌리기</button></div>
+  <div class="tbwrap"><table>
+    <tr><th>잰 φ̂</th><th>n<sub>eff</sub></th><th>표준오차 배율</th><th>독립으로 본 p</th><th>n<sub>eff</sub>로 본 p</th></tr>
+    <tr><td id="l_phi"></td><td id="l_neff"></td><td id="l_ratio"></td><td id="l_p1"></td><td id="l_p2"></td></tr>
+  </table></div>
+  <div class="verdict" id="vA"></div>
+  <canvas id="cvA4" height="130"></canvas>
+  <div class="legend"><span>위 표와 같은 두 신뢰구간(파랑 = 독립으로 본 구간, 주황 = 실효 표본 수로 본 구간)이며, 점선은 차이 0입니다.</span></div>
+</div>
+
+<div class="qna" data-label="실효 표본 수보다 정확한 방법은 없나요?" data-q="실효 표본 수보다 정확한 방법은 없나요?">
+  <p>있습니다. 시계열 모형으로 오차의 이웃 닮음을 직접 적합하거나(GLS), 이웃 닮음을 감안한 표준오차(HAC, Newey–West)를 쓰는 방법이 있고, 둘 다 statsmodels에 들어 있습니다.</p>
+  <p>n<sub>eff</sub>는 그 정확한 방법들의 &ldquo;첫 어림&rdquo;입니다. 식이 한 줄이라 현장에서 곧바로 계산할 수 있고, p값이 얼마나 부풀었는지 감을 잡게 해 줍니다. 보고서에 쓸 중요한 판정이라면 정확한 방법으로 한 번 더 확인하세요.</p>
+</div>
+
+<div class="lesson"><b class="h">A의 교훈.</b> 독립으로 본 p값은 실제보다 훨씬 확신에 차 있었습니다. 이웃이 닮은 자료에서는 &ldquo;유의하지 않다&rdquo;가 곧 &ldquo;같다&rdquo;가 아니라 &ldquo;이 자료로는 가릴 수 없다&rdquo;입니다. 같다고 말하려면 0103의 동등성 검정(TOST)이 필요합니다.</div>
+
+<div class="box" id="boxAtruth">
+  <h3>정답 맞춰 보기</h3>
+  <p style="margin:0" id="r_truthA"></p>
+</div>
+
+<!-- ================= B ================= -->
+<h2><span class="no">6</span>[B] 세정 방법을 바꿨더니 — 문제</h2>
+<div class="probban">문제 B · 챔버 전후</div>
+<div class="prob">
+  <p><b class="tag">[문제 B]</b> 증착 블록 B07의 처리 챔버 CH1(마스크 B07-A1)에서 마스크 세정 방법을 바꿨습니다. 바꾸기 전 40장, 바꾼 뒤 40장의 장변 배율 Mx(ppm)를 77점 지도에서 구했습니다. 같은 블록의 CH2(마스크 B07-A2)는 세정 방법을 바꾸지 않았고, 같은 기간에 똑같이 40장씩 쟀습니다. <b>세정 방법 변경이 Mx를 바꿨습니까?</b> 유의수준 0.05로 판정하세요.</p>
+  <div class="tbwrap"><table>
+    <tr><th>챔버</th><th>구간</th><th>장수</th><th>Mx 평균 (ppm)</th><th>Mx 표준편차</th><th>챔버 온도 평균 (°C)</th></tr>
+    <tr><td class="l" rowspan="2">CH1 처리</td><td>변경 전</td><td id="rb_n_tb"></td><td id="rb_m_tb"></td><td id="rb_s_tb"></td><td id="rb_t_tb"></td></tr>
+    <tr><td>변경 후</td><td id="rb_n_ta"></td><td id="rb_m_ta"></td><td id="rb_s_ta"></td><td id="rb_t_ta"></td></tr>
+    <tr><td class="l" rowspan="2">CH2 대조</td><td>변경 전</td><td id="rb_n_cb"></td><td id="rb_m_cb"></td><td id="rb_s_cb"></td><td id="rb_t_cb"></td></tr>
+    <tr><td>변경 후</td><td id="rb_n_ca"></td><td id="rb_m_ca"></td><td id="rb_s_ca"></td><td id="rb_t_ca"></td></tr>
+  </table></div>
+  <details id="detB"><summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--accent);font-weight:700">장별 측정값 160행 전부 보기</summary><div class="scrollbox" id="rawB"></div></details>
+  <p class="note" style="margin:.6rem 0 0">자료 파일: <code>agentlab/data/csv/s4_thermal_confound.csv</code> (열: group, phase, glass_in_turn, chamber_temp, mx_ppm …)</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<h2><span class="no">7</span>단순 전후 비교 — 처리 챔버만 보면</h2>
+<div class="concl"><span class="step">1단계 가설</span>세정 방법 변경이 Mx를 바꿨는지 묻습니다. 귀무가설 H₀는 &ldquo;변경은 Mx를 바꾸지 않았다&rdquo;이고, 대립가설 H₁은 &ldquo;바꿨다&rdquo;입니다.</div>
+<p>가장 먼저 떠오르는 비교는 처리 챔버 CH1의 변경 전 40장과 변경 후 40장입니다. 0101에서 배운 Welch t검정으로 평균 차이를 물어봅니다.</p>
+<p id="rb_txtNaive"></p>
+<div class="stuck"><b class="h">여기서 막힙니다.</b> p값이 이렇게 작으면 세정 방법이 Mx를 바꿨다고 보고하고 싶어집니다. 그런데 위의 표를 다시 보면 챔버 온도 평균도 같은 기간에 올랐습니다. 변경과 온도 상승이 같은 시기에 겹쳤으니, Mx의 변화가 어느 쪽 때문인지 이 비교만으로는 가려낼 수 없습니다. 이런 상태를 <b>교란</b>이라 합니다. 변경 효과와 온도 효과가 한 덩어리로 섞였다는 뜻입니다.</div>
+
+<h3>온도가 Mx를 움직이는 이유</h3>
+<p>마스크와 유리는 온도가 오르면 함께 늘어나지만 늘어나는 비율이 다릅니다. 이 비율을 열팽창 계수라 하며 온도가 1 K(켈빈, 눈금 간격이 °C와 같은 온도 단위) 오를 때 길이가 늘어나는 비율입니다. 마스크 재질인 인바(Invar, 온도에 거의 늘지 않는 합금)는 <span id="rb_aM"></span> ppm/K, 유리는 <span id="rb_aG"></span> ppm/K입니다. 온도가 오르면 유리가 더 많이 늘어나므로 마스크 위치와 유리 위치 사이에 길이 방향 어긋남이 쌓이고, 이것이 장변 배율 Mx로 나타납니다.</p>
+<div class="eq">
+  <span class="eqlab">열팽창 차이가 만드는 장변 배율</span>
+  <math display="block"><mrow>
+    <msub><mi>Mx</mi><mtext>열</mtext></msub><mo>=</mo>
+    <mo stretchy="false">(</mo><msub><mi>α</mi><mtext>마스크</mtext></msub><mo>−</mo><msub><mi>α</mi><mtext>유리</mtext></msub><mo stretchy="false">)</mo><mo>·</mo><mi>ΔT</mi>
+    <mo>=</mo><mo stretchy="false">(</mo><mn id="mb_aM">0</mn><mo>−</mo><mn id="mb_aG">0</mn><mo stretchy="false">)</mo><mo>×</mo><mn id="mb_dT">0</mn><mo>=</mo><mn id="mb_th">0</mn>
+    <mspace width="0.3em"/><mtext>ppm</mtext>
+  </mrow></math>
+  <span class="note">α는 열팽창 계수(ppm/K), ΔT는 온도 변화(K)입니다. 아래 식은 처리 챔버에서 실제로 잰 온도 평균의 변화를 넣은 것입니다.</span>
+</div>
+<p id="rb_txtTherm"></p>
+<div class="lab">
+  <div class="labtitle">챔버 온도와 Mx — 장마다 점 하나 (온도가 오르면 Mx가 함께 내려갑니다)</div>
+  <canvas id="cvB2" height="270"></canvas>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gA)"></span>변경 전 (둥근 점 = CH1, 네모 = CH2)</span>
+    <span><span class="dot" style="background:var(--gB)"></span>변경 후</span>
+    <span>직선 = 챔버 안에서 맞춘 직선 (실선 CH1, 점선 CH2)</span>
+  </div>
+</div>
+<div class="qna" data-label="온도를 보정하면 되지, 왜 대조군까지 필요한가요?" data-q="온도를 보정하면 되지, 왜 대조군까지 필요한가요?">
+  <p>온도는 우리가 <b>알고 잰</b> 교란입니다. 이 경우에는 온도 계수를 알기 때문에 Mx에서 열 몫을 빼 보정할 수도 있습니다.</p>
+  <p>하지만 같은 시기에 바뀌는 것이 온도뿐이라는 보장은 없습니다. 원료 로트, 장비 노후, 계절 습도처럼 <b>모르거나 재지 않은 요인</b>이 더 있을 수 있습니다. 같은 환경을 공유하는 대조군은 아는 요인과 모르는 요인을 한꺼번에 같은 만큼 겪으므로, 그 전후 차이를 빼면 모두 상쇄됩니다. 그래서 보정이 가능해도 대조군을 함께 두는 편이 안전합니다.</p>
+</div>
+
+<h2><span class="no">8</span>이름 — 대조군과 이중차분</h2>
+<p>해결 방법은 &ldquo;같은 시기를 같이 겪은 비교 대상&rdquo;을 하나 더 두는 것입니다. 같은 블록 B07의 CH2는 세정 방법을 바꾸지 않았지만 같은 기간에 같은 온도 상승을 겪었습니다. 이런 비교 대상이 <b>대조군</b>입니다. 처리 챔버의 전후 차이에서 대조 챔버의 전후 차이를 빼면, 둘이 함께 겪은 몫(온도 등)은 사라지고 변경만의 몫이 남습니다. 차이를 두 번 뺀다고 해서 <b>이중차분</b>(difference-in-differences, 줄여서 DiD)이라 합니다.</p>
+<div class="eq">
+  <span class="eqlab">이중차분</span>
+  <math display="block"><mrow>
+    <mi>DiD</mi><mo>=</mo>
+    <mo stretchy="false">(</mo><msub><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mrow><mtext>처리</mtext><mo>,</mo><mtext>후</mtext></mrow></msub><mo>−</mo><msub><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mrow><mtext>처리</mtext><mo>,</mo><mtext>전</mtext></mrow></msub><mo stretchy="false">)</mo>
+    <mo>−</mo>
+    <mo stretchy="false">(</mo><msub><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mrow><mtext>대조</mtext><mo>,</mo><mtext>후</mtext></mrow></msub><mo>−</mo><msub><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mrow><mtext>대조</mtext><mo>,</mo><mtext>전</mtext></mrow></msub><mo stretchy="false">)</mo>
+  </mrow></math>
+  <math display="block"><mrow>
+    <mi>DiD</mi><mo>=</mo><mo stretchy="false">(</mo><mn id="mb_d1">0</mn><mo stretchy="false">)</mo><mo>−</mo><mo stretchy="false">(</mo><mn id="mb_d2">0</mn><mo stretchy="false">)</mo><mo>=</mo><mn id="mb_did">0</mn><mspace width="0.3em"/><mtext>ppm</mtext>
+  </mrow></math>
+  <span class="note">아래 식은 이 자료의 값을 넣은 것입니다. 두 챔버의 Mx 수준이 처음부터 달라도(마스크가 다르므로) 상관없습니다. 각 챔버가 자기 자신의 &ldquo;전&rdquo;과 비교되기 때문입니다.</span>
+</div>
+<p>이중차분도 추정값일 뿐이라 흔들림이 있습니다. 네 평균(처리 전·후, 대조 전·후)이 각자 흔들리므로 표준오차는 네 평균의 분산을 더해서 구합니다.</p>
+<div class="eq">
+  <span class="eqlab">이중차분의 표준오차와 t</span>
+  <math display="block"><mrow>
+    <mi>SE</mi><mo>=</mo><msqrt><munder><mo>∑</mo><mrow><mtext>네 묶음</mtext></mrow></munder><mfrac><msup><mi>s</mi><mn>2</mn></msup><mi>n</mi></mfrac></msqrt>
+    <mo>,</mo><mspace width="1.5em"/>
+    <mi>t</mi><mo>=</mo><mfrac><mi>DiD</mi><mi>SE</mi></mfrac>
+  </mrow></math>
+  <span class="note">자유도는 0101의 Welch와 같은 방식(Welch–Satterthwaite)으로 네 묶음에서 한꺼번에 구합니다.</span>
+</div>
+
+<div class="lab">
+  <div class="labtitle">전후 변화를 한 장에 — 처리 챔버(CH1), 대조 챔버(CH2), 그리고 &ldquo;변경이 없었다면&rdquo;의 점선</div>
+  <canvas id="cvB1" height="310"></canvas>
+  <div class="legend">
+    <span><span class="bar" style="background:var(--gA)"></span>처리 챔버 CH1 평균</span>
+    <span><span class="bar" style="background:var(--gC)"></span>대조 챔버 CH2 평균</span>
+    <span><span class="bar" style="background:var(--warn)"></span>주황 점선 = 변경이 없었다면 CH1이 갔을 자리(CH1 전 평균에 CH2의 변화를 더한 값)</span>
+    <span>주황 화살표 = 이중차분</span>
+  </div>
+</div>
+
+<div class="stuck"><b class="h">계산에 들어간 가정입니다 (평행 추세).</b> 이중차분은 &ldquo;변경이 없었다면 CH1도 CH2와 같은 만큼 움직였을 것&rdquo;이라는 약속 위에 서 있습니다. 같은 블록 B07이라 같은 온도 상승을 겪는다고 보는 것입니다. 앞의 표에서 두 챔버의 온도 변화를 비교해 이 약속을 확인합니다. 챔버마다 온도에 반응하는 정도가 다르다면 약속이 깨져 이중차분이 변경 효과를 잘못 말합니다.</div>
+<div class="qna" data-label="대조 챔버가 처리 챔버와 완전히 같지 않으면요?" data-q="대조 챔버가 처리 챔버와 완전히 같지 않으면요?">
+  <p>수준이 다른 것(마스크가 다르니 Mx의 기준이 다른 것)은 이중차분이 알아서 상쇄합니다. 문제가 되는 것은 <b>움직이는 방식</b>이 다른 경우입니다.</p>
+  <ul>
+    <li>변경 전 구간에서 두 챔버의 Mx를 시간순으로 그려, 같은 기울기로 움직였는지 먼저 봅니다.</li>
+    <li>두 챔버의 온도 변화가 비슷한지 비교합니다(위 표의 마지막 열).</li>
+    <li>같은 블록, 같은 설비 구성의 챔버를 대조로 고릅니다. 다른 블록 챔버는 환경이 다를 수 있습니다.</li>
+  </ul>
+</div>
+
+<h2><span class="no">9</span>다시 계산 — 단순 전후와 이중차분을 나란히</h2>
+<div class="concl"><span class="step">2단계 전제 점검</span><span id="rb_prem"></span></div>
+<div class="concl"><span class="step">3단계 검정통계량</span>변경 후 평균 − 변경 전 평균을 차이로 두고, 단순 전후 비교와 이중차분을 나란히 계산합니다.</div>
+<div class="tbwrap"><table>
+  <tr><th></th><th>단순 전후 (CH1만)</th><th>대조 챔버 CH2의 전후</th><th>이중차분 (CH1 − CH2)</th></tr>
+  <tr><td class="l">차이 (ppm)</td><td id="rb_c1"></td><td id="rb_c2"></td><td id="rb_c3"></td></tr>
+  <tr><td class="l">표준오차</td><td id="rb_se1"></td><td id="rb_se2"></td><td id="rb_se3"></td></tr>
+  <tr><td class="l">t</td><td id="rb_t1"></td><td id="rb_t2"></td><td id="rb_t3"></td></tr>
+  <tr><td class="l">자유도</td><td id="rb_df1"></td><td id="rb_df2"></td><td id="rb_df3"></td></tr>
+  <tr><td class="l"><b>p값</b></td><td id="rb_p1"></td><td id="rb_p2"></td><td id="rb_p3"></td></tr>
+  <tr><td class="l">95% 신뢰구간</td><td id="rb_ci1"></td><td id="rb_ci2"></td><td id="rb_ci3"></td></tr>
+</table></div>
+<div class="concl"><span class="step">4단계 판정</span><span id="rb_judge"></span></div>
+<div class="concl"><span class="step">5단계 결론</span><span id="rb_concl"></span></div>
+
+<h3>탐구 모드 — 온도 상승이 다르거나, 변경에 진짜 효과가 있다면</h3>
+<div class="look"><b>조작 전에 볼 것.</b> 1) &ldquo;온도 상승&rdquo;을 2 K까지 올리면 단순 전후 비교는 점점 더 큰 &ldquo;효과&rdquo;를 보이는데 이중차분은 그대로 0 근처에 머무는지 보세요. 2) 이어서 &ldquo;변경의 참 효과&rdquo;를 −1 ppm으로 옮기면 이중차분이 그 효과를 되찾고 신뢰구간이 0을 벗어나는지 보세요. 이중차분은 효과가 없을 때 0이라고 말하는 도구가 아니라, 효과가 있으면 있다고, 없으면 없다고 말하는 도구입니다. 슬라이더는 같은 방식으로 자료를 새로 만들어 보여 줍니다.</div>
+<div class="lab explore">
+  <div class="t">탐구 모드</div>
+  <div class="ctrl"><label for="sB_dT">같은 시기의 온도 상승 (K)</label><input type="range" id="sB_dT" min="0" max="2" step="0.1" value="0.5"><output id="oB_dT"></output></div>
+  <div class="ctrl"><label for="sB_ef">변경의 참 효과 (ppm)</label><input type="range" id="sB_ef" min="-2" max="2" step="0.1" value="0"><output id="oB_ef"></output></div>
+  <div class="refline"><span class="st" id="stB"></span><button class="btn" type="button" id="rstB">기준값으로 되돌리기</button></div>
+  <div class="tbwrap"><table>
+    <tr><th>CH1 온도 변화 (K)</th><th>열이 만든 Mx 이동 (ppm)</th><th>단순 전후 차이 · p</th><th>이중차분 · p</th><th>이중차분 95% 신뢰구간</th></tr>
+    <tr><td id="lb_dT"></td><td id="lb_th"></td><td id="lb_naive"></td><td id="lb_did"></td><td id="lb_ci"></td></tr>
+  </table></div>
+  <div class="verdict" id="vB"></div>
+  <canvas id="cvB3" height="190"></canvas>
+  <div class="legend">
+    <span><span class="bar" style="background:var(--gA)"></span>단순 전후 신뢰구간</span>
+    <span><span class="bar" style="background:var(--gB)"></span>이중차분 신뢰구간</span>
+    <span>점선 = 차이 0</span>
+    <span>◆ = 온도로 예상되는 이동 (위 열팽창 식)</span>
+  </div>
+</div>
+<div class="qna" data-label="이중차분이 0에 가까우면 '효과가 없다'고 써도 되나요?" data-q="이중차분이 0에 가까우면 '효과가 없다'고 써도 되나요?">
+  <p>&ldquo;효과가 없다&rdquo;라고 단정하지 말고 <b>&ldquo;효과가 이 구간보다 크지는 않다&rdquo;</b>고 쓰세요. 이 자료의 이중차분 신뢰구간은 0을 가운데 두고 양쪽으로 일정한 폭을 갖습니다. 그 폭보다 작은 효과는 이 자료로 구별할 수 없습니다.</p>
+  <p>&ldquo;효과가 없다&rdquo;고 말하려면 허용폭 ±δ를 먼저 정하고, 신뢰구간이 그 안에 들어오는지를 보는 0103의 동등성 검정(TOST)을 씁니다.</p>
+</div>
+<div class="landing">전후 비교에는 대조군이 있어야 원인을 말할 수 있습니다.</div>
+<div class="lesson"><b class="h">B의 교훈.</b> 단순 전후 비교의 p값은 온도 효과와 변경 효과를 구별하지 못했습니다. 대조 챔버를 하나 두는 것만으로 같은 자료가 다른 결론을 냈습니다. 대조군은 분석 단계에서 만들 수 없고 <b>변경을 하기 전에 정해 두어야</b> 합니다.</div>
+<div class="box" id="boxBtruth">
+  <h3>정답 맞춰 보기</h3>
+  <p style="margin:0" id="rb_truth"></p>
+</div>
+
+<!-- ================= 보고서·데이터·도구 ================= -->
+<h2><span class="no">10</span>보고서 양식</h2>
+<div class="box">
+  <h3>A. 센서 전후 비교</h3>
+  <dl>
+    <dt>무엇을</dt><dd>변경점 전후 센서 vac_level의 평균이 달라졌는지 판정했습니다.</dd>
+    <dt>왜 이 검정</dt><dd>값이 시간 순서로 얻어져 이웃끼리 닮았기(φ̂ = <span id="rp_phi"></span>) 때문에, 독립을 가정하는 Welch 대신 실효 표본 수 <span id="rp_neff"></span>로 표준오차를 다시 계산했습니다.</dd>
+    <dt>결과</dt><dd>차이(후 − 전) <span id="rp_d"></span>, 독립 가정 p = <span id="rp_p1"></span>, 실효 표본 수 기준 p = <span id="rp_p2"></span>, 95% 신뢰구간 <span id="rp_ci"></span>.</dd>
+    <dt>결론</dt><dd id="rp_c"></dd>
+    <dt>조치</dt><dd>센서를 촘촘한 간격 그대로 더 모아 n<sub>eff</sub>를 늘린 뒤 다시 판정합니다. 허용폭이 있다면 TOST로 &ldquo;나빠지지 않았다&rdquo;를 확인합니다.</dd>
+  </dl>
+</div>
+<div class="box">
+  <h3>B. 챔버 전후 비교</h3>
+  <dl>
+    <dt>무엇을</dt><dd>B07 CH1에서 세정 방법을 바꾼 뒤 장변 배율 Mx가 달라졌는지 판정했습니다.</dd>
+    <dt>왜 이 검정</dt><dd>같은 기간에 챔버 온도가 <span id="rq_dT"></span> K 올라 변경과 교란되므로, 변경하지 않은 CH2를 대조군으로 두고 이중차분을 썼습니다.</dd>
+    <dt>결과</dt><dd>단순 전후 차이 <span id="rq_n"></span> ppm(p = <span id="rq_pn"></span>), 대조 챔버도 <span id="rq_c"></span> ppm 이동, 이중차분 <span id="rq_did"></span> ppm(p = <span id="rq_pd"></span>, 95% 신뢰구간 <span id="rq_ci"></span>).</dd>
+    <dt>결론</dt><dd id="rq_concl"></dd>
+    <dt>조치</dt><dd>이 변경의 Mx 효과를 주장하지 않습니다. 이후 변경에서는 시행 전에 대조 챔버를 지정하고 온도를 함께 기록합니다.</dd>
+  </dl>
+</div>
+
+<h2><span class="no">11</span>앞으로 기록해 둘 데이터</h2>
+<div class="box">
+  <p style="margin:0 0 .3rem">이 분석을 에이전트가 자동으로 하려면 현장에서 다음을 남겨야 합니다.</p>
+  <ul>
+    <li><b>센서는 평균으로 줄이지 말고 샘플링 순서 그대로</b> 남깁니다. 평균을 내면 이웃 닮음 φ를 잴 수 없습니다.</li>
+    <li><b>변경 이벤트 기록</b>: 변경 시각, 내용(세정 방법·부품), 대상 챔버·마스크 ID를 한 줄로 남깁니다.</li>
+    <li><b>대조 챔버 지정을 변경 전에</b> 기록합니다(예: &ldquo;B07 CH2 = 대조&rdquo;). 분석 단계에서 고르면 마음에 드는 쪽을 고르게 됩니다.</li>
+    <li><b>챔버 온도 T<sub>ch</sub>를 PPA와 같은 장 단위</b>로 남깁니다. 온도로 예상되는 몫을 즉시 계산할 수 있습니다.</li>
+    <li>같은 조건 비교를 위해 마스크 세트·턴·턴 안 장 번호를 함께 남깁니다.</li>
+  </ul>
+</div>
+
+<h2><span class="no">12</span>에이전트 도구 상자 — 이 실험실의 함수</h2>
+<div class="box">
+  <div class="tool">
+    <code>ar1_phi(x)</code><span>1차 자기상관계수 φ̂를 돌려줍니다(평균을 뺀 값의 이웃 곱의 합 ÷ 제곱합). 짧은 자료에서는 실제보다 작게 나오는 경향을 보고서에 함께 적습니다.</span>
+    <code>neff(n, phi)</code><span>n × (1 − φ)/(1 + φ)를 돌려줍니다. φ가 음수면 0으로, 결과가 2보다 작으면 2로 둡니다.</span>
+    <code>welch_neff(before, after)</code><span>두 구간의 φ̂ 평균으로 n<sub>eff</sub>를 구하고 {phi, n_eff, diff, se, t, df, p, ci95}를 돌려줍니다(조립 함수).</span>
+    <code>did(tb, ta, cb, ca)</code><span>처리 전·후, 대조 전·후 네 묶음으로 이중차분 {est, se, t, df, p, ci95}를 돌려줍니다. 네 묶음의 분산으로 표준오차와 Welch–Satterthwaite 자유도를 씁니다.</span>
+  </div>
+</div>
+
+<h3>회사 PC용 Python 코드 (A: 센서)</h3>
+<pre><code id="codeA">import numpy as np
+import pandas as pd
+from scipy import stats
+from statsmodels.tsa.stattools import acf
+
+def ar1_phi(x):
+    """1차 자기상관계수(평균을 뺀 값의 이웃 곱의 합 / 제곱합)."""
+    return float(acf(np.asarray(x, float), nlags=1, fft=False)[1])
+
+def neff(n, phi):
+    """실효 표본 수. phi 가 음수면 0, 결과가 2 미만이면 2."""
+    phi = max(phi, 0.0)
+    return max(n * (1 - phi) / (1 + phi), 2.0)
+
+def welch_neff(before, after):
+    before, after = np.asarray(before, float), np.asarray(after, float)
+    n = len(before)
+    phi = (ar1_phi(before) + ar1_phi(after)) / 2
+    ne = neff(n, phi)
+    sp = np.sqrt((before.var(ddof=1) + after.var(ddof=1)) / 2)
+    diff = after.mean() - before.mean()
+    se = sp * np.sqrt(2 / ne)
+    df = 2 * ne - 2
+    t = diff / se
+    p = 2 * stats.t.sf(abs(t), df)
+    h = stats.t.ppf(0.975, df) * se
+    return dict(phi=phi, n_eff=ne, diff=diff, se=se, t=t, df=df, p=p, ci95=(diff - h, diff + h))
+
+d = pd.read_csv('agentlab/data/csv/s5_autocorr.csv')
+b = d.loc[d.phase == 'before', 'vac_level'].to_numpy()
+a = d.loc[d.phase == 'after', 'vac_level'].to_numpy()
+
+w = stats.ttest_ind(a, b, equal_var=False)            # 독립으로 본 Welch
+ci = w.confidence_interval(0.95)
+r = welch_neff(b, a)
+print(f"3σ 한계 밖의 변경 후 값: {int(((a < b.mean() - 3*b.std(ddof=1)) | (a > b.mean() + 3*b.std(ddof=1))).sum())}개")
+print(f"독립으로 본 Welch: 차이 {a.mean()-b.mean():+.4f}, t={w.statistic:.4f}, df={w.df:.2f}, p={w.pvalue:.4f}")
+print(f"φ̂={r['phi']:.4f}  n_eff={r['n_eff']:.3f}")
+print(f"실효 표본 수로 본 t: 차이 {r['diff']:+.4f}, SE={r['se']:.4f}, t={r['t']:.4f}, df={r['df']:.2f}, p={r['p']:.4f}, "
+      f"95% CI [{r['ci95'][0]:+.4f}, {r['ci95'][1]:+.4f}]")
+print("결론:", "유의함" if r['p'] < 0.05 else "이웃 닮음을 감안하면 이 자료로는 평균이 달라졌다고 말할 수 없음")</code></pre>
+
+<h3>회사 PC용 Python 코드 (B: 챔버 이중차분)</h3>
+<pre><code id="codeB">import numpy as np
+import pandas as pd
+from scipy import stats
+
+def did(tb, ta, cb, ca):
+    """이중차분 = (처리 후-전) - (대조 후-전). 표준오차는 네 평균의 분산 합."""
+    g = [np.asarray(v, float) for v in (tb, ta, cb, ca)]
+    est = (g[1].mean() - g[0].mean()) - (g[3].mean() - g[2].mean())
+    v = [x.var(ddof=1) / len(x) for x in g]
+    se = float(np.sqrt(sum(v)))
+    df = sum(v) ** 2 / sum(vi ** 2 / (len(x) - 1) for vi, x in zip(v, g))
+    t = est / se
+    p = 2 * stats.t.sf(abs(t), df)
+    h = stats.t.ppf(0.975, df) * se
+    return dict(est=est, se=se, t=t, df=df, p=p, ci95=(est - h, est + h))
+
+d = pd.read_csv('agentlab/data/csv/s4_thermal_confound.csv')
+pick = lambda grp, ph, col='mx_ppm': d[(d.group == grp) & (d.phase == ph)][col].to_numpy()
+tb, ta, cb, ca = pick('treated', 'before'), pick('treated', 'after'), pick('control', 'before'), pick('control', 'after')
+
+w = stats.ttest_ind(ta, tb, equal_var=False)          # 단순 전후(처리 챔버만)
+print(f"온도 변화: 처리 {pick('treated','after','chamber_temp').mean()-pick('treated','before','chamber_temp').mean():+.3f} K, "
+      f"대조 {pick('control','after','chamber_temp').mean()-pick('control','before','chamber_temp').mean():+.3f} K")
+print(f"단순 전후: 차이 {ta.mean()-tb.mean():+.4f} ppm, t={w.statistic:.4f}, p={w.pvalue:.2e}")
+print(f"대조 챔버 전후: 차이 {ca.mean()-cb.mean():+.4f} ppm")
+r = did(tb, ta, cb, ca)
+print(f"이중차분: {r['est']:+.4f} ppm, SE={r['se']:.4f}, t={r['t']:.4f}, df={r['df']:.2f}, p={r['p']:.4f}, "
+      f"95% CI [{r['ci95'][0]:+.4f}, {r['ci95'][1]:+.4f}]")
+print("결론:", "변경 효과가 남음" if r['p'] < 0.05 else "온도 등 공통 요인을 걷어내면 변경 효과는 확인되지 않음")</code></pre>
+
+<!-- ================= 결정 흐름 ================= -->
+<h2><span class="no">13</span>변경점 판정 결정 흐름 — 기둥 1의 정리</h2>
+<p>0101부터 0104까지 배운 도구를 한 장으로 묶습니다. 위에서부터 질문에 답하면 쓸 함수와 돌아가 볼 실험실이 나옵니다. 지금 풀어 본 두 사례를 눌러 흐름을 따라가 보거나, 내 자료의 조건을 직접 골라 보세요.</p>
+<div class="presets">
+  <button class="btn" type="button" id="preA">사례 A (센서 전후)로 채우기</button>
+  <button class="btn" type="button" id="preB">사례 B (챔버 전후)로 채우기</button>
+  <button class="btn" type="button" id="preX">모두 비우기</button>
+</div>
+<div id="flow"></div>
+<div class="recipe" id="recipe"></div>
+<div class="qna" data-label="여러 조건이 한꺼번에 해당하면 어느 순서로 하나요?" data-q="여러 조건이 한꺼번에 해당하면 어느 순서로 하나요?">
+  <p>질문 순서는 &ldquo;자료의 구조 → 비교할 양 → 분포 → 독립성 → 비교 대상 → 결론의 방향&rdquo;입니다. 앞 질문의 답이 뒤 질문의 도구를 바꾸기 때문입니다. 예를 들어 대응인지 독립인지부터 정해야 정규성을 어느 값(점별 차이인지 각 묶음인지)으로 볼지 정해집니다.</p>
+  <p>여러 조건이 겹치면 해당하는 처방을 <b>모두</b> 적용합니다. 센서 자료가 비정규이고 이웃도 닮았다면, 순위 검정을 쓰되 자기상관이 남아 있는지 따로 확인하고 n<sub>eff</sub>를 보고서에 적습니다.</p>
+</div>
+
+<h2><span class="no">14</span>기둥 1을 마치며 — 다음은 기둥 2</h2>
+<div class="bridge">
+  <p><b>기둥 1이 가르친 것.</b> 변경 전후에서 &ldquo;무엇이, 얼마나, 믿을 만하게&rdquo; 달라졌는지를 말하는 법이었습니다. 평균(0101), 산포(0102), 같은 대상의 전후와 &ldquo;나빠지지 않았다&rdquo;(0103), 그리고 이웃 닮음과 교란(0104)입니다.</p>
+  <p style="margin-bottom:0"><b>기둥 2로 이어지는 길.</b> 오늘 본 자기상관은 기둥 2의 출발점이기도 합니다. 설비를 세우는 3σ 한계선은 값이 정규분포를 따르고, 서로 독립이며, 기준 구간이 깨끗하다는 세 가정 위에 서 있습니다. 이웃이 닮은 센서 값에서는 &ldquo;독립&rdquo;이 이미 깨져 있어 한계선이 너무 자주 울리거나 너무 늦게 울릴 수 있습니다. 기둥 2는 이 세 가정을 하나씩 점검하며 실제 이상은 놓치지 않고 가성 인터락은 줄이는 한계선을 정하는 법을 배웁니다. 허브의 학습 로드맵에 다음 단계로 놓여 있습니다.</p>
+</div>
+
+<nav class="labnav bot">
+  <a href="#" data-lab="0103">← 이전: 0103</a>
+  <a class="ghost" href="../index.html#roadmap">기둥 2 로드맵 보기</a>
+  <a class="ghost" href="../index.html#labs">허브</a>
+</nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+'use strict';
+/* ---------- 실험실 파일 이름 (이전·결정 흐름 링크) ---------- */
+var LABS={
+  '0101':{file:'0101-pm-mean-shift.html',title:'실험실 0101'},
+  '0102':{file:'0102-stick-spread.html',title:'실험실 0102'},
+  '0103':{file:'0103-repair-paired-tost.html',title:'실험실 0103'},
+  '0104':{file:'0104-autocorr-did.html',title:'실험실 0104'}
+};
+Array.prototype.forEach.call(document.querySelectorAll('[data-lab]'),function(a){a.setAttribute('href',LABS[a.getAttribute('data-lab')].file);});
+
+/* ---------- 통계 함수 (검증된 구현) ---------- */
+function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=300;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<3e-14)break;}return h;}
+function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+function tp2(t,df){t=Math.abs(t);return betai(df/2,0.5,df/(df+t*t));}
+function tcrit95(df){var lo=0,hi=200;for(var i=0;i<100;i++){var m=(lo+hi)/2;if(tp2(m,df)>0.05)lo=m;else hi=m;}return (lo+hi)/2;}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function welchT(g1,g2){ /* 차이 = g2 평균 − g1 평균 */
+  var n1=g1.length,n2=g2.length,s1=sd(g1),s2=sd(g2),v1=s1*s1/n1,v2=s2*s2/n2,se=Math.sqrt(v1+v2),diff=mean(g2)-mean(g1),t=diff/se;
+  var df=(v1+v2)*(v1+v2)/(v1*v1/(n1-1)+v2*v2/(n2-1)),tc=tcrit95(df);
+  return {diff:diff,se:se,t:t,df:df,p:tp2(t,df),lo:diff-tc*se,hi:diff+tc*se};}
+function lag1(x){var m=mean(x),num=0,den=0,i;for(i=0;i<x.length;i++){den+=(x[i]-m)*(x[i]-m);if(i)num+=(x[i]-m)*(x[i-1]-m);}return num/den;}
+
+/* ---------- 표기 ---------- */
+function $(i){return document.getElementById(i);}
+function put(id,t){var e=$(id);if(e)e.textContent=t;}
+function f(v,d){return v.toFixed(d);}
+function sg(v,d){return (v>=0?'+':'−')+Math.abs(v).toFixed(d);}
+function fp(p){return p>=0.001?p.toFixed(4):p.toExponential(2);}
+function fci(lo,hi,d){return '['+sg(lo,d)+', '+sg(hi,d)+']';}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.height=h+'px';var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);return {x:x,w:w,h:h};}
+var FONT='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif';
+function niceStep(r){var p=Math.pow(10,Math.floor(Math.log10(r))),q=r/p;return (q<1.5?1:q<3?2:q<7?5:10)*p;}
+
+/* ================= 자료 해석 ================= */
+function dataA(sc){var b=[],a=[];sc.rows.forEach(function(r){(r.phase==='before'?b:a).push(r.vac_level);});return {b:b,a:a};}
+function analyzeA(sc){
+  var d=dataA(sc),b=d.b,a=d.a,n=b.length,mb=mean(b),ma=mean(a),sb=sd(b),sa=sd(a);
+  var naive=welchT(b,a),phiB=lag1(b),phiA=lag1(a),phi=(phiB+phiA)/2,ph=Math.max(phi,0);
+  var ne=Math.max(n*(1-ph)/(1+ph),2),sp=Math.sqrt((sb*sb+sa*sa)/2),diff=ma-mb,se=sp*Math.sqrt(2/ne),df=2*ne-2,t=diff/se,tc=tcrit95(df);
+  var lo3=mb-3*sb,hi3=mb+3*sb,out3=0;a.forEach(function(v){if(v<lo3||v>hi3)out3++;});
+  return {b:b,a:a,n:n,mb:mb,ma:ma,sb:sb,sa:sa,diff:diff,naive:naive,phiB:phiB,phiA:phiA,phi:phi,neff:ne,sp:sp,
+    c:{se:se,t:t,df:df,p:tp2(t,df),lo:diff-tc*se,hi:diff+tc*se},lo3:lo3,hi3:hi3,out3:out3,sc:sc};}
+
+function dataB(sc){
+  var g={tb:[],ta:[],cb:[],ca:[]},T={tb:[],ta:[],cb:[],ca:[]},pts=[];
+  sc.rows.forEach(function(r){var k=(r.group==='treated'?'t':'c')+(r.phase==='before'?'b':'a');g[k].push(r.mx_ppm);T[k].push(r.chamber_temp);pts.push({k:k,T:r.chamber_temp,m:r.mx_ppm});});
+  return {g:g,T:T,pts:pts};}
+function analyzeB(sc){
+  var D=dataB(sc),g=D.g,T=D.T,K=['tb','ta','cb','ca'],M={},S={},TM={},V=[],i;
+  K.forEach(function(k){M[k]=mean(g[k]);S[k]=sd(g[k]);TM[k]=mean(T[k]);V.push(S[k]*S[k]/g[k].length);});
+  var naive=welchT(g.tb,g.ta),ctrl=welchT(g.cb,g.ca);
+  var dTt=TM.ta-TM.tb,dTc=TM.ca-TM.cb,dt=(M.ta-M.tb),dc=(M.ca-M.cb),did=dt-dc;
+  var vs=V[0]+V[1]+V[2]+V[3],se=Math.sqrt(vs),den=0;
+  for(i=0;i<4;i++)den+=V[i]*V[i]/(g[K[i]].length-1);
+  var df=vs*vs/den,t=did/se,tc=tcrit95(df);
+  var CFG=MfgSim.CFG,aM=CFG.ALPHA_M*1e6,aG=CFG.ALPHA_G*1e6,th=(aM-aG)*dTt;
+  /* 챔버 안에서(챔버별 평균을 뺀 뒤) 온도에 대한 Mx의 기울기 */
+  var cm={t:[0,0,0],c:[0,0,0]};
+  D.pts.forEach(function(p){var c=p.k[0];cm[c][0]+=p.T;cm[c][1]+=p.m;cm[c][2]++;});
+  var sxy=0,sxx=0;D.pts.forEach(function(p){var c=p.k[0],mt=cm[c][0]/cm[c][2],mm=cm[c][1]/cm[c][2];sxy+=(p.T-mt)*(p.m-mm);sxx+=(p.T-mt)*(p.T-mt);});
+  var cmean={t:{T:cm.t[0]/cm.t[2],m:cm.t[1]/cm.t[2]},c:{T:cm.c[0]/cm.c[2],m:cm.c[1]/cm.c[2]}};
+  return {D:D,M:M,S:S,TM:TM,N:{tb:g.tb.length,ta:g.ta.length,cb:g.cb.length,ca:g.ca.length},naive:naive,ctrl:ctrl,dTt:dTt,dTc:dTc,dt:dt,dc:dc,did:did,
+    se:se,df:df,t:t,p:tp2(t,df),lo:did-tc*se,hi:did+tc*se,aM:aM,aG:aG,th:th,slope:sxy/sxx,cmean:cmean,cf:M.tb+dc,sc:sc};}
+
+/* ================= 그리기 도구 ================= */
+function axisY(x,pL,pR,pT,pB,W,H,lo,hi,dec){
+  var step=niceStep((hi-lo)/5);x.font='12px '+FONT;x.fillStyle=css('--soft');x.strokeStyle=css('--rule');x.lineWidth=1;x.textAlign='right';
+  for(var tv=Math.ceil(lo/step)*step;tv<=hi;tv+=step){var yy=pT+(H-pT-pB)*(1-(tv-lo)/(hi-lo));x.globalAlpha=.4;x.beginPath();x.moveTo(pL,yy);x.lineTo(W-pR,yy);x.stroke();x.globalAlpha=1;x.fillText(tv.toFixed(dec),pL-6,yy+4);}
+}
+function drawSeries(cv,R){
+  var c=setup(cv,250),x=c.x,W=c.w,H=c.h,pL=46,pR=12,pT=14,pB=34,all=R.b.concat(R.a),n=R.n;
+  var lo=Math.min(Math.min.apply(null,all),R.lo3),hi=Math.max(Math.max.apply(null,all),R.hi3),sp=hi-lo;lo-=sp*.05;hi+=sp*.05;
+  function X(i){return pL+(W-pL-pR)*(i+.5)/(2*n);} function Y(v){return pT+(H-pT-pB)*(1-(v-lo)/(hi-lo));}
+  axisY(x,pL,pR,pT,pB,W,H,lo,hi,2);
+  x.fillStyle=css('--accent');x.globalAlpha=.12;x.fillRect(pL,Y(R.hi3),W-pL-pR,Y(R.lo3)-Y(R.hi3));x.globalAlpha=1;
+  x.strokeStyle=css('--soft');x.setLineDash([2,4]);x.beginPath();x.moveTo(X(n-.5),pT);x.lineTo(X(n-.5),H-pB);x.stroke();x.setLineDash([]);
+  [[R.b,0,'--gA',R.mb],[R.a,n,'--gB',R.ma]].forEach(function(s){
+    var col=css(s[2]);x.strokeStyle=col;x.lineWidth=1.4;x.globalAlpha=.8;x.beginPath();
+    s[0].forEach(function(v,i){var px=X(s[1]+i),py=Y(v);if(i)x.lineTo(px,py);else x.moveTo(px,py);});x.stroke();x.globalAlpha=1;
+    x.fillStyle=col;s[0].forEach(function(v,i){x.beginPath();x.arc(X(s[1]+i),Y(v),2.3,0,7);x.fill();});
+    x.strokeStyle=col;x.lineWidth=2;x.setLineDash([6,4]);x.beginPath();x.moveTo(X(s[1]-.5),Y(s[3]));x.lineTo(X(s[1]+n-.5),Y(s[3]));x.stroke();x.setLineDash([]);
+  });
+  x.fillStyle=css('--soft');x.font='12px '+FONT;x.textAlign='center';
+  x.fillText('변경 전 (1~'+n+'번)',X(n/2),H-12);x.fillText('변경 후 ('+(n+1)+'~'+(2*n)+'번)',X(n+n/2),H-12);
+}
+function drawLag(cv,R){
+  var c=setup(cv,300),x=c.x,W=c.w,H=c.h,pL=58,pR=12,pT=30,pB=40,all=R.b.concat(R.a);
+  var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),sp=hi-lo;lo-=sp*.05;hi+=sp*.05;
+  var pw=W-pL-pR,ph=H-pT-pB,side=Math.min(pw,ph),ox=pL+(pw-side)/2;
+  function X(v){return ox+side*(v-lo)/(hi-lo);} function Y(v){return pT+side*(1-(v-lo)/(hi-lo));}
+  x.strokeStyle=css('--rule');x.lineWidth=1;x.strokeRect(ox,pT,side,side);
+  var step=niceStep((hi-lo)/4);x.font='12px '+FONT;x.fillStyle=css('--soft');
+  for(var tv=Math.ceil(lo/step)*step;tv<=hi;tv+=step){x.textAlign='right';x.fillText(tv.toFixed(1),ox-5,Y(tv)+4);x.textAlign='center';x.fillText(tv.toFixed(1),X(tv),pT+side+15);}
+  x.textAlign='center';x.fillText('바로 앞 값 →',ox+side/2,H-6);
+  x.setLineDash([4,4]);x.strokeStyle=css('--soft');x.beginPath();x.moveTo(X(lo),Y(lo));x.lineTo(X(hi),Y(hi));x.stroke();x.setLineDash([]);
+  [[R.b,'--gA',R.mb,R.phiB],[R.a,'--gB',R.ma,R.phiA]].forEach(function(s){
+    var col=css(s[1]);x.fillStyle=col;x.globalAlpha=.75;
+    for(var i=1;i<s[0].length;i++){x.beginPath();x.arc(X(s[0][i-1]),Y(s[0][i]),3,0,7);x.fill();}
+    x.globalAlpha=1;x.strokeStyle=col;x.lineWidth=2.2;x.beginPath();
+    var x0=lo,x1=hi;x.moveTo(X(x0),Y(s[2]+s[3]*(x0-s[2])));x.lineTo(X(x1),Y(s[2]+s[3]*(x1-s[2])));x.stroke();
+  });
+  x.save();x.translate(ox-44,pT+side/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillStyle=css('--soft');x.fillText('이번 값 →',0,0);x.restore();
+  x.textAlign='left';x.font='700 12px '+FONT;x.fillStyle=css('--gA');x.fillText('φ̂ 전 '+f(R.phiB,2),ox,pT-10);x.fillStyle=css('--gB');x.fillText('φ̂ 후 '+f(R.phiA,2),ox+side/2,pT-10);
+}
+/* 신뢰구간 막대. items:[{label,lo,hi,mid,col}], marks:[{x,label,col,row}] */
+function drawCI(cv,h,items,marks,dec){
+  var c=setup(cv,h),x=c.x,W=c.w,H=c.h,pL=14,pR=14,pT=8,pB=28,lo=0,hi=0;
+  items.forEach(function(it){lo=Math.min(lo,it.lo);hi=Math.max(hi,it.hi);});(marks||[]).forEach(function(m){lo=Math.min(lo,m.x);hi=Math.max(hi,m.x);});
+  var sp=(hi-lo)||1;lo-=sp*.1;hi+=sp*.1;
+  function X(v){return pL+(W-pL-pR)*(v-lo)/(hi-lo);}
+  var rh=(H-pT-pB)/items.length,step=niceStep((hi-lo)/5);x.font='12px '+FONT;x.fillStyle=css('--soft');x.textAlign='center';x.strokeStyle=css('--rule');
+  for(var tv=Math.ceil(lo/step)*step;tv<=hi;tv+=step){x.globalAlpha=.5;x.beginPath();x.moveTo(X(tv),pT);x.lineTo(X(tv),H-pB);x.stroke();x.globalAlpha=1;x.fillText(tv.toFixed(2),X(tv),H-10);}
+  x.strokeStyle=css('--ink');x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(0),pT);x.lineTo(X(0),H-pB);x.stroke();x.setLineDash([]);
+  items.forEach(function(it,i){
+    var y=pT+rh*i+rh*.62,col=css(it.col);x.fillStyle=css('--ink');x.font='12px '+FONT;
+    var lab=it.label;x.textAlign=X(it.mid)>W*.62?'right':X(it.mid)<W*.38?'left':'center';
+    var lx=x.textAlign==='right'?W-pR:x.textAlign==='left'?pL:W/2;
+    x.fillText(lab,lx,pT+rh*i+rh*.28);
+    x.strokeStyle=col;x.lineWidth=5;x.lineCap='round';x.beginPath();x.moveTo(X(it.lo),y);x.lineTo(X(it.hi),y);x.stroke();x.lineCap='butt';
+    x.fillStyle=css('--card');x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();x.arc(X(it.mid),y,5,0,7);x.fill();x.stroke();
+  });
+  (marks||[]).forEach(function(m){
+    x.fillStyle=css(m.col);var mx=X(m.x),my=H-pB-6;
+    x.beginPath();x.moveTo(mx,my-7);x.lineTo(mx+6,my);x.lineTo(mx,my+7);x.lineTo(mx-6,my);x.closePath();x.fill();
+    x.font='700 12px '+FONT;x.textAlign=mx>W*.6?'right':'left';x.fillText(m.label,mx+(mx>W*.6?-9:9),my-(m.row||0)*14+4);
+  });
+}
+function drawDiD(cv,R){
+  var c=setup(cv,310),x=c.x,W=c.w,H=c.h,pL=46,pR=12,pT=16,pB=40,pts=R.D.pts,all=pts.map(function(p){return p.m;});
+  var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),sp=hi-lo;lo-=sp*.04;hi+=sp*.04;
+  var xb=pL+(W-pL-pR)*.27,xa=pL+(W-pL-pR)*.73;
+  function Y(v){return pT+(H-pT-pB)*(1-(v-lo)/(hi-lo));}
+  axisY(x,pL,pR,pT,pB,W,H,lo,hi,1);
+  var jit=function(i){return ((i*37)%11)/11-.5;};
+  pts.forEach(function(p,i){var base=(p.k[1]==='b'?xb:xa)+(p.k[0]==='t'?-1:1)*18;var px=base+jit(i)*22,col=css(p.k[0]==='t'?'--gA':'--gC');
+    x.globalAlpha=.4;x.fillStyle=col;x.beginPath();x.arc(px,Y(p.m),2.6,0,7);x.fill();x.globalAlpha=1;});
+  function mline(a,b,ya,yb,col,w,dash){x.strokeStyle=css(col);x.lineWidth=w;x.setLineDash(dash||[]);x.beginPath();x.moveTo(a,ya);x.lineTo(b,yb);x.stroke();x.setLineDash([]);}
+  var M=R.M;
+  mline(xb,xa,Y(M.cb),Y(M.ca),'--gC',3);
+  mline(xb,xa,Y(M.tb),Y(M.ta),'--gA',3);
+  mline(xb,xa,Y(M.tb),Y(R.cf),'--warn',2.2,[7,6]);
+  [[xb,M.tb,'--gA'],[xa,M.ta,'--gA'],[xb,M.cb,'--gC'],[xa,M.ca,'--gC']].forEach(function(q){x.fillStyle=css(q[2]);x.beginPath();x.arc(q[0],Y(q[1]),5.5,0,7);x.fill();});
+  /* 이중차분 화살표: 점선 끝에서 실제 CH1 후 평균까지 */
+  var ax=xa+22,y1=Y(R.cf),y2=Y(M.ta);
+  x.strokeStyle=css('--warn');x.fillStyle=css('--warn');x.lineWidth=2.2;
+  if(Math.abs(y2-y1)>6){x.beginPath();x.moveTo(ax,y1);x.lineTo(ax,y2);x.stroke();var dir=y2>y1?1:-1;x.beginPath();x.moveTo(ax,y2);x.lineTo(ax-5,y2-8*dir);x.lineTo(ax+5,y2-8*dir);x.closePath();x.fill();}
+  else{x.beginPath();x.moveTo(ax-6,y1);x.lineTo(ax+6,y1);x.stroke();}
+  x.font='700 12px '+FONT;x.textAlign='right';x.fillText('이중차분 '+sg(R.did,2)+' ppm (오른쪽 화살표)',W-pR,pT+8);
+  x.textAlign='center';x.fillStyle=css('--soft');x.font='12px '+FONT;
+  x.fillText('세정 방법 변경 전',xb,H-12);x.fillText('변경 후',xa,H-12);
+  x.textAlign='left';x.fillStyle=css('--gA');x.font='700 12px '+FONT;x.fillText('CH1 '+sg(R.dt,2),pL+4,Y(M.tb)+(M.tb>M.cb?-12:20));
+  x.fillStyle=css('--gC');x.fillText('CH2 '+sg(R.dc,2),pL+4,Y(M.cb)+(M.cb>=M.tb?-12:20));
+}
+function drawTemp(cv,R){
+  var c=setup(cv,270),x=c.x,W=c.w,H=c.h,pL=46,pR=12,pT=14,pB=40,pts=R.D.pts;
+  var tl=Math.min.apply(null,pts.map(function(p){return p.T;})),th=Math.max.apply(null,pts.map(function(p){return p.T;})),ml=Math.min.apply(null,pts.map(function(p){return p.m;})),mh=Math.max.apply(null,pts.map(function(p){return p.m;}));
+  var a=(th-tl)*.05,b=(mh-ml)*.05;tl-=a;th+=a;ml-=b;mh+=b;
+  function X(v){return pL+(W-pL-pR)*(v-tl)/(th-tl);} function Y(v){return pT+(H-pT-pB)*(1-(v-ml)/(mh-ml));}
+  axisY(x,pL,pR,pT,pB,W,H,ml,mh,1);
+  x.font='12px '+FONT;x.fillStyle=css('--soft');x.textAlign='center';var st=niceStep((th-tl)/5);
+  for(var tv=Math.ceil(tl/st)*st;tv<=th;tv+=st)x.fillText(tv.toFixed(1),X(tv),H-pB+16);
+  x.fillText('챔버 온도 (°C) →',pL+(W-pL-pR)/2,H-6);
+  x.save();x.translate(12,pT+(H-pT-pB)/2);x.rotate(-Math.PI/2);x.fillText('Mx (ppm) →',0,0);x.restore();
+  pts.forEach(function(p){var col=css(p.k[1]==='b'?'--gA':'--gB');x.globalAlpha=.7;x.fillStyle=col;
+    if(p.k[0]==='t'){x.beginPath();x.arc(X(p.T),Y(p.m),3,0,7);x.fill();}else{x.fillRect(X(p.T)-2.7,Y(p.m)-2.7,5.4,5.4);}x.globalAlpha=1;});
+  ['t','c'].forEach(function(g){var cm=R.cmean[g],t0=tl,t1=th;x.strokeStyle=css(g==='t'?'--ink':'--soft');x.lineWidth=2;x.setLineDash(g==='t'?[]:[6,4]);
+    x.beginPath();x.moveTo(X(t0),Y(cm.m+R.slope*(t0-cm.T)));x.lineTo(X(t1),Y(cm.m+R.slope*(t1-cm.T)));x.stroke();x.setLineDash([]);});
+}
+
+/* ================= 채우기: A ================= */
+var A_REF=null,A_LIVE=null,REFA={phi:0.7,shift:0.13},REFB={dT:0.5,ef:0};
+function fillA(R,pre){
+  var P=function(k){return pre+'_'+k;};
+  if(pre==='r'){
+    put('r_n1',R.n);put('r_n2',R.n);put('r_mb',f(R.mb,4));put('r_ma',f(R.ma,4));put('r_sb',f(R.sb,4));put('r_sa',f(R.sa,4));
+    put('r_lim',f(R.lo3,3)+' ~ '+f(R.hi3,3));
+    put('r_useN','n = '+R.n+' (각 구간)');put('r_useNe','n_eff = '+f(R.neff,2));
+    put('r_d1',sg(R.diff,4));put('r_d2',sg(R.diff,4));put('r_se1',f(R.naive.se,4));put('r_se2',f(R.c.se,4));
+    put('r_t1',f(R.naive.t,3));put('r_t2',f(R.c.t,3));put('r_df1',f(R.naive.df,1));put('r_df2',f(R.c.df,1));
+    put('r_p1',fp(R.naive.p));put('r_p2',fp(R.c.p));put('r_ci1',fci(R.naive.lo,R.naive.hi,4));put('r_ci2',fci(R.c.lo,R.c.hi,4));
+    put('m_n',R.n);put('m_phi1',f(R.phi,3));put('m_phi2',f(R.phi,3));put('m_neff',f(R.neff,2));
+    $('r_txt3s').textContent='변경 후 값 '+R.n+'개 가운데 3σ 한계('+f(R.lo3,3)+' ~ '+f(R.hi3,3)+') 밖으로 나간 것은 '+R.out3+'개입니다. 3σ 비교로는 '+(R.out3===0?'변화가 없다고 판정됩니다.':'변화가 있다고 판정됩니다.');
+    $('r_txtW').textContent='같은 자료에 Welch t검정을 하면 변경 후 − 변경 전 평균 차이는 '+sg(R.diff,4)+', t = '+f(R.naive.t,3)+', 자유도 '+f(R.naive.df,1)+', p = '+fp(R.naive.p)+'입니다. '+(R.naive.p<0.05?'p가 0.05보다 작으니 평균이 달라졌다고 말하고 싶어집니다.':'p가 0.05보다 크니 평균이 달라졌다고 말할 수 없습니다.');
+    $('r_txtPhi').textContent='이 자료에서 잰 φ̂은 변경 전 '+f(R.phiB,3)+', 변경 후 '+f(R.phiA,3)+'이고, 둘의 평균은 '+f(R.phi,3)+'입니다. 독립이라면 0 근처가 나와야 하는 수입니다. 이웃이 상당히 닮았습니다.';
+    $('r_txtSE').textContent='독립으로 본 표준오차는 '+f(R.naive.se,4)+'인데 실효 표본 수를 쓰면 '+f(R.c.se,4)+'로 '+f(R.c.se/R.naive.se,2)+'배가 됩니다. 같은 차이 '+sg(R.diff,4)+'을 더 큰 흔들림으로 나누니 t가 '+f(R.naive.t,2)+'에서 '+f(R.c.t,2)+'로 줄고, p는 '+fp(R.naive.p)+'에서 '+fp(R.c.p)+'로 커졌습니다.';
+    $('r_judge').textContent=judgeA(R).judge;$('r_concl').textContent=judgeA(R).concl;
+    var sp=R.sc.params,tr=R.sc.truth;
+    $('r_truthA').textContent='이 가상 자료는 이웃 닮음 φ = '+f(tr.phi,2)+'(실효 표본 수 '+f(tr.n_eff_true,2)+'), 변경으로 실제 옮겨진 크기 '+sg(tr.shift,2)+'으로 만들었습니다. 잰 φ̂은 '+f(R.phi,2)+'로 설정값과 가깝고, 실제 이동량 '+sg(tr.shift,2)+'이 실효 표본 수로 본 95% 신뢰구간 '+fci(R.c.lo,R.c.hi,3)+' 안에 '+((tr.shift>=R.c.lo&&tr.shift<=R.c.hi)?'들어 있습니다':'들어 있지 않습니다')+'. 즉 변화는 실제로 있었지만, 이웃이 닮은 이 자료의 정보량(독립인 값 약 '+f(R.neff,1)+'개)으로는 가려낼 수 없었던 것입니다. 독립으로 본 계산은 그 사실을 숨기고 확신을 부풀렸습니다.';
+    /* 보고서 */
+    put('rp_phi',f(R.phi,2));put('rp_neff',f(R.neff,1));put('rp_d',sg(R.diff,4));put('rp_p1',fp(R.naive.p));put('rp_p2',fp(R.c.p));put('rp_ci',fci(R.c.lo,R.c.hi,4));
+    $('rp_c').textContent=R.c.p<0.05?'이웃 닮음을 감안해도 변경 후 평균이 달라졌습니다.':'독립 가정에서는 유의했으나 이웃 닮음을 감안하면 유의하지 않아, 이 자료만으로는 평균이 달라졌다고 말할 수 없습니다(같다는 뜻이 아닙니다).';
+  } else {
+    put('l_phi',f(R.phi,3));put('l_neff',f(R.neff,2));put('l_ratio','×'+f(R.c.se/R.naive.se,2));put('l_p1',fp(R.naive.p));put('l_p2',fp(R.c.p));
+    var v=$('vA'),J=judgeA(R);v.textContent=J.short;v.className='verdict '+(J.kind);
+  }
+}
+function judgeA(R){
+  var n1=R.naive.p<0.05,n2=R.c.p<0.05,j,c,s,k;
+  var tail='독립 가정 p = '+fp(R.naive.p)+', 실효 표본 수 기준 p = '+fp(R.c.p)+'입니다.';
+  if(n1&&!n2){j='유의수준 0.05에서 독립 가정으로는 귀무가설을 기각하지만 실효 표본 수로는 기각하지 못합니다. 이웃 닮음을 감안하면 유의하다는 결과가 사라지므로, 기각하지 않는 쪽을 따릅니다.';
+    c='변경 뒤 센서 평균이 달라졌다고 말할 근거가 부족합니다(유의하지 않음). 이것은 &ldquo;같다&rdquo;는 뜻이 아니라 &ldquo;이웃이 닮은 이 자료로는 가릴 수 없다&rdquo;는 뜻입니다.';
+    s='독립으로 보면 유의하지만, 이웃 닮음을 감안하면 유의하지 않습니다. 앞의 유의함은 부풀려진 것입니다. '+tail;k='keep';}
+  else if(n1&&n2){j='독립 가정으로도, 실효 표본 수로도 귀무가설을 기각합니다. 이웃 닮음을 감안해도 평균 차이가 남습니다.';
+    c='변경 뒤 센서 평균이 달라졌습니다. 차이는 '+sg(R.diff,3)+'이고 실효 표본 수 기준 95% 신뢰구간은 '+fci(R.c.lo,R.c.hi,3)+'입니다.';
+    s='이웃 닮음을 감안해도 유의합니다. 이 변화는 이웃 닮음 때문에 생긴 착시가 아닙니다. '+tail;k='rej';}
+  else if(!n1&&!n2){j='독립 가정으로도, 실효 표본 수로도 귀무가설을 기각하지 못합니다.';
+    c='변경 뒤 센서 평균이 달라졌다는 근거가 없습니다(유의하지 않음). 같다는 뜻은 아닙니다.';
+    s='둘 다 유의하지 않습니다. 이 자료로는 평균이 달라졌다고 말할 수 없습니다. '+tail;k='keep';}
+  else {j='독립 가정으로는 기각하지 못하지만 실효 표본 수로는 기각합니다.';
+    c='변경 뒤 센서 평균이 달라졌습니다. 다만 두 계산이 엇갈리므로 φ̂ 추정이 불안정하지 않은지 먼저 확인하세요.';
+    s='두 계산이 엇갈립니다. 드문 경우이므로 φ̂ 추정을 의심해 보세요. '+tail;k='keep';}
+  c=c.replace(/&ldquo;/g,'“').replace(/&rdquo;/g,'”');
+  return {judge:j,concl:c,short:s,kind:k};
+}
+function refStateA(){
+  var ph=parseFloat($('sA_phi').value),sh=parseFloat($('sA_sh').value),on=Math.abs(ph-REFA.phi)<0.001&&Math.abs(sh-REFA.shift)<0.001,e=$('stA');
+  e.className='st '+(on?'on':'off');
+  e.textContent=on?'지금 이 값이 위에서 푼 실제 자료입니다.':'지금은 위에서 푼 자료에서 옮겨 놓은 가정입니다(기준: φ '+f(REFA.phi,2)+', 이동 '+sg(REFA.shift,2)+').';
+}
+var rafA=0;
+function updA(){
+  var ph=parseFloat($('sA_phi').value),sh=parseFloat($('sA_sh').value);
+  put('oA_phi',f(ph,2));put('oA_sh',f(sh,2));refStateA();
+  A_LIVE=analyzeA(MfgSim.scenario('S5',{phi:ph,shift:sh}));fillA(A_LIVE,'l');drawLive();
+}
+function drawLive(){
+  var R=A_LIVE;if(!R)return;
+  drawCI($('cvA4'),130,[{label:'독립으로 본 구간 '+fci(R.naive.lo,R.naive.hi,3),lo:R.naive.lo,hi:R.naive.hi,mid:R.diff,col:'--gA'},{label:'실효 표본 수로 본 구간 '+fci(R.c.lo,R.c.hi,3),lo:R.c.lo,hi:R.c.hi,mid:R.diff,col:'--gB'}],null,2);
+}
+
+/* ================= 채우기: B ================= */
+function judgeB(R){
+  var nSig=R.naive.p<0.05,dSig=R.p<0.05,j,c,s,k;
+  var tail='단순 전후 p = '+fp(R.naive.p)+', 이중차분 p = '+fp(R.p)+'입니다.';
+  if(nSig&&!dSig){j='단순 전후 비교로는 귀무가설을 기각하지만, 이중차분으로는 기각하지 못합니다. 대조 챔버가 같은 만큼 움직였으므로 변경 효과로 볼 근거가 없습니다.';
+    c='세정 방법 변경이 Mx를 바꿨다고 말할 근거가 없습니다. 처리 챔버의 Mx 이동 '+sg(R.dt,2)+' ppm은 대조 챔버도 겪은 '+sg(R.dc,2)+' ppm(온도 상승 몫)과 거의 같고, 이중차분은 '+sg(R.did,3)+' ppm(95% 신뢰구간 '+fci(R.lo,R.hi,3)+')입니다.';
+    s='단순 전후는 유의하지만 이중차분은 유의하지 않습니다. 변경이 아니라 같은 시기의 온도 상승이 Mx를 움직인 것으로 읽힙니다. '+tail;k='keep';}
+  else if(nSig&&dSig){j='단순 전후 비교와 이중차분 모두 귀무가설을 기각합니다. 대조 챔버의 이동을 걷어내도 변경 효과가 남습니다.';
+    c='세정 방법 변경이 Mx를 바꿨습니다. 이중차분 추정은 '+sg(R.did,3)+' ppm(95% 신뢰구간 '+fci(R.lo,R.hi,3)+')입니다.';
+    s='이중차분도 유의합니다. 공통 요인을 걷어내고도 변경 효과 '+sg(R.did,2)+' ppm이 남습니다. '+tail;k='rej';}
+  else if(!nSig&&dSig){j='단순 전후 비교로는 기각하지 못하지만 이중차분으로는 기각합니다. 같은 시기의 공통 요인이 변경 효과를 가리고 있었습니다.';
+    c='세정 방법 변경이 Mx를 바꿨습니다. 단순 전후 이동은 '+sg(R.dt,2)+' ppm으로 작아 보였지만 대조 챔버가 반대로 '+sg(R.dc,2)+' ppm 움직였으므로, 이중차분 추정은 '+sg(R.did,3)+' ppm(95% 신뢰구간 '+fci(R.lo,R.hi,3)+')입니다.';
+    s='공통 요인이 효과를 가리고 있었습니다. 대조군을 쓰니 효과가 드러납니다. '+tail;k='rej';}
+  else {j='단순 전후 비교와 이중차분 모두 귀무가설을 기각하지 못합니다.';
+    c='세정 방법 변경이 Mx를 바꿨다는 근거가 없습니다(유의하지 않음). 같다는 뜻은 아니며, 이 자료로 구별할 수 있는 최소 효과는 신뢰구간 '+fci(R.lo,R.hi,3)+' 폭입니다.';
+    s='둘 다 유의하지 않습니다. '+tail;k='keep';}
+  return {judge:j,concl:c,short:s,kind:k};
+}
+function fillB(R,pre){
+  if(pre==='r'){
+    ['tb','ta','cb','ca'].forEach(function(k){put('rb_n_'+k,R.N[k]);put('rb_m_'+k,f(R.M[k],3));put('rb_s_'+k,f(R.S[k],3));put('rb_t_'+k,f(R.TM[k],3));});
+    put('rb_aM',f(R.aM,1));put('rb_aG',f(R.aG,1));
+    put('mb_aM',f(R.aM,1));put('mb_aG',f(R.aG,1));put('mb_dT',sg(R.dTt,3));put('mb_th',sg(R.th,2));
+    put('mb_d1',sg(R.dt,3));put('mb_d2',sg(R.dc,3));put('mb_did',sg(R.did,3));
+    $('rb_txtNaive').textContent='처리 챔버 CH1의 Mx 평균은 변경 전 '+f(R.M.tb,3)+'에서 변경 후 '+f(R.M.ta,3)+' ppm으로 '+sg(R.naive.diff,3)+' ppm 움직였고, Welch t = '+f(R.naive.t,2)+', 자유도 '+f(R.naive.df,1)+', p = '+fp(R.naive.p)+'입니다.';
+    $('rb_txtTherm').textContent='처리 챔버의 온도 평균은 '+f(R.TM.tb,3)+'에서 '+f(R.TM.ta,3)+' °C로 '+sg(R.dTt,3)+' K 올랐으므로, 열팽창 차이만으로 예상되는 Mx 이동은 '+sg(R.th,2)+' ppm입니다. 처리 챔버에서 실제로 잰 이동 '+sg(R.naive.diff,2)+' ppm과 거의 같습니다. 챔버 안에서 온도와 Mx를 직선으로 맞추면 온도 1 K당 '+sg(R.slope,2)+' ppm으로, 위 식의 '+sg(R.aM-R.aG,2)+' ppm/K와 맞습니다. 변경 때문인지 온도 때문인지, 이 비교만으로는 구별되지 않습니다.';
+    $('rb_prem').textContent='변경을 하지 않은 대조 챔버 CH2의 Mx 평균도 '+sg(R.dc,3)+' ppm 움직였고(Welch p = '+fp(R.ctrl.p)+'), 온도는 CH1이 '+sg(R.dTt,3)+' K, CH2가 '+sg(R.dTc,3)+' K 올랐습니다. 두 챔버의 온도 상승이 거의 같아 &ldquo;변경이 없었다면 같은 만큼 움직였을 것&rdquo;이라는 약속을 받아들일 만합니다.'.replace(/&ldquo;/g,'“').replace(/&rdquo;/g,'”');
+    put('rb_c1',sg(R.naive.diff,3));put('rb_c2',sg(R.ctrl.diff,3));put('rb_c3',sg(R.did,3));
+    put('rb_se1',f(R.naive.se,3));put('rb_se2',f(R.ctrl.se,3));put('rb_se3',f(R.se,3));
+    put('rb_t1',f(R.naive.t,2));put('rb_t2',f(R.ctrl.t,2));put('rb_t3',f(R.t,2));
+    put('rb_df1',f(R.naive.df,1));put('rb_df2',f(R.ctrl.df,1));put('rb_df3',f(R.df,1));
+    put('rb_p1',fp(R.naive.p));put('rb_p2',fp(R.ctrl.p));put('rb_p3',fp(R.p));
+    put('rb_ci1',fci(R.naive.lo,R.naive.hi,3));put('rb_ci2',fci(R.ctrl.lo,R.ctrl.hi,3));put('rb_ci3',fci(R.lo,R.hi,3));
+    var J=judgeB(R);$('rb_judge').textContent=J.judge;$('rb_concl').textContent=J.concl;
+    var tr=R.sc.truth;
+    $('rb_truth').textContent='이 가상 자료는 세정 방법 변경의 참 효과 '+sg(tr.true_effect_ppm,2)+' ppm, 같은 시기 온도 상승 '+f(tr.season_dT_K,1)+' K(열이 만든 Mx 이동 '+sg(tr.thermal_mx_shift_ppm,2)+' ppm)로 만들었습니다. 이중차분 '+sg(R.did,3)+' ppm은 참 효과 '+sg(tr.true_effect_ppm,2)+' ppm을 95% 신뢰구간 '+fci(R.lo,R.hi,3)+' 안에 '+((tr.true_effect_ppm>=R.lo&&tr.true_effect_ppm<=R.hi)?'담고 있습니다':'담지 못했습니다')+'. 단순 전후 비교의 '+sg(R.naive.diff,2)+' ppm은 거의 전부 온도 몫이었습니다.';
+    put('rq_dT',f(R.dTt,2));put('rq_n',sg(R.naive.diff,3));put('rq_pn',fp(R.naive.p));put('rq_c',sg(R.dc,3));put('rq_did',sg(R.did,3));put('rq_pd',fp(R.p));put('rq_ci',fci(R.lo,R.hi,3));
+    $('rq_concl').textContent=J.concl;
+  } else {
+    put('lb_dT',sg(R.dTt,3));put('lb_th',sg(R.th,2));put('lb_naive',sg(R.naive.diff,3)+' · p = '+fp(R.naive.p));put('lb_did',sg(R.did,3)+' · p = '+fp(R.p));put('lb_ci',fci(R.lo,R.hi,3));
+    var j=judgeB(R),v=$('vB');v.textContent=j.short;v.className='verdict '+j.kind;
+  }
+}
+function refStateB(){
+  var d=parseFloat($('sB_dT').value),e=parseFloat($('sB_ef').value),on=Math.abs(d-REFB.dT)<0.001&&Math.abs(e-REFB.ef)<0.001,s=$('stB');
+  s.className='st '+(on?'on':'off');
+  s.textContent=on?'지금 이 값이 위에서 푼 실제 자료입니다.':'지금은 위에서 푼 자료에서 옮겨 놓은 가정입니다(기준: 온도 상승 '+f(REFB.dT,1)+' K, 참 효과 '+sg(REFB.ef,1)+').';
+}
+var B_REF=null,B_LIVE=null;
+function updB(){
+  var d=parseFloat($('sB_dT').value),e=parseFloat($('sB_ef').value);
+  put('oB_dT',f(d,1)+' K');put('oB_ef',sg(e,1));refStateB();
+  B_LIVE=analyzeB(MfgSim.scenario('S4',{season_dT:d,true_effect_ppm:e}));fillB(B_LIVE,'l');drawLiveB();
+}
+function drawLiveB(){
+  var R=B_LIVE;if(!R)return;
+  drawCI($('cvB3'),190,[{label:'단순 전후 '+fci(R.naive.lo,R.naive.hi,2),lo:R.naive.lo,hi:R.naive.hi,mid:R.naive.diff,col:'--gA'},{label:'이중차분 '+fci(R.lo,R.hi,2),lo:R.lo,hi:R.hi,mid:R.did,col:'--gB'}],[{x:R.th,label:'온도로 예상 '+sg(R.th,2),col:'--good'}],2);
+}
+
+/* ================= 원자료 표 ================= */
+function rawTables(){
+  var A=A_REF;
+  function rowsOf(arr,off){var s='',i;for(i=0;i<arr.length;i+=10){s+='<tr><td>'+(off+i+1)+'~'+(off+Math.min(i+10,arr.length))+'번</td><td class="l">'+arr.slice(i,i+10).map(function(v){return f(v,3);}).join(' · ')+'</td></tr>';}return s;}
+  var fa=function(){$('rawA').innerHTML='<table><tr><th>변경 전</th><th>값 (측정 순서, 10개씩)</th></tr>'+rowsOf(A.b,0)+'<tr><th>변경 후</th><th>값 (측정 순서, 10개씩)</th></tr>'+rowsOf(A.a,A.n)+'</table>';};
+  var rows=B_REF.sc.rows,t='<table><tr><th>챔버 군</th><th>구간</th><th>턴 안 장 번호</th><th>온도 (°C)</th><th>Mx (ppm)</th></tr>';
+  rows.forEach(function(r){t+='<tr><td>'+(r.group==='treated'?'CH1 처리':'CH2 대조')+'</td><td>'+(r.phase==='before'?'전':'후')+'</td><td>'+r.glass_in_turn+'</td><td>'+f(r.chamber_temp,3)+'</td><td>'+f(r.mx_ppm,4)+'</td></tr>';});
+  var fb=function(){$('rawB').innerHTML=t+'</table>';};
+  $('detA').addEventListener('toggle',function(){if(this.open&&!$('rawA').firstChild)fa();});
+  $('detB').addEventListener('toggle',function(){if(this.open&&!$('rawB').firstChild)fb();});
+}
+
+/* ================= 결정 흐름 ================= */
+var FL=[
+ {id:'q1',n:'질문 1',t:'비교하는 두 묶음은 같은 대상을 두 번 잰 것입니까, 서로 다른 대상입니까?',o:[['pair','같은 대상을 두 번 (대응)'],['ind','서로 다른 대상 (독립)']]},
+ {id:'q2',n:'질문 2',t:'알고 싶은 것은 평균입니까, 산포(흩어짐)입니까?',o:[['mean','평균'],['spread','산포']]},
+ {id:'q3',n:'질문 3',t:'비교하는 값(대응이면 점별 차이)은 정규분포에 가깝습니까?',o:[['norm','가깝다'],['non','가깝지 않다']]},
+ {id:'q4',n:'질문 4',t:'값이 시간 순서로 얻은 센서 값이고 이웃끼리 닮았습니까 (자기상관)?',o:[['ac','닮았다 (φ̂이 0.1 넘게 크다)'],['noac','닮지 않았다']]},
+ {id:'q5',n:'질문 5',t:'같은 시기, 같은 환경에서 변경하지 않은 대조군이 있습니까?',o:[['ctl','있다'],['noctl','없다']]},
+ {id:'q6',n:'질문 6',t:'결론으로 말하고 싶은 것은 &ldquo;달라졌다&rdquo;입니까, &ldquo;나빠지지 않았다(같다)&rdquo;입니까?',o:[['chg','달라졌다'],['same','나빠지지 않았다']]}
+];
+var ST={};
+function lab(k){var L=LABS[k];return '<a href="'+L.file+'">'+L.title+'</a>';}
+function leafFor(id,S){
+  var v=S[id];if(!v)return '';
+  if(id==='q1')return v==='pair'?'<div class="leaf">대응이면 두 묶음의 <b>점별 차이</b> 하나를 비교합니다. 이후 질문의 &ldquo;값&rdquo;은 그 차이를 뜻합니다. → '+lab('0103')+'</div>':'<div class="leaf">독립이면 두 묶음을 그대로 비교합니다. → '+lab('0101')+'</div>';
+  if(id==='q2'){if(v==='spread')return '<div class="leaf"><code>levene_test(a, b, center=\'median\')</code> — 산포는 정규성에 덜 민감한 Levene(중앙값 기준)으로 비교합니다. → '+lab('0102')+'</div>';return '<div class="leaf">평균을 비교합니다. 다음 질문으로 갑니다.</div>';}
+  if(id==='q3'){if(S.q2==='spread')return '<div class="leaf none">산포를 묻는 경우에는 이 질문을 건너뜁니다(Levene에 이미 반영).</div>';
+    var pair=S.q1==='pair';
+    if(v==='norm')return pair?'<div class="leaf"><code>paired_test(before, after)</code> — 대응 t검정. → '+lab('0103')+'</div>':'<div class="leaf"><code>welch_test(before, after)</code> — 등분산을 가정하지 않는 t검정. → '+lab('0101')+'</div>';
+    return pair?'<div class="leaf"><code>wilcoxon_signed(d)</code> — 점별 차이의 부호순위 검정. → '+lab('0103')+'</div>':'<div class="leaf"><code>mannwhitney(a, b)</code> — 순위로 바꿔 위치를 비교. → '+lab('0102')+'</div>';}
+  if(id==='q4')return v==='ac'?'<div class="leaf"><code>ar1_phi(x)</code>로 φ̂을 재고 <code>neff(n, phi)</code>로 표본 수를 바꿔 표준오차를 다시 계산합니다(<code>welch_neff</code>). → '+lab('0104')+'</div>':'<div class="leaf">이웃 닮음이 작으면 위에서 고른 검정을 그대로 씁니다. 판단 근거로 φ̂ 값을 보고서에 적습니다. → '+lab('0104')+'</div>';
+  if(id==='q5')return v==='ctl'?'<div class="leaf"><code>did(tb, ta, cb, ca)</code> — 이중차분으로 공통 요인(온도 등)을 걷어냅니다. 대조군이 처리군과 같은 환경인지(평행 추세)를 함께 확인합니다. → '+lab('0104')+'</div>':'<div class="leaf none">대조군이 없으면 &ldquo;전후에 이만큼 달라졌다&rdquo;까지만 말하고 원인은 단정하지 않습니다. 다음 변경부터는 시행 전에 대조군을 지정해 기록합니다. → '+lab('0104')+'</div>';
+  if(id==='q6')return v==='chg'?'<div class="leaf">위에서 고른 검정의 p값과 신뢰구간으로 보고합니다. 유의하지 않으면 &ldquo;같다&rdquo;가 아니라 &ldquo;가릴 수 없다&rdquo;고 씁니다.</div>':'<div class="leaf"><code>tost_paired(d, delta)</code> — 허용폭 ±δ를 먼저 정하고 90% 신뢰구간이 그 안에 드는지 봅니다. 독립 두 묶음이면 같은 원리를 두 표본에 적용합니다. → '+lab('0103')+'</div>';
+  return '';
+}
+function renderFlow(){
+  var h='';
+  FL.forEach(function(q,i){
+    var skip=(q.id==='q3'&&ST.q2==='spread');
+    h+='<div class="dq'+(skip?' skip':'')+'" data-q="'+q.id+'"><div class="qn">'+q.n+'</div><div class="qt">'+q.t+'</div><div class="opts">';
+    q.o.forEach(function(o){h+='<button type="button" class="opt" data-q="'+q.id+'" data-v="'+o[0]+'" aria-pressed="'+(ST[q.id]===o[0])+'">'+o[1]+'</button>';});
+    h+='</div>'+leafFor(q.id,ST)+'</div>';
+    if(i<FL.length-1)h+='<div class="arrowdn" aria-hidden="true">↓</div>';
+  });
+  $('flow').innerHTML=h.replace(/&ldquo;/g,'“').replace(/&rdquo;/g,'”');
+  Array.prototype.forEach.call($('flow').querySelectorAll('.opt'),function(b){b.onclick=function(){var q=b.getAttribute('data-q'),v=b.getAttribute('data-v');ST[q]=(ST[q]===v)?undefined:v;renderFlow();};});
+  renderRecipe();
+}
+function renderRecipe(){
+  var S=ST,items=[],r=$('recipe');
+  var done=FL.filter(function(q){return S[q.id];}).length;
+  if(!done){r.innerHTML='<b>내 처방</b><p style="margin:.3rem 0 0" class="note">위 질문에 답하면 쓸 함수가 여기에 순서대로 모입니다.</p>';return;}
+  if(S.q1)items.push(S.q1==='pair'?'점별 차이를 만들어 한 묶음으로 봅니다 ('+lab('0103')+')':'두 독립 묶음으로 봅니다 ('+lab('0101')+')');
+  if(S.q2==='spread')items.push('<code>levene_test</code>로 산포를 비교합니다 ('+lab('0102')+')');
+  else if(S.q2==='mean'&&S.q3){var pair=S.q1==='pair';items.push('<code>'+(S.q3==='norm'?(pair?'paired_test':'welch_test'):(pair?'wilcoxon_signed':'mannwhitney'))+'</code>로 평균(위치)을 비교합니다 ('+lab(S.q3==='norm'?(pair?'0103':'0101'):(pair?'0103':'0102'))+')');}
+  if(S.q4==='ac')items.push('<code>ar1_phi</code> → <code>neff</code>로 표본 수를 바꿔 표준오차를 다시 계산합니다 ('+lab('0104')+')');
+  if(S.q5==='ctl')items.push('<code>did</code>로 대조군의 변화를 빼서 공통 요인을 걷어냅니다 ('+lab('0104')+')');
+  if(S.q5==='noctl')items.push('대조군이 없으므로 원인은 단정하지 않고 &ldquo;전후 차이&rdquo;까지만 보고합니다');
+  if(S.q6==='same')items.push('<code>tost_paired</code>로 &ldquo;나빠지지 않았다&rdquo;를 동등성 검정으로 보입니다 ('+lab('0103')+')');
+  if(S.q6==='chg')items.push('p값과 신뢰구간으로 보고하고, 유의하지 않으면 &ldquo;가릴 수 없다&rdquo;고 씁니다');
+  r.innerHTML=('<b>내 처방 ('+done+' / '+FL.length+'개 답함)</b><ol>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ol>').replace(/&ldquo;/g,'“').replace(/&rdquo;/g,'”');
+}
+function preset(o){ST={};for(var k in o)ST[k]=o[k];renderFlow();}
+
+/* ================= 전체 ================= */
+function redrawAll(){
+  if(!A_REF)return;
+  drawSeries($('cvA1'),A_REF);drawLag($('cvA2'),A_REF);
+  drawCI($('cvA3'),170,[{label:'독립으로 본 구간 '+fci(A_REF.naive.lo,A_REF.naive.hi,3),lo:A_REF.naive.lo,hi:A_REF.naive.hi,mid:A_REF.diff,col:'--gA'},{label:'실효 표본 수로 본 구간 '+fci(A_REF.c.lo,A_REF.c.hi,3),lo:A_REF.c.lo,hi:A_REF.c.hi,mid:A_REF.diff,col:'--gB'}],null,2);
+  drawLive();
+  drawDiD($('cvB1'),B_REF);drawTemp($('cvB2'),B_REF);drawLiveB();
+}
+function init(){
+  A_REF=analyzeA(MfgSim.scenario('S5'));B_REF=analyzeB(MfgSim.scenario('S4'));
+  REFA={phi:A_REF.sc.params.phi,shift:A_REF.sc.params.shift};REFB={dT:B_REF.sc.params.season_dT,ef:B_REF.sc.truth.true_effect_ppm};
+  $('sA_phi').value=REFA.phi;$('sA_sh').value=REFA.shift;$('sB_dT').value=REFB.dT;$('sB_ef').value=REFB.ef;put('refPhiTxt','φ '+f(REFA.phi,2));
+  fillA(A_REF,'r');fillB(B_REF,'r');rawTables();
+  updA();updB();
+  function thr(fn){var q=0;return function(){if(q)return;q=requestAnimationFrame(function(){q=0;fn();});};}
+  var ta=thr(updA),tb=thr(updB);
+  $('sA_phi').addEventListener('input',ta);$('sA_sh').addEventListener('input',ta);
+  $('sB_dT').addEventListener('input',tb);$('sB_ef').addEventListener('input',tb);
+  $('rstA').onclick=function(){$('sA_phi').value=REFA.phi;$('sA_sh').value=REFA.shift;updA();};
+  $('rstB').onclick=function(){$('sB_dT').value=REFB.dT;$('sB_ef').value=REFB.ef;updB();};
+  $('preA').onclick=function(){preset({q1:'ind',q2:'mean',q3:'norm',q4:'ac',q5:'noctl',q6:'chg'});};
+  $('preB').onclick=function(){preset({q1:'ind',q2:'mean',q3:'norm',q4:'noac',q5:'ctl',q6:'chg'});};
+  $('preX').onclick=function(){preset({});};
+  renderFlow();redrawAll();
+  window.addEventListener('resize',redrawAll);
+  window.__lab0104={A_REF:A_REF,B_REF:B_REF,get A_LIVE(){return A_LIVE;},get B_LIVE(){return B_LIVE;}};
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+
+/* ---------- 테마 · 상단바 ---------- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'),root=document.documentElement;
+  function get(){return root.getAttribute('data-theme')||'light';}
+  function apply(v){root.setAttribute('data-theme',v);for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');window.dispatchEvent(new Event('resize'));}
+  btn.onclick=function(){var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;var nv=THEMES[(i+1)%THEMES.length].v;try{localStorage.setItem('agentlab_theme',nv);}catch(e){}apply(nv);};
+  apply(get());
+  var bar=$('topbar');function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);window.addEventListener('resize',reserve);
+  if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+})();
+</script>
+</body></html>

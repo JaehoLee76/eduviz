@@ -113,6 +113,9 @@ p{margin:0 0 .8rem}
   border-radius:14px;padding:.9rem 1.05rem}
 .labitem .tt{font-weight:800;flex:1 1 200px}
 .labitem .ss{font-size:.9rem;color:var(--soft);flex:1 1 100%}
+a.labitem{text-decoration:none;color:inherit;border-style:solid;margin-bottom:.7rem}
+a.labitem:hover{background:var(--code, var(--card));border-color:var(--accent)}
+.labitem .no2{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
 footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
 
 @media(max-width:760px){
@@ -280,7 +283,7 @@ footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
   <h2><span class="no">5</span>학습·실행 로드맵</h2>
   <p class="lead">기간은 대략입니다. 일과 병행하며 단계마다 실제로 쓸 수 있는 결과를 하나씩 남깁니다.</p>
   <ol class="tl">
-    <li><span class="when">0~3개월</span><h3>단계 1 · 기초 <span class="badge">다음 단계</span></h3><p>변경점 검정과 궤적→특징을 익히고, 분석 사례 은행에 기록을 시작합니다.</p></li>
+    <li><span class="when">0~3개월</span><h3>단계 1 · 기초 <span class="badge">진행 중</span></h3><p>변경점 검정과 궤적→특징을 익히고, 분석 사례 은행에 기록을 시작합니다.</p></li>
     <li><span class="when">3~6개월</span><h3>단계 2 · 첫 실무 성과</h3><p>실제 변경점의 판정을 보고합니다. 가성 인터락을 줄이는 spec을 과거 데이터로 다시 만들어 보며 검증합니다.</p></li>
     <li><span class="when">6~12개월</span><h3>단계 3 · PPA</h3><p>성분 분해로 보정할지 리페어할지 가르는 판단 기준을 만듭니다.</p></li>
     <li><span class="when">12~18개월</span><h3>단계 4 · 에이전트 시제품</h3><p>도구 상자와 사례 검색을 묶어 보고서 초안을 자동으로 씁니다.</p></li>
@@ -290,12 +293,27 @@ footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
 
 <section id="labs">
   <h2><span class="no">6</span>실험실 목록</h2>
-  <p class="lead">첫 실험실은 기둥 2의 첫 걸음이며, 단계 1에 놓입니다.</p>
-  <div class="labitem">
-    <span class="tt">궤적에서 특징으로 — FDC 데이터의 모양</span>
-    <span class="badge">다음 단계</span>
-    <span class="ss">기둥 2 · 설비가 남긴 시간 곡선(궤적)에서 최댓값, 기울기 같은 숫자(특징)를 뽑는 법.</span>
-  </div>
+  <p class="lead">단계 1(기초)의 실험실입니다. 궤적에서 특징을 뽑는 법부터 보고, 변경점 판정 네 편으로 이어집니다. 데이터는 11블록 증착 라인을 본뜬 학습용 가상 데이터입니다.</p>
+  <a class="labitem" href="labs/0201-trace-to-feature.html">
+    <span class="no2">0201</span><span class="tt">궤적에서 특징으로 — FDC 데이터의 모양</span>
+    <span class="ss">기둥 2 · 압력 곡선을 숫자 몇 개(특징)로 요약하고, 어떤 이상이 어떤 특징에서만 드러나는지 봅니다.</span>
+  </a>
+  <a class="labitem" href="labs/0101-pm-mean-shift.html">
+    <span class="no2">0101</span><span class="tt">PM 후 평균이 옮겨 갔는가</span>
+    <span class="ss">기둥 1 · 3σ 비교법이 놓친 평균 이동을 Welch t검정·효과 크기·신뢰구간으로 잽니다.</span>
+  </a>
+  <a class="labitem" href="labs/0102-stick-spread.html">
+    <span class="no2">0102</span><span class="tt">평균은 그대로인데 산포가 줄었다</span>
+    <span class="ss">기둥 1 · FMM 스틱 교체 효과를 Levene 검정과 맨-휘트니 U로 판정합니다.</span>
+  </a>
+  <a class="labitem" href="labs/0103-repair-paired-tost.html">
+    <span class="no2">0103</span><span class="tt">리페어 전후, 그리고 '나빠지지 않았다'의 증명</span>
+    <span class="ss">기둥 1 · 같은 77점의 대응 비교와 동등성 검정(TOST)을 다룹니다.</span>
+  </a>
+  <a class="labitem" href="labs/0104-autocorr-did.html">
+    <span class="no2">0104</span><span class="tt">유의한데 가짜다 — 자기상관과 교란</span>
+    <span class="ss">기둥 1 · 실효 표본 수와 이중차분으로 거짓 유의를 걸러 내고, 변경점 판정 흐름을 정리합니다.</span>
+  </a>
 </section>
 
 <section id="strategy">

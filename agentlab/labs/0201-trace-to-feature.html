@@ -1,0 +1,697 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>궤적에서 특징으로 · FDC 데이터의 모양</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="센서 곡선을 어떤 숫자로 요약할지 고르는 일이 곧 공정 지식이라는 것을, 가상 FDC 데이터 10장으로 직접 확인하는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 2 · 실험실 1</p>
+  <h1>궤적에서 특징으로</h1>
+  <p class="sub">FDC 데이터의 모양</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><span class="sp"></span><a href="0101-pm-mean-shift.html">다음: 기둥 1 실험실 →</a></nav>
+
+<p><b>센서 곡선을 어떤 숫자로 요약할지 고르는 일이 곧 공정 지식입니다.</b> 평균만 보면 놓치는 이상이 있고, 무엇을 더 재야 하는지는 공정을 아는 사람만 압니다. 이 실험실에서 그 말을 직접 확인합니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 평균, 표준편차, 중앙값, z값(평균을 빼고 표준편차로 나눈 값), 3σ 관리선, FDC 화면에서 센서 곡선을 보는 일.</p>
+  <ul class="chips known"><li>평균</li><li>표준편차</li><li>중앙값</li><li>z값</li><li>3σ 관리선</li></ul>
+  <p><b>새로 나오는 낱말은 여덟 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <ul class="chips" id="termList"><li>궤적 (trace)</li><li>정상 구간 (steady window)</li><li>특징 추출 (feature extraction)</li><li>특징 (feature)</li><li>오버슈트 (overshoot)</li><li>정착 시간 (settling time)</li><li>최대 편차</li><li>긴 형식 (long format)</li></ul>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 증착 라인의 <b>B03(R EML) 블록, CH1 챔버</b>에서 한 스텝(60초) 동안 챔버 압력 센서가 1초마다 값을 남겼습니다. 레시피 목표는 <b><span id="pTarget"></span> mTorr</b>이고, 스텝은 5초에 시작해 55초에 끝납니다. 유리 10장(W01~W10)의 압력 기록이 있습니다. 현재 관리 방식은 &ldquo;스텝이 자리 잡은 뒤의 평균이 관리선 안에 있는가&rdquo;를 보는 것입니다.<br>
+  <b>10장 가운데 이상이 있는 유리를 모두 찾고, 이상이 어떤 종류인지 말하십시오.</b>
+  <details id="rawDetails"><summary>10장 × 60초 압력 값 전체 보기 (mTorr)</summary>
+    <div class="tbwrap" style="max-height:320px;overflow-y:auto"><table id="rawTable"></table></div>
+  </details>
+  <p class="note" style="margin:.5rem 0 0">같은 값이 <code>agentlab/data/csv/trace_w01_w10.csv</code> 파일에 들어 있습니다. 6절의 Python 코드가 이 파일을 읽습니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>곡선 한 줄</h2>
+<p>유리 한 장이 이 스텝을 지나는 동안 압력 센서는 무엇을 남깁니까? 1초마다 한 숫자씩, 60개의 숫자가 시간 순서로 남습니다. 이 곡선을 <b>궤적 (trace)</b>이라 부르겠습니다. FDC 화면에서 매일 보시는 바로 그 곡선입니다.</p>
+<div class="lab">
+  <div class="labtitle">유리 한 장의 궤적 — 압력(mTorr)을 시간(초)에 대해 그린 곡선</div>
+  <div class="watch"><b>먼저 눈으로 찾아보세요.</b> W01을 기준으로 두고 W08, W09, W10을 차례로 눌러 W01과 어디가 다른지 찾아보세요. 곡선 위에 마우스를 올리거나 손가락을 대면 그 초의 값이 아래에 나옵니다.</div>
+  <div class="row" id="wafBtns1" role="group" aria-label="유리 고르기"></div>
+  <div class="row"><button class="btn ghost" id="ovBtn" type="button" aria-pressed="true">W01 곡선 겹쳐 보기: 켜짐</button></div>
+  <canvas id="cv1" height="300"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>고른 유리</span><span><span class="dot" style="background:var(--grey)"></span>W01(겹쳐 보기)</span><span>점선 = 레시피 목표</span></div>
+  <div class="readout" id="rd1"></div>
+</div>
+<div class="qna" data-label="그래프는 0초가 아니라 5초에 오르는데, 앞 5초는 무엇인가요?" data-q="그래프는 5초에 오르는데, 앞 5초는 무엇인가요?">
+  <p>스텝이 시작되기 전의 대기 구간입니다. 챔버가 비어 있어 압력이 거의 0이고, 센서 잡음만 남습니다. 레시피가 5초에 목표값을 지시하면 압력이 올라가고, 55초에 지시를 풀면 내려갑니다.</p>
+  <p>FDC 데이터에서는 이 시작·종료 시각이 레시피 이벤트로 함께 남습니다. 뒤에서 정상 구간을 자동으로 정할 때 이 시각을 씁니다.</p>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>막힘 — 숫자가 너무 많습니다</h2>
+<p>곡선을 보면 이상이 눈에 들어옵니다. 하지만 눈으로 보는 방식은 유리 10장에서나 통합니다. 한 로트를 통째로 분석하려면 숫자가 얼마나 되는지 세어 보겠습니다.</p>
+<div class="lab">
+  <div class="labtitle">한 로트가 남기는 숫자의 개수</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 센서 수를 바꿔 보세요. 개수가 어떻게 달라지는지, 유리 한 장당 숫자는 몇 개인지 봅니다.</div>
+  <div class="ctrl"><label for="n2a">유리 수 (한 로트)</label><input type="number" id="n2a" min="1" max="999" step="1" value="25"><span></span></div>
+  <div class="ctrl"><label for="n2b">스텝 수 (레시피 한 번)</label><input type="number" id="n2b" min="1" max="999" step="1" value="12"><span></span></div>
+  <div class="ctrl"><label for="n2c">센서 수 (스텝마다)</label><input type="number" id="n2c" min="1" max="999" step="1" value="80"><span></span></div>
+  <div class="ctrl"><label for="n2d">스텝 길이 (초, 1초 간격)</label><input type="number" id="n2d" min="1" max="999" step="1" value="60"><span></span></div>
+  <div class="row"><button class="btn ghost" id="n2reset" type="button">현장 예시 값으로 되돌리기</button></div>
+  <div class="state" id="n2state"></div>
+  <p style="margin:.6rem 0 0">한 로트의 숫자 = <span class="big" id="n2total"></span> 개</p>
+  <p class="note" id="n2per"></p>
+</div>
+<p>이 숫자를 전부 모델에 넣으면 되지 않느냐는 생각이 드실 겁니다. 두 가지가 막습니다. 첫째, 스텝 길이가 유리마다 조금씩 달라서 같은 초에 같은 일이 일어난다고 가정할 수 없습니다. 둘째, 위에서 보듯 유리 한 장보다 숫자가 훨씬 많으면 모델은 규칙이 아니라 우연을 외웁니다.</p>
+<p><b>그래서 분석은 &ldquo;유리 한 장 = 표 한 줄&rdquo;이 되어야 시작됩니다.</b> 곡선 하나를 숫자 몇 개로 줄이는 방법이 필요합니다.</p>
+<div class="qna" data-label="웨이퍼마다 스텝 길이가 다르면 어떻게 하나요?" data-q="유리마다 스텝 길이가 다르면 어떻게 하나요?">
+  <p>시간 정렬 문제입니다. 가장 단순한 길은 스텝 시작 시각을 기준(0초)으로 맞추고, 필요한 구간만 잘라 쓰는 것입니다. 이 실험실이 그 방식입니다.</p>
+  <p>길이 차이가 크거나 모양이 늘고 줄어드는 경우에는 시간 왜곡 정렬(DTW, dynamic time warping)이라는 기법이 있습니다. 이름만 알아 두시면 됩니다. 이 실험실에서는 쓰지 않습니다.</p>
+</div>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>정상 구간과 특징 추출</h2>
+<p>곡선 전체의 평균을 내면 어떻게 될까요? 대기 구간의 0, 올라가는 구간, 내려가는 구간이 섞여서 어떤 공정 상태도 말해 주지 않는 숫자가 됩니다. 값이 목표에 자리 잡은 뒤의 구간만 보아야 합니다.</p>
+<p>그 구간을 <b>정상 구간 (steady window)</b>이라 부릅니다. 기본값은 <span id="dw0"></span>~<span id="dw1"></span>초입니다. 곡선을 숫자 몇 개로 요약하는 일을 <b>특징 추출 (feature extraction)</b>이라 하고, 요약해서 얻은 숫자 하나하나를 <b>특징 (feature)</b>이라 부릅니다. 정상 구간의 평균과 표준편차가 첫 두 특징입니다.</p>
+<div class="lab">
+  <div class="labtitle">정상 구간의 양 끝을 옮겨 보기</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 시작 슬라이더를 위쪽 곡선이 올라가는 중간(10초 근처)까지 왼쪽으로 끌어 보세요. 평균과 표준편차가 어떻게 변하는지 봅니다. 그다음 유리를 W08로 바꿔 시작을 25초 근처로 놓고 표준편차를 봅니다.</div>
+  <div class="ctrl"><label for="wsel3">유리 고르기</label><select id="wsel3"></select><span></span></div>
+  <div class="ctrl"><label for="ws0">구간 시작 (초)</label><input type="range" id="ws0" min="6" max="57" step="1"><output id="ws0o"></output></div>
+  <div class="ctrl"><label for="ws1">구간 끝 (초)</label><input type="range" id="ws1" min="8" max="59" step="1"><output id="ws1o"></output></div>
+  <div class="row"><button class="btn ghost" id="wreset" type="button">기본 구간으로 되돌리기</button></div>
+  <div class="state" id="wstate"></div>
+  <canvas id="cv3" height="260"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>궤적</span><span><span class="dot" style="background:var(--good)"></span>정상 구간과 그 평균</span><span><span class="dot" style="background:var(--grey)"></span>곡선 전체 평균(0~59초)</span></div>
+  <div class="two" style="margin-top:.7rem">
+    <div class="readout">구간 길이 <b id="w_len"></b> 점</div>
+    <div class="readout">구간 평균 <b id="w_mean"></b> mTorr</div>
+    <div class="readout">구간 표준편차 <b id="w_sd"></b> mTorr</div>
+    <div class="readout">곡선 전체 평균 <b id="w_all"></b> mTorr</div>
+  </div>
+</div>
+<div class="qna" data-label="정상 구간은 무엇을 기준으로 정하나요?" data-q="정상 구간은 무엇을 기준으로 정하나요?">
+  <p>기본은 &ldquo;스텝 시작 시각 + 안정화 시간&rdquo;으로 정합니다. 이 실험실에서는 시작 5초에 값이 자리 잡을 시간을 더해 정상 구간을 <span id="qa_win"></span>초로 두었습니다.</p>
+  <p>현장에서 더 좋은 방법은 압력이 목표의 ±2% 띠 안에 들어와 다시 나가지 않는 시각을 자동으로 찾아 그 뒤를 정상 구간으로 쓰는 것입니다. 다만 느린 밸브처럼 이상 자체가 &ldquo;늦게 자리 잡음&rdquo;인 경우에는, 자동으로 따라가면 이상이 숨습니다. 그래서 구간은 고정하고 도착 시각을 별도의 특징으로 재는 편이 안전합니다.</p>
+</div>
+<div class="qna" data-label="샘플링 주기가 1초가 아니면 어떻게 되나요?" data-q="샘플링 주기가 1초가 아니면 어떻게 되나요?">
+  <p>특징을 &ldquo;몇 번째 점&rdquo;이 아니라 &ldquo;몇 초&rdquo;로 정의하면 주기와 상관이 없습니다. 정착 시간은 초 단위로, 정상 구간은 초 구간으로 정의하세요.</p>
+  <p>다만 주기가 달라지면 평균이나 표준편차를 낼 때 쓰는 점의 개수가 달라지므로, 같은 설비의 같은 주기끼리 비교하는 것이 원칙입니다.</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>평균만으로는 못 잡습니다</h2>
+<h3>먼저 약속 하나 — 무엇을 이상이라 부를까</h3>
+<p>이상을 찾으려면 기준이 있어야 합니다. 여기서는 <b>W01~W07을 정상 유리로 놓습니다.</b> 이 일곱 장의 특징 평균을 <i>m</i>, 표준편차를 <i>s</i>라 하고, 어떤 유리의 특징 값 <i>x</i>가 이 일곱 장에서 얼마나 떨어졌는지를 z값으로 잽니다. ADP 실험실에서 배운 그 표준화입니다. <b>|z|가 3을 넘으면 이상으로 봅니다.</b></p>
+<div class="eq">
+  <span class="eqlab">z값 — 정상 7장을 기준으로 한 표준화</span>
+  <math display="block"><mrow><mi>z</mi><mo>=</mo><mfrac><mrow><mi>x</mi><mo>−</mo><mi>m</mi></mrow><mi>s</mi></mfrac></mrow></math>
+  <span class="note">예: W10의 정상 구간 평균 <b id="zx"></b> 에 대해 z = (<b id="zxv"></b> − <b id="zmv"></b>) ÷ <b id="zsv"></b> = <b id="zv"></b></span>
+</div>
+<p><b>이 약속에는 가정이 하나 들어 있습니다.</b> W01~W07이 정말 정상이라는 가정입니다. 기준 유리 안에 이상이 섞여 있으면 <i>m</i>과 <i>s</i>가 오염되어 기준 자체가 흐려집니다.</p>
+
+<h3>평균 한 열로 판정해 보기</h3>
+<p>현재 관리 방식대로 정상 구간 평균 한 열만 놓고 보겠습니다. 붉은 칸이 |z| &gt; 3 으로 걸린 유리입니다.</p>
+<div class="lab">
+  <div class="labtitle">유리 10장의 정상 구간 평균</div>
+  <div class="tbwrap"><table id="meanTable"></table></div>
+  <div class="readout" id="afterMean"></div>
+</div>
+<p>그럼 W08과 W09는 어떻게 잡습니까? 곡선을 다시 보면 W08은 목표에 <b>늦게 도착</b>했고, W09는 한순간 <b>튀었습니다.</b> 각각을 재는 숫자를 만들어야 합니다. 네 가지 숫자의 정의를 먼저 보겠습니다.</p>
+
+<h3>네 특징의 정의</h3>
+<dl>
+  <dt><b>정착 시간 (settling time)</b></dt>
+  <dd>스텝이 시작된 뒤, 압력이 정상 구간 중앙값(L)의 ±2% 띠 안에 처음 들어와 정상 구간이 시작될 때까지 다시 나가지 않는 시각까지 걸린 시간(초). 늦게 도착하는 이상을 잽니다.</dd>
+</dl>
+<div class="eq">
+  <span class="eqlab">±2% 띠 (L = 정상 구간 중앙값)</span>
+  <math display="block"><mrow><mo stretchy="false">|</mo><mi>y</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>−</mo><mi>L</mi><mo stretchy="false">|</mo><mo>≤</mo><mn>0.02</mn><mo>⋅</mo><mi>L</mi></mrow></math>
+  <span class="note">정착 시간 = 이 식이 처음 성립한 뒤 정상 구간 시작까지 계속 성립하는 시각 − 스텝 시작(5초)</span>
+</div>
+<dl>
+  <dt><b>최대 편차</b></dt>
+  <dd>정상 구간에서 &ldquo;각 값과 정상 구간 평균의 차이&rdquo; 절댓값이 가장 큰 것(mTorr). 한순간 튀는 이상을 잽니다.</dd>
+  <dt><b>정상 구간 표준편차</b></dt>
+  <dd>정상 구간 값의 흔들림 크기(mTorr). 잡음이 커지는 이상을 잽니다.</dd>
+  <dt><b>오버슈트 (overshoot)</b></dt>
+  <dd>올라가는 동안(스텝 시작부터 정상 구간 직전까지) 목표를 넘어갔다 돌아오는 정도입니다. 최댓값이 정상 구간 중앙값 L보다 몇 % 높았는지로 잽니다. 응답의 모양을 잽니다.</dd>
+</dl>
+<div class="eq">
+  <span class="eqlab">오버슈트 (%)</span>
+  <math display="block"><mrow><mfrac><mrow><msub><mi>y</mi><mtext>최대</mtext></msub><mo>−</mo><mi>L</mi></mrow><mi>L</mi></mfrac><mo>×</mo><mn>100</mn></mrow></math>
+  <span class="note">y 최대 = 올라가는 동안의 최댓값</span>
+</div>
+<p><b>어떤 이상을 잡을지 알아야 어떤 특징을 잴지 정할 수 있습니다.</b> 밸브가 느려지면 정착 시간이, 순간 방전처럼 한순간 튀는 일이 생기면 최대 편차가 움직입니다. 이것이 공정 지식이고, AI가 대신 정해 주지 못하는 부분입니다.</p>
+<div class="lab">
+  <div class="labtitle">특징을 하나씩 더하기 — 붉은 칸은 |z| &gt; 3</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 처음에는 평균 열 하나뿐입니다. 단추로 특징을 하나씩 더하면서, 열을 더할 때마다 새로 붉어지는 유리가 있는지 보세요. 정착 시간 열과 최대 편차 열에서 각각 어느 유리가 붉어지는지 먼저 찾아보시길 권합니다.</div>
+  <div class="row" id="featBtns" role="group" aria-label="특징 열 더하기"></div>
+  <div class="tbwrap"><table id="featTable"></table></div>
+  <div class="readout" id="caught4"></div>
+  <div class="row"><button class="btn ghost" id="f4reset" type="button">평균 한 열로 되돌리기</button></div>
+</div>
+<div class="qna" data-label="왜 평균 대신 중앙값을 기준으로 쓰나요?" data-q="왜 정착 시간과 오버슈트의 기준으로 평균 대신 중앙값을 쓰나요?">
+  <p>튀는 값에 끌려가지 않기 위해서입니다. W09처럼 정상 구간에 세 점이 +12 mTorr 튀면 평균은 위로 끌려가고, 그 평균으로 ±2% 띠를 만들면 띠 자체가 어긋납니다. 중앙값은 몇 개가 튀어도 거의 움직이지 않습니다.</p>
+  <p>평균은 &ldquo;정상 구간의 수준&rdquo;이라는 특징 자체로 따로 쓰고, 모양을 재는 특징의 기준선만 중앙값으로 잡았습니다.</p>
+</div>
+<div class="qna" data-label="기준 유리(정상 7장)는 어떻게 고르나요?" data-q="기준 유리(정상 7장)는 어떻게 고르나요?">
+  <p>같은 챔버·같은 레시피·같은 마스크 세트에서 최근 PM 이후에 이상 없이 나온 유리를 쓰는 것이 기본입니다. 기준에 이상이 섞이면 m과 s가 오염되므로, 먼저 눈으로 곡선을 확인하고 중앙값 기반(로버스트) 추정으로 한 번 더 걸러내는 방법이 있습니다.</p>
+  <p>기준 유리의 수가 너무 적으면 s가 불안정하므로, 현장에서는 수십 장을 쓰는 것이 좋습니다. 이 실험실은 학습용이라 일곱 장입니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>표 완성 — 어느 이상이 어느 특징에서 드러나는가</h2>
+<p>앞 절에서 열 하나씩 더하던 표를 이제 z값으로 완성합니다. 같은 특징 다섯 개를 모두 놓고, 칸마다 정상 7장을 기준으로 한 z값을 적습니다.</p>
+<p><b>한 가지 주의가 있습니다.</b> 정착 시간은 정상 7장이 모두 같은 값이어서 표준편차가 0입니다. 0으로 나눌 수 없으므로 측정 간격 한 칸인 1초를 표준편차의 하한으로 둡니다. 실제 현장에서도 정수로 기록되는 값에는 같은 문제가 생깁니다.</p>
+<div class="lab">
+  <div class="labtitle">z값 표와 점그림 — 이상으로 볼 경계를 바꿔 보기</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 경계 슬라이더를 기본 3에서 가장 왼쪽(1.5)까지 내려 보세요. 이상 유리뿐 아니라 정상 7장 가운데서도 붉어지는 칸이 생기는지 봅니다. 세 이상 유리가 서로 다른 특징 행에서 멀리 벗어나는지도 점그림에서 확인하세요.</div>
+  <div class="ctrl"><label for="thr">경계 |z| &gt;</label><input type="range" id="thr" min="1.5" max="6" step="0.5" value="3"><output id="thro"></output></div>
+  <div class="row"><button class="btn ghost" id="thrReset" type="button">경계 3으로 되돌리기</button></div>
+  <div class="state" id="thrState"></div>
+  <div class="tbwrap"><table id="zTable"></table></div>
+  <canvas id="cv5" height="250"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--grey)"></span>정상 W01~W07</span><span><span class="dot" style="background:var(--c8)"></span>W08</span><span><span class="dot" style="background:var(--c9)"></span>W09</span><span><span class="dot" style="background:var(--c10)"></span>W10</span><span>가장자리 ▶ = 그림 범위 밖(값은 표에)</span></div>
+  <div class="readout" id="sum5"></div>
+</div>
+<div class="concl" id="concl5"></div>
+<p>한 가지만 더 짚습니다. 다섯 특징을 모두 쓰면 이상 유리 세 장이 서로 다른 열에서 드러납니다. 하지만 특징 다섯 개를 센서 한 개에서 뽑았을 때의 이야기입니다. 센서가 <b id="nSensB"></b>개라면 유리 한 장에 특징이 <b id="nFeatTot"></b>개 생깁니다. 실제 반도체 공장 데이터인 SECOM에는 이렇게 만든 특징이 590개 들어 있습니다. 590개 각각에 3σ 선을 그으면 어떤 일이 생길까요? 기둥 2의 다음 실험실에서 직접 세어 봅니다. 위 슬라이더를 1.5로 내렸을 때 정상 유리가 붉어지던 모습이 그 이야기의 예고입니다.</p>
+<div class="qna" data-label="특징은 몇 개나 만들어야 하나요?" data-q="특징은 몇 개나 만들어야 하나요?">
+  <p>많을수록 좋지 않습니다. 이상은 한 가지 모양으로만 나타나지 않으니 특징이 어느 정도 필요하지만, 특징마다 3σ 선을 하나씩 그으면 이상이 없는데도 선을 넘는 일(헛알람)이 특징 수에 비례해 늘어납니다.</p>
+  <p>그래서 &ldquo;어떤 이상을 잡고 싶은가&rdquo;에서 거꾸로 특징을 고릅니다. 이 문제는 다음 실험실의 주제입니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>FDC 화면에서 내보낸 CSV는 보통 <b>긴 형식 (long format)</b>입니다. 측정값 하나가 한 줄이고, 그 값이 어느 유리·스텝·센서·시각의 것인지가 열로 붙습니다. 이 실험실의 파일은 <code>wafer, t, pressure</code> 세 열입니다. 실제 내보내기에는 <code>step, sensor</code> 열이 더 붙고, 아래 코드의 <code>keys</code>에 그 열 이름을 더하면 됩니다.</p>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+
+# 긴 형식 CSV: 열 wafer, t, pressure  (실제 FDC 내보내기는 step, sensor 열이 더 붙습니다)
+df = pd.read_csv("agentlab/data/csv/trace_w01_w10.csv")   # 내려받은 위치에 맞게 경로를 바꾸세요
+
+T_ON = 5            # 스텝 시작(초)
+WIN = (35, 50)      # 정상 구간(초, 양 끝 포함)
+BAND = 0.02         # 정착 띠: 기준 수준의 ±2%
+NORMAL = ["W01", "W02", "W03", "W04", "W05", "W06", "W07"]   # 기준으로 삼을 유리
+
+
+def extract_features(df, keys=("wafer",), t_on=T_ON, win=WIN, band=BAND):
+    """궤적(긴 형식) -&gt; 유리 한 장 = 표 한 줄. 반환 열:
+    steady_mean, steady_std, max_dev, settle_s, overshoot_pct."""
+    def one(g):
+        y = g.set_index("t")["pressure"].sort_index()
+        w = y.loc[win[0]:win[1]]                   # 정상 구간
+        level = w.median()                         # 기준 수준(튐에 끌려가지 않도록 중앙값)
+        rise = y.loc[t_on:win[0] - 1].to_numpy()   # 상승 구간
+        bad = np.flatnonzero(np.abs(rise - level) &gt; band * level)
+        settle = bad[-1] + 1 if bad.size else 0    # 띠 밖에 마지막으로 있던 다음 칸
+        return pd.Series({
+            "steady_mean": w.mean(),
+            "steady_std": w.std(ddof=1),
+            "max_dev": (w - w.mean()).abs().max(),
+            "settle_s": settle,
+            "overshoot_pct": (rise.max() - level) / level * 100,
+        })
+    return df.groupby(list(keys))[["t", "pressure"]].apply(one)
+
+
+def zscore_vs_reference(feat, reference_ids, min_sd=None):
+    """기준 유리들의 평균·표준편차로 모든 유리를 표준화한다.
+    min_sd: 표준편차가 0에 가까운 특징의 하한(예: {'settle_s': 1.0})."""
+    ref = feat.loc[reference_ids]
+    sd = ref.std(ddof=1)
+    for k, v in (min_sd or {}).items():
+        sd[k] = max(sd[k], v)
+    return (feat - ref.mean()) / sd
+
+
+def flag(z, k=3.0):
+    """|z| &gt; k 인 칸을 True 로."""
+    return z.abs() &gt; k
+
+
+feat = extract_features(df)
+z = zscore_vs_reference(feat, NORMAL, min_sd={"settle_s": 1.0})
+hit = flag(z, 3.0)
+print(feat.round(3))
+print(z.round(1))
+for w in feat.index[hit.any(axis=1)]:
+    cols = ", ".join(hit.columns[hit.loc[w]])
+    print(f"{w}: |z|&gt;3 인 특징 = {cols}")</pre>
+<p>이 코드를 실행하면 아래 표가 나옵니다. 위 5절의 표와 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력 예시"></pre>
+
+<!-- ===================== 보고서·기록·도구 ===================== -->
+<h2><span class="no">7</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>이상 유리 선별 보고서</h3>
+  <dl>
+    <dt>무엇을</dt><dd>B03(R EML) CH1 압력 궤적 10장에서 특징 다섯 개를 뽑고, 정상 7장(W01~W07) 기준 z값으로 이상 유리를 가렸습니다.</dd>
+    <dt>왜 이 방식</dt><dd>현행 방식(정상 구간 평균)만으로는 <span id="rp_meanonly"></span>만 걸립니다. 늦게 도착하는 이상과 한순간 튀는 이상은 평균에 거의 드러나지 않습니다.</dd>
+    <dt>결과</dt><dd id="rp_res"></dd>
+    <dt>결론</dt><dd>세 이상이 서로 다른 특징에서 분리됩니다. 이상 종류는 특징으로 가려집니다.</dd>
+    <dt>조치(제안)</dt><dd>정착 지연 유리는 압력 조절 밸브의 응답을, 튐 유리는 순간 방전이나 센서 접촉을, 수준 이동 유리는 레시피 목표값과 압력계 오프셋을 점검합니다.</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 이 분석을 자동으로 하려면 현장에서 아래를 남겨야 합니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li>스텝 시작·종료 시각(레시피 이벤트)</li>
+      <li>유리 ID, 챔버, 마스크 세트, 턴 — 데이터를 잇는 키</li>
+      <li>센서 이름과 단위, 샘플링 주기</li>
+      <li>PM 이력 — 기준 유리를 가르는 날짜</li>
+      <li>이상으로 판정된 유리와 사후 확인된 원인</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실이 남기는 검증된 함수입니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><code>extract_features(df, keys, t_on, win, band)</code> — 긴 형식 궤적을 유리 한 줄 표로. 열: steady_mean, steady_std, max_dev, settle_s, overshoot_pct</li>
+      <li><code>zscore_vs_reference(feat, reference_ids, min_sd)</code> — 기준 유리의 평균·표준편차로 표준화</li>
+      <li><code>flag(z, k)</code> — |z| &gt; k 인 칸</li>
+    </ul>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0101-pm-mean-shift.html">다음: 기둥 1 실험실 →</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ============ 데이터·특징 계산 핵심 (CORE-START) ============ */
+var DEFWIN=[35,50], BAND=0.02, TARGET=MfgSim.CFG.P_TARGET;
+var IDS=['W01','W02','W03','W04','W05','W06','W07','W08','W09','W10'];
+function waferOpts(i){
+  var o={seed:100+i,zeta:0.6,wn:0.9*(1+0.03*Math.sin(i*2.1)),target:TARGET*(1+0.003*Math.cos(i*1.7))};
+  if(i===8){o.seed=408;o.wn=0.35;o.target=TARGET;}
+  if(i===9){o.seed=209;o.spike={t0:38,len:3,amp:12};}
+  if(i===10){o.seed=110;o.target=TARGET*1.015;}
+  return o;
+}
+var TR=IDS.map(function(_,k){return MfgSim.stepTrace(waferOpts(k+1));});
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function median(a){var b=a.slice().sort(function(x,y){return x-y;}),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;}
+var FK=['mean','std','dev','settle','os'];
+var FNAME={mean:'정상 구간 평균',std:'정상 구간 표준편차',dev:'최대 편차',settle:'정착 시간',os:'오버슈트'};
+var FUNIT={mean:'mTorr',std:'mTorr',dev:'mTorr',settle:'초',os:'%'};
+var FDIG={mean:2,std:3,dev:3,settle:0,os:2};
+function extract(tr,w0,w1){
+  var f0=MfgSim.features(tr,{win:[w0,w1]});
+  var f1=MfgSim.features(tr,{win:[w0,w1],target:f0.steady_mean});
+  var L=median(tr.y.slice(w0,w1+1)), lim=BAND*L, mx=-Infinity, settle=w0-tr.t_on, found=false, i, j;
+  for(i=tr.t_on;i<w0;i++){
+    if(tr.y[i]>mx)mx=tr.y[i];
+    if(!found){var ok=true;for(j=i;j<w0;j++){if(Math.abs(tr.y[j]-L)>lim){ok=false;break;}}if(ok){settle=i-tr.t_on;found=true;}}
+  }
+  return {mean:f0.steady_mean,std:f0.steady_std,dev:f1.max_dev,settle:settle,os:(mx-L)/L*100,level:L};
+}
+var F=TR.map(function(t){return extract(t,DEFWIN[0],DEFWIN[1]);});
+var ST={};
+FK.forEach(function(k){var a=F.slice(0,7).map(function(f){return f[k];}),s=sd(a);ST[k]={m:mean(a),rawsd:s,sd:k==='settle'?Math.max(s,1):s};});
+var Z=F.map(function(f){var z={};FK.forEach(function(k){z[k]=(f[k]-ST[k].m)/ST[k].sd;});return z;});
+/* ============ CORE-END ============ */
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return v.toFixed(d);}
+function fz(v){var t=v.toFixed(1);if(t==='-0.0')t='0.0';return (v>=0||t==='0.0'?'+':'')+t.replace(/^\+/,'');}
+function fmtC(v){return v.toLocaleString('en-US');}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+var FONT='12px -apple-system,"Apple SD Gothic Neo",sans-serif';
+var WCOL=['','','','','','','','--c8','--c9','--c10'];
+
+/* ---- 문제 박스·원자료 표 ---- */
+$('pTarget').textContent=TARGET;
+$('rawDetails').addEventListener('toggle',function(){
+  if(!this.open||$('rawTable').rows.length)return;
+  var h='<tr><th>초</th>'+IDS.map(function(n){return '<th>'+n+'</th>';}).join('')+'</tr>';
+  for(var t=0;t<60;t++){h+='<tr><td class="rowh">'+t+'</td>'+TR.map(function(tr){return '<td>'+tr.y[t].toFixed(1)+'</td>';}).join('')+'</tr>';}
+  $('rawTable').innerHTML=h;
+});
+$('dw0').textContent=DEFWIN[0];$('dw1').textContent=DEFWIN[1];
+$('qa_win').textContent=DEFWIN[0]+'~'+DEFWIN[1];
+
+/* ---- 1절: 궤적 ---- */
+var sel1=0,ov1=true,hover1=null;
+(function(){
+  var h='';IDS.forEach(function(n,i){h+='<button class="btn" type="button" data-i="'+i+'" aria-pressed="'+(i===0)+'">'+n+'</button>';});
+  $('wafBtns1').innerHTML=h;
+  $('wafBtns1').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel1=+b.getAttribute('data-i');
+    Array.prototype.forEach.call($('wafBtns1').children,function(x){x.setAttribute('aria-pressed',x===b);});draw1();rd1();});
+  $('ovBtn').addEventListener('click',function(){ov1=!ov1;this.setAttribute('aria-pressed',ov1);this.textContent='W01 곡선 겹쳐 보기: '+(ov1?'켜짐':'꺼짐');draw1();});
+})();
+var YMAX=(function(){var m=0;TR.forEach(function(t){t.y.forEach(function(v){if(v>m)m=v;});});return Math.ceil((m+5)/50)*50;})();
+var P1={l:46,r:12,t:12,b:30};
+function px1(c,t){return P1.l+(c.w-P1.l-P1.r)*t/59;}
+function py1(c,v){return P1.t+(c.h-P1.t-P1.b)*(1-v/YMAX);}
+function axes(c){
+  var x=c.x;x.font=FONT;x.fillStyle=css('--soft');x.strokeStyle=css('--rule');x.lineWidth=1;x.textAlign='right';
+  for(var v=0;v<=YMAX;v+=100){var y=py1(c,v);x.beginPath();x.moveTo(P1.l,y);x.lineTo(c.w-P1.r,y);x.stroke();x.fillText(v,P1.l-6,y+4);}
+  x.textAlign='center';for(var t=0;t<=59;t+=10){x.fillText(t,px1(c,t),c.h-P1.b+16);}
+  x.fillText('시간 (초)',(P1.l+c.w-P1.r)/2,c.h-4);
+}
+function curve(c,y,col,wd){var x=c.x;x.strokeStyle=col;x.lineWidth=wd;x.beginPath();for(var t=0;t<60;t++){var X=px1(c,t),Y=py1(c,y[t]);if(t)x.lineTo(X,Y);else x.moveTo(X,Y);}x.stroke();}
+function draw1(){
+  var cv=$('cv1'),c=setup(cv,300),x=c.x;axes(c);
+  x.setLineDash([5,4]);x.strokeStyle=css('--warn');x.lineWidth=1.2;x.beginPath();x.moveTo(P1.l,py1(c,TARGET));x.lineTo(c.w-P1.r,py1(c,TARGET));x.stroke();x.setLineDash([]);
+  x.font=FONT;x.fillStyle=css('--warn');x.textAlign='left';x.fillText('목표 '+TARGET,P1.l+6,py1(c,TARGET)-5);
+  if(ov1&&sel1!==0)curve(c,TR[0].y,css('--grey'),1.6);
+  curve(c,TR[sel1].y,css('--accent'),2.2);
+  if(hover1!==null){var X=px1(c,hover1);x.strokeStyle=css('--soft');x.lineWidth=1;x.beginPath();x.moveTo(X,P1.t);x.lineTo(X,c.h-P1.b);x.stroke();
+    x.fillStyle=css('--accent');x.beginPath();x.arc(X,py1(c,TR[sel1].y[hover1]),4.5,0,7);x.fill();}
+}
+function rd1(){
+  var tr=TR[sel1],mx=-Infinity,mt=0;for(var t=0;t<60;t++)if(tr.y[t]>mx){mx=tr.y[t];mt=t;}
+  var s='<b>'+IDS[sel1]+'</b> · ';
+  if(hover1===null)s+='곡선 위에 올려 보세요 · 이 유리의 최댓값 '+fmt(mx,1)+' mTorr ('+mt+'초)';
+  else{s+=hover1+'초 · 압력 <b>'+fmt(tr.y[hover1],1)+'</b> mTorr';
+    if(sel1!==0)s+=' · W01과의 차이 '+(tr.y[hover1]-TR[0].y[hover1]>=0?'+':'')+fmt(tr.y[hover1]-TR[0].y[hover1],1);}
+  $('rd1').innerHTML=s;
+}
+(function(){
+  var cv=$('cv1');
+  function mv(e){var r=cv.getBoundingClientRect(),t=Math.round((e.clientX-r.left-P1.l)/(r.width-P1.l-P1.r)*59);hover1=Math.max(0,Math.min(59,t));draw1();rd1();}
+  cv.addEventListener('pointermove',mv);cv.addEventListener('pointerdown',mv);
+  cv.addEventListener('pointerleave',function(){hover1=null;draw1();rd1();});
+})();
+
+/* ---- 2절: 숫자 개수 ---- */
+var DEF2=[25,12,80,60],ids2=['n2a','n2b','n2c','n2d'];
+function upd2(){
+  var v=ids2.map(function(id){var n=Math.floor(+$(id).value);return (n>=1&&n<=999)?n:1;});
+  var total=v[0]*v[1]*v[2]*v[3], per=v[1]*v[2]*v[3];
+  $('n2total').textContent=fmtC(total);
+  $('n2per').textContent='유리 한 장당 '+fmtC(per)+'개 = '+v[1]+' × '+v[2]+' × '+v[3]+'. 유리는 '+v[0]+'장뿐이므로 숫자는 유리 수의 '+fmtC(per)+'배입니다.';
+  var same=v.every(function(n,i){return n===DEF2[i];});
+  $('n2state').className='state'+(same?'':' moved');
+  $('n2state').textContent=same?'지금은 현장 예시 값입니다.':'지금은 현장 예시에서 옮겨 놓은 값입니다.';
+  $('nSensB').textContent=v[2];$('nFeatTot').textContent=v[2]*FK.length;
+}
+ids2.forEach(function(id){$(id).addEventListener('input',upd2);});
+$('n2reset').addEventListener('click',function(){ids2.forEach(function(id,i){$(id).value=DEF2[i];});upd2();});
+upd2();
+
+/* ---- 3절: 정상 구간 ---- */
+var s3={i:0,a:DEFWIN[0],b:DEFWIN[1]};
+(function(){
+  var h='';IDS.forEach(function(n,i){h+='<option value="'+i+'">'+n+'</option>';});$('wsel3').innerHTML=h;
+  $('ws0').value=s3.a;$('ws1').value=s3.b;
+  $('wsel3').addEventListener('change',function(){s3.i=+this.value;upd3();});
+  $('ws0').addEventListener('input',function(){s3.a=+this.value;if(s3.b<s3.a+2)s3.b=Math.min(59,s3.a+2);upd3();});
+  $('ws1').addEventListener('input',function(){s3.b=+this.value;if(s3.a>s3.b-2)s3.a=Math.max(6,s3.b-2);upd3();});
+  $('wreset').addEventListener('click',function(){s3.a=DEFWIN[0];s3.b=DEFWIN[1];upd3();});
+})();
+function upd3(){
+  $('ws0').value=s3.a;$('ws1').value=s3.b;$('ws0o').textContent=s3.a+'초';$('ws1o').textContent=s3.b+'초';
+  var tr=TR[s3.i],f=MfgSim.features(tr,{win:[s3.a,s3.b]});
+  $('w_len').textContent=s3.b-s3.a+1;$('w_mean').textContent=fmt(f.steady_mean,2);$('w_sd').textContent=fmt(f.steady_std,3);$('w_all').textContent=fmt(mean(tr.y),1);
+  var def=(s3.a===DEFWIN[0]&&s3.b===DEFWIN[1]);
+  $('wstate').className='state'+(def?'':' moved');
+  $('wstate').textContent=def?'지금은 기본 정상 구간('+DEFWIN[0]+'~'+DEFWIN[1]+'초)입니다.':'지금은 기본('+DEFWIN[0]+'~'+DEFWIN[1]+'초)에서 옮겨 놓은 구간입니다.';
+  draw3();
+}
+function draw3(){
+  var cv=$('cv3'),c=setup(cv,260),x=c.x,tr=TR[s3.i];axes(c);
+  var X0=px1(c,s3.a),X1=px1(c,s3.b);
+  x.fillStyle=css('--good');x.globalAlpha=.16;x.fillRect(X0,P1.t,X1-X0,c.h-P1.t-P1.b);x.globalAlpha=1;
+  x.strokeStyle=css('--good');x.lineWidth=1.4;[X0,X1].forEach(function(X){x.beginPath();x.moveTo(X,P1.t);x.lineTo(X,c.h-P1.b);x.stroke();});
+  var all=mean(tr.y);x.setLineDash([5,4]);x.strokeStyle=css('--grey');x.lineWidth=1.4;x.beginPath();x.moveTo(P1.l,py1(c,all));x.lineTo(c.w-P1.r,py1(c,all));x.stroke();x.setLineDash([]);
+  curve(c,tr.y,css('--accent'),2);
+  var f=MfgSim.features(tr,{win:[s3.a,s3.b]});
+  x.strokeStyle=css('--good');x.lineWidth=2.6;x.beginPath();x.moveTo(X0,py1(c,f.steady_mean));x.lineTo(X1,py1(c,f.steady_mean));x.stroke();
+}
+
+/* ---- 4절: 특징표 ---- */
+var shown={mean:true,std:false,dev:false,settle:false,os:false};
+var ORDER4=['settle','dev','std','os'];
+(function(){
+  var h='';ORDER4.forEach(function(k){h+='<button class="btn" type="button" data-k="'+k+'" aria-pressed="false">+ '+FNAME[k]+'</button>';});
+  $('featBtns').innerHTML=h;
+  $('featBtns').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=b.getAttribute('data-k');shown[k]=!shown[k];b.setAttribute('aria-pressed',shown[k]);upd4();});
+  $('f4reset').addEventListener('click',function(){FK.forEach(function(k){shown[k]=(k==='mean');});Array.prototype.forEach.call($('featBtns').children,function(b){b.setAttribute('aria-pressed','false');});upd4();});
+})();
+var thr=3;
+function hitKeys(i,th,keys){return keys.filter(function(k){return Math.abs(Z[i][k])>th;});}
+function upd4(){
+  var keys=FK.filter(function(k){return shown[k];});
+  var h='<tr><th>유리</th>'+keys.map(function(k){return '<th>'+FNAME[k]+' ('+FUNIT[k]+')</th>';}).join('')+'</tr>';
+  var caught=[];
+  IDS.forEach(function(n,i){
+    var hk=hitKeys(i,3,keys);if(hk.length)caught.push(n+'('+hk.map(function(k){return FNAME[k];}).join('·')+')');
+    h+='<tr><td class="rowh">'+n+'</td>'+keys.map(function(k){return '<td'+(Math.abs(Z[i][k])>3?' class="hit"':'')+'>'+fmt(F[i][k],FDIG[k])+'</td>';}).join('')+'</tr>';
+  });
+  $('featTable').innerHTML=h;
+  $('caught4').innerHTML='지금 열로 걸린 유리 <b>'+caught.length+'장</b> — '+(caught.length?caught.join(', '):'없음');
+}
+(function(){
+  var mo=hitKeys(0,3,['mean']);var caught=[];IDS.forEach(function(n,i){if(hitKeys(i,3,['mean']).length)caught.push(n);});
+  (function(){var h='<tr><th>유리</th><th>정상 구간 평균 (mTorr)</th><th>z값</th></tr>';IDS.forEach(function(n,i){h+='<tr><td class="rowh">'+n+'</td><td'+(Math.abs(Z[i].mean)>3?' class="hit"':'')+'>'+fmt(F[i].mean,2)+'</td><td'+(Math.abs(Z[i].mean)>3?' class="hit"':'')+'>'+fz(Z[i].mean)+'</td></tr>';});$('meanTable').innerHTML=h;})();
+  $('afterMean').innerHTML='평균 열 하나로 걸리는 유리는 <b>'+caught.join(', ')+'</b>뿐입니다. 나머지 이상은 평균에 거의 드러나지 않습니다. W08의 평균은 z '+fmt(Z[7].mean,1)+', W09의 평균은 z '+fmt(Z[8].mean,1)+'로, 정상 유리들과 구별되지 않습니다.';
+  $('rp_meanonly').textContent=caught.join(', ');
+  var i10=9;
+  $('zx').textContent=fmt(F[i10].mean,2);$('zxv').textContent=fmt(F[i10].mean,2);$('zmv').textContent=fmt(ST.mean.m,2);$('zsv').textContent=fmt(ST.mean.sd,3);$('zv').textContent=fmt(Z[i10].mean,1);
+})();
+
+/* ---- 5절: z표·점그림 ---- */
+function upd5(){
+  $('thro').textContent=fmt(thr,1);
+  $('thrState').className='state'+(thr===3?'':' moved');
+  $('thrState').textContent=thr===3?'지금은 기본 경계(|z| > 3)입니다.':'지금은 기본 3에서 옮겨 놓은 경계입니다.';
+  var h='<tr><th>유리</th>'+FK.map(function(k){return '<th>'+FNAME[k]+'</th>';}).join('')+'</tr>';
+  var lines=[],nFalse=0;
+  IDS.forEach(function(n,i){
+    var hk=hitKeys(i,thr,FK);
+    if(i<7)nFalse+=hk.length;
+    if(i>=7)lines.push('<b>'+n+'</b>: '+(hk.length?hk.map(function(k){return FNAME[k];}).join(', '):'걸린 특징 없음'));
+    h+='<tr><td class="rowh">'+n+'</td>'+FK.map(function(k){return '<td'+(Math.abs(Z[i][k])>thr?' class="hit"':'')+'>'+fz(Z[i][k])+'</td>';}).join('')+'</tr>';
+  });
+  $('zTable').innerHTML=h;
+  $('sum5').innerHTML=lines.join(' · ')+'<br>정상 7장 × 특징 '+FK.length+'개 = '+(7*FK.length)+'칸 가운데 붉어진 칸 <b>'+nFalse+'</b>칸';
+  draw5();
+}
+$('thr').addEventListener('input',function(){thr=+this.value;upd5();});
+$('thrReset').addEventListener('click',function(){thr=3;$('thr').value=3;upd5();});
+function draw5(){
+  var cv=$('cv5'),c=setup(cv,250),x=c.x,L=122,R=14,T=10,B=28,ZM=8,rowH=(c.h-T-B)/FK.length;
+  function X(z){return L+(c.w-L-R)*(Math.max(-ZM,Math.min(ZM,z))+ZM)/(2*ZM);}
+  x.font=FONT;
+  x.fillStyle=css('--good');x.globalAlpha=.13;x.fillRect(X(-thr),T,X(thr)-X(-thr),c.h-T-B);x.globalAlpha=1;
+  x.strokeStyle=css('--rule');x.lineWidth=1;x.fillStyle=css('--soft');x.textAlign='center';
+  for(var z=-ZM;z<=ZM;z+=4){x.beginPath();x.moveTo(X(z),T);x.lineTo(X(z),c.h-B);x.stroke();x.fillText((z>0?'+':'')+z,X(z),c.h-B+16);}
+  x.fillText('z값',(L+c.w-R)/2+60,c.h-3);
+  x.strokeStyle=css('--soft');x.lineWidth=1.6;x.beginPath();x.moveTo(X(0),T);x.lineTo(X(0),c.h-B);x.stroke();
+  FK.forEach(function(k,r){
+    var cy=T+rowH*(r+.5);
+    x.fillStyle=css('--ink');x.textAlign='right';x.fillText(FNAME[k],L-8,cy+4);
+    x.strokeStyle=css('--rule');x.beginPath();x.moveTo(L,cy);x.lineTo(c.w-R,cy);x.stroke();
+    for(var i=0;i<10;i++){
+      var zz=Z[i][k],out=Math.abs(zz)>ZM,px=X(zz),big=i>=7;
+      x.fillStyle=big?css(WCOL[i]):css('--grey');
+      x.beginPath();x.arc(px,cy+(big?0:(i%2?-4:4)),big?6.5:4,0,7);x.fill();
+      if(out&&big){x.beginPath();var d=zz>0?1:-1;x.moveTo(px+d*9,cy);x.lineTo(px+d*3,cy-5);x.lineTo(px+d*3,cy+5);x.closePath();x.fill();}
+    }
+  });
+}
+(function(){
+  var rows=[
+    {i:7,t:'W08(늦게 도착)',k:['settle']},
+    {i:8,t:'W09(한순간 튐)',k:['std','dev']},
+    {i:9,t:'W10(수준 이동)',k:['mean']}
+  ];
+  var txt=rows.map(function(r){
+    var only=FK.filter(function(k){return Math.abs(Z[r.i][k])>3;});
+    return r.t+'은 '+only.map(function(k){return FNAME[k]+'(z '+fz(Z[r.i][k])+')';}).join(', ')+'에서만 걸립니다';
+  });
+  $('concl5').innerHTML='<b>세 이상이 서로 다른 열에서 드러납니다.</b> '+txt.join(' · ')+'. 어떤 이상을 잡을지 알아야 어떤 특징을 잴지 정할 수 있다는 말이 이 표입니다.';
+  var res=rows.map(function(r){
+    var ks=FK.filter(function(k){return Math.abs(Z[r.i][k])>3;});
+    return '<b>'+r.t+'</b>: '+ks.map(function(k){return FNAME[k]+' z '+fz(Z[r.i][k]);}).join(', ');
+  });
+  var rr=$('rp_res');rr.innerHTML=res.join('<br>')+'<br>정상 7장은 어느 특징에서도 |z| &gt; 3 이 아니었습니다.';
+})();
+
+/* ---- 6절: Python 출력 예시 ---- */
+(function(){
+  function pad(s,n){s=String(s);while(s.length<n)s=' '+s;return s;}
+  var heads=['steady_mean','steady_std','max_dev','settle_s','overshoot_pct'];
+  var o=pad('wafer',5)+heads.map(function(h){return pad(h,15);}).join('')+'\n';
+  IDS.forEach(function(n,i){o+=pad(n,5)+['mean','std','dev','settle','os'].map(function(k){return pad(fmt(F[i][k],k==='settle'?1:3),15);}).join('')+'\n';});
+  o+='\n'+pad('wafer',5)+heads.map(function(h){return pad(h,15);}).join('')+'\n';
+  IDS.forEach(function(n,i){o+=pad(n,5)+FK.map(function(k){return pad(fmt(Z[i][k],1),15);}).join('')+'\n';});
+  [7,8,9].forEach(function(i){var ks=['steady_mean','steady_std','max_dev','settle_s','overshoot_pct'].filter(function(h,j){return Math.abs(Z[i][FK[j]])>3;});o+=IDS[i]+': |z|>3 인 특징 = '+ks.join(', ')+'\n';});
+  $('pyOut').textContent=o;
+})();
+
+/* ---- 테마·상단바 ---- */
+function redraw(){draw1();draw3();draw5();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+rd1();upd3();upd4();upd5();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+</body></html>

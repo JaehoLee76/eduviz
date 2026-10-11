@@ -1,0 +1,149 @@
+{
+ "S1": {
+  "name": "pm_shift",
+  "params": {
+   "seed": 12,
+   "n_before": 30,
+   "n_after": 30,
+   "shift_pct": 0.8,
+   "sigma_glass_pct": 0.87
+  },
+  "truth": {
+   "target": 300,
+   "shift_pct": 0.8,
+   "shift_abs": 2.4,
+   "spread_changed": false
+  },
+  "check": {
+   "lo3": 291.02278994725367,
+   "hi3": 308.8874088539779,
+   "all_after_inside_3sigma": true,
+   "welch": {
+    "diff": 3.675377696315934,
+    "se": 0.6749641562407985,
+    "t": 5.445293149766482,
+    "df": 53.29055740422956,
+    "p": 0.0000013415805306147288
+   }
+  }
+ },
+ "S2": {
+  "name": "stick_replace",
+  "params": {
+   "seed": 5,
+   "n": 20,
+   "bad_mult": 4,
+   "remount_dx_um": 1,
+   "bad_jitter_k": 1
+  },
+  "truth": {
+   "bad_stick_index": 3,
+   "bad_mult": 4,
+   "replaced": true,
+   "mean_change_expected": "small",
+   "spread_change_expected": "smaller after"
+  },
+  "check": {
+   "welch": {
+    "diff": -0.11261804986920332,
+    "se": 0.21981554313716156,
+    "t": -0.5123297846091409,
+    "df": 23.56963627350307,
+    "p": 0.6131879938016143
+   },
+   "levene_median": {
+    "F": 25.3274606501257,
+    "p": 0.000011989046470693152
+   }
+  }
+ },
+ "S3": {
+  "name": "repair_pair",
+  "params": {
+   "seed": 1,
+   "repair_keep": 0.9
+  },
+  "truth": {
+   "repair_keep": 0.9,
+   "defects_removed": 2,
+   "clean_true_dMx_ppm": 0.020000000000000018,
+   "tost_delta_um": 0.3
+  },
+  "check": {
+   "welch_repair": {
+    "diff": -0.2854925670814583,
+    "se": 0.1854606146220847,
+    "t": -1.539370327566367,
+    "df": 150.7756461651811,
+    "p": 0.12580996135308264
+   },
+   "paired_repair": {
+    "diff": -0.28549256708145654,
+    "se": 0.04327653002438379,
+    "t": -6.596937576108764,
+    "df": 76,
+    "p": 4.994242975164401e-9
+   },
+   "paired_clean": {
+    "diff": 0.03728708442001348,
+    "se": 0.044823583335775706,
+    "t": 0.8318630873550217,
+    "df": 76,
+    "p": 0.4080924098008356
+   }
+  }
+ },
+ "S4": {
+  "name": "thermal_confound",
+  "params": {
+   "seed": 4,
+   "n": 40,
+   "season_dT": 0.5
+  },
+  "truth": {
+   "true_effect_ppm": 0,
+   "thermal_mx_shift_ppm": -1,
+   "season_dT_K": 0.5
+  },
+  "check": {
+   "welch_treated": {
+    "diff": -1.0583475256655146,
+    "se": 0.10862288671912851,
+    "t": -9.743319825426251,
+    "df": 75.48267236908785,
+    "p": 5.453268417287772e-15
+   },
+   "did": -0.012589592253232418,
+   "treated_diff": -1.0583475256655146,
+   "control_diff": -1.0457579334122822
+  }
+ },
+ "S5": {
+  "name": "autocorr",
+  "params": {
+   "seed": 4,
+   "n": 50,
+   "phi": 0.7,
+   "shift": 0.13
+  },
+  "truth": {
+   "phi": 0.7,
+   "shift": 0.13,
+   "sd_marginal": 0.3,
+   "n_eff_true": 8.823529411764707
+  },
+  "check": {
+   "welch_naive": {
+    "diff": 0.14609545573737037,
+    "se": 0.05692595668745731,
+    "t": 2.566411954031509,
+    "df": 97.86882970209847,
+    "p": 0.011791177790770548
+   },
+   "phi_hat": 0.740119460345569,
+   "n_eff_hat": 7.467318927713778,
+   "t_corrected": 0.991799117471898,
+   "p_corrected": 0.339487476487528
+  }
+ }
+}

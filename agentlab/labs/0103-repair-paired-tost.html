@@ -1,0 +1,823 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>실험실 0103 · 같은 마스크 리페어 전후와 동등성 검정</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Manufacturing Agent Lab 기둥 1 · 대응표본 검정, 윌콕슨 부호순위, 동등성 검정(TOST)">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --track:#dcefef; --tint:#e6f4f4; --code:#eaf4f4;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32; --code:#12272a;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --track:#213b3f; --tint:#1a2f32; --code:#12272a;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:1.75rem;margin:0 0 .8rem;font-weight:800;letter-spacing:-.01em;line-height:1.3}
+.goal{margin:0;padding:.9rem 1.05rem;border-radius:14px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.3);font-size:1rem;line-height:1.7}
+:root[data-theme="dark"] .goal,:root[data-theme="auto"] .goal{background:rgba(0,0,0,.18)}
+h2{font-size:1.25rem;margin:2.2rem 0 .5rem;border-bottom:2px solid var(--rule);padding-bottom:.3rem;line-height:1.35}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.02rem;margin:1.2rem 0 .4rem;color:var(--accent);line-height:1.4}
+p{margin:0 0 .8rem}
+.soft{color:var(--soft)}
+.note{font-size:.9rem;color:var(--soft);margin:.4rem 0}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.box h3:first-child{margin-top:0}
+.know{background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;margin:.8rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.banner{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800}
+.banner span.pill{color:#fff;border-radius:20px;padding:.15rem .75rem;font-size:.85rem;white-space:nowrap;flex:none}
+.banner::after{content:"";flex:1;height:2px;opacity:.4;border-radius:2px}
+.banner.q{color:var(--accent)}.banner.q .pill{background:var(--accent)}.banner.q::after{background:var(--accent)}
+.banner.s{color:var(--good)}.banner.s .pill{background:var(--good)}.banner.s::after{background:var(--good)}
+.stepno{display:inline-block;font-size:.78rem;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:.05rem .6rem;margin-right:.4rem}
+:root[data-theme="dark"] .stepno,:root[data-theme="auto"] .stepno{color:var(--accent-ink)}
+.tbwrap{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--tint);color:var(--accent)}
+td.l,th.l{text-align:left}
+.scroll{max-height:260px;overflow-y:auto;border:1px solid var(--rule);border-radius:8px;margin:.5rem 0}
+.scroll table{margin:0}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;margin:.8rem 0;overflow-x:auto;text-align:center;line-height:1.7}
+.eq math{font-size:1.25rem;color:var(--ink)}
+.eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .eqnote{display:block;font-size:.88rem;color:var(--soft);margin-top:.4rem;text-align:left}
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.95rem;color:var(--accent);margin:.1rem 0 .5rem}
+.look{background:var(--tint);border-left:4px solid var(--warn);border-radius:0 9px 9px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+canvas{width:100%;display:block;border-radius:8px;background:var(--paper);border:1px solid var(--rule)}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.85rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+.ctrl{display:grid;grid-template-columns:170px 1fr 84px;align-items:center;gap:.6rem;font-size:.9rem;margin-top:.6rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent);min-height:30px}
+.state{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.5rem 0;font-size:.9rem;color:var(--soft)}
+button.btn{min-height:38px;padding:.25rem .8rem;border:1px solid var(--accent);border-radius:9px;background:transparent;color:var(--accent);font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer}
+.verdict{margin:.7rem 0;padding:.7rem .9rem;border-radius:9px;font-weight:700}
+.verdict.rej{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border:1px solid var(--good)}
+.verdict.keep{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid var(--warn)}
+.stuck{background:color-mix(in srgb,var(--warn) 8%,transparent);border:1px solid var(--warn);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+.stuck b.h{color:var(--warn)}
+.concl{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px dashed var(--accent);border-radius:12px;padding:.9rem 1.05rem;margin:1rem 0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:1.2rem 0}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav.bot a{flex:1 1 140px;justify-content:center;text-align:center}
+.qna{display:inline-block;margin:.2rem .35rem .2rem 0}
+@media(max-width:560px){
+  h1{font-size:1.45rem}
+  .ctrl{grid-template-columns:1fr 70px}.ctrl label{grid-column:1/-1}
+}
+@media(max-width:560px){th,td{padding:.3rem .25rem;font-size:.8rem}}
+@media(max-width:520px){.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">실험실 0103</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">Manufacturing Agent Lab · 기둥 1 변경점 전후 유의차 · 실험실 3 / 4</p>
+  <h1>같은 마스크 리페어 전후, 그리고 &lsquo;나빠지지 않았다&rsquo;의 증명</h1>
+  <p class="goal">같은 점을 전후로 잰 자료는 점별 차이로 비교해야 날카로워지고, &ldquo;달라지지 않았다&rdquo;를 말하려면 &ldquo;유의하지 않다&rdquo;로는 모자라서 허용폭을 먼저 정한 뒤 동등성 검정을 써야 합니다.</p>
+</div></header>
+
+<main class="wrap">
+
+<section id="intro">
+  <p><b>지난 실험실과의 다리.</b> 0102 에서는 불량 스틱을 바꾸기 전 유리 20장과 바꾼 뒤 유리 20장을 비교했습니다. 두 묶음이 서로 다른 유리였으니 독립 두 표본이었고, 평균이 아니라 산포가 달라졌는지를 물었습니다. 이번에는 같은 마스크의 같은 77개 점을 리페어 전과 후에 두 번 쟀습니다. 짝이 지어진 자료라는 이 한 가지 차이가 검정을 바꿉니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+  <div class="know"><b>이미 아시는 것</b> — 평균·표준편차와 3σ 관리 한계, Welch t검정과 p값·신뢰구간(0101), 순위로 바꿔 비교하는 맨-휘트니(0102), 정규성을 확인하는 Q-Q 그림.</div>
+  <h3>이번에 새로 배우는 용어 아홉 개</h3>
+  <div class="tbwrap"><table>
+    <tr><th class="l">용어</th><th class="l">한 줄 뜻</th></tr>
+    <tr><td class="l">위치 효과</td><td class="l">점마다 원래 다른 몫. 어떤 점은 늘 오차가 크고 어떤 점은 늘 작은 것.</td></tr>
+    <tr><td class="l">대응표본 (paired samples)</td><td class="l">같은 대상(여기서는 같은 점)을 전과 후에 두 번 잰 자료.</td></tr>
+    <tr><td class="l">점별 차이 d (difference)</td><td class="l">점마다 (후 오차 − 전 오차). 음수면 오차가 줄어 좋아진 점입니다.</td></tr>
+    <tr><td class="l">샤피로–윌크 검정 (Shapiro–Wilk test)</td><td class="l">자료가 정규분포에서 나왔는지 묻는 검정. p가 작으면 정규에서 벗어났다는 뜻입니다.</td></tr>
+    <tr><td class="l">윌콕슨 부호순위 검정 (Wilcoxon signed-rank test)</td><td class="l">점별 차이의 크기를 순위로 바꿔, 부호별 순위 합을 견주는 검정.</td></tr>
+    <tr><td class="l">단측검정 (one-sided test)</td><td class="l">한쪽 방향만 묻는 검정. 지금까지의 양측검정은 양쪽을 다 물었습니다.</td></tr>
+    <tr><td class="l">동등성 검정 (equivalence test)</td><td class="l">&ldquo;차이가 있다&rdquo;가 아니라 &ldquo;차이가 허용폭 안이다&rdquo;를 증명하려는 검정.</td></tr>
+    <tr><td class="l">허용폭 δ (equivalence margin)</td><td class="l">이 정도 평균 차이까지는 같다고 보겠다는 폭. 공정 쪽이 정합니다.</td></tr>
+    <tr><td class="l">TOST (two one-sided tests)</td><td class="l">단측검정 두 번으로 동등성을 보이는 방법.</td></tr>
+  </table></div>
+</section>
+
+<div class="banner q"><span class="pill">[문제]</span><span>주어진 자료와 두 가지 질문</span></div>
+<section id="problem">
+  <div class="prob">
+    <p>마스크 <b>B03-A2</b>(블록 B03, 마스크 세트 A, 챔버 CH2 전용)를 리페어했습니다. 리페어 전과 후에 같은 유리 위 <b><span data-k="n" data-f="i"></span>개 점</b>(가로 <span data-k="gx" data-f="i"></span> × 세로 <span data-k="gy" data-f="i"></span> 격자)에서 PPA 어긋남의 크기 |오차| = √(dx² + dy²) 를 µm 로 쟀습니다. 작을수록 좋습니다. 그 뒤 마스크를 세정하고 같은 <span data-k="n" data-f="i"></span>점을 다시 전후로 쟀습니다.</p>
+    <p><b>질문 1.</b> 리페어로 점 오차가 좋아졌습니까?<br><b>질문 2.</b> 세정이 점 오차를 나쁘게 만들지는 않았습니까?</p>
+    <p class="note"><span data-k="n" data-f="i"></span>점은 이 마스크 위에서 정해 둔 측정 위치입니다. 우리가 알고 싶은 것은 &ldquo;이 마스크의 점 오차가 평균적으로 얼마나 바뀌었는가&rdquo;이고, 이 점들이 마스크 전체를 고르게 덮는 대표 위치라고 봅니다.</p>
+  </div>
+  <div class="tbwrap"><table>
+    <tr><th class="l">자료 (µm)</th><th>점 수</th><th>평균</th><th>표준편차</th><th>최솟값</th><th>최댓값</th></tr>
+    <tr><td class="l">리페어 전</td><td><span data-k="n" data-f="i"></span></td><td><span data-k="bMean" data-f="s3"></span></td><td><span data-k="bSd" data-f="s3"></span></td><td><span data-k="bMin" data-f="s3"></span></td><td><span data-k="bMax" data-f="s3"></span></td></tr>
+    <tr><td class="l">리페어 후</td><td><span data-k="n" data-f="i"></span></td><td><span data-k="aMean" data-f="s3"></span></td><td><span data-k="aSd" data-f="s3"></span></td><td><span data-k="aMin" data-f="s3"></span></td><td><span data-k="aMax" data-f="s3"></span></td></tr>
+    <tr><td class="l">리페어 점별 차이 (후−전)</td><td><span data-k="n" data-f="i"></span></td><td><span data-k="dMean" data-f="s3"></span></td><td><span data-k="dSd" data-f="s3"></span></td><td><span data-k="dMin" data-f="s3"></span></td><td><span data-k="dMax" data-f="s3"></span></td></tr>
+    <tr><td class="l">세정 전</td><td><span data-k="n" data-f="i"></span></td><td><span data-k="c_bMean" data-f="s3"></span></td><td><span data-k="c_bSd" data-f="s3"></span></td><td><span data-k="c_bMin" data-f="s3"></span></td><td><span data-k="c_bMax" data-f="s3"></span></td></tr>
+    <tr><td class="l">세정 후</td><td><span data-k="n" data-f="i"></span></td><td><span data-k="c_aMean" data-f="s3"></span></td><td><span data-k="c_aSd" data-f="s3"></span></td><td><span data-k="c_aMin" data-f="s3"></span></td><td><span data-k="c_aMax" data-f="s3"></span></td></tr>
+    <tr><td class="l">세정 점별 차이 (후−전)</td><td><span data-k="n" data-f="i"></span></td><td><span data-k="c_dMean" data-f="s3"></span></td><td><span data-k="c_dSd" data-f="s3"></span></td><td><span data-k="c_dMin" data-f="s3"></span></td><td><span data-k="c_dMax" data-f="s3"></span></td></tr>
+  </table></div>
+  <div class="qna" data-label="점별 원자료 전체 보기" data-q="점별 원자료 (단위 µm)"><table id="rawTable"></table></div>
+</section>
+
+<div class="banner s"><span class="pill">[풀이]</span><span>질문 1부터, 지금 쓰는 방법으로 먼저</span></div>
+
+<section id="s1">
+  <h2><span class="no">1</span>현행 3σ 비교법으로 먼저 판정해 보기</h2>
+  <p>지금 쓰는 방법은 리페어 전 <span data-k="n" data-f="i"></span>점의 평균과 표준편차로 평균 + 3σ 선을 긋고, 리페어 후 점들이 그 안에 들어오는지 보는 것입니다. 오차는 0 이상이라 위쪽 선만 뜻이 있습니다.</p>
+  <p>리페어 전 평균 <span data-k="bMean" data-f="s3"></span> µm, 표준편차 <span data-k="bSd" data-f="s3"></span> µm 이므로 위쪽 선은 <b><span data-k="ub" data-f="s2"></span> µm</b> 입니다. 리페어 후 점 중 이 선을 넘은 것은 <b><span data-k="nOut" data-f="i"></span>개</b> 입니다. 현행 방법의 판정은 &ldquo;변화 없음&rdquo; 입니다.</p>
+  <div class="stuck"><b class="h">막힘.</b> 3σ 비교법은 점 하나하나가 선 안에 있는지만 봅니다. 그런데 우리가 묻는 것은 &ldquo;<span data-k="n" data-f="i"></span>점 전체가 평균적으로 조금씩 내려갔는가&rdquo; 입니다. 평균이 <span data-k="dMeanAbs" data-f="s1"></span> µm 쯤 내려가도 3σ 폭(약 <span data-k="w3" data-f="s1"></span> µm) 안에서는 보이지 않습니다. 평균의 차이를 직접 묻는 검정이 필요합니다. 0101 에서 쓴 Welch 검정이 그 도구이니 먼저 그대로 써 보겠습니다.</div>
+  <div class="qna" data-q="3σ 선 안에 들어오면 정말 &lsquo;변화 없음&rsquo;이라고 말할 수 없나요?"><p>선 안에 들어왔다는 것은 &ldquo;점 하나가 이전 산포 안에 있다&rdquo;는 뜻일 뿐입니다. 산포가 큰 자료에서 평균이 작게 이동해도 개별 점은 대부분 선 안에 남습니다. 평균이 움직였는지는 점들을 합쳐 평균의 표준오차로 재야 알 수 있습니다.</p></div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>가설을 세우고, 두 독립 표본으로 비교하면</h2>
+  <p><span class="stepno">답안 1단계</span><b>가설.</b> μ차를 &ldquo;이 마스크에서 점별 오차 변화(후 − 전)의 평균&rdquo;이라고 하겠습니다. 차이가 없다는 가설은 μ차 = 0, 차이가 있다는 가설은 μ차 ≠ 0 입니다. 좋아질 수도 나빠질 수도 있으므로 양쪽을 다 묻는 양측검정으로 둡니다. 유의수준은 0.05 입니다.</p>
+  <p>0101 의 Welch 검정은 리페어 전 <span data-k="n" data-f="i"></span>개와 후 <span data-k="n" data-f="i"></span>개를 서로 아무 관계 없는 <span data-k="n2" data-f="i"></span>개 점으로 보고 평균을 견줍니다.</p>
+  <div class="eq"><span class="eqlab">Welch 검정통계량</span>
+    <math display="block"><mi>t</mi><mo>=</mo><mfrac><mrow><mtext>후 평균</mtext><mo>−</mo><mtext>전 평균</mtext></mrow><msqrt><mrow><mfrac><mtext>전 분산</mtext><mi>n</mi></mfrac><mo>+</mo><mfrac><mtext>후 분산</mtext><mi>n</mi></mfrac></mrow></msqrt></mfrac></math></div>
+  <div class="tbwrap"><table>
+    <tr><th class="l">독립 비교 (Welch)</th><th>평균 차이 (µm)</th><th>표준오차 (µm)</th><th>t</th><th>자유도</th><th>p</th></tr>
+    <tr><td class="l">후 − 전</td><td><span data-k="w_diff" data-f="s3"></span></td><td><span data-k="w_se" data-f="s3"></span></td><td><span data-k="w_t" data-f="s3"></span></td><td><span data-k="w_df" data-f="s1"></span></td><td><span data-k="w_p" data-f="p"></span></td></tr>
+  </table></div>
+  <div class="verdict keep">p = <span data-k="w_p" data-f="p"></span> 는 0.05 보다 큽니다. 독립 비교로는 &ldquo;차이를 찾지 못했다&rdquo; 입니다.</div>
+  <p>평균은 <span data-k="dMean" data-f="s3"></span> µm 내려갔는데 표준오차가 <span data-k="w_se" data-f="s3"></span> µm 로 커서 그 차이가 묻힙니다. 이 표준오차는 왜 이렇게 클까요?</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>막힘: 점마다 원래 다른 몫이 있습니다</h2>
+  <p>Welch 는 <span data-k="n2" data-f="i"></span>개 점이 서로 모르는 사이라고 가정합니다. 그런데 리페어 전의 어떤 점과 후의 같은 번호 점은 마스크 위 같은 자리입니다. 같은 자리는 전에도 후에도 비슷하게 어긋나는 경향이 있을 것입니다. 이처럼 <b>점마다 원래 다른 몫을 위치 효과</b>라고 부르겠습니다.</p>
+  <div class="look"><b>무엇을 볼지.</b> 아래 그림에서 선 하나가 점 하나입니다. 선들의 높낮이가 제각각인 것(위치 효과)과, 그럼에도 대부분의 선이 약간씩 오른쪽 아래로 기울어 있는 것을 같이 보십시오.</div>
+  <div class="lab">
+    <div class="labtitle">리페어 전 → 후, 같은 점끼리 이은 <span data-k="n" data-f="i"></span>개 선</div>
+    <canvas id="cvPair" height="300" aria-label="리페어 전후 같은 점을 이은 선 그래프"></canvas>
+    <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>오차가 줄어든 점 <span data-k="nImp" data-f="i"></span>개</span><span><span class="dot" style="background:var(--warn)"></span>오차가 늘어난 점 <span data-k="nWor" data-f="i"></span>개</span><span>굵은 선은 평균</span></div>
+  </div>
+  <p>선들이 거의 나란한 이유가 위치 효과입니다. 전 오차와 후 오차를 점끼리 짝지어 상관계수를 구하면 <b>r = <span data-k="r" data-f="s3"></span></b> 입니다. 독립 비교는 이 높낮이(점 오차의 표준편차 약 <span data-k="bSd" data-f="s1"></span> µm)를 잡음으로 계산합니다. 하지만 우리가 알고 싶은 것은 선의 높낮이가 아니라 <b>기울기</b>입니다.</p>
+  <div class="stuck"><b class="h">그러면 어떻게 하나.</b> 점마다 (후 − 전)을 먼저 계산하면 점이 원래 가진 몫이 뺄셈에서 사라집니다. 남는 것은 &ldquo;리페어가 그 점을 얼마나 바꿨는가&rdquo; 뿐입니다.</div>
+  <div class="qna" data-q="점마다 원래 다른 몫이 있다는 것은 어떻게 알아보나요?"><p>전 값과 후 값을 점끼리 짝지어 산점도를 그리거나 상관계수 r 을 구합니다. 점들이 오른쪽 위로 곧게 서 있으면(r 이 1에 가까우면) 위치 효과가 큰 것입니다. 이 자료의 r 은 <span data-k="r" data-f="s2"></span> 입니다. r 이 0 에 가까우면 위치 효과가 없다는 뜻이고, 그때는 짝지어도 얻는 것이 거의 없습니다.</p></div>
+  <div class="qna" data-q="전과 후가 같은 점이라는 것은 어떻게 보장하나요?"><p>점마다 고유 번호와 좌표를 남겨 두고, 전·후 자료를 그 번호로 합칩니다(행 순서가 같다고 믿고 나란히 붙이지 않습니다). 측정 위치가 어긋났거나 점 개수가 달라진 칸이 있으면 그 점은 짝을 만들 수 없으니 빼야 합니다. 짝지음이 틀리면 대응 검정은 의미가 없습니다.</p></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>대응표본: 점별 차이 하나의 t검정</h2>
+  <p>점마다 d = 후 − 전 을 만들면 숫자 <span data-k="n" data-f="i"></span>개짜리 표본 하나가 됩니다. 이 표본의 평균이 0 인지 묻는 것은 0101 에서 익힌 t검정 그대로입니다. 전과 후를 <b>짝지어</b> 한 표본으로 줄였다는 점에서 이 자료를 <b>대응표본</b>(paired samples)이라 부르고, 이 검정을 대응 t검정이라고 합니다.</p>
+  <div class="eq"><span class="eqlab">대응 t 검정통계량 (자유도 n − 1)</span>
+    <math display="block"><mi>t</mi><mo>=</mo><mfrac><mover accent="true"><mi>d</mi><mo stretchy="false">¯</mo></mover><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac><mo>=</mo><mfrac><mn data-k="dMean" data-f="s3"></mn><mrow><mn data-k="dSd" data-f="s3"></mn><mo>/</mo><msqrt><mn data-k="n" data-f="i"></mn></msqrt></mrow></mfrac><mo>=</mo><mn data-k="p_t" data-f="s3"></mn>
+    </math>
+    <span class="eqnote">d̄ 는 점별 차이의 평균, s 는 점별 차이의 표준편차, n 은 점의 수입니다. 이 검정에는 가정이 하나 들어 있습니다. 점별 차이가 서로 독립이고 대략 정규분포를 따른다는 것입니다. 정규성은 5절에서 확인합니다.</span></div>
+  <p><b>같은 데이터, 같은 평균 차이, 다른 표준오차.</b> 두 방법의 결과를 나란히 놓았습니다.</p>
+  <div class="tbwrap"><table>
+    <tr><th class="l">방법</th><th>평균 차이 (µm)</th><th>표준오차 (µm)</th><th>t</th><th>자유도</th><th>p</th></tr>
+    <tr><td class="l">독립 비교 (Welch)</td><td><span data-k="w_diff" data-f="s3"></span></td><td><span data-k="w_se" data-f="s3"></span></td><td><span data-k="w_t" data-f="s3"></span></td><td><span data-k="w_df" data-f="s1"></span></td><td><span data-k="w_p" data-f="p"></span></td></tr>
+    <tr><td class="l">대응 비교</td><td><span data-k="dMean" data-f="s3"></span></td><td><span data-k="p_se" data-f="s3"></span></td><td><span data-k="p_t" data-f="s3"></span></td><td><span data-k="p_df" data-f="i"></span></td><td><span data-k="p_p" data-f="p"></span></td></tr>
+  </table></div>
+  <p><b>표준오차가 왜 달라지나.</b> 두 표준오차는 이름이 같지만 &ldquo;무엇이 흔들린다고 보는가&rdquo;가 다릅니다. 독립 비교는 점마다 다른 오차의 높낮이까지 흔들림으로 칩니다. 대응 비교는 점별 차이만의 흔들림만 봅니다. 차이의 분산은 이렇게 쪼개집니다.</p>
+  <div class="eq"><span class="eqlab">차이의 분산</span>
+    <math display="block"><mtext>분산(후−전)</mtext><mo>=</mo><mtext>분산(전)</mtext><mo>+</mo><mtext>분산(후)</mtext><mo>−</mo><mn>2</mn><mo>·</mo><mtext>공분산(전, 후)</mtext></math>
+    <span class="eqnote">이 자료에서는 분산(전) = <span data-k="varB" data-f="s3"></span>, 분산(후) = <span data-k="varA" data-f="s3"></span>, 공분산 = <span data-k="cov" data-f="s3"></span> 이므로 분산(후−전) = <span data-k="varD" data-f="s3"></span> 입니다. 독립 비교는 공분산 항을 버리고 앞의 두 분산을 그대로 더합니다. 그래서 표준오차가 <span data-k="w_se" data-f="s3"></span> 로 큽니다. 대응 비교는 위치 효과가 큰 만큼 공분산이 커서 뺄셈 결과가 <span data-k="varD" data-f="s3"></span> 까지 줄어듭니다. 자유도는 <span data-k="n2" data-f="i"></span>개 점 대신 <span data-k="p_df" data-f="i"></span>로 줄지만 표준오차가 <span data-k="ratio" data-f="s1"></span>배 작아지는 이득이 훨씬 큽니다.</span></div>
+
+  <div class="lab">
+    <div class="labtitle">탐구: 점 수를 줄이면 두 방법은 어떻게 달라지나</div>
+    <div class="look"><b>무엇을 볼지.</b> 점 수 n 을 줄여 가며 두 신뢰구간 막대의 길이와, 각 막대가 0 을 덮는지를 보십시오. 막대가 0 을 덮으면 그 방법으로는 차이를 찾지 못한 것입니다. 표에서는 두 p 가 함께 움직입니다. 점은 마스크 위에서 고르게 흩어진 것을 뽑았습니다.</div>
+    <div class="ctrl"><label for="sN">사용할 점 수 n</label><input type="range" id="sN" min="10" max="77" step="1" value="77"><output id="oN">77</output></div>
+    <div class="state"><span id="stN"></span><button class="btn" id="rstN" type="button">전체 점으로 되돌리기</button></div>
+    <canvas id="cvDiff" height="320" aria-label="점별 차이 점그림과 두 방법의 95% 신뢰구간"></canvas>
+    <div class="tbwrap"><table>
+      <tr><th class="l">선택한 점 기준</th><th>독립 비교</th><th>대응 비교</th></tr>
+      <tr><td class="l">평균 차이 (µm)</td><td id="eW_d"></td><td id="eP_d"></td></tr>
+      <tr><td class="l">표준오차 (µm)</td><td id="eW_se"></td><td id="eP_se"></td></tr>
+      <tr><td class="l">t</td><td id="eW_t"></td><td id="eP_t"></td></tr>
+      <tr><td class="l">자유도</td><td id="eW_df"></td><td id="eP_df"></td></tr>
+      <tr><td class="l">p</td><td id="eW_p"></td><td id="eP_p"></td></tr>
+      <tr><td class="l">95% 신뢰구간 (µm)</td><td id="eW_ci"></td><td id="eP_ci"></td></tr>
+    </table></div>
+    <div id="vN" class="verdict"></div>
+  </div>
+  <div class="qna" data-q="대응 t를 쓰면 언제나 p가 작아지나요?"><p>아닙니다. 이득은 전 값과 후 값의 상관(위치 효과)에서 나옵니다. 상관이 클수록 공분산 항이 크게 빠져 표준오차가 줄어듭니다. 상관이 0 이면 두 표준오차가 거의 같아지고, 자유도만 줄어서 대응 비교가 오히려 아주 조금 불리해집니다. 짝이 있다는 사실이 아니라 짝이 닮았다는 사실이 힘입니다.</p></div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>전제 점검과 순위로 확인하기</h2>
+  <p><span class="stepno">답안 2단계</span><b>전제.</b> 대응 t 가 믿을 만하려면 점별 차이 d <span data-k="n" data-f="i"></span>개가 대략 정규분포에서 나왔어야 합니다. 샤피로–윌크 검정으로 확인합니다. 결과는 W = <span data-k="sw_W" data-f="s3"></span>, p = <span data-k="sw_p" data-f="s3"></span>, 왜도(치우친 정도) <span data-k="skew" data-f="s2"></span> 입니다.</p>
+  <p>p 가 0.05 보다 작으므로 정규성이 조금 깨졌습니다. 점이 <span data-k="n" data-f="i"></span>개로 적지 않아 t 검정은 어느 정도 견디지만, 확인 삼아 정규성을 요구하지 않는 검정을 한 번 더 합니다. 이름은 <b>윌콕슨 부호순위 검정</b>입니다. 0102 에서 값을 순위로 바꾸면 이상치와 비대칭에 덜 흔들린다는 것을 보셨습니다. 그 발상을 점별 차이에 적용한 것입니다.</p>
+  <h3>부호순위 검정을 만드는 법</h3>
+  <p>1) 차이가 0 인 점은 뺍니다. 2) 남은 d 를 부호를 떼고 크기(절댓값)로만 작은 것부터 순위를 매깁니다(같은 값은 평균 순위). 3) 원래 부호가 양수였던 점의 순위를 모두 더해 W+, 음수였던 점의 순위를 더해 W− 로 둡니다. 4) 둘 중 작은 쪽이 W 입니다. 변화가 없었다면 W+ 와 W− 가 비슷해야 합니다.</p>
+  <div class="tbwrap"><table>
+    <tr><th class="l">항목</th><th>값</th></tr>
+    <tr><td class="l">0이 아닌 점 수 n</td><td><span data-k="wx_n" data-f="i"></span></td></tr>
+    <tr><td class="l">줄어든 점 (d&lt;0) / 늘어난 점 (d&gt;0)</td><td><span data-k="nImp" data-f="i"></span> / <span data-k="nWor" data-f="i"></span></td></tr>
+    <tr><td class="l">W+ (늘어난 점의 순위 합)</td><td><span data-k="wx_Wp" data-f="s1"></span></td></tr>
+    <tr><td class="l">W− (줄어든 점의 순위 합)</td><td><span data-k="wx_Wm" data-f="s1"></span></td></tr>
+    <tr><td class="l">W (둘 중 작은 쪽)</td><td><span data-k="wx_W" data-f="s1"></span></td></tr>
+    <tr><td class="l">z</td><td><span data-k="wx_z" data-f="s3"></span></td></tr>
+    <tr><td class="l">p</td><td><span data-k="wx_p" data-f="p"></span></td></tr>
+  </table></div>
+  <div class="eq"><span class="eqlab">정규 근사 (점이 많을 때)</span>
+    <math display="block"><mi>z</mi><mo>=</mo><mfrac><mrow><mi>W</mi><mo>−</mo><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>4</mn></mfrac></mrow><msqrt><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>24</mn></mfrac></msqrt></mfrac></math>
+    <span class="eqnote">n 은 0 이 아닌 점의 수입니다. 같은 값이 있으면 분모에서 약간 보정합니다. 변화가 없으면 W 의 기댓값은 n(n+1)/4 = <span data-k="wx_mu" data-f="s1"></span> 인데, 실제 W 는 <span data-k="wx_W" data-f="s1"></span> 로 훨씬 작아서 z 가 <span data-k="wx_z" data-f="s3"></span> 입니다.</span></div>
+  <p>정규성이 약간 깨졌어도 두 검정이 같은 결론에 닿았습니다. 대응 t 의 p = <span data-k="p_p" data-f="p"></span>, 윌콕슨의 p = <span data-k="wx_p" data-f="p"></span> 입니다.</p>
+  <div class="qna" data-q="정규성이 조금 깨졌는데 대응 t 결과를 버려야 하나요?"><p>두 검정의 결론이 같으면 t 결과를 그대로 쓰셔도 됩니다. 차이의 분포가 크게 치우쳤거나 극단값이 있고 두 검정의 결론이 갈리면, 윌콕슨 쪽을 기준으로 삼고 극단값이 왜 생겼는지 점별로 확인하십시오. 이 자료는 왜도 <span data-k="skew" data-f="s2"></span> 로 약하게 치우친 정도이고 두 검정이 일치합니다.</p></div>
+  <div class="qna" data-q="윌콕슨은 t검정보다 약한가요?"><p>정규분포에 가까운 자료에서는 t 검정이 조금 더 강하지만(대략 95% 수준으로 알려져 있습니다), 치우치거나 극단값이 있는 자료에서는 윌콕슨이 같거나 더 강할 수 있습니다. 그래서 차이의 정규성이 의심되면 윌콕슨을 함께 보는 것이 안전합니다.</p></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>질문 1의 판정과 결론</h2>
+  <p><span class="stepno">답안 3·4단계</span><b>검정통계량과 판정.</b> 대응 t = <span data-k="p_t" data-f="s3"></span> (자유도 <span data-k="p_df" data-f="i"></span>), p = <span data-k="p_p" data-f="p"></span>. 윌콕슨 p = <span data-k="wx_p" data-f="p"></span>. 둘 다 0.05 보다 훨씬 작으므로 &ldquo;리페어 전후 점 오차가 같다&rdquo;는 가설을 버립니다. 같은 자료를 독립 비교로 보았을 때의 p = <span data-k="w_p" data-f="p"></span> 와 크게 다릅니다.</p>
+  <p><span class="stepno">답안 5단계</span><b>결론 서술.</b></p>
+  <div class="concl">리페어 후 <span data-k="n" data-f="i"></span>점의 오차 평균은 <span data-k="bMean" data-f="s3"></span> µm 에서 <span data-k="aMean" data-f="s3"></span> µm 로 <b><span data-k="dMeanAbs" data-f="s3"></span> µm(<span data-k="relRed" data-f="s1"></span>%) 줄었습니다</b>. 95% 신뢰구간은 <span data-k="p_lo" data-f="s3"></span> ~ <span data-k="p_hi" data-f="s3"></span> µm 입니다. 점 <span data-k="n" data-f="i"></span>개 중 <span data-k="nImp" data-f="i"></span>개가 좋아졌고 <span data-k="nWor" data-f="i"></span>개가 나빠졌습니다. 변화의 크기가 공정에서 의미 있는 크기인지는 통계가 아니라 spec 이 정합니다.</div>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>질문 2: 세정 후 &lsquo;나빠지지 않았다&rsquo;를 보이려면</h2>
+  <p>이번에는 세정 전후 같은 <span data-k="n" data-f="i"></span>점입니다. 앞에서 배운 도구를 그대로 씁니다. <span class="stepno">답안 2단계</span> 점별 차이는 평균 <span data-k="c_dMean" data-f="s3"></span> µm, 표준편차 <span data-k="c_dSd" data-f="s3"></span> µm 입니다. 대응 t 는 t = <span data-k="c_t" data-f="s3"></span>, 자유도 <span data-k="c_df" data-f="i"></span>, <b>p = <span data-k="c_p" data-f="s3"></span></b> 이고, 윌콕슨 p = <span data-k="c_wx_p" data-f="s3"></span> 입니다. 차이의 정규성은 샤피로–윌크 p = <span data-k="c_sw_p" data-f="s3"></span> 로 문제가 없습니다.</p>
+  <div class="verdict keep">p 가 0.05 보다 훨씬 큽니다. 세정 전후 차이를 찾지 못했습니다.</div>
+  <div class="stuck"><b class="h">막힘: 유의하지 않다는 같다는 말이 아닙니다.</b> p = <span data-k="c_p" data-f="s3"></span> 는 &ldquo;차이가 있다는 증거가 모자란다&rdquo; 일 뿐 &ldquo;차이가 없다는 증거&rdquo;가 아닙니다. 점 수가 적거나 산포가 크면 큰 차이도 p 가 큽니다. 지금 평균은 <span data-k="c_dMean" data-f="s3"></span> µm 올랐고 95% 신뢰구간은 <span data-k="c_lo" data-f="s3"></span> ~ <span data-k="c_hi" data-f="s3"></span> µm 입니다. 이 구간 안의 어떤 값도 데이터와 모순되지 않습니다. 우리가 보이고 싶은 것은 &ldquo;차이가 허용 범위 안이다&rdquo; 입니다. 방향이 반대입니다.</div>
+
+  <h3>이름과 순서: 허용폭을 먼저 정합니다</h3>
+  <p>그래서 &ldquo;차이가 있다&rdquo;를 증명하는 대신 &ldquo;차이가 작다&rdquo;를 증명합니다. 이를 <b>동등성 검정</b>(equivalence test)이라 합니다. 이 검정에는 먼저 <b>허용폭 δ</b>가 필요합니다. 평균 차이가 −δ 와 +δ 사이이면 같다고 보겠다는 폭입니다.</p>
+  <div class="look"><b>δ 는 데이터를 보기 전에 정합니다.</b> 데이터를 본 뒤에 δ 를 고르면 어떤 결과든 &ldquo;동등&rdquo;으로 만들 수 있기 때문입니다. 아래 슬라이더로 직접 확인하실 수 있습니다. 이 실험실에서는 데이터를 보기 전에 공정 쪽이 &ldquo;평균 변화 <span data-k="delta0" data-f="s2"></span> µm 까지는 품질에 영향이 없다&rdquo;고 정했다고 가정하며, 이 값을 기준값으로 둡니다.</div>
+
+  <p><span class="stepno">답안 1단계</span><b>가설이 뒤집힙니다.</b> 지금까지는 &ldquo;차이가 없다&rdquo;를 버리려 했습니다. 동등성 검정에서는 버리려는 쪽이 &ldquo;평균 차이의 크기가 δ 이상이다&rdquo;이고, 증명하려는 쪽이 &ldquo;평균 차이가 −δ 와 +δ 사이다&rdquo;입니다.</p>
+  <h3>TOST: 단측검정 두 번</h3>
+  <p><b>단측검정</b>은 한쪽 방향만 묻는 검정입니다. 동등성은 두 방향을 모두 막아야 하므로 단측검정을 두 번 합니다. 이름이 TOST(Two One-Sided Tests)입니다. d = 후 − 전 의 평균을 μ차 라 하면 이렇습니다.</p>
+  <p>검정 A: &ldquo;μ차 ≤ −δ&rdquo; (오차가 δ 이상 줄었다)는 주장을 기각할 수 있는가.<br>검정 B: &ldquo;μ차 ≥ +δ&rdquo; (오차가 δ 이상 늘었다)는 주장을 기각할 수 있는가.</p>
+  <div class="eq"><span class="eqlab">두 단측 검정통계량</span>
+    <math display="block"><mtext>t(A)</mtext><mo>=</mo><mfrac><mrow><mover accent="true"><mi>d</mi><mo stretchy="false">¯</mo></mover><mo>+</mo><mi>δ</mi></mrow><mtext>se</mtext></mfrac><mo separator="true">,</mo><mtext>  </mtext><mtext>t(B)</mtext><mo>=</mo><mfrac><mrow><mover accent="true"><mi>d</mi><mo stretchy="false">¯</mo></mover><mo>−</mo><mi>δ</mi></mrow><mtext>se</mtext></mfrac></math>
+    <span class="eqnote">se 는 대응 비교의 표준오차 <span data-k="c_se" data-f="s3"></span> µm 입니다. 검정 A 의 p 는 t(A) 의 위쪽 꼬리 확률, 검정 B 의 p 는 t(B) 의 아래쪽 꼬리 확률입니다.</span></div>
+  <p>두 검정을 모두 통과해야 동등이므로 <b>TOST 의 p 는 두 p 중 큰 쪽</b>입니다. 이 p 가 0.05 보다 작으면 동등이라고 판정합니다.</p>
+  <p><b>같은 말을 신뢰구간으로.</b> 평균 차이의 <b>90% 신뢰구간</b>이 −δ ~ +δ 안에 완전히 들어오면 TOST 가 5% 수준에서 동등을 판정하는 것과 같습니다. 95%가 아니라 90%인 이유는, 단측검정 하나가 한쪽 꼬리 5%만 쓰기 때문에 두 꼬리를 합쳐 양쪽에서 5%씩 버린 구간이 90% 구간이기 때문입니다.</p>
+  <div class="eq"><span class="eqlab">90% 신뢰구간</span>
+    <math display="block"><mover accent="true"><mi>d</mi><mo stretchy="false">¯</mo></mover><mo>±</mo><mtext>(자유도 n−1 인 t 분포의 위쪽 5% 지점)</mtext><mo>·</mo><mtext>se</mtext></math></div>
+
+  <div class="lab">
+    <div class="labtitle">탐구: 허용폭 δ 를 움직이면 판정이 바뀌는 경계</div>
+    <div class="look"><b>무엇을 볼지.</b> 막대는 평균 차이의 90% 신뢰구간이고 δ 를 움직여도 막대는 그대로입니다. 초록 띠(±δ)가 좁아지다가 막대가 띠 밖으로 삐져나오는 순간 판정이 바뀝니다. 위쪽 세정 막대와 아래쪽 리페어 막대가 각자 다른 δ 에서 바뀌는 것도 보십시오.</div>
+    <div class="ctrl"><label for="sD">허용폭 δ (µm)</label><input type="range" id="sD" min="0.05" max="0.6" step="0.01" value="0.3"><output id="oD">0.30</output></div>
+    <div class="state"><span id="stD"></span><button class="btn" id="rstD" type="button">기준값 0.30 µm 으로 되돌리기</button></div>
+    <canvas id="cvTost" height="260" aria-label="세정과 리페어의 90% 신뢰구간과 허용폭 띠"></canvas>
+    <div class="tbwrap"><table>
+      <tr><th class="l">세정 전후</th><th>값</th></tr>
+      <tr><td class="l">허용폭 δ (µm)</td><td id="tD"></td></tr>
+      <tr><td class="l">평균 차이 (µm)</td><td><span data-k="c_dMean" data-f="s3"></span></td></tr>
+      <tr><td class="l">표준오차 (µm)</td><td><span data-k="c_se" data-f="s3"></span></td></tr>
+      <tr><td class="l">90% 신뢰구간 (µm)</td><td id="tCi"></td></tr>
+      <tr><td class="l">검정 A: t / p</td><td><span id="tTa"></span> / <span id="tPa"></span></td></tr>
+      <tr><td class="l">검정 B: t / p</td><td><span id="tTb"></span> / <span id="tPb"></span></td></tr>
+      <tr><td class="l">TOST p (두 p 중 큰 쪽)</td><td id="tP"></td></tr>
+    </table></div>
+    <div id="vT" class="verdict"></div>
+    <p class="note" id="tNote"></p>
+  </div>
+
+  <p><span class="stepno">답안 3·4단계</span><b>검정통계량과 판정(기준값 δ = <span data-k="delta0" data-f="s2"></span> µm).</b> 90% 신뢰구간은 <span data-k="c_ci90lo" data-f="s3"></span> ~ <span data-k="c_ci90hi" data-f="s3"></span> µm 로 ±<span data-k="delta0" data-f="s2"></span> µm 안에 있습니다. TOST p = <span data-k="tost0_p" data-f="p"></span> 로 0.05 보다 작습니다. 동등이라고 판정합니다.</p>
+  <p><span class="stepno">답안 5단계</span><b>결론 서술.</b></p>
+  <div class="concl">세정 후 점 오차 평균은 <span data-k="c_dMean" data-f="s3"></span> µm 달라졌고, 90% 신뢰구간 <span data-k="c_ci90lo" data-f="s3"></span> ~ <span data-k="c_ci90hi" data-f="s3"></span> µm 가 허용폭 ±<span data-k="delta0" data-f="s2"></span> µm 안에 있어 <b>세정 전후 평균 오차는 허용폭 안에서 같다</b>고 판정합니다. &ldquo;정확히 같다&rdquo;는 뜻이 아니라 &ldquo;<span data-k="delta0" data-f="s2"></span> µm 보다 큰 차이는 없다&rdquo;는 뜻입니다. 이 결론은 허용폭이 <span data-k="c_dmin" data-f="s2"></span> µm 이상일 때 성립합니다.</div>
+  <div class="qna" data-q="허용폭 δ 는 누가 어떻게 정하나요?"><p>통계가 정하는 값이 아니라 공정과 품질 spec 이 정하는 값입니다. 예를 들어 &ldquo;평균 오차가 이만큼 움직여도 증착 겹침 마진에서 불량이 늘지 않는다&rdquo;는 근거를 공정 담당과 합의하고, <b>측정 전에 날짜와 함께 기록</b>해 둡니다. 과거 측정의 재현성(같은 점을 두 번 재면 얼마나 다른가)을 하한 참고로 쓰기도 합니다. 분석 뒤에 δ 를 고르면 결론이 결과에 맞춰지는 것이므로 하지 않습니다.</p></div>
+  <div class="qna" data-q="TOST p 가 작으면 &lsquo;같다&rsquo;고 말해도 되나요?"><p>&ldquo;차이가 허용폭 ±δ 안이다&rdquo;라고 말씀하십시오. &ldquo;같다&rdquo;는 표현은 δ 가 0 이라는 뜻처럼 읽혀 과합니다. 보고서에는 δ 값, 평균 차이, 90% 신뢰구간을 함께 적으면 읽는 사람이 판단할 수 있습니다.</p></div>
+  <div class="qna" data-q="나빠지지 않았다만 보이면 되는데, 단측검정 하나로 안 되나요?"><p>됩니다. 한쪽만 막으면 되는 질문(오차가 δ 이상 늘지 않았다)은 검정 B 하나로 충분하며, 이것을 비열등성 검정(non-inferiority)이라 합니다. 이 실험실에서는 &ldquo;좋아졌을 수도 있다&rdquo;까지 포함해 &ldquo;변하지 않았다&rdquo;를 보이려고 양쪽을 모두 막았습니다. 질문이 &ldquo;나빠졌는가&rdquo; 뿐이면 비열등성으로 묻는 편이 더 정확합니다.</p></div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>처음 물음으로 돌아와</h2>
+  <p>처음의 두 질문에 답이 나왔습니다.</p>
+  <div class="tbwrap"><table>
+    <tr><th class="l">질문</th><th class="l">자료의 모양</th><th class="l">고른 검정</th><th class="l">결과</th></tr>
+    <tr><td class="l">리페어로 좋아졌나</td><td class="l">같은 점의 전·후 (대응)</td><td class="l">점별 차이의 t, 비정규 확인 후 윌콕슨</td><td class="l"><span data-k="dMeanAbs" data-f="s3"></span> µm 감소 (p = <span data-k="p_p" data-f="p"></span>)</td></tr>
+    <tr><td class="l">세정이 나쁘게 만들었나</td><td class="l">같은 점의 전·후 (대응)</td><td class="l">동등성 검정 TOST (δ = <span data-k="delta0" data-f="s2"></span> µm)</td><td class="l">허용폭 안 (TOST p = <span data-k="tost0_p" data-f="p"></span>)</td></tr>
+  </table></div>
+  <p>1단계에서 3σ 비교법은 &ldquo;변화 없음&rdquo;이라 했고 독립 Welch 도 못 찾았는데, 짝지어 점별 차이를 보니 같은 자료에서 리페어의 효과가 선명하게 나왔습니다. 그리고 &ldquo;못 찾았다&rdquo;로 끝나는 세정 쪽은 &ldquo;허용폭 안&rdquo;이라는 적극적인 결론으로 바뀌었습니다. 검정 선택의 규칙 하나가 이렇게 정해집니다. <b>같은 대상을 전후로 쟀으면 대응으로 비교하고, 나빠지지 않았음을 보이려면 허용폭을 먼저 정해 동등성 검정을 합니다.</b></p>
+  <div class="stuck"><b class="h">다음 실험실로.</b> 그런데 전후 비교가 유의하게 나왔다고 해서 변경점 때문이라고 말할 수는 없습니다. 이웃한 값이 서로 닮은 센서 자료(자기상관)와, 같은 시기에 다른 것도 변해 버린 경우(교란)에서는 유의해도 가짜일 수 있습니다. 0104 에서 다룹니다.</div>
+</section>
+
+<section id="code">
+  <h2><span class="no">9</span>회사 PC에서 같은 분석 돌리기 (Python)</h2>
+  <p>pandas 로 CSV 를 읽어 위의 모든 숫자를 다시 만듭니다. 파일 경로만 가지고 계신 자료에 맞게 바꾸십시오.</p>
+  <pre id="pycode">import numpy as np
+import pandas as pd
+from scipy import stats
+
+def paired_test(before, after, alpha=0.05):
+    """같은 대상(점)의 전·후를 짝지어 비교하는 대응 t검정.
+    반환: 평균 차이(후-전), 표준오차, t, 자유도, p, 신뢰구간(1-alpha)
+    d = after - before 를 만들어 '평균이 0인가'를 한 표본 t로 묻는다."""
+    d = np.asarray(after, float) - np.asarray(before, float)
+    n = len(d)
+    se = d.std(ddof=1) / np.sqrt(n)
+    t = d.mean() / se
+    p = 2 * stats.t.sf(abs(t), n - 1)
+    h = stats.t.ppf(1 - alpha / 2, n - 1) * se
+    return dict(diff=d.mean(), se=se, t=t, df=n - 1, p=p, ci=(d.mean() - h, d.mean() + h))
+
+def wilcoxon_signed(d):
+    """점별 차이 d 의 윌콕슨 부호순위 검정(정규 근사, 같은 값 보정 포함)."""
+    d = np.asarray(d, float)
+    r = stats.wilcoxon(d, method='approx')
+    return dict(n=int((d != 0).sum()), W=float(r.statistic), p=float(r.pvalue))
+
+def tost_paired(d, delta, alpha=0.05):
+    """차이 d 가 (-delta, +delta) 안에 있다는 동등성을 TOST 로 검정.
+    p = 두 단측검정 p 중 큰 값. 동등 판정은 p &lt; alpha, 90% 신뢰구간이 ±delta 안과 같은 말."""
+    d = np.asarray(d, float)
+    n = len(d)
+    se = d.std(ddof=1) / np.sqrt(n)
+    t_low = (d.mean() + delta) / se
+    t_up = (d.mean() - delta) / se
+    p_low = stats.t.sf(t_low, n - 1)
+    p_up = stats.t.cdf(t_up, n - 1)
+    h = stats.t.ppf(1 - alpha, n - 1) * se
+    p = max(p_low, p_up)
+    return dict(p_low=p_low, p_up=p_up, p=p, ci90=(d.mean() - h, d.mean() + h), equivalent=bool(p &lt; alpha))
+
+rep = pd.read_csv('agentlab/data/csv/s3_repair_pair.csv')
+cln = pd.read_csv('agentlab/data/csv/s3_clean_pair.csv')
+
+# 질문 1: 리페어로 좋아졌는가 (오차 단위 µm, 작을수록 좋음)
+b, a = rep['repair_err_before'], rep['repair_err_after']
+w = stats.ttest_ind(a, b, equal_var=False)
+pr = paired_test(b, a)
+d = a - b
+sw = stats.shapiro(d)
+wx = wilcoxon_signed(d)
+print(f"[독립 Welch] p={w.pvalue:.4g}   [대응 t] 차이={pr['diff']:.3f} t={pr['t']:.3f} p={pr['p']:.4g}")
+print(f"[차이의 정규성] Shapiro p={sw.pvalue:.4f}   [윌콕슨] W={wx['W']:.1f} p={wx['p']:.4g}")
+
+# 질문 2: 세정 후 나빠지지 않았는가 (허용폭은 데이터를 보기 전에 정한 0.3 µm)
+dc = cln['clean_err_after'] - cln['clean_err_before']
+pc = paired_test(cln['clean_err_before'], cln['clean_err_after'])
+tc = tost_paired(dc, delta=0.3)
+print(f"[세정 대응 t] p={pc['p']:.4g}   [TOST] p={tc['p']:.4g}  90%CI=({tc['ci90'][0]:.3f}, {tc['ci90'][1]:.3f})")
+
+print("보고: 리페어 후 점 오차 평균이 %.3f µm 줄었습니다(95%% 신뢰구간 %.3f ~ %.3f, 대응 t p=%.1e). "
+      "세정 후 평균 변화는 %+.3f µm 이며 ±0.3 µm 안에서 동등합니다(TOST p=%.1e)."
+      % (-pr['diff'], -pr['ci'][1], -pr['ci'][0], pr['p'], dc.mean(), tc['p']))</pre>
+  <p class="note">위 코드를 실행하면 대응 t p = <span data-k="p_p" data-f="e"></span>, 윌콕슨 p = <span data-k="wx_p" data-f="e"></span>, 세정 TOST p = <span data-k="tost0_p" data-f="e"></span> 가 출력되고, 이 페이지와 일치합니다.</p>
+</section>
+
+<section id="report">
+  <h2><span class="no">10</span>보고서 양식</h2>
+  <dl class="report">
+    <dt>무엇을</dt><dd>마스크 B03-A2 의 리페어 전후, 그리고 세정 전후 <span data-k="n" data-f="i"></span>개 점의 PPA |오차| 가 달라졌는지(리페어)와 나빠지지 않았는지(세정).</dd>
+    <dt>왜 이 검정</dt><dd>같은 점을 전후로 잰 대응표본이라 점별 차이를 사용했습니다. 차이가 정규에서 약간 벗어나 윌콕슨 부호순위를 함께 보았습니다. 세정은 &ldquo;차이 없음&rdquo;이 아니라 &ldquo;허용폭 안&rdquo;을 보여야 하므로 사전에 정한 허용폭 <span data-k="delta0" data-f="s2"></span> µm 로 TOST 를 했습니다.</dd>
+    <dt>결과</dt><dd>리페어: 평균 <span data-k="dMean" data-f="s3"></span> µm (95% 신뢰구간 <span data-k="p_lo" data-f="s3"></span> ~ <span data-k="p_hi" data-f="s3"></span>), 대응 t p = <span data-k="p_p" data-f="e"></span>, 윌콕슨 p = <span data-k="wx_p" data-f="e"></span>. 세정: 평균 <span data-k="c_dMean" data-f="s3"></span> µm (90% 신뢰구간 <span data-k="c_ci90lo" data-f="s3"></span> ~ <span data-k="c_ci90hi" data-f="s3"></span>), TOST p = <span data-k="tost0_p" data-f="e"></span>.</dd>
+    <dt>결론</dt><dd>리페어는 점 오차 평균을 <span data-k="dMeanAbs" data-f="s3"></span> µm 줄였습니다. 세정 전후 평균 오차는 ±<span data-k="delta0" data-f="s2"></span> µm 안에서 같습니다.</dd>
+    <dt>조치</dt><dd>리페어 효과를 이 마스크의 이력에 기록하고 같은 방식의 리페어를 유지합니다. 세정 조건은 변경 없이 유지합니다. 허용폭 <span data-k="delta0" data-f="s2"></span> µm 의 근거는 품질 문서에 날짜와 함께 남깁니다.</dd>
+  </dl>
+</section>
+
+<section id="record">
+  <h2><span class="no">11</span>앞으로 기록해 둘 데이터</h2>
+  <p>이 분석을 에이전트가 자동으로 하려면 현장에서 다음을 남겨야 합니다.</p>
+  <div class="box"><ul style="margin:0;padding-left:1.1rem">
+    <li>측정 점마다 <b>고유 번호와 좌표</b>: 전·후 자료를 이 번호로 짝지을 수 있어야 합니다.</li>
+    <li>마스크별 <b>리페어·세정 이력</b>: 일시, 내용, 몇 번째 턴인지.</li>
+    <li>전·후 측정이 <b>같은 조건</b>(장비, 레시피, 챔버 온도)이었는지.</li>
+    <li>동등성 검정에 쓸 <b>허용폭 δ 와 그 근거</b>를 측정 전에 날짜와 함께 등록.</li>
+    <li>분석 결과와 <b>사후 결과</b>(그 뒤 불량이 정말 늘지 않았는가).</li>
+  </ul></div>
+</section>
+
+<section id="tools">
+  <h2><span class="no">12</span>에이전트 도구 상자</h2>
+  <p>이 실험실이 남기는 검증된 함수는 세 개입니다.</p>
+  <div class="tbwrap"><table>
+    <tr><th class="l">함수</th><th class="l">쓰임과 반환</th></tr>
+    <tr><td class="l"><code>paired_test(before, after, alpha=0.05)</code></td><td class="l">같은 점의 전후를 짝지어 점별 차이의 한 표본 t 를 합니다. 평균 차이, 표준오차, t, 자유도, p, 신뢰구간을 돌려줍니다.</td></tr>
+    <tr><td class="l"><code>wilcoxon_signed(d)</code></td><td class="l">점별 차이의 윌콕슨 부호순위 검정(정규 근사). 0 이 아닌 점 수, W, p 를 돌려줍니다.</td></tr>
+    <tr><td class="l"><code>tost_paired(d, delta, alpha=0.05)</code></td><td class="l">차이가 ±delta 안인지 TOST 로 검정합니다. 두 단측 p, TOST p, 90% 신뢰구간, 동등 여부를 돌려줍니다. delta 는 분석 전에 정해 넘겨야 합니다.</td></tr>
+  </table></div>
+</section>
+
+<nav class="labnav bot">
+  <a href="0102-stick-spread.html">← 0102 산포·순위 비교</a>
+  <a href="../index.html#labs">허브</a>
+  <a href="0104-autocorr-did.html">0104 유의한데 가짜인 경우 →</a>
+</nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script>
+/* 통계 부품과 이 실험실의 계산(화면 없음) */
+ /* ---- 기본 ---- */
+ function mean(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; }
+ function sd(a){ var m=mean(a),s2=0; a.forEach(function(v){s2+=(v-m)*(v-m);}); return Math.sqrt(s2/(a.length-1)); }
+ function median(a){ var b=a.slice().sort(function(x,y){return x-y;}); var n=b.length; return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2; }
+ function sgn(v){ return v>0?1:(v<0?-1:0); }
+
+ /* ---- gammln / betacf / betai (t·F 분포 p값) ---- */
+ function gammln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;for(var j=0;j<6;j++){y+=1;s+=c[j]/y;}return -t+Math.log(2.5066282746310005*s/x);}
+ function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=200;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<3e-12)break;}return h;}
+ function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+ function fpval(F,d1,d2){if(F<=0)return 1;return 1-betai(d1/2,d2/2,d1*F/(d1*F+d2));}
+ function tp2(t,df){t=Math.abs(t);return betai(df/2,0.5,df/(df+t*t));}
+
+ /* ---- 정규분포 역함수(AS241, Wichura 1988 — R qnorm과 동일 알고리즘) ---- */
+ function qnorm(p){
+  var q=p-0.5, r;
+  if(Math.abs(q)<=0.425){
+   r=0.180625-q*q;
+   return q*(((((((r*2509.0809287301226727+33430.575583588128105)*r+67265.770927008700853)*r+45921.953931549871457)*r+13731.693765509461125)*r+1971.5909503065514427)*r+133.14166789178437745)*r+3.387132872796366608)
+     /(((((((r*5226.495278852854561+28729.085735721942674)*r+39307.89580009271061)*r+21213.794301586595867)*r+5394.1960214247511077)*r+687.1870074920579083)*r+42.313330701600911252)*r+1);
+  }
+  r = q>0 ? 1-p : p;
+  r = Math.sqrt(-Math.log(r));
+  var val;
+  if(r<=5){
+   r-=1.6;
+   val=(((((((r*7.7454501427834140764e-4+0.0227238449892691845833)*r+0.24178072517745061177)*r+1.27045825245236838258)*r+3.64784832476320460504)*r+5.7694972214606914055)*r+4.6303378461565452959)*r+1.42343711074968357734)
+     /(((((((r*1.05075007164441684324e-9+5.475938084995344946e-4)*r+0.0151986665636164571966)*r+0.14810397642748007459)*r+0.68976733498510000455)*r+1.6763848301838038494)*r+2.05319162663775882187)*r+1);
+  } else {
+   r-=5;
+   val=(((((((r*2.01033439929228813265e-7+2.71155556874348757815e-5)*r+0.0012426609473880784386)*r+0.026532189526576123093)*r+0.29656057182850489123)*r+1.7848265399172913358)*r+5.4637849111641143699)*r+6.6579046435011037772)
+     /(((((((r*2.04426310338993978564e-15+1.4215117583164458887e-7)*r+1.8463183175100546818e-5)*r+7.868691311456132591e-4)*r+0.0148753612908506148525)*r+0.13692988092273580531)*r+0.59983220655588793769)*r+1);
+  }
+  return q<0 ? -val : val;
+ }
+
+ /* ---- 표준정규 상단확률 Q(z)=P(Z>z) (Cody 유리근사 — R pnorm과 동일 알고리즘) ---- */
+ function normQ(x){
+  var y=Math.abs(x);
+  if(y<=0.67448975){
+   var A=[2.2352520354606839287,161.02823106855587881,1067.6894854603709582,18154.981253343561249,0.065682337918207449113];
+   var B=[47.20258190468824187,976.09855173777669322,10260.932208618978205,45507.789335026729956];
+   var xsq=x*x, xnum=A[4]*xsq, xden=xsq;
+   for(var i=0;i<3;i++){ xnum=(xnum+A[i])*xsq; xden=(xden+B[i])*xsq; }
+   var temp=x*(xnum+A[3])/(xden+B[3]);
+   return 0.5-temp;
+  } else if(y<=5.656854249492381){
+   var C=[0.39894151208813466764,8.8831497943883759412,93.506656132177855979,597.27027639480026226,2494.5375852903726711,6848.1904505362823326,11602.651437647350124,9842.7148383839780218,1.0765576773720192317e-8];
+   var D=[22.266688044328115691,235.38790178262499861,1519.377599407554805,6485.558298266760755,18615.571640885098091,34900.952721145977266,38912.003286093271411,19685.429676859990727];
+   var xnum2=C[8]*y, xden2=y;
+   for(var j=0;j<7;j++){ xnum2=(xnum2+C[j])*y; xden2=(xden2+D[j])*y; }
+   var temp2=(xnum2+C[7])/(xden2+D[7]);
+   var xsq2=Math.trunc(y*16)/16;
+   var del=(y-xsq2)*(y+xsq2);
+   var Qy=Math.exp(-xsq2*xsq2*0.5)*Math.exp(-del*0.5)*temp2;
+   return x>=0?Qy:1-Qy;
+  } else {
+   var xsq3=y*y;
+   var del2=(1-(1-5/(xsq3+6))/(xsq3+4))/(xsq3+2);
+   var Qy2=Math.exp(-0.5*xsq3)/(y*Math.sqrt(2*Math.PI))*(1-del2);
+   return x>=0?Qy2:1-Qy2;
+  }
+ }
+
+ /* ---- 다항식(AS181.2) ---- */
+ function polyEv(cc,nord,x){
+  var ret=cc[0];
+  if(nord>1){
+   var p=x*cc[nord-1];
+   for(var j=nord-2;j>0;j--) p=(p+cc[j])*x;
+   ret+=p;
+  }
+  return ret;
+ }
+
+ /* ---- Shapiro-Wilk W·p (Royston 1995, AS R94 — R swilk.c 포팅) ---- */
+ function shapiroWilk(xsIn){
+  var x=xsIn.slice().sort(function(a,b){return a-b;});
+  var n=x.length, nn2=Math.floor(n/2);
+  var a=new Array(nn2+1);
+  var g=[-2.273,0.459];
+  var c1=[0,0.221157,-0.147981,-2.07119,4.434685,-2.706056];
+  var c2=[0,0.042981,-0.293762,-1.752461,5.682633,-3.582633];
+  var c3=[0.544,-0.39978,0.025054,-6.714e-4];
+  var c4=[1.3822,-0.77857,0.062767,-0.0020322];
+  var c5=[-1.5861,-0.31082,-0.083751,0.0038915];
+  var c6=[-0.4803,-0.082676,0.0030302];
+  var an=n;
+  if(n===3){ a[1]=0.70710678; }
+  else {
+   var an25=an+0.25, summ2=0, i;
+   for(i=1;i<=nn2;i++){ a[i]=qnorm((i-0.375)/an25); summ2+=a[i]*a[i]; }
+   summ2*=2;
+   var ssumm2=Math.sqrt(summ2), rsn=1/Math.sqrt(an);
+   var a1=polyEv(c1,6,rsn)-a[1]/ssumm2;
+   var i1, fac, a2;
+   if(n>5){
+    i1=3;
+    a2=-a[2]/ssumm2+polyEv(c2,6,rsn);
+    fac=Math.sqrt((summ2-2*a[1]*a[1]-2*a[2]*a[2])/(1-2*a1*a1-2*a2*a2));
+    a[2]=a2;
+   } else {
+    i1=2;
+    fac=Math.sqrt((summ2-2*a[1]*a[1])/(1-2*a1*a1));
+   }
+   a[1]=a1;
+   for(i=i1;i<=nn2;i++) a[i]=-a[i]/fac;
+  }
+  var range=x[n-1]-x[0];
+  var xx=x[0]/range, sx=xx, sa=-a[1];
+  var ii=1, jj=n-1;
+  for(; ii<n; jj--){
+   var xi=x[ii]/range;
+   sx+=xi; ii++;
+   if(ii!==jj) sa+=sgn(ii-jj)*a[Math.min(ii,jj)];
+   xx=xi;
+  }
+  sa/=n; sx/=n;
+  var ssa=0, ssx=0, sax=0, p, q;
+  for(p=0, q=n-1; p<n; p++, q--){
+   var asa;
+   if(p!==q) asa=sgn(p-q)*a[1+Math.min(p,q)]-sa; else asa=-sa;
+   var xsx=x[p]/range-sx;
+   ssa+=asa*asa; ssx+=xsx*xsx; sax+=asa*xsx;
+  }
+  var ssassx=Math.sqrt(ssa*ssx);
+  var w1=(ssassx-sax)*(ssassx+sax)/(ssa*ssx);
+  var W=1-w1;
+  if(n===3){
+   var pi6=1.90985931710274, stqr=1.04719755119660;
+   var pw3=pi6*(Math.asin(Math.sqrt(W))-stqr);
+   return {W:W,p:Math.max(0,pw3)};
+  }
+  var y=Math.log(w1), xxlog=Math.log(an), m,s;
+  if(n<=11){
+   var gamma=polyEv(g,2,an);
+   if(y>=gamma) return {W:W,p:1e-99};
+   y=-Math.log(gamma-y);
+   m=polyEv(c3,4,an); s=Math.exp(polyEv(c4,4,an));
+  } else {
+   m=polyEv(c5,4,xxlog); s=Math.exp(polyEv(c6,3,xxlog));
+  }
+  var pw=normQ((y-m)/s);
+  return {W:W, p:pw};
+ }
+
+ /* ---- 순위(동점 평균 순위) ---- */
+ function ranks(arr){
+  var n=arr.length, idx=arr.map(function(v,i){return i;}).sort(function(a,b){return arr[a]-arr[b];});
+  var r=new Array(n), i=0;
+  while(i<n){
+   var j=i;
+   while(j+1<n && arr[idx[j+1]]===arr[idx[i]]) j++;
+   var avg=(i+1+j+1)/2;
+   for(var k=i;k<=j;k++) r[idx[k]]=avg;
+   i=j+1;
+  }
+  return r;
+ }
+
+var LAB=(function(){
+ var SC=MfgSim.scenario('S3'), R=SC.rows, N=R.length;
+ function col(k){ return R.map(function(r){return r[k];}); }
+ var B=col('repair_err_before'), A=col('repair_err_after'), CB=col('clean_err_before'), CA=col('clean_err_after');
+ function diffs(b,a){ return a.map(function(v,i){return v-b[i];}); }
+ function tOne(t,df){ var p2=tp2(t,df); return t>=0 ? p2/2 : 1-p2/2; }          // P(T>t)
+ function tUpper(p,df){ var lo=0,hi=60; for(var i=0;i<80;i++){ var m=(lo+hi)/2; if(tOne(m,df)>p) lo=m; else hi=m; } return (lo+hi)/2; }  // P(T>t)=p
+ function corr(x,y){ var mx=mean(x),my=mean(y),sxy=0,sxx=0,syy=0; for(var i=0;i<x.length;i++){ sxy+=(x[i]-mx)*(y[i]-my); sxx+=(x[i]-mx)*(x[i]-mx); syy+=(y[i]-my)*(y[i]-my);} return sxy/Math.sqrt(sxx*syy); }
+ function cov(x,y){ var mx=mean(x),my=mean(y),s=0; for(var i=0;i<x.length;i++) s+=(x[i]-mx)*(y[i]-my); return s/(x.length-1); }
+ function welch(b,a){
+  var ma=mean(a), mb=mean(b), va=Math.pow(sd(a),2)/a.length, vb=Math.pow(sd(b),2)/b.length;
+  var se=Math.sqrt(va+vb), t=(ma-mb)/se, df=(va+vb)*(va+vb)/(va*va/(a.length-1)+vb*vb/(b.length-1));
+  var h=tUpper(0.025,df)*se;
+  return {diff:ma-mb,se:se,t:t,df:df,p:tp2(t,df),lo:ma-mb-h,hi:ma-mb+h};
+ }
+ function paired(b,a,alpha){
+  var d=diffs(b,a), n=d.length, m=mean(d), se=sd(d)/Math.sqrt(n), t=m/se, df=n-1, h=tUpper((alpha||0.05)/2,df)*se;
+  return {diff:m,se:se,t:t,df:df,p:tp2(t,df),lo:m-h,hi:m+h};
+ }
+ function wilcoxon(d){
+  var nz=d.filter(function(v){return v!==0;}), n=nz.length, ab=nz.map(Math.abs), rk=ranks(ab), wp=0, wm=0, i;
+  for(i=0;i<n;i++){ if(nz[i]>0) wp+=rk[i]; else wm+=rk[i]; }
+  var W=Math.min(wp,wm), sorted=ab.slice().sort(function(a,b){return a-b;}), tie=0, k=0;
+  while(k<n){ var j=k; while(j+1<n && sorted[j+1]===sorted[k]) j++; var c=j-k+1; tie+=c*c*c-c; k=j+1; }
+  var mu=n*(n+1)/4, v=n*(n+1)*(2*n+1)/24-tie/48, z=(W-mu)/Math.sqrt(v);
+  return {n:n,Wp:wp,Wm:wm,W:W,mu:mu,z:z,p:2*normQ(Math.abs(z))};
+ }
+ function tost(d,delta){
+  var n=d.length, m=mean(d), se=sd(d)/Math.sqrt(n), df=n-1;
+  var ta=(m+delta)/se, tb=(m-delta)/se, pa=tOne(ta,df), pb=tOne(-tb,df), h=tUpper(0.05,df)*se;
+  var p=Math.max(pa,pb), lo=m-h, hi=m+h;
+  return {m:m,se:se,df:df,ta:ta,tb:tb,pa:pa,pb:pb,p:p,lo:lo,hi:hi,equiv:p<0.05,dmin:Math.max(Math.abs(lo),Math.abs(hi))};
+ }
+ function pick(arr,idx){ return idx.map(function(i){return arr[i];}); }
+ function evenIdx(k){ var o=[]; for(var i=0;i<k;i++) o.push(Math.floor(i*N/k)); return o; }
+ var dR=diffs(B,A), dC=diffs(CB,CA);
+ var px=col('px'), py=col('py');
+ var wl=welch(B,A), pr=paired(B,A), sw=shapiroWilk(dR), wx=wilcoxon(dR), cp=paired(CB,CA), cw=wilcoxon(dC), csw=shapiroWilk(dC);
+ var delta0=SC.truth.tost_delta_um, t0=tost(dC,delta0), tr=tost(dR,delta0);
+ var bm=mean(B), bs=sd(B), vB=bs*bs, vA=Math.pow(sd(A),2), cv=cov(B,A), vD=Math.pow(sd(dR),2);
+ var m3=function(a){ return {mean:mean(a),sd:sd(a),min:Math.min.apply(null,a),max:Math.max.apply(null,a)}; };
+ var sk=(function(){ var m=mean(dR),s2=0,s3=0,n=dR.length; dR.forEach(function(v){s2+=(v-m)*(v-m);s3+=Math.pow(v-m,3);}); return (s3/n)/Math.pow(s2/n,1.5); })();
+ var V={
+  n:N, n2:2*N, gx:Math.max.apply(null,px)+1, gy:Math.max.apply(null,py)+1,
+  bMean:bm,bSd:bs,bMin:m3(B).min,bMax:m3(B).max, aMean:mean(A),aSd:sd(A),aMin:m3(A).min,aMax:m3(A).max,
+  dMean:mean(dR),dMeanAbs:-mean(dR),dSd:sd(dR),dMin:m3(dR).min,dMax:m3(dR).max,
+  c_bMean:mean(CB),c_bSd:sd(CB),c_bMin:m3(CB).min,c_bMax:m3(CB).max, c_aMean:mean(CA),c_aSd:sd(CA),c_aMin:m3(CA).min,c_aMax:m3(CA).max,
+  c_dMean:mean(dC),c_dSd:sd(dC),c_dMin:m3(dC).min,c_dMax:m3(dC).max,
+  ub:bm+3*bs, w3:3*bs, nOut:A.filter(function(v){return v>bm+3*bs;}).length,
+  nImp:dR.filter(function(v){return v<0;}).length, nWor:dR.filter(function(v){return v>0;}).length,
+  relRed:-mean(dR)/bm*100, r:corr(B,A), varB:vB,varA:vA,cov:cv,varD:vD,
+  w_diff:wl.diff,w_se:wl.se,w_t:wl.t,w_df:wl.df,w_p:wl.p,w_lo:wl.lo,w_hi:wl.hi,
+  p_se:pr.se,p_t:pr.t,p_df:pr.df,p_p:pr.p,p_lo:pr.lo,p_hi:pr.hi, ratio:wl.se/pr.se,
+  sw_W:sw.W,sw_p:sw.p,skew:sk,
+  wx_n:wx.n,wx_Wp:wx.Wp,wx_Wm:wx.Wm,wx_W:wx.W,wx_mu:wx.mu,wx_z:wx.z,wx_p:wx.p,
+  c_se:cp.se,c_t:cp.t,c_df:cp.df,c_p:cp.p,c_lo:cp.lo,c_hi:cp.hi, c_wx_p:cw.p, c_sw_p:csw.p,
+  delta0:delta0, c_ci90lo:t0.lo, c_ci90hi:t0.hi, c_dmin:t0.dmin, tost0_p:t0.p
+ };
+ return {SC:SC,B:B,A:A,CB:CB,CA:CA,dR:dR,dC:dC,V:V,welch:welch,paired:paired,tost:tost,t0:t0,tr:tr,pick:pick,evenIdx:evenIdx,delta0:delta0,wl:wl,pr:pr,wx:wx};
+})();
+
+</script>
+<script>
+/* 화면: 숫자 주입 · 그림 · 슬라이더 */
+(function(){
+ var V=LAB.V, N=V.n, B=LAB.B, A=LAB.A, dR=LAB.dR, dC=LAB.dC;
+ function pyE(x){ var s=x.toExponential(1).replace('e-','e-0').replace('e+','e+0'); return s.replace(/e([+-])0(\d\d)/,'e$1$2'); }
+ function F(x,f){
+  if(f==='i') return String(Math.round(x));
+  if(f==='s1') return x.toFixed(1); if(f==='s2') return x.toFixed(2); if(f==='s3') return x.toFixed(3);
+  if(f==='p') return x<0.001 ? pyE(x) : x.toFixed(3);
+  if(f==='e') return pyE(x);
+  return String(x);
+ }
+ function fill(){
+  var els=document.querySelectorAll('[data-k]');
+  for(var i=0;i<els.length;i++){ var e=els[i], k=e.getAttribute('data-k'); if(V[k]==null){ console.error('missing key '+k); continue; } e.textContent=F(V[k],e.getAttribute('data-f')); }
+ }
+ fill();
+ (function(){ /* 원자료 표 */
+  var h='<tr><th>점 (가로,세로)</th><th>리페어 전</th><th>리페어 후</th><th>세정 전</th><th>세정 후</th></tr>';
+  LAB.SC.rows.forEach(function(r){ h+='<tr><td>('+r.px+', '+r.py+')</td><td>'+r.repair_err_before.toFixed(3)+'</td><td>'+r.repair_err_after.toFixed(3)+'</td><td>'+r.clean_err_before.toFixed(3)+'</td><td>'+r.clean_err_after.toFixed(3)+'</td></tr>'; });
+  document.getElementById('rawTable').innerHTML=h;
+ })();
+
+ /* ---------- 그림 공통 ---------- */
+ var FONT='12px -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif';
+ function col(){ var cs=getComputedStyle(document.documentElement), g=function(n){return cs.getPropertyValue(n).trim();};
+  return {ink:g('--ink'),soft:g('--soft'),rule:g('--rule'),accent:g('--accent'),good:g('--good'),warn:g('--warn'),paper:g('--paper'),card:g('--card')}; }
+ function setup(cv,h){ var dpr=window.devicePixelRatio||1, w=cv.clientWidth||300; cv.style.height=h+'px'; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); var c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.font=FONT; return {c:c,w:w,h:h}; }
+ function txt(c,t,x,y,color,al){ c.fillStyle=color; c.textAlign=al||'left'; c.fillText(t,x,y); }
+ function sg(x){ return (x>=0?'+':'')+x.toFixed(3); }
+ function mx(a){return Math.max.apply(null,a);} function mn(a){return Math.min.apply(null,a);}
+
+ /* 그림 1: 전→후 같은 점 연결 */
+ var cvPair=document.getElementById('cvPair');
+ function drawPair(){
+  var s=setup(cvPair,300), c=s.c, W=s.w, H=s.h, k=col();
+  var L=46,Rr=14,T=26,Bm=44, pw=W-L-Rr, ph=H-T-Bm, ymax=Math.ceil(Math.max(mx(B),mx(A)));
+  function Y(v){ return T+ph*(1-v/ymax); }
+  var x0=L+pw*0.24, x1=L+pw*0.76;
+  c.lineWidth=1; c.strokeStyle=k.rule; c.textBaseline='middle';
+  for(var v=0;v<=ymax;v++){ c.beginPath(); c.moveTo(L,Y(v)); c.lineTo(W-Rr,Y(v)); c.stroke(); txt(c,String(v),L-8,Y(v),k.soft,'right'); }
+  txt(c,'|오차| (µm)',L,12,k.soft,'left');
+  for(var i=0;i<N;i++){ c.globalAlpha=0.5; c.strokeStyle=(A[i]-B[i])<0?k.accent:k.warn; c.lineWidth=1.3; c.beginPath(); c.moveTo(x0,Y(B[i])); c.lineTo(x1,Y(A[i])); c.stroke(); }
+  c.globalAlpha=1;
+  c.strokeStyle=k.ink; c.lineWidth=4; c.beginPath(); c.moveTo(x0,Y(V.bMean)); c.lineTo(x1,Y(V.aMean)); c.stroke();
+  c.fillStyle=k.ink; [[x0,V.bMean],[x1,V.aMean]].forEach(function(p){ c.beginPath(); c.arc(p[0],Y(p[1]),5,0,6.3); c.fill(); });
+  txt(c,'평균 '+V.bMean.toFixed(2),x0-9,Y(V.bMean)-12,k.ink,'right');
+  txt(c,'평균 '+V.aMean.toFixed(2),x1+9,Y(V.aMean)+14,k.ink,'left');
+  c.textBaseline='alphabetic';
+  txt(c,'리페어 전',x0,H-16,k.ink,'center'); txt(c,'리페어 후',x1,H-16,k.ink,'center');
+ }
+
+ /* 그림 2: 점별 차이 + 두 방법의 95% 신뢰구간 */
+ var cvDiff=document.getElementById('cvDiff'), sN=document.getElementById('sN');
+ var nowN=N;
+ function drawDiff(st){
+  var s=setup(cvDiff,320), c=s.c, W=s.w, H=s.h, k=col();
+  var L=16,Rr=16, lo=-1.9, hi=0.9, pw=W-L-Rr, axY=H-46;
+  function X(v){ return L+pw*(v-lo)/(hi-lo); }
+  c.textBaseline='alphabetic'; c.lineWidth=1;
+  for(var t=-1.5;t<=0.75;t+=0.5){ c.strokeStyle=k.rule; c.beginPath(); c.moveTo(X(t),20); c.lineTo(X(t),axY); c.stroke(); txt(c,(Math.abs(t)<1e-9?'0':t.toFixed(1)),X(t),axY+16,k.soft,'center'); }
+  c.strokeStyle=k.ink; c.setLineDash([5,4]); c.beginPath(); c.moveTo(X(0),20); c.lineTo(X(0),axY); c.stroke(); c.setLineDash([]);
+  c.strokeStyle=k.soft; c.beginPath(); c.moveTo(L,axY); c.lineTo(W-Rr,axY); c.stroke();
+  txt(c,'← 오차가 줄어듦',L,axY+36,k.soft,'left'); txt(c,'오차가 늘어남 →',W-Rr,axY+36,k.soft,'right'); txt(c,'차이 d = 후 − 전 (µm)',X(0)+(X(0)>W/2?-6:6),axY+36,k.soft,X(0)>W/2?'right':'left');
+  function bar(y,label,r){
+   var cover=r.lo<=0&&r.hi>=0, color=cover?k.warn:k.good;
+   txt(c,label+'  '+r.lo.toFixed(3)+' ~ '+r.hi.toFixed(3)+(cover?'  (0 을 덮음)':'  (0 을 벗어남)'),L,y-14,k.ink,'left');
+   c.strokeStyle=color; c.lineWidth=6; c.lineCap='round'; c.beginPath(); c.moveTo(X(r.lo),y); c.lineTo(X(r.hi),y); c.stroke(); c.lineCap='butt';
+   c.fillStyle=k.ink; c.beginPath(); c.arc(X(r.diff),y,5,0,6.3); c.fill();
+  }
+  bar(52,'독립 비교 95% 구간',st.w); bar(106,'대응 비교 95% 구간',st.p);
+  txt(c,'점별 차이 d 하나하나 ('+st.d.length+'개)',L,148,k.ink,'left');
+  var bins={}, r=3.2, bw=7;
+  st.d.slice().sort(function(a,b){return a-b;}).forEach(function(v){ var key=Math.round(X(v)/bw), cnt=bins[key]||0; bins[key]=cnt+1;
+    c.fillStyle=v<0?k.accent:k.warn; c.globalAlpha=0.85; c.beginPath(); c.arc(key*bw,axY-r-2-cnt*(2*r),r,0,6.3); c.fill(); });
+  c.globalAlpha=1;
+ }
+ function stateN(kk){
+  var idx=kk===N?null:LAB.evenIdx(kk), b=idx?LAB.pick(B,idx):B, a=idx?LAB.pick(A,idx):A;
+  var d=a.map(function(v,i){return v-b[i];});
+  return {w:LAB.welch(b,a), p:LAB.paired(b,a), d:d, n:kk};
+ }
+ function updateN(){
+  var kk=parseInt(sN.value,10), st=stateN(kk);
+  document.getElementById('oN').textContent=kk;
+  document.getElementById('stN').textContent = kk===N ? '지금은 전체 '+N+'점입니다. 실제 자료 그대로입니다.' : '지금은 '+N+'점 중 고르게 뽑은 '+kk+'점만 쓴 가정입니다.';
+  function row(pre,r){ document.getElementById(pre+'_d').textContent=r.diff.toFixed(3); document.getElementById(pre+'_se').textContent=r.se.toFixed(3); document.getElementById(pre+'_t').textContent=r.t.toFixed(3);
+   document.getElementById(pre+'_df').textContent=(pre==='eW')?r.df.toFixed(1):String(Math.round(r.df)); document.getElementById(pre+'_p').textContent=F(r.p,'p'); document.getElementById(pre+'_ci').textContent=r.lo.toFixed(3)+' ~ '+r.hi.toFixed(3); }
+  row('eW',st.w); row('eP',st.p);
+  var v=document.getElementById('vN'), wSig=st.w.p<0.05, pSig=st.p.p<0.05;
+  v.textContent='독립 비교: p = '+F(st.w.p,'p')+(wSig?' → 차이를 찾았습니다.':' → 찾지 못했습니다.')+'  /  대응 비교: p = '+F(st.p.p,'p')+(pSig?' → 차이를 찾았습니다.':' → 찾지 못했습니다.');
+  v.className='verdict '+(pSig?'rej':'keep');
+  drawDiff(st);
+ }
+ sN.addEventListener('input',updateN);
+ document.getElementById('rstN').addEventListener('click',function(){ sN.value=N; updateN(); });
+
+ /* 그림 3: 허용폭 띠와 90% 신뢰구간 */
+ var cvTost=document.getElementById('cvTost'), sD=document.getElementById('sD');
+ function drawTost(dl,tc,tr){
+  var s=setup(cvTost,260), c=s.c, W=s.w, H=s.h, k=col();
+  var L=16,Rr=16, lo=-0.7, hi=0.7, pw=W-L-Rr, axY=H-46;
+  function X(v){ return L+pw*(v-lo)/(hi-lo); }
+  c.textBaseline='alphabetic'; c.lineWidth=1;
+  c.fillStyle=k.good; c.globalAlpha=0.16; c.fillRect(X(-dl),26,X(dl)-X(-dl),axY-26); c.globalAlpha=1;
+  c.strokeStyle=k.good; c.lineWidth=2; c.setLineDash([6,4]);
+  [-dl,dl].forEach(function(v){ c.beginPath(); c.moveTo(X(v),26); c.lineTo(X(v),axY); c.stroke(); });
+  c.setLineDash([]);
+  txt(c,'−δ '+(-dl).toFixed(2),X(-dl)-4,18,k.good,'right'); txt(c,'+δ '+dl.toFixed(2),X(dl)+4,18,k.good,'left');
+  c.lineWidth=1;
+  for(var t=-0.6;t<=0.61;t+=0.2){ c.strokeStyle=k.rule; c.beginPath(); c.moveTo(X(t),axY); c.lineTo(X(t),axY+5); c.stroke(); txt(c,(Math.abs(t)<1e-9?'0':t.toFixed(1)),X(t),axY+19,k.soft,'center'); }
+  c.strokeStyle=k.soft; c.beginPath(); c.moveTo(L,axY); c.lineTo(W-Rr,axY); c.stroke();
+  c.strokeStyle=k.ink; c.setLineDash([5,4]); c.beginPath(); c.moveTo(X(0),26); c.lineTo(X(0),axY); c.stroke(); c.setLineDash([]);
+  txt(c,'평균 차이 (µm)',W-Rr,axY+38,k.soft,'right');
+  function bar(y,label,r){
+   var inside=r.lo>-dl&&r.hi<dl, color=inside?k.good:k.warn;
+   txt(c,label+'  '+r.lo.toFixed(3)+' ~ '+r.hi.toFixed(3)+(inside?'  동등':'  동등 아님'),L,y-14,k.ink,'left');
+   c.strokeStyle=color; c.lineWidth=6; c.lineCap='round'; c.beginPath(); c.moveTo(X(r.lo),y); c.lineTo(X(r.hi),y); c.stroke(); c.lineCap='butt';
+   c.fillStyle=k.ink; c.beginPath(); c.arc(X(r.m),y,5,0,6.3); c.fill();
+  }
+  bar(80,'세정 전후 90% 구간',tc); bar(150,'리페어 전후 90% 구간',tr);
+ }
+ function updateD(){
+  var dl=parseFloat(sD.value), tc=LAB.tost(dC,dl), tr=LAB.tost(dR,dl);
+  document.getElementById('oD').textContent=dl.toFixed(2);
+  document.getElementById('tD').textContent=dl.toFixed(2);
+  var base=Math.abs(dl-LAB.delta0)<0.005;
+  document.getElementById('stD').textContent = base ? '지금 값이 기준값입니다. 데이터를 보기 전에 정한 허용폭입니다.' : '지금은 기준값 '+LAB.delta0.toFixed(2)+' 에서 '+sgn2(dl-LAB.delta0)+' 옮겨 놓은 가정입니다. 데이터를 본 뒤에 고른 허용폭은 결론의 근거가 되지 못합니다.';
+  document.getElementById('tCi').textContent=tc.lo.toFixed(3)+' ~ '+tc.hi.toFixed(3);
+  document.getElementById('tTa').textContent=tc.ta.toFixed(3); document.getElementById('tPa').textContent=F(tc.pa,'p');
+  document.getElementById('tTb').textContent=tc.tb.toFixed(3); document.getElementById('tPb').textContent=F(tc.pb,'p');
+  document.getElementById('tP').textContent=F(tc.p,'p');
+  var v=document.getElementById('vT');
+  v.textContent='세정: '+(tc.equiv?'TOST p = '+F(tc.p,'p')+' < 0.05 → 평균 차이가 ±'+dl.toFixed(2)+' µm 안이라고 판정합니다 (동등).':'TOST p = '+F(tc.p,'p')+' ≥ 0.05 → 평균 차이가 ±'+dl.toFixed(2)+' µm 안이라고 말할 수 없습니다 (동등 아님).');
+  v.className='verdict '+(tc.equiv?'rej':'keep');
+  document.getElementById('tNote').textContent='참고: 같은 허용폭에서 리페어 전후는 '+(tr.equiv?'TOST p = '+F(tr.p,'p')+' 로 동등이라고 판정됩니다. 허용폭이 리페어의 개선 폭보다 느슨하면 개선조차 허용 범위 안의 변화가 됩니다.':'동등이 아닙니다(TOST p = '+F(tr.p,'p')+'). 평균 차이가 허용폭 밖에 있기 때문입니다.')+' 세정이 동등으로 남는 가장 작은 δ 는 '+tc.dmin.toFixed(3)+' µm, 리페어가 동등이 되는 가장 작은 δ 는 '+tr.dmin.toFixed(3)+' µm 입니다.';
+  drawTost(dl,tc,tr);
+ }
+ function sgn2(x){ return (x>0?'+':'−')+Math.abs(x).toFixed(2); }
+ sD.addEventListener('input',updateD);
+ document.getElementById('rstD').addEventListener('click',function(){ sD.value=LAB.delta0; updateD(); });
+ sD.value=LAB.delta0;
+
+ function redraw(){ drawPair(); updateN(); updateD(); }
+ redraw();
+ window.addEventListener('resize',redraw);
+
+ /* 테마 · 상단바 */
+ (function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function apply(v){ root.setAttribute('data-theme',v); for(var i=0;i<THEMES.length;i++) if(THEMES[i].v===v) btn.textContent=THEMES[i].t;
+   var m=document.querySelector('meta[name=theme-color]'); if(m) m.setAttribute('content', v==='dark'?'#0e1a1c':'#0f7c86'); window.dispatchEvent(new Event('resize')); }
+  btn.onclick=function(){ var cur=root.getAttribute('data-theme')||'light', i=0; for(var k=0;k<THEMES.length;k++) if(THEMES[k].v===cur) i=k;
+   var nv=THEMES[(i+1)%THEMES.length].v; try{localStorage.setItem('agentlab_theme',nv);}catch(e){} apply(nv); };
+  apply(root.getAttribute('data-theme')||'light');
+  var bar=document.getElementById('topbar');
+  function reserve(){ document.body.style.paddingTop=bar.offsetHeight+'px'; }
+  reserve(); if(window.ResizeObserver) new ResizeObserver(reserve).observe(bar); window.addEventListener('resize',reserve);
+ })();
+})();
+
+</script>
+<script src="../../adp/qna.js"></script>
+<script>if(location.search.indexOf("uicheck")>=0){var u=document.createElement("script");u.src="../../adp/uicheck.js";document.head.appendChild(u);}</script>
+</body></html>
