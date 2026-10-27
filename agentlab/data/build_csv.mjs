@@ -17,13 +17,14 @@ function csv(name, rows, cols) {
 }
 
 const S = {};
-['S1', 'S2', 'S3', 'S4', 'S5'].forEach(k => { S[k] = M.scenario(k); });
+['S1', 'S2', 'S3', 'S4', 'S5', 'S6'].forEach(k => { S[k] = M.scenario(k); });
 csv('s1_pm_shift.csv', S.S1.rows);
 csv('s2_stick_replace.csv', S.S2.rows);
 csv('s3_repair_pair.csv', S.S3.rows, ['px', 'py', 'x_mm', 'y_mm', 'defect_before', 'repair_err_before', 'repair_err_after']);
 csv('s3_clean_pair.csv', S.S3.rows, ['px', 'py', 'x_mm', 'y_mm', 'clean_err_before', 'clean_err_after']);
 csv('s4_thermal_confound.csv', S.S4.rows);
 csv('s5_autocorr.csv', S.S5.rows);
+csv('s6_false_alarm.csv', S.S6.csvRows());
 
 // 손실 시뮬레이션 → 유리 이력 → FDC·PPA 표
 const sim = M.simulateLoss();

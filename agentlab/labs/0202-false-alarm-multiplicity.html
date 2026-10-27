@@ -1,0 +1,673 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>헛알람은 왜 쌓이나 · 특징이 많을 때의 1종 오류</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="특징 하나에 3σ 선을 그으면 헛알람은 0.27%뿐인데, 특징이 590개면 정상 유리 대부분이 어딘가에서 걸립니다. 가상 FDC 데이터 500장으로 직접 세어 보고 본페로니 보정과 그 대가를 확인하는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 2 · 실험실 2</p>
+  <h1>헛알람은 왜 쌓이나</h1>
+  <p class="sub">특징이 590개면 정상 유리도 걸립니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0201-trace-to-feature.html">← 이전: 궤적에서 특징으로</a><span class="sp"></span></nav>
+
+<p><b>특징 하나에 3σ 선을 그으면 정상 유리가 선을 넘을 확률은 0.27%뿐입니다. 그런데 특징이 590개면, 정상 유리 한 장이 어딘가 한 곳에서라도 넘을 확률은 약 80%가 됩니다.</b> 이 실험실에서 그 숫자를 직접 세고, 줄이는 법과 그 대가를 확인합니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 평균, 표준편차, z값, 3σ 관리선, 특징(곡선을 요약한 숫자 하나, 0201), 헛알람(0201 마지막 절), 유의수준 α와 p값(0101).</p>
+  <ul class="chips known"><li>평균</li><li>표준편차</li><li>z값</li><li>3σ 관리선</li><li>특징</li><li>헛알람</li><li>유의수준 α</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <ul class="chips" id="termList"><li>1종 오류 (type I error)</li><li>2종 오류 (type II error)</li><li>가족 오류율 (FWER)</li><li>본페로니 보정 (Bonferroni correction)</li><li>시닥 보정 (Šidák correction)</li></ul>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0201의 끝에서 이런 물음을 남겼습니다. &ldquo;센서가 <b>118</b>개이고 센서마다 특징을 5개씩 뽑으면 유리 한 장에 특징이 <b>590</b>개입니다. 590개 각각에 3σ 선을 그으면 어떤 일이 생길까요?&rdquo;<br>
+  가상의 증착 라인에서 센서 118개 × 특징 5개(0201의 다섯 특징)를 유리마다 뽑았습니다. 먼저 <b>기준 유리 300장</b>으로 특징마다 평균과 표준편차를 구해 3σ 관리선을 긋습니다. 그다음 사후 검사로 <b>이상 없음이 확인된 정상 유리 500장</b>을 이 관리선에 대 봅니다. 한 특징이라도 선을 넘으면 그 유리에 인터락(알람)이 걸린다고 하겠습니다. 별도로, 특징 하나가 크게 옮겨 간 <b>진짜 이상 유리 10장</b>도 있습니다.<br>
+  <b>(1) 정상 500장 가운데 인터락이 걸리는 유리는 몇 장입니까? (2) 헛알람을 줄이려 관리선을 넓히면, 진짜 이상 10장 가운데 몇 장을 놓칩니까?</b>
+  <p class="note" style="margin:.5rem 0 0">같은 값이 <code>agentlab/data/csv/s6_false_alarm.csv</code> 파일에 들어 있습니다(열은 <code>glass_id, group</code>과 특징 590개). 8절의 Python 코드가 이 파일을 읽습니다. 정상 유리의 특징은 평균 둘레에 종 모양(정규분포)으로 흩어진다고 가정합니다. 이 가정이 맞아야 아래의 0.27%가 성립합니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>먼저 짐작해 보십시오</h2>
+<p>계산에 들어가기 전에 감을 적어 두십시오. 특징 하나에 3σ 선을 그으면 정상일 때 선을 넘을 확률이 0.27%입니다. 천 번 중에 세 번 정도입니다. 이 선을 590개 특징에 각각 그었습니다.</p>
+<div class="lab">
+  <div class="labtitle">정상 유리 500장 중 인터락이 걸리는 유리는 몇 장일까요?</div>
+  <div class="ctrl"><label for="guess">내 짐작 (0~500장)</label><input type="number" id="guess" min="0" max="500" step="1" placeholder="예: 10"><span></span></div>
+  <div class="row"><button class="btn" id="guessBtn" type="button">이 짐작으로 정하기</button></div>
+  <div class="state" id="guessState">아직 짐작을 정하지 않으셨습니다. 7절에서 실제 숫자와 견줍니다.</div>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>특징 하나에 3σ 선 — 1종 오류</h2>
+<p>한 특징에 관리선을 긋는 방식부터 정확히 하겠습니다. 기준 유리의 평균에서 표준편차의 <i>k</i>배만큼 떨어진 곳에 위아래로 선을 긋습니다. 이 <i>k</i>를 앞으로 <b>한계 <i>k</i></b>라 부르겠습니다. <i>k</i> = 3 이 3σ 관리선입니다.</p>
+<p>정상 유리의 값이 종 모양으로 흩어져 있다면, 정상인데도 선 밖으로 나갈 확률은 <i>k</i> 만으로 정해집니다. 아래 식의 Φ(<i>k</i>)는 표준정규분포(평균 0, 표준편차 1)에서 <i>k</i> 이하일 확률입니다.</p>
+<div class="eq">
+  <span class="eqlab">한 특징이 정상인데 선을 넘을 확률 (양쪽 합)</span>
+  <math display="block"><mrow><mi>α</mi><mo>=</mo><mn>2</mn><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>Φ</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></math>
+  <math display="block"><mrow><mi>k</mi><mo>=</mo><mn>3</mn><mo>일 때</mo><mspace width="0.8em"></mspace><mi>α</mi><mo>=</mo><mn>2</mn><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mn id="m_phi3"></mn><mo stretchy="false">)</mo><mo>=</mo><mn id="m_a3"></mn></mrow></math>
+  <span class="note">이 확률이 0101에서 쓰신 유의수준 α와 같은 뜻입니다.</span>
+</div>
+<p>정상인데 알람이 나는 일을 <b>1종 오류 (type I error)</b>, 곧 헛알람이라 부릅니다. 한 특징의 1종 오류 확률이 위의 α입니다.</p>
+<p>이론이 실제 자료에서도 맞는지 세어 보겠습니다. 정상 유리 500장 × 특징 590개 = <b id="nCells"></b>칸에 3σ 관리선을 대면 선을 넘은 칸은 <b id="cellsHit"></b>칸이고, 비율은 <b id="singleRate"></b>입니다. 이론값 <span id="a3txt"></span>과 거의 같습니다. 약간의 차이는 관리선을 기준 300장으로 어림해서 긋기 때문에 생깁니다. 실제 현장도 똑같이 어림한 선을 씁니다.</p>
+<p>한 특징이 헛알람을 낼 확률 0.27%는 작아 보입니다. 이제 이 선이 590개 있다고 하겠습니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>특징이 많아지면 — 가족 오류율</h2>
+<p>앞 절의 물음은 &ldquo;특징 하나가 넘을 확률&rdquo;이었습니다. 이번 절의 물음은 다릅니다. <b>유리 한 장은 590번 검사를 받습니다. 그중 한 번이라도 넘으면 그 유리에 인터락이 걸립니다.</b> 이 확률을 <b>가족 오류율 (family-wise error rate, FWER)</b>이라 부릅니다. 검사 여러 개를 한 가족으로 묶고, 가족 안에서 헛알람이 하나라도 날 확률입니다.</p>
+<p>계산을 먼저 해 보겠습니다. 특징 <i>m</i>개가 <b>서로 독립</b>이라고 가정하면(한 특징이 넘었는지가 다른 특징에 아무 영향을 주지 않는다는 뜻입니다), 유리 한 장이 <i>m</i>개를 모두 통과할 확률은 (1 − α)<sup><i>m</i></sup> 입니다. 하나라도 넘을 확률은 그 나머지입니다.</p>
+<div class="eq">
+  <span class="eqlab">가족 오류율 (특징 <i>m</i>개가 독립일 때)</span>
+  <math display="block"><mrow><mi>FWER</mi><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false">)</mo></mrow><mi>m</mi></msup></mrow></math>
+  <math display="block"><mrow><mi>α</mi><mo>=</mo><mn id="m_fa">0.0027</mn><mo>,</mo><mspace width="0.6em"></mspace><mi>m</mi><mo>=</mo><mn id="m_fm">590</mn><mspace width="0.8em"></mspace><mo>→</mo><mspace width="0.8em"></mspace><mi>FWER</mi><mo>=</mo><mn>1</mn><mo>−</mo><mn id="m_fq"></mn><mo>=</mo><mn id="m_fw"></mn></mrow></math>
+  <span class="note">계산에 몰래 들어간 가정이 독립입니다. 특징들이 함께 움직이면 이 식은 맞지 않습니다.</span>
+</div>
+<p>식은 약 <b id="fwIndTxt"></b>라고 합니다. 그런데 이 가상 데이터에서는 <b>독립이 아닙니다.</b> 같은 센서에서 뽑은 다섯 특징은 함께 오르내립니다(함께 움직이는 정도를 &minus;1~1로 나타낸 수, 곧 상관이 0.6입니다. 0이면 무관합니다). 센서끼리는 서로 무관합니다. 실제 FDC 데이터에서도 한 센서의 평균과 최대 편차는 같은 방향으로 움직이는 일이 흔합니다. 그러면 실측은 식과 같을까요, 다를까요? 직접 세어 봅니다.</p>
+<div class="lab">
+  <div class="labtitle">유리 500장 × 특징 590칸 — 3σ 관리선을 넘은 칸과 알람이 걸린 유리</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 특징 수 <i>m</i>을 590에서 1까지 천천히 내려 보십시오. 붉은 점은 그 유리의 그 특징이 3σ를 넘은 칸이고, 옅은 붉은 띠는 그 유리가 어딘가에서 걸렸다는 표시입니다. 왼쪽 막대에 걸린 유리가 쌓입니다. 특징을 늘릴수록 붉은 띠가 어떻게 늘어나는지, 숫자 네 개가 함께 어떻게 움직이는지 보십시오. 한계는 3σ로 고정해 두었습니다. 한계를 움직이는 것은 5절에서 합니다.</div>
+  <div class="ctrl"><label for="mA">감시하는 특징 수 <i>m</i></label><input type="range" id="mA" min="1" max="590" step="1" value="590"><output id="mAo"></output></div>
+  <div class="row" role="group" aria-label="특징 수 바로가기"><button class="btn ghost" type="button" data-ma="1">1개</button><button class="btn ghost" type="button" data-ma="10">10개</button><button class="btn ghost" type="button" data-ma="100">100개</button><button class="btn ghost" type="button" data-ma="590">590개로 되돌리기</button></div>
+  <div class="state" id="stA"></div>
+  <canvas id="cvA" height="300"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--bad)"></span>3σ를 넘은 칸</span><span><span class="dot" style="background:color-mix(in srgb,var(--bad) 30%,var(--card))"></span>걸린 유리의 행</span><span>세로 = 유리 500장(위가 1번), 가로 = 특징 590개(감시하지 않는 칸은 회색)</span></div>
+  <div class="two" style="margin-top:.7rem">
+    <div class="readout">한 특징의 헛알람 확률 α = <b id="A_a"></b></div>
+    <div class="readout">식(독립 가정)의 FWER = <b id="A_f"></b></div>
+    <div class="readout">실제로 걸린 정상 유리 = <b id="A_n"></b> / 500장</div>
+    <div class="readout">실측 FWER = <b id="A_r"></b></div>
+  </div>
+</div>
+<p><b>590개 전부 쓰면 실측은 <span id="A2_r"></span>(<span id="A2_n"></span>장)로 식의 <span id="A2_f"></span>보다 낮지만, 정상 500장의 대부분이 걸립니다.</b> 낮게 나오는 까닭은 상관에 있습니다. 같은 센서의 다섯 특징이 함께 움직이면 한 센서가 선을 넘을 때 여러 특징이 한꺼번에 넘습니다. 알람이 같은 유리에 몰리고, 알람이 난 유리의 수는 식이 세는 만큼 불어나지 않습니다. 식은 독립일 때의 값이라 상관이 있으면 실제는 이보다 낮은 쪽에 놓입니다. 그래도 &ldquo;어딘가에서 걸린다&rdquo;는 결론은 달라지지 않습니다.</p>
+<div class="qna" data-label="특징들이 서로 상관이면 실제 헛알람은 왜 줄어드나요?" data-q="특징들이 서로 상관이면 실제 헛알람은 왜 줄어드나요?">
+  <p>특징마다 헛알람이 날 확률은 그대로 0.27%입니다. 달라지는 것은 알람이 <b>어느 유리에</b> 나는가입니다. 독립이면 알람이 유리 500장에 고르게 퍼져서 서로 다른 유리가 걸립니다. 상관이 있으면 한 유리가 선을 넘을 때 같은 센서의 이웃 특징도 함께 넘기 쉬워 알람이 한 유리에 겹칩니다.</p>
+  <p>알람 총수는 비슷한데 걸린 유리 수가 줄어듭니다. 이 가상 데이터는 센서 118개가 독립이라 나머지 많은 유리가 여전히 걸리고, 그래서 FWER은 식보다 조금 낮은 정도입니다.</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>막힘 — 한계를 올리면 되는데, 얼마로?</h2>
+<p>3절의 결과는 현장에서 견디기 어렵습니다. 정상 유리 대부분이 인터락에 걸리면 인터락은 아무 정보도 주지 않습니다. 한계 <i>k</i>를 올리면 헛알람이 준다는 것은 쉽게 떠올릴 수 있습니다. 문제는 <b>얼마로 올리느냐</b>입니다. 이 질문에 목표부터 정하겠습니다. 유리 한 장의 가족 오류율을 <b>특징 하나일 때와 같은 0.0027</b>로 되돌리겠다는 목표입니다.</p>
+<p>가장 단순한 방법은 가족 전체의 허용치를 특징 수로 나눠 특징마다 나눠 주는 것입니다. 이를 <b>본페로니 보정 (Bonferroni correction)</b>이라 부릅니다. 특징마다 허용하는 헛알람 확률은 α<sub>가족</sub> / <i>m</i> 이고, 거기에 맞는 한계 <i>k</i>는 Φ를 거꾸로 푼 값입니다. 이 방법은 특징이 독립인지와 상관없이 가족 오류율이 α<sub>가족</sub>을 넘지 않도록 보장합니다. 한 특징씩 넘을 확률을 모두 더한 값이 &ldquo;하나라도 넘을 확률&rdquo;의 상한이기 때문입니다.</p>
+<div class="eq">
+  <span class="eqlab">본페로니 보정 — 특징 하나가 쓸 수 있는 헛알람 확률과 그에 맞는 한계</span>
+  <math display="block"><mrow><msup><mi>α</mi><mo>′</mo></msup><mo>=</mo><mfrac><msub><mi>α</mi><mtext>가족</mtext></msub><mi>m</mi></mfrac><mo>,</mo><mspace width="1.2em"></mspace><mi>k</mi><mo>=</mo><msup><mi>Φ</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mfrac><msup><mi>α</mi><mo>′</mo></msup><mn>2</mn></mfrac><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">α<sub>가족</sub> = 0.0027(특징 하나일 때의 3σ와 같은 수준). Φ<sup>&minus;1</sup>은 확률을 주면 그에 맞는 <i>k</i>를 돌려주는 거꾸로 함수입니다.</span>
+</div>
+<p>독립이라고 확신할 수 있으면 더 정확한 방법이 있습니다. <b>시닥 보정 (Šidák correction)</b>은 3절의 식을 거꾸로 풀어, 가족 오류율이 정확히 α<sub>가족</sub>이 되는 α′를 구합니다.</p>
+<div class="eq">
+  <span class="eqlab">시닥 보정 — 독립일 때 정확한 값</span>
+  <math display="block"><mrow><msup><mi>α</mi><mo>′</mo></msup><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>α</mi><mtext>가족</mtext></msub><mo stretchy="false">)</mo></mrow><mrow><mn>1</mn><mo>/</mo><mi>m</mi></mrow></msup></mrow></math>
+</div>
+<div class="lab">
+  <div class="labtitle">특징 수별 한계 — 둘은 거의 같습니다</div>
+  <div class="tbwrap"><table id="corrTable" class="mt num"></table></div>
+  <div class="readout" id="corrNote"></div>
+</div>
+<p>두 값이 거의 같은 까닭은 α<sub>가족</sub>이 작기 때문입니다. α가 작으면 (1 &minus; α)<sup>1/<i>m</i></sup> ≈ 1 &minus; α/<i>m</i> 이라 두 식이 거의 같은 α′를 줍니다. 특징이 590개일 때 한계는 <b id="kBon"></b>σ입니다. 3σ에서 약 <b id="kRise"></b>σ 올라갑니다.</p>
+<p>이 한계로 정상 500장을 다시 재 보면 걸리는 유리는 <b id="bonfN"></b>장(실측 FWER <b id="bonfR"></b>)입니다. 헛알람이 사라졌습니다. 그런데 한계를 이만큼 올리면 진짜 이상도 선 안에 숨기 쉬워집니다. 다음 절이 그 대가를 셉니다.</p>
+<div class="qna" data-label="상관이 있으면 본페로니 보정이 과한가요?" data-q="상관이 있으면 본페로니 보정이 과한가요?">
+  <p>그렇습니다. 본페로니 보정은 &ldquo;가족 오류율이 α<sub>가족</sub> 이하&rdquo;만 보장하고, 특징들이 함께 움직이면 실제 가족 오류율은 그보다 낮아집니다. 이 데이터에서도 보정 뒤 실측은 <span id="qa_bonf"></span>로 목표 0.0027 이하입니다. 헛알람을 필요 이상으로 눌렀다는 뜻이고, 그만큼 한계가 높아 진짜 이상을 더 놓칩니다.</p>
+  <p>상관이 큰 특징 묶음이라면 묶음을 대표하는 특징 몇 개만 남기고 <i>m</i>을 줄이는 쪽이 보정보다 낫습니다. 0201에서 &ldquo;어떤 이상을 잡을지에서 거꾸로 특징을 고른다&rdquo;고 한 것과 같은 방향입니다.</p>
+</div>
+<div class="qna" data-label="FDR(벤자미니–호크버그)는 무엇이 다른가요?" data-q="FDR(벤자미니–호크버그)는 무엇이 다른가요?">
+  <p>이름만 소개합니다. 본페로니 보정은 &ldquo;헛알람이 하나라도 날 확률&rdquo;을 누릅니다. 거짓 발견율 (false discovery rate, FDR)을 쓰는 벤자미니–호크버그 방법은 &ldquo;알람이 난 것 가운데 가짜가 차지하는 비율&rdquo;을 정해 둔 값 아래로 누릅니다.</p>
+  <p>FDR 쪽이 덜 엄격해 진짜를 더 잡지만, 알람이 몇 개는 가짜일 수 있음을 받아들이는 방식입니다. 유리 한 장을 세우는 인터락처럼 알람 하나의 대가가 큰 곳에서는 FWER 쪽을, 후보를 폭넓게 모아 나중에 확인하는 곳에서는 FDR 쪽을 씁니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>맞바꿈 — 놓침, 2종 오류</h2>
+<p>이제 진짜 이상 유리 10장을 꺼냅니다. 이 유리들은 센서 하나의 특징 하나가 기준 평균에서 <b>표준편차의 δ배</b>만큼 옮겨 간 유리입니다(처음 값 δ = 5). 어느 특징이 옮겨 갔는지는 유리마다 다릅니다. 이동한 그 특징이 관리선 밖으로 나가면 이상을 <b>잡았다</b>고 세겠습니다.</p>
+<p>이상인데 알람이 나지 않는 일을 <b>2종 오류 (type II error)</b>, 곧 놓침이라 부릅니다. 한 특징에서 이상을 잡을 확률은 아래 식으로 구합니다. 이상 유리의 값이 평균 δ, 표준편차 1(기준 표준편차 단위)로 흩어져 있다고 보고, 그 분포가 한계 ±<i>k</i> 밖에 놓일 확률입니다.</p>
+<div class="eq">
+  <span class="eqlab">한 특징에서 이상을 잡을 확률(검출률)과 놓칠 확률(β)</span>
+  <math display="block"><mrow><mn>1</mn><mo>−</mo><mi>β</mi><mo>=</mo><mn>1</mn><mo>−</mo><mo stretchy="false">[</mo><mi>Φ</mi><mo stretchy="false">(</mo><mi>k</mi><mo>−</mo><mi>δ</mi><mo stretchy="false">)</mo><mo>−</mo><mi>Φ</mi><mo stretchy="false">(</mo><mo>−</mo><mi>k</mi><mo>−</mo><mi>δ</mi><mo stretchy="false">)</mo><mo stretchy="false">]</mo></mrow></math>
+  <math display="block"><mrow><mi>δ</mi><mo>=</mo><mn>5</mn><mo>:</mo><mspace width="0.8em"></mspace><mi>k</mi><mo>=</mo><mn>3</mn><mo>→</mo><mn id="m_d3"></mn><mo>,</mo><mspace width="0.8em"></mspace><mi>k</mi><mo>=</mo><mn id="m_kb"></mn><mo>→</mo><mn id="m_db"></mn></mrow></math>
+</div>
+<p>한계를 3에서 본페로니 값으로 올리면 검출률이 이만큼 떨어집니다. 이것이 맞바꿈입니다. <b>헛알람을 줄이면 놓침이 늘고, 놓침을 줄이면 헛알람이 늡니다.</b> 그림으로 확인하고, 세 슬라이더를 움직여 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">한계 <i>k</i> · 특징 수 <i>m</i> · 이상 크기 δ — 한 특징의 두 분포와 590칸 격자</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 먼저 [3σ로]를 누르고 아래 표의 값을 읽습니다. 다음에 [본페로니로]를 누르면 한계가 4.58 근처로 올라가며 붉은 꼬리(정상 분포가 선 밖으로 나간 넓이, 헛알람)가 거의 사라지고 주황 면적(이상 분포가 선 안에 남은 넓이, 놓침)이 커지는 것을 보십시오. 그다음 δ를 5에서 3으로 내려 보십시오. 이상이 작을수록 놓침이 얼마나 급하게 늘어나는지 표의 마지막 두 줄에서 봅니다. <i>m</i>을 줄이면 이상이 걸린 특징이 감시 목록에서 빠질 수 있습니다.</div>
+  <div class="ctrl"><label for="kB">한계 <i>k</i> (표준편차의 배수)</label><input type="range" id="kB" min="2" max="6" step="0.01" value="3"><output id="kBo"></output></div>
+  <div class="ctrl"><label for="mB">감시하는 특징 수 <i>m</i></label><input type="range" id="mB" min="1" max="590" step="1" value="590"><output id="mBo"></output></div>
+  <div class="ctrl"><label for="dB">이상의 크기 δ (표준편차의 배수)</label><input type="range" id="dB" min="1" max="8" step="0.5" value="5"><output id="dBo"></output></div>
+  <div class="row"><button class="btn" id="bt3" type="button">3σ로</button><button class="btn" id="btBon" type="button">본페로니로</button><button class="btn ghost" id="btReset" type="button">처음 값으로 되돌리기</button></div>
+  <div class="state" id="stB"></div>
+  <canvas id="cvD" height="230"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>정상 분포(기준 평균 0)</span><span><span class="dot" style="background:var(--c9)"></span>이상 분포(평균 δ)</span><span><span class="dot" style="background:var(--bad)"></span>정상이 선 밖 = 1종 오류</span><span><span class="dot" style="background:var(--c8)"></span>이상이 선 안 = 2종 오류</span></div>
+  <div class="tbwrap"><table id="tabB" class="mt"></table></div>
+  <canvas id="cvB" height="260"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--bad)"></span>선을 넘은 칸</span><span>위 슬라이더의 <i>k</i>와 <i>m</i>을 그대로 따릅니다</span></div>
+  <div class="concl" id="conclB"></div>
+</div>
+<div class="qna" data-label="특징을 줄이면 놓치는 이상은 무엇인가요?" data-q="특징을 줄이면 놓치는 이상은 무엇인가요?">
+  <p>줄인 특징에서만 일어나는 이상은 보이지 않습니다. 위 실험실에서 <i>m</i>을 내리면, 이상이 걸린 특징이 감시 목록 밖으로 밀려 &ldquo;잡은 수&rdquo;가 갑자기 줄어드는 구간이 있습니다. 이 가상 데이터에서는 이상이 590개 중 아무 특징에서나 일어나므로 줄인 만큼 비례해서 놓칩니다.</p>
+  <p>실제 현장에서는 이상 종류에 따라 반응하는 특징이 정해져 있습니다. 그래서 특징은 무작위로 줄이지 않고 &ldquo;어떤 이상을 잡을지&rdquo;에서 거꾸로 골라야 합니다. 0201의 결론입니다.</p>
+</div>
+<div class="qna" data-label="3σ는 누가 정했나요?" data-q="3σ는 누가 정했나요?">
+  <p>1920년대에 월터 슈하트 (Walter Shewhart)가 관리도를 만들면서 쓴 값입니다. 특징 하나를 오래 지켜볼 때 정상일 때의 헛알람이 0.27%이면 공정을 불필요하게 세우지 않으면서 이상 신호는 놓치지 않는다는 경험적 절충이었습니다.</p>
+  <p>3σ는 특징 하나를 감시하는 상황에 맞춘 값입니다. 특징이 수백 개인 상황을 위해 정해진 숫자가 아닙니다. 그래서 같은 3σ를 590개에 그대로 쓰면 이 실험실처럼 어긋납니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>현장에서 환산하면</h2>
+<p>이 분석을 현장에 쓰면 무엇이 얼마나 줄고 무엇이 늘까요? 위 가상 데이터에서 잰 실측 값(특징 590개, 3σ 대 본페로니 한계, 이상 5σ)을 하루 검사 장수에 곱해 보겠습니다. 이 상자의 값은 5절 슬라이더와 무관하게 위 기준 설정으로 고정되어 있습니다. 여기서 움직이는 것은 현장 쪽 숫자 세 개입니다.</p>
+<div class="lab">
+  <div class="labtitle">성과 환산 상자 — 줄어드는 헛알람 건수와 정지 시간, 늘어나는 놓침</div>
+  <div class="ctrl"><label for="cG">하루 검사 유리 수</label><input type="range" id="cG" min="50" max="600" step="10" value="200"><output id="cGo"></output></div>
+  <div class="ctrl"><label for="cT">인터락 한 건당 확인 시간 (분)</label><input type="range" id="cT" min="5" max="60" step="5" value="15"><output id="cTo"></output></div>
+  <div class="ctrl"><label for="cA">하루에 섞여 있는 이상 유리 수 (가정)</label><input type="range" id="cA" min="0" max="10" step="1" value="2"><output id="cAo"></output></div>
+  <div class="row"><button class="btn ghost" id="cReset" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="cState"></div>
+  <div class="tbwrap"><table id="tabC" class="mt num"></table></div>
+  <div class="concl" id="conclC"></div>
+  <p class="note">하루 검사 유리 수의 기본값 200장과 이상 유리 수는 가정입니다. 이상 유리를 잡는 비율은 겨우 10장에서 얻은 값이라 거칠게 읽어야 합니다. 회사 데이터에서는 같은 식에 <b>헛알람 한 건의 손실 금액</b>(확인 인력, 대기 시간)과 <b>놓친 이상 한 장의 손실 금액</b>을 넣어 금액으로 바꾸십시오.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>착지 — 590개에 3σ</h2>
+<p>1절의 물음으로 돌아가겠습니다. 정상 유리 500장 가운데 인터락이 걸리는 유리는 몇 장이었습니까?</p>
+<div class="concl" id="landing"></div>
+<p>0201이 남긴 &ldquo;590개 각각에 3σ 선을 그으면 어떤 일이 생길까요?&rdquo;에 대한 답이 바로 이 숫자입니다. 한 특징의 0.27%는 작지만, 검사가 590번 쌓이면 정상 유리의 대부분이 걸립니다. 보정은 이 헛알람을 거의 지우지만 그만큼 진짜 이상을 놓칩니다. 처방은 세 방향입니다.</p>
+<ol>
+  <li><b>특징을 거꾸로 고릅니다.</b> 잡고 싶은 이상에서 출발해 필요한 특징만 남깁니다(0201).</li>
+  <li><b>검사 수만큼 보정합니다.</b> 본페로니 한계는 간단하고, 특징이 독립이면 시닥 한계가 정확합니다(이번 실험실).</li>
+  <li><b>남은 놓침은 한계 하나가 아니라 비용으로 고릅니다.</b> 헛알람 한 건과 놓침 한 장의 값이 다르기 때문입니다. 이 선택은 기둥 2의 뒤쪽 실험실에서 다룹니다.</li>
+</ol>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy, pandas, scipy</code>만 씁니다. 네 함수가 이 실험실의 도구입니다. 이상 유리에서 어느 특징이 옮겨 갔는지는 가상 데이터의 답안 파일(<code>truth.json</code>)에서 읽습니다. 현장에서는 이 정보가 인터락 사후 판정 기록에 해당합니다.</p>
+<pre id="pyCode">import json
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+# 열: glass_id, group(ref / normal / anomaly), 그 뒤로 특징 590개
+df = pd.read_csv("agentlab/data/csv/s6_false_alarm.csv")   # 내려받은 위치에 맞게 경로를 바꾸세요
+FEATS = [c for c in df.columns if c not in ("glass_id", "group")]
+X_ref = df[df.group == "ref"][FEATS].to_numpy()        # 한계를 긋는 기준 유리
+X_nor = df[df.group == "normal"][FEATS].to_numpy()     # 이상 없음이 확인된 유리
+X_ano = df[df.group == "anomaly"][FEATS].to_numpy()    # 특징 하나가 옮겨 간 유리
+FAMILY_ALPHA = 0.0027                                  # 3σ 한 개의 헛알람 확률과 같은 수준
+
+
+def fwer(alpha, m):
+    """특징 m개가 서로 독립일 때, 하나라도 헛알람이 날 확률."""
+    return 1 - (1 - alpha) ** m
+
+
+def bonferroni_k(m, family_alpha=FAMILY_ALPHA):
+    """특징마다 alpha/m 로 엄격하게 잡은 한계 k (표준편차의 몇 배)."""
+    return stats.norm.isf(family_alpha / m / 2)
+
+
+def sidak_k(m, family_alpha=FAMILY_ALPHA):
+    """독립이면 정확한 보정: 특징마다 1-(1-alpha)^(1/m)."""
+    return stats.norm.isf((1 - (1 - family_alpha) ** (1 / m)) / 2)
+
+
+def alarm_audit(X_ref, X_new, k):
+    """기준 유리의 평균·표준편차로 표준화한 뒤 |z| &gt; k 를 알람으로 센다."""
+    z = np.abs((X_new - X_ref.mean(axis=0)) / X_ref.std(axis=0, ddof=1))
+    hit = z &gt; k
+    return {"per_feature": hit.sum(axis=0),     # 특징별 알람 수
+            "per_glass": hit.sum(axis=1),       # 유리별 알람 수
+            "single_rate": hit.mean(),          # 칸 하나의 헛알람 비율
+            "fwer": hit.any(axis=1).mean(),     # 유리 단위 헛알람 비율
+            "z": z}
+
+
+def caught(z_anom, cols, k):
+    """이상 유리가 옮겨 간 특징(cols)이 한계를 넘은 수."""
+    return int(sum(z_anom[i, c] &gt; k for i, c in enumerate(cols)))
+
+
+m = len(FEATS)
+alpha = 2 * stats.norm.sf(3)
+kb, ks = bonferroni_k(m), sidak_k(m)
+a3, ab = alarm_audit(X_ref, X_nor, 3.0), alarm_audit(X_ref, X_nor, kb)
+cols = [o["col"] for o in json.load(open("agentlab/data/csv/truth.json"))["S6"]["truth"]["anomalies"]]
+z_ano = np.abs((X_ano - X_ref.mean(axis=0)) / X_ref.std(axis=0, ddof=1))
+print(f"특징 {m}개 · 정상 {len(X_nor)}장 · 이상 {len(X_ano)}장")
+print(f"단일 특징 알파(3σ)          = {alpha:.5f}")
+print(f"단일 특징 실측 헛알람률     = {a3['single_rate']:.5f}")
+print(f"독립 가정 공식 FWER         = {fwer(alpha, m):.3f}")
+print(f"3σ 실측 FWER                = {a3['fwer']:.3f}  ({int((a3['per_glass'] &gt; 0).sum())}/{len(X_nor)}장)")
+print(f"본페로니 k = {kb:.3f} · 시닥 k = {ks:.3f}")
+print(f"본페로니 실측 FWER          = {ab['fwer']:.3f}  ({int((ab['per_glass'] &gt; 0).sum())}/{len(X_nor)}장)")
+print(f"이상 {len(cols)}장 중 잡은 수      3σ {caught(z_ano, cols, 3.0)}장 · 본페로니 {caught(z_ano, cols, kb)}장")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 위 4~7절의 숫자와 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력 예시"></pre>
+
+<!-- ===================== 보고서·기록·도구 ===================== -->
+<h2><span class="no">9</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>인터락 헛알람 점검 보고서</h3>
+  <dl>
+    <dt>무엇을</dt><dd>특징 <span id="rp_m"></span>개(센서 118 × 특징 5)에 3σ 관리선을 긋고, 이상 없음이 확인된 유리 500장에 대 보았습니다.</dd>
+    <dt>현재 한계의 실측 헛알람률(유리 단위)</dt><dd id="rp_cur"></dd>
+    <dt>보정 한계 제안</dt><dd id="rp_prop"></dd>
+    <dt>늘어나는 놓침 추정</dt><dd id="rp_miss"></dd>
+    <dt>권고</dt><dd>특징을 이상 종류에서 거꾸로 골라 <i>m</i>을 먼저 줄이고, 남은 특징에는 보정 한계를 적용합니다. 놓침이 늘어나는 이상 종류는 별도의 전용 특징·전용 한계로 지킵니다.</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 이 점검을 자동으로 하려면 현장에서 아래를 남겨야 합니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li>인터락마다 걸린 특징 이름·값·한계</li>
+      <li>사후 판정: 진짜 이상인지 헛알람인지의 라벨</li>
+      <li>특징을 뽑은 센서와 스텝, 한계를 긋는 데 쓴 기준 유리의 기간</li>
+      <li>유리 ID, 챔버, 마스크 세트, 턴 — 데이터를 잇는 키</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실이 남기는 검증된 함수입니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><code>fwer(alpha, m)</code> — 독립일 때 하나라도 헛알람이 날 확률</li>
+      <li><code>bonferroni_k(m, family_alpha)</code> — 본페로니 한계 <i>k</i></li>
+      <li><code>sidak_k(m, family_alpha)</code> — 시닥 한계 <i>k</i></li>
+      <li><code>alarm_audit(X_ref, X_new, k)</code> — 특징별·유리별 알람 수와 실측 FWER</li>
+    </ul>
+    <p class="note" style="margin-top:.5rem">사용 조건: 특징 간 상관이 크면 본페로니는 보수적(필요 이상으로 엄격)입니다.</p>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0201-trace-to-feature.html">← 이전: 궤적에서 특징으로</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ============ 데이터·계산 핵심 (CORE-START) ============ */
+var S=MfgSim.scenario('S6'), M=S.params.m, N=S.params.n, NA=S.anom.length, D0=S.params.delta, FAM=S.params.family_alpha;
+var Q=MfgSim.qnorm, QI=MfgSim.qinv;
+var RM=S.ref_mean, RS=S.ref_sd, SG=S.sig;
+var Z=new Float64Array(N*M), PM=new Float64Array(N*M);
+(function(){
+  var i,j,x,run,z;
+  for(i=0;i<N;i++){
+    x=S.normal[i];run=0;
+    for(j=0;j<M;j++){z=Math.abs((x[j]-RM[j])/RS[j]);Z[i*M+j]=z;if(z>run)run=z;PM[i*M+j]=run;}
+  }
+})();
+function alphaOf(k){return 2*Q(k);}
+function fwerOf(a,m){return 1-Math.pow(1-a,m);}
+function bonfK(m){return QI(FAM/m/2);}
+function sidakK(m){return QI((1-Math.pow(1-FAM,1/m))/2);}
+function detect(k,d){return 1-(1-Q(k-d)-Q(k+d));}   // P(|Z+δ|>k)
+function glassesHit(m,k){var n=0;for(var i=0;i<N;i++)if(PM[i*M+m-1]>k)n++;return n;}
+function cellsHit(m,k){var n=0;for(var i=0;i<N;i++){var b=i*M;for(var j=0;j<m;j++)if(Z[b+j]>k)n++;}return n;}
+function zShift(a,d){var c=a.col;return Math.abs((a.x[c]+(d-D0)*SG[c]-RM[c])/RS[c]);}
+function caught(m,k,d){var n=0;for(var i=0;i<NA;i++){var a=S.anom[i];if(a.col<m&&zShift(a,d)>k)n++;}return n;}
+var KB=bonfK(M), KS=sidakK(M);
+var A3=alphaOf(3), FIND=fwerOf(A3,M);
+var G3=glassesHit(M,3), GB=glassesHit(M,KB), C3=caught(M,3,D0), CB=caught(M,KB,D0);
+/* ============ CORE-END ============ */
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return v.toFixed(d);}
+function sup(n){var m={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};return String(n).split('').map(function(c){return m[c]||c;}).join('');}
+function fmtP(p){if(p===0)return '0';if(p<0.0001){var e=p.toExponential(1).split('e');return e[0]+'×10'+sup(+e[1]);}return p.toFixed(p<0.01?4:3);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function setT(id,t){var e=$(id);if(e)e.textContent=t;}
+
+/* ---- 정적 숫자 채우기 ---- */
+(function(){
+  setT('m_phi3',fmt(1-A3/2,5));setT('m_a3',fmt(A3,4));
+  setT('nCells',(N*M).toLocaleString('en-US'));
+  var ch=cellsHit(M,3);setT('cellsHit',ch.toLocaleString('en-US'));setT('singleRate',fmt(ch/(N*M),5));
+  setT('a3txt',fmt(A3,5));
+  setT('m_fq',fmt(Math.pow(1-A3,M),3));setT('m_fw',fmt(FIND,3));
+  setT('fwIndTxt',fmt(FIND*100,0)+'%');
+  setT('A2_r',fmt(G3/N,3));setT('A2_n',String(G3));setT('A2_f',fmt(FIND,3));
+  setT('kBon',fmt(KB,3));setT('kRise',fmt(KB-3,2));
+  setT('bonfN',String(GB));setT('bonfR',fmt(GB/N,3));
+  setT('qa_bonf',fmt(GB/N,3));
+  setT('m_d3',fmt(detect(3,D0),3));setT('m_kb',fmt(KB,3));setT('m_db',fmt(detect(KB,D0),3));
+})();
+
+/* ---- 4절: 특징 수별 보정 한계 표 ---- */
+(function(){
+  var ms=[1,10,100,590],h='<tr><th>특징 수 <i>m</i></th><th>특징 하나의 허용 α′ (본페로니)</th><th>한계 <i>k</i> (본페로니)</th><th>한계 <i>k</i> (시닥)</th></tr>';
+  ms.forEach(function(m){h+='<tr><td class="rowh">'+m+'</td><td>'+fmtP(FAM/m)+'</td><td>'+fmt(bonfK(m),3)+'</td><td>'+fmt(sidakK(m),3)+'</td></tr>';});
+  $('corrTable').innerHTML=h;
+  $('corrNote').innerHTML='α<sub>가족</sub> = 0.0027 기준. 특징이 하나뿐이면 한계는 3σ(3.000)로 돌아갑니다. 특징이 590개일 때 두 방법의 차이는 <b>'+fmt(Math.abs(KB-KS),4)+'</b>σ입니다.';
+})();
+
+/* ---- 3절: 격자 그림 ---- */
+function drawGrid(cv,h,m,k){
+  var c=setup(cv,h),x=c.x,W=c.w,H=c.h,bad=css('--bad'),code=css('--code'),track=css('--track'),grey=css('--grey'),rule=css('--rule');
+  x.clearRect(0,0,W,H);
+  var bx=4,bw=10,gx=bx+bw+6,gw=W-gx-4,top=4,gh=H-8,rowh=gh/N,colw=gw/M,i,j,b;
+  x.fillStyle=code;x.fillRect(gx,top,gw,gh);
+  if(m<M){x.fillStyle=track;x.fillRect(gx+m*colw,top,(M-m)*colw,gh);}
+  var rh=Math.max(rowh,0.9);
+  for(i=0;i<N;i++){
+    var hit=PM[i*M+m-1]>k,y=top+i*rowh;
+    x.globalAlpha=hit?1:0.45;x.fillStyle=hit?bad:grey;x.fillRect(bx,y,bw,rh);
+    if(hit){x.globalAlpha=0.16;x.fillStyle=bad;x.fillRect(gx,y,m*colw,rh);}
+  }
+  x.globalAlpha=1;x.fillStyle=bad;
+  var cw=Math.max(colw,2),ch=Math.max(rowh,2);
+  for(i=0;i<N;i++){b=i*M;for(j=0;j<m;j++)if(Z[b+j]>k)x.fillRect(gx+j*colw-(cw-colw)/2,top+i*rowh-(ch-rowh)/2,cw,ch);}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(gx+.5,top+.5,gw-1,gh-1);
+}
+
+/* ---- 3절 실험실 ---- */
+var mA=590;
+function updA(){
+  var k=3,a=alphaOf(k),f=fwerOf(a,mA),n=glassesHit(mA,k);
+  $('mAo').textContent=mA+'개';
+  setT('A_a',fmt(a,4));setT('A_f',fmt(f,3));setT('A_n',String(n));setT('A_r',fmt(n/N,3));
+  var st=$('stA');
+  if(mA===M){st.className='state';st.textContent='지금 이 값이 기준입니다. 특징 590개 전부를 감시합니다.';}
+  else{st.className='state moved';st.textContent='지금은 실제(590개)에서 줄여 놓은 가정입니다. 감시하는 특징 '+mA+'개, 나머지는 회색 칸입니다.';}
+  drawGrid($('cvA'),300,mA,k);
+}
+$('mA').addEventListener('input',function(){mA=+this.value;updA();});
+Array.prototype.forEach.call(document.querySelectorAll('[data-ma]'),function(b){b.addEventListener('click',function(){mA=+this.getAttribute('data-ma');$('mA').value=mA;updA();});});
+
+/* ---- 5절 실험실 ---- */
+var kV=3,mB=590,dB=D0,mode='manual';
+function normPdf(z){return Math.exp(-z*z/2)/Math.sqrt(2*Math.PI);}
+function drawDens(){
+  var c=setup($('cvD'),230),x=c.x,W=c.w,H=c.h,acc=css('--accent'),c9=css('--c9'),c8=css('--c8'),bad=css('--bad'),ink=css('--ink'),soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);
+  var xl=-5,xr=14,pl=34,pr=10,pt=14,pb=34,pw=W-pl-pr,ph=H-pt-pb;
+  function X(z){return pl+(z-xl)/(xr-xl)*pw;}
+  function Y(p){return pt+ph-p/0.42*ph;}
+  var z,steps=380;
+  // 정상 꼬리 (1종 오류)
+  x.fillStyle=bad;x.globalAlpha=.55;
+  [[xl,-kV],[kV,xr]].forEach(function(r){var a=Math.max(r[0],xl),b=Math.min(r[1],xr);if(b<=a)return;x.beginPath();x.moveTo(X(a),Y(0));for(z=a;z<=b+1e-9;z+=(b-a)/60)x.lineTo(X(z),Y(normPdf(z)));x.lineTo(X(b),Y(0));x.closePath();x.fill();});
+  // 이상 선 안 (2종 오류)
+  x.fillStyle=c8;x.globalAlpha=.5;
+  (function(){var a=Math.max(-kV,xl),b=Math.min(kV,xr);x.beginPath();x.moveTo(X(a),Y(0));for(z=a;z<=b+1e-9;z+=(b-a)/120)x.lineTo(X(z),Y(normPdf(z-dB)));x.lineTo(X(b),Y(0));x.closePath();x.fill();})();
+  x.globalAlpha=1;
+  function curve(mu,col){x.strokeStyle=col;x.lineWidth=2;x.beginPath();for(var q=0;q<=steps;q++){var zz=xl+(xr-xl)*q/steps,px=X(zz),py=Y(normPdf(zz-mu));if(q===0)x.moveTo(px,py);else x.lineTo(px,py);}x.stroke();}
+  curve(0,acc);curve(dB,c9);
+  // 축
+  x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(pl,Y(0));x.lineTo(W-pr,Y(0));x.stroke();
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='center';
+  for(z=-4;z<=xr;z+=2){x.fillText(String(z),X(z),H-pb+14);}
+  x.textAlign='left';x.fillText('기준 표준편차 단위 (정상의 평균 = 0)',pl,H-6);
+  // 한계선
+  x.strokeStyle=ink;x.setLineDash([5,4]);x.lineWidth=1.5;
+  [-kV,kV].forEach(function(v){if(v<xl||v>xr)return;x.beginPath();x.moveTo(X(v),pt);x.lineTo(X(v),Y(0));x.stroke();});
+  x.setLineDash([]);x.fillStyle=ink;x.font='bold 11px sans-serif';x.textAlign='center';
+  x.fillText('+k = '+fmt(kV,2),Math.min(Math.max(X(kV),pl+34),W-pr-34),pt+9);
+  if(-kV>=xl)x.fillText('−k',X(-kV),pt+9);
+  x.textAlign='left';
+}
+function readB(){
+  var a=alphaOf(kV),f=fwerOf(a,mB),gl=glassesHit(mB,kV),ch=cellsHit(mB,kV),det=detect(kV,dB),cg=caught(mB,kV,dB);
+  return {a:a,f:f,gl:gl,sr:ch/(N*mB),det:det,cg:cg};
+}
+function updB(){
+  if(mode==='bonf'){kV=bonfK(mB);var kk=Math.min(6,Math.max(2,kV));$('kB').value=kk.toFixed(2);}
+  $('kBo').textContent=fmt(kV,3);$('mBo').textContent=mB+'개';$('dBo').textContent=fmt(dB,1)+'σ';
+  var r=readB();
+  var h='<tr><th>지표</th><th>값</th><th>무엇인가</th></tr>';
+  h+='<tr><td class="rowh">한 특징의 헛알람 확률 α (이론)</td><td>'+fmtP(r.a)+'</td><td>정상 분포가 선 밖에 놓인 넓이 (붉은 면적)</td></tr>';
+  h+='<tr><td class="rowh">한 특징의 헛알람률 (실측)</td><td>'+fmtP(r.sr)+'</td><td>정상 500장 × '+mB+'칸 중 넘은 비율</td></tr>';
+  h+='<tr><td class="rowh">유리 한 장의 헛알람 확률 (독립 가정 식)</td><td>'+fmt(r.f,3)+'</td><td>1 − (1 − α)<sup>'+mB+'</sup></td></tr>';
+  h+='<tr><td class="rowh">걸린 정상 유리 (실측)</td><td><b>'+r.gl+' / 500</b> ('+fmt(r.gl/N,3)+')</td><td>어느 한 특징이라도 넘은 유리 = 실측 FWER</td></tr>';
+  h+='<tr><td class="rowh">한 특징의 이상 검출률 (이론)</td><td>'+fmt(r.det,3)+'</td><td>이상 분포가 선 밖에 놓인 넓이 (1 − β)</td></tr>';
+  h+='<tr><td class="rowh">잡은 이상 유리 (실측)</td><td><b>'+r.cg+' / '+NA+'</b></td><td>옮겨 간 특징이 선 밖에 나간 유리</td></tr>';
+  h+='<tr><td class="rowh">놓친 이상 유리 = 2종 오류 (실측)</td><td><b>'+(NA-r.cg)+' / '+NA+'</b></td><td>선 안에 남았거나 감시 목록에 없는 유리</td></tr>';
+  $('tabB').innerHTML=h;
+  // 기준 여부 (E3)
+  var st=$('stB'),base3=Math.abs(kV-3)<0.005&&mB===M&&dB===D0;
+  if(base3){st.className='state';st.textContent='지금 이 값이 기준 설정입니다. 3σ, 특징 590개, 이상 5σ.';}
+  else if(mode==='bonf'&&mB===M&&dB===D0){st.className='state';st.textContent='지금은 본페로니 한계(특징 590개)입니다. 한계 '+fmt(kV,3)+'.';}
+  else{
+    var parts=[];
+    if(mode==='bonf')parts.push('한계 '+fmt(kV,3)+'(본페로니, 특징 '+mB+'개 기준)');else if(Math.abs(kV-3)>=0.005)parts.push('한계 3 → '+fmt(kV,2));
+    if(mB!==M)parts.push('특징 590 → '+mB);if(dB!==D0)parts.push('이상 크기 5 → '+fmt(dB,1));
+    st.className='state moved';st.textContent='지금은 실제에서 옮겨 놓은 가정입니다. '+(parts.length?parts.join(', ')+'.':'');
+  }
+  $('conclB').innerHTML='<b>한계 '+fmt(kV,2)+'일 때</b> 정상 500장 가운데 <b>'+r.gl+'장</b>이 걸리고, 진짜 이상 10장 가운데 <b>'+r.cg+'장</b>을 잡습니다. 놓친 이상은 <b>'+(NA-r.cg)+'장</b>입니다.';
+  drawDens();drawGrid($('cvB'),260,mB,kV);
+}
+$('kB').addEventListener('input',function(){mode='manual';kV=+this.value;updB();});
+$('mB').addEventListener('input',function(){mB=+this.value;updB();});
+$('dB').addEventListener('input',function(){dB=+this.value;updB();});
+$('bt3').addEventListener('click',function(){mode='manual';kV=3;$('kB').value='3';updB();});
+$('btBon').addEventListener('click',function(){mode='bonf';updB();});
+$('btReset').addEventListener('click',function(){mode='manual';kV=3;mB=M;dB=D0;$('kB').value='3';$('mB').value=String(M);$('dB').value=String(D0);updB();});
+
+/* ---- 6절: 성과 환산 ---- */
+var cg=200,ct=15,ca=2;
+function updC(){
+  $('cGo').textContent=cg+'장';$('cTo').textContent=ct+'분';$('cAo').textContent=ca+'장';
+  var f3=G3/N,fB=GB/N,n3=cg*f3,nB=cg*fB,red=n3-nB,hrs=red*ct/60;
+  var m3=NA-C3,mBn=NA-CB,dm=(mBn-m3)/NA,extra=ca*dm;
+  var h='<tr><th></th><th>3σ 관리선</th><th>본페로니 한계 (<i>k</i> = '+fmt(KB,3)+')</th><th>차이</th></tr>';
+  h+='<tr><td class="rowh">정상 유리의 실측 헛알람률</td><td>'+fmt(f3,3)+'</td><td>'+fmt(fB,3)+'</td><td>'+fmt(f3-fB,3)+' 감소</td></tr>';
+  h+='<tr><td class="rowh">하루 가성 인터락 건수 (유리 '+cg+'장)</td><td>'+fmt(n3,1)+'건</td><td>'+fmt(nB,1)+'건</td><td><b>'+fmt(red,1)+'건 감소</b></td></tr>';
+  h+='<tr><td class="rowh">하루 확인에 드는 시간 (건당 '+ct+'분)</td><td>'+fmt(n3*ct/60,1)+'시간</td><td>'+fmt(nB*ct/60,1)+'시간</td><td><b>'+fmt(hrs,1)+'시간 감소</b></td></tr>';
+  h+='<tr><td class="rowh">진짜 이상 10장 중 놓친 수 (이상 5σ)</td><td>'+m3+'장</td><td>'+mBn+'장</td><td><b>'+(mBn-m3)+'장 증가</b></td></tr>';
+  h+='<tr><td class="rowh">하루 섞인 이상 '+ca+'장 중 추가로 놓칠 수</td><td>—</td><td>—</td><td><b>약 '+fmt(extra,2)+'장</b></td></tr>';
+  $('tabC').innerHTML=h;
+  var st=$('cState');
+  if(cg===200&&ct===15&&ca===2){st.className='state';st.textContent='지금 이 값이 기본 설정입니다. 하루 200장, 건당 15분, 이상 2장.';}
+  else{st.className='state moved';st.textContent='지금은 현장 숫자를 옮겨 놓은 가정입니다.';}
+  var cc;
+  if(extra>0){var be=red/extra;cc='<b>해석.</b> 하루 가성 인터락이 <b>'+fmt(red,1)+'건</b>(확인 시간 <b>'+fmt(hrs,1)+'시간</b>) 줄고, 대신 이상 유리 <b>약 '+fmt(extra,2)+'장</b>을 더 놓칩니다. 놓친 이상 한 장의 손실이 헛알람 한 건 비용의 <b>'+fmt(be,0)+'배</b>보다 작으면 본페로니 한계가 이득이고, 그보다 크면 3σ를 유지하거나 다른 방법을 찾아야 합니다.';}
+  else cc='<b>해석.</b> 하루 가성 인터락이 <b>'+fmt(red,1)+'건</b>(확인 시간 <b>'+fmt(hrs,1)+'시간</b>) 줄고, 이 설정에서는 추가로 놓치는 이상이 없습니다.';
+  $('conclC').innerHTML=cc;
+}
+$('cG').addEventListener('input',function(){cg=+this.value;updC();});
+$('cT').addEventListener('input',function(){ct=+this.value;updC();});
+$('cA').addEventListener('input',function(){ca=+this.value;updC();});
+$('cReset').addEventListener('click',function(){cg=200;ct=15;ca=2;$('cG').value='200';$('cT').value='15';$('cA').value='2';updC();});
+
+/* ---- 1절 짐작과 7절 착지 ---- */
+var guess=null;
+function landing(){
+  var g=guess==null?'':' 처음 짐작은 <b>'+guess+'장</b>이었습니다.';
+  $('landing').innerHTML='<b>정상 500장 중 '+G3+'장('+fmt(G3/N*100,1)+'%)에 인터락이 걸렸습니다.</b>'+g+' 특징 하나가 선을 넘을 확률은 '+fmt(A3*100,2)+'%뿐인데, 590개를 합치니 유리 열 장 중 약 '+fmt(G3/N*10,1)+'장이 걸립니다. 보정 뒤에는 '+GB+'장이 걸리고, 진짜 이상을 잡는 수는 10장 중 '+C3+'장에서 '+CB+'장으로 줄어듭니다.';
+}
+$('guessBtn').addEventListener('click',function(){
+  var v=parseInt($('guess').value,10);
+  if(isNaN(v)||v<0||v>500){$('guessState').className='state moved';$('guessState').textContent='0에서 500 사이의 숫자를 적어 주십시오.';return;}
+  guess=v;$('guessState').className='state';$('guessState').textContent='짐작 '+v+'장으로 정했습니다. 7절에서 실제 숫자와 견줍니다.';landing();
+});
+
+/* ---- 8절: Python 출력 예시 ---- */
+(function(){
+  var ch=cellsHit(M,3)/(N*M);
+  var o='특징 '+M+'개 · 정상 '+N+'장 · 이상 '+NA+'장\n'
+   +'단일 특징 알파(3σ)          = '+fmt(A3,5)+'\n'
+   +'단일 특징 실측 헛알람률     = '+fmt(ch,5)+'\n'
+   +'독립 가정 공식 FWER         = '+fmt(FIND,3)+'\n'
+   +'3σ 실측 FWER                = '+fmt(G3/N,3)+'  ('+G3+'/'+N+'장)\n'
+   +'본페로니 k = '+fmt(KB,3)+' · 시닥 k = '+fmt(KS,3)+'\n'
+   +'본페로니 실측 FWER          = '+fmt(GB/N,3)+'  ('+GB+'/'+N+'장)\n'
+   +'이상 '+NA+'장 중 잡은 수      3σ '+C3+'장 · 본페로니 '+CB+'장';
+  $('pyOut').textContent=o;
+})();
+
+/* ---- 9절: 보고서 ---- */
+(function(){
+  setT('rp_m',String(M));
+  $('rp_cur').innerHTML='3σ 관리선에서 정상 유리 500장 중 <b>'+G3+'장('+fmt(G3/N*100,1)+'%)</b>이 걸렸습니다. 독립 가정 식은 '+fmt(FIND*100,1)+'%를 줍니다.';
+  $('rp_prop').innerHTML='본페로니 한계 <b>'+fmt(KB,3)+'σ</b>(시닥 '+fmt(KS,3)+'σ). 같은 유리 500장에서 걸린 유리 <b>'+GB+'장('+fmt(GB/N*100,1)+'%)</b>.';
+  $('rp_miss').innerHTML='이상 5σ 유리 10장 중 잡은 수가 <b>'+C3+'장에서 '+CB+'장</b>으로 줄어듭니다(놓침 '+(NA-C3)+'장 → '+(NA-CB)+'장). 이상이 작을수록 놓침은 급하게 늘어납니다.';
+})();
+
+/* ---- 테마·상단바 ---- */
+function redraw(){updA();updB();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+updA();updB();updC();landing();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

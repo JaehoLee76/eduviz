@@ -145,5 +145,87 @@
    "t_corrected": 0.991799117471898,
    "p_corrected": 0.339487476487528
   }
+ },
+ "S6": {
+  "name": "false_alarm",
+  "params": {
+   "seed": 6,
+   "n": 500,
+   "n0": 300,
+   "sensors": 118,
+   "per_sensor": 5,
+   "m": 590,
+   "rho": 0.6,
+   "n_anom": 10,
+   "delta": 5,
+   "family_alpha": 0.0027
+  },
+  "truth": {
+   "alpha_single": 0.002699796063260192,
+   "fwer_indep": 0.7970983257191977,
+   "bonf_k": 4.5833308390273135,
+   "sidak_k": 4.583048828674562,
+   "anomalies": [
+    {
+     "sensor": 93,
+     "feature": 1,
+     "col": 466
+    },
+    {
+     "sensor": 42,
+     "feature": 1,
+     "col": 211
+    },
+    {
+     "sensor": 85,
+     "feature": 1,
+     "col": 426
+    },
+    {
+     "sensor": 13,
+     "feature": 2,
+     "col": 67
+    },
+    {
+     "sensor": 20,
+     "feature": 0,
+     "col": 100
+    },
+    {
+     "sensor": 78,
+     "feature": 0,
+     "col": 390
+    },
+    {
+     "sensor": 11,
+     "feature": 4,
+     "col": 59
+    },
+    {
+     "sensor": 64,
+     "feature": 1,
+     "col": 321
+    },
+    {
+     "sensor": 58,
+     "feature": 4,
+     "col": 294
+    },
+    {
+     "sensor": 34,
+     "feature": 0,
+     "col": 170
+    }
+   ]
+  },
+  "check": {
+   "single_rate_3sigma": 0.002857627118644068,
+   "fwer_3sigma": 0.738,
+   "glasses_alarmed_3sigma": 369,
+   "glasses_alarmed_bonf": 1,
+   "fwer_bonf": 0.002,
+   "caught_3sigma": 10,
+   "caught_bonf": 7
+  }
  }
 }

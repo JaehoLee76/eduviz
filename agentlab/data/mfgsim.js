@@ -689,14 +689,14 @@
   }
 
   /* ============================================================
-   * 6. 시나리오 S1~S5 (숨은 정답 포함)
+   * 6. 시나리오 S1~S6 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4 };   // 기본 시드(오프라인 탐색으로 확정; verify.py 가 성질을 확인)
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6 };   // 기본 시드(오프라인 탐색으로 확정; verify.py 가 성질을 확인)
 
   function scenario(name, params) {
     params = params || {};
     var key = String(name).toUpperCase().slice(0, 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5 }[key];
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -807,12 +807,79 @@
              check: { welch_naive: w, phi_hat: phiHat, n_eff_hat: neff, t_corrected: tc, p_corrected: pc } };
   }
 
+  /* S6 false_alarm — 정상 유리 500장 × 특징 590개(센서 118 × 5), 같은 센서의 다섯 특징은 상관 ρ=0.6.
+   * 기준 300장으로 특징별 평균·표준편차를 추정해 한계를 긋는다. 진짜 이상 10장은 특징 하나가 δσ 이동. */
+  function qnorm(z) {                          // 표준정규 상측 확률 Q(z) = 1 − Φ(z)
+    var x = Math.abs(z) / Math.SQRT2, e;
+    if (x < 2) {                               // erf 급수
+      var sum = x, term = x, n = 0;
+      while (Math.abs(term) > 1e-17 && n < 200) { n++; term = -term * x * x / n; sum += term / (2 * n + 1); }
+      e = 1 - 2 / Math.sqrt(Math.PI) * sum;
+    } else {                                   // erfc 연분수
+      var f = x; for (var i = 80; i >= 1; i--) f = x + (i / 2) / f;
+      e = Math.exp(-x * x) / Math.sqrt(Math.PI) / f;
+    }
+    return z >= 0 ? e / 2 : 1 - e / 2;
+  }
+  function qinv(q) {                           // Q(k) = q 인 k (이분법)
+    var lo = 0, hi = 12, mid, i;
+    for (i = 0; i < 200; i++) { mid = (lo + hi) / 2; if (qnorm(mid) > q) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+  function S6(p) {
+    var seed = p.seed == null ? SEEDS.S6 : p.seed, N = p.n || 500, N0 = p.n0 || 300, nS = p.sensors || 118, per = 5, m = nS * per;
+    var rho = p.rho == null ? 0.6 : p.rho, nA = p.n_anom || 10, delta = p.delta == null ? 5 : p.delta, famA = 0.0027;
+    var r = rng(hashSeed('S6', seed)), a = Math.sqrt(rho), b = Math.sqrt(1 - rho), j, i, s, k;
+    var mu = new Float64Array(m), sig = new Float64Array(m);
+    for (j = 0; j < m; j++) { mu[j] = 20 + 180 * r.u(); sig[j] = mu[j] * (0.02 + 0.06 * r.u()); }
+    function zrow() {                          // 표준 척도 한 줄: 센서마다 공통 성분 + 특징 고유 성분
+      var z = new Float64Array(m), c;
+      for (s = 0; s < nS; s++) { c = r.normal(); for (k = 0; k < per; k++) z[s * per + k] = a * c + b * r.normal(); }
+      return z;
+    }
+    function toX(z) { var x = new Float64Array(m); for (var q = 0; q < m; q++) x[q] = Math.round((mu[q] + sig[q] * z[q]) * 1000) / 1000; return x; }
+    var ref = [], nor = [], anom = [];
+    for (i = 0; i < N0; i++) ref.push(toX(zrow()));
+    for (i = 0; i < N; i++) nor.push(toX(zrow()));
+    for (i = 0; i < nA; i++) {
+      var z = zrow(), col = r.int(m);          // 이상: 무작위 센서의 무작위 특징 하나
+      z[col] += delta;                         // 표준 척도에서 +δ
+      anom.push({ x: toX(z), col: col, sensor: Math.floor(col / per), k: col % per });
+    }
+    var rm = new Float64Array(m), rs = new Float64Array(m);
+    for (j = 0; j < m; j++) {
+      var col0 = ref.map(function (x) { return x[j]; }); rm[j] = mean(col0); rs[j] = sd(col0);
+    }
+    function zscore(x, q) { return (x[q] - rm[q]) / rs[q]; }
+    function glassAlarm(x, kk) { for (var q = 0; q < m; q++) if (Math.abs(zscore(x, q)) > kk) return true; return false; }
+    var alpha = 2 * qnorm(3), bonfK = qinv(famA / m / 2), sidakK = qinv((1 - Math.pow(1 - famA, 1 / m)) / 2);
+    var cells3 = 0, gl3 = 0, glB = 0;
+    nor.forEach(function (x) { var any3 = false, anyB = false; for (var q = 0; q < m; q++) { var az = Math.abs(zscore(x, q)); if (az > 3) { cells3++; any3 = true; } if (az > bonfK) anyB = true; } if (any3) gl3++; if (anyB) glB++; });
+    var c3 = 0, cB = 0;
+    anom.forEach(function (o) { var az = Math.abs(zscore(o.x, o.col)); if (az > 3) c3++; if (az > bonfK) cB++; });
+    function csvRows() {
+      var names = [], q, rows = [];
+      var FN = ['steady_mean', 'steady_std', 'max_dev', 'settle_s', 'overshoot_pct'];
+      for (q = 0; q < m; q++) names.push('s' + pad(Math.floor(q / per) + 1, 3) + '_' + FN[q % per]);
+      function add(group, tag, x, n) { var o = { glass_id: tag + pad(n + 1, 4), group: group }; for (var u = 0; u < m; u++) o[names[u]] = x[u]; rows.push(o); }
+      ref.forEach(function (x, n) { add('ref', 'R', x, n); });
+      nor.forEach(function (x, n) { add('normal', 'N', x, n); });
+      anom.forEach(function (o, n) { add('anomaly', 'A', o.x, n); });
+      return rows;
+    }
+    return { id: 'S6', name: 'false_alarm', ref: ref, normal: nor, anom: anom, mu: mu, sig: sig, ref_mean: rm, ref_sd: rs, csvRows: csvRows,
+             params: { seed: seed, n: N, n0: N0, sensors: nS, per_sensor: per, m: m, rho: rho, n_anom: nA, delta: delta, family_alpha: famA },
+             truth: { alpha_single: alpha, fwer_indep: 1 - Math.pow(1 - alpha, m), bonf_k: bonfK, sidak_k: sidakK, anomalies: anom.map(function (o) { return { sensor: o.sensor, feature: o.k, col: o.col }; }) },
+             check: { single_rate_3sigma: cells3 / (N * m), fwer_3sigma: gl3 / N, glasses_alarmed_3sigma: gl3, glasses_alarmed_bonf: glB, fwer_bonf: glB / N,
+                      caught_3sigma: c3, caught_bonf: cB } };
+  }
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS
+    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv
   };
 });

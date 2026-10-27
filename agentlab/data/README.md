@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy 로 시나리오의 숨은 성질을 검사합니다(`python3 verify.py`, 17항목) |
+| `verify.py` | scipy 로 시나리오의 숨은 성질을 검사합니다(`python3 verify.py`, 22항목) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -28,6 +28,7 @@
 - `s3_clean_pair.csv` — 같은 77점의 세정 전·후(참 변화가 아주 작음). `clean_err_before, clean_err_after`.
 - `s4_thermal_confound.csv` — B07 처리 챔버(CH1)와 대조 챔버(CH2), 세정 방법 변경 전·후 40장씩. 같은 시기 챔버 온도가 올랐습니다. `group(treated/control), phase, glass_in_turn, chamber_temp, mx_ppm`(77점 회귀로 얻은 장변 배율).
 - `s5_autocorr.csv` — AR(1) 센서. `idx, phase, vac_level`.
+- `s6_false_alarm.csv` — 특징 590개(센서 118개 × 특징 5개, 열 `s001_steady_mean` …). `group` 이 `ref`(기준 300장)·`normal`(정상 500장)·`anomaly`(특징 하나가 5σ 이동한 이상 10장)입니다. 같은 센서의 다섯 특징은 상관 0.6.
 - `ppa_sample.csv` — B03 CH2 유리 3장의 77점. `…, px, py, x_mm, y_mm, dx_um, dy_um, defect`(1 이면 국소 결함 정답).
 - `fdc_features.csv` — B03 의 5개 턴 유리별 특징. `p_steady_mean, p_steady_std, p_max_dev, p_settle_s, p_overshoot_pct, rate_ang_s, pm_flag(PM 이후=1), true_anomaly, anomaly_type, interlock, interlock_true`(가성 인터락 = interlock 1 이고 interlock_true 0).
 - `loss_events.csv` — 60일 Loss 사건. `event_id, start_ts, end_ts, block, chamber(CH1~4 또는 ALL), reason(직접 사유), root_cause(1차 원인), caused_by_block, run_mode(quad/triple/degraded), mask_set, turn, loss_chamber_min, loss_glass`. 사유는 명세의 11개 코드와 `LB-LINE`(라인 밸런스: 앞뒤 블록 때문에 굶거나 막힌 손실, 90 챔버·분 미만은 생략)입니다. `reason` 과 `root_cause` 가 다른 행이 연쇄의 흔적입니다.
