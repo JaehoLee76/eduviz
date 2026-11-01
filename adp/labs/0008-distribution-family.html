@@ -100,8 +100,8 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="qna" data-topic="population-definition"></div>
 <div style="font-size:.8rem;color:var(--soft);margin-top:.5rem">위 32개 숫자만 주어진 자료이고, <b>조 평균부터 아래의 모든 수치는 이 32개 값에서 나온 것</b>입니다.</div>
 
-<h2>먼저 — 이 페이지에서 쓰는 말 열일곱 개</h2>
-<p>설명을 읽다가 모르는 낱말이 나와서 막히는 일이 없도록, <b>여기서 쓰는 말을 미리 전부 풀어 둡니다.</b> 아래 열일곱 개 말고 새로 나오는 낱말은 없습니다.</p>
+<h2>먼저 — 이 페이지에서 쓰는 말 열아홉 개</h2>
+<p>설명을 읽다가 모르는 낱말이 나와서 막히는 일이 없도록, <b>여기서 쓰는 말을 미리 전부 풀어 둡니다.</b> 아래 열아홉 개 말고 새로 나오는 낱말은 없습니다.</p>
 <table>
  <tr><th class="l" style="width:24%">낱말</th><th class="l">뜻 (이 페이지에서 쓰는 의미 그대로)</th></tr>
  <tr><td class="l"><b>자료 · 값</b></td><td class="l">우리가 실제로 잰 숫자들. 여기서는 차 32대의 손상지수.</td></tr>
@@ -116,12 +116,16 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
  <tr><td class="l"><b>표준오차</b></td><td class="l">표본에서 계산한 값(평균·평균 차이·비율)이 <b>표본마다 달라지는 정도</b>. 표준편차와 다르고, 자료가 많을수록 작아집니다. <b>무엇의</b> 표준오차인지를 늘 함께 말합니다. (§1)</td></tr>
  <tr><td class="l"><b>검정통계량</b></td><td class="l">관측된 값이, 그 값이 우연히 흔들리는 정도에 견주어 <b>몇 배나</b> 벗어났는지를 나타내는 단위 없는 수. z·t 는 <b>표준오차</b>로 나누고, χ²·F 는 <b>분산</b>(세는 자료에서는 기대도수가 곧 분산)으로 나눕니다. (§1)</td></tr>
  <tr><td class="l"><b>분포</b></td><td class="l">어떤 값이 얼마나 자주 나오는지 정해 놓은 규칙. 곡선으로 그립니다.</td></tr>
+ <tr><td class="l"><b>베르누이 시행</b></td><td class="l">결과가 둘뿐인 시도를 <b>한 번</b> 해 보는 것. 동전을 한 번 던져 앞면이 나오면 성공. (§3)</td></tr>
+ <tr><td class="l"><b>이항분포</b></td><td class="l">베르누이 시행을 <b>n 번</b> 되풀이했을 때 <b>성공한 횟수</b>의 분포. 막대 그래프로 그립니다. (§3)</td></tr>
  <tr><td class="l"><b>확률밀도</b></td><td class="l">분포 곡선의 <b>세로축</b>. 그 근처가 얼마나 빽빽한가. <b>확률은 높이가 아니라 넓이</b>입니다.</td></tr>
  <tr><td class="l"><b>자유도</b></td><td class="l">자료에 남은 진짜 정보의 개수. 이 수가 자의 눈금을 정합니다. <b>분포마다 적는 기호가 다릅니다</b> — 카이제곱은 <b>k</b>, t 는 <b>v</b>, F 는 위·아래 두 개라 <b>d₁ · d₂</b> 로 씁니다. 뜻은 넷 다 같은 자유도입니다. (§4~§6)</td></tr>
  <tr><td class="l"><b>귀무가설</b></td><td class="l">지금 보이는 차이가 <b>사실은 없다</b>고, 즉 우연일 뿐이라고 놓는 출발점. 이 가정 아래에서 관측된 값이 얼마나 나오기 어려운지를 재는 것이 검정입니다.</td></tr>
  <tr><td class="l"><b>p값</b></td><td class="l">차이가 전혀 없는 세상에서 이만한 값이 나올 확률. 곡선 꼬리의 넓이.</td></tr>
  <tr><td class="l"><b>유의수준 0.05</b></td><td class="l">p가 이보다 작으면 우연으로 보지 않기로 한 <b>약속</b>. 자연법칙이 아니라 관례입니다.</td></tr>
 </table>
+
+<div class="key"><b>길이가 길어 막히면 지름길이 있습니다.</b> <a href="#mini" style="color:var(--accent);font-weight:700">§11 맨 앞의 '숫자 네 개로 손계산'</a>부터 보셔도 됩니다. 아주 작은 자료로 t · χ² · F 를 끝까지 손으로 해 봅니다.</div>
 
 <h2><span class="step">§1</span>두 조만 먼저 — 검정통계량은 이렇게 만들어집니다</h2>
 
@@ -147,6 +151,27 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <h3>2) 조 평균 하나의 흔들림 — 평균의 표준오차</h3>
 <p><b>여기서부터가 표집 변동입니다</b> — 같은 차종에서 8대를 다시 뽑으면 조 평균이 얼마나 달라지는가. 이제 한 대가 아니라 <b>여덟 대의 평균</b>을 봅니다. 여덟 대를 평균 내면 위로 벗어난 차와 아래로 벗어난 차가 서로 상쇄되므로, 평균은 개별 값보다 훨씬 덜 흔들립니다. <b>얼마나 덜 흔들리는지는 두 걸음으로 나옵니다.</b> 먼저 제곱 단위인 <b>분산</b>이 정확히 8분의 1 로 줄어듭니다 — 여덟 배 더 쌓이는 것이 아니라 반대 방향끼리 상쇄되기 때문입니다. 표준편차는 분산의 제곱근이므로, 줄어드는 비율에도 제곱근을 씌워 <b>√8 분의 1</b>이 됩니다.</p>
 <pre id="preSEm"></pre>
+<div class="key"><b>한 줄로 가르면</b> — <b>표준편차</b>는 차 <b>한 대</b>가 흔들리는 폭이고, <b>표준오차</b>는 <b>평균</b>이 표본마다 흔들리는 폭입니다. 같은 자료에서 나오지만 재는 대상이 다릅니다.</div>
+<p><b>여기서 이런 의문이 드실 겁니다.</b> "평균이 흔들리는 폭이라면 그냥 n 으로 나누면 되지 않나? 그리고 분자에 놓인 s 는 분산이 아니라 표준편차인데, 왜 하필 √ 가 붙나?" 답은 한 문장에서 나옵니다. <b>서로 독립인 값을 더하면, 합쳐지는 것은 표준편차가 아니라 분산입니다.</b> (독립이란 한 대의 값이 다른 대의 값에 영향을 주지 않는다는 뜻입니다.)</p>
+<p>이 한 문장을 따라가면 √n 이 저절로 나옵니다. 값 하나의 분산이 σ² 이면, n 개를 더한 합의 분산은 σ² 가 n 번 더해진 nσ² 이고, 표준편차는 그 제곱근인 √n·σ 입니다. <b>n 이 아니라 √n</b> 입니다. 예를 들어 4대를 더한 합의 표준편차는 4σ 가 아니라 2σ 인데, 위로 벗어난 차와 아래로 벗어난 차가 일부 서로 지우기 때문입니다. 평균은 이 합을 n 으로 나눈 것이고, 어떤 수로 나누면 표준편차도 같은 수로 나뉩니다.</p>
+<div class="eq">
+  <span class="eqlab">독립인 n 개의 합 — 더해지는 것은 분산</span>
+  <math display="block"><mtext>합의 분산</mtext><mo>=</mo>
+    <msup><mi>σ</mi><mn>2</mn></msup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo>+</mo><mo>⋯</mo><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup>
+    <mo>=</mo><mi>n</mi><msup><mi>σ</mi><mn>2</mn></msup></math>
+  <math display="block"><mtext>합의 표준편차</mtext><mo>=</mo>
+    <msqrt><mrow><mi>n</mi><msup><mi>σ</mi><mn>2</mn></msup></mrow></msqrt><mo>=</mo>
+    <msqrt><mi>n</mi></msqrt><mo>⋅</mo><mi>σ</mi></math>
+  <span class="eqlab" style="margin-top:.4rem">그 합을 n 으로 나누면 — 평균의 표준편차</span>
+  <math display="block"><mtext>평균의 표준편차</mtext><mo>=</mo>
+    <mfrac><mrow><msqrt><mi>n</mi></msqrt><mo>⋅</mo><mi>σ</mi></mrow><mi>n</mi></mfrac><mo>=</mo>
+    <mfrac><mi>σ</mi><msqrt><mi>n</mi></msqrt></mfrac></math>
+  <span class="note">σ 를 모르면 자료에서 잰 s 로 대신하므로 실제로는 s / √n 입니다.</span>
+</div>
+<p>이 자료의 여덟 대로 확인하면 이렇습니다.</p>
+<pre id="preSqrt"></pre>
+<p>그림으로 떠올리면, 독립인 두 오차는 <b>직각으로 놓인 두 변</b>처럼 합쳐집니다. 길이 1 인 두 변이 직각이면 빗변은 1 + 1 = 2 가 아니라 √(1² + 1²) = √2 입니다. 이 직각은 감을 잡기 위한 비유이고, 정식 이름은 앞에서 말한 <b>"독립이면 분산이 더해진다"</b>입니다. 같은 규칙이 바로 아래 3) 에서 두 평균의 차이를 합칠 때 다시 쓰입니다.</p>
+<div class="qna" data-topic="why-sqrt-n"></div>
 
 <h3>3) 두 평균의 <b>차이</b>가 흔들리는 정도 — 우리가 나눌 표준오차 SE</h3>
 <p>그런데 우리가 본 값은 평균 하나가 아니라 <b>평균 두 개의 차이</b>입니다. A 평균도 흔들리고 D 평균도 흔들리니, 그 차이는 두 흔들림이 겹쳐 더 크게 흔들립니다. 흔들림을 합칠 때는 그냥 더하지 않고 <b>제곱해서 더한 뒤 다시 제곱근</b>을 씁니다(더해지는 것은 표준편차가 아니라 분산이기 때문입니다).</p>
@@ -164,6 +189,11 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="key"><b>왜 하필 표준오차로 나누는가.</b> 분자가 흔들리는 <b>바로 그 폭</b>으로 나눠야 <b>"표준오차 몇 개분 벗어났나"</b>가 됩니다. 이때 단위(점·cm·kg)가 위아래에서 사라져, 어떤 문제든 같은 눈금으로 견줄 수 있게 됩니다. 검정통계량이 <b>단위 없는 수</b>인 이유가 이것입니다.</div>
 <p>귀무가설은 "두 차종의 평균은 같다", 즉 차이가 <b>0</b>이라는 주장입니다. 그러니 분자는 관측된 차이에서 0 을 뺀 그대로이고, 분모는 방금 구한 그 차이의 표준오차입니다.</p>
 <pre id="preT"></pre>
+
+<p><b>분자에서 빼는 0 이 무엇인지 짚고 가겠습니다.</b> 이 0 은 우리가 아는 진짜 평균 차이가 아닙니다. 진짜는 모릅니다. 이 0 은 <b>귀무가설이 "이렇다고 치자"고 정한 값</b>입니다. 한 조의 평균을 어떤 기준값 μ₀ 와 견주는 문제라면 그 기준값이 같은 자리에 들어갑니다(§11 에서 직접 해 봅니다).</p>
+<div class="key"><b>귀무가설의 목소리를 상상해 보면 이렇습니다.</b> "에이~ 차이 없어. 거봐, 그 차이는 우연이라니까." 검정은 이 말을 꺾을 수 있는지 시험하는 일입니다. 관측된 값이 표준오차의 몇 개분이나 벗어났는지가 크면 이 말을 믿기 어려워지고, <b>p값이 크면 이 말을 꺾을 증거가 없다</b>는 뜻입니다.</div>
+<p><b>그래서 결론은 두 가지뿐입니다.</b> 꺾으면 <b>기각</b>, 못 꺾으면 <b>기각하지 못함</b>입니다. 못 꺾었다고 해서 "차이가 없다는 것이 증명되었다"는 뜻은 아닙니다. 증거가 모자랐다는 뜻입니다.</p>
+<p><b>p값을 한 줄로</b> — 흔히 줄여서 <b>"이 차이가 우연일 확률"</b>이라고 말하고, 감을 잡기에는 좋은 표현입니다. 정확히는 <b>"차이가 없다고 가정했을 때, 이만큼 이상의 차이가 우연히 나올 확률"</b>입니다. 두 문장이 다른 점은 하나입니다. 차이가 없을 확률 자체를 잰 것이 아니라, <b>차이가 없다는 가정 위에서</b> 잰 확률이라는 것입니다.</p>
 
 <p>아래 그림이 방금 한 그 나눗셈입니다. 위쪽 막대가 관측된 평균 차이, 아래 눈금자의 한 칸이 표준오차 — <b>막대가 몇 칸인지 세는 것</b>이 검정통계량의 전부입니다. 슬라이더로 두 수를 바꿔 가며 확인해 보십시오.</p>
 
@@ -211,6 +241,9 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
    +'둘을 합치면      √( '+f(sp,3)+' ÷ 14 ) = '+f(s,3)+'   ← 이 값을 씁니다');
 
  put('preSEm','평균의 표준오차 = s ÷ √8 = '+f(s,3)+' ÷ '+f(Math.sqrt(8),3)+' = '+f(sem,3));
+
+ put('preSqrt','여덟 대의 합     : 표준편차 √8 × s = '+f(Math.sqrt(8),3)+' × '+f(s,3)+' = '+f(Math.sqrt(8)*s,3)+'      (8 × s = '+f(8*s,3)+' 이 아니다)\n'
+   +'그 합을 8로 나눔 : '+f(Math.sqrt(8)*s,3)+' ÷ 8 = '+f(Math.sqrt(8)*s/8,3)+' = s ÷ √8      ← 위에서 구한 평균의 표준오차와 같은 수');
 
  put('preSE','SE = √( '+f(sem,3)+'² + '+f(sem,3)+'² ) = √( '+f(sem*sem,4)+' + '+f(sem*sem,4)+' ) = '+f(se,3));
 
@@ -279,6 +312,17 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <canvas id="cvMap" height="330"></canvas>
   <div id="mapCap" class="concl" style="margin:.8rem 0 0"></div>
 </div>
+
+<h3>알고 싶은 것과 쓰는 자를 짝지으면</h3>
+<p>네 상자를 따로 외우면 헷갈립니다. 대신 <b>무엇을 알고 싶은가</b>에서 출발하면 자가 저절로 정해집니다. 오른쪽 끝 칸은 그 자를 이 페이지 어디에서 만드는지입니다.</p>
+<table>
+ <tr><th class="l" style="width:25%">알고 싶은 것</th><th style="width:11%">쓰는 자</th><th class="l">그 자를 쓰는 진짜 이유</th><th style="width:12%">절</th></tr>
+ <tr><td class="l">평균 하나가 기준에서 벗어났나 (σ 를 아는 경우)</td><td><b>z</b></td><td class="l">단위를 지우고 "평소 흔들림의 몇 배"로 보려고</td><td>§3</td></tr>
+ <tr><td class="l">평균 하나·둘의 비교 (σ 를 모르고 표본의 s 만 있는 경우)</td><td><b>t</b></td><td class="l">분모의 s 까지 표본마다 흔들리니, 그만큼 넉넉한 자가 필요해서</td><td>§8</td></tr>
+ <tr><td class="l">흩어짐(분산)이 기준보다 큰가</td><td><b>χ²</b></td><td class="l">부호를 없애려고 제곱해서 더했으니, 그 제곱합이 우연히 얼마나 커질 수 있는지 재는 자가 필요해서</td><td>§7</td></tr>
+ <tr><td class="l">조가 셋 이상이고 평균들이 다른가 · 분산 둘의 비교</td><td><b>F</b></td><td class="l">차이를 하나로 못 고르니 "조 사이 흩어짐 ÷ 조 안 흩어짐"의 비율로 보려고</td><td>§9</td></tr>
+ <tr><td class="l">이 값이 우연으로 설명되나</td><td><b>p값</b></td><td class="l">고른 자의 꼬리 넓이가 곧 "우연히 이만큼 이상 나올 확률"이라서</td><td>§7 · §8 · §9</td></tr>
+</table>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -536,6 +580,118 @@ window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(fun
 <div class="qna" data-topic="sampling-distributions"></div>
 
 <h2><span class="step">§3</span>표준정규 — 자를 하나로 통일하려고 만들었다</h2>
+<h3>정규분포는 어디서 왔나 — 동전 던지기에서</h3>
+<p>곡선을 쓰기 전에, 그 곡선이 어디서 태어났는지부터 보겠습니다. 출발점은 아주 작습니다. 결과가 둘뿐인 시도를 <b>한 번</b> 해 보는 것 — 동전을 한 번 던져 앞면이 나오면 성공(1), 아니면 실패(0). 이것이 <b>베르누이 시행</b>입니다.</p>
+<p>이것을 <b>n 번</b> 되풀이하고 성공이 몇 번인지 세면, 그 횟수 k 는 0 부터 n 까지 값이 나올 수 있고 값마다 확률이 있습니다. 이 확률의 분포가 <b>이항분포</b>이고, 막대 그래프로 그립니다. 한 번에 성공할 확률을 p 라 하면 n 번 중 정확히 k 번 성공할 확률은 다음과 같습니다.</p>
+<div class="eq">
+  <span class="eqlab">이항분포 — n 번 중 정확히 k 번 성공할 확률</span>
+  <math display="block"><mi>P</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac><mrow><mi>n</mi><mo>!</mo></mrow><mrow><mi>k</mi><mo>!</mo><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mi>k</mi><mo stretchy="false">)</mo><mo>!</mo></mrow></mfrac>
+    <msup><mi>p</mi><mi>k</mi></msup>
+    <msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msup></math>
+  <span class="note">n! 은 1 부터 n 까지 모두 곱한 수입니다. 앞의 분수는 n 번 중 성공 k 번이 놓일 자리를 고르는 방법의 수입니다.</span>
+</div>
+<p>아래 그림에서 <b>막대 하나가 성공 횟수 k 의 확률</b>이고, 겹쳐 그린 곡선은 <b>같은 평균(np)과 같은 표준편차(√(np(1−p)))를 가진 종 모양 곡선</b>입니다. (n 번의 합이므로 §1 2) 의 "독립이면 분산이 더해진다"가 그대로 쓰여 분산이 np(1−p) 가 됩니다.) n 을 1 에서 200 까지 키워 보십시오. <b>보실 것은 하나입니다 — 막대 꼭대기가 곡선에 얼마나 붙어 가는가.</b></p>
+
+<div class="lab">
+  <canvas id="cvBin" height="300"></canvas>
+  <div class="ctrl"><label for="sBn">던지는 횟수 n</label><input id="sBn" type="range" min="1" max="200" step="1" value="100"><output id="oBn"></output></div>
+  <div class="ctrl"><label for="sBp">한 번에 성공할 확률 p</label><input id="sBp" type="range" min="0.1" max="0.9" step="0.05" value="0.5"><output id="oBp"></output></div>
+  <div class="btnrow"><button class="btn" id="bBin">↺ n = 100, p = 0.5 (본문의 예)</button></div>
+  <div id="roBin" class="readout"></div>
+</div>
+
+<p>n 이 클수록 붙는다는 것이 보이십니다. 그런데 <b>여기서 이런 의문이 드실 겁니다.</b> "1000번, 10000번 던지는 실험을 정말 해 본 것인가?" 아닙니다. <b>실험이 아니라 계산</b>입니다. 문제는 그 계산이 손으로는 안 된다는 데 있었습니다. 동전 100번에서 정확히 50번 나올 확률은 이렇습니다.</p>
+<div class="eq">
+  <math display="block"><mi>P</mi><mo stretchy="false">(</mo><mn>50</mn><mo stretchy="false">)</mo><mo>=</mo>
+    <mfrac><mrow><mn>100</mn><mo>!</mo></mrow><mrow><mn>50</mn><mo>!</mo><mo>⋅</mo><mn>50</mn><mo>!</mo></mrow></mfrac>
+    <msup><mrow><mo stretchy="false">(</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false">)</mo></mrow><mn>100</mn></msup>
+    <mo>=</mo><mn id="m_p50">0.0796</mn></math>
+</div>
+<pre id="preFact"></pre>
+<p>이 정도 크기의 팩토리얼은 손으로 곱할 수 없고, n 이 1000, 10000 이 되면 더 그렇습니다. 그래서 1733년 <b>드무아브르</b>는 n! 을 근사하는 식을 이항 확률식에 넣었습니다(근사식의 상수 √(2π) 는 스털링이 밝혔습니다).</p>
+<div class="eq">
+  <span class="eqlab">n! 의 근사식</span>
+  <math display="block"><mi>n</mi><mo>!</mo><mo>≈</mo><msqrt><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow></msqrt>
+    <msup><mrow><mo stretchy="false">(</mo><mfrac><mi>n</mi><mi>e</mi></mfrac><mo stretchy="false">)</mo></mrow><mi>n</mi></msup></math>
+</div>
+<p>그리고 n 을 한없이 키우자 <b>팩토리얼이 사라지고 e<sup>−x²/2</sup> 모양만 남았습니다.</b> 여기서 x 는 (k − np) ÷ √(np(1−p)), 즉 평균에서 표준편차 몇 개만큼 떨어졌는지입니다.</p>
+<div class="eq">
+  <span class="eqlab">n 이 커질 때 이항 확률이 다가가는 모양</span>
+  <math display="block"><mi>P</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>≈</mo>
+    <mfrac><mn>1</mn><mrow><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt><msqrt><mrow><mi>n</mi><mi>p</mi><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false">)</mo></mrow></msqrt></mrow></mfrac>
+    <msup><mi>e</mi><mrow><mo>−</mo><mfrac><msup><mi>x</mi><mn>2</mn></msup><mn>2</mn></mfrac></mrow></msup></math>
+</div>
+<p>가우스는 1809년에 측정 오차가 퍼지는 모양을 따지다가 같은 곡선에 도달했습니다. 위 그림의 곡선이 바로 이것이고, <b>이 곡선을 평균 0, 표준편차 1 로 맞춘 것이 표준정규</b>입니다(x 가 곧 z). 아래 φ(z) 식에서 1/√(2π) 와 e<sup>−z²/2</sup> 가 그대로 보입니다.</p>
+<p>그런데 이 곡선은 평균과 표준편차가 바뀔 때마다 위치와 폭이 달라지는 <b>곡선 한 가족</b>입니다. 이 가족을 한 곡선으로 포개는 변환이 이 절의 본론입니다.</p>
+
+<script>
+/* ══════════ §3 이항분포 막대 → 정규곡선 ══════════ */
+(function(){
+ var cv=document.getElementById('cvBin'), sN=document.getElementById('sBn'), sP=document.getElementById('sBp'),
+     oN=document.getElementById('oBn'), oP=document.getElementById('oBp'), ro=document.getElementById('roBin'),
+     bt=document.getElementById('bBin');
+ function pmf(n,k,p){ return Math.exp(lgam(n+1)-lgam(k+1)-lgam(n-k+1)+k*Math.log(p)+(n-k)*Math.log(1-p)); }
+ /* 본문의 예(n=100, k=50, p=1/2)는 계산해서 식 옆에 채운다 */
+ (function(){ var e=document.getElementById('m_p50'); if(e) e.textContent=fmt(pmf(100,50,0.5),5);
+  var pf=document.getElementById('preFact');
+  if(pf){ var lg=lgam(101)/Math.LN10, ls=(0.5*Math.log(2*Math.PI*100)+100*(Math.log(100)-1))/Math.LN10;
+   function sci(l){ var e=Math.floor(l); return fmt(Math.pow(10,l-e),4)+' × 10^'+e; }
+   pf.textContent='100! = '+sci(lg)+'   (1 부터 100 까지 곱한 수, '+(Math.floor(lg)+1)+'자리)\n'
+     +'근사식 √(2π·100)·(100/e)^100 = '+sci(ls)+'   (실제 값의 '+fmt(Math.pow(10,ls-lg)*100,2)+'%)'; } })();
+ function draw(){
+  var n=+sN.value, p=+sP.value, o=setup(cv,300), x=o.x, W=o.w, H=o.h;
+  var mu=n*p, sd=Math.sqrt(n*p*(1-p));
+  var kLo=Math.max(0,Math.floor(mu-4*sd)), kHi=Math.min(n,Math.ceil(mu+4*sd)), nb=kHi-kLo+1;
+  var pL=10, pR=10, pT=58, pB=40, gw=W-pL-pR, gh=H-pT-pB, base=pT+gh;
+  function X(k){ return pL+gw*(k-kLo+0.5)/nb; }
+  var pk=0, maxd=0, maxk=kLo, kStar=Math.round(mu);
+  for(var k=kLo;k<=kHi;k++){ var b=pmf(n,k,p), c=normPdf((k-mu)/sd)/sd;
+   if(b>pk) pk=b; if(c>pk) pk=c; if(Math.abs(b-c)>maxd){ maxd=Math.abs(b-c); maxk=k; } }
+  function Y(v){ return base-(v/pk)*gh*0.94; }
+  var bw=Math.max(1,gw/nb*0.82);
+  /* 막대 */
+  for(var k=kLo;k<=kHi;k++){ var v=pmf(n,k,p), top=Y(v), star=(k===kStar);
+   x.fillStyle=star?alpha(css('--good'),0.75):alpha(css('--accent'),0.38);
+   x.fillRect(X(k)-bw/2,top,bw,base-top);
+   x.strokeStyle=star?css('--good'):alpha(css('--accent'),0.8); x.lineWidth=1;
+   x.strokeRect(X(k)-bw/2+0.5,top+0.5,Math.max(0.5,bw-1),Math.max(0,base-top-1)); }
+  /* 같은 평균·표준편차의 정규곡선 */
+  x.beginPath();
+  var steps=220;
+  for(var i=0;i<=steps;i++){ var kk=kLo-0.5+(nb)*i/steps, d=normPdf((kk-mu)/sd)/sd, px=pL+gw*(kk-kLo+0.5)/nb, py=Y(d);
+   i?x.lineTo(px,py):x.moveTo(px,py); }
+  x.strokeStyle=css('--warn'); x.lineWidth=2.2; x.stroke();
+  /* 축과 눈금 */
+  x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,base); x.lineTo(pL+gw,base); x.stroke();
+  var stepK=1, cands=[1,2,5,10,20,50]; for(var c=0;c<cands.length;c++){ stepK=cands[c]; if(gw/nb*stepK>=30) break; }
+  x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
+  for(var k=Math.ceil(kLo/stepK)*stepK;k<=kHi;k+=stepK) x.fillText(k, X(k), base+15);
+  x.fillText('성공 횟수 k', pL+gw/2, H-6);
+  /* 범례 */
+  x.textAlign='left'; x.font='700 11px -apple-system,sans-serif';
+  x.fillStyle=css('--accent'); x.fillText('막대 = 이항분포 (정확한 확률)', pL, 14);
+  x.fillStyle=css('--warn'); x.fillText('곡선 = 같은 평균·표준편차의 정규곡선', pL, 28);
+  x.fillStyle=css('--good'); x.fillText('초록 막대 = 아래 숫자에서 비교하는 k', pL, 42);
+  /* 숫자 */
+  oN.textContent=n; oP.textContent=fmt(p,2);
+  var bS=pmf(n,kStar,p), cS=normPdf((kStar-mu)/sd)/sd;
+  var home=(n===100&&Math.abs(p-0.5)<1e-9);
+  bt.classList.toggle('on',home); bt.disabled=home; bt.style.opacity=home?0.5:1;
+  var okRule=(n*p>=5&&n*(1-p)>=5);
+  ro.innerHTML='n = <b>'+n+'</b> 번, 성공 확률 p = <b>'+fmt(p,2)+'</b> → 평균 np = <b>'+fmt(mu,2)+'</b>, 표준편차 √(np(1−p)) = <b>'+fmt(sd,3)+'</b>'+
+   '<br>가장 높은 자리 k = <b>'+kStar+'</b> 에서 — 이항분포(정확) <b>'+fmt(bS,5)+'</b> · 정규곡선의 높이 <b>'+fmt(cS,5)+'</b> · 차이 <b>'+fmt(Math.abs(bS-cS),5)+'</b> (막대 폭이 1 이라 곡선 높이를 그 막대의 확률로 읽습니다)'+
+   '<br>막대 꼭대기 전체에서 곡선과 가장 크게 벌어진 곳은 k = <b>'+maxk+'</b>, 차이 <b>'+fmt(maxd,5)+'</b>'+
+   '<br>np = <b>'+fmt(n*p,1)+'</b> · n(1−p) = <b>'+fmt(n*(1-p),1)+'</b> — 관례로 둘 다 5 이상이면 곡선이 잘 맞는다고 보며, 지금은 <b>'+(okRule?'맞는 쪽':'덜 맞는 쪽')+'</b>입니다.'+
+   '<br>'+(home?'<b>지금 n = 100, p = 0.5 — 위 식에서 계산한 본문의 예입니다.</b> n 이나 p 를 옮기면 "만약 이랬다면" 입니다.'
+     :'지금은 본문의 예(n = 100, p = 0.5)에서 옮겨 놓은 값입니다. 아래 단추로 돌아갑니다.');
+ }
+ sN.addEventListener('input',draw); sP.addEventListener('input',draw);
+ bt.addEventListener('click',function(){ sN.value=100; sP.value=0.5; draw(); });
+ onResize(draw); draw();
+})();
+</script>
+
 <p>키는 센티미터, 손상지수는 점, 시험은 100점 만점. <b>단위도 중심도 흩어짐도 전부 다릅니다.</b> 그런데 우리가 묻는 것은 늘 같습니다 — "이 값이 <b>얼마나 드문가</b>". 그래서 모든 자를 하나로 포개는 변환을 만들었습니다.</p>
 <pre>z = (값 − 평균) ÷ 표준편차        →  "평균에서 표준편차 몇 개만큼 떨어졌나"</pre>
 <p>아래 슬라이더를 움직여 보십시오. 세 문제는 눈금이 완전히 다른데도 <b>드문 정도(칠한 넓이)는 언제나 똑같습니다.</b></p>
@@ -1360,6 +1516,28 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
   <div id="roT2" class="readout"></div>
 </div>
 
+<h3>t 분포를 두고 흔히 갈리는 네 가지 물음</h3>
+<p>자유도 슬라이더를 오가며 두 곡선을 보셨다면 이런 의문들이 드실 겁니다. 하나씩 답하겠습니다.</p>
+<p><b>1) "t 는 꼬리만 두꺼워지는 것 아닌가?" 아닙니다. 모양 전체가 바뀝니다.</b> 확률분포는 곡선 아래 넓이가 언제나 1 입니다(위 그림 아래의 '전체 넓이'가 그 확인입니다). 꼬리로 확률이 옮겨 간 만큼 가운데 봉우리는 낮아질 수밖에 없습니다. 위 그림에 봉우리 높이를 표시해 두었습니다. 자유도 3 이면 z 는 <b data-f="zpk"></b> 인데 t 는 <b data-f="tpk3"></b> 로 낮아지고, 자유도를 키울수록 다시 z 의 높이에 붙습니다.</p>
+<p><b>2) "그런데 왜 다들 꼬리 이야기만 하는가?"</b> 판정하는 선(임계값)이 꼬리에 서 있기 때문입니다. 꼬리가 두꺼워지면 5% 를 자르는 선이 바깥으로 밀립니다. 자유도 3 에서는 z 의 <b data-f="zc"></b> 이 t 의 <b data-f="tc3"></b> 로 밀려납니다. 같은 5% 를 지키려면 더 먼 곳까지 가야 한다는 뜻입니다.</p>
+<p><b>3) "s/√n 으로 나누는 것이 t 의 보정인가?" 아닙니다.</b> 표준오차로 나누는 일은 z 도 똑같이 합니다(위 첫째 식의 σ/√n). <b>분자에 놓인 값(평균)의 표준오차로 나눈다</b>는 것은 z 와 t 가 함께 따르는 규칙입니다. t 에서 달라지는 것은 나누는 방식이 아니라 <b>재는 자, 곧 분포 자체</b>입니다. 분모를 σ 대신 s 로 잰 대가로 자 전체가 두꺼운 꼬리 쪽으로 바뀌고, 그 결과가 임계값이 <span data-f="zc"></span> 에서 <span data-f="tc3"></span> 로 물러나는 것으로 나타납니다.</p>
+<p><b>4) "t 분포는 표본의 평균에 대한 분포인가?" 거의 맞습니다. 정확히는 이렇습니다.</b> 개별 값 x 의 분포가 아니고, 표본평균 x̄ 그 자체의 분포도 아닙니다. x̄ 를 아래처럼 바꾼 <b>표준화한 통계량</b>의 분포입니다.</p>
+<div class="eq">
+  <span class="eqlab">t 분포를 따르는 것 — 표준화한 통계량 (v = n − 1)</span>
+  <math display="block"><mi>t</mi><mo>=</mo><mfrac><mrow><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><msub><mi>μ</mi><mn>0</mn></msub></mrow><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac></math>
+  <span class="note">§1 에서 만든 t = <b data-f="tad"></b> 은 이 통계량이 한 번 나온 값이고, 자유도 <span data-f="dfad"></span> 인 t 곡선 위의 한 점입니다.</span>
+</div>
+<script>
+(function(){
+ var V={}; function fm(v,d){ return v.toFixed(d); }
+ V.zpk=fm(normPdf(0),4); V.tpk3=fm(tPdf(0,3),4);
+ V.zc=fm(qOf(normCdf,0.975,0,10),3); V.tc3=fm(qOf(function(a){return tCdf(a,3);},0.975,0,60),3);
+ var AD=window.ADP_AD; V.tad=AD?fm(AD.t,3):''; V.dfad=AD?String(AD.df):'';
+ document.querySelectorAll('[data-f]').forEach(function(e){ var k=e.getAttribute('data-f'); if(V[k]!==undefined) e.textContent=V[k]; });
+})();
+</script>
+
+
 <script>
 /* ══════════ §7 t 곡선 ══════════ */
 (function(){
@@ -1389,6 +1567,14 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
   x.strokeStyle=css('--rule'); x.lineWidth=1; x.beginPath(); x.moveTo(pL,Y(0)); x.lineTo(pL+gw,Y(0)); x.stroke();
   for(var t=-4;t<=4;t++){ var px=X(t); x.fillStyle=css('--soft'); x.font='11px -apple-system,sans-serif'; x.textAlign='center';
    x.fillText(t, px, Y(0)+15); }
+  /* 봉우리 높이 — 곡선 아래 넓이는 언제나 1 이라, 꼬리가 두꺼워지면 봉우리가 낮아진다 */
+  var tPk=tPdf(0,v);
+  x.lineWidth=1.3; x.setLineDash([2,3]);
+  x.strokeStyle=css('--accent'); x.beginPath(); x.moveTo(X(-0.8),Y(pk)); x.lineTo(X(0.8),Y(pk)); x.stroke();
+  x.strokeStyle=css('--gB'); x.beginPath(); x.moveTo(X(-0.8),Y(tPk)); x.lineTo(X(0.8),Y(tPk)); x.stroke(); x.setLineDash([]);
+  x.textAlign='left'; x.font='700 11px -apple-system,sans-serif';
+  x.fillStyle=css('--accent'); x.fillText('z 봉우리 '+fmt(pk,4), X(0.9), Y(pk)+16);
+  x.fillStyle=css('--gB'); x.fillText('t 봉우리 '+fmt(tPk,4), X(0.9), Y(pk)+30);
   /* 임계선 */
   [[crit,'--gB'],[1.959964,'--accent']].forEach(function(c){
    x.strokeStyle=css(c[1]); x.lineWidth=1.5; x.setLineDash([4,3]);
@@ -1418,6 +1604,7 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
   oV.textContent=v;
   ro.innerHTML='양쪽 2.5% 를 자르는 경계값 — t(v='+v+') <b>'+fmt(crit,4)+'</b> vs 정규 <b>1.9600</b>'+
    '<br>차이 <b>'+fmt(crit-1.959964,4)+'</b> — 자유도가 작을수록 <b>더 확실한 증거를 요구</b>합니다. v=40 쯤이면 거의 같아집니다.'+
+   '<br>봉우리 높이 — 정규 <b>'+fmt(normPdf(0),4)+'</b> · t(v='+v+') <b>'+fmt(tPdf(0,v),4)+'</b> (차이 '+fmt(normPdf(0)-tPdf(0,v),4)+'). 꼬리로 확률이 옮겨 간 만큼 가운데 봉우리가 낮아집니다.'+
    '<br>t 곡선 아래 전체 넓이 = <b>'+fmt(tCdf(60,v)-tCdf(-60,v),6)+'</b> (확률분포는 전체 넓이가 항상 1이어야 합니다 — 값이 맞는지 확인해 보십시오)'+
    (window.ADP_AD ? '<br>§1 에서 구한 <b>t = '+fmt(ADP_AD.t,3)+'</b> (자유도 '+ADP_AD.df+') 은 지금 곡선의 경계 ±'+fmt(crit,3)+' 의 <b>'+(Math.abs(ADP_AD.t)>crit?'바깥':'안쪽')+'</b>입니다 — 슬라이더를 '+ADP_AD.df+' 에 두고 보시면 A·D 두 조의 판정이 이 곡선 위에서 그대로 읽힙니다.' : '');
  }
@@ -1705,6 +1892,112 @@ chi2, p, df, 기대도수 = chi2_contingency(표)</pre>
 <div class="concl"><b>이 표가 그냥 읽히면 준비가 끝난 것입니다.</b> MS 는 제곱합을 자유도로 나눈 것(방향 하나당 평균), F 는 그 둘의 비, p 는 §9에서 붉게 칠한 오른쪽 꼬리 넓이입니다. 세 물음이 모두 답해졌습니다. <b>그리고 이 표의 마지막 줄이 바로 이 페이지 맨 앞의 F(3, 28) = 6.724, p = 0.0015 그 줄입니다.</b></div>
 
 <h2><span class="step">§11</span>한 장으로 굳히기</h2>
+
+<h3 id="mini" style="scroll-margin-top:4.5rem">숫자 네 개로 손계산 — t · χ² · F</h3>
+<p>앞(§1~§9)에서 만든 도구를 이제 <b>아주 작은 자료</b>로 다시 한 번 손으로 써 봅니다. 앞의 32대 자동차 자료와는 다른 예이고, 이 소절만 따로 읽으셔도 됩니다. 필요한 이유는 각 도구 이름 옆의 절에 있습니다.</p>
+<div class="prob"><b>[문제]</b> 과자 한 봉지의 무게는 <b>평균 <span data-m="mu0"></span> g, 분산 <span data-m="sig0"></span></b> 이 정상이라고 정해져 있습니다. 1호기가 만든 4봉지를 달아 보니 <span data-m="xlist"></span> (g) 이었습니다. 봉지 무게는 정규분포를 따른다고 봅니다(t · χ² · F 가 모두 이 전제 위에 서 있습니다).</div>
+
+<p><b>0단계 — 표 하나로 재료를 만듭니다.</b> 편차는 이 4봉지 <b>자신의 평균</b>에서 잰 것이라 합이 0 이고, 그래서 마음대로 정할 수 있는 칸은 4 − 1 = <span data-m="df"></span> 개뿐입니다(§4~§6). 이 4봉지의 평균이 우연히 정상 평균과 같은 <span data-m="mx"></span> 입니다.</p>
+<div id="miniTbl"></div>
+<pre id="miniPre0"></pre>
+
+<p><b>실습 1 — t : 평균이 기준에서 벗어났나 (양쪽)</b><br>막힘: 다른 날 만든 4봉지 <span data-m="ylist"></span> 의 평균이 <span data-m="my"></span> 로 기준 <span data-m="mu0"></span> 보다 높아 보입니다. 그런데 4봉지 평균은 원래 이만큼 흔들릴 수 있습니다. 재야 하는 것은 §1 의 2) 에서 만든 평균의 표준오차인데, 이날은 흩어짐이 기준 그대로인지 알 수 없다고 보고 <b>이 4봉지에서 잰 s 만 씁니다.</b> s 를 쓰면 재는 자가 t 입니다(§8). 귀무가설은 "평균은 기준 <span data-m="mu0"></span> 그대로다"이고, 분자에서 빼는 값이 바로 이 <span data-m="mu0"></span> 입니다(§1 의 4) 에서 본 그대로입니다).</p>
+<div class="eq" id="miniT"></div>
+<p id="miniTtxt"></p>
+
+<p><b>실습 2 — χ² : 흩어짐이 기준보다 큰가 (오른쪽 한쪽)</b><br>막힘: 이번 물음은 평균이 아니라 <b>흩어짐</b>입니다. 흩어짐은 제곱해서 더한 것이라 z 나 t 로는 못 잽니다. 제곱합을 기준 분산으로 나누면 "기준 분산의 몇 배나 흩어졌나"가 되고, 이 수를 재는 자가 χ² 입니다(§7). 귀무가설은 "분산은 기준 <span data-m="sig0"></span> 그대로다"이고, 흩어짐이 <b>커졌는가</b>를 묻는 것이니 오른쪽 꼬리만 봅니다.</p>
+<div class="eq" id="miniC"></div>
+<p id="miniCtxt"></p>
+
+<p><b>실습 3 — F : 두 기계의 흩어짐을 견주면 (오른쪽 한쪽)</b><br>막힘: 이번에는 기준 분산이 없고 두 기계를 서로 견줍니다. 기준이 없으니 한쪽 분산을 다른 쪽 분산으로 나누어 <b>비율</b>을 봅니다. 이 비율을 재는 자가 F 입니다(§9). 1호기 4봉지 <span data-m="xlist"></span> 와 2호기 4봉지 <span data-m="blist"></span> 이고, 귀무가설은 "두 기계의 분산은 같다"입니다.</p>
+<div class="eq" id="miniF"></div>
+<p id="miniFtxt"></p>
+
+<p><b>세 번의 판정을 한 표로 모으면</b> 이렇습니다. 걸음은 세 번 다 같았습니다 — 통계량을 만들고, 그 값을 재는 자(분포)를 고르고, 임계값과 p 를 읽고, 판정합니다.</p>
+<div id="miniSum"></div>
+<script>
+/* ══════════ §11 숫자 네 개로 손계산 — 모든 수를 자료 배열에서 계산 ══════════ */
+(function(){
+ var MU0=10, SIG0SQ=1, X=[8,9,11,12], Y=[10,11,13,14], B=[9,10,10,11], ALPHA=0.05;
+ function mean(a){ var s=0; a.forEach(function(v){ s+=v; }); return s/a.length; }
+ function ssq(a){ var m=mean(a),s=0; a.forEach(function(v){ s+=(v-m)*(v-m); }); return s; }
+ function g(v,d){ return v.toFixed(d); }
+ function sg(v){ return (v<0?'−':'+')+Math.abs(v); }
+ function mn(v,d){ return '<mn>'+g(v,d)+'</mn>'; }
+ function pTxt(p){ return p<0.0001?'0.0001 미만':g(p,4); }
+ var mX=mean(X), ssX=ssq(X), dfX=X.length-1, s2X=ssX/dfX, sX=Math.sqrt(s2X);
+ var mY=mean(Y), ssY=ssq(Y), s2Y=ssY/(Y.length-1), sY=Math.sqrt(s2Y), nY=Y.length;
+ var mB=mean(B), ssB=ssq(B), dfB=B.length-1, s2B=ssB/dfB;
+ /* 실습 1 t (양쪽) */
+ var seY=sY/Math.sqrt(nY), tY=(mY-MU0)/seY, dfY=nY-1;
+ var tcrit=qOf(function(a){return tCdf(a,dfY);},1-ALPHA/2,0,60), pT=2*(1-tCdf(Math.abs(tY),dfY));
+ var zcrit=qOf(normCdf,1-ALPHA/2,0,10);
+ /* 실습 2 χ² (오른쪽) */
+ var chi=ssX/SIG0SQ, ccrit=qOf(function(a){return chi2Cdf(a,dfX);},1-ALPHA,0,100), pC=1-chi2Cdf(chi,dfX);
+ /* 실습 3 F (오른쪽) */
+ var Fv=s2X/s2B, fcrit=qOf(function(a){return fCdf(a,dfX,dfB);},1-ALPHA,0,1000), pF=1-fCdf(Fv,dfX,dfB);
+ function dec(p){ return p<ALPHA?'기각':'기각하지 못함'; }
+
+ var V={mu0:g(MU0,0),sig0:g(SIG0SQ,0),xlist:'['+X.join(', ')+']',ylist:'['+Y.join(', ')+']',blist:'['+B.join(', ')+']',
+        df:String(dfX),mx:g(mX,0),my:g(mY,0)};
+ document.querySelectorAll('[data-m]').forEach(function(e){ var k=e.getAttribute('data-m'); if(V[k]!==undefined) e.textContent=V[k]; });
+
+ /* 0단계 표 */
+ var h='<table><tr><th>봉지</th><th>무게 (g)</th><th>편차 (값 − 평균 '+g(mX,0)+')</th><th>편차의 제곱</th></tr>';
+ X.forEach(function(v,i){ var d=v-mX; h+='<tr><td>'+(i+1)+'</td><td>'+v+'</td><td>'+sg(d)+'</td><td>'+g(d*d,0)+'</td></tr>'; });
+ h+='<tr><th>합</th><th>'+g(mX*X.length,0)+'</th><th>'+g(X.reduce(function(a,v){return a+(v-mX);},0),0)+'</th><th>'+g(ssX,0)+'</th></tr></table>';
+ document.getElementById('miniTbl').innerHTML=h;
+ document.getElementById('miniPre0').textContent=
+  '평균      '+g(mX,0)+'\n'+
+  '제곱합    '+g(ssX,0)+'            ← 편차를 제곱해서 모두 더한 값\n'+
+  '자유도    '+X.length+' − 1 = '+dfX+'\n'+
+  '분산 s²   '+g(ssX,0)+' ÷ '+dfX+' = '+g(s2X,3)+'\n'+
+  '표준편차 s = √'+g(s2X,3)+' = '+g(sX,3);
+
+ /* 실습 1 */
+ document.getElementById('miniT').innerHTML=
+  '<span class="eqlab">검정통계량 t — (관측된 평균 − 귀무가설이 정한 값) ÷ (평균의 표준오차)</span>'+
+  '<math display="block"><mi>t</mi><mo>=</mo><mfrac><mrow><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><msub><mi>μ</mi><mn>0</mn></msub></mrow><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac><mo>=</mo>'+
+  '<mfrac><mrow>'+mn(mY,0)+'<mo>−</mo>'+mn(MU0,0)+'</mrow><mrow>'+mn(sY,3)+'<mo>/</mo><msqrt>'+mn(nY,0)+'</msqrt></mrow></mfrac><mo>=</mo>'+
+  '<mfrac>'+mn(mY-MU0,0)+mn(seY,3)+'</mfrac><mo>=</mo>'+mn(tY,3)+'</math>'+
+  '<span class="note">이 4봉지의 s = '+g(sY,3)+(Math.abs(sY-sX)<1e-9?' (0단계와 같습니다. 편차의 모양이 같기 때문입니다)':'')+', 자유도 '+dfY+'.</span>';
+ document.getElementById('miniTtxt').innerHTML=
+  '임계값 t('+dfY+') = <b>'+g(tcrit,3)+'</b> (양쪽 합쳐 5%), p = <b>'+pTxt(pT)+'</b> → <b>'+dec(pT)+'</b>.<br>'+
+  '귀무가설의 목소리 — "에이~ 차이 없어. 거봐, 그 차이는 우연이라니까." '+
+  (pT<ALPHA?'이 말은 꺾였습니다.':'<b>이 말을 꺾을 증거가 부족합니다.</b> 차이가 없다고 증명된 것이 아니라, 4봉지로는 우연과 구별되지 않는다는 뜻입니다.')+
+  '<br>만약 s 를 진짜 σ 로 착각해 z 눈금(<b>'+g(zcrit,3)+'</b>)을 썼다면 '+g(Math.abs(tY),3)+(Math.abs(tY)>zcrit?' 이 그보다 커서 <b>기각해 버렸을</b> 것입니다. t 가 막아 준 헛판정입니다.':' 이 그보다 작아 같은 결론이었을 것입니다.');
+
+ /* 실습 2 */
+ document.getElementById('miniC').innerHTML=
+  '<span class="eqlab">검정통계량 χ² — 제곱합 ÷ 귀무가설이 정한 분산</span>'+
+  '<math display="block"><msup><mi>χ</mi><mn>2</mn></msup><mo>=</mo><mfrac><mtext>제곱합</mtext><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>=</mo>'+
+  '<mfrac>'+mn(ssX,0)+mn(SIG0SQ,0)+'</mfrac><mo>=</mo>'+mn(chi,0)+'</math>'+
+  '<span class="note">자유도 '+dfX+' 인 χ² 곡선 위에서 읽습니다.</span>';
+ document.getElementById('miniCtxt').innerHTML=
+  '임계값 χ²('+dfX+') = <b>'+g(ccrit,3)+'</b> (오른쪽 5%), p = <b>'+pTxt(pC)+'</b> → <b>'+dec(pC)+'</b>.<br>'+
+  '귀무가설의 목소리 — "에이~ 흩어짐은 기준 그대로야, 우연이라니까." '+
+  (pC<ALPHA?'<b>이 말은 꺾였습니다.</b> '+g(chi,0)+' 은 기준 그대로일 때 나올 수 있는 선 '+g(ccrit,3)+' 을 넘었습니다. 흩어짐이 기준보다 크다고 봅니다.':'이 말을 꺾을 증거가 부족합니다.');
+
+ /* 실습 3 */
+ document.getElementById('miniF').innerHTML=
+  '<span class="eqlab">검정통계량 F — 분산 ÷ 분산</span>'+
+  '<math display="block"><mi>F</mi><mo>=</mo><mfrac><msubsup><mi>s</mi><mn>1</mn><mn>2</mn></msubsup><msubsup><mi>s</mi><mn>2</mn><mn>2</mn></msubsup></mfrac><mo>=</mo>'+
+  '<mfrac>'+mn(s2X,3)+mn(s2B,3)+'</mfrac><mo>=</mo>'+mn(Fv,3)+'</math>'+
+  '<span class="note">1호기 제곱합 '+g(ssX,0)+' ÷ '+dfX+' = '+g(s2X,3)+' · 2호기 제곱합 '+g(ssB,0)+' ÷ '+dfB+' = '+g(s2B,3)+' · 자유도는 ('+dfX+', '+dfB+')</span>';
+ document.getElementById('miniFtxt').innerHTML=
+  '임계값 F('+dfX+', '+dfB+') = <b>'+g(fcrit,3)+'</b> (오른쪽 5%), p = <b>'+pTxt(pF)+'</b> → <b>'+dec(pF)+'</b>.<br>'+
+  '귀무가설의 목소리 — "에이~ 두 기계 차이 없어. 거봐, 그 차이는 우연이라니까." '+
+  (pF<ALPHA?'이 말은 꺾였습니다.':'<b>이 말을 꺾을 증거가 부족합니다.</b> '+g(Fv,2)+'배나 차이가 나 보여도, 4봉지씩이면 우연으로 흔히 나옵니다.');
+
+ /* 요약 표 */
+ function row(name,stat,crit,p){ return '<tr><td class="l"><b>'+name+'</b></td><td>'+stat+'</td><td>'+crit+'</td><td>'+pTxt(p)+'</td><td class="l"><b>'+dec(p)+'</b><br><span style="font-size:.9em;color:var(--soft)">'+(p<ALPHA?'"우연이라니까"가 짐':'"우연이라니까"가 이김')+'</span></td></tr>'; }
+ document.getElementById('miniSum').innerHTML=
+  '<table><tr><th class="l">검정</th><th>통계량</th><th>임계값</th><th>p</th><th class="l">판정</th></tr>'+
+  row('t (양쪽, 자유도 '+dfY+')','t = '+g(tY,3),g(tcrit,3),pT)+
+  row('χ² (오른쪽, 자유도 '+dfX+')','χ² = '+g(chi,2),g(ccrit,3),pC)+
+  row('F (오른쪽, 자유도 '+dfX+', '+dfB+')','F = '+g(Fv,2),g(fcrit,3),pF)+'</table>';
+})();
+</script>
 
 <table>
  <tr><th class="l" style="width:22%">분포</th><th class="l">정의 — 무엇으로 만들어졌나</th><th class="l" style="width:30%">왜 만들었나</th></tr>
