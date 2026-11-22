@@ -1,0 +1,1665 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>미적분, 처음부터 한 번에 · 미적분 실험실</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="중학교 수학에서 출발해 극한·미분·적분·미적분학의 기본 정리까지 한 줄기로 잇는 조작 실험실">
+<meta name="theme-color" content="#6b4fd8">
+<style>
+:root{
+  --accent:#6b4fd8; --accent2:#8f78e8; --accent-ink:#ffffff;
+  --ink:#2a2535; --soft:#5f586d; --paper:#faf8ff; --card:#ffffff;
+  --rule:#e2dcf3; --code:#f3f0fb; --tint:#efeafd;
+  --good:#1f8f62; --warn:#b8681f; --bad:#c4415a;
+  --f:#6b4fd8; --d:#b7800f; --r:#1f8f62; --b:#2f6fd0; --p:#cc3f86; --ax:#8a84a0; --gr:#ece8f6;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+  --accent:#b99cff; --accent2:#d3c2ff; --accent-ink:#1a1230;
+  --ink:#ece8f6; --soft:#aaa3bc; --paper:#14111c; --card:#1d1928;
+  --rule:#352e48; --code:#1a1625; --tint:#241e34;
+  --good:#7ee0b0; --warn:#f0b45a; --bad:#f0888a;
+  --f:#b99cff; --d:#ffd27a; --r:#7ee0b0; --b:#7ab8ff; --p:#f4a0c0; --ax:#8c86a0; --gr:#2a2438;
+}}
+:root[data-theme="dark"]{
+  --accent:#b99cff; --accent2:#d3c2ff; --accent-ink:#1a1230;
+  --ink:#ece8f6; --soft:#aaa3bc; --paper:#14111c; --card:#1d1928;
+  --rule:#352e48; --code:#1a1625; --tint:#241e34;
+  --good:#7ee0b0; --warn:#f0b45a; --bad:#f0888a;
+  --f:#b99cff; --d:#ffd27a; --r:#7ee0b0; --b:#7ab8ff; --p:#f4a0c0; --ax:#8c86a0; --gr:#2a2438;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);line-height:1.68;
+  font-family:-apple-system,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Helvetica Neue",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:0 1.2rem}
+/* 상단바(고정) */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;
+  padding:.45rem 1rem;padding-top:max(.45rem,env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--rule)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .75rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);font-weight:700;
+  font-size:.85rem;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap}
+.topbar .tb-title{font-size:.84rem;color:var(--soft);font-weight:600}
+.topbar .tb-grow{flex:1 1 12px}
+.topbar .acct-bar,.topbar .cw-wrap{position:static!important;margin:0!important}
+/* 머리 */
+.hero{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-ink);padding:2.1rem 0 1.8rem;margin-bottom:1.4rem}
+.hero .eyebrow{font-size:.74rem;letter-spacing:.16em;font-weight:800;margin:0;opacity:.9}
+.hero h1{font-size:1.9rem;margin:.3rem 0 .5rem;letter-spacing:-.01em;line-height:1.3}
+.hero .goal{margin:0;font-size:1rem;max-width:42rem;background:rgba(255,255,255,.12);border-radius:10px;padding:.7rem .9rem}
+:root[data-theme="dark"] .hero .goal{background:rgba(0,0,0,.14)}
+/* 본문 */
+section{margin:0 0 2.4rem}
+h2{font-size:1.28rem;margin:2.4rem 0 .7rem;padding-bottom:.35rem;border-bottom:2px solid var(--rule);line-height:1.4}
+h2 .no{display:inline-flex;align-items:center;justify-content:center;min-width:1.8em;height:1.8em;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);font-size:.8rem;margin-right:.5rem;vertical-align:.12em}
+h3{font-size:1.02rem;margin:1.4rem 0 .4rem;color:var(--accent)}
+p{margin:.55rem 0}
+.part{margin:3rem 0 .4rem;font-size:.82rem;font-weight:800;letter-spacing:.14em;color:var(--accent)}
+.bridge{background:var(--tint);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:.65rem .95rem;margin:.6rem 0 .9rem;font-size:.95rem}
+.key{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.8rem 1rem;margin:1rem 0}
+.key b.h{color:var(--accent)}
+.warn{background:color-mix(in srgb,var(--warn) 9%,transparent);border:1px solid var(--warn);border-radius:10px;padding:.7rem .95rem;margin:.9rem 0;font-size:.95rem}
+.warn b.h{color:var(--warn)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.card ul,.card ol{margin:.3rem 0;padding-left:1.25rem}.card li{margin:.2rem 0}
+table{border-collapse:collapse;width:100%;margin:.5rem 0;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.35rem .5rem;text-align:center}
+th{background:var(--code);color:var(--accent)}
+.tbwrap{overflow-x:auto}
+/* 수식(MathML) */
+math{font-size:1.25rem;color:var(--ink)}
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;margin:.8rem 0;
+  overflow-x:auto;text-align:center;line-height:1.7}
+.eq .eqlab{display:block;font-size:.8rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;font-size:.86rem;color:var(--soft);margin-top:.35rem}
+/* 실험 상자 */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.labtitle{font-weight:800;font-size:.92rem;color:var(--accent);margin:.1rem 0 .45rem}
+.look{font-size:.9rem;background:var(--code);border-radius:8px;padding:.5rem .7rem;margin:0 0 .7rem}
+.look b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;background:var(--card);touch-action:pan-y}
+.ctrl{display:grid;grid-template-columns:170px 1fr 74px;align-items:center;gap:.6rem;font-size:.9rem;margin-top:.55rem}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent);min-height:30px}
+.btns{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.6rem}
+.btns button,.seg button{min-height:40px;padding:.3rem .8rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);
+  color:var(--ink);font-family:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.seg{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .6rem}
+.seg button.on,.btns button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.read{margin-top:.65rem;font-size:.92rem;background:var(--code);border-radius:9px;padding:.6rem .8rem;font-variant-numeric:tabular-nums}
+.read .row{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem}
+.read b{color:var(--accent)}
+.read .ok{color:var(--good);font-weight:800}
+.read .no{color:var(--bad);font-weight:800}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.84rem;color:var(--soft);margin:.45rem 0 0}
+.sw{display:inline-block;width:1.1em;height:.3em;border-radius:2px;margin-right:.3em;vertical-align:middle}
+.ask{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:.8rem 1rem;margin:1.1rem 0}
+.ask ul{margin:.3rem 0 0;padding-left:1.1rem}.ask li{margin:.2rem 0}
+details.toc{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.6rem 1rem;margin:0 0 1rem}
+details.toc summary{font-weight:800;color:var(--accent);cursor:pointer;min-height:30px}
+details.toc ol{margin:.4rem 0;padding-left:1.4rem;columns:2;column-gap:1.6rem;font-size:.9rem}
+details.toc li{break-inside:avoid;margin:.15rem 0}
+details.toc a{color:var(--ink);text-decoration:none}
+details.toc .tp{font-weight:800;color:var(--accent);list-style:none;margin-left:-1.4rem;margin-top:.5rem}
+.labnav{display:flex;gap:.6rem;flex-wrap:wrap;margin:2.4rem 0 3rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.3rem .9rem;border:1px solid var(--accent);border-radius:10px;
+  color:var(--accent);font-weight:700;text-decoration:none;background:var(--card)}
+@media(max-width:760px){.ctrl{grid-template-columns:1fr 64px}.ctrl label{grid-column:1/-1;margin-bottom:-.4rem}
+  details.toc ol{columns:1}.hero h1{font-size:1.55rem}}
+@media(max-width:520px){.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}.topbar .tb-title{display:none}
+  math{font-size:1.12rem}.lab{padding:.75rem}}
+</style>
+<script>try{var _t=localStorage.getItem("calclab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../../calculus.html">← 미적분 트랙</a>
+  <span class="tb-title">미적분 실험실 1</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">CALCULUS LAB · 1장 들어가기</p>
+  <h1>미적분, 처음부터 한 번에</h1>
+  <p class="goal">미적분이 묻는 것은 두 가지뿐입니다. <b>지금 얼마나 빠르게 변하고 있는가</b>, 그리고 <b>그 변화가 모여 얼마나 쌓였는가</b>. 앞의 물음에 답하는 도구가 미분, 뒤의 물음에 답하는 도구가 적분입니다. 이 실험실은 중학교 수학(좌표, 제곱, 넓이, 피타고라스 정리)만 가지고 출발해서, 두 도구가 사실은 하나로 이어져 있다는 데까지 한 줄기로 갑니다.</p>
+</div></header>
+
+<main class="wrap">
+
+<div class="card">
+  <b>이렇게 보시면 됩니다.</b> 절마다 설명을 읽고, 실험 상자의 <b>「무엇을 볼까요」</b>를 먼저 읽은 다음 막대(슬라이더)와 단추를 움직여 보세요. 막대를 움직이면 관련된 숫자가 모두 함께 바뀝니다. 궁금한 점이 생기면 <b>[💬]</b> 단추를 눌러 보세요. 자주 나오는 질문의 답이 들어 있습니다.
+</div>
+
+<details class="toc"><summary>전체 순서 보기 (34절)</summary>
+<ol>
+  <li class="tp">1부 · 준비 — 변화를 그림으로</li>
+  <li><a href="#s1">움직임을 그래프로</a></li>
+  <li><a href="#s2">좌표와 함수</a></li>
+  <li><a href="#s3">미리 익혀 둘 계산 두 가지</a></li>
+  <li><a href="#s4">평균 변화율 — 두 점을 잇는 기울기</a></li>
+  <li class="tp">2부 · 극한 — 가까이 다가가기</li>
+  <li><a href="#s5">0으로 나눌 수 없다는 벽</a></li>
+  <li><a href="#s6">극한 — 다가가는 값</a></li>
+  <li><a href="#s7">극한과 실제 값은 다르다</a></li>
+  <li><a href="#s8">0/0 은 끝이 아니라 신호</a></li>
+  <li><a href="#s9">샌드위치 정리</a></li>
+  <li><a href="#s10">연속</a></li>
+  <li><a href="#s11">사이값 정리</a></li>
+  <li class="tp">3부 · 미분 — 순간의 기울기</li>
+  <li><a href="#s12">미분 기호 읽기</a></li>
+  <li><a href="#s13">x = 2 에서의 순간 변화율</a></li>
+  <li><a href="#s14">도함수 — 기울기를 모은 함수</a></li>
+  <li><a href="#s15">이어져 있어도 미분 못 하는 곳</a></li>
+  <li><a href="#s16">평균값 정리</a></li>
+  <li><a href="#s17">미분 규칙</a></li>
+  <li><a href="#s18">변화율의 변화 — 이계도함수</a></li>
+  <li><a href="#s19">사인과 코사인 — 원 위의 점</a></li>
+  <li><a href="#s20">사인을 미분하면 코사인</a></li>
+  <li><a href="#s21">★ 세 삼각형의 넓이 — sin h / h → 1</a></li>
+  <li><a href="#s22">★ 작은 원호와 닮은 삼각형 — 왜 cos x 인가</a></li>
+  <li><a href="#s23">지수함수와 자연상수 e</a></li>
+  <li class="tp">4부 · 적분 — 조각을 모으기</li>
+  <li><a href="#s24">시그마 — 덧셈의 줄임말</a></li>
+  <li><a href="#s25">속도에서 이동 거리로</a></li>
+  <li><a href="#s26">작게 잡은 합, 크게 잡은 합 — 정적분</a></li>
+  <li><a href="#s27">부호 있는 넓이</a></li>
+  <li><a href="#s28">원시함수와 부정적분</a></li>
+  <li><a href="#s29">★ 미적분학의 기본 정리 — 두 직사각형</a></li>
+  <li><a href="#s30">정적분 = 원시함수의 끝 차이</a></li>
+  <li><a href="#s31">적분의 성질</a></li>
+  <li><a href="#s32">치환적분과 부분적분</a></li>
+  <li class="tp">5부 · 쓰임 — 무엇을 조각으로 삼느냐</li>
+  <li><a href="#s33">평균, 두 곡선 사이, 구의 부피, 곡선의 길이</a></li>
+  <li><a href="#s34">그래프를 읽는 눈 — 조회수와 최적의 선택</a></li>
+</ol></details>
+
+<p class="part">1부 · 준비 — 변화를 그림으로</p>
+
+<section id="s1">
+<h2><span class="no">1</span>움직임을 그래프로</h2>
+<p>변한다는 것을 그림으로 나타내 보겠습니다. 점 하나가 직선 위를 오른쪽으로 달립니다. 출발점에서 얼마나 떨어졌는지를 <b>위치</b>라고 부르고, 오른쪽을 양(+)의 방향으로 정하겠습니다. 시간은 <b>t</b>, 위치는 <b>s</b> 라는 글자로 짧게 적습니다.</p>
+<p>이 점은 1초에 1m, 2초에 4m, 3초에 9m 지점에 있다고 하겠습니다. 시간을 제곱한 만큼 가 있는 셈입니다. <b>제곱</b>은 같은 수를 두 번 곱한다는 뜻이니, 2초의 제곱은 2×2=4 입니다.</p>
+<p>이제 가로축에 시간, 세로축에 위치를 놓고, 각 순간을 점으로 찍어 보겠습니다. 사이사이 시각도 모두 찍으면 점들이 이어져 곡선이 됩니다.</p>
+
+<div class="lab" id="L1">
+  <p class="labtitle">실험 1 · 달리는 점과, 그 기록인 그래프</p>
+  <p class="look"><b>무엇을 볼까요</b> 위쪽 직선 위의 점은 <b>실제로 움직이는 물체</b>이고, 아래 곡선은 그 움직임의 <b>기록</b>입니다. 물체는 곡선을 따라 달리지 않습니다. ▶ 를 눌러 두 그림이 어떻게 함께 자라는지 보시고, 시간을 두 배로 늘렸을 때 위치가 몇 배가 되는지 아래 숫자에서 확인해 보세요.</p>
+  <canvas id="c1"></canvas>
+  <div class="ctrl"><label for="t1">시간 t (초)</label><input type="range" id="t1" min="0" max="3" step="0.01" value="2"><output id="t1o"></output></div>
+  <div class="btns"><button type="button" id="p1">▶ 0초부터 재생</button></div>
+  <div class="read" id="r1"></div>
+</div>
+
+<p>그래프에서 오른쪽으로 갈수록 나중 시각이고, 위로 갈수록 출발점에서 멀리 있다는 뜻입니다. 이 예에서는 시간이 두 배가 되어도 위치는 두 배가 아니라 <b>네 배</b>가 됩니다. 위치가 시간의 제곱으로 정해지도록 했기 때문입니다. 이 규칙을 <b>s(t) = t²</b> 이라고 적는데, 여기서 괄호는 곱셈이 아니라 <b>시간을 넣을 자리</b>입니다. 이 표기는 바로 다음 절에서 하나씩 읽어 보겠습니다.</p>
+<div class="qna" data-q="곡선이 위로 휘어 있으면 물체도 위로 올라간 건가요?">아닙니다. 물체는 처음부터 끝까지 <b>오른쪽 직선 위</b>만 달렸습니다. 곡선의 모양은 '시간'과 '위치' 두 숫자 사이의 관계를 그린 것이라, 위로 휘었다는 것은 <b>같은 1초 동안 더 많이 간다</b>(점점 빨라진다)는 뜻입니다. 실험 1의 위쪽 직선을 보시면 점 사이 간격이 점점 벌어집니다.</div>
+</section>
+
+<section id="s2">
+<h2><span class="no">2</span>좌표와 함수</h2>
+<div class="bridge">앞 절의 그래프를 정확히 읽으려면 점 하나가 무엇을 담고 있는지부터 알아야 합니다.</div>
+<p>가로선과 세로선이 만나는 기준점을 <b>원점</b>이라고 합니다. 오른쪽과 위쪽은 양수, 왼쪽과 아래쪽은 음수로 약속합니다. 괄호 안에 두 수를 쓰면 <b>앞의 수가 가로 위치, 뒤의 수가 세로 위치</b>입니다. 원점에서 오른쪽으로 2칸, 위로 4칸 가서 찍은 점이 <b>(2, 4)</b> 입니다. 순서를 바꾼 (4, 2) 는 전혀 다른 점입니다. 이렇게 점의 위치를 두 수로 적은 것을 <b>좌표</b>라고 합니다. 좌표는 그래프 위의 주소인 셈입니다.</p>
+<p>점에서 세로로 내려가면 가로축에서 <b>입력</b>을, 가로로 옮기면 세로축에서 <b>출력</b>을 읽습니다. 점 하나가 입력 하나와 출력 하나를 함께 담고 있습니다.</p>
+<p>이 주소들을 만드는 규칙이 <b>함수</b>입니다. 함수는 <b>입력을 넣으면 출력이 하나로 정해지는 규칙</b>입니다. 입력을 제곱하는 규칙을 써 보겠습니다. 문자 <b>x</b> 는 아직 정하지 않은 입력을 대신하고, x 에 숫자를 넣어 계산하는 것을 <b>대입</b>이라고 합니다.</p>
+<div class="eq"><span class="eqlab">함수 기호 읽기</span>
+<math display="block"><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup><mspace width="1.2em"/><mi>f</mi><mo stretchy="false">(</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>4</mn></math>
+<span class="note">f 는 함수의 이름, 괄호 안은 입력입니다. f(2) 는 "f 곱하기 2"가 아니라 "입력이 2일 때의 출력"이라고 읽습니다.</span></div>
+
+<div class="lab" id="L2">
+  <p class="labtitle">실험 2 · 입력 하나에 출력 하나</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 입력 x 를 옮기면 점에서 두 축으로 점선이 내려가 입력과 출력을 읽어 줍니다. x 를 2 와 −2 에 놓아 <b>다른 입력이 같은 출력</b>을 가져도 괜찮은지 보시고, [함수가 아닌 예] 를 눌러 <b>한 입력에서 출력이 둘로 갈라지는</b> 경우와 비교해 보세요.</p>
+  <div class="seg" id="m2"><button type="button" data-v="f" class="on">y = x² (함수)</button><button type="button" data-v="n">x = y² (함수가 아닌 예)</button></div>
+  <canvas id="c2"></canvas>
+  <div class="ctrl"><label for="x2">입력 x</label><input type="range" id="x2" min="-3" max="3" step="0.1" value="2"><output id="x2o"></output></div>
+  <div class="read" id="r2"></div>
+</div>
+<p>−2 를 넣어도 출력은 4 입니다. 서로 다른 입력이 같은 출력을 가지는 것은 함수에서 괜찮습니다. 다만 <b>같은 입력에서 출력이 둘로 갈라지면</b> 함수가 아닙니다. 이 대응들을 좌표에 모두 옮겨 놓은 것이 <b>함수의 그래프</b>입니다. 그래프 위의 점 하나는 (입력, 출력) 한 쌍입니다.</p>
+<div class="qna" data-q="함수 이름은 꼭 f 여야 하나요?">아닙니다. g 든 s 든 상관없습니다. 1절에서는 위치(s)를 다뤄서 s(t) 라고 썼습니다. 중요한 것은 이름이 아니라 <b>입력을 출력으로 바꾸는 규칙</b>입니다.</div>
+</section>
+
+<section id="s3">
+<h2><span class="no">3</span>미리 익혀 둘 계산 두 가지</h2>
+<div class="bridge">이제 관심을 값 자체에서 <b>값이 변하는 방식</b>으로 옮기려 합니다. 그 전에 뒤에서 계속 쓸 계산 두 가지만 손에 쥐겠습니다.</div>
+<h3>첫째, 괄호의 제곱을 펼치기</h3>
+<p>(2 + h)² 은 (2 + h) 를 두 번 곱한다는 뜻입니다. 괄호 안의 항을 서로 한 번씩 모두 곱하면 4, 2h, 2h, h² 네 조각이 나오고, 가운데 두 조각을 모으면 다음과 같습니다. 그림으로 보면 한 변이 2 + h 인 정사각형을 네 조각으로 나눈 것입니다.</p>
+<div class="eq"><math display="block"><msup><mrow><mo stretchy="false">(</mo><mn>2</mn><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>4</mn><mo>+</mo><mn>4</mn><mi>h</mi><mo>+</mo><msup><mi>h</mi><mn>2</mn></msup></math></div>
+<div class="lab" id="L3">
+  <p class="labtitle">실험 3 · 한 변이 2 + h 인 정사각형</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 h 를 바꾸면 정사각형이 네 조각(2×2, 2×h 두 개, h×h)으로 나뉩니다. 아래에서 네 조각의 합이 전체 넓이와 늘 같은지, 그리고 <b>각자 제곱만 더한 4 + h²</b> 과는 어떻게 다른지 확인해 보세요.</p>
+  <canvas id="c3"></canvas>
+  <div class="ctrl"><label for="h3">h</label><input type="range" id="h3" min="0" max="2" step="0.05" value="1"><output id="h3o"></output></div>
+  <div class="read" id="r3"></div>
+</div>
+<div class="warn"><b class="h">자주 하는 실수</b> 괄호의 제곱은 각자의 제곱만 더하는 계산이 아닙니다. h = 1 을 넣으면 (2 + 1)² = 9 인데 2² + 1² = 5 입니다. 그림에서 빠진 두 직사각형(2h 두 개)이 그 차이입니다.</div>
+<h3>둘째, 공통으로 곱해진 것을 밖으로 꺼내기</h3>
+<p>이번에는 반대 방향입니다. 4h + h² 의 두 항에는 모두 h 가 곱해져 있으니, h 를 밖으로 꺼내 <b>h(4 + h)</b> 로 다시 쓸 수 있습니다. 곱해진 덩어리로 다시 쓰는 이 계산을 <b>인수분해</b>라고 합니다. 위아래에 같은 인수가 곱해져 있으면 나눗셈이 간단해집니다.</p>
+<div class="eq"><math display="block"><mfrac><mrow><mn>4</mn><mi>h</mi><mo>+</mo><msup><mi>h</mi><mn>2</mn></msup></mrow><mi>h</mi></mfrac><mo>=</mo><mfrac><mrow><mi>h</mi><mo stretchy="false">(</mo><mn>4</mn><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mi>h</mi></mfrac><mo>=</mo><mn>4</mn><mo>+</mo><mi>h</mi></math>
+<span class="note">단, <b>h 가 0 이 아닐 때만</b> 위아래의 h 를 지울 수 있습니다. 0 으로는 나눌 수 없기 때문입니다.</span></div>
+<p>덧셈으로 붙어 있는 항을 마음대로 지우는 것과는 다릅니다. (4 + h)/h 에서 h 를 '지우는' 것은 틀린 계산입니다. 곱으로 묶여 있을 때만 약분합니다. <b>제곱을 펼치는 것과 공통 인수를 묶는 것은 서로 반대 방향</b>이라는 것만 기억해 두시면, 13절에서 이 두 계산이 그대로 다시 나옵니다.</p>
+</section>
+
+<section id="s4">
+<h2><span class="no">4</span>평균 변화율 — 두 점을 잇는 기울기</h2>
+<div class="bridge">1절의 점(s = t²)을 다시 봅니다. 1초에서 3초 사이에 얼마나 빨리 움직였을까요?</div>
+<p><b>변화량</b>은 나중 값에서 처음 값을 빼서 구합니다. 삼각형처럼 생긴 그리스 문자 <b>Δ(델타)</b>를 붙여 변화량을 표시합니다. Δt 는 시간의 변화량, Δs 는 위치의 변화량입니다. 1초부터 3초까지 Δt = 3 − 1 = 2초, Δs = 9 − 1 = 8m 입니다. 늘어난 거리를 걸린 시간으로 나누면 8 ÷ 2 = 4, 이 구간의 <b>평균 속도는 초속 4m</b> 입니다.</p>
+<p>그래프에서는 이것이 <b>두 점을 잇는 직선의 기울기</b>입니다. 기울기는 세로 변화량을 가로 변화량으로 나눈 값, 즉 <b>가로로 1 만큼 갈 때 세로로 얼마나 변하는가</b>입니다. 세로축 단위가 미터(m), 가로축 단위가 초(s)라면 기울기의 단위는 m/s, 곧 속도가 됩니다. 축에 무엇을 놓았느냐에 따라 기울기의 뜻이 달라지므로, 모든 기울기가 속도인 것은 아닙니다.</p>
+<p>일반 함수로 옮기면, 처음 입력을 a, 나중 입력을 b 라 할 때 두 높이는 f(a), f(b) 이고 다음 값을 <b>평균 변화율</b>이라고 부릅니다.</p>
+<div class="eq"><span class="eqlab">평균 변화율</span>
+<math display="block"><mfrac><mrow><mi>Δ</mi><mi>y</mi></mrow><mrow><mi>Δ</mi><mi>x</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>b</mi><mo stretchy="false">)</mo><mo>−</mo><mi>f</mi><mo stretchy="false">(</mo><mi>a</mi><mo stretchy="false">)</mo></mrow><mrow><mi>b</mi><mo>−</mo><mi>a</mi></mrow></mfrac></math>
+<span class="note">분자와 분모의 순서를 <b>함께</b> 뒤집으면 둘 다 부호가 바뀌어 값은 같습니다. 한쪽만 뒤집으면 부호가 달라집니다. 같은 방향의 변화끼리 나눠야 합니다.</span></div>
+
+<div class="lab" id="L4">
+  <p class="labtitle">실험 4 · 구간을 정하면 기울기가 하나 나온다</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 시작 a 와 끝 b 를 정하면 두 점을 잇는 직선(할선)과 Δt·Δs 가 그려집니다. a = 1, b = 3 에서 기울기가 4 인지 확인하시고, [같은 두 끝점, 다른 움직임] 을 켜서 <b>평균은 같아도 중간 움직임은 전혀 다를 수 있다</b>는 것을 보세요.</p>
+  <canvas id="c4"></canvas>
+  <div class="ctrl"><label for="a4">시작 a (초)</label><input type="range" id="a4" min="0" max="3" step="0.05" value="1"><output id="a4o"></output></div>
+  <div class="ctrl"><label for="b4">끝 b (초)</label><input type="range" id="b4" min="0" max="3" step="0.05" value="3"><output id="b4o"></output></div>
+  <div class="btns"><button type="button" id="k4">같은 두 끝점, 다른 움직임 켜기</button></div>
+  <div class="read" id="r4"></div>
+</div>
+<p>평균 속도는 구간 전체를 숫자 하나로 요약합니다. 그 동안 계속 같은 속도였다는 뜻은 아닙니다. 고르게 갔을 수도, 처음엔 느리다가 나중에 빨라졌을 수도 있습니다. 그렇다면 <b>한 순간의 속도</b>는 어떻게 구할까요? 이것이 다음 부의 물음입니다.</p>
+</section>
+
+<p class="part">2부 · 극한 — 가까이 다가가기</p>
+
+<section id="s5">
+<h2><span class="no">5</span>0으로 나눌 수 없다는 벽</h2>
+<div class="bridge">4절의 평균 변화율로 '한 순간'의 속도를 재려면 관찰하는 시간 간격을 줄여 가야 합니다.</div>
+<p>구간이 짧아질수록 그 순간 주변의 움직임이 드러납니다. 실험 4에서 b 를 a 쪽으로 붙여 보시면 할선이 점점 곡선에 '닿는' 모양으로 바뀝니다. 그런데 두 시각을 <b>처음부터 같게</b> 놓을 수는 없습니다. 변화량도 시간 간격도 0 이 되어 0 ÷ 0 이 되기 때문입니다.</p>
+<p>나눗셈 8 ÷ 2 = 4 는 "2 에 무엇을 곱해야 8 이 되는가"의 답입니다. 그런데 0 ÷ 0 은 "0 에 무엇을 곱해야 0 이 되는가"를 묻는 셈이라 <b>어떤 수를 넣어도 맞아서</b> 답 하나를 정할 수 없습니다. 그래서 0 으로 나누는 것은 정의되지 않습니다.</p>
+<div class="key"><b class="h">막힌 자리</b> 간격을 줄이면 순간에 가까워지지만, 간격을 0 으로 만들면 계산이 무너집니다. 필요한 것은 <b>0 에 도달하지 않고 0 쪽으로 다가갈 때 무슨 일이 일어나는지</b>를 묻는 새 생각입니다. 그 이름이 <b>극한</b>입니다.</div>
+</section>
+
+<section id="s6">
+<h2><span class="no">6</span>극한 — 다가가는 값</h2>
+<p>극한은 <b>가까이 다가갈 때 어떤 값으로 향하는가</b>를 묻습니다. 아주 간단한 그래프 y = x + 1 에서 시작하겠습니다. x 를 2 보다 작은 쪽에서 다가가게 하면 1.9 → 2.9, 1.99 → 2.99 처럼 출력이 3 에 가까워집니다. 2 보다 큰 쪽에서 2.1, 2.01, 2.001 로 다가가도 출력은 같은 3 으로 향합니다. 양쪽에서 향하는 값이 모두 3 이므로, 이것을 "x 가 2 로 갈 때의 극한은 3" 이라고 읽습니다.</p>
+<div class="eq"><span class="eqlab">극한 기호 읽기</span>
+<math display="block"><munder><mo movablelimits="false">lim</mo><mrow><mi>x</mi><mo>→</mo><mn>2</mn></mrow></munder><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>=</mo><mn>3</mn></math>
+<span class="note">아래의 x → 2 는 <b>입력이 2 로 다가간다</b>는 뜻입니다. 화살표는 등호가 아닙니다. lim 은 "그때 출력이 향하는 값을 보라"는 표시이고, 오른쪽 끝 3 이 <b>출력이 다가가는 값</b>입니다. 입력의 목표(2)와 출력의 목표(3)를 구별해 주세요.</span></div>
+<p>몇 개의 소수를 계산해 본 것만으로 극한이 증명되지는 않습니다. 이 함수에서는 입력이 목표에서 떨어진 만큼 출력도 똑같이 떨어집니다. 입력을 목표에서 0.001 안쪽으로 잡으면 출력도 3 에서 0.001 안쪽에 있습니다. <b>입력을 충분히 가깝게 잡으면 출력을 원하는 만큼 가깝게 만들 수 있다</b> — 이것이 "가까워진다"는 말을 수학으로 뒷받침하는 생각입니다. 여기서 '얼마나 떨어졌는가'는 목표보다 작든 크든 거리만 보므로, 부호를 뗀 값인 <b>절댓값</b> |x − 2| 로 잽니다.</p>
+<h3>한쪽에서만 다가가기</h3>
+<p>x → 2⁻ 처럼 작은 마이너스를 붙이면 <b>2 보다 작은 쪽에서만</b>, x → 2⁺ 처럼 작은 플러스를 붙이면 <b>큰 쪽에서만</b> 다가갑니다. 이 ±는 답의 부호가 아니라 <b>다가가는 쪽</b>입니다. 그냥 '극한'이라고 하면 양쪽 결과가 같아야 합니다. 한쪽은 3, 다른 쪽은 5 로 향한다면 극한값 하나를 정할 수 없습니다.</p>
+</section>
+
+<section id="s7">
+<h2><span class="no">7</span>극한과 실제 값은 다르다</h2>
+<div class="bridge">6절의 직선을 조금씩 망가뜨려 보겠습니다. 극한이 '그 점의 값'이 아니라 '주변이 향하는 값'이라는 것이 이때 드러납니다.</div>
+<div class="lab" id="L5">
+  <p class="labtitle">실험 5 · 극한은 주변을, 함숫값은 그 점을 본다</p>
+  <p class="look"><b>무엇을 볼까요</b> 네 가지 그래프를 차례로 눌러 보세요. 막대를 오른쪽으로 밀수록 양쪽 점이 x = 2 로 바짝 다가갑니다. 아래 판정에서 <b>왼쪽에서 향하는 값, 오른쪽에서 향하는 값, x = 2 의 실제 값</b> 세 가지가 언제 같고 언제 다른지 보세요.</p>
+  <div class="seg" id="m5"><button type="button" data-v="line" class="on">이어진 직선</button><button type="button" data-v="hole">한 점을 뚫음</button><button type="button" data-v="moved">그 점만 다른 높이</button><button type="button" data-v="jump">양쪽 높이가 다름</button></div>
+  <canvas id="c5"></canvas>
+  <div class="ctrl"><label for="d5">다가가기 (오른쪽일수록 가깝게)</label><input type="range" id="d5" min="0.5" max="4" step="0.05" value="1"><output id="d5o"></output></div>
+  <div class="read" id="r5"></div>
+</div>
+<p>한 점을 뚫어도 양쪽에서 다가오는 높이는 여전히 3 입니다. 가운데 점이 없어도 주변이 향하는 값은 알 수 있습니다. 그 점에 다른 높이(1)를 찍어도 극한은 여전히 3 입니다. <b>극한은 주변의 접근을, 함숫값은 그 입력의 출력을</b> 봅니다. 마지막 그래프처럼 왼쪽은 1, 오른쪽은 3 으로 다가오면 양쪽이 한 값으로 모이지 않으므로 극한이 없습니다. 가운데 점을 어디에 찍어도 이 불일치는 없어지지 않습니다. 그래서 극한에서는 양쪽을 함께 확인합니다.</p>
+</section>
+
+<section id="s8">
+<h2><span class="no">8</span>0/0 은 끝이 아니라 신호</h2>
+<p>이번에는 분수로 된 함수입니다. x 가 1 로 갈 때 다음 식은 어디로 갈까요?</p>
+<div class="eq"><math display="block"><munder><mo movablelimits="false">lim</mo><mrow><mi>x</mi><mo>→</mo><mn>1</mn></mrow></munder><mfrac><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>1</mn></mrow><mrow><mi>x</mi><mo>−</mo><mn>1</mn></mrow></mfrac></math></div>
+<p>x = 1 을 바로 넣으면 분자도 분모도 0 입니다. 이것만으로 "극한이 없다"고 결론 내리면 안 됩니다. <b>0/0 은 값이 아니라, 구조를 더 들여다보라는 신호</b>입니다.</p>
+<p>분자 x² − 1 은 제곱의 차이므로 (x − 1)(x + 1) 로 묶입니다(곱을 다시 펼쳐 보면 x² − 1 이 나오는 것으로 확인할 수 있습니다). 위아래의 같은 인수 x − 1 을 지우려면 그것이 0 이 아니어야 하는데, <b>다가가는 동안의 x 는 1 이 아니므로</b> 주변에서는 약분할 수 있습니다. 그 주변에서 원래 분수와 x + 1 은 같은 값을 가지므로 극한은 1 + 1 = 2 입니다.</p>
+<div class="lab" id="L6">
+  <p class="labtitle">실험 6 · 원래 식 그대로 계산해 다가가기</p>
+  <p class="look"><b>무엇을 볼까요</b> 아래 표의 숫자는 약분한 식이 아니라 <b>원래 분수 (x² − 1)/(x − 1)</b> 에 x 를 그대로 넣어 계산한 값입니다. 막대를 밀어 x 를 1 에 바짝 붙여도 x = 1 자체는 끝내 계산되지 않는다는 것, 그런데도 양쪽 값이 한 수로 모인다는 것을 보세요.</p>
+  <canvas id="c6"></canvas>
+  <div class="ctrl"><label for="d6">다가가기 (오른쪽일수록 가깝게)</label><input type="range" id="d6" min="0.3" max="5" step="0.05" value="1"><output id="d6o"></output></div>
+  <div class="read" id="r6"></div>
+</div>
+<p>약분한 식으로 <b>주변의 움직임</b>을 알아낸 것이지, 원래 식의 빈자리를 없던 일로 만든 것은 아닙니다. 원래 함수는 x = 1 에서 여전히 정의되지 않습니다(그래프의 빈 동그라미). 그 점의 구멍과 주변이 다가가는 값은 서로 다른 문제입니다.</p>
+</section>
+
+<section id="s9">
+<h2><span class="no">9</span>샌드위치 정리</h2>
+<div class="bridge">8절처럼 약분으로 풀리지 않는, 계산하기 어려운 함수의 극한은 어떻게 알아낼까요? 위아래에서 더 간단한 두 함수로 <b>가둘</b> 수 있다면 길이 열립니다.</div>
+<p>가운데 함수가 아래 경계보다 높고 위 경계보다 낮다고 하겠습니다. 입력이 목표에 다가갈 때 <b>두 경계가 같은 값으로 모이면</b>, 가운데 함수가 아무리 흔들려도 그 둘 밖으로 나갈 수 없으니 같은 값으로 향할 수밖에 없습니다. 이 생각을 <b>샌드위치 정리</b> 또는 <b>조임 정리</b>(squeeze theorem)라고 부릅니다.</p>
+<div class="lab" id="L7">
+  <p class="labtitle">실험 7 · 흔들리는 함수를 두 경계로 가두기</p>
+  <p class="look"><b>무엇을 볼까요</b> 가운데 보라색 곡선 x²·sin(1/x) 는 0 근처에서 미친 듯이 흔들려 직접 극한을 계산하기 어렵습니다. 막대로 0 근처를 확대해 들어가면서, 곡선이 금색 경계 x² 와 −x² 사이를 <b>한 번도 벗어나지 않는지</b>, 그리고 두 경계가 함께 0 으로 조여드는지 보세요.</p>
+  <canvas id="c7"></canvas>
+  <div class="ctrl"><label for="z7">확대 (오른쪽일수록 크게)</label><input type="range" id="z7" min="0" max="2.5" step="0.05" value="0"><output id="z7o"></output></div>
+  <div class="read" id="r7"></div>
+</div>
+<p>조건이 두 가지 있습니다. 1) 경계 두 개가 <b>같은 값</b>으로 모여야 합니다. 서로 다른 값으로 가면 가운데 값 하나를 정할 수 없습니다. 2) 목표점 가까이에서 위아래 관계가 <b>실제로</b> 성립해야 합니다. 그림이 비슷해 보인다는 것만으로는 부족합니다. 이 정리는 21절(sin h / h)과 26절(작은 넓이·큰 넓이), 29절(미적분학의 기본 정리)에서 결정적인 순간마다 다시 등장합니다.</p>
+<div class="qna" data-q="가운데 함수가 경계 사이에 있다는 건 어떻게 확인하나요?">sin 의 값은 언제나 −1 과 1 사이입니다. 그래서 x² 을 곱하면 −x² ≤ x²·sin(1/x) ≤ x² 가 모든 x(0 제외)에서 성립합니다. 그림이 아니라 <b>이 부등식</b>이 근거입니다. 실험 7의 판정줄은 화면에 보이는 구간의 수천 개 점에서 이 부등식을 실제로 검사한 결과입니다.</div>
+</section>
+
+<section id="s10">
+<h2><span class="no">10</span>연속</h2>
+<div class="bridge">7절에서 극한과 실제 값이 어긋나는 경우들을 보았습니다. 둘이 <b>만나는</b> 경우에 이름을 붙이겠습니다.</div>
+<p>함수가 어떤 입력 a 에서 <b>연속</b>이라는 것은 다음 세 조건이 모두 성립한다는 뜻입니다.</p>
+<div class="card"><ol>
+  <li>그 입력에서 함숫값 f(a) 가 <b>있다</b>.</li>
+  <li>주변 값이 양쪽에서 <b>하나의 값으로 모인다</b>(극한이 있다).</li>
+  <li>그 극한이 실제 함숫값과 <b>같다</b>.</li>
+</ol></div>
+<p>실험 5로 돌아가 판정줄의 '연속' 칸을 보세요. 구멍이 남아 있으면 1번부터 어긋나고, 다른 높이에 점을 찍으면 3번이 어긋나며, 양쪽 높이가 다르면 2번이 어긋납니다. 구멍을 <b>맞는 높이로 채우면</b>(이어진 직선) 그 지점에서 연속이 됩니다. 한 번에 한 조건씩 보면 끊김의 이유를 구별할 수 있습니다.</p>
+<p>연속인 그래프가 모두 매끈한 것은 아닙니다. 뾰족한 모서리는 이어져 있어도 그 점에서 기울기가 하나로 정해지지 않습니다. 이 차이는 15절에서 미분과 함께 다시 확인합니다.</p>
+</section>
+
+<section id="s11">
+<h2><span class="no">11</span>사이값 정리</h2>
+<p>연속이라는 조건으로 무엇을 알 수 있을까요? 아침 기온이 10도이고 나중 기온이 20도였다고 하겠습니다. 기온이 끊기지 않고 변했다면 중간에 15도인 순간도 반드시 있었을 것입니다. 10도에서 20도로 가면서 15도만 건너뛸 수는 없기 때문입니다.</p>
+<p>그래프로는, 두 끝 높이 사이에 아무 가로선이나 그으면 <b>연속인 곡선은 그 가로선과 적어도 한 번 만난다</b>는 뜻입니다. 이것이 <b>사이값 정리</b>(intermediate value theorem)입니다.</p>
+<div class="lab" id="L8">
+  <p class="labtitle">실험 8 · 가로선은 반드시 곡선과 만나는가</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 가로선의 높이 k 를 10 과 20 사이에서 움직이며 <b>만나는 점이 몇 개인지</b> 보세요. 하나일 때도, 여럿일 때도 있습니다. 그다음 [끊긴 기온 기록] 으로 바꿔, 연속이 아니면 가로선이 곡선을 <b>못 만나는</b> 높이가 생기는 것을 확인하세요.</p>
+  <div class="seg" id="m8"><button type="button" data-v="c" class="on">이어진 기온 기록</button><button type="button" data-v="j">끊긴 기온 기록</button></div>
+  <canvas id="c8"></canvas>
+  <div class="ctrl"><label for="k8">가로선 높이 k (도)</label><input type="range" id="k8" min="10" max="20" step="0.1" value="15"><output id="k8o"></output></div>
+  <div class="read" id="r8"></div>
+</div>
+<p>정리가 말하는 것은 '적어도 한 번'입니다. 딱 한 번이라는 뜻도, 만나는 위치를 계산해 준다는 뜻도 아닙니다. 그리고 연속이 아니면 중간 높이를 뛰어넘을 수 있으니, 끊기지 않았는지부터 확인해야 합니다.</p>
+<p>특히 한쪽 끝의 값이 음수, 다른 쪽 끝의 값이 양수라면 그 사이에 <b>함숫값이 0 인 곳 c</b> 가 적어도 하나 있습니다(c 는 그 사이 어딘가에 있는 입력의 이름입니다). 방정식에 해가 있다는 사실을, 정확한 해를 구하기 <b>전에</b> 알 수 있는 것입니다.</p>
+</section>
+
+<p class="part">3부 · 미분 — 순간의 기울기</p>
+
+<section id="s12">
+<h2><span class="no">12</span>미분 기호 읽기</h2>
+<div class="bridge">극한이라는 도구를 손에 쥐었으니 5절에서 멈췄던 물음, <b>한 순간의 변화율</b>로 돌아갑니다. 기호부터 겁먹지 않도록 먼저 읽는 법을 정하겠습니다.</div>
+<p>f(x) 는 입력 x 에서의 <b>함숫값(높이)</b>이었습니다. f 의 오른쪽 위에 작은 획을 붙인 <b>f′(x)</b> 는 '에프 프라임 엑스'라고 읽고, 그 입력에서의 <b>순간 변화율(기울기)</b>을 뜻합니다. f(2) 는 x = 2 의 높이, f′(2) 는 x = 2 의 기울기입니다. 둘이 우연히 같은 숫자가 되어도 뜻은 다릅니다.</p>
+<p>한 입력에서의 순간 변화율 하나를 <b>미분계수</b>라고 부르고, 입력을 바꿔 가며 미분계수를 모두 모아 만든 새 함수를 <b>도함수</b>라고 부릅니다. 같은 것을 <b>dy/dx</b> 로도 씁니다. "x 에 대한 y 의 순간 변화율"이라고 읽으시면 됩니다. d/dx 뒤에 함수가 붙으면 "이 함수를 x 에 대해 미분하라"는 명령입니다. dy/dx 를 처음부터 dy 를 dx 로 나눈 보통 분수로 생각하면 안 됩니다. 이 기호의 출발점은 다음 극한입니다.</p>
+<div class="eq"><span class="eqlab">미분계수의 정의</span>
+<math display="block"><msup><mi>f</mi><mo>′</mo></msup><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo movablelimits="false">lim</mo><mrow><mi>h</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo><mo>−</mo><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><mi>h</mi></mfrac></math>
+<span class="note">h 는 두 입력 사이의 작은 간격을 잠시 부르는 이름입니다. 지금 외우지 않으셔도 됩니다. 다음 절에서 그림의 각 부분을 가져와 이 식을 직접 만듭니다.</span></div>
+</section>
+
+<section id="s13">
+<h2><span class="no">13</span>x = 2 에서의 순간 변화율</h2>
+<p>f(x) = x² 의 그래프에서 x = 2 의 순간 변화율을 구하겠습니다. 가로로 h 만큼 떨어진 곳에 점을 하나 더 잡습니다. 가로 변화량은 h, 세로 변화량은 두 점의 높이 차이 f(2 + h) − f(2) 입니다. 세로 변화량을 가로 변화량으로 나눈 값이 두 점을 잇는 직선의 기울기입니다. 여기에 3절의 두 계산을 그대로 씁니다.</p>
+<div class="eq"><math display="block"><mfrac><mrow><msup><mrow><mo stretchy="false">(</mo><mn>2</mn><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>−</mo><mn>4</mn></mrow><mi>h</mi></mfrac><mo>=</mo><mfrac><mrow><mn>4</mn><mo>+</mo><mn>4</mn><mi>h</mi><mo>+</mo><msup><mi>h</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn></mrow><mi>h</mi></mfrac><mo>=</mo><mfrac><mrow><mi>h</mi><mo stretchy="false">(</mo><mn>4</mn><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mi>h</mi></mfrac><mo>=</mo><mn>4</mn><mo>+</mo><mi>h</mi></math>
+<span class="note">제곱을 펼치면 4 와 −4 가 사라지고, 남은 4h + h² 을 h 로 묶어 약분합니다. h 는 아직 0 이 아닙니다. 0 에 <b>가까워지는 중</b>입니다.</span></div>
+<div class="lab" id="L9">
+  <p class="labtitle">실험 9 · 두 번째 점을 바짝 붙이면 할선이 접선이 된다</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 간격 h 를 줄여 보세요. 오른쪽(h &gt; 0)에서 줄여도, 왼쪽(h &lt; 0)에서 줄여도 기울기 칸의 값이 <b>같은 수 4</b> 로 모이는지 보시고, h = 0 에 정확히 놓으면 무슨 일이 일어나는지도 확인해 보세요.</p>
+  <canvas id="c9"></canvas>
+  <div class="ctrl"><label for="h9">간격 h</label><input type="range" id="h9" min="-1.5" max="1.5" step="0.01" value="1"><output id="h9o"></output></div>
+  <div class="read" id="r9"></div>
+</div>
+<p>간격이 줄어들수록 기울기는 4 에 가까워지고, 왼쪽에서 다가가도 같은 4 로 향합니다. 이 극한값이 그 점에서 곡선에 살짝 닿는 직선, 곧 <b>접선의 기울기</b>입니다. 따라서 x = 2 의 순간 변화율은 <b>f′(2) = 4</b> 입니다. 1절의 점으로 말하면 '2초인 바로 그 순간의 속도가 초속 4m' 입니다.</p>
+</section>
+
+<section id="s14">
+<h2><span class="no">14</span>도함수 — 기울기를 모은 함수</h2>
+<div class="bridge">13절은 x = 2 라는 한 점의 답이었습니다. 이제 <b>어느 점에서나</b> 답을 알고 싶습니다.</div>
+<p>기준점을 a 라고 놓고 같은 계산을 합니다. 옆 입력은 a + h, 간격은 h, 높이 차이를 간격으로 나누는 구조는 그대로입니다.</p>
+<div class="eq"><math display="block"><mfrac><mrow><msup><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>−</mo><msup><mi>a</mi><mn>2</mn></msup></mrow><mi>h</mi></mfrac><mo>=</mo><mfrac><mrow><mn>2</mn><mi>a</mi><mi>h</mi><mo>+</mo><msup><mi>h</mi><mn>2</mn></msup></mrow><mi>h</mi></mfrac><mo>=</mo><mn>2</mn><mi>a</mi><mo>+</mo><mi>h</mi><mspace width="1em"/><mover><mo>⟶</mo><mrow><mi>h</mi><mo>→</mo><mn>0</mn></mrow></mover><mspace width="1em"/><mn>2</mn><mi>a</mi></math>
+<span class="note">기준점이 1 이면 기울기 2, 3 이면 기울기 6. 제곱 함수의 기울기는 <b>입력의 두 배</b>입니다.</span></div>
+<div class="lab" id="L10">
+  <p class="labtitle">실험 10 · 기울기를 옮겨 적으면 새 그래프가 생긴다</p>
+  <p class="look"><b>무엇을 볼까요</b> 왼쪽은 원래 함수 y = x², 오른쪽은 <b>기울기를 기록할 좌표</b>입니다. 막대로 a 를 옮길 때마다 그 점의 접선 기울기가 오른쪽에 점으로 찍혀 쌓입니다. 끝에서 끝까지 천천히 움직여 오른쪽에 어떤 모양이 생기는지 보세요(▶ 를 누르면 자동으로 훑습니다).</p>
+  <canvas id="c10"></canvas>
+  <div class="ctrl"><label for="a10">기준점 a</label><input type="range" id="a10" min="-2" max="2" step="0.05" value="1"><output id="a10o"></output></div>
+  <div class="btns"><button type="button" id="p10">▶ 처음부터 훑기</button><button type="button" id="x10">기록 지우기</button></div>
+  <div class="read" id="r10"></div>
+</div>
+<p>입력이 0 이면 접선이 수평이라 기울기도 0, 음수 쪽에서는 기울기가 음수입니다. 접선의 기울기를 차례로 옮기면 오른쪽에 직선 y = 2x 가 생깁니다. 이렇게 만든 함수가 <b>도함수</b>입니다. 원래 함수의 높이를 옮긴 것이 아니라, <b>같은 입력에서의 기울기를 새 높이로 삼은 것</b>입니다. 그래서 도함수의 값은 원래 함수가 어떻게 변하는지 알려 줍니다. 한 점에서 미분계수를 구하고, 모든 점에서 모으면 도함수가 됩니다.</p>
+</section>
+
+<section id="s15">
+<h2><span class="no">15</span>이어져 있어도 미분 못 하는 곳</h2>
+<div class="bridge">10절 끝에서 미뤄 둔 "뾰족한 모서리"를 이제 확인합니다.</div>
+<p>절댓값 |x| 는 0 에서 얼마나 떨어져 있는지를 나타냅니다. 양수 쪽은 그대로, 음수 쪽은 부호를 바꾸므로 원점에서 뾰족한 V 모양이 됩니다. 그래프는 원점에서 끊기지 않고 이어져 있습니다(연속). 그런데 기울기는 어떨까요?</p>
+<div class="lab" id="L11">
+  <p class="labtitle">실험 11 · 오른쪽 기울기와 왼쪽 기울기</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 h 를 0 쪽으로 줄이며, 원점과 (h, |h|) 를 잇는 할선의 기울기를 보세요. 13절에서는 양쪽이 같은 수로 모였는데, 여기서는 <b>오른쪽과 왼쪽이 끝까지 다른 수</b>에 머뭅니다.</p>
+  <canvas id="c11"></canvas>
+  <div class="ctrl"><label for="h11">간격 h</label><input type="range" id="h11" min="-1.5" max="1.5" step="0.01" value="0.8"><output id="h11o"></output></div>
+  <div class="read" id="r11"></div>
+</div>
+<p>오른쪽에서 보면 기울기는 1, 왼쪽에서 보면 −1 입니다. 점의 높이는 양쪽이 같아지지만 두 방향의 기울기는 같아지지 않으므로, <b>원점에서 도함수 값 하나를 정할 수 없습니다.</b> 연속이라는 조건만으로는 미분할 수 있다고 할 수 없습니다. 반대로 <b>미분할 수 있는 점에서는 반드시 연속</b>입니다. 한쪽 기울기만 보고 접선이 있다고 판단하면 안 됩니다. 정의는 이처럼 공식을 쓰면 안 되는 지점도 알려 줍니다.</p>
+<div class="qna" data-q="미분할 수 있으면 왜 반드시 연속인가요?">미분할 수 있다는 것은 [f(a+h) − f(a)] / h 가 어떤 수 L 로 모인다는 뜻입니다. 그러면 높이 차이 f(a+h) − f(a) = (그 비율) × h 이고, h → 0 일 때 L × 0 = 0 으로 갑니다. 높이 차이가 0 으로 간다는 것이 곧 f(a+h) → f(a), 즉 연속입니다. 거꾸로는 성립하지 않는다는 반례가 바로 |x| 입니다.</div>
+</section>
+
+<section id="s16">
+<h2><span class="no">16</span>평균값 정리</h2>
+<div class="bridge">4절의 평균 변화율과 13절의 순간 변화율 사이에도 연결이 있습니다.</div>
+<p>곡선 위 두 점을 잇는 직선을 긋습니다. 그 기울기는 구간 전체의 평균 변화율입니다. 이제 곡선을 따라 접선을 움직여 보면, 어딘가에서는 <b>접선이 두 점을 잇는 직선과 평행</b>해집니다. 그 순간의 기울기가 평균 기울기와 같은 것입니다. 이것을 <b>평균값 정리</b>(mean value theorem)라고 합니다.</p>
+<div class="eq"><span class="eqlab">평균값 정리</span>
+<math display="block"><msup><mi>f</mi><mo>′</mo></msup><mo stretchy="false">(</mo><mi>c</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>b</mi><mo stretchy="false">)</mo><mo>−</mo><mi>f</mi><mo stretchy="false">(</mo><mi>a</mi><mo stretchy="false">)</mo></mrow><mrow><mi>b</mi><mo>−</mo><mi>a</mi></mrow></mfrac><mspace width="1em"/><mtext>인 c 가 a 와 b 사이에 적어도 하나 있다</mtext></math>
+<span class="note">조건: 끝점을 포함한 구간에서 <b>연속</b>, 구간 안쪽에서 <b>미분 가능</b>(뾰족한 모서리 없음).</span></div>
+<div class="lab" id="L12">
+  <p class="labtitle">실험 12 · 접선을 미끄러뜨려 평행한 곳 찾기</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 접점 p 를 움직이며 금색 접선과 초록 할선이 <b>평행해지는 순간</b>을 찾아보세요. [평행한 곳 모두 찾기] 를 누르면 그런 c 가 몇 개인지 계산해 표시합니다. 하나가 아닐 수도 있습니다.</p>
+  <canvas id="c12"></canvas>
+  <div class="ctrl"><label for="p12">접점 p</label><input type="range" id="p12" min="0" max="4" step="0.01" value="0.6"><output id="p12o"></output></div>
+  <div class="btns"><button type="button" id="f12">평행한 곳 모두 찾기</button></div>
+  <div class="read" id="r12"></div>
+</div>
+<p>자동차의 평균 속도가 시속 60km 였다면, 이 조건 아래에서 순간 속도계가 정확히 60 을 가리킨 순간이 적어도 한 번은 있었다는 뜻입니다.</p>
+<div class="key"><b class="h">이 정리에서 나오는 특별한 결론</b> 구간 전체에서 도함수가 0 이라면, 어느 두 점을 골라도 평균 변화율이 0(어떤 c 에서의 기울기)이므로 두 높이가 같습니다. 따라서 그 함수는 <b>상수</b>입니다. 28절과 30절에서 적분 상수가 왜 생기고 왜 사라지는지 설명할 때 이 사실을 그대로 씁니다.</div>
+</section>
+
+<section id="s17">
+<h2><span class="no">17</span>미분 규칙</h2>
+<p>매번 극한을 계산하지 않도록 자주 쓰는 결과를 모아 둡니다. 각각이 어디서 왔는지만 짚고 가겠습니다.</p>
+<ul>
+  <li><b>상수</b> — 상수 함수 y = C 는 어느 구간에서도 높이가 변하지 않으므로 도함수는 0 입니다. 여기서 대문자 C 는 입력이 달라져도 바뀌지 않는 고정된 수입니다.</li>
+  <li><b>직선</b> — y = mx + b 는 어디서나 기울기가 m 이므로 도함수도 m 입니다. m 은 기울기, b 는 그래프를 위아래로 옮기는 수입니다.</li>
+  <li><b>제곱</b> — 14절에서 2x 를 얻었습니다.</li>
+  <li><b>세제곱</b> — 같은 변화량의 비를 적용하면, 펼친 뒤 h 로 나누었을 때 세 항이 남고, h → 0 이면 3x² 만 남습니다.</li>
+</ul>
+<div class="eq"><math display="block"><mfrac><mrow><msup><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mn>3</mn></msup><mo>−</mo><msup><mi>x</mi><mn>3</mn></msup></mrow><mi>h</mi></mfrac><mo>=</mo><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>3</mn><mi>x</mi><mi>h</mi><mo>+</mo><msup><mi>h</mi><mn>2</mn></msup><mspace width="1em"/><mover><mo>⟶</mo><mrow><mi>h</mi><mo>→</mo><mn>0</mn></mrow></mover><mspace width="1em"/><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup></math></div>
+<p>거듭제곱의 차수를 n(1, 2, 3 처럼 양의 정수)이라고 쓰면 이 패턴이 이어집니다. 또 함수를 더하면 변화량도 더해지고, 일정한 배수 c 를 곱하면 기울기도 c 배가 됩니다. 그래서 다항식은 <b>항마다 따로 미분</b>해서 더하면 됩니다.</p>
+<div class="eq"><span class="eqlab">거듭제곱 · 합 · 상수배</span>
+<math display="block"><mfrac><mi>d</mi><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><msup><mi>x</mi><mi>n</mi></msup><mo>=</mo><mi>n</mi><msup><mi>x</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mspace width="1.4em"/><msup><mrow><mo stretchy="false">(</mo><mi>f</mi><mo>+</mo><mi>g</mi><mo stretchy="false">)</mo></mrow><mo>′</mo></msup><mo>=</mo><msup><mi>f</mi><mo>′</mo></msup><mo>+</mo><msup><mi>g</mi><mo>′</mo></msup><mspace width="1.4em"/><msup><mrow><mo stretchy="false">(</mo><mi>c</mi><mi>f</mi><mo stretchy="false">)</mo></mrow><mo>′</mo></msup><mo>=</mo><mi>c</mi><msup><mi>f</mi><mo>′</mo></msup></math></div>
+<div class="lab" id="L13">
+  <p class="labtitle">실험 13 · n x<sup>n−1</sup> 은 정말 극한값인가</p>
+  <p class="look"><b>무엇을 볼까요</b> 그래프의 가로축은 x 가 아니라 <b>간격 h</b> 입니다. 곡선은 h 마다 계산한 기울기 [(x+h)<sup>n</sup> − x<sup>n</sup>]/h 이고, 점선은 규칙이 말하는 값 n·x<sup>n−1</sup> 입니다. 차수 n 과 위치 x 를 바꿔도 곡선이 h = 0 자리에서 <b>점선에 닿으러 오는지</b> 보세요. h = 0 자리 자체는 빈 동그라미입니다.</p>
+  <canvas id="c13"></canvas>
+  <div class="ctrl"><label for="n13">차수 n</label><input type="range" id="n13" min="1" max="5" step="1" value="3"><output id="n13o"></output></div>
+  <div class="ctrl"><label for="x13">위치 x</label><input type="range" id="x13" min="-1.5" max="1.5" step="0.05" value="1"><output id="x13o"></output></div>
+  <div class="ctrl"><label for="h13">간격 h</label><input type="range" id="h13" min="-1" max="1" step="0.01" value="0.5"><output id="h13o"></output></div>
+  <div class="read" id="r13"></div>
+</div>
+<p>사인 함수와 지수 함수도 미분할 수 있지만, 그러려면 각 함수의 성질이 하나씩 더 필요합니다. 19절부터 그 함수들을 소개하겠습니다.</p>
+</section>
+
+<section id="s18">
+<h2><span class="no">18</span>변화율의 변화 — 이계도함수</h2>
+<p>함수가 <b>증가한다</b>는 것과 <b>더 빠르게 증가한다</b>는 것은 다릅니다. 기울기가 양수인 구간에서 함수는 증가하고, 음수인 구간에서는 감소합니다. 이번에는 <b>기울기 자체가 커지는지</b>를 봅니다. 접선이 점점 가팔라진다면 도함수도 증가하고 있는 것입니다.</p>
+<p>프라임을 두 번 붙인 <b>f″(x)</b> 는 한 번 구한 도함수를 다시 미분했다는 뜻이고, 이것을 <b>이계도함수</b>라고 부릅니다. 원래 값의 변화율이 아니라 <b>변화율 자체가 변하는 정도</b>를 봅니다. 위치의 변화율이 속도라면, 속도의 변화율은 <b>가속도</b>입니다. 1절의 s = t² 에서는 속도가 2t, 가속도가 2 입니다.</p>
+<div class="lab" id="L14">
+  <p class="labtitle">실험 14 · 위치, 속도, 가속도를 한 줄로</p>
+  <p class="look"><b>무엇을 볼까요</b> 세 그래프는 위에서부터 위치 s, 속도 s′, 가속도 s″ 입니다. 막대로 시각 t 를 옮기며 세 값의 부호를 보세요. [늘지만 느려지는 움직임] 으로 바꾸면 <b>위치는 계속 늘고 속도도 양수인데 가속도는 음수</b>인 장면이 나옵니다.</p>
+  <div class="seg" id="m14"><button type="button" data-v="sq" class="on">s = t² (점점 빨라짐)</button><button type="button" data-v="sat">늘지만 느려지는 움직임</button></div>
+  <canvas id="c14"></canvas>
+  <div class="ctrl"><label for="t14">시각 t (초)</label><input type="range" id="t14" min="0" max="3" step="0.01" value="1.5"><output id="t14o"></output></div>
+  <div class="read" id="r14"></div>
+</div>
+<p>양은 계속 늘지만 증가 속도는 둔해지는 함수도 있습니다. <b>값, 변화율, 변화율의 변화</b>를 구별하면 그래프를 한 겹 더 깊이 읽을 수 있습니다. 34절에서 이 눈으로 실제 그래프를 읽어 봅니다.</p>
+</section>
+
+<section id="s19">
+<h2><span class="no">19</span>사인과 코사인 — 원 위의 점</h2>
+<div class="bridge">반복되는 변화의 대표로 사인 함수를 봅니다. 새 공식을 외우기보다, <b>높이</b>와 <b>그 높이의 변화율</b>이 어떻게 다른지에 집중해 주세요.</div>
+<p>반지름이 1 인 원 위에서 점 하나를 움직입니다. 오른쪽 방향을 출발선으로 삼고, 시계 반대 방향으로 돌아간 <b>각도</b>를 x 라고 부르겠습니다. 여기서 x 는 점의 가로 좌표가 아니라 <b>돌아간 각도</b>라는 점에 주의해 주세요. 각도 x 에 대응하는 점의 <b>높이(세로 좌표)를 sin x</b>, 같은 점의 <b>가로 좌표를 cos x</b> 라고 씁니다. 같은 점에서 읽는 서로 다른 두 값입니다.</p>
+<p>출발점에서는 높이 0, 4분의 1 바퀴를 돌면 맨 위라서 높이 1, 반 바퀴에서 다시 0, 아래쪽 반원에서는 음수입니다. 사인은 위아래 방향까지 기록합니다. 원을 한 바퀴 돌면 같은 위치로 돌아오므로 높이도 반복되고, 이 높이를 각도에 따라 펼쳐 놓으면 물결 모양 그래프가 됩니다.</p>
+<h3>각도의 단위 — 라디안</h3>
+<p>미적분에서는 각도를 <b>라디안</b>으로 잽니다. 원둘레를 따라 <b>반지름만큼의 길이</b>를 갔을 때의 각도가 1 라디안입니다. 반지름 1 인 원의 둘레는 2π 이므로 한 바퀴는 2π 라디안, 반 바퀴는 π, 4분의 1 바퀴는 π/2 입니다. π 는 원둘레를 지름으로 나눈 비로 약 3.14 입니다. 반지름이 1 이면 <b>각도(라디안) = 원호의 길이</b>가 되는 것이 이 단위의 핵심입니다.</p>
+<div class="lab" id="L15">
+  <p class="labtitle">실험 15 · 원을 돌면 물결이 펼쳐진다</p>
+  <p class="look"><b>무엇을 볼까요</b> 왼쪽 원 위의 점의 <b>높이(분홍)</b>가 오른쪽 물결의 높이로 그대로 옮겨집니다. 물결의 가로축은 점의 가로 위치가 아니라 <b>얼마나 돌았는가(각도)</b> 입니다. [1 라디안 보기] 를 누르면 반지름과 같은 길이의 원호가 표시됩니다.</p>
+  <canvas id="c15"></canvas>
+  <div class="ctrl"><label for="x15">각도 x (라디안)</label><input type="range" id="x15" min="0" max="6.2832" step="0.01" value="1"><output id="x15o"></output></div>
+  <div class="btns"><button type="button" id="p15">▶ 한 바퀴 돌리기</button><button type="button" id="o15">1 라디안 보기</button></div>
+  <div class="read" id="r15"></div>
+</div>
+</section>
+
+<section id="s20">
+<h2><span class="no">20</span>사인을 미분하면 코사인</h2>
+<p>라디안으로 잴 때 사인의 도함수는 코사인입니다. 처음에는 높이가 빠르게 늘고, 꼭대기에서는 잠깐 기울기가 0 이 됩니다. 코사인의 값도 바로 그때 0 이 되어 높이의 변화율을 정확히 나타냅니다.</p>
+<div class="eq"><math display="block"><mfrac><mi>d</mi><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><mi>sin</mi><mi>x</mi><mo>=</mo><mi>cos</mi><mi>x</mi><mspace width="1em"/><mtext>(x 는 라디안)</mtext></math></div>
+<div class="lab" id="L16">
+  <p class="labtitle">실험 16 · 사인 곡선의 기울기를 재어 코사인과 견주기</p>
+  <p class="look"><b>무엇을 볼까요</b> 보라 곡선은 sin x, 금색 선분은 그 점의 접선, 파란 점선은 cos x 입니다. 막대로 x 를 옮기며 <b>접선의 기울기(측정값)</b>와 <b>cos x</b> 가 같은지 보세요. 꼭대기(x ≈ 1.57)에서 높이는 가장 큰데 기울기는 0 인 것도 확인하세요.</p>
+  <canvas id="c16"></canvas>
+  <div class="ctrl"><label for="x16">각도 x (라디안)</label><input type="range" id="x16" min="0" max="6.2832" step="0.01" value="0.8"><output id="x16o"></output></div>
+  <div class="read" id="r16"></div>
+</div>
+<p><b>높이가 가장 크다고 높이가 가장 빠르게 늘어나는 것은 아닙니다.</b> 꼭대기에서는 높이가 잠깐 거의 변하지 않습니다. 함숫값과 변화율을 구별하는 좋은 예입니다.</p>
+<div class="qna" data-q="각도를 도(°)로 재면 공식이 왜 달라지나요?">각도 단위를 바꾸면 입력 '한 칸'의 크기가 바뀌므로 기울기의 숫자도 바뀝니다. 1° 는 π/180 라디안(약 0.01745)이라, 도로 잰 각도 u 에 대해 d/du sin(u°) = (π/180)·cos(u°) 가 됩니다. 앞에 붙는 군더더기 π/180 이 사라지는 단위가 라디안이고, 그래서 미적분은 라디안을 씁니다. 그 이유가 다음 절의 sin h / h → 1 입니다.</div>
+<div class="bridge">그런데 <b>왜 정확히</b> 코사인이 될까요? 핵심은 <b>아주 작은 각도에서 원호의 길이와 높이가 거의 같아진다</b>는 데 있습니다. 다음 두 절이 그 이유를 그림으로 보여 줍니다.</div>
+</section>
+
+<section id="s21">
+<h2><span class="no">21</span>★ 세 삼각형의 넓이 — sin h / h → 1</h2>
+<p>아주 작은 각도를 잠시 h 라고 부르겠습니다. 반지름이 1 이므로 각도 h 는 곧 원호의 길이이고, sin h 는 그 원호 끝의 높이입니다. 라디안에서 h 가 0 으로 갈 때 sin h 를 h 로 나눈 비는 1 로 갑니다. h = 0 을 바로 넣으면 0/0 이 되므로(8절의 신호), 가까운 각도부터 비교해야 합니다. 각도가 0.1 이면 이 비는 약 0.998, 더 작게 하면 1 에 더 가까워집니다. 두 길이가 비슷해지는 모습입니다.</p>
+<p>그런데 이것은 몇 개의 숫자일 뿐 증명이 아닙니다(6절). 이 극한을 확실히 하는 방법이 <b>넓이 세 개로 위아래를 가두는 것</b>입니다. 9절의 샌드위치 정리를 쓸 차례입니다.</p>
+
+<div class="lab" id="L17">
+  <p class="labtitle">실험 17 · 안쪽 삼각형 ≤ 부채꼴 ≤ 바깥쪽 삼각형</p>
+  <p class="look"><b>무엇을 볼까요</b> 단추를 1) → 2) → 3) 순서로 눌러 세 도형을 <b>하나씩</b> 켜 보세요. 각 도형의 넓이는 꼭짓점 O, A, P, T 의 좌표로 구합니다. 막대로 각도 h 를 바꿔도 <b>세 넓이의 크기 순서가 한 번도 뒤집히지 않는지</b> 오른쪽 막대그래프에서 확인하세요.</p>
+  <div class="seg" id="m17"><button type="button" data-v="1">1) 원 안쪽 삼각형</button><button type="button" data-v="2">2) 부채꼴</button><button type="button" data-v="3">3) 바깥쪽 삼각형</button><button type="button" data-v="all" class="on">셋 모두</button></div>
+  <canvas id="c17"></canvas>
+  <div class="ctrl"><label for="h17">각도 h (라디안)</label><input type="range" id="h17" min="0.05" max="1.35" step="0.01" value="0.7"><output id="h17o"></output></div>
+  <div class="legend"><span><span class="sw" style="background:var(--b)"></span>안쪽 삼각형 OAP</span><span><span class="sw" style="background:var(--f)"></span>부채꼴 OAP</span><span><span class="sw" style="background:var(--d)"></span>바깥쪽 삼각형 OAT</span></div>
+  <div class="read" id="r17"></div>
+</div>
+
+<h3>세 도형의 넓이 읽기</h3>
+<p>원의 중심을 O, 출발점을 A(1, 0), 각도 h 만큼 돈 원 위의 점을 P(cos h, sin h) 라고 합니다. A 에서 원에 접하는 세로선(접선)과 반지름 OP 의 연장선이 만나는 점을 T 라고 합니다.</p>
+<div class="card"><ol>
+  <li><b>원 안쪽 삼각형 OAP</b> — 밑변 OA = 1, 높이는 P 의 높이 sin h. 넓이 = ½ · 1 · sin h</li>
+  <li><b>부채꼴 OAP</b> — 반지름 1, 중심각 h. 원 전체 넓이 π 중 h/(2π) 만큼이므로 넓이 = ½ · h</li>
+  <li><b>바깥쪽 삼각형 OAT</b> — 밑변 OA = 1, 높이 AT. 삼각형 OAT 와 '점 P 에서 내린 수선'이 만드는 삼각형은 닮음이라 AT = sin h / cos h = tan h. 넓이 = ½ · 1 · tan h</li>
+</ol></div>
+<p>세 도형은 하나가 다른 하나를 통째로 품고 있으므로, 넓이가 이 순서로 커집니다.</p>
+<div class="eq"><span class="eqlab">넓이의 순서</span>
+<math display="block"><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>sin</mi><mi>h</mi><mo>≤</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>h</mi><mo>≤</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>tan</mi><mi>h</mi></math>
+<span class="note">0 &lt; h &lt; π/2 인 작은 양의 각도에서 성립합니다.</span></div>
+<p>이 부등식을 정리해 sin h / h 의 위아래 경계를 얻습니다. 1) 세 항에 2 를 곱하고, 2) 모두 양수인 sin h 로 나눈 뒤, 3) 세 항의 역수를 취하면(양수끼리 역수를 취하면 부등호 방향이 뒤집힙니다) 다음이 나옵니다.</p>
+<div class="eq"><math display="block"><mn>1</mn><mo>≤</mo><mfrac><mi>h</mi><mrow><mi>sin</mi><mi>h</mi></mrow></mfrac><mo>≤</mo><mfrac><mn>1</mn><mrow><mi>cos</mi><mi>h</mi></mrow></mfrac><mspace width="1.2em"/><mo stretchy="false">⟹</mo><mspace width="1.2em"/><mi>cos</mi><mi>h</mi><mo>≤</mo><mfrac><mrow><mi>sin</mi><mi>h</mi></mrow><mi>h</mi></mfrac><mo>≤</mo><mn>1</mn></math>
+<span class="note">작은 양의 각도에서 sin h / h 는 <b>cos h 와 1 사이</b>에 갇힙니다.</span></div>
+<div class="lab" id="L18">
+  <p class="labtitle">실험 18 · 두 경계가 1 로 조여든다</p>
+  <p class="look"><b>무엇을 볼까요</b> 가로축은 각도 h 입니다. 아래 경계 cos h(파랑)와 위 경계 1(금색) 사이에 가운데 sin h / h(보라)가 끼어 있습니다. 막대로 h 를 0 쪽으로 줄여 <b>두 경계의 틈</b>이 0 으로 줄어드는 것을 보세요. 위 실험 17의 막대와 같은 h 를 공유합니다.</p>
+  <canvas id="c18"></canvas>
+  <div class="read" id="r18"></div>
+</div>
+<p>h 가 0 으로 가면 cos h 는 1 로, 위 경계는 처음부터 1 입니다. <b>양쪽 경계가 모두 1 로 모이므로</b>, 그 사이에 갇힌 sin h / h 도 1 로 갈 수밖에 없습니다. 이것이 샌드위치 정리입니다.</p>
+<div class="eq"><span class="eqlab">결론</span>
+<math display="block"><munder><mo movablelimits="false">lim</mo><mrow><mi>h</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mi>sin</mi><mi>h</mi></mrow><mi>h</mi></mfrac><mo>=</mo><mn>1</mn></math></div>
+<div class="qna" data-q="음수 각도에서도 1로 가나요?">네. 각도의 부호를 바꾸면 sin 도 부호가 바뀌므로 sin(−h)/(−h) = (−sin h)/(−h) = sin h / h 로 값이 똑같습니다. 그래서 양의 각도에서 보인 결론이 음의 각도에서도 그대로 성립하고, 양쪽 극한이 같으므로(6절) 극한은 1 입니다.</div>
+<div class="qna" data-q="부채꼴 넓이가 ½h 인 것은 왜 라디안일 때만인가요?">부채꼴은 원 전체 넓이를 중심각의 비율만큼 나눠 가집니다. 반지름 1 인 원의 넓이는 π, 한 바퀴는 2π 라디안이므로 중심각 h 의 부채꼴은 π × h/(2π) = h/2 입니다. 각도를 도로 재면 한 바퀴가 360 이라 넓이가 π·h/360 이 되어, sin h / h 의 극한도 1 이 아니라 π/180 이 됩니다. 20절 질문의 그 π/180 입니다.</div>
+</section>
+
+<section id="s22">
+<h2><span class="no">22</span>★ 작은 원호와 닮은 삼각형 — 왜 cos x 인가</h2>
+<div class="bridge">21절은 출발점(각도 0) 근처에서 <b>원호 ≈ 높이</b>임을 보였습니다. 이제 원의 <b>다른 위치</b>에서 아주 조금만 더 돌아보겠습니다. 같은 작은 각도를 돌아도 높이가 늘어나는 몫은 위치마다 다릅니다.</div>
+<p>각도 x 에 있는 점을 아주 작은 각도 Δx 만큼 더 돌립니다. 반지름이 1 이므로 점이 움직인 원호의 길이도 Δx 입니다. 아주 짧은 원호는 그 점의 <b>접선 방향</b>과 거의 같습니다. 그리고 <b>접선은 반지름과 직각</b>입니다.</p>
+<p>이 작은 이동을 세로 성분 Δy(높이 변화)와 가로 성분으로 나누면 작은 직각삼각형이 생깁니다. 이 작은 삼각형은 반지름 1 을 빗변으로 하는 큰 직각삼각형(가로 cos x, 세로 sin x)과 <b>닮은꼴</b>입니다. 접선이 반지름에 수직이라 한 각이 x 로 같기 때문입니다. 큰 삼각형에서 <b>빗변 1 에 대응하는 것이 가로 cos x</b> 이듯, 작은 삼각형에서 <b>빗변 Δx 에 대응하는 세로 이동은 cos x · Δx</b> 입니다.</p>
+<div class="lab" id="L19">
+  <p class="labtitle">실험 19 · 작은 이동을 확대해 닮은 삼각형 보기</p>
+  <p class="look"><b>무엇을 볼까요</b> 왼쪽은 원과 큰 삼각형(가로 cos x), 오른쪽은 작은 이동을 <b>확대한 창</b>입니다. 막대로 Δx 를 줄이면 실제 높이 변화 Δy 와 cos x · Δx 의 비가 1 에 가까워지는지 보세요. 각도 x 를 바꾸면 <b>같은 Δx 를 돌아도 위치에 따라 Δy 가 달라지는</b> 것도 확인하세요(맨 위 근처에서는 거의 0).</p>
+  <canvas id="c19"></canvas>
+  <div class="ctrl"><label for="x19">현재 각도 x (라디안)</label><input type="range" id="x19" min="0" max="6.2832" step="0.01" value="0.9"><output id="x19o"></output></div>
+  <div class="ctrl"><label for="d19">더 돌리는 각도 Δx</label><input type="range" id="d19" min="0.01" max="0.6" step="0.005" value="0.35"><output id="d19o"></output></div>
+  <div class="read" id="r19"></div>
+</div>
+<div class="eq"><math display="block"><mi>Δ</mi><mi>y</mi><mo>≈</mo><mi>cos</mi><mi>x</mi><mo>·</mo><mi>Δ</mi><mi>x</mi><mspace width="1.2em"/><mo stretchy="false">⟹</mo><mspace width="1.2em"/><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><mo>=</mo><munder><mo movablelimits="false">lim</mo><mrow><mi>Δ</mi><mi>x</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mi>Δ</mi><mi>y</mi></mrow><mrow><mi>Δ</mi><mi>x</mi></mrow></mfrac><mo>=</mo><mi>cos</mi><mi>x</mi></math>
+<span class="note">'원호 ≈ 접선 조각'이 Δx → 0 에서 정확해진다는 것이 21절의 sin h / h → 1 입니다.</span></div>
+<p>작은 각도로 나누고 극한을 취하면 cos x 만 남습니다. 이것이 사인의 높이를 미분했을 때 코사인이 나오는 <b>기하학적 이유</b>입니다. 맨 위(x = π/2)에서는 cos x = 0 이라 작은 이동이 거의 수평이고, 출발점(x = 0)에서는 cos x = 1 이라 거의 수직입니다. 물결과 진동처럼 반복되는 현상을 미분으로 다룰 수 있는 출발점입니다.</p>
+</section>
+
+<section id="s23">
+<h2><span class="no">23</span>지수함수와 자연상수 e</h2>
+<div class="bridge">반복되는 변화(사인) 다음에는, <b>현재 크기에 따라 증가량이 달라지는</b> 변화를 봅니다.</div>
+<p>한 번마다 2 를 <b>더하면</b> 값은 일정한 양만큼 늘어납니다. 한 번마다 2 를 <b>곱하면</b> 늘어나는 양 자체가 커집니다. 1 에서 2 로 갈 때는 1 이 늘고, 4 에서 8 로 갈 때는 4 가 늘었습니다. 늘어난 양은 다르지만, 원래 값으로 나눈 <b>비율은 같습니다</b>.</p>
+<div class="lab" id="L20">
+  <p class="labtitle">실험 20 · 같은 양씩 vs 같은 비율씩</p>
+  <p class="look"><b>무엇을 볼까요</b> 왼쪽은 1 에서 시작해 매번 2 를 더한 값, 오른쪽은 매번 2 를 곱한 값입니다. 아래 표에서 <b>늘어난 양</b>과 <b>늘어난 양 ÷ 원래 값</b>을 나란히 비교해 보세요.</p>
+  <canvas id="c20"></canvas>
+  <div class="read" id="r20"></div>
+</div>
+<p>곱하는 횟수를 입력으로 삼으면 <b>2<sup>x</sup></b> 이라는 표기를 얻습니다. 아래의 2 를 <b>밑</b>, 오른쪽 위의 x 를 <b>지수</b>라고 부릅니다. 입력이 0 이면 아직 한 번도 두 배가 되지 않은 기준값 1 이고, 입력이 1 늘 때마다 출력이 두 배가 됩니다. 입력이 정수가 아닐 때도 같은 비율의 성질이 이어지도록 값을 정합니다. 예를 들어 반 단계씩 두 번 곱해서 2 가 되려면 반 단계의 배율은 √2(약 1.41)여야 합니다. √2 를 두 번 곱하면 2 이기 때문입니다. 반 단계마다 2 를 곱하면 한 단계에 4 배가 되어 원래 규칙과 어긋납니다.</p>
+<h3>순간 증가율은 현재 크기에 비례한다</h3>
+<p>조금 뒤의 값 2<sup>x+h</sup> 은 현재 값 2<sup>x</sup> 에 작은 구간의 배율 2<sup>h</sup> 을 곱한 것입니다. 변화량을 구하면 현재 값이 공통 인수로 묶이고(3절의 인수분해), h 로 나누면 <b>현재 값</b>과 <b>작은 구간의 비율</b>이 곱으로 분리됩니다.</p>
+<div class="eq"><math display="block"><mfrac><mrow><msup><mn>2</mn><mrow><mi>x</mi><mo>+</mo><mi>h</mi></mrow></msup><mo>−</mo><msup><mn>2</mn><mi>x</mi></msup></mrow><mi>h</mi></mfrac><mo>=</mo><msup><mn>2</mn><mi>x</mi></msup><mo>·</mo><mfrac><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>1</mn></mrow><mi>h</mi></mfrac></math>
+<span class="note">마지막 비율에는 현재 입력 x 가 없습니다. 간격을 0 으로 보내면 상수 하나가 남고, 밑이 2 일 때 그 상수는 약 0.693 입니다.</span></div>
+<div class="lab" id="L21">
+  <p class="labtitle">실험 21 · 비례 상수가 정확히 1 이 되는 밑 찾기</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 밑 b 와 접점 x 를 바꿔 보세요. 접점을 어디로 옮겨도 <b>기울기 ÷ 높이</b>는 밑 b 만 정하면 같은 수로 고정됩니다(그것이 비례 상수입니다). [비례 상수가 1 인 밑 찾기] 를 누르면 그 수가 정확히 1 이 되는 밑을 계산해 찾아갑니다.</p>
+  <canvas id="c21"></canvas>
+  <div class="ctrl"><label for="b21">밑 b</label><input type="range" id="b21" min="1.3" max="4" step="0.00001" value="2"><output id="b21o"></output></div>
+  <div class="ctrl"><label for="x21">접점 x</label><input type="range" id="x21" min="-2" max="1.5" step="0.01" value="0.5"><output id="x21o"></output></div>
+  <div class="btns"><button type="button" id="e21">비례 상수가 1 인 밑 찾기</button><button type="button" id="t21">밑 2 로 돌아가기</button></div>
+  <div class="read" id="r21"></div>
+</div>
+<p>비례 상수가 정확히 1 이 되게 하는 특별한 밑을 <b>e</b>(자연상수, 약 2.718)라고 부릅니다. 영어 알파벳 e 입니다. 밑을 바꾸면 비례 상수가 달라지는데, 그 값이 1 이 되는 기준을 고른 것입니다. 모든 지수함수의 도함수가 자기 자신인 것은 아닙니다. <b>e 를 밑으로 하는 지수함수 e<sup>x</sup> 만 도함수가 자기 자신</b>입니다. 입력이 0 이면 높이도 기울기도 1, 입력이 1 이면 높이도 기울기도 약 2.718 입니다.</p>
+<div class="eq"><math display="block"><mfrac><mi>d</mi><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><msup><mi>e</mi><mi>x</mi></msup><mo>=</mo><msup><mi>e</mi><mi>x</mi></msup></math></div>
+<p>숫자 자체보다 <b>현재 크기와 순간 증가율이 연결된다</b>는 사실이 핵심입니다. 현재 크기에 비례해서 자라는 현상(이자, 세균 번식)을 가장 간단하게 적는 기준 함수이고, 미분해도 모양이 같으므로 거꾸로 적분할 때도 편리합니다(32절). 사인은 <b>반복되는 높이</b>, 지수함수는 <b>현재 크기에 비례하는 변화</b>로 기억해 주세요.</p>
+</section>
+
+<p class="part">4부 · 적분 — 조각을 모으기</p>
+
+<section id="s24">
+<h2><span class="no">24</span>시그마 — 덧셈의 줄임말</h2>
+<div class="bridge">적분으로 넘어가기 전에, 작은 조각을 더하는 방법과 그 기록법부터 익히겠습니다.</div>
+<p>폭이 1 이고 높이가 각각 2, 3, 4 인 직사각형 세 개를 놓겠습니다. 각 넓이는 높이 × 폭이고, 세 넓이를 더하면 전체 넓이가 나옵니다. 조각이 100 개라면 덧셈을 모두 적기가 번거롭습니다. 그래서 같은 방식의 덧셈을 그리스 문자 <b>Σ(시그마)</b>로 줄여 씁니다.</p>
+<div class="lab" id="L22">
+  <p class="labtitle">실험 22 · 세 조각의 넓이를 더하기</p>
+  <p class="look"><b>무엇을 볼까요</b> 직사각형마다 붙은 번호 1, 2, 3 이 시그마 기호 아래위의 숫자와 어떻게 대응하는지 보세요. 막대로 조각 수를 늘리면(높이는 2, 3, 4, 5, … 로 하나씩 커집니다) 덧셈 줄이 길어지는 대신 시그마 한 줄이면 된다는 것을 확인하세요.</p>
+  <canvas id="c22"></canvas>
+  <div class="ctrl"><label for="n22">조각 수 n</label><input type="range" id="n22" min="1" max="8" step="1" value="3"><output id="n22o"></output></div>
+  <div class="read" id="r22"></div>
+</div>
+<div class="eq"><span class="eqlab">시그마 기호 읽기</span>
+<math display="block"><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mn>3</mn></munderover><msub><mi>A</mi><mi>i</mi></msub><mo>=</mo><msub><mi>A</mi><mn>1</mn></msub><mo>+</mo><msub><mi>A</mi><mn>2</mn></msub><mo>+</mo><msub><mi>A</mi><mn>3</mn></msub></math>
+<span class="note">아래의 i = 1 은 "조각 번호 i 를 1 부터 시작", 위의 3 은 "3번 조각까지", 옆의 A 는 "각 조각에서 계산할 넓이"입니다. A 옆에 작게 붙인 i 는 제곱이 아니라 <b>몇 번째 조각인지</b>를 나타냅니다. 조각이 n 개면 위의 3 을 n 으로 바꿉니다.</span></div>
+<p>새로운 계산법이 생긴 것이 아니라, 반복되는 덧셈의 <b>줄임말</b>일 뿐입니다.</p>
+</section>
+
+<section id="s25">
+<h2><span class="no">25</span>속도에서 이동 거리로</h2>
+<div class="bridge">이제 미분과 <b>반대 방향</b>의 질문을 합니다. 속도를 알고 있다면 이동한 거리를 되찾을 수 있을까요?</div>
+<p>일정한 속도에서는 속도 × 시간이면 됩니다. 초속 3m 로 2초 움직이면 6m 입니다. 속도-시간 그래프에서 이것은 <b>높이 × 폭, 곧 직사각형의 넓이</b>입니다. 단위도 (m/s) × s = m 이 됩니다.</p>
+<p>속도가 변한다면 큰 직사각형 하나로는 맞지 않습니다. 시간을 짧은 구간들로 나누고, 짧은 구간에서는 속도가 거의 일정하다고 <b>근사</b>합니다. 물결 모양 등호 ≈ 는 "정확히 같지는 않지만 가깝다"는 표시입니다. 각 구간의 속도와 시간을 곱해 작은 이동량을 구하고, 이것들을 모두 더하면 전체 이동량의 근사가 됩니다. 직사각형들의 넓이를 모으는 것과 같은 계산입니다.</p>
+<div class="eq"><math display="block"><mtext>이동 거리</mtext><mo>≈</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>v</mi><mi>i</mi></msub><mspace width="0.15em"/><mi>Δ</mi><mi>t</mi></math></div>
+<div class="lab" id="L23">
+  <p class="labtitle">실험 23 · 속도 그래프 아래의 넓이 = 이동 거리</p>
+  <p class="look"><b>무엇을 볼까요</b> [일정한 속도] 에서는 직사각형 하나가 곧 답입니다. [변하는 속도] 로 바꾼 뒤 막대로 구간 수 n 을 늘려 보세요. 조각을 잘게 나눌수록 직사각형 넓이의 합이 <b>하나의 값</b>으로 다가가는 것을 확인하세요.</p>
+  <div class="seg" id="m23"><button type="button" data-v="c">일정한 속도 (초속 3m)</button><button type="button" data-v="v" class="on">변하는 속도</button></div>
+  <canvas id="c23"></canvas>
+  <div class="ctrl"><label for="n23">구간 수 n</label><input type="range" id="n23" min="1" max="60" step="1" value="4"><output id="n23o"></output></div>
+  <div class="read" id="r23"></div>
+</div>
+<p>더 정확하게 하려면 시간 구간을 더 잘게 나누면 됩니다. 이처럼 <b>작은 양을 모으는 생각</b>에서 적분이 출발합니다.</p>
+</section>
+
+<section id="s26">
+<h2><span class="no">26</span>작게 잡은 합, 크게 잡은 합 — 정적분</h2>
+<p>이번에는 y = x 아래 0 부터 2 까지의 넓이를 직사각형으로 채워 보겠습니다. 구간을 같은 폭으로 나누고, 각 조각의 <b>왼쪽 끝 높이</b>를 쓰면 실제 넓이보다 작게 잡히고(함수가 증가하므로), <b>오른쪽 끝 높이</b>를 쓰면 크게 잡힙니다. 작게 잡은 합을 L, 크게 잡은 합을 U 라고 하고, 조각이 n 개일 때 L 과 U 옆에 작게 n 을 붙여 적겠습니다.</p>
+<div class="lab" id="L24">
+  <p class="labtitle">실험 24 · 진짜 넓이는 두 합 사이에 갇힌다</p>
+  <p class="look"><b>무엇을 볼까요</b> 분홍 조각은 <b>U 가 L 보다 더 센 넓이</b>입니다(그래프 아래 전체 넓이와 구별하세요). 막대로 조각 수를 늘리면 분홍 조각들이 얇아지면서 L 과 U 가 서로 다가갑니다. 아래의 'U − L' 칸이 어떤 규칙으로 줄어드는지 보세요.</p>
+  <canvas id="c24"></canvas>
+  <div class="ctrl"><label for="n24">조각 수 n</label><input type="range" id="n24" min="1" max="64" step="1" value="4"><output id="n24o"></output></div>
+  <div class="read" id="r24"></div>
+</div>
+<p>오른쪽 합에서 왼쪽 합을 빼면 중간 높이들이 서로 지워지고 <b>맨 끝 높이 차이 f(2) − f(0) = 2 만 남아 공통 폭 Δx 와 곱해집니다.</b> 그래서 U − L = 2 × (2/n) = 4/n 이고, n 이 커지면 0 으로 갑니다. 진짜 넓이는 L 과 U 사이에 늘 갇혀 있으므로(9절의 샌드위치), 두 합이 같은 값으로 모이면 진짜 넓이도 그 값으로 정해집니다.</p>
+<h3>정적분이라는 이름과 기록법</h3>
+<p>각 조각에서 높이를 읽은 입력을 x 에 조각 번호를 작게 붙여 적고, 그곳의 높이 f(x<sub>i</sub>) 에 공통 폭 Δx 를 곱해 모두 더합니다. 이렇게 <b>분할을 한없이 잘게 만든 합의 극한</b>을 <b>정적분</b>이라고 부릅니다. 연속인 함수라면 이 직사각형 합은 하나의 값으로 수렴합니다.</p>
+<div class="eq"><span class="eqlab">정적분</span>
+<math display="block"><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><munder><mo movablelimits="false">lim</mo><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow></munder><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mspace width="0.15em"/><mi>Δ</mi><mi>x</mi></math>
+<span class="note">길게 늘인 S 모양 ∫ 는 Sum(합)의 S 로, 작은 양들을 모은다는 표시입니다. 아래 a 는 시작, 위 b 는 끝(둘 다 높이가 아니라 <b>입력</b>), f(x) 는 각 위치의 높이, 마지막 dx 는 "x 방향으로 잘게 나누어 모은다"는 뜻입니다. 오른쪽의 n → ∞ 는 조각 수 n 을 한없이 늘린다는 뜻입니다.</span></div>
+<p>처음 배울 때는 <b>높이 × 아주 작은 폭을 모은 기록</b>으로 보시면 됩니다. 단, 폭이 0 인 직사각형을 그냥 더하는 것은 아닙니다. 폭이 있는 직사각형을 먼저 더하고, <b>그다음</b> 분할을 잘게 만들어 극한을 취합니다. 이 순서가 중요합니다. 시작·끝·높이·나누는 방향, 네 가지 정보를 한 줄에 담았고, 구간과 함수가 정해지면 정적분의 결과는 <b>수 하나</b>입니다.</p>
+<div class="qna" data-q="∫ 안의 x 를 t 로 바꿔 써도 되나요?">됩니다. 같은 구간, 같은 규칙이면 결과는 같습니다. ∫₀² t dt 와 ∫₀² x dx 는 같은 수입니다. 적분 안의 문자는 합치는 동안 움직이는 자리의 이름일 뿐이기 때문입니다. 29절에서 이 성질을 실제로 씁니다.</div>
+</section>
+
+<section id="s27">
+<h2><span class="no">27</span>부호 있는 넓이</h2>
+<div class="bridge">지금까지는 그래프가 가로축 위에 있었습니다. 아래로 내려가면 어떻게 될까요?</div>
+<p>넓이는 음수가 아니지만, 방향이 있는 변화량은 음수가 될 수 있습니다. 정적분은 <b>축 위쪽은 더하고 아래쪽은 빼는</b> 부호 있는 누적입니다. 속도라면 음수는 반대 방향으로 움직인다는 뜻입니다. 오른쪽으로 2m, 왼쪽으로 2m 움직이면 처음 위치로 돌아왔으므로 위치의 변화(변위)는 0 이지만, 실제로 움직인 총거리는 4m 입니다.</p>
+<div class="lab" id="L25">
+  <p class="labtitle">실험 25 · 변위와 총거리는 다르다</p>
+  <p class="look"><b>무엇을 볼까요</b> 처음 2초는 초속 1m 로 오른쪽, 다음 2초는 초속 1m 로 왼쪽입니다. 막대로 관찰 끝 시각 T 를 늘리며, 아래 직선 위 물체의 위치와 함께 <b>정적분(변위)</b>과 <b>절댓값의 적분(총거리)</b>이 어떻게 갈라지는지 보세요.</p>
+  <canvas id="c25"></canvas>
+  <div class="ctrl"><label for="t25">관찰 끝 시각 T (초)</label><input type="range" id="t25" min="0" max="4" step="0.01" value="4"><output id="t25o"></output></div>
+  <div class="read" id="r25"></div>
+</div>
+<p>총거리는 속도의 <b>절댓값</b>을 적분해야 합니다. 마찬가지로 눈에 보이는 기하학적 넓이는 아래쪽도 양수로 셉니다. 그래서 정적분과 눈에 보이는 전체 넓이를 구별해야 합니다. <b>문제가 묻는 양이 무엇인지</b>가 계산보다 먼저입니다.</p>
+</section>
+
+<section id="s28">
+<h2><span class="no">28</span>원시함수와 부정적분</h2>
+<div class="bridge">정적분을 잠시 내려놓고 다른 질문을 해 보겠습니다. 어떤 함수를 미분했더니 2x 가 나왔습니다. 원래 함수는 무엇일까요?</div>
+<p>x² 을 미분하면 2x 였으므로(14절) 답 하나는 x² 입니다. 이처럼 <b>미분하면 주어진 함수가 되는 함수</b>를 <b>원시함수</b>라고 부르고, 흔히 대문자 F 로 적습니다. 그런데 x² + 3 을 미분해도 2x 입니다. 상수 3 은 입력이 변해도 변하지 않아 미분하면 0 이 되기 때문입니다(17절). x² − 2 도 마찬가지입니다.</p>
+<div class="lab" id="L26">
+  <p class="labtitle">실험 26 · 위아래로 옮겨도 기울기는 그대로</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 상수 C 를 바꾸면 곡선 x² + C 가 위아래로만 움직입니다. x = 1 에서 잰 접선의 기울기가 <b>C 와 상관없이 같다</b>는 것을 보세요. 그다음 [조건 F(0) = 5 주기] 를 누르면 곡선이 하나로 정해집니다.</p>
+  <canvas id="c26"></canvas>
+  <div class="ctrl"><label for="c26s">상수 C</label><input type="range" id="c26s" min="-3" max="6" step="0.1" value="0"><output id="c26so"></output></div>
+  <div class="btns"><button type="button" id="k26">조건 F(0) = 5 주기</button></div>
+  <div class="read" id="r26"></div>
+</div>
+<p>기울기만 모아 놓으면 그래프의 위아래 위치는 정해지지 않습니다. 미분을 거꾸로 해서는 처음 높이를 알아낼 수 없는 것입니다. 그래서 <b>적분 상수 C</b> 를 붙입니다. 계산 실수가 아니라, <b>주어진 정보만으로는 알 수 없는 부분</b>을 남겨 두는 표시입니다. C 는 고정된 수 하나지만, 어떤 수인지는 추가 조건이 있어야 정해집니다. 속도를 알아도 출발 위치를 따로 알아야 현재 위치를 정할 수 있는 것과 같습니다.</p>
+<p>가능한 원시함수를 모두 나타내는 것을 <b>부정적분</b>이라고 하고, 적분 기호 위아래에 구간의 끝을 쓰지 않습니다. '부정'은 값이 틀렸다는 뜻이 아니라 <b>상수가 아직 정해지지 않았다</b>는 뜻입니다.</p>
+<div class="eq"><span class="eqlab">부정적분</span>
+<math display="block"><mo>∫</mo><mn>2</mn><mi>x</mi><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>C</mi><mspace width="1.6em"/><mo>∫</mo><msup><mi>x</mi><mn>2</mn></msup><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><mfrac><msup><mi>x</mi><mn>3</mn></msup><mn>3</mn></mfrac><mo>+</mo><mi>C</mi></math>
+<span class="note">x³ 을 미분하면 3x² 이므로 먼저 3 으로 나누고, 빠진 상수를 붙입니다. 계산이 맞는지는 답을 <b>미분해서</b> 확인하면 됩니다.</span></div>
+<div class="key"><b class="h">같은 기호, 다른 질문</b> <b>정적분</b>은 "이 구간에 얼마나 쌓였나"를 묻고 답이 <b>수</b>입니다. <b>부정적분</b>은 "무엇을 미분했나"를 묻고 답이 <b>함수들의 모임</b>입니다. 같은 ∫ 기호를 쓰는 이 두 개념이 왜 이어지는지가 다음 절, 미적분학의 기본 정리입니다.</div>
+</section>
+
+<section id="s29">
+<h2><span class="no">29</span>★ 미적분학의 기본 정리 — 두 직사각형</h2>
+<p>미분과 적분이 왜 이어지는지, 그 중심에 도착했습니다. 왼쪽 끝을 고정하고 오른쪽 끝을 x 까지 움직이며 쌓은 넓이를 새로운 함수 <b>A(x)</b> 라고 부르겠습니다. 위 끝의 x 는 끝점이고, 안쪽의 t 는 조각들을 훑는 임시 입력입니다(26절 질문의 그 '자리 이름').</p>
+<div class="eq"><span class="eqlab">누적 함수와 기본 정리</span>
+<math display="block"><mi>A</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msubsup><mo>∫</mo><mi>a</mi><mi>x</mi></msubsup><mi>f</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mspace width="0.17em"/><mi>d</mi><mi>t</mi><mspace width="1.6em"/><msup><mi>A</mi><mo>′</mo></msup><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></math>
+<span class="note">그래프가 연속이면, 누적 함수의 변화율은 <b>끝점의 함숫값</b>과 같습니다. 이것이 미적분학의 기본 정리입니다.</span></div>
+<p>왜 <b>정확히</b> 같은지 샌드위치 정리로 확인하겠습니다. 끝점을 오른쪽으로 h 만큼 옮깁니다. 띠의 폭이 h(양수), 더해진 넓이가 ΔA 입니다. 아직 h 를 0 으로 보내지 않고 <b>폭이 있는 띠부터</b> 비교합니다.</p>
+<ul>
+  <li>띠 안에서 <b>가장 낮은 높이</b>를 소문자 m 이라고 하면, 이 높이로 만든 직사각형은 띠 안에 들어가므로 넓이가 실제 띠보다 작거나 같습니다: m·h ≤ ΔA</li>
+  <li><b>가장 높은 높이</b>를 대문자 M 이라고 하면, 이 직사각형은 띠를 전부 덮습니다: ΔA ≤ M·h</li>
+</ul>
+<div class="eq"><math display="block"><mi>m</mi><mi>h</mi><mo>≤</mo><mi>Δ</mi><mi>A</mi><mo>≤</mo><mi>M</mi><mi>h</mi><mspace width="1.2em"/><mo stretchy="false">⟹</mo><mspace width="1.2em"/><mi>m</mi><mo>≤</mo><mfrac><mrow><mi>Δ</mi><mi>A</mi></mrow><mi>h</mi></mfrac><mo>≤</mo><mi>M</mi></math>
+<span class="note">'대략 같다'는 추측이 아니라 <b>지금 폭에서도 성립하는 정확한 부등식</b>입니다. 세 항을 양수 h 로 나누어도 부등호 방향은 그대로입니다.</span></div>
+<p>가운데 ΔA / h 는 띠의 <b>평균 높이</b>이면서, 누적 함수 A 의 <b>평균 변화율</b>입니다(4절). 이제 폭을 줄입니다. 그래프가 x 에서 연속이므로 좁은 띠 안의 높이들은 모두 f(x) 에 가까워지고, 가장 낮은 높이 m 도 가장 높은 높이 M 도 f(x) 로 모입니다. 양쪽이 같은 값으로 모이면 그 사이에 끼인 평균 높이도 그 값으로 갈 수밖에 없습니다.</p>
+<div class="lab" id="L27">
+  <p class="labtitle">실험 27 · 띠를 두 직사각형으로 가두고 폭을 줄이기</p>
+  <p class="look"><b>무엇을 볼까요</b> 금색 직사각형(높이 m)은 띠 안에, 분홍 직사각형(높이 M)은 띠를 덮습니다. 막대로 폭 h 를 0 쪽으로 줄이며 <b>m ≤ ΔA/h ≤ M</b> 세 칸이 모두 f(x) 로 조여드는지 보세요. h 를 음수로 보내면 끝점을 <b>왼쪽</b>으로 옮겨 띠가 빠져나가는 경우가 됩니다. [오르내리는 곡선] 으로 바꾸면 m 과 M 이 띠의 양 끝이 아닌 곳에서 나오기도 합니다.</p>
+  <div class="seg" id="m27"><button type="button" data-v="up" class="on">계속 오르는 곡선</button><button type="button" data-v="wave">오르내리는 곡선</button></div>
+  <canvas id="c27"></canvas>
+  <div class="ctrl"><label for="x27">끝점 x</label><input type="range" id="x27" min="0.6" max="3" step="0.01" value="1.6"><output id="x27o"></output></div>
+  <div class="ctrl"><label for="h27">띠의 폭 h</label><input type="range" id="h27" min="-0.9" max="0.9" step="0.005" value="0.6"><output id="h27o"></output></div>
+  <div class="read" id="r27"></div>
+</div>
+<p>끝점을 왼쪽으로 옮기면 띠가 빠져나갑니다. 이때는 넓이 변화량도 음수, 끝점 변화량 h 도 음수이므로, 음수를 음수로 나눈 ΔA / h 는 빠진 띠의 넓이를 그 폭으로 나눈 평균 높이가 됩니다. 그 띠 역시 가장 낮은 높이와 가장 높은 높이 사이에 끼어 같은 값으로 모입니다. 오른쪽과 왼쪽의 극한이 같으므로, 이 극한이 누적 함수의 미분계수입니다.</p>
+<div class="eq"><math display="block"><msup><mi>A</mi><mo>′</mo></msup><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo movablelimits="false">lim</mo><mrow><mi>h</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mi>A</mi><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo><mo>−</mo><mi>A</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><mi>h</mi></mfrac><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></math></div>
+<p>그림처럼 계속 높아지는 그래프일 필요는 없습니다. 띠 안의 최저 높이와 최고 높이를 쓰면 됩니다. 축 아래에서도 부호 있는 넓이로 비교하면 같은 결론이 나옵니다. 핵심 조건은 <b>그 점에서의 연속</b> 하나입니다. <b>누적한 양의 순간 변화율은 원래 함숫값</b> — 두 직사각형이 그 이유를 보여 주었습니다.</p>
+</section>
+
+<section id="s30">
+<h2><span class="no">30</span>정적분 = 원시함수의 끝 차이</h2>
+<div class="bridge">29절에서 쌓인 넓이를 미분하면 원래 함수가 된다는 것을 보았습니다. 그렇다면 28절의 <b>원시함수</b>, 즉 미분해서 f 가 되는 함수를 알면 넓이를 구하는 데 도움이 되겠지요. 따로 배운 두 이야기(조각의 합인 정적분, 미분을 거꾸로 한 원시함수)를 이제 연결합니다.</div>
+<p>누적 함수 A 와 원시함수 F 는 <b>같은 도함수 f</b> 를 가집니다. 두 함수를 빼면 도함수가 0 이 되고, 16절(평균값 정리)에 따라 이어진 구간에서 그 차이는 <b>상수</b>입니다. A(x) = F(x) + 상수. 그런데 시작점부터 쌓은 양은 시작점에서 0 이므로 A(a) = 0 이고, 끝값에서 시작값을 빼면 그 상수가 사라집니다.</p>
+<div class="eq"><span class="eqlab">미적분학의 기본 정리 (계산하는 쪽)</span>
+<math display="block"><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><msubsup><mrow><mo>[</mo><mi>F</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>]</mo></mrow><mi>a</mi><mi>b</mi></msubsup><mo>=</mo><mi>F</mi><mo stretchy="false">(</mo><mi>b</mi><mo stretchy="false">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>a</mi><mo stretchy="false">)</mo></math>
+<span class="note">대괄호 오른쪽 위아래 숫자는 "두 값을 대입해서 빼라"는 표시입니다. 상수 C 를 다른 수로 골라도 끝에서 한 번 더하고 시작에서 한 번 빼므로 사라집니다. 그래서 정적분의 답에는 적분 상수가 남지 않습니다.</span></div>
+<div class="lab" id="L28">
+  <p class="labtitle">실험 28 · 같은 넓이를 세 가지 방법으로</p>
+  <p class="look"><b>무엇을 볼까요</b> y = x 아래 0 부터 b 까지의 넓이를 1) 삼각형 넓이 공식 2) 직사각형 합(조각 수를 막대로 조절) 3) 원시함수 x²/2 의 끝 차이, 세 방법으로 각각 계산합니다. b = 2 에서 셋이 모두 2 인지, 그리고 b 를 바꿔도 셋이 함께 움직이는지 보세요.</p>
+  <canvas id="c28"></canvas>
+  <div class="ctrl"><label for="b28">끝 b</label><input type="range" id="b28" min="0.5" max="3" step="0.05" value="2"><output id="b28o"></output></div>
+  <div class="ctrl"><label for="n28">직사각형 조각 수</label><input type="range" id="n28" min="2" max="200" step="1" value="8"><output id="n28o"></output></div>
+  <div class="read" id="r28"></div>
+</div>
+<p>기하, 작은 조각의 합, 원시함수가 같은 양을 설명하고 있습니다. 적분 공식은 넓이와 동떨어진 암기 규칙이 아니라, <b>작게 나눠 모은다는 정의를 빠르게 계산하게 해 주는 도구</b>입니다. 이것이 넓이를 구할 때 미분을 거꾸로 하는 이유입니다.</p>
+</section>
+
+<section id="s31">
+<h2><span class="no">31</span>적분의 성질</h2>
+<p>기본 정리를 알았으니 적분의 간단한 성질을 그림으로 확인하겠습니다. 모두 "작은 조각을 방향까지 포함해 더한 것"이라는 한 관점에서 나옵니다.</p>
+<div class="lab" id="L29">
+  <p class="labtitle">실험 29 · 나누어 더하기, 높이 늘리기, 방향 뒤집기</p>
+  <p class="look"><b>무엇을 볼까요</b> 0 부터 3 까지의 넓이를 나누는 점 c 를 움직여 <b>왼쪽 + 오른쪽 = 전체</b>가 늘 맞는지, 배율 k 로 높이를 늘리면 전체도 같은 배율로 늘어나는지 보세요. 아래에는 구간의 시작과 끝을 바꾼 적분과, 시작과 끝이 같은 적분도 계산해 둡니다.</p>
+  <canvas id="c29"></canvas>
+  <div class="ctrl"><label for="c29s">나누는 점 c</label><input type="range" id="c29s" min="0" max="3" step="0.05" value="1"><output id="c29so"></output></div>
+  <div class="ctrl"><label for="k29">높이 배율 k</label><input type="range" id="k29" min="0.5" max="3" step="0.5" value="1"><output id="k29o"></output></div>
+  <div class="read" id="r29"></div>
+</div>
+<ul>
+  <li><b>구간 나누기</b> — 함수 높이는 그대로 두고 모으는 구간만 나눈 것이므로, 나누어 계산한 뒤 합쳐도 같은 정적분입니다.</li>
+  <li><b>상수배</b> — 모든 높이를 두 배로 하면 작은 넓이가 모두 두 배, 전체도 두 배입니다.</li>
+  <li><b>합</b> — 두 함수의 높이를 더한 뒤 적분하는 것은 각각 적분한 뒤 더하는 것과 같습니다. 그래서 다항식은 항마다 따로 적분할 수 있습니다.</li>
+  <li><b>방향</b> — 시작과 끝을 바꾸면 기본 정리의 '끝값 − 시작값' 순서가 뒤집히므로 부호가 바뀝니다. 같은 곳에서 시작해 같은 곳에서 끝나면 누적 변화는 0 입니다.</li>
+</ul>
+</section>
+
+<section id="s32">
+<h2><span class="no">32</span>치환적분과 부분적분</h2>
+<div class="bridge">조금 복잡한 적분도 익숙한 모양으로 바꾸어 계산할 수 있습니다. 두 방법 모두 <b>이미 아는 미분을 거꾸로 읽은 것</b>입니다.</div>
+<h3>치환적분 — 연쇄법칙을 거꾸로</h3>
+<p>먼저 겹친 규칙을 미분해 보겠습니다. (2x + 1)² 에서 안쪽 값은 2x + 1, 바깥 규칙은 제곱입니다. 입력 x 가 조금 변하면 안쪽 값은 그 두 배만큼 변합니다. <b>바깥 변화율에 안쪽 변화율을 곱하는 것</b>이 합성함수의 미분, <b>연쇄법칙</b>입니다.</p>
+<div class="eq"><math display="block"><mfrac><mi>d</mi><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><msup><mrow><mo stretchy="false">(</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>2</mn><mo stretchy="false">(</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>·</mo><mn>2</mn></math></div>
+<p>치환적분은 이 연결을 거꾸로 씁니다. 안쪽을 u = 2x + 1 로 바꾸면 <b>작은 폭도 두 배로 바뀝니다</b>. x 가 0.1 늘면 u 는 0.2 늘어나기 때문입니다(du = 2 dx). 함수의 이름표만 바꾸고 폭을 그대로 두면 작은 조각의 넓이가 달라지므로, 가로폭의 환산도 함께 해야 합니다. 정적분이라면 구간의 끝도 새 문자에 맞춰 바꿉니다. x 가 0 에서 1 로 가면 u 는 1 에서 3 으로 갑니다. 같은 출발점과 도착점을 새 눈금으로 다시 읽은 것이지, 모으는 구간이 달라진 것이 아닙니다.</p>
+<div class="eq"><math display="block"><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><mo stretchy="false">(</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>·</mo><mn>2</mn><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><msubsup><mo>∫</mo><mn>1</mn><mn>3</mn></msubsup><mi>u</mi><mspace width="0.17em"/><mi>d</mi><mi>u</mi><mo>=</mo><msubsup><mrow><mo>[</mo><mfrac><msup><mi>u</mi><mn>2</mn></msup><mn>2</mn></mfrac><mo>]</mo></mrow><mn>1</mn><mn>3</mn></msubsup></math></div>
+<div class="lab" id="L30">
+  <p class="labtitle">실험 30 · 눈금을 바꾸면 조각의 폭도 바뀐다</p>
+  <p class="look"><b>무엇을 볼까요</b> 위는 x 눈금(0~1)의 조각들, 아래는 같은 조각을 u = 2x + 1 눈금(1~3)으로 옮긴 것입니다. 연결선을 따라가 보면 <b>폭이 정확히 두 배</b>가 됩니다. 두 합이 조각 수와 상관없이 같은 값인지, 그리고 조각을 늘리면 u²/2 의 끝 차이와 같아지는지 보세요.</p>
+  <canvas id="c30"></canvas>
+  <div class="ctrl"><label for="n30">조각 수</label><input type="range" id="n30" min="2" max="40" step="1" value="5"><output id="n30o"></output></div>
+  <div class="read" id="r30"></div>
+</div>
+<p>치환은 이름만 바꾸는 일이 아니라 <b>입력의 눈금까지 함께 바꾸는 것</b>입니다.</p>
+<h3>부분적분 — 곱의 미분을 거꾸로</h3>
+<p>가로가 u, 세로가 v 인 직사각형을 생각합니다. 가로와 세로가 조금씩 늘면 오른쪽 띠(세로 × 가로 변화량 = v·Δu)와 위쪽 띠(가로 × 세로 변화량 = u·Δv)가 더해지고, 모서리에 아주 작은 조각(Δu·Δv)이 붙습니다. 매끄럽게 변할 때 미분의 극한에서는 이 모서리 조각의 몫이 사라집니다. 그래서 <b>곱의 미분은 두 변화의 합</b>으로 나뉩니다.</p>
+<div class="lab" id="L31">
+  <p class="labtitle">실험 31 · 늘어난 넓이를 세 조각으로 나누기</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 늘어나는 정도 Δ 를 줄여 보세요. 두 띠(초록·파랑)에 비해 <b>모서리 조각(분홍)의 몫</b>이 얼마나 빨리 0 으로 사라지는지 아래 비율 칸에서 확인하세요.</p>
+  <canvas id="c31"></canvas>
+  <div class="ctrl"><label for="u31">가로 u</label><input type="range" id="u31" min="1" max="3" step="0.05" value="2"><output id="u31o"></output></div>
+  <div class="ctrl"><label for="v31">세로 v</label><input type="range" id="v31" min="1" max="3" step="0.05" value="1.5"><output id="v31o"></output></div>
+  <div class="ctrl"><label for="d31">늘어나는 정도 Δ</label><input type="range" id="d31" min="0.01" max="1" step="0.01" value="0.6"><output id="d31o"></output></div>
+  <div class="read" id="r31"></div>
+</div>
+<div class="eq"><span class="eqlab">곱의 미분 → 부분적분</span>
+<math display="block"><msup><mrow><mo stretchy="false">(</mo><mi>u</mi><mi>v</mi><mo stretchy="false">)</mo></mrow><mo>′</mo></msup><mo>=</mo><msup><mi>u</mi><mo>′</mo></msup><mi>v</mi><mo>+</mo><mi>u</mi><msup><mi>v</mi><mo>′</mo></msup><mspace width="1.2em"/><mo stretchy="false">⟹</mo><mspace width="1.2em"/><mo>∫</mo><mi>u</mi><msup><mi>v</mi><mo>′</mo></msup><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><mi>u</mi><mi>v</mi><mo>−</mo><mo>∫</mo><msup><mi>u</mi><mo>′</mo></msup><mi>v</mi><mspace width="0.17em"/><mi>d</mi><mi>x</mi></math>
+<span class="note">양쪽을 거꾸로 적분하고 한 항을 반대편으로 옮긴 것입니다. 곱을 적분할 때 두 함수를 각각 적분해서 곱하면 되는 것이 <b>아닙니다</b>.</span></div>
+<p>모든 곱을 쉽게 만든다는 보장은 없고, <b>한쪽을 미분하면 간단해질 때</b> 유용합니다. 예를 들어 x 와 e<sup>x</sup> 의 곱에서 x 는 미분하면 1 이 되고, e<sup>x</sup> 은 적분해도 같은 모양입니다(23절).</p>
+<div class="eq"><math display="block"><mo>∫</mo><mi>x</mi><msup><mi>e</mi><mi>x</mi></msup><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><mi>x</mi><msup><mi>e</mi><mi>x</mi></msup><mo>−</mo><mo>∫</mo><mn>1</mn><mo>·</mo><msup><mi>e</mi><mi>x</mi></msup><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><mi>x</mi><msup><mi>e</mi><mi>x</mi></msup><mo>−</mo><msup><mi>e</mi><mi>x</mi></msup><mo>+</mo><mi>C</mi></math>
+<span class="note">검산: 다시 미분하면 (e<sup>x</sup> + x e<sup>x</sup>) − e<sup>x</sup> = x e<sup>x</sup>. 중간 항이 지워져 원래의 곱이 나옵니다. 0 부터 1 까지의 정적분 값은 <b id="ibp">—</b> 입니다(실험 31 아래 계산).</span></div>
+</section>
+
+<p class="part">5부 · 쓰임 — 무엇을 조각으로 삼느냐</p>
+
+<section id="s33">
+<h2><span class="no">33</span>평균, 두 곡선 사이, 구의 부피, 곡선의 길이</h2>
+<div class="bridge">"잘게 나눠 모은다"는 생각은 넓이에만 쓰이지 않습니다. 무엇을 한 조각으로 삼느냐만 달라질 뿐입니다.</div>
+
+<h3>계속 변하는 값의 평균</h3>
+<p>관찰한 동안의 높이를 모두 모은 넓이를 생각하고, <b>가로 길이는 그대로 둔 채</b> 같은 넓이의 직사각형으로 바꿉니다. 그 직사각형의 높이가 구간 전체의 평균 높이입니다. 넓이를 가로 길이로 나누면 높이가 나오니까요.</p>
+<div class="eq"><span class="eqlab">함수의 평균값</span>
+<math display="block"><mover><mi>f</mi><mo>‾</mo></mover><mo>=</mo><mfrac><mn>1</mn><mrow><mi>b</mi><mo>−</mo><mi>a</mi></mrow></mfrac><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mspace width="0.17em"/><mi>d</mi><mi>x</mi></math></div>
+<div class="lab" id="L32">
+  <p class="labtitle">실험 32 · 넓이가 같은 직사각형의 높이 = 평균</p>
+  <p class="look"><b>무엇을 볼까요</b> 0 부터 b 까지 x² 의 평균입니다. 초록 직사각형은 곡선 아래 넓이와 <b>넓이가 같도록</b> 높이를 맞춘 것입니다. 점선(양 끝 높이 두 개만의 평균)과 얼마나 다른지 보세요.</p>
+  <canvas id="c32"></canvas>
+  <div class="ctrl"><label for="b32">끝 b</label><input type="range" id="b32" min="0.5" max="3" step="0.05" value="2"><output id="b32o"></output></div>
+  <div class="read" id="r32"></div>
+</div>
+<p>끝의 높이 두 개만 평균 내면 그 사이에서 어떻게 굽었는지 반영하지 못합니다. 적분을 이용한 평균은 구간 안의 <b>모든 높이</b>를 반영합니다. 온도나 전력처럼 계속 달라지는 값을 요약할 때 쓰는 관점입니다.</p>
+
+<h3>두 곡선 사이의 넓이</h3>
+<p>같은 입력에서 위쪽 높이와 아래쪽 높이를 읽으면, 그 차이가 작은 세로 띠의 높이입니다. 띠의 높이에 작은 폭을 곱해 구간 전체에서 모으면 됩니다. 두 곡선이 중간에 교차하면 <b>위아래가 바뀌는 곳에서 구간을 나눕니다</b>. 항상 위쪽에서 아래쪽을 빼야 양의 넓이가 됩니다. 그렇지 않으면 일부 넓이가 음수로 상쇄되어 다른 값을 얻게 됩니다.</p>
+<div class="lab" id="L33">
+  <p class="labtitle">실험 33 · y = x 와 y = x² 사이</p>
+  <p class="look"><b>무엇을 볼까요</b> [0~1] 에서는 x 가 위, x² 가 아래라 차이를 그대로 적분하면 됩니다. [0~2] 로 바꾸면 x = 1 에서 위아래가 바뀝니다. <b>차이를 그대로 적분한 값</b>과 <b>위에서 아래를 빼 가며 구한 넓이</b>가 어떻게 달라지는지 보세요.</p>
+  <div class="seg" id="m33"><button type="button" data-v="1" class="on">구간 0 ~ 1</button><button type="button" data-v="2">구간 0 ~ 2 (교차)</button></div>
+  <canvas id="c33"></canvas>
+  <div class="read" id="r33"></div>
+</div>
+
+<h3>구의 부피 — 단면의 넓이 × 두께를 모으기</h3>
+<p>반지름이 R 인 구를 얇은 원판으로 자릅니다. 가운데 원판은 크고 양 끝 원판은 작습니다. 구의 중심에서 x 만큼 떨어진 단면 하나를 보면, 구의 반지름 R(중심에서 겉면까지)과 단면 원의 반지름 r(단면의 중심에서 같은 겉면의 점까지), 그리고 두 중심 사이의 거리 x 가 <b>직각삼각형</b>을 이룹니다. R 이 빗변이므로 피타고라스 정리(두 직각변의 제곱합 = 빗변의 제곱)에서 r² = R² − x² 입니다.</p>
+<p>원의 넓이는 π × 반지름² 이므로 단면의 넓이는 S(x) = π(R² − x²) 이고(대문자 S 는 단면의 넓이를 부르는 이름입니다), 여기에 아주 작은 두께를 곱하면 얇은 원기둥 조각의 부피가 됩니다. 왼쪽 끝 −R 부터 오른쪽 끝 R 까지 모으면 됩니다. 이 적분에서 R 은 고정된 수이고 x 만 움직입니다.</p>
+<div class="eq"><math display="block"><mi>V</mi><mo>=</mo><msubsup><mo>∫</mo><mrow><mo>−</mo><mi>R</mi></mrow><mi>R</mi></msubsup><mi>π</mi><mo stretchy="false">(</mo><msup><mi>R</mi><mn>2</mn></msup><mo>−</mo><msup><mi>x</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><mi>π</mi><msubsup><mrow><mo>[</mo><msup><mi>R</mi><mn>2</mn></msup><mi>x</mi><mo>−</mo><mfrac><msup><mi>x</mi><mn>3</mn></msup><mn>3</mn></mfrac><mo>]</mo></mrow><mrow><mo>−</mo><mi>R</mi></mrow><mi>R</mi></msubsup><mo>=</mo><mfrac><mn>4</mn><mn>3</mn></mfrac><mi>π</mi><msup><mi>R</mi><mn>3</mn></msup></math>
+<span class="note">상수 R² 의 원시함수는 R²x 입니다. 양 끝 값을 빼면 구의 부피 공식이 나옵니다.</span></div>
+<div class="lab" id="L34">
+  <p class="labtitle">실험 34 · 원판을 쌓아 구 만들기</p>
+  <p class="look"><b>무엇을 볼까요</b> 왼쪽은 구를 옆에서 본 모습과 그것을 채운 원판들, 오른쪽은 위치 x 에서 자른 단면과 직각삼각형(R, r, x)입니다. 원판 수를 늘려 <b>원판 부피의 합</b>이 4πR³/3 에 다가가는지, 단면 위치를 옮겨 r² = R² − x² 이 늘 맞는지 보세요.</p>
+  <canvas id="c34"></canvas>
+  <div class="ctrl"><label for="n34">원판 수</label><input type="range" id="n34" min="2" max="60" step="1" value="8"><output id="n34o"></output></div>
+  <div class="ctrl"><label for="x34">단면 위치 x</label><input type="range" id="x34" min="-0.95" max="0.95" step="0.01" value="0.5"><output id="x34o"></output></div>
+  <div class="read" id="r34"></div>
+</div>
+<p>핵심은 원판이 아니라 <b>단면의 넓이와 두께를 곱해 모았다</b>는 점입니다. 다른 입체도 단면의 넓이만 알면 같은 생각을 적용할 수 있습니다.</p>
+
+<h3>곡선의 길이</h3>
+<p>곡선을 작은 직선 조각들로 이어 봅니다. 한 조각의 가로 변화량 Δx 와 세로 변화량 Δy 는 직각삼각형의 두 직각변이고, 조각의 길이는 빗변이므로 피타고라스 정리로 √(Δx² + Δy²) 입니다(루트는 제곱하기 전의 양의 길이를 되찾는 표시). Δx 가 양수이면 Δx 를 밖으로 묶어 √(1 + (Δy/Δx)²) · Δx 로 쓸 수 있고, 분할을 잘게 하면 Δy/Δx 는 접선 기울기 f′(x) 로 다가갑니다.</p>
+<div class="eq"><span class="eqlab">곡선의 길이 (도함수가 연속인 매끄러운 곡선)</span>
+<math display="block"><mi>L</mi><mo>=</mo><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><msqrt><mn>1</mn><mo>+</mo><msup><mrow><mo stretchy="false">(</mo><msup><mi>f</mi><mo>′</mo></msup><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></msqrt><mspace width="0.17em"/><mi>d</mi><mi>x</mi></math></div>
+<div class="lab" id="L35">
+  <p class="labtitle">실험 35 · 꺾은선으로 곡선 길이 재기</p>
+  <p class="look"><b>무엇을 볼까요</b> y = x² 의 0 부터 1 까지를 꺾은선으로 잇습니다. 강조된 한 조각에서 Δx, Δy 와 빗변을 보시고, 조각 수를 늘려 꺾은선 길이의 합이 적분값에 다가가는지 확인하세요.</p>
+  <canvas id="c35"></canvas>
+  <div class="ctrl"><label for="n35">조각 수</label><input type="range" id="n35" min="1" max="64" step="1" value="3"><output id="n35o"></output></div>
+  <div class="read" id="r35"></div>
+</div>
+<p>넓이, 부피, 길이 모두 <b>잘게 나누어 모으는</b> 같은 구조입니다. 무엇을 한 조각으로 삼느냐가 달라질 뿐입니다.</p>
+</section>
+
+<section id="s34">
+<h2><span class="no">34</span>그래프를 읽는 눈 — 조회수와 최적의 선택</h2>
+<h3>누적 조회수 그래프 읽기</h3>
+<p>가상의 누적 조회수 그래프를 보겠습니다(개념을 위해 만든 예시 함수입니다). 그래프의 <b>높이</b>는 지금까지 쌓인 조회수, <b>기울기</b>는 지금 얼마나 빠르게 늘어나는지입니다. 처음에는 가파르다가 점점 완만해집니다. 조회수는 여전히 늘지만 증가 속도는 줄고 있는 것입니다. <b>값이 감소하는 것과 증가 속도가 감소하는 것은 다릅니다</b>(18절).</p>
+<div class="lab" id="L36">
+  <p class="labtitle">실험 36 · 늘고 있는가, 빨라지고 있는가</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 날짜를 옮기며 높이·기울기·기울기의 변화(이계도함수)의 부호를 보세요. 점선은 그날의 접선을 앞으로 연장한 <b>단순 예측</b>입니다. 며칠 뒤 실제 곡선과 얼마나 벌어지는지 확인하세요.</p>
+  <canvas id="c36"></canvas>
+  <div class="ctrl"><label for="t36">날짜 t (일)</label><input type="range" id="t36" min="0" max="25" step="0.1" value="4"><output id="t36o"></output></div>
+  <div class="read" id="r36"></div>
+</div>
+<p>짧은 시간 동안의 변화는 접선으로 근사할 수 있지만, 과거의 기울기가 미래에도 유지된다는 보장은 없습니다. <b>미분은 현재 모델의 변화율을 읽는 도구이지 예언이 아닙니다.</b></p>
+
+<h3>가장 좋은 선택 찾기</h3>
+<p>x 만큼 활동할 때 얻는 순편익을 f(x) = 6x − x² 로 정하겠습니다. 앞부분에서는 활동을 늘릴수록 순편익이 커지지만, 어느 지점을 지나면 오히려 줄어듭니다. 도함수 f′(x) = 6 − 2x 를 구하면 <b>활동을 조금 더 늘렸을 때의 효과</b>가 보입니다. x &lt; 3 에서는 양수, x &gt; 3 에서는 음수입니다. 증가에서 감소로 바뀌므로 x = 3 에서 최대가 되고, 최대 순편익은 9 입니다.</p>
+<div class="lab" id="L37">
+  <p class="labtitle">실험 37 · 기울기의 부호가 바뀌는 곳</p>
+  <p class="look"><b>무엇을 볼까요</b> 막대로 x 를 옮기며 도함수의 부호가 <b>+ 에서 − 로</b> 바뀌는 곳을 찾으세요. 그다음 [y = x³] 으로 바꿔, 기울기가 0 인데도 최대도 최소도 아닌 점(원점)을 확인하세요.</p>
+  <div class="seg" id="m37"><button type="button" data-v="b" class="on">순편익 6x − x²</button><button type="button" data-v="c">y = x³</button></div>
+  <canvas id="c37"></canvas>
+  <div class="ctrl"><label for="x37">x</label><input type="range" id="x37" min="0" max="6" step="0.01" value="1.5"><output id="x37o"></output></div>
+  <div class="read" id="r37"></div>
+</div>
+<div class="warn"><b class="h">기울기 0 만으로는 부족합니다</b> 세제곱 함수의 원점은 기울기가 0 이어도 계속 증가합니다. <b>부호가 실제로 바뀌는지</b>, 그리고 구간의 끝점과 범위 조건까지 함께 확인해야 최대·최소를 확정할 수 있습니다.</div>
+</section>
+
+<section id="s35">
+<h2><span class="no">✓</span>두 질문으로 돌아오기</h2>
+<p>처음에는 미적분이라는 이름부터 멀게 느껴졌을지 모릅니다. 이제는 그 안에 두 질문이 있다는 것을 아십니다. <b>지금 얼마나 변하고 있는가</b>(미분), 그리고 <b>그 변화가 얼마나 쌓였는가</b>(적분). 둘은 29절의 두 직사각형으로 하나로 묶였습니다. 쌓인 양을 미분하면 원래 함수, 원래 함수의 원시함수를 알면 쌓인 양.</p>
+<p>같은 그래프를 보더라도 이제는 다른 질문을 할 수 있습니다. 숫자는 늘고 있는데 늘어나는 속도는 느려지고 있지 않은가? 오늘의 작은 차이가 계속된다면 시간이 지난 뒤 얼마나 쌓일까? 눈앞의 숫자 하나와 그 숫자가 변하는 방향은 다른 이야기입니다. 미적분을 안다고 미래를 모두 예측할 수는 없지만, <b>무엇이, 얼마나, 어떤 가정 아래 변하는지</b>를 더 구체적으로 물을 수 있게 됩니다.</p>
+<div class="ask"><b>스스로 점검해 보세요</b>
+<ul>
+  <li>f(2) 와 f′(2) 의 뜻을 각각 한 문장으로 말할 수 있나요? (12절)</li>
+  <li>0/0 이 나왔을 때 왜 "극한이 없다"고 바로 결론 내리면 안 되나요? (8절)</li>
+  <li>세 도형의 넓이 순서에서 cos h ≤ sin h / h ≤ 1 을 끌어내는 세 단계를 다시 해 볼 수 있나요? (21절)</li>
+  <li>m·h ≤ ΔA ≤ M·h 에서 A′(x) = f(x) 까지 가는 데 '연속'은 어디에 쓰였나요? (29절)</li>
+  <li>정적분의 답에 적분 상수 C 가 남지 않는 이유는 무엇인가요? (30절)</li>
+</ul></div>
+<div class="labnav"><a href="../../calculus.html">← 미적분 트랙으로 돌아가기</a></div>
+</section>
+
+</main>
+
+<script src="../../adp/qna.js"></script>
+<script>
+/* 미적분 실험실 1 — 화면의 모든 숫자는 아래 함수들이 그 자리에서 계산한다. */
+(function(){
+'use strict';
+var ROOT=document.documentElement;
+var FONT='-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+function cv(n){return getComputedStyle(ROOT).getPropertyValue(n).trim();}
+function $(id){return document.getElementById(id);}
+function val(id){return parseFloat($(id).value);}
+function COL(){return {f:cv('--f'),d:cv('--d'),r:cv('--r'),b:cv('--b'),p:cv('--p'),ax:cv('--ax'),gr:cv('--gr'),ink:cv('--ink'),soft:cv('--soft'),card:cv('--card'),bad:cv('--bad')};}
+function rgba(h,a){h=(h||'#888').replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c;}).join('');var n=parseInt(h,16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
+/* 숫자 표기: 뒤의 0 정리, 음수는 진짜 빼기표 */
+function fm(v,d){if(v==null||!isFinite(v))return '—';if(d==null)d=3;var s=(Math.abs(v)<5e-13?0:v).toFixed(d);if(s.indexOf('.')>=0)s=s.replace(/0+$/,'').replace(/\.$/,'');if(s==='-0')s='0';return s.replace(/^-/,'−');}
+function fx(v,d){if(v==null||!isFinite(v))return '—';var s=(Math.abs(v)<5e-13?0:v).toFixed(d);if(/^-0\.?0*$/.test(s))s=s.slice(1);return s.replace(/^-/,'−');}
+function rd(id,html){var e=$(id);if(e)e.innerHTML=html;}
+function ok(b){return b?'<span class="ok">✓</span>':'<span class="no">✗</span>';}
+
+/* ── 그리기 바탕 ── */
+function G(id,r,rm){var c=$(id);var W=Math.max(260,Math.round(c.getBoundingClientRect().width||c.parentNode.clientWidth||600));var mob=W<560;
+  var H=Math.round(W*(mob?(rm||r*1.3):r));var dp=window.devicePixelRatio||1;var cw=Math.round(W*dp),ch=Math.round(H*dp);
+  if(c.width!==cw)c.width=cw;if(c.height!==ch)c.height=ch;c.style.height=H+'px';var x=c.getContext('2d');x.setTransform(dp,0,0,dp,0,0);x.clearRect(0,0,W,H);
+  return {c:c,x:x,W:W,H:H,F:mob?12:13,mob:mob,col:COL()};}
+function P(g,l,t,w,h,x0,x1,y0,y1){var p={g:g,x:g.x,l:l,t:t,w:w,h:h,x0:x0,x1:x1,y0:y0,y1:y1};
+  p.X=function(v){return l+(v-x0)/(x1-x0)*w;};p.Y=function(v){return t+(y1-v)/(y1-y0)*h;};
+  p.wx=function(X){return x0+(X-l)/w*(x1-x0);};return p;}
+/* 여백을 둔 그래프 영역. box=[left,top,width,height] */
+function PA(g,x0,x1,y0,y1,box,m){box=box||[0,0,g.W,g.H];m=m||[40,12,12,26];return P(g,box[0]+m[0],box[1]+m[1],box[2]-m[0]-m[2],box[3]-m[1]-m[3],x0,x1,y0,y1);}
+/* 같은 축척(가로 1 = 세로 1)으로 영역 안에 맞춘다 */
+function PE(g,x0,x1,y0,y1,box,pad){pad=pad==null?10:pad;var bw=box[2]-2*pad,bh=box[3]-2*pad;var s=Math.min(bw/(x1-x0),bh/(y1-y0));var w=s*(x1-x0),h=s*(y1-y0);
+  return P(g,box[0]+pad+(bw-w)/2,box[1]+pad+(bh-h)/2,w,h,x0,x1,y0,y1);}
+function nice(r,px){var raw=r/Math.max(1,px/48);var e=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10));var m=raw/e;return (m<=1?1:m<=2?2:m<=5?5:10)*e;}
+function dec(step){return Math.max(0,-Math.floor(Math.log(step)/Math.LN10+1e-9));}
+function axes(p,o){o=o||{};var x=p.x,g=p.g,k=g.col,i,v;x.save();x.setLineDash([]);
+  var sx=o.sx||nice(p.x1-p.x0,p.w),sy=o.sy||nice(p.y1-p.y0,p.h);
+  var ya=(p.y0<=0&&p.y1>=0)?p.Y(0):p.t+p.h,xa=(p.x0<=0&&p.x1>=0)?p.X(0):p.l;
+  x.lineWidth=1;x.strokeStyle=k.gr;
+  if(!o.nogrid){for(i=Math.ceil(p.x0/sx-1e-9);i*sx<=p.x1+1e-9;i++){v=i*sx;x.beginPath();x.moveTo(p.X(v),p.t);x.lineTo(p.X(v),p.t+p.h);x.stroke();}
+    for(i=Math.ceil(p.y0/sy-1e-9);i*sy<=p.y1+1e-9;i++){v=i*sy;x.beginPath();x.moveTo(p.l,p.Y(v));x.lineTo(p.l+p.w,p.Y(v));x.stroke();}}
+  x.strokeStyle=k.ax;x.lineWidth=1.3;x.beginPath();x.moveTo(p.l,ya);x.lineTo(p.l+p.w,ya);if(!o.noyaxis){x.moveTo(xa,p.t);x.lineTo(xa,p.t+p.h);}x.stroke();
+  x.fillStyle=k.soft;x.font=(g.F-1)+'px '+FONT;
+  var xt=o.xt;if(!xt){xt=[];var dx=dec(sx);for(i=Math.ceil(p.x0/sx-1e-9);i*sx<=p.x1+1e-9;i++){v=i*sx;if(Math.abs(v)<1e-12&&xa>p.l+2&&!o.zero)continue;xt.push([v,fx(v,dx)]);}}
+  x.textAlign='center';x.textBaseline='top';var ly=Math.min(ya+4,p.t+p.h+4);
+  xt.forEach(function(q){var X=p.X(q[0]);if(X<p.l-2||X>p.l+p.w+2)return;x.fillText(q[1],X,ly);});
+  if(!o.noy){x.textAlign='right';x.textBaseline='middle';var dy=dec(sy);var lx=Math.max(xa-5,p.l-5);
+    for(i=Math.ceil(p.y0/sy-1e-9);i*sy<=p.y1+1e-9;i++){v=i*sy;if(Math.abs(v)<1e-12&&ya<p.t+p.h-2)continue;var Y=p.Y(v);if(Y<p.t+5||Y>p.t+p.h-2&&Math.abs(v)>1e-12)continue;x.fillText(fx(v,dy),lx,Y);}}
+  x.fillStyle=k.soft;x.font='600 '+(g.F-1)+'px '+FONT;
+  if(o.xl){x.textAlign='right';x.textBaseline='bottom';x.fillText(o.xl,p.l+p.w-2,ya-4);}
+  if(o.yl){x.textAlign='left';x.textBaseline='top';x.fillText(o.yl,xa+6,p.t+1);}
+  x.restore();}
+function clip(p){p.x.save();p.x.beginPath();p.x.rect(p.l-1,p.t-1,p.w+2,p.h+2);p.x.clip();}
+function curve(p,f,col,lw,a,b,dash){a=(a==null)?p.x0:a;b=(b==null)?p.x1:b;if(b<a){var tt=a;a=b;b=tt;}var x=p.x;clip(p);x.strokeStyle=col;x.lineWidth=lw||2.4;x.setLineDash(dash||[]);x.lineJoin='round';x.beginPath();
+  var n=Math.max(60,Math.round(Math.abs(p.X(b)-p.X(a))*2)),pen=false;
+  for(var i=0;i<=n;i++){var xv=a+(b-a)*i/n,yv=f(xv);if(!isFinite(yv)){pen=false;continue;}var Y=p.Y(yv);if(Math.abs(Y)>1e5){pen=false;continue;}var X=p.X(xv);if(pen)x.lineTo(X,Y);else x.moveTo(X,Y);pen=true;}
+  x.stroke();x.restore();}
+function pcurve(p,fx_,fy_,a,b,col,lw){var x=p.x;clip(p);x.strokeStyle=col;x.lineWidth=lw||2.4;x.setLineDash([]);x.beginPath();for(var i=0;i<=400;i++){var t=a+(b-a)*i/400;var X=p.X(fx_(t)),Y=p.Y(fy_(t));if(i)x.lineTo(X,Y);else x.moveTo(X,Y);}x.stroke();x.restore();}
+function seg(p,a,b,c,d,col,lw,dash){var x=p.x;clip(p);x.strokeStyle=col;x.lineWidth=lw||2;x.setLineDash(dash||[]);x.beginPath();x.moveTo(p.X(a),p.Y(b));x.lineTo(p.X(c),p.Y(d));x.stroke();x.restore();}
+function dot(p,a,b,col,r,hollow){var x=p.x;x.save();x.setLineDash([]);x.beginPath();x.arc(p.X(a),p.Y(b),r||5,0,7);if(hollow){x.fillStyle=p.g.col.card;x.fill();x.lineWidth=2;x.strokeStyle=col;x.stroke();}else{x.fillStyle=col;x.fill();}x.restore();}
+function tx(p,a,b,s,col,al,dx,dy,bold,base){var x=p.x;x.save();x.font=(bold?'700 ':'')+p.g.F+'px '+FONT;x.fillStyle=col;x.textAlign=al||'left';x.textBaseline=base||'middle';x.fillText(s,p.X(a)+(dx||0),p.Y(b)+(dy||0));x.restore();}
+function T(g,s,X,Y,col,al,bold,base,size){var x=g.x;x.save();x.font=(bold?'700 ':'')+(size||g.F)+'px '+FONT;x.fillStyle=col;x.textAlign=al||'left';x.textBaseline=base||'middle';x.fillText(s,X,Y);x.restore();}
+function poly(p,pts,fill,stroke,lw,dash){var x=p.x;clip(p);x.beginPath();pts.forEach(function(q,i){var X=p.X(q[0]),Y=p.Y(q[1]);if(i)x.lineTo(X,Y);else x.moveTo(X,Y);});x.closePath();
+  if(fill){x.fillStyle=fill;x.fill();}if(stroke){x.strokeStyle=stroke;x.lineWidth=lw||1.5;x.setLineDash(dash||[]);x.stroke();}x.restore();}
+function rect(p,a,b,c,d,fill,stroke,lw){poly(p,[[a,c],[b,c],[b,d],[a,d]],fill,stroke,lw);}
+function area(p,f,a,b,fill,base){base=base||0;var pts=[[a,base]];for(var i=0;i<=240;i++){var xv=a+(b-a)*i/240;pts.push([xv,f(xv)]);}pts.push([b,base]);poly(p,pts,fill);}
+function arrowH(p,a,b,y,col,lab,below){seg(p,a,y,b,y,col,2);var x=p.x,X1=p.X(a),X2=p.X(b),Y=p.Y(y),s=X2>X1?1:-1;x.save();x.fillStyle=col;
+  [[X2,s],[X1,-s]].forEach(function(q){x.beginPath();x.moveTo(q[0],Y);x.lineTo(q[0]-q[1]*7,Y-4);x.lineTo(q[0]-q[1]*7,Y+4);x.fill();});x.restore();
+  if(lab)tx(p,(a+b)/2,y,lab,col,'center',0,below?13:-11,true);}
+function frame(g,box,title){var x=g.x,k=g.col;x.save();x.strokeStyle=k.gr;x.lineWidth=1;x.strokeRect(box[0]+.5,box[1]+.5,box[2]-1,box[3]-1);x.restore();if(title)T(g,title,box[0]+8,box[1]+13,k.soft,'left',true);}
+
+/* ── 수치 계산(미분·적분·근) ── */
+function D(f,x){var h=1e-5;return (f(x+h)-f(x-h))/(2*h);}
+function D2(f,x){var h=1e-3;return (f(x+h)-2*f(x)+f(x-h))/(h*h);}
+function S(f,a,b,n){n=n||2000;if(a===b)return 0;if(n%2)n++;var h=(b-a)/n,s=f(a)+f(b);for(var i=1;i<n;i++)s+=(i%2?4:2)*f(a+i*h);return s*h/3;}
+function bis(g,a,b){var fa=g(a);for(var i=0;i<90;i++){var m=(a+b)/2,fmv=g(m);if(fmv===0)return m;if((fmv>0)===(fa>0)){a=m;fa=fmv;}else b=m;}return (a+b)/2;}
+function roots(g,a,b,n){n=n||1200;var out=[],xp=a,vp=g(a);for(var i=1;i<=n;i++){var xv=a+(b-a)*i/n,v=g(xv);if(vp===0){out.push(xp);}else if(vp*v<0){out.push(bis(g,xp,xv));}xp=xv;vp=v;}if(vp===0)out.push(xp);return out;}
+
+/* ── 조작 장치 ── */
+var ALL=[];
+function lab(fn){ALL.push(fn);}
+function drawAll(){ALL.forEach(function(f){try{f();}catch(e){if(window.console)console.error(e);}});}
+function bind(ids,fn,fmts){ids.forEach(function(id,i){var el=$(id),o=$(id+'o');function u(){if(o)o.textContent=(fmts&&fmts[i]?fmts[i]:fm)(parseFloat(el.value));}
+  el.addEventListener('input',function(){u();fn();});u();});}
+function setv(id,v){var el=$(id);el.value=v;el.dispatchEvent(new Event('input'));}
+function modes(id,fn){var box=$(id),cur=(box.querySelector('.on')||box.querySelector('button')).getAttribute('data-v');
+  box.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;box.querySelectorAll('button').forEach(function(q){q.classList.toggle('on',q===b);});cur=b.getAttribute('data-v');fn();});
+  return function(){return cur;};}
+var RAF={};
+function sweep(id,from,to,ms,key){cancelAnimationFrame(RAF[key||id]);var t0=performance.now();(function st(now){var k=Math.min(1,(now-t0)/ms);setv(id,from+(to-from)*k);if(k<1)RAF[key||id]=requestAnimationFrame(st);})(t0);}
+function sup(s){return s;}
+
+/* ── 실험 1 · 달리는 점과 그래프 ── */
+(function(){
+  function s(t){return t*t;}
+  function d(){var g=G('c1',0.62,0.95),k=g.col,t=val('t1');
+    var top=P(g,40,10,g.W-62,40,0,9.6,0,1);
+    seg(top,0,0.45,9.6,0.45,k.ax,1.5);
+    for(var i=0;i<=9;i++){seg(top,i,0.3,i,0.6,k.ax,1);tx(top,i,0.45,String(i),k.soft,'center',0,16);}
+    tx(top,9.6,0.45,'m',k.soft,'left',4,16);
+    [1,2,3].forEach(function(q){if(q<=t+1e-9){dot(top,s(q),0.45,rgba(k.f,0.5),4);tx(top,s(q),0.45,q+'초',k.f,'center',0,-14);}});
+    dot(top,s(t),0.45,k.p,7);
+    var p=PA(g,0,3.2,0,10,[0,62,g.W,g.H-62]);axes(p,{xl:'t (초)',yl:'s (m)',sx:0.5,sy:2,zero:true});
+    curve(p,s,rgba(k.f,0.2),2,0,3);curve(p,s,k.f,3,0,t);
+    [1,2,3].forEach(function(q){if(q<=t+1e-9)dot(p,q,s(q),k.f,4.5);});
+    seg(p,t,0,t,s(t),k.p,1.2,[4,4]);seg(p,0,s(t),t,s(t),k.p,1.2,[4,4]);dot(p,t,s(t),k.p,6);
+    var half=t/2,h='<div class="row"><span>시간 t = <b>'+fx(t,2)+'</b> 초</span><span>위치 s = t² = <b>'+fx(s(t),2)+'</b> m</span></div>';
+    if(t>0.05)h+='<div class="row"><span>절반의 시간 '+fx(half,2)+'초의 위치 = '+fx(s(half),3)+' m</span><span>시간은 2배인데 위치는 <b>'+fm(s(t)/s(half),3)+'배</b></span></div>';
+    rd('r1',h);}
+  bind(['t1'],d,[function(v){return fx(v,2);}]);
+  $('p1').addEventListener('click',function(){sweep('t1',0,3,3600);});
+  lab(d);
+})();
+
+/* ── 실험 2 · 입력 하나에 출력 하나 ── */
+(function(){
+  var mode=modes('m2',function(){d();});
+  function d(){var g=G('c2',0.6,0.95),k=g.col,xv=val('x2'),m=mode();
+    if(m==='f'){var f=function(v){return v*v;};var p=PA(g,-3.5,3.5,-1,10);axes(p,{xl:'x',yl:'y'});curve(p,f,k.f,2.6);
+      var y=f(xv);seg(p,xv,0,xv,y,k.b,1.4,[5,4]);seg(p,0,y,xv,y,k.p,1.4,[5,4]);
+      if(Math.abs(xv)>0.05){dot(p,-xv,y,k.f,5,true);tx(p,-xv,y,'('+fm(-xv,1)+', '+fm(y,2)+')',k.soft,xv>0?'right':'left',xv>0?-9:9,-10);}
+      dot(p,xv,y,k.p,6);tx(p,xv,y,'('+fm(xv,1)+', '+fm(y,2)+')',k.ink,xv>=0?'left':'right',xv>=0?9:-9,-10,true);
+      rd('r2','<div class="row"><span>입력 x = <b>'+fm(xv,1)+'</b> → 출력 f(x) = <b>'+fm(y,2)+'</b></span>'+(Math.abs(xv)>0.05?'<span>입력 '+fm(-xv,1)+' 도 출력 '+fm(f(-xv),2)+' — 다른 입력, 같은 출력(함수 맞음)</span>':'<span>입력 0 의 출력은 0 하나뿐</span>')+'</div>');
+    }else{var p2=PA(g,-1,9.5,-3.5,3.5);axes(p2,{xl:'x',yl:'y'});pcurve(p2,function(t){return t*t;},function(t){return t;},-3,3,k.f,2.6);
+      var X=xv*3;seg(p2,X,-3.5,X,3.5,k.b,1.4,[5,4]);
+      if(X<0){rd('r2','<div class="row"><span>입력 x = '+fm(X,1)+' 에는 대응하는 y 가 <b>없습니다</b>(제곱해서 음수가 되는 수가 없음)</span></div>');}
+      else{var y=Math.sqrt(X);dot(p2,X,y,k.p,6);dot(p2,X,-y,k.p,6);
+        tx(p2,X,y,'y = '+fm(y,3),k.ink,'left',9,-6,true);tx(p2,X,-y,'y = '+fm(-y,3),k.ink,'left',9,6,true);
+        rd('r2','<div class="row"><span>입력 x = <b>'+fm(X,1)+'</b> 하나에 출력이 '+(y>1e-9?'<b class="no">두 개</b> ('+fm(y,3)+', '+fm(-y,3)+') → 함수가 아닙니다':'하나(0)')+'</span></div><div class="row"><span>파란 세로선이 그래프와 두 번 만나면 같은 입력에서 출력이 갈라진 것입니다.</span></div>');}}
+  }
+  bind(['x2'],d,[function(v){return mode()==='n'?fm(v*3,1):fm(v,1);}]);
+  $('m2').addEventListener('click',function(){$('x2o').textContent=mode()==='n'?fm(val('x2')*3,1):fm(val('x2'),1);});
+  lab(d);
+})();
+
+/* ── 실험 3 · 한 변이 2 + h 인 정사각형 ── */
+(function(){
+  function d(){var g=G('c3',0.5,0.85),k=g.col,h=val('h3'),sd=2+h;
+    var box=g.mob?[0,0,g.W,g.H]:[0,0,g.W*0.62,g.H];var p=PE(g,-0.35,4.25,-0.35,4.25,box,8);
+    rect(p,0,2,0,2,rgba(k.f,0.28),k.f,1.5);
+    if(h>0){rect(p,2,sd,0,2,rgba(k.d,0.3),k.d,1.5);rect(p,0,2,2,sd,rgba(k.d,0.3),k.d,1.5);rect(p,2,sd,2,sd,rgba(k.p,0.35),k.p,1.5);}
+    tx(p,1,1,'2×2 = 4',k.ink,'center',0,0,true);
+    if(h>=0.45){tx(p,2+h/2,1,'2h',k.ink,'center',0,0,true);tx(p,1,2+h/2,'2h',k.ink,'center',0,0,true);}
+    if(h>=0.5)tx(p,2+h/2,2+h/2,'h²',k.ink,'center',0,0,true);
+    tx(p,1,0,'2',k.soft,'center',0,12);if(h>0.15)tx(p,2+h/2,0,'h',k.soft,'center',0,12);
+    tx(p,0,1,'2',k.soft,'right',-6,0);if(h>0.15)tx(p,0,2+h/2,'h',k.soft,'right',-6,0);
+    if(!g.mob){var X=g.W*0.64,Y=g.H*0.25,L=g.F+10;var k4=4,k2=2*2*h,k1=h*h;
+      T(g,'전체 넓이 (2 + h)²',X,Y,k.soft);T(g,'= '+fm(sd*sd,4),X,Y+L,k.ink,'left',true);
+      T(g,'네 조각의 합',X,Y+2.4*L,k.soft);T(g,'= '+fm(k4+k2+k1,4),X,Y+3.4*L,k.r,'left',true);
+      T(g,'각자 제곱만 더한 4 + h²',X,Y+4.8*L,k.soft);T(g,'= '+fm(4+k1,4),X,Y+5.8*L,k.bad,'left',true);}
+    var whole=sd*sd,pieces=4+2*(2*h)+h*h,wrong=4+h*h;
+    rd('r3','<div class="row"><span>(2 + '+fm(h,2)+')² = <b>'+fm(whole,4)+'</b></span><span>4 + 4h + h² = 4 + '+fm(4*h,3)+' + '+fm(h*h,4)+' = <b>'+fm(pieces,4)+'</b> '+ok(Math.abs(whole-pieces)<1e-9)+'</span></div>'+
+      '<div class="row"><span>4 + h² = '+fm(wrong,4)+' '+(h>0?'<span class="no">(빠진 넓이 '+fm(whole-wrong,4)+' = 직사각형 두 개 2h + 2h)</span>':'(h = 0 일 때만 우연히 같음)')+'</span></div>');}
+  bind(['h3'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 4 · 평균 변화율 ── */
+(function(){
+  var alt=false;
+  function f(t){return t*t;}
+  function lin(t){return 1+4*(t-1);}               // (1,1) 과 (3,9) 를 고르게
+  function sf(t){var u=(t-1)/2;return 1+8*u*u*u;}   // 처음엔 느리다가 나중에 빨라짐
+  function d(){var g=G('c4',0.6,0.95),k=g.col,a=val('a4'),b=val('b4');
+    var p=PA(g,0,3.2,-0.5,10);axes(p,{xl:'t (초)',yl:'s (m)',sx:0.5,sy:2,zero:true});
+    curve(p,f,k.f,2.8);
+    if(alt){curve(p,lin,k.b,2.2,1,3,[6,4]);curve(p,sf,k.r,2.2,1,3,[2,3]);dot(p,1,1,k.ink,4);dot(p,3,9,k.ink,4);}
+    var fa=f(a),fb=f(b);var h='';
+    if(Math.abs(b-a)>1e-9){var m=(fb-fa)/(b-a);curve(p,function(t){return fa+m*(t-a);},rgba(k.r,0.9),1.8,0,3.2);
+      arrowH(p,a,b,fa,k.d,'Δt = '+fm(b-a,2),b<a);seg(p,b,fa,b,fb,k.p,2.2);tx(p,b,(fa+fb)/2,'Δs = '+fm(fb-fa,3),k.p,b>a?'left':'right',b>a?7:-7,0,true);
+      h='<div class="row"><span>Δt = '+fm(b,2)+' − '+fm(a,2)+' = <b>'+fm(b-a,3)+'</b> 초</span><span>Δs = '+fm(fb,3)+' − '+fm(fa,3)+' = <b>'+fm(fb-fa,4)+'</b> m</span><span>평균 변화율 Δs/Δt = <b>'+fm(m,4)+'</b> m/s</span></div>'+
+        '<div class="row"><span>순서를 함께 뒤집으면 ('+fm(fa,3)+' − '+fm(fb,3)+')/('+fm(a,2)+' − '+fm(b,2)+') = '+fm((fa-fb)/(a-b),4)+' (같음)</span><span>분자만 뒤집으면 '+fm((fa-fb)/(b-a),4)+' (부호가 바뀜)</span></div>';}
+    else h='<div class="row"><span class="no">두 시각이 같아 Δt = 0 → 나눗셈을 할 수 없습니다(5절의 벽).</span></div>';
+    dot(p,a,fa,k.ink,5);dot(p,b,fb,k.ink,5);
+    if(alt){var am=[lin,f,sf].map(function(q){return (q(3)-q(1))/2;}),im=[lin,f,sf].map(function(q){return D(q,2);});
+      h+='<div class="row"><span><span class="sw" style="background:var(--b)"></span>고르게: 평균 '+fm(am[0],3)+', 2초 순간 '+fm(im[0],3)+'</span><span><span class="sw" style="background:var(--f)"></span>s = t²: 평균 '+fm(am[1],3)+', 2초 순간 '+fm(im[1],3)+'</span><span><span class="sw" style="background:var(--r)"></span>느리다 빨라짐: 평균 '+fm(am[2],3)+', 2초 순간 '+fm(im[2],3)+'</span></div><div class="row"><span>1~3초의 평균은 셋 다 같지만, 중간의 움직임(2초의 순간 속도)은 다릅니다.</span></div>';}
+    rd('r4',h);}
+  bind(['a4','b4'],d,[function(v){return fx(v,2);},function(v){return fx(v,2);}]);
+  $('k4').addEventListener('click',function(){alt=!alt;this.classList.toggle('on',alt);this.textContent=alt?'다른 움직임 끄기':'같은 두 끝점, 다른 움직임 켜기';if(alt){setv('a4',1);setv('b4',3);}d();});
+  lab(d);
+})();
+
+/* ── 실험 5 · 극한은 주변을, 함숫값은 그 점을 ── */
+(function(){
+  var mode=modes('m5',function(){d();});
+  var FN={
+    line:{f:function(x){return x+1;},at:3,txt:'이어진 직선 y = x + 1'},
+    hole:{f:function(x){return x===2?NaN:x+1;},at:NaN,txt:'x = 2 에 구멍'},
+    moved:{f:function(x){return x===2?1:x+1;},at:1,txt:'x = 2 의 값만 1'},
+    jump:{f:function(x){return x<2?x-1:x+1;},at:3,txt:'왼쪽은 y = x − 1, 오른쪽은 y = x + 1'}};
+  function d(){var g=G('c5',0.56,0.9),k=g.col,m=FN[mode()],kk=val('d5'),dist=Math.pow(10,-kk);
+    var p=PA(g,0,4,-1,5.5);axes(p,{xl:'x',yl:'y'});
+    var L=function(x){return x<2?m.f(x):NaN;},R=function(x){return x>2?m.f(x):NaN;};
+    curve(p,L,k.f,2.8,0,2-1e-9);curve(p,R,k.f,2.8,2+1e-9,4);
+    var lim_l=m.f(2-1e-9),lim_r=m.f(2+1e-9);
+    dot(p,2,lim_l,k.f,5,true);if(Math.abs(lim_r-lim_l)>1e-6)dot(p,2,lim_r,k.f,5,true);
+    if(isFinite(m.at))dot(p,2,m.at,k.p,6);
+    var xl=2-dist,xr=2+dist;dot(p,xl,m.f(xl),k.b,5);dot(p,xr,m.f(xr),k.d,5);
+    seg(p,2,-1,2,5.5,rgba(k.ax,0.6),1,[3,4]);
+    var Lr=Math.round(lim_l*1e6)/1e6,Rr=Math.round(lim_r*1e6)/1e6,has=Math.abs(Lr-Rr)<1e-6,val2=m.at,def=isFinite(val2),eq=has&&def&&Math.abs(val2-Lr)<1e-6;
+    var rows=[0.1,0.01,0.001].map(function(q){return '<tr><td>'+fm(q,3)+'</td><td>'+fm(m.f(2-q),4)+'</td><td>'+fm(m.f(2+q),4)+'</td></tr>';}).join('');
+    rd('r5','<div class="row"><span>'+m.txt+'</span><span>지금 거리 '+fm(dist,5)+': 왼쪽 '+fm(m.f(xl),5)+', 오른쪽 '+fm(m.f(xr),5)+'</span></div>'+
+      '<div class="tbwrap"><table><tr><th>2 에서 떨어진 거리</th><th>왼쪽 2 − 거리 의 값</th><th>오른쪽 2 + 거리 의 값</th></tr>'+rows+'</table></div>'+
+      '<div class="row"><span>왼쪽에서 향하는 값 '+fm(Lr,4)+'</span><span>오른쪽에서 향하는 값 '+fm(Rr,4)+'</span><span>x = 2 의 실제 값 '+(def?fm(val2,4):'없음')+'</span></div>'+
+      '<div class="row"><span>극한 '+(has?'<b>'+fm(Lr,4)+'</b> '+ok(true):'<span class="no">없음(양쪽이 다름)</span>')+'</span>'+
+      '<span>연속 판정: 1) 값 있음 '+ok(def)+' 2) 극한 있음 '+ok(has)+' 3) 극한 = 값 '+ok(eq)+' → '+(def&&has&&eq?'<span class="ok">연속</span>':'<span class="no">연속 아님</span>')+'</span></div>');}
+  bind(['d5'],d,[function(v){return fm(Math.pow(10,-v),5);}]);lab(d);
+})();
+
+/* ── 실험 6 · 0/0 에 다가가기 ── */
+(function(){
+  function q(x){return (x*x-1)/(x-1);}
+  function d(){var g=G('c6',0.54,0.9),k=g.col,dist=Math.pow(10,-val('d6'));
+    var p=PA(g,-1,3,-0.5,4.5);axes(p,{xl:'x',yl:'y'});
+    curve(p,q,k.f,2.8,-1,1-1e-7);curve(p,q,k.f,2.8,1+1e-7,3);
+    var lim=(q(1-1e-7)+q(1+1e-7))/2;dot(p,1,lim,k.f,5.5,true);
+    dot(p,1-dist,q(1-dist),k.b,5);dot(p,1+dist,q(1+dist),k.d,5);
+    var rows=[0.1,0.01,0.001,0.0001].map(function(h){return '<tr><td>'+fm(h,4)+'</td><td>'+fm(1-h,4)+' → '+fm(q(1-h),6)+'</td><td>'+fm(1+h,4)+' → '+fm(q(1+h),6)+'</td></tr>';}).join('');
+    var num=1*1-1,den=1-1;
+    rd('r6','<div class="tbwrap"><table><tr><th>1 에서 떨어진 거리</th><th>왼쪽: x → (x²−1)/(x−1)</th><th>오른쪽: x → (x²−1)/(x−1)</th></tr>'+rows+'</table></div>'+
+      '<div class="row"><span>지금 거리 '+fm(dist,6)+': 왼쪽 '+fm(q(1-dist),6)+', 오른쪽 '+fm(q(1+dist),6)+'</span></div>'+
+      '<div class="row"><span>x = 1 을 그대로 넣으면 분자 '+fm(num)+', 분모 '+fm(den)+' → <span class="no">0/0, 계산 불가</span></span><span>양쪽이 향하는 값 <b>'+fm(lim,4)+'</b></span></div>');}
+  bind(['d6'],d,[function(v){return fm(Math.pow(10,-v),6);}]);lab(d);
+})();
+
+/* ── 실험 7 · 샌드위치 ── */
+(function(){
+  function g0(x){return x===0?0:x*x*Math.sin(1/x);}
+  function d(){var g=G('c7',0.58,0.95),k=g.col,w=Math.pow(10,-val('z7'));
+    var p=PA(g,-w,w,-w*1.1,w*1.1,null,[54,12,12,26]);axes(p,{xl:'x',yl:'y'});
+    var up=function(x){return x*x;},lo=function(x){return -x*x;};
+    poly(p,(function(){var a=[],i,x;for(i=0;i<=200;i++){x=-w+2*w*i/200;a.push([x,up(x)]);}for(i=200;i>=0;i--){x=-w+2*w*i/200;a.push([x,lo(x)]);}return a;})(),rgba(k.d,0.12));
+    curve(p,up,k.d,2.2);curve(p,lo,k.d,2.2);
+    var x=p.x;clip(p);x.strokeStyle=k.f;x.lineWidth=1.6;x.beginPath();var N=4000,out=0,mx=0;
+    for(var i=0;i<=N;i++){var xv=-w+2*w*i/N,yv=g0(xv);if(Math.abs(yv)>xv*xv+1e-15)out++;mx=Math.max(mx,Math.abs(yv));var X=p.X(xv),Y=p.Y(yv);if(i)x.lineTo(X,Y);else x.moveTo(X,Y);}
+    x.stroke();x.restore();dot(p,0,0,k.r,5);
+    rd('r7','<div class="row"><span>보이는 폭 ±'+fm(w,5)+'</span><span>경계 높이(가장자리) x² = '+fm(w*w,8)+'</span><span>가운데 함수의 가장 큰 크기 '+fm(mx,8)+'</span></div>'+
+      '<div class="row"><span>경계 밖으로 나간 점: <b>'+out+'</b> / '+(N+1)+' 개 '+ok(out===0)+'</span><span>폭을 줄일수록 두 경계가 0 으로 모이므로, 가운데 함수의 극한도 0</span></div>');}
+  bind(['z7'],d,[function(v){return '±'+fm(Math.pow(10,-v),4);}]);lab(d);
+})();
+
+/* ── 실험 8 · 사이값 정리 ── */
+(function(){
+  var mode=modes('m8',function(){d();});
+  function Tc(t){return 10+2.5*t+2.2*Math.sin(Math.PI*t);}
+  function TjL(t){return 10+2*t;}function TjR(t){return 17+1.5*(t-2);}
+  function d(){var g=G('c8',0.56,0.9),k=g.col,kv=val('k8'),m=mode();
+    var p=PA(g,0,4,8,22);axes(p,{xl:'시각 (시간)',yl:'기온 (도)',sy:2,zero:true});
+    var xs=[];
+    if(m==='c'){curve(p,Tc,k.f,2.8);xs=roots(function(t){return Tc(t)-kv;},0,4);}
+    else{curve(p,TjL,k.f,2.8,0,2-1e-9);curve(p,TjR,k.f,2.8,2,4);dot(p,2,TjL(2),k.f,5,true);dot(p,2,TjR(2),k.f,5);
+      xs=roots(function(t){return TjL(t)-kv;},0,2-1e-9).concat(roots(function(t){return TjR(t)-kv;},2,4));}
+    seg(p,0,kv,4,kv,k.d,2,[7,4]);tx(p,4,kv,'k = '+fm(kv,1),k.d,'right',-4,-11,true);
+    xs.forEach(function(c){dot(p,c,kv,k.p,6);seg(p,c,8,c,kv,k.p,1,[3,3]);});
+    var f0=m==='c'?Tc(0):TjL(0),f4=m==='c'?Tc(4):TjR(4);
+    rd('r8','<div class="row"><span>처음 기온 '+fm(f0,2)+'도, 나중 기온 '+fm(f4,2)+'도</span><span>가로선 높이 k = '+fm(kv,1)+'도</span></div>'+
+      '<div class="row"><span>만나는 점 <b>'+xs.length+'개</b>'+(xs.length?': '+xs.map(function(c){return fm(c,3)+'시';}).join(', '):'')+'</span>'+
+      (xs.length===0?'<span class="no">연속이 아니어서 이 높이를 건너뛰었습니다</span>':(xs.length>1?'<span>"적어도 한 번" — 여러 번일 수도 있습니다</span>':''))+'</div>');}
+  bind(['k8'],d,[function(v){return fm(v,1);}]);lab(d);
+})();
+
+/* ── 실험 9 · x = 2 의 순간 변화율 ── */
+(function(){
+  function f(x){return x*x;}
+  function d(){var g=G('c9',0.58,0.95),k=g.col,h=val('h9');if(Math.abs(h)<0.005)h=0;
+    var p=PA(g,0,3.8,-1,14);axes(p,{xl:'x',yl:'y'});curve(p,f,k.f,2.8);
+    var tan=D(f,2);curve(p,function(x){return 4+tan*(x-2);},rgba(k.d,0.75),1.6,0,3.8,[6,5]);
+    var html;
+    if(h!==0){var dy=f(2+h)-f(2),sl=dy/h;curve(p,function(x){return 4+sl*(x-2);},k.r,2.2,0,3.8);
+      arrowH(p,2,2+h,4,k.d,'h',true);seg(p,2+h,4,2+h,f(2+h),k.p,2.2);dot(p,2+h,f(2+h),k.ink,5);
+      var rows=[0.1,0.01,0.001,-0.001,-0.01,-0.1].map(function(q){return '<tr><td>'+fm(q,3)+'</td><td>'+fm((f(2+q)-f(2))/q,6)+'</td></tr>';}).join('');
+      html='<div class="row"><span>f(2 + h) = '+fm(f(2+h),4)+'</span><span>세로 변화량 = '+fm(f(2+h),4)+' − 4 = '+fm(dy,4)+'</span><span>기울기 = '+fm(dy,4)+' / '+fm(h,2)+' = <b>'+fm(sl,4)+'</b></span><span>4 + h = '+fm(4+h,4)+' '+ok(Math.abs(sl-(4+h))<1e-9)+'</span></div>'+
+        '<div class="tbwrap"><table><tr><th>h</th><th>할선 기울기 [f(2+h) − f(2)] / h</th></tr>'+rows+'</table></div><div class="row"><span>양쪽에서 모이는 값(접선 기울기) ≈ <b>'+fm(tan,4)+'</b></span></div>';}
+    else html='<div class="row"><span class="no">h = 0: 세로 변화량 0, 가로 변화량 0 → 0/0 이라 계산할 수 없습니다. h 를 0 에 가깝게만 두세요.</span></div>';
+    dot(p,2,4,k.p,6);rd('r9',html);}
+  bind(['h9'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 10 · 도함수 만들기 ── */
+(function(){
+  var rec={};
+  function f(x){return x*x;}
+  function d(){var g=G('c10',0.5,1.25),k=g.col,a=val('a10');
+    var b1=g.mob?[0,0,g.W,g.H/2]:[0,0,g.W/2,g.H],b2=g.mob?[0,g.H/2,g.W,g.H/2]:[g.W/2,0,g.W/2,g.H];
+    var p=PA(g,-2.3,2.3,-0.6,5,b1,[30,22,8,24]),q=PA(g,-2.3,2.3,-4.8,4.8,b2,[30,22,8,24]);
+    frame(g,b1,'원래 함수 y = x²');frame(g,b2,'기울기 기록 y = f′(x)');
+    axes(p,{xl:'x'});axes(q,{xl:'x'});curve(p,f,k.f,2.6);
+    var s=D(f,a);rec[a.toFixed(2)]=[a,s];
+    curve(p,function(x){return f(a)+s*(x-a);},k.d,2,a-1.1,a+1.1);dot(p,a,f(a),k.p,6);
+    Object.keys(rec).forEach(function(key){dot(q,rec[key][0],rec[key][1],rgba(k.d,0.85),3.5);});
+    dot(q,a,s,k.p,6);seg(q,a,0,a,s,k.p,1.2,[3,3]);
+    rd('r10','<div class="row"><span>기준점 a = <b>'+fm(a,2)+'</b></span><span>높이 f(a) = '+fm(f(a),4)+'</span><span>잰 기울기 = <b>'+fm(s,4)+'</b></span><span>2a = '+fm(2*a,4)+' '+ok(Math.abs(s-2*a)<1e-6)+'</span><span>기록한 점 '+Object.keys(rec).length+'개</span></div>');}
+  bind(['a10'],d,[function(v){return fx(v,2);}]);
+  $('p10').addEventListener('click',function(){rec={};sweep('a10',-2,2,4200);});
+  $('x10').addEventListener('click',function(){rec={};d();});
+  lab(d);
+})();
+
+/* ── 실험 11 · |x| 의 양쪽 기울기 ── */
+(function(){
+  function f(x){return Math.abs(x);}
+  function d(){var g=G('c11',0.5,0.85),k=g.col,h=val('h11');if(Math.abs(h)<0.005)h=0;
+    var p=PA(g,-1.6,1.6,-0.4,1.7);axes(p,{xl:'x',yl:'y'});curve(p,f,k.f,2.8);dot(p,0,0,k.p,6);
+    var html;
+    if(h!==0){var sl=(f(h)-f(0))/h;curve(p,function(x){return sl*x;},k.r,2.2);dot(p,h,f(h),k.ink,5);
+      var rr=[0.1,0.01,0.001].map(function(q){return '<tr><td>'+fm(q,3)+'</td><td>'+fm((f(q)-f(0))/q,4)+'</td><td>'+fm(-q,3)+'</td><td>'+fm((f(-q)-f(0))/(-q),4)+'</td></tr>';}).join('');
+      html='<div class="row"><span>지금 할선 기울기 |h| / h = '+fm(f(h),3)+' / '+fm(h,2)+' = <b>'+fm(sl,4)+'</b></span></div>'+
+        '<div class="tbwrap"><table><tr><th>오른쪽 h</th><th>기울기</th><th>왼쪽 h</th><th>기울기</th></tr>'+rr+'</table></div>'+
+        '<div class="row"><span>높이: 양쪽 모두 0 으로 모임 → 연속 '+ok(Math.abs(f(1e-9))<1e-6&&Math.abs(f(-1e-9))<1e-6)+'</span><span>기울기: 오른쪽 '+fm((f(1e-6)-f(0))/1e-6,3)+', 왼쪽 '+fm((f(-1e-6)-f(0))/(-1e-6),3)+' → <span class="no">도함수 값 하나로 정할 수 없음</span></span></div>';}
+    else html='<div class="row"><span class="no">h = 0 은 0/0 입니다. 0 에 가깝게만 두세요.</span></div>';
+    rd('r11',html);}
+  bind(['h11'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 12 · 평균값 정리 ── */
+(function(){
+  var found=null;var A=0,B=4;
+  function f(x){return 0.25*x*x*x-1.2*x*x+1.3*x+1.5;}
+  function d(){var g=G('c12',0.56,0.9),k=g.col,pp=val('p12');
+    var p=PA(g,-0.2,4.2,0.3,4.2);axes(p,{xl:'x',yl:'y'});curve(p,f,k.f,2.8,A,B);
+    var m=(f(B)-f(A))/(B-A);curve(p,function(x){return f(A)+m*(x-A);},k.r,2.2,A,B);dot(p,A,f(A),k.r,5);dot(p,B,f(B),k.r,5);
+    var s=D(f,pp),par=Math.abs(s-m)<0.03;curve(p,function(x){return f(pp)+s*(x-pp);},par?k.p:k.d,par?3:2.2,pp-0.9,pp+0.9);dot(p,pp,f(pp),k.p,6);
+    if(found)found.forEach(function(c){seg(p,c,0.3,c,f(c),k.p,1.2,[4,4]);dot(p,c,f(c),k.p,5,true);tx(p,c,0.3,'c = '+fm(c,3),k.p,'center',0,-10,true);});
+    rd('r12','<div class="row"><span>평균 기울기(할선) = ['+fm(f(B),3)+' − '+fm(f(A),3)+'] / '+(B-A)+' = <b>'+fm(m,4)+'</b></span><span>접점 p 의 기울기 = <b>'+fm(s,4)+'</b></span><span>'+(par?'<span class="ok">평행! 이 순간의 기울기 = 평균 기울기</span>':'차이 '+fm(s-m,3))+'</span></div>'+
+      (found?'<div class="row"><span>평행한 곳 <b>'+found.length+'개</b>: '+found.map(function(c){return 'c = '+fm(c,4)+' (기울기 '+fm(D(f,c),4)+')';}).join(', ')+'</span></div>':''));}
+  bind(['p12'],d,[function(v){return fx(v,2);}]);
+  $('f12').addEventListener('click',function(){var m=(f(B)-f(A))/(B-A);found=roots(function(x){return D(f,x)-m;},A+1e-6,B-1e-6);if(found.length)setv('p12',found[0].toFixed(2));d();});
+  lab(d);
+})();
+
+/* ── 실험 13 · 거듭제곱 규칙 ── */
+(function(){
+  function d(){var g=G('c13',0.52,0.9),k=g.col,n=Math.round(val('n13')),xv=val('x13'),h=val('h13');if(Math.abs(h)<0.005)h=0;
+    function pw(v){return Math.pow(v,n);}
+    function q(hh){return hh===0?NaN:(pw(xv+hh)-pw(xv))/hh;}
+    var target=n*Math.pow(xv,n-1),lim=(q(1e-6)+q(-1e-6))/2;
+    var lo=Infinity,hi=-Infinity;for(var i=0;i<=200;i++){var hv=-1+2*i/200;if(Math.abs(hv)<1e-9)continue;var v=q(hv);lo=Math.min(lo,v);hi=Math.max(hi,v);}
+    lo=Math.min(lo,target);hi=Math.max(hi,target);var pad=Math.max(0.5,(hi-lo)*0.12);
+    var p=PA(g,-1.05,1.05,lo-pad,hi+pad,null,[46,12,12,26]);axes(p,{xl:'간격 h'});
+    seg(p,-1.05,target,1.05,target,k.d,1.8,[6,5]);tx(p,-1.05,target,'n·x^(n−1) = '+fm(target,4),k.d,'left',4,-11,true);
+    curve(p,q,k.f,2.6,-1,-1e-6);curve(p,q,k.f,2.6,1e-6,1);dot(p,0,lim,k.f,5.5,true);
+    if(h!==0)dot(p,h,q(h),k.p,6);
+    rd('r13','<div class="row"><span>n = '+n+', x = '+fm(xv,2)+'</span><span>'+(h!==0?'h = '+fm(h,2)+' 일 때 기울기 [(x+h)<sup>n</sup> − x<sup>n</sup>]/h = <b>'+fm(q(h),5)+'</b>':'<span class="no">h = 0 은 0/0</span>')+'</span></div>'+
+      '<div class="row"><span>h → 0 에서 모이는 값 ≈ <b>'+fm(lim,5)+'</b></span><span>규칙 n·x<sup>n−1</sup> = '+n+' × '+fm(xv,2)+'<sup>'+(n-1)+'</sup> = <b>'+fm(target,5)+'</b> '+ok(Math.abs(lim-target)<1e-5)+'</span></div>');}
+  bind(['n13','x13','h13'],d,[function(v){return String(Math.round(v));},function(v){return fx(v,2);},function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 14 · 위치·속도·가속도 ── */
+(function(){
+  var mode=modes('m14',function(){d();});
+  var FN={sq:function(t){return t*t;},sat:function(t){return 6*t/(t+1);}};
+  function rng(f){var lo=Infinity,hi=-Infinity;for(var i=0;i<=120;i++){var v=f(3*i/120);lo=Math.min(lo,v);hi=Math.max(hi,v);}lo=Math.min(lo,0);hi=Math.max(hi,0);var pd=Math.max(0.3,(hi-lo)*0.12);return [lo-pd,hi+pd];}
+  function d(){var g=G('c14',0.72,1.15),k=g.col,t=val('t14'),s=FN[mode()];
+    var v=function(x){return D(s,x);},a=function(x){return D2(s,x);};
+    var hh=g.H/3,names=['위치 s','속도 s′','가속도 s″'],fns=[s,v,a],cols=[k.f,k.d,k.p],vals=[];
+    for(var i=0;i<3;i++){var r=rng(fns[i]);var p=PA(g,0,3,r[0],r[1],[0,i*hh,g.W,hh],[44,16,12,20]);axes(p,{xl:i===2?'t (초)':'',zero:true});
+      T(g,names[i],p.l+6,i*hh+10,cols[i],'left',true);curve(p,fns[i],cols[i],2.6,0,3);var y=fns[i](t);vals.push(y);seg(p,t,r[0],t,r[1],rgba(k.ax,0.5),1,[3,4]);dot(p,t,y,cols[i],5.5);}
+    function sg(v){return Math.abs(v)<1e-6?'0':(v>0?'+':'−');}
+    rd('r14','<div class="row"><span>t = '+fx(t,2)+'</span><span>위치 '+fm(vals[0],4)+'</span><span>속도 '+fm(vals[1],4)+' ('+sg(vals[1])+')</span><span>가속도 '+fm(vals[2],4)+' ('+sg(vals[2])+')</span></div>'+
+      '<div class="row"><span>'+(vals[1]>1e-6?'속도가 양수 → 위치가 <b>늘고</b> 있음':'속도 0 → 순간적으로 멈춤')+'</span><span>'+(vals[2]>1e-6?'가속도가 양수 → <b>점점 빨라짐</b>':(vals[2]<-1e-6?'가속도가 음수 → 늘지만 <b>점점 느려짐</b>':'가속도 0'))+'</span></div>');}
+  bind(['t14'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 15 · 원과 물결 ── */
+(function(){
+  var one=false;var PI=Math.PI;
+  var XT=[[0,'0'],[PI/2,'π/2'],[PI,'π'],[1.5*PI,'3π/2'],[2*PI,'2π']];
+  function d(){var g=G('c15',0.46,1.1),k=g.col,a=val('x15');
+    var b1=g.mob?[0,0,g.W,g.H*0.52]:[0,0,g.W*0.38,g.H],b2=g.mob?[0,g.H*0.52,g.W,g.H*0.48]:[g.W*0.38,0,g.W*0.62,g.H];
+    var c=PE(g,-1.3,1.3,-1.3,1.3,b1,10);axes(c,{nogrid:true,noy:true,xt:[]});
+    // 넓은 화면에서는 물결의 세로 눈금을 원과 똑같이 맞춰, 원 위의 점과 물결 위의 점이 같은 높이에 오게 한다
+    var w=g.mob?PA(g,0,6.6,-1.3,1.3,b2,[34,10,10,26]):P(g,b2[0]+34,c.t,b2[2]-44,c.h,0,6.6,-1.3,1.3);axes(w,{xt:XT,xl:'각도 x',sy:0.5});
+    curve(w,Math.sin,rgba(k.f,0.22),2,0,2*PI);curve(w,Math.sin,k.f,2.8,0,a);
+    pcurve(c,Math.cos,Math.sin,0,2*PI,rgba(k.ax,0.9),1.6);
+    pcurve(c,function(t){return 0.25*Math.cos(t);},function(t){return 0.25*Math.sin(t);},0,a,k.d,1.6);
+    var cx=Math.cos(a),sy=Math.sin(a);
+    if(one){pcurve(c,Math.cos,Math.sin,0,1,k.d,6);seg(c,0,0,1,0,k.d,3);seg(c,0,0,Math.cos(1),Math.sin(1),k.d,3);tx(c,0.5,0,'1',k.d,'center',0,12,true);}
+    pcurve(c,Math.cos,Math.sin,0,a,k.f,3.4);
+    seg(c,0,0,cx,sy,k.ink,1.6);seg(c,0,0,cx,0,k.b,3);seg(c,cx,0,cx,sy,k.p,3);dot(c,cx,sy,k.p,6);
+    seg(w,a,0,a,sy,k.p,3);dot(w,a,sy,k.p,6);
+    var x=g.x;if(!g.mob){x.save();x.setLineDash([4,4]);x.strokeStyle=rgba(k.p,0.6);x.lineWidth=1.2;x.beginPath();x.moveTo(c.X(cx),c.Y(sy));x.lineTo(w.X(a),w.Y(sy));x.stroke();x.restore();}
+    var arc=0,N=2000;for(var i=0;i<N;i++){var t0=i/N,t1=(i+1)/N;arc+=Math.hypot(Math.cos(t1)-Math.cos(t0),Math.sin(t1)-Math.sin(t0));}
+    var deg=a*180/PI;
+    rd('r15','<div class="row"><span>각도 x = <b>'+fx(a,3)+'</b> 라디안 = '+fx(deg,1)+'°</span><span>높이 sin x = <b>'+fx(sy,4)+'</b></span><span>가로 cos x = <b>'+fx(cx,4)+'</b></span></div>'+
+      (one?'<div class="row"><span>금색 원호(중심각 1 라디안)의 길이를 잘게 나눈 꺾은선으로 재면 '+fx(arc,6)+' — 반지름 1 과 같음</span><span>1 라디안 = '+fx(180/PI,3)+'°</span></div>':''));}
+  bind(['x15'],d,[function(v){return fx(v,2);}]);
+  $('p15').addEventListener('click',function(){sweep('x15',0,2*PI,6000);});
+  $('o15').addEventListener('click',function(){one=!one;this.classList.toggle('on',one);d();});
+  lab(d);
+})();
+
+/* ── 실험 16 · sin 의 기울기 = cos ── */
+(function(){
+  var PI=Math.PI,XT=[[0,'0'],[PI/2,'π/2'],[PI,'π'],[1.5*PI,'3π/2'],[2*PI,'2π']];
+  function d(){var g=G('c16',0.5,0.85),k=g.col,a=val('x16');
+    var p=PA(g,0,6.6,-1.4,1.4,null,[34,10,10,26]);axes(p,{xt:XT,xl:'x',sy:0.5});
+    curve(p,Math.cos,k.b,2,0,2*PI,[6,5]);curve(p,Math.sin,k.f,2.8,0,2*PI);
+    var s=D(Math.sin,a),y=Math.sin(a);curve(p,function(x){return y+s*(x-a);},k.d,2.6,a-0.7,a+0.7);
+    dot(p,a,y,k.f,6);dot(p,a,Math.cos(a),k.b,5.5);seg(p,a,y,a,Math.cos(a),rgba(k.ax,0.7),1,[3,3]);
+    rd('r16','<div class="row"><span>x = '+fx(a,2)+'</span><span>높이 sin x = '+fx(y,4)+'</span><span>잰 접선 기울기 = <b>'+fx(s,5)+'</b></span><span>cos x = <b>'+fx(Math.cos(a),5)+'</b> '+ok(Math.abs(s-Math.cos(a))<1e-6)+'</span></div>');}
+  bind(['x16'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 17 · 세 삼각형의 넓이 ── */
+function shoelace(pts){var s=0;for(var i=0;i<pts.length;i++){var a=pts[i],b=pts[(i+1)%pts.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+function sectorPts(h,N){var a=[[0,0]];for(var i=0;i<=N;i++){var t=h*i/N;a.push([Math.cos(t),Math.sin(t)]);}return a;}
+(function(){
+  var mode=modes('m17',function(){d();});
+  function d(){var g=G('c17',0.56,1.25),k=g.col,h=val('h17'),m=mode();
+    var b1=g.mob?[0,0,g.W,g.H*0.66]:[0,0,g.W*0.56,g.H],b2=g.mob?[0,g.H*0.66,g.W,g.H*0.34]:[g.W*0.56,0,g.W*0.44,g.H];
+    var p=PE(g,-0.16,1.32,-0.2,1.66,b1,8);
+    var O=[0,0],A=[1,0],Pp=[Math.cos(h),Math.sin(h)],Tt=[1,Math.tan(h)];
+    pcurve(p,Math.cos,Math.sin,0,Math.PI/2,rgba(k.ax,0.9),1.5);
+    seg(p,0,0,1.3,0,k.ax,1.3);seg(p,0,0,0,1.62,k.ax,1.3);
+    seg(p,1,-0.05,1,1.62,rgba(k.ax,0.8),1.2,[5,4]);
+    var showI=m==='1'||m==='all',showS=m==='2'||m==='all',showO=m==='3'||m==='all';
+    if(showO)poly(p,[O,A,Tt],rgba(k.d,m==='all'?0.22:0.4),k.d,2);
+    if(showS)poly(p,sectorPts(h,200),rgba(k.f,m==='all'?0.3:0.42),k.f,2);
+    if(showI)poly(p,[O,A,Pp],rgba(k.b,m==='all'?0.38:0.45),k.b,2);
+    seg(p,0,0,Tt[0],Tt[1],k.ink,1.4);seg(p,Pp[0],0,Pp[0],Pp[1],k.p,2.2);
+    pcurve(p,function(t){return 0.16*Math.cos(t);},function(t){return 0.16*Math.sin(t);},0,h,k.ink,1.4);
+    tx(p,0.2*Math.cos(h/2),0.2*Math.sin(h/2),'h',k.ink,'left',2,0,true);
+    dot(p,0,0,k.ink,3.5);dot(p,1,0,k.ink,3.5);dot(p,Pp[0],Pp[1],k.ink,4);dot(p,1,Tt[1],k.ink,4);
+    tx(p,0,0,'O',k.soft,'right',-5,9,true);tx(p,1,0,'A',k.soft,'left',5,9,true);tx(p,Pp[0],Pp[1],'P',k.ink,'right',-6,-8,true);tx(p,1,Tt[1],'T',k.ink,'left',7,0,true);
+    tx(p,Pp[0],Pp[1]/2,'sin h',k.p,'right',-5,0,true);tx(p,1,Tt[1]/2,'tan h',k.d,'left',7,0,true);tx(p,0.5,0,'1',k.soft,'center',0,11,true);
+    var aI=shoelace([O,A,Pp]),aS=shoelace(sectorPts(h,4000)),aO=shoelace([O,A,Tt]);
+    // 막대그래프
+    var bx=b2[0]+(g.mob?40:16),bw=b2[2]-(g.mob?120:96),rows=[['안쪽 삼각형',aI,k.b,showI],['부채꼴',aS,k.f,showS],['바깥쪽 삼각형',aO,k.d,showO]];
+    var top=b2[1]+(g.mob?30:b2[3]*0.22),gap=g.mob?(b2[3]-44)/3:Math.min(64,b2[3]*0.18);
+    T(g,'넓이 비교',bx,g.mob?b2[1]+8:top-18,k.soft,'left',true);
+    rows.forEach(function(r,i){var y=top+(g.mob?10:12)+i*gap,len=bw*r[1]/aO;var x=g.x;x.save();x.fillStyle=rgba(r[2],r[3]?0.85:0.25);x.fillRect(bx,y,Math.max(2,len),Math.min(18,gap*0.42));x.restore();
+      T(g,r[0],bx,y-8,r[3]?k.ink:k.soft,'left',r[3]);T(g,fx(r[1],4),bx+Math.max(2,len)+6,y+Math.min(9,gap*0.21),r[3]?k.ink:k.soft,'left',true);});
+    var okOrder=aI<=aS&&aS<=aO;
+    rd('r17','<div class="row"><span>h = <b>'+fx(h,2)+'</b></span><span>안쪽 삼각형 '+fx(aI,5)+' (½ sin h = '+fx(Math.sin(h)/2,5)+')</span><span>부채꼴 '+fx(aS,5)+' (½ h = '+fx(h/2,5)+')</span><span>바깥쪽 삼각형 '+fx(aO,5)+' (½ tan h = '+fx(Math.tan(h)/2,5)+')</span></div>'+
+      '<div class="row"><span>순서 안쪽 ≤ 부채꼴 ≤ 바깥쪽 '+ok(okOrder)+'</span><span>2 를 곱하고 sin h 로 나눈 뒤 뒤집으면: cos h = '+fx(Math.cos(h),5)+' ≤ sin h / h = <b>'+fx(Math.sin(h)/h,5)+'</b> ≤ 1 '+ok(Math.cos(h)<=Math.sin(h)/h&&Math.sin(h)/h<=1)+'</span></div>');
+    d18();}
+  bind(['h17'],d,[function(v){return fx(v,2);}]);lab(d);
+  /* 실험 18 · 조임 그래프 (실험 17 의 h 를 함께 씀) */
+  function d18(){var g=G('c18',0.48,0.8),k=g.col,h=val('h17');
+    var p=PA(g,0,1.05,0.4,1.08,null,[44,12,12,26]);axes(p,{xl:'각도 h',sy:0.1,zero:true});
+    var sh=function(x){return x===0?NaN:Math.sin(x)/x;};
+    poly(p,(function(){var a=[],i,x;for(i=0;i<=100;i++){x=0.001+1.049*i/100;a.push([x,1]);}for(i=100;i>=0;i--){x=0.001+1.049*i/100;a.push([x,Math.cos(x)]);}return a;})(),rgba(k.d,0.1));
+    seg(p,0,1,1.05,1,k.d,2.4);curve(p,Math.cos,k.b,2.4,0,1.05);curve(p,sh,k.f,2.8,1e-4,1.05);dot(p,0,1,k.f,5,true);
+    seg(p,h,0.5,h,1.06,rgba(k.ax,0.7),1,[3,4]);dot(p,h,Math.cos(h),k.b,5);dot(p,h,sh(h),k.f,5.5);dot(p,h,1,k.d,5);
+    tx(p,0.04,1,'위 경계 1',k.d,'left',4,-12,true);tx(p,0.3,Math.cos(0.3),'아래 경계 cos h',k.b,'left',0,26,true);
+    tx(p,1.04,sh(1.04),'가운데 sin h / h',k.f,'right',0,-14,true);
+    var rows=[0.1,0.01,0.001].map(function(q){return '<tr><td>'+q+'</td><td>'+fx(Math.cos(q),7)+'</td><td>'+fx(Math.sin(q)/q,7)+'</td><td>1</td><td>'+fx(1-Math.cos(q),7)+'</td></tr>';}).join('');
+    rd('r18','<div class="row"><span>지금 h = '+fx(h,2)+': 두 경계의 틈 1 − cos h = <b>'+fx(1-Math.cos(h),5)+'</b></span></div>'+
+      '<div class="tbwrap"><table><tr><th>h</th><th>cos h</th><th>sin h / h</th><th>위 경계</th><th>틈</th></tr>'+rows+'</table></div>');}
+  lab(d18);
+})();
+
+/* ── 실험 19 · 작은 원호와 닮은 삼각형 ── */
+(function(){
+  function d(){var g=G('c19',0.5,1.3),k=g.col,a=val('x19'),dx=val('d19');
+    var b1=g.mob?[0,0,g.W,g.H*0.5]:[0,0,g.W*0.48,g.H],b2=g.mob?[0,g.H*0.5,g.W,g.H*0.5]:[g.W*0.48,0,g.W*0.52,g.H];
+    var c=PE(g,-1.3,1.3,-1.3,1.3,b1,10);
+    var cx=Math.cos(a),sy=Math.sin(a),qx=Math.cos(a+dx),qy=Math.sin(a+dx);
+    var tx_=-sy*dx,ty_=cx*dx;                       // 접선 방향으로 길이 dx 만큼
+    function scene(p,lw){
+      pcurve(p,Math.cos,Math.sin,0,2*Math.PI,rgba(k.ax,0.9),1.4*lw);
+      seg(p,0,0,cx,sy,k.ink,1.5*lw);seg(p,0,0,cx,0,k.b,2.6*lw);seg(p,cx,0,cx,sy,rgba(k.p,0.6),2*lw);
+      seg(p,cx-3*tx_,sy-3*ty_,cx+3*tx_,sy+3*ty_,rgba(k.ax,0.7),1*lw,[5,4]);
+      poly(p,[[cx,sy],[cx+tx_,sy],[cx+tx_,sy+ty_]],rgba(k.d,0.3),k.d,1.6*lw);
+      pcurve(p,Math.cos,Math.sin,a,a+dx,k.f,3.2*lw);
+      seg(p,qx,sy,qx,qy,k.p,2.4*lw);
+      dot(p,cx,sy,k.ink,4*lw);dot(p,qx,qy,k.f,4*lw);}
+    axes(c,{nogrid:true,noy:true,xt:[]});scene(c,1);
+    tx(c,cx/2,0,'cos x',k.b,'center',0,12,true);
+    // 확대 창
+    var half=Math.max(dx*0.85,0.02),mx=cx+tx_/2,my=sy+ty_/2;
+    var z=PE(g,mx-half,mx+half,my-half,my+half,b2,14);
+    var x=g.x;x.save();x.strokeStyle=k.gr;x.strokeRect(z.l,z.t,z.w,z.h);x.restore();
+    scene(z,1);
+    tx(z,cx+tx_/2,sy+ty_/2,'Δx',k.d,'center',cx*18,-sy*18,true);           // 빗변 라벨: 원 바깥쪽으로
+    var lft=tx_<0;tx(z,cx+tx_,sy+ty_/2,'cos x · Δx',k.d,lft?'right':'left',lft?-7:7,0,true);  // 세로변 라벨: 삼각형 바깥쪽
+    tx(z,qx,(sy+qy)/2,'실제 Δy',k.p,lft?'right':'left',lft?-7:7,22,true);
+    T(g,'확대한 창',z.l+6,z.t+12,k.soft,'left',true);
+    var dy=qy-sy,est=Math.cos(a)*dx;
+    rd('r19','<div class="row"><span>현재 각도 x = '+fx(a,2)+', 더 돌린 Δx = '+fx(dx,3)+'</span><span>실제 높이 변화 Δy = sin(x+Δx) − sin x = <b>'+fx(dy,5)+'</b></span><span>cos x · Δx = <b>'+fx(est,5)+'</b></span></div>'+
+      '<div class="row"><span>Δy / Δx = '+fx(dy/dx,5)+'</span><span>cos x = '+fx(Math.cos(a),5)+'</span><span>'+(Math.abs(Math.cos(a))>0.05?'두 값의 비 '+fx(dy/est,4)+' (Δx 를 줄이면 1 로)':'cos x ≈ 0 근처라 비 대신 차이 '+fx(dy/dx-Math.cos(a),4)+' 를 보세요')+'</span></div>');}
+  bind(['x19','d19'],d,[function(v){return fx(v,2);},function(v){return fx(v,3);}]);lab(d);
+})();
+
+/* ── 실험 20 · 더하기와 곱하기 ── */
+(function(){
+  function d(){var g=G('c20',0.42,0.9),k=g.col,N=5,addv=[],mulv=[],i;
+    for(i=0;i<=N;i++){addv.push(i===0?1:addv[i-1]+2);mulv.push(i===0?1:mulv[i-1]*2);}
+    var b1=g.mob?[0,0,g.W,g.H/2]:[0,0,g.W/2,g.H],b2=g.mob?[0,g.H/2,g.W,g.H/2]:[g.W/2,0,g.W/2,g.H];
+    [[b1,addv,'매번 2 를 더함',k.b],[b2,mulv,'매번 2 를 곱함',k.d]].forEach(function(q){var p=PA(g,-0.6,N+0.6,0,34,q[0],[34,24,8,24]);frame(g,q[0],q[2]);axes(p,{xt:[0,1,2,3,4,5].map(function(v){return [v,v+'번'];}),sy:10});
+      q[1].forEach(function(v,j){rect(p,j-0.32,j+0.32,0,v,rgba(q[3],0.55),q[3],1.2);tx(p,j,v,String(v),k.ink,'center',0,-10,true);});});
+    var rows='';for(i=1;i<=N;i++)rows+='<tr><td>'+i+'</td><td>'+addv[i]+'</td><td>+'+(addv[i]-addv[i-1])+'</td><td>'+fm((addv[i]-addv[i-1])/addv[i-1],3)+'</td><td>'+mulv[i]+'</td><td>+'+(mulv[i]-mulv[i-1])+'</td><td>'+fm((mulv[i]-mulv[i-1])/mulv[i-1],3)+'</td></tr>';
+    var r2=Math.sqrt(2);
+    rd('r20','<div class="tbwrap"><table><tr><th>횟수</th><th>더하기 값</th><th>늘어난 양</th><th>늘어난 양 ÷ 원래 값</th><th>곱하기 값</th><th>늘어난 양</th><th>늘어난 양 ÷ 원래 값</th></tr>'+rows+'</table></div>'+
+      '<div class="row"><span>반 단계의 배율 √2 = '+fx(r2,6)+'</span><span>√2 × √2 = '+fx(r2*r2,6)+'</span><span>반 단계마다 2 를 곱하면 한 단계에 2 × 2 = 4 배</span></div>');}
+  lab(d);
+})();
+
+/* ── 실험 21 · 자연상수 e ── */
+(function(){
+  function kb(b){var h=1e-5;return (Math.pow(b,h)-Math.pow(b,-h))/(2*h);}
+  function d(){var g=G('c21',0.56,0.95),k=g.col,b=val('b21'),xv=val('x21');
+    var f=function(x){return Math.pow(b,x);};var ymax=Math.max(3.2,f(1.6)*1.06);
+    var p=PA(g,-2.1,1.65,-0.3,ymax);axes(p,{xl:'x',yl:'y'});curve(p,f,k.f,2.8);
+    var s=D(f,xv),y=f(xv);curve(p,function(x){return y+s*(x-xv);},k.d,2.2,xv-1,xv+1);dot(p,xv,y,k.p,6);
+    seg(p,xv,0,xv,y,rgba(k.p,0.6),1.2,[3,3]);
+    var kk=kb(b),pts=[-1,0,1].map(function(q){return fm(D(f,q)/f(q),5);}).join(' / ');
+    rd('r21','<div class="row"><span>밑 b = <b>'+fx(b,5)+'</b></span><span>x = '+fx(xv,2)+': 높이 '+fx(y,4)+', 기울기 '+fx(s,4)+'</span><span>기울기 ÷ 높이 = <b>'+fx(s/y,5)+'</b></span></div>'+
+      '<div class="row"><span>x = −1, 0, 1 에서 잰 기울기 ÷ 높이: '+pts+' (모두 같음)</span><span>비례 상수 lim (b<sup>h</sup> − 1)/h ≈ <b>'+fx(kk,6)+'</b>'+(Math.abs(kk-1)<1e-5?' <span class="ok">= 1, 이 밑이 e</span>':'')+'</span></div>');}
+  bind(['b21','x21'],d,[function(v){return fx(v,4);},function(v){return fx(v,2);}]);
+  $('e21').addEventListener('click',function(){var e=bis(function(b){return kb(b)-1;},2,3);sweep('b21',val('b21'),e,900);});
+  $('t21').addEventListener('click',function(){sweep('b21',val('b21'),2,700);});
+  lab(d);
+})();
+
+/* ── 실험 22 · 시그마 ── */
+(function(){
+  function d(){var g=G('c22',0.46,0.8),k=g.col,n=Math.round(val('n22'));
+    var p=PA(g,0,Math.max(4,n+0.4),0,n+2.6);axes(p,{xl:'',sx:1,sy:1,xt:[]});var tot=0,terms=[];
+    for(var i=1;i<=n;i++){var hgt=i+1;rect(p,i-1+0.04,i-0.04,0,hgt,rgba(i%2?k.f:k.b,0.4),i%2?k.f:k.b,1.3);tx(p,i-0.5,hgt,String(hgt),k.ink,'center',0,-10,true);tx(p,i-0.5,0,'i = '+i,k.soft,'center',0,12,true);tot+=hgt*1;terms.push(hgt+'×1');}
+    rd('r22','<div class="row"><span>A₁ + A₂ + … = '+terms.join(' + ')+' = <b>'+tot+'</b></span></div><div class="row"><span>시그마로는 한 줄: i = 1 부터 '+n+' 까지 A 를 더한 값 = '+tot+'</span></div>');}
+  bind(['n22'],d,[function(v){return String(Math.round(v));}]);lab(d);
+})();
+
+/* ── 실험 23 · 속도 → 거리 ── */
+(function(){
+  var mode=modes('m23',function(){d();});
+  function d(){var g=G('c23',0.54,0.9),k=g.col,n=Math.round(val('n23')),m=mode();
+    var v=m==='c'?function(){return 3;}:function(t){return 1+t*t;};
+    var p=PA(g,0,2.2,0,5.6);axes(p,{xl:'t (초)',yl:'v (m/s)',sx:0.5,zero:true});
+    var dt=2/n,sum=0;for(var i=0;i<n;i++){var t0=i*dt,hv=v(t0);rect(p,t0,t0+dt,0,hv,rgba(k.r,0.32),k.r,n>30?0.6:1.2);sum+=hv*dt;}
+    curve(p,v,k.f,2.8,0,2);
+    var fine=S(v,0,2,20000);
+    rd('r23','<div class="row"><span>구간 '+n+'개, 한 구간 Δt = '+fm(dt,4)+' 초</span><span>직사각형 넓이의 합 Σ vᵢΔt = <b>'+fx(sum,5)+'</b> m</span><span>아주 잘게(2만 조각) 나눈 값 '+fx(fine,5)+' m</span><span>차이 '+fx(fine-sum,5)+'</span></div>'+
+      (m==='c'?'<div class="row"><span>일정한 속도: 3 m/s × 2 s = '+(3*2)+' m, 직사각형 하나로 정확</span></div>':''));}
+  bind(['n23'],d,[function(v){return String(Math.round(v));}]);lab(d);
+})();
+
+/* ── 실험 24 · 하합과 상합 ── */
+(function(){
+  function f(x){return x;}
+  function d(){var g=G('c24',0.56,0.9),k=g.col,n=Math.round(val('n24'));
+    var p=PA(g,0,2.2,0,2.3);axes(p,{xl:'x',yl:'y',sx:0.5,sy:0.5,zero:true});
+    var dx=2/n,L=0,U=0;for(var i=0;i<n;i++){var a=i*dx,b=a+dx;rect(p,a,b,0,f(a),rgba(k.f,0.3),k.f,n>32?0.5:1);rect(p,a,b,f(a),f(b),rgba(k.p,0.45),k.p,n>32?0.5:1);L+=f(a)*dx;U+=f(b)*dx;}
+    curve(p,f,k.ink,2.4,0,2);
+    var tri=0.5*2*f(2),diff=(f(2)-f(0))*dx;
+    rd('r24','<div class="row"><span>조각 '+n+'개, Δx = '+fm(dx,4)+'</span><span>작게 잡은 합 L = <b>'+fx(L,5)+'</b></span><span>크게 잡은 합 U = <b>'+fx(U,5)+'</b></span></div>'+
+      '<div class="row"><span>U − L = '+fx(U-L,5)+'</span><span>(f(2) − f(0)) × Δx = 2 × '+fm(dx,4)+' = '+fx(diff,5)+' '+ok(Math.abs(U-L-diff)<1e-9)+'</span><span>삼각형 넓이 ½·2·2 = '+fm(tri)+', L ≤ '+fm(tri)+' ≤ U '+ok(L<=tri+1e-12&&tri<=U+1e-12)+'</span></div>');}
+  bind(['n24'],d,[function(v){return String(Math.round(v));}]);lab(d);
+})();
+
+/* ── 실험 25 · 변위와 총거리 ── */
+(function(){
+  function v(t){return t<2?1:-1;}
+  function I(f,a,b){if(b<=2)return S(f,a,b,400);return S(f,a,2-1e-12,400)+S(f,2,b,400);}
+  function d(){var g=G('c25',0.62,1.0),k=g.col,T0=val('t25');
+    var p=PA(g,0,4.2,-1.5,1.5,[0,0,g.W,g.H*0.68]);axes(p,{xl:'t (초)',yl:'v (m/s)',sy:0.5,zero:true});
+    if(T0>0)rect(p,0,Math.min(T0,2),0,1,rgba(k.r,0.4));if(T0>2)rect(p,2,T0,-1,0,rgba(k.p,0.45));
+    curve(p,v,k.f,2.8,0,2-1e-9);curve(p,v,k.f,2.8,2,4);seg(p,T0,-1.5,T0,1.5,rgba(k.ax,0.7),1,[3,4]);
+    var disp=T0>0?I(v,0,T0):0,dist=T0>0?I(function(t){return Math.abs(v(t));},0,T0):0;
+    var q=P(g,40,g.H*0.68+24,g.W-60,g.H*0.32-40,-0.4,2.6,0,1);
+    seg(q,-0.4,0.5,2.6,0.5,k.ax,1.4);[0,1,2].forEach(function(m){seg(q,m,0.3,m,0.7,k.ax,1);tx(q,m,0.5,m+' m',k.soft,'center',0,16);});
+    dot(q,0,0.5,k.soft,4,true);dot(q,disp,0.5,k.p,7);T(g,'물체의 위치',q.l,q.t-6,k.soft,'left',true);
+    rd('r25','<div class="row"><span>T = '+fx(T0,2)+' 초</span><span>정적분(변위) = <b>'+fx(disp,4)+'</b> m</span><span>|v| 의 적분(총거리) = <b>'+fx(dist,4)+'</b> m</span></div>'+
+      (T0>3.99?'<div class="row"><span>처음 위치로 돌아왔으므로 변위 0, 하지만 움직인 거리는 4</span></div>':''));}
+  bind(['t25'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 26 · 원시함수의 가족 ── */
+(function(){
+  function d(){var g=G('c26',0.58,0.95),k=g.col,C=val('c26s');
+    var p=PA(g,-2.6,2.6,-4,10.5);axes(p,{xl:'x',yl:'y'});var fam=[-2,0,3],sl=[];
+    fam.forEach(function(c){var F=function(x){return x*x+c;};curve(p,F,rgba(k.ax,0.55),1.6);var s=D(F,1);sl.push([c,s]);seg(p,0.5,F(1)-s*0.5,1.5,F(1)+s*0.5,rgba(k.d,0.6),1.6);});
+    var F=function(x){return x*x+C;},s=D(F,1);curve(p,F,k.f,3);seg(p,0.4,F(1)-s*0.6,1.6,F(1)+s*0.6,k.d,2.6);dot(p,1,F(1),k.p,6);dot(p,0,F(0),k.r,5.5);
+    var cond=Math.abs(F(0)-5)<1e-9;
+    rd('r26','<div class="row"><span>F(x) = x² '+(C<0?'− '+fm(-C,1):'+ '+fm(C,1))+'</span><span>x = 1 에서 잰 기울기 = <b>'+fm(s,4)+'</b></span><span>회색 곡선(C = −2, 0, 3)의 기울기: '+sl.map(function(q){return fm(q[1],4);}).join(', ')+'</span></div>'+
+      '<div class="row"><span>F(0) = '+fm(F(0),2)+'</span>'+(cond?'<span class="ok">조건 F(0) = 5 를 만족하는 곡선은 이것 하나 (C = 5)</span>':'<span>기울기만으로는 C 가 정해지지 않습니다</span>')+'</div>');}
+  bind(['c26s'],d,[function(v){return fm(v,1);}]);
+  $('k26').addEventListener('click',function(){var c=5-0*0;sweep('c26s',val('c26s'),c,700);});
+  lab(d);
+})();
+
+/* ── 실험 27 · 미적분학의 기본 정리 ── */
+(function(){
+  var mode=modes('m27',function(){d();});
+  var FN={up:function(t){return 0.6+0.18*t*t;},wave:function(t){return 1.3+0.55*Math.sin(2.3*t);}};
+  function d(){var g=G('c27',0.6,1.0),k=g.col,f=FN[mode()],xv=val('x27'),h=val('h27');if(Math.abs(h)<0.0025)h=0;
+    var ymax=0;for(var i=0;i<=200;i++)ymax=Math.max(ymax,f(4*i/200));
+    var p=PA(g,0,4,0,ymax*1.15);axes(p,{xl:'t',yl:'높이',zero:true});
+    area(p,f,0,xv,rgba(k.f,0.22));
+    var html;
+    if(h!==0){var a=Math.min(xv,xv+h),b=Math.max(xv,xv+h),lo=Infinity,hi=-Infinity;for(i=0;i<=400;i++){var y=f(a+(b-a)*i/400);lo=Math.min(lo,y);hi=Math.max(hi,y);}
+      area(p,f,a,b,rgba(k.r,0.35));rect(p,a,b,0,lo,rgba(k.d,0.25),k.d,2);rect(p,a,b,0,hi,null,k.p,2);
+      tx(p,b,lo,'m',k.d,'left',5,8,true);tx(p,b,hi,'M',k.p,'left',5,-6,true);
+      var A=S(f,0,xv,2000),dA=S(f,xv,xv+h,800),q=dA/h;
+      var rows=[0.1,0.01,0.001,-0.001,-0.01,-0.1].map(function(hh){return '<tr><td>'+hh+'</td><td>'+fx(S(f,xv,xv+hh,200)/hh,6)+'</td></tr>';}).join('');
+      html='<div class="row"><span>A(x) = '+fx(A,4)+'</span><span>ΔA = '+fx(dA,5)+(h<0?' (띠가 빠져나감)':'')+'</span><span>h = '+fx(h,3)+'</span></div>'+
+        '<div class="row"><span>m = <b>'+fx(lo,4)+'</b> ≤ ΔA/h = <b>'+fx(q,4)+'</b> ≤ M = <b>'+fx(hi,4)+'</b> '+ok(lo-1e-9<=q&&q<=hi+1e-9)+'</span><span>f(x) = <b>'+fx(f(xv),4)+'</b></span><span>틈 M − m = '+fx(hi-lo,4)+'</span></div>'+
+        '<div class="tbwrap"><table><tr><th>h</th><th>ΔA / h</th></tr>'+rows+'</table></div>';}
+    else html='<div class="row"><span class="no">h = 0 이면 띠가 없어 ΔA/h 는 0/0 입니다. 0 에 가깝게만 두세요.</span></div>';
+    curve(p,f,k.f,2.8,0,4);seg(p,xv,0,xv,f(xv),k.ink,1.6);dot(p,xv,f(xv),k.ink,5);tx(p,xv,0,'x',k.ink,'center',0,12,true);
+    tx(p,Math.max(0.3,xv*0.45),f(xv*0.45)*0.4,'A(x)',k.f,'center',0,0,true);
+    rd('r27',html);}
+  bind(['x27','h27'],d,[function(v){return fx(v,2);},function(v){return fx(v,3);}]);lab(d);
+})();
+
+/* ── 실험 28 · 세 가지 방법 ── */
+(function(){
+  function f(x){return x;}function F(x){return x*x/2;}
+  function d(){var g=G('c28',0.5,0.85),k=g.col,b=val('b28'),n=Math.round(val('n28'));
+    var p=PA(g,0,3.2,0,3.4);axes(p,{xl:'x',yl:'y',sx:0.5,sy:0.5,zero:true});
+    var dx=b/n,sum=0;for(var i=1;i<=n;i++){var xr=i*dx;if(n<=60)rect(p,xr-dx,xr,0,f(xr),rgba(k.r,0.25),k.r,0.8);sum+=f(xr)*dx;}
+    poly(p,[[0,0],[b,0],[b,f(b)]],rgba(k.f,0.3),k.f,2);curve(p,f,k.ink,2,0,3.2);
+    var tri=0.5*b*f(b),ftc=F(b)-F(0);
+    rd('r28','<div class="row"><span>1) 삼각형: ½ × '+fm(b,2)+' × '+fm(f(b),2)+' = <b>'+fx(tri,5)+'</b></span><span>2) 직사각형 '+n+'개의 합: <b>'+fx(sum,5)+'</b></span><span>3) 원시함수: '+fm(b,2)+'²/2 − 0²/2 = <b>'+fx(ftc,5)+'</b></span></div>'+
+      '<div class="row"><span>1) 과 3) 의 차이 '+fx(tri-ftc,8)+' '+ok(Math.abs(tri-ftc)<1e-12)+'</span><span>2) 는 조각을 늘릴수록 다가감(지금 차이 '+fx(sum-ftc,5)+')</span></div>');}
+  bind(['b28','n28'],d,[function(v){return fx(v,2);},function(v){return String(Math.round(v));}]);lab(d);
+})();
+
+/* ── 실험 29 · 적분의 성질 ── */
+(function(){
+  function base(x){return 1+x-0.25*x*x;}
+  function d(){var g=G('c29',0.52,0.9),k=g.col,c=val('c29s'),kk=val('k29');var f=function(x){return kk*base(x);};
+    var p=PA(g,0,3.2,0,6);axes(p,{xl:'x',yl:'y',sx:0.5,zero:true});
+    area(p,f,0,c,rgba(k.b,0.35));area(p,f,c,3,rgba(k.d,0.35));curve(p,base,rgba(k.ax,0.8),1.6,0,3,[5,4]);curve(p,f,k.f,2.8,0,3);seg(p,c,0,c,f(c),k.ink,1.6);
+    var L=S(f,0,c),R=S(f,c,3),Tt=S(f,0,3),T1=S(base,0,3),rev=S(f,3,0),same=S(f,1,1);
+    rd('r29','<div class="row"><span>왼쪽 [0, '+fm(c,2)+'] = '+fx(L,4)+'</span><span>오른쪽 ['+fm(c,2)+', 3] = '+fx(R,4)+'</span><span>합 '+fx(L+R,4)+' = 전체 '+fx(Tt,4)+' '+ok(Math.abs(L+R-Tt)<1e-9)+'</span></div>'+
+      '<div class="row"><span>배율 '+fm(kk,1)+': 전체 '+fx(Tt,4)+' = '+fm(kk,1)+' × '+fx(T1,4)+' '+ok(Math.abs(Tt-kk*T1)<1e-9)+'</span><span>시작·끝을 바꾼 3 → 0 의 적분 = '+fx(rev,4)+'</span><span>1 → 1 의 적분 = '+fx(same,4)+'</span></div>');}
+  bind(['c29s','k29'],d,[function(v){return fx(v,2);},function(v){return fm(v,1);}]);lab(d);
+})();
+
+/* ── 실험 30 · 치환 ── */
+(function(){
+  function gx(x){return (2*x+1)*2;}function fu(u){return u;}
+  function d(){var g=G('c30',0.62,1.05),k=g.col,n=Math.round(val('n30'));
+    var l=40,w=g.W-60,s=w/3.2;var top=P(g,l,14,s*1.1,g.H*0.38,-0.05,1.05,0,6.5),bot=P(g,l,g.H*0.56,s*3.2,g.H*0.36,0,3.2,0,3.4);
+    axes(top,{xl:'x',sx:0.5,sy:2,zero:true});axes(bot,{xl:'u',sx:0.5,sy:1,zero:true});
+    T(g,'x 눈금: 높이 (2x+1)·2',top.l+top.w+10,top.t+10,k.f,'left',true);T(g,'u 눈금: 높이 u',bot.l+6,bot.t-4,k.f,'left',true);
+    var dx=1/n,st=0,sb=0;
+    for(var i=0;i<n;i++){var x0=i*dx,u0=2*x0+1,du=2*dx,col=i%2?k.b:k.d;
+      rect(top,x0,x0+dx,0,gx(x0),rgba(col,0.4),col,0.8);rect(bot,u0,u0+du,0,fu(u0),rgba(col,0.4),col,0.8);
+      st+=gx(x0)*dx;sb+=fu(u0)*du;
+      var x=g.x;x.save();x.strokeStyle=rgba(k.ax,0.45);x.lineWidth=1;x.setLineDash([2,3]);x.beginPath();x.moveTo(top.X(x0),top.Y(0));x.lineTo(bot.X(u0),bot.Y(fu(u0)));x.stroke();x.restore();}
+    curve(top,gx,k.f,2.4,0,1);curve(bot,fu,k.f,2.4,1,3);
+    var F=function(u){return u*u/2;};
+    rd('r30','<div class="row"><span>조각 '+n+'개: Δx = '+fm(dx,4)+' → Δu = '+fm(2*dx,4)+' (두 배)</span><span>x 눈금 합 = <b>'+fx(st,5)+'</b></span><span>u 눈금 합 = <b>'+fx(sb,5)+'</b> '+ok(Math.abs(st-sb)<1e-9)+'</span></div>'+
+      '<div class="row"><span>원시함수 u²/2 의 끝 차이: 3²/2 − 1²/2 = <b>'+fx(F(3)-F(1),5)+'</b></span><span>x 로 직접 잘게 적분 '+fx(S(gx,0,1),5)+'</span></div>');}
+  bind(['n30'],d,[function(v){return String(Math.round(v));}]);lab(d);
+})();
+
+/* ── 실험 31 · 곱의 미분과 부분적분 ── */
+(function(){
+  function d(){var g=G('c31',0.5,0.95),k=g.col,u=val('u31'),v=val('v31'),dl=val('d31');
+    var box=g.mob?[0,0,g.W,g.H]:[0,0,g.W*0.6,g.H];var p=PE(g,-0.3,4.2,-0.3,4.2,box,6);
+    rect(p,0,u,0,v,rgba(k.f,0.25),k.f,1.5);rect(p,u,u+dl,0,v,rgba(k.r,0.4),k.r,1.5);rect(p,0,u,v,v+dl,rgba(k.b,0.4),k.b,1.5);rect(p,u,u+dl,v,v+dl,rgba(k.p,0.55),k.p,1.5);
+    tx(p,u/2,v/2,'u·v',k.ink,'center',0,0,true);if(dl>0.25){tx(p,u+dl/2,v/2,'v·Δ',k.ink,'center',0,0,true);tx(p,u/2,v+dl/2,'u·Δ',k.ink,'center',0,0,true);}
+    tx(p,u/2,0,'u',k.soft,'center',0,11);tx(p,0,v/2,'v',k.soft,'right',-5,0);
+    var inc=(u+dl)*(v+dl)-u*v,a1=v*dl,a2=u*dl,c=dl*dl;
+    if(!g.mob){var X=g.W*0.62,Y=g.H*0.22,L=g.F+9;T(g,'늘어난 넓이 '+fx(inc,4),X,Y,k.ink,'left',true);T(g,'= v·Δ '+fx(a1,4),X,Y+L,k.r);T(g,'+ u·Δ '+fx(a2,4),X,Y+2*L,k.b);T(g,'+ 모서리 Δ² '+fx(c,4),X,Y+3*L,k.p);T(g,'모서리의 몫 '+fx(100*c/inc,2)+'%',X,Y+4.6*L,k.soft,'left',true);}
+    rd('r31','<div class="row"><span>늘어난 넓이 = '+fx(inc,5)+' = v·Δ '+fx(a1,5)+' + u·Δ '+fx(a2,5)+' + Δ² '+fx(c,5)+' '+ok(Math.abs(inc-a1-a2-c)<1e-9)+'</span></div>'+
+      '<div class="row"><span>Δ 로 나누면: 두 띠 → '+fx((a1+a2)/dl,4)+' (= u + v), 모서리 → '+fx(c/dl,4)+' (= Δ, 0 으로 사라짐)</span><span>모서리의 몫 '+fx(100*c/inc,2)+'%</span></div>');}
+  bind(['u31','v31','d31'],d,[function(v){return fx(v,2);},function(v){return fx(v,2);},function(v){return fx(v,2);}]);lab(d);
+  var I=S(function(x){return x*Math.exp(x);},0,1),F=function(x){return x*Math.exp(x)-Math.exp(x);};var el=$('ibp');
+  if(el)el.textContent=fx(I,6)+' (원시함수 끝 차이 '+fx(F(1)-F(0),6)+')';
+})();
+
+/* ── 실험 32 · 평균 ── */
+(function(){
+  function f(x){return x*x;}
+  function d(){var g=G('c32',0.52,0.9),k=g.col,b=val('b32');
+    var p=PA(g,0,3.2,0,9.6);axes(p,{xl:'x',yl:'y',sx:0.5,zero:true});
+    var I=S(f,0,b),avg=I/b,ends=(f(0)+f(b))/2;
+    area(p,f,0,b,rgba(k.f,0.25));rect(p,0,b,0,avg,rgba(k.r,0.18),k.r,2);curve(p,f,k.f,2.8,0,3.2);
+    seg(p,0,ends,b,ends,k.d,2,[6,4]);tx(p,b,avg,'평균 '+fx(avg,3),k.r,'left',6,0,true);tx(p,b,ends,'양 끝 평균 '+fx(ends,3),k.d,'left',6,0,true);
+    rd('r32','<div class="row"><span>넓이 ∫ = '+fx(I,5)+'</span><span>÷ 가로 '+fm(b,2)+' = 평균 높이 <b>'+fx(avg,5)+'</b></span><span>양 끝 높이 '+fm(f(0))+', '+fx(f(b),3)+' 만의 평균 = '+fx(ends,5)+'</span></div>'+
+      '<div class="row"><span>초록 직사각형 넓이 '+fx(avg*b,5)+' = 곡선 아래 넓이 '+fx(I,5)+' '+ok(Math.abs(avg*b-I)<1e-9)+'</span></div>');}
+  bind(['b32'],d,[function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 33 · 두 곡선 사이 ── */
+(function(){
+  var mode=modes('m33',function(){d();});
+  function f(x){return x;}function g2(x){return x*x;}
+  function d(){var g=G('c33',0.5,0.85),k=g.col,B=mode()==='2'?2:1;
+    var p=PA(g,0,B*1.08,0,B===2?4.3:1.15);axes(p,{xl:'x',yl:'y',zero:true});
+    var cr=roots(function(x){return f(x)-g2(x);},0.01,B);var cuts=[0].concat(cr.filter(function(c){return c<B-1e-9;})).concat([B]);
+    for(var i=0;i<cuts.length-1;i++){var a=cuts[i],b=cuts[i+1],mid=(a+b)/2,upf=f(mid)>=g2(mid);
+      var pts=[],j,x;for(j=0;j<=120;j++){x=a+(b-a)*j/120;pts.push([x,f(x)]);}for(j=120;j>=0;j--){x=a+(b-a)*j/120;pts.push([x,g2(x)]);}poly(p,pts,rgba(upf?k.r:k.p,0.4));}
+    curve(p,f,k.b,2.6,0,B*1.08);curve(p,g2,k.d,2.6,0,B*1.08);
+    var signed=S(function(x){return f(x)-g2(x);},0,B),tot=0;for(i=0;i<cuts.length-1;i++)tot+=Math.abs(S(function(x){return f(x)-g2(x);},cuts[i],cuts[i+1]));
+    rd('r33','<div class="row"><span>교차점: '+(cr.length?cr.map(function(c){return 'x = '+fx(c,4);}).join(', '):'구간 안에 없음')+'</span><span>차이 (x − x²) 를 그대로 적분 = <b>'+fx(signed,5)+'</b></span><span>위에서 아래를 빼 가며 구한 넓이 = <b>'+fx(tot,5)+'</b></span></div>'+
+      (B===2?'<div class="row"><span class="no">x &gt; 1 에서는 x² 가 위라, 그대로 적분하면 그 부분이 음수로 상쇄됩니다.</span></div>':''));}
+  lab(d);
+})();
+
+/* ── 실험 34 · 구의 부피 ── */
+(function(){
+  var R=1;
+  function d(){var g=G('c34',0.5,1.25),k=g.col,n=Math.round(val('n34')),xs=val('x34');
+    var b1=g.mob?[0,0,g.W,g.H*0.56]:[0,0,g.W*0.56,g.H],b2=g.mob?[0,g.H*0.56,g.W,g.H*0.44]:[g.W*0.56,0,g.W*0.44,g.H];
+    var p=PE(g,-1.25,1.25,-1.2,1.2,b1,8);
+    var dx=2*R/n,sum=0;for(var i=0;i<n;i++){var a=-R+i*dx,m=a+dx/2,r=Math.sqrt(R*R-m*m);rect(p,a,a+dx,-r,r,rgba(k.b,0.28),k.b,n>40?0.4:1);sum+=Math.PI*r*r*dx;}
+    pcurve(p,function(t){return R*Math.cos(t);},function(t){return R*Math.sin(t);},0,2*Math.PI,k.f,2.4);
+    var rs=Math.sqrt(R*R-xs*xs);seg(p,-1.25,0,1.25,0,rgba(k.ax,0.6),1);
+    seg(p,0,0,xs,0,k.p,2.6);seg(p,xs,0,xs,rs,k.d,2.6);seg(p,0,0,xs,rs,k.ink,2);seg(p,xs,-rs,xs,rs,rgba(k.d,0.5),1.4,[4,3]);
+    tx(p,xs/2,0,'x',k.p,'center',0,12,true);tx(p,xs,rs/2,'r',k.d,xs>=0?'left':'right',xs>=0?6:-6,0,true);tx(p,xs/2,rs/2,'R',k.ink,xs>=0?'right':'left',xs>=0?-6:6,-6,true);
+    var c=PE(g,-1.2,1.2,-1.2,1.2,b2,16);pcurve(c,function(t){return R*Math.cos(t);},function(t){return R*Math.sin(t);},0,2*Math.PI,rgba(k.ax,0.6),1.2,[4,4]);
+    poly(c,(function(){var a=[];for(var j=0;j<=120;j++){var t=2*Math.PI*j/120;a.push([rs*Math.cos(t),rs*Math.sin(t)]);}return a;})(),rgba(k.d,0.3),k.d,2);
+    seg(c,0,0,rs,0,k.d,2.2);tx(c,rs/2,0,'r',k.d,'center',0,-10,true);T(g,'x = '+fx(xs,2)+' 에서 자른 단면',c.l,c.t-4,k.soft,'left',true);
+    var Fv=function(x){return Math.PI*(R*R*x-x*x*x/3);},exact=Fv(R)-Fv(-R);
+    rd('r34','<div class="row"><span>원판 '+n+'개의 부피 합 Σ π r² Δx = <b>'+fx(sum,5)+'</b></span><span>원시함수로 계산한 값 = <b>'+fx(exact,5)+'</b> (4π/3 = '+fx(4*Math.PI/3,5)+')</span><span>차이 '+fx(sum-exact,5)+'</span></div>'+
+      '<div class="row"><span>단면: R² − x² = '+fx(R*R-xs*xs,4)+', r = '+fx(rs,4)+', r² = '+fx(rs*rs,4)+' '+ok(Math.abs(rs*rs-(R*R-xs*xs))<1e-12)+'</span><span>단면의 넓이 S(x) = π r² = '+fx(Math.PI*rs*rs,4)+'</span></div>');}
+  bind(['n34','x34'],d,[function(v){return String(Math.round(v));},function(v){return fx(v,2);}]);lab(d);
+})();
+
+/* ── 실험 35 · 곡선의 길이 ── */
+(function(){
+  function f(x){return x*x;}
+  function d(){var g=G('c35',0.56,0.9),k=g.col,n=Math.round(val('n35'));
+    var p=PE(g,-0.08,1.12,-0.08,1.12,[0,0,g.mob?g.W:g.W*0.62,g.H],10);axes(p,{xl:'x',yl:'y',sx:0.25,sy:0.25,zero:true});
+    curve(p,f,rgba(k.f,0.5),5,0,1);var dx=1/n,sum=0,hi=Math.floor(n/2);
+    for(var i=0;i<n;i++){var a=i*dx,b=a+dx,L=Math.sqrt(dx*dx+Math.pow(f(b)-f(a),2));sum+=L;seg(p,a,f(a),b,f(b),i===hi?k.p:k.d,i===hi?3:2);dot(p,a,f(a),k.d,2.6);}
+    dot(p,1,1,k.d,2.6);
+    var a0=hi*dx,b0=a0+dx;seg(p,a0,f(a0),b0,f(a0),k.b,1.8,[4,3]);seg(p,b0,f(a0),b0,f(b0),k.r,1.8,[4,3]);
+    if(n<=8){tx(p,(a0+b0)/2,f(a0),'Δx',k.b,'center',0,12,true);tx(p,b0,(f(a0)+f(b0))/2,'Δy',k.r,'left',6,0,true);}
+    var Lint=S(function(x){return Math.sqrt(1+Math.pow(D(f,x),2));},0,1,4000);
+    if(!g.mob){var X=g.W*0.64,Y=g.H*0.3,LL=g.F+9;T(g,'꺾은선 '+n+'조각',X,Y,k.soft,'left',true);T(g,'길이 합 '+fx(sum,5),X,Y+LL,k.d,'left',true);T(g,'적분값 '+fx(Lint,5),X,Y+2*LL,k.f,'left',true);}
+    rd('r35','<div class="row"><span>강조한 조각: Δx = '+fx(dx,4)+', Δy = '+fx(f(b0)-f(a0),4)+', 빗변 √(Δx² + Δy²) = '+fx(Math.sqrt(dx*dx+Math.pow(f(b0)-f(a0),2)),5)+'</span></div>'+
+      '<div class="row"><span>꺾은선 길이의 합 = <b>'+fx(sum,6)+'</b></span><span>∫ √(1 + (f′)²) dx = <b>'+fx(Lint,6)+'</b></span><span>차이 '+fx(Lint-sum,6)+'</span></div>');}
+  bind(['n35'],d,[function(v){return String(Math.round(v));}]);lab(d);
+})();
+
+/* ── 실험 36 · 누적 조회수 ── */
+(function(){
+  function V(t){return 10000*t/(t+3);}
+  function d(){var g=G('c36',0.52,0.9),k=g.col,t=val('t36');
+    var p=PA(g,0,32,0,11000,null,[52,12,12,26]);axes(p,{xl:'날짜 t (일)',yl:'누적 조회수',sy:2000,zero:true});
+    curve(p,V,k.f,2.8,0,32);var s=D(V,t),a=D2(V,t),y=V(t);
+    curve(p,function(x){return y+s*(x-t);},k.d,2,t,Math.min(32,t+7),[6,4]);dot(p,t,y,k.p,6);
+    var t7=t+7,pred=y+s*7;if(t7<=32){dot(p,t7,pred,k.d,5,true);dot(p,t7,V(t7),k.f,5);}
+    rd('r36','<div class="row"><span>t = '+fx(t,1)+'일</span><span>높이(누적) '+fm(y,0)+' 회</span><span>기울기 '+fm(s,1)+' 회/일 ('+(s>0?'늘고 있음':'줄고 있음')+')</span><span>기울기의 변화 '+fm(a,2)+' ('+(a<0?'증가 속도가 <b>줄고</b> 있음':'증가가 빨라짐')+')</span></div>'+
+      '<div class="row"><span>7일 뒤 접선 예측 '+fm(pred,0)+' 회 vs 실제 모델 '+fm(V(t7),0)+' 회 → 차이 '+fm(pred-V(t7),0)+' 회</span></div>');}
+  bind(['t36'],d,[function(v){return fx(v,1);}]);lab(d);
+})();
+
+/* ── 실험 37 · 최적의 선택 ── */
+(function(){
+  var mode=modes('m37',function(){d();});
+  function d(){var g=G('c37',0.52,0.9),k=g.col,m=mode(),sv=val('x37');var html;
+    if(m==='b'){var f=function(x){return 6*x-x*x;};var p=PA(g,0,6.2,-1,10.5);axes(p,{xl:'활동량 x',yl:'순편익',zero:true});curve(p,f,k.f,2.8,0,6);
+      var s=D(f,sv);curve(p,function(x){return f(sv)+s*(x-sv);},k.d,2.2,sv-1,sv+1);dot(p,sv,f(sv),k.p,6);
+      var best=0,bx=0;for(var i=0;i<=6000;i++){var xv=6*i/6000;if(f(xv)>best){best=f(xv);bx=xv;}}dot(p,bx,best,k.r,5,true);
+      html='<div class="row"><span>x = '+fx(sv,2)+': 순편익 '+fx(f(sv),3)+'</span><span>f′(x) = <b>'+fx(s,3)+'</b> '+(Math.abs(s)<0.02?'(0)':(s>0?'(+, 더 늘리면 이득)':'(−, 더 늘리면 손해)'))+'</span></div><div class="row"><span>부호가 + 에서 − 로 바뀌는 곳 x = '+fx(roots(function(x){return D(f,x);},0,6)[0],4)+'</span><span>최대 순편익 '+fx(best,4)+' (x = '+fx(bx,3)+')</span></div>';}
+    else{var c=function(x){return x*x*x;},X=(sv-3)/2;var p2=PA(g,-1.6,1.6,-3.6,3.6);axes(p2,{xl:'x',yl:'y'});curve(p2,c,k.f,2.8);
+      var s2=D(c,X);curve(p2,function(x){return c(X)+s2*(x-X);},k.d,2.2,X-0.8,X+0.8);dot(p2,X,c(X),k.p,6);dot(p2,0,0,k.r,5,true);
+      html='<div class="row"><span>x = '+fx(X,2)+': 기울기 <b>'+fx(s2,3)+'</b></span><span>원점의 기울기 '+fx(D(c,0),4)+', 왼쪽 기울기 '+fx(D(c,-0.1),3)+'(+), 오른쪽 기울기 '+fx(D(c,0.1),3)+'(+)</span></div><div class="row"><span class="no">부호가 바뀌지 않으므로 원점은 최대도 최소도 아닙니다.</span></div>';}
+    rd('r37',html);}
+  bind(['x37'],d,[function(v){return mode()==='c'?fx((v-3)/2,2):fx(v,2);}]);
+  $('m37').addEventListener('click',function(){var v=val('x37');$('x37o').textContent=mode()==='c'?fx((v-3)/2,2):fx(v,2);});
+  lab(d);
+})();
+
+/* ── 테마(라이트·다크·기기) + 상단바 자리 ── */
+(function(){
+  var btn=$('themeBtn'),NAMES={light:'☀ 라이트',dark:'🌙 다크',auto:'🖥 기기'},ORDER=['light','dark','auto'];
+  function getT(){return ROOT.getAttribute('data-theme')||'light';}
+  function apply(v){ROOT.setAttribute('data-theme',v);btn.textContent=NAMES[v];var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',cv('--accent')||'#6b4fd8');drawAll();}
+  btn.addEventListener('click',function(){var nv=ORDER[(ORDER.indexOf(getT())+1)%3];try{localStorage.setItem('calclab_theme',nv);}catch(e){}apply(nv);});
+  btn.textContent=NAMES[getT()];
+  if(window.matchMedia){var mq=window.matchMedia('(prefers-color-scheme: dark)');var cb=function(){if(getT()==='auto')drawAll();};if(mq.addEventListener)mq.addEventListener('change',cb);else if(mq.addListener)mq.addListener(cb);}
+  var bar=$('topbar');function reserve(){document.body.style.paddingTop=(bar.offsetHeight)+'px';}
+  reserve();if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  var tid=0,lastW=window.innerWidth;window.addEventListener('resize',function(){reserve();if(window.innerWidth===lastW&&!document.hidden){}lastW=window.innerWidth;clearTimeout(tid);tid=setTimeout(drawAll,80);});
+})();
+drawAll();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawAll);
+window.CALCLAB={drawAll:drawAll};
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

@@ -6,6 +6,34 @@
 
   var scenes = [
 
+  // 1.0 들어가기 — 미적분 전체를 한 줄기로 잇는 실험실(별도 페이지)로 가는 문.
+  //     미리보기 그림 = 세 도형 넓이 비교(안쪽 삼각형 ≤ 부채꼴 ≤ 바깥쪽 삼각형). 넓이는 좌표로 실계산.
+  { id:'calc1_00',
+    enter:function(E){ this.s={};
+      E.controls('<div class="ctrl" style="justify-content:center"><a href="calclab/labs/0001-calculus-from-zero.html" '+
+        'style="display:inline-flex;align-items:center;min-height:42px;padding:.35rem 1.1rem;border-radius:10px;background:#b99cff;color:#1a1230;font-weight:800;text-decoration:none">▶ 실험실 열기 — 미적분, 처음부터 한 번에</a></div>'); },
+    tap:function(){ location.href='calclab/labs/0001-calculus-from-zero.html'; },
+    draw:function(E){ var ctx=E.ctx, W=E.W, H=E.H;
+      var h=0.18+0.62*(0.5-0.5*Math.cos(E.frame/150));            // 각도가 천천히 커졌다 작아짐
+      var S=Math.min(W*0.34,H*0.62), ox=W*0.12, oy=H*0.84;
+      function X(x){return ox+x*S;} function Y(y){return oy-y*S;}
+      function shoe(p){var s=0;for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+      var sec=[[0,0]];for(var i=0;i<=400;i++){var t=h*i/400;sec.push([Math.cos(t),Math.sin(t)]);}
+      var P=[Math.cos(h),Math.sin(h)], T=[1,Math.tan(h)], inn=[[0,0],[1,0],P], out=[[0,0],[1,0],T];
+      function fillP(p,col){ctx.beginPath();p.forEach(function(q,i){if(i)ctx.lineTo(X(q[0]),Y(q[1]));else ctx.moveTo(X(q[0]),Y(q[1]));});ctx.closePath();ctx.fillStyle=col;ctx.fill();}
+      ctx.strokeStyle='rgba(155,153,163,0.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(X(0),Y(0),S,-Math.PI/2,0);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(X(0),Y(0));ctx.lineTo(X(1.25),Y(0));ctx.moveTo(X(0),Y(0));ctx.lineTo(X(0),Y(1.15));ctx.stroke();
+      fillP(out,'rgba(255,210,122,0.30)');fillP(sec,'rgba(185,156,255,0.38)');fillP(inn,'rgba(122,184,255,0.45)');
+      ctx.strokeStyle='#e7e1ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(X(0),Y(0));ctx.lineTo(X(T[0]),Y(T[1]));ctx.stroke();
+      var aI=shoe(inn),aS=shoe(sec),aO=shoe(out),bx=W*0.56,by=H*0.40,bw=W*0.30;
+      ctx.font='600 15px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+      [['안쪽 삼각형',aI,BLU],['부채꼴',aS,VIO],['바깥쪽 삼각형',aO,GLD]].forEach(function(r,j){var y=by+j*44;
+        ctx.fillStyle=r[2];ctx.fillRect(bx,y,bw*r[1]/aO,14);ctx.fillStyle='#dfeefb';ctx.fillText(r[0]+'  '+r[1].toFixed(4),bx,y-10);});
+      ctx.fillStyle=DIM;ctx.font='14px sans-serif';
+      ctx.fillText('h = '+h.toFixed(2)+'  →  cos h = '+Math.cos(h).toFixed(4)+' ≤ sin h / h = '+(Math.sin(h)/h).toFixed(4)+' ≤ 1',bx,by+150);
+      E.big('미적분, 처음부터 한 번에','변화를 읽는 미분과 변화를 모으는 적분 — 서른네 걸음 실험실. 아래 단추나 화면을 눌러 들어가세요'); }
+  },
+
   // 1.1 함수의 네 가지 표현 — 식·표·그래프·말 (입력 x 슬라이더)
   { id:'calc1_01',
     enter:function(E){ this.s={x:2}; E.Plot.range(-3.2,3.2,-1,9.5).lab('x','y');
