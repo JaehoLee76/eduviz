@@ -691,12 +691,12 @@
   /* ============================================================
    * 6. 시나리오 S1~S7 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134 };   // 기본 시드(S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12 };   // 기본 시드(S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
 
   function scenario(name, params) {
     params = params || {};
     var key = String(name).toUpperCase().slice(0, 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8 }[key];
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -1238,12 +1238,153 @@
   S8.tools = { phiFast: phiFast, arlShewhart: arlShewhart, arlEwma: arlEwma, arlCusum1: arlCusum1, arlCusum: arlCusum, bisect: bisect, calibEwmaL: calibEwmaL, calibCusumH: calibCusumH,
                shewhartMonitor: shewhartMonitor, ewmaMonitor: ewmaMonitor, cusumMonitor: cusumMonitor, runSummary: runSummary, ARL0_T: ARL0_T, MU0: MU0, SIG0: SIG0 };
 
+  /* S9 adaptive_spec_replay — 가성 인터락을 줄이는 spec: 적응형 한계와, 라벨이 붙은 과거 기록에 후보 spec 을 다시 돌려 보는 일(과거 재현).
+   * 하루 200장 × 180일(기록 36,000장) + 배포 뒤 90일(18,000장, "미래"; 선택에 쓰지 않고 낙관 편향을 재는 데만 씀). PM 은 약 2,000장마다, PM 뒤 새 정상 수준 = 공칭(0) + N(0,τ²)(누적 아님, 첫 구간도 같은 분포).
+   * 정상 산포 σ=1. 진성 이상 = 기대 3,000장에 1건(PM 직후 50장은 8배), 크기 +2.5σ~+5σ, 길이 기하분포(평균 40장, 다음 PM 에서 끊김).
+   * 정책: P0 현행 고정(k=3) · P1 고정+k 최적화 · P2 적응형(PM 뒤 n_b장 안정화 구간 중앙값·1.4826·MAD, 허용 이동폭 Δmax 가드).
+   * 모든 정책은 같은 원자료에 같은 규칙(재가동 뒤 10장 안 재알람은 같은 건, 진성 알람이 나면 그 사건은 조치되어 끝남)으로 돌린다. */
+  var S9_GRID = []; (function () { for (var j = 0; j <= 80; j++) S9_GRID.push((200 + 5 * j) / 100); })();
+  var S9_PERIODS = ['tr', 'ck', 'fut', 'A', 'B'];                  // 학습 90일 · 확인 90일 · 배포 뒤 90일 · 섞어 나누기 A · B
+  var S9_TAU = 0.35;                                // PM 뒤 새 정상 수준 = 공칭(0) + N(0, τ²), 누적 아님(부품을 새로 맞춰 공칭 근처로 돌아오되 매번 조금씩 다른 자리에 앉음)
+  function s9gen(seed, o) {
+    o = o || {};
+    var per = o.per_day || 200, nH = per * (o.days || 180), nF = per * (o.future_days == null ? 90 : o.future_days), N = nH + nF, i, j;
+    var rp = rng(hashSeed('S9', seed, 'pm')), tau = o.tau == null ? S9_TAU : o.tau, pm = [], lev = [rp.normal(0, tau)], pos = 0;
+    for (;;) { pos += 1600 + Math.floor(rp.u() * 801); if (pos >= N) break; pm.push(pos); lev.push(rp.normal(0, tau)); }
+    var seg = new Int32Array(N), p = 0;
+    for (i = 0; i < N; i++) { while (p < pm.length && i >= pm[p]) p++; seg[i] = p; }
+    var re = rng(hashSeed('S9', seed, 'ev')), ev = new Int32Array(N).fill(-1), events = [], BASE = 1 / 3000, BOOST = o.boost == null ? 8 : o.boost, BLEN = o.boost_len || 50, lg = Math.log(1 - 1 / 40);
+    i = 0;
+    while (i < N) {
+      var sg = seg[i], since = sg > 0 ? i - pm[sg - 1] : 1e9, hz = since < BLEN ? BASE * BOOST : BASE;
+      if (re.u() < hz) {
+        var len = 1 + Math.floor(Math.log(1 - re.u()) / lg), size = 2.5 + 2.5 * re.u(), segEnd = sg < pm.length ? pm[sg] : N, end = Math.min(i + len, segEnd);
+        for (j = i; j < end; j++) ev[j] = events.length;
+        events.push({ start: i, end: end, size: size }); i = end;
+      } else i++;
+    }
+    var rn = rng(hashSeed('S9', seed, 'x')), x = new Float64Array(N);
+    for (i = 0; i < N; i++) { x[i] = lev[seg[i]] + rn.normal() + (ev[i] >= 0 ? events[ev[i]].size : 0); }
+    var rl = rng(hashSeed('S9', seed, 'lab')), U = new Float64Array(N), UE = [], rs = rng(hashSeed('S9', seed, 'split')), memA = new Uint8Array(N);
+    for (i = 0; i < N; i++) U[i] = rl.u();
+    for (j = 0; j < events.length; j++) UE.push(rl.u());
+    for (i = 0; i < nH; i++) memA[i] = rs.u() < 0.5 ? 1 : 0;
+    var cum = {}; S9_PERIODS.forEach(function (nm) {
+      var c = new Int32Array(N + 1); for (i = 0; i < N; i++) { var m = nm === 'tr' ? i < nH / 2 : nm === 'ck' ? (i >= nH / 2 && i < nH) : nm === 'fut' ? i >= nH : nm === 'A' ? !!memA[i] : (i < nH && !memA[i]); c[i + 1] = c[i] + (m ? 1 : 0); } cum[nm] = c;
+    });
+    var nb0 = Math.min(o.n_base || 2000, pm.length ? pm[0] : N), bs = Array.prototype.slice.call(x, 0, nb0);
+    return { seed: seed, tau: tau, N: N, nHist: nH, nFut: nF, per_day: per, x: x, pm: pm, level: lev, ev: ev, events: events, U: U, UE: UE, memA: memA, cum: cum, base: { n: nb0, c: mean(bs), w: sd(bs) }, pc: {}, cc: {}, rc: {} };
+  }
+  function s9policy(D, kind, nb, dmax, guard) {
+    var key = kind + '|' + nb + '|' + dmax + '|' + guard; if (D.pc[key]) return D.pc[key];
+    var N = D.N, x = D.x, T = new Float64Array(N), CA = new Float64Array(N), WA = new Float64Array(N), AA = new Float64Array(N), forced = [], moves = [], c = D.base.c, w = D.base.w, i, j;
+    CA.fill(c); WA.fill(w);
+    var firstEnd = kind === 'fixed' || !D.pm.length ? N : D.pm[0];
+    for (i = 0; i < firstEnd; i++) T[i] = Math.abs(x[i] - c) / w;
+    if (kind !== 'fixed') {
+      for (j = 0; j < D.pm.length; j++) {
+        var pst = D.pm[j], segEnd = j + 1 < D.pm.length ? D.pm[j + 1] : N, we = Math.min(pst + nb, segEnd), win = Array.prototype.slice.call(x, pst, we);
+        var nc = median(win), nw = 1.4826 * median(win.map(function (v) { return Math.abs(v - nc); })), moved = Math.abs(nc - c) > dmax * w, evs = [], q, last = -1;
+        for (q = pst; q < we; q++) if (D.ev[q] >= 0 && D.ev[q] !== last) { last = D.ev[q]; evs.push(last); }
+        var adopt = true;
+        if (guard && moved) { forced.push({ t: we - 1, evs: evs, from: pst, to: we }); adopt = evs.length === 0; }
+        moves.push({ pm: pst, old_c: c, old_w: w, new_c: nc, new_w: nw, moved: moved, anom_in_window: evs.length > 0, checked: !!(guard && moved), adopted: adopt, win_end: we });
+        for (q = pst; q < we; q++) { T[q] = Math.abs(x[q] - c) / w - dmax; CA[q] = c; WA[q] = w; AA[q] = dmax; }
+        if (adopt) { c = nc; w = nw; }
+        for (q = we; q < segEnd; q++) { T[q] = Math.abs(x[q] - c) / w; CA[q] = c; WA[q] = w; }
+      }
+    }
+    var ci = [], ct = []; for (i = 0; i < N; i++) if (T[i] > 2) { ci.push(i); ct.push(T[i]); }
+    var ks = Object.keys(D.pc); if (ks.length >= 16) delete D.pc[ks[0]];       // 슬라이더를 오래 끌어도 메모리가 쌓이지 않게 오래된 것부터 버린다
+    return (D.pc[key] = { kind: kind, nb: nb, dmax: dmax, guard: guard, c: CA, w: WA, add: AA, ci: Int32Array.from(ci), ct: Float64Array.from(ct), forced: forced, moves: moves });
+  }
+  function s9labels(D, err, dir) {                 // 기록된 라벨: 진성 사건이 가성으로 적힘(사건 단위, 'both'·'true2fa') · 정상 유리의 알람이 진성으로 적힘(유리 단위, 'both'·'fa2true')
+    dir = dir || 'both'; var key = 'e' + err + dir; if (D.rc[key]) return D.rc[key];
+    var evId = new Int32Array(D.N), mis = new Uint8Array(D.events.length), i, eT = dir === 'fa2true' ? 0 : err, eF = dir === 'true2fa' ? 0 : err;
+    for (var e = 0; e < D.events.length; e++) mis[e] = D.UE[e] < eT ? 1 : 0;
+    for (i = 0; i < D.N; i++) { var e0 = D.ev[i]; evId[i] = e0 >= 0 ? (mis[e0] ? -1 : e0) : (D.U[i] < eF ? -2 : -1); }
+    return (D.rc[key] = { evId: evId, mis: mis });
+  }
+  function s9scan(D, pol, k, lab, traced, rearm) {
+    rearm = rearm == null ? 10 : rearm;
+    var evId = lab ? lab.evId : D.ev, mis = lab ? lab.mis : null, ne = D.events.length, det = new Float64Array(ne).fill(Infinity), cum = D.cum, np = S9_PERIODS.length;
+    var fa = [0, 0, 0, 0, 0], miss = [0, 0, 0, 0, 0], sup = -1, checks = 0, fi = 0, a = 0, ci = pol.ci, ct = pol.ct, F = pol.forced, P, q, e, alarms = [], hits = [];
+    function addFA(i) { for (P = 0; P < np; P++) { var c = cum[S9_PERIODS[P]]; fa[P] += c[i + 1] - c[i]; } alarms.push(i); }
+    for (;;) {
+      while (a < ci.length && ct[a] <= k) a++;
+      var nextC = a < ci.length ? ci[a] : Infinity, nextF = fi < F.length ? F[fi].t : Infinity;
+      if (nextC === Infinity && nextF === Infinity) break;
+      if (nextF <= nextC) {
+        var f = F[fi++]; if (nextF === nextC) a++;
+        var found = false;
+        for (q = 0; q < f.evs.length; q++) { e = f.evs[q]; if (mis && mis[e]) continue; found = true; if (det[e] === Infinity) det[e] = f.t; }
+        if (!found) addFA(f.t); else hits.push(f.t);
+        checks++; sup = f.t + rearm; continue;
+      }
+      var i = nextC; a++;
+      e = evId[i];
+      if (e >= 0 && det[e] < i) continue;
+      if (i <= sup) continue;
+      sup = i + rearm;
+      if (e >= 0) { det[e] = i; hits.push(i); } else if (e === -1) addFA(i); else hits.push(i);
+    }
+    for (e = 0; e < ne; e++) {
+      if (mis && mis[e]) continue;
+      var ev0 = D.events[e], d = det[e];
+      if (d === Infinity && traced === false) continue;
+      var b = Math.min(d, ev0.end);
+      for (P = 0; P < np; P++) { var c2 = cum[S9_PERIODS[P]]; miss[P] += c2[b] - c2[ev0.start]; }
+    }
+    return { fa: fa, miss: miss, checks: checks, det: det, alarms: alarms, hits: hits };
+  }
+  function s9curve(D, popt, labErr, traced, dir) {      // 정책 popt={kind,nb,dmax,guard} 을 k 격자 전체에 돌린 결과(캐시). labErr == null 이면 참값 라벨
+    var key = [popt.kind, popt.nb, popt.dmax, popt.guard, labErr == null ? 'T' : labErr, traced === false ? 'u' : 't', dir || 'both'].join('|'); if (D.cc[key]) return D.cc[key];
+    var pol = s9policy(D, popt.kind, popt.nb, popt.dmax, popt.guard), lab = labErr == null ? null : s9labels(D, labErr, dir), out = { fa: [], miss: [], checks: [] };
+    for (var j = 0; j < S9_GRID.length; j++) { var r = s9scan(D, pol, S9_GRID[j], lab, traced === false ? false : true); out.fa.push(r.fa); out.miss.push(r.miss); out.checks.push(r.checks); }
+    return (D.cc[key] = out);
+  }
+  function s9cost(cv, j, per, cfa, cmiss) { var P = S9_PERIODS.indexOf(per); return cfa * cv.fa[j][P] + cmiss * cv.miss[j][P]; }
+  function s9argmin(cv, per, cfa, cmiss) { var best = 0, bv = Infinity; for (var j = 0; j < S9_GRID.length; j++) { var v = s9cost(cv, j, per, cfa, cmiss); if (v < bv - 1e-9) { bv = v; best = j; } } return best; }
+  var S9_K3 = 20;                                  // S9_GRID[20] = 3.00
+  function s9analyze(D, o) {
+    o = o || {};
+    var nb = o.n_burn || 100, dmax = o.dmax == null ? 3 : o.dmax, guard = o.guard !== false, cfa = o.c_fa == null ? 15 : o.c_fa, cmiss = o.c_miss == null ? 10 : o.c_miss, err = o.label_err || 0, dir = o.label_dir || 'both', traced = o.miss_traced !== false;
+    var p1 = { kind: 'fixed', nb: nb, dmax: dmax, guard: guard }, p2 = { kind: 'adaptive', nb: nb, dmax: dmax, guard: guard };
+    var T1 = s9curve(D, p1, null, true), T2 = s9curve(D, p2, null, true);                         // 참값 라벨
+    var R1 = err > 0 || !traced ? s9curve(D, p1, err, traced, dir) : T1, R2 = err > 0 || !traced ? s9curve(D, p2, err, traced, dir) : T2;   // 기록된 라벨
+    function at(cv, j) { var r = {}; S9_PERIODS.forEach(function (per, P) { r[per] = { fa: cv.fa[j][P], miss: cv.miss[j][P], cost: cfa * cv.fa[j][P] + cmiss * cv.miss[j][P] }; }); r.k = S9_GRID[j]; r.checks = cv.checks[j]; return r; }
+    function pick(rec, tru, per) { var j = s9argmin(rec, per, cfa, cmiss), jt = s9argmin(tru, per, cfa, cmiss); return { j: j, k: S9_GRID[j], j_true: jt, k_true: S9_GRID[jt] }; }
+    var out = { params: { seed: D.seed, n_burn: nb, dmax: dmax, guard: guard, c_fa: cfa, c_miss: cmiss, r: cmiss / cfa, label_err: err, label_dir: dir, miss_traced: traced }, grid: S9_GRID };
+    out.P0 = at(T1, S9_K3);
+    var s1 = pick(R1, T1, 'tr'), s2 = pick(R2, T2, 'tr'), sh1 = pick(R1, T1, 'A'), sh2 = pick(R2, T2, 'A');
+    out.P1 = { time: at(T1, s1.j), rec: at(R1, s1.j), at_true_k: at(T1, s1.j_true), pick: s1 }; out.P2 = { time: at(T2, s2.j), rec: at(R2, s2.j), at_true_k: at(T2, s2.j_true), pick: s2 };
+    out.shuffle = { P1: { pick: sh1, at: at(T1, sh1.j) }, P2: { pick: sh2, at: at(T2, sh2.j) } };
+    out.curves = { P1_true: T1, P2_true: T2, P1_rec: R1, P2_rec: R2 };
+    out.policy2 = s9policy(D, 'adaptive', nb, dmax, guard);
+    return out;
+  }
+  function S9(p) {
+    var seed = p.seed == null ? SEEDS.S9 : p.seed, D = s9gen(seed, p), A = s9analyze(D, p);
+    var nbur = A.params.n_burn, burnEv = [];
+    D.events.forEach(function (e, id) { for (var q = 0; q < D.pm.length; q++) if (e.start >= D.pm[q] && e.start < D.pm[q] + nbur) { burnEv.push(id); break; } });
+    var out = { id: 'S9', name: 'adaptive_spec_replay', params: Object.assign({ per_day: D.per_day, days: D.nHist / D.per_day, future_days: D.nFut / D.per_day, rearm: 10, grid_step: 0.05, k_min: 2, k_max: 6, tau: D.tau, size_min: 2.5, size_max: 5, len_mean: 40, pm_gap_min: 1600, pm_gap_max: 2400 }, A.params),
+      N: D.N, nHist: D.nHist, x: D.x, pm_idx: D.pm, level: D.level, events: D.events, ev: D.ev, base: D.base, burn_events: burnEv, analysis: A, D: D };
+    out.analyze = function (o) { return s9analyze(D, Object.assign({}, p, o || {})); };
+    out.csvRows = function () {                    // idx, day, x(전체 자릿수), pm_start(PM 직후 첫 유리 1), event_id(0=정상, 1~=진성 이상 사건 번호), half(섞어 나누기 표시: 1 = 한쪽, 0 = 다른 쪽)
+      var rows = [], pmset = {}; D.pm.forEach(function (q) { pmset[q] = 1; });
+      for (var q = 0; q < D.nHist; q++) rows.push({ idx: q, day: Math.floor(q / D.per_day) + 1, x: D.x[q], pm_start: pmset[q] ? 1 : 0, event_id: D.ev[q] >= 0 ? D.ev[q] + 1 : 0, half: D.memA[q] });
+      return rows;
+    };
+    return out;
+  }
+  S9.tools = { gen: s9gen, policy: s9policy, labels: s9labels, scan: s9scan, curve: s9curve, cost: s9cost, argmin: s9argmin, analyze: s9analyze, GRID: S9_GRID, PERIODS: S9_PERIODS, K3: S9_K3 };
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools
+    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools
   };
 });

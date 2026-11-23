@@ -293,7 +293,7 @@ footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
 
 <section id="labs">
   <h2><span class="no">6</span>실험실 목록</h2>
-  <p class="lead">단계 1(기초)의 실험실입니다. 궤적에서 특징을 뽑는 법부터 보고, 변경점 판정 네 편으로 이어집니다. 데이터는 11블록 증착 라인을 본뜬 학습용 가상 데이터입니다.</p>
+  <p class="lead">단계 1(기초)의 실험실입니다. 궤적에서 특징을 뽑는 법부터 보고, 변경점 판정과 spec 변경 다섯 편으로 이어집니다. 데이터는 11블록 증착 라인을 본뜬 학습용 가상 데이터입니다.</p>
   <a class="labitem" href="labs/0201-trace-to-feature.html">
     <span class="no2">0201</span><span class="tt">궤적에서 특징으로 — FDC 데이터의 모양</span>
     <span class="ss">기둥 2 · 압력 곡선을 숫자 몇 개(특징)로 요약하고, 어떤 이상이 어떤 특징에서만 드러나는지 봅니다.</span>
@@ -309,6 +309,10 @@ footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
   <a class="labitem" href="labs/0204-small-shift-ewma-cusum.html">
     <span class="no2">0204</span><span class="tt">작은 변화 감지 — EWMA·CUSUM과 평균 런 길이</span>
     <span class="ss">기둥 2 · 3σ 선이 놓치는 작은 지속 변화를 헛알람 간격을 같게 맞춘 EWMA·CUSUM으로 훨씬 일찍 알아채는 법과, 자기상관이 있을 때의 처방을 직접 계산해 봅니다.</span>
+  </a>
+  <a class="labitem" href="labs/0205-adaptive-spec-replay.html">
+    <span class="no2">0205</span><span class="tt">가성 인터락을 줄이는 spec — 적응형 한계와 과거 재현</span>
+    <span class="ss">기둥 2 · PM 뒤에 쌓이는 가성 인터락을 PM마다 기준을 다시 잡는 적응형 한계로 줄이고, 라벨이 붙은 과거 기록에 후보 spec을 돌려 비용이 가장 작은 폭을 시간순으로 확인해 고릅니다.</span>
   </a>
   <a class="labitem" href="labs/0101-pm-mean-shift.html">
     <span class="no2">0101</span><span class="tt">PM 후 평균이 옮겨 갔는가</span>

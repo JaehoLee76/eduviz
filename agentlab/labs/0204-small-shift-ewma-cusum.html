@@ -151,7 +151,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
 
 <main class="wrap">
 
-<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0203-three-hidden-assumptions.html">← 이전: 3σ의 숨은 가정 셋</a><span class="sp"></span></nav>
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0203-three-hidden-assumptions.html">← 이전: 3σ의 숨은 가정 셋</a><span class="sp"></span><a href="0205-adaptive-spec-replay.html">다음: 가성 인터락을 줄이는 spec →</a></nav>
 
 <p><b>3σ 선은 유리 한 장만 보고 판단하므로, 1σ 정도의 작은 변화가 계속 이어져도 평균 <span id="i_s"></span>장이 지나야 알아챕니다.</b> 지난 값들을 모아 보는 EWMA와 CUSUM은 헛알람 간격(ARL0)을 똑같이 맞춘 채 그 지연을 평균 <span id="i_e"></span>장·<span id="i_c"></span>장으로 줄입니다. 대신 3σ 이상의 큰 변화에서는 3σ 선이 여전히 가장 빠릅니다. 이 실험실에서 두 방법을 직접 만들고, 맞는 값을 고르는 방법과 자기상관이 있을 때의 처방까지 손에 쥡니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
 
@@ -558,7 +558,7 @@ print(f"첫 알람(번째 유리): 잔차 3σ {f_r3} · 잔차 CUSUM {f_rc} · �
   <p>0203처럼 기준을 길고 깨끗하게 잡을수록 약속에 가까워집니다. 추정값을 쓰는 감시를 처음 걸 때는 기준 장수를 늘려 가며 ARL0을 다시 재 보십시오.</p>
 </div>
 
-<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0203-three-hidden-assumptions.html">← 이전: 3σ의 숨은 가정 셋</a></nav>
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0203-three-hidden-assumptions.html">← 이전: 3σ의 숨은 가정 셋</a><a href="0205-adaptive-spec-replay.html">다음: 가성 인터락을 줄이는 spec →</a></nav>
 </main>
 
 <script src="../data/mfgsim.js"></script>

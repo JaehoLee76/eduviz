@@ -1,0 +1,1028 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>가성 인터락을 줄이는 spec · 적응형 한계와 과거 재현</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="PM 뒤 기준이 옮겨 가는 설비에서 가성 인터락을 줄이는 법. PM마다 기준을 다시 잡는 적응형 한계와, 진성·가성 라벨이 붙은 과거 기록에 후보 spec을 다시 돌려 비용이 가장 작은 폭을 고르는 방법, 그리고 시간순으로 확인하는 법을 직접 계산하는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 2 · 실험실 5</p>
+  <h1>가성 인터락을 줄이는 spec</h1>
+  <p class="sub">적응형 한계와 라벨로 하는 과거 재현 — PM 뒤에 쌓이는 가성 인터락을 줄이고, 줄었는지 믿을 수 있게 확인하는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0204-small-shift-ewma-cusum.html">← 이전: 작은 변화 감지</a><span class="sp"></span></nav>
+
+<p><b>PM이나 부품 교체 뒤에는 정상 수준이 조금씩 다른 자리에 앉는데, 고정된 3σ 선은 그것을 이상으로 읽어 가성 인터락을 쌓습니다.</b> 이 실험실의 가상 기록 180일에서 현행 고정 3σ는 인터락 <span id="i_n"></span>건 가운데 <span id="i_fa"></span>건(<span id="i_pc"></span>%)이 가성이었습니다. 한계의 폭 <i>k</i>를 진성·가성 라벨이 붙은 과거 기록에 후보 spec을 다시 돌려 비용이 가장 작게 나오는 값으로 고르면, 한 번도 보지 않은 뒤 90일에서 가성이 <span id="i_f0"></span>건에서 고정 한계로는 <span id="i_f1"></span>건, PM마다 기준을 다시 잡는 적응형 한계로는 <span id="i_f2"></span>건이 됩니다. 놓친 유리는 <span id="i_m0"></span>장에서 각각 <span id="i_m1"></span>장, <span id="i_m2"></span>장입니다. 이 설비에서는 폭을 비용으로 고르는 일이 가장 큰 몫을 하고, 적응형 한계는 PM이 수준을 크게 옮기는 설비에서 앞섭니다(4절). 이 값은 가상 기록 한 벌에서 나온 결과입니다. 기록을 다시 뽑으면 값이 달라지며, 전형적인 값과 흔들림 폭은 9절의 반복 실험에서 봅니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 3σ 한계와 헛알람·놓침의 맞바꿈(0202), 중앙값과 1.4826×MAD로 하는 로버스트 추정(0203), 평균 런 길이 ARL과 CUSUM(0204), PM 뒤 평균 이동 검정(0101). 이 실험실에서는 현장 말대로 이상이 없는데 난 인터락을 <b>가성 인터락</b>(0202의 헛알람과 같은 것), 진짜 이상에 난 인터락을 <b>진성 인터락</b>이라 부릅니다.</p>
+  <ul class="chips known"><li>3σ 한계</li><li>헛알람·놓침 맞바꿈</li><li>중앙값·1.4826×MAD</li><li>ARL·CUSUM</li><li>PM 뒤 평균 이동 검정</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <ul class="chips" id="termList"><li>적응형 한계 (adaptive limit)</li><li>안정화 구간 (burn-in window)</li><li>비용 함수 (cost function)</li><li>과거 재현 (historical replay)</li><li>시간순 분할 (time-ordered split)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — PM 뒤에 몰려 나오는 가성 인터락. 현장에서 가장 흔한 불만이며, 폭을 비용으로 고르고 PM 이동이 크면 기준도 PM마다 다시 잡아 줄입니다.</li>
+    <li><b>손으로 연습</b> — 라벨 붙은 1년 반 기록에 후보 spec을 직접 돌려 비용 곡선을 그리고(4절), 비용 비율과 라벨 오류를 바꿔 최적값이 어떻게 움직이는지 봅니다(3·6절).</li>
+    <li><b>다음 날 산출물</b> — 적응형 한계·과거 재현·비용 최적화·시간순 확인·라벨 점검 Python 함수 여섯 개(10절)와 spec 변경 제안 보고서 양식(11절).</li>
+    <li><b>기록할 데이터</b> — 인터락마다 진성·가성 판정과 근거, PM·부품 교체 이벤트 로그, 그리고 <b>놓친 이상의 역추적 기록</b>(11절). 이것이 쌓여야 회사 데이터로 spec을 고를 수 있습니다.</li>
+    <li><b>사람과 에이전트의 몫</b> — 비용 비율·PM 뒤 허용 이동폭·spec 변경 승인은 사람이, 과거 재현·최적화·시간순 확인·제안 보고서는 에이전트가 맡습니다(7절).</li>
+    <li><b>성과 환산</b> — 가성 인터락이 한 달에 몇 건, 정지 시간이 몇 시간 줄어드는지 숫자로 봅니다(8절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0202~0204는 기준(평균·표준편차)이 한 번 정해지면 그대로라고 보고 선이 맞는지를 따졌습니다. 이번 물음은 <b>PM마다 기준이 옮겨 가는 설비</b>입니다.<br>
+  챔버 압력(안정 구간 평균, 정상 산포 σ = 1로 맞춘 가상 단위)을 하루 <span id="p_pd"></span>장씩 <span id="p_days"></span>일(<span id="p_n"></span>장) 모았고, 그 사이 PM이 <span id="p_pm"></span>회 있었습니다. PM마다 부품을 새로 맞추므로 정상 수준은 공칭(0) 근처로 돌아오되, 매번 평균 0·표준편차 <i>τ</i> = <span id="p_step"></span>σ만큼 조금씩 다른 자리에 앉아 다음 PM까지 머뭅니다(이것이 새 정상이며 쌓여 가지 않습니다). 첫 구간의 수준도 같은 분포에서 나옵니다. 진성 이상(+<span id="p_s0"></span>σ ~ +<span id="p_s1"></span>σ, 평균 <span id="p_len"></span>장 지속)이 <span id="p_ev"></span>건 섞여 있고, 알람이 난 인터락마다 진성·가성 판정 라벨이 붙어 있으며, 알람 없이 지나간 이상은 후공정 불량을 거슬러 올라가 적은 기록으로 압니다. 현행 spec은 PM 전 첫 <span id="p_base"></span>장의 평균 ± 3 표준편차를 끝까지 씁니다. 인터락 한 번의 정지·확인에 <span id="p_cfa"></span>분, 놓친 유리 한 장에는 <span id="p_cm"></span>분의 손실을 놓습니다(두 값은 사람이 회사 값으로 정합니다).<br>
+  <b>(1) 현행 spec에서 인터락 몇 건 중 가성이 몇 건입니까? (2) 가성을 줄이면서 놓침은 늘리지 않는 spec은 무엇입니까? (3) 그 spec이 좋아졌다는 것을 어떻게 믿을 수 있습니까?</b>
+  <p class="note" style="margin:.5rem 0 0">기록 뒤에는 배포 뒤 <span id="p_fd"></span>일의 기록이 따로 있습니다. 현장에서는 아직 오지 않은 기간이며, 5절에서 확인 점수가 실제 미래 성적보다 얼마나 좋게 나오는지 잴 때만 씁니다. 같은 기록은 10절의 [CSV 내려받기]로 파일에 받아 Python에서 읽을 수 있습니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>현행 고정 3σ가 남긴 기록</h2>
+<p>먼저 현행 spec이 180일 동안 한 일을 봅니다. 위 그림은 하루 평균 압력과 현행 선(PM 전 첫 구간의 평균 ± 3 표준편차, 붉은 점선)이고, 회색 세로선이 PM입니다. 아래 그림은 하루에 난 인터락 수이며 붉은 칸이 가성, 초록 칸이 진성입니다(라벨로 셉니다). 하루 평균은 그날 유리를 평균한 값이라 흔들림이 작아 선 근처까지 가지 않지만, 인터락은 유리 한 장의 값이 선을 넘을 때 납니다. 하루 평균이 0에서 멀리 옮겨 앉은 구간일수록 한 장이 선을 넘기 쉽습니다.</p>
+<div class="lab">
+  <div class="labtitle">그림 1 · 하루 평균 압력과 현행 한계, 그리고 하루 인터락 수</div>
+  <canvas id="cv1a" height="210"></canvas>
+  <canvas id="cv1b" height="170"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--soft)"></span>하루 평균 압력</span><span><span class="sw" style="border-color:var(--bad);border-top-style:dashed"></span>현행 한계 평균 ± 3σ</span><span><span class="sw" style="border-color:var(--grey);border-top-style:dashed"></span>PM</span><span><span class="sw" style="border-color:var(--ink);border-top-style:dotted"></span>학습 90일 | 확인 90일 경계</span><span><span class="dot" style="background:var(--bad)"></span>가성</span><span><span class="dot" style="background:var(--good)"></span>진성</span></div>
+</div>
+<p>PM으로 수준이 옮겨 앉으면 현행 선은 새 정상을 이상으로 읽습니다. 다만 3σ 선은 이상이 없어도 하루 <span id="s1_floor"></span>건(유리 <span id="s1_pd"></span>장 × 0.0027)의 가성을 내는 것이 정상이고, 현행은 하루 <span id="s1_day"></span>건입니다. 그 차이가 PM 때문이며, 가성이 PM 직후에 한꺼번에 터지지는 않습니다. 새 수준은 다음 PM까지 머물므로 <b>수준이 많이 옮겨 앉은 구간에 구간 내내 일정한 속도로</b> 쌓입니다. 가장 많이 쌓인 세 구간이 가성의 <span id="s1_top"></span>%를 차지하고(구간 <span id="s1_nseg"></span>개가 고르면 <span id="s1_unif"></span>%), PM 뒤 500장 안에서 난 가성은 <span id="s1_near"></span>%입니다. 이 값은 구간 전체에서 PM 뒤 500장 안의 유리가 차지하는 비율 <span id="s1_len"></span>%와 같은 수준입니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1 · 현행 고정 3σ (<i>k</i> = <span id="t1_k"></span>)의 기록</div>
+  <div class="tbwrap"><table id="tab1" class="mt num"></table></div>
+  <p class="note" style="margin:.4rem 0 0">제안 spec의 줄은 9절에서 채웁니다. 놓친 장수는 진성 이상이 시작된 유리부터 첫 알람 직전 유리까지의 수입니다(알람이 끝내 나지 않은 이상은 사건 전체 길이).</p>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>PM마다 기준을 다시 잡는다 — 적응형 한계</h2>
+<p>0101에서 PM 뒤 평균 이동은 t검정으로 &lsquo;유의&rsquo;하게 나왔습니다. 그런데 이 이동은 설비 이상이 아니라 PM이 만든 새 정상입니다. 고정된 선은 PM마다 틀린 기준이 됩니다. 그렇다면 PM처럼 기록된 이벤트가 있을 때마다 기준(중심과 폭)을 새로 잡으면 됩니다. 이렇게 이벤트마다 기준을 다시 잡는 한계를 <b>적응형 한계 (adaptive limit)</b>라 부릅니다.</p>
+<p>그런데 PM 직후에는 새 기준을 만들 값이 아직 없습니다. 직후 처음 <i>n</i><sub>b</sub>장을 모아 새 기준을 추정하는 이 구간을 <b>안정화 구간 (burn-in window)</b>이라 부릅니다. 그동안은 옛 중심에 옛 폭의 (<i>k</i> + Δmax)배를 두른 넓은 선으로만 지킵니다. Δmax는 &lsquo;PM 뒤에 중심이 이만큼은 옮겨 가도 정상으로 본다&rsquo;는 허용 이동폭(옛 폭의 배수)이며 사람이 정합니다. 구간이 끝나면 새 중심은 구간 값의 중앙값, 폭은 1.4826 × MAD(0203의 로버스트 추정)로 잡습니다. 구간에 튀는 값이 섞여도 평균·표준편차보다 덜 흔들리기 때문입니다.</p>
+<div class="eq">
+  <span class="eqlab">안정화 구간이 끝난 뒤의 적응형 한계</span>
+  <math display="block"><mrow><msub><mi>c</mi><mtext>새</mtext></msub><mo>=</mo><mi>중앙값</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mrow><mn>1</mn><mo>…</mo><msub><mi>n</mi><mi>b</mi></msub></mrow></msub><mo stretchy="false">)</mo><mo>,</mo><mspace width="1em"></mspace><msub><mi>w</mi><mtext>새</mtext></msub><mo>=</mo><mn>1.4826</mn><mo>×</mo><mi>MAD</mi><mo>,</mo><mspace width="1em"></mspace><mtext>한계</mtext><mo>=</mo><msub><mi>c</mi><mtext>새</mtext></msub><mo>±</mo><mi>k</mi><msub><mi>w</mi><mtext>새</mtext></msub></mrow></math>
+  <span class="note"><i>x</i><sub>1…<i>n</i><sub>b</sub></sub>는 PM 직후 <i>n</i><sub>b</sub>장의 값입니다. 안정화 구간 안에서는 옛 중심 <i>c</i> ± (<i>k</i> + Δmax)·<i>w</i>(옛 폭)를 씁니다.</span>
+</div>
+<p>함정이 하나 있습니다. 안정화 구간에 진짜 이상이 들어오면 새 기준이 그 이상을 정상으로 삼켜 버립니다. 그래서 <b>새 중심이 옛 중심에서 Δmax × 옛 폭보다 멀리 옮겨 가면 자동으로 받아들이지 않고 사람 확인 1건으로 셉니다.</b> 확인했더니 구간 안에 진성 이상이 있었다면 옛 기준을 유지하고 그 이상을 잡은 것으로 셉니다. 이상이 없었다면 새 정상으로 받아들이되 불필요한 확인이었으므로 가성 1건으로 셉니다. 이 확인 단계를 이하 &lsquo;가드&rsquo;라 부르며, 끌 수도 있습니다.</p>
+<div class="lab">
+  <div class="labtitle">안정화 구간 길이 <i>n</i><sub>b</sub> · 허용 이동폭 Δmax · 가드 · 폭 <i>k</i> — 적응형 한계와 현행 고정 한계(같은 <i>k</i>)</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 그림의 PM을 고르고 <i>n</i><sub>b</sub>를 10까지 줄여 보십시오. 새 폭을 적은 값으로 추정하니 흔들려 가성이 늘어납니다. 이어서 가드를 껐다 켜 보십시오. 가드는 안정화 구간에 이상이 들어온 PM에서만 효과가 나므로, 이 기록에서는 차이가 거의 안 보이고 가드를 켠 쪽의 사람 확인만 늘 수 있습니다. 가드가 얼마나 자주 효과를 내는지는 기록마다 달라서 9절의 반복 실험에서 함께 봅니다. 가드를 켠 채 Δmax를 1로 낮추면 불필요한 사람 확인이 늘어납니다.</div>
+  <div class="ctrl"><label for="nb2">안정화 구간 길이 <i>n</i><sub>b</sub> (장)</label><input type="range" id="nb2" min="10" max="200" step="5" value="100"><output id="nb2o"></output></div>
+  <div class="ctrl"><label for="dm2">허용 이동폭 Δmax (옛 폭의 배수)</label><input type="range" id="dm2" min="1" max="6" step="0.5" value="3"><output id="dm2o"></output></div>
+  <div class="ctrl"><label for="k2">한계의 폭 <i>k</i> (현행·적응형 공통)</label><input type="range" id="k2" min="2" max="6" step="0.05" value="3"><output id="k2o"></output></div>
+  <div class="row" role="group" aria-label="가드 켜고 끄기"><button class="btn" id="g2on" type="button" aria-pressed="true">가드 켬</button><button class="btn" id="g2off" type="button" aria-pressed="false">가드 끔</button>
+    <label for="pm2" style="display:flex;align-items:center;gap:.4rem;font-size:.9rem;font-weight:700">그림에 볼 PM</label><select id="pm2" style="width:auto;min-width:11rem"></select>
+    <button class="btn ghost" id="r2" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st2"></div>
+  <canvas id="cv2" height="290"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--soft)"></span>유리 한 장의 값</span><span><span class="dot" style="background:var(--warn)"></span>진성 이상의 유리</span><span><span class="sw" style="border-color:var(--bad);border-top-style:dashed"></span>현행 고정 한계</span><span><span class="sw" style="border-color:var(--accent)"></span>적응형 한계</span><span><span class="sw" style="border-color:var(--ink);border-top-style:dashed"></span>PM</span><span>옅은 띠 = 안정화 구간</span><span><span class="dot" style="background:var(--bad)"></span>가성 인터락</span><span><span class="dot" style="background:var(--good)"></span>진성 인터락</span></div>
+  <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+  <div class="concl" id="concl2"></div>
+</div>
+<div class="qna" data-label="PM 뒤에 무조건 기준을 다시 잡으면 위험하지 않나요?" data-q="PM 뒤에 무조건 기준을 다시 잡으면 위험하지 않나요?">
+  <p>위험합니다. 안정화 구간에 진짜 이상이 들어오면 새 기준이 이상을 정상으로 삼키기 때문입니다. 안정화 구간 안의 이상은 넓은 선(옛 중심 ± (<i>k</i> + Δmax)·옛 폭)이 일부만 잡고, 구간이 끝난 뒤에는 새 기준이 이상의 값을 &lsquo;정상&rsquo;으로 학습해 버립니다.</p>
+  <p>그래서 새 중심이 옛 중심에서 Δmax만큼 넘게 옮겨 갈 때는 자동으로 받아들이지 않고 사람이 구간을 확인합니다. Δmax는 &lsquo;PM이 정상적으로 만들 수 있는 이동의 크기&rsquo;이며 설비 이력을 아는 사람이 정합니다. 너무 작으면 정상 PM도 확인 대상이 되어 확인이 늘고, 너무 크면 이상이 섞인 구간을 그냥 통과시킵니다.</p>
+</div>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>두 오류를 한 저울에 — 비용 함수</h2>
+<p>가성만 줄이려면 <i>k</i>를 키우면 됩니다. 그러면 놓침이 늘어납니다(0202의 맞바꿈). 어느 쪽이 더 나쁜지는 데이터가 알려 주지 않습니다. 두 오류를 한 저울에 올리려면 둘의 값을 같은 단위로 적어야 합니다. 가성 인터락 한 건의 정지·확인 시간을 C<sub>FA</sub>, 놓친 유리 한 장의 손실을 같은 분 단위로 환산한 값을 C<sub>miss</sub>라 하고, 합친 점수를 <b>비용 함수 (cost function)</b>라 부릅니다.</p>
+<div class="eq">
+  <span class="eqlab">비용 함수</span>
+  <math display="block"><mrow><mtext>총비용</mtext><mo>=</mo><msub><mi>C</mi><mtext>FA</mtext></msub><mo>×</mo><mtext>가성 인터락 건수</mtext><mo>+</mo><msub><mi>C</mi><mtext>miss</mtext></msub><mo>×</mo><mtext>놓친 유리 장수</mtext><mo>,</mo><mspace width="1em"></mspace><mi>r</mi><mo>=</mo><mfrac><msub><mi>C</mi><mtext>miss</mtext></msub><msub><mi>C</mi><mtext>FA</mtext></msub></mfrac></mrow></math>
+  <span class="note"><i>r</i>이 클수록 놓침을 더 아파하므로 선이 좁아지고, 작을수록 가성을 더 아파하므로 선이 넓어집니다. <i>r</i>은 사람이 정합니다(정지 1분의 값과 불량 1장의 값은 회사만 압니다).</span>
+</div>
+<div class="lab">
+  <div class="labtitle">놓친 유리 한 장의 값 C<sub>miss</sub> · 폭 <i>k</i> — 180일의 가성·놓침·비용 (C<sub>FA</sub> = <span class="cfa"></span>분 고정)</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> C<sub>miss</sub>를 기준값에 두고 <i>k</i>를 3에서 5로 올리면 가성 비용이 크게 줄지만 놓침 비용이 늘어납니다. 이번에는 C<sub>miss</sub>를 150(<i>r</i> = 10)까지 올리고 같은 일을 해 보십시오. 놓침이 비싸지면 <i>k</i>를 키우는 일이 곧 손해로 바뀝니다.</div>
+  <div class="ctrl"><label for="cm3">놓친 유리 한 장의 값 C<sub>miss</sub> (분)</label><input type="range" id="cm3" min="1.5" max="150" step="0.5" value="10"><output id="cm3o"></output></div>
+  <div class="ctrl"><label for="k3">한계의 폭 <i>k</i></label><input type="range" id="k3" min="2" max="6" step="0.05" value="3"><output id="k3o"></output></div>
+  <div class="row"><button class="btn ghost" id="r3" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st3"></div>
+  <canvas id="cv3" height="250"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--bad)"></span>가성 비용 C<sub>FA</sub> × 건수</span><span><span class="dot" style="background:var(--c10)"></span>놓침 비용 C<sub>miss</sub> × 장수</span></div>
+  <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+  <div class="concl" id="concl3"></div>
+</div>
+<div class="qna" data-label="비용 비율은 누가 어떻게 정하나요?" data-q="비용 비율은 누가 어떻게 정하나요?">
+  <p>데이터가 아니라 회사가 정하는 값입니다. C<sub>FA</sub>는 가성 인터락 한 건에서 설비가 서 있는 시간과 확인에 드는 사람 시간을 분으로 적은 값이고, C<sub>miss</sub>는 놓친 유리 한 장이 후공정에서 불량·재작업·폐기로 이어질 때의 손실을 같은 분(또는 같은 금액) 단위로 바꾼 값입니다.</p>
+  <p>값을 하나로 못 정하겠으면 <i>r</i>을 0.5·1·2·5처럼 여러 개 놓고 최적 <i>k</i>가 얼마나 움직이는지를 보십시오(4절에서 곡선이 평평한 구간이면 어느 쪽을 골라도 손해가 작습니다). 그 민감도 표를 보고서에 함께 적고, 최종 값은 사람이 승인합니다.</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>과거에 다시 돌려 본다 — 과거 재현</h2>
+<p>이제 <i>k</i>를 어떻게 고를지가 남았습니다. 가장 확실한 방법은 후보 <i>k</i>마다 &lsquo;그 spec이었다면 지난 기록에서 인터락이 몇 번 나고 몇 장을 놓쳤을지&rsquo;를 세어 비용을 비교하는 것입니다. 진성·가성이 라벨로 붙은 과거 기록에 후보 spec을 다시 돌려 가성 건수와 놓친 장수를 세는 일을 <b>과거 재현 (historical replay)</b>이라 부릅니다. 같은 기록, 같은 규칙(재가동 뒤 <span id="s4_re"></span>장 안의 재알람은 같은 건, 진성 알람이 나면 그 이상은 조치되어 끝남)으로 모든 후보를 돌리므로 비교가 공정합니다.</p>
+<div class="lab">
+  <div class="labtitle">그림 2 · <i>k</i>에 따른 180일 총비용 (고정 한계와 적응형 한계)</div>
+  <div class="ctrl"><label for="cm4">놓친 유리 한 장의 값 C<sub>miss</sub> (분)</label><input type="range" id="cm4" min="1.5" max="150" step="0.5" value="10"><output id="cm4o"></output></div>
+  <div class="row"><button class="btn ghost" id="r4" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st4"></div>
+  <canvas id="cv4" height="270"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--c10)"></span>고정 한계 (현행 + <i>k</i> 최적화)</span><span><span class="sw" style="border-color:var(--c9)"></span>적응형 한계 (<i>n</i><sub>b</sub> = <span id="s4_nb"></span>, Δmax = <span id="s4_dm"></span>, 가드 켬)</span><span><span class="dot" style="background:var(--ink)"></span>최소점 · 세로선은 현행 <i>k</i> = 3</span></div>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+  <div class="concl" id="concl4"></div>
+</div>
+<p>두 곡선의 최소점이 각 한계 방식에서 비용이 가장 작은 <i>k</i>입니다. 다만 이 점수는 <b>같은 180일로 k를 고르고 같은 180일로 점수를 매긴 값</b>입니다. 이 값이 곧 &lsquo;앞으로의 성적&rsquo;이라고 믿어도 되는지가 다음 물음입니다.</p>
+<p>그 전에, 적응형 한계가 고정 한계보다 낮지 않게 나오는 까닭을 봅니다. 적응형 한계는 PM마다 안정화 구간 값만으로 중심과 폭을 새로 추정하므로, 수준의 이동이 작으면 그 이동을 바로잡는 이득보다 추정의 흔들림이 더 클 수 있습니다. 이동의 크기를 <b>PM 이동폭 <i>τ</i></b>(새 정상 수준의 표준편차, 정상 산포 σ 단위)라 하고 키워 보십시오. 같은 기록을 <i>τ</i>만 바꿔 다시 뽑아, 앞 90일로 고른 <i>k</i>의 확인 90일 비용을 견줍니다.</p>
+<div class="lab">
+  <div class="labtitle">PM 이동폭 <i>τ</i> — 고정 한계와 적응형 한계의 확인 90일 비용</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> <i>τ</i>를 기준값에서 1.5까지 올려 보십시오. 고정 한계는 PM마다 가성을 쌓아 비용이 커지고 적응형 한계의 비용은 거의 그대로여서 두 비용의 차이가 뒤집히는 지점이 보입니다. <i>τ</i>를 0으로 두면 PM이 수준을 안 바꾸는 설비입니다.</div>
+  <div class="ctrl"><label for="tau4">PM 이동폭 <i>τ</i> (σ의 배수)</label><input type="range" id="tau4" min="0" max="2" step="0.05" value="0.35"><output id="tau4o"></output></div>
+  <div class="row"><button class="btn ghost" id="rt4" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st4t"></div>
+  <div class="tbwrap"><table id="tab4t" class="mt num"></table></div>
+  <div class="concl" id="concl4t"></div>
+</div>
+<p>회사 설비의 <i>τ</i>는 기록에서 잴 수 있습니다. PM과 PM 사이 구간마다 값의 중앙값을 구하고, 그 중앙값들의 표준편차를 구간 안 산포(구간마다 1.4826 × MAD 의 중앙값)로 나누면 됩니다. 이 비가 작으면 폭을 비용으로 고르는 것만으로 충분하고, 클수록 PM마다 기준을 다시 잡는 적응형 한계를 먼저 검토할 만합니다. 어디서부터 큰 것인지는 위 실험처럼 그 설비의 기록으로 두 방식을 과거 재현해 정합니다.</p>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>고르는 기간과 확인하는 기간을 나눈다 — 시간순 분할</h2>
+<p>같은 기록으로 고르고 같은 기록으로 평가하면 점수가 후하게 나옵니다. 고른 <i>k</i>가 이 기록의 우연(어떤 날 어떤 이상이 어떤 길이로 왔는지)에까지 맞춰져 있기 때문입니다. 그래서 앞 90일로 <i>k</i>를 고르고, 한 번도 보지 않은 뒤 90일에서 성능을 확인합니다. 이렇게 앞뒤로 나누는 것을 <b>시간순 분할 (time-ordered split)</b>이라 부릅니다. 실제로 spec은 과거 기록으로 고르고 미래에 쓰므로, 앞으로 나누는 것이 쓰는 방식과 같습니다.</p>
+<p>섞어서 나누면 어떻게 될까요. 유리를 무작위로 절반씩 나누면 같은 PM 구간과 같은 이상 사건의 유리가 학습과 확인 양쪽에 들어갑니다. 학습에서 어떤 사건을 잡도록 맞춘 <i>k</i>가 확인에서도 같은 사건의 나머지 유리를 만나므로 확인 점수가 좋게 나오기 쉽습니다. 미래 정보가 새어 들어간 것입니다. 아래 표의 마지막 줄이 그 차이를 재며, 새는 정도는 기록마다 달라서 이 표는 한 벌의 결과입니다. 전형적인 크기는 9절의 반복 실험에서 봅니다. 두 방식 모두 고른 <i>k</i>를 <b>배포 뒤 <span id="s5_fd"></span>일</b>에 돌린 비용과 자신의 확인 점수를 견줍니다.</p>
+<div class="lab">
+  <div class="labtitle">표 2 · 시간순 분할과 섞어 나누기 (적응형 한계, C<sub>miss</sub> = <span class="cm5"></span>분)</div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <canvas id="cv5" height="250"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--c9)"></span>학습 90일의 비용 (라벨로 계산)</span><span><span class="sw" style="border-color:var(--c10)"></span>확인 90일의 비용 (참값으로 계산)</span><span><span class="dot" style="background:var(--ink)"></span>학습에서 고른 <i>k</i></span></div>
+  <div class="concl" id="concl5"></div>
+</div>
+<div class="qna" data-label="기록이 적으면(몇 달) 믿을 수 있나요?" data-q="기록이 적으면(몇 달) 믿을 수 있나요?">
+  <p>믿을 수 있는 정도가 줄어듭니다. 놓침은 진성 이상이 일어나야 셀 수 있는데, 이 가상 기록에서도 학습 90일에 진성 이상이 <span id="q_e1"></span>건, 확인 90일에 <span id="q_e2"></span>건뿐입니다. 사건이 몇 건 안 되면 건 하나의 길이·크기가 놓친 장수를 크게 흔들어 최적 <i>k</i>도 따라 흔들립니다.</p>
+  <p>그래서 보고서에는 점수와 함께 <b>학습·확인 기간의 진성 사건 수</b>를 적고, 사건 수가 적으면 한 달씩 기록을 늘려 다시 돌려 최적 <i>k</i>가 안정되는지 봅니다. 9절의 반복 실험은 같은 조건의 기록을 여러 벌 뽑아 이 흔들림이 어느 정도인지 직접 보여 줍니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>라벨이 곧 자산이다</h2>
+<p>과거 재현은 라벨이 맞다는 전제 위에 있습니다. 가성 인터락이 진성으로 잘못 적히거나 진성이 가성으로 잘못 적히면, 그리고 알람 없이 지나간 이상이 장부에 아예 없으면 어떻게 될까요. 아래에서 라벨 오류 비율과 놓침 기록의 유무를 바꿔 &lsquo;장부 라벨로 고른 <i>k</i>&rsquo;가 &lsquo;참값 라벨로 고른 <i>k</i>&rsquo;에서 얼마나 벗어나는지, 그 차이 때문에 참값 비용이 얼마나 손해를 보는지 봅니다. 손해는 같은 학습 90일에서 장부로 고른 <i>k</i>와 참값으로 고른 <i>k</i>의 참값 비용 차이입니다(월로 환산, 학습 90일은 3개월).</p>
+<div class="lab">
+  <div class="labtitle">라벨 오류 비율 · 오류의 방향 · 놓친 이상의 역추적 기록 — 최적 <i>k</i>의 이동과 참값 비용 손해</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 먼저 &lsquo;놓친 이상의 역추적 기록&rsquo;을 없음으로 바꾸십시오. 놓침이 장부에서 빠지므로 <i>k</i>를 키울수록 비용이 줄어 보이고, 고른 <i>k</i>가 커집니다. 그다음 기록을 있음으로 되돌리고 라벨 오류를 30%로 올려 방향을 바꿔 보십시오. 양쪽을 같은 비율로 틀리게 적으면 비용 숫자만 같은 비율로 줄어 최적 <i>k</i>는 잘 안 움직이지만, 가성만 진성으로 적는 쪽으로 기울면 가성 비용이 장부에서 줄어 <i>k</i>가 낮아집니다.</div>
+  <div class="ctrl"><label for="e6">라벨 오류 비율</label><input type="range" id="e6" min="0" max="30" step="1" value="0"><output id="e6o"></output></div>
+  <div class="row" role="group" aria-label="오류의 방향"><button class="btn" id="d6b" type="button" aria-pressed="true">양쪽 같은 비율</button><button class="btn" id="d6f" type="button" aria-pressed="false">가성을 진성으로만</button><button class="btn" id="d6t" type="button" aria-pressed="false">진성을 가성으로만</button></div>
+  <div class="row" role="group" aria-label="놓친 이상의 역추적 기록"><button class="btn" id="t6y" type="button" aria-pressed="true">역추적 기록 있음</button><button class="btn" id="t6n" type="button" aria-pressed="false">역추적 기록 없음</button><button class="btn ghost" id="r6" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cv6" height="250"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--soft)"></span>참값 라벨로 센 학습 90일 비용</span><span><span class="sw" style="border-color:var(--c9)"></span>장부 라벨로 센 학습 90일 비용</span><span><span class="dot" style="background:var(--soft)"></span>참값으로 고른 <i>k</i></span><span><span class="dot" style="background:var(--c9)"></span>장부로 고른 <i>k</i></span></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+  <div class="concl" id="concl6"></div>
+</div>
+<div class="qna" data-label="라벨을 매번 붙이기 번거로운데 꼭 해야 하나요?" data-q="라벨을 매번 붙이기 번거로운데 꼭 해야 하나요?">
+  <p>라벨이 없으면 비용 함수의 두 항 가운데 &lsquo;무엇이 가성이었나&rsquo;를 셀 수 없습니다. 이때 쓸 수 있는 것은 알람 수뿐이어서 최적화가 알람을 줄이는 쪽(큰 <i>k</i>)으로만 기웁니다. 놓친 이상의 역추적 기록이 없을 때와 같은 방향입니다.</p>
+  <p>판정 칸이 비어 있는 인터락은 점검 함수로 비율을 세어 보고서에 적습니다. 번거로움을 줄이려면 인터락 해제 화면에 &lsquo;진성/가성, 근거 한 줄&rsquo; 칸을 필수로 두고, 후공정 불량이 나올 때 해당 유리 ID로 &lsquo;그때 놓친 것&rsquo;을 적는 칸을 함께 만드는 편이 한꺼번에 몰아 정리하는 것보다 쌉니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>판정 흐름 — 사람이 정하는 것과 에이전트가 하는 것</h2>
+<p>지금까지의 도구를 현장에서 쓰는 순서를 한 표로 묶습니다.</p>
+<div class="lab">
+  <div class="labtitle">표 3 · spec 변경 제안의 판정 흐름</div>
+  <div class="tbwrap"><table class="mt">
+    <tr><th>단계</th><th>할 일</th><th>누가</th></tr>
+    <tr><td class="rowh">1</td><td>인터락마다 진성·가성 판정, 판정 근거, PM·부품 교체 이벤트, 놓친 이상의 역추적 기록을 남깁니다. 라벨 점검 함수로 빈 칸과 엇갈린 라벨의 비율을 확인합니다.</td><td>사람이 기록, 에이전트가 점검</td></tr>
+    <tr><td class="rowh">2</td><td><b>비용 비율 <i>r</i></b>(정지 1분과 불량 1장의 값)와 <b>PM 뒤 허용 이동폭 Δmax</b>를 정합니다. <i>r</i>은 여러 값으로 민감도를 함께 봅니다.</td><td>사람</td></tr>
+    <tr><td class="rowh">3</td><td>후보 spec(고정·적응형, <i>k</i> 격자)을 라벨 붙은 과거 기록에 다시 돌려 비용 곡선과 최적 <i>k</i>를 구합니다. 앞 기간으로 고르고 뒤 기간으로 확인합니다.</td><td>에이전트</td></tr>
+    <tr><td class="rowh">4</td><td>확인 기간의 가성·놓침·비용을 현행과 견주고, 놓침이 늘었는지, 가드로 사람 확인이 필요했던 PM이 몇 번이었는지를 담아 spec 변경 제안 보고서를 씁니다.</td><td>에이전트</td></tr>
+    <tr><td class="rowh">5</td><td>보고서를 검토해 spec 변경을 승인하거나 반려합니다. 적용한 뒤에도 같은 재현을 달마다 돌려 최적 <i>k</i>가 움직이는지 다시 봅니다.</td><td>사람이 승인, 에이전트가 달마다 재현</td></tr>
+  </table></div>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>현장에서 환산하면</h2>
+<p>후보 spec을 쓰면 현행 대비 무엇이 얼마나 줄고 무엇이 늘까요? 학습 90일로 <i>k</i>를 고르고 뒤 90일의 참값 결과를 한 달(30일)로 환산해, 고정 한계와 적응형 한계를 현행 옆에 나란히 놓습니다. PM의 영향을 받는 특징이 여러 개이므로 특징 수를 곱해 라인 전체를 어림합니다(슬라이더의 기본값 20은 가정이며, 과장을 피하려고 PM 영향을 받는 특징만 센 값입니다).</p>
+<div class="lab">
+  <div class="labtitle">성과 환산 상자 — 줄어든 가성 인터락과 정지 시간, 놓침의 변화</div>
+  <div class="ctrl"><label for="gF">PM 영향을 받는 특징 수</label><input type="range" id="gF" min="1" max="100" step="1" value="20"><output id="gFo"></output></div>
+  <div class="ctrl"><label for="gA">가성 1건의 정지·확인 시간 C<sub>FA</sub> (분)</label><input type="range" id="gA" min="5" max="60" step="1" value="15"><output id="gAo"></output></div>
+  <div class="ctrl"><label for="gM">놓친 유리 1장의 값 C<sub>miss</sub> (분)</label><input type="range" id="gM" min="1" max="60" step="1" value="10"><output id="gMo"></output></div>
+  <div class="row"><button class="btn ghost" id="rG" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stG"></div>
+  <div class="tbwrap"><table id="tabG" class="mt num"></table></div>
+  <div class="concl" id="conclG"></div>
+  <p class="note">기본 설정(특징 <span id="gn_f"></span>개, C<sub>FA</sub> <span id="gn_a"></span>분, C<sub>miss</sub> <span id="gn_m"></span>분)은 가정입니다. C<sub>FA</sub>·C<sub>miss</sub>를 바꾸면 비용을 가장 작게 하는 <i>k</i>도 따라 움직이므로 표의 <i>k</i>가 바뀝니다. 회사에서는 같은 식에 <b>정지 1분의 금액</b>과 <b>불량 유리 1장의 금액</b>을 곱해 금액으로 바꾸십시오.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>착지 — 현행은 무엇을 바꾸고, 얼마나 믿을 수 있나</h2>
+<p>1절의 표로 돌아가 비워 둔 줄을 채웁니다. 모두 같은 확인 90일(학습에서 고른 <i>k</i>로 처음 돌려 보는 기간)의 참값 결과입니다. 제안은 학습 90일의 비용이 더 작게 나온 쪽을 고릅니다. 확인 기간은 고르는 데 쓰지 않습니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1 (완성) · 확인 90일의 인터락과 비용 (C<sub>miss</sub> = <span class="cm9"></span>분)</div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+</div>
+<div class="concl" id="landing"></div>
+<p>세 가지 물음에 답합니다. 1) 현행에서는 인터락의 <span id="l_pc"></span>%가 가성이었고, PM으로 수준이 크게 옮겨 앉은 구간에 몰렸습니다. 2) 폭을 비용으로 고르면 가성이 크게 줄고, PM 이동폭이 큰 설비에서는 적응형 한계가 한 걸음 더 낮춥니다. 두 방식이 놓침을 얼마나 바꿨는지는 위 표의 변화 줄이 말합니다. 3) 믿는 근거는 점수 하나가 아니라 <b>시간순으로 나눈 확인 기간에서도 낮게 유지되는가</b>이며, 한 벌의 기록이 말하는 크기는 기록을 다시 뽑으면 달라집니다. 아래 반복 실험에서 그 흔들림을 직접 봅니다.</p>
+<div class="lab">
+  <div class="labtitle">반복 실험 — 가상 기록을 <span id="rp_n"></span>벌 뽑아 같은 절차를 돌린 분포</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> [반복 실험 돌리기]를 누르고 기다리십시오(수 초 걸립니다). 표의 중앙값이 &lsquo;전형적인 값&rsquo;이고 괄호 안은 10~90% 범위입니다. 범위가 넓은 줄일수록 한 벌의 기록에서 나온 숫자를 그대로 믿으면 안 된다는 뜻입니다.</div>
+  <div class="row"><button class="btn" id="rpBtn" type="button">반복 실험 돌리기</button></div>
+  <div class="state" id="rpSt">아직 돌리지 않았습니다.</div>
+  <div class="tbwrap"><table id="tabR" class="mt num"></table></div>
+</div>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy, pandas</code>만 씁니다. 함수 여섯 개(적응형 한계, 과거 재현, 비용, 최적 <i>k</i>, 시간순 확인, 라벨 점검)가 이 실험실의 도구입니다. 고정 한계를 만드는 <code>fixed_limits</code>는 비교용 보조 함수입니다. 가상 데이터를 파일로 받으려면 단추를 누르십시오. 받은 파일 <code>s9_adaptive_spec.csv</code>를 코드와 같은 폴더에 두면 맨 아래 부분이 그대로 돌아갑니다. 파일의 <code>event_id</code> 열(0이면 정상, 1 이상이면 진성 이상 사건 번호)은 알람 뒤 판정과 놓친 이상의 역추적 기록을 합친 라벨 역할을 하고, <code>half</code> 열은 섞어 나누기에 쓰는 무작위 표시입니다.</p>
+<div class="row"><button class="btn" id="csvBtn" type="button">CSV 내려받기 (s9_adaptive_spec.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+
+REARM = 10            # 재가동 뒤 이 장수 안에 또 알람이 나면 같은 건으로 센다
+
+
+def _first_limits(x, pm_idx, n_base=2000):
+    n0 = min(n_base, pm_idx[0] if len(pm_idx) else len(x))
+    return x[:n0].mean(), x[:n0].std(ddof=1)
+
+
+def fixed_limits(x, pm_idx, k, n_base=2000):
+    """고정 한계: PM 전 첫 n_base장의 평균 ± k·표준편차를 끝까지 쓴다.
+    쓰면 안 되는 때: PM·부품 교체로 기준이 옮겨 가는 특징(그래서 이 실험실이 적응형을 만든다)."""
+    c, w = _first_limits(x, pm_idx, n_base)
+    n = len(x)
+    return np.full(n, c - k * w), np.full(n, c + k * w), []
+
+
+def adaptive_limits(x, pm_idx, k, n_burn=100, dmax=3.0, guard=True, review=None, n_base=2000):
+    """적응형 한계. PM 직후 n_burn장(안정화 구간)은 옛 중심 ± (k+dmax)·옛 폭, 그 뒤는 새 중심(안정화 구간 중앙값) ± k·1.4826·MAD.
+    guard=True 이고 새 중심이 옛 중심에서 dmax·옛 폭보다 멀면 자동 채택하지 않고 사람 확인 1건으로 센다.
+    review(구간 안에 이상이 있었는지 사람이 본 결과, 이상이면 True 인 배열)가 있으면 이상 없음 → 새 기준 채택, 이상 있음 → 옛 기준 유지.
+    쓰면 안 되는 때: PM 기록이 빠져 있으면 기준을 엉뚱한 곳에서 다시 잡는다. 안정화 구간이 짧으면(수십 장) 폭 추정이 흔들려 가성이 늘고, PM 이동이 작은 특징에는 고정 한계가 낫다."""
+    n = len(x)
+    c0, w0 = _first_limits(x, pm_idx, n_base)
+    c, w, add = np.full(n, c0), np.full(n, w0), np.zeros(n)
+    cc, ww, checks = c0, w0, []
+    for j, p in enumerate(pm_idx):
+        seg_end = pm_idx[j + 1] if j + 1 &lt; len(pm_idx) else n
+        we = min(p + n_burn, seg_end)
+        win = x[p:we]
+        nc = np.median(win)
+        nw = 1.4826 * np.median(np.abs(win - nc))
+        moved = abs(nc - cc) &gt; dmax * ww
+        anomaly = bool(review is not None and np.any(np.asarray(review)[p:we]))
+        adopt = True
+        if guard and moved:
+            checks.append({"pm": int(p), "check_at": int(we - 1), "window": (int(p), int(we)), "old_center": float(cc), "new_center": float(nc), "anomaly_in_window": anomaly})
+            adopt = not anomaly
+        c[p:we], w[p:we], add[p:we] = cc, ww, dmax
+        if adopt:
+            cc, ww = nc, nw
+        c[we:seg_end], w[we:seg_end] = cc, ww
+    return c - (k + add) * w, c + (k + add) * w, checks
+
+
+def _events(labels):
+    ev = {}
+    for i in np.flatnonzero(labels &gt; 0):
+        e = int(labels[i])
+        if e not in ev:
+            ev[e] = [int(i), int(i) + 1]
+        else:
+            ev[e][1] = int(i) + 1
+    return ev
+
+
+def replay(x, lo, hi, labels, checks=(), rearm=REARM, traced=True, window=None):
+    """라벨이 붙은 기록에 한계를 다시 돌린다. labels: 0 이면 정상, 1 이상이면 진성 이상 사건 번호.
+    같은 규칙: 재가동 뒤 rearm장 안의 재알람은 같은 건 · 진성 알람이 나면 그 사건은 조치되어 끝남 · 놓친 장수 = 사건 시작부터 첫 알람 직전까지.
+    window(불리언 배열)가 있으면 그 기간의 가성 건수·놓친 장수만 센다. traced=False 면 한 번도 알람이 안 난 사건은 장부에 없다.
+    쓰면 안 되는 때: 라벨이 알람 난 것에만 붙어 있고 놓친 이상의 역추적 기록이 없으면 놓친 장수가 실제보다 적게 나온다."""
+    x, labels = np.asarray(x), np.asarray(labels)
+    ev = _events(labels)
+    det = {e: np.inf for e in ev}
+    chk = {c["check_at"]: c for c in checks}
+    pts = np.union1d(np.flatnonzero((x &gt; hi) | (x &lt; lo)), np.array(sorted(chk), dtype=int)).astype(int)
+    sup, fa, hits, ilist = -1, [], 0, []
+    for i in pts:
+        i = int(i)
+        if i in chk:
+            c = chk[i]
+            inside = [e for e, (s, t) in ev.items() if s &lt; c["window"][1] and t &gt; c["window"][0]]
+            for e in inside:
+                if det[e] == np.inf:
+                    det[e] = i
+            if not inside:
+                fa.append(i)
+            ilist.append({"idx": i, "value": float(x[i]), "limit": float(hi[i]), "judged": "진성" if inside else "가성"})
+            sup = i + rearm
+            continue
+        e = int(labels[i])
+        if e &gt; 0 and det[e] &lt; i:
+            continue
+        if i &lt;= sup:
+            continue
+        sup = i + rearm
+        if e &gt; 0:
+            det[e] = i
+        else:
+            fa.append(i)
+        ilist.append({"idx": i, "value": float(x[i]), "limit": float(hi[i] if x[i] &gt; hi[i] else lo[i]), "judged": "진성" if e &gt; 0 else "가성"})
+    win = np.ones(len(x), bool) if window is None else np.asarray(window)
+    missed = 0
+    for e, (s, t) in ev.items():
+        if det[e] == np.inf and not traced:
+            continue
+        b = int(min(det[e], t))
+        missed += int(win[s:b].sum())
+    return {"false_alarms": int(win[fa].sum()) if fa else 0, "missed": missed,
+            "checks": sum(1 for c in checks if win[c["check_at"]]), "interlocks": [r for r in ilist if win[r["idx"]]]}
+
+
+def cost(res, c_fa=15.0, c_miss=10.0):
+    """총비용 = C_FA × 가성 건수 + C_miss × 놓친 유리 장수 (분). 쓰면 안 되는 때: 두 비용의 비를 사람이 정하기 전."""
+    return c_fa * res["false_alarms"] + c_miss * res["missed"]
+
+
+def optimize_k(x, pm_idx, labels, ks, c_fa=15.0, c_miss=10.0, window=None, kind="adaptive", **kw):
+    """k 후보 전체를 과거에 다시 돌려 비용이 가장 작은 k 와 비용 곡선(DataFrame)을 돌려준다(같으면 작은 k).
+    쓰면 안 되는 때: 라벨이 한쪽(가성뿐)이거나 놓친 이상의 기록이 빠져 있을 때 — 최적 k 가 체계적으로 커진다."""
+    rows = []
+    for k in ks:
+        if kind == "fixed":
+            lo, hi, chk = fixed_limits(x, pm_idx, k)
+        else:
+            lo, hi, chk = adaptive_limits(x, pm_idx, k, review=labels &gt; 0, **kw)
+        r = replay(x, lo, hi, labels, chk, window=window)
+        rows.append({"k": float(k), "false_alarms": r["false_alarms"], "missed": r["missed"], "cost": cost(r, c_fa, c_miss)})
+    curve = pd.DataFrame(rows)
+    return float(curve.k[int(curve.cost.values.argmin())]), curve
+
+
+def time_split_eval(x, pm_idx, labels, train, check, ks, c_fa=15.0, c_miss=10.0, kind="adaptive", **kw):
+    """train 기간으로 k 를 고르고 한 번도 안 본 check 기간에서 평가한다(두 기간은 불리언 배열 — 시간순이면 앞뒤, 섞어 나누기면 무작위).
+    쓰면 안 되는 때: 두 기간이 같은 PM 구간·같은 사건을 나눠 가질 때(섞어 나누기) — 확인 비용이 낙관적으로 나온다."""
+    k, curve = optimize_k(x, pm_idx, labels, ks, c_fa, c_miss, window=train, kind=kind, **kw)
+    if kind == "fixed":
+        lo, hi, chk = fixed_limits(x, pm_idx, k)
+    else:
+        lo, hi, chk = adaptive_limits(x, pm_idx, k, review=labels &gt; 0, **kw)
+    a, b = replay(x, lo, hi, labels, chk, window=train), replay(x, lo, hi, labels, chk, window=check)
+    return {"k": k, "train": {**{m: a[m] for m in ("false_alarms", "missed")}, "cost": cost(a, c_fa, c_miss)},
+            "check": {**{m: b[m] for m in ("false_alarms", "missed", "checks")}, "cost": cost(b, c_fa, c_miss)}}
+
+
+def label_audit(interlocks):
+    """라벨 품질 점검: 판정 칸 비어 있는 비율, 판정자·판정 근거 칸 비어 있는 비율, 같은 값대(한계에서 벗어난 정도)에서 라벨이 엇갈린 인터락의 비율.
+    쓰면 안 되는 때: 값(value)·한계(limit) 열이 없는 기록 — 같은 값대를 가를 수 없다."""
+    d = pd.DataFrame(interlocks)
+    out = {"n": len(d)}
+    for col, name in (("judged", "blank_judged"), ("judge_by", "blank_judge_by"), ("reason", "blank_reason")):
+        out[name] = float(d[col].isna().mean()) if col in d else None      # 열 자체가 없으면 None (기록 항목이 없다는 뜻)
+    over = ((d.value - d.limit).abs() * 4).round().astype(int)               # 한계에서 0.25 단위로 벗어난 정도
+    both = d.groupby(over).judged.transform("nunique") &gt; 1
+    out["conflict_share"] = float(both.mean())
+    return out
+
+
+# ---- 가상 데이터로 돌려 보기 (페이지의 [CSV 내려받기]로 받은 파일) ----
+df = pd.read_csv("s9_adaptive_spec.csv")
+x = df.x.to_numpy()
+pm_idx = df.index[df.pm_start == 1].to_numpy()
+labels = df.event_id.to_numpy()
+KS = (200 + 5 * np.arange(81)) / 100
+idx = np.arange(len(x))
+tr, ck = idx &lt; 18000, idx &gt;= 18000                    # 앞 90일 · 뒤 90일
+ha, hb = df.half.to_numpy() == 1, df.half.to_numpy() == 0   # 섞어 나누기(무작위 반씩)
+C_FA, C_MISS = 15.0, 10.0
+print(f"기록 {len(x):,}장 · PM {len(pm_idx)}회 · 진성 이상 {len(_events(labels))}건 · 비용 C_FA {C_FA:.0f}분 · C_miss {C_MISS:.0f}분 (r = {C_MISS / C_FA:.2f})")
+
+lo, hi, _ = fixed_limits(x, pm_idx, 3.0)
+for nm, w in (("학습 90일", tr), ("확인 90일", ck)):
+    r = replay(x, lo, hi, labels, window=w)
+    print(f"현행 고정 k=3.00  {nm}: 인터락 {len(r['interlocks'])}건 중 가성 {r['false_alarms']}건 · 놓친 {r['missed']}장 · 비용 {cost(r, C_FA, C_MISS):.0f}분")
+for kind, nm in (("fixed", "고정 + k 최적화"), ("adaptive", "적응형 + k 최적화")):
+    s = time_split_eval(x, pm_idx, labels, tr, ck, KS, C_FA, C_MISS, kind=kind)
+    print(f"{nm}  시간순: k={s['k']:.2f} · 학습 비용 {s['train']['cost']:.0f}분 → 확인 90일 가성 {s['check']['false_alarms']}건 · 놓친 {s['check']['missed']}장 · 비용 {s['check']['cost']:.0f}분"
+          + (f" · 사람 확인 {s['check']['checks']}건" if kind == "adaptive" else ""))
+s = time_split_eval(x, pm_idx, labels, ha, hb, KS, C_FA, C_MISS, kind="adaptive")
+print(f"적응형 + k 최적화  섞어 나누기: k={s['k']:.2f} · 학습 비용 {s['train']['cost']:.0f}분 → 확인 비용 {s['check']['cost']:.0f}분")
+lo, hi, chk = fixed_limits(x, pm_idx, 3.0)
+a = label_audit(replay(x, lo, hi, labels, window=tr)["interlocks"])
+print(f"라벨 점검(현행 학습 90일 인터락 {a['n']}건): 판정 칸 비어 있음 {a['blank_judged'] * 100:.0f}% · 판정자 칸 {'없음' if a['blank_judge_by'] is None else '있음'} · 판정 근거 칸 {'없음' if a['blank_reason'] is None else '있음'} · 같은 값대에서 라벨이 엇갈린 인터락 {a['conflict_share'] * 100:.0f}%")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 위 표들의 숫자와 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력 예시"></pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>spec 변경 제안 보고서</h3>
+  <dl>
+    <dt>특징명</dt><dd id="rp_feat"></dd>
+    <dt>현행 spec · 제안 spec</dt><dd id="rp_spec"></dd>
+    <dt>사용한 기록 기간</dt><dd id="rp_period"></dd>
+    <dt>라벨 수와 라벨 점검 결과</dt><dd id="rp_label"></dd>
+    <dt>비용 가정 (사람 승인 값)</dt><dd id="rp_cost"></dd>
+    <dt>확인 기간 결과 (가성·놓침·비용)</dt><dd id="rp_res"></dd>
+    <dt>가드로 사람 확인이 필요했던 PM</dt><dd id="rp_guard"></dd>
+    <dt>위험</dt><dd id="rp_risk"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ · 적용 개시일 ____________ (<b>spec 변경은 사람의 승인 뒤에 적용합니다.</b> 적용한 뒤에도 같은 재현을 달마다 돌려 다시 봅니다.)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 spec을 스스로 제안하려면 현장에서 아래를 남겨야 합니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>인터락 기록</b> — 시각, 유리 ID, 특징, 값, 한계, 판정(진성/가성), 판정자, 판정 근거, 조치, 정지 시간</li>
+      <li><b>PM·부품 교체 이벤트 로그</b> — 종류, 시각, 부품. 적응형 한계가 기준을 다시 잡는 신호입니다</li>
+      <li><b>후공정 불량의 역추적 기록</b> — 어느 유리가 어느 시각에 놓친 이상이었나. 이 기록이 없으면 놓침이 장부에 보이지 않습니다</li>
+      <li><b>spec 변경 이력</b> — 언제, 무엇을, 누가 승인했나</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실이 남기는 검증된 함수입니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><code>adaptive_limits(x, pm_idx, k, ...)</code> — 적응형 한계와 사람 확인 목록 (고정 한계는 보조 함수 <code>fixed_limits</code>)</li>
+      <li><code>replay(x, lo, hi, labels, ...)</code> — 과거 재현</li>
+      <li><code>cost(res, c_fa, c_miss)</code> — 비용 함수</li>
+      <li><code>optimize_k(x, pm_idx, labels, ks, ...)</code> — 최적 <i>k</i>와 비용 곡선</li>
+      <li><code>time_split_eval(...)</code> — 시간순 확인</li>
+      <li><code>label_audit(interlocks)</code> — 라벨 품질 점검</li>
+    </ul>
+    <p class="note" style="margin-top:.5rem">감시 순서: 0204 감시 → 알람 → 사람 판정 라벨 → 달마다 <code>optimize_k</code> 재현 → 제안 보고서 → 사람 승인. 사람이 정하는 것은 비용 비율·PM 뒤 허용 이동폭·spec 변경 승인이고, 에이전트는 재현·최적화·시간순 확인·제안 보고서까지 맡습니다.</p>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0204-small-shift-ewma-cusum.html">← 이전: 작은 변화 감지</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ============ 데이터·계산 핵심 (CORE-START) ============ */
+var MS=MfgSim,T9=MS.s9tools,S=MS.scenario('S9'),D=S.D,BP=S.params,BA=S.analysis,NH=D.nHist,PD=D.per_day,GRID=T9.GRID,PER=T9.PERIODS,K3=T9.K3,NDAY=NH/PD,HALF=NH/2;
+var CFA=BP.c_fa,CM0=BP.c_miss,DEF={nb:BP.n_burn,dmax:BP.dmax,guard:BP.guard},BASE=D.base,REARM=BP.rearm;
+var PMH=D.pm.filter(function(p){return p<NH;}),EVH=D.events.filter(function(e){return e.start<NH;});
+function perCount(list,per){var c=D.cum[per],n=0,i;for(i=0;i<list.length;i++)n+=c[list[i]+1]-c[list[i]];return n;}
+function runAt(kind,nb,dm,gd,k){var pol=T9.policy(D,kind,nb,dm,gd),r=T9.scan(D,pol,k,null,true);r.pol=pol;return r;}
+function A5(a,per){return a[PER.indexOf(per)];}
+function sumH(a){return a[0]+a[1];}
+function histHits(r){return perCount(r.hits,'tr')+perCount(r.hits,'ck');}
+function curveOf(kind,nb,dm,gd){return T9.curve(D,{kind:kind,nb:nb,dmax:dm,guard:gd},null,true);}
+function costAt(cv,j,per,cfa,cm){return T9.cost(cv,j,per,cfa,cm);}
+function costH(cv,j,cfa,cm){return T9.cost(cv,j,'tr',cfa,cm)+T9.cost(cv,j,'ck',cfa,cm);}
+function argH(cv,cfa,cm){var b=0,bv=Infinity,j,v;for(j=0;j<GRID.length;j++){v=costH(cv,j,cfa,cm);if(v<bv-1e-9){bv=v;b=j;}}return b;}
+function checksIn(pol,lo,hi){var n=0;pol.forced.forEach(function(f){if(f.t>=lo&&f.t<hi)n++;});return n;}
+/* ============ CORE-END ============ */
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function sgn(v,d){var a=Math.abs(v);return (v>0?'+':v<0?'−':'')+(d?fmt(a,d):fmtN(a));}
+function setT(id,t){var e=$(id);if(e)e.textContent=t;}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function niceStep(span,target){var raw=span/target,p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),f=raw/p;return (f<1.5?1:f<3.5?2:f<7.5?5:10)*p;}
+function num(d){return String(+d.toFixed(3));}
+function isBase(a,b){return Math.abs(a-b)<1e-9;}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function pct(v,d){return fmt(v*100,d==null?0:d);}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+
+/* ---- 공용 그림: 점·선·막대·세로선·띠를 한 번에 ---- */
+function plotXY(id,h,o){
+  var c=setup($(id),h),x=c.x,W=c.w,H=c.h,soft=css('--soft'),rule=css('--rule'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  var pl=o.pl||54,pr=12,pt=o.pt||12,pb=o.pb||(o.xlab?34:22),pw=W-pl-pr,ph=H-pt-pb,xl=o.xmin,xr=o.xmax,yl=o.ymin,yh=o.ymax,i,v;
+  function X(a){return pl+(a-xl)/(xr-xl)*pw;}
+  function Y(b){return pt+ph-(b-yl)/(yh-yl)*ph;}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,pt+.5,pw-1,ph-1);
+  x.font='11px sans-serif';x.fillStyle=soft;x.textAlign='right';
+  var sy=niceStep(yh-yl,Math.max(2,Math.floor(ph/34)));
+  for(v=Math.ceil(yl/sy-1e-9)*sy;v<=yh+1e-9;v+=sy){var yy=Y(v);x.fillText(o.yfmt?o.yfmt(v):String(+v.toFixed(4)),pl-5,yy+4);x.save();x.strokeStyle=rule;x.globalAlpha=.5;x.beginPath();x.moveTo(pl,yy);x.lineTo(W-pr,yy);x.stroke();x.restore();}
+  x.textAlign='center';
+  var sx=niceStep(xr-xl,Math.max(3,Math.floor(pw/80)));
+  for(v=Math.ceil(xl/sx-1e-9)*sx;v<=xr+1e-9;v+=sx)x.fillText(o.xfmt?o.xfmt(v):String(+v.toFixed(4)),X(v),pt+ph+14);
+  if(o.xlab)x.fillText(o.xlab,pl+pw/2,H-3);
+  x.save();x.beginPath();x.rect(pl,pt,pw,ph);x.clip();
+  (o.bands||[]).forEach(function(b){x.fillStyle=b.col;x.globalAlpha=b.alpha==null?.15:b.alpha;x.fillRect(X(b.x0),pt,Math.max(1,X(b.x1)-X(b.x0)),ph);x.globalAlpha=1;});
+  (o.bars||[]).forEach(function(b){x.fillStyle=b.col;var bw=Math.max(1,(b.w||1)*pw/(xr-xl));x.fillRect(X(b.x)-bw/2,Y(b.y1),bw,Y(b.y0)-Y(b.y1));});
+  (o.lines||[]).forEach(function(L){x.strokeStyle=L.col;x.lineWidth=L.w||1.5;x.setLineDash(L.dash||[]);x.beginPath();var first=true;for(i=0;i<L.xs.length;i++){if(L.ys[i]==null||!isFinite(L.ys[i])){first=true;continue;}if(first){x.moveTo(X(L.xs[i]),Y(L.ys[i]));first=false;}else x.lineTo(X(L.xs[i]),Y(L.ys[i]));}x.stroke();x.setLineDash([]);});
+  (o.hl||[]).forEach(function(l){x.strokeStyle=l.col;x.lineWidth=l.w||1.4;x.setLineDash(l.dash||[]);x.beginPath();x.moveTo(pl,Y(l.y));x.lineTo(W-pr,Y(l.y));x.stroke();x.setLineDash([]);});
+  (o.vl||[]).forEach(function(l){x.strokeStyle=l.col;x.lineWidth=l.w||1.2;x.setLineDash(l.dash||[4,4]);x.beginPath();x.moveTo(X(l.x),pt);x.lineTo(X(l.x),pt+ph);x.stroke();x.setLineDash([]);});
+  (o.dots||[]).forEach(function(d){x.fillStyle=d.col;x.beginPath();x.arc(X(d.x),Y(d.y),d.r||2,0,6.283);x.fill();if(d.stroke){x.strokeStyle=css('--card');x.lineWidth=1.5;x.stroke();}});
+  x.restore();
+  (o.texts||[]).forEach(function(t){x.fillStyle=t.col||soft;x.font=(t.bold?'bold ':'')+'11px sans-serif';x.textAlign=t.align||'left';x.fillText(t.s,t.x==null?pl+6:X(t.x),t.y==null?pt+13:Y(t.y));});
+  x.textAlign='left';
+  return {X:X,Y:Y,x:x,pl:pl,pt:pt,pw:pw,ph:ph,W:W,H:H};
+}
+
+/* ---- 머리말·문제 ---- */
+var P0=runAt('fixed',DEF.nb,DEF.dmax,DEF.guard,3);
+var P0H={fa:sumH(P0.fa),hit:histHits(P0)};
+(function(){
+  setT('i_n',fmtN(P0H.fa+P0H.hit));setT('i_fa',fmtN(P0H.fa));setT('i_pc',pct(P0H.fa/(P0H.fa+P0H.hit),0));
+  setT('i_f0',fmtN(BA.P0.ck.fa));setT('i_f1',fmtN(BA.P1.time.ck.fa));setT('i_f2',fmtN(BA.P2.time.ck.fa));setT('i_m0',fmtN(BA.P0.ck.miss));setT('i_m1',fmtN(BA.P1.time.ck.miss));setT('i_m2',fmtN(BA.P2.time.ck.miss));
+  setT('p_pd',PD);setT('p_days',NDAY);setT('p_n',fmtN(NH));setT('p_pm',PMH.length);setT('p_step',fmt(BP.tau,2));setT('p_s0',fmt(BP.size_min,1));setT('p_s1',fmt(BP.size_max,1));setT('p_len',BP.len_mean);setT('p_ev',EVH.length);setT('p_base',fmtN(BASE.n));
+  setT('p_cfa',CFA);setT('p_cm',CM0);setT('p_fd',D.nFut/PD);setT('s5_fd',D.nFut/PD);
+  setAll('cfa',String(CFA));setAll('cm5',String(CM0));setAll('cm9',String(CM0));
+  setT('s4_re',REARM);setT('s4_nb',DEF.nb);setT('s4_dm',num(DEF.dmax));
+  setT('q_e1',EVH.filter(function(e){return e.start<HALF;}).length);setT('q_e2',EVH.filter(function(e){return e.start>=HALF;}).length);
+  setT('t1_k',fmt(3,2));setT('rp_n',40);
+})();
+
+/* ---- 1절 ---- */
+(function(){
+  var dm=[],fa=[],ht=[],d,i;
+  for(d=0;d<NDAY;d++){var s=0;for(i=d*PD;i<(d+1)*PD;i++)s+=D.x[i];dm.push(s/PD);fa.push(0);ht.push(0);}
+  P0.alarms.forEach(function(q){if(q<NH)fa[Math.floor(q/PD)]++;});P0.hits.forEach(function(q){if(q<NH)ht[Math.floor(q/PD)]++;});
+  var xs=dm.map(function(_,k){return k+1;}),hi=BASE.c+3*BASE.w,lo=BASE.c-3*BASE.w,mx=Math.max.apply(null,fa.map(function(v,k){return v+ht[k];}));
+  function draw(){
+    var ymin=Math.min(lo,Math.min.apply(null,dm))-0.5,ymax=Math.max(hi,Math.max.apply(null,dm))+0.5,pmv=PMH.map(function(p){return {x:p/PD+0.5,col:css('--grey'),dash:[3,4]};});
+    plotXY('cv1a',210,{xmin:0.5,xmax:NDAY+0.5,ymin:ymin,ymax:ymax,yfmt:function(v){return String(Math.round(v));},
+      lines:[{xs:xs,ys:dm,col:css('--soft'),w:1.4}],hl:[{y:hi,col:css('--bad'),dash:[5,4]},{y:lo,col:css('--bad'),dash:[5,4]}],vl:pmv.concat([{x:HALF/PD+0.5,col:css('--ink'),dash:[2,3],w:1.6}]),
+      texts:[{s:'하루 평균 압력 (σ 단위)',x:null,y:null}]});
+    var bars=[];fa.forEach(function(v,k){bars.push({x:k+1,y0:0,y1:v,col:css('--bad'),w:0.9});bars.push({x:k+1,y0:v,y1:v+ht[k],col:css('--good'),w:0.9});});
+    plotXY('cv1b',170,{xmin:0.5,xmax:NDAY+0.5,ymin:0,ymax:Math.max(2,mx*1.08),xlab:'일 (1~'+NDAY+')',bars:bars,vl:pmv.concat([{x:HALF/PD+0.5,col:css('--ink'),dash:[2,3],w:1.6}]),texts:[{s:'하루 인터락 수',x:null,y:null}]});
+  }
+  window.__d1=draw;
+  var h='<tr><th>구분</th><th>인터락 (건)</th><th>그중 가성 (건)</th><th>놓친 유리 (장)</th><th>비용 (분)</th></tr>';
+  [['학습 90일','tr'],['확인 90일','ck']].forEach(function(a){var f=A5(P0.fa,a[1]),m=A5(P0.miss,a[1]),hh=perCount(P0.hits,a[1]);h+='<tr><td class="rowh">현행 · '+a[0]+'</td><td>'+fmtN(f+hh)+'</td><td class="hit">'+fmtN(f)+'</td><td>'+fmtN(m)+'</td><td>'+fmtN(CFA*f+CM0*m)+'</td></tr>';});
+  h+='<tr><td class="rowh">현행 · 180일</td><td><b>'+fmtN(P0H.fa+P0H.hit)+'</b></td><td class="hit"><b>'+fmtN(P0H.fa)+'</b></td><td><b>'+fmtN(sumH(P0.miss))+'</b></td><td><b>'+fmtN(CFA*P0H.fa+CM0*sumH(P0.miss))+'</b></td></tr>';
+  h+='<tr><td class="rowh">제안 · 확인 90일</td><td colspan="4">9절에서 채웁니다</td></tr>';
+  $('tab1').innerHTML=h;
+  var near=0,tot=0,after=0,near_g=0,seg={};
+  P0.alarms.forEach(function(q){if(q>=NH)return;tot++;var sgi=0;PMH.forEach(function(p,j){if(q>=p)sgi=j+1;});seg[sgi]=(seg[sgi]||0)+1;var dd=1e9;PMH.forEach(function(p){if(q>=p)dd=q-p;});if(dd<500)near++;});
+  for(i=D.pm[0];i<NH;i++){after++;var d2=1e9;for(var j=0;j<PMH.length;j++)if(i>=PMH[j])d2=i-PMH[j];if(d2<500)near_g++;}
+  var sv=Object.keys(seg).map(function(k){return seg[k];}).sort(function(a,b){return b-a;}),nseg=PMH.length+1;
+  setT('s1_top',pct((sv[0]+(sv[1]||0)+(sv[2]||0))/tot,0));setT('s1_unif',pct(3/nseg,0));setT('s1_nseg',nseg);setT('s1_near',pct(near/tot,0));setT('s1_len',pct(near_g/after,0));
+  setT('s1_floor',fmt(PD*2*MS.qnorm(3),2));setT('s1_pd',PD);setT('s1_day',fmt(P0H.fa/NDAY,2));
+  draw();
+})();
+
+/* ---- 2절: 적응형 한계 ---- */
+var s2={nb:DEF.nb,dm:DEF.dmax,k:3,guard:true,pm:0};
+(function(){
+  var sel=$('pm2'),mv=T9.policy(D,'adaptive',DEF.nb,DEF.dmax,true).moves,first=-1,j;
+  PMH.forEach(function(p,q){var o=document.createElement('option');o.value=q;o.textContent='PM '+(q+1)+' (유리 '+fmtN(p)+'번째, '+(Math.floor(p/PD)+1)+'일째)';sel.appendChild(o);if(first<0&&mv[q]&&mv[q].checked)first=q;});
+  s2.pm=first<0?Math.min(1,PMH.length-1):first;s2.pm0=s2.pm;sel.value=String(s2.pm);
+})();
+function burnEvents(nb){var out=[];EVH.forEach(function(e,idx){for(var q=0;q<PMH.length;q++)if(e.start>=PMH[q]&&e.start<PMH[q]+nb){out.push(D.events.indexOf(e));break;}});return out;}
+function upd2(){
+  var st=s2,pol=T9.policy(D,'adaptive',st.nb,st.dm,st.guard),r2=T9.scan(D,pol,st.k,null,true),r0=runAt('fixed',DEF.nb,DEF.dmax,DEF.guard,st.k);
+  setT('nb2o',st.nb+'장');setT('dm2o',fmt(st.dm,1)+'배');setT('k2o',fmt(st.k,2));
+  $('g2on').setAttribute('aria-pressed',st.guard?'true':'false');$('g2off').setAttribute('aria-pressed',st.guard?'false':'true');
+  var be=burnEvents(st.nb),sw=be.filter(function(e){return r2.det[e]===Infinity;}),swm=be.reduce(function(s,e){var ev=D.events[e];return s+Math.min(r2.det[e],ev.end)-ev.start;},0);
+  var f0=sumH(r0.fa),f2=sumH(r2.fa),h0=histHits(r0),h2=histHits(r2),m0=sumH(r0.miss),m2=sumH(r2.miss),ck=checksIn(pol,0,NH);
+  var hh='<tr><th>180일 합계 (<i>k</i> = '+fmt(st.k,2)+')</th><th>현행 고정 한계</th><th>적응형 한계</th></tr>';
+  hh+='<tr><td class="rowh">가성 인터락 (건)</td><td class="hit">'+fmtN(f0)+'</td><td><b>'+fmtN(f2)+'</b></td></tr>';
+  hh+='<tr><td class="rowh">진성 인터락 (건)</td><td>'+fmtN(h0)+'</td><td>'+fmtN(h2)+'</td></tr>';
+  hh+='<tr><td class="rowh">놓친 유리 (장)</td><td>'+fmtN(m0)+'</td><td><b>'+fmtN(m2)+'</b></td></tr>';
+  hh+='<tr><td class="rowh">가드가 요구한 사람 확인 (건)</td><td>—</td><td>'+ck+'</td></tr>';
+  hh+='<tr><td class="rowh">안정화 구간 안에서 시작한 진성 이상 (건) · 그중 알람이 한 번도 안 난 것 (삼켜진 사건)</td><td>—</td><td>'+be.length+' · <b>'+sw.length+'</b></td></tr>';
+  hh+='<tr><td class="rowh">그 이상들의 놓친 유리 (장)</td><td>—</td><td>'+fmtN(swm)+'</td></tr>';
+  $('tab2').innerHTML=hh;
+  var same=st.nb===DEF.nb&&isBase(st.dm,DEF.dmax)&&st.guard===true&&isBase(st.k,3);
+  stateBox($('st2'),same,'지금 이 값이 기준 설정입니다. 안정화 구간 '+DEF.nb+'장, Δmax '+num(DEF.dmax)+'배, 가드 켬, k = 3.00(현행과 같은 폭).','지금은 기준 설정에서 옮겨 놓은 가정입니다. 안정화 구간 '+DEF.nb+' → '+st.nb+'장, Δmax '+num(DEF.dmax)+' → '+num(st.dm)+'배, 가드 '+(st.guard?'켬':'끔')+', k 3.00 → '+fmt(st.k,2)+'.');
+  $('concl2').innerHTML='<b>같은 <i>k</i> = '+fmt(st.k,2)+'에서 가성 인터락이 현행 '+fmtN(f0)+'건, 적응형 '+fmtN(f2)+'건입니다.</b> 놓친 유리는 '+fmtN(m0)+'장에서 '+fmtN(m2)+'장으로 바뀌었습니다. 가드 '+(st.guard?'켬':'끔')+' · 안정화 구간 '+st.nb+'장에서 사람 확인 '+ck+'건, 삼켜진 사건 '+sw.length+'건입니다.'+(st.guard?'':' 가드를 끄면 안정화 구간에 들어온 이상이 새 기준에 섞여 들어가므로 가드를 켠 때와 놓친 장수를 견줘 보십시오.');
+  /* 그림 */
+  var p=PMH[st.pm],a=Math.max(0,p-250),b=Math.min(NH,p+750),xs=[],hi=[],lo=[],i,ymin,ymax;
+  for(i=a;i<b;i++){xs.push(i);hi.push(pol.c[i]+(st.k+pol.add[i])*pol.w[i]);lo.push(pol.c[i]-(st.k+pol.add[i])*pol.w[i]);}
+  var p0hi=BASE.c+st.k*BASE.w,p0lo=BASE.c-st.k*BASE.w,dataMin=1e9,dataMax=-1e9;
+  for(i=a;i<b;i++){dataMin=Math.min(dataMin,D.x[i]);dataMax=Math.max(dataMax,D.x[i]);}
+  ymin=dataMin-0.6;ymax=dataMax+0.6;
+  [p0lo,p0hi].forEach(function(v){if(v>dataMin-14&&v<dataMax+14){ymin=Math.min(ymin,v-0.4);ymax=Math.max(ymax,v+0.4);}});
+  hi.forEach(function(v){if(v<dataMax+4)ymax=Math.max(ymax,v+0.3);});lo.forEach(function(v){if(v>dataMin-4)ymin=Math.min(ymin,v-0.3);});
+  var dots=[];for(i=a;i<b;i++)dots.push({x:i,y:D.x[i],col:D.ev[i]>=0?css('--warn'):css('--soft'),r:D.ev[i]>=0?2.4:1.5});
+  r2.alarms.forEach(function(q){if(q>=a&&q<b)dots.push({x:q,y:D.x[q],col:css('--bad'),r:5,stroke:true});});
+  r2.hits.forEach(function(q){if(q>=a&&q<b)dots.push({x:q,y:D.x[q],col:css('--good'),r:5,stroke:true});});
+  plotXY('cv2',290,{xmin:a,xmax:b,ymin:ymin,ymax:ymax,xfmt:function(v){return fmtN(v);},yfmt:function(v){return String(Math.round(v*10)/10);},xlab:'유리 번호 (PM은 '+fmtN(p)+'번째)',
+    bands:[{x0:p,x1:Math.min(b,p+st.nb),col:css('--accent'),alpha:.14}],lines:[{xs:xs,ys:hi,col:css('--accent'),w:1.8},{xs:xs,ys:lo,col:css('--accent'),w:1.8}],
+    hl:[{y:p0hi,col:css('--bad'),dash:[5,4]},{y:p0lo,col:css('--bad'),dash:[5,4]}],vl:[{x:p,col:css('--ink')}],dots:dots});
+}
+$('nb2').addEventListener('input',function(){s2.nb=+this.value;upd2();});
+$('dm2').addEventListener('input',function(){s2.dm=+this.value;upd2();});
+$('k2').addEventListener('input',function(){s2.k=+this.value;upd2();});
+$('g2on').addEventListener('click',function(){s2.guard=true;upd2();});$('g2off').addEventListener('click',function(){s2.guard=false;upd2();});
+$('pm2').addEventListener('change',function(){s2.pm=+this.value;upd2();});
+$('r2').addEventListener('click',function(){s2={nb:DEF.nb,dm:DEF.dmax,k:3,guard:true,pm:s2.pm0,pm0:s2.pm0};$('nb2').value=String(DEF.nb);$('dm2').value=String(DEF.dmax);$('k2').value='3';$('pm2').value=String(s2.pm0);upd2();});
+
+/* ---- 3절: 비용 함수 ---- */
+var s3={cm:CM0,k:3};
+function upd3(){
+  var cm=s3.cm,k=s3.k,r1=runAt('fixed',DEF.nb,DEF.dmax,DEF.guard,k),r2=runAt('adaptive',DEF.nb,DEF.dmax,DEF.guard,k),r0=P0;
+  setT('cm3o',fmt(cm,1)+'분 (r = '+fmt(cm/CFA,2)+')');setT('k3o',fmt(k,2));
+  function row(r){var f=sumH(r.fa),m=sumH(r.miss);return {f:f,m:m,cf:CFA*f,cmv:cm*m,t:CFA*f+cm*m};}
+  var a=row(r1),b=row(r2),z=row(r0);
+  var h='<tr><th>180일 합계 (<i>k</i> = '+fmt(k,2)+')</th><th>고정 한계</th><th>적응형 한계</th></tr>';
+  h+='<tr><td class="rowh">가성 인터락 (건)</td><td>'+fmtN(a.f)+'</td><td>'+fmtN(b.f)+'</td></tr>';
+  h+='<tr><td class="rowh">놓친 유리 (장)</td><td>'+fmtN(a.m)+'</td><td>'+fmtN(b.m)+'</td></tr>';
+  h+='<tr><td class="rowh">가성 비용 = '+CFA+' × 건수 (분)</td><td>'+fmtN(a.cf)+'</td><td>'+fmtN(b.cf)+'</td></tr>';
+  h+='<tr><td class="rowh">놓침 비용 = '+fmt(cm,1)+' × 장수 (분)</td><td>'+fmtN(a.cmv)+'</td><td>'+fmtN(b.cmv)+'</td></tr>';
+  h+='<tr><td class="rowh">총비용 (분)</td><td class="hit">'+fmtN(a.t)+'</td><td><b>'+fmtN(b.t)+'</b></td></tr>';
+  h+='<tr><td class="rowh">현행(고정, <i>k</i> = 3.00)의 총비용 대비</td><td>'+fmt(a.t/z.t,2)+'배</td><td>'+fmt(b.t/z.t,2)+'배</td></tr>';
+  $('tab3').innerHTML=h;
+  stateBox($('st3'),isBase(cm,CM0)&&isBase(k,3),'지금 이 값이 기준 설정입니다. C_miss = '+CM0+'분(r = '+fmt(CM0/CFA,2)+'), k = 3.00.','지금은 기준 설정에서 옮겨 놓은 가정입니다. C_miss '+CM0+' → '+fmt(cm,1)+'분, k 3.00 → '+fmt(k,2)+'.');
+  $('concl3').innerHTML='<b>이 <i>k</i>에서 적응형 한계의 총비용은 '+fmtN(b.t)+'분이며, 그중 가성 비용이 '+fmt(b.cf/Math.max(b.t,1)*100,0)+'%, 놓침 비용이 '+fmt(b.cmv/Math.max(b.t,1)*100,0)+'%입니다.</b> 고정 한계는 '+fmtN(a.t)+'분(가성 비용 '+fmt(a.cf/Math.max(a.t,1)*100,0)+'%)입니다. <i>r</i> = '+fmt(cm/CFA,2)+'에서는 '+(b.cmv>b.cf?'놓침 쪽이 더 무거우니 <i>k</i>를 낮추는 쪽을':'가성 쪽이 더 무거우니 <i>k</i>를 높이는 쪽을')+' 살펴볼 만합니다. 정확한 최소점은 4절의 곡선이 보여 줍니다.';
+  var c=setup($('cv3'),250),x=c.x,W=c.w,H=c.h,soft=css('--soft'),pl=104,pr=14,mx=Math.max(a.t,b.t,1)*1.05;
+  x.clearRect(0,0,W,H);
+  [['고정 한계',a],['적응형 한계',b]].forEach(function(q,idx){
+    var y=30+idx*95,hh=52,wf=(W-pl-pr)*q[1].cf/mx,wm=(W-pl-pr)*q[1].cmv/mx;
+    x.fillStyle=soft;x.font='bold 12px sans-serif';x.textAlign='right';x.fillText(q[0],pl-8,y+hh/2+4);
+    x.fillStyle=css('--bad');x.fillRect(pl,y,wf,hh);x.fillStyle=css('--c10');x.fillRect(pl+wf,y,wm,hh);
+    x.textAlign='left';x.font='bold 12px sans-serif';x.fillStyle='#fff';
+    if(wf>78)x.fillText('가성 '+fmtN(q[1].cf)+'분',pl+6,y+hh/2+4);if(wm>78)x.fillText('놓침 '+fmtN(q[1].cmv)+'분',pl+wf+6,y+hh/2+4);
+    x.fillStyle=css('--ink');x.fillText('합 '+fmtN(q[1].t)+'분',Math.min(pl+wf+wm+8,W-pr-70),y+hh+16);
+  });
+}
+$('cm3').addEventListener('input',function(){s3.cm=+this.value;upd3();});
+$('k3').addEventListener('input',function(){s3.k=+this.value;upd3();});
+$('r3').addEventListener('click',function(){s3={cm:CM0,k:3};$('cm3').value=String(CM0);$('k3').value='3';upd3();});
+
+/* ---- 4절: 과거 재현(비용 곡선) ---- */
+var s4={cm:CM0};
+function upd4(){
+  var cm=s4.cm,c1=curveOf('fixed',DEF.nb,DEF.dmax,DEF.guard),c2=curveOf('adaptive',DEF.nb,DEF.dmax,DEF.guard),j1=argH(c1,CFA,cm),j2=argH(c2,CFA,cm),j3=K3;
+  setT('cm4o',fmt(cm,1)+'분 (r = '+fmt(cm/CFA,2)+')');
+  var y1=[],y2=[];for(var j=0;j<GRID.length;j++){y1.push(costH(c1,j,CFA,cm));y2.push(costH(c2,j,CFA,cm));}
+  var rows=[['현행 (고정, <i>k</i> = 3.00)',c1,j3],['고정 + <i>k</i> 최적화',c1,j1],['적응형 + <i>k</i> 최적화',c2,j2]];
+  var h='<tr><th>spec (180일 합계)</th><th><i>k</i></th><th>가성 (건)</th><th>놓침 (장)</th><th>총비용 (분)</th></tr>';
+  rows.forEach(function(q,idx){var f=q[1].fa[q[2]][0]+q[1].fa[q[2]][1],m=q[1].miss[q[2]][0]+q[1].miss[q[2]][1];h+='<tr><td class="rowh">'+q[0]+'</td><td>'+fmt(GRID[q[2]],2)+'</td><td>'+fmtN(f)+'</td><td>'+fmtN(m)+'</td><td'+(idx===2?' class="good"':'')+'>'+fmtN(CFA*f+cm*m)+'</td></tr>';});
+  $('tab4').innerHTML=h;
+  stateBox($('st4'),isBase(cm,CM0),'지금 이 값이 기준 설정입니다. C_miss = '+CM0+'분(r = '+fmt(CM0/CFA,2)+').','지금은 기준 설정에서 옮겨 놓은 가정입니다. C_miss '+CM0+' → '+fmt(cm,1)+'분(r = '+fmt(cm/CFA,2)+').');
+  $('concl4').innerHTML='<b>비용이 가장 작은 폭은 고정 한계 <i>k</i> = '+fmt(GRID[j1],2)+', 적응형 한계 <i>k</i> = '+fmt(GRID[j2],2)+'입니다.</b> 적응형의 최소 비용 '+fmtN(y2[j2])+'분은 고정 한계의 최소 비용 '+fmtN(y1[j1])+'분의 '+fmt(y2[j2]/y1[j1],2)+'배, 현행(<i>k</i> = 3.00)의 '+fmt(y2[j2]/y1[j3],2)+'배입니다. '+(y2[j2]<y1[j1]?'같은 비용 비율에서 적응형 한계가 고정 한계보다 낮은 비용에 닿습니다.':'이 기록에서는 고정 한계의 최소 비용이 적응형과 같거나 더 낮습니다. PM 이동폭이 작은 설비에서는 흔한 일입니다(아래 <i>τ</i> 실험). 다만 같은 기간으로 고르고 같은 기간으로 잰 값이므로, 5절에서 앞 기간으로 고른 <i>k</i>를 뒤 기간에 돌려 확인합니다.')+(j1>=GRID.length-2?' 고정 한계의 최소점이 격자의 끝(6.00)에 붙어 있으므로, 폭을 더 키워도 내려갈 곳이 없는지 곡선의 모양을 보십시오.':'')+' 곡선이 평평한 구간이 넓을수록 <i>k</i>를 조금 잘못 골라도 손해가 작습니다.';
+  var ymax=Math.max.apply(null,y1.concat(y2))*1.05;
+  plotXY('cv4',270,{xmin:2,xmax:6,ymin:0,ymax:ymax,xlab:'한계의 폭 k',yfmt:function(v){return fmtN(v);},xfmt:function(v){return fmt(v,1);},
+    lines:[{xs:GRID,ys:y1,col:css('--c10'),w:2},{xs:GRID,ys:y2,col:css('--c9'),w:2}],vl:[{x:3,col:css('--ink'),dash:[3,4]}],
+    dots:[{x:GRID[j1],y:y1[j1],col:css('--ink'),r:5,stroke:true},{x:GRID[j2],y:y2[j2],col:css('--ink'),r:5,stroke:true}],
+    texts:[{s:'k = '+fmt(GRID[j1],2),x:GRID[j1],y:y1[j1],bold:true,align:GRID[j1]>5?'right':'left'},{s:'k = '+fmt(GRID[j2],2),x:GRID[j2],y:y2[j2],bold:true,align:GRID[j2]>5?'right':'left'}].map(function(t){t.y=t.y;return t;})});
+}
+$('cm4').addEventListener('input',function(){s4.cm=+this.value;upd4();});
+$('r4').addEventListener('click',function(){s4={cm:CM0};$('cm4').value=String(CM0);upd4();});
+
+/* ---- 4절 둘째 실험: PM 이동폭 τ ---- */
+var s4t={tau:BP.tau},TC={};
+function upd4t(){
+  var tau=s4t.tau,key=String(tau),Dt=TC[key];
+  if(!Dt){Dt=T9.gen(BP.seed,{tau:tau});TC[key]=Dt;var ks=Object.keys(TC);if(ks.length>8)delete TC[ks[0]];}
+  var A=T9.analyze(Dt,{}),p0=A.P0.ck,p1=A.P1.time.ck,p2=A.P2.time.ck;
+  setT('tau4o',fmt(tau,2)+'σ');
+  var h='<tr><th>확인 90일 (<i>τ</i> = '+fmt(tau,2)+')</th><th><i>k</i></th><th>가성 (건)</th><th>놓친 유리 (장)</th><th>비용 (분)</th></tr>';
+  h+='<tr><td class="rowh">현행 (고정, <i>k</i> = 3.00)</td><td>3.00</td><td class="hit">'+fmtN(p0.fa)+'</td><td>'+fmtN(p0.miss)+'</td><td>'+fmtN(p0.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">고정 + 최적 <i>k</i></td><td>'+fmt(A.P1.pick.k,2)+'</td><td>'+fmtN(p1.fa)+'</td><td>'+fmtN(p1.miss)+'</td><td'+(p1.cost<=p2.cost?' class="good"':'')+'>'+fmtN(p1.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">적응형 + 최적 <i>k</i></td><td>'+fmt(A.P2.pick.k,2)+'</td><td>'+fmtN(p2.fa)+'</td><td>'+fmtN(p2.miss)+'</td><td'+(p2.cost<p1.cost?' class="good"':'')+'>'+fmtN(p2.cost)+'</td></tr>';
+  $('tab4t').innerHTML=h;
+  stateBox($('st4t'),isBase(tau,BP.tau),'지금 이 값이 기준 설정입니다. PM 이동폭 '+fmt(BP.tau,2)+'σ(기록의 기준 설정).','지금은 기준 설정에서 옮겨 놓은 가정입니다. PM 이동폭 '+fmt(BP.tau,2)+' → '+fmt(tau,2)+'σ.');
+  $('concl4t').innerHTML='<b>PM 이동폭 '+fmt(tau,2)+'σ에서 적응형의 확인 90일 비용은 '+fmtN(p2.cost)+'분, 고정 + 최적 <i>k</i>는 '+fmtN(p1.cost)+'분입니다('+(p1.cost>0?fmt(p2.cost/p1.cost,2)+'배':'—')+').</b> '+(p2.cost<p1.cost?'이 이동폭에서는 PM마다 기준을 다시 잡는 쪽이 앞섭니다.':'이 이동폭에서는 폭을 비용으로 고른 고정 한계가 같거나 더 낫습니다.')+' 같은 기록(같은 이상 사건)에서 이동폭만 바꾼 결과이며, 기록을 여러 벌 뽑으면 어느 이동폭에서 적응형이 앞서는지는 기록마다 달라집니다.';
+}
+$('tau4').addEventListener('input',function(){s4t.tau=+this.value;setT('tau4o',fmt(s4t.tau,2)+'σ');later('t4',upd4t,60);});
+$('rt4').addEventListener('click',function(){s4t.tau=BP.tau;$('tau4').value=String(BP.tau);upd4t();});
+var later=(function(){var t={};return function(k,fn,ms){clearTimeout(t[k]);t[k]=setTimeout(fn,ms);};})();
+
+/* ---- 5절: 시간순 분할 ---- */
+function upd5(){
+  var A=BA,t=A.P2,sh=A.shuffle.P2,c2=curveOf('adaptive',DEF.nb,DEF.dmax,DEF.guard);
+  function bias(fut,ck){return ck>0?fut/ck-1:NaN;}
+  var bt=bias(t.time.fut.cost,t.time.ck.cost),bs=bias(sh.at.fut.cost,sh.at.B.cost);
+  var h='<tr><th>항목</th><th>시간순 분할</th><th>섞어 나누기</th></tr>';
+  h+='<tr><td class="rowh">고르는 데 쓴 기간</td><td>앞 90일</td><td>무작위 절반</td></tr>';
+  h+='<tr><td class="rowh">확인에 쓴 기간</td><td>뒤 90일</td><td>나머지 절반</td></tr>';
+  h+='<tr><td class="rowh">고른 <i>k</i></td><td>'+fmt(t.pick.k,2)+'</td><td>'+fmt(sh.pick.k,2)+'</td></tr>';
+  h+='<tr><td class="rowh">학습 비용 (분)</td><td>'+fmtN(t.time.tr.cost)+'</td><td>'+fmtN(sh.at.A.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">확인 비용 (분)</td><td><b>'+fmtN(t.time.ck.cost)+'</b></td><td><b>'+fmtN(sh.at.B.cost)+'</b></td></tr>';
+  h+='<tr><td class="rowh">확인 ÷ 학습</td><td>'+(t.time.tr.cost>0?fmt(t.time.ck.cost/t.time.tr.cost,2)+'배':'—')+'</td><td>'+(sh.at.A.cost>0?fmt(sh.at.B.cost/sh.at.A.cost,2)+'배':'—')+'</td></tr>';
+  h+='<tr><td class="rowh">배포 뒤 '+(D.nFut/PD)+'일의 비용 (분)</td><td>'+fmtN(t.time.fut.cost)+'</td><td>'+fmtN(sh.at.fut.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">미래 ÷ 확인 − 1 (확인 점수가 낙관적이었던 정도)</td><td class="'+(bt>0?'hit':'')+'">'+(isFinite(bt)?sgn(bt*100,0)+'%':'—')+'</td><td class="'+(bs>0?'hit':'')+'">'+(isFinite(bs)?sgn(bs*100,0)+'%':'—')+'</td></tr>';
+  $('tab5').innerHTML=h;
+  $('concl5').innerHTML='<b>시간순 분할에서는 학습 비용 '+fmtN(t.time.tr.cost)+'분이 확인 비용 '+fmtN(t.time.ck.cost)+'분으로 바뀌었습니다('+(t.time.tr.cost>0?fmt(t.time.ck.cost/t.time.tr.cost,2)+'배':'학습 비용이 0이라 배율 없음')+').</b> 고른 기간의 점수가 한 번도 안 본 기간의 점수보다 좋게 나오는 일이 흔하며, 이 기록에서는 그 방향이 '+(t.time.ck.cost>t.time.tr.cost?'맞습니다':'반대입니다')+'. 배포 뒤 기록에서 보면 시간순 확인 점수의 낙관 정도는 '+(isFinite(bt)?sgn(bt*100,0)+'%':'—')+', 섞어 나누기의 낙관 정도는 '+(isFinite(bs)?sgn(bs*100,0)+'%':'—')+'입니다. 이 둘은 가상 기록 한 벌에서 나온 값이고 부호까지 기록마다 달라질 수 있습니다. 기록을 여러 벌 뽑았을 때의 전형적인 값과 범위는 9절의 반복 실험에서 봅니다.';
+  var y1=[],y2=[];for(var j=0;j<GRID.length;j++){y1.push(costAt(c2,j,'tr',CFA,CM0));y2.push(costAt(c2,j,'ck',CFA,CM0));}
+  var jj=t.pick.j,ymax=Math.max.apply(null,y1.concat(y2))*1.05;
+  plotXY('cv5',250,{xmin:2,xmax:6,ymin:0,ymax:ymax,xlab:'한계의 폭 k (적응형 한계)',yfmt:function(v){return fmtN(v);},xfmt:function(v){return fmt(v,1);},
+    lines:[{xs:GRID,ys:y1,col:css('--c9'),w:2},{xs:GRID,ys:y2,col:css('--c10'),w:2}],vl:[{x:GRID[jj],col:css('--ink'),dash:[3,4]}],
+    dots:[{x:GRID[jj],y:y1[jj],col:css('--c9'),r:5,stroke:true},{x:GRID[jj],y:y2[jj],col:css('--c10'),r:5,stroke:true}],texts:[{s:'학습에서 고른 k = '+fmt(GRID[jj],2),x:GRID[jj],y:ymax*0.96,bold:true,align:GRID[jj]>4.6?'right':'left'}]});
+}
+
+/* ---- 6절: 라벨이 곧 자산 ---- */
+var s6={err:0,dir:'both',traced:true};
+function upd6(){
+  var st=s6,A=S.analyze({label_err:st.err/100,label_dir:st.dir,miss_traced:st.traced,c_miss:CM0,c_fa:CFA}),P=A.P2,c=A.curves;
+  setT('e6o',st.err+'%');
+  ['d6b','d6f','d6t'].forEach(function(id){var d=id==='d6b'?'both':id==='d6f'?'fa2true':'true2fa';$(id).setAttribute('aria-pressed',st.dir===d?'true':'false');});
+  $('t6y').setAttribute('aria-pressed',st.traced?'true':'false');$('t6n').setAttribute('aria-pressed',st.traced?'false':'true');
+  var loss=(P.time.tr.cost-P.at_true_k.tr.cost)/3;
+  var h='<tr><th>항목 (적응형 한계, 학습 90일)</th><th>값</th></tr>';
+  h+='<tr><td class="rowh">참값 라벨로 고른 최적 <i>k</i></td><td>'+fmt(P.pick.k_true,2)+'</td></tr>';
+  h+='<tr><td class="rowh">장부(기록된 라벨)로 고른 <i>k</i></td><td><b>'+fmt(P.pick.k,2)+'</b></td></tr>';
+  h+='<tr><td class="rowh"><i>k</i>의 이동</td><td class="'+(Math.abs(P.pick.k-P.pick.k_true)>1e-9?'hit':'')+'">'+sgn(P.pick.k-P.pick.k_true,2)+'</td></tr>';
+  h+='<tr><td class="rowh">장부에 적힌 비용 (고른 <i>k</i>, 분)</td><td>'+fmtN(P.rec.tr.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">같은 <i>k</i>의 참값 비용 (분)</td><td>'+fmtN(P.time.tr.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">참값 최적 <i>k</i>의 참값 비용 (분)</td><td>'+fmtN(P.at_true_k.tr.cost)+'</td></tr>';
+  h+='<tr><td class="rowh">참값 비용 손해 (분/월)</td><td class="'+(loss>0?'hit':'')+'">'+fmt(loss,0)+'</td></tr>';
+  $('tab6').innerHTML=h;
+  var base=st.err===0&&st.traced&&st.dir==='both';
+  stateBox($('st6'),base,'지금 이 값이 기준 설정입니다. 라벨 오류 0%, 놓친 이상의 역추적 기록 있음. 장부와 참값이 같습니다.','지금은 기준 설정에서 옮겨 놓은 가정입니다. 라벨 오류 '+st.err+'%'+(st.err>0?'('+(st.dir==='both'?'양쪽 같은 비율':st.dir==='fa2true'?'가성을 진성으로만':'진성을 가성으로만')+')':'')+', 역추적 기록 '+(st.traced?'있음':'없음')+'.');
+  var msg;
+  if(!st.traced)msg='놓친 이상의 기록이 없으면 놓침이 장부에 보이지 않으므로 <i>k</i>를 키울수록 비용이 줄어 보입니다. 그래서 고른 <i>k</i>가 '+fmt(P.pick.k,2)+'로 참값 최적 '+fmt(P.pick.k_true,2)+'보다 '+(P.pick.k>P.pick.k_true+1e-9?'커졌고':'같거나 작고')+', 참값 비용이 한 달에 '+fmt(loss,0)+'분 더 듭니다.';
+  else if(st.err>0)msg='라벨 오류 '+st.err+'%('+(st.dir==='both'?'양쪽 같은 비율':st.dir==='fa2true'?'가성을 진성으로만':'진성을 가성으로만')+')에서 고른 <i>k</i>는 '+fmt(P.pick.k,2)+'(참값 최적 '+fmt(P.pick.k_true,2)+')이고, 장부 비용은 참값 비용의 '+fmt(P.time.tr.cost>0?P.rec.tr.cost/P.time.tr.cost*100:NaN,0)+'%로 적혀 있습니다. 양쪽을 같은 비율로 틀리게 적으면 두 항이 함께 줄어 <i>k</i>가 잘 안 움직이지만, 비용 숫자는 실제보다 좋게 보입니다.';
+  else msg='장부와 참값이 같아 손해가 없습니다. 위의 두 조건을 바꿔 보십시오.';
+  $('concl6').innerHTML='<b>역추적 기록이 없으면 놓침이 장부에 안 보여 <i>k</i>가 체계적으로 커집니다.</b> '+msg+' 그래서 후공정 불량을 거슬러 올라가 &ldquo;이 유리는 그때 놓친 것&rdquo;이라고 적는 일이 spec 최적화의 전제입니다. 범용 AI는 이 장부를 가질 수 없습니다.';
+  var yt=[],yr=[];for(var j=0;j<GRID.length;j++){yt.push(costAt(c.P2_true,j,'tr',CFA,CM0));yr.push(costAt(c.P2_rec,j,'tr',CFA,CM0));}
+  var ymax=Math.max.apply(null,yt.concat(yr))*1.05+1,jt=P.pick.j_true,jr=P.pick.j;
+  plotXY('cv6',250,{xmin:2,xmax:6,ymin:0,ymax:ymax,xlab:'한계의 폭 k (적응형 한계, 학습 90일)',yfmt:function(v){return fmtN(v);},xfmt:function(v){return fmt(v,1);},
+    lines:[{xs:GRID,ys:yt,col:css('--soft'),w:2},{xs:GRID,ys:yr,col:css('--c9'),w:2,dash:base?[]:[6,3]}],
+    dots:[{x:GRID[jt],y:yt[jt],col:css('--soft'),r:6,stroke:true},{x:GRID[jr],y:yr[jr],col:css('--c9'),r:5,stroke:true}]});
+}
+$('e6').addEventListener('input',function(){s6.err=+this.value;upd6();});
+$('d6b').addEventListener('click',function(){s6.dir='both';upd6();});$('d6f').addEventListener('click',function(){s6.dir='fa2true';upd6();});$('d6t').addEventListener('click',function(){s6.dir='true2fa';upd6();});
+$('t6y').addEventListener('click',function(){s6.traced=true;upd6();});$('t6n').addEventListener('click',function(){s6.traced=false;upd6();});
+$('r6').addEventListener('click',function(){s6={err:0,dir:'both',traced:true};$('e6').value='0';upd6();});
+
+/* ---- 8절: 성과 환산 ---- */
+var GDEF={f:20,a:CFA,m:CM0},sg={f:20,a:CFA,m:CM0};
+function gCalc(sgv){
+  var out={};['fixed','adaptive'].forEach(function(kd){var cv=curveOf(kd,DEF.nb,DEF.dmax,DEF.guard),j=T9.argmin(cv,'tr',sgv.a,sgv.m);out[kd]={k:GRID[j],f:cv.fa[j][1],m:cv.miss[j][1]};});
+  out.f0=A5(P0.fa,'ck');out.m0=A5(P0.miss,'ck');return out;
+}
+function updG(){
+  var g=gCalc(sg),F=sg.f,mo=function(v){return v/3*F;},cols=[{f:g.f0,m:g.m0},g.fixed,g.adaptive];
+  setT('gFo',F+'개');setT('gAo',sg.a+'분');setT('gMo',sg.m+'분');
+  function t(c){return sg.a*c.f+sg.m*c.m;}
+  var h='<tr><th>한 달(30일) 환산, 특징 '+F+'개</th><th>현행 고정 3σ</th><th>고정 + 최적 <i>k</i> = '+fmt(g.fixed.k,2)+'</th><th>적응형 + 최적 <i>k</i> = '+fmt(g.adaptive.k,2)+'</th></tr>';
+  function row(nm,fn,fm,cls){return '<tr><td class="rowh">'+nm+'</td>'+cols.map(function(c,i){return '<td'+(i&&cls?' class="'+cls(c,cols[0])+'"':'')+'>'+fm(fn(c))+'</td>';}).join('')+'</tr>';}
+  h+=row('가성 인터락 (건/월)',function(c){return mo(c.f);},fmtN,function(c,z){return c.f<=z.f?'good':'hit';});
+  h+=row('정지·확인 시간 (시간/월)',function(c){return mo(c.f)*sg.a/60;},fmtN,function(c,z){return c.f<=z.f?'good':'hit';});
+  h+=row('한 특징이 한 달 중 정지·확인에 쓰는 시간의 비율 (%)',function(c){return c.f/3*sg.a/(30*24*60)*100;},function(v){return fmt(v,1);});
+  h+=row('놓친 유리 (장/월)',function(c){return mo(c.m);},fmtN,function(c,z){return c.m<=z.m?'good':'hit';});
+  h+=row('총비용 (분/월)',function(c){return mo(t(c));},fmtN,function(c,z){return t(c)<=t(z)?'good':'hit';});
+  $('tabG').innerHTML=h;
+  var same=Object.keys(GDEF).every(function(q){return sg[q]===GDEF[q];});
+  stateBox($('stG'),same,'지금 이 값이 기본 설정입니다. 특징 '+GDEF.f+'개, C_FA '+GDEF.a+'분, C_miss '+GDEF.m+'분.','지금은 현장 숫자를 옮겨 놓은 가정입니다.');
+  function d(c,key,u){var v=mo(c[key])-mo(g[key==='f'?'f0':'m0']);return (v<=0?fmtN(Math.abs(v))+u+' 줄고':fmtN(v)+u+' 늘고');}
+  var best=t(g.fixed)<=t(g.adaptive)?'고정 한계':'적응형 한계',bc=t(g.fixed)<=t(g.adaptive)?g.fixed:g.adaptive,fa0=mo(g.f0)*sg.a/60;
+  $('conclG').innerHTML='<b>해석.</b> 확인 90일의 결과를 한 달로 환산하면, 비용이 더 작은 쪽은 '+best+'입니다. 현행 대비 가성 인터락은 한 달에 '+d(bc,'f','건')+' 정지·확인 시간은 '+fmtN(Math.abs(mo(bc.f)-mo(g.f0))*sg.a/60)+'시간 '+(bc.f<=g.f0?'줄고':'늘고')+', 놓친 유리는 한 달에 '+fmtN(Math.abs(mo(bc.m)-mo(g.m0)))+'장 '+(bc.m>g.m0?'늘어납니다(정직하게 +로 적습니다)':bc.m<g.m0?'줄어듭니다':'그대로입니다')+'. 총비용은 한 달에 '+fmtN(Math.abs(mo(t(bc))-mo(t(cols[0]))))+'분 '+(t(bc)<=t(cols[0])?'줄어듭니다':'늘어납니다')+'. 이 값은 가상 기록 한 벌이라 흔들림이 큽니다(9절).'+(fa0>720?' 특징 '+F+'개의 정지 시간을 그대로 더하면 한 달(720시간)을 넘습니다. 같은 시각에 여러 특징이 함께 서므로 실제 정지 시간은 이 합보다 작습니다. 이 값은 확인에 드는 설비·사람 시간의 총량으로 읽으십시오.':'');
+}
+[['gF','f'],['gA','a'],['gM','m']].forEach(function(a){$(a[0]).addEventListener('input',function(){sg[a[1]]=+this.value;updG();});});
+$('rG').addEventListener('click',function(){sg={f:GDEF.f,a:GDEF.a,m:GDEF.m};$('gF').value=String(GDEF.f);$('gA').value=String(GDEF.a);$('gM').value=String(GDEF.m);updG();});
+setT('gn_f',GDEF.f);setT('gn_a',GDEF.a);setT('gn_m',GDEF.m);
+
+/* ---- 9절: 착지·반복 실험 ---- */
+var SEL=(function(){var p1=BA.P1.time.tr.cost,p2=BA.P2.time.tr.cost;return p2<p1?{key:'P2',nm:'적응형',obj:BA.P2,kind:'adaptive'}:{key:'P1',nm:'고정 한계 + 최적 k',obj:BA.P1,kind:'fixed'};})();
+(function(){
+  var p0=BA.P0.ck,hit0=perCount(P0.hits,'ck');
+  function row(nm,f,m,hh,cost,cls){return '<tr><td class="rowh">'+nm+'</td><td>'+fmtN(f+hh)+'</td><td'+(cls?' class="'+cls+'"':'')+'>'+fmtN(f)+'</td><td>'+fmtN(m)+'</td><td>'+fmtN(cost)+'</td></tr>';}
+  var h='<tr><th>확인 90일</th><th>인터락 (건)</th><th>그중 가성 (건)</th><th>놓친 유리 (장)</th><th>비용 (분)</th></tr>';
+  h+=row('현행 (고정, <i>k</i> = 3.00)',p0.fa,p0.miss,hit0,p0.cost,'hit');
+  [['고정 한계 + 최적 <i>k</i> = ','fixed',BA.P1],['적응형 한계 + 최적 <i>k</i> = ','adaptive',BA.P2]].forEach(function(q){
+    var r=runAt(q[1],DEF.nb,DEF.dmax,DEF.guard,q[2].pick.k),c=q[2].time.ck;
+    h+=row(q[0]+fmt(q[2].pick.k,2)+(q[2]===SEL.obj?' (제안)':''),c.fa,c.miss,perCount(r.hits,'ck'),c.cost,'good');});
+  var sc=SEL.obj.time.ck,rs=runAt(SEL.kind,DEF.nb,DEF.dmax,DEF.guard,SEL.obj.pick.k),hs=perCount(rs.hits,'ck');
+  h+='<tr><td class="rowh">제안의 변화</td><td>'+sgn(sc.fa+hs-p0.fa-hit0,0)+'</td><td><b>'+sgn(sc.fa-p0.fa,0)+'</b></td><td>'+sgn(sc.miss-p0.miss,0)+'</td><td><b>'+sgn(sc.cost-p0.cost,0)+'</b></td></tr>';
+  h+='<tr><td class="rowh">가드로 사람 확인 (건, 적응형의 가성에 포함)</td><td colspan="4">'+checksIn(T9.policy(D,'adaptive',DEF.nb,DEF.dmax,DEF.guard),HALF,NH)+'</td></tr>';
+  $('tab9').innerHTML=h;
+  setT('l_pc',pct(P0H.fa/(P0H.fa+P0H.hit),0));
+  $('landing').innerHTML='<b>제안은 '+SEL.nm+'(<i>k</i> = '+fmt(SEL.obj.pick.k,2)+')입니다. 확인 90일의 가성 인터락이 '+fmtN(p0.fa)+'건에서 '+fmtN(sc.fa)+'건으로, 놓친 유리는 '+fmtN(p0.miss)+'장에서 '+fmtN(sc.miss)+'장으로 바뀌었습니다.</b> 총비용은 '+fmtN(p0.cost)+'분에서 '+fmtN(sc.cost)+'분입니다. 제안은 학습 90일의 비용이 더 작은 쪽(학습 비용 고정 '+fmtN(BA.P1.time.tr.cost)+'분, 적응형 '+fmtN(BA.P2.time.tr.cost)+'분)을 골랐고, 확인 90일은 고르는 데 한 번도 쓰지 않았습니다. 확인 기간의 진성 사건은 '+EVH.filter(function(e){return e.start>=HALF;}).length+'건뿐이라 놓친 장수의 변화는 크게 흔들립니다.'+(BA.P2.time.ck.cost>BA.P1.time.ck.cost?' 이 기록에서 적응형이 고정 한계보다 비용이 낮지 않은 것은 PM 이동폭이 작은 설비에서 흔한 일입니다(4절의 <i>τ</i> 실험).':'');
+})();
+function med(a){return quant(a,.5);}
+function rpRow(name,a,fm){var m=med(a);return '<tr><td class="rowh">'+name+'</td><td><b>'+fm(m)+'</b></td><td>'+fm(quant(a,.1))+' ~ '+fm(quant(a,.9))+'</td></tr>';}
+var rpRun=false;
+$('rpBtn').addEventListener('click',function(){
+  if(rpRun)return;rpRun=true;var btn=this;btn.disabled=true;var N=40,sd=0,R={c1c0:[],c2c0:[],c2c1:[],ckTr:[],bt:[],bs:[],fa:[],ms:[],unk:[],unl:[],gd:[]};
+  function step(){
+    if(sd>=N){
+      var P=function(v){return fmt(v,2)+'배';},Pc=function(v){return sgn(v*100,0)+'%';},Pk=function(v){return sgn(v,2);},Pm=function(v){return sgn(v,0)+'장';},Pn=function(v){return fmtN(v)+'분';};
+      var h='<tr><th>항목 (적응형 + 최적 <i>k</i>)</th><th>중앙값</th><th>10~90% 범위</th></tr>';
+      h+=rpRow('고정 한계 + 최적 <i>k</i>의 확인 90일 비용 ÷ 현행의 확인 90일 비용',R.c1c0,P);h+=rpRow('적응형 + 최적 <i>k</i>의 확인 90일 비용 ÷ 현행의 확인 90일 비용',R.c2c0,P);h+=rpRow('적응형 비용 ÷ 고정 한계 + 최적 <i>k</i>의 비용 (확인 90일)',R.c2c1,P);
+      h+=rpRow('적응형의 가성 인터락 변화율 (확인 90일, 현행 대비)',R.fa,Pc);h+=rpRow('적응형의 놓친 유리 변화 (확인 90일, 현행 대비)',R.ms,Pm);
+      h+=rpRow('확인 비용 ÷ 학습 비용 (시간순)',R.ckTr,P);h+=rpRow('확인 점수의 낙관 정도 (시간순, 미래 ÷ 확인 − 1)',R.bt,Pc);h+=rpRow('확인 점수의 낙관 정도 (섞어 나누기)',R.bs,Pc);
+      h+=rpRow('가드를 끄면 더 놓치는, 안정화 구간에서 시작한 진성 이상의 유리 (같은 <i>k</i>, 그런 사건이 있는 기록만)',R.gd,Pm);h+=rpRow('놓친 이상의 기록이 없을 때 고른 <i>k</i>의 이동',R.unk,Pk);h+=rpRow('그때의 참값 비용 손해 (분/90일)',R.unl,Pn);
+      $('tabR').innerHTML=h;$('rpSt').className='state';$('rpSt').textContent='가상 기록 '+N+'벌을 돌렸습니다. 마지막 두 줄은 놓친 이상의 역추적 기록이 없다고 가정한 경우입니다. 범위가 넓은 줄은 기록 한 벌의 숫자를 그대로 믿으면 안 된다는 뜻입니다.';btn.disabled=false;rpRun=false;return;
+    }
+    sd++;var s=MS.scenario('S9',{seed:sd}),A=s.analysis,un=s.analyze({miss_traced:false});
+    function ratio(a,b){return b>0?a/b:NaN;}
+    R.c1c0.push(ratio(A.P1.time.ck.cost,A.P0.ck.cost));R.c2c0.push(ratio(A.P2.time.ck.cost,A.P0.ck.cost));R.c2c1.push(ratio(A.P2.time.ck.cost,A.P1.time.ck.cost));R.ckTr.push(ratio(A.P2.time.ck.cost,A.P2.time.tr.cost));
+    R.bt.push(ratio(A.P2.time.fut.cost,A.P2.time.ck.cost)-1);R.bs.push(ratio(A.shuffle.P2.at.fut.cost,A.shuffle.P2.at.B.cost)-1);
+    R.fa.push(ratio(A.P2.time.ck.fa,A.P0.ck.fa)-1);R.ms.push(A.P2.time.ck.miss-A.P0.ck.miss);
+    (function(){var D2=s.D,kk=A.P2.pick.k,nb=DEF.nb,be=[];D2.events.forEach(function(e,id){if(e.start>=D2.nHist)return;for(var q=0;q<D2.pm.length;q++)if(D2.pm[q]<D2.nHist&&e.start>=D2.pm[q]&&e.start<D2.pm[q]+nb){be.push(id);break;}});
+      if(!be.length){R.gd.push(NaN);return;}var on=T9.scan(D2,T9.policy(D2,'adaptive',nb,DEF.dmax,true),kk,null,true),off=T9.scan(D2,T9.policy(D2,'adaptive',nb,DEF.dmax,false),kk,null,true);
+      function bm(r){return be.reduce(function(t,id){return t+Math.min(r.det[id],D2.events[id].end)-D2.events[id].start;},0);}R.gd.push(bm(off)-bm(on));})();
+    R.unk.push(un.P2.pick.k-un.P2.pick.k_true);R.unl.push(un.P2.time.tr.cost-un.P2.at_true_k.tr.cost);
+    $('rpSt').className='state moved';$('rpSt').textContent='돌리는 중 '+sd+' / '+N;
+    setTimeout(step,5);
+  }
+  step();
+});
+
+/* ---- 10절: Python 출력과 CSV ---- */
+(function(){
+  var o=[],c0=P0,r1={},tr='tr',ck='ck',i;
+  o.push('기록 '+NH.toLocaleString('en-US')+'장 · PM '+PMH.length+'회 · 진성 이상 '+EVH.length+'건 · 비용 C_FA '+CFA+'분 · C_miss '+CM0+'분 (r = '+(CM0/CFA).toFixed(2)+')');
+  [['학습 90일',tr],['확인 90일',ck]].forEach(function(a){var f=A5(c0.fa,a[1]),m=A5(c0.miss,a[1]),hh=perCount(c0.hits,a[1]);o.push('현행 고정 k=3.00  '+a[0]+': 인터락 '+(f+hh)+'건 중 가성 '+f+'건 · 놓친 '+m+'장 · 비용 '+Math.round(CFA*f+CM0*m)+'분');});
+  var kind=[['fixed','고정 + k 최적화'],['adaptive','적응형 + k 최적화']];
+  kind.forEach(function(q){
+    var P=q[0]==='fixed'?BA.P1:BA.P2,ckc=P.time.ck,ckChecks=0;
+    if(q[0]==='adaptive')ckChecks=checksIn(T9.policy(D,'adaptive',DEF.nb,DEF.dmax,DEF.guard),HALF,NH);
+    o.push(q[1]+'  시간순: k='+P.pick.k.toFixed(2)+' · 학습 비용 '+Math.round(P.time.tr.cost)+'분 → 확인 90일 가성 '+ckc.fa+'건 · 놓친 '+ckc.miss+'장 · 비용 '+Math.round(ckc.cost)+'분'+(q[0]==='adaptive'?' · 사람 확인 '+ckChecks+'건':''));
+  });
+  var sh=BA.shuffle.P2;
+  o.push('적응형 + k 최적화  섞어 나누기: k='+sh.pick.k.toFixed(2)+' · 학습 비용 '+Math.round(sh.at.A.cost)+'분 → 확인 비용 '+Math.round(sh.at.B.cost)+'분');
+  /* 라벨 점검 */
+  var il=[];P0.alarms.forEach(function(q){if(q<HALF)il.push([q,'가성']);});P0.hits.forEach(function(q){if(q<HALF)il.push([q,'진성']);});
+  var bins={};il.forEach(function(e){var q=e[0],hi=P0.pol.c[q]+3*P0.pol.w[q],lo=P0.pol.c[q]-3*P0.pol.w[q],lim=D.x[q]>hi?hi:lo,key=Math.round(Math.abs(D.x[q]-lim)*4);e.push(key);(bins[key]=bins[key]||{})[e[1]]=1;});
+  var conf=il.filter(function(e){return Object.keys(bins[e[2]]).length>1;}).length/il.length;
+  o.push('라벨 점검(현행 학습 90일 인터락 '+il.length+'건): 판정 칸 비어 있음 0% · 판정자 칸 없음 · 판정 근거 칸 없음 · 같은 값대에서 라벨이 엇갈린 인터락 '+Math.round(conf*100)+'%');
+  $('pyOut').textContent=o.join('\n');
+  window.__audit={n:il.length,conf:conf};
+  function csvText(){var rows=S.csvRows(),s='idx,day,x,pm_start,event_id,half\n',q;for(q=0;q<rows.length;q++){var r=rows[q];s+=r.idx+','+r.day+','+r.x+','+r.pm_start+','+r.event_id+','+r.half+'\n';}return s;}
+  $('csvBtn').addEventListener('click',function(){
+    var st=$('csvState');
+    try{
+      var blob=new Blob([csvText()],{type:'text/csv'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download='s9_adaptive_spec.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: s9_adaptive_spec.csv ('+fmtN(NH)+'행, 열 idx·day·x·pm_start·event_id·half).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  });
+  /* 11절 보고서 */
+  var rw=function(id,h){$(id).innerHTML=h;},pol2=T9.policy(D,'adaptive',DEF.nb,DEF.dmax,DEF.guard),p0c=BA.P0.ck,p2c=SEL.obj.time.ck,e1=EVH.filter(function(e){return e.start<HALF;}).length,e2=EVH.length-e1;
+  rw('rp_feat','챔버 압력(안정 구간 평균, 정상 산포 σ = 1로 맞춘 가상 단위)');
+  rw('rp_spec','현행: PM 전 첫 '+fmtN(BASE.n)+'장의 평균 ± 3.00 표준편차(고정) · 제안: '+(SEL.kind==='adaptive'?'적응형 한계, <i>k</i> = '+fmt(BA.P2.pick.k,2)+', 안정화 구간 <i>n</i><sub>b</sub> = '+DEF.nb+'장, Δmax = '+num(DEF.dmax)+'배, 가드 켬':'고정 한계, <i>k</i> = '+fmt(BA.P1.pick.k,2))+'(학습 90일 비용이 작은 쪽)');
+  rw('rp_period','학습 1~'+(HALF/PD)+'일(<i>k</i> 선택, 진성 사건 '+e1+'건) · 확인 '+(HALF/PD+1)+'~'+NDAY+'일(성능 확인, 진성 사건 '+e2+'건). 사건이 적어 놓친 장수의 추정은 흔들립니다.');
+  rw('rp_label','현행 학습 90일 인터락 '+il.length+'건에 판정이 붙어 있고(판정 칸 비어 있음 0%), 같은 값대에서 라벨이 엇갈린 인터락이 '+Math.round(conf*100)+'%입니다. 이 값대에서는 값만으로 진성·가성이 갈리지 않으므로 판정 근거 칸이 필요합니다.');
+  rw('rp_cost','C<sub>FA</sub> = '+CFA+'분, C<sub>miss</sub> = '+CM0+'분(<i>r</i> = '+fmt(CM0/CFA,2)+'). <b>사람이 승인한 값을 적습니다</b>(여러 <i>r</i>로 본 민감도 표 첨부).');
+  rw('rp_res','가성 '+fmtN(p0c.fa)+' → '+fmtN(p2c.fa)+'건 · 놓친 유리 '+fmtN(p0c.miss)+' → '+fmtN(p2c.miss)+'장 · 총비용 '+fmtN(p0c.cost)+' → '+fmtN(p2c.cost)+'분 (현행 → 제안, 확인 90일 참값)');
+  var gl=(SEL.kind!=='adaptive'?[]:pol2.moves).filter(function(m){return m.checked&&m.pm<NH;}).map(function(m){return 'PM '+(PMH.indexOf(m.pm)+1)+'(유리 '+fmtN(m.pm)+'번째): 새 중심이 옛 중심에서 '+fmt(Math.abs(m.new_c-m.old_c)/m.old_w,1)+'폭 이동 → '+(m.anom_in_window?'구간 안에 진성 이상 있음, 옛 기준 유지':'이상 없음, 새 기준 채택(가성 1건으로 셈)');});
+  rw('rp_guard',SEL.kind!=='adaptive'?'제안이 고정 한계이므로 해당 없음':gl.length?gl.join('<br>'):'기록 구간에서 가드가 걸린 PM은 없었습니다.');
+  rw('rp_risk','확인 기간에서 놓친 유리가 '+fmtN(p0c.miss)+'장에서 '+fmtN(p2c.miss)+'장으로 '+(p2c.miss>p0c.miss?'<b>늘었습니다.</b> 승인 전에 확인합니다.':p2c.miss<p0c.miss?'줄었지만 사건이 '+e2+'건뿐이라 이 차이를 확정하기는 어렵습니다.':'그대로입니다.')+(SEL.kind==='adaptive'?' 안정화 구간에 든 진성 이상은 새 기준에 섞일 수 있어 가드·Δmax를 함께 승인합니다.':''));
+})();
+
+/* ---- 테마·상단바 ---- */
+function redraw(){window.__d1();upd2();upd3();upd4();upd4t();upd5();upd6();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+upd2();upd3();upd4();upd4t();upd5();upd6();updG();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

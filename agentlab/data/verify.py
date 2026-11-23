@@ -248,6 +248,144 @@ _med = np.median(_arr, axis=0)
 chk('S8 분포(시드 200) 중앙값: 슈하트 > 2×EWMA · 2×CUSUM, 잔차 CUSUM < 0.5×잔차 3σ', _med[0] > 2 * _med[1] and _med[0] > 2 * _med[2] and _med[4] < 0.5 * _med[3],
     f'중앙값 슈하트 {_med[0]:.0f} · EWMA {_med[1]:.0f} · CUSUM {_med[2]:.0f} · 잔차 3σ {_med[3]:.0f} · 잔차 CUSUM {_med[4]:.0f}')
 
+# S9 — 가성 인터락을 줄이는 spec: 적응형 한계·비용 최적화·시간순 분할. 같은 원자료를 node 로 받아 정책·집계를 numpy 로 따로 구현해 정확히 일치시킨다
+_S9_CFGS = [('기본', {}), ('역추적 없음', {'miss_traced': False}), ('라벨 오류 20%(양쪽)', {'label_err': 0.2}), ('가성→진성만 30%', {'label_err': 0.3, 'label_dir': 'fa2true'}),
+            ('진성→가성만 30%', {'label_err': 0.3, 'label_dir': 'true2fa'}), ('가드 끔', {'guard': False}), ('안정화 30장', {'n_burn': 30}), ('Δmax 1.5', {'dmax': 1.5})]
+_S9_EXPORT = """const M=require(%s);const seeds=%s,cfgs=%s;const out=[];
+for(const sd of seeds){const S=M.scenario('S9',{seed:sd});const D=S.D;const o={seed:sd,x:Array.from(D.x),pm:D.pm,events:D.events,U:Array.from(D.U),UE:D.UE,memA:Array.from(D.memA),nHist:D.nHist,N:D.N,base:D.base,cfgs:[]};
+ for(const c of cfgs){const A=S.analyze(c[1]);const cv=(t)=>({fa:t.fa,miss:t.miss});o.cfgs.push({name:c[0],opt:c[1],P0:A.P0,P1:A.P1.pick,P2:A.P2.pick,params:A.params,curves:{P1_true:cv(A.curves.P1_true),P2_true:cv(A.curves.P2_true),P1_rec:cv(A.curves.P1_rec),P2_rec:cv(A.curves.P2_rec)}});}
+ out.push(o);}console.log(JSON.stringify(out))"""
+_tau9 = json.loads(subprocess.run([_node, '-e', "console.log(JSON.stringify(require(%s).scenario('S9',{seed:1}).params.tau))" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_s9def = json.loads(subprocess.run([_node, '-e', "console.log(require(%s).SEEDS.S9)" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_s9seeds = [_s9def, 1, 17]
+_S9X = json.loads(subprocess.run([_node, '-e', _S9_EXPORT % (json.dumps(_mf), json.dumps(_s9seeds), json.dumps([[n, c] for n, c in _S9_CFGS]))], capture_output=True, text=True, check=True).stdout)
+GRID9 = (200 + 5 * np.arange(81)) / 100; PER9 = ['tr', 'ck', 'fut', 'A', 'B']
+def py9_limits(x, pm, ev_s, ev_e, kind, nb, dmax, guard):
+    N = len(x); n0 = min(2000, pm[0] if len(pm) else N); cc, ww = x[:n0].mean(), x[:n0].std(ddof=1)
+    c = np.full(N, cc); w = np.full(N, ww); add = np.zeros(N); forced = []
+    if kind == 'adaptive':
+        for j, p in enumerate(pm):
+            seg_end = pm[j + 1] if j + 1 < len(pm) else N; we = min(p + nb, seg_end); win = x[p:we]
+            nc = np.median(win); nw = 1.4826 * np.median(np.abs(win - nc)); moved = abs(nc - cc) > dmax * ww
+            evs = [e for e in range(len(ev_s)) if ev_s[e] < we and ev_e[e] > p]; adopt = True
+            if guard and moved: forced.append((we - 1, evs)); adopt = len(evs) == 0
+            c[p:we] = cc; w[p:we] = ww; add[p:we] = dmax
+            if adopt: cc, ww = nc, nw
+            c[we:seg_end] = cc; w[we:seg_end] = ww
+    return c, w, add, forced
+def py9_labels(U, UE, evg, err, dr):
+    eT = 0 if dr == 'fa2true' else err; eF = 0 if dr == 'true2fa' else err
+    mis = np.array([u < eT for u in UE], bool); evid = np.where(evg >= 0, np.where(mis[np.maximum(evg, 0)], -1, evg), np.where(U < eF, -2, -1))
+    return evid, mis
+def py9_scan(x, lim, k, evid, mis, traced, ev_s, ev_e, masks, rearm=10):
+    c, w, add, forced = lim; lo = c - (k + add) * w; hi = c + (k + add) * w
+    cand = np.flatnonzero((x > hi) | (x < lo)); fmap = {t: evs for t, evs in forced}; pts = np.union1d(cand, np.array(sorted(fmap), dtype=int)).astype(int)
+    det = np.full(len(ev_s), np.inf); fa_idx = []; sup = -1; p = 0; n = len(pts)
+    while p < n:
+        i = int(pts[p])
+        if i in fmap:
+            found = False
+            for e in fmap[i]:
+                if mis is not None and mis[e]: continue
+                found = True
+                if det[e] == np.inf: det[e] = i
+            if not found: fa_idx.append(i)
+            sup = i + rearm; p += 1; continue
+        e = evid[i]
+        if e >= 0 and det[e] < i: p += 1; continue
+        if i <= sup:
+            if not fmap: p = int(np.searchsorted(pts, sup + 1)); continue
+            p += 1; continue
+        sup = i + rearm
+        if e >= 0: det[e] = i
+        elif e == -1: fa_idx.append(i)
+        p += 1
+    fa = np.array([int(m[fa_idx].sum()) if fa_idx else 0 for m in masks]); miss = np.zeros(len(masks), int)
+    for e in range(len(ev_s)):
+        if mis is not None and mis[e]: continue
+        if det[e] == np.inf and not traced: continue
+        b = int(min(det[e], ev_e[e]))
+        for q, m in enumerate(masks): miss[q] += int(m[ev_s[e]:b].sum())
+    return fa, miss
+_ok9, _bad9, _pick9 = True, [], {}
+for X in _S9X:
+    x = np.array(X['x']); N = X['N']; nH = X['nHist']; idx = np.arange(N); memA = np.array(X['memA']); ev_s = [e['start'] for e in X['events']]; ev_e = [e['end'] for e in X['events']]
+    evg = np.full(N, -1)
+    for e in range(len(ev_s)): evg[ev_s[e]:ev_e[e]] = e
+    masks = [idx < nH // 2, (idx >= nH // 2) & (idx < nH), idx >= nH, memA == 1, (idx < nH) & (memA == 0)]
+    for cfg in X['cfgs']:
+        prm = cfg['params']; nb, dm, gd, cfa, cmiss = prm['n_burn'], prm['dmax'], prm['guard'], prm['c_fa'], prm['c_miss']; err, dr, trc = prm['label_err'], prm['label_dir'], prm['miss_traced']
+        if X['seed'] != _s9def and cfg['name'] != '기본': continue
+        evid_r, mis_r = py9_labels(np.array(X['U']), X['UE'], evg, err, dr) if (err > 0 or not trc) else (evg, None)
+        for pk, kind in (('P1', 'fixed'), ('P2', 'adaptive')):
+            lim = py9_limits(x, X['pm'], ev_s, ev_e, kind, nb, dm, gd)
+            for lbl, (ev_id, mis, tr) in (('true', (evg, None, True)), ('rec', (evid_r, mis_r, trc))):
+                if lbl == 'rec' and not (err > 0 or not trc): continue
+                if kind == 'fixed' and (X['seed'] != _s9def or cfg['name'] in ('가드 끔', '안정화 30장', 'Δmax 1.5')): continue
+                F = np.zeros((81, 5), int); Mi = np.zeros((81, 5), int)
+                for j, k in enumerate(GRID9): F[j], Mi[j] = py9_scan(x, lim, k, ev_id, mis, tr, ev_s, ev_e, masks)
+                cj = cfg['curves'][f'{pk}_{lbl}']
+                if not (np.array_equal(F, np.array(cj['fa'])) and np.array_equal(Mi, np.array(cj['miss']))): _ok9 = False; _bad9.append((X['seed'], cfg['name'], pk, lbl))
+                if lbl == 'rec' or not (err > 0 or not trc):
+                    cost = cfa * F + cmiss * Mi; jp = int(np.argmin(cost[:, 0])); _pick9[(X['seed'], cfg['name'], pk)] = GRID9[jp]
+                    if abs(GRID9[jp] - cfg[pk]['k']) > 1e-9: _ok9 = False; _bad9.append((X['seed'], cfg['name'], pk, 'k'))
+chk('S9 JS 정책·집계 = numpy 독립 구현(정확 일치): 기본 시드와 시드 1·17 의 기본 조건 + 기본 시드의 여덟 조건 × k 81칸 × 다섯 기간의 가성 건수·놓친 장수·최적 k', _ok9,
+    f'비교 곡선 {len(_pick9)}개 최적 k 포함 · 불일치 {_bad9}' if _bad9 else f'전부 일치 · 기본 시드 최적 k: P1 {_pick9[(_s9def,"기본","P1")]:.2f} · P2 {_pick9[(_s9def,"기본","P2")]:.2f}')
+# 데이터 구조: 기간·PM 간격·사건 수·크기
+X0 = _S9X[0]; _pm = np.array(X0['pm']); _gap = np.diff(np.concatenate([[0], _pm]))
+chk('S9 구조: 하루 200장 × 180일 = 36,000장 + 배포 뒤 90일, PM 간격 1,600~2,400', X0['nHist'] == 36000 and X0['N'] == 54000 and _gap.min() >= 1600 and _gap.max() <= 2400, f'PM {int((_pm < X0["nHist"]).sum())}회(기록 구간) · 간격 {_gap.min()}~{_gap.max()}')
+# 시드 분포 — 1~200
+_S9_DIST = """const M=require(%s);const T=M.s9tools;const out=[];
+const sum=(a,k)=>a.reduce((s,r)=>s+r[k],0);
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S9',{seed:sd});const D=S.D,A=S.analysis,c=(x,p)=>x[p].cost;
+ const pol0=T.policy(D,'fixed',100,3,true),r0=T.scan(D,pol0,3,null,true);let near=0,nh=0,post=0;
+ r0.alarms.forEach(i=>{if(i>=D.nHist)return;nh++;let d=1e9;for(const p of D.pm)if(i>=p)d=i-p;if(d<500)near++;if(i>=D.pm[0])post++;});
+ const bt=c(A.P2.time,'fut')/c(A.P2.time,'ck')-1,bs=c(A.shuffle.P2.at,'fut')/c(A.shuffle.P2.at,'B')-1;
+ const reg=a=>c(a.P2.time,'tr')-c(a.P2.at_true_k,'tr');
+ const un=S.analyze({miss_traced:false}),sy=S.analyze({label_err:0.2}),f2t=S.analyze({label_err:0.3,label_dir:'fa2true'}),t2f=S.analyze({label_err:0.3,label_dir:'true2fa'});
+ const burn=[];D.events.forEach((e,id)=>{if(e.start>=D.nHist)return;for(const p of D.pm)if(e.start>=p&&e.start<p+100){burn.push(id);break;}});
+ const kk=A.P2.pick.k,on=T.scan(D,T.policy(D,'adaptive',100,3,true),kk,null,true),off=T.scan(D,T.policy(D,'adaptive',100,3,false),kk,null,true);
+ const bm=r=>burn.reduce((s,id)=>s+Math.min(r.det[id],D.events[id].end)-D.events[id].start,0);
+ out.push({sd:sd,near:nh?near/nh:0,post:nh?post/nh:0,p0ck:c(A.P0,'ck'),p1ck:c(A.P1.time,'ck'),p2ck:c(A.P2.time,'ck'),p2tr:c(A.P2.time,'tr'),k1:A.P1.pick.k,k2:A.P2.pick.k,bt:bt,bs:bs,
+  unK:un.P2.pick.k-un.P2.pick.k_true,unReg:reg(un),unRatio:c(un.P2.rec,'tr')/c(un.P2.time,'tr'),syK:sy.P2.pick.k-sy.P2.pick.k_true,syReg:reg(sy),syRatio:c(sy.P2.rec,'tr')/c(sy.P2.time,'tr'),
+  f2tK:f2t.P2.pick.k-f2t.P2.pick.k_true,t2fK:t2f.P2.pick.k-t2f.P2.pick.k_true,nBurn:burn.length,bmOn:bm(on),bmOff:bm(off),
+  nPM:D.pm.filter(p=>p<D.nHist).length,nEv:D.events.filter(e=>e.start<D.nHist).length,minSize:Math.min(...D.events.map(e=>e.size)),maxSize:Math.max(...D.events.map(e=>e.size)),
+  fday:(r0.fa[0]+r0.fa[1])/180,top3:(function(){const c={};let n=0;r0.alarms.forEach(i=>{if(i>=D.nHist)return;let s=0;D.pm.forEach((p,j)=>{if(i>=p)s=j+1});c[s]=(c[s]||0)+1;n++;});const v=Object.values(c).sort((a,b)=>b-a);return n?(v[0]+(v[1]||0)+(v[2]||0))/n:0;})(),
+  mchg:A.P2.time.ck.miss-A.P0.ck.miss,p1fut:A.P1.time.fut.cost,
+  hiTau:(function(){const B=M.scenario('S9',{seed:sd,tau:2}).analysis;return [B.P2.time.ck.cost,B.P1.time.ck.cost,B.P0.ck.cost];})()});}
+console.log(JSON.stringify(out))"""
+_d9 = json.loads(subprocess.run([_node, '-e', _S9_DIST % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_c9 = lambda k: np.array([np.nan if d[k] is None else d[k] for d in _d9], float); _md = lambda k: float(np.nanmedian(_c9(k))); _qq = lambda k, p: float(np.nanquantile(_c9(k), p))   # 0/0 인 비율은 null → 제외
+chk('S9 분포(시드 200): 기록 구간 PM 약 17회·진성 이상 약 12건(기대 3,000장에 1건 + PM 직후 가중), 크기 2.5~5σ', 15 <= _md('nPM') <= 19 and 9 <= _md('nEv') <= 17 and _c9('minSize').min() >= 2.5 and _c9('maxSize').max() <= 5.0,
+    f'PM 중앙값 {_md("nPM"):.0f} · 사건 중앙값 {_md("nEv"):.0f}(10~90%: {_qq("nEv",.1):.0f}~{_qq("nEv",.9):.0f})')
+chk('S9 분포 중앙값: 현행(P0)의 가성 인터락이 특징 하나당 하루 0.3~1건(τ 기본값의 근거. 3σ 선의 이론 하한은 하루 약 0.54건)', 0.3 <= _md('fday') <= 1.0, f'중앙값 하루 {_md("fday"):.2f}건 (10~90%: {_qq("fday",.1):.2f}~{_qq("fday",.9):.2f}) · τ = {_tau9}')
+chk('S9 분포 중앙값: P0 가성이 PM 구간 몇 개에 몰림 — 가성이 가장 많은 구간 3개의 점유율이 균등(3/18)의 1.5배 이상', _md('top3') > 1.5 * 3 / 18, f'중앙값 {_md("top3")*100:.0f}% (10~90%: {_qq("top3",.1)*100:.0f}~{_qq("top3",.9)*100:.0f}%)')
+chk('S9 분포 중앙값: PM 뒤 500장 안 비율은 구간 길이 비율(500/2000)에 가깝다 — 설계서의 60% 는 새 정상이 계속 머무는 설정과 맞지 않아 바로잡음', 0.15 < _md('near') < 0.40, f'중앙값 {_md("near")*100:.1f}% (10~90%: {_qq("near",.1)*100:.1f}~{_qq("near",.9)*100:.1f}%)')
+_r = _c9('p2ck') / _c9('p1ck'); _r0 = _c9('p1ck') / _c9('p0ck'); _r20 = _c9('p2ck') / _c9('p0ck')
+chk('S9 분포 중앙값: 비용으로 고른 k(고정 한계, P1)의 확인 기간 비용 < 현행(P0)의 0.6배, 적응형(P2)도 현행의 0.8배 미만', float(np.median(_r0)) < 0.6 and float(np.median(_r20)) < 0.8,
+    f'P1/P0 {np.median(_r0):.2f}배 (10~90%: {np.quantile(_r0,.1):.2f}~{np.quantile(_r0,.9):.2f}) · P2/P0 {np.median(_r20):.2f}배 (10~90%: {np.quantile(_r20,.1):.2f}~{np.quantile(_r20,.9):.2f}) · P1 의 최적 k 중앙값 {_md("k1"):.2f}(격자 끝에 붙는 시드 {int((_c9("k1")>=5.999).sum())}개)')
+_hi = np.array([d['hiTau'] for d in _d9], float); _hr = _hi[:, 0] / np.maximum(_hi[:, 1], 1)
+chk('S9 분포 중앙값: 적응형(P2)이 고정+최적 k(P1)보다 나은지는 PM 이동폭 τ 에 달림 — τ 기본값에서는 P2/P1 > 1(적응형이 앞서지 못함), τ = 2 에서는 < 1(앞섬)', float(np.median(_r)) > 1 and float(np.median(_hr)) < 1,
+    f'τ={_tau9}: P2/P1 중앙값 {np.median(_r):.2f}배 (10~90%: {np.quantile(_r,.1):.2f}~{np.quantile(_r,.9):.2f}) · τ=2: {np.median(_hr):.2f}배 (10~90%: {np.quantile(_hr,.1):.2f}~{np.quantile(_hr,.9):.2f})')
+_o = (_c9('p2ck') / np.where(_c9('p2tr') > 0, _c9('p2tr'), np.nan))
+_o = _o[np.isfinite(_o)]
+chk('S9 분포 중앙값: 학습 기간 비용으로 본 성능이 확인 기간보다 낙관적(확인/학습 비용비 > 1)', float(np.median(_o)) > 1, f'중앙값 {np.median(_o):.2f}배 (10~90%: {np.quantile(_o,.1):.2f}~{np.quantile(_o,.9):.2f}) · 학습 비용이 0 이라 제외한 시드 {200-len(_o)}개')
+chk('S9 분포 중앙값: 섞어 나누기의 낙관 편향(배포 뒤 비용/확인 비용 − 1) > 시간순의 것, 섞어 나누기는 0 보다 큼', _md('bs') > _md('bt') and _md('bs') > 0, f'섞어 나누기 {_md("bs")*100:+.0f}% (10~90%: {_qq("bs",.1)*100:+.0f}~{_qq("bs",.9)*100:+.0f}%) · 시간순 {_md("bt")*100:+.0f}% (10~90%: {_qq("bt",.1)*100:+.0f}~{_qq("bt",.9)*100:+.0f}%)')
+chk('S9 분포 중앙값: 놓친 이상 기록이 없으면 고른 k 가 참값 최적 k 보다 크고(중앙값 > 0) 참값 비용 손해 > 0', _md('unK') > 0 and _md('unReg') > 0, f'k 이동 중앙값 +{_md("unK"):.2f}(10~90%: {_qq("unK",.1):+.2f}~{_qq("unK",.9):+.2f}) · 손해 중앙값 {_md("unReg"):.0f}분/90일')
+chk('S9 분포: 양쪽 같은 비율의 라벨 오류 20% — 손해는 한 번도 음수가 아니고 평균 > 0, 장부 비용은 참값보다 낮게 적힘(중앙값 비율 < 0.95), 최적 k 는 중앙값이 거의 안 움직임(|이동| ≤ 0.1)',
+    float(_c9('syReg').min()) >= 0 and float(_c9('syReg').mean()) > 0 and _md('syRatio') < 0.95 and abs(_md('syK')) <= 0.1,
+    f'손해 평균 {_c9("syReg").mean():.0f}분(0 초과 시드 {(_c9("syReg")>0).mean()*100:.0f}%, 중앙값 {_md("syReg"):.0f}) · 장부/참값 {_md("syRatio"):.2f} · k 이동 중앙값 {_md("syK"):+.2f}')
+chk('S9 분포: 한 방향 라벨 오류 30% — 가성→진성만이면 k 가 낮아지는 쪽(평균 < 0), 진성→가성만이면 높아지는 쪽(평균 > 0)', _c9('f2tK').mean() < 0 and _c9('t2fK').mean() > 0, f'가성→진성 평균 {_c9("f2tK").mean():+.2f} · 진성→가성 평균 {_c9("t2fK").mean():+.2f}')
+_h = _c9('nBurn') > 0; _on, _off = _c9('bmOn')[_h], _c9('bmOff')[_h]; _df = _off - _on
+chk('S9 분포: 안정화 구간 안에서 시작한 진성 이상의 놓친 장수(같은 k) — 가드 끔이 켬보다 더 놓친 시드가 5% 이상, 덜 놓친 시드는 2% 미만, 평균 차이 > 0 (가드의 효과는 대부분의 기록에서 0 이고 일부 기록에서 큼)',
+    float((_df > 0).mean()) >= 0.05 and float((_df < 0).mean()) < 0.02 and float(_df.mean()) > 0,
+    f'그런 사건이 있는 시드 {int(_h.sum())}개 · 끔이 더 놓침 {(_df>0).mean()*100:.0f}% · 덜 놓침 {(_df<0).mean()*100:.0f}% · 차이 중앙값 {np.median(_df):.0f}장 · 평균 {_df.mean():+.1f}장(켬 {_on.mean():.0f} / 끔 {_off.mean():.0f})')
+_rk = lambda k, i: float(((_c9(k) < _c9(k)[i]).sum() + 0.5 * (_c9(k) == _c9(k)[i]).sum()) / 200)
+_ms = ['p0ck', 'p1ck', 'p2ck', 'unK', 'bs', 'bt', 'mchg']; _nm = ['P0', 'P1', 'P2', '놓침기록없음 k이동', '섞어 낙관', '시간순 낙관', '적응형 놓침 변화']
+_sum = [sum(abs(_rk(m, i) - 0.5) for m in _ms) for i in range(200)]
+chk('S9 대표 시드: 기본 시드는 일곱 지표 백분위의 Σ|백분위−50| 이 가장 작은 시드이고, 일곱 지표가 모두 시드 1~200 분포의 25~75% 안', int(np.argmin(_sum)) + 1 == _s9def and all(0.25 <= _rk(m, _s9def - 1) <= 0.75 for m in _ms),
+    f'시드 {_s9def}(Σ {_sum[_s9def-1]:.2f}, 최소 시드 {int(np.argmin(_sum))+1}): ' + ' · '.join(f'{n} {_rk(m, _s9def - 1)*100:.0f}%' for m, n in zip(_ms, _nm)))
+
 # Loss — 11개 사유 모두 등장, 연쇄(root≠reason) 존재
 ev = rd('loss_events.csv'); codes = ['EQ-BD','EQ-PM','Q-MASK','Q-EVAP','LG-TRANS','LG-STK','LG-CST','LG-JC','CL-CAPA','JC-EARLY','RUN-TRIPLE']
 miss = [x for x in codes if x not in set(ev.reason)]
