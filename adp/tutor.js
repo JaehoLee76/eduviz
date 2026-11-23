@@ -260,6 +260,7 @@
     var qna = document.createElement('script');          // 장면별 Q&A 팝업(오프라인에서도 동작)
     qna.src = up + 'qna.js';
     idx.onload = idx.onerror = function(){ document.head.appendChild(qna); document.head.appendChild(drill); };
+    if(/\/labs\//.test(location.pathname)) load(['feedback.js']);   // 절마다 의견 남기기(실험실만, 오프라인에서도 동작)
     remember();                                          // 최근 본 실험실 기록(허브에서 다시 찾아가기 쉽게)
     rateBar();                                           // 학습 기록 줄(간격 반복)
     window.addEventListener('eduviz-prefs', thPull);     // 계정 기록이 도착하면 테마를 맞춘다

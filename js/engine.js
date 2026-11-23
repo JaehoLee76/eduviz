@@ -25,6 +25,8 @@
       +'body:not(.viz) #controls,body:not(.viz) #keyhint{bottom:206px!important;}'
       +'body:not(.viz) #leftStack{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:92px!important;transform:translateX(-50%)!important;width:min(1180px,92vw)!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important;pointer-events:none!important;}'
       +'body:not(.viz) #leftStack>*{pointer-events:auto!important;}'
+      +'body:not(.viz) .topbar{pointer-events:none!important;}body:not(.viz) .topbar>*{pointer-events:auto!important;}'   // 좁은 화면에서 제목줄이 여러 줄로 늘어나도 그 빈자리가 아래 단추 클릭을 가로채지 않게
+      +'body:not(.viz) #leftStack>#study{pointer-events:none!important;}body:not(.viz) #leftStack>#study>*{pointer-events:auto!important;}'   // 더 알아보기 줄이 가로로 늘어나 그 위 단추·슬라이더 클릭을 가로채지 않게
       +'body:not(.viz) #study{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:none!important;margin:0!important;}'
       +'body:not(.viz) #chevBtn{position:static!important;left:auto!important;bottom:auto!important;margin-left:2px!important;z-index:8!important;}'
       +'body:not(.viz) #leftStack .guide{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:none!important;margin:0!important;align-items:flex-start!important;pointer-events:auto!important;}'
@@ -243,6 +245,14 @@
   function resize(){ setVpad(); DPR=global.devicePixelRatio||1; W=cv.clientWidth||innerWidth; H=cv.clientHeight||innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
   // 시각화 구역을 제목(상단)·UI(하단)와 독립 분리: 제목 높이를 실측해 캔버스 상단을 그만큼 비운다(1줄/2줄·화면크기 자동 대응).
   var _needFit=false;
+  // 좁은 화면에서 컨트롤 박스(슬라이더·단추)가 아래 '더 알아보기' 단추·설명 띠와 겹치면 그 위로 올린다 — 겹친 채면 위쪽 요소가 클릭을 가로챈다.
+  function liftControls(winH){ var cs=document.getElementById('controls'); if(!cs) return;
+    cs.style.removeProperty('bottom'); if(getComputedStyle(cs).display==='none') return;
+    var cr=cs.getBoundingClientRect(), need=0;
+    ['#chevBtn','#leftStack .guide'].forEach(function(q){ var el=document.querySelector(q); if(!el||getComputedStyle(el).display==='none') return;
+      var r=el.getBoundingClientRect(); if(r.height<2||r.right<=cr.left||r.left>=cr.right||r.top>=cr.bottom) return;
+      need=Math.max(need, Math.round(winH-r.top)+8); });
+    var cur=Math.round(winH-cr.bottom); if(need>cur) cs.style.setProperty('bottom', need+'px', 'important'); }
   function fitStage(){ if(!cv) return;
     var sc=(SM.cur!=null)?SM.scenes[SM.cur]:null;
     if(document.body && document.body.classList.contains('viz')){ cv.style.top=''; cv.style.height=''; resize(); return; }   // algo viz: 자체 CSS(오른쪽 컬럼) 유지
@@ -253,6 +263,7 @@
     var winH=global.innerHeight||H, baseBot=(winH>820?150:winH>680?134:120);   // 최소 예약(재생바·나브)
     // 컨트롤 박스(슬라이더+힌트행)와 설명창 띠의 실제 상단을 측정해 그 위까지 비움 → 시각화가 안 가려짐(슬라이더·논슬라이더 자동 대응)
     function topFromBot(id){ var el=document.getElementById(id); if(!el||getComputedStyle(el).display==='none')return 0; var rr=el.getBoundingClientRect(); return rr.height>2?Math.round(winH-rr.top):0; }
+    liftControls(winH);
     var bot=Math.max(baseBot, topFromBot('controls')+14, topFromBot('leftStack')+14);
     // 제목 렌더 전이면 기본 상단값으로 즉시 확정(조기 반환 금지) — 분기 복귀 시 enter가 옛(분기) 캔버스 크기를 읽어 시각화가 작아지던 버그 방지. 제목 실측은 _needFit 재보정.
     var topPx = titleReady ? Math.min(Math.round(winH*0.34), Math.round(br.bottom)+10)

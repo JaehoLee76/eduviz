@@ -26,10 +26,10 @@
 
   function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
   function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-  function secTitle(sec){ var h = sec.querySelector('h2'); if(!h) return sec.id;
-    var all = (h.textContent || '').replace(/\s+/g, ' ').trim(), no = h.querySelector('.no');
+  function secTitle(sec){ var h = sec.h; if(!h) return sec.id;
+    var all = (h.textContent || '').replace(/\s+/g, ' ').trim(), no = h.querySelector('.no,.step');
     if(!no) return all; var n = (no.textContent || '').trim();
-    return n.replace(/★/g, '') + '절 · ' + all.slice(n.length).trim(); }
+    return n.replace(/[★§]/g, '') + '절 · ' + all.slice(n.length).trim(); }
   function live(){ var m = mine(), o = []; for(var k in m) if(m[k] && m[k].t) o.push(k); return o; }
 
   function style(){ var s = el('style'); s.textContent =
@@ -102,7 +102,7 @@
     hdT.textContent = '남긴 의견 ' + ks.length + '개'; bd.innerHTML = ''; ft.innerHTML = '';
     if(!ks.length) bd.appendChild(el('div', 'fb-empty', '아직 남긴 의견이 없습니다. 각 절 끝의 [✎ 이 절에 의견] 단추로 남기실 수 있습니다.'));
     ks.forEach(function(k){ var it = el('div', 'fb-it', '<b>' + esc(m[k].ti || k) + '</b><div>' + esc(m[k].t) + '</div>');
-      it.onclick = function(){ var s = document.getElementById(k); if(s) edit(s); }; bd.appendChild(it); });
+      it.onclick = function(){ var s = unit(k); if(s) edit(s); }; bd.appendChild(it); });
     if(ks.length) bd.appendChild(el('p', 'fb-hint', '[전체 복사]를 누르면 절 제목과 의견이 한 번에 복사되어 그대로 전달하실 수 있습니다.' +
       (S() ? '' : ' 로그인하시면 다른 기기에서도 이 의견이 보입니다.')));
     var cp = ks.length ? btn('전체 복사', 'pri', function(){ copy(text(), function(ok){ cp.textContent = ok ? '복사했습니다 ✓' : '복사 실패 — 길게 눌러 선택하세요'; }); }) : null;
@@ -115,6 +115,7 @@
       ta.select(); var ok = false; try{ ok = document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); done(ok); } }
 
   var secs = [], topB = null;
+  function unit(id){ for(var i = 0; i < secs.length; i++) if(secs[i].id === id) return secs[i]; return null; }
   function order(id){ for(var i = 0; i < secs.length; i++) if(secs[i].id === id) return i; return 9999; }
   function render(){ var m = mine();
     secs.forEach(function(sec){ var row = sec.__fb; if(!row) return; var e = m[sec.id], t = e && e.t;
@@ -123,10 +124,15 @@
     if(topB) topB.textContent = '✎ 의견' + (live().length ? ' ' + live().length : ''); }
 
   function start(){ loadLocal(); style(); build();
-    secs = [].slice.call(document.querySelectorAll('section[id]')).filter(function(s){ return s.querySelector('h2'); });
+    // 단위 = <section id> 가 있으면 그 절, 없으면 h2 하나부터 다음 h2 직전까지(ADP 실험실 구조).
+    var ss = [].slice.call(document.querySelectorAll('section[id]')).filter(function(s){ return s.querySelector('h2'); });
+    if(ss.length) secs = ss.map(function(s){ return { id:s.id, h:s.querySelector('h2'), put:function(r){ s.appendChild(r); } }; });
+    else { var hs = [].slice.call(document.querySelectorAll('h2')).filter(function(h){ return !h.closest('.fb-ov,.qna-ov,.topbar'); });
+      secs = hs.map(function(h, i){ var nx = hs[i + 1];
+        return { id:'h' + i, h:h, put:function(r){ if(nx) nx.parentNode.insertBefore(r, nx); else h.parentNode.appendChild(r); } }; }); }
     secs.forEach(function(sec){ var row = el('div', 'fb-row'); var b = el('button', 'fb-btn'); b.type = 'button';
       var note = el('div', 'fb-note'); b.onclick = function(){ edit(sec); };
-      row.appendChild(b); row.appendChild(note); sec.appendChild(row); sec.__fb = { btn:b, note:note }; });
+      row.appendChild(b); row.appendChild(note); sec.put(row); sec.__fb = { btn:b, note:note }; });
     var bar = document.querySelector('.topbar');
     if(bar){ topB = el('button', 'fb-top'); topB.type = 'button'; topB.title = '남긴 의견 모아 보기 · 복사'; topB.onclick = list;
       var th = bar.querySelector('.tb-theme'); if(th) bar.insertBefore(topB, th); else bar.appendChild(topB); }
