@@ -1,0 +1,857 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>3σ의 숨은 가정 셋 · 정규성·독립성·깨끗한 기준</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="평균 ± 3σ 한계가 약속한 헛알람률을 지키려면 값이 정규분포이고, 유리끼리 독립이고, 기준 데이터가 깨끗해야 합니다. 세 가정을 하나씩 깨 보고 진단·처방 함수를 손에 쥐는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+table.mt td,table.mt th{overflow-wrap:anywhere}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.76rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 2 · 실험실 3</p>
+  <h1>3σ의 숨은 가정 셋</h1>
+  <p class="sub">0.27%라는 약속은 언제 깨지나</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0202-false-alarm-multiplicity.html">← 이전: 헛알람은 왜 쌓이나</a><span class="sp"></span></nav>
+
+<p><b>평균 ± 3σ 선이 &ldquo;정상인데 넘을 확률 0.27%&rdquo;(위쪽 선 하나만 보면 0.135%)를 지키려면 세 가지가 맞아야 합니다. 값이 종 모양(정규분포)이어야 하고, 유리끼리 서로 독립이어야 하고, 선을 긋는 기준 데이터가 깨끗해야 합니다.</b> 하나라도 깨지면 헛알람이 열 배 넘게 늘거나 진짜 이상을 놓치고, 깨진 가정마다 처방이 따로 있습니다. 이 실험실에서 세 가정을 하나씩 일부러 깨 보고, 어느 가정이 깨졌는지 알아내는 진단과 고치는 함수를 손에 쥡니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 평균, 중앙값, 표준편차, z값, 정규분포, 3σ 관리선(0101·0102·0201), 특징(0201), 자기상관 φ와 실효 표본 수(0104), 1종 오류(헛알람)·2종 오류(놓침)·가족 오류율(0202).</p>
+  <ul class="chips known"><li>평균·중앙값</li><li>표준편차</li><li>3σ 관리선</li><li>자기상관 φ</li><li>실효 표본 수</li><li>1종·2종 오류</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 진단에 쓰는 숫자 셋(치우친 정도, 지연 1 자기상관, 표준편차와 MAD의 비)은 이름이 아니라 쓰는 자리에서 식으로 정의하는 수입니다.</p>
+  <ul class="chips" id="termList"><li>분위수 한계 (quantile limit)</li><li>Box-Cox 변환 (Box-Cox transformation)</li><li>잔차 관리도 (residual control chart)</li><li>MAD (median absolute deviation)</li><li>로버스트 추정 (robust estimation)</li></ul>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0202에서는 &ldquo;특징 하나가 헛알람을 낼 확률은 0.27%&rdquo;라는 약속을 믿고 특징을 590개로 늘렸습니다. 그런데 그 약속 자체는 지켜지고 있을까요?<br>
+  현장에서 흔히 쓰는 방식은 <b>이전 데이터(기준 구간)로 평균과 표준편차를 구해 평균 + 3σ 선을 긋고, 이후 데이터가 그 선 안에 드는지 보는 것</b>입니다. 이 방식을 가상의 증착 라인 특징 셋에 그대로 적용했습니다. 이번 실험실은 위쪽으로 넘는 쪽만 알람으로 보므로 선은 위쪽 하나이고, 약속값은 한쪽 꼬리 0.135%입니다.<br>
+  <b>A. 증착 중 압력 스파이크 최고값</b> — 0 아래가 없고 오른쪽 꼬리가 긴 값. 기준 유리 300장.<br>
+  <b>B. 챔버 온도 정상 구간 평균</b> — 천천히 오르내리는 값. 기준 구간은 PM 직후 연속 50장.<br>
+  <b>C. 증착률 안정 구간의 표준편차</b> — 기준 유리 300장. 그중 일부는 PM 직후 불안정한 유리와 센서 튐이 섞여 있습니다. 이후 데이터에는 진짜 이상 유리 20장이 따로 들어 있습니다.<br>
+  세 특징 모두 기준 구간 뒤에 <b>이상 없음이 확인된 정상 유리 5000장</b>이 있습니다. 이 5000장은 한계가 잘 그어졌는지 재는 용도이고, 기준 구간은 한계를 긋는 데 쓴 표본입니다.<br>
+  <b>(1) 세 선의 실제 헛알람률은 약속값 0.135%와 같습니까? (2) 다르다면 무엇이 깨졌고, 어떻게 고칩니까?</b>
+  <p class="note" style="margin:.5rem 0 0">같은 값을 9절의 [CSV 내려받기]로 파일에 받아 Python에서 읽을 수 있습니다. 수치는 모두 이 가상 데이터에서 센 값이며, 회사 데이터에서는 다시 세어야 합니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>현장 방식으로 선을 그었더니</h2>
+<p>먼저 결과부터 보겠습니다. 세 특징에 평균 + 3σ 선을 긋고, 기준 구간 뒤의 정상 유리 5000장에 대 보았습니다. 약속값은 5000장 중 약 7장(0.135%)입니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1 · 평균 + 3σ 선의 실제 헛알람률 (기준 설정)</div>
+  <div class="tbwrap"><table id="tab1" class="mt"></table></div>
+  <p class="note" style="margin:.4rem 0 0">이 표는 이 실험실의 기준 설정에서 잰 값입니다. 아래 슬라이더를 움직여도 이 표는 바뀌지 않고, 8절에서 처방 뒤의 값을 같은 자리에 다시 채웁니다.</p>
+</div>
+<p>세 값 모두 약속값과 다릅니다. A와 B는 약속값보다 <b>몇 배에서 열 배 넘게</b> 걸리고, C는 헛알람이 없는 대신 <b>진짜 이상을 거의 다 놓칩니다.</b> 이 실험실의 물음은 하나입니다. <b>약속은 왜 깨졌습니까?</b> 다만 표의 값은 기준 구간을 한 번 뽑은 결과입니다. 같은 가상 공정에서 기준 구간을 다시 뽑으면 A는 비슷하게 나오지만 B는 거의 0이 되기도 하고 수십 배가 되기도 합니다. 4절에서 그 흔들림을 직접 봅니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>0.135%는 어디서 왔나</h2>
+<p>선은 기준 구간 평균 <i>x̄</i>에서 표준편차 <i>s</i>의 3배 위에 긋습니다. 이 선을 정상 값이 넘을 확률이 몇인지는 정규분포의 꼬리 넓이로 정해집니다. 아래 식의 Φ(<i>k</i>)는 표준정규분포(평균 0, 표준편차 1)에서 <i>k</i> 이하일 확률입니다.</p>
+<div class="eq">
+  <span class="eqlab">위쪽 선 하나를 정상 값이 넘을 확률 (정규분포일 때)</span>
+  <math display="block"><mrow><msub><mi>α</mi><mtext>위</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mi>Φ</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+  <math display="block"><mrow><mi>k</mi><mo>=</mo><mn>3</mn><mo>→</mo><msub><mi>α</mi><mtext>위</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mn id="m_phi3"></mn><mo>=</mo><mn id="m_a3"></mn></mrow></math>
+  <span class="note">0202의 0.27%는 위·아래 두 꼬리의 합이고, 위쪽 하나만 보면 절반인 0.135%입니다.</span>
+</div>
+<p>이 계산에는 세 가지가 몰래 들어 있습니다. 하나라도 깨지면 0.135%는 더 이상 맞지 않습니다.</p>
+<ol>
+  <li><b>정규성</b> — 정상 값이 평균 둘레에 좌우 대칭의 종 모양으로 흩어집니다. 위 식의 Φ가 정규분포의 넓이이기 때문입니다.</li>
+  <li><b>독립성</b> — 유리끼리 서로 영향을 주지 않습니다. 이웃 유리가 닮으면 기준 구간 속 값들이 사실상 몇 개 안 되는 정보가 됩니다.</li>
+  <li><b>깨끗한 기준</b> — 기준 구간이 정상 유리로만 이루어져 있습니다. 평균과 표준편차가 &ldquo;정상&rdquo;의 모습이어야 선이 제자리에 놓입니다.</li>
+</ol>
+<p>이후 3·4·5절에서 가정을 하나씩 깨 보고, 6절에서 어느 가정이 깨졌는지 알아내는 진단을 한 표로 묶습니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>가정 1 — 정규성 (A: 압력 스파이크 최고값)</h2>
+<p>A의 값은 0보다 작아질 수 없고 가끔 크게 튑니다. 이런 값은 오른쪽 꼬리가 깁니다. 꼬리가 길면 3σ 선을 넘는 정상 값이 종 모양일 때보다 많아집니다. 그림으로 먼저 보겠습니다.</p>
+<p>치우친 정도는 숫자 하나로 잴 수 있습니다. 평균에서의 편차를 세제곱해 평균 낸 뒤 표준편차의 세제곱으로 나눈 값입니다. 좌우 대칭이면 0이고, 오른쪽 꼬리가 길면 양수가 됩니다.</p>
+<div class="eq">
+  <span class="eqlab">치우친 정도 (왜도, 기준 구간 <i>n</i>장)</span>
+  <math display="block"><mrow><mi>g</mi><mo>=</mo><mfrac><mrow><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>3</mn></msup></mrow><msup><mrow><mo stretchy="false">(</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><mrow><mn>3</mn><mo>/</mo><mn>2</mn></mrow></msup></mfrac></mrow></math>
+  <span class="note">정규분포에서는 0입니다. 이 실험실에서는 |<i>g</i>| &gt; 0.5 이면 &ldquo;정규가 아닌 것 같다&rdquo;고 표시합니다. 이 기준은 가상 데이터에서 정한 값이며 회사 데이터로 다시 맞춰야 합니다.</span>
+</div>
+<p>막힌 곳은 분명합니다. 평균 + 3σ 선은 분포의 모양을 몰라서 생긴 선인데, 모양이 틀렸습니다. 해법은 두 갈래입니다. 모양을 가정하지 않고 데이터에서 곧바로 선을 읽거나, 모양을 종 모양에 가깝게 편 다음에 선을 긋는 것입니다.</p>
+<p>첫째, <b>분위수 한계 (quantile limit)</b>는 기준 데이터를 크기순으로 세워 위에서 0.135%째 되는 값을 선으로 삼습니다. 분포 모양을 가정하지 않습니다. 대신 꼬리 0.135%를 읽으려면 기준이 아주 많아야 합니다. 기준이 300장이면 위에서 0.135%째는 사실상 가장 큰 값 한두 개가 정합니다.</p>
+<div class="eq">
+  <span class="eqlab">분위수 한계</span>
+  <math display="block"><mrow><msub><mi>L</mi><mtext>분위수</mtext></msub><mo>=</mo><mtext>기준 값들을 크기순으로 세웠을 때 아래에서 99.865%째 값</mtext></mrow></math>
+</div>
+<p>둘째, <b>Box-Cox 변환 (Box-Cox transformation)</b>은 한쪽으로 치우친 값을 거듭제곱이나 로그로 펴서 정규에 가깝게 만드는 변환입니다. 치우침 정도는 λ 하나로 정하고, λ는 기준 데이터에서 변환 결과가 가장 종 모양이 되는 값을 찾습니다(최대우도). 변환한 값에 평균 + 3σ 선을 긋고, 그 선을 원래 단위로 되돌립니다.</p>
+<div class="eq">
+  <span class="eqlab">Box-Cox 변환</span>
+  <math display="block"><mrow><mi>y</mi><mo>=</mo><mfrac><mrow><msup><mi>x</mi><mi>λ</mi></msup><mo>−</mo><mn>1</mn></mrow><mi>λ</mi></mfrac><mspace width="1em"></mspace><mo stretchy="false">(</mo><mi>λ</mi><mo>≠</mo><mn>0</mn><mo stretchy="false">)</mo><mo>,</mo><mspace width="1.4em"></mspace><mi>y</mi><mo>=</mo><mi>ln</mi><mo>&#x2061;</mo><mi>x</mi><mspace width="1em"></mspace><mo stretchy="false">(</mo><mi>λ</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">선: <i>y</i>의 평균 + 3σ → 거꾸로 변환해 원래 단위의 한계로. λ = 0 은 로그입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">치우침 <i>s</i> · 기준 장수 <i>N</i>₀ — 세 선의 모습</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 먼저 <i>s</i>를 0.05까지 내려 보십시오. 값이 거의 대칭이 되면 평균 + 3σ 선의 헛알람률이 약속값 0.135% 근처로 돌아옵니다. 다시 <i>s</i>를 1까지 올리면 헛알람률이 얼마나 급하게 오르는지 보십시오. 그다음 <i>s</i>를 0.5로 두고 <i>N</i>₀를 30까지 줄여 보십시오. 분위수 한계는 기준이 적을수록 마지막 표의 &ldquo;새로 뽑았을 때의 범위&rdquo;가 크게 벌어집니다. 한 번 뽑은 기준에서 운 좋게 맞은 것과 늘 맞는 것은 다릅니다.</div>
+  <div class="ctrl"><label for="sA">치우침 <i>s</i> (ln <i>x</i>의 표준편차)</label><input type="range" id="sA" min="0.05" max="1" step="0.05" value="0.5"><output id="sAo"></output></div>
+  <div class="ctrl"><label for="nA">기준 장수 <i>N</i>₀</label><input type="range" id="nA" min="30" max="2000" step="10" value="300"><output id="nAo"></output></div>
+  <div class="row"><button class="btn ghost" id="rA" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="stA"></div>
+  <div class="two">
+    <div><canvas id="cvAh" height="270"></canvas><div class="legend"><span>막대 = 기준 구간의 분포, 굵은 곡선 = 같은 평균·표준편차의 정규 곡선</span></div></div>
+    <div><canvas id="cvAq" height="270"></canvas><div class="legend"><span>점이 대각선 위에 놓이면 종 모양입니다. 위로 휘면 오른쪽 꼬리가 깁니다.</span></div></div>
+  </div>
+  <div class="legend"><span><span class="sw" style="border-color:var(--bad)"></span>평균 + 3σ</span><span><span class="sw" style="border-color:var(--accent)"></span>분위수 한계</span><span><span class="sw" style="border-color:var(--c10)"></span>Box-Cox 한계</span></div>
+  <div class="tbwrap"><table id="tabA" class="mt"></table></div>
+  <div class="concl" id="conclA"></div>
+</div>
+<p>정리하면 A의 약속은 <b>정규성</b>이 깨져서 어긋났습니다. 분위수 한계와 Box-Cox 한계는 둘 다 약속값 쪽으로 돌아옵니다. 다만 분위수 한계는 기준 300장에서 전형적으로 약속값의 두 배 남짓에 머물고, 기준을 새로 뽑을 때마다 위 표의 범위만큼 흔들립니다. <i>N</i>₀를 키우면 범위가 좁아집니다. 기준이 1000장 아래이면 Box-Cox 쪽이 안정적입니다.</p>
+<div class="qna" data-label="그냥 로그를 씌우면 안 되나요?" data-q="그냥 로그를 씌우면 안 되나요?">
+  <p>로그는 Box-Cox 변환에서 λ = 0 인 특수한 경우입니다. 이 가상 데이터는 로그정규분포(로그를 씌우면 정확히 종 모양)로 만들었으므로 λ가 0에 가깝게 나오고, 단순한 로그와 결과가 거의 같습니다.</p>
+  <p>현장 값은 로그가 꼭 맞지 않을 수 있어, 데이터가 λ를 직접 고르게 하는 쪽이 안전합니다. 단, 값에 0 이하가 섞이면 로그와 Box-Cox 모두 쓸 수 없으니 먼저 값의 범위를 확인하십시오.</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>가정 2 — 독립성 (B: 챔버 온도)</h2>
+<p>B의 값은 천천히 오르내립니다. 어제 높았으면 오늘도 높기 쉽습니다. 0104에서 본 대로, 이웃 값이 닮은 정도를 <b>지연 1 자기상관</b>이라 하고 φ로 씁니다. 표본에서는 이웃한 두 값의 편차를 곱해 더한 뒤 편차 제곱합으로 나눠 구합니다(0이면 서로 무관, 1이면 이웃이 똑같음).</p>
+<p>그러면 기준 구간 50장은 서로 독립인 값 50개만큼의 정보를 갖지 못합니다. 0104의 실효 표본 수가 그 환산입니다.</p>
+<div class="eq">
+  <span class="eqlab">실효 표본 수 (0104)</span>
+  <math display="block"><mrow><msub><mi>n</mi><mtext>eff</mtext></msub><mo>=</mo><mi>n</mi><mo>×</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>φ</mi></mrow><mrow><mn>1</mn><mo>+</mo><mi>φ</mi></mrow></mfrac></mrow></math>
+  <math display="block"><mrow><mi>n</mi><mo>=</mo><mn id="m_nb">50</mn><mo>,</mo><mspace width="0.6em"></mspace><mi>φ</mi><mo>=</mo><mn id="m_pb">0.9</mn><mspace width="0.8em"></mspace><mo>→</mo><mspace width="0.8em"></mspace><msub><mi>n</mi><mtext>eff</mtext></msub><mo>=</mo><mn id="m_ne"></mn></mrow></math>
+</div>
+<p>기준 50장이 사실상 <b id="neTxt"></b>장 남짓의 정보입니다. 이 몇 장으로 평균과 표준편차를 구하니 평균은 진짜 평균에서 쉽게 벗어나고, 표준편차는 서로 닮은 값들이라 작게 나옵니다. 선이 엉뚱한 곳에 놓일 수 있습니다.</p>
+<p>얼마나 엉뚱한 곳일지는 <b>미리 알 수 없습니다.</b> 기준 50장을 어느 날 뽑았느냐에 따라 헛알람률이 약속값의 거의 0배일 때도 있고, 전형적으로는 몇 배이고, 가끔은 수십 배가 됩니다. 한 번 뽑은 기준 하나만 보아서는 자기가 어느 경우에 있는지 알 수 없다는 점이 가장 큰 위험입니다. 아래 실험실의 표에서 같은 과정의 기준을 40번 바꿔 뽑은 범위를 함께 보여 줍니다.</p>
+<p>막힌 곳은 이웃 값이 닮았다는 사실입니다. 그 닮음을 값에서 걷어내면 남는 것은 서로 독립인 &ldquo;예측이 빗나간 양&rdquo;입니다. <b>잔차 관리도 (residual control chart)</b>는 직전 값으로 이번 값을 예측하고, 예측이 빗나간 양(잔차)에 3σ 선을 긋는 관리도입니다.</p>
+<div class="eq">
+  <span class="eqlab">잔차 관리도 — 기준 구간 평균 <i>m</i>, 기준 구간에서 최소제곱으로 구한 <i>φ̂</i></span>
+  <math display="block"><mrow><msub><mi>r</mi><mi>t</mi></msub><mo>=</mo><mo stretchy="false">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>−</mo><mi>m</mi><mo stretchy="false">)</mo><mo>−</mo><mover><mi>φ</mi><mo>^</mo></mover><mo stretchy="false">(</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mi>m</mi><mo stretchy="false">)</mo><mo>,</mo><mspace width="1.4em"></mspace><mover><mi>φ</mi><mo>^</mo></mover><mo>=</mo><mfrac><mrow><mo>∑</mo><mo stretchy="false">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>−</mo><mi>m</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mi>m</mi><mo stretchy="false">)</mo></mrow><mrow><mo>∑</mo><msup><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mi>m</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></mfrac></mrow></math>
+  <span class="note">알람 조건: 잔차 <i>r<sub>t</sub></i> &gt; 3 × (기준 구간 잔차의 표준편차). 잔차는 서로 독립에 가까워 기준 50장으로도 선이 제자리에 놓입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">닮은 정도 <i>φ</i> · 기준 구간 길이 <i>L</i> — 원값의 선과 잔차의 선</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> <i>φ</i>를 0까지 내려 보십시오. 이웃이 서로 무관해지면 실효 표본 수가 기준 장수와 같아지고, 평균 + 3σ 선의 헛알람률이 약속값 근처로 돌아옵니다. 다시 <i>φ</i>를 0.95까지 올리면 실효 표본 수가 1~2장으로 줄면서 헛알람률이 얼마나 크게 벌어지는지 보십시오. 아래 그림에서는 계단 변화(76번째 유리부터 +2σ 이동)를 두 방식이 어디서 잡는지 비교합니다. 잔차는 변화 직후 한 번 크게 튀고 다시 잦아드는 점도 확인하십시오.</div>
+  <div class="ctrl"><label for="pB">닮은 정도 <i>φ</i></label><input type="range" id="pB" min="0" max="0.95" step="0.05" value="0.9"><output id="pBo"></output></div>
+  <div class="ctrl"><label for="lB">기준 구간 길이 <i>L</i> (연속 장수)</label><input type="range" id="lB" min="20" max="300" step="10" value="50"><output id="lBo"></output></div>
+  <div class="row"><button class="btn ghost" id="rB" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="stB"></div>
+  <canvas id="cvB1" height="230"></canvas>
+  <div class="legend"><span>음영 = 기준 구간 <i>L</i>장, 그 오른쪽은 이후 정상 유리 200장</span><span><span class="sw" style="border-color:var(--bad)"></span>평균 + 3σ 선</span><span><span class="sw" style="border-color:var(--grey);border-top-style:dashed"></span>공정의 진짜 평균 0</span><span><span class="sw" style="border-color:var(--accent);border-top-style:dotted"></span>기준 구간의 평균</span></div>
+  <canvas id="cvB2" height="300"></canvas>
+  <div class="legend"><span>위 = 원값과 평균 + 3σ 선, 아래 = 잔차와 잔차 선(<span class="sw" style="border-color:var(--good)"></span>)</span><span>세로 점선 = 계단 변화 시작, 속이 찬 큰 점 = 변화 뒤 첫 알람</span></div>
+  <div class="tbwrap"><table id="tabB" class="mt"></table></div>
+  <div class="concl" id="conclB"></div>
+</div>
+<p>정리하면 B의 약속은 <b>독립성</b>이 깨져서 어긋났습니다. 잔차 관리도는 기준 50장만으로도 헛알람률의 중앙값을 약속값의 두 배 아래로 되돌리고, 흔들림의 폭도 크게 줄입니다(위 표의 두 칸을 견주어 보십시오). 그래도 약속값과 정확히 같아지지는 않습니다. 대신 약점도 있습니다. 작은 변화가 오래 이어질 때는 잔차가 다시 잦아들어 놓칠 수 있습니다. 그런 변화를 잡는 법은 다음 실험실에서 따로 다룹니다.</p>
+<div class="qna" data-label="자기상관이 있으면 관리도를 못 쓰나요?" data-q="자기상관이 있으면 관리도를 못 쓰나요?">
+  <p>못 쓰는 것이 아니라 <b>원값에 곧바로 쓰면 안 되는 것</b>입니다. 방법이 둘 있습니다. 하나는 이 절의 잔차 관리도입니다. 다른 하나는 값을 몇 개씩 묶어 평균을 낸 뒤(예: 10장 단위) 그 평균을 관리하는 방법입니다. 묶음끼리는 닮음이 줄어듭니다.</p>
+  <p>어느 쪽이든 먼저 유리 처리 순서가 기록돼 있어야 합니다. 순서가 없으면 지연 1 자기상관을 잴 수 없고, 닮음이 있는지조차 모릅니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>가정 3 — 깨끗한 기준 (C: 증착률 산포)</h2>
+<p>C의 기준 300장에는 PM 직후 불안정한 유리와 센서 튐이 섞여 들어 있습니다. 현장에서는 어느 점이 오염인지 색이 칠해져 있지 않습니다. 아래 그림에서만 오염 점을 색으로 구분해 보여 줍니다.</p>
+<p>오염된 값이 몇 개 끼면 표준편차가 크게 부풀어 평균 + 3σ 선이 멀리 올라갑니다. 헛알람은 줄지만 진짜 이상도 선 안에 숨습니다. 이 막힘을 풀려면 오염에 흔들리지 않는 평균과 표준편차가 필요합니다.</p>
+<p><b>MAD (median absolute deviation)</b>는 중앙값에서 각 값까지 거리의 중앙값입니다. 여기에 1.4826을 곱하면 정규분포일 때 표준편차와 같아집니다. 중앙값과 MAD는 값 몇 개가 크게 튀어도 거의 움직이지 않습니다.</p>
+<div class="eq">
+  <span class="eqlab">MAD와 그것으로 만든 표준편차 대용</span>
+  <math display="block"><mrow><mtext>MAD</mtext><mo>=</mo><mtext>median</mtext><mo stretchy="false">(</mo><mo stretchy="false">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mtext>median</mtext><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">|</mo><mo stretchy="false">)</mo><mo>,</mo><mspace width="1.4em"></mspace><msub><mi>s</mi><mtext>로버스트</mtext></msub><mo>=</mo><mn>1.4826</mn><mo>×</mo><mtext>MAD</mtext></mrow></math>
+</div>
+<p><b>로버스트 추정 (robust estimation)</b>은 섞여 든 이상값 몇 개에 흔들리지 않는 추정입니다. 평균 대신 중앙값, 표준편차 대신 1.4826 × MAD를 쓰고, 선은 중앙값 + 3 × 1.4826 × MAD에 긋습니다. 오염이 있는지 알아보는 진단도 여기서 나옵니다.</p>
+<div class="eq">
+  <span class="eqlab">오염 진단 — 표준편차와 로버스트 표준편차의 비</span>
+  <math display="block"><mrow><mi>ρ</mi><mo>=</mo><mfrac><mi>s</mi><mrow><mn>1.4826</mn><mo>×</mo><mtext>MAD</mtext></mrow></mfrac></mrow></math>
+  <span class="note">깨끗한 정규 데이터에서는 1 근처입니다. 1에서 멀어질수록 오염을 의심합니다. 이 실험실에서는 <i>ρ</i> &gt; 1.4 이면 오염 의심으로 표시하며, 이 기준은 가상 데이터에서 정한 값이라 회사 데이터로 다시 맞춰야 합니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">오염 비율 · 오염 크기 — 두 한계선의 위치와 놓친 이상</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 오염 비율을 0%로 내려 보십시오. 기준이 깨끗해지면 세 한계가 거의 한 곳에 모이고 놓침도 같아집니다. 다시 오염 비율을 5%, 10%로 올리면서 붉은 선(평균 + 3σ)이 위로 달아나고 놓친 이상이 늘어나는 동안 초록 선(로버스트)은 거의 그대로인 것을 보십시오. 오염 크기를 3으로 내리면 진단 <i>ρ</i>가 기준선 아래로 내려와 오염이 진단에 안 잡히는 구간도 확인할 수 있습니다.</div>
+  <div class="ctrl"><label for="pC">오염 비율</label><input type="range" id="pC" min="0" max="20" step="1" value="5"><output id="pCo"></output></div>
+  <div class="ctrl"><label for="zC">오염 크기 (표준편차의 배수)</label><input type="range" id="zC" min="3" max="10" step="0.5" value="6"><output id="zCo"></output></div>
+  <div class="row"><button class="btn ghost" id="rC" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="stC"></div>
+  <div class="two">
+    <div><canvas id="cvC1" height="270"></canvas><div class="legend"><span><span class="dot" style="background:var(--accent)"></span>정상 유리</span><span><span class="dot" style="background:var(--c9)"></span>오염된 유리(현장에서는 색이 없습니다)</span></div></div>
+    <div><canvas id="cvC2" height="270"></canvas><div class="legend"><span><span class="sw" style="border-color:var(--accent)"></span>정상 분포</span><span><span class="sw" style="border-color:var(--c9)"></span>진짜 이상 분포(+4σ)</span></div></div>
+  </div>
+  <div class="legend"><span><span class="sw" style="border-color:var(--bad)"></span>평균 + 3σ(오염된 기준)</span><span><span class="sw" style="border-color:var(--good)"></span>중앙값 + 3×1.4826×MAD</span><span><span class="sw" style="border-color:var(--c10)"></span>평균 + 3σ(오염을 뺀 깨끗한 기준)</span></div>
+  <div class="tbwrap"><table id="tabC" class="mt"></table></div>
+  <div class="concl" id="conclC"></div>
+</div>
+<p>정리하면 C의 약속은 <b>깨끗한 기준</b>이 깨져서 어긋났습니다. 이 경우의 위험은 헛알람이 아니라 <b>놓침</b>이라 알아채기 어렵습니다. 헛알람이 없으니 선이 잘 맞는다고 착각하기 쉽습니다.</p>
+<div class="qna" data-label="오염을 빼는 게 데이터 조작이 아닌가요?" data-q="오염을 빼는 게 데이터 조작이 아닌가요?">
+  <p>뺀 이유를 기록하고 감사할 수 있게 남기면 조작이 아니라 절차입니다. 조작이 되는 경우는 이유를 적지 않고 결과가 좋아 보이도록 점을 고를 때입니다.</p>
+  <p>그래서 이 실험실은 두 가지를 권합니다. 첫째, 로버스트 한계는 점을 하나도 빼지 않고 오염에 흔들리지 않게 만드는 방법입니다. 둘째, 점을 빼려면 PM·부품 교체·이상 운전 같은 이벤트 기록에서 이유를 찾아 함께 남깁니다. 아래 &ldquo;깨끗한 기준&rdquo; 선은 정답을 아는 가상 데이터에서만 만들 수 있는 비교용입니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>어느 가정이 깨졌는지 — 진단과 처방</h2>
+<p>현장에서는 &ldquo;A는 치우쳤고 B는 닮았고 C는 오염됐다&rdquo;는 답을 알려 주는 사람이 없습니다. 기준 구간의 숫자만 보고 알아내야 합니다. 세 가정마다 숫자 하나가 대응합니다.</p>
+<div class="lab">
+  <div class="labtitle">표 2 · 세 진단과 처방 (기준 설정의 기준 구간)</div>
+  <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+  <p class="note" style="margin:.4rem 0 0">진단 기준: |치우친 정도| &gt; 0.5, 지연 1 자기상관 &gt; 0.3, <i>ρ</i> &gt; 1.4. 이 기준은 이 가상 데이터에서 정한 예시이며 회사 데이터로 다시 맞춰야 합니다. 붉은 칸이 기준을 넘은 진단입니다.</p>
+</div>
+<p>표를 읽을 때 두 가지를 알아 두십시오. 첫째, C의 기준에서는 치우친 정도도 함께 커집니다. 오염 점이 한쪽으로만 섞여 오른쪽 꼬리가 생기기 때문입니다. 그래서 <b>처방 순서는 기준 정리 → 독립성 → 분포</b>입니다. 앞 가정이 깨져 있으면 뒤 진단이 흐려집니다. 둘째, 기준이 50장처럼 적으면 진단 수치 자체가 크게 흔들립니다. 진단은 선을 바꾸자고 제안하는 근거이지 확정이 아닙니다.</p>
+<div class="concl"><b>사람이 꼭 할 일.</b> 기준 구간이 PM·부품 교체·이상 운전을 포함하는지는 데이터만으로 확정할 수 없습니다. 이벤트 기록을 보고 <b>사람이 판정</b>합니다. 에이전트는 진단·계산·제안까지 하고, 한계를 바꾸는 일은 사람이 승인합니다.</div>
+<div class="lab">
+  <div class="labtitle">직접 해 보기 — 내 기준 구간 진단하기</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 아래 단추로 세 기준 구간을 하나씩 넣고 [진단하기]를 눌러 표 2와 같은 값이 나오는지 보십시오. 그다음 회사 데이터의 기준 구간을 <b>시간 순서대로</b> 붙여 넣어 같은 진단을 해 보십시오(값은 쉼표나 줄바꿈으로 구분). 순서가 뒤섞이면 지연 1 자기상관은 의미가 없습니다.</div>
+  <div class="row"><button class="btn ghost" type="button" data-fill="A">A 기준 넣기</button><button class="btn ghost" type="button" data-fill="B">B 기준 넣기</button><button class="btn ghost" type="button" data-fill="C">C 기준 넣기</button></div>
+  <textarea id="pasteBox" rows="4" placeholder="값을 시간 순서대로 붙여 넣으십시오. 예: 1.02, 0.97, 1.10, ..." aria-label="기준 구간 값"></textarea>
+  <div class="row"><button class="btn" id="diagBtn" type="button">진단하기</button></div>
+  <div class="readout" id="diagOut">값을 넣고 [진단하기]를 누르십시오(10개 이상).</div>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>현장에서 환산하면</h2>
+<p>이 진단과 처방을 현장에 쓰면 무엇이 얼마나 줄고 무엇이 늘까요? 위 가상 데이터에서 잰 헛알람률(표 1의 값과 처방 뒤의 값)을 하루 검사량에 곱해 보겠습니다. 이 상자의 헛알람률은 3·4·5절의 슬라이더와 무관하게 기준 설정으로 고정되어 있고, 움직이는 것은 현장 쪽 숫자들입니다.</p>
+<div class="lab">
+  <div class="labtitle">성과 환산 상자 — 줄어드는 가성 알람, 정지 시간, 회수되는 이상</div>
+  <div class="ctrl"><label for="gD">하루 검사 유리 수</label><input type="range" id="gD" min="50" max="600" step="10" value="200"><output id="gDo"></output></div>
+  <div class="ctrl"><label for="fD">감시하는 특징 수 (0202의 590개)</label><input type="range" id="fD" min="100" max="1000" step="10" value="590"><output id="fDo"></output></div>
+  <div class="ctrl"><label for="sD">A·B·C 각 유형이 차지하는 비율</label><input type="range" id="sD" min="0" max="30" step="1" value="10"><output id="sDo"></output></div>
+  <div class="ctrl"><label for="tD">알람 한 건당 확인 시간 (분)</label><input type="range" id="tD" min="5" max="60" step="5" value="15"><output id="tDo"></output></div>
+  <div class="ctrl"><label for="aD">하루에 섞인 이상 유리 중 C형 특징에서 나타나는 수</label><input type="range" id="aD" min="0" max="10" step="1" value="2"><output id="aDo"></output></div>
+  <div class="row"><button class="btn ghost" id="rD" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stD"></div>
+  <div class="tbwrap"><table id="tabD" class="mt num"></table></div>
+  <div class="concl" id="conclD"></div>
+  <p class="note">하루 검사 유리 수 200장, 비율 10%, 이상 2장은 가정입니다. 알람 건수는 특징 단위로 센 값이라, 같은 유리에서 여러 특징이 함께 걸리는 경우를 따로 합치지 않았습니다. 회사 데이터에서는 같은 식에 <b>가성 알람 한 건의 손실 금액</b>과 <b>놓친 이상 유리 한 장의 손실 금액</b>을 넣어 금액으로 바꾸십시오.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 약속은 지켜졌나</h2>
+<p>1절의 표로 돌아가겠습니다. 처방 뒤의 헛알람률을 같은 자리에 채웁니다.</p>
+<div class="lab">
+  <div class="labtitle">표 3 · 처방 전후의 실제 헛알람률 (표 1과 같은 기준 설정)</div>
+  <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+</div>
+<div class="concl" id="landing"></div>
+<p>약속값이 깨졌던 원인은 세 가지였고, 처방도 세 가지였습니다. 가정이 깨졌는지 모른 채 3σ를 계속 쓰는 것이 위험합니다. 처방 순서와 진단 기준은 6절의 표입니다. 처방 뒤에도 헛알람률이 약속값과 정확히 같아지지는 않습니다. 기준이 유한한 표본이기 때문입니다. 그래서 한 번의 숫자보다 3·4절 표의 &ldquo;새로 뽑았을 때의 범위&rdquo;를 함께 보아야 합니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy, pandas, scipy</code>만 씁니다. 함수 여섯 개(진단 하나, 처방 다섯)가 이 실험실의 도구입니다. 가상 데이터를 파일로 받으려면 단추를 누르십시오. 받은 파일 <code>s7_hidden_assumptions.csv</code>를 코드와 같은 폴더에 두면 맨 아래 부분이 그대로 돌아갑니다. 파일의 <code>truth_flag</code> 열은 가상 데이터의 정답 표시이며, 현장 데이터에는 없습니다.</p>
+<div class="row"><button class="btn" id="csvBtn" type="button">CSV 내려받기 (s7_hidden_assumptions.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+from scipy import stats
+
+K = 3            # 한계 배수(평균 + 3σ)
+P3 = 0.99865     # 위쪽 0.135% 지점의 분위수 수준
+MADK = 1.4826    # MAD 에 곱하면 정규일 때 표준편차와 같아지는 상수
+SKEW_LIM, LAG_LIM, RATIO_LIM = 0.5, 0.3, 1.4   # 진단 기준: 가상 데이터에서 정한 값이므로 회사 데이터로 다시 맞추세요
+
+
+def assumption_check(x_ref):
+    """기준 구간(시간순 배열)에서 세 가정을 진단한다. 순서가 뒤섞인 값에는 lag1 이 의미가 없다."""
+    x = np.asarray(x_ref, float)
+    d = x - x.mean()
+    skew = float(stats.skew(x))
+    lag1 = float((d[1:] * d[:-1]).sum() / (d ** 2).sum())
+    ratio = float(x.std(ddof=1) / (MADK * stats.median_abs_deviation(x, scale=1)))
+    broken = []
+    if ratio &gt; RATIO_LIM: broken.append("기준 데이터 오염 의심")
+    if lag1 &gt; LAG_LIM: broken.append("독립성 깨짐")
+    if abs(skew) &gt; SKEW_LIM: broken.append("정규성 깨짐")
+    # 처방 순서: 기준 정리 → 독립성 → 분포 (앞 가정이 깨져 있으면 뒤 진단이 흐려진다)
+    if "기준 데이터 오염 의심" in broken: fix = "robust_limit (그 뒤 기준 구간 이벤트 확인)"
+    elif "독립성 깨짐" in broken: fix = "residual_limit"
+    elif "정규성 깨짐" in broken: fix = "quantile_limit" if len(x) &gt;= 1000 else "boxcox_limit"
+    else: fix = "평균 + 3σ 유지"
+    return {"skew": skew, "lag1": lag1, "sd_mad_ratio": ratio, "broken": broken, "fix": fix}
+
+
+def quantile_limit(x_ref, p=P3):
+    """분포 모양을 가정하지 않는 위쪽 한계. 쓰면 안 되는 때: 기준 N0 가 약 1000 미만(0.135% 꼬리를 못 믿음)."""
+    return float(np.quantile(x_ref, p))
+
+
+def boxcox_limit(x_ref, k=K):
+    """변환 공간에서 평균 + kσ 를 긋고 되돌린다. 쓰면 안 되는 때: 0 이하 값이 있거나 변환 뒤에도 꼬리가 길 때."""
+    y, lam = stats.boxcox(np.asarray(x_ref, float))
+    yl = y.mean() + k * y.std(ddof=1)
+    t = lam * yl + 1
+    lim = float(np.exp(yl)) if abs(lam) &lt; 1e-9 else (float(t ** (1 / lam)) if t &gt; 0 else float("inf"))
+    return lim, float(lam)
+
+
+def residual_limit(x_ref, k=K):
+    """직전 값으로 예측한 잔차에 kσ. 반환 (m, phi, 잔차 sd). 쓰면 안 되는 때: 값이 시간순이 아닐 때, 기준이 너무 짧을 때(20장 미만)."""
+    x = np.asarray(x_ref, float)
+    m = x.mean()
+    d = x - m
+    phi = float((d[1:] * d[:-1]).sum() / (d[:-1] ** 2).sum())
+    r = d[1:] - phi * d[:-1]
+    return float(m), phi, float(r.std(ddof=1))
+
+
+def residual_alarm(x, m, phi, sd_r, k=K):
+    """잔차가 k·sd_r 를 넘으면 알람. 결과는 x[1:] 와 짝이 맞는다. 쓰면 안 되는 때: 작은 지속 변화를 잡으려 할 때(변화 직후 한 번만 튄다)."""
+    x = np.asarray(x, float)
+    r = (x[1:] - m) - phi * (x[:-1] - m)
+    return r &gt; k * sd_r
+
+
+def robust_limit(x_ref, k=K):
+    """중앙값 + k × 1.4826 × MAD. 쓰면 안 되는 때: 오염이 절반에 가까울 때, 값이 정수 몇 개뿐이라 MAD 가 0 일 때."""
+    x = np.asarray(x_ref, float)
+    return float(np.median(x) + k * MADK * stats.median_abs_deviation(x, scale=1))
+
+
+# ---- 가상 데이터로 돌려 보기 (페이지의 [CSV 내려받기]로 받은 파일) ----
+df = pd.read_csv("s7_hidden_assumptions.csv")        # 열: branch, role, idx, value, truth_flag
+get = lambda b, r: df[(df.branch == b) &amp; (df.role == r)].sort_values("idx")
+nominal = float(stats.norm.sf(K))
+print(f"명목 헛알람률(위쪽 한계 하나) = {nominal:.5f}")
+
+for b, name in (("A", "A 압력 스파이크 최고값"), ("B", "B 챔버 온도 평균"), ("C", "C 증착률 산포")):
+    ref, post = get(b, "ref").value.to_numpy(), get(b, "post").value.to_numpy()
+    c = assumption_check(ref)
+    print(f"\n[{name}] 기준 {len(ref)}장 · 이후 {len(post)}장")
+    print(f"진단 왜도 {c['skew']:.3f} · lag1 {c['lag1']:.3f} · SD/(1.4826·MAD) {c['sd_mad_ratio']:.3f}")
+    print("깨진 가정: " + (", ".join(c["broken"]) or "없음") + " → " + c["fix"])
+    naive = ref.mean() + K * ref.std(ddof=1)
+    print(f"평균+3σ 한계 {naive:.3f} → 헛알람률 {(post &gt; naive).mean():.5f} ({(post &gt; naive).mean() / nominal:.1f}배)")
+    if b == "A":
+        q = quantile_limit(ref); bc, lam = boxcox_limit(ref)
+        print(f"분위수 한계 {q:.3f} → {(post &gt; q).mean():.5f} · Box-Cox(λ̂={lam:.4f}) 한계 {bc:.3f} → {(post &gt; bc).mean():.5f}")
+    if b == "B":
+        m, phi, sdr = residual_limit(ref)
+        al = residual_alarm(post, m, phi, sdr)
+        print(f"잔차 관리도 φ̂ {phi:.4f} · 잔차 sd {sdr:.4f} → 헛알람률 {al.mean():.5f}")
+        st = get(b, "step"); sx = st.value.to_numpy(); t0 = int(st.truth_flag.to_numpy().argmax())
+        n_first = int(np.argmax(sx[t0:] &gt; naive)) + 1 if (sx[t0:] &gt; naive).any() else None
+        ra = residual_alarm(sx, m, phi, sdr)
+        r_first = int(np.argmax(ra[t0 - 1:])) + 1 if ra[t0 - 1:].any() else None
+        print(f"계단 변화 후 첫 알람: 원값 {n_first}번째 · 잔차 {r_first}번째")
+    if b == "C":
+        an = get(b, "anom").value.to_numpy(); rb = robust_limit(ref)
+        clean = ref[get(b, "ref").truth_flag.to_numpy() == 0]
+        cl = clean.mean() + K * clean.std(ddof=1)
+        print(f"로버스트 한계 {rb:.3f} → 헛알람률 {(post &gt; rb).mean():.5f}")
+        print(f"이상 {len(an)}장 중 놓친 수: 평균+3σ {int((an &lt;= naive).sum())}장 · 로버스트 {int((an &lt;= rb).sum())}장 · 깨끗한 기준 {int((an &lt;= cl).sum())}장")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 위 표들의 숫자와 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력 예시"></pre>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>3σ 한계 가정 점검 보고서</h3>
+  <dl>
+    <dt>무엇을</dt><dd>특징 <b>압력 스파이크 최고값(A)</b>, <b>챔버 온도 평균(B)</b>, <b>증착률 산포(C)</b>의 평균 + 3σ 한계가 약속값(위쪽 0.135%)을 지키는지 점검했습니다.</dd>
+    <dt>기준 구간</dt><dd id="rp_ref"></dd>
+    <dt>세 진단 수치와 판정</dt><dd id="rp_diag"></dd>
+    <dt>현재 한계 대 제안 한계</dt><dd id="rp_lim"></dd>
+    <dt>실제 헛알람률의 변화</dt><dd id="rp_rate"></dd>
+    <dt>놓침에 주는 영향</dt><dd id="rp_miss"></dd>
+    <dt>권고 (사람의 승인 필요)</dt><dd>기준 구간에 PM·부품 교체·이상 운전이 들어 있는지 이벤트 기록으로 먼저 확인합니다. 그다음 깨진 가정에 맞는 처방(로버스트·잔차 관리도·변환 또는 분위수 한계)으로 한계를 바꾸는 안을 올립니다. <b>한계 변경은 사람이 승인한 뒤에 적용합니다.</b></dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 이 점검을 자동으로 하려면 현장에서 아래를 남겨야 합니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li>spec마다 <b>기준 구간 정의</b> — 어느 유리, 어느 기간</li>
+      <li>그 구간에 들어 있는 PM·부품 교체·이상 운전 <b>이벤트</b></li>
+      <li>기준에서 뺀 유리와 <b>뺀 이유</b></li>
+      <li>유리 <b>처리 순서(시각)</b> — 순서가 없으면 독립성 진단을 할 수 없습니다</li>
+      <li>유리 ID, 챔버, 마스크 세트, 턴 — 데이터를 잇는 키</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실이 남기는 검증된 함수입니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><code>assumption_check(x_ref)</code> — 세 진단과 깨진 가정, 권장 처방</li>
+      <li><code>quantile_limit(x_ref, p)</code> — 분위수 한계</li>
+      <li><code>boxcox_limit(x_ref, k)</code> — Box-Cox 한계와 λ̂</li>
+      <li><code>residual_limit(x_ref, k)</code> · <code>residual_alarm(x, m, phi, sd_r)</code> — 잔차 관리도</li>
+      <li><code>robust_limit(x_ref, k)</code> — 중앙값 + k·1.4826·MAD</li>
+    </ul>
+    <p class="note" style="margin-top:.5rem">사용 순서: 0202의 <code>alarm_audit</code> 앞에 <code>assumption_check</code>를 둡니다. 판정 흐름은 6절 표입니다. 사람이 판정하는 것은 기준 구간의 타당성이고, 에이전트는 진단·계산·제안까지 맡습니다.</p>
+  </div>
+</div>
+<div class="qna" data-label="세 가정이 동시에 깨지면 어떻게 하나요?" data-q="세 가정이 동시에 깨지면 어떻게 하나요?">
+  <p>순서를 지키면 됩니다. <b>기준 정리 → 독립성 → 분포</b>입니다. 먼저 기준 구간에서 오염을 걷어내고(이벤트 기록으로 사람이 확인하거나 로버스트 추정), 그다음 이웃 닮음을 잔차로 걷어내고, 마지막으로 남은 값의 치우침을 변환이나 분위수로 다룹니다.</p>
+  <p>앞 단계가 안 끝난 채 뒤 단계를 진단하면 수치가 엉킵니다. 예를 들어 오염이 있으면 치우친 정도도 함께 커져 &ldquo;정규가 아니다&rdquo;로만 읽히기 쉽습니다. 처방 뒤에는 5000장 같은 검증 구간에서 실제 헛알람률을 다시 재어 확인합니다.</p>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0202-false-alarm-multiplicity.html">← 이전: 헛알람은 왜 쌓이나</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ============ 데이터·계산 핵심 (CORE-START) ============ */
+var MS=MfgSim, T=MS.s7tools, ST=MS.stats, Q=MS.qnorm;
+var BASE=MS.scenario('S7'), BP=BASE.params, NOM=BP.nominal, K=BP.k, NP=BP.n, STEPAT=BP.step_at;
+var SKL=0.5, LAGL=0.3, RATL=1.4, MADK=T.MADK;
+function diag(x){
+  var sk=T.skewOf(x), l1=ST.lag1(x), ratio=ST.sd(x)/(MADK*T.madOf(x)), broken=[];
+  if(ratio>RATL)broken.push('기준 데이터 오염 의심');
+  if(l1>LAGL)broken.push('독립성 깨짐');
+  if(Math.abs(sk)>SKL)broken.push('정규성 깨짐');
+  var fix;
+  if(broken.indexOf('기준 데이터 오염 의심')>=0)fix='robust_limit (그 뒤 기준 구간 이벤트 확인)';
+  else if(broken.indexOf('독립성 깨짐')>=0)fix='residual_limit';
+  else if(broken.indexOf('정규성 깨짐')>=0)fix=x.length>=1000?'quantile_limit':'boxcox_limit';
+  else fix='평균 + 3σ 유지';
+  return {skew:sk,lag1:l1,ratio:ratio,broken:broken,fix:fix};
+}
+var DA=diag(BASE.A.ref), DB=diag(BASE.B.ref), DC=diag(BASE.C.ref);
+/* ============ CORE-END ============ */
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtP(p){return fmt(p,5);}
+function setT(id,t){var e=$(id);if(e)e.textContent=t;}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function times(r){return fmt(r/NOM,1)+'배';}
+function pdfN(z,m,s){var u=(z-m)/s;return Math.exp(-0.5*u*u)/(s*Math.sqrt(2*Math.PI));}
+function invN(p){var q=p>0.5?1-p:p,k=MS.qinv(q);return p>0.5?k:-k;}
+function niceStep(span,target){var raw=span/target,p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),f=raw/p;return (f<1.5?1:f<3.5?2:f<7.5?5:10)*p;}
+function axisX(x,X,lo,hi,y,H,col){var st=niceStep(hi-lo,7),v=Math.ceil(lo/st)*st;x.fillStyle=col;x.font='11px sans-serif';x.textAlign='center';for(;v<=hi+1e-9;v+=st){x.fillText(String(+v.toFixed(6)),X(v),y);}}
+function vline(x,X,v,top,bot,col,dash,w){if(!isFinite(v))return;x.save();x.strokeStyle=col;x.lineWidth=w||1.6;x.setLineDash(dash||[]);x.beginPath();x.moveTo(X(v),top);x.lineTo(X(v),bot);x.stroke();x.restore();}
+function hline(x,Y,v,l,r,col,dash,w){if(!isFinite(v))return;x.save();x.strokeStyle=col;x.lineWidth=w||1.6;x.setLineDash(dash||[]);x.beginPath();x.moveTo(l,Y(v));x.lineTo(r,Y(v));x.stroke();x.restore();}
+function count(a,lim){var n=0;for(var i=0;i<a.length;i++)if(a[i]>lim)n++;return n;}
+
+/* ---- 1절: 표 1 ---- */
+(function(){
+  var A=BASE.A,B=BASE.B,C=BASE.C;
+  var h='<tr><th>특징</th><th>기준 구간</th><th>평균 + 3σ 한계</th><th>정상 5000장에서 잰 헛알람률</th><th>약속값(0.135%)의 몇 배</th><th>무엇이 어긋났나</th></tr>';
+  h+='<tr><td class="rowh">A 압력 스파이크 최고값</td><td>'+A.ref.length+'장</td><td>'+fmt(A.limits.naive,3)+'</td><td class="hit">'+fmtP(A.rates.naive)+'</td><td class="hit">'+times(A.rates.naive)+'</td><td>'+(A.rates.naive>2*NOM?'너무 많이 걸립니다':'약속값 근처')+'</td></tr>';
+  h+='<tr><td class="rowh">B 챔버 온도 평균</td><td>연속 '+B.ref.length+'장</td><td>'+fmt(B.limits.naive,3)+'</td><td class="hit">'+fmtP(B.rates.naive)+'</td><td class="hit">'+times(B.rates.naive)+'</td><td>'+(B.rates.naive>2*NOM?'너무 많이 걸립니다':'약속값 근처')+'</td></tr>';
+  h+='<tr><td class="rowh">C 증착률 산포</td><td>'+C.ref.length+'장 (오염 '+C.n_bad+'장 섞임)</td><td>'+fmt(C.limits.naive,3)+'</td><td>'+fmtP(C.rates.naive)+'</td><td>'+times(C.rates.naive)+'</td><td class="hit">진짜 이상 20장 중 '+C.missed.naive+'장을 놓칩니다</td></tr>';
+  $('tab1').innerHTML=h;
+  setT('m_phi3',fmt(1-NOM,5));setT('m_a3',fmt(NOM,5));
+  setT('m_ne',fmt(BP.ref_len*(1-BP.phi)/(1+BP.phi),2));setT('neTxt',fmt(BP.ref_len*(1-BP.phi)/(1+BP.phi),1));
+})();
+
+/* ---- 3절: A ---- */
+var sa={s:BP.s,n0:BP.n0};
+function drawAh(S){
+  var c=setup($('cvAh'),270),x=c.x,W=c.w,H=c.h,ink=css('--ink'),soft=css('--soft'),acc=css('--accent'),rule=css('--rule'),bad=css('--bad'),c10=css('--c10');
+  x.clearRect(0,0,W,H);
+  var ref=S.ref,n=ref.length,lims=[S.limits.naive,S.limits.quantile,S.limits.boxcox].filter(function(v){return isFinite(v);});
+  var rmax=Math.max.apply(null,ref),xr=Math.min(60,Math.max(4,rmax*1.05,Math.max.apply(null,lims)*1.08)),xl=Math.min(0,S.mean-3.3*S.sd);
+  var pl=10,pr=10,pt=48,pb=26,pw=W-pl-pr,ph=H-pt-pb;
+  function X(v){return pl+(v-xl)/(xr-xl)*pw;}
+  var nb=36,bw=xr/nb,cnt=[],i,b;for(b=0;b<nb;b++)cnt.push(0);
+  for(i=0;i<n;i++){b=Math.min(nb-1,Math.floor(ref[i]/bw));cnt[b]++;}
+  var dens=cnt.map(function(q){return q/(n*bw);}),dmax=Math.max(Math.max.apply(null,dens),pdfN(S.mean,S.mean,S.sd))*1.12;
+  function Y(d){return pt+ph-d/dmax*ph;}
+  x.fillStyle=acc;x.globalAlpha=.35;for(b=0;b<nb;b++)x.fillRect(X(b*bw),Y(dens[b]),X(bw)-X(0)-1,Y(0)-Y(dens[b]));x.globalAlpha=1;
+  x.strokeStyle=ink;x.lineWidth=1.6;x.beginPath();var first=true;
+  for(i=0;i<=200;i++){var v=xl+(xr-xl)*i/200,px=X(v),py=Y(pdfN(v,S.mean,S.sd));if(first){x.moveTo(px,py);first=false;}else x.lineTo(px,py);}x.stroke();
+  x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(pl,Y(0));x.lineTo(W-pr,Y(0));x.stroke();
+  if(xl<0){vline(x,X,0,pt,Y(0),soft,[3,3],1);}
+  axisX(x,X,Math.ceil(xl),xr,H-9,H,soft);
+  var items=[[S.limits.naive,bad,'평균 + 3σ'],[S.limits.quantile,acc,'분위수'],[S.limits.boxcox,c10,'Box-Cox']];
+  items.forEach(function(it,k){vline(x,X,it[0],pt,Y(0),it[1],[],2);});
+  x.font='bold 11px sans-serif';
+  items.forEach(function(it,k){if(!isFinite(it[0]))return;var tx=X(it[0]),ty=12+k*14,t=it[2]+' '+fmt(it[0],2);x.fillStyle=it[1];x.textAlign=tx>W-90?'right':'left';x.fillText(t,tx+(tx>W-90?-4:4),ty);});
+  x.textAlign='left';
+}
+function drawAq(S){
+  var c=setup($('cvAq'),270),x=c.x,W=c.w,H=c.h,soft=css('--soft'),acc=css('--accent'),rule=css('--rule'),bad=css('--bad'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  var srt=S.ref.slice().sort(function(a,b){return a-b;}),n=srt.length,step=Math.max(1,Math.floor(n/300)),pts=[],i;
+  for(i=0;i<n;i+=step)pts.push([invN((i+0.5)/n),(srt[i]-S.mean)/S.sd]);
+  pts.push([invN((n-0.5)/n),(srt[n-1]-S.mean)/S.sd]);
+  var ymax=Math.max(4,Math.max.apply(null,pts.map(function(p){return p[1];}))*1.05),ymin=-3.6,xl=-3.6,xr=3.6;
+  var pl=34,pr=10,pt=12,pb=40,pw=W-pl-pr,ph=H-pt-pb;
+  function X(v){return pl+(v-xl)/(xr-xl)*pw;}function Y(v){return pt+ph-(v-ymin)/(ymax-ymin)*ph;}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,pt+.5,pw-1,ph-1);
+  hline(x,Y,3,pl,W-pr,bad,[5,4],1.4);
+  x.strokeStyle=soft;x.lineWidth=1.2;x.beginPath();x.moveTo(X(xl),Y(xl));x.lineTo(X(xr),Y(xr));x.stroke();
+  x.fillStyle=acc;pts.forEach(function(p){x.beginPath();x.arc(X(p[0]),Y(p[1]),2.2,0,6.283);x.fill();});
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='center';
+  [-3,-2,-1,0,1,2,3].forEach(function(v){x.fillText(String(v),X(v),H-pt+0-12+4);});
+  x.fillText('정규분포라면 그 순위에 와야 할 값 (표준편차 단위)',pl+pw/2,H-4);
+  x.textAlign='right';[-3,0,3,6].forEach(function(v){if(v<ymax)x.fillText(String(v),pl-4,Y(v)+4);});
+  x.fillStyle=bad;x.textAlign='left';x.fillText('평균 + 3σ',pl+6,Y(3)-4);
+  x.textAlign='left';
+}
+function updA(){
+  var S=MS.scenario('S7',{only:'A',s:sa.s,n0:sa.n0}).A,r=S.rep;
+  $('sAo').textContent=fmt(sa.s,2);$('nAo').textContent=sa.n0+'장';
+  var h='<tr><th>항목</th><th>평균 + 3σ</th><th>분위수 한계</th><th>Box-Cox 한계</th></tr>';
+  h+='<tr><td class="rowh">선의 위치</td><td>'+fmt(S.limits.naive,3)+'</td><td>'+fmt(S.limits.quantile,3)+'</td><td>'+fmt(S.limits.boxcox,3)+'</td></tr>';
+  h+='<tr><td class="rowh">정상 5000장에서 잰 헛알람률</td><td class="hit">'+fmtP(S.rates.naive)+'</td><td>'+fmtP(S.rates.quantile)+'</td><td>'+fmtP(S.rates.boxcox)+'</td></tr>';
+  h+='<tr><td class="rowh">약속값(0.135%)의 몇 배</td><td>'+times(S.rates.naive)+'</td><td>'+times(S.rates.quantile)+'</td><td>'+times(S.rates.boxcox)+'</td></tr>';
+  h+='<tr><td class="rowh">기준을 '+r.n+'번 새로 뽑았을 때 선의 범위 (10~90%)</td><td>—</td><td>'+fmt(r.q_limit.p10,2)+' ~ '+fmt(r.q_limit.p90,2)+'</td><td>—</td></tr>';
+  h+='<tr><td class="rowh">같은 '+r.n+'번의 헛알람률 범위 (10~90%)</td><td>'+fmt(r.naive_rate.p10,4)+' ~ '+fmt(r.naive_rate.p90,4)+'</td><td>'+fmt(r.q_rate.p10,4)+' ~ '+fmt(r.q_rate.p90,4)+'</td><td>—</td></tr>';
+  $('tabA').innerHTML=h;
+  var st=$('stA'),base=Math.abs(sa.s-BP.s)<1e-9&&sa.n0===BP.n0;
+  if(base){st.className='state';st.textContent='지금 이 값이 기준 설정입니다. 표 1의 A와 같은 수입니다. 치우침 '+fmt(BP.s,2)+', 기준 '+BP.n0+'장.';}
+  else{st.className='state moved';st.textContent='지금은 기준 설정에서 옮겨 놓은 가정입니다. 치우침 '+fmt(BP.s,2)+' → '+fmt(sa.s,2)+', 기준 '+BP.n0+' → '+sa.n0+'장.';}
+  $('conclA').innerHTML='<b>치우친 정도 <i>g</i> = '+fmt(S.skew,2)+'</b>(진단 기준 0.5, 이 설정의 이론값 '+fmt(S.theory.skew,2)+'), <b>λ̂ = '+fmt(S.lam,3)+'</b>(로그정규의 이론값 0). 평균 + 3σ 선은 약속값의 <b>'+times(S.rates.naive)+'</b>로 걸리고(모집단 값으로 그은 선의 이론값 '+fmtP(S.theory.naive_rate)+'), 분위수 한계는 <b>'+times(S.rates.quantile)+'</b>, Box-Cox 한계는 <b>'+times(S.rates.boxcox)+'</b>입니다.';
+  drawAh(S);drawAq(S);
+}
+$('sA').addEventListener('input',function(){sa.s=+this.value;updA();});
+$('nA').addEventListener('input',function(){sa.n0=+this.value;updA();});
+$('rA').addEventListener('click',function(){sa={s:BP.s,n0:BP.n0};$('sA').value=String(BP.s);$('nA').value=String(BP.n0);updA();});
+
+/* ---- 4절: B ---- */
+var sb={phi:BP.phi,L:BP.ref_len};
+function drawB1(S){
+  var c=setup($('cvB1'),230),x=c.x,W=c.w,H=c.h,soft=css('--soft'),acc=css('--accent'),rule=css('--rule'),bad=css('--bad'),grey=css('--grey'),tint=css('--tint');
+  x.clearRect(0,0,W,H);
+  var seq=S.ref.concat(S.post.slice(0,200)),L=S.ref.length,n=seq.length;
+  var lo=Math.min(Math.min.apply(null,seq),-1)-0.4,hi=Math.max(Math.max.apply(null,seq),S.limits.naive)+0.4;
+  var pl=34,pr=10,pt=10,pb=34,pw=W-pl-pr,ph=H-pt-pb;
+  function X(i){return pl+i/(n-1)*pw;}function Y(v){return pt+ph-(v-lo)/(hi-lo)*ph;}
+  x.fillStyle=tint;x.fillRect(X(0),pt,X(L-1)-X(0),ph);
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,pt+.5,pw-1,ph-1);
+  hline(x,Y,0,pl,W-pr,grey,[5,4],1.4);hline(x,Y,S.mean,pl,W-pr,acc,[2,3],1.6);hline(x,Y,S.limits.naive,pl,W-pr,bad,[],2);
+  x.strokeStyle=soft;x.lineWidth=1.2;x.beginPath();seq.forEach(function(v,i){if(i)x.lineTo(X(i),Y(v));else x.moveTo(X(i),Y(v));});x.stroke();
+  seq.forEach(function(v,i){if(v>S.limits.naive){x.fillStyle=bad;x.beginPath();x.arc(X(i),Y(v),3.2,0,6.283);x.fill();}});
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='right';
+  var st=niceStep(hi-lo,5),v=Math.ceil(lo/st)*st;for(;v<=hi;v+=st)x.fillText(String(+v.toFixed(4)),pl-4,Y(v)+4);
+  x.textAlign='center';x.fillText('유리 순서 (왼쪽부터)',pl+pw/2,H-6);x.textAlign='left';
+}
+function drawB2(S){
+  var c=setup($('cvB2'),300),x=c.x,W=c.w,H=c.h,soft=css('--soft'),acc=css('--accent'),rule=css('--rule'),bad=css('--bad'),good=css('--good'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  var st=S.step,n=st.length,r=T.resid(st,S.fit),fa=S.first_alarm;
+  var pl=34,pr=10,pw=W-pl-pr,gap=22,ph1=(H-40-gap)/2,t1=8,t2=t1+ph1+gap;
+  function X(i){return pl+i/(n-1)*pw;}
+  var lo1=Math.min.apply(null,st.concat([S.limits.naive]))-0.4,hi1=Math.max.apply(null,st.concat([S.limits.naive]))+0.4;
+  var lim2=S.limits.resid,lo2=Math.min(Math.min.apply(null,r),-lim2)-0.2,hi2=Math.max(Math.max.apply(null,r),lim2)+0.2;
+  function Y1(v){return t1+ph1-(v-lo1)/(hi1-lo1)*ph1;}function Y2(v){return t2+ph1-(v-lo2)/(hi2-lo2)*ph1;}
+  [[t1],[t2]].forEach(function(a){x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,a[0]+.5,pw-1,ph1-1);});
+  hline(x,Y1,S.limits.naive,pl,W-pr,bad,[],2);hline(x,Y2,lim2,pl,W-pr,good,[],2);hline(x,Y2,0,pl,W-pr,rule,[2,3],1);
+  [t1,t2].forEach(function(t){x.save();x.strokeStyle=ink;x.setLineDash([4,4]);x.lineWidth=1;x.beginPath();x.moveTo(X(STEPAT),t);x.lineTo(X(STEPAT),t+ph1);x.stroke();x.restore();});
+  x.strokeStyle=soft;x.lineWidth=1.2;x.beginPath();st.forEach(function(v,i){if(i)x.lineTo(X(i),Y1(v));else x.moveTo(X(i),Y1(v));});x.stroke();
+  x.beginPath();r.forEach(function(v,i){if(i)x.lineTo(X(i+1),Y2(v));else x.moveTo(X(i+1),Y2(v));});x.stroke();
+  st.forEach(function(v,i){if(v>S.limits.naive){x.fillStyle=bad;x.beginPath();x.arc(X(i),Y1(v),i===(fa.naive==null?-1:STEPAT+fa.naive-1)?6:2.8,0,6.283);x.fill();}});
+  r.forEach(function(v,i){if(v>lim2){x.fillStyle=bad;x.beginPath();x.arc(X(i+1),Y2(v),i+1===(fa.resid==null?-1:STEPAT+fa.resid-1)?6:2.8,0,6.283);x.fill();}});
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='right';
+  [[lo1,hi1,Y1],[lo2,hi2,Y2]].forEach(function(a){var s2=niceStep(a[1]-a[0],4),v=Math.ceil(a[0]/s2)*s2;for(;v<=a[1];v+=s2)x.fillText(String(+v.toFixed(4)),pl-4,a[2](v)+4);});
+  x.textAlign='center';x.fillText('계단 변화 구간의 유리 순서',pl+pw/2,H-6);x.textAlign='left';
+  x.fillText('변화 시작',Math.min(X(STEPAT)+4,W-pr-60),t1+12);
+}
+function updB(){
+  var S=MS.scenario('S7',{only:'B',phi:sb.phi,ref_len:sb.L}).B,r=S.rep,fa=S.first_alarm,ne=S.n_eff;
+  $('pBo').textContent=fmt(sb.phi,2);$('lBo').textContent=sb.L+'장';
+  var h='<tr><th>항목</th><th>평균 + 3σ (원값)</th><th>잔차 관리도</th></tr>';
+  h+='<tr><td class="rowh">기준 구간에서 잰 지연 1 자기상관 / φ̂</td><td>'+fmt(S.lag1,3)+'</td><td>φ̂ = '+fmt(S.fit.phi,3)+'</td></tr>';
+  h+='<tr><td class="rowh">실효 표본 수 (참 φ 기준 / 잰 자기상관 기준)</td><td colspan="2">'+fmt(ne.true_phi,2)+'장 / '+fmt(ne.lag1,2)+'장 (기준 '+sb.L+'장 중)</td></tr>';
+  h+='<tr><td class="rowh">정상 5000장에서 잰 헛알람률</td><td class="hit">'+fmtP(S.rates.naive)+'</td><td>'+fmtP(S.rates.resid)+'</td></tr>';
+  h+='<tr><td class="rowh">약속값(0.135%)의 몇 배</td><td>'+times(S.rates.naive)+'</td><td>'+times(S.rates.resid)+'</td></tr>';
+  h+='<tr><td class="rowh">기준 구간을 '+r.n+'번 바꿔 뽑았을 때 헛알람률: 중앙값 / 평균 / 90%째</td><td>'+fmt(r.naive_rate.med,4)+' / '+fmt(r.naive_rate.mean,4)+' / '+fmt(r.naive_rate.p90,4)+'</td><td>'+fmt(r.resid_rate.med,4)+' / '+fmt(r.resid_rate.mean,4)+' / '+fmt(r.resid_rate.p90,4)+'</td></tr>';
+  h+='<tr><td class="rowh">계단 변화(+2σ) 뒤 첫 알람</td><td>'+(fa.naive==null?'150장 안에 없음':fa.naive+'번째 유리')+'</td><td>'+(fa.resid==null?'150장 안에 없음':fa.resid+'번째 유리')+'</td></tr>';
+  h+='<tr><td class="rowh">변화 전 75장 중 헛알람</td><td>'+S.false_before.naive+'건</td><td>'+S.false_before.resid+'건</td></tr>';
+  $('tabB').innerHTML=h;
+  var st=$('stB'),base=Math.abs(sb.phi-BP.phi)<1e-9&&sb.L===BP.ref_len;
+  if(base){st.className='state';st.textContent='지금 이 값이 기준 설정입니다. 표 1의 B와 같은 수입니다. 닮은 정도 '+fmt(BP.phi,2)+', 기준 구간 '+BP.ref_len+'장.';}
+  else{st.className='state moved';st.textContent='지금은 기준 설정에서 옮겨 놓은 가정입니다. 닮은 정도 '+fmt(BP.phi,2)+' → '+fmt(sb.phi,2)+', 기준 구간 '+BP.ref_len+' → '+sb.L+'장.';}
+  $('conclB').innerHTML='기준 <b>'+sb.L+'장</b>은 이웃이 닮아 사실상 <b>'+fmt(ne.true_phi,1)+'장</b>의 정보입니다. 평균 + 3σ 선은 약속값의 <b>'+times(S.rates.naive)+'</b>로 걸리고, 잔차 관리도는 <b>'+times(S.rates.resid)+'</b>입니다. 같은 과정에서 기준 구간을 '+r.n+'번 바꿔 뽑으면 원값의 선은 헛알람률이 <b>'+fmt(r.naive_rate.min,3)+' ~ '+fmt(r.naive_rate.max,3)+'</b>(중앙값 '+fmt(r.naive_rate.med,4)+', 약속값의 '+times(r.naive_rate.med)+')로, 잔차 관리도는 <b>'+fmt(r.resid_rate.min,3)+' ~ '+fmt(r.resid_rate.max,3)+'</b>로 흔들립니다. 한 번 뽑은 기준이 낮게 나왔다고 안심할 수 없고, 높게 나왔다고 그것이 늘 그렇다는 뜻도 아닙니다.';
+  drawB1(S);drawB2(S);
+}
+$('pB').addEventListener('input',function(){sb.phi=+this.value;updB();});
+$('lB').addEventListener('input',function(){sb.L=+this.value;updB();});
+$('rB').addEventListener('click',function(){sb={phi:BP.phi,L:BP.ref_len};$('pB').value=String(BP.phi);$('lB').value=String(BP.ref_len);updB();});
+
+/* ---- 5절: C ---- */
+var sc={p:Math.round(BP.contam_p*100),z:BP.contam_size};
+function drawC1(S){
+  var c=setup($('cvC1'),270),x=c.x,W=c.w,H=c.h,soft=css('--soft'),acc=css('--accent'),rule=css('--rule'),bad=css('--bad'),good=css('--good'),c9=css('--c9'),c10=css('--c10');
+  x.clearRect(0,0,W,H);
+  var ref=S.ref,n=ref.length,L=S.limits;
+  var lo=Math.min(Math.min.apply(null,ref),-3)-0.3,hi=Math.max(Math.max.apply(null,ref),L.naive,L.robust,L.clean)+0.4;
+  var pl=30,pr=10,pt=10,pb=34,pw=W-pl-pr,ph=H-pt-pb;
+  function X(i){return pl+(i+0.5)/n*pw;}function Y(v){return pt+ph-(v-lo)/(hi-lo)*ph;}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,pt+.5,pw-1,ph-1);
+  hline(x,Y,L.naive,pl,W-pr,bad,[],2);hline(x,Y,L.robust,pl,W-pr,good,[],2);hline(x,Y,L.clean,pl,W-pr,c10,[6,3],1.6);
+  for(var i=0;i<n;i++){x.fillStyle=S.bad[i]?c9:acc;x.beginPath();x.arc(X(i),Y(ref[i]),S.bad[i]?3.2:2,0,6.283);x.fill();}
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='right';
+  var st=niceStep(hi-lo,5),v=Math.ceil(lo/st)*st;for(;v<=hi;v+=st)x.fillText(String(+v.toFixed(4)),pl-4,Y(v)+4);
+  x.textAlign='center';x.fillText('기준 구간의 유리 순서',pl+pw/2,H-6);x.textAlign='left';
+}
+function drawC2(S){
+  var c=setup($('cvC2'),270),x=c.x,W=c.w,H=c.h,soft=css('--soft'),acc=css('--accent'),rule=css('--rule'),bad=css('--bad'),good=css('--good'),c9=css('--c9'),c10=css('--c10');
+  x.clearRect(0,0,W,H);
+  var L=S.limits,xl=-4,xr=Math.max(10,Math.min(14,Math.max(L.naive,L.robust,L.clean)+2));
+  var pl=10,pr=10,pt=12,pb=26,pw=W-pl-pr,ph=H-pt-pb;
+  function X(v){return pl+(v-xl)/(xr-xl)*pw;}function Y(d){return pt+ph-d/0.45*ph;}
+  [[0,acc],[BP.shift_c,c9]].forEach(function(a){x.strokeStyle=a[1];x.lineWidth=2;x.beginPath();for(var i=0;i<=240;i++){var v=xl+(xr-xl)*i/240;if(i)x.lineTo(X(v),Y(pdfN(v,a[0],1)));else x.moveTo(X(v),Y(pdfN(v,a[0],1)));}x.stroke();});
+  x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(pl,Y(0));x.lineTo(W-pr,Y(0));x.stroke();
+  vline(x,X,L.naive,pt,Y(0),bad,[],2);vline(x,X,L.robust,pt,Y(0),good,[],2);vline(x,X,L.clean,pt,Y(0),c10,[6,3],1.6);
+  axisX(x,X,Math.ceil(xl),xr,H-8,H,soft);
+}
+function updC(){
+  var S=MS.scenario('S7',{only:'C',contam_p:sc.p/100,contam_size:sc.z}).C,Lm=S.limits,fa=S.false_alarms,mi=S.missed;
+  $('pCo').textContent=sc.p+'% ('+S.n_bad+'장)';$('zCo').textContent=fmt(sc.z,1)+'σ';
+  var h='<tr><th>항목</th><th>평균 + 3σ (오염된 기준)</th><th>로버스트 (중앙값 + 3×1.4826×MAD)</th><th>평균 + 3σ (오염을 뺀 기준)</th></tr>';
+  h+='<tr><td class="rowh">선의 위치</td><td>'+fmt(Lm.naive,3)+'</td><td>'+fmt(Lm.robust,3)+'</td><td>'+fmt(Lm.clean,3)+'</td></tr>';
+  h+='<tr><td class="rowh">정상 5000장 중 헛알람</td><td>'+fa.naive+'장 ('+fmt(fa.naive/NP,4)+')</td><td>'+fa.robust+'장 ('+fmt(fa.robust/NP,4)+')</td><td>'+fa.clean+'장 ('+fmt(fa.clean/NP,4)+')</td></tr>';
+  h+='<tr><td class="rowh">진짜 이상 20장 중 놓친 수</td><td class="hit">'+mi.naive+'장</td><td><b>'+mi.robust+'장</b></td><td>'+mi.clean+'장</td></tr>';
+  h+='<tr><td class="rowh">진단 <i>ρ</i> = <i>s</i> ÷ (1.4826×MAD) / 치우친 정도 <i>g</i></td><td colspan="3">'+fmt(S.mad_ratio,3)+' (기준 1.4) / '+fmt(S.skew,2)+' (기준 0.5)</td></tr>';
+  $('tabC').innerHTML=h;
+  var st=$('stC'),base=sc.p===Math.round(BP.contam_p*100)&&Math.abs(sc.z-BP.contam_size)<1e-9;
+  if(base){st.className='state';st.textContent='지금 이 값이 기준 설정입니다. 표 1의 C와 같은 수입니다. 오염 '+Math.round(BP.contam_p*100)+'%, 크기 '+fmt(BP.contam_size,1)+'σ.';}
+  else{st.className='state moved';st.textContent='지금은 기준 설정에서 옮겨 놓은 가정입니다. 오염 '+Math.round(BP.contam_p*100)+'% → '+sc.p+'%, 크기 '+fmt(BP.contam_size,1)+' → '+fmt(sc.z,1)+'σ.';}
+  $('conclC').innerHTML='기준 300장 중 <b>'+S.n_bad+'장</b>이 오염되어 있습니다. 진단 <i>ρ</i> = <b>'+fmt(S.mad_ratio,2)+'</b>('+(S.mad_ratio>RATL?'기준 1.4를 넘어 오염 의심':'기준 1.4 아래라 진단에는 잡히지 않음')+'). 평균 + 3σ 선은 <b>'+fmt(Lm.naive,2)+'</b>까지 올라가 진짜 이상을 <b>'+mi.naive+'장</b> 놓치고, 로버스트 선은 <b>'+fmt(Lm.robust,2)+'</b>에서 <b>'+mi.robust+'장</b>을 놓칩니다.';
+  drawC1(S);drawC2(S);
+}
+$('pC').addEventListener('input',function(){sc.p=+this.value;updC();});
+$('zC').addEventListener('input',function(){sc.z=+this.value;updC();});
+$('rC').addEventListener('click',function(){sc={p:Math.round(BP.contam_p*100),z:BP.contam_size};$('pC').value=String(sc.p);$('zC').value=String(sc.z);updC();});
+
+/* ---- 6절: 표 2와 직접 진단 ---- */
+function flagCls(v,lim,abs){return (abs?Math.abs(v):v)>lim?' class="hit"':'';}
+(function(){
+  var h='<tr><th>특징</th><th>치우친 정도 <i>g</i><br>(정규성)</th><th>지연 1 자기상관<br>(독립성)</th><th><i>ρ</i> = <i>s</i> ÷ (1.4826×MAD)<br>(깨끗한 기준)</th><th>깨진 가정</th><th>권장 처방</th></tr>';
+  [['A 압력 스파이크 최고값',DA],['B 챔버 온도 평균',DB],['C 증착률 산포',DC]].forEach(function(a){
+    var d=a[1];
+    h+='<tr><td class="rowh">'+a[0]+'</td><td'+flagCls(d.skew,SKL,true).replace('class="hit"','class="hit"')+'>'+fmt(d.skew,3)+'</td><td'+flagCls(d.lag1,LAGL,false)+'>'+fmt(d.lag1,3)+'</td><td'+flagCls(d.ratio,RATL,false)+'>'+fmt(d.ratio,3)+'</td><td>'+(d.broken.join(', ')||'없음')+'</td><td>'+d.fix+'</td></tr>';
+  });
+  $('tab2').innerHTML=h;
+})();
+var FILL={A:BASE.A.ref,B:BASE.B.ref,C:BASE.C.ref};
+Array.prototype.forEach.call(document.querySelectorAll('[data-fill]'),function(b){b.addEventListener('click',function(){$('pasteBox').value=FILL[this.getAttribute('data-fill')].map(function(v){return v.toFixed(4);}).join(', ');$('diagOut').textContent='값을 넣었습니다. [진단하기]를 누르십시오.';});});
+$('diagBtn').addEventListener('click',function(){
+  var raw=$('pasteBox').value.split(/[\s,;]+/).filter(function(s){return s.length;}),v=raw.map(Number),o=$('diagOut');
+  if(raw.length<10||v.some(function(a){return !isFinite(a);})){o.innerHTML='숫자 10개 이상을 쉼표나 줄바꿈으로 구분해 넣어 주십시오. 숫자가 아닌 글자가 섞이면 진단하지 않습니다.';return;}
+  var sd=ST.sd(v);if(!(sd>0)){o.innerHTML='모든 값이 같아 진단할 수 없습니다.';return;}
+  var mad=T.madOf(v);if(!(mad>0)){o.innerHTML='MAD가 0이라 로버스트 비를 구할 수 없습니다. 값이 몇 종류뿐인지 확인하십시오.';return;}
+  var d=diag(v);
+  o.innerHTML='값 <b>'+v.length+'</b>개 · 치우친 정도 <b>'+fmt(d.skew,3)+'</b> · 지연 1 자기상관 <b>'+fmt(d.lag1,3)+'</b> · <i>ρ</i> <b>'+fmt(d.ratio,3)+'</b><br>깨진 가정: <b>'+(d.broken.join(', ')||'없음')+'</b> → 권장 처방: <b>'+d.fix+'</b>';
+});
+
+/* ---- 7절: 성과 환산 ---- */
+var DEF={g:200,f:590,s:10,t:15,a:2},sd7={g:200,f:590,s:10,t:15,a:2};
+function updD(){
+  $('gDo').textContent=sd7.g+'장';$('fDo').textContent=sd7.f+'개';$('sDo').textContent=sd7.s+'%';$('tDo').textContent=sd7.t+'분';$('aDo').textContent=sd7.a+'장';
+  var A=BASE.A,B=BASE.B,C=BASE.C,nf=sd7.f*sd7.s/100,per=sd7.g*nf;
+  var a0=per*A.rates.naive,a1=per*A.rates.boxcox,b0=per*B.rates.naive,b1=per*B.rates.resid,c0=per*C.rates.naive,c1=per*C.rates.robust;
+  var red=(a0-a1)+(b0-b1)+(c0-c1),hrs=red*sd7.t/60,rec=sd7.a*(C.missed.naive-C.missed.robust)/BP.n_anom_c;
+  var h='<tr><th>유형 (각 '+fmt(nf,0)+'개 특징)</th><th>현장 방식: 하루 가성 알람</th><th>처방 뒤</th><th>차이</th></tr>';
+  function row(nm,x0,x1,rem){var d=x0-x1;return '<tr><td class="rowh">'+nm+'<br><span class="note">'+rem+'</span></td><td>'+fmt(x0,1)+'건</td><td>'+fmt(x1,1)+'건</td><td><b>'+(d>=0?fmt(d,1)+'건 감소':fmt(-d,1)+'건 증가')+'</b></td></tr>';}
+  h+=row('A 압력 스파이크',a0,a1,'Box-Cox 한계');h+=row('B 챔버 온도',b0,b1,'잔차 관리도');h+=row('C 증착률 산포',c0,c1,'로버스트 한계');
+  h+='<tr><td class="rowh">합계</td><td>'+fmt(a0+b0+c0,1)+'건</td><td>'+fmt(a1+b1+c1,1)+'건</td><td><b>'+fmt(red,1)+'건 감소</b></td></tr>';
+  h+='<tr><td class="rowh">하루 확인 시간 (건당 '+sd7.t+'분)</td><td>'+fmt((a0+b0+c0)*sd7.t/60,1)+'시간</td><td>'+fmt((a1+b1+c1)*sd7.t/60,1)+'시간</td><td><b>'+fmt(hrs,1)+'시간 감소</b></td></tr>';
+  h+='<tr><td class="rowh">C형: 이상 20장 중 놓친 수 / 하루 회수되는 이상 유리</td><td>'+C.missed.naive+'장</td><td>'+C.missed.robust+'장</td><td><b>하루 약 '+fmt(rec,2)+'장 회수</b></td></tr>';
+  $('tabD').innerHTML=h;
+  var s=$('stD'),base=sd7.g===DEF.g&&sd7.f===DEF.f&&sd7.s===DEF.s&&sd7.t===DEF.t&&sd7.a===DEF.a;
+  if(base){s.className='state';s.textContent='지금 이 값이 기본 설정입니다. 하루 200장, 특징 590개, 유형별 10%, 건당 15분, C형 이상 2장.';}
+  else s.className='state moved',s.textContent='지금은 현장 숫자를 옮겨 놓은 가정입니다.';
+  $('conclD').innerHTML='<b>해석.</b> 세 유형에 처방하면 하루 가성 알람이 <b>'+fmt(red,1)+'건</b>(확인 시간 <b>'+fmt(hrs,1)+'시간</b>) 줄고, C형에서는 놓치던 이상 유리를 <b>하루 약 '+fmt(rec,2)+'장</b> 되찾습니다. C형은 헛알람이 약간 늘어나는 대신 놓침이 줄어드는 거래입니다. 한쪽만 보고 선을 바꾸지 마십시오.';
+}
+[['gD','g'],['fD','f'],['sD','s'],['tD','t'],['aD','a']].forEach(function(a){$(a[0]).addEventListener('input',function(){sd7[a[1]]=+this.value;updD();});});
+$('rD').addEventListener('click',function(){sd7={g:200,f:590,s:10,t:15,a:2};[['gD','g'],['fD','f'],['sD','s'],['tD','t'],['aD','a']].forEach(function(a){$(a[0]).value=String(DEF[a[1]]);});updD();});
+
+/* ---- 8절: 표 3과 착지 ---- */
+(function(){
+  var A=BASE.A,B=BASE.B,C=BASE.C;
+  var h='<tr><th>특징</th><th>깨진 가정</th><th>현장 방식 헛알람률</th><th>처방</th><th>처방 뒤 헛알람률</th><th>약속값의 몇 배</th><th>놓침</th></tr>';
+  h+='<tr><td class="rowh">A 압력 스파이크</td><td>정규성</td><td>'+fmtP(A.rates.naive)+' ('+times(A.rates.naive)+')</td><td>Box-Cox 한계<br><span class="note">분위수: '+fmtP(A.rates.quantile)+'</span></td><td><b>'+fmtP(A.rates.boxcox)+'</b></td><td>'+times(A.rates.boxcox)+'</td><td>—</td></tr>';
+  h+='<tr><td class="rowh">B 챔버 온도</td><td>독립성</td><td>'+fmtP(B.rates.naive)+' ('+times(B.rates.naive)+')</td><td>잔차 관리도</td><td><b>'+fmtP(B.rates.resid)+'</b></td><td>'+times(B.rates.resid)+'</td><td>계단 변화 첫 알람 '+B.first_alarm.resid+'번째</td></tr>';
+  h+='<tr><td class="rowh">C 증착률 산포</td><td>깨끗한 기준</td><td>'+fmtP(C.rates.naive)+' ('+times(C.rates.naive)+')</td><td>로버스트 한계</td><td><b>'+fmtP(C.rates.robust)+'</b></td><td>'+times(C.rates.robust)+'</td><td>이상 20장 중 '+C.missed.naive+'장 → '+C.missed.robust+'장</td></tr>';
+  $('tab3').innerHTML=h;
+  $('landing').innerHTML='<b>약속값 0.135%에 가까워졌습니다.</b> 헛알람률이 A는 약속값의 '+times(A.rates.naive)+'에서 '+times(A.rates.boxcox)+'로, B는 '+times(B.rates.naive)+'에서 '+times(B.rates.resid)+'로 내려왔고, C는 이상을 놓치는 수가 20장 중 '+C.missed.naive+'장에서 '+C.missed.robust+'장으로 줄었습니다. 1절의 물음 &ldquo;약속은 왜 깨졌습니까?&rdquo;의 답은 이 표의 두 번째 열입니다. 정규성·독립성·깨끗한 기준 가운데 깨진 가정이 있었고, 가정마다 처방이 달랐습니다.';
+})();
+
+/* ---- 9절: Python 출력 예시와 CSV ---- */
+(function(){
+  var o=[],A=BASE.A,B=BASE.B,C=BASE.C;
+  o.push('명목 헛알람률(위쪽 한계 하나) = '+fmt(NOM,5));
+  function head(name,ref,post,d){o.push('');o.push('['+name+'] 기준 '+ref.length+'장 · 이후 '+post.length+'장');o.push('진단 왜도 '+fmt(d.skew,3)+' · lag1 '+fmt(d.lag1,3)+' · SD/(1.4826·MAD) '+fmt(d.ratio,3));o.push('깨진 가정: '+(d.broken.join(', ')||'없음')+' → '+d.fix);}
+  function naiveLine(S){o.push('평균+3σ 한계 '+fmt(S.limits.naive,3)+' → 헛알람률 '+fmt(S.rates.naive,5)+' ('+fmt(S.rates.naive/NOM,1)+'배)');}
+  head('A 압력 스파이크 최고값',A.ref,A.post,DA);naiveLine(A);
+  o.push('분위수 한계 '+fmt(A.limits.quantile,3)+' → '+fmt(A.rates.quantile,5)+' · Box-Cox(λ̂='+fmt(A.lam,4)+') 한계 '+fmt(A.limits.boxcox,3)+' → '+fmt(A.rates.boxcox,5));
+  head('B 챔버 온도 평균',B.ref,B.post,DB);naiveLine(B);
+  o.push('잔차 관리도 φ̂ '+fmt(B.fit.phi,4)+' · 잔차 sd '+fmt(B.fit.sdr,4)+' → 헛알람률 '+fmt(B.rates.resid,5));
+  o.push('계단 변화 후 첫 알람: 원값 '+B.first_alarm.naive+'번째 · 잔차 '+B.first_alarm.resid+'번째');
+  head('C 증착률 산포',C.ref,C.post,DC);naiveLine(C);
+  o.push('로버스트 한계 '+fmt(C.limits.robust,3)+' → 헛알람률 '+fmt(C.rates.robust,5));
+  o.push('이상 '+C.anom.length+'장 중 놓친 수: 평균+3σ '+C.missed.naive+'장 · 로버스트 '+C.missed.robust+'장 · 깨끗한 기준 '+C.missed.clean+'장');
+  $('pyOut').textContent=o.join('\n');
+  setT('rp_ref','A: 유리 '+A.ref.length+'장 · B: PM 직후 연속 '+B.ref.length+'장 · C: '+C.ref.length+'장(이 가상 데이터에서는 오염 '+C.n_bad+'장이 섞여 있음). 실제 보고서에는 시작~끝 시각과 구간에 포함된 PM·교체·이상 운전 이벤트를 적습니다.');
+  $('rp_diag').innerHTML='A: 치우친 정도 '+fmt(DA.skew,2)+' → <b>'+(DA.broken.join(', ')||'이상 없음')+'</b><br>B: 지연 1 자기상관 '+fmt(DB.lag1,2)+' → <b>'+(DB.broken.join(', ')||'이상 없음')+'</b><br>C: <i>ρ</i> '+fmt(DC.ratio,2)+', 치우친 정도 '+fmt(DC.skew,2)+' → <b>'+(DC.broken.join(', ')||'이상 없음')+'</b>';
+  $('rp_lim').innerHTML='A: '+fmt(A.limits.naive,2)+' → Box-Cox '+fmt(A.limits.boxcox,2)+' · B: '+fmt(B.limits.naive,2)+' → 잔차 선 '+fmt(B.limits.resid,2)+'(잔차 단위) · C: '+fmt(C.limits.naive,2)+' → 로버스트 '+fmt(C.limits.robust,2);
+  $('rp_rate').innerHTML='A: '+times(A.rates.naive)+' → '+times(A.rates.boxcox)+' · B: '+times(B.rates.naive)+' → '+times(B.rates.resid)+' · C: '+times(C.rates.naive)+' → '+times(C.rates.robust)+' (약속값 0.135%의 배수)';
+  $('rp_miss').innerHTML='C 진짜 이상 20장 중 놓친 수 '+C.missed.naive+'장 → '+C.missed.robust+'장. A·B는 이 점검에서 놓침을 따로 늘리지 않습니다(B는 계단 변화를 첫 알람 '+B.first_alarm.naive+'번째 → '+B.first_alarm.resid+'번째로 잡음).';
+  function csvText(){var rows=BASE.csvRows(),s='branch,role,idx,value,truth_flag\n';for(var i=0;i<rows.length;i++){var r=rows[i];s+=r.branch+','+r.role+','+r.idx+','+r.value+','+r.truth_flag+'\n';}return s;}
+  $('csvBtn').addEventListener('click',function(){
+    var st=$('csvState');
+    try{
+      var blob=new Blob([csvText()],{type:'text/csv'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download='s7_hidden_assumptions.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: s7_hidden_assumptions.csv ('+BASE.csvRows().length.toLocaleString('en-US')+'행, 열 branch·role·idx·value·truth_flag).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  });
+})();
+
+/* ---- 테마·상단바 ---- */
+function redraw(){updA();updB();updC();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+updA();updB();updC();updD();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

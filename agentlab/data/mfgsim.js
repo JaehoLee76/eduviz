@@ -689,14 +689,14 @@
   }
 
   /* ============================================================
-   * 6. 시나리오 S1~S6 (숨은 정답 포함)
+   * 6. 시나리오 S1~S7 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6 };   // 기본 시드(오프라인 탐색으로 확정; verify.py 가 성질을 확인)
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8 };   // 기본 시드(S7 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인)
 
   function scenario(name, params) {
     params = params || {};
     var key = String(name).toUpperCase().slice(0, 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6 }[key];
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -874,12 +874,154 @@
                       caught_3sigma: c3, caught_bonf: cB } };
   }
 
+  /* S7 hidden_assumptions — 3σ 한계의 숨은 가정 셋(정규성·독립성·깨끗한 기준 데이터).
+   * 세 갈래 모두 "위쪽 한계 하나"(명목 헛알람률 Q(3)=0.00135)로 통일한다.
+   *  A 치우침: 로그정규 ln x ~ N(0,s) · B 자기상관: AR(1) φ, 기준 = PM 직후 연속 L장 · C 오염된 기준: 5%가 +6σ 근처.
+   * 난수 줄기를 갈래·역할별로 따로 두어, 슬라이더 값만 바꿔 다시 만들어도 나머지 값은 그대로 유지된다. */
+  var K3 = 3, P3 = 0.99865, MADK = 1.4826;
+  function skewOf(x) {                         // 왜도(표본, scipy.stats.skew 기본값과 같은 편향 있는 형태)
+    var n = x.length, m = mean(x), m2 = 0, m3 = 0, i, d;
+    for (i = 0; i < n; i++) { d = x[i] - m; m2 += d * d; m3 += d * d * d; }
+    m2 /= n; m3 /= n;
+    return m2 > 0 ? m3 / Math.pow(m2, 1.5) : 0;
+  }
+  function quantileOf(x, p) {                  // numpy.quantile 기본(선형 보간)
+    var b = x.slice().sort(function (a, c) { return a - c; }), pos = (b.length - 1) * p, lo = Math.floor(pos), f = pos - lo;
+    return lo + 1 < b.length ? b[lo] + (b[lo + 1] - b[lo]) * f : b[lo];
+  }
+  function madOf(x) { var md = median(x); return median(x.map(function (v) { return Math.abs(v - md); })); }
+  function bcT(x, lam) { return x.map(function (v) { return Math.abs(lam) < 1e-9 ? Math.log(v) : (Math.pow(v, lam) - 1) / lam; }); }
+  function bcLlf(x, lam, slog) {
+    var y = bcT(x, lam), n = y.length, m = mean(y), v = 0, i;
+    for (i = 0; i < n; i++) v += (y[i] - m) * (y[i] - m);
+    return (lam - 1) * slog - n / 2 * Math.log(v / n);
+  }
+  function boxcoxLam(x) {                      // 최대우도 λ (거친 격자 → 황금분할)
+    var slog = 0, i, best = -3, bv = -Infinity, v;
+    for (i = 0; i < x.length; i++) slog += Math.log(x[i]);
+    for (var l = -3; l <= 3.0001; l += 0.1) { v = bcLlf(x, l, slog); if (v > bv) { bv = v; best = l; } }
+    var a = best - 0.1, b = best + 0.1, g = (Math.sqrt(5) - 1) / 2, c = b - g * (b - a), d = a + g * (b - a);
+    for (i = 0; i < 60; i++) { if (bcLlf(x, c, slog) > bcLlf(x, d, slog)) b = d; else a = c; c = b - g * (b - a); d = a + g * (b - a); }
+    return (a + b) / 2;
+  }
+  function boxcoxLimit(x, k) {                 // 변환 공간 평균+kσ → 역변환. 반환 {lam, limit}
+    var lam = boxcoxLam(x), y = bcT(x, lam), yl = mean(y) + k * sd(y), lim;
+    if (Math.abs(lam) < 1e-9) lim = Math.exp(yl);
+    else { var t = lam * yl + 1; lim = t > 0 ? Math.pow(t, 1 / lam) : (lam < 0 ? Infinity : 0); }
+    return { lam: lam, limit: lim };
+  }
+  function arFit(x) {                          // 중심화 후 최소제곱 φ̂, 잔차 sd. 반환 {m, phi, sdr}
+    var m = mean(x), num = 0, den = 0, i;
+    for (i = 1; i < x.length; i++) { num += (x[i] - m) * (x[i - 1] - m); den += (x[i - 1] - m) * (x[i - 1] - m); }
+    var phi = den > 0 ? num / den : 0, r = [];
+    for (i = 1; i < x.length; i++) r.push((x[i] - m) - phi * (x[i - 1] - m));
+    return { m: m, phi: phi, sdr: sd(r) };
+  }
+  function resid(x, f) { var r = []; for (var i = 1; i < x.length; i++) r.push((x[i] - f.m) - f.phi * (x[i - 1] - f.m)); return r; }
+  function rateAbove(x, lim) { var n = 0; for (var i = 0; i < x.length; i++) if (x[i] > lim) n++; return n / x.length; }
+  function countAbove(x, lim) { var n = 0; for (var i = 0; i < x.length; i++) if (x[i] > lim) n++; return n; }
+  function firstAbove(x, lim, from) { for (var i = from; i < x.length; i++) if (x[i] > lim) return i; return -1; }
+  function pctile(sorted, q) { var pos = (sorted.length - 1) * q, lo = Math.floor(pos), f = pos - lo; return lo + 1 < sorted.length ? sorted[lo] + (sorted[lo + 1] - sorted[lo]) * f : sorted[lo]; }
+  function summ(a) { var b = a.slice().sort(function (x, y) { return x - y; }); return { min: b[0], p10: pctile(b, 0.1), med: pctile(b, 0.5), mean: mean(b), p90: pctile(b, 0.9), max: b[b.length - 1] }; }
+  function lnTheoryA(s) {                      // 로그정규 평균+3σ 한계의 이론 헛알람률
+    if (s < 1e-9) return 0;
+    var e = Math.exp(s * s), L = Math.sqrt(e) + K3 * Math.sqrt((e - 1) * e);
+    return qnorm(Math.log(L) / s);
+  }
+
+  function S7(p) {
+    var seed = p.seed == null ? SEEDS.S7 : p.seed, only = p.only || '';
+    var s = p.s == null ? 0.5 : p.s, n0 = p.n0 || 300, phi = p.phi == null ? 0.9 : p.phi, L = p.ref_len || 50;
+    var cp = p.contam_p == null ? 0.05 : p.contam_p, csz = p.contam_size == null ? 6 : p.contam_size;
+    var NP = p.n || 5000, NREP = 30, BREP = 40, GAP = 300, STEPLEN = 150, STEPAT = 75, STEPSZ = 2, NAN = 20, SHIFTC = 4, N0C = 300;
+    var out = { id: 'S7', name: 'hidden_assumptions', params: { seed: seed, s: s, n0: n0, phi: phi, ref_len: L, contam_p: cp, contam_size: csz, n: NP,
+                 nominal: qnorm(K3), p_quant: P3, k: K3, n_anom_c: NAN, shift_c: SHIFTC, step_at: STEPAT, step_size: STEPSZ, step_len: STEPLEN, n0_c: N0C } };
+    var i, j, r;
+
+    /* ---- A 치우침(정규성) ---- */
+    if (!only || only === 'A') {
+      r = rng(hashSeed('S7', seed, 'Aref'));  var zr = []; for (i = 0; i < n0; i++) zr.push(r.normal());
+      r = rng(hashSeed('S7', seed, 'Apost')); var zp = []; for (i = 0; i < NP; i++) zp.push(r.normal());
+      var refA = zr.map(function (z) { return Math.exp(s * z); }), postA = zp.map(function (z) { return Math.exp(s * z); });
+      var mA = mean(refA), sA = sd(refA), limN = mA + K3 * sA, limQ = quantileOf(refA, P3), bc = boxcoxLimit(refA, K3);
+      var postSorted = postA.slice().sort(function (a, b) { return a - b; });
+      function rateS(lim) { var lo = 0, hi = postSorted.length; while (lo < hi) { var mid = (lo + hi) >> 1; if (postSorted[mid] > lim) hi = mid; else lo = mid + 1; } return (postSorted.length - lo) / postSorted.length; }
+      var repQ = [], repR = [], repN = [];
+      for (j = 0; j < NREP; j++) {
+        var rr = rng(hashSeed('S7', seed, 'Arep', j)), xs = []; for (i = 0; i < n0; i++) xs.push(Math.exp(s * rr.normal()));
+        var q = quantileOf(xs, P3); repQ.push(q); repR.push(rateS(q)); repN.push(rateS(mean(xs) + K3 * sd(xs)));
+      }
+      out.A = { ref: refA, post: postA, mean: mA, sd: sA, skew: skewOf(refA), lam: bc.lam, mad_ratio: sA / (MADK * madOf(refA)), lag1: lag1(refA),
+                limits: { naive: limN, quantile: limQ, boxcox: bc.limit },
+                rates: { naive: rateS(limN), quantile: rateS(limQ), boxcox: rateS(bc.limit) },
+                theory: { naive_rate: lnTheoryA(s), skew: (Math.exp(s * s) + 2) * Math.sqrt(Math.exp(s * s) - 1), lam: 0 },
+                rep: { n: NREP, q_limit: summ(repQ), q_rate: summ(repR), naive_rate: summ(repN) } };
+    }
+
+    /* ---- B 자기상관(독립성) ---- */
+    if (!only || only === 'B') {
+      r = rng(hashSeed('S7', seed, 'B'));
+      var T = GAP + NP + STEPLEN, inn = Math.sqrt(1 - phi * phi), xb = [], e0 = r.normal();
+      xb.push(e0); for (i = 1; i < T; i++) xb.push(phi * xb[i - 1] + inn * r.normal());
+      var refB = xb.slice(0, L), postB = xb.slice(GAP, GAP + NP), stepB = xb.slice(GAP + NP).map(function (v, k) { return k >= STEPAT ? v + STEPSZ : v; });
+      var mB = mean(refB), sB = sd(refB), limNB = mB + K3 * sB, fit = arFit(refB), limR = K3 * fit.sdr;
+      var rPost = resid(postB, fit), rStep = resid(stepB, fit);
+      var fN = firstAbove(stepB, limNB, STEPAT), fR = firstAbove(rStep, limR, STEPAT - 1);   // rStep[k-1] ↔ stepB[k]
+      var repN2 = [], repR2 = [];
+      for (j = 0; j < BREP; j++) {
+        var rb = rng(hashSeed('S7', seed, 'Brep', j)), xs2 = [rb.normal()]; for (i = 1; i < L; i++) xs2.push(phi * xs2[i - 1] + inn * rb.normal());
+        var ft = arFit(xs2); repN2.push(rateAbove(postB, mean(xs2) + K3 * sd(xs2))); repR2.push(rateAbove(resid(postB, ft), K3 * ft.sdr));
+      }
+      var ac = lag1(refB);
+      out.B = { ref: refB, post: postB, step: stepB, mean: mB, sd: sB, lag1: ac, skew: skewOf(refB), mad_ratio: sB / (MADK * madOf(refB)),
+                fit: fit, limits: { naive: limNB, resid: limR },
+                rates: { naive: rateAbove(postB, limNB), resid: rateAbove(rPost, limR) },
+                first_alarm: { naive: fN < 0 ? null : fN - STEPAT + 1, resid: fR < 0 ? null : fR + 1 - STEPAT + 1 },
+                false_before: { naive: countAbove(stepB.slice(0, STEPAT), limNB), resid: countAbove(rStep.slice(0, STEPAT - 1), limR) },
+                n_eff: { true_phi: L * (1 - phi) / (1 + phi), lag1: L * (1 - ac) / (1 + ac), phi_hat: L * (1 - fit.phi) / (1 + fit.phi) },
+                rep: { n: BREP, naive_rate: summ(repN2), resid_rate: summ(repR2) } };
+    }
+
+    /* ---- C 오염된 기준 ---- */
+    if (!only || only === 'C') {
+      r = rng(hashSeed('S7', seed, 'Cref'));
+      var zc = [], wc = [], ord = [];
+      for (i = 0; i < N0C; i++) { zc.push(r.normal()); wc.push(r.normal()); ord.push(i); }
+      for (i = N0C - 1; i > 0; i--) { j = r.int(i + 1); var t = ord[i]; ord[i] = ord[j]; ord[j] = t; }   // ord[k] = 순위 k 가 되는 위치
+      var nBad = Math.round(cp * N0C), bad = []; for (i = 0; i < N0C; i++) bad.push(false);
+      for (i = 0; i < nBad; i++) bad[ord[i]] = true;
+      var refC = [], clean = [];
+      for (i = 0; i < N0C; i++) { refC.push(bad[i] ? csz + wc[i] : zc[i]); if (!bad[i]) clean.push(zc[i]); }
+      r = rng(hashSeed('S7', seed, 'Cpost')); var postC = []; for (i = 0; i < NP; i++) postC.push(r.normal());
+      r = rng(hashSeed('S7', seed, 'Canom')); var anomC = []; for (i = 0; i < NAN; i++) anomC.push(SHIFTC + r.normal());
+      var mC = mean(refC), sC = sd(refC), md = median(refC), mad = madOf(refC);
+      var limNC = mC + K3 * sC, limRC = md + K3 * MADK * mad, limCl = mean(clean) + K3 * sd(clean);
+      function missed(lim) { return NAN - countAbove(anomC, lim); }
+      out.C = { ref: refC, bad: bad, n_bad: nBad, post: postC, anom: anomC, mean: mC, sd: sC, median: md, mad: mad, skew: skewOf(refC), lag1: lag1(refC),
+                mad_ratio: sC / (MADK * mad),
+                limits: { naive: limNC, robust: limRC, clean: limCl },
+                rates: { naive: rateAbove(postC, limNC), robust: rateAbove(postC, limRC), clean: rateAbove(postC, limCl) },
+                false_alarms: { naive: countAbove(postC, limNC), robust: countAbove(postC, limRC), clean: countAbove(postC, limCl) },
+                missed: { naive: missed(limNC), robust: missed(limRC), clean: missed(limCl) } };
+    }
+    out.csvRows = function () {                // 긴 형식: branch(A/B/C), role(ref/post/step/anom), idx, value, truth_flag
+      var rows = [];
+      function add(br, role, arr, flags) { for (var q = 0; q < arr.length; q++) rows.push({ branch: br, role: role, idx: q, value: arr[q], truth_flag: flags ? (flags[q] ? 1 : 0) : 0 }); }
+      if (out.A) { add('A', 'ref', out.A.ref); add('A', 'post', out.A.post); }
+      if (out.B) { add('B', 'ref', out.B.ref); add('B', 'post', out.B.post); add('B', 'step', out.B.step, out.B.step.map(function (_, k) { return k >= STEPAT; })); }
+      if (out.C) { add('C', 'ref', out.C.ref, out.C.bad); add('C', 'post', out.C.post); add('C', 'anom', out.C.anom, out.C.anom.map(function () { return true; })); }
+      return rows;
+    };
+    return out;
+  }
+  S7.tools = { skewOf: skewOf, quantileOf: quantileOf, madOf: madOf, boxcoxLam: boxcoxLam, boxcoxLimit: boxcoxLimit, arFit: arFit, resid: resid, rateAbove: rateAbove, lnTheoryA: lnTheoryA, summ: summ, MADK: MADK, P3: P3 };
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv
+    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools
   };
 });
