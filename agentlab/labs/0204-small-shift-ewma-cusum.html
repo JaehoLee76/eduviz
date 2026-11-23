@@ -1,0 +1,980 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>작은 변화 감지 · EWMA·CUSUM과 평균 런 길이</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="한 장만 보는 3σ 선은 작은 지속 변화를 늦게 알립니다. 헛알람 간격을 같게 맞춘 채 EWMA와 CUSUM이 알아채는 속도를 평균 런 길이로 직접 계산하고 비교하는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+#tab5 td{overflow-wrap:normal!important}@media(max-width:520px){#tab5 th,#tab5 td{font-size:.72rem;padding:.2rem .15rem}}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:anywhere}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.76rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 2 · 실험실 4</p>
+  <h1>작은 변화 감지</h1>
+  <p class="sub">EWMA·CUSUM과 평균 런 길이 — 선이 맞게 그어져 있어도 얼마나 늦게 알려 주는가</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0203-three-hidden-assumptions.html">← 이전: 3σ의 숨은 가정 셋</a><span class="sp"></span></nav>
+
+<p><b>3σ 선은 유리 한 장만 보고 판단하므로, 1σ 정도의 작은 변화가 계속 이어져도 평균 <span id="i_s"></span>장이 지나야 알아챕니다.</b> 지난 값들을 모아 보는 EWMA와 CUSUM은 헛알람 간격(ARL0)을 똑같이 맞춘 채 그 지연을 평균 <span id="i_e"></span>장·<span id="i_c"></span>장으로 줄입니다. 대신 3σ 이상의 큰 변화에서는 3σ 선이 여전히 가장 빠릅니다. 이 실험실에서 두 방법을 직접 만들고, 맞는 값을 고르는 방법과 자기상관이 있을 때의 처방까지 손에 쥡니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 평균·표준편차·z값(0101·0102), 3σ 관리선과 정상 값이 선을 넘을 확률(0201·0203), 여러 장을 평균하면 흔들림이 √<i>n</i>배 줄어든다는 표준오차(0101), 자기상관 <i>φ</i>와 실효 표본 수(0104), 헛알람과 놓침의 맞바꿈(0202), 잔차 관리도(0203).</p>
+  <ul class="chips known"><li>z값 = (<i>x</i> − <i>μ</i>₀) ÷ <i>σ</i></li><li>3σ 관리선</li><li>표준오차 √<i>n</i></li><li>자기상관 <i>φ</i></li><li>헛알람·놓침</li><li>잔차 관리도</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 계산 방법의 이름(마르코프 사슬, 이분법, 몬테카를로)은 쓰는 자리에서 한 줄로 풀어 설명하는 도구이고, 위 다섯에 세지 않습니다.</p>
+  <ul class="chips" id="termList"><li>평균 런 길이 ARL (average run length)</li><li>EWMA (지수가중 이동평균)</li><li>평활 계수 <i>λ</i> (smoothing constant)</li><li>CUSUM (누적합)</li><li>변화 시작점 추정 (change-point estimate)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 소스 소모나 부품 교체 뒤에 증착 속도가 계단처럼 조금 내려앉아 그대로 머무는 경우. 3σ 선은 이런 변화를 한참 뒤에야 알립니다.</li>
+    <li><b>손으로 연습</b> — 슬라이더로 <i>λ</i>·<i>k</i>·변화 크기를 움직여 ARL을 직접 비교하고(2~6절), 4절 끝의 칸에 내 값을 붙여 넣어 감시해 봅니다.</li>
+    <li><b>다음 날 산출물</b> — ARL 계산 셋, 한계 맞춤 하나, 감시 둘로 이루어진 Python 함수 여섯 개(10절).</li>
+    <li><b>기록할 데이터</b> — 변화 사건 라벨(언제·왜·얼마나)과 알람 확인 결과(11절). 이것이 쌓여야 회사 데이터로 ARL1을 직접 재 볼 수 있습니다.</li>
+    <li><b>사람과 에이전트의 몫</b> — 잡을 최소 변화 <i>δ</i>*와 감내할 헛알람 간격은 사람이 정하고, 한계 맞춤·감시·변화 시작점 추정·보고는 에이전트가 맡습니다(7절).</li>
+    <li><b>성과 환산</b> — 변한 줄 모르고 흘려보내는 유리가 몇 장 줄어드는지 숫자로 봅니다(8절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0203은 선이 &ldquo;언제 틀리는가&rdquo;를 다뤘습니다. 이번 물음은 <b>선이 맞게 그어져 있어도 변화를 얼마나 늦게 알려 주는가</b>입니다.<br>
+  증착 속도(안정 구간 평균, 단위 Å/s)는 정상일 때 평균 <i>μ</i>₀ = <span id="p_mu"></span>, 표준편차 <i>σ</i> = <span id="p_sd"></span>입니다. 기준 <span id="p_nref"></span>장으로 정상 상태를 확인한 뒤 <span id="p_nmon"></span>장을 감시합니다. 감시 구간의 <b><span id="p_sa"></span>번째 유리부터 평균이 <span id="p_dl"></span>σ(=<span id="p_pct"></span>%) 내려앉아</b> 그대로 머뭅니다. 현장의 평균 ± 3σ 선은 위·아래 양쪽을 봅니다.<br>
+  <b>(1) 3σ 선은 변화가 시작된 뒤 몇 장째에 알려 줍니까? (2) 더 일찍 알리는 방법이 있다면, 그 대가는 무엇입니까?</b>
+  <p class="note" style="margin:.5rem 0 0">기준 <span id="p_nref2"></span>장에서 잰 평균은 <span id="p_rm"></span>, 표준편차는 <span id="p_rs"></span>로 정상 값에 가깝습니다. 이 실험실의 선과 ARL 계산은 정상 평균과 표준편차를 이미 안다고 놓고 합니다. 기준에서 추정한 값을 쓰면 약속이 어떻게 달라지는지는 11절의 질문에서 다룹니다. 같은 값을 10절의 [CSV 내려받기]로 파일에 받아 Python에서 읽을 수 있습니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>3σ 선은 몇 장 뒤에 알려 주나</h2>
+<p>먼저 눈으로 봅니다. 아래 그림이 감시 구간 전체의 증착 속도입니다. 가운데 점선이 정상 평균, 붉은 선이 평균 ± 3σ, 세로 점선이 평균이 내려앉기 시작한 유리입니다.</p>
+<div class="lab">
+  <div class="labtitle">그림 1 · 증착 속도 궤적과 3σ 선</div>
+  <canvas id="cv1" height="250"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--bad)"></span>평균 ± 3σ</span><span><span class="sw" style="border-color:var(--accent);border-top-style:dotted"></span>정상 평균 <i>μ</i>₀</span><span><span class="sw" style="border-color:var(--ink);border-top-style:dashed"></span>변화 시작</span><span><span class="dot" style="background:var(--bad)"></span>선을 넘은 유리</span></div>
+</div>
+<p>변화가 시작되었는데도 값들은 대부분 선 안쪽에서 오르내립니다. 평균이 1σ 내려갔어도 한 장 한 장은 정상 때의 흔들림(표준편차 1σ)에 묻히기 때문입니다. 표로 정리합니다. 이 궤적에서 3σ 선이 처음 알린 자리는 아래 첫 칸입니다. 나머지 두 칸은 방법을 만든 뒤 9절에서 채웁니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1 · 변화 뒤 첫 알람까지의 유리 수 (이 궤적 한 번)</div>
+  <div class="tbwrap"><table id="tab1" class="mt num"></table></div>
+  <p class="note" style="margin:.4rem 0 0">이 값은 궤적 한 번에서 센 것입니다. 같은 변화를 다시 겪으면 다른 값이 나옵니다. 평균적으로 몇 장이 걸리는지는 2절부터 계산합니다.</p>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>한 장만 보는 선의 한계</h2>
+<p>1절의 <span id="q_d"></span>장이 운이 나빴던 것인지부터 가려야 합니다. 변화가 시작된 뒤에는 유리 한 장이 선을 넘을 확률이 정상 때보다 커집니다. 그 확률을 <i>p</i>라 하면, 유리가 서로 독립일 때 첫 알람까지 걸리는 장수는 평균 1/<i>p</i>입니다. 이 평균에 이름을 붙입니다.</p>
+<p>감시를 시작해 첫 알람이 날 때까지 지나간 유리 수를 <b>런 길이 (run length)</b>, 그 평균을 <b>평균 런 길이 ARL (average run length)</b>이라 부릅니다. 정상일 때의 ARL을 <b>ARL0</b>(헛알람 사이의 평균 간격), 변화가 생긴 뒤의 ARL을 <b>ARL1</b>(변화를 알아채기까지의 평균 지연)이라 부릅니다.</p>
+<div class="eq">
+  <span class="eqlab">3σ 선(양쪽)의 평균 런 길이</span>
+  <math display="block"><mrow><mi>ARL</mi><mo>=</mo><mfrac><mn>1</mn><mi>p</mi></mfrac><mo>,</mo><mspace width="1.2em"></mspace><mi>p</mi><mo stretchy="false">(</mo><mi>δ</mi><mo stretchy="false">)</mo><mo>=</mo><mi>Q</mi><mo stretchy="false">(</mo><mi>L</mi><mo>−</mo><mi>δ</mi><mo stretchy="false">)</mo><mo>+</mo><mi>Q</mi><mo stretchy="false">(</mo><mi>L</mi><mo>+</mo><mi>δ</mi><mo stretchy="false">)</mo></mrow></math>
+  <span class="note"><i>L</i>은 선이 평균에서 떨어진 거리(σ의 배수, 지금까지는 3), <i>δ</i>는 평균이 이동한 크기(σ의 배수), <i>Q</i>(<i>z</i>) = 1 − Φ(<i>z</i>)는 표준정규분포에서 <i>z</i>보다 클 확률입니다. 선이 위·아래 두 개이므로 두 꼬리를 더합니다. <i>δ</i> = 0이면 정상 때의 확률 <i>p</i>₀이고 ARL0 = 1/<i>p</i>₀입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">선의 위치 <i>L</i> · 변화 크기 <i>δ</i> — 한 장만 보는 선의 ARL0과 ARL1</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> <i>δ</i>를 1에 두고 <i>L</i>을 3에서 2.5로 내려 보십시오. ARL1은 줄어들지만 같은 폭으로 ARL0도 무너집니다. 이어서 <i>L</i>을 3으로 되돌리고 <i>δ</i>를 3까지 올리면 한 장만 보는 선도 빠르게 알리는 구간이 어디부터인지 보입니다.</div>
+  <div class="ctrl"><label for="L2">선의 위치 <i>L</i> (σ의 배수)</label><input type="range" id="L2" min="2" max="4" step="0.05" value="3"><output id="L2o"></output></div>
+  <div class="ctrl"><label for="d2">변화 크기 <i>δ</i> (σ의 배수)</label><input type="range" id="d2" min="0" max="3" step="0.1" value="1"><output id="d2o"></output></div>
+  <div class="row"><button class="btn ghost" id="r2" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st2"></div>
+  <canvas id="cv2" height="230"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--soft)"></span>정상일 때의 z값 분포</span><span><span class="sw" style="border-color:var(--accent)"></span>변화 뒤의 z값 분포(평균이 −<i>δ</i>)</span><span><span class="sw" style="border-color:var(--bad)"></span>선 ± <i>L</i></span><span>색칠한 꼬리 = 한 장이 선을 넘을 확률</span></div>
+  <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+  <div class="concl" id="concl2"></div>
+</div>
+<p>한 장만 보는 한 이 맞바꿈에서 벗어날 수 없습니다. 선을 낮추면 알람은 빨라지지만 0202에서 본 헛알람이 쌓입니다. 출구는 여러 장을 모아 보는 것입니다. 0101에서 본 대로 <i>n</i>장을 평균하면 흔들림(표준오차)이 √<i>n</i>배 작아지므로 작은 평균 이동이 선명해집니다. 다음 두 절이 그 방법 둘입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>EWMA — 최근 값에 큰 무게를 주는 평균</h2>
+<p>여러 장을 모으는 가장 쉬운 방법은 최근 <i>n</i>장의 평균을 보는 것입니다. 그런데 <i>n</i>을 몇으로 정할지 막막하고, <i>n</i>장 전의 값이 어느 순간 갑자기 계산에서 빠지면서 평균이 덜컥 움직입니다. 최근 값에는 큰 무게를, 오래된 값에는 서서히 줄어드는 무게를 주는 평균이면 두 문제가 모두 사라집니다. 이것이 <b>EWMA (exponentially weighted moving average, 지수가중 이동평균)</b>입니다. 이름 그대로 무게가 지수적으로 줄어듭니다.</p>
+<p>이번 값에 주는 무게를 <b>평활 계수 <i>λ</i> (smoothing constant)</b>라 부르고 0 &lt; <i>λ</i> ≤ 1 사이에서 고릅니다. <i>λ</i> = 1이면 이번 값만 쓰는 3σ 선과 똑같아지고, <i>λ</i>가 작을수록 더 오래 기억해 작은 변화에 민감해집니다. 아래 식의 <i>z</i><sub><i>t</i></sub> = (<i>x</i><sub><i>t</i></sub> − <i>μ</i>₀)/<i>σ</i>는 <i>t</i>번째 유리가 정상 평균에서 몇 σ 떨어졌는지입니다.</p>
+<div class="eq">
+  <span class="eqlab">EWMA 값과 한계</span>
+  <math display="block"><mrow><msub><mi>u</mi><mi>t</mi></msub><mo>=</mo><mi>λ</mi><msub><mi>z</mi><mi>t</mi></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>λ</mi><mo stretchy="false">)</mo><msub><mi>u</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="1em"></mspace><msub><mi>u</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></mrow></math>
+  <math display="block"><mrow><mo>|</mo><msub><mi>u</mi><mi>t</mi></msub><mo>|</mo><mo>&gt;</mo><mi>L</mi><msqrt><mfrac><mi>λ</mi><mrow><mn>2</mn><mo>−</mo><mi>λ</mi></mrow></mfrac></msqrt><mspace width="0.6em"></mspace><mo>⟹</mo><mspace width="0.6em"></mspace><mtext>알람</mtext></mrow></math>
+  <span class="note">정상일 때 <i>u</i>의 표준편차는 √(<i>λ</i>/(2−<i>λ</i>))입니다(<i>λ</i>=1이면 1, <i>λ</i>가 작을수록 여러 장을 평균한 것처럼 작아집니다). <i>L</i>은 그 표준편차의 몇 배 위치에 한계를 둘지입니다.</span>
+</div>
+<p><i>L</i>은 얼마로 둘까요? 3으로 두면 <i>λ</i>마다 정상 때 헛알람 간격이 달라져 방법끼리 공정하게 견줄 수 없습니다. 그래서 세 방식 모두 <b>정상 때 ARL0 = <span id="s3_t"></span></b>(3σ 선 양쪽의 헛알람 간격)로 맞춥니다. <i>L</i>은 슬라이더로 정하는 값이 아니라 <i>λ</i>가 정해지면 이 약속에서 자동으로 나옵니다.</p>
+<details><summary>ARL과 <i>L</i>은 어떻게 계산하나</summary>
+  <p>EWMA 값 <i>u</i>가 한계 안에 있는 범위를 101칸으로 나눕니다. 한 장이 지날 때 각 칸에서 어느 칸으로(또는 한계 밖으로) 옮겨 가는지 확률을 구하면, 칸마다 &ldquo;첫 알람까지 평균 몇 장&rdquo;이라는 값이 연립방정식으로 묶입니다(마르코프 사슬 근사). 시작 칸(<i>u</i> = 0)의 값이 ARL입니다. <i>L</i>은 이 ARL0이 <span class="a0"></span>가 될 때까지 구간을 반씩 줄여 가며 찾습니다(이분법). 이 페이지의 모든 ARL은 이렇게 계산한 값입니다.</p>
+</details>
+<div class="lab">
+  <div class="labtitle">평활 계수 <i>λ</i> · 변화 크기 <i>δ</i> — EWMA의 한계와 반응</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> <i>λ</i>를 1까지 올려 보십시오. <i>L</i>이 3.000이 되고 EWMA 값이 3σ 선과 같은 점으로 바뀝니다. 다시 <i>λ</i>를 0.05까지 내리면 <i>L</i>이 작아지며 EWMA 선이 부드러워지고 ARL1이 줄어드는 것을 볼 수 있습니다. <i>δ</i>를 0으로 두면 변화가 없는 정상 궤적이라 알람이 없거나 드물게 헛알람이 보입니다.</div>
+  <div class="ctrl"><label for="lam3">평활 계수 <i>λ</i></label><input type="range" id="lam3" min="0.05" max="1" step="0.05" value="0.2"><output id="lam3o"></output></div>
+  <div class="ctrl"><label for="d3">변화 크기 <i>δ</i> (σ의 배수)</label><input type="range" id="d3" min="0" max="3" step="0.1" value="1"><output id="d3o"></output></div>
+  <div class="row"><button class="btn ghost" id="r3" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st3"></div>
+  <canvas id="cv3" height="250"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--c10)"></span>EWMA 값 <i>u</i></span><span><span class="sw" style="border-color:var(--bad)"></span>한계 ± <i>L</i>√(<i>λ</i>/(2−<i>λ</i>))</span><span><span class="sw" style="border-color:var(--ink);border-top-style:dashed"></span>변화 시작</span><span><span class="dot" style="background:var(--bad)"></span>한계를 넘은 점</span></div>
+  <div class="tbwrap"><table id="tab3a" class="mt num"></table></div>
+  <div class="concl" id="concl3"></div>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>CUSUM — 벗어난 양을 쌓아 두는 합</h2>
+<p>EWMA는 오래된 값을 서서히 잊습니다. 그래서 &ldquo;정상에서 벗어난 양이 얼마나 쌓였는가&rdquo; 자체는 보지 않고, 알람이 났을 때 변화가 언제 시작했는지도 말해 주지 못합니다. 벗어난 양을 아예 쌓아 두면 두 가지가 모두 보입니다. 이것이 <b>CUSUM (cumulative sum, 누적합)</b>입니다.</p>
+<p>유리마다 정상에서 벗어난 양을 더해 가되, 매번 <b>허용량 <i>k</i></b>를 빼고 0 아래로는 내려가지 않게 합니다. 합이 <b>결정 구간 <i>h</i></b>를 넘으면 알람입니다. 평균이 내려가는 변화를 보는 합 <i>S</i><sup>−</sup>와 올라가는 변화를 보는 합 <i>S</i><sup>+</sup> 둘을 함께 둡니다.</p>
+<div class="eq">
+  <span class="eqlab">CUSUM의 두 합과 알람</span>
+  <math display="block"><mrow><msubsup><mi>S</mi><mi>t</mi><mo>−</mo></msubsup><mo>=</mo><mo>max</mo><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mspace width="0.3em"></mspace><msubsup><mi>S</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mo>−</mo></msubsup><mo>−</mo><msub><mi>z</mi><mi>t</mi></msub><mo>−</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+  <math display="block"><mrow><msubsup><mi>S</mi><mi>t</mi><mo>+</mo></msubsup><mo>=</mo><mo>max</mo><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mspace width="0.3em"></mspace><msubsup><mi>S</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mo>+</mo></msubsup><mo>+</mo><msub><mi>z</mi><mi>t</mi></msub><mo>−</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+  <span class="note"><i>S</i>₀ = 0에서 시작하고, <i>S</i><sup>−</sup> 또는 <i>S</i><sup>+</sup>가 <i>h</i>를 넘으면 알람입니다.</span>
+</div>
+<p><i>k</i>의 뜻은 이렇습니다. 정상일 때 <i>z</i>의 평균은 0이므로 매번 <i>k</i>를 빼면 합이 0 쪽으로 돌아옵니다. 반대로 평균이 <i>δ</i>* 내려앉았다면 한 장마다 <i>δ</i>* − <i>k</i>만큼 쌓입니다. 그래서 <i>k</i>는 <b>잡고 싶은 최소 변화 <i>δ</i>*의 절반</b>으로 정합니다(<i>k</i> = 0.5이면 <i>δ</i>* = 1σ). <i>h</i>는 <i>k</i>가 정해지면 EWMA의 <i>L</i>처럼 정상 때 ARL0이 <span id="s4_t"></span>가 되도록 자동으로 나옵니다.</p>
+<p>알람이 났을 때 <b>합이 마지막으로 0이었던 바로 다음 유리</b>가 변화가 시작된 자리의 추정입니다. 이것을 <b>변화 시작점 추정 (change-point estimate)</b>이라 부릅니다. 그 지점부터 합이 계속 올라갔기 때문입니다.</p>
+<div class="lab">
+  <div class="labtitle">허용량 <i>k</i> · 변화 크기 <i>δ</i> — CUSUM의 합과 변화 시작점 추정</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> <i>k</i>를 0.5로 두고 <i>δ</i>를 0.5·1·2로 바꿔 보십시오. 변화 시작점 추정(초록 점선 세로선)이 실제 시작에 얼마나 가까운지 보입니다. 다음에 <i>k</i>를 1.5까지 올리면 <i>δ</i> = 1의 변화를 거의 놓치고, 0.1까지 내리면 <i>h</i>가 커지면서 큰 변화도 천천히 알립니다.</div>
+  <div class="ctrl"><label for="k4">허용량 <i>k</i></label><input type="range" id="k4" min="0.1" max="1.5" step="0.05" value="0.5"><output id="k4o"></output></div>
+  <div class="ctrl"><label for="d4">변화 크기 <i>δ</i> (σ의 배수)</label><input type="range" id="d4" min="0" max="3" step="0.1" value="1"><output id="d4o"></output></div>
+  <div class="row"><button class="btn ghost" id="r4" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st4"></div>
+  <canvas id="cv4" height="250"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--c9)"></span>내려가는 변화를 보는 합 <i>S</i><sup>−</sup></span><span><span class="sw" style="border-color:var(--grey)"></span>올라가는 변화를 보는 합 <i>S</i><sup>+</sup></span><span><span class="sw" style="border-color:var(--bad)"></span>결정 구간 <i>h</i></span><span><span class="sw" style="border-color:var(--ink);border-top-style:dashed"></span>실제 변화 시작</span><span><span class="sw" style="border-color:var(--good);border-top-style:dotted"></span>변화 시작점 추정</span></div>
+  <div class="tbwrap"><table id="tab4a" class="mt num"></table></div>
+  <div class="concl" id="concl4"></div>
+</div>
+<div class="lab">
+  <div class="labtitle">직접 해 보기 — 내 값으로 감시하기</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> [가상 궤적 넣기]를 누르고 [감시하기]를 눌러 위 표와 같은 첫 알람이 나오는지 확인하십시오. 그다음 회사 데이터의 증착 속도를 <b>시간 순서대로</b> 붙여 넣고 정상 평균과 표준편차를 적어 감시해 보십시오(값은 쉼표나 줄바꿈으로 구분). 방식은 3절과 4절 슬라이더가 가리키는 <i>λ</i>·<i>k</i>입니다.</div>
+  <div class="row"><button class="btn ghost" type="button" id="fill4">가상 궤적 넣기</button></div>
+  <textarea id="pasteBox" rows="4" placeholder="값을 시간 순서대로 붙여 넣으십시오. 예: 1.003, 0.991, 1.012, ..." aria-label="감시할 값"></textarea>
+  <div class="two">
+    <div class="ctrl" style="grid-template-columns:1fr"><label for="mu4">정상 평균 <i>μ</i>₀</label><input type="number" id="mu4" step="any"></div>
+    <div class="ctrl" style="grid-template-columns:1fr"><label for="sd4">정상 표준편차 <i>σ</i></label><input type="number" id="sd4" step="any"></div>
+  </div>
+  <div class="row"><button class="btn" id="run4" type="button">감시하기</button></div>
+  <div class="readout" id="out4">값을 넣고 [감시하기]를 누르십시오(10개 이상).</div>
+</div>
+<div class="qna" data-label="0101처럼 전후를 t검정으로 비교하면 되지 않나요?" data-q="0101처럼 전후를 t검정으로 비교하면 되지 않나요?">
+  <p>t검정은 변화가 있었다고 의심되는 구간을 모아 놓고 <b>한 번</b> 판정하는 방법입니다. 변화 뒤의 장수가 충분히 쌓인 다음에야 쓸 수 있고, 어디서 나누어야 하는지도 먼저 알아야 합니다.</p>
+  <p>CUSUM과 EWMA는 유리가 한 장 올 때마다 판정합니다. 변화가 시작되었는지를 기다리지 않고 실시간으로 감시하는 데 쓰고, 알람이 난 뒤에 변화가 있었는지를 확정하거나 크기를 재는 일에는 0101의 전후 비교를 씁니다. 둘은 경쟁이 아니라 앞뒤 단계입니다.</p>
+</div>
+<div class="qna" data-label="λ와 k는 어떻게 정하나요?" data-q="λ와 k는 어떻게 정하나요?">
+  <p>둘 다 <b>잡고 싶은 최소 변화 <i>δ</i>*</b>에서 나옵니다. CUSUM은 <i>k</i> = <i>δ</i>*/2로 정합니다. EWMA는 <i>δ</i>*가 작을수록 <i>λ</i>를 작게(0.05~0.25) 잡고, 큰 변화까지 함께 보려면 크게 잡습니다. <i>δ</i>* 자체는 공정에서 의미 있는 최소 변화이므로 사람이 정합니다(7절).</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>세 방식을 나란히 — 누가 언제 빠른가</h2>
+<p>세 방식 모두 정상 때 ARL0 = <span id="s5_t"></span>로 맞춘 채, 변화 크기 <i>δ</i>에 따라 ARL1이 어떻게 달라지는지 봅니다. 곡선과 표의 EWMA·CUSUM은 3절·4절 슬라이더가 가리키는 <i>λ</i>·<i>k</i>의 값입니다(지금 <i>λ</i> = <span id="s5_lam"></span>, <i>k</i> = <span id="s5_k"></span>).</p>
+<div class="lab">
+  <div class="labtitle">그림 2 · 변화 크기에 따른 ARL1 (세로는 로그 눈금)</div>
+  <div class="state" id="st5"></div>
+  <canvas id="cv5" height="270"></canvas>
+  <div class="legend"><span><span class="sw" style="border-color:var(--c8)"></span>3σ 선</span><span><span class="sw" style="border-color:var(--c10)"></span>EWMA</span><span><span class="sw" style="border-color:var(--c9)"></span>CUSUM</span><span>세 곡선은 <i>δ</i> = 0에서 같은 값(ARL0)으로 만납니다.</span></div>
+</div>
+<div class="lab">
+  <div class="labtitle">표 2 · 식으로 계산한 ARL과 직접 돌려 본 평균</div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <p class="note" style="margin:.4rem 0 0">&ldquo;직접 돌려 본 평균&rdquo;은 기준 설정(<i>λ</i> = <span id="s5_lam0"></span>, <i>k</i> = <span id="s5_k0"></span>)에서 같은 가상 공정을 각 칸마다 <span id="s5_nr"></span>번 끝까지 돌려 첫 알람까지의 유리 수를 평균한 값입니다(몬테카를로). 오른쪽의 ±는 그 평균의 표준오차(표준편차 ÷ √<span id="s5_nr2"></span>)입니다. 식 값이 이 범위(±3 표준오차) 안에 들면 계산식과 직접 센 값이 서로 맞는 것입니다.</p>
+</div>
+<div class="concl" id="concl5"></div>
+<p>같은 평균이라도 한 번의 지연은 크게 흔들립니다. 아래 막대그림은 같은 <span id="s5_nr3"></span>번의 런 길이를 세어 쌓은 분포입니다. <i>δ</i>를 골라 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">그림 3 · 런 길이의 분포 (기준 설정)</div>
+  <div class="row" id="dsel" role="group" aria-label="변화 크기 선택"></div>
+  <canvas id="cv6" height="260"></canvas>
+  <div class="legend"><span>막대 = 런 길이별 횟수 비율</span><span><span class="sw" style="border-color:var(--ink);border-top-style:dashed"></span>평균</span><span><span class="sw" style="border-color:var(--good);border-top-style:dotted"></span>중앙값</span></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+  <div class="concl" id="concl6"></div>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>자기상관이 있으면 — 0203의 숙제</h2>
+<p>0203의 잔차 관리도는 이웃 유리가 닮은 값(자기상관)의 헛알람을 약속값으로 되돌렸지만, 작은 변화가 오래 이어질 때는 잔차가 다시 잦아들어 놓칠 수 있다고 했습니다. 그 장면을 다시 보고, 잔차에 CUSUM을 쓰면 잡히는지 확인합니다.</p>
+<p>이웃과의 닮은 정도 <i>φ</i>인 값의 평균이 한 번에 −<i>δ</i> 내려앉으면 잔차(직전 값으로 예측한 값과의 차이)는 이렇게 움직입니다. 아래 슬라이더가 가리키는 <i>φ</i>에서는 변화 직후 한 장에서 잔차 표준편차의 <span id="s6_first"></span>배만큼 크게 튀고, 그다음부터는 예측이 새 평균에 맞춰지면서 <span id="s6_pers"></span>배만큼만 계속 밀립니다. 일회성 큰 튐은 잔차의 3σ 선이 잡을 수 있지만, 못 잡으면 남는 것은 작은 지속 변화입니다. 그런 변화를 잡는 방법이 위 4절의 CUSUM이며, 이번에는 원값이 아니라 <b>잔차</b>에 씁니다. 이때 <i>k</i>는 잔차에 남은 지속 변화 크기의 절반으로 정합니다.</p>
+<div class="lab">
+  <div class="labtitle">닮은 정도 <i>φ</i> — 잔차 3σ 선과 잔차 CUSUM, 그리고 원값 CUSUM</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> <i>φ</i> = 0.9에서 아래 그림의 세 칸을 위에서 아래로 읽으십시오. 첫 칸에서는 변화 직후 잔차가 크게 튀고 곧 잦아듭니다. 둘째 칸의 잔차 CUSUM은 그 뒤 계속 쌓여 알람에 닿습니다. 셋째 칸의 원값 CUSUM은 변화 전에도 알람이 납니다. 이제 <i>φ</i>를 0까지 내리면 세 방식의 차이가 어떻게 달라지는지 보십시오.</div>
+  <div class="ctrl"><label for="phi6">닮은 정도 <i>φ</i></label><input type="range" id="phi6" min="0" max="0.95" step="0.05" value="0.9"><output id="phi6o"></output></div>
+  <div class="row"><button class="btn ghost" id="r6" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cv7" height="360"></canvas>
+  <div class="legend"><span>위 = 잔차(잔차 표준편차 단위)와 ±3 선, 가운데 = 잔차 CUSUM의 <i>S</i><sup>−</sup>와 <i>h</i>, 아래 = 원값 CUSUM의 <i>S</i><sup>−</sup>와 <i>h</i></span><span><span class="sw" style="border-color:var(--ink);border-top-style:dashed"></span>변화 시작</span><span><span class="dot" style="background:var(--bad)"></span>알람</span></div>
+  <div class="tbwrap"><table id="tab7" class="mt"></table></div>
+  <div class="concl" id="concl7"></div>
+</div>
+<p>정리하면, 자기상관이 있을 때는 <b>원값에 CUSUM을 그대로 쓰면 안 되고 잔차에 써야 합니다.</b> 원값을 그대로 쓰면 정상 때의 헛알람 간격이 <span class="a0"></span>에서 무너집니다. 0203의 독립성 교훈이 여기서도 그대로 적용됩니다.</p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>판정 흐름 — 사람이 정하는 것과 에이전트가 하는 것</h2>
+<p>지금까지의 도구를 현장에서 쓰는 순서를 한 표로 묶습니다.</p>
+<div class="lab">
+  <div class="labtitle">표 3 · 작은 변화 감시의 판정 흐름</div>
+  <div class="tbwrap"><table class="mt">
+    <tr><th>단계</th><th>할 일</th><th>누가</th></tr>
+    <tr><td class="rowh">1</td><td>0203의 세 진단(정규성·독립성·깨끗한 기준)을 먼저 합니다. 가정이 깨져 있으면 그쪽 처방이 먼저입니다. 자기상관이면 잔차에 감시를 겁니다(6절).</td><td>에이전트가 진단, 사람이 기준 구간의 타당성 판정</td></tr>
+    <tr><td class="rowh">2</td><td><b>잡을 최소 변화 <i>δ</i>*</b>(두께·PPA spec에서 거꾸로 따져 공정에 의미 있는 최소 변화)와 <b>감내할 ARL0</b>(하루 헛알람 예산, 0202)을 정합니다.</td><td>사람</td></tr>
+    <tr><td class="rowh">3</td><td><i>k</i> = <i>δ</i>*/2, <i>h</i>(또는 <i>λ</i>와 <i>L</i>)를 ARL0에 맞춰 구하고 감시합니다. 알람이 나면 <b>변화 시작점 추정</b>과 함께 보고합니다.</td><td>에이전트</td></tr>
+    <tr><td class="rowh">4</td><td>큰 변화용 3σ 선을 함께 둘 때는 헛알람이 더해지므로 합친 ARL0을 다시 맞춥니다. 예를 들어 합친 목표가 <span id="t3_tot"></span>이면 CUSUM과 3σ 선 각각의 ARL0은 <span id="t3_each"></span>이어야 합니다. 이렇게 맞추면 CUSUM의 ARL1(<i>δ</i> = 1)이 <span id="t3_a"></span>장에서 <span id="t3_b"></span>장으로 늘어납니다.</td><td>에이전트가 계산, 사람이 승인</td></tr>
+  </table></div>
+</div>
+<div class="qna" data-label="3σ 선과 같이 쓰면 어떻게 되나요?" data-q="3σ 선과 같이 쓰면 어떻게 되나요?">
+  <p>두 방식 중 하나라도 알람을 내면 알람이므로 헛알람이 더해집니다. 둘 다 같은 ARL0으로 두면 합친 헛알람 간격은 대략 절반으로 줄어듭니다(두 알람이 같은 유리에서 겹치지 않는다고 볼 때). 합친 간격을 처음 약속한 값으로 지키려면 각각의 ARL0을 두 배로 올려 맞춰야 하고, 그러면 작은 변화의 ARL1이 조금 늘어납니다. 늘어나는 정도는 7절 표 3의 4단계에 계산해 두었습니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>현장에서 환산하면</h2>
+<p>이 방법을 현장에 쓰면 무엇이 얼마나 줄고 무엇은 늘지 않을까요? 위 가상 공정의 ARL을 하루 검사량과 한 달 사건 수에 곱해 보겠습니다. 이 상자의 EWMA·CUSUM은 기준 설정(<i>λ</i> = <span id="g_lam"></span>, <i>k</i> = <span id="g_k"></span>)입니다.</p>
+<div class="lab">
+  <div class="labtitle">성과 환산 상자 — 변한 줄 모르고 흘려보내는 유리의 감소와 헛알람</div>
+  <div class="ctrl"><label for="gD">하루 검사 유리 수</label><input type="range" id="gD" min="50" max="600" step="10" value="200"><output id="gDo"></output></div>
+  <div class="ctrl"><label for="gE">한 달 작은 변화 사건 수 (소스 교체·부품 교체 뒤)</label><input type="range" id="gE" min="1" max="12" step="1" value="4"><output id="gEo"></output></div>
+  <div class="ctrl"><label for="gS">변화 크기 <i>δ</i> (σ의 배수)</label><input type="range" id="gS" min="0.5" max="3" step="0.5" value="1"><output id="gSo"></output></div>
+  <div class="ctrl"><label for="gB">그중 불량으로 이어지는 비율</label><input type="range" id="gB" min="0" max="30" step="1" value="5"><output id="gBo"></output></div>
+  <div class="ctrl"><label for="gF">감시하는 특징 수</label><input type="range" id="gF" min="1" max="100" step="1" value="10"><output id="gFo"></output></div>
+  <div class="row"><button class="btn ghost" id="rG" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stG"></div>
+  <div class="tbwrap"><table id="tabG" class="mt num"></table></div>
+  <div class="concl" id="conclG"></div>
+  <p class="note">기본 설정(하루 <span id="gn_g"></span>장, 한 달 <span id="gn_e"></span>건, 불량 비율 <span id="gn_b"></span>%, 특징 <span id="gn_f"></span>개)은 가정입니다. 변화 한 건에서 알아채기 전에 지나가는 유리 수를 ARL1로 보았고, 한 달 사건 수만큼 곱했습니다. 회사에서는 같은 식에 <b>불량 유리 한 장의 손실 금액</b>과 <b>헛알람 한 건의 확인 비용</b>을 곱해 금액으로 바꾸십시오.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>착지 — 3σ 선은 얼마나 늦었나</h2>
+<p>1절의 표로 돌아가 비워 두었던 두 칸을 채웁니다. 평균(ARL1)은 변화를 여러 번 겪었을 때의 값이고, 궤적 한 번은 대표 궤적에서 센 값입니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1 (완성) · 변화 크기 <span id="l_d"></span>σ에서 알아채기까지의 유리 수</div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+</div>
+<div class="concl" id="landing"></div>
+<p>1절의 물음에 답합니다. 3σ 선은 평균 <span id="l_s"></span>장이 지나야 알립니다. EWMA와 CUSUM은 같은 헛알람 간격에서 평균 <span id="l_e"></span>장·<span id="l_c"></span>장으로 줄입니다. 대가는 두 가지입니다. 3σ 이상의 큰 변화(그림 2의 오른쪽 끝)에서는 3σ 선이 가장 빠르고, 두 방법은 자기상관이 있는 값에 그대로 쓸 수 없습니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy, scipy</code>만 씁니다. 함수 여섯 개(ARL 계산 셋, 한계 맞춤 하나, 감시 둘)가 이 실험실의 도구입니다. 가상 데이터를 파일로 받으려면 단추를 누르십시오. 받은 파일 <code>s8_small_shift.csv</code>를 코드와 같은 폴더에 두면 맨 아래 부분이 그대로 돌아갑니다. 파일의 <code>truth_flag</code> 열은 가상 데이터의 정답 표시(변화 뒤 유리 = 1)이며, 현장 데이터에는 없습니다.</p>
+<div class="row"><button class="btn" id="csvBtn" type="button">CSV 내려받기 (s8_small_shift.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import csv
+import numpy as np
+from scipy.stats import norm
+
+MU0, SD0 = 1.000, 0.010          # 정상일 때의 평균과 표준편차 (이 실험실에서는 이미 안다고 놓습니다)
+TARGET = 1 / (2 * norm.sf(3))    # 약속하는 정상 때 평균 런 길이: 3σ 선 양쪽의 헛알람 간격 370.4
+
+
+def arl_shewhart(delta, L=3.0):
+    """3σ 선(양쪽)의 평균 런 길이 = 1/p. 쓰면 안 되는 때: 유리끼리 닮았거나(자기상관) 값이 종 모양이 아닐 때(0203)."""
+    return 1 / (norm.sf(L - delta) + norm.sf(L + delta))
+
+
+def arl_ewma(lam, L, delta, m=101):
+    """EWMA(양쪽 한계)의 평균 런 길이. 한계 안쪽을 m칸으로 나눠 칸 사이 이동 확률로 푼다.
+    쓰면 안 되는 때: 자기상관이 있을 때(잔차에 쓸 것), μ0·σ 를 적은 기준에서 추정했을 때(ARL0 이 약속과 달라진다)."""
+    U = L * np.sqrt(lam / (2 - lam))
+    w = 2 * U / m
+    e = -U + w * np.arange(m + 1)
+    c = (e[:-1] + e[1:]) / 2
+    z = (e[None, :] - (1 - lam) * c[:, None]) / lam - delta
+    P = np.diff(norm.cdf(z), axis=1)
+    return np.linalg.solve(np.eye(m) - P, np.ones(m))[m // 2]
+
+
+def _cusum_one_side(k, h, delta, m):
+    w = 2 * h / (2 * m - 1)
+    s = w * np.arange(m)
+    lo = s - w / 2
+    lo[0] = -np.inf
+    P = norm.cdf(s[None, :] + w / 2 - s[:, None] + k - delta) - norm.cdf(lo[None, :] - s[:, None] + k - delta)
+    return np.linalg.solve(np.eye(m) - P, np.ones(m))[0]
+
+
+def arl_cusum(k, h, delta, m=100):
+    """CUSUM(양쪽)의 평균 런 길이 = 위쪽과 아래쪽 한쪽 ARL 의 역수를 더해 합친 값.
+    쓰면 안 되는 때: 자기상관이 있을 때(잔차에 쓸 것), k 를 잡고 싶은 변화의 절반보다 훨씬 크게 잡았을 때(작은 변화를 놓친다)."""
+    a = _cusum_one_side(k, h, delta, m)
+    return a / 2 if abs(delta) &lt; 1e-12 else 1 / (1 / a + 1 / _cusum_one_side(k, h, -delta, m))
+
+
+def calibrate(arl_fn, target, lo, hi, n=50):
+    """arl_fn(x) 가 x 에 따라 커진다고 보고, 이분법으로 arl_fn(x) = target 인 x 를 찾는다.
+    쓰면 안 되는 때: 구간 [lo, hi] 안에서 arl_fn 이 target 을 가로지르지 않을 때(구간을 넓혀서 다시)."""
+    for _ in range(n):
+        mid = (lo + hi) / 2
+        if arl_fn(mid) &lt; target:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def ewma_monitor(x, mu0, sd, lam, L):
+    """(EWMA 값 배열, 첫 알람 번호) 를 돌려준다. 번호는 1부터, 알람이 없으면 None.
+    쓰면 안 되는 때: 자기상관이 있을 때(잔차에 쓸 것), 알람 뒤 통계량을 처음 상태로 돌리지 않고 이어서 볼 때(같은 알람이 계속 난다)."""
+    z = (np.asarray(x, float) - mu0) / sd
+    u = np.zeros(len(z))
+    prev = 0.0
+    for i, v in enumerate(z):
+        prev = lam * v + (1 - lam) * prev
+        u[i] = prev
+    ucl = L * np.sqrt(lam / (2 - lam))
+    hit = np.flatnonzero(np.abs(u) &gt; ucl)
+    return u, (int(hit[0]) + 1 if hit.size else None)
+
+
+def cusum_monitor(x, mu0, sd, k, h):
+    """(S+ 배열, S- 배열, 첫 알람 번호, 변화 시작점 추정 번호). 번호는 1부터, 알람이 없으면 None.
+    변화 시작점 추정 = 알람 난 쪽 합이 마지막으로 0 이었던 다음 유리. 쓰면 안 되는 때: 자기상관이 있을 때(잔차에 쓸 것)."""
+    z = (np.asarray(x, float) - mu0) / sd
+    sp, sm = np.zeros(len(z)), np.zeros(len(z))
+    a = b = 0.0
+    for i, v in enumerate(z):
+        a = max(0.0, a + v - k)
+        b = max(0.0, b - v - k)
+        sp[i], sm[i] = a, b
+    hit = np.flatnonzero((sp &gt; h) | (sm &gt; h))
+    if not hit.size:
+        return sp, sm, None, None
+    i = int(hit[0])
+    s = sm if sm[i] &gt; h and sm[i] &gt;= sp[i] else sp
+    zero = np.flatnonzero(s[:i] == 0)
+    return sp, sm, i + 1, (int(zero[-1]) + 2 if zero.size else 1)
+
+
+# ---- 가상 데이터로 돌려 보기 (페이지의 [CSV 내려받기]로 받은 파일) ----
+def load(branch, role):
+    with open("s8_small_shift.csv", newline="") as f:
+        return np.array([float(r["value"]) for r in csv.DictReader(f) if r["branch"] == branch and r["role"] == role])
+
+
+SHIFT_AT = 100                                   # 감시 구간 100번째 유리부터 평균이 −1σ 이동
+print(f"정상 때 목표 ARL0 = {TARGET:.1f} (3σ 선 양쪽의 헛알람 간격)")
+L = calibrate(lambda v: arl_ewma(0.2, v, 0.0), TARGET, 1.0, 5.0)
+h = calibrate(lambda v: arl_cusum(0.5, v, 0.0), TARGET, 0.05, 60.0)
+print(f"맞춘 한계: EWMA(λ=0.2) L = {L:.4f} · CUSUM(k=0.5) h = {h:.4f}")
+print("평균 런 길이 ARL (δ = 변화 크기, σ 단위)")
+print("  δ    3σ 선    EWMA   CUSUM")
+for d in (0.0, 0.5, 1.0, 2.0, 3.0):
+    print(f"{d:5.1f} {arl_shewhart(d):8.1f} {arl_ewma(0.2, L, d):7.1f} {arl_cusum(0.5, h, d):7.1f}")
+
+ref, mon = load("S", "ref"), load("S", "mon")
+print(f"\n[증착 속도] 기준 {len(ref)}장 평균 {ref.mean():.4f} 표준편차 {ref.std(ddof=1):.4f} · 감시 {len(mon)}장")
+z = (mon - MU0) / SD0
+f3 = int(np.argmax(np.abs(z) &gt; 3)) + 1 if (np.abs(z) &gt; 3).any() else None
+u, fe = ewma_monitor(mon, MU0, SD0, 0.2, L)
+sp, sm, fc, st = cusum_monitor(mon, MU0, SD0, 0.5, h)
+print(f"3σ 선  첫 알람 {f3}번째 유리 (변화 뒤 {f3 - SHIFT_AT + 1}장째)")
+print(f"EWMA   첫 알람 {fe}번째 유리 (변화 뒤 {fe - SHIFT_AT + 1}장째)")
+print(f"CUSUM  첫 알람 {fc}번째 유리 (변화 뒤 {fc - SHIFT_AT + 1}장째) · 변화 시작점 추정 {st}번째 유리 (실제 {SHIFT_AT}번째)")
+
+# 자기상관이 있을 때: 0203 의 잔차 만들기(residual_limit 과 같은 계산)를 거친 뒤 CUSUM
+r_ref, r_mon = load("R", "ref"), load("R", "mon")
+m = r_ref.mean()
+d = r_ref - m
+phi = (d[1:] * d[:-1]).sum() / (d[:-1] ** 2).sum()
+sdr = (d[1:] - phi * d[:-1]).std(ddof=1)
+prev = np.concatenate([[r_ref[-1]], r_mon[:-1]])
+res = (r_mon - m) - phi * (prev - m)
+k_res = 0.5 * (1 - phi) * r_ref.std(ddof=1) / sdr            # 잡고 싶은 변화 = 원값 표준편차의 1배
+h_res = calibrate(lambda v: arl_cusum(k_res, v, 0.0), TARGET, 0.05, 60.0)
+f_r3 = int(np.argmax(np.abs(res) &gt; 3 * sdr)) + 1
+_, _, f_rc, _ = cusum_monitor(res, 0.0, sdr, k_res, h_res)
+_, _, f_raw, _ = cusum_monitor(r_mon, 0.0, 1.0, 0.5, h)       # 이 가상 데이터는 평균 0, 전체 표준편차 1
+print(f"\n[자기상관 갈래] 기준 {len(r_ref)}장에서 φ̂ = {phi:.4f} 잔차 표준편차 {sdr:.4f}")
+print(f"잔차 CUSUM: k = {k_res:.4f} h = {h_res:.4f}")
+print(f"첫 알람(번째 유리): 잔차 3σ {f_r3} · 잔차 CUSUM {f_rc} · 원값 CUSUM {f_raw} (변화 {'전' if f_raw &lt; SHIFT_AT else '뒤'})")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 위 표들의 숫자와 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력 예시"></pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>작은 변화 감시 알람 보고서</h3>
+  <dl>
+    <dt>특징과 감시 방식</dt><dd id="rp_what"></dd>
+    <dt>설계 근거</dt><dd id="rp_design"></dd>
+    <dt>알람 시각</dt><dd id="rp_alarm"></dd>
+    <dt>변화 시작점 추정과 영향 범위</dt><dd id="rp_start"></dd>
+    <dt>추정 변화 크기</dt><dd id="rp_size"></dd>
+    <dt>0203 진단 결과</dt><dd>기준 구간의 정규성·독립성·깨끗한 기준을 점검한 결과와, 자기상관이면 잔차에 감시를 걸었다는 표시를 적습니다.</dd>
+    <dt>권고 (사람의 확인 필요)</dt><dd>변화 시작점 이후 처리된 유리를 우선 확인하고, 그 시점 전후의 PM·소스 교체·부품 교체 이력을 대조합니다. <b>변화가 진짜인지의 확정과 조치는 사람이 합니다.</b></dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 이 감시를 스스로 하려면 현장에서 아래를 남겨야 합니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>변화 사건 라벨</b> — 언제 시작했는지, 원인(소스 교체·PM·부품·재료 로트), 크기. 이것이 쌓여야 회사 데이터로 ARL1을 직접 재고 <i>δ</i>*를 근거 있게 정합니다.</li>
+      <li>알람마다 <b>확인 결과</b>(진짜 변화·헛알람)와 확인에 걸린 시간</li>
+      <li>유리 <b>처리 시각</b> — 순서가 없으면 EWMA·CUSUM을 돌릴 수 없습니다</li>
+      <li>유리 ID, 챔버, 마스크 세트, 턴 — 데이터를 잇는 키</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실이 남기는 검증된 함수입니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><code>arl_shewhart(delta, L)</code> — 3σ 선의 ARL</li>
+      <li><code>arl_ewma(lam, L, delta)</code> — EWMA의 ARL</li>
+      <li><code>arl_cusum(k, h, delta)</code> — CUSUM의 ARL</li>
+      <li><code>calibrate(arl_fn, target, lo, hi)</code> — <i>L</i>·<i>h</i> 맞춤</li>
+      <li><code>ewma_monitor(x, mu0, sd, lam, L)</code> · <code>cusum_monitor(x, mu0, sd, k, h)</code> — 감시와 변화 시작점 추정</li>
+    </ul>
+    <p class="note" style="margin-top:.5rem">감시 순서: 0203 <code>assumption_check</code> → (자기상관이면 잔차로) → CUSUM 또는 EWMA와 3σ 선 → 0202 <code>alarm_audit</code>. 사람이 정하는 것은 <i>δ</i>*와 감내할 ARL0, 변화의 진위 확정이고, 에이전트는 한계 맞춤·감시·변화 시작점 추정·보고까지 맡습니다.</p>
+  </div>
+</div>
+<div class="qna" data-label="기준 평균·표준편차를 추정값으로 쓰면 ARL0이 약속대로인가요?" data-q="기준 평균·표준편차를 추정값으로 쓰면 ARL0이 약속대로인가요?">
+  <p>아닙니다. 이 실험실의 ARL은 정상 평균과 표준편차를 정확히 안다고 놓고 계산한 값입니다. 기준 장수가 적으면 추정한 평균과 표준편차가 참값에서 흔들리고, 그 흔들림이 선이나 합의 위치를 옮겨 ARL0이 약속보다 짧아지거나 길어집니다. 6절의 잔차 쪽 정상 때 ARL0이 약속과 조금 다르게 나오는 것도 같은 이유입니다.</p>
+  <p>0203처럼 기준을 길고 깨끗하게 잡을수록 약속에 가까워집니다. 추정값을 쓰는 감시를 처음 걸 때는 기준 장수를 늘려 가며 ARL0을 다시 재 보십시오.</p>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0203-three-hidden-assumptions.html">← 이전: 3σ의 숨은 가정 셋</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ============ 데이터·계산 핵심 (CORE-START) ============ */
+var MS=MfgSim, T8=MS.s8tools, Q=MS.qnorm;
+var BASE=MS.scenario('S8'), BP=BASE.params, TR=BASE.trace, RB=BASE.R, ARL0=BP.arl0_target, SA=BP.shift_at, NMON=BP.n_mon, MU0=BP.mu0, SD0=BP.sd0, DEL=BP.deltas;
+var LAM0=BP.lam, K0=BP.k, L0=BP.L_ewma, H0=BP.h_cusum, DL0=BP.delta, PHI0=BP.phi, LSH=BP.L_shew, DAYG=200;
+function di(d){for(var i=0;i<DEL.length;i++)if(Math.abs(DEL[i]-d)<1e-9)return i;return -1;}
+/* ============ CORE-END ============ */
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtP(p){return fmt(p,5);}
+function setT(id,t){var e=$(id);if(e)e.textContent=t;}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function niceStep(span,target){var raw=span/target,p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),f=raw/p;return (f<1.5?1:f<3.5?2:f<7.5?5:10)*p;}
+function pad(s,w){s=String(s);while(s.length<w)s=' '+s;return s;}
+function pdfN(z,m,s){var u=(z-m)/s;return Math.exp(-0.5*u*u)/(s*Math.sqrt(2*Math.PI));}
+function num(d){return String(+d.toFixed(3));}
+var later=(function(){var t={};return function(k,fn,ms){clearTimeout(t[k]);t[k]=setTimeout(fn,ms);};})();
+
+/* ---- 공용 꺾은선 그림: 칸(panel)마다 계열·가로선·세로선·표시 ---- */
+function chart(id,height,n,panels,xlab){
+  var c=setup($(id),height),x=c.x,W=c.w,H=c.h,soft=css('--soft'),rule=css('--rule'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  var pl=50,pr=12,pt=8,pb=26,gap=16,np=panels.length,ph=(H-pt-pb-gap*(np-1))/np;
+  function X(i){return pl+(i-1)/(n-1)*(W-pl-pr);}
+  panels.forEach(function(P,pi){
+    var top=pt+pi*(ph+gap),vals=[],lo,hi,i;
+    P.series.forEach(function(s){for(i=0;i<s.v.length;i++)vals.push(s.v[i]);});
+    (P.h||[]).forEach(function(l){vals.push(l.v);});
+    lo=P.lo!=null?P.lo:Math.min.apply(null,vals);hi=P.hi!=null?P.hi:Math.max.apply(null,vals);
+    var padv=(hi-lo)*0.06||1;if(P.lo==null)lo-=padv;if(P.hi==null)hi+=padv;
+    function Y(v){return top+ph-(v-lo)/(hi-lo)*ph;}
+    x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,top+.5,W-pl-pr-1,ph-1);
+    x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='right';
+    var st=niceStep(hi-lo,Math.max(2,Math.floor(ph/38))),v=Math.ceil(lo/st)*st;
+    for(;v<=hi;v+=st){var yy=Y(v);x.fillText(String(+v.toFixed(4)),pl-5,yy+4);x.save();x.strokeStyle=rule;x.globalAlpha=.5;x.beginPath();x.moveTo(pl,yy);x.lineTo(W-pr,yy);x.stroke();x.restore();}
+    (P.h||[]).forEach(function(l){x.save();x.strokeStyle=l.col;x.lineWidth=l.w||1.6;x.setLineDash(l.dash||[]);x.beginPath();x.moveTo(pl,Y(l.v));x.lineTo(W-pr,Y(l.v));x.stroke();x.restore();
+      if(l.label){x.fillStyle=l.col;x.font='bold 11px sans-serif';x.textAlign='right';x.fillText(l.label,W-pr-4,Y(l.v)+(l.below?13:-4));}});
+    (P.v||[]).forEach(function(l){if(l.i==null)return;x.save();x.strokeStyle=l.col;x.lineWidth=1.4;x.setLineDash(l.dash||[4,4]);x.beginPath();x.moveTo(X(l.i),top);x.lineTo(X(l.i),top+ph);x.stroke();x.restore();
+      if(l.label){x.fillStyle=l.col;x.font='bold 11px sans-serif';x.textAlign=X(l.i)>W-110?'right':'left';x.fillText(l.label,X(l.i)+(X(l.i)>W-110?-4:4),top+12+(l.dy||0));}});
+    x.save();x.beginPath();x.rect(pl,top,W-pl-pr,ph);x.clip();
+    P.series.forEach(function(s){
+      x.strokeStyle=s.col;x.lineWidth=s.w||1.3;x.beginPath();s.v.forEach(function(q,k){if(k)x.lineTo(X(k+1),Y(q));else x.moveTo(X(1),Y(q));});x.stroke();
+      if(s.hit){x.fillStyle=css('--bad');s.v.forEach(function(q,k){if(s.hit(q))x.fillRect(X(k+1)-1.6,Y(q)-1.6,3.2,3.2);});}
+    });
+    (P.marks||[]).forEach(function(m){if(m.i==null)return;x.fillStyle=m.col;x.beginPath();x.arc(X(m.i),Y(m.y),m.r||6,0,6.283);x.fill();x.strokeStyle=css('--card');x.lineWidth=1.5;x.stroke();});
+    x.restore();
+    if(P.title){x.fillStyle=soft;x.font='bold 11px sans-serif';x.textAlign='left';x.fillText(P.title,pl+6,top+13);}
+  });
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='center';
+  for(var g=0;g<=n;g+=50){if(g>=1)x.fillText(String(g),X(g),H-12);}
+  x.fillText(xlab||'감시 구간의 유리 번호',pl+(W-pl-pr)/2,H-1);
+  x.textAlign='left';
+}
+var cache={};
+function traceFor(d,lam,k){var key=d+'|'+lam+'|'+k;return cache[key]||(cache[key]=MS.scenario('S8',{only:'S',delta:d,lam:lam,k:k}).trace);}
+function dly(v,none){return v==null?(none||'알람 없음'):v+'장째';}
+function isBase(a,b){return Math.abs(a-b)<1e-9;}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+
+/* ---- 머리말·문제 ---- */
+(function(){
+  var i1=di(DL0);
+  setT('i_s',fmt(BASE.arl.shew[i1],1));setT('i_e',fmt(BASE.arl.ewma[i1],1));setT('i_c',fmt(BASE.arl.cusum[i1],1));
+  setT('p_mu',fmt(MU0,3));setT('p_sd',fmt(SD0,3));setT('p_nref',BP.n_ref);setT('p_nref2',BP.n_ref);setT('p_nmon',BP.n_mon);setT('p_sa',SA);setT('p_dl',num(DL0));setT('p_pct',num(DL0*SD0/MU0*100));
+  setT('p_rm',fmt(TR.ref_mean,4));setT('p_rs',fmt(TR.ref_sd,4));
+  ['s3_t','s4_t','s5_t'].forEach(function(id){setT(id,fmt(ARL0,1));});
+  Array.prototype.forEach.call(document.querySelectorAll('.a0'),function(e){e.textContent=fmt(ARL0,1);});
+  setT('q_d',TR.shew.delay);
+})();
+
+/* ---- 1절 ---- */
+(function(){
+  var z=TR.z;
+  function draw(){
+    chart('cv1',250,NMON,[{series:[{v:TR.mon,col:css('--soft'),w:1.2,hit:function(q){return Math.abs(q-MU0)>LSH*SD0;}}],
+      h:[{v:MU0+LSH*SD0,col:css('--bad'),label:'+3σ'},{v:MU0-LSH*SD0,col:css('--bad'),label:'−3σ',below:true},{v:MU0,col:css('--accent'),dash:[2,3],w:1.4}],
+      v:[{i:SA,col:css('--ink'),label:'변화 시작'}],
+      marks:TR.shew.first?[{i:TR.shew.first,y:TR.mon[TR.shew.first-1],col:css('--bad'),r:6}]:[]}],'감시 구간의 유리 번호 (Å/s)');
+  }
+  var h='<tr><th>방식</th><th>이 궤적에서 변화 뒤 첫 알람까지</th></tr>';
+  h+='<tr><td class="rowh">3σ 선</td><td><b>'+dly(TR.shew.delay)+'</b>('+(TR.shew.first?TR.shew.first+'번째 유리':'—')+')</td></tr>';
+  h+='<tr><td class="rowh">EWMA</td><td>9절에서 채웁니다</td></tr><tr><td class="rowh">CUSUM</td><td>9절에서 채웁니다</td></tr>';
+  $('tab1').innerHTML=h;
+  window.__d1=draw;draw();
+})();
+
+/* ---- 2절: 한 장만 보는 선 ---- */
+var s2={L:LSH,d:DL0};
+function arl2(L,d){return 1/(Q(L-d)+Q(L+d));}
+function drawDist(L,d){
+  var c=setup($('cv2'),230),x=c.x,W=c.w,H=c.h,soft=css('--soft'),acc=css('--accent'),bad=css('--bad'),rule=css('--rule');
+  x.clearRect(0,0,W,H);
+  var pl=14,pr=14,pt=14,pb=28,pw=W-pl-pr,ph=H-pt-pb,xl=-6.5,xr=6.5;
+  function X(v){return pl+(v-xl)/(xr-xl)*pw;}function Y(p){return pt+ph-p/0.42*ph;}
+  function fillTail(m,from,to,col){x.fillStyle=col;x.globalAlpha=.4;x.beginPath();x.moveTo(X(from),Y(0));for(var v=from;v<=to+1e-9;v+=0.05)x.lineTo(X(v),Y(pdfN(v,m,1)));x.lineTo(X(to),Y(0));x.closePath();x.fill();x.globalAlpha=1;}
+  fillTail(0,L,xr,soft);fillTail(0,xl,-L,soft);fillTail(-d,L,xr,acc);fillTail(-d,xl,-L,acc);
+  [[0,soft],[-d,acc]].forEach(function(a){x.strokeStyle=a[1];x.lineWidth=2;x.beginPath();for(var v=xl;v<=xr+1e-9;v+=0.05){var px=X(v),py=Y(pdfN(v,a[0],1));if(v===xl)x.moveTo(px,py);else x.lineTo(px,py);}x.stroke();});
+  x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(pl,Y(0));x.lineTo(W-pr,Y(0));x.stroke();
+  [-L,L].forEach(function(v){x.save();x.strokeStyle=bad;x.lineWidth=2;x.beginPath();x.moveTo(X(v),pt);x.lineTo(X(v),Y(0));x.stroke();x.restore();});
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='center';
+  for(var t=-6;t<=6;t+=2)x.fillText(String(t),X(t),H-12);
+  x.fillStyle=bad;x.font='bold 11px sans-serif';x.fillText('−'+fmt(L,2),X(-L),pt+10);x.fillText('+'+fmt(L,2),X(L),pt+10);
+  x.fillStyle=soft;x.font='11px sans-serif';x.fillText('z값 (정상 평균에서 몇 σ 떨어졌나)',pl+pw/2,H-1);x.textAlign='left';
+}
+function upd2(){
+  var L=s2.L,d=s2.d,p0=2*Q(L),p1=Q(L-d)+Q(L+d),a0=1/p0,a1=1/p1;
+  setT('L2o',fmt(L,2)+'σ');setT('d2o',fmt(d,1)+'σ');
+  var h='<tr><th>항목</th><th>값</th></tr>';
+  h+='<tr><td class="rowh">정상일 때 한 장이 선을 넘을 확률 <i>p</i><sub>0</sub></td><td>'+fmtP(p0)+'</td></tr>';
+  h+='<tr><td class="rowh">변화 뒤 한 장이 선을 넘을 확률 <i>p</i><sub>1</sub></td><td>'+fmtP(p1)+'</td></tr>';
+  h+='<tr><td class="rowh">ARL0 = 1/<i>p</i><sub>0</sub> (헛알람 사이의 평균 간격)</td><td class="hit">'+fmt(a0,1)+'장</td></tr>';
+  h+='<tr><td class="rowh">ARL1 = 1/<i>p</i><sub>1</sub> (알아채기까지의 평균 지연)</td><td><b>'+fmt(a1,1)+'장</b></td></tr>';
+  h+='<tr><td class="rowh">하루 헛알람 수 (하루 '+DAYG+'장, 특징 1개)</td><td>'+fmt(DAYG/a0,2)+'건</td></tr>';
+  h+='<tr><td class="rowh">변화를 알아채기까지 걸리는 시간 (하루 '+DAYG+'장)</td><td>'+fmt(a1/DAYG*24,1)+'시간</td></tr>';
+  $('tab2').innerHTML=h;
+  stateBox($('st2'),isBase(L,LSH)&&isBase(d,DL0),'지금 이 값이 기준 설정입니다. 선은 '+fmt(LSH,2)+'σ, 변화는 '+num(DL0)+'σ입니다.','지금은 기준 설정에서 옮겨 놓은 가정입니다. 선 '+fmt(LSH,2)+' → '+fmt(L,2)+'σ, 변화 '+num(DL0)+' → '+num(d)+'σ.');
+  var b0=arl2(2.5,0),b1=arl2(2.5,d);
+  $('concl2').innerHTML='<b>선 '+fmt(L,2)+'σ에서 ARL0은 '+fmt(a0,1)+'장, 변화 '+num(d)+'σ의 ARL1은 '+fmt(a1,1)+'장입니다.</b> 같은 변화에서 선을 2.5σ로 낮추면 ARL1은 '+fmt(b1,1)+'장으로 줄지만 ARL0이 '+fmt(b0,1)+'장으로 무너집니다. 한 장만 보는 선은 이 맞바꿈을 피할 수 없습니다.';
+  drawDist(L,d);
+}
+$('L2').addEventListener('input',function(){s2.L=+this.value;upd2();});
+$('d2').addEventListener('input',function(){s2.d=+this.value;upd2();});
+$('r2').addEventListener('click',function(){s2={L:LSH,d:DL0};$('L2').value=String(LSH);$('d2').value=String(DL0);upd2();});
+
+/* ---- 3절: EWMA ---- */
+var s3={lam:LAM0,d:DL0};
+function upd3(){
+  var lam=s3.lam,d=s3.d,L=T8.calibEwmaL(lam),ucl=L*Math.sqrt(lam/(2-lam)),a0=T8.arlEwma(lam,L,0),a1=T8.arlEwma(lam,L,d),as=T8.arlShewhart(d,LSH);
+  var tr=traceFor(d,lam,s4.k).ewma,trS=traceFor(d,lam,s4.k).shew;
+  setT('lam3o',fmt(lam,2));setT('d3o',fmt(d,1)+'σ');
+  var h='<tr><th>항목</th><th>EWMA</th><th>3σ 선 (비교)</th></tr>';
+  h+='<tr><td class="rowh">자동으로 정해진 <i>L</i> (정상 때 ARL0이 '+fmt(ARL0,1)+'가 되도록)</td><td colspan="2"><b>'+fmt(L,3)+'</b>'+(lam>0.999?' — <i>λ</i> = 1이라 3σ 선과 같습니다':'')+'</td></tr>';
+  h+='<tr><td class="rowh">한계 ± <i>L</i>√(<i>λ</i>/(2−<i>λ</i>)) (EWMA 값 <i>u</i>의 단위)</td><td>± '+fmt(ucl,3)+'</td><td>± '+fmt(LSH,3)+' (<i>z</i>)</td></tr>';
+  h+='<tr><td class="rowh">정상 때 ARL0 (이 <i>L</i>에서 계산)</td><td>'+fmt(a0,1)+'장</td><td>'+fmt(1/(2*Q(LSH)),1)+'장</td></tr>';
+  h+='<tr><td class="rowh">변화 '+num(d)+'σ의 ARL1</td><td class="hit">'+fmt(a1,1)+'장</td><td>'+fmt(as,1)+'장</td></tr>';
+  h+='<tr><td class="rowh">이 궤적에서 '+(d>0?'변화 뒤 ':'')+'첫 알람</td><td>'+(tr.first?tr.first+'번째 유리 ('+(d>0?dly(tr.delay):'변화가 없으므로 헛알람')+')':'감시 구간에서 알람 없음')+'</td><td>'+(trS.first?trS.first+'번째 유리 ('+(d>0?dly(trS.delay):'헛알람')+')':'알람 없음')+'</td></tr>';
+  h+='<tr><td class="rowh">변화 시작 전 헛알람</td><td>'+tr.pre.length+'건</td><td>'+trS.pre.length+'건</td></tr>';
+  $('tab3a').innerHTML=h;
+  stateBox($('st3'),isBase(lam,LAM0)&&isBase(d,DL0),'지금 이 값이 기준 설정입니다. λ = '+fmt(LAM0,2)+', 변화 '+num(DL0)+'σ.','지금은 기준 설정에서 옮겨 놓은 가정입니다. λ '+fmt(LAM0,2)+' → '+fmt(lam,2)+', 변화 '+num(DL0)+' → '+num(d)+'σ.');
+  $('concl3').innerHTML='<b><i>λ</i> = '+fmt(lam,2)+'이면 <i>L</i> = '+fmt(L,3)+'으로 정해지고, 변화 '+num(d)+'σ를 평균 '+fmt(a1,1)+'장 만에 알아챕니다</b>(3σ 선은 '+fmt(as,1)+'장). 정상 때 헛알람 간격은 둘 다 '+fmt(ARL0,1)+'장으로 같습니다.';
+  var v=[{i:d>0?SA:null,col:css('--ink'),label:'변화 시작'}];
+  chart('cv3',250,NMON,[{series:[{v:tr.w,col:css('--c10'),w:1.5,hit:function(q){return Math.abs(q)>tr.ucl;}}],
+    h:[{v:tr.ucl,col:css('--bad'),label:'+한계'},{v:-tr.ucl,col:css('--bad'),label:'−한계',below:true},{v:0,col:css('--grey'),dash:[2,3],w:1.2}],v:v,
+    marks:tr.first?[{i:tr.first,y:tr.w[tr.first-1],col:css('--bad'),r:6}]:[]}],'감시 구간의 유리 번호 (EWMA 값 u)');
+}
+$('lam3').addEventListener('input',function(){s3.lam=+this.value;upd3();upd5later();});
+$('d3').addEventListener('input',function(){s3.d=+this.value;upd3();});
+$('r3').addEventListener('click',function(){s3={lam:LAM0,d:DL0};$('lam3').value=String(LAM0);$('d3').value=String(DL0);upd3();upd5later();});
+
+/* ---- 4절: CUSUM ---- */
+var s4={k:K0,d:DL0};
+function upd4(){
+  var k=s4.k,d=s4.d,h=T8.calibCusumH(k),a0=T8.arlCusum(k,h,0),a1=T8.arlCusum(k,h,d),as=T8.arlShewhart(d,LSH);
+  var tr=traceFor(d,s3.lam,k).cusum,trS=traceFor(d,s3.lam,k).shew;
+  setT('k4o',fmt(k,2));setT('d4o',fmt(d,1)+'σ');
+  var t='<tr><th>항목</th><th>CUSUM</th><th>3σ 선 (비교)</th></tr>';
+  t+='<tr><td class="rowh">잡고 싶은 최소 변화 <i>δ</i>* = 2<i>k</i></td><td colspan="2">'+fmt(2*k,2)+'σ</td></tr>';
+  t+='<tr><td class="rowh">자동으로 정해진 결정 구간 <i>h</i> (정상 때 ARL0이 '+fmt(ARL0,1)+'가 되도록)</td><td colspan="2"><b>'+fmt(h,3)+'</b></td></tr>';
+  t+='<tr><td class="rowh">정상 때 ARL0 (이 <i>h</i>에서 계산)</td><td>'+fmt(a0,1)+'장</td><td>'+fmt(1/(2*Q(LSH)),1)+'장</td></tr>';
+  t+='<tr><td class="rowh">변화 '+num(d)+'σ의 ARL1</td><td class="hit">'+fmt(a1,1)+'장</td><td>'+fmt(as,1)+'장</td></tr>';
+  t+='<tr><td class="rowh">이 궤적에서 '+(d>0?'변화 뒤 ':'')+'첫 알람</td><td>'+(tr.first?tr.first+'번째 유리 ('+(d>0?dly(tr.delay):'변화가 없으므로 헛알람')+')':'감시 구간에서 알람 없음')+'</td><td>'+(trS.first?trS.first+'번째 유리 ('+(d>0?dly(trS.delay):'헛알람')+')':'알람 없음')+'</td></tr>';
+  t+='<tr><td class="rowh">변화 시작점 추정 / 실제 시작과의 차이</td><td colspan="2">'+(tr.first&&d>0?tr.start+'번째 유리 / '+(tr.start-SA>=0?'+':'')+(tr.start-SA)+'장 (실제 '+SA+'번째)':'알람이 없거나 변화가 없어 추정하지 않습니다')+'</td></tr>';
+  t+='<tr><td class="rowh">변화 시작 전 헛알람</td><td>'+tr.pre.length+'건</td><td>'+trS.pre.length+'건</td></tr>';
+  $('tab4a').innerHTML=t;
+  stateBox($('st4'),isBase(k,K0)&&isBase(d,DL0),'지금 이 값이 기준 설정입니다. k = '+fmt(K0,2)+', 변화 '+num(DL0)+'σ.','지금은 기준 설정에서 옮겨 놓은 가정입니다. k '+fmt(K0,2)+' → '+fmt(k,2)+', 변화 '+num(DL0)+' → '+num(d)+'σ.');
+  $('concl4').innerHTML='<b><i>k</i> = '+fmt(k,2)+'(잡고 싶은 최소 변화 '+fmt(2*k,2)+'σ)이면 <i>h</i> = '+fmt(h,3)+'이고, 변화 '+num(d)+'σ를 평균 '+fmt(a1,1)+'장 만에 알아챕니다</b>(3σ 선은 '+fmt(as,1)+'장).'+(tr.first&&d>0?' 이 궤적에서는 '+tr.first+'번째 유리에서 알리고, 변화 시작점을 '+tr.start+'번째 유리로 추정합니다(실제 '+SA+'번째).':'');
+  var zeroCol=css('--grey');
+  chart('cv4',250,NMON,[{series:[{v:tr.Sp,col:zeroCol,w:1.2},{v:tr.Sm,col:css('--c9'),w:1.6,hit:function(q){return q>tr.h;}}],lo:0,hi:2.6*tr.h,
+    h:[{v:tr.h,col:css('--bad'),label:'h'}],
+    v:[{i:d>0?SA:null,col:css('--ink'),label:'실제 시작'},{i:(tr.first&&d>0)?tr.start:null,col:css('--good'),dash:[2,3],label:'추정 시작',dy:14}],
+    marks:tr.first?[{i:tr.first,y:(tr.side==='down'?tr.Sm:tr.Sp)[tr.first-1],col:css('--bad'),r:6}]:[]}],'감시 구간의 유리 번호 (누적합 S)');
+}
+$('k4').addEventListener('input',function(){s4.k=+this.value;upd4();upd5later();});
+$('d4').addEventListener('input',function(){s4.d=+this.value;upd4();});
+$('r4').addEventListener('click',function(){s4={k:K0,d:DL0};$('k4').value=String(K0);$('d4').value=String(DL0);upd4();upd5later();});
+/* 내 값으로 감시하기 */
+$('mu4').value=String(MU0);$('sd4').value=String(SD0);
+$('fill4').addEventListener('click',function(){$('pasteBox').value=TR.mon.map(function(v){return String(v);}).join(', ');$('mu4').value=String(MU0);$('sd4').value=String(SD0);$('out4').textContent='값을 넣었습니다. [감시하기]를 누르십시오.';});
+$('run4').addEventListener('click',function(){
+  var raw=$('pasteBox').value.split(/[\s,;]+/).filter(function(q){return q.length;}),v=raw.map(Number),o=$('out4'),mu=+$('mu4').value,sg=+$('sd4').value;
+  if(raw.length<10||v.some(function(a){return !isFinite(a);})){o.innerHTML='숫자 10개 이상을 쉼표나 줄바꿈으로 구분해 넣어 주십시오. 숫자가 아닌 글자가 섞이면 감시하지 않습니다.';return;}
+  if(!isFinite(mu)||!(sg>0)){o.innerHTML='정상 평균과 정상 표준편차(0보다 큰 값)를 적어 주십시오.';return;}
+  var z=v.map(function(a){return (a-mu)/sg;}),lam=s3.lam,k=s4.k,L=T8.calibEwmaL(lam),h=T8.calibCusumH(k);
+  var m1=T8.shewhartMonitor(z,LSH,0),m2=T8.ewmaMonitor(z,lam,L,0),m3=T8.cusumMonitor(z,k,h,0);
+  function f(x){return x==null?'알람 없음':x+'번째 유리';}
+  o.innerHTML='값 <b>'+v.length+'</b>개 · <i>λ</i> = '+fmt(lam,2)+'(<i>L</i> = '+fmt(L,3)+') · <i>k</i> = '+fmt(k,2)+'(<i>h</i> = '+fmt(h,3)+')<br>첫 알람: 3σ 선 <b>'+f(m1.first)+'</b> · EWMA <b>'+f(m2.first)+'</b> · CUSUM <b>'+f(m3.first)+'</b>'+(m3.first?'<br>CUSUM 변화 시작점 추정: <b>'+m3.start+'번째 유리</b>부터('+(m3.side==='down'?'내려가는':'올라가는')+' 변화)':'');
+});
+
+/* ---- 5절: 세 방식 나란히 ---- */
+var CURVE={};
+function curve(kind,par){
+  var key=kind+par;if(CURVE[key])return CURVE[key];
+  var ys=[],i,d,L,h;
+  if(kind==='s')for(i=0;i<=30;i++)ys.push(T8.arlShewhart(i/10,LSH));
+  else if(kind==='e'){L=T8.calibEwmaL(par);for(i=0;i<=30;i++)ys.push(T8.arlEwma(par,L,i/10));}
+  else{h=T8.calibCusumH(par);for(i=0;i<=30;i++)ys.push(T8.arlCusum(par,h,i/10));}
+  return (CURVE[key]=ys);
+}
+var HV=DL0;
+function drawCurves(){
+  var c=setup($('cv5'),270),x=c.x,W=c.w,H=c.h,soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);
+  var pl=50,pr=12,pt=10,pb=30,pw=W-pl-pr,ph=H-pt-pb,ymin=1,ymax=500;
+  function X(d){return pl+d/3*pw;}function Y(a){return pt+ph-(Math.log(a)-Math.log(ymin))/(Math.log(ymax)-Math.log(ymin))*ph;}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,pt+.5,pw-1,ph-1);
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='right';
+  [1,2,5,10,20,50,100,200,500].forEach(function(a){x.fillText(String(a),pl-5,Y(a)+4);x.save();x.strokeStyle=rule;x.globalAlpha=.5;x.beginPath();x.moveTo(pl,Y(a));x.lineTo(W-pr,Y(a));x.stroke();x.restore();});
+  x.textAlign='center';[0,0.5,1,1.5,2,2.5,3].forEach(function(d){x.fillText(String(d),X(d),H-14);});
+  x.fillText('변화 크기 δ (σ의 배수)',pl+pw/2,H-1);
+  var sets=[['s',LSH,css('--c8')],['e',s3.lam,css('--c10')],['c',s4.k,css('--c9')]];
+  sets.forEach(function(a){var ys=curve(a[0],a[1]);x.strokeStyle=a[2];x.lineWidth=2.2;x.beginPath();ys.forEach(function(v,i){if(i)x.lineTo(X(i/10),Y(v));else x.moveTo(X(0),Y(v));});x.stroke();
+    x.fillStyle=a[2];[0.5,1,2,3].forEach(function(d){x.beginPath();x.arc(X(d),Y(ys[Math.round(d*10)]),3.4,0,6.283);x.fill();});});
+  x.textAlign='left';
+}
+function upd5(){
+  var lam=s3.lam,k=s4.k,Le=T8.calibEwmaL(lam),hc=T8.calibCusumH(k),base=isBase(lam,LAM0)&&isBase(k,K0);
+  setT('s5_lam',fmt(lam,2));setT('s5_k',fmt(k,2));
+  stateBox($('st5'),base,'지금 이 값이 기준 설정입니다. 3·4절 슬라이더가 기준 설정(λ = '+fmt(LAM0,2)+', k = '+fmt(K0,2)+')에 있어, 표의 직접 돌려 본 평균과 나란히 볼 수 있습니다.','지금은 3·4절에서 옮겨 놓은 설계(λ = '+fmt(lam,2)+', k = '+fmt(k,2)+')입니다. 직접 돌려 본 평균은 기준 설정에서만 있으므로 이 상태에서는 식 값만 보입니다.');
+  var dls=[0,0.5,1,2,3],h='<tr><th rowspan="2"><i>δ</i></th><th colspan="2">3σ 선</th><th colspan="2">EWMA</th><th colspan="2">CUSUM</th></tr><tr><th>식</th><th>직접 돌려 본 평균 ± 표준오차</th><th>식</th><th>직접 돌려 본 평균 ± 표준오차</th><th>식</th><th>직접 돌려 본 평균 ± 표준오차</th></tr>';
+  var inside=0,tot=0,f={},m=['shew','ewma','cusum'];
+  dls.forEach(function(d){
+    f[d]=[T8.arlShewhart(d,LSH),T8.arlEwma(lam,Le,d),T8.arlCusum(k,hc,d)];
+    h+='<tr><td class="rowh">'+num(d)+(d===0?' (ARL0)':'')+'</td>';
+    for(var q=0;q<3;q++){
+      var cell=BASE.mc[m[q]][di(d)];h+='<td>'+fmt(f[d][q],1)+'</td>';
+      if(base){tot++;var ok=Math.abs(cell.mean-f[d][q])<=3*cell.se;if(ok)inside++;h+='<td>'+fmt(cell.mean,1)+' ± '+fmt(cell.se,1)+(ok?'':' (밖)')+'</td>';}
+      else h+='<td>—</td>';
+    }
+    h+='</tr>';
+  });
+  $('tab5').innerHTML=h;
+  var r05=[f[0.5][1]/f[0.5][0],f[0.5][2]/f[0.5][0]],r1=[f[1][1]/f[1][0],f[1][2]/f[1][0]];
+  var fastSmall=r1[0]<0.9&&r1[1]<0.9,shewBest=f[3][0]<=f[3][1]&&f[3][0]<=f[3][2];
+  $('concl5').innerHTML='<b>'+(fastSmall&&shewBest?'작은 변화에서는 EWMA·CUSUM이, 큰 변화에서는 3σ 선이 빠릅니다.':'이 설계에서는 세 방식의 속도 차이가 위 표처럼 나타납니다.')+'</b> <i>δ</i> = 0.5에서 EWMA·CUSUM의 ARL1은 3σ 선의 '+fmt(r05[0]*100,0)+'%·'+fmt(r05[1]*100,0)+'%, <i>δ</i> = 1에서 '+fmt(r1[0]*100,0)+'%·'+fmt(r1[1]*100,0)+'%입니다. <i>δ</i> = 3에서는 3σ 선이 '+fmt(f[3][0],2)+'장, EWMA '+fmt(f[3][1],2)+'장, CUSUM '+fmt(f[3][2],2)+'장으로 '+(shewBest?'3σ 선이 가장 빠릅니다.':'3σ 선이 가장 빠르지는 않습니다.')+(base?' 식 값이 직접 센 평균의 ±3 표준오차 안에 든 칸은 '+inside+'/'+tot+'입니다.':'');
+  drawCurves();
+}
+function upd5later(){later('u5',upd5,90);}
+(function(){
+  var nr=BP.mc_runs;setT('s5_nr',nr);setT('s5_nr2',nr);setT('s5_nr3',nr);setT('s5_lam0',fmt(LAM0,2));setT('s5_k0',fmt(K0,2));
+  var box=$('dsel');[0,0.5,1,2,3].forEach(function(d){var b=document.createElement('button');b.type='button';b.className='btn ghost';b.setAttribute('aria-pressed',d===HV?'true':'false');b.textContent='δ = '+num(d)+(d===0?' (변화 없음)':'');b.addEventListener('click',function(){HV=d;Array.prototype.forEach.call(box.children,function(c){c.setAttribute('aria-pressed','false');});b.setAttribute('aria-pressed','true');updHist();});box.appendChild(b);});
+})();
+function updHist(){
+  var idx=di(HV),names=[['shew','3σ 선','--c8'],['ewma','EWMA','--c10'],['cusum','CUSUM','--c9']],cells=names.map(function(a){return BASE.mc[a[0]][idx];});
+  var xmax=Math.max.apply(null,cells.map(function(c){return c.p90;}))*1.35,nb=Math.min(40,Math.max(6,Math.ceil(xmax))),bw=Math.max(1,xmax/nb);nb=Math.ceil(xmax/bw);
+  var c=setup($('cv6'),260),x=c.x,W=c.w,H=c.h,soft=css('--soft'),rule=css('--rule'),ink=css('--ink'),good=css('--good');
+  x.clearRect(0,0,W,H);
+  var pl=46,pr=12,pt=6,pb=26,gap=10,ph=(H-pt-pb-2*gap)/3,pw=W-pl-pr;
+  function X(v){return pl+v/(nb*bw)*pw;}
+  names.forEach(function(a,pi){
+    var cell=cells[pi],runs=cell.runs,cnt=[],b,top=pt+pi*(ph+gap);for(b=0;b<nb;b++)cnt.push(0);
+    runs.forEach(function(r){if(r<=nb*bw){b=Math.min(nb-1,Math.ceil(r/bw)-1);cnt[b]++;}});
+    var fr=cnt.map(function(q){return q/runs.length;}),fm=Math.max.apply(null,fr)*1.1||1;
+    function Y(f){return top+ph-f/fm*ph;}
+    x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,top+.5,pw-1,ph-1);
+    x.fillStyle=css(a[2]);x.globalAlpha=.75;fr.forEach(function(f,i){x.fillRect(X(i*bw),Y(f),Math.max(1,X(bw)-X(0)-1),top+ph-Y(f));});x.globalAlpha=1;
+    x.save();x.strokeStyle=ink;x.lineWidth=1.6;x.setLineDash([5,4]);var xm=X(Math.min(cell.mean,nb*bw));x.beginPath();x.moveTo(xm,top);x.lineTo(xm,top+ph);x.stroke();
+    x.strokeStyle=good;x.lineWidth=1.8;x.setLineDash([2,3]);var xd=X(Math.min(cell.med,nb*bw));x.beginPath();x.moveTo(xd,top);x.lineTo(xd,top+ph);x.stroke();x.restore();
+    x.fillStyle=soft;x.font='bold 11px sans-serif';x.textAlign='left';x.fillText(a[1],pl+6,top+13);
+    x.textAlign='right';x.font='11px sans-serif';x.fillText(fmt(fm/1.1*100,0)+'%',pl-5,top+11);
+  });
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='center';
+  var st=niceStep(nb*bw,8);for(var v=0;v<=nb*bw+1e-9;v+=st)x.fillText(String(+v.toFixed(2)),X(v),H-12);
+  x.fillText('첫 알람까지의 유리 수 (런 길이)',pl+pw/2,H-1);x.textAlign='left';
+  var h='<tr><th>방식</th><th>평균(ARL1)</th><th>중앙값</th><th>10%째</th><th>90%째</th></tr>';
+  names.forEach(function(a,i){var cc=cells[i];h+='<tr><td class="rowh">'+a[1]+'</td><td>'+fmt(cc.mean,1)+'</td><td>'+fmt(cc.med,1)+'</td><td>'+fmt(cc.p10,1)+'</td><td>'+fmt(cc.p90,1)+'</td></tr>';});
+  $('tab6').innerHTML=h;
+  var e=cells[1];
+  $('concl6').innerHTML='<b>평균은 한 번의 지연을 말해 주지 못합니다.</b> <i>δ</i> = '+num(HV)+'에서 EWMA의 평균은 '+fmt(e.mean,1)+'장이지만 중앙값은 '+fmt(e.med,1)+'장으로 더 작습니다(오른쪽 꼬리가 깁니다). 열 번 중 한 번은 '+fmt(e.p90,0)+'장이 넘게 걸렸고, 열 번 중 한 번은 '+fmt(e.p10,0)+'장 이내에 알렸습니다. 한 번 겪은 지연으로 방식을 단정하지 말고 10~90% 범위를 함께 보십시오.';
+}
+
+/* ---- 6절: 자기상관 ---- */
+var s6={phi:PHI0},RC={};
+function getR(p){var key=String(p);return RC[key]||(RC[key]=MS.scenario('S8',{only:'R',phi:p,keep_runs:false}).R);}
+function upd6(){
+  var p=s6.phi,R=getR(p);setT('phi6o',fmt(p,2));
+  setT('s6_first',fmt(R.shift_res.first_theory,2));setT('s6_pers',fmt(R.shift_res.persist_theory,2));
+  function ms(c){return fmt(c.mean,0)+' ± '+fmt(c.se,0);}
+  function fa(x,pre){return pre.length?pre[0]+'번째 유리 (변화 전, 헛알람 '+pre.length+'건)':(x==null?'알람 없음':x+'번째 유리');}
+  var h='<tr><th>항목</th><th>잔차 3σ 선 (0203 방식)</th><th>잔차 CUSUM</th><th>원값 CUSUM</th></tr>';
+  h+='<tr><td class="rowh">변화 직후 잔차의 이동 (잔차 표준편차 단위)</td><td colspan="3">처음 한 장 −'+fmt(R.shift_res.first_theory,2)+' · 그 뒤 계속 −'+fmt(R.shift_res.persist_theory,2)+' (기준 '+BP.n_ref+'장에서 추정한 값으로는 −'+fmt(R.shift_res.first_hat,2)+' · −'+fmt(R.shift_res.persist_hat,2)+')</td></tr>';
+  h+='<tr><td class="rowh">설계 (기준 '+BP.n_ref+'장에서 추정한 <i>φ</i> = '+fmt(R.fit.phi,3)+')</td><td>±3</td><td><i>k</i> = '+fmt(R.k_res,3)+', <i>h</i> = '+fmt(R.h_res,2)+'</td><td><i>k</i> = '+fmt(R.k_raw,2)+', <i>h</i> = '+fmt(R.h_raw,2)+'</td></tr>';
+  h+='<tr><td class="rowh">정상 때 ARL0 (참 <i>φ</i>를 아는 경우: 잔차 CUSUM은 <i>k</i> = '+fmt(R.k_ideal,3)+', <i>h</i> = '+fmt(R.h_ideal,2)+'로 설계, '+R.mc.null.res3.n+'번 평균 ± 표준오차)</td><td>'+ms(R.mc.null.res3)+'</td><td>'+ms(R.mc.null.rescusum)+'</td><td class="hit">'+ms(R.mc.null.raw)+'</td></tr>';
+  h+='<tr><td class="rowh">변화 뒤 런 길이: 평균 / 중앙값 / 90%째 (같은 '+R.mc.shift.res3.n+'번)</td><td>'+fmt(R.mc.shift.res3.mean,0)+' / '+fmt(R.mc.shift.res3.med,0)+' / '+fmt(R.mc.shift.res3.p90,0)+'</td><td><b>'+fmt(R.mc.shift.rescusum.mean,0)+' / '+fmt(R.mc.shift.rescusum.med,0)+' / '+fmt(R.mc.shift.rescusum.p90,0)+'</b></td><td>—</td></tr>';
+  h+='<tr><td class="rowh">이 궤적의 첫 알람</td><td>'+fa(R.res3.first,R.res3.pre)+'</td><td>'+fa(R.rescusum.first,R.rescusum.pre)+'</td><td>'+fa(R.rawcusum.first,R.rawcusum.pre)+'</td></tr>';
+  $('tab7').innerHTML=h;
+  stateBox($('st6'),isBase(p,PHI0),'지금 이 값이 기준 설정입니다. 닮은 정도 '+fmt(PHI0,2)+', 변화 −'+num(R.delta)+'(원값 표준편차 단위).','지금은 기준 설정에서 옮겨 놓은 가정입니다. 닮은 정도 '+fmt(PHI0,2)+' → '+fmt(p,2)+'.');
+  var A=R.mc.shift.res3,B=R.mc.shift.rescusum;
+  $('concl7').innerHTML='<b>잔차 CUSUM은 변화 뒤 평균 '+fmt(B.mean,0)+'장(90%째 '+fmt(B.p90,0)+'장)에 알리고, 잔차 3σ 선은 평균 '+fmt(A.mean,0)+'장(90%째 '+fmt(A.p90,0)+'장)입니다.</b> 한 번의 큰 튐을 놓치면 3σ 선은 오래 걸리지만 CUSUM은 계속 밀리는 양을 쌓습니다. 반면 원값에 CUSUM을 그대로 쓰면 정상 때 헛알람 간격이 평균 '+fmt(R.mc.null.raw.mean,1)+'장으로 무너져(약속 '+fmt(ARL0,1)+'장) 변화 전에도 알람이 납니다.';
+  var res=R.res,sm=R.rescusum.Sm,sp=R.rescusum.Sp,rm=R.rawcusum.Sm,rp=R.rawcusum.Sp,red=css('--bad'),grey=css('--grey');
+  function pmarks(arr,y,col){return arr.map(function(i){return {i:i,y:y[i-1],col:col,r:4};});}
+  chart('cv7',360,NMON,[
+    {series:[{v:res,col:css('--soft'),w:1.2,hit:function(q){return Math.abs(q)>3;}}],h:[{v:3,col:red,label:'+3'},{v:-3,col:red,label:'−3',below:true},{v:0,col:grey,dash:[2,3],w:1.1}],v:[{i:SA,col:css('--ink'),label:'변화 시작'}],
+      marks:R.res3.first?[{i:R.res3.first,y:res[R.res3.first-1],col:red,r:6}]:[],title:'잔차'},
+    {series:[{v:sp,col:grey,w:1.1},{v:sm,col:css('--c9'),w:1.5}],lo:0,hi:2.6*R.h_res,h:[{v:R.h_res,col:red,label:'h'}],v:[{i:SA,col:css('--ink')}],
+      marks:pmarks(R.rescusum.pre,sm,red).concat(R.rescusum.first?[{i:R.rescusum.first,y:(R.rescusum.side==='down'?sm:sp)[R.rescusum.first-1],col:red,r:6}]:[]),title:'잔차 CUSUM'},
+    {series:[{v:rp,col:grey,w:1.1},{v:rm,col:css('--c10'),w:1.5}],lo:0,hi:2.6*R.h_raw,h:[{v:R.h_raw,col:red,label:'h'}],v:[{i:SA,col:css('--ink')}],
+      marks:pmarks(R.rawcusum.pre,rm,red).concat(R.rawcusum.first?[{i:R.rawcusum.first,y:rm[R.rawcusum.first-1],col:red,r:6}]:[]),title:'원값 CUSUM'}
+  ],'감시 구간의 유리 번호');
+}
+$('phi6').addEventListener('input',function(){s6.phi=+this.value;setT('phi6o',fmt(s6.phi,2));later('u6',upd6,40);});
+$('r6').addEventListener('click',function(){s6={phi:PHI0};$('phi6').value=String(PHI0);upd6();});
+
+/* ---- 7절 표 3 ---- */
+(function(){
+  setT('t3_tot',fmt(ARL0,1)+'장');setT('t3_each',fmt(2*ARL0,1)+'장');
+  var h2=T8.calibCusumH(K0,2*ARL0);setT('t3_a',fmt(BASE.arl.cusum[di(DL0)],1));setT('t3_b',fmt(T8.arlCusum(K0,h2,DL0),1));
+})();
+
+/* ---- 8절: 성과 환산 ---- */
+var GDEF={g:200,e:4,s:1,b:5,f:10},sg={g:200,e:4,s:1,b:5,f:10};
+function updG(){
+  $('gDo').textContent=sg.g+'장';$('gEo').textContent=sg.e+'건';$('gSo').textContent=fmt(sg.s,1)+'σ';$('gBo').textContent=sg.b+'%';$('gFo').textContent=sg.f+'개';
+  var a=[T8.arlShewhart(sg.s,LSH),T8.arlEwma(LAM0,L0,sg.s),T8.arlCusum(K0,H0,sg.s)],fa=sg.g*sg.f/ARL0;
+  var h='<tr><th>항목</th><th>3σ 선</th><th>EWMA</th><th>CUSUM</th></tr>';
+  h+='<tr><td class="rowh">정상 때 ARL0 (헛알람 사이 평균 간격)</td><td>'+fmt(ARL0,1)+'</td><td>'+fmt(ARL0,1)+'</td><td>'+fmt(ARL0,1)+'</td></tr>';
+  h+='<tr><td class="rowh">하루 헛알람 (유리 '+sg.g+'장 × 특징 '+sg.f+'개 ÷ ARL0)</td><td colspan="3"><b>'+fmt(fa,2)+'건 — 세 방식이 같습니다</b></td></tr>';
+  h+='<tr><td class="rowh">변화 '+fmt(sg.s,1)+'σ의 ARL1 (장)</td><td>'+fmt(a[0],1)+'</td><td class="hit">'+fmt(a[1],1)+'</td><td class="hit">'+fmt(a[2],1)+'</td></tr>';
+  h+='<tr><td class="rowh">알아채기까지 걸리는 시간 (하루 '+sg.g+'장 기준)</td><td>'+fmt(a[0]/sg.g*24,1)+'시간</td><td>'+fmt(a[1]/sg.g*24,1)+'시간</td><td>'+fmt(a[2]/sg.g*24,1)+'시간</td></tr>';
+  h+='<tr><td class="rowh">한 달 동안 변한 줄 모르고 지나간 유리 (ARL1 × 사건 '+sg.e+'건)</td><td>'+fmt(a[0]*sg.e,0)+'장</td><td>'+fmt(a[1]*sg.e,0)+'장</td><td>'+fmt(a[2]*sg.e,0)+'장</td></tr>';
+  h+='<tr><td class="rowh">그중 불량으로 이어지는 수 (× '+sg.b+'%)</td><td>'+fmt(a[0]*sg.e*sg.b/100,1)+'장</td><td>'+fmt(a[1]*sg.e*sg.b/100,1)+'장</td><td>'+fmt(a[2]*sg.e*sg.b/100,1)+'장</td></tr>';
+  $('tabG').innerHTML=h;
+  var same=Object.keys(GDEF).every(function(q){return sg[q]===GDEF[q];});
+  stateBox($('stG'),same,'지금 이 값이 기본 설정입니다. 하루 '+GDEF.g+'장, 한 달 '+GDEF.e+'건, 변화 '+num(GDEF.s)+'σ, 불량 '+GDEF.b+'%, 특징 '+GDEF.f+'개.','지금은 현장 숫자를 옮겨 놓은 가정입니다.');
+  var sv=(a[0]-a[2])*sg.e;
+  $('conclG').innerHTML='<b>해석.</b> CUSUM을 쓰면 변화 '+fmt(sg.s,1)+'σ를 3σ 선보다 평균 '+fmt(a[0]-a[2],1)+'장 일찍 알아챕니다. 한 달 사건 '+sg.e+'건이면 변한 줄 모르고 지나가는 유리가 <b>'+fmt(sv,0)+'장</b>(불량으로 이어지는 수 '+fmt(sv*sg.b/100,1)+'장) 줄어듭니다. 하루 헛알람은 세 방식 모두 <b>'+fmt(fa,2)+'건</b>으로 늘지 않습니다. 변화가 3σ 이상으로 크면 이 이득은 사라지거나 뒤집힙니다.';
+}
+[['gD','g'],['gE','e'],['gS','s'],['gB','b'],['gF','f']].forEach(function(a){$(a[0]).addEventListener('input',function(){sg[a[1]]=+this.value;updG();});});
+$('rG').addEventListener('click',function(){sg={g:200,e:4,s:1,b:5,f:10};[['gD','g'],['gE','e'],['gS','s'],['gB','b'],['gF','f']].forEach(function(a){$(a[0]).value=String(GDEF[a[1]]);});updG();});
+setT('g_lam',fmt(LAM0,2));setT('g_k',fmt(K0,2));setT('gn_g',GDEF.g);setT('gn_e',GDEF.e);setT('gn_b',GDEF.b);setT('gn_f',GDEF.f);
+
+/* ---- 9절: 착지 ---- */
+(function(){
+  var i1=di(DL0),A=BASE.arl,t=TR;
+  setT('l_d',num(DL0));setT('l_s',fmt(A.shew[i1],1));setT('l_e',fmt(A.ewma[i1],1));setT('l_c',fmt(A.cusum[i1],1));
+  var h='<tr><th>방식</th><th>정상 때 헛알람 간격 ARL0</th><th>변화 뒤 평균 알아채기까지 ARL1</th><th>이 궤적 한 번에서</th><th>변화 시작점 추정</th></tr>';
+  h+='<tr><td class="rowh">3σ 선</td><td>'+fmt(A.shew[0],1)+'장</td><td class="hit">'+fmt(A.shew[i1],1)+'장</td><td>'+dly(t.shew.delay)+'</td><td>—</td></tr>';
+  h+='<tr><td class="rowh">EWMA (<i>λ</i> = '+fmt(LAM0,2)+')</td><td>'+fmt(A.ewma[0],1)+'장</td><td><b>'+fmt(A.ewma[i1],1)+'장</b></td><td>'+dly(t.ewma.delay)+'</td><td>—</td></tr>';
+  h+='<tr><td class="rowh">CUSUM (<i>k</i> = '+fmt(K0,2)+')</td><td>'+fmt(A.cusum[0],1)+'장</td><td><b>'+fmt(A.cusum[i1],1)+'장</b></td><td>'+dly(t.cusum.delay)+'</td><td>'+(t.cusum.start?t.cusum.start+'번째 유리 (실제 '+SA+'번째)':'—')+'</td></tr>';
+  $('tab9').innerHTML=h;
+  $('landing').innerHTML='<b>'+fmt(A.shew[i1],0)+'장이 '+fmt((A.ewma[i1]+A.cusum[i1])/2,0)+'장 남짓으로 줄었습니다.</b> 정상 때 헛알람 간격은 세 방식 모두 '+fmt(A.shew[0],1)+'장으로 같게 맞췄는데, 변화 '+num(DL0)+'σ를 알아채기까지 걸리는 평균은 3σ 선 '+fmt(A.shew[i1],1)+'장, EWMA '+fmt(A.ewma[i1],1)+'장, CUSUM '+fmt(A.cusum[i1],1)+'장입니다. 이 궤적 한 번에서는 '+dly(t.shew.delay)+' 대 '+dly(t.ewma.delay)+'·'+dly(t.cusum.delay)+'였고, 궤적마다 이 값은 달라집니다(5절 막대그림의 범위).';
+})();
+
+/* ---- 10절: Python 출력 예시와 CSV ---- */
+(function(){
+  var o=[],A=BASE.arl,t=TR,R=RB,i;
+  o.push('정상 때 목표 ARL0 = '+fmt(ARL0,1)+' (3σ 선 양쪽의 헛알람 간격)');
+  o.push('맞춘 한계: EWMA(λ='+num(LAM0)+') L = '+fmt(L0,4)+' · CUSUM(k='+num(K0)+') h = '+fmt(H0,4));
+  o.push('평균 런 길이 ARL (δ = 변화 크기, σ 단위)');
+  o.push('  δ    3σ 선    EWMA   CUSUM');
+  for(i=0;i<DEL.length;i++)o.push(pad(fmt(DEL[i],1),5)+' '+pad(fmt(A.shew[i],1),8)+' '+pad(fmt(A.ewma[i],1),7)+' '+pad(fmt(A.cusum[i],1),7));
+  o.push('');
+  o.push('[증착 속도] 기준 '+BP.n_ref+'장 평균 '+fmt(t.ref_mean,4)+' 표준편차 '+fmt(t.ref_sd,4)+' · 감시 '+BP.n_mon+'장');
+  o.push('3σ 선  첫 알람 '+t.shew.first+'번째 유리 (변화 뒤 '+t.shew.delay+'장째)');
+  o.push('EWMA   첫 알람 '+t.ewma.first+'번째 유리 (변화 뒤 '+t.ewma.delay+'장째)');
+  o.push('CUSUM  첫 알람 '+t.cusum.first+'번째 유리 (변화 뒤 '+t.cusum.delay+'장째) · 변화 시작점 추정 '+t.cusum.start+'번째 유리 (실제 '+SA+'번째)');
+  o.push('');
+  var rawFirst=R.rawcusum.pre.length?R.rawcusum.pre[0]:R.rawcusum.first;
+  o.push('[자기상관 갈래] 기준 '+BP.n_ref+'장에서 φ̂ = '+fmt(R.fit.phi,4)+' 잔차 표준편차 '+fmt(R.fit.sdr,4));
+  o.push('잔차 CUSUM: k = '+fmt(R.k_res,4)+' h = '+fmt(R.h_res,4));
+  o.push('첫 알람(번째 유리): 잔차 3σ '+R.res3.first+' · 잔차 CUSUM '+R.rescusum.first+' · 원값 CUSUM '+rawFirst+' (변화 '+(rawFirst<SA?'전':'뒤')+')');
+  $('pyOut').textContent=o.join('\n');
+  var rw=function(id,h){$(id).innerHTML=h;};
+  rw('rp_what','증착 속도(안정 구간 평균, Å/s) · 3σ 선과 함께 EWMA(<i>λ</i> = '+fmt(LAM0,2)+', <i>L</i> = '+fmt(L0,3)+')·CUSUM(<i>k</i> = '+fmt(K0,2)+', <i>h</i> = '+fmt(H0,3)+')을 병행 감시');
+  rw('rp_design','잡을 최소 변화 <i>δ</i>* = 2<i>k</i> = '+fmt(2*K0,2)+'σ (실제 보고서에는 두께·PPA spec에서 역산한 값과 근거를 적습니다) · 정상 때 ARL0 = '+fmt(ARL0,1)+'장 → 하루 '+DAYG+'장, 특징 10개 기준 헛알람 '+fmt(DAYG*10/ARL0,1)+'건');
+  var cu=t.cusum,zz=t.z.slice(cu.start-1,cu.first),zm=zz.reduce(function(a,b){return a+b;},0)/zz.length;
+  rw('rp_alarm','CUSUM '+cu.first+'번째 유리 · EWMA '+t.ewma.first+'번째 유리 · 3σ 선 '+t.shew.first+'번째 유리 (이 궤적)');
+  rw('rp_start','변화 시작점 추정 '+cu.start+'번째 유리 → 알람 시점 '+cu.first+'번째 유리까지 <b>'+(cu.first-cu.start+1)+'장</b>이 영향 범위입니다. 이 구간의 유리 목록을 함께 첨부합니다.');
+  rw('rp_size','시작점 이후 알람 시점까지 <i>z</i>의 평균 '+fmt(zm,2)+' (표본이 '+zz.length+'장뿐이라 흔들림이 큽니다. 변화 크기의 확정은 0101의 전후 비교로 합니다)');
+  function csvText(){var rows=BASE.csvRows(),s='branch,role,idx,value,truth_flag\n';for(var q=0;q<rows.length;q++){var r=rows[q];s+=r.branch+','+r.role+','+r.idx+','+r.value+','+r.truth_flag+'\n';}return s;}
+  $('csvBtn').addEventListener('click',function(){
+    var st=$('csvState');
+    try{
+      var blob=new Blob([csvText()],{type:'text/csv'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download='s8_small_shift.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: s8_small_shift.csv ('+BASE.csvRows().length.toLocaleString('en-US')+'행, 열 branch·role·idx·value·truth_flag).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  });
+})();
+
+/* ---- 테마·상단바 ---- */
+function redraw(){window.__d1();upd2();upd3();upd4();upd5();updHist();upd6();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+upd2();upd3();upd4();upd5();updHist();upd6();updG();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

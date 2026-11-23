@@ -691,12 +691,12 @@
   /* ============================================================
    * 6. 시나리오 S1~S7 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8 };   // 기본 시드(S7 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인)
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134 };   // 기본 시드(S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
 
   function scenario(name, params) {
     params = params || {};
     var key = String(name).toUpperCase().slice(0, 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7 }[key];
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -1016,12 +1016,234 @@
   }
   S7.tools = { skewOf: skewOf, quantileOf: quantileOf, madOf: madOf, boxcoxLam: boxcoxLam, boxcoxLimit: boxcoxLimit, arFit: arFit, resid: resid, rateAbove: rateAbove, lnTheoryA: lnTheoryA, summ: summ, MADK: MADK, P3: P3 };
 
+  /* S8 small_shift — 작은 지속 변화 감지: 슈하트 3σ 선 · EWMA · CUSUM 과 평균 런 길이(ARL).
+   * 특징은 증착 속도(안정 구간 평균, Å/s). 정상 μ0=1.000, σ=0.010, 변화는 아래쪽 계단(−δσ). 세 방식 모두 위·아래 양쪽을 감시한다.
+   * 공정한 비교: 세 방식 모두 정상 때 ARL0 = 1/(2Q(3)) = 370.4 로 맞춘다(EWMA 의 L, CUSUM 의 h 는 ARL 계산식을 이분법으로 풀어 구함).
+   * ARL: 슈하트 = 닫힌 식, EWMA = 마르코프 사슬(Lucas–Saccucci, m=101), CUSUM = 마르코프 사슬(Brook–Evans, m=100) + 양쪽 합성(Lucas–Crosier).
+   * 난수 줄기: trace(기준·감시 궤적) · mc(런 길이 몬테카를로) · R(자기상관 갈래) 를 따로 두어, 슬라이더로 λ·k·δ 를 바꿔도 같은 잡음이 유지된다. */
+  var MU0 = 1.0, SIG0 = 0.01;
+  var ARL0_T = 1 / (2 * qnorm(3));
+  function phiFast(x) {                        // 표준정규 누적분포 Φ(x) (Hart/West 유리식 근사, 상대오차 ~1e-15)
+    var xa = Math.abs(x), c;
+    if (xa > 37) c = 0;
+    else {
+      var e = Math.exp(-xa * xa / 2);
+      if (xa < 7.07106781186547) {
+        var b = 0.0352624965998911 * xa + 0.700383064443688;
+        b = b * xa + 6.37396220353165; b = b * xa + 33.912866078383; b = b * xa + 112.079291497871; b = b * xa + 221.213596169931; b = b * xa + 220.206867912376;
+        c = e * b;
+        var d = 0.0883883476483184 * xa + 1.75566716318264;
+        d = d * xa + 16.064177579207; d = d * xa + 86.7807322029461; d = d * xa + 296.564248779674; d = d * xa + 637.333633378831; d = d * xa + 793.826512519948; d = d * xa + 440.413735824752;
+        c = c / d;
+      } else {
+        var f = xa + 0.65; f = xa + 4 / f; f = xa + 3 / f; f = xa + 2 / f; f = xa + 1 / f;
+        c = e / f / 2.506628274631;
+      }
+    }
+    return x > 0 ? 1 - c : c;
+  }
+  function solveLin(A, b, n) {                 // 가우스 소거(I−R 은 대각 우세 M-행렬이라 피벗 불필요). A·b 를 제자리에서 바꾼다
+    var c, r, q, f, s;
+    for (c = 0; c < n; c++) {
+      var piv = A[c * n + c];
+      for (r = c + 1; r < n; r++) {
+        f = A[r * n + c] / piv; if (f === 0) continue;
+        for (q = c; q < n; q++) A[r * n + q] -= f * A[c * n + q];
+        b[r] -= f * b[c];
+      }
+    }
+    for (c = n - 1; c >= 0; c--) { s = b[c]; for (q = c + 1; q < n; q++) s -= A[c * n + q] * b[q]; b[c] = s / A[c * n + c]; }
+    return b;
+  }
+  function arlShewhart(delta, L) { return 1 / (qnorm(L - delta) + qnorm(L + delta)); }
+  function arlEwma(lam, L, delta, m) {         // 표준화 공간 (−UCL, UCL) 을 m 칸으로 나눈 마르코프 사슬, 시작은 가운데 칸
+    m = m || 101;
+    var U = L * Math.sqrt(lam / (2 - lam)), w = 2 * U / m, A = new Float64Array(m * m), b = new Float64Array(m), i, j, base, prev, cur;
+    for (i = 0; i < m; i++) {
+      base = (1 - lam) * (-U + (i + 0.5) * w);
+      prev = phiFast((-U - base) / lam - delta);
+      for (j = 0; j < m; j++) { cur = phiFast((-U + (j + 1) * w - base) / lam - delta); A[i * m + j] = (i === j ? 1 : 0) - (cur - prev); prev = cur; }
+      b[i] = 1;
+    }
+    solveLin(A, b, m);
+    return b[(m - 1) >> 1];
+  }
+  function arlCusum1(k, h, delta, m) {         // 한쪽 CUSUM(위로 감지, z~N(δ,1)). 칸 0 = [0, w/2], 칸 j = (jw−w/2, jw+w/2], w = 2h/(2m−1)
+    m = m || 100;
+    var w = 2 * h / (2 * m - 1), G = new Float64Array(2 * m), A = new Float64Array(m * m), b = new Float64Array(m), i, j, d;
+    for (d = -m; d < m; d++) G[d + m] = phiFast((d + 0.5) * w + k - delta);
+    for (i = 0; i < m; i++) {
+      A[i * m] = (i === 0 ? 1 : 0) - G[-i + m];
+      for (j = 1; j < m; j++) A[i * m + j] = (i === j ? 1 : 0) - (G[j - i + m] - G[j - i - 1 + m]);
+      b[i] = 1;
+    }
+    solveLin(A, b, m);
+    return b[0];
+  }
+  function arlCusum(k, h, delta, m) {          // 양쪽: 1/ARL = 1/ARL⁺ + 1/ARL⁻ (Lucas–Crosier)
+    var a = arlCusum1(k, h, delta, m);
+    if (Math.abs(delta) < 1e-12) return a / 2;
+    return 1 / (1 / a + 1 / arlCusum1(k, h, -delta, m));
+  }
+  function bisect(fn, target, lo, hi, it) {    // fn 은 매개변수에 대해 증가. fn(x)=target 인 x
+    var mid, i;
+    for (i = 0; i < (it || 40); i++) { mid = (lo + hi) / 2; if (fn(mid) < target) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+  var CAL = {};
+  function calibEwmaL(lam, target) {
+    var key = 'e' + lam + '|' + (target || ''); if (CAL[key] != null) return CAL[key];
+    return (CAL[key] = bisect(function (L) { return arlEwma(lam, L, 0); }, target || ARL0_T, 1.0, 5.0, 30));
+  }
+  function calibCusumH(k, target) {
+    var key = 'c' + k + '|' + (target || ''); if (CAL[key] != null) return CAL[key];
+    return (CAL[key] = bisect(function (h) { return arlCusum(k, h, 0); }, target || ARL0_T, 0.05, 60, 36));
+  }
+  /* ---- 감시 함수: z(표준화 값 배열) → 알람. 변화 전(resetBefore 번째 유리 이전)에 난 알람은 헛알람으로 세고 통계량을 처음 상태로 되돌린다 ---- */
+  function shewhartMonitor(z, L, resetBefore) {
+    var pre = [], first = null, i;
+    for (i = 0; i < z.length; i++) if (Math.abs(z[i]) > L) { if (i + 1 < (resetBefore || 0)) pre.push(i + 1); else if (first === null) first = i + 1; }
+    return { first: first, pre: pre };
+  }
+  function ewmaMonitor(z, lam, L, resetBefore) {
+    var U = L * Math.sqrt(lam / (2 - lam)), w = 0, ws = [], pre = [], first = null, i;
+    for (i = 0; i < z.length; i++) {
+      w = lam * z[i] + (1 - lam) * w; ws.push(w);
+      if (Math.abs(w) > U) { if (i + 1 < (resetBefore || 0)) { pre.push(i + 1); w = 0; } else if (first === null) first = i + 1; }
+    }
+    return { w: ws, ucl: U, first: first, pre: pre };
+  }
+  function cusumMonitor(z, k, h, resetBefore) {   // start = 알람 직전 합이 마지막으로 0이었던 다음 유리(1부터 센 번호)
+    var sp = 0, sm = 0, zp = -1, zm = -1, SP = [], SM = [], pre = [], first = null, start = null, side = null, i;
+    for (i = 0; i < z.length; i++) {
+      sp = Math.max(0, sp + z[i] - k); sm = Math.max(0, sm - z[i] - k);
+      if (sp === 0) zp = i; if (sm === 0) zm = i;
+      SP.push(sp); SM.push(sm);
+      if (sp > h || sm > h) {
+        if (i + 1 < (resetBefore || 0)) { pre.push(i + 1); sp = 0; sm = 0; zp = i; zm = i; }
+        else if (first === null) { first = i + 1; side = (sm > h && sm >= sp) ? 'down' : 'up'; start = (side === 'down' ? zm : zp) + 2; }
+      }
+    }
+    return { Sp: SP, Sm: SM, h: h, first: first, pre: pre, start: start, side: side };
+  }
+  function delayOf(first, shiftAt) { return first == null ? null : first - shiftAt + 1; }
+
+  function runSummary(runs, cap) {
+    var n = runs.length, m = mean(runs), s = sd(runs), b = runs.slice().sort(function (a, c) { return a - c; }), capN = 0, i;
+    for (i = 0; i < n; i++) if (runs[i] >= cap) capN++;
+    return { n: n, mean: m, se: s / Math.sqrt(n), sd: s, med: pctile(b, 0.5), p10: pctile(b, 0.1), p90: pctile(b, 0.9), capped: capN };
+  }
+  function oneRun(method, rr, delta, P) {      // 변화 −δσ 가 첫 유리부터 시작한다고 보고 첫 알람까지의 유리 수
+    var t = 0, w = 0, sp = 0, sm = 0, z;
+    while (t < P.cap) {
+      t++; z = rr.normal() - delta;
+      if (method === 'shew') { if (Math.abs(z) > P.L) return t; }
+      else if (method === 'ewma') { w = P.lam * z + (1 - P.lam) * w; if (Math.abs(w) > P.ucl) return t; }
+      else { sp = Math.max(0, sp + z - P.k); sm = Math.max(0, sm - z - P.k); if (sp > P.h || sm > P.h) return t; }
+    }
+    return P.cap;
+  }
+  function mcCell(method, delta, nRuns, seed, P, keep) {
+    var runs = [], j, rr, out;
+    for (j = 0; j < nRuns; j++) { rr = rng(hashSeed('S8', seed, 'mc', delta, j)); runs.push(oneRun(method, rr, delta, P)); }
+    out = runSummary(runs, P.cap); if (keep) out.runs = runs;
+    return out;
+  }
+
+  /* ---- 갈래 R: AR(1) φ, 전체 표준편차 1. 궤적(trace)은 기준 200장에서 추정한 φ̂ 로 잔차를 만들고, 런 길이 몬테카를로는 ARL 표와 같은 약속(참 φ 를 안다)으로 잰다. 감시 구간에서 원값 평균이 −δ 계단 이동(변화 직후 잔차는 −δ/√(1−φ²) 로 한 번 튀고, 그 뒤로는 −δ(1−φ)/√(1−φ²) 만큼만 계속 밀린다) ---- */
+  function branchR(o) {
+    var phi = o.phi, delta = o.delta, nRef = o.nRef, nMon = o.nMon, sa = o.shiftAt, seed = o.seed, inn = Math.sqrt(1 - phi * phi), i;
+    var r = rng(hashSeed('S8', seed, 'Rtrace')), x = [r.normal()];
+    for (i = 1; i < nRef + nMon; i++) x.push(phi * x[i - 1] + inn * r.normal());
+    var obs = x.map(function (v, q) { return q >= nRef + sa - 1 ? v - delta : v; });
+    var ref = obs.slice(0, nRef), mon = obs.slice(nRef), fit = arFit(ref), sdx = sd(ref);
+    var firstHat = delta * sdx / fit.sdr, persistHat = delta * (1 - fit.phi) * sdx / fit.sdr;
+    var kR = persistHat / 2, hR = calibCusumH(kR), kRaw = 0.5, hRaw = calibCusumH(kRaw);
+    var kTh = delta * Math.sqrt((1 - phi) / (1 + phi)) / 2, hTh = calibCusumH(kTh);    // 참 φ 를 아는 이상적인 경우의 설계값(런 길이 몬테카를로용)
+    var res = [], raw = mon.slice(), prev = ref[nRef - 1];
+    for (i = 0; i < nMon; i++) { res.push(((mon[i] - fit.m) - fit.phi * (prev - fit.m)) / fit.sdr); prev = mon[i]; }
+    var m3 = shewhartMonitor(res, 3, sa), mc = cusumMonitor(res, kR, hR, sa), mr = cusumMonitor(raw, kRaw, hRaw, sa);
+    var out = { phi: phi, delta: delta, ref: ref, mon: mon, res: res, fit: fit, sdx: sdx, k_res: kR, h_res: hR, k_raw: kRaw, h_raw: hRaw, k_ideal: kTh, h_ideal: hTh,
+                shift_res: { first_theory: delta / inn, persist_theory: delta * (1 - phi) / inn, first_hat: firstHat, persist_hat: persistHat },
+                res3: { first: m3.first, delay: delayOf(m3.first, sa), pre: m3.pre },
+                rescusum: { first: mc.first, delay: delayOf(mc.first, sa), pre: mc.pre, Sp: mc.Sp, Sm: mc.Sm, start: mc.start, side: mc.side },
+                rawcusum: { first: mr.first, delay: delayOf(mr.first, sa), pre: mr.pre, Sp: mr.Sp, Sm: mr.Sm } };
+    if (o.mcRuns > 0) {
+      var cap = 20000, kinds = [['s', ['res3', 'rescusum']], ['n', ['res3', 'rescusum', 'raw']]], mcOut = { shift: {}, null: {} };
+      kinds.forEach(function (kd) {
+        var shifted = kd[0] === 's', names = kd[1], runs = {}, j, q, nm;
+        names.forEach(function (n) { runs[n] = []; });
+        for (j = 0; j < o.mcRuns; j++) {
+          var rr = rng(hashSeed('S8', seed, 'Rmc', kd[0], j)), xp = rr.normal(), yp = xp, t = 0, left = names.length, done = {}, st = { sp: 0, sm: 0, rp: 0, rm: 0 };
+          while (left > 0 && t < cap) {
+            t++; var xt = phi * xp + inn * rr.normal(), yt = xt - (shifted ? delta : 0), rz = (yt - phi * yp) / inn;
+            if (!done.res3 && names.indexOf('res3') >= 0 && Math.abs(rz) > 3) { done.res3 = 1; runs.res3.push(t); left--; }
+            if (!done.rescusum && names.indexOf('rescusum') >= 0) {
+              st.sp = Math.max(0, st.sp + rz - kTh); st.sm = Math.max(0, st.sm - rz - kTh);
+              if (st.sp > hTh || st.sm > hTh) { done.rescusum = 1; runs.rescusum.push(t); left--; }
+            }
+            if (!done.raw && names.indexOf('raw') >= 0) {
+              st.rp = Math.max(0, st.rp + yt - kRaw); st.rm = Math.max(0, st.rm - yt - kRaw);
+              if (st.rp > hRaw || st.rm > hRaw) { done.raw = 1; runs.raw.push(t); left--; }
+            }
+            xp = xt; yp = yt;
+          }
+          for (q = 0; q < names.length; q++) { nm = names[q]; if (!done[nm]) runs[nm].push(cap); }
+        }
+        names.forEach(function (n) { mcOut[shifted ? 'shift' : 'null'][n] = runSummary(runs[n], cap); if (o.keep) mcOut[shifted ? 'shift' : 'null'][n].runs = runs[n]; });
+      });
+      out.mc = mcOut;
+    }
+    return out;
+  }
+
+  function S8(p) {
+    var seed = p.seed == null ? SEEDS.S8 : p.seed, only = p.only || '';
+    var delta = p.delta == null ? 1 : p.delta, lam = p.lam == null ? 0.2 : p.lam, k = p.k == null ? 0.5 : p.k, phi = p.phi == null ? 0.9 : p.phi, Lsh = p.L == null ? 3 : p.L;
+    var nRef = p.n_ref || 200, nMon = p.n_mon || 300, sa = p.shift_at || 100, mcRuns = p.mc_runs == null ? 2000 : p.mc_runs, mcR = p.mc_runs_r == null ? 1000 : p.mc_runs_r, keep = p.keep_runs !== false;
+    var Le = calibEwmaL(lam), hc = calibCusumH(k), ucl = Le * Math.sqrt(lam / (2 - lam)), DEL = [0, 0.5, 1, 2, 3], i;
+    var out = { id: 'S8', name: 'small_shift', params: { seed: seed, mu0: MU0, sd0: SIG0, delta: delta, lam: lam, k: k, L_shew: Lsh, L_ewma: Le, ucl_ewma: ucl, h_cusum: hc, arl0_target: ARL0_T,
+                 m_ewma: 101, m_cusum: 100, n_ref: nRef, n_mon: nMon, shift_at: sa, mc_runs: mcRuns, mc_runs_r: mcR, phi: phi, deltas: DEL } };
+    if (!only || only === 'arl') {
+      out.arl = { deltas: DEL, shew: DEL.map(function (d) { return arlShewhart(d, Lsh); }), ewma: DEL.map(function (d) { return arlEwma(lam, Le, d); }), cusum: DEL.map(function (d) { return arlCusum(k, hc, d); }) };
+      if (mcRuns > 0) {
+        var P = { L: Lsh, lam: lam, ucl: ucl, k: k, h: hc, cap: 100000 };
+        out.mc = { deltas: DEL, shew: [], ewma: [], cusum: [] };
+        DEL.forEach(function (d) { ['shew', 'ewma', 'cusum'].forEach(function (m) { out.mc[m].push(mcCell(m, d, mcRuns, seed, P, keep)); }); });
+      }
+    }
+    if (!only || only === 'trace' || only === 'S') {
+      var r = rng(hashSeed('S8', seed, 'trace')), ref = [], mon = [], z, zs = [];
+      for (i = 0; i < nRef; i++) ref.push(MU0 + SIG0 * r.normal());
+      for (i = 0; i < nMon; i++) mon.push(MU0 + SIG0 * (r.normal() - (i >= sa - 1 ? delta : 0)));
+      zs = mon.map(function (v) { return (v - MU0) / SIG0; });
+      var ms = shewhartMonitor(zs, Lsh, sa), me = ewmaMonitor(zs, lam, Le, sa), mcu = cusumMonitor(zs, k, hc, sa);
+      out.trace = { ref: ref, mon: mon, z: zs, ref_mean: mean(ref), ref_sd: sd(ref), shift_at: sa, delta: delta,
+        shew: { first: ms.first, delay: delayOf(ms.first, sa), pre: ms.pre },
+        ewma: { first: me.first, delay: delayOf(me.first, sa), pre: me.pre, w: me.w, ucl: me.ucl },
+        cusum: { first: mcu.first, delay: delayOf(mcu.first, sa), pre: mcu.pre, Sp: mcu.Sp, Sm: mcu.Sm, h: hc, start: mcu.start, start_err: mcu.start == null ? null : mcu.start - sa, side: mcu.side } };
+    }
+    if (!only || only === 'trace' || only === 'R') {
+      out.R = branchR({ phi: phi, delta: delta, nRef: nRef, nMon: nMon, shiftAt: sa, seed: seed, mcRuns: (only === 'trace' ? 0 : mcR), keep: keep });
+    }
+    out.csvRows = function () {                // branch(S/R), role(ref/mon), idx, value, truth_flag(변화 뒤 유리=1)
+      var rows = [];
+      function add(br, role, arr, flagFrom) { for (var q = 0; q < arr.length; q++) rows.push({ branch: br, role: role, idx: q, value: arr[q], truth_flag: flagFrom != null && q >= flagFrom ? 1 : 0 }); }
+      if (out.trace) { add('S', 'ref', out.trace.ref); add('S', 'mon', out.trace.mon, sa - 1); }
+      if (out.R) { add('R', 'ref', out.R.ref); add('R', 'mon', out.R.mon, sa - 1); }
+      return rows;
+    };
+    return out;
+  }
+  S8.tools = { phiFast: phiFast, arlShewhart: arlShewhart, arlEwma: arlEwma, arlCusum1: arlCusum1, arlCusum: arlCusum, bisect: bisect, calibEwmaL: calibEwmaL, calibCusumH: calibCusumH,
+               shewhartMonitor: shewhartMonitor, ewmaMonitor: ewmaMonitor, cusumMonitor: cusumMonitor, runSummary: runSummary, ARL0_T: ARL0_T, MU0: MU0, SIG0: SIG0 };
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools
+    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools
   };
 });

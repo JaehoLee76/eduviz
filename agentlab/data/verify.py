@@ -112,6 +112,142 @@ chk('S7 분포 B 순진의 퍼짐이 큼(p90−p10 > 20×명목)', _q('Bn', .9) 
 chk('S7 분포 중앙값 C 놓침: 오염 ≥ 깨끗 + 5', _m('Cn') >= _m('Cc') + 5, f'오염 {_m("Cn"):.0f} · 깨끗 {_m("Cc"):.0f} / 20')
 chk('S7 분포 중앙값 C 놓침: 로버스트 ≤ 깨끗 + 2', _m('Cr') <= _m('Cc') + 2, f'로버스트 {_m("Cr"):.0f} / 20')
 
+# S8 — 작은 지속 변화 감지(슈하트·EWMA·CUSUM)와 평균 런 길이. 마르코프 사슬·이분법·몬테카를로를 Python 으로 따로 구현해 JS 와 대조
+_S8 = json.loads(subprocess.run([_node, '-e', "const M=require(%s);const S=M.scenario('S8',{keep_runs:false});console.log(JSON.stringify(S,(k,v)=>typeof v==='function'?undefined:v))" % json.dumps(_mf)],
+                                capture_output=True, text=True, check=True).stdout)
+P8, ARL8, MC8, TR8, R8 = _S8['params'], _S8['arl'], _S8['mc'], _S8['trace'], _S8['R']
+T0 = 1 / (2 * stats.norm.sf(3))                      # 목표 ARL0 = 370.4
+def py_arl_shewhart(delta, L=3.0): return 1 / (stats.norm.sf(L - delta) + stats.norm.sf(L + delta))
+def py_arl_ewma(lam, L, delta, m=101):
+    U = L * np.sqrt(lam / (2 - lam)); w = 2 * U / m; e = -U + w * np.arange(m + 1); c = (e[:-1] + e[1:]) / 2
+    Z = (e[None, :] - (1 - lam) * c[:, None]) / lam - delta
+    P = np.diff(stats.norm.cdf(Z), axis=1)
+    return np.linalg.solve(np.eye(m) - P, np.ones(m))[m // 2]
+def py_arl_cusum1(k, h, delta, m=100):
+    w = 2 * h / (2 * m - 1); S = w * np.arange(m)
+    lo = S - w / 2; lo[0] = -np.inf                  # 칸 0 = [0, w/2], 칸 j = (jw − w/2, jw + w/2]
+    hi = S + w / 2
+    nxt = (S[:, None])                                # 현재 칸의 대표값
+    Fhi = stats.norm.cdf(hi[None, :] - nxt + k - delta); Flo = stats.norm.cdf(lo[None, :] - nxt + k - delta)
+    P = Fhi - Flo
+    return np.linalg.solve(np.eye(m) - P, np.ones(m))[0]
+def py_arl_cusum(k, h, delta, m=100):
+    a = py_arl_cusum1(k, h, delta, m)
+    return a / 2 if abs(delta) < 1e-12 else 1 / (1 / a + 1 / py_arl_cusum1(k, h, -delta, m))
+def py_bisect(fn, target, lo, hi, n=60):
+    for _ in range(n):
+        mid = (lo + hi) / 2
+        if fn(mid) < target: lo = mid
+        else: hi = mid
+    return (lo + hi) / 2
+_cal = {}
+def py_L(lam): return _cal.setdefault(('e', lam), py_bisect(lambda L: py_arl_ewma(lam, L, 0), T0, 1.0, 5.0, 45))
+def py_h(k): return _cal.setdefault(('c', k), py_bisect(lambda h: py_arl_cusum(k, h, 0), T0, 0.05, 60.0, 45))
+LAM, KK = P8['lam'], P8['k']; Lp, hp = py_L(LAM), py_h(KK)
+chk('S8 슈하트 ARL0=370.4 · ARL1(δ=1)=43.9 · ARL1(δ=0.5)=155.2 (scipy)', abs(py_arl_shewhart(0) - 370.4) < 0.05 and abs(py_arl_shewhart(1) - 43.9) < 0.05 and abs(py_arl_shewhart(0.5) - 155.2) < 0.05,
+    f'{py_arl_shewhart(0):.2f} / {py_arl_shewhart(1):.2f} / {py_arl_shewhart(0.5):.2f}')
+chk('S8 JS 의 L(λ=0.2)·h(k=0.5) = Python 독립 이분법과 1e-3 이내, 그 값에서 ARL0=370.4±1',
+    abs(P8['L_ewma'] - Lp) < 1e-3 and abs(P8['h_cusum'] - hp) < 1e-3 and abs(py_arl_ewma(LAM, P8['L_ewma'], 0) - 370.4) < 1 and abs(py_arl_cusum(KK, P8['h_cusum'], 0) - 370.4) < 1,
+    f'L JS {P8["L_ewma"]:.5f} Py {Lp:.5f} · h JS {P8["h_cusum"]:.5f} Py {hp:.5f}')
+_D = ARL8['deltas']; _py = {'shew': [py_arl_shewhart(d, P8['L_shew']) for d in _D], 'ewma': [py_arl_ewma(LAM, Lp, d) for d in _D], 'cusum': [py_arl_cusum(KK, hp, d) for d in _D]}
+_rel = max(abs(ARL8[m][i] / _py[m][i] - 1) for m in _py for i in range(len(_D)))
+chk('S8 세 방식 × δ∈{0,0.5,1,2,3}: JS 식 값 = Python 식 값(상대 1e-6)', _rel < 1e-6, f'최대 상대오차 {_rel:.1e}')
+def py_mc(method, delta, n, rg, L=3.0, lam=LAM, k=KK, cap=200000):
+    ucl = Lp * np.sqrt(lam / (2 - lam)); t = np.zeros(n, int); w = np.zeros(n); sp = np.zeros(n); sm = np.zeros(n)
+    act = np.arange(n); step = 0
+    while act.size and step < cap:
+        step += 1; z = rg.normal(size=act.size) - delta
+        if method == 'shew': hit = np.abs(z) > L
+        elif method == 'ewma':
+            w[act] = lam * z + (1 - lam) * w[act]; hit = np.abs(w[act]) > ucl
+        else:
+            sp[act] = np.maximum(0, sp[act] + z - k); sm[act] = np.maximum(0, sm[act] - z - k); hit = (sp[act] > hp) | (sm[act] > hp)
+        t[act[hit]] = step; act = act[~hit]
+    t[act] = cap
+    return t
+_rg = np.random.default_rng(20261123); _zmax = 0; _zpy = 0; _bad = []
+for m in ('shew', 'ewma', 'cusum'):
+    for i, d in enumerate(_D):
+        c = MC8[m][i]; z = (c['mean'] - _py[m][i]) / c['se']; _zmax = max(_zmax, abs(z))
+        r = py_mc(m, d, 20000, _rg); zp = (r.mean() - _py[m][i]) / (r.std(ddof=1) / np.sqrt(len(r))); _zpy = max(_zpy, abs(zp))
+        if abs(z) > 3 or abs(zp) > 3: _bad.append((m, d, round(z, 2), round(zp, 2)))
+chk('S8 몬테카를로 평균이 식 값의 ±3 표준오차 안 (JS 2000런 · Python 20000런, 15칸)', not _bad, f'|z| 최대 JS {_zmax:.2f} · Python {_zpy:.2f}' + (f' 벗어남 {_bad}' if _bad else ''))
+_i05, _i1, _i3 = _D.index(0.5), _D.index(1), _D.index(3)
+chk('S8 δ=0.5·1 에서 EWMA·CUSUM ARL1 < 슈하트의 0.5배 (식 · JS 몬테카를로)',
+    all(_py[m][i] < 0.5 * _py['shew'][i] and MC8[m][i]['mean'] < 0.5 * MC8['shew'][i]['mean'] for m in ('ewma', 'cusum') for i in (_i05, _i1)),
+    f'δ=0.5: {_py["shew"][_i05]:.1f}→{_py["ewma"][_i05]:.1f}/{_py["cusum"][_i05]:.1f} · δ=1: {_py["shew"][_i1]:.1f}→{_py["ewma"][_i1]:.1f}/{_py["cusum"][_i1]:.1f}')
+chk('S8 δ=3 에서 슈하트 ARL1 ≤ EWMA·CUSUM', _py['shew'][_i3] <= _py['ewma'][_i3] and _py['shew'][_i3] <= _py['cusum'][_i3], f'{_py["shew"][_i3]:.2f} ≤ {_py["ewma"][_i3]:.2f}/{_py["cusum"][_i3]:.2f}')
+chk('S8 런 길이 분포: 오른쪽 꼬리(중앙값 < 평균 · 90% > 평균, δ=1 세 방식)', all(MC8[m][_i1]['med'] < MC8[m][_i1]['mean'] < MC8[m][_i1]['p90'] for m in ('shew', 'ewma', 'cusum')),
+    ' · '.join(f'{m} 중앙값 {MC8[m][_i1]["med"]:.0f} 평균 {MC8[m][_i1]["mean"]:.1f} 90% {MC8[m][_i1]["p90"]:.0f}' for m in ('shew', 'ewma', 'cusum')))
+# 갈래 R — 기준 200장에서 φ̂ 추정, 잔차 CUSUM 의 k·h 를 따로 계산, 몬테카를로를 Python 으로 다시
+_rf = np.array(R8['ref']); _m = _rf.mean(); _d = _rf - _m; _phi = (_d[1:] * _d[:-1]).sum() / (_d[:-1] ** 2).sum(); _sdr = (_d[1:] - _phi * _d[:-1]).std(ddof=1)
+_sdx = _rf.std(ddof=1); _kR = R8['delta'] * (1 - _phi) * _sdx / _sdr / 2; _hR = py_h(_kR); _hRaw = py_h(0.5); _kTh = R8['delta'] * np.sqrt((1 - P8['phi']) / (1 + P8['phi'])) / 2; _hTh = py_h(_kTh)
+chk('S8-R JS φ̂·잔차 sd·k·h 가 Python 독립 계산과 일치', abs(R8['fit']['phi'] - _phi) < 1e-9 and abs(R8['fit']['sdr'] - _sdr) < 1e-9 and abs(R8['k_res'] - _kR) < 1e-9 and abs(R8['h_res'] - _hR) < 1e-3 and abs(R8['k_ideal'] - _kTh) < 1e-9 and abs(R8['h_ideal'] - _hTh) < 1e-3,
+    f'φ̂ {_phi:.4f} 잔차 sd {_sdr:.4f} k {_kR:.4f} h JS {R8["h_res"]:.3f} Py {_hR:.3f} · 이상적 k {_kTh:.4f} h JS {R8["h_ideal"]:.3f} Py {_hTh:.3f}')
+def py_mc_R(shifted, n, rg, cap=20000):
+    phi, delta = P8['phi'], R8['delta']; inn = np.sqrt(1 - phi ** 2)
+    xp = rg.normal(size=n); yp = xp.copy(); names = ['res3', 'rescusum'] + ([] if shifted else ['raw'])
+    t = {nm: np.full(n, cap) for nm in names}; done = {nm: np.zeros(n, bool) for nm in names}
+    sp = np.zeros(n); sm = np.zeros(n); rp = np.zeros(n); rm = np.zeros(n)
+    for step in range(1, cap + 1):
+        xt = phi * xp + inn * rg.normal(size=n); yt = xt - (delta if shifted else 0.0); rz = (yt - phi * yp) / inn
+        h3 = (np.abs(rz) > 3) & ~done['res3']; t['res3'][h3] = step; done['res3'] |= h3
+        sp = np.maximum(0, sp + rz - _kTh); sm = np.maximum(0, sm - rz - _kTh); hc2 = ((sp > _hTh) | (sm > _hTh)) & ~done['rescusum']; t['rescusum'][hc2] = step; done['rescusum'] |= hc2
+        if not shifted:
+            rp = np.maximum(0, rp + yt - 0.5); rm = np.maximum(0, rm - yt - 0.5); hr = ((rp > _hRaw) | (rm > _hRaw)) & ~done['raw']; t['raw'][hr] = step; done['raw'] |= hr
+        xp, yp = xt, yt
+        if all(d.all() for d in done.values()): break
+    return t
+_rg2 = np.random.default_rng(20261124); _ps = py_mc_R(True, 4000, _rg2); _pn = py_mc_R(False, 4000, _rg2)
+_js = {('s', 'res3'): R8['mc']['shift']['res3'], ('s', 'rescusum'): R8['mc']['shift']['rescusum'], ('n', 'res3'): R8['mc']['null']['res3'], ('n', 'rescusum'): R8['mc']['null']['rescusum'], ('n', 'raw'): R8['mc']['null']['raw']}
+_pyr = {('s', 'res3'): _ps['res3'], ('s', 'rescusum'): _ps['rescusum'], ('n', 'res3'): _pn['res3'], ('n', 'rescusum'): _pn['rescusum'], ('n', 'raw'): _pn['raw']}
+_zr = max(abs(_js[key]['mean'] - _pyr[key].mean()) / np.hypot(_js[key]['se'], _pyr[key].std(ddof=1) / np.sqrt(len(_pyr[key]))) for key in _js)
+chk('S8-R JS 몬테카를로(1000런)와 Python 몬테카를로(4000런)의 평균 차이가 4 표준오차 이내', _zr < 4, f'|z| 최대 {_zr:.2f}')
+_j3, _jc, _jraw = _js[('s', 'res3')], _js[('s', 'rescusum')], _js[('n', 'raw')]['mean']
+_p3, _pc, _praw = _pyr[('s', 'res3')], _pyr[('s', 'rescusum')], _pyr[('n', 'raw')].mean()
+_q90 = lambda a: float(np.quantile(a, 0.9))
+chk('S8-R 변화 뒤 런 길이: 잔차 CUSUM 이 중앙값은 더 짧고, 평균·90% 지점은 잔차 3σ 의 0.5배 미만 (JS · Python)',
+    _jc['med'] < _j3['med'] and _jc['mean'] < 0.5 * _j3['mean'] and _jc['p90'] < 0.5 * _j3['p90'] and np.median(_pc) < np.median(_p3) and _pc.mean() < 0.5 * _p3.mean() and _q90(_pc) < 0.5 * _q90(_p3),
+    f'JS 중앙값 {_jc["med"]:.0f} vs {_j3["med"]:.0f} · 평균 {_jc["mean"]:.0f} vs {_j3["mean"]:.0f} · 90% {_jc["p90"]:.0f} vs {_j3["p90"]:.0f} · Python 평균 {_pc.mean():.0f} vs {_p3.mean():.0f}')
+_a3, _ac = _js[('n', 'res3')], _js[('n', 'rescusum')]
+chk('S8-R 참 φ 로 만든 잔차 관리도(3σ·CUSUM)의 정상 때 ARL0 = 370.4 (JS ±3 표준오차 · Python 4000런 ±3 표준오차)',
+    all(abs(c['mean'] - T0) < 3 * c['se'] for c in (_a3, _ac)) and all(abs(_pyr[key].mean() - T0) < 3 * _pyr[key].std(ddof=1) / np.sqrt(4000) for key in (('n', 'res3'), ('n', 'rescusum'))),
+    f'JS 3σ {_a3["mean"]:.0f}±{_a3["se"]:.0f} · CUSUM {_ac["mean"]:.0f}±{_ac["se"]:.0f} · Python 3σ {_pyr[("n","res3")].mean():.0f} · CUSUM {_pyr[("n","rescusum")].mean():.0f}')
+chk('S8-R 원값에 CUSUM 을 그대로 쓴 정상 때 ARL0 < 370.4/5 (JS · Python)', _jraw < T0 / 5 and _praw < T0 / 5, f'JS {_jraw:.1f} · Python {_praw:.1f} (약속 {T0:.1f})')
+# 시드 분포 — trace 와 갈래 R 의 첫 알람 지연을 Python 으로 다시 계산해 JS 와 같은지, 기본 시드가 분포 25~75% 안인지
+_seeds = json.loads(subprocess.run([_node, '-e', """const M=require(%s);const o=[];for(let sd=1;sd<=200;sd++){const S=M.scenario('S8',{seed:sd,only:'trace'});o.push({seed:sd,mon:S.trace.mon,rref:S.R.ref,rmon:S.R.mon,js:[S.trace.shew.delay,S.trace.ewma.delay,S.trace.cusum.delay,S.R.res3.delay,S.R.rescusum.delay],pre:[S.trace.shew.pre.length,S.trace.ewma.pre.length,S.trace.cusum.pre.length]});}console.log(JSON.stringify(o))""" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+SA = P8['shift_at']; UCLp = Lp * np.sqrt(LAM / (2 - LAM))
+# 변화 전 알람은 헛알람으로 세고 통계량을 처음 상태로 되돌린다. 반환: 변화 뒤 첫 알람의 지연(없으면 None)
+def py_delays(z, kind, k=None, h=None, lam=None, ucl=None):
+    n = len(z); w = 0.0; sp = 0.0; sm = 0.0
+    for i in range(n):
+        if kind == 'shew': hit = abs(z[i]) > 3
+        elif kind == 'ewma':
+            w = lam * z[i] + (1 - lam) * w; hit = abs(w) > ucl
+        else:
+            sp = max(0.0, sp + z[i] - k); sm = max(0.0, sm - z[i] - k); hit = sp > h or sm > h
+        if hit:
+            if i + 1 < SA: w = sp = sm = 0.0
+            else: return i + 1 - SA + 1
+    return None
+_pyd = []
+for e in _seeds:
+    z = (np.array(e['mon']) - P8['mu0']) / P8['sd0']
+    rf = np.array(e['rref']); mm = rf.mean(); dd = rf - mm; ph = (dd[1:] * dd[:-1]).sum() / (dd[:-1] ** 2).sum(); sr = (dd[1:] - ph * dd[:-1]).std(ddof=1)
+    kr = R8['delta'] * (1 - ph) * rf.std(ddof=1) / sr / 2; hr = py_h(kr)
+    prev = np.concatenate([[rf[-1]], np.array(e['rmon'])[:-1]]); rz = ((np.array(e['rmon']) - mm) - ph * (prev - mm)) / sr
+    _pyd.append([py_delays(z, 'shew'), py_delays(z, 'ewma', lam=LAM, ucl=UCLp), py_delays(z, 'cusum', k=KK, h=hp), py_delays(rz, 'shew'), py_delays(rz, 'cusum', k=kr, h=hr)])
+_same = all([(a if a is not None else -1) for a in _pyd[i]] == [(a if a is not None else -1) for a in e['js']] for i, e in enumerate(_seeds))
+chk('S8 시드 1~200 의 첫 알람 지연(트레이스 셋 · 갈래 R 둘)을 Python 으로 다시 계산한 값 = JS 값', _same, '200개 시드 × 5개 지연 전부 일치' if _same else '불일치 있음')
+_arr = np.array([[np.inf if a is None else a for a in row] for row in _pyd]); _def = _S8['params']['seed']; _row = _arr[_def - 1]
+_rk = [((_arr[:, c] < _row[c]).sum() + 0.5 * (_arr[:, c] == _row[c]).sum()) / len(_arr) for c in range(5)]
+_names = ['슈하트', 'EWMA', 'CUSUM', '잔차 3σ', '잔차 CUSUM']
+chk('S8 대표 시드: 기본 시드의 첫 알람 지연 다섯이 시드 1~200 각 분포의 25~75% 안', all(0.25 <= r <= 0.75 for r in _rk),
+    f'시드 {_def}: ' + ' · '.join(f'{n} {_row[c]:.0f}장({_rk[c]*100:.0f}%)' for c, n in enumerate(_names)))
+_med = np.median(_arr, axis=0)
+chk('S8 분포(시드 200) 중앙값: 슈하트 > 2×EWMA · 2×CUSUM, 잔차 CUSUM < 0.5×잔차 3σ', _med[0] > 2 * _med[1] and _med[0] > 2 * _med[2] and _med[4] < 0.5 * _med[3],
+    f'중앙값 슈하트 {_med[0]:.0f} · EWMA {_med[1]:.0f} · CUSUM {_med[2]:.0f} · 잔차 3σ {_med[3]:.0f} · 잔차 CUSUM {_med[4]:.0f}')
+
 # Loss — 11개 사유 모두 등장, 연쇄(root≠reason) 존재
 ev = rd('loss_events.csv'); codes = ['EQ-BD','EQ-PM','Q-MASK','Q-EVAP','LG-TRANS','LG-STK','LG-CST','LG-JC','CL-CAPA','JC-EARLY','RUN-TRIPLE']
 miss = [x for x in codes if x not in set(ev.reason)]
