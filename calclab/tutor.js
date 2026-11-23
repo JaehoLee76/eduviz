@@ -66,6 +66,7 @@
   function start(){
     style();
     plant();
+    load(['feedback.js']);                                      // 절마다 의견 남기기(오프라인에서도 동작)
     var tid = 0;
     window.addEventListener('scroll', function(){ clearTimeout(tid); tid = setTimeout(plant, 200); }, { passive:true });
     document.addEventListener('pointerdown', function(e){       // AI 질문 버튼을 누르는 순간 맥락을 최신으로
