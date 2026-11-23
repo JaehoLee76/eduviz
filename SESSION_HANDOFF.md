@@ -4,19 +4,20 @@
 > 한 장짜리 현재 상태입니다. 누적하지 말고 덮어씁니다.
 
 ## 언제
-2026-11-22
+2026-11-23
 
 ## 무엇을 하던 중
-**콘텐츠 제작(학습 아님).** 미적분 트랙 1장 맨 앞(인트로 다음, #3)에 ADP 실험실 형식의 한 페이지 실험실 「미적분, 처음부터 한 번에」를 추가·배포. 참고 영상(60분 미적분 입문)의 흐름을 34절·실험 37개로 옮김. 핵심: 21절 세 삼각형 넓이(안쪽 삼각형 ≤ 부채꼴 ≤ 바깥쪽 삼각형 → cos h ≤ sin h/h ≤ 1), 22절 작은 원호의 닮은 삼각형(Δy ≈ cos x·Δx), 29절 기본 정리의 두 직사각형(m·h ≤ ΔA ≤ M·h).
+**콘텐츠 제작 — Manufacturing Agent Lab(제조 AI 트랙) 재개 준비.** 직전까지 EduViz 사이트 작업(미적분 실험실·의견 기능·엔진 클릭 막힘·algo 모바일 슬라이더)을 끝내고 배포함. 사이트 쪽 남은 일은 `eduviz.md` 맨 위 「EduViz 사이트 남은 일」에 기록.
 
 ## 정확한 위치
-- 실험실 `calclab/labs/0001-calculus-from-zero.html` (자기완결, Q&A 팝업 `../../adp/qna.js`, 튜터 `calclab/tutor.js` = agentlab 판 복제)
-- 트랙 입구 장면 `calc1_00` — `js/content_calc1.js` 맨 앞 + `content/calc1.json` + `content/search_index.json`
-- 검증: ui_check PC·모바일 ✅, 막대 45·단추 32 전수 구동 에러 0, 미적분 트랙 400장면 스캔 에러 0
+- 작업 리스트 `_content/FDC/_teach/WORKLIST.md` — 다음 ⬜ 첫 줄 = **#2 0203 「3σ의 숨은 가정 셋」**(정규성: 분위수 한계·Box-Cox / 독립성: 잔차 관리도 / 깨끗한 기준 데이터: 중앙값·MAD 로버스트).
+- 설계서 `_content/FDC/_teach/p2_spec.md` — §1(0202)만 있음. **§2(0203) 설계가 첫 걸음.**
+- 본보기 `agentlab/labs/0202-false-alarm-multiplicity.html`, 데이터 `agentlab/data/mfgsim.js`(시나리오 S1~S6, 0203 은 S7 신설 예정) · `verify.py`.
 
 ## 다음 한 걸음
-1. 사령관 검토 의견 반영(장면별 표현·추가 시각화 요청).
-2. 그 뒤 ADP 0008 질문 대응 / Manufacturing Agent Lab 0203(WORKLIST).
+1. Opus가 `p2_spec.md` §2(0203) 설계 — 한 문장·아는 것·새 용어 개수·S7 데이터(비정규·자기상관·오염 기준 세 갈래)·흐름·성과 환산·Python·검증 기준.
+2. Sonnet 1기 제작(WORKLIST 공통 브리프) → Opus 검증(ui_check·voice_check·Python 대조) → 허브 등록 → 커밋·배포 → WORKLIST ✅.
 
 ## 열린 질문
-- 없음. (3D 구 회전 보기는 2026-11-23 사령관 결정으로 기각 — 옆모습+단면 2D 유지. 다시 올리지 않음.)
+- 마스터플랜 기둥 1: 현행 "3시그마 비교법"의 정확한 정의(이전 데이터 평균±3σ 안에 이후 데이터가 드는지) — 사령관 확인 필요 표시가 남아 있음.
+- WORKLIST 「사령관 확인 대기」 4건(마스크 세트=4장, FFM 품질, 조기 잡 체인지, LB-LINE 비중).
