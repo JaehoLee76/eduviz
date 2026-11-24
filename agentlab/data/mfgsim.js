@@ -1813,6 +1813,139 @@
   }
   S10.tools = { fieldAt: fieldAt, parts: s10parts, shares: s10shares, cols: s10cols, columnProfile: columnProfile, pointOutliers: pointOutliers, pickPair: s10pickPair, pickQuiz: s10pickQuiz, COMPS: S10_COMPS, COMP_KO: S10_COMP_KO, SPEC_Q: S10_SPEC_Q, COL_Z: S10_COL_Z, PT_Z: S10_PT_Z, quantileOf: quantileOf };
 
+  /* ---- 실험실 0302: 성분 분해(최소제곱). dx·dy 154행을 하나의 설계 행렬로 풀어 계수·표준오차·잔차를 낸다. 기존 ppaFit 은 그대로 둔다. ---- */
+  var S10_TERMS_ALL = ['T', 'rot', 'mag', 'ortho', 'high'];
+  var S10_TERM_COEF = { T: ['Tx', 'Ty'], rot: ['theta'], mag: ['Mx', 'My'], ortho: ['K'], high: ['Cx', 'Cy'] };
+  var S10_COEF_ORDER = ['Tx', 'Ty', 'theta', 'Mx', 'My', 'K', 'Cx', 'Cy'];
+  var S10_PRESETS = {                                  // 측정점 누락 프리셋(점 번호 = py·11 + px)
+    right_col: (function () { var a = []; for (var py = 0; py < 7; py++) a.push(py * 11 + 10); return a; })(),
+    corners: [0, 10, 66, 76],                          // 네 모서리(가운데 기준 대칭으로 빠짐)
+    top_right: [65, 75, 76]                            // 오른쪽 위 모서리 세 점(비대칭으로 빠짐)
+  };
+  var S10_CORR_TERMS = ['T', 'rot', 'mag', 'ortho'];   // 단순 평균법과 견주는 모델(두 방법이 다루는 여섯 계수)
+  function s10coefs(terms) { terms = terms || S10_TERMS_ALL; return S10_COEF_ORDER.filter(function (c) { return terms.some(function (t) { return S10_TERM_COEF[t].indexOf(c) >= 0; }); }); }
+  function s10col(c, x, y) {                           // 계수 한 칸의 설계 행렬 값 [dx 행, dy 행], x·y 는 mm
+    var xm = x / 1000, ym = y / 1000;
+    switch (c) {
+      case 'Tx': return [1, 0]; case 'Ty': return [0, 1]; case 'theta': return [-ym, xm]; case 'Mx': return [xm, 0];
+      case 'My': return [0, ym]; case 'K': return [ym, 0]; case 'Cx': return [xm * ym, 0]; default: return [0, xm * xm];
+    }
+  }
+  function s10keep(exclude) { var ex = {}, k = [], i; (exclude || []).forEach(function (e) { ex[e] = 1; }); for (i = 0; i < CFG.NX * CFG.NY; i++) if (!ex[i]) k.push(i); return k; }
+  /* 설계 행렬: 앞 절반 = 남은 점의 dx 행, 뒤 절반 = dy 행. 반환 {X, y, names, kept} */
+  function s10design(grid, terms, exclude) {
+    var names = s10coefs(terms), kept = s10keep(exclude), X = [], y = [], i, k, r;
+    for (r = 0; r < 2; r++) for (i = 0; i < kept.length; i++) {
+      var g = grid[kept[i]], row = [];
+      for (k = 0; k < names.length; k++) row.push(s10col(names[k], g.x_mm, g.y_mm)[r]);
+      X.push(row); y.push(r === 0 ? g.dx_um : g.dy_um);
+    }
+    return { X: X, y: y, names: names, kept: kept };
+  }
+  function s10inv(A) {                                 // 가우스-조던 역행렬(작은 행렬용). 특이하면 null
+    var n = A.length, M = A.map(function (r, i) { var q = r.slice(); for (var j = 0; j < n; j++) q.push(i === j ? 1 : 0); return q; }), i, j, k;
+    for (i = 0; i < n; i++) {
+      var piv = i; for (j = i + 1; j < n; j++) if (Math.abs(M[j][i]) > Math.abs(M[piv][i])) piv = j;
+      if (Math.abs(M[piv][i]) < 1e-11) return null;
+      var t = M[i]; M[i] = M[piv]; M[piv] = t; var d = M[i][i];
+      for (k = 0; k < 2 * n; k++) M[i][k] /= d;
+      for (j = 0; j < n; j++) if (j !== i) { var f = M[j][i]; if (f) for (k = 0; k < 2 * n; k++) M[j][k] -= f * M[i][k]; }
+    }
+    return M.map(function (r) { return r.slice(n); });
+  }
+  function s10rank(X) {                                // 행렬의 계수(rank): 열 기준 가우스 소거, 문턱 = 최대 절댓값 × 1e-9
+    var A = X.map(function (r) { return r.slice(); }), m = A.length, n = A[0].length, rank = 0, mx = 0, i, j, k;
+    A.forEach(function (r) { r.forEach(function (v) { if (Math.abs(v) > mx) mx = Math.abs(v); }); });
+    for (j = 0; j < n && rank < m; j++) {
+      var piv = rank; for (i = rank + 1; i < m; i++) if (Math.abs(A[i][j]) > Math.abs(A[piv][j])) piv = i;
+      if (Math.abs(A[piv][j]) < mx * 1e-9) continue;
+      var t = A[rank]; A[rank] = A[piv]; A[piv] = t;
+      for (i = rank + 1; i < m; i++) { var f = A[i][j] / A[rank][j]; for (k = j; k < n; k++) A[i][k] -= f * A[rank][k]; }
+      rank++;
+    }
+    return rank;
+  }
+  function s10model(coef, g) { var c = { stick_off: ZERO11, stick_pitch: ZERO11 }; S10_COEF_ORDER.forEach(function (n) { c[n] = coef[n] || 0; }); return fieldAt(c, g.x_mm, g.y_mm, 0); }
+  function s10gridOf(grid, coef, exclude) {            // 모델이 그린 장과 잔차(측정 − 모델)를 77점 격자꼴로
+    var ex = {}; (exclude || []).forEach(function (e) { ex[e] = 1; });
+    var fit = [], res = [];
+    grid.forEach(function (g, i) {
+      var v = s10model(coef, g), base = { px: g.px, py: g.py, x_mm: g.x_mm, y_mm: g.y_mm, excluded: ex[i] ? 1 : 0 };
+      fit.push(Object.assign({}, base, { dx_um: v[0], dy_um: v[1] })); res.push(Object.assign({}, base, { dx_um: g.dx_um - v[0], dy_um: g.dy_um - v[1] }));
+    });
+    return { fitted: fit, resid: res };
+  }
+  /* 최소제곱: terms ⊆ S10_TERMS_ALL(기본 전부), exclude = 뺄 점 번호 목록. 반환 coef·se(σ̂ 기반)·se_known(CFG.NOISE 기반)·fitted·resid·rss·n(행 수)·p(계수 수)·sigma */
+  function s10fit(grid, o) {
+    o = o || {}; var D = s10design(grid, o.terms, o.exclude), X = D.X, y = D.y, p = D.names.length, n = X.length, i, j, k;
+    var A = []; for (i = 0; i < p; i++) A.push(new Array(p).fill(0));
+    var b = new Array(p).fill(0);
+    for (k = 0; k < n; k++) for (i = 0; i < p; i++) { b[i] += X[k][i] * y[k]; for (j = 0; j < p; j++) A[i][j] += X[k][i] * X[k][j]; }
+    var Ai = s10inv(A); if (!Ai || n <= p) return { error: 'rank', p: p, n: n, names: D.names, kept: D.kept };
+    var beta = Ai.map(function (r) { var s = 0; for (var q = 0; q < p; q++) s += r[q] * b[q]; return s; });
+    var coef = {}, se = {}, sk = {}, rss = 0;
+    for (k = 0; k < n; k++) { var f = 0; for (i = 0; i < p; i++) f += X[k][i] * beta[i]; rss += (y[k] - f) * (y[k] - f); }
+    var sigma = n > p ? Math.sqrt(rss / (n - p)) : NaN;
+    D.names.forEach(function (c, q) { coef[c] = beta[q]; se[c] = sigma * Math.sqrt(Ai[q][q]); sk[c] = CFG.NOISE * Math.sqrt(Ai[q][q]); });
+    var G = s10gridOf(grid, coef, o.exclude);
+    return { terms: o.terms || S10_TERMS_ALL.slice(), names: D.names, coef: coef, se: se, se_known: sk, fitted: G.fitted, resid: G.resid, rss: rss, n: n, p: p, npts: D.kept.length, sigma: sigma, kept: D.kept, exclude: (o.exclude || []).slice() };
+  }
+  /* 단순 평균법: 좌표를 가운데로 맞추지 않고 '대칭 격자'를 믿는 계산. 격자가 온전하면 [T·회전·배율·직교도] 최소제곱과 같다 */
+  function s10naive(grid, exclude) {
+    var kept = s10keep(exclude), sx2 = 0, sy2 = 0, sxdx = 0, sydy = 0, sxdy = 0, sydx = 0, mdx = 0, mdy = 0;
+    kept.forEach(function (i) { var g = grid[i], x = g.x_mm / 1000, y = g.y_mm / 1000; sx2 += x * x; sy2 += y * y; sxdx += x * g.dx_um; sydy += y * g.dy_um; sxdy += x * g.dy_um; sydx += y * g.dx_um; mdx += g.dx_um; mdy += g.dy_um; });
+    var th = sxdy / sx2, coef = { Tx: mdx / kept.length, Ty: mdy / kept.length, theta: th, Mx: sxdx / sx2, My: sydy / sy2, K: sydx / sy2 + th };
+    var G = s10gridOf(grid, coef, exclude);
+    return { coef: coef, fitted: G.fitted, resid: G.resid, npts: kept.length, kept: kept, exclude: (exclude || []).slice() };
+  }
+  /* 열마다 상수(스틱 오프셋) 11개를 모델에 넣을 때의 식별 점검. conv: 'none'(약속 없음) · 'sum0'(오프셋 합 0, 가로 기울기 0) · 'ends'(양 끝 열 오프셋 0). 약속은 KKT 연립방정식으로 정확히 건다 */
+  function s10stickFit(grid, conv, exclude) {
+    var D = s10design(grid, S10_CORR_TERMS, exclude), nb = D.names.length, np = D.kept.length, NX = CFG.NX, X = [], i, j, k;
+    for (k = 0; k < D.X.length; k++) { var r = D.X[k].slice(), isdx = k < np, g = grid[D.kept[k % np]]; for (j = 0; j < NX; j++) r.push(isdx && g.px === j ? 1 : 0); X.push(r); }
+    var p = nb + NX, C = [];
+    if (conv === 'sum0') { C.push(new Array(nb).fill(0).concat(new Array(NX).fill(1))); C.push(new Array(nb).fill(0).concat(grid.slice(0, NX).map(function (g) { return g.x_mm / 1000; }))); }
+    else if (conv === 'ends') { var a = new Array(nb + NX).fill(0), b2 = new Array(nb + NX).fill(0); a[nb] = 1; b2[nb + NX - 1] = 1; C.push(a, b2); }
+    var out = { p: p, rank: s10rank(X), names: D.names.concat(grid.slice(0, NX).map(function (g, j) { return 'o' + j; })) };
+    out.deficiency = p - out.rank;
+    if (conv === 'none') return out;
+    var q = C.length, m = p + q, K = [], rhs = new Array(m).fill(0);
+    for (i = 0; i < m; i++) K.push(new Array(m).fill(0));
+    for (k = 0; k < X.length; k++) for (i = 0; i < p; i++) { rhs[i] += X[k][i] * D.y[k]; for (j = 0; j < p; j++) K[i][j] += X[k][i] * X[k][j]; }
+    for (i = 0; i < q; i++) for (j = 0; j < p; j++) { K[p + i][j] = C[i][j]; K[j][p + i] = C[i][j]; }
+    var sol = solve(K, rhs), coef = {}; D.names.forEach(function (c, t) { coef[c] = sol[t]; });
+    out.coef = coef; out.offsets = sol.slice(nb, p); out.rank_with_constraints = s10rank(X.concat(C.map(function (c) { return c.slice(); })));
+    return out;
+  }
+  function s10errField(coef, truth, grid) {            // 추정 계수가 그리는 장과 정답 계수가 그리는 장의 차이의 제곱평균제곱근(µm). 여섯 계수(T·회전·배율·직교도)만 견줌
+    var tc = {}, s = 0; S10_COEF_ORDER.slice(0, 6).forEach(function (c) { tc[c] = c === 'theta' ? truth.theta : truth[c]; });
+    grid.forEach(function (g) { var a = s10model(coef, g), b = s10model(tc, g); s += (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]); });
+    return Math.sqrt(s / grid.length);
+  }
+  function s10subtract(grid, coef) { return grid.map(function (g) { var v = s10model(coef, g); return { px: g.px, py: g.py, x_mm: g.x_mm, y_mm: g.y_mm, dx_um: g.dx_um - v[0], dy_um: g.dy_um - v[1] }; }); }
+  function s10pick(o, names) { var r = {}; names.forEach(function (n) { r[n] = o[n]; }); return r; }
+  /* 유리 72장 전체 요약(추정 − 정답 오차·se_known 대비 배율·보정 효과·점 누락 프리셋에서 단순 평균법과의 비교) */
+  function s10fitSummary(S) {
+    var spec = S.spec, items = S.items.map(function (it, i) {
+      var f = s10fit(it.grid), t = it.truth, err = {}, ratio = {};
+      S10_COEF_ORDER.forEach(function (c) { err[c] = f.coef[c] - t[c]; ratio[c] = Math.abs(err[c]) / f.se_known[c]; });
+      var aligned = s10subtract(it.grid, s10pick(f.coef, ['Tx', 'Ty', 'theta'])), cp = columnProfile(f.resid), pre = {};
+      Object.keys(S10_PRESETS).forEach(function (k) {
+        var ex = S10_PRESETS[k], l4 = s10fit(it.grid, { terms: S10_CORR_TERMS, exclude: ex }), nv = s10naive(it.grid, ex), kg = function (a) { return a.filter(function (g, q) { return ex.indexOf(q) < 0; }); };
+        var lg = s10subtract(it.grid, l4.coef), ng = s10subtract(it.grid, nv.coef);
+        pre[k] = { err_lsq: s10errField(l4.coef, t, it.grid), err_naive: s10errField(nv.coef, t, it.grid), metric_lsq: ppaMetric(lg).dx_metric, metric_naive: ppaMetric(ng).dx_metric,
+          Tx_lsq: l4.coef.Tx - t.Tx, Tx_naive: nv.coef.Tx - t.Tx, Mx_lsq: l4.coef.Mx - t.Mx, Mx_naive: nv.coef.Mx - t.Mx };
+      });
+      var l4f = s10fit(it.grid, { terms: S10_CORR_TERMS }), nvf = s10naive(it.grid);
+      return { mask_id: it.mask_id, glass_id: it.glass_id, bad_stick: it.bad_stick, coef: f.coef, se: f.se, se_known: f.se_known, err: err, ratio: ratio, rss: f.rss, sigma: f.sigma,
+        metric_meas: it.metric.dx_metric, metric_align: ppaMetric(aligned).dx_metric, metric_all: ppaMetric(f.resid).dx_metric, col_flag_resid: cp.flagged,
+        err_full4: s10errField(l4f.coef, t, it.grid), err_naive_full: s10errField(nvf.coef, t, it.grid), pre: pre };
+    });
+    return { spec: spec, items: items };
+  }
+  S10.tools.fit = s10fit; S10.tools.naive = s10naive; S10.tools.fitSummary = s10fitSummary; S10.tools.stickFit = s10stickFit; S10.tools.design = s10design; S10.tools.rank = s10rank;
+  S10.tools.subtract = s10subtract; S10.tools.errField = s10errField; S10.tools.coefs = s10coefs;
+  S10.tools.PRESETS = S10_PRESETS; S10.tools.TERMS = S10_TERMS_ALL; S10.tools.COEF_ORDER = S10_COEF_ORDER; S10.tools.CORR_TERMS = S10_CORR_TERMS; S10.tools.TERM_COEF = S10_TERM_COEF;
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,

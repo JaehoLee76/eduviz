@@ -1,0 +1,1095 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>성분 분해 — 최소제곱 · PPA 계수 추정</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="측정 77점의 (dx, dy)만으로 평행이동·회전·배율·직교도·고차 성분의 계수를 최소제곱으로 추정하고, 표준오차와 누설, 식별, 잔차 읽기까지 손으로 해 보는 실험실. 점이 빠진 날의 보정값, 회사 PC용 Python과 성분 분해 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.maps2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0}
+.maps2 .labtitle{font-size:.85rem}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.stk{background:var(--card)}
+.ctrl select{grid-column:span 1}
+label.cb{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.2rem .7rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.9rem;font-weight:700;cursor:pointer}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
+.qcard{margin:.9rem 0}
+.mixtag{background:var(--warn);color:#fff;border-radius:999px;padding:.05rem .6rem;font-size:.8rem}
+.qres{margin-top:.5rem}
+.shbars{margin:.3rem 0}
+.sh{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:.5rem;align-items:center;font-size:.85rem;margin:.15rem 0}
+.sh .shb{height:.7rem;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+.sh .shb i{display:block;height:100%;background:var(--accent2)}
+.sh.dom .shb i{background:var(--good)}
+.sh.dom .shl,.sh.dom .shv{font-weight:800;color:var(--good)}
+.sh .shv{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .maps2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr auto}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .stk{position:sticky;top:var(--tb,56px);z-index:6;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+}
+
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.maps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+table.mt td.hit{white-space:normal}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 3 · 실험실 2</p>
+  <h1>성분 분해 — 최소제곱</h1>
+  <p class="sub">측정 77점만으로 평행이동·회전·배율의 크기를 숫자로 뽑고, 그 숫자를 얼마나 믿을지 함께 적는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0301-ppa-vector-field.html">← 이전: PPA를 벡터장으로 보기</a><span class="sp"></span></nav>
+
+<p><b>0301에서 성분 몫을 읽을 수 있었던 것은 가상 데이터의 정답 성분을 들여다보았기 때문이고, 현장에는 77점의 (dx, dy)만 있으므로 성분의 크기를 숫자로 뽑아내는 계산이 필요합니다.</b> 이 실험실은 &lsquo;모델이 그린 장과 측정의 차이(잔차)의 제곱합이 가장 작아지는 계수&rsquo;를 고르는 최소제곱으로 평행이동·회전·배율·직교도·고차 성분의 크기를 추정하고, 남은 잔차에서 스틱과 국소 결함을 다시 봅니다. 다만 모델에 없는 성분(스틱)은 모양이 닮은 계수 쪽으로 새어 들어가서, 추정이 정답에서 벗어나는 폭이 잡음만으로 계산한 표준오차의 몇 배가 되는 계수가 있습니다(5절). 그래서 계수와 함께 잔차를 반드시 봅니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0301의 벡터장과 성분 다섯(평행이동·회전·배율·직교도·고차 성분)의 식, 스틱 무늬와 국소 결함, 열 단면과 튀는 점 찾기, 성분 몫, |평균|+3σ 지표(0102·0103). 표준오차(추정값이 잡음 때문에 흔들리는 폭을 나타내는 표준편차)와 점들에 가장 잘 맞는 직선의 기울기를 구하는 일(0101).</p>
+  <ul class="chips known"><li>벡터장과 성분 다섯</li><li>열 단면 · 튀는 점 찾기</li><li>|평균|+3σ 지표</li><li>표준오차</li><li>직선의 기울기 구하기</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 일곱 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 일곱 개 말고, 계산에 붙인 이름(단순 평균법·잔차 제곱합·위치 오차·독립인 열의 수·누설 경고)은 쓰는 자리에서 식으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>계수 (coefficient)</li><li>모델 (model)</li><li>잔차 (residual)</li><li>최소제곱 (least squares)</li><li>설계 행렬 (design matrix)</li><li>누설 (leakage)</li><li>식별 (identifiability)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — PPA 맵을 보고 &lsquo;보정값을 몇 ppm 넣을지·평행이동이 몇 µm인지&rsquo;를 숫자로 내고, 그 숫자를 믿을 만한 정도까지 함께 적는 일(2~5절).</li>
+    <li><b>손으로 연습</b> — 측정점을 빼 보며 두 계산법을 견주고(2·3절), 모델의 항을 하나씩 넣어 잔차를 줄이고(4절), 추정을 정답과 맞대고(5절), 약속을 바꿔 가며 해가 달라지는 것을 봅니다(6절).</li>
+    <li><b>다음 날 산출물</b> — 계수·표준오차·잔차를 내는 Python 함수(10절)와 성분 분해 기록지(11절).</li>
+    <li><b>기록할 데이터</b> — 유리마다 계수 한 줄과 모델 판·뺀 점·잔차 지표(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 조치 결정과 약속 정하기는 사람, 계수 계산과 누설 경고는 규칙과 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 점이 빠진 날에도 보정값이 어긋나지 않게 하는 계산이 위치 오차 허용을 넘는 유리를 몇 장 줄이는가(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0301의 <b>유리 A(<span id="p_ia"></span>)</b>의 77점 (dx, dy)가 주어졌습니다. 정답 성분은 알려져 있지 않습니다.<br>
+  <b>(1) 장변 배율 Mx의 보정값은 몇 ppm입니까? (2) 평행이동 Tx는 몇 µm입니까? (3) 이 숫자들을 얼마나 믿어도 됩니까?</b>
+  <p class="note" style="margin:.5rem 0 0">0301의 성분 몫 막대는 정답을 알고 그린 것이어서 현장에서는 쓸 수 없는 답이었습니다. 1~7절에서 측정값만으로 숫자를 만드는 방법을 세우고, 8절에서 이 물음으로 돌아옵니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 유리 A를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것과 구하려는 것</h2>
+<p>유리 A에서 얻은 것은 아래처럼 점마다 위치와 어긋남이 적힌 77행입니다. 위치 <i>x</i>(장변)와 <i>y</i>(단변)는 유리 가운데에서 잰 값이고, 부호는 dx가 양수면 오른쪽, dy가 양수면 위쪽입니다.</p>
+<div class="tbwrap"><table id="tab1" class="mt num"></table></div>
+<div class="lab">
+  <div class="labtitle">유리 A의 측정 맵</div>
+  <canvas id="cvM1"></canvas>
+</div>
+<div class="concl" id="conc1"></div>
+<p>측정한 수는 154개이고 구하려는 것은 여덟 개입니다. 여덟 값이 154개를 정확히 다 만족시키는 경우는 잡음 때문에 사실상 없으므로, &lsquo;어느 정도 어긋나는 것을 받아들이면서 가장 알맞은 값&rsquo;을 고르는 규칙이 필요합니다. 먼저 0301의 식을 거꾸로 읽는 가장 쉬운 방법부터 해 봅니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 평균과 기울기</h2>
+<p>성분의 크기를 나타내는 수 <i>T<sub>x</sub></i>, <i>T<sub>y</sub></i>, θ, <i>M<sub>x</sub></i>, <i>M<sub>y</sub></i>, <i>K</i>, <i>C<sub>x</sub></i>, <i>C<sub>y</sub></i>를 이 실험실에서는 <b>계수 (coefficient)</b>라 부릅니다. 데이터에서 구한 추정값에는 모자(^)를 붙여 정답과 구분합니다. 예를 들어 <i>M<sub>x</sub></i>가 정답이면 <i>M̂<sub>x</sub></i>는 측정에서 구한 값입니다.</p>
+<p>0301의 식을 읽으면 계산법이 바로 나옵니다. 평행이동은 모든 화살표가 같은 쪽이니 평균이 곧 평행이동입니다. 배율은 <i>x</i>가 클수록 dx가 커지는 정도이니 dx를 <i>x</i>에 대해 직선으로 맞춘 기울기이고, 회전은 <i>x</i>가 클수록 dy가 커지는 정도입니다. 이 실험실에서는 이 계산을 <b>단순 평균법</b>이라 부르고, 아래처럼 정의합니다(합은 남은 점 전부에 대해, <i>x</i>·<i>y</i>는 m 단위).</p>
+<div class="eq">
+  <span class="eqlab">단순 평균법</span>
+  <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em"><mtr><mtd><msub><mover><mi>T</mi><mo>^</mo></mover><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mtext>dx의 평균</mtext><mo>,</mo><mspace width="1em"></mspace><msub><mover><mi>T</mi><mo>^</mo></mover><mi>y</mi></msub><mo>=</mo><mtext>dy의 평균</mtext></mtd></mtr><mtr><mtd><msub><mover><mi>M</mi><mo>^</mo></mover><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mfrac><mrow><mo>∑</mo><mi>x</mi><mo>·</mo><msub><mi>d</mi><mi>x</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>,</mo><mspace width="1em"></mspace><msub><mover><mi>M</mi><mo>^</mo></mover><mi>y</mi></msub><mo>=</mo><mfrac><mrow><mo>∑</mo><mi>y</mi><mo>·</mo><msub><mi>d</mi><mi>y</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></mtd></mtr><mtr><mtd><mover><mi>θ</mi><mo>^</mo></mover></mtd><mtd><mo>=</mo></mtd><mtd><mfrac><mrow><mo>∑</mo><mi>x</mi><mo>·</mo><msub><mi>d</mi><mi>y</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>,</mo><mspace width="1em"></mspace><mover><mi>K</mi><mo>^</mo></mover><mo>=</mo><mfrac><mrow><mo>∑</mo><mi>y</mi><mo>·</mo><msub><mi>d</mi><mi>x</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mover><mi>θ</mi><mo>^</mo></mover></mtd></mtr></mtable></math>
+  <span class="note"><i>d<sub>x</sub></i>·<i>d<sub>y</sub></i>는 점마다의 dx·dy입니다. <i>K̂</i>에 θ̂를 더하는 것은 dx를 <i>y</i>에 맞춘 기울기가 <i>K</i> − θ이기 때문입니다.</span>
+</div>
+<p>이 식은 점이 유리 가운데에 대해 대칭으로 놓여 있어서 Σ<i>x</i> = 0, Σ<i>y</i> = 0, Σ<i>xy</i> = 0이어야 성분끼리 서로 끼어들지 않는다는 약속 위에서 나온 것입니다. 점이 하나도 빠지지 않은 77점에서는 이 약속이 지켜집니다. 그런데 현장의 측정 레시피에서는 점이 빠지는 일이 흔합니다. 아래에서 점을 눌러 빼 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">측정점을 빼고 단순 평균법의 값이 얼마나 움직이는지 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;오른쪽 끝 열 누락&rsquo;을 눌러 아래 표의 &lsquo;차이&rsquo; 열과 Σ<i>x</i>를 함께 보십시오. 2) &lsquo;네 모서리 누락&rsquo;을 눌러 같은 표를 보고 앞 결과와 어떻게 다른지 비교하십시오. 3) 점을 한 개씩 눌러 직접 빼며 Σ<i>x</i>·Σ<i>y</i>가 0에서 멀어질수록 어느 계수가 크게 움직이는지 찾아보십시오.</div>
+  <canvas id="cvP1" class="pick"></canvas>
+  <div class="row">
+    <button class="btn" id="pr_right" type="button" data-p="right_col">오른쪽 끝 열 누락</button>
+    <button class="btn" id="pr_corn" type="button" data-p="corners">네 모서리 누락</button>
+    <button class="btn" id="pr_tr" type="button" data-p="top_right">오른쪽 위 세 점 누락</button>
+    <button class="btn ghost" id="pr_reset" type="button">점을 전부 되돌리기</button>
+  </div>
+  <div class="state" id="stP1"></div>
+  <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<p>같은 유리, 같은 방법인데 점이 빠졌다는 이유만으로 값이 달라집니다. 달라지는 정도가 측정 잡음으로 생기는 흔들림(77점 평균이면 <span id="s2_se"></span> µm 안팎)보다 크다면 그것은 방법의 약점입니다. 이 약점을 없앨 방법이 다음 절입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 최소제곱과 설계 행렬</h2>
+<p>단순 평균법의 약점은 둘입니다. 하나는 점이 대칭이라는 약속이 깨지면 성분끼리 서로 끼어든다는 것이고, 다른 하나는 성분을 한 번에 하나씩 따로 구해서 서로 겹친 무늬를 모른다는 것입니다. 필요한 것은 점이 어디 빠졌든 <b>모든 계수를 한꺼번에</b> 정하는 규칙입니다. 그 규칙을 세우려면 몇 가지에 이름이 필요합니다.</p>
+<ul class="termdef">
+  <li><b>모델 (model)</b> — 계수 몇 개로 77점의 장 전체를 그리는 식입니다. 어떤 항을 넣었는지가 모델의 <b>판 (version)</b>입니다.</li>
+  <li><b>잔차 (residual)</b> — 측정에서 모델이 그린 값을 뺀 것입니다. 점마다 dx 잔차와 dy 잔차가 있습니다.</li>
+  <li><b>최소제곱 (least squares)</b> — 잔차 제곱합(RSS = 모든 점의 dx 잔차²와 dy 잔차²의 합)이 가장 작아지도록 계수를 고르는 방법입니다.</li>
+  <li><b>설계 행렬 (design matrix)</b> — 점마다 한 줄, 계수마다 한 칸으로 모델을 표로 적은 것입니다. 칸에는 그 계수가 그 점에서 dx(또는 dy)에 곱해지는 값(1, <i>x</i>, <i>y</i>, <i>xy</i> …)이 들어갑니다.</li>
+</ul>
+<p>모델은 0301의 성분 합과 같은 식입니다. 계수 자리에 추정값을 넣으면 모델이 그린 장이 됩니다.</p>
+<div class="eq">
+  <span class="eqlab">모델이 그리는 장 (µm)</span>
+  <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em"><mtr><mtd><msub><mover><mi>d</mi><mo>^</mo></mover><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><msub><mover><mi>T</mi><mo>^</mo></mover><mi>x</mi></msub><mo>−</mo><mover><mi>θ</mi><mo>^</mo></mover><mi>y</mi><mo>+</mo><msub><mover><mi>M</mi><mo>^</mo></mover><mi>x</mi></msub><mi>x</mi><mo>+</mo><mover><mi>K</mi><mo>^</mo></mover><mi>y</mi><mo>+</mo><msub><mover><mi>C</mi><mo>^</mo></mover><mi>x</mi></msub><mi>x</mi><mi>y</mi></mtd></mtr><mtr><mtd><msub><mover><mi>d</mi><mo>^</mo></mover><mi>y</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><msub><mover><mi>T</mi><mo>^</mo></mover><mi>y</mi></msub><mo>+</mo><mover><mi>θ</mi><mo>^</mo></mover><mi>x</mi><mo>+</mo><msub><mover><mi>M</mi><mo>^</mo></mover><mi>y</mi></msub><mi>y</mi><mo>+</mo><msub><mover><mi>C</mi><mo>^</mo></mover><mi>y</mi></msub><msup><mi>x</mi><mn>2</mn></msup></mtd></mtr></mtable></math>
+  <span class="note"><i>x</i>·<i>y</i>는 m 단위이고 계수의 단위는 0301과 같습니다(<i>T</i> µm, θ·<i>M</i>·<i>K</i> µm/m, <i>C</i> µm/m²). 모자가 붙은 값이 데이터에서 구한 추정입니다.</span>
+</div>
+<div class="eq">
+  <span class="eqlab">잔차 제곱합 (µm²)</span>
+  <math display="block"><mrow><mtext>RSS</mtext><mo>=</mo><munder><mo>∑</mo><mtext>점 i</mtext></munder><mrow><msup><mrow><mo stretchy="false">(</mo><msub><mi>d</mi><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>d</mi><mo>^</mo></mover><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="false">(</mo><msub><mi>d</mi><mrow><mi>y</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>d</mi><mo>^</mo></mover><mrow><mi>y</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></mrow></math>
+  <span class="note"><i>d<sub>x,i</sub></i>는 점 <i>i</i>에서 측정한 dx이고 <i>d̂<sub>x,i</sub></i>는 모델이 그린 값입니다. 최소제곱은 계수 여덟 개(또는 넣은 항의 계수)를 움직여 이 RSS를 가장 작게 만드는 값을 고르는 방법입니다.</span>
+</div>
+<p>모델의 값은 계수에 곱해져 더해지는 꼴이므로 설계 행렬 <i>X</i>와 계수 모음 <i>β</i>의 곱 <i>Xβ</i>로 154개 전부를 한 번에 적을 수 있습니다. 위 RSS를 가장 작게 하는 계수는 연립방정식의 해로 닫힌 식이 나옵니다(푸는 일은 함수가 합니다).</p>
+<div class="eq">
+  <span class="eqlab">계수의 해</span>
+  <math display="block"><mrow><mover><mi mathvariant="bold">β</mi><mo>^</mo></mover><mo>=</mo><msup><mrow><mo stretchy="false">(</mo><msup><mi mathvariant="bold">X</mi><mo>⊤</mo></msup><mi mathvariant="bold">X</mi><mo stretchy="false">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><msup><mi mathvariant="bold">X</mi><mo>⊤</mo></msup><mi mathvariant="bold">d</mi></mrow></math>
+  <span class="note"><b>X</b>는 설계 행렬(154줄), <b>d</b>는 측정값 154개를 세로로 늘어세운 열, <b>β</b>는 계수 모음입니다. <b>X</b>⊤는 줄과 칸을 맞바꾼 행렬이고 (…)<sup>−1</sup>은 역행렬입니다.</span>
+</div>
+<p>유리 A의 실제 점 위치로 채운 설계 행렬의 일부입니다. 앞 절반(77줄)이 dx 줄, 뒤 절반(77줄)이 dy 줄이고, 오른쪽 끝 칸이 그 줄이 맞춰야 할 측정값입니다.</p>
+<div class="tbwrap"><table id="tabX" class="mt num"></table></div>
+<div id="conX" class="concl"></div>
+<p>이제 같은 점 빼기를 최소제곱으로 해 봅니다. 여기서는 모델에 평행이동·회전·배율·직교도(여섯 계수)만 넣고, 고차 성분은 4절에서 넣습니다. 아래 점 그림은 2절과 같은 점 상태를 나눠 씁니다.</p>
+<div class="lab">
+  <div class="labtitle">같은 점 빼기를 단순 평균법과 최소제곱에 넣어 비교하기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;오른쪽 끝 열 누락&rsquo;에서 두 방법의 위치 오차가 어느 쪽이 작은지 보십시오. 2) &lsquo;네 모서리 누락&rsquo;에서는 어떻게 되는지 보십시오. 3) 점을 몇 개나 빼면 최소제곱도 풀 수 없게 되는지 눌러 가며 찾아보십시오. <b>위치 오차</b>는 구한 여섯 계수(<i>T<sub>x</sub></i>, <i>T<sub>y</sub></i>, θ, <i>M<sub>x</sub></i>, <i>M<sub>y</sub></i>, <i>K</i>)가 그리는 77점의 장과 정답 계수가 그리는 장의 차이를 제곱평균제곱근(RMS)으로 낸 값(µm)이며, 이 계수로 보정했을 때 남는 어긋남의 크기입니다.</div>
+  <canvas id="cvP2" class="pick"></canvas>
+  <div class="row">
+    <button class="btn" data-p="right_col" type="button">오른쪽 끝 열 누락</button>
+    <button class="btn" data-p="corners" type="button">네 모서리 누락</button>
+    <button class="btn" data-p="top_right" type="button">오른쪽 위 세 점 누락</button>
+    <button class="btn ghost" id="pr_reset2" type="button">점을 전부 되돌리기</button>
+  </div>
+  <div class="state" id="stP2"></div>
+  <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+  <div class="concl" id="conc3"></div>
+</div>
+<p>점이 온전하면 두 방법이 같은 값을 내므로(위 표의 &lsquo;온전한 77점&rsquo; 열은 두 방법에 공통입니다) 최소제곱은 단순 평균법을 일반화한 것입니다. 점이 빠져 비대칭이 되면 단순 평균법은 성분끼리 서로 끼어들고, 최소제곱은 남은 점이 허락하는 만큼 그 끼어듦을 계산 안에서 갈라 줍니다. 대칭으로 빠지면 갈라 줄 것이 없어 둘이 같습니다. θ와 <i>K</i>는 dx 줄에서 <i>y</i> 열이 합쳐져 있어(−θ<i>y</i> + <i>Ky</i>) dx 줄만으로는 갈리지 않고, dy 줄의 θ<i>x</i>가 θ를 따로 정해 줍니다. 그래서 dx와 dy 154줄을 한 행렬로 함께 풉니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>연습 — 항을 하나씩 넣어 잔차 줄이기</h2>
+<p>모델에 어떤 항을 넣을지는 우리가 정합니다. 항을 하나씩 넣을 때마다 잔차 제곱합이 줄어드는 정도를 보면 그 항이 이 유리에서 얼마나 쓸모 있는지 알 수 있습니다. 아래에서 유리를 고르고 항을 껐다 켜 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">유리를 고르고 모델의 항을 껐다 켜기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 평행이동만 넣은 모델에서 시작해 회전·배율·직교도·고차 성분을 차례로 넣으며 RSS가 어느 항에서 크게 줄고 어느 항에서 거의 안 주는지 보십시오. 2) 고차 성분을 넣을 때 Ty의 표준오차가 커지는지 보십시오. 3) 유리를 바꿔(스틱 불량 마스크 등) 같은 순서를 해 보십시오.</div>
+  <div class="ctrl"><label for="gSel4">유리</label><select id="gSel4"></select><output></output></div>
+  <div class="row" id="cbRow" role="group" aria-label="모델에 넣을 항"></div>
+  <div class="row"><button class="btn ghost" id="r4" type="button">모든 항을 넣은 처음 상태로</button></div>
+  <div class="state" id="st4"></div>
+  <div class="maps2">
+    <div><div class="labtitle">측정한 그대로</div><canvas id="cvM4"></canvas></div>
+    <div><div class="labtitle">모델이 그린 장</div><canvas id="cvF4"></canvas></div>
+  </div>
+  <div class="maps2">
+    <div><div class="labtitle" id="tR4">잔차 (측정 − 모델)</div><canvas id="cvR4"></canvas></div>
+    <div><div class="labtitle">항을 차례로 넣을 때의 잔차 제곱합 (막대)</div><canvas id="cvS4"></canvas></div>
+  </div>
+  <div class="readout" id="ro4"></div>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<div class="qna" data-label="고차 항은 늘 넣어야 하나요?" data-q="고차 항은 늘 넣어야 하나요?">
+  <p><b>아닙니다.</b> 고차 항(<i>C<sub>x</sub></i>·<i>C<sub>y</sub></i>)을 넣으면 잔차는 줄지만 계수 하나하나는 더 흔들립니다. 이 유리 A에서 항을 넣기 전후를 보면 RSS는 <span class="q4_r0"></span>에서 <span class="q4_r1"></span>로 줄지만, Ty의 표준오차는 <span class="q4_s0"></span>에서 <span class="q4_s1"></span> µm로 커집니다. 고차 성분이 큰 유리(프레임 휨)가 아니면 넣어서 얻는 것이 작습니다.</p>
+  <p>판단 기준은 &lsquo;그 항을 넣어 줄어드는 RSS가 흔들림 증가를 갚느냐&rsquo;입니다. 고차 성분을 넣을지는 모델의 판으로 기록해 두고, 판이 다른 계수끼리는 섞어 비교하지 않습니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>추정과 정답을 맞대어 보기 — 누설</h2>
+<p>가상 데이터라서 정답 계수를 알고 있습니다. 모든 항을 넣은 모델로 구한 추정을 정답 옆에 놓고 그 차이를 <b>표준오차</b>와 비교합니다. 표준오차는 계수마다 둘로 구합니다. 하나는 잔차에서 잡은 σ̂ = √(RSS / (<i>n</i> − <i>p</i>))(<i>n</i>은 행 수 154, <i>p</i>는 계수 수)를 쓴 값이고, 다른 하나는 측정 반복성 σ = <span class="s5_sig"></span> µm를 그대로 쓴 &lsquo;잡음만의 표준오차&rsquo;입니다.</p>
+<div class="eq">
+  <span class="eqlab">표준오차 (계수 j)</span>
+  <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em"><mtr><mtd><mover><mi>σ</mi><mo>^</mo></mover></mtd><mtd><mo>=</mo></mtd><mtd><msqrt><mfrac><mtext>RSS</mtext><mrow><mi>n</mi><mo>−</mo><mi>p</mi></mrow></mfrac></msqrt></mtd></mtr><mtr><mtd><mi>se</mi><mo stretchy="false">(</mo><msub><mover><mi>β</mi><mo>^</mo></mover><mi>j</mi><mo stretchy="false">)</mo></mtd><mtd><mo>=</mo></mtd><mtd><mover><mi>σ</mi><mo>^</mo></mover><msqrt><msub><mrow><mo stretchy="false">[</mo><msup><mrow><mo stretchy="false">(</mo><msup><mi mathvariant="bold">X</mi><mo>⊤</mo></msup><mi mathvariant="bold">X</mi><mo stretchy="false">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">]</mo></mrow><mrow><mi>j</mi><mi>j</mi></mrow></msub></msqrt></mtd></mtr></mtable></math>
+  <span class="note">잡음만의 표준오차는 <i>σ̂</i> 자리에 측정 반복성 σ를 넣은 값입니다. <i>j</i>번째 계수의 표준오차는 설계 행렬이 만드는 (<b>X</b>⊤<b>X</b>)<sup>−1</sup>의 <i>j</i>번째 대각 성분에 비례합니다.</span>
+</div>
+<p>이 표준오차는 <b>모델이 완전하고 잔차가 잡음뿐이라는 약속</b> 위에서 성립합니다. 약속이 깨지면 추정은 이 폭보다 더 벗어날 수 있습니다.</p>
+<div class="lab">
+  <div class="labtitle">추정 − 정답이 표준오차의 몇 배인지 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 먼저 유리 A에서 차이/잡음만의 표준오차 열을 보고 3배가 넘는 계수를 찾으십시오. 2) 불량 스틱 마스크로 바꿔 같은 열을 비교하십시오. 3) 둘째 표의 스틱 누설·국소 결함 누설 열이 그 차이를 얼마나 설명하는지 보십시오.</div>
+  <div class="ctrl"><label for="gSel5">유리</label><select id="gSel5"></select><output></output></div>
+  <div class="state" id="st5"></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <div class="labtitle" style="margin-top:.8rem">차이를 나눠 보면 — 누설 분해</div>
+  <div class="tbwrap"><table id="tab5c" class="mt num"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<p>차이가 잡음 폭을 훌쩍 넘는 계수가 있는 이유가 <b>누설 (leakage)</b>입니다. 누설은 모델에 넣지 않은 성분이, 모양이 닮은 다른 계수의 추정값으로 섞여 들어가는 것입니다. 스틱 오프셋은 열마다 같은 값이어서 평행이동(모든 열 같은 값)과 장변 배율(열 위치에 비례)과 모양이 닮았고, 스틱 피치는 단변 배율과 닮았습니다. 둘째 표의 스틱 누설 열은 스틱 무늬만 따로 같은 모델에 맞춘 계수이고, 국소 결함 누설 열은 결함 점만 따로 맞춘 계수입니다. 모델이 식에서 선형이므로 &lsquo;차이 = 스틱 누설 + 국소 결함 누설 + 잡음에서 오는 몫&rsquo;이 정확히 성립합니다.</p>
+<p>누설은 점을 늘려도 줄지 않습니다. 열은 11개로 정해져 있어 점이 많아져도 같은 열을 더 많이 재는 것일 뿐입니다(Q&amp;A에서 숫자로 보입니다). 72장 전체에서 계수마다 정답과 추정이 얼마나 어긋나는지 봅니다.</p>
+<div class="lab">
+  <div class="labtitle">72장 — 정답 대 추정</div>
+  <div class="ctrl"><label for="sC5">계수</label><select id="sC5"></select><output></output></div>
+  <canvas id="cvSc"></canvas>
+  <div class="row"><span class="legend"><span><span class="dot" style="background:var(--accent)"></span>정상 스틱 마스크</span><span><span class="dot" style="background:var(--bad)"></span>불량 스틱 마스크</span><span><span class="sw"></span>추정 = 정답</span></span></div>
+  <div class="tbwrap"><table id="tab5b" class="mt num"></table></div>
+  <div class="concl" id="conc5b"></div>
+</div>
+<div class="qna" data-label="점이 수천 개면 표준오차가 아주 작아지는데 믿어도 되나요?" data-q="점이 수천 개면 표준오차가 아주 작아지는데 믿어도 되나요?">
+  <p><b>아닙니다. 표준오차는 줄어도 누설은 안 줄어듭니다.</b> 잡음만의 표준오차는 점 수의 제곱근에 반비례해 줄어듭니다. 유리 A에서 Tx의 잡음만의 표준오차는 77점에서 <span class="q5_s1"></span> µm이고, 점이 10배면 <span class="q5_s10"></span>, 100배면 <span class="q5_s100"></span> µm입니다.</p>
+  <p>그러나 스틱 누설로 생긴 Tx의 어긋남은 이 유리에서 <span class="q5_leak"></span> µm이고 점 수와 상관이 없습니다. 점이 아무리 많아도 스틱 열은 같은 11개이기 때문입니다. 표준오차가 아주 작아 보이는데도 정답에서 멀리 벗어난 추정이 나오는 것이 이 함정입니다. 잔차에서 스틱 열이 보이는지부터 확인하십시오.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>스틱을 모델에 넣으면 — 식별</h2>
+<p>스틱 오프셋이 문제라면 모델에 넣어 버리면 어떨까요? 열마다 상수 하나씩 11개를 모델에 더하면 될 것 같습니다. 그런데 이때 부딪히는 것이 <b>식별 (identifiability)</b>입니다. 서로 다른 계수 조합이 똑같은 장을 그리면 데이터로는 둘을 가를 수 없다는 성질입니다.</p>
+<p>이유는 설계 행렬의 열에서 보입니다. 평행이동 <i>T<sub>x</sub></i>의 열은 모든 dx 줄에 1이 있는 열이고, 열마다 상수 11개의 열을 더하면 바로 그 열이 됩니다. 장변 배율 <i>M<sub>x</sub></i>의 열도 <i>x</i>가 열 위치만으로 정해지므로 11개 열을 위치로 가중해 더한 것과 같습니다. 어떤 열이 다른 열들의 합으로 만들어지면 그 행렬의 <b>독립인 열의 수 (rank)</b>가 열 수보다 작아지고, 연립방정식의 해가 무수히 많아집니다.</p>
+<div class="lab">
+  <div class="labtitle">열마다 상수 11개를 더한 모델 — 독립인 열의 수와 약속</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;약속 없음&rsquo;에서 독립인 열의 수가 열 수보다 몇 작은지 보십시오. 2) 약속을 &lsquo;오프셋의 합 0·기울기 0&rsquo;으로 걸고 <i>T̂<sub>x</sub></i>가 스틱 열 없는 모델의 값과 같은지 보십시오. 3) &lsquo;양 끝 열 0&rsquo;으로 바꿔 <i>T̂<sub>x</sub></i>가 달라지는 폭을 보십시오.</div>
+  <div class="ctrl"><label for="gSel6">유리</label><select id="gSel6"></select><output></output></div>
+  <div class="row" role="group" aria-label="약속 고르기">
+    <button class="btn" id="cv_none" type="button" data-c="none" aria-pressed="true">약속 없음</button>
+    <button class="btn" id="cv_sum0" type="button" data-c="sum0" aria-pressed="false">오프셋의 합 0 · 기울기 0</button>
+    <button class="btn" id="cv_ends" type="button" data-c="ends" aria-pressed="false">양 끝 열 오프셋 0</button>
+  </div>
+  <div class="state" id="st6"></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<p>약속을 걸면 해가 하나로 정해지지만, <b>평행이동의 뜻이 약속에 따라 바뀝니다.</b> &lsquo;오프셋의 합 0&rsquo; 약속에서 <i>T̂<sub>x</sub></i>는 스틱 평균까지 품은 평행이동이고, &lsquo;양 끝 열 0&rsquo; 약속에서는 양 끝 열을 기준으로 한 평행이동입니다. 같은 데이터에서 같은 &lsquo;Tx&rsquo;라는 이름이 다른 숫자를 가리키므로, <b>어떤 약속으로 구했는지를 모델의 판과 함께 기록</b>해야 합니다. 기록이 없으면 서로 다른 날의 Tx를 나란히 놓고 비교할 수 없습니다.</p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>잔차 읽기와 보정 효과</h2>
+<p>모델에 넣지 않은 것(스틱·국소 결함)은 잔차에 남습니다. 그래서 잔차의 맵에 0301의 열 단면과 튀는 점 찾기를 그대로 걸어 볼 수 있습니다. 먼저 짚어 둘 점이 있습니다. 열 단면은 이웃 열로 예측한 값과의 차를 보므로 이미 직선 추세(배율 같은 완만한 기울기)를 지우고 보고 있습니다. 그래서 모델로 성분을 뺀 잔차에 다시 걸어도 잡는 수가 늘지 않을 수 있습니다.</p>
+<div class="lab">
+  <div class="labtitle">잔차의 열 단면과 튀는 점</div>
+  <div class="ctrl"><label for="gSel7">유리</label><select id="gSel7"></select><output></output></div>
+  <div class="state" id="st7"></div>
+  <div class="maps2">
+    <div><div class="labtitle" id="tR7">잔차 맵(노란 띠 = 표시된 열, 붉은 고리 = 튀는 점)</div><canvas id="cvR7"></canvas></div>
+    <div><div class="labtitle">잔차의 열 단면 z (막대가 기준선을 넘으면 붉게)</div><canvas id="cvZ7"></canvas></div>
+  </div>
+  <div class="readout" id="ro7"></div>
+  <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
+  <div class="concl" id="conc7"></div>
+</div>
+<p>보정 효과도 이제 데이터만으로 셉니다. 0301의 6절은 정답 성분을 알고 빼서 &lsquo;얼라인 보정으로 얻을 몫&rsquo;을 셌습니다. 여기서는 추정한 계수로 같은 계산을 하고, 둘의 차이가 추정 오차 때문에 줄어든 몫입니다.</p>
+<div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
+<div class="concl" id="conc7b"></div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 처음 물음으로 돌아가서</h2>
+<p>이 실험실을 시작한 물음은 유리 A의 보정값과 평행이동, 그리고 그 숫자를 얼마나 믿을지였습니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt num"></table></div>
+<div class="concl" id="land"></div>
+<p>숫자를 내는 것까지는 규칙으로 되지만 그 숫자로 무엇을 할지는 사람이 정합니다. 누가 무엇을 맡는지를 표로 둡니다. 되돌릴 수 없는 조치는 0206에서 정한 대로 사람의 승인 뒤에 실행합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>모델의 판과 약속 정하기(어떤 항을 넣고, 스틱 오프셋을 어떻게 묶을지) · 누설 경고가 난 유리의 조치 결정 · 보정값의 부호·단위 약속 · 리페어·보정 승인</td></tr>
+  <tr><td class="rowh">규칙</td><td>잔차 열 단면 기준(|z| ≥ 3.5)으로 누설 경고를 내기 · 계수와 표준오차를 같은 형식으로 쌓기</td></tr>
+  <tr><td class="rowh">에이전트</td><td>최소제곱 계산과 표 만들기 · 맵 세 장(측정·모델·잔차) 그리기 · 기록지 초안 쓰기</td></tr>
+</table></div>
+<p>유리마다 계수 한 줄을 쌓으면 다음과 같은 표가 되고, 이 표의 Mx 열을 챔버 온도·턴 열과 나란히 놓는 것이 0303의 출발점입니다. 아래는 유리 A를 포함한 다섯 장의 첫 모습입니다.</p>
+<div class="tbwrap"><table id="tabQ" class="mt num"></table></div>
+<div class="qna" data-label="dx와 dy를 따로 풀면 안 되나요?" data-q="dx와 dy를 따로 풀면 안 되나요?">
+  <p><b>따로 풀면 θ와 <i>K</i>를 가를 수 없습니다.</b> dx 줄만 보면 θ의 열(−<i>y</i>)과 <i>K</i>의 열(<i>y</i>)이 부호만 다른 같은 열이어서, 두 열을 합친 독립인 열의 수가 <span class="q8_a"></span>입니다. 열은 둘인데 독립인 것은 하나뿐이라 해가 무수히 많습니다.</p>
+  <p>dx 줄과 dy 줄을 한 행렬로 함께 놓으면 dy 줄의 θ<i>x</i>가 더해져 독립인 열의 수가 <span class="q8_b"></span>가 되고 θ와 <i>K</i>가 갈립니다. 기존의 따로 푸는 방법은 dx에서 (<i>K</i> − θ)를, dy에서 θ를 구해 더해 같은 답을 얻지만, 점을 빼거나 항을 바꾸는 순간 같은 틀로 다룰 수 없어서 이 실험실은 처음부터 함께 풉니다.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>측정 점이 빠진 날에도 보정값이 정답에서 크게 벗어나지 않게 하는 것이 최소제곱의 몫입니다. 그 몫을 위치 오차가 허용을 넘는 유리 장수로 셉니다. <b>위치 오차</b>는 3절에서 정의한 대로 구한 계수가 그리는 장과 정답 계수가 그리는 장의 차이(RMS, µm)입니다. 허용은 아래 슬라이더에서 정하는 가정입니다. 72장은 적어서 마스크 집단을 시드 1~200으로 다시 뽑은 분포도 함께 계산합니다.</p>
+<div class="lab">
+  <div class="labtitle">점이 빠졌을 때 단순 평균법 대신 최소제곱을 쓰면 줄어드는 유리 장수</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 오른쪽 끝 열 누락에서 두 방법의 허용 초과 유리 수를 비교하십시오. 2) 네 모서리 누락으로 바꿔 둘이 같아지는지 보십시오. 3) 점이 온전할 때의 최소제곱도 허용을 넘는 유리가 있는지(스틱 누설 때문) 보십시오.</div>
+  <div class="ctrl"><label for="sPre">빠지는 점</label><select id="sPre"><option value="right_col">오른쪽 끝 열 누락</option><option value="corners">네 모서리 누락</option><option value="top_right">오른쪽 위 세 점 누락</option></select><output></output></div>
+  <div class="ctrl"><label for="sTol">허용하는 위치 오차 (µm, 가정)</label><input type="range" id="sTol" min="0.05" max="0.6" step="0.01" value="0.25"><output id="sTolO"></output></div>
+  <div class="ctrl"><label for="sTn">그 마스크가 리페어까지 더 쓰일 턴 수 (가정)</label><input type="range" id="sTn" min="1" max="20" step="1" value="5"><output id="sTnO"></output></div>
+  <div class="row"><button class="btn ghost" id="rP" type="button">기준 설정으로 되돌리기</button></div>
+  <div class="state" id="stP"></div>
+  <div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
+  <div class="tbwrap"><table id="tabP" class="mt num"></table></div>
+  <div class="concl" id="conP"></div>
+</div>
+<p class="note">회사에서는 같은 식에 &lsquo;위험에 노출된 유리 한 장이 불량이 될 확률&rsquo;과 &lsquo;유리 한 장의 값&rsquo;을 곱해 금액으로 적습니다. 이 화면의 허용과 턴 수는 가정이며 실제 spec과 리페어 주기로 바꿔 넣으십시오.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy</code>와 <code>pandas</code>만 씁니다. 설계 행렬을 만드는 <code>design_matrix</code>, 계수·표준오차·잔차를 내는 <code>fit_ppa</code>(뺄 점 목록을 받습니다), 단순 평균법 <code>naive_fit</code>, 보정 효과를 재는 <code>correction_gain</code>, 유리마다 계수 한 줄을 쌓는 <code>fit_all</code>이 이 실험실의 도구입니다. 각 함수에는 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다. 입력은 0301과 같은 <code>ppa_s10.csv</code>(가상 측정 72장 × 77점)이며 코드와 같은 폴더에 두면 그대로 돌아갑니다.</p>
+<div class="row"><button class="btn" id="csvBtn" type="button">CSV 내려받기 (ppa_s10.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+
+NX, NY = 11, 7                                   # 가로 11열 × 세로 7행 = 77점, 점 번호 = 행 × 11 + 열 (행 0 = 맨 아래 줄)
+SIGMA = 0.25                                     # 측정 반복성 σ (µm). 회사에서는 같은 유리를 반복 측정해 구합니다.
+ORDER = ("Tx", "Ty", "theta", "Mx", "My", "K", "Cx", "Cy")
+COEF_OF = {"T": ("Tx", "Ty"), "rot": ("theta",), "mag": ("Mx", "My"), "ortho": ("K",), "high": ("Cx", "Cy")}
+ALL = tuple(COEF_OF)
+
+
+def load_xy(df, glass_id):
+    """유리 한 장의 (x, y, dx, dy) 를 77개짜리 배열로. x·y 는 m, dx·dy 는 µm. +dx = 오른쪽, +dy = 위쪽.
+    쓰면 안 되는 때: 좌표 원점·부호 약속이 다른 측정 레시피의 파일(계수끼리 비교할 수 없습니다)."""
+    g = df[df.glass_id == glass_id].sort_values(["py", "px"])
+    if len(g) != NX * NY:
+        raise ValueError(f"{glass_id}: 77점이 아닙니다({len(g)}점)")
+    return g.x_mm.to_numpy() / 1000, g.y_mm.to_numpy() / 1000, g.dx_um.to_numpy(), g.dy_um.to_numpy()
+
+
+def design_matrix(x, y, terms=ALL):
+    """설계 행렬: 점마다 한 줄, 계수마다 한 칸. dx 쪽 행렬과 dy 쪽 행렬을 따로 돌려줍니다(합치면 154행).
+    쓰면 안 되는 때: terms 에 없는 성분이 큰 유리를 '설명'할 때(없는 성분은 다른 계수로 새어 듭니다)."""
+    names = [c for c in ORDER if any(c in COEF_OF[t] for t in terms)]
+    o, z = np.ones_like(x), np.zeros_like(x)
+    col = {"Tx": (o, z), "Ty": (z, o), "theta": (-y, x), "Mx": (x, z), "My": (z, y), "K": (y, z), "Cx": (x * y, z), "Cy": (z, x * x)}
+    return np.column_stack([col[c][0] for c in names]), np.column_stack([col[c][1] for c in names]), names
+
+
+def fit_ppa(dx, dy, x, y, terms=ALL, exclude=None):
+    """dx·dy 를 하나의 설계 행렬로 함께 풀어 계수·표준오차·잔차를 돌려줍니다. exclude = 뺄 점 번호 목록.
+    쓰면 안 되는 때: 스틱 불량이 의심되는 유리의 My·Tx 를 그대로 믿을 때(잔차의 열 단면부터 보십시오)."""
+    keep = np.setdiff1d(np.arange(len(x)), [] if exclude is None else exclude)
+    Xd, Xy, names = design_matrix(x, y, terms)
+    X, obs = np.vstack([Xd[keep], Xy[keep]]), np.r_[dx[keep], dy[keep]]
+    beta = np.linalg.lstsq(X, obs, rcond=None)[0]
+    rss = float(((obs - X @ beta) ** 2).sum())
+    n, p = X.shape
+    sigma = np.sqrt(rss / (n - p))
+    root = np.sqrt(np.diag(np.linalg.inv(X.T @ X)))
+    return {"coef": dict(zip(names, beta)), "se": dict(zip(names, sigma * root)), "se_known": dict(zip(names, SIGMA * root)),
+            "resid": np.c_[dx - Xd @ beta, dy - Xy @ beta], "rss": rss, "sigma": sigma, "n": n, "p": p}
+
+
+def naive_fit(dx, dy, x, y, exclude=None):
+    """단순 평균법: 평균이 평행이동, x·dx 의 기울기가 배율. 좌표를 가운데로 맞추지 않고 격자가 대칭이라고 믿습니다.
+    쓰면 안 되는 때: 빠진 점이 있거나 점 배치가 가운데 기준으로 대칭이 아닐 때."""
+    k = np.setdiff1d(np.arange(len(x)), [] if exclude is None else exclude)
+    x, y, a, b = x[k], y[k], dx[k], dy[k]
+    th = (x * b).sum() / (x * x).sum()
+    return {"Tx": a.mean(), "Ty": b.mean(), "theta": th, "Mx": (x * a).sum() / (x * x).sum(),
+            "My": (y * b).sum() / (y * y).sum(), "K": (y * a).sum() / (y * y).sum() + th}
+
+
+def metric(a):
+    """|평균| + 3σ 지표 (σ 는 표본 표준편차)."""
+    return abs(a.mean()) + 3 * a.std(ddof=1)
+
+
+def correction_gain(dx, dy, x, y, coef, which=("T", "rot")):
+    """추정한 계수 가운데 which 의 성분만 측정에서 빼고 dx 지표가 얼마로 줄어드는지.
+    쓰면 안 되는 때: 계수가 같은 좌표계·부호 약속으로 추정되지 않았을 때(보정 장비에 넣는 값과 뜻이 다릅니다)."""
+    Xd, Xy, names = design_matrix(x, y, which)
+    b = np.array([coef[c] for c in names])
+    return metric(dx - Xd @ b)
+
+
+def fit_all(df):
+    """유리마다 계수·표준오차·잔차 σ·보정 효과를 한 줄씩 쌓은 표(그대로 CSV 로 쌓는 꼴)."""
+    rows = []
+    for gid, g in df.groupby("glass_id", sort=False):
+        x, y, dx, dy = load_xy(df, gid)
+        f = fit_ppa(dx, dy, x, y)
+        row = {"glass_id": gid, "mask_id": g.mask_id.iloc[0], "turn": int(g.turn.iloc[0]), "chamber_temp": g.chamber_temp.iloc[0],
+               "model": "T+rot+mag+ortho+high", "n_excluded": 0}
+        row.update({c: f["coef"][c] for c in ORDER})
+        row.update({"se_" + c: f["se"][c] for c in ORDER})
+        row.update({"sigma": f["sigma"], "metric_meas": metric(dx), "metric_align": correction_gain(dx, dy, x, y, f["coef"]),
+                    "metric_all": metric(f["resid"][:, 0])})
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+df = pd.read_csv("ppa_s10.csv")
+tab = fit_all(df)
+print(f"유리 {len(tab)}장 · 계수 {len(ORDER)}개 · 모델 판 {tab.model.iloc[0]}")
+
+# 1) 유리 A: 77점만으로 계수와 표준오차
+A, B = "S10-128-B05-B1", "S10-128-B06-C2"
+x, y, dx, dy = load_xy(df, A)
+f = fit_ppa(dx, dy, x, y)
+for c in ORDER:
+    print(f"{A} {c:&gt;5} {f['coef'][c]:+.3f} ± {f['se'][c]:.3f}  (잡음만의 표준오차 {f['se_known'][c]:.3f})")
+print(f"{A}: 잔차 σ̂ {f['sigma']:.3f} µm · 잔차제곱합 {f['rss']:.3f} · 행 {f['n']} · 계수 {f['p']}")
+
+# 2) 오른쪽 끝 열 7점이 빠지면: 단순 평균법과 최소제곱(항 넷)
+RIGHT = [py * NX + 10 for py in range(NY)]
+four = ("T", "rot", "mag", "ortho")
+nv, ls, full = naive_fit(dx, dy, x, y, RIGHT), fit_ppa(dx, dy, x, y, four, RIGHT), fit_ppa(dx, dy, x, y, four)
+print(f"오른쪽 열 누락: Mx 단순 평균법 {nv['Mx']:+.3f} · 최소제곱 {ls['coef']['Mx']:+.3f} · 점이 온전할 때 {full['coef']['Mx']:+.3f}")
+
+# 3) 보정 효과: 측정 → 추정한 T·회전을 뺌 → 추정한 전부를 뺀 잔차
+for gid in (A, B):
+    x, y, dx, dy = load_xy(df, gid)
+    r = tab[tab.glass_id == gid].iloc[0]
+    print(f"{gid}: dx 지표 {r.metric_meas:.3f} → T·회전 보정 {r.metric_align:.3f} → 전부 뺀 잔차 {r.metric_all:.3f}")
+
+# 4) 72장 계수 표: 챔버 온도·턴과 나란히 놓으면 다음 실험실의 입력이 됩니다
+print(f"72장 중앙값: 잔차 σ̂ {tab.sigma.median():.3f} · 측정 지표 {tab.metric_meas.median():.3f} → 전부 뺀 잔차 {tab.metric_all.median():.3f}")
+print(tab[["mask_id", "turn", "chamber_temp", "Tx", "Mx", "sigma"]].head(3).round(3).to_string(index=False))</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력">유리 72장 · 계수 8개 · 모델 판 T+rot+mag+ortho+high
+S10-128-B05-B1    Tx +0.311 ± 0.045  (잡음만의 표준오차 0.028)
+S10-128-B05-B1    Ty +0.049 ± 0.068  (잡음만의 표준오차 0.043)
+S10-128-B05-B1 theta -0.107 ± 0.094  (잡음만의 표준오차 0.060)
+S10-128-B05-B1    Mx -1.603 ± 0.094  (잡음만의 표준오차 0.060)
+S10-128-B05-B1    My -1.369 ± 0.145  (잡음만의 표준오차 0.092)
+S10-128-B05-B1     K +0.410 ± 0.173  (잡음만의 표준오차 0.110)
+S10-128-B05-B1    Cx +0.190 ± 0.306  (잡음만의 표준오차 0.195)
+S10-128-B05-B1    Cy +0.387 ± 0.225  (잡음만의 표준오차 0.143)
+S10-128-B05-B1: 잔차 σ̂ 0.393 µm · 잔차제곱합 22.514 · 행 154 · 계수 8
+오른쪽 열 누락: Mx 단순 평균법 -1.845 · 최소제곱 -1.739 · 점이 온전할 때 -1.603
+S10-128-B05-B1: dx 지표 3.007 → T·회전 보정 2.680 → 전부 뺀 잔차 1.327
+S10-128-B06-C2: dx 지표 3.003 → T·회전 보정 2.598 → 전부 뺀 잔차 1.452
+72장 중앙값: 잔차 σ̂ 0.396 · 측정 지표 3.770 → 전부 뺀 잔차 1.289
+mask_id  turn  chamber_temp     Tx     Mx  sigma
+ B02-A1     4        81.133  1.159 -2.835  0.381
+ B02-A2     3        81.258 -0.013 -2.081  0.435
+ B02-A3     9        80.947  0.401 -1.302  0.368</pre>
+<div class="qna" data-label="보정 장비가 받는 값의 부호와 단위는 무엇인가요?" data-q="보정 장비가 받는 값의 부호와 단위는 무엇인가요?">
+  <p><b>이 화면의 부호는 &lsquo;증착이 어긋난 방향&rsquo;이고 보정 장비가 그 부호를 그대로 받는지는 장비마다 다릅니다.</b> 이 실험실에서 dx가 양수면 증착이 오른쪽으로 벗어난 것이고, 유리 A의 장변 배율 추정은 <i>M̂<sub>x</sub></i> = <span class="q9_m"></span> ppm(1 m당 µm)입니다. 어떤 장비는 이 값을 &lsquo;벗어난 만큼&rsquo;으로 받고, 어떤 장비는 &lsquo;되돌릴 만큼&rsquo;으로 받아 부호가 반대입니다.</p>
+  <p>그래서 계수를 기록할 때는 부호 약속(양수가 어느 쪽인가), 단위(µm인가 ppm인가), 원점(유리 가운데인가)을 함께 적고, 보정 장비에 넣는 값을 따로 한 칸 두어 부호를 바꾼 값을 적습니다. 0301에서 정한 좌표계와 부호 약속을 그대로 이어 씁니다.</p>
+</div>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>PPA 성분 분해 기록지</h3>
+  <dl>
+    <dt>칸 (0206 사례 기록의 칸과 같은 이름)</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 유리 A로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>모델의 판(넣은 항)과 약속(스틱 오프셋을 어떻게 묶었나)을 적었는가</li>
+      <li>뺀 점 목록과 남은 점 수를 적었는가(점이 빠졌다면 단순 평균법이 아니라 최소제곱을 썼는가)</li>
+      <li>계수마다 표준오차를 함께 적었고, 잔차의 σ̂와 측정 반복성을 견주었는가</li>
+      <li>잔차의 열 단면·튀는 점 결과와 누설 경고 여부를 적었는가</li>
+      <li>권하는 보정값에 부호·단위 약속이 붙어 있고, 담당과 확인할 시점이 있는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>리페어처럼 되돌릴 수 없는 조치는 사람의 승인 뒤에 실행합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">자동으로 성분을 추정하고 시간에 따른 변화를 보려면 유리마다 아래를 남겨야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>계수 한 줄</b> — 유리 번호·마스크 번호·턴·챔버 온도와 함께 계수 여덟 개와 표준오차(시계열 자산).</li>
+      <li><b>모델의 판과 약속</b> — 넣은 항, 스틱 오프셋을 묶은 약속, 계산 방법(최소제곱 / 단순 평균법).</li>
+      <li><b>뺀 점 목록</b> — 어느 점이 왜 빠졌는지(결측·이상값 제외).</li>
+      <li><b>잔차 지표</b> — 잔차 σ̂, 잔차의 dx·dy 지표, 열 단면·튀는 점 결과.</li>
+    </ul>
+    <p>같은 이름의 계수가 모델의 판과 약속에 따라 다른 숫자를 가리키므로, 판과 약속이 적히지 않은 계수 열은 몇 달 쌓아도 한 열로 합쳐 분석할 수 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실의 함수를 앞 실험실의 함수와 이어, 순서대로 부르게 묶었습니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">1) 맵과 지표</td><td>0301의 <code>load_grid</code> · <code>quiver_map</code> · <code>ppa_metric</code></td></tr>
+      <tr><td class="rowh">2) 계수 추정</td><td><code>fit_ppa</code>(점이 빠졌다면 <code>exclude</code>에 번호)</td></tr>
+      <tr><td class="rowh">3) 보정 효과</td><td><code>correction_gain</code></td></tr>
+      <tr><td class="rowh">4) 잔차 점검</td><td>잔차를 0301의 <code>column_profile</code> · <code>point_outliers</code>에 넣기</td></tr>
+      <tr><td class="rowh">5) 쌓기</td><td><code>fit_all</code>의 표를 CSV로 이어 붙이기(0303의 입력)</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0301-ppa-vector-field.html">← 이전: PPA를 벡터장으로 보기</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var MS=MfgSim,TL=MS.s10tools,SS=MS.scenario('S10'),IT=SS.items,SEED=SS.params.seed,CF=MS.CFG;
+var IA=SS.pair.i,IB=SS.pair.j,PA=IT[IA],PB=IT[IB];
+var CO=TL.COEF_ORDER,CORR=TL.CORR_TERMS,TERMS=TL.TERMS,PRE=TL.PRESETS,PREK=Object.keys(PRE);
+var CKO={Tx:'Tx',Ty:'Ty',theta:'θ',Mx:'Mx',My:'My',K:'K',Cx:'Cx',Cy:'Cy'};
+var UNIT={Tx:'µm',Ty:'µm',theta:'µm/m',Mx:'ppm',My:'ppm',K:'µm/m',Cx:'µm/m²',Cy:'µm/m²'};
+var TKO={T:'평행이동',rot:'회전',mag:'배율',ortho:'직교도',high:'고차 성분'};
+var PKO={right_col:'오른쪽 끝 열 누락',corners:'네 모서리 누락',top_right:'오른쪽 위 세 점 누락'};
+var SIX=['Tx','Ty','theta','Mx','My','K'];
+var SPACING=150,NP=77;
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function setT(id,t){var e=$(id);if(e)e.textContent=t;}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+function med(a){return quant(a,.5);}
+function sdv(a){return a.length>1?MS.stats.sd(a):NaN;}
+function z0(v,d){return Math.abs(v)<0.5*Math.pow(10,-d);}
+function sgn(v,d){return (v<0&&!z0(v,d)?'−':'+')+fmt(Math.abs(v),d);}
+function sg0(v,d){return (v<0&&!z0(v,d)?'−':'')+fmt(Math.abs(v),d);}
+function pc(v,d){return fmt(v*100,d==null?0:d)+'%';}
+function c3(a,d){return fmt(quant(a,.5),d)+' ('+fmt(quant(a,.1),d)+'~'+fmt(quant(a,.9),d)+')';}
+function cI(c){return c==='theta'?'θ':c.length===2?c[0]+'<sub>'+c[1]+'</sub>':c;}
+function cH(c){return '<i>'+(c==='theta'?'θ̂':c.length===2?c[0]+'̂<sub>'+c[1]+'</sub>':c+'̂')+'</i>';}
+
+/* ---- 점·맵 도우미 ---- */
+function ptsG(g){return g.map(function(q){return {px:q.px,py:q.py,x:q.x_mm,y:q.y_mm,dx:q.dx_um,dy:q.dy_um};});}
+function mag(p){return Math.sqrt(p.dx*p.dx+p.dy*p.dy);}
+function maxMag(P){var m=0;P.forEach(function(p){m=Math.max(m,mag(p));});return m;}
+function autoSc(m){return Math.max(1,Math.round(SPACING/2/Math.max(m,0.01)));}
+function xyOf(g,i){return {x:g[i].x_mm/1000,y:g[i].y_mm/1000};}
+function exList(o){return Object.keys(o).map(Number).sort(function(a,b){return a-b;});}
+
+function drawMap(id,P,o){
+  var cv=$(id);if(!cv)return;
+  var W=cv.clientWidth||320,padX=20,padT=22,padB=34,gw=W-2*padX,gh=gw*925/1500,H=Math.round(padT+gh+padB);
+  var c=setup(cv,H),x=c.x,k=gw/1500,i;
+  var soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),bad=css('--bad'),warn=css('--warn'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  function PX(mm){return padX+gw/2+mm*k;}function PY(mm){return padT+gh/2-mm*k;}
+  x.strokeStyle=rule;x.lineWidth=1;x.setLineDash([4,3]);x.strokeRect(padX+.5,padT+.5,gw-1,gh-1);x.setLineDash([]);
+  x.font='11px sans-serif';x.fillStyle=soft;x.textAlign='left';
+  x.fillText(o.label||'',padX,13);
+  x.textAlign='right';x.fillText('1 µm = '+o.S+' mm',W-padX,13);x.textAlign='left';
+  (o.cols||[]).forEach(function(cj){x.fillStyle=warn;x.globalAlpha=.16;x.fillRect(PX(-750+SPACING*cj-SPACING/2),padT,SPACING*k,gh);x.globalAlpha=1;});
+  x.fillStyle=soft;
+  P.forEach(function(p){x.beginPath();x.arc(PX(p.x),PY(p.y),1.4,0,6.283);x.fill();});
+  x.strokeStyle=acc;x.fillStyle=acc;x.lineWidth=1.6;
+  P.forEach(function(p){
+    var ex=p.dx*o.S*k,ey=-p.dy*o.S*k,L=Math.sqrt(ex*ex+ey*ey),sx=PX(p.x),sy=PY(p.y);
+    if(L<1.2)return;
+    var ux=ex/L,uy=ey/L,hd=Math.min(6,Math.max(3,L*.35));
+    x.beginPath();x.moveTo(sx,sy);x.lineTo(sx+ex,sy+ey);x.stroke();
+    x.beginPath();x.moveTo(sx+ex,sy+ey);x.lineTo(sx+ex-ux*hd-uy*hd*.5,sy+ey-uy*hd+ux*hd*.5);x.lineTo(sx+ex-ux*hd+uy*hd*.5,sy+ey-uy*hd-ux*hd*.5);x.closePath();x.fill();
+  });
+  var cand=[0.5,1,2,5,10],Lm=cand[cand.length-1];
+  for(i=0;i<cand.length;i++){if(cand[i]*o.S*k>=30){Lm=cand[i];break;}}
+  var lpx=Lm*o.S*k,bx2=padX,by2=padT+gh+16;
+  x.strokeStyle=ink;x.fillStyle=ink;x.lineWidth=2;x.beginPath();x.moveTo(bx2,by2);x.lineTo(bx2+lpx,by2);x.moveTo(bx2,by2-4);x.lineTo(bx2,by2+4);x.moveTo(bx2+lpx,by2-4);x.lineTo(bx2+lpx,by2+4);x.stroke();
+  x.fillStyle=soft;x.fillText(Lm+' µm (= '+fmt(Lm*o.S,0)+' mm)',bx2+lpx+8,by2+4);
+  (o.marks||[]).forEach(function(m){x.strokeStyle=bad;x.lineWidth=2;x.beginPath();x.arc(PX(-750+SPACING*m.px),PY(-462.5+(925/6)*m.py),9,0,6.283);x.stroke();});
+}
+
+/* 점 고르기 그림: 눌러서 빼고 되돌리는 77점 */
+var EX={};
+function drawPick(id){
+  var cv=$(id);if(!cv)return;
+  var W=cv.clientWidth||320,padX=22,padT=10,padB=26,gw=W-2*padX,gh=gw*925/1500,H=Math.round(padT+gh+padB);
+  var c=setup(cv,H),x=c.x,k=gw/1500;
+  var soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),bad=css('--bad'),card=css('--card');
+  x.clearRect(0,0,W,H);
+  function PX(mm){return padX+gw/2+mm*k;}function PY(mm){return padT+gh/2-mm*k;}
+  x.strokeStyle=rule;x.lineWidth=1;x.setLineDash([4,3]);x.strokeRect(padX+.5,padT+.5,gw-1,gh-1);x.setLineDash([]);
+  PA.grid.forEach(function(g,i){
+    var sx=PX(g.x_mm),sy=PY(g.y_mm);
+    if(EX[i]){x.strokeStyle=bad;x.lineWidth=2;x.beginPath();x.arc(sx,sy,6,0,6.283);x.stroke();x.beginPath();x.moveTo(sx-4,sy-4);x.lineTo(sx+4,sy+4);x.moveTo(sx+4,sy-4);x.lineTo(sx-4,sy+4);x.stroke();}
+    else{x.fillStyle=acc;x.beginPath();x.arc(sx,sy,5,0,6.283);x.fill();}
+  });
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='left';x.fillText('점을 누르면 빠지고 다시 누르면 돌아옵니다 · 붉은 ×는 빠진 점 · 남은 점 '+(NP-exList(EX).length)+'개',padX,padT+gh+18);
+  cv._g={padX:padX,padT:padT,gw:gw,gh:gh,k:k};
+}
+function pickAt(cv,e){
+  var g=cv._g;if(!g)return;var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left-g.padX-g.gw/2)/g.k,my=-(e.clientY-r.top-g.padT-g.gh/2)/g.k;
+  var px=Math.round((mx+750)/SPACING),py=Math.round((my+462.5)/(925/6));
+  if(px<0||px>10||py<0||py>6)return;
+  var dx=mx-(-750+SPACING*px),dy=my-(-462.5+(925/6)*py);if(Math.abs(dx)>SPACING*0.55||Math.abs(dy)>(925/6)*0.55)return;
+  var i=py*11+px;if(EX[i])delete EX[i];else EX[i]=1;upd23();
+}
+['cvP1','cvP2'].forEach(function(id){$(id).addEventListener('click',function(e){pickAt($(id),e);});});
+function setPreset(k){EX={};PRE[k].forEach(function(i){EX[i]=1;});upd23();}
+Array.prototype.forEach.call(document.querySelectorAll('button[data-p]'),function(b){b.addEventListener('click',function(){setPreset(b.getAttribute('data-p'));});});
+$('pr_reset').addEventListener('click',function(){EX={};upd23();});
+$('pr_reset2').addEventListener('click',function(){EX={};upd23();});
+
+/* ---- 머리말·문제 ---- */
+setT('p_ia',PA.mask_id);setT('s5_sig',fmt(CF.NOISE,2));setT('s2_se',fmt(CF.NOISE/Math.sqrt(NP),3));
+setAll('s5_sig',fmt(CF.NOISE,2));
+var FS=TL.fitSummary(SS),FIT=IT.map(function(it){return TL.fit(it.grid);});
+var TRUTH=function(it,c){return it.truth[c];};
+
+/* ---- 1절 ---- */
+(function(){
+  var rows=[0,5,38,70,76],h='<tr><th>점 번호</th><th>열·행</th><th>x (m)</th><th>y (m)</th><th>dx (µm)</th><th>dy (µm)</th></tr>';
+  rows.forEach(function(i){var g=PA.grid[i];h+='<tr><td class="rowh">'+i+'</td><td>('+g.px+', '+g.py+')</td><td>'+sg0(g.x_mm/1000,3)+'</td><td>'+sg0(g.y_mm/1000,3)+'</td><td>'+sg0(g.dx_um,3)+'</td><td>'+sg0(g.dy_um,3)+'</td></tr>';});
+  h+='<tr><td colspan="6" class="note" style="text-align:left">77행 가운데 다섯 행입니다. 점 번호 = 행 × 11 + 열이고, 행 0이 맨 아래 줄입니다.</td></tr>';
+  $('tab1').innerHTML=h;
+  $('conc1').innerHTML='<b>유리 A에서 쥐고 있는 것은 점 77개마다 둘씩, 154개의 수이고 구하려는 것은 계수 여덟 개입니다.</b> dx 지표는 '+fmt(PA.metric.dx_metric,3)+' µm, dy 지표는 '+fmt(PA.metric.dy_metric,3)+' µm입니다.';
+})();
+
+/* ---- 2·3절 ---- */
+var NV0=TL.naive(PA.grid),L40=TL.fit(PA.grid,{terms:CORR}),FULLA=FIT[IA];
+function sumXY(exl){
+  var ex={};exl.forEach(function(i){ex[i]=1;});var sx=0,sy=0,sxy=0;
+  PA.grid.forEach(function(g,i){if(ex[i])return;var x=g.x_mm/1000,y=g.y_mm/1000;sx+=x;sy+=y;sxy+=x*y;});
+  return {sx:sx,sy:sy,sxy:sxy};
+}
+function upd23(){
+  drawPick('cvP1');drawPick('cvP2');
+  var exl=exList(EX),n=exl.length,base=n===0,S=sumXY(exl),NV=TL.naive(PA.grid,exl),L4=TL.fit(PA.grid,{terms:CORR,exclude:exl}),t=PA.truth;
+  var tx=PA.truth;
+  var msg=base?'지금은 점이 하나도 빠지지 않은 77점입니다. Σ<i>x</i>, Σ<i>y</i>, Σ<i>xy</i>가 모두 0이어서 단순 평균법의 약속이 지켜집니다.':'지금은 점 '+n+'개를 뺀 가정입니다. [점을 전부 되돌리기]를 누르면 77점으로 돌아갑니다.';
+  [$('stP1'),$('stP2')].forEach(function(e){stateBox(e,base,'지금은 점이 하나도 빠지지 않은 77점입니다.',msg);});
+  /* 2절 표: 단순 평균법만 */
+  var h='<tr><th>계수</th><th>온전한 77점 (단순 평균법)</th><th>지금 (단순 평균법)</th><th>차이</th></tr>',mx=0,mc='';
+  SIX.forEach(function(c){var d=NV.coef[c]-NV0.coef[c];if(Math.abs(d)>mx){mx=Math.abs(d);mc=c;}
+    h+='<tr><td class="rowh">'+cH(c)+' ('+UNIT[c]+')</td><td>'+sg0(NV0.coef[c],3)+'</td><td>'+sg0(NV.coef[c],3)+'</td><td'+(Math.abs(d)>CF.NOISE/Math.sqrt(NP)*3?' class="hit"':'')+'>'+(Math.abs(d)<5e-4?'±0':sgn(d,3))+'</td></tr>';});
+  h+='<tr><td class="rowh">남은 점에서 Σ<i>x</i> · Σ<i>y</i> · Σ<i>xy</i></td><td colspan="3">'+sg0(S.sx,3)+' · '+sg0(S.sy,3)+' · '+sg0(S.sxy,3)+' (m, m, m²)</td></tr>';
+  $('tab2').innerHTML=h;
+  var thr=CF.NOISE/Math.sqrt(NP);
+  $('conc2').innerHTML=base?'<b>점이 온전하면 같은 값입니다.</b> 이 값이 이후의 기준입니다. 점을 빼 보십시오.':
+    mx>3*thr?'<b>점 '+n+'개를 뺀 것만으로 '+cH(mc)+'가 '+fmt(mx,3)+' '+UNIT[mc]+' 달라졌습니다.</b> 잡음으로 생기는 평균의 흔들림 '+fmt(thr,3)+'의 3배('+fmt(3*thr,3)+')보다 큽니다. 이때 Σ<i>x</i> = '+sg0(S.sx,3)+', Σ<i>y</i> = '+sg0(S.sy,3)+'으로 0에서 벗어나 성분끼리 서로 끼어듭니다.':
+    '<b>이 점 구성에서는 가장 많이 움직인 '+cH(mc)+'도 '+fmt(mx,3)+' '+UNIT[mc]+'로 잡음의 3배('+fmt(3*thr,3)+') 안입니다.</b> Σ<i>x</i> = '+sg0(S.sx,3)+', Σ<i>y</i> = '+sg0(S.sy,3)+'입니다. 대칭에 가깝게 빠지면 단순 평균법의 약속이 크게 깨지지 않습니다.';
+  /* 3절 표 */
+  var okL=!L4.error;
+  var e1=TL.errField(NV.coef,tx,PA.grid),e0=TL.errField(NV0.coef,tx,PA.grid);
+  var h3='<tr><th>계수</th><th>정답</th><th>온전한 77점 (두 방법 같음)</th><th>지금 단순 평균법</th><th>지금 최소제곱</th></tr>';
+  SIX.forEach(function(c){var tv=tx[c];
+    h3+='<tr><td class="rowh">'+cH(c)+' ('+UNIT[c]+')</td><td>'+sg0(tv,3)+'</td><td>'+sg0(L40.coef[c],3)+'</td><td>'+sg0(NV.coef[c],3)+'</td><td>'+(okL?sg0(L4.coef[c],3):'—')+'</td></tr>';});
+  var eL=okL?TL.errField(L4.coef,tx,PA.grid):NaN;
+  h3+='<tr><td class="rowh">위치 오차 (µm)</td><td>—</td><td>'+fmt(TL.errField(L40.coef,tx,PA.grid),3)+'</td><td><b>'+fmt(e1,3)+'</b></td><td><b>'+fmt(eL,3)+'</b></td></tr>';
+  $('tab3').innerHTML=h3;
+  var cmp=!okL?'<b>남은 점이 너무 적어 최소제곱을 풀 수 없습니다.</b> 계수 여섯 개를 정하려면 남은 점이 적어도 '+Math.ceil((6+1)/2)+'개는 있어야 하고, 점이 있어도 같은 줄이나 같은 열에 몰리면 풀 수 없습니다(6절의 식별과 같은 이유).':
+    base?'<b>점이 온전하면 단순 평균법과 최소제곱이 같은 값을 냅니다.</b> 위치 오차 '+fmt(eL,3)+' µm는 두 방법이 정답에서 같이 벗어난 폭입니다(스틱·국소 결함·잡음 때문, 5절).':
+    Math.abs(e1-eL)<5e-4?'<b>이 점 구성에서는 두 방법이 같습니다.</b> 위치 오차는 둘 다 '+fmt(eL,3)+' µm입니다. 점이 가운데에 대해 대칭으로 빠지면 단순 평균법의 약속이 그대로 지켜져 둘이 갈리지 않습니다.':
+    e1>eL?'<b>단순 평균법의 위치 오차 '+fmt(e1,3)+' µm, 최소제곱의 위치 오차 '+fmt(eL,3)+' µm입니다.</b> 점이 빠져 비대칭이 된 만큼 최소제곱이 더 작게 벗어났습니다(점이 온전할 때 '+fmt(e0,3)+' µm).':
+    '<b>이 점 구성에서는 단순 평균법의 위치 오차 '+fmt(e1,3)+' µm가 최소제곱의 '+fmt(eL,3)+' µm보다 작습니다.</b> 잡음과 스틱 누설이 우연히 상쇄된 경우입니다. 72장 전체에서는 9절에서 셉니다.';
+  var hi=TL.fit(PA.grid),nvh=NV0.coef.Ty;
+  $('conc3').innerHTML=cmp+'<br><span class="note">고차 항(<i>C<sub>y</sub></i>)까지 넣은 최소제곱의 <i>T̂<sub>y</sub></i>는 '+sg0(hi.coef.Ty,3)+'이고 단순 평균법의 <i>T̂<sub>y</sub></i>는 '+sg0(nvh,3)+'으로, 점이 온전해도 갈립니다. 단순 평균법의 평균은 <i>C<sub>y</sub></i>의 평균 몫까지 품기 때문입니다.</span>';
+}
+
+/* 설계 행렬 표 (3절) */
+(function(){
+  var D=TL.design(PA.grid,CORR,[]),X=D.X,y=D.y,names=D.names,idx=[0,38,76];
+  var h='<tr><th>줄</th>'+names.map(function(c){return '<th>'+cI(c)+'</th>';}).join('')+'<th>측정</th></tr>';
+  function row(r,lab){h+='<tr><td class="rowh">'+lab+'</td>'+X[r].map(function(v){return '<td>'+(Math.abs(v)<1e-12?'0':sg0(v,3))+'</td>';}).join('')+'<td><b>'+sg0(y[r],3)+'</b></td></tr>';}
+  idx.forEach(function(i){row(i,'dx '+i);});
+  idx.forEach(function(i){row(77+i,'dy '+i);});
+  h+='<tr><td colspan="'+(names.length+2)+'" class="note" style="text-align:left">줄 이름의 숫자는 점 번호입니다. 측정은 µm. 고차 성분의 두 칸(<i>xy</i>, <i>x</i>²)은 4절에서 더합니다.</td></tr>';
+  $('tabX').innerHTML=h;
+  var Xd=X.slice(0,77).map(function(r){return [r[2],r[5]];}),Xa=X.map(function(r){return [r[2],r[5]];});
+  var rd=TL.rank(Xd),ra=TL.rank(Xa);
+  $('conX').innerHTML='<b>줄 하나는 방정식 하나입니다.</b> 예를 들어 dx 0줄은 <i>T<sub>x</sub></i>·1 + <i>M<sub>x</sub></i>·'+sg0(X[0][3],3)+' + … = '+sg0(y[0],3)+'입니다. 계수의 열 <i>θ</i>와 <i>K</i>만 떼어 보면 dx 줄만으로는 독립인 열이 '+rd+'개, 154줄 전체로는 '+ra+'개입니다.';
+  setAll('q8_a',rd+'개');setAll('q8_b',ra+'개');
+})();
+
+/* ---- 유리 목록 (4·5·6·7절 공용) ---- */
+var G=IA;
+function optG(i){var it=IT[i];return '<option value="'+i+'">'+it.mask_id+' · '+it.turn+'턴'+(it.bad_stick>=0?' · 불량 스틱 열 '+it.bad_stick:'')+'</option>';}
+function fillGlass(id){
+  var sel=$(id),used={},h='<optgroup label="0301의 문제 유리">'+[IA,IB].map(function(i){used[i]=1;return '<option value="'+i+'">'+(i===IA?'A · ':'B · ')+IT[i].mask_id+' · '+(i===IA?'이 실험실의 문제 유리':'0301의 짝')+'</option>';}).join('')+'</optgroup>';
+  h+='<optgroup label="0301의 판독 문항 유리">'+SS.quiz.filter(function(q){return !used[q.i];}).map(function(q,k){used[q.i]=1;return '<option value="'+q.i+'">문항 '+(SS.quiz.indexOf(q)+1)+' · '+IT[q.i].mask_id+'</option>';}).join('')+'</optgroup>';
+  var bd=SS.bad.filter(function(i){return !used[i];});
+  if(bd.length)h+='<optgroup label="불량 스틱 마스크">'+bd.map(function(i){used[i]=1;return optG(i);}).join('')+'</optgroup>';
+  h+='<optgroup label="나머지 마스크">'+IT.map(function(it,i){return i;}).filter(function(i){return !used[i];}).map(optG).join('')+'</optgroup>';
+  sel.innerHTML=h;sel.value=String(G);
+  sel.addEventListener('change',function(){G=+this.value;['gSel4','gSel5','gSel6','gSel7'].forEach(function(o){$(o).value=String(G);});redrawG();});
+}
+['gSel4','gSel5','gSel6','gSel7'].forEach(fillGlass);
+
+/* ---- 4절 ---- */
+var TM={T:true,rot:true,mag:true,ortho:true,high:true},NEST=['T','rot','mag','ortho','high'];
+function buildCb(){
+  $('cbRow').innerHTML=NEST.map(function(n){return '<label class="cb"><input type="checkbox" data-t="'+n+'"'+(TM[n]?' checked':'')+'> '+TKO[n]+'</label>';}).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#cbRow input'),function(c){c.addEventListener('change',function(){TM[c.getAttribute('data-t')]=c.checked;upd4();});});
+}
+function fitTerms(it,terms){
+  if(!terms.length){var rs=it.grid.map(function(g){return {px:g.px,py:g.py,x_mm:g.x_mm,y_mm:g.y_mm,dx_um:g.dx_um,dy_um:g.dy_um};}),ss=0;it.grid.forEach(function(g){ss+=g.dx_um*g.dx_um+g.dy_um*g.dy_um;});
+    return {names:[],coef:{},se:{},fitted:it.grid.map(function(g){return {px:g.px,py:g.py,x_mm:g.x_mm,y_mm:g.y_mm,dx_um:0,dy_um:0};}),resid:rs,rss:ss,n:154,p:0,sigma:Math.sqrt(ss/154)};}
+  return TL.fit(it.grid,{terms:terms});
+}
+function nestFits(it){var r=[],i;for(i=1;i<=NEST.length;i++)r.push(TL.fit(it.grid,{terms:NEST.slice(0,i)}));return r;}
+function drawBars(rs,sel){
+  var cv=$('cvS4'),H=Math.round(Math.max(200,(cv.clientWidth||320)*0.62)),c=setup(cv,H),x=c.x,W=c.w;
+  var soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),good=css('--good'),ink=css('--ink');
+  var pl=14,pr=12,pt=14,pb=44,pw=W-pl-pr,ph=H-pt-pb,mx=Math.max.apply(null,rs.concat([sel||0]))*1.08,bw=pw/(rs.length+1);
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textAlign='center';
+  rs.forEach(function(v,j){var h=v/mx*ph,bx=pl+j*bw+bw*.15;x.fillStyle=acc;x.fillRect(bx,pt+ph-h,bw*.7,Math.max(1,h));x.fillStyle=ink;x.fillText(fmt(v,1),bx+bw*.35,pt+ph-h-4);x.fillStyle=soft;x.fillText(j===0?'평행이동':'+'+TKO[NEST[j]].slice(0,3),bx+bw*.35,H-26);x.fillText('p='+[2,3,5,6,8][j],bx+bw*.35,H-12);});
+  if(sel!=null){var j=rs.length,h=sel/mx*ph,bx=pl+j*bw+bw*.15;x.fillStyle=good;x.fillRect(bx,pt+ph-h,bw*.7,Math.max(1,h));x.fillStyle=ink;x.fillText(fmt(sel,1),bx+bw*.35,pt+ph-h-4);x.fillStyle=soft;x.fillText('지금 고른',bx+bw*.35,H-26);x.fillText('모델',bx+bw*.35,H-12);}
+}
+function upd4(){
+  var it=IT[G],terms=NEST.filter(function(n){return TM[n];}),F=fitTerms(it,terms),nest=nestFits(it);
+  var S=autoSc(maxMag(ptsG(it.grid))),ful=nest[4];
+  drawMap('cvM4',ptsG(it.grid),{S:S,label:it.mask_id+' 측정'});
+  drawMap('cvF4',ptsG(F.fitted),{S:S,label:terms.length?terms.map(function(n){return TKO[n];}).join('+'):'항 없음'});
+  drawMap('cvR4',ptsG(F.resid),{S:S,label:'잔차'});
+  $('tR4').textContent='잔차 (측정 − 모델), 같은 화살표 배율 1 µm = '+S+' mm';
+  drawBars(nest.map(function(f){return f.rss;}),F.rss);
+  var m0=MS.ppaMetric(it.grid),mr=MS.ppaMetric(F.resid);
+  $('ro4').innerHTML='계수 '+F.p+'개 · RSS <b>'+fmt(F.rss,2)+'</b> µm² · 잔차 σ̂ = √(RSS/(154−'+F.p+')) = <b>'+fmt(F.sigma,3)+'</b> µm(측정 반복성 '+fmt(CF.NOISE,2)+' µm) · 잔차 dx 지표 <b>'+fmt(mr.dx_metric,3)+'</b> µm, dy 지표 <b>'+fmt(mr.dy_metric,3)+'</b> µm(측정 '+fmt(m0.dx_metric,3)+' · '+fmt(m0.dy_metric,3)+').';
+  var h='<tr><th>모델의 판</th><th>계수 수 <i>p</i></th><th>RSS (µm²)</th><th>앞 판 대비 RSS 감소</th><th>잔차 σ̂ (µm)</th><th>잔차 dx 지표 (µm)</th><th><i>T<sub>y</sub></i>의 표준오차</th></tr>',cur=terms.join(',');
+  nest.forEach(function(f,j){var sel=NEST.slice(0,j+1).join(',')===cur,prev=j?nest[j-1].rss:null;
+    h+='<tr'+(sel?' style="outline:2px solid var(--good);outline-offset:-2px"':'')+'><td class="rowh">'+NEST.slice(0,j+1).map(function(n){return TKO[n];}).join(' + ')+'</td><td>'+f.p+'</td><td>'+fmt(f.rss,2)+'</td><td>'+(prev==null?'—':pc((prev-f.rss)/prev,1))+'</td><td>'+fmt(f.sigma,3)+'</td><td>'+fmt(MS.ppaMetric(f.resid).dx_metric,3)+'</td><td>'+fmt(f.se.Ty,3)+'</td></tr>';});
+  $('tab4').innerHTML=h;
+  var red=[];nest.forEach(function(f,j){if(j)red.push({n:TKO[NEST[j]],v:(nest[j-1].rss-f.rss)/nest[j-1].rss});});
+  var big=red.reduce(function(a,b){return b.v>a.v?b:a;},red[0]),small=red.reduce(function(a,b){return b.v<a.v?b:a;},red[0]);
+  $('conc4').innerHTML='<b>이 유리에서 RSS를 가장 크게 줄이는 항은 '+big.n+'(앞 판 대비 −'+pc(big.v,0)+')이고 가장 작게 줄이는 항은 '+small.n+'(−'+pc(small.v,0)+')입니다.</b> 모든 항을 넣어도 RSS가 0이 되지 않고 σ̂ = '+fmt(ful.sigma,3)+' µm가 남는 것은 모델에 없는 성분(스틱·국소 결함)과 측정 잡음(반복성 '+fmt(CF.NOISE,2)+' µm)이 잔차에 있기 때문입니다.';
+  var base=terms.length===5;
+  stateBox($('st4'),base,'지금은 다섯 항을 모두 넣은 판입니다(계수 8개). 유리는 '+it.mask_id+'입니다.','지금은 처음 상태에서 옮겨 놓은 가정입니다. 넣은 항: '+(terms.length?terms.map(function(n){return TKO[n];}).join(' · '):'없음')+'. [모든 항을 넣은 처음 상태로]를 누르면 돌아갑니다.');
+}
+$('r4').addEventListener('click',function(){TM={T:true,rot:true,mag:true,ortho:true,high:true};buildCb();upd4();});
+(function(){var f=nestFits(PA),a=f[3],b=f[4];setAll('q4_r0',fmt(a.rss,2)+' µm²');setAll('q4_r1',fmt(b.rss,2)+' µm²');setAll('q4_s0',fmt(a.se.Ty,3));setAll('q4_s1',fmt(b.se.Ty,3));})();
+
+/* ---- 5절 ---- */
+var TNOISE={},SEEDREC=[];
+function gridFrom(it,part){return it.grid.map(function(g,i){return {px:g.px,py:g.py,x_mm:g.x_mm,y_mm:g.y_mm,dx_um:part[i].dx,dy_um:part[i].dy};});}
+function leaks(it){var P=TL.parts(it.truth);return {s:TL.fit(gridFrom(it,P.stick)).coef,l:TL.fit(gridFrom(it,P.local)).coef};}
+function upd5(){
+  var it=IT[G],f=FIT[G],lk=leaks(it),t=it.truth;
+  var h='<tr><th>계수</th><th>추정</th><th>정답</th><th>차이</th><th>표준오차 (σ̂ 기반)</th><th>표준오차 (잡음만)</th><th>차이 ÷ 잡음만</th></tr>',h2='<tr><th>계수</th><th>차이</th><th>스틱 누설</th><th>국소 결함 누설</th><th>나머지 (잡음)</th></tr>';
+  var big=[],lkN=0;
+  CO.forEach(function(c){var d=f.coef[c]-t[c],r=Math.abs(d)/f.se_known[c],rest=d-lk.s[c]-lk.l[c];if(r>=3){big.push(c);if(Math.abs(lk.s[c]+lk.l[c])>=0.5*Math.abs(d))lkN++;}
+    h+='<tr><td class="rowh">'+cH(c)+' ('+UNIT[c]+')</td><td>'+sg0(f.coef[c],3)+'</td><td>'+sg0(t[c],3)+'</td><td>'+sgn(d,3)+'</td><td>'+fmt(f.se[c],3)+'</td><td>'+fmt(f.se_known[c],3)+'</td><td'+(r>=3?' class="hit"':'')+'>'+fmt(r,1)+'배</td></tr>';
+    h2+='<tr><td class="rowh">'+cH(c)+' ('+UNIT[c]+')</td><td>'+sgn(d,3)+'</td><td>'+sg0(lk.s[c],3)+'</td><td>'+sg0(lk.l[c],3)+'</td><td>'+sg0(rest,3)+'</td></tr>';});
+  $('tab5c').innerHTML=h2;
+  $('tab5').innerHTML=h;
+  var ms=Math.sqrt(f.rss/(154-8));
+  $('conc5').innerHTML=big.length?'<b>'+big.map(function(c){return cH(c);}).join('·')+'의 차이가 잡음만의 표준오차의 3배를 넘습니다.</b> 이 유리의 잔차 σ̂ = '+fmt(f.sigma,3)+' µm는 측정 반복성 '+fmt(CF.NOISE,2)+' µm보다 '+pc(f.sigma/CF.NOISE-1,0)+' 큽니다. 이 가운데 '+lkN+'개는 스틱·국소 결함 누설이 차이의 절반 이상을 설명합니다(둘째 표).':
+    '<b>이 유리에서는 어느 계수도 차이가 잡음만의 표준오차의 3배를 넘지 않습니다.</b> 잔차 σ̂ = '+fmt(f.sigma,3)+' µm로 측정 반복성 '+fmt(CF.NOISE,2)+' µm에 가깝습니다. 이런 유리에서는 표준오차를 그대로 믿어도 됩니다. 불량 스틱 마스크로 바꿔 같은 표를 비교해 보십시오.';
+  stateBox($('st5'),G===IA,'지금은 문제의 유리 A('+PA.mask_id+')입니다. 위 표는 모든 항을 넣은 모델의 값입니다.','지금은 유리 A가 아닌 '+it.mask_id+'를 보고 있습니다'+(it.bad_stick>=0?'(불량 스틱 열 '+it.bad_stick+').':'.')+' 유리 선택에서 A를 고르면 돌아갑니다.');
+  /* 산점도 */
+  var c=$('sC5').value||'Tx';
+  drawScatter(c);
+  var xs=FS.items;
+  var ratios=function(co){return xs.map(function(s){return s.ratio[co];});};
+  var h2='<tr><th>계수</th><th>오차 σ (정상 스틱 마스크)</th><th>오차 σ (불량 스틱 마스크)</th><th>잡음만의 표준오차</th><th>|차이|÷표준오차 중앙값 (72장)</th><th>시드 1~200의 중앙값 (10~90%)</th></tr>';
+  CO.forEach(function(co){var eg=xs.filter(function(s){return s.bad_stick<0;}).map(function(s){return s.err[co];}),eb=xs.filter(function(s){return s.bad_stick>=0;}).map(function(s){return s.err[co];});
+    var dd=SEEDREC.length?c3(SEEDREC.map(function(r){return r.rmed[co];}),2):'계산 중…';
+    h2+='<tr><td class="rowh">'+cH(co)+' ('+UNIT[co]+')</td><td>'+fmt(sdv(eg),3)+'</td><td>'+(eb.length>1?fmt(sdv(eb),3):'—')+'</td><td>'+fmt(xs[0].se_known[co],3)+'</td><td><b>'+fmt(med(ratios(co)),2)+'</b></td><td>'+dd+'</td></tr>';});
+  $('tab5b').innerHTML=h2;
+  var a=['Tx','Mx','My'].map(function(co){return cH(co)+' '+fmt(med(ratios(co)),1)+'배';}).join(' · '),o=['Ty','theta','K','Cx','Cy'].map(function(co){return fmt(med(ratios(co)),1);}).join('·');
+  var nb=xs.filter(function(s){return s.bad_stick>=0;}).length,myb=med(xs.filter(function(s){return s.bad_stick>=0;}).map(function(s){return s.ratio.My;}));
+  $('conc5b').innerHTML='<b>차이가 표준오차의 몇 배인지를 72장의 중앙값으로 보면 '+a+'로 잡음만 있을 때의 기대(반정규 분포의 중앙값 약 0.67)를 크게 넘고, 나머지 다섯 계수는 '+o+'로 기대에 가깝습니다.</b> 단변 배율 '+cH('My')+'는 불량 스틱 마스크 '+nb+'장에서만 중앙값이 '+fmt(myb,1)+'배로 큽니다. 스틱 피치가 단변 배율로 새기 때문입니다. 표준오차를 그대로 믿어도 되는 계수와 아닌 계수가 나뉘고, 믿어도 되는지는 잔차에서 스틱 열이 보이는지로 가립니다(7절).'+(SEEDREC.length?' 마스크 집단을 시드 200개로 다시 뽑으면 중앙값은 '+['Tx','Mx','My'].map(function(co){return cH(co)+' '+c3(SEEDREC.map(function(r){return r.rmed[co];}),1)+'배';}).join(' · ')+'입니다.':'');
+}
+$('sC5').innerHTML=CO.map(function(c){return '<option value="'+c+'">'+CKO[c]+' ('+UNIT[c]+')</option>';}).join('');
+$('sC5').addEventListener('change',function(){drawScatter(this.value);});
+function drawScatter(co){
+  var cv=$('cvSc'),H=Math.round(Math.max(240,(cv.clientWidth||320)*0.6)),c=setup(cv,H),x=c.x,W=c.w,pl=44,pr=14,pt=14,pb=34,pw=W-pl-pr,ph=H-pt-pb;
+  var soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),bad=css('--bad'),ink=css('--ink');
+  var xv=IT.map(function(it){return it.truth[co];}),yv=FS.items.map(function(s){return s.coef[co];});
+  var lo=Math.min.apply(null,xv.concat(yv)),hi=Math.max.apply(null,xv.concat(yv)),pad=(hi-lo)*.06+1e-6;lo-=pad;hi+=pad;
+  function X(v){return pl+(v-lo)/(hi-lo)*pw;}function Y(v){return pt+ph-(v-lo)/(hi-lo)*ph;}
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;x.textAlign='right';
+  for(var q=0;q<=4;q++){var v=lo+(hi-lo)*q/4;x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.globalAlpha=.5;x.stroke();x.globalAlpha=1;x.fillText(fmt(v,2),pl-5,Y(v)+4);}
+  x.textAlign='center';for(q=0;q<=4;q++){var v2=lo+(hi-lo)*q/4;x.fillText(fmt(v2,2),X(v2),H-pb+14);}
+  x.fillText('정답 '+CKO[co]+' ('+UNIT[co]+')',pl+pw/2,H-4);x.save();x.translate(11,pt+ph/2);x.rotate(-Math.PI/2);x.fillText('추정',0,0);x.restore();
+  x.strokeStyle=ink;x.lineWidth=1.2;x.setLineDash([5,4]);x.beginPath();x.moveTo(X(lo),Y(lo));x.lineTo(X(hi),Y(hi));x.stroke();x.setLineDash([]);
+  IT.forEach(function(it,i){x.fillStyle=it.bad_stick>=0?bad:acc;x.globalAlpha=.85;x.beginPath();x.arc(X(xv[i]),Y(yv[i]),it.bad_stick>=0?5:3.4,0,6.283);x.fill();});x.globalAlpha=1;
+}
+(function(){
+  var f=FIT[IA],t=PA.truth,lk=leaks(PA),sk=f.se_known.Tx;
+  setAll('q5_s1',fmt(sk,3));setAll('q5_s10',fmt(sk/Math.sqrt(10),3));setAll('q5_s100',fmt(sk/10,4));setAll('q5_leak',sgn(lk.s.Tx,3));
+})();
+
+/* ---- 6절 ---- */
+var CONV='none';
+function stickCols(grid){var n=grid.length,o=[];for(var j=0;j<11;j++)o.push(grid.map(function(g){return g.px===j?1:0;}));return o;}
+function upd6(){
+  var it=IT[G],r0=TL.stickFit(it.grid,'none'),r=TL.stickFit(it.grid,CONV),ns=TL.fit(it.grid,{terms:CORR}),t=it.truth;
+  var D=TL.design(it.grid,CORR,[]),sc=stickCols(it.grid),dTx=0,dMx=0,j,k;
+  for(k=0;k<77;k++){var s1=0,s2=0;for(j=0;j<11;j++){s1+=sc[j][k];s2+=sc[j][k]*it.grid[k].x_mm/1000;}dTx=Math.max(dTx,Math.abs(1-s1));dMx=Math.max(dMx,Math.abs(D.X[k][3]-s2));}
+  ['none','sum0','ends'].forEach(function(c){$('cv_'+c).setAttribute('aria-pressed',c===CONV?'true':'false');});
+  var h='<tr><th>항목</th><th>값</th></tr><tr><td class="rowh">열 수 <i>p</i> (평행이동·회전·배율·직교도 6개 + 스틱 열 11개)</td><td>'+r.p+'</td></tr>'+
+    '<tr><td class="rowh">독립인 열의 수 (rank), 약속 없음</td><td><b>'+r0.rank+'</b> (부족 '+r0.deficiency+'개)</td></tr>'+
+    '<tr><td class="rowh">|<i>T<sub>x</sub></i> 열 − 스틱 열 11개의 합| 최댓값</td><td>'+fmt(dTx,1)+'</td></tr>'+
+    '<tr><td class="rowh">|<i>M<sub>x</sub></i> 열 − (스틱 열 × 열 위치)의 합| 최댓값</td><td>'+fmt(dMx,1)+'</td></tr>';
+  if(CONV==='none')h+='<tr><td class="rowh">풀림</td><td><b>풀 수 없음</b> — 해가 무수히 많습니다</td></tr>';
+  else h+='<tr><td class="rowh">약속 두 개를 걸었을 때 독립인 열의 수</td><td><b>'+r.rank_with_constraints+'</b> / '+r.p+'</td></tr>'+
+    '<tr><td class="rowh">'+cH('Tx')+' (µm) — 이 약속으로 구한 값</td><td><b>'+sg0(r.coef.Tx,3)+'</b></td></tr>'+
+    '<tr><td class="rowh">'+cH('Mx')+' (ppm) — 이 약속으로 구한 값</td><td><b>'+sg0(r.coef.Mx,3)+'</b></td></tr>';
+  h+='<tr><td class="rowh">스틱 열 없이 푼 '+cH('Tx')+' · '+cH('Mx')+'</td><td>'+sg0(ns.coef.Tx,3)+' · '+sg0(ns.coef.Mx,3)+'</td></tr>'+
+     '<tr><td class="rowh">정답 <i>T<sub>x</sub></i> · <i>M<sub>x</sub></i></td><td>'+sg0(t.Tx,3)+' · '+sg0(t.Mx,3)+'</td></tr>';
+  $('tab6').innerHTML=h;
+  var msg=CONV==='none'?'<b>열마다 상수 11개를 더하면 독립인 열의 수가 '+r0.rank+'로 열 수 '+r0.p+'보다 '+r0.deficiency+' 작아 풀 수 없습니다.</b> 평행이동 열과 장변 배율 열이 스틱 열들의 합으로 만들어지기 때문입니다(위 두 최댓값이 0).':
+    CONV==='sum0'?'<b>오프셋의 합 0·가로 기울기 0이라는 약속 두 개를 걸면 독립인 열의 수가 '+r.rank_with_constraints+'로 풀립니다.</b> 이때 '+cH('Tx')+' = '+sg0(r.coef.Tx,3)+'는 스틱 열 없이 푼 값 '+sg0(ns.coef.Tx,3)+'과 '+(Math.abs(r.coef.Tx-ns.coef.Tx)<1e-9?'같습니다':'다릅니다')+'. 스틱 평균이 평행이동에 그대로 들어갑니다.':
+    '<b>양 끝 열 오프셋 0이라는 약속으로도 풀립니다(독립인 열의 수 '+r.rank_with_constraints+').</b> 그러나 '+cH('Tx')+' = '+sg0(r.coef.Tx,3)+'로 합 0 약속의 값과 '+fmt(Math.abs(r.coef.Tx-TL.stickFit(it.grid,'sum0').coef.Tx),3)+' µm 다릅니다. 같은 데이터인데 약속이 다르면 같은 이름 <i>T<sub>x</sub></i>가 다른 숫자입니다.';
+  $('conc6').innerHTML=msg;
+  stateBox($('st6'),CONV==='none','지금은 약속을 걸지 않은 상태입니다.','지금은 약속 \''+(CONV==='sum0'?'오프셋의 합 0 · 기울기 0':'양 끝 열 오프셋 0')+'\'을 건 가정입니다. [약속 없음]을 누르면 돌아갑니다.');
+}
+['none','sum0','ends'].forEach(function(c){$('cv_'+c).addEventListener('click',function(){CONV=c;upd6();});});
+
+/* ---- 7절 ---- */
+function drawZ(id,z,badIdx,zt){
+  var cv=$(id),H=Math.round(Math.max(190,(cv.clientWidth||320)*0.55)),c=setup(cv,H),x=c.x,W=c.w;
+  var soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),bad=css('--bad'),ink=css('--ink'),pl=36,pr=10,pt=10,pb=24,pw=W-pl-pr,ph=H-pt-pb;
+  var zl=Math.max(6,Math.ceil(Math.max.apply(null,z.map(Math.abs))+1));
+  function Y(v){return pt+ph/2-v/zl*ph/2;}
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textAlign='right';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  [-zl,-zl/2,0,zl/2,zl].forEach(function(v){x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.globalAlpha=.5;x.stroke();x.globalAlpha=1;x.fillText(fmt(v,1),pl-5,Y(v)+4);});
+  var bw=pw/11;x.textAlign='center';
+  z.forEach(function(v,j){var fl=Math.abs(v)>=zt;x.fillStyle=fl?bad:acc;var y0=Y(0),y1=Y(v);x.fillRect(pl+j*bw+bw*.18,Math.min(y0,y1),bw*.64,Math.max(1,Math.abs(y1-y0)));
+    x.fillStyle=(j===badIdx)?ink:soft;x.font=(j===badIdx?'bold ':'')+'11px sans-serif';x.fillText(String(j),pl+j*bw+bw/2,H-8);});
+  x.strokeStyle=bad;x.setLineDash([5,4]);x.lineWidth=1.3;[zt,-zt].forEach(function(v){x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.stroke();});x.setLineDash([]);
+  x.fillStyle=bad;x.textAlign='right';x.font='11px sans-serif';x.fillText('±'+fmt(zt,1),W-pr,Y(zt)-3);
+}
+var ZT=TL.COL_Z,RES=IT.map(function(it,i){var cp=TL.columnProfile(FIT[i].resid),po=TL.pointOutliers(FIT[i].resid);return {cp:cp,po:po};});
+function upd7(){
+  var it=IT[G],f=FIT[G],rs=RES[G],cp=rs.cp,po=rs.po,raw=it.col,rp=it.pts,P=ptsG(f.resid),S=autoSc(maxMag(ptsG(it.grid)));
+  drawMap('cvR7',P,{S:S,label:it.mask_id+' 잔차',cols:cp.flagged,marks:po.flagged});
+  drawZ('cvZ7',cp.z,it.bad_stick,ZT);
+  var d=it.truth.defects;
+  $('ro7').innerHTML='잔차의 열 단면: 가장 큰 |z| <b>'+fmt(cp.zmax,2)+'</b>(열 '+cp.jmax+'), 표시된 열 '+(cp.flagged.length?cp.flagged.join('·'):'없음')+' · 튀는 점 <b>'+po.flagged.length+'</b>개'+(po.flagged.length?' ('+po.flagged.map(function(q){return '열 '+q.px+'·행 '+q.py;}).join(', ')+')':'')+'<br>원래 맵의 열 단면: 가장 큰 |z| '+fmt(raw.zmax,2)+'(열 '+raw.jmax+'), 표시된 열 '+(raw.flagged.length?raw.flagged.join('·'):'없음')+' · 튀는 점 '+rp.flagged.length+'개<br>아는 정답 — 불량 스틱 열: '+(it.bad_stick>=0?'<b>'+it.bad_stick+'</b>':'없음')+' · 국소 결함 점: '+(d.length?'<b>열 '+d[0].px+'·행 '+d[0].py+'</b>':'없음');
+  stateBox($('st7'),G===IA,'지금은 문제의 유리 A('+PA.mask_id+')입니다.','지금은 유리 A가 아닌 '+it.mask_id+'를 보고 있습니다. 유리 선택에서 A를 고르면 돌아갑니다.');
+  /* 72장 집계 */
+  var nb=0,rawC=0,resC=0,nd=0,rawP=0,resP=0,fRaw=0,fRes=0,nGood=0;
+  IT.forEach(function(x,i){var r=RES[i],dd=x.truth.defects;
+    if(x.bad_stick>=0){nb++;if(x.col.flagged.indexOf(x.bad_stick)>=0)rawC++;if(r.cp.flagged.indexOf(x.bad_stick)>=0)resC++;}else{nGood++;if(x.col.flagged.length)fRaw++;if(r.cp.flagged.length)fRes++;}
+    if(dd.length){nd++;if(x.pts.flagged.some(function(q){return q.px===dd[0].px&&q.py===dd[0].py;}))rawP++;if(r.po.flagged.some(function(q){return q.px===dd[0].px&&q.py===dd[0].py;}))resP++;}});
+  $('tab7').innerHTML='<tr><th>72장에서 세면</th><th>원래 맵에 건 결과</th><th>잔차에 건 결과</th></tr>'+
+    '<tr><td class="rowh">불량 스틱 마스크 '+nb+'장 중 스틱 열을 표시한 수</td><td>'+rawC+'</td><td>'+resC+'</td></tr>'+
+    '<tr><td class="rowh">불량 스틱이 없는데 열을 표시한 마스크 수 (전체 '+nGood+'장)</td><td>'+fRaw+'</td><td>'+fRes+'</td></tr>'+
+    '<tr><td class="rowh">국소 결함 마스크 '+nd+'장 중 결함 점을 표시한 수</td><td>'+rawP+'</td><td>'+resP+'</td></tr>';
+  $('conc7').innerHTML=resC===rawC&&resP===rawP?'<b>잔차에 다시 걸어도 잡는 수는 그대로입니다(스틱 열 '+rawC+'장, 결함 점 '+rawP+'장).</b> 열 단면과 튀는 점 찾기가 이웃과의 차로 완만한 추세를 이미 지우고 있기 때문입니다. 잔차가 새로 얻어 주는 것은 &lsquo;표시되는 수&rsquo;가 아니라 &lsquo;계수를 믿어도 되는지 가리는 신호&rsquo;입니다(8절의 누설 경고).':'<b>잔차에 걸면 스틱 열을 표시하는 수가 '+rawC+'장에서 '+resC+'장으로, 결함 점은 '+rawP+'장에서 '+resP+'장으로 바뀝니다.</b> 헛표시는 '+fRaw+'장에서 '+fRes+'장입니다.';
+}
+/* 보정 효과 (7절 둘째 표) */
+function upd7b(){
+  var it=IT[G],f=FIT[G],s=FS.items[G],P=TL.parts(it.truth);
+  var truthTR=it.grid.map(function(g,i){return {dx_um:g.dx_um-P.trans[i].dx-P.rot[i].dx,dy_um:g.dy_um-P.trans[i].dy-P.rot[i].dy};});
+  var m0=MS.ppaMetric(it.grid).dx_metric,mt=MS.ppaMetric(truthTR).dx_metric;
+  var all=FS.items,dist=SEEDREC.length;
+  function row(n,a,b,c,d){return '<tr><td class="rowh">'+n+'</td><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td></tr>';}
+  var mm=med(all.map(function(q){return q.metric_meas;})),ma=med(all.map(function(q){return q.metric_align;})),mx=med(all.map(function(q){return q.metric_all;}));
+  var dd=function(k){return dist?c3(SEEDREC.map(function(r){return r[k];}),3):'계산 중…';};
+  $('tab7b').innerHTML='<tr><th>dx 지표 (µm)</th><th>이 유리 ('+it.mask_id+')</th><th>72장 중앙값 (대표 시드)</th><th>시드 1~200의 중앙값 (10~90%)</th></tr>'+
+    row('측정한 그대로',fmt(m0,3),fmt(mm,3),dd('mm'))+
+    row('정답 평행이동·회전을 뺀 뒤 (0301 방식)',fmt(mt,3),'—','—')+
+    row('추정한 평행이동·회전을 뺀 뒤',fmt(s.metric_align,3),fmt(ma,3),dd('ma'))+
+    row('추정한 성분 전부를 뺀 잔차',fmt(s.metric_all,3),fmt(mx,3),dd('mx'));
+  $('conc7b').innerHTML='<b>이 유리에서 얼라인 보정(평행이동·회전)으로 얻는 몫은 정답을 알 때 '+fmt(m0-mt,3)+' µm, 추정한 계수로는 '+fmt(m0-s.metric_align,3)+' µm입니다.</b> 둘의 차이 '+fmt((m0-mt)-(m0-s.metric_align),3)+' µm가 추정 오차 때문에 줄어든 몫입니다. 72장 전체로는 지표 중앙값이 측정 '+fmt(mm,3)+'에서 평행이동·회전을 뺀 뒤 '+fmt(ma,3)+', 추정한 성분을 전부 뺀 잔차 '+fmt(mx,3)+' µm가 됩니다.'+(dist?' 마스크 집단을 시드 200개로 다시 뽑으면 이 세 값은 '+c3(SEEDREC.map(function(r){return r.mm;}),2)+' → '+c3(SEEDREC.map(function(r){return r.ma;}),2)+' → '+c3(SEEDREC.map(function(r){return r.mx;}),2)+'입니다.':'');
+}
+
+/* ---- 8절 ---- */
+function upd8(){
+  var it=PA,f=FIT[IA],t=it.truth,s=FS.items[IA],rs=RES[IA],warn=rs.cp.flagged.length>0;
+  var h='<tr><th>물음</th><th>추정</th><th>표준오차 (σ̂ 기반 / 잡음만)</th><th>정답</th><th>차이 ÷ 잡음만의 표준오차</th></tr>';
+  [['Mx','(1) 장변 배율 보정값 (ppm)'],['Tx','(2) 평행이동 (µm)']].forEach(function(p){var c=p[0],d=f.coef[c]-t[c];
+    h+='<tr><td class="rowh">'+p[1]+'</td><td><b>'+sg0(f.coef[c],3)+'</b></td><td>'+fmt(f.se[c],3)+' / '+fmt(f.se_known[c],3)+'</td><td>'+sg0(t[c],3)+'</td><td>'+fmt(Math.abs(d)/f.se_known[c],1)+'배</td></tr>';});
+  $('tab8').innerHTML=h;
+  var good=IT.filter(function(x,i){return x.bad_stick<0&&RES[i].cp.flagged.length>0;}).length,nb=0,hit=0,nGood=0;
+  IT.forEach(function(x,i){if(x.bad_stick>=0){nb++;if(RES[i].cp.flagged.length)hit++;}else nGood++;});
+  $('land').innerHTML='<p style="margin:0 0 .5rem"><b>(1) 장변 배율 보정값은 '+cH('Mx')+' = '+sg0(f.coef.Mx,3)+' ppm입니다</b>(표준오차 '+fmt(f.se.Mx,3)+'). 잡음만 있다면 이 값은 ±'+fmt(2*f.se_known.Mx,2)+' ppm 안에서 흔들립니다. 실제로는 정답 '+sg0(t.Mx,3)+'과 '+fmt(Math.abs(f.coef.Mx-t.Mx),3)+' ppm 어긋나 표준오차의 '+fmt(Math.abs(f.coef.Mx-t.Mx)/f.se_known.Mx,1)+'배입니다.</p>'+
+    '<p style="margin:0 0 .5rem"><b>(2) 평행이동은 '+cH('Tx')+' = '+sg0(f.coef.Tx,3)+' µm입니다</b>(표준오차 '+fmt(f.se.Tx,3)+'). 정답 '+sg0(t.Tx,3)+'과의 차이는 표준오차의 '+fmt(Math.abs(f.coef.Tx-t.Tx)/f.se_known.Tx,1)+'배입니다.</p>'+
+    '<p style="margin:0"><b>(3) 얼마나 믿어도 됩니까?</b> 현장에서는 정답을 모르므로 <b>누설 경고</b>로 가립니다. 누설 경고는 잔차의 열 단면이 기준(|z| ≥ '+fmt(ZT,1)+') 이상으로 표시한 열이 하나라도 있을 때 켭니다. 유리 A는 경고가 '+(warn?'<b>켜집니다</b>(열 '+rs.cp.flagged.join('·')+'). 계수보다 잔차의 그 열을 먼저 확인하십시오.':'<b>꺼져 있습니다</b>(가장 큰 |z| '+fmt(rs.cp.zmax,2)+'). 이 유리에서는 잡음만의 표준오차에 가까운 폭으로 이 값을 쓸 수 있습니다.')+' 72장에서 이 경고는 불량 스틱 마스크 '+nb+'장 가운데 '+hit+'장에서 켜지고 정상 스틱 마스크 '+nGood+'장 가운데 '+good+'장에서도 켜집니다. 경고는 불량 스틱 확진이 아니라 &lsquo;계수를 믿기 전에 잔차를 확인하라&rsquo;는 신호입니다.</p>';
+  var h2='<tr><th>유리</th><th>턴</th><th>챔버 온도 (°C)</th><th><i>T̂<sub>x</sub></i> (µm)</th><th><i>M̂<sub>x</sub></i> (ppm)</th><th>잔차 σ̂ (µm)</th></tr>',ids=[IA,IB,0,1,2];
+  var seen={};ids.forEach(function(i){if(seen[i])return;seen[i]=1;var x=IT[i],q=FIT[i];h2+='<tr><td class="rowh">'+x.mask_id+'</td><td>'+x.turn+'</td><td>'+fmt(x.chamber_temp,2)+'</td><td>'+sg0(q.coef.Tx,3)+'</td><td>'+sg0(q.coef.Mx,3)+'</td><td>'+fmt(q.sigma,3)+'</td></tr>';});
+  $('tabQ').innerHTML=h2;
+}
+
+/* ---- 9절 ---- */
+var TOL0=0.25,TN0=5,ST={pre:'right_col',tol:TOL0,tn:TN0};
+function overCnt(arr,tol){var n=0;arr.forEach(function(v){if(v>tol)n++;});return n;}
+function updP(){
+  var k=ST.pre,items=FS.items,tol=ST.tol,tn=ST.tn,nt=CF.N_TURN,sp=FS.spec;
+  var oL=overCnt(items.map(function(s){return s.pre[k].err_lsq;}),tol),oN=overCnt(items.map(function(s){return s.pre[k].err_naive;}),tol),oF=overCnt(items.map(function(s){return s.err_full4;}),tol);
+  var sL=items.filter(function(s){return s.pre[k].metric_lsq>sp;}).length,sN=items.filter(function(s){return s.pre[k].metric_naive>sp;}).length;
+  var extra=oN-oL,exp=extra*tn*nt;
+  setT('sTolO',fmt(tol,2)+' µm');setT('sTnO',tn+'턴');
+  var done=SEEDREC.length===200;
+  function dd(f){return done?c3(SEEDREC.map(f),0):'계산 중…';}
+  $('tabP').innerHTML='<tr><th>항목 (빠지는 점: '+PKO[k]+', 허용 위치 오차 '+fmt(tol,2)+' µm)</th><th>대표 시드 '+SEED+'</th><th>시드 1~200의 중앙값 (10~90%)</th></tr>'+
+    '<tr><td class="rowh">점이 온전할 때 최소제곱도 허용을 넘는 유리 (72장 중)</td><td>'+oF+'</td><td>'+dd(function(r){return overCnt(r.e4,tol);})+'</td></tr>'+
+    '<tr><td class="rowh">점이 빠졌을 때 허용을 넘는 유리 — 최소제곱</td><td>'+oL+'</td><td>'+dd(function(r){return overCnt(r.pl[k],tol);})+'</td></tr>'+
+    '<tr><td class="rowh">점이 빠졌을 때 허용을 넘는 유리 — 단순 평균법</td><td>'+oN+'</td><td>'+dd(function(r){return overCnt(r.pn[k],tol);})+'</td></tr>'+
+    '<tr><td class="rowh">단순 평균법이 더 만드는 허용 초과 유리</td><td><b>'+extra+'</b></td><td>'+dd(function(r){return overCnt(r.pn[k],tol)-overCnt(r.pl[k],tol);})+'</td></tr>'+
+    '<tr><td class="rowh">위험에 노출되는 유리 장수 (더 만드는 수 × '+tn+'턴 × '+nt+'장)</td><td><b>'+fmtN(exp)+'</b></td><td>'+dd(function(r){return (overCnt(r.pn[k],tol)-overCnt(r.pl[k],tol))*tn*nt;})+'</td></tr>'+
+    '<tr><td class="rowh">보정 뒤 dx 지표가 spec('+fmt(sp,3)+' µm)을 넘는 유리 — 최소제곱 · 단순 평균법</td><td>'+sL+' · '+sN+'</td><td>—</td></tr>';
+  var s='<b>'+PKO[k]+'일 때 대표 시드의 72장에서 단순 평균법은 허용 '+fmt(tol,2)+' µm를 넘는 유리를 최소제곱보다 '+(extra>=0?extra+'장 더':(-extra)+'장 덜')+' 만들고, 이 장수가 '+tn+'턴을 더 쓰이면 위험에 노출되는 유리는 '+fmtN(exp)+'장입니다.</b>';
+  if(done){var ex=SEEDREC.map(function(r){return overCnt(r.pn[k],tol)-overCnt(r.pl[k],tol);});s+=' 마스크 집단을 시드 200개로 다시 뽑으면 더 만드는 수의 중앙값은 '+fmt(med(ex),0)+'장(10~90% '+fmt(quant(ex,.1),0)+'~'+fmt(quant(ex,.9),0)+'장)입니다.';}
+  s+=' 한편 점이 온전해도 최소제곱의 허용 초과가 '+oF+'장 있는 것은 점 누락이 아니라 모델에 없는 성분(스틱·국소 결함)의 누설과 잡음 때문이어서, 점 누락의 영향보다 그 영향이 '+(oF>Math.abs(extra)?'더 큽니다':'비슷하거나 작습니다')+'. 보정 뒤 dx 지표가 spec을 넘는 유리는 최소제곱 '+sL+'장, 단순 평균법 '+sN+'장입니다.'+(sL===0&&sN===0?' 지표(|평균|+3σ)가 spec에 비해 넉넉해 이 차이는 지표로 드러나지 않습니다. 보정값의 위치 오차를 따로 재야 보입니다.':'');
+  $('conP').innerHTML=s;
+  var base=ST.pre==='right_col'&&Math.abs(ST.tol-TOL0)<1e-9&&ST.tn===TN0;
+  stateBox($('stP'),base,'지금 이 값이 기준 설정입니다. 빠지는 점 '+PKO.right_col+', 허용 '+fmt(TOL0,2)+' µm(측정 반복성과 같게 둔 가정), 턴 수 '+TN0+'(가정).','지금은 기준에서 옮겨 놓은 가정입니다. 빠지는 점 '+PKO[ST.pre]+', 허용 '+fmt(ST.tol,2)+' µm, 턴 수 '+ST.tn+'. 허용을 낮출수록 최소제곱도 넘는 유리가 늘어납니다.');
+}
+$('sPre').addEventListener('change',function(){ST.pre=this.value;updP();});
+$('sTol').addEventListener('input',function(){ST.tol=+this.value;updP();});
+$('sTn').addEventListener('input',function(){ST.tn=+this.value;updP();});
+$('rP').addEventListener('click',function(){ST.pre='right_col';ST.tol=TOL0;ST.tn=TN0;$('sPre').value='right_col';$('sTol').value=String(TOL0);$('sTn').value=String(TN0);updP();});
+$('sTn').value=String(TN0);$('sTol').value=String(TOL0);
+
+/* 시드 분포 */
+function seedRec(sd){
+  var S=MS.scenario('S10',{seed:sd}),sm=TL.fitSummary(S),r={rmed:{},sd:{},e4:[],pl:{},pn:{},mm:0,ma:0,mx:0},mm=[],ma=[],mx=[];
+  PREK.forEach(function(k){r.pl[k]=[];r.pn[k]=[];});
+  CO.forEach(function(c){r.rmed[c]=med(sm.items.map(function(s){return s.ratio[c];}));});
+  sm.items.forEach(function(s){r.e4.push(s.err_full4);PREK.forEach(function(k){r.pl[k].push(s.pre[k].err_lsq);r.pn[k].push(s.pre[k].err_naive);});mm.push(s.metric_meas);ma.push(s.metric_align);mx.push(s.metric_all);});
+  r.mm=med(mm);r.ma=med(ma);r.mx=med(mx);return r;
+}
+function runDist(){
+  SEEDREC=[];var sd=1;
+  function step(){var t=Date.now();while(sd<=200&&Date.now()-t<30){SEEDREC.push(seedRec(sd));sd++;}
+    setT('sdSt','시드 '+Math.min(200,sd-1)+' / 200 계산했습니다.');
+    if(sd<=200)setTimeout(step,0);else $('sdSt').textContent='시드 200개의 분포를 계산했습니다.';
+    updP();upd5();upd7b();}
+  step();
+}
+
+/* ---- 10·11절 ---- */
+(function(){
+  $('csvBtn').addEventListener('click',function(){
+    var st=$('csvState'),rows=SS.csvRows(),cols=Object.keys(rows[0]);
+    try{var txt=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){return r[c];}).join(',');}).join('\n')+'\n',blob=new Blob([txt],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ppa_s10.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: ppa_s10.csv ('+fmtN(rows.length)+'행, 열 '+cols.length+'개).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  });
+  var f=['유리 번호 · 마스크 번호 · 턴 · 챔버 · 챔버 온도 · 측정 레시피 판','모델의 판(넣은 항)과 약속(스틱 오프셋을 어떻게 묶었나)','뺀 점 목록과 남은 점 수','계수 여덟 개와 표준오차, 잔차 σ̂','잔차 지표(dx·dy)와 잔차의 열 단면·튀는 점 결과','누설 경고 여부','권하는 보정값(부호·단위 약속 포함)과 담당','결과 확인(다음 측정에서)'];
+  $('rp_fields').innerHTML=f.map(function(s){return '· '+s;}).join('<br>');
+  var q=FIT[IA],rs=RES[IA],it=PA;
+  $('rp_ex').innerHTML='유리 <code>'+it.glass_id+'</code> · 마스크 <code>'+it.mask_id+'</code> · '+it.turn+'턴 · 챔버 '+it.chamber+' '+fmt(it.chamber_temp,2)+' °C · 레시피 판 <code>RCP-S10-1</code>(11×7점, 원점 = 유리 가운데, +dx 오른쪽, +dy 위쪽, µm) · 모델 판 <code>T+rot+mag+ortho+high</code>, 약속 없음 · 뺀 점 없음(77점) · <i>T̂<sub>x</sub></i> '+sg0(q.coef.Tx,3)+' ± '+fmt(q.se.Tx,3)+' µm, <i>M̂<sub>x</sub></i> '+sg0(q.coef.Mx,3)+' ± '+fmt(q.se.Mx,3)+' ppm, <i>M̂<sub>y</sub></i> '+sg0(q.coef.My,3)+' ± '+fmt(q.se.My,3)+' ppm · 잔차 σ̂ '+fmt(q.sigma,3)+' µm · 잔차 dx 지표 '+fmt(FS.items[IA].metric_all,3)+' µm · 열 단면 '+(rs.cp.flagged.length?'열 '+rs.cp.flagged.join('·')+' 표시':'표시된 열 없음')+' · 누설 경고 '+(rs.cp.flagged.length?'켜짐':'꺼짐')+' · 권하는 보정값 <i>M̂<sub>x</sub></i>의 부호를 장비 약속에 맞춰 입력(양수 = 증착이 오른쪽으로 벗어남), 담당 얼라인·공정 · 결과 확인: 다음 측정에서 다시 채움';
+  setAll('q9_m',sg0(q.coef.Mx,3));
+})();
+
+/* ---- 다시 그리기 ---- */
+function redrawG(){upd4();upd5();upd6();upd7();upd7b();}
+function redraw(){upd23();upd4();upd5();upd6();upd7();upd7b();drawMap('cvM1',ptsG(PA.grid),{S:autoSc(maxMag(ptsG(PA.grid))),label:'유리 A '+PA.mask_id});}
+window.addEventListener('resize',redraw);
+
+/* ---- 테마·상단바 ---- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildCb();upd8();updP();redraw();
+setTimeout(runDist,50);
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

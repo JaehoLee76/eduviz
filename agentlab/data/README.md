@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 90항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙을 파이썬으로 다시 구현해 시드 1~200 을 JS 와 대조) |
+| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 102항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank)을 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -62,3 +62,17 @@
 | `pointOutliers(grid, z)` | 튀는 점: 이웃 8점 중앙값과의 차의 dx·dy 로버스트 z 중 큰 쪽이 기준(기본 4) 이상 |
 | `pickPair` · `pickQuiz` | 짝 규칙(spec 판정이 같고 주된 성분이 다른 짝 중 dx 지표 차 최소)·문항 규칙(성분마다 몫이 가장 큰 유리, 짝 제외) |
 | 반환 | `items`(유리별 격자·정답 성분·몫·열 단면·튀는 점), `spec`(불량 스틱 없는 마스크 dx 지표의 95 백분위), `bad`·`miss_metric`·`caught_col`·`false_col`, `pair`, `quiz`, `csvRows()` |
+
+### 성분 분해 — 최소제곱 (실험실 0302, S10 데이터 그대로)
+
+새 난수도 새 CSV 도 없습니다(`csv/ppa_s10.csv` 재사용). 기존 `ppaFit`·`makeMask`·`ppa()` 는 건드리지 않았고 아래 함수는 `s10tools` 에 더해졌습니다. dx·dy 를 한 설계 행렬(남은 점 n 개면 2n 행, 앞 절반 dx 줄·뒤 절반 dy 줄)로 함께 풉니다. 점 번호 = `py*11 + px`.
+
+| 함수·값 | 설명 |
+|---|---|
+| `fit(grid, {terms, exclude})` | `terms` ⊆ `['T','rot','mag','ortho','high']`(기본 전부), `exclude` = 뺄 점 번호. 반환 `coef`·`se`(σ̂=√(RSS/(n−p)) 기반)·`se_known`(`CFG.NOISE` 기반)·`fitted`·`resid`(77점 격자꼴, `dx_um`/`dy_um` 키라 `ppaMetric`·`columnProfile`·`pointOutliers` 에 바로 들어감)·`rss`·`n`(행 수)·`p`·`sigma`. 전부 항이면 기존 `ppaFit` 과 같음(K = K_minus_theta + theta). 풀 수 없으면 `{error:'rank'}` |
+| `naive(grid, exclude)` | 단순 평균법(평균·x·dx/Σx²·…, 좌표를 가운데로 맞추지 않음). 온전한 격자에서는 `terms=['T','rot','mag','ortho']` 최소제곱과 같고, 비대칭으로 점이 빠지면 달라짐(대칭으로 빠지면 같음) |
+| `stickFit(grid, conv, exclude)` | 열마다 상수(스틱 오프셋) 11개를 더한 모델의 식별 점검. `conv` = `'none'`(약속 없음: rank 15/17) · `'sum0'`(오프셋 합 0·가로 기울기 0) · `'ends'`(양 끝 열 0). 약속은 KKT 연립방정식으로 정확히 걸고 `rank`·`deficiency`·`rank_with_constraints`·`coef`·`offsets` 를 반환 |
+| `fitSummary(S)` | 72장마다 추정−정답 `err`·`ratio`(|err|/se_known)·보정 효과(`metric_meas`·`metric_align`·`metric_all`)·잔차 열 단면 표시·점 누락 프리셋(`PRESETS`: `right_col`·`corners`·`top_right`)에서 최소제곱과 단순 평균법의 위치 오차(`err_lsq`·`err_naive`, 추정 계수 여섯이 그리는 장과 정답 계수의 장의 RMS, µm) |
+| `design` · `rank` · `errField` · `subtract` · `coefs` | 설계 행렬 `{X,y,names,kept}` · 행렬의 rank · 위 위치 오차 · 계수가 그리는 장을 측정에서 뺀 격자 · 항 → 계수 이름 목록 |
+
+시드 1~200 분포(verify.py 12개 검사): 오차÷`se_known` 중앙값은 Tx 3.1·Mx 3.1·My 1.9(불량 스틱 마스크만 2.8), 나머지 다섯 계수는 0.7 안팎(잡음만의 표준오차와 맞음). 오른쪽 끝 열이 빠지면 최소제곱의 위치 오차가 더 작은 유리가 중앙값 81%(10~90% 75~88%), 오른쪽 위 세 점 78%, 네 모서리(대칭)는 두 방법이 같습니다. 대표 시드 128 은 0302 지표 열세 개 가운데 열 개가 분포 25~75% 밖이어서 0302 본문은 분포(중앙값·10~90%)를 함께 보입니다.

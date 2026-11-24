@@ -685,6 +685,122 @@ _exp3 = [f"{_ia['id']}", f"dx 지표 {_ia['met']['dx_metric']:.3f} · dy 지표 
          f"국소 결함이 있는 유리 {_p0['ndef']}장 · 튀는 점 찾기가 그 점을 짚음 {_p0['found']}장"]
 chk('0301 Python 출력의 숫자 = JS 대표 시드(두 유리 지표·spec·불량 스틱·열 단면·튀는 점 집계)와 소수 셋째 자리까지 일치, 코드 속 유리 번호 = JS 짝', all(e in _run3.stdout for e in _exp3) and f'A, B = "S10-{_s10def}-{_ia["id"]}", "S10-{_s10def}-{_ib["id"]}"' in _code3, ' · '.join(_exp3[:2]))
 
+# ============================================================
+# S10 (0302) — 성분 분해(최소제곱): 설계 행렬·최소제곱·표준오차·단순 평균법·점 누락 프리셋·식별(rank)을 numpy 로 독립 구현해 시드 1~200 × 72장을 JS 와 대조
+# ============================================================
+_T2_EXPORT = r"""const M=require(%s);const T=M.s10tools;const out=[];
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S10',{seed:sd});const sm=T.fitSummary(S);
+ out.push({seed:sd,spec:S.spec,items:S.items.map((it,i)=>{const f=T.fit(it.grid),pf=M.ppaFit(it.grid),l4=T.fit(it.grid,{terms:T.CORR_TERMS}),nv=T.naive(it.grid),pre={};
+  Object.keys(T.PRESETS).forEach(k=>{const ex=T.PRESETS[k];pre[k]={l4:T.fit(it.grid,{terms:T.CORR_TERMS,exclude:ex}).coef,nv:T.naive(it.grid,ex).coef};});
+  const s=sm.items[i];
+  return {coef:f.coef,se:f.se,sk:f.se_known,rss:f.rss,n:f.n,p:f.p,pf:pf,l4:l4.coef,nv:nv.coef,pre:pre,mm:s.metric_meas,ma:s.metric_align,mx:s.metric_all,colr:s.col_flag_resid,
+   rs:f.resid.map(g=>[g.dx_um,g.dy_um]),fit:f.fitted.map(g=>[g.dx_um,g.dy_um])};})});}
+const S0=M.scenario('S10');
+const stick=S0.items.map(it=>{const r={};['none','sum0','ends'].forEach(c=>{const q=T.stickFit(it.grid,c);r[c]={p:q.p,rank:q.rank,def:q.deficiency,rc:q.rank_with_constraints,coef:q.coef||null,off:q.offsets||null};});return r;});
+const idn=T.stickFit(S0.items[0].grid,'none');
+console.log(JSON.stringify({seeds:out,stick:stick,presets:T.PRESETS}))"""
+_T2 = json.loads(subprocess.run([_node, '-e', _T2_EXPORT % json.dumps(_mf)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096')).stdout)
+_CO = ['Tx', 'Ty', 'theta', 'Mx', 'My', 'K', 'Cx', 'Cy']
+_TERM_C = {'T': ['Tx', 'Ty'], 'rot': ['theta'], 'mag': ['Mx', 'My'], 'ortho': ['K'], 'high': ['Cx', 'Cy']}
+_xm10, _ym10 = _X10 / 1000, _Y10 / 1000
+_DXC = {'Tx': np.ones(77), 'Ty': np.zeros(77), 'theta': -_ym10, 'Mx': _xm10, 'My': np.zeros(77), 'K': _ym10, 'Cx': _xm10 * _ym10, 'Cy': np.zeros(77)}
+_DYC = {'Tx': np.zeros(77), 'Ty': np.ones(77), 'theta': _xm10, 'Mx': np.zeros(77), 'My': _ym10, 'K': np.zeros(77), 'Cx': np.zeros(77), 'Cy': _xm10 ** 2}
+def py2_names(terms): return [c for c in _CO if any(c in _TERM_C[t] for t in terms)]
+def py2_X(names, keep): return np.vstack([np.column_stack([_DXC[c] for c in names])[keep], np.column_stack([_DYC[c] for c in names])[keep]])
+def py2_fit(dx, dy, terms, keep=None):
+    keep = np.arange(77) if keep is None else np.asarray(keep); nm = py2_names(terms); X = py2_X(nm, keep); y = np.r_[np.asarray(dx)[keep], np.asarray(dy)[keep]]
+    b = np.linalg.lstsq(X, y, rcond=None)[0]; r = y - X @ b; rss = float(r @ r); G = np.linalg.inv(X.T @ X); sg = np.sqrt(rss / (len(y) - len(nm)))
+    return dict(zip(nm, b)), dict(zip(nm, sg * np.sqrt(np.diag(G)))), dict(zip(nm, 0.25 * np.sqrt(np.diag(G)))), rss, X
+def py2_naive(dx, dy, keep=None):
+    keep = np.arange(77) if keep is None else np.asarray(keep); x, y, a, b = _xm10[keep], _ym10[keep], np.asarray(dx)[keep], np.asarray(dy)[keep]
+    th = (x * b).sum() / (x * x).sum(); return {'Tx': a.mean(), 'Ty': b.mean(), 'theta': th, 'Mx': (x * a).sum() / (x * x).sum(), 'My': (y * b).sum() / (y * y).sum(), 'K': (y * a).sum() / (y * y).sum() + th}
+def py2_field(co):
+    g = lambda k: co.get(k, 0.0)
+    return np.c_[g('Tx') - g('theta') * _ym10 + g('Mx') * _xm10 + g('K') * _ym10 + g('Cx') * _xm10 * _ym10, g('Ty') + g('theta') * _xm10 + g('My') * _ym10 + g('Cy') * _xm10 ** 2]
+def py2_err(co, truth):
+    d = py2_field({k: co[k] for k in ['Tx', 'Ty', 'theta', 'Mx', 'My', 'K']}) - py2_field({k: truth[k] for k in ['Tx', 'Ty', 'theta', 'Mx', 'My', 'K']}); return float(np.sqrt((d ** 2).sum() / 77))
+def py2_metric(dx, dy): return abs(np.mean(dx)) + 3 * np.std(dx, ddof=1)
+_pre_keep = {k: np.array([i for i in range(77) if i not in set(v)]) for k, v in _T2['presets'].items()}
+_t2 = {'coef': 0.0, 'se': 0.0, 'sk': 0.0, 'rss': 0.0, 'pf': 0.0, 'l4': 0.0, 'nv': 0.0, 'nveq': 0.0, 'pre': 0.0, 'met': 0.0, 'res': 0.0, 'colr': 0}
+_rows2 = []                                                                              # 시드마다 한 줄(대표 시드 백분위·분포용)
+_ratio_all = {c: [] for c in _CO}; _rat_my_bad = []; _share = {k: [] for k in _pre_keep}; _symdiff = 0.0; _asym = {k: [] for k in _pre_keep}
+for X2, XS in zip(_T2['seeds'], _S10):
+    sd_ = X2['seed']; errs = {c: [] for c in _CO}; errg = {c: [] for c in _CO}; errb = {c: [] for c in _CO}; rat = {c: [] for c in _CO}
+    ma, mx_, mm_ = [], [], []; e4 = []; pr_l = {k: [] for k in _pre_keep}; pr_n = {k: [] for k in _pre_keep}
+    for it, jt in zip(XS['items'], X2['items']):
+        dx, dy = np.array(it['dx']), np.array(it['dy']); cf, se, sk, rss, _X = py2_fit(dx, dy, ['T', 'rot', 'mag', 'ortho', 'high'])
+        _t2['coef'] = max(_t2['coef'], max(abs(cf[c] - jt['coef'][c]) for c in _CO)); _t2['se'] = max(_t2['se'], max(abs(se[c] - jt['se'][c]) for c in _CO)); _t2['sk'] = max(_t2['sk'], max(abs(sk[c] - jt['sk'][c]) for c in _CO)); _t2['rss'] = max(_t2['rss'], abs(rss - jt['rss']))
+        pf = jt['pf']; _t2['pf'] = max(_t2['pf'], abs(cf['Tx'] - pf['Tx']), abs(cf['Ty'] - pf['Ty']), abs(cf['Mx'] - pf['Mx']), abs(cf['My'] - pf['My']), abs(cf['Cx'] - pf['Cx']), abs(cf['Cy'] - pf['Cy']), abs(cf['theta'] - pf['theta']), abs(cf['K'] - (pf['K_minus_theta'] + pf['theta'])))
+        l4, _, _, _, _ = py2_fit(dx, dy, ['T', 'rot', 'mag', 'ortho']); nv = py2_naive(dx, dy)
+        _t2['l4'] = max(_t2['l4'], max(abs(l4[c] - jt['l4'][c]) for c in l4)); _t2['nv'] = max(_t2['nv'], max(abs(nv[c] - jt['nv'][c]) for c in nv)); _t2['nveq'] = max(_t2['nveq'], max(abs(nv[c] - l4[c]) for c in nv))
+        tr = it['c']; tr = dict(tr, theta=tr['theta'])
+        for c in _CO: e_ = cf[c] - tr[c]; errs[c].append(e_); (errb if it['bad'] >= 0 else errg)[c].append(e_); rat[c].append(abs(e_) / sk[c])
+        if it['bad'] >= 0: _rat_my_bad.append(abs(cf['My'] - tr['My']) / sk['My'])
+        fld = py2_field(cf); rs = np.c_[dx, dy] - fld; _t2['res'] = max(_t2['res'], float(np.abs(rs - np.array(jt['rs'])).max()), float(np.abs(fld - np.array(jt['fit'])).max()))
+        al = np.c_[dx, dy] - py2_field({k: cf[k] for k in ['Tx', 'Ty', 'theta']}); m1, m2, m3 = py2_metric(dx, dy), py2_metric(al[:, 0], al[:, 1]), py2_metric(rs[:, 0], rs[:, 1])
+        _t2['met'] = max(_t2['met'], abs(m1 - jt['mm']), abs(m2 - jt['ma']), abs(m3 - jt['mx'])); ma.append(m2); mx_.append(m3); mm_.append(m1)
+        _t2['colr'] += (py10_col(list(rs[:, 0]))[1] != jt['colr'])
+        e4.append(py2_err(l4, tr))
+        for k, kp in _pre_keep.items():
+            pl, _, _, _, _ = py2_fit(dx, dy, ['T', 'rot', 'mag', 'ortho'], kp); pn = py2_naive(dx, dy, kp)
+            _t2['pre'] = max(_t2['pre'], max(abs(pl[c] - jt['pre'][k]['l4'][c]) for c in pl), max(abs(pn[c] - jt['pre'][k]['nv'][c]) for c in pn))
+            pr_l[k].append(py2_err(pl, tr)); pr_n[k].append(py2_err(pn, tr))
+            if k == 'corners': _symdiff = max(_symdiff, max(abs(pl[c] - pn[c]) for c in pn))
+    for c in _CO: _ratio_all[c].extend(rat[c])
+    for k in _pre_keep: _share[k].append(float(np.mean(np.array(pr_l[k]) < np.array(pr_n[k])))); _asym[k].append(float(np.median(np.array(pr_n[k]) - np.array(pr_l[k]))))
+    tol = 0.25
+    _rows2.append({'tx_sd': float(np.std(errs['Tx'], ddof=1)), 'mx_sd': float(np.std(errs['Mx'], ddof=1)), 'my_bad': float(np.std(errb['My'], ddof=1)) if len(errb['My']) > 1 else float('nan'), 'my_good': float(np.std(errg['My'], ddof=1)),
+                   'rtx': float(np.median(rat['Tx'])), 'rmx': float(np.median(rat['Mx'])), 'rmy': float(np.median(rat['My'])), 'm_meas': float(np.median(mm_)), 'm_align': float(np.median(ma)), 'm_all': float(np.median(mx_)),
+                   'share_r': _share['right_col'][-1], 'over_l': int(np.sum(np.array(pr_l['right_col']) > tol)), 'over_n': int(np.sum(np.array(pr_n['right_col']) > tol)), 'over_full': int(np.sum(np.array(e4) > tol))})
+chk('0302 최소제곱: numpy lstsq 로 독립 재현한 계수 8개·표준오차(σ̂ 기반·CFG.NOISE 기반)·잔차제곱합이 JS 와 1e-9 이내(시드 1~200 × 72장 = 14400장)', max(_t2['coef'], _t2['se'], _t2['sk']) < 1e-9 and _t2['rss'] < 1e-8, f'계수 {_t2["coef"]:.1e} · 표준오차 {_t2["se"]:.1e}·{_t2["sk"]:.1e} · 잔차제곱합 {_t2["rss"]:.1e}')
+chk('0302 JS 의 모델이 그린 장·잔차 154값이 numpy 와 같고, 잔차에 한 열 단면 표시가 JS 와 같으며, T·회전만 뺀 지표·전부 뺀 잔차 지표도 일치', _t2['res'] < 1e-9 and _t2['met'] < 1e-9 and _t2['colr'] == 0, f'장·잔차 {_t2["res"]:.1e} · 지표 {_t2["met"]:.1e} · 열 표시 불일치 {_t2["colr"]}')
+chk('0302 전부 항 최소제곱 = 기존 ppaFit (K = K_minus_theta + theta 포함, 1e-9)', _t2['pf'] < 1e-9, f'최대 차 {_t2["pf"]:.1e}')
+chk('0302 단순 평균법(독립 구현)이 JS 와 일치하고, 온전한 격자에서는 [T·회전·배율·직교도] 최소제곱과 같음(1e-9)', _t2['nv'] < 1e-9 and _t2['l4'] < 1e-9 and _t2['nveq'] < 1e-9, f'JS 일치 {_t2["nv"]:.1e} · 최소제곱 4항 일치 {_t2["l4"]:.1e} · 단순 평균법 − 최소제곱 {_t2["nveq"]:.1e}')
+_sh = {k: np.array(v) for k, v in _share.items()}; _as = {k: np.array(v) for k, v in _asym.items()}
+chk('0302 점 누락 프리셋(JS 와 numpy 계수 일치 1e-9): 비대칭 누락(오른쪽 끝 열·오른쪽 위 세 점)에서는 단순 평균법과 최소제곱이 달라지고 최소제곱의 오차가 더 작은 유리가 과반(시드별 비율의 중앙값 > 0.5) · 대칭 누락(네 모서리)은 둘이 같음(1e-9)',
+    _t2['pre'] < 1e-9 and all(np.median(_sh[k]) > 0.5 for k in ['right_col', 'top_right']) and _symdiff < 1e-9,
+    ' · '.join(f'{k}: 최소제곱 오차가 더 작은 유리 비율 {_q3(_sh[k])}, 오차 차(naive−lsq) 중앙값 {np.median(_as[k]):.3f}µm' for k in _sh) + f' · 네 모서리 계수 차 {_symdiff:.1e}')
+_ratio_med = {c: float(np.median(_ratio_all[c])) for c in _CO}
+chk('0302 오차/표준오차(se_known) 배율(설계서 기대 보정): 스틱이 누설되는 Tx·Mx 는 중앙값 > 2, My 는 불량 스틱 마스크에서만 > 2(전체 중앙값은 2 아래) · 나머지 다섯은 잡음만의 표준오차와 맞음(중앙값 < 1.2, 반정규 분포의 0.67 근처)', all(_ratio_med[c] > 2 for c in ['Tx', 'Mx']) and _ratio_med['My'] < 2 and np.median(_rat_my_bad) > 2 and all(_ratio_med[c] < 1.2 for c in ['Ty', 'theta', 'K', 'Cx', 'Cy']),
+    ' · '.join(f'{c} {_ratio_med[c]:.2f}' for c in _CO) + f' · 불량 스틱 마스크의 My {np.median(_rat_my_bad):.2f}(n={len(_rat_my_bad)}) · 전체 8계수 중앙값 {np.median(np.concatenate([_ratio_all[c] for c in _CO])):.2f}')
+# 식별: 열마다 상수 11개를 넣으면 계수(rank) 부족, 약속 두 개로 해소, 약속에 따라 평행이동의 뜻이 바뀜(대표 시드 72장 전부)
+_idok = True; _dtx = []; _dtxm = []
+for jt_s, it in zip(_T2['stick'], _S10[_s10def - 1]['items']):
+    dx, dy = np.array(it['dx']), np.array(it['dy']); nm = py2_names(['T', 'rot', 'mag', 'ortho']); Xs = py2_X(nm, np.arange(77)); stk = np.zeros((154, 11)); stk[np.arange(77), _PX10] = 1; Xf = np.hstack([Xs, stk])
+    Csum = np.zeros((2, 17)); Csum[0, 6:] = 1; Csum[1, 6:] = _X10[:11] / 1000; Cend = np.zeros((2, 17)); Cend[0, 6] = 1; Cend[1, 16] = 1
+    _idok &= (np.linalg.matrix_rank(Xf) == 15 == jt_s['none']['rank'] and jt_s['none']['def'] == 2 and np.linalg.matrix_rank(np.vstack([Xf, Csum])) == 17 and np.linalg.matrix_rank(np.vstack([Xf, Cend])) == 17 and jt_s['sum0']['rc'] == 17 and jt_s['ends']['rc'] == 17)
+    y = np.r_[dx, dy]
+    for conv, Cm in (('sum0', Csum), ('ends', Cend)):
+        Kk = np.block([[Xf.T @ Xf, Cm.T], [Cm, np.zeros((2, 2))]]); sol = np.linalg.solve(Kk, np.r_[Xf.T @ y, np.zeros(2)])
+        _idok &= max(abs(sol[i] - jt_s[conv]['coef'][c]) for i, c in enumerate(nm)) < 1e-9 and np.abs(sol[6:17] - np.array(jt_s[conv]['off'])).max() < 1e-9
+    c4, _, _, _, _ = py2_fit(dx, dy, ['T', 'rot', 'mag', 'ortho']); _dtx.append(abs(jt_s['sum0']['coef']['Tx'] - c4['Tx'])); _dtxm.append(abs(jt_s['ends']['coef']['Tx'] - c4['Tx']))
+chk('0302 식별: 열마다 상수 11개를 더하면 설계 행렬 17열의 계수(rank)가 15 로 2 부족(numpy matrix_rank 와 JS 일치), 약속 두 개(합 0·가로 기울기 0 / 양 끝 열 0)를 걸면 17 로 풀리고 해가 numpy KKT 와 같음 · 합 0 약속의 평행이동은 스틱 열 없이 푼 값과 같고, 양 끝 0 약속은 다름(약속에 따라 평행이동의 뜻이 바뀜)',
+    _idok and max(_dtx) < 1e-9 and np.median(_dtxm) > 1e-3, f'72장 모두 rank 15/17 → 17/17 · 합 0 약속 − 스틱 없는 Tx 최대 {max(_dtx):.1e} · 양 끝 0 약속 − 스틱 없는 Tx 중앙값 {np.median(_dtxm):.3f}µm')
+# 대표 시드(SEEDS.S10) 백분위: 0302 가 본문에서 말하는 지표
+_m2 = ['tx_sd', 'mx_sd', 'my_bad', 'rtx', 'rmx', 'rmy', 'm_meas', 'm_align', 'm_all', 'share_r', 'over_l', 'over_n', 'over_full']
+_nm2 = ['Tx 오차 sd', 'Mx 오차 sd', '불량 스틱 My 오차 sd', 'Tx 배율 중앙값', 'Mx 배율 중앙값', 'My 배율 중앙값', '측정 지표 중앙값', 'T·회전 보정 후 중앙값', '전부 뺀 잔차 지표 중앙값', '오른쪽 열 누락에서 최소제곱이 더 나은 유리 비율', '오른쪽 열 누락 최소제곱 허용초과', '오른쪽 열 누락 단순 평균법 허용초과', '전부 격자 허용초과']
+_A2 = {m: np.array([r[m] for r in _rows2], float) for m in _m2}
+def _rk2(m, i): a = _A2[m]; ok = ~np.isnan(a); a = a[ok]; v = _A2[m][i]; return float(((a < v).sum() + 0.5 * (a == v).sum()) / len(a))
+_out2 = [n for m, n in zip(_m2, _nm2) if not 0.25 <= _rk2(m, _s10def - 1) <= 0.75]
+chk('0302 대표 시드(SEEDS.S10 = 128 유지): 0302 가 본문에서 말하는 열세 지표의 시드 1~200 백분위를 기록(25~75% 밖의 지표는 본문이 분포로 말해야 함)', all(np.isfinite(_A2[m][_s10def - 1]) for m in _m2),
+    '25~75% 밖: ' + (' · '.join(f'{n} {_rk2(m, _s10def-1)*100:.0f}%' for m, n in zip(_m2, _nm2) if n in _out2) or '없음') + ' / 안: ' + ' · '.join(f'{n} {_rk2(m, _s10def-1)*100:.0f}%' for m, n in zip(_m2, _nm2) if n not in _out2))
+_p2 = lambda m: f'{np.nanmedian(_A2[m]):.3g} (10~90%: {np.nanquantile(_A2[m], .1):.3g}~{np.nanquantile(_A2[m], .9):.3g})'
+chk('0302 분포(시드 200) 기록: 오차 sd·배율·보정 효과·허용 초과 유리 수(최소제곱 대 단순 평균법)', all(np.isfinite(np.nanmedian(_A2[m])) for m in _m2),
+    ' · '.join(f'{n} {_p2(m)}' for m, n in zip(_m2, _nm2)))
+chk('0302 보정 효과 분포: 지표 중앙값이 측정 > T·회전 보정 후 > 전부 뺀 잔차 순으로 줄고(모든 시드), 전부 뺀 잔차는 측정의 절반 이하(중앙값)', bool(np.all(_A2['m_meas'] > _A2['m_align']) and np.all(_A2['m_align'] > _A2['m_all'])) and np.median(_A2['m_all'] / _A2['m_meas']) < 0.5,
+    f'측정 {_p2("m_meas")} → T·회전 후 {_p2("m_align")} → 잔차 {_p2("m_all")}')
+
+# 0302 페이지의 Python 블록: 그대로 실행한 출력 = 페이지에 적힌 출력, 출력의 숫자 = JS 대표 시드의 값
+_pg4 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0302-ppa-least-squares.html'), encoding='utf-8').read()
+_code4 = _html2.unescape(_re2.search(r'<pre id="pyCode">(.*?)</pre>', _pg4, _re2.S).group(1)); _out4 = _html2.unescape(_re2.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg4, _re2.S).group(1)).strip()
+with _tf2.TemporaryDirectory() as _td4:
+    shutil.copy(os.path.join(D, 'ppa_s10.csv'), _td4); open(os.path.join(_td4, 'lab0302.py'), 'w', encoding='utf-8').write(_code4)
+    _run4 = subprocess.run([sys.executable, '-I', 'lab0302.py'], cwd=_td4, capture_output=True, text=True)
+chk('0302 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run4.returncode == 0 and _run4.stdout.strip() == _out4, f'종료 {_run4.returncode} · 출력 {len(_run4.stdout.splitlines())}줄' + ('' if _run4.stdout.strip() == _out4 else ' · 다름: ' + (_run4.stderr or _run4.stdout).strip()[:300]))
+_T2d = _T2['seeds'][_s10def - 1]; _XA = _X0['items'][_pr['i']]; _jA = _T2d['items'][_pr['i']]; _jB = _T2d['items'][_pr['j']]
+_exp4 = [f'{_jA["coef"][c]:+.3f}' for c in ['Tx', 'Mx', 'My']] + [f'{_jA["se"]["Tx"]:.3f}', f'{_jA["mm"]:.3f}', f'{_jA["ma"]:.3f}', f'{_jA["mx"]:.3f}', f'{_jB["mx"]:.3f}', f'{_jA["pre"]["right_col"]["nv"]["Mx"]:+.3f}', f'{_jA["pre"]["right_col"]["l4"]["Mx"]:+.3f}']
+chk('0302 Python 출력의 숫자(유리 A 의 Tx·Mx·My 추정, 표준오차, 지표 세 단계, 유리 B 잔차 지표, 오른쪽 열 누락의 단순 평균법·최소제곱 Mx) = JS 대표 시드와 소수 셋째 자리까지 일치, 코드 속 유리 번호 = JS 짝', all(e in _run4.stdout for e in _exp4) and f'A, B = "S10-{_s10def}-{_ia["id"]}", "S10-{_s10def}-{_ib["id"]}"' in _code4, ' · '.join(_exp4[:5]))
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')
