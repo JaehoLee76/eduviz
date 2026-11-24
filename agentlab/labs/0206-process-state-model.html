@@ -1,0 +1,1148 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>공정을 상태와 전이로 적기 · ESTC 모델과 사례 은행</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="마스크·세트·챔버·블록을 개체·상태·전이·제약으로 적는 공정 상태 모델(ESTC). 하루치 전이 궤적을 읽고, 전이를 요청해 가드에 걸려 보고, 기록을 일부러 망가뜨려 제약 검사가 잡아내는지 확인한 뒤, 궤적·판단·결과를 한 건으로 적는 사례 은행 양식까지 직접 만드는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 4 · 실험실 6</p>
+  <h1>공정을 상태와 전이로 적기</h1>
+  <p class="sub">ESTC 모델과 사례 은행 — 마스크 한 장의 하루를 기록으로 읽고, 에이전트가 해도 되는 일을 표로 정하는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0205-adaptive-spec-replay.html">← 이전: 가성 인터락을 줄이는 spec</a><span class="sp"></span></nav>
+
+<p><b>마스크가 어디서 어디로 옮겨 다녔는지를 상태와 전이로 적어 두면, 글 기록으로는 답할 수 없던 물음에 답할 수 있고, 에이전트가 해도 되는 일을 표 한 장으로 정할 수 있습니다.</b> 이 실험실의 가상 공장 60일에서 마스크·세트·챔버·블록이 상태를 바꾼 기록은 <span id="i_n"></span>줄이고, 전부 허용된 전이이며 제약을 어긴 곳은 <span id="i_v"></span>곳입니다. 같은 기록에서 판단이 들어간 사례 <span id="i_c"></span>건(마스크 불량 → 리페어 <span id="i_cq"></span>건, 잡 체인지 대기 <span id="i_cw"></span>건)을 뽑았고, 불량으로 빠졌던 마스크가 다시 불량이 난 것은 <span id="i_r"></span>건이었습니다. 이 값들은 가상 공장 한 벌의 것이며, 공장을 바꿔 뽑으면 달라지는 정도를 6절에서 직접 봅니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — Loss 사유 코드(설비가 선 이유를 적는 이름표. 예: EQ-BD 고장, Q-MASK 마스크 정지), 마스크 세트·턴·잡 체인지(한 세트 4장이 한 블록에 걸려 한 턴을 돌고, 다음 세트로 바꾸는 일), 라벨과 놓친 이상의 역추적(0205), 판정 흐름(0104).</p>
+  <ul class="chips known"><li>Loss 사유 코드</li><li>마스크 세트·턴·잡 체인지</li><li>라벨과 놓친 이상의 역추적</li><li>판정 흐름</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <ul class="chips" id="termList"><li>개체 (entity)</li><li>상태 (state)</li><li>전이 (transition)</li><li>가드 (guard)</li><li>제약 (constraint)</li><li>전이 궤적 (transition trajectory)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 마스크 순환, 세정기 자리, 잡 체인지 대기. 담당 공정에서 &lsquo;왜 섰나&rsquo;를 물을 때 사건 한 줄이 아니라 그 마스크와 그 챔버가 거쳐 온 길로 답하는 데 씁니다.</li>
+    <li><b>손으로 연습</b> — 하루치 상태 막대를 읽고(3절), 마스크에 전이를 직접 요청해 가드에 걸려 보고(4절), 기록을 일부러 망가뜨려 검사가 잡아내는지 봅니다(5절).</li>
+    <li><b>다음 날 산출물</b> — 전이 표와 검사 함수, 사례 기록 양식과 검증 함수(9절 Python, 10절 양식).</li>
+    <li><b>기록할 데이터</b> — 마스크마다 상태가 바뀐 시각, 챔버 정지의 시작과 끝, 잡 체인지 대기와 막힘 사유, 판단한 사람과 근거, 결과를 다시 확인한 시각과 값(10절). 이 기록이 쌓여야 회사만 가진 데이터가 됩니다.</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 되돌릴 수 없는 전이는 사람이 승인하고, 가드와 제약 판정은 규칙이 하고, 궤적 질의와 사례 초안과 요약은 에이전트가 맡습니다(7절).</li>
+    <li><b>성과 환산</b> — 사례를 적는 시간과 같은 원인이 다시 났을 때 줄어드는 재조사 시간을 견줍니다(8절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0205까지 도구는 늘었습니다. 검정, 관리도, spec 재현은 모두 <b>숫자 열</b>을 받아 판정합니다. 이번 물음은 숫자 열이 아니라 <b>일어난 순서</b>가 답을 쥐고 있습니다.<br>
+  가상 공장 60일 가운데 <span id="p_blk"></span> 블록의 <span id="p_ch"></span>가 <span id="p_t0"></span>에 <span id="p_m1"></span>분 서고, 이어서 <span id="p_m2"></span>분을 더 섰습니다. 합쳐 <span id="p_sum"></span>분(약 <span id="p_hr"></span>시간)입니다.<br>
+  <b>(1) 왜 이렇게 오래 섰습니까? (2) 다시 그러지 않게 하려면 무엇을 바꿔야 합니까? (3) 그 판단을 에이전트가 맡아도 되는 범위는 어디까지입니까?</b>
+  <p class="note" style="margin:.5rem 0 0">그날 담당자가 남긴 글 기록은 아래가 전부입니다. 같은 사건을 3절에서 상태 막대로 다시 봅니다.</p>
+  <pre id="logLines" style="margin:.5rem 0 0" aria-label="글 기록"></pre>
+</div>
+
+<div class="solban">여기서부터 위 사건을 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>왜 지금까지의 함수로는 이 물음에 답할 수 없나</h2>
+<p>위 글 기록에서 읽히는 것은 &lsquo;마스크 불량으로 정지, 리페어 보냄&rsquo;과 &lsquo;장착할 마스크가 없어 다시 정지&rsquo;, &lsquo;리페어 끝&rsquo;입니다. 사건은 적혔지만 두 가지는 어디에도 없습니다.</p>
+<ul style="margin:.2rem 0 .8rem 1.2rem;padding:0">
+  <li>그 마스크가 앞선 세정을 마치고 세트의 나머지 마스크를 <b>몇 분 기다렸는가</b> — 아무 일도 일어나지 않은 시간이라 글로 남지 않습니다.</li>
+  <li>그 마스크가 <b>전에도 불량이었는가</b> — 사건 한 줄에는 그 마스크가 거쳐 온 길이 없습니다.</li>
+</ul>
+<p>0101~0205의 함수에 이 물음을 그대로 던지면 어느 함수를 어떤 자료로 부를지, 그 결론으로 무엇을 해도 되는지를 정할 바탕이 없습니다. 필요한 것은 판정 함수가 아니라 <b>무슨 일이 어떤 순서로 일어났는가를 같은 형식으로 적어 둔 바탕</b>입니다. 이 두 물음의 답은 7절에서 그 바탕으로 채웁니다. 그 바탕의 이름과 만드는 법이 다음 절입니다.</p>
+<div class="qna" data-label="MES에 이미 이력이 있는데 왜 따로 만드나요?" data-q="MES에 이미 이력이 있는데 왜 따로 만드나요?">
+  <p>MES 이력은 대개 <b>사건의 목록</b>입니다. &lsquo;몇 시에 이 마스크가 세정기에 들어갔다&rsquo; 같은 줄은 있어도, 세정을 마친 마스크가 세트의 나머지를 기다린 시간이나 세정 대기열에서 줄을 선 시간처럼 <b>아무 일도 일어나지 않은 시간</b>은 기록이 없는 경우가 많습니다. 상태 기록은 &lsquo;지금 어느 상태인가&rsquo;를 시각마다 이어 붙이므로 그 시간이 저절로 보입니다.</p>
+  <p>MES 이력을 버리자는 뜻이 아닙니다. 이력의 한 줄을 상태 전이 한 줄로 바꿔 적고, 빠진 구간이 어디인지를 5절의 검사로 찾아내는 것이 출발점입니다.</p>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>공정을 개체·상태·전이·제약으로 적는다</h2>
+<h3>개체와 상태</h3>
+<p>먼저 &lsquo;무엇의 상태를 적는가&rsquo;를 정합니다. 상태를 가지는 대상, 곧 마스크·세트·챔버·블록·세정기·stocker·카세트·유리를 <b>개체 (entity)</b>라 부릅니다. 한 개체가 한 시각에 있는 단 하나의 자리를 <b>상태 (state)</b>라 부릅니다. 예를 들어 마스크의 상태는 &lsquo;세정 중&rsquo;이거나 &lsquo;장착·증착 중&rsquo;이고, 둘이 동시일 수는 없습니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1 · 이 공정의 개체 여덟 종류</div>
+  <div class="tbwrap"><table id="tabEnt" class="mt"></table></div>
+  <p class="note" style="margin:.4rem 0 0">세정기·stocker·카세트는 상태보다 <b>수량</b>이 중요해서 사용 중인 장수·적재율·여유 수로 적고, 유리는 수가 너무 많아 전이를 쌓지 않고 번호로 마스크의 기록에 잇습니다. 챔버의 정지 네 상태는 Loss 사유 코드(EQ-BD·Q-EVAP·EQ-PM·Q-MASK)와 같은 자리입니다.</p>
+</div>
+<h3>전이와 가드</h3>
+<p>한 개체가 상태에서 상태로 옮겨 가는 일 한 번을, 시각과 원인(trigger)을 붙여 한 줄로 적은 것을 <b>전이 (transition)</b>라 부릅니다. 모든 전이가 아무 때나 일어나서는 안 됩니다. 전이가 일어나도 되는지 그 순간 확인하는 조건을 <b>가드 (guard)</b>라 부릅니다. 예를 들어 마스크가 &lsquo;세정 대기열&rsquo;에서 &lsquo;세정 중&rsquo;으로 가려면 세정기에 빈자리가 있어야 합니다.</p>
+<p>아래 그림은 가상 공장 60일의 마스크 전이를 그대로 센 것입니다. 상자 안은 그 상태에 한 번 들어갔을 때 머문 평균 분이고, 화살표의 숫자는 그 전이가 일어난 횟수입니다.</p>
+<div class="eq">
+  <span class="eqlab">상태에 머문 평균 시간</span>
+  <math display="block"><mrow><mtext>평균 체류 분</mtext><mo>=</mo><mfrac><mtext>머문 분의 합</mtext><mtext>옮겨 간 횟수</mtext></mfrac></mrow></math>
+  <span class="note">그 상태에서 다음 상태로 옮겨 가기까지 머문 분을 모두 더하고, 옮겨 간 횟수로 나눕니다. 기록의 마지막에 아직 머물고 있는 상태는 횟수에 넣지 않습니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">그림 1 · 마스크 한 장의 상태와 전이 (60일 합계)</div>
+  <canvas id="cv2" height="340"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>장착·증착 중</span><span><span class="dot" style="background:var(--c8)"></span>세정 경로(반송·대기·세정·짝 대기·보관 반송)</span><span><span class="dot" style="background:var(--c9)"></span>리페어</span><span><span class="sw" style="border-color:var(--c9);border-top-style:dashed"></span>리페어를 거친 길</span></div>
+  <div class="tbwrap"><table id="tabArr" class="mt num"></table></div>
+  <p class="note" style="margin:.4rem 0 0">그림에 없는 길이 표 끝에 있습니다. 턴 도중 리페어에서 돌아와 장착하지 못한 마스크도 세트와 함께 세정으로 보내져 &lsquo;대기 → 세정기로 반송&rsquo;이 일어납니다.</p>
+</div>
+<h3>제약</h3>
+<p>가드가 한 순간의 조건이라면, 모든 시각에 지켜져야 하는 개체 사이의 규칙을 <b>제약 (constraint)</b>이라 부릅니다. 세정 중인 마스크는 동시에 27장을 넘을 수 없다는 규칙이 그 예입니다. 5절에서 이 규칙을 기록 전체에 대고 검사합니다.</p>
+<div class="lab">
+  <div class="labtitle">표 2 · 제약 여섯 개</div>
+  <div class="tbwrap"><table id="tabCon" class="mt"></table></div>
+</div>
+<div class="qna" data-label="상태를 몇 개로 나눠야 하나요?" data-q="상태를 몇 개로 나눠야 하나요?">
+  <p><b>판단이 달라지는 지점마다 하나</b>입니다. 마스크 &lsquo;짝 대기&rsquo;는 세정은 끝났지만 보관으로 갈 수 없는 상태라서 &lsquo;세정 중&rsquo;과 따로 두었고, &lsquo;세정 대기열&rsquo;은 세정기에 자리가 나야 풀리는 상태라서 &lsquo;세정기로 반송&rsquo;과 따로 두었습니다.</p>
+  <p>반대로 반송 중인 마스크가 어느 복도를 지나는지처럼 판단을 바꾸지 않는 구분은 나누지 않습니다. 잘게 나눌수록 기록해야 할 시각이 늘고 현장이 적지 않게 됩니다. 처음에는 거칠게 나누고, 사건을 설명하는 데 모자란 곳에서만 쪼갭니다.</p>
+</div>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>연습 1 — 하루치 전이 궤적 읽기</h2>
+<p>한 개체의 전이 기록을 시각 순으로 이은 것을 <b>전이 궤적 (transition trajectory)</b>이라 부릅니다. 이 가상 공장의 한 블록과 하루를 골라 챔버 4개, 세트 3개, 블록, 세정기 사용 중 장수를 같은 시간축에 놓고, 마스크 한 장의 궤적을 따라가 보겠습니다.</p>
+<div class="lab">
+  <div class="labtitle">블록·날짜·마스크 선택 — 같은 시간축의 상태 막대</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 처음 화면은 위 [문제]의 사건이 일어난 블록과 날입니다. 챔버 줄에서 마젠타 막대(마스크 정지)를 찾고, 그 아래 마스크 줄에서 같은 시각에 그 마스크가 <b>장착 → 리페어</b>로 옮겨 간 곳을 확인하십시오. 이어서 날짜를 하루씩 넘기며 정지가 없는 날과 비교해 보십시오.</div>
+  <div class="ctrl"><label for="blk3">블록</label><select id="blk3"></select><output></output></div>
+  <div class="ctrl"><label for="day3">날짜 (기록 일차)</label><input type="range" id="day3" min="1" max="60" step="1" value="1"><output id="day3o"></output></div>
+  <div class="row" id="mkRow" role="group" aria-label="마스크 고르기"></div>
+  <div class="row"><button class="btn ghost" id="r3" type="button">사건이 일어난 블록·날·마스크로 되돌리기</button></div>
+  <div class="state" id="st3"></div>
+  <canvas id="cv3" height="300"></canvas>
+  <div class="legend" id="lg3"></div>
+  <div class="tbwrap"><table id="tabDay" class="mt num"></table></div>
+  <div class="state" id="evChk"></div>
+  <div class="labtitle" style="margin-top:.8rem">표 3 · 고른 마스크 <span id="mkName"></span>의 그날 궤적</div>
+  <div class="tbwrap"><table id="tabTraj" class="mt"></table></div>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>연습 2 — 전이를 요청하고 가드에 걸려 보기</h2>
+<p>에이전트가 공정에 일을 시킨다면 가장 안전한 방식은 &lsquo;마스크 하나를 이 상태로 옮겨 달라&rsquo;고 요청하게 하고, 그 요청을 세 단계로 걸러 내는 것입니다. 1) 표에 있는 전이인가, 2) 사람의 승인이 필요한 전이인가, 3) 그 순간 가드를 통과하는가입니다. 통과한 요청만 실행됩니다.</p>
+<div class="lab">
+  <div class="labtitle">시각·마스크·옮겨 갈 상태 — 요청 결과</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 아래 단추 가운데 [세정기가 가득 찬 때]를 누르십시오. 세정 대기열의 마스크가 &lsquo;세정 중&rsquo;으로 가려는 요청이 가드에서 거절되고, 이유에 그 순간의 실제 장수가 나옵니다. 시각 슬라이더를 움직이면 세정기 사용 수와 요청 결과가 함께 바뀝니다. 세정기 한도 27장은 설비가 정하는 값이라 슬라이더로 두지 않았습니다.</div>
+  <div class="row" role="group" aria-label="요청 예시">
+    <button class="btn" type="button" data-pre="full">세정기가 가득 찬 때</button>
+    <button class="btn" type="button" data-pre="notab">표에 없는 전이</button>
+    <button class="btn" type="button" data-pre="human">되돌릴 수 없는 전이</button>
+    <button class="btn" type="button" data-pre="setback">짝이 덜 모인 세트</button>
+    <button class="btn" type="button" data-pre="setready">이미 증착 중인 블록</button>
+    <button class="btn" type="button" data-pre="okay">시간 조건만 있는 전이</button>
+  </div>
+  <div class="ctrl"><label for="t4">시각 (기록 시작부터 분)</label><input type="range" id="t4" min="0" max="86399" step="1" value="0"><output id="t4o"></output></div>
+  <div class="ctrl"><label for="blk4">블록</label><select id="blk4"></select><output></output></div>
+  <div class="ctrl"><label for="mk4">마스크</label><select id="mk4"></select><output></output></div>
+  <div class="ctrl"><label for="to4">옮겨 갈 상태</label><select id="to4"></select><output></output></div>
+  <div class="state" id="st4"></div>
+  <div class="tbwrap"><table id="tab4" class="mt"></table></div>
+  <div class="concl" id="res4"></div>
+</div>
+<p>이 세 단계 판정이 0401 에이전트가 도구를 부르는 규칙입니다. 에이전트는 &lsquo;표에 있는 전이만, 가드를 통과했을 때만, 되돌릴 수 없는 것은 사람의 승인 뒤에&rsquo; 실행하고, 거절되면 이유를 보고서에 적습니다.</p>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>제약 검사 — 기록의 구멍을 잡는다</h2>
+<p>60일 기록 전체에 대고 표와 제약을 확인해 봅니다. 확인하는 것은 다섯 가지입니다. 표에 없는 전이는 없는가, 한 개체의 직전 상태와 다음 줄의 출발 상태가 이어지는가, 세정 중인 마스크가 한도를 넘지 않는가, 한 블록에 증착 중인 세트가 둘이 아닌가, 챔버가 상태마다 머문 시간의 합이 기록 기간과 같은가입니다.</p>
+<div class="lab">
+  <div class="labtitle">기록 전체 검사 — 일부러 망가뜨려 잡히는지 확인</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 처음에는 위반이 0입니다. [전이 한 줄 지우기]를 누르면 줄 수가 하나 줄고 이음새 규칙 C3이 한 곳에서 걸립니다. [순서 뒤집기]는 연속한 두 전이의 내용을 맞바꿉니다. [세정 한 장 더]는 세정기가 가득 찬 순간에 대기 중인 마스크 하나를 끼워 넣어 C1이 걸리게 합니다. 하나를 누른 뒤 [원래대로]를 눌러 0으로 돌아오는지도 확인하십시오.</div>
+  <div class="row" role="group" aria-label="기록 망가뜨리기">
+    <button class="btn" id="bDel" type="button">전이 한 줄 지우기</button>
+    <button class="btn" id="bSwap" type="button">순서 뒤집기</button>
+    <button class="btn" id="bPush" type="button">세정 한 장 더</button>
+    <button class="btn ghost" id="bRst" type="button">원래대로</button>
+  </div>
+  <div class="state" id="st5"></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <div class="tbwrap"><table id="tab5v" class="mt"></table></div>
+</div>
+<p>사람이 엑셀로 이어 붙인 기록에서는 이런 구멍이 의외로 쉽게 생깁니다. 줄 하나를 빠뜨려도, 정렬을 잘못해도, 같은 마스크를 두 자리에 적어도 눈으로는 보이지 않습니다. 상태 기록은 &lsquo;이어지는가&rsquo;를 기계가 매번 확인할 수 있어서, 구멍이 기록 단계에서 드러납니다.</p>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>사례 은행 — 궤적 한 토막과 판단과 결과</h2>
+<p>궤적은 &lsquo;무슨 일이 있었나&rsquo;를 알려 주지만 &lsquo;무엇을 판단했고 어떻게 됐나&rsquo;는 알려 주지 않습니다. 판단이 들어간 순간만 따로 모아 <b>궤적의 한 토막, 판단, 결과</b>를 한 건으로 적은 것이 사례 기록이고, 그 모음이 사례 은행입니다. [문제]의 사건을 사례 기록 한 건으로 적으면 아래와 같고, 오른쪽이 같은 사건의 글 기록입니다.</p>
+<div class="two">
+  <div><div class="labtitle">사례 기록 (JSON)</div><pre id="caseJson" style="max-height:26rem" aria-label="사례 기록 한 건"></pre></div>
+  <div><div class="labtitle">같은 사건의 글 기록</div><pre id="caseText" aria-label="같은 사건의 글 기록"></pre>
+    <p class="note">글 기록에는 &lsquo;판단 근거의 숫자&rsquo;, &lsquo;결과를 확인한 시각과 값&rsquo;, &lsquo;다른 기록과 잇는 번호&rsquo;가 없습니다. 오른쪽 사건에 JSON의 <code>links</code> 칸이 이어 주는 것은 이벤트 번호와 턴 번호이고, 이 번호로 PPA·FDC 기록을 붙일 수 있습니다.</p></div>
+</div>
+<p>0205의 진성·가성 라벨과 놓친 이상의 역추적은 바로 이 <code>label</code>과 <code>outcome</code> 칸입니다. 결과를 뒤에 적어 넣는 칸이 비어 있으면 사례는 쌓여도 배울 수가 없습니다.</p>
+<div class="lab">
+  <div class="labtitle">표 4 · 사례 목록 — 거르고 정렬</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 종류를 &lsquo;마스크 불량 → 리페어&rsquo;로 거르고 정렬을 &lsquo;영향 분 큰 순&rsquo;으로 바꿔 보십시오. 마스크 하나가 리페어로 빠지면 세트가 다시 돌아올 때 그 챔버가 한 턴 통째로 서는 사례가 위로 올라옵니다. 이어서 &lsquo;잡 체인지 대기&rsquo;로 바꿔 막힘 사유별 분을 보십시오.</div>
+  <div class="ctrl"><label for="f6">종류</label><select id="f6"><option value="all">전체</option><option value="mask">마스크 불량 → 리페어</option><option value="wait">잡 체인지 대기</option></select><output></output></div>
+  <div class="ctrl"><label for="o6">정렬</label><select id="o6"><option value="t">시각 순</option><option value="v">영향 분 큰 순</option></select><output></output></div>
+  <div class="state" id="st6"></div>
+  <div class="tbwrap"><table id="tabCase" class="mt"></table></div>
+  <div class="row"><button class="btn ghost" id="more6" type="button">더 보기</button></div>
+</div>
+<div class="lab">
+  <div class="labtitle">표 5 · 결과 칸으로 집계</div>
+  <div class="tbwrap"><table id="tabAgg" class="mt num"></table></div>
+  <div class="concl" id="conclAgg"></div>
+</div>
+<div class="lab">
+  <div class="labtitle">공장을 바꿔 뽑아 본 분포 — 한 벌의 숫자를 얼마나 믿을 수 있나</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> [공장 <span id="sd_n"></span>벌 뽑아 보기]를 누르고 기다리십시오(수십 초 걸립니다). 표의 중앙값이 &lsquo;전형적인 값&rsquo;이고 괄호는 10~90% 범위, 마지막 칸은 이 화면의 공장이 그 분포에서 차지하는 위치입니다. 범위가 넓거나 이 화면의 공장이 끝쪽에 있으면 위 숫자를 그대로 일반화하면 안 됩니다.</div>
+  <div class="row"><button class="btn" id="sdBtn" type="button">공장 뽑아 보기</button></div>
+  <div class="state" id="sdSt">아직 돌리지 않았습니다.</div>
+  <div class="tbwrap"><table id="tabSd" class="mt num"></table></div>
+</div>
+<div class="qna" data-label="사례를 매번 적을 시간이 없습니다" data-q="사례를 매번 적을 시간이 없습니다">
+  <p>전부 적을 필요가 없습니다. <b>판단이 들어간 전이만</b> 사례로 적고, 나머지는 상태 궤적에서 저절로 만들어집니다. 이 실험실의 60일에서 전이는 <span id="qa_n"></span>줄이지만 사례는 <span id="qa_c"></span>건이고, 그것도 에이전트가 궤적에서 초안을 만들어 주면 사람은 판단과 결과를 확인하고 승인만 하면 됩니다.</p>
+  <p>적는 비용과 얻는 것은 8절에서 숫자로 견줍니다. 재발이 드문 원인은 적는 시간이 재조사 절감보다 클 수 있다는 점도 그 절에서 정직하게 봅니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>착지 — 처음 물음으로 돌아가서</h2>
+<p>[문제]의 사건으로 돌아갑니다. 1절에서 글 기록으로는 답할 수 없다고 한 두 물음에 궤적으로 답합니다.</p>
+<div class="concl" id="land"></div>
+<p id="land3"></p>
+<div class="lab">
+  <div class="labtitle">표 6 · 판정 흐름 — 사람·규칙·에이전트</div>
+  <div class="tbwrap"><table class="mt">
+    <tr><th>무엇</th><th>누가</th><th>이유</th></tr>
+    <tr><td class="rowh">마스크 폐기(scrapped), 인터락 해제, spec 변경 승인, 전이 표와 제약 자체의 수정</td><td>사람</td><td>되돌릴 수 없거나 공정 규칙을 바꾸는 일이라, 틀리면 비용을 지는 쪽이 정해야 합니다.</td></tr>
+    <tr><td class="rowh">표에 있는 전이인가, 가드를 통과하는가, 제약을 어기는가의 판정</td><td>규칙(기계 검사)</td><td>값과 표만 있으면 결과가 하나로 정해집니다. 4절과 5절이 이것입니다.</td></tr>
+    <tr><td class="rowh">궤적 질의, 사례 초안, 날마다의 요약 보고</td><td>에이전트</td><td>결과가 검증된 함수와 표에서 나오고, 틀려도 사람이 승인하기 전에 걸러집니다.</td></tr>
+  </table></div>
+</div>
+<p>마스크의 궤적에 PPA를 붙이면 &lsquo;배율이 어느 턴에서 나빠졌나&rsquo;가 질의가 됩니다. 이 궤적의 <code>links</code> 칸이 그 길이며, 다음 단계의 0301이 그 PPA를 벡터장으로 봅니다.</p>
+<div class="qna" data-label="LLM이 이 표 없이 알아서 하면 안 되나요?" data-q="LLM이 이 표 없이 알아서 하면 안 되나요?">
+  <p>되돌릴 수 없는 일을 맡길 근거가 사라집니다. LLM은 그럴듯한 문장을 만드는 데는 강하지만, 어떤 전이가 허용되는지·세정기에 빈자리가 있는지·사람 승인이 필요한지를 <b>그때그때 말로 지어냅니다</b>. 지어낸 답이 맞았다 해도 왜 맞았는지 검증할 수 없고, 틀렸을 때 어디서 틀렸는지도 알 수 없습니다.</p>
+  <p>표와 가드는 이 문제를 반대로 풉니다. 에이전트는 &lsquo;표에 있는 전이를 요청&rsquo;만 할 수 있고, 허용 여부는 규칙이 값으로 정합니다. LLM은 요약과 초안에 쓰되, 그 안의 숫자는 도구가 낸 값과 자동으로 대조하게 합니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>현장에서 환산하면</h2>
+<p>사례를 적으면 시간이 듭니다. 그만큼 같은 원인이 다시 났을 때 줄어드는 재조사 시간으로 되돌아오는지를 견줍니다. 가상 공장 60일의 사례 수를 한 달(30일)로 환산하고, 재발 비율은 사례의 결과 칸에서 계산합니다.</p>
+<div class="eq">
+  <span class="eqlab">본전이 되는 재발 비율</span>
+  <math display="block"><mrow><msup><mi>p</mi><mo>*</mo></msup><mo>=</mo><mfrac><mrow><mtext>월 사례 수</mtext><mo>×</mo><mtext>기록 분</mtext></mrow><mrow><mtext>월 불량 사례 수</mtext><mo>×</mo><mtext>재조사 분</mtext></mrow></mfrac></mrow></math>
+  <span class="note">기록 분은 사례 한 건을 적는 시간, 불량 사례는 마스크 불량 사례입니다. 마스크 불량 사례의 재발 비율이 <i>p</i>* 보다 크면, 적는 시간보다 재조사 절감이 큽니다. 재발은 마스크 불량 사례에서만 셉니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">성과 환산 상자 — 사례를 적는 시간과 줄어드는 재조사 시간</div>
+  <div class="ctrl"><label for="gA">사례 한 건 기록 (분)</label><input type="range" id="gA" min="1" max="20" step="1" value="3"><output id="gAo"></output></div>
+  <div class="ctrl"><label for="gB">같은 원인의 재조사 (분)</label><input type="range" id="gB" min="10" max="240" step="5" value="60"><output id="gBo"></output></div>
+  <div class="ctrl"><label for="gP">마스크 불량 사례의 재발 비율 (%)</label><input type="range" id="gP" min="0" max="30" step="0.5" value="0"><output id="gPo"></output></div>
+  <div class="row"><button class="btn ghost" id="rG" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stG"></div>
+  <div class="tbwrap"><table id="tabG" class="mt num"></table></div>
+  <div class="concl" id="conclG"></div>
+  <p class="note">기본 설정(기록 <span id="gn_a"></span>분, 재조사 <span id="gn_b"></span>분)은 가정입니다. 회사에서는 같은 식에 <b>실제 기록 시간</b>과 <b>재조사에 든 시간</b>을 넣고, 분을 인건비로 바꾸십시오. 재발 비율은 사례를 쌓은 뒤에야 믿을 수 있는 값이 되므로, 이 상자는 &lsquo;지금은 얼마가 되어야 본전인가&rsquo;를 보는 용도입니다.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>pandas</code>와 표준 라이브러리만 씁니다. 전이 표(<code>TABLE</code>), 이음새·제약 검사(<code>check_trajectory</code>), 체류 분(<code>dwell</code>), 요청 판정(<code>request_transition</code>), 사례 양식 검사(<code>validate_case</code>), 사례 저장(<code>append_case</code>)이 이 실험실의 도구입니다. 가상 기록을 파일로 받으려면 단추를 누르십시오. 받은 <code>mask_transitions.csv</code>를 코드와 같은 폴더에 두면 맨 아래 부분이 그대로 돌아갑니다. 파일에는 마스크뿐 아니라 세트·챔버·블록의 전이도 <code>entity</code> 열로 구분되어 들어 있습니다.</p>
+<div class="row"><button class="btn" id="csvBtn" type="button">CSV 내려받기 (mask_transitions.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import json, os, tempfile
+import pandas as pd
+
+CAP = 27                       # 세정기 동시 한도(장)
+
+# 개체  from  to  가드  승인 — 한 줄이 허용된 전이 하나 (챔버 run → mask 는 원인이 둘이라 두 줄: 턴 중 마스크 불량 · 장착할 마스크 없음)
+TABLE = """
+mask init stock - -
+mask init to_clean - -
+mask init in_use - -
+mask stock in_use set_ready -
+mask in_use to_clean - -
+mask stock to_clean - -
+mask in_use repair - -
+mask to_clean clean_wait - -
+mask repair clean_wait - -
+mask clean_wait cleaning cleaner_free -
+mask cleaning held - -
+mask cleaning stock - -
+mask held to_stock set_all_back -
+mask to_stock stock - -
+mask repair scrapped - 사람
+mask in_use scrapped - 사람
+set init ready - -
+set init out - -
+set init dep - -
+set ready dep - -
+set dep out - -
+set dep clean - -
+set out xfer - -
+set clean xfer - -
+set xfer ready - -
+chamber init run - -
+chamber run bd - -
+chamber run ev - -
+chamber run pm - -
+chamber run mask - -
+chamber run mask - -
+chamber bd run - -
+chamber ev run - -
+chamber pm run - -
+chamber mask run - -
+block init quad - -
+block init triple - -
+block init degraded - -
+block quad triple - -
+block quad degraded - -
+block quad wait_jc - -
+block triple quad - -
+block triple degraded - -
+block triple wait_jc - -
+block degraded quad - -
+block degraded triple - -
+block degraded wait_jc - -
+block wait_jc quad - -
+block wait_jc triple - -
+block wait_jc degraded - -
+"""
+TRANSITIONS = {}
+for line in TABLE.strip().splitlines():
+    ent, a, b, guard, human = line.split()
+    TRANSITIONS[(ent, a, b)] = (None if guard == "-" else guard, human == "사람")
+
+REQUIRED = ["case_id", "t_detect", "entity", "id", "state_before", "evidence", "decision",
+            "action", "state_after", "outcome", "label", "links"]
+
+
+def check_trajectory(df, end=None, cap=CAP):
+    """전이 기록을 처음부터 다시 훑어 위반 목록 [(규칙, 시각, 개체, 내용)] 을 돌려준다.
+    T0 표에 없는 전이 · C3 직전 상태와 from 불일치 · C1 세정 동시 수 &gt; cap · C2 블록당 증착 세트 &gt; 1 · C4 챔버 체류 합 ≠ end.
+    쓰면 안 되는 때: 전이를 시각 순으로 정렬해 두지 않았을 때(같은 시각이면 기록한 순서를 지켜야 함)."""
+    out, last, cleaning, dep, ch = [], {}, 0, {}, {}
+    for r in df.itertuples(index=False):
+        key = (r.entity, r.id)
+        if (r.entity, r.from_, r.to) not in TRANSITIONS:
+            out.append(("T0", r.t, r.id, f"표에 없는 전이 {r.from_}→{r.to}"))
+        prev = last.get(key, "init")
+        if r.from_ != prev:
+            out.append(("C3", r.t, r.id, f"직전 상태 {prev} 인데 from={r.from_}"))
+        last[key] = r.to
+        if r.entity == "mask":
+            cleaning += (r.to == "cleaning") - (r.from_ == "cleaning")
+            if cleaning &gt; cap:
+                out.append(("C1", r.t, r.id, f"세정 중 {cleaning}장 &gt; 한도 {cap}"))
+        elif r.entity == "set":
+            b = r.id[:3]
+            dep[b] = dep.get(b, 0) + (r.to == "dep") - (r.from_ == "dep")
+            if dep[b] &gt; 1:
+                out.append(("C2", r.t, r.id, f"블록 {b} 에 증착 중 세트 {dep[b]}개"))
+        elif r.entity == "chamber":
+            ch.setdefault(r.id, []).append(r.t)
+    if end is not None:
+        for cid, ts in ch.items():
+            if ts[0] != 0 or sum(b - a for a, b in zip(ts, ts[1:])) + (end - ts[-1]) != end:
+                out.append(("C4", end, cid, "상태별 체류 분의 합이 기록 기간과 다름"))
+    return out
+
+
+def dwell(df, ident, end):
+    """한 개체가 상태마다 머문 분. 마지막 상태는 end 까지 센다.
+    쓰면 안 되는 때: 기록 시작 전에 이미 있던 상태의 앞부분은 알 수 없으므로 그 구간은 빠진다."""
+    rows = df[df.id == ident]
+    out = {}
+    for a, b in zip(rows.itertuples(), list(rows.itertuples())[1:] + [None]):
+        out[a.to] = out.get(a.to, 0) + ((b.t if b is not None else end) - a.t)
+    return out
+
+
+def snapshot(df, t):
+    """시각 t 까지의 상태표와 자원 수. request_transition 의 입력."""
+    part = df[df.t &lt;= t]
+    state = {(r.entity, r.id): r.to for r in part.drop_duplicates(["entity", "id"], keep="last").itertuples()}
+    cleaning = sum(1 for (e, i), s in state.items() if e == "mask" and s == "cleaning")
+    return state, {"cleaning": cleaning}
+
+
+def request_transition(state_now, entity, ident, to, resources):
+    """에이전트가 도구를 부르기 전의 문지기: 표에 있는가 → 사람 승인이 필요한가 → 가드를 통과하는가. (허용 여부, 이유).
+    쓰면 안 되는 때: 가드의 값(세정기 사용 수)이 오래된 것이면 허용을 믿으면 안 된다 — 요청 직전에 다시 읽는다."""
+    now = state_now.get((entity, ident), "init")
+    key = (entity, now, to)
+    if key not in TRANSITIONS:
+        return False, f"표에 {now} → {to} 전이가 없습니다"
+    guard, human = TRANSITIONS[key]
+    if human:
+        return False, "되돌릴 수 없는 전이라 사람의 승인이 필요합니다"
+    if guard == "cleaner_free" and resources["cleaning"] &gt;= CAP:
+        return False, f"세정기 {resources['cleaning']}/{CAP}장이 사용 중이라 자리가 없습니다"
+    if guard == "set_ready":
+        block, sset = ident[:3], ident[4]
+        if state_now.get(("set", f"{block}-{sset}")) != "ready":
+            return False, "세트가 ready 가 아닙니다"
+        if any(state_now.get(("set", f"{block}-{x}")) == "dep" for x in "ABC"):
+            return False, "같은 블록에 증착 중인 세트가 이미 있습니다"
+    return True, "표에 있고 가드를 통과했습니다"
+
+
+def validate_case(rec):
+    """사례 기록 한 건의 오류 목록(빈 목록이면 통과). 필수 칸 · 시각 순서 · 전이가 표에 있는가 · 사람 승인 칸.
+    쓰면 안 되는 때: 결과(outcome)를 아직 모르는 사례를 저장하려고 이 함수를 끄지 않는다 — 결과 칸은 '미확인' 으로 채워 둔다."""
+    errs = [f"필수 칸 없음: {k}" for k in REQUIRED if k not in rec]
+    if errs:
+        return errs
+    if rec["outcome"]["t_check"] &lt; rec["t_detect"]:
+        errs.append("결과 확인 시각이 감지 시각보다 앞")
+    a = rec["action"]["transition"]
+    key = (rec["entity"], a["from"], a["to"])
+    if key not in TRANSITIONS and a["from"] != "wait_jc":
+        errs.append(f"행동 전이 {a['from']}→{a['to']} 가 표에 없음")
+    elif key in TRANSITIONS and TRANSITIONS[key][1] and rec["action"].get("approved_by") in (None, "", "rule"):
+        errs.append("사람 승인이 필요한 전이인데 승인자 칸이 비어 있음")
+    return errs
+
+
+def append_case(path, rec):
+    """검사를 통과한 사례만 JSON Lines 로 한 줄 덧붙인다. 통과하지 못하면 쓰지 않고 오류 목록을 돌려준다.
+    쓰면 안 되는 때: 회사 사례 파일은 회사 안에만 둔다 — 공개 저장소·외부 서비스에 올리지 않는다."""
+    errs = validate_case(rec)
+    if not errs:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return errs
+
+
+df = pd.read_csv("mask_transitions.csv", keep_default_na=False).rename(columns={"from": "from_"})
+END = 60 * 1440
+bad = check_trajectory(df, end=END)
+kinds = {k: int(v) for k, v in df.entity.value_counts().items()}
+print(f"전이 {len(df):,}줄 · 개체 종류 {kinds} · 위반 {len(bad)}건")
+
+broken = df.drop(df[(df.entity == "mask") &amp; (df.from_ == "held")].index[100]).reset_index(drop=True)
+print("전이 한 줄을 지우면:", sorted({b[0] for b in check_trajectory(broken, end=END)}), "만 잡힙니다")
+
+print("챔버 B04-CH2 체류 분:", dwell(df, "B04-CH2", END))
+print("마스크 B04-B2 체류 분:", dict(sorted(dwell(df, "B04-B2", END).items())))
+
+cum = (df.entity == "mask") * ((df.to == "cleaning").astype(int) - (df.from_ == "cleaning").astype(int))
+t_full = int(df.t[(cum.cumsum() &gt;= CAP) &amp; (df.t &gt; 3000)].iloc[0])
+state, res = snapshot(df, t_full)
+waiting = sorted(i for (e, i), s in state.items() if e == "mask" and s == "clean_wait")[0]
+in_use = sorted(i for (e, i), s in state.items() if e == "mask" and s == "in_use")[0]
+print(f"{t_full}분 시점 세정기 {res['cleaning']}/{CAP}장")
+print(" ", waiting, "clean_wait → cleaning :", request_transition(state, "mask", waiting, "cleaning", res))
+print(" ", waiting, "clean_wait → held     :", request_transition(state, "mask", waiting, "held", res))
+print(" ", in_use, "in_use → scrapped    :", request_transition(state, "mask", in_use, "scrapped", res))
+
+rec = json.loads("""{
+  "case_id": "C00013",
+  "t_detect": "2026-01-06 06:10",
+  "entity": "mask",
+  "id": "B04-B2",
+  "state_before": "in_use",
+  "evidence": [
+    {
+      "kind": "event",
+      "ref": "E00166",
+      "value": "챔버 CH2 마스크 정지 61분"
+    },
+    {
+      "kind": "mask_age",
+      "ref": "B04-B2",
+      "value": 2
+    },
+    {
+      "kind": "transition",
+      "ref": "B04-B2@2026-01-06 07:11",
+      "value": "in_use→repair"
+    }
+  ],
+  "decision": {
+    "rule": "R-MASK-REPAIR",
+    "why": "턴 중 마스크 불량 표시(장착 때 이미 2턴을 쓴 마스크), 챔버 정지 61분 → 턴 끝에 리페어로 보냄",
+    "by": "agent"
+  },
+  "action": {
+    "transition": {
+      "from": "in_use",
+      "to": "repair"
+    },
+    "needs_human": false,
+    "approved_by": "rule"
+  },
+  "state_after": "repair",
+  "outcome": {
+    "t_check": "2026-01-07 18:11",
+    "result": "정상 반납",
+    "value": 300,
+    "absent_min": 300,
+    "t_back": "2026-01-07 03:09"
+  },
+  "label": "not_recurred",
+  "links": {
+    "events": [
+      "E00166"
+    ],
+    "turns": [
+      {
+        "block": "B04",
+        "set": "B",
+        "turn": 10
+      }
+    ]
+  },
+  "text_log": "01-06 06:10 B04 CH2 마스크 불량으로 정지, 리페어 보냄"
+}""")
+print("사례 양식 검사:", validate_case(rec) or "통과")
+bad_rec = {k: v for k, v in rec.items() if k != "evidence"}
+print("근거 칸을 뺀 사례:", validate_case(bad_rec))
+path = os.path.join(tempfile.mkdtemp(), "cases.jsonl")
+print("append_case 오류:", append_case(path, rec) or "없음", "· 저장된 줄 수:", sum(1 for _ in open(path, encoding="utf-8")))</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다.</p>
+<pre id="pyOut" aria-label="Python 출력">전이 104,198줄 · 개체 종류 {'mask': 87962, 'set': 12691, 'block': 1853, 'chamber': 1692} · 위반 0건
+전이 한 줄을 지우면: ['C3'] 만 잡힙니다
+챔버 B04-CH2 체류 분: {'run': 80303, 'mask': 3596, 'pm': 1800, 'bd': 577, 'ev': 124}
+마스크 B04-B2 체류 분: {'clean_wait': 2539, 'cleaning': 23634, 'held': 1886, 'in_use': 39201, 'repair': 2531, 'stock': 10226, 'to_clean': 3823, 'to_stock': 2560}
+3005분 시점 세정기 27/27장
+  B02-C1 clean_wait → cleaning : (False, '세정기 27/27장이 사용 중이라 자리가 없습니다')
+  B02-C1 clean_wait → held     : (False, '표에 clean_wait → held 전이가 없습니다')
+  B01-A1 in_use → scrapped    : (False, '되돌릴 수 없는 전이라 사람의 승인이 필요합니다')
+사례 양식 검사: 통과
+근거 칸을 뺀 사례: ['필수 칸 없음: evidence']
+append_case 오류: 없음 · 저장된 줄 수: 1</pre>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>사례 기록 양식과 작성 체크리스트</h3>
+  <dl>
+    <dt>양식의 칸 (6절 JSON과 같은 칸)</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 사건으로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>시각은 분 단위 이상으로 적었는가</li>
+      <li>개체 번호가 연결 키 형식(예 <code>B04-B2</code>)인가</li>
+      <li>판단 근거에 숫자와 출처(이벤트 번호·전이 시각)가 있는가</li>
+      <li>결과는 정해 둔 확인 시각에 다시 채웠는가(미확인이면 &lsquo;미확인&rsquo;으로 둠)</li>
+      <li>사람 승인이 필요한 전이라면 승인자가 적혀 있는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>되돌릴 수 없는 전이는 사람의 승인 뒤에 실행합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 사례를 스스로 쌓으려면 현장에서 아래를 남겨야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>마스크의 상태 전이 시각</b> — 장착과 증착 시작을 따로, 세정 투입·세정 완료·짝 대기·stocker 입고. 가상 공장은 장착과 증착 시작을 한 순간으로 묶었지만, 실제 라인은 둘을 갈라 적어야 합니다.</li>
+      <li><b>챔버 정지의 시작과 끝, 사유 코드</b></li>
+      <li><b>잡 체인지 대기의 시작과 끝, 막힘 사유</b></li>
+      <li><b>판단한 사람(또는 에이전트)과 근거</b></li>
+      <li><b>결과를 확인한 시각과 값</b></li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실의 함수와 앞 실험실의 함수를 &lsquo;어떤 전이에서 부르는가&rsquo;로 묶었습니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>이 전이에서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">어떤 전이든 요청 전</td><td><code>request_transition</code> · <code>check_trajectory</code></td></tr>
+      <tr><td class="rowh">장착·증착 중 (in_use)</td><td>특징 추출(0201) · EWMA·CUSUM(0204) · 적응형 한계(0205)</td></tr>
+      <tr><td class="rowh">in_use → repair</td><td>리페어 전후 대응 비교·동등성(0103) · <code>append_case</code></td></tr>
+      <tr><td class="rowh">세정 뒤 (cleaning → held)</td><td>세정 전후 동등성(0103)</td></tr>
+      <tr><td class="rowh">PM 뒤 (pm → run)</td><td>PM 뒤 평균 이동(0101) · 스틱 교체 산포(0102) · 적응형 한계(0205)</td></tr>
+      <tr><td class="rowh">사례를 저장할 때</td><td><code>validate_case</code> · <code>append_case</code></td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0205-adaptive-spec-replay.html">← 이전: 가성 인터락을 줄이는 spec</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ============ 데이터·계산 핵심 (CORE-START) ============ */
+var MS=MfgSim,ESTC=MS.ESTC,SIM=MS.simulateLoss({trace:true}),TR=SIM.transitions,END=SIM.end,CAP=ESTC.params.CAP,DAYS=SIM.days;
+var CASES=MS.caseRecords(SIM),FEAT=MS.featuredCase(CASES),MET=MS.estcMetrics(SIM,CASES),CHK0=MS.estcCheck(TR,{end:END});
+var BYID={};TR.forEach(function(x){var k=x.entity+':'+x.id;(BYID[k]||(BYID[k]=[])).push(x);});
+var CLEANING=new Int16Array(END+1),CWAIT=new Int16Array(END+1);
+(function(){var c=0,q=0,i=0,t,x;for(t=0;t<=END;t++){while(i<TR.length&&TR[i].t<=t){x=TR[i++];if(x.entity==='mask'){if(x.to==='cleaning')c++;if(x.from==='cleaning')c--;if(x.to==='clean_wait')q++;if(x.from==='clean_wait')q--;}}CLEANING[t]=c;CWAIT[t]=q;}})();
+var STKO={};ESTC.entities.forEach(function(e){STKO[e.name]={};e.states.forEach(function(s){STKO[e.name][s.id]=s.ko;});});
+var TRIG={init:'기록 시작',job_change:'잡 체인지(장착)',turn_end:'턴 끝',turn_end_defect:'턴 끝 · 불량 표시',turn_end_unused:'턴 끝 · 장착 못 한 채',arrive:'세정기 도착',cleaner_free:'세정기 자리 남',clean_done:'세정 끝',repair_done:'리페어 끝',repair_clean_done:'리페어 뒤 세정 끝',set_complete:'세트가 모임',stocker_in:'stocker 입고',breakdown:'고장',evap_fault:'증착기 불량',pm_start:'PM 시작',mask_failure:'마스크 불량 표시',mask_missing:'장착할 마스크 없음',recovered:'복구',set_leave:'세트가 빠짐',all_masks_back:'마스크가 모두 돌아옴',chamber_stop:'챔버 정지',chamber_resume:'챔버 복구',turn_end_blocked:'턴 끝 · 잡 체인지 막힘',scrap:'폐기(사람 승인)'};
+/* ============ CORE-END ============ */
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function sgn(v,d){var a=Math.abs(v);return (v>0?'+':v<0?'−':'')+(d?fmt(a,d):fmtN(a));}
+function setT(id,t){var e=$(id);if(e)e.textContent=t;}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function niceStep(span,target){var raw=span/target,p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),f=raw/p;return (f<1.5?1:f<3.5?2:f<7.5?5:10)*p;}
+function num(d){return String(+d.toFixed(3));}
+function isBase(a,b){return Math.abs(a-b)<1e-9;}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function pct(v,d){return fmt(v*100,d==null?0:d);}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+
+/* ---- 공용 그림: 점·선·막대·세로선·띠를 한 번에 ---- */
+function plotXY(id,h,o){
+  var c=setup($(id),h),x=c.x,W=c.w,H=c.h,soft=css('--soft'),rule=css('--rule'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  var pl=o.pl||54,pr=12,pt=o.pt||12,pb=o.pb||(o.xlab?34:22),pw=W-pl-pr,ph=H-pt-pb,xl=o.xmin,xr=o.xmax,yl=o.ymin,yh=o.ymax,i,v;
+  function X(a){return pl+(a-xl)/(xr-xl)*pw;}
+  function Y(b){return pt+ph-(b-yl)/(yh-yl)*ph;}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,pt+.5,pw-1,ph-1);
+  x.font='11px sans-serif';x.fillStyle=soft;x.textAlign='right';
+  var sy=niceStep(yh-yl,Math.max(2,Math.floor(ph/34)));
+  for(v=Math.ceil(yl/sy-1e-9)*sy;v<=yh+1e-9;v+=sy){var yy=Y(v);x.fillText(o.yfmt?o.yfmt(v):String(+v.toFixed(4)),pl-5,yy+4);x.save();x.strokeStyle=rule;x.globalAlpha=.5;x.beginPath();x.moveTo(pl,yy);x.lineTo(W-pr,yy);x.stroke();x.restore();}
+  x.textAlign='center';
+  var sx=niceStep(xr-xl,Math.max(3,Math.floor(pw/80)));
+  for(v=Math.ceil(xl/sx-1e-9)*sx;v<=xr+1e-9;v+=sx)x.fillText(o.xfmt?o.xfmt(v):String(+v.toFixed(4)),X(v),pt+ph+14);
+  if(o.xlab)x.fillText(o.xlab,pl+pw/2,H-3);
+  x.save();x.beginPath();x.rect(pl,pt,pw,ph);x.clip();
+  (o.bands||[]).forEach(function(b){x.fillStyle=b.col;x.globalAlpha=b.alpha==null?.15:b.alpha;x.fillRect(X(b.x0),pt,Math.max(1,X(b.x1)-X(b.x0)),ph);x.globalAlpha=1;});
+  (o.bars||[]).forEach(function(b){x.fillStyle=b.col;var bw=Math.max(1,(b.w||1)*pw/(xr-xl));x.fillRect(X(b.x)-bw/2,Y(b.y1),bw,Y(b.y0)-Y(b.y1));});
+  (o.lines||[]).forEach(function(L){x.strokeStyle=L.col;x.lineWidth=L.w||1.5;x.setLineDash(L.dash||[]);x.beginPath();var first=true;for(i=0;i<L.xs.length;i++){if(L.ys[i]==null||!isFinite(L.ys[i])){first=true;continue;}if(first){x.moveTo(X(L.xs[i]),Y(L.ys[i]));first=false;}else x.lineTo(X(L.xs[i]),Y(L.ys[i]));}x.stroke();x.setLineDash([]);});
+  (o.hl||[]).forEach(function(l){x.strokeStyle=l.col;x.lineWidth=l.w||1.4;x.setLineDash(l.dash||[]);x.beginPath();x.moveTo(pl,Y(l.y));x.lineTo(W-pr,Y(l.y));x.stroke();x.setLineDash([]);});
+  (o.vl||[]).forEach(function(l){x.strokeStyle=l.col;x.lineWidth=l.w||1.2;x.setLineDash(l.dash||[4,4]);x.beginPath();x.moveTo(X(l.x),pt);x.lineTo(X(l.x),pt+ph);x.stroke();x.setLineDash([]);});
+  (o.dots||[]).forEach(function(d){x.fillStyle=d.col;x.beginPath();x.arc(X(d.x),Y(d.y),d.r||2,0,6.283);x.fill();if(d.stroke){x.strokeStyle=css('--card');x.lineWidth=1.5;x.stroke();}});
+  x.restore();
+  (o.texts||[]).forEach(function(t){x.fillStyle=t.col||soft;x.font=(t.bold?'bold ':'')+'11px sans-serif';x.textAlign=t.align||'left';x.fillText(t.s,t.x==null?pl+6:X(t.x),t.y==null?pt+13:Y(t.y));});
+  x.textAlign='left';
+  return {X:X,Y:Y,x:x,pl:pl,pt:pt,pw:pw,ph:ph,W:W,H:H};
+}
+
+
+function hm(t){return MS.isoTs(t).slice(5);}
+function isoK(t){var s=MS.isoTs(t);return (+s.slice(5,7))+'월 '+(+s.slice(8,10))+'일 '+s.slice(11,13)+'시 '+s.slice(14,16)+'분';}
+function dayOf(t){return Math.floor(t/1440);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function colA(v,a){return {c:css(v),a:a==null?1:a};}
+function mixDot(v,a){return 'color-mix(in srgb, var('+v+') '+Math.round((a==null?1:a)*100)+'%, transparent)';}
+
+/* ---- 대표 사건 ---- */
+var FM=MS.parseMaskId(FEAT.id),FB=FM.block,FCHN=FM.chamber,FCHID=FB+'-'+FCHN;
+var fEv=SIM.events.filter(function(e){return e.event_id===FEAT.links.events[0];})[0],tFail=fEv.start_min,m1=fEv.loss_chamber_min;
+var MROWS=BYID['mask:'+FEAT.id];
+var repRow=MROWS.filter(function(x){return x.to==='repair'&&x.t>=tFail;})[0],tRep=repRow.t;
+var backRow=MROWS.filter(function(x){return x.t>tRep&&x.from==='cleaning'&&x.to==='stock';})[0],tBack=backRow?backRow.t:null;
+var nextUse=backRow?MROWS.filter(function(x){return x.t>tBack&&x.to==='in_use';})[0]:null,tNext=nextUse?nextUse.t:END;
+var absEv=SIM.events.filter(function(e){return e.reason==='Q-MASK'&&e.block===FB&&e.chamber===FCHN&&e.mask_set===FM.set&&e.start_min>tRep&&e.start_min<tNext;});
+var m2=absEv.reduce(function(s,e){return s+e.loss_chamber_min;},0);
+var LOGS=[hm(tFail)+' '+FB+' '+FCHN+' 마스크 불량으로 정지, 리페어 보냄'];
+absEv.forEach(function(e){LOGS.push(hm(e.start_min)+' '+FB+' '+FCHN+' 장착할 마스크가 없어 정지 '+e.loss_chamber_min+'분(리페어 중)');});
+LOGS.push(hm(tBack==null?END:tBack)+' '+FEAT.id+' 리페어 끝, 세트에 복귀');
+
+/* ---- 머리말·문제 ---- */
+(function(){
+  var nq=CASES.filter(function(c){return c.entity==='mask';}).length,nw=CASES.length-nq,rec=CASES.filter(function(c){return c.label==='recurred';}).length;
+  setT('i_n',fmtN(TR.length));setT('i_v',fmtN(CHK0.violations.length));setT('i_c',fmtN(CASES.length));setT('i_cq',fmtN(nq));setT('i_cw',fmtN(nw));setT('i_r',fmtN(rec));
+  setT('p_blk',FB);setT('p_ch',FCHN);setT('p_t0',isoK(tFail));setT('p_m1',fmtN(m1));setT('p_m2',fmtN(m2));setT('p_sum',fmtN(m1+m2));setT('p_hr',fmt((m1+m2)/60,1));
+  $('logLines').textContent=LOGS.join('\n');
+  setT('qa_n',fmtN(TR.length));setT('qa_c',fmtN(CASES.length));
+})();
+
+/* ---- 2절: 개체 표·상태 그림·제약 표 ---- */
+var CNT={};TR.forEach(function(x){CNT[x.entity]=(CNT[x.entity]||0)+1;});
+var AR={},NS={};
+Object.keys(BYID).forEach(function(k){if(k.indexOf('mask:')!==0)return;var r=BYID[k];for(var i=0;i<r.length-1;i++){var a=r[i],b=r[i+1],key=a.to+'>'+b.to,d=b.t-a.t;(AR[key]||(AR[key]={n:0,s:0})).n++;AR[key].s+=d;(NS[a.to]||(NS[a.to]={n:0,s:0})).n++;NS[a.to].s+=d;}});
+(function(){
+  var h='<tr><th>개체</th><th>번호 형식</th><th>상태 또는 수량</th><th>60일 기록</th></tr>';
+  ESTC.entities.forEach(function(e){
+    var sts=e.states.length?e.states.map(function(s){return s.ko;}).join(' · '):e.measure;
+    var rec=e.kind==='transition'?fmtN(CNT[e.name]||0)+'줄':e.name==='glass'?'턴 '+fmtN(SIM.turns.length)+'개의 연결 키':fmtN(SIM.resources.length)+'시간 칸';
+    h+='<tr><td class="rowh">'+e.ko+' ('+e.name+')</td><td>'+esc(e.id_format||'—')+'</td><td>'+esc(sts)+'</td><td>'+rec+'</td></tr>';
+  });
+  $('tabEnt').innerHTML=h;
+  var maxAge=0;TR.forEach(function(x){if(x.entity==='mask'&&x.to==='in_use'&&/^age=/.test(x.cause))maxAge=Math.max(maxAge,+x.cause.slice(4));});
+  var hc='<tr><th>번호</th><th>규칙</th><th>어떻게 지켜지나</th></tr>';
+  ESTC.constraints.forEach(function(c){
+    var how=c.enforced_by_sim?'이 가상 공장의 기록이 지키고, 5절의 검사가 다시 확인합니다':(c.id==='C6'?'이 가상 공장은 강제하지 않습니다. 이 기록에서 가장 오래 쓴 마스크는 '+maxAge+'번째 장착입니다':'에이전트가 사례 판단에서 검사합니다. 기준값은 0301의 PPA에서 정합니다');
+    hc+='<tr><td class="rowh">'+c.id+'</td><td>'+esc(c.text)+'</td><td>'+how+'</td></tr>';
+  });
+  $('tabCon').innerHTML=hc;
+  var ent=ESTC.transitions;function trigOf(a,b){for(var i=0;i<ent.length;i++)if(ent[i].entity==='mask'&&ent[i].from===a&&ent[i].to===b)return ent[i].trigger;return '';}
+  var keys=Object.keys(AR).sort(function(a,b){return AR[b].n-AR[a].n;});
+  var ha='<tr><th>화살표</th><th>원인</th><th>횟수</th><th>직전 상태에 머문 평균 (분)</th></tr>';
+  keys.forEach(function(k){var p=k.split('>'),a=AR[k];ha+='<tr><td class="rowh">'+STKO.mask[p[0]]+' → '+STKO.mask[p[1]]+'</td><td>'+(TRIG[trigOf(p[0],p[1])]||trigOf(p[0],p[1]))+'</td><td>'+fmtN(a.n)+'</td><td>'+fmtN(a.s/a.n)+'</td></tr>';});
+  $('tabArr').innerHTML=ha;
+})();
+function draw2(){
+  var cv=$('cv2'),c0=cv.clientWidth,H=340,c=setup(cv,H),x=c.x,W=c.w,ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),card=css('--card');
+  x.clearRect(0,0,W,H);
+  var nw=Math.max(54,Math.min(104,W*0.155)),nh=58,X=[.1,.3,.5,.7,.9].map(function(f){return f*W;}),yA=86,yR=206,yB=H-36;
+  var nodes={stock:{x:X[0],y:yA,l:['대기'],col:'--grey'},in_use:{x:X[1],y:yA,l:['증착 중'],col:'--accent'},to_clean:{x:X[2],y:yA,l:['세정','반송'],col:'--c8'},clean_wait:{x:X[3],y:yA,l:['세정','대기'],col:'--c8'},cleaning:{x:X[4],y:yA,l:['세정 중'],col:'--c8'},
+    held:{x:X[4],y:yB,l:['짝 대기'],col:'--c8'},to_stock:{x:X[0],y:yB,l:['보관','반송'],col:'--c8'},repair:{x:X[2],y:yR,l:['리페어'],col:'--c9'}};
+  function edge(a,b,k,o){
+    var A=nodes[a],B=nodes[b],n=AR[k]?AR[k].n:0;o=o||{};
+    x.strokeStyle=o.col?css(o.col):soft;x.fillStyle=x.strokeStyle;x.lineWidth=1.6;x.setLineDash(o.dash||[]);
+    var x0=A.x+(o.dx0||0),y0=A.y+(o.dy0||0),x1=B.x+(o.dx1||0),y1=B.y+(o.dy1||0);
+    x.beginPath();x.moveTo(x0,y0);
+    if(o.cp){x.quadraticCurveTo(o.cp[0],o.cp[1],x1,y1);}else x.lineTo(x1,y1);
+    x.stroke();x.setLineDash([]);
+    var ang=o.cp?Math.atan2(y1-o.cp[1],x1-o.cp[0]):Math.atan2(y1-y0,x1-x0);
+    x.beginPath();x.moveTo(x1,y1);x.lineTo(x1-8*Math.cos(ang-0.4),y1-8*Math.sin(ang-0.4));x.lineTo(x1-8*Math.cos(ang+0.4),y1-8*Math.sin(ang+0.4));x.closePath();x.fill();
+    if(o.lab){x.font='11px sans-serif';x.fillStyle=ink;x.textAlign=o.al||'center';x.fillText(fmtN(n),o.lab[0],o.lab[1]);}
+  }
+  var hw=nw/2,hh=nh/2,top=yA-hh-5;
+  edge('stock','in_use','stock>in_use',{dx0:hw,dx1:-hw,lab:[(X[0]+X[1])/2,top]});
+  edge('in_use','to_clean','in_use>to_clean',{dx0:hw,dx1:-hw,lab:[(X[1]+X[2])/2,top]});
+  edge('to_clean','clean_wait','to_clean>clean_wait',{dx0:hw,dx1:-hw,lab:[(X[2]+X[3])/2,top]});
+  edge('clean_wait','cleaning','clean_wait>cleaning',{dx0:hw,dx1:-hw,lab:[(X[3]+X[4])/2,top]});
+  edge('cleaning','held','cleaning>held',{dy0:hh,dy1:-hh,lab:[X[4]-6,(yA+yB)/2],al:'right'});
+  edge('held','to_stock','held>to_stock',{dx0:-hw,dx1:hw,lab:[(X[0]+X[4])/2,yB-6]});
+  edge('to_stock','stock','to_stock>stock',{dy0:-hh,dy1:hh,lab:[X[0]+6,(yA+yB)/2],al:'left'});
+  edge('in_use','repair','in_use>repair',{dx0:0,dy0:hh,dx1:-hw*0.7,dy1:-hh,col:'--c9',dash:[5,3],lab:[(X[1]+X[2])/2-hw*0.35-6,(yA+hh+yR-hh)/2],al:'right'});
+  edge('repair','clean_wait','repair>clean_wait',{dx0:hw*0.7,dy0:-hh,dx1:0,dy1:hh,col:'--c9',dash:[5,3],lab:[(X[2]+X[3])/2+hw*0.35+6,(yA+hh+yR-hh)/2],al:'left'});
+  edge('cleaning','stock','cleaning>stock',{dy0:-hh,dy1:-hh,col:'--c9',dash:[5,3],cp:[W/2,-34],lab:[W/2,21]});
+  x.font='11px sans-serif';x.fillStyle=css('--c9');x.textAlign='center';x.fillText('리페어를 거친 길',W/2,37);
+  Object.keys(nodes).forEach(function(k){
+    var n=nodes[k],st=NS[k];x.fillStyle=card;x.strokeStyle=css(n.col);x.lineWidth=2;
+    x.beginPath();x.rect(n.x-hw,n.y-hh,nw,nh);x.fill();x.stroke();
+    x.textAlign='center';x.fillStyle=ink;x.font='bold 11px sans-serif';
+    n.l.forEach(function(s,i){x.fillText(s,n.x,n.y-hh+15+i*13);});
+    x.font='11px sans-serif';x.fillStyle=soft;x.fillText('평균 '+(st?fmtN(st.s/st.n):'—')+'분',n.x,n.y+hh-7);
+  });
+  x.textAlign='left';
+}
+
+/* ---- 3절: 하루치 궤적 ---- */
+var MSC={stock:['--grey',.55],in_use:['--accent',.9],to_clean:['--c8',.4],clean_wait:['--bad',.55],cleaning:['--c8',.85],held:['--c10',.8],to_stock:['--c10',.45],repair:['--c9',.9]};
+var CSC={run:['--good',.4],bd:['--bad',.85],ev:['--warn',.85],pm:['--c10',.85],mask:['--c9',.9]};
+var SSC={ready:['--grey',.6],dep:['--accent',.9],out:['--c8',.7],clean:['--soft',.5],xfer:['--c10',.6]};
+var BSC={quad:['--good',.4],triple:['--warn',.75],degraded:['--bad',.85],wait_jc:['--c9',.9]};
+var s3={blk:FB,day:dayOf(tFail)+1,mk:FEAT.id};var s30={blk:FB,day:dayOf(tFail)+1,mk:FEAT.id};
+function ivs(key,t0,t1){
+  var rows=BYID[key]||[],out=[],cur=null,i;
+  for(i=0;i<rows.length;i++){var r=rows[i];if(r.t<=t0)cur={st:r.to,a:t0};else if(r.t<t1){if(cur){cur.b=r.t;out.push(cur);}cur={st:r.to,a:r.t};}else break;}
+  if(cur){cur.b=t1;out.push(cur);}
+  return out;
+}
+function sumBy(key,t0,t1,acc){ivs(key,t0,t1).forEach(function(v){acc[v.st]=(acc[v.st]||0)+(v.b-v.a);});}
+(function(){
+  var sel=$('blk3'),s4=$('blk4');
+  MS.BLOCKS.forEach(function(b){[sel,s4].forEach(function(e){var o=document.createElement('option');o.value=b;o.textContent=b+' · '+MS.BLOCK_INFO[b].layer;e.appendChild(o);});});
+  var mr=$('mkRow');
+  function build(){
+    mr.innerHTML='';
+    MS.SETS.forEach(function(sn){for(var n=1;n<=4;n++){(function(id){var b=document.createElement('button');b.type='button';b.className='btn';b.textContent=sn+n;b.setAttribute('aria-label','마스크 '+id);b.setAttribute('data-id',id);b.addEventListener('click',function(){s3.mk=id;upd3();});mr.appendChild(b);})(s3.blk+'-'+sn+n);}});
+  }
+  window.__buildMk=build;
+  sel.addEventListener('change',function(){s3.blk=this.value;s3.mk=s3.blk+'-'+MS.parseMaskId(s3.mk).set+MS.parseMaskId(s3.mk).n;build();upd3();});
+  $('day3').addEventListener('input',function(){s3.day=+this.value;upd3();});
+  $('r3').addEventListener('click',function(){s3={blk:s30.blk,day:s30.day,mk:s30.mk};$('blk3').value=s3.blk;$('day3').value=String(s3.day);build();upd3();});
+  sel.value=s3.blk;$('day3').value=String(s3.day);build();
+})();
+function upd3(){
+  var d0=(s3.day-1)*1440,d1=d0+1440;
+  setT('day3o',s3.day+'일째 ('+hm(d0).slice(0,5)+')');
+  Array.prototype.forEach.call($('mkRow').children,function(b){b.setAttribute('aria-pressed',b.getAttribute('data-id')===s3.mk?'true':'false');});
+  var same=s3.blk===s30.blk&&s3.day===s30.day&&s3.mk===s30.mk;
+  stateBox($('st3'),same,'지금 이 값이 [문제]의 사건입니다. '+s30.blk+' 블록, '+s30.day+'일째, 마스크 '+s30.mk+'.','지금은 사건에서 옮겨 놓은 자리입니다. '+s30.blk+'→'+s3.blk+' 블록, '+s30.day+'→'+s3.day+'일째, 마스크 '+s30.mk+'→'+s3.mk+'. 되돌리려면 아래 단추를 누르십시오.');
+  /* 하루 체류 분 */
+  var chA={},blA={},stA={},i,st0=0,evT=0;
+  for(i=1;i<=4;i++)sumBy('chamber:'+s3.blk+'-CH'+i,d0,d1,chA);
+  sumBy('block:'+s3.blk,d0,d1,blA);MS.SETS.forEach(function(sn){sumBy('set:'+s3.blk+'-'+sn,d0,d1,stA);});
+  var cs=0,cfull=0,ws=0,wq=0,tt;for(tt=d0;tt<d1;tt++){var cc=CLEANING[Math.min(END,tt)],ww=CWAIT[Math.min(END,tt)];cs+=cc;ws+=ww;if(cc>=CAP)cfull++;if(ww>wq)wq=ww;}var cavg=cs/1440,wavg=ws/1440;
+  function line(map,kind,order){return order.filter(function(k){return map[k];}).map(function(k){return STKO[kind][k]+' '+fmtN(map[k])+'분';}).join(' · ');}
+  var tot=function(m){var s=0;for(var k in m)s+=m[k];return s;};
+  $('tabDay').innerHTML='<tr><th>구분</th><th>그날 상태별 머문 시간</th></tr>'+
+    '<tr><td class="rowh">챔버 4개 합 (합계 '+fmtN(tot(chA))+'분)</td><td>'+line(chA,'chamber',['run','bd','ev','pm','mask'])+'</td></tr>'+
+    '<tr><td class="rowh">블록 (합계 '+fmtN(tot(blA))+'분)</td><td>'+line(blA,'block',['quad','triple','degraded','wait_jc'])+'</td></tr>'+
+    '<tr><td class="rowh">세트 3개 합 (합계 '+fmtN(tot(stA))+'분)</td><td>'+line(stA,'set',['ready','dep','out','clean','xfer'])+'</td></tr>'+
+    '<tr><td class="rowh">세정기 (그날)</td><td>사용 중 평균 '+fmt(cavg,1)+'장 · 한도 '+CAP+'장에 꽉 찬 시간 '+fmtN(cfull)+'분 · 세정 대기열 평균 '+fmt(wavg,1)+'장, 최대 '+wq+'장</td></tr>';
+  var ntr=0;for(i=1;i<=4;i++)(BYID['chamber:'+s3.blk+'-CH'+i]||[]).forEach(function(x){if(x.t>=d0&&x.t<d1&&x.from==='run'&&x.to!=='run')ntr++;});
+  var nev=SIM.events.filter(function(e){return e.block===s3.blk&&e.chamber!=='ALL'&&['EQ-BD','Q-EVAP','EQ-PM','Q-MASK'].indexOf(e.reason)>=0&&e.start_min>=d0&&e.start_min<d1;}).length;
+  var eb=$('evChk');eb.className=ntr===nev?'state':'state moved';eb.textContent='그날 '+s3.blk+' 블록 챔버 정지가 시작된 횟수 — 전이 기록에서 센 값 '+ntr+'건, Loss 이벤트 표에서 다시 센 값 '+nev+'건'+(ntr===nev?'. 두 값이 같습니다.':'. 두 값이 다릅니다.');
+  /* 마스크 궤적 표 */
+  setT('mkName',s3.mk);
+  var rows=(BYID['mask:'+s3.mk]||[]).filter(function(x){return x.t>=d0&&x.t<d1;}),h='<tr><th>시각</th><th>상태 변화</th><th>원인</th><th>메모</th></tr>';
+  rows.forEach(function(x){h+='<tr><td class="n">'+hm(x.t).slice(6)+'</td><td>'+(x.from==='init'?'—':STKO.mask[x.from])+' → '+STKO.mask[x.to]+'</td><td>'+(TRIG[x.trigger]||x.trigger)+'</td><td>'+(x.cause?esc(x.cause.replace('age=','사용 ')+(x.cause.indexOf('age=')===0?'번째 턴 전':'')):'')+'</td></tr>';});
+  if(!rows.length){var cs=ivs('mask:'+s3.mk,d0,d1)[0];h+='<tr><td colspan="4">이 날은 이 마스크의 상태 변화가 없습니다. 하루 내내 &lsquo;'+(cs?STKO.mask[cs.st]:'—')+'&rsquo; 상태였습니다.</td></tr>';}
+  $('tabTraj').innerHTML=h;
+  draw3();
+}
+function draw3(){
+  var d0=(s3.day-1)*1440,d1=d0+1440,cv=$('cv3'),c=setup(cv,300),x=c.x,W=c.w,H=c.h,soft=css('--soft'),rule=css('--rule'),ink=css('--ink');
+  x.clearRect(0,0,W,H);
+  var pl=58,pr=10,pw=W-pl-pr,rh=15,gp=6,rows=[],i,y=8;
+  for(i=1;i<=4;i++)rows.push(['CH'+i,'chamber:'+s3.blk+'-CH'+i,CSC]);
+  MS.SETS.forEach(function(sn){rows.push(['세트 '+sn,'set:'+s3.blk+'-'+sn,SSC]);});
+  rows.push(['블록','block:'+s3.blk,BSC]);rows.push(['마스크','mask:'+s3.mk,MSC]);
+  function X(t){return pl+(t-d0)/1440*pw;}
+  x.font='11px sans-serif';
+  rows.forEach(function(r){
+    x.fillStyle=soft;x.textAlign='right';x.fillText(r[0],pl-6,y+rh-3);
+    x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(pl+.5,y+.5,pw-1,rh-1);
+    ivs(r[1],d0,d1).forEach(function(v){var cc=r[2][v.st]||['--soft',.5];x.globalAlpha=cc[1];x.fillStyle=css(cc[0]);x.fillRect(X(v.a),y+1,Math.max(1,X(v.b)-X(v.a)),rh-2);x.globalAlpha=1;});
+    y+=rh+gp;
+  });
+  var cy=y+8,chh=64,mx=30,i2,wmax=0;
+  for(i2=d0;i2<d1;i2++)wmax=Math.max(wmax,CWAIT[Math.min(END,i2)]);
+  var ymax=Math.max(36,Math.ceil(wmax/6)*6);
+  function Y(v){return cy+chh-v/ymax*chh;}
+  x.strokeStyle=rule;x.strokeRect(pl+.5,cy+.5,pw-1,chh-1);
+  x.strokeStyle=css('--bad');x.setLineDash([5,4]);x.beginPath();x.moveTo(pl,Y(CAP));x.lineTo(W-pr,Y(CAP));x.stroke();x.setLineDash([]);
+  x.fillStyle=soft;x.textAlign='right';x.fillText('0',pl-6,Y(0));x.fillText(String(CAP),pl-6,Y(CAP)+4);
+  function curve(arr,col,fill){
+    x.beginPath();x.moveTo(X(d0),Y(0));
+    for(var t=d0;t<=d1;t+=3){x.lineTo(X(t),Y(arr[Math.min(END,t)]));}
+    x.lineTo(X(d1),Y(0));
+    if(fill){x.globalAlpha=.18;x.fillStyle=col;x.fill();x.globalAlpha=1;}
+    x.strokeStyle=col;x.lineWidth=1.5;x.stroke();
+  }
+  curve(CLEANING,css('--accent'),true);curve(CWAIT,css('--warn'),false);
+  x.textAlign='left';x.fillStyle=css('--bad');x.fillText('한도 '+CAP,W-pr-48,Y(CAP)-3);
+  x.fillStyle=soft;x.textAlign='center';
+  for(i2=0;i2<=24;i2+=3){x.fillText(i2+'시',X(d0+i2*60),cy+chh+14);x.strokeStyle=rule;x.beginPath();x.moveTo(X(d0+i2*60)+.5,8);x.lineTo(X(d0+i2*60)+.5,cy+chh);x.globalAlpha=.4;x.stroke();x.globalAlpha=1;}
+  x.textAlign='left';
+  /* 범례 */
+  var lg='';
+  function legend(kind,m,order){lg+='<span><b>'+({chamber:'챔버',set:'세트',block:'블록',mask:'마스크'})[kind]+'</b> ';order.forEach(function(k){lg+='<span class="dot" style="background:'+mixDot(m[k][0],m[k][1])+'"></span>'+STKO[kind][k]+' ';});lg+='</span>';}
+  legend('chamber',CSC,['run','bd','ev','pm','mask']);legend('set',SSC,['ready','dep','out','clean','xfer']);legend('block',BSC,['quad','triple','degraded','wait_jc']);legend('mask',MSC,['stock','in_use','to_clean','clean_wait','cleaning','held','to_stock','repair']);lg+='<span><b>아래 곡선</b> <span class="sw" style="border-color:var(--accent)"></span>세정 중 장수 <span class="sw" style="border-color:var(--warn)"></span>세정 대기열 <span class="sw" style="border-color:var(--bad);border-top-style:dashed"></span>한도</span>';
+  $('lg3').innerHTML=lg;
+}
+
+/* ---- 4절: 전이 요청 ---- */
+function maskIds(b){var a=[];MS.SETS.forEach(function(sn){for(var n=1;n<=4;n++)a.push(b+'-'+sn+n);});return a;}
+function fillMk4(){var s=$('mk4'),cur=s.value;s.innerHTML='';maskIds($('blk4').value).forEach(function(id){var o=document.createElement('option');o.value=id;o.textContent=id;s.appendChild(o);});if(cur&&cur.indexOf($('blk4').value)===0)s.value=cur;}
+(function(){var s=$('to4');ESTC.entities[0].states.forEach(function(st){var o=document.createElement('option');o.value=st.id;o.textContent=st.ko+' ('+st.id+')';s.appendChild(o);});$('t4').max=String(END-1);})();
+function findPresets(){
+  var st={},rp={},cl=0,cq=0,P={},i=0,n=TR.length,k,key;
+  function ap(x){st[x.entity+':'+x.id]=x.to;if(x.entity==='mask'){if(x.to==='repair')rp[x.id]=1;else if(x.to==='stock'||x.to==='in_use'||x.to==='to_clean')delete rp[x.id];if(x.to==='cleaning')cl++;if(x.from==='cleaning')cl--;if(x.to==='clean_wait')cq++;if(x.from==='clean_wait')cq--;}}
+  while(i<n){
+    var t=TR[i].t,j=i;while(j<n&&TR[j].t===t){ap(TR[j]);j++;}
+    if(t>3000){
+      if(!P.full&&cl>=CAP&&cq>0){for(key in st)if(key.indexOf('mask:')===0&&st[key]==='clean_wait'){P.full={t:t,id:key.slice(5),to:'cleaning'};break;}}
+      for(k=i;k<j;k++){
+        var x=TR[k];if(x.entity!=='mask'||st['mask:'+x.id]!==x.to)continue;var m=MS.parseMaskId(x.id);
+        if(!P.notab&&x.to==='clean_wait')P.notab={t:t,id:x.id,to:'held'};
+        if(!P.human&&x.to==='in_use')P.human={t:t,id:x.id,to:'scrapped'};
+        if(!P.okay&&x.to==='to_stock')P.okay={t:t,id:x.id,to:'stock'};
+        if(!P.setback&&x.to==='held'){var bad=0;for(var q=1;q<=4;q++){var oid=m.block+'-'+m.set+q,os=st['mask:'+oid];if(oid===x.id)continue;if(os==='held'||os==='to_stock'||os==='stock'||os==='repair'||(rp[oid]&&(os==='clean_wait'||os==='cleaning')))continue;bad++;}if(bad)P.setback={t:t,id:x.id,to:'to_stock'};}
+        if(!P.setready&&x.to==='stock'&&x.trigger==='stocker_in'&&st['set:'+m.block+'-'+m.set]==='ready'){for(var s2=0;s2<3;s2++)if(st['set:'+m.block+'-'+MS.SETS[s2]]==='dep'){P.setready={t:t,id:x.id,to:'in_use'};break;}}
+      }
+    }
+    i=j;
+  }
+  return P;
+}
+var PRE=findPresets();
+var s4={t:0,id:'',to:''};
+function setS4(p){s4=p;$('t4').value=String(p.t);var b=MS.parseMaskId(p.id).block;$('blk4').value=b;fillMk4();$('mk4').value=p.id;$('to4').value=p.to;upd4();}
+function upd4(){
+  if(!$('mk4').value)return;
+  var t=+$('t4').value,id=$('mk4').value,to=$('to4').value,snap=MS.stateAt(TR,t),m=MS.parseMaskId(id),cur=snap.states['mask:'+id]||'init';
+  setT('t4o',hm(t)+' (기록 '+fmtN(t)+'분)');
+  var sst=snap.states['set:'+m.block+'-'+m.set]||'—',oth=[];for(var q=1;q<=4;q++){var oid=m.block+'-'+m.set+q;oth.push(oid.slice(-2)+' '+(STKO.mask[snap.states['mask:'+oid]]||'—'));}
+  $('tab4').innerHTML='<tr><th>그 시각의 값</th><th>내용</th></tr>'+
+    '<tr><td class="rowh">마스크 '+id+'의 현재 상태</td><td>'+(STKO.mask[cur]||cur)+'</td></tr>'+
+    '<tr><td class="rowh">세정기 사용 중 / 한도</td><td><b>'+snap.cleaning+' / '+CAP+'</b>장</td></tr>'+
+    '<tr><td class="rowh">세정 대기열</td><td>'+snap.clean_wait+'장</td></tr>'+
+    '<tr><td class="rowh">세트 '+m.block+'-'+m.set+'의 상태</td><td>'+(STKO.set[sst]||sst)+'</td></tr>'+
+    '<tr><td class="rowh">세트의 마스크 네 장</td><td>'+oth.join(' · ')+'</td></tr>';
+  var r=MS.requestTransition(snap,'mask',id,to,CAP);
+  var box=$('res4');box.style.borderColor=r.ok?css('--good'):css('--bad');
+  box.innerHTML='<b>'+(r.ok?'허용':'거절')+'</b> — '+(STKO.mask[r.from]||r.from)+' → '+(STKO.mask[to]||to)+'. '+esc(r.reason)+'.'+(r.kind==='ok'?' 이 요청은 실행됩니다.':r.kind==='needs_human'?' 사람이 승인하면 실행됩니다.':' 이 요청은 실행되지 않고 이유와 함께 보고서에 적힙니다.');
+  var base=(PRE.full&&t===PRE.full.t&&id===PRE.full.id&&to==='cleaning');
+  stateBox($('st4'),base,'지금 이 값이 기준 예시(세정기가 가득 찬 때, 대기 중인 마스크의 세정 요청)입니다.','지금은 기준 예시에서 옮겨 놓은 값입니다. 위 단추로 예시로 돌아갈 수 있습니다.');
+}
+$('t4').addEventListener('input',upd4);$('mk4').addEventListener('change',upd4);$('to4').addEventListener('change',upd4);
+$('blk4').addEventListener('change',function(){fillMk4();upd4();});
+Array.prototype.forEach.call(document.querySelectorAll('[data-pre]'),function(b){b.addEventListener('click',function(){var p=PRE[this.getAttribute('data-pre')];if(p)setS4(p);});});
+
+/* ---- 5절: 제약 검사 ---- */
+var W5={kind:null,rows:TR,desc:''};
+function clone(a){return a.map(function(x){return {t:x.t,entity:x.entity,id:x.id,from:x.from,to:x.to,trigger:x.trigger,cause:x.cause};});}
+function idxOf(rows,f){var a=[];for(var i=0;i<rows.length;i++)if(f(rows[i]))a.push(i);return a;}
+function brk(kind){
+  var rows=clone(TR),HT=idxOf(rows,function(x){return x.entity==='mask'&&x.from==='held'&&x.to==='to_stock';});
+  if(kind==='del'){var i=HT[100],r=rows[i];rows.splice(i,1);return {rows:rows,desc:'지운 줄: '+hm(r.t)+' '+r.id+' '+STKO.mask[r.from]+' → '+STKO.mask[r.to]};}
+  if(kind==='swap'){var j=HT[200],k=-1;for(var q=j+1;q<rows.length;q++)if(rows[q].id===rows[j].id){k=q;break;}['from','to','trigger','cause'].forEach(function(f){var a=rows[j][f];rows[j][f]=rows[k][f];rows[k][f]=a;});return {rows:rows,desc:'맞바꾼 줄: '+rows[j].id+' 의 연속한 두 전이('+hm(rows[j].t)+', '+hm(rows[k].t)+')'};}
+  var c=0,n=0,full=-1,i2;
+  for(i2=0;i2<rows.length;i2++){var x=rows[i2];if(x.entity!=='mask')continue;if(x.to==='cleaning')c++;if(x.from==='cleaning')c--;if(c===CAP){n++;if(n===51){full=i2;break;}}}
+  var tf=rows[full].t,ci=-1;
+  for(i2=full+1;i2<rows.length;i2++){var y=rows[i2];if(y.entity==='mask'&&y.to==='cleaning'){var pv=null;for(var q2=i2-1;q2>=0;q2--)if(rows[q2].id===y.id){pv=rows[q2];break;}if(pv&&pv.t<=tf){ci=i2;break;}}}
+  var rid=rows[ci].id,told=rows[ci].t;rows[ci].t=tf;rows.sort(function(a,b){return a.t-b.t;});
+  return {rows:rows,desc:'당긴 줄: '+rid+' 의 세정 시작을 '+hm(told)+'에서 세정기가 가득 찬 '+hm(tf)+'로'};
+}
+var RULES=[['C1','세정 중인 마스크가 동시에 한도(27장)를 넘음'],['C2','한 블록에 증착 중인 세트가 둘 이상'],['C3','직전 상태와 다음 줄의 출발 상태가 이어지지 않음'],['C4','챔버 체류 합이 기록 기간과 다름'],['T0','표에 없는 전이'],['T1','시각이 거꾸로']];
+function upd5(){
+  var r=MS.estcCheck(W5.rows,{end:END}),base=W5.kind===null;
+  stateBox($('st5'),base,'지금 이 값이 원래 기록입니다. 전이 '+fmtN(TR.length)+'줄, 위반 '+fmtN(CHK0.violations.length)+'건.','지금은 일부러 망가뜨린 기록입니다. '+W5.desc+'. 되돌리려면 [원래대로]를 누르십시오.');
+  var h='<tr><th>규칙</th><th>무엇을 잡나</th><th>위반 건수</th></tr>';
+  RULES.forEach(function(q){var n=r.counts.by_rule[q[0]]||0;h+='<tr><td class="rowh">'+q[0]+'</td><td>'+q[1]+'</td><td'+(n?' class="hit"':'')+'>'+fmtN(n)+'</td></tr>';});
+  h+='<tr><td class="rowh">합계</td><td>검사한 전이 '+fmtN(W5.rows.length)+'줄</td><td><b>'+fmtN(r.violations.length)+'</b></td></tr>';
+  $('tab5').innerHTML=h;
+  var hv='<tr><th>규칙</th><th>시각</th><th>개체</th><th>내용</th></tr>';
+  r.violations.slice(0,6).forEach(function(v){hv+='<tr><td class="rowh">'+v.rule+'</td><td class="n">'+hm(v.t)+'</td><td>'+esc(v.id)+'</td><td>'+esc(v.detail)+'</td></tr>';});
+  if(!r.violations.length)hv+='<tr><td colspan="4">위반이 없습니다.</td></tr>';
+  $('tab5v').innerHTML=hv;
+  [['bDel','del'],['bSwap','swap'],['bPush','push']].forEach(function(p){$(p[0]).setAttribute('aria-pressed',W5.kind===p[1]?'true':'false');});
+}
+[['bDel','del'],['bSwap','swap'],['bPush','push']].forEach(function(p){$(p[0]).addEventListener('click',function(){var b=brk(p[1]);W5={kind:p[1],rows:b.rows,desc:b.desc};upd5();});});
+$('bRst').addEventListener('click',function(){W5={kind:null,rows:TR,desc:''};upd5();});
+
+/* ---- 6절: 사례 은행 ---- */
+function stopMin(c){var m=/(\d+)분/.exec(c.evidence[0].value);return m?+m[1]:0;}
+function impact(c){return c.entity==='mask'?stopMin(c)+c.outcome.absent_min:c.outcome.value;}
+var RES_KO={recurred:'다시 불량',not_recurred:'정상 반납',censored:'미확인',early_jc:'조기 잡 체인지',no_early_jc:'정상 주기'};
+var s6={f:'all',o:'t',n:12};
+(function(){$('caseJson').textContent=JSON.stringify(FEAT,null,2);$('caseText').textContent=LOGS.join('\n');setT('sd_n',40);})();
+function upd6(){
+  var a=CASES.filter(function(c){return s6.f==='all'||(s6.f==='mask'?c.entity==='mask':c.entity==='block');});
+  a=a.slice().sort(function(p,q){return s6.o==='t'?(p.case_id<q.case_id?-1:1):impact(q)-impact(p);});
+  var show=a.slice(0,s6.n),h='<tr><th>사례</th><th>감지 시각</th><th>개체</th><th>판단</th><th>결과</th><th>영향 (분)</th></tr>';
+  show.forEach(function(c){h+='<tr><td class="rowh">'+c.case_id+'</td><td class="n">'+c.t_detect.slice(5)+'</td><td>'+c.id+'</td><td>'+(c.entity==='mask'?'불량 표시 → 리페어':'잡 체인지 대기 · '+esc(c.evidence[0].value.split(' ')[0]))+'</td><td>'+RES_KO[c.label]+'</td><td>'+fmtN(impact(c))+'</td></tr>';});
+  $('tabCase').innerHTML=h;
+  $('st6').className='state';$('st6').textContent='전체 '+fmtN(a.length)+'건 가운데 '+fmtN(show.length)+'건을 보고 있습니다. 영향 분은 마스크 불량 사례에서는 챔버 정지 분과 리페어 중 다시 선 분의 합, 잡 체인지 대기 사례에서는 대기 분입니다.';
+  $('more6').disabled=show.length>=a.length;
+}
+$('f6').addEventListener('change',function(){s6.f=this.value;s6.n=12;upd6();});$('o6').addEventListener('change',function(){s6.o=this.value;upd6();});$('more6').addEventListener('click',function(){s6.n+=12;upd6();});
+var AGG={};
+(function(){
+  var q=CASES.filter(function(c){return c.entity==='mask';}),w=CASES.filter(function(c){return c.entity==='block';});
+  function cnt(a,l){return a.filter(function(c){return c.label===l;}).length;}
+  var rec=cnt(q,'recurred'),nr=cnt(q,'not_recurred'),ce=cnt(q,'censored'),ab=q.reduce(function(s,c){return s+c.outcome.absent_min;},0),st=q.reduce(function(s,c){return s+stopMin(c);},0);
+  var by={};w.forEach(function(c){var r=c.evidence[0].value.split(' ')[0],o=by[r]||(by[r]={n:0,v:0,e:0});o.n++;o.v+=c.outcome.value;if(c.label==='early_jc')o.e++;});
+  var h='<tr><th>구분</th><th>건</th><th>분 (합)</th><th>결과 칸</th></tr>';
+  h+='<tr><td class="rowh">마스크 불량 → 리페어</td><td>'+fmtN(q.length)+'</td><td>정지 '+fmtN(st)+' + 리페어 중 다시 선 '+fmtN(ab)+'</td><td>다시 불량 <b>'+rec+'</b>건 · 정상 반납 '+nr+'건 · 미확인 '+ce+'건</td></tr>';
+  Object.keys(by).sort(function(a,b){return by[b].v-by[a].v;}).forEach(function(r){var o=by[r];h+='<tr><td class="rowh">잡 체인지 대기 · '+r+'</td><td>'+o.n+'</td><td>'+fmtN(o.v)+'</td><td>조기 잡 체인지가 뒤따른 것 '+o.e+'건</td></tr>';});
+  $('tabAgg').innerHTML=h;
+  var top=Object.keys(by).sort(function(a,b){return by[b].v-by[a].v;})[0],judged=rec+nr;
+  AGG={nq:q.length,rec:rec,nr:nr,ce:ce,ab:ab,st:st,nw:w.length,top:top,by:by,judged:judged};
+  $('conclAgg').innerHTML='<b>&lsquo;마스크 불량 → 리페어&rsquo;로 판단한 '+fmtN(judged)+'건 가운데 다시 불량이 난 것은 '+rec+'건('+pct(judged?rec/judged:0,1)+'%)입니다.</b> 같은 판단이 맞았는지는 이 결과 칸이 채워져야 알 수 있고, 건수가 작으면 한 건이 비율을 크게 흔듭니다. 잡 체인지 대기는 '+w.length+'건 가운데 분이 가장 큰 사유가 '+top+'(합 '+fmtN(by[top].v)+'분)입니다.';
+})();
+var SDONE=null;
+$('sdBtn').addEventListener('click',function(){
+  var btn=this,st=$('sdSt'),N=40,res=[],i=0;btn.disabled=true;
+  function step(){
+    if(i>=N){fin();return;}
+    var s=MS.simulateLoss({trace:true,seed:i+1}),c=MS.caseRecords(s),m=MS.estcMetrics(s,c);res.push(m);i++;
+    st.className='state';st.textContent='공장을 뽑는 중입니다… '+i+' / '+N;setTimeout(step,0);
+  }
+  function fin(){
+    var rows=[['마스크 한 바퀴 중 짝 대기 비율','held_frac',function(v){return pct(v,2)+'%';}],['마스크 한 바퀴 중 세정 대기 비율','wait_frac',function(v){return pct(v,2)+'%';}],['잡 체인지 대기 건수 (60일)','wait_jc',function(v){return fmtN(v)+'건';}],['마스크 불량 사례 중 다시 불량 비율','qmask_recur',function(v){return pct(v,1)+'%';}]];
+    var h='<tr><th>지표</th><th>이 화면의 공장</th><th>중앙값 (10~90%)</th><th>이 공장의 위치</th></tr>';
+    rows.forEach(function(r){var a=res.map(function(m){return m[r[1]];}),me=MET[r[1]],lo=a.filter(function(v){return v<me;}).length+0.5*a.filter(function(v){return v===me;}).length,p=lo/a.length;
+      h+='<tr><td class="rowh">'+r[0]+'</td><td>'+r[2](me)+'</td><td>'+r[2](quant(a,.5))+' ('+r[2](quant(a,.1))+' ~ '+r[2](quant(a,.9))+')</td><td'+((p<.1||p>.9)?' class="hit"':'')+'>'+Math.round(p*100)+'%</td></tr>';});
+    $('tabSd').innerHTML=h;st.className='state';st.textContent='공장 '+N+'벌을 뽑았습니다. 붉게 표시된 칸은 이 화면의 공장이 분포의 10% 아래이거나 90% 위에 있다는 뜻이며, 그 지표는 이 공장의 숫자가 아니라 분포의 숫자로 말해야 합니다.';
+    btn.disabled=false;SDONE=res;updG();
+  }
+  step();
+});
+
+/* ---- 7절: 착지 ---- */
+(function(){
+  var useRow=null,i;for(i=0;i<MROWS.length;i++)if(MROWS[i].to==='in_use'&&MROWS[i].t<=tFail)useRow=MROWS[i];
+  var hk=-1;for(i=0;i<MROWS.length;i++)if(MROWS[i].t<useRow.t&&MROWS[i].to==='held')hk=i;
+  var held=hk>=0?MROWS[hk+1].t-MROWS[hk].t:null,age=+useRow.cause.slice(4),prev=MROWS.filter(function(x){return x.to==='repair'&&x.t<tRep;}).length,nUse=MROWS.filter(function(x){return x.to==='in_use'&&x.t<=tFail;}).length;
+  var o=FEAT.outcome;
+  $('land').innerHTML=
+    '<p style="margin:0 0 .5rem"><b>그 마스크가 세정 뒤 짝을 몇 분 기다렸나?</b> '+(held==null?'이 기록 안에서는 앞선 세정이 없습니다.':FEAT.id+'는 장착되기 앞의 세정을 마친 뒤 세트의 나머지를 <b>'+fmtN(held)+'분</b> 기다렸습니다(짝 대기).')+'</p>'+
+    '<p style="margin:0 0 .5rem"><b>같은 마스크가 전에도 그랬나?</b> '+FEAT.id+'는 이번 장착 때 이미 <b>'+age+'턴</b>을 쓴 마스크였고, 이 기록 안에서 앞서 불량 표시가 붙은 적은 <b>'+prev+'번</b> 있습니다. 기록이 60일뿐이라 그 앞은 알 수 없습니다.</p>'+
+    '<p style="margin:0"><b>리페어 뒤에는 어떻게 되었나?</b> 마스크는 '+(tBack==null?'기록 끝까지 돌아오지 않았고':hm(tBack)+'에 세트로 돌아왔고')+', '+(o.result==='미확인'?'다시 쓰인 기록이 아직 없습니다':'다시 쓰인 턴은 <b>'+o.result+'</b>(그 턴에서 '+fmtN(o.value)+'분 사용)이었습니다')+'. 리페어로 빠져 있는 동안 세트가 먼저 장착되어 이 챔버는 <b>'+fmtN(o.absent_min)+'분</b> 더 섰습니다.</p>';
+  $('land3').innerHTML='위 답으로 세 물음에 답합니다. <b>1) 왜 합쳐 '+fmtN(m1+m2)+'분을 섰나</b> — 마스크 불량 정지('+fmtN(m1)+'분)에서 끝나지 않고, 리페어에 보낸 마스크가 세트에 돌아오기 전에 그 세트가 먼저 장착되어 챔버가 마스크 없이 '+fmtN(m2)+'분 더 섰기 때문입니다. <b>2) 다시 그러지 않으려면</b> &lsquo;세트에 리페어 중인 마스크가 있는가&rsquo;를 장착 가드에 넣거나 그 세트의 장착을 마스크가 돌아올 때까지 미루는 규칙을 검토해야 합니다. 이것은 공정 규칙을 바꾸는 일이라 사람이 정합니다. <b>3) 에이전트가 맡아도 되는 범위</b>는 아래 표와 같습니다.';
+})();
+
+/* ---- 8절: 성과 환산 ---- */
+var G0={a:3,b:60,p:Math.round(AGG.judged?AGG.rec/AGG.judged*200:0)/2};var gS={a:G0.a,b:G0.b,p:G0.p};
+function updG(){
+  var f=30/DAYS,nAll=CASES.length*f,nQ=AGG.nq*f,rec=nQ*gS.p/100;
+  setT('gAo',gS.a+'분');setT('gBo',gS.b+'분');setT('gPo',fmt(gS.p,1)+'%');
+  var cost=nAll*gS.a,save=rec*gS.b,pstar=nQ*gS.b>0?nAll*gS.a/(nQ*gS.b):NaN;
+  $('tabG').innerHTML='<tr><th>한 달(30일) 환산</th><th>값</th></tr>'+
+    '<tr><td class="rowh">사례 수 (전체)</td><td>'+fmt(nAll,1)+'건</td></tr>'+
+    '<tr><td class="rowh">그중 마스크 불량 사례</td><td>'+fmt(nQ,1)+'건</td></tr>'+
+    '<tr><td class="rowh">사례를 적는 시간</td><td>'+fmtN(cost)+'분 ('+fmt(cost/60,1)+'시간)</td></tr>'+
+    '<tr><td class="rowh">다시 난 마스크 불량 (재발 '+fmt(gS.p,1)+'%)</td><td>'+fmt(rec,1)+'건</td></tr>'+
+    '<tr><td class="rowh">줄어드는 재조사 시간</td><td>'+fmtN(save)+'분 ('+fmt(save/60,1)+'시간)</td></tr>'+
+    '<tr><td class="rowh">본전이 되는 재발 비율 <i>p</i>*</td><td><b>'+fmt(pstar*100,1)+'%</b></td></tr>';
+  var base=gS.a===G0.a&&gS.b===G0.b&&isBase(gS.p,G0.p);
+  stateBox($('stG'),base,'지금 이 값이 기준 설정입니다. 기록 '+G0.a+'분, 재조사 '+G0.b+'분, 재발 비율은 사례 결과 칸에서 계산한 '+fmt(AGG.judged?AGG.rec/AGG.judged*100:0,2)+'%(슬라이더 눈금 '+fmt(G0.p,1)+'%).','지금은 기준에서 옮겨 놓은 가정입니다. 기록 '+G0.a+' → '+gS.a+'분, 재조사 '+G0.b+' → '+gS.b+'분, 재발 '+fmt(G0.p,1)+' → '+fmt(gS.p,1)+'%.');
+  $('conclG').innerHTML=(gS.p/100>=pstar?'<b>이 설정에서는 줄어드는 재조사 시간('+fmtN(save)+'분)이 사례를 적는 시간('+fmtN(cost)+'분)보다 큽니다.</b>':'<b>이 설정에서는 사례를 적는 시간('+fmtN(cost)+'분)이 줄어드는 재조사 시간('+fmtN(save)+'분)보다 큽니다.</b>')+' 본전이 되려면 마스크 불량 사례의 '+fmt(pstar*100,1)+'% 이상이 다시 나야 합니다. 이 가상 공장의 재발은 그보다 '+(G0.p/100>=pstar?'크지만':'훨씬 드물어')+', 재조사 시간만으로는 사례 은행의 값을 설명하지 못합니다. 쌓인 사례가 값을 갖는 곳은 7절의 판정을 에이전트가 근거와 함께 이어받는 일입니다.'+(SDONE?' 6절에서 뽑은 공장 '+SDONE.length+'벌의 재발 비율 중앙값은 '+pct(quant(SDONE.map(function(v){return v.qmask_recur;}),.5),1)+'%입니다.':'');
+  setT('gn_a',G0.a);setT('gn_b',G0.b);
+}
+$('gA').addEventListener('input',function(){gS.a=+this.value;updG();});$('gB').addEventListener('input',function(){gS.b=+this.value;updG();});$('gP').addEventListener('input',function(){gS.p=+this.value;updG();});
+$('rG').addEventListener('click',function(){gS={a:G0.a,b:G0.b,p:G0.p};$('gA').value=String(G0.a);$('gB').value=String(G0.b);$('gP').value=String(G0.p);updG();});
+$('gP').value=String(G0.p);
+
+/* ---- 9·10절 ---- */
+(function(){
+  function csvText(){var s='t,entity,id,from,to,trigger,cause\n',i;for(i=0;i<TR.length;i++){var r=TR[i];s+=r.t+','+r.entity+','+r.id+','+r.from+','+r.to+','+r.trigger+','+r.cause+'\n';}return s;}
+  $('csvBtn').addEventListener('click',function(){
+    var st=$('csvState');
+    try{var blob=new Blob([csvText()],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mask_transitions.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: mask_transitions.csv ('+fmtN(TR.length)+'행, 열 t·entity·id·from·to·trigger·cause).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  });
+  $('rp_fields').innerHTML=MS.CASE_SCHEMA.fields.map(function(f){return '<code>'+f.name+'</code>'+(f.required?'':'(선택)')+' — '+esc(f.desc);}).join('<br>');
+  $('rp_ex').innerHTML='사례 <code>'+FEAT.case_id+'</code> · '+FEAT.t_detect+' · 개체 <code>'+FEAT.id+'</code> · '+esc(FEAT.decision.why)+' · 행동 '+FEAT.action.transition.from+'→'+FEAT.action.transition.to+' · 결과 '+esc(FEAT.outcome.result)+' · 이름표 <code>'+FEAT.label+'</code>';
+})();
+
+/* ---- 다시 그리기 ---- */
+function redraw(){draw2();upd3();upd4();}
+window.addEventListener('resize',redraw);
+
+/* ---- 테마·상단바 ---- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+draw2();upd3();setS4(PRE.full||{t:0,id:FB+'-A1',to:'in_use'});upd5();upd6();updG();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

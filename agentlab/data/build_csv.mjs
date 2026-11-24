@@ -30,6 +30,9 @@ csv('s6_false_alarm.csv', S.S6.csvRows());
 const sim = M.simulateLoss();
 csv('loss_events.csv', sim.events, ['event_id', 'start_ts', 'end_ts', 'block', 'chamber', 'reason', 'root_cause', 'caused_by_block', 'run_mode', 'mask_set', 'turn', 'loss_chamber_min', 'loss_glass']);
 csv('loss_hourly.csv', sim.hourly);
+// ESTC 전이 기록(같은 공장·같은 시드, 기록 훅만 켠 실행): 마스크·세트·챔버·블록의 상태 전이를 한 줄씩. t = 시작부터 분
+const simT = M.simulateLoss({ trace: true });
+csv('mask_transitions.csv', simT.transitions, ['t', 'entity', 'id', 'from', 'to', 'trigger', 'cause']);
 const gl = M.glassHistory(sim, { block: 'B03', turnFrom: 0, turnTo: 5 });
 csv('fdc_features.csv', M.fdcTable(gl, sim));
 

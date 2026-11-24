@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy 로 시나리오의 숨은 성질을 검사합니다(`python3 verify.py`, 22항목) |
+| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층을 검사합니다(`python3 verify.py`, 77항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -33,4 +33,18 @@
 - `fdc_features.csv` — B03 의 5개 턴 유리별 특징. `p_steady_mean, p_steady_std, p_max_dev, p_settle_s, p_overshoot_pct, rate_ang_s, pm_flag(PM 이후=1), true_anomaly, anomaly_type, interlock, interlock_true`(가성 인터락 = interlock 1 이고 interlock_true 0).
 - `loss_events.csv` — 60일 Loss 사건. `event_id, start_ts, end_ts, block, chamber(CH1~4 또는 ALL), reason(직접 사유), root_cause(1차 원인), caused_by_block, run_mode(quad/triple/degraded), mask_set, turn, loss_chamber_min, loss_glass`. 사유는 명세의 11개 코드와 `LB-LINE`(라인 밸런스: 앞뒤 블록 때문에 굶거나 막힌 손실, 90 챔버·분 미만은 생략)입니다. `reason` 과 `root_cause` 가 다른 행이 연쇄의 흔적입니다.
 - `loss_hourly.csv` — 1시간 단위 상태. `ts, stocker_fill, cleaner_queue, cleaner_busy, cassette_free, transport_requests, blocks_triple, blocks_idle, line_wip, line_out`.
+- `mask_transitions.csv` — ESTC 전이 기록(기본 시드 60일, `simulateLoss({trace:true})`). `t`(시작부터 분), `entity`(mask·set·chamber·block), `id`(마스크 `B03-A2`·세트 `B03-A`·챔버 `B03-CH2`·블록 `B03`), `from, to`(처음은 `init`), `trigger`(원인), `cause`(마스크 장착 때 `age=N`, 정지·막힘 때 사유 코드). 10만 줄이 넘고, 마스크·세트·챔버·블록 네 종류가 한 파일에 `entity` 열로 구분되어 있습니다. 허용 전이 표·제약은 `MfgSim.ESTC` 가 같은 내용을 갖고 있습니다.
 - `truth.json` — 시나리오 숨은 정답과 JS 자체 점검값. 학습자에게 답을 보이기 전에는 열지 않습니다.
+
+## ESTC 층 (공정 상태 모델, 실험실 0206)
+
+`simulateLoss({trace:true})` 일 때만 기존 상태 변경 지점에서 전이를 기록합니다. 기록 훅은 난수를 부르지 않고 읽기만 하므로 켜도 `events·hourly·turns` 가 켜지 않았을 때와 같고(검사됨), 켜지 않은 반환값에는 키가 늘지 않습니다. 켠 반환값은 `transitions, resources(1시간 단위 세정 중·대기열·stocker·카세트), end` 가 더 붙습니다.
+
+| 함수·값 | 설명 |
+|---|---|
+| `MfgSim.ESTC` | 개체 8종·상태·허용 전이 표(`entity, from, to, trigger, guard, guard_id, reversible, needs_human`)·제약 C1~C6. 순수 데이터라 화면·파이썬이 같은 표를 씁니다 |
+| `estcCheck(transitions, {end})` | 표에 없는 전이(T0)·시각 거꾸로(T1)·이음새(C3)·세정 동시 수(C1)·블록당 증착 세트(C2)·챔버 체류 합(C4). `{ok, violations, counts}` |
+| `dwell(transitions, id, end)` · `trajectory(transitions, id, t0, t1)` · `stateAt(transitions, t)` | 체류 분·궤적·시각 t 의 상태표 |
+| `requestTransition(snap, entity, id, to)` | 표에 있는가 → 사람 승인이 필요한가 → 가드 통과 순서의 판정 |
+| `CASE_SCHEMA` · `validateCase(rec)` · `caseRecords(sim)` · `featuredCase(cases)` | 사례 기록 양식과 검사, 시뮬레이션에서 뽑는 가상 사례(마스크 불량 → 리페어, 잡 체인지 대기 20분 이상) |
+| `estcMetrics(sim, cases)` | 핵심 지표 네 개(마스크 한 바퀴 중 짝 대기·세정 대기 비율, 잡 체인지 대기 건수, 마스크 불량 사례 중 다시 불량 비율). verify 가 시드 1~200 분포를 계산 |

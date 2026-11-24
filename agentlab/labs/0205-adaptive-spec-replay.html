@@ -152,7 +152,7 @@ table.mt td.n,table.mt th.n{white-space:nowrap}
 
 <main class="wrap">
 
-<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0204-small-shift-ewma-cusum.html">← 이전: 작은 변화 감지</a><span class="sp"></span></nav>
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0204-small-shift-ewma-cusum.html">← 이전: 작은 변화 감지</a><span class="sp"></span><a href="0206-process-state-model.html">다음: 공정을 상태와 전이로 적기 →</a></nav>
 
 <p><b>PM이나 부품 교체 뒤에는 정상 수준이 조금씩 다른 자리에 앉는데, 고정된 3σ 선은 그것을 이상으로 읽어 가성 인터락을 쌓습니다.</b> 이 실험실의 가상 기록 180일에서 현행 고정 3σ는 인터락 <span id="i_n"></span>건 가운데 <span id="i_fa"></span>건(<span id="i_pc"></span>%)이 가성이었습니다. 한계의 폭 <i>k</i>를 진성·가성 라벨이 붙은 과거 기록에 후보 spec을 다시 돌려 비용이 가장 작게 나오는 값으로 고르면, 한 번도 보지 않은 뒤 90일에서 가성이 <span id="i_f0"></span>건에서 고정 한계로는 <span id="i_f1"></span>건, PM마다 기준을 다시 잡는 적응형 한계로는 <span id="i_f2"></span>건이 됩니다. 놓친 유리는 <span id="i_m0"></span>장에서 각각 <span id="i_m1"></span>장, <span id="i_m2"></span>장입니다. 이 설비에서는 폭을 비용으로 고르는 일이 가장 큰 몫을 하고, 적응형 한계는 PM이 수준을 크게 옮기는 설비에서 앞섭니다(4절). 이 값은 가상 기록 한 벌에서 나온 결과입니다. 기록을 다시 뽑으면 값이 달라지며, 전형적인 값과 흔들림 폭은 9절의 반복 실험에서 봅니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
 
@@ -590,7 +590,7 @@ print(f"라벨 점검(현행 학습 90일 인터락 {a['n']}건): 판정 칸 비
   </div>
 </div>
 
-<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0204-small-shift-ewma-cusum.html">← 이전: 작은 변화 감지</a></nav>
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0204-small-shift-ewma-cusum.html">← 이전: 작은 변화 감지</a><a href="0206-process-state-model.html">다음: 공정을 상태와 전이로 적기 →</a></nav>
 </main>
 
 <script src="../data/mfgsim.js"></script>

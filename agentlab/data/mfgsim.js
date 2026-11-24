@@ -376,6 +376,17 @@
     var events = [], hourly = [], turns = [], reqHour = [], cleanQ = [], cleanRun = [], arrivals = [], repairBench = [];
     var fill = P.FILL_BASE, ou = 0, faultUntil = -1, nextFault = R.exp(P.FAULT_MEAN), reqNow = 0, outHour = 0;
     var blocks = [], b, c, s, i;
+    /* ---- ESTC 기록 훅(o.trace === true 일 때만 동작·난수 R 을 부르지 않고 상태를 읽기만 한다) ---- */
+    var TRACE = o.trace === true, trans = [], resTr = [], curSt = {};
+    function tr(t, ent, id, to, trig, cause) {
+      var key = ent + ':' + id, from = curSt[key] || 'init';
+      if (from === to) return;
+      trans.push({ t: t, entity: ent, id: id, from: from, to: to, trigger: trig, cause: cause || '' }); curSt[key] = to;
+    }
+    function trm(t, mk, to, trig, cause) { tr(t, 'mask', mk.id, to, trig, cause); }
+    function trs(t, S, to, trig) { tr(t, 'set', S.block + '-' + S.name, to, trig, ''); }
+    function trc(t, B, ci, to, trig, cause) { tr(t, 'chamber', B.id + '-CH' + (ci + 1), to, trig, cause); }
+    function mst(mk) { return curSt['mask:' + mk.id]; }
 
     function hr(t) { return Math.floor(t / 60); }
     function addReq(t, n) { var h = hr(t); reqHour[h] = (reqHour[h] || 0) + n; }
@@ -391,7 +402,7 @@
         B.ch.push({ st: 'run', until: 0, ev: null, reason: '', root: '', nextBD: R.exp(P.MTBF_BD), nextEV: R.exp(P.MTBF_EV), nextPM: pmOff, pmStart: -1 });
       }
       SETS.forEach(function (sn) {
-        var masks = []; for (var m = 0; m < 4; m++) masks.push({ ch: m, avail: true, age: R.int(10), failAt: -1, failed: false });
+        var masks = []; for (var m = 0; m < 4; m++) { masks.push({ ch: m, avail: true, age: R.int(10), failAt: -1, failed: false }); if (TRACE) masks[m].id = maskId(bid, sn, m + 1); }
         B.sets[sn] = { name: sn, block: bid, turn: 0, state: 'ready', readyAt: 0, pending: 0, masks: masks };
       });
       blocks.push(B);
@@ -411,12 +422,14 @@
     function enterDep(B, S, t) {
       S.state = 'dep'; S.turn++; B.dep = S; B.elapsed = 0; B.glass = [0, 0, 0, 0]; B.want = false; B.early = false;
       B.turnStart = t; B.doneAtTurn = B.done; B.turnNo++;
+      if (TRACE) trs(t, S, 'dep', 'job_change');
       for (var ci = 0; ci < 4; ci++) {
         var mk = S.masks[ci], ch = B.ch[ci];
         mk.failed = false; mk.failAt = -1;
         if (!mk.avail) {
-          if (ch.st === 'run') { ch.st = 'mask'; ch.reason = 'Q-MASK'; ch.root = 'Q-MASK'; ch.ev = openEv(t, B, B.id === '' ? '' : 'CH' + (ci + 1), 'Q-MASK', 'Q-MASK'); }
+          if (ch.st === 'run') { ch.st = 'mask'; ch.reason = 'Q-MASK'; ch.root = 'Q-MASK'; ch.ev = openEv(t, B, B.id === '' ? '' : 'CH' + (ci + 1), 'Q-MASK', 'Q-MASK'); if (TRACE) trc(t, B, ci, 'mask', 'mask_missing', 'Q-MASK'); }
         } else {
+          if (TRACE) trm(t, mk, 'in_use', 'job_change', 'age=' + mk.age);
           var pf = (B.fmm ? P.P_MASK0 : P.P_MASK0 * P.P_MASK_OPEN) + (B.fmm ? P.P_MASK_AGE : P.P_MASK_AGE * P.P_MASK_OPEN) * mk.age;
           if (R.u() < pf) mk.failAt = Math.floor(P.T_TURN * (0.1 + 0.8 * R.u()));
         }
@@ -428,12 +441,13 @@
                    glass: B.glass.map(function (g) { return Math.floor(g); }), early: B.early ? 1 : 0 });
       for (var ci = 0; ci < 4; ci++) {
         var mk = S.masks[ci], ch = B.ch[ci];
-        if (ch.st === 'mask') { closeEv(ch.ev, t); ch.st = 'run'; ch.ev = null; ch.nextBD = t + R.exp(P.MTBF_BD); ch.nextEV = t + R.exp(P.MTBF_EV); }
-        if (mk.failed) { mk.avail = false; repairBench.push({ mk: mk, doneAt: t + P.TR + R.lognormal(P.REPAIR_MED, 0.5), set: S }); }
-        else if (mk.avail) { mk.age++; arrivals.push({ at: t + P.TR, u: { set: S, mk: mk, repair: false } }); nUnits++; }
+        if (ch.st === 'mask') { closeEv(ch.ev, t); ch.st = 'run'; ch.ev = null; ch.nextBD = t + R.exp(P.MTBF_BD); ch.nextEV = t + R.exp(P.MTBF_EV); if (TRACE) trc(t, B, ci, 'run', 'set_leave', 'Q-MASK'); }
+        if (mk.failed) { mk.avail = false; repairBench.push({ mk: mk, doneAt: t + P.TR + R.lognormal(P.REPAIR_MED, 0.5), set: S }); if (TRACE) trm(t, mk, 'repair', 'turn_end_defect', 'Q-MASK'); }
+        else if (mk.avail) { if (TRACE) trm(t, mk, 'to_clean', mst(mk) === 'in_use' ? 'turn_end' : 'turn_end_unused', ''); mk.age++; arrivals.push({ at: t + P.TR, u: { set: S, mk: mk, repair: false } }); nUnits++; }
       }
       S.state = 'out'; S.pending = nUnits; B.dep = null; addReq(t, 2);
       if (nUnits === 0) S.state = 'clean';
+      if (TRACE) trs(t, S, S.state, 'turn_end');
     }
 
     /* ---- 막힘 사유(잡 체인지를 못 하게 하는 공유 자원) ---- */
@@ -466,6 +480,7 @@
     /* ---- 초기 상태: 블록마다 위상을 흩뜨려 동기화 방지 ---- */
     blocks.forEach(function (B) {
       var first = B.sets[SETS[R.int(3)]];
+      if (TRACE) B.ch.forEach(function (x, ci) { trc(0, B, ci, 'run', 'init', ''); });
       enterDep(B, first, 0);
       B.elapsed = R.int(P.T_TURN - 20);
       B.buf = P.BUF0;
@@ -474,6 +489,7 @@
         S.turn = 5 + R.int(5);
         if (R.u() < 0.5) S.state = 'ready';
         else { S.state = 'out'; S.pending = 4; for (var m = 0; m < 4; m++) arrivals.push({ at: R.int(60), u: { set: S, mk: S.masks[m], repair: false } }); }
+        if (TRACE) { trs(0, S, S.state, 'init'); S.masks.forEach(function (mk) { trm(0, mk, S.state === 'ready' ? 'stock' : 'to_clean', 'init', ''); }); }
       });
     });
 
@@ -490,20 +506,26 @@
       if (t >= nextFault) { faultUntil = t + R.lognormal(P.FAULT_MED, 0.5); nextFault = t + R.exp(P.FAULT_MEAN); }
 
       /* 세정기 */
-      for (i = arrivals.length - 1; i >= 0; i--) if (arrivals[i].at <= t) { var uu = arrivals[i].u; uu.enq = t; cleanQ.push(uu); arrivals.splice(i, 1); }
+      for (i = arrivals.length - 1; i >= 0; i--) if (arrivals[i].at <= t) { var uu = arrivals[i].u; uu.enq = t; cleanQ.push(uu); arrivals.splice(i, 1); if (TRACE) trm(t, uu.mk, 'clean_wait', 'arrive', ''); }
       for (i = cleanRun.length - 1; i >= 0; i--) if (cleanRun[i].doneAt <= t) {
         var done = cleanRun[i].u;
-        if (done.repair) { done.mk.avail = true; done.mk.age = 0; } else { done.set.pending--; }
+        if (done.repair) { done.mk.avail = true; done.mk.age = 0; if (TRACE) trm(t, done.mk, 'stock', 'repair_clean_done', ''); } else { done.set.pending--; if (TRACE) trm(t, done.mk, 'held', 'clean_done', ''); }
         cleanRun.splice(i, 1);
       }
-      while (cleanRun.length < P.CAP && cleanQ.length) cleanRun.push({ u: cleanQ.shift(), doneAt: t + P.CLEAN * (0.9 + 0.2 * R.u()) });
+      while (cleanRun.length < P.CAP && cleanQ.length) { if (TRACE) trm(t, cleanQ[0].mk, 'cleaning', 'cleaner_free', ''); cleanRun.push({ u: cleanQ.shift(), doneAt: t + P.CLEAN * (0.9 + 0.2 * R.u()) }); }
       for (i = repairBench.length - 1; i >= 0; i--) if (repairBench[i].doneAt <= t) {
-        cleanQ.push({ set: repairBench[i].set, mk: repairBench[i].mk, repair: true, enq: t }); repairBench.splice(i, 1);
+        cleanQ.push({ set: repairBench[i].set, mk: repairBench[i].mk, repair: true, enq: t }); if (TRACE) trm(t, repairBench[i].mk, 'clean_wait', 'repair_done', ''); repairBench.splice(i, 1);
       }
       for (b = 0; b < 11; b++) SETS.forEach(function (sn) {
         var S = blocks[b].sets[sn];
-        if ((S.state === 'out' || S.state === 'clean') && S.pending <= 0 && S.state !== 'xfer') { S.state = 'xfer'; S.readyAt = t + P.TOSTK; addReq(t, 1); }
-        else if (S.state === 'xfer' && t >= S.readyAt) S.state = 'ready';
+        if ((S.state === 'out' || S.state === 'clean') && S.pending <= 0 && S.state !== 'xfer') {
+          S.state = 'xfer'; S.readyAt = t + P.TOSTK; addReq(t, 1);
+          if (TRACE) { trs(t, S, 'xfer', 'all_masks_back'); S.masks.forEach(function (mk) { if (mst(mk) === 'held') trm(t, mk, 'to_stock', 'set_complete', ''); }); }
+        }
+        else if (S.state === 'xfer' && t >= S.readyAt) {
+          S.state = 'ready';
+          if (TRACE) { trs(t, S, 'ready', 'stocker_in'); S.masks.forEach(function (mk) { if (mst(mk) === 'to_stock') trm(t, mk, 'stock', 'stocker_in', ''); }); }
+        }
       });
 
       /* 블록별 */
@@ -513,11 +535,12 @@
         for (c = 0; c < 4; c++) {                           // 챔버 상태
           var ch = B.ch[c], cn = 'CH' + (c + 1);
           if (ch.st === 'run') {
-            if (t >= ch.nextBD) { ch.st = 'bd'; ch.reason = 'EQ-BD'; ch.root = 'EQ-BD'; ch.until = t + R.lognormal(P.BD_MED, 0.6); ch.ev = openEv(t, B, cn, 'EQ-BD', 'EQ-BD'); }
-            else if (t >= ch.nextEV) { ch.st = 'ev'; ch.reason = 'Q-EVAP'; ch.root = 'Q-EVAP'; ch.until = t + R.lognormal(P.EV_MED, 0.5); ch.ev = openEv(t, B, cn, 'Q-EVAP', 'Q-EVAP'); }
-            else if (t >= ch.nextPM) { ch.st = 'pm'; ch.reason = 'EQ-PM'; ch.root = 'EQ-PM'; ch.pmStart = t; ch.until = t + P.PM_DUR; ch.nextPM = t + P.PM_PERIOD; ch.ev = openEv(t, B, cn, 'EQ-PM', 'EQ-PM'); addReq(t, 2); }
+            if (t >= ch.nextBD) { ch.st = 'bd'; ch.reason = 'EQ-BD'; ch.root = 'EQ-BD'; ch.until = t + R.lognormal(P.BD_MED, 0.6); ch.ev = openEv(t, B, cn, 'EQ-BD', 'EQ-BD'); if (TRACE) trc(t, B, c, 'bd', 'breakdown', 'EQ-BD'); }
+            else if (t >= ch.nextEV) { ch.st = 'ev'; ch.reason = 'Q-EVAP'; ch.root = 'Q-EVAP'; ch.until = t + R.lognormal(P.EV_MED, 0.5); ch.ev = openEv(t, B, cn, 'Q-EVAP', 'Q-EVAP'); if (TRACE) trc(t, B, c, 'ev', 'evap_fault', 'Q-EVAP'); }
+            else if (t >= ch.nextPM) { ch.st = 'pm'; ch.reason = 'EQ-PM'; ch.root = 'EQ-PM'; ch.pmStart = t; ch.until = t + P.PM_DUR; ch.nextPM = t + P.PM_PERIOD; ch.ev = openEv(t, B, cn, 'EQ-PM', 'EQ-PM'); addReq(t, 2); if (TRACE) trc(t, B, c, 'pm', 'pm_start', 'EQ-PM'); }
           } else if (ch.st !== 'mask' && t >= ch.until) {
             if (ch.st === 'pm') addReq(t, 2);
+            if (TRACE) trc(t, B, c, 'run', 'recovered', ch.reason);
             closeEv(ch.ev, t); ch.st = 'run'; ch.ev = null; ch.nextBD = t + R.exp(P.MTBF_BD); ch.nextEV = t + R.exp(P.MTBF_EV);
           }
         }
@@ -526,6 +549,7 @@
             var mk = B.dep.masks[c], ch2 = B.ch[c];
             if (mk.failAt >= 0 && !mk.failed && B.elapsed >= mk.failAt && ch2.st === 'run') {
               mk.failed = true; ch2.st = 'mask'; ch2.reason = 'Q-MASK'; ch2.root = 'Q-MASK'; ch2.ev = openEv(t, B, 'CH' + (c + 1), 'Q-MASK', 'Q-MASK');
+              if (TRACE) trc(t, B, c, 'mask', 'mask_failure', 'Q-MASK');
             }
           }
         }
@@ -571,6 +595,13 @@
             }
           }
         }
+        if (TRACE) {                                        // 블록 상태(바뀔 때만 기록)
+          var bs = B.dep && B.want && blockedNow ? 'wait_jc' : (nr === 4 ? 'quad' : nr === 3 ? 'triple' : 'degraded');
+          var bfrom = curSt['block:' + B.id] || 'init', bcause = '', btrig = 'chamber_change';
+          if (bs === 'wait_jc') { bcause = blockedNow.reason; btrig = 'turn_end_blocked'; }
+          else { var bx = B.ch.filter(function (x) { return x.st !== 'run'; })[0]; bcause = bx ? bx.root : ''; btrig = bfrom === 'wait_jc' ? 'job_change' : bfrom === 'init' ? 'init' : (bx ? 'chamber_stop' : 'chamber_resume'); }
+          tr(t, 'block', B.id, bs, btrig, bcause);
+        }
         /* 용량과 유리 처리 */
         var cap = 0;
         if (B.dep && !(B.want && blockedNow)) cap = nr === 4 ? NOMCAP : nr * P.THROTTLE / P.CT;
@@ -611,6 +642,7 @@
         hourly.push({ ts: isoTs(h * 60), stocker_fill: +fill.toFixed(1), cleaner_queue: cleanQ.length, cleaner_busy: cleanRun.length,
                       cassette_free: P.SPARE_CST - nPMhold(t), transport_requests: reqHour[h] || 0, blocks_triple: tripN, blocks_idle: idleN,
                       line_wip: Math.round(wip), line_out: Math.round(outHour) });
+        if (TRACE) resTr.push({ t: h * 60, cleaning: cleanRun.length, clean_wait: cleanQ.length, stocker_fill: +fill.toFixed(1), cassette_free: P.SPARE_CST - nPMhold(t) });
         outHour = 0;
       }
     }
@@ -629,7 +661,281 @@
       e.loss_chamber_min = +e.loss_chamber_min.toFixed(1); e.loss_glass = +(e.loss_chamber_min / P.CT).toFixed(1); delete e._acc;
     });
     turns.sort(function (a, z) { return a.start_min - z.start_min; });
-    return { events: events, hourly: hourly, turns: turns, params: P, days: days };
+    var out = { events: events, hourly: hourly, turns: turns, params: P, days: days };
+    if (TRACE) { out.transitions = trans; out.resources = resTr; out.end = END; }
+    return out;
+  }
+
+  /* ============================================================
+   * 5.5 ESTC 층 — 개체·상태·전이·제약 (simulateLoss({trace:true}) 의 기록을 읽는다)
+   *   표(ESTC)는 순수 데이터: 화면·Python 검증이 같은 표를 쓴다. 시뮬레이터 본체는 이 표를 모른다(기록 훅만 있음).
+   * ============================================================ */
+  var MASK_ST = [
+    ['stock', '대기', 'stocker 안 세트 속에서 다음 장착을 기다림'], ['to_clean', '세정기로 반송', '턴이 끝나 세정기로 옮겨 가는 중(30분)'],
+    ['clean_wait', '세정 대기열', '세정기 자리가 나기를 기다림'], ['cleaning', '세정 중', '세정기 안(약 180분)'],
+    ['held', '짝 대기', '세정은 끝났으나 세트의 나머지 마스크를 기다림'], ['to_stock', 'stocker로 반송', '세트가 모두 모여 stocker 로 옮겨 가는 중(20분)'],
+    ['in_use', '장착·증착', '챔버에 걸려 유리를 증착하는 중'], ['repair', '리페어', '불량 표시 뒤 리페어 대기·작업(반송 포함)'], ['scrapped', '제외', '폐기(시뮬레이터는 내지 않음 — 사람 승인 전이)']
+  ];
+  function stList(a) { return a.map(function (x) { return { id: x[0], ko: x[1], desc: x[2] }; }); }
+  var ESTC_TRANS = [];
+  function T(ent, from, to, trig, guard, gid, rev, human) { ESTC_TRANS.push({ entity: ent, from: from, to: to, trigger: trig, guard: guard, guard_id: gid || null, reversible: rev !== false, needs_human: !!human }); }
+  (function () {
+    T('mask', 'init', 'stock', 'init', '기록 시작 시각의 초기 상태'); T('mask', 'init', 'to_clean', 'init', '기록 시작 시각의 초기 상태'); T('mask', 'init', 'in_use', 'init', '기록 시작 시각의 초기 상태');
+    T('mask', 'stock', 'in_use', 'job_change', '세트가 ready 이고 같은 블록에 증착 중인 세트가 없음(턴 끝 또는 조기 잡 체인지 조건)', 'set_ready');
+    T('mask', 'in_use', 'to_clean', 'turn_end', '턴이 끝났고 불량 표시가 없음');
+    T('mask', 'stock', 'to_clean', 'turn_end_unused', '턴 도중 리페어에서 돌아와 장착 못 한 마스크도 세트와 함께 세정으로 보냄');
+    T('mask', 'in_use', 'repair', 'turn_end_defect', '턴 중 불량 표시가 붙었고 턴이 끝남');
+    T('mask', 'to_clean', 'clean_wait', 'arrive', '반송 30분이 지남');
+    T('mask', 'repair', 'clean_wait', 'repair_done', '리페어와 반송이 끝남');
+    T('mask', 'clean_wait', 'cleaning', 'cleaner_free', '세정기 사용 중 수 < 세정 동시 한도(27장)', 'cleaner_free');
+    T('mask', 'cleaning', 'held', 'clean_done', '세정이 끝났음(정상 경로)');
+    T('mask', 'cleaning', 'stock', 'repair_clean_done', '리페어 뒤 세정이 끝났음(바로 세트에 복귀)');
+    T('mask', 'held', 'to_stock', 'set_complete', '세트의 나머지 마스크(빠진 장 제외)가 모두 짝 대기', 'set_all_back');
+    T('mask', 'to_stock', 'stock', 'stocker_in', 'stocker 반송 20분이 지남');
+    T('mask', 'repair', 'scrapped', 'scrap', '사람 승인 — 되돌릴 수 없음', null, false, true);
+    T('mask', 'in_use', 'scrapped', 'scrap', '사람 승인 — 되돌릴 수 없음', null, false, true);
+    T('set', 'init', 'ready', 'init', '기록 시작 시각의 초기 상태'); T('set', 'init', 'out', 'init', '기록 시작 시각의 초기 상태'); T('set', 'init', 'dep', 'job_change', '블록마다 한 세트가 증착 중으로 시작');
+    T('set', 'ready', 'dep', 'job_change', '같은 블록에 증착 중인 세트가 없음(턴 끝 또는 조기 잡 체인지 조건)');
+    T('set', 'dep', 'out', 'turn_end', '턴이 끝나 마스크가 세정 경로로 흩어짐'); T('set', 'dep', 'clean', 'turn_end', '모든 마스크가 리페어로 빠져 세정 경로에 남은 장이 없음');
+    T('set', 'out', 'xfer', 'all_masks_back', '세정 경로에 남은 마스크가 없음'); T('set', 'clean', 'xfer', 'all_masks_back', '세정 경로에 남은 마스크가 없음');
+    T('set', 'xfer', 'ready', 'stocker_in', 'stocker 반송 20분이 지남');
+    T('chamber', 'init', 'run', 'init', '기록 시작 시각의 초기 상태');
+    [['bd', 'breakdown', '고장이 남'], ['ev', 'evap_fault', '증착기 기인 불량이 남'], ['pm', 'pm_start', '정규 PM 주기가 됨'], ['mask', 'mask_failure', '턴 중 마스크 불량 표시'], ['mask', 'mask_missing', '장착할 마스크가 세트에 없음(리페어 중)']].forEach(function (x) { T('chamber', 'run', x[0], x[1], x[2]); });
+    [['bd', 'recovered'], ['ev', 'recovered'], ['pm', 'recovered'], ['mask', 'set_leave']].forEach(function (x) { T('chamber', x[0], 'run', x[1], x[0] === 'mask' ? '세트가 빠져 나감(턴 끝)' : '정지가 끝남'); });
+    ['quad', 'triple', 'degraded'].forEach(function (b) { T('block', 'init', b, 'init', '기록 시작 시각의 초기 상태(그 시각 가동 중인 챔버 수)'); });
+    ['quad', 'triple', 'degraded', 'wait_jc'].forEach(function (a) {
+      ['quad', 'triple', 'degraded', 'wait_jc'].forEach(function (b) {
+        if (a === b) return;
+        T('block', a, b, b === 'wait_jc' ? 'turn_end_blocked' : a === 'wait_jc' ? 'job_change' : (a === 'quad' || (a === 'triple' && b === 'degraded')) ? 'chamber_stop' : 'chamber_resume',
+          b === 'wait_jc' ? '턴이 끝났으나 잡 체인지를 못 함(막힘 사유 코드가 cause)' : a === 'wait_jc' ? '막힘이 풀려 잡 체인지 실행' : '정지한 챔버 수가 바뀜');
+      });
+    });
+  })();
+  var ESTC = {
+    note: '가상 공장의 공정 상태 모델. 마스크·세트·챔버·블록은 전이를 쌓고, 세정기·stocker·카세트는 수량 자원, 유리는 연결 키로만 잇는다.',
+    entities: [
+      { name: 'mask', ko: '마스크', kind: 'transition', id_format: 'B03-A2 (블록-세트-챔버 번호)', states: stList(MASK_ST) },
+      { name: 'set', ko: '마스크 세트', kind: 'transition', id_format: 'B03-A (블록-세트)', states: stList([['ready', '준비', '세트 4장이 stocker 에 모여 장착 대기'], ['dep', '증착 중', '블록에 걸려 한 턴을 돎'], ['out', '세정 중(흩어짐)', '마스크가 세정 경로에 흩어져 있음'], ['clean', '세정 끝(남은 장 없음)', '세정 경로에 남은 마스크가 없음'], ['xfer', 'stocker로 반송', '세트가 모여 stocker 로 옮겨 가는 중']]) },
+      { name: 'chamber', ko: '챔버', kind: 'transition', id_format: 'B03-CH2 (블록-챔버)', states: stList([['run', '가동', '증착 중이거나 대기'], ['bd', '고장(EQ-BD)', '설비 고장으로 정지'], ['ev', '증착기 불량(Q-EVAP)', '증착기 기인 불량으로 정지'], ['pm', '정규 PM(EQ-PM)', '정규 PM 으로 정지'], ['mask', '마스크 정지(Q-MASK)', '마스크 불량 또는 마스크 없음으로 정지']]) },
+      { name: 'block', ko: '블록', kind: 'transition', id_format: 'B03 (11개 블록)', states: stList([['quad', '4챔버 가동', '챔버 4개가 모두 가동'], ['triple', '3챔버 가동', '챔버 하나가 정지'], ['degraded', '2개 이상 정지', '챔버 둘 이상이 정지'], ['wait_jc', '잡 체인지 대기', '턴이 끝났는데 잡 체인지를 못 하고 있음(막힘 사유 코드가 cause)']]) },
+      { name: 'cleaner', ko: '세정기', kind: 'resource', measure: '사용 중 장 수(≤ 동시 한도 27), 대기열 길이', states: [] },
+      { name: 'stocker', ko: 'stocker', kind: 'resource', measure: '적재율(%) — 90% 를 넘으면 LG-STK', states: [] },
+      { name: 'cassette', ko: '카세트', kind: 'resource', measure: '여유 카세트 수 = 예비 2 − PM 유보', states: [] },
+      { name: 'glass', ko: '유리', kind: 'linked', measure: '전이를 쌓지 않음. 턴·유리 이력의 연결 키(블록·세트·턴·유리 번호)로 마스크 궤적에 이어짐', states: [] }
+    ],
+    transitions: ESTC_TRANS,
+    constraints: [
+      { id: 'C1', text: '세정 중인 마스크는 동시에 27장 이하', check: '전이 기록에서 cleaning 상태 수를 재구성해 매 시점 한도와 비교', enforced_by_sim: true },
+      { id: 'C2', text: '한 블록에서 증착 중(dep)인 세트는 동시에 1개 이하', check: '세트 전이에서 블록별 dep 수를 재구성', enforced_by_sim: true },
+      { id: 'C3', text: '한 개체는 한 시각에 한 상태 — 직전 전이의 to 가 다음 전이의 from', check: '개체별 전이 이음새 대조', enforced_by_sim: true },
+      { id: 'C4', text: '챔버가 상태마다 머문 시간의 합 = 기록 기간', check: '챔버별 체류 분 합산', enforced_by_sim: true },
+      { id: 'C5', text: 'PPA spec: |평균| + 3σ ≤ 기준(에이전트가 사례 판단에서 검사)', check: '기준값은 PPA 실험실에서 정함', enforced_by_sim: false },
+      { id: 'C6', text: '마스크 턴 수 한계(표시용 기준값 — 가상값 20턴)', check: '시뮬레이터는 강제하지 않음', enforced_by_sim: false }
+    ],
+    params: { CAP: 27, TR: 30, TOSTK: 20, CLEAN: 180, TURN_LIMIT: 20, WAIT_CASE_MIN: 20 }
+  };
+  var ESTC_KEY = {};
+  ESTC_TRANS.forEach(function (x, i) { ESTC_KEY[x.entity + '|' + x.from + '|' + x.to] = i; });
+
+  function estcCheck(trans, o) {
+    o = o || {};
+    var CAP = o.cap == null ? ESTC.params.CAP : o.cap, end = o.end, viol = [], counts = { transitions: trans.length, by_entity: {}, by_rule: {} };
+    var last = {}, lastT = {}, cleaning = 0, depN = {}, chFirst = {}, chDw = {}, tPrev = -Infinity, i;
+    function V(rule, x, detail) { viol.push({ rule: rule, t: x.t, id: x.id, detail: detail }); counts.by_rule[rule] = (counts.by_rule[rule] || 0) + 1; }
+    for (i = 0; i < trans.length; i++) {
+      var x = trans[i], key = x.entity + ':' + x.id;
+      counts.by_entity[x.entity] = (counts.by_entity[x.entity] || 0) + 1;
+      if (x.t < tPrev) V('T1', x, '시각이 앞 줄보다 이름'); tPrev = Math.max(tPrev, x.t);
+      if (ESTC_KEY[x.entity + '|' + x.from + '|' + x.to] == null) V('T0', x, '표에 없는 전이 ' + x.from + '→' + x.to);
+      var prev = last[key] || 'init';
+      if (x.from !== prev) V('C3', x, '직전 상태 ' + prev + ' 인데 from=' + x.from);
+      if (lastT[key] != null && x.t < lastT[key]) V('T1', x, '같은 개체의 시각이 거꾸로');
+      last[key] = x.to; lastT[key] = x.t;
+      if (x.entity === 'mask') {
+        if (x.to === 'cleaning') { cleaning++; if (cleaning > CAP) V('C1', x, '세정 중 ' + cleaning + '장 > 한도 ' + CAP); }
+        if (x.from === 'cleaning') cleaning--;
+      } else if (x.entity === 'set') {
+        var blk = x.id.slice(0, 3);
+        if (x.to === 'dep') { depN[blk] = (depN[blk] || 0) + 1; if (depN[blk] > 1) V('C2', x, '블록 ' + blk + ' 에 증착 중 세트 ' + depN[blk] + '개'); }
+        if (x.from === 'dep') depN[blk]--;
+      } else if (x.entity === 'chamber') {
+        var cd = chDw[x.id] || (chDw[x.id] = { st: null, t: 0, sum: 0, first: null });
+        if (cd.first == null) cd.first = x.t; else cd.sum += x.t - cd.t; cd.t = x.t; cd.st = x.to;
+      }
+    }
+    if (end != null) for (var cid in chDw) { var d = chDw[cid], tot = d.sum + (end - d.t); if (d.first !== 0 || tot !== end) viol.push({ rule: 'C4', t: end, id: cid, detail: '체류 합 ' + tot + ' ≠ 기록 기간 ' + end }), counts.by_rule.C4 = (counts.by_rule.C4 || 0) + 1; }
+    return { ok: viol.length === 0, violations: viol, counts: counts };
+  }
+  function dwell(trans, id, end) {
+    var out = {}, st = null, t0 = 0;
+    for (var i = 0; i < trans.length; i++) {
+      var x = trans[i]; if (x.id !== id) continue;
+      if (st != null) out[st] = (out[st] || 0) + (x.t - t0);
+      st = x.to; t0 = x.t;
+    }
+    if (st != null && end != null) out[st] = (out[st] || 0) + (end - t0);
+    return out;
+  }
+  function trajectory(trans, id, t0, t1) {
+    return trans.filter(function (x) { return x.id === id && (t0 == null || x.t >= t0) && (t1 == null || x.t <= t1); });
+  }
+  /* 시각 t 까지의 모든 개체 상태 + 세정기 사용 수 */
+  function stateAt(trans, t) {
+    var st = {}, rp = {}, cleaning = 0, cq = 0;
+    for (var i = 0; i < trans.length; i++) {
+      var x = trans[i]; if (x.t > t) break;
+      st[x.entity + ':' + x.id] = x.to;
+      if (x.entity === 'mask') { if (x.to === 'repair') rp[x.id] = 1; else if (x.to === 'stock' || x.to === 'in_use' || x.to === 'to_clean') delete rp[x.id]; if (x.to === 'cleaning') cleaning++; if (x.from === 'cleaning') cleaning--; if (x.to === 'clean_wait') cq++; if (x.from === 'clean_wait') cq--; }
+    }
+    return { t: t, states: st, repairPath: rp, cleaning: cleaning, clean_wait: cq };
+  }
+  /* 전이 요청 판정: 에이전트가 도구를 부르는 규칙 — 표에 있는가 → 사람 승인이 필요한가 → 가드를 통과하는가 */
+  function requestTransition(snap, entity, id, to, cap) {
+    var CAP = cap == null ? ESTC.params.CAP : cap, from = snap.states[entity + ':' + id] || 'init', k = ESTC_KEY[entity + '|' + from + '|' + to];
+    if (k == null) return { ok: false, kind: 'not_in_table', from: from, to: to, reason: '표에 ' + from + ' → ' + to + ' 전이가 없습니다' };
+    var row = ESTC_TRANS[k];
+    if (row.needs_human) return { ok: false, kind: 'needs_human', from: from, to: to, trigger: row.trigger, reason: '되돌릴 수 없는 전이라 사람의 승인이 있어야 합니다' };
+    if (row.guard_id === 'cleaner_free' && snap.cleaning >= CAP) return { ok: false, kind: 'guard_fail', from: from, to: to, trigger: row.trigger, reason: '세정기 ' + snap.cleaning + '/' + CAP + '장이 사용 중이라 자리가 없습니다' };
+    var mm = entity === 'mask' ? parseMaskId(id) : null;
+    if (row.guard_id === 'set_ready') {
+      var sid = mm.block + '-' + mm.set, ss = snap.states['set:' + sid];
+      if (ss !== 'ready') return { ok: false, kind: 'guard_fail', from: from, to: to, trigger: row.trigger, reason: '세트 ' + sid + ' 가 ready 가 아니라 ' + ss + ' 입니다' };
+      for (var q = 0; q < SETS.length; q++) if (snap.states['set:' + mm.block + '-' + SETS[q]] === 'dep') return { ok: false, kind: 'guard_fail', from: from, to: to, trigger: row.trigger, reason: '블록 ' + mm.block + ' 에 세트 ' + SETS[q] + ' 가 이미 증착 중입니다' };
+    }
+    if (row.guard_id === 'set_all_back') {
+      var bad = [];
+      for (var n = 1; n <= 4; n++) { var oid = mm.block + '-' + mm.set + n, os = snap.states['mask:' + oid]; if (oid === id) continue; if (os === 'held' || os === 'to_stock' || os === 'stock' || os === 'repair' || (snap.repairPath[oid] && (os === 'clean_wait' || os === 'cleaning'))) continue; bad.push(oid + '=' + os); }
+      if (bad.length) return { ok: false, kind: 'guard_fail', from: from, to: to, trigger: row.trigger, reason: '세트의 다른 마스크가 아직 짝 대기가 아닙니다(' + bad.join(', ') + ')' };
+    }
+    return { ok: true, kind: 'ok', from: from, to: to, trigger: row.trigger, reason: '표에 있고 가드를 통과했습니다' };
+  }
+
+  /* 사례 은행 양식 */
+  var CASE_SCHEMA = {
+    version: 1,
+    fields: [
+      { name: 'case_id', type: 'string', required: true, desc: '사례 번호(C00001 …), 시각 순' },
+      { name: 't_detect', type: 'string', required: true, desc: '감지 시각 YYYY-MM-DD HH:MM (분 단위 이상)' },
+      { name: 'entity', type: 'string', required: true, desc: '개체 종류(mask·block …)', enum: ['mask', 'set', 'chamber', 'block'] },
+      { name: 'id', type: 'string', required: true, desc: '연결 키 형식의 개체 번호(예 B03-A2, B03)' },
+      { name: 'state_before', type: 'string', required: true, desc: '판단 직전 상태(표의 상태 이름)' },
+      { name: 'evidence', type: 'array', required: true, desc: '판단 근거 목록 {kind, ref, value} — 숫자와 출처' },
+      { name: 'decision', type: 'object', required: true, desc: '{rule, why, by} — by 는 agent 또는 human' },
+      { name: 'action', type: 'object', required: true, desc: '{transition:{from,to}, needs_human, approved_by}' },
+      { name: 'state_after', type: 'string', required: true, desc: '행동 직후 상태' },
+      { name: 'outcome', type: 'object', required: true, desc: '{t_check, result, value} — 정해진 확인 시각에 다시 채움' },
+      { name: 'label', type: 'string', required: true, desc: '결과 확인 뒤 붙이는 이름표(0205 의 진성·가성 라벨과 같은 자리)', enum: ['recurred', 'not_recurred', 'censored', 'early_jc', 'no_early_jc'] },
+      { name: 'links', type: 'object', required: true, desc: '{events:[event_id], turns:[{block,set,turn}]} — 이벤트·턴·유리 이력으로 잇는 키' },
+      { name: 'text_log', type: 'string', required: false, desc: '같은 사례를 사람이 글로 적은 한 줄(비교용)' }
+    ]
+  };
+  function validateCase(rec, o) {
+    o = o || {};
+    var errs = [], f = CASE_SCHEMA.fields;
+    f.forEach(function (d) {
+      var v = rec[d.name];
+      if (v == null) { if (d.required) errs.push('필수 칸 없음: ' + d.name); return; }
+      var ty = Array.isArray(v) ? 'array' : typeof v;
+      if (ty !== d.type) errs.push(d.name + ' 형식 ' + ty + ' ≠ ' + d.type);
+      if (d.enum && d.enum.indexOf(v) < 0) errs.push(d.name + ' 값 ' + v + ' 은 허용 목록에 없음');
+    });
+    if (errs.length) return errs;
+    if (!/^\d{4}-\d\d-\d\d \d\d:\d\d$/.test(rec.t_detect)) errs.push('t_detect 형식(분 단위)');
+    if (rec.outcome.t_check < rec.t_detect) errs.push('결과 확인 시각이 감지 시각보다 앞');
+    if (['agent', 'human'].indexOf(rec.decision.by) < 0) errs.push('decision.by 는 agent 또는 human');
+    var a = rec.action.transition || {};
+    if (ESTC_KEY[rec.entity + '|' + a.from + '|' + a.to] == null && !(rec.entity === 'block' && a.from === 'wait_jc')) errs.push('행동 전이 ' + a.from + '→' + a.to + ' 가 표에 없음');
+    else { var row = ESTC_TRANS[ESTC_KEY[rec.entity + '|' + a.from + '|' + a.to]]; if (row && row.needs_human && (!rec.action.needs_human || !rec.action.approved_by || rec.action.approved_by === 'rule')) errs.push('사람 승인이 필요한 전이인데 승인 칸이 비어 있음'); }
+    return errs;
+  }
+  function caseRecords(sim) {
+    if (!sim.transitions) throw new Error('simulateLoss({trace:true}) 결과가 필요합니다');
+    var tr = sim.transitions, byMask = {}, blkRows = {}, i, cases = [];
+    tr.forEach(function (x) { if (x.entity === 'mask') (byMask[x.id] || (byMask[x.id] = [])).push(x); else if (x.entity === 'block') (blkRows[x.id] || (blkRows[x.id] = [])).push(x); });
+    var END = sim.end, qev = {};
+    sim.events.forEach(function (e) { if (e.reason === 'Q-MASK' && e.chamber !== 'ALL') (qev[e.block + '|' + e.chamber] || (qev[e.block + '|' + e.chamber] = [])).push(e); });
+    function turnOf(block, t) { for (var k = 0; k < sim.turns.length; k++) { var u = sim.turns[k]; if (u.block === block && u.start_min <= t && t < u.end_min) return u; } return null; }
+    tr.forEach(function (x) {
+      if (x.entity !== 'chamber' || x.to !== 'mask' || x.trigger !== 'mask_failure') return;
+      var blk = x.id.slice(0, 3), cn = x.id.slice(-1), rows = null, mid = null, k;
+      for (var s = 0; s < SETS.length && !mid; s++) { var cand = blk + '-' + SETS[s] + cn, rr = byMask[cand]; if (!rr) continue; for (k = 0; k < rr.length; k++) if (rr[k].to === 'repair' && rr[k].t >= x.t && rr[k].t - x.t < 400) { mid = cand; rows = rr; break; } }
+      if (!mid) return;
+      var kr = k, rep = rows[kr], age = null, tuse = null;
+      for (var q = kr - 1; q >= 0; q--) if (rows[q].to === 'in_use') { age = +String(rows[q].cause).replace('age=', ''); tuse = rows[q].t; break; }
+      var ev = (qev[blk + '|CH' + cn] || []).filter(function (e) { return e.start_min === x.t; })[0];
+      var tBack = null, tNext = null, tEnd = null, res = '미확인', val = null;
+      for (q = kr + 1; q < rows.length; q++) { if (tBack == null && rows[q].from === 'cleaning' && rows[q].to === 'stock') tBack = rows[q].t; else if (tBack != null && rows[q].to === 'in_use') { tNext = rows[q].t; if (rows[q + 1]) { tEnd = rows[q + 1].t; res = rows[q + 1].to === 'repair' ? '재불량' : '정상 반납'; val = tEnd - tNext; } break; } }
+      var absent = 0, tFrom = rep.t, tTo = tNext == null ? END : tNext;
+      (qev[blk + '|CH' + cn] || []).forEach(function (e) { if (e.mask_set === mid.slice(4, 5) && e.start_min > rep.t && e.start_min < tTo) absent += e.loss_chamber_min; });
+      var tc = tEnd == null ? END : tEnd, u = turnOf(blk, x.t), lbl = res === '재불량' ? 'recurred' : res === '정상 반납' ? 'not_recurred' : 'censored';
+      cases.push({ _t: x.t, case_id: '', t_detect: isoTs(x.t), entity: 'mask', id: mid, state_before: 'in_use',
+        evidence: [{ kind: 'event', ref: ev ? ev.event_id : '', value: '챔버 ' + x.id.slice(4) + ' 마스크 정지 ' + (ev ? ev.loss_chamber_min : 0) + '분' },
+                   { kind: 'mask_age', ref: mid, value: age }, { kind: 'transition', ref: mid + '@' + isoTs(rep.t), value: 'in_use→repair' }],
+        decision: { rule: 'R-MASK-REPAIR', why: '턴 중 마스크 불량 표시(장착 때 이미 ' + age + '턴을 쓴 마스크), 챔버 정지 ' + (ev ? ev.loss_chamber_min : 0) + '분 → 턴 끝에 리페어로 보냄', by: 'agent' },
+        action: { transition: { from: 'in_use', to: 'repair' }, needs_human: false, approved_by: 'rule' }, state_after: 'repair',
+        outcome: { t_check: isoTs(tc), result: res, value: val, absent_min: Math.round(absent), t_back: tBack == null ? null : isoTs(tBack) }, label: lbl,
+        links: { events: ev ? [ev.event_id] : [], turns: u ? [{ block: u.block, set: u.set, turn: u.turn }] : [] },
+        text_log: isoTs(x.t).slice(5) + ' ' + blk + ' CH' + cn + ' 마스크 불량으로 정지, 리페어 보냄' });
+    });
+    Object.keys(blkRows).forEach(function (blk) {
+      var rows = blkRows[blk];
+      rows.forEach(function (x, k) {
+        if (x.to !== 'wait_jc') return;
+        var nx = rows[k + 1]; if (!nx) return;
+        var dur = nx.t - x.t; if (dur < ESTC.params.WAIT_CASE_MIN) return;
+        var by = {}, ids = [];
+        sim.events.forEach(function (e) {
+          if (e.block !== blk || e.chamber !== 'ALL' || ['CL-CAPA', 'LG-TRANS', 'LG-STK', 'LG-CST', 'LG-JC'].indexOf(e.reason) < 0) return;
+          var ov = Math.min(e.end_min, nx.t) - Math.max(e.start_min, x.t); if (ov <= 0) return;
+          by[e.reason] = (by[e.reason] || 0) + ov; ids.push(e.event_id);
+        });
+        var top = x.cause, best = -1; for (var rk in by) if (by[rk] > best) { best = by[rk]; top = rk; }
+        var h = Math.floor(x.t / 60), rs = sim.resources[Math.min(h, sim.resources.length - 1)], u = null;
+        for (var m = 0; m < sim.turns.length; m++) if (sim.turns[m].block === blk && sim.turns[m].start_min === nx.t) { u = sim.turns[m]; break; }
+        var early = u ? u.early === 1 : false, cens = u && u.end_min === END && !early;
+        var bef = turnOf(blk, x.t - 1);
+        cases.push({ _t: x.t, case_id: '', t_detect: isoTs(x.t), entity: 'block', id: blk, state_before: x.from,
+          evidence: [{ kind: 'event', ref: ids.join(' '), value: top + ' 가 ' + Math.round(best < 0 ? dur : best) + '분으로 가장 길었음' },
+                     { kind: 'resource', ref: 'clean_wait@' + isoTs(rs.t), value: rs.clean_wait }, { kind: 'resource', ref: 'cleaning@' + isoTs(rs.t), value: rs.cleaning }],
+          decision: { rule: 'R-JC-BLOCKER', why: '턴이 끝났으나 ' + top + ' 때문에 잡 체인지를 ' + dur + '분 못 함', by: 'agent' },
+          action: { transition: { from: 'wait_jc', to: nx.to }, needs_human: false, approved_by: 'rule' }, state_after: nx.to,
+          outcome: { t_check: isoTs(u ? u.end_min : END), result: cens ? '미확인' : early ? '조기 잡 체인지' : '정상 주기', value: dur },
+          label: cens ? 'censored' : early ? 'early_jc' : 'no_early_jc',
+          links: { events: ids.filter(function (v, a, z) { return z.indexOf(v) === a; }), turns: bef ? [{ block: bef.block, set: bef.set, turn: bef.turn }] : [] },
+          text_log: isoTs(x.t).slice(5) + ' ' + blk + ' 잡 체인지 ' + dur + '분 지연(' + top + ')' });
+      });
+    });
+    cases.sort(function (a, z) { return a._t - z._t || (a.id < z.id ? -1 : 1); });
+    cases.forEach(function (c, k) { c.case_id = 'C' + pad(k + 1, 5); delete c._t; });
+    return cases;
+  }
+  /* 화면·Python 이 함께 쓰는 대표 사건: 시간순으로 처음 나온 Q-MASK 사례 가운데 정지 60분 이상이고 리페어 중 장착 못 해 다시 선 시간이 있는 것 */
+  function featuredCase(cases) {
+    for (var i = 0; i < cases.length; i++) {
+      var c = cases[i];
+      if (c.decision.rule !== 'R-MASK-REPAIR' || c.label === 'censored' || !(c.outcome.absent_min > 0)) continue;
+      var m = /(\d+)분/.exec(c.evidence[0].value);
+      if (m && +m[1] >= 60) return c;
+    }
+    return null;
+  }
+  /* 핵심 지표(시드 분포용): 마스크 한 바퀴 중 짝 대기·세정 대기 비율, 잡 체인지 대기 건수, Q-MASK 사례 재불량 비율 */
+  function estcMetrics(sim, cases) {
+    cases = cases || caseRecords(sim);
+    var byMask = {}, cyc = 0, hd = 0, cw = 0;
+    sim.transitions.forEach(function (x) { if (x.entity === 'mask') (byMask[x.id] || (byMask[x.id] = [])).push(x); });
+    Object.keys(byMask).forEach(function (id) {
+      var rows = byMask[id], start = null, acc = null;
+      rows.forEach(function (x, k) {
+        if (x.to === 'to_clean' && x.from !== 'init') { start = x.t; acc = { held: 0, wait: 0, bad: false }; }
+        else if (acc && x.to === 'repair') acc.bad = true;
+        else if (acc && x.to === 'in_use') { if (!acc.bad) { cyc += x.t - start; hd += acc.held; cw += acc.wait; } acc = null; }
+        if (acc && rows[k + 1]) { var d = rows[k + 1].t - x.t; if (x.to === 'held') acc.held += d; else if (x.to === 'clean_wait') acc.wait += d; }
+      });
+    });
+    var mq = cases.filter(function (c) { return c.decision.rule === 'R-MASK-REPAIR' && c.label !== 'censored'; }), rec = mq.filter(function (c) { return c.label === 'recurred'; }).length;
+    var wj = cases.filter(function (c) { return c.entity === 'block'; });
+    return { held_frac: hd / cyc, wait_frac: cw / cyc, wait_jc: wj.length, qmask_cases: mq.length, qmask_recur: mq.length ? rec / mq.length : 0, cycle_min: cyc };
   }
 
   /* 턴 기록 → 유리 이력(연결 키 포함). 유리 ID 는 블록 안 처리 순번(FIFO 라 블록 간에도 같은 번호가 같은 유리). */
@@ -1385,6 +1691,6 @@
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools
   };
 });

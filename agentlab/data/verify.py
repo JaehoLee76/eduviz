@@ -401,6 +401,178 @@ chk('FDC CH2 PM 후 압력 ≈ +0.8%', 1 in m.index and abs((m[1] - m[0]) / 300 
 tr = json.load(open(os.path.join(D, 'truth.json')))
 chk('JS check 와 scipy 일치(S1 p)', abs(np.log10(tr['S1']['check']['welch']['p']) - np.log10(stats.ttest_ind(rd('s1_pm_shift.csv').query("phase=='after'").steady_pressure_mean, rd('s1_pm_shift.csv').query("phase=='before'").steady_pressure_mean, equal_var=False).pvalue)) < 0.05, 'log10 p 차 < 0.05')
 
+# ============================================================
+# ESTC 층 (0206) — 파이썬 독립 재생: 같은 표(node JSON 덤프)로 CSV 궤적을 다시 검사한다. estcCheck 를 부르지 않는다.
+# ============================================================
+_mq = rd('mask_transitions.csv').fillna({'cause': ''}); _END = 60 * 1440
+_est = json.loads(subprocess.run([_node, '-e', "const M=require(%s);console.log(JSON.stringify({estc:M.ESTC,schema:M.CASE_SCHEMA}))" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_TB = {(x['entity'], x['from'], x['to']): x for x in _est['estc']['transitions']}; _CAP = _est['estc']['params']['CAP']
+def py_check(df, end=_END, cap=_CAP):
+    """독립 재생: 표 대조(T0)·시각(T1)·이음새(C3)·세정 동시 수(C1)·블록당 dep(C2)·챔버 체류 합(C4). 위반 (규칙, 행 번호) 목록."""
+    v = []
+    key = list(zip(df.entity, df['from'], df['to']))
+    v += [('T0', i) for i, k in enumerate(key) if k not in _TB]
+    tv = df.t.values; v += [('T1', i) for i in np.where(np.diff(tv) < 0)[0] + 1]
+    g = df.groupby(['entity', 'id'], sort=False)
+    prev_to = g['to'].shift(1).fillna('init'); bad = np.where((df['from'] != prev_to).values)[0]; v += [('C3', i) for i in bad]
+    dt = g['t'].diff(); v += [('T1', i) for i in np.where((dt < 0).values)[0]]
+    m = (df.entity == 'mask').values
+    d = np.where(m & (df['to'] == 'cleaning').values, 1, 0) - np.where(m & (df['from'] == 'cleaning').values, 1, 0); cs = np.cumsum(d)
+    v += [('C1', i) for i in np.where(cs > cap)[0]]
+    s = (df.entity == 'set').values; blk = df.id.str[:3].values
+    for b in np.unique(blk[s]):
+        sel = s & (blk == b); dd = np.where(df['to'][sel] == 'dep', 1, 0) - np.where(df['from'][sel] == 'dep', 1, 0); cc = np.cumsum(dd)
+        v += [('C2', int(df.index[sel][i])) for i in np.where(cc > 1)[0]]
+    c = df[df.entity == 'chamber']; tot = {}
+    for cid, gg in c.groupby('id'):
+        tt = gg.t.values; tot[cid] = (tt[0], (np.diff(tt)).sum() + (end - tt[-1]))
+    v += [('C4', cid) for cid, (t0, s_) in tot.items() if t0 != 0 or s_ != end]
+    return v
+_v0 = py_check(_mq)
+chk('ESTC Python 독립 재생: 60일 전이 %s줄(마스크·세트·챔버·블록) — 표 대조·이음새·세정 ≤ %d장·블록당 dep ≤ 1·챔버 체류 합 = 86,400분, 위반 0' % (f'{len(_mq):,}', _CAP), len(_v0) == 0 and len(_mq) > 100000,
+    f'위반 {len(_v0)}건 · 개체 종류 {dict(_mq.entity.value_counts())}')
+# 표와 CSV 의 일치: 표의 전이 중 실제로 한 번도 안 나온 것(시뮬레이터가 내지 않는 것)과 나온 것
+_seen = set(zip(_mq.entity, _mq['from'], _mq['to'])); _unseen = sorted(k for k in _TB if k not in _seen)
+chk('ESTC 표 대조: 기록된 전이 종류가 모두 표에 있고, 표에만 있고 기록에 없는 전이는 사람 승인(scrapped)·드문 경로뿐', _seen <= set(_TB) and all(_TB[k]['needs_human'] or k[0] in ('set', 'block', 'chamber', 'mask') for k in _unseen),
+    f'기록된 종류 {len(_seen)}개 / 표 {len(_TB)}개 · 기록 없음: ' + ', '.join(f'{k[0]}:{k[1]}→{k[2]}' for k in _unseen if not k[0] == 'block') + f' (+블록 {sum(1 for k in _unseen if k[0]=="block")}개)')
+# 고장 낸 궤적 셋 — 파이썬과 JS 가 똑같이 정확히 그 규칙만 잡는다
+def _brk_py():
+    out = {}
+    df = _mq.copy(); df = df.reset_index(drop=True)
+    # (1) 전이 한 줄 삭제: 어떤 마스크의 held→to_stock
+    i = int(df[(df.entity == 'mask') & (df['from'] == 'held') & (df['to'] == 'to_stock')].index[100]); out['del'] = py_check(df.drop(index=i).reset_index(drop=True))
+    # (2) 순서 뒤집기: 같은 마스크의 연속 두 줄(held→to_stock, to_stock→stock)의 내용을 맞바꿈(시각 칸은 그대로)
+    d2 = df.copy(); j = int(d2[(d2.entity == 'mask') & (d2['from'] == 'held') & (d2['to'] == 'to_stock')].index[200]); mid = d2.id[j]
+    k = int(d2[(d2.index > j) & (d2.id == mid)].index[0]); cols = ['from', 'to', 'trigger', 'cause']; a, b = d2.loc[j, cols].copy(), d2.loc[k, cols].copy(); d2.loc[j, cols] = b.values; d2.loc[k, cols] = a.values; out['swap'] = py_check(d2)
+    # (3) 세정 한 장 더: 세정기가 27장 찬 순간, 대기 중인 마스크의 clean_wait→cleaning 을 그 시각으로 당김
+    m = (df.entity == 'mask').values; dd = np.where(m & (df['to'] == 'cleaning').values, 1, 0) - np.where(m & (df['from'] == 'cleaning').values, 1, 0); cs = np.cumsum(dd)
+    full = int(np.where(cs == _CAP)[0][50]); tfull = int(df.t[full]); d3 = df.copy()
+    cand = d3[(d3.entity == 'mask') & (d3['to'] == 'cleaning') & (d3.t > tfull)]
+    for ci in cand.index:
+        mid = d3.id[ci]; prev = d3[(d3.id == mid) & (d3.index < ci)].iloc[-1]
+        if prev.t <= tfull: break
+    d3.loc[ci, 't'] = tfull; d3 = pd.concat([d3.iloc[:full + 1], d3.loc[[ci]], d3.drop(index=ci).iloc[full + 1:]]) if False else d3
+    d3 = d3.sort_values('t', kind='stable').reset_index(drop=True); out['push'] = py_check(d3)
+    return out
+_bp = _brk_py(); _rules = lambda v: sorted(set(r for r, _ in v))
+chk('ESTC 고장 낸 궤적 셋(파이썬): 전이 삭제 → 이음새(C3)만, 순서 뒤집기 → 이음새(C3)만, 세정 한 장 더 밀어 넣기 → 세정 한도(C1)만', _rules(_bp['del']) == ['C3'] and _rules(_bp['swap']) == ['C3'] and _rules(_bp['push']) == ['C1'],
+    f'삭제 {_rules(_bp["del"])}×{len(_bp["del"])} · 뒤집기 {_rules(_bp["swap"])}×{len(_bp["swap"])} · 밀어 넣기 {_rules(_bp["push"])}×{len(_bp["push"])}')
+_BRK_JS = r"""const M=require(%s);const s=M.simulateLoss({trace:true}),tr=s.transitions.map(x=>Object.assign({},x));const rules=r=>[...new Set(r.violations.map(v=>v.rule))].sort();const o={};
+let i=tr.map((x,k)=>x.entity==='mask'&&x.from==='held'&&x.to==='to_stock'?k:-1).filter(k=>k>=0)[100];o.del=rules(M.estcCheck(tr.filter((_,k)=>k!==i),{end:s.end}));
+const t2=tr.map(x=>Object.assign({},x));const j=tr.map((x,k)=>x.entity==='mask'&&x.from==='held'&&x.to==='to_stock'?k:-1).filter(k=>k>=0)[200];const k2=t2.findIndex((x,k)=>k>j&&x.id===t2[j].id);
+for(const f of ['from','to','trigger','cause']){const a=t2[j][f];t2[j][f]=t2[k2][f];t2[k2][f]=a;}o.swap=rules(M.estcCheck(t2,{end:s.end}));
+let c=0,full=-1,n=0;for(let k=0;k<tr.length;k++){const x=tr[k];if(x.entity!=='mask')continue;if(x.to==='cleaning')c++;if(x.from==='cleaning')c--;if(c===27){n++;if(n===51){full=k;break;}}}
+const tf=tr[full].t;let ci=-1;for(let k=full+1;k<tr.length;k++){const x=tr[k];if(x.entity==='mask'&&x.to==='cleaning'){const pv=tr.slice(0,k).reverse().find(y=>y.id===x.id);if(pv.t<=tf){ci=k;break;}}}
+const t3=tr.map(x=>Object.assign({},x));t3[ci].t=tf;t3.sort((a,b)=>a.t-b.t);o.push=rules(M.estcCheck(t3,{end:s.end}));console.log(JSON.stringify(o));"""
+_bj = json.loads(subprocess.run([_node, '-e', _BRK_JS % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+chk('ESTC 고장 낸 궤적 셋(JS estcCheck): 같은 세 가지를 정확히 그 규칙만 잡음', _bj == {'del': ['C3'], 'swap': ['C3'], 'push': ['C1']}, f'{_bj}')
+# 기록 끔/켬 동일 + 기본 반환 키 불변
+_OFFON = r"""const M=require(%s);const a=M.simulateLoss(),b=M.simulateLoss({trace:true}),c=M.simulateLoss({days:20,seed:5}),d=M.simulateLoss({days:20,seed:5,trace:true});const j=x=>JSON.stringify([x.events,x.hourly,x.turns,x.params,x.days]);
+console.log(JSON.stringify({same:j(a)===j(b)&&j(c)===j(d),keys_off:Object.keys(a),keys_on:Object.keys(b)}))"""
+_oo = json.loads(subprocess.run([_node, '-e', _OFFON % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+chk('ESTC 기록 훅: 켜도 events·hourly·turns·params 가 끈 것과 바이트 단위로 같고(기본·20일/시드 5), 끈 반환 키는 기존 5개 그대로', _oo['same'] and _oo['keys_off'] == ['events', 'hourly', 'turns', 'params', 'days'] and _oo['keys_on'][-3:] == ['transitions', 'resources', 'end'], f'끔 {_oo["keys_off"]} · 켬 추가 {_oo["keys_on"][5:]}')
+# 챔버 체류 ↔ 이벤트 분
+_ev = rd('loss_events.csv'); _ev['start_min'] = ((pd.to_datetime(_ev.start_ts) - pd.Timestamp('2026-01-05')).dt.total_seconds() / 60).round().astype(int); _rmap = {'EQ-BD': 'bd', 'Q-EVAP': 'ev', 'EQ-PM': 'pm', 'Q-MASK': 'mask'}
+_e1 = _ev[_ev.reason.isin(_rmap) & (_ev.chamber != 'ALL')].copy(); _e1['cid'] = _e1.block + '-' + _e1.chamber; _e1['st'] = _e1.reason.map(_rmap)
+_evsum = _e1.groupby(['cid', 'st']).loss_chamber_min.sum().round().astype(int)
+_ch = _mq[_mq.entity == 'chamber'].copy(); _ch['nt'] = _ch.groupby('id').t.shift(-1).fillna(_END); _ch['dur'] = (_ch.nt - _ch.t).astype(int); _dw = _ch[_ch['to'] != 'run'].groupby(['id', 'to']).dur.sum()
+_dw.index.names = ['cid', 'st']; _cmp = pd.concat([_dw.rename('dwell'), _evsum.rename('events')], axis=1).fillna(0)
+chk('ESTC 챔버 체류 분 ↔ events 분: 44개 챔버 × 정지 네 종류(고장·증착기·PM·마스크) 모두 정확히 일치', len(_cmp) > 150 and (_cmp.dwell == _cmp.events).all(), f'비교 {len(_cmp)}칸 · 불일치 {(_cmp.dwell != _cmp.events).sum()} · 정지 총 {int(_cmp.dwell.sum()):,}분')
+# 세정 동시 수 ↔ hourly
+_hr2 = rd('loss_hourly.csv'); _mm = _mq[_mq.entity == 'mask']; _t = _mm.t.values
+_dcl = np.where(_mm['to'] == 'cleaning', 1, 0) - np.where(_mm['from'] == 'cleaning', 1, 0); _dwq = np.where(_mm['to'] == 'clean_wait', 1, 0) - np.where(_mm['from'] == 'clean_wait', 1, 0)
+_ends = np.arange(1440) * 60 + 59; _ix = np.searchsorted(_t, _ends, side='right'); _ccl = np.concatenate([[0], np.cumsum(_dcl)])[_ix]; _cwq = np.concatenate([[0], np.cumsum(_dwq)])[_ix]
+chk('ESTC 세정 동시 수 ↔ hourly: 1,440시간 모두 전이에서 다시 센 세정 중 장수 = cleaner_busy, 세정 대기 장수 = cleaner_queue, 최대 ≤ 27', (_ccl == _hr2.cleaner_busy.values).all() and (_cwq == _hr2.cleaner_queue.values).all() and _ccl.max() <= _CAP,
+    f'세정 중 최대 {_ccl.max()}장(27장 꽉 찬 시간 {(_ccl == _CAP).sum()}개) · 대기열 최대 {_cwq.max()}장')
+# 사례 집계: 파이썬이 CSV 만으로 다시 센 값 = JS caseRecords
+_CASES = r"""const M=require(%s);const s=M.simulateLoss({trace:true}),c=M.caseRecords(s),m=M.estcMetrics(s,c);const q=c.filter(x=>x.decision.rule==='R-MASK-REPAIR'),w=c.filter(x=>x.entity==='block');
+console.log(JSON.stringify({n:c.length,nq:q.length,nw:w.length,rec:q.filter(x=>x.label==='recurred').length,notrec:q.filter(x=>x.label==='not_recurred').length,cens:q.filter(x=>x.label==='censored').length,absent:q.reduce((a,x)=>a+x.outcome.absent_min,0),wait_min:w.reduce((a,x)=>a+x.outcome.value,0),early:w.filter(x=>x.label==='early_jc').length,m:m,bad:c.map(x=>M.validateCase(x)).filter(e=>e.length).length,cases:c}))"""
+_cj = json.loads(subprocess.run([_node, '-e', _CASES % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_mk = _mq[_mq.entity == 'mask']; _bl = _mq[_mq.entity == 'block']; _chf = _mq[(_mq.entity == 'chamber') & (_mq.trigger == 'mask_failure')]
+_nq = _nrec = _nnot = _ncen = 0; _bymask = {k: g.reset_index(drop=True) for k, g in _mk.groupby('id')}; _absent = 0
+_qev = _ev[(_ev.reason == 'Q-MASK') & (_ev.chamber != 'ALL')]
+for _, r in _chf.iterrows():
+    b, cn = r.id[:3], r.id[-1]; found = None
+    for sname in 'ABC':
+        g = _bymask.get(f'{b}-{sname}{cn}')
+        if g is None: continue
+        hit = g[(g['to'] == 'repair') & (g.t >= r.t) & (g.t - r.t < 400)]
+        if len(hit): found = (f'{b}-{sname}{cn}', g, int(hit.index[0])); break
+    if not found: continue
+    mid, g, k = found; _nq += 1; rt = int(g.t[k]); back = g[(g.index > k) & (g['from'] == 'cleaning') & (g['to'] == 'stock')]
+    nxt = g[(g.index > k) & (g['to'] == 'in_use') & ((g.t > back.t.iloc[0]) if len(back) else False)] if len(back) else g.iloc[0:0]
+    tto = _END
+    if len(nxt):
+        ni = int(nxt.index[0]); tto = int(g.t[ni])
+        if ni + 1 < len(g): _nrec += int(g['to'][ni + 1] == 'repair'); _nnot += int(g['to'][ni + 1] != 'repair')
+        else: _ncen += 1
+    else: _ncen += 1
+    _absent += _qev[(_qev.block == b) & (_qev.chamber == 'CH' + cn) & (_qev.mask_set == mid[4]) & (_qev.start_min > rt) & (_qev.start_min < tto)].loss_chamber_min.sum()
+_blk = {}; _nw = _wmin = 0
+for bid, g in _bl.groupby('id'):
+    g = g.reset_index(drop=True)
+    for k in range(len(g) - 1):
+        if g['to'][k] == 'wait_jc' and g.t[k + 1] - g.t[k] >= 20: _nw += 1; _wmin += int(g.t[k + 1] - g.t[k])
+chk('ESTC 사례 집계: 파이썬이 CSV 에서 다시 센 Q-MASK 사례 수·재불량·정상 반납·미확인·빠진 동안 정지 분, 잡 체인지 대기 사례 수·대기 분이 JS caseRecords 와 일치', (_nq, _nrec, _nnot, _ncen, int(_absent), _nw, _wmin) == (_cj['nq'], _cj['rec'], _cj['notrec'], _cj['cens'], _cj['absent'], _cj['nw'], _cj['wait_min']),
+    f'Q-MASK {_nq}건(재불량 {_nrec} · 정상 반납 {_nnot} · 미확인 {_ncen}) · 빠진 동안 정지 {int(_absent)}분 · 잡 체인지 대기 {_nw}건 {_wmin}분')
+# 사례 양식 검사(파이썬 독립 구현) + 일부러 망가뜨린 기록
+_SC = {f['name']: f for f in _est['schema']['fields']}
+def py_validate(rec):
+    e = []
+    for n, f in _SC.items():
+        v = rec.get(n)
+        if v is None:
+            if f['required']: e.append('필수 ' + n)
+            continue
+        ty = 'array' if isinstance(v, list) else 'object' if isinstance(v, dict) else 'string' if isinstance(v, str) else 'number'
+        if ty != f['type']: e.append('형식 ' + n)
+        if 'enum' in f and v not in f['enum']: e.append('enum ' + n)
+    if e: return e
+    import re
+    if not re.match(r'^\d{4}-\d\d-\d\d \d\d:\d\d$', rec['t_detect']): e.append('t_detect')
+    if rec['outcome']['t_check'] < rec['t_detect']: e.append('시각 순서')
+    a = rec['action']['transition']
+    if (rec['entity'], a['from'], a['to']) not in _TB and not (rec['entity'] == 'block' and a['from'] == 'wait_jc'): e.append('전이가 표에 없음')
+    elif (rec['entity'], a['from'], a['to']) in _TB and _TB[(rec['entity'], a['from'], a['to'])]['needs_human'] and (not rec['action']['needs_human'] or rec['action']['approved_by'] in (None, '', 'rule')): e.append('사람 승인 칸')
+    return e
+import copy
+_cs = _cj['cases']; _bad = sum(1 for c in _cs if py_validate(c)); _c0 = _cs[0]
+_m1 = copy.deepcopy(_c0); del _m1['evidence']; _m2 = copy.deepcopy(_c0); _m2['outcome']['t_check'] = '2000-01-01 00:00'; _m3 = copy.deepcopy(_c0); _m3['action']['transition'] = {'from': 'repair', 'to': 'scrapped'}; _m3['entity'] = 'mask'; _m3['action']['approved_by'] = 'rule'
+_m4 = copy.deepcopy(_c0); _m4['entity'] = 'mask'; _m4['action']['transition'] = {'from': 'stock', 'to': 'repair'}
+chk('ESTC 사례 양식: 가상 사례 %d건이 모두 양식 검사 통과(파이썬·JS 모두), 일부러 망가뜨린 넷(필수 칸 삭제·시각 거꾸로·사람 승인 없는 폐기·표에 없는 전이)은 모두 거절' % len(_cs),
+    _bad == 0 and _cj['bad'] == 0 and all(len(py_validate(x)) > 0 for x in (_m1, _m2, _m3, _m4)), f'통과 {len(_cs) - _bad}/{len(_cs)} · 거절 사유 {[py_validate(x)[:1] for x in (_m1, _m2, _m3, _m4)]}')
+# 전이 요청 판정(JS requestTransition): 표에 없음·사람 승인·가드 실패·허용이 각각 나옴
+_REQ = r"""const M=require(%s);const s=M.simulateLoss({trace:true}),tr=s.transitions;const out={};
+let c=0,tf=-1,cq=0;for(const x of tr){if(x.entity==='mask'){if(x.to==='cleaning')c++;if(x.from==='cleaning')c--;if(x.to==='clean_wait')cq++;if(x.from==='clean_wait')cq--;if(c===27&&cq>0&&x.t>3000){tf=x.t;break;}}}
+const sn=M.stateAt(tr,tf);const cw=Object.keys(sn.states).filter(k=>sn.states[k]==='clean_wait').map(k=>k.slice(5))[0];
+out.full=M.requestTransition(sn,'mask',cw,'cleaning').kind;const st=Object.keys(sn.states).filter(k=>sn.states[k]==='stock'&&k.startsWith('mask:')).map(k=>k.slice(5))[0];
+out.notab=M.requestTransition(sn,'mask',st,'held').kind;const iu=Object.keys(sn.states).filter(k=>sn.states[k]==='in_use'&&k.startsWith('mask:')).map(k=>k.slice(5))[0];out.scrap=M.requestTransition(sn,'mask',iu,'scrapped').kind;
+const xs=tr.find(x=>x.entity==='mask'&&x.to==='to_stock'),sn2=M.stateAt(tr,xs.t);out.ok=M.requestTransition(sn2,'mask',xs.id,'stock').ok;console.log(JSON.stringify(out))"""
+_rq = json.loads(subprocess.run([_node, '-e', _REQ % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+chk('ESTC 전이 요청 판정: 세정기 27장 가득이면 가드 실패, 표에 없는 전이는 거절, 폐기는 사람 승인 요구, 시간 조건만 있는 전이는 허용', _rq == {'full': 'guard_fail', 'notab': 'not_in_table', 'scrap': 'needs_human', 'ok': True}, f'{_rq}')
+# 시드 1~200 분포: 핵심 지표 네 개
+_ESD = r"""const M=require(%s);const out=[];for(let sd=1;sd<=200;sd++){const s=M.simulateLoss({trace:true,seed:sd}),c=M.caseRecords(s),m=M.estcMetrics(s,c),r=M.estcCheck(s.transitions,{end:s.end});out.push(Object.assign({sd:sd,viol:r.violations.length},m));}
+const s0=M.simulateLoss({trace:true}),c0=M.caseRecords(s0);console.log(JSON.stringify({d:out,def:M.estcMetrics(s0,c0)}))"""
+_ed = json.loads(subprocess.run([_node, '-e', _ESD % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_ek = ['held_frac', 'wait_frac', 'wait_jc', 'qmask_recur']; _en = ['마스크 한 바퀴 중 짝 대기 비율', '세정 대기 비율', '잡 체인지 대기 건수(60일)', 'Q-MASK 사례 재불량 비율']
+_ea = {k: np.array([x[k] for x in _ed['d']], float) for k in _ek + ['qmask_cases', 'viol']}
+_epct = {k: float(((_ea[k] < _ed['def'][k]).sum() + 0.5 * (_ea[k] == _ed['def'][k]).sum()) / 200) for k in _ek}
+chk('ESTC 시드 1~200 분포: 시드마다 estcCheck 위반 0, 핵심 지표 네 개가 모두 양수 분포(짝 대기·세정 대기 비율 > 0, 잡 체인지 대기 건수 > 0)', int(_ea['viol'].sum()) == 0 and (_ea['held_frac'] > 0).all() and (_ea['wait_frac'] > 0).all() and (_ea['wait_jc'] > 0).all(),
+    ' · '.join(f'{n} 중앙값 {np.median(_ea[k]):.4g} (10~90%: {np.quantile(_ea[k], .1):.4g}~{np.quantile(_ea[k], .9):.4g})' for k, n in zip(_ek, _en)))
+chk('ESTC 기본 시드(20261011) 백분위 기록: 지표 네 개의 시드 1~200 분포 속 위치(10~90% 밖이면 본문은 분포 숫자로 씀)', True,
+    ' · '.join(f'{n} {_ed["def"][k]:.4g} → {_epct[k]*100:.0f}%' for k, n in zip(_ek, _en)) + f' · Q-MASK 사례 수 기본 {_ed["def"]["qmask_cases"]} / 분포 중앙값 {np.median(_ea["qmask_cases"]):.0f}')
+
+# 0206 페이지의 Python 블록: 그대로 실행한 출력이 페이지에 적힌 출력과 같고, 코드 속 사례 기록이 JS 대표 사건과 같다
+import html as _html, re as _re, tempfile as _tf
+_pg = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0206-process-state-model.html'), encoding='utf-8').read()
+_code = _html.unescape(_re.search(r'<pre id="pyCode">(.*?)</pre>', _pg, _re.S).group(1)); _outp = _html.unescape(_re.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg, _re.S).group(1)).strip()
+with _tf.TemporaryDirectory() as _td:
+    shutil.copy(os.path.join(D, 'mask_transitions.csv'), _td); open(os.path.join(_td, 'lab0206.py'), 'w', encoding='utf-8').write(_code)
+    _run = subprocess.run([sys.executable, '-I', 'lab0206.py'], cwd=_td, capture_output=True, text=True)
+chk('0206 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run.returncode == 0 and _run.stdout.strip() == _outp, f'종료 {_run.returncode} · 출력 {len(_run.stdout.splitlines())}줄' + ('' if _run.stdout.strip() == _outp else ' · 다름: ' + _run.stdout.strip()[:200]))
+_lit = json.loads(_re.search(r'json\.loads\("""(.*?)"""\)', _code, _re.S).group(1)); _fc = json.loads(subprocess.run([_node, '-e', "const M=require(%s);const s=M.simulateLoss({trace:true});console.log(JSON.stringify(M.featuredCase(M.caseRecords(s))))" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+chk('0206 Python 블록 속 사례 기록 = JS featuredCase, 표(TABLE) = JS ESTC 전이 표 전체', _lit == _fc and sorted(l.split()[:3] for l in _re.search(r'TABLE = """(.*?)"""', _code, _re.S).group(1).strip().splitlines()) == sorted([x['entity'], x['from'], x['to']] for x in _est['estc']['transitions']), f"사례 {_fc['case_id']} · 표 {len(_est['estc']['transitions'])}줄")
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')
