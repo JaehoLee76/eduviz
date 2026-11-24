@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층을 검사합니다(`python3 verify.py`, 77항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생) |
+| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 90항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙을 파이썬으로 다시 구현해 시드 1~200 을 JS 와 대조) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -30,6 +30,7 @@
 - `s5_autocorr.csv` — AR(1) 센서. `idx, phase, vac_level`.
 - `s6_false_alarm.csv` — 특징 590개(센서 118개 × 특징 5개, 열 `s001_steady_mean` …). `group` 이 `ref`(기준 300장)·`normal`(정상 500장)·`anomaly`(특징 하나가 5σ 이동한 이상 10장)입니다. 같은 센서의 다섯 특징은 상관 0.6.
 - `ppa_sample.csv` — B03 CH2 유리 3장의 77점. `…, px, py, x_mm, y_mm, dx_um, dy_um, defect`(1 이면 국소 결함 정답).
+- `ppa_s10.csv` — S10(실험실 0301) 대표 시드의 마스크 72장 × 77점. `glass_id, block, chamber, mask_id, mask_set, turn, glass_in_turn, chamber_temp, px, py, x_mm, y_mm, dx_um, dy_um, defect, bad_stick`(`defect` 1 = 국소 결함 정답 점, `bad_stick` = 마스크의 불량 스틱 열 번호 정답, 없으면 -1). 유리 가운데가 원점이고 +dx 는 오른쪽(장변), +dy 는 위쪽(단변), 행 0 이 맨 아래 줄입니다.
 - `fdc_features.csv` — B03 의 5개 턴 유리별 특징. `p_steady_mean, p_steady_std, p_max_dev, p_settle_s, p_overshoot_pct, rate_ang_s, pm_flag(PM 이후=1), true_anomaly, anomaly_type, interlock, interlock_true`(가성 인터락 = interlock 1 이고 interlock_true 0).
 - `loss_events.csv` — 60일 Loss 사건. `event_id, start_ts, end_ts, block, chamber(CH1~4 또는 ALL), reason(직접 사유), root_cause(1차 원인), caused_by_block, run_mode(quad/triple/degraded), mask_set, turn, loss_chamber_min, loss_glass`. 사유는 명세의 11개 코드와 `LB-LINE`(라인 밸런스: 앞뒤 블록 때문에 굶거나 막힌 손실, 90 챔버·분 미만은 생략)입니다. `reason` 과 `root_cause` 가 다른 행이 연쇄의 흔적입니다.
 - `loss_hourly.csv` — 1시간 단위 상태. `ts, stocker_fill, cleaner_queue, cleaner_busy, cassette_free, transport_requests, blocks_triple, blocks_idle, line_wip, line_out`.
@@ -48,3 +49,16 @@
 | `requestTransition(snap, entity, id, to)` | 표에 있는가 → 사람 승인이 필요한가 → 가드 통과 순서의 판정 |
 | `CASE_SCHEMA` · `validateCase(rec)` · `caseRecords(sim)` · `featuredCase(cases)` | 사례 기록 양식과 검사, 시뮬레이션에서 뽑는 가상 사례(마스크 불량 → 리페어, 잡 체인지 대기 20분 이상) |
 | `estcMetrics(sim, cases)` | 핵심 지표 네 개(마스크 한 바퀴 중 짝 대기·세정 대기 비율, 잡 체인지 대기 건수, 마스크 불량 사례 중 다시 불량 비율). verify 가 시드 1~200 분포를 계산 |
+
+## PPA 벡터장 (S10, 실험실 0301)
+
+`MfgSim.scenario('S10', {seed})` — 마스크 72장(B02~B07 × 세트 A·B·C × 챔버 1~4)마다 측정 유리 한 장(턴 1~20·턴 안 순번은 `hashSeed('S10', …)` 줄기). 마스크 집단은 `makeMask(id, null, tag)` 의 `tag`(= 시드)로 다시 뽑고, 같은 시드는 늘 같은 결과입니다. 기본 시드는 시드 1~200 분포에서 일곱 지표 백분위의 Σ|백분위−50| 이 가장 작은 128 입니다. 기존 출력(CSV 14개·S1~S9·`simulateLoss`·전이 기록)은 바이트 단위로 그대로입니다(`makeMask` 의 `tag`·`ppa()` 의 식 분리는 기본값에서 같은 값을 냅니다).
+
+| 함수·값 | 설명 |
+|---|---|
+| `MfgSim.ppaField(comp)` | 잡음 없는 순수 성분 장 77점 `[{px,py,x_mm,y_mm,dx,dy}]`. `comp` 에 없는 성분은 0(슬라이더 화면용). `ppa()` 와 같은 식(`fieldAt`)을 씀 |
+| `s10tools.parts(c)` · `shares(c)` | 성분 일곱 묶음(평행이동·회전·배율·직교도·고차·스틱·국소 결함)의 77점 기여와 제곱합·몫(몫의 합 1, 교차항은 세지 않음)·주된 성분 |
+| `columnProfile(grid, z)` | 열 단면: 열마다 dx 평균을 이웃 열로 예측한 잔차(안쪽 √1.5·바깥 √6 으로 눈금 맞춤)의 로버스트 z, 기본 기준 3.5 |
+| `pointOutliers(grid, z)` | 튀는 점: 이웃 8점 중앙값과의 차의 dx·dy 로버스트 z 중 큰 쪽이 기준(기본 4) 이상 |
+| `pickPair` · `pickQuiz` | 짝 규칙(spec 판정이 같고 주된 성분이 다른 짝 중 dx 지표 차 최소)·문항 규칙(성분마다 몫이 가장 큰 유리, 짝 제외) |
+| 반환 | `items`(유리별 격자·정답 성분·몫·열 단면·튀는 점), `spec`(불량 스틱 없는 마스크 dx 지표의 95 백분위), `bad`·`miss_metric`·`caught_col`·`false_col`, `pair`, `quiz`, `csvRows()` |

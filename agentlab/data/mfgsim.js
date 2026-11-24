@@ -145,8 +145,8 @@
   }
 
   /* 마스크 한 장의 고정 특성(제작 품질). overrides 로 일부를 강제할 수 있다. */
-  function makeMask(id, over) {
-    var p = parseMaskId(id), r = rng(hashSeed('mask', id)), lr = rng(hashSeed('lot', p.block, p.set));
+  function makeMask(id, over, tag) {      // tag(선택): 주면 S10 시드 줄기로 다시 뽑는다. 없으면 기존 결정적 값 그대로
+    var p = parseMaskId(id), r = rng(tag == null ? hashSeed('mask', id) : hashSeed('S10', tag, 'mask', id)), lr = rng(tag == null ? hashSeed('lot', p.block, p.set) : hashSeed('S10', tag, 'lot', p.block, p.set));
     var lotMx = lr.normal(0, 0.6), lotMy = lr.normal(0, 0.4);           // 제작 로트 평균(로트 차이)
     var m = {
       mask_id: id, block: p.block, set: p.set, chamber: p.chamber, lot: 'LOT-' + p.block + p.set,
@@ -222,6 +222,25 @@
       defects: mask.defects.slice()
     };
   }
+  /* 한 점의 잡음 없는 성분 합(결함 제외). c = ppaComponents 의 반환값(또는 같은 키를 가진 성분 묶음), 단위 µm, x·y 는 mm */
+  function fieldAt(c, x, y, px) {
+    var xm = x / 1000, ym = y / 1000;
+    var dx = c.Tx - c.theta * y * 1e-3 + c.Mx * x * 1e-3 + c.K * y * 1e-3 + c.Cx * xm * ym + c.stick_off[px];
+    var dy = c.Ty + c.theta * x * 1e-3 + c.My * y * 1e-3 + c.Cy * xm * xm + c.stick_pitch[px] * y * 1e-3;
+    return [dx, dy];
+  }
+  var ZERO11 = []; (function () { for (var j = 0; j < 11; j++) ZERO11.push(0); })();
+  /* 슬라이더용 순수 성분 장: comp 에 없는 성분은 0. 잡음 없음. 반환 [{px,py,x_mm,y_mm,dx,dy}] (77점, ppa 와 같은 순서) */
+  function ppaField(comp) {
+    var c = { Tx: 0, Ty: 0, theta: 0, Mx: 0, My: 0, K: 0, Cx: 0, Cy: 0, stick_off: ZERO11, stick_pitch: ZERO11, defects: [] }, k, out = [], i, dm = {};
+    for (k in comp) c[k] = comp[k];
+    for (i = 0; i < c.defects.length; i++) dm[c.defects[i].px + ',' + c.defects[i].py] = c.defects[i];
+    for (var py = 0; py < CFG.NY; py++) for (var px = 0; px < CFG.NX; px++) {
+      var xy = gridXY(px, py), v = fieldAt(c, xy.x, xy.y, px), d = dm[px + ',' + py];
+      out.push({ px: px, py: py, x_mm: xy.x, y_mm: xy.y, dx: v[0] + (d ? d.dx : 0), dy: v[1] + (d ? d.dy : 0) });
+    }
+    return out;
+  }
   /* 77점 격자 생성. 반환 {…ctx, grid:[{px,py,x_mm,y_mm,dx_um,dy_um,defect}], truth} */
   function ppa(ctx, mask, opts) {
     opts = opts || {};
@@ -229,9 +248,7 @@
     var rn = rng(hashSeed(ctx.glass_id, 'nz', opts.seed || 0)), grid = [], dmap = {}, i;
     for (i = 0; i < c.defects.length; i++) dmap[c.defects[i].px + ',' + c.defects[i].py] = c.defects[i];
     for (var py = 0; py < CFG.NY; py++) for (var px = 0; px < CFG.NX; px++) {
-      var xy = gridXY(px, py), x = xy.x, y = xy.y, xm = x / 1000, ym = y / 1000;
-      var dx = c.Tx - c.theta * y * 1e-3 + c.Mx * x * 1e-3 + c.K * y * 1e-3 + c.Cx * xm * ym + c.stick_off[px];
-      var dy = c.Ty + c.theta * x * 1e-3 + c.My * y * 1e-3 + c.Cy * xm * xm + c.stick_pitch[px] * y * 1e-3;
+      var xy = gridXY(px, py), x = xy.x, y = xy.y, v = fieldAt(c, x, y, px), dx = v[0], dy = v[1];
       var d = dmap[px + ',' + py], flag = 0;
       if (d) { dx += d.dx; dy += d.dy; flag = 1; }
       dx += rn.normal(0, nz); dy += rn.normal(0, nz);
@@ -997,12 +1014,12 @@
   /* ============================================================
    * 6. 시나리오 S1~S7 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12 };   // 기본 시드(S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12, S10: 128 };   // 기본 시드(S10=128: 시드 1~200 의 일곱 지표(불량 스틱 마스크 수·지표만 보면 놓친 수·열 단면이 잡은 수·열 단면 헛표시 마스크 수·튀는 점 찾은 수·spec·섞인 문항 수) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
 
   function scenario(name, params) {
     params = params || {};
-    var key = String(name).toUpperCase().slice(0, 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9 }[key];
+    var key = String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -1685,12 +1702,123 @@
   }
   S9.tools = { gen: s9gen, policy: s9policy, labels: s9labels, scan: s9scan, curve: s9curve, cost: s9cost, argmin: s9argmin, analyze: s9analyze, GRID: S9_GRID, PERIODS: S9_PERIODS, K3: S9_K3 };
 
+  /* S10 ppa_vector_field — PPA 를 벡터장으로 보기(실험실 0301). 마스크 72장(B02~B07 × 세트 A·B·C × 챔버 1~4) 각각의 측정 유리 한 장.
+   * seed 마다 마스크 집단(makeMask 의 tag 줄기)·턴·유리 순번을 다시 뽑는다. 새 난수는 전부 hashSeed('S10', …) 줄기. */
+  var S10_COMPS = ['trans', 'rot', 'mag', 'ortho', 'high', 'stick', 'local'];
+  var S10_COMP_KO = { trans: '평행이동', rot: '회전', mag: '배율', ortho: '직교도', high: '고차 성분', stick: '스틱', local: '국소 결함' };
+  var S10_SPEC_Q = 0.95, S10_COL_Z = 3.5, S10_PT_Z = 4;
+  function s10parts(c) {                         // 성분별 77점 기여 [{dx,dy}…] (잡음 없음). 일곱 묶음의 합 = 전체 장
+    var out = {}, k; S10_COMPS.forEach(function (n) { out[n] = []; });
+    var dm = {}; for (k = 0; k < c.defects.length; k++) dm[c.defects[k].px + ',' + c.defects[k].py] = c.defects[k];
+    for (var py = 0; py < CFG.NY; py++) for (var px = 0; px < CFG.NX; px++) {
+      var xy = gridXY(px, py), x = xy.x, y = xy.y, xm = x / 1000, ym = y / 1000, d = dm[px + ',' + py];
+      out.trans.push({ dx: c.Tx, dy: c.Ty });
+      out.rot.push({ dx: -c.theta * y * 1e-3, dy: c.theta * x * 1e-3 });
+      out.mag.push({ dx: c.Mx * x * 1e-3, dy: c.My * y * 1e-3 });
+      out.ortho.push({ dx: c.K * y * 1e-3, dy: 0 });
+      out.high.push({ dx: c.Cx * xm * ym, dy: c.Cy * xm * xm });
+      out.stick.push({ dx: c.stick_off[px], dy: c.stick_pitch[px] * y * 1e-3 });
+      out.local.push({ dx: d ? d.dx : 0, dy: d ? d.dy : 0 });
+    }
+    return out;
+  }
+  function s10shares(c) {                        // 성분별 제곱합 Σ(dx²+dy²)와 몫(일곱 제곱합의 합이 분모). 주된 성분 = 몫 최대
+    var P = s10parts(c), ss = {}, tot = 0, best = null;
+    S10_COMPS.forEach(function (n) { var s = 0; P[n].forEach(function (q) { s += q.dx * q.dx + q.dy * q.dy; }); ss[n] = s; tot += s; });
+    var share = {}; S10_COMPS.forEach(function (n) { share[n] = tot > 0 ? ss[n] / tot : 0; if (best === null || share[n] > share[best]) best = n; });
+    return { ss: ss, share: share, total: tot, dominant: best };
+  }
+  function s10cols(grid) {                       // 77점 → 열(11)마다 dx 평균
+    var cm = [], j, i; for (j = 0; j < CFG.NX; j++) { var s = 0; for (i = 0; i < CFG.NY; i++) s += grid[i * CFG.NX + j].dx_um; cm.push(s / CFG.NY); }
+    return cm;
+  }
+  /* 열 단면: 열 평균 cm 을 이웃 열로 예측(안쪽 열 = 양 이웃 평균, 바깥 열 = 안쪽 두 열로 직선 연장)한 잔차를,
+   * 잔차 분산 배수(안쪽 1.5, 바깥 6)의 제곱근으로 나눠 같은 눈금으로 만든 뒤 로버스트 z = (r − 중앙값)/(1.4826·MAD) */
+  function columnProfile(grid, zthr) {
+    zthr = zthr == null ? S10_COL_Z : zthr;
+    var cm = s10cols(grid), n = cm.length, r = [], j;
+    for (j = 0; j < n; j++) {
+      var pred = j === 0 ? 2 * cm[1] - cm[2] : j === n - 1 ? 2 * cm[n - 2] - cm[n - 3] : (cm[j - 1] + cm[j + 1]) / 2;
+      r.push((cm[j] - pred) / Math.sqrt(j === 0 || j === n - 1 ? 6 : 1.5));
+    }
+    var md = median(r), sc = 1.4826 * median(r.map(function (v) { return Math.abs(v - md); })), z = r.map(function (v) { return sc > 0 ? (v - md) / sc : 0; });
+    var zmax = 0, jmax = 0; z.forEach(function (v, i) { if (Math.abs(v) > zmax) { zmax = Math.abs(v); jmax = i; } });
+    return { col_mean: cm, resid: r, scale: sc, z: z, zmax: zmax, jmax: jmax, flagged: z.map(function (v, i) { return Math.abs(v) >= zthr ? i : -1; }).filter(function (i) { return i >= 0; }) };
+  }
+  /* 튀는 점: 점마다 (자기 − 이웃 중앙값)을 dx·dy 따로 구하고, 각각 로버스트 z(전체 잔차의 중앙값·1.4826·MAD)로 바꿔 둘 중 큰 쪽이 zthr 이상이면 표시 */
+  function pointOutliers(grid, zthr) {
+    zthr = zthr == null ? S10_PT_Z : zthr;
+    var NX = CFG.NX, NY = CFG.NY, rx = [], ry = [], px, py, a, b;
+    for (py = 0; py < NY; py++) for (px = 0; px < NX; px++) {
+      var nx = [], ny = [];
+      for (a = -1; a <= 1; a++) for (b = -1; b <= 1; b++) {
+        if (!a && !b) continue; var qx = px + a, qy = py + b; if (qx < 0 || qx >= NX || qy < 0 || qy >= NY) continue;
+        var g = grid[qy * NX + qx]; nx.push(g.dx_um); ny.push(g.dy_um);
+      }
+      var me = grid[py * NX + px]; rx.push(me.dx_um - median(nx)); ry.push(me.dy_um - median(ny));
+    }
+    function rz(r) { var md = median(r), sc = 1.4826 * median(r.map(function (v) { return Math.abs(v - md); })); return r.map(function (v) { return sc > 0 ? (v - md) / sc : 0; }); }
+    var zx = rz(rx), zy = rz(ry), out = [];
+    for (var i = 0; i < zx.length; i++) { var zm = Math.max(Math.abs(zx[i]), Math.abs(zy[i])); if (zm >= zthr) out.push({ px: i % NX, py: Math.floor(i / NX), zx: zx[i], zy: zy[i], z: zm }); }
+    return { zx: zx, zy: zy, flagged: out };
+  }
+  function s10pickPair(items, spec) {            // 규칙: 지표 판정(spec 안/밖)이 같고 주된 성분이 다른 짝 가운데 |dx_metric 차이| 최소
+    var best = null;
+    for (var i = 0; i < items.length; i++) for (var j = i + 1; j < items.length; j++) {
+      var A = items[i], B = items[j];
+      if (A.dominant === B.dominant || (A.metric.dx_metric <= spec) !== (B.metric.dx_metric <= spec)) continue;
+      var d = Math.abs(A.metric.dx_metric - B.metric.dx_metric);
+      if (best === null || d < best.diff) best = { i: i, j: j, diff: d, diff_dy: Math.abs(A.metric.dy_metric - B.metric.dy_metric) };
+    }
+    return best;
+  }
+  function s10pickQuiz(items, exclude) {         // 규칙: 성분마다 그 성분 몫이 가장 큰 유리(앞 문항에서 쓴 유리·exclude 제외). 몫 50% 미만이면 mixed
+    var used = {}; (exclude || []).forEach(function (i) { used[i] = 1; });
+    return S10_COMPS.map(function (n) {
+      var bi = -1; items.forEach(function (it, i) { if (!used[i] && (bi < 0 || it.share[n] > items[bi].share[n])) bi = i; });
+      used[bi] = 1; return { comp: n, i: bi, share: items[bi].share[n], mixed: items[bi].share[n] < 0.5 };
+    });
+  }
+  function S10(p) {
+    var seed = p.seed == null ? SEEDS.S10 : p.seed, items = [], b, s, c, ids = [];
+    ['B02', 'B03', 'B04', 'B05', 'B06', 'B07'].forEach(function (bk) { SETS.forEach(function (st) { for (c = 1; c <= 4; c++) ids.push(maskId(bk, st, c)); }); });
+    ids.forEach(function (id) {
+      var mk = makeMask(id, null, seed), r = rng(hashSeed('S10', seed, id, 'turn')), pm = parseMaskId(id);
+      var turn = 1 + r.int(20), git = 1 + r.int(CFG.N_TURN), temp = chamberTemp(pm.chamber, git);
+      var ctx = { glass_id: 'S10-' + seed + '-' + id, block: mk.block, chamber: mk.chamber, mask_set: mk.set, turn: turn, glass_in_turn: git, chamber_temp: temp };
+      var res = ppa(ctx, mk), sh = s10shares(res.truth), cp = columnProfile(res.grid), po = pointOutliers(res.grid);
+      var defOut = res.truth.defects.length ? po.flagged.some(function (f) { return f.px === res.truth.defects[0].px && f.py === res.truth.defects[0].py; }) : null;
+      items.push({ glass_id: ctx.glass_id, mask_id: id, block: mk.block, mask_set: mk.set, chamber: mk.chamber, turn: turn, glass_in_turn: git, chamber_temp: temp,
+        grid: res.grid, truth: res.truth, bad_stick: mk.bad_stick, metric: ppaMetric(res.grid), ss: sh.ss, share: sh.share, dominant: sh.dominant, total: sh.total, col: cp, pts: po, defect_found: defOut });
+    });
+    var good = items.filter(function (it) { return it.bad_stick < 0; }).map(function (it) { return it.metric.dx_metric; });
+    var spec = quantileOf(good, S10_SPEC_Q);
+    var bad = items.map(function (it, i) { return i; }).filter(function (i) { return items[i].bad_stick >= 0; });
+    var missM = bad.filter(function (i) { return items[i].metric.dx_metric <= spec; });
+    var caught = missM.filter(function (i) { return items[i].col.flagged.indexOf(items[i].bad_stick) >= 0; });
+    var falseCol = items.filter(function (it) { return it.bad_stick < 0 && it.col.flagged.length > 0; }).length;
+    var pair = s10pickPair(items, spec), quiz = s10pickQuiz(items, pair ? [pair.i, pair.j] : []);
+    var withDef = items.filter(function (it) { return it.truth.defects.length > 0; }), defHit = withDef.filter(function (it) { return it.defect_found; });
+    var defMiss = withDef.filter(function (it) { return it.metric.dx_metric <= spec; });
+    var out = { id: 'S10', name: 'ppa_vector_field', params: { seed: seed, n_mask: items.length, spec_quantile: S10_SPEC_Q, col_z: S10_COL_Z, pt_z: S10_PT_Z },
+      items: items, spec: spec, bad: bad, miss_metric: missM, caught_col: caught, false_col: falseCol, n_good: good.length, pair: pair, quiz: quiz,
+      defect: { n: withDef.length, found: defHit.length, in_spec: defMiss.length }, ssum: null };
+    out.csvRows = function () {
+      var rows = [];
+      items.forEach(function (it) { it.grid.forEach(function (q) { rows.push({ glass_id: it.glass_id, block: it.block, chamber: it.chamber, mask_id: it.mask_id, mask_set: it.mask_set, turn: it.turn, glass_in_turn: it.glass_in_turn,
+        chamber_temp: +it.chamber_temp.toFixed(3), px: q.px, py: q.py, x_mm: +q.x_mm.toFixed(1), y_mm: +q.y_mm.toFixed(1), dx_um: +q.dx_um.toFixed(4), dy_um: +q.dy_um.toFixed(4), defect: q.defect, bad_stick: it.bad_stick }); }); });
+      return rows;
+    };
+    return out;
+  }
+  S10.tools = { fieldAt: fieldAt, parts: s10parts, shares: s10shares, cols: s10cols, columnProfile: columnProfile, pointOutliers: pointOutliers, pickPair: s10pickPair, pickQuiz: s10pickQuiz, COMPS: S10_COMPS, COMP_KO: S10_COMP_KO, SPEC_Q: S10_SPEC_Q, COL_Z: S10_COL_Z, PT_Z: S10_PT_Z, quantileOf: quantileOf };
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
-    ppa: ppa, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
+    ppa: ppa, ppaField: ppaField, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools
   };
 });

@@ -573,6 +573,118 @@ chk('0206 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페
 _lit = json.loads(_re.search(r'json\.loads\("""(.*?)"""\)', _code, _re.S).group(1)); _fc = json.loads(subprocess.run([_node, '-e', "const M=require(%s);const s=M.simulateLoss({trace:true});console.log(JSON.stringify(M.featuredCase(M.caseRecords(s))))" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
 chk('0206 Python 블록 속 사례 기록 = JS featuredCase, 표(TABLE) = JS ESTC 전이 표 전체', _lit == _fc and sorted(l.split()[:3] for l in _re.search(r'TABLE = """(.*?)"""', _code, _re.S).group(1).strip().splitlines()) == sorted([x['entity'], x['from'], x['to']] for x in _est['estc']['transitions']), f"사례 {_fc['case_id']} · 표 {len(_est['estc']['transitions'])}줄")
 
+# ============================================================
+# S10 (0301) — PPA 벡터장: 성분 일곱 묶음·열 단면·튀는 점·짝/문항 규칙을 Python 으로 독립 구현해 시드 1~200 전부 JS 와 대조한다
+# ============================================================
+_S10_EXPORT = r"""const M=require(%s);const T=M.s10tools;const out=[];
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S10',{seed:sd});
+ out.push({seed:sd,spec:S.spec,pair:S.pair,quiz:S.quiz,bad:S.bad,miss:S.miss_metric,caught:S.caught_col,false_col:S.false_col,n_good:S.n_good,defect:S.defect,
+  items:S.items.map(it=>({id:it.mask_id,turn:it.turn,git:it.glass_in_turn,temp:it.chamber_temp,dom:it.dominant,bad:it.bad_stick,
+   c:{Tx:it.truth.Tx,Ty:it.truth.Ty,theta:it.truth.theta,Mx:it.truth.Mx,My:it.truth.My,K:it.truth.K,Cx:it.truth.Cx,Cy:it.truth.Cy,so:it.truth.stick_off,sp:it.truth.stick_pitch,df:it.truth.defects},
+   dx:it.grid.map(g=>g.dx_um),dy:it.grid.map(g=>g.dy_um),met:it.metric,share:it.share,colz:it.col.z,colf:it.col.flagged,ptf:it.pts.flagged.map(f=>[f.px,f.py]),
+   fld:sd===%d?M.ppaField(it.truth).map(q=>[q.dx,q.dy]):null}))});}
+console.log(JSON.stringify(out))"""
+_s10def = json.loads(subprocess.run([_node, '-e', "console.log(require(%s).SEEDS.S10)" % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_S10 = json.loads(subprocess.run([_node, '-e', _S10_EXPORT % (json.dumps(_mf), _s10def)], capture_output=True, text=True, check=True).stdout)
+_X10 = -750 + 150 * np.tile(np.arange(11), 7); _Y10 = -462.5 + (925 / 6) * np.repeat(np.arange(7), 11); _PX10 = np.tile(np.arange(11), 7); _PY10 = np.repeat(np.arange(7), 11)
+_CK = ['trans', 'rot', 'mag', 'ortho', 'high', 'stick', 'local']
+def py10_parts(c):                      # 성분 일곱 묶음 (77,2) — 행렬식으로 따로 구현
+    z = np.zeros(77); xm, ym = _X10 / 1000, _Y10 / 1000; so = np.array(c['so'])[_PX10]; sp = np.array(c['sp'])[_PX10]
+    loc = np.zeros((77, 2))
+    for d in c['df']: loc[d['py'] * 11 + d['px']] += [d['dx'], d['dy']]
+    return {'trans': np.c_[z + c['Tx'], z + c['Ty']], 'rot': np.c_[-c['theta'] * _Y10 / 1000, c['theta'] * _X10 / 1000], 'mag': np.c_[c['Mx'] * _X10 / 1000, c['My'] * _Y10 / 1000],
+            'ortho': np.c_[c['K'] * _Y10 / 1000, z], 'high': np.c_[c['Cx'] * xm * ym, c['Cy'] * xm * xm], 'stick': np.c_[so, sp * _Y10 / 1000], 'local': loc}
+def py10_shares(c):
+    P = py10_parts(c); ss = {k: float((P[k] ** 2).sum()) for k in _CK}; t = sum(ss.values()); sh = {k: ss[k] / t for k in _CK}
+    return P, sh, max(_CK, key=lambda k: (sh[k], -_CK.index(k)))
+def py10_col(dx, thr=3.5):
+    cm = np.array(dx).reshape(7, 11).mean(0); pred = np.empty(11); pred[1:-1] = (cm[:-2] + cm[2:]) / 2; pred[0] = 2 * cm[1] - cm[2]; pred[-1] = 2 * cm[-2] - cm[-3]
+    r = (cm - pred) / np.sqrt(np.r_[6, np.full(9, 1.5), 6]); md = np.median(r); sc = 1.4826 * np.median(np.abs(r - md)); z = (r - md) / sc
+    return z, [int(i) for i in np.where(np.abs(z) >= thr)[0]]
+def py10_pts(dx, dy, thr=4):
+    gx, gy = np.array(dx).reshape(7, 11), np.array(dy).reshape(7, 11); rx = np.zeros((7, 11)); ry = np.zeros((7, 11))
+    for i in range(7):
+        for j in range(11):
+            nb = [(a, b) for a in range(max(0, i - 1), min(7, i + 2)) for b in range(max(0, j - 1), min(11, j + 2)) if (a, b) != (i, j)]
+            rx[i, j] = gx[i, j] - np.median([gx[a, b] for a, b in nb]); ry[i, j] = gy[i, j] - np.median([gy[a, b] for a, b in nb])
+    def rz(r): md = np.median(r); return (r - md) / (1.4826 * np.median(np.abs(r - md)))
+    zm = np.maximum(np.abs(rz(rx)), np.abs(rz(ry))); return [[int(j), int(i)] for i in range(7) for j in range(11) if zm[i, j] >= thr]
+_tot10 = {'fld': 0, 'recon': 0, 'met': 0, 'sh': 0, 'colz': 0, 'colf': 0, 'ptf': 0, 'spec': 0, 'pair': 0, 'quiz': 0, 'dom': 0, 'agg': 0, 'noise': []}; _per10 = []
+for X in _S10:
+    its = X['items']; met10 = []; dom10 = []; sh10 = []
+    for it in its:
+        P, sh, dom = py10_shares(it['c']); tot = sum(P.values())                          # 일곱 묶음의 합
+        dxy = np.c_[it['dx'], it['dy']]
+        c = it['c']; xm, ym = _X10 / 1000, _Y10 / 1000                                      # 묶음 없이 한 식으로 쓴 전체 장(성분 합 재구성 오차 비교용)
+        whole = np.c_[c['Tx'] - c['theta'] * _Y10 * 1e-3 + c['Mx'] * _X10 * 1e-3 + c['K'] * _Y10 * 1e-3 + c['Cx'] * xm * ym + np.array(c['so'])[_PX10],
+                      c['Ty'] + c['theta'] * _X10 * 1e-3 + c['My'] * _Y10 * 1e-3 + c['Cy'] * xm * xm + np.array(c['sp'])[_PX10] * _Y10 * 1e-3]
+        for d in c['df']: whole[d['py'] * 11 + d['px']] += [d['dx'], d['dy']]
+        _tot10['recon'] = max(_tot10['recon'], float(np.abs(tot - whole).max()))
+        if it['fld'] is not None: _tot10['fld'] = max(_tot10['fld'], float(np.abs(np.array(it['fld']) - whole).max())); _tot10['noise'].append(dxy - whole)
+        dxm = np.array(it['dx']); dym = np.array(it['dy'])
+        mdx = abs(dxm.mean()) + 3 * dxm.std(ddof=1); mdy = abs(dym.mean()) + 3 * dym.std(ddof=1); met10.append(mdx)
+        _tot10['met'] = max(_tot10['met'], abs(mdx - it['met']['dx_metric']), abs(mdy - it['met']['dy_metric']))
+        _tot10['sh'] = max(_tot10['sh'], max(abs(sh[k] - it['share'][k]) for k in _CK)); _tot10['dom'] += (dom != it['dom'])
+        z, f = py10_col(it['dx']); _tot10['colz'] = max(_tot10['colz'], float(np.abs(z - np.array(it['colz'])).max())); _tot10['colf'] += (f != it['colf'])
+        _tot10['ptf'] += (py10_pts(it['dx'], it['dy']) != it['ptf']); dom10.append(dom); sh10.append(sh)
+    good = [m for m, it in zip(met10, its) if it['bad'] < 0]; spec = float(np.quantile(good, 0.95)); _tot10['spec'] = max(_tot10['spec'], abs(spec - X['spec']))
+    best = None                                                                          # 짝 규칙
+    for i in range(72):
+        for j in range(i + 1, 72):
+            if dom10[i] == dom10[j] or (met10[i] <= spec) != (met10[j] <= spec): continue
+            d = abs(met10[i] - met10[j])
+            if best is None or d < best[0]: best = (d, i, j)
+    _tot10['pair'] += not (best and (best[1], best[2]) == (X['pair']['i'], X['pair']['j']) and abs(best[0] - X['pair']['diff']) < 1e-9)
+    used = {best[1], best[2]}; qz = []                                                   # 문항 규칙
+    for k in _CK:
+        bi = max((i for i in range(72) if i not in used), key=lambda i: (sh10[i][k], -i)); used.add(bi); qz.append((k, bi, sh10[bi][k]))
+    _tot10['quiz'] += not all(a[0] == b['comp'] and a[1] == b['i'] and abs(a[2] - b['share']) < 1e-9 for a, b in zip(qz, X['quiz']))
+    badi = [i for i, it in enumerate(its) if it['bad'] >= 0]; mi = [i for i in badi if met10[i] <= spec]; ci = [i for i in mi if its[i]['bad'] in its[i]['colf']]
+    fc = sum(1 for it in its if it['bad'] < 0 and it['colf']); _tot10['agg'] += 0 if (badi, mi, ci, fc) == (X['bad'], X['miss'], X['caught'], X['false_col']) else 1
+    nd = [it for it in its if it['c']['df']]; fnd = sum(1 for it in nd if [it['c']['df'][0]['px'], it['c']['df'][0]['py']] in it['ptf'])
+    _per10.append({'nbad': len(badi), 'miss': len(mi), 'caught': len(ci), 'fc': fc, 'found': fnd, 'spec': spec, 'mixed': sum(q[2] < 0.5 for q in qz), 'ndef': len(nd), 'defin': sum(1 for it, m in zip(its, met10) if it['c']['df'] and m <= spec),
+                   'pairdiff': best[0], 'ngood': len(good)})
+_nz = np.concatenate([n.ravel() for n in _tot10['noise']])
+chk('S10 성분 일곱 묶음의 합 = 한 식으로 쓴 전체 장(마스크 72장 × 시드 1~200, 최대 오차 < 1e-9) · JS ppaField 와도 같음', _tot10['recon'] < 1e-9 and _tot10['fld'] < 1e-9, f'묶음 합 오차 최대 {_tot10["recon"]:.1e} · ppaField 오차 {_tot10["fld"]:.1e}')
+chk('S10 측정값 − 잡음 없는 장 = 측정 잡음(대표 시드 72장 × 154값, 평균 ≈ 0, σ ≈ 0.25)', abs(_nz.mean()) < 0.01 and abs(_nz.std() - 0.25) < 0.01, f'평균 {_nz.mean():+.4f} · σ {_nz.std():.4f} · n={_nz.size}')
+chk('S10 JS 와 Python 일치: |평균|+3σ 지표(dx·dy)·성분 몫·주된 성분·spec(불량 스틱 없는 마스크 지표의 95 백분위)·불량/놓침/잡음 집계', _tot10['met'] < 1e-9 and _tot10['sh'] < 1e-9 and _tot10['dom'] == 0 and _tot10['spec'] < 1e-9 and _tot10['agg'] == 0, f'지표 {_tot10["met"]:.1e} · 몫 {_tot10["sh"]:.1e} · 주된 성분 불일치 {_tot10["dom"]} · spec {_tot10["spec"]:.1e} · 집계 불일치 {_tot10["agg"]}')
+chk('S10 JS 와 Python 일치: 열 단면 z(최대 오차)·표시된 열·튀는 점 표시(시드 200 × 72장)', _tot10['colz'] < 1e-9 and _tot10['colf'] == 0 and _tot10['ptf'] == 0, f'z 오차 {_tot10["colz"]:.1e} · 열 표시 불일치 {_tot10["colf"]} · 점 표시 불일치 {_tot10["ptf"]}')
+chk('S10 짝 규칙(판정이 같고 주된 성분이 다른 짝 중 |지표 차| 최소)·문항 규칙(성분 몫 최대)을 Python 이 다시 풀어 200개 시드 모두 JS 와 같은 짝·같은 일곱 유리', _tot10['pair'] == 0 and _tot10['quiz'] == 0, f'짝 불일치 {_tot10["pair"]} · 문항 불일치 {_tot10["quiz"]}')
+_pd = lambda k: np.array([r[k] for r in _per10], float); _q3 = lambda a: f'{np.median(a):.3g} (10~90%: {np.quantile(a, .1):.3g}~{np.quantile(a, .9):.3g})'
+_nb10 = _pd('nbad'); _mr = _pd('miss') / _nb10
+chk('S10 분포(시드 200): 불량 스틱 마스크가 모든 시드에 있고(최소 1), 지표(spec 안)만 보면 놓치는 비율의 중앙값 > 0 — 설계서 기대 성립', _nb10.min() >= 1 and np.median(_mr) > 0, f'불량 스틱 마스크 {_q3(_nb10)}장 · 놓친 수 {_q3(_pd("miss"))} · 놓치는 비율 {_q3(_mr)}')
+_cr = _pd('caught') / np.maximum(_pd('miss'), 1)
+chk('S10 분포: 지표가 놓친 불량 스틱 가운데 열 단면(z ≥ 3.5)이 잡는 수는 평균 > 0 이지만 대부분을 잡지는 못함(중앙값 비율 < 0.5) · 열 단면이 정상 마스크에 헛표시하는 마스크 수 > 0', _pd('caught').mean() > 0 and np.median(_cr) < 0.5 and _pd('fc').mean() > 0,
+    f'잡은 수 {_q3(_pd("caught"))} · 놓친 것 중 잡은 비율 {_q3(_cr)} · 헛표시 마스크 {_q3(_pd("fc"))}/약 {_pd("ngood").mean():.0f}장')
+chk('S10 분포: 국소 결함 마스크 대부분은 지표가 spec 안(중앙값 비율 > 0.8)인데 튀는 점 찾기(z ≥ 4)는 그 점을 중앙값 60% 이상 찾음', np.median(_pd('defin') / _pd('ndef')) > 0.8 and np.median(_pd('found') / _pd('ndef')) >= 0.6,
+    f'결함 마스크 {_q3(_pd("ndef"))}장 · 지표 spec 안 비율 {_q3(_pd("defin") / _pd("ndef"))} · 찾은 비율 {_q3(_pd("found") / _pd("ndef"))}')
+_qs = np.array([[q['share'] for q in X['quiz']] for X in _S10])
+chk('S10 분포: 문항 몫 — 평행이동·배율·스틱 문항은 몫 중앙값 ≥ 0.5, 직교도·고차 문항은 가장 큰 유리도 몫 중앙값 < 0.5(섞인 맵으로 표시되는 것이 정상)', np.median(_qs[:, [0, 2, 5]], axis=0).min() >= 0.5 and np.median(_qs[:, [3, 4]], axis=0).max() < 0.5,
+    '성분별 문항 몫 중앙값 ' + ' · '.join(f'{k} {np.median(_qs[:, i])*100:.0f}%' for i, k in enumerate(_CK)))
+_ms10 = ['nbad', 'miss', 'caught', 'fc', 'found', 'spec', 'mixed']; _nm10 = ['불량 스틱 마스크 수', '지표가 놓친 수', '열 단면이 잡은 수', '열 단면 헛표시 마스크 수', '튀는 점이 찾은 결함 수', 'spec(µm)', '섞인 문항 수']
+def _rk10(m, i): a = _pd(m); return float(((a < a[i]).sum() + 0.5 * (a == a[i]).sum()) / len(a))
+_sum10 = np.array([sum(abs(_rk10(m, i) * 100 - 50) for m in _ms10) for i in range(200)])
+chk('S10 대표 시드: 기본 시드는 일곱 지표 백분위의 Σ|백분위−50| 이 가장 작은 시드이고, 일곱 지표가 모두 시드 1~200 분포의 25~75% 안', int(np.argmin(_sum10)) + 1 == _s10def and all(0.25 <= _rk10(m, _s10def - 1) <= 0.75 for m in _ms10),
+    f'시드 {_s10def}(Σ {_sum10[_s10def-1]:.1f}): ' + ' · '.join(f'{n} {_per10[_s10def-1][m]:.4g}→{_rk10(m, _s10def - 1)*100:.0f}%' for m, n in zip(_ms10, _nm10)))
+_c10 = rd('ppa_s10.csv'); _Z0 = _S10[_s10def - 1]['items']
+_cdx = _c10.dx_um.to_numpy().reshape(72, 77); _jdx = np.array([it['dx'] for it in _Z0]); _cdy = _c10.dy_um.to_numpy().reshape(72, 77); _jdy = np.array([it['dy'] for it in _Z0])
+chk('S10 ppa_s10.csv: 72장 × 77점, 값이 JS 대표 시드와 0.0001 이내, 마스크 id 순서·불량 스틱 정답 열 일치', len(_c10) == 5544 and float(np.abs(_cdx - _jdx).max()) < 6e-5 and float(np.abs(_cdy - _jdy).max()) < 6e-5 and list(_c10.mask_id.iloc[::77]) == [it['id'] for it in _Z0] and list(_c10.bad_stick.iloc[::77]) == [it['bad'] for it in _Z0],
+    f'최대 차 {max(float(np.abs(_cdx - _jdx).max()), float(np.abs(_cdy - _jdy).max())):.1e} · 열 {len(_c10.columns)}개')
+
+# 0301 페이지의 Python 블록: 그대로 실행한 출력 = 페이지에 적힌 출력, 출력의 숫자 = JS 대표 시드의 값(두 유리 지표·spec·불량 스틱 집계·튀는 점 찾기 집계)
+import html as _html2, re as _re2, tempfile as _tf2
+_pg3 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0301-ppa-vector-field.html'), encoding='utf-8').read()
+_code3 = _html2.unescape(_re2.search(r'<pre id="pyCode">(.*?)</pre>', _pg3, _re2.S).group(1)); _out3 = _html2.unescape(_re2.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg3, _re2.S).group(1)).strip()
+with _tf2.TemporaryDirectory() as _td3:
+    shutil.copy(os.path.join(D, 'ppa_s10.csv'), _td3); open(os.path.join(_td3, 'lab0301.py'), 'w', encoding='utf-8').write(_code3)
+    _run3 = subprocess.run([sys.executable, '-I', 'lab0301.py'], cwd=_td3, capture_output=True, text=True)
+chk('0301 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run3.returncode == 0 and _run3.stdout.strip() == _out3, f'종료 {_run3.returncode} · 출력 {len(_run3.stdout.splitlines())}줄' + ('' if _run3.stdout.strip() == _out3 else ' · 다름: ' + _run3.stdout.strip()[:200]))
+_X0 = _S10[_s10def - 1]; _pr = _X0['pair']; _ia, _ib = _X0['items'][_pr['i']], _X0['items'][_pr['j']]; _p0 = _per10[_s10def - 1]
+_exp3 = [f"{_ia['id']}", f"dx 지표 {_ia['met']['dx_metric']:.3f} · dy 지표 {_ia['met']['dy_metric']:.3f}", f"{_ib['id']}", f"dx 지표 {_ib['met']['dx_metric']:.3f} · dy 지표 {_ib['met']['dy_metric']:.3f}",
+         f"spec {_p0['spec']:.3f} · 불량 스틱 {_p0['nbad']}장 · 지표가 spec 안 {_p0['miss']}장 · 그중 열 단면이 짚음 {_p0['caught']}장 · 정상인데 열 단면이 표시 {_p0['fc']}장",
+         f"국소 결함이 있는 유리 {_p0['ndef']}장 · 튀는 점 찾기가 그 점을 짚음 {_p0['found']}장"]
+chk('0301 Python 출력의 숫자 = JS 대표 시드(두 유리 지표·spec·불량 스틱·열 단면·튀는 점 집계)와 소수 셋째 자리까지 일치, 코드 속 유리 번호 = JS 짝', all(e in _run3.stdout for e in _exp3) and f'A, B = "S10-{_s10def}-{_ia["id"]}", "S10-{_s10def}-{_ib["id"]}"' in _code3, ' · '.join(_exp3[:2]))
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

@@ -47,6 +47,9 @@ pick.forEach(g => {
 });
 csv('ppa_sample.csv', ppaRows);
 
+// S10: 마스크 72장 × 77점(대표 시드). 실험실 0301 의 Python 코드가 읽는다. bad_stick = 마스크 정답(불량 스틱 열 번호, 없으면 -1)
+csv('ppa_s10.csv', M.scenario('S10').csvRows());
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });
