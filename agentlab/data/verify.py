@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py"""
+"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html 의 Python 블록도 읽는다)"""
 import os, sys, json
 import numpy as np, pandas as pd
 from scipy import stats
@@ -800,6 +800,136 @@ chk('0302 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페
 _T2d = _T2['seeds'][_s10def - 1]; _XA = _X0['items'][_pr['i']]; _jA = _T2d['items'][_pr['i']]; _jB = _T2d['items'][_pr['j']]
 _exp4 = [f'{_jA["coef"][c]:+.3f}' for c in ['Tx', 'Mx', 'My']] + [f'{_jA["se"]["Tx"]:.3f}', f'{_jA["mm"]:.3f}', f'{_jA["ma"]:.3f}', f'{_jA["mx"]:.3f}', f'{_jB["mx"]:.3f}', f'{_jA["pre"]["right_col"]["nv"]["Mx"]:+.3f}', f'{_jA["pre"]["right_col"]["l4"]["Mx"]:+.3f}']
 chk('0302 Python 출력의 숫자(유리 A 의 Tx·Mx·My 추정, 표준오차, 지표 세 단계, 유리 B 잔차 지표, 오른쪽 열 누락의 단순 평균법·최소제곱 Mx) = JS 대표 시드와 소수 셋째 자리까지 일치, 코드 속 유리 번호 = JS 짝', all(e in _run4.stdout for e in _exp4) and f'A, B = "S10-{_s10def}-{_ia["id"]}", "S10-{_s10def}-{_ib["id"]}"' in _code4, ' · '.join(_exp4[:5]))
+
+# ============================================================
+# S11 (0303) — 열변형과 턴 누적: 유리 1728장 계수·join·다중 회귀·온도 보정·리페어 경보를 numpy 로 독립 구현해 시드 1~200 을 JS 와 대조한다
+# ============================================================
+_S11_EXPORT = r"""const M=require(%s);const T=M.s11tools;const C=M.CFG;const out=[];let ref=null,flag=true;
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S11',{seed:sd});const R=S.coefRows,F=S.truth;const m=T.metrics(S);
+ const fm={};S.fdcRows.forEach(r=>{fm[r.glass_id]=r.fdc_temp;});
+ const key=R.map(r=>r.glass_id.replace(/^S11-\d+-/,''));if(ref===null)ref=key;else if(key.join()!==ref.join())flag=false;
+ out.push({seed:sd,mx:R.map(r=>r.Mx_hat),my:R.map(r=>r.My_hat),fdc:R.map(r=>fm[r.glass_id]===undefined?null:fm[r.glass_id]),
+  mxt:R.map(r=>F[r.glass_id].Mx_true),tt:R.map(r=>F[r.glass_id].T_true),age:R.map(r=>F[r.glass_id].Mx_age),th:R.map(r=>F[r.glass_id].Mx_th),js:m,nf:S.fdcRows.length});}
+const S1=M.scenario('S11'),gr=[];
+[1,177].forEach(sd=>{ // 격자 단계 점검: ppa 를 같은 호출로 다시 만들어 격자째 내보낸다
+ const S=M.scenario('S11',{seed:sd});const rows=S.coefRows;const items=[];
+ S.masks.forEach(mk0=>{const mk=M.makeMask(mk0.mask_id,null,'S11-'+sd);const pm=M.parseMaskId(mk0.mask_id);
+  for(let turn=1;turn<=24;turn++){const season=0.3*(turn-1)/23;[5,20,40,60,90,120].forEach(git=>{const gid='S11-'+sd+'-'+mk0.mask_id+'-T'+String(turn).padStart(2,'0')+'-G'+String(git).padStart(3,'0');
+   const ctx={glass_id:gid,block:mk.block,chamber:mk.chamber,mask_set:mk.set,turn:turn,glass_in_turn:git,chamber_temp:M.chamberTemp(pm.chamber,git,{season:season})};
+   const r=M.ppa(ctx,mk);items.push({gid:gid,dx:r.grid.map(g=>g.dx_um),dy:r.grid.map(g=>g.dy_um)});});}});
+ gr.push({seed:sd,items:items,rows:rows.map(r=>[r.Tx_hat,r.Ty_hat,r.theta_hat,r.Mx_hat,r.My_hat,r.K_hat,r.Cx_hat,r.Cy_hat,r.se_Mx,r.se_My,r.sigma]),gid:rows.map(r=>r.glass_id)});});
+const T10=M.s10tools,S0=M.scenario('S11',{seed:3}),dmax={c:0,s:0};  // s11fit = s10fit(전부 항) 확인: 한 시드의 첫 200장
+{const mk=M.makeMask('B03-A2',null,'S11-3');for(let g=0;g<200;g++){const ctx={glass_id:'chk'+g,block:'B03',chamber:'CH2',mask_set:'A',turn:1+g%%24,glass_in_turn:1+g%%120,chamber_temp:80+g*0.01};const r=M.ppa(ctx,mk);const a=T10.fit(r.grid),b=T.fit(r.grid);
+ for(const k in a.coef){dmax.c=Math.max(dmax.c,Math.abs(a.coef[k]-b.coef[k]));dmax.s=Math.max(dmax.s,Math.abs(a.se[k]-b.se[k]));}}}
+const wide={};[0,0.6].forEach(K=>{const S=M.scenario('S11',{seed:177,season_K:K});wide[K]=T.metrics(S);});
+const csvChk=M.scenario('S11'),def=M.SEEDS.S11;
+const pgj=(function(){const S=csvChk,J=T.join(S.coefRows,S.fdcRows),rows=J.rows.map(r=>Object.assign({},r,{dT:r.fdc_temp==null?null:r.fdc_temp-C.T0})),ok=rows.filter(r=>r.fdc_temp!=null),mk=T.pickMask(ok).mask_id,rx=T.regress(ok,'Mx_hat',['dT','turn'],{perMask:true});
+ const comp=T.compensate(rows,rx.coef.dT,C.T0),ar=T.alarms(rows,{field:'Mx_hat'}),ac=T.alarms(comp,{field:'Mx_comp'}),a=ar.find(x=>x.mask_id===mk),b=ac.find(x=>x.mask_id===mk);
+ return {mk:mk,raw12:a.change[11],comp12:b.change[11],raw_turn:a.turn,comp_turn:b.turn,m:T.metrics(S),missed:J.missed,joined:J.joined,unm:J.fdc_unmatched};})();
+console.log(JSON.stringify({seeds:out,ordered:flag,key:ref,grids:gr,fit_vs_s10:dmax,wide:wide,def:def,defmx:csvChk.coefRows.map(r=>r.Mx_hat),defgid:csvChk.coefRows.map(r=>r.glass_id),cfg:{am:C.ALPHA_M,ag:C.ALPHA_G,T0:C.T0,age:C.AGE_PPM_PER_TURN,clean:C.CLEAN_STEP_PPM,rise:C.TEMP_RISE},
+  pg:pgj,ids:T.IDS,gits:T.GITS,K:T.SEASON_K,review:T.REVIEW,limit:T.LIMIT}));"""
+_s11 = json.loads(subprocess.run([_node, '-e', _S11_EXPORT % json.dumps(_mf)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096')).stdout)
+_c11 = _s11['cfg']; _ids11 = _s11['ids']; _key11 = [k.split('-') for k in _s11['key']]          # 'B02-A1-T01-G005' → [B02, A1, T01, G005]
+_mi11 = np.array([_ids11.index(k[0] + '-' + k[1]) for k in _key11]); _tn11 = np.array([int(k[2][1:]) for k in _key11]); _gt11 = np.array([int(k[3][1:]) for k in _key11])
+# 격자 설계 행렬(0302 와 같은 모델 판): 계수 Tx,Ty,θ,Mx,My,K,Cx,Cy
+_x11 = (-750 + 150 * np.tile(np.arange(11), 7)) / 1000; _y11 = (-462.5 + (925 / 6) * np.repeat(np.arange(7), 11)) / 1000; _o11, _z11 = np.ones(77), np.zeros(77)
+_X11 = np.vstack([np.column_stack([_o11, _z11, -_y11, _x11, _z11, _y11, _x11 * _y11, _z11]), np.column_stack([_z11, _o11, _x11, _z11, _y11, _z11, _z11, _x11 ** 2])])
+_G11 = np.linalg.inv(_X11.T @ _X11)
+def py11_fit(dx, dy):
+    y = np.r_[dx, dy]; b = np.linalg.lstsq(_X11, y, rcond=None)[0]; r = y - _X11 @ b; sg = np.sqrt(float(r @ r) / (154 - 8)); return b, sg * np.sqrt(np.diag(_G11)), sg
+def py11_ols(X, y):                                                                  # numpy lstsq + σ̂ 기반 표준오차
+    b = np.linalg.lstsq(X, y, rcond=None)[0]; r = y - X @ b; sg = np.sqrt(float(r @ r) / (len(y) - X.shape[1])); return b, sg * np.sqrt(np.diag(np.linalg.inv(X.T @ X))), float(r @ r)
+def py11_reg(yv, fdc, cols, per_mask=True, tvar=None):                                # 마스크별 절편 + cols(이름: 값) 다중 회귀. FDC 온도가 없는 행은 뺀다
+    ok = ~np.isnan(fdc) if tvar is None else np.ones(len(yv), bool)      # 세 회귀 모두 FDC 온도가 있는 행만
+    D = [(_mi11 == m).astype(float) for m in range(12)] if per_mask else [np.ones(len(yv))]
+    X = np.column_stack(D + [c for c in cols.values()])[ok]; b, se, rss = py11_ols(X, yv[ok]); nI = len(D); return {k: (b[nI + i], se[nI + i]) for i, k in enumerate(cols)}, rss, int(ok.sum())
+def py11_alarm(v, limit, upto):                                                       # 마스크별 기준선(턴 1 평균) 대비 턴 평균이 limit 넘게 내려간 첫 턴, 없으면 0
+    out = []
+    for m in range(12):
+        ok = (_mi11 == m) & ~np.isnan(v); base = v[ok & (_tn11 == 1)].mean(); first = 0
+        for t in range(2, upto + 1):
+            if v[ok & (_tn11 == t)].mean() - base < -limit: first = t; break
+        out.append(first)
+    return out
+_t11 = {'ident': 0.0, 'grid_c': 0.0, 'grid_se': 0.0, 'reg': 0.0, 'regse': 0.0, 'cnt': 0, 'th': 0.0, 'sg': 0.0}
+for _g in _s11['grids']:                                                                # 1) 격자 → 계수: 두 시드 × 1728장 전부 numpy lstsq 로 다시
+    for _it, _r in zip(_g['items'], _g['rows']):
+        b, se, sg = py11_fit(_it['dx'], _it['dy'])
+        _t11['grid_c'] = max(_t11['grid_c'], max(abs(b[i] - _r[i]) for i in range(8))); _t11['grid_se'] = max(_t11['grid_se'], abs(se[3] - _r[8]), abs(se[4] - _r[9]), abs(sg - _r[10]))
+_rows11 = []
+_AT = lambda a: np.array([np.nan if v is None else v for v in a], float)
+for _d in _s11['seeds']:                                                                # 2) 시드 200개 전부: 회귀·보정·경보를 다시 구현
+    mx, my, fdc, mxt, tt, age, th = (_AT(_d[k]) for k in ['mx', 'my', 'fdc', 'mxt', 'tt', 'age', 'th']); dT = fdc - _c11['T0']; tn = _tn11.astype(float); js = _d['js']
+    cx, rss1, n1 = py11_reg(mx, fdc, {'dT': dT, 'turn': tn}); ct, _, _ = py11_reg(mx, fdc, {'turn': tn}); cy, _, _ = py11_reg(my, fdc, {'dT': dT, 'turn': tn})
+    for nm, py, jv in [('thermal', cx['dT'], 'thermal'), ('turn', cx['turn'], 'turn'), ('turn_only', ct['turn'], 'turn_only'), ('my_thermal', cy['dT'], 'my_thermal'), ('my_turn', cy['turn'], 'my_turn')]:
+        _t11['reg'] = max(_t11['reg'], abs(py[0] - js[jv]))
+    _t11['regse'] = max(_t11['regse'], abs(cx['dT'][1] - js['thermal_se']), abs(cx['turn'][1] - js['turn_se']), abs(ct['turn'][1] - js['turn_only_se']), abs(cy['turn'][1] - js['my_turn_se']))
+    comp = mx - cx['dT'][0] * dT
+    ab, aa, at = py11_alarm(mx, 0.3, 12), py11_alarm(comp, 0.3, 12), py11_alarm(age, 0.3, 12)
+    fb, fa = sum(1 for x in ab if x), sum(1 for x in aa if x)
+    cf = lambda a, t: dict(hit=sum(1 for x, y in zip(a, t) if x and y), false_alarm=sum(1 for x, y in zip(a, t) if x and not y), miss=sum(1 for x, y in zip(a, t) if not x and y), quiet=sum(1 for x, y in zip(a, t) if not x and not y))
+    _t11['cnt'] += int(fb != js['alarm_before'] or fa != js['alarm_after'] or sum(1 for x in at if x) != js['alarm_truth'] or cf(ab, at) != js['conf_before'] or cf(aa, at) != js['conf_after'])
+    ok = ~np.isnan(fdc); cor = float(np.corrcoef(fdc[ok], tn[ok])[0, 1]); _t11['th'] = max(_t11['th'], abs(cor - js['corr_tt']), abs(cy['dT'][0] / cx['dT'][0] - js['ratio']))
+    ctrue, _, _ = py11_reg(mxt, tt, {'dT': tt - _c11['T0'], 'turn': tn}, tvar=True)
+    cglob, _, _ = py11_reg(mx, fdc, {'dT': dT, 'turn': tn}, per_mask=False)
+    cdl, _, _ = py11_reg(dT, fdc, {'turn': tn}); _t11['ident'] = max(_t11.get('ident', 0.0), abs(ct['turn'][0] - (cx['turn'][0] + cx['dT'][0] * cdl['turn'][0])))
+    e = mx - mxt; ew = e - np.array([e[_mi11 == m].mean() for m in range(12)])[_mi11]
+    _rows11.append({'seed': _d['seed'], 'thermal': js['thermal'], 'turn': js['turn'], 'turn_only': js['turn_only'], 'ratio': js['ratio'], 'alarm_before': js['alarm_before'], 'alarm_after': js['alarm_after'], 'alarm_truth': js['alarm_truth'],
+                    'my_turn': js['my_turn'], 'my_turn_se': js['my_turn_se'], 'corr': js['corr_tt'], 'missed': js['missed'], 'nf': _d['nf'], 'tru_th': ctrue['dT'][0], 'tru_turn': ctrue['turn'][0], 'glob_th': cglob['dT'][0], 'glob_turn': cglob['turn'][0],
+                    'within': float(ew.std()), 'total': float(e.std()), 'th_exact': float(np.abs(th - (_c11['am'] - _c11['ag']) * (tt - _c11['T0']) * 1e6).max()), 'fdc_sd': float(np.nanstd(fdc - tt)), 'age_exact': float(np.abs(age - (_c11['age'] * _tn11 + _c11['clean'])).max())})
+_R11 = {k: np.array([r[k] for r in _rows11], float) for k in _rows11[0]}
+_p11 = lambda a: f'{np.median(a):.4g} (10~90%: {np.quantile(a, .1):.4g}~{np.quantile(a, .9):.4g})'
+_n11 = len(_s11['seeds'][0]['mx'])
+chk('S11 구조: 마스크 12장 × 24턴 × 6장 = 1728장(모든 시드), 시드마다 같은 순서, 턴 안 순번 5·20·40·60·90·120, 고유한 유리 번호', _n11 == 1728 == 12 * 24 * 6 and _s11['ordered'] and sorted(set(_gt11.tolist())) == [5, 20, 40, 60, 90, 120] and len(set(_s11['key'])) == 1728 and _s11['ids'] == ['B02-A1', 'B02-A2', 'B02-A3', 'B02-A4', 'B03-A1', 'B03-A2', 'B03-A3', 'B03-A4', 'B04-A1', 'B04-A2', 'B04-A3', 'B04-A4'],
+    f'유리 {_n11}장 · 마스크 {len(_ids11)}장 · 턴 {int(_tn11.max())} · 순번 {sorted(set(_gt11.tolist()))}')
+chk('S11 격자 → 계수: numpy lstsq 로 독립 재현한 계수 8개·Mx·My 표준오차·σ̂ 가 JS 와 1e-9 이내(시드 1·177 × 1728장 = 3456장), 빠른 해법 s11fit = s10tools.fit(전부 항) 1e-9', max(_t11['grid_c'], _t11['grid_se']) < 1e-9 and _s11['fit_vs_s10']['c'] < 1e-9 and _s11['fit_vs_s10']['s'] < 1e-9, f'계수 {_t11["grid_c"]:.1e} · 표준오차 {_t11["grid_se"]:.1e} · s11fit−s10fit {_s11["fit_vs_s10"]["c"]:.1e}')
+_gd = _s11['grids'][0]; _fd = _s11['seeds'][0]
+chk('S11 측정 표(계수·FDC)가 정답 표와 맞음: 열변형 정답 Mx_th = (α마스크 − α유리)·(참 온도 − T0)·10⁶ 1e-9, 턴 누적 정답 Mx_age = −0.02·턴 − 0.05 1e-9, FDC 온도 − 참 온도의 표준편차 ≈ 0.04', float(_R11['th_exact'].max()) < 1e-9 and float(_R11['age_exact'].max()) < 1e-9 and abs(np.median(_R11['fdc_sd']) - 0.04) < 0.003,
+    f'열변형 식 최대 차 {_R11["th_exact"].max():.1e} · 턴 누적 식 최대 차 {_R11["age_exact"].max():.1e} · FDC 잡음 sd 중앙값 {np.median(_R11["fdc_sd"]):.4f}')
+_dc = rd('ppa_coef_s11.csv'); _df = rd('fdc_temp_s11.csv'); _mg = _dc.merge(_df, on='glass_id', how='left')
+chk('S11 join: CSV 두 개를 glass_id 로 이으면 계수 1728행 중 FDC 가 없는 행 수 = JS 가 센 못 이은 행 수, FDC 표에 주인 없는 행 0, CSV 의 Mx̂ = 대표 시드 JS 값(1e-6)', len(_dc) == 1728 and int(_mg.fdc_temp.isna().sum()) == _R11['missed'][_s11['def'] - 1] == 1728 - len(_df) and _df.glass_id.isin(_dc.glass_id).all() and _dc.glass_id.is_unique and _df.glass_id.is_unique and list(_dc.glass_id) == _s11['defgid'] and np.abs(_dc.Mx_hat.values - np.array(_s11['defmx'])).max() < 1e-6,
+    f'계수 {len(_dc)}행 · FDC {len(_df)}행 · 못 이은 행 {int(_mg.fdc_temp.isna().sum())} (시드별 {_p11(_R11["missed"])}) · CSV − JS Mx̂ 최대 {np.abs(_dc.Mx_hat.values - np.array(_s11["defmx"])).max():.1e}')
+chk('S11 다중 회귀: numpy lstsq 로 독립 재현한 열변형·턴·턴만·My 기울기가 JS 와 1e-9, 표준오차 1e-9, 온도–턴 상관·My/Mx 비도 일치(시드 1~200)', _t11['reg'] < 1e-9 and _t11['regse'] < 1e-9 and _t11['th'] < 1e-9, f'기울기 {_t11["reg"]:.1e} · 표준오차 {_t11["regse"]:.1e} · 상관·비 {_t11["th"]:.1e}')
+chk('S11 보정·경보: 온도 보정 Mx̂ − 기울기·(FDC 온도 − 80), 마스크별 기준선(턴 1)·12턴 판정을 다시 구현해 경보 마스크 수(보정 전·후·정답)와 혼동표 네 칸이 JS 와 같음(시드 1~200)', _t11['cnt'] == 0, f'불일치 시드 {_t11["cnt"]}개')
+_adj = lambda a: (np.median(a), np.quantile(a, .1), np.quantile(a, .9))
+chk('S11 설계서 기대 1 — 다중 회귀 열변형 기울기의 시드 분포 중앙값이 −2 근처(±0.3): 정답은 (1.5 − 3.5)·10⁻⁶·10⁶ = −2.0 ppm/K', abs(np.median(_R11['thermal']) + 2) < 0.3 and abs(_R11['thermal'] + 2).max() < 0.3, f'열변형 기울기 {_p11(_R11["thermal"])} ppm/K · 최악 {_R11["thermal"][np.argmax(abs(_R11["thermal"] + 2))]:.4f}')
+chk('S11 열변형 기울기가 정답 −2 보다 조금 작게(절댓값) 나옴: FDC 온도의 측정 잡음(0.04 K) 때문 — 참 온도로 회귀하면 −2 에 맞고(차 < 0.05), FDC 온도로는 참 온도 회귀보다 절댓값이 작은 시드가 95% 이상', abs(np.median(_R11['tru_th']) + 2) < 0.05 and np.mean(abs(_R11['thermal']) < abs(_R11['tru_th'])) >= 0.95,
+    f'참 온도 회귀 {_p11(_R11["tru_th"])} · FDC 온도 회귀 {_p11(_R11["thermal"])} · FDC 쪽이 더 작은 시드 비율 {np.mean(abs(_R11["thermal"]) < abs(_R11["tru_th"])):.2f}')
+chk('S11 설계서 기대 2 — 교란 방향: 턴만 넣은 기울기가 둘 다 넣은 기울기보다 더 음수(모든 시드)이고, 그 차 ≈ 계절 몫 −2·0.3/23 = −0.026(±0.005), 둘 다 넣으면 정답 −0.02 근처(±0.003)', bool(np.all(_R11['turn_only'] < _R11['turn'])) and abs(np.median(_R11['turn_only'] - _R11['turn']) + 2 * _s11['K'] / 23) < 0.005 and abs(np.median(_R11['turn'] + 0.02)) < 0.003,
+    f'턴만 {_p11(_R11["turn_only"])} · 둘 다 {_p11(_R11["turn"])} (정답 −0.02) · 차 {_p11(_R11["turn_only"] - _R11["turn"])} · 온도–턴 상관 {_p11(_R11["corr"])}')
+chk('S11 설계서 기대 3 — My 열변형 기울기 / Mx 열변형 기울기 ≈ 0.5(중앙값 0.45~0.55), My 의 턴 기울기는 0 근처(|중앙값| < 0.002 — Mx 의 턴 기울기 0.02 의 10분의 1 미만)', 0.45 < np.median(_R11['ratio']) < 0.55 and abs(np.median(_R11['my_turn'])) < 0.002,
+    f'비 {_p11(_R11["ratio"])} · My 턴 기울기 {_p11(_R11["my_turn"])} (표준오차 중앙값 {np.median(_R11["my_turn_se"]):.4f}) · |기울기|/표준오차 중앙값 {np.median(abs(_R11["my_turn"]) / _R11["my_turn_se"]):.2f}')
+chk('S11 마스크별 절편이 스틱 누설(마스크마다 일정한 치우침)을 흡수: 추정 오차(Mx̂ − 정답)의 마스크 안 표준편차가 전체 표준편차의 60% 미만(중앙값), 절편을 하나만 두면 열변형·턴 기울기 오차가 커지는 시드가 과반', np.median(_R11['within'] / _R11['total']) < 0.6 and np.mean(abs(_R11['glob_th'] + 2) > abs(_R11['thermal'] + 2)) > 0.5,
+    f'오차 sd 마스크 안/전체 {_p11(_R11["within"] / _R11["total"])} · 절편 하나일 때 열변형 기울기 {_p11(_R11["glob_th"])} (마스크별 {_p11(_R11["thermal"])}) · 턴 기울기 {_p11(_R11["glob_turn"])} · 절편 하나가 더 나쁜 시드 비율 {np.mean(abs(_R11["glob_th"] + 2) > abs(_R11["thermal"] + 2)):.2f}')
+_cb = [r for r in _rows11]; _fa_b = np.array([_d['js']['conf_before']['false_alarm'] for _d in _s11['seeds']]); _fa_a = np.array([_d['js']['conf_after']['false_alarm'] for _d in _s11['seeds']]); _ms_a = np.array([_d['js']['conf_after']['miss'] for _d in _s11['seeds']])
+chk('S11 리페어 경보(한계 0.3 ppm, 12턴 판정): 정답(Mx_age 만)은 12턴 안에 경보 0 이므로, 보정 전 헛경보 마스크 수 > 보정 후(모든 시드에서 ≥, 중앙값은 큼), 보정 후 놓침 0', bool(np.all(_R11['alarm_truth'] == 0)) and bool(np.all(_fa_b >= _fa_a)) and np.median(_fa_b) > np.median(_fa_a) and int(_ms_a.max()) == 0,
+    f'정답 경보 {_p11(_R11["alarm_truth"])} · 보정 전 헛경보 {_p11(_fa_b)} (12장 모두인 시드 {int((_fa_b == 12).sum())}/200) · 보정 후 헛경보 {_p11(_fa_a)} · 보정 후 놓침 최대 {int(_ms_a.max())}')
+# 계절 슬라이더(탐구 모드): 0 → 0.3 → 0.6 으로 올리면 온도–턴 상관과 교란 크기가 함께 커지고, 계절 0 이면 교란이 거의 없음
+_w0, _w6 = _s11['wide']['0'], _s11['wide']['0.6']; _wd = [(_w['turn_only'] - _w['turn']) for _w in (_w0, _s11['seeds'][_s11['def'] - 1]['js'], _w6)]
+chk('S11 계절 슬라이더: 계절 0·0.3·0.6 K 로 올리면 온도–턴 상관이 커지고, 교란 크기(턴만 − 둘 다)가 0 → −0.026 → −0.052 근처로 단조롭게 커짐, 계절 0 이면 둘 다 정답 −0.02 근처', _w0['corr_tt'] < _s11['seeds'][_s11['def'] - 1]['js']['corr_tt'] < _w6['corr_tt'] and abs(_wd[0]) < 0.005 and _wd[0] > _wd[1] > _wd[2] and abs(_wd[2] + 0.052) < 0.01 and abs(_w0['turn_only'] + 0.02) < 0.003,
+    f'상관 {_w0["corr_tt"]:.3f} → {_s11["seeds"][_s11["def"] - 1]["js"]["corr_tt"]:.3f} → {_w6["corr_tt"]:.3f} · 교란 {_wd[0]:+.4f} → {_wd[1]:+.4f} → {_wd[2]:+.4f} ppm/턴')
+chk('S11 교란의 식: 턴만 넣은 기울기 = 둘 다 넣은 턴 기울기 + 열변형 기울기 × (온도를 턴에 회귀한 기울기), 시드 1~200 전부 1e-9 (빠뜨린 변수 몫의 정확한 식)', _t11['ident'] < 1e-9, f'최대 차 {_t11["ident"]:.1e}')
+# 대표 시드: 여섯 지표(열변형·턴·턴만·My/Mx 비·보정 전 경보·보정 후 경보)의 시드 1~200 백분위, Σ|백분위−50| 최소 = SEEDS.S11
+_m11 = ['thermal', 'turn', 'turn_only', 'ratio', 'alarm_before', 'alarm_after']; _nm11 = ['다중 회귀 열변형 기울기', '다중 회귀 턴 기울기', '턴만 넣은 턴 기울기', 'My/Mx 열변형 기울기 비', '보정 전 경보 마스크 수', '보정 후 경보 마스크 수']
+def _rk11(m, i): a = _R11[m]; v = a[i]; return float(((a < v).sum() + 0.5 * (a == v).sum()) / len(a))
+_sc11 = np.array([sum(abs(_rk11(m, i) * 100 - 50) for m in _m11) for i in range(200)]); _ds = _s11['def'] - 1
+chk('S11 대표 시드(SEEDS.S11): 여섯 지표 백분위의 Σ|백분위−50| 이 시드 1~200 중 가장 작은 시드이고, 25~75% 밖 지표를 기록(본문은 그 지표를 분포로 말해야 함)', int(np.argmin(_sc11)) == _ds,
+    f'SEEDS.S11 = {_s11["def"]}, Σ = {_sc11[_ds]:.1f} · 25~75% 밖: ' + (' · '.join(f'{n} {_rk11(m, _ds)*100:.0f}%' for m, n in zip(_m11, _nm11) if not 0.25 <= _rk11(m, _ds) <= 0.75) or '없음') + ' / 안: ' + ' · '.join(f'{n} {_rk11(m, _ds)*100:.0f}%' for m, n in zip(_m11, _nm11) if 0.25 <= _rk11(m, _ds) <= 0.75))
+chk('S11 분포(시드 200) 기록: 여섯 지표와 못 이은 행 수', all(np.isfinite(_R11[m]).all() for m in _m11), ' · '.join(f'{n} {_p11(_R11[m])}' for m, n in zip(_m11, _nm11)) + f' · 못 이은 행 {_p11(_R11["missed"])}')
+
+# 0303 페이지의 Python 블록: 그대로 실행한 출력 = 페이지에 적힌 출력, 출력의 숫자 = JS 대표 시드의 값
+import html as _html3, re as _re3, tempfile as _tf3
+_pg11 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0303-thermal-turn.html'), encoding='utf-8').read()
+_code11 = _html3.unescape(_re3.search(r'<pre id="pyCode">(.*?)</pre>', _pg11, _re3.S).group(1)); _out11 = _html3.unescape(_re3.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg11, _re3.S).group(1)).strip()
+with _tf3.TemporaryDirectory() as _td11:
+    shutil.copy(os.path.join(D, 'ppa_coef_s11.csv'), _td11); shutil.copy(os.path.join(D, 'fdc_temp_s11.csv'), _td11); open(os.path.join(_td11, 'lab0303.py'), 'w', encoding='utf-8').write(_code11)
+    _run11 = subprocess.run([sys.executable, '-I', 'lab0303.py'], cwd=_td11, capture_output=True, text=True)
+chk('0303 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run11.returncode == 0 and _run11.stdout.strip() == _out11, f'종료 {_run11.returncode} · 출력 {len(_run11.stdout.splitlines())}줄' + ('' if _run11.stdout.strip() == _out11 else ' · 다름: ' + (_run11.stderr[-200:] or _run11.stdout[-200:])))
+_pg = _s11['pg']; _pm = _pg['m']
+_exp11 = [f'이은 행 {_pg["joined"]} · 못 이은 행 {_pg["missed"]} · FDC 표에 주인이 없는 행 {_pg["unm"]}', f'{_pm["thermal"]:+.3f} ± {_pm["thermal_se"]:.3f}', f'{_pm["turn"]:+.4f} ± {_pm["turn_se"]:.4f}', f'잔차제곱합 {_pm["rss"]:.2f}', f'{_pm["turn_only"]:+.4f} ± {_pm["turn_only_se"]:.4f}',
+          f'{_pm["my_thermal"]:+.3f} ± {_pm["my_thermal_se"]:.3f}', f'{_pm["my_turn"]:+.4f} ± {_pm["my_turn_se"]:.4f}', f'비 {_pm["ratio"]:.3f}', f'보정 전 {_pm["alarm_before"]}장 · 보정 후 {_pm["alarm_after"]}장', f'{_pg["raw12"]:+.3f} → 보정 후 {_pg["comp12"]:+.3f}',
+          f'첫 경보 턴 {_pg["raw_turn"]} → {_pg["comp_turn"] or "없음"}']
+chk('0303 Python 출력의 숫자(이은·못 이은 행, 열변형·턴·턴만·My 기울기와 표준오차, 잔차제곱합, 경보 마스크 수, 문제 마스크의 12턴 변화와 첫 경보 턴) = JS 대표 시드와 일치, 코드 속 마스크 번호 = JS 가 고른 마스크', all(e in _run11.stdout for e in _exp11) and f'M = "{_pg["mk"]}"' in _code11, ' · '.join(_exp11[:3]))
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

@@ -1,0 +1,919 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>열변형과 턴 누적 · 배율 변화의 원인 가르기</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="장변 배율이 내려질 때 챔버 온도(열변형)와 턴 누적을 FDC 온도를 붙인 다중 회귀로 가르고, 계절 교란과 단변 배율 확인, 온도 보정 전후의 리페어 경보 수까지 손으로 해 보는 실험실. 회사 PC용 Python과 배율 변화 판정 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.maps2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0}
+.maps2 .labtitle{font-size:.85rem}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.stk{background:var(--card)}
+.ctrl select{grid-column:span 1}
+label.cb{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.2rem .7rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.9rem;font-weight:700;cursor:pointer}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
+.qcard{margin:.9rem 0}
+.mixtag{background:var(--warn);color:#fff;border-radius:999px;padding:.05rem .6rem;font-size:.8rem}
+.qres{margin-top:.5rem}
+.shbars{margin:.3rem 0}
+.sh{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:.5rem;align-items:center;font-size:.85rem;margin:.15rem 0}
+.sh .shb{height:.7rem;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+.sh .shb i{display:block;height:100%;background:var(--accent2)}
+.sh.dom .shb i{background:var(--good)}
+.sh.dom .shl,.sh.dom .shv{font-weight:800;color:var(--good)}
+.sh .shv{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .maps2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr auto}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .stk{position:sticky;top:var(--tb,56px);z-index:6;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+}
+
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.maps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+table.mt td.hit{white-space:normal}
+
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+.qna{margin:.9rem 0}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 3 · 실험실 3</p>
+  <h1>열변형과 턴 누적</h1>
+  <p class="sub">장변 배율이 내려갈 때, 챔버가 데워진 탓인지 마스크가 닳은 탓인지를 가르는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0302-ppa-least-squares.html">← 이전: 성분 분해 — 최소제곱</a><span class="sp"></span></nav>
+
+<p><b>장변 배율 Mx는 두 가지 이유로 내려갑니다. 챔버가 데워지면 유리가 마스크보다 더 늘어나 내려가고(열변형, 식으면 돌아옵니다), 턴이 쌓이면 마스크 장력이 풀려 조금씩 내려갑니다(턴 누적, 돌아오지 않습니다).</b> 시간에 대한 그래프 하나로는 둘이 섞이고, 계절처럼 온도가 턴과 함께 오르면 열변형이 마모로 잘못 읽힙니다. 그래서 FDC 챔버 온도를 같은 키로 붙여 두 변수를 함께 넣은 회귀로 가르고(4~5절), 단변 배율 My가 열변형에만 반응한다는 점으로 한 번 더 확인합니다(6절). 마지막에는 온도를 보정하면 리페어 경보가 몇 건이나 줄어드는지 셉니다(7·9절).</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0302의 계수·모델·잔차·최소제곱·설계 행렬·누설·식별과, 유리마다 계수 한 줄(<i>M̂<sub>x</sub></i> 포함)을 쌓는 기록. 0301의 배율 성분(장변 <i>M<sub>x</sub></i>, 단변 <i>M<sub>y</sub></i>, 단위 ppm). FDC 챔버 온도와 FDC·PPA를 잇는 키(<code>glass_id</code>), 마스크 번호, 턴과 턴 안 유리 순번(0101·0206). 표준오차와 점들에 가장 잘 맞는 직선의 기울기(0101).</p>
+  <ul class="chips known"><li>계수 · 잔차 · 최소제곱</li><li>장변·단변 배율 (Mx·My)</li><li>FDC 챔버 온도와 glass_id 키</li><li>턴 · 유리 순번</li><li>표준오차 · 직선의 기울기</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 일곱 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 일곱 개 말고 계산에 붙인 이름(절편·상관계수·기준선·한계·경보·헛경보·놓침)은 쓰는 자리에서 식이나 문장으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>열팽창 계수 (thermal expansion coefficient)</li><li>열변형 (thermal deformation)</li><li>턴 누적 (turn accumulation)</li><li>다중 회귀 (multiple regression)</li><li>교란 (confounding)</li><li>온도 보정 (temperature compensation)</li><li>기준 온도 (reference temperature)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 배율이 내려갈 때 &lsquo;마스크가 닳았나, 챔버가 데워졌나&rsquo;를 가르는 일. 리페어를 승인할지의 근거이자 보정값의 바탕입니다(2~8절).</li>
+    <li><b>손으로 연습</b> — 회귀에 변수를 넣고 빼며 기울기가 바뀌는 것을 보고(4절), 계절을 바꿔 속는 정도를 재고(5절), 온도 보정 전후의 경보 수를 견줍니다(7절).</li>
+    <li><b>다음 날 산출물</b> — 표를 잇고 회귀하고 보정하고 경보를 내는 Python 함수 넷(10절)과 배율 변화 판정 기록지(11절).</li>
+    <li><b>기록할 데이터</b> — 유리마다 계수 한 줄에 그 유리의 FDC 온도·턴·유리 순번을 같은 키로 함께 남기는 것(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 리페어 승인은 사람, 보정 후 변화량과 한계의 비교는 규칙, 표 잇기·회귀·그림·판정 초안은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 온도를 보정하지 않아 생기는 헛경보 마스크와 쓸데없이 멈추는 생산량(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 마스크 <b class="v_mk"></b>의 24턴 기록이 있습니다. 턴마다 유리 6장(그 턴의 5·20·40·60·90·120번째 유리, 표본 측정 레시피의 가정)의 77점을 0302의 방법으로 풀어 장변 배율 추정 <i>M̂<sub>x</sub></i>를 한 줄씩 쌓은 표입니다.<br>
+  이 마스크는 <i>M̂<sub>x</sub></i>의 턴 평균이 <b>기준선</b>(그 마스크 첫 턴 6장의 평균)보다 <b>한계</b>(여기서는 <span class="v_lim0"></span> ppm, 가정)를 넘게 내려가 <b>경보</b>가 났고, <b>리페어하라는 초안</b>이 올라왔습니다. 경보는 처음 <span class="v_rev0"></span>턴의 기록으로 판정합니다(가정).<br>
+  <b>(1) 이 초안을 승인해도 됩니까? (2) 내려간 몫 가운데 열 때문인 몫과 마모 때문인 몫은 각각 얼마입니까?</b>
+  <p class="note" style="margin:.5rem 0 0">이 마스크는 12장 가운데 속기 가장 쉬운 마스크로 골랐습니다(고르는 규칙은 5절). 2~7절에서 숫자를 만들고 8절에서 이 물음으로 돌아옵니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 마스크의 기록을 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 24턴의 배율 기록</h2>
+<p>아래는 마스크 <b class="v_mk"></b>의 턴마다 6장의 <i>M̂<sub>x</sub></i> 평균과, 기준선(첫 턴의 평균 <span class="v_base"></span> ppm)에 대한 변화입니다. 변화가 음수면 기준선보다 내려간 것입니다.</p>
+<div class="tbwrap"><table id="tab1" class="mt num"></table></div>
+<div class="concl" id="conc1"></div>
+<p>내려간 것은 분명합니다. 그런데 이 표는 <b>무엇 때문에</b> 내려갔는지는 말하지 않습니다. 먼저 가장 쉬운 방법으로 들여다보겠습니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 시간 순서대로 그려 보기</h2>
+<p>측정한 순서대로 <i>M̂<sub>x</sub></i>를 점으로 찍고, 턴마다 6장의 평균을 이은 선을 겹쳐 봅니다. 턴 평균만 그리는 모드도 있습니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 <span class="v_mk"></span>의 장변 배율 추정 <i>M̂<sub>x</sub></i></div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 한 턴 안에서 점들이 어느 쪽으로 어느 정도 움직이는지 보십시오. 2) 다음 턴이 시작될 때 그 움직임이 어떻게 되는지 보십시오. 3) 턴 평균만 그리면 1)과 2)가 사라지는데, 남는 내림의 이유를 그림에서 읽을 수 있는지 보십시오.</div>
+  <div class="row">
+    <button class="btn ghost" data-mode="raw" type="button" aria-pressed="true">측정 순서대로</button>
+    <button class="btn ghost" data-mode="mean" type="button" aria-pressed="false">턴 평균만</button>
+  </div>
+  <canvas id="cvSeq"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>유리 한 장의 <i>M̂<sub>x</sub></i></span><span><i class="dot" style="background:var(--accent)"></i>턴 평균</span><span><i class="sw" style="border-top:2px dashed var(--soft)"></i>기준선</span><span><i class="sw" style="border-top:2px dashed var(--bad)"></i>기준선 − 한계</span></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<p><b>여기서 막힙니다.</b> 턴 평균만 그리면 톱니는 사라지지만, 남은 길게 내려가는 선이 마모인지 다른 것인지 알 수 없습니다. 다만 단서가 하나 있습니다. 한 턴 안에서 마모가 일어날 리는 없는데도 점들이 내려갔다 올라옵니다. 턴 안에서 같은 모양으로 오르내리는 다른 양이 있어야 하고, 그 후보가 챔버 온도입니다. 온도가 어떻게 배율을 움직이는지에 이름을 붙이겠습니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 열변형과 턴 누적, 그리고 FDC 온도 붙이기</h2>
+<ul class="termdef">
+  <li><b>열팽창 계수 (thermal expansion coefficient)</b> — 온도가 1 K 오를 때 길이가 늘어나는 비율입니다. 마스크(인바)와 유리가 서로 다릅니다.</li>
+  <li><b>열변형 (thermal deformation)</b> — 온도가 올라 유리와 마스크가 늘어나는 양이 달라져 생기는 배율 변화입니다. 온도가 돌아오면 사라집니다(되돌릴 수 있음).</li>
+  <li><b>턴 누적 (turn accumulation)</b> — 턴이 쌓일수록 한 방향으로 쌓이는 배율 변화(마스크 장력이 풀리는 것)입니다. 세정·리페어를 하기 전에는 돌아오지 않습니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">열변형이 만드는 장변 배율 (ppm)</span>
+  <math display="block"><mrow><msub><mi>M</mi><mtext>열변형</mtext></msub><mo>=</mo><mo stretchy="false">(</mo><msub><mi>α</mi><mtext>마스크</mtext></msub><mo>−</mo><msub><mi>α</mi><mtext>유리</mtext></msub><mo stretchy="false">)</mo><mo>×</mo><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>×</mo><msup><mn>10</mn><mn>6</mn></msup></mrow></math>
+  <span class="note">α는 열팽창 계수(1/K), <i>T</i>는 증착 때의 챔버 온도(°C), <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C입니다. 이 가상 공정의 마스크는 α<sub>마스크</sub> = <span class="v_am"></span>×10<sup>−6</sup>/K, 유리는 α<sub>유리</sub> = <span class="v_ag"></span>×10<sup>−6</sup>/K로 두었으므로, 온도가 1 K 오를 때마다 장변 배율이 <b><span class="v_slope"></span> ppm</b>씩 달라집니다(현장에서는 장비에서 직접 재야 하는 값).</span>
+</div>
+<div class="eq">
+  <span class="eqlab">턴 누적이 만드는 장변 배율 (ppm), <i>n</i>은 턴 번호</span>
+  <math display="block"><mrow><msub><mi>M</mi><mtext>턴 누적</mtext></msub><mo>=</mo><mo stretchy="false">(</mo><mo>−</mo><mn id="m_age">0.02</mn><mo stretchy="false">)</mo><mo>×</mo><mi>n</mi><mo>+</mo><mo stretchy="false">(</mo><mo>−</mo><mn id="m_step">0.05</mn><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">턴마다 <span class="v_age"></span> ppm씩 쌓이고, 마스크를 처음 쓴 뒤 세정으로 한 번 <span class="v_step"></span> ppm의 계단이 생긴다고 둔 가상 공정의 약속값입니다. 이 실험실에서는 가상 공정이 정해 둔 값(열변형 기울기와 이 값)을 <b>정답</b>이라 부릅니다. 현장에서는 알 수 없는 값이고, 회귀가 그 근처를 맞히는지 견주는 데만 씁니다.</span>
+</div>
+<div class="tbwrap"><table class="mt" id="tab3a"></table></div>
+<p>턴 안의 온도 변화를 이 약속으로 계산해 봅니다. 챔버는 턴이 시작되면 데워지기 시작해 <span class="v_tau"></span>장 정도의 시간 척도로 <span class="v_rise"></span> K까지 오릅니다. 마스크 <b class="v_mk"></b>의 챔버(<span class="v_ch"></span>)에서 5번째 유리와 120번째 유리의 온도 차는 <b><span class="v_dT"></span> K</b>이므로, 열변형만으로 한 턴 안에서 <b><span class="v_dM"></span> ppm</b> 내려갑니다. 2절의 톱니와 크기가 맞는지 보십시오.</p>
+<p>이제 온도를 붙여야 합니다. FDC는 유리마다 챔버 온도를 기록하고, PPA 계수 표와 FDC 표는 <code>glass_id</code>가 같은 줄이 같은 유리입니다. 두 표를 이은 결과입니다.</p>
+<div class="tbwrap"><table id="tab3b" class="mt num"></table></div>
+<div class="concl" id="conc3"></div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>다중 회귀 — 변수를 넣고 빼며 기울기 보기</h2>
+<p>0302의 최소제곱을 &lsquo;점 77개에 모양을 맞추는 일&rsquo;에서 &lsquo;유리 1,715장의 <i>M̂<sub>x</sub></i>를 설명하는 일&rsquo;로 옮깁니다. 설명하는 변수가 하나면 직선의 기울기이고, 둘 이상을 한 설계 행렬에 함께 넣으면 <b>다중 회귀 (multiple regression)</b>입니다. 각 변수의 기울기는 <b>다른 변수를 그대로 둘 때</b>의 변화로 읽습니다.</p>
+<p>마스크마다 처음부터 배율이 다릅니다(제작 때 정해진 값). 그래서 마스크마다 <b>절편 (intercept)</b>, 곧 온도가 <i>T</i><sub>0</sub>이고 턴이 0일 때의 <i>M̂<sub>x</sub></i>를 따로 둡니다.</p>
+<div class="eq">
+  <span class="eqlab">다중 회귀 모형 (유리 <i>i</i>, 그 유리의 마스크 <i>m</i>(<i>i</i>))</span>
+  <math display="block"><mrow><msub><mover><mi>M</mi><mo>^</mo></mover><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>a</mi><mrow><mi>m</mi><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></msub><mo>+</mo><msub><mi>b</mi><mi>T</mi></msub><mo stretchy="false">(</mo><msub><mi>T</mi><mi>i</mi></msub><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>+</mo><msub><mi>b</mi><mi>n</mi></msub><msub><mi>n</mi><mi>i</mi></msub><mo>+</mo><msub><mi>e</mi><mi>i</mi></msub></mrow></math>
+  <span class="note"><i>T<sub>i</sub></i>는 그 유리의 FDC 온도, <i>n<sub>i</sub></i>는 턴 번호, <i>a<sub>m</sub></i>은 마스크마다의 절편, <i>e<sub>i</sub></i>는 모델이 못 맞춘 잔차입니다. 기울기 <i>b<sub>T</sub></i>(ppm/K)가 열변형, <i>b<sub>n</sub></i>(ppm/턴)이 턴 누적의 크기입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">변수를 넣고 빼며 기울기·표준오차·잔차 제곱합 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) [온도]를 빼면 턴 기울기가 얼마로 커지는지 보십시오. 2) [마스크별 절편]을 빼면 잔차 제곱합과 기울기가 어떻게 흔들리는지 보십시오. 3) [턴]을 빼면 열변형 기울기가 변하는지 보십시오. 변수를 하나 넣거나 뺄 때마다 표와 그림이 함께 바뀝니다.</div>
+  <div class="row" role="group" aria-label="모델에 넣을 변수">
+    <label class="cb"><input type="checkbox" id="cb_t" checked> 온도 <span class="cbv">FDC 온도 − <span class="v_T0"></span></span></label>
+    <label class="cb"><input type="checkbox" id="cb_n" checked> 턴 <span class="cbv">턴 번호</span></label>
+    <label class="cb"><input type="checkbox" id="cb_m" checked> 마스크별 절편 <span class="cbv">12개</span></label>
+    <button class="btn ghost" id="r4" type="button">세 변수를 모두 넣은 처음 상태로</button>
+  </div>
+  <div class="state" id="st4"></div>
+  <canvas id="cvS4"></canvas>
+  <div class="legend"><span>가로: FDC 온도 (°C) · 세로: <i>M̂<sub>x</sub></i>에서 그 마스크의 절편을 뺀 값 (ppm)</span><span>점의 색: 턴이 이를수록 파랑, 늦을수록 주황</span></div>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<div class="qna" data-label="마스크별 절편은 왜 넣나요?" data-q="마스크별 절편은 왜 넣나요?">
+  <p><b>마스크마다 처음부터 배율이 달라서, 이것을 따로 받아 주지 않으면 마스크 차이가 기울기로 샙니다.</b> 12장의 절편(<i>M<sub>x</sub></i>의 출발값)은 서로 <span class="q4_spread"></span> ppm 안팎으로 흩어져 있습니다. 같은 온도라도 마스크가 다르면 높이가 다르다는 뜻입니다.</p>
+  <p>절편을 하나만 두면 이 흩어짐이 모두 잔차로 들어가 잔차 제곱합이 <span class="q4_r0"></span>에서 <span class="q4_r1"></span>로 커지고, 열변형 기울기는 <span class="q4_b0"></span>에서 <span class="q4_b1"></span> ppm/K로 옮겨 갑니다. 0302에서 본 스틱 누설도 마스크마다 거의 일정한 치우침으로 나타나므로 마스크별 절편이 함께 흡수합니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>교란 — 빠뜨린 변수가 기울기를 떠안는다</h2>
+<p>4절에서 [온도]를 빼면 턴 기울기가 커졌습니다. 이 현상에 이름을 붙입니다. <b>교란 (confounding)</b>은 빠뜨린 변수가 넣은 변수와 함께 움직여서, 넣은 변수의 기울기가 빠뜨린 변수의 몫까지 떠안는 것입니다. 0302의 <b>누설</b>과 헷갈리기 쉬우니 구분해 둡니다. 누설은 <b>모델에 넣지 않은 성분</b>이 모양이 닮은 다른 <b>계수</b> 쪽으로 섞이는 것이고, 교란은 <b>원인이 되는 변수 둘</b>이 함께 움직여 한쪽 기울기에 다른 쪽이 섞이는 것입니다.</p>
+<p>이 자료에서 둘이 함께 움직이는 까닭은 계절입니다. 냉각수 온도가 24턴에 걸쳐 서서히 오른다고 가정했으므로(<span class="v_k0"></span> K, 가정), 턴이 늦을수록 챔버가 조금 더 뜨겁습니다. 둘이 얼마나 함께 움직이는지를 재는 수가 <b>상관계수 (correlation coefficient)</b>입니다. −1에서 1 사이이고, 1에 가까울수록 한쪽이 클 때 다른 쪽도 큽니다.</p>
+<div class="lab">
+  <div class="labtitle">계절을 바꾸며 교란 크기 보기 (탐구 모드)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 계절을 0 K로 두면 턴만 넣은 기울기가 정답 근처로 돌아오는지 보십시오. 2) 올릴수록 &lsquo;턴만 넣은 기울기&rsquo;와 정답의 차이가 어떻게 커지는지 보십시오. 3) 그 차이가 &lsquo;열변형 기울기 × 턴당 온도 상승&rsquo;과 맞아떨어지는지 보십시오. 이 슬라이더는 유리 1,728장의 자료를 다시 만들며, 5절에만 적용됩니다.</div>
+  <div class="ctrl"><label for="sK">계절: 24턴 동안 오르는 냉각수 온도 (K, 가정)</label><input type="range" id="sK" min="0" max="0.6" step="0.05" value="0.3"><output id="sKo"></output></div>
+  <div class="row"><button class="btn ghost" id="rK" type="button">기본값(0.3 K)으로 되돌리기</button></div>
+  <div class="state" id="stK"></div>
+  <canvas id="cvTT"></canvas>
+  <div class="legend"><span>가로: 턴 · 세로: 그 턴 FDC 온도의 평균 (°C)</span></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<p>표의 두 줄을 이어 읽으면 교란이 정확히 어디서 오는지 보입니다. 턴만 넣은 기울기는 둘 다 넣은 턴 기울기에 <b>열변형 기울기 × (턴이 1 늘 때 오르는 온도)</b>를 더한 값과 같습니다. 온도를 뺀 모델이 그 몫을 모두 턴에 씌우기 때문입니다. 그래서 12장 가운데 이 몫에 가장 크게 속는 마스크, 곧 턴만 넣은 기울기가 정답에서 가장 멀리 벗어난 마스크를 위 [문제]에 골랐습니다.</p>
+<div class="labtitle">마스크 12장의 턴만 넣은 기울기와 정답의 차이 (기본 계절)</div>
+<div class="tbwrap"><table id="tab5b" class="mt num"></table></div>
+<div class="qna" data-label="그냥 턴 평균만 보면 되지 않나요?" data-q="그냥 턴 평균만 보면 되지 않나요?">
+  <p><b>되지 않습니다. 턴 평균은 턴 안의 톱니를 지우지만 계절로 생긴 교란은 지우지 못합니다.</b> 한 턴 안에서 5·20·40·60·90·120번째 유리를 같은 자리로 모두 재면 턴 안 온도 상승은 턴 평균에 같은 크기로 들어가므로 상쇄되지만, 턴이 갈수록 오르는 계절 몫은 그대로 남아 턴 평균의 기울기에 실립니다.</p>
+  <p>이 자료에서 턴 평균만으로 구한 기울기에 가까운 &lsquo;턴만 넣은 기울기&rsquo;는 <span class="q5_to"></span> ppm/턴이고, 온도를 함께 넣은 턴 기울기는 <span class="q5_both"></span> ppm/턴입니다. 정답은 <span class="q5_true"></span>입니다. 턴 평균만 보면 마모를 <span class="q5_ratio"></span>배로 읽게 됩니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>두 번째 증거 — 단변 배율 My</h2>
+<p>회귀 하나로 갈랐다고 바로 믿기는 이릅니다. 독립된 증거가 하나 더 필요합니다. 열변형은 장변과 단변에 모두 들어가지만, 턴 누적(장력이 풀리는 것)은 장변에만 들어간다고 하면 <b>단변 배율 <i>M<sub>y</sub></i>의 온도 기울기는 있고 턴 기울기는 0 근처</b>여야 합니다. 같은 회귀를 <i>M̂<sub>y</sub></i>에 해 봅니다.</p>
+<p><b>이 절의 전제(가정)</b>는 두 가지입니다. 열변형이 <i>M<sub>y</sub></i>에 들어가는 크기는 <i>M<sub>x</sub></i>의 <span class="v_half"></span>로 둔 가상 공정의 약속이고, 턴 누적은 장변에만 있다고 둔 약속입니다. 현장 마스크에서는 이 비와 방향을 먼저 재 두어야 이 증거를 쓸 수 있습니다.</p>
+<div class="maps2">
+  <div><div class="labtitle"><i>M̂<sub>x</sub></i> — 절편과 턴 몫을 뺀 값</div><canvas id="cvMx6"></canvas></div>
+  <div><div class="labtitle"><i>M̂<sub>y</sub></i> — 절편과 턴 몫을 뺀 값</div><canvas id="cvMy6"></canvas></div>
+</div>
+<div class="legend"><span>가로: FDC 온도 (°C) · 세로: ppm · 선: 회귀가 구한 열변형 기울기</span></div>
+<div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+<div class="concl" id="conc6"></div>
+<div class="qna" data-label="FDC 온도가 마스크 온도와 다르면 어떻게 되나요?" data-q="FDC 온도가 마스크 온도와 다르면 어떻게 되나요?">
+  <p><b>기울기의 크기가 실제보다 작게 나옵니다.</b> FDC가 재는 곳과 마스크가 있는 곳의 온도는 같지 않고, 센서에 지연과 잡음이 있습니다. 이 자료에서는 FDC 온도에 표준편차 <span class="q6_noise"></span> K의 측정 잡음이 끼어 있다고 두었는데, 참 온도로 회귀한 열변형 기울기는 <span class="q6_true"></span> ppm/K이고 FDC 온도로 한 것은 <span class="q6_fdc"></span> ppm/K입니다. 온도에 잡음이 낀 만큼 기울기가 0 쪽으로 눌립니다.</p>
+  <p>현장에서 이 눌림을 확인하는 방법이 같은 마스크의 My와 견주는 것입니다. 두 배율의 열변형 기울기 비가 마스크 구조로 알려진 비(여기서는 <span class="v_half"></span>)에서 벗어나면 온도 쪽 자료를 의심합니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>온도 보정과 판정</h2>
+<p>이제 열변형을 걷어 내는 계산을 정의합니다. <b>온도 보정 (temperature compensation)</b>은 추정한 열변형 기울기에 (온도 − 기준 온도)를 곱해 측정 <i>M̂<sub>x</sub></i>에서 빼서, <b>같은 온도였다면의 <i>M̂<sub>x</sub></i></b>를 만드는 것입니다. <b>기준 온도 (reference temperature)</b>는 그 보정의 0점입니다. 여기서는 <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C로 정했습니다. 기준 온도는 바꾸면 보정된 값의 뜻이 바뀌는 약속이므로 슬라이더로 두지 않고 기록에 적습니다(0302의 모델 판과 같은 이유).</p>
+<div class="eq">
+  <span class="eqlab">온도 보정</span>
+  <math display="block"><mrow><msub><mi>M</mi><mrow><mtext>보정</mtext><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mover><mi>M</mi><mo>^</mo></mover><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>b</mi><mo>^</mo></mover><mi>T</mi></msub><mo stretchy="false">(</mo><msub><mi>T</mi><mi>i</mi></msub><mo>−</mo><msub><mi>T</mi><mtext>기준</mtext></msub><mo stretchy="false">)</mo></mrow></math>
+  <span class="note"><i>b̂<sub>T</sub></i>는 4절의 다중 회귀로 구한 열변형 기울기(<span class="v_bT"></span> ppm/K), <i>T</i><sub>기준</sub>는 기준 온도입니다.</span>
+</div>
+<p>경보를 평가하려면 말을 더 정해야 합니다. 마스크의 판정이 <b>정답</b>(가상 자료에서 턴 누적 몫만으로 같은 판정을 한 것)과 같으면 맞고, 다르면 틀립니다. 틀림에는 두 가지가 있습니다. <b>헛경보</b>는 방법은 경보인데 정답은 경보가 아닌 마스크이고, <b>놓침</b>은 정답은 경보인데 방법은 경보가 아닌 마스크입니다. 헛경보 한 건은 멀쩡한 마스크를 리페어하러 빼는 일이고, 놓침 한 건은 닳은 마스크를 계속 쓰는 일입니다.</p>
+<div class="lab">
+  <div class="labtitle">보정 전과 후의 경보 — 한계와 점검 턴을 바꿔 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 보정 전 그림에서 초록 선(보정 후)과 붉은 한계선 중 어느 쪽이 먼저 닿는지 보십시오. 2) 한계를 낮출수록 헛경보와 놓침이 어떻게 달라지는지 보십시오. 3) 점검 턴을 늘리면 정답 쪽 경보가 언제부터 생기는지 보십시오. 아래 마스크 12장의 표와 그림이 함께 움직입니다.</div>
+  <div class="ctrl"><label for="sLim">한계: 기준선보다 이만큼 내려가면 경보 (ppm, 가정)</label><input type="range" id="sLim" min="0.1" max="0.8" step="0.05" value="0.3"><output id="sLimO"></output></div>
+  <div class="ctrl"><label for="sRev">점검 턴: 처음 몇 턴의 기록으로 판정 (가정)</label><input type="range" id="sRev" min="4" max="24" step="1" value="12"><output id="sRevO"></output></div>
+  <div class="row"><button class="btn ghost" id="rL" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stL"></div>
+  <canvas id="cvCmp"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>보정 전 턴 평균</span><span><i class="dot" style="background:var(--good)"></i>보정 후 턴 평균</span><span><i class="dot" style="background:var(--grey)"></i>정답(턴 누적 몫만)</span><span><i class="sw" style="border-top:2px dashed var(--bad)"></i>기준선 − 한계</span><span>세로 점선: 점검 턴</span></div>
+  <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
+  <div class="concl" id="conc7"></div>
+  <div class="labtitle" style="margin-top:.8rem">마스크 12장의 첫 경보 턴</div>
+  <div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
+</div>
+<div class="qna" data-label="기울기 −2 ppm/K를 교과서 값으로 써도 되나요?" data-q="기울기 −2 ppm/K를 교과서 값으로 써도 되나요?">
+  <p><b>출발점으로는 쓰되 우리 장비에서 잰 값으로 바꿔 기록합니다.</b> 재료표의 열팽창 계수로 계산한 기울기는 <span class="q7_th"></span> ppm/K이고, 이 자료에서 다중 회귀가 잰 값은 <span class="q7_fit"></span> ± <span class="q7_se"></span> ppm/K입니다. 차이가 표준오차의 <span class="q7_z"></span>배입니다.</p>
+  <p>이 차이의 일부는 FDC 온도의 측정 잡음(앞 절의 Q&amp;A)에서 생기고, 현장에서는 마스크 재질·두께·클램프에 따라 훨씬 더 벌어질 수 있습니다. 보정 장비에 넣는 값은 <b>그 장비에서 잰 기울기와 그 표준오차, 잰 날짜</b>를 함께 적어 두십시오.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 초안을 승인할까</h2>
+<p>이 실험실을 시작한 물음은 마스크 <b class="v_mk"></b>의 리페어 초안을 승인해도 되는가, 그리고 내려간 몫 가운데 열과 마모가 각각 얼마인가였습니다. 점검 턴(<span class="v_rev"></span>턴)과 한계(<span class="v_lim"></span> ppm)는 7절에서 정한 값입니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt num"></table></div>
+<div class="concl" id="land"></div>
+<p>숫자를 만드는 일은 규칙과 에이전트가 하지만, 그 숫자로 무엇을 할지는 사람이 정합니다. 되돌릴 수 없는 조치(리페어)는 0206에서 정한 대로 사람의 승인 뒤에 실행합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>리페어 승인 · 기준 온도·모델 판의 약속 정하기 · 열변형 기울기를 장비에서 직접 재서 갱신하기 · 온도 센서 위치·교정 판 관리</td></tr>
+  <tr><td class="rowh">규칙</td><td>보정 후 변화량이 한계를 넘는지 비교(경보) · 턴 기울기의 표준오차가 기준을 넘으면 &lsquo;판단 보류&rsquo; 표시</td></tr>
+  <tr><td class="rowh">에이전트</td><td>표 잇기 · 다중 회귀 · 보정 · 그림 · 판정 초안과 기록지 쓰기 · 한계에 닿을 턴 미리 세기</td></tr>
+</table></div>
+<p>보정 후에도 남는 턴 기울기를 마스크마다 쌓으면 한계에 닿는 시점을 미리 셀 수 있고, 이것이 0306(마스크 수명 예측)의 출발입니다. 또 온도로 <i>M<sub>x</sub></i>를 미리 맞히는 이 회귀는 0305(가상 계측)의 첫걸음입니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>보정하지 않고 판정하면 7절의 헛경보 마스크가 생기고, 헛경보 한 건은 마스크를 리페어하러 빼는 일입니다. 마스크가 빠지는 동안 그 챔버의 증착이 멈추는 양을 <b>쓸데없이 멈추는 생산량</b>으로 셉니다. 헛경보 마스크 수 × 리페어 한 번에 마스크가 빠지는 턴 수 × 턴당 유리 장수(<span class="v_nt"></span>장)입니다. 한계·점검 턴은 7절 값을 따르고, 빠지는 턴 수는 아래 슬라이더가 정하는 가정입니다. 마스크 집단을 시드 1~200으로 다시 뽑은 분포도 함께 셉니다.</p>
+<div class="lab">
+  <div class="labtitle">온도를 보정하지 않을 때 쓸데없이 멈추는 생산량</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 보정 전과 후의 헛경보 마스크 수 차이를 보십시오. 2) 놓침이 보정 때문에 늘어나는 쪽은 없는지 보십시오. 3) 7절에서 한계를 낮추면 이 표가 어떻게 바뀌는지 오가며 보십시오.</div>
+  <div class="ctrl"><label for="sTn">리페어 한 번에 마스크가 빠지는 턴 수 (가정)</label><input type="range" id="sTn" min="1" max="6" step="1" value="2"><output id="sTnO"></output></div>
+  <div class="row"><button class="btn ghost" id="rT" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stT"></div>
+  <div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 &lsquo;유리 한 장의 값&rsquo;과 &lsquo;리페어 한 번의 비용&rsquo;을 곱해 금액으로 적습니다. 이 화면의 한계·점검 턴·빠지는 턴 수는 가정이며, 실제 spec과 리페어 절차로 바꿔 넣으십시오.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy</code>와 <code>pandas</code>만 씁니다. 두 표를 잇는 <code>join_fdc_ppa</code>, 다중 회귀의 <code>fit_thermal_age</code>, 온도 보정 <code>compensate</code>, 리페어 경보 <code>repair_alarm</code>이 이 실험실의 도구입니다. 각 함수에는 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다. 입력은 계수 표 <code>ppa_coef_s11.csv</code>(유리 1,728장, 0302의 계수 한 줄씩)와 FDC 온도 표 <code>fdc_temp_s11.csv</code>이며, 코드와 같은 폴더에 두면 그대로 돌아갑니다.</p>
+<div class="row"><button class="btn" id="csvBtn1" type="button">CSV 내려받기 (ppa_coef_s11.csv)</button><button class="btn" id="csvBtn2" type="button">CSV 내려받기 (fdc_temp_s11.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+
+T_REF = 80.0                                     # 기준 온도 (°C). 보정의 0점이며 바꾸면 기록에 남깁니다.
+TURNS = 24                                       # 이 자료의 관찰 턴 수
+
+
+def join_fdc_ppa(coef, fdc):
+    """유리 번호(glass_id)로 계수 표와 FDC 온도 표를 잇고, 못 이은 행 수를 알려 줍니다. 못 이은 행은 fdc_temp 가 비어 있습니다.
+    쓰면 안 되는 때: 두 표의 챔버·센서 위치 판이 다를 때(같은 이름의 온도가 다른 곳을 잰 값입니다)."""
+    df = coef.merge(fdc, on="glass_id", how="left")
+    miss = int(df.fdc_temp.isna().sum())
+    print(f"이은 행 {len(df) - miss} · 못 이은 행 {miss} · FDC 표에 주인이 없는 행 {int((~fdc.glass_id.isin(coef.glass_id)).sum())}")
+    return df
+
+
+def fit_thermal_age(df, y="Mx_hat", use_temp=True, use_turn=True, per_mask=True, t_ref=T_REF):
+    """y ~ 절편 + (온도 − t_ref) + 턴 의 다중 회귀(numpy lstsq). per_mask 면 마스크마다 절편을 따로 둡니다. FDC 온도가 없는 행은 뺍니다.
+    쓰면 안 되는 때: FDC 센서 위치·교정이 바뀐 뒤(기울기를 다시 재야 합니다), 계수 표의 모델 판이 서로 다를 때."""
+    d = df.dropna(subset=["fdc_temp", y])
+    cols = ([d.fdc_temp.to_numpy() - t_ref] if use_temp else []) + ([d.turn.to_numpy().astype(float)] if use_turn else [])
+    names = (["temp"] if use_temp else []) + (["turn"] if use_turn else [])
+    if per_mask:
+        ids = sorted(d.mask_id.unique())
+        base = [(d.mask_id == m).to_numpy().astype(float) for m in ids]
+    else:
+        base = [np.ones(len(d))]
+    X = np.column_stack(base + cols)
+    obs = d[y].to_numpy()
+    beta = np.linalg.lstsq(X, obs, rcond=None)[0]
+    rss = float(((obs - X @ beta) ** 2).sum())
+    sig = np.sqrt(rss / (len(obs) - X.shape[1]))
+    se = sig * np.sqrt(np.diag(np.linalg.inv(X.T @ X)))
+    k = len(base)
+    out = {n: (beta[k + i], se[k + i]) for i, n in enumerate(names)}
+    out.update(rss=rss, n=len(obs), p=X.shape[1])
+    return out
+
+
+def compensate(df, slope, t_ref=T_REF, y="Mx_hat"):
+    """같은 온도(t_ref)였다면의 값: y − 기울기 × (FDC 온도 − t_ref). FDC 온도가 없는 행은 비웁니다.
+    쓰면 안 되는 때: 기울기를 잰 장비·센서와 다른 곳의 자료에 쓸 때, 온도 범위 밖으로 멀리 끌어 쓸 때."""
+    out = df.copy()
+    out[y.replace("_hat", "_comp")] = df[y] - slope * (df.fdc_temp - t_ref)
+    return out
+
+
+def repair_alarm(df, limit, y="Mx_hat", base_turns=1, upto=12):
+    """마스크마다 기준선(처음 base_turns 턴의 평균)을 잡고, 턴 평균이 기준선보다 limit 넘게 내려간 첫 턴을 돌려줍니다(upto 턴까지만 봄, 없으면 0).
+    쓰면 안 되는 때: 한 턴에 측정한 유리 수·순번이 턴마다 다를 때(턴 평균 자체가 흔들립니다)."""
+    res = {}
+    for m, g in df.groupby("mask_id"):
+        tm = g.dropna(subset=[y]).groupby("turn")[y].mean()
+        base = tm[tm.index &lt;= base_turns].mean()
+        hit = [t for t in range(base_turns + 1, upto + 1) if t in tm.index and tm[t] - base &lt; -limit]
+        res[m] = hit[0] if hit else 0
+    return res
+
+
+coef = pd.read_csv("ppa_coef_s11.csv")
+fdc = pd.read_csv("fdc_temp_s11.csv")
+df = join_fdc_ppa(coef, fdc)
+
+# 1) 다중 회귀: 열변형 기울기와 턴 기울기를 함께
+both = fit_thermal_age(df)
+only = fit_thermal_age(df, use_temp=False)
+print(f"Mx 열변형 {both['temp'][0]:+.3f} ± {both['temp'][1]:.3f} ppm/K · 턴 {both['turn'][0]:+.4f} ± {both['turn'][1]:.4f} ppm/턴 · 잔차제곱합 {both['rss']:.2f}")
+print(f"Mx 턴만 넣으면 {only['turn'][0]:+.4f} ± {only['turn'][1]:.4f} ppm/턴 (둘 다 넣었을 때 {both['turn'][0]:+.4f})")
+
+# 2) 단변 배율로 한 번 더
+my = fit_thermal_age(df, y="My_hat")
+print(f"My 열변형 {my['temp'][0]:+.3f} ± {my['temp'][1]:.3f} · 턴 {my['turn'][0]:+.4f} ± {my['turn'][1]:.4f} · My/Mx 열변형 비 {my['temp'][0] / both['temp'][0]:.3f}")
+
+# 3) 온도 보정과 리페어 경보 (한계 0.3 ppm, 12턴까지)
+comp = compensate(df, both["temp"][0])
+raw, fixed = repair_alarm(df, 0.3), repair_alarm(comp, 0.3, y="Mx_comp")
+print(f"경보 마스크: 보정 전 {sum(v &gt; 0 for v in raw.values())}장 · 보정 후 {sum(v &gt; 0 for v in fixed.values())}장 (12장 중)")
+M = "B04-A3"
+tm = lambda d, y: d[d.mask_id == M].dropna(subset=[y]).groupby("turn")[y].mean()
+r, c = tm(df, "Mx_hat"), tm(comp, "Mx_comp")
+print(f"{M} 12턴째 기준선 대비: 보정 전 {r[12] - r[1]:+.3f} → 보정 후 {c[12] - c[1]:+.3f} ppm (첫 경보 턴 {raw[M]} → {fixed[M] or '없음'})")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력">이은 행 1715 · 못 이은 행 13 · FDC 표에 주인이 없는 행 0
+Mx 열변형 -1.976 ± 0.011 ppm/K · 턴 -0.0203 ± 0.0006 ppm/턴 · 잔차제곱합 48.42
+Mx 턴만 넣으면 -0.0457 ± 0.0025 ppm/턴 (둘 다 넣었을 때 -0.0203)
+My 열변형 -0.988 ± 0.007 · 턴 -0.0004 ± 0.0004 · My/Mx 열변형 비 0.500
+경보 마스크: 보정 전 12장 · 보정 후 3장 (12장 중)
+B04-A3 12턴째 기준선 대비: 보정 전 -0.472 → 보정 후 -0.155 ppm (첫 경보 턴 9 → 없음)</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>배율 변화 판정 기록지</h3>
+  <dl>
+    <dt>칸 (0206 사례 기록의 칸과 같은 이름)</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 마스크 <span class="v_mk"></span>로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>마스크·기간(턴 범위)·측정 레시피(턴마다 어느 유리 순번을 재는지)를 적었는가</li>
+      <li>모델 판(넣은 변수와 마스크별 절편 여부)과 기준 온도를 적었는가</li>
+      <li>열변형 기울기와 턴 기울기를 표준오차와 함께 적고, 서로 다른 모델의 값을 섞지 않았는가</li>
+      <li>My의 열변형 비와 턴 기울기로 한 번 더 확인했는가</li>
+      <li>보정 전·후 변화량과 한계를 나란히 적고, 판정과 담당·다음 확인 시점이 있는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>리페어처럼 되돌릴 수 없는 조치는 사람의 승인 뒤에 실행합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">이 판정을 자동화하려면 유리마다 아래를 같은 키로 남겨야 합니다. 나중에 붙이려 하면 시각을 맞추는 일이 가장 비쌉니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>유리별 계수 줄</b> — 계수·표준오차에 <b>그 유리의 FDC 온도(증착 시점)·턴·턴 안 순번·마스크 번호</b>를 같은 <code>glass_id</code> 줄에.</li>
+      <li><b>기준 온도와 센서 판</b> — 기준 온도, 온도 센서의 위치·교정 날짜(판이 바뀌면 기울기를 다시 잰다).</li>
+      <li><b>모델 판</b> — 넣은 변수, 마스크별 절편 여부, 계산 방법(회귀 도구 판).</li>
+      <li><b>FDC가 빠진 유리의 목록</b> — 어느 유리가 왜 빠졌는지(회귀에서 뺀 행).</li>
+      <li><b>세정·리페어 이력</b> — 턴 누적이 0으로 돌아가는 시점(마스크 번호·시각).</li>
+    </ul>
+    <p>마스크 번호·턴·유리 순번이 같은 키로 이어져 있으면 몇 달 뒤 온도와 턴의 몫을 다시 가를 수 있고, 따로 보관하면 계절이 바뀐 뒤에는 이어 붙일 수 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실의 함수를 0302의 함수와 이어, 순서대로 부르게 묶었습니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">1) 계수 추정</td><td>0302의 <code>fit_ppa</code>(유리마다 계수 한 줄)</td></tr>
+      <tr><td class="rowh">2) 표 잇기</td><td><code>join_fdc_ppa</code>(못 이은 행 수 확인)</td></tr>
+      <tr><td class="rowh">3) 열변형·턴 누적 가르기</td><td><code>fit_thermal_age</code></td></tr>
+      <tr><td class="rowh">4) 열변형 걷어 내기</td><td><code>compensate</code></td></tr>
+      <tr><td class="rowh">5) 경보</td><td><code>repair_alarm</code></td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0302-ppa-least-squares.html">← 이전: 성분 분해 — 최소제곱</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var MS=MfgSim,TL=MS.s11tools,CF=MS.CFG,TREF=CF.T0,NT=TL.TURNS,GITS=TL.GITS,IDS=TL.IDS;
+var LIM0=TL.LIMIT,REV0=TL.REVIEW,K0=TL.SEASON_K,TN0=2,NPT=CF.N_TURN;
+var ST={lim:LIM0,rev:REV0,tn:TN0,k:K0,mode:'raw'};
+var SEEDREC=[];
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+function med(a){return quant(a,.5);}
+function z0(v,d){return Math.abs(v)<0.5*Math.pow(10,-d);}
+function sgn(v,d){return (v<0&&!z0(v,d)?'−':'+')+fmt(Math.abs(v),d);}
+function sg0(v,d){return (v<0&&!z0(v,d)?'−':'')+fmt(Math.abs(v),d);}
+function c3(a,d){var f=function(v){return d===0?fmtN(v):sg0(v,d);};return f(quant(a,.5))+' ('+f(quant(a,.1))+'~'+f(quant(a,.9))+')';}
+function pm(v,s,d){return sg0(v,d)+' ± '+fmt(s,d);}
+function hexRgb(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)];}
+function lerpC(a,b,t){var A=hexRgb(a),B=hexRgb(b);return 'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+Math.round(A[1]+(B[1]-A[1])*t)+','+Math.round(A[2]+(B[2]-A[2])*t)+')';}
+function niceTicks(lo,hi,n){var rg=hi-lo,raw=rg/n,mg=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),st=mg,c=[1,2,5,10],i;for(i=0;i<c.length;i++){st=c[i]*mg;if(st>=raw)break;}var out=[],v=Math.ceil(lo/st-1e-9)*st;for(;v<=hi+1e-9;v+=st)out.push(Math.round(v/st)*st);return out;}
+function tickFmt(st){var d=0;while(d<4&&Math.abs(st*Math.pow(10,d)-Math.round(st*Math.pow(10,d)))>1e-6)d++;return d;}
+/* 축이 있는 그림 틀. o = {h, x0,x1,y0,y1, xt(눈금 배열), xf(눈금 글자), yl(세로 단위)} */
+function frame(cv,o){
+  var W=cv.clientWidth||320,c=setup(cv,o.h),x=c.x,pl=48,pr=22,pt=14,pb=34,gw=W-pl-pr,gh=o.h-pt-pb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,o.h);
+  function PX(v){return pl+(v-o.x0)/(o.x1-o.x0)*gw;}function PY(v){return pt+gh-(v-o.y0)/(o.y1-o.y0)*gh;}
+  x.font='11px sans-serif';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  var yt=niceTicks(o.y0,o.y1,5),yd=tickFmt(yt.length>1?yt[1]-yt[0]:1);
+  yt.forEach(function(v){var y=PY(v);x.beginPath();x.moveTo(pl,y);x.lineTo(pl+gw,y);x.stroke();x.textAlign='right';x.fillText(sg0(v,yd),pl-5,y+4);});
+  (o.xt||[]).forEach(function(v){var xx=PX(v);x.beginPath();x.moveTo(xx,pt+gh);x.lineTo(xx,pt+gh+4);x.stroke();x.textAlign='center';x.fillText(o.xf?o.xf(v):String(v),xx,pt+gh+17);});
+  x.strokeStyle=soft;x.beginPath();x.moveTo(pl,pt);x.lineTo(pl,pt+gh);x.lineTo(pl+gw,pt+gh);x.stroke();
+  if(o.xl){x.textAlign='center';x.fillText(o.xl,pl+gw/2,pt+gh+31);}
+  x.save();x.translate(11,pt+gh/2);x.rotate(-Math.PI/2);x.textAlign='center';if(o.yl)x.fillText(o.yl,0,0);x.restore();
+  return {x:x,PX:PX,PY:PY,pl:pl,pt:pt,gw:gw,gh:gh,W:W};
+}
+function hline(f,v,col,dash,label){var x=f.x;x.save();x.strokeStyle=col;x.lineWidth=1.5;x.setLineDash(dash||[5,4]);x.beginPath();x.moveTo(f.pl,f.PY(v));x.lineTo(f.pl+f.gw,f.PY(v));x.stroke();x.restore();if(label){x.fillStyle=col;x.font='11px sans-serif';x.textAlign='right';x.fillText(label,f.pl+f.gw-4,f.PY(v)-4);}}
+
+/* ---- 자료와 회귀 ---- */
+function prep(S){
+  var J=TL.join(S.coefRows,S.fdcRows),rows=J.rows.map(function(r){return Object.assign({},r,{dT:r.fdc_temp==null?null:r.fdc_temp-TREF});});
+  return {S:S,J:J,rows:rows,ok:rows.filter(function(r){return r.fdc_temp!=null;}),full:TL.withTruth(rows,S.truth)};
+}
+function core(D){
+  var ok=D.ok;
+  return {b:TL.regress(ok,'Mx_hat',['dT','turn'],{perMask:true}),t:TL.regress(ok,'Mx_hat',['turn'],{perMask:true}),y:TL.regress(ok,'My_hat',['dT','turn'],{perMask:true}),
+    d:TL.regress(ok,'dT',['turn'],{perMask:true}),corr:TL.corr(ok.map(function(r){return r.fdc_temp;}),ok.map(function(r){return r.turn;}))};
+}
+function tmeans(D,C){
+  var comp=TL.compensate(D.rows,C.b.coef.dT,TREF);
+  return {R:TL.turnMeans(D.rows,'Mx_hat'),C:TL.turnMeans(comp,'Mx_comp'),T:TL.turnMeans(D.full,'Mx_age')};
+}
+function evalAl(tm,lim,rev){
+  var aR=TL.alarmsFromMeans(tm.R,{limit:lim,upTo:rev}),aC=TL.alarmsFromMeans(tm.C,{limit:lim,upTo:rev}),aT=TL.alarmsFromMeans(tm.T,{limit:lim,upTo:rev});
+  return {aR:aR,aC:aC,aT:aT,cb:TL.confusion(aR,aT),ca:TL.confusion(aC,aT),nR:aR.filter(function(x){return x.alarm;}).length,nC:aC.filter(function(x){return x.alarm;}).length,nT:aT.filter(function(x){return x.alarm;}).length};
+}
+var SS=MS.scenario('S11'),SEED=SS.params.seed,D0=prep(SS),C0=core(D0),TM0=tmeans(D0,C0);
+var MKI=TL.pickMask(D0.ok),MK=MKI.mask_id,MKCH=MS.parseMaskId(MK).chamber;
+var BT=C0.b.coef.dT,BN=C0.b.coef.turn;
+function mkOf(id){return D0.rows.filter(function(r){return r.mask_id===id;});}
+function find(a,id){for(var i=0;i<a.length;i++)if(a[i].mask_id===id)return a[i];return null;}
+var TURNLBL=function(v){return String(v);};
+
+/* ---- 머리말·문제·3절 상수 ---- */
+setAll('v_mk',MK);setAll('v_lim0',fmt(LIM0,1));setAll('v_rev0',String(REV0));setAll('v_T0',String(TREF));
+setAll('v_am',fmt(CF.ALPHA_M*1e6,1));setAll('v_ag',fmt(CF.ALPHA_G*1e6,1));
+var SLOPE_TH=(CF.ALPHA_M-CF.ALPHA_G)*1e6;
+setAll('v_slope',sg0(SLOPE_TH,1));setAll('v_age',sg0(CF.AGE_PPM_PER_TURN,2));setAll('v_step',sg0(CF.CLEAN_STEP_PPM,2));
+$('m_age').textContent=fmt(Math.abs(CF.AGE_PPM_PER_TURN),2);$('m_step').textContent=fmt(Math.abs(CF.CLEAN_STEP_PPM),2);
+setAll('v_tau',String(CF.TEMP_TAU));setAll('v_rise',fmt(CF.TEMP_RISE,1));setAll('v_ch',MKCH);
+setAll('v_k0',fmt(K0,1));setAll('v_half','절반');setAll('v_nt',String(NPT));setAll('v_bT',sg0(BT,3));
+var DT_IN=MS.chamberTemp(MKCH,GITS[GITS.length-1])-MS.chamberTemp(MKCH,GITS[0]);
+setAll('v_dT',fmt(DT_IN,2));setAll('v_dM',sg0(SLOPE_TH*DT_IN,2));
+
+/* ---- 1절 ---- */
+var AL1=TL.alarmsFromMeans(TM0.R,{limit:LIM0,upTo:REV0}),A1=find(AL1,MK),TMK=TM0.R[MK];
+(function(){
+  setAll('v_base',fmt(A1.base,3));
+  var h='<tr><th>턴</th><th>6장의 <i>M̂<sub>x</sub></i> 평균 (ppm)</th><th>기준선 대비 변화 (ppm)</th></tr>';
+  [1,3,6,9,12,16,20,24].forEach(function(t){h+='<tr><td class="rowh">'+t+'</td><td>'+sg0(TMK[t-1],3)+'</td><td'+(A1.change[t-1]<-LIM0?' class="hit"':'')+'>'+(t===1?'0 (기준선)':sg0(A1.change[t-1],3))+'</td></tr>';});
+  $('tab1').innerHTML=h;
+  $('conc1').innerHTML=A1.alarm?'<b>턴 평균이 '+A1.turn+'턴째에 처음 기준선보다 한계('+fmt(LIM0,1)+' ppm)를 넘게 내려갔고, '+REV0+'턴째의 변화는 '+sg0(A1.change[REV0-1],3)+' ppm, 24턴째의 변화는 '+sg0(A1.change[23],3)+' ppm입니다.</b> 붉은 칸이 한계를 넘은 턴입니다.':
+    '<b>이 마스크는 처음 '+REV0+'턴 안에 한계를 넘지 않았습니다(24턴째 변화 '+sg0(A1.change[23],3)+' ppm).</b>';
+})();
+
+/* ---- 2절 ---- */
+var WITHIN=(function(){var rs=mkOf(MK),d=[];for(var t=1;t<=NT;t++){var a=null,b=null;rs.forEach(function(r){if(r.turn===t&&r.glass_in_turn===GITS[0])a=r.Mx_hat;if(r.turn===t&&r.glass_in_turn===GITS[GITS.length-1])b=r.Mx_hat;});if(a!=null&&b!=null)d.push(a-b);}return {mean:d.reduce(function(s,v){return s+v;},0)/d.length,n:d.length};})();
+var TOTAL=TMK[NT-1]-TMK[0];
+function drawSeq(){
+  var cv=$('cvSeq'),rs=mkOf(MK),ys=rs.map(function(r){return r.Mx_hat;}),base=A1.base,lo=Math.min(Math.min.apply(null,ys),base-LIM0)-0.2,hi=Math.max(Math.max.apply(null,ys),base)+0.2;
+  var f=frame(cv,{h:300,x0:0,x1:NT,y0:lo,y1:hi,xt:[0.5,3.5,7.5,11.5,15.5,19.5,23.5],xf:function(v){return '턴 '+Math.round(v+0.5);},yl:'M̂x (ppm)'}),x=f.x;
+  var accent=css('--accent'),c10=css('--c10'),bad=css('--bad'),soft=css('--soft');
+  hline(f,base,soft,[5,4],'기준선');hline(f,base-LIM0,bad,[5,4],'기준선 − 한계');
+  if(ST.mode==='raw'){
+    x.fillStyle=c10;x.globalAlpha=.85;
+    rs.forEach(function(r){var gi=GITS.indexOf(r.glass_in_turn);x.beginPath();x.arc(f.PX(r.turn-1+(gi+0.5)/GITS.length),f.PY(r.Mx_hat),2.6,0,6.283);x.fill();});
+    x.globalAlpha=1;
+  }
+  x.strokeStyle=accent;x.lineWidth=2;x.beginPath();TMK.forEach(function(v,i){var px=f.PX(i+0.5),py=f.PY(v);if(i)x.lineTo(px,py);else x.moveTo(px,py);});x.stroke();
+  x.fillStyle=accent;TMK.forEach(function(v,i){x.beginPath();x.arc(f.PX(i+0.5),f.PY(v),3.6,0,6.283);x.fill();});
+  var drop=WITHIN.mean;
+  $('conc2').innerHTML=ST.mode==='raw'?
+    '<b>한 턴 안에서 5번째 유리에서 120번째 유리로 가는 사이 <i>M̂<sub>x</sub></i>는 평균 '+fmt(drop,2)+' ppm 내려갔다가(턴 '+WITHIN.n+'개 평균) 다음 턴 첫 유리에서 제자리로 돌아옵니다.</b> 반면 24턴 동안 턴 평균이 내려간 총량은 '+fmt(Math.abs(TOTAL),2)+' ppm입니다. 한 턴 안의 낙차가 24턴 총량의 '+fmt(drop/Math.abs(TOTAL),1)+'배입니다.':
+    '<b>턴 평균만 보면 톱니는 사라지고 24턴 동안 '+sg0(TOTAL,2)+' ppm 내려가는 선만 남습니다.</b> 이 선이 마모 때문인지 다른 것 때문인지는 이 그림에서 읽을 수 없습니다.';
+}
+Array.prototype.forEach.call(document.querySelectorAll('button[data-mode]'),function(b){b.addEventListener('click',function(){ST.mode=b.getAttribute('data-mode');Array.prototype.forEach.call(document.querySelectorAll('button[data-mode]'),function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});drawSeq();});});
+
+/* ---- 3절 ---- */
+(function(){
+  $('tab3a').innerHTML='<tr><th>구분</th><th>원인</th><th>돌아오는가</th><th>가상 공정의 약속값 (정답)</th></tr>'+
+    '<tr><td class="rowh">열변형</td><td>챔버 온도 상승으로 유리가 마스크보다 더 늘어남</td><td>예 — 식으면 돌아옴</td><td>'+sg0(SLOPE_TH,1)+' ppm/K</td></tr>'+
+    '<tr><td class="rowh">턴 누적</td><td>턴이 쌓이며 마스크 장력이 풀림</td><td>아니오 — 세정·리페어 전까지</td><td>'+sg0(CF.AGE_PPM_PER_TURN,2)+' ppm/턴 (+첫 사용 뒤 '+sg0(CF.CLEAN_STEP_PPM,2)+' ppm)</td></tr>';
+  var h='<tr><th>glass_id</th><th>턴</th><th>유리 순번</th><th><i>M̂<sub>x</sub></i> (ppm)</th><th>FDC 온도 (°C)</th></tr>',shown=0;
+  D0.J.rows.filter(function(r){return r.mask_id===MK&&r.fdc_temp!=null;}).slice(0,3).forEach(function(r){h+='<tr><td class="rowh" style="text-align:left">'+r.glass_id+'</td><td>'+r.turn+'</td><td>'+r.glass_in_turn+'</td><td>'+sg0(r.Mx_hat,3)+'</td><td>'+fmt(r.fdc_temp,3)+'</td></tr>';shown++;});
+  var ms=D0.J.rows.filter(function(r){return r.fdc_temp==null;})[0];
+  if(ms)h+='<tr><td class="rowh" style="text-align:left">'+ms.glass_id+'</td><td>'+ms.turn+'</td><td>'+ms.glass_in_turn+'</td><td>'+sg0(ms.Mx_hat,3)+'</td><td>(FDC 기록 없음)</td></tr>';
+  $('tab3b').innerHTML=h;
+  var J=D0.J;
+  $('conc3').innerHTML='<b>계수 표 '+fmtN(D0.rows.length)+'행 가운데 '+fmtN(J.joined)+'행에 FDC 온도를 붙였고, '+J.missed+'행('+fmt(J.missed/D0.rows.length*100,1)+'%)은 FDC 기록이 없어 못 이었습니다.</b> 못 이은 행은 온도가 필요한 회귀(4절 이후)에서 뺍니다. FDC 표에 주인이 없는 줄은 '+J.fdc_unmatched+'개입니다. 키가 맞지 않으면 이렇게 빠지는 행이 소리 없이 늘어나므로, 잇고 나면 이은 행 수와 못 이은 행 수를 반드시 적습니다.';
+})();
+
+/* ---- 4절 ---- */
+var M4={t:true,n:true,m:true};
+function fitM4(m){var xs=[];if(m.t)xs.push('dT');if(m.n)xs.push('turn');return TL.regress(D0.ok,'Mx_hat',xs,{perMask:m.m});}
+function icptOf(f,id){return f.coef[f.names[0]==='icpt'?'icpt':'icpt:'+id];}
+function upd4(){
+  var f=fitM4(M4),base=(M4.t&&M4.n&&M4.m);
+  stateBox($('st4'),base,'지금은 세 변수(온도·턴·마스크별 절편)를 모두 넣은 모델입니다. 이 값이 이후 절의 기준입니다.','지금은 변수를 빼 놓은 모델입니다. [세 변수를 모두 넣은 처음 상태로]를 누르면 돌아갑니다.');
+  var h='<tr><th>항</th><th>기울기 ± 표준오차</th><th>단위</th></tr>';
+  h+='<tr><td class="rowh">온도 (FDC 온도 − '+TREF+')</td><td>'+(M4.t?pm(f.coef.dT,f.se.dT,3):'— (넣지 않음)')+'</td><td>ppm/K</td></tr>';
+  h+='<tr><td class="rowh">턴</td><td>'+(M4.n?pm(f.coef.turn,f.se.turn,4):'— (넣지 않음)')+'</td><td>ppm/턴</td></tr>';
+  h+='<tr><td class="rowh">절편</td><td>'+(M4.m?'마스크마다 하나씩 12개':'전체에 하나')+'</td><td>ppm</td></tr>';
+  h+='<tr><td class="rowh">쓴 행 수 · 계수 수</td><td>'+fmtN(f.n)+' · '+f.p+'</td><td></td></tr>';
+  h+='<tr><td class="rowh">잔차 제곱합 (σ̂)</td><td>'+fmt(f.rss,1)+' ('+fmt(f.sigma,3)+')</td><td>ppm² (ppm)</td></tr>';
+  $('tab4').innerHTML=h;
+  var b=C0.b,parts=[];
+  if(!M4.t)parts.push('온도를 넣지 않았으므로 열변형 몫이 잔차로 들어가 잔차 제곱합이 기준의 '+fmt(f.rss/b.rss,1)+'배가 되었습니다.'+(M4.n?' 턴 기울기는 '+sg0(f.coef.turn,4)+'로 기준 '+sg0(b.coef.turn,4)+'의 '+fmt(f.coef.turn/b.coef.turn,1)+'배로 커졌습니다. 온도가 떠맡던 몫이 턴으로 넘어간 것입니다(5절).':''));
+  if(M4.t&&!M4.n)parts.push('턴을 넣지 않았습니다. 열변형 기울기는 '+sg0(f.coef.dT,3)+'로 기준 '+sg0(b.coef.dT,3)+'와 '+(Math.abs(f.coef.dT-b.coef.dT)<2*b.se.dT?'표준오차 2배 안에서 같습니다. 온도와 턴이 함께 움직이는 정도가 작아 턴을 빼도 열변형 기울기는 거의 안 변합니다.':'다릅니다.'));
+  if(!M4.m)parts.push('절편을 하나만 두었으므로 마스크 차이가 잔차로 들어가 잔차 제곱합이 기준의 '+fmt(f.rss/b.rss,1)+'배가 되었습니다.'+(M4.t?' 열변형 기울기는 '+sg0(f.coef.dT,3)+'(기준 '+sg0(b.coef.dT,3)+')로 표준오차가 '+fmt(f.se.dT/b.se.dT,1)+'배 커졌습니다.':''));
+  if(M4.t&&M4.n&&M4.m)parts.push('<b>열변형 기울기 '+pm(b.coef.dT,b.se.dT,3)+' ppm/K, 턴 기울기 '+pm(b.coef.turn,b.se.turn,4)+' ppm/턴입니다.</b> 가상 공정의 정답은 '+sg0(SLOPE_TH,1)+' ppm/K와 '+sg0(CF.AGE_PPM_PER_TURN,2)+' ppm/턴이고, 열변형 기울기는 정답에서 표준오차의 '+fmt(Math.abs(b.coef.dT-SLOPE_TH)/b.se.dT,1)+'배, 턴 기울기는 '+fmt(Math.abs(b.coef.turn-CF.AGE_PPM_PER_TURN)/b.se.turn,1)+'배 떨어져 있습니다. 열변형 기울기가 정답보다 조금 작게 나오는 까닭은 FDC 온도에 측정 잡음이 끼어 있기 때문입니다(6절의 Q&A).');
+  $('conc4').innerHTML=parts.join(' ');
+  drawS4(f);
+}
+function drawS4(f){
+  var cv=$('cvS4'),rows=D0.ok,x0=1e9,x1=-1e9,ya=[],i;
+  rows.forEach(function(r){if(r.fdc_temp<x0)x0=r.fdc_temp;if(r.fdc_temp>x1)x1=r.fdc_temp;});
+  var yv=rows.map(function(r){return r.Mx_hat-icptOf(f,r.mask_id);}),lo=Math.min.apply(null,yv),hi=Math.max.apply(null,yv);
+  var fr=frame(cv,{h:300,x0:x0-0.05,x1:x1+0.05,y0:lo-0.2,y1:hi+0.2,xt:niceTicks(x0,x1,6),xf:function(v){return fmt(v,1);},xl:'FDC 온도 (°C)',yl:'ppm'}),x=fr.x,c10=css('--c10'),c8=css('--c8'),ink=css('--ink'),soft=css('--soft');
+  rows.forEach(function(r,k){x.fillStyle=lerpC(c10,c8,(r.turn-1)/(NT-1));x.globalAlpha=.55;x.beginPath();x.arc(fr.PX(r.fdc_temp),fr.PY(yv[k]),2.2,0,6.283);x.fill();});
+  x.globalAlpha=1;
+  if(M4.t){
+    var line=function(t,col){x.strokeStyle=col;x.lineWidth=2;x.beginPath();x.moveTo(fr.PX(x0),fr.PY(f.coef.dT*(x0-TREF)+(M4.n?f.coef.turn*t:0)));x.lineTo(fr.PX(x1),fr.PY(f.coef.dT*(x1-TREF)+(M4.n?f.coef.turn*t:0)));x.stroke();};
+    if(M4.n){line(1,c10);line(NT,c8);}else line(0,ink);
+  }else{x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='left';x.fillText('온도를 넣지 않아 기울기 선이 없습니다',fr.pl+8,fr.pt+16);}
+}
+$('cb_t').addEventListener('change',function(){M4.t=this.checked;upd4();});
+$('cb_n').addEventListener('change',function(){M4.n=this.checked;upd4();});
+$('cb_m').addEventListener('change',function(){M4.m=this.checked;upd4();});
+$('r4').addEventListener('click',function(){M4={t:true,n:true,m:true};$('cb_t').checked=$('cb_n').checked=$('cb_m').checked=true;upd4();});
+(function(){
+  var ic=IDS.map(function(id){return C0.b.coef['icpt:'+id];}),g=TL.regress(D0.ok,'Mx_hat',['dT','turn'],{perMask:false});
+  setAll('q4_spread',fmt(Math.max.apply(null,ic)-Math.min.apply(null,ic),2));setAll('q4_r0',fmt(C0.b.rss,1));setAll('q4_r1',fmt(g.rss,1));setAll('q4_b0',sg0(C0.b.coef.dT,3));setAll('q4_b1',sg0(g.coef.dT,3));
+})();
+
+/* ---- 5절 ---- */
+var D1=D0,C1=C0;
+function rebuild5(k){D1=k===K0?D0:prep(MS.scenario('S11',{season_K:k}));C1=k===K0?C0:core(D1);}
+function drawTT(){
+  var cv=$('cvTT'),byT={},ts=[];
+  D1.ok.forEach(function(r){(byT[r.turn]||(byT[r.turn]=[])).push(r.fdc_temp);});
+  for(var t=1;t<=NT;t++)ts.push(MS.stats.mean(byT[t]));
+  var f=frame(cv,{h:230,x0:0,x1:NT,y0:TREF+0.5,y1:TREF+1.5,xt:[0.5,3.5,7.5,11.5,15.5,19.5,23.5],xf:function(v){return '턴 '+Math.round(v+0.5);},yl:'°C'}),x=f.x,acc=css('--accent');
+  x.strokeStyle=acc;x.lineWidth=2;x.beginPath();ts.forEach(function(v,i){var px=f.PX(i+0.5),py=f.PY(v);if(i)x.lineTo(px,py);else x.moveTo(px,py);});x.stroke();
+  x.fillStyle=acc;ts.forEach(function(v,i){x.beginPath();x.arc(f.PX(i+0.5),f.PY(v),3.2,0,6.283);x.fill();});
+}
+function upd5(){
+  var k=ST.k,b=C1.b,t=C1.t,d=C1.d,prod=b.coef.dT*d.coef.turn,TR=CF.AGE_PPM_PER_TURN;
+  $('sKo').textContent=fmt(k,2)+' K';
+  stateBox($('stK'),Math.abs(k-K0)<1e-9,'지금 이 값이 기본값입니다. 24턴 동안 냉각수 온도가 '+fmt(K0,1)+' K 오른다고 둔 가정입니다.','지금은 기본값에서 옮겨 놓은 가정입니다. 24턴 동안 냉각수 온도가 '+fmt(k,2)+' K 오릅니다(기본 '+fmt(K0,1)+' K). [기본값으로 되돌리기]를 누르면 돌아갑니다.');
+  var h='<tr><th>항목</th><th>값</th><th>설명</th></tr>';
+  h+='<tr><td class="rowh">온도–턴 상관계수</td><td>'+fmt(C1.corr,3)+'</td><td>FDC 온도와 턴이 함께 움직이는 정도</td></tr>';
+  h+='<tr><td class="rowh">턴이 1 늘 때 오르는 온도 (K/턴)</td><td>'+pm(d.coef.turn,d.se.turn,4)+'</td><td>마스크마다의 절편을 두고 온도를 턴에 회귀한 기울기</td></tr>';
+  h+='<tr><td class="rowh">열변형 기울기 (ppm/K)</td><td>'+pm(b.coef.dT,b.se.dT,3)+'</td><td>온도·턴을 함께 넣은 회귀</td></tr>';
+  h+='<tr><td class="rowh">둘 다 넣은 턴 기울기 (ppm/턴)</td><td>'+pm(b.coef.turn,b.se.turn,4)+'</td><td>정답 '+sg0(TR,2)+'</td></tr>';
+  h+='<tr><td class="rowh">온도가 떠맡는 몫 = 열변형 기울기 × 턴당 온도</td><td>'+sg0(prod,4)+'</td><td>빠뜨린 변수의 몫</td></tr>';
+  h+='<tr><td class="rowh">둘 다 넣은 턴 기울기 + 떠맡는 몫</td><td>'+sg0(b.coef.turn+prod,4)+'</td><td>아래 직접 구한 값과 같음</td></tr>';
+  h+='<tr><td class="rowh">턴만 넣은 기울기 (직접 구함)</td><td><b>'+pm(t.coef.turn,t.se.turn,4)+'</b></td><td>차이 '+(Math.abs(t.coef.turn-(b.coef.turn+prod))<5e-9?'0':sgn(t.coef.turn-(b.coef.turn+prod),9))+'</td></tr>';
+  h+='<tr><td class="rowh">턴만 넣은 기울기 ÷ 정답</td><td><b>'+fmt(t.coef.turn/TR,2)+'배</b></td><td>1배면 속지 않은 것</td></tr>';
+  $('tab5').innerHTML=h;
+  var done=SEEDREC.length===200&&Math.abs(k-K0)<1e-9;
+  $('conc5').innerHTML='<b>계절이 '+fmt(k,2)+' K일 때 턴만 넣은 기울기는 '+sg0(t.coef.turn,4)+' ppm/턴이고 정답 '+sg0(TR,2)+'의 '+fmt(t.coef.turn/TR,2)+'배입니다.</b> 온도–턴 상관계수는 '+fmt(C1.corr,3)+'이고, 턴만 넣은 기울기와 정답의 차이 '+sg0(t.coef.turn-TR,4)+'는 온도가 떠맡는 몫 '+sg0(prod,4)+' ppm/턴(열변형 기울기 × 턴당 온도)에 둘 다 넣은 턴 기울기의 추정 오차가 더해진 값입니다.'+(done?' 마스크 집단을 시드 200개로 다시 뽑아도 이 기울기는 '+c3(SEEDREC.map(function(r){return r.to;}),4)+'로 같은 쪽입니다.':'');
+  drawTT();
+}
+$('sK').addEventListener('input',function(){ST.k=+this.value;rebuild5(ST.k);upd5();});
+$('rK').addEventListener('click',function(){ST.k=K0;$('sK').value=String(K0);rebuild5(K0);upd5();});
+(function(){
+  var h='<tr><th>마스크</th><th>턴만 넣은 기울기 (ppm/턴)</th><th>정답과의 차이</th></tr>';
+  IDS.forEach(function(id){var sub=D0.ok.filter(function(r){return r.mask_id===id;}),g=TL.regress(sub,'Mx_hat',['turn']),df=g.coef.turn-CF.AGE_PPM_PER_TURN;h+='<tr><td class="rowh"'+(id===MK?' style="color:var(--bad)"':'')+'>'+id+(id===MK?' (문제의 마스크)':'')+'</td><td>'+sg0(g.coef.turn,4)+'</td><td'+(id===MK?' class="hit"':'')+'>'+sgn(df,4)+'</td></tr>';});
+  $('tab5b').innerHTML=h;
+  var to=C0.t.coef.turn;setAll('q5_to',sg0(to,4));setAll('q5_both',sg0(BN,4));setAll('q5_true',sg0(CF.AGE_PPM_PER_TURN,2)+' ppm/턴');setAll('q5_ratio',fmt(to/CF.AGE_PPM_PER_TURN,1));
+})();
+
+/* ---- 6절 ---- */
+function drawS6(id,key,C){
+  var cv=$(id),f0=C[key],rows=D0.ok,x0=1e9,x1=-1e9;
+  rows.forEach(function(r){if(r.fdc_temp<x0)x0=r.fdc_temp;if(r.fdc_temp>x1)x1=r.fdc_temp;});
+  var yv=rows.map(function(r){return r[key==='y'?'My_hat':'Mx_hat']-f0.coef['icpt:'+r.mask_id]-f0.coef.turn*r.turn;}),lo=Math.min.apply(null,yv),hi=Math.max.apply(null,yv);
+  var fr=frame(cv,{h:250,x0:x0-0.05,x1:x1+0.05,y0:lo-0.2,y1:hi+0.2,xt:niceTicks(x0,x1,4),xf:function(v){return fmt(v,1);},xl:'FDC 온도 (°C)',yl:'ppm'}),x=fr.x,acc=css('--c10'),ink=css('--ink');
+  x.fillStyle=acc;x.globalAlpha=.4;rows.forEach(function(r,k){x.beginPath();x.arc(fr.PX(r.fdc_temp),fr.PY(yv[k]),2,0,6.283);x.fill();});x.globalAlpha=1;
+  x.strokeStyle=ink;x.lineWidth=2;x.beginPath();x.moveTo(fr.PX(x0),fr.PY(f0.coef.dT*(x0-TREF)));x.lineTo(fr.PX(x1),fr.PY(f0.coef.dT*(x1-TREF)));x.stroke();
+}
+function upd6(){
+  var bx=C0.b,by=C0.y,zx=Math.abs(bx.coef.turn)/bx.se.turn,zy=Math.abs(by.coef.turn)/by.se.turn,ratio=by.coef.dT/bx.coef.dT;
+  var h='<tr><th>항목</th><th><i>M̂<sub>x</sub></i> (장변)</th><th><i>M̂<sub>y</sub></i> (단변)</th><th>단변 ÷ 장변</th></tr>';
+  h+='<tr><td class="rowh">열변형 기울기 (ppm/K)</td><td>'+pm(bx.coef.dT,bx.se.dT,3)+'</td><td>'+pm(by.coef.dT,by.se.dT,3)+'</td><td><b>'+fmt(ratio,3)+'</b></td></tr>';
+  h+='<tr><td class="rowh">턴 기울기 (ppm/턴)</td><td>'+pm(bx.coef.turn,bx.se.turn,4)+'</td><td>'+pm(by.coef.turn,by.se.turn,4)+'</td><td>—</td></tr>';
+  h+='<tr><td class="rowh">턴 기울기 ÷ 표준오차</td><td>'+fmt(zx,1)+'</td><td>'+fmt(zy,1)+'</td><td>—</td></tr>';
+  $('tab6').innerHTML=h;
+  $('conc6').innerHTML='<b>단변의 열변형 기울기는 장변의 '+fmt(ratio,3)+'배로 약속한 절반과 맞고, 단변의 턴 기울기는 표준오차의 '+fmt(zy,1)+'배'+(zy<3?'로 0과 구별되지 않습니다.':'로 0에서 벗어났습니다.')+'</b> '+(zy<3?'장변에서는 같은 크기의 값이 표준오차의 '+fmt(zx,0)+'배입니다. 온도는 두 배율에 모두 영향을 주고 턴 누적은 장변에만 있다는 그림이 회귀 결과와 맞으므로, 4절의 가름이 한 회귀의 우연이 아니라는 두 번째 증거가 됩니다.':'이 경우 턴 몫이 단변에도 있어 약속이 깨졌으니 이 증거를 쓸 수 없습니다.');
+  drawS6('cvMx6','b',C0);drawS6('cvMy6','y',C0);
+}
+(function(){
+  var rows=D0.ok.map(function(r){return Object.assign({},r,{dTt:D0.S.truth[r.glass_id].T_true-TREF});});
+  var g=TL.regress(rows,'Mx_hat',['dTt','turn'],{perMask:true}),sd=MS.stats.sd(D0.ok.map(function(r){return r.fdc_temp-D0.S.truth[r.glass_id].T_true;}));
+  setAll('q6_noise',fmt(sd,2));setAll('q6_true',sg0(g.coef.dTt,3));setAll('q6_fdc',sg0(BT,3));
+  setAll('q7_th',sg0(SLOPE_TH,1));setAll('q7_fit',sg0(BT,3));setAll('q7_se',fmt(C0.b.se.dT,3));setAll('q7_z',fmt(Math.abs(BT-SLOPE_TH)/C0.b.se.dT,1));
+})();
+
+/* ---- 7절 ---- */
+var EV=null;
+function drawCmp(){
+  var cv=$('cvCmp'),rs=EV.aR,rr=find(EV.aR,MK),rc=find(EV.aC,MK),rt=find(EV.aT,MK),all=[];
+  [rr,rc,rt].forEach(function(a){a.change.forEach(function(v){if(v!=null)all.push(v);});});
+  var lo=Math.min(Math.min.apply(null,all),-ST.lim)-0.15,hi=Math.max(Math.max.apply(null,all),0)+0.15;
+  var f=frame(cv,{h:300,x0:0,x1:NT,y0:lo,y1:hi,xt:[0.5,3.5,7.5,11.5,15.5,19.5,23.5],xf:function(v){return '턴 '+Math.round(v+0.5);},yl:'기준선 대비 변화 (ppm)'}),x=f.x,c10=css('--c10'),good=css('--good'),grey=css('--grey'),bad=css('--bad'),soft=css('--soft');
+  hline(f,0,soft,[5,4],'기준선');hline(f,-ST.lim,bad,[5,4],'기준선 − 한계');
+  x.save();x.strokeStyle=soft;x.setLineDash([2,3]);x.beginPath();x.moveTo(f.PX(ST.rev),f.pt);x.lineTo(f.PX(ST.rev),f.pt+f.gh);x.stroke();x.restore();
+  x.fillStyle=soft;x.font='11px sans-serif';x.textAlign='left';x.fillText('점검 '+ST.rev+'턴',f.PX(ST.rev)+4,f.pt+12);
+  function series(a,col,dash){
+    x.strokeStyle=col;x.fillStyle=col;x.lineWidth=2;x.save();x.setLineDash(dash||[]);x.beginPath();var st=false;
+    a.change.forEach(function(v,i){if(v==null)return;var px=f.PX(i+0.5),py=f.PY(v);if(!st){x.moveTo(px,py);st=true;}else x.lineTo(px,py);});x.stroke();x.restore();
+    a.change.forEach(function(v,i){if(v==null)return;x.beginPath();x.arc(f.PX(i+0.5),f.PY(v),3,0,6.283);x.fill();});
+    if(a.alarm){x.strokeStyle=bad;x.lineWidth=2;x.beginPath();x.arc(f.PX(a.turn-0.5),f.PY(a.change[a.turn-1]),8,0,6.283);x.stroke();}
+  }
+  series(rt,grey,[6,4]);series(rr,c10);series(rc,good);
+}
+function distAl(fn){return SEEDREC.map(function(r){return fn(evalAl(r.tm,ST.lim,ST.rev));});}
+function upd7(){
+  EV=evalAl(TM0,ST.lim,ST.rev);
+  $('sLimO').textContent=fmt(ST.lim,2)+' ppm';$('sRevO').textContent=ST.rev+'턴';
+  stateBox($('stL'),Math.abs(ST.lim-LIM0)<1e-9&&ST.rev===REV0,'지금 이 값이 기본값입니다. 한계 '+fmt(LIM0,1)+' ppm, 점검 '+REV0+'턴(둘 다 가정).','지금은 기본값에서 옮겨 놓은 가정입니다. 한계 '+fmt(ST.lim,2)+' ppm, 점검 '+ST.rev+'턴(기본 '+fmt(LIM0,1)+' ppm, '+REV0+'턴). 한계를 낮출수록 보정 후에도 경보가 늘고, 점검 턴이 길수록 정답 쪽 경보도 생깁니다.');
+  var done=SEEDREC.length===200,dist=function(f){return done?c3(distAl(f),0):'계산 중…';};
+  var h='<tr><th>판정 방법</th><th>맞은 경보</th><th>헛경보</th><th>놓침</th><th>맞은 무경보</th><th>경보 마스크 수</th></tr>';
+  function row(n,c,nn){return '<tr><td class="rowh">'+n+'</td><td>'+c.hit+'</td><td'+(c.false_alarm>0?' class="hit"':'')+'>'+c.false_alarm+'</td><td'+(c.miss>0?' class="hit"':'')+'>'+c.miss+'</td><td>'+c.quiet+'</td><td>'+nn+'</td></tr>';}
+  h+=row('보정 전',EV.cb,EV.nR)+row('보정 후',EV.ca,EV.nC);
+  h+='<tr><td class="rowh">정답 (턴 누적 몫만)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>'+EV.nT+'</td></tr>';
+  h+='<tr><td class="rowh">시드 1~200 — 헛경보 (보정 전 · 후)</td><td>—</td><td colspan="2">'+dist(function(e){return e.cb.false_alarm;})+' · '+dist(function(e){return e.ca.false_alarm;})+'</td><td>—</td><td>—</td></tr>';
+  $('tab7').innerHTML=h;
+  var hb='<tr><th>마스크</th><th>보정 전 첫 경보 턴</th><th>보정 후 첫 경보 턴</th><th>정답 첫 경보 턴</th></tr>';
+  EV.aR.forEach(function(a,i){var c=EV.aC[i],t=EV.aT[i];hb+='<tr><td class="rowh"'+(a.mask_id===MK?' style="color:var(--bad)"':'')+'>'+a.mask_id+'</td><td>'+(a.alarm?a.turn:'—')+'</td><td>'+(c.alarm?c.turn:'—')+'</td><td>'+(t.alarm?t.turn:'—')+'</td></tr>';});
+  $('tab7b').innerHTML=hb;
+  var rr=find(EV.aR,MK),rc=find(EV.aC,MK);
+  $('conc7').innerHTML='<b>12장 가운데 보정 전에는 '+EV.nR+'장이 경보이고 그중 헛경보가 '+EV.cb.false_alarm+'장, 보정 후에는 '+EV.nC+'장이 경보이고 헛경보가 '+EV.ca.false_alarm+'장입니다(정답 경보 '+EV.nT+'장).</b> 놓침은 보정 전 '+EV.cb.miss+'장, 보정 후 '+EV.ca.miss+'장입니다. 마스크 '+MK+'는 보정 전 '+(rr.alarm?rr.turn+'턴째에 경보':'경보 없음')+', 보정 후 '+(rc.alarm?rc.turn+'턴째에 경보':'경보 없음')+'입니다.'+(done?' 마스크 집단을 시드 200개로 다시 뽑은 분포에서는 보정 전 헛경보가 '+c3(distAl(function(e){return e.cb.false_alarm;}),0)+'장, 보정 후 헛경보가 '+c3(distAl(function(e){return e.ca.false_alarm;}),0)+'장입니다.':'');
+  drawCmp();upd8();upd9();
+}
+$('sLim').addEventListener('input',function(){ST.lim=+this.value;upd7();});
+$('sRev').addEventListener('input',function(){ST.rev=+this.value;upd7();});
+$('rL').addEventListener('click',function(){ST.lim=LIM0;ST.rev=REV0;$('sLim').value=String(LIM0);$('sRev').value=String(REV0);upd7();});
+
+/* ---- 8절 ---- */
+function upd8(){
+  var rr=find(EV.aR,MK),rc=find(EV.aC,MK),rt=find(EV.aT,MK),r=ST.rev,Tm=TL.turnMeans(D0.ok,'fdc_temp')[MK];
+  setAll('v_rev',String(r));setAll('v_lim',fmt(ST.lim,2));
+  var dTm=Tm[r-1]-Tm[0],th=BT*dTm,ag=BN*(r-1),by=C0.y,bx=C0.b,ratio=by.coef.dT/bx.coef.dT,zy=Math.abs(by.coef.turn)/by.se.turn;
+  var h='<tr><th>항목</th><th>값 (ppm)</th><th>뜻</th></tr>';
+  h+='<tr><td class="rowh">보정 전 변화 ('+r+'턴째 − 기준선)</td><td>'+sg0(rr.change[r-1],3)+'</td><td>초안이 근거로 삼은 값</td></tr>';
+  h+='<tr><td class="rowh">그중 열변형 몫 = 열변형 기울기 × (그 턴의 평균 온도 − 첫 턴의 평균 온도 '+sg0(dTm,3)+' K)</td><td>'+sg0(th,3)+'</td><td>식으면 돌아오는 몫</td></tr>';
+  h+='<tr><td class="rowh">그중 턴 누적 몫 = 턴 기울기 × '+(r-1)+'턴</td><td>'+sg0(ag,3)+'</td><td>돌아오지 않는 몫</td></tr>';
+  h+='<tr><td class="rowh">두 몫의 합 · 남는 값</td><td>'+sg0(th+ag,3)+' · '+sg0(rr.change[r-1]-th-ag,3)+'</td><td>남는 값은 측정 잡음 쪽</td></tr>';
+  h+='<tr><td class="rowh">보정 후 변화</td><td><b>'+sg0(rc.change[r-1],3)+'</b></td><td>한계 −'+fmt(ST.lim,2)+'와 비교하는 값</td></tr>';
+  h+='<tr><td class="rowh">정답의 변화 (턴 누적 몫만)</td><td>'+sg0(rt.change[r-1],3)+'</td><td>가상 자료에서만 아는 값</td></tr>';
+  h+='<tr><td class="rowh">턴 기울기 (ppm/턴)</td><td>'+pm(bx.coef.turn,bx.se.turn,4)+'</td><td>한계 닿는 시점 추정에 씀</td></tr>';
+  h+='<tr><td class="rowh">My 확인: 열변형 비 · My 턴 기울기 ÷ 표준오차</td><td>'+fmt(ratio,2)+' · '+fmt(zy,1)+'</td><td>약속한 절반, 0 근처이면 증거 성립</td></tr>';
+  $('tab8').innerHTML=h;
+  var hit=bx.coef.turn<0?1+ST.lim/Math.abs(bx.coef.turn):NaN,hlo=1+ST.lim/(Math.abs(bx.coef.turn)+2*bx.se.turn),hhi=1+ST.lim/Math.max(Math.abs(bx.coef.turn)-2*bx.se.turn,1e-9);
+  $('land').innerHTML=(rc.alarm?
+    '<p style="margin:0 0 .5rem"><b>(1) 승인 여부 — 열변형을 빼도 '+rc.turn+'턴째에 한계를 넘으므로, 이 초안은 승인을 검토할 근거가 있습니다.</b> 보정 후 변화는 '+sg0(rc.change[r-1],3)+' ppm으로 한계 −'+fmt(ST.lim,2)+' ppm를 '+(rc.change[r-1]<-ST.lim?'넘었습니다.':'아직 넘지 않았지만 점검 안에서 한 번 넘었습니다.')+' 승인은 사람이 하고, 이 숫자를 근거로 붙입니다.</p>':
+    '<p style="margin:0 0 .5rem"><b>(1) 승인 여부 — 지금 승인하지 않고 보류합니다.</b> 보정 전 변화 '+sg0(rr.change[r-1],3)+' ppm 가운데 열변형 몫이 '+sg0(th,3)+' ppm이고, 열변형을 걷어 낸 보정 후 변화는 '+sg0(rc.change[r-1],3)+' ppm으로 한계 −'+fmt(ST.lim,2)+' ppm 안입니다. 초안은 온도가 오른 것을 마모로 읽은 경보입니다.</p>')+
+    '<p style="margin:0 0 .5rem"><b>(2) 몫 — 열 때문인 몫은 '+sg0(th,3)+' ppm, 마모 때문인 몫은 '+sg0(ag,3)+' ppm입니다</b>(합 '+sg0(th+ag,3)+' ppm, 측정 변화 '+sg0(rr.change[r-1],3)+' ppm). 마모 몫은 턴 기울기 '+pm(bx.coef.turn,bx.se.turn,4)+' ppm/턴에서 나온 것이고, 정답(턴 누적 몫만)은 '+sg0(rt.change[r-1],3)+' ppm입니다.</p>'+
+    '<p style="margin:0"><b>(3) 한 번 더 확인 — </b>단변 배율의 열변형 기울기는 장변의 '+fmt(ratio,2)+'배, 턴 기울기는 표준오차의 '+fmt(zy,1)+'배로 열변형은 단변에도 있고 턴 누적은 장변에만 있다는 그림과 맞습니다. 이 기울기대로 마모가 계속되면 변화가 한계 −'+fmt(ST.lim,2)+' ppm에 닿는 시점은 '+fmt(hit,0)+'턴째 안팎(턴 기울기 ±2 표준오차로 '+fmt(hlo,0)+'~'+fmt(hhi,0)+'턴째)입니다. 이 시점이 다음 확인 시점의 후보입니다.</p>';
+}
+
+/* ---- 9절 ---- */
+function upd9(){
+  var tn=ST.tn,done=SEEDREC.length===200,e=EV;
+  $('sTnO').textContent=tn+'턴';
+  stateBox($('stT'),tn===TN0,'지금 이 값이 기본값입니다. 리페어 한 번에 마스크가 '+TN0+'턴 빠진다는 가정입니다.','지금은 기본값에서 옮겨 놓은 가정입니다. 마스크가 '+tn+'턴 빠집니다(기본 '+TN0+'턴).');
+  var prod=function(n){return n*tn*NPT;};
+  function dd(f,d){return done?c3(distAl(f),d||0):'계산 중…';}
+  var h='<tr><th>항목 (한계 '+fmt(ST.lim,2)+' ppm · 점검 '+ST.rev+'턴 · 마스크가 '+tn+'턴 빠짐)</th><th>대표 시드 '+SEED+'</th><th>시드 1~200의 중앙값 (10~90%)</th></tr>';
+  h+='<tr><td class="rowh">헛경보 마스크 수 — 보정 전</td><td>'+e.cb.false_alarm+'</td><td>'+dd(function(x){return x.cb.false_alarm;})+'</td></tr>';
+  h+='<tr><td class="rowh">헛경보 마스크 수 — 보정 후</td><td>'+e.ca.false_alarm+'</td><td>'+dd(function(x){return x.ca.false_alarm;})+'</td></tr>';
+  h+='<tr><td class="rowh">놓침 마스크 수 — 보정 전 · 후</td><td>'+e.cb.miss+' · '+e.ca.miss+'</td><td>'+dd(function(x){return x.cb.miss;})+' · '+dd(function(x){return x.ca.miss;})+'</td></tr>';
+  h+='<tr><td class="rowh">쓸데없이 멈추는 생산량 (유리 장) — 보정 전</td><td>'+fmtN(prod(e.cb.false_alarm))+'</td><td>'+dd(function(x){return prod(x.cb.false_alarm);})+'</td></tr>';
+  h+='<tr><td class="rowh">쓸데없이 멈추는 생산량 (유리 장) — 보정 후</td><td>'+fmtN(prod(e.ca.false_alarm))+'</td><td>'+dd(function(x){return prod(x.ca.false_alarm);})+'</td></tr>';
+  h+='<tr><td class="rowh">온도 보정으로 줄어드는 생산량 (유리 장)</td><td><b>'+fmtN(prod(e.cb.false_alarm-e.ca.false_alarm))+'</b></td><td>'+dd(function(x){return prod(x.cb.false_alarm-x.ca.false_alarm);})+'</td></tr>';
+  $('tab9').innerHTML=h;
+  $('con9').innerHTML='<b>대표 시드의 12장에서 온도를 보정하지 않으면 헛경보 마스크가 '+e.cb.false_alarm+'장 생기고, 보정하면 '+e.ca.false_alarm+'장으로 줄어 쓸데없이 멈추는 생산량이 '+fmtN(prod(e.cb.false_alarm-e.ca.false_alarm))+'장 줄어듭니다.</b>'+(done?' 시드 200개로 다시 뽑으면 줄어드는 양의 중앙값은 '+c3(distAl(function(x){return prod(x.cb.false_alarm-x.ca.false_alarm);}),0)+'장입니다.':'')+' 놓침은 보정 전 '+e.cb.miss+'장, 보정 후 '+e.ca.miss+'장이어서 '+(e.ca.miss>e.cb.miss?'보정 때문에 놓침이 늘었습니다. 한계를 낮추면 이 쪽이 달라지니 7절에서 확인하십시오.':'보정으로 놓침이 늘지는 않았습니다.')+(e.nT===0?' 이 한계와 점검 턴에서는 정답으로 리페어할 때가 된 마스크가 한 장도 없어 경보는 모두 헛경보입니다.':' 정답으로 리페어할 때가 된 마스크는 '+e.nT+'장이며, 그 마스크의 경보는 헛경보가 아니라 맞은 경보로 셉니다.');
+}
+$('sTn').addEventListener('input',function(){ST.tn=+this.value;upd9();});
+$('rT').addEventListener('click',function(){ST.tn=TN0;$('sTn').value=String(TN0);upd9();});
+
+/* ---- 시드 분포 ---- */
+function seedRec(sd){
+  var D=prep(MS.scenario('S11',{seed:sd})),C=core(D);
+  return {tm:tmeans(D,C),to:C.t.coef.turn,th:C.b.coef.dT};
+}
+function runDist(){
+  SEEDREC=[];var sd=1;
+  function step(){var t=Date.now();while(sd<=200&&Date.now()-t<30){SEEDREC.push(seedRec(sd));sd++;}
+    $('sdSt').textContent=sd<=200?'시드 '+(sd-1)+' / 200 계산했습니다.':'시드 200개의 분포를 계산했습니다.';
+    if(sd<=200)setTimeout(step,0);else{upd5();upd7();}}
+  step();
+}
+
+/* ---- 10·11절 ---- */
+(function(){
+  function dl(name,rows,st){
+    var cols=Object.keys(rows[0]);
+    try{var txt=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){return r[c];}).join(',');}).join('\n')+'\n',blob=new Blob([txt],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: '+name+' ('+fmtN(rows.length)+'행, 열 '+cols.length+'개).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  }
+  $('csvBtn1').addEventListener('click',function(){dl('ppa_coef_s11.csv',SS.csvRows(),$('csvState'));});
+  $('csvBtn2').addEventListener('click',function(){dl('fdc_temp_s11.csv',SS.fdcCsvRows(),$('csvState'));});
+  var f=['마스크 번호 · 기간(턴 범위) · 측정 레시피(턴마다 재는 유리 순번)','모델 판(넣은 변수, 마스크별 절편 여부)과 기준 온도','열변형 기울기 ± 표준오차 · 턴 기울기 ± 표준오차','My 확인(열변형 비 · 턴 기울기)','보정 전·후 변화량과 한계','판정과 담당','다음 확인 시점','FDC에서 못 이은 행 수와 온도 센서 판'];
+  $('rp_fields').innerHTML=f.map(function(s){return '· '+s;}).join('<br>');
+  var r=REV0,rr=find(AL1,MK),ev=evalAl(TM0,LIM0,REV0),rc=find(ev.aC,MK),Tm=TL.turnMeans(D0.ok,'fdc_temp')[MK];
+  $('rp_ex').innerHTML='마스크 <code>'+MK+'</code> · 턴 1~'+NT+' · 레시피 판 <code>RCP-S11-1</code>(턴마다 유리 순번 '+GITS.join('·')+') · 모델 판 <code>Mx ~ 마스크별 절편 + 온도 + 턴</code>, 기준 온도 '+TREF+' °C · 열변형 기울기 '+pm(BT,C0.b.se.dT,3)+' ppm/K · 턴 기울기 '+pm(BN,C0.b.se.turn,4)+' ppm/턴 · My 열변형 비 '+fmt(C0.y.coef.dT/BT,2)+' · '+r+'턴째 변화 보정 전 '+sg0(rr.change[r-1],3)+' → 보정 후 '+sg0(rc.change[r-1],3)+' ppm(한계 −'+fmt(LIM0,1)+') · 판정 '+(rc.alarm?'경보, 리페어 승인 검토':'경보 아님, 리페어 보류(열변형 몫)')+' · 다음 확인은 변화가 한계에 닿을 추정 턴('+fmt(1+LIM0/Math.abs(BN),0)+'턴째) 이전 · FDC 못 이은 행 '+D0.J.missed+'.';
+})();
+
+/* ---- 다시 그리기 ---- */
+function redraw(){drawSeq();upd4();upd5();upd6();upd7();}
+window.addEventListener('resize',redraw);
+
+/* ---- 테마·상단바 ---- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+redraw();
+setTimeout(runDist,50);
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+
+</script>
+<script src="../tutor.js"></script>
+</body></html>

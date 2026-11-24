@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 102항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank)을 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조) |
+| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 120항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank), S11 은 유리 1728장의 계수·join·다중 회귀·온도 보정·리페어 경보를 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -31,6 +31,8 @@
 - `s6_false_alarm.csv` — 특징 590개(센서 118개 × 특징 5개, 열 `s001_steady_mean` …). `group` 이 `ref`(기준 300장)·`normal`(정상 500장)·`anomaly`(특징 하나가 5σ 이동한 이상 10장)입니다. 같은 센서의 다섯 특징은 상관 0.6.
 - `ppa_sample.csv` — B03 CH2 유리 3장의 77점. `…, px, py, x_mm, y_mm, dx_um, dy_um, defect`(1 이면 국소 결함 정답).
 - `ppa_s10.csv` — S10(실험실 0301) 대표 시드의 마스크 72장 × 77점. `glass_id, block, chamber, mask_id, mask_set, turn, glass_in_turn, chamber_temp, px, py, x_mm, y_mm, dx_um, dy_um, defect, bad_stick`(`defect` 1 = 국소 결함 정답 점, `bad_stick` = 마스크의 불량 스틱 열 번호 정답, 없으면 -1). 유리 가운데가 원점이고 +dx 는 오른쪽(장변), +dy 는 위쪽(단변), 행 0 이 맨 아래 줄입니다.
+- `ppa_coef_s11.csv` — S11(실험실 0303) 대표 시드의 유리 1728장(마스크 12장 × 24턴 × 턴 안 순번 5·20·40·60·90·120)마다 0302 의 전부 항 최소제곱으로 구한 계수 한 줄. `glass_id, block, chamber, mask_id, turn, glass_in_turn, Tx_hat, Ty_hat, theta_hat, Mx_hat, My_hat, K_hat, Cx_hat, Cy_hat, se_Mx, se_My, sigma, model`(`model` = `full5`, 단위는 0302 와 같음). 정답 성분은 담지 않음.
+- `fdc_temp_s11.csv` — 같은 유리의 FDC 챔버 온도 `glass_id, fdc_temp`(참 온도 + N(0, 0.04²) 측정 잡음). 유리의 약 1%는 FDC 기록이 빠져 있어 행 수가 계수 표보다 적음(대표 시드 1715행).
 - `fdc_features.csv` — B03 의 5개 턴 유리별 특징. `p_steady_mean, p_steady_std, p_max_dev, p_settle_s, p_overshoot_pct, rate_ang_s, pm_flag(PM 이후=1), true_anomaly, anomaly_type, interlock, interlock_true`(가성 인터락 = interlock 1 이고 interlock_true 0).
 - `loss_events.csv` — 60일 Loss 사건. `event_id, start_ts, end_ts, block, chamber(CH1~4 또는 ALL), reason(직접 사유), root_cause(1차 원인), caused_by_block, run_mode(quad/triple/degraded), mask_set, turn, loss_chamber_min, loss_glass`. 사유는 명세의 11개 코드와 `LB-LINE`(라인 밸런스: 앞뒤 블록 때문에 굶거나 막힌 손실, 90 챔버·분 미만은 생략)입니다. `reason` 과 `root_cause` 가 다른 행이 연쇄의 흔적입니다.
 - `loss_hourly.csv` — 1시간 단위 상태. `ts, stocker_fill, cleaner_queue, cleaner_busy, cassette_free, transport_requests, blocks_triple, blocks_idle, line_wip, line_out`.
@@ -76,3 +78,18 @@
 | `design` · `rank` · `errField` · `subtract` · `coefs` | 설계 행렬 `{X,y,names,kept}` · 행렬의 rank · 위 위치 오차 · 계수가 그리는 장을 측정에서 뺀 격자 · 항 → 계수 이름 목록 |
 
 시드 1~200 분포(verify.py 12개 검사): 오차÷`se_known` 중앙값은 Tx 3.1·Mx 3.1·My 1.9(불량 스틱 마스크만 2.8), 나머지 다섯 계수는 0.7 안팎(잡음만의 표준오차와 맞음). 오른쪽 끝 열이 빠지면 최소제곱의 위치 오차가 더 작은 유리가 중앙값 81%(10~90% 75~88%), 오른쪽 위 세 점 78%, 네 모서리(대칭)는 두 방법이 같습니다. 대표 시드 128 은 0302 지표 열세 개 가운데 열 개가 분포 25~75% 밖이어서 0302 본문은 분포(중앙값·10~90%)를 함께 보입니다.
+
+## 열변형과 턴 누적 (S11, 실험실 0303)
+
+`MfgSim.scenario('S11', {seed, season_K, p_gap})` — 마스크 12장(B02~B04 × 세트 A × 챔버 1~4)을 연속 24턴 쓰고, 턴마다 유리 6장(턴 안 5·20·40·60·90·120번째, 표본 측정 레시피)을 잰 1728장. 마스크 집단은 `makeMask(id, null, 'S11-'+seed)` 로 다시 뽑고 새 난수는 전부 `hashSeed('S11', …)` 줄기라 기존 출력(CSV·S1~S10·`simulateLoss`·전이 기록)은 바이트 단위로 그대로입니다. 계절 `season = season_K × (turn−1)/23`(기본 0.3 K, 24턴 동안 냉각수 온도가 서서히 오르는 가정). PPA 는 참 온도로 만들고(`ppa()` 의 `chamber_temp`), 학습자에게는 FDC 측정 온도(참 + N(0, 0.04²))만 줍니다. 유리마다 `ppa()` 77점 → 전부 항 최소제곱(`s11fit`, `s10tools.fit` 과 같은 값, 설계 행렬의 역을 한 번만 만들어 빠름)으로 계수를 추정합니다. FDC 기록은 `p_gap`(기본 1%) 확률로 빠집니다. 기본 시드는 67(시드 1~200 의 여섯 지표(다중 회귀 열변형 기울기·턴 기울기·턴만 넣은 턴 기울기·My/Mx 열변형 비·보정 전 경보 마스크 수·보정 후 경보 마스크 수) 백분위에서 Σ|백분위−50| 이 가장 작은 시드).
+
+| 함수·값 | 설명 |
+|---|---|
+| 반환 `coefRows` · `fdcRows` · `truth` · `masks` | 유리별 계수 한 줄 · FDC 온도 표(빠진 유리는 없음) · glass_id 키의 정답(`T_true`·`Mx_true`·`Mx_th`·`Mx_age`·`Mx_mask`·`My_true`·`My_th`) · 마스크 목록(불량 스틱 번호 포함). `csvRows()` · `fdcCsvRows()` 는 CSV 꼴 |
+| `s11tools.join(coefRows, fdcRows)` | glass_id 로 잇기. `rows`(못 이은 행은 `fdc_temp = null`)·`joined`·`missed`·`fdc_unmatched`(FDC 표에서 주인 없는 행) |
+| `s11tools.regress(rows, y, xNames, {perMask})` | 절편 + xNames 다중 회귀(하우스홀더 QR). `perMask` 면 마스크마다 절편(`icpt:마스크번호`). `coef`·`se`(σ̂ 기반)·`rss`·`n`·`p`·`sigma`·`resid`. 값이 null 인 행은 뺌 |
+| `s11tools.compensate(rows, slope, Tref)` | `Mx_hat − slope·(fdc_temp − Tref)` 를 `Mx_comp` 로 |
+| `s11tools.alarms(rows, {field, limit, upTo, baseTurns})` · `turnMeans` · `alarmsFromMeans` · `confusion` | 마스크별 기준선(첫 턴 평균) 대비 턴 평균이 `limit`(기본 0.3 ppm) 넘게 내려간 첫 턴(`upTo` = 12턴까지만). 맞은 경보·헛경보·놓침·맞은 무경보 혼동표 |
+| `s11tools.metrics(S)` · `pickMask(rows)` · `withTruth` · `fit` · `corr` | 시드 하나의 여섯 지표와 부수 값 · 턴만 넣은 회귀의 턴 기울기가 정답 −0.02 에서 가장 먼 마스크 · truth 를 행에 붙이기 · 빠른 77점 최소제곱 · 상관계수 |
+
+시드 1~200 분포(verify.py 18개 검사): 다중 회귀 열변형 기울기 −1.975(10~90% −1.987~−1.963) ppm/K(정답 −2.0 보다 조금 작은 것은 FDC 온도의 측정 잡음 때문, 참 온도로 회귀하면 −2.001), 턴 기울기 −0.0204(정답 −0.02), 턴만 넣은 턴 기울기 −0.0462(모든 시드에서 둘 다 넣은 값보다 더 음수 — 계절 교란, 차 −0.0257 ≈ −2·0.3/23), My/Mx 열변형 비 0.500, My 의 턴 기울기는 0 근처(표준오차의 0.8배, 중앙값). 마스크별 절편은 스틱 누설 같은 마스크 일정 치우침을 흡수합니다(추정 오차 sd 의 마스크 안/전체 0.34). 12턴 판정·한계 0.3 ppm 에서 정답 경보는 0장, 보정 전 헛경보 12장(197/200 시드), 보정 후 3장(2~5), 보정 후 놓침 0. 대표 시드 67 은 여섯 지표 중 턴만 넣은 기울기가 분포 85% 자리이나 분포 폭이 0.001 이내라 본문은 값 그대로 말합니다. `ppa_coef_s11.csv`·`fdc_temp_s11.csv` 는 `build_csv.mjs` 가 만듭니다(기존 CSV 와 `truth.json` 은 바이트 단위로 불변).

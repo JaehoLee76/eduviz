@@ -1014,12 +1014,12 @@
   /* ============================================================
    * 6. 시나리오 S1~S7 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12, S10: 128 };   // 기본 시드(S10=128: 시드 1~200 의 일곱 지표(불량 스틱 마스크 수·지표만 보면 놓친 수·열 단면이 잡은 수·열 단면 헛표시 마스크 수·튀는 점 찾은 수·spec·섞인 문항 수) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12, S10: 128, S11: 67 };   // 기본 시드(S10=128: 시드 1~200 의 일곱 지표(불량 스틱 마스크 수·지표만 보면 놓친 수·열 단면이 잡은 수·열 단면 헛표시 마스크 수·튀는 점 찾은 수·spec·섞인 문항 수) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
 
   function scenario(name, params) {
     params = params || {};
-    var key = String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10 }[key];
+    var key = /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -1946,12 +1946,151 @@
   S10.tools.subtract = s10subtract; S10.tools.errField = s10errField; S10.tools.coefs = s10coefs;
   S10.tools.PRESETS = S10_PRESETS; S10.tools.TERMS = S10_TERMS_ALL; S10.tools.COEF_ORDER = S10_COEF_ORDER; S10.tools.CORR_TERMS = S10_CORR_TERMS; S10.tools.TERM_COEF = S10_TERM_COEF;
 
+  /* ============================================================
+   * S11 thermal_turn — 열변형과 턴 누적(실험실 0303). 마스크 12장(B02~B04 × 세트 A × 챔버 1~4) × 연속 24턴 × 턴마다 유리 6장(턴 안 순번 5·20·40·60·90·120)
+   * = 1728장. 유리마다 ppa() 77점 → 0302 와 같은 전부 항 최소제곱으로 계수 추정. 마스크 집단은 makeMask(id, null, 'S11-'+seed),
+   * 새 난수는 전부 hashSeed('S11', …) 줄기. 기존 함수·S1~S10 출력은 건드리지 않는다.
+   * 계절 = season_K × (turn−1)/23 (냉각수 온도가 24턴에 걸쳐 서서히 오름). 참 온도로 PPA 를 만들고, 학습자에게는 FDC 측정 온도(참 + N(0, 0.04²))만 준다.
+   * ============================================================ */
+  var S11_GITS = [5, 20, 40, 60, 90, 120], S11_TURNS = 24, S11_SEASON_K = 0.3, S11_REVIEW = 12, S11_LIMIT = 0.3, S11_P_GAP = 0.01, S11_FDC_NOISE = 0.04;
+  var S11_IDS = ['B02', 'B03', 'B04'].reduce(function (a, bk) { for (var c = 1; c <= 4; c++) a.push(maskId(bk, 'A', c)); return a; }, []);
+  var _s11proj = null;
+  function s11proj() {                                  // 격자가 같으니 (XᵀX)⁻¹Xᵀ 를 한 번만 만든다. 결과는 s10fit(전부 항)과 같은 최소제곱 해
+    if (_s11proj) return _s11proj;
+    var dummy = [], py, px; for (py = 0; py < CFG.NY; py++) for (px = 0; px < CFG.NX; px++) { var xy = gridXY(px, py); dummy.push({ x_mm: xy.x, y_mm: xy.y, dx_um: 0, dy_um: 0 }); }
+    var D = s10design(dummy, null, null), X = D.X, p = D.names.length, n = X.length, A = [], i, j, k;
+    for (i = 0; i < p; i++) { A.push(new Array(p).fill(0)); for (j = 0; j < p; j++) for (k = 0; k < n; k++) A[i][j] += X[k][i] * X[k][j]; }
+    var Ai = s10inv(A), P = [];
+    for (i = 0; i < p; i++) { P.push(new Array(n).fill(0)); for (k = 0; k < n; k++) { var s = 0; for (j = 0; j < p; j++) s += Ai[i][j] * X[k][j]; P[i][k] = s; } }
+    return (_s11proj = { names: D.names, X: X, P: P, Ai: Ai, p: p, n: n });
+  }
+  function s11fit(grid) {                               // 계수·표준오차(σ̂ 기반)·σ̂ — s10fit 전부 항과 같은 값, 훨씬 빠름
+    var J = s11proj(), n = J.n, h = n / 2, y = new Array(n), i, k, q;
+    for (i = 0; i < h; i++) { y[i] = grid[i].dx_um; y[h + i] = grid[i].dy_um; }
+    var beta = [], rss = 0;
+    for (q = 0; q < J.p; q++) { var s = 0; for (k = 0; k < n; k++) s += J.P[q][k] * y[k]; beta.push(s); }
+    for (k = 0; k < n; k++) { var f = 0; for (q = 0; q < J.p; q++) f += J.X[k][q] * beta[q]; rss += (y[k] - f) * (y[k] - f); }
+    var sigma = Math.sqrt(rss / (n - J.p)), coef = {}, se = {};
+    J.names.forEach(function (c, i2) { coef[c] = beta[i2]; se[c] = sigma * Math.sqrt(J.Ai[i2][i2]); });
+    return { coef: coef, se: se, sigma: sigma, rss: rss };
+  }
+  function S11(p) {
+    var seed = p.seed == null ? SEEDS.S11 : p.seed, K = p.season_K == null ? S11_SEASON_K : p.season_K, pGap = p.p_gap == null ? S11_P_GAP : p.p_gap;
+    var coefRows = [], fdcRows = [], truth = {}, masks = [];
+    S11_IDS.forEach(function (id) {
+      var mk = makeMask(id, null, 'S11-' + seed), pm = parseMaskId(id); masks.push({ mask_id: id, block: mk.block, chamber: mk.chamber, bad_stick: mk.bad_stick });
+      for (var turn = 1; turn <= S11_TURNS; turn++) {
+        var season = K * (turn - 1) / (S11_TURNS - 1);
+        S11_GITS.forEach(function (git) {
+          var tag = [id, turn, git], rt = rng(hashSeed('S11', seed, id, turn, git, 'fdc')), rgap = rng(hashSeed('S11', seed, id, turn, git, 'gap'));
+          var tTrue = chamberTemp(pm.chamber, git, { season: season }), tFdc = chamberTemp(pm.chamber, git, { season: season, rng: rt, noise: S11_FDC_NOISE });
+          var gid = 'S11-' + seed + '-' + id + '-T' + pad(turn, 2) + '-G' + pad(git, 3);
+          var ctx = { glass_id: gid, block: mk.block, chamber: mk.chamber, mask_set: mk.set, turn: turn, glass_in_turn: git, chamber_temp: tTrue };
+          var res = ppa(ctx, mk), f = s11fit(res.grid), c = f.coef, t = res.truth;
+          coefRows.push({ glass_id: gid, block: mk.block, chamber: mk.chamber, mask_id: id, turn: turn, glass_in_turn: git,
+            Tx_hat: c.Tx, Ty_hat: c.Ty, theta_hat: c.theta, Mx_hat: c.Mx, My_hat: c.My, K_hat: c.K, Cx_hat: c.Cx, Cy_hat: c.Cy, se_Mx: f.se.Mx, se_My: f.se.My, sigma: f.sigma, model: 'full5' });
+          if (rgap.u() >= pGap) fdcRows.push({ glass_id: gid, fdc_temp: tFdc });
+          truth[gid] = { T_true: tTrue, Mx_true: t.Mx, Mx_th: t.Mx_th, Mx_age: t.Mx_age, Mx_mask: t.Mx_mask, My_true: t.My, My_th: t.My_th * 0.5 };
+        });
+      }
+    });
+    var out = { id: 'S11', name: 'thermal_turn', params: { seed: seed, season_K: K, n_mask: S11_IDS.length, n_turn: S11_TURNS, gits: S11_GITS.slice(), p_gap: pGap, fdc_noise: S11_FDC_NOISE, T_ref: CFG.T0, review_turns: S11_REVIEW, limit: S11_LIMIT },
+      masks: masks, coefRows: coefRows, fdcRows: fdcRows, truth: truth };
+    out.csvRows = function () { return coefRows.map(function (r) { var o = {}, k; for (k in r) o[k] = typeof r[k] === 'number' ? +r[k].toFixed(6) : r[k]; return o; }); };
+    out.fdcCsvRows = function () { return fdcRows.map(function (r) { return { glass_id: r.glass_id, fdc_temp: +r.fdc_temp.toFixed(4) }; }); };
+    return out;
+  }
+  /* 아래 도구는 학습자가 가진 것(계수 표·FDC 표)만 받는다. truth 는 withTruth 로 따로 붙인다. */
+  function s11join(coefRows, fdcRows) {                 // glass_id 키로 잇기. 못 이은 행(FDC 가 없는 유리)은 fdc_temp = null 로 두고 개수를 센다
+    var m = {}, miss = 0; fdcRows.forEach(function (r) { m[r.glass_id] = r.fdc_temp; });
+    var rows = coefRows.map(function (r) { var o = Object.assign({}, r), v = m[r.glass_id]; if (v == null) { o.fdc_temp = null; miss++; } else o.fdc_temp = v; return o; });
+    return { rows: rows, joined: rows.length - miss, missed: miss, fdc_unmatched: fdcRows.length - (rows.length - miss) };
+  }
+  function s11withTruth(rows, truth) { return rows.map(function (r) { return Object.assign({}, r, truth[r.glass_id]); }); }
+  function s11lsq(X, y) {                               // 하우스홀더 QR 최소제곱: coef·se(σ̂ 기반)·rss·n·p. 열이 겹치면 null
+    var n = X.length, p = X[0].length, A = X.map(function (r) { return r.slice(); }), b = y.slice(), i, j, k;
+    for (j = 0; j < p; j++) {
+      var nr = 0; for (i = j; i < n; i++) nr += A[i][j] * A[i][j]; nr = Math.sqrt(nr);
+      if (nr < 1e-12) return null;
+      var al = A[j][j] > 0 ? -nr : nr, v = new Array(n).fill(0); v[j] = A[j][j] - al; for (i = j + 1; i < n; i++) v[i] = A[i][j];
+      var vv = 0; for (i = j; i < n; i++) vv += v[i] * v[i];
+      for (k = j; k < p; k++) { var d = 0; for (i = j; i < n; i++) d += v[i] * A[i][k]; d = 2 * d / vv; for (i = j; i < n; i++) A[i][k] -= d * v[i]; }
+      var db = 0; for (i = j; i < n; i++) db += v[i] * b[i]; db = 2 * db / vv; for (i = j; i < n; i++) b[i] -= db * v[i];
+    }
+    var beta = new Array(p).fill(0);
+    for (i = p - 1; i >= 0; i--) { var s = b[i]; for (k = i + 1; k < p; k++) s -= A[i][k] * beta[k]; if (Math.abs(A[i][i]) < 1e-10) return null; beta[i] = s / A[i][i]; }
+    var Ri = []; for (i = 0; i < p; i++) Ri.push(new Array(p).fill(0));
+    for (j = 0; j < p; j++) { for (i = j; i >= 0; i--) { var s2 = i === j ? 1 : 0; for (k = i + 1; k <= j; k++) s2 -= A[i][k] * Ri[k][j]; Ri[i][j] = s2 / A[i][i]; } }
+    var rss = 0, res = []; for (i = 0; i < n; i++) { var f = 0; for (k = 0; k < p; k++) f += X[i][k] * beta[k]; res.push(y[i] - f); rss += (y[i] - f) * (y[i] - f); }
+    var sig = n > p ? Math.sqrt(rss / (n - p)) : NaN, se = []; for (i = 0; i < p; i++) { var q = 0; for (j = i; j < p; j++) q += Ri[i][j] * Ri[i][j]; se.push(sig * Math.sqrt(q)); }
+    return { beta: beta, se: se, rss: rss, n: n, p: p, sigma: sig, resid: res };
+  }
+  /* 다중 회귀: yName ~ 절편 + xNames. perMask = true 면 마스크마다 절편을 따로(전체 절편 없음). 어느 한 값이 null 인 행은 뺀다.
+   * 반환 coef{이름: 값}(절편은 'icpt' 또는 'icpt:마스크')·se·rss·n·p·sigma·resid·used(쓴 행 번호) */
+  function s11regress(rows, yName, xNames, o) {
+    o = o || {}; var ids = [], used = [], X = [], y = [];
+    rows.forEach(function (r, i) { if (r[yName] == null || xNames.some(function (x) { return r[x] == null; })) return; used.push(i); if (ids.indexOf(r.mask_id) < 0) ids.push(r.mask_id); });
+    ids.sort();
+    used.forEach(function (i) { var r = rows[i], row = []; if (o.perMask) ids.forEach(function (id) { row.push(r.mask_id === id ? 1 : 0); }); else row.push(1); xNames.forEach(function (x) { row.push(r[x]); }); X.push(row); y.push(r[yName]); });
+    var names = (o.perMask ? ids.map(function (id) { return 'icpt:' + id; }) : ['icpt']).concat(xNames), L = s11lsq(X, y);
+    if (!L) return { error: 'rank', names: names };
+    var coef = {}, se = {}; names.forEach(function (nm, i) { coef[nm] = L.beta[i]; se[nm] = L.se[i]; });
+    return { names: names, coef: coef, se: se, rss: L.rss, n: L.n, p: L.p, sigma: L.sigma, resid: L.resid, used: used };
+  }
+  function s11compensate(rows, slope, Tref, yName, outName) {   // 같은 온도(Tref)였다면의 값: y − slope × (FDC 온도 − Tref). FDC 온도가 없는 행은 null
+    yName = yName || 'Mx_hat'; outName = outName || 'Mx_comp';
+    return rows.map(function (r) { var o = Object.assign({}, r); o[outName] = r.fdc_temp == null || r[yName] == null ? null : r[yName] - slope * (r.fdc_temp - Tref); return o; });
+  }
+  /* 리페어 경보: 마스크마다 기준선 = 첫 baseTurns 턴의 field 평균, 턴 평균이 기준선보다 limit 넘게 내려간 첫 턴(upTo 턴까지만 본다). 없으면 turn = null */
+  function s11turnMeans(rows, field) {                  // 마스크 → [턴 1..24 의 field 평균](그 턴에 값이 없으면 null)
+    var by = {}, out = {};
+    rows.forEach(function (r) { if (r[field] == null) return; var m = by[r.mask_id] || (by[r.mask_id] = {}); (m[r.turn] || (m[r.turn] = [])).push(r[field]); });
+    Object.keys(by).forEach(function (id) { out[id] = []; for (var t = 1; t <= S11_TURNS; t++) out[id].push(by[id][t] ? mean(by[id][t]) : null); });
+    return out;
+  }
+  function s11alarmsFromMeans(tm, o) {                  // tm = turnMeans 의 결과. 학습자·분포 계산이 같은 판정을 쓰도록 분리
+    o = o || {}; var limit = o.limit == null ? S11_LIMIT : o.limit, upTo = o.upTo == null ? S11_REVIEW : o.upTo, bt = o.baseTurns == null ? 1 : o.baseTurns, out = [];
+    Object.keys(tm).sort().forEach(function (id) {
+      var a = tm[id], bs = [], t; for (t = 0; t < bt; t++) if (a[t] != null) bs.push(a[t]);
+      var base = mean(bs), ch = [], first = null;
+      for (t = 1; t <= S11_TURNS; t++) { var c = a[t - 1] == null ? null : a[t - 1] - base; ch.push(c); if (first === null && t > bt && t <= upTo && c != null && c < -limit) first = t; }
+      out.push({ mask_id: id, base: base, change: ch, turn: first, alarm: first !== null });
+    });
+    return out;
+  }
+  function s11alarms(rows, o) { o = o || {}; return s11alarmsFromMeans(s11turnMeans(rows, o.field || 'Mx_hat'), o); }
+  function s11confusion(a, t) {                         // a = 판정(경보 목록), t = 정답 경보 목록. 맞은 경보·헛경보·놓침·맞은 무경보
+    var c = { hit: 0, false_alarm: 0, miss: 0, quiet: 0 };
+    a.forEach(function (x, i) { var y = t[i].alarm; if (x.alarm && y) c.hit++; else if (x.alarm) c.false_alarm++; else if (y) c.miss++; else c.quiet++; });
+    return c;
+  }
+  function s11corr(a, b) { var ma = mean(a), mb = mean(b), s = 0, sa = 0, sb = 0, i; for (i = 0; i < a.length; i++) { s += (a[i] - ma) * (b[i] - mb); sa += (a[i] - ma) * (a[i] - ma); sb += (b[i] - mb) * (b[i] - mb); } return s / Math.sqrt(sa * sb); }
+  function s11metrics(S, o) {                           // 시드 하나의 여섯 지표 + 부수 값. 학습자 쪽 도구만 쓴다(정답은 truth 로만)
+    o = o || {}; var J = s11join(S.coefRows, S.fdcRows), rows = J.rows.map(function (r) { return Object.assign({}, r, { dT: r.fdc_temp == null ? null : r.fdc_temp - CFG.T0 }); });
+    var ok = rows.filter(function (r) { return r.fdc_temp != null; });   // 세 회귀 모두 FDC 온도가 있는 행만(같은 행에서 견주기 위해)
+    var rx = s11regress(ok, 'Mx_hat', ['dT', 'turn'], { perMask: true }), rt = s11regress(ok, 'Mx_hat', ['turn'], { perMask: true });
+    var ry = s11regress(ok, 'My_hat', ['dT', 'turn'], { perMask: true });
+    var lim = o.limit == null ? S11_LIMIT : o.limit, comp = s11compensate(rows, rx.coef.dT, CFG.T0), full = s11withTruth(rows, S.truth);
+    var aB = s11alarms(rows, { limit: lim, field: 'Mx_hat' }), aA = s11alarms(comp, { limit: lim, field: 'Mx_comp' }), aT = s11alarms(full, { limit: lim, field: 'Mx_age' });
+    var rn = ok;
+    return { thermal: rx.coef.dT, thermal_se: rx.se.dT, turn: rx.coef.turn, turn_se: rx.se.turn, turn_only: rt.coef.turn, turn_only_se: rt.se.turn, my_thermal: ry.coef.dT, my_turn: ry.coef.turn, my_turn_se: ry.se.turn,
+      my_thermal_se: ry.se.dT, rss: rx.rss, ratio: ry.coef.dT / rx.coef.dT, alarm_before: aB.filter(function (x) { return x.alarm; }).length, alarm_after: aA.filter(function (x) { return x.alarm; }).length, alarm_truth: aT.filter(function (x) { return x.alarm; }).length,
+      conf_before: s11confusion(aB, aT), conf_after: s11confusion(aA, aT), missed: J.missed, corr_tt: s11corr(rn.map(function (r) { return r.fdc_temp; }), rn.map(function (r) { return r.turn; })) };
+  }
+  function s11pickMask(rows) {                          // 규칙: 마스크별로 '턴만 넣은' 회귀의 턴 기울기가 정답 누적 기울기(AGE_PPM_PER_TURN)와 가장 많이 다른 마스크
+    var ids = S11_IDS.slice(), best = null;
+    ids.forEach(function (id) { var sub = rows.filter(function (r) { return r.mask_id === id; }), g = s11regress(sub, 'Mx_hat', ['turn']), d = Math.abs(g.coef.turn - CFG.AGE_PPM_PER_TURN); if (best === null || d > best.diff) best = { mask_id: id, diff: d, slope: g.coef.turn }; });
+    return best;
+  }
+  S11.tools = { fit: s11fit, join: s11join, withTruth: s11withTruth, regress: s11regress, lsq: s11lsq, compensate: s11compensate, alarms: s11alarms, turnMeans: s11turnMeans, alarmsFromMeans: s11alarmsFromMeans, confusion: s11confusion, metrics: s11metrics, pickMask: s11pickMask, corr: s11corr,
+    IDS: S11_IDS, GITS: S11_GITS, TURNS: S11_TURNS, SEASON_K: S11_SEASON_K, REVIEW: S11_REVIEW, LIMIT: S11_LIMIT, P_GAP: S11_P_GAP, FDC_NOISE: S11_FDC_NOISE };
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaField: ppaField, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools
   };
 });
