@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 134항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank), S11 은 유리 1728장의 계수·join·다중 회귀·온도 보정·리페어 경보를 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조, S12 는 유리 192장의 계수·보정 후 지표·3단 판정·튄 점·반복 위치·우연 반복 확률(scipy.stats.binom)·리페어 전후 대응 비교와 Welch 를 다시 구현해 시드 1~200 을 JS 와 대조) |
+| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 153항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank), S11 은 유리 1728장의 계수·join·다중 회귀·온도 보정·리페어 경보를 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조, S12 는 유리 192장의 계수·보정 후 지표·3단 판정·튄 점·반복 위치·우연 반복 확률(scipy.stats.binom)·리페어 전후 대응 비교와 Welch 를 다시 구현해 시드 1~200 을 JS 와 대조) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -33,6 +33,7 @@
 - `ppa_s10.csv` — S10(실험실 0301) 대표 시드의 마스크 72장 × 77점. `glass_id, block, chamber, mask_id, mask_set, turn, glass_in_turn, chamber_temp, px, py, x_mm, y_mm, dx_um, dy_um, defect, bad_stick`(`defect` 1 = 국소 결함 정답 점, `bad_stick` = 마스크의 불량 스틱 열 번호 정답, 없으면 -1). 유리 가운데가 원점이고 +dx 는 오른쪽(장변), +dy 는 위쪽(단변), 행 0 이 맨 아래 줄입니다.
 - `ppa_coef_s11.csv` — S11(실험실 0303) 대표 시드의 유리 1728장(마스크 12장 × 24턴 × 턴 안 순번 5·20·40·60·90·120)마다 0302 의 전부 항 최소제곱으로 구한 계수 한 줄. `glass_id, block, chamber, mask_id, turn, glass_in_turn, Tx_hat, Ty_hat, theta_hat, Mx_hat, My_hat, K_hat, Cx_hat, Cy_hat, se_Mx, se_My, sigma, model`(`model` = `full5`, 단위는 0302 와 같음). 정답 성분은 담지 않음.
 - `ppa_s12.csv` — S12(실험실 0304) 대표 시드의 유리 192장(마스크 24장 × 같은 턴 안 8장, 턴 안 순번 15·30·…·120) × 77점 = 14,784행. `glass_id, mask_id, turn, glass_in_turn, px, py, x_mm, y_mm, dx_um, dy_um, fdc_temp`(측정 격자와 그 유리의 FDC 온도, 소수 5자리). 정답 성분·튄 점 정답은 담지 않음.
+- `vm_s13.csv` — S13(실험실 0305) 대표 시드(20)의 유리 1,728장(마스크 12장 × 24턴 × 턴 안 순번 5·20·40·60·90·120). `glass_id, mask_id, turn, glass_in_turn, fdc_temp, dep_rate, pressure, Mx_hat, cal_ver`. `fdc_temp` 는 기록된 표시값(턴 20부터 +0.3 K), `cal_ver` 는 센서 교정 판(0/1). 정답 성분은 넣지 않습니다.
 - `fdc_temp_s11.csv` — 같은 유리의 FDC 챔버 온도 `glass_id, fdc_temp`(참 온도 + N(0, 0.04²) 측정 잡음). 유리의 약 1%는 FDC 기록이 빠져 있어 행 수가 계수 표보다 적음(대표 시드 1715행).
 - `fdc_features.csv` — B03 의 5개 턴 유리별 특징. `p_steady_mean, p_steady_std, p_max_dev, p_settle_s, p_overshoot_pct, rate_ang_s, pm_flag(PM 이후=1), true_anomaly, anomaly_type, interlock, interlock_true`(가성 인터락 = interlock 1 이고 interlock_true 0).
 - `loss_events.csv` — 60일 Loss 사건. `event_id, start_ts, end_ts, block, chamber(CH1~4 또는 ALL), reason(직접 사유), root_cause(1차 원인), caused_by_block, run_mode(quad/triple/degraded), mask_set, turn, loss_chamber_min, loss_glass`. 사유는 명세의 11개 코드와 `LB-LINE`(라인 밸런스: 앞뒤 블록 때문에 굶거나 막힌 손실, 90 챔버·분 미만은 생략)입니다. `reason` 과 `root_cause` 가 다른 행이 연쇄의 흔적입니다.
@@ -103,3 +104,10 @@
 
 설계 예상과 다른 결과: 이 가상 공정에서는 보정 후 지표가 spec(보정 안 한 지표의 95 백분위)을 넘어 3단 판정이 리페어를 내리는 시드가 200개 가운데 1개뿐입니다. 보정 가능 몫이 지표를 크게 키우고 남는 몫은 훨씬 작기 때문이며, 그래서 조치 대상을 반복 위치가 잡힌 마스크까지 넓혀 전후를 비교합니다(대표 시드 기준 시드 분포 중앙값 5.5장, 10~90% 3~8장). 시드 1~200: 판정 일치율 1(0.96~1), 쓸데없는 리페어 수 2(1~3), 반복 위치로 잡힌 마스크 기인 결함 비율 0.85(0.5~1), 반복 위치가 잘못 잡힌 마스크 1(0~3)장, 유리 한 장 판정 정답률 0.71(0.58~0.80)이고 반복 위치 판정은 0.92(0.83~1)로 199/200 시드에서 더 높습니다. 기본 k 는 모든 시드에서 3(8장 중 3장), 우연 반복 확률 0.0008. 점별 대응 비교 p 가 유리별 Welch p 보다 작은 조치 마스크가 약 69%입니다.
 
+## 가상 계측 (S13, 실험실 0305)
+
+`MfgSim.scenario('S13', {seed, cal_turn, cal_delta})` — S11 과 같은 구조(마스크 12장 × 24턴 × 6장 = 1728장, 계절 가정, 0302 모델 판의 계수 추정)를 `makeMask(id, null, 'S13-'+seed)` 와 `hashSeed('S13', …)` 줄기로 다시 만듭니다. 기존 출력(CSV·`truth.json`·S1~S12·`simulateLoss`·전이 기록)은 바이트 단위로 그대로입니다. 유리마다 `fdc_temp`(참 온도 + N(0, 0.04²)), `dep_rate`(N(1, 0.03²), Mx 와 무관), `pressure`(참 온도와 상관 0.5, Mx 와 무관), `Mx_hat`. 센서 교정 변화: 턴 20부터 표시값 +0.3 K(참 온도·Mx 는 그대로). 분할: 학습 턴 1~12·검증 13~16·시험 17~24, 섞어 나누기 = 행 번호 % 10 < 7 이 학습.
+
+도구 `s13tools`: `view`(교정 변화 전 판 또는 기록된 표시값)·`lin`(마스크별 절편 직선)·`cart`(회귀 트리, sklearn `DecisionTreeRegressor(random_state=0, min_samples_leaf=5)` 규칙 + 특징 훑는 순서·float32 모방, 깊이마다 따로 키움)·`priority`·`drift`(예측 오차 EWMA, λ 0.2 · L 은 0204 와 같은 ARL0 370)·`metrics`. 기본 시드 20(시드 1~200 의 여섯 지표 — 직선 시험 RMSE · 트리−직선 · 섞어 나누기÷시간순 · 무관 특징 변화 · 포착률−무작위 · 드리프트 첫 알람 지연 — 백분위 Σ|백분위−50| 최소, 모두 25~75% 안).
+
+시드 1~200 분포(verify.py): 직선 시험 RMSE 0.145 ppm(10~90% 0.127~0.204), 트리가 직선보다 나쁨 200/200(차 +0.27), 섞어 나누기÷시간순 직선 0.99(0.93~1.06)·트리 0.56(0.46~0.67), 무관 특징(증착률·압력) 시험 RMSE 변화 ≈ 0, 우선순위 포착률−무작위(상위 20%, 한계 1.5 ppm) 0.49, 교정 변화 0.3 K 뒤 EWMA 알람 지연 2장(1~3), 변화 전 헛알람 2건(0~6). **설계 예상과 다른 점**: 직선은 섞어 나누기에서 낙관 편향이 없고(60% 시드에서 섞어 나눈 쪽이 작을 뿐 비 ≈ 1), 낙관 편향은 트리에서만 뚜렷합니다. 트리는 검증 RMSE 가 깊이 상한(8)에서 가장 낮습니다. **JS 트리와 sklearn**: 대표 시드는 깊이 1~8 예측이 모두 같고, 시드 1~40·200 은 구조가 어긋난 곳 0, 같은 표본을 똑같이 가르는 두 특징이 동점일 때(sklearn 무작위 순서·합의 끝자리) 고른 특징만 달라 시험 RMSE 가 최대 0.018 차이 나는 시드가 약 20%입니다.

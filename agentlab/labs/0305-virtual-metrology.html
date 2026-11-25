@@ -1,0 +1,1028 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>가상 계측 · FDC로 PPA 예측</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="PPA 를 재지 않은 유리의 장변 배율을 FDC 특징으로 예측하는 가상 계측을 직선과 회귀 트리로 만들고, 실력을 시간순 시험 구간으로 재고, 예측 순위로 위험한 유리를 먼저 재며, 센서 교정 변화로 모델이 틀려지는 것을 예측 오차 EWMA 로 잡는 실험실. 회사 PC용 Python과 가상 계측 모델 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.maps2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0}
+.maps2 .labtitle{font-size:.85rem}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.stk{background:var(--card)}
+.ctrl select{grid-column:span 1}
+label.cb{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.2rem .7rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.9rem;font-weight:700;cursor:pointer}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
+.qcard{margin:.9rem 0}
+.mixtag{background:var(--warn);color:#fff;border-radius:999px;padding:.05rem .6rem;font-size:.8rem}
+.qres{margin-top:.5rem}
+.shbars{margin:.3rem 0}
+.sh{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:.5rem;align-items:center;font-size:.85rem;margin:.15rem 0}
+.sh .shb{height:.7rem;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+.sh .shb i{display:block;height:100%;background:var(--accent2)}
+.sh.dom .shb i{background:var(--good)}
+.sh.dom .shl,.sh.dom .shv{font-weight:800;color:var(--good)}
+.sh .shv{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .maps2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr auto}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .stk{position:sticky;top:var(--tb,56px);z-index:6;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+}
+
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.maps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+table.mt td.hit{white-space:normal}
+
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+.qna{margin:.9rem 0}
+@media(max-width:700px){.maps3{grid-template-columns:1fr}}
+select{width:auto;max-width:100%}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+td.dim{color:var(--soft)}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 3 · 실험실 5</p>
+  <h1>가상 계측: FDC로 PPA 예측</h1>
+  <p class="sub">재지 않은 유리의 배율을 FDC 로 미리 맞히고, 그 실력을 나중 시점의 유리로 재는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0304-correct-or-repair.html">← 이전: 보정할까 리페어할까</a><span class="sp"></span></nav>
+
+<p><b>PPA 를 재지 않은 유리의 장변 배율 <i>M<sub>x</sub></i> 는 FDC 로 미리 맞힐 수 있고(가상 계측), 그 모델의 실력은 학습에 쓴 유리가 아니라 나중 시점의 유리(시간순 시험 구간)로 재야 합니다.</b> 이 가상 라인에서는 0303 의 직선 모델이 회귀 트리보다 낫고(5절), 예측으로 순위를 매겨 위험한 유리부터 재면 같은 측정 장 수로 한계를 넘은 유리를 훨씬 더 잡으며(6절), 온도 센서 교정이 바뀌면 모델이 조용히 틀려지므로 예측 오차를 감시 차트로 지켜야 합니다(7절).</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0303의 다중 회귀(마스크별 절편 + 온도 + 턴)와 열변형·턴 기울기, 0302의 유리마다 77점에서 뽑는 계수 <i>M̂<sub>x</sub></i>, 0204의 EWMA(λ·<i>L</i>·ARL), 0205의 &lsquo;섞어 나누면 낙관 편향이 생긴다&rsquo;와 시간순 분할, ADP 0013의 과적합과 교차검증(같은 생각을 여기서는 시간 순서로 합니다).</p>
+  <ul class="chips known"><li>다중 회귀 · 마스크별 절편 (0303)</li><li>계수 표 <i>M̂<sub>x</sub></i> (0302)</li><li>EWMA 감시 (0204)</li><li>섞어 나누기의 낙관 편향 · 시간순 분할 (0205)</li><li>과적합 · 교차검증 (ADP 0013)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(RMSE · 학습·검증 구간 · 기준과 한계 · 포착률 · 예측 오차)은 쓰는 자리에서 문장이나 식으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>가상 계측 (virtual metrology)</li><li>특징 (feature)</li><li>시간순 시험 구간 (time-ordered test set)</li><li>회귀 트리 (regression tree)</li><li>외삽 (extrapolation)</li><li>모델 드리프트 (model drift)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — PPA 는 턴마다 몇 장만 재므로, 재지 않은 유리의 배율을 FDC 로 미리 맞혀 위험한 유리를 먼저 재게 하는 일(2~6절).</li>
+    <li><b>손으로 연습</b> — 특징을 넣고 빼며 학습 오차와 시험 오차가 따로 움직이는 것을 보고(4절), 트리 깊이를 올리며 과적합과 외삽을 보고(5절), 먼저 잴 비율과 한계를 옮기며 포착률을 보고(6절), 센서 교정 변화의 크기를 옮기며 감시 차트가 알람을 내는 시점을 봅니다(7절).</li>
+    <li><b>다음 날 산출물</b> — <code>make_features</code>·<code>time_split</code>·<code>fit_vm</code>·<code>vm_rmse</code>·<code>priority_capture</code>·<code>vm_monitor</code> Python 함수(10절)와 가상 계측 모델 기록지(11절).</li>
+    <li><b>기록할 데이터</b> — 예측값과 그 뒤 실제 측정을 같은 유리 번호로, 센서 교정·교체 이력, 모델을 바꾼 날(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 모델 승인과 센서 변경 공지는 사람, 감시 알람과 재학습 조건은 규칙, 특징 만들기·학습·보고 초안은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 같은 측정 장 수로 더 잡는 한계 초과 유리와 줄어드는 흘려보냄(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 마스크 <b class="v_nm"></b>장이 <b class="v_nt"></b>턴 동안 증착한 기록입니다. PPA 는 마스크마다 한 턴에 <b class="v_ng"></b>장(턴 안 <span class="v_gits"></span>번째 유리)만 재므로 잰 유리는 <b class="v_n"></b>장이고, 마스크 한 장이 한 턴에 증착하는 유리는 <span class="v_npt"></span>장이라 나머지는 PPA 를 재지 않습니다. 유리마다 FDC 에는 챔버 온도 센서 표시값·턴·턴 안 순번·증착률·챔버 압력이 있습니다.<br>
+  <b>(1) 이 FDC 로 재지 않은 유리의 장변 배율 <i>M<sub>x</sub></i> 를 맞히는 모델을 만들고, 그 실력을 숫자 하나로 보고하십시오. (2) 직선과 트리 가운데 무엇을 씁니까. (3) 예측으로 순위를 매겨 한계를 넘었을 법한 유리부터 재면, 같은 측정 장 수로 한계를 넘은 유리를 얼마나 더 잡습니까. (4) 온도 센서 교정이 바뀌어도 이 모델을 계속 믿어도 됩니까. 바뀐 것은 어떻게 압니까.</b>
+  <p class="note" style="margin:.5rem 0 0">한계는 6절에서 가정으로 정하고, 센서 교정 변화는 이 가상 라인에 일어나는 사건입니다(7절). 2~7절에서 숫자를 만들고 8절에서 이 네 물음으로 돌아옵니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 기록을 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 유리 <span class="v_n"></span>장의 FDC 열과 측정 <i>M̂<sub>x</sub></i></h2>
+<p>표 한 줄이 유리 한 장입니다. 맞히려는 값은 <i>M̂<sub>x</sub></i>(0302의 방법으로 그 유리의 77점에서 뽑은 장변 배율, ppm)이고, 나머지 열이 FDC 에서 온 정보입니다. 아래 범위는 이 표에서 센 값입니다.</p>
+<div class="tbwrap"><table id="tab1a" class="mt"></table></div>
+<p>실제 줄을 몇 개 보면 이렇습니다(마스크 <b class="v_mk1"></b>).</p>
+<div class="tbwrap"><table id="tab1b" class="mt num"></table></div>
+<div class="concl" id="conc1"></div>
+<p>이 가상 라인에는 약속이 둘 있습니다. 증착률은 <i>M<sub>x</sub></i> 와 무관하게 정해졌고, 압력은 챔버 온도와 같이 움직이도록(상관 <b class="v_rho"></b>) 정해졌지만 <i>M<sub>x</sub></i> 에 직접 작용하지는 않습니다. 현장에는 이런 정답이 없으니, 어느 열이 일을 하는지는 4절에서 시험 오차로 가립니다. 센서 교정 판 <code>cal_ver</code> 는 7절에서 씁니다. 2~6절은 교정 변화가 없던 표시값으로 계산합니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 전부 맞추고 같은 자료로 오차 재기</h2>
+<p>0303 의 모델 판(<i>M<sub>x</sub></i> = 마스크별 절편 + 열변형 기울기 × (온도 − <span class="v_T0"></span>) + 턴 기울기 × 턴)을 유리 <span class="v_n"></span>장 전부에 맞추고, 같은 <span class="v_n"></span>장에서 오차를 재 보겠습니다. 오차는 <b>RMSE</b>(root mean squared error)로 잽니다. 유리마다 (측정 − 예측)을 제곱해 평균하고 제곱근을 씌운 값이며 단위는 ppm 입니다.</p>
+<div class="eq">
+  <span class="eqlab">RMSE (유리 <i>n</i>장)</span>
+  <math display="block"><mrow><mtext>RMSE</mtext><mo>=</mo><msqrt><mrow><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo stretchy="false">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mover><mi>y</mi><mo>^</mo></mover><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow></math>
+  <span class="note"><i>y<sub>i</sub></i> 는 유리 <i>i</i> 의 측정 <i>M̂<sub>x</sub></i>, <i>ŷ<sub>i</sub></i> 는 그 유리의 예측입니다. 작을수록 잘 맞힌 것입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">측정 <i>M̂<sub>x</sub></i> 대 예측 (전 자료로 맞추고, 같은 자료로 잼)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 점이 대각선(예측 = 측정)에 얼마나 붙는지 보십시오. 대각선에서 먼 점이 거의 없으면 모델이 잘 맞는 것처럼 보입니다.</div>
+  <canvas id="cv2"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>유리 한 장</span><span><span class="sw" style="border-top:2px dashed var(--soft)"></span>예측 = 측정</span></div>
+</div>
+<div class="concl" id="conc2"></div>
+<p>측정 <i>M̂<sub>x</sub></i> 의 표준편차가 <span class="v_sdy"></span> ppm 인데 RMSE 는 <span class="v_rmAll"></span> ppm 이니 매우 잘 맞는 것처럼 보입니다. 그런데 이 모델이 쓰일 곳은 <b>다음 주에 증착할 유리</b>입니다. 이 숫자가 그 유리의 오차일까요. 무작위로 70%로만 맞추고 나머지 30%로 재는 방법(<b>섞어 나누기</b>: 표의 행 번호를 10 으로 나눈 나머지가 0~6 이면 학습, 7~9 이면 시험)도 해 보겠습니다.</p>
+<div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+<p><b>여기서 막힙니다.</b> 두 숫자는 모두 &lsquo;학습에 쓴 유리와 같은 턴·같은 마스크의 이웃 유리&rsquo;를 시험으로 쓴 값입니다. 다음 주 유리는 이웃이 아니라 <b>더 뒤의 시점</b>이고, 그 사이에 챔버는 더 따뜻해져 있습니다. 어느 숫자가 진짜 실력인지 가르려면 &lsquo;무엇을 학습으로 쓰고 무엇을 시험으로 쓸지&rsquo;에 이름과 규칙이 필요합니다. 3절에서 이름을 붙입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 가상 계측, 특징, 시간순 시험 구간</h2>
+<ul class="termdef">
+  <li><b>가상 계측 (virtual metrology)</b> — PPA 를 재지 않은 유리의 계측값(여기서는 <i>M<sub>x</sub></i>)을 공정 데이터(FDC)로 예측하는 일입니다. 2절의 모델이 이미 그것입니다.</li>
+  <li><b>특징 (feature)</b> — 모델에 넣는 입력 한 칸입니다. 지금까지는 온도(<code>fdc_temp</code>)·턴·마스크 번호(절편)가 특징이었고, 1절의 증착률·압력·턴 안 순번도 후보입니다.</li>
+  <li><b>시간순 시험 구간 (time-ordered test set)</b> — 학습에 쓴 시점보다 <b>뒤의</b> 유리만 모아 실력을 재는 구간입니다. 섞어서 나누면 같은 턴 이웃 유리의 정보가 학습에 새어 들어 실력이 부풀려질 수 있습니다(0205의 낙관 편향).</li>
+</ul>
+<p>이 자료를 시간순으로 세 구간으로 나눕니다. <b>학습 구간</b>(턴 <span class="v_tr"></span>)은 모델을 맞추는 데, <b>검증 구간</b>(턴 <span class="v_va"></span>)은 5절에서 트리 깊이를 고르는 데, <b>시험 구간</b>(턴 <span class="v_te"></span>)은 실력을 한 번 재는 데 씁니다. 시험 구간 유리는 마지막까지 모델이 본 적이 없습니다.</p>
+<div class="lab">
+  <div class="labtitle">턴 축 위의 학습 · 검증 · 시험 구간과 FDC 온도</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 턴이 갈수록 FDC 온도(한 턴 안 유리들의 최소~최대 띠와 평균)가 어떻게 달라지는지 보십시오. 2) 시험 구간의 온도가 학습 구간의 최대(점선)를 넘는 곳을 찾으십시오. 3) 이 그림의 모든 구간 값은 아래 표로 이어집니다.</div>
+  <canvas id="cv3"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>학습</span><span><i class="dot" style="background:var(--c8)"></i>검증</span><span><i class="dot" style="background:var(--c10)"></i>시험</span><span><span class="sw" style="border-top:2px dashed var(--bad)"></span>학습 구간 온도 최대</span></div>
+</div>
+<p>같은 직선 모델로 세 가지 방식의 RMSE 를 한 표에 놓습니다. 시드 1~200 은 이 가상 라인을 마스크 집단과 잡음을 새로 뽑아 200번 다시 만든 것입니다.</p>
+<div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
+<div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+<div class="concl" id="conc3"></div>
+<p>직선 모델에서는 세 값이 거의 같습니다. 직선에는 이웃 유리에서 외울 것이 없기 때문입니다. 5절의 회귀 트리에서는 이 차이가 크게 벌어집니다. 먼저 4절에서 어떤 특징을 넣을지 가려 보겠습니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>특징 넣고 빼기 — 학습 오차는 늘 줄고, 시험 오차는 그렇지 않다</h2>
+<p>후보 특징은 여섯입니다. 온도·턴·턴 안 순번·증착률·압력, 그리고 마스크별 절편. 아래에서 켜고 끄며 학습·검증·시험 RMSE 를 봅니다. 모델은 모두 직선(<i>M̂<sub>x</sub></i> = 절편 + 고른 특징 × 기울기)이고 학습 구간 턴 <span class="v_tr"></span>에만 맞춥니다.</p>
+<div class="lab">
+  <div class="labtitle">특징을 골라 직선 모델 맞추기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 특징을 하나 넣을 때 학습 RMSE 가 늘 줄거나 같은지, 시험 RMSE 도 그런지 보십시오. 2) 증착률이나 압력을 넣으면 시험 RMSE 가 얼마나 달라지는지 보십시오. 3) 온도를 빼고 압력이나 턴 안 순번을 넣으면 그 특징이 온도 대신 일을 하는 듯 보이는지, 그래도 온도만큼 맞는지 보십시오.</div>
+  <div class="row" role="group" aria-label="특징 고르기">
+    <label class="cb"><input type="checkbox" id="cb_dT" checked> 온도 <span class="cbv">fdc_temp</span></label>
+    <label class="cb"><input type="checkbox" id="cb_turn" checked> 턴</label>
+    <label class="cb"><input type="checkbox" id="cb_git"> 턴 안 순번</label>
+    <label class="cb"><input type="checkbox" id="cb_dep"> 증착률</label>
+    <label class="cb"><input type="checkbox" id="cb_pr"> 압력</label>
+    <label class="cb"><input type="checkbox" id="cb_mask" checked> 마스크별 절편</label>
+    <button class="btn ghost" id="r4" type="button">0303 의 모델 판으로 되돌리기</button>
+  </div>
+  <div class="state" id="st4"></div>
+  <canvas id="cv4"></canvas>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<p>같은 비교를 미리 계산해 둔 조합으로 나란히 놓으면 이렇습니다(모두 학습 구간에만 맞춘 직선).</p>
+<div class="tbwrap"><table id="tab4b" class="mt num"></table></div>
+<div class="concl" id="conc4b"></div>
+<div class="qna" data-label="특징은 많을수록 좋은가요?" data-q="특징은 많을수록 좋은가요?">
+  <p><b>아닙니다. 학습 RMSE 는 특징을 넣을수록 늘 줄지만, 시험 RMSE 는 일하는 특징일 때만 줄고 일하지 않는 특징은 거의 바꾸지 못합니다.</b> 이 라인에서 증착률을 더하면 학습 RMSE 가 <span class="q4_trA"></span> → <span class="q4_trB"></span>, 시험 RMSE 가 <span class="q4_teA"></span> → <span class="q4_teB"></span> ppm 으로 변합니다.</p>
+  <p>상관이 있는 특징은 서로 일을 나눠 갖습니다. 온도를 뺀 모델(턴 + 마스크별 절편)의 시험 RMSE <span class="q4_a"></span> ppm 은 압력을 넣으면 <span class="q4_b"></span>, 턴 안 순번을 넣으면 <span class="q4_c"></span> 로 줄지만, 온도를 넣은 <span class="q4_d"></span> 에는 못 미칩니다. 압력과 턴 안 순번이 줄이는 것은 이 둘이 온도와 같이 움직이기 때문이지 열변형을 직접 설명해서가 아닙니다(0303의 교란과 같은 원리). 특징은 많이 넣는 것이 아니라, 시험 구간에서 오차를 줄이는 것만 남기는 것입니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>회귀 트리와 외삽 — 가정 없는 모델은 어디서 무너지나</h2>
+<p>직선 모델에는 &lsquo;온도와 턴이 배율에 직선으로 작용한다&rsquo;는 가정이 들어 있습니다. 이 가정을 두지 않는 모델을 견주어 볼 필요가 있습니다. 가장 쉬운 것이 회귀 트리입니다.</p>
+<ul class="termdef">
+  <li><b>회귀 트리 (regression tree)</b> — 특징 하나의 문턱값으로 유리를 둘로 나누기를 되풀이하고, 마지막 칸(잎)마다 그 칸 유리의 <i>M̂<sub>x</sub></i> 평균을 예측값으로 쓰는 모델입니다. 나누는 횟수의 상한이 <b>깊이(depth)</b>입니다. 문턱은 정렬된 서로 다른 값의 중점 가운데 두 칸의 제곱오차 합을 가장 줄이는 것을 고르고, 한 칸에 유리가 <span class="v_ml"></span>장보다 적게 남는 나누기는 하지 않습니다. 특징은 온도·턴·턴 안 순번·증착률·압력·마스크 번호(정수)입니다.</li>
+  <li><b>외삽 (extrapolation)</b> — 학습에 없던 범위의 입력으로 예측하는 것입니다. 직선은 기울기를 이어 가고 트리는 가장자리 칸의 평균에 머뭅니다.</li>
+</ul>
+<p>트리의 깊이를 키울수록 학습 RMSE 는 줄어듭니다. 검증 구간(턴 <span class="v_va"></span>)으로 어디까지가 유익한지 고릅니다.</p>
+<div class="lab">
+  <div class="labtitle">깊이를 옮기며 트리 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 깊이를 올릴 때 학습·검증·시험 RMSE 곡선이 서로 어떻게 벌어지는지 보십시오. 2) 오른쪽 그림에서 시험 구간의 따뜻한 유리(붉은 점선 오른쪽)에서 트리의 예측(주황 점)이 직선(청록선)과 어떻게 갈라지는지 보십시오. 3) 시험 RMSE 가 직선(점선 가로선)보다 낮아지는 깊이가 있는지 보십시오.</div>
+  <div class="ctrl"><label for="sD">트리 깊이 (나누기 횟수)</label><input type="range" id="sD" min="1" max="8" step="1" value="8"><output id="sDO"></output></div>
+  <div class="row"><button class="btn ghost" id="rD" type="button">검증 RMSE 가 가장 낮은 깊이로 되돌리기</button></div>
+  <div class="state" id="stD"></div>
+  <div class="maps2">
+    <div><div class="labtitle">깊이별 RMSE</div><canvas id="cv5a"></canvas></div>
+    <div><div class="labtitle">온도와 시험 구간의 예측</div><canvas id="cv5b"></canvas></div>
+  </div>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>학습 유리의 측정값</span><span><i class="dot" style="background:var(--c10)"></i>시험 유리의 측정값</span><span><i class="dot" style="background:var(--c8)"></i>트리 예측(시험 유리)</span><span><span class="sw" style="border-top:3px solid var(--accent)"></span>직선 예측</span></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<p>같은 트리로 2~3절의 세 가지 방식을 다시 재 보겠습니다. 직선에서는 거의 같았던 숫자가 트리에서는 어떻게 되는지 보십시오.</p>
+<div class="tbwrap"><table id="tab5b" class="mt num"></table></div>
+<div class="concl" id="conc5b"></div>
+<p>마지막으로 시험 유리를 학습 구간의 온도 범위(<span class="v_tmin"></span>~<span class="v_tmax"></span> °C) 안과 밖으로 나눠 외삽 오차를 봅니다. 오차는 (측정 − 예측)의 평균이며 0 에서 멀수록 한쪽으로 치우친 것입니다.</p>
+<div class="tbwrap"><table id="tab5c" class="mt num"></table></div>
+<div class="concl" id="conc5c"></div>
+<p><b>정직하게 말하면</b> 이 가상 공정은 배율이 온도와 턴에 직선이라 직선이 이기기 쉽습니다. 트리는 비선형이나 특징끼리의 상호작용이 있을 때 쓰는 도구이고, 이 자료에서 트리가 진 것은 &lsquo;트리가 나쁘다&rsquo;가 아니라 &lsquo;이 공정에는 직선이 맞다&rsquo;는 뜻입니다. 현장 공정이 직선인지는 직선 모델의 시험 오차가 충분히 작은지로 확인합니다. 또 검증 RMSE 가 가장 낮은 깊이가 이 표의 상한(<span class="v_dmax"></span>)에 닿아 있으므로, 상한을 더 올리면 더 줄어드는지는 이 표로는 알 수 없습니다.</p>
+<div class="qna" data-label="트리·랜덤 포레스트가 늘 더 좋지 않나요?" data-q="트리·랜덤 포레스트가 늘 더 좋지 않나요?">
+  <p><b>아닙니다. 물리가 직선에 가까우면 직선이 이기고, 트리 계열은 학습 범위 밖에서 약합니다.</b> 이 라인의 시험 RMSE 는 직선 <span class="q5_lin"></span> ppm, 트리(깊이 <span class="q5_dep"></span>) <span class="q5_tree"></span> ppm 입니다.</p>
+  <p>랜덤 포레스트는 트리 여러 개의 평균이라 한 트리보다 흔들림은 줄지만, 칸마다 평균을 쓰는 점은 같아서 학습 범위 밖에서는 가장자리 평균에 머뭅니다. 먼저 직선으로 시험 오차를 재고, 직선이 모자랄 때(비선형·상호작용) 트리 계열을 견줍니다.</p>
+</div>
+<div class="qna" data-label="섞어 나누기로 재면 왜 안 되나요?" data-q="섞어 나누기로 재면 왜 안 되나요?">
+  <p><b>같은 턴의 이웃 유리가 학습과 시험에 함께 들어가, 모델이 이웃을 외운 만큼 실력이 부풀려지기 때문입니다.</b> 이 라인에서 트리(깊이 <span class="q5s_dep"></span>)의 섞어 나눈 시험 RMSE 는 <span class="q5s_sh"></span> ppm, 시간순 시험 RMSE 는 <span class="q5s_tm"></span> ppm 이어서 비가 <span class="q5s_ratio"></span> 입니다. 직선은 이 비가 <span class="q5s_lratio"></span> 로 거의 1 입니다.</p>
+  <p>다음 주 유리는 학습에 쓴 유리의 이웃이 아니므로, 실제 쓸 방식과 같은 시간순 시험 구간으로 재야 합니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>측정 우선순위 — 위험한 유리부터 재기</h2>
+<p>재지 않은 유리가 많으니 측정할 자리를 어떻게 고르느냐가 가상 계측의 쓸모입니다. 예측으로 유리마다 &lsquo;그 마스크의 기준에서 얼마나 멀어졌을 것 같은가&rsquo;를 매기고, 큰 순서로 먼저 재는 것입니다. 세 가지를 정의합니다.</p>
+<ul class="termdef">
+  <li><b>기준</b> — 마스크마다 턴 1 의 유리 6장 <i>M̂<sub>x</sub></i> 평균입니다(0303의 기준선과 같은 약속).</li>
+  <li><b>한계를 넘은 유리</b> — |측정 <i>M̂<sub>x</sub></i> − 기준| 이 한계보다 큰 유리입니다. 한계는 현장 기준으로 바꿔야 할 <b>가정</b>이며, 0303의 0.3 ppm 은 턴 평균의 변화에 적용한 값이어서 유리 한 장(턴 안 온도 상승만으로 <i>M<sub>x</sub></i> 가 <span class="v_rise"></span> ppm 정도 움직임)에는 따로 정해야 합니다.</li>
+  <li><b>포착률</b> — 한계를 넘은 유리 가운데 먼저 잰 유리에 들어간 비율입니다. 먼저 재는 장 수가 같을 때 우선순위로 고른 것과 무작위로 고른 것을 견줍니다. 무작위로 고르면 기대 포착률은 먼저 재는 비율 그대로입니다.</li>
+</ul>
+<p>시험 구간의 유리 <span class="v_nte"></span>장을 &lsquo;아직 재지 않은 유리 더미&rsquo;로 보고, 직선 모델의 예측 |예측 − 기준| 이 큰 순서로 상위 <i>q</i>% 만 잰다고 하겠습니다.</p>
+<div class="lab">
+  <div class="labtitle">먼저 잴 비율과 한계를 옮기며 포착률 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 먼저 잴 비율 <i>q</i> 를 올릴수록 우선순위 포착률이 무작위(대각선)와 얼마나 벌어지는지 보십시오. 2) 한계를 낮추면 한계를 넘은 유리가 많아져 곡선이 어떻게 달라지는지 보십시오. 3) 완벽한 순서(점선)에 못 미치는 몫이 어디서 생기는지 생각해 보십시오.</div>
+  <div class="ctrl"><label for="sQ">먼저 잴 비율 <i>q</i> (%, 가정)</label><input type="range" id="sQ" min="5" max="50" step="1" value="20"><output id="sQO"></output></div>
+  <div class="ctrl"><label for="sL">한계 (ppm, 가정)</label><input type="range" id="sL" min="0.5" max="1.8" step="0.1" value="1.5"><output id="sLO"></output></div>
+  <div class="row"><button class="btn ghost" id="r6" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>예측 순위로 먼저 잼</span><span><span class="sw" style="border-top:2px dashed var(--soft)"></span>무작위로 잼(기대)</span><span><span class="sw" style="border-top:2px dotted var(--good)"></span>완벽한 순서</span><span>세로 선: 지금의 <i>q</i></span></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<p>순위가 얼마나 잘 맞는가는 모델의 시험 오차에 달려 있습니다. 예측이 틀리면 순위가 흩어지고 포착률이 무작위(대각선)에 가까워집니다. 이 숫자를 성과 환산으로 잇는 것이 9절입니다.</p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>모델 드리프트 — 센서 교정이 바뀌면 모델이 조용히 틀린다</h2>
+<ul class="termdef">
+  <li><b>모델 드리프트 (model drift)</b> — 공정이나 센서가 바뀌어 예측 오차의 평균이나 크기가 학습 때와 달라지는 것입니다. 예측 오차는 (측정 − 예측)이며, <b>측정한 유리에서만</b> 알 수 있습니다.</li>
+</ul>
+<p>이 라인에는 턴 <span class="v_calT"></span>부터 챔버 온도 센서의 표시값이 <span class="v_calD0"></span> K 높아지는 사건이 있습니다(참 온도는 그대로이므로 <i>M<sub>x</sub></i> 는 그대로입니다). 모델은 표시값을 쓰므로 예측이 (열변형 기울기) × (표시값이 어긋난 만큼) 만큼 틀어집니다. 표시값만 보면 알아차리기 어려우니 <b>예측 오차</b>를 0204 의 EWMA 로 감시합니다.</p>
+<div class="eq">
+  <span class="eqlab">예측 오차의 EWMA 감시 (직선 모델, 턴 <span class="v_va2"></span> 이후의 잰 유리를 시간순으로)</span>
+  <math display="block"><mrow><msub><mi>e</mi><mi>t</mi></msub><mo>=</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><msub><mover><mi>y</mi><mo>^</mo></mover><mi>t</mi></msub><mo>,</mo><mspace width="1em"/><msub><mi>z</mi><mi>t</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>e</mi><mi>t</mi></msub><mo>−</mo><mover><mi>e</mi><mo>¯</mo></mover></mrow><mi>s</mi></mfrac><mo>,</mo><mspace width="1em"/><msub><mi>w</mi><mi>t</mi></msub><mo>=</mo><mi>λ</mi><msub><mi>z</mi><mi>t</mi></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>λ</mi><mo stretchy="false">)</mo><msub><mi>w</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow></math>
+  <math display="block"><mrow><mo>|</mo><msub><mi>w</mi><mi>t</mi></msub><mo>|</mo><mo>&gt;</mo><mi>L</mi><msqrt><mfrac><mi>λ</mi><mrow><mn>2</mn><mo>−</mo><mi>λ</mi></mrow></mfrac></msqrt><mspace width="1em"/><mo>⇒</mo><mspace width="1em"/><mtext>알람</mtext></mrow></math>
+  <span class="note"><i>ē</i>·<i>s</i> 는 검증 구간(턴 <span class="v_va"></span>)의 예측 오차 평균·표준편차(<span class="v_emu"></span>·<span class="v_esd"></span> ppm), λ = <span class="v_lam"></span>, <i>L</i> = <span class="v_Lc"></span>(0204 에서 λ 가 이 값일 때 변화가 없어도 평균 370장에 한 번 알람이 나는 한계). 변화 전에 난 알람은 헛알람으로 세고, 통계량을 0 으로 되돌립니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">센서 교정 변화의 크기를 옮기며 감시 차트 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 교정 변화 <i>δ</i> 를 올리면 교정 변화 뒤의 예측 오차(위 그림 파란 점)가 얼마나 위로 올라가는지 보십시오. 2) 아래 EWMA 선이 한계선을 넘는 시점이 <i>δ</i> 에 따라 어떻게 달라지는지 보십시오. 3) <i>δ</i> 를 거의 0 으로 내리면 알람이 늦어지고 헛알람과 구별되지 않는 것을 보십시오.</div>
+  <div class="ctrl"><label for="sDe">교정 변화 <i>δ</i> (K, 가정)</label><input type="range" id="sDe" min="0" max="0.6" step="0.05" value="0.3"><output id="sDeO"></output></div>
+  <div class="row"><button class="btn ghost" id="rDe" type="button">기본 교정 변화로 되돌리기</button></div>
+  <div class="state" id="stDe"></div>
+  <div class="labtitle">예측 오차 (측정 − 예측, ppm), 턴 <span class="v_va2"></span> 이후 잰 유리 시간순</div>
+  <canvas id="cv7a"></canvas>
+  <div class="labtitle" style="margin-top:.6rem">EWMA <i>w<sub>t</sub></i> 와 알람 한계</div>
+  <canvas id="cv7b"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>교정 변화 전의 유리</span><span><i class="dot" style="background:var(--c10)"></i>교정 변화 뒤의 유리</span><span><i class="dot" style="background:var(--bad)"></i>알람(첫 알람 · 헛알람)</span><span><span class="sw" style="border-top:2px dashed var(--warn)"></span>교정 변화 시점</span></div>
+  <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
+  <div class="concl" id="conc7"></div>
+</div>
+<p>알람이 나면 규칙은 두 가지 일을 합니다. 센서 교정 이력(날짜·전후 값)이 있으면 표시값을 되돌려 쓰고, 이력이 없으면 새 센서 판으로 모델을 다시 맞춥니다. 위 표의 &lsquo;교정 이력으로 되돌린 표시값의 시험 RMSE&rsquo;가 이력이 있을 때 얻는 것입니다.</p>
+<div class="qna" data-label="측정을 아예 없애도 되나요?" data-q="측정을 아예 없애도 되나요?">
+  <p><b>아닙니다. 예측 오차는 잰 유리에서만 알 수 있어서, 측정을 0 으로 줄이면 모델이 틀려져도 알 방법이 없어집니다.</b> 이 라인에서 교정 변화(<span class="q7_d"></span> K)가 일어난 뒤 모델의 시험 RMSE 는 <span class="q7_a"></span> ppm 에서 <span class="q7_b"></span> ppm 으로 올라갔고, 이것을 알아차린 것은 잰 유리의 예측 오차였습니다.</p>
+  <p>측정은 줄일 수 있어도 0 으로 만들 수는 없습니다. 가상 계측이 하는 일은 &lsquo;어느 유리를 먼저 잴지&rsquo;를 고르는 것이지, 재는 일을 대신하는 것이 아닙니다. 잰 유리의 수가 줄수록 같은 변화를 알아차리기까지 오래 걸린다는 점은 감시 설정(λ·<i>L</i>)과 함께 정해야 합니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 네 물음에 숫자로 답하기</h2>
+<p>이 실험실을 시작한 네 물음으로 돌아갑니다. 6절의 <i>q</i>·한계, 7절의 <i>δ</i>, 5절의 깊이가 반영됩니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt"></table></div>
+<div class="concl" id="land"></div>
+<p>숫자를 만드는 일은 규칙과 에이전트가 하지만, 그 모델을 라인에 쓸지는 사람이 정합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>가상 계측 모델 승인(시간순 시험 RMSE 가 쓰임새에 충분한지) · 직선·트리 선택의 근거 승인 · 센서 교정·교체 공지(날짜와 전후 값) · 한계(가정)를 현장 기준으로 정하기 · 재학습한 모델의 승인</td></tr>
+  <tr><td class="rowh">규칙</td><td>시간순 분할 · 시험 RMSE 가 승인 기준 안인지 확인 · 예측 오차 EWMA 알람 · 알람 뒤 재학습 조건(센서 교정 이력이 있는가, 새 판이 필요한가) · 측정 우선순위 규칙</td></tr>
+  <tr><td class="rowh">에이전트</td><td>특징 표 만들기 · 학습·시험 RMSE 계산 · 우선순위 목록과 포착률 보고 · 감시 차트와 알람 요약 · 가상 계측 모델 기록지 초안</td></tr>
+</table></div>
+<p>0306(마스크 수명 예측)으로 이어집니다. 온도를 보정한 뒤의 <i>M<sub>x</sub></i> 가 턴마다 내려가는 기울기(이 모델의 턴 기울기 <span class="v_bN"></span> ppm/턴)를 앞으로 이어 그으면 한계에 닿는 턴을 세는 일이 됩니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>같은 측정 장 수로 한계를 넘은 유리를 더 잡는 수 = (우선순위 포착률 − 무작위 포착률) × 한계를 넘은 유리 수입니다. 놓친 유리 한 장이 다음 측정까지 흘려보내는 유리 수(가정)를 곱하면 줄어드는 흘려보냄이 됩니다. 6절의 <i>q</i>·한계가 그대로 반영됩니다.</p>
+<div class="lab">
+  <div class="labtitle">우선순위로 재면 줄어드는 흘려보냄</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 한계를 넘은 유리 수와 추가로 잡는 수를 함께 보십시오. 2) 한 장이 흘려보내는 유리 수를 바꿀 때 줄어드는 양이 어떻게 달라지는지 보십시오. 3) 6절에서 <i>q</i>·한계를 바꾸면 이 표가 함께 바뀌는 것을 오가며 보십시오. 차이가 작으면 작다고 적습니다.</div>
+  <div class="ctrl"><label for="sF">한 장이 다음 측정까지 흘려보내는 유리 수 (장, 가정)</label><input type="range" id="sF" min="5" max="60" step="5" value="20"><output id="sFO"></output></div>
+  <div class="row"><button class="btn ghost" id="rF" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stF"></div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 &lsquo;유리 한 장의 값&rsquo;을 곱해 금액으로 적습니다. 이 화면의 유리 더미(<span class="v_nte2"></span>장)는 이미 잰 유리를 &lsquo;재지 않은 유리&rsquo;로 가정한 것이므로, 현장에서는 실제 재지 않은 유리 수와 실제 한계로 바꿔 넣으십시오. 한 장이 흘려보내는 유리 수는 잰 유리 사이의 간격(이 자료는 턴 안 순번이 5·20·40·60·90·120번째라 간격이 15~30장)과 같은 크기로 잡았습니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy</code>·<code>pandas</code>·<code>scikit-learn</code>을 씁니다. 0303의 <code>join_fdc_ppa</code>로 만든 표(유리마다 FDC 열과 <code>Mx_hat</code>)가 입력이고, 코드와 같은 폴더의 <code>vm_s13.csv</code>로 그대로 돌아갑니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다. <code>fit_vm</code> 의 트리는 <code>DecisionTreeRegressor(random_state=0, min_samples_leaf=5)</code> 입니다. 트리는 같은 표본을 똑같이 가르는 두 특징이 동점일 때 어느 쪽을 고르는지가 난수 순서에 달려 있어, 다른 버전의 라이브러리에서는 뒷자리가 달라질 수 있습니다.</p>
+<div class="row"><button class="btn" id="csvBtn1" type="button">CSV 내려받기 (vm_s13.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+
+T_REF = 80.0                    # 기준 온도 (°C). 0303 과 같은 약속입니다.
+CAL_TURN, CAL_SHIFT = 20, 0.3   # 센서 교정 이력: 턴 20 부터 표시값 +0.3 K (교정 기록에서 옮겨 적은 값 — 우리 장비의 이력으로 바꿔 쓰십시오)
+LIMIT, Q = 1.5, 0.2             # 한계(ppm, 가정)와 먼저 잴 비율
+LAM, L_EWMA = 0.2, 2.8599       # EWMA (0204 와 같은 설정: λ = 0.2 에서 변화가 없을 때 평균 370장에 한 번 알람이 나는 한계 L)
+FEATURES = ["temp", "turn", "glass_in_turn", "dep_rate", "pressure", "mask"]   # 트리가 특징을 훑는 순서도 이 순서입니다
+
+
+def make_features(df, cols, kind, masks, undo_cal=True):
+    """특징 표를 만듭니다. cols 는 FEATURES 중에서 고른 이름. temp 는 센서 표시값이며 undo_cal=True 면 교정 이력(CAL_SHIFT)으로 교정 변화 전 판 기준으로 되돌린 값입니다.
+    mask 는 직선(kind="linear")에서는 마스크별 더미(= 마스크별 절편), 트리(kind="tree")에서는 마스크 번호(정수)입니다.
+    쓰면 안 되는 때: 교정 이력이 없는 구간의 표시값을 되돌릴 때(되돌릴 값을 모르면 되돌리지 말고 재학습) · 직선에 마스크 번호를 정수로 넣을 때(번호의 크기에 뜻이 없습니다)."""
+    X = pd.DataFrame(index=df.index)
+    for c in [c for c in FEATURES if c in cols]:
+        if c == "temp":
+            X["temp"] = df["fdc_temp"] - (CAL_SHIFT * df["cal_ver"] if undo_cal else 0.0)
+        elif c == "mask" and kind == "linear":
+            X = X.join(pd.get_dummies(pd.Categorical(df["mask_id"], categories=masks), dtype=float).set_index(df.index))
+        elif c == "mask":
+            X["mask"] = df["mask_id"].map({m: i for i, m in enumerate(masks)})
+        else:
+            X[c] = df[c]
+    return X
+
+
+def time_split(df, train_turns, valid_turns, test_turns):
+    """시간순으로 학습·검증·시험 표를 나눕니다. 각 인자는 (처음 턴, 끝 턴).
+    쓰면 안 되는 때: 시험 구간이 학습 구간보다 앞서거나 겹칠 때(미래 정보가 학습에 새어 들어갑니다)."""
+    cut = lambda t: df[(df["turn"] &gt;= t[0]) &amp; (df["turn"] &lt;= t[1])]
+    return cut(train_turns), cut(valid_turns), cut(test_turns)
+
+
+def fit_vm(train, cols, model, masks, depth=None):
+    """가상 계측 모델을 학습 표에 맞춥니다. model = "linear"(마스크를 고르면 마스크별 절편만, 아니면 절편 하나) 또는 "tree"(깊이 depth, 한 칸에 유리 5장 이상).
+    쓰면 안 되는 때: 학습 구간에 없던 온도 범위의 유리를 트리로 예측할 때(가장자리 칸의 평균에 머뭅니다) · 센서 교정이나 레시피가 바뀐 뒤 재학습 없이 쓸 때."""
+    X = make_features(train, cols, model, masks)
+    if model == "linear":
+        est = LinearRegression(fit_intercept="mask" not in cols)
+    else:
+        est = DecisionTreeRegressor(max_depth=depth, min_samples_leaf=5, random_state=0)
+    return {"est": est.fit(X, train["Mx_hat"]), "cols": cols, "kind": model, "masks": masks}
+
+
+def vm_predict(m, data, undo_cal=True):
+    return m["est"].predict(make_features(data, m["cols"], m["kind"], m["masks"], undo_cal))
+
+
+def vm_rmse(m, data, undo_cal=True):
+    """모델의 RMSE (ppm). 반드시 시간순 시험 표로 재십시오.
+    쓰면 안 되는 때: 학습에 쓴 표로 재고 그 값을 실력으로 보고할 때."""
+    return float(np.sqrt(np.mean((data["Mx_hat"] - vm_predict(m, data, undo_cal)) ** 2)))
+
+
+def priority_capture(pred, actual, base, limit, q):
+    """예측 |예측 − 기준| 이 큰 순서로 상위 q 만 잰다고 할 때, 한계(|실제 − 기준| &gt; limit)를 넘은 유리를 잡는 비율과 무작위의 기대 포착률(= 재는 비율).
+    쓰면 안 되는 때: 기준(base)을 시험 구간의 측정으로 정할 때(학습 구간까지의 값으로만 정합니다)."""
+    pred, actual, base = map(np.asarray, (pred, actual, base))
+    exceed = np.abs(actual - base) &gt; limit
+    m = int(np.floor(q * len(pred) + 0.5))
+    first = np.argsort(-np.abs(pred - base), kind="stable")[:m]
+    return exceed[first].sum() / exceed.sum(), m / len(pred), int(exceed.sum())
+
+
+def vm_monitor(err, lam, L, ref_n, change_at):
+    """예측 오차 err(시간순)를 앞 ref_n 개의 평균·표준편차로 표준화해 EWMA 로 감시합니다. change_at 번째 이전에 난 알람은 헛알람으로 세고 통계량을 0 으로 되돌립니다.
+    쓰면 안 되는 때: 앞 ref_n 개가 이미 변화 뒤의 값을 포함할 때 · 측정한 유리가 거의 없어 err 가 비어 있을 때."""
+    err = np.asarray(err, float)
+    z = (err - err[:ref_n].mean()) / err[:ref_n].std(ddof=1)
+    U, w, first, false = L * np.sqrt(lam / (2 - lam)), 0.0, None, 0
+    for i, v in enumerate(z):
+        w = lam * v + (1 - lam) * w
+        if abs(w) &gt; U:
+            if i + 1 &lt; change_at:
+                false, w = false + 1, 0.0
+            elif first is None:
+                first = i + 1
+    return first, false
+
+
+df = pd.read_csv("vm_s13.csv")
+masks = sorted(df.mask_id.unique())
+tr, va, te = time_split(df, (1, 12), (13, 16), (17, 24))
+print(f"유리 {len(df)}장 · 마스크 {len(masks)}장 · 턴 {df.turn.min()}~{df.turn.max()} · 센서 교정 이력: 턴 {CAL_TURN} 부터 +{CAL_SHIFT} K")
+
+lin_cols = ["temp", "turn", "mask"]
+lin_all = fit_vm(df, lin_cols, "linear", masks)
+lin = fit_vm(tr, lin_cols, "linear", masks)
+shuf = (np.arange(len(df)) % 10) &lt; 7
+lin_sh = fit_vm(df[shuf], lin_cols, "linear", masks)
+print(f"직선(마스크별 절편 + 온도 + 턴): 같은 자료로 잰 RMSE {vm_rmse(lin_all, df):.3f} · 섞어 나눈 시험 {vm_rmse(lin_sh, df[~shuf]):.3f} · 시간순 시험 {vm_rmse(lin, te):.3f} ppm (학습 {vm_rmse(lin, tr):.3f} · 검증 {vm_rmse(lin, va):.3f})")
+b = dict(zip(lin["est"].feature_names_in_, lin["est"].coef_))
+print(f"직선 계수: 열변형 {b['temp']:+.3f} ppm/K · 턴 {b['turn']:+.4f} ppm/턴")
+
+tree_cols = FEATURES
+valid = [vm_rmse(fit_vm(tr, tree_cols, "tree", masks, d), va) for d in range(1, 9)]
+d = int(np.argmin(valid)) + 1
+tree = fit_vm(tr, tree_cols, "tree", masks, d)
+tree_all = fit_vm(df, tree_cols, "tree", masks, d)
+tree_sh = fit_vm(df[shuf], tree_cols, "tree", masks, d)
+print("트리 깊이 1~8 의 검증 RMSE: " + " ".join(f"{v:.3f}" for v in valid) + f" → 고른 깊이 {d}")
+print(f"트리(깊이 {d}): 같은 자료로 잰 RMSE {vm_rmse(tree_all, df):.3f} · 섞어 나눈 시험 {vm_rmse(tree_sh, df[~shuf]):.3f} · 시간순 시험 {vm_rmse(tree, te):.3f} ppm → 직선보다 {vm_rmse(tree, te) - vm_rmse(lin, te):+.3f}")
+lo, hi = tr["fdc_temp"].min(), tr["fdc_temp"].max()
+print(f"학습 구간 온도 범위 {lo:.2f}~{hi:.2f} °C · 시험 유리 중 범위 밖 {np.mean((te['fdc_temp'] - CAL_SHIFT * te['cal_ver'] &lt; lo) | (te['fdc_temp'] - CAL_SHIFT * te['cal_ver'] &gt; hi)):.1%}")
+
+base = df[df.turn == 1].groupby("mask_id")["Mx_hat"].mean()
+cap, rnd, n_ex = priority_capture(vm_predict(lin, te), te["Mx_hat"], te["mask_id"].map(base), LIMIT, Q)
+print(f"측정 우선순위(한계 {LIMIT} ppm, 먼저 잴 비율 {Q:.0%}): 한계를 넘은 유리 {n_ex}장 중 포착률 {cap:.3f} · 무작위 기대 {rnd:.3f}")
+
+mon = df[df.turn &gt;= 13].sort_values(["turn", "mask_id", "glass_in_turn"], kind="stable")
+err = mon["Mx_hat"].to_numpy() - vm_predict(lin, mon, undo_cal=False)
+ref_n, change_at = int((mon.turn &lt;= 16).sum()), int((mon.turn &lt; CAL_TURN).sum()) + 1
+first, false = vm_monitor(err, LAM, L_EWMA, ref_n, change_at)
+print(f"교정 변화 뒤 시험 RMSE: 표시값 그대로 {vm_rmse(lin, te, undo_cal=False):.3f} · 교정 이력으로 되돌린 값 {vm_rmse(lin, te):.3f} ppm")
+print(f"예측 오차 EWMA(λ {LAM} · L {L_EWMA}): 변화 전 헛알람 {false}건 · 교정 변화 뒤 {first - change_at + 1}번째 유리에서 첫 알람")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력">유리 1728장 · 마스크 12장 · 턴 1~24 · 센서 교정 이력: 턴 20 부터 +0.3 K
+직선(마스크별 절편 + 온도 + 턴): 같은 자료로 잰 RMSE 0.145 · 섞어 나눈 시험 0.147 · 시간순 시험 0.150 ppm (학습 0.144 · 검증 0.141)
+직선 계수: 열변형 -1.935 ppm/K · 턴 -0.0209 ppm/턴
+트리 깊이 1~8 의 검증 RMSE: 0.834 0.756 0.606 0.507 0.450 0.372 0.345 0.333 → 고른 깊이 8
+트리(깊이 8): 같은 자료로 잰 RMSE 0.203 · 섞어 나눈 시험 0.243 · 시간순 시험 0.443 ppm → 직선보다 +0.294
+학습 구간 온도 범위 80.02~81.62 °C · 시험 유리 중 범위 밖 6.6%
+측정 우선순위(한계 1.5 ppm, 먼저 잴 비율 20%): 한계를 넘은 유리 136장 중 포착률 0.699 · 무작위 기대 0.200
+교정 변화 뒤 시험 RMSE: 표시값 그대로 0.499 · 교정 이력으로 되돌린 값 0.150 ppm
+예측 오차 EWMA(λ 0.2 · L 2.8599): 변화 전 헛알람 5건 · 교정 변화 뒤 2번째 유리에서 첫 알람</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>가상 계측 모델 기록지</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 모델로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>목표(무엇을 예측하는가)와 모델 판(직선·트리, 특징 목록, 마스크 절편 여부)을 적었는가</li>
+      <li>학습·검증·시험 구간을 턴과 날짜로 적고, 시험 구간이 학습보다 뒤인지 확인했는가</li>
+      <li>시간순 시험 RMSE 를 적었는가(섞어 나누기 값은 참고로만 적었는가)</li>
+      <li>학습 범위(온도 최소·최대)를 적고 시험 유리가 그 밖인 비율을 적었는가</li>
+      <li>감시 설정(λ·<i>L</i>)과 재학습 조건, 센서 판과 교정 이력을 적었는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>모델을 라인에 쓰는 일과 재학습한 모델로 바꾸는 일은 사람의 승인 뒤에 실행합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">이 모델을 감시하고 다시 학습시키려면 아래를 같은 키로 남겨야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>예측값과 그 뒤 실제 측정</b> — 같은 유리 번호(<code>glass_id</code>)로 이어서. 예측 오차 이력이 드리프트 감시의 원료입니다.</li>
+      <li><b>센서 교정·교체 이력</b> — 날짜·센서 번호·교정 전후의 표시값. 이력이 없으면 7절의 되돌림을 할 수 없습니다.</li>
+      <li><b>모델을 바꾼 날</b> — 모델 판·특징 목록·학습 구간·시험 RMSE·승인자.</li>
+      <li><b>측정 우선순위와 결과</b> — 어느 유리를 먼저 쟀고, 한계를 넘었는지. 포착률을 달마다 다시 계산하는 원료입니다.</li>
+    </ul>
+    <p>예측을 남기지 않고 측정만 쌓으면 몇 달 뒤에 모델이 언제부터 틀렸는지 가릴 수 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실의 함수를 0303의 함수와 이어, 순서대로 부르게 묶었습니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">1) 표 잇기</td><td>0303의 <code>join_fdc_ppa</code></td></tr>
+      <tr><td class="rowh">2) 특징 만들기</td><td><code>make_features</code></td></tr>
+      <tr><td class="rowh">3) 구간 나누기</td><td><code>time_split</code></td></tr>
+      <tr><td class="rowh">4) 학습·실력 재기</td><td><code>fit_vm</code> → <code>vm_rmse</code></td></tr>
+      <tr><td class="rowh">5) 먼저 잴 유리</td><td><code>priority_capture</code></td></tr>
+      <tr><td class="rowh">6) 감시</td><td><code>vm_monitor</code> (0204의 EWMA)</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0304-correct-or-repair.html">← 이전: 보정할까 리페어할까</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var P0=performance.now(),T_INIT=0;
+var MS=MfgSim,TL=MS.s13tools,CF=MS.CFG,TREF=CF.T0,GITS=TL.GITS,NT=TL.TURNS,IDS=TL.IDS,DMAX=TL.MAXDEPTH;
+var SS=MS.scenario('S13'),PRM=SS.params,SEED=PRM.seed,CALT=PRM.cal_turn,CAL0=PRM.cal_delta;
+var LIM0=TL.LIMIT,Q0=Math.round(TL.Q*100),FLOW0=TL.FLOW,LAM=TL.LAM,LC=TL.L();
+var ST={f:{dT:1,turn:1,git:0,dep:0,pr:0,mask:1},d:0,q:Q0,lim:LIM0,de:CAL0,flow:FLOW0};
+var BASEF={dT:1,turn:1,git:0,dep:0,pr:0,mask:1};
+var SEEDREC=[];
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+function z0(v,d){return Math.abs(v)<0.5*Math.pow(10,-d);}
+function sg0(v,d){return (v<0&&!z0(v,d)?'−':'')+fmt(Math.abs(v),d);}
+function sgn(v,d){if(z0(v,d))return fmt(0,d);return (v<0&&!z0(v,d)?'−':'+')+fmt(Math.abs(v),d);}
+function c3(a,d){var f=function(v){return d===0?fmtN(v):sg0(v,d);};return f(quant(a,.5))+' ('+f(quant(a,.1))+'~'+f(quant(a,.9))+')';}
+function mean(a){var s=0,i;for(i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sdev(a){var m=mean(a),s=0,i;for(i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function corr(a,b){var ma=mean(a),mb=mean(b),s=0,sa=0,sb=0,i;for(i=0;i<a.length;i++){s+=(a[i]-ma)*(b[i]-mb);sa+=(a[i]-ma)*(a[i]-ma);sb+=(b[i]-mb)*(b[i]-mb);}return s/Math.sqrt(sa*sb);}
+function niceTicks(lo,hi,n){var rg=hi-lo,raw=rg/n,mg=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),st=mg,c=[1,2,5,10],i;for(i=0;i<c.length;i++){st=c[i]*mg;if(st>=raw)break;}var out=[],v=Math.ceil(lo/st-1e-9)*st;for(;v<=hi+1e-9;v+=st)out.push(Math.round(v/st)*st);return out;}
+function tickFmt(st){var d=0;while(d<4&&Math.abs(st*Math.pow(10,d)-Math.round(st*Math.pow(10,d)))>1e-6)d++;return d;}
+function xfFor(ticks){var d=tickFmt(ticks.length>1?ticks[1]-ticks[0]:1);return function(v){return sg0(v,d);};}
+/* 축이 있는 그림 틀. o = {h, x0,x1,y0,y1, xt, xf, yl, xl} */
+function frame(cv,o){
+  var W=cv.clientWidth||320,c=setup(cv,o.h),x=c.x,pl=50,pr=14,pt=14,pb=36,gw=W-pl-pr,gh=o.h-pt-pb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,o.h);
+  function PX(v){return pl+(v-o.x0)/(o.x1-o.x0)*gw;}function PY(v){return pt+gh-(v-o.y0)/(o.y1-o.y0)*gh;}
+  x.font='11px sans-serif';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  var yt=niceTicks(o.y0,o.y1,5),yd=tickFmt(yt.length>1?yt[1]-yt[0]:1);
+  yt.forEach(function(v){var y=PY(v);x.beginPath();x.moveTo(pl,y);x.lineTo(pl+gw,y);x.stroke();x.textAlign='right';x.fillText(sg0(v,yd),pl-5,y+4);});
+  (o.xt||[]).forEach(function(v){var xx=PX(v);x.beginPath();x.moveTo(xx,pt+gh);x.lineTo(xx,pt+gh+4);x.stroke();x.textAlign='center';x.fillText(o.xf?o.xf(v):String(v),xx,pt+gh+16);});
+  x.strokeStyle=soft;x.beginPath();x.moveTo(pl,pt);x.lineTo(pl,pt+gh);x.lineTo(pl+gw,pt+gh);x.stroke();
+  if(o.xl){x.textAlign='center';x.fillText(o.xl,pl+gw/2,pt+gh+32);}
+  x.save();x.translate(11,pt+gh/2);x.rotate(-Math.PI/2);x.textAlign='center';if(o.yl)x.fillText(o.yl,0,0);x.restore();
+  return {x:x,PX:PX,PY:PY,pl:pl,pt:pt,gw:gw,gh:gh,W:W};
+}
+function hline(f,v,col,dash,label,left){var x=f.x;x.save();x.strokeStyle=col;x.lineWidth=1.5;x.setLineDash(dash||[5,4]);x.beginPath();x.moveTo(f.pl,f.PY(v));x.lineTo(f.pl+f.gw,f.PY(v));x.stroke();x.restore();if(label){x.fillStyle=col;x.font='11px sans-serif';x.textAlign=left?'left':'right';x.fillText(label,left?f.pl+6:f.pl+f.gw-4,f.PY(v)-4);}}
+function vline(f,v,col,dash,label,y0){var x=f.x;x.save();x.strokeStyle=col;x.lineWidth=1.5;x.setLineDash(dash||[5,4]);x.beginPath();x.moveTo(f.PX(v),f.pt);x.lineTo(f.PX(v),f.pt+f.gh);x.stroke();x.restore();if(label){x.fillStyle=col;x.font='11px sans-serif';x.textAlign='left';x.fillText(label,f.PX(v)+4,f.pt+(y0||12));}}
+function dotAt(x,px,py,r,col,al){x.globalAlpha=al==null?1:al;x.fillStyle=col;x.beginPath();x.arc(px,py,r,0,6.2832);x.fill();x.globalAlpha=1;}
+
+/* ---- 자료와 모델 ---- */
+var V=TL.view(SS),N=V.length,TR=TL.range(V,1,12),VA=TL.range(V,13,16),TE=TL.range(V,17,24),NTE=TE.length;
+var TR0=TL.TRAIN,VA0=TL.VALID,TE0=TL.TEST;
+var LIN1=TL.lin(TR,['dT','turn']),BT=LIN1.fit.coef.dT,BN=LIN1.fit.coef.turn;
+var TREES=[null],TV=[null],TT=[null],TTR=[null],d0,DEP=1;
+for(d0=1;d0<=DMAX;d0++){TREES[d0]=TL.cart(TR,d0);(function(d){var f=function(r){return TL.treePred(TREES[d],r,d);};TTR[d]=TL.rmse(TR,f);TV[d]=TL.rmse(VA,f);TT[d]=TL.rmse(TE,f);})(d0);if(TV[d0]<TV[DEP])DEP=d0;}
+ST.d=DEP;
+function tpred(d){return function(r){return TL.treePred(TREES[d],r,d);};}
+var LINTR=TL.rmse(TR,LIN1.pred),LINVA=TL.rmse(VA,LIN1.pred),LINTE=TL.rmse(TE,LIN1.pred);
+var LINALL=TL.lin(V,['dT','turn']),RMALL=TL.rmse(V,LINALL.pred);
+var SH=TL.shuffle(V),LINSH=TL.lin(SH.train,['dT','turn']),RMSH=TL.rmse(SH.test,LINSH.pred);
+var TALL={},TSH={};
+function tAll(d){return TALL[d]||(TALL[d]=TL.cart(V,d));}
+function tSh(d){return TSH[d]||(TSH[d]=TL.cart(SH.train,d));}
+var TMIN=Infinity,TMAX=-Infinity;TR.forEach(function(r){if(r.temp<TMIN)TMIN=r.temp;if(r.temp>TMAX)TMAX=r.temp;});
+function outR(r){return r.temp<TMIN||r.temp>TMAX;}
+var BASE=TL.base(V),SDY=sdev(V.map(function(r){return r.Mx_hat;}));
+var RHO=corr(V.map(function(r){return r.pressure;}),V.map(function(r){return r.temp;}));
+var NPT=CF.N_TURN;
+
+/* ---- 머리말·문제 ---- */
+setAll('v_nm',String(IDS.length));setAll('v_nt',String(NT));setAll('v_ng',String(GITS.length));setAll('v_gits',GITS.join('·'));setAll('v_n',fmtN(N));setAll('v_npt',String(NPT));
+setAll('v_T0',String(TREF));setAll('v_tr',TR0[0]+'~'+TR0[1]);setAll('v_va',VA0[0]+'~'+VA0[1]);setAll('v_va2',VA0[0]+'~'+NT);setAll('v_te',TE0[0]+'~'+TE0[1]);
+setAll('v_ml',String(TL.MINLEAF));setAll('v_dmax',String(DMAX));setAll('v_rho',fmt(RHO,2));setAll('v_nte',fmtN(NTE));setAll('v_nte2',fmtN(NTE));
+setAll('v_tmin',fmt(TMIN,2));setAll('v_tmax',fmt(TMAX,2));setAll('v_rise',fmt(CF.TEMP_RISE*Math.abs(CF.ALPHA_M-CF.ALPHA_G)*1e6,1));
+setAll('v_calT',String(CALT));setAll('v_calD0',fmt(CAL0,1));setAll('v_lam',fmt(LAM,1));setAll('v_Lc',fmt(LC,2));setAll('v_bN',sg0(BN,4));setAll('v_sdy',fmt(SDY,2));setAll('v_rmAll',fmt(RMALL,3));
+
+/* ---- 1절 ---- */
+(function(){
+  var R=SS.rows;function rg(k,d){var a=R.map(function(r){return r[k];});return fmt(Math.min.apply(null,a),d)+' ~ '+fmt(Math.max.apply(null,a),d);}
+  var h='<tr><th>열</th><th>뜻</th><th>이 자료의 범위</th></tr>';
+  var rows=[['mask_id','마스크 번호(마스크 '+IDS.length+'장)',IDS[0]+' ~ '+IDS[IDS.length-1]],['turn','마스크가 세정 뒤 증착한 턴',rg('turn',0)],['glass_in_turn','턴 안 몇 번째 유리인가',GITS.join('·')],
+    ['fdc_temp','챔버 온도 센서 표시값 (°C)',rg('fdc_temp',2)],['dep_rate','증착률(상대값, 기준 1)',rg('dep_rate',3)],['pressure','챔버 압력(가상 단위, 목표 '+CF.P_TARGET+')',rg('pressure',1)],
+    ['cal_ver','온도 센서 교정 판(0 = 교정 변화 전, 1 = 턴 '+CALT+' 이후)',rg('cal_ver',0)],['Mx_hat','측정한 장변 배율 (ppm) — 맞히려는 값',rg('Mx_hat',2)]];
+  rows.forEach(function(r){h+='<tr><td class="rowh"><code>'+r[0]+'</code></td><td style="text-align:left">'+r[1]+'</td><td>'+r[2]+'</td></tr>';});
+  $('tab1a').innerHTML=h;
+  var mk=IDS[0];setAll('v_mk1',mk);
+  var pick=[[1,5],[1,120],[12,60],[17,40],[CALT,5],[NT,120]];
+  h='<tr><th>턴</th><th>턴 안 순번</th><th><code>fdc_temp</code> (°C)</th><th><code>dep_rate</code></th><th><code>pressure</code></th><th><code>cal_ver</code></th><th><i>M̂<sub>x</sub></i> (ppm)</th></tr>';
+  pick.forEach(function(p){var r=R.filter(function(x){return x.mask_id===mk&&x.turn===p[0]&&x.glass_in_turn===p[1];})[0];if(r)h+='<tr><td>'+r.turn+'</td><td>'+r.glass_in_turn+'</td><td>'+fmt(r.fdc_temp,3)+'</td><td>'+fmt(r.dep_rate,3)+'</td><td>'+fmt(r.pressure,2)+'</td><td>'+r.cal_ver+'</td><td>'+sg0(r.Mx_hat,3)+'</td></tr>';});
+  $('tab1b').innerHTML=h;
+  function turnMean(k,t,src){var a=src.filter(function(r){return r.turn===t;}).map(function(r){return r[k];});return mean(a);}
+  var ct=corr(V.map(function(r){return r.temp;}),V.map(function(r){return r.turn;}));
+  $('conc1').innerHTML='<b>FDC 온도의 턴 평균은 턴 1 의 '+fmt(turnMean('temp',1,V),2)+' °C 에서 턴 '+NT+' 의 '+fmt(turnMean('temp',NT,V),2)+' °C 로 오르고, 측정 <i>M̂<sub>x</sub></i> 의 턴 평균은 '+sg0(turnMean('Mx_hat',1,V),2)+' ppm 에서 '+sg0(turnMean('Mx_hat',NT,V),2)+' ppm 으로 내려갑니다.</b> 온도와 턴이 함께 움직여(상관 '+fmt(ct,2)+') 어느 쪽 몫인지는 0303 에서 다중 회귀로 갈랐고, 이 실험실은 그 모델을 재지 않은 유리에 쓰는 일을 다룹니다.';
+})();
+
+/* ---- 2절 ---- */
+var DIAG=null;
+function draw2(){
+  var cv=$('cv2'),pts=V.map(function(r){return [LINALL.pred(r),r.Mx_hat];});
+  var lo=Infinity,hi=-Infinity;pts.forEach(function(p){lo=Math.min(lo,p[0],p[1]);hi=Math.max(hi,p[0],p[1]);});var pad=(hi-lo)*0.04;lo-=pad;hi+=pad;
+  var xt=niceTicks(lo,hi,6),f=frame(cv,{h:270,x0:lo,x1:hi,y0:lo,y1:hi,xt:xt,xf:xfFor(xt),xl:'예측 (ppm)',yl:'측정 (ppm)'}),x=f.x,ac=css('--accent');
+  x.save();x.strokeStyle=css('--soft');x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(f.PX(lo),f.PY(lo));x.lineTo(f.PX(hi),f.PY(hi));x.stroke();x.restore();
+  pts.forEach(function(p){dotAt(x,f.PX(p[0]),f.PY(p[1]),2.2,ac,.45);});
+}
+(function(){
+  $('conc2').innerHTML='<b>전 자료로 맞추고 같은 자료로 잰 RMSE 는 '+fmt(RMALL,3)+' ppm 입니다.</b> 측정 <i>M̂<sub>x</sub></i> 가 '+fmt(SDY,2)+' ppm 의 폭(표준편차)으로 흩어지는 가운데 점들이 대각선에 거의 붙어 있습니다.';
+})();
+function upd2(){
+  var h='<tr><th>방법</th><th>맞추는 데 쓴 유리</th><th>오차를 재는 유리</th><th>RMSE (ppm)</th></tr>';
+  h+='<tr><td class="rowh">같은 자료로 재기</td><td>전부 '+fmtN(N)+'장</td><td>같은 '+fmtN(N)+'장</td><td><b>'+fmt(RMALL,3)+'</b></td></tr>';
+  h+='<tr><td class="rowh">섞어 나누기 (70/30)</td><td>'+fmtN(SH.train.length)+'장</td><td>나머지 '+fmtN(SH.test.length)+'장</td><td><b>'+fmt(RMSH,3)+'</b></td></tr>';
+  $('tab2').innerHTML=h;
+}
+
+/* ---- 3절 ---- */
+function draw3(){
+  var cv=$('cv3'),mn=[],mx=[],me=[],t,ys=V.map(function(r){return r.temp;}),lo=Math.min.apply(null,ys)-0.1,hi=Math.max.apply(null,ys)+0.1;
+  var xt=[1,4,8,12,16,20,24],f=frame(cv,{h:260,x0:0.5,x1:NT+0.5,y0:lo,y1:hi,xt:xt,xl:'턴',yl:'FDC 온도 (°C)'}),x=f.x;
+  function band(a,b,col,lab){x.globalAlpha=.13;x.fillStyle=col;x.fillRect(f.PX(a-0.5),f.pt,f.PX(b+0.5)-f.PX(a-0.5),f.gh);x.globalAlpha=1;x.fillStyle=col;x.font='bold 12px sans-serif';x.textAlign='center';x.fillText(lab,(f.PX(a-0.5)+f.PX(b+0.5))/2,f.pt+16);}
+  band(TR0[0],TR0[1],css('--accent'),'학습 '+TR0[0]+'~'+TR0[1]);band(VA0[0],VA0[1],css('--c8'),'검증 '+VA0[0]+'~'+VA0[1]);band(TE0[0],TE0[1],css('--c10'),'시험 '+TE0[0]+'~'+TE0[1]);
+  var pts=[];
+  for(t=1;t<=NT;t++){var a=V.filter(function(r){return r.turn===t;}).map(function(r){return r.temp;});mn.push(Math.min.apply(null,a));mx.push(Math.max.apply(null,a));me.push(mean(a));}
+  x.strokeStyle=css('--soft');x.lineWidth=1;
+  for(t=1;t<=NT;t++){x.beginPath();x.moveTo(f.PX(t),f.PY(mn[t-1]));x.lineTo(f.PX(t),f.PY(mx[t-1]));x.stroke();}
+  x.strokeStyle=css('--ink');x.lineWidth=2;x.beginPath();for(t=1;t<=NT;t++){var px=f.PX(t),py=f.PY(me[t-1]);if(t===1)x.moveTo(px,py);else x.lineTo(px,py);}x.stroke();
+  hline(f,TMAX,css('--bad'),[5,4]);
+  x.fillStyle=css('--bad');x.font='11px sans-serif';x.textAlign='left';x.fillText('학습 구간 온도 최대 '+fmt(TMAX,2)+' °C',f.pl+6,f.PY(TMAX)-4);
+  vline(f,CALT-0.5,css('--warn'),[3,4],'센서 교정 변화(7절)',f.gh-6);
+}
+function upd3(){
+  var done=SEEDREC.length===200,dd=function(fn){return done?c3(SEEDREC.map(fn),3):'계산 중…';};
+  var lin=function(d){return fmt(d,3);};
+  var h='<tr><th>방식</th><th>맞추는 데 쓴 유리</th><th>오차를 재는 유리</th><th>대표 시드 '+SEED+'</th><th>시드 1~200 중앙값 (10~90%)</th></tr>';
+  h+='<tr><td class="rowh">같은 자료로 재기</td><td>전부</td><td>같은 전부</td><td>'+lin(RMALL)+'</td><td>'+dd(function(r){return r.la;})+'</td></tr>';
+  h+='<tr><td class="rowh">섞어 나누기</td><td>행 번호 나머지 0~6</td><td>나머지 7~9</td><td>'+lin(RMSH)+'</td><td>'+dd(function(r){return r.m.shuf_lin;})+'</td></tr>';
+  h+='<tr><td class="rowh">시간순: 학습 구간</td><td>턴 '+TR0[0]+'~'+TR0[1]+'</td><td>같은 턴 '+TR0[0]+'~'+TR0[1]+'</td><td>'+lin(LINTR)+'</td><td>'+dd(function(r){return r.m.lin_train;})+'</td></tr>';
+  h+='<tr><td class="rowh">시간순: 검증 구간</td><td>턴 '+TR0[0]+'~'+TR0[1]+'</td><td>턴 '+VA0[0]+'~'+VA0[1]+'</td><td>'+lin(LINVA)+'</td><td>'+dd(function(r){return r.m.lin_valid;})+'</td></tr>';
+  h+='<tr><td class="rowh"><b>시간순 시험 구간</b></td><td>턴 '+TR0[0]+'~'+TR0[1]+'</td><td>턴 '+TE0[0]+'~'+TE0[1]+'</td><td><b>'+lin(LINTE)+'</b></td><td>'+dd(function(r){return r.m.lin_test;})+'</td></tr>';
+  $('tab3').innerHTML=h;
+  $('conc3').innerHTML='<b>이 모델의 실력으로 보고할 숫자는 시간순 시험 구간의 RMSE '+fmt(LINTE,3)+' ppm 입니다.</b> 같은 자료로 잰 값('+fmt(RMALL,3)+')과 섞어 나눈 값('+fmt(RMSH,3)+')과의 차이는 '+fmt(Math.abs(LINTE-RMALL),3)+'·'+fmt(Math.abs(LINTE-RMSH),3)+' ppm 으로 작습니다. 시험 구간의 온도는 학습 구간 최대('+fmt(TMAX,2)+' °C)를 넘는 유리가 '+fmtN(TE.filter(outR).length)+'장(시험 유리의 '+fmt(100*TE.filter(outR).length/NTE,1)+'%) 있습니다.';
+}
+
+/* ---- 4절 ---- */
+var LAB4={dT:['온도 (ppm/K)',2],turn:['턴 (ppm/턴)',4],glass_in_turn:['턴 안 순번 (ppm/장)',4],dep_c:['증착률 (ppm/단위)',2],pr_c:['압력 (ppm/단위)',4]};
+function fitF(f){var cols=[];if(f.dT)cols.push('dT');if(f.turn)cols.push('turn');if(f.git)cols.push('glass_in_turn');if(f.dep)cols.push('dep_c');if(f.pr)cols.push('pr_c');
+  var L=TL.lin(TR,cols,!!f.mask);return {L:L,cols:cols,tr:TL.rmse(TR,L.pred),va:TL.rmse(VA,L.pred),te:TL.rmse(TE,L.pred)};}
+function same4(f){return Object.keys(BASEF).every(function(k){return !!f[k]===!!BASEF[k];});}
+var B4=fitF(BASEF);
+function combo(o){var f={dT:0,turn:0,git:0,dep:0,pr:0,mask:0},k;for(k in o)f[k]=o[k];return fitF(f);}
+function draw4(R){
+  var cv=$('cv4'),vals=[R.tr,R.va,R.te],names=['학습 '+TR0[0]+'~'+TR0[1],'검증 '+VA0[0]+'~'+VA0[1],'시험 '+TE0[0]+'~'+TE0[1]],cols=[css('--accent'),css('--c8'),css('--c10')];
+  var hi=Math.max(0.2,Math.max.apply(null,vals.concat([B4.te]))*1.3);
+  var f=frame(cv,{h:220,x0:0,x1:3,y0:0,y1:hi,xt:[0.5,1.5,2.5],xf:function(v){return names[Math.floor(v)];},yl:'RMSE (ppm)'}),x=f.x;
+  vals.forEach(function(v,i){var x0=f.PX(i+0.2),x1=f.PX(i+0.8);x.fillStyle=cols[i];x.fillRect(x0,f.PY(v),x1-x0,f.PY(0)-f.PY(v));x.fillStyle='#ffffff';x.font='bold 12px sans-serif';x.textAlign='center';x.fillText(fmt(v,3),(x0+x1)/2,Math.min(f.PY(v)+18,f.PY(0)-4));});
+  hline(f,B4.te,css('--warn'),[5,4]);x.fillStyle=css('--warn');x.font='11px sans-serif';x.textAlign='right';x.fillText('점선: 0303 판의 시험 RMSE '+fmt(B4.te,3),f.pl+f.gw-4,f.pt+12);
+}
+function upd4(){
+  var f={dT:$('cb_dT').checked?1:0,turn:$('cb_turn').checked?1:0,git:$('cb_git').checked?1:0,dep:$('cb_dep').checked?1:0,pr:$('cb_pr').checked?1:0,mask:$('cb_mask').checked?1:0};ST.f=f;
+  var R=fitF(f),nm={dT:'온도',turn:'턴',git:'턴 안 순번',dep:'증착률',pr:'압력',mask:'마스크별 절편'},chg=[];
+  Object.keys(BASEF).forEach(function(k){if(f[k]&&!BASEF[k])chg.push(nm[k]+' 추가');if(!f[k]&&BASEF[k])chg.push(nm[k]+' 뺌');});
+  stateBox($('st4'),same4(f),'지금 이 조합이 0303 의 모델 판(온도 + 턴 + 마스크별 절편)입니다.','지금은 0303 의 모델 판에서 옮겨 놓은 조합입니다: '+chg.join(', ')+'.');
+  if(R.L.fit.error){$('tab4').innerHTML='<tr><td>이 조합은 계수를 정할 수 없습니다(열이 겹침).</td></tr>';$('conc4').textContent='';draw4({tr:NaN,va:NaN,te:NaN});return;}
+  var h='<tr><th>항목</th><th>값</th></tr>';
+  h+='<tr><td class="rowh">학습 RMSE (턴 '+TR0[0]+'~'+TR0[1]+')</td><td>'+fmt(R.tr,3)+' ppm (0303 판 '+fmt(B4.tr,3)+')</td></tr>';
+  h+='<tr><td class="rowh">검증 RMSE (턴 '+VA0[0]+'~'+VA0[1]+')</td><td>'+fmt(R.va,3)+' ppm (0303 판 '+fmt(B4.va,3)+')</td></tr>';
+  h+='<tr><td class="rowh">시험 RMSE (턴 '+TE0[0]+'~'+TE0[1]+')</td><td><b>'+fmt(R.te,3)+' ppm</b> (0303 판 '+fmt(B4.te,3)+')</td></tr>';
+  R.cols.forEach(function(c){h+='<tr><td class="rowh">'+LAB4[c][0]+'</td><td>'+sg0(R.L.fit.coef[c],LAB4[c][1])+' ± '+fmt(R.L.fit.se[c],LAB4[c][1])+'</td></tr>';});
+  $('tab4').innerHTML=h;
+  var dTe=R.te-B4.te,dTr=R.tr-B4.tr,tr=Math.abs(dTe)<0.003?'거의 그대로입니다':(dTe<0?'줄었습니다':'커졌습니다');
+  $('conc4').innerHTML='<b>이 조합의 시험 RMSE 는 '+fmt(R.te,3)+' ppm 으로, 0303 의 판('+fmt(B4.te,3)+')과 견주면 '+tr+'(변화 '+sgn(dTe,3)+' ppm).</b> 학습 RMSE 는 '+sgn(dTr,3)+' ppm 변했습니다. '+(same4(f)?'':(dTr<-0.0005&&Math.abs(dTe)<0.003?'학습 오차만 줄고 시험 오차는 그대로인 변화는, 새 특징이 학습 유리의 잡음을 따라간 것입니다.':(dTe>=0.003?'학습 구간에 맞춘 것이 시험 구간에서는 도움이 되지 않았습니다.':'시험 오차도 함께 줄었으니 이 특징이 실제로 일하는 것입니다.')));
+  draw4(R);
+}
+function upd4b(){
+  var cs=[['0303 판 (온도 + 턴 + 마스크별 절편)',B4],['+ 증착률',combo({dT:1,turn:1,mask:1,dep:1})],['+ 압력',combo({dT:1,turn:1,mask:1,pr:1})],['+ 증착률 + 압력',combo({dT:1,turn:1,mask:1,dep:1,pr:1})],['+ 턴 안 순번',combo({dT:1,turn:1,mask:1,git:1})],
+    ['온도 빼고 (턴 + 마스크별 절편)',combo({turn:1,mask:1})],['온도 대신 압력',combo({turn:1,mask:1,pr:1})],['온도 대신 턴 안 순번',combo({turn:1,mask:1,git:1})],['마스크별 절편 없이 (온도 + 턴)',combo({dT:1,turn:1})],['턴 빼고 (온도 + 마스크별 절편)',combo({dT:1,mask:1})]];
+  var h='<tr><th>조합</th><th>학습 RMSE</th><th>시험 RMSE</th><th>시험 RMSE 변화</th></tr>';
+  cs.forEach(function(c,i){var R=c[1];h+='<tr><td class="rowh" style="text-align:left">'+c[0]+'</td><td>'+fmt(R.tr,3)+'</td><td'+(i===0?'':'')+'>'+fmt(R.te,3)+'</td><td>'+(i===0?'기준':sgn(R.te-B4.te,3))+'</td></tr>';});
+  $('tab4b').innerHTML=h;
+  var d1=cs[1][1],d2=cs[2][1],nt=cs[5][1],np=cs[6][1],ng=cs[7][1],nm=cs[8][1];
+  $('conc4b').innerHTML='<b>무관한 증착률·압력을 더하면 학습 RMSE 는 '+fmt(B4.tr,3)+' → '+fmt(d1.tr,3)+'·'+fmt(d2.tr,3)+' 으로 조금 줄지만 시험 RMSE 는 '+fmt(B4.te,3)+' → '+fmt(d1.te,3)+'·'+fmt(d2.te,3)+' 로 거의 그대로입니다.</b> 온도를 빼면 시험 RMSE 가 '+fmt(nt.te,3)+' 로 커지고, 그 자리를 압력이 일부('+fmt(np.te,3)+')·턴 안 순번이 더 많이('+fmt(ng.te,3)+') 메우지만 온도('+fmt(B4.te,3)+')에는 못 미칩니다. 마스크별 절편을 빼면 '+fmt(nm.te,3)+' 로 크게 커집니다.';
+  setAll('q4_trA',fmt(B4.tr,3));setAll('q4_trB',fmt(d1.tr,3));setAll('q4_teA',fmt(B4.te,3));setAll('q4_teB',fmt(d1.te,3));
+  setAll('q4_a',fmt(nt.te,3));setAll('q4_b',fmt(np.te,3));setAll('q4_c',fmt(ng.te,3));setAll('q4_d',fmt(B4.te,3));
+}
+['cb_dT','cb_turn','cb_git','cb_dep','cb_pr','cb_mask'].forEach(function(id){$(id).addEventListener('change',upd4);});
+$('r4').addEventListener('click',function(){$('cb_dT').checked=true;$('cb_turn').checked=true;$('cb_git').checked=false;$('cb_dep').checked=false;$('cb_pr').checked=false;$('cb_mask').checked=true;upd4();});
+
+/* ---- 5절 ---- */
+function icpt(r){return LIN1.fit.coef['icpt:'+r.mask_id];}
+function draw5a(){
+  var cv=$('cv5a'),ds=[1,2,3,4,5,6,7,8],hi=Math.max.apply(null,TTR.slice(1).concat(TV.slice(1),TT.slice(1)))*1.08;
+  var f=frame(cv,{h:260,x0:0.6,x1:DMAX+0.4,y0:0,y1:hi,xt:ds,xl:'트리 깊이',yl:'RMSE (ppm)'}),x=f.x;
+  function ser(a,col,lab){x.strokeStyle=col;x.lineWidth=2;x.beginPath();ds.forEach(function(d,i){var px=f.PX(d),py=f.PY(a[d]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();ds.forEach(function(d){dotAt(x,f.PX(d),f.PY(a[d]),3,col);});}
+  ser(TTR,css('--accent'));ser(TV,css('--c8'));ser(TT,css('--c10'));
+  hline(f,LINTE,css('--good'),[5,4],'직선의 시험 RMSE '+fmt(LINTE,3),true);
+  vline(f,ST.d,css('--ink'),[2,3],'');
+  x.font='11px sans-serif';x.textAlign='left';var ly=f.pt+12;
+  [['학습',css('--accent')],['검증',css('--c8')],['시험',css('--c10')]].forEach(function(p,i){x.fillStyle=p[1];x.fillText('● '+p[0],f.pl+8+i*52,ly);});
+}
+function draw5b(){
+  var cv=$('cv5b'),d=ST.d,tp=tpred(d),ts=V.map(function(r){return r.temp;}),x0=Math.min.apply(null,ts)-0.05,x1=Math.max.apply(null,ts)+0.05;
+  function yo(r,v){return v-icpt(r)-BN*r.turn;}
+  var all=V.map(function(r){return yo(r,r.Mx_hat);}).concat(TE.map(function(r){return yo(r,tp(r));})),y0=Math.min.apply(null,all)-0.2,y1=Math.max.apply(null,all)+0.2;
+  var xt=niceTicks(x0,x1,5),f=frame(cv,{h:260,x0:x0,x1:x1,y0:y0,y1:y1,xt:xt,xf:xfFor(xt),xl:'FDC 온도 (°C)',yl:'Mx − 마스크 절편 − 턴 몫 (ppm)'}),x=f.x;
+  x.globalAlpha=.1;x.fillStyle=css('--accent');x.fillRect(f.PX(TMIN),f.pt,f.PX(TMAX)-f.PX(TMIN),f.gh);x.globalAlpha=1;
+  vline(f,TMIN,css('--bad'),[4,4],'');vline(f,TMAX,css('--bad'),[4,4],'학습 범위',12);
+  TR.forEach(function(r){dotAt(x,f.PX(r.temp),f.PY(yo(r,r.Mx_hat)),1.8,css('--grey'),.5);});
+  TE.forEach(function(r){dotAt(x,f.PX(r.temp),f.PY(yo(r,r.Mx_hat)),2,css('--c10'),.6);});
+  TE.forEach(function(r){dotAt(x,f.PX(r.temp),f.PY(yo(r,tp(r))),2,css('--c8'),.75);});
+  x.strokeStyle=css('--accent');x.lineWidth=3;x.beginPath();x.moveTo(f.PX(x0),f.PY(BT*(x0-TREF)));x.lineTo(f.PX(x1),f.PY(BT*(x1-TREF)));x.stroke();
+}
+function upd5(){
+  var d=ST.d,done=SEEDREC.length===200;$('sDO').textContent=d;
+  stateBox($('stD'),d===DEP,'지금 이 깊이는 검증 구간 RMSE 가 가장 낮은 깊이입니다(깊이 '+DEP+').','지금은 검증 RMSE 가 가장 낮은 깊이('+DEP+')에서 옮겨 놓은 값입니다(깊이 '+d+').');
+  var dd=function(fn){return done?c3(SEEDREC.map(fn),3):'계산 중…';};
+  var h='<tr><th>구간</th><th>트리 (깊이 '+d+')</th><th>직선</th><th>트리 − 직선</th><th>시드 1~200: 트리 − 직선 중앙값 (10~90%)</th></tr>';
+  [['학습 (턴 '+TR0[0]+'~'+TR0[1]+')',TTR[d],LINTR,function(r){return r.m.tree_train[d-1]-r.m.lin_train;}],['검증 (턴 '+VA0[0]+'~'+VA0[1]+')',TV[d],LINVA,function(r){return r.m.tree_valid[d-1]-r.m.lin_valid;}],['시험 (턴 '+TE0[0]+'~'+TE0[1]+')',TT[d],LINTE,function(r){return r.m.tree_test[d-1]-r.m.lin_test;}]].forEach(function(q,i){
+    h+='<tr><td class="rowh">'+q[0]+'</td><td>'+fmt(q[1],3)+'</td><td>'+fmt(q[2],3)+'</td><td>'+sgn(q[1]-q[2],3)+'</td><td>'+dd(q[3])+'</td></tr>';});
+  h+='<tr><td class="rowh">칸(잎) 수</td><td>'+TL.treeLeaves(TREES[d],d)+'</td><td>—</td><td>—</td><td>—</td></tr>';
+  $('tab5').innerHTML=h;
+  var mt=Infinity,dm=1,k;for(k=1;k<=DMAX;k++)if(TT[k]<mt){mt=TT[k];dm=k;}
+  $('conc5').innerHTML='<b>시험 RMSE 는 트리(깊이 '+d+') '+fmt(TT[d],3)+' ppm, 직선 '+fmt(LINTE,3)+' ppm 으로 트리가 '+(TT[d]>LINTE?'더 나쁩니다':'더 좋습니다')+'.</b> 깊이를 1에서 '+DMAX+'로 올리면 학습 RMSE 는 '+fmt(TTR[1],3)+'에서 '+fmt(TTR[DMAX],3)+'로, 시험 RMSE 는 '+fmt(TT[1],3)+'에서 '+fmt(TT[DMAX],3)+'로 줄지만 가장 낮은 깊이('+dm+')에서도 '+fmt(mt,3)+' ppm 으로 직선('+fmt(LINTE,3)+')'+(mt>LINTE?'보다 큽니다.':'보다 작습니다.')+' 학습 RMSE 와 시험 RMSE 의 차는 깊이 '+d+'에서 '+fmt(TT[d]-TTR[d],3)+' ppm 입니다.';
+  /* 세 가지 방식 */
+  var tA=TL.rmse(V,function(r){return TL.treePred(tAll(d),r,d);}),tS=TL.rmse(SH.test,function(r){return TL.treePred(tSh(d),r,d);});
+  h='<tr><th>방식</th><th>트리 (깊이 '+d+')</th><th>직선</th></tr>';
+  h+='<tr><td class="rowh">같은 자료로 재기</td><td>'+fmt(tA,3)+'</td><td>'+fmt(RMALL,3)+'</td></tr>';
+  h+='<tr><td class="rowh">섞어 나누기</td><td>'+fmt(tS,3)+'</td><td>'+fmt(RMSH,3)+'</td></tr>';
+  h+='<tr><td class="rowh"><b>시간순 시험 구간</b></td><td><b>'+fmt(TT[d],3)+'</b></td><td><b>'+fmt(LINTE,3)+'</b></td></tr>';
+  h+='<tr><td class="rowh">섞어 나눈 값 ÷ 시간순 값</td><td>'+fmt(tS/TT[d],2)+'</td><td>'+fmt(RMSH/LINTE,2)+'</td></tr>';
+  $('tab5b').innerHTML=h;
+  $('conc5b').innerHTML='<b>트리는 섞어 나누면 '+fmt(tS,3)+' ppm 으로 좋아 보이지만 시간순 시험 구간에서는 '+fmt(TT[d],3)+' ppm 입니다(비 '+fmt(tS/TT[d],2)+').</b> 직선은 그 비가 '+fmt(RMSH/LINTE,2)+'로 거의 1 입니다. 칸마다 평균을 외우는 트리는 같은 턴 이웃 유리가 학습에 들어 있으면 시험을 쉽게 풀지만, 다음 시점의 유리에서는 그 이웃이 없습니다.';
+  /* 범위 안·밖 */
+  var inn=TE.filter(function(r){return !outR(r);}),out=TE.filter(outR),tp=tpred(d);
+  function bias(rows,p){return rows.length?mean(rows.map(function(r){return r.Mx_hat-p(r);})):NaN;}
+  function rm(rows,p){return rows.length?TL.rmse(rows,p):NaN;}
+  h='<tr><th>시험 유리</th><th>유리 수</th><th>직선 평균 오차</th><th>직선 RMSE</th><th>트리 평균 오차</th><th>트리 RMSE</th></tr>';
+  [['학습 온도 범위 안',inn],['범위 밖(더 따뜻함)',out]].forEach(function(q){h+='<tr><td class="rowh">'+q[0]+'</td><td>'+q[1].length+'</td><td>'+sg0(bias(q[1],LIN1.pred),3)+'</td><td>'+fmt(rm(q[1],LIN1.pred),3)+'</td><td>'+sg0(bias(q[1],tp),3)+'</td><td>'+fmt(rm(q[1],tp),3)+'</td></tr>';});
+  $('tab5c').innerHTML=h;
+  var bi=bias(inn,tp),bo=bias(out,tp),li=bias(inn,LIN1.pred),lo=bias(out,LIN1.pred);
+  $('conc5c').innerHTML='<b>범위 밖의 따뜻한 유리 '+out.length+'장에서 트리의 평균 오차는 '+sg0(bo,3)+' ppm'+(Math.abs(bo)>Math.abs(bi)?'으로 범위 안('+sg0(bi,3)+')보다 한쪽으로 더 치우칩니다':'으로 범위 안('+sg0(bi,3)+')과 비슷합니다')+'.</b> 직선은 범위 밖 '+sg0(lo,3)+' ppm, 범위 안 '+sg0(li,3)+' ppm 으로 '+(Math.abs(lo)<Math.abs(bo)?'기울기를 이어 가므로 치우침이 작습니다':'치우침이 비슷합니다')+'. 오차가 음수이면 트리가 더 높게(덜 내려가게) 예측한 것입니다. 트리는 온도뿐 아니라 턴도 학습 범위 밖이면 가장자리 칸의 평균에 머뭅니다.';
+  draw5a();draw5b();
+}
+$('sD').addEventListener('input',function(){ST.d=+this.value;upd5();});
+$('rD').addEventListener('click',function(){ST.d=DEP;$('sD').value=String(DEP);upd5();});
+(function(){var d=DEP,tS=TL.rmse(SH.test,function(r){return TL.treePred(tSh(d),r,d);});
+  setAll('q5_lin',fmt(LINTE,3));setAll('q5_dep',String(d));setAll('q5_tree',fmt(TT[d],3));
+  setAll('q5s_dep',String(d));setAll('q5s_sh',fmt(tS,3));setAll('q5s_tm',fmt(TT[d],3));setAll('q5s_ratio',fmt(tS/TT[d],2));setAll('q5s_lratio',fmt(RMSH/LINTE,2));})();
+
+/* ---- 6절 ---- */
+function pri(q,lim){return TL.priority(TE,LIN1.pred,BASE,lim,q/100);}
+function draw6(){
+  var cv=$('cv6'),f=frame(cv,{h:260,x0:0,x1:50,y0:0,y1:1,xt:[0,10,20,30,40,50],xl:'먼저 재는 비율 q (%)',yl:'포착률'}),x=f.x,q,pts=[],orc=[],rnd=[];
+  for(q=0;q<=50;q++){var p=q===0?{capture:0,oracle:0}:pri(q,ST.lim);pts.push(p.capture);orc.push(p.oracle);}
+  x.strokeStyle=css('--soft');x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(f.PX(0),f.PY(0));x.lineTo(f.PX(50),f.PY(.5));x.stroke();x.setLineDash([]);
+  x.strokeStyle=css('--good');x.setLineDash([2,3]);x.lineWidth=1.5;x.beginPath();orc.forEach(function(v,i){var px=f.PX(i),py=f.PY(v);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();x.setLineDash([]);
+  x.strokeStyle=css('--accent');x.lineWidth=2.5;x.beginPath();pts.forEach(function(v,i){var px=f.PX(i),py=f.PY(v);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();
+  vline(f,ST.q,css('--ink'),[2,3],'');
+  var cur=pri(ST.q,ST.lim);dotAt(x,f.PX(ST.q),f.PY(cur.capture),5,css('--accent'));dotAt(x,f.PX(ST.q),f.PY(cur.random),4,css('--soft'));
+}
+function capArr(rec,q,lim){var n=rec.pd.length,m=Math.round(q/100*n),i,nEx=0,hit=0;for(i=0;i<n;i++)if(rec.dv[i]>lim)nEx++;for(i=0;i<m;i++)if(rec.dv[rec.ord[i]]>lim)hit++;return {nEx:nEx,hit:hit,cap:nEx?hit/nEx:NaN,rnd:m/n,gain:nEx?hit/nEx-m/n:NaN,m:m};}
+function upd6(){
+  $('sQO').textContent=ST.q+'%';$('sLO').textContent=fmt(ST.lim,1)+' ppm';
+  stateBox($('st6'),ST.q===Q0&&Math.abs(ST.lim-LIM0)<1e-9,'지금 이 값이 기본값입니다(먼저 잴 비율 '+Q0+'%, 한계 '+fmt(LIM0,1)+' ppm).','지금은 기본값에서 옮겨 놓은 가정입니다(먼저 잴 비율 '+ST.q+'%, 한계 '+fmt(ST.lim,1)+' ppm).');
+  var p=pri(ST.q,ST.lim),done=SEEDREC.length===200,dd=function(fn,d,pc){return done?c3(SEEDREC.map(function(r){return fn(capArr(r,ST.q,ST.lim));}).map(function(v){return pc?v*100:v;}),d):'계산 중…';};
+  var h='<tr><th>항목 (먼저 잴 비율 '+ST.q+'% · 한계 '+fmt(ST.lim,1)+' ppm)</th><th>대표 시드 '+SEED+'</th><th>시드 1~200 중앙값 (10~90%)</th></tr>';
+  h+='<tr><td class="rowh">먼저 재는 유리 수</td><td>'+p.m+' / '+p.n+'</td><td>'+p.m+' / '+p.n+'</td></tr>';
+  h+='<tr><td class="rowh">한계를 넘은 유리 수</td><td>'+p.n_exceed+'</td><td>'+dd(function(c){return c.nEx;},0)+'</td></tr>';
+  h+='<tr><td class="rowh">우선순위로 잡은 수 · 포착률</td><td>'+p.hit+' · <b>'+fmt(100*p.capture,1)+'%</b></td><td>'+dd(function(c){return c.cap;},1,true)+' %</td></tr>';
+  h+='<tr><td class="rowh">무작위의 기대 포착률</td><td>'+fmt(100*p.random,1)+'%</td><td>'+fmt(100*p.random,1)+'%</td></tr>';
+  h+='<tr><td class="rowh">완벽한 순서의 포착률</td><td>'+fmt(100*p.oracle,1)+'%</td><td>'+dd(function(c){return Math.min(c.m,c.nEx)/c.nEx;},1,true)+' %</td></tr>';
+  h+='<tr><td class="rowh">우선순위 − 무작위 (%p)</td><td><b>'+sgn(100*(p.capture-p.random),1)+'</b></td><td>'+dd(function(c){return c.gain;},1,true)+'</td></tr>';
+  $('tab6').innerHTML=h;
+  $('conc6').innerHTML='<b>시험 유리 '+p.n+'장 가운데 한계('+fmt(ST.lim,1)+' ppm)를 넘은 '+p.n_exceed+'장 중, 예측 순위로 상위 '+ST.q+'%('+p.m+'장)만 재면 '+p.hit+'장('+fmt(100*p.capture,1)+'%)을 잡습니다.</b> 무작위로 같은 장 수를 재면 기대 '+fmt(100*p.random,1)+'%이므로 '+fmt(100*(p.capture-p.random),1)+'%p 앞섭니다.';
+  draw6();
+}
+$('sQ').addEventListener('input',function(){ST.q=+this.value;upd6();upd9();upd8();});
+$('sL').addEventListener('input',function(){ST.lim=+this.value;upd6();upd9();upd8();});
+$('r6').addEventListener('click',function(){ST.q=Q0;ST.lim=LIM0;$('sQ').value=String(Q0);$('sL').value=String(LIM0);upd6();upd9();upd8();});
+
+/* ---- 7절 ---- */
+function ewDelay(rec,delta,lam,L){
+  var n=rec.err0.length,U=L*Math.sqrt(lam/(2-lam)),w=0,first=null,pre=0,i,e,z;
+  for(i=0;i<n;i++){e=rec.err0[i]-(i>=rec.shift?rec.bT*delta:0);z=(e-rec.mu)/rec.sg;w=lam*z+(1-lam)*w;
+    if(Math.abs(w)>U){if(i+1<rec.shift+1){pre++;w=0;}else if(first===null)first=i+1;}}
+  return {first:first,delay:first===null?n-rec.shift+1:first-rec.shift,pre:pre,none:first===null};
+}
+function rmseDelta(rec,delta){var s=0,i,n=rec.et.length;for(i=0;i<n;i++){var e=rec.et[i]-(rec.cal[i]?rec.bT*delta:0);s+=e*e;}return Math.sqrt(s/n);}
+var DR0=TL.drift(SS,LIN1.pred,{delta:CAL0});
+setAll('v_emu',sg0(DR0.mu,3));setAll('v_esd',fmt(DR0.sd,3));
+function draw7(D){
+  var cv=$('cv7a'),n=D.err.length,lo=Math.min.apply(null,D.err),hi=Math.max.apply(null,D.err),pd=(hi-lo)*.06,xt=[1,Math.round(n*.25),Math.round(n*.5),Math.round(n*.75),n];
+  var f=frame(cv,{h:220,x0:0,x1:n+1,y0:Math.min(lo,-0.5)-pd,y1:Math.max(hi,0.5)+pd,xt:xt,xl:'잰 유리 (시간순 번호)',yl:'예측 오차 (ppm)'}),x=f.x,i,sh=D.shift_at;
+  hline(f,0,css('--soft'),[2,3]);
+  for(i=0;i<n;i++)dotAt(x,f.PX(i+1),f.PY(D.err[i]),1.8,i+1<sh?css('--grey'):css('--c10'),.6);
+  vline(f,sh-0.5,css('--warn'),[4,4],'교정 변화',12);
+  var c2=$('cv7b'),U=D.ucl,wm=Math.max(U*1.4,Math.max.apply(null,D.w.map(Math.abs))*1.1),f2=frame(c2,{h:200,x0:0,x1:n+1,y0:-wm,y1:wm,xt:xt,xl:'잰 유리 (시간순 번호)',yl:'EWMA'}),x2=f2.x;
+  hline(f2,U,css('--bad'),[5,4],'한계 +'+fmt(U,2));hline(f2,-U,css('--bad'),[5,4],'−'+fmt(U,2));hline(f2,0,css('--soft'),[2,3]);
+  x2.strokeStyle=css('--accent');x2.lineWidth=2;x2.beginPath();D.w.forEach(function(v,k){var px=f2.PX(k+1),py=f2.PY(v);if(k===0)x2.moveTo(px,py);else x2.lineTo(px,py);});x2.stroke();
+  vline(f2,sh-0.5,css('--warn'),[4,4],'',12);
+  D.pre.forEach(function(k){dotAt(x2,f2.PX(k),f2.PY(Math.max(-wm,Math.min(wm,D.w[k-1]||0))),4,css('--bad'));});
+  if(D.first!=null)dotAt(x2,f2.PX(D.first),f2.PY(D.w[D.first-1]),5.5,css('--bad'));
+}
+function upd7(){
+  var de=ST.de;$('sDeO').textContent=fmt(de,2)+' K';
+  stateBox($('stDe'),Math.abs(de-CAL0)<1e-9,'지금 이 값이 기본 교정 변화입니다(턴 '+CALT+'부터 '+fmt(CAL0,1)+' K).','지금은 기본 교정 변화에서 옮겨 놓은 가정입니다(턴 '+CALT+'부터 '+fmt(de,2)+' K, 기본 '+fmt(CAL0,1)+' K).');
+  var D=TL.drift(SS,LIN1.pred,{delta:de}),rec=TL.rmse(TL.range(TL.view(SS,{recorded:true,delta:de}),TE0[0],TE0[1]),LIN1.pred),done=SEEDREC.length===200;
+  var dd=function(fn,d){return done?c3(SEEDREC.map(fn),d):'계산 중…';};
+  var delay=D.first==null?null:D.first-(D.shift_at-1);
+  var h='<tr><th>항목 (교정 변화 '+fmt(de,2)+' K)</th><th>대표 시드 '+SEED+'</th><th>시드 1~200 중앙값 (10~90%)</th></tr>';
+  h+='<tr><td class="rowh">교정 변화 전의 예측 오차 평균 (ppm)</td><td>'+sg0(D.mean_before,3)+'</td><td>'+dd(function(r){return mean(r.err0.slice(0,r.shift));},3)+'</td></tr>';
+  h+='<tr><td class="rowh">교정 변화 뒤의 예측 오차 평균 (ppm)</td><td><b>'+sg0(D.mean_after,3)+'</b></td><td>'+dd(function(r){return mean(r.err0.slice(r.shift))-r.bT*de;},3)+'</td></tr>';
+  h+='<tr><td class="rowh">교정 변화 뒤 첫 알람까지 (잰 유리 수)</td><td><b>'+(delay==null?'알람 없음':delay+'번째')+'</b></td><td>'+dd(function(r){return ewDelay(r,de,LAM,LC).delay;},0)+'</td></tr>';
+  h+='<tr><td class="rowh">교정 변화 전에 난 헛알람 수</td><td>'+D.pre.length+'</td><td>'+dd(function(r){return ewDelay(r,de,LAM,LC).pre;},0)+'</td></tr>';
+  h+='<tr><td class="rowh">시험 RMSE — 표시값 그대로 쓸 때 (ppm)</td><td>'+fmt(rec,3)+'</td><td>'+dd(function(r){return rmseDelta(r,de);},3)+'</td></tr>';
+  h+='<tr><td class="rowh">시험 RMSE — 교정 이력으로 되돌린 표시값 (ppm)</td><td>'+fmt(LINTE,3)+'</td><td>'+dd(function(r){return r.m.lin_test;},3)+'</td></tr>';
+  $('tab7').innerHTML=h;
+  $('conc7').innerHTML=de<=0?'<b>교정 변화가 0 이면 예측 오차의 평균이 달라지지 않습니다.</b> 이때 교정 변화 뒤에 알람이 난다면(대표 시드 '+(delay==null?'없음':delay+'번째 유리')+') 변화가 없는데 난 헛알람입니다. 감시 한계는 변화가 없어도 평균 약 370장에 한 번 알람이 나도록 정한 값입니다.':
+    '<b>교정 변화 '+fmt(de,2)+' K 로 교정 변화 뒤 예측 오차의 평균이 '+sg0(D.mean_before,3)+' 에서 '+sg0(D.mean_after,3)+' ppm 으로 올랐고, '+(delay==null?'EWMA 는 알람을 내지 않았습니다':'EWMA 는 교정 변화 뒤 '+delay+'번째 잰 유리에서 알람을 냈습니다')+'.</b> 표시값을 그대로 쓰면 시험 RMSE 가 '+fmt(LINTE,3)+' 에서 '+fmt(rec,3)+' ppm 으로 커지고, 교정 이력으로 되돌리면 '+fmt(LINTE,3)+' 로 돌아옵니다. 변화 전 헛알람은 '+D.pre.length+'건이었습니다.';
+  draw7(D);
+}
+$('sDe').addEventListener('input',function(){ST.de=+this.value;upd7();upd8();});
+$('rDe').addEventListener('click',function(){ST.de=CAL0;$('sDe').value=String(CAL0);upd7();upd8();});
+(function(){var rec=TL.rmse(TL.range(TL.view(SS,{recorded:true}),TE0[0],TE0[1]),LIN1.pred);setAll('q7_d',fmt(CAL0,1));setAll('q7_a',fmt(LINTE,3));setAll('q7_b',fmt(rec,3));})();
+
+/* ---- 8절 ---- */
+function upd8(){
+  var d=ST.d,p=pri(ST.q,ST.lim),D=TL.drift(SS,LIN1.pred,{delta:ST.de}),delay=D.first==null?null:D.first-(D.shift_at-1),recS=TL.rmse(TL.range(TL.view(SS,{recorded:true,delta:ST.de}),TE0[0],TE0[1]),LIN1.pred);
+  var h='<tr><th>물음</th><th>답</th><th>숫자</th></tr>';
+  h+='<tr><td class="rowh">(1) 모델의 실력</td><td>시간순 시험 구간의 RMSE 로 보고합니다.</td><td><b>'+fmt(LINTE,3)+' ppm</b> (턴 '+TE0[0]+'~'+TE0[1]+', 섞어 나누기 '+fmt(RMSH,3)+'는 참고)</td></tr>';
+  h+='<tr><td class="rowh">(2) 직선과 트리</td><td>'+(TT[d]>LINTE?'직선을 씁니다.':'트리를 견줘 볼 만합니다.')+'</td><td>시험 RMSE 직선 '+fmt(LINTE,3)+' · 트리(깊이 '+d+') '+fmt(TT[d],3)+'</td></tr>';
+  h+='<tr><td class="rowh">(3) 우선순위 측정</td><td>예측 순위로 먼저 재면 같은 장 수로 더 잡습니다.</td><td>상위 '+ST.q+'%(한계 '+fmt(ST.lim,1)+' ppm): 포착률 '+fmt(100*p.capture,1)+'% 대 무작위 '+fmt(100*p.random,1)+'%</td></tr>';
+  h+='<tr><td class="rowh">(4) 센서 교정 변화</td><td>계속 믿어서는 안 됩니다. 예측 오차를 감시해 알아냅니다.</td><td>교정 변화 '+fmt(ST.de,2)+' K: '+(delay==null?'알람 없음':delay+'번째 잰 유리에서 알람')+' · 표시값 그대로의 시험 RMSE '+fmt(recS,3)+'</td></tr>';
+  $('tab8').innerHTML=h;
+  $('land').innerHTML='<b>가상 계측 모델로 직선(마스크별 절편 + 온도 + 턴)을 승인하고, 실력은 시간순 시험 RMSE '+fmt(LINTE,3)+' ppm 으로 보고합니다.</b> 재지 않은 유리를 예측 순위로 먼저 재면 한계를 넘은 유리의 '+fmt(100*p.capture,0)+'%를 같은 측정 장 수로 잡고(무작위 '+fmt(100*p.random,0)+'%), 센서 교정이 바뀌면 예측 오차 감시가 알려 줍니다.';
+}
+
+/* ---- 9절 ---- */
+function upd9(){
+  var p=pri(ST.q,ST.lim),fl=ST.flow,done=SEEDREC.length===200,extra=p.hit-p.random*p.n_exceed;
+  $('sFO').textContent=fl+'장';
+  stateBox($('stF'),fl===FLOW0,'지금 이 값이 기본값입니다(한 장이 다음 측정까지 '+FLOW0+'장).','지금은 기본값에서 옮겨 놓은 가정입니다(한 장이 '+fl+'장, 기본 '+FLOW0+'장).');
+  var dd=function(fn,d){return done?c3(SEEDREC.map(function(r){return fn(capArr(r,ST.q,ST.lim));}),d):'계산 중…';};
+  var h='<tr><th>항목 (먼저 잴 비율 '+ST.q+'% · 한계 '+fmt(ST.lim,1)+' ppm · 한 장 '+fl+'장)</th><th>대표 시드 '+SEED+'</th><th>시드 1~200 중앙값 (10~90%)</th></tr>';
+  h+='<tr><td class="rowh">한계를 넘은 유리 수 (유리 더미 '+p.n+'장 중)</td><td>'+p.n_exceed+'</td><td>'+dd(function(c){return c.nEx;},0)+'</td></tr>';
+  h+='<tr><td class="rowh">먼저 재는 유리 수</td><td>'+p.m+'</td><td>'+p.m+'</td></tr>';
+  h+='<tr><td class="rowh">우선순위로 잡는 수</td><td>'+p.hit+'</td><td>'+dd(function(c){return c.hit;},0)+'</td></tr>';
+  h+='<tr><td class="rowh">무작위로 잡는 기대 수</td><td>'+fmt(p.random*p.n_exceed,1)+'</td><td>'+dd(function(c){return c.rnd*c.nEx;},1)+'</td></tr>';
+  h+='<tr><td class="rowh">같은 측정 장 수로 더 잡는 수</td><td><b>'+fmt(extra,1)+'</b></td><td>'+dd(function(c){return c.hit-c.rnd*c.nEx;},1)+'</td></tr>';
+  h+='<tr><td class="rowh">줄어드는 흘려보냄 (유리 장)</td><td><b>'+fmtN(extra*fl)+'</b></td><td>'+dd(function(c){return (c.hit-c.rnd*c.nEx)*fl;},0)+'</td></tr>';
+  $('tab9').innerHTML=h;
+  $('con9').innerHTML='<b>같은 측정 장 수('+p.m+'장)로 한계를 넘은 유리를 무작위보다 '+fmt(extra,1)+'장 더 잡고, 한 장이 '+fl+'장씩 흘려보낸다고 가정하면 흘려보내는 유리가 '+fmtN(extra*fl)+'장 줄어듭니다.</b>'+(done?' 시드 200개로 다시 뽑으면 줄어드는 양의 중앙값은 '+c3(SEEDREC.map(function(r){return (capArr(r,ST.q,ST.lim).hit-capArr(r,ST.q,ST.lim).rnd*capArr(r,ST.q,ST.lim).nEx)*fl;}),0)+'장입니다.':'')+' 한계를 높여 넘은 유리 수가 적어지면 이 양도 함께 작아집니다.';
+}
+$('sF').addEventListener('input',function(){ST.flow=+this.value;upd9();});
+$('rF').addEventListener('click',function(){ST.flow=FLOW0;$('sF').value=String(FLOW0);upd9();});
+
+/* ---- 시드 분포 ---- */
+function seedRec(sd){
+  var S=MS.scenario('S13',{seed:sd}),m=TL.metrics(S),Vv=TL.view(S),trr=TL.range(Vv,1,12),tee=TL.range(Vv,17,24),la=TL.lin(Vv,['dT','turn']),l1=TL.lin(trr,['dT','turn']),base=TL.base(Vv);
+  var pd=tee.map(function(r){return Math.abs(l1.pred(r)-base[r.mask_id]);}),dv=tee.map(function(r){return Math.abs(r.Mx_hat-base[r.mask_id]);}),ord=pd.map(function(v,i){return i;}).sort(function(a,b){return pd[b]-pd[a]||a-b;});
+  var dr=TL.drift(S,l1.pred,{delta:0});
+  return {m:m,la:TL.rmse(Vv,la.pred),pd:pd,dv:dv,ord:ord,err0:dr.err,mu:dr.mu,sg:dr.sd,shift:dr.shift_at-1,bT:l1.fit.coef.dT,et:tee.map(function(r){return r.Mx_hat-l1.pred(r);}),cal:tee.map(function(r){return r.cal_ver;})};
+}
+var T0MS=Date.now();
+function runDist(){
+  SEEDREC=[];var sd=1;
+  function step(){var t=Date.now();while(sd<=200&&Date.now()-t<30){SEEDREC.push(seedRec(sd));sd++;}
+    $('sdSt').textContent=sd<=200?'시드 '+(sd-1)+' / 200 계산했습니다.':'시드 200개의 분포를 계산했습니다.';
+    if(sd<=200)setTimeout(step,0);else{upd3();upd5();upd6();upd7();upd9();}}
+  step();
+}
+
+/* ---- 10·11절 ---- */
+(function(){
+  function dl(name,rows,st){
+    var cols=Object.keys(rows[0]);
+    try{var txt=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){return r[c];}).join(',');}).join('\n')+'\n',blob=new Blob([txt],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: '+name+' ('+fmtN(rows.length)+'행, 열 '+cols.length+'개).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  }
+  $('csvBtn1').addEventListener('click',function(){dl('vm_s13.csv',SS.csvRows(),$('csvState'));});
+  var f=['목표(예측하는 값·단위) · 모델 판(직선/트리, 특징 목록, 마스크 절편 여부, 트리면 깊이)','학습·검증·시험 구간(턴·날짜)','시간순 시험 RMSE (섞어 나누기 RMSE 는 참고로만)','학습 구간 온도 범위와 시험 유리 중 그 밖인 비율','측정 우선순위 규칙(먼저 재는 비율·한계)과 포착률','감시 설정(λ·L)과 재학습 조건','센서 판과 교정·교체 이력','승인자 · 승인 일자'];
+  $('rp_fields').innerHTML=f.map(function(s){return '· '+s;}).join('<br>');
+  var p0=pri(Q0,LIM0),nOut=TE.filter(outR).length;
+  $('rp_ex').innerHTML='목표 <code>Mx_hat</code>(장변 배율, ppm) · 모델 판 <code>VM-S13-1</code>: 직선, 특징 = 온도·턴·마스크별 절편(기준 온도 '+TREF+' °C), 열변형 '+sg0(BT,3)+' ppm/K · 턴 '+sg0(BN,4)+' ppm/턴 · 학습 턴 '+TR0[0]+'~'+TR0[1]+' · 검증 '+VA0[0]+'~'+VA0[1]+' · 시험 '+TE0[0]+'~'+TE0[1]+' · 시간순 시험 RMSE '+fmt(LINTE,3)+' ppm(섞어 나누기 '+fmt(RMSH,3)+'은 참고) · 학습 온도 범위 '+fmt(TMIN,2)+'~'+fmt(TMAX,2)+' °C, 시험 유리 중 밖 '+nOut+'장('+fmt(100*nOut/NTE,1)+'%) · 우선순위 측정: 상위 '+Q0+'%, 한계 '+fmt(LIM0,1)+' ppm, 포착률 '+fmt(100*p0.capture,1)+'%(무작위 '+fmt(100*p0.random,1)+'%) · 감시: 예측 오차 EWMA λ '+fmt(LAM,1)+' · <i>L</i> '+fmt(LC,2)+', 알람 시 센서 교정 이력 확인 뒤 되돌림 또는 재학습 · 센서 판 S1(턴 '+CALT+'부터 교정 변화 '+fmt(CAL0,1)+' K) · 승인자 미기재.';
+})();
+
+/* ---- 다시 그리기 ---- */
+function redraw(){draw2();draw3();upd4();draw5a();draw5b();draw6();upd7();}
+window.addEventListener('resize',redraw);
+
+/* ---- 테마·상단바 ---- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+upd2();upd3();upd4b();upd4();upd5();upd6();upd7();upd8();upd9();draw2();draw3();
+T_INIT=performance.now()-P0;
+setTimeout(runDist,50);
+window.__vm={ready:function(){return SEEDREC.length===200;},ms:function(){return Date.now()-T0MS;},init:function(){return T_INIT;}};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+
+</script>
+<script src="../tutor.js"></script>
+</body></html>

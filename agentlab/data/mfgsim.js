@@ -1019,8 +1019,8 @@
 
   function scenario(name, params) {
     params = params || {};
-    var key = /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12 }[key];
+    var key = /^S13/i.test(String(name)) ? 'S13' : /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12, S13: S13 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -2233,12 +2233,187 @@
   S12.tools = { bT: s12bT, decide: s12decide, remain: s12remain, chance: s12chance, minK: s12minK, binomTail: s12binomTail, counts: s12counts, repeat: s12repeat, repairEffect: s12repairEffect, metrics: s12metrics, post: s12post, mean: s12mean, measure: s12measure,
     IDS: S12_IDS, GITS: S12_GITS, P_GLASS: S12_P_GLASS, SIG_GLASS: S12_SIG_GLASS, CHANCE: S12_CHANCE, KIND_KO: S12_KIND_KO, KIND_ACT: S12_KIND_ACT, KEEP: S12_KEEP, SPEC_Q: S12_SPEC_Q };
 
+  /* ============================================================
+   * S13 virtual_metrology — 가상 계측: FDC 로 PPA(Mx) 예측(실험실 0305). S11 과 같은 구조(마스크 12장 × 24턴 × 6장 = 1728장, 계절 가정, 0302 모델 판의 계수 추정)를
+   * S13 자기 시드 줄기로 다시 만든다: makeMask(id, null, 'S13-'+seed), 새 난수는 전부 hashSeed('S13', …). 기존 함수·S1~S12 출력은 건드리지 않는다.
+   * FDC 특징: fdc_temp(참 온도 + N(0, 0.04²)), turn, glass_in_turn, dep_rate(증착률, Mx 와 무관 N(1, 0.03²)), pressure(챔버 압력, Mx 와 무관·참 온도와 상관 약 0.5), mask_id.
+   * 센서 교정 변화: 턴 cal_turn(기본 20)부터 표시값이 +cal_delta(기본 0.3 K). 참 온도는 그대로이므로 Mx 는 그대로이고 fdc_temp 만 어긋난다.
+   * 분할: 학습 = 턴 1~12, 검증 = 13~16, 시험 = 17~24. 대표 시드 = 시드 1~200 의 여섯 지표 백분위에서 Σ|백분위−50| 최소(verify.py 가 독립 계산으로 확인).
+   * ============================================================ */
+  var S13_GITS = [5, 20, 40, 60, 90, 120], S13_TURNS = 24, S13_SEASON_K = 0.3, S13_FDC_NOISE = 0.04, S13_CAL_TURN = 20, S13_CAL_DELTA = 0.3;
+  var S13_TRAIN = [1, 12], S13_VALID = [13, 16], S13_TEST = [17, 24], S13_DEP_SD = 0.03, S13_P_BASE = CFG.P_TARGET, S13_P_UNIT = 3, S13_P_RHO = 0.5;
+  var S13_LIMIT = 1.5, S13_Q = 0.2, S13_LAM = 0.2, S13_MINLEAF = 5, S13_MAXDEPTH = 8, S13_FLOW = 40;
+  var S13_IDS = S11_IDS.slice();
+  var _s13ts = null;
+  function s13tstats() {                                 // 참 온도의 설계 평균·표준편차(시드와 무관: 챔버·턴·순번만의 함수) — 압력 만들 때 표준화에 쓴다
+    if (_s13ts) return _s13ts;
+    var v = [];
+    S13_IDS.forEach(function (id) { var pm = parseMaskId(id); for (var t = 1; t <= S13_TURNS; t++) S13_GITS.forEach(function (g) { v.push(chamberTemp(pm.chamber, g, { season: S13_SEASON_K * (t - 1) / (S13_TURNS - 1) })); }); });
+    var m = mean(v), s = 0; v.forEach(function (x) { s += (x - m) * (x - m); });
+    return (_s13ts = { mean: m, sd: Math.sqrt(s / v.length) });
+  }
+  function r4(x) { return +x.toFixed(4); }
+  function S13(p) {
+    var seed = p.seed == null ? SEEDS.S13 : p.seed, K = p.season_K == null ? S13_SEASON_K : p.season_K, calTurn = p.cal_turn == null ? S13_CAL_TURN : p.cal_turn, calDelta = p.cal_delta == null ? S13_CAL_DELTA : p.cal_delta;
+    var ts = s13tstats(), rows = [], truth = {}, masks = [];
+    S13_IDS.forEach(function (id, mi) {
+      var mk = makeMask(id, null, 'S13-' + seed), pm = parseMaskId(id); masks.push({ mask_id: id, mask_no: mi, block: mk.block, chamber: mk.chamber, bad_stick: mk.bad_stick });
+      for (var turn = 1; turn <= S13_TURNS; turn++) {
+        var season = K * (turn - 1) / (S13_TURNS - 1);
+        S13_GITS.forEach(function (git) {
+          var rt = rng(hashSeed('S13', seed, id, turn, git, 'fdc')), ro = rng(hashSeed('S13', seed, id, turn, git, 'oth'));
+          var tTrue = chamberTemp(pm.chamber, git, { season: season }), tFdc = chamberTemp(pm.chamber, git, { season: season, rng: rt, noise: S13_FDC_NOISE });
+          var gid = 'S13-' + seed + '-' + id + '-T' + pad(turn, 2) + '-G' + pad(git, 3);
+          var ctx = { glass_id: gid, block: mk.block, chamber: mk.chamber, mask_set: mk.set, turn: turn, glass_in_turn: git, chamber_temp: tTrue };
+          var res = ppa(ctx, mk), f = s11fit(res.grid), t = res.truth;
+          var dep = ro.normal(1, S13_DEP_SD), zT = (tTrue - ts.mean) / ts.sd, pr = S13_P_BASE + S13_P_UNIT * (S13_P_RHO * zT + Math.sqrt(1 - S13_P_RHO * S13_P_RHO) * ro.normal());
+          var v1 = r4(tFdc), cal = turn >= calTurn ? 1 : 0;
+          rows.push({ glass_id: gid, mask_id: id, mask_no: mi, turn: turn, glass_in_turn: git, fdc_v1: v1, fdc_temp: r4(v1 + (cal ? calDelta : 0)), cal_ver: cal, dep_rate: r4(dep), pressure: r4(pr), Mx_hat: +f.coef.Mx.toFixed(6) });
+          truth[gid] = { T_true: tTrue, Mx_true: t.Mx, Mx_th: t.Mx_th, Mx_age: t.Mx_age, Mx_mask: t.Mx_mask };
+        });
+      }
+    });
+    var out = { id: 'S13', name: 'virtual_metrology', params: { seed: seed, season_K: K, n_mask: S13_IDS.length, n_turn: S13_TURNS, gits: S13_GITS.slice(), fdc_noise: S13_FDC_NOISE, cal_turn: calTurn, cal_delta: calDelta, T_ref: CFG.T0,
+        train: S13_TRAIN.slice(), valid: S13_VALID.slice(), test: S13_TEST.slice(), dep_sd: S13_DEP_SD, p_base: S13_P_BASE, p_unit: S13_P_UNIT, p_rho: S13_P_RHO, limit: S13_LIMIT, q: S13_Q, lam: S13_LAM, min_leaf: S13_MINLEAF, max_depth: S13_MAXDEPTH },
+      masks: masks, rows: rows, truth: truth };
+    out.csvRows = function () { return rows.map(function (r) { return { glass_id: r.glass_id, mask_id: r.mask_id, turn: r.turn, glass_in_turn: r.glass_in_turn, fdc_temp: r.fdc_temp, dep_rate: r.dep_rate, pressure: r.pressure, Mx_hat: r.Mx_hat, cal_ver: r.cal_ver }; }); };
+    return out;
+  }
+  /* ---- 아래 도구는 학습자가 가진 것(표의 열)만 받는다. truth 는 따로 쓴다 ---- */
+  function s13view(S, o) {                              // 모델에 넣을 행: recorded=true 면 기록된 표시값(교정 변화 delta 를 다시 얹음), 아니면 교정 변화 없는 값(fdc_v1)
+    o = o || {}; var P = S.params, d = o.delta == null ? P.cal_delta : o.delta, ct = P.cal_turn;
+    return S.rows.map(function (r) {
+      var cal = r.turn >= ct ? 1 : 0, temp = o.recorded ? r4(r.fdc_v1 + (cal ? d : 0)) : r.fdc_v1;
+      return { glass_id: r.glass_id, mask_id: r.mask_id, mask_no: r.mask_no, turn: r.turn, glass_in_turn: r.glass_in_turn, temp: temp, dT: temp - CFG.T0, dep_rate: r.dep_rate, dep_c: r.dep_rate - 1, pressure: r.pressure, pr_c: r.pressure - S13_P_BASE, Mx_hat: r.Mx_hat, cal_ver: cal };
+    });
+  }
+  function s13range(rows, a, b) { return rows.filter(function (r) { return r.turn >= a && r.turn <= b; }); }
+  function s13lin(train, cols, perMask) {               // 마스크별 절편(또는 하나의 절편) + cols. 반환 {fit, pred(row)}
+    var fit = s11regress(train, 'Mx_hat', cols, { perMask: perMask !== false });
+    function pred(r) { var v = perMask !== false ? fit.coef['icpt:' + r.mask_id] : fit.coef.icpt; cols.forEach(function (c) { v += fit.coef[c] * r[c]; }); return v; }
+    return { fit: fit, cols: cols, perMask: perMask !== false, pred: pred };
+  }
+  function s13rmse(rows, predFn) { var s = 0; rows.forEach(function (r) { var e = r.Mx_hat - predFn(r); s += e * e; }); return Math.sqrt(s / rows.length); }
+  /* 회귀 트리(CART): sklearn DecisionTreeRegressor(criterion='squared_error', min_samples_leaf, random_state=0) 와 같은 규칙.
+   * 특징은 float32 로 바꿔 쓰고(sklearn 과 같음), 문턱 = 정렬된 서로 다른 값의 중점(float32 값끼리), 값 차가 1e-7 이하이면 같은 값으로 봄. 같은 표본을 똑같이 가르는 동점은 아래 훑는 순서에서 먼저 뽑힌 특징이 이김 */
+  var S13_FEATS = ['temp', 'turn', 'glass_in_turn', 'dep_rate', 'pressure', 'mask_no'];
+  function s13feat(r) { return [Math.fround(r.temp), Math.fround(r.turn), Math.fround(r.glass_in_turn), Math.fround(r.dep_rate), Math.fround(r.pressure), Math.fround(r.mask_no)]; }
+  /* sklearn 의 특징 훑는 순서(Fisher-Yates + xorshift 난수, random_state=0)까지 그대로 따라 한다: 같은 표본을 똑같이 가르는 두 특징이 동점일 때 먼저 뽑힌 쪽이 이김.
+   * 난수는 노드를 깊이 우선(왼쪽 먼저)으로 처리하며 이어 쓰므로 깊이마다 트리를 따로 키운다. */
+  function s13cart(rows, maxDepth, minLeaf) {
+    maxDepth = maxDepth == null ? S13_MAXDEPTH : maxDepth; minLeaf = minLeaf == null ? S13_MINLEAF : minLeaf;
+    var X = rows.map(s13feat), y = rows.map(function (r) { return r.Mx_hat; }), P = S13_FEATS.length, EPS = 2.220446049250313e-16, FT = 1e-7;
+    var feats = [], constF = [], seed = 209652396, i0;
+    for (i0 = 0; i0 < P; i0++) { feats.push(i0); constF.push(0); }
+    function randInt(lo, hi) { seed = (seed ^ (seed << 13)) >>> 0; seed = (seed ^ (seed >>> 17)) >>> 0; seed = (seed ^ (seed << 5)) >>> 0; return lo + (seed & 0x7FFFFFFF) % (hi - lo); }
+    function swap(a, b) { var t = feats[a]; feats[a] = feats[b]; feats[b] = t; }
+    function build(idx, depth, nKnown) {
+      var n = idx.length, sum = 0, i; for (i = 0; i < n; i++) sum += y[idx[i]];
+      var mu = sum / n, imp = 0; for (i = 0; i < n; i++) imp += (y[idx[i]] - mu) * (y[idx[i]] - mu); imp /= n;
+      var node = { n: n, depth: depth, mean: mu, impurity: imp, feat: -1, thr: 0, left: null, right: null };
+      if (depth >= maxDepth || n < 2 * minLeaf || imp <= EPS) return node;
+      var bestProxy = -Infinity, bf = -1, bt = 0, fi = P, nVis = 0, nFound = 0, nDrawn = 0, nTotal = nKnown;
+      while (fi > nTotal && (nVis < P || nVis <= nFound + nDrawn)) {
+        nVis++;
+        var fj = randInt(nDrawn, fi - nFound);
+        if (fj < nKnown) { swap(nDrawn, fj); nDrawn++; continue; }
+        fj += nFound;
+        var f = feats[fj], ord = idx.slice().sort(function (a, b) { return X[a][f] - X[b][f]; });
+        if (X[ord[n - 1]][f] <= X[ord[0]][f] + FT) { swap(fj, nTotal); nFound++; nTotal++; continue; }
+        fi--; swap(fi, fj);
+        var sl = 0, p = 0;
+        while (p < n) {
+          var a0 = p;
+          while (p + 1 < n && X[ord[p + 1]][f] <= X[ord[p]][f] + FT) p++;
+          p++;
+          for (var q = a0; q < p; q++) sl += y[ord[q]];
+          if (p < n) {
+            if (n - p < minLeaf || p < minLeaf) continue;
+            var sr = sum - sl, proxy = sl * sl / p + sr * sr / (n - p);
+            if (proxy > bestProxy) { bestProxy = proxy; bf = f; var th = X[ord[p - 1]][f] / 2 + X[ord[p]][f] / 2; if (th === X[ord[p]][f] || !isFinite(th)) th = X[ord[p - 1]][f]; bt = th; }
+          }
+        }
+      }
+      for (i = 0; i < nKnown; i++) feats[i] = constF[i];
+      for (i = 0; i < nFound; i++) constF[nKnown + i] = feats[nKnown + i];
+      if (bf < 0) return node;
+      var L = [], R = []; idx.forEach(function (k) { (X[k][bf] <= bt ? L : R).push(k); });
+      if (!L.length || !R.length) return node;
+      node.feat = bf; node.thr = bt; node.left = build(L, depth + 1, nTotal); node.right = build(R, depth + 1, nTotal);
+      return node;
+    }
+    var all = []; for (var i = 0; i < rows.length; i++) all.push(i);
+    return build(all, 0, 0);
+  }
+  function s13treePred(tree, row, depth) {              // depth 칸까지만 내려가 그 칸의 평균을 돌려줌(깊이 d 의 트리 = 깊이 8 트리를 d 에서 자른 것)
+    var x = s13feat(row), nd = tree;
+    while (nd.feat >= 0 && nd.depth < depth) nd = x[nd.feat] <= nd.thr ? nd.left : nd.right;
+    return nd.mean;
+  }
+  function s13treeLeaves(tree, depth) { var c = 0; (function w(n) { if (n.feat < 0 || n.depth >= depth) c++; else { w(n.left); w(n.right); } })(tree); return c; }
+  function s13shuffle(rows) {                           // 섞어 나누기 70/30: 표의 행 번호를 10 으로 나눈 나머지가 0~6 이면 학습, 7~9 면 시험(같은 턴의 이웃 유리가 양쪽에 들어감)
+    var tr = [], te = []; rows.forEach(function (r, i) { (i % 10 < 7 ? tr : te).push(r); });
+    return { train: tr, test: te };
+  }
+  function s13priority(rows, predFn, base, limit, q) {  // rows 의 예측 편차 |예측 − 기준| 큰 순으로 상위 q 만 잰다고 할 때 한계(|실제 − 기준| > limit)를 넘은 유리를 얼마나 잡나
+    var items = rows.map(function (r, i) { var b = base[r.mask_id]; return { i: i, pd: Math.abs(predFn(r) - b), ex: Math.abs(r.Mx_hat - b) > limit ? 1 : 0 }; });
+    var nEx = 0; items.forEach(function (x) { nEx += x.ex; });
+    var m = Math.round(q * rows.length), srt = items.slice().sort(function (a, b) { return b.pd - a.pd || a.i - b.i; }), hit = 0, j;
+    for (j = 0; j < m; j++) hit += srt[j].ex;
+    return { n: rows.length, m: m, n_exceed: nEx, hit: hit, capture: nEx ? hit / nEx : NaN, random: m / rows.length, oracle: nEx ? Math.min(m, nEx) / nEx : NaN };
+  }
+  function s13base(rows) {                              // 마스크의 기준 = 턴 1 의 유리 6장 Mx̂ 평균(0303 의 기준선과 같은 약속)
+    var by = {}; rows.forEach(function (r) { if (r.turn === 1) (by[r.mask_id] || (by[r.mask_id] = [])).push(r.Mx_hat); });
+    var o = {}; Object.keys(by).forEach(function (k) { o[k] = mean(by[k]); }); return o;
+  }
+  var _s13L = null;
+  function s13L() { return _s13L === null ? (_s13L = calibEwmaL(S13_LAM)) : _s13L; }
+  function s13drift(S, predFn, o) {                     // 턴 13~24 의 잰 유리를 시간순으로 놓고 예측 오차(측정 − 예측)를 검증 구간(13~16) 평균·표준편차로 표준화해 EWMA 감시
+    o = o || {}; var lam = o.lam == null ? S13_LAM : o.lam, Lc = o.L == null ? s13L() : o.L, d = o.delta == null ? S.params.cal_delta : o.delta;
+    var rows = s13view(S, { recorded: true, delta: d }).filter(function (r) { return r.turn >= S13_VALID[0]; });
+    rows.sort(function (a, b) { return a.turn - b.turn || a.mask_no - b.mask_no || a.glass_in_turn - b.glass_in_turn; });
+    var err = rows.map(function (r) { return r.Mx_hat - predFn(r); });
+    var ev = []; rows.forEach(function (r, i) { if (r.turn <= S13_VALID[1]) ev.push(err[i]); });
+    var mu = mean(ev), sg = sd(ev), z = err.map(function (e) { return (e - mu) / sg; });
+    var shiftAt = 0; for (shiftAt = 0; shiftAt < rows.length && rows[shiftAt].cal_ver === 0; shiftAt++);
+    var mon = ewmaMonitor(z, lam, Lc, shiftAt + 1), first = mon.first, nAfter = rows.length - shiftAt;
+    return { rows: rows, err: err, z: z, mu: mu, sd: sg, w: mon.w, ucl: mon.ucl, L: Lc, lam: lam, shift_at: shiftAt + 1, first: first, pre: mon.pre, delay: first == null ? null : first - shiftAt, n_after: nAfter,
+      mean_before: mean(err.filter(function (e, i) { return i < shiftAt; })), mean_after: nAfter ? mean(err.filter(function (e, i) { return i >= shiftAt; })) : NaN };
+  }
+  function s13metrics(S, o) {                           // 시드 하나의 지표 묶음. 학습자 쪽 도구만 쓴다(정답은 truth 로만)
+    o = o || {}; var P = S.params, limit = o.limit == null ? S13_LIMIT : o.limit, q = o.q == null ? S13_Q : o.q;
+    var V = s13view(S), tr = s13range(V, S13_TRAIN[0], S13_TRAIN[1]), va = s13range(V, S13_VALID[0], S13_VALID[1]), te = s13range(V, S13_TEST[0], S13_TEST[1]);
+    var m1 = s13lin(tr, ['dT', 'turn']), m2 = s13lin(tr, ['dT', 'turn', 'dep_c', 'pr_c']);
+    var tv = [], tt = [], ttr = [], dep, bestV = Infinity, d;
+    for (d = 1; d <= S13_MAXDEPTH; d++) {
+      var tree = s13cart(tr, d), f = function (r) { return s13treePred(tree, r, d); };
+      ttr.push(s13rmse(tr, f)); tv.push(s13rmse(va, f)); tt.push(s13rmse(te, f));
+      if (tv[d - 1] < bestV) { bestV = tv[d - 1]; dep = d; }
+    }
+    var lin = { train: s13rmse(tr, m1.pred), valid: s13rmse(va, m1.pred), test: s13rmse(te, m1.pred) }, lin2 = { train: s13rmse(tr, m2.pred), test: s13rmse(te, m2.pred) };
+    var sh = s13shuffle(V), ms = s13lin(sh.train, ['dT', 'turn']), shTree = s13cart(sh.train, dep);
+    var shLin = s13rmse(sh.test, ms.pred), shTr = s13rmse(sh.test, function (r) { return s13treePred(shTree, r, dep); });
+    var tmin = Infinity, tmax = -Infinity; tr.forEach(function (r) { if (r.temp < tmin) tmin = r.temp; if (r.temp > tmax) tmax = r.temp; });
+    var nOut = te.filter(function (r) { return r.temp < tmin || r.temp > tmax; }).length;
+    var base = s13base(V), pri = s13priority(te, m1.pred, base, limit, q);
+    var dr = s13drift(S, m1.pred, o);
+    var recTest = s13rmse(s13range(s13view(S, { recorded: true, delta: o.delta }), S13_TEST[0], S13_TEST[1]), m1.pred);
+    return { lin_train: lin.train, lin_valid: lin.valid, lin_test: lin.test, lin2_test: lin2.test, lin2_train: lin2.train, depth: dep, tree_train: ttr, tree_valid: tv, tree_test: tt, tree_test_best: tt[dep - 1],
+      tree_minus_lin: tt[dep - 1] - lin.test, shuf_lin: shLin, shuf_tree: shTr, ratio_lin: shLin / lin.test, ratio_tree: shTr / tt[dep - 1], irrelevant_delta: lin2.test - lin.test,
+      out_frac: nOut / te.length, t_min: tmin, t_max: tmax, capture: pri.capture, random: pri.random, gain: pri.capture - pri.random, oracle: pri.oracle, n_exceed: pri.n_exceed, n_test: pri.n,
+      drift_first: dr.first, drift_delay: dr.delay == null ? dr.n_after + 1 : dr.delay, drift_none: dr.first == null, drift_pre: dr.pre.length, drift_sd: dr.sd, rec_test: recTest, thermal: m1.fit.coef.dT, turn_slope: m1.fit.coef.turn };
+  }
+  S13.tools = { view: s13view, range: s13range, lin: s13lin, rmse: s13rmse, cart: s13cart, treePred: s13treePred, treeLeaves: s13treeLeaves, feat: s13feat, shuffle: s13shuffle, priority: s13priority, base: s13base, drift: s13drift, metrics: s13metrics, tstats: s13tstats, L: s13L,
+    IDS: S13_IDS, GITS: S13_GITS, TURNS: S13_TURNS, SEASON_K: S13_SEASON_K, FDC_NOISE: S13_FDC_NOISE, CAL_TURN: S13_CAL_TURN, CAL_DELTA: S13_CAL_DELTA, TRAIN: S13_TRAIN, VALID: S13_VALID, TEST: S13_TEST, LIMIT: S13_LIMIT, Q: S13_Q, LAM: S13_LAM, MINLEAF: S13_MINLEAF, MAXDEPTH: S13_MAXDEPTH, FLOW: S13_FLOW, FEATS: S13_FEATS,
+    DEP_SD: S13_DEP_SD, P_BASE: S13_P_BASE, P_UNIT: S13_P_UNIT, P_RHO: S13_P_RHO };
+  SEEDS.S13 = 20;                                       // 대표 시드: 시드 1~200 의 여섯 지표(직선 시험 RMSE·트리−직선 시험 RMSE·섞어 나누기÷시간순 RMSE·무관 특징 시험 RMSE 변화·우선순위 포착률−무작위·드리프트 첫 알람 지연) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드(verify.py 가 독립 계산으로 확인)
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaField: ppaField, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools, s13tools: S13.tools
   };
 });

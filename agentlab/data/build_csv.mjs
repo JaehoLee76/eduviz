@@ -58,6 +58,9 @@ csv('fdc_temp_s11.csv', S11.fdcCsvRows());
 // S12: 마스크 24장 × 유리 8장 × 77점 = 14784행. 실험실 0304 의 Python 코드가 읽는다(정답 성분·튄 점 정답은 넣지 않음)
 csv('ppa_s12.csv', M.scenario('S12').csvRows());
 
+// S13: 마스크 12장 × 24턴 × 6장 = 1728장. 실험실 0305 의 Python 코드가 읽는다(FDC 특징 + 측정 Mx̂ + 센서 교정 판 cal_ver). 정답 성분은 넣지 않음
+csv('vm_s13.csv', M.scenario('S13').csvRows());
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

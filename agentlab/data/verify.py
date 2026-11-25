@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html, S12 는 labs/0304-correct-or-repair.html 의 Python 블록도 읽는다)"""
+"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html, S12 는 labs/0304-correct-or-repair.html, S13 은 labs/0305-virtual-metrology.html 의 Python 블록도 읽는다)"""
 import os, sys, json
 import numpy as np, pandas as pd
 from scipy import stats
@@ -1057,6 +1057,185 @@ _exp12 = ['유리 192장 · 마스크 24장 · 마스크마다 8장 (턴 안 순
           f'점별 대응 비교 차 {_pj12["aa"]["d"]:+.3f} µm, p = {_pj12["aa"]["p"]:.2f} · 유리별 Welch p = {_pj12["aa"]["wp"]:.2f}']
 _miss12 = [e for e in _exp12 if e not in _run12.stdout]
 chk('0304 Python 출력의 숫자(유리·마스크 수, spec, 넘은 마스크 수, 판정 갈래별 마스크 수, 한 장당 튄 점 비율, 우연 반복 확률, 기본 k, 반복 위치 마스크, 문제 마스크의 지표·남은 몫·반복 위치, 대조의 대응 비교·Welch) = JS 대표 시드와 일치, 코드 속 spec·열변형 기울기·비·마스크 번호 = JS 값(반올림)', not _miss12 and abs(_lit12('SPEC') - _pj12['spec']) < 5e-4 and abs(_lit12('B_T') - _pj12['bt']) < 5e-7 and abs(_lit12('MY_RATIO') - _pj12['ratio']) < 5e-7 and _mk12 == _pj12['A'], ' · '.join(_exp12[1:3]) + ('' if not _miss12 else ' · 불일치: ' + ' | '.join(_miss12)))
+
+# ============================================================
+# S13 (0305) — 가상 계측: FDC 로 PPA 예측. 유리 1728장 계수·직선 회귀·회귀 트리(sklearn 대조)·시간순/섞어 나누기·측정 우선순위·EWMA 감시·시드 분포를 numpy·sklearn 으로 독립 구현해 JS 와 대조한다
+# ============================================================
+from sklearn.tree import DecisionTreeRegressor as _DTR
+_S13_EXPORT = r"""const M=require(%s);const T=M.s13tools;const C=M.CFG;
+const S0=M.scenario('S13',{seed:1});
+const fixed={turn:S0.rows.map(r=>r.turn),git:S0.rows.map(r=>r.glass_in_turn),mask:S0.rows.map(r=>r.mask_no),mid:S0.rows.map(r=>r.mask_id)};
+const seeds=[],SUB=[],detail={};let same=true,ref=null;for(let i=1;i<=40;i++)SUB.push(i);SUB.push(M.SEEDS.S13,200);
+const nest=n=>n.feat<0?{f:-1,n:n.n}:{f:n.feat,t:n.thr,n:n.n,l:nest(n.left),r:nest(n.right)};
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S13',{seed:sd});const key=S.rows.map(r=>r.turn+'/'+r.glass_in_turn+'/'+r.mask_no).join();if(ref===null)ref=key;else if(key!==ref)same=false;
+ const V=T.view(S);const m=T.metrics(S);const js={};Object.keys(m).forEach(k=>{if(typeof m[k]==='number'||typeof m[k]==='boolean')js[k]=m[k];});js.tree_valid=m.tree_valid;js.tree_test=m.tree_test;
+ const o={seed:sd,v1:S.rows.map(r=>r.fdc_v1),dep:S.rows.map(r=>r.dep_rate),pr:S.rows.map(r=>r.pressure),mx:S.rows.map(r=>r.Mx_hat),js:js};
+ if(SUB.indexOf(sd)>=0){o.preds=[];o.trees=[];for(let d=1;d<=8;d++){const tree=T.cart(T.range(V,1,12),d);o.preds.push(V.map(r=>T.treePred(tree,r,d)));o.trees.push(nest(tree));}}
+ seeds.push(o);}
+const dS=M.scenario('S13'),dV=T.view(dS),D=M.SEEDS.S13;
+const mk=id=>M.makeMask(id,null,'S13-'+D);
+function grids(sd,step){const S=M.scenario('S13',{seed:sd}),out=[];S.rows.forEach((r,i)=>{if(i%%step!==0)return;const mkk=M.makeMask(r.mask_id,null,'S13-'+sd),pm=M.parseMaskId(r.mask_id),t=S.truth[r.glass_id].T_true;
+  const ctx={glass_id:r.glass_id,block:mkk.block,chamber:mkk.chamber,mask_set:mkk.set,turn:r.turn,glass_in_turn:r.glass_in_turn,chamber_temp:t};const g=M.ppa(ctx,mkk).grid;out.push({i:i,dx:g.map(q=>q.dx_um),dy:g.map(q=>q.dy_um),mx:r.Mx_hat});});return out;}
+const lin={};[1,D,200].forEach(sd=>{const S=M.scenario('S13',{seed:sd}),V=T.view(S),f=T.lin(T.range(V,1,12),['dT','turn']).fit;lin[sd]={names:f.names,coef:f.names.map(n=>f.coef[n]),se:f.names.map(n=>f.se[n]),rss:f.rss,n:f.n};});
+const dl={};[0,0.05,0.1,0.2,0.3,0.45,0.6].forEach(d=>{const m=T.metrics(dS,{delta:d});dl[d]={first:m.drift_first,delay:m.drift_delay,none:m.drift_none,pre:m.drift_pre,rec:m.rec_test};});
+const tr=dS.truth;
+console.log(JSON.stringify({fixed:fixed,same:same,seeds:seeds,def:D,L:T.L(),gridsD:grids(D,72),grids1:grids(1,72),lin:lin,dl:dl,
+ truth:{T:dS.rows.map(r=>tr[r.glass_id].T_true),Mx:dS.rows.map(r=>tr[r.glass_id].Mx_true),th:dS.rows.map(r=>tr[r.glass_id].Mx_th),age:dS.rows.map(r=>tr[r.glass_id].Mx_age),mask:dS.rows.map(r=>tr[r.glass_id].Mx_mask)},
+ csvRows:dS.csvRows().length,cfg:{am:C.ALPHA_M,ag:C.ALPHA_G,T0:C.T0,age:C.AGE_PPM_PER_TURN,clean:C.CLEAN_STEP_PPM},
+ consts:{limit:T.LIMIT,q:T.Q,lam:T.LAM,calTurn:T.CAL_TURN,calDelta:T.CAL_DELTA,minleaf:T.MINLEAF,maxdepth:T.MAXDEPTH}}));"""
+_s13 = json.loads(subprocess.run([_node, '-e', _S13_EXPORT % json.dumps(_mf)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096')).stdout)
+_tn13 = np.array(_s13['fixed']['turn']); _gi13 = np.array(_s13['fixed']['git']); _mk13 = np.array(_s13['fixed']['mask']); _N13 = len(_tn13)
+_tr13, _va13, _te13 = _tn13 <= 12, (_tn13 >= 13) & (_tn13 <= 16), _tn13 >= 17
+_k13 = _s13['consts']; _d13 = _s13['def']; _L13 = py_L(_k13['lam'])
+def py13_rm(y, p): return float(np.sqrt(np.mean((y - p) ** 2)))
+def py13_lin(dT, y, sel, extra=()):                                                      # 마스크별 절편 12개 + 온도 + 턴(+ 추가 열), numpy lstsq
+    D13 = np.column_stack([(_mk13 == m).astype(float) for m in range(12)] + [dT, _tn13.astype(float)] + list(extra))
+    b = np.linalg.lstsq(D13[sel], y[sel], rcond=None)[0]; return D13 @ b, b
+def py13_ewma(z, lam, L, reset_before):                                                  # 0204 의 EWMA: U = L·√(λ/(2−λ)), 변화 전 알람은 헛알람으로 세고 통계량을 0 으로
+    U = L * np.sqrt(lam / (2 - lam)); w = 0.0; first = None; pre = []
+    for i, v in enumerate(z):
+        w = lam * v + (1 - lam) * w
+        if abs(w) > U:
+            if i + 1 < reset_before: pre.append(i + 1); w = 0.0
+            elif first is None: first = i + 1
+    return first, pre
+def py13_drift(v1, y, b1, cal):
+    rec = v1 + cal * (_tn13 >= _k13['calTurn']); D13 = np.column_stack([(_mk13 == m).astype(float) for m in range(12)] + [rec - 80, _tn13.astype(float)]); err = y - D13 @ b1
+    o = np.lexsort((_gi13, _mk13, _tn13)); sel = o[_tn13[o] >= 13]; e = err[sel]; ev = e[_tn13[sel] <= 16]; z = (e - ev.mean()) / ev.std(ddof=1)
+    shift = int(np.sum(_tn13[sel] < _k13['calTurn'])); first, pre = py13_ewma(z, _k13['lam'], _L13, shift + 1)
+    return {'first': first, 'delay': (first - shift) if first else len(z) - shift + 1, 'none': first is None, 'pre': len(pre), 'rec': py13_rm(y[_te13], (D13 @ b1)[_te13])}
+def py13_seed(s):
+    v1 = np.array(s['v1']); dep = np.array(s['dep']); pr = np.array(s['pr']); y = np.array(s['mx']); dT = v1 - 80
+    p1, b1 = py13_lin(dT, y, _tr13); p2, _ = py13_lin(dT, y, _tr13, (dep - 1, pr - 300))
+    X = np.column_stack([v1, _tn13, _gi13, dep, pr, _mk13]); tv, tt, ttr = [], [], []
+    for d in range(1, 9):
+        p = _DTR(random_state=0, min_samples_leaf=_k13['minleaf'], max_depth=d).fit(X[_tr13], y[_tr13]).predict(X)
+        ttr.append(py13_rm(y[_tr13], p[_tr13])); tv.append(py13_rm(y[_va13], p[_va13])); tt.append(py13_rm(y[_te13], p[_te13]))
+    dp = int(np.argmin(tv)) + 1; msk = (np.arange(_N13) % 10) < 7
+    ps, _ = py13_lin(dT, y, msk); shl = py13_rm(y[~msk], ps[~msk])
+    sht = py13_rm(y[~msk], _DTR(random_state=0, min_samples_leaf=_k13['minleaf'], max_depth=dp).fit(X[msk], y[msk]).predict(X[~msk]))
+    lt = py13_rm(y[_te13], p1[_te13]); tmn, tmx = v1[_tr13].min(), v1[_tr13].max()
+    base = np.array([y[(_mk13 == m) & (_tn13 == 1)].mean() for m in range(12)])[_mk13]; ti = np.where(_te13)[0]
+    pd_ = np.abs(p1[ti] - base[ti]); ex = (np.abs(y[ti] - base[ti]) > _k13['limit']).astype(int); mm = int(np.floor(_k13['q'] * len(ti) + 0.5)); order = np.argsort(-pd_, kind='stable')
+    cap = ex[order[:mm]].sum() / ex.sum(); dr = py13_drift(v1, y, b1, _k13['calDelta'])
+    return {'lin_train': py13_rm(y[_tr13], p1[_tr13]), 'lin_valid': py13_rm(y[_va13], p1[_va13]), 'lin_test': lt, 'lin2_test': py13_rm(y[_te13], p2[_te13]), 'depth': dp, 'tree_test_best': tt[dp - 1], 'tree_minus_lin': tt[dp - 1] - lt,
+            'shuf_lin': shl, 'shuf_tree': sht, 'ratio_lin': shl / lt, 'ratio_tree': sht / tt[dp - 1], 'irrelevant_delta': py13_rm(y[_te13], p2[_te13]) - lt, 'out_frac': float(np.mean((v1[_te13] < tmn) | (v1[_te13] > tmx))),
+            'capture': float(cap), 'gain': float(cap - mm / len(ti)), 'n_exceed': int(ex.sum()), 'drift_first': dr['first'], 'drift_delay': dr['delay'], 'drift_none': dr['none'], 'drift_pre': dr['pre'], 'rec_test': dr['rec'], 'tree_valid': tv, 'tree_test': tt}
+# --- 1) 구조: 1728장, 시드마다 같은 순서, CSV = JS 행, 교정 변화 표시값 ---
+_csv13 = rd('vm_s13.csv'); _sd13 = _s13['seeds'][_d13 - 1]
+chk('S13 구조: 마스크 12장 × 24턴 × 6장 = 1728장(모든 시드), 시드마다 같은 순서, 턴 안 순번 5·20·40·60·90·120, CSV 행 수 = 1728 이고 glass_id 가 고유', _N13 == 1728 == 12 * 24 * 6 and _s13['same'] and sorted(set(_gi13.tolist())) == [5, 20, 40, 60, 90, 120] and len(_csv13) == 1728 == _s13['csvRows'] and _csv13.glass_id.is_unique, f'행 {_N13} · CSV 행 {len(_csv13)}')
+_rec13 = np.array(_sd13['v1']) + _k13['calDelta'] * (_tn13 >= _k13['calTurn'])
+chk('S13 센서 교정 변화: CSV 의 fdc_temp = 교정 변화 없는 표시값 + δ·[턴 ≥ 20](δ=0.3), cal_ver = [턴 ≥ 20], Mx̂·압력·증착률은 CSV 와 JS 대표 시드가 같음(소수 4~6자리)', np.abs(_csv13.fdc_temp.values - _rec13).max() < 2e-4 and (_csv13.cal_ver.values == (_tn13 >= _k13['calTurn'])).all() and np.abs(_csv13.Mx_hat.values - np.array(_sd13['mx'])).max() < 1e-9 and np.abs(_csv13.pressure.values - np.array(_sd13['pr'])).max() < 1e-9 and np.abs(_csv13.dep_rate.values - np.array(_sd13['dep'])).max() < 1e-9,
+    f'fdc_temp 최대 차 {np.abs(_csv13.fdc_temp.values - _rec13).max():.1e}')
+# --- 2) 정답 표와 무관 특징 ---
+_tr13d = _s13['truth']; _cf13 = _s13['cfg']; _T13 = np.array(_tr13d['T']); _Mx13 = np.array(_tr13d['Mx']); _v1d = np.array(_sd13['v1']); _dpd = np.array(_sd13['dep']); _prd = np.array(_sd13['pr']); _mxd = np.array(_sd13['mx'])
+_th13 = (_cf13['am'] - _cf13['ag']) * (_T13 - _cf13['T0']) * 1e6; _age13 = _cf13['age'] * _tn13 + _cf13['clean']
+_cr13 = lambda a, b: float(np.corrcoef(a, b)[0, 1]); _res13 = _mxd - np.array(_tr13d['Mx']); _resw13 = _res13 - np.array([_res13[_mk13 == m].mean() for m in range(12)])[_mk13]
+_crs13 = [_cr13(np.array(s['pr']), np.array(s['v1'])) for s in _s13['seeds']]
+chk('S13 정답 표: 열변형 Mx_th = (α마스크 − α유리)·(참 온도 − 80)·10⁶ 1e-9, 턴 누적 Mx_age = −0.02·턴 − 0.05 1e-9, FDC 온도 − 참 온도의 표준편차 ≈ 0.04(±0.004), 마스크 안에서 Mx̂ − 참 Mx 의 표준편차 < 0.15 ppm(마스크마다 일정한 치우침은 스틱 누설이라 마스크별 절편이 흡수)',
+    np.abs(np.array(_tr13d['th']) - _th13).max() < 1e-9 and np.abs(np.array(_tr13d['age']) - _age13).max() < 1e-9 and abs(float(np.std(_v1d - _T13)) - 0.04) < 0.004 and float(np.std(_resw13)) < 0.15, f'Mx_th 오차 {np.abs(np.array(_tr13d["th"]) - _th13).max():.1e} · FDC 잡음 sd {np.std(_v1d - _T13):.4f} · 마스크 안 Mx̂ 오차 sd {np.std(_resw13):.3f} (전체 {np.std(_res13):.3f})')
+chk('S13 무관 특징: 증착률(평균 1, 표준편차 0.03)은 Mx̂ 오차(Mx̂ − 참 Mx)와 상관 0 근처(|r| < 0.1), 압력은 FDC 온도와 상관 약 0.5(시드 1~200 의 중앙값 0.45~0.55) 이면서 Mx̂ 오차와는 상관 0 근처(|r| < 0.1)',
+    abs(_dpd.mean() - 1) < 0.005 and abs(_dpd.std() - 0.03) < 0.003 and abs(_cr13(_dpd, _res13)) < 0.1 and abs(_cr13(_prd, _res13)) < 0.1 and 0.45 < np.median(_crs13) < 0.55, f'증착률 평균 {_dpd.mean():.4f} sd {_dpd.std():.4f} · r(증착률, 오차) {_cr13(_dpd, _res13):+.3f} · r(압력, 오차) {_cr13(_prd, _res13):+.3f} · r(압력, FDC 온도) 중앙값 {np.median(_crs13):.3f} (범위 {min(_crs13):.2f}~{max(_crs13):.2f})')
+# --- 3) 격자 → Mx̂: numpy lstsq 독립 재현 ---
+_g13 = _s13['gridsD'] + _s13['grids1']; _gd13 = max(abs(np.linalg.lstsq(_X11, np.r_[g['dx'], g['dy']], rcond=None)[0][3] - g['mx']) for g in _g13)
+chk('S13 격자 → Mx̂: 시드 %d·1 의 유리 24장씩(총 %d장)을 77점 격자에서 numpy lstsq 로 다시 푼 Mx 가 표의 Mx̂ 와 소수 6자리(5e-7) 안에서 같음' % (_d13, len(_g13)), len(_g13) == 48 and _gd13 < 5e-7, f'최대 차 {_gd13:.1e}')
+# --- 4) 직선 계수 ---
+_ld13 = 0.0; _lse13 = 0.0
+for sd_, rec_ in _s13['lin'].items():
+    s_ = _s13['seeds'][int(sd_) - 1]; y_ = np.array(s_['mx']); dT_ = np.array(s_['v1']) - 80
+    D_ = np.column_stack([(_mk13 == m).astype(float) for m in range(12)] + [dT_, _tn13.astype(float)])[_tr13]; b_ = np.linalg.lstsq(D_, y_[_tr13], rcond=None)[0]; r_ = y_[_tr13] - D_ @ b_; sg_ = np.sqrt(float(r_ @ r_) / (len(r_) - 14)); se_ = sg_ * np.sqrt(np.diag(np.linalg.inv(D_.T @ D_)))
+    _ld13 = max(_ld13, float(np.abs(b_ - np.array(rec_['coef'])).max())); _lse13 = max(_lse13, float(np.abs(se_ - np.array(rec_['se'])).max()))
+chk('S13 직선 계수: 마스크별 절편 12개 + 온도 + 턴(학습 턴 1~12)을 numpy lstsq 로 독립 재현한 계수 14개·표준오차가 JS 와 1e-9 (시드 1·대표 시드·200)', _ld13 < 1e-9 and _lse13 < 1e-9, f'계수 최대 차 {_ld13:.1e} · 표준오차 최대 차 {_lse13:.1e}')
+# --- 5) JS CART vs sklearn DecisionTreeRegressor(random_state=0, min_samples_leaf=5): 깊이 1~8, 시드 1~40·150·200 ---
+def py13_cmp(jn, sk, sid, X32, idx, depth, dmax):                                         # 같은 분할이거나, 달라도 이 노드의 표본을 똑같이 둘로 가르는(왼쪽·오른쪽이 서로 바뀌어도 같은 묶음) 동점 분할이면 참
+    js_leaf = jn['f'] < 0 or depth >= dmax; sk_leaf = sk.children_left[sid] == -1
+    if js_leaf and sk_leaf: return 'same' if int(sk.n_node_samples[sid]) == jn['n'] else 'bad'
+    if js_leaf != sk_leaf: return 'bad'
+    f_s, t_s = int(sk.feature[sid]), float(sk.threshold[sid]); same = jn['f'] == f_s and abs(jn['t'] - t_s) < 1e-9
+    Lj = X32[idx, jn['f']] <= jn['t']; Ls = X32[idx, f_s] <= t_s
+    if same: a = py13_cmp(jn['l'], sk, sk.children_left[sid], X32, idx[Lj], depth + 1, dmax); b = py13_cmp(jn['r'], sk, sk.children_right[sid], X32, idx[~Lj], depth + 1, dmax)
+    elif np.array_equal(Lj, Ls): a = py13_cmp(jn['l'], sk, sk.children_left[sid], X32, idx[Lj], depth + 1, dmax); b = py13_cmp(jn['r'], sk, sk.children_right[sid], X32, idx[~Lj], depth + 1, dmax)
+    elif np.array_equal(Lj, ~Ls): a = py13_cmp(jn['l'], sk, sk.children_right[sid], X32, idx[Lj], depth + 1, dmax); b = py13_cmp(jn['r'], sk, sk.children_left[sid], X32, idx[~Lj], depth + 1, dmax)
+    else: return 'bad'
+    if 'bad' in (a, b): return 'bad'
+    return 'same' if (same and a == 'same' and b == 'same') else 'tie'
+_cexact = _ctie = _cbad = 0; _cn = 0; _cmax = 0.0; _crep = True
+for s_ in _s13['seeds']:
+    if 'preds' not in s_: continue
+    X_ = np.column_stack([s_['v1'], _tn13, _gi13, s_['dep'], s_['pr'], _mk13]); y_ = np.array(s_['mx']); X32 = X_.astype(np.float32).astype(np.float64); worst = 'same'; mxd = 0.0
+    for d in range(1, 9):
+        m_ = _DTR(random_state=0, min_samples_leaf=5, max_depth=d).fit(X_[_tr13], y_[_tr13]); p_ = m_.predict(X_); mxd = max(mxd, float(np.abs(p_ - np.array(s_['preds'][d - 1])).max()))
+        c_ = py13_cmp(s_['trees'][d - 1], m_.tree_, 0, X32[_tr13], np.arange(int(_tr13.sum())), 0, d)
+        worst = 'bad' if c_ == 'bad' or worst == 'bad' else ('tie' if 'tie' in (c_, worst) else 'same')
+    _cn += 1; _cmax = max(_cmax, mxd)
+    if worst == 'same': _cexact += 1
+    elif worst == 'tie': _ctie += 1
+    else: _cbad += 1
+    if s_['seed'] == _d13 and mxd > 1e-9: _crep = False
+chk('S13 회귀 트리(CART) = sklearn DecisionTreeRegressor(random_state=0, min_samples_leaf=5): 대표 시드는 깊이 1~8 모두 시험 구간 포함 전 유리의 예측이 같고, 다른 시드(1~40·200)는 모두 (같은 분할이거나) 같은 표본을 똑같이 둘로 가르는 두 특징이 동점일 때 고른 특징만 다른 경우 — 구조가 어긋난 시드 0',
+    _crep and _cbad == 0 and _cn >= 40, f'시드 {_cn}개 × 깊이 8개: 모든 깊이에서 완전 일치 {_cexact}개 · 동점으로만 다름 {_ctie}개 · 어긋남 {_cbad}개 · 예측 최대 차 {_cmax:.3f} (동점이면 sklearn 은 무작위 순서로 훑은 특징 가운데 먼저 뽑힌 쪽을 쓰는데, JS 는 그 순서를 따라 하되 동점끼리의 합이 끝자리(1e-16)에서 달라지면 다르게 고를 수 있음)')
+# --- 6) 지표 독립 재현(시드 1~200) ---
+_P13 = [py13_seed(s) for s in _s13['seeds']]
+_nt13 = ['lin_train', 'lin_valid', 'lin_test', 'lin2_test', 'shuf_lin', 'ratio_lin', 'irrelevant_delta', 'out_frac', 'capture', 'gain', 'n_exceed', 'drift_delay', 'drift_pre', 'rec_test']
+_bad13 = {k: max(abs(float(P[k]) - float(s['js'][k])) for P, s in zip(_P13, _s13['seeds'])) for k in _nt13}
+_bad13['drift_first_none'] = sum((P['drift_first'] is None) != s['js']['drift_none'] for P, s in zip(_P13, _s13['seeds']))
+chk('S13 시드 1~200 지표 재계산(직선·직선+무관 특징 시험 RMSE, 섞어 나누기 RMSE 와 비, 시험 구간 학습 범위 밖 온도 비율, 측정 우선순위 포착률, EWMA 첫 알람 지연·헛알람 수, 교정 변화 뒤 시험 RMSE): numpy 로 독립 구현해 JS 와 1e-9',
+    all(v < 1e-9 for v in _bad13.values()), '최대 차 ' + ' · '.join(f'{k} {v:.0e}' for k, v in _bad13.items() if k != 'drift_first_none') + f' · 알람 유무 불일치 {_bad13["drift_first_none"]}시드')
+_dtree13 = np.array([abs(P['tree_test_best'] - s['js']['tree_test_best']) for P, s in zip(_P13, _s13['seeds'])]); _dd13 = np.array([P['depth'] == s['js']['depth'] for P, s in zip(_P13, _s13['seeds'])])
+_dts13 = np.array([abs(P['shuf_tree'] - s['js']['shuf_tree']) for P, s in zip(_P13, _s13['seeds'])])
+chk('S13 트리 지표(검증 구간으로 고른 깊이·시험 RMSE·섞어 나눈 트리 RMSE): sklearn 값과 JS 값이 대표 시드에서 1e-9 로 같고 다른 시드에서는 동점 분할 때문에 조금 다를 수 있음 — 시험 RMSE 차의 최대·중앙값, 깊이가 같은 시드 수를 기록, 모든 시드에서 차 < 0.03',
+    _dtree13[_d13 - 1] < 1e-9 and _dts13[_d13 - 1] < 1e-9 and _dtree13.max() < 0.03, f'시험 RMSE 차 최대 {_dtree13.max():.4f} · 중앙값 {np.median(_dtree13):.1e} · 완전히 같은 시드 {(_dtree13 < 1e-9).sum()}개/200 · 깊이 같은 시드 {int(_dd13.sum())}개/200 · 섞어 나눈 트리 RMSE 차 최대 {_dts13.max():.4f}')
+chk('S13 EWMA 한계: JS 의 L(λ=0.2) = Python 독립 이분법과 1e-3 이내, 그 값에서 ARL0 = 370.4±1 (0204 와 같은 설정)', abs(_s13['L'] - _L13) < 1e-3 and abs(py_arl_ewma(_k13['lam'], _s13['L'], 0) - 370.4) < 1, f'JS {_s13["L"]:.4f} · Python {_L13:.4f}')
+_dlv13 = {float(k): v for k, v in _s13['dl'].items()}; _dpy13 = {d: py13_drift(np.array(_sd13['v1']), np.array(_sd13['mx']), py13_lin(np.array(_sd13['v1']) - 80, np.array(_sd13['mx']), _tr13)[1], d) for d in _dlv13}
+_dls13 = sorted(_dlv13)
+chk('S13 교정 변화 슬라이더(δ 0~0.6): 대표 시드에서 δ 마다 첫 알람·헛알람 수·교정 변화 뒤 시험 RMSE 가 Python 독립 구현과 같고, δ 가 커질수록 알람 지연이 줄거나 같고(단조) 시험 RMSE 는 늘어남(δ = 0 에서 난 알람은 교정 변화가 없으니 헛알람)',
+    all(_dlv13[d]['first'] == _dpy13[d]['first'] and _dlv13[d]['pre'] == _dpy13[d]['pre'] and abs(_dlv13[d]['rec'] - _dpy13[d]['rec']) < 1e-9 for d in _dls13) and all(_dlv13[a]['delay'] >= _dlv13[b]['delay'] for a, b in zip(_dls13, _dls13[1:])) and all(_dlv13[a]['rec'] < _dlv13[b]['rec'] for a, b in zip(_dls13, _dls13[1:])),
+    ' · '.join(f'δ {d}: 지연 {_dlv13[d]["delay"]} · 헛알람 {_dlv13[d]["pre"]} · 시험 RMSE {_dlv13[d]["rec"]:.3f}' for d in _dls13))
+# --- 7) 분포·대표 시드 ---
+_m13 = ['lin_test', 'tree_minus_lin', 'ratio_lin', 'irrelevant_delta', 'gain', 'drift_delay']; _nm13 = ['직선 시험 RMSE', '트리 − 직선 시험 RMSE', '섞어 나누기 ÷ 시간순 RMSE', '무관 특징을 넣어 생긴 시험 RMSE 변화', '측정 우선순위 포착률 − 무작위', '드리프트 첫 알람 지연']
+_A13 = {m: np.array([P[m] for P in _P13], float) for m in _m13}; _A13j = {m: np.array([s['js'][m] for s in _s13['seeds']], float) for m in _m13}
+def _rk13(A, m, i): a = A[m]; return float(((a < a[i]).sum() + 0.5 * (a == a[i]).sum()) / len(a))
+_sc13 = np.array([sum(abs(_rk13(_A13, m, i) * 100 - 50) for m in _m13) for i in range(200)]); _scj13 = np.array([sum(abs(_rk13(_A13j, m, i) * 100 - 50) for m in _m13) for i in range(200)])
+chk('S13 대표 시드(SEEDS.S13): 여섯 지표 백분위의 Σ|백분위−50| 이 시드 1~200 중 가장 작은 시드이고(sklearn 으로 잰 값과 JS 로 잰 값 모두), 25~75% 밖 지표를 기록(본문은 그 지표를 분포로 말해야 함)', int(np.argmin(_sc13)) == _d13 - 1 and int(np.argmin(_scj13)) == _d13 - 1,
+    f'SEEDS.S13 = {_d13}, Σ = {_sc13[_d13 - 1]:.1f} (JS 값 {_scj13[_d13 - 1]:.1f}) · 25~75% 밖: ' + (' · '.join(f'{n} {_rk13(_A13, m, _d13 - 1)*100:.0f}%' for m, n in zip(_m13, _nm13) if not 0.25 <= _rk13(_A13, m, _d13 - 1) <= 0.75) or '없음') + ' / 안: ' + ' · '.join(f'{n} {_rk13(_A13, m, _d13 - 1)*100:.0f}%' for m, n in zip(_m13, _nm13) if 0.25 <= _rk13(_A13, m, _d13 - 1) <= 0.75))
+_p13 = lambda a: f'{np.median(a):.4g} (10~90%: {np.quantile(a, .1):.4g}~{np.quantile(a, .9):.4g})'
+chk('S13 분포(시드 200) 기록: 여섯 지표와 검증으로 고른 트리 깊이·시험 구간 학습 범위 밖 온도 비율·변화 전 헛알람 수', all(np.isfinite(_A13[m]).all() for m in _m13), ' · '.join(f'{n} {_p13(_A13[m])}' for m, n in zip(_m13, _nm13)) + f' · 깊이 {_p13([P["depth"] for P in _P13])} · 범위 밖 온도 {_p13([P["out_frac"] for P in _P13])} · 헛알람 {_p13([P["drift_pre"] for P in _P13])}')
+# --- 8) 설계서 기대 vs 실제 ---
+_fl13 = float(np.mean([P['ratio_lin'] < 1 for P in _P13])); _ft13 = float(np.mean([P['ratio_tree'] < 1 for P in _P13])); _tl13 = float(np.mean([P['tree_minus_lin'] > 0 for P in _P13]))
+chk('S13 설계 기대 1 — 섞어 나누기 RMSE < 시간순 RMSE 인 시드 비율: 회귀 트리는 거의 모든 시드(≥ 95%)에서 섞어 나눈 쪽이 작아 낙관 편향이 뚜렷하고, 직선은 그렇지 않음(비 ≈ 1: 중앙값이 0.95~1.05, 시드 비율 30~70%)', _ft13 >= 0.95 and 0.3 <= _fl13 <= 0.7 and 0.95 < np.median(_A13['ratio_lin']) < 1.05,
+    f'트리: 섞어 나눈 쪽이 작은 시드 {_ft13*100:.0f}% (비 {_p13([P["ratio_tree"] for P in _P13])}) · 직선: {_fl13*100:.0f}% (비 {_p13(_A13["ratio_lin"])})')
+chk('S13 설계 기대 2 — 트리 − 직선 시험 RMSE > 0 인 시드 비율 ≥ 95% (이 공정은 배율이 온도·턴에 직선이고 마스크 절편은 정수 번호로는 트리가 쓰기 어려움), 시험 구간에서 학습 범위 밖 온도인 유리가 있음(중앙값 > 0)', _tl13 >= 0.95 and np.median([P['out_frac'] for P in _P13]) > 0, f'트리가 직선보다 나쁜 시드 {_tl13*100:.0f}% · 트리 − 직선 {_p13(_A13["tree_minus_lin"])} · 범위 밖 온도 {_p13([P["out_frac"] for P in _P13])}')
+chk('S13 설계 기대 3 — 측정 우선순위(예측 편차 큰 순 상위 20%)의 포착률이 무작위(20%)보다 높음(모든 시드), 무관 특징(증착률·압력)을 넣어도 시험 RMSE 변화가 작음(|변화| < 0.01, 모든 시드)', bool((_A13['gain'] > 0).all()) and bool((np.abs(_A13['irrelevant_delta']) < 0.01).all()), f'포착률 − 무작위 {_p13(_A13["gain"])} · 무관 특징 시험 RMSE 변화 {_p13(_A13["irrelevant_delta"])}')
+chk('S13 설계 기대 4 — 교정 변화(+0.3 K) 뒤 EWMA 가 모든 시드에서 알람을 내고 지연 중앙값이 5장 이하, 교정 변화 뒤 시험 RMSE 가 변화 전 시험 RMSE 보다 큼(모든 시드)', all(not P['drift_none'] for P in _P13) and np.median(_A13['drift_delay']) <= 5 and all(P['rec_test'] > P['lin_test'] for P in _P13),
+    f'알람 지연 {_p13(_A13["drift_delay"])} · 교정 변화 뒤 시험 RMSE {_p13([P["rec_test"] for P in _P13])} (변화 없을 때 {_p13(_A13["lin_test"])})')
+
+# --- 9) 0305 페이지의 Python 블록: 그대로 실행한 출력 = 페이지에 적힌 출력, 출력의 숫자 = JS 대표 시드의 값 ---
+_pg13 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0305-virtual-metrology.html'), encoding='utf-8').read()
+_code13 = _html3.unescape(_re3.search(r'<pre id="pyCode">(.*?)</pre>', _pg13, _re3.S).group(1)); _out13 = _html3.unescape(_re3.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg13, _re3.S).group(1)).strip()
+with _tf3.TemporaryDirectory() as _td13:
+    shutil.copy(os.path.join(D, 'vm_s13.csv'), _td13); open(os.path.join(_td13, 'lab0305.py'), 'w', encoding='utf-8').write(_code13)
+    _run13 = subprocess.run([sys.executable, '-I', 'lab0305.py'], cwd=_td13, capture_output=True, text=True)
+chk('0305 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run13.returncode == 0 and _run13.stdout.strip() == _out13, f'종료 {_run13.returncode} · 출력 {len(_run13.stdout.splitlines())}줄' + ('' if _run13.stdout.strip() == _out13 else ' · 다름: ' + (_run13.stderr[-200:] or _run13.stdout[-200:])))
+_PG13_JS = r"""const M=require(%s);const T=M.s13tools;const S=M.scenario('S13');const V=T.view(S),tr=T.range(V,1,12),va=T.range(V,13,16),te=T.range(V,17,24);
+const L1=T.lin(tr,['dT','turn']),LA=T.lin(V,['dT','turn']),sh=T.shuffle(V),LS=T.lin(sh.train,['dT','turn']);const tv=[];let dep=1;const TT=[];
+for(let d=1;d<=8;d++){const t=T.cart(tr,d);tv.push(T.rmse(va,r=>T.treePred(t,r,d)));TT.push(T.rmse(te,r=>T.treePred(t,r,d)));if(tv[d-1]<tv[dep-1])dep=d;}
+const ta=T.cart(V,dep),ts=T.cart(sh.train,dep);let lo=1e9,hi=-1e9;tr.forEach(r=>{lo=Math.min(lo,r.temp);hi=Math.max(hi,r.temp);});
+const out=te.filter(r=>r.temp<lo||r.temp>hi).length;const p=T.priority(te,L1.pred,T.base(V),T.LIMIT,T.Q);const dr=T.drift(S,L1.pred,{});
+console.log(JSON.stringify({lall:T.rmse(V,LA.pred),lsh:T.rmse(sh.test,LS.pred),lte:T.rmse(te,L1.pred),ltr:T.rmse(tr,L1.pred),lva:T.rmse(va,L1.pred),bT:L1.fit.coef.dT,bN:L1.fit.coef.turn,tv:tv,dep:dep,tall:T.rmse(V,r=>T.treePred(ta,r,dep)),tsh:T.rmse(sh.test,r=>T.treePred(ts,r,dep)),tte:TT[dep-1],lo:lo,hi:hi,out:out/te.length,cap:p.capture,rnd:p.random,nex:p.n_exceed,
+ rec:T.rmse(T.range(T.view(S,{recorded:true}),17,24),L1.pred),first:dr.first,shift:dr.shift_at,pre:dr.pre.length,L:T.L()}));"""
+_pj13 = json.loads(subprocess.run([_node, '-e', _PG13_JS % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_exp13 = ['유리 1728장 · 마스크 12장 · 턴 1~24 · 센서 교정 이력: 턴 20 부터 +0.3 K',
+          f'같은 자료로 잰 RMSE {_pj13["lall"]:.3f} · 섞어 나눈 시험 {_pj13["lsh"]:.3f} · 시간순 시험 {_pj13["lte"]:.3f} ppm (학습 {_pj13["ltr"]:.3f} · 검증 {_pj13["lva"]:.3f})',
+          f'직선 계수: 열변형 {_pj13["bT"]:+.3f} ppm/K · 턴 {_pj13["bN"]:+.4f} ppm/턴',
+          '트리 깊이 1~8 의 검증 RMSE: ' + ' '.join(f'{v:.3f}' for v in _pj13['tv']) + f' → 고른 깊이 {_pj13["dep"]}',
+          f'트리(깊이 {_pj13["dep"]}): 같은 자료로 잰 RMSE {_pj13["tall"]:.3f} · 섞어 나눈 시험 {_pj13["tsh"]:.3f} · 시간순 시험 {_pj13["tte"]:.3f} ppm → 직선보다 {_pj13["tte"] - _pj13["lte"]:+.3f}',
+          f'학습 구간 온도 범위 {_pj13["lo"]:.2f}~{_pj13["hi"]:.2f} °C · 시험 유리 중 범위 밖 {_pj13["out"]:.1%}',
+          f'한계를 넘은 유리 {_pj13["nex"]}장 중 포착률 {_pj13["cap"]:.3f} · 무작위 기대 {_pj13["rnd"]:.3f}',
+          f'교정 변화 뒤 시험 RMSE: 표시값 그대로 {_pj13["rec"]:.3f} · 교정 이력으로 되돌린 값 {_pj13["lte"]:.3f} ppm',
+          f'변화 전 헛알람 {_pj13["pre"]}건 · 교정 변화 뒤 {_pj13["first"] - _pj13["shift"] + 1}번째 유리에서 첫 알람']
+_lit13 = lambda nm: float(_re3.search(r'^' + nm + r' = ([0-9.]+)', _code13, _re3.M).group(1))
+_miss13 = [e for e in _exp13 if e not in _run13.stdout]
+chk('0305 Python 출력의 숫자(직선의 같은 자료·섞어 나눈·시간순 RMSE와 계수, 트리 검증 RMSE·고른 깊이·세 가지 방식, 학습 온도 범위와 범위 밖 비율, 포착률, 교정 변화 뒤 RMSE, 헛알람·첫 알람 지연) = JS 대표 시드와 일치, 코드 속 한계·먼저 잴 비율·λ·L·교정 이력 = JS 값', not _miss13 and f"LIMIT, Q = {_k13['limit']}, {_k13['q']}" in _code13 and abs(_pj13['L'] - 2.8599) < 5e-5 and 'CAL_TURN, CAL_SHIFT = %d, %s' % (_k13['calTurn'], _k13['calDelta']) in _code13, ' · '.join(_exp13[1:2]) + ('' if not _miss13 else ' · 불일치: ' + ' | '.join(_miss13)))
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
