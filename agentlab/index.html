@@ -293,7 +293,7 @@ footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
 
 <section id="labs">
   <h2><span class="no">6</span>실험실 목록</h2>
-  <p class="lead">단계 1(기초)의 실험실입니다. 궤적에서 특징을 뽑는 법부터 보고, 변경점 판정과 spec 변경 다섯 편으로 이어집니다. 0206은 단계 2의 첫 걸음으로, 공정을 상태와 전이로 적는 방법을 다룹니다. 0301은 단계 3의 첫 걸음으로, PPA를 화살표 맵으로 읽는 방법을 다룹니다. 0302는 그 맵에서 성분의 크기를 숫자로 뽑는 최소제곱을 다룹니다. 0303은 그렇게 쌓은 배율 계수에 챔버 온도와 턴을 붙여, 배율이 내려가는 이유가 열인지 마모인지를 가릅니다. 데이터는 11블록 증착 라인을 본뜬 학습용 가상 데이터입니다.</p>
+  <p class="lead">단계 1(기초)의 실험실입니다. 궤적에서 특징을 뽑는 법부터 보고, 변경점 판정과 spec 변경 다섯 편으로 이어집니다. 0206은 단계 2의 첫 걸음으로, 공정을 상태와 전이로 적는 방법을 다룹니다. 0301은 단계 3의 첫 걸음으로, PPA를 화살표 맵으로 읽는 방법을 다룹니다. 0302는 그 맵에서 성분의 크기를 숫자로 뽑는 최소제곱을 다룹니다. 0303은 그렇게 쌓은 배율 계수에 챔버 온도와 턴을 붙여, 배율이 내려가는 이유가 열인지 마모인지를 가릅니다. 0304는 보정으로 끝낼 몫과 마스크를 빼야 할 몫을 가르고, 튄 점이 마스크 탓인지 유리 탓인지를 여러 장의 반복으로 가릅니다. 데이터는 11블록 증착 라인을 본뜬 학습용 가상 데이터입니다.</p>
   <a class="labitem" href="labs/0201-trace-to-feature.html">
     <span class="no2">0201</span><span class="tt">궤적에서 특징으로 — FDC 데이터의 모양</span>
     <span class="ss">기둥 2 · 압력 곡선을 숫자 몇 개(특징)로 요약하고, 어떤 이상이 어떤 특징에서만 드러나는지 봅니다.</span>
@@ -329,6 +329,10 @@ footer{text-align:center;color:var(--soft);font-size:.85rem;padding-top:.5rem}
   <a class="labitem" href="labs/0303-thermal-turn.html">
     <span class="no2">0303</span><span class="tt">열변형과 턴 누적</span>
     <span class="ss">기둥 3 · 장변 배율이 내려갈 때 챔버 온도(열변형)와 마스크 장력 이완(턴 누적)을 FDC 온도를 붙인 다중 회귀로 가르고, 계절 교란과 단변 배율 확인, 온도 보정 전후의 리페어 경보 수를 셉니다.</span>
+  </a>
+  <a class="labitem" href="labs/0304-correct-or-repair.html">
+    <span class="no2">0304</span><span class="tt">보정할까 리페어할까</span>
+    <span class="ss">기둥 3 · spec 을 넘은 맵에서 얼라이너와 온도 보정이 지울 수 있는 몫을 먼저 빼고, 남는 몫으로 리페어를 가르며, 같은 마스크 유리 여러 장에서 같은 위치가 반복되는지로 마스크 탓과 유리 탓을 가르고, 리페어 뒤 전후를 대응 비교로 확인합니다.</span>
   </a>
   <a class="labitem" href="labs/0101-pm-mean-shift.html">
     <span class="no2">0101</span><span class="tt">PM 후 평균이 옮겨 갔는가</span>

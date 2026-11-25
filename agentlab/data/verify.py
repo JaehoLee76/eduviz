@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html 의 Python 블록도 읽는다)"""
+"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html, S12 는 labs/0304-correct-or-repair.html 의 Python 블록도 읽는다)"""
 import os, sys, json
 import numpy as np, pandas as pd
 from scipy import stats
@@ -930,6 +930,133 @@ _exp11 = [f'이은 행 {_pg["joined"]} · 못 이은 행 {_pg["missed"]} · FDC 
           f'{_pm["my_thermal"]:+.3f} ± {_pm["my_thermal_se"]:.3f}', f'{_pm["my_turn"]:+.4f} ± {_pm["my_turn_se"]:.4f}', f'비 {_pm["ratio"]:.3f}', f'보정 전 {_pm["alarm_before"]}장 · 보정 후 {_pm["alarm_after"]}장', f'{_pg["raw12"]:+.3f} → 보정 후 {_pg["comp12"]:+.3f}',
           f'첫 경보 턴 {_pg["raw_turn"]} → {_pg["comp_turn"] or "없음"}']
 chk('0303 Python 출력의 숫자(이은·못 이은 행, 열변형·턴·턴만·My 기울기와 표준오차, 잔차제곱합, 경보 마스크 수, 문제 마스크의 12턴 변화와 첫 경보 턴) = JS 대표 시드와 일치, 코드 속 마스크 번호 = JS 가 고른 마스크', all(e in _run11.stdout for e in _exp11) and f'M = "{_pg["mk"]}"' in _code11, ' · '.join(_exp11[:3]))
+
+# ============================================================
+# S12 (0304) — 보정할까 리페어할까: 유리 192장 계수·보정 후 지표·3단 판정·튄 점·반복 위치·우연 반복 확률·리페어 전후 비교를 numpy·scipy 로 독립 구현해 JS 와 대조한다
+# ============================================================
+_S12_EXPORT = r"""const M=require(%s);const T=M.s12tools;const FULL=[1,153,200],out=[],full=[];
+const pack=g=>({id:g.glass_id,git:g.glass_in_turn,fdc:g.fdc_temp,dx:g.grid.map(q=>q.dx_um),dy:g.grid.map(q=>q.dy_um),c:[g.coef.Tx,g.coef.Ty,g.coef.theta,g.coef.Mx,g.coef.My,g.coef.K,g.coef.Cx,g.coef.Cy],fl:g.flagged.map(f=>[f.px,f.py]),pm:g.post_metric.dx_metric});
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S12',{seed:sd});const m=T.metrics(S);
+ out.push({seed:sd,spec:S.spec,ps:S.p_single,k:S.k_default,pick:S.pick_repair,m:m,
+  items:S.items.map(it=>({id:it.mask_id,turn:it.turn,met:it.metric,post:it.post_metric,tm:it.truth_metric,tpm:it.truth_post_metric,act:it.action,tact:it.truth_action,kind:it.kind,tkind:it.truth_kind,counts:it.counts,defs:it.mask_defects.map(d=>[d.px,d.py]),bad:it.bad_stick,g0:it.glasses[0].flagged.length,fpg:it.flag_per_glass,treat:it.treat,nrep:it.repeat?it.repeat.length:0,
+   eff:it.effect?{pt:it.effect.paired.t,pp:it.effect.paired.p,pd:it.effect.paired.diff,wt:it.effect.welch.t,wp:it.effect.welch.p,wd:it.effect.welch.diff}:null,after_counts:it.after?it.after.counts:null}))});
+ if(FULL.indexOf(sd)>=0)full.push({seed:sd,items:S.items.map(it=>({id:it.mask_id,glasses:it.glasses.map(pack),after:it.after?it.after.glasses.map(pack):null}))});}
+const b=T.bT();
+console.log(JSON.stringify({seeds:out,full:full,bt:b,def:M.SEEDS.S12,gits:T.GITS,keep:T.KEEP,ids:T.IDS}));"""
+_s12 = json.loads(subprocess.run([_node, '-e', _S12_EXPORT % json.dumps(_mf)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096')).stdout)
+_NP12 = 77
+def py12_metric(dx): dx = np.asarray(dx, float); return abs(dx.mean()) + 3 * dx.std(ddof=1)
+def py12_corr(dxm, dym, fdc, c8, bt, ratio):                                          # 측정 − 보정 가능 몫(평행이동·회전·열변형). x·y 는 mm, 계수 단위는 µm·ppm
+    Tx, Ty, th = c8[0], c8[1], c8[2]; dT = fdc - 80; mxc = bt * dT; myc = ratio * bt * dT
+    return np.asarray(dxm) - (Tx - th * _Y10 * 1e-3 + mxc * _X10 * 1e-3), np.asarray(dym) - (Ty + th * _X10 * 1e-3 + myc * _Y10 * 1e-3)
+def py12_glass(g, bt, ratio):
+    b, se, sg = py11_fit(g['dx'], g['dy']); y = np.r_[g['dx'], g['dy']]; r = y - _X11 @ b; pdx, pdy = py12_corr(g['dx'], g['dy'], g['fdc'], b, bt, ratio)
+    return {'b': b, 'pdx': pdx, 'pdy': pdy, 'fl': sorted([int(j), int(i)] for j, i in py10_pts(r[:_NP12], r[_NP12:], 4)), 'pm': py12_metric(pdx)}
+def py12_chance(p, n, k, m=77): t = float(stats.binom.sf(k - 1, n, p)); return t, 1 - (1 - t) ** m
+# 0303 의 다중 회귀 기울기를 CSV 두 개에서 독립으로 다시 구한다(마스크별 절편 + FDC 온도 차 + 턴, FDC 가 없는 행 제외)
+_cc12 = rd('ppa_coef_s11.csv').merge(rd('fdc_temp_s11.csv'), on='glass_id', how='left').dropna(subset=['fdc_temp'])
+_D12 = np.column_stack([(_cc12.mask_id == m).astype(float).values for m in sorted(_cc12.mask_id.unique())] + [(_cc12.fdc_temp - 80).values, _cc12.turn.values.astype(float)])
+_bx12 = np.linalg.lstsq(_D12, _cc12.Mx_hat.values, rcond=None)[0]; _by12 = np.linalg.lstsq(_D12, _cc12.My_hat.values, rcond=None)[0]
+_bt12, _ratio12 = float(_bx12[-2]), float(_by12[-2] / _bx12[-2])
+_BT, _RT = _s12['bt']['thermal'], _s12['bt']['ratio']                              # S12 가 받아 쓰는 JS 값(CSV 는 소수 6자리로 반올림돼 있어 CSV 에서 구한 값과 1e-6 쯤 다름)
+chk('S12 열변형 기울기 b̂T·My/Mx 비: 0303 의 CSV 두 개(계수 표·FDC 표)에서 numpy 로 다시 구한 값이 JS 의 scenario("S11") 대표 시드 값과 CSV 반올림 오차(1e-4) 안에서 같음 (S12 는 이 값을 받아 쓴다 — 숫자를 박지 않음)', abs(_bt12 - _BT) < 1e-4 and abs(_ratio12 - _RT) < 1e-4,
+    f'b̂T {_bt12:+.4f} ppm/K (JS {_s12["bt"]["thermal"]:+.4f}) · 비 {_ratio12:.4f} (JS {_s12["bt"]["ratio"]:.4f})')
+_t12 = {'coef': 0.0, 'post': 0.0, 'mean': 0.0, 'meanpost': 0.0, 'spec': 0.0, 'act': 0, 'fl': 0, 'cnt': 0, 'ps': 0.0, 'k': 0, 'chance': 0.0, 'eff': 0.0, 'nglass': 0, 'nmask': 0, 'neff': 0}
+for _F in _s12['full']:
+    _S = next(x for x in _s12['seeds'] if x['seed'] == _F['seed']); _mets, _posts, _fpg = [], [], []
+    for _it, _ji in zip(_F['items'], _S['items']):
+        _pg = [py12_glass(g, _BT, _RT) for g in _it['glasses']]; _t12['nglass'] += len(_pg)
+        for g, p in zip(_it['glasses'], _pg):
+            _t12['coef'] = max(_t12['coef'], float(np.abs(p['b'] - np.array(g['c'])).max())); _t12['post'] = max(_t12['post'], abs(p['pm'] - g['pm'])); _t12['fl'] += int(p['fl'] != sorted(g['fl']))
+        _mdx = np.mean([g['dx'] for g in _it['glasses']], 0); _pdx = np.mean([p['pdx'] for p in _pg], 0)
+        _mets.append(py12_metric(_mdx)); _posts.append(py12_metric(_pdx)); _t12['mean'] = max(_t12['mean'], abs(_mets[-1] - _ji['met'])); _t12['meanpost'] = max(_t12['meanpost'], abs(_posts[-1] - _ji['post']))
+        _cn = np.zeros(77, int)
+        for p in _pg:
+            for j, i in p['fl']: _cn[i * 11 + j] += 1
+        _t12['cnt'] += int(not np.array_equal(_cn, np.array(_ji['counts']))); _fpg.append(sum(len(p['fl']) for p in _pg) / 8); _t12['nmask'] += 1
+        if _it['after'] is not None and _ji['eff'] is not None:
+            _pa = [py12_glass(g, _BT, _RT) for g in _it['after']]
+            _a = np.mean([np.hypot(p['pdx'], p['pdy']) for p in _pg], 0); _b = np.mean([np.hypot(p['pdx'], p['pdy']) for p in _pa], 0)
+            _tp = stats.ttest_rel(_b, _a); _tw = stats.ttest_ind([p['pm'] for p in _pa], [p['pm'] for p in _pg], equal_var=False)
+            _t12['eff'] = max(_t12['eff'], abs(_tp.statistic - _ji['eff']['pt']), abs(_tp.pvalue - _ji['eff']['pp']), abs(float(np.mean(_b - _a)) - _ji['eff']['pd']), abs(_tw.statistic - _ji['eff']['wt']), abs(_tw.pvalue - _ji['eff']['wp'])); _t12['neff'] += 1
+    _good = [m for m, j in zip(_mets, _S['items']) if j['bad'] < 0]; _spec = float(np.quantile(_good, 0.95)); _t12['spec'] = max(_t12['spec'], abs(_spec - _S['spec']))
+    _dec = lambda m, p: 'none' if m <= _spec else ('correct' if p <= _spec else 'repair')
+    _t12['act'] += sum(_dec(m, p) != j['act'] for m, p, j in zip(_mets, _posts, _S['items']))
+    _ps = float(np.median(_fpg)) / 77; _t12['ps'] = max(_t12['ps'], abs(_ps - _S['ps'])); _kk = next((k for k in range(1, 9) if py12_chance(_ps, 8, k)[1] < 0.01), 9); _t12['k'] += int(_kk != _S['k'])
+chk('S12 격자 → 계수·보정 후 지표: 세 시드(1·대표·200) 유리 576장을 numpy lstsq 로 독립 재현한 계수 8개가 JS 와 1e-9, 보정 후 유리 지표 1e-9, 8장 평균 장의 측정·보정 후 지표 1e-9', _t12['nglass'] == 3 * 24 * 8 and _t12['coef'] < 1e-9 and _t12['post'] < 1e-9 and _t12['mean'] < 1e-9 and _t12['meanpost'] < 1e-9,
+    f'유리 {_t12["nglass"]}장 · 계수 {_t12["coef"]:.1e} · 보정 후 유리 지표 {_t12["post"]:.1e} · 평균 장 지표 {_t12["mean"]:.1e} / {_t12["meanpost"]:.1e}')
+chk('S12 판정·반복 위치: spec(불량 스틱 없는 마스크 측정 지표의 95 백분위)·3단 판정·튄 점(이웃 중앙값 로버스트 z ≥ 4, 전부 항 적합 잔차)·위치별 장 수·한 장당 튄 점 비율·기본 k 를 독립 구현해 JS 와 같음(세 시드)', _t12['spec'] < 1e-9 and _t12['act'] == 0 and _t12['fl'] == 0 and _t12['cnt'] == 0 and _t12['ps'] < 1e-12 and _t12['k'] == 0,
+    f'spec 차 {_t12["spec"]:.1e} · 판정 불일치 {_t12["act"]} · 튄 점 불일치 {_t12["fl"]} · 위치 횟수 불일치 {_t12["cnt"]} · 한 장당 비율 차 {_t12["ps"]:.1e} · 기본 k 불일치 {_t12["k"]}')
+chk('S12 리페어 전후 비교: 점별 |d| 8장 평균 77쌍의 대응 비교(scipy.ttest_rel)와 유리별 지표 8 대 8 의 Welch(scipy.ttest_ind equal_var=False)가 JS 의 t·p·차와 1e-9 (세 시드의 조치 마스크 전부)', _t12['neff'] > 0 and _t12['eff'] < 1e-9, f'조치 마스크 {_t12["neff"]}장 · 최대 차 {_t12["eff"]:.1e}')
+# 시드 1~200 전부: JS 가 낸 마스크별 값에서 지표 여섯 개와 우연 반복 확률을 Python 으로 다시 셈한다
+_R12 = []; _bad12 = {'agree': 0, 'useless': 0, 'def': 0, 'false': 0, 'single': 0, 'repeat': 0, 'chance': 0.0, 'k': 0, 'pp': 0, 'ps': 0.0}
+for _S in _s12['seeds']:
+    _it = _S['items']; _spec = _S['spec']; n = len(_it); k = _S['k']; m = _S['m']
+    _ag = sum(j['act'] == j['tact'] for j in _it) / n; _us = sum(j['met'] > _spec for j in _it) - sum(j['act'] == 'repair' for j in _it)
+    dt = dc = fm = so = ro = 0
+    for j in _it:
+        org = {d[1] * 11 + d[0]: 1 for d in j['defs']}
+        if j['bad'] >= 0: org.update({r * 11 + j['bad']: 1 for r in range(7)})
+        rp = [i for i, c in enumerate(j['counts']) if c >= k]
+        for d in j['defs']: dt += 1; dc += int(d[1] * 11 + d[0] in rp)
+        fm += int(any(i not in org for i in rp)); tm = len(org) > 0; so += int((j['g0'] > 0) == tm); ro += int((len(rp) > 0) == tm)
+    _pp = [j['eff']['pp'] for j in _it if j['eff']]; _pm = float(np.median(_pp)) if _pp else float('nan')
+    _ch = py12_chance(_S['ps'], 8, k)[1]; _kk = next((q for q in range(1, 9) if py12_chance(_S['ps'], 8, q)[1] < 0.01), 9); _ps = float(np.median([j['fpg'] / 77 for j in _it]))
+    _row = {'agree': _ag, 'useless': _us, 'def_ratio': dc / dt if dt else float('nan'), 'false_mask': fm, 'single_ok': so / n, 'repeat_ok': ro / n, 'pp': _pm, 'n_repair': sum(j['act'] == 'repair' for j in _it), 'over': sum(j['met'] > _spec for j in _it), 'k': k, 'n_treat': sum(1 for j in _it if j['treat']), 'chance': _ch}
+    _R12.append(_row)
+    _bad12['agree'] += abs(_ag - m['agree']) > 1e-12; _bad12['useless'] += _us != m['useless']; _bad12['def'] += (dt != m['def_total'] or dc != m['def_caught']); _bad12['false'] += fm != m['false_mask']
+    _bad12['single'] += abs(so / n - m['single_ok']) > 1e-12; _bad12['repeat'] += abs(ro / n - m['repeat_ok']) > 1e-12; _bad12['chance'] = max(_bad12['chance'], abs(_ch - m['chance'])); _bad12['k'] += _kk != k
+    _bad12['pp'] += (m['paired_p_median'] is None) != bool(np.isnan(_pm)) or (m['paired_p_median'] is not None and abs(_pm - m['paired_p_median']) > 1e-12); _bad12['ps'] = max(_bad12['ps'], abs(_ps - _S['ps']))
+_A12 = {k: np.array([r[k] for r in _R12], float) for k in _R12[0]}
+chk('S12 시드 1~200 지표 재계산: 판정 일치율·쓸데없는 리페어 수·마스크 기인 결함 중 반복으로 잡힌 비율·잘못 잡힌 마스크 수·유리 한 장 판정 정답률·전후 대응 비교 p 중앙값·한 장당 튄 점 비율·기본 k·우연 반복 확률(scipy.stats.binom)을 마스크별 값에서 다시 셈해 JS 와 같음', all(v == 0 for k, v in _bad12.items() if k not in ('chance', 'ps')) and _bad12['chance'] < 1e-12 and _bad12['ps'] < 1e-12,
+    f'불일치 {({k: v for k, v in _bad12.items() if v})} (모두 0 이어야 함) · 우연 반복 확률 최대 차 {_bad12["chance"]:.1e}')
+_m12 = ['agree', 'useless', 'def_ratio', 'false_mask', 'single_ok', 'pp']; _nm12 = ['판정 일치율', '쓸데없는 리페어 수', '마스크 기인 결함 중 반복으로 잡힌 비율', '반복 위치 잘못 잡힌 마스크 수', '유리 한 장 판정 정답률', '조치 마스크 전후 대응 비교 p 중앙값']
+def _rk12(m, i):
+    a = _A12[m]; a = a[~np.isnan(a)]; v = _A12[m][i]
+    return float('nan') if np.isnan(v) else float(((a < v).sum() + 0.5 * (a == v).sum()) / len(a))
+_sc12 = np.array([sum(abs(_rk12(m, i) * 100 - 50) for m in _m12) if not any(np.isnan(_A12[m][i]) for m in _m12) else np.inf for i in range(200)]); _d12 = _s12['def'] - 1
+chk('S12 대표 시드(SEEDS.S12): 여섯 지표 백분위의 Σ|백분위−50| 이 시드 1~200 중 가장 작은 시드(지표가 정의되지 않는 시드는 후보에서 뺌)이고, 25~75% 밖 지표를 기록(본문은 그 지표를 분포로 말해야 함)', int(np.argmin(_sc12)) == _d12,
+    f'SEEDS.S12 = {_s12["def"]}, Σ = {_sc12[_d12]:.1f} · 25~75% 밖: ' + (' · '.join(f'{n} {_rk12(m, _d12)*100:.0f}%' for m, n in zip(_m12, _nm12) if not 0.25 <= _rk12(m, _d12) <= 0.75) or '없음') + ' / 안: ' + ' · '.join(f'{n} {_rk12(m, _d12)*100:.0f}%' for m, n in zip(_m12, _nm12) if 0.25 <= _rk12(m, _d12) <= 0.75))
+_p12 = lambda a: f'{np.nanmedian(a):.4g} (10~90%: {np.nanquantile(a, .1):.4g}~{np.nanquantile(a, .9):.4g})'
+chk('S12 분포(시드 200) 기록: 여섯 지표와 기본 k·우연 반복 확률', np.isfinite(_A12['agree']).all(), ' · '.join(f'{n} {_p12(_A12[m])}' for m, n in zip(_m12, _nm12)) + f' · 기본 k {_p12(_A12["k"])} · 우연 반복 확률 {_p12(_A12["chance"])}')
+_def12 = _R12[_d12]
+chk('S12 설계 기대 1 — 3단 규칙이 측정 지표만으로 판정할 때보다 리페어 수가 적다: 모든 시드에서 규칙의 리페어 수 ≤ 측정 지표가 spec 을 넘은 마스크 수, 규칙이 더 적은 시드 비율 기록', bool(np.all(_A12['n_repair'] <= _A12['over'])),
+    f'규칙이 더 적은 시드 {int((_A12["n_repair"] < _A12["over"]).sum())}/200 · 넘은 마스크 수 {_p12(_A12["over"])} · 규칙의 리페어 수 {_p12(_A12["n_repair"])}')
+chk('S12 관찰(설계 예상과 다름) — 이 가상 공정에서는 보정 후 지표가 spec 을 넘어 3단 규칙이 리페어를 내리는 시드가 거의 없다(5% 미만): spec 이 보정 안 한 지표의 95 백분위라 보정 가능 몫이 큰 값을 정하고, 남는 몫(스틱·결함·배율 노화·직교도·고차)은 그보다 훨씬 작다 — 그래서 조치 대상은 반복 위치(이물 제거)가 잡힌 마스크까지 넓혀 전후를 비교한다', float((_A12['n_repair'] > 0).mean()) < 0.05,
+    f'리페어 판정이 있는 시드 {int((_A12["n_repair"] > 0).sum())}/200 · 조치 대상(리페어 판정 또는 반복 위치) 마스크 수 {_p12(_A12["n_treat"])} · 보정 후 지표 대 spec 비(대표 시드 최대) {max(j["post"] for j in _s12["seeds"][_d12]["items"]) / _s12["seeds"][_d12]["spec"]:.2f}')
+chk('S12 설계 기대 2 — 반복 위치로 마스크 기인(결함·불량 스틱 보유)을 맞히는 비율이 유리 한 장 판정보다 높다: 정답률 중앙값과 반복 쪽이 더 높은 시드 비율', np.median(_A12['repeat_ok']) > np.median(_A12['single_ok']) and float((_A12['repeat_ok'] > _A12['single_ok']).mean()) > 0.8,
+    f'반복 위치 판정 {_p12(_A12["repeat_ok"])} · 유리 한 장 판정 {_p12(_A12["single_ok"])} · 반복 쪽이 더 높은 시드 {int((_A12["repeat_ok"] > _A12["single_ok"]).sum())}/200 · 같은 시드 {int((_A12["repeat_ok"] == _A12["single_ok"]).sum())}/200')
+chk('S12 우연 반복 확률: 기본 k 에서 우연 반복 확률 < 1% 이고 k−1 에서는 ≥ 1% (모든 시드, k 가 1 이면 이 비교 생략), 한 장당 튄 점 비율 p 가 클수록 우연 반복 확률이 커짐(k 고정)', bool(np.all(_A12['chance'] < 0.01)) and all(py12_chance(s['ps'], 8, s['k'] - 1)[1] >= 0.01 for s in _s12['seeds'] if s['k'] > 1) and py12_chance(0.002, 8, 3)[1] < py12_chance(0.01, 8, 3)[1] < py12_chance(0.05, 8, 3)[1],
+    f'기본 k {_p12(_A12["k"])} · 우연 반복 확률 {_p12(_A12["chance"])} · 한 장당 튄 점 비율 중앙값 {np.median([s["ps"] for s in _s12["seeds"]]):.4f}')
+_rp = [(j['id'], j['treat'], j['nrep']) for j in _s12['seeds'][_d12]['items'] if j['treat']]
+_effall = [(j['eff']['pp'], j['eff']['wp'], j['eff']['pd'], j['eff']['wd']) for X in _s12['seeds'] for j in X['items'] if j['eff']]
+chk('S12 리페어 전후: 조치 마스크의 점별 대응 비교 p 가 유리별 Welch p 보다 작은 쌍의 비율(점끼리 독립이 아니라 대응이 훨씬 민감 — 0103 회수)과 둘 다 개선 방향(차 < 0)인 비율 기록', len(_effall) > 0 and np.mean([e[0] < e[1] for e in _effall]) > 0.5,
+    f'조치 마스크 {len(_effall)}장(시드 200개 전체) · 대응 p < Welch p 인 쌍 {np.mean([e[0] < e[1] for e in _effall]):.2f} · 점별 대응 차 < 0 인 쌍 {np.mean([e[2] < 0 for e in _effall]):.2f} · 유리별 차 < 0 인 쌍 {np.mean([e[3] < 0 for e in _effall]):.2f} · 대응 p 중앙값 {np.median([e[0] for e in _effall]):.2g} · Welch p 중앙값 {np.median([e[1] for e in _effall]):.2g}')
+
+# 0304 페이지의 Python 블록: 그대로 실행한 출력 = 페이지에 적힌 출력, 출력의 숫자 = JS 대표 시드의 값
+_pg12 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0304-correct-or-repair.html'), encoding='utf-8').read()
+_code12 = _html3.unescape(_re3.search(r'<pre id="pyCode">(.*?)</pre>', _pg12, _re3.S).group(1)); _out12 = _html3.unescape(_re3.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg12, _re3.S).group(1)).strip()
+with _tf3.TemporaryDirectory() as _td12:
+    shutil.copy(os.path.join(D, 'ppa_s12.csv'), _td12); open(os.path.join(_td12, 'lab0304.py'), 'w', encoding='utf-8').write(_code12)
+    _run12 = subprocess.run([sys.executable, '-I', 'lab0304.py'], cwd=_td12, capture_output=True, text=True)
+chk('0304 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run12.returncode == 0 and _run12.stdout.strip() == _out12, f'종료 {_run12.returncode} · 출력 {len(_run12.stdout.splitlines())}줄' + ('' if _run12.stdout.strip() == _out12 else ' · 다름: ' + (_run12.stderr[-200:] or _run12.stdout[-200:])))
+_mk12 = _re3.search(r'^M = "([^"]+)"', _code12, _re3.M).group(1)
+_PG12_JS = r"""const M=require(%s);const T=M.s12tools;const S=M.scenario('S12');const it=S.items.find(x=>x.mask_id===%s);const first=it.glasses.slice(0,4).map(g=>g.post),last=it.glasses.slice(4).map(g=>g.post);const e=T.repairEffect(first,last);
+const over=S.items.filter(x=>x.metric>S.spec);const A=over.slice().sort((a,b)=>b.metric-a.metric)[0];
+console.log(JSON.stringify({spec:S.spec,over:over.length,post_over:S.items.filter(x=>x.post_metric>S.spec).length,act:['none','correct','repair'].map(a=>S.items.filter(x=>x.action===a).length),ps:S.p_single,c2:T.chance(S.p_single,8,2).any,c3:T.chance(S.p_single,8,3).any,k:S.k_default,
+ rep:S.items.filter(x=>T.repeat(x.counts,S.k_default).length>0).map(x=>[x.mask_id,T.repeat(x.counts,S.k_default).length]),met:it.metric,post:it.post_metric,action:it.action,kind:it.kind,KO:T.KIND_KO,pos:T.repeat(it.counts,S.k_default).map(q=>[q.px,q.py]),aa:{d:e.paired.diff,p:e.paired.p,wp:e.welch.p},A:A.mask_id,bt:S.bT.thermal,ratio:S.bT.ratio}));"""
+_pj12 = json.loads(subprocess.run([_node, '-e', _PG12_JS % (json.dumps(_mf), json.dumps(_mk12))], capture_output=True, text=True, check=True).stdout)
+_KO12 = {'mag': '배율 노화', 'ortho': '직교도', 'high': '고차 성분', 'stick': '스틱', 'local': '국소 결함'}; _LB12 = {'none': '조치 없음', 'correct': '보정만', 'repair': '리페어'}
+_lit12 = lambda nm: float(_re3.search(r'^' + nm + r' = (-?[0-9.]+)', _code12, _re3.M).group(1))
+_exp12 = ['유리 192장 · 마스크 24장 · 마스크마다 8장 (턴 안 순번 15~120)',
+          f'spec {_pj12["spec"]:.3f} µm · 측정 지표가 spec 을 넘은 마스크 {_pj12["over"]}장 · 보정 후에도 넘는 마스크 {_pj12["post_over"]}장 (24장 중)',
+          '판정: ' + ' · '.join(f'{k} {v}장' for k, v in zip(['조치 없음', '보정만', '리페어'], _pj12['act'])),
+          f'한 장당 튄 점 비율 p = {_pj12["ps"]:.4f} · 우연 반복 확률 k=2 {_pj12["c2"]:.4f}, k=3 {_pj12["c3"]:.4f} → 기본 k = {_pj12["k"]}',
+          f'반복 위치가 잡힌 마스크 {len(_pj12["rep"])}장: ' + ' · '.join(f'{m}({n}곳)' for m, n in _pj12['rep']),
+          f'{_mk12}: 측정 지표 {_pj12["met"]:.2f} → 보정 후 {_pj12["post"]:.2f} µm · 판정 {_LB12[_pj12["action"]]} · 남은 몫 중 최대 {_KO12[_pj12["kind"]]} · 반복 위치 {sorted(tuple(p) for p in _pj12["pos"])}',
+          f'점별 대응 비교 차 {_pj12["aa"]["d"]:+.3f} µm, p = {_pj12["aa"]["p"]:.2f} · 유리별 Welch p = {_pj12["aa"]["wp"]:.2f}']
+_miss12 = [e for e in _exp12 if e not in _run12.stdout]
+chk('0304 Python 출력의 숫자(유리·마스크 수, spec, 넘은 마스크 수, 판정 갈래별 마스크 수, 한 장당 튄 점 비율, 우연 반복 확률, 기본 k, 반복 위치 마스크, 문제 마스크의 지표·남은 몫·반복 위치, 대조의 대응 비교·Welch) = JS 대표 시드와 일치, 코드 속 spec·열변형 기울기·비·마스크 번호 = JS 값(반올림)', not _miss12 and abs(_lit12('SPEC') - _pj12['spec']) < 5e-4 and abs(_lit12('B_T') - _pj12['bt']) < 5e-7 and abs(_lit12('MY_RATIO') - _pj12['ratio']) < 5e-7 and _mk12 == _pj12['A'], ' · '.join(_exp12[1:3]) + ('' if not _miss12 else ' · 불일치: ' + ' | '.join(_miss12)))
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

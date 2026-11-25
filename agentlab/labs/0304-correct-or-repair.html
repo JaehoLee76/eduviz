@@ -1,0 +1,1008 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>보정할까 리페어할까 · 마스크를 뺄 몫 가르기</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="spec 을 넘은 PPA 맵에서 얼라이너와 온도 보정이 지울 수 있는 몫을 먼저 빼고 남는 몫으로 리페어를 가르며, 같은 마스크 유리 여러 장에서 같은 위치가 반복되는지로 마스크 탓과 유리 탓을 가르고, 리페어 전후를 대응 비교로 확인하는 실험실. 회사 PC용 Python과 조치 판정 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.maps2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0}
+.maps2 .labtitle{font-size:.85rem}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.stk{background:var(--card)}
+.ctrl select{grid-column:span 1}
+label.cb{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.2rem .7rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.9rem;font-weight:700;cursor:pointer}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
+.qcard{margin:.9rem 0}
+.mixtag{background:var(--warn);color:#fff;border-radius:999px;padding:.05rem .6rem;font-size:.8rem}
+.qres{margin-top:.5rem}
+.shbars{margin:.3rem 0}
+.sh{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:.5rem;align-items:center;font-size:.85rem;margin:.15rem 0}
+.sh .shb{height:.7rem;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+.sh .shb i{display:block;height:100%;background:var(--accent2)}
+.sh.dom .shb i{background:var(--good)}
+.sh.dom .shl,.sh.dom .shv{font-weight:800;color:var(--good)}
+.sh .shv{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .maps2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr auto}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .stk{position:sticky;top:var(--tb,56px);z-index:6;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+}
+
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.maps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+table.mt td.hit{white-space:normal}
+
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+.qna{margin:.9rem 0}
+@media(max-width:700px){.maps3{grid-template-columns:1fr}}
+select{width:auto;max-width:100%}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+td.dim{color:var(--soft)}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 3 · 실험실 4</p>
+  <h1>보정할까 리페어할까</h1>
+  <p class="sub">spec 을 넘은 맵에서, 보정값만 넣고 계속 쓸 몫과 마스크를 빼야 할 몫을 가르는 법</p>
+</div></header>
+
+<main class="wrap">
+
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0303-thermal-turn.html">← 이전: 열변형과 턴 누적</a><span class="sp"></span></nav>
+
+<p><b>spec 을 넘은 맵이라도 그 넘침이 얼라이너가 고칠 수 있는 평행이동·회전과 0303의 열변형 몫이면, 보정값만 넣고 계속 쓰면 됩니다.</b> 마스크를 빼야 하는 것은 보정한 뒤에도 남는 몫(배율 노화·직교도·고차·스틱·마스크 결함)이 spec 을 넘을 때뿐입니다. 또 튄 점이 마스크 탓인지 그 유리 탓인지는 유리 한 장으로는 가를 수 없고, 같은 마스크로 증착한 여러 장에서 같은 위치에 반복되는지로 가릅니다(5~6절). 리페어를 했다면 0103의 대응 비교로 정말 좋아졌는지 확인합니다(7절).</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0301의 성분(평행이동·회전·배율·직교도·고차·스틱·국소 결함)과 성분마다 누가 손대는지를 정리한 표, PPA 지표(<i>dx</i>의 |평균|+3σ)와 spec(불량 스틱이 없는 마스크 지표의 95 백분위), 튀는 점 찾기. 0302의 최소제곱·잔차·계수. 0303의 열변형 기울기·온도 보정·기준 온도·헛경보와 놓침. 0101의 Welch 검정과 효과 크기, 0103의 대응 비교. 0206의 &lsquo;되돌릴 수 없는 전이(리페어)는 사람이 승인한다&rsquo;는 약속.</p>
+  <ul class="chips known"><li>성분과 담당 표 (0301)</li><li>지표 · spec · 튀는 점</li><li>최소제곱 · 잔차 (0302)</li><li>열변형 기울기 · 온도 보정 (0303)</li><li>Welch · 대응 비교 (0101·0103)</li><li>리페어는 사람 승인 (0206)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(8장 평균 장·판정 세 갈래·조치 대상·쓸데없는 리페어·놓침)은 쓰는 자리에서 문장이나 식으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>보정 가능 몫 (correctable part)</li><li>보정 후 지표 (post-correction metric)</li><li>마스크 기인 (mask-origin)</li><li>유리 기인 (glass-origin)</li><li>반복 위치 (repeat position)</li><li>우연 반복 확률 (chance-repeat probability)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — PPA 가 spec 을 넘었을 때 &lsquo;보정값만 넣고 계속 쓸까, 마스크를 빼서 리페어할까&rsquo;를 가르는 매일의 판단(2~4절)과, 튄 점이 마스크 탓인지 가르는 일(5~6절).</li>
+    <li><b>손으로 연습</b> — 보정 가능 몫을 하나씩 빼며 지표가 줄어드는 것을 보고(3절), spec 을 옮기며 판정이 바뀌는 것을 보고 맵만 보고 판정을 맞혀 보고(4절), 겹쳐 찍은 튄 점에서 반복 위치를 찾고(5절), 반복 기준 k 를 옮기며 잡힘과 헛잡힘을 셉니다(6절).</li>
+    <li><b>다음 날 산출물</b> — 보정 후 지표·세 갈래 판정·반복 위치·우연 반복 확률·리페어 전후 비교의 Python 함수(10절)와 조치 판정 기록지(11절).</li>
+    <li><b>기록할 데이터</b> — 유리마다 튄 점 목록을 마스크 번호와 함께, 넣은 보정값과 그 뒤 첫 측정, 리페어 종류와 전후(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 리페어 승인은 사람, 세 갈래 판정과 반복 기준은 규칙, 분해·보정 후 지표·겹쳐 찍기·판정 초안·전후 비교 초안은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 지표만으로 리페어했을 때 쓸데없이 빠지는 마스크와 지키는 생산량(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 이번 주 PPA 측정 결과입니다. 마스크 <b class="v_nm"></b>장을 각각 같은 턴 안에서 유리 8장씩(그 턴의 15·30·45·…·120번째 유리, 표본 측정 레시피의 가정) 재고, 8장의 77점을 점마다 평균한 장으로 마스크의 지표를 냈습니다. spec 은 <span class="v_spec"></span> µm이고, 지표가 spec 을 넘은 마스크가 <b class="v_over"></b>장 나왔습니다.<br>
+  <b>&ldquo;spec 을 넘은 마스크는 전부 빼서 리페어하라&rdquo;는 초안이 올라왔습니다.</b> 리페어 한 번에 마스크가 빠지는 턴 수는 가정(9절의 슬라이더)입니다.<br>
+  <b>(1) 이 초안을 승인해도 됩니까? (2) 리페어를 해야 하는 마스크는 몇 장이고, 그 가운데 이물을 제거하는 작업을 함께 걸 마스크는 몇 장입니까?</b>
+  <p class="note" style="margin:.5rem 0 0">spec 은 불량 스틱이 없는 마스크 <span class="v_ngood"></span>장의 지표 가운데 95 백분위입니다(0301과 같은 방식). 보정 전 지표와 보정 후 지표를 <b>같은 spec 하나</b>로 견주는 것은 이 실험실의 약속이며, 4절에서 spec 을 옮겨 봅니다. 2~7절에서 숫자를 만들고 8절에서 이 물음으로 돌아옵니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 측정 결과를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 마스크 24장의 지표</h2>
+<p>마스크마다 8장의 측정 격자(77점)가 있습니다. 8장을 점마다 평균한 장을 <b>8장 평균 장</b>이라 부르고, 마스크의 지표는 이 평균 장의 <i>dx</i>로 잰 |평균|+3σ입니다. 아래는 지표가 spec(<span class="v_spec"></span> µm)을 넘은 마스크입니다.</p>
+<div class="tbwrap"><table id="tab1" class="mt num"></table></div>
+<div class="concl" id="conc1"></div>
+<p>초안의 근거는 이 표 하나입니다. 넘었으니 빼라는 것인데, 이 숫자가 <b>마스크 탓의 크기</b>인지는 아직 모릅니다. 먼저 가장 쉬운 방법으로 들여다보겠습니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 지표만으로 판정하고, 맵을 한 장 들여다보기</h2>
+<p>초안을 그대로 따르면 지표가 spec 을 넘은 <b class="v_over"></b>장을 빼는 것입니다. 그 가운데 지표가 가장 큰 마스크 <b class="v_mkA"></b>의 첫 유리(<span class="v_gitA"></span>번째)의 화살표 맵을 봅니다. 붉은 원은 튀는 점(이웃 중앙값에서 벗어난 점)입니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 <span class="v_mkA"></span>, 첫 유리의 측정 맵</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 화살표 전체가 한쪽으로 쏠려 있는지, 가운데를 돌고 있는지 보십시오. 2) 붉은 원이 있는 점이 이웃과 얼마나 다른지 보십시오. 3) 이 맵 한 장만으로 &lsquo;마스크 탓&rsquo;과 &lsquo;유리 탓&rsquo;을 가를 근거가 있는지 생각해 보십시오.</div>
+  <canvas id="cvA"></canvas>
+  <div class="legend"><span>화살표: 점마다의 (<i>dx</i>, <i>dy</i>), 길이는 오른쪽 위 눈금(1 µm)과 견주어 읽음</span><span><i class="dot" style="background:var(--bad)"></i>튀는 점</span></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<p><b>여기서 막힌 곳이 둘 있습니다.</b> 첫째, 0301의 표에서 평행이동·회전은 얼라이너가, 열변형은 0303의 온도 보정이 지울 수 있다고 했습니다. 그런데 지표는 그 몫까지 한 숫자로 섞어 마스크 탓으로 돌립니다. 지표에서 그 몫이 얼마를 차지하는지를 알아야 합니다. 둘째, 맵에 튄 점이 있어도 그것이 마스크에 붙어 있는지 이 유리 한 장에만 있는지는 이 그림으로 알 수 없습니다. 먼저 첫째부터 풀겠습니다. 이를 위해 이름 둘을 붙입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 보정 가능 몫과 보정 후 지표</h2>
+<ul class="termdef">
+  <li><b>보정 가능 몫 (correctable part)</b> — 마스크를 빼지 않고 장비 설정값으로 지울 수 있는 성분의 합입니다. 이 가상 공정의 약속은 <b>평행이동·회전(얼라이너가 유리마다 맞춤)과 열변형(0303의 온도 보정)</b>입니다. 현장에서는 장비가 실제로 고칠 수 있는 항목으로 바꿔 적어야 합니다.</li>
+  <li><b>보정 후 지표 (post-correction metric)</b> — 측정 장에서 보정 가능 몫을 뺀 장의 지표입니다. 리페어 판단은 이 값으로 합니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">보정 후 장 (유리 한 장, 점 위치 <i>x</i>·<i>y</i>는 mm)</span>
+  <math display="block"><mrow><msubsup><mi>d</mi><mi>x</mi><mtext>후</mtext></msubsup><mo>=</mo><msub><mi>d</mi><mi>x</mi></msub><mo>−</mo><mo stretchy="false">(</mo><msub><mi>T</mi><mi>x</mi></msub><mo>−</mo><mi>θ</mi><mi>y</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo>+</mo><msub><mover><mi>b</mi><mo>^</mo></mover><mi>T</mi></msub><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mi>x</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>
+  <math display="block"><mrow><msubsup><mi>d</mi><mi>y</mi><mtext>후</mtext></msubsup><mo>=</mo><msub><mi>d</mi><mi>y</mi></msub><mo>−</mo><mo stretchy="false">(</mo><msub><mi>T</mi><mi>y</mi></msub><mo>+</mo><mi>θ</mi><mi>x</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo>+</mo><mi>r</mi><msub><mover><mi>b</mi><mo>^</mo></mover><mi>T</mi></msub><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mi>y</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>
+  <span class="note"><i>T<sub>x</sub></i>·<i>T<sub>y</sub></i>·<i>θ</i>는 그 유리의 77점을 0302의 방법으로 푼 평행이동과 회전 계수, <i>T</i>는 그 유리의 FDC 온도, <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C입니다. <i>b̂<sub>T</sub></i>는 <b>0303의 다중 회귀가 잰 열변형 기울기 <span class="v_bT"></span> ppm/K</b>, <i>r</i>는 같은 회귀로 잰 단변 대 장변 비(<span class="v_r"></span>)입니다. 이 두 값은 0303의 대표 시드에서 받아 쓴 것이며, 현장에서는 우리 장비에서 직접 잰 값으로 바꿉니다. 마스크의 지표는 유리마다 이렇게 보정한 장 8장을 점마다 평균해 냅니다.</span>
+</div>
+<p>마스크 <b class="v_mkA"></b>의 8장이 각각 얼라이너와 온도로 얼마씩 보정되는지는 아래 표입니다. 단위는 <i>T<sub>x</sub></i>·<i>T<sub>y</sub></i> µm, <i>θ</i> µm/m(곧 µrad), 열변형 몫은 장변 배율에 들어가는 ppm입니다.</p>
+<div class="tbwrap"><table id="tab3a" class="mt num"></table></div>
+<div class="lab">
+  <div class="labtitle">보정 가능 몫을 하나씩 빼며 지표 보기 (마스크 <span class="v_mkA"></span>의 8장 평균 장)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) [평행이동·회전]만 빼면 지표가 얼마나 줄어드는지 보십시오. 2) [열변형]만 빼면 얼마나 줄어드는지 보십시오. 3) 둘 다 빼면 가운데 맵과 오른쪽 맵이 어떻게 갈리는지 보십시오. 세 맵은 <b>같은 화살표 배율</b>을 쓰므로 길이를 직접 견줄 수 있습니다.</div>
+  <div class="row" role="group" aria-label="뺄 몫">
+    <label class="cb"><input type="checkbox" id="cb_tr" checked> 평행이동·회전 <span class="cbv">얼라이너</span></label>
+    <label class="cb"><input type="checkbox" id="cb_th" checked> 열변형 <span class="cbv">0303 온도 보정</span></label>
+    <button class="btn ghost" id="r3" type="button">두 몫을 모두 뺀 처음 상태로</button>
+  </div>
+  <div class="state" id="st3"></div>
+  <div class="maps3">
+    <div><div class="labtitle">측정 (8장 평균)</div><canvas id="cv3m"></canvas></div>
+    <div><div class="labtitle">뺀 몫</div><canvas id="cv3c"></canvas></div>
+    <div><div class="labtitle">남는 몫 (보정 후)</div><canvas id="cv3r"></canvas></div>
+  </div>
+  <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+  <div class="concl" id="conc3"></div>
+</div>
+<p>이 마스크에서 지표는 측정 <b class="v_mA"></b> µm에서 보정 후 <b class="v_pA"></b> µm으로 줄었습니다. 지표를 키운 몫의 대부분이 마스크가 아니라 장비 설정으로 지울 수 있는 몫이었다는 뜻입니다. 이제 24장 모두에 이 계산을 하고 판정 규칙을 세웁니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>판정 규칙과 연습</h2>
+<p>보정 후 지표가 생겼으니 판정을 세 갈래로 나눌 수 있습니다. 판정은 <b>spec 하나</b>로 합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabR">
+  <tr><th>순서</th><th>조건</th><th>판정</th><th>하는 일</th></tr>
+  <tr><td class="rowh">1)</td><td>측정 지표 ≤ spec</td><td class="rowh">조치 없음</td><td>그대로 씁니다.</td></tr>
+  <tr><td class="rowh">2)</td><td>측정 지표 &gt; spec, 보정 후 지표 ≤ spec</td><td class="rowh">보정만</td><td>얼라이너·온도 보정값을 넣고 계속 씁니다.</td></tr>
+  <tr><td class="rowh">3)</td><td>보정 후 지표 &gt; spec</td><td class="rowh">리페어</td><td>마스크를 뺍니다. 종류는 보정 후 남은 몫 가운데 가장 큰 것: 배율 노화·직교도·고차는 장력·프레임 리페어, 스틱은 스틱 교체, 마스크 기인 결함은 이물 제거.</td></tr>
+</table></div>
+<p><b>이 규칙의 약속 하나.</b> 보정 전 지표와 보정 후 지표를 같은 spec 하나와 견줍니다. 보정 후 지표는 보통 보정 전보다 작으므로 따로 spec 을 잡으면 일부러 엄격해집니다. 현장 spec 은 장비·제품이 정한 값이고, 이 화면의 spec 은 가상 공정의 값입니다. 가상 자료에는 <b>정답 판정</b>도 있습니다. 같은 규칙을 잡음과 유리 기인 결함이 없는 참 성분의 장에 적용한 것입니다.</p>
+<div class="lab">
+  <div class="labtitle">spec 을 옮기며 24장의 판정 보기 (탐구 모드)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) spec 을 내릴수록 &lsquo;리페어&rsquo; 칸이 언제부터 생기는지 보십시오. 2) 그때 규칙의 판정과 정답 판정이 갈리는 마스크가 있는지 보십시오. 3) 아래 혼동표(방법 대 정답)와 위 초안의 리페어 장 수가 함께 어떻게 움직이는지 보십시오.</div>
+  <div class="ctrl"><label for="sSp">spec (µm, 가정)</label><input type="range" id="sSp" min="1" max="8" step="any" value="5"><output id="sSpO"></output></div>
+  <div class="row"><button class="btn ghost" id="rSp" type="button">기본 spec 으로 되돌리기</button></div>
+  <div class="state" id="stSp"></div>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+  <div class="labtitle">혼동표 — 가로: 정답 판정, 세로: 규칙의 판정 (마스크 수)</div>
+  <div class="tbwrap"><table id="tab4c" class="mt num"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<div class="lab">
+  <div class="labtitle">연습 — 맵만 보고 판정을 먼저 골라 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 마스크를 고르고 왼쪽 측정 맵만 보고 세 판정 가운데 하나를 누르십시오. 누르면 숫자와 보정 후 맵이 열리고 규칙·정답과 대조됩니다. 지표가 spec 근처인 마스크에서 눈으로 가르기가 얼마나 어려운지 보십시오.</div>
+  <div class="ctrl"><label for="qSel">마스크 고르기</label><select id="qSel"></select><output></output></div>
+  <div class="maps2">
+    <div><div class="labtitle">측정 (8장 평균)</div><canvas id="cvQ1"></canvas></div>
+    <div><div class="labtitle">보정 후</div><canvas id="cvQ2"></canvas></div>
+  </div>
+  <div class="picks" role="group" aria-label="내 판정"><button class="btn" data-pick="none" type="button">조치 없음</button><button class="btn" data-pick="correct" type="button">보정만</button><button class="btn" data-pick="repair" type="button">리페어</button></div>
+  <div class="state" id="qRes">판정을 고르면 결과가 나옵니다.</div>
+</div>
+<div class="qna" data-label="보정만 계속 넣으면 리페어를 안 해도 되나요?" data-q="보정만 계속 넣으면 리페어를 안 해도 되나요?">
+  <p><b>아닙니다. 보정은 보정 가능 몫만 지우고, 남는 몫은 턴이 쌓이며 커집니다.</b> 남는 몫 가운데 배율 노화는 0303에서 본 턴 누적이어서 가상 공정에서는 턴마다 <span class="q4_age"></span> ppm씩 쌓입니다. 장변 가장자리(중심에서 <span class="q4_half"></span> mm)에서는 턴마다 <span class="q4_um"></span> µm씩, 24턴이면 <span class="q4_24"></span> µm 커지는 크기입니다.</p>
+  <p>지금은 보정 후 지표가 spec 보다 훨씬 작지만 이 차이는 턴이 쌓일수록 줄어듭니다. 언제 닿는지를 미리 세는 일이 0306(마스크 수명 예측)입니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>둘째 막힘 — 마스크 기인과 유리 기인, 그리고 반복 위치</h2>
+<p>2절의 둘째 막힘입니다. 튄 점은 두 곳에서 올 수 있습니다. 이름을 붙입니다.</p>
+<ul class="termdef">
+  <li><b>마스크 기인 (mask-origin)</b> — 마스크에 붙어 있어서, 그 마스크로 증착한 모든 유리의 같은 위치에 나타나는 어긋남입니다. 마스크를 리페어하면 사라집니다.</li>
+  <li><b>유리 기인 (glass-origin)</b> — 그 유리 한 장에만 있는 어긋남(유리 위 이물·반송 흠 등)입니다. 마스크를 리페어해도 사라지지 않습니다.</li>
+  <li><b>반복 위치 (repeat position)</b> — 같은 마스크의 유리 <i>n</i>장 가운데 <i>k</i>장 이상에서 튄 점으로 잡힌 위치입니다. 마스크 기인은 모든 장의 같은 칸에 쌓이고, 유리 기인은 장마다 다른 칸에 흩어지므로 반복 위치가 마스크 기인의 단서가 됩니다.</li>
+</ul>
+<p>튄 점은 0301의 방법(이웃 여덟 점의 중앙값과의 차를 로버스트 z 로 바꿔 4 이상)으로 찾되, <b>평행이동·회전·배율·직교도·고차를 다 뺀 잔차</b>에서 찾습니다. 아래는 마스크 <b class="v_mkB"></b>의 8장을 한 격자에 겹쳐 찍은 것입니다. 이 마스크는 &lsquo;마스크 기인 결함이 있고 그 위치가 반복으로 잡힌 마스크 가운데 8장에서 튄 점이 가장 많이 잡힌 것&rsquo;으로 골랐습니다(고를 근거는 가상 자료의 정답).</p>
+<div class="lab">
+  <div class="labtitle">마스크 <span class="v_mkB"></span> — 겹칠 유리 수를 늘리며 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 장 수가 1일 때 튄 점이 몇 개이고 어느 것이 마스크 기인인지 가를 수 있는지 보십시오. 2) 장을 늘릴수록 같은 칸에 점이 쌓이는 곳이 생기는지 보십시오. 3) 오른쪽 평균 잔차 맵에서 쌓인 칸의 화살표는 그대로이고 한 장에만 있던 점은 얼마나 묽어지는지 보십시오. 장 수 8은 자료가 정한 수라 아래 슬라이더의 끝값입니다.</div>
+  <div class="ctrl"><label for="sN">겹쳐 볼 유리 수 (장)</label><input type="range" id="sN" min="1" max="8" step="1" value="8"><output id="sNO"></output></div>
+  <div class="row"><button class="btn ghost" id="rN" type="button">8장으로 되돌리기</button></div>
+  <div class="state" id="stN"></div>
+  <div class="maps2">
+    <div><div class="labtitle">튄 점을 겹쳐 찍기 (칸 안의 색 = 유리 순번)</div><canvas id="cv5a"></canvas></div>
+    <div><div class="labtitle">겹친 장의 평균 잔차 맵</div><canvas id="cv5b"></canvas></div>
+  </div>
+  <div class="legend" id="lg5"></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<p>평균 잔차 맵에서 일어난 일을 말로 정리합니다. 마스크 기인 결함은 장마다 같은 크기로 있으므로 평균해도 그대로이고, 유리 기인 결함은 한 장에만 있으므로 <i>n</i>장 평균에서는 <i>n</i>분의 1로 묽어집니다. 그래서 평균을 내면 마스크 기인만 도드라집니다. 그럼 &lsquo;몇 장 이상 겹쳐야 반복으로 믿을까&rsquo;를 정해야 합니다.</p>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>반복 기준 <i>k</i> — 우연 반복 확률</h2>
+<p><i>k</i>를 너무 작게 잡으면 유리 기인이 우연히 겹친 것을 마스크 기인으로 오해하고, 너무 크게 잡으면 마스크 기인을 놓칩니다. 근거는 <b>튄 점이 위치와 상관없이 떨어진다면 우연히 겹칠 확률이 얼마인가</b>입니다.</p>
+<ul class="termdef">
+  <li><b>우연 반복 확률 (chance-repeat probability)</b> — 튄 점이 위치와 상관없이 떨어진다고 할 때, 같은 위치에 <i>k</i>장 이상이 겹치는 위치가 77곳 어디엔가 생길 확률입니다. 장마다 한 위치에 튄 점이 생길 확률을 <i>p</i>(같은 값, 장끼리 독립)라 하면, 한 위치에서 <i>n</i>장 중 <i>j</i>장이 겹칠 확률이 이항분포(<i>n</i>번 시도에서 성공 횟수의 분포)로 주어집니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">우연 반복 확률</span>
+  <math display="block"><mrow><mi>P</mi><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mi>k</mi></mrow><mi>n</mi></munderover><mrow><mo>(</mo><mfrac linethickness="0"><mi>n</mi><mi>j</mi></mfrac><mo>)</mo></mrow><msup><mi>p</mi><mi>j</mi></msup><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><mrow><mi>n</mi><mo>−</mo><mi>j</mi></mrow></msup><mo>)</mo></mrow><mn>77</mn></msup></mrow></math>
+  <span class="note"><i>n</i> = <span class="v_n"></span>장(이 자료가 정한 수), 77은 위치 수, <i>p</i>는 이 자료에서 센 값입니다. 마스크마다 &lsquo;한 장당 튄 점 수의 평균 ÷ 77&rsquo;을 구하고 24장의 중앙값을 잡았더니 <b class="v_p"></b>입니다(마스크 기인 결함이 있는 마스크가 중앙값을 끌지 않도록 평균이 아닌 중앙값). <b>기본 <i>k</i>는 <i>P</i>가 1% 아래로 내려가는 가장 작은 <i>k</i>입니다.</b></span>
+</div>
+<div class="lab">
+  <div class="labtitle">반복 기준 <i>k</i>를 옮기며 잡힘과 헛잡힘 세기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) <i>k</i>를 1, 2로 낮추면 우연 반복 확률이 어떻게 되고 잘못 잡힌 마스크가 얼마나 늘어나는지 보십시오. 2) 기본 <i>k</i> 에서 마스크 기인 결함이 몇 개 잡히는지 보십시오. 3) <i>k</i>를 더 올리면 잡히던 결함이 언제부터 빠지는지 보십시오.</div>
+  <div class="ctrl"><label for="sK">반복 기준 <i>k</i> (장, 가정)</label><input type="range" id="sK" min="1" max="8" step="1" value="3"><output id="sKO"></output></div>
+  <div class="row"><button class="btn ghost" id="rK" type="button">기본 <i>k</i> 로 되돌리기</button></div>
+  <div class="state" id="stK"></div>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--good)"></i>잡힌 마스크 기인 결함 비율</span><span><i class="dot" style="background:var(--bad)"></i>잘못 잡힌 마스크 비율(24장 중)</span><span><i class="dot" style="background:var(--c10)"></i>우연 반복 확률 (세로축 0~1)</span><span>세로 선: 지금의 <i>k</i></span></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<div class="qna" data-label="8장 말고 2~3장만 재면 어떻게 되나요?" data-q="8장 말고 2~3장만 재면 어떻게 되나요?">
+  <p><b>반복 기준을 세울 수 있는 장 수에 한계가 있습니다.</b> 같은 <i>p</i>(<span class="q6_p"></span>)에서 장 수 <i>n</i>마다 우연 반복 확률이 1% 아래로 내려가는 가장 작은 <i>k</i>를 구하면 아래 표와 같습니다. &lsquo;없음&rsquo;은 <i>n</i>장 모두에서 겹쳐도 1% 아래로 내려가지 못한다는 뜻입니다.</p>
+  <div class="tbwrap"><table class="mt num" id="tabQ6"></table></div>
+  <p>장 수가 적으면 반복으로 믿을 수 있는 기준이 거의 &lsquo;모든 장&rsquo;이 되어, 마스크 기인 결함이 단 한 장에서라도 튄 점으로 잡히지 않으면 놓칩니다. 측정 장 수는 이 표로 정하십시오.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>리페어 전후 확인 — 0103의 대응 비교를 다시</h2>
+<p>이제 조치할 마스크를 정합니다. <b>조치 대상</b>은 3단 판정이 리페어이거나 기본 <i>k</i> 에서 반복 위치가 잡힌 마스크입니다(이물 제거를 겁니다). 조치 대상 마스크마다 <b>리페어한 뒤 같은 레시피(턴 안 15~120번째 8장)로 다시 재서</b> 전후를 견줍니다. 이 화면의 기본 spec 과 기본 <i>k</i> 에서 조치 대상은 <b class="v_nt"></b>장입니다. 이 가운데 보정 후 지표가 가장 큰 마스크 <b class="v_mkC"></b>를 자세히 봅니다.</p>
+<p>견주는 방법은 0103과 같습니다. 점마다 |<i>d</i>| = √(<i>dx</i>² + <i>dy</i>²)를 구하고 8장 평균을 낸 77쌍으로 <b>점별 대응 비교</b>, 유리별 지표 8장 대 8장으로 <b>Welch 검정</b>을 합니다. 둘은 답이 다를 수 있습니다. 점별 비교는 같은 점끼리 짝지어 마스크 자체의 모양 차이를 지우지만, 점들은 서로 독립이 아니라서 p 값이 지나치게 작게 나올 수 있고, Welch 는 유리 8장만 쓰므로 힘이 약합니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 <span class="v_mkC"></span> — 리페어 전과 후 (보정 후 장, 8장 평균)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 두 맵의 화살표가 같은 배율에서 얼마나 줄었는지 보십시오. 2) 반복 위치가 리페어 뒤에 사라졌는지 보십시오. 3) 점별 대응 비교와 Welch 의 p 값이 왜 다른지 읽으십시오. 4) 리페어 뒤의 새 유리에도 유리 기인 결함이 생기는지 보십시오.</div>
+  <div class="maps2">
+    <div><div class="labtitle">리페어 전</div><canvas id="cv7a"></canvas></div>
+    <div><div class="labtitle">리페어 후</div><canvas id="cv7b"></canvas></div>
+  </div>
+  <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
+  <div class="concl" id="conc7"></div>
+</div>
+<div class="labtitle">조치 대상 마스크 전부의 전후</div>
+<div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
+<div class="qna" data-label="점별 대응 비교 p 가 유리별 Welch 보다 훨씬 작은데 어느 쪽을 믿나요?" data-q="점별 대응 비교 p 가 유리별 Welch 보다 훨씬 작은데 어느 쪽을 믿나요?">
+  <p><b>두 숫자는 다른 질문에 답하므로 하나만 믿지 말고 둘을 함께 적습니다.</b> 점별 대응 비교는 &lsquo;77개 점이 평균적으로 줄었는가&rsquo;를 묻는데, 이웃한 점들이 같은 모양(배율·스틱 등)을 공유해 독립이 아니므로 77쌍이라는 표본 수만큼 믿을 근거가 없고 p 가 작게 나옵니다. Welch 는 &lsquo;유리 8장의 지표가 줄었는가&rsquo;를 묻고 독립인 유리를 단위로 하지만 표본이 8장뿐입니다.</p>
+  <p>이 자료에서 조치 대상 전체(<span class="q7_n"></span>장)를 보면 점별 대응 p 의 중앙값은 <span class="q7_pp"></span>, Welch p 의 중앙값은 <span class="q7_wp"></span>이고, 대응 p 가 더 작은 마스크가 <span class="q7_frac"></span>입니다. 둘이 같은 방향(개선)을 가리키는지, 차의 크기가 의미 있는 크기인지를 함께 보고 리페어 결과를 적으십시오.</p>
+</div>
+<div class="qna" data-label="유리 기인 결함이 계속 반복되면 어떻게 하나요?" data-q="유리 기인 결함이 계속 반복되면 어떻게 하나요?">
+  <p><b>같은 위치에서 마스크를 바꿔도 반복되면 마스크가 아니라 반송·스테이지 같은 공통 원인입니다.</b> 이 자료에서 24장의 마스크 가운데 같은 위치가 둘 이상의 마스크에서 반복 위치로 잡힌 곳은 <span class="q7_cross"></span>곳입니다(우연히 생길 곳은 <span class="q7_exp"></span>곳 안팎). 둘 이상의 마스크에서 같은 위치가 반복되면 마스크 기인이 아니라 공통 원인을 의심합니다.</p>
+  <p>마스크를 리페어해도 그 위치가 남는지, 마스크를 바꿔 새 마스크로 증착해도 같은 위치가 튀는지를 기록하면 마스크 탓과 장비 탓을 가를 수 있습니다. 그래서 11절의 기록에는 마스크 번호와 함께 챔버·반송 경로도 적어 둡니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 초안을 승인할까</h2>
+<p>이 실험실을 시작한 물음은 &lsquo;spec 을 넘은 마스크를 전부 빼서 리페어하라&rsquo;는 초안을 승인해도 되는가, 리페어할 마스크는 몇 장이고 이물 제거를 함께 걸 마스크는 몇 장인가였습니다. 4절의 spec 슬라이더 값(<span class="v_specNow"></span> µm)이 반영됩니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt num"></table></div>
+<div class="concl" id="land"></div>
+<p>숫자를 만드는 일은 규칙과 에이전트가 하지만, 그 숫자로 마스크를 뺄지는 사람이 정합니다. 리페어는 되돌릴 수 없는 조치이므로 0206에서 정한 대로 사람의 승인 뒤에 실행합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>리페어 승인 · 보정 가능 몫의 약속(어떤 항목을 장비가 고치는지) 정하기 · 열변형 기울기·기준 온도 갱신 · 반복 기준 <i>k</i> 와 spec 의 근거 승인 · 공통 원인(반송·스테이지) 판단</td></tr>
+  <tr><td class="rowh">규칙</td><td>세 갈래 판정 · 반복 위치(<i>k</i> 장 이상) 표시 · 우연 반복 확률이 1% 아래인지 확인 · 보정 후 지표와 spec 비교</td></tr>
+  <tr><td class="rowh">에이전트</td><td>성분 분해 · 보정 후 지표 · 튄 점 겹쳐 찍기 · 판정 초안 · 리페어 전후 비교 초안과 기록지 쓰기</td></tr>
+</table></div>
+<p>측정하기 전에 FDC 만으로 보정 후 지표를 미리 맞힐 수 있다면 이 판정을 더 일찍 내릴 수 있습니다. 이것이 0305(가상 계측)의 출발입니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>지표만으로 리페어하면 <b>쓸데없는 리페어</b>(규칙은 리페어가 아니라는데 초안은 빼는 마스크)가 생깁니다. 쓸데없는 리페어 수 × 리페어 한 번에 마스크가 빠지는 턴 수 × 턴당 유리 장수(<span class="v_nt2"></span>장)가 <b>지키는 생산량</b>입니다. 반대로 <b>놓침</b>은 정답은 리페어인데 규칙이 리페어로 판정하지 않은 마스크입니다. 같은 표에 정직하게 적습니다. 마스크 집단을 시드 1~200으로 다시 뽑은 분포도 함께 셉니다.</p>
+<div class="lab">
+  <div class="labtitle">지표만으로 리페어할 때 쓸데없이 빠지는 마스크와 지키는 생산량</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 쓸데없는 리페어 마스크 수와 놓침 수를 함께 보십시오. 2) 빠지는 턴 수를 늘릴 때 지키는 생산량이 어떻게 커지는지 보십시오. 3) 4절에서 spec 을 낮추면 이 표가 어떻게 바뀌는지 오가며 보십시오. 차이가 작으면 작다고 적습니다.</div>
+  <div class="ctrl"><label for="sTn">리페어 한 번에 마스크가 빠지는 턴 수 (가정)</label><input type="range" id="sTn" min="1" max="6" step="1" value="2"><output id="sTnO"></output></div>
+  <div class="row"><button class="btn ghost" id="rT" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stT"></div>
+  <div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+  <div class="labtitle" style="margin-top:.8rem">이 화면의 대표 시드는 시드 1~200의 어디쯤인가</div>
+  <div class="tbwrap"><table id="tab9b" class="mt num"></table></div>
+</div>
+<p class="note">회사에서는 같은 식에 &lsquo;유리 한 장의 값&rsquo;과 &lsquo;리페어 한 번의 비용&rsquo;을 곱해 금액으로 적습니다. 이 화면의 spec·빠지는 턴 수는 가정이며, 실제 spec 과 리페어 절차로 바꿔 넣으십시오.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy</code>·<code>pandas</code>와 p 값을 위한 <code>scipy.stats</code>를 씁니다. 0302의 <code>fit_ppa</code>를 그대로 두고 이 실험실의 도구 <code>post_correction</code>·<code>residual_parts</code>·<code>decide_action</code>·<code>repeat_positions</code>·<code>chance_repeat</code>·<code>repair_effect</code>를 붙였습니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다. 입력은 유리 192장의 측정 격자 <code>ppa_s12.csv</code>이고 코드와 같은 폴더에 두면 그대로 돌아갑니다. <code>repair_effect</code> 는 리페어 뒤 다시 잰 장이 있어야 쓸 수 있으므로, 이 파일로는 아무 조치도 하지 않은 같은 마스크의 앞 4장과 뒤 4장을 넣은 <b>대조</b>로 &lsquo;차이가 없을 때 p 가 크게 나오는지&rsquo;만 확인합니다.</p>
+<div class="row"><button class="btn" id="csvBtn1" type="button">CSV 내려받기 (ppa_s12.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+from math import comb
+from scipy import stats
+
+T_REF = 80.0          # 기준 온도 (°C). 0303 과 같은 약속입니다.
+B_T = -1.975909       # 열변형 기울기 (ppm/K). 0303 의 다중 회귀 값 — 우리 장비에서 잰 값으로 바꿔 쓰십시오.
+MY_RATIO = 0.500060   # My 열변형 기울기 ÷ Mx 열변형 기울기 (0303 에서 잰 비)
+SPEC = 5.901          # 이 화면의 spec (µm). 회사에서는 회사 spec 으로 바꿉니다.
+NX, NY = 11, 7
+
+
+def fit_ppa(dx, dy, x, y):
+    """0302 의 전부 항 최소제곱: 계수 Tx, Ty, θ, Mx, My, K, Cx, Cy (µm, ppm). x·y 는 mm.
+    쓰면 안 되는 때: 측정점이 대칭이 아니게 빠졌거나 모델 판이 0302 와 다를 때."""
+    xm, ym = x / 1000, y / 1000
+    o, z = np.ones_like(xm), np.zeros_like(xm)
+    A = np.vstack([np.column_stack([o, z, -ym, xm, z, ym, xm * ym, z]),
+                   np.column_stack([z, o, xm, z, ym, z, z, xm ** 2])])
+    b = np.linalg.lstsq(A, np.r_[dx, dy], rcond=None)[0]
+    return b, np.r_[dx, dy] - A @ b
+
+
+def post_correction(dx, dy, x, y, temp, b_T, t_ref, my_ratio):
+    """측정 − 보정 가능 몫(평행이동·회전 = 얼라이너, 열변형 = 온도 보정). 보정 후 dx, dy 와 계수를 돌려줍니다.
+    쓰면 안 되는 때: 얼라이너가 실제로 고칠 수 있는 항목이 이 약속과 다를 때(보정 가능 몫을 바꿔 적어야 합니다)."""
+    c, _ = fit_ppa(dx, dy, x, y)
+    tx, ty, th = c[0], c[1], c[2]
+    mx, my = b_T * (temp - t_ref), my_ratio * b_T * (temp - t_ref)
+    cdx = tx - th * y / 1000 + mx * x / 1000
+    cdy = ty + th * x / 1000 + my * y / 1000
+    return dx - cdx, dy - cdy, c
+
+
+def metric(v):
+    """품질 지표 |평균| + 3σ (µm)."""
+    return abs(np.mean(v)) + 3 * np.std(v, ddof=1)
+
+
+def outlier_points(dx, dy, z_thr=4.0):
+    """튀는 점: 이웃 여덟 점 중앙값과의 차를 dx·dy 따로 로버스트 z 로 바꿔 큰 쪽이 z_thr 이상인 위치 (px, py)."""
+    gx, gy = dx.reshape(NY, NX), dy.reshape(NY, NX)
+    rx, ry = np.zeros((NY, NX)), np.zeros((NY, NX))
+    for i in range(NY):
+        for j in range(NX):
+            nb = [(a, b) for a in range(max(0, i - 1), min(NY, i + 2)) for b in range(max(0, j - 1), min(NX, j + 2)) if (a, b) != (i, j)]
+            rx[i, j] = gx[i, j] - np.median([gx[a, b] for a, b in nb])
+            ry[i, j] = gy[i, j] - np.median([gy[a, b] for a, b in nb])
+    rz = lambda r: (r - np.median(r)) / (1.4826 * np.median(np.abs(r - np.median(r))))
+    zm = np.maximum(np.abs(rz(rx)), np.abs(rz(ry)))
+    return [(j, i) for i in range(NY) for j in range(NX) if zm[i, j] &gt;= z_thr]
+
+
+def residual_parts(dx, dy, x, y):
+    """보정 후 장에 남은 몫의 제곱합: 배율 노화·직교도·고차(전부 항 계수), 스틱(열마다 평균), 국소 결함(스틱을 뺀 뒤 튄 점).
+    쓰면 안 되는 때: 보정 전 장에 쓰면 평행이동·회전이 섞여 몫이 달라집니다."""
+    c, r = fit_ppa(dx, dy, x, y)
+    xm, ym = x.reshape(NY, NX) / 1000, y.reshape(NY, NX) / 1000
+    rx, ry = r[:NX * NY].reshape(NY, NX), r[NX * NY:].reshape(NY, NX)
+    yc = ym[:, 0]
+    so = rx.mean(axis=0)
+    sp = (yc[:, None] * ry).sum(axis=0) / (yc ** 2).sum()
+    sx, sy = np.tile(so, (NY, 1)), yc[:, None] * sp[None, :]
+    r2x, r2y = rx - sx, ry - sy
+    loc = sum(r2x[i, j] ** 2 + r2y[i, j] ** 2 for j, i in outlier_points(r2x.ravel(), r2y.ravel()))
+    return {"배율 노화": float(((c[3] * xm) ** 2 + (c[4] * ym) ** 2).sum()), "직교도": float(((c[5] * ym) ** 2).sum()),
+            "고차 성분": float(((c[6] * xm * ym) ** 2 + (c[7] * xm ** 2) ** 2).sum()), "스틱": float((sx ** 2 + sy ** 2).sum()), "국소 결함": float(loc)}
+
+
+def decide_action(metric_v, post_v, residual_parts, spec):
+    """세 단계 판정. 1) 지표 ≤ spec → 조치 없음 2) 지표 &gt; spec, 보정 후 ≤ spec → 보정만 3) 보정 후 &gt; spec → 리페어(남은 몫 중 가장 큰 것을 함께 적음).
+    쓰면 안 되는 때: 측정 지표와 보정 후 지표를 서로 다른 spec 으로 재야 할 때(이 함수는 spec 하나를 씁니다)."""
+    if metric_v &lt;= spec:
+        return "조치 없음", None
+    if post_v &lt;= spec:
+        return "보정만", None
+    return "리페어", max(residual_parts, key=residual_parts.get)
+
+
+def repeat_positions(outlier_lists, k):
+    """같은 마스크의 유리별 튄 점 목록 → k 장 이상에서 같은 위치에 튄 점이 잡힌 위치와 장 수.
+    쓰면 안 되는 때: 측정 레시피가 달라 점 위치가 서로 다른 유리끼리는 겹쳐 셀 수 없습니다."""
+    cnt = {}
+    for lst in outlier_lists:
+        for p in lst:
+            cnt[p] = cnt.get(p, 0) + 1
+    return {p: c for p, c in cnt.items() if c &gt;= k}
+
+
+def chance_repeat(p_single, n, k, n_pos=NX * NY):
+    """튄 점이 위치와 상관없이 떨어질 때(장마다 한 위치에 확률 p_single), n 장 중 k 장 이상이 겹치는 위치가 n_pos 곳 어디엔가 생길 확률.
+    쓰면 안 되는 때: 튄 점이 이웃에 몰려 떨어지는 공정(위치끼리 독립이 아님)."""
+    tail = sum(comb(n, j) * p_single ** j * (1 - p_single) ** (n - j) for j in range(k, n + 1))
+    return 1 - (1 - tail) ** n_pos
+
+
+def repair_effect(before, after):
+    """리페어 전·후 보정 후 장(유리 한 장 = (dx, dy) 두 배열) 목록. 점별 |d| 의 장 평균 77쌍 대응 비교와 유리별 지표 Welch 를 돌려줍니다.
+    쓰면 안 되는 때: 전·후가 같은 점·같은 레시피가 아닐 때."""
+    a = np.mean([np.hypot(*g) for g in before], axis=0)
+    b = np.mean([np.hypot(*g) for g in after], axis=0)
+    pt = stats.ttest_rel(b, a)
+    gw = stats.ttest_ind([metric(g[0]) for g in after], [metric(g[0]) for g in before], equal_var=False)
+    return {"paired_diff": float(np.mean(b - a)), "paired_t": float(pt.statistic), "paired_p": float(pt.pvalue),
+            "welch_t": float(gw.statistic), "welch_p": float(gw.pvalue)}
+
+
+df = pd.read_csv("ppa_s12.csv")
+masks = sorted(df.mask_id.unique())
+print(f"유리 {df.glass_id.nunique()}장 · 마스크 {len(masks)}장 · 마스크마다 {df.groupby('mask_id').glass_id.nunique().iloc[0]}장 (턴 안 순번 {df.glass_in_turn.min()}~{df.glass_in_turn.max()})")
+
+res = {}
+for m in masks:
+    gl = []
+    for gid, g in df[df.mask_id == m].sort_values(["glass_in_turn", "py", "px"]).groupby("glass_id", sort=False):
+        x, y = g.x_mm.to_numpy(), g.y_mm.to_numpy()
+        pdx, pdy, c = post_correction(g.dx_um.to_numpy(), g.dy_um.to_numpy(), x, y, g.fdc_temp.iloc[0], B_T, T_REF, MY_RATIO)
+        _, r = fit_ppa(g.dx_um.to_numpy(), g.dy_um.to_numpy(), x, y)
+        gl.append({"dx": g.dx_um.to_numpy(), "dy": g.dy_um.to_numpy(), "pdx": pdx, "pdy": pdy, "out": outlier_points(r[:77], r[77:])})
+    mean_dx = np.mean([g["dx"] for g in gl], axis=0)
+    mean_pdx, mean_pdy = np.mean([g["pdx"] for g in gl], axis=0), np.mean([g["pdy"] for g in gl], axis=0)
+    res[m] = {"gl": gl, "met": metric(mean_dx), "post": metric(mean_pdx), "parts": residual_parts(mean_pdx, mean_pdy, x, y)}
+
+print(f"spec {SPEC:.3f} µm · 측정 지표가 spec 을 넘은 마스크 {sum(r['met'] &gt; SPEC for r in res.values())}장 · 보정 후에도 넘는 마스크 {sum(r['post'] &gt; SPEC for r in res.values())}장 (24장 중)")
+act = {m: decide_action(r["met"], r["post"], r["parts"], SPEC)[0] for m, r in res.items()}
+print("판정: " + " · ".join(f"{k} {sum(v == k for v in act.values())}장" for k in ["조치 없음", "보정만", "리페어"]))
+
+p_single = float(np.median([sum(len(g["out"]) for g in r["gl"]) / len(r["gl"]) / 77 for r in res.values()]))
+n = 8
+k = next(kk for kk in range(1, n + 1) if chance_repeat(p_single, n, kk) &lt; 0.01)
+print(f"한 장당 튄 점 비율 p = {p_single:.4f} · 우연 반복 확률 k=2 {chance_repeat(p_single, n, 2):.4f}, k=3 {chance_repeat(p_single, n, 3):.4f} → 기본 k = {k} (1% 아래로 내려가는 가장 작은 k)")
+
+rep = {m: repeat_positions([g["out"] for g in r["gl"]], k) for m, r in res.items()}
+hit = {m: v for m, v in rep.items() if v}
+print(f"반복 위치가 잡힌 마스크 {len(hit)}장: " + " · ".join(f"{m}({len(v)}곳)" for m, v in hit.items()))
+
+M = "B03-A1"
+r = res[M]
+top = max(r["parts"], key=r["parts"].get)
+print(f"{M}: 측정 지표 {r['met']:.2f} → 보정 후 {r['post']:.2f} µm · 판정 {act[M]} · 남은 몫 중 최대 {top} · 반복 위치 {sorted(rep[M])}")
+half = [(g["pdx"], g["pdy"]) for g in r["gl"]]
+ae = repair_effect(half[:4], half[4:])
+print(f"대조(같은 마스크의 앞 4장 대 뒤 4장, 아무 조치도 하지 않음): 점별 대응 비교 차 {ae['paired_diff']:+.3f} µm, p = {ae['paired_p']:.2f} · 유리별 Welch p = {ae['welch_p']:.2f}")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력">유리 192장 · 마스크 24장 · 마스크마다 8장 (턴 안 순번 15~120)
+spec 5.901 µm · 측정 지표가 spec 을 넘은 마스크 2장 · 보정 후에도 넘는 마스크 0장 (24장 중)
+판정: 조치 없음 22장 · 보정만 2장 · 리페어 0장
+한 장당 튄 점 비율 p = 0.0073 · 우연 반복 확률 k=2 0.1058, k=3 0.0016 → 기본 k = 3 (1% 아래로 내려가는 가장 작은 k)
+반복 위치가 잡힌 마스크 7장: B02-A1(2곳) · B02-A4(1곳) · B03-A1(1곳) · B03-A3(1곳) · B05-A2(1곳) · B06-A4(1곳) · B07-A3(1곳)
+B03-A1: 측정 지표 6.06 → 보정 후 3.09 µm · 판정 보정만 · 남은 몫 중 최대 배율 노화 · 반복 위치 [(7, 2)]
+대조(같은 마스크의 앞 4장 대 뒤 4장, 아무 조치도 하지 않음): 점별 대응 비교 차 +0.041 µm, p = 0.17 · 유리별 Welch p = 0.44</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>조치 판정 기록지</h3>
+  <dl>
+    <dt>칸 (0206 사례 기록의 칸과 같은 이름)</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 마스크 <span class="v_mkA"></span>로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>마스크·턴·유리 장 수·측정 레시피 판(턴 안 어느 순번을 재는지)을 적었는가</li>
+      <li>측정 지표·보정 후 지표·spec 을 나란히 적고, 보정 가능 몫으로 장비에 넣는 값을 단위·부호와 함께 적었는가</li>
+      <li>남은 몫 가운데 가장 큰 성분과 반복 위치 목록(<i>k</i>/<i>n</i>)을 적었는가</li>
+      <li>판정과 담당·리페어면 승인란을 채웠는가</li>
+      <li>조치 뒤 첫 측정과 전후 비교(점별 대응 비교와 유리별 Welch 둘 다)를 적었는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>리페어처럼 되돌릴 수 없는 조치는 사람의 승인 뒤에 실행합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">이 판정을 자동화하려면 아래를 같은 키로 남겨야 합니다. 한 장씩 보면 버려지는 정보가 쌓이면 마스크 기인 판정이 됩니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>유리마다 튄 점 목록</b> — 위치(<code>px</code>, <code>py</code>)·크기·그 유리의 마스크 번호·턴·챔버·반송 경로.</li>
+      <li><b>넣은 보정값과 그 뒤 첫 측정</b> — 얼라이너 값(<i>T<sub>x</sub></i>·<i>T<sub>y</sub></i>·<i>θ</i>)과 온도 보정값(기울기·기준 온도·센서 판), 넣은 뒤 첫 유리의 지표.</li>
+      <li><b>리페어 종류와 전후</b> — 장력·프레임 / 스틱 교체 / 이물 제거 중 무엇을 했는지, 전·후 8장의 측정 격자.</li>
+      <li><b>spec 과 반복 기준의 판</b> — spec 값과 산출 근거, 반복 기준 <i>k</i>·측정 장 수 <i>n</i>·한 장당 튄 점 비율 <i>p</i>.</li>
+    </ul>
+    <p>마스크 번호와 유리 순번이 같은 키로 이어져 있으면 몇 달 뒤 반복 위치가 마스크 기인인지 장비 기인인지 다시 가를 수 있고, 따로 보관하면 이어 붙일 수 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실의 함수를 0302·0303의 함수와 이어, 순서대로 부르게 묶었습니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">1) 계수 추정</td><td>0302의 <code>fit_ppa</code></td></tr>
+      <tr><td class="rowh">2) 열변형 기울기</td><td>0303의 <code>fit_thermal_age</code> → <code>compensate</code></td></tr>
+      <tr><td class="rowh">3) 보정 후 장</td><td><code>post_correction</code>, <code>residual_parts</code></td></tr>
+      <tr><td class="rowh">4) 판정</td><td><code>decide_action</code></td></tr>
+      <tr><td class="rowh">5) 반복 위치</td><td><code>outlier_points</code> → <code>repeat_positions</code>, <code>chance_repeat</code></td></tr>
+      <tr><td class="rowh">6) 리페어 뒤</td><td><code>repair_effect</code></td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0303-thermal-turn.html">← 이전: 열변형과 턴 누적</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var MS=MfgSim,TL=MS.s12tools,T10=MS.s10tools,CF=MS.CFG,NX=CF.NX,NY=CF.NY,NP=NX*NY;
+var S=MS.scenario('S12'),SEED=S.params.seed,IT=S.items,BT=S.bT,SPEC0=S.spec,KD=S.k_default,GITS=TL.GITS,NG=GITS.length,NM=IT.length;
+var LBL={none:'조치 없음',correct:'보정만',repair:'리페어'},Z=[0,0,0,0,0,0,0,0,0,0,0];
+var ST={spec:SPEC0,k:KD,n:NG,tn:2,tr:true,th:true,qSel:0,qN:0,qOk:0,qPick:null};
+var SEEDREC=[];
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function fmtP(p){return p===null||p===undefined||!isFinite(p)?'—':p<0.0001?p.toExponential(1).replace('e-','×10⁻').replace('+',''):p.toFixed(p<0.01?4:3);}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+function z0(v,d){return Math.abs(v)<0.5*Math.pow(10,-d);}
+function sg0(v,d){return (v<0&&!z0(v,d)?'−':'')+fmt(Math.abs(v),d);}
+function sgn(v,d){return (v<0&&!z0(v,d)?'−':'+')+fmt(Math.abs(v),d);}
+function c3(a,d){var f=function(v){return d===0?fmtN(v):fmt(v,d);};return f(quant(a,.5))+' ('+f(quant(a,.1))+'~'+f(quant(a,.9))+')';}
+function niceTicks(lo,hi,n){var rg=hi-lo,raw=rg/n,mg=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),st=mg,c=[1,2,5,10],i;for(i=0;i<c.length;i++){st=c[i]*mg;if(st>=raw)break;}var out=[],v=Math.ceil(lo/st-1e-9)*st;for(;v<=hi+1e-9;v+=st)out.push(Math.round(v/st)*st);return out;}
+function tickFmt(st){var d=0;while(d<4&&Math.abs(st*Math.pow(10,d)-Math.round(st*Math.pow(10,d)))>1e-6)d++;return d;}
+function frame(cv,o){
+  var W=cv.clientWidth||320,c=setup(cv,o.h),x=c.x,pl=46,pr=18,pt=14,pb=34,gw=W-pl-pr,gh=o.h-pt-pb,soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,o.h);
+  function PX(v){return pl+(v-o.x0)/(o.x1-o.x0)*gw;}function PY(v){return pt+gh-(v-o.y0)/(o.y1-o.y0)*gh;}
+  x.font='11px sans-serif';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  var yt=niceTicks(o.y0,o.y1,5),yd=tickFmt(yt.length>1?yt[1]-yt[0]:1);
+  yt.forEach(function(v){var y=PY(v);x.beginPath();x.moveTo(pl,y);x.lineTo(pl+gw,y);x.stroke();x.textAlign='right';x.fillText(sg0(v,yd),pl-5,y+4);});
+  (o.xt||[]).forEach(function(v){var xx=PX(v);x.beginPath();x.moveTo(xx,pt+gh);x.lineTo(xx,pt+gh+4);x.stroke();x.textAlign='center';x.fillText(String(v),xx,pt+gh+17);});
+  x.strokeStyle=soft;x.beginPath();x.moveTo(pl,pt);x.lineTo(pl,pt+gh);x.lineTo(pl+gw,pt+gh);x.stroke();
+  if(o.xl){x.textAlign='center';x.fillText(o.xl,pl+gw/2,pt+gh+31);}
+  x.save();x.translate(11,pt+gh/2);x.rotate(-Math.PI/2);x.textAlign='center';if(o.yl)x.fillText(o.yl,0,0);x.restore();
+  return {x:x,PX:PX,PY:PY,pl:pl,pt:pt,gw:gw,gh:gh,W:W};
+}
+function find(id){for(var i=0;i<IT.length;i++)if(IT[i].mask_id===id)return IT[i];return null;}
+function specNow(){var v=+$('sSp').value;return Math.abs(v-SPEC0)<0.005?SPEC0:v;}
+function dec(it,sp){return TL.decide(it.metric,it.post_metric,sp);}
+function decT(it,sp){return TL.decide(it.truth_metric,it.truth_post_metric,sp);}
+
+/* ---- 보정 가능 몫을 평행이동·회전과 열변형으로 나눠 8장 평균으로 ---- */
+function partMean(it,kind){
+  var out=it.mean.map(function(){return {dx:0,dy:0};});
+  it.glasses.forEach(function(gl){
+    var dT=gl.fdc_temp-CF.T0,c=kind==='tr'?{Tx:gl.coef.Tx,Ty:gl.coef.Ty,theta:gl.coef.theta,Mx:0,My:0,K:0,Cx:0,Cy:0}:{Tx:0,Ty:0,theta:0,Mx:BT.thermal*dT,My:BT.ratio*BT.thermal*dT,K:0,Cx:0,Cy:0};
+    c.stick_off=Z;c.stick_pitch=Z;
+    it.mean.forEach(function(g,i){var v=T10.fieldAt(c,g.x_mm,g.y_mm,0);out[i].dx+=v[0]/NG;out[i].dy+=v[1]/NG;});
+  });
+  return out;
+}
+IT.forEach(function(it){it.TR=partMean(it,'tr');it.TH=partMean(it,'th');});
+function mkGrid(it,fn){return it.mean.map(function(g,i){var v=fn(g,i);return {px:g.px,py:g.py,x_mm:g.x_mm,y_mm:g.y_mm,dx_um:v[0],dy_um:v[1]};});}
+function corrGrid(it,tr,th){return mkGrid(it,function(g,i){return [g.dx_um-(tr?it.TR[i].dx:0)-(th?it.TH[i].dx:0),g.dy_um-(tr?it.TR[i].dy:0)-(th?it.TH[i].dy:0)];});}
+function remGrid(it,tr,th){return mkGrid(it,function(g,i){return [(tr?it.TR[i].dx:0)+(th?it.TH[i].dx:0),(tr?it.TR[i].dy:0)+(th?it.TH[i].dy:0)];});}
+function met(g){return MS.ppaMetric(g).dx_metric;}
+function maxAbs(g){var m=0;g.forEach(function(q){var v=Math.hypot(q.dx_um,q.dy_um);if(v>m)m=v;});return m;}
+
+/* ---- 화살표 맵 ---- */
+function arrowMap(cv,grid,o){
+  o=o||{};var h=o.h||190,c=setup(cv,h),x=c.x,W=c.w,m=16,gw=W-2*m,gh=h-2*m-12,cw=gw/(NX-1),chh=gh/(NY-1);
+  var sc=o.scale||0.9*Math.min(cw,chh*1.4)/Math.max(maxAbs(grid),1e-6),soft=css('--soft'),acc=o.color||css('--accent'),bad=css('--bad'),rule=css('--rule');
+  x.clearRect(0,0,W,h);
+  function PX(px){return m+px*cw;}function PY(py){return m+12+gh-py*chh;}
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(m-6,m+12-6,gw+12,gh+12);
+  grid.forEach(function(g){
+    var X=PX(g.px),Y=PY(g.py),ex=X+sc*g.dx_um,ey=Y-sc*g.dy_um;
+    x.fillStyle=soft;x.beginPath();x.arc(X,Y,1.6,0,6.283);x.fill();
+    var L=Math.hypot(ex-X,ey-Y);if(L<1.2)return;
+    x.strokeStyle=acc;x.fillStyle=acc;x.lineWidth=1.5;x.beginPath();x.moveTo(X,Y);x.lineTo(ex,ey);x.stroke();
+    if(L>5){var a=Math.atan2(ey-Y,ex-X);x.beginPath();x.moveTo(ex,ey);x.lineTo(ex-5*Math.cos(a-0.45),ey-5*Math.sin(a-0.45));x.lineTo(ex-5*Math.cos(a+0.45),ey-5*Math.sin(a+0.45));x.closePath();x.fill();}
+  });
+  (o.rings||[]).forEach(function(q){x.strokeStyle=bad;x.lineWidth=2;x.beginPath();x.arc(PX(q.px),PY(q.py),9,0,6.283);x.stroke();});
+  x.strokeStyle=soft;x.fillStyle=soft;x.lineWidth=1.5;x.beginPath();x.moveTo(W-m-sc*1-30,11);x.lineTo(W-m-30,11);x.stroke();x.font='11px sans-serif';x.textAlign='right';x.fillText('1 µm',W-m,15);
+  if(o.label){x.textAlign='left';x.fillText(o.label,m,12);}
+  return sc;
+}
+function blankMap(cv,txt,h){var c=setup(cv,h||190),x=c.x;x.clearRect(0,0,c.w,c.h);x.strokeStyle=css('--rule');x.strokeRect(10,10,c.w-20,c.h-20);x.fillStyle=css('--soft');x.font='11px sans-serif';x.textAlign='center';x.fillText(txt,c.w/2,c.h/2);}
+
+/* ---- 고르는 마스크들 ---- */
+var overs=IT.filter(function(it){return it.metric>SPEC0;}).sort(function(a,b){return b.metric-a.metric;});
+var A=overs.length?overs[0]:IT.slice().sort(function(a,b){return b.metric-a.metric;})[0];
+var B=(function(){var best=null,bc=-1;IT.forEach(function(it){var hit=it.mask_defects.some(function(d){return it.counts[d.py*NX+d.px]>=KD;}),tot=it.counts.reduce(function(a,v){return a+v;},0);if(hit&&tot>bc){bc=tot;best=it;}});
+  if(!best)IT.forEach(function(it){var r=(it.repeat||[]).length;if(r>bc){bc=r;best=it;}});return best||IT[0];})();
+var C=S.pick_repair?find(S.pick_repair):null;
+var NTREAT=IT.filter(function(it){return it.treat;}).length;
+var NGOOD=S.n_good;
+
+setAll('v_nm',String(NM));setAll('v_spec',fmt(SPEC0,2));setAll('v_over',String(overs.length));setAll('v_ngood',String(NGOOD));
+setAll('v_mkA',A.mask_id);setAll('v_gitA',String(A.glasses[0].glass_in_turn));setAll('v_mkB',B.mask_id);setAll('v_mkC',C?C.mask_id:'(없음)');setAll('v_nt',String(NTREAT));setAll('v_nt2',String(CF.N_TURN));
+setAll('v_T0',String(CF.T0));setAll('v_bT',sg0(BT.thermal,3));setAll('v_r',fmt(BT.ratio,3));setAll('v_n',String(NG));setAll('v_p',fmt(S.p_single,4));
+setAll('v_mA',fmt(A.metric,2));setAll('v_pA',fmt(A.post_metric,2));
+
+/* ---- 1절 ---- */
+(function(){
+  var h='<tr><th>마스크</th><th>챔버</th><th>턴</th><th>측정 지표 (µm)</th><th>spec 을 넘은 양 (µm)</th></tr>';
+  if(!overs.length)h+='<tr><td colspan="5">이 시드에서는 spec 을 넘은 마스크가 없습니다.</td></tr>';
+  overs.forEach(function(it){h+='<tr><td class="rowh">'+it.mask_id+'</td><td>'+it.chamber+'</td><td>'+it.turn+'</td><td class="hit">'+fmt(it.metric,2)+'</td><td>'+sgn(it.metric-SPEC0,2)+'</td></tr>';});
+  $('tab1').innerHTML=h;
+  var inside=IT.filter(function(it){return it.metric<=SPEC0;}).map(function(it){return it.metric;});
+  $('conc1').innerHTML='<b>24장 가운데 '+overs.length+'장이 spec '+fmt(SPEC0,2)+' µm을 넘었고, 나머지 '+inside.length+'장은 spec 안(최댓값 '+fmt(Math.max.apply(null,inside),2)+' µm)입니다.</b> 초안은 이 '+overs.length+'장을 빼라는 것입니다.';
+})();
+
+/* ---- 2절 ---- */
+function draw2(){
+  var g0=A.glasses[0];arrowMap($('cvA'),g0.grid,{h:230,rings:g0.flagged});
+  var fl=g0.flagged;
+  $('conc2').innerHTML='<b>이 맵 한 장에서 튀는 점은 '+fl.length+'개'+(fl.length?'('+fl.map(function(q){return '('+q.px+', '+q.py+')';}).join(', ')+')':'')+'입니다.</b> '+(fl.length?'이 점이 마스크에 붙은 것인지 이 유리 한 장에만 있는 것인지는 이 한 장에서 알 수 없습니다.':'이 장에는 튀는 점이 없지만, 다른 장에는 있을 수 있어 한 장으로는 마스크의 상태를 말할 수 없습니다.')+' 이 한 장의 지표는 '+fmt(A.glasses[0].metric.dx_metric,2)+' µm이지만, 77점 전체가 한 숫자로 섞인 값이라 어느 성분이 얼마를 차지하는지는 이 숫자와 이 그림에서 읽을 수 없습니다.';
+}
+
+/* ---- 3절 ---- */
+(function(){
+  var h='<tr><th>유리 순번</th><th>FDC 온도 (°C)</th><th><i>T<sub>x</sub></i> (µm)</th><th><i>T<sub>y</sub></i> (µm)</th><th><i>θ</i> (µm/m)</th><th>열변형 몫 <i>M<sub>x</sub></i> (ppm)</th></tr>';
+  A.glasses.forEach(function(g){h+='<tr><td class="rowh">'+g.glass_in_turn+'</td><td>'+fmt(g.fdc_temp,3)+'</td><td>'+sg0(g.coef.Tx,3)+'</td><td>'+sg0(g.coef.Ty,3)+'</td><td>'+sg0(g.coef.theta,3)+'</td><td>'+sg0(BT.thermal*(g.fdc_temp-CF.T0),3)+'</td></tr>';});
+  $('tab3a').innerHTML=h;
+})();
+function upd3(){
+  var tr=ST.tr,th=ST.th,cg=corrGrid(A,tr,th),rg=remGrid(A,tr,th);
+  var cw=($('cv3m').clientWidth-32)/(NX-1),chh=(190-40)/(NY-1),scale=0.9*Math.min(cw,chh*1.4)/Math.max(maxAbs(A.mean),1e-6);
+  arrowMap($('cv3m'),A.mean,{scale:scale});arrowMap($('cv3c'),rg,{scale:scale,color:css('--c8')});arrowMap($('cv3r'),cg,{scale:scale,color:css('--good')});
+  stateBox($('st3'),tr&&th,'지금은 두 몫(평행이동·회전, 열변형)을 모두 뺀 상태입니다. 이 값이 4절 이후의 기준입니다.','지금은 몫을 빼 놓은 상태입니다. [두 몫을 모두 뺀 처음 상태로]를 누르면 돌아갑니다.');
+  var combos=[[false,false,'아무것도 안 뺌 (측정)'],[true,false,'평행이동·회전만'],[false,true,'열변형만'],[true,true,'둘 다 (보정 후)']],hh='<tr><th>빼는 몫</th><th>지표 (µm)</th><th>spec 대비</th><th>줄어든 비율</th></tr>',m0=A.metric;
+  combos.forEach(function(c){var v=met(corrGrid(A,c[0],c[1])),cur=c[0]===tr&&c[1]===th;hh+='<tr><td class="rowh"'+(cur?' style="color:var(--accent)"':'')+'>'+c[2]+(cur?' ◀ 지금':'')+'</td><td'+(cur?' class="good"':'')+'>'+fmt(v,2)+'</td><td>'+(v>SPEC0?'넘음 ('+sgn(v-SPEC0,2)+')':'spec 안 ('+sgn(v-SPEC0,2)+')')+'</td><td>'+fmt((1-v/m0)*100,0)+'%</td></tr>';});
+  $('tab3').innerHTML=hh;
+  var now=met(cg);
+  $('conc3').innerHTML='<b>지금 상태의 지표는 '+fmt(now,2)+' µm로, 측정 '+fmt(m0,2)+' µm보다 '+fmt((1-now/m0)*100,0)+'% 줄었고 spec '+fmt(SPEC0,2)+' µm '+(now>SPEC0?'을 아직 넘습니다.':'안으로 들어왔습니다.')+'</b> 평행이동·회전만 빼면 '+fmt(met(corrGrid(A,true,false)),2)+' µm, 열변형만 빼면 '+fmt(met(corrGrid(A,false,true)),2)+' µm, 둘 다 빼면 '+fmt(A.post_metric,2)+' µm입니다. 가운데 맵이 뺀 몫이고 오른쪽 맵이 마스크에 남는 몫입니다.';
+}
+$('cb_tr').addEventListener('change',function(){ST.tr=this.checked;upd3();});
+$('cb_th').addEventListener('change',function(){ST.th=this.checked;upd3();});
+$('r3').addEventListener('click',function(){ST.tr=ST.th=true;$('cb_tr').checked=$('cb_th').checked=true;upd3();});
+
+/* ---- 4절 ---- */
+function upd4(){
+  var sp=ST.spec=specNow();$('sSpO').textContent=fmt(sp,2)+' µm';setAll('v_specNow',fmt(sp,2));
+  stateBox($('stSp'),sp===SPEC0,'지금 이 값이 기본 spec 입니다. 불량 스틱이 없는 마스크 '+NGOOD+'장의 지표 가운데 95 백분위입니다.','지금은 기본 spec 에서 옮겨 놓은 가정입니다('+fmt(sp,2)+' µm, 기본 '+fmt(SPEC0,2)+' µm). [기본 spec 으로 되돌리기]를 누르면 돌아갑니다.');
+  var h='<tr><th>마스크</th><th>턴</th><th>측정 지표</th><th>보정 후 지표</th><th>남은 몫 중 최대</th><th>규칙의 판정</th><th>정답 판정</th><th>일치</th></tr>',cm={},keys=['none','correct','repair'],i,j;
+  keys.forEach(function(a){cm[a]={};keys.forEach(function(b){cm[a][b]=0;});});
+  var nOver=0,nRep=0,nOk=0,nCor=0,nTrueRep=0,nMiss=0,nUse=0;
+  IT.forEach(function(it){
+    var a=dec(it,sp),t=decT(it,sp);cm[a][t]++;if(it.metric>sp)nOver++;if(a==='repair')nRep++;if(a==='correct')nCor++;if(t==='repair')nTrueRep++;if(a===t)nOk++;if(t==='repair'&&a!=='repair')nMiss++;
+    h+='<tr><td class="rowh">'+it.mask_id+'</td><td>'+it.turn+'</td><td'+(it.metric>sp?' class="hit"':'')+'>'+fmt(it.metric,2)+'</td><td'+(it.post_metric>sp?' class="hit"':'')+'>'+fmt(it.post_metric,2)+'</td><td>'+TL.KIND_KO[it.kind]+'</td><td class="rowh">'+LBL[a]+'</td><td>'+LBL[t]+'</td><td'+(a===t?' class="good"':' class="hit"')+'>'+(a===t?'맞음':'다름')+'</td></tr>';
+  });
+  $('tab4').innerHTML=h;
+  var hc='<tr><th></th><th>정답: 조치 없음</th><th>정답: 보정만</th><th>정답: 리페어</th><th>합</th></tr>';
+  keys.forEach(function(a){var row=0;keys.forEach(function(b){row+=cm[a][b];});hc+='<tr><td class="rowh">규칙: '+LBL[a]+'</td>'+keys.map(function(b){return '<td'+(a!==b&&cm[a][b]?' class="hit"':'')+'>'+cm[a][b]+'</td>';}).join('')+'<td>'+row+'</td></tr>';});
+  $('tab4c').innerHTML=hc;
+  nUse=nOver-nRep;
+  $('conc4').innerHTML='<b>spec '+fmt(sp,2)+' µm에서 지표가 spec 을 넘은 마스크는 '+nOver+'장, 규칙이 리페어로 판정한 마스크는 '+nRep+'장, 보정만으로 끝나는 마스크는 '+nCor+'장입니다.</b> 초안(넘으면 리페어)보다 규칙이 '+nUse+'장 적게 뺍니다. 규칙의 판정이 정답과 같은 마스크는 24장 가운데 '+nOk+'장이고, 정답이 리페어인데 규칙이 리페어가 아닌 마스크(놓침)는 '+nMiss+'장입니다.'+(sp===SPEC0&&nRep===0?' 이 가상 공정에서는 보정한 뒤의 지표가 기본 spec 보다 훨씬 작아, 기본 spec 에서는 리페어로 판정되는 마스크가 없습니다. 리페어 판정은 spec 을 낮춰야 나타나고, 마스크 기인 결함은 지표가 아니라 반복 위치(5~6절)로 찾습니다.':'');
+  upd8();upd9();
+}
+$('sSp').addEventListener('input',upd4);
+$('rSp').addEventListener('click',function(){$('sSp').value=String(SPEC0);upd4();});
+(function(){var s='';IT.forEach(function(it,i){s+='<option value="'+i+'">'+it.mask_id+' (측정 지표 '+fmt(it.metric,2)+')</option>';});$('qSel').innerHTML=s;
+  var best=0,bd=1e9;IT.forEach(function(it,i){var d=Math.abs(it.metric-SPEC0);if(d<bd){bd=d;best=i;}});$('qSel').value=String(best);ST.qSel=best;})();
+function drawQ(reveal){
+  var it=IT[ST.qSel],sc=0.9*Math.min((($('cvQ1').clientWidth||300)-32)/(NX-1),(190-40)/(NY-1)*1.4)/Math.max(maxAbs(it.mean),1e-6);
+  arrowMap($('cvQ1'),it.mean,{scale:sc});
+  if(reveal)arrowMap($('cvQ2'),it.post_mean,{scale:sc,color:css('--good')});else blankMap($('cvQ2'),'판정을 고르면 보정 후 맵이 열립니다');
+}
+$('qSel').addEventListener('change',function(){ST.qSel=+this.value;ST.qPick=null;$('qRes').className='state';$('qRes').textContent='판정을 고르면 결과가 나옵니다.';drawQ(false);});
+Array.prototype.forEach.call(document.querySelectorAll('button[data-pick]'),function(b){b.addEventListener('click',function(){
+  var it=IT[ST.qSel],sp=ST.spec,pick=b.getAttribute('data-pick'),rule=dec(it,sp),tru=decT(it,sp);ST.qN++;if(pick===rule)ST.qOk++;
+  $('qRes').className=pick===rule?'state':'state moved';
+  $('qRes').innerHTML='내 판정: <b>'+LBL[pick]+'</b> · 규칙: <b>'+LBL[rule]+'</b> · 정답: <b>'+LBL[tru]+'</b>. 측정 지표 '+fmt(it.metric,2)+' µm → 보정 후 '+fmt(it.post_metric,2)+' µm, spec '+fmt(sp,2)+' µm. '+(pick===rule?'규칙과 같습니다.':'규칙과 다릅니다.')+' 지금까지 '+ST.qN+'번 중 '+ST.qOk+'번 규칙과 같았습니다.';
+  drawQ(true);});});
+(function(){var half=CF.L/2,per=Math.abs(CF.AGE_PPM_PER_TURN);setAll('q4_age',sg0(CF.AGE_PPM_PER_TURN,2));setAll('q4_half',fmtN(half));setAll('q4_um',fmt(per*half*1e-3,3));setAll('q4_24',fmt(24*per*half*1e-3,2));})();
+
+/* ---- 5절 ---- */
+function gcol(i){return 'hsl('+(i*47+10)+',70%,48%)';}
+function upd5(){
+  var n=ST.n;$('sNO').textContent=n+'장';
+  stateBox($('stN'),n===NG,'지금은 8장을 모두 겹친 상태입니다(이 자료의 장 수).','지금은 앞의 '+n+'장만 겹쳐 본 상태입니다. [8장으로 되돌리기]를 누르면 돌아갑니다.');
+  var cv=$('cv5a'),c=setup(cv,200),x=c.x,W=c.w,m=8,cw=(W-2*m)/NX,chh=(200-2*m-6)/NY,soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),bad=css('--bad'),ink=css('--ink');
+  x.clearRect(0,0,W,200);x.font='11px sans-serif';
+  var cnt=new Array(NP).fill(0),i,j,k;
+  for(i=0;i<n;i++)B.glasses[i].flagged.forEach(function(q){cnt[q.py*NX+q.px]++;});
+  for(var py=0;py<NY;py++)for(var px=0;px<NX;px++){
+    var X=m+px*cw,Y=m+(NY-1-py)*chh,v=cnt[py*NX+px];
+    x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(X+.5,Y+.5,cw-1,chh-1);
+    if(v>=KD){x.strokeStyle=acc;x.lineWidth=2.5;x.strokeRect(X+2,Y+2,cw-4,chh-4);}
+    if(v>=2){x.fillStyle=v>=KD?acc:soft;x.textAlign='left';x.font=(v>=KD?'bold ':'')+'11px sans-serif';x.fillText(String(v),X+3,Y+11);}
+  }
+  for(i=0;i<n;i++)B.glasses[i].flagged.forEach(function(q){var X=m+q.px*cw,Y=m+(NY-1-q.py)*chh;x.fillStyle=gcol(i);x.beginPath();x.arc(X+cw*(0.2+0.2*(i%4)),Y+chh*(0.45+0.32*Math.floor(i/4)),3.2,0,6.283);x.fill();});
+  // 평균 잔차
+  var mr=B.glasses[0].resid.map(function(g,p){var sx=0,sy=0;for(var t=0;t<n;t++){sx+=B.glasses[t].resid[p].dx_um;sy+=B.glasses[t].resid[p].dy_um;}return {px:g.px,py:g.py,x_mm:g.x_mm,y_mm:g.y_mm,dx_um:sx/n,dy_um:sy/n};});
+  var mx=0;B.glasses.forEach(function(g){g.resid.forEach(function(q){mx=Math.max(mx,Math.hypot(q.dx_um,q.dy_um));});});
+  var cw2=(($('cv5b').clientWidth||300)-32)/(NX-1),sc=0.9*Math.min(cw2,(200-40)/(NY-1)*1.4)/Math.max(mx,1e-6);
+  var cv2=$('cv5b');arrowMap(cv2,mr,{h:200,scale:sc,rings:B.mask_defects.map(function(d){return {px:d.px,py:d.py};})});
+  var rep=[];cnt.forEach(function(v,p){if(v>=KD)rep.push({px:p%NX,py:Math.floor(p/NX),n:v});});
+  var h='<tr><th>유리 순번</th><th>튄 점 위치 (<i>px</i>, <i>py</i>)</th><th>정답: 그 유리의 유리 기인 결함</th></tr>';
+  for(i=0;i<n;i++){var g=B.glasses[i];h+='<tr><td class="rowh"><i class="dot" style="background:'+gcol(i)+'"></i>'+g.glass_in_turn+'</td><td>'+(g.flagged.length?g.flagged.map(function(q){return '('+q.px+', '+q.py+')';}).join(' · '):'없음')+'</td><td>'+(g.gdef?'('+g.gdef.px+', '+g.gdef.py+')':'없음')+'</td></tr>';}
+  $('tab5').innerHTML=h;
+  $('lg5').innerHTML='<span>가로 11칸 × 세로 7칸이 77개 측정 위치, 칸의 숫자는 그 위치에서 튄 점으로 잡힌 장 수(2 이상만 표시)</span><span><i class="sw" style="border-top:3px solid var(--accent)"></i>반복 위치(<i>k</i> = '+KD+'장 이상)</span><span><i class="sw" style="border-top:2px solid var(--bad)"></i>오른쪽 맵의 붉은 원: 마스크 기인 결함의 실제 위치(정답)</span>';
+  var fr=rep.filter(function(q){return !B.origin[q.py*NX+q.px];});
+  var md=B.mask_defects.map(function(d){return {d:d,mean:Math.hypot(mr[d.py*NX+d.px].dx_um,mr[d.py*NX+d.px].dy_um),cnt:cnt[d.py*NX+d.px]};});
+  var gm=0,gn=0;for(i=0;i<n;i++){var gd=B.glasses[i].gdef;if(gd){var q=mr[gd.py*NX+gd.px],v=Math.hypot(q.dx_um,q.dy_um);if(v>gm)gm=v;gn++;}}
+  $('conc5').innerHTML='<b>'+n+'장을 겹치면 '+KD+'장 이상 겹친 반복 위치가 '+rep.length+'곳'+(rep.length?'('+rep.map(function(q){return '('+q.px+', '+q.py+')가 '+q.n+'장';}).join(', ')+')':'')+' 나옵니다.</b> 가상 자료의 정답으로 이 마스크의 마스크 기인 결함은 '+(md.length?md.map(function(o){return '('+o.d.px+', '+o.d.py+')';}).join(', '):'없음')+'에 있고'+(md.length?', 그 위치의 평균 잔차는 '+fmt(md[0].mean,2)+' µm로 '+n+'장 가운데 '+md[0].cnt+'장에서 튄 점으로 잡혔습니다':'')+'. 앞의 '+n+'장 가운데 유리 기인 결함이 있는 유리는 '+gn+'장이고, 그 위치의 평균 잔차는 최대 '+fmt(gm,2)+' µm입니다'+(n>1?'(한 장일 때의 1/'+n+'쪽으로 묽어짐)':'')+'.'+(fr.length?' 정답에는 없는 위치 '+fr.map(function(q){return '('+q.px+', '+q.py+')';}).join(', ')+'도 '+KD+'장 이상 겹쳤습니다. 이렇게 정답에 없는 위치가 우연히 겹쳐 잘못 잡히는 일을 6절에서 셉니다.':'');
+}
+$('sN').addEventListener('input',function(){ST.n=+this.value;upd5();});
+$('rN').addEventListener('click',function(){ST.n=NG;$('sN').value=String(NG);upd5();});
+
+/* ---- 6절 ---- */
+var KC=[];
+(function(){for(var k=1;k<=NG;k++){var m=TL.metrics(S,k);KC.push({k:k,caught:m.def_total?m.def_caught/m.def_total:NaN,falseFrac:m.false_mask/NM,chance:TL.chance(S.p_single,NG,k).any,m:m});}})();
+function nRepMasks(k){return IT.filter(function(it){return TL.repeat(it.counts,k).length>0;}).length;}
+function upd6(){
+  var k=ST.k,c=KC[k-1],m=c.m;$('sKO').textContent=k+'장';
+  stateBox($('stK'),k===KD,'지금 이 값이 기본 k 입니다. 우연 반복 확률이 1% 아래로 내려가는 가장 작은 k = '+KD+'장입니다.','지금은 기본 k 에서 옮겨 놓은 가정입니다(k = '+k+'장, 기본 '+KD+'장). [기본 k 로 되돌리기]를 누르면 돌아갑니다.');
+  var f=frame($('cv6'),{h:240,x0:0.6,x1:NG+0.4,y0:0,y1:1,xt:[1,2,3,4,5,6,7,8],xl:'반복 기준 k (장)',yl:'비율 · 확률'}),x=f.x;
+  var cols={caught:css('--good'),falseFrac:css('--bad'),chance:css('--c10')};
+  [['caught',cols.caught],['falseFrac',cols.falseFrac],['chance',cols.chance]].forEach(function(s){x.strokeStyle=s[1];x.fillStyle=s[1];x.lineWidth=2;x.beginPath();var st=false;KC.forEach(function(d){var v=d[s[0]];if(!isFinite(v))return;var px=f.PX(d.k),py=f.PY(Math.min(1,v));if(!st){x.moveTo(px,py);st=true;}else x.lineTo(px,py);});x.stroke();KC.forEach(function(d){var v=d[s[0]];if(!isFinite(v))return;x.beginPath();x.arc(f.PX(d.k),f.PY(Math.min(1,v)),3.2,0,6.283);x.fill();});});
+  x.save();x.strokeStyle=css('--ink');x.setLineDash([4,3]);x.lineWidth=1.5;x.beginPath();x.moveTo(f.PX(k),f.pt);x.lineTo(f.PX(k),f.pt+f.gh);x.stroke();x.restore();
+  var h='<tr><th>항목 (<i>k</i> = '+k+'장, <i>n</i> = '+NG+'장)</th><th>값</th><th>뜻</th></tr>';
+  h+='<tr><td class="rowh">한 위치에서 '+k+'장 이상이 우연히 겹칠 확률</td><td>'+fmtP(TL.chance(S.p_single,NG,k).tail)+'</td><td>이항분포의 꼬리, <i>p</i> = '+fmt(S.p_single,4)+'</td></tr>';
+  h+='<tr><td class="rowh">우연 반복 확률 <i>P</i> (77 위치 중 어디든)</td><td'+(c.chance<0.01?' class="good"':' class="hit"')+'>'+fmtP(c.chance)+'</td><td>1% 아래면 우연으로 보기 어려움</td></tr>';
+  h+='<tr><td class="rowh">반복 위치가 잡힌 마스크 수</td><td>'+nRepMasks(k)+' / '+NM+'</td><td>이 마스크들에 이물 제거를 겁니다</td></tr>';
+  h+='<tr><td class="rowh">잡힌 마스크 기인 결함 (가상 자료의 정답)</td><td>'+m.def_caught+' / '+m.def_total+'</td><td>결함 위치가 반복 위치로 잡힌 수</td></tr>';
+  h+='<tr><td class="rowh">잘못 잡힌 마스크 (정답에 없는 위치가 반복으로 잡힘)</td><td'+(m.false_mask?' class="hit"':'')+'>'+m.false_mask+' / '+NM+'</td><td>유리 기인이 우연히 겹친 것</td></tr>';
+  h+='<tr><td class="rowh">마스크 기인 유무를 맞힌 비율 — 반복 위치 / 첫 유리 한 장</td><td>'+fmt(m.repeat_ok*100,0)+'% / '+fmt(m.single_ok*100,0)+'%</td><td>24장의 마스크 가운데, 결함이나 불량 스틱이 있는지 맞힌 비율</td></tr>';
+  $('tab6').innerHTML=h;
+  $('conc6').innerHTML='<b>반복 기준을 '+k+'장으로 두면 우연 반복 확률은 '+fmtP(c.chance)+'이고, 마스크 기인 결함 '+m.def_total+'개 가운데 '+m.def_caught+'개가 잡히며 잘못 잡힌 마스크는 '+m.false_mask+'장입니다.</b> '+(k<KD?'기준이 낮아 우연 반복 확률이 1%를 넘고, 유리 기인이 우연히 겹친 위치까지 반복으로 잡습니다.':k===KD?'이 값이 기본 k 이며, 우연 반복 확률이 1% 아래로 내려가는 가장 작은 값입니다.':'기본 k 보다 기준이 높아 잡히는 마스크 기인 결함이 줄어듭니다.')+' 유리 한 장(첫 장)으로 마스크 기인 유무를 맞힌 비율은 '+fmt(m.single_ok*100,0)+'%이고, 반복 위치로 맞힌 비율은 '+fmt(m.repeat_ok*100,0)+'%입니다.';
+}
+$('sK').addEventListener('input',function(){ST.k=+this.value;upd6();});
+$('rK').addEventListener('click',function(){ST.k=KD;$('sK').value=String(KD);upd6();});
+(function(){
+  setAll('q6_p',fmt(S.p_single,4));var h='<tr><th>측정 장 수 <i>n</i></th><th>1% 아래가 되는 가장 작은 <i>k</i></th><th><i>k</i> = 2 일 때 우연 반복 확률</th></tr>';
+  [2,3,4,6,8].forEach(function(n){var kk=TL.minK(S.p_single,n);h+='<tr><td class="rowh">'+n+'</td><td>'+(kk<=n?kk+'장':'없음')+'</td><td>'+fmtP(TL.chance(S.p_single,n,2).any)+'</td></tr>';});
+  $('tabQ6').innerHTML=h;
+})();
+
+/* ---- 7절 ---- */
+function repOf(counts,k){return TL.repeat(counts,k).map(function(q){return {px:q.px,py:q.py};});}
+function draw7(){
+  if(!C){blankMap($('cv7a'),'조치 대상이 없습니다');blankMap($('cv7b'),'조치 대상이 없습니다');$('tab7').innerHTML='';$('conc7').innerHTML='<b>이 시드에서는 조치 대상 마스크가 없어 전후 비교를 할 수 없습니다.</b>';return;}
+  var sc=0.9*Math.min((($('cv7a').clientWidth||300)-32)/(NX-1),(190-40)/(NY-1)*1.4)/Math.max(maxAbs(C.post_mean),1e-6);
+  arrowMap($('cv7a'),C.post_mean,{scale:sc,rings:repOf(C.counts,KD),color:css('--c10')});
+  arrowMap($('cv7b'),C.after.post_mean,{scale:sc,rings:repOf(C.after.counts,KD),color:css('--good')});
+  var e=C.effect,pt=e.paired,w=e.welch,nb=C.glasses.filter(function(g){return g.gdef;}).length,na=C.after.glasses.filter(function(g){return g.gdef;}).length;
+  var h='<tr><th>비교</th><th>단위 · 개수</th><th>평균 차 (후 − 전)</th><th><i>t</i></th><th>자유도</th><th><i>p</i></th></tr>';
+  h+='<tr><td class="rowh">점별 대응 비교</td><td>점별 |<i>d</i>|의 8장 평균, 77쌍</td><td>'+sgn(pt.diff,3)+' µm</td><td>'+sg0(pt.t,2)+'</td><td>'+pt.df+'</td><td><b>'+fmtP(pt.p)+'</b></td></tr>';
+  h+='<tr><td class="rowh">유리별 Welch</td><td>유리별 보정 후 지표, 8장 대 8장</td><td>'+sgn(w.diff,3)+' µm</td><td>'+sg0(w.t,2)+'</td><td>'+fmt(w.df,1)+'</td><td><b>'+fmtP(w.p)+'</b></td></tr>';
+  h+='<tr><td class="rowh">보정 후 지표 (8장 평균 장)</td><td>전 → 후</td><td colspan="4">'+fmt(C.post_metric,2)+' → '+fmt(C.after.post_metric,2)+' µm</td></tr>';
+  h+='<tr><td class="rowh">반복 위치 수 (<i>k</i> = '+KD+')</td><td>전 → 후</td><td colspan="4">'+repOf(C.counts,KD).length+' → '+repOf(C.after.counts,KD).length+'곳</td></tr>';
+  h+='<tr><td class="rowh">유리 기인 결함이 있는 유리 (정답)</td><td>전 → 후</td><td colspan="4">'+nb+' / '+NG+'장 → '+na+' / '+NG+'장</td></tr>';
+  $('tab7').innerHTML=h;
+  var nr0=repOf(C.counts,KD).length,nr1=repOf(C.after.counts,KD).length;
+  $('conc7').innerHTML='<b>마스크 '+C.mask_id+'의 보정 후 지표는 리페어 전 '+fmt(C.post_metric,2)+' µm에서 후 '+fmt(C.after.post_metric,2)+' µm로 줄었습니다.</b> 점별 대응 비교는 평균 '+fmt(Math.abs(pt.diff),3)+' µm 줄어든 것이 p = '+fmtP(pt.p)+'이고, 유리별 Welch 는 p = '+fmtP(w.p)+'입니다. '+(pt.p<w.p?'두 p 가 다른 까닭은 위 설명대로 점끼리 독립이 아니어서 점별 비교가 훨씬 낙관적이기 때문입니다. 두 방법 다 개선 쪽을 가리키는지, 줄어든 크기가 의미 있는지를 함께 적습니다.':'이 마스크에서는 Welch 의 p 가 더 작습니다.')+' 반복 위치는 '+nr0+'곳에서 '+nr1+'곳으로 '+(nr1<nr0?'줄었고':nr1===nr0?'그대로이고':'늘었고')+', 리페어 뒤 새 유리 '+NG+'장 가운데 유리 기인 결함이 있는 유리는 '+na+'장입니다. '+(na?'리페어를 해도 유리 기인 결함은 계속 생깁니다.':'이번에는 없지만 유리마다 확률이 있어 계속 생길 수 있습니다.');
+  var hb='<tr><th>마스크</th><th>조치 이유</th><th>보정 후 지표 전 → 후 (µm)</th><th>반복 위치 전 → 후</th><th>점별 차 (µm)</th><th>대응 <i>p</i></th><th>Welch <i>p</i></th></tr>';
+  IT.filter(function(it){return it.treat;}).forEach(function(it){var e2=it.effect;hb+='<tr><td class="rowh"'+(C&&it.mask_id===C.mask_id?' style="color:var(--accent)"':'')+'>'+it.mask_id+'</td><td>'+(it.treat==='repair'?'리페어 판정':'반복 위치')+'</td><td>'+fmt(it.post_metric,2)+' → '+fmt(it.after.post_metric,2)+'</td><td>'+repOf(it.counts,KD).length+' → '+repOf(it.after.counts,KD).length+'</td><td>'+sgn(e2.paired.diff,3)+'</td><td>'+fmtP(e2.paired.p)+'</td><td>'+fmtP(e2.welch.p)+'</td></tr>';});
+  $('tab7b').innerHTML=hb;
+}
+
+/* ---- 8절 ---- */
+function upd8(){
+  var sp=ST.spec,over=IT.filter(function(it){return it.metric>sp;}).length,rep=IT.filter(function(it){return dec(it,sp)==='repair';}),cor=IT.filter(function(it){return dec(it,sp)==='correct';}).length;
+  var trueRep=IT.filter(function(it){return decT(it,sp)==='repair';}).length,miss=IT.filter(function(it){return decT(it,sp)==='repair'&&dec(it,sp)!=='repair';}).length;
+  var repWith=rep.filter(function(it){return it.repeat&&it.repeat.length;}).length,alone=IT.filter(function(it){return dec(it,sp)!=='repair'&&it.repeat&&it.repeat.length;}).length;
+  var h='<tr><th>항목 (spec '+fmt(sp,2)+' µm · 반복 기준 <i>k</i> = '+KD+'장)</th><th>마스크 수</th></tr>';
+  h+='<tr><td class="rowh">초안이 빼라는 마스크 (측정 지표가 spec 초과)</td><td>'+over+'</td></tr>';
+  h+='<tr><td class="rowh">규칙: 보정만으로 끝나는 마스크</td><td>'+cor+'</td></tr>';
+  h+='<tr><td class="rowh">규칙: 리페어로 판정한 마스크</td><td><b>'+rep.length+'</b></td></tr>';
+  h+='<tr><td class="rowh">그 가운데 이물 제거를 함께 거는 마스크 (반복 위치 있음)</td><td>'+repWith+'</td></tr>';
+  h+='<tr><td class="rowh">리페어 판정은 아니지만 반복 위치로 이물 제거를 거는 마스크</td><td>'+alone+'</td></tr>';
+  h+='<tr><td class="rowh">쓸데없는 리페어 (초안 − 규칙)</td><td>'+(over-rep.length)+'</td></tr>';
+  h+='<tr><td class="rowh">정답이 리페어인 마스크 · 규칙이 놓친 마스크</td><td>'+trueRep+' · '+miss+'</td></tr>';
+  $('tab8').innerHTML=h;
+  var mxp=0;IT.forEach(function(it){if(it.metric>sp&&it.post_metric>mxp)mxp=it.post_metric;});
+  $('land').innerHTML='<p style="margin:0 0 .5rem"><b>(1) 승인 여부 — 초안은 승인하지 않습니다.'+(rep.length?' 리페어 판정 '+rep.length+'장만 승인 대상으로 올립니다.':' 리페어 판정이 나온 마스크가 없어 승인 대상으로 올릴 마스크가 없습니다.')+'</b> 초안이 빼라는 '+over+'장 가운데 '+(over-rep.length)+'장은 얼라이너와 온도 보정으로 spec '+fmt(sp,2)+' µm 안으로 들어오므로(보정 후 지표 최대 '+fmt(mxp,2)+' µm) 리페어가 아니라 보정입니다.</p>'+
+    '<p style="margin:0 0 .5rem"><b>(2) 리페어할 마스크는 '+rep.length+'장이고, 그 가운데 이물 제거를 함께 걸 마스크는 '+repWith+'장입니다.</b> 이와 별개로 리페어 판정은 아니지만 같은 위치가 '+KD+'장 이상 반복되어 이물 제거를 거는 마스크가 '+alone+'장 있습니다(우연 반복 확률 '+fmtP(TL.chance(S.p_single,NG,KD).any)+'). 정답과 견주면 규칙이 놓친 리페어 마스크는 '+miss+'장입니다.</p>'+
+    '<p style="margin:0">보정만으로 끝나는 '+cor+'장에는 넣을 보정값(얼라이너 <i>T<sub>x</sub></i>·<i>T<sub>y</sub></i>·<i>θ</i>, 온도 보정 기울기 '+sg0(BT.thermal,3)+' ppm/K)을 기록지에 적어 넘깁니다.</p>';
+}
+
+/* ---- 9절 ---- */
+function seedRec(sd){
+  var S2=MS.scenario('S12',{seed:sd}),m=TL.metrics(S2),sp=S2.spec,over=S2.items.filter(function(it){return it.metric>sp;}).length,rep=S2.items.filter(function(it){return it.action==='repair';}).length;
+  var miss=S2.items.filter(function(it){return it.truth_action==='repair'&&it.action!=='repair';}).length,pp=[],wp=[];
+  S2.items.forEach(function(it){if(it.effect){pp.push(it.effect.paired.p);wp.push(it.effect.welch.p);}});
+  var cross={},nc=0;S2.items.forEach(function(it){TL.repeat(it.counts,S2.k_default).forEach(function(q){var key=q.px+','+q.py;cross[key]=(cross[key]||0)+1;});});Object.keys(cross).forEach(function(k2){if(cross[k2]>=2)nc++;});
+  return {over:over,rep:rep,useless:over-rep,miss:miss,m:m,pp:pp,wp:wp,cross:nc};
+}
+function distOf(fn){return SEEDREC.map(fn);}
+function upd9(){
+  var tn=ST.tn,done=SEEDREC.length===200,sp=ST.spec;$('sTnO').textContent=tn+'턴';
+  stateBox($('stT'),tn===2,'지금 이 값이 기본값입니다. 리페어 한 번에 마스크가 2턴 빠진다는 가정입니다.','지금은 기본값에서 옮겨 놓은 가정입니다. 마스크가 '+tn+'턴 빠집니다(기본 2턴).');
+  var over=IT.filter(function(it){return it.metric>sp;}).length,rep=IT.filter(function(it){return dec(it,sp)==='repair';}).length,miss=IT.filter(function(it){return decT(it,sp)==='repair'&&dec(it,sp)!=='repair';}).length,use=over-rep;
+  var prod=function(n){return n*tn*CF.N_TURN;},dd=function(fn,d){return done?c3(distOf(fn),d||0):'계산 중…';};
+  var h='<tr><th>항목 (spec '+fmt(sp,2)+' µm · 마스크가 '+tn+'턴 빠짐)</th><th>대표 시드 '+SEED+'</th><th>시드 1~200의 중앙값 (10~90%) · 기본 spec</th></tr>';
+  h+='<tr><td class="rowh">초안이 빼는 마스크 수 (지표만으로)</td><td>'+over+'</td><td>'+dd(function(r){return r.over;})+'</td></tr>';
+  h+='<tr><td class="rowh">규칙이 리페어로 판정하는 마스크 수</td><td>'+rep+'</td><td>'+dd(function(r){return r.rep;})+'</td></tr>';
+  h+='<tr><td class="rowh">쓸데없는 리페어 마스크 수</td><td><b>'+use+'</b></td><td>'+dd(function(r){return r.useless;})+'</td></tr>';
+  h+='<tr><td class="rowh">놓침 마스크 수 (정답은 리페어, 규칙은 아님)</td><td>'+miss+'</td><td>'+dd(function(r){return r.miss;})+'</td></tr>';
+  h+='<tr><td class="rowh">지키는 생산량 (유리 장) = 쓸데없는 리페어 × '+tn+'턴 × '+CF.N_TURN+'장</td><td><b>'+fmtN(prod(use))+'</b></td><td>'+dd(function(r){return prod(r.useless);})+'</td></tr>';
+  $('tab9').innerHTML=h;
+  $('con9').innerHTML='<b>대표 시드에서 지표만으로 리페어하면 쓸데없이 빼는 마스크가 '+use+'장 생기고, 규칙으로 가르면 지키는 생산량이 '+fmtN(prod(use))+'장입니다.</b>'+(done?' 시드 200개로 다시 뽑으면 지키는 양의 중앙값은 '+c3(distOf(function(r){return prod(r.useless);}),0)+'장입니다.':'')+' 정답으로 리페어가 필요한 마스크를 규칙이 놓친 수는 '+miss+'장이므로 '+(miss?'놓친 쪽의 대가도 함께 적어야 합니다.':'이 spec 에서는 놓침이 없어 보정으로 얻은 이득을 놓침으로 갚지 않았습니다.')+(use<=1?' 차이가 작으니 작게 보고합니다.':'');
+  if(done){
+    var rk=function(fn,v){var a=distOf(fn).filter(isFinite);if(!isFinite(v))return NaN;var lt=0,eq=0;a.forEach(function(x){if(x<v)lt++;else if(x===v)eq++;});return (lt+0.5*eq)/a.length;};
+    var rows=[['판정 일치율 (방법 대 정답)',function(r){return r.m.agree;},'fr',3],['쓸데없는 리페어 수',function(r){return r.useless;},'int',0],['마스크 기인 결함 중 반복 위치로 잡힌 비율',function(r){return r.m.def_ratio;},'fr',3],['반복 위치가 잘못 잡힌 마스크 수',function(r){return r.m.false_mask;},'int',0],['유리 한 장 판정의 정답률',function(r){return r.m.single_ok;},'fr',3],['조치 마스크 전후 점별 대응 비교 p 의 중앙값',function(r){return r.m.paired_p_median;},'p',0]];
+    var hb='<tr><th>지표</th><th>대표 시드 '+SEED+'</th><th>시드 1~200의 중앙값 (10~90%)</th><th>백분위</th></tr>';
+    rows.forEach(function(r){var v=r[1]({m:TL.metrics(S),useless:(IT.filter(function(it){return it.metric>SPEC0;}).length-IT.filter(function(it){return it.action==='repair';}).length)}),pc=rk(r[1],v);
+      var ds=r[2]==='p'?fmtP(quant(distOf(r[1]),.5))+' ('+fmtP(quant(distOf(r[1]),.1))+'~'+fmtP(quant(distOf(r[1]),.9))+')':c3(distOf(r[1]),r[3]);
+      hb+='<tr><td class="rowh">'+r[0]+'</td><td>'+(r[2]==='p'?fmtP(v):fmt(v,r[3]))+'</td><td>'+ds+'</td><td'+(pc<0.25||pc>0.75?' class="hit"':'')+'>'+fmt(pc*100,0)+'%</td></tr>';});
+    $('tab9b').innerHTML=hb;
+    var allpp=[],allwp=[];SEEDREC.forEach(function(r){r.pp.forEach(function(v,i){allpp.push(v);allwp.push(r.wp[i]);});});
+    setAll('q7_n',fmtN(allpp.length));setAll('q7_pp',fmtP(quant(allpp,.5)));setAll('q7_wp',fmtP(quant(allwp,.5)));setAll('q7_frac',fmt(allpp.filter(function(v,i){return v<allwp[i];}).length/allpp.length*100,0)+'%');
+  }else $('tab9b').innerHTML='<tr><td>계산 중…</td></tr>';
+}
+$('sTn').addEventListener('input',function(){ST.tn=+this.value;upd9();});
+$('rT').addEventListener('click',function(){ST.tn=2;$('sTn').value='2';upd9();});
+function runDist(){
+  SEEDREC=[];var sd=1;
+  function step(){var t=Date.now();while(sd<=200&&Date.now()-t<30){SEEDREC.push(seedRec(sd));sd++;}
+    $('sdSt').textContent=sd<=200?'시드 '+(sd-1)+' / 200 계산했습니다.':'시드 200개의 분포를 계산했습니다.';
+    if(sd<=200)setTimeout(step,0);else{upd9();}}
+  step();
+}
+(function(){
+  var tail=TL.chance(S.p_single,NG,KD).tail,cross={},nc=0;
+  IT.forEach(function(it){TL.repeat(it.counts,KD).forEach(function(q){var key=q.px+','+q.py;cross[key]=(cross[key]||0)+1;});});Object.keys(cross).forEach(function(k2){if(cross[k2]>=2)nc++;});
+  var ex=NP*TL.binomTail(NM,tail,2);setAll('q7_cross',String(nc));setAll('q7_exp',fmt(ex,2));
+})();
+
+/* ---- 10·11절 ---- */
+(function(){
+  function dl(name,rows,st){
+    var cols=Object.keys(rows[0]);
+    try{var txt=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){return r[c];}).join(',');}).join('\n')+'\n',blob=new Blob([txt],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: '+name+' ('+fmtN(rows.length)+'행, 열 '+cols.length+'개).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  }
+  $('csvBtn1').addEventListener('click',function(){dl('ppa_s12.csv',S.csvRows(),$('csvState'));});
+  var f=['마스크 번호 · 턴 · 유리 장 수 · 측정 레시피 판(턴 안 어느 순번)','측정 지표 / 보정 후 지표 / spec','보정 가능 몫: 장비에 넣는 값(단위·부호)','남은 몫 중 최대 성분','반복 위치 목록 (장 수/측정 장 수)','판정과 담당','리페어면 승인란','조치 뒤 첫 측정과 전후 비교(점별 대응 · 유리별 Welch)'];
+  $('rp_fields').innerHTML=f.map(function(s){return '· '+s;}).join('<br>');
+  var g=A.glasses,rg=function(fn){var v=g.map(fn);return fmt(Math.min.apply(null,v),2)+'~'+fmt(Math.max.apply(null,v),2);};
+  var rp=repOf(A.counts,KD);
+  $('rp_ex').innerHTML='마스크 <code>'+A.mask_id+'</code> · 턴 '+A.turn+' · 유리 '+NG+'장 · 레시피 판 <code>RCP-S12-1</code>(턴 안 순번 '+GITS.join('·')+') · 측정 지표 '+fmt(A.metric,2)+' / 보정 후 '+fmt(A.post_metric,2)+' / spec '+fmt(SPEC0,2)+' µm · 보정 가능 몫: 유리마다 <i>T<sub>x</sub></i> '+rg(function(q){return q.coef.Tx;})+' µm, <i>T<sub>y</sub></i> '+rg(function(q){return q.coef.Ty;})+' µm, <i>θ</i> '+rg(function(q){return q.coef.theta;})+' µm/m(얼라이너), 온도 보정 기울기 '+sg0(BT.thermal,3)+' ppm/K·기준 온도 '+CF.T0+' °C · 남은 몫 중 최대 '+TL.KIND_KO[A.kind]+' · 반복 위치 '+(rp.length?rp.map(function(q){return '('+q.px+', '+q.py+') '+A.counts[q.py*NX+q.px]+'/'+NG;}).join(', '):'없음')+' · 판정 '+LBL[dec(A,SPEC0)]+(rp.length?'(이물 제거를 함께 건다)':'')+(A.after?' · 조치 뒤 보정 후 지표 '+fmt(A.after.post_metric,2)+' µm, 점별 대응 비교 p = '+fmtP(A.effect.paired.p)+', 유리별 Welch p = '+fmtP(A.effect.welch.p):'')+'.';
+})();
+
+/* ---- 다시 그리기 ---- */
+function redraw(){draw2();upd3();upd4();drawQ(ST.qPick!==null);upd5();upd6();draw7();upd8();upd9();}
+window.addEventListener('resize',redraw);
+
+/* ---- 테마·상단바 ---- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+$('sSp').value=String(SPEC0);
+redraw();
+setTimeout(runDist,50);
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

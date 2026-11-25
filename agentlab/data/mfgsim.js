@@ -1014,12 +1014,13 @@
   /* ============================================================
    * 6. 시나리오 S1~S7 (숨은 정답 포함)
    * ============================================================ */
-  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12, S10: 128, S11: 67 };   // 기본 시드(S10=128: 시드 1~200 의 일곱 지표(불량 스틱 마스크 수·지표만 보면 놓친 수·열 단면이 잡은 수·열 단면 헛표시 마스크 수·튀는 점 찾은 수·spec·섞인 문항 수) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
+  /* S12=153: 시드 1~200 의 여섯 지표(판정 일치율·쓸데없는 리페어 수·마스크 기인 결함 중 반복 위치로 잡힌 비율·반복 위치가 잘못 잡힌 마스크 수·유리 한 장 판정 정답률·조치 마스크 전후 점별 대응 비교 p 중앙값) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드(verify.py 가 독립 계산으로 확인) */
+  var SEEDS = { S1: 12, S2: 5, S3: 1, S4: 4, S5: 4, S6: 6, S7: 8, S8: 134, S9: 12, S10: 128, S11: 67, S12: 153 };   // 기본 시드(S10=128: 시드 1~200 의 일곱 지표(불량 스틱 마스크 수·지표만 보면 놓친 수·열 단면이 잡은 수·열 단면 헛표시 마스크 수·튀는 점 찾은 수·spec·섞인 문항 수) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S9=12: 시드 1~200의 일곱 지표(P0·P1·P2 확인 비용, 놓침 기록 없을 때 k 이동, 섞어 나누기·시간순 낙관 편향, 적응형 놓침 변화) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드 · S7·S8 은 시드 200개 분포의 중앙값 근처인 대표 시드; verify.py 가 분포를 확인). S8=134: 시드 1~200 중 다섯 첫 알람 지연(슈하트·EWMA·CUSUM·잔차 3σ·잔차 CUSUM)이 모두 분포 25~75% 안이고 변화 전 헛알람이 없는 유일한 시드
 
   function scenario(name, params) {
     params = params || {};
-    var key = /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11 }[key];
+    var key = /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -2085,12 +2086,159 @@
   S11.tools = { fit: s11fit, join: s11join, withTruth: s11withTruth, regress: s11regress, lsq: s11lsq, compensate: s11compensate, alarms: s11alarms, turnMeans: s11turnMeans, alarmsFromMeans: s11alarmsFromMeans, confusion: s11confusion, metrics: s11metrics, pickMask: s11pickMask, corr: s11corr,
     IDS: S11_IDS, GITS: S11_GITS, TURNS: S11_TURNS, SEASON_K: S11_SEASON_K, REVIEW: S11_REVIEW, LIMIT: S11_LIMIT, P_GAP: S11_P_GAP, FDC_NOISE: S11_FDC_NOISE };
 
+  /* ============================================================
+   * S12 correct_or_repair — 보정할까 리페어할까(실험실 0304). 마스크 24장(B02~B07 × 세트 A × 챔버 1~4) 각각 같은 턴(3~20 사이) 안에서
+   * 유리 8장(턴 안 순번 15·30·…·120)을 잰다 = 192장. 마스크 집단은 makeMask(id, null, 'S12-'+seed), 새 난수는 전부 hashSeed('S12', …) 줄기.
+   * 유리 기인 결함: 유리마다 확률 0.3 으로 무작위 한 점에 N(0, 2.5²) µm (dx, dy) 를 ppa() 결과 격자에 덧붙임(ppa 는 그대로).
+   * 마스크 기인 결함 = makeMask 가 이미 가진 defects(약 20% 마스크, 모든 유리의 같은 위치). 기존 함수·S1~S11 출력은 건드리지 않는다.
+   * 보정 가능 몫 = 평행이동·회전(유리마다 전부 항 적합의 Tx·Ty·θ) + 열변형(0303 의 다중 회귀 열변형 기울기 b̂T 와 My/Mx 비 × (FDC 온도 − T0)).
+   * ============================================================ */
+  var S12_GITS = [15, 30, 45, 60, 75, 90, 105, 120], S12_P_GLASS = 0.3, S12_SIG_GLASS = 2.5, S12_CHANCE = 0.01, S12_FDC_NOISE = 0.04, S12_SPEC_Q = 0.95, S12_KEEP = 0.6;
+  var S12_IDS = ['B02', 'B03', 'B04', 'B05', 'B06', 'B07'].reduce(function (a, bk) { for (var c = 1; c <= 4; c++) a.push(maskId(bk, 'A', c)); return a; }, []);
+  var _s12bt = null;
+  function s12bT() {                                   // 0303(S11 기본 시드)의 다중 회귀 기울기를 받아 쓴다. 숫자를 박지 않음
+    if (!_s12bt) { var m = s11metrics(S11({})); _s12bt = { thermal: m.thermal, thermal_se: m.thermal_se, ratio: m.ratio, seed: SEEDS.S11 }; }
+    return _s12bt;
+  }
+  function s12mean(grids) {                            // 점별 평균 장
+    return grids[0].map(function (g, i) { var sx = 0, sy = 0; grids.forEach(function (G) { sx += G[i].dx_um; sy += G[i].dy_um; }); return { px: g.px, py: g.py, x_mm: g.x_mm, y_mm: g.y_mm, dx_um: sx / grids.length, dy_um: sy / grids.length }; });
+  }
+  function s12post(grid, tFdc, coef, bt) {             // 보정 후 장 = 측정 − 보정 가능 몫(평행이동·회전·열변형)
+    var dT = tFdc - CFG.T0, cc = { Tx: coef.Tx, Ty: coef.Ty, theta: coef.theta, Mx: bt.thermal * dT, My: bt.ratio * bt.thermal * dT, K: 0, Cx: 0, Cy: 0 };
+    return { coef: cc, grid: s10subtract(grid, cc) };
+  }
+  function s12glass(mk, id, seed, turn, git, tagS, bt) {
+    var pm = parseMaskId(id), gid = 'S12-' + seed + '-' + id + tagS + '-G' + pad(git, 3);
+    var rt = rng(hashSeed('S12', seed, id, tagS, git, 'fdc')), rd = rng(hashSeed('S12', seed, id, tagS, git, 'gdef'));
+    var tTrue = chamberTemp(pm.chamber, git), tFdc = chamberTemp(pm.chamber, git, { rng: rt, noise: S12_FDC_NOISE });
+    var ctx = { glass_id: gid, block: mk.block, chamber: mk.chamber, mask_set: mk.set, turn: turn, glass_in_turn: git, chamber_temp: tTrue };
+    var res = ppa(ctx, mk), grid = res.grid, gd = null;
+    if (rd.u() < S12_P_GLASS) { var gx = rd.int(CFG.NX), gy = rd.int(CFG.NY), ddx = rd.normal(0, S12_SIG_GLASS), ddy = rd.normal(0, S12_SIG_GLASS); grid[gy * CFG.NX + gx].dx_um += ddx; grid[gy * CFG.NX + gx].dy_um += ddy; gd = { px: gx, py: gy, dx: ddx, dy: ddy }; }
+    var f = s11fit(grid), resid = s10subtract(grid, f.coef), po = pointOutliers(resid, S10_PT_Z), pc = s12post(grid, tFdc, f.coef, bt);
+    var tr = res.truth, tf = ppaField(tr).map(function (q) { return { px: q.px, py: q.py, x_mm: q.x_mm, y_mm: q.y_mm, dx_um: q.dx, dy_um: q.dy }; });
+    var tcorr = { Tx: tr.Tx, Ty: tr.Ty, theta: tr.theta, Mx: tr.Mx_th, My: tr.My_th * 0.5, K: 0, Cx: 0, Cy: 0 };
+    return { glass_id: gid, glass_in_turn: git, fdc_temp: tFdc, T_true: tTrue, grid: grid, coef: f.coef, se: f.se, sigma: f.sigma, resid: resid, flagged: po.flagged, post: pc.grid, corr: pc.coef, gdef: gd,
+      truth_field: tf, truth_post: s10subtract(tf, tcorr), truth_comp: tr, post_metric: ppaMetric(pc.grid), metric: ppaMetric(grid) };
+  }
+  function s12measure(mk, id, seed, turn, tagS, bt) {  // 마스크 하나, 같은 턴의 유리 8장
+    var gl = S12_GITS.map(function (git) { return s12glass(mk, id, seed, turn, git, tagS, bt); });
+    var m = s12mean(gl.map(function (g) { return g.grid; })), pm = s12mean(gl.map(function (g) { return g.post; })), tm = s12mean(gl.map(function (g) { return g.truth_field; })), tpm = s12mean(gl.map(function (g) { return g.truth_post; }));
+    return { glasses: gl, mean: m, post_mean: pm, truth_mean: tm, truth_post_mean: tpm, metric: ppaMetric(m).dx_metric, post_metric: ppaMetric(pm).dx_metric, truth_metric: ppaMetric(tm).dx_metric, truth_post_metric: ppaMetric(tpm).dx_metric };
+  }
+  /* 3단 판정: 1) 측정 지표 ≤ spec → none 2) 측정 > spec, 보정 후 ≤ spec → correct 3) 보정 후 > spec → repair */
+  function s12decide(metric, post, spec) { return metric <= spec ? 'none' : post <= spec ? 'correct' : 'repair'; }
+  var S12_KIND_KO = { mag: '배율 노화', ortho: '직교도', high: '고차 성분', stick: '스틱', local: '마스크 기인 결함' };
+  var S12_KIND_ACT = { mag: '장력·프레임 리페어', ortho: '장력·프레임 리페어', high: '장력·프레임 리페어', stick: '스틱 교체', local: '이물 제거' };
+  function s12remain(pm) {                             // 보정 후 8장 평균 장에 남은 몫들: 배율·직교도·고차 = 전부 항 적합 계수, 스틱 = 열마다 평균, 국소 = 스틱을 뺀 뒤 튀는 점
+    var f = s11fit(pm), c = f.coef, r = s10subtract(pm, c), NX = CFG.NX, NY = CFG.NY, so = [], sp = [], j, i;
+    for (j = 0; j < NX; j++) {
+      var sx = 0, sy = 0, syy = 0;
+      for (i = 0; i < NY; i++) { var g = r[i * NX + j], yy = g.y_mm * 1e-3; sx += g.dx_um; sy += yy * g.dy_um; syy += yy * yy; }
+      so.push(sx / NY); sp.push(sy / syy);
+    }
+    var r2 = r.map(function (g) { return { px: g.px, py: g.py, x_mm: g.x_mm, y_mm: g.y_mm, dx_um: g.dx_um - so[g.px], dy_um: g.dy_um - sp[g.px] * g.y_mm * 1e-3 }; });
+    var po = pointOutliers(r2, S10_PT_Z), defs = po.flagged.map(function (q) { var g = r2[q.py * NX + q.px]; return { px: q.px, py: q.py, dx: g.dx_um, dy: g.dy_um }; });
+    var cc = { Tx: 0, Ty: 0, theta: 0, Mx: c.Mx, My: c.My, K: c.K, Cx: c.Cx, Cy: c.Cy, stick_off: so, stick_pitch: sp, defects: defs }, sh = s10shares(cc), kinds = ['mag', 'ortho', 'high', 'stick', 'local'], map = { mag: 'mag', ortho: 'ortho', high: 'high', stick: 'stick', local: 'local' };
+    var ss = {}, tot = 0; kinds.forEach(function (k) { ss[k] = sh.ss[map[k]]; tot += ss[k]; });
+    var best = null, share = {}; kinds.forEach(function (k) { share[k] = tot > 0 ? ss[k] / tot : 0; if (best === null || share[k] > share[best]) best = k; });
+    return { ss: ss, share: share, dominant: best, coef: c, stick_off: so, stick_pitch: sp, local: defs };
+  }
+  function s12truthKind(gl) {                          // 정답: 보정 가능 몫(평행이동·회전·열변형)을 뺀 참 성분의 제곱합 몫, 8장 평균
+    var kinds = ['mag', 'ortho', 'high', 'stick', 'local'], acc = {}, tot = 0; kinds.forEach(function (k) { acc[k] = 0; });
+    gl.forEach(function (g) {
+      var t = g.truth_comp, cc = { Tx: 0, Ty: 0, theta: 0, Mx: t.Mx - t.Mx_th, My: t.My - t.My_th * 0.5, K: t.K, Cx: t.Cx, Cy: t.Cy, stick_off: t.stick_off, stick_pitch: t.stick_pitch, defects: t.defects }, sh = s10shares(cc);
+      kinds.forEach(function (k) { acc[k] += sh.ss[k]; tot += sh.ss[k]; });
+    });
+    var best = null; kinds.forEach(function (k) { if (best === null || acc[k] > acc[best]) best = k; });
+    return best;
+  }
+  function s12binomTail(n, p, k) {                     // P(Bin(n, p) ≥ k)
+    var j, pmf = Math.pow(1 - p, n), cdf = 0;
+    for (j = 0; j < k; j++) { cdf += pmf; pmf = pmf * (n - j) / (j + 1) * p / (1 - p); }
+    return Math.max(0, 1 - cdf);
+  }
+  function s12chance(pSingle, n, k, nPos) {            // 튄 점이 위치와 상관없이 떨어질 때, 77 위치 중 어디든 k 장 이상 겹칠 확률
+    nPos = nPos == null ? CFG.NX * CFG.NY : nPos;
+    var t = s12binomTail(n, pSingle, k);
+    return { tail: t, any: 1 - Math.pow(1 - t, nPos) };
+  }
+  function s12minK(pSingle, n, nPos, thr) {            // 우연 반복 확률이 thr(1%) 아래로 내려가는 가장 작은 k
+    thr = thr == null ? S12_CHANCE : thr;
+    for (var k = 1; k <= n; k++) if (s12chance(pSingle, n, k, nPos).any < thr) return k;
+    return n + 1;
+  }
+  function s12counts(glasses) {                        // 위치(77칸)마다 튄 점으로 잡힌 장 수
+    var c = new Array(CFG.NX * CFG.NY).fill(0); glasses.forEach(function (g) { g.flagged.forEach(function (q) { c[q.py * CFG.NX + q.px]++; }); }); return c;
+  }
+  function s12repeat(counts, k) { var o = []; counts.forEach(function (v, i) { if (v >= k) o.push({ px: i % CFG.NX, py: Math.floor(i / CFG.NX), n: v }); }); return o; }
+  function s12repairEffect(before, after) {            // before·after = 보정 후 장 8장씩. 점별 |d| 8장 평균의 대응 비교 + 유리별 지표 Welch (0103 방식)
+    function absMean(G) { return G[0].map(function (_, i) { var s = 0; G.forEach(function (g) { s += Math.sqrt(g[i].dx_um * g[i].dx_um + g[i].dy_um * g[i].dy_um); }); return s / G.length; }); }
+    var a = absMean(before), b = absMean(after), gm = function (G) { return G.map(function (g) { return ppaMetric(g).dx_metric; }); };
+    var pt = pairedT(a, b), w = welch(gm(before), gm(after));
+    return { before_abs: a, after_abs: b, paired: pt, welch: w, glass_before: gm(before), glass_after: gm(after) };
+  }
+  function s12truthIn(mk) {                            // 마스크 기인 위치 정답: 마스크 결함 점 + 불량 스틱 열 전체
+    var set = {}; mk.defects.forEach(function (d) { set[d.py * CFG.NX + d.px] = 'defect'; });
+    if (mk.bad_stick >= 0) for (var py = 0; py < CFG.NY; py++) set[py * CFG.NX + mk.bad_stick] = set[py * CFG.NX + mk.bad_stick] || 'stick';
+    return set;
+  }
+  function S12(p) {
+    var seed = p.seed == null ? SEEDS.S12 : p.seed, bt = s12bT(), items = [];
+    S12_IDS.forEach(function (id) {
+      var mk = makeMask(id, null, 'S12-' + seed), r = rng(hashSeed('S12', seed, id, 'turn')), turn = 3 + r.int(18);
+      var me = s12measure(mk, id, seed, turn, '', bt);
+      items.push(Object.assign({ mask_id: id, block: mk.block, chamber: mk.chamber, turn: turn, mask: mk, bad_stick: mk.bad_stick, mask_defects: mk.defects.slice() }, me));
+    });
+    var good = items.filter(function (it) { return it.bad_stick < 0; }).map(function (it) { return it.metric; }), spec = quantileOf(good, S12_SPEC_Q);
+    items.forEach(function (it) {
+      it.action = s12decide(it.metric, it.post_metric, spec); it.truth_action = s12decide(it.truth_metric, it.truth_post_metric, spec);
+      it.remain = s12remain(it.post_mean); it.kind = it.remain.dominant; it.truth_kind = s12truthKind(it.glasses);
+      it.counts = s12counts(it.glasses); it.flag_per_glass = it.glasses.reduce(function (s, g) { return s + g.flagged.length; }, 0) / it.glasses.length;
+      it.origin = s12truthIn(it.mask);
+    });
+    var pSingle = median(items.map(function (it) { return it.flag_per_glass / (CFG.NX * CFG.NY); })), n = S12_GITS.length, kDef = s12minK(pSingle, n);
+    /* 조치 대상 = 3단 판정이 리페어이거나, 반복 위치(k 이상)가 잡힌 마스크(이물 제거를 건다). 이 가상 공정에서는 보정 후 지표가 spec 을 넘는 마스크가 거의 없어서(verify 가 시드 200개로 센다) 두 번째 갈래가 전후 비교의 주 대상이 된다 */
+    var rep = items.filter(function (it) { it.repeat = s12repeat(it.counts, kDef); it.treat = it.action === 'repair' ? 'repair' : it.repeat.length > 0 ? 'foreign' : null; return it.treat !== null; }), pick = null;
+    rep.forEach(function (it) { if (pick === null || it.post_metric > pick.post_metric) pick = it; });
+    rep.forEach(function (it) {
+      var mk2 = repairMask(it.mask, it.turn + 1, S12_KEEP);
+      it.after = s12measure(mk2, it.mask_id, seed, it.turn + 1, '-R', bt); it.after.counts = s12counts(it.after.glasses);
+      it.effect = s12repairEffect(it.glasses.map(function (g) { return g.post; }), it.after.glasses.map(function (g) { return g.post; }));
+    });
+    var out = { id: 'S12', name: 'correct_or_repair', params: { seed: seed, n_mask: items.length, n_glass: n, gits: S12_GITS.slice(), p_glass: S12_P_GLASS, sig_glass: S12_SIG_GLASS, spec_quantile: S12_SPEC_Q, pt_z: S10_PT_Z, chance: S12_CHANCE, keep: S12_KEEP, T_ref: CFG.T0, fdc_noise: S12_FDC_NOISE },
+      bT: bt, items: items, spec: spec, p_single: pSingle, k_default: kDef, pick_repair: pick ? pick.mask_id : null, n_good: good.length };
+    out.csvRows = function () {
+      var rows = []; items.forEach(function (it) { it.glasses.forEach(function (g) { g.grid.forEach(function (q) { rows.push({ glass_id: g.glass_id, mask_id: it.mask_id, turn: it.turn, glass_in_turn: g.glass_in_turn, px: q.px, py: q.py, x_mm: +q.x_mm.toFixed(1), y_mm: +q.y_mm.toFixed(1), dx_um: +q.dx_um.toFixed(5), dy_um: +q.dy_um.toFixed(5), fdc_temp: +g.fdc_temp.toFixed(4) }); }); }); });
+      return rows;
+    };
+    return out;
+  }
+  function s12metrics(S, kOver) {                      // 시드 하나의 여섯 지표 + 부수 값 (k 를 바꿔 볼 수 있음)
+    var items = S.items, k = kOver == null ? S.k_default : kOver, nPos = CFG.NX * CFG.NY;
+    var agree = items.filter(function (it) { return it.action === it.truth_action; }).length / items.length;
+    var overM = items.filter(function (it) { return it.metric > S.spec; }).length, nRep = items.filter(function (it) { return it.action === 'repair'; }).length, useless = overM - nRep;
+    var defTot = 0, defCaught = 0, falseMask = 0, singleOk = 0, repOk = 0;
+    items.forEach(function (it) {
+      var rp = s12repeat(it.counts, k);
+      it.mask_defects.forEach(function (d) { defTot++; if (rp.some(function (q) { return q.px === d.px && q.py === d.py; })) defCaught++; });
+      if (rp.some(function (q) { return !it.origin[q.py * CFG.NX + q.px]; })) falseMask++;
+      var truthMask = Object.keys(it.origin).length > 0, single = it.glasses[0].flagged.length > 0;
+      if (single === truthMask) singleOk++; if ((rp.length > 0) === truthMask) repOk++;
+    });
+    var ps = items.filter(function (it) { return it.effect; }).map(function (it) { return it.effect.paired.p; });
+    return { agree: agree, useless: useless, over_spec: overM, n_repair: nRep, def_total: defTot, def_caught: defCaught, def_ratio: defTot ? defCaught / defTot : NaN, false_mask: falseMask, single_ok: singleOk / items.length, repeat_ok: repOk / items.length,
+      paired_p_median: ps.length ? median(ps) : NaN, n_paired: ps.length, k: k, chance: s12chance(S.p_single, S12_GITS.length, k, nPos).any, n_correct: items.filter(function (it) { return it.action === 'correct'; }).length,
+      n_truth_repair: items.filter(function (it) { return it.truth_action === 'repair'; }).length, n_truth_over: items.filter(function (it) { return it.truth_metric > S.spec; }).length };
+  }
+  S12.tools = { bT: s12bT, decide: s12decide, remain: s12remain, chance: s12chance, minK: s12minK, binomTail: s12binomTail, counts: s12counts, repeat: s12repeat, repairEffect: s12repairEffect, metrics: s12metrics, post: s12post, mean: s12mean, measure: s12measure,
+    IDS: S12_IDS, GITS: S12_GITS, P_GLASS: S12_P_GLASS, SIG_GLASS: S12_SIG_GLASS, CHANCE: S12_CHANCE, KIND_KO: S12_KIND_KO, KIND_ACT: S12_KIND_ACT, KEEP: S12_KEEP, SPEC_Q: S12_SPEC_Q };
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaField: ppaField, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools
   };
 });

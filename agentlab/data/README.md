@@ -8,7 +8,7 @@
 |---|---|
 | `mfgsim.js` | 시뮬레이터 본체. 브라우저에서는 `<script src="mfgsim.js">` 로 `window.MfgSim`, node 에서는 `require('./mfgsim.js')` |
 | `build_csv.mjs` | `node agentlab/data/build_csv.mjs` 로 `csv/` 를 다시 만듭니다 |
-| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 120항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank), S11 은 유리 1728장의 계수·join·다중 회귀·온도 보정·리페어 경보를 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조) |
+| `verify.py` | scipy·pandas 로 시나리오의 숨은 성질과 ESTC 층, PPA 벡터장(S10)을 검사합니다(`python3 verify.py`, 134항목. ESTC 검사는 CSV 를 파이썬으로 독립 재생, S10 은 성분 몫·열 단면·튀는 점·짝/문항 규칙과 0302 의 최소제곱·단순 평균법·점 누락 프리셋·식별(rank), S11 은 유리 1728장의 계수·join·다중 회귀·온도 보정·리페어 경보를 파이썬(numpy)으로 다시 구현해 시드 1~200 을 JS 와 대조, S12 는 유리 192장의 계수·보정 후 지표·3단 판정·튄 점·반복 위치·우연 반복 확률(scipy.stats.binom)·리페어 전후 대응 비교와 Welch 를 다시 구현해 시드 1~200 을 JS 와 대조) |
 | `csv/` | 실험실의 Python 코드가 읽는 파일 |
 
 ## 공정 구조와 연결 키
@@ -32,6 +32,7 @@
 - `ppa_sample.csv` — B03 CH2 유리 3장의 77점. `…, px, py, x_mm, y_mm, dx_um, dy_um, defect`(1 이면 국소 결함 정답).
 - `ppa_s10.csv` — S10(실험실 0301) 대표 시드의 마스크 72장 × 77점. `glass_id, block, chamber, mask_id, mask_set, turn, glass_in_turn, chamber_temp, px, py, x_mm, y_mm, dx_um, dy_um, defect, bad_stick`(`defect` 1 = 국소 결함 정답 점, `bad_stick` = 마스크의 불량 스틱 열 번호 정답, 없으면 -1). 유리 가운데가 원점이고 +dx 는 오른쪽(장변), +dy 는 위쪽(단변), 행 0 이 맨 아래 줄입니다.
 - `ppa_coef_s11.csv` — S11(실험실 0303) 대표 시드의 유리 1728장(마스크 12장 × 24턴 × 턴 안 순번 5·20·40·60·90·120)마다 0302 의 전부 항 최소제곱으로 구한 계수 한 줄. `glass_id, block, chamber, mask_id, turn, glass_in_turn, Tx_hat, Ty_hat, theta_hat, Mx_hat, My_hat, K_hat, Cx_hat, Cy_hat, se_Mx, se_My, sigma, model`(`model` = `full5`, 단위는 0302 와 같음). 정답 성분은 담지 않음.
+- `ppa_s12.csv` — S12(실험실 0304) 대표 시드의 유리 192장(마스크 24장 × 같은 턴 안 8장, 턴 안 순번 15·30·…·120) × 77점 = 14,784행. `glass_id, mask_id, turn, glass_in_turn, px, py, x_mm, y_mm, dx_um, dy_um, fdc_temp`(측정 격자와 그 유리의 FDC 온도, 소수 5자리). 정답 성분·튄 점 정답은 담지 않음.
 - `fdc_temp_s11.csv` — 같은 유리의 FDC 챔버 온도 `glass_id, fdc_temp`(참 온도 + N(0, 0.04²) 측정 잡음). 유리의 약 1%는 FDC 기록이 빠져 있어 행 수가 계수 표보다 적음(대표 시드 1715행).
 - `fdc_features.csv` — B03 의 5개 턴 유리별 특징. `p_steady_mean, p_steady_std, p_max_dev, p_settle_s, p_overshoot_pct, rate_ang_s, pm_flag(PM 이후=1), true_anomaly, anomaly_type, interlock, interlock_true`(가성 인터락 = interlock 1 이고 interlock_true 0).
 - `loss_events.csv` — 60일 Loss 사건. `event_id, start_ts, end_ts, block, chamber(CH1~4 또는 ALL), reason(직접 사유), root_cause(1차 원인), caused_by_block, run_mode(quad/triple/degraded), mask_set, turn, loss_chamber_min, loss_glass`. 사유는 명세의 11개 코드와 `LB-LINE`(라인 밸런스: 앞뒤 블록 때문에 굶거나 막힌 손실, 90 챔버·분 미만은 생략)입니다. `reason` 과 `root_cause` 가 다른 행이 연쇄의 흔적입니다.
@@ -93,3 +94,12 @@
 | `s11tools.metrics(S)` · `pickMask(rows)` · `withTruth` · `fit` · `corr` | 시드 하나의 여섯 지표와 부수 값 · 턴만 넣은 회귀의 턴 기울기가 정답 −0.02 에서 가장 먼 마스크 · truth 를 행에 붙이기 · 빠른 77점 최소제곱 · 상관계수 |
 
 시드 1~200 분포(verify.py 18개 검사): 다중 회귀 열변형 기울기 −1.975(10~90% −1.987~−1.963) ppm/K(정답 −2.0 보다 조금 작은 것은 FDC 온도의 측정 잡음 때문, 참 온도로 회귀하면 −2.001), 턴 기울기 −0.0204(정답 −0.02), 턴만 넣은 턴 기울기 −0.0462(모든 시드에서 둘 다 넣은 값보다 더 음수 — 계절 교란, 차 −0.0257 ≈ −2·0.3/23), My/Mx 열변형 비 0.500, My 의 턴 기울기는 0 근처(표준오차의 0.8배, 중앙값). 마스크별 절편은 스틱 누설 같은 마스크 일정 치우침을 흡수합니다(추정 오차 sd 의 마스크 안/전체 0.34). 12턴 판정·한계 0.3 ppm 에서 정답 경보는 0장, 보정 전 헛경보 12장(197/200 시드), 보정 후 3장(2~5), 보정 후 놓침 0. 대표 시드 67 은 여섯 지표 중 턴만 넣은 기울기가 분포 85% 자리이나 분포 폭이 0.001 이내라 본문은 값 그대로 말합니다. `ppa_coef_s11.csv`·`fdc_temp_s11.csv` 는 `build_csv.mjs` 가 만듭니다(기존 CSV 와 `truth.json` 은 바이트 단위로 불변).
+
+## 보정할까 리페어할까 (S12, 실험실 0304)
+
+`MfgSim.scenario('S12', {seed})` — 마스크 24장(B02~B07 × 세트 A × 챔버 1~4)마다 같은 턴(3~20 사이, 시드 줄기로 뽑음) 안에서 유리 8장(턴 안 15·30·…·120번째)을 잰 192장. 마스크 집단은 `makeMask(id, null, 'S12-'+seed)`, 새 난수는 전부 `hashSeed('S12', …)` 줄기라 기존 출력(CSV·`truth.json`·S1~S11·`simulateLoss`·전이 기록)은 바이트 단위로 그대로입니다. 온도는 `chamberTemp`(참, PPA 용)와 FDC 측정 온도(참 + N(0, 0.04²), 회귀·보정용). 유리 기인 결함은 유리마다 확률 0.3 으로 무작위 한 점에 N(0, 2.5²) µm (dx, dy)를 `ppa()` 결과 격자에 덧붙이고, 마스크 기인 결함은 `makeMask` 가 가진 `defects`(약 20% 마스크, 모든 유리 같은 위치)입니다.
+
+보정 가능 몫 = 유리마다 전부 항 적합(`s11fit`)의 Tx·Ty·θ + 열변형 몫(Mx 에 b̂T·(T_FDC − 80), My 에 그 0.5 배). b̂T·My/Mx 비는 `scenario('S11')` 기본 시드의 다중 회귀 값을 받아 씁니다(`s12tools.bT()`, 숫자를 박지 않음). 마스크 판정 지표는 8장 평균 장(점별 평균)의 dx 지표(|평균|+3σ, 0301 과 같은 정의)이고, spec 은 불량 스틱이 없는 마스크 지표의 95 백분위 하나를 측정 지표·보정 후 지표가 함께 씁니다. 3단 판정: 지표 ≤ spec → none, 지표 > spec 이고 보정 후 ≤ spec → correct, 보정 후 > spec → repair. 튄 점 = 전부 항 적합 잔차에 `pointOutliers`(z ≥ 4), 위치별 장 수 ≥ k 면 반복 위치, 기본 k = 우연 반복 확률(한 장당 튄 점 비율은 마스크별 평균의 중앙값 ÷ 77, 이항분포, 77 위치 중 어디든)이 1% 아래로 내려가는 가장 작은 k. 조치 대상 = 3단 판정이 리페어이거나 반복 위치가 잡힌 마스크 → `repairMask(mask, turn+1, 0.6)` 뒤 같은 레시피로 8장 다시 측정, 점별 |d| 8장 평균 77쌍의 대응 비교(`pairedT`)와 유리별 지표 8 대 8 `welch`. 도구 `s12tools`: `bT`·`decide`·`remain`·`chance`·`minK`·`counts`·`repeat`·`repairEffect`·`metrics`·`post`·`measure`. 기본 시드는 153(시드 1~200 의 여섯 지표(판정 일치율·쓸데없는 리페어 수·마스크 기인 결함 중 반복 위치로 잡힌 비율·반복 위치가 잘못 잡힌 마스크 수·유리 한 장 판정 정답률·조치 마스크 전후 점별 대응 비교 p 중앙값) 백분위에서 Σ|백분위−50| 이 가장 작은 시드).
+
+설계 예상과 다른 결과: 이 가상 공정에서는 보정 후 지표가 spec(보정 안 한 지표의 95 백분위)을 넘어 3단 판정이 리페어를 내리는 시드가 200개 가운데 1개뿐입니다. 보정 가능 몫이 지표를 크게 키우고 남는 몫은 훨씬 작기 때문이며, 그래서 조치 대상을 반복 위치가 잡힌 마스크까지 넓혀 전후를 비교합니다(대표 시드 기준 시드 분포 중앙값 5.5장, 10~90% 3~8장). 시드 1~200: 판정 일치율 1(0.96~1), 쓸데없는 리페어 수 2(1~3), 반복 위치로 잡힌 마스크 기인 결함 비율 0.85(0.5~1), 반복 위치가 잘못 잡힌 마스크 1(0~3)장, 유리 한 장 판정 정답률 0.71(0.58~0.80)이고 반복 위치 판정은 0.92(0.83~1)로 199/200 시드에서 더 높습니다. 기본 k 는 모든 시드에서 3(8장 중 3장), 우연 반복 확률 0.0008. 점별 대응 비교 p 가 유리별 Welch p 보다 작은 조치 마스크가 약 69%입니다.
+
