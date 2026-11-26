@@ -4306,6 +4306,343 @@ o4_cleanup = shutil.rmtree(o4_td, ignore_errors=True)
 
 
 
+# ============================================================
+# 0605 — 트윈 안에서 정책 학습(작은 강화학습·도메인 무작위화). 시나리오 S21(세트 교체 시점 결정)의 환경 전이·세정 시간 → 도착 간격 수·표 형태 Q 학습(난수 포함)·정책 표·정책 평가·
+# 손으로 짠 문턱 규칙·대표 학습 시드를 파이썬이 따로 구현해 JS·CSV 와 대조하고, 표(리틀의 법칙 대기 시간·0602 사후분포·0601 격자 보정)를 이미 검증된 독립 구현으로 다시 만들어 보고,
+# 시드 분포·페이지 Python 실행·숨은 값 비노출·기존 출력 불변·페이지 구조를 확인한다. 설계서의 기대는 가설이라 결과가 다르면 본문 문장이 그 결과를 말하는지만 확인한다.
+# ============================================================
+import math as _m5, importlib.util as _ilu5
+o5_pg = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0605-policy-learning-in-twin.html'), encoding='utf-8').read()
+o5_code = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', o5_pg, _re5.S).group(1)); o5_out = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', o5_pg, _re5.S).group(1)).strip()
+o5_td = _tf5.mkdtemp()
+_F05 = ['s21_wait_table.csv', 's21_posterior.csv', 's21_twins.csv', 's21_real_episodes.csv', 's21_seed_summary.csv']
+for _f in _F05: shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(o5_td, _f))
+open(os.path.join(o5_td, 'lab0605.py'), 'w', encoding='utf-8').write(o5_code)
+o5_wait = pd.read_csv(os.path.join(o5_td, 's21_wait_table.csv')); o5_post = pd.read_csv(os.path.join(o5_td, 's21_posterior.csv')); o5_tw = pd.read_csv(os.path.join(o5_td, 's21_twins.csv'))
+o5_real = pd.read_csv(os.path.join(o5_td, 's21_real_episodes.csv')); o5_sd = pd.read_csv(os.path.join(o5_td, 's21_seed_summary.csv'))
+_EXPORT05 = r"""const fs=require('fs');const D=process.argv[2];
+const RL=require(D+'/rl06.js'),T=require(D+'/rl06_tables.js'),L6=require(D+'/loop06.js'),MS=require(D+'/mfgsim.js');
+const res={};
+res.consts={EP:RL.EP,TR:RL.TR,R_LO:RL.R_LO,R_HI:RL.R_HI,KMAX:RL.KMAX,WMAX:RL.WMAX,RMAX:RL.RMAX,NS:RL.NS,NSTATE:RL.NSTATE,DMAX:RL.DMAX,COST:RL.COST,GAMMA:RL.GAMMA,ALPHA:RL.ALPHA,EPS:RL.EPS,EPISODES:RL.EPISODES,SEEDS:RL.SEEDS,MINV:RL.MINV,N_EVAL:RL.N_EVAL,IDLE:RL.IDLE,CH:RL.CH_PER_BLOCK,CT:MS.CFG.CT,NTURN:MS.CFG.N_TURN,METHODS:RL.METHODS.map(m=>m.id)};
+res.tab={wq:T.wq,post:T.post,cal:T.cal,sim:T.sim,rep:T.rep,nreal:T.real.r0.length,realr0:T.real.r0.slice(0,8),reald:T.real.D.slice(0,8)};
+res.hidden=L6.HIDDEN.CLEAN;
+const real=RL.realEpisodes(),draws=RL.evalDraws();
+const pack=r=>({Q:Array.from(r.Q),Nv:Array.from(r.Nv),pol:Array.from(r.pol),real:r.real,twin:r.twin,trainLoss:r.trainLoss});
+const C96={csw:96,idle:48,hold:6},C48={csw:48,idle:48,hold:6};
+const cfgs=[];[1,2,T.rep.seed,200].forEach(s=>['v0','cal','pm','dr'].forEach(id=>cfgs.push({id:id,seed:s,o:{}})));
+cfgs.push({id:'dr',seed:3,o:{episodes:1500,alpha:0.2,eps:0.3}},{id:'dr',seed:5,o:{width:'w7'}},{id:'cal',seed:4,o:{width:'w7'}},{id:'pm',seed:6,o:{width:'prior'}},{id:'dr',seed:7,o:{width:'prior'}},{id:'dr',seed:2,o:{trainCost:C96,cost:C48}},{id:'dr',seed:2,o:{trainCost:C96,cost:C96}},{id:'v0',seed:9,o:{eps:0}});
+res.runs=cfgs.map(c=>{const r=RL.runMethod(c.id,Object.assign({seed:c.seed,realEps:real,draws:draws},c.o));return {cfg:c,out:pack(r)};});
+res.fixed=[160,176,200,236].map(c=>{const tr=RL.train(RL.specFixed(c),{seed:1}),pol=RL.policyFromQ(tr.Q,tr.Nv);return {c:c,Q:Array.from(tr.Q),Nv:Array.from(tr.Nv),real:RL.evalPolicy(pol,real,RL.COST).mean,twin:RL.evalPolicy(pol,RL.twinEpisodes(RL.specFixed(c),draws),RL.COST).mean};});
+const cr=RL.runMethod('dr',{seed:1,episodes:2000,curveEvery:500,realEps:real,draws:draws});res.curve=cr.curve;
+res.trace=RL.train(RL.methodSpec('v0'),{seed:1,episodes:400,trace:8,traceFrom:200}).trace;
+res.hand=[];for(let t=0;t<=16;t++){const p=RL.handPolicy(t);res.hand.push({t:t,tw:RL.evalPolicy(p,RL.twinEpisodes(RL.methodSpec('v0'),draws),RL.COST).mean,re:RL.evalPolicy(p,real,RL.COST).mean});}
+res.rule=RL.evalPolicy(RL.rulePolicy(),real,RL.COST);
+const g=MS.rng(MS.hashSeed('S21probe'));res.probe=[];[160,181,196.5,230,240,300].forEach(c=>{for(let i=0;i<8;i++){const d=RL.drawEp(g);res.probe.push({c:c,r0:d.r0,e1:d.e1,e2:d.e2,uc:d.uc,D:RL.arrival(c,d.e1,d.e2)});}});
+res.draws=draws.slice(0,5);
+res.tabv={};['v0','cal','pm','dr'].forEach(id=>{const rs=RL.seedRuns(id,{realEps:real,draws:draws});res.tabv[id]={real:rs.map(r=>r.real),twin:rs.map(r=>r.twin),spare:rs.map(r=>r.spare),pol1:Array.from(RL.runMethod(id,{seed:1,realEps:real,draws:draws}).pol)};});
+res.prior={};['pm','dr','cal'].forEach(id=>{const rs=RL.seedRuns(id,{width:'prior',realEps:real,draws:draws});res.prior[id]=rs.map(r=>r.real);});
+res.w7={};['pm','dr','cal'].forEach(id=>{const rs=RL.seedRuns(id,{width:'w7',realEps:real,draws:draws});res.w7[id]=rs.map(r=>r.real);});
+res.seedtab=[];['v0','cal','pm','dr'].forEach(m=>{for(let s=1;s<=200;s++){const r=RL.runMethod(m,{seed:s,realEps:real,draws:draws});res.seedtab.push({seed:s,method:m,real_loss:RL.r4(r.real.mean),twin_loss:RL.r4(r.twin.mean),spare_rate:RL.r4(r.real.spare),early_rate:RL.r4(r.real.early)});}});
+res.orc=[];for(let s=1;s<=20;s++){const tr=RL.train(RL.specFixed(L6.HIDDEN.CLEAN),{seed:s}),pol=RL.policyFromQ(tr.Q,tr.Nv);res.orc.push(RL.evalPolicy(pol,real,RL.COST).mean);}
+res.cost=[0,96,240].map(c=>{const C={csw:c,idle:48,hold:6},rs=[];for(let s=1;s<=3;s++){const r=RL.runMethod('dr',{seed:s,cost:RL.COST,trainCost:C,realEps:real,draws:draws});rs.push({real:r.real.mean,spare:r.real.spare,at:RL.evalPolicy(r.pol,real,C).mean});}return {c:c,rs:rs};});
+res.rulec=[0,96].map(c=>RL.evalPolicy(RL.rulePolicy(),real,{csw:c,idle:48,hold:6}).mean);
+fs.writeFileSync(process.argv[3]+'/res0605.json',JSON.stringify(res));"""
+o5_js = os.path.join(o5_td, 'export0605.js'); open(o5_js, 'w').write(_EXPORT05)
+subprocess.run([_node, o5_js, _DATA10, o5_td], capture_output=True, text=True, check=True)
+O5 = json.load(open(os.path.join(o5_td, 'res0605.json'))); K5 = O5['consts']
+o5_close = lambda a, b, tol=1e-9: abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+_r45 = lambda v: _m5.floor(v * 1e4 + 0.5) / 1e4                        # 자바스크립트 Math.round(v·1e4)/1e4
+
+# 1. 기존 출력 불변(이 장이 더한 파일은 새 파일): 저장소에 있던 CSV·모듈 전부가 HEAD 와 같은 바이트
+o5_unch = True; o5_n = 0; o5_lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js', 'data/loop06.js', 'data/loop06_tables.js', 'data/calib06.js', 'data/calib06_tables.js', 'data/r2r06.js', 'data/r2r06_tables.js', 'data/ope06.js', 'data/ope06_tables.js', 'data/loss05.js', 'data/agent0401.js', 'data/eval0402.js'], capture_output=True, text=True)
+for _fn in (o5_lst.stdout.split() if o5_lst.returncode == 0 else []):
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        o5_n += 1; o5_unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk(f'0605 기존 출력 불변: mfgsim.js·loop06·calib06·r2r06·ope06·loss05·agent0401·eval0402 와 저장소에 있던 CSV 포함 {o5_n}개가 HEAD 와 같은 바이트(0601~0604 출력 불변)', o5_unch and o5_n >= 40, f'{o5_n}개 비교')
+
+# 2. 숨은 실제 세정 시간 비노출: 새 CSV 에 숨은 열이 없고, 표 파일·페이지에 HIDDEN 낱말이 없고, 화면 본문·페이지 Python·출력에 숨은 값 숫자가 없고, 페이지 스크립트의 정답 읽기(Loop06.HIDDEN)는 정답 열기 코드(loadTruth) 안에만 있음
+o5_tb = open(os.path.join(_DATA10, 'rl06_tables.js'), encoding='utf-8').read(); o5_mod = open(os.path.join(_DATA10, 'rl06.js'), encoding='utf-8').read()
+o5_body = _re5.sub(r'<script.*?</script>|<pre id="pyOut".*?</pre>', '', o5_pg, flags=_re5.S)
+o5_app = _re5.findall(r'<script>\n(.*?)\n</script>\n<script src="../tutor.js">', o5_pg, _re5.S)[0]
+o5_hid = str(O5['hidden']); o5_hre = _re5.compile(r'(?<![\d.])' + o5_hid + r'(?![\d.])')
+o5_cols = all(c.lower() not in ('clean', 'hidden', 'true_clean', 'real_clean', 'clean_true') for f in _F05 if f not in ('s21_wait_table.csv', 's21_posterior.csv', 's21_twins.csv') for c in pd.read_csv(os.path.join(o5_td, f), nrows=1).columns)
+o5_cols &= 'HIDDEN' not in o5_tb and 'HIDDEN' not in o5_code and 'HIDDEN' not in o5_pg.replace('Loop06.HIDDEN', '') and not o5_hre.search(o5_code) and not o5_hre.search(o5_out) and not o5_hre.search(o5_body)
+o5_ti = o5_app.index('function loadTruth'); o5_te = o5_app.index('function fillReveal'); o5_hp = [m.start() for m in _re5.finditer(r'Loop06\.HIDDEN', o5_app)]
+chk('0605 숨은 실제 세정 시간 비노출: 새 CSV 에 숨은 값 열이 없고, 표 파일·페이지에 HIDDEN 이 없고(정답 읽기 한 줄 제외), 화면 본문·페이지 Python·출력에 숨은 값(%s)이 숫자로 없고, Loop06.HIDDEN 읽기는 정답 열기 코드(loadTruth) 안 한 곳뿐' % o5_hid,
+    o5_cols and len(o5_hp) == 1 and o5_ti < o5_hp[0] < o5_te,
+    f'열·표·코드 {o5_cols} · HIDDEN 읽기 {len(o5_hp)}곳(loadTruth 안 {o5_ti < o5_hp[0] < o5_te if o5_hp else None})')
+
+# 3. 상수·표 구조: 판 구조 상수(상태 칸 수 등)·비용 기본값의 근거(챔버 수 × 30분 ÷ 유리 1장 시간), 표 파일 = CSV
+o5_idle = K5['CH'] * (K5['EP'] / K5['CT'])
+o5_t3 = (K5['NSTATE'] == (K5['RMAX'] + 1) * K5['NS'] and K5['NS'] == K5['KMAX'] + K5['WMAX'] + 2 and K5['IDLE'] == o5_idle == 48 and K5['COST']['csw'] == K5['COST']['idle'] == o5_idle and K5['COST']['hold'] == 6
+         and K5['NSTATE'] == 390 and K5['GAMMA'] == 1 and K5['ALPHA'] == 0.05 and K5['EPS'] == 0.1 and K5['EPISODES'] == 4000 and K5['SEEDS'] == 20 and K5['MINV'] == 10 and K5['N_EVAL'] == 4000)
+o5_wt = O5['tab']['wq']; o5_pt = O5['tab']['post']
+o5_t3 &= (list(o5_wait['clean']) == o5_wt['c'] and all(o5_close(a, b, 1e-12) for a, b in zip(o5_wait['wait_min'], o5_wt['w'])) and len(o5_real) == O5['tab']['nreal'] == 4000
+          and list(o5_real['remaining_glass'][:8]) == O5['tab']['realr0'] and list(o5_real['arrive_epoch'][:8]) == O5['tab']['reald'])
+for _k, _c in (('w7', 'p_log7'), ('w14', 'p_log14'), ('w30', 'p_log30'), ('w60', 'p_log60'), ('prior', 'p_prior')): o5_t3 &= all(o5_close(a, b, 1e-12) for a, b in zip(o5_post[_c], o5_pt[_k]))
+o5_t3 &= list(o5_post['clean']) == o5_pt['c']
+chk('0605 상수·표 파일: 상태 칸 390(= 남은 유리 13 × 도착 상태 30)·교체 비용 기본값 48(= 챔버 %d개 × 30분 ÷ 유리 1장 %.1f분)·기본 학습 설정(4000판·α 0.05·ε 0.1·시드 20·최소 방문 10)·표 파일(JS) = CSV(대기 시간·사후분포 다섯·실제 판)' % (K5['CH'], K5['CT']), o5_t3, f'idle {K5["IDLE"]} · 실제 판 {len(o5_real)}개')
+
+# 4. 대기 시간 표 독립 구현: 리틀의 법칙(세정 대기열 평균 × 세정 시간 ÷ 세정 중 평균, 트윈 시드 8개·60일 평균)을 0602 의 촘촘한 격자 CSV 에서 다시 계산
+o5_fg = _fg[_fg['days'] == 60].groupby('clean')[['q', 'busy']].mean(); o5_w2 = (o5_fg['q'] * o5_fg.index.values / o5_fg['busy'])
+o5_ok4 = all(abs(float(w) - float(x)) <= 1.01e-4 for w, x in zip(o5_w2.to_numpy(), o5_wait['wait_min'])) and list(o5_fg.index) == list(o5_wait['clean'])
+o5_ok4 &= all(abs(float(a) - float(b)) <= 1.01e-4 for a, b in zip(o5_wait['q'], o5_fg['q'])) and all(abs(float(a) - float(b)) <= 1.01e-4 for a, b in zip(o5_wait['busy'], o5_fg['busy']))
+o5_mn = float(o5_wait['wait_min'].min()); o5_w180 = float(o5_wait[o5_wait['clean'] == 180]['wait_min'].iloc[0]); o5_w196 = float(np.interp(196, o5_wait['clean'], o5_wait['wait_min'])); o5_w240 = float(o5_wait['wait_min'].iloc[-1])
+chk('0605 대기 시간 표 독립 구현: 세정 시간 41칸의 줄 서는 평균 시간이 파이썬이 s17_fine_grid.csv 에서 q × 세정 시간 ÷ busy 로 다시 계산한 값과 같음 (판 0 세정 180분 %.1f분, 188분 이후 급증)' % o5_w180, o5_ok4 and o5_w180 < 50 and o5_w196 > 150, f'최소 {o5_mn:.1f} · 180분 {o5_w180:.1f} · 196분(보간) {o5_w196:.1f} · 240분 {o5_w240:.1f}')
+
+# 5. 0602 사후분포·0601 격자 보정 독립 구현: 대표 로그(시드 218)의 로그 기간별 사후(사전 180±30)·사후 평균·격자 보정 값이 0602·0601 검증의 독립 구현과 같음, 사전만 분포 = 정규
+o5_c, o5_mu, o5_cov = None, None, None; o5_ok5 = O5['tab']['cal']['rep'] == 218 and O5['tab']['cal']['v0'] == 180 and O5['tab']['cal']['psd'] == 30; o5_pmp = {}
+for _d in _W09:
+    _c, _mu, _cv = _E9[_d]; _p = _post9(_c, _mu, _cv, _lg9(218, _d)[['q', 'L']].to_numpy(float), (180, 30)); o5_pmp[_d] = float((_p * _c).sum())
+    o5_ok5 &= all(abs(a - b) < 1.5e-8 for a, b in zip(_p, o5_pt['w%d' % _d])) and o5_close(round(o5_pmp[_d], 4), O5['tab']['cal']['pm']['w%d' % _d], 1e-12)
+    _r = _rl08[(_rl08['seed'] == 218) & (_rl08['days'] == _d)].iloc[0]; o5_ok5 &= _cal08(_r, _d)[0] == O5['tab']['cal']['gridw']['w%d' % _d]
+o5_pri = np.exp(-0.5 * ((np.array(o5_pt['c'], float) - 180) / 30) ** 2); o5_pri /= o5_pri.sum(); o5_ok5 &= all(abs(a - b) < 1.5e-8 for a, b in zip(o5_pri, o5_pt['prior'])) and abs(sum(o5_pt['prior']) - 1) < 1e-6 and all(abs(sum(o5_pt[k]) - 1) < 1e-6 for k in ('w7', 'w14', 'w30', 'w60'))
+o5_ok5 &= O5['tab']['cal']['grid'] == O5['tab']['cal']['gridw']['w60']
+chk('0605 사후분포·보정 독립 구현: 대표 로그(시드 218)의 로그 기간 4개 사후(사전 180±30) 41칸·사후 평균·0601 격자 보정 값(%s)이 0602·0601 검증의 파이썬 구현과 같고, 사전만 분포(로그 없음)는 정규 모양, 합이 모두 1' % ' · '.join(str(O5['tab']['cal']['gridw']['w%d' % d]) for d in _W09), o5_ok5,
+    f'사후 평균 ' + ' · '.join(f'{o5_pmp[d]:.2f}' for d in _W09))
+
+# 6. 실제 판 목록 독립 구현: 숨은 세정 시간으로 S21real 난수열에서 판 4000개의 (남은 유리, 도착 간격 수)를 파이썬이 따로 만들어 CSV 와 같음
+def _imul5(a, b): return (a * b) & 0xFFFFFFFF
+def _hash5(*parts):
+    s = '|'.join(str(p) for p in parts); h = 2166136261
+    for ch in s: h ^= ord(ch); h = _imul5(h, 16777619)
+    return h
+class _Rng5:
+    def __init__(self, seed): self.a = seed & 0xFFFFFFFF
+    def u(self):
+        self.a = (self.a + 0x6D2B79F5) & 0xFFFFFFFF; a = self.a
+        t = _imul5(a ^ (a >> 15), 1 | a); t = ((t + _imul5(t ^ (t >> 7), 61 | t)) & 0xFFFFFFFF) ^ t
+        return ((t ^ (t >> 14)) & 0xFFFFFFFF) / 4294967296
+    def int(self, n): return _m5.floor(self.u() * n)
+    def exp(self, mean): return -mean * _m5.log(1 - self.u())
+_WC5, _WW5 = np.array(o5_wt['c'], float), np.array(o5_wt['w'], float)
+def _arr5(clean, e1, e2): return min(_m5.ceil((clean + float(np.interp(clean, _WC5, _WW5)) * 0.5 * (e1 + e2) + K5['TR']) / K5['EP']), K5['DMAX'])
+def _draw5(g): return K5['R_LO'] + g.int(K5['R_HI'] - K5['R_LO'] + 1), g.exp(1.0), g.exp(1.0), g.u()
+_g = _Rng5(_hash5('S21real')); _rp = []
+for _i in range(len(o5_real)):
+    r0, e1, e2, uc = _draw5(_g); _rp.append((r0, _arr5(O5['hidden'], e1, e2)))
+o5_ok6 = [a for a, _ in _rp] == list(o5_real['remaining_glass']) and [b for _, b in _rp] == list(o5_real['arrive_epoch'])
+o5_ok6 &= all(_arr5(p['c'], p['e1'], p['e2']) == p['D'] for p in O5['probe']) and len(O5['probe']) == 48
+chk('0605 도착 간격 수 독립 구현: 세정 시간 → 도착 간격 수(줄 서는 시간 + 세정 시간 + 반송 20분을 30분 단위로 올림)가 JS 와 같고(세정 시간 6곳 × 난수 48개), 숨은 세정 시간으로 만든 실제 판 4000개가 CSV(숨은 값 열 없음)와 한 줄도 다르지 않음', o5_ok6,
+    f'실제 판 남은 유리 평균 {np.mean([a for a, _ in _rp]):.2f} · 도착 간격 수 평균 {np.mean([b for _, b in _rp]):.2f}')
+
+# 7. 환경·학습기 독립 구현(난수 포함): 상태를 튜플로 두는 다른 구조로 구현한 파이썬 Q 학습의 Q 표·방문 수·정책·실제 평가가 JS 와 같음
+_C5 = K5['COST']; _NS5, _KM5, _WM5 = K5['NS'], K5['KMAX'], K5['WMAX']
+def _idx5(st):
+    r, ph, x = st; return r * _NS5 + (_KM5 + 1 + min(x, _WM5) if ph == 'post' else min(x, _KM5))
+def _tr5(st, a, D, C):
+    r, ph, x = st
+    if ph == 'pre':
+        if a == 1: return (0.0, 0.0, C['csw'] * (2 + (1 if r > 0 else 0))), None
+        loss = (0.0 if r > 0 else float(C['idle']), 0.0); r2 = max(r - 1, 0); k2 = x + 1
+        if k2 >= D: return (loss[0], 0.0, float(C['csw']) if r2 == 0 else 0.0), (None if r2 == 0 else (r2, 'post', 0))
+        return (loss[0], 0.0, 0.0), (r2, 'pre', k2)
+    if a == 1: return (0.0, 0.0, 2.0 * C['csw']), None
+    r2 = r - 1; return (0.0, float(C['hold'] * (x + 1)), float(C['csw']) if r2 == 0 else 0.0), (None if r2 == 0 else (r2, 'post', x + 1))
+def _cum5(w):
+    tot = 0.0
+    for v in w: tot += v
+    cum, s = [], 0.0
+    for v in w: s += v / tot; cum.append(s)
+    cum[-1] = 1.0; return cum
+_CELLS5 = list(o5_pt['c'])
+def _pick5(kind, v):
+    if kind == 'fixed': return lambda uc: v
+    cum = _cum5(v)
+    def f(uc):
+        i = 0
+        while uc > cum[i]: i += 1
+        return _CELLS5[i]
+    return f
+def _spec5(mid, width=None, fixed=None):
+    t = O5['tab']; w = width or 'w60'
+    if fixed is not None: return _pick5('fixed', fixed)
+    if mid == 'v0': return _pick5('fixed', t['cal']['v0'])
+    if mid == 'cal': return _pick5('fixed', t['cal']['gridw'][w] if width else t['cal']['grid'])
+    if mid == 'pm': return _pick5('fixed', t['cal']['v0'] if w == 'prior' else t['cal']['pm'][w])
+    return _pick5('dist', t['post'][w])
+def _train5(pick, seed, episodes=4000, alpha=0.05, eps=0.1, C=_C5):
+    g = _Rng5(_hash5('S21train', seed)); Q = np.zeros(2 * K5['NSTATE']); N = np.zeros(2 * K5['NSTATE'], dtype=int)
+    for _ in range(episodes):
+        r0, e1, e2, uc = _draw5(g); D = _arr5(pick(uc), e1, e2); st = (r0, 'pre', 0)
+        while True:
+            s = _idx5(st); u = g.u(); a = g.int(2) if u < eps else int(Q[2 * s + 1] > Q[2 * s])
+            (li, lh, ls), nx = _tr5(st, a, D, C); tg = -(li + lh + ls)
+            if nx is not None:
+                s2 = _idx5(nx); tg += max(Q[2 * s2], Q[2 * s2 + 1])
+            Q[2 * s + a] += alpha * (tg - Q[2 * s + a]); N[2 * s + a] += 1
+            if nx is None: break
+            st = nx
+    return Q, N
+def _pol5(Q, N, mv=10): return np.array([1 if N[2 * s] + N[2 * s + 1] >= mv and Q[2 * s + 1] > Q[2 * s] else 0 for s in range(K5['NSTATE'])])
+def _eval5(pol, eps, C=_C5):
+    tot = idl = hld = swc = 0.0; nsp = 0
+    for r0, D in eps:
+        st = (r0, 'pre', 0)
+        while True:
+            a = int(pol[_idx5(st)]); (li, lh, ls), nx = _tr5(st, a, D, C); idl += li; hld += lh; swc += ls
+            if a == 1 and st[1] == 'pre': nsp += 1
+            if nx is None: break
+            st = nx
+    n = len(eps); return (idl + hld + swc) / n, nsp / n
+_rr5 = _Rng5(_hash5('S21eval')); _dr5 = [_draw5(_rr5) for _ in range(K5['N_EVAL'])]
+def _twin5(pick): return [(r0, _arr5(pick(uc), e1, e2)) for r0, e1, e2, uc in _dr5]
+_REALEP5 = list(zip(o5_real['remaining_glass'], o5_real['arrive_epoch']))
+o5_ok7 = True; o5_mxq = 0.0; o5_nr7 = 0
+for _rn in O5['runs']:
+    cf = _rn['cfg']; o = cf['o']; w = o.get('width'); pick = _spec5(cf['id'], w); Ct = o.get('trainCost', _C5); Ce = o.get('cost', Ct if 'trainCost' not in o else _C5)
+    Q, N = _train5(pick, cf['seed'], o.get('episodes', 4000), o.get('alpha', 0.05), o.get('eps', 0.1), Ct); pol = _pol5(Q, N)
+    jq = np.array(_rn['out']['Q']); o5_mxq = max(o5_mxq, float(np.abs(Q - jq).max()))
+    mr, _ = _eval5(pol, _REALEP5, Ce); mt, _ = _eval5(pol, _twin5(pick), Ce)
+    o5_ok7 &= bool(np.allclose(Q, jq, rtol=0, atol=1e-9)) and list(N) == _rn['out']['Nv'] and list(pol) == _rn['out']['pol'] and o5_close(mr, _rn['out']['real']['mean']) and o5_close(mt, _rn['out']['twin']['mean']); o5_nr7 += 1
+for _fx in O5['fixed']:
+    Q, N = _train5(_pick5('fixed', _fx['c']), 1); pol = _pol5(Q, N); o5_ok7 &= bool(np.allclose(Q, _fx['Q'], rtol=0, atol=1e-9)) and list(N) == _fx['Nv'] and o5_close(_eval5(pol, _REALEP5)[0], _fx['real']) and o5_close(_eval5(pol, _twin5(_pick5('fixed', _fx['c'])))[0], _fx['twin']); o5_nr7 += 1
+chk(f'0605 환경·Q 학습 독립 구현(같은 난수열): 파이썬이 상태를 튜플로 두는 다른 구조로 구현한 학습 {o5_nr7}회(네 방식 × 시드 4 + 판 수·학습률·ε·로그 기간·사전만·비용·ε 0 변형 + 고정 세정 시간 넷)의 Q 표 780칸·방문 수·정책 표·실제와 트윈 안 평가가 JS 와 같음', o5_ok7, f'Q 최대 차 {o5_mxq:.1e} · 학습 {o5_nr7}회')
+
+# 8. 학습 곡선·갱신 기록·손으로 짠 문턱·지금 규칙: 곡선(중간 평가), 학습 중 연속 여덟 번의 갱신(보상·목표·Q 전후), 문턱 τ 0~16 의 트윈·실제 Loss, 지금 규칙의 항목별 Loss
+_pk0 = _spec5('v0'); _tw0 = _twin5(_pk0)
+def _hand5(t):
+    pol = np.zeros(K5['NSTATE'], dtype=int)
+    for k in range(_KM5 + 1):
+        if k < t: pol[_idx5((0, 'pre', k))] = 1
+    return pol
+o5_ok8 = all(o5_close(_eval5(_hand5(h['t']), _tw0)[0], h['tw']) and o5_close(_eval5(_hand5(h['t']), _REALEP5)[0], h['re']) for h in O5['hand'])
+o5_hre_min = min(h['re'] for h in O5['hand']); o5_htw_min = min(h['tw'] for h in O5['hand'])
+_rl0 = _eval5(np.zeros(K5['NSTATE'], dtype=int), _REALEP5); o5_ok8 &= o5_close(_rl0[0], O5['rule']['mean'])
+# 곡선: 같은 학습을 500판마다 멈춰 정책을 평가(곡선 점 4개)
+_pk1 = _spec5('dr'); _g1 = _Rng5(_hash5('S21train', 1)); _Q1 = np.zeros(2 * K5['NSTATE']); _N1 = np.zeros(2 * K5['NSTATE'], dtype=int); _tw1 = _twin5(_pk1); _cv = []
+for _e in range(2000):
+    r0, e1, e2, uc = _draw5(_g1); D = _arr5(_pk1(uc), e1, e2); st = (r0, 'pre', 0)
+    while True:
+        s = _idx5(st); u = _g1.u(); a = _g1.int(2) if u < 0.1 else int(_Q1[2 * s + 1] > _Q1[2 * s]); (li, lh, ls), nx = _tr5(st, a, D, _C5); tg = -(li + lh + ls)
+        if nx is not None: s2 = _idx5(nx); tg += max(_Q1[2 * s2], _Q1[2 * s2 + 1])
+        _Q1[2 * s + a] += 0.05 * (tg - _Q1[2 * s + a]); _N1[2 * s + a] += 1
+        if nx is None: break
+        st = nx
+    if (_e + 1) % 500 == 0: _p = _pol5(_Q1, _N1); _cv.append((_e + 1, _eval5(_p, _tw1)[0], _eval5(_p, _REALEP5)[0]))
+o5_ok8 &= len(_cv) == len(O5['curve']) == 4 and all(c[0] == j['ep'] and o5_close(c[1], j['twin']) and o5_close(c[2], j['real']) for c, j in zip(_cv, O5['curve']))
+# 갱신 기록: 판 0 트윈 시드 1 의 200판째부터 여덟 번(Q 표를 처음부터 다시 만들어 그 시점의 값과 견줌)
+_g2 = _Rng5(_hash5('S21train', 1)); _Q2 = np.zeros(2 * K5['NSTATE']); _tr2 = []
+for _e in range(400):
+    r0, e1, e2, uc = _draw5(_g2); D = _arr5(_pk0(uc), e1, e2); st = (r0, 'pre', 0)
+    while True:
+        s = _idx5(st); u = _g2.u(); a = _g2.int(2) if u < 0.1 else int(_Q2[2 * s + 1] > _Q2[2 * s]); (li, lh, ls), nx = _tr5(st, a, D, _C5); tg = -(li + lh + ls)
+        if nx is not None: s2 = _idx5(nx); tg += max(_Q2[2 * s2], _Q2[2 * s2 + 1])
+        q0 = _Q2[2 * s + a]; _Q2[2 * s + a] += 0.05 * (tg - q0)
+        if _e >= 200 and len(_tr2) < 8: _tr2.append((_e + 1, st, a, -(li + lh + ls), tg, q0, _Q2[2 * s + a], u < 0.1, nx is None))
+        if nx is None: break
+        st = nx
+o5_ok8 &= len(_tr2) == len(O5['trace']) == 8 and all(t[0] == j['ep'] and t[1][0] == j['r'] and (t[1][1] == 'post') == j['arrived'] and (t[1][2] == (j['w'] if j['arrived'] else j['k'])) and t[2] == j['a'] and o5_close(t[3], j['rew']) and o5_close(t[4], j['target']) and o5_close(t[5], j['q0']) and o5_close(t[6], j['q1']) and t[7] == j['explore'] and t[8] == j['done'] for t, j in zip(_tr2, O5['trace']))
+o5_ok8 &= all(abs(t[6] - (t[5] + 0.05 * (t[4] - t[5]))) < 1e-9 for t in _tr2)
+chk('0605 학습 곡선·갱신 기록·문턱 규칙·지금 규칙: 같은 학습을 500판마다 멈춰 평가한 곡선 4점(트윈 안·실제), 판 0 트윈 시드 1 의 200판째부터 연속 여덟 번 갱신(상태·행동·탐색 여부·보상·목표값·Q 전후, 갱신식 q + α(목표 − q)), 문턱 τ 0~16 의 트윈·실제 Loss, 지금 규칙의 판당 Loss 가 파이썬 재계산과 JS 가 같음', o5_ok8,
+    f'지금 규칙 실제 {_rl0[0]:.1f} · 문턱 최저 트윈 {o5_htw_min:.1f} / 실제 {o5_hre_min:.1f}')
+
+# 9. 요약표(시드 200 × 방식 넷): JS 재계산 800줄 = CSV, 파이썬 독립 구현이 시드 {1~5·대표·200} × 넷의 줄을 따로 만들어 CSV 와 같음, 대표 학습 시드(Σ|백분위−50| 최소)를 파이썬이 따로 구함
+o5_ok9 = len(o5_sd) == 800 and list(o5_sd.columns) == ['seed', 'method', 'real_loss', 'twin_loss', 'spare_rate', 'early_rate']
+for _a, _b in zip(O5['seedtab'], o5_sd.to_dict('records')): o5_ok9 &= (_a['seed'] == _b['seed'] and _a['method'] == _b['method'] and all(o5_close(_a[k], _b[k], 1e-9) for k in ('real_loss', 'twin_loss', 'spare_rate', 'early_rate')))
+o5_rep = O5['tab']['rep']['seed']; o5_rows9 = sorted(set([1, 2, 3, 4, 5, o5_rep, 200]))
+for _mid in ('v0', 'cal', 'pm', 'dr'):
+    _pk = _spec5(_mid); _twp = _twin5(_pk)
+    for _s in o5_rows9:
+        Q, N = _train5(_pk, _s); pol = _pol5(Q, N); mr, spr = _eval5(pol, _REALEP5); mt, _ = _eval5(pol, _twp); row = o5_sd[(o5_sd['method'] == _mid) & (o5_sd['seed'] == _s)].iloc[0]
+        o5_ok9 &= o5_close(_r45(mr), float(row['real_loss']), 1e-9) and o5_close(_r45(mt), float(row['twin_loss']), 1e-9) and o5_close(_r45(spr), float(row['spare_rate']), 1e-9)
+o5_mt = {m: o5_sd[o5_sd['method'] == m].sort_values('seed') for m in ('v0', 'cal', 'pm', 'dr')}
+_cols5 = [o5_mt['v0']['real_loss'], o5_mt['cal']['real_loss'], o5_mt['pm']['real_loss'], o5_mt['dr']['real_loss'], o5_mt['dr']['twin_loss']]
+_sc5 = np.zeros(200)
+for _v in _cols5: _v = _v.to_numpy(float); _sc5 += np.array([abs(_pct06(_v, x) - 50) for x in _v])
+o5_rep_py = int(np.argmin(_sc5)) + 1
+o5_ok9 &= o5_rep_py == o5_rep and abs(_sc5.min() - O5['tab']['rep']['score']) < 1e-9
+chk(f'0605 요약표: 시드 200 × 방식 넷 = 800줄(JS 재계산 = CSV), 파이썬이 시드 {o5_rows9} 의 네 방식 줄을 따로 만들어 CSV 와 같고, 대표 학습 시드 {o5_rep}(Σ|백분위−50| = {o5_rep_py == o5_rep and O5["tab"]["rep"]["score"]:.1f})를 파이썬이 따로 구해 JS·표 파일과 같음', o5_ok9, f'대표 시드 {o5_rep} · 줄 {len(o5_sd)} · 독립 구현 {len(o5_rows9) * 4}줄')
+
+# 10. 기대 점검(결과대로): 시드 분포
+def _med(m, k='real_loss'): return float(o5_mt[m][k].median())
+_rule = float(O5['rule']['mean']); _delta = {m: (o5_mt[m]['real_loss'] - o5_mt[m]['twin_loss']) for m in o5_mt}
+_pr = np.array(O5['prior']['pm']); _dp = np.array(O5['prior']['dr']); _w7p = np.array(O5['w7']['pm']); _w7d = np.array(O5['w7']['dr'])
+_d60 = np.array(O5['tabv']['dr']['real']) - np.array(O5['tabv']['pm']['real']); _se60 = _d60.std(ddof=1) / np.sqrt(len(_d60)); _sp60 = np.quantile(np.array(O5['tabv']['pm']['real']), .9) - np.quantile(np.array(O5['tabv']['pm']['real']), .1)
+o5_ok10 = (_rule > 2.5 * _med('v0') and _med('v0') > 1.3 * max(_med('cal'), _med('pm'), _med('dr'))
+           and float(_delta['v0'].median()) > 20 and all(abs(float(_delta[m].median())) < 3 for m in ('cal', 'pm', 'dr'))
+           and abs(_med('dr') - _med('pm')) < 1.5 and abs(_med('cal') - _med('pm')) < 1.5 and abs(float(_d60.mean())) < 1.0
+           and float(np.median(_pr)) - float(np.median(_dp)) > 20 and float(np.median(_dp)) < 0.75 * float(np.median(_pr)))
+o5_best_hand = o5_hre_min
+chk('0605 기대 점검(결과대로): 학습한 정책은 지금 규칙(%.1f)보다 실제에서 크게 낮고(트윈 판 0 학습 중앙값 %.1f · 0601 보정 %.1f · 사후 평균 %.1f · 사후 무작위화 %.1f) · 시뮬-실제 전이 손실 중앙값은 판 0 에서 %+.1f 로 크고 나머지 셋은 ±3 안 · 사후 60일에서 무작위화와 사후 평균 한 값의 차는 평균 %+.2f(표준오차 %.2f, 시드 흔들림 10~90 %% 폭 %.1f)로 구별되지 않음 · 로그가 없을 때(사전만)는 점 하나(%.1f)보다 무작위화(%.1f)가 크게 낮음 · 손으로 고른 문턱의 실제 최저 %.1f 와 같은 수준'
+    % (_rule, _med('v0'), _med('cal'), _med('pm'), _med('dr'), float(_delta['v0'].median()), float(_d60.mean()), _se60, _sp60, float(np.median(_pr)), float(np.median(_dp)), o5_best_hand), o5_ok10 and abs(_med('dr') - o5_best_hand) < 5,
+    f'로그 7일: 사후 평균 {float(np.median(_w7p)):.1f} / 무작위화 {float(np.median(_w7d)):.1f} · 시드 200개 10~90%: 판 0 {o5_mt["v0"]["real_loss"].quantile(.1):.1f}~{o5_mt["v0"]["real_loss"].quantile(.9):.1f}')
+
+# 11. 보상(교체 비용) 효과: 비용 0·96·240 에서 학습한 정책의 먼저 바꾸는 판의 몫·진짜 비용으로 잰 Loss(JS) 가 독립 구현과 같고, 지금 규칙의 Loss 가 비용에 따라 오름, 비용을 낮게 가정해도 정책이 거의 같음(결과대로)
+o5_ok11 = True
+for _cc in O5['cost']:
+    Cc = {'csw': _cc['c'], 'idle': 48, 'hold': 6}; pkd = _spec5('dr')
+    for _s, _r in enumerate(_cc['rs'], 1):
+        Q, N = _train5(pkd, _s, C=Cc); pol = _pol5(Q, N); mr, spr = _eval5(pol, _REALEP5, _C5); at, _ = _eval5(pol, _REALEP5, Cc)
+        o5_ok11 &= o5_close(mr, _r['real']) and o5_close(spr, _r['spare']) and o5_close(at, _r['at'])
+o5_ok11 &= all(o5_close(_eval5(np.zeros(K5['NSTATE'], dtype=int), _REALEP5, {'csw': c, 'idle': 48, 'hold': 6})[0], v) for c, v in zip((0, 96), O5['rulec']))
+_sp = {c['c']: float(np.median([r['spare'] for r in c['rs']])) for c in O5['cost']}; _wr = {c['c']: float(np.median([r['real'] for r in c['rs']])) for c in O5['cost']}
+o5_ok11 &= O5['rulec'][1] > O5['rulec'][0] and abs(_sp[0] - _sp[96]) < 0.1 and _sp[240] < _sp[96] - 0.1 and _wr[240] > _wr[96] + 15
+chk('0605 보상 효과 독립 구현·기대 점검(결과대로): 교체 비용 0·96·240 으로 학습한 정책의 먼저 바꾼 판의 몫(%.2f · %.2f · %.2f)과 진짜 비용으로 잰 Loss(%.1f · %.1f · %.1f)가 파이썬 재계산과 같고, 비용 0~96 에서는 정책이 거의 같고 240 에서 기다리는 쪽으로 기울며 Loss 가 늘고, 지금 규칙의 Loss 는 비용과 함께 오름'
+    % (_sp[0], _sp[96], _sp[240], _wr[0], _wr[96], _wr[240]), o5_ok11, f'지금 규칙 비용 0 {O5["rulec"][0]:.1f} → 96 {O5["rulec"][1]:.1f}')
+
+# 12. 정답 열기 값: 실제 세정 시간에서 직접 학습한 정책(시드 20개)의 실제 Loss 를 파이썬이 따로 구해 JS 와 같음, 사후 95% 구간 안
+_orc = []
+for _s in range(1, 21):
+    Q, N = _train5(_pick5('fixed', O5['hidden']), _s); _orc.append(_eval5(_pol5(Q, N), _REALEP5)[0])
+_pw = np.array(o5_pt['w60']); _cm = np.cumsum(_pw); _lo = o5_pt['c'][int(np.argmax(_cm >= 0.025))]; _hi = o5_pt['c'][int(np.argmax(_cm >= 0.975))]
+o5_ok12 = all(o5_close(a, b) for a, b in zip(_orc, O5['orc'])) and _lo <= O5['hidden'] <= _hi
+_vr = np.array(O5['tabv']['v0']['real']); _drr = np.array(O5['tabv']['dr']['real'])
+chk('0605 정답 열기 값: 실제 세정 시간(%s분)에서 직접 학습한 정책(시드 20개)의 실제 Loss 중앙값 %.1f 를 파이썬이 따로 구해 JS 와 같고, 0602 사후 60일 95%% 구간 %s~%s분이 그 값을 포함, 트윈 판 0 학습(%.1f)·사후 무작위화(%.1f)와의 차 %+.1f · %+.1f' % (o5_hid, float(np.median(_orc)), _lo, _hi, float(np.median(_vr)), float(np.median(_drr)), float(np.median(_vr)) - float(np.median(_orc)), float(np.median(_drr)) - float(np.median(_orc))),
+    o5_ok12 and float(np.median(_vr)) - float(np.median(_orc)) > 20, f'시드 20개 하한 10~90%: {np.quantile(_orc, .1):.1f}~{np.quantile(_orc, .9):.1f}')
+
+# 13. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 핵심 숫자가 독립 구현·JS 와 같음, 외부 통신 코드 없음
+o5_run = subprocess.run([sys.executable, '-I', 'lab0605.py'], cwd=o5_td, capture_output=True, text=True); o5_L = o5_run.stdout.strip().split('\n')
+def _iv5(ks):
+    out, i = [], 0
+    while i < len(ks):
+        j = i
+        while j + 1 < len(ks) and ks[j + 1] == ks[j] + 1: j += 1
+        out.append(str(ks[i]) if i == j else '%d~%d' % (ks[i], ks[j])); i = j + 1
+    return ', '.join(out) if out else '없음'
+def _q5(a, p):
+    b = sorted(a); pos = (len(b) - 1) * p; lo = _m5.floor(pos); f = pos - lo
+    return b[lo] + (b[lo + 1] - b[lo]) * f if lo + 1 < len(b) else b[lo]
+_realr0 = [a for a, _ in _REALEP5]; _reald = [b for _, b in _REALEP5]
+o5_exp = ['실제 판 %d개 · 남은 유리 평균 %.2f · 도착 간격 수 평균 %.2f (30분 단위)' % (len(_REALEP5), sum(_realr0) / len(_realr0), sum(_reald) / len(_reald)),
+          '지금 규칙(끝까지 기다림)의 실제 판당 Loss %.1f 장 (굶음 %.1f · 막힘 %.1f · 교체 %.1f)' % (O5['rule']['mean'], O5['rule']['idle'], O5['rule']['hold'], O5['rule']['sw'])]
+for _nm, _mid, _tx in (('트윈 판 0 (세정 %d분)' % o5_tw.set_index('twin').loc['v0', 'clean'], 'v0', ''), ('0601 보정 트윈 (%d분)' % o5_tw.set_index('twin').loc['grid_log60', 'clean'], 'cal', ''), ('사후 평균 한 값 (%.1f분)' % o5_tw.set_index('twin').loc['postmean_log60', 'clean'], 'pm', ''), ('사후분포 무작위화', 'dr', '')):
+    _t = O5['tabv'][_mid]; _rl, _tl = _t['real'], _t['twin']; _p1 = _t['pol1']
+    o5_exp.append('%-22s 시드 %d개: 실제 Loss %6.1f (10~90 %% %6.1f ~ %6.1f) · 트윈 안 %6.1f · 시뮬-실제 전이 손실 %+6.1f' % (_nm, 20, sum(_rl) / 20, _q5(_rl, .1), _q5(_rl, .9), sum(_tl) / 20, (sum(_rl) - sum(_tl)) / 20))
+    o5_exp.append('%-22s 시드 1 의 정책: 남은 유리 0·다음 세트 아직 안 옴일 때 교체하는 경과 간격 = %s' % ('', _iv5([k for k in range(K5['KMAX'] + 1) if _p1[0 * K5['NS'] + k] == 1])))
+for _m, _nm in (('v0', '판 0'), ('cal', '0601 보정'), ('pm', '사후 평균'), ('dr', '무작위화')):
+    _v = [float(x) for x in o5_sd[o5_sd['method'] == _m]['real_loss']]; o5_exp.append('시드 %d개 실제 Loss 10 / 50 / 90 %%  %-8s %6.1f / %6.1f / %6.1f' % (len(_v), _nm, _q5(_v, .1), _q5(_v, .5), _q5(_v, .9)))
+o5_ok13 = o5_run.returncode == 0 and o5_run.stdout.strip() == o5_out and o5_L == o5_exp and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', o5_code, _re5.M)
+o5_cst = [f'EP, TR = {K5["EP"]}, {K5["TR"]}', f'R_LO, R_HI = {K5["R_LO"]}, {K5["R_HI"]}', f'KMAX, WMAX, RMAX = {K5["KMAX"]}, {K5["WMAX"]}, {K5["RMAX"]}', f'DMAX = {K5["DMAX"]}', f'IDLE, CSW, HOLD = {K5["COST"]["idle"]:.1f}, {K5["COST"]["csw"]:.1f}, {K5["COST"]["hold"]:.1f}', f'ALPHA, EPS, EPISODES, MINV = {K5["ALPHA"]}, {K5["EPS"]}, {K5["EPISODES"]}, {K5["MINV"]}', f'N_EVAL = {K5["N_EVAL"]}', f'N_SEEDS = {K5["SEEDS"]}']
+chk('0605 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 실제 판 요약·지금 규칙 항목·네 방식의 시드 20개 분포·전이 손실·시드 1 정책의 교체 구간·시드 200개 분포가 JS·CSV 와 같고, 외부 통신 코드가 없고, 코드의 상수가 모듈 기본값과 같음',
+    o5_ok13 and all(c in o5_code for c in o5_cst),
+    (o5_run.stderr[-300:] if o5_run.returncode else f'{len(o5_L)}줄 · 대조 {len(o5_exp)}줄' + ''.join('' if a == b else f' · 불일치: {a[:60]} / {b[:60]}' for a, b in zip(o5_L, o5_exp))[:200]))
+
+# 14. 페이지 구조
+o5_term = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', o5_pg, _re5.S).group(1)))
+o5_nq = len(_re5.findall(r'<div class="qna" data-label=', o5_pg)); o5_nsec = len(_re5.findall(r'<h2><span class="no">', o5_pg)); o5_nmath = o5_pg.count('<math display="block">')
+o5_fonts = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', o5_pg)]
+o5_bt = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', o5_pg, flags=_re5.S)))
+o5_endda = _re5.findall(r'[^니습]다[.]', o5_bt)
+o5_p604 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0604-off-policy-evaluation.html'), encoding='utf-8').read(); o5_hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+o5_dv = set(_re5.findall(r'data-v="(\w+)"', o5_pg)); o5_dvdef = set(_re5.findall(r'V\.(\w+)=', o5_app))
+o5_qna = ' '.join(_re5.findall(r'<div class="qna".*?</div>', o5_pg, _re5.S))
+o5_rd = lambda i, a: f'id="{i}" type="range" min="{a[0]}" max="{a[1]}" step="{a[2]}" value="{a[3]}"'
+o5_slid = [o5_rd('sC1', (160, 240, 2, O5['tab']['cal']['v0'])), o5_rd('sT2', (0, 16, 1, 0)), o5_rd('sA3', (0.01, 1, 0.01, K5['ALPHA'])), o5_rd('sE4', (0, 6, 1, 4)), o5_rd('sA4', (0, 5, 1, 2)), o5_rd('sP4', (0, 6, 1, 3)), o5_rd('sS5', (1, 200, 1, o5_rep)), o5_rd('sC6', (160, 240, 4, O5['tab']['cal']['v0'])), o5_rd('sW7', (0, 4, 1, 3)),
+           o5_rd('sK8', (0, 300, 12, K5['COST']['csw'])), o5_rd('sK10', (0, 300, 12, K5['COST']['csw'])), o5_rd('sJ10', (0, 60, 1, int(round(O5['tab']['sim']['clCapaPerMonth']))))]
+o5_nums = [int(x) for x in _re5.findall(r'(\d+)절', o5_bt)]
+o5_ids = set(_re5.findall(r'\bid="(\w+)"', o5_pg)); o5_gets = set(_re5.findall(r"\$\('(\w+)'\)", o5_app)) | {'roAns', 'tabAns', 'concAns', 'sK8', 'sK10'}
+o5_sync = {i + 'o' for i in ('sC1', 'sT2', 'sR3', 'sA3', 'sE4', 'sA4', 'sP4', 'sS5', 'sC6', 'sW7', 'sK8', 'sK10', 'sJ10')}
+o5_ids_all = o5_ids | {'pick5'}
+chk('0605 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절 13개 · MathML 식 셋(보상·Q 갱신·전이 손실) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0604 쪽 0605 다음 링크(위·아래)와 0605 쪽 0604 이전 링크(위·아래) · 허브 등록(마지막 장 묶음) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~13 · 스크립트가 찾는 요소 id 전부 존재 · 모듈·표·페이지에 Math.random·Date.now 없음',
+    o5_term == 6 and o5_nq == 4 and o5_nsec == 13 and o5_nmath == 3 and o5_fonts and min(o5_fonts) >= 11 and not o5_endda and o5_p604.count('0605-policy-learning-in-twin.html') == 2 and o5_pg.count('0604-off-policy-evaluation.html') == 2
+    and 'labs/0605-policy-learning-in-twin.html' in o5_hub and '마지막 장 · 기둥 6' in o5_hub and o5_dv <= o5_dvdef and all(s in o5_pg for s in o5_slid) and not o5_qna.count('%') and o5_nums and max(o5_nums) <= 13 and min(o5_nums) >= 1
+    and (o5_gets | o5_sync) <= o5_ids_all and not _re5.search(r'Math\.random|Date\.now|new Date', o5_mod) and not _re5.search(r'Math\.random|Date\.now', o5_app) and not _re5.search(r'Math\.random|Date\.now', o5_tb),
+    f'용어 {o5_term} · Q&A {o5_nq} · 절 {o5_nsec} · MathML {o5_nmath} · 캔버스 글자 최소 {min(o5_fonts) if o5_fonts else None}px({len(o5_fonts)}곳) · -다 끝맺음 {len(o5_endda)}건({o5_endda[:3]}) · 0604 쪽 링크 {o5_p604.count("0605-policy-learning-in-twin.html")}곳 · 미정의 data-v {sorted(o5_dv - o5_dvdef)} · 없는 id {sorted((o5_gets | o5_sync) - o5_ids_all)} · 슬라이더 어긋남 {[s[:12] for s in o5_slid if s not in o5_pg]} · 절 참조 {sorted(set(o5_nums))}')
+o5_cleanup = shutil.rmtree(o5_td, ignore_errors=True)
+
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

@@ -1,0 +1,1017 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>트윈 안에서 정책 학습</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="세트 교체 시점(조기 잡 체인지)을 트윈 안에서 학습시키는 작은 강화학습을 다룹니다. 상태·행동·보상과 Q 학습, 학습 곡선과 정책 표 읽기, 트윈이 틀렸을 때의 시뮬-실제 전이 손실, 0602 사후분포로 트윈을 무작위화해 섞어 배우기, 보상(교체 비용)을 바꿔 정책이 바뀌는 것을 손으로 확인하고, 회사 PC용 Python과 학습 정책 승인 요청서 양식을 남깁니다.">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+
+td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+table.nw1 td:first-child,table.nw1 th:first-child{white-space:nowrap}
+table.nwall td{white-space:nowrap}
+
+.loopmap{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .4rem}
+.lp{display:flex;flex-direction:column;gap:.1rem;min-width:8.5rem;padding:.5rem .7rem;border:1.5px solid var(--accent);border-radius:10px;background:var(--card);font-size:.9rem}
+.lp b{color:var(--ink)}
+.lp span{font-size:.85rem;color:var(--soft)}
+.lp.mine{background:color-mix(in srgb,var(--accent) 20%,var(--card));border-width:3px}
+.lpa{font-size:1.2rem;color:var(--accent);font-weight:800}
+.lpa.back{flex:1 1 100%;font-size:.9rem;font-weight:700;color:var(--soft);padding:.2rem 0}
+[hidden]{display:none!important}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">마지막 장 · 기둥 6 · 실험실 0605</p>
+  <h1>트윈 안에서 정책 학습 — 작은 강화학습과 도메인 무작위화</h1>
+  <p class="sub">&lsquo;지금 바꿀까, 기다릴까&rsquo;를 칸마다 정한 표를 트윈 안에서 스스로 찾게 하고, 그 표가 트윈이 틀렸을 때 실제에서 얼마나 망가지는지, 그리고 그럴 법한 트윈 여러 개에서 섞어 배우면 얼마나 막아지는지 재어 봅니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0604-off-policy-evaluation.html">← 이전: 과거 로그로 새 규칙 평가하기</a><span class="sp"></span></nav>
+
+<p><b>0604 는 이미 정해진 규칙을 로그로 평가했습니다.</b> 이 실험실은 평가할 규칙을 사람이 하나씩 만들지 않고, 트윈(0601 의 시뮬레이터) 안에서 규칙 자체를 학습시킵니다. 예는 조기 잡 체인지 시점입니다. 다음 마스크 세트가 세정기에서 늦게 올 때, 블록이 서 버리기 전에 대기 중인 다른 세트로 먼저 바꿀지, 끝까지 기다릴지를 정합니다. 한 번 정하는 것이 아니라 하루에도 여러 번 반복되는 결정이므로, 상태마다 무엇을 할지 적은 표(정책)가 필요합니다. 이 표를 트윈 안에서 찾고, 트윈이 실제와 어긋나 있을 때 표가 얼마나 상하는지 재고, 0602 의 사후분포로 그 상함을 줄일 수 있는지 확인합니다.</p>
+
+<div class="watch"><b>이 실험실의 환경은 학습용 작은 모형입니다.</b> 이 트랙의 가상 공장 시뮬레이터(<code>simulateLoss</code>)는 세트를 언제 바꿀지를 바깥에서 정해 줄 수 없어서, 이 결정을 그 안에서 바꿔 돌릴 수는 없습니다. 그래서 한 판의 구조(상태·행동·잃는 장수)는 이 실험실을 위해 따로 정한 작은 이산 사건 모형이고, 시뮬레이터에서 가져오는 것은 한 가지뿐입니다. 세정 시간이 길어지면 세정기 앞에서 줄 서는 시간이 얼마나 길어지는지(세정 대기열 기록)를 이용해 다음 세트가 도착하는 시각을 정합니다. 교체 비용 같은 숫자는 가정이며 슬라이더로 바꿔 봅니다. 모형이 작아서 학습 결과를 손으로도 검산할 수 있다는 것이 이 선택의 이유입니다.</div>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0206 의 상태와 전이(지금 어떤 상태이고 행동하면 어떤 상태로 가는가), 0401 의 정책(상황을 보고 행동을 고르는 규칙)과 사람 승인, 0402·0601 의 sim-real gap(트윈 출력과 실제 기록의 차)과 검증 영역(트윈이 맞다고 확인된 운전 범위), 0602 의 사후분포(맞춘 값을 한 숫자가 아니라 가능한 값들의 분포로 낸 것), 0604 의 ε(규칙이 가장 좋아 보이는 행동에서 일부러 벗어나는 확률)와 기록 정책·평가.</p>
+  <ul class="chips known"><li>상태 · 전이 (0206)</li><li>정책 (0401)</li><li>sim-real gap (0402·0601)</li><li>검증 영역 (0601)</li><li>사후분포 (0602)</li><li>ε (0604)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(판·간격·굶음·막힘·학습률 α)은 쓰는 자리에서 문장이나 식으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>강화학습 (reinforcement learning)</li><li>보상 (reward)</li><li>가치 함수 Q (action-value)</li><li>탐색 / 활용 (exploration / exploitation)</li><li>도메인 무작위화 (domain randomization)</li><li>시뮬-실제 전이 손실 (sim-to-real loss)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 조기 잡 체인지 시점처럼 &lsquo;지금 바꿀까, 기다릴까&rsquo;를 반복해서 정하는 결정에 대해 트윈 안에서 규칙을 학습시키고, 그 결과를 실행이 아니라 사람이 승인할 권고 표로 바꾸는 것, 그리고 트윈이 틀렸을 때 학습된 규칙이 얼마나 망가지는지 아는 것(1~9절).</li>
+    <li><b>손으로 연습</b> — 손으로 문턱 하나를 정해 트윈과 실제에서 견주기(2절), Q 한 칸을 손으로 갱신하기(3절), 학습 횟수·학습률·탐색률을 바꿔 학습 곡선 보기(4절), 학습된 정책 표를 사람 말로 읽기(5절), 한 값의 트윈에서 학습한 정책과 사후분포에서 뽑은 여러 트윈에서 학습한 정책을 실제에서 견주기(6~7절), 보상(교체 비용)을 바꿔 정책이 바뀌는 것 보기(8절).</li>
+    <li><b>다음 날 산출물</b> — <code>tabular_q</code>·<code>policy_table</code>·<code>evaluate_policy</code>·<code>randomized_training</code> Python 함수(11절)와 <b>학습 정책 승인 요청서</b> 양식(12절).</li>
+    <li><b>기록할 데이터</b> — 결정 시점의 상태(남은 유리·경과 또는 대기)와 결정·결과를 같은 키로, 세트 요청·세정 시작·도착 시각을 판마다(12절). 0604 의 결정 기록과 같은 형식의 트윈 판입니다.</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 보상(비용)과 승인은 사람, 학습한 적 없는 상태에서는 지금 규칙으로 되돌리는 것은 규칙, 학습·평가·승인 요청서 초안은 에이전트(9절).</li>
+    <li><b>성과 환산</b> — 지금 규칙 대비 학습 정책이 줄이는 Loss(장수·블록-턴, 월 환산)를 교체 비용 가정과 함께(10절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 세정 시간이 길어져(0601·0602) 다음 마스크 세트가 늦게 오는 날이 있습니다. 지금 규칙은 <b>지금 세트의 계획 유리를 끝까지 채우고, 다음 세트가 오면 바꾸는 것</b>입니다. 지금 세트가 끝났는데 다음 세트가 아직 안 왔으면 블록은 그냥 서 있습니다. 그때 대기 중인 다른 세트로 먼저 바꾸는 <b>조기 잡 체인지</b>를 언제 할지 정하는 규칙을 만들어 주십시오. 라인에서 시도하기 전에 트윈 안에서 규칙을 학습시키고, 그 규칙이 실제 라인에서 지금 규칙보다 판당 몇 장을 덜 잃는지(혹은 더 잃는지) 답하십시오.
+  <p class="note" style="margin:.5rem 0 0">&lsquo;실제&rsquo;는 0601 과 같은 가상 공장입니다. 숨은 세정 시간으로 돌린 시뮬레이터의 기록(판 <span data-v="nreal"></span>개의 &lsquo;그때 남은 유리&rsquo;와 &lsquo;다음 세트가 도착한 시각&rsquo;)만 학습자에게 보이고, 숨은 값은 13절 &lsquo;정답 열기&rsquo; 뒤에만 나옵니다. 트윈은 0602 의 대표 로그(시드 <span data-v="rep02"></span>)로 맞춘 값을 씁니다. 학습은 시드마다 결과가 달라서 한 번 학습한 결과로 단정하지 않고 학습 시드 <span data-v="nseed"></span>개의 분포를 함께 봅니다. 1절에서 한 판의 구조를 보고, 2절에서 손으로 규칙을 짜 막히는 곳을 보고, 3절에서 이름을 붙이고, 4~7절에서 학습과 트윈 오차를 다루고, 8절에서 보상을 바꿔 보고, 9절에서 처음 물음으로 돌아옵니다.</p>
+</div>
+
+<div class="solban">여기서부터 가상 공장의 트윈과 실제 기록으로 푸는 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>한 판의 구조 — 상태·행동·잃는 장수</h2>
+<p>블록 하나가 지금 마스크 세트로 증착하는 중이고, 다음 세트는 세정기에서 씻는 중입니다. 판단은 30분마다 합니다. 이 30분을 <b>간격</b>이라 부르겠습니다. 지금 세트의 계획 유리는 간격 단위로 <b>남은 유리</b> r 만큼(0~<span data-v="rmax"></span>) 남아 있고, 한 간격에 한 칸씩 줄어듭니다. 한 판은 다음 세트를 씻기 시작하는 순간에 시작해, 블록이 세트를 바꾸는 순간에 끝납니다. 판이 시작될 때 r 은 <span data-v="rlo"></span>~<span data-v="rhi"></span> 사이의 정수 가운데 같은 확률로 정해집니다(가정).</p>
+<p>판의 어느 순간인지는 두 가지로 적습니다. 하나는 남은 유리 r 이고, 다른 하나는 다음 세트가 <b>아직 안 왔으면 시작부터 지난 간격 수 k</b>, <b>이미 왔으면 온 뒤 기다린 간격 수 w</b> 입니다. 이 둘이 이 모형의 상태(0206)입니다. 칸 수는 남은 유리 <span data-v="nr"></span>가지 × 도착 상태 <span data-v="nns"></span>가지 = <span data-v="nstate"></span>칸입니다. 각 상태에서 고르는 행동은 둘입니다. <b>기다림</b>, 또는 <b>지금 교체</b>(조기 잡 체인지). 판이 끝날 때까지 잃은 유리 장수의 합이 그 판의 Loss 입니다.</p>
+<div class="tbwrap"><table class="mt" id="tab1"></table></div>
+<p class="note">굶음은 블록이 서 있어서 잃는 장수, 막힘은 이미 도착한 세트가 기다리며 생기는 장수, 교체는 세트를 바꾸는 데 드는 장수입니다. 도착 전에 대기 중인 다른 세트로 바꾸면, 나중에 다음 세트로 한 번 더 바꾸어야 하고(남은 유리가 있었다면 그 세트를 마저 쓰려고 또 한 번), 그만큼 교체 비용이 늘어납니다. 블록이 한 간격 서 있을 때 잃는 <span data-v="idle"></span>장은 챔버 <span data-v="chb"></span>개가 30분 동안 만드는 유리 장수이고, 교체 한 번을 한 간격 서는 값(<span data-v="csw"></span>장)으로 둔 것입니다. 이 가상 공장의 60일 기록에도 같은 자리의 사건이 있습니다. 블록이 다음 세트를 기다려 선 사건(세정기 capa 부족, CL-CAPA)이 <span data-v="clN"></span>건·평균 <span data-v="clM"></span>장, 조기 잡 체인지(JC-EARLY)가 <span data-v="jcN"></span>건·평균 <span data-v="jcM"></span>장이어서 위 비용과 같은 자릿수입니다.</p>
+<p><b>다음 세트가 오는 시각은 세정 시간이 정합니다.</b> 세트가 올 때까지 걸리는 시간은 세정기 앞에서 줄 서는 시간 + 세정 시간 + 반송(<span data-v="tr"></span>분, 고정)입니다. 줄 서는 시간은 세정기가 꽉 찰수록 급격히 길어지는데, 가상 공장의 기록(세정 대기열 평균 q 와 세정 중 평균 b)에서 리틀의 법칙으로 재면 줄 서는 평균 시간 = q × 세정 시간 ÷ b 입니다. 판마다 실제 줄 서는 시간은 이 평균을 가진 흔들림(두 개의 지수분포의 평균, 즉 에를랑 분포)으로 둡니다. 아래 슬라이더로 트윈의 세정 시간을 바꾸면 도착 시각이 어떻게 달라지는지 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">트윈의 세정 시간과 다음 세트가 도착하는 간격 수</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 세정 시간이 조금만 늘어도 줄 서는 시간이 얼마나 급하게 늘어나는지, 트윈 판 0 의 도착 분포가 실제 판 기록의 분포와 얼마나 떨어져 있는지 보십시오.</div>
+  <div class="ctrl"><label for="sC1">트윈의 세정 시간 (분)</label><input id="sC1" type="range" min="160" max="240" step="2" value="180"><output id="sC1o"></output></div>
+  <div class="row"><button class="btn ghost" id="rC1" type="button">트윈 판 0 으로 되돌리기</button></div>
+  <div class="state" id="stC1"></div>
+  <canvas id="cvWq"></canvas>
+  <canvas id="cvD"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>트윈(위 슬라이더의 세정 시간)의 도착 간격 수 분포</span><span><i class="dot" style="background:var(--c8)"></i>실제 판 기록의 도착 간격 수 분포</span></div>
+  <div class="readout" id="ro1"></div>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도와 막힘 — 손으로 문턱 하나를 정해 보면</h2>
+<p>가장 쉬운 규칙은 문턱 하나입니다. <b>남은 유리가 0 이 되었는데 다음 세트가 아직 안 왔으면, 시작부터 지난 간격 수가 τ 보다 작을 때 대기 중인 다른 세트로 바꾸고 그 밖에는 기다린다</b>는 규칙입니다(τ = 0 이면 늘 기다리는 지금 규칙). 판 하나를 트윈에서 돌려 Loss 를 재고, τ 를 바꿔 가며 가장 좋은 τ 를 찾습니다. 트윈은 0601 의 판 0(세정 시간 <span data-v="v0c"></span>분)입니다. 같은 규칙을 실제 기록의 판 <span data-v="nreal"></span>개에 그대로 적용하면 도착 시각만 실제 기록을 따르고, 규칙이 고르는 행동에 따라 Loss 가 달라집니다. 이렇게 지난 판을 다시 돌려 볼 수 있는 까닭은, 다음 세트가 오는 시각이 우리가 무엇을 고르든 달라지지 않는다고 보기 때문입니다(가정). 0604 와 달리 고른 확률이 필요 없는 것도 그 때문입니다.</p>
+<div class="lab">
+  <div class="labtitle">문턱 τ 에 따른 판당 평균 Loss: 트윈 판 0 과 실제</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 트윈에서 Loss 가 가장 낮아지는 가장 작은 τ 가 실제에서도 가장 낮은 곳인지, 그 τ 를 실제에 쓰면 얼마나 더 잃는지 보십시오.</div>
+  <div class="ctrl"><label for="sT2">문턱 τ (간격)</label><input id="sT2" type="range" min="0" max="16" step="1" value="0"><output id="sT2o"></output></div>
+  <div class="row"><button class="btn ghost" id="rT2" type="button">지금 규칙(τ = 0)으로 되돌리기</button></div>
+  <div class="state" id="stT2"></div>
+  <canvas id="cvTau"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>트윈 판 0 안의 Loss</span><span><i class="dot" style="background:var(--c8)"></i>실제 판 기록에 적용한 Loss</span></div>
+  <div class="readout" id="ro2"></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<p><b>막힘:</b> 위 규칙은 &lsquo;남은 유리 0 이고 아직 안 온&rsquo; 상태 한 줄만 다룹니다. 이 모형의 상태는 <span data-v="nstate"></span>칸이고 도착한 뒤의 상태(남은 유리가 많은데 이미 기다린 세트가 있을 때 바꿀지)도 있습니다. 칸마다 손으로 문턱을 정하려면 비용의 모든 조합을 사람이 계산해야 합니다. 게다가 위에서 보았듯 트윈의 도착 분포가 실제와 다르면 트윈에서 고른 문턱이 실제에서 틀립니다. 필요한 것은 칸마다 &lsquo;여기서 이 행동을 하면 끝까지 얼마나 잃는가&rsquo;를 스스로 적어 가는 방법입니다. 다음 절에서 그 방법에 이름을 붙입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 강화학습·보상·가치 함수 Q·탐색과 활용</h2>
+<p>트윈 안에서 판을 수천 번 겪게 하면서, 상태에서 행동을 고르고 그 결과로 정책을 고쳐 가는 학습을 <b>강화학습(reinforcement learning)</b>이라 합니다. 한 번 행동한 뒤 받는 점수를 <b>보상(reward)</b>이라 하며, 여기서는 그 한 번에 잃은 장수에 마이너스를 붙인 값입니다. 보상이 0 에 가까울수록(덜 잃을수록) 좋습니다.</p>
+<div class="eq">
+  <span class="eqlab">보상: 한 번의 행동 뒤 받는 점수</span>
+  <math display="block"><mrow><mi>r</mi><mo>=</mo><mo>&#x2212;</mo><mo stretchy="false">(</mo><mtext>굶음</mtext><mo>+</mo><mtext>막힘</mtext><mo>+</mo><mtext>교체</mtext><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">세 항은 1절 표의 값입니다. 판이 끝날 때까지 보상을 더한 값이 그 판의 Loss 에 마이너스를 붙인 것입니다.</span>
+</div>
+<p>칸마다 적어 가는 값이 <b>가치 함수 Q(action-value)</b>입니다. Q(s, a) 는 &lsquo;상태 s 에서 행동 a 를 하고, 그 뒤에는 지금 가장 좋아 보이는 행동을 따랐을 때 판이 끝날 때까지 받을 보상의 합의 기댓값&rsquo;입니다. 처음에는 모든 칸이 0 이고, 경험할 때마다 아래 식으로 한 칸씩 고쳐 갑니다. 판이 반드시 끝나므로 먼 미래를 깎지 않습니다(γ = 1). α 는 <b>학습률</b>로, 새로 겪은 결과를 기존 값에 얼마나 섞을지 정하는 0 과 1 사이의 수입니다.</p>
+<div class="eq">
+  <span class="eqlab">가치 함수 Q 의 갱신</span>
+  <math display="block"><mrow><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>&#x2190;</mo><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>+</mo><mi>&#x03B1;</mi><mo stretchy="false">[</mo><mi>r</mi><mo>+</mo><mi>&#x03B3;</mi><munder><mo movablelimits="true">max</mo><msup><mi>a</mi><mo>&#x2032;</mo></msup></munder><mi>Q</mi><mo stretchy="false">(</mo><msup><mi>s</mi><mo>&#x2032;</mo></msup><mo>,</mo><msup><mi>a</mi><mo>&#x2032;</mo></msup><mo stretchy="false">)</mo><mo>&#x2212;</mo><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo stretchy="false">]</mo></mrow></math>
+  <span class="note">s′ 는 행동 뒤에 간 다음 상태, a′ 는 그 상태에서 고를 수 있는 행동입니다. 대괄호 안이 &lsquo;방금 겪은 결과(보상 + 다음 상태의 가장 좋아 보이는 값)와 지금 적어 둔 값의 차&rsquo;입니다. 판이 거기서 끝났으면 다음 상태가 없으니 r 만 씁니다.</span>
+</div>
+<p>정책은 칸마다 Q 가 더 큰 행동을 고르는 표입니다. 그런데 아직 덜 해 본 행동은 Q 가 틀려 있을 수 있으니, 가끔은 일부러 다른 행동을 해 봐야 합니다. 가장 좋아 보이는 행동을 하는 것이 <b>활용(exploitation)</b>, 덜 해 본 행동을 해 보는 것이 <b>탐색(exploration)</b>입니다. 이 실험실은 확률 ε 로 탐색하고 나머지는 활용합니다(ε-탐욕). 0604 의 ε 와 같은 뜻으로, 규칙이 가장 좋아 보이는 행동에서 벗어나는 확률입니다. 다만 0604 에서는 로그에 다양성을 남기려고 섞은 것이고 여기서는 Q 가 틀려 있을 칸을 겪어 보려고 섞습니다. Q 가 처음에 0 이고 보상이 모두 0 이하이므로, 해 본 적 없는 행동은 &lsquo;0 점&rsquo;으로 가장 좋아 보여 탐색이 저절로 일어난다는 점도 기억해 두십시오.</p>
+<div class="lab">
+  <div class="labtitle">트윈 판 0 에서 학습하던 도중의 연속 여덟 번의 갱신 (학습 판 <span data-v="trfrom"></span>번째부터)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 보상이 큰 손실(굶음)일 때 Q 가 얼마나 내려가는지, 같은 판의 앞 칸이 뒤 칸의 값을 받아 내려가는 모습을 보십시오. 아래 슬라이더로 한 줄을 골라 학습률 α 를 바꾸면 갱신 뒤 값이 어떻게 달라지는지 직접 따라가 봅니다.</div>
+  <div class="tbwrap"><table class="mt num" id="tab3"></table></div>
+  <div class="ctrl"><label for="sR3">따라갈 줄 번호</label><input id="sR3" type="range" min="1" max="8" step="1" value="1"><output id="sR3o"></output></div>
+  <div class="ctrl"><label for="sA3">학습률 α</label><input id="sA3" type="range" min="0.01" max="1" step="0.01" value="0.05"><output id="sA3o"></output></div>
+  <div class="row"><button class="btn ghost" id="rA3" type="button">기본 학습률(0.05)로 되돌리기</button></div>
+  <div class="state" id="stA3"></div>
+  <div class="readout" id="ro3"></div>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>학습 곡선 — 몇 번 겪어야 하고, 무엇이 흔드는가</h2>
+<p>학습을 시작하면 표가 비어 있어 모든 칸에서 기다리는 지금 규칙과 같습니다. 판을 겪을수록 Q 가 채워지고 정책이 바뀝니다. 학습 중간마다 그때의 정책(칸마다 Q 가 큰 행동, 학습한 적 적은 칸은 지금 규칙)을 가져다 트윈 안과 실제 판 기록에 각각 돌려 판당 평균 Loss 를 재면 <b>학습 곡선</b>이 됩니다. 곡선은 학습 시드 10개의 중앙값(굵은 선)과 10~90 % 범위(옅은 띠)입니다. 학습 판 수·학습률·탐색률 셋을 바꿔 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">학습 곡선: 사후분포로 무작위화한 학습과 트윈 판 0 의 학습</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 판 수가 적으면 왜 지금 규칙(위쪽 빨간 점선)과 별 차이가 없는지, 학습률이 너무 작거나 탐색률이 너무 크거나 0 일 때 곡선이 어떻게 달라지는지, 트윈 판 0 의 곡선은 트윈 안에서는 내려가는데 실제에서는 어디서 멈추는지 보십시오.</div>
+  <div class="ctrl"><label for="sE4">학습 판 수</label><input id="sE4" type="range" min="0" max="6" step="1" value="4"><output id="sE4o"></output></div>
+  <div class="ctrl"><label for="sA4">학습률 α</label><input id="sA4" type="range" min="0" max="5" step="1" value="2"><output id="sA4o"></output></div>
+  <div class="ctrl"><label for="sP4">탐색률 ε</label><input id="sP4" type="range" min="0" max="6" step="1" value="3"><output id="sP4o"></output></div>
+  <div class="row"><button class="btn ghost" id="rP4" type="button">기본 설정으로 되돌리기</button></div>
+  <div class="state" id="stP4"></div>
+  <canvas id="cvCurve"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>무작위화 학습: 실제 Loss</span><span><i class="dot" style="background:var(--c9)"></i>무작위화 학습: 트윈 안 Loss</span><span><i class="dot" style="background:var(--c8)"></i>트윈 판 0 학습: 실제 Loss</span><span><i class="dot" style="background:var(--bad)"></i>지금 규칙(실제, 점선)</span></div>
+  <div class="readout" id="ro4"></div>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>정책 표 읽기 — 사람 말로 바꾸기</h2>
+<p>학습이 끝나면 남는 것은 상태 칸마다 &lsquo;기다림&rsquo; 또는 &lsquo;지금 교체&rsquo;를 적은 표입니다. 이것이 정책입니다(0401). 아래 두 격자가 그 표입니다. 왼쪽은 다음 세트가 아직 안 온 상태(세로 남은 유리, 가로 시작부터 지난 간격 수), 오른쪽은 이미 온 상태(세로 남은 유리, 가로 온 뒤 기다린 간격 수)입니다. 회색은 <b>학습한 적이 적은 칸</b>입니다. 판 중에 한 번도 가지 않았거나 <span data-v="minv"></span>번도 겪지 못한 칸은 트윈이 말해 줄 수 없는 곳이어서 정책이 지금 규칙(기다림)으로 되돌립니다. 0601 의 검증 영역 밖과 같은 생각입니다.</p>
+<div class="lab">
+  <div class="labtitle">학습된 정책 표 (기본 학습 설정, 학습 시드를 골라 봅니다)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 남은 유리가 있는 동안에는 기다리는 칸이 어디까지이고, 남은 유리가 0 이 된 줄에서 교체하는 경과 구간이 방식마다 어떻게 다른지, 회색 칸이 어디서부터 시작하는지 보십시오. 시드를 바꾸면 같은 방식에서도 표가 조금씩 다릅니다.</div>
+  <div class="row picks" id="pick5"></div>
+  <div class="ctrl"><label for="sS5">학습 시드</label><input id="sS5" type="range" min="1" max="200" step="1" value="88"><output id="sS5o"></output></div>
+  <div class="row"><button class="btn ghost" id="rS5" type="button">대표 시드와 무작위화 학습으로 되돌리기</button></div>
+  <div class="state" id="stS5"></div>
+  <div class="two"><div><canvas id="cvPre"></canvas></div><div><canvas id="cvPost"></canvas></div></div>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>기다림</span><span><i class="dot" style="background:var(--c8)"></i>지금 교체</span><span><i class="dot" style="background:var(--grey)"></i>학습한 적 적은 칸(지금 규칙으로 되돌림)</span><span><i class="dot" style="background:var(--code);border:1px solid var(--rule)"></i>판 구조상 갈 수 없는 칸(비어 있음)</span></div>
+  <div class="readout" id="ro5"></div>
+</div>
+<p>표를 승인 요청서에 적으려면 사람 말로 바꿔야 합니다. 위 요약이 그 문장입니다. 읽을 때는 두 가지를 봅니다. 하나는 <b>상식과 맞는가</b>입니다. 남은 유리가 아직 있는데 기다리지 않고 바꾸는 칸이 있다면 이유를 물어야 합니다. 다른 하나는 <b>어디까지 믿을 수 있는가</b>입니다. 회색 칸으로 가는 판이 라인에서 흔하면 이 정책은 아직 승인할 때가 아닙니다.</p>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>트윈 판 0 에서 배운 정책을 실제에 — 시뮬-실제 전이 손실</h2>
+<p>트윈 판 0(세정 시간 <span data-v="v0c"></span>분)은 0601 에서 보았듯 실제와 어긋나 있습니다. 거기서 배운 정책을 트윈 안에서 재면 좋아 보이지만, 같은 정책을 실제에 쓰면 다를 수 있습니다. 같은 정책의 트윈 안 성적과 실제 성적의 차를 <b>시뮬-실제 전이 손실(sim-to-real loss)</b>이라 하겠습니다. 0402·0601 의 sim-real gap 이 트윈 출력과 실제 기록의 차였다면, 이것은 그 차가 <b>정책의 성적</b>에 미치는 영향입니다. V 는 판당 평균 Loss 입니다.</p>
+<div class="eq">
+  <span class="eqlab">시뮬-실제 전이 손실</span>
+  <math display="block"><mrow><mi>&#x0394;</mi><mo stretchy="false">(</mo><mi>&#x03C0;</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>V</mi><mtext>실제</mtext></msub><mo stretchy="false">(</mo><mi>&#x03C0;</mi><mo stretchy="false">)</mo><mo>&#x2212;</mo><msub><mi>V</mi><mtext>트윈</mtext></msub><mo stretchy="false">(</mo><mi>&#x03C0;</mi><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">Δ 가 0 에 가까우면 트윈 안에서 본 성적을 실제에서도 기대해도 됩니다. 양수로 크면 트윈이 정책을 과하게 좋게 보여 준 것입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">학습한 트윈에 따른 정책의 성적 (학습 시드 <span data-v="nseed"></span>개, 기본 학습 설정)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 트윈 판 0 에서 배운 정책의 트윈 안 성적과 실제 성적 사이에 얼마나 큰 차가 나는지, 그 차(Δ)가 0601 에서 보정한 트윈이나 사후 평균의 트윈에서 배운 정책에서는 어떻게 되는지 보십시오. 그 아래 슬라이더는 정책을 어느 세정 시간의 트윈에서 배웠느냐에 따라 실제 성적이 어떻게 바뀌는지 훑습니다.</div>
+  <div class="tbwrap"><table class="mt num" id="tab6"></table></div>
+  <canvas id="cvR6"></canvas>
+  <div class="ctrl"><label for="sC6">정책을 배운 트윈의 세정 시간 (분)</label><input id="sC6" type="range" min="160" max="240" step="4" value="180"><output id="sC6o"></output></div>
+  <div class="row"><button class="btn ghost" id="rC6" type="button">트윈 판 0 으로 되돌리기</button></div>
+  <div class="state" id="stC6"></div>
+  <canvas id="cvScan"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--c8)"></i>그 트윈에서 배운 정책의 실제 Loss (학습 시드 <span data-v="nscan"></span>개 중앙값과 10~90 % 띠)</span><span><i class="dot" style="background:var(--c9)"></i>같은 정책의 그 트윈 안 Loss</span></div>
+  <div class="readout" id="ro6"></div>
+</div>
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>도메인 무작위화 — 그럴 법한 트윈 여러 개에서 섞어 배웁니다</h2>
+<p>한 값의 트윈에서 배우면 그 값의 오차까지 배웁니다. 0602 는 세정 시간을 한 숫자가 아니라 로그에서 가능한 값들의 <b>사후분포</b>로 냈습니다. 그 분포에서 판마다 세정 시간을 새로 뽑아 학습하면 정책은 그럴 법한 트윈 여럿에서 두루 통하는 표를 배웁니다. 학습할 때 트윈의 파라미터를 분포에서 매번 뽑아 바꿔, 특정 한 판에 과하게 맞지 않게 하는 것을 <b>도메인 무작위화(domain randomization)</b>라 부릅니다. 비교할 방식은 셋입니다. 0601 의 격자 보정으로 맞춘 한 값, 0602 사후분포의 평균 한 값, 0602 사후분포 전체에서 판마다 뽑기. 마지막은 로그가 아직 없을 때(사전 180±<span data-v="psd"></span>분만 아는 때)입니다.</p>
+<div class="lab">
+  <div class="labtitle">로그 기간에 따른 학습 결과 (실제 판 기록에서 재고, 학습 시드 <span data-v="nseed"></span>개)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 로그가 길어 사후분포가 좁을 때는 사후분포 무작위화와 사후 평균 한 값이 거의 같아지는지, 로그 기간을 줄이거나 로그가 없을 때 차이가 얼마나 벌어지는지 보십시오. 시드마다의 흔들림과 견주어 차가 구별되는지도 보십시오.</div>
+  <div class="ctrl"><label for="sW7">0602 로그 기간</label><input id="sW7" type="range" min="0" max="4" step="1" value="3"><output id="sW7o"></output></div>
+  <div class="row"><button class="btn ghost" id="rW7" type="button">로그 60일로 되돌리기</button></div>
+  <div class="state" id="stW7"></div>
+  <canvas id="cvPost7"></canvas>
+  <div class="tbwrap"><table class="mt num" id="tab7"></table></div>
+  <div class="readout" id="ro7"></div>
+  <div class="concl" id="conc7"></div>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>보상은 사람이 정합니다 — 교체 비용을 바꾸면 정책이 바뀝니다</h2>
+<p>학습은 보상이 시키는 대로 정책을 만듭니다. 교체 한 번의 비용을 아주 크게 두면 서 있는 편이 낫다고 보아 끝까지 기다리는 쪽으로 정책이 기웁니다. 그 비용은 데이터가 정해 주지 않습니다. 현장에서 교체 한 번이 실제로 얼마나 잃게 하는지를 사람이 정해 적어야 합니다. 아래에서 교체 비용을 움직이면 같은 학습(사후분포 무작위화)이 어떤 정책을 내는지 봅니다. 두 가지를 겹쳐 봅니다. 가정한 비용으로 학습하고 그 비용이 진짜일 때의 Loss, 그리고 가정이 틀려 진짜 비용은 <span data-v="csw"></span>장인데 다른 값으로 학습했을 때의 Loss 입니다.</p>
+<div class="lab">
+  <div class="labtitle">교체 비용 가정에 따른 정책과 실제 Loss</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 비용을 올려 갈 때 정책(먼저 바꾸는 판의 몫)이 거의 바뀌지 않는 구간과 바뀌기 시작하는 구간이 어디인지, 비용을 잘못 가정하고 학습한 정책을 진짜 비용으로 재면 Loss 가 얼마나 달라지는지 보십시오.</div>
+  <div class="ctrl"><label for="sK8">교체 한 번의 비용 가정 (장)</label><input id="sK8" type="range" min="0" max="300" step="12" value="48"><output id="sK8o"></output></div>
+  <div class="row"><button class="btn ghost" id="rK8" type="button">기본값(<span data-v="csw"></span>장)으로 되돌리기</button></div>
+  <div class="state" id="stK8"></div>
+  <canvas id="cvCost"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>그 비용이 진짜일 때의 Loss (같은 비용으로 학습·평가)</span><span><i class="dot" style="background:var(--c8)"></i>그 비용으로 학습했는데 진짜 비용은 기본값일 때의 Loss</span></div>
+  <div class="readout" id="ro8"></div>
+</div>
+<div class="watch"><b>보상을 바꿔 원하는 정책이 나오게 하지 마십시오.</b> 교체 비용을 일부러 낮춰 &lsquo;많이 바꾸는&rsquo; 정책을 얻는 것은 근거를 거꾸로 쓰는 일입니다. 비용은 현장의 실제 손실에서 정하고, 정한 근거(어떤 사건 몇 건의 평균인지)를 승인 요청서에 적어 둡니다.</div>
+<div class="qna" data-label="보상은 누가 정하나요?" data-q="보상은 누가 정하나요?">
+  <p><b>사람이 정합니다. 그리고 보상이 곧 &lsquo;무엇을 좋은 결과로 볼 것인가&rsquo;입니다.</b> 이 장에서는 잃은 유리 장수를 그대로 보상으로 삼아 정했지만, 현장에서는 Loss 에 단가를 곱하거나 납기 지연 같은 다른 손실을 더할 수 있습니다. 어떤 항을 넣고 빼느냐에 따라 정책이 달라지므로, 보상식은 승인 요청서의 첫 칸에 적고 검토자가 읽도록 합니다. 에이전트가 보상을 스스로 바꾸게 두지 마십시오.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>착지 — 처음 물음에 숫자로 답합니다</h2>
+<p>맨 앞의 물음으로 돌아옵니다. <b>&ldquo;조기 잡 체인지 규칙을 트윈 안에서 학습시키면, 실제 라인에서 지금 규칙보다 판당 몇 장을 덜 잃습니까?&rdquo;</b> 기본 학습 설정과 교체 비용 <span data-v="csw"></span>장으로 답합니다.</p>
+<div class="concl" id="conc9"></div>
+<div class="watch"><b>이 답이 기대는 것.</b> 1) 다음 세트가 오는 시각이 우리가 무엇을 고르든 달라지지 않는다는 것(이 모형에서는 세정기 앞 줄이 우리 결정과 무관하다고 둡니다). 2) 판의 구조(비용·남은 유리의 범위)가 실제 라인의 판과 비슷하다는 것. 3) 사후분포(또는 보정)가 실제 세정 시간을 포함한다는 것. 이 셋 중 하나라도 어긋나면 위 숫자는 승인 근거가 되지 못합니다. 또 이 모형은 문턱 하나로도 거의 같은 성적이 나올 만큼 단순해서(2절), 여기서 배운 것은 &lsquo;표를 칸마다 스스로 채우는 방법&rsquo;과 &lsquo;트윈이 틀렸을 때 그 표를 어떻게 점검하는가&rsquo;이지 이 모형의 규칙 자체가 아닙니다.</div>
+<div class="cols3">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">사람</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>보상(교체 비용·굶음 손실)의 값과 근거를 정합니다</li><li>정책 표의 사람 말 요약이 상식과 맞는지 읽고, 라인에 적용할지 승인합니다</li><li>트윈·사후분포가 아직 맞는 시기인지(공장이 바뀌었는지) 판단합니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">규칙</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>학습한 적이 적은 상태(검증 영역 밖)에서는 지금 규칙으로 되돌립니다</li><li>학습 정책은 실행이 아니라 권고만 냅니다(0401 의 승인 대기열)</li><li>사후분포가 로그 기간·보정 날짜가 오래되면 학습을 다시 하라고 알립니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">에이전트</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>트윈 판·사후분포에서 학습하고 정책 표와 실제 추정 성적(시드 분포)을 계산합니다</li><li>학습 곡선·미학습 칸·전이 손실을 승인 요청서 초안에 채웁니다(사실 목록 방식, 0411)</li><li>판 기록의 빠진 칸(도착 시각 등)을 감시합니다</li></ul></div>
+</div>
+<p><b>0606 으로 가는 다리.</b> 이 장은 트윈이 있다는 전제에서 정책을 배웠습니다. 트윈이 없거나 믿을 수 없을 때 쌓인 로그만으로 정책을 배우려면 어떤 함정이 있는지가 다음 질문입니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>현장에서 환산하면</h2>
+<p>이 환경의 한 판은 &lsquo;다음 세트가 늦어 블록이 서게 될지도 모르는 한 번의 기회&rsquo;입니다. 가상 공장 60일 기록에서 블록이 다음 세트를 기다려 선 사건(CL-CAPA)이 <span data-v="clN"></span>건이므로 한 달에 약 <span data-v="jobsd"></span>건이라 보고, 아래 슬라이더의 기본값으로 둡니다(가정). 판당 Loss 의 차에 한 달 판 수를 곱하면 줄어드는 장수입니다. 블록 하나가 한 턴(챔버 <span data-v="chb"></span>개 × 한 챔버 <span data-v="nturn"></span>장 = <span data-v="turnglass"></span>장)에 만드는 유리 수로 나누면 블록-턴으로도 읽힙니다.</p>
+<div class="lab">
+  <div class="labtitle">지금 규칙 대비 학습 정책이 줄이는 Loss (실제 판 기록, 학습 시드 <span data-v="nseed"></span>개 중앙값)</div>
+  <div class="ctrl"><label for="sK10">교체 한 번의 비용 가정 (장)</label><input id="sK10" type="range" min="0" max="300" step="12" value="48"><output id="sK10o"></output></div>
+  <div class="ctrl"><label for="sJ10">한 달에 세트가 늦는 판 수 (가정)</label><input id="sJ10" type="range" min="0" max="60" step="1" value="6"><output id="sJ10o"></output></div>
+  <div class="row"><button class="btn ghost" id="r10" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="st10"></div>
+  <div class="tbwrap"><table class="mt num" id="tab10"></table></div>
+  <div class="concl" id="conc10"></div>
+</div>
+<p class="note">이 값은 가상 공장의 장수입니다. 회사에서는 같은 식에 유리 한 장의 생산 손실 단가를 곱해 금액으로 적고, 한 달에 세트가 늦는 판 수는 회사의 기록(세트 요청 시각과 도착 시각)에서 셉니다. 교체 비용 슬라이더는 8절과 같은 값입니다. 가정한 비용이 진짜 비용이라는 전제로 학습하고 같은 비용으로 잰 값이므로, 비용을 올리면 지금 규칙의 Loss 도 함께 올라갑니다.</p>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리(<code>csv</code>·<code>math</code>)만 씁니다. 입력은 아래 CSV 다섯 개이고 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 <code>s21_wait_table.csv</code> 자리에 회사의 세정 시간별 줄 서는 시간, <code>s21_real_episodes.csv</code> 자리에 회사의 세트 교체 기록(그때 남은 유리·다음 세트가 도착한 간격 수), <code>s21_posterior.csv</code> 와 <code>s21_twins.csv</code> 자리에 회사의 보정 결과를 넣습니다.</p>
+<div class="row"><a class="btn" href="../data/csv/s21_wait_table.csv" download>s21_wait_table.csv</a><a class="btn" href="../data/csv/s21_posterior.csv" download>s21_posterior.csv</a><a class="btn" href="../data/csv/s21_twins.csv" download>s21_twins.csv</a><a class="btn" href="../data/csv/s21_real_episodes.csv" download>s21_real_episodes.csv</a><a class="btn" href="../data/csv/s21_seed_summary.csv" download>s21_seed_summary.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 학습한 적이 적은 상태(<code>min_visits</code> 미만)의 학습 결과를 그대로 쓰지 마십시오(<code>policy_table</code> 이 지금 규칙으로 되돌립니다). 트윈 안 성적만으로 승인하지 마십시오(<code>evaluate_policy</code> 에 실제 판 기록을 넣어 전이 손실을 보십시오). 보상(비용)을 바꿔 원하는 정책이 나오게 하지 마십시오. 도착 시각이 우리 결정에 영향을 받는 상황(예: 우리가 먼저 보낸 세트가 세정기 줄을 바꿀 때)에는 이 모형의 지난 판 다시 돌리기가 맞지 않습니다.</p>
+<pre id="pyCode">import csv
+import math
+
+# ---- 가정·설정: 회사 값으로 바꿀 곳 ------------------------------------------------------------------
+EP, TR = 30, 20                 # 판단 간격(분) · 세정이 끝난 뒤 반송에 걸리는 분
+R_LO, R_HI = 3, 12              # 판이 시작할 때 지금 세트의 남은 유리(간격 수)의 범위
+KMAX, WMAX, RMAX = 23, 5, 12    # 상태 칸: 도착 전 경과 0..23 · 도착 뒤 대기 0..5 · 남은 유리 0..12
+NS = KMAX + 1 + WMAX + 1        # 남은 유리 값 하나당 도착 상태 칸 수
+NSTATE = (RMAX + 1) * NS
+DMAX = 60                       # 도착 간격 수 상한
+IDLE, CSW, HOLD = 48.0, 48.0, 6.0   # 블록이 한 간격 서는 손실 · 교체 한 번 · 도착한 세트가 기다릴 때 간격당 단위(장)
+ALPHA, EPS, EPISODES, MINV = 0.05, 0.1, 4000, 10   # 학습률 · 탐색률 · 학습 판 수 · 학습했다고 보는 최소 방문 수
+N_EVAL = 4000                   # 트윈 안 평가에 쓰는 고정 판 수
+N_SEEDS = 20                    # 이 코드가 도는 학습 시드 수(시드 1..N_SEEDS)
+
+# ---- 난수: 시드만 쓰는 고정 난수열(FNV-1a 해시 + mulberry32) ------------------------------------------------
+M32 = 0xFFFFFFFF
+def imul(a, b): return (a * b) &amp; M32
+def hash_seed(*parts):
+    h = 2166136261
+    for ch in "|".join(str(p) for p in parts): h = imul(h ^ ord(ch), 16777619)
+    return h
+class Rng:
+    def __init__(self, seed): self.a = seed &amp; M32
+    def u(self):
+        self.a = (self.a + 0x6D2B79F5) &amp; M32; a = self.a
+        t = imul(a ^ (a &gt;&gt; 15), 1 | a); t = ((t + imul(t ^ (t &gt;&gt; 7), 61 | t)) &amp; M32) ^ t
+        return ((t ^ (t &gt;&gt; 14)) &amp; M32) / 4294967296
+    def int(self, n): return math.floor(self.u() * n)
+    def exp(self, mean): return -mean * math.log(1 - self.u())
+
+# ---- 입력 표 읽기(같은 폴더의 CSV) ---------------------------------------------------------------------------
+def read(name): return list(csv.DictReader(open(name, encoding="utf-8")))
+WAIT = [(float(r["clean"]), float(r["wait_min"])) for r in read("s21_wait_table.csv")]
+POST = read("s21_posterior.csv")
+TWIN = {r["twin"]: float(r["clean"]) for r in read("s21_twins.csv")}
+REAL = [(int(r["remaining_glass"]), int(r["arrive_epoch"])) for r in read("s21_real_episodes.csv")]
+
+# ---- 환경: 세정 시간 → 다음 세트 도착 간격 수 --------------------------------------------------------------
+def wait_minutes(clean):          # 세정을 시작하기 전 줄 서서 기다리는 평균 시간(분): 표의 칸 사이를 직선으로 잇는다
+    if clean &lt;= WAIT[0][0]: return WAIT[0][1]
+    if clean &gt;= WAIT[-1][0]: return WAIT[-1][1]
+    i = 0
+    while clean &gt; WAIT[i + 1][0]: i += 1
+    f = (clean - WAIT[i][0]) / (WAIT[i + 1][0] - WAIT[i][0])
+    return WAIT[i][1] * (1 - f) + WAIT[i + 1][1] * f
+def arrival(clean, e1, e2):       # 줄 서서 기다림(두 지수분포의 평균) + 세정 + 반송, 30분 단위 올림
+    return min(math.ceil((clean + wait_minutes(clean) * 0.5 * (e1 + e2) + TR) / EP), DMAX)
+def draw_episode(rng):            # 한 판의 난수 재료: 남은 유리 · 단위 지수 둘 · 무작위화에서 세정 시간을 고르는 균등 난수
+    return rng.int(R_HI - R_LO + 1) + R_LO, rng.exp(1.0), rng.exp(1.0), rng.u()
+def sampler(weights=None, fixed=None):   # 환경 하나 = 균등 난수 → 세정 시간(고정 또는 사후분포에서 뽑기)
+    if fixed is not None: return lambda uc: fixed
+    cum, s, tot = [], 0.0, 0.0
+    for w in weights: tot += w
+    for w in weights: s += w / tot; cum.append(s)
+    cum[-1] = 1.0
+    cells = [float(r["clean"]) for r in POST]
+    def pick(uc):
+        i = 0
+        while uc &gt; cum[i]: i += 1
+        return cells[i]
+    return pick
+
+def state(r, arrived, k, w): return r * NS + (KMAX + 1 + min(w, WMAX) if arrived else min(k, KMAX))
+def step(r, k, arrived, w, a, D):  # 반환: 굶음 · 막힘 · 교체 손실, 끝났는가, 다음 상태
+    idle = hold = sw = 0.0; done = False; nr, nk, na, nw = r, k, arrived, w
+    if not arrived:
+        if a == 1: sw = CSW * (2 + (1 if r &gt; 0 else 0)); done = True          # 대기 중인 다른 세트로 지금 교체(나중에 다시 바꿈)
+        else:
+            idle = 0.0 if r &gt; 0 else IDLE; nr = r - 1 if r &gt; 0 else 0; nk = k + 1
+            if nk &gt;= D:
+                na, nw = True, 0
+                if nr == 0: sw = CSW; done = True                              # 도착 뒤 곧바로 교체
+    else:
+        if a == 1: sw = 2 * CSW; done = True
+        else:
+            hold = HOLD * (w + 1); nr = r - 1; nw = w + 1
+            if nr == 0: sw = CSW; done = True
+    return idle, hold, sw, done, nr, nk, na, nw
+
+# ---- 표 형태 Q 학습 ----------------------------------------------------------------------------------------
+def tabular_q(pick, episodes=EPISODES, alpha=ALPHA, eps=EPS, seed=1):
+    rng = Rng(hash_seed("S21train", seed)); Q = [0.0] * (2 * NSTATE); N = [0] * (2 * NSTATE)
+    for _ in range(episodes):
+        r, e1, e2, uc = draw_episode(rng); D = arrival(pick(uc), e1, e2); k, arrived, w = 0, False, 0
+        while True:
+            s = state(r, arrived, k, w); u = rng.u()
+            a = rng.int(2) if u &lt; eps else (1 if Q[2 * s + 1] &gt; Q[2 * s] else 0)   # 탐색(ε) 아니면 지금 가장 좋아 보이는 행동
+            idle, hold, sw, done, nr, nk, na, nw = step(r, k, arrived, w, a, D)
+            target = -(idle + hold + sw)
+            if not done:
+                s2 = state(nr, na, nk, nw); target += max(Q[2 * s2], Q[2 * s2 + 1])
+            Q[2 * s + a] += alpha * (target - Q[2 * s + a]); N[2 * s + a] += 1
+            if done: break
+            r, k, arrived, w = nr, nk, na, nw
+    return Q, N
+def policy_table(Q, N, min_visits=MINV):   # 칸마다 0(기다림) · 1(지금 교체). 학습한 적이 적은 칸은 지금 규칙(기다림)으로 되돌림
+    return [1 if N[2 * s] + N[2 * s + 1] &gt;= min_visits and Q[2 * s + 1] &gt; Q[2 * s] else 0 for s in range(NSTATE)]
+def evaluate_policy(pol, episodes):         # episodes = [(남은 유리, 도착 간격 수)]. 판당 평균 Loss 와 항목
+    tot = idle_t = hold_t = sw_t = 0.0
+    for r, D in episodes:
+        k, arrived, w = 0, False, 0
+        while True:
+            idle, hold, sw, done, r, k, arrived, w = step(r, k, arrived, w, pol[state(r, arrived, k, w)], D)
+            idle_t += idle; hold_t += hold; sw_t += sw
+            if done: break
+    n = len(episodes); return (idle_t + hold_t + sw_t) / n, idle_t / n, hold_t / n, sw_t / n
+def twin_episodes(pick, n=N_EVAL):          # 트윈 안 평가용 판 목록(고정 난수열)
+    rng = Rng(hash_seed("S21eval")); out = []
+    for _ in range(n):
+        r, e1, e2, uc = draw_episode(rng); out.append((r, arrival(pick(uc), e1, e2)))
+    return out
+def randomized_training(weights, **kw):     # 도메인 무작위화: 판마다 세정 시간을 사후분포에서 뽑아 학습
+    return tabular_q(sampler(weights=weights), **kw)
+
+def intervals(ks):                          # [3,4,5,9] -&gt; "3~5, 9"
+    out, i = [], 0
+    while i &lt; len(ks):
+        j = i
+        while j + 1 &lt; len(ks) and ks[j + 1] == ks[j] + 1: j += 1
+        out.append(str(ks[i]) if i == j else "%d~%d" % (ks[i], ks[j])); i = j + 1
+    return ", ".join(out) if out else "없음"
+def quant(a, p):
+    b = sorted(a); pos = (len(b) - 1) * p; lo = math.floor(pos); f = pos - lo
+    return b[lo] + (b[lo + 1] - b[lo]) * f if lo + 1 &lt; len(b) else b[lo]
+
+if __name__ == "__main__":
+    rule = [0] * NSTATE
+    m_rule, i_rule, h_rule, s_rule = evaluate_policy(rule, REAL)
+    print("실제 판 %d개 · 남은 유리 평균 %.2f · 도착 간격 수 평균 %.2f (30분 단위)" % (len(REAL), sum(r for r, _ in REAL) / len(REAL), sum(d for _, d in REAL) / len(REAL)))
+    print("지금 규칙(끝까지 기다림)의 실제 판당 Loss %.1f 장 (굶음 %.1f · 막힘 %.1f · 교체 %.1f)" % (m_rule, i_rule, h_rule, s_rule))
+    methods = [("트윈 판 0 (세정 %d분)" % TWIN["v0"], sampler(fixed=TWIN["v0"]), None),
+               ("0601 보정 트윈 (%d분)" % TWIN["grid_log60"], sampler(fixed=TWIN["grid_log60"]), None),
+               ("사후 평균 한 값 (%.1f분)" % TWIN["postmean_log60"], sampler(fixed=TWIN["postmean_log60"]), None),
+               ("사후분포 무작위화", None, [float(r["p_log60"]) for r in POST])]
+    for name, pick, wts in methods:
+        pk = pick if pick else sampler(weights=wts); tw = twin_episodes(pk); real_l, twin_l, spare = [], [], []
+        for sd in range(1, N_SEEDS + 1):
+            Q, N = tabular_q(pk, seed=sd) if wts is None else randomized_training(wts, seed=sd)
+            pol = policy_table(Q, N); m_r, _, _, _ = evaluate_policy(pol, REAL); m_t, _, _, _ = evaluate_policy(pol, tw)
+            real_l.append(m_r); twin_l.append(m_t)
+            if sd == 1: p1 = pol; N1 = N
+        k_sw = [k for k in range(KMAX + 1) if p1[state(0, False, k, 0)] == 1]
+        print("%-22s 시드 %d개: 실제 Loss %6.1f (10~90 %% %6.1f ~ %6.1f) · 트윈 안 %6.1f · 시뮬-실제 전이 손실 %+6.1f" % (
+            name, N_SEEDS, sum(real_l) / N_SEEDS, quant(real_l, .1), quant(real_l, .9), sum(twin_l) / N_SEEDS, (sum(real_l) - sum(twin_l)) / N_SEEDS))
+        print("%-22s 시드 1 의 정책: 남은 유리 0·다음 세트 아직 안 옴일 때 교체하는 경과 간격 = %s" % ("", intervals(k_sw)))
+    sm = read("s21_seed_summary.csv")
+    for m, nm in (("v0", "판 0"), ("cal", "0601 보정"), ("pm", "사후 평균"), ("dr", "무작위화")):
+        v = [float(r["real_loss"]) for r in sm if r["method"] == m]
+        print("시드 %d개 실제 Loss 10 / 50 / 90 %%  %-8s %6.1f / %6.1f / %6.1f" % (len(v), nm, quant(v, .1), quant(v, .5), quant(v, .9)))</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 다섯 개와 같은 폴더에서 <code>python3 lab0605.py</code> 로 돌렸고, 위 4~7절의 숫자(기본 학습 설정, 학습 시드 <span data-v="nseed"></span>개)와 같은 값이 나옵니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">실제 판 4000개 · 남은 유리 평균 7.61 · 도착 간격 수 평균 14.47 (30분 단위)
+지금 규칙(끝까지 기다림)의 실제 판당 Loss 383.4 장 (굶음 334.4 · 막힘 1.0 · 교체 48.0)
+트윈 판 0 (세정 180분)       시드 20개: 실제 Loss  151.1 (10~90 %  125.2 ~  183.5) · 트윈 안   85.5 · 시뮬-실제 전이 손실  +65.5
+                       시드 1 의 정책: 남은 유리 0·다음 세트 아직 안 옴일 때 교체하는 경과 간격 = 3~7
+0601 보정 트윈 (200분)      시드 20개: 실제 Loss   94.5 (10~90 %   91.8 ~   97.7) · 트윈 안   95.3 · 시뮬-실제 전이 손실   -0.8
+                       시드 1 의 정책: 남은 유리 0·다음 세트 아직 안 옴일 때 교체하는 경과 간격 = 3~13
+사후 평균 한 값 (196.0분)     시드 20개: 실제 Loss   93.8 (10~90 %   91.8 ~   97.7) · 트윈 안   94.2 · 시뮬-실제 전이 손실   -0.3
+                       시드 1 의 정책: 남은 유리 0·다음 세트 아직 안 옴일 때 교체하는 경과 간격 = 3~13
+사후분포 무작위화              시드 20개: 실제 Loss   93.6 (10~90 %   91.8 ~   98.4) · 트윈 안   93.9 · 시뮬-실제 전이 손실   -0.4
+                       시드 1 의 정책: 남은 유리 0·다음 세트 아직 안 옴일 때 교체하는 경과 간격 = 3~11, 15
+시드 200개 실제 Loss 10 / 50 / 90 %  판 0       127.4 /  145.0 /  190.8
+시드 200개 실제 Loss 10 / 50 / 90 %  0601 보정    91.8 /   92.5 /   97.5
+시드 200개 실제 Loss 10 / 50 / 90 %  사후 평균      91.8 /   92.1 /   97.2
+시드 200개 실제 Loss 10 / 50 / 90 %  무작위화       91.8 /   92.5 /   97.1</pre>
+
+<!-- ===================== 12 ===================== -->
+<h2><span class="no">12</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>학습 정책 승인 요청서</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 공장으로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>보상의 값과 근거·트윈 판과 무작위화 분포·학습 설정·정책 표 요약·실제 추정 성적과 구간·미학습 칸의 처리·적용 범위와 되돌리기 방법을 확인하고 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>판마다 한 줄</b> — 블록·지금 세트와 다음 세트의 식별자·판이 시작된 시각의 남은 유리(계획)·다음 세트의 요청 시각·세정 시작 시각·도착 시각(그래서 도착 간격 수)·바꾼 시각. 도착 시각이 비어 있으면 이 장의 평가(지난 판 다시 돌리기)를 할 수 없습니다.</li>
+      <li><b>판단 시점마다 한 줄</b> — 남은 유리·경과 또는 대기 간격·고른 행동·고른 확률(정책이 확률적이거나 일부러 탐색을 섞었다면)·그 뒤 잃은 장수(굶음·막힘·교체를 따로). 0604 의 결정 기록과 같은 키로 둡니다.</li>
+      <li><b>트윈 판 이력</b> — 학습에 쓴 세정 시간(또는 사후분포)·보정한 날·로그 기간·학습 설정·시드. 이것이 없으면 정책 표가 어느 트윈에서 나왔는지 거슬러 갈 수 없습니다.</li>
+      <li><b>보상식의 변경 기록</b> — 교체 비용·굶음 손실의 값이 바뀐 날과 근거.</li>
+    </ul>
+    <p class="note" style="margin:.5rem 0 0">0601 에서 예고한 &lsquo;결정 뒤 실제 결과를 같은 키로&rsquo;가 이 장의 평가 재료입니다. 회사 기록은 회사 안에만 둡니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0601 의 <code>decision_regret</code> 다음, 0401 의 승인 대기열 앞에 이 장의 함수가 들어옵니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+<div class="qna" data-label="딥러닝 강화학습이 아니어도 되나요?" data-q="딥러닝 강화학습이 아니어도 되나요?">
+  <p><b>상태가 작으면 표가 더 낫습니다.</b> 이 장의 상태는 몇백 칸이어서 Q 를 표로 적을 수 있고, 표는 칸마다 값과 방문 수를 그대로 읽을 수 있어 사람 말로 요약하고 승인하기 쉽습니다. 상태가 연속값이거나 변수가 많아 표가 터지면 Q 를 신경망으로 근사하는 방법이 쓰이지만, 그때는 칸마다 읽을 수 없고 학습이 불안정해질 수 있어 승인 절차가 더 무거워집니다. 먼저 상태를 줄여 표로 풀 수 있는지 보고, 안 될 때 다음을 생각하는 것이 순서입니다.</p>
+</div>
+<div class="qna" data-label="학습한 규칙을 바로 라인에 넣으면 안 되나요?" data-q="학습한 규칙을 바로 라인에 넣으면 안 되나요?">
+  <p><b>안 됩니다. 사전 평가와 검증 영역 확인을 먼저 거칩니다.</b> 9절의 세 가지 가정(도착 시각이 우리 결정과 무관한가, 판의 구조가 실제와 비슷한가, 사후분포가 실제를 포함하는가)을 실제 기록으로 확인하고, 6절처럼 실제 판 기록에서 트윈 안 성적과 견주어 Δ 를 봅니다. 0601 의 검증 영역 점검과 0604 의 사전 평가를 지난 뒤에도 처음에는 권고만 내고 사람이 승인해 좁은 범위에서 시작하며, 되돌리는 방법(지금 규칙으로 즉시 복귀)을 승인 요청서에 적습니다.</p>
+</div>
+<div class="qna" data-label="트윈이 없으면 어떻게 하나요?" data-q="트윈이 없으면 어떻게 하나요?">
+  <p><b>0606 에서 다룹니다.</b> 트윈 없이 쌓인 로그만으로 정책을 배우는 오프라인 강화학습은 로그에 거의 없던 행동의 가치를 근거 없이 크게 보는 함정이 있어, 이 장의 방법을 그대로 로그에 쓰면 안 됩니다. 그전에도 할 수 있는 일이 있습니다. 이 장의 2절처럼 손으로 문턱을 정하고 지난 판 기록으로 다시 돌려 평가하는 것은 트윈 없이도 됩니다. 트윈이 없다는 것이 곧 이 장이 쓸모없다는 뜻은 아니고, 판 기록(도착 시각·남은 유리)을 같은 키로 쌓아 두는 일이 첫 걸음입니다.</p>
+</div>
+
+<!-- ===================== 13 ===================== -->
+<h2><span class="no">13</span>정답 열기</h2>
+<p>여기까지 가상 공장의 숨은 세정 시간은 숨겨져 있었습니다. 열기 전에 사후분포의 구간이 그 값을 포함할지, 실제 세정 시간에서 직접 학습한 정책이 지금까지 본 정책보다 얼마나 더 나을지 가늠해 보십시오. 연 뒤에는 실제 세정 시간과 각 트윈의 어긋남, 그리고 그 값으로 학습한 정책(달성할 수 있는 가장 좋은 성적에 가까운 기준)과 각 방식의 차가 나옵니다.</p>
+<div class="lab">
+  <div class="row"><button class="btn" id="btnReveal" type="button" aria-expanded="false">정답 열기</button></div>
+  <div class="readout" id="roAns" hidden></div>
+  <div class="tbwrap"><table class="mt num" id="tabAns" hidden></table></div>
+  <div class="concl" id="concAns" hidden></div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0604-off-policy-evaluation.html">← 이전: 과거 로그로 새 규칙 평가하기</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/rl06_tables.js"></script>
+<script src="../data/rl06.js"></script>
+<script src="../data/loop06.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ---------- 설정·상태 ---------- */
+var RL=window.RL06,TAB=window.RL06_TABLES,MSIM=window.MfgSim;
+var C0=RL.COST,REAL=RL.realEpisodes(),DRAWS=RL.evalDraws(),NSEED=RL.SEEDS,NSCAN=20,NCURVE=10;
+var EPIS=[200,500,1000,2000,4000,8000,16000],ALPH=[0.01,0.02,0.05,0.1,0.2,0.5],EPSL=[0,0.02,0.05,0.1,0.2,0.3,0.5];
+var WKEYS=['w7','w14','w30','w60','prior'],WTXT=['7일','14일','30일','60일','로그 없음(사전 180±'+TAB.cal.psd+'분만)'];
+var MNAME={rule:'지금 규칙 (끝까지 기다림)',v0:'트윈 판 0 에서 학습',cal:'0601 보정한 트윈에서 학습',pm:'사후 평균 한 값의 트윈에서 학습',dr:'사후분포로 무작위화해 학습'};
+var SH={v0:'트윈 판 0',cal:'0601 보정 트윈',pm:'사후 평균 한 값',dr:'사후분포 무작위화'};
+var DEF={c1:TAB.cal.v0,tau:0,r3:1,a3:RL.ALPHA,ei:EPIS.indexOf(RL.EPISODES),ai:ALPH.indexOf(RL.ALPHA),pi:EPSL.indexOf(RL.EPS),m5:'dr',s5:TAB.rep.seed,c6:TAB.cal.v0,wi:3,csw:C0.csw,jobs:Math.round(TAB.sim.clCapaPerMonth)};
+var ST={c1:DEF.c1,tau:DEF.tau,r3:DEF.r3,a3:DEF.a3,ei:DEF.ei,ai:DEF.ai,pi:DEF.pi,m5:DEF.m5,s5:DEF.s5,c6:DEF.c6,wi:DEF.wi,csw:DEF.csw,jobs:DEF.jobs};
+var V={},REV=false,TRV=null,RC={},CC={},SCAN=null,CGRID=null;
+function $(id){return document.getElementById(id);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fm(x){return x!=null&&isFinite(x)?String(Math.floor(Math.abs(x)+0.5+1e-6)*(x<0?-1:1)).replace(/\B(?=(\d{3})+(?!\d))/g,',').replace('-','−'):'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1).replace('-','−'):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2).replace('-','−'):'—';}
+function sg(x,d){d=d==null?1:d;var r=Math.abs(x).toFixed(d);return (+r===0?'':(x>=0?'+':'−'))+r;}
+function q(a,p){return RL.quantile(a,p);}
+function mean(a){return RL.mean(a);}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?(typeof cls[i]==='function'?cls[i](c):cls[i]):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function lc(){return 'l';}
+function niceStep(range,n){var raw=range/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;return (r<=1?1:r<=2?2:r<=5?5:10)*mag;}
+function ticks(lo,hi,n){var st=niceStep(hi-lo||1,n),a=Math.ceil(lo/st-1e-9)*st,o=[];for(var v=a;v<=hi+1e-9;v+=st)o.push(Math.abs(v)<1e-9?0:v);return o;}
+function fmt(v){return Math.abs(v)>=100?String(Math.round(v)):(Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):v.toFixed(Math.abs(v)<1?2:1));}
+function nf(v){var s=fmt(v);return s.replace('-','−');}
+function setS(id,m,txt){$(id).textContent=txt;$(id).className='state'+(m?' moved':'');}
+function cobj(c){return {csw:c,idle:C0.idle,hold:C0.hold};}
+function vals(rs,k){return rs.map(function(r){return r[k];});}
+function P3(a){return [q(a,.1),q(a,.5),q(a,.9)];}
+function rng3(a,d){var p=P3(a),f=d===2?f2:f1;return f(p[1])+' ('+f(p[0])+' ~ '+f(p[2])+')';}
+
+/* ---------- 그리기 도구 ---------- */
+function drawXY(cv,series,o){
+  var c=setup(cv,o.h||230),x=c.x,W=c.w,H=c.h,ml=o.ml||52,mr=22,mt=24,mb=36,pw=W-ml-mr,ph=H-mt-mb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var xl=o.xlo,xh=o.xhi,yl=o.ylo!=null?o.ylo:Infinity,yh=o.yhi!=null?o.yhi:-Infinity;
+  series.forEach(function(s){s.y.forEach(function(v){if(isFinite(v)){if(o.ylo==null&&v<yl)yl=v;if(o.yhi==null&&v>yh)yh=v;}});if(s.band)s.band.hi.forEach(function(v){if(o.yhi==null&&v>yh)yh=v;});if(s.band)s.band.lo.forEach(function(v){if(o.ylo==null&&v<yl)yl=v;});});
+  if(o.ylo==null&&yl>0&&!o.nozero)yl=0;if(yh<=yl)yh=yl+1;if(o.yhi==null)yh+=(yh-yl)*0.06;
+  function X_(v){return ml+pw*(v-xl)/(xh-xl);}function Y_(v){return mt+ph*(1-(v-yl)/(yh-yl));}
+  (o.bands||[]).forEach(function(b){x.fillStyle=b.col;x.globalAlpha=b.a||0.14;x.fillRect(X_(b.x0),mt,Math.max(1,X_(b.x1)-X_(b.x0)),ph);x.globalAlpha=1;});
+  ticks(yl,yh,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(nf(v*(o.yscale||1))+(o.ysuf||''),ml-6,Y_(v));});
+  (o.xticks||ticks(xl,xh,6)).forEach(function(v){x.fillStyle=soft;x.textAlign='center';x.fillText(nf(v),X_(v),mt+ph+14);});
+  if(o.xlab){x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab,ml+pw/2,mt+ph+28);}
+  (o.hlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||1.5;x.beginPath();x.moveTo(ml,Y_(v.y));x.lineTo(ml+pw,Y_(v.y));x.stroke();x.setLineDash([]);});
+  (o.vlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||2;x.beginPath();x.moveTo(X_(v.x),mt);x.lineTo(X_(v.x),mt+ph);x.stroke();x.setLineDash([]);});
+  x.save();x.beginPath();x.rect(ml-2,mt-4,pw+4,ph+8);x.clip();
+  series.forEach(function(s){
+    if(s.band){x.globalAlpha=s.band.a||0.16;x.fillStyle=s.band.col||s.col;x.beginPath();s.x.forEach(function(v,i){var px=X_(v),py=Y_(s.band.hi[i]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});for(var i=s.x.length-1;i>=0;i--)x.lineTo(X_(s.x[i]),Y_(s.band.lo[i]));x.closePath();x.fill();x.globalAlpha=1;}
+    x.globalAlpha=s.alpha==null?1:s.alpha;x.strokeStyle=s.col;x.lineWidth=s.lw||2;
+    if(!s.noline){x.beginPath();var st=false;s.x.forEach(function(v,i){if(!isFinite(s.y[i]))return;var px=X_(v),py=Y_(s.y[i]);if(!st){x.moveTo(px,py);st=true;}else x.lineTo(px,py);});x.stroke();}
+    if(s.dots){x.fillStyle=s.col;s.x.forEach(function(v,i){if(!isFinite(s.y[i]))return;x.beginPath();x.arc(X_(v),Y_(s.y[i]),s.dr||3.5,0,6.2832);x.fill();});}
+    (s.marks||[]).forEach(function(m){x.fillStyle=m.col||s.col;x.beginPath();x.arc(X_(m.x),Y_(m.y),m.r||6,0,6.2832);x.fill();x.strokeStyle=css('--card');x.lineWidth=2;x.stroke();});
+    x.globalAlpha=1;});
+  x.restore();
+  return {X_:X_,Y_:Y_,x:x,pw:pw,ph:ph,ml:ml,mt:mt};
+}
+function ylab(r,t){r.x.fillStyle=css('--soft');r.x.font='11px sans-serif';r.x.textAlign='left';r.x.textBaseline='middle';r.x.fillText(t,r.ml+2,9);}
+/* 시드 분포의 10~90 % 막대: items=[{label,lo,mid,hi,pt,col}] (lo·hi 가 없으면 점만) */
+function drawRanges(cv,items,o){
+  o=o||{};var rowH=30,top=10,h=items.length*rowH+top+34,c=setup(cv,h),x=c.x,W=c.w,ml=o.ml||(W<520?150:210),mr=22,pw=W-ml-mr,soft=css('--soft'),rule=css('--rule'),ink=css('--ink'),lo=Infinity,hi=-Infinity;
+  items.forEach(function(it){[it.lo,it.hi,it.pt].forEach(function(v){if(isFinite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}});});
+  if(!isFinite(lo)){lo=0;hi=100;}
+  var pad=(hi-lo)*0.06+0.5;lo-=pad;hi+=pad;
+  function X(v){return ml+pw*(v-lo)/(hi-lo);}
+  x.clearRect(0,0,W,h);x.font='11px sans-serif';x.textBaseline='middle';
+  ticks(lo,hi,6).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(X(v),top-4);x.lineTo(X(v),top+items.length*rowH);x.stroke();x.fillStyle=soft;x.textAlign='center';x.fillText(nf(v),X(v),top+items.length*rowH+12);});
+  x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab||'',ml+pw/2,top+items.length*rowH+27);
+  items.forEach(function(it,i){
+    var y=top+rowH*(i+0.5);x.fillStyle=ink;x.textAlign='right';x.fillText(it.label,ml-8,y);
+    if(isFinite(it.lo)&&isFinite(it.hi)){x.globalAlpha=0.5;x.strokeStyle=it.col;x.lineWidth=11;x.lineCap='round';x.beginPath();x.moveTo(X(it.lo),y);x.lineTo(X(it.hi),y);x.stroke();x.lineCap='butt';x.globalAlpha=1;x.lineWidth=2.5;x.beginPath();x.moveTo(X(it.mid),y-8);x.lineTo(X(it.mid),y+8);x.stroke();}
+    else if(isFinite(it.pt)){x.fillStyle=it.col;x.beginPath();x.arc(X(it.pt),y,6,0,6.2832);x.fill();x.strokeStyle=css('--card');x.lineWidth=2;x.stroke();}
+  });
+}
+
+/* ---------- 계산 묶음(저장) ---------- */
+function runs(id,o){o=o||{};var k=[id,o.width||'',o.episodes||'',o.alpha||'',o.eps==null?'':o.eps,o.csw==null?'':o.csw,o.tcsw==null?'':o.tcsw,o.n||''].join('|');
+  if(RC[k])return RC[k];
+  return RC[k]=RL.seedRuns(id,{seeds:o.n||NSEED,episodes:o.episodes,alpha:o.alpha,eps:o.eps,cost:o.csw!=null?cobj(o.csw):undefined,trainCost:o.tcsw!=null?cobj(o.tcsw):undefined,width:o.width,realEps:REAL,draws:DRAWS});}
+function ruleReal(c){return RL.evalPolicy(RL.rulePolicy(),REAL,c==null?C0:cobj(c)).mean;}
+var TWIN0=RL.twinEpisodes(RL.methodSpec('v0'),DRAWS);
+function runOne(id,seed,o){o=o||{};var k=['one',id,seed,o.width||'',o.episodes||'',o.alpha||'',o.eps==null?'':o.eps].join('|');
+  return RC[k]||(RC[k]=RL.runMethod(id,{seed:seed,episodes:o.episodes,alpha:o.alpha,eps:o.eps,width:o.width,realEps:REAL,draws:DRAWS}));}
+function fixedRuns(c,n){var k='fx|'+c+'|'+n;if(RC[k])return RC[k];var sp=RL.specFixed(c),tw=RL.twinEpisodes(sp,DRAWS),out=[],s;
+  for(s=1;s<=n;s++){var tr=RL.train(sp,{seed:s}),pol=RL.policyFromQ(tr.Q,tr.Nv);out.push({real:RL.evalPolicy(pol,REAL,C0).mean,twin:RL.evalPolicy(pol,tw,C0).mean});}
+  return RC[k]=out;}
+function twinTxt(id,wk){var c=TAB.cal;if(id==='v0')return f1(c.v0)+' 분';if(id==='cal')return f1(wk==='prior'?c.v0:(c.gridw[wk]!=null?c.gridw[wk]:c.grid))+' 분';if(id==='pm')return f1(wk==='prior'?c.v0:c.pm[wk])+' 분';return '사후분포에서 판마다 뽑기';}
+function postStats(key){var c=TAB.post.c,p=TAB.post[key],m=0,i,v=0,lo=null,hi=null,cum=0;for(i=0;i<c.length;i++)m+=p[i]*c[i];for(i=0;i<c.length;i++)v+=p[i]*(c[i]-m)*(c[i]-m);
+  for(i=0;i<c.length;i++){cum+=p[i];if(lo==null&&cum>=0.025)lo=c[i];if(hi==null&&cum>=0.975)hi=c[i];}return {mean:m,sd:Math.sqrt(v),lo:lo,hi:hi};}
+
+/* ---------- 본문 속 숫자 ---------- */
+function buildV(){
+  V.nreal=fm(REAL.length);V.rep02=String(TAB.cal.rep);V.nseed=String(NSEED);V.rmax=String(RL.RMAX);V.rlo=String(RL.R_LO);V.rhi=String(RL.R_HI);V.nr=String(RL.RMAX+1);V.nns=String(RL.NS);V.nstate=String(RL.NSTATE);
+  V.idle=String(C0.idle);V.csw=String(C0.csw);V.chb=String(RL.CH_PER_BLOCK);V.clN=String(TAB.sim.clCapaN);V.clM=f1(TAB.sim.clCapaMean);V.jcN=String(TAB.sim.jcEarlyN);V.jcM=f1(TAB.sim.jcEarlyMean);
+  V.tr=String(RL.TR);V.v0c=String(TAB.cal.v0);V.minv=String(RL.MINV);V.psd=String(TAB.cal.psd);V.nscan=String(NSCAN);V.jobsd=String(DEF.jobs);V.nturn=String(MSIM.CFG.N_TURN);V.turnglass=fm(MSIM.CFG.N_TURN*RL.CH_PER_BLOCK);V.trfrom=String(TR3[0].ep);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');e.textContent=V[k]!=null?V[k]:'?';});
+}
+var TR3=RL.train(RL.methodSpec('v0'),{seed:1,episodes:400,trace:8,traceFrom:200}).trace;
+function stTxt(t){return t.arrived?'남은 유리 '+t.r+' · 도착 뒤 대기 '+t.w+' 간격':'남은 유리 '+t.r+' · 경과 '+t.k+' 간격';}
+
+/* ---------- 1절 ---------- */
+function upd1(){
+  var c=C0,rows=[['도착 전 · 남은 유리 있음','잃는 것 없음 (남은 유리 1 간격 줄어듦)','교체 '+(3*c.csw)+' 장 (대기 중인 다른 세트로 바꾸고, 나중에 다음 세트로, 남은 유리를 마저 쓰려고 또 한 번)'],
+    ['도착 전 · 남은 유리 0','굶음 '+c.idle+' 장 (블록이 한 간격 서 있음)','교체 '+(2*c.csw)+' 장 (대기 중인 다른 세트로 바꾸고, 나중에 다음 세트로 한 번 더)'],
+    ['도착 뒤 · 남은 유리 있음 (대기 w)','막힘 '+c.hold+' × (w + 1) 장 (도착한 세트가 기다림), 남은 유리 1 줄어듦','교체 '+(2*c.csw)+' 장 (다음 세트로 지금 바꾸고, 남은 유리를 마저 쓰려고 한 번 더)'],
+    ['남은 유리가 0 이 된 순간, 이미 도착','고를 것 없음: 다음 세트로 바로 교체 '+c.csw+' 장','(같음)']];
+  tbl('tab1',['상황','기다림','지금 교체'],rows,[lc,lc,lc]);
+  var cl=ST.c1,wq=RL.wqOf(cl),sp=RL.specFixed(cl),tw=RL.twinEpisodes(sp,DRAWS),dT=tw.map(function(e){return e.D;}),dR=REAL.map(function(e){return e.D;});
+  var rr=drawXY($('cvWq'),[{x:TAB.wq.c,y:TAB.wq.w,col:css('--accent'),lw:2.5,marks:[{x:cl,y:wq,col:css('--c8'),r:7}]}],{h:190,xlo:160,xhi:240,ylo:0,xlab:'트윈의 세정 시간 (분)',xticks:[160,180,200,220,240]});ylab(rr,'세정 전 줄 서서 기다리는 평균 시간 (분)');
+  var bins=[],i;for(i=1;i<=40;i++)bins.push(i);
+  function hist(a){var h=bins.map(function(){return 0;});a.forEach(function(d){var j=Math.min(Math.max(d,1),40)-1;h[j]++;});return h.map(function(v){return 100*v/a.length;});}
+  var rd=drawXY($('cvD'),[{x:bins,y:hist(dT),col:css('--accent'),lw:2.5},{x:bins,y:hist(dR),col:css('--c8'),lw:2.5}],{h:220,xlo:1,xhi:40,ylo:0,xlab:'다음 세트가 도착하는 간격 수 (1 간격 = 30분)',xticks:[1,8,16,24,32,40],vlines:[{x:mean(dT),col:css('--accent'),lw:1.5},{x:mean(dR),col:css('--c8'),lw:1.5}]});ylab(rd,'판의 몫 (%) · 점선은 평균');
+  var mt=mean(dT),mr=mean(dR),kc=TAB.wq.c,kw=TAB.wq.w,kn=kc[1],bj=-1,jj;for(jj=0;jj<kc.length-1;jj++){if(kw[jj+1]-kw[jj]>bj){bj=kw[jj+1]-kw[jj];kn=kc[jj+1];}}
+  setS('stC1',cl!==DEF.c1,cl===DEF.c1?'지금 트윈은 판 0 의 값('+DEF.c1+'분)입니다.':'지금 트윈은 판 0 의 값('+DEF.c1+'분)에서 '+cl+'분으로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+  $('ro1').innerHTML='<b>세정 시간 '+cl+'분의 트윈: 줄 서는 평균 '+f1(wq)+'분 → 다음 세트는 평균 '+f1(mt)+' 간격('+f1(mt/2)+' 시간)에 도착합니다.</b> 실제 판 기록 '+fm(REAL.length)+'개의 평균은 '+f1(mr)+' 간격('+f1(mr/2)+' 시간)이어서 트윈이 '+sg(mt-mr)+' 간격 '+(mt<mr?'일찍':'늦게')+' 봅니다. 줄 서는 시간은 세정 시간이 '+kn+'분 부근을 넘는 곳에서 한꺼번에 길어지므로, 트윈의 세정 시간이 그 앞뒤 어디에 있느냐가 도착 분포를 크게 가릅니다.';
+}
+
+/* ---------- 2절 ---------- */
+var TAUC=null;
+function tauCurves(){if(TAUC)return TAUC;var t,x=[],tw=[],re=[];for(t=0;t<=16;t++){var p=RL.handPolicy(t);x.push(t);tw.push(RL.evalPolicy(p,TWIN0,C0).mean);re.push(RL.evalPolicy(p,REAL,C0).mean);}return TAUC={x:x,tw:tw,re:re};}
+function firstWithin(a,tol){var m=Math.min.apply(null,a),i;for(i=0;i<a.length;i++)if(a[i]<=m+tol)return i;return 0;}
+function upd2(){
+  var C=tauCurves(),t=ST.tau;
+  var r=drawXY($('cvTau'),[{x:C.x,y:C.tw,col:css('--accent'),lw:2.5,dots:true,dr:3,marks:[{x:t,y:C.tw[t],col:css('--accent'),r:7}]},{x:C.x,y:C.re,col:css('--c8'),lw:2.5,dots:true,dr:3,marks:[{x:t,y:C.re[t],col:css('--c8'),r:7}]}],{h:230,xlo:-0.4,xhi:16.4,ylo:0,yhi:Math.ceil(C.re[0]/50)*50,xlab:'문턱 τ (간격)',xticks:[0,2,4,6,8,10,12,14,16]});ylab(r,'판당 평균 Loss (장)');
+  setS('stT2',t!==DEF.tau,t===DEF.tau?'문턱은 지금 규칙(τ = 0, 늘 기다림)입니다.':'문턱은 지금 규칙(τ = 0)에서 '+t+' 간격으로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+  $('ro2').innerHTML='<b>τ = '+t+': 트윈 판 0 안 '+f1(C.tw[t])+' 장 · 실제 '+f1(C.re[t])+' 장.</b> 지금 규칙(τ = 0)은 트윈 안 '+f1(C.tw[0])+' 장, 실제 '+f1(C.re[0])+' 장입니다.';
+  var tt=firstWithin(C.tw,0.05),tr=firstWithin(C.re,0.05);
+  $('conc2').innerHTML='<b>트윈 안에서는 τ = '+tt+' 이상이면 Loss 가 '+f1(C.tw[tt])+' 장으로 더 내려가지 않으므로, 트윈만 보고 고르면 τ = '+tt+' 입니다. 같은 τ 를 실제에 쓰면 '+f1(C.re[tt])+' 장을 잃습니다.</b> 실제에서 가장 낮은 곳은 τ = '+tr+' 이상('+f1(C.re[tr])+' 장)이어서, 트윈에서 고른 문턱이 실제에서는 판당 '+f1(C.re[tt]-C.re[tr])+' 장 더 잃게 합니다. 트윈은 다음 세트가 일찍 온다고 보므로 &lsquo;조금 기다리면 된다&rsquo;고 믿는 칸이 실제에서는 서 있는 시간으로 이어집니다.';
+}
+
+/* ---------- 3절 ---------- */
+function upd3(){
+  var rows=TR3.map(function(t,i){var mq=t.done?null:t.target-t.rew;return [String(i+1),String(t.ep),stTxt(t),(t.a===1?'지금 교체':'기다림')+(t.explore?' (탐색)':''),f1(t.rew),mq==null?'— (판이 끝남)':f1(mq),f2(t.q0),f2(t.target),f2(t.q1)];});
+  tbl('tab3',['줄','학습 판','상태 s','행동 a','보상 r','다음 상태에서 가장 좋은 Q','갱신 전 Q(s, a)','r + 다음 값','갱신 뒤 Q(s, a) (α = '+RL.ALPHA+')'],rows,[null,null,lc,null,null,null,null,null,null]);
+  var t=TR3[ST.r3-1],a=ST.a3,nq=t.q0+a*(t.target-t.q0);
+  setS('stA3',ST.a3!==DEF.a3,ST.a3===DEF.a3?'학습률은 학습에 쓴 기본값('+DEF.a3+')입니다. 표의 마지막 열과 같은 값이 나옵니다.':'학습률은 기본값('+DEF.a3+')에서 '+a.toFixed(2)+'로 옮겨 놓은 가정입니다. 표의 마지막 열은 기본값으로 학습한 결과입니다.');
+  $('ro3').innerHTML='<b>줄 '+ST.r3+': Q ← '+f2(t.q0)+' + '+a.toFixed(2)+' × ('+f2(t.target)+' − '+f2(t.q0)+') = '+f2(nq)+'</b> ('+stTxt(t)+', '+(t.a===1?'지금 교체':'기다림')+'). 목표값 '+f2(t.target)+' 은 보상 '+f1(t.rew)+(t.done?'':' + 다음 상태에서 가장 좋은 값 '+f1(t.target-t.rew))+' 입니다. 학습률이 클수록 새 결과 쪽으로 크게 움직이고(α = 1 이면 목표값 그대로), 작을수록 천천히 움직입니다.';
+}
+
+/* ---------- 4절 ---------- */
+function curveFor(id){
+  var ep=EPIS[ST.ei],al=ALPH[ST.ai],e=EPSL[ST.pi],k=[id,ep,al,e].join('|');if(CC[k])return CC[k];
+  var every=Math.max(1,Math.round(ep/16)),arr=[],s;
+  for(s=1;s<=NCURVE;s++){var r=RL.runMethod(id,{seed:s,episodes:ep,alpha:al,eps:e,curveEvery:every,realEps:REAL,draws:DRAWS});arr.push(r.curve);}
+  var sp=RL.methodSpec(id),tw0=RL.evalPolicy(RL.rulePolicy(),RL.twinEpisodes(sp,DRAWS),C0).mean,re0=ruleReal(),xs=[0],med=[re0],lo=[re0],hi=[re0],tmed=[tw0],i;
+  for(i=0;i<arr[0].length;i++){xs.push(arr[0][i].ep);var rv=arr.map(function(c){return c[i].real;}),tv=arr.map(function(c){return c[i].twin;});med.push(q(rv,.5));lo.push(q(rv,.1));hi.push(q(rv,.9));tmed.push(q(tv,.5));}
+  return CC[k]={x:xs,med:med,lo:lo,hi:hi,tmed:tmed};
+}
+function upd4(){
+  var d=curveFor('dr'),v=curveFor('v0'),rr=ruleReal();
+  var r=drawXY($('cvCurve'),[{x:d.x,y:d.med,col:css('--accent'),lw:2.5,band:{lo:d.lo,hi:d.hi,col:css('--accent'),a:0.18}},{x:d.x,y:d.tmed,col:css('--c9'),lw:2},{x:v.x,y:v.med,col:css('--c8'),lw:2.5,band:{lo:v.lo,hi:v.hi,col:css('--c8'),a:0.16}}],{h:270,xlo:0,xhi:EPIS[ST.ei],ylo:60,yhi:Math.ceil(rr/50)*50,xlab:'학습 판 수',hlines:[{y:rr,col:css('--bad'),lw:1.5}]});ylab(r,'판당 평균 Loss (장)');
+  var fin=d.med[d.med.length-1],i5=-1,i;for(i=0;i<d.med.length;i++)if(d.med[i]<=fin*1.05){i5=i;break;}
+  var epS=EPIS[ST.ei],aS=ALPH[ST.ai],eS=EPSL[ST.pi],mv=ST.ei!==DEF.ei||ST.ai!==DEF.ai||ST.pi!==DEF.pi;
+  setS('stP4',mv,mv?'설정이 기본값(학습 '+fm(EPIS[DEF.ei])+'판 · α '+ALPH[DEF.ai]+' · ε '+EPSL[DEF.pi]+')에서 옮겨 있습니다. 지금은 학습 '+fm(epS)+'판 · α '+aS+' · ε '+eS+' 입니다.':'설정은 기본값(학습 '+fm(epS)+'판 · α '+aS+' · ε '+eS+')입니다.');
+  var vf=v.med[v.med.length-1],vt=v.tmed[v.tmed.length-1],hand=Math.min.apply(null,tauCurves().re);
+  $('ro4').innerHTML='<b>학습 '+fm(epS)+'판 뒤 무작위화 학습의 실제 Loss 는 중앙값 '+f1(fin)+' 장(10~90 % '+f1(d.lo[d.lo.length-1])+' ~ '+f1(d.hi[d.hi.length-1])+'), 지금 규칙은 '+f1(rr)+' 장입니다.</b> 중앙값이 마지막 값의 5 % 안에 처음 든 곳은 '+(i5>=0?(i5===0?'처음부터':fm(d.x[i5])+'판'):'—')+'입니다. 트윈 판 0 에서 학습하면 트윈 안 Loss 는 '+f1(v.tmed[v.tmed.length-1])+' 장까지 내려가지만 실제 Loss 는 중앙값 '+f1(vf)+' 장에 머물러 '+sg(vf-vt)+' 장의 시뮬-실제 전이 손실이 남습니다. 참고로 2절에서 실제 판 기록을 보고 손으로 고른 문턱 하나의 가장 낮은 Loss 는 '+f1(hand)+' 장으로, 무작위화 학습의 마지막 값과 '+(Math.abs(fin-hand)<=3?'거의 같은 수준':'차이가 있는 수준')+'입니다.'+(eS===0?' 탐색률이 0 이면 해 본 적 없는 행동을 시도하지 않아 학습이 한쪽으로 굳을 수 있습니다.':'')+(aS<=0.02&&epS<=2000?' 학습률이 작으면 같은 판 수에서도 Q 가 덜 움직여 곡선이 더디게 내려갑니다.':'');
+}
+
+/* ---------- 5절 ---------- */
+function reach(arrived,r,kw){return arrived?(r>=1&&r+kw<=RL.R_HI-6):(r>0?(r+kw>=RL.R_LO&&r+kw<=RL.R_HI):kw>=RL.R_LO);}
+function drawGrid(cv,title,grid,ncol,arrived,xlab){
+  var c=setup(cv,282),x=c.x,W=c.w,ml=34,mr=8,mt=26,mb=44,pw=W-ml-mr,ph=c.h-mt-mb,cw=pw/ncol,ch=ph/(RL.RMAX+1),r,k;
+  x.clearRect(0,0,W,c.h);x.font='bold 11px sans-serif';x.textBaseline='middle';x.fillStyle=css('--ink');x.textAlign='left';x.fillText(title,2,10);
+  x.font='11px sans-serif';
+  for(r=0;r<=RL.RMAX;r++)for(k=0;k<ncol;k++){
+    var v=grid[r][k],ok=reach(arrived,r,k),px=ml+k*cw,py=mt+(RL.RMAX-r)*ch;
+    if(!ok){x.fillStyle=css('--code');x.globalAlpha=0.6;x.fillRect(px,py,cw-1,ch-1);x.globalAlpha=1;continue;}
+    x.globalAlpha=v===-1?0.45:(v===1?1:0.55);x.fillStyle=v===-1?css('--grey'):(v===1?css('--c8'):css('--c10'));x.fillRect(px,py,cw-1,ch-1);x.globalAlpha=1;
+  }
+  x.fillStyle=css('--soft');x.textAlign='right';[0,4,8,12].forEach(function(r2){x.fillText(String(r2),ml-5,mt+(RL.RMAX-r2+0.5)*ch);});
+  x.textAlign='center';(arrived?[0,1,2,3,4,5]:[0,4,8,12,16,20]).forEach(function(k2){if(k2<ncol)x.fillText(String(k2),ml+(k2+0.5)*cw,mt+ph+11);});
+  x.fillText(xlab,ml+pw/2,mt+ph+28);
+  x.save();x.translate(9,mt+ph/2);x.rotate(-Math.PI/2);x.fillText('남은 유리',0,0);x.restore();
+}
+function intervals(ks){var out=[],i=0;while(i<ks.length){var j=i;while(j+1<ks.length&&ks[j+1]===ks[j]+1)j++;out.push(i===j?String(ks[i]):ks[i]+'~'+ks[j]);i=j+1;}return out.length?out.join(', '):'없음';}
+function summarize(pol,Nv){
+  var g=RL.grids(pol,Nv),row=g.pre[0],sw=[],un=[],k,r,w,oth=[],pst=[];
+  for(k=RL.R_LO;k<=RL.KMAX;k++){if(row[k]===1)sw.push(k);else if(row[k]===-1)un.push(k);}
+  for(r=1;r<=RL.RMAX;r++)for(k=0;k<=RL.KMAX;k++)if(reach(false,r,k)&&g.pre[r][k]===1)oth.push('(남은 유리 '+r+', 경과 '+k+')');
+  for(r=1;r<=RL.RMAX;r++)for(w=0;w<=RL.WMAX;w++)if(reach(true,r,w)&&g.post[r][w]===1)pst.push('(남은 유리 '+r+', 대기 '+w+')');
+  var s=[];
+  s.push('다음 세트가 아직 안 왔고 남은 유리가 0 인 상태: 경과 간격 '+intervals(sw)+' 에서 대기 중인 다른 세트로 지금 교체하고, 그 밖에는 기다립니다'+(un.length?' (경과 '+un[0]+' 간격부터는 학습한 적이 적어 지금 규칙으로 되돌립니다)':'')+'.');
+  s.push('다음 세트가 아직 안 왔고 남은 유리가 있는 상태: '+(oth.length?oth.length+'칸에서 지금 교체합니다 — '+oth.slice(0,4).join(' ')+(oth.length>4?' 등':'')+'. 남은 유리가 있는데 바꾸는 칸이므로 이유를 확인해야 합니다.':'모든 칸에서 기다립니다(남은 유리를 마저 쓰는 쪽이 항상 이득입니다).'));
+  s.push('다음 세트가 이미 와 있는 상태: '+(pst.length?pst.length+'칸에서 지금 교체합니다 — '+pst.slice(0,5).join(' ')+(pst.length>5?' 등':'')+'.':'학습한 칸에서는 모두 기다립니다.'));
+  return {txt:s,sw:sw,un:un,oth:oth,pst:pst};
+}
+function upd5(){
+  var id=ST.m5,run=id==='rule'?{pol:RL.rulePolicy(),Nv:null}:runOne(id,ST.s5),g=RL.grids(run.pol,run.Nv);
+  drawGrid($('cvPre'),'다음 세트가 아직 안 옴',g.pre,RL.KMAX+1,false,'시작부터 지난 간격 수 k');
+  drawGrid($('cvPost'),'다음 세트가 이미 옴',g.post,RL.WMAX+1,true,'온 뒤 기다린 간격 수 w');
+  var sm=summarize(run.pol,run.Nv),mv=id!==DEF.m5||ST.s5!==DEF.s5;
+  setS('stS5',mv,mv?'지금은 '+MNAME[id]+(id==='rule'?'':' · 학습 시드 '+ST.s5)+' 입니다. 기본은 사후분포 무작위화 · 대표 시드 '+DEF.s5+' 입니다.':'기본 보기입니다: 사후분포 무작위화 학습 · 대표 시드 '+DEF.s5+'(시드 200개의 실제 Loss 백분위가 50 에서 가장 가까운 시드).');
+  $('ro5').innerHTML='<b>'+MNAME[id]+(id==='rule'?'':' · 시드 '+ST.s5)+' — 사람 말 요약</b><br>1) '+sm.txt[0]+'<br>2) '+sm.txt[1]+'<br>3) '+sm.txt[2]+(id==='rule'?'':'<br>이 정책의 실제 판당 Loss '+f1(run.real.mean)+' 장, 트윈 안 '+f1(run.twin.mean)+' 장, 대기 중인 다른 세트로 바꾼 판의 몫 '+f1(100*run.real.spare)+' %.');
+  Array.prototype.forEach.call(document.querySelectorAll('#pick5 .btn'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-m')===ST.m5?'true':'false');});
+}
+
+/* ---------- 6절 ---------- */
+function scanData(){
+  if(SCAN)return SCAN;var cs=[],med=[],lo=[],hi=[],tm=[],c;
+  for(c=160;c<=240;c+=4){var rs=fixedRuns(c,NSCAN);cs.push(c);var rv=vals(rs,'real'),tv=vals(rs,'twin');med.push(q(rv,.5));lo.push(q(rv,.1));hi.push(q(rv,.9));tm.push(q(tv,.5));}
+  return SCAN={c:cs,med:med,lo:lo,hi:hi,tm:tm};
+}
+function upd6(){
+  var ids=['v0','cal','pm','dr'],rows=[],items=[],cols=[css('--c8'),css('--c9'),css('--c10'),css('--accent')],rr=ruleReal();
+  rows.push([MNAME.rule,'—','—',f1(rr),'—','—']);items.push({label:'지금 규칙',pt:rr,col:css('--bad')});
+  ids.forEach(function(id,i){var rs=runs(id),rv=vals(rs,'real'),tv=vals(rs,'twin'),dl=rs.map(function(r){return r.real-r.twin;}),p=P3(rv);
+    rows.push([MNAME[id],twinTxt(id,'w60'),rng3(tv),rng3(rv),rng3(dl),sg(rr-p[1])]);items.push({label:SH[id],lo:p[0],mid:p[1],hi:p[2],col:cols[i]});});
+  tbl('tab6',['정책을 학습한 곳','그 트윈의 세정 시간','트윈 안 Loss 중앙값 (10~90 %)','실제 Loss 중앙값 (10~90 %)','시뮬-실제 전이 손실 Δ 중앙값 (10~90 %)','지금 규칙보다 줄어든 장수 (실제)'],rows,[lc,null,null,null,null,null]);
+  drawRanges($('cvR6'),items,{xlab:'실제 판 기록의 판당 평균 Loss (장 / 판) · 굵은 눈금이 중앙값'});
+  var S=scanData(),c=ST.c6,i=S.c.indexOf(c),sp=RL.methodSpec('v0');
+  var r=drawXY($('cvScan'),[{x:S.c,y:S.med,col:css('--c8'),lw:2.5,band:{lo:S.lo,hi:S.hi,col:css('--c8'),a:0.18},marks:[{x:c,y:S.med[i],col:css('--c8'),r:7}]},{x:S.c,y:S.tm,col:css('--c9'),lw:2,marks:[{x:c,y:S.tm[i],col:css('--c9'),r:6}]}],{h:240,xlo:160,xhi:240,ylo:60,yhi:Math.ceil(Math.max.apply(null,S.hi)/25)*25+25,xlab:'정책을 학습한 트윈의 세정 시간 (분)',xticks:[160,180,200,220,240],vlines:[{x:TAB.cal.v0,col:css('--soft'),lw:1.2}]});ylab(r,'판당 평균 Loss (장) · 세로선은 트윈 판 0');
+  setS('stC6',c!==DEF.c6,c===DEF.c6?'학습한 트윈은 판 0 의 값('+DEF.c6+'분)입니다.':'학습한 트윈은 판 0 의 값('+DEF.c6+'분)에서 '+c+'분으로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+  var rs=fixedRuns(c,NSCAN),rv=vals(rs,'real'),tv=vals(rs,'twin');
+  var okc=S.c.filter(function(v,j){return S.med[j]<=Math.min.apply(null,S.med)+2;});
+  $('ro6').innerHTML='<b>세정 시간 '+c+'분의 트윈에서 배운 정책: 트윈 안 '+f1(q(tv,.5))+' 장 · 실제 '+f1(q(rv,.5))+' 장(10~90 % '+f1(q(rv,.1))+' ~ '+f1(q(rv,.9))+'), 시뮬-실제 전이 손실 '+sg(q(rv,.5)-q(tv,.5))+' 장.</b> 학습한 트윈의 세정 시간이 '+okc[0]+'분 이상이면 실제 Loss 가 가장 낮은 값에서 2장 안에 있고, 그보다 짧은 트윈에서 배우면 실제에서 점점 더 잃습니다. 트윈 판 0('+TAB.cal.v0+'분)은 그 경계의 '+(TAB.cal.v0<okc[0]?'바깥쪽(짧은 쪽)':'안쪽')+'입니다.';
+}
+
+/* ---------- 7절 ---------- */
+function upd7(){
+  var wk=WKEYS[ST.wi],ids=['v0','cal','pm','dr'],ps=postStats(wk),rr=ruleReal(),rows=[],R={};
+  ids.forEach(function(id){R[id]=id==='v0'?runs('v0'):runs(id,{width:wk});});
+  var P=TAB.post;
+  var r=drawXY($('cvPost7'),[{x:P.c,y:P[wk].map(function(v){return 100*v;}),col:css('--accent'),lw:2.5,dots:true,dr:2.5}],{h:190,xlo:160,xhi:240,ylo:0,xlab:'세정 시간 (분)',xticks:[160,180,200,220,240],vlines:[{x:TAB.cal.v0,col:css('--soft'),lw:1.2},{x:wk==='prior'?TAB.cal.v0:(TAB.cal.gridw[wk]!=null?TAB.cal.gridw[wk]:TAB.cal.grid),col:css('--c9'),lw:1.8},{x:wk==='prior'?TAB.cal.v0:TAB.cal.pm[wk],col:css('--c10'),lw:1.8}]});ylab(r,'사후분포의 칸별 확률 (%)');
+  rows.push([MNAME.rule,'—','—',f1(rr),'—']);
+  ids.forEach(function(id){var rs=R[id],rv=vals(rs,'real'),dl=rs.map(function(x){return x.real-x.twin;});rows.push([MNAME[id],id==='dr'?'평균 '+f1(ps.mean)+' · 표준편차 '+f1(ps.sd)+' · 95 % '+ps.lo+' ~ '+ps.hi:twinTxt(id,wk),rng3(vals(rs,'twin')),rng3(rv),rng3(dl)]);});
+  tbl('tab7',['정책을 학습한 곳','트윈의 세정 시간','트윈 안 Loss 중앙값 (10~90 %)','실제 Loss 중앙값 (10~90 %)','Δ 중앙값 (10~90 %)'],rows,[lc,lc,null,null,null]);
+  var dm=R.dr.map(function(x,i){return x.real-R.pm[i].real;}),m=mean(dm),sd=Math.sqrt(mean(dm.map(function(v){return (v-m)*(v-m);}))),se=sd/Math.sqrt(dm.length),win=dm.filter(function(v){return v<-1e-9;}).length,tie=dm.filter(function(v){return Math.abs(v)<=1e-9;}).length;
+  var spread=q(vals(R.pm,'real'),.9)-q(vals(R.pm,'real'),.1);
+  setS('stW7',ST.wi!==DEF.wi,ST.wi===DEF.wi?'로그 기간은 0602 의 기본값(60일)입니다. 사후분포는 대표 로그(시드 '+TAB.cal.rep+')에서 나온 것입니다.':'로그 기간은 기본값(60일)에서 '+WTXT[ST.wi]+'으로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+  $('ro7').innerHTML='<b>사후분포 '+WTXT[ST.wi]+': 평균 '+f1(ps.mean)+'분, 표준편차 '+f1(ps.sd)+'분, 95 % '+ps.lo+' ~ '+ps.hi+'분.</b> 그림의 세로선은 회색이 트윈 판 0, 분홍이 0601 격자 보정, 파랑이 사후 평균입니다. 같은 학습 시드끼리 짝을 지어 &lsquo;무작위화 − 사후 평균 한 값&rsquo;의 실제 Loss 차를 보면 평균 '+sg(m,2)+' 장(표준오차 '+f2(se)+')이고, 무작위화가 더 낮은 시드 '+win+'개 · 같은 시드 '+tie+'개 · 더 높은 시드 '+(dm.length-win-tie)+'개입니다. 시드 사이의 흔들림(10~90 % 폭)은 사후 평균 학습에서 '+f1(spread)+' 장입니다.';
+  var big=ST.wi===4;
+  $('conc7').innerHTML=big?'<b>로그가 없어 세정 시간을 사전(180±'+TAB.cal.psd+'분)으로만 아는 때에는 무작위화가 안전망 구실을 합니다.</b> 사전의 평균 한 값('+TAB.cal.v0+'분)으로 학습한 정책은 실제에서 중앙값 '+f1(q(vals(R.pm,'real'),.5))+' 장을 잃지만, 사전 분포에서 판마다 뽑아 학습한 정책은 '+f1(q(vals(R.dr,'real'),.5))+' 장으로 '+f1(q(vals(R.pm,'real'),.5)-q(vals(R.dr,'real'),.5))+' 장 덜 잃습니다. 분포가 실제 값을 넉넉히 덮고 있었기 때문입니다.':'<b>사후분포가 좁을수록 무작위화는 점 하나로 학습한 것과 같아집니다.</b> 이 로그 기간에서 무작위화와 사후 평균 한 값의 차는 평균 '+sg(m,2)+' 장으로, 시드 사이 흔들림 '+f1(spread)+' 장에 비해 '+(Math.abs(m)<spread/3?'작아 둘을 구별하기 어렵습니다':'눈에 띄는 크기입니다')+'. 이미 0601 보정이나 0602 사후 평균으로 트윈이 실제에 가까워졌다면 무작위화가 더해 주는 이득은 작고, 보정이 안 된 트윈(위 슬라이더의 &lsquo;로그 없음&rsquo;)에서 무작위화가 제값을 합니다.';
+}
+
+/* ---------- 8절 ---------- */
+function costGrid(){
+  if(CGRID)return CGRID;var cs=[],trueC=[],wrongC=[],spare=[],c;
+  for(c=0;c<=300;c+=12){var tv=[],wv=[],sp=[],s;
+    for(s=1;s<=6;s++){var r=RL.runMethod('dr',{seed:s,cost:C0,trainCost:cobj(c),realEps:REAL,draws:DRAWS});wv.push(r.real.mean);sp.push(r.real.spare);tv.push(RL.evalPolicy(r.pol,REAL,cobj(c)).mean);}
+    cs.push(c);trueC.push(q(tv,.5));wrongC.push(q(wv,.5));spare.push(q(sp,.5));}
+  return CGRID={c:cs,tr:trueC,wr:wrongC,sp:spare};
+}
+function upd8(){
+  var G=costGrid(),c=ST.csw,i=G.c.indexOf(c),i0=G.c.indexOf(C0.csw);
+  var r=drawXY($('cvCost'),[{x:G.c,y:G.tr,col:css('--accent'),lw:2.5,marks:[{x:c,y:G.tr[i],col:css('--accent'),r:7}]},{x:G.c,y:G.wr,col:css('--c8'),lw:2.5,marks:[{x:c,y:G.wr[i],col:css('--c8'),r:7}]}],{h:230,xlo:0,xhi:300,ylo:0,xlab:'교체 한 번의 비용 가정 (장)',xticks:[0,60,120,180,240,300],vlines:[{x:C0.csw,col:css('--soft'),lw:1.2}]});ylab(r,'판당 평균 Loss (장) · 세로선은 기본 비용');
+  setS('stK8',c!==DEF.csw,c===DEF.csw?'교체 비용 가정은 기본값('+DEF.csw+'장)입니다.':'교체 비용 가정은 기본값('+DEF.csw+'장)에서 '+c+'장으로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+  var s0=G.sp[i0],first=null,j;for(j=0;j<G.c.length;j++)if(Math.abs(G.sp[j]-s0)>0.05&&G.c[j]>C0.csw){first=G.c[j];break;}
+  var w0=G.wr[i0];var flat=null;for(j=G.c.length-1;j>=0;j--)if(G.wr[j]<=w0+2){flat=G.c[j];break;}
+  $('ro8').innerHTML='<b>교체 비용을 '+c+'장으로 가정해 학습한 정책: 대기 중인 다른 세트로 먼저 바꾸는 판이 '+f1(100*G.sp[i])+' %, 그 비용이 진짜일 때의 Loss '+f1(G.tr[i])+' 장.</b> 진짜 비용은 '+C0.csw+'장인데 '+c+'장으로 가정해 학습했다면 실제 Loss 는 '+f1(G.wr[i])+' 장이고, 진짜 비용으로 학습한 정책('+f1(w0)+' 장)보다 '+sg(G.wr[i]-w0)+' 장입니다. 이 모형에서는 비용 가정이 '+(first?first+'장':'끝')+(first?'을 넘어서야 정책(먼저 바꾸는 판의 몫)이 눈에 띄게 달라지고, ':'까지 올려도 정책이 거의 같고, ')+'비용 가정이 '+(flat!=null?flat+'장 이하이면':'')+' 틀려도 진짜 비용으로 잰 Loss 는 기본 정책과 2장 안입니다. 정책이 바뀌는 문턱을 아는 것이 보상 가정의 민감도입니다.';
+}
+
+/* ---------- 9절 ---------- */
+function upd9(){
+  var rr=ruleReal(),R={};['v0','cal','pm','dr'].forEach(function(id){R[id]=runs(id);});
+  var d=P3(vals(R.dr,'real')),v=P3(vals(R.v0,'real')),vt=P3(vals(R.v0,'twin')),dl=q(R.v0.map(function(r){return r.real-r.twin;}),.5);
+  $('conc9').innerHTML='<b>지금 규칙은 실제에서 판당 '+f1(rr)+' 장을 잃고, 사후분포로 무작위화해 학습한 정책은 중앙값 '+f1(d[1])+' 장(시드 '+NSEED+'개의 10~90 % '+f1(d[0])+' ~ '+f1(d[2])+')을 잃어 판당 '+f1(rr-d[1])+' 장 덜 잃습니다.</b> 트윈 판 0 에서 학습한 정책은 트윈 안에서 '+f1(vt[1])+' 장으로 보이지만 실제에서는 '+f1(v[1])+' 장(10~90 % '+f1(v[0])+' ~ '+f1(v[2])+')으로, 시뮬-실제 전이 손실이 '+sg(dl)+' 장입니다. 0601 보정·사후 평균·사후 무작위화 세 방식은 실제 Loss 가 '+f1(q(vals(R.cal,'real'),.5))+' · '+f1(q(vals(R.pm,'real'),.5))+' · '+f1(d[1])+' 장으로 서로 시드 흔들림 안에 있습니다. 실행이 아니라 권고 표로만 내보내고, 학습한 적 적은 칸은 지금 규칙으로 되돌린 정책을 사람이 승인합니다. 참고로 실제 판 기록을 보고 손으로 고른 문턱 하나(2절)의 가장 낮은 Loss 는 '+f1(Math.min.apply(null,tauCurves().re))+' 장입니다.';
+}
+
+/* ---------- 10절 ---------- */
+function upd10(){
+  var c=ST.csw,J=ST.jobs,rr=ruleReal(c),tg=MSIM.CFG.N_TURN*RL.CH_PER_BLOCK,rows=[],ids=['v0','cal','dr'];
+  rows.push([MNAME.rule,f1(rr),fm(rr*J),'—','—']);
+  var out={};ids.forEach(function(id){var rs=runs(id,{csw:c}),rv=vals(rs,'real'),p=P3(rv);out[id]=p;rows.push([MNAME[id]+(id==='dr'?' (사후 60일)':''),f1(p[1]),fm(p[1]*J),fm((rr-p[1])*J)+' ('+fm((rr-p[2])*J)+' ~ '+fm((rr-p[0])*J)+')',f1((rr-p[1])*J/tg)]);});
+  tbl('tab10',['방식','판당 Loss (장)','한 달 Loss (장)','지금 규칙보다 줄어든 장수 / 월 (10~90 %)','블록-턴 환산 (한 달)'],rows,[lc,null,null,null,null]);
+  var mv=c!==DEF.csw||J!==DEF.jobs;
+  setS('st10',mv,mv?'교체 비용 가정은 '+c+'장, 한 달에 세트가 늦는 판은 '+J+'건으로 옮겨 놓은 가정입니다(기본 '+DEF.csw+'장·'+DEF.jobs+'건).':'기본값입니다: 교체 비용 '+DEF.csw+'장, 한 달에 세트가 늦는 판 '+DEF.jobs+'건(가상 공장 60일 기록의 CL-CAPA 건수 ÷ 2).');
+  $('conc10').innerHTML='<b>무작위화 학습으로 판당 '+f1(rr-out.dr[1])+' 장, 한 달 '+fm((rr-out.dr[1])*J)+' 장(블록-턴 '+f1((rr-out.dr[1])*J/tg)+')을 덜 잃습니다.</b> 같은 조건에서 트윈 판 0 에서 학습한 정책은 한 달 '+fm((rr-out.v0[1])*J)+' 장을 줄이는 데 그쳐, 트윈을 맞춘 것의 값은 한 달 '+fm((out.v0[1]-out.dr[1])*J)+' 장입니다.';
+}
+
+/* ---------- 12절 ---------- */
+function fillReport(){
+  var F=['결정(무엇을 언제 정하는가)','보상식과 비용 값·근거','상태의 정의(칸 수)','트윈 판(파라미터·보정한 날·로그 기간)과 무작위화 분포','학습 설정(판 수·학습률·탐색률·시드 수)','정책 표 요약(사람 말)과 학습한 적 적은 칸의 처리','실제 추정 성적과 구간(시드 분포), 트윈 안 성적과 전이 손실','검증 영역 점검(9절의 세 가정)','적용 범위(블록·기간)와 되돌리기 방법','승인'];
+  $('rp_fields').innerHTML='<ol style="margin:.2rem 0 0 1.2rem;padding:0">'+F.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ol>';
+  var run=runOne('dr',DEF.s5),sm=summarize(run.pol,run.Nv),rs=runs('dr'),rv=vals(rs,'real'),rr=ruleReal(),p=P3(rv),ps=postStats('w60');
+  $('rp_ex').innerHTML='<ol style="margin:.2rem 0 0 1.2rem;padding:0"><li>다음 마스크 세트가 늦을 때 조기 잡 체인지(대기 중인 다른 세트로 먼저 교체)를 할지 기다릴지, 30분 간격으로 판단</li>'
+    +'<li>보상 = −(굶음 + 막힘 + 교체). 굶음 '+C0.idle+' 장/간격(챔버 '+RL.CH_PER_BLOCK+'개 × 12장), 교체 한 번 '+C0.csw+' 장(CL-CAPA·JC-EARLY 기록의 자릿수와 같음), 막힘 '+C0.hold+' × (대기+1) 장 (가정)</li>'
+    +'<li>남은 유리 0~'+RL.RMAX+' × 도착 상태 '+RL.NS+'가지 = '+RL.NSTATE+'칸</li>'
+    +'<li>0602 사후분포(대표 로그 시드 '+TAB.cal.rep+', 60일, 평균 '+f1(ps.mean)+'분·표준편차 '+f1(ps.sd)+'분)에서 판마다 세정 시간을 뽑음</li>'
+    +'<li>학습 '+fm(RL.EPISODES)+'판 · α '+RL.ALPHA+' · ε '+RL.EPS+' · 학습 시드 '+NSEED+'개 · 학습한 적이 '+RL.MINV+'번 미만인 칸은 지금 규칙</li>'
+    +'<li>'+sm.txt[0]+' '+sm.txt[1]+'</li>'
+    +'<li>실제 판 기록 '+fm(REAL.length)+'개에서 판당 Loss 중앙값 '+f1(p[1])+' 장(10~90 % '+f1(p[0])+' ~ '+f1(p[2])+'), 지금 규칙 '+f1(rr)+' 장</li>'
+    +'<li>도착 시각 독립(가정 1)·판 구조(가정 2)·사후분포 포함(가정 3) — 승인 전에 실제 기록으로 확인할 것</li>'
+    +'<li>권고만 표시, 학습한 적 적은 칸은 지금 규칙. 문제가 생기면 지금 규칙(끝까지 기다림)으로 즉시 복귀</li><li>(승인란)</li></ol>';
+  tbl('tabTool',['함수','하는 일','앞 단계','다음 단계'],[['tabular_q','판을 겪으며 Q 표를 갱신','0601 트윈 · 0602 사후분포','policy_table'],['policy_table','Q 표 → 정책 표(학습한 적 적은 칸은 지금 규칙)','tabular_q','evaluate_policy'],['evaluate_policy','실제 판 기록에 정책을 다시 돌려 성적을 잼','policy_table · 판 기록(0400 파이프라인)','승인 요청서'],['randomized_training','판마다 사후분포에서 세정 시간을 뽑아 학습','0602 사후분포','policy_table']],[lc,lc,lc,lc]);
+}
+
+/* ---------- 13절 정답 열기 ---------- */
+function loadTruth(){
+  var clean=Loop06.HIDDEN.CLEAN,sp=RL.specFixed(clean),orc=[],s;
+  for(s=1;s<=NSEED;s++){var tr=RL.train(sp,{seed:s}),pol=RL.policyFromQ(tr.Q,tr.Nv);orc.push(RL.evalPolicy(pol,REAL,C0).mean);}
+  TRV={clean:clean,orc:orc};
+}
+function fillReveal(){
+  var t=TRV,o=q(t.orc,.5),ps=postStats('w60'),rows=[],ids=['v0','cal','pm','dr'];
+  ids.forEach(function(id){var rs=runs(id),rv=vals(rs,'real'),m=q(rv,.5),cl=id==='v0'?TAB.cal.v0:id==='cal'?TAB.cal.grid:id==='pm'?TAB.cal.pm.w60:null;
+    rows.push([MNAME[id],id==='dr'?'평균 '+f1(ps.mean)+' · 95 % '+ps.lo+' ~ '+ps.hi:f1(cl)+' 분',id==='dr'?(ps.lo<=t.clean&&t.clean<=ps.hi?'구간 안':'구간 밖'):sg(cl-t.clean)+' 분',f1(m),sg(m-o)]);});
+  tbl('tabAns',['방식','학습한 트윈의 세정 시간','실제 세정 시간과의 차','실제 Loss 중앙값 (장)','실제 세정 시간에서 학습한 정책과의 차 (장)'],rows,[lc,lc,null,null,null]);
+  $('roAns').innerHTML='<b>숨은 실제 세정 시간은 '+t.clean+'분입니다.</b> 이 값에서 직접 학습한 정책(학습 시드 '+NSEED+'개)의 실제 Loss 중앙값은 '+f1(o)+' 장(10~90 % '+f1(q(t.orc,.1))+' ~ '+f1(q(t.orc,.9))+')이고, 이것이 이 학습 설정으로 얻을 수 있는 가까운 하한입니다. 지금 규칙은 이보다 '+f1(ruleReal()-o)+' 장 더 잃습니다.';
+  var v0=q(vals(runs('v0'),'real'),.5),dr=q(vals(runs('dr'),'real'),.5);
+  $('concAns').innerHTML='<b>트윈 판 0 에서 학습한 정책은 하한보다 '+f1(v0-o)+' 장 더 잃고, 사후분포 무작위화는 '+f1(dr-o)+' 장 더 잃습니다.</b> 판 0 의 세정 시간은 실제보다 '+(t.clean-TAB.cal.v0)+'분 짧아 도착 시각이 크게 어긋났고, 0602 사후분포의 95 % 구간 '+ps.lo+' ~ '+ps.hi+'분은 실제 값을 '+(ps.lo<=t.clean&&t.clean<=ps.hi?'포함합니다':'포함하지 못했습니다')+'. 0601 보정과 사후 평균과 무작위화의 차는 시드 흔들림 안에 있어, 이 로그 길이에서는 어느 쪽이든 하한 가까이 갑니다. 학습이 모자란 몫(하한과의 남은 차)은 학습 판 수를 늘리면(4절) 줄어듭니다.';
+}
+function reveal(){if(!TRV)loadTruth();REV=true;$('btnReveal').disabled=true;$('btnReveal').setAttribute('aria-expanded','true');['roAns','tabAns','concAns'].forEach(function(id){$(id).hidden=false;});fillReveal();}
+
+/* ---------- 새로 그리기 ---------- */
+function syncCtl(){
+  $('sC1').value=ST.c1;$('sC1o').textContent=ST.c1+' 분';
+  $('sT2').value=ST.tau;$('sT2o').textContent=ST.tau+' 간격';
+  $('sR3').value=ST.r3;$('sR3o').textContent=String(ST.r3);$('sA3').value=ST.a3;$('sA3o').textContent=ST.a3.toFixed(2);
+  $('sE4').value=ST.ei;$('sE4o').textContent=fm(EPIS[ST.ei])+' 판';$('sA4').value=ST.ai;$('sA4o').textContent=String(ALPH[ST.ai]);$('sP4').value=ST.pi;$('sP4o').textContent=String(EPSL[ST.pi]);
+  $('sS5').value=ST.s5;$('sS5o').textContent='시드 '+ST.s5;
+  $('sC6').value=ST.c6;$('sC6o').textContent=ST.c6+' 분';
+  $('sW7').value=ST.wi;$('sW7o').textContent=WTXT[ST.wi];
+  ['sK8','sK10'].forEach(function(id){$(id).value=ST.csw;$(id+'o').textContent=ST.csw+' 장';});
+  $('sJ10').value=ST.jobs;$('sJ10o').textContent=ST.jobs+' 건';
+}
+var PEND=null;
+function refresh(){syncCtl();upd1();upd2();upd3();upd4();upd5();upd6();upd7();upd8();upd9();upd10();if(REV)fillReveal();}
+function bindI(id,fn){$(id).addEventListener('input',function(){fn(+this.value);if(PEND)clearTimeout(PEND);PEND=setTimeout(function(){PEND=null;refresh();},40);});}
+bindI('sC1',function(v){ST.c1=v;});bindI('sT2',function(v){ST.tau=v;});bindI('sR3',function(v){ST.r3=v;});bindI('sA3',function(v){ST.a3=v;});
+bindI('sE4',function(v){ST.ei=v;});bindI('sA4',function(v){ST.ai=v;});bindI('sP4',function(v){ST.pi=v;});
+bindI('sS5',function(v){ST.s5=v;});bindI('sC6',function(v){ST.c6=v;});bindI('sW7',function(v){ST.wi=v;});
+bindI('sK8',function(v){ST.csw=v;});bindI('sK10',function(v){ST.csw=v;});bindI('sJ10',function(v){ST.jobs=v;});
+$('rC1').addEventListener('click',function(){ST.c1=DEF.c1;refresh();});
+$('rT2').addEventListener('click',function(){ST.tau=DEF.tau;refresh();});
+$('rA3').addEventListener('click',function(){ST.a3=DEF.a3;refresh();});
+$('rP4').addEventListener('click',function(){ST.ei=DEF.ei;ST.ai=DEF.ai;ST.pi=DEF.pi;refresh();});
+$('rS5').addEventListener('click',function(){ST.m5=DEF.m5;ST.s5=DEF.s5;refresh();});
+$('rC6').addEventListener('click',function(){ST.c6=DEF.c6;refresh();});
+$('rW7').addEventListener('click',function(){ST.wi=DEF.wi;refresh();});
+$('rK8').addEventListener('click',function(){ST.csw=DEF.csw;refresh();});
+$('r10').addEventListener('click',function(){ST.csw=DEF.csw;ST.jobs=DEF.jobs;refresh();});
+$('btnReveal').addEventListener('click',reveal);
+(function(){var h='';['rule','v0','cal','pm','dr'].forEach(function(id){h+='<button class="btn ghost" type="button" data-m="'+id+'" aria-pressed="false">'+MNAME[id].replace(' (끝까지 기다림)','')+'</button>';});$('pick5').innerHTML=h;
+  Array.prototype.forEach.call(document.querySelectorAll('#pick5 .btn'),function(b){b.addEventListener('click',function(){ST.m5=b.getAttribute('data-m');refresh();});});})();
+window.addEventListener('resize',function(){refresh();});
+
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildV();fillReport();refresh();
+window.__r5={st:ST,refresh:refresh,def:DEF,V:V,reveal:reveal,rl:RL,tab:TAB};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>

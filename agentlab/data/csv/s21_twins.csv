@@ -1,0 +1,11 @@
+twin,clean
+v0,180
+grid_log7,190
+grid_log14,200
+grid_log30,200
+grid_log60,200
+postmean_log7,193.4022
+postmean_log14,195.7821
+postmean_log30,195.951
+postmean_log60,195.9993
+prior_mean,180

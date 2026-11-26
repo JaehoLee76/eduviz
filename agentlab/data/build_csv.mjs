@@ -162,6 +162,67 @@ const pk06 = ['target', 'n', 'eps', 'seed'].concat(O06.COLS);
 fs.writeFileSync(path.join(dir, '..', 'ope06_tables.js'), '/* 0604 가 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s20_seed_summary.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var D=' + JSON.stringify({ ctx: ctx06, rep: rep06.seed, score: rep06.score, c: pk06, r: sum06.map(r => pk06.map(k => (r[k] === '' ? null : r[k]))) }) + ';var T={ctx:D.ctx,rep:D.rep,score:D.score,seeds:D.r.map(function(r){var o={};D.c.forEach(function(c,i){o[c]=r[i]===null?NaN:r[i];});return o;})};if(typeof module==="object"&&module.exports)module.exports=T;else window.OPE06_TABLES=T;})();\n');
 console.log('S20 representative seed', rep06.seed, 'score', rep06.score.toFixed(1));
 
+
+// 실험실 0605: 트윈 안에서 정책 학습(작은 강화학습·도메인 무작위화). 환경(S21: 세트 교체 시점 결정)은 simulateLoss 가 이 결정을 바깥에서 바꿀 수 없어 학습용 작은 모형이고, 세정 시간이 다음 세트의 도착 시각을 정하는 길만
+// 시뮬레이터 기록(세정 대기열·세정 중 평균, 리틀의 법칙)에서 가져온다. 숨은 값(실제 세정 시간)은 어떤 파일에도 넣지 않는다(loop06.js 안에만 있고 정답 열기·verify 가 읽는다).
+// s21_wait_table = 세정 시간별 세정 전 줄 서서 기다리는 평균 시간(분) · s21_posterior = 0602 의 사후분포(대표 로그의 로그 기간 4개)와 사전만(로그 없음) · s21_twins = 학습에 쓰는 트윈의 세정 시간(판 0·0601 격자 보정·사후 평균)
+// s21_real_episodes = 실제 라인에서 쌓인 판 4,000개(그때 남은 유리·다음 세트 도착 간격 수 — 숨은 값 열 없음) · s21_seed_summary = 학습 시드 200 × 방식 넷(기본 설정)의 실제·트윈 안 Loss
+const RL06 = require('./rl06.js');
+function build0605(L06, C06, T06, T02, RL, MS, events, writeTables) {
+  const r4 = v => Math.round(v * 1e4) / 1e4, r8 = v => Math.round(v * 1e8) / 1e8;
+  const FINE = C06.FINE, WIN = C06.WINDOWS, PSD = 30, DEFC = L06.DEFAULT_COST;
+  // 0602 의 대표 로그(사후 평균·구간 폭·결정 손해의 백분위가 50 에서 가장 가까운 로그 — 0602 페이지와 같은 계산)
+  const EMU = {}, FM = {}; WIN.forEach(d => { EMU[d] = C06.emuFine(T02, d); FM[d] = C06.fineMeans(T02, d); });
+  const TB = C06.polTable(T02.pol), CACHE = {};
+  const P1 = (s, d) => { const k = s + '|' + d; return CACHE[k] || (CACHE[k] = C06.post1(T02, EMU, s, d, PSD)); };
+  const INFO = L06.REAL_LOG_SEEDS.map(s => ({ seed: s, p60: P1(s, 60), p7: P1(s, 7), dec: C06.decide(T06, T02, EMU, TB, s, 60, DEFC, PSD, FM[60]) }));
+  const rep02 = C06.pickRep(INFO, [i => i.p60.mean, i => i.p60.width, i => i.p7.width, i => i.dec.regPost, i => i.dec.regGrid]).item.seed;
+  // 리틀의 법칙으로 세정 시간별 세정 전 줄 서서 기다리는 평균 시간(분): q·세정 시간 ÷ busy (60일, 트윈 시드 8개 평균)
+  const f60 = T02.fine.filter(r => r.days === 60), mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const wt = FINE.map(c => { const rr = f60.filter(r => r.clean === c), q = mean(rr.map(r => r.q)), b = mean(rr.map(r => r.busy)); return { clean: c, q: r4(q), busy: r4(b), wait_min: r4(q * c / b) }; });
+  const wq = { c: wt.map(r => r.clean), w: wt.map(r => r.wait_min) };
+  // 사후분포(사전 180±30, 0602 기본)와 사전만(로그 없음)
+  const post = { c: FINE.slice() }, pm = {}, grid = {};
+  WIN.forEach(d => { const p = P1(rep02, d); post['w' + d] = p.post.map(r8); pm['w' + d] = r4(p.mean); grid['w' + d] = L06.loopFor(T06, rep02, d, DEFC).chat; });
+  const pri = FINE.map(c => Math.exp(-0.5 * Math.pow((c - L06.V0_CLEAN) / PSD, 2))), ps = pri.reduce((a, b) => a + b, 0);
+  post.prior = pri.map(v => r8(v / ps));
+  const cal = { rep: rep02, v0: L06.V0_CLEAN, grid: grid.w60, gridw: grid, pm, psd: PSD };
+  // 시뮬레이터 기록과의 연결(대표 로그 60일): 세정기 capa 부족(블록이 다음 세트를 기다려 선 사건)·조기 잡 체인지
+  const ev = c => events.filter(e => e.reason === c), sim = { days: 60 };
+  [['clCapa', 'CL-CAPA'], ['jcEarly', 'JC-EARLY']].forEach(([k, c]) => { const x = ev(c); sim[k + 'N'] = x.length; sim[k + 'Mean'] = r4(mean(x.map(e => e.loss_glass))); });
+  sim.clCapaPerMonth = sim.clCapaN * 30 / sim.days;
+  const real = RL.buildReal(L06.HIDDEN.CLEAN, 4000, wq);
+  const tabs = { wq, post, cal, real, sim, rep: null };
+  // 학습 결과 요약(시드 200 × 방식 넷, 기본 설정): 표 파일이 있어야 RL 이 돈다 → 임시로 쓴다
+  writeTables(tabs);
+  const rows = [], METH = ['v0', 'cal', 'pm', 'dr'], SEEDS = 200;
+  METH.forEach(m => {
+    for (let s = 1; s <= SEEDS; s++) { const r = RL.runMethod(m, { seed: s }); rows.push({ seed: s, method: m, real_loss: r4(r.real.mean), twin_loss: r4(r.twin.mean), spare_rate: r4(r.real.spare), early_rate: r4(r.real.early) }); }
+  });
+  // 대표 학습 시드: 실제 Loss(넷)·트윈 Loss(무작위화)의 백분위가 50 에서 가장 가까운 시드(Σ|백분위−50| 최소, 같으면 작은 시드)
+  const col = (m, k) => rows.filter(r => r.method === m).map(r => r[k]);
+  const metrics = [col('v0', 'real_loss'), col('cal', 'real_loss'), col('pm', 'real_loss'), col('dr', 'real_loss'), col('dr', 'twin_loss')];
+  let best = null;
+  for (let s = 1; s <= SEEDS; s++) { let sc = 0; metrics.forEach(v => { sc += Math.abs(L06.pct(v, v[s - 1]) - 50); }); if (best == null || sc < best.score - 1e-9) best = { seed: s, score: sc }; }
+  tabs.rep = best;
+  writeTables(tabs);
+  const csvPost = FINE.map((c, i) => ({ clean: c, p_log7: post.w7[i], p_log14: post.w14[i], p_log30: post.w30[i], p_log60: post.w60[i], p_prior: post.prior[i] }));
+  const tw = [{ twin: 'v0', clean: cal.v0 }];
+  WIN.forEach(d => tw.push({ twin: 'grid_log' + d, clean: grid['w' + d] }));
+  WIN.forEach(d => tw.push({ twin: 'postmean_log' + d, clean: pm['w' + d] }));
+  tw.push({ twin: 'prior_mean', clean: cal.v0 });
+  return { tabs, csvWait: wt, csvPost, csvTwins: tw, csvReal: real.r0.map((v, i) => ({ episode: i + 1, remaining_glass: v, arrive_epoch: real.D[i] })), csvSeeds: rows };
+}
+
+const pack21 = t => '/* 0605 가 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s21_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var T=' + JSON.stringify(t) + ';if(typeof module==="object"&&module.exports)module.exports=T;else window.RL06_TABLES=T;})();\n';
+const O21 = build0605(L06, C06, T06, T02, RL06, M, sim06.events, t => fs.writeFileSync(path.join(dir, '..', 'rl06_tables.js'), pack21(t)));
+csv('s21_wait_table.csv', O21.csvWait, ['clean', 'q', 'busy', 'wait_min']);
+csv('s21_posterior.csv', O21.csvPost, ['clean', 'p_log7', 'p_log14', 'p_log30', 'p_log60', 'p_prior']);
+csv('s21_twins.csv', O21.csvTwins, ['twin', 'clean']);
+csv('s21_real_episodes.csv', O21.csvReal, ['episode', 'remaining_glass', 'arrive_epoch']);
+csv('s21_seed_summary.csv', O21.csvSeeds, ['seed', 'method', 'real_loss', 'twin_loss', 'spare_rate', 'early_rate']);
+console.log('S21 representative training seed', O21.tabs.rep.seed, 'score', O21.tabs.rep.score.toFixed(1), 'posterior rep log', O21.tabs.cal.rep);
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });
