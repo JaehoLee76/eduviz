@@ -3807,6 +3807,220 @@ chk('0602 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절
 _cleanup09 = shutil.rmtree(_td09, ignore_errors=True)
 
 
+# ============================================================
+# 0603 — 런투런 제어. 시나리오 S19(마스크 한 장 60턴)의 세 방식·λ 스윕·안정 지도·잔류 오프셋·공정 이득 추정·대표 시드를 파이썬이 따로 구현해 JS·CSV 와 대조하고,
+# 페이지 Python 실행·숨은 값 비노출·기존 출력 불변·페이지 구조를 확인한다. 설계서의 기대는 가설이라 결과가 다르면 본문 문장이 그 결과를 말하는지만 확인한다.
+# ============================================================
+r3_pg = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0603-run-to-run.html'), encoding='utf-8').read()
+r3_code = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', r3_pg, _re5.S).group(1)); r3_out = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', r3_pg, _re5.S).group(1)).strip()
+r3_td = _tf5.mkdtemp()
+for _f in ['s19_r2r.csv', 's19_seed_summary.csv', 's19_lambda_sweep.csv']: shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(r3_td, _f))
+open(os.path.join(r3_td, 'lab0603.py'), 'w', encoding='utf-8').write(r3_code)
+r3_log = pd.read_csv(os.path.join(r3_td, 's19_r2r.csv')); r3_sd = pd.read_csv(os.path.join(r3_td, 's19_seed_summary.csv')); r3_sw = pd.read_csv(os.path.join(r3_td, 's19_lambda_sweep.csv'))
+_EXPORT03 = r"""const fs=require('fs');const D=process.argv[2];const R=require(D+'/r2r06.js'),T=require(D+'/r2r06_tables.js');
+const res={};res.consts={LAMS:R.LAMS,XIS:R.XIS,MAPL:R.MAPL,DRIFTS:R.DRIFTS,NM:R.NOISE_MULTS,LIMIT:R.LIMIT,THR:R.HUMAN_THR,N:R.N,SLOW:R.LAM_SLOW,SEEDS:R.SEEDS,B:R.B_BELIEF,NG:R.NG,MEAS:R.MEAS_GLASS,AGE:R.AGE,CLEAN_STEP:R.CLEAN_STEP,THERMAL:R.THERMAL,SEASON_RATE:R.SEASON_RATE,AMB_SD:R.AMB_SD,AMB_PHI:R.AMB_PHI,HID:R.HIDDEN.BETA,REP_LO:R.REP_LO,REP_SPAN:R.REP_SPAN,REP_KEYS:R.REP_KEYS};
+res.noise_turn=R.noiseFromS14();res.tabs={lam:T.lam,rep:T.rep,noise_turn:T.noise_turn};
+res.sc={};for(let s=1;s<=R.SEEDS;s++){const sc=R.scenario(s,null,T);res.sc[s]={rep:sc.rep,off:sc.parts.off,drift:sc.parts.drift,amb:sc.parts.amb,z:sc.parts.z,sd:sc.sd,d:sc.d,eps:sc.eps};}
+const rows=R.allSeeds(T.lam,T);res.rows=rows.map(r=>{const o={};for(const k in r)if(k!=='sweep')o[k]=r[k];return o;});res.pick=R.pickRep(rows);res.pickLam=R.pickLam(T);
+res.sweep=R.sweepRows(T);res.map=R.stabMap(200).map(m=>[m.lam,m.xi,m.a,m.meas,m.theory]);
+res.off=[[0.3,1,-0.046],[0.3,0.8,-0.046],[0.5,1,-0.046],[0.8,0.97,-0.045],[0.05,0.3,-0.1],[1,2.5,-0.05]].map(a=>[a[0],a[1],a[2],R.offsetRun(a[0],a[1],a[2],400),R.offsetFormula(a[0],a[1],a[2])]);
+const LOG=T.log,gf=R.gainFit(LOG),DH=R.replayD(LOG,gf.beta);let REPI=0;LOG.forEach((r,i)=>{if(r.replaced)REPI=i;});
+res.gain={beta:gf.beta,se:gf.se,njump:gf.njump,n:gf.n,REPI:REPI};
+const xi0=Math.round(gf.beta*100)/100;res.xi0=xi0;res.rp=[];
+[['ewma',0.8,xi0,true,1],['ewma',0.2,xi0,true,1],['ewma',0.2,xi0,false,1],['ewma',1,xi0,true,1],['ewma',0.5,1.5,true,1],['ewma',0.9,2.4,true,1],['ewma',0.3,0.4,true,2],['ewma',0.7,xi0,false,4],['human',0.8,gf.beta,true,1],['none',0.8,xi0,true,1]].forEach(a=>{const dm=R.driftScale(DH,REPI,a[4]);const r=R.replayRun(dm,REPI+1,a[0],{beta:a[0]==='human'?gf.beta:a[2],lam:a[1],reset:a[3]});res.rp.push({a:a,y:r.y,u:r.u});});
+res.hid=R.scenario(T.rep,null,T);res.hidRun=['none','human'].map(m=>R.run(res.hid,m).y);res.hidE=R.run(res.hid,'ewma',{lam:T.lam,reset:true}).y;
+res.logGen=R.logOf(T.rep,T);
+fs.writeFileSync(process.argv[3]+'/res0603.json',JSON.stringify(res));"""
+r3_js = os.path.join(r3_td, 'export0603.js'); open(r3_js, 'w').write(_EXPORT03)
+subprocess.run([_node, r3_js, _DATA10, r3_td], capture_output=True, text=True, check=True)
+R3 = json.load(open(os.path.join(r3_td, 'res0603.json'))); K3 = R3['consts']
+r3_close = lambda a, b, tol=1e-9: abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+r3_arr = lambda a, b, tol=1e-9: len(a) == len(b) and all(r3_close(x, y, tol) for x, y in zip(a, b))
+r3_jsx = lambda v: np.floor(np.asarray(v, float) * 1e4 + 0.5) / 1e4          # 자바스크립트 Math.round(v·1e4)/1e4
+
+# 1. 기존 출력 불변(이 장이 더한 파일은 새 파일): mfgsim.js·loop06·calib06·loss05 등과 저장소에 있던 CSV 전부가 HEAD 와 같은 바이트
+r3_unch = True; r3_n = 0; r3_lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js', 'data/loop06.js', 'data/loop06_tables.js', 'data/calib06.js', 'data/calib06_tables.js', 'data/loss05.js', 'data/agent0401.js', 'data/eval0402.js'], capture_output=True, text=True)
+for _fn in (r3_lst.stdout.split() if r3_lst.returncode == 0 else []):
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        r3_n += 1; r3_unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk(f'0603 기존 출력 불변: mfgsim.js·loop06·calib06·loss05·agent0401·eval0402 와 저장소에 있던 CSV 포함 {r3_n}개가 HEAD 와 같은 바이트(0601·0602 출력 불변)', r3_unch and r3_n >= 40, f'{r3_n}개 비교')
+
+# 2. 숨은 공정 이득 비노출: 새 CSV 에 이득 열이 없고, 표 파일에 HIDDEN·BETA 낱말이 없고, 페이지 본문(스크립트 밖)·페이지 Python 에 숨은 값 낱말이 없고, 페이지 스크립트에서는 정답 열기 함수 안에서만 읽음
+r3_tb = open(os.path.join(_DATA10, 'r2r06_tables.js'), encoding='utf-8').read()
+r3_body = _re5.sub(r'<script.*?</script>|<pre id="pyOut".*?</pre>', '', r3_pg, flags=_re5.S)
+r3_app = _re5.findall(r'<script>\n(.*?)\n</script>\n<script src="../tutor.js">', r3_pg, _re5.S)[0]
+r3_cols = all(c not in pd.read_csv(os.path.join(r3_td, f), nrows=1).columns for f in ('s19_r2r.csv', 's19_seed_summary.csv') for c in ('beta', 'beta_true', 'xi'))
+r3_cols &= 'HIDDEN' not in r3_tb and 'BETA' not in r3_tb and 'HIDDEN' not in r3_code and 'BETA' not in r3_code
+r3_fr = r3_app[r3_app.index('function fillReveal'):]
+chk('0603 숨은 공정 이득 비노출: 새 CSV 에 이득 열이 없고, 표 파일·페이지 Python 에 HIDDEN·BETA 가 없고, 화면 본문에 실제 이득 문장이 없고, 페이지 스크립트의 HIDDEN 은 정답 열기 함수 안에서만 읽음',
+    r3_cols and r3_app.count('HIDDEN') == 1 and r3_app.index('HIDDEN') > r3_app.index('function fillReveal') and '실제 공정 이득은 β' not in r3_body and 'R.HIDDEN.BETA' in r3_fr, f'열·표·코드 {r3_cols} · 스크립트의 HIDDEN {r3_app.count("HIDDEN")}곳')
+
+# 3. 상수가 mfgsim 과 설계서에서 온 값인지: 열 기울기 −2.0·마모 −0.02·첫 세정 −0.05·계절 0.3/23·spec 0.5·턴당 유리 120·유리 6장·잡음(0306 표 life_s14.csv 에서 파이썬이 따로 재한 값)
+_lf = pd.read_csv(os.path.join(_DATA10, 'csv', 'life_s14.csv')); _ss = 0.0; _df = 0
+for _id, _g in _lf.groupby('mask_id'):
+    _yv = _g['Mx_comp'].to_numpy(float); _xx = np.arange(len(_yv)); _p = np.polyfit(_xx, _yv, 1); _ss += float(((_yv - np.polyval(_p, _xx)) ** 2).sum()); _df += len(_yv) - 2
+r3_nt = float(np.sqrt(_ss / _df))
+r3_const = (r3_close(K3['THERMAL'], (1.5e-6 - 3.5e-6) * 1e6) and r3_close(K3['AGE'], -0.02) and r3_close(K3['CLEAN_STEP'], -0.05) and r3_close(K3['SEASON_RATE'], 0.3 / 23) and K3['LIMIT'] == 0.5 and K3['NG'] == 6 and K3['N'] == 60
+    and r3_close(R3['noise_turn'], r3_nt, 1e-9) and r3_close(R3['tabs']['noise_turn'], r3_nt, 1e-9) and K3['B'] == 1 and K3['MEAS'] == 1 and K3['SEEDS'] == 200)
+chk('0603 설정 출처: 열 기울기 −2.0 ppm/K(= (1.5−3.5)×10⁻⁶ 에서)·마모 −0.02·첫 세정 −0.05 ppm·계절 0.3 K/23턴·spec ±0.5·한 턴 60·0306 의 유리 6장 중 제어용은 1장, 턴 평균 잡음 = 0306 표(life_s14.csv)의 직선 둘레 잔차를 파이썬이 따로 재서 JS·표 파일과 같고 측정 한 장의 잡음 = 그 값 × √6',
+    r3_const, f'턴 평균 잡음 {r3_nt:.5f} ppm · 한 장 {r3_nt * np.sqrt(6):.4f} ppm')
+
+# 4. 시나리오 부품: 표류 식을 파이썬이 따로 계산해 JS 와 같음, 잡음 z 가 표준정규, 온도 변동이 AR(1)(표준편차 0.12 K·자기상관 0.7), 교체 턴 28~40
+r3_ok = True; r3_zs = []; r3_as = []; r3_lag = []; r3_reps = []
+for s in range(1, 201):
+    sc = R3['sc'][str(s)]; rep = sc['rep']; r3_reps.append(rep)
+    drift = [(-0.02 * ((t - rep + 1) if t >= rep else t) - 0.05) + (-2.0) * (0.3 / 23) * (t - 1) for t in range(1, 61)]
+    r3_ok &= r3_arr(sc['drift'], drift, 1e-12) and 28 <= rep <= 40 and r3_arr(sc['eps'], [z * sc['sd'] for z in sc['z']], 1e-12)
+    r3_zs += sc['z']; amb = np.array(sc['amb']) / -2.0; r3_as.append(amb); r3_lag.append(float(np.corrcoef(amb[:-1], amb[1:])[0, 1]))
+r3_zs = np.array(r3_zs); r3_asd = float(np.concatenate(r3_as).std()); r3_alag = float(np.mean(r3_lag))
+r3_ok &= abs(r3_zs.mean()) < 0.05 and abs(r3_zs.std() - 1) < 0.05 and abs(r3_asd - 0.12) < 0.01 and abs(r3_alag - (0.7 - (1 + 3 * 0.7) / 60)) < 0.04
+chk('0603 시나리오 부품: 시드 200개의 표류(마모+첫 세정+계절)가 파이썬 식과 같고 잡음 = z × 표준편차, 교체 턴이 모두 28~40, 잡음 z 가 표준정규(평균·표준편차), 온도 변동이 표준편차 0.12 K·60턴 표본의 자기상관이 이론 기대 0.7−(1+3·0.7)/60 = 0.65 근처(짧은 계열의 알려진 치우침)', r3_ok, f'z 평균 {r3_zs.mean():+.3f}·표준편차 {r3_zs.std():.3f} · 온도 변동 표준편차 {r3_asd:.3f} K·자기상관 {r3_alag:.3f} · 교체 턴 {min(r3_reps)}~{max(r3_reps)}')
+
+# 5. 세 방식·시드 요약 독립 구현: 파이썬이 부품으로 외란을 조립해 보정 없음·사람·EWMA(리셋 켬·끔·느린 λ)·λ 스윕·최적 λ·로그에서 읽은 이득을 다시 만들어 CSV·JS 와 비교
+HB = K3['HID']; LAMS3 = K3['LAMS']; LAMG = R3['tabs']['lam']
+def r3_run(d, eps, method, lam=0.3, beta=HB, b=1.0, thr=0.5, reset=False, rep=None):
+    cur, ah, y, u = 0.0, 0.0, [], []
+    for t in range(len(d)):
+        u.append(cur); yt = beta * cur + d[t] + eps[t]; y.append(yt)
+        if method == 'human':
+            if abs(yt) > thr: cur -= yt / b
+        elif method == 'ewma':
+            z = yt - b * cur
+            ah = z if (reset and rep is not None and t + 1 == rep) else lam * z + (1 - lam) * ah
+            cur = -ah / b
+    return np.array(y), np.array(u)
+r3_rms = lambda y: float(np.sqrt(np.mean(np.square(y)))); r3_oos = lambda y: int((np.abs(y) > 0.5).sum())
+def r3_asm(s, m=1.0, nm=1.0):
+    sc = R3['sc'][str(s)]; d = np.array(sc['off']) + m * np.array(sc['drift']) + np.array(sc['amb']); return d, np.array(sc['z']) * sc['sd'] * nm, sc['rep']
+def r3_gain(y, u, rep_idx):
+    dy, du = np.diff(y), np.diff(u); keep = np.ones(len(dy), bool); keep[rep_idx - 1] = False
+    dy, du = dy[keep], du[keep]; sxx = ((du - du.mean()) ** 2).sum(); return float(((du - du.mean()) * (dy - dy.mean())).sum() / sxx)
+r3_rows = {}; r3_ok = True; r3_sw3 = {}
+for s in range(1, 201):
+    d, eps, rep = r3_asm(s); yn, _ = r3_run(d, eps, 'none'); yh, uh = r3_run(d, eps, 'human'); ye, ue = r3_run(d, eps, 'ewma', LAMG, reset=True, rep=rep); yr, _ = r3_run(d, eps, 'ewma', LAMG, reset=False, rep=rep)
+    ys, _ = r3_run(d, eps, 'ewma', 0.2, reset=True, rep=rep); y0, _ = r3_run(d, eps, 'ewma', 0.2, reset=False, rep=rep)
+    sweep = [r3_rms(r3_run(d, eps, 'ewma', l, reset=True, rep=rep)[0]) for l in LAMS3]; bl = LAMS3[int(np.argmin(sweep))]
+    dd = np.diff(ue); wig = float(np.std(dd, ddof=1))
+    lg_y, lg_u = r3_jsx(yh), r3_jsx(uh); gh = r3_gain(lg_y, lg_u, rep - 1)
+    r3_rows[s] = dict(seed=s, rep_turn=rep, rms_none=r3_rms(yn), rms_human=r3_rms(yh), rms_ewma=r3_rms(ye), rms_ewma_nr=r3_rms(yr), oos_none=r3_oos(yn), oos_human=r3_oos(yh), oos_ewma=r3_oos(ye), oos_ewma_nr=r3_oos(yr), rms_slow=r3_rms(ys), rms_slow_nr=r3_rms(y0), oos_slow=r3_oos(ys), oos_slow_nr=r3_oos(y0), best_lam=bl, wig_ewma=wig, gain_hat=gh)
+for _r in R3['rows']:
+    p = r3_rows[_r['seed']]
+    r3_ok &= all(r3_close(_r[k], p[k], 1e-9) for k in ('rms_none', 'rms_human', 'rms_ewma', 'rms_ewma_nr', 'rms_slow', 'rms_slow_nr', 'wig_ewma', 'gain_hat') ) and all(_r[k] == p[k] for k in ('oos_none', 'oos_human', 'oos_ewma', 'oos_ewma_nr', 'oos_slow', 'oos_slow_nr')) and _r['rep'] == p['rep_turn'] and r3_close(_r['best_lam'], p['best_lam'])
+r3_csv_ok = True
+for _, rw in r3_sd.iterrows():
+    p = r3_rows[int(rw['seed'])]
+    r3_csv_ok &= all(abs(rw[k] - float(r3_jsx(p[k]))) < 1e-9 for k in ('rms_none', 'rms_human', 'rms_ewma', 'rms_ewma_nr', 'rms_slow', 'rms_slow_nr', 'wig_ewma', 'gain_hat')) and all(int(rw[k]) == p[k] for k in ('oos_none', 'oos_human', 'oos_ewma', 'oos_ewma_nr', 'oos_slow', 'oos_slow_nr')) and int(rw['rep_turn']) == p['rep_turn'] and abs(rw['best_lam'] - p['best_lam']) < 1e-9
+chk('0603 세 방식 독립 구현: 시드 200개마다 보정 없음·사람·EWMA(리셋 켬·끔·λ 0.2)의 RMS·spec 밖 턴·λ 스윕의 최적 λ·출렁임·사람 기록에서 읽은 이득이 파이썬 재계산과 JS·CSV 가 같음', r3_ok and r3_csv_ok and len(r3_sd) == 200, f'JS {r3_ok} · CSV {r3_csv_ok} · {len(r3_sd)}줄')
+
+# 6. 기본 λ·대표 시드: 시드 200개 RMS 중앙값이 가장 작은 λ(파이썬)와 지표 여섯의 Σ|백분위−50| 최소 시드
+r3_med = [float(np.median([r3_rms(r3_run(*[r3_asm(s)[0], r3_asm(s)[1]], 'ewma', l, reset=True, rep=r3_asm(s)[2])[0]) for s in range(1, 201)])) for l in LAMS3]
+r3_bl = LAMS3[min(range(len(r3_med)), key=lambda i: (r3_med[i], i))]
+def r3_pr(vals, v):
+    a = np.asarray(vals, float); return 100 * (np.sum(a < v - 1e-12) + 0.5 * np.sum(np.abs(a - v) <= 1e-12)) / len(a)
+r3_keys = K3['REP_KEYS']; r3_cols_ = {k: [r3_rows[s][k] for s in range(1, 201)] for k in r3_keys}
+r3_scs = {s: sum(abs(r3_pr(r3_cols_[k], r3_rows[s][k]) - 50) for k in r3_keys) for s in range(1, 201)}
+r3_rep = min(r3_scs, key=lambda s: (r3_scs[s], s))
+r3_logp = r3_gain(r3_jsx(r3_run(*r3_asm(r3_rep)[:2], 'human')[0]), r3_jsx(r3_run(*r3_asm(r3_rep)[:2], 'human')[1]), r3_asm(r3_rep)[2] - 1)
+chk('0603 기본 λ·대표 시드: 파이썬이 시드 200개 RMS 중앙값이 가장 작은 λ 와 지표 여섯(사람 RMS·EWMA RMS·사람 spec 밖·EWMA spec 밖·최적 λ·출렁임)의 Σ|백분위−50| 최소 시드를 따로 구해 JS·표 파일과 같고, 화면의 기록(CSV)은 그 시드의 사람 방식 기록과 같음',
+    r3_close(r3_bl, LAMG) and r3_close(R3['pickLam']['lam'], LAMG) and r3_rep == R3['pick']['seed'] == R3['tabs']['rep'] and r3_close(r3_scs[r3_rep], R3['pick']['score'], 1e-9) and len(r3_log) == 60 and all(abs(a - b) < 1e-9 for a, b in zip(r3_log['y_ppm'], [r['y'] for r in R3['logGen']])) and all(abs(a - b) < 1e-9 for a, b in zip(r3_log['u_ppm'], [r['u'] for r in R3['logGen']])) and list(r3_log['mask_replaced']) == [r['replaced'] for r in R3['logGen']] and list(r3_log['turn']) == list(range(1, 61)),
+    f'기본 λ {r3_bl} · 대표 시드 {r3_rep}(점수 {r3_scs[r3_rep]:.1f})')
+
+# 7. 스윕 표(표류 배수·측정 잡음 배수 × λ): 파이썬이 부품으로 다시 만든 RMS 10·50·90 % 와 spec 밖 중앙값이 CSV 와 같음
+r3_ok = True
+for axis, vals in (('drift', K3['DRIFTS']), ('noise', K3['NM'])):
+    for v in vals:
+        cols = {l: [] for l in LAMS3}; oo = {l: [] for l in LAMS3}
+        for s in range(1, 201):
+            d, eps, rep = r3_asm(s, v if axis == 'drift' else 1.0, v if axis == 'noise' else 1.0)
+            for l in LAMS3:
+                yy, _ = r3_run(d, eps, 'ewma', l, reset=True, rep=rep); cols[l].append(r3_rms(yy)); oo[l].append(r3_oos(yy))
+        for l in LAMS3:
+            row = r3_sw[(r3_sw['axis'] == axis) & (np.abs(r3_sw['value'] - v) < 1e-9) & (np.abs(r3_sw['lam'] - l) < 1e-9)]
+            r3_ok &= len(row) == 1 and all(abs(float(row[k].iloc[0]) - float(r3_jsx(f))) < 1e-9 for k, f in (('rms_p10', np.percentile(cols[l], 10)), ('rms_p50', np.percentile(cols[l], 50)), ('rms_p90', np.percentile(cols[l], 90)), ('oos_p50', np.percentile(oo[l], 50))))
+        r3_sw3[(axis, v)] = [float(np.median(cols[l])) for l in LAMS3]
+chk(f'0603 스윕 표 독립 구현: 표류 배수 {len(K3["DRIFTS"])}개·측정 잡음 배수 {len(K3["NM"])}개 × λ {len(LAMS3)}개({len(r3_sw)}줄)의 RMS 10·50·90 %·spec 밖 중앙값이 파이썬 재계산과 CSV 가 같음', r3_ok and len(r3_sw) == (len(K3['DRIFTS']) + len(K3['NM'])) * len(LAMS3), f'{len(r3_sw)}줄 대조')
+
+# 8. 안정 지도(실측) 와 이론, 잔류 오프셋: 페이지 코드(파이썬)가 JS 와 같고, 이론(0<λξ<2)과 실측이 다른 칸 수, 오프셋 식 s/(λξ) 와 돌려 본 값
+import importlib.util as _ilu03
+r3_spec = _ilu03.spec_from_file_location('lab0603', os.path.join(r3_td, 'lab0603.py')); r3_mod = _ilu03.module_from_spec(r3_spec); r3_spec.loader.exec_module(r3_mod)
+r3_g = r3_mod.r2r_stability(np.array(K3['MAPL']), np.array(K3['XIS']), 200); r3_jm = {(round(m[0], 2), round(m[1], 2)): m for m in R3['map']}
+r3_ok = True; r3_mis = 0; r3_cnt = {'ok': 0, 'div': 0, 'edge': 0}
+for i, l in enumerate(K3['MAPL']):
+    for j, x in enumerate(K3['XIS']):
+        a = float(r3_g[i, j]); m = r3_jm[(round(l, 2), round(x, 2))]; cl = 'div' if a > 1 + 1e-6 else 'ok' if a < 1 - 1e-6 else 'edge'; th = 'div' if l * x > 2 + 1e-9 else 'ok' if l * x < 2 - 1e-9 else 'edge'
+        r3_ok &= r3_close(a, m[2], 1e-9) and cl == m[3] and th == m[4]; r3_mis += cl != th; r3_cnt[cl] += 1
+r3_offerr = 0.0; r3_okf = True
+for l, x, sl, mj, fj in R3['off']:
+    mp = r3_mod.offset_run(l, x, sl, 400); fo = sl / (l * x); r3_okf &= r3_close(mp, mj, 1e-9) and r3_close(fj, fo, 1e-12)
+    if l * x < 2 - 1e-9 and l * x > 0.1: r3_offerr = max(r3_offerr, abs(mp - fo))
+chk(f'0603 안정 지도·잔류 오프셋: {len(K3["MAPL"]) * len(K3["XIS"])}칸 안정 지도(외란 0·200턴)의 파이썬 판정이 JS 와 같고 이론(0<λξ<2)과 다른 칸 {r3_mis}칸(수렴 {r3_cnt["ok"]}·발산 {r3_cnt["div"]}·경계 {r3_cnt["edge"]}), 잔류 오프셋 돌려 본 값이 식 s/(λξ) 와 같음(안정 영역 안 최대 차이 {r3_offerr:.1e} ppm)',
+    r3_ok and r3_mis == 0 and r3_okf and r3_offerr < 1e-6 and r3_cnt['edge'] >= 1 and r3_cnt['div'] > 0, f'지도 {r3_ok} · 오프셋 {r3_okf}')
+
+# 9. 로그에서 되살리기: 페이지 코드(파이썬)의 β̂·표준오차·되살린 외란 위 재실행(여러 설정)이 JS 와 같고, 사람 방식을 같은 외란 위에서 다시 돌리면 기록의 y 와 반올림 오차 안에서 같음
+r3_ok = True; r3_rp = []
+for rp in R3['rp']:
+    method, lam, xi, rst, m = rp['a']; r = r3_mod.r2r_replay(r3_log, lam=lam, xi=(None if method == 'human' else xi), reset=rst, method=method, drift_mult=m)
+    r3_ok &= r3_arr(r['y'].tolist(), rp['y'], 1e-9) and r3_arr(r['u'].tolist(), rp['u'], 1e-9)
+r3_r0 = r3_mod.r2r_replay(r3_log, LAMG); r3_hh = r3_mod.r2r_replay(r3_log, method='human'); r3_dh = float(np.abs(r3_hh['y'] - r3_log['y_ppm'].to_numpy()).max())
+chk(f'0603 되살리기 독립 구현: β̂·표준오차·보정값이 바뀐 턴 수와 되살린 외란 위 재실행 열 개 설정(보정 없음·사람·EWMA 여러 λ·ξ·교체 알림·표류 배수, 발산하는 설정 포함)의 y·u 가 JS 와 같고, 사람 방식을 다시 돌린 y 가 기록과 {r3_dh:.1e} ppm 안(소수 넷째 자리 반올림)',
+    r3_ok and r3_close(r3_r0['beta'], R3['gain']['beta'], 1e-9) and r3_close(r3_r0['se'], R3['gain']['se'], 1e-9) and r3_r0['njump'] == R3['gain']['njump'] and r3_dh < 2e-4, f'β̂ {r3_r0["beta"]:.4f} ± {r3_r0["se"]:.4f} · 바뀐 턴 {r3_r0["njump"]}')
+
+# 10. 기대 점검(가설이라 결과대로): 본문 문장이 말하는 결과가 데이터와 맞는지
+r3_oe = np.array([r3_rows[s]['oos_ewma'] for s in range(1, 201)]); r3_oh = np.array([r3_rows[s]['oos_human'] for s in range(1, 201)]); r3_on = np.array([r3_rows[s]['oos_none'] for s in range(1, 201)])
+r3_re = np.array([r3_rows[s]['rms_ewma'] for s in range(1, 201)]); r3_rh = np.array([r3_rows[s]['rms_human'] for s in range(1, 201)])
+r3_bd = {v: LAMS3[int(np.argmin(r3_sw3[('drift', v)]))] for v in K3['DRIFTS']}; r3_bn = {v: LAMS3[int(np.argmin(r3_sw3[('noise', v)]))] for v in K3['NM']}
+r3_gh = np.array([r3_rows[s]['gain_hat'] for s in range(1, 201)])
+r3_slow = (np.median([r3_rows[s]['oos_slow'] for s in range(1, 201)]), np.median([r3_rows[s]['oos_slow_nr'] for s in range(1, 201)]))
+chk('0603 기대 점검(결과대로): EWMA 의 spec 밖 턴 중앙값 < 사람 방식 < 보정 없음 · 사람보다 EWMA 가 적은 시드가 많은 시드보다 많음 · 표류 배수 4 의 최적 λ ≥ 0 의 최적 λ · 측정 잡음 4배의 최적 λ < 절반의 최적 λ · λ 0.2 에서 교체 알림이 spec 밖 턴을 줄임(중앙값 켬 ≤ 끔) · 기록에서 읽은 이득의 중앙값이 숨은 값보다 큼',
+    np.median(r3_oe) < np.median(r3_oh) < np.median(r3_on) and (r3_oh > r3_oe).sum() > (r3_oh < r3_oe).sum() and r3_bd[4] >= r3_bd[0] and r3_bn[4] < r3_bn[0.5] and r3_slow[0] <= r3_slow[1] and np.median(r3_gh) > HB,
+    f'spec 밖 중앙값 보정 없음 {np.median(r3_on):.1f}·사람 {np.median(r3_oh):.1f}·EWMA {np.median(r3_oe):.1f} · 더 적은 시드 {(r3_oh > r3_oe).sum()}·같은 {(r3_oh == r3_oe).sum()}·더 많은 {(r3_oh < r3_oe).sum()} · 최적 λ 표류 {r3_bd} · 잡음 {r3_bn} · λ 0.2 알림 켬 {r3_slow[0]} 대 끔 {r3_slow[1]} · β̂ 중앙값 {np.median(r3_gh):.3f}(숨은 {HB})')
+
+# 11. 정답 열기 쪽 계산: 실제 이득으로 돌린 닫힌 고리(JS)가 파이썬 재계산과 같고, 되살린 외란 위의 재실행과 비교한 수가 본문 변수에서 나옴
+d_, e_, rep_ = r3_asm(r3_rep); r3_yy = [r3_run(d_, e_, 'none')[0], r3_run(d_, e_, 'human')[0], r3_run(d_, e_, 'ewma', LAMG, reset=True, rep=rep_)[0]]
+chk('0603 정답 열기: 숨은 이득으로 돌린 실제 닫힌 고리(보정 없음·사람·EWMA)의 y 가 파이썬 재계산과 같고, 대표 기록의 사람 방식 y 와 CSV 가 같음',
+    r3_arr(r3_yy[0].tolist(), R3['hidRun'][0], 1e-9) and r3_arr(r3_yy[1].tolist(), R3['hidRun'][1], 1e-9) and r3_arr(r3_yy[2].tolist(), R3['hidE'], 1e-9) and all(abs(a - b) < 1e-4 for a, b in zip(r3_log['y_ppm'], r3_yy[1])), f'실제 닫힌 고리 EWMA RMS {r3_rms(r3_yy[2]):.3f} · spec 밖 {r3_oos(r3_yy[2])}턴')
+
+# 12. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 핵심 숫자가 독립 구현·JS 와 같음, 외부 통신 코드 없음
+r3_run_ = subprocess.run([sys.executable, '-I', 'lab0603.py'], cwd=r3_td, capture_output=True, text=True); r3_L = r3_run_.stdout.strip().split('\n')
+hy = r3_log['y_ppm'].to_numpy(); hu = r3_log['u_ppm'].to_numpy(); rpI = R3['gain']['REPI']; xi0 = R3['xi0']
+rpd = {tuple(x['a'][:1] + [x['a'][1], x['a'][2], x['a'][3], x['a'][4]]): x for x in R3['rp']}
+jy = lambda key: np.array(rpd[key]['y']); jn, jh, je = jy(('none', 0.8, xi0, True, 1)), jy(('human', 0.8, R3['gain']['beta'], True, 1)), jy(('ewma', 0.8, xi0, True, 1))
+r3_exp = [
+    f'사람 방식 기록: 60턴 · RMS {r3_rms(hy):.3f} ppm · spec(±0.5) 밖 {r3_oos(hy)}턴 · 보정한 턴 {int((np.abs(np.diff(hu)) > 1e-9).sum())}번 · 마스크 교체 {rpI + 1}턴',
+    f'공정 이득 추정: β̂ = {R3["gain"]["beta"]:.3f} (표준오차 {R3["gain"]["se"]:.3f}, 보정값이 바뀐 턴 {R3["gain"]["njump"]}개) → ξ̂ = β̂/b = {xi0:.2f}',
+    f'되살린 외란 위(ξ = {xi0:.2f}): 보정 없음 RMS {r3_rms(jn):.3f} · spec 밖 {r3_oos(jn)}턴 / 사람 방식 RMS {r3_rms(jh):.3f} · {r3_oos(jh)}턴 / EWMA(λ = 0.80) RMS {r3_rms(je):.3f} · {r3_oos(je)}턴',
+    f'안정 지도 {r3_g.size}칸: 수렴 {r3_cnt["ok"]} · 발산 {r3_cnt["div"]} · 경계 {r3_cnt["edge"]} · 이론(0<λξ<2)과 다른 칸 {r3_mis}',
+    f'시드 {len(r3_sd)}개 중앙값 RMS: 보정 없음 {np.median([r3_rows[s]["rms_none"] for s in range(1, 201)]):.3f} · 사람 {np.median(r3_rh):.3f} · EWMA(λ = {LAMG:.1f}) {np.median(r3_re):.3f} / spec 밖 턴: {np.median(r3_on):.1f} · {np.median(r3_oh):.1f} · {np.median(r3_oe):.1f}',
+    '시드 중앙값의 가장 낮은 λ (표류 배수): ' + ' · '.join(f'× {v:g} → {r3_bd[v]:.2f}' for v in K3['DRIFTS']),
+    '시드 중앙값의 가장 낮은 λ (측정 잡음 배수): ' + ' · '.join(f'× {v:g} → {r3_bn[v]:.2f}' for v in K3['NM'])]
+for l, x, sl, mj, fj in R3['off'][:4]:
+    r3_exp.append(f'잔류 오프셋 s = {sl:+.3f}, λ = {l:.1f}, ξ = {x:.2f}: 돌려 본 값 {mj:+.4f} · 식 s/(λξ) = {fj:+.4f} ppm')
+r3_ok2 = r3_run_.returncode == 0 and r3_run_.stdout.strip() == r3_out and all(e in r3_L for e in r3_exp) and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', r3_code, _re5.M)
+chk('0603 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 기록 요약·β̂·되살린 외란 위 세 방식·안정 지도·잔류 오프셋·시드 중앙값·최적 λ 가 독립 구현·JS 와 같고, 외부 통신 코드가 없고, 코드의 λ 기본값이 모듈 기본값과 같음',
+    r3_ok2 and f'LAM = {LAMG}' in r3_code,
+    (r3_run_.stderr[-300:] if r3_run_.returncode else f'{len(r3_L)}줄 · 대조 {len(r3_exp)}줄' + ''.join('' if e in r3_L else ' · 불일치: ' + e[:70] for e in r3_exp)))
+
+# 13. 페이지 구조
+r3_term = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', r3_pg, _re5.S).group(1)))
+r3_nq = len(_re5.findall(r'<div class="qna" data-label=', r3_pg)); r3_nsec = len(_re5.findall(r'<h2><span class="no">', r3_pg)); r3_nmath = r3_pg.count('<math display="block">')
+r3_fonts = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', r3_pg)]
+r3_bt = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', r3_pg, flags=_re5.S)))
+r3_endda = _re5.findall(r'[^니습]다[.]', r3_bt)
+r3_p602 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0602-twin-calibration.html'), encoding='utf-8').read(); r3_hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+r3_dv = set(_re5.findall(r'data-v="(\w+)"', r3_pg)); r3_dvdef = set(_re5.findall(r'V\.(\w+)=', r3_app))
+r3_qna = ' '.join(_re5.findall(r'<div class="qna".*?</div>', r3_pg, _re5.S)); r3_mod_js = open(os.path.join(_DATA10, 'r2r06.js'), encoding='utf-8').read()
+r3_slid = [f'id="sLam4" min="0.05" max="1" step="0.05" value="{LAMG}"', f'id="sXi6" min="0.3" max="2.5" step="0.01" value="{R3["xi0"]}"', f'id="sNoise2" min="0" max="3" step="1" value="{K3["NM"].index(1)}"', f'id="sM5" min="0" max="5" step="1" value="{K3["DRIFTS"].index(1)}"']
+r3_s0 = round(-0.0716 / 0.005) * 0.005
+r3_nums = [int(x) for x in _re5.findall(r'(\d+)절', r3_bt)]
+chk('0603 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절 14개 · MathML 식 여섯(공정 모델·EWMA 제어기·모델 불일치 비·추정 갱신·안정 영역·잔류 오프셋) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0602 쪽 0603 다음 링크(위·아래)와 0603 쪽 0602 이전 링크(위·아래) · 허브 등록(마지막 장 묶음) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~14 · 모듈·표·페이지에 Math.random·Date.now 없음',
+    r3_term == 6 and r3_nq == 4 and r3_nsec == 14 and r3_nmath == 6 and r3_fonts and min(r3_fonts) >= 11 and not r3_endda and r3_p602.count('0603-run-to-run.html') == 2 and r3_pg.count('0602-twin-calibration.html') == 2
+    and 'labs/0603-run-to-run.html' in r3_hub and '마지막 장 · 기둥 6' in r3_hub and r3_dv <= r3_dvdef and all(s in r3_pg for s in r3_slid) and not r3_qna.count('%') and r3_nums and max(r3_nums) <= 14 and min(r3_nums) >= 1
+    and not _re5.search(r'Math\.random|Date\.now|new Date', r3_mod_js) and not _re5.search(r'Math\.random|Date\.now', r3_app) and not _re5.search(r'Math\.random|Date\.now', r3_tb),
+    f'용어 {r3_term} · Q&A {r3_nq} · 절 {r3_nsec} · MathML {r3_nmath} · 캔버스 글자 최소 {min(r3_fonts) if r3_fonts else None}px({len(r3_fonts)}곳) · -다 끝맺음 {len(r3_endda)}건 · 0602 쪽 링크 {r3_p602.count("0603-run-to-run.html")}곳 · 미정의 data-v {sorted(r3_dv - r3_dvdef)} · 절 참조 {sorted(set(r3_nums))}')
+r3_cleanup = shutil.rmtree(r3_td, ignore_errors=True)
+
+
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

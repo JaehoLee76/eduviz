@@ -134,6 +134,17 @@ const pack06 = (rows, cols) => ({ c: cols, r: rows.map(r => cols.map(k => r[k]))
 fs.writeFileSync(path.join(dir, '..', 'calib06_tables.js'), '/* 0602 가 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s17_fine_*.csv·s17_calib_logs.csv·s17_ridge_grid.csv·s18_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var D=' + JSON.stringify({ fine: pack06(T02.fine, ['clean', 'seed', 'days', 'q', 'busy', 'L']), pol: pack06(T02.pol, ['clean', 'seed', 'cap', 'loss']), logs: pack06(T02.logs, ['seed', 'days', 'q', 'busy', 'L', 'out', 'tr']), ridge: pack06(T02.ridge, ['clean', 'tt', 'seed', 'q', 'L', 'out', 'tr']), chunk: pack06(T02.chunk, ['clean', 'seed', 'q', 'L']), s18: pack06(T02.s18, ['series', 'day', 'q', 'L']) }) + ';var T={};Object.keys(D).forEach(function(k){T[k]=D[k].r.map(function(r){var o={};D[k].c.forEach(function(c,i){o[c]=r[i];});return o;});});if(typeof module==="object"&&module.exports)module.exports=T;else window.CALIB06_TABLES=T;})();\n');
 console.log('0602 tables ready');
 
+// 실험실 0603: 런투런 제어. 숨은 값(실제 공정 이득)은 어떤 파일에도 넣지 않는다(r2r06.js 안에만 있고 정답 열기·verify 가 읽는다).
+// s19_r2r = 대표 시드에서 사람 방식(잰 값이 문턱을 넘으면 그만큼 보정)으로 운영한 기록(턴마다 잰 배율 오차·그 턴에 넣은 보정값·마스크 교체 표시)
+// s19_seed_summary = 시드 200개의 세 방식 지표·최적 λ·로그에서 읽은 공정 이득 추정 · s19_lambda_sweep = 표류 배수·측정 잡음 크기에 따른 λ 별 RMS(시드 200개 분포)
+const R06 = require('./r2r06.js');
+const T03 = R06.buildTables();
+csv('s19_r2r.csv', T03.log.map(r => ({ turn: r.turn, y_ppm: r.y, u_ppm: r.u, mask_replaced: r.replaced })), ['turn', 'y_ppm', 'u_ppm', 'mask_replaced']);
+csv('s19_seed_summary.csv', T03.seeds, ['seed', 'rep_turn', 'rms_none', 'rms_human', 'rms_ewma', 'rms_ewma_nr', 'oos_none', 'oos_human', 'oos_ewma', 'oos_ewma_nr', 'rms_slow', 'rms_slow_nr', 'oos_slow', 'oos_slow_nr', 'best_lam', 'wig_ewma', 'gain_hat']);
+csv('s19_lambda_sweep.csv', T03.sweep, ['axis', 'value', 'lam', 'rms_p10', 'rms_p50', 'rms_p90', 'oos_p50']);
+fs.writeFileSync(path.join(dir, '..', 'r2r06_tables.js'), '/* 0603 이 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s19_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var T=' + JSON.stringify({ noise_turn: T03.noise_turn, lam: T03.lam, rep: T03.rep, log: T03.log, seeds: T03.seeds, sweep: T03.sweep }) + ';if(typeof module==="object"&&module.exports)module.exports=T;else window.R2R06_TABLES=T;})();\n');
+console.log('S19 representative seed', T03.rep, 'score', T03.score.toFixed(1), 'default lambda', T03.lam);
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

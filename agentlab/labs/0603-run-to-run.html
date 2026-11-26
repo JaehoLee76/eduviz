@@ -1,0 +1,1019 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>런투런 제어</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="턴마다 잰 배율 오차로 다음 턴의 보정값을 정하는 EWMA 런투런 제어를 마스크 한 장의 기록 위에서 다시 돌려 봅니다. 이득 λ 를 바꿔 따라가는 속도와 출렁임을 맞바꾸고, 공정 이득을 잘못 믿을 때 발산하는 안정 영역과 표류가 계속될 때 남는 잔류 오프셋, 마스크 교체 때의 리셋을 확인합니다. 회사 PC용 Python과 보정 규칙 운영표 양식을 남깁니다.">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+
+td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+table.nw1 td:first-child,table.nw1 th:first-child{white-space:nowrap}
+table.nwall td{white-space:nowrap}
+
+.loopmap{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .4rem}
+.lp{display:flex;flex-direction:column;gap:.1rem;min-width:8.5rem;padding:.5rem .7rem;border:1.5px solid var(--accent);border-radius:10px;background:var(--card);font-size:.9rem}
+.lp b{color:var(--ink)}
+.lp span{font-size:.85rem;color:var(--soft)}
+.lp.mine{background:color-mix(in srgb,var(--accent) 20%,var(--card));border-width:3px}
+.lpa{font-size:1.2rem;color:var(--accent);font-weight:800}
+.lpa.back{flex:1 1 100%;font-size:.9rem;font-weight:700;color:var(--soft);padding:.2rem 0}
+[hidden]{display:none!important}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">마지막 장 · 기둥 6 · 실험실 0603</p>
+  <h1>닫힌 고리의 가장 단순한 형태 — 런투런 제어</h1>
+  <p class="sub">한 턴을 돌리고, 잰 배율 오차로 다음 턴의 보정값을 식으로 정합니다. 이득을 얼마로 잡을지, 그 식이 언제 발산하는지까지 손으로 확인합니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0602-twin-calibration.html">← 이전: 시뮬레이터를 실제에 맞추기</a><span class="sp"></span></nav>
+
+<p><b>0602 는 세정 시간이라는 상태를 날마다 추정했습니다.</b> 이 실험실은 추정한 값을 공정에 되먹임하는 가장 작은 형태를 다룹니다. 마스크 한 장을 <span data-v="nt"></span>턴 쓰는 동안 배율 오차(Mx, ppm)는 마모와 챔버 온도 때문에 한쪽으로 밀립니다. 지금은 잰 값이 spec 을 넘을 때마다 사람이 그 오차만큼 한 번 보정합니다. 그 보정을 턴마다 식으로 정하면 무엇이 달라지는지, 그 식을 어떤 조건에서 믿어도 되는지를 같은 기록 위에서 다시 돌려 확인합니다. 마지막에는 보정 규칙을 라인에 쓰기 전에 지켜야 할 확인 항목을 운영표로 남깁니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0204 의 EWMA(지난 값을 지수로 줄여 가며 평균하는 방법), 0303 의 열변형과 턴 누적(배율이 온도 1 K 당 약 <span data-v="th"></span> ppm 밀리고 턴마다 조금씩 내려가는 것), 0304 의 보정과 리페어의 구분, 0306 의 마스크 수명과 spec 한계(목표에서 ±<span data-v="lim"></span> ppm), 0601 의 닫힌 고리와 트윈, 0602 의 칼만 필터(정상 상태에서 이득이 EWMA 의 λ 와 같은 것).</p>
+  <ul class="chips known"><li>EWMA (0204)</li><li>열변형 · 턴 누적 (0303)</li><li>보정 vs 리페어 (0304)</li><li>마스크 수명 · spec 한계 (0306)</li><li>닫힌 고리 · 트윈 (0601)</li><li>칼만 필터 (0602)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(RMS·출렁임·교체 알림·가정 이득)은 쓰는 자리에서 식이나 문장으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>런투런 제어 (run-to-run control)</li><li>공정 이득 (process gain)</li><li>외란 (disturbance)</li><li>모델 불일치 비 (model mismatch ratio)</li><li>안정 영역 (stability region)</li><li>잔류 오프셋 (steady-state offset)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 배율이 턴마다 열과 마모로 밀릴 때 사람이 감으로 하던 보정을 규칙으로 바꾸는 것, 그리고 그 규칙의 이득 λ 를 &lsquo;빠르게&rsquo;가 아니라 &lsquo;공정 이득을 잘못 알아도 발산하지 않게&rsquo; 고르는 판단(3~7절).</li>
+    <li><b>손으로 연습</b> — λ 를 바꿔 따라가는 속도와 출렁임을 맞바꾸기(4절), 표류가 크거나 잡음이 큰 공장에서 좋은 λ 가 어디로 옮겨 가는지 보기(5절), 공정 이득을 일부러 틀리게 두어 발산 경계 찾기(6~7절), 표류가 계속될 때 남는 늦음 재기(8절), 마스크 교체 때 추정을 리셋하는 효과 보기(9절).</li>
+    <li><b>다음 날 산출물</b> — <code>ewma_r2r</code>·<code>r2r_stability</code>·<code>r2r_replay</code> Python 함수(12절), <b>보정 규칙 운영표</b> 양식(13절).</li>
+    <li><b>기록할 데이터</b> — 턴마다 &lsquo;넣은 보정값&rsquo;과 &lsquo;그 뒤 잰 값&rsquo;을 같은 키로, 마스크 교체·리페어 시각(13절). 보정값을 기록하지 않으면 공정이 원래 어떻게 밀렸는지를 되살릴 수 없습니다.</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — λ 와 보정 상한과 개입 조건의 승인은 사람, 안정 영역 안의 λ·교체 리셋·보정값 상한은 규칙, 매 턴 보정 계산과 출렁임 감시와 이상 시 사람 호출은 에이전트(10절).</li>
+    <li><b>성과 환산</b> — 사람 방식 대비 spec 밖 턴 수의 감소와 그만큼의 유리 장수(11절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 마스크 한 장을 <span data-v="nt"></span>턴 쓰는 동안 배율 오차를 spec(±<span data-v="lim"></span> ppm) 안에 두려고 합니다. 지금은 잰 값이 ±<span data-v="lim"></span> 를 넘을 때마다 사람이 그 오차만큼 한 번 보정합니다. 아래 기록(시드 <span data-v="rep"></span>)은 그렇게 운영한 결과입니다. <b>보정값을 턴마다 자동으로 정하는 규칙으로 바꾸면 spec 밖 턴이 얼마나 줄고, 그 규칙을 어떤 조건에서 믿어도 됩니까?</b>
+  <p class="note" style="margin:.5rem 0 0">이 기록은 가상 공장이 만들 수 있는 수많은 기록 가운데 마스크 한 장(중간에 교체 1회)의 <span data-v="nt"></span>턴입니다. 한 장으로 규칙의 효과를 단정하지 않으려고, 같은 공장의 시드 <span data-v="nseed"></span>개 분포를 함께 봅니다. 무엇을 추정하는지는 &lsquo;이 기록에서 사람 방식과 규칙 방식의 차이&rsquo;와 &lsquo;시드가 달라질 때 그 차이가 얼마나 흔들리는가&rsquo; 둘입니다. 1절에서 지금 방식의 한계를 보고, 2절에서 가장 쉬운 시도가 막히는 곳을 보고, 3절에서 이름을 붙이고, 4절에서 규칙을 세워 λ 를 바꿔 보고, 5절에서 좋은 λ 가 무엇에 따라 달라지는지 보고, 6~7절에서 이득을 잘못 알 때의 발산과 안정 영역을, 8절에서 잔류 오프셋을, 9절에서 마스크 교체를, 10절에서 처음 물음으로 돌아옵니다.</p>
+</div>
+
+<div class="solban">여기서부터 가상 공장의 기록으로 푸는 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>지금의 방식 — 넘을 때마다 사람이 고친다</h2>
+<p>두 가지를 먼저 정합니다. <b>y</b> 는 t 번째 턴에 잰 배율 오차(ppm, 목표 0 에서 얼마나 벗어났는지)이고, <b>u</b> 는 그 턴에 넣은 보정값(ppm)입니다. 보정값은 배율 오차를 움직이는 손잡이입니다. 사람 방식은 잰 값의 크기가 ±<span data-v="thr"></span> ppm 을 넘은 턴에만, 그 값만큼을 한 번에 되돌립니다(가정). 아래는 그렇게 운영한 <span data-v="nt"></span>턴의 기록입니다. 점선 가로선이 spec 이고 세로선이 마스크를 바꾼 턴입니다.</p>
+<div class="lab">
+  <div class="labtitle">사람 방식으로 운영한 기록 — 잰 배율 오차와 넣은 보정값</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 점이 spec 선을 넘는 턴이 몇 번인지, 넘은 다음 턴에 보정값(아래 그림)이 어떻게 한 번에 움직이는지, 마스크를 바꾼 턴 뒤에 어떤 일이 벌어지는지 보십시오.</div>
+  <canvas id="cvLog1"></canvas>
+  <canvas id="cvU1"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>잰 배율 오차 y (ppm)</span><span><i class="dot" style="background:var(--c8)"></i>넣은 보정값 u (ppm)</span><span><i class="dot" style="background:var(--bad)"></i>spec 밖인 턴</span></div>
+  <div class="readout" id="ro1"></div>
+  <div class="tbwrap"><table class="mt num" id="tab1"></table></div>
+</div>
+<p>이 방식에는 구조적인 한계가 둘 있습니다. 첫째, 넘은 뒤에야 움직이므로 spec 밖인 턴이 반드시 생깁니다. 둘째, 잰 값 하나를 그대로 믿습니다. 잰 값에는 측정 잡음이 섞여 있어서, 잡음이 크게 나온 턴에 보정하면 오히려 공정을 밀어 놓게 됩니다. 그렇다면 문턱을 없애고 매 턴 잰 오차만큼 전부 보정하면 되지 않을까요? 다음 절에서 해 봅니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도와 막힘 — 매 턴 잰 만큼 전부 보정하면</h2>
+<p>문턱 없이 매 턴 잰 오차를 전부 반영하는 규칙은 <b>이번에 잰 오차를 새 보정에 반영하는 몫 λ 가 1 인 경우</b>입니다(λ 의 정확한 식은 4절에서 씁니다). λ 를 1 보다 작게 하면 이번 오차의 일부만 반영하고 나머지는 지난 추정에 맡깁니다. 먼저 시드 <span data-v="nseed"></span>개의 가상 공장에서 λ 에 따라 spec 안의 정도(RMS)가 어떻게 달라지는지 봅니다. <b>RMS</b> 는 오차를 제곱해 평균하고 제곱근을 씌운 값으로, 목표 0 에서 평균적으로 얼마나 벗어났는지를 나타냅니다.</p>
+<div class="lab">
+  <div class="labtitle">λ 에 따른 RMS — 시드 <span data-v="nseed"></span>개의 중앙값과 10~90% 띠 (측정 잡음의 크기를 바꿔 보기)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 측정 잡음이 기본일 때 λ=1 이 가장 좋은 점과 얼마나 다른지, 잡음을 4배로 키우면 가장 낮은 점이 어디로 옮겨 가는지 보십시오.</div>
+  <div class="ctrl"><label for="sNoise2">측정 잡음의 크기 (표준편차, ppm)</label><input type="range" id="sNoise2" min="0" max="3" step="1" value="1"><output id="sNoise2o"></output></div>
+  <div class="row"><button class="btn ghost" id="rNoise2" type="button">측정 잡음을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stNoise2"></div>
+  <canvas id="cvNoise2"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>RMS 중앙값</span><span><i class="dot" style="background:var(--c10)"></i>10% 와 90%</span><span><i class="dot" style="background:var(--warn)"></i>가장 낮은 점</span></div>
+  <div class="readout" id="ro2"></div>
+  <div class="tbwrap"><table class="mt num" id="tab2"></table></div>
+</div>
+<p>기본 잡음에서는 λ=1 도 크게 나쁘지 않습니다. 이 가상 공장에서는 배율을 미는 힘(마모·온도 변동·마스크 교체)이 측정 잡음보다 크기 때문입니다. 그러나 막힘은 잡음이 커질 때 나타납니다. 보정값은 잰 값을 따라 움직이므로 잰 값에 섞인 잡음이 보정값에 그대로 실리고, 그 보정이 다시 공정을 밀어 새 오차를 만듭니다. 아래는 이 기록에서 같은 외란을 두고 λ=1 과 더 작은 λ 로 보정값이 얼마나 출렁이는지 본 것입니다(되살리는 방법은 3절에서 설명합니다).</p>
+<div class="lab">
+  <div class="labtitle">보정값 u 의 출렁임 — 이 기록의 외란 위에서 λ 를 달리 했을 때</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> λ=1 의 보정값이 턴마다 위아래로 흔들리는 폭과, λ 를 줄였을 때 그 폭이 얼마나 줄고 대신 오차의 RMS 가 얼마나 늘어나는지 보십시오.</div>
+  <canvas id="cvU2"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--bad)"></i>λ = 1 (전부 보정)</span><span><i class="dot" style="background:var(--accent)"></i>λ = 0.3</span></div>
+  <div class="tbwrap"><table class="mt num" id="tab2b"></table></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<p><b>막힘:</b> 보정값을 얼마나 빨리 움직일지(λ)는 &lsquo;표류를 따라가는 속도&rsquo;와 &lsquo;잡음을 따라가는 위험&rsquo; 사이의 맞바꿈이고, 그 맞바꿈의 좋은 점은 공장에 따라 다릅니다. 이름을 붙이고 식으로 쓰면 이 맞바꿈을 같은 틀에서 다룰 수 있습니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 런투런 제어·외란·공정 이득, 그리고 로그에서 외란을 되살리기</h2>
+<p><b>런투런 제어(run-to-run control)</b> 는 한 번 돌린 결과를 재서 다음 번 입력(보정값)을 정하는 제어입니다. 여기서는 한 턴이 한 번(run)입니다. 제어를 식으로 쓰려면 배율 오차가 어떻게 만들어지는지부터 적어야 합니다. 턴 t 의 잰 값은 세 부분의 합입니다.</p>
+<div class="eq">
+  <span class="eqlab">공정 모델: 잰 값 = 보정이 움직인 몫 + 외란 + 잡음</span>
+  <math display="block"><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>&#x03B2;</mi><mo>&#x00B7;</mo><msub><mi>u</mi><mi>t</mi></msub><mo>+</mo><msub><mi>d</mi><mi>t</mi></msub><mo>+</mo><msub><mi>&#x03B5;</mi><mi>t</mi></msub></mrow></math>
+  <span class="note">u 는 넣은 보정값, d 는 보정과 무관하게 배율을 미는 값, &epsilon; 은 측정 잡음입니다.</span>
+</div>
+<p><b>공정 이득(process gain)</b> β 는 보정값을 한 단위 바꿀 때 배율이 실제로 바뀌는 양입니다. 제어기는 이 값을 정확히 모르고 &lsquo;믿는 값&rsquo; b 로 계산합니다(여기서는 보정 1 ppm 이 배율 1 ppm 을 움직인다고 보아 b = <span data-v="b"></span>). <b>외란(disturbance)</b> d 는 보정과 무관하게 배율을 미는 것으로, 이 공장에서는 느린 표류(마모·챔버 온도의 느린 상승), 턴마다 달라지는 온도 변동, 마스크 교체의 계단 셋입니다. 제어기가 보는 것은 y 뿐이고 d 와 &epsilon; 은 나뉘어 보이지 않습니다.</p>
+<p>그런데 위 기록에서 사람이 보정을 했기 때문에, y 에는 보정의 영향이 이미 섞여 있습니다. 규칙을 바꿔 다시 돌리려면 보정을 뺀 외란을 되살려야 하고, 그러려면 β 를 알아야 합니다. β 는 기록에서 읽을 수 있습니다. 보정값이 바뀐 턴에서 잰 값이 얼마나 따라 움직였는지를 보면 되기 때문입니다. 턴 사이의 변화로 쓰면 Δy = β·Δu + (외란의 변화) 이고, Δy 를 Δu 와 상수에 맞춘 직선의 기울기가 추정값 <b>β̂</b> 입니다(마스크를 바꾼 턴의 Δy 는 계단이라 뺍니다). 외란의 변화는 평균이 0 에 가깝고 보정과 무관하다고 보는 가정입니다.</p>
+<div class="lab">
+  <div class="labtitle">보정값이 바뀐 턴의 Δu 와 그 뒤의 Δy — 기울기가 β̂</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 점들이 기울기 1 의 선(보정을 그대로 받는 공장) 아래에 있는지 위에 있는지, 점이 얼마나 흩어져 있는지 보십시오. 흩어진 폭이 β̂ 의 표준오차를 정합니다.</div>
+  <canvas id="cvGain3"></canvas>
+  <div class="readout" id="ro3"></div>
+  <canvas id="cvD3"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>잰 값 y</span><span><i class="dot" style="background:var(--accent)"></i>되살린 외란 d̂ = y − β̂·u</span></div>
+  <div class="tbwrap"><table class="mt num" id="tab3"></table></div>
+  <div class="concl" id="conc3"></div>
+</div>
+<div class="watch"><b>이 추정이 기대는 것.</b> 1) 외란의 변화가 보정과 무관하다고 봅니다. 보정은 직전에 잰 값으로 정해지므로 잡음 ε 이 보정값과 그 뒤 잰 값 양쪽에 들어 있어서, β̂ 는 실제보다 크게 나오는 쪽으로 어긋날 수 있습니다. 2) 보정이 바뀐 턴이 적으면 흩어짐이 큽니다. 위 표준오차가 그 크기입니다. 3) 이 기록은 사람 방식으로 운영한 것이라 보정값이 움직인 턴이 몇 번뿐입니다. 어긋남이 얼마인지는 14절에서 숨은 값과 견주어 봅니다.</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>EWMA 규칙 — 외란을 지수 가중 평균으로 쌓아 반대로 보정한다</h2>
+<p>0204 의 EWMA 를 외란 추정에 씁니다. 이번 턴에 보정이 설명하지 못한 몫 z = y − b·u 가 외란과 잡음의 합이므로, 그 지수 가중 평균 a 가 &lsquo;지금 공정에 걸려 있는 외란의 추정&rsquo;입니다. 다음 턴 보정값은 그 추정을 상쇄하도록 반대로 넣습니다(목표 r = 0).</p>
+<div class="eq">
+  <span class="eqlab">EWMA 런투런 제어기</span>
+  <math display="block"><mrow><msub><mi>a</mi><mi>t</mi></msub><mo>=</mo><mi>&#x03BB;</mi><mo stretchy="false">(</mo><msub><mi>y</mi><mi>t</mi></msub><mo>&#x2212;</mo><mi>b</mi><msub><mi>u</mi><mi>t</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>&#x2212;</mo><mi>&#x03BB;</mi><mo stretchy="false">)</mo><msub><mi>a</mi><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mspace width="1.4em"></mspace><msub><mi>u</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mrow><mi>r</mi><mo>&#x2212;</mo><msub><mi>a</mi><mi>t</mi></msub></mrow><mi>b</mi></mfrac></mrow></math>
+  <span class="note">a 의 처음 값은 0(보정이 없던 상태)입니다. λ 는 0 과 1 사이의 평활 계수로, 0204 와 0602 의 λ 와 같은 뜻입니다. 칼만 이득이 정상 상태에서 가라앉은 값이 곧 λ 였습니다.</span>
+</div>
+<p>아래는 3절에서 되살린 외란 위에서 이 규칙을 돌린 결과입니다. 공정 이득은 3절의 추정 β̂ 를 <b>가정 이득</b>(되살린 외란 위에서 규칙을 다시 돌릴 때 공정이 보정을 얼마나 받아들인다고 둘지)으로 두었습니다. 그래서 같은 외란, 같은 잡음에서 규칙만 바뀐 비교입니다. 이 방식이 맞는지의 점검으로, 사람 방식을 같은 외란 위에서 다시 돌리면 1절의 기록과 똑같이 나와야 합니다.</p>
+<div class="lab">
+  <div class="labtitle">같은 외란 위에서 규칙만 바꿔 다시 돌린 결과</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> λ 를 0.1 로 내렸을 때 곡선이 얼마나 부드러워지지만 표류에 늦게 따라붙는지, λ 를 1 로 올렸을 때 곡선이 얼마나 거칠어지는지, 그 가운데 어디가 spec 밖 턴 수가 가장 적은지 보십시오.</div>
+  <div class="ctrl"><label for="sLam4">이득 λ</label><input type="range" id="sLam4" min="0.05" max="1" step="0.05" value="0.8"><output id="sLam4o"></output></div>
+  <div class="row"><button class="btn ghost" id="rLam4" type="button">λ 를 기본값으로 되돌리기</button></div>
+  <div class="state" id="stLam4"></div>
+  <canvas id="cvY4"></canvas>
+  <canvas id="cvU4"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>보정 없음 (되살린 외란)</span><span><i class="dot" style="background:var(--c8)"></i>사람 방식 (1절의 기록)</span><span><i class="dot" style="background:var(--accent)"></i>EWMA</span></div>
+  <div class="readout" id="ro4"></div>
+  <div class="tbwrap"><table class="mt num" id="tab4"></table></div>
+  <div class="labtitle" style="margin-top:.8rem">시드 <span data-v="nseed"></span>개에서의 같은 비교 (λ 는 기본값, 교체 알림 켬)</div>
+  <div class="tbwrap"><table class="mt num" id="tab4b"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<div class="qna" data-label="λ 를 크게 하면 빨리 맞지 않나요?" data-q="λ 를 크게 하면 빨리 맞지 않나요?">
+  <p><b>표류를 따라가는 속도는 빨라지지만 잡음도 그만큼 따라갑니다.</b> 4절 슬라이더로 λ 를 1 쪽으로 올리면 외란의 변화에는 빨리 붙는 대신 보정값이 턴마다 크게 흔들리는 것을 볼 수 있습니다. 어느 쪽이 이기는지는 공장에 달려 있습니다. 5절에서 표류가 클수록 좋은 λ 가 커지고 측정 잡음이 클수록 작아지는 것을 확인합니다. 그리고 λ 를 키울 때는 반드시 공정 이득의 불일치(6절)를 같이 점검합니다. λ 와 이득의 곱이 2 를 넘으면 보정이 발산합니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>좋은 λ 는 무엇에 따라 달라지나 — 표류와 잡음</h2>
+<p>4절의 곡선에서 λ 를 바꾸면 RMS 가 어느 쪽으로 움직이는지는 보았습니다. 그러면 가장 낮은 점은 공장이 달라질 때 어디로 옮겨 갑니까? 두 가지를 따로 바꿔 봅니다. 하나는 표류의 크기(마모와 온도의 느린 상승 속도를 배수로 바꿈)이고, 다른 하나는 2절의 측정 잡음입니다. 시드 <span data-v="nseed"></span>개마다 RMS 를 재어 중앙값이 가장 낮은 λ 를 고릅니다. 이 기록 한 벌에서도 되살린 외란의 직선 기울기를 배수로 바꿔 같은 일을 해 봅니다(기울기만 키우고 나머지 요동은 그대로 둡니다).</p>
+<div class="lab">
+  <div class="labtitle">표류 배수에 따른 λ 별 RMS (시드 <span data-v="nseed"></span>개 중앙값, 그리고 이 기록)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 표류 배수를 0 에서 4 로 올릴 때 가장 낮은 점이 어느 λ 로 가는지, 이 기록 한 벌의 가장 낮은 점이 시드 분포와 같은 방향인지 보십시오.</div>
+  <div class="ctrl"><label for="sM5">표류 배수 (마모·온도 상승 속도의 몇 배)</label><input type="range" id="sM5" min="0" max="5" step="1" value="2"><output id="sM5o"></output></div>
+  <div class="row"><button class="btn ghost" id="rM5" type="button">표류 배수를 기본값으로 되돌리기</button></div>
+  <div class="state" id="stM5"></div>
+  <canvas id="cvDr5"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>시드 <span data-v="nseed"></span>개 RMS 중앙값</span><span><i class="dot" style="background:var(--c10)"></i>이 기록 (되살린 외란)</span><span><i class="dot" style="background:var(--warn)"></i>각각의 가장 낮은 점</span></div>
+  <div class="readout" id="ro5"></div>
+  <div class="tbwrap"><table class="mt num" id="tab5"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>공정 이득을 잘못 알면 — 모델 불일치 비</h2>
+<p>지금까지 제어기는 b 를 믿고 계산했고, 되살린 외란 위의 공정은 β̂ 로 움직였습니다. 두 값이 어긋나면 어떻게 될까요? 어긋남을 하나의 숫자로 부르려고 <b>모델 불일치 비(model mismatch ratio)</b> ξ = β / b 를 씁니다. 1 이면 제어기가 공정을 정확히 알고 있다는 뜻이고, ξ 가 1 보다 크면 보정이 믿은 것보다 더 세게 먹히며, 1 보다 작으면 덜 먹힙니다.</p>
+<div class="eq">
+  <span class="eqlab">모델 불일치 비</span>
+  <math display="block"><mrow><mi>&#x03BE;</mi><mo>=</mo><mfrac><mi>&#x03B2;</mi><mi>b</mi></mfrac></mrow></math>
+  <span class="note">β 는 공정의 실제 이득, b 는 제어기가 믿는 이득입니다. 이 장의 슬라이더 ξ 는 b 를 고정하고 공정이 받아들이는 이득을 ξ·b 로 두어 보는 가정입니다(가정 이득).</span>
+</div>
+<div class="lab">
+  <div class="labtitle">같은 외란, 같은 λ 에서 공정 이득을 바꿔 본 결과</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> ξ 를 1 에서 키울 때 곡선이 어느 값에서 진동하기 시작하는지, 진동이 서서히 줄어드는지 커지는지 보십시오. ξ 를 0.3 쪽으로 내리면 어떻게 달라지는지도 보십시오.</div>
+  <div class="ctrl"><label for="sLam6">이득 λ</label><input type="range" id="sLam6" min="0.05" max="1" step="0.05" value="0.8"><output id="sLam6o"></output></div>
+  <div class="ctrl"><label for="sXi6">모델 불일치 비 ξ</label><input type="range" id="sXi6" min="0.3" max="2.5" step="0.01" value="0.97"><output id="sXi6o"></output></div>
+  <div class="row"><button class="btn ghost" id="rXi6" type="button">λ 와 ξ 를 기본값으로 되돌리기</button></div>
+  <div class="state" id="stXi6"></div>
+  <canvas id="cvXi6"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>EWMA 가 만든 y</span><span><i class="dot" style="background:var(--grey)"></i>보정 없음 (되살린 외란)</span></div>
+  <div class="readout" id="ro6"></div>
+  <div class="tbwrap"><table class="mt num" id="tab6"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<p>기본값 ξ̂ 는 3절의 β̂ 에서 온 것입니다. 이것은 사람 방식의 기록에서 읽은 값이라 어긋남이 있을 수 있으므로, 실제로는 따로 재어야 합니다(Q&amp;A). 그보다 중요한 질문은 어긋남이 얼마까지 허용되는가입니다. 다음 절에서 λ 와 ξ 의 모든 조합에 대해 발산하는지를 한꺼번에 봅니다.</p>
+<div class="qna" data-label="공정 이득은 어떻게 재나요?" data-q="공정 이득은 어떻게 재나요?">
+  <p><b>보정값을 일부러 조금 흔든 기록이 가장 믿을 만합니다.</b> 이 기록처럼 사람이 오차를 보고 보정한 자료는 보정값이 잡음과 얽혀 있어서 β̂ 가 실제보다 크게 나오는 쪽으로 어긋날 수 있습니다(14절에서 숨은 값과 견줍니다). 공정을 만지는 권한이 있다면 몇 턴 동안 외란과 무관하게 정한 작은 보정값(예를 들어 ±0.3 ppm 을 번갈아)을 넣고, 그 뒤 잰 값의 변화를 보정값에 맞춰 기울기를 읽습니다. 이 방법은 다음 실험실(0604)에서 과거 기록으로 새 규칙을 평가할 때 &lsquo;무엇을 기록해야 하는가&rsquo;와 이어집니다. 어떤 방법이든 β̂ 와 표준오차를 함께 적고, 보정 규칙의 이득 λ 는 β̂ 가 실제의 두 배쯤 틀려도 발산하지 않는 범위에서 고릅니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>안정 영역 — λ 와 ξ 가 어디까지 허용되나</h2>
+<p>발산하는지는 외란과 무관하게 규칙과 공정만으로 정해집니다. 외란을 0 으로 두고 4절의 식을 이어 쓰면 추정 a 의 갱신이 한 줄로 정리됩니다.</p>
+<div class="eq">
+  <span class="eqlab">외란 추정의 갱신 — 한 턴마다 곱해지는 몫</span>
+  <math display="block"><mrow><msub><mi>a</mi><mi>t</mi></msub><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>&#x2212;</mo><mi>&#x03BB;</mi><mi>&#x03BE;</mi><mo stretchy="false">)</mo><msub><mi>a</mi><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo>+</mo><mi>&#x03BB;</mi><mo stretchy="false">(</mo><msub><mi>d</mi><mi>t</mi></msub><mo>+</mo><msub><mi>&#x03B5;</mi><mi>t</mi></msub><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">y = β u + d + ε 에 u = −a/b 를 넣으면 z = y − b u = (β − b) u + d + ε = d + ε − (ξ − 1) a 이고, 이를 EWMA 에 넣으면 위 식이 됩니다. 외란이 없으면 a 는 한 턴마다 (1 − λξ) 배가 됩니다.</span>
+</div>
+<p>한 턴마다 곱해지는 몫의 크기가 1 보다 작으면 줄어들고 크면 커집니다. 곱하는 몫 1 − λξ 가 −1 과 1 사이일 때가 발산하지 않는 때입니다. 이것이 <b>안정 영역(stability region)</b> 입니다. 보정이 발산하지 않는 (λ, ξ) 의 범위를 말합니다.</p>
+<div class="eq">
+  <span class="eqlab">안정 영역</span>
+  <math display="block"><mrow><mn>0</mn><mo>&lt;</mo><mi>&#x03BB;</mi><mi>&#x03BE;</mi><mo>&lt;</mo><mn>2</mn></mrow></math>
+  <span class="note">경계 λξ = 2 에서는 한 턴마다 부호만 바뀌며 크기가 변하지 않아 영원히 진동합니다. λ 는 0 과 1 사이의 평활 계수라 ξ 가 2 를 넘을 때부터 경계가 보입니다.</span>
+</div>
+<p>식이 맞는지 확인합니다. 외란과 잡음이 0 이고 추정이 1 로 시작할 때 200 턴 뒤의 |a| 가 처음보다 작으면 수렴, 크면 발산으로 세어, 칸마다 이론 판정(위 부등식)과 견줍니다.</p>
+<div class="lab">
+  <div class="labtitle">(λ, ξ) 의 안정 지도 — 실제로 돌려 본 판정과 이론 경계</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 초록(수렴) 영역과 빨강(발산) 영역의 경계가 점선(λξ = 2)과 겹치는지, 슬라이더의 현재 (λ, ξ) 점이 어느 쪽에 있는지, 경계에 가까울수록 외란 위의 곡선이 얼마나 오래 진동하는지(6절) 보십시오.</div>
+  <div class="ctrl"><label for="sLam7">이득 λ</label><input type="range" id="sLam7" min="0.05" max="1" step="0.05" value="0.8"><output id="sLam7o"></output></div>
+  <div class="ctrl"><label for="sXi7">모델 불일치 비 ξ</label><input type="range" id="sXi7" min="0.3" max="2.5" step="0.01" value="0.97"><output id="sXi7o"></output></div>
+  <div class="row"><button class="btn ghost" id="rXi7" type="button">λ 와 ξ 를 기본값으로 되돌리기</button></div>
+  <div class="state" id="stXi7"></div>
+  <canvas id="cvMap7"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--good)"></i>수렴 (실측)</span><span><i class="dot" style="background:var(--bad)"></i>발산 (실측)</span><span><i class="dot" style="background:var(--warn)"></i>경계 (크기 불변)</span><span><i class="dot" style="background:var(--ink)"></i>현재 (λ, ξ)</span></div>
+  <div class="readout" id="ro7"></div>
+  <div class="tbwrap"><table class="mt num" id="tab7"></table></div>
+  <div class="concl" id="conc7"></div>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>표류가 계속될 때 남는 늦음 — 잔류 오프셋</h2>
+<p>EWMA 는 지난 값을 평균하므로 외란이 계속 한쪽으로 밀리면 따라가는 추정이 늘 조금 뒤처집니다. <b>잔류 오프셋(steady-state offset)</b> 은 표류가 계속될 때 EWMA 보정이 끝내 남기는 일정한 늦음입니다. 외란이 턴마다 s ppm 씩 직선으로 밀릴 때 오차 y 에 남는 값은 다음과 같습니다.</p>
+<div class="eq">
+  <span class="eqlab">잔류 오프셋</span>
+  <math display="block"><mrow><msub><mi>y</mi><mi>&#x221E;</mi></msub><mo>=</mo><mfrac><mi>s</mi><mrow><mi>&#x03BB;</mi><mi>&#x03BE;</mi></mrow></mfrac><mo>=</mo><mi>s</mi><mo>&#x00B7;</mo><mfrac><mrow><mn>1</mn><mo>&#x2212;</mo><mi>&#x03BB;</mi></mrow><mi>&#x03BB;</mi></mfrac><mo>+</mo><mi>s</mi><mspace width="1em"></mspace><mo stretchy="false">(</mo><mi>&#x03BE;</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">앞 항 s(1−λ)/λ 는 EWMA 가 직선 표류를 따라갈 때의 추정의 늦음이고, 뒤 항 s 는 이번 턴에 잰 값으로 다음 턴 보정을 정하는 데 걸리는 한 턴의 지연입니다.</span>
+</div>
+<p>식은 s 를 곱하는 몫이므로, s 가 작아도 λ 가 작으면 늦음이 커집니다. 직선 표류와 잡음 없는 가상 외란에서 돌려 식과 맞는지 확인하고, 이 기록에서 읽은 표류 기울기도 넣어 봅니다.</p>
+<div class="lab">
+  <div class="labtitle">직선으로 밀리는 외란 위의 EWMA — 실제로 남는 오프셋과 식</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> λ 를 낮출수록 마지막에 남는 간격이 어떻게 커지는지, 표에서 식의 값과 돌려 본 값이 같은지, ξ 를 1 에서 움직이면 오프셋이 어떻게 달라지는지 보십시오.</div>
+  <div class="ctrl"><label for="sLam8">이득 λ</label><input type="range" id="sLam8" min="0.05" max="1" step="0.05" value="0.8"><output id="sLam8o"></output></div>
+  <div class="ctrl"><label for="sXi8">모델 불일치 비 ξ</label><input type="range" id="sXi8" min="0.3" max="2.5" step="0.01" value="0.97"><output id="sXi8o"></output></div>
+  <div class="ctrl"><label for="sS8">표류 기울기 s (ppm/턴)</label><input type="range" id="sS8" min="-0.15" max="0" step="0.005" value="-0.07"><output id="sS8o"></output></div>
+  <div class="row"><button class="btn ghost" id="rS8" type="button">λ·ξ·표류 기울기를 기본값으로 되돌리기</button></div>
+  <div class="state" id="stS8"></div>
+  <canvas id="cvOff8"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>외란 d (직선)</span><span><i class="dot" style="background:var(--accent)"></i>EWMA 가 만든 y</span></div>
+  <div class="readout" id="ro8"></div>
+  <div class="tbwrap"><table class="mt num" id="tab8"></table></div>
+  <div class="concl" id="conc8"></div>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>마스크를 바꾸면 — 계단 외란과 리셋</h2>
+<p>마스크를 바꾸는 턴에는 외란이 계단처럼 한 번에 뜁니다(새 마스크의 제작 오프셋이 옛 마스크와 다르기 때문입니다). EWMA 의 추정 a 는 옛 마스크의 외란을 담고 있어서, 계단 뒤에 추정이 새 값에 닿을 때까지 오차가 남습니다. <b>교체 알림</b>은 마스크를 바꾼 턴을 제어기에 알려 주는 것으로, 그 턴에는 추정을 평균하지 않고 그 턴의 값으로 다시 시작(리셋)합니다. 0602 에서 세정액 교체일에 칼만 추정을 다시 시작한 것과 같은 생각입니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 교체 전후 — 교체 알림을 켜고 끄기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 교체한 턴 뒤 몇 턴 동안 오차가 spec 밖에 머무는지, 교체 알림을 끄면 그 시간이 얼마나 길어지는지, λ 를 0.2 쪽으로 내리면 그 차이가 어떻게 커지는지 보십시오.</div>
+  <div class="ctrl"><label for="sLam9">이득 λ</label><input type="range" id="sLam9" min="0.05" max="1" step="0.05" value="0.8"><output id="sLam9o"></output></div>
+  <label class="chk"><input type="checkbox" id="ckReset9" checked> 마스크 교체를 알려 준다 (그 턴에 추정을 다시 시작)</label>
+  <div class="row"><button class="btn ghost" id="rRst9" type="button">λ 와 교체 알림을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stRst9"></div>
+  <canvas id="cvRep9"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>지금 설정의 y</span><span><i class="dot" style="background:var(--grey)"></i>반대 설정 (알림을 껐다면 켠 것, 켰다면 끈 것)</span></div>
+  <div class="readout" id="ro9"></div>
+  <div class="tbwrap"><table class="mt num" id="tab9"></table></div>
+  <div class="concl" id="conc9"></div>
+</div>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>착지 — 처음 물음에 숫자로 답합니다</h2>
+<p>맨 앞의 물음으로 돌아옵니다. <b>&ldquo;보정값을 턴마다 자동으로 정하는 규칙으로 바꾸면 spec 밖 턴이 얼마나 줄고, 그 규칙을 어떤 조건에서 믿어도 됩니까?&rdquo;</b></p>
+<div class="concl" id="conc10"></div>
+<div class="cols3">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">사람</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>λ 의 상한과 보정값의 상한, 사람을 부르는 조건을 정하고 승인합니다</li><li>공정 이득을 따로 재는 일(보정값을 일부러 조금 흔든 기록)을 계획합니다</li><li>마스크 교체·리페어 시각을 기록에 남깁니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">규칙</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>λ·ξ 의 곱이 1 을 넘는 설정은 쓰지 않습니다(안정 영역 안에 여유를 둡니다)</li><li>마스크 교체나 리페어 기록이 생기면 그 턴에 추정을 다시 시작합니다</li><li>한 번에 넣는 보정값에 상한을 둡니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">에이전트</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>매 턴 잰 값으로 추정을 갱신하고 다음 턴 보정값을 계산합니다</li><li>보정값의 출렁임과 누적 보정량을 감시해 한도를 넘으면 사람을 부릅니다</li><li>운영표 초안과 한 주 요약을 씁니다(사실 목록 방식, 0411)</li></ul></div>
+</div>
+<p><b>0604 로 가는 다리.</b> 보정 규칙을 바꾸기 전에 지난 기록으로 새 규칙의 효과를 미리 재어 보고 싶다면 이 실험실의 되살리기가 그 첫 형태입니다. 그러나 되살린 외란은 공정 이득의 추정에 달려 있고, 지난 기록에 보정값과 그 뒤의 값이 같은 키로 남아 있어야만 가능합니다. 다음 실험실은 이 질문을 더 일반적으로, 지난 로그로 새 규칙의 효과를 치우침 없이 추정하는 조건으로 확장합니다.</p>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>현장에서 환산하면</h2>
+<p>spec 밖인 턴의 유리는 쓸 수 없다고 가정합니다. 한 턴은 챔버 한 곳이 마스크 한 장으로 만드는 유리 <span data-v="nglass"></span>장이므로, 사람 방식에서 EWMA 로 바꿔 줄어든 spec 밖 턴 수에 <span data-v="nglass"></span>장을 곱해 환산합니다. 값은 마스크 한 장(<span data-v="nt"></span>턴)의 수명 동안입니다.</p>
+<div class="lab">
+  <div class="labtitle">spec 밖 턴의 감소와 유리 장수 (λ·ξ 는 4절의 값)</div>
+  <div class="state" id="st11"></div>
+  <div class="tbwrap"><table class="mt num" id="tab11"></table></div>
+  <div class="concl" id="conc11"></div>
+</div>
+<p class="note">이 값은 가상 공장의 장수입니다. 회사에서는 같은 식에 유리 한 장의 생산 손실 단가를 곱해 금액으로 적고, 마스크를 한 달에 몇 장 쓰는지로 곱해 월 환산합니다. spec 밖 유리를 전부 버린다는 가정은 보수적이거나 낙관적일 수 있으니 실제 처리 규칙으로 바꿔 넣습니다.</p>
+
+<!-- ===================== 12 ===================== -->
+<h2><span class="no">12</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy</code>·<code>pandas</code> 만 씁니다. 입력은 아래 CSV 세 개이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 <code>s19_r2r.csv</code> 자리에 같은 열(턴·잰 값·넣은 보정값·교체 표시)을 가진 자기 기록을 넣습니다.</p>
+<div class="row"><a class="btn" href="../data/csv/s19_r2r.csv" download>s19_r2r.csv</a><a class="btn" href="../data/csv/s19_seed_summary.csv" download>s19_seed_summary.csv</a><a class="btn" href="../data/csv/s19_lambda_sweep.csv" download>s19_lambda_sweep.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 보정값을 기록하지 않은 채 제어의 효과를 말하지 마십시오(보정을 뺀 외란을 되살릴 수 없습니다). ξ 를 확인하지 않고 λ 를 키우지 마십시오(λ 와 ξ 의 곱이 2 에 가까워지면 진동합니다). 이득 추정 β̂ 를 사람이 잰 값으로 보정한 기록 하나에서만 읽고 확정하지 마십시오(어긋남이 있습니다). 마스크를 바꾼 턴을 알리지 않은 채 작은 λ 를 쓰지 마십시오.</p>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+
+# ---- 가정·설정: 회사 값으로 바꿀 곳 --------------------------------------------------
+LAM = 0.8              # EWMA 이득 λ (0 &lt; λ ≤ 1): 시드 200개의 RMS 중앙값이 가장 작은 값
+B = 1.0                # 제어기가 믿는 공정 이득 b (보정 1 ppm 이 배율 1 ppm 을 움직인다고 봄)
+TARGET = 0.0           # 목표 배율 오차(ppm)
+LIMIT = 0.5            # spec: 목표에서 ±LIMIT ppm
+HUMAN_THR = 0.5        # 사람 방식: 잰 값의 크기가 이 문턱을 넘은 턴에만 그만큼 한 번 보정
+LAM_SLOW = 0.2         # 느린 λ (교체 알림의 효과를 보려는 비교용)
+GLASS_PER_TURN = 120   # 한 턴의 유리 장수(spec 밖인 턴의 유리를 버린다는 가정)
+
+def ewma_r2r(y_meas, b, lam, target=TARGET, resets=()):
+    """권고한 보정값을 그대로 썼다고 보고, 턴마다 잰 y 로 외란 추정 a 를 갱신해 다음 턴 보정값을 낸다.
+    resets = 추정을 그 턴의 값으로 다시 시작할 턴 번호(0 부터, 마스크를 바꾼 턴).
+    반환 (u, a, u_next): u[t] = t 턴에 쓰인 보정값, a[t] = t 턴을 잰 뒤의 외란 추정, u_next = 다음 턴에 넣을 보정값."""
+    u, a, ah, cur = [], [], 0.0, 0.0
+    for t, y in enumerate(y_meas):
+        u.append(cur)
+        z = y - b * cur                       # 이번 턴에 보정이 설명하지 못한 몫 = 외란 + 잡음 (+ 이득 어긋남)
+        ah = z if t in resets else lam * z + (1 - lam) * ah
+        a.append(ah)
+        cur = (target - ah) / b
+    return np.array(u), np.array(a), cur
+
+def r2r_stability(lams, xis, turns=200):
+    """외란 0·잡음 0 에서 추정 a 를 1 로 시작해 turns 턴 뒤 |a| 를 잰다. 1 보다 크면 발산, 작으면 수렴."""
+    out = np.empty((len(lams), len(xis)))
+    for i, lam in enumerate(lams):
+        for j, xi in enumerate(xis):
+            a = 1.0
+            cur = -a
+            for _ in range(turns):
+                y = xi * cur                  # 공정 이득 = ξ·b (b = 1)
+                a = lam * (y - cur) + (1 - lam) * a
+                cur = -a
+            out[i, j] = abs(a)
+    return out
+
+def drift_scale(d, rep, m):
+    """외란을 마스크 구간별 직선(기울기 γ)과 나머지로 나누어 직선 기울기만 m 배로 한다: d' = d + (m−1)·γ·(구간 안 위치)."""
+    out = d.copy()
+    for a, b in ((0, rep), (rep, len(d))):
+        x = np.arange(b - a)
+        g = np.polyfit(x, d[a:b], 1)[0]
+        out[a:b] = d[a:b] + (m - 1) * g * x
+    return out
+
+def r2r_replay(log, lam=LAM, xi=None, reset=True, method="ewma", drift_mult=1.0):
+    """사람 방식으로 운영한 기록 log(열 y_ppm·u_ppm·mask_replaced)로
+    (1) 공정 이득 β̂ 를 보정값이 바뀐 턴에서 읽고, (2) 보정을 뺀 외란 d̂ = y − β̂·u 를 되살려,
+    (3) 같은 외란 위에서 다른 규칙(method: none · human · ewma)을 다시 돌린다. xi = 가정 이득 / b (None 이면 β̂/B)."""
+    y, u, mr = log["y_ppm"].to_numpy(float), log["u_ppm"].to_numpy(float), log["mask_replaced"].to_numpy()
+    rep = int(np.flatnonzero(mr)[0])
+    keep = mr[1:] == 0                         # 마스크를 바꾼 턴의 Δy 는 계단이라 뺀다
+    du, dy = np.diff(u)[keep], np.diff(y)[keep]
+    sxx = ((du - du.mean()) ** 2).sum()
+    beta = ((du - du.mean()) * (dy - dy.mean())).sum() / sxx
+    rss = (((dy - dy.mean()) - beta * (du - du.mean())) ** 2).sum()
+    se = float(np.sqrt(rss / (len(du) - 2) / sxx))
+    d = drift_scale(y - beta * u, rep, drift_mult)
+    gain = (beta / B if xi is None else xi) * B
+    cur, ah, yy, uu = 0.0, 0.0, [], []
+    for t in range(len(d)):
+        uu.append(cur)
+        yt = gain * cur + d[t]
+        yy.append(yt)
+        if method == "human":
+            if abs(yt - TARGET) &gt; HUMAN_THR:
+                cur = cur - (yt - TARGET) / B
+        elif method == "ewma":
+            z = yt - B * cur
+            ah = z if (reset and t == rep) else lam * z + (1 - lam) * ah
+            cur = (TARGET - ah) / B
+    return {"beta": float(beta), "se": se, "njump": int((np.abs(du) &gt; 1e-12).sum()), "d": d, "y": np.array(yy), "u": np.array(uu), "rep": rep}
+
+def rms(y):
+    return float(np.sqrt(np.mean(np.square(y))))
+
+def n_out(y):
+    return int((np.abs(y) &gt; LIMIT).sum())
+
+def offset_run(lam, xi, s, turns=400):
+    """직선으로 밀리는 외란 d_t = s·t 위에서 turns 턴 돌린 뒤의 y(잔류 오프셋). 식: s/(λξ)."""
+    d = s * np.arange(1, turns + 1)
+    cur, ah, y = 0.0, 0.0, 0.0
+    for t in range(turns):
+        y = xi * B * cur + d[t]
+        ah = lam * (y - B * cur) + (1 - lam) * ah
+        cur = (TARGET - ah) / B
+    return y
+
+if __name__ == "__main__":
+    log = pd.read_csv("s19_r2r.csv")
+    seeds = pd.read_csv("s19_seed_summary.csv")
+    sweep = pd.read_csv("s19_lambda_sweep.csv")
+    y, u = log["y_ppm"].to_numpy(), log["u_ppm"].to_numpy()
+    rep = int(np.flatnonzero(log["mask_replaced"])[0])
+    print("사람 방식 기록: %d턴 · RMS %.3f ppm · spec(±%.1f) 밖 %d턴 · 보정한 턴 %d번 · 마스크 교체 %d턴" % (len(y), rms(y), LIMIT, n_out(y), int((np.abs(np.diff(u)) &gt; 1e-9).sum()), rep + 1))
+    r = r2r_replay(log, LAM)
+    print("공정 이득 추정: β̂ = %.3f (표준오차 %.3f, 보정값이 바뀐 턴 %d개) → ξ̂ = β̂/b = %.2f" % (r["beta"], r["se"], r["njump"], r["beta"] / B))
+    xi0 = round(r["beta"] / B, 2)
+    h, n, e = r2r_replay(log, xi=xi0, method="human"), r2r_replay(log, xi=xi0, method="none"), r2r_replay(log, LAM, xi0)
+    h0 = r2r_replay(log, method="human")
+    print("같은 외란 위에서 사람 방식을 다시 돌린 y 와 기록의 y 의 최대 차이: %.1e ppm" % np.abs(h0["y"] - y).max())
+    print("되살린 외란 위(ξ = %.2f): 보정 없음 RMS %.3f · spec 밖 %d턴 / 사람 방식 RMS %.3f · %d턴 / EWMA(λ = %.2f) RMS %.3f · %d턴" % (xi0, rms(n["y"]), n_out(n["y"]), rms(h["y"]), n_out(h["y"]), LAM, rms(e["y"]), n_out(e["y"])))
+    u2, a2, un = ewma_r2r(e["y"], B, LAM, TARGET, resets={e["rep"]})
+    print("ewma_r2r 가 같은 y 에서 다시 만든 보정값과 되살린 닫힌 고리의 보정값의 최대 차이: %.1e ppm · 다음 턴 보정값 %+.3f ppm" % (np.abs(u2 - e["u"]).max(), un))
+    print("λ 별 RMS(되살린 외란, ξ = %.2f): " % xi0 + " · ".join("%.1f → %.3f" % (l, rms(r2r_replay(log, l, xi0)["y"])) for l in (0.1, 0.3, 0.5, 0.8, 1.0)))
+    for m in (0, 1, 2, 4):
+        rr = [rms(r2r_replay(log, l, xi0, drift_mult=m)["y"]) for l in np.round(np.arange(1, 21) * 0.05, 2)]
+        print("이 기록의 가장 낮은 λ (표류 × %d): %.2f (RMS %.3f)" % (m, (np.argmin(rr) + 1) * 0.05, min(rr)))
+    lams, xis = np.arange(1, 21) / 20, np.arange(3, 31) / 10
+    g = r2r_stability(lams, xis)
+    meas = np.where(g &gt; 1 + 1e-6, 1, np.where(g &lt; 1 - 1e-6, -1, 0))
+    prod = np.outer(lams, xis)
+    theo = np.where(prod &gt; 2 + 1e-9, 1, np.where(prod &lt; 2 - 1e-9, -1, 0))
+    print("안정 지도 %d칸: 수렴 %d · 발산 %d · 경계 %d · 이론(0&lt;λξ&lt;2)과 다른 칸 %d" % (meas.size, (meas &lt; 0).sum(), (meas &gt; 0).sum(), (meas == 0).sum(), (meas != theo).sum()))
+    for lam, xi, s in ((0.3, 1.0, -0.046), (0.3, 0.8, -0.046), (0.5, 1.0, -0.046), (0.8, 0.97, -0.045)):
+        print("잔류 오프셋 s = %+.3f, λ = %.1f, ξ = %.2f: 돌려 본 값 %+.4f · 식 s/(λξ) = %+.4f ppm" % (s, lam, xi, offset_run(lam, xi, s), s / (lam * xi)))
+    lam_def = LAM
+    print("시드 %d개 중앙값 RMS: 보정 없음 %.3f · 사람 %.3f · EWMA(λ = %.1f) %.3f / spec 밖 턴: %.1f · %.1f · %.1f" % (len(seeds), seeds["rms_none"].median(), seeds["rms_human"].median(), lam_def, seeds["rms_ewma"].median(), seeds["oos_none"].median(), seeds["oos_human"].median(), seeds["oos_ewma"].median()))
+    d_oos = seeds["oos_human"] - seeds["oos_ewma"]
+    print("EWMA 가 사람 방식보다 spec 밖 턴이 적은 시드 %d · 같은 시드 %d · 많은 시드 %d · 줄어든 턴 중앙값 %.1f턴 = 유리 %d장" % ((d_oos &gt; 0).sum(), (d_oos == 0).sum(), (d_oos &lt; 0).sum(), d_oos.median(), round(d_oos.median() * GLASS_PER_TURN)))
+    parts = []
+    for m in (0, 0.5, 1, 2, 3, 4):
+        sub = sweep[(sweep["axis"] == "drift") &amp; (sweep["value"] == m)]
+        parts.append("× %g → %.2f" % (m, sub.loc[sub["rms_p50"].idxmin(), "lam"]))
+    print("시드 중앙값의 가장 낮은 λ (표류 배수): " + " · ".join(parts))
+    parts = []
+    for k in (0.5, 1, 2, 4):
+        sub = sweep[(sweep["axis"] == "noise") &amp; (sweep["value"] == k)]
+        parts.append("× %g → %.2f" % (k, sub.loc[sub["rms_p50"].idxmin(), "lam"]))
+    print("시드 중앙값의 가장 낮은 λ (측정 잡음 배수): " + " · ".join(parts))
+    print("교체 알림 켬 대 끔(시드 중앙값 spec 밖 턴): λ = %.1f %.1f 대 %.1f · λ = %.1f %.1f 대 %.1f" % (LAM, seeds["oos_ewma"].median(), seeds["oos_ewma_nr"].median(), LAM_SLOW, seeds["oos_slow"].median(), seeds["oos_slow_nr"].median()))</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 세 개와 같은 폴더에서 <code>python3 lab0603.py</code> 로 돌렸고, 위 1~9절의 숫자와 같은 값이 나옵니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">사람 방식 기록: 60턴 · RMS 0.350 ppm · spec(±0.5) 밖 9턴 · 보정한 턴 9번 · 마스크 교체 37턴
+공정 이득 추정: β̂ = 0.970 (표준오차 0.152, 보정값이 바뀐 턴 8개) → ξ̂ = β̂/b = 0.97
+같은 외란 위에서 사람 방식을 다시 돌린 y 와 기록의 y 의 최대 차이: 9.7e-05 ppm
+되살린 외란 위(ξ = 0.97): 보정 없음 RMS 1.514 · spec 밖 47턴 / 사람 방식 RMS 0.350 · 9턴 / EWMA(λ = 0.80) RMS 0.306 · 5턴
+ewma_r2r 가 같은 y 에서 다시 만든 보정값과 되살린 닫힌 고리의 보정값의 최대 차이: 0.0e+00 ppm · 다음 턴 보정값 +3.231 ppm
+λ 별 RMS(되살린 외란, ξ = 0.97): 0.1 → 0.543 · 0.3 → 0.369 · 0.5 → 0.321 · 0.8 → 0.306 · 1.0 → 0.313
+이 기록의 가장 낮은 λ (표류 × 0): 0.90 (RMS 0.475)
+이 기록의 가장 낮은 λ (표류 × 1): 0.80 (RMS 0.306)
+이 기록의 가장 낮은 λ (표류 × 2): 0.75 (RMS 0.421)
+이 기록의 가장 낮은 λ (표류 × 4): 0.80 (RMS 0.999)
+안정 지도 560칸: 수렴 513 · 발산 45 · 경계 2 · 이론(0&lt;λξ&lt;2)과 다른 칸 0
+잔류 오프셋 s = -0.046, λ = 0.3, ξ = 1.00: 돌려 본 값 -0.1533 · 식 s/(λξ) = -0.1533 ppm
+잔류 오프셋 s = -0.046, λ = 0.3, ξ = 0.80: 돌려 본 값 -0.1917 · 식 s/(λξ) = -0.1917 ppm
+잔류 오프셋 s = -0.046, λ = 0.5, ξ = 1.00: 돌려 본 값 -0.0920 · 식 s/(λξ) = -0.0920 ppm
+잔류 오프셋 s = -0.045, λ = 0.8, ξ = 0.97: 돌려 본 값 -0.0580 · 식 s/(λξ) = -0.0580 ppm
+시드 200개 중앙값 RMS: 보정 없음 1.357 · 사람 0.350 · EWMA(λ = 0.8) 0.296 / spec 밖 턴: 47.5 · 8.0 · 5.0
+EWMA 가 사람 방식보다 spec 밖 턴이 적은 시드 189 · 같은 시드 5 · 많은 시드 6 · 줄어든 턴 중앙값 4.0턴 = 유리 480장
+시드 중앙값의 가장 낮은 λ (표류 배수): × 0 → 0.80 · × 0.5 → 0.70 · × 1 → 0.80 · × 2 → 1.00 · × 3 → 1.00 · × 4 → 1.00
+시드 중앙값의 가장 낮은 λ (측정 잡음 배수): × 0.5 → 1.00 · × 1 → 0.80 · × 2 → 0.50 · × 4 → 0.40
+교체 알림 켬 대 끔(시드 중앙값 spec 밖 턴): λ = 0.8 5.0 대 5.0 · λ = 0.2 13.0 대 14.0</pre>
+
+<!-- ===================== 13 ===================== -->
+<h2><span class="no">13</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>보정 규칙 운영표</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 공장으로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>규칙을 라인에 쓰기 전에 λ·b 의 근거와 안정 여유와 보정 상한과 리셋 조건과 사람 개입 조건과 다음 점검일을 확인하고 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>턴마다 한 줄</b> — 마스크·턴·잰 배율 오차·그 턴에 넣은 보정값·누가(규칙인지 사람인지)·시각. 보정값과 잰 값을 같은 키로 둡니다.</li>
+      <li><b>사건</b> — 마스크 교체·리페어·챔버 PM 의 시각과 종류. 리셋 조건과 외란 되살리기의 근거입니다.</li>
+      <li><b>공정 이득 측정 기록</b> — 보정값을 일부러 조금 흔든 턴과 그 결과. β 를 확인하는 유일하게 믿을 만한 자료입니다.</li>
+      <li><b>보정값 누적량</b> — 마스크 한 장에서 보정값이 쌓인 크기. 마모 지표이자 리페어 시점의 단서입니다.</li>
+    </ul>
+    <p class="note" style="margin:.5rem 0 0">보정값을 기록하지 않으면 제어의 효과도, 공정이 원래 밀린 모습도 말할 수 없습니다. 회사 기록은 회사 안에만 둡니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0601 의 <code>twin_gap</code> 에서 승인 대기열까지 부르는 순서에 이 장의 함수가 들어옵니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+<div class="qna" data-label="PID 가 아닌 이유는 무엇인가요?" data-q="PID 가 아닌 이유는 무엇인가요?">
+  <p><b>PID 는 연속으로 움직이는 공정을 짧은 주기로 되먹임하는 방법이고, 이 공정은 한 번 돌려야 한 번 재는 이산 공정이기 때문입니다.</b> 한 턴에 하나씩 오는 측정으로 다음 턴 보정을 한 번 정하므로, 적분항 하나로 충분한 EWMA 형태가 가장 단순합니다(EWMA 는 적분 제어와 같은 꼴입니다). 비례항이나 미분항은 측정 잡음을 키울 뿐 이 공정에서 얻는 것이 적습니다. 다만 표류가 빠르면 EWMA 는 8절의 늦음을 남기므로, 그때는 이중 EWMA 나 칼만 필터처럼 기울기까지 추정하는 방법을 검토합니다.</p>
+</div>
+<div class="qna" data-label="보정이 리페어를 늦추지 않나요?" data-q="보정이 리페어를 늦추지 않나요?">
+  <p><b>보정이 마모를 가려서 리페어 시점을 놓칠 수는 있습니다.</b> 그래서 보정값의 누적량을 기록해 둡니다. 보정값이 마스크 한 장에서 쌓이는 크기가 곧 마모의 크기이므로, 0304 의 보정과 리페어 구분과 0306 의 한계 예측에 그 누적량을 넣어 읽습니다. 보정값이 상한에 가까워지면 규칙은 더 보정하지 않고 사람을 부르도록 둡니다. 보정이 가리는 것은 오차이고, 마모 자체는 누적 보정량에 그대로 남습니다.</p>
+</div>
+
+<!-- ===================== 14 ===================== -->
+<h2><span class="no">14</span>정답 열기</h2>
+<p>여기까지 실제 공정 이득은 숨겨져 있었습니다. 열기 전에 3절의 β̂ 가 실제와 얼마나 가까운지, 1~9절의 &lsquo;되살린 외란 위의 재실행&rsquo;이 실제 닫힌 고리의 결과와 얼마나 같은지 가늠해 보십시오.</p>
+<div class="lab">
+  <div class="row"><button class="btn" id="btnReveal" type="button" aria-expanded="false">정답 열기</button></div>
+  <div class="readout" id="roAns" hidden></div>
+  <div class="tbwrap"><table class="mt num" id="tabAns" hidden></table></div>
+  <div class="tbwrap"><table class="mt num" id="tabAns2" hidden></table></div>
+  <div class="concl" id="concAns" hidden></div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0602-twin-calibration.html">← 이전: 시뮬레이터를 실제에 맞추기</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/r2r06_tables.js"></script>
+<script src="../data/r2r06.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var R=R2R06,TAB=window.R2R06_TABLES,MS=MfgSim,LOG=TAB.log,SEEDS=TAB.seeds,SW=TAB.sweep;
+var LAMS=R.LAMS,N=LOG.length,LIM=R.LIMIT,NT=MS.CFG.N_TURN,DR=R.DRIFTS,NM=R.NOISE_MULTS,REP=TAB.rep;
+var REPI=0;LOG.forEach(function(r,i){if(r.replaced)REPI=i;});
+var GF=R.gainFit(LOG),BH=GF.beta,DH=R.replayD(LOG,BH),XI0=Math.round(BH*100)/100,LAM0=TAB.lam,MI0=DR.indexOf(1),NI0=NM.indexOf(1);
+var REC=SEEDS[REP-1],YL=LOG.map(function(r){return r.y;}),UL=LOG.map(function(r){return r.u;}),TURNS=LOG.map(function(r){return r.turn;});
+function slopeOf(a,b){var n=b-a,xb=(n-1)/2,yb=0,sxx=0,sxy=0,i;for(i=a;i<b;i++)yb+=DH[i];yb/=n;for(i=0;i<n;i++){sxx+=(i-xb)*(i-xb);sxy+=(i-xb)*(DH[a+i]-yb);}return sxy/sxx;}
+var S1=slopeOf(0,REPI),S2=slopeOf(REPI,N),S0=Math.round(S1/0.005)*0.005;
+var DEF={lam:LAM0,xi:XI0,ni:NI0,mi:MI0,rst:true,s:S0};
+var ST={lam:DEF.lam,xi:DEF.xi,ni:DEF.ni,mi:DEF.mi,rst:DEF.rst,s:DEF.s};
+var V={},CA={},REV=false;
+function $(id){return document.getElementById(id);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fm(x){return x!=null&&isFinite(x)?String(Math.floor(Math.abs(x)+0.5+1e-6)*(x<0?-1:1)).replace(/\B(?=(\d{3})+(?!\d))/g,',').replace('-','−'):'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1).replace('-','−'):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2).replace('-','−'):'—';}
+function f3(x){return x!=null&&isFinite(x)?x.toFixed(3).replace('-','−'):'—';}
+function fb(x){if(!isFinite(x))return '발산';return Math.abs(x)>=1000?x.toExponential(1).replace('e+','×10^').replace('-','−'):f3(x);}
+function sg(x,d){d=d==null?3:d;var r=Math.abs(x).toFixed(d);return (+r===0?'':(x>=0?'+':'−'))+r;}
+function q(a,p){return R.quantile(a,p);}
+function mean(a){return R.mean(a);}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?(typeof cls[i]==='function'?cls[i](c):cls[i]):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function lc(){return 'l';}
+function niceStep(range,n){var raw=range/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;return (r<=1?1:r<=2?2:r<=5?5:10)*mag;}
+function ticks(lo,hi,n){var st=niceStep(hi-lo||1,n),a=Math.ceil(lo/st-1e-9)*st,o=[];for(var v=a;v<=hi+1e-9;v+=st)o.push(Math.abs(v)<1e-9?0:v);return o;}
+function fmt(v){return Math.abs(v)>=100?String(Math.round(v)):(Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):v.toFixed(Math.abs(v)<1?2:1));}
+function nf(v){var s=fmt(v);return s.replace('-','−');}
+
+/* ---------- 그리기 도구 ---------- */
+function drawXY(cv,series,o){
+  var c=setup(cv,o.h||230),x=c.x,W=c.w,H=c.h,ml=o.ml||52,mr=22,mt=12,mb=36,pw=W-ml-mr,ph=H-mt-mb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var xl=o.xlo,xh=o.xhi,yl=o.ylo!=null?o.ylo:Infinity,yh=o.yhi!=null?o.yhi:-Infinity;
+  series.forEach(function(s){s.y.forEach(function(v){if(isFinite(v)){if(o.ylo==null&&v<yl)yl=v;if(o.yhi==null&&v>yh)yh=v;}});if(s.band)s.band.hi.forEach(function(v){if(o.yhi==null&&v>yh)yh=v;});if(s.band)s.band.lo.forEach(function(v){if(o.ylo==null&&v<yl)yl=v;});});
+  if(o.ylo==null&&yl>0&&!o.nozero)yl=0;if(yh<=yl)yh=yl+1;if(o.yhi==null)yh+=(yh-yl)*0.06;
+  function X_(v){return ml+pw*(v-xl)/(xh-xl);}function Y_(v){return mt+ph*(1-(v-yl)/(yh-yl));}
+  (o.bands||[]).forEach(function(b){x.fillStyle=b.col;x.globalAlpha=b.a||0.14;x.fillRect(X_(b.x0),mt,Math.max(1,X_(b.x1)-X_(b.x0)),ph);x.globalAlpha=1;});
+  ticks(yl,yh,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(nf(v*(o.yscale||1))+(o.ysuf||''),ml-6,Y_(v));});
+  (o.xticks||ticks(xl,xh,6)).forEach(function(v){x.fillStyle=soft;x.textAlign='center';x.fillText(nf(v),X_(v),mt+ph+14);});
+  if(o.xlab){x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab,ml+pw/2,mt+ph+28);}
+  (o.hlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||1.5;x.beginPath();x.moveTo(ml,Y_(v.y));x.lineTo(ml+pw,Y_(v.y));x.stroke();x.setLineDash([]);});
+  (o.vlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||2;x.beginPath();x.moveTo(X_(v.x),mt);x.lineTo(X_(v.x),mt+ph);x.stroke();x.setLineDash([]);});
+  x.save();x.beginPath();x.rect(ml-2,mt-4,pw+4,ph+8);x.clip();
+  series.forEach(function(s){
+    if(s.band){x.globalAlpha=s.band.a||0.16;x.fillStyle=s.band.col||s.col;x.beginPath();s.x.forEach(function(v,i){var px=X_(v),py=Y_(s.band.hi[i]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});for(var i=s.x.length-1;i>=0;i--)x.lineTo(X_(s.x[i]),Y_(s.band.lo[i]));x.closePath();x.fill();x.globalAlpha=1;}
+    x.globalAlpha=s.alpha==null?1:s.alpha;x.strokeStyle=s.col;x.lineWidth=s.lw||2;
+    if(!s.noline){x.beginPath();var st=false;s.x.forEach(function(v,i){if(!isFinite(s.y[i]))return;var px=X_(v),py=Y_(s.y[i]);if(!st){x.moveTo(px,py);st=true;}else x.lineTo(px,py);});x.stroke();}
+    if(s.dots){x.fillStyle=s.col;s.x.forEach(function(v,i){if(!isFinite(s.y[i]))return;x.beginPath();x.arc(X_(v),Y_(s.y[i]),s.dr||3.5,0,6.2832);x.fill();});}
+    (s.marks||[]).forEach(function(m){x.fillStyle=m.col||s.col;x.beginPath();x.arc(X_(m.x),Y_(m.y),m.r||6,0,6.2832);x.fill();x.strokeStyle=css('--card');x.lineWidth=2;x.stroke();});
+    x.globalAlpha=1;});
+  x.restore();
+  return {X_:X_,Y_:Y_,x:x,pw:pw,ph:ph,ml:ml,mt:mt};
+}
+var TX=[];for(var ti=1;ti<=N;ti++)TX.push(ti);
+var TXT=[1,10,20,30,40,50,60];
+function specLines(){return [{y:LIM,col:css('--warn')},{y:-LIM,col:css('--warn')},{y:0,col:css('--rule'),dash:false,lw:1}];}
+function yAxisOpt(extra){var o={xlo:1,xhi:N,xticks:TXT,xlab:'턴',hlines:specLines(),vlines:[{x:REPI+1,col:css('--good'),lw:1.5}]};for(var k in extra)o[k]=extra[k];return o;}
+function badPts(y){var xs=[],ys=[];y.forEach(function(v,i){if(Math.abs(v)>LIM){xs.push(i+1);ys.push(v);}});return {x:xs,y:ys,col:css('--bad'),noline:true,dots:true,dr:4.5};}
+
+/* ---------- 계산 묶음 ---------- */
+function dMul(mi){var k='d'+mi;return CA[k]||(CA[k]=R.driftScale(DH,REPI,DR[mi]));}
+function runE(lam,xi,rst,mi){var k='e'+lam+'|'+xi+'|'+rst+'|'+mi;return CA[k]||(CA[k]=R.replayRun(dMul(mi),REPI+1,'ewma',{beta:xi,lam:lam,reset:rst}));}
+function runH(){return CA.h||(CA.h=R.replayRun(DH,REPI+1,'human',{beta:BH}));}
+function runN(){return CA.n||(CA.n=R.replayRun(DH,REPI+1,'none',{}));}
+function stat(r){var m=R.metrics(r.y);return {rms:m.rms,oos:m.oos,wig:R.wiggle(r.u),maxu:Math.max.apply(null,r.u.map(Math.abs))};}
+function sweepRows(axis,val){return SW.filter(function(r){return r.axis===axis&&Math.abs(r.value-val)<1e-9;});}
+function argMin(a){var b=0;a.forEach(function(v,i){if(v<a[b]-1e-12)b=i;});return b;}
+var MAP=R.stabMap(200),NOISE_SD=R.noiseSD(TAB);
+var CHANGED=0;UL.forEach(function(u,i){if(i&&Math.abs(u-UL[i-1])>1e-9)CHANGED++;});
+function moved(){return ST.lam!==DEF.lam||ST.xi!==DEF.xi;}
+function lamTxt(v){return v.toFixed(2);}
+function qi(a,p){return String(+q(a,p).toFixed(1));}
+function gtxt(){return f2(GF.beta)+'(±2 표준오차 '+f2(2*GF.se)+')';}
+
+/* ---------- 본문 속 숫자 ---------- */
+function buildV(){
+  V.nt=String(N);V.lim=String(LIM);V.thr=String(R.HUMAN_THR);V.rep=String(REP);V.nseed=String(SEEDS.length);V.nglass=String(NT);V.th=f1(R.THERMAL).replace('−','−');V.b=String(R.B_BELIEF);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');e.textContent=V[k]!=null?V[k]:'?';});
+}
+function syncCtl(){
+  ['sLam4','sLam6','sLam7','sLam8','sLam9'].forEach(function(id){$(id).value=ST.lam;$(id+'o').textContent=lamTxt(ST.lam);});
+  ['sXi6','sXi7','sXi8'].forEach(function(id){$(id).value=ST.xi;$(id+'o').textContent=f2(ST.xi);});
+  $('sNoise2').value=ST.ni;$('sNoise2o').textContent=f2(NOISE_SD*NM[ST.ni])+' ppm';
+  $('sM5').value=ST.mi;$('sM5o').textContent='× '+DR[ST.mi];
+  $('sS8').value=ST.s;$('sS8o').textContent=sg(ST.s,3)+' ppm/턴';$('ckReset9').checked=ST.rst;
+  var lamS='지금 λ 는 기본값('+lamTxt(DEF.lam)+')입니다. 기본값은 시드 '+SEEDS.length+'개에서 RMS 중앙값이 가장 작았던 λ 입니다.';
+  var lamM='지금 λ 는 기본값('+lamTxt(DEF.lam)+')에서 '+lamTxt(ST.lam)+'로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.';
+  var xiS='지금 ξ 는 기본값('+f2(DEF.xi)+')입니다. 3절에서 사람 방식 기록으로 읽은 추정 β̂ 를 b 로 나눈 값이며, 실제 값은 아닙니다.';
+  var xiM='지금 ξ 는 기본값('+f2(DEF.xi)+')에서 '+f2(ST.xi)+'로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.';
+  function setS(id,m,txt){$(id).textContent=txt;$(id).className='state'+(m?' moved':'');}
+  setS('stLam4',ST.lam!==DEF.lam,ST.lam===DEF.lam?lamS:lamM);
+  setS('stXi6',moved(),(ST.lam===DEF.lam?lamS:lamM)+' '+(ST.xi===DEF.xi?xiS:xiM));
+  setS('stXi7',moved(),(ST.lam===DEF.lam?lamS:lamM)+' '+(ST.xi===DEF.xi?xiS:xiM));
+  setS('stS8',moved()||ST.s!==DEF.s,(ST.lam===DEF.lam?'λ 는 기본값, ':'λ 는 옮겨 놓은 값, ')+(ST.xi===DEF.xi?'ξ 는 기본값, ':'ξ 는 옮겨 놓은 값, ')+(ST.s===DEF.s?'표류 기울기는 이 기록의 교체 전 구간에서 읽은 값('+sg(DEF.s,3)+' ppm/턴)입니다.':'표류 기울기는 기본값('+sg(DEF.s,3)+')에서 '+sg(ST.s,3)+'로 옮겨 놓은 가정입니다.'));
+  setS('stRst9',ST.lam!==DEF.lam||ST.rst!==DEF.rst,(ST.lam===DEF.lam?'λ 는 기본값, ':'λ 는 옮겨 놓은 값, ')+(ST.rst===DEF.rst?'교체 알림은 켜져 있습니다(기본값).':'교체 알림을 끈 가정입니다. 되돌리기 단추로 켭니다.'));
+  setS('stM5',ST.mi!==DEF.mi,ST.mi===DEF.mi?'지금 표류 배수는 기본값(× 1, 이 기록의 표류 그대로)입니다.':'지금 표류 배수는 기본값에서 × '+DR[ST.mi]+'로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+  setS('stNoise2',ST.ni!==DEF.ni,ST.ni===DEF.ni?'지금 측정 잡음은 기본값(턴마다 유리 한 장을 재는 크기, 표준편차 '+f2(NOISE_SD)+' ppm)입니다.':'지금 측정 잡음은 기본값('+f2(NOISE_SD)+' ppm)의 '+NM[ST.ni]+'배로 옮겨 놓은 가정입니다. 되돌리기 단추로 돌아갑니다.');
+}
+
+/* ---------- 1절 ---------- */
+function upd1(){
+  var h=runH(),mh=R.metrics(YL),red=badPts(YL);
+  drawXY($('cvLog1'),[{x:TX,y:YL,col:css('--accent'),lw:2},{x:TX,y:YL,col:css('--accent'),noline:true,dots:true,dr:2.5},red],yAxisOpt({h:240,ylo:-1.6,yhi:1.6,xlab:'턴 — 세로: 잰 배율 오차 y (ppm)'}));
+  drawXY($('cvU1'),[{x:TX,y:UL,col:css('--c8'),lw:2.5}],yAxisOpt({h:170,ylo:Math.min.apply(null,UL)-0.3,yhi:0.3,hlines:[{y:0,col:css('--rule'),dash:false,lw:1}],xlab:'턴 — 세로: 넣은 보정값 u (ppm)'}));
+  var rn=R.metrics(runN().y);
+  $('ro1').innerHTML='<b>사람 방식: RMS '+f3(mh.rms)+' ppm, spec 밖 '+mh.oos+'턴(전체 '+N+'턴), 보정한 턴 '+CHANGED+'번.</b> 마스크는 '+(REPI+1)+'턴에 바뀌었습니다. 보정을 하나도 하지 않았다면(2절 이후의 비교 기준) RMS '+f3(rn.rms)+' ppm, spec 밖 '+rn.oos+'턴이었을 것입니다(되살리는 방법은 3절).';
+  var keys=[['사람 방식의 RMS (ppm)','rms_human',REC.rms_human,f3],['사람 방식의 spec 밖 턴 수','oos_human',REC.oos_human,function(v){return String(v);}],['보정 없음의 RMS (ppm)','rms_none',REC.rms_none,f3],['보정 없음의 spec 밖 턴 수','oos_none',REC.oos_none,function(v){return String(v);}]];
+  var rows=keys.map(function(k){var a=SEEDS.map(function(r){return r[k[1]];});return [k[0],k[3](k[2]),k[3](q(a,.1))+' / '+k[3](q(a,.5))+' / '+k[3](q(a,.9)),String(Math.round(R.pctRank(a,k[2])))+' %'];});
+  tbl('tab1',['지표','이 기록','시드 '+SEEDS.length+'개 10 / 50 / 90 %','이 기록의 자리'],rows,[null,null,null,null]);
+}
+
+/* ---------- 2절 ---------- */
+function upd2(){
+  var k=NM[ST.ni],rows=sweepRows('noise',k),x=LAMS,med=rows.map(function(r){return r.rms_p50;}),lo=rows.map(function(r){return r.rms_p10;}),hi=rows.map(function(r){return r.rms_p90;}),bi=argMin(med);
+  drawXY($('cvNoise2'),[{x:x,y:hi,col:css('--c10'),lw:1.5},{x:x,y:lo,col:css('--c10'),lw:1.5},{x:x,y:med,col:css('--accent'),lw:3,dots:true,dr:3,marks:[{x:x[bi],y:med[bi],col:css('--warn'),r:7}]}],{h:250,xlo:0.05,xhi:1,ylo:0,xticks:[0.05,0.2,0.4,0.6,0.8,1],xlab:'λ — 세로: RMS (ppm)',vlines:[{x:1,col:css('--bad'),lw:1.5}]});
+  var l1=med[LAMS.length-1];
+  $('ro2').innerHTML='<b>측정 잡음 '+f2(NOISE_SD*k)+' ppm: 가장 낮은 점은 λ = '+lamTxt(x[bi])+'(RMS '+f3(med[bi])+')이고, λ = 1 은 '+f3(l1)+'입니다.</b> λ = 1 이 가장 낮은 점보다 '+f1(100*(l1/med[bi]-1))+' % 큽니다.';
+  var all=NM.map(function(kk){var rr=sweepRows('noise',kk),m=rr.map(function(r){return r.rms_p50;}),b=argMin(m);return [(kk===1?'기본 ':'')+'× '+kk+' ('+f2(NOISE_SD*kk)+' ppm)'+(kk===k?' ◀ 지금':''),lamTxt(LAMS[b]),f3(m[b]),f3(m[m.length-1]),f1(100*(m[m.length-1]/m[b]-1))+' %'];});
+  tbl('tab2',['측정 잡음','가장 낮은 점의 λ','그 점의 RMS (ppm)','λ = 1 의 RMS (ppm)','λ = 1 이 더 큰 몫'],all,[null,null,null,null,null]);
+  var a=runE(1,XI0,true,MI0),b=runE(0.3,XI0,true,MI0);
+  drawXY($('cvU2'),[{x:TX,y:a.u,col:css('--bad'),lw:2},{x:TX,y:b.u,col:css('--accent'),lw:2.5}],yAxisOpt({h:210,ylo:Math.min.apply(null,a.u.concat(b.u))-0.2,yhi:Math.max(0.3,Math.max.apply(null,a.u.concat(b.u))+0.2),hlines:[{y:0,col:css('--rule'),dash:false,lw:1}],xlab:'턴 — 세로: 넣은 보정값 u (ppm)'}));
+  var ls=[0.1,0.2,0.3,0.5,0.8,1],rr=ls.map(function(l){var s=stat(runE(l,XI0,true,MI0));return [lamTxt(l),f3(s.rms),String(s.oos),f3(s.wig)];});
+  tbl('tab2b',['λ','RMS (ppm)','spec 밖 턴 수','출렁임 (보정값이 턴마다 바뀌는 크기의 표준편차, ppm)'],rr,[null,null,null,null]);
+  var s1=stat(a),s3=stat(b);
+  $('conc2').innerHTML='<b>λ = 1 의 보정값은 턴마다 평균 '+f3(s1.wig)+' ppm 씩 출렁이고, λ = 0.3 은 '+f3(s3.wig)+' ppm 입니다(출렁임이 '+f1(s1.wig/s3.wig)+'배).</b> 대신 RMS 는 각각 '+f3(s1.rms)+' ppm, '+f3(s3.rms)+' ppm 이어서, 이 기록에서는 λ = 1 쪽이 '+(s1.rms<s3.rms?'더 작습니다':'더 큽니다')+'. 출렁임은 잡음이 커질수록 그대로 오차로 돌아오는 몫이라 위 곡선처럼 잡음이 커지면 가장 낮은 점이 λ 가 작은 쪽으로 옮겨 갑니다.';
+}
+
+/* ---------- 3절 ---------- */
+function upd3(){
+  var du=[],dy=[],xs=[],ys=[],xz=[],yz=[],i;
+  for(i=1;i<N;i++){if(LOG[i].replaced)continue;var a=UL[i]-UL[i-1],b=YL[i]-YL[i-1];if(Math.abs(a)>1e-9){xs.push(a);ys.push(b);}else{xz.push(a);yz.push(b);}du.push(a);dy.push(b);}
+  var m1=mean(du),m2=mean(dy),xmin=Math.min.apply(null,du),c=GF.beta,ic=m2-c*m1;
+  var xl=xmin-0.1,xh=Math.max.apply(null,du)+0.1;
+  drawXY($('cvGain3'),[{x:[xl,xh],y:[xl,xh],col:css('--grey'),lw:1.5},{x:[xl,xh],y:[ic+c*xl,ic+c*xh],col:css('--accent'),lw:2.5},{x:xz,y:yz,col:css('--grey'),noline:true,dots:true,dr:2.5,alpha:0.6},{x:xs,y:ys,col:css('--c8'),noline:true,dots:true,dr:5}],{h:250,xlo:xl,xhi:xh,ylo:Math.min(-1.3,Math.min.apply(null,dy)-0.1),yhi:Math.max(0.5,Math.max.apply(null,dy)+0.1),nozero:true,xlab:'Δu: 턴 사이 보정값의 변화 (ppm) — 세로: Δy (ppm), 회색 선 = 기울기 1',ml:56});
+  $('ro3').innerHTML='<b>β̂ = '+f3(GF.beta)+' (표준오차 '+f3(GF.se)+', 보정값이 바뀐 턴 '+GF.njump+'개, 사용한 턴 사이 '+GF.n+'개).</b> 보정값이 바뀐 턴이 1절의 '+CHANGED+'번보다 하나 적은 것은 마스크를 바꾼 턴의 변화를 뺐기 때문입니다. 오차의 범위 ±2 표준오차는 ['+f2(GF.beta-2*GF.se)+', '+f2(GF.beta+2*GF.se)+']입니다. 제어기가 믿는 b = '+R.B_BELIEF+' 에 대한 비 ξ̂ = β̂/b = '+f2(XI0)+' 이며, 이후 기본값으로 씁니다.';
+  drawXY($('cvD3'),[{x:TX,y:YL,col:css('--grey'),lw:2},{x:TX,y:DH,col:css('--accent'),lw:2.5}],yAxisOpt({h:210,ylo:Math.min.apply(null,YL.concat(DH))-0.15,yhi:Math.max.apply(null,YL.concat(DH))+0.15,xlab:'턴 — 세로: ppm'}));
+  var h=runH(),dm=Math.max.apply(null,h.y.map(function(v,i){return Math.abs(v-YL[i]);}));
+  var rows=[['사람 방식을 되살린 외란 위에서 다시 돌린 y 와 1절의 y 의 최대 차이 (ppm)',dm.toExponential(1),'같아야 합니다(기록의 소수 넷째 자리 반올림 안)'],
+    ['교체 전 구간(1~'+REPI+'턴)에서 외란의 직선 기울기 (ppm/턴)',sg(S1,4),'마모와 온도 상승의 합'],['교체 뒤 구간('+(REPI+1)+'~'+N+'턴)에서 외란의 직선 기울기 (ppm/턴)',sg(S2,4),'새 마스크의 마모부터 다시'],
+    ['교체 턴 앞뒤 외란의 차이 d̂ ('+(REPI+1)+'턴) − d̂ ('+REPI+'턴) (ppm)',sg(DH[REPI]-DH[REPI-1],3),'마스크 계단']];
+  tbl('tab3',['되살린 외란에서 읽은 것','값','뜻'],rows,[null,null,lc]);
+  $('conc3').innerHTML='<b>기록에서 읽은 공정 이득은 β̂ = '+gtxt()+' 입니다.</b> 이 값으로 외란을 되살리면 사람 방식을 다시 돌린 결과가 1절의 기록과 일치합니다(위 표 첫 줄). 외란의 직선 기울기는 교체 전 '+sg(S1,3)+' ppm/턴, 교체 뒤 '+sg(S2,3)+' ppm/턴으로, 마스크를 바꾸면 마모가 처음부터 다시 쌓이는 모양이 보입니다. 이 d̂ 에는 측정 잡음이 섞여 있어서 아래 규칙을 다시 돌릴 때 같은 잡음이 그대로 쓰입니다.';
+}
+
+/* ---------- 4절 ---------- */
+function upd4(){
+  var e=runE(ST.lam,XI0,true,MI0),h=runH(),n=runN();
+  var ax=yAxisOpt({h:260,ylo:-1.6,yhi:1.6,xlab:'턴 — 세로: 배율 오차 y (ppm)'});
+  drawXY($('cvY4'),[{x:TX,y:n.y,col:css('--grey'),lw:1.5,alpha:0.8},{x:TX,y:h.y,col:css('--c8'),lw:1.8},{x:TX,y:e.y,col:css('--accent'),lw:3},badPts(e.y)],ax);
+  drawXY($('cvU4'),[{x:TX,y:h.u,col:css('--c8'),lw:1.8},{x:TX,y:e.u,col:css('--accent'),lw:2.5}],yAxisOpt({h:180,ylo:Math.min.apply(null,h.u.concat(e.u))-0.2,yhi:0.4,hlines:[{y:0,col:css('--rule'),dash:false,lw:1}],xlab:'턴 — 세로: 넣은 보정값 u (ppm)'}));
+  var sn=stat(n),sh=stat(h),se=stat(e);
+  $('ro4').innerHTML='<b>λ = '+lamTxt(ST.lam)+': EWMA 의 RMS '+f3(se.rms)+' ppm, spec 밖 '+se.oos+'턴.</b> 같은 외란에서 사람 방식은 RMS '+f3(sh.rms)+' ppm, spec 밖 '+sh.oos+'턴, 보정 없음은 RMS '+f3(sn.rms)+' ppm, spec 밖 '+sn.oos+'턴입니다.';
+  tbl('tab4',['방식','RMS (ppm)','spec 밖 턴 수','출렁임 (ppm)','가장 큰 |보정값| (ppm)'],[['보정 없음',f3(sn.rms),String(sn.oos),'0',f3(sn.maxu)],['사람 방식 (문턱 '+R.HUMAN_THR+' ppm)',f3(sh.rms),String(sh.oos),f3(sh.wig),f3(sh.maxu)],['EWMA (λ = '+lamTxt(ST.lam)+')',f3(se.rms),String(se.oos),f3(se.wig),f3(se.maxu)]],[null,null,null,null,null]);
+  var ks=[['보정 없음','rms_none','oos_none'],['사람 방식','rms_human','oos_human'],['EWMA (λ = '+lamTxt(DEF.lam)+')','rms_ewma','oos_ewma']];
+  var rs=ks.map(function(k){var a=SEEDS.map(function(r){return r[k[1]];}),b=SEEDS.map(function(r){return r[k[2]];});return [k[0],f3(q(a,.1))+' / '+f3(q(a,.5))+' / '+f3(q(a,.9)),qi(b,.1)+' / '+qi(b,.5)+' / '+qi(b,.9)];});
+  tbl('tab4b',['방식','RMS (ppm) 10 / 50 / 90 %','spec 밖 턴 수 10 / 50 / 90 %'],rs,[null,null,null]);
+  var a2=SEEDS.map(function(r){return r.oos_human-r.oos_ewma;}),better=a2.filter(function(v){return v>0;}).length,worse=a2.filter(function(v){return v<0;}).length;
+  $('conc4').innerHTML='<b>시드 '+SEEDS.length+'개에서 사람 방식의 spec 밖 턴 수 중앙값은 '+q(SEEDS.map(function(r){return r.oos_human;}),.5)+'턴, EWMA(λ = '+lamTxt(DEF.lam)+')는 '+q(SEEDS.map(function(r){return r.oos_ewma;}),.5)+'턴입니다.</b> EWMA 가 사람 방식보다 spec 밖 턴이 적은 시드는 '+better+'개, 같은 시드 '+(SEEDS.length-better-worse)+'개, 더 많은 시드 '+worse+'개입니다. 이 기록의 결과(위 표)는 시드 분포의 한 점일 뿐이므로 줄어든 크기는 분포로 말합니다. 지금 λ 에서 이 기록의 EWMA 는 spec 밖 '+se.oos+'턴입니다.';
+}
+
+/* ---------- 5절 ---------- */
+function upd5(){
+  var m=DR[ST.mi],rows=sweepRows('drift',m),med=rows.map(function(r){return r.rms_p50;}),bi=argMin(med);
+  var rec=LAMS.map(function(l){return R.metrics(runE(l,XI0,true,ST.mi).y).rms;}),bj=argMin(rec);
+  drawXY($('cvDr5'),[{x:LAMS,y:rec,col:css('--c10'),lw:2.5,dots:true,dr:3,marks:[{x:LAMS[bj],y:rec[bj],col:css('--warn'),r:7}]},{x:LAMS,y:med,col:css('--accent'),lw:3,dots:true,dr:3,marks:[{x:LAMS[bi],y:med[bi],col:css('--warn'),r:7}]}],{h:250,xlo:0.05,xhi:1,ylo:0,xticks:[0.05,0.2,0.4,0.6,0.8,1],xlab:'λ — 세로: RMS (ppm)'});
+  $('ro5').innerHTML='<b>표류 × '+m+': 시드 '+SEEDS.length+'개 중앙값의 가장 낮은 점은 λ = '+lamTxt(LAMS[bi])+'(RMS '+f3(med[bi])+'), 이 기록의 가장 낮은 점은 λ = '+lamTxt(LAMS[bj])+'(RMS '+f3(rec[bj])+')입니다.</b>';
+  var all=DR.map(function(mm,i){var r=sweepRows('drift',mm),md=r.map(function(x){return x.rms_p50;}),b=argMin(md),rc=LAMS.map(function(l){return R.metrics(runE(l,XI0,true,i).y).rms;}),bb=argMin(rc);return [(mm===1?'기본 ':'')+'× '+mm+(i===ST.mi?' ◀ 지금':''),lamTxt(LAMS[b]),f3(md[b]),f3(md[md.length-1]),lamTxt(LAMS[bb])];});
+  tbl('tab5',['표류 배수','시드 중앙값의 가장 낮은 λ','그 점의 RMS (ppm)','λ = 1 의 RMS (ppm)','이 기록의 가장 낮은 λ'],all,[null,null,null,null,null]);
+  var b0=argMin(sweepRows('drift',0).map(function(r){return r.rms_p50;})),b4=argMin(sweepRows('drift',4).map(function(r){return r.rms_p50;})),n1=argMin(sweepRows('noise',0.5).map(function(r){return r.rms_p50;})),n4=argMin(sweepRows('noise',4).map(function(r){return r.rms_p50;}));
+  var rb=DR.map(function(mm,i){var rc=LAMS.map(function(l){return R.metrics(runE(l,XI0,true,i).y).rms;});return LAMS[argMin(rc)];});
+  var mono=rb.every(function(v,i){return i===0||v>=rb[i-1]-1e-9;});
+  $('conc5').innerHTML='<b>표류가 클수록 좋은 λ 는 대체로 커지고, 측정 잡음이 클수록 작아집니다.</b> 시드 중앙값으로 표류 × 0 에서 λ = '+lamTxt(LAMS[b0])+', × 4 에서 λ = '+lamTxt(LAMS[b4])+'이고, 측정 잡음을 절반으로 줄이면 λ = '+lamTxt(LAMS[n1])+', 4배로 키우면 λ = '+lamTxt(LAMS[n4])+'입니다(2절 표). 이 기록 한 벌의 가장 낮은 λ 는 표류 배수 순서대로 '+rb.map(lamTxt).join(', ')+'이며 '+(mono?'시드 중앙값과 같은 방향으로 커집니다':'시드 중앙값만큼 가지런히 커지지 않습니다. 한 기록에는 잡음과 요동이 한 벌뿐이라 가장 낮은 점이 흔들리기 때문이므로, λ 는 한 기록이 아니라 시드 분포의 곡선으로 정합니다')+'. 곡선의 바닥이 넓어서 가장 낮은 점 근처의 λ 는 RMS 가 거의 같습니다. 그래서 λ 는 가장 낮은 한 점이 아니라 6절과 7절의 안정 여유를 함께 보고 바닥의 안쪽에서 고릅니다.';
+}
+
+/* ---------- 6절 ---------- */
+function stableTh(l,x){var p=l*x;return p>2+1e-9?'발산':p<2-1e-9?'수렴':'경계';}
+function upd6(){
+  var e=runE(ST.lam,ST.xi,ST.rst,MI0),n=runN(),se=stat(e),yc=e.y.map(function(v){return isFinite(v)?v:NaN;});
+  drawXY($('cvXi6'),[{x:TX,y:n.y,col:css('--grey'),lw:1.5,alpha:0.8},{x:TX,y:yc,col:css('--accent'),lw:3}],yAxisOpt({h:260,ylo:-3,yhi:3,xlab:'턴 — 세로: 배율 오차 y (ppm, 그림은 ±3 ppm 에서 잘림)'}));
+  var lx=ST.lam*ST.xi;
+  $('ro6').innerHTML='<b>λ·ξ = '+f2(lx)+' → 이론상 '+stableTh(ST.lam,ST.xi)+(lx>1?'(1 을 넘으면 한 턴마다 부호가 바뀌며 진동합니다)':'')+'.</b> 이 설정의 RMS 는 '+fb(se.rms)+' ppm, 가장 큰 |보정값| 은 '+fb(se.maxu)+' ppm, spec 밖 '+se.oos+'턴입니다.';
+  var xs=[0.5,1,1.5,2,2.5],rows=xs.map(function(x){var s=stat(runE(ST.lam,x,ST.rst,MI0)),a=R.stabRun(ST.lam,x,200);return ['ξ = '+x+(Math.abs(x-ST.xi)<1e-9?' ◀ 지금':''),f2(ST.lam*x),stableTh(ST.lam,x),R.stabClass(a)==='ok'?'수렴':R.stabClass(a)==='div'?'발산':'경계',fb(s.rms),fb(s.maxu)];});
+  tbl('tab6',['모델 불일치 비','λ·ξ','이론 판정','200턴 실측','이 기록의 RMS (ppm)','가장 큰 |보정값| (ppm)'],rows,[null,null,null,null,null,null]);
+  var lim=2/ST.lam;
+  $('conc6').innerHTML='<b>λ = '+lamTxt(ST.lam)+' 일 때 ξ 가 '+f2(lim)+' 보다 크면 발산합니다.</b> 그 아래에서도 λ·ξ 가 1 을 넘으면 한 턴마다 부호가 바뀌는 진동이 먼저 나타나 RMS 가 올라가고, 2 에 가까울수록 진동이 오래 남습니다. 기본값 ξ̂ = '+f2(XI0)+' 에서 허용된 최대치 '+f2(lim)+' 까지의 여유는 '+f1(lim/XI0)+'배입니다. 이 여유가 ξ̂ 의 오차(3절의 ±2 표준오차 안 가장 큰 값 '+f2((GF.beta+2*GF.se)/R.B_BELIEF)+')를 감당하는지 확인한 뒤 λ 를 정합니다.';
+}
+
+/* ---------- 7절 ---------- */
+function drawMap(){
+  var cv=$('cvMap7'),c=setup(cv,330),x=c.x,W=c.w,H=c.h,ml=50,mr=14,mt=10,mb=40,pw=W-ml-mr,ph=H-mt-mb,soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var nl=R.MAPL.length,nx=R.XIS.length,cw=pw/nl,ch=ph/nx;
+  function pxL(l){return ml+pw*(l-0.025);}function pyX(v){return mt+ph-ph*(v-0.25)/2.8;}
+  MAP.forEach(function(m){var col=m.meas==='ok'?css('--good'):m.meas==='div'?css('--bad'):css('--warn');x.globalAlpha=m.meas==='ok'?0.5:0.6;x.fillStyle=col;x.fillRect(ml+cw*R.MAPL.indexOf(m.lam),mt+ph-ch*(R.XIS.indexOf(m.xi)+1),cw+0.5,ch+0.5);x.globalAlpha=1;});
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(ml,mt,pw,ph);
+  x.fillStyle=soft;x.textAlign='center';[0.2,0.4,0.6,0.8,1.0].forEach(function(l){x.fillText(l.toFixed(1),pxL(l),mt+ph+14);});x.fillText('λ',ml+pw/2,mt+ph+30);
+  x.textAlign='right';[0.5,1,1.5,2,2.5,3].forEach(function(v){x.fillText(String(v),ml-6,pyX(v));});
+  x.save();x.translate(12,mt+ph/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('ξ',0,0);x.restore();
+  x.setLineDash([6,4]);x.strokeStyle=css('--ink');x.lineWidth=2;x.beginPath();var st=false;for(var l=0.6;l<=1.0001;l+=0.01){var xi=2/l;if(xi>3.0)continue;var px=pxL(l),py=pyX(xi);if(!st){x.moveTo(px,py);st=true;}else x.lineTo(px,py);}x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--ink');x.strokeStyle=css('--card');x.lineWidth=2;x.beginPath();x.arc(pxL(ST.lam),pyX(ST.xi),7,0,6.2832);x.fill();x.stroke();
+}
+function upd7(){
+  drawMap();
+  var cnt={ok:0,div:0,edge:0},mis=0;MAP.forEach(function(m){cnt[m.meas]++;if(m.meas!==m.theory)mis++;});
+  var a=R.stabRun(ST.lam,ST.xi,200),pw=Math.pow(Math.abs(1-ST.lam*ST.xi),200);
+  $('ro7').innerHTML='<b>현재 (λ = '+lamTxt(ST.lam)+', ξ = '+f2(ST.xi)+'): λξ = '+f2(ST.lam*ST.xi)+' → 이론 '+stableTh(ST.lam,ST.xi)+', 200턴 뒤 |a|/|처음 a| 실측 '+fb(a)+'.</b> 한 턴마다 곱해지는 몫 |1 − λξ| = '+f3(Math.abs(1-ST.lam*ST.xi))+' 를 200번 곱한 값은 '+fb(pw)+'입니다.';
+  tbl('tab7',['칸 수 (λ '+R.MAPL.length+'개 × ξ '+R.XIS.length+'개)','실측 수렴','실측 발산','실측 경계 (크기 불변)','이론 판정과 다른 칸'],[[String(MAP.length),String(cnt.ok),String(cnt.div),String(cnt.edge),String(mis)]],[null,null,null,null,null]);
+  var th=MAP.filter(function(m){return m.theory==='div';}).length;
+  $('conc7').innerHTML='<b>실제로 돌려 본 판정 '+MAP.length+'칸 가운데 이론(0 &lt; λξ &lt; 2)과 다른 칸은 '+mis+'칸입니다.</b> 이 범위(λ 는 1 이하)에서는 ξ 가 2 를 넘을 때부터 발산 칸이 생기고(이론상 발산 '+th+'칸), λξ 가 정확히 2 인 칸은 크기가 변하지 않는 경계로 읽힙니다. 이 판정은 공정이 보정에 즉시 선형으로 반응한다는 가정 위에 서 있습니다. 실제 공정에서는 보정에 지연이 있거나 보정값에 상한이 걸려 있어 경계가 안쪽으로 줄어들 수 있으므로, 안정 여유를 두고 λ 를 고릅니다.';
+}
+
+/* ---------- 8절 ---------- */
+function upd8(){
+  var lam=ST.lam,xi=ST.xi,s=ST.s,n=400,r=null,sc={d:[],eps:[],rep:1e9},t;for(t=1;t<=n;t++){sc.d.push(s*t);sc.eps.push(0);}
+  r=R.run(sc,'ewma',{lam:lam,beta:xi,b:1,reset:false});
+  var show=60,xs=[],dd=[],yy=[];for(t=0;t<show;t++){xs.push(t+1);dd.push(sc.d[t]);yy.push(r.y[t]);}
+  drawXY($('cvOff8'),[{x:xs,y:dd,col:css('--grey'),lw:1.8},{x:xs,y:yy,col:css('--accent'),lw:3}],{h:240,xlo:1,xhi:show,ylo:Math.min(-3,Math.min.apply(null,dd)-0.2),yhi:0.4,xticks:TXT,nozero:true,hlines:[{y:0,col:css('--rule'),dash:false,lw:1}],xlab:'턴 — 세로: ppm'});
+  var meas=R.offsetRun(lam,xi,s,n),form=R.offsetFormula(lam,xi,s),ok=lam*xi<2-1e-9&&isFinite(meas);
+  $('ro8').innerHTML='<b>s = '+sg(s,3)+' ppm/턴, λ = '+lamTxt(lam)+', ξ = '+f2(xi)+': 식 s/(λξ) = '+(ok?sg(form,3):'—')+' ppm, 돌려 본 값 '+(ok?sg(meas,3):'발산')+' ppm.</b>'+(ok?' 오차 '+Math.abs(meas-form).toExponential(1)+' ppm.':'');
+  var rows=[0.1,0.2,0.3,0.5,0.8,1].map(function(l){var m=R.offsetRun(l,xi,s,n),f=R.offsetFormula(l,xi,s),okk=l*xi<2-1e-9&&isFinite(m);return [lamTxt(l)+(Math.abs(l-lam)<1e-9?' ◀ 지금':''),okk?sg(m,3):'발산',okk?sg(f,3):'—',okk?sg(s*(1-l)/l,3):'—',sg(s,3)];});
+  tbl('tab8',['λ','돌려 본 값 (ppm)','식 s/(λξ) (ppm)','추정의 늦음 s(1−λ)/λ (ppm, ξ = 1 일 때의 앞 항)','한 턴 지연 s (ppm)'],rows,[null,null,null,null,null]);
+  var ex=[S1,S2].map(function(sl){return sg(sl/(lam*xi),3);});
+  $('conc8').innerHTML='<b>직선 표류에서 λ 를 낮추면 잔류 오프셋은 1/λ 에 비례해 커집니다.</b> 식과 돌려 본 값은 안정 영역 안에서 모두 일치합니다(위 표). 이 기록에서 읽은 표류 기울기는 교체 전 '+sg(S1,3)+' ppm/턴, 교체 뒤 '+sg(S2,3)+' ppm/턴이고, 지금의 λ·ξ 에서 식이 알려 주는 잔류 오프셋은 각각 '+ex[0]+' ppm, '+ex[1]+' ppm 입니다. 잡음과 요동이 있으면 이 값을 중심으로 흔들립니다. 오프셋이 spec 에 비해 무시할 수 없으면 λ 를 올리거나(5절의 잡음과 맞바꿈) 기울기까지 추정하는 방법(Q&amp;A)을 씁니다.';
+}
+
+/* ---------- 9절 ---------- */
+function upd9(){
+  var cur=runE(ST.lam,XI0,ST.rst,MI0),opp=runE(ST.lam,XI0,!ST.rst,MI0),a=Math.max(0,REPI-4),b=Math.min(N,REPI+15),xs=[],c1=[],o1=[];
+  for(var i=a;i<b;i++){xs.push(i+1);c1.push(cur.y[i]);o1.push(opp.y[i]);}
+  drawXY($('cvRep9'),[{x:xs,y:o1,col:css('--grey'),lw:2,alpha:0.85},{x:xs,y:c1,col:css('--accent'),lw:3,dots:true,dr:3}],{h:240,xlo:xs[0],xhi:xs[xs.length-1],ylo:-1.2,yhi:1.2,xticks:xs.filter(function(v,j){return j%2===0;}),hlines:specLines(),vlines:[{x:REPI+1,col:css('--good'),lw:1.5}],xlab:'턴 — 세로: 배율 오차 y (ppm)'});
+  function post(r,k){var v=0,o=0;for(var j=REPI;j<Math.min(N,REPI+k);j++){v+=Math.abs(r.y[j]);if(Math.abs(r.y[j])>LIM)o++;}return {m:v/Math.min(k,N-REPI),o:o};}
+  var pc=post(cur,10),po=post(opp,10);
+  $('ro9').innerHTML='<b>교체한 '+(REPI+1)+'턴부터 10턴 동안 평균 |y| 는 지금 설정 '+f3(pc.m)+' ppm(spec 밖 '+pc.o+'턴), 반대 설정 '+f3(po.m)+' ppm(spec 밖 '+po.o+'턴)입니다.</b>';
+  var rows=[[0.2,true],[0.2,false],[ST.lam,true],[ST.lam,false]].map(function(p){var r=runE(p[0],XI0,p[1],MI0),pp=post(r,10),s=stat(r);return ['λ = '+lamTxt(p[0])+(p[0]===ST.lam&&p[1]===ST.rst?' ◀ 지금':''),p[1]?'켬':'끔',f3(pp.m),String(pp.o),f3(s.rms)];});
+  tbl('tab9',['설정','교체 알림','교체 뒤 10턴의 평균 |y| (ppm)','교체 뒤 10턴의 spec 밖 턴','전체 RMS (ppm)'],rows,[null,null,null,null,null]);
+  function cmpS(k1,k2){var a1=SEEDS.map(function(r){return r[k1];}),a2=SEEDS.map(function(r){return r[k2];});return [q(a1,.5),q(a2,.5),a2.filter(function(v,i){return v>a1[i];}).length];}
+  var s1=cmpS('oos_ewma','oos_ewma_nr'),s2=cmpS('oos_slow','oos_slow_nr'),r1=cmpS('rms_ewma','rms_ewma_nr'),r2=cmpS('rms_slow','rms_slow_nr');
+  $('conc9').innerHTML='<b>교체 알림의 효과는 λ 가 작을수록 큽니다.</b> 시드 '+SEEDS.length+'개 중앙값으로, λ = '+lamTxt(DEF.lam)+' 일 때 알림을 켠 때와 끈 때의 spec 밖 턴이 '+s1[0]+'턴 대 '+s1[1]+'턴(RMS '+f3(r1[0])+' 대 '+f3(r1[1])+')으로 거의 같고, λ = '+lamTxt(R.LAM_SLOW)+' 일 때 '+s2[0]+'턴 대 '+s2[1]+'턴(RMS '+f3(r2[0])+' 대 '+f3(r2[1])+')으로 알림이 있는 쪽이 낫습니다(끈 쪽이 더 나쁜 시드 '+s2[2]+'개). λ 가 크면 추정이 새 마스크의 값을 몇 턴 안에 따라잡기 때문에 알림의 몫이 작지만, 알림은 공짜이므로 켜 둡니다.';
+}
+
+/* ---------- 10·11절 ---------- */
+function upd10(){
+  var e=runE(DEF.lam,DEF.xi,true,MI0),se=stat(e),sh=stat(runH()),oh=SEEDS.map(function(r){return r.oos_human;}),oe=SEEDS.map(function(r){return r.oos_ewma;}),rh=SEEDS.map(function(r){return r.rms_human;}),re=SEEDS.map(function(r){return r.rms_ewma;});
+  var lim=2/DEF.lam;
+  $('conc10').innerHTML='<b>규칙으로 바꾸면 spec 밖 턴은 시드 중앙값으로 '+q(oh,.5)+'턴에서 '+q(oe,.5)+'턴으로 줄고(10~90 % 구간: 사람 '+qi(oh,.1)+'~'+qi(oh,.9)+'턴, EWMA '+qi(oe,.1)+'~'+qi(oe,.9)+'턴), RMS 는 '+f3(q(rh,.5))+' ppm 에서 '+f3(q(re,.5))+' ppm 으로 줄어듭니다. 믿어도 되는 조건은 λξ 가 2 보다 한참 작은 것입니다.</b> 이 기록에서는 사람 방식 '+sh.oos+'턴, EWMA(λ = '+lamTxt(DEF.lam)+') '+se.oos+'턴입니다. λ = '+lamTxt(DEF.lam)+' 일 때 ξ 가 '+f2(lim)+' 보다 크면 발산하고(7절), 기록에서 읽은 ξ̂ 는 '+f2(XI0)+'(±2 표준오차 '+f2(2*GF.se)+', 6절)이며, 표류가 직선으로 계속되면 늦음이 s/(λξ) 만큼 남고(8절), 마스크를 바꾸면 알림으로 추정을 다시 시작합니다(9절). 좋은 λ 는 공장의 표류와 잡음에 따라 옮겨 가므로(5절) 한 번 정하고 끝내지 않고 보정 규칙 운영표에 근거와 함께 적고 정기적으로 다시 확인합니다.';
+}
+function upd11(){
+  var e=runE(ST.lam,ST.xi,ST.rst,MI0),se=stat(e),sh=stat(runH());
+  var d1=sh.oos-se.oos,od=SEEDS.map(function(r){return r.oos_human-r.oos_ewma;}),d2=q(od,.5);
+  tbl('tab11',['','spec 밖 턴 수 (마스크 한 장)','유리 장수','턴 (유리 '+NT+'장 단위)'],[
+    ['사람 방식 (이 기록)',String(sh.oos),fm(sh.oos*NT),String(sh.oos)],
+    ['EWMA (λ = '+lamTxt(ST.lam)+', ξ = '+f2(ST.xi)+', 이 기록)',String(se.oos),fm(se.oos*NT),String(se.oos)],
+    ['줄어든 몫 (이 기록)',String(d1),fm(d1*NT),String(d1)],
+    ['줄어든 몫 (시드 '+SEEDS.length+'개 중앙값, λ = '+lamTxt(DEF.lam)+')',String(d2),fm(d2*NT),String(d2)]],[null,null,null,null]);
+  var def=!moved();
+  $('st11').textContent=def?'λ·ξ 가 기본값입니다.':'λ·ξ 가 기본값에서 옮겨져 있습니다(4절·6절의 단추로 되돌립니다). 아래 앞 세 줄이 그 값을 따라갑니다.';$('st11').className='state'+(def?'':' moved');
+  $('conc11').innerHTML='<b>시드 '+SEEDS.length+'개 중앙값으로 마스크 한 장당 spec 밖 턴이 '+d2+'턴, 유리 '+fm(d2*NT)+'장 줄어듭니다.</b> 이 기록에서는 '+d1+'턴, '+fm(d1*NT)+'장입니다. 시드마다 줄어든 턴 수의 10~90 % 는 '+qi(od,.1)+'~'+qi(od,.9)+'턴이라, 한 장의 기록으로 효과를 단정하지 않고 분포로 말합니다.';
+}
+
+/* ---------- 13절 ---------- */
+function fillReport(){
+  var e=runE(DEF.lam,DEF.xi,true,MI0),se=stat(e),cap=Math.ceil(2*se.maxu/0.5)*0.5,lim=2/DEF.lam;
+  $('rp_fields').innerHTML='대상(공정·챔버·마스크) · 제어 방식과 식 · λ 와 근거(시드 분포·잡음·표류) · b 와 공정 이득 추정(β̂ ± 표준오차·측정 방법) · 안정 여유(허용 ξ 최대와 지금 ξ̂ 의 비) · 보정값 상한 · 리셋 조건 · 사람 개입 조건 · 기록 항목 · 다음 점검일 · 승인';
+  $('rp_ex').innerHTML='<ul style="margin:.2rem 0 .2rem 1.1rem;padding:0"><li><b>제어 방식</b> EWMA 런투런, 목표 0 ppm, spec ±'+LIM+' ppm · <b>λ</b> '+lamTxt(DEF.lam)+' (근거: 시드 '+SEEDS.length+'개 RMS 중앙값이 가장 작은 점, 바닥이 넓어 0.6~1 은 거의 같음)</li>'
+   +'<li><b>b</b> '+R.B_BELIEF+' · <b>β̂</b> '+gtxt()+' (사람 방식 기록에서 읽음 — 보정값을 일부러 흔든 측정으로 다시 확인 필요) · <b>안정 여유</b> 허용 ξ 최대 '+f2(lim)+', 지금 ξ̂ '+f2(DEF.xi)+' 의 '+f1(lim/DEF.xi)+'배</li>'
+   +'<li><b>보정값 상한</b> 한 턴 ±'+f1(cap)+' ppm(이 기록의 가장 큰 |보정값| '+f2(se.maxu)+' ppm 의 두 배 이상, 가정) · <b>리셋</b> 마스크 교체·리페어 기록이 생긴 턴에 추정을 다시 시작 · <b>사람 개입</b> 2턴 연속 spec 밖이거나 출렁임이 이 기록 값 '+f3(se.wig)+' ppm 의 3배를 넘을 때 · <b>다음 점검일</b> 마스크를 바꾼 뒤 5턴</li></ul>';
+  tbl('tabTool',['순서','함수','하는 일'],[['1','0601 · <code>twin_gap</code>','트윈과 실제의 차이 재기'],['2','<code>r2r_replay</code>','보정값을 뺀 외란을 되살려 새 규칙을 같은 외란 위에서 시험'],['3','<code>r2r_stability</code>','λ 와 ξ 의 안정 영역 확인'],['4','<code>ewma_r2r</code> (매 턴)','다음 턴 보정값 계산'],['5','0401 가드·승인 대기열','상한·사람 승인 확인 후 적용'],['6','0411 사실 목록 방식','운영표·한 주 요약 초안']],[null,null,lc]);
+}
+
+/* ---------- 14절: 정답 열기 ---------- */
+function reveal(){REV=true;$('btnReveal').disabled=true;$('btnReveal').setAttribute('aria-expanded','true');['roAns','tabAns','tabAns2','concAns'].forEach(function(id){$(id).hidden=false;});fillReveal();}
+function fillReveal(){
+  var bt=R.HIDDEN.BETA,sc=R.scenario(REP,null,TAB),tn=R.run(sc,'none'),th=R.run(sc,'human'),te=R.run(sc,'ewma',{lam:DEF.lam,reset:true}),mt=[tn,th,te].map(function(r){return R.metrics(r.y);});
+  var re=[runN(),runH(),runE(DEF.lam,XI0,true,MI0)].map(function(r){return R.metrics(r.y);});
+  var gh=SEEDS.map(function(r){return r.gain_hat;}),inside=gh.filter(function(v){return Math.abs(v-bt)<=0.2;}).length;
+  $('roAns').innerHTML='<b>실제 공정 이득은 β = '+f2(bt)+'(ξ = β/b = '+f2(bt/R.B_BELIEF)+')였습니다.</b> 3절의 β̂ 는 '+gtxt()+'이어서 실제보다 '+f2(Math.abs(GF.beta-bt))+(GF.beta>bt?' 컸습니다.':' 작았습니다.')+' 시드 '+SEEDS.length+'개에서 기록으로 읽은 β̂ 의 중앙값은 '+f2(q(gh,.5))+'(10~90 %: '+f2(q(gh,.1))+'~'+f2(q(gh,.9))+')이고 실제보다 큰 쪽으로 어긋나는 경향이 있으며, 실제와 0.2 이내인 시드는 '+inside+'개입니다. 보정이 직전의 잰 값(잡음 포함)으로 정해져 있어서 보정값과 그 뒤의 값이 같은 잡음을 공유한 탓이고, 3절 끝에서 짚은 가정입니다.';
+  tbl('tabAns',['방식','실제 공정 이득으로 돌린 RMS (ppm)','spec 밖 턴','되살린 외란 위의 재실행 RMS (ppm)','spec 밖 턴'],[['보정 없음',f3(mt[0].rms),String(mt[0].oos),f3(re[0].rms),String(re[0].oos)],['사람 방식',f3(mt[1].rms),String(mt[1].oos),f3(re[1].rms),String(re[1].oos)],['EWMA (λ = '+lamTxt(DEF.lam)+', 교체 알림 켬)',f3(mt[2].rms),String(mt[2].oos),f3(re[2].rms),String(re[2].oos)]],[null,null,null,null,null]);
+  var tg=[{ xi:bt,l:'실제 ξ = '+f2(bt)},{xi:XI0,l:'추정 ξ̂ = '+f2(XI0)}].map(function(z){var s=stat(R.replayRun(DH,REPI+1,'ewma',{beta:z.xi,lam:DEF.lam,reset:true}));return [z.l,f3(s.rms),String(s.oos)];});
+  tbl('tabAns2',['되살린 외란 위에서 가정 이득을 달리 했을 때 (EWMA)','RMS (ppm)','spec 밖 턴'],tg,[null,null,null]);
+  var gap=Math.abs(re[2].rms-mt[2].rms);
+  $('concAns').innerHTML='<b>실제 닫힌 고리의 EWMA 는 RMS '+f3(mt[2].rms)+' ppm(spec 밖 '+mt[2].oos+'턴), 되살린 외란 위의 재실행은 '+f3(re[2].rms)+' ppm('+re[2].oos+'턴)으로 차이가 '+f3(gap)+' ppm 입니다.</b> 사람 방식의 값은 두 열이 같아야 하고(되살리기의 정의), EWMA 와 보정 없음은 β̂ 의 어긋남만큼 다릅니다. 보정 없음의 RMS 는 실제 외란에서 '+f3(mt[0].rms)+' ppm, 되살린 외란에서 '+f3(re[0].rms)+' ppm 으로 달라, 실제 외란과 되살린 외란의 차이가 β̂ − β 와 보정값의 곱에서 온다는 것을 보여 줍니다. 되살리기는 공정 이득이 맞을 때 정확하고, 어긋나면 그만큼의 오차를 안고 있다는 것을 기억합니다. 이것이 공정 이득을 따로 재어 두라는 이유이고 0604 에서 이어집니다.';
+}
+
+/* ---------- 새로 그리기 ---------- */
+function refresh(){syncCtl();upd1();upd2();upd3();upd4();upd5();upd6();upd7();upd8();upd9();upd10();upd11();if(REV)fillReveal();}
+function bindI(id,fn){$(id).addEventListener('input',function(){fn(+this.value);refresh();});}
+['sLam4','sLam6','sLam7','sLam8','sLam9'].forEach(function(id){bindI(id,function(v){ST.lam=Math.round(v*100)/100;});});
+['sXi6','sXi7','sXi8'].forEach(function(id){bindI(id,function(v){ST.xi=Math.round(v*100)/100;});});
+bindI('sNoise2',function(v){ST.ni=v;});bindI('sM5',function(v){ST.mi=v;});bindI('sS8',function(v){ST.s=Math.round(v*1000)/1000;});
+$('ckReset9').addEventListener('change',function(){ST.rst=this.checked;refresh();});
+$('rNoise2').addEventListener('click',function(){ST.ni=DEF.ni;refresh();});
+$('rLam4').addEventListener('click',function(){ST.lam=DEF.lam;refresh();});
+['rXi6','rXi7'].forEach(function(id){$(id).addEventListener('click',function(){ST.lam=DEF.lam;ST.xi=DEF.xi;refresh();});});
+$('rS8').addEventListener('click',function(){ST.lam=DEF.lam;ST.xi=DEF.xi;ST.s=DEF.s;refresh();});
+$('rM5').addEventListener('click',function(){ST.mi=DEF.mi;refresh();});
+$('rRst9').addEventListener('click',function(){ST.lam=DEF.lam;ST.rst=DEF.rst;refresh();});
+$('btnReveal').addEventListener('click',reveal);
+window.addEventListener('resize',function(){refresh();});
+
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildV();fillReport();refresh();
+window.__r3={st:ST,refresh:refresh,def:DEF,V:V,rep:REP,reveal:reveal};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
