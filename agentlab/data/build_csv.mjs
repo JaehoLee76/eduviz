@@ -100,6 +100,23 @@ const f5 = L05.F5;
 const l503 = [L05.DEFAULT_SEED].concat(Array.from({ length: f5.SEEDS }, (_, i) => i + 1)).map(sd => L05.seed503(sd, f5.H, f5.SPLIT, f5.DEPTH, f5.K));
 csv('loss_forecast_seeds.csv', L05.seed503Rows(l503), Object.keys(l503[0]));
 
+// 실험실 0601: 닫힌 고리. '실제 공장'은 simulateLoss 에 숨은 파라미터를 넣은 것이라 숨은 값은 어떤 파일에도 넣지 않는다(loop06.js 안에만 있고 정답 열기·verify 가 읽는다).
+// s17_real_events/hourly = 실제 공장 로그(대표 로그 시드·60일·운전 대수 27) · s17_real_log_summary = 로그 시드 20개 × 기간 4개의 지표 · s17_twin_grid = 트윈의 세정 시간 격자 × 트윈 시드의 지표
+// s17_policy_table = 결정 값(세정기 운전 대수)별 60일 Loss(트윈 격자 쪽과 결정 뒤 실제 결과 쪽) · s17_seed_summary = 로그 시드 × 기간별 보정 최소점·gap 전후·권고·결정 손해(기본 비용 가정)
+const L06 = require('./loop06.js');
+const T06 = L06.buildTables();
+const rs06 = L06.repSeed(T06, L06.DEFAULT_COST);
+const sim06 = L06.realSim(rs06.seed, L06.CAP0);
+csv('s17_real_events.csv', sim06.events, ['event_id', 'start_ts', 'end_ts', 'start_min', 'block', 'chamber', 'reason', 'root_cause', 'caused_by_block', 'run_mode', 'mask_set', 'turn', 'loss_chamber_min', 'loss_glass']);
+csv('s17_real_hourly.csv', sim06.hourly);
+const k06 = ['days', 'q', 'busy', 'L'].concat(L06.CODES);
+csv('s17_real_log_summary.csv', T06.reallog, ['seed'].concat(k06));
+csv('s17_twin_grid.csv', T06.grid, ['clean', 'seed'].concat(k06));
+csv('s17_policy_table.csv', T06.pol, ['side', 'clean', 'seed', 'cap', 'loss']);
+csv('s17_seed_summary.csv', L06.seedSummary(T06, L06.DEFAULT_COST), ['seed', 'days', 'chat', 'gap_before', 'gap_after', 'cap_v0', 'cap_cal', 'cap_best', 'regret_v0', 'regret_cal']);
+fs.writeFileSync(path.join(dir, '..', 'loop06_tables.js'), '/* 0601 이 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s17_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\nwindow.LOOP06_TABLES=' + JSON.stringify({ grid: T06.grid, pol: T06.pol, reallog: T06.reallog }) + ';\n');
+console.log('S17 representative real-log seed', rs06.seed, 'score', rs06.score.toFixed(1));
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

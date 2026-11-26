@@ -3358,6 +3358,164 @@ chk('0503 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자를 넣지 않�
 _cleanup07 = shutil.rmtree(_td07, ignore_errors=True)
 
 
+# ============================================================
+# 0601 — 닫힌 고리. 실제 공장(simulateLoss + 숨은 세정 시간)의 로그·트윈 격자·결정 표·시드 요약 CSV 를 파이썬이 CSV 만으로 다시 계산해
+# (실제 로그의 지표, 격자 gap·보정 최소점, 결정 훑기, 결정 손해, 검증 영역, 시드 20개 요약, 대표 시드) JS 와 페이지 Python 에 대조한다. 숨은 값은 어떤 CSV·화면 본문에도 없어야 한다.
+# ============================================================
+_pg08 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0601-closed-loop-blueprint.html'), encoding='utf-8').read()
+_code08 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg08, _re5.S).group(1)); _out08 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg08, _re5.S).group(1)).strip()
+_td08 = _tf5.mkdtemp()
+_F08 = ['s17_real_events.csv', 's17_real_hourly.csv', 's17_real_log_summary.csv', 's17_twin_grid.csv', 's17_policy_table.csv', 's17_seed_summary.csv']
+for _f in _F08: shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(_td08, _f))
+open(os.path.join(_td08, 'lab0601.py'), 'w', encoding='utf-8').write(_code08)
+_ev08 = pd.read_csv(os.path.join(_td08, 's17_real_events.csv')); _hr08 = pd.read_csv(os.path.join(_td08, 's17_real_hourly.csv')); _rl08 = pd.read_csv(os.path.join(_td08, 's17_real_log_summary.csv'))
+_gr08 = pd.read_csv(os.path.join(_td08, 's17_twin_grid.csv')); _po08 = pd.read_csv(os.path.join(_td08, 's17_policy_table.csv')); _ss08 = pd.read_csv(os.path.join(_td08, 's17_seed_summary.csv'))
+_EXPORT08 = r"""const fs=require('fs');const L=require(process.argv[2]+'/loop06.js'),MS=require(process.argv[2]+'/mfgsim.js');
+const T=JSON.parse(fs.readFileSync(process.argv[3]+'/tables.json'));const res={};
+res.consts={DAYS:L.DAYS,CAP0:L.CAP0,V0:L.V0_CLEAN,COST:L.DEFAULT_COST,GRID:L.GRID,CAPS:L.CAPS,WIN:L.WINDOWS,TW:L.TWIN_SEEDS,RL:L.REAL_LOG_SEEDS,RE:L.REAL_EVAL_SEEDS,HID:L.HIDDEN.CLEAN};
+const rep=L.repSeed(T,L.DEFAULT_COST);res.rep=rep.seed;res.repScore=rep.score;
+const sim=L.realSim(rep.seed,L.CAP0);res.ev=sim.events.map(e=>[e.event_id,e.start_min,e.reason,e.loss_glass]);res.hr=sim.hourly.map(h=>[h.cleaner_queue,h.cleaner_busy]);
+// 스팟: 트윈 격자 한 칸·결정 표 두 칸을 simulateLoss 로 다시 돌린다
+const t1=L.twinSim(103,200,27),m1=L.metricsOf(t1.events,t1.hourly,30);res.spotGrid={q:m1.q,busy:m1.busy,L:m1.L};
+res.spotPol=[[L.totalLoss(L.twinSim(101,150,34)),101,150,34],[L.totalLoss(L.realSim(305,29)),305,null,29]];
+res.sum=L.seedSummary(T,L.DEFAULT_COST);
+res.loops={};[0,500,1200,1700,3000].forEach(c=>{res.loops[c]=L.REAL_LOG_SEEDS.map(s=>{const r=L.loopFor(T,s,60,c);return [s,r.chat,r.gapBefore,r.gapAfter,r.cap0,r.cap1,r.best,r.reg0,r.reg1]})});
+fs.writeFileSync(process.argv[3]+'/res.json',JSON.stringify(res));"""
+_jsf08 = os.path.join(_td08, 'export0601.js'); open(_jsf08, 'w').write(_EXPORT08)
+_tb = open(os.path.join(_DATA10, 'loop06_tables.js'), encoding='utf-8').read(); _tj = _tb[_tb.index('window.LOOP06_TABLES=') + len('window.LOOP06_TABLES='):].rstrip().rstrip(';')
+open(os.path.join(_td08, 'tables.json'), 'w').write(_tj)
+subprocess.run([_node, _jsf08, _DATA10, _td08], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_R08 = json.load(open(os.path.join(_td08, 'res.json'))); _C08 = _R08['consts']
+_same08 = lambda a, b, tol=1e-9: abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+_GRID08, _CAPS08, _WIN08, _KEYS08 = _C08['GRID'], _C08['CAPS'], _C08['WIN'], ['q', 'busy', 'L']
+
+# 1. 기존 출력 불변: mfgsim.js 와 저장소에 있던 CSV 전부가 HEAD 와 같은 바이트, 이 장이 더한 CSV 는 새 파일
+_unch = True; _nchk = 0; _lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js'], capture_output=True, text=True)
+for _fn in (_lst.stdout.split() if _lst.returncode == 0 else []):
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        _nchk += 1; _unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk('0601 기존 출력 불변: mfgsim.js 와 저장소에 있던 CSV %d개가 HEAD 와 같은 바이트(S17 CSV 는 새 파일)' % _nchk, _unch and _nchk >= 30, f'{_nchk}개 비교')
+
+# 2. 숨은 값 비노출: 새 CSV·표 파일에 세정 시간 열·숨은 값 낱말이 없고, 화면 본문(정답 열기 전)과 파이썬 코드·출력에 숨은 값 숫자가 없음
+_hid = _C08['HID']
+_body08 = _re5.sub(r'<script.*?</script>', '', _pg08, flags=_re5.S)
+_leak = _re5.search(r'(?<![\d,.])%d(?![\d,])' % _hid, _body08)
+_cols_ok = all('clean' not in pd.read_csv(os.path.join(_td08, f), nrows=1).columns for f in ('s17_real_events.csv', 's17_real_hourly.csv', 's17_real_log_summary.csv'))
+_pol_real_clean = _po08[_po08['side'] == 'real']['clean'].isna().all()
+_js_app = _re5.findall(r'<script>\n\(function\(\)\{(.*?)\n</script>\n<script src="../tutor.js">', _pg08, _re5.S)[0]
+chk('0601 숨은 값 비노출: 실제 쪽 CSV 에 세정 시간 열이 없고 결정 표의 실제 쪽 clean 칸이 비었으며, 표 파일에 HIDDEN 낱말이 없고, 화면 본문(스크립트 밖)·페이지 코드·출력에 숨은 값 %d 이 없음' % _hid,
+    _cols_ok and _pol_real_clean and 'HIDDEN' not in _tb and not _leak and not _re5.search(r'(?<![\d,.])%d(?![\d,])' % _hid, _code08 + _out08) and str(_hid) not in _js_app,
+    f'열 {_cols_ok} · 본문 노출 {bool(_leak)}')
+
+# 3. 상수·표 모양: 격자 12 × 시드 6 × 기간 4, 결정 표 = 트윈 12×13×6 + 실제 13×8, 로그 요약 20×4, 시드 목록이 겹치지 않음
+_ok = (len(_GRID08) == 12 and len(_gr08) == 12 * 6 * 4 and len(_po08) == 12 * 13 * 6 + 13 * 8 and len(_rl08) == 20 * 4 and len(_ss08) == 20 * 4 and _C08['CAP0'] == 27
+       and not (set(_C08['TW']) & set(_C08['RL']) & set(_C08['RE'])) and not (set(_C08['TW']) & set(_C08['RL'])) and not (set(_C08['RL']) & set(_C08['RE'])) and not (set(_C08['TW']) & set(_C08['RE'])) and _C08['V0'] not in (_hid,))
+chk('0601 표 모양: 격자 12 × 트윈 시드 6 × 기간 4 = %d행 · 결정 표 %d행 · 로그 요약 %d행 · 시드 요약 %d행 · 트윈/로그/결과 시드 목록이 서로 겹치지 않음' % (len(_gr08), len(_po08), len(_rl08), len(_ss08)), _ok, f'격자 {len(_GRID08)} · 시드 {len(_C08["TW"])}/{len(_C08["RL"])}/{len(_C08["RE"])}')
+
+# 4. 표 파일(loop06_tables.js) = CSV 와 같은 줄, CSV = simulateLoss 를 다시 돌린 값(스팟: 격자 한 칸·결정 표 두 칸), 대표 시드 로그 = 다시 돌린 로그
+_Tj = json.loads(_tj)
+_okt = all(len(_Tj[k]) == len(d) for k, d in (('grid', _gr08), ('pol', _po08), ('reallog', _rl08)))
+_okt &= all(_same08(a, b, 1e-9) for a, b in zip([r['L'] for r in _Tj['grid']], _gr08['L'])) and all(_same08(a, b, 1e-9) for a, b in zip([r['loss'] for r in _Tj['pol']], _po08['loss'])) and all(_same08(a, b, 1e-9) for a, b in zip([r['q'] for r in _Tj['reallog']], _rl08['q']))
+_sg = _gr08[(_gr08['clean'] == 200) & (_gr08['seed'] == 103) & (_gr08['days'] == 30)].iloc[0]; _sp = _R08['spotGrid']
+_okt &= all(_same08(_sg[k], _sp[k], 1e-3) for k in _KEYS08)
+_okp = True
+for _l, _s, _c, _cap in _R08['spotPol']:
+    _row = _po08[(_po08['seed'] == _s) & (_po08['cap'] == _cap) & ((_po08['clean'] == _c) if _c is not None else (_po08['side'] == 'real'))]
+    _okp &= len(_row) == 1 and _same08(_row.iloc[0]['loss'], _l, 1e-3)
+_rep = _R08['rep']
+_okl = len(_ev08) == len(_R08['ev']) and list(_ev08['event_id']) == [e[0] for e in _R08['ev']] and all(_same08(a, b[3], 1e-9) for a, b in zip(_ev08['loss_glass'], _R08['ev'])) and list(_hr08['cleaner_queue']) == [h[0] for h in _R08['hr']] and list(_hr08['cleaner_busy']) == [h[1] for h in _R08['hr']]
+chk('0601 CSV 재현: 표 파일 = CSV 줄, 격자 한 칸·결정 표 두 칸 = simulateLoss 다시 실행, 실제 로그 CSV(대표 시드 %d) = 같은 시드로 다시 돌린 사건·시간별 로그' % _rep, _okt and _okp and _okl, f'표 {_okt} · 결정 표 {_okp} · 로그 {_okl} · 사건 {len(_ev08)}건')
+
+# 5. 독립 구현: 지표·gap·격자 보정·결정 훑기·결정 손해를 CSV 만으로 다시 계산해 s17_seed_summary.csv(JS)와 줄마다 대조
+def _lm08(ev, hr, d):
+    h = hr.iloc[:d * 24]; e = ev[ev['start_min'] < d * 1440]
+    return {'q': float(h['cleaner_queue'].mean()), 'busy': float(h['cleaner_busy'].mean()), 'L': float(e['loss_glass'].sum())}
+def _gap08(t, r): return float(np.mean([abs(np.log((t[k] + 1) / (r[k] + 1))) for k in _KEYS08]))
+_gm08 = {(c, d): _gr08[(_gr08['clean'] == c) & (_gr08['days'] == d)][_KEYS08].mean() for c in _GRID08 for d in _WIN08}
+def _cal08(r, d):
+    gs = [_gap08(_gm08[(c, d)], r) for c in _GRID08]; b = int(np.argmin(gs)); return _GRID08[b], gs[b]
+def _cost08(side, cl, k):
+    p = _po08[_po08['side'] == side]; p = p[p['clean'] == cl] if side == 'twin' else p
+    dl = p.groupby('cap')['loss'].mean() / _C08['DAYS']; return dl + k * dl.index.values
+def _reg08(ch, k):
+    c = _cost08('real', None, k); b = int(c.idxmin()); return b, float(c[ch] - c[b])
+_ok = True; _nrow = 0; _mx = 0.0
+for _, _r in _ss08.iterrows():
+    _real = _rl08[(_rl08['seed'] == _r['seed']) & (_rl08['days'] == _r['days'])].iloc[0]; d = int(_r['days'])
+    ch, gm = _cal08(_real, d); g0 = _gap08(_gm08[(_C08['V0'], d)], _real)
+    c0 = int(_cost08('twin', _C08['V0'], _C08['COST']).idxmin()); c1 = int(_cost08('twin', ch, _C08['COST']).idxmin()); b, r0 = _reg08(c0, _C08['COST']); _, r1 = _reg08(c1, _C08['COST'])
+    _ok &= ch == _r['chat'] and _same08(gm, _r['gap_after'], 2e-4) and _same08(g0, _r['gap_before'], 2e-4) and c0 == _r['cap_v0'] and c1 == _r['cap_cal'] and b == _r['cap_best'] and _same08(r0, _r['regret_v0'], 1e-4) and _same08(r1, _r['regret_cal'], 1e-4)
+    _nrow += 1
+chk('0601 독립 구현(CSV 만으로): 시드 요약 %d줄의 보정 최소점·gap 전후·두 권고·실제 최선·결정 손해가 파이썬 재계산과 같음(대표 로그 지표는 CSV 의 사건·시간별 로그에서 다시 계산한 값과도 같음)' % _nrow,
+    _ok and _nrow == 80 and all(_same08(_lm08(_ev08, _hr08, d)[k], _rl08[(_rl08['seed'] == _rep) & (_rl08['days'] == d)].iloc[0][k], 1e-6) for d in _WIN08 for k in _KEYS08), f'{_nrow}줄 대조')
+
+# 6. JS 재실행(비용 가정 0·500·1200·1700·3000)의 보정 최소점·gap·권고·손해 = 파이썬 재계산
+_ok = True
+for _ck, _rows in _R08['loops'].items():
+    _ck = int(_ck)
+    for s, chat, gb, ga, a0, a1, bst, g0_, g1_ in _rows:
+        _real = _rl08[(_rl08['seed'] == s) & (_rl08['days'] == 60)].iloc[0]; ch, gm = _cal08(_real, 60)
+        c0 = int(_cost08('twin', _C08['V0'], _ck).idxmin()); c1 = int(_cost08('twin', ch, _ck).idxmin()); b, r0 = _reg08(c0, _ck); _, r1 = _reg08(c1, _ck)
+        _ok &= chat == ch and a0 == c0 and a1 == c1 and bst == b and _same08(ga, gm, 1e-9) and _same08(g0_, r0, 1e-6) and _same08(g1_, r1, 1e-6)
+chk('0601 JS 재실행 대조: 비용 가정 0·500·1200·1700·3000 에서 로그 시드 20개의 보정 최소점·gap·두 권고·실제 최선·결정 손해가 파이썬과 같음', _ok, '5개 비용 × 20개 로그')
+
+# 7. 대표 시드: 파이썬이 다섯 지표(60일·30일 보정 최소점, 60일 gap 후, 두 결정 손해)의 백분위를 구해 Σ|백분위−50| 최소 시드를 고른 것이 JS·CSV 의 대표 시드와 같음
+_pct08 = lambda vals, v: 100 * ((np.asarray(vals) < v - 1e-9).sum() + 0.5 * (np.abs(np.asarray(vals) - v) <= 1e-9).sum()) / len(vals)
+_s60 = _ss08[_ss08['days'] == 60].set_index('seed'); _s30 = _ss08[_ss08['days'] == 30].set_index('seed')
+_sc = {s: sum(abs(_pct08(t[c], t.loc[s, c]) - 50) for t, c in ((_s60, 'chat'), (_s30, 'chat'), (_s60, 'gap_after'), (_s60, 'regret_v0'), (_s60, 'regret_cal'))) for s in _s60.index}
+_bs = min(_sc, key=lambda s: (_sc[s], s))
+chk('0601 대표 시드: Σ|백분위−50| 최소 시드를 파이썬이 따로 구해 %d 로 JS 와 같고, 화면의 로그 = 그 시드' % _rep, _bs == _rep and _same08(_sc[_bs], _R08['repScore'], 1e-6), f'점수 {_sc[_bs]:.1f}')
+
+# 8. 기대 점검(설계서의 가설 — 아니면 본문을 결과대로): 보정 뒤 gap 이 줄어든다 · 비용 구간에서 판 0 권고 ≠ 보정 권고 · 보정 권고가 영역 밖 · 영역 밖 오차 > 안 오차?
+_gb = _s60['gap_before']; _ga = _s60['gap_after']
+_shrink = float(np.mean(_ga < _gb)); _diffk = [k for k in range(0, 3001, 100) if int(_cost08('twin', _C08['V0'], k).idxmin()) != int(_cost08('twin', _cal08(_rl08[(_rl08['seed'] == _rep) & (_rl08['days'] == 60)].iloc[0], 60)[0], k).idxmin())]
+_hr_rep = _hr08; _lo, _hi = int(_hr_rep['cleaner_busy'].min()), int(_hr_rep['cleaner_busy'].max())
+_chat_rep = int(_s60.loc[_rep, 'chat']); _tw = _cost08('twin', _chat_rep, 0) * 0 + (_po08[(_po08['side'] == 'twin') & (_po08['clean'] == _chat_rep)].groupby('cap')['loss'].mean() / 60); _rl_ = _po08[_po08['side'] == 'real'].groupby('cap')['loss'].mean() / 60
+_inn = [abs(_tw[c] - _rl_[c]) for c in _CAPS08 if _lo <= c <= 27]; _out = [abs(_tw[c] - _rl_[c]) for c in _CAPS08 if not _lo <= c <= 27]
+_rg0 = _s60['regret_v0']; _rg1 = _s60['regret_cal']
+chk('0601 기대 점검: 보정 뒤 gap 이 줄어든 로그 90% 이상 · 판 0 권고와 보정 권고가 다른 비용(k) 구간이 있음 · 대표 로그의 세정 중 대수 범위가 운전 대수 27 안쪽에서 시작 · 기본 비용에서 보정 뒤 손해 ≤ 판 0 손해인 로그 90% 이상',
+    _shrink >= 0.9 and len(_diffk) >= 5 and _lo < 27 <= _hi and float(np.mean(_rg1 <= _rg0 + 1e-9)) >= 0.9,
+    f'gap 감소 {_shrink:.0%} · 권고가 다른 k {len(_diffk)}곳(0~3000, 100 간격) · 세정 중 대수 {_lo}~{_hi} · 보정 뒤가 더 작거나 같은 로그 {float(np.mean(_rg1 <= _rg0 + 1e-9)):.0%} · 영역 안 평균 오차 {np.mean(_inn):.0f}장 / 밖 {np.mean(_out):.0f}장(밖이 더 큰가: {np.mean(_out) > np.mean(_inn)})')
+
+# 9. 로그 기간별 흩어짐: 짧은 로그일수록 가장 흔한 보정 최소점에 모인 로그의 수가 같거나 적고(7일 ≤ 60일), 값은 격자 밖으로 나가지 않음
+_mode = {d: _ss08[_ss08['days'] == d]['chat'].value_counts().iloc[0] for d in _WIN08}
+chk('0601 로그 기간별 흩어짐: 가장 흔한 보정 최소점에 모인 로그 수가 7일 ≤ 14일 ≤ 30일 ≤ 60일이 아니어도 7일 < 60일(로그가 짧으면 더 흩어짐)이고 모든 값이 격자 안', _mode[7] < _mode[60] and set(_ss08['chat']) <= set(_GRID08), f'모인 로그 수 {dict((int(k), int(v)) for k, v in _mode.items())}')
+
+# 10. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 숫자가 파이썬 재계산·JS 값과 같음
+_run08 = subprocess.run([sys.executable, '-I', 'lab0601.py'], cwd=_td08, capture_output=True, text=True); _L08 = _run08.stdout.strip().split('\n')
+_realm = _lm08(_ev08, _hr08, 60); _tw0 = _gm08[(_C08['V0'], 60)]; _g0 = _gap08(_tw0, _realm); _ch, _gm = _cal08(_realm, 60)
+_c0 = int(_cost08('twin', _C08['V0'], 500).idxmin()); _c1 = int(_cost08('twin', _ch, 500).idxmin()); _b, _r0 = _reg08(_c0, 500); _, _r1 = _reg08(_c1, 500)
+_exp08 = ['실제 로그 60일 · 사건 %s건 · 시간별 %s줄 · 운전 대수 27' % (format(len(_ev08), ','), format(len(_hr08), ',')),
+          '실제 로그 지표: 세정 대기열 평균 %.2f대 · 세정 중 평균 %.2f대 · Loss 총 %s장' % (_realm['q'], _realm['busy'], format(int(round(_realm['L'])), ',')),
+          'gap 판 0: %.3f' % _g0, '격자 보정(로그 60일): 최소점 %d분 · gap %.3f' % (_ch, _gm),
+          '비용 가정 500장/일: 판 0 권고 %d대 · 보정 뒤 권고 %d대 · 실제 결과로 가장 좋았던 %d대' % (_c0, _c1, _b),
+          '결정 손해(장/일): 판 0 권고 %.0f · 보정 뒤 권고 %.0f' % (_r0, _r1),
+          '검증 영역(보정 뒤 권고 %d대): 로그의 세정 중 대수 %d~%d · 운전 대수 27 → %s' % (_c1, _lo, _hi, '안' if _lo <= _c1 <= 27 else '밖'),
+          '시드 20개(로그 60일): 보정 최소점 10·50·90%% %d/%d/%d분' % tuple(np.percentile(_s60['chat'], [10, 50, 90]))]
+chk('0601 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 실제 로그 지표·gap·보정 최소점·두 권고·결정 손해·검증 영역·시드 분포가 파이썬 재계산과 같고, 외부 통신 코드가 없음',
+    _run08.returncode == 0 and _run08.stdout.strip() == _out08 and all(any(l.startswith(e) or e in l for l in _L08) for e in _exp08) and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code08, _re5.M),
+    (_run08.stderr[-300:] if _run08.returncode else f'{len(_L08)}줄 · 대조 {len(_exp08)}줄' + ''.join('' if any(e in l for l in _L08) else ' · 불일치: ' + e[:50] for e in _exp08)))
+
+# 11. 페이지 구조
+_term08 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg08, _re5.S).group(1)))
+_nq08 = len(_re5.findall(r'<div class="qna" data-label=', _pg08)); _nsec08 = len(_re5.findall(r'<h2><span class="no">', _pg08)); _nmath08 = _pg08.count('<math display="block">')
+_fonts08 = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', _pg08)]
+_bt08 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg08, flags=_re5.S)))
+_endda08 = _re5.findall(r'[^니습]다[.]', _bt08)
+_p503 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0503-loss-forecast.html'), encoding='utf-8').read(); _hub08 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_dv08 = set(_re5.findall(r'data-v="(\w+)"', _pg08)); _dvdef = set(_re5.findall(r'V\.(\w+)=', _js_app)); _lv08 = set(_re5.findall(r'data-lv="(\w+)"', _pg08)); _lvdef = set(_re5.findall(r'LV\.(\w+)=', _js_app))
+_jsm08 = open(os.path.join(_DATA10, 'loop06.js'), encoding='utf-8').read()
+_slid08 = ['id="sCost" min="0" max="3000" step="100" value="%d"' % _C08['COST'], 'id="sCost5" min="0" max="3000" step="100" value="%d"' % _C08['COST'], 'id="sDays" min="0" max="3" step="1" value="3"', 'id="sDays4" min="0" max="3" step="1" value="3"', 'id="sDays5" min="0" max="3" step="1" value="3"']
+_qna08 = ' '.join(_re5.findall(r'<div class="qna".*?</div>', _pg08, _re5.S))
+chk('0601 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절 12개 · MathML 정의식 셋(총 비용·gap·결정 손해) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0503 쪽 0601 다음 링크(위·아래)와 0601 쪽 0503 이전 링크(위·아래) · 허브 등록(마지막 장 묶음) · data-v·data-lv 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 모듈과 페이지에 Math.random·Date.now 없음 · 점검표에 확립/미완 열',
+    _term08 == 6 and _nq08 == 4 and _nsec08 == 12 and _nmath08 == 3 and _fonts08 and min(_fonts08) >= 11 and not _endda08 and _p503.count('0601-closed-loop-blueprint.html') == 2 and _pg08.count('0503-loss-forecast.html') == 2
+    and 'labs/0601-closed-loop-blueprint.html' in _hub08 and '마지막 장 · 기둥 6' in _hub08 and _dv08 <= _dvdef and _lv08 <= _lvdef and all(s in _pg08 for s in _slid08)
+    and not _re5.search(r'Math\.random|Date\.now|new Date', _jsm08) and not _re5.search(r'Math\.random|Date\.now', _js_app) and '확립 / 미완' in _pg08 and not _qna08.count('%'),
+    f'용어 {_term08} · Q&A {_nq08} · 절 {_nsec08} · MathML {_nmath08} · 캔버스 글자 최소 {min(_fonts08) if _fonts08 else None}px({len(_fonts08)}곳) · -다 끝맺음 {len(_endda08)}건 · 0503 쪽 링크 {_p503.count("0601-closed-loop-blueprint.html")}곳 · 미정의 data-v {sorted(_dv08 - _dvdef)}')
+_cleanup08 = shutil.rmtree(_td08, ignore_errors=True)
+
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')
