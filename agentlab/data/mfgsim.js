@@ -1019,8 +1019,8 @@
 
   function scenario(name, params) {
     params = params || {};
-    var key = /^S14/i.test(String(name)) ? 'S14' : /^S13/i.test(String(name)) ? 'S13' : /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12, S13: S13, S14: S14 }[key];
+    var key = /^S15/i.test(String(name)) ? 'S15' : /^S14/i.test(String(name)) ? 'S14' : /^S13/i.test(String(name)) ? 'S13' : /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12, S13: S13, S14: S14, S15: S15 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -2569,12 +2569,222 @@
     IDS: S14_IDS, GITS: S14_GITS, W: S14_W, NOW: S14_NOW, SEASON_K: S14_SEASON_K, FDC_NOISE: S14_FDC_NOISE, A0_MIN: S14_A0_MIN, A0_SPAN: S14_A0_SPAN, P_REC: S14_P_REC, LIMIT: S14_LIMIT, ALPHA: S14_ALPHA, KMAX: S14_KMAX, HORIZON: S14_HORIZON, CAP: S14_CAP, OUT: S14_OUT, GLASS_PER_TURN: S14_GLASS_PER_TURN, P_HET: S14_P_HET };
   SEEDS.S14 = 181;                                      // 대표 시드: 시드 1~200 의 여섯 지표(마스크별 기울기 표준오차 중앙값 ÷ 공통 기울기 표준오차·기울기 이질성 검정 p·기록 있는 마스크의 잔여 수명 예측 오차 중앙값·예측 구간이 참 수명을 담은 비율·규칙 C − B 한계 초과 유리 수·규칙 C − A 버린 수명) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드(verify.py 가 독립 계산으로 확인)
 
+  /* ============================================================
+   * S15 data_pipeline — 사내 데이터 파이프라인(실험실 0400). 가상 공장 14일: 블록 B02·B03 × 챔버 1~4 = 8 챔버.
+   * 표 넷(가상 이름): fdc_glass(유리 표본 줄) · ppa_coef(잰 유리의 계수) · events(이벤트 구간) · mask_hist(마스크 이력).
+   * 시간은 분(정수), 0 = 2026-03-02 06:00. 실행 k(1~14)의 시간 창 = [(k−1)·1440, k·1440), 실행 시각 = k·1440 (다음 날 06:00).
+   * 유리 간격 CFG.CT 분, 턴 = 120장(300분). fdc_glass 는 턴 안 순번이 10 으로 나누어 5 가 남는 유리(5·15·…·115)만 표본으로 적재(턴마다 12줄),
+   * ppa_coef 는 그 가운데 턴마다 6장(5·25·45·65·85·105번)만 잰다. 챔버·마스크·온도·PPA 는 기존 함수(chamberTemp·makeMask·ppa·s11fit)로 만들고,
+   * 새 난수는 전부 hashSeed('S15', …) 줄기라 기존 출력(S1~S14·CSV·truth)은 바이트 단위로 그대로다.
+   * 같은 시뮬레이션에서 '정답본'(고장 없음)과 '적재본'(날마다 0~2개의 고장을 주입)을 함께 만든다. 정답은 날짜별 주입 목록(faults).
+   * 분석 = 0303 의 온도 보정(Mx − 기울기 × (FDC 온도 − 기준 온도), 기울기는 scenario('S11') 기본 시드 다중 회귀)을 챔버별로 평균한 값과 PPA 지표 초과 건수.
+   * 기존 함수는 건드리지 않는다. 대표 시드 = 시드 1~200 의 지표 다섯 백분위에서 Σ|백분위−50| 최소(verify.py 가 독립 계산으로 확인).
+   * ============================================================ */
+  var S15_DAYS = 14, S15_DAY_MIN = 1440, S15_BASE_UTC = Date.UTC(2026, 2, 2, 6, 0, 0), S15_BLOCKS = ['B02', 'B03'], S15_SEASON_K = 0.3, S15_FDC_NOISE = 0.04;
+  var S15_FDC_MOD = 10, S15_FDC_REM = 5, S15_PPA_GITS = [5, 25, 45, 65, 85, 105], S15_BLANK_P = 0.005, S15_DELAY_MIN = 45, S15_DELAY_MEAN = 45;
+  var S15_LATE_BASE = 1440, S15_LATE_MEAN = 2160, S15_SHIFT_MIN = 540, S15_SPEC_Q = 0.9, S15_TOL_MX = 0.1, S15_TOL_EX = 4, S15_TOL_EV = 4;
+  var S15_RULES = { rmin: 0.8, bmax: 0.02, jmin: 0.98 }, S15_LOOKBACK = 3, S15_HIST = 7, S15_CODE_VER = 'pipe-1.0';
+  var S15_KINDS = ['late', 'dup', 'gap', 'rename', 'shift', 'model'];
+  var S15_KIND_KO = { late: '늦게 온 자료', dup: '중복 행', gap: '빠진 구간', rename: '열 이름 바뀜', shift: '시각대 어긋남', model: '모델 판 섞임' };
+  var S15_EV = [['PM', 0.08, 90], ['세정', 0.12, 75], ['센서 교정', 0.08, 50], ['인터락', 0.35, 40]];
+  var S15_CH = []; S15_BLOCKS.forEach(function (b) { for (var c = 1; c <= 4; c++) S15_CH.push({ block: b, chamber: 'CH' + c, n: c, key: b + '-CH' + c }); });
+  var _s15bt = null;
+  function s15bT() { if (_s15bt === null) { var m = s11metrics(S11({})); _s15bt = { thermal: m.thermal, seed: SEEDS.S11 }; } return _s15bt; }   // 0303 기울기(S11 기본 시드 다중 회귀)를 받아 쓴다
+  function s15iso(min) { return new Date(S15_BASE_UTC + min * 60000).toISOString().slice(0, 16).replace('T', ' '); }
+  function s15r(x, d) { return +x.toFixed(d); }
+  function S15(p) {
+    var seed = p.seed == null ? SEEDS.S15 : p.seed, K = p.season_K == null ? S15_SEASON_K : p.season_K, slope = s15bT().thermal, D = S15_DAYS, END = D * S15_DAY_MIN, i, j, k;
+    var cFdc = [], cPpa = [], masks = [], maskHist = [], events = [], uniqMasks = {};
+    S15_CH.forEach(function (ch) {
+      var off = rng(hashSeed('S15', seed, ch.key, 'off')).int(150), rs = rng(hashSeed('S15', seed, ch.key, 'swap'));
+      var swapTurn = rs.u() < 0.5 ? 10 + rs.int(46) : 0, idA = maskId(ch.block, 'A', ch.n), idB = maskId(ch.block, 'B', ch.n);
+      var mkA = makeMask(idA, null, 'S15-' + seed), mkB = makeMask(idB, null, 'S15-' + seed);
+      mkA.age_base = 0; mkB.age_base = Math.max(0, swapTurn - 1);
+      var swapMin = null;
+      for (var n = 0; ; n++) {
+        var ts = off + Math.floor(n * CFG.CT); if (ts >= END) break;
+        var turn = Math.floor(n / CFG.N_TURN) + 1, git = n % CFG.N_TURN + 1;
+        if (swapTurn && swapMin === null && turn >= swapTurn) swapMin = ts;
+        if (git % S15_FDC_MOD !== S15_FDC_REM) continue;
+        var mk = swapTurn && turn >= swapTurn ? mkB : mkA, season = K * ts / END, gid = 'G' + seed + '-' + ch.key + '-T' + pad(turn, 3) + '-' + pad(git, 3);
+        var rt = rng(hashSeed('S15', seed, ch.key, turn, git, 'fdc')), tTrue = chamberTemp(ch.chamber, git, { season: season }), tFdc = chamberTemp(ch.chamber, git, { season: season, rng: rt, noise: S15_FDC_NOISE });
+        var blank = rng(hashSeed('S15', seed, gid, 'blank')).u() < S15_BLANK_P, zT = (tTrue - (CFG.T0 + 0.6)) / 0.5;
+        cFdc.push({ glass_id: gid, ts: ts, block: ch.block, chamber: ch.chamber, mask_id: mk.mask_id, turn: turn, glass_in_turn: git, chamber_temp: blank ? null : s15r(tFdc, 4), ch_temp: null,
+          p_steady_mean: s15r(CFG.P_TARGET + 3 * (0.5 * zT + Math.sqrt(0.75) * rt.normal()), 3), rate: s15r(2.0 * (1 - 0.0004 * git) * (1 + rt.normal(0, 0.01)), 4), _d: Math.floor(ts / S15_DAY_MIN) + 1 });
+        if (S15_PPA_GITS.indexOf(git) >= 0) {
+          var ctx = { glass_id: gid, block: ch.block, chamber: ch.chamber, mask_set: mk.set, turn: turn, glass_in_turn: git, chamber_temp: tTrue };
+          var res = ppa(ctx, mk), f = s11fit(res.grid), m = ppaMetric(res.grid), rd = rng(hashSeed('S15', seed, gid, 'delay'));
+          cPpa.push({ glass_id: gid, ts: ts, measured_ts: ts + Math.round(S15_DELAY_MIN + rd.exp(S15_DELAY_MEAN)), Tx: s15r(f.coef.Tx, 6), Ty: s15r(f.coef.Ty, 6), theta: s15r(f.coef.theta, 6), Mx: s15r(f.coef.Mx, 6), My: s15r(f.coef.My, 6), K: s15r(f.coef.K, 6),
+            model_ver: 'm1', ppa_metric: s15r(Math.max(m.dx_metric, m.dy_metric), 6), _d: Math.floor(ts / S15_DAY_MIN) + 1, _T: tTrue });
+        }
+      }
+      var idle = swapMin === null ? END : swapMin;
+      maskHist.push({ mask_id: idA, from_ts: 0, to_ts: idle, chamber: ch.chamber, block: ch.block, state: 'IN_USE' });
+      if (swapMin !== null) { maskHist.push({ mask_id: idB, from_ts: swapMin, to_ts: END, chamber: ch.chamber, block: ch.block, state: 'IN_USE' }); maskHist.push({ mask_id: idA, from_ts: swapMin, to_ts: END, chamber: ch.chamber, block: ch.block, state: 'WASH' }); }
+      masks.push({ block: ch.block, chamber: ch.chamber, mask_a: idA, mask_b: swapTurn ? idB : null, swap_turn: swapTurn || null, swap_ts: swapMin });
+      // 이벤트: 챔버마다 날마다 종류별로 확률 λ 로 한 번(시작 시각 균등), 같은 챔버 안에서 겹치면 뒤의 것을 버린다
+      var cand = [];
+      for (var d = 1; d <= D; d++) S15_EV.forEach(function (e) { var re = rng(hashSeed('S15', seed, 'ev', ch.key, d, e[0])); if (re.u() < e[1]) { var st = (d - 1) * S15_DAY_MIN + re.int(S15_DAY_MIN - 120), du = Math.round(e[2] * (0.8 + 0.4 * re.u())); cand.push({ block: ch.block, chamber: ch.chamber, start_ts: st, end_ts: st + du, kind: e[0] }); } });
+      cand.sort(function (a, b) { return a.start_ts - b.start_ts; });
+      var last = -1; cand.forEach(function (e) { if (e.start_ts > last) { events.push(e); last = e.end_ts; } });
+    });
+    events.sort(function (a, b) { return a.start_ts - b.start_ts || (a.block + a.chamber < b.block + b.chamber ? -1 : 1); });
+    events.forEach(function (e, ix) { e.event_id = 'EV-' + pad(ix + 1, 4); });
+    // PPA 지표 spec: 정답본 지표의 95% 분위
+    var spec = s15r(quantileOf(cPpa.map(function (r) { return r.ppa_metric; }), S15_SPEC_Q), 6);
+    // 고장 주입(날짜별)
+    var lFdc = cFdc.map(function (r) { return Object.assign({}, r); }), lPpa = cPpa.map(function (r) { return Object.assign({}, r); }), faults = [];
+    for (var day = 1; day <= D; day++) {
+      var rf = rng(hashSeed('S15', seed, 'fault', day)), u = rf.u(), nf = u < 0.3 ? 0 : u < 0.7 ? 1 : 2, pool = S15_KINDS.slice(), kinds = [];
+      while (kinds.length < nf) kinds.push(pool.splice(rf.int(pool.length), 1)[0]);
+      kinds.sort(function (a, b) { return S15_KINDS.indexOf(a) - S15_KINDS.indexOf(b); });
+      var w0 = (day - 1) * S15_DAY_MIN, w1 = day * S15_DAY_MIN, det = {};
+      kinds.forEach(function (kd) {
+        var r = rng(hashSeed('S15', seed, 'fault', day, kd));
+        if (kd === 'late') {
+          var frac = 0.15 + 0.35 * r.u(), cnt = 0; det.late = { frac: s15r(frac, 4), rows: 0 };
+          lPpa.forEach(function (q) { if (q._d === day && rng(hashSeed('S15', seed, 'late', q.glass_id)).u() < frac) { q.measured_ts = w1 + S15_LATE_BASE + Math.round(rng(hashSeed('S15', seed, 'late2', q.glass_id)).exp(S15_LATE_MEAN)); cnt++; } });
+          det.late.rows = cnt;
+        } else if (kd === 'dup') {
+          var len = 360 + r.int(361), a0 = w0 + r.int(S15_DAY_MIN - len), extraF = [], extraP = []; det.dup = { from: a0, to: a0 + len, rows: 0 };
+          lFdc.forEach(function (q) { if (q._d === day && q.ts >= a0 && q.ts < a0 + len) extraF.push(Object.assign({}, q)); });
+          lPpa.forEach(function (q) { if (q._d === day && q.ts >= a0 && q.ts < a0 + len) extraP.push(Object.assign({}, q)); });
+          Array.prototype.push.apply(lFdc, extraF); Array.prototype.push.apply(lPpa, extraP); det.dup.rows = extraF.length + extraP.length;
+        } else if (kd === 'gap') {
+          var ch2 = S15_CH[r.int(S15_CH.length)], len2 = 240 + r.int(361), a1 = w0 + r.int(S15_DAY_MIN - len2); det.gap = { chamber: ch2.key, from: a1, to: a1 + len2, rows: 0 };
+          var kept = []; lFdc.forEach(function (q) { if (q._d === day && q.block === ch2.block && q.chamber === ch2.chamber && q.ts >= a1 && q.ts < a1 + len2) det.gap.rows++; else kept.push(q); });
+          lFdc = kept;
+        } else if (kd === 'rename') {
+          var nr = 0; lFdc.forEach(function (q) { if (q._d === day) { q.ch_temp = q.chamber_temp; q.chamber_temp = null; nr++; } }); det.rename = { rows: nr };
+        } else if (kd === 'shift') {
+          var ns = 0; lFdc.forEach(function (q) { if (q._d === day) { q.ts += S15_SHIFT_MIN; ns++; } }); det.shift = { minutes: S15_SHIFT_MIN, rows: ns };
+        } else if (kd === 'model') {
+          var g = 0.3 + 0.3 * r.u(), nm = 0; det.model = { frac: s15r(g, 4), rows: 0 };
+          lPpa.forEach(function (q) { if (q._d === day && rng(hashSeed('S15', seed, 'model', q.glass_id)).u() < g) { q.Mx = s15r(q.Mx - slope * (q._T - CFG.T0), 6); q.model_ver = 'm2'; nm++; } });
+          det.model.rows = nm;
+        }
+      });
+      faults.push({ day: day, kinds: kinds, detail: det });
+    }
+    lFdc.sort(function (a, b) { return a._d - b._d || (a.glass_id < b.glass_id ? -1 : a.glass_id > b.glass_id ? 1 : a.ts - b.ts); });
+    var out = { id: 'S15', name: 'data_pipeline', params: { seed: seed, days: D, n_chamber: S15_CH.length, season_K: K, fdc_every: S15_FDC_MOD, ppa_gits: S15_PPA_GITS.slice(), blank_p: S15_BLANK_P, delay_min: S15_DELAY_MIN, delay_mean: S15_DELAY_MEAN,
+        late_base: S15_LATE_BASE, late_mean: S15_LATE_MEAN, shift_min: S15_SHIFT_MIN, spec: spec, spec_q: S15_SPEC_Q, thermal: slope, thermal_seed: s15bT().seed, T_ref: CFG.T0, tol_mx: S15_TOL_MX, tol_ex: S15_TOL_EX, tol_ev: S15_TOL_EV,
+        rules: Object.assign({}, S15_RULES), lookback: S15_LOOKBACK, hist: S15_HIST, code_ver: S15_CODE_VER },
+      loaded: { fdc: lFdc, ppa: lPpa, events: events, mask_hist: maskHist }, clean: { fdc: cFdc, ppa: cPpa }, masks: masks, faults: faults };
+    out.evByCh = {}; events.forEach(function (e) { (out.evByCh[e.block + '-' + e.chamber] || (out.evByCh[e.block + '-' + e.chamber] = [])).push(e); });
+    var cols = { fdc: ['glass_id', 'ts', 'block', 'chamber', 'mask_id', 'turn', 'glass_in_turn', 'chamber_temp', 'ch_temp', 'p_steady_mean', 'rate'], ppa: ['glass_id', 'ts', 'measured_ts', 'Tx', 'Ty', 'theta', 'Mx', 'My', 'K', 'model_ver', 'ppa_metric'],
+      events: ['event_id', 'block', 'chamber', 'start_ts', 'end_ts', 'kind'], mask_hist: ['mask_id', 'from_ts', 'to_ts', 'chamber', 'block', 'state'] };
+    out.cols = cols;
+    var TS = { ts: 1, measured_ts: 1, start_ts: 1, end_ts: 1, from_ts: 1, to_ts: 1 };
+    function csvOf(rows, cs) { return rows.map(function (r) { var o = {}; cs.forEach(function (c) { o[c] = TS[c] ? s15iso(r[c]) : r[c]; }); return o; }); }
+    out.csvRows = function (name) {
+      if (name === 'fdc_glass') return csvOf(lFdc, cols.fdc); if (name === 'ppa_coef') return csvOf(lPpa, cols.ppa); if (name === 'events') return csvOf(events, cols.events); if (name === 'mask_hist') return csvOf(maskHist, cols.mask_hist);
+      if (name === 'clean_fdc_glass') return csvOf(cFdc, cols.fdc); if (name === 'clean_ppa_coef') return csvOf(cPpa, cols.ppa);
+      if (name === 'faults') { var rows = []; faults.forEach(function (f) { f.kinds.forEach(function (kd) { rows.push({ day: f.day, kind: kd, detail: JSON.stringify(f.detail[kd]) }); }); }); return rows; }
+    };
+    return out;
+  }
+  /* ---- 파이프라인 도구: 학습자가 가진 것(적재본)만 받는다. 정답본은 truth 비교용으로만 ---- */
+  function s15window(k) { return [(k - 1) * S15_DAY_MIN, k * S15_DAY_MIN]; }
+  function s15canon(v, d) { if (v == null) return ''; if (typeof v !== 'number') return String(v); var x = v.toFixed(d); return /^-0\.0*$/.test(x) ? x.slice(1) : x; }
+  function s15fp(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return ('00000000' + (h >>> 0).toString(16)).slice(-8); }   // FNV-1a 32비트, 8자리 16진
+  function s15inLines(fdcW, ppaW) {
+    var a = fdcW.slice().sort(function (x, y) { return x.glass_id < y.glass_id ? -1 : x.glass_id > y.glass_id ? 1 : x.ts - y.ts; }), b = ppaW.slice().sort(function (x, y) { return x.glass_id < y.glass_id ? -1 : x.glass_id > y.glass_id ? 1 : x.measured_ts - y.measured_ts; });
+    var la = a.map(function (r) { return [r.glass_id, s15iso(r.ts), r.block, r.chamber, r.mask_id, r.turn, r.glass_in_turn, s15canon(r.chamber_temp, 4), s15canon(r.ch_temp, 4), s15canon(r.p_steady_mean, 3), s15canon(r.rate, 4)].join('|'); });
+    var lb = b.map(function (r) { return [r.glass_id, s15iso(r.ts), s15iso(r.measured_ts), s15canon(r.Tx, 6), s15canon(r.Ty, 6), s15canon(r.theta, 6), s15canon(r.Mx, 6), s15canon(r.My, 6), s15canon(r.K, 6), r.model_ver, s15canon(r.ppa_metric, 6)].join('|'); });
+    return la.join('\n') + '\n#\n' + lb.join('\n');
+  }
+  function s15extract(T, k, asOf) {                    // SELECT … WHERE ts 가 창 안 (그리고 ppa 는 asOf 까지 도착한 것만)
+    var w = s15window(k), fdcW = T.fdc.filter(function (r) { return r.ts >= w[0] && r.ts < w[1]; });
+    var ppaW = T.ppa.filter(function (r) { return r.ts >= w[0] && r.ts < w[1] && r.measured_ts <= asOf; });
+    return { fdcW: fdcW, ppaW: ppaW, w: w };
+  }
+  function s15join(fdcW, ppaW) {                       // JOIN ON glass_id (중복 행은 곱으로 늘어난다)
+    var by = {}, rows = []; ppaW.forEach(function (p) { (by[p.glass_id] || (by[p.glass_id] = [])).push(p); });
+    fdcW.forEach(function (f) { var ps = by[f.glass_id]; if (ps) ps.forEach(function (p) { rows.push({ f: f, p: p }); }); });
+    return rows;
+  }
+  function s15attach(S, fdcW) {                        // 구간 이음: 챔버가 같고 f.ts 가 start~end 안. 유리마다 이벤트 종류
+    var m = {}, n = 0;
+    fdcW.forEach(function (f) { var es = S.evByCh[f.block + '-' + f.chamber] || []; for (var i = 0; i < es.length; i++) if (f.ts >= es[i].start_ts && f.ts <= es[i].end_ts) { if (!m[f.glass_id]) { m[f.glass_id] = es[i].kind; n++; } break; } });
+    return { map: m, n: n };
+  }
+  function s15analyze(S, fdcW, ppaW) {                 // 챔버별 보정 후 Mx 평균·지표 초과 건수, 이벤트 붙은 유리 수
+    var P = S.params, rows = s15join(fdcW, ppaW), by = {}, tot = 0, exTot = 0, att = s15attach(S, fdcW);
+    S15_CH.forEach(function (c) { by[c.key] = { key: c.key, n: 0, sum: 0, ex: 0 }; });
+    rows.forEach(function (r) {
+      var o = by[r.f.block + '-' + r.f.chamber]; if (!o) return;
+      if (r.f.chamber_temp != null) { o.n++; o.sum += r.p.Mx - P.thermal * (r.f.chamber_temp - P.T_ref); }
+      if (r.p.ppa_metric > P.spec) { o.ex++; exTot++; }
+    });
+    var ch = S15_CH.map(function (c) { var o = by[c.key]; return { key: c.key, n: o.n, mx: o.n ? o.sum / o.n : null, ex: o.ex }; });
+    return { ch: ch, ex: exTot, ev: att.n, joined: rows.length };
+  }
+  function s15outLines(o) { return o.ch.map(function (c) { return c.key + '|' + c.n + '|' + s15canon(c.mx, 6) + '|' + c.ex; }).concat(['events|' + o.ev]).join('\n'); }
+  function s15differ(a, b, P) {                        // 정답과 다른가: 챔버 평균 차 > 허용, 초과 건수 차 ≥ max(허용, 정답의 20%), 이벤트 건수 차 ≥ 허용, 한쪽만 빈 결과
+    var tol = P || { tol_mx: S15_TOL_MX, tol_ex: S15_TOL_EX, tol_ev: S15_TOL_EV }, why = [], i;
+    for (i = 0; i < a.ch.length; i++) { var x = a.ch[i].mx, y = b.ch[i].mx; if ((x == null) !== (y == null) || (x != null && Math.abs(x - y) > tol.tol_mx)) { why.push('mx ' + a.ch[i].key); } }
+    if (Math.abs(a.ex - b.ex) >= Math.max(tol.tol_ex, 0.2 * b.ex)) why.push('ex'); if (Math.abs(a.ev - b.ev) >= tol.tol_ev) why.push('ev');
+    return why;
+  }
+  function s15checks(S, k, ex, hist, rules) {
+    var R = rules || S.params.rules, w = ex.w, fdcW = ex.fdcW, ppaW = ex.ppaW, nF = fdcW.length, nP = ppaW.length, out = [], ids = {}, dupF = 0, dupP = 0, i;
+    var med = function (a) { return a.length ? median(a) : null; }, mF = med(hist.fdc), mP = med(hist.ppa);
+    var ratio = mF == null ? null : Math.min(nF / mF, nP / mP);
+    out.push({ id: 'rows', name: '행 수', value: ratio, thr: R.rmin, pass: ratio == null ? true : ratio >= R.rmin, detail: { n_fdc: nF, n_ppa: nP, med_fdc: mF, med_ppa: mP } });
+    var sf = {}, sp = {}; fdcW.forEach(function (r) { if (sf[r.glass_id]) dupF++; else sf[r.glass_id] = 1; }); ppaW.forEach(function (r) { if (sp[r.glass_id]) dupP++; else sp[r.glass_id] = 1; });
+    out.push({ id: 'dup', name: 'glass_id 중복', value: dupF + dupP, thr: 0, pass: dupF + dupP === 0, detail: { dup_fdc: dupF, dup_ppa: dupP } });
+    var req = ['glass_id', 'ts', 'chamber', 'mask_id', 'chamber_temp'], empty = req.filter(function (c) { return !fdcW.some(function (r) { return r[c] != null; }); });
+    out.push({ id: 'cols', name: '필수 열 존재', value: empty.length, thr: 0, pass: empty.length === 0, detail: { empty: empty } });
+    var nb = fdcW.filter(function (r) { return r.chamber_temp == null; }).length, br = nF ? nb / nF : 1;
+    out.push({ id: 'blank', name: '빈칸 비율', value: br, thr: R.bmax, pass: br <= R.bmax, detail: { blank: nb } });
+    var jm = 0; ppaW.forEach(function (p) { if (sf[p.glass_id]) jm++; }); var jr = nP ? jm / nP : 0;
+    out.push({ id: 'join', name: '이음 비율', value: jr, thr: R.jmin, pass: jr >= R.jmin, detail: { matched: jm, ppa: nP } });
+    var vio = s15join(fdcW, ppaW).filter(function (r) { return r.f.ts > r.p.measured_ts; }).length, oow = fdcW.filter(function (r) { return r.ts < w[0] || r.ts >= w[1]; }).length;
+    out.push({ id: 'ts', name: 'ts 범위·순서', value: vio + oow, thr: 0, pass: vio + oow === 0, detail: { out_of_window: oow, ts_after_measured: vio } });
+    var vs = {}; ppaW.forEach(function (r) { vs[r.model_ver] = 1; }); var nv = Object.keys(vs).length;
+    out.push({ id: 'model', name: 'model_ver 종류', value: nv, thr: 1, pass: nv <= 1, detail: { vers: Object.keys(vs).sort() } });
+    return out;
+  }
+  function s15late(S, k, asOf, Lw) {                       // 알림: 지난 실행 뒤에 도착한 이전 날 행(되돌아보기 재집계를 부르는 신호)
+    var w0 = (k - 1) * S15_DAY_MIN, prevEnd = w0, cnt = 0, L = Lw == null ? S.params.lookback : Lw;
+    S.loaded.ppa.forEach(function (r) { if (r.ts < w0 && r.ts >= w0 - L * S15_DAY_MIN && r.measured_ts > prevEnd && r.measured_ts <= asOf) cnt++; });
+    return cnt;
+  }
+  function s15runAll(S, o) {
+    o = o || {}; var P = S.params, L = o.lookback == null ? P.lookback : o.lookback, R = o.rules || P.rules, D = P.days, out = { days: [], L: L, rules: R }, hist = { fdc: [], ppa: [] }, k;
+    for (k = 1; k <= D; k++) {
+      var asOf = k * S15_DAY_MIN, ex = s15extract(S.loaded, k, asOf), ana = s15analyze(S, ex.fdcW, ex.ppaW), cl = s15extract(S.clean, k, Infinity), truth = s15analyze(S, cl.fdcW, cl.ppaW);
+      var cks = s15checks(S, k, ex, { fdc: hist.fdc.slice(-P.hist), ppa: hist.ppa.slice(-P.hist) }, R), pass = cks.every(function (c) { return c.pass; });
+      var fk = Math.min(D, k + L) * S15_DAY_MIN, ex2 = s15extract(S.loaded, k, fk), fin = s15analyze(S, ex2.fdcW, ex2.ppaW);
+      var f = S.faults[k - 1], wrong = s15differ(ana, truth, P), wrongFin = s15differ(fin, truth, P);
+      out.days.push({ day: k, faults: f.kinds.slice(), checks: cks, pass: pass, naive: ana, truth: truth, final: fin, wrong: wrong.length > 0, why: wrong, wrong_final: wrongFin.length > 0, n_fdc: ex.fdcW.length, n_ppa: ex.ppaW.length, late_notice: s15late(S, k, asOf, L) });
+      hist.fdc.push(ex.fdcW.length); hist.ppa.push(ex.ppaW.length);
+    }
+    return out;
+  }
+  function s15late4(S, L) {                            // 늦게 온 행(자기 날 창 끝 뒤에 도착, 실험 끝 전까지) 중 되돌아보기 창 L 일 안에 들어온 비율
+    var D = S.params.days, late = 0, fix = 0, end = D * S15_DAY_MIN;
+    S.loaded.ppa.forEach(function (r) { var d = Math.floor(r.ts / S15_DAY_MIN) + 1, e = d * S15_DAY_MIN; if (r.measured_ts > e && r.measured_ts <= end) { late++; if (r.measured_ts <= Math.min(D, d + L) * S15_DAY_MIN) fix++; } });
+    return { late: late, fixed: fix, ratio: late ? fix / late : null };
+  }
+  function s15metrics(S, o) {
+    var R = s15runAll(S, o), D = R.days, fd = D.filter(function (d) { return d.faults.length > 0; }), L = R.L;
+    var wrong = D.filter(function (d) { return d.wrong; }).length, caught = fd.filter(function (d) { return !d.pass; }).length, falseAl = D.filter(function (d) { return !d.pass && d.faults.length === 0; }).length;
+    var missed = D.filter(function (d) { return d.pass && d.wrong; }).length, l4 = s15late4(S, L), missedFin = D.filter(function (d) { return d.pass && d.wrong_final; }).length, harmless = D.filter(function (d) { return !d.pass && d.faults.length > 0 && !d.wrong; }).length;
+    return { wrong: wrong, caught_ratio: fd.length ? caught / fd.length : null, false_alarm: falseAl, late_fixed: l4.ratio, missed: missed, n_fault_days: fd.length, n_fail: D.filter(function (d) { return !d.pass; }).length, missed_final: missedFin, harmless: harmless, late: l4.late, late_fixed_n: l4.fixed };
+  }
+  S15.tools = { window: s15window, iso: s15iso, extract: s15extract, join: s15join, attach: s15attach, analyze: s15analyze, outLines: s15outLines, inLines: s15inLines, differ: s15differ, checks: s15checks, late: s15late, runAll: s15runAll, late4: s15late4, metrics: s15metrics, fp: s15fp, canon: s15canon,
+    CH: S15_CH, DAYS: S15_DAYS, DAY_MIN: S15_DAY_MIN, KINDS: S15_KINDS, KIND_KO: S15_KIND_KO, EV: S15_EV, PPA_GITS: S15_PPA_GITS, RULES: S15_RULES, LOOKBACK: S15_LOOKBACK, HIST: S15_HIST, CODE_VER: S15_CODE_VER, TOL_MX: S15_TOL_MX, TOL_EX: S15_TOL_EX, TOL_EV: S15_TOL_EV, SPEC_Q: S15_SPEC_Q, SHIFT_MIN: S15_SHIFT_MIN, FDC_MOD: S15_FDC_MOD, FDC_REM: S15_FDC_REM };
+  SEEDS.S15 = 115;                                      // 대표 시드: 시드 1~200 의 다섯 지표(점검 없이 정답과 다른 날 수·점검이 잡은 고장 비율·헛잡은 날 수·되돌아보기 창이 바로잡은 늦은 자료 비율·놓친 날 수) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드(verify.py 가 독립 계산으로 확인)
+
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaField: ppaField, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools, s13tools: S13.tools, s14tools: S14.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools, s13tools: S13.tools, s14tools: S14.tools, s15tools: S15.tools
   };
 });

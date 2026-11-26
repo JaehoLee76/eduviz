@@ -64,6 +64,14 @@ csv('vm_s13.csv', M.scenario('S13').csvRows());
 // S14: 마스크 24장 × 최근 8턴 = 192행. 실험실 0306 의 Python 코드가 읽는다(턴 평균 표: mask_id·turn·age_known·Mx_comp·baseline). 정답은 넣지 않음
 csv('life_s14.csv', M.scenario('S14').csvRows());
 
+// S15: 가상 공장 14일 × 8 챔버. 실험실 0400 의 Python 코드가 읽는다. s15_ 표 넷 = 적재본(날마다 0~2개 고장이 들어간, 사내 DB 가 실제로 받은 모습),
+// s15_clean_ 둘 = 정답본(고장 없이 들어왔다면의 표 · 결과 대조용), s15_faults = 날짜별 주입 목록(정답). 시각은 'YYYY-MM-DD HH:MM' 문자열(사전순 = 시간순)
+const S15 = M.scenario('S15');
+['fdc_glass', 'ppa_coef', 'events', 'mask_hist'].forEach(n => csv('s15_' + n + '.csv', S15.csvRows(n), S15.cols[n]));
+csv('s15_clean_fdc_glass.csv', S15.csvRows('clean_fdc_glass'), S15.cols.fdc);
+csv('s15_clean_ppa_coef.csv', S15.csvRows('clean_ppa_coef'), S15.cols.ppa);
+csv('s15_faults.csv', S15.csvRows('faults'), ['day', 'kind', 'detail']);
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

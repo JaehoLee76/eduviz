@@ -1,0 +1,1099 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>사내 데이터 파이프라인</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="분석 함수가 맞아도 들어가는 표가 틀리면 결과가 조용히 틀리므로, 정해진 시간 창으로 뽑고 키와 구간으로 잇고 매 실행마다 자료를 점검해 통과할 때만 결과를 남기며 지문과 멱등으로 같은 입력이면 같은 결과를 보장하는 파이프라인을 14일 모의 운전으로 익히는 실험실. 회사 PC용 Python(sqlite3)과 파이프라인 실행 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.maps2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0}
+.maps2 .labtitle{font-size:.85rem}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.stk{background:var(--card)}
+.ctrl select{grid-column:span 1}
+label.cb{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.2rem .7rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.9rem;font-weight:700;cursor:pointer}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
+.qcard{margin:.9rem 0}
+.mixtag{background:var(--warn);color:#fff;border-radius:999px;padding:.05rem .6rem;font-size:.8rem}
+.qres{margin-top:.5rem}
+.shbars{margin:.3rem 0}
+.sh{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:.5rem;align-items:center;font-size:.85rem;margin:.15rem 0}
+.sh .shb{height:.7rem;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+.sh .shb i{display:block;height:100%;background:var(--accent2)}
+.sh.dom .shb i{background:var(--good)}
+.sh.dom .shl,.sh.dom .shv{font-weight:800;color:var(--good)}
+.sh .shv{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .maps2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr auto}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .stk{position:sticky;top:var(--tb,56px);z-index:6;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+}
+
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.maps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+table.mt td.hit{white-space:normal}
+
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+.qna{margin:.9rem 0}
+@media(max-width:700px){.maps3{grid-template-columns:1fr}}
+select{width:auto;max-width:100%}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+td.dim{color:var(--soft)}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 4 · 기둥 4 · 실험실 0400</p>
+  <h1>사내 데이터 파이프라인</h1>
+  <p class="sub">뽑고, 잇고, 점검하고, 분석하고, 남기는 일을 정해진 시각에 사람 손 없이 되풀이하는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0306-mask-life.html">← 이전: 마스크 수명 예측</a><span class="sp"></span></nav>
+
+<p><b>분석 함수가 맞아도 그 함수에 들어가는 표가 틀리면 결과가 조용히 틀립니다.</b> 그래서 파이프라인은 1) 정해진 시간 창으로 자료를 뽑고, 2) <code>glass_id</code>·마스크·챔버 같은 키로 잇되 이벤트는 &lsquo;챔버가 같고 시각이 구간 안&rsquo;으로 붙이고, 3) 매 실행마다 행 수·키 중복·빈칸 비율·이음 비율·늦게 온 자료·열 구성을 점검해 통과할 때만 결과를 내고, 4) 같은 입력이면 언제 다시 돌려도 같은 결과(입력 지문·코드 판·출력 지문)가 나오게 만듭니다. 그래야 에이전트가 이 결과 위에서 판단할 수 있습니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0101의 FDC 요약값, 0201의 궤적에서 특징 뽑기, 0206의 상태·전이·사례 기록(<code>links</code>·<code>trace</code>), 0302의 계수 표, 0303의 <code>join_fdc_ppa</code>(못 이은 행 수)와 온도 보정, 0305의 모델 판·센서 판·드리프트 감시. 표·열·행과 CSV 파일.</p>
+  <ul class="chips known"><li>FDC 요약값 (0101)</li><li>궤적 → 특징 (0201)</li><li>사례 기록 · links (0206)</li><li>계수 표 (0302)</li><li>FDC·PPA 잇기 · 온도 보정 (0303)</li><li>모델 판 · 센서 판 · 드리프트 감시 (0305)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(되돌아보기 창 · 늦게 온 자료 · 점검 문턱 · 실행 기록)은 쓰는 자리에서 문장으로 정의합니다. SQL 의 네 가지 말(SELECT · WHERE · JOIN · GROUP BY)은 처음 쓰는 자리에서 한 줄로 풀어 둡니다.</p>
+  <ul class="chips" id="termList"><li>파이프라인 (pipeline)</li><li>시간 창 (time window)</li><li>구간 이음 (interval join)</li><li>자료 점검 (data check)</li><li>지문 (fingerprint)</li><li>멱등 (idempotent)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 0101~0306의 분석을 매일 손으로 엑셀에 붙이는 대신, 사내 DB에서 뽑아 키로 잇고 정해진 시각에 돌려 결과를 남기는 일. 에이전트가 쓸 &lsquo;데이터 손발&rsquo;입니다(2~8절).</li>
+    <li><b>손으로 연습</b> — 시간 창을 밀어 보며 두 번 세거나 빠뜨리는 줄을 세고(3절), 이벤트를 유리에 붙이고(4절), 점검 문턱을 옮겨 14일 모의 운전에서 일부러 넣은 고장을 잡아 보고(5절), 되돌아보기 창의 길이를 옮기고(6절), 같은 날을 다시 돌려 지문을 견줍니다(7절).</li>
+    <li><b>다음 날 산출물</b> — <code>load_db</code>·<code>extract</code>·<code>join_keys</code>·<code>attach_events</code>·<code>run_checks</code>·<code>run_daily</code> Python 함수(sqlite3 표준 라이브러리, 10절)와 파이프라인 실행 기록지(11절), 작업 스케줄러 등록 예(8절).</li>
+    <li><b>기록할 데이터</b> — 실행마다 입력 범위·행 수·입력 지문·코드 판·점검 결과·출력 지문(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 문턱 승인·실패 알림 처리·스키마 변경 공지는 사람, 점검과 재실행 조건은 규칙, 뽑기·잇기·분석·보고 초안·실패 요약은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 손으로 붙이던 시간과, 점검이 막은 &lsquo;틀린 보고&rsquo; 일수(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 매일 아침 <b>&ldquo;챔버별 보정 후 Mx 평균과 PPA 지표 초과 건수&rdquo;</b> 보고를 자동으로 만들어야 합니다. 지금은 사람이 네 시스템(FDC · PPA · 이벤트 · 마스크 이력)에서 표를 내려받아 엑셀에서 붙인다고 가정합니다(하루 <span class="v_man"></span>분, 9절에서 옮김). 가상 공장 <b><span class="v_days"></span>일</b> 모의 운전을 자동으로 돌려 보고를 만들었습니다. 이 모의 운전에는 사내 시스템에서 흔히 생기는 고장 여섯 가지(늦게 온 자료 · 중복 행 · 빠진 구간 · 열 이름 바뀜 · 시각대 어긋남 · 모델 판 섞임)가 날마다 0~2개씩 들어 있고, 어느 날 무슨 고장이 들었는지의 정답은 따로 있습니다.
+  <b>(1) 점검 없이 돌린 보고는 몇 일이나 정답과 달랐습니까. (2) 점검을 붙이면 고장을 얼마나 잡고 무엇을 놓칩니까. (3) 사람이 볼 실패 알림은 몇 건입니까. 그래서 이 자동 보고를 믿어도 됩니까, 숫자로 말하십시오.</b>
+  <p class="note" style="margin:.5rem 0 0">2~7절에서 숫자를 만들고 8절에서 이 물음으로 돌아옵니다. 하루 <span class="v_man"></span>분 · 알림 처리 시간 · 틀린 보고 한 건의 손실은 현장 값으로 바꿔야 할 가정입니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 모의 운전을 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 사내 시스템이 내놓는 표 네 장</h2>
+<p>가상 공장은 블록 <b>B02·B03</b>의 챔버 1~4, 곧 <b><span class="v_nch"></span>개 챔버</b>입니다. 유리는 챔버마다 <span class="v_ct"></span>분에 한 장씩 증착하고, 턴(<span class="v_nturn"></span>장)이 되풀이됩니다. 모든 유리를 적으면 표가 너무 커지므로, FDC 는 턴 안 순번을 <span class="v_every"></span>으로 나눈 나머지가 <span class="v_rem"></span>인 유리(5·15·…·115번)를 표본으로 적재하고, PPA 는 그 가운데 턴마다 <span class="v_gpt"></span>장(<span class="v_gits"></span>번)만 잽니다. PPA 표의 <code>ppa_metric</code> 은 0301 의 지표(|평균| + 3σ)를 dx·dy 로 구해 큰 쪽입니다. 아래 네 장이 사내 DB 가 실제로 받은 모습입니다(가상 이름).</p>
+<div class="tbwrap"><table id="tab1a" class="mt"></table></div>
+<p>표 두 장의 앞부분을 보면 이렇습니다. <code>glass_id</code> 가 두 표를 잇는 키이고, <code>ts</code> 는 유리를 증착한 시각, <code>measured_ts</code> 는 PPA 를 잰 시각입니다. 측정은 증착한 뒤에 합니다(분포 가정: 증착 뒤 <span class="v_dmin"></span>분 + 평균 <span class="v_dmean"></span>분의 지수 분포 지연).</p>
+<div class="tbwrap"><table id="tab1b" class="mt num"></table></div>
+<div class="tbwrap"><table id="tab1c" class="mt num"></table></div>
+<p>실행은 하루 한 번, 매일 아침 6시입니다. 실행 <i>k</i> 일째는 전날 6시부터 당일 6시까지의 자료를 다룹니다. 보고 날짜는 그 창이 시작한 날짜로 부릅니다.</p>
+<div class="concl" id="conc1"></div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 네 표를 그대로 이어 14일을 돌려 보기</h2>
+<p>0303의 분석을 그대로 부릅니다. 챔버마다 하루 동안의 유리에서 <i>M̂<sub>x</sub></i> − (열 기울기) × (FDC 온도 − <span class="v_t0"></span> °C) 를 평균하고(열 기울기 <span class="v_slope"></span> ppm/K 는 0303 에서 구한 값), 그날의 PPA 지표가 한계 <span class="v_spec"></span> µm(정답본 지표의 90 백분위, 가정)를 넘은 유리를 셉니다. 점검 없이, 들어온 표를 그대로 이어서 <span class="v_days"></span>일을 돌린 결과입니다.</p>
+<div class="lab">
+  <div class="labtitle">점검 없이 낸 결과 — 챔버 8개의 보정 후 Mx 평균 (ppm)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 먼저 단추를 누르지 말고 선만 보십시오. 어느 날이 틀렸는지 가릴 수 있는지 스스로 물어보십시오. 2) 그다음 &lsquo;정답 겹쳐 보기&rsquo;를 눌러, 고장 없는 자료로 돌린 정답(점선)과 달라진 날(붉은 띠)이 어디인지 보십시오. 3) 결과만 봐서는 구분이 되지 않던 날이 몇 일이었는지 세어 보십시오.</div>
+  <div class="row"><button class="btn" id="bTruth" type="button" aria-pressed="false">정답 겹쳐 보기</button></div>
+  <canvas id="cv2"></canvas>
+  <div class="legend"><span><span class="sw" style="border-top:3px solid var(--accent)"></span>점검 없이 낸 결과(챔버마다 한 줄)</span><span><span class="sw" style="border-top:2px dashed var(--ink)"></span>정답(고장 없는 자료)</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>정답과 달라진 날</span></div>
+  <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc2"></div>
+<p><b>여기서 막힙니다.</b> 정답을 겹쳐 보기 전에는 어느 날이 틀렸는지 결과만으로는 가를 수 없습니다. 값이 튄 날이 있어도 그것이 고장 때문인지 공정이 실제로 바뀐 것인지(0101 의 PM 뒤 이동처럼) 알 수 없기 때문입니다. 현장에는 정답이 없습니다. 그러니 결과가 아니라 <b>결과가 나오기 전의 표</b>를 보는 방법이 필요합니다. 먼저 이 일 전체에 이름을 붙이고, 자료를 어떻게 자르고 잇는지부터 짚습니다.</p>
+<div class="qna" data-label="엑셀로 잘 하고 있는데 왜 바꾸나요?" data-q="엑셀로 잘 하고 있는데 왜 바꾸나요?">
+  <p><b>엑셀로 하는 일이 틀려서가 아니라, 틀린 날을 알아볼 방법이 없기 때문입니다.</b> 이 모의 운전에서 점검 없이 낸 결과는 <span class="q2_w"></span>일이 정답과 달랐는데, 그 가운데 열 이름이 바뀌어 칸이 비었던 날을 빼면, 값이 튀어 보여도 고장 때문인지 공정이 바뀐 것인지 눈으로는 가려지지 않습니다.</p>
+  <p>손으로 붙이는 사람도 같은 표를 받으니 같은 고장을 만납니다. 다만 사람은 그날 이상하다고 느낀 것을 기억에만 남기고, 몇 달 뒤에는 &lsquo;언제부터 자료가 이상했나&rsquo;를 답할 기록이 없습니다. 파이프라인은 같은 일을 하되 점검과 실행 기록을 남깁니다.</p>
+</div>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 파이프라인과 시간 창, 그리고 SQL 네 마디</h2>
+<ul class="termdef">
+  <li><b>파이프라인 (pipeline)</b> — 뽑기 → 잇기 → 점검 → 분석 → 남기기를 정해진 순서로 묶어, 사람이 손대지 않고 되풀이해 돌리는 작업입니다. 어느 칸이든 실패하면 그 뒤 칸으로 넘어가지 않습니다.</li>
+  <li><b>시간 창 (time window)</b> — 한 번의 실행이 다루는 자료의 시작·끝 시각입니다. 창이 겹치거나 비면 같은 유리를 두 번 세거나 빠뜨립니다. 이 실험실의 창은 <code>[시작, 끝)</code> 로, 시작은 포함하고 끝은 포함하지 않습니다.</li>
+</ul>
+<p>사내 DB 에서 표를 꺼내는 공통어가 SQL 입니다. 이 실험실은 네 마디만 씁니다. <b>SELECT</b> 는 어떤 열을 꺼낼지, <b>WHERE</b> 는 어떤 줄만 남길지(여기서는 시간 창으로 자르기), <b>JOIN</b> 은 키가 같은 줄끼리 옆으로 붙이기, <b>GROUP BY</b> 는 같은 값끼리 묶어 계산하기입니다. 아래 글은 보여 주는 글이고, 이 화면의 숫자는 같은 일을 하는 계산이 만듭니다. 10절의 Python 은 같은 SQL 을 sqlite3 로 실제로 돌려 같은 숫자를 냅니다.</p>
+<pre class="sql" id="sqlFdc">SELECT * FROM fdc_glass WHERE ts &gt;= :s AND ts &lt; :e</pre>
+<pre class="sql" id="sqlPpa">SELECT * FROM ppa_coef WHERE ts &gt;= :s AND ts &lt; :e AND measured_ts &lt;= :a</pre>
+<p>위 둘이 &lsquo;뽑기&rsquo;입니다. <code>:s</code> 는 창 시작, <code>:e</code> 는 창 끝, <code>:a</code> 는 실행 시각(이 시각까지 도착한 PPA 만 봅니다). 이어서 &lsquo;잇기&rsquo;와 챔버별 집계입니다.</p>
+<pre class="sql" id="sqlDaily">SELECT f.block || '-' || f.chamber AS chamber_key,
+       COUNT(f.chamber_temp)                                  AS n,
+       AVG(p.Mx - :slope * (f.chamber_temp - :t0))            AS mx_comp,
+       COALESCE(SUM(p.ppa_metric &gt; :spec), 0)                 AS n_exceed
+FROM fdc_glass f JOIN ppa_coef p ON p.glass_id = f.glass_id
+WHERE f.ts &gt;= :s AND f.ts &lt; :e AND p.ts &gt;= :s AND p.ts &lt; :e AND p.measured_ts &lt;= :a
+GROUP BY f.block, f.chamber ORDER BY f.block, f.chamber</pre>
+<p><code>AVG</code> 는 빈칸(NULL)을 건너뛰고 평균하므로, FDC 온도가 비어 있는 유리는 보정할 수 없어 평균에서 빠집니다(0303 과 같은 규칙).</p>
+<div class="qna" data-label="SQL 을 꼭 배워야 하나요?" data-q="SQL 을 꼭 배워야 하나요?">
+  <p><b>뽑기와 잇기는 사내 DB 와 말하는 공통어가 SQL 이라 최소한은 알아야 하고, 분석은 Python 에 맡겨 나눠 쓰면 됩니다.</b> 이 실험실에서 쓴 것은 SELECT · WHERE · JOIN · GROUP BY 네 마디뿐이고, 아래 화면의 챔버별 표는 그 네 마디가 한 번에 돌려주는 표 한 장입니다.</p>
+  <p>SQL 문장은 AI 가 대신 써 줄 수 있지만, 창의 끝을 포함하는지(<code>&lt;</code> 인지 <code>&lt;=</code> 인지)와 JOIN 키가 맞는지는 사람이 읽고 확인해야 합니다. 같은 유리를 두 번 세는 일이 바로 그 자리에서 생깁니다(3절 슬라이더).</p>
+</div>
+<div class="lab">
+  <div class="labtitle">하루치 실행 한 번 — 창을 자르고, 잇고, 챔버별로 묶기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 날짜를 바꿔 가며 뽑힌 FDC 줄 수와 PPA 줄 수가 얼마나 일정한지 보십시오. 2) 표의 챔버별 숫자가 위 SQL 한 번이 돌려주는 결과입니다. 3) 아래 슬라이더로 창 시작을 밀면, 어제 창과 겹쳐 두 번 세는 줄이나 어느 창에도 안 든 줄이 생깁니다.</div>
+  <div class="ctrl"><label for="selD3">실행 날짜</label><select id="selD3" class="dsel"></select><output id="selD3O"></output></div>
+  <div class="ctrl"><label for="sH">오늘 창의 시작을 옮기기 (시간)</label><input type="range" id="sH" min="-12" max="12" step="1" value="0"><output id="sHO"></output></div>
+  <div class="row"><button class="btn ghost" id="rH" type="button">창을 제자리로 되돌리기</button></div>
+  <div class="state" id="st3"></div>
+  <canvas id="cv3"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>오늘 창</span><span><i class="dot" style="background:var(--grey);border-radius:2px"></i>어제 창</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>두 창에 다 든 구간</span><span><i class="dot" style="background:var(--warn);border-radius:2px"></i>어느 창에도 안 든 구간</span></div>
+  <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc3"></div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>구간 이음 — 이벤트를 유리에 붙이기</h2>
+<p><code>glass_id</code> 로 잇는 것은 같은 유리를 두 표에서 찾는 일이라 키가 같으면 됩니다. 이벤트(PM · 세정 · 센서 교정 · 인터락)는 다릅니다. 이벤트에는 유리 번호가 없고 시작·끝 시각만 있으니, 어느 유리가 그 이벤트 동안 증착됐는지는 시각으로 찾아야 합니다. 이 이름이 필요합니다.</p>
+<ul class="termdef">
+  <li><b>구간 이음 (interval join)</b> — 키가 같고, 한쪽의 시각이 다른 쪽의 시작~끝 구간 안에 들 때 잇는 것입니다. 여기서는 챔버가 같고 유리의 <code>ts</code> 가 이벤트의 <code>start_ts</code> 와 <code>end_ts</code> 사이(양 끝 포함)일 때 그 유리에 이벤트를 붙입니다. 이 실험실의 이벤트 구간은 &lsquo;그 이벤트가 FDC 값에 영향을 준다고 기록한 구간&rsquo;입니다.</li>
+</ul>
+<pre class="sql" id="sqlEvents">SELECT COUNT(DISTINCT f.glass_id) FROM fdc_glass f
+JOIN events e ON e.block = f.block AND e.chamber = f.chamber AND f.ts BETWEEN e.start_ts AND e.end_ts
+WHERE f.ts &gt;= :s AND f.ts &lt; :e</pre>
+<p>세정·센서 교정 뒤에 증착된 유리를 이렇게 표시해 두면, 0303 의 열변형·0305 의 센서 판 이야기가 바로 이어집니다. 어느 유리가 교정 직후였는지가 표에 있기 때문입니다.</p>
+<div class="lab">
+  <div class="labtitle">고른 날의 챔버별 시간 축 — 이벤트 띠와 유리 점</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 이벤트 띠 안의 점만 색이 칠해지는지 보십시오. 2) 시각대가 어긋난 날(아래 단추)에서 &lsquo;적재본의 ts&rsquo;와 &lsquo;정답본의 ts&rsquo;를 번갈아 보며, 같은 유리가 다른 이벤트에 붙거나 아무 데도 안 붙는 것을 보십시오. 3) 붙은 유리 수가 얼마나 달라지는지 아래 표에서 보십시오.</div>
+  <div class="ctrl"><label for="selD4">실행 날짜</label><select id="selD4" class="dsel"></select><output id="selD4O"></output></div>
+  <div class="row" role="group" aria-label="어느 표의 ts 로 붙일지"><button class="btn tsb" data-ts="loaded" type="button" aria-pressed="true">적재본의 ts 로 붙이기</button><button class="btn tsb" data-ts="clean" type="button" aria-pressed="false">정답본의 ts 로 붙이기</button><button class="btn ghost" id="bShift" type="button">시각대가 어긋난 날로 가기</button></div>
+  <div class="state" id="st4"></div>
+  <canvas id="cv4"></canvas>
+  <div class="legend" id="lg4"></div>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc4"></div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>자료 점검 — 결과가 나오기 전에 표를 보기</h2>
+<p>2절에서 막힌 이유는 결과만 봤기 때문입니다. 결과가 나오기 전의 표가 약속대로 왔는지는 규칙으로 볼 수 있습니다. 이 일에 이름을 붙입니다.</p>
+<ul class="termdef">
+  <li><b>자료 점검 (data check)</b> — 분석 전에 표가 약속대로 왔는지 보는 규칙입니다(행 수 · 키 중복 · 빈칸 비율 · 이음 비율 · 늦게 온 자료 · 열 구성). 한 규칙이라도 실패하면 결과를 내지 않고 알립니다.</li>
+</ul>
+<p>점검 규칙은 아래 일곱 가지이고, 문턱(<b>점검 문턱</b>, 통과와 실패를 가르는 값)은 가운데 세 가지가 조절 가능합니다. 나머지 넷은 0이어야 하거나 하나여야 하는 규칙이라 문턱을 두지 않습니다.</p>
+<div class="tbwrap"><table class="mt" id="tabRules">
+  <tr><th>규칙</th><th>보는 것</th><th>실패하면</th></tr>
+  <tr><td class="rowh"><code>rows</code> 행 수</td><td>FDC·PPA 줄 수가 지난 <span class="v_hist"></span>번 실행의 중앙값의 몇 배인가 (문턱: 하한)</td><td>빠진 자료 또는 늦게 온 자료</td></tr>
+  <tr><td class="rowh"><code>dup</code> 키 중복</td><td>같은 <code>glass_id</code> 가 한 표에 두 번 있는 줄 수 (0이어야 함)</td><td>같은 유리를 두 번 셉니다</td></tr>
+  <tr><td class="rowh"><code>cols</code> 필수 열 존재</td><td>필수 열 가운데 한 줄도 값이 없는 열의 수 (0이어야 함)</td><td>열 이름이 바뀌었거나 열이 사라짐</td></tr>
+  <tr><td class="rowh"><code>blank</code> 빈칸 비율</td><td><code>chamber_temp</code> 가 빈 줄의 비율 (문턱: 상한)</td><td>온도를 못 써서 보정이 빠집니다</td></tr>
+  <tr><td class="rowh"><code>join</code> 이음 비율</td><td>PPA 줄 가운데 FDC 줄과 이어진 비율 (문턱: 하한)</td><td>FDC 가 빠졌거나 시각이 어긋남</td></tr>
+  <tr><td class="rowh"><code>ts</code> ts 범위·순서</td><td>창 밖 줄 수 + 증착 시각이 측정 시각보다 늦은 줄 수 (0이어야 함, 증착이 측정보다 늦을 수 없음)</td><td>시각대가 어긋남</td></tr>
+  <tr><td class="rowh"><code>model</code> 모델 판</td><td>PPA 표의 <code>model_ver</code> 가 몇 종류인가 (1이어야 함)</td><td>계수를 만든 모델이 섞임</td></tr>
+</table></div>
+<p>여덟째는 점검이 아니라 <b>알림</b>입니다. <b>늦게 온 자료</b>란 자기 날 창의 끝(06시)을 지나서 도착한 PPA 줄이고, 지난 실행 뒤에 도착한 이전 날 줄 수를 세어, 되돌아보기 재집계가 필요하다는 신호를 줍니다. 오늘 결과를 막지는 않습니다. 6절에서 다룹니다.</p>
+<div class="lab">
+  <div class="labtitle">고른 날의 점검 표와 14일 달력</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 달력에서 날짜를 눌러 그날의 점검 값이 어느 규칙에서 갈리는지 보십시오. 2) 문턱을 엄격하게 옮기면 붉은 날이 늘고 &lsquo;고장 없는 날의 실패&rsquo;(헛잡음)가 생기는지, 느슨하게 옮기면 &lsquo;고장이 있는데 통과&rsquo;(놓침)가 생기는지 보십시오. 3) 맨 아래 표에서 어느 고장을 어느 규칙이 잡는지 보십시오.</div>
+  <div class="ctrl"><label for="selD5">실행 날짜</label><select id="selD5" class="dsel"></select><output id="selD5O"></output></div>
+  <div class="ctrl"><label for="sRm">행 수 하한 (지난 중앙값의 몇 배)</label><input type="range" id="sRm" min="0.5" max="1" step="0.01" value="0.8"><output id="sRmO"></output></div>
+  <div class="ctrl"><label for="sBm">빈칸 비율 상한</label><input type="range" id="sBm" min="0" max="0.1" step="0.005" value="0.02"><output id="sBmO"></output></div>
+  <div class="ctrl"><label for="sJm">이음 비율 하한</label><input type="range" id="sJm" min="0.9" max="1" step="0.005" value="0.98"><output id="sJmO"></output></div>
+  <div class="row"><button class="btn ghost" id="rR" type="button">문턱을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st5"></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <canvas id="cv5" class="pick"></canvas>
+  <div class="legend"><span>고장 글자: 늦 = 늦게 온 자료 · 중 = 중복 행 · 빠 = 빠진 구간 · 열 = 열 이름 바뀜 · 시 = 시각대 어긋남 · 모 = 모델 판 섞임 · 칸이 좁으면 통 = 통과 · 실 = 실패 · 같 = 같음 · 다 = 다름</span></div>
+  <div class="tbwrap"><table id="tab5b" class="mt num"></table></div>
+  <div class="tbwrap"><table id="tab5c" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc5"></div>
+<div class="qna" data-label="점검 문턱은 어떻게 정하나요?" data-q="점검 문턱은 어떻게 정하나요?">
+  <p><b>지난 실행 기록의 분포로 정하고, 헛잡음의 비용과 놓침의 비용을 맞바꿔 고릅니다.</b> 행 수 하한은 고장 없는 날의 행 수가 지난 중앙값의 몇 배까지 흔들리는지(이 모의 운전에서는 <span class="q5_lo"></span> ~ <span class="q5_hi"></span> 배)를 보고, 그 바깥에 문턱을 둡니다.</p>
+  <p>문턱을 빡빡하게 두면 정상인 날도 알림이 와서 사람이 매번 들여다봐야 합니다(헛잡음). 느슨하게 두면 고장 난 표가 통과합니다(놓침). 0202 에서 1종·2종 오류를 맞바꾼 것과 같은 일이며, 어느 쪽 비용이 큰지는 현장이 정합니다. 문턱은 사람이 승인하고, 승인한 값과 날짜를 실행 기록에 남깁니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>늦게 온 자료와 되돌아보기 창</h2>
+<p>PPA 는 증착한 뒤에 재니, 06시 실행 시점에는 마지막 몇 시간치가 아직 안 온 채로 계산됩니다. 며칠 늦게 들어오는 줄도 있습니다. 그래서 실행 때 어제와 그제도 다시 집계해 늦게 온 줄을 반영합니다. 이 &lsquo;다시 집계하는 날 수&rsquo;를 <b>되돌아보기 창</b>이라 부릅니다. 길수록 많이 바로잡지만 매번 다시 돌리는 양이 늘어납니다.</p>
+<div class="lab">
+  <div class="labtitle">PPA 줄이 창 끝(06시)을 지나 얼마 뒤에 도착했는가</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 첫 막대(0~6시간)가 압도적으로 큰 것을 보십시오. 보통의 측정 지연이 06시 경계를 넘는 줄입니다. 2) 24시간 이상 늦은 막대는 고장으로 들어간 줄입니다. 3) 되돌아보기 창을 늘리면 파란 선이 오른쪽으로 가며 바로잡히는 줄이 늘고, 다시 돌리는 일수도 같이 늘어나는 것을 보십시오.</div>
+  <div class="ctrl"><label for="sL">되돌아보기 창 (일)</label><input type="range" id="sL" min="0" max="7" step="1" value="3"><output id="sLO"></output></div>
+  <div class="row"><button class="btn ghost" id="rL" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>되돌아보기 창 안에 도착(바로잡힘)</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>창을 넘어 도착(못 바로잡음)</span><span><span class="sw" style="border-top:2px dashed var(--c10)"></span>창의 끝</span></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc6"></div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>지문과 멱등 — 같은 입력이면 같은 결과</h2>
+<p>에이전트가 이 결과 위에서 판단하려면, 결과가 어느 입력에서 나왔는지를 짧게 증명할 수 있어야 합니다. 이름 두 개가 필요합니다.</p>
+<ul class="termdef">
+  <li><b>지문 (fingerprint)</b> — 입력 자료나 출력 결과를 정해진 방식으로 줄인 짧은 문자열(해시)입니다. 같으면 같은 자료이고, 다르면 무언가 바뀐 것입니다. 이 실험실은 줄을 <code>glass_id</code> 순으로 정렬해 이은 글자에 FNV-1a 32비트 해시를 씁니다(보안용이 아니라 &lsquo;같은 자료인가&rsquo; 확인용이어서 단순한 해시로 충분합니다).</li>
+  <li><b>멱등 (idempotent)</b> — 같은 날짜로 몇 번을 다시 돌려도 결과 표가 한 벌만 남고 내용이 같은 성질입니다. 덮어쓰기 키는 보고 날짜(<code>run_date</code>)입니다.</li>
+</ul>
+<p>한 번 돌릴 때마다 한 줄씩 남기는 <b>실행 기록</b>(보고 날짜 · 시간 창 · 행 수 · 지문 · 코드 판 · 점검 결과 · 알림 · 사유)이 이 지문들을 담는 그릇입니다. 0206 의 사례 기록이 <code>links</code> 로 이벤트와 턴을 가리켰듯, 실행 기록은 입력 표의 범위와 지문을 가리킵니다. 이 이름들을 확인하는 방법은 단추 두 개입니다. <b>같은 날 다시 돌리기</b>는 입력이 그대로이니 지문도 결과도 같고 결과 표는 여전히 한 벌이어야 합니다. <b>늦은 자료가 들어온 뒤 다시 돌리기</b>는 입력이 바뀌었으니 지문이 달라지고, 무엇이 바뀌었는지가 보여야 합니다. 두 번째는 6절의 되돌아보기 창(지금 <span class="v_L"></span>일)만큼 뒤의 시각 기준으로 돌립니다.</p>
+<div class="lab">
+  <div class="labtitle">실행 기록 — 한 번 돌릴 때마다 한 줄</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 같은 날을 두 번 돌리면 지문이 그대로이고 &lsquo;저장된 결과 표&rsquo;가 한 벌인지 보십시오. 2) 늦은 자료가 들어온 뒤 돌리면 입력 지문이 바뀌고 PPA 행 수가 늘어나는지 보십시오. 3) 점검에 실패한 날은 결과 대신 알림이 한 건 남는지 보십시오.</div>
+  <div class="ctrl"><label for="selD7">실행 날짜</label><select id="selD7" class="dsel"></select><output id="selD7O"></output></div>
+  <div class="row"><button class="btn" id="bSame" type="button">같은 날 다시 돌리기</button><button class="btn" id="bLate" type="button">늦은 자료가 들어온 뒤 다시 돌리기</button><button class="btn ghost" id="bClr" type="button">기록 지우기</button></div>
+  <div class="state" id="st7"></div>
+  <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
+  <div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc7"></div>
+<div class="qna" data-label="실패 알림이 오면 무엇부터 보나요?" data-q="실패 알림이 오면 무엇부터 보나요?">
+  <p><b>실행 기록의 입력 지문과 행 수부터 봅니다.</b> 알림에는 어느 규칙이 실패했는지가 적혀 있으니, 먼저 그 규칙의 값(행 수 비율 · 중복 건수 · 빈칸 비율 …)을 지난 실행의 기록과 나란히 놓습니다.</p>
+  <p>입력 지문이 지난 실행과 같은 범위에서 갑자기 달라졌다면 입력 표가 바뀐 것이고, 같은 입력인데 출력 지문이 다르면 코드 판이 바뀐 것입니다. 이 순서로 보면 &lsquo;표가 이상한가, 코드가 이상한가&rsquo;를 가르는 데 몇 분이면 됩니다. 원인이 스키마 변경이면 변경 공지와 날짜를 기록에 덧붙입니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 문제의 세 물음에 숫자로 답하기</h2>
+<p>맨 앞의 물음으로 돌아갑니다. 점검 문턱(5절)과 되돌아보기 창(6절)의 현재 값이 반영됩니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt"></table></div>
+<div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
+<div class="concl" id="land"></div>
+<p>숫자를 만드는 일은 규칙과 에이전트가 하지만, 문턱을 정하고 실패한 날을 어떻게 처리할지는 사람이 정합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>점검 문턱 승인 · 실패 알림 처리(다시 돌릴지, 그날을 비워 둘지) · 스키마 변경 공지(열 이름·단위·모델 판이 바뀔 때 날짜와 함께) · 스케줄 등록 승인(회사 PC 는 IT 정책 확인이 먼저)</td></tr>
+  <tr><td class="rowh">규칙</td><td>일곱 점검과 문턱 · 늦게 온 자료 알림과 되돌아보기 재집계 조건 · 같은 날 다시 돌릴 때 덮어쓰기(<code>run_date</code> 키)</td></tr>
+  <tr><td class="rowh">에이전트</td><td>뽑기 · 잇기 · 분석 · 보고 초안 · 실패 요약(어느 규칙이 얼마나 벗어났는지, 지난 실행과 나란히)</td></tr>
+</table></div>
+<h3>정해진 시각에 돌리기 — 등록 예</h3>
+<p>매일 06:10 에 돌리는 예입니다(창의 끝 06:00 뒤에 10분 여유를 둡니다). 아래 이름과 경로는 가상입니다. <b>회사 PC 에 등록하기 전에 IT 정책(예약 작업 허용 여부, 계정 권한)을 먼저 확인하십시오.</b> 계정과 비밀번호는 코드에 적지 말고 회사가 정한 보관 방식을 쓰십시오.</p>
+<pre class="sql" id="schedCode">리눅스 cron (crontab -e)
+10 6 * * *  cd /data/pipeline &amp;&amp; python3 run_daily.py &gt;&gt; logs/run.log 2&gt;&amp;1
+
+윈도우 작업 스케줄러 (명령 프롬프트)
+schtasks /create /tn "daily_pipeline" /tr "python C:\pipeline\run_daily.py" /sc daily /st 06:10</pre>
+<p><b>0410·0411 로 가는 다리.</b> 이 표 위에서 LLM 에게 보고 문장을 맡기려면, 문장 속 숫자가 어느 입력에서 나왔는지(지문)가 남아 있어야 나중에 검증할 수 있습니다. 숫자는 이 파이프라인의 함수가 내고 LLM 은 문장만 쓰게 나누는 방법은 0411 에서 다룹니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>얻는 것은 둘입니다. 사람이 매일 손으로 붙이던 시간, 그리고 점검이 막은 &lsquo;틀린 보고&rsquo;입니다. 치르는 것도 둘입니다. 실패 알림을 사람이 처리하는 시간, 점검을 통과하고도 틀린 날(놓침)의 손실입니다. 작으면 작다고 적습니다. 아래 세 값은 가정이며 현장 값으로 바꾸십시오.</p>
+<div class="lab">
+  <div class="labtitle">이 모의 운전 <span class="v_days"></span>일의 득실</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 절약 시간과 알림 처리 시간 가운데 어느 쪽이 큰지 보십시오. 2) 틀린 보고 한 건의 손실을 올려 보며 &lsquo;막은 손실&rsquo;과 &lsquo;남은 손실&rsquo;의 차이가 어떻게 벌어지는지 보십시오. 3) 5절의 문턱을 옮기면 이 표의 막은 날·놓친 날도 함께 바뀝니다.</div>
+  <div class="ctrl"><label for="sMan">손으로 붙이는 시간 (분/일, 가정)</label><input type="range" id="sMan" min="10" max="120" step="5" value="40"><output id="sManO"></output></div>
+  <div class="ctrl"><label for="sAl">실패 알림 한 건을 처리하는 시간 (분, 가정)</label><input type="range" id="sAl" min="5" max="90" step="5" value="30"><output id="sAlO"></output></div>
+  <div class="ctrl"><label for="sLoss">틀린 보고로 잘못 내린 조치 한 건의 손실 (유리 장, 가정)</label><input type="range" id="sLoss" min="0" max="400" step="20" value="100"><output id="sLossO"></output></div>
+  <div class="row"><button class="btn ghost" id="rM" type="button">세 값을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 &lsquo;근무일 수&rsquo;와 &lsquo;조치 한 건의 실제 비용(금액)&rsquo;을 곱해 적습니다. 위 표의 손실은 틀린 보고 한 건이 부르는 조치의 손실을 유리 장으로 환산한 값입니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리 <code>sqlite3</code> 와 <code>pandas</code> 만 씁니다. 입력은 네 표의 CSV 와 정답 표(<code>s15_faults.csv</code>, 어느 날 무슨 고장이 들었는가)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사 DB 에서는 <code>load_db</code> 대신 읽기 전용 사본에 연결하는 함수를 같은 이름으로 바꿔 끼우면 됩니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 적었고, 맨 아래 <code>__main__</code> 은 14일을 차례로 돌려 보는 예입니다. 코드 맨 위의 <code>SCHEMA</code> 가 <code>schema.sql</code> 입니다.</p>
+<div class="row"><button class="btn" id="csvF" type="button">s15_fdc_glass.csv</button><button class="btn" id="csvP" type="button">s15_ppa_coef.csv</button><button class="btn" id="csvE" type="button">s15_events.csv</button><button class="btn" id="csvM" type="button">s15_mask_hist.csv</button><button class="btn" id="csvT" type="button">s15_faults.csv</button></div>
+<div class="state" id="csvState">위 단추로 CSV 파일을 내려받을 수 있습니다.</div>
+<pre id="pyCode">import os, sqlite3, statistics
+from datetime import datetime, timedelta
+import pandas as pd
+
+# ---- 가정·설정: 현장 값으로 바꿀 곳 ------------------------------------------------
+SLOPE = -1.975908993542295               # 0303 에서 구한 열 기울기 (ppm/K)
+T_REF = 80                # 기준 온도 (°C)
+SPEC = 5.712791                 # PPA 지표 한계 (µm): 이보다 크면 '초과'
+RULES = {"rows_min": 0.8, "blank_max": 0.02, "join_min": 0.98}   # 점검 문턱
+HIST = 7                 # 행 수 기준 = 지난 이만큼 실행의 중앙값
+LOOKBACK = 3             # 되돌아보기 창 (일)
+CODE_VER = "pipe-1.0"        # 코드 판
+T0 = datetime(2026, 3, 2, 6, 0)  # 첫 시간 창의 시작 (가상 공장의 첫 날 06:00)
+
+SCHEMA = """
+CREATE TABLE fdc_glass (glass_id TEXT, ts TEXT, block TEXT, chamber TEXT, mask_id TEXT, turn INTEGER, glass_in_turn INTEGER,
+                        chamber_temp REAL, ch_temp REAL, p_steady_mean REAL, rate REAL);
+CREATE TABLE ppa_coef  (glass_id TEXT, ts TEXT, measured_ts TEXT, Tx REAL, Ty REAL, theta REAL, Mx REAL, My REAL, K REAL,
+                        model_ver TEXT, ppa_metric REAL);
+CREATE TABLE events    (event_id TEXT, block TEXT, chamber TEXT, start_ts TEXT, end_ts TEXT, kind TEXT);
+CREATE TABLE mask_hist (mask_id TEXT, from_ts TEXT, to_ts TEXT, chamber TEXT, block TEXT, state TEXT);
+CREATE INDEX i_f ON fdc_glass(ts); CREATE INDEX i_g ON fdc_glass(glass_id); CREATE INDEX i_p ON ppa_coef(ts); CREATE INDEX i_q ON ppa_coef(glass_id);
+"""
+SQL_FDC = "SELECT * FROM fdc_glass WHERE ts &gt;= :s AND ts &lt; :e"
+SQL_PPA = "SELECT * FROM ppa_coef WHERE ts &gt;= :s AND ts &lt; :e AND measured_ts &lt;= :a"
+SQL_DAILY = """
+SELECT f.block || '-' || f.chamber AS chamber_key,
+       COUNT(f.chamber_temp)                                  AS n,
+       AVG(p.Mx - :slope * (f.chamber_temp - :t0))            AS mx_comp,
+       COALESCE(SUM(p.ppa_metric &gt; :spec), 0)                 AS n_exceed
+FROM fdc_glass f JOIN ppa_coef p ON p.glass_id = f.glass_id
+WHERE f.ts &gt;= :s AND f.ts &lt; :e AND p.ts &gt;= :s AND p.ts &lt; :e AND p.measured_ts &lt;= :a
+GROUP BY f.block, f.chamber ORDER BY f.block, f.chamber"""
+SQL_EVENTS = """
+SELECT COUNT(DISTINCT f.glass_id) FROM fdc_glass f
+JOIN events e ON e.block = f.block AND e.chamber = f.chamber AND f.ts BETWEEN e.start_ts AND e.end_ts
+WHERE f.ts &gt;= :s AND f.ts &lt; :e"""
+CHAMBERS = [b + "-CH" + str(c) for b in ("B02", "B03") for c in (1, 2, 3, 4)]
+
+
+def window(day):
+    """day 번째 실행(1~)의 시간 창 [시작, 끝) 문자열. 끝 = 실행 시각."""
+    f = lambda d: (T0 + timedelta(days=d)).strftime("%Y-%m-%d %H:%M")
+    return f(day - 1), f(day)
+
+
+def load_db(csv_dir):
+    """네 표의 CSV 를 메모리 sqlite 에 올립니다. 쓰면 안 되는 때: 운영 DB 에 직접 대고 이 함수를 돌리지 마십시오(읽기 전용 사본에서)."""
+    con = sqlite3.connect(":memory:")
+    con.executescript(SCHEMA)
+    for t in ("fdc_glass", "ppa_coef", "events", "mask_hist"):
+        pd.read_csv(os.path.join(csv_dir, "s15_" + t + ".csv")).to_sql(t, con, if_exists="append", index=False)
+    return con
+
+
+def extract(con, start, end, asof):
+    """뽑기: 시간 창 안의 FDC 줄과, 그 창의 PPA 줄 가운데 asof 까지 도착한 것."""
+    p = {"s": start, "e": end, "a": asof}
+    return con.execute(SQL_FDC, p).fetchall(), con.execute(SQL_PPA, p).fetchall()
+
+
+def join_keys(con, start, end, asof):
+    """잇기 + 챔버별 집계: glass_id 로 FDC 와 PPA 를 잇고, 온도를 보정한 Mx 평균과 지표 초과 건수를 챔버별로 셉니다."""
+    p = {"s": start, "e": end, "a": asof, "slope": SLOPE, "t0": T_REF, "spec": SPEC}
+    got = {r[0]: r for r in con.execute(SQL_DAILY, p).fetchall()}
+    return [got.get(k, (k, 0, None, 0)) for k in CHAMBERS]
+
+
+def attach_events(con, start, end):
+    """구간 이음: 챔버가 같고 유리의 ts 가 이벤트의 start~end 안인 유리 수."""
+    return con.execute(SQL_EVENTS, {"s": start, "e": end}).fetchone()[0]
+
+
+def run_checks(con, fdc, ppa, start, end, asof, hist):
+    """자료 점검: 규칙마다 (이름, 값, 문턱, 통과 여부). hist = 지난 실행들의 (FDC 행 수, PPA 행 수)."""
+    p = {"s": start, "e": end, "a": asof}
+    nf, npp = len(fdc), len(ppa)
+    out = []
+    if hist:
+        ratio = min(nf / statistics.median(h[0] for h in hist), npp / statistics.median(h[1] for h in hist))
+        out.append(("rows", ratio, RULES["rows_min"], ratio &gt;= RULES["rows_min"]))
+    else:
+        out.append(("rows", None, RULES["rows_min"], True))
+    dup = (nf - len({r[0] for r in fdc})) + (npp - len({r[0] for r in ppa}))
+    out.append(("dup", dup, 0, dup == 0))
+    empty = sum(con.execute(f"SELECT COUNT({c}) FROM fdc_glass WHERE ts &gt;= :s AND ts &lt; :e", p).fetchone()[0] == 0
+                for c in ("glass_id", "ts", "chamber", "mask_id", "chamber_temp"))
+    out.append(("cols", empty, 0, empty == 0))
+    blank = 1.0 if nf == 0 else sum(r[7] is None for r in fdc) / nf
+    out.append(("blank", blank, RULES["blank_max"], blank &lt;= RULES["blank_max"]))
+    ids = {r[0] for r in fdc}
+    jr = 0.0 if npp == 0 else sum(r[0] in ids for r in ppa) / npp
+    out.append(("join", jr, RULES["join_min"], jr &gt;= RULES["join_min"]))
+    bad = con.execute("""SELECT COUNT(*) FROM fdc_glass f JOIN ppa_coef p ON p.glass_id = f.glass_id
+                         WHERE f.ts &gt;= :s AND f.ts &lt; :e AND p.ts &gt;= :s AND p.ts &lt; :e AND p.measured_ts &lt;= :a
+                           AND f.ts &gt; p.measured_ts""", p).fetchone()[0]
+    out.append(("ts", bad, 0, bad == 0))
+    nv = len({r[9] for r in ppa})
+    out.append(("model", nv, 1, nv &lt;= 1))
+    return out
+
+
+def late_notice(con, start, asof):
+    """알림(결과를 막지 않음): 지난 실행 뒤에 도착한 이전 날 PPA 줄 수 → 되돌아보기 재집계를 부르는 신호."""
+    lo = (datetime.strptime(start, "%Y-%m-%d %H:%M") - timedelta(days=LOOKBACK)).strftime("%Y-%m-%d %H:%M")
+    return con.execute("SELECT COUNT(*) FROM ppa_coef WHERE ts &lt; :s AND ts &gt;= :lo AND measured_ts &gt; :s AND measured_ts &lt;= :a",
+                       {"s": start, "lo": lo, "a": asof}).fetchone()[0]
+
+
+def fnv1a(text):
+    """지문: FNV-1a 32비트 해시를 8자리 16진수로. (단순한 결정적 해시 — 보안용이 아니라 '같은 자료인가' 확인용)"""
+    h = 2166136261
+    for ch in text:
+        h = ((h ^ ord(ch)) * 16777619) &amp; 0xFFFFFFFF
+    return format(h, "08x")
+
+
+def canon(v, d):
+    if v is None or v != v:
+        return ""
+    if isinstance(v, str):
+        return v
+    if isinstance(v, int):
+        return str(v)
+    s = f"{v:.{d}f}"
+    return s[1:] if s.startswith("-") and float(s) == 0 else s
+
+
+def fingerprint(fdc, ppa):
+    """입력 지문: 두 표의 줄을 glass_id 순으로 정렬해 한 문자열로 잇고 해시."""
+    a = sorted(fdc, key=lambda r: (r[0], r[1]))
+    b = sorted(ppa, key=lambda r: (r[0], r[2]))
+    la = ["|".join([r[0], r[1], r[2], r[3], r[4], str(r[5]), str(r[6]), canon(r[7], 4), canon(r[8], 4), canon(r[9], 3), canon(r[10], 4)]) for r in a]
+    lb = ["|".join([r[0], r[1], r[2]] + [canon(x, 6) for x in r[3:9]] + [r[9], canon(r[10], 6)]) for r in b]
+    return fnv1a("\n".join(la) + "\n#\n" + "\n".join(lb))
+
+
+def out_fingerprint(daily, n_event):
+    lines = [f"{k}|{n}|{canon(m, 6)}|{int(x)}" for k, n, m, x in daily] + [f"events|{n_event}"]
+    return fnv1a("\n".join(lines))
+
+
+def run_daily(con, day, out_dir, asof_day=None, reason="정기"):
+    """하루치를 뽑고 → 잇고 → 점검하고 → 통과하면 결과 표를 남깁니다. 같은 날을 몇 번 돌려도 결과 표는 한 벌(run_date 키로 덮어쓰기).
+    실행 기록은 runs.csv 에 한 줄씩 쌓고, 점검에 실패하면 결과 대신 알림 파일을 남깁니다."""
+    os.makedirs(out_dir, exist_ok=True)
+    s, e = window(day)
+    a = window(asof_day or day)[1]
+    runs_path = os.path.join(out_dir, "runs.csv")
+    run_date = s[:10]
+    runs = pd.read_csv(runs_path) if os.path.exists(runs_path) else pd.DataFrame()
+    prev = runs if runs.empty else runs[(runs.reason == "정기") &amp; (runs.run_date &lt; run_date)]
+    hist = [] if prev.empty else [(r.n_fdc, r.n_ppa) for r in prev.tail(HIST).itertuples()]
+    fdc, ppa = extract(con, s, e, a)
+    checks = run_checks(con, fdc, ppa, s, e, a, hist)
+    failed = [c[0] for c in checks if not c[3]]
+    rec = {"run_date": run_date, "window": f"{s}~{e}", "asof": a, "n_fdc": len(fdc), "n_ppa": len(ppa), "in_fp": fingerprint(fdc, ppa),
+           "code_ver": CODE_VER, "failed_rules": "+".join(failed) or "-", "out_fp": "-", "alert": bool(failed), "reason": reason, "late_notice": late_notice(con, s, a)}
+    result_path = os.path.join(out_dir, f"result_{run_date}.csv")
+    if failed:
+        with open(os.path.join(out_dir, f"ALERT_{run_date}.txt"), "w", encoding="utf-8") as f:
+            f.write(f"{run_date} 점검 실패: {', '.join(failed)}\n결과를 내지 않았습니다. 입력 지문 {rec['in_fp']}, 행 수 FDC {len(fdc)} / PPA {len(ppa)}\n")
+        if os.path.exists(result_path):
+            os.remove(result_path)
+    else:
+        daily = join_keys(con, s, e, a)
+        n_ev = attach_events(con, s, e)
+        df = pd.DataFrame(daily, columns=["chamber_key", "n", "mx_comp", "n_exceed"])
+        df["events_attached"] = n_ev
+        df.to_csv(result_path, index=False)                  # 같은 날이면 덮어씀 = 멱등
+        rec["out_fp"] = out_fingerprint(daily, n_ev)
+    pd.concat([runs, pd.DataFrame([rec])], ignore_index=True).to_csv(runs_path, index=False)
+    return rec, checks
+
+
+if __name__ == "__main__":
+    import tempfile, shutil
+    here = os.path.dirname(os.path.abspath(__file__))
+    con = load_db(here)
+    out_dir = tempfile.mkdtemp()
+    faults = pd.read_csv(os.path.join(here, "s15_faults.csv"))
+    fault_days = set(faults.day)
+    recs = [run_daily(con, d, out_dir)[0] for d in range(1, 15)]
+    print("날짜 · 행 수(FDC/PPA) · 점검 · 입력 지문 · 출력 지문 · 주입된 고장")
+    for i, r in enumerate(recs, 1):
+        inj = "+".join(faults[faults.day == i].kind) or "-"
+        print(f"{r['run_date']} · {r['n_fdc']}/{r['n_ppa']} · {'실패 ' + r['failed_rules'] if r['alert'] else '통과'} · {r['in_fp']} · {r['out_fp']} · {inj}")
+    fail_days = {i for i, r in enumerate(recs, 1) if r["alert"]}
+    print(f"점검 실패 {len(fail_days)}일 · 고장이 주입된 {len(fault_days)}일 가운데 점검이 잡은 날 {len(fault_days &amp; fail_days)}일 · 고장 없는 날의 실패 {len(fail_days - fault_days)}일")
+    ok = next(i for i, r in enumerate(recs, 1) if not r["alert"])
+    again, _ = run_daily(con, ok, out_dir, reason="재실행")
+    n_files = len([f for f in os.listdir(out_dir) if f == f"result_{recs[ok - 1]['run_date']}.csv"])
+    print(f"같은 날 다시 돌리기({recs[ok - 1]['run_date']}): 출력 지문 {recs[ok - 1]['out_fp']} → {again['out_fp']} · 결과 표 {n_files}벌")
+    late = max(i for i in fault_days if "late" in set(faults[faults.day == i].kind) and i + LOOKBACK &lt;= len(recs))   # 늦은 자료가 든 날 가운데 되돌아보기가 실험 안에 드는 마지막 날
+    before = pd.DataFrame(join_keys(con, *window(late), window(late)[1]), columns=["k", "n", "mx", "ex"])
+    redo, _ = run_daily(con, late, out_dir, asof_day=late + LOOKBACK, reason="되돌아보기")
+    after = pd.DataFrame(join_keys(con, *window(late), window(late + LOOKBACK)[1]), columns=["k", "n", "mx", "ex"])
+    print(f"되돌아보기({recs[late - 1]['run_date']}, {LOOKBACK}일 뒤 06:00 기준): 입력 지문 {recs[late - 1]['in_fp']} → {redo['in_fp']} · PPA 행 {recs[late - 1]['n_ppa']} → {redo['n_ppa']} · 출력 지문 {recs[late - 1]['out_fp']} → {redo['out_fp']}")
+    print("  첫 실행 때와 달라진 챔버별 Mx 평균(ppm): " + " ".join(f"{k} {b:+.3f}" for k, b in zip(after.k, (after.mx - before.mx).fillna(0))))
+    shutil.rmtree(out_dir)</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력">날짜 · 행 수(FDC/PPA) · 점검 · 입력 지문 · 출력 지문 · 주입된 고장
+2026-03-02 · 589/285 · 실패 dup · 534dbb81 · - · dup
+2026-03-03 · 448/218 · 실패 rows+join+model · 2b9dea0b · - · gap+model
+2026-03-04 · 461/109 · 실패 rows · d0deb2c8 · - · late
+2026-03-05 · 646/308 · 실패 dup · cb11947a · - · dup
+2026-03-06 · 598/283 · 실패 dup · 64f8f142 · - · dup
+2026-03-07 · 458/214 · 실패 rows+cols+blank · 7c89994a · - · rename
+2026-03-08 · 443/217 · 실패 cols+blank+join · 9338ec51 · - · gap+rename
+2026-03-09 · 461/216 · 통과 · 27f3137d · 3d5f80c1 · -
+2026-03-10 · 461/215 · 통과 · cabcef44 · 5971f061 · -
+2026-03-11 · 288/215 · 실패 rows+join+ts+model · 2089b19f · - · shift+model
+2026-03-12 · 632/163 · 실패 rows · 4f59feaa · - · late
+2026-03-13 · 609/307 · 실패 dup+join · 4bd628bc · - · dup+gap
+2026-03-14 · 672/322 · 실패 dup · 89696dee · - · dup
+2026-03-15 · 435/294 · 실패 dup+join+ts · 99910fee · - · dup+shift
+점검 실패 12일 · 고장이 주입된 12일 가운데 점검이 잡은 날 12일 · 고장 없는 날의 실패 0일
+같은 날 다시 돌리기(2026-03-09): 출력 지문 3d5f80c1 → 3d5f80c1 · 결과 표 1벌
+되돌아보기(2026-03-12, 3일 뒤 06:00 기준): 입력 지문 4f59feaa → d7335ee7 · PPA 행 163 → 217 · 출력 지문 - → 46ed9fa0
+  첫 실행 때와 달라진 챔버별 Mx 평균(ppm): B02-CH1 -0.001 B02-CH2 +0.037 B02-CH3 +0.011 B02-CH4 -0.010 B03-CH1 -0.003 B03-CH2 -0.005 B03-CH3 -0.026 B03-CH4 -0.009</pre>
+<p class="note">이 코드에는 정답본과 견주는 줄이 없습니다. 현장에는 정답본이 없고, 그래서 점검이 필요하기 때문입니다. 정답과의 비교(1번 물음과 5절의 고장 대조)는 이 실험실의 가상 공장에서만 할 수 있습니다.</p>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>파이프라인 실행 기록지</h3>
+  <dl>
+    <dt>칸 (한 번의 실행 = 한 줄)</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 날짜로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>시간 창과 &lsquo;어느 시각까지 도착한 자료인가&rsquo;를 적었는가(되돌아보기 재실행이면 사유도)</li>
+      <li>입력 표별 행 수와 입력 지문, 코드 판을 적었는가</li>
+      <li>점검 결과를 규칙별 값과 함께 적었는가(실패면 결과를 내지 않았음을)</li>
+      <li>출력 지문과 실패 알림 여부를 적었는가</li>
+      <li>스키마 변경 공지가 있었다면 날짜와 함께 덧붙였는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>문턱 승인자 ____________ · 승인 일자 ____________ (<b>점검 문턱과 실패한 날의 처리는 사람의 승인 뒤에 바꿉니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">이 파이프라인을 감시하고 개선하려면 아래를 남겨야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>실행 기록 자체</b> — 입력 범위·행 수·입력 지문·코드 판·점검 결과·출력 지문. 이것이 쌓이면 &lsquo;언제부터 자료가 이상했나&rsquo;에 답할 수 있습니다.</li>
+      <li><b>스키마 변경 공지와 날짜</b> — 열 이름·단위·시각대가 바뀐 날.</li>
+      <li><b>센서·모델 판 이력</b> — 0305 의 판 기록과 같은 키로.</li>
+      <li><b>늦게 온 자료 목록</b> — 어느 날 몇 줄이 얼마 뒤에 왔는지(지연 분포가 문턱과 되돌아보기 창의 근거입니다).</li>
+    </ul>
+    <p>실행 기록을 남기지 않으면 몇 달 뒤 결과가 이상해졌을 때 입력이 바뀐 날을 찾을 길이 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note"><code>run_daily</code> 안에서 0303·0301 의 함수를 부르는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">1) 뽑기</td><td><code>extract</code></td></tr>
+      <tr><td class="rowh">2) 잇기</td><td><code>join_keys</code> (SQL JOIN)</td></tr>
+      <tr><td class="rowh">3) 점검</td><td><code>run_checks</code></td></tr>
+      <tr><td class="rowh">4) 분석</td><td>0303 <code>compensate</code> 와 0301 <code>ppa_metric</code> (위 SQL 안의 보정·초과 건수)</td></tr>
+      <tr><td class="rowh">5) 이벤트 붙이기</td><td><code>attach_events</code></td></tr>
+      <tr><td class="rowh">6) 남기기</td><td><code>run_daily</code> (결과 표 · <code>runs.csv</code> · 알림)</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0306-mask-life.html">← 이전: 마스크 수명 예측</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var P0=performance.now(),T_INIT=0;
+var MS=MfgSim,TL=MS.s15tools,CF=MS.CFG;
+var SS=MS.scenario('S15'),PRM=SS.params,D=PRM.days,DAY=TL.DAY_MIN,CH=TL.CH,NCH=CH.length;
+var DEF={rmin:PRM.rules.rmin,bmax:PRM.rules.bmax,jmin:PRM.rules.jmin,L:PRM.lookback,man:40,al:30,loss:100};
+var ST={day:1,rmin:DEF.rmin,bmax:DEF.bmax,jmin:DEF.jmin,L:DEF.L,H:0,ts:'loaded',truth:false,man:DEF.man,al:DEF.al,loss:DEF.loss};
+var LOG=[],STORE={},ALERT={},SEEDREC=null,DIST=null;
+var COL=['--accent','--c8','--c9','--c10','--good','--warn','--bad','--grey'];
+var KOL={'PM':'--c8','세정':'--c10','센서 교정':'--c9','인터락':'--bad'};
+var KS={late:'늦',dup:'중',gap:'빠',rename:'열',shift:'시',model:'모'};
+var RC={};
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return v!=null&&isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function pct(v,d){return v==null||!isFinite(v)?'—':(v*100).toFixed(d==null?0:d)+'%';}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function z0(v,d){return Math.abs(v)<0.5*Math.pow(10,-d);}
+function sg0(v,d){return (v<0&&!z0(v,d)?'−':'')+fmt(Math.abs(v),d);}
+function sgn(v,d){if(z0(v,d))return fmt(0,d);return (v<0?'−':'+')+fmt(Math.abs(v),d);}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+function c3(a,d){var f=function(v){return d===0?fmtN(v):fmt(v,d);};return f(quant(a,.5))+' ('+f(quant(a,.1))+'~'+f(quant(a,.9))+')';}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?cls[i](c):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function niceTicks(lo,hi,n){var rg=hi-lo,raw=rg/n,mg=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),st=mg,c=[1,2,5,10],i;for(i=0;i<c.length;i++){st=c[i]*mg;if(st>=raw)break;}var out=[],v=Math.ceil(lo/st-1e-9)*st;for(;v<=hi+1e-9;v+=st)out.push(Math.round(v/st)*st);return out;}
+function tickFmt(st){var d=0;while(d<4&&Math.abs(st*Math.pow(10,d)-Math.round(st*Math.pow(10,d)))>1e-6)d++;return d;}
+function frame(cv,o){
+  var Wd=cv.clientWidth||320,c=setup(cv,o.h),x=c.x,pl=o.pl||50,pr=14,pt=14,pb=o.pb||36,gw=Wd-pl-pr,gh=o.h-pt-pb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,Wd,o.h);
+  function PX(v){return pl+(v-o.x0)/(o.x1-o.x0)*gw;}function PY(v){return pt+gh-(v-o.y0)/(o.y1-o.y0)*gh;}
+  x.font='11px sans-serif';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  var yt=niceTicks(o.y0,o.y1,5),yd=tickFmt(yt.length>1?yt[1]-yt[0]:1);
+  yt.forEach(function(v){var y=PY(v);x.beginPath();x.moveTo(pl,y);x.lineTo(pl+gw,y);x.stroke();x.textAlign='right';x.fillText(sg0(v,yd),pl-5,y+4);});
+  (o.xt||[]).forEach(function(v){var xx=PX(v);x.beginPath();x.moveTo(xx,pt+gh);x.lineTo(xx,pt+gh+4);x.stroke();x.textAlign='center';x.fillText(o.xf?o.xf(v):String(v),xx,pt+gh+16);});
+  x.strokeStyle=soft;x.beginPath();x.moveTo(pl,pt);x.lineTo(pl,pt+gh);x.lineTo(pl+gw,pt+gh);x.stroke();
+  if(o.xl){x.textAlign='center';x.fillText(o.xl,pl+gw/2,pt+gh+32);}
+  if(o.yl){x.save();x.translate(11,pt+gh/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText(o.yl,0,0);x.restore();}
+  return {x:x,PX:PX,PY:PY,pl:pl,pt:pt,gw:gw,gh:gh,W:Wd};
+}
+function clipTo(f,fn){var x=f.x;x.save();x.beginPath();x.rect(f.pl,f.pt,f.gw,f.gh);x.clip();fn(x);x.restore();}
+function vline(f,v,col,dash,label){var x=f.x;clipTo(f,function(){x.strokeStyle=col;x.lineWidth=1.8;x.setLineDash(dash||[5,4]);x.beginPath();x.moveTo(f.PX(v),f.pt);x.lineTo(f.PX(v),f.pt+f.gh);x.stroke();});x.setLineDash([]);if(label){x.fillStyle=col;x.font='11px sans-serif';x.textAlign='left';x.fillText(label,Math.min(f.PX(v)+4,f.pl+f.gw-80),f.pt+12);}}
+function dotAt(x,px,py,r,col,al){x.globalAlpha=al==null?1:al;x.fillStyle=col;x.beginPath();x.arc(px,py,r,0,6.2832);x.fill();x.globalAlpha=1;}
+
+/* ---- 실행 결과(문턱·되돌아보기 창에 따라) ---- */
+function rules(){return {rmin:ST.rmin,bmax:ST.bmax,jmin:ST.jmin};}
+function R(L){var l=L==null?ST.L:L,k=[ST.rmin,ST.bmax,ST.jmin,l].join('|');return RC[k]||(RC[k]=TL.runAll(SS,{rules:rules(),lookback:l}));}
+function MET(){var k='m|'+[ST.rmin,ST.bmax,ST.jmin,ST.L].join('|');return RC[k]||(RC[k]=TL.metrics(SS,{rules:rules(),lookback:ST.L}));}
+function dlab(k){return TL.iso((k-1)*DAY).slice(5,10);}
+function dfull(k){return TL.iso((k-1)*DAY).slice(0,10);}
+function kinds(a){return a.map(function(x){return TL.KIND_KO[x];}).join(' + ')||'없음';}
+function dstat(d){return d.pass?'통과':'실패';}
+function chRange(o){var v=o.ch.map(function(c){return c.mx;}).filter(function(m){return m!=null;});return v.length?[Math.min.apply(null,v),Math.max.apply(null,v)]:null;}
+function emptyN(o){return o.ch.filter(function(c){return c.mx==null;}).length;}
+function mxDiff(a,b){var m=0,e=false;a.ch.forEach(function(c,i){var t=b.ch[i];if((c.mx==null)!==(t.mx==null))e=true;else if(c.mx!=null)m=Math.max(m,Math.abs(c.mx-t.mx));});return {m:m,e:e};}
+
+/* ---- 자료 설명(고정 값) ---- */
+var NF=SS.loaded.fdc.length,NP=SS.loaded.ppa.length,NE=SS.loaded.events.length,NM=SS.loaded.mask_hist.length;
+setAll('v_days',String(D));setAll('v_nch',String(NCH));setAll('v_ct',String(CF.CT));setAll('v_nturn',String(CF.N_TURN));setAll('v_every',String(TL.FDC_MOD));setAll('v_rem',String(TL.FDC_REM));
+setAll('v_gpt',String(TL.PPA_GITS.length));setAll('v_gits',TL.PPA_GITS.join('·'));setAll('v_dmin',String(PRM.delay_min));setAll('v_dmean',String(PRM.delay_mean));setAll('v_t0',String(PRM.T_ref));
+setAll('v_slope',sg0(PRM.thermal,3));setAll('v_spec',fmt(PRM.spec,2));setAll('v_hist',String(PRM.hist));setAll('v_man',String(DEF.man));
+
+function upd1(){
+  tbl('tab1a',['표 (가상 이름)','뜻','열','줄 수(적재본)'],[
+    ['<code>fdc_glass</code>','유리마다 한 줄(표본)','<code>glass_id · ts · block · chamber · mask_id · turn · glass_in_turn · chamber_temp · ch_temp · p_steady_mean · rate</code>',fmtN(NF)],
+    ['<code>ppa_coef</code>','PPA 를 잰 유리의 계수','<code>glass_id · ts · measured_ts · Tx · Ty · theta · Mx · My · K · model_ver · ppa_metric</code>',fmtN(NP)],
+    ['<code>events</code>','PM · 세정 · 센서 교정 · 인터락 구간','<code>event_id · block · chamber · start_ts · end_ts · kind</code>',fmtN(NE)],
+    ['<code>mask_hist</code>','챔버에 어느 마스크가 언제 끼워졌나(0206 전이의 축약)','<code>mask_id · from_ts · to_ts · chamber · block · state</code>',fmtN(NM)]],[null,null,function(){return '';}]);
+  var f=SS.loaded.fdc.slice(0,5),p=SS.loaded.ppa.slice(0,5),h='<tr><th><code>glass_id</code></th><th><code>ts</code></th><th><code>chamber</code></th><th><code>mask_id</code></th><th><code>glass_in_turn</code></th><th><code>chamber_temp</code></th></tr>';
+  f.forEach(function(r){h+='<tr><td>'+r.glass_id+'</td><td>'+TL.iso(r.ts)+'</td><td>'+r.block+'-'+r.chamber+'</td><td>'+r.mask_id+'</td><td>'+r.glass_in_turn+'</td><td>'+fmt(r.chamber_temp,3)+'</td></tr>';});
+  $('tab1b').innerHTML=h;
+  h='<tr><th><code>glass_id</code></th><th><code>measured_ts</code></th><th><code>Mx</code> (ppm)</th><th><code>model_ver</code></th><th><code>ppa_metric</code> (µm)</th></tr>';
+  p.forEach(function(r){h+='<tr><td>'+r.glass_id+'</td><td>'+TL.iso(r.measured_ts)+'</td><td>'+sg0(r.Mx,3)+'</td><td>'+r.model_ver+'</td><td>'+fmt(r.ppa_metric,3)+'</td></tr>';});
+  $('tab1c').innerHTML=h;
+  $('conc1').innerHTML='<b>네 표를 합치면 FDC '+fmtN(NF)+'줄, PPA '+fmtN(NP)+'줄입니다.</b> 한 번 돌릴 때(하루치)는 FDC 약 '+fmtN(NF/D)+'줄, PPA 약 '+fmtN(NP/D)+'줄을 다룹니다. 이 표들은 &lsquo;사내 DB 가 받은 그대로&rsquo;라서 어느 날에는 줄이 두 번 들어 있거나, 열 이름이 달라져 있거나, 몇 시간치가 비어 있습니다.';
+}
+
+/* ---- 날짜 선택(모든 절이 같이 움직임) ---- */
+function fillSel(){
+  Array.prototype.forEach.call(document.querySelectorAll('.dsel'),function(sel){
+    var h='';R().days.forEach(function(d){h+='<option value="'+d.day+'">'+d.day+'일째 · '+dlab(d.day)+' · 점검 '+dstat(d)+'</option>';});
+    sel.innerHTML=h;sel.value=String(ST.day);
+    var o=$(sel.id+'O');if(o)o.textContent=dfull(ST.day)+' 06:00 ~ '+dfull(ST.day+1)+' 06:00';
+  });
+}
+function setDay(k){ST.day=k;fillSel();updDay();}
+function updDay(){upd3();upd4();upd5();upd7();upd11();}
+
+/* ---- 2절 ---- */
+function upd2(){
+  var days=R().days,wr=days.filter(function(d){return d.wrong;}),loud=wr.filter(function(d){return emptyN(d.naive)>0;}).length;
+  var h=ST.truth?['일째','보고 날짜','초과 건수','Mx 평균 범위(ppm)','빈 챔버','정답의 초과 건수','정답과 Mx 평균 최대 차(ppm)','정답과 같은가']:['일째','보고 날짜','초과 건수','Mx 평균 범위(ppm)','빈 챔버'],rows=[];
+  days.forEach(function(d){var rg=chRange(d.naive),r=[String(d.day),dfull(d.day),String(d.naive.ex),rg?sg0(rg[0],2)+' ~ '+sg0(rg[1],2):'—',String(emptyN(d.naive))];
+    if(ST.truth){var df=mxDiff(d.naive,d.truth);r.push(String(d.truth.ex),df.e?'빈칸이 다름':fmt(df.m,3),d.wrong?'<b>다름</b>':'같음');}rows.push(r);});
+  tbl('tab2',h,rows,[null,null,null,null,null,null,null,function(c){return c.indexOf('다름')>=0&&c.indexOf('같음')<0?'hit':'';}]);
+  $('conc2').innerHTML='<b>점검 없이 낸 결과는 '+D+'일 가운데 '+wr.length+'일이 정답과 달랐습니다.</b> 그 가운데 칸이 비어 눈에 띄는 날은 '+loud+'일뿐이고, 나머지 '+(wr.length-loud)+'일은 칸이 다 차 있어 오류로 표시되지 않은 채 틀렸습니다. 값이 튀어 보이는 날도 있지만, 그것이 고장 때문인지 공정이 실제로 바뀐 것인지는 결과만으로 가를 수 없습니다. 어느 날이 틀렸는지는 정답을 겹쳐 보기 전에는 알 수 없습니다(정답과 달랐다는 기준: 챔버 평균이 '+TL.TOL_MX+' ppm 넘게 다르거나, 초과 건수가 '+TL.TOL_EX+'건(또는 정답의 20%) 이상 다르거나, 이벤트에 붙은 유리 수가 '+TL.TOL_EV+'장 이상 다름).';
+  setAll('q2_w',String(wr.length));
+}
+function draw2(){
+  var cv=$('cv2'),days=R().days,lo=1e9,hi=-1e9;
+  days.forEach(function(d){[d.naive,d.truth].forEach(function(o){o.ch.forEach(function(c){if(c.mx!=null){lo=Math.min(lo,c.mx);hi=Math.max(hi,c.mx);}});});});
+  var pad=(hi-lo)*0.06;lo-=pad;hi+=pad;
+  var xt=[];for(var k=1;k<=D;k++)xt.push(k);
+  var f=frame(cv,{h:280,x0:0.5,x1:D+0.5,y0:lo,y1:hi,xt:xt,xl:'실행 날짜 (일째)',yl:'보정 후 Mx 평균 (ppm)'}),x=f.x;
+  if(ST.truth)days.forEach(function(d){if(d.wrong){x.globalAlpha=.16;x.fillStyle=css('--bad');x.fillRect(f.PX(d.day-.5),f.pt,f.PX(d.day+.5)-f.PX(d.day-.5),f.gh);x.globalAlpha=1;}});
+  function line(get,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);var on=false;x.beginPath();days.forEach(function(d){var v=get(d);if(v==null){on=false;return;}var px=f.PX(d.day),py=f.PY(v);if(!on){x.moveTo(px,py);on=true;}else x.lineTo(px,py);});x.stroke();x.setLineDash([]);}
+  for(var c=0;c<NCH;c++){(function(c){line(function(d){return d.naive.ch[c].mx;},css(COL[c]),2.2);
+    days.forEach(function(d){var v=d.naive.ch[c].mx;if(v!=null)dotAt(x,f.PX(d.day),f.PY(v),2.4,css(COL[c]));});
+    if(ST.truth)line(function(d){return d.truth.ch[c].mx;},css('--ink'),1.2,[4,4]);})(c);}
+}
+
+/* ---- 3절 ---- */
+function upd3(){
+  var d=R().days[ST.day-1],s=(ST.day-1)*DAY,e=ST.day*DAY,h=ST.H,st=$('st3'),n=0,msg;
+  if(h<0){SS.loaded.fdc.forEach(function(r){if(r.ts>=s+h*60&&r.ts<s)n++;});}
+  if(h>0){SS.loaded.fdc.forEach(function(r){if(r.ts>=s&&r.ts<s+h*60)n++;});}
+  if(h===0){st.className='state';msg='창이 제자리입니다(['+TL.iso(s)+', '+TL.iso(e)+')). 어제 창과 겹치는 줄도, 어느 창에도 안 든 줄도 없습니다.';}
+  else if(h<0){st.className='state moved';msg='오늘 창이 제자리보다 '+(-h)+'시간 일찍 시작하도록 옮겨져 있습니다. 어제 창과 오늘 창에 <b>둘 다 든 FDC 줄이 '+fmtN(n)+'줄</b>이라 같은 유리를 두 번 셉니다.';}
+  else{st.className='state moved';msg='오늘 창이 제자리보다 '+h+'시간 늦게 시작하도록 옮겨져 있습니다. <b>어느 창에도 안 든 FDC 줄이 '+fmtN(n)+'줄</b>이라 그 유리를 빠뜨립니다.';}
+  st.innerHTML=msg;$('sHO').textContent=(h>0?'+':'')+h+'시간';
+  var rows=d.naive.ch.map(function(c){return [c.key,String(c.n),c.mx==null?'—':sg0(c.mx,3),String(c.ex)];});
+  tbl('tab3',['챔버','온도가 있는 유리 줄','보정 후 Mx 평균 (ppm)','초과 건수'],rows);
+  $('conc3').innerHTML='<b>'+d.day+'일째('+dfull(d.day)+')의 창에서 FDC '+fmtN(d.n_fdc)+'줄, PPA '+fmtN(d.n_ppa)+'줄을 뽑았고, 잇고 나서 챔버별로 묶은 것이 위 표입니다.</b> 이벤트에 붙은 유리는 '+d.naive.ev+'장, 초과 건수 합은 '+d.naive.ex+'건입니다.';
+}
+function draw3(){
+  var cv=$('cv3'),c=setup(cv,230),x=c.x,W=c.w,soft=css('--soft'),ink=css('--ink'),acc=css('--accent');
+  x.clearRect(0,0,W,230);x.font='12px sans-serif';
+  var names=['뽑기','잇기','점검','분석','남기기'],sub=['SELECT · WHERE','JOIN','자료 점검','보정 · 집계','결과 · 기록'],bw=Math.min(112,(W-24)/5-12),gap=(W-12-bw*5)/4;
+  for(var i=0;i<5;i++){var bx=6+i*(bw+gap);x.fillStyle=css('--tint');x.strokeStyle=i===2?css('--warn'):acc;x.lineWidth=i===2?2.5:1.5;x.beginPath();x.rect(bx,10,bw,46);x.fill();x.stroke();
+    x.fillStyle=ink;x.textAlign='center';x.font='bold 12px sans-serif';x.fillText(names[i],bx+bw/2,30);x.font='11px sans-serif';x.fillStyle=soft;x.fillText(sub[i],bx+bw/2,47);
+    if(i<4){x.strokeStyle=soft;x.lineWidth=1.5;x.beginPath();x.moveTo(bx+bw+2,33);x.lineTo(bx+bw+gap-3,33);x.stroke();}}
+  x.font='11px sans-serif';x.fillStyle=soft;x.textAlign='left';x.fillText('점검에 실패하면 분석·남기기로 넘어가지 않고 알림만 남깁니다',6,74);
+  var s=(ST.day-1)*DAY,e=ST.day*DAY,t0=s-DAY*1.1,t1=e+DAY*0.9,pl=14,pw=W-pl-14;
+  function PX(t){return pl+(t-t0)/(t1-t0)*pw;}
+  x.strokeStyle=soft;x.lineWidth=1;x.beginPath();x.moveTo(pl,190);x.lineTo(pl+pw,190);x.stroke();
+  for(var t=Math.ceil(t0/720)*720;t<=t1;t+=720){var hh=(((6+t/60)%24)+24)%24;x.beginPath();x.moveTo(PX(t),190);x.lineTo(PX(t),195);x.stroke();x.textAlign='center';x.fillText(String(hh).length<2?'0'+hh+'시':hh+'시',PX(t),208);}
+  function bar(a,b,y,col,al,lab){x.globalAlpha=al;x.fillStyle=col;x.fillRect(PX(a),y,PX(b)-PX(a),26);x.globalAlpha=1;x.strokeStyle=col;x.strokeRect(PX(a),y,PX(b)-PX(a),26);if(lab){x.fillStyle=ink;x.textAlign='center';x.fillText(lab,(PX(a)+PX(b))/2,y+17);}}
+  var h=ST.H*60;
+  bar(s-DAY,s,98,css('--grey'),.35,'어제 창');
+  bar(s+h,e+h,132,acc,.35,'오늘 창');
+  if(h<0)bar(s+h,s,98,css('--bad'),.55,null);
+  if(h>0){x.globalAlpha=.6;x.fillStyle=css('--warn');x.fillRect(PX(s),98,PX(s+h)-PX(s),60);x.globalAlpha=1;}
+  x.fillStyle=ink;x.textAlign='left';x.fillText(h===0?'시간 창 = ['+dlab(ST.day)+' 06시, 다음 날 06시)':'시간 창 = ['+dlab(ST.day)+' 06시 '+(h>0?'+':'−')+' '+Math.abs(h/60)+'시간, 다음 날 06시 '+(h>0?'+':'−')+' '+Math.abs(h/60)+'시간)',pl,92);
+}
+
+/* ---- 4절 ---- */
+function attachBy(T,day){var ex=TL.extract(T,day,day*DAY),a=TL.attach(SS,ex.fdcW),k={};Object.keys(a.map).forEach(function(g){k[a.map[g]]=(k[a.map[g]]||0)+1;});return {ex:ex,a:a,k:k};}
+function upd4(){
+  var L=attachBy(SS.loaded,ST.day),C=attachBy(SS.clean,ST.day),rows=[];
+  TL.EV.forEach(function(e){var a=L.k[e[0]]||0,b=C.k[e[0]]||0;rows.push([e[0],String(a),String(b),sgn(a-b,0)]);});
+  rows.push(['합계',String(L.a.n),String(C.a.n),sgn(L.a.n-C.a.n,0)]);
+  tbl('tab4',['이벤트 종류','적재본의 ts 로 붙은 유리 수','정답본의 ts 로 붙은 유리 수','차이'],rows);
+  var f=R().faults||SS.faults[ST.day-1],sh=SS.faults[ST.day-1].kinds.indexOf('shift')>=0,st=$('st4');
+  st.className=sh?'state moved':'state';
+  st.textContent=sh?'이 날은 시각대가 어긋난 날입니다(FDC 의 ts 가 '+TL.SHIFT_MIN/60+'시간 밀려 적재됨). 두 단추로 번갈아 보십시오.':'이 날은 시각대 고장이 없는 날입니다. 적재본과 정답본이 같은 결과를 내는지 확인해 보십시오.';
+  var sd=0;SS.faults.forEach(function(g){if(g.kinds.indexOf('shift')>=0)sd++;});$('bShift').disabled=sd===0;
+  $('conc4').innerHTML='<b>'+ST.day+'일째에 이벤트에 붙은 유리는 적재본의 ts 로 '+L.a.n+'장, 정답본의 ts 로 '+C.a.n+'장입니다.</b>'+(sh?' 시각이 밀려 있으니 같은 유리가 엉뚱한 구간에 붙거나 아무 데도 붙지 않습니다. 그래서 점검 규칙에 &lsquo;증착 시각이 측정 시각보다 늦을 수 없습니다&rsquo;가 있습니다(5절).':' 시각대가 맞으면 두 값이 같습니다.');
+  var h='';TL.EV.forEach(function(e){h+='<span><i class="dot" style="background:var('+KOL[e[0]]+');border-radius:2px"></i>'+e[0]+'</span>';});h+='<span><i class="dot" style="background:var(--grey)"></i>이벤트에 안 붙은 유리</span>';$('lg4').innerHTML=h;
+  Array.prototype.forEach.call(document.querySelectorAll('.tsb'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-ts')===ST.ts?'true':'false');});
+}
+function draw4(){
+  var cv=$('cv4'),T=ST.ts==='loaded'?SS.loaded:SS.clean,A=attachBy(T,ST.day),s=(ST.day-1)*DAY,e=ST.day*DAY,lane=24,pl=64,pt=8,H=pt+lane*NCH+44,c=setup(cv,H),x=c.x,W=c.w,gw=W-pl-10;
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';function PX(t){return pl+(t-s)/(e-s)*gw;}
+  var rule=css('--rule'),soft=css('--soft');
+  for(var i=0;i<NCH;i++){var y=pt+i*lane;x.strokeStyle=rule;x.beginPath();x.moveTo(pl,y+lane);x.lineTo(pl+gw,y+lane);x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(CH[i].key,pl-6,y+lane/2+4);}
+  SS.loaded.events.forEach(function(ev){var i=-1;CH.forEach(function(c2,j){if(c2.block===ev.block&&c2.chamber===ev.chamber)i=j;});if(i<0||ev.end_ts<s||ev.start_ts>=e)return;
+    var a=Math.max(s,ev.start_ts),b=Math.min(e,ev.end_ts);x.globalAlpha=.28;x.fillStyle=css(KOL[ev.kind]);x.fillRect(PX(a),pt+i*lane+2,Math.max(2,PX(b)-PX(a)),lane-4);x.globalAlpha=1;x.strokeStyle=css(KOL[ev.kind]);x.strokeRect(PX(a),pt+i*lane+2,Math.max(2,PX(b)-PX(a)),lane-4);});
+  A.ex.fdcW.forEach(function(r){var i=-1;CH.forEach(function(c2,j){if(c2.block===r.block&&c2.chamber===r.chamber)i=j;});if(i<0)return;var k=A.a.map[r.glass_id];
+    dotAt(x,PX(r.ts),pt+i*lane+lane/2,k?3.4:2,k?css(KOL[k]):css('--grey'),k?1:.55);});
+  var ay=pt+lane*NCH+4;x.strokeStyle=soft;x.beginPath();x.moveTo(pl,ay);x.lineTo(pl+gw,ay);x.stroke();x.fillStyle=soft;x.textAlign='center';
+  for(var t=0;t<=24;t+=6){var px=pl+t/24*gw;x.beginPath();x.moveTo(px,ay);x.lineTo(px,ay+4);x.stroke();x.fillText(String((6+t)%24).padStart(2,'0')+'시',px,ay+17);}
+  x.textAlign='left';x.fillText('시간 창 ['+TL.iso(s)+', '+TL.iso(e)+')',pl,ay+31);
+}
+
+/* ---- 5절 ---- */
+function fv(c){
+  if(c.id==='rows')return c.value==null?'지난 기록 없음':fmt(c.value,2)+'배';
+  if(c.id==='blank'||c.id==='join')return pct(c.value,1);
+  return String(c.value);
+}
+function ft(c,r){
+  if(c.id==='rows')return '≥ '+fmt(r.rmin,2)+'배';
+  if(c.id==='blank')return '≤ '+pct(r.bmax,1);
+  if(c.id==='join')return '≥ '+pct(r.jmin,1);
+  if(c.id==='model')return '1종류';
+  return '0';
+}
+function upd5(){
+  var Rn=R(),d=Rn.days[ST.day-1],M=MET(),days=Rn.days,r=Rn.rules;
+  var rows=d.checks.map(function(c){return [c.name,fv(c),ft(c,r),c.pass?'통과':'<b>실패</b>'];});
+  rows.push(['알림: 늦게 온 자료',fmtN(d.late_notice)+'줄','—','되돌아보기 재집계 신호']);
+  tbl('tab5',['규칙','이 날의 값','문턱','결과'],rows,[null,null,null,function(c){return c.indexOf('실패')>=0?'hit':(c==='통과'?'good':'');}]);
+  var fd=days.filter(function(x){return x.faults.length>0;}),nf=days.filter(function(x){return x.faults.length===0;});
+  var cg=fd.filter(function(x){return !x.pass;}).length,ms=fd.filter(function(x){return x.pass;}),msw=ms.filter(function(x){return x.wrong;}).length,fa=nf.filter(function(x){return !x.pass;}).length,qu=nf.filter(function(x){return x.pass;}).length;
+  tbl('tab5b',['','점검 실패(결과를 막음)','점검 통과(결과를 냄)'],[['고장이 든 날 ('+fd.length+'일)',String(cg)+' (잡음)',ms.length+' (고장이 있는데 통과) · 그 가운데 결과가 정답과 달랐던 날 '+msw+'일(놓침)'],['고장이 없는 날 ('+nf.length+'일)',fa+' (헛잡음)',qu+' (정상)']],[null,function(){return '';},function(){return '';}]);
+  var kr=[];TL.KINDS.forEach(function(k){var ds=days.filter(function(x){return x.faults.indexOf(k)>=0;}),fl=ds.filter(function(x){return !x.pass;}),rs={};fl.forEach(function(x){x.checks.forEach(function(c){if(!c.pass)rs[c.id]=1;});});
+    kr.push([TL.KIND_KO[k],String(ds.length),String(fl.length),Object.keys(rs).sort().map(function(i){return '<code>'+i+'</code>';}).join(' ')||'—']);});
+  tbl('tab5c',['주입된 고장','든 날 수','그 가운데 점검이 실패한 날','실패한 규칙 (그날의 모든 실패 규칙)'],kr);
+  var tm=0;days.forEach(function(x){if(x.faults.indexOf('model')>=0){var onlyM=x.checks.filter(function(c){return !c.pass;}).map(function(c){return c.id;});if(onlyM.length===1&&onlyM[0]==='model')tm++;}});
+  var st=$('st5'),moved=ST.rmin!==DEF.rmin||ST.bmax!==DEF.bmax||ST.jmin!==DEF.jmin;
+  st.className=moved?'state moved':'state';st.textContent=moved?'지금은 기본 문턱(행 수 '+fmt(DEF.rmin,2)+'배 · 빈칸 '+pct(DEF.bmax,1)+' · 이음 '+pct(DEF.jmin,1)+')에서 옮겨 놓은 값입니다.':'지금 문턱은 기본값입니다(행 수 '+fmt(DEF.rmin,2)+'배 · 빈칸 '+pct(DEF.bmax,1)+' · 이음 '+pct(DEF.jmin,1)+').';
+  $('sRmO').textContent=fmt(ST.rmin,2)+'배';$('sBmO').textContent=pct(ST.bmax,1);$('sJmO').textContent=pct(ST.jmin,1);
+  $('conc5').innerHTML='<b>고장이 든 '+fd.length+'일 가운데 점검이 '+cg+'일을 잡았고, 고장이 없는 날 '+fa+'일을 헛잡았습니다.</b> 점검을 통과한 날 중 결과가 정답과 달랐던 날(놓침)은 '+M.missed+'일입니다. '+(ms.length-msw>0?'고장이 있는데 통과했지만 결과는 정답과 같았던 날이 '+(ms.length-msw)+'일 있습니다(고장이 결과를 바꿀 만큼 크지 않았음). ':'')+'<b>정직한 한계:</b> 점검이 실패했는데 결과는 정답과 같았던 날(고장은 있으나 결과를 바꾸지 않은 날)이 '+M.harmless+'일 있고, 모델 판 섞임은 열 구성·빈칸 점검에는 걸리지 않으며 <code>model</code> 규칙만 잡습니다.';
+  var rl=[];days.forEach(function(x){if(x.faults.length===0){var c=x.checks[0];if(c.value!=null)rl.push(c.value);}});
+  setAll('q5_lo',rl.length?fmt(Math.min.apply(null,rl),2):'—');setAll('q5_hi',rl.length?fmt(Math.max.apply(null,rl),2):'—');
+}
+function draw5(){
+  var cv=$('cv5'),days=R().days,H=116,c=setup(cv,H),x=c.x,W=c.w,pl=W<520?52:66,cw=(W-pl-6)/D,rows=[24,50,92],full=cw>=30;
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textAlign='center';
+  for(var k=1;k<=D;k++){var cx=pl+(k-1)*cw;
+    if(k===ST.day){x.fillStyle=css('--tint');x.fillRect(cx,0,cw,H);}
+    x.fillStyle=css('--soft');x.fillText(String(k),cx+cw/2,14);
+    var d=days[k-1];
+    x.fillStyle=d.pass?css('--good'):css('--bad');x.globalAlpha=.85;x.fillRect(cx+1.5,rows[0]-6,cw-3,26);x.globalAlpha=1;
+    x.fillStyle='#fff';x.fillText(d.pass?(full?'통과':'통'):(full?'실패':'실'),cx+cw/2,rows[0]+12);
+    x.fillStyle=css('--ink');d.faults.forEach(function(f,i){x.fillText(KS[f],cx+cw/2,rows[1]+i*16+4);});
+    x.fillStyle=d.wrong?css('--bad'):css('--good');x.globalAlpha=.8;x.fillRect(cx+1.5,rows[2]-12,cw-3,26);x.globalAlpha=1;
+    x.fillStyle='#fff';x.fillText(d.wrong?(full?'다름':'다'):(full?'같음':'같'),cx+cw/2,rows[2]+6);
+    x.strokeStyle=css('--rule');x.strokeRect(cx,0,cw,H);}
+  x.textAlign='right';x.fillStyle=css('--soft');x.fillText('점검',pl-6,rows[0]+12);x.fillText(W<520?'고장':'주입된 고장',pl-6,rows[1]+4);x.fillText(W<520?'정답과':'점검 없이 낸',pl-6,rows[2]-4);x.fillText(W<520?'비교':'결과 vs 정답',pl-6,rows[2]+10);
+}
+
+/* ---- 6절 ---- */
+function lateRows(){var o=[];SS.loaded.ppa.forEach(function(r){var d=Math.floor(r.ts/DAY)+1,e=d*DAY;if(r.measured_ts>e&&r.measured_ts<=D*DAY)o.push({h:(r.measured_ts-e)/60,d:d,mts:r.measured_ts});});return o;}
+var LATE=lateRows();
+function reruns(L){var n=0,k;for(k=1;k<=D;k++)n+=Math.min(L,D-k);return n;}
+function upd6(){
+  var L=ST.L,l4=TL.late4(SS,L),Rn=R(),wf=Rn.days.filter(function(d){return d.wrong_final;}).length,w0=Rn.days.filter(function(d){return d.wrong;}).length;
+  $('sLO').textContent=L+'일';var moved=L!==DEF.L,st=$('st6');st.className=moved?'state moved':'state';st.textContent=moved?'지금은 기본 되돌아보기 창('+DEF.L+'일)에서 옮겨 놓은 값입니다.':'지금 되돌아보기 창은 기본값입니다('+DEF.L+'일).';
+  var rows=[];for(var i=0;i<=7;i++){var a=TL.late4(SS,i),r=R(i),w=r.days.filter(function(d){return d.wrong_final;}).length;rows.push([i+'일'+(i===L?' ◀':''),pct(a.ratio,1),fmtN(reruns(i)),w0+' → '+w]);}
+  tbl('tab6',['되돌아보기 창','바로잡힌 늦은 줄 비율','다시 돌리는 하루치 실행 수(14일 동안)','정답과 다른 날: 첫 실행 → 되돌아보기 뒤'],rows);
+  $('conc6').innerHTML='<b>창 끝을 지나 도착한 PPA 줄은 '+fmtN(l4.late)+'줄이고, 되돌아보기 창 '+L+'일이면 그 가운데 '+pct(l4.ratio,1)+'를 바로잡습니다.</b> 그 값은 하루치를 '+fmtN(reruns(L))+'번 더 돌리는 값입니다. 정답과 다른 날은 첫 실행 '+w0+'일에서 되돌아보기 뒤 '+wf+'일이 됩니다. 되돌아보기는 도착 지연이 창 안에 드는 줄만 구하고, 며칠 뒤에 오는 줄은 창을 늘려도 비용만 늘어납니다.';
+}
+function draw6(){
+  var cv=$('cv6'),L=ST.L,NB=22,bw=6,cnt=[],ok=[],i,mx=1;
+  for(i=0;i<NB;i++){cnt.push(0);ok.push(0);}
+  LATE.forEach(function(r){var b=Math.min(NB-1,Math.floor(r.h/bw));cnt[b]++;if(r.mts<=Math.min(D,r.d+L)*DAY)ok[b]++;});
+  cnt.forEach(function(v){mx=Math.max(mx,v);});
+  var f=frame(cv,{h:240,x0:0,x1:NB*bw,y0:0,y1:mx*1.1,xt:[0,24,48,72,96,120],xl:'자기 날 창의 끝(06시) 뒤 몇 시간에 도착했는가',yl:'PPA 줄 수',pl:48}),x=f.x;
+  for(i=0;i<NB;i++){var a=f.PX(i*bw)+1,b=f.PX((i+1)*bw)-1;x.fillStyle=css('--accent');x.fillRect(a,f.PY(ok[i]),b-a,f.PY(0)-f.PY(ok[i]));x.fillStyle=css('--bad');x.fillRect(a,f.PY(cnt[i]),b-a,f.PY(ok[i])-f.PY(cnt[i]));}
+  vline(f,Math.min(L*24,NB*bw),css('--c10'),[6,4],L+'일');
+}
+
+/* ---- 7절 ---- */
+function histOf(day){var Rn=R(),h={fdc:[],ppa:[]};for(var j=Math.max(0,day-1-PRM.hist);j<day-1;j++){h.fdc.push(Rn.days[j].n_fdc);h.ppa.push(Rn.days[j].n_ppa);}return h;}
+function runOne(day,asofDay,reason){
+  var e=Math.min(D,asofDay)*DAY,ex=TL.extract(SS.loaded,day,e),cks=TL.checks(SS,day,ex,histOf(day),rules()),failed=cks.filter(function(c){return !c.pass;}).map(function(c){return c.id;});
+  var ana=TL.analyze(SS,ex.fdcW,ex.ppaW),rd=dfull(day),rec={run_date:rd,win:TL.iso(ex.w[0])+' ~ '+TL.iso(ex.w[1]),asof:TL.iso(e),n_fdc:ex.fdcW.length,n_ppa:ex.ppaW.length,in_fp:TL.fp(TL.inLines(ex.fdcW,ex.ppaW)),code:PRM.code_ver,failed:failed.join('+')||'—',out_fp:'—',alert:failed.length>0,reason:reason,ana:ana,day:day};
+  if(failed.length){ALERT[rd]=rec.failed;delete STORE[rd];}else{rec.out_fp=TL.fp(TL.outLines(ana));STORE[rd]=ana;delete ALERT[rd];}
+  LOG.push(rec);return rec;
+}
+function ensureFirst(day){if(!LOG.some(function(r){return r.day===day&&r.reason==='정기';}))runOne(day,day,'정기');}
+function upd7(){
+  var h=['보고 날짜','시간 창','기준 시각','FDC/PPA 행','입력 지문','코드 판','점검 실패 규칙','출력 지문','알림','사유'],rows=LOG.map(function(r){return [r.run_date,r.win,r.asof,r.n_fdc+' / '+r.n_ppa,'<code>'+r.in_fp+'</code>',r.code,r.failed,r.out_fp==='—'?'—':'<code>'+r.out_fp+'</code>',r.alert?'발생':'없음',r.reason];});
+  var el=$('tab7');if(!rows.length)el.innerHTML='<tr><th>실행 기록</th></tr><tr><td>아직 돌린 기록이 없습니다. 위 단추를 눌러 보십시오.</td></tr>';else tbl('tab7',h,rows,[null,null,null,null,null,null,null,null,null,null]);
+  var d=R().days[ST.day-1],same=LOG.filter(function(r){return r.day===ST.day;}),st=$('st7'),b=$('tab7b');
+  var nres=Object.keys(STORE).filter(function(k){return k===dfull(ST.day);}).length,nal=ALERT[dfull(ST.day)]?1:0;
+  if(same.length<2){st.className='state';st.textContent=same.length?'이 날은 한 번 돌렸습니다. 한 번 더 돌려 보십시오. 지금 저장된 결과 표: '+nres+'벌, 알림: '+nal+'건.':'이 날은 아직 돌리지 않았습니다. 지금 점검 결과는 '+dstat(d)+'입니다.';b.innerHTML='';}
+  else{var a=same[same.length-2],c=same[same.length-1],sameIn=a.in_fp===c.in_fp,sameOut=a.out_fp===c.out_fp;
+    st.className='state';st.innerHTML='마지막 두 실행('+a.reason+' → '+c.reason+'): 입력 지문 <b>'+(sameIn?'같음':'바뀜')+'</b>('+a.in_fp+' → '+c.in_fp+') · PPA 행 '+a.n_ppa+' → '+c.n_ppa+' · 출력 지문 <b>'+(sameOut?'같음':'바뀜')+'</b>('+a.out_fp+' → '+c.out_fp+') · 저장된 결과 표 <b>'+nres+'벌</b> · 알림 '+nal+'건.';
+    if(sameIn){b.innerHTML='';}
+    else{var rr=[];a.ana.ch.forEach(function(q,i){var w=c.ana.ch[i];rr.push([q.key,q.mx==null?'—':sg0(q.mx,3),w.mx==null?'—':sg0(w.mx,3),q.mx==null||w.mx==null?'—':sgn(w.mx-q.mx,3),q.ex+' → '+w.ex]);});
+      tbl('tab7b',['챔버','앞 실행의 Mx 평균','뒤 실행의 Mx 평균','바뀐 양 (ppm)','초과 건수'],rr);}}
+  var f=SS.faults[ST.day-1];
+  $('conc7').innerHTML='<b>입력이 같으면 지문이 같고, 입력이 바뀌면 지문이 바뀝니다.</b> 지금 고른 '+ST.day+'일째의 주입된 고장은 <b>'+kinds(f.kinds)+'</b>이고, 점검은 <b>'+dstat(d)+'</b>입니다. 점검에 실패한 날은 결과 표 대신 알림이 한 건 남고, 같은 날을 다시 돌려도 알림이 한 건입니다.';
+}
+function onSame(){ensureFirst(ST.day);runOne(ST.day,ST.day,'재실행');upd7();}
+function onLate(){ensureFirst(ST.day);runOne(ST.day,ST.day+ST.L,'되돌아보기');upd7();}
+function onClr(){LOG=[];STORE={};ALERT={};upd7();}
+
+/* ---- 8절·시드 분포 ---- */
+function buildDist(cb){
+  var rows=[],sd=1,t0=Date.now();
+  function step(){var t=Date.now();while(sd<=200&&Date.now()-t<30){rows.push(TL.metrics(MS.scenario('S15',{seed:sd})));sd++;}
+    if(sd<=200){$('sdSt').textContent='시드 분포를 계산하고 있습니다… '+(sd-1)+'/200';setTimeout(step,0);}else{DIST=rows;$('sdSt').textContent='시드 200개의 분포를 계산했습니다(문턱·되돌아보기 창이 기본값일 때).';cb();}}
+  step();
+}
+function dcol(k){return DIST.map(function(m){return m[k];}).filter(function(v){return v!=null&&isFinite(v);});}
+function rank(k,v){var a=dcol(k);return (a.filter(function(x){return x<v;}).length+0.5*a.filter(function(x){return x===v;}).length)/a.length;}
+function upd8(){
+  var M=MET(),Rn=R(),days=Rn.days,d0=MS.SEEDS.S15,nfail=M.n_fail,nok=D-nfail;
+  var pa=function(k,d){return DIST?c3(dcol(k),d):'계산 중';};
+  tbl('tab8',['물음','이 가상 공장 '+D+'일','시드 200개 분포: 중앙값 (10~90%)'],[
+    ['1) 점검 없이 낸 보고가 정답과 달랐던 날',M.wrong+'일',pa('wrong',0)+'일'],
+    ['2) 고장이 든 날 가운데 점검이 잡은 비율',pct(M.caught_ratio,0)+' ('+Math.round(M.caught_ratio*M.n_fault_days)+'/'+M.n_fault_days+'일)',DIST?pct(quant(dcol('caught_ratio'),.5),0)+' ('+pct(quant(dcol('caught_ratio'),.1),0)+'~'+pct(quant(dcol('caught_ratio'),.9),0)+')':'계산 중'],
+    ['2) 점검을 통과했는데 정답과 달랐던 날(놓침)',M.missed+'일',pa('missed',0)+'일'],
+    ['2) 고장이 없는데 점검이 실패한 날(헛잡음)',M.false_alarm+'일',pa('false_alarm',0)+'일'],
+    ['3) 사람이 볼 실패 알림',nfail+'건 / '+D+'일',pa('n_fail',0)+'건'],
+    ['부수) 되돌아보기 창 '+ST.L+'일이 바로잡은 늦은 자료',pct(M.late_fixed,0),DIST?pct(quant(dcol('late_fixed'),.5),0)+' ('+pct(quant(dcol('late_fixed'),.1),0)+'~'+pct(quant(dcol('late_fixed'),.9),0)+')':'계산 중']]);
+  var ok=days.filter(function(d){return d.pass;}),okw=ok.filter(function(d){return d.wrong;}).length;
+  $('land').innerHTML='<b>이 자동 보고는 &lsquo;점검을 통과한 날의 것만&rsquo; 믿으십시오.</b> 점검 없이는 '+D+'일 가운데 '+M.wrong+'일이 틀렸는데 어느 날인지 알 수 없었습니다. 점검을 붙이면 통과한 '+ok.length+'일 가운데 틀린 날이 '+okw+'일이고, 사람은 실패 알림 '+nfail+'건('+D+'일 중)만 처리하면 됩니다. 다만 점검이 모든 고장을 알아보는 것은 아닙니다. 고장이 든 날 중 점검이 못 잡은 날이 '+(M.n_fault_days-Math.round(M.caught_ratio*M.n_fault_days))+'일 있고, 시드 200개로 보면 놓친 날이 0이 아닌 시드도 있습니다. 이 모의 운전은 고장을 일부러 많이(고장이 든 날 '+days.filter(function(d){return d.faults.length>0;}).length+'/'+D+'일) 넣어서 알림도 많습니다. 현장에서 알림이 이만큼 오면 점검 문턱보다 자료를 보내는 쪽을 먼저 고칩니다. 이 숫자는 이 가상 공장의 고장 여섯 가지에 대한 값이고, 현장의 고장은 다르게 생길 수 있어 실행 기록을 쌓으며 규칙을 늘립니다.';
+}
+
+/* ---- 9절 ---- */
+function upd9(){
+  var M=MET(),Rn=R(),days=Rn.days,wrongFail=days.filter(function(d){return d.wrong&&!d.pass;}).length,nfail=M.n_fail,saved=ST.man*D/60,spent=nfail*ST.al/60;
+  $('sManO').textContent=ST.man+'분';$('sAlO').textContent=ST.al+'분';$('sLossO').textContent=ST.loss+'장';setAll('v_man',String(ST.man));
+  var moved=ST.man!==DEF.man||ST.al!==DEF.al||ST.loss!==DEF.loss,st=$('st9');st.className=moved?'state moved':'state';st.textContent=moved?'지금은 기본 가정(손으로 '+DEF.man+'분/일 · 알림 '+DEF.al+'분/건 · 조치 손실 '+DEF.loss+'장)에서 옮겨 놓은 값입니다.':'세 값 모두 기본 가정입니다.';
+  tbl('tab9',['항목','계산','값'],[
+    ['손으로 붙이던 시간',D+'일 × '+ST.man+'분',fmt(saved,1)+'시간'],
+    ['실패 알림 처리 시간',nfail+'건 × '+ST.al+'분',fmt(spent,1)+'시간'],
+    ['순 절약 시간','절약 − 처리',sgn(saved-spent,1)+'시간'],
+    ['점검이 막은 틀린 보고',wrongFail+'일 × '+ST.loss+'장',fmtN(wrongFail*ST.loss)+'장'],
+    ['점검 없이 냈다면 틀린 보고',M.wrong+'일 × '+ST.loss+'장',fmtN(M.wrong*ST.loss)+'장'],
+    ['점검을 통과하고도 틀린 보고(놓침)',M.missed+'일 × '+ST.loss+'장',fmtN(M.missed*ST.loss)+'장']]);
+  $('con9').innerHTML='<b>'+D+'일 동안 사람 손 '+fmt(saved,1)+'시간을 아끼고 알림 처리에 '+fmt(spent,1)+'시간을 씁니다(순 '+sgn(saved-spent,1)+'시간). 점검이 막은 틀린 보고는 '+wrongFail+'일, 점검을 통과하고도 남은 틀린 보고는 '+M.missed+'일입니다.</b> '+(M.missed===0?'이 가상 공장에서는 놓친 날이 없습니다. ':'')+'알림이 온 '+nfail+'일 가운데 결과가 정답과 같았던 날이 '+days.filter(function(d){return !d.pass&&!d.wrong;}).length+'일 있어, 그 알림은 확인만 하고 다시 돌립니다. 시드 200개로 보면 놓친 날의 분포는 '+(DIST?c3(dcol('missed'),0)+'일':'계산 중')+'입니다.';
+}
+
+/* ---- 11절 ---- */
+function upd11(){
+  var f=['보고 날짜(<code>run_date</code>) · 시간 창과 기준 시각','입력 표별 행 수 · 입력 지문 · 코드 판','점검 결과(규칙별 값과 통과 여부)','출력 지문 · 실패 알림 여부','재실행 사유(정기 · 재실행 · 되돌아보기) · 스키마 변경 공지'];
+  $('rp_fields').innerHTML=f.map(function(s){return '· '+s;}).join('<br>');
+  var d=R().days[ST.day-1],ex=TL.extract(SS.loaded,ST.day,ST.day*DAY),fp=TL.fp(TL.inLines(ex.fdcW,ex.ppaW));
+  $('rp_ex').innerHTML='보고 날짜 <code>'+dfull(ST.day)+'</code> · 창 '+TL.iso((ST.day-1)*DAY)+' ~ '+TL.iso(ST.day*DAY)+' · FDC '+d.n_fdc+'줄 / PPA '+d.n_ppa+'줄 · 입력 지문 <code>'+fp+'</code> · 코드 판 '+PRM.code_ver+' · 점검 '+dstat(d)+(d.pass?'':'(실패 규칙: '+d.checks.filter(function(c){return !c.pass;}).map(function(c){return c.id;}).join('+')+')')+' · 출력 지문 '+(d.pass?'<code>'+TL.fp(TL.outLines(d.naive))+'</code>':'없음(결과를 내지 않음)')+' · 알림 '+(d.pass?'없음':'발생')+' · 사유 정기';
+}
+
+/* ---- 조작 ---- */
+function updRules(){fillSel();upd2();upd5();upd6();upd7();upd8();upd9();upd11();draw5();draw6();}
+Array.prototype.forEach.call(document.querySelectorAll('.dsel'),function(s){s.addEventListener('change',function(){setDay(+this.value);draw3();draw4();draw5();});});
+$('bTruth').addEventListener('click',function(){ST.truth=!ST.truth;this.setAttribute('aria-pressed',ST.truth?'true':'false');this.textContent=ST.truth?'정답 숨기기':'정답 겹쳐 보기';upd2();draw2();});
+$('sH').addEventListener('input',function(){ST.H=+this.value;upd3();draw3();});
+$('rH').addEventListener('click',function(){ST.H=0;$('sH').value='0';upd3();draw3();});
+Array.prototype.forEach.call(document.querySelectorAll('.tsb'),function(b){b.addEventListener('click',function(){ST.ts=this.getAttribute('data-ts');upd4();draw4();});});
+$('bShift').addEventListener('click',function(){var k=0;SS.faults.forEach(function(g){if(!k&&g.kinds.indexOf('shift')>=0)k=g.day;});if(k){ST.ts='loaded';setDay(k);draw3();draw4();draw5();}});
+$('sRm').addEventListener('input',function(){ST.rmin=+this.value;updRules();});
+$('sBm').addEventListener('input',function(){ST.bmax=+this.value;updRules();});
+$('sJm').addEventListener('input',function(){ST.jmin=+this.value;updRules();});
+$('rR').addEventListener('click',function(){ST.rmin=DEF.rmin;ST.bmax=DEF.bmax;ST.jmin=DEF.jmin;$('sRm').value=String(DEF.rmin);$('sBm').value=String(DEF.bmax);$('sJm').value=String(DEF.jmin);updRules();});
+$('cv5').addEventListener('click',function(ev){var r=this.getBoundingClientRect(),px=ev.clientX-r.left,pl=r.width<520?52:66,k=Math.floor((px-pl)/((r.width-pl-6)/D))+1;if(k>=1&&k<=D){setDay(k);draw3();draw4();draw5();}});
+$('sL').addEventListener('input',function(){ST.L=+this.value;fillSel();upd5();upd6();upd7();upd8();upd9();upd11();draw5();draw6();});
+$('rL').addEventListener('click',function(){ST.L=DEF.L;$('sL').value=String(DEF.L);fillSel();upd5();upd6();upd7();upd8();upd9();upd11();draw5();draw6();});
+$('bSame').addEventListener('click',onSame);$('bLate').addEventListener('click',onLate);$('bClr').addEventListener('click',onClr);
+$('sMan').addEventListener('input',function(){ST.man=+this.value;upd9();});$('sAl').addEventListener('input',function(){ST.al=+this.value;upd9();});$('sLoss').addEventListener('input',function(){ST.loss=+this.value;upd9();});
+$('rM').addEventListener('click',function(){ST.man=DEF.man;ST.al=DEF.al;ST.loss=DEF.loss;$('sMan').value=String(DEF.man);$('sAl').value=String(DEF.al);$('sLoss').value=String(DEF.loss);upd9();});
+
+/* ---- 10절: CSV 내려받기 ---- */
+(function(){
+  function dl(name,tag){
+    var rows=SS.csvRows(tag),st=$('csvState'),cols=Object.keys(rows[0]);
+    function esc(v){if(v==null)return '';var s=String(v);return s.indexOf(',')>=0||s.indexOf('"')>=0?'"'+s.replace(/"/g,'""')+'"':s;}
+    try{var txt=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){return esc(r[c]);}).join(',');}).join('\n')+'\n',blob=new Blob([txt],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: '+name+' ('+fmtN(rows.length)+'행, 열 '+cols.length+'개).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다.';}
+  }
+  $('csvF').addEventListener('click',function(){dl('s15_fdc_glass.csv','fdc_glass');});
+  $('csvP').addEventListener('click',function(){dl('s15_ppa_coef.csv','ppa_coef');});
+  $('csvE').addEventListener('click',function(){dl('s15_events.csv','events');});
+  $('csvM').addEventListener('click',function(){dl('s15_mask_hist.csv','mask_hist');});
+  $('csvT').addEventListener('click',function(){dl('s15_faults.csv','faults');});
+})();
+
+/* ---- 다시 그리기·테마·상단바 ---- */
+function redraw(){draw2();draw3();draw4();draw5();draw6();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+var d0=R().days;ST.day=(d0.filter(function(d){return d.pass;})[0]||d0[0]).day;
+upd1();fillSel();upd2();draw2();upd3();draw3();upd4();draw4();upd5();draw5();upd6();draw6();upd7();upd8();upd9();upd11();
+T_INIT=performance.now()-P0;
+var T0MS=Date.now();
+setTimeout(function(){buildDist(function(){upd8();upd9();});},50);
+window.__ml={ready:function(){return !!DIST;},ms:function(){return Date.now()-T0MS;},init:function(){return T_INIT;},st:ST,
+  setRules:function(a,b,c){ST.rmin=a;ST.bmax=b;ST.jmin=c;$('sRm').value=String(a);$('sBm').value=String(b);$('sJm').value=String(c);updRules();},
+  setL:function(v){ST.L=v;$('sL').value=String(v);fillSel();upd5();upd6();upd7();upd8();upd9();upd11();draw5();draw6();},
+  setH:function(v){ST.H=v;$('sH').value=String(v);upd3();draw3();},
+  setDay:function(k){setDay(k);draw3();draw4();draw5();},
+  setM:function(a,b,c){ST.man=a;ST.al=b;ST.loss=c;$('sMan').value=String(a);$('sAl').value=String(b);$('sLoss').value=String(c);upd9();},
+  same:onSame,late:onLate,clr:onClr,truth:function(v){ST.truth=v;upd2();draw2();},ts:function(v){ST.ts=v;upd4();draw4();}};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

@@ -1441,6 +1441,254 @@ _miss14 = [e for e in _exp14 if e not in _run14.stdout]
 chk('0306 Python 출력의 숫자(마스크 수·기준 기록 수, 기울기 표준오차와 공통 기울기, 이질성 F·p, 대표 마스크의 마스크별·공통 잔여 수명과 구간 끝, 판단 불가 수, 다음 10턴 일정) = JS 대표 시드와 일치, 코드 속 한계·능력·빠지는 턴 = JS 값', not _miss14 and f'LIMIT = {_pj14["lim"]}' in _code14 and f'CAPACITY, OUT_TURNS = {_pj14["cap"]}, {_pj14["out"]}' in _code14 and f'HORIZON, K_MAX = {_s14["hz"]}, {_pj14["kmax"]}' in _code14,
     ' · '.join(_exp14[1:3]) + ('' if not _miss14 else ' · 불일치: ' + ' | '.join(_miss14)))
 
+
+# ============================================================
+# S15 (0400) — 사내 데이터 파이프라인: 가상 공장 14일의 표 넷(적재본·정답본)에서 sqlite3 로 같은 SQL 을 실제로 돌려 JS 와 대조하고,
+# 점검 규칙·혼동·지문·멱등·되돌아보기 창·시드 분포(pandas 독립 구현)를 확인한다
+# ============================================================
+import html as _html5, re as _re5, tempfile as _tf5, hashlib as _hl5
+_S15_EXPORT = r"""const M=require(%s);const T=M.s15tools;const S=M.scenario('S15');const R=T.runAll(S);
+function oo(a){return {ch:a.ch,ex:a.ex,ev:a.ev,joined:a.joined};}
+const days=R.days.map(d=>{const k=d.day,ex=T.extract(S.loaded,k,k*1440),ex2=T.extract(S.loaded,k,Math.min(14,k+S.params.lookback)*1440);
+ return {day:k,faults:d.faults,pass:d.pass,checks:d.checks.map(c=>({id:c.id,value:c.value,thr:c.thr,pass:c.pass,detail:c.detail})),naive:oo(d.naive),truth:oo(d.truth),final:oo(d.final),wrong:d.wrong,wrong_final:d.wrong_final,why:d.why,
+  n_fdc:d.n_fdc,n_ppa:d.n_ppa,notice:d.late_notice,fp_in:T.fp(T.inLines(ex.fdcW,ex.ppaW)),fp_out:d.pass?T.fp(T.outLines(d.naive)):null,fp_in_final:T.fp(T.inLines(ex2.fdcW,ex2.ppaW)),n_ppa_final:ex2.ppaW.length,fp_out_final:T.fp(T.outLines(d.final))};});
+const lcurve=[0,1,2,3,4,5,6,7].map(L=>T.late4(S,L));
+const rv={};[0.5,0.6,0.7,0.8,0.9,1.0].forEach(v=>{rv['rmin'+v]=T.metrics(S,{rules:{rmin:v,bmax:0.02,jmin:0.98}});});
+[0,0.005,0.02,0.05,0.1].forEach(v=>{rv['bmax'+v]=T.metrics(S,{rules:{rmin:0.8,bmax:v,jmin:0.98}});});
+[0.9,0.95,0.98,0.99,1.0].forEach(v=>{rv['jmin'+v]=T.metrics(S,{rules:{rmin:0.8,bmax:0.02,jmin:v}});});
+const hs=x=>require('crypto').createHash('sha256').update(x).digest('hex');
+const ids={};['S1','S2','S10','S11','S12','S13','S14','S15'].forEach(k=>{ids[k]=M.scenario(k).id||M.scenario(k).name||null;});
+console.log(JSON.stringify({days:days,params:S.params,faults:S.faults,metrics:T.metrics(S),lcurve:lcurve,rv:rv,ids:ids,def:M.SEEDS.S15,h14:hs(JSON.stringify(M.scenario('S14'))),
+ cfg:{CT:M.CFG.CT,N_TURN:M.CFG.N_TURN,T0:M.CFG.T0},tol:{mx:T.TOL_MX,ex:T.TOL_EX,ev:T.TOL_EV},nev:S.loaded.events.length,sizes:{fdc:S.loaded.fdc.length,ppa:S.loaded.ppa.length,ev:S.loaded.events.length,mh:S.loaded.mask_hist.length,cfdc:S.clean.fdc.length,cppa:S.clean.ppa.length},masks:S.masks}));"""
+_SEEDS15 = r"""const M=require(%s);const T=M.s15tools;const fs=require('fs');const fd=fs.openSync(process.argv[1],'w');
+const CHI={};T.CH.forEach((c,i)=>{CHI[c.block+'-'+c.chamber]=i;});
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S15',{seed:sd}),gi={};S.clean.fdc.forEach((r,i)=>{gi[r.glass_id]=i;});
+ const F=a=>({g:a.map(r=>gi[r.glass_id]),ts:a.map(r=>r.ts),c:a.map(r=>CHI[r.block+'-'+r.chamber]),t:a.map(r=>r.chamber_temp)});
+ const P=a=>({g:a.map(r=>gi[r.glass_id]),ts:a.map(r=>r.ts),mts:a.map(r=>r.measured_ts),mx:a.map(r=>r.Mx),mm:a.map(r=>r.ppa_metric),v:a.map(r=>r.model_ver==='m1'?0:1)});
+ const m=T.metrics(S);
+ fs.writeSync(fd,JSON.stringify({seed:sd,spec:S.params.spec,slope:S.params.thermal,fl:F(S.loaded.fdc),pl:P(S.loaded.ppa),fc:F(S.clean.fdc),pc:P(S.clean.ppa),ev:S.loaded.events.map(e=>[CHI[e.block+'-'+e.chamber],e.start_ts,e.end_ts]),
+  faults:S.faults.map(f=>f.kinds),js:m})+'\n');}
+fs.closeSync(fd);"""
+_mf5 = _mf
+_s15 = json.loads(subprocess.run([_node, '-e', _S15_EXPORT % json.dumps(_mf5)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096')).stdout)
+_P15 = _s15['params']; _d15 = _s15['def']
+_pg15 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0400-data-pipeline.html'), encoding='utf-8').read()
+_code15 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg15, _re5.S).group(1)); _out15 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg15, _re5.S).group(1)).strip()
+
+# 1) 시나리오 키·기존 출력 불변
+chk('S15 scenario() 키 판정: S15 는 S15 로, S1·S10~S14 는 그대로(S15 가 S1 로 잘리지 않음)', _s15['ids']['S15'] == 'S15' and all(_s15['ids'][k] == k for k in ('S1', 'S2', 'S10', 'S11', 'S12', 'S13', 'S14')), str(_s15['ids']))
+chk('S15 추가 뒤에도 S14 출력 해시 불변(작업 전 기준선 dd86ab9d…)', _s15['h14'] == 'dd86ab9d40ae192610d3e3d2f88b8b8cbc209186ba7aa23526c3a65b2a88a5f4', _s15['h14'][:16])
+
+# 2) CSV(적재본·정답본)로 고장 주입 확인 — JS 와 무관하게 pandas 로
+_cf = rd('s15_fdc_glass.csv'); _cp = rd('s15_ppa_coef.csv'); _ce = rd('s15_events.csv'); _cm = rd('s15_mask_hist.csv'); _kf = rd('s15_clean_fdc_glass.csv'); _kp = rd('s15_clean_ppa_coef.csv'); _fl = rd('s15_faults.csv')
+_T0 = pd.Timestamp('2026-03-02 06:00')
+_dayof = lambda s: ((pd.to_datetime(s) - _T0) // pd.Timedelta(days=1) + 1).astype(int)
+for _t in (_cf, _kf): _t['day'] = _dayof(_t.ts)
+for _t in (_cp, _kp): _t['day'] = _dayof(_t.ts)
+_inj = {int(d): set(g.kind) for d, g in _fl.groupby('day')}
+_nm = lambda d: _inj.get(d, set())
+chk('S15 표 크기: fdc_glass·ppa_coef·events·mask_hist 적재본·정답본 줄 수가 JS 와 같고 정답본 glass_id 는 유일',
+    (len(_cf), len(_cp), len(_ce), len(_cm), len(_kf), len(_kp)) == tuple(_s15['sizes'][k] for k in ('fdc', 'ppa', 'ev', 'mh', 'cfdc', 'cppa')) and _kf.glass_id.is_unique and _kp.glass_id.is_unique and set(_cf.glass_id) <= set(_kf.glass_id) and set(_cp.glass_id) <= set(_kp.glass_id),
+    f'적재본 fdc {len(_cf)} ppa {len(_cp)} · 정답본 fdc {len(_kf)} ppa {len(_kp)} · events {len(_ce)} · mask_hist {len(_cm)}')
+_ok15 = True; _msg15 = []
+for d in range(1, 15):
+    lf, kf, lp, kp = _cf[_cf.day == d], _kf[_kf.day == d], _cp[_cp.day == d], _kp[_kp.day == d]
+    ks = _nm(d)
+    dupF, dupP = len(lf) - lf.glass_id.nunique(), len(lp) - lp.glass_id.nunique()
+    got = set()
+    if dupF + dupP > 0: got.add('dup')
+    if lf.chamber_temp.isna().mean() > 0.9 and lf.ch_temp.notna().mean() > 0.9: got.add('rename')
+    if len(set(lp.model_ver)) > 1: got.add('model')
+    # late: 같은 glass_id 의 measured_ts 가 정답본보다 24시간 넘게 늦은 행이 있음
+    mm = lp.drop_duplicates('glass_id').merge(kp[['glass_id', 'measured_ts']], on='glass_id', suffixes=('', '_k'))
+    if ((pd.to_datetime(mm.measured_ts) - pd.to_datetime(mm.measured_ts_k)) > pd.Timedelta(hours=20)).any(): got.add('late')
+    # gap: 정답본 줄 가운데 적재본에 없는 줄이 있음(시각 이동이 없는 날만 해당)
+    if 'shift' not in ks and len(set(kf.glass_id) - set(lf.glass_id)) > 0: got.add('gap')
+    # shift: 같은 glass_id 의 ts 가 정확히 540분 늦음
+    mf = lf.drop_duplicates('glass_id').merge(kf[['glass_id', 'ts']], on='glass_id', suffixes=('', '_k'))
+    if len(mf) and ((pd.to_datetime(mf.ts) - pd.to_datetime(mf.ts_k)) == pd.Timedelta(minutes=540)).all(): got.add('shift')
+    if got != ks: _ok15 = False; _msg15.append(f'{d}일 주입 {sorted(ks)} 관측 {sorted(got)}')
+    if not ks:
+        same = sorted(lf.glass_id) == sorted(kf.glass_id) and sorted(lp.glass_id) == sorted(kp.glass_id) and np.allclose(np.sort(lp.Mx.values), np.sort(kp.Mx.values))
+        if not same: _ok15 = False; _msg15.append(f'{d}일 고장 없는 날인데 적재본≠정답본')
+chk('S15 고장 주입: 날짜별로 CSV 의 적재본/정답본 차이(중복·열 이름·모델 판·늦은 도착·빠진 줄·540분 이동)가 faults 표(정답)와 정확히 같고, 고장 없는 날은 적재본 = 정답본', _ok15 and len(_fl) > 0, '; '.join(_msg15) or ' · '.join(f'{d}일 {"+".join(sorted(k))}' for d, k in sorted(_inj.items())))
+_kinds15 = [k for f in _s15['faults'] for k in f['kinds']]
+chk('S15 고장 분포: 날마다 0~2개(고장 없는 날도 있음), 대표 시드에서 여섯 종류 가운데 네 가지 이상이 실제로 들어감', all(len(f['kinds']) <= 2 for f in _s15['faults']) and any(len(f['kinds']) == 0 for f in _s15['faults']) and len(set(_kinds15)) >= 4,
+    f'고장 {len(_kinds15)}건 · 고장 없는 날 {sum(len(f["kinds"]) == 0 for f in _s15["faults"])}일 · 종류 {sorted(set(_kinds15))}')
+# 이벤트: 챔버 안에서 겹치지 않음
+_ce['s'] = pd.to_datetime(_ce.start_ts); _ce['e'] = pd.to_datetime(_ce.end_ts)
+_ov = 0
+for _, g in _ce.groupby(['block', 'chamber']):
+    g = g.sort_values('s'); _ov += int((g.s.values[1:] <= g.e.values[:-1]).sum())
+chk('S15 이벤트·마스크 이력: 같은 챔버 안에서 이벤트가 겹치지 않고, 이벤트 종류가 네 가지, 마스크 이력은 챔버마다 IN_USE 구간이 끊김 없이 이어짐', _ov == 0 and set(_ce.kind) <= {'PM', '세정', '센서 교정', '인터락'} and len(set(_ce.kind)) >= 3, f'이벤트 {len(_ce)}건 · 겹침 {_ov} · 종류 {sorted(set(_ce.kind))}')
+_cont = True
+for (b, c), g in _cm[_cm.state == 'IN_USE'].groupby(['block', 'chamber']):
+    g = g.sort_values('from_ts')
+    if g.from_ts.iloc[0] != '2026-03-02 06:00' or g.to_ts.iloc[-1] != '2026-03-16 06:00' or (len(g) > 1 and (g.to_ts.values[:-1] != g.from_ts.values[1:]).any()): _cont = False
+chk('S15 마스크 이력 연속성', _cont and _cm.chamber.nunique() == 4, f'마스크 이력 {len(_cm)}줄 · 교체된 챔버 {int((_cm.state == "WASH").sum())}곳')
+
+# 3) 페이지의 Python 코드(sqlite3 SQL)로 적재본·정답본을 직접 돌려 JS 와 대조
+_ns15 = {'__name__': 'pipe15', '__file__': os.path.join(D, 'pipe15.py')}; exec(compile(_code15, 'pipe15', 'exec'), _ns15)
+_td15 = _tf5.mkdtemp(); _tdc15 = _tf5.mkdtemp()
+for _n in ('fdc_glass', 'ppa_coef', 'events', 'mask_hist'): shutil.copy(os.path.join(D, f's15_{_n}.csv'), os.path.join(_td15, f's15_{_n}.csv'))
+for _n, _m in (('clean_fdc_glass', 'fdc_glass'), ('clean_ppa_coef', 'ppa_coef'), ('events', 'events'), ('mask_hist', 'mask_hist')): shutil.copy(os.path.join(D, f's15_{_n}.csv'), os.path.join(_tdc15, f's15_{_m}.csv'))
+_con15 = _ns15['load_db'](_td15); _conc15 = _ns15['load_db'](_tdc15); _outd15 = _tf5.mkdtemp()
+_chs = _ns15['CHAMBERS']; _bad15 = []; _ev15 = []; _rec15 = []
+def _o15(daily, ev): return {'ch': [{'key': k, 'n': n, 'mx': m, 'ex': x} for k, n, m, x in daily], 'ex': int(sum(x for _, _, _, x in daily)), 'ev': ev}
+def _same15(a, b):
+    if a['ex'] != b['ex'] or a['ev'] != b['ev']: return False
+    for x, y in zip(a['ch'], b['ch']):
+        if x['key'] != y['key'] or x['n'] != y['n'] or x['ex'] != y['ex'] or (x['mx'] is None) != (y['mx'] is None) or (x['mx'] is not None and abs(x['mx'] - y['mx']) > 1e-9): return False
+    return True
+_cm15 = {'ok': 0, 'late': 0}
+for d in _s15['days']:
+    k = d['day']; s, e = _ns15['window'](k)
+    rec, cks = _ns15['run_daily'](_con15, k, _outd15); _rec15.append(rec)
+    nv = _o15(_ns15['join_keys'](_con15, s, e, e), _ns15['attach_events'](_con15, s, e)); tv = _o15(_ns15['join_keys'](_conc15, s, e, '9999'), _ns15['attach_events'](_conc15, s, e))
+    fe = _ns15['window'](min(14, k + _P15['lookback']))[1]; fv = _o15(_ns15['join_keys'](_con15, s, e, fe), _ns15['attach_events'](_con15, s, e))
+    if not (_same15(nv, d['naive']) and _same15(tv, d['truth']) and _same15(fv, d['final'])): _bad15.append(f'{k}일 결과')
+    for c, j in zip(cks, d['checks']):
+        if c[0] != j['id'] or c[3] != j['pass'] or (c[1] is None) != (j['value'] is None) or (c[1] is not None and abs(c[1] - j['value']) > 1e-9): _bad15.append(f'{k}일 점검 {c[0]}')
+    if rec['in_fp'] != d['fp_in'] or (d['fp_out'] or '-') != rec['out_fp']: _bad15.append(f'{k}일 지문')
+    if rec['late_notice'] != d['notice'] or rec['n_fdc'] != d['n_fdc'] or rec['n_ppa'] != d['n_ppa']: _bad15.append(f'{k}일 행 수·알림')
+chk('S15 sqlite3 로 같은 SQL 을 실제로 돌린 결과 = JS: 14일 × (점검 없이 낸 결과·정답본 결과·되돌아보기 뒤 결과) 챔버별 평균·건수·초과 건수·이벤트 붙은 유리 수, 점검 일곱 값과 통과 여부, 입력·출력 지문, 행 수, 늦은 도착 알림', not _bad15, ('불일치: ' + ', '.join(_bad15[:6])) if _bad15 else f'14일 전부 일치 · 지문 예 {_rec15[0]["in_fp"]} / {_rec15[7]["out_fp"]}')
+# 4) 구간 이음 SQL: 다른 방법(pandas 이진 비교)으로 같은 수
+_eo = _ce.copy(); _ok_iv = True; _ivn = 0
+for d in (1, 5, 8, 11):
+    s, e = _ns15['window'](d); f = _cf[(_cf.ts >= s) & (_cf.ts < e)]
+    hit = set()
+    for r in _eo.itertuples():
+        m = f[(f.block == r.block) & (f.chamber == r.chamber) & (f.ts >= r.start_ts) & (f.ts <= r.end_ts)]
+        hit |= set(m.glass_id)
+    if len(hit) != _ns15['attach_events'](_con15, s, e): _ok_iv = False
+    _ivn += len(hit)
+_shiftd = [d for d, k in _inj.items() if 'shift' in k]
+_ivd = []
+for d in _shiftd:
+    s, e = _ns15['window'](d); _ivd.append((d, _ns15['attach_events'](_con15, s, e), _ns15['attach_events'](_conc15, s, e)))
+chk('S15 구간 이음: SQL 의 BETWEEN 조인 결과 = pandas 로 따로 센 값, 이음 단위(챔버 같고 ts 가 start~end 안)이며 시각대가 어긋난 날은 정답본과 붙은 유리 수가 달라짐', _ok_iv and len(_ivd) > 0 and all(a != b for _, a, b in _ivd), f'검산 4일 합계 {_ivn}건 · 시각 이동한 날(일, 적재본, 정답본) {_ivd}')
+# 5) 점검 규칙·혼동
+_fd15 = [d for d in _s15['days'] if d['faults']]; _nf15 = [d for d in _s15['days'] if not d['faults']]
+_mm = _s15['metrics']
+_conf = {'caught': sum(not d['pass'] for d in _fd15), 'miss_fault': sum(d['pass'] for d in _fd15), 'false': sum(not d['pass'] for d in _nf15), 'quiet': sum(d['pass'] for d in _nf15)}
+chk('S15 혼동표(고장 날 × 점검 결과): sqlite3 로 돈 실행 기록의 실패 날 = JS, 합 14일, 잡음·놓침·헛잡음·정상 숫자가 JS 지표와 같음', sum(_conf.values()) == 14 and _conf['caught'] == round(_mm['caught_ratio'] * _mm['n_fault_days']) and _conf['false'] == _mm['false_alarm'] and [r['alert'] for r in _rec15] == [not d['pass'] for d in _s15['days']],
+    f'잡음 {_conf["caught"]} · 놓침(고장 있는데 통과) {_conf["miss_fault"]} · 헛잡음 {_conf["false"]} · 정상 {_conf["quiet"]}')
+_which = {}
+for d in _s15['days']:
+    for c in d['checks']:
+        if not c['pass']:
+            for kd in d['faults']: _which.setdefault(kd, set()).add(c['id'])
+chk('S15 정직한 한계: 점검이 걸린 이유를 고장 종류별로 기록(모델 판 섞임은 열 구성·빈칸 점검이 아니라 model_ver 규칙으로만 잡힌다)', all('model' in v for k, v in _which.items() if k == 'model') and 'cols' not in _which.get('model', set()),
+    ' · '.join(f'{k}: {"/".join(sorted(v))}' for k, v in sorted(_which.items())))
+# 6) 멱등·되돌아보기
+_ok_day = next(d['day'] for d in _s15['days'] if d['pass'])
+_r1 = _ns15['run_daily'](_con15, _ok_day, _outd15, reason='재실행')[0]; _r2 = _ns15['run_daily'](_con15, _ok_day, _outd15, reason='재실행')[0]
+_files = [f for f in os.listdir(_outd15) if f == f'result_{_r1["run_date"]}.csv']
+_dd = _s15['days'][_ok_day - 1]
+chk('S15 멱등: 통과한 날을 두 번 더 돌려도 결과 표는 한 벌, 입력·출력 지문은 처음과 같고 JS 와 같음', len(_files) == 1 and _r1['out_fp'] == _r2['out_fp'] == _dd['fp_out'] and _r1['in_fp'] == _dd['fp_in'], f'{_r1["run_date"]} 결과 표 {len(_files)}벌 · 출력 지문 {_r2["out_fp"]}')
+_late_ds = [d['day'] for d in _s15['days'] if 'late' in d['faults'] and d['day'] + _P15['lookback'] <= 14]; _ld = _late_ds[-1]
+_ldd = _s15['days'][_ld - 1]; _rl = _ns15['run_daily'](_con15, _ld, _outd15, asof_day=_ld + _P15['lookback'], reason='되돌아보기')[0]
+chk('S15 늦게 온 자료: 되돌아보기 재실행 뒤 입력 지문이 바뀌고(PPA 행이 늘고) 지문·행 수가 JS 와 같음, 바뀐 출력 지문도 같음', _rl['in_fp'] != _ldd['fp_in'] and _rl['in_fp'] == _ldd['fp_in_final'] and _rl['n_ppa'] == _ldd['n_ppa_final'] > _ldd['n_ppa'] and (_rl['out_fp'] == _ldd['fp_out_final'] or _rl['out_fp'] == '-'),
+    f'{_ld}일: 지문 {_ldd["fp_in"]} → {_rl["in_fp"]} · PPA 행 {_ldd["n_ppa"]} → {_rl["n_ppa"]}')
+# 7) 시드 분포 — pandas 독립 구현
+_sf15 = os.path.join(_tf5.mkdtemp(), 's15seeds.ndjson')
+subprocess.run([_node, '-e', _SEEDS15 % json.dumps(_mf5), _sf15], check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_tol15 = _s15['tol']; _rules15 = _P15['rules']; _L15 = _P15['lookback']; _HIST15 = _P15['hist']
+def _py15_run(F, P, EV, k, asof, spec, slope, hist=None):
+    s, e = (k - 1) * 1440, k * 1440
+    fd = pd.DataFrame({'g': F['g'], 'ts': F['ts'], 'c': F['c'], 't': F['t']}); pdf = pd.DataFrame({'g': P['g'], 'pts': P['ts'], 'mts': P['mts'], 'mx': P['mx'], 'mm': P['mm'], 'v': P['v']})
+    fw = fd[(fd.ts >= s) & (fd.ts < e)]; pw = pdf[(pdf.pts >= s) & (pdf.pts < e) & (pdf.mts <= asof)]
+    j = fw.merge(pw, on='g'); comp = j.mx - slope * (j.t - _P15['T_ref'])
+    rows = []
+    for c in range(8):
+        m = j.c == c; cc = comp[m].dropna()
+        rows.append((int(len(cc)), float(cc.mean()) if len(cc) else None, int((j.mm[m] > spec).sum())))
+    hit = np.zeros(len(fw), bool)
+    for (c, a, b) in EV: hit |= ((fw.c.values == c) & (fw.ts.values >= a) & (fw.ts.values <= b))
+    out = {'n': [r[0] for r in rows], 'mx': [r[1] for r in rows], 'ex': [r[2] for r in rows], 'exT': sum(r[2] for r in rows), 'ev': int(fw.g.values[hit].size and len(set(fw.g.values[hit])))}
+    nf, npp = len(fw), len(pw)
+    chk_ = None
+    if hist is not None:
+        mf = np.median(hist[0]) if hist[0] else None; mp = np.median(hist[1]) if hist[1] else None
+        ratio = None if mf is None else min(nf / mf, npp / mp)
+        dup = (nf - fw.g.nunique()) + (npp - pw.g.nunique()); empty = 5 if nf == 0 else (1 if fw.t.isna().all() else 0)
+        blank = 1.0 if nf == 0 else float(fw.t.isna().mean()); jr = float(pw.g.isin(fw.g).mean()) if npp else 0.0
+        vio = int((j.ts > j.mts).sum()); nv = int(pw.v.nunique())
+        r = _rules15
+        chk_ = [ratio is None or ratio >= r['rmin'], dup == 0, empty == 0, blank <= r['bmax'], jr >= r['jmin'], vio == 0, nv <= 1]
+    return out, nf, npp, chk_
+def _diff15(a, b):
+    for i in range(8):
+        if (a['mx'][i] is None) != (b['mx'][i] is None) or (a['mx'][i] is not None and abs(a['mx'][i] - b['mx'][i]) > _tol15['mx']): return True
+    return abs(a['exT'] - b['exT']) >= max(_tol15['ex'], 0.2 * b['exT']) or abs(a['ev'] - b['ev']) >= _tol15['ev']
+_A15 = {m: np.full(200, np.nan) for m in ('wrong', 'caught', 'false', 'late', 'missed')}; _jsA = {m: np.full(200, np.nan) for m in _A15}; _fdays = []
+_map15 = {'wrong': 'wrong', 'caught': 'caught_ratio', 'false': 'false_alarm', 'late': 'late_fixed', 'missed': 'missed'}
+with open(_sf15) as fh:
+    for line in fh:
+        X = json.loads(line); sd = X['seed']; spec = X['spec']; slope = X['slope']
+        fl = {k: (np.array([np.nan if v is None else v for v in X['fl'][k]], float) if k == 't' else np.array(X['fl'][k])) for k in X['fl']}; fc = {k: (np.array([np.nan if v is None else v for v in X['fc'][k]], float) if k == 't' else np.array(X['fc'][k])) for k in X['fc']}
+        pl = {k: np.array(v) for k, v in X['pl'].items()}; pc = {k: np.array(v) for k, v in X['pc'].items()}
+        H0, H1 = [], []; wrong = caught = false = missed = 0; nfd = 0
+        for k in range(1, 15):
+            nv, nf, npp, cks = _py15_run(fl, pl, X['ev'], k, k * 1440, spec, slope, (H0[-_HIST15:], H1[-_HIST15:])); tv, _, _, _ = _py15_run(fc, pc, X['ev'], k, 10 ** 9, spec, slope)
+            H0.append(nf); H1.append(npp)
+            ok = all(cks); w = _diff15(nv, tv); has = len(X['faults'][k - 1]) > 0
+            wrong += w; nfd += has; caught += (has and not ok); false += ((not has) and not ok); missed += (ok and w)
+        pw = pd.DataFrame({'g': pl['g'], 'ts': pl['ts'], 'mts': pl['mts']}); dd = pw.ts // 1440 + 1; ee = dd * 1440
+        late = (pw.mts > ee) & (pw.mts <= 14 * 1440); fix = late & (pw.mts <= np.minimum(14, dd + _L15) * 1440)
+        vals = {'wrong': wrong, 'caught': caught / nfd if nfd else float('nan'), 'false': false, 'late': float(fix.sum() / late.sum()) if late.sum() else float('nan'), 'missed': missed}
+        for m in _A15: _A15[m][sd - 1] = vals[m]; _jsA[m][sd - 1] = X['js'][_map15[m]] if X['js'][_map15[m]] is not None else float('nan')
+        _fdays.append(nfd)
+_md15 = max(float(np.nanmax(np.abs(_A15[m] - _jsA[m]))) for m in _A15)
+chk('S15 시드 1~200 지표 다섯 재계산: 표만 받아 pandas 로 독립 구현(구간 자르기·잇기·점검 일곱·정답과의 비교·되돌아보기)한 값이 JS 와 같음(정수 일치, 비율 1e-9)', _md15 < 1e-9, f'최대 차이 {_md15:.1e}')
+def _rk15(m, i): a = _A15[m]; a2 = a[~np.isnan(a)]; return float(((a2 < a[i]).sum() + 0.5 * (a2 == a[i]).sum()) / len(a2))
+_sc15 = np.array([sum(abs(_rk15(m, i) * 100 - 50) for m in _A15) for i in range(200)])
+_NM15 = {'wrong': '점검 없이 정답과 다른 날 수', 'caught': '점검이 잡은 고장 비율', 'false': '헛잡은 날 수', 'late': '되돌아보기 창이 바로잡은 늦은 자료 비율', 'missed': '놓친 날 수'}
+chk('S15 대표 시드(SEEDS.S15): 다섯 지표 백분위의 Σ|백분위−50| 이 시드 1~200 중 가장 작은 시드이고(파이썬 독립 계산), 25~75% 밖 지표를 기록(본문은 그 지표를 분포로 말해야 함)', int(np.argmin(_sc15)) == _d15 - 1,
+    f'SEEDS.S15 = {_d15}, Σ = {_sc15[_d15 - 1]:.1f} · 25~75% 밖: ' + (' · '.join(f'{_NM15[m]} {_rk15(m, _d15 - 1) * 100:.0f}%' for m in _A15 if not 0.25 <= _rk15(m, _d15 - 1) <= 0.75) or '없음'))
+_pc15 = lambda a: f'중앙 {np.nanmedian(a):.4g} (10~90%: {np.nanpercentile(a, 10):.4g}~{np.nanpercentile(a, 90):.4g})'
+chk('S15 분포(시드 200) 기록: 다섯 지표의 중앙값·10~90%', all(np.isfinite(_A15[m]).all() for m in _A15), ' · '.join(f'{_NM15[m]} {_pc15(_A15[m])}' for m in _A15))
+chk('S15 설계 기대 — 점검 없이 틀린 날 > 점검 뒤 놓친 날: 시드 중앙값이 앞이 훨씬 크고(분포 위쪽 10% 미만 시드를 빼고도), 놓친 날 수의 90% 값이 점검 없이 틀린 날 수의 10% 값보다 작음', np.median(_A15['wrong']) > np.median(_A15['missed']) + 3 and np.percentile(_A15['missed'], 90) < np.percentile(_A15['wrong'], 10), f'틀린 날 중앙 {np.median(_A15["wrong"]):.0f} (10~90%: {np.percentile(_A15["wrong"], 10):.0f}~{np.percentile(_A15["wrong"], 90):.0f}) · 놓친 날 중앙 {np.median(_A15["missed"]):.0f} (10~90%: {np.percentile(_A15["missed"], 10):.0f}~{np.percentile(_A15["missed"], 90):.0f})')
+chk('S15 관찰(설계 예상과 다름 가능) — 점검이 고장을 거의 다 잡지만(중앙값 100%) 놓친 날이 0이 아닌 시드가 있고, 고장이 있어 점검이 실패했는데 결과는 정답과 같았던 날(무해 고장)이 있음', np.median(_A15['caught']) >= 0.95 and (_A15['missed'] > 0).any() and _s15['metrics']['harmless'] >= 0,
+    f'놓친 날 > 0 인 시드 {int((_A15["missed"] > 0).sum())}/200 · 대표 시드 무해 고장 {_s15["metrics"]["harmless"]}일 · 고장 있는 날 중앙값 {np.median(_fdays):.0f}일')
+_lc = [x['ratio'] for x in _s15['lcurve']]
+_lcpy = []
+_pw0 = _cp.copy(); _pw0['d'] = _dayof(_pw0.ts); _pw0['m'] = pd.to_datetime(_pw0.measured_ts); _pw0['t0'] = pd.to_datetime(_pw0.ts)
+_endd = _T0 + pd.Timedelta(days=14)
+for L in range(8):
+    ee = _T0 + pd.to_timedelta(_pw0.d, unit='D'); late = (_pw0.m > ee) & (_pw0.m <= _endd); fix = late & (_pw0.m <= _T0 + pd.to_timedelta(np.minimum(14, _pw0.d + L), unit='D'))
+    _lcpy.append(float(fix.sum() / late.sum()))
+chk('S15 되돌아보기 창 길이(0~7일) → 바로잡힌 늦은 자료 비율: CSV 로 독립 계산한 값 = JS, 길이가 늘수록 줄지 않고(단조), 0일에는 0', all(abs(a - b) < 1e-12 for a, b in zip(_lc, _lcpy)) and all(_lc[i] <= _lc[i + 1] + 1e-12 for i in range(7)) and _lc[0] == 0, ' '.join(f'{L}일 {v:.3f}' for L, v in enumerate(_lc)))
+_rvn = lambda pre, vs: [_s15['rv'][pre + ('%g' % v)]['n_fail'] for v in vs]
+_a = _rvn('rmin', [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]); _b = _rvn('bmax', [0, 0.005, 0.02, 0.05, 0.1]); _c = _rvn('jmin', [0.9, 0.95, 0.98, 0.99, 1.0])
+chk('S15 문턱 슬라이더 범위의 거동: 행 수 비율 하한을 올리면, 빈칸 상한을 내리면, 이음 비율 하한을 올리면 실패한 날이 줄지 않고, 모든 값이 유한', _a == sorted(_a) and _b == sorted(_b, reverse=True) and _c == sorted(_c) and all(np.isfinite([v for m in _s15['rv'].values() for k, v in m.items() if v is not None and isinstance(v, (int, float))]).all() for _ in [0]),
+    f'행 수 하한 0.5~1.0 → 실패 {_a} · 빈칸 상한 0~10% → {_b} · 이음 하한 0.90~1.00 → {_c}')
+# 8) 페이지 Python 실행 출력
+_tdp15 = _tf5.mkdtemp()
+for _n in ('fdc_glass', 'ppa_coef', 'events', 'mask_hist', 'faults'): shutil.copy(os.path.join(D, f's15_{_n}.csv'), os.path.join(_tdp15, f's15_{_n}.csv'))
+open(os.path.join(_tdp15, 'lab0400.py'), 'w', encoding='utf-8').write(_code15)
+_run15 = subprocess.run([sys.executable, '-I', 'lab0400.py'], cwd=_tdp15, capture_output=True, text=True)
+chk('0400 Python 코드가 오류 없이 돌고 출력이 페이지의 출력 상자와 한 글자도 다르지 않음', _run15.returncode == 0 and _run15.stdout.strip() == _out15, (_run15.stderr[-200:] if _run15.returncode else f'{len(_out15.splitlines())}줄'))
+_exp15 = []
+for d in _s15['days']:
+    kd = '+'.join(d['faults']) or '-'
+    fl_ = '실패 ' + '+'.join(c['id'] for c in d['checks'] if not c['pass']) if not d['pass'] else '통과'
+    _exp15.append(f'· {d["n_fdc"]}/{d["n_ppa"]} · {fl_} · {d["fp_in"]} · {d["fp_out"] or "-"} · {kd}')
+_miss15 = [e for e in _exp15 if e not in _run15.stdout]
+_nfail15 = sum(not d['pass'] for d in _s15['days']); _nfd15 = len([d for d in _s15['days'] if d['faults']]); _cgt15 = sum((not d['pass']) for d in _s15['days'] if d['faults']); _nfa15 = sum((not d['pass']) for d in _s15['days'] if not d['faults'])
+_sum15 = f'점검 실패 {_nfail15}일 · 고장이 주입된 {_nfd15}일 가운데 점검이 잡은 날 {_cgt15}일 · 고장 없는 날의 실패 {_nfa15}일'
+_lit15 = lambda nm: _re5.search(r'^' + nm + r' = ([^ \n#]+)', _code15, _re5.M).group(1)
+_okd = _s15['days'][_ok_day - 1]; _lt = _ldd
+_idem15 = f'출력 지문 {_okd["fp_out"]} → {_okd["fp_out"]} · 결과 표 1벌'; _lb15 = f'입력 지문 {_lt["fp_in"]} → {_lt["fp_in_final"]} · PPA 행 {_lt["n_ppa"]} → {_lt["n_ppa_final"]} · 출력 지문 {_lt["fp_out"] or "-"} → {_lt["fp_out_final"]}'
+chk('0400 Python 출력의 숫자(14일 행 수·점검 결과·입력/출력 지문·주입된 고장, 점검 요약, 멱등 재실행, 되돌아보기) = JS 대표 시드, 코드 속 기울기·기준 온도·spec·점검 문턱·되돌아보기 일수·코드 판 = JS 값',
+    not _miss15 and _sum15 in _run15.stdout and _idem15 in _run15.stdout and _lb15 in _run15.stdout and abs(float(_lit15('SLOPE')) - _P15['thermal']) < 1e-15 and abs(float(_lit15('SPEC')) - _P15['spec']) < 1e-12 and int(_lit15('T_REF')) == _P15['T_ref']
+    and f'"rows_min": {_rules15["rmin"]}, "blank_max": {_rules15["bmax"]}, "join_min": {_rules15["jmin"]}' in _code15 and int(_lit15('HIST')) == _P15['hist'] and int(_lit15('LOOKBACK')) == _P15['lookback'] and _lit15('CODE_VER') == '"' + _P15['code_ver'] + '"',
+    _sum15 + (' · 불일치: ' + ' | '.join(_miss15[:3]) if _miss15 else ''))
+_sqls = _re5.findall(r'<pre class="sql" id="(sql\w+)">(.*?)</pre>', _pg15, _re5.S)
+_sqlok = all(_html5.unescape(t).strip() in _code15 for _, t in _sqls) and len(_sqls) >= 3
+chk('0400 페이지 3절에 보여 주는 SQL(뽑기·잇기와 챔버별 집계·구간 이음)이 Python 코드 속 SQL 과 글자 그대로 같음', _sqlok, f'SQL 블록 {len(_sqls)}개')
+_cleanup15 = [shutil.rmtree(p, ignore_errors=True) for p in (_td15, _tdc15, _outd15, _tdp15)]
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')
