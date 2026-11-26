@@ -86,6 +86,13 @@ const l05 = [L05.DEFAULT_SEED].concat(Array.from({ length: L05.SEEDS }, (_, i) =
 const r4 = v => Math.round(v * 1e4) / 1e4;
 csv('loss_seed_summary.csv', L05.seedRows(l05).map(r => ({ seed: r.seed, kind: r.kind, code: r.code, n: r.n, glass: r4(r.glass), min: r4(r.min) })), ['seed', 'kind', 'code', 'n', 'glass', 'min']);
 
+// 실험실 0502: 새 시나리오 S16 '공통 추세'(가상 램프업 라인 90일) 시드 1~200 에서 고른 대표 시드의 날별 표. glass_in = 그날 투입 유리 수(노출량), vx_jam·vy_src·vz_retry = 날별 건수.
+// 정답(X·Y 는 원인 관계 없음, X → 다음 날 Z 연쇄 있음)은 넣지 않는다. 기존 CSV 는 바이트 불변이고 이 파일 하나만 더한다.
+const s16runs = L05.s16Run(Array.from({ length: L05.S16.SEEDS }, (_, i) => i + 1));
+const s16rep = L05.s16Rep(s16runs);
+csv('s16_common_trend.csv', L05.s16Rows(s16runs[s16rep.seed - 1].g), ['day', 'glass_in', 'vx_jam', 'vy_src', 'vz_retry']);
+console.log('S16 representative seed', s16rep.seed, JSON.stringify(s16rep.pcs));
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

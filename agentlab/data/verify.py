@@ -2739,6 +2739,270 @@ chk('0501 페이지: 새 용어 6개 · Q&A 4개(시드 분포 숫자를 넣지 
 _cleanup05 = shutil.rmtree(_td05, ignore_errors=True)
 
 
+# ============================================================
+# 0502 — Loss 연쇄와 가짜 상관. 계산 모듈(loss05.js)의 날별 건수·분산/평균·상관·포아송 비율 검정·연쇄 확인(A: loss_events.csv·loss_hourly.csv)과
+# 새 시나리오 S16 '공통 추세'를 페이지의 Python 코드(lab0502.py)와 이 파일의 독립 구현(난수 줄기·상관·백분위)으로 다시 계산해 JS 와 대조한다.
+# ============================================================
+_pg06 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0502-loss-cascade-spurious.html'), encoding='utf-8').read()
+_code06 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg06, _re5.S).group(1)); _out06 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg06, _re5.S).group(1)).strip()
+_td06 = _tf5.mkdtemp()
+for _f in ('loss_events.csv', 'loss_hourly.csv', 's16_common_trend.csv'): shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(_td06, _f))
+open(os.path.join(_td06, 'lab0502.py'), 'w', encoding='utf-8').write(_code06)
+_sp06 = _ilu01.spec_from_file_location('lab0502', os.path.join(_td06, 'lab0502.py')); _m06 = _ilu01.module_from_spec(_sp06); _sp06.loader.exec_module(_m06)
+_EXPORT06 = r"""const fs=require('fs'),path=require('path');
+const DATA=process.argv[2],OUT=process.argv[3];
+const MS=require(DATA+'/mfgsim.js'),L=require(DATA+'/loss05.js');
+const sim=MS.simulateLoss(),ev=sim.events,hr=sim.hourly,res={};
+const AC=L.CODES.slice();
+res.codes=AC;res.daily={};AC.forEach(c=>{res.daily[c]=L.dailyCounts(ev,c,60);});
+res.dispA=AC.map(c=>{const d=L.dispersion(res.daily[c]);return [c,d.mean,d.var,d.ratio];});
+res.expo=L.dailySum(hr,'line_out',60);
+res.chain={};['RUN-TRIPLE','LB-LINE','LG-CST','LG-JC','CL-CAPA'].forEach(c=>{const k=L.chainCheck(ev,c);res.chain[c]={nAll:k.nAll,nDerived:k.nDerived,nLinked:k.nLinked,byRoot:k.byRoot.map(b=>[b.code,b.n,b.glass]),delays:k.delays,nRoots:k.nRoots,perRoot:k.perRoot,zeroShare:k.zeroShare,delayQ:k.delayQ};});
+res.ru=L.rootUnitDaily(ev,'LB-LINE',60);
+res.fan=L.fanOut(ev).map(a=>[a.code,a.roots,a.derived,a.glassDerived]);
+res.hourly={};[['cassette_free','LG-CST'],['cleaner_queue','LG-CST'],['cleaner_queue','CL-CAPA']].forEach(p=>{const a=hr.map(r=>r[p[0]]),b=L.hourlyCounts(ev,p[1],hr.length);res.hourly[p.join('>')]=[-3,-2,-1,0,1,2,3,4,5,6].map(k=>L.lagCorr(a,b,k));});
+res.rate=[];['EQ-BD','EQ-PM','Q-MASK','Q-EVAP','RUN-TRIPLE','LB-LINE'].forEach(c=>{const d=res.daily[c],s=(a,lo,hi)=>a.slice(lo,hi).reduce((x,y)=>x+y,0);const t1=L.poissonRateTest(s(d,0,30),30,s(d,30,60),30),t2=L.poissonRateTest(s(d,0,30),s(res.expo,0,30),s(d,30,60),s(res.expo,30,60));res.rate.push([c,s(d,0,30),s(d,30,60),t1.p,t2.p,t1.z,t2.z,t2.pi]);});
+{const d=res.ru,s=(a,lo,hi)=>a.slice(lo,hi).reduce((x,y)=>x+y,0),t2=L.poissonRateTest(s(d,0,30),s(res.expo,0,30),s(d,30,60),s(res.expo,30,60));res.rate.push(['ROOTUNIT',s(d,0,30),s(d,30,60),null,t2.p,null,t2.z,t2.pi]);}
+// 포아송·이항 확률과 비율 검정 사례
+res.pmf=[[0,0.5],[3,2.5],[10,7.3],[25,26.4],[40,38]].map(a=>[a[0],a[1],L.poissonPmf(a[0],a[1])]);
+res.bpmf=[[3,13,0.5],[100,194,0.49],[519,1450,0.4]].map(a=>[a[0],a[1],a[2],L.binomPmf(a[0],a[1],a[2])]);
+res.rtests=[[3,1,10,1],[83,50000,111,52000],[519,29859,931,54117],[0,10,4,10],[20,100,5,100],[100,1000,100,1000],[7,3,2,5]].map(a=>{const t=L.poissonRateTest(a[0],a[1],a[2],a[3]);return [a,t.p,t.z,t.pi];});
+// S16
+res.consts=L.S16;
+res.seeds=[];for(let s=1;s<=200;s++){const g=L.s16Gen(s),m=L.s16Metrics(g);res.seeds.push({seed:s,N:g.N,X:g.X,Y:g.Y,Z:g.Z,m:m});}
+const runs=L.s16Run(Array.from({length:200},(_,i)=>i+1)),rep=L.s16Rep(runs);res.rep=rep;
+res.cut=[193,1,77].map(s=>{const a=L.s16Gen(s),b=L.s16Gen(s,0.3),c0=L.s16Gen(s,0);const S=v=>v.reduce((x,y)=>x+y,0);return {seed:s,sX:S(a.X),sXc:S(b.X),sY:S(a.Y),sYc:S(b.Y),sZ:S(a.Z),sZc:S(b.Z),same0:JSON.stringify(a)===JSON.stringify(c0),Yeq:JSON.stringify(a.Y)===JSON.stringify(b.Y),Neq:JSON.stringify(a.N)===JSON.stringify(b.N),Zc:b.Z,Xc:b.X};});
+res.pcs=rep.pcs;
+fs.writeFileSync(path.join(OUT,'res.json'),JSON.stringify(res));
+"""
+_jsf06 = os.path.join(_td06, 'export502.js'); open(_jsf06, 'w').write(_EXPORT06)
+subprocess.run([_node, _jsf06, _DATA10, _td06], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_R06 = json.load(open(os.path.join(_td06, 'res.json')))
+def _fm06(x): return format(int(x + 0.5 + 1e-6), ',')
+def _same06(a, b, tol=1e-9): return abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+_ev06 = _m06.load_events(os.path.join(_td06, 'loss_events.csv')); _hr06 = pd.read_csv(os.path.join(_td06, 'loss_hourly.csv')); _s16c06 = pd.read_csv(os.path.join(_td06, 's16_common_trend.csv'))
+_C06 = _R06['consts']
+
+# 1. A 날별 건수·분산/평균: JS = 페이지 Python(pandas) = 이 파일의 numpy 독립 집계, 프로브 값(설계서 기대)과 맞음
+_ok = True; _det = []
+for _c in _R06['codes']:
+    _a = _m06.daily_counts(_ev06, _c); _jd = np.array(_R06['daily'][_c], float)
+    _o = np.array_equal(_a, _jd) and abs(_a.sum() - (_ev06['reason'] == _c).sum()) < 1e-9
+    _d = [r for r in _R06['dispA'] if r[0] == _c][0]; _pm, _pv, _pr = _m06.dispersion(_a)
+    _o &= _same06(_pm, _d[1]) and _same06(_pv, _d[2]) and _same06(_pr, _d[3])
+    _ok &= _o
+    if not _o: _det.append(_c)
+_dp06 = {r[0]: r for r in _R06['dispA']}
+_probe_ok = all(abs(_dp06[c][1] - m) < 0.05 for c, m in (('EQ-BD', 3.2), ('EQ-PM', 3.3), ('Q-MASK', 3.9), ('Q-EVAP', 3.4), ('RUN-TRIPLE', 19.1), ('LB-LINE', 42.6))) and all(abs(_dp06[c][3] - v) < 0.06 for c, v in (('EQ-BD', 0.85), ('Q-EVAP', 0.87), ('LB-LINE', 4.96), ('LG-JC', 4.06), ('CL-CAPA', 7.0)))
+chk('0502 A 날별 건수·분산/평균(표본 분산 n−1): 12개 코드 JS = 페이지 Python = 사건 CSV 직접 집계, 설계서 프로브(EQ-BD 0.85·Q-EVAP 0.87 포아송에 가깝고 LB-LINE 4.96·LG-JC 4.06·CL-CAPA 7.0 과산포)와 같음',
+    _ok and _probe_ok, '12개 코드' + (' 불일치 ' + ','.join(_det) if _det else '') + ' · ' + ' '.join('%s %.2f' % (c, _dp06[c][3]) for c in ('EQ-BD', 'Q-EVAP', 'EQ-PM', 'RUN-TRIPLE', 'LB-LINE')))
+
+# 2. A 날별 건수 상관: 설계서 기대(RUN-TRIPLE–EQ-PM 0.67·RUN-TRIPLE–EQ-BD 0.51·LB-LINE–EQ-PM 0.59)
+_cnt06 = {c: _m06.daily_counts(_ev06, c) for c in _R06['codes']}
+_cc = lambda a, b: float(np.corrcoef(_cnt06[a], _cnt06[b])[0, 1])
+chk('0502 A 날별 건수 상관: RUN-TRIPLE–EQ-PM 0.67 · RUN-TRIPLE–EQ-BD 0.51 · LB-LINE–EQ-PM 0.59(소수 둘째 자리까지 설계서 프로브와 같음), scipy pearsonr 와 numpy corrcoef 일치',
+    abs(_cc('RUN-TRIPLE', 'EQ-PM') - 0.67) < 0.006 and abs(_cc('RUN-TRIPLE', 'EQ-BD') - 0.51) < 0.006 and abs(_cc('LB-LINE', 'EQ-PM') - 0.59) < 0.006 and _same06(stats.pearsonr(_cnt06['RUN-TRIPLE'], _cnt06['EQ-PM'])[0], _cc('RUN-TRIPLE', 'EQ-PM')),
+    'RUN-TRIPLE–EQ-PM %.3f · RUN-TRIPLE–EQ-BD %.3f · LB-LINE–EQ-PM %.3f' % (_cc('RUN-TRIPLE', 'EQ-PM'), _cc('RUN-TRIPLE', 'EQ-BD'), _cc('LB-LINE', 'EQ-PM')))
+
+# 3. A 연쇄 확인: JS chainCheck = 페이지 Python chain_check(근본 원인 몫·이은 수·지연 전부), 근본 사건 단위 날별 건수, fanOut
+_ok = True; _det = []
+for _c in ('RUN-TRIPLE', 'LB-LINE', 'LG-CST'):
+    _sh, _dl, _n = _m06.chain_check(_ev06, _c); _j = _R06['chain'][_c]
+    _o = _n == _j['nDerived'] and sorted(_dl.tolist()) == _j['delays'] and len(_dl) == _j['nLinked'] and [b[0] for b in _j['byRoot']] == list(_sh.index) and all(_same06(b[1] / _n, s) for b, s in zip(_j['byRoot'], _sh.values))
+    _ok &= _o
+    if not _o: _det.append(_c)
+_ru = _m06.root_unit_daily(_ev06, 'LB-LINE')
+_fan = _ev06.assign(selfev=_ev06['reason'] == _ev06['root_cause']).groupby('root_cause').agg(roots=('selfev', 'sum'), derived=('selfev', lambda s: (~s).sum()), gd=('loss_glass', lambda s: 0.0))
+_fan['gd'] = _ev06[_ev06['reason'] != _ev06['root_cause']].groupby('root_cause')['loss_glass'].sum()
+_fan = _fan.fillna(0.0)
+_fanj = {r[0]: r for r in _R06['fan']}
+_fok = set(_fan.index) == set(_fanj) and all(_fan.loc[c, 'roots'] == _fanj[c][1] and _fan.loc[c, 'derived'] == _fanj[c][2] and _same06(_fan.loc[c, 'gd'], _fanj[c][3], 1e-9) for c in _fan.index)
+_rj = _R06['chain']['LB-LINE']
+chk('0502 A 연쇄 확인: 파생 사건의 근본 원인 몫·근본 사건과 이은 수·지연 전부(RUN-TRIPLE·LB-LINE·LG-CST) JS = 페이지 Python, 근본 사건 단위 날별 건수(LB-LINE)·근본 원인별 근본/파생 사건 수 JS = Python, RUN-TRIPLE 은 전부 이어지고(100%) 근본 원인이 4코드(EQ-PM·EQ-BD·Q-EVAP·Q-MASK)뿐',
+    _ok and np.array_equal(_ru, np.array(_R06['ru'], float)) and _fok and _R06['chain']['RUN-TRIPLE']['nLinked'] == _R06['chain']['RUN-TRIPLE']['nDerived'] and {b[0] for b in _R06['chain']['RUN-TRIPLE']['byRoot']} == {'EQ-PM', 'EQ-BD', 'Q-EVAP', 'Q-MASK'},
+    f"RUN-TRIPLE 파생 {_R06['chain']['RUN-TRIPLE']['nDerived']} · LB-LINE 파생 {_rj['nDerived']}(이은 {_rj['nLinked']}) · LB-LINE 근본 사건 {_rj['nRoots']}" + (' 불일치 ' + ','.join(_det) if _det else ''))
+
+# 4. A 과산포의 풀이: LB-LINE 은 근본 사건 하나가 여러 건(근본 사건 단위로 세면 분산/평균 < 1), CL-CAPA 는 전부 첫날
+_cl = _cnt06['CL-CAPA']; _lbd = _m06.dispersion(_cnt06['LB-LINE'])[2]; _rud = _m06.dispersion(_ru)[2]
+_nz = [v for v in _R06['chain']['LB-LINE']['perRoot'] if v > 0]
+chk('0502 A 과산포 풀이: LB-LINE 사건 단위 분산/평균 4.96 → 근본 사건 단위 분산/평균은 1 보다 작음(0.39), 근본 사건 하나가 낳은 LB-LINE 평균 > 5건, CL-CAPA 7건이 모두 첫날, 시간별 표는 기록 60일(1440시간)',
+    _lbd > 4 and _rud < 1 and np.mean(_nz) > 5 and _cl[0] == _cl.sum() == 7 and len(_hr06) == 1440,
+    f'LB-LINE {_lbd:.2f} → {_rud:.2f} · 근본 사건당 {np.mean(_nz):.1f}건(이은 {len(_nz)}건) · CL-CAPA 첫날 {int(_cl[0])}/{int(_cl.sum())}')
+
+# 5. 시간별 지연 상관: JS = 페이지 Python lag_corr(−3~+6시간) 세 쌍
+_hok = True
+for _k, _vals in _R06['hourly'].items():
+    _a, _b = _k.split('>'); _x = _hr06[_a].to_numpy(float)
+    _y = np.bincount((_ev06[_ev06['reason'] == _b]['start_min'] // 60).clip(upper=len(_hr06) - 1), minlength=len(_hr06)).astype(float)
+    _hok &= all(_same06(_m06.lag_corr(_x, _y, k), v, 1e-9) for k, v in zip(range(-3, 7), _vals))
+_cf = np.array(_R06['hourly']['cassette_free>LG-CST']); _qf = np.array(_R06['hourly']['cleaner_queue>LG-CST'])
+chk('0502 A 시간별 지연 상관(cassette_free→LG-CST·cleaner_queue→LG-CST·cleaner_queue→CL-CAPA, 지연 −3~+6시간) JS = 페이지 Python, cassette_free→LG-CST 는 +1시간에서 가장 크고(음의 상관) cleaner_queue→LG-CST 는 어느 지연에서도 |r|<0.1',
+    _hok and int(np.argmax(np.abs(_cf))) - 3 == 1 and _cf[4] < -0.2 and np.abs(_qf).max() < 0.1, f'cassette_free→LG-CST +1시간 r={_cf[4]:.3f}(같은 시간 {_cf[3]:.3f}) · cleaner_queue→LG-CST 최대 |r|={np.abs(_qf).max():.3f}')
+
+# 6. 포아송·이항 확률과 비율 검정: JS = scipy
+_pm_ok = all(_same06(p, stats.poisson.pmf(k, mu), 1e-7) for k, mu, p in _R06['pmf']) and all(_same06(p, stats.binom.pmf(k, n, pi), 1e-7) for k, n, pi, p in _R06['bpmf'])
+_rt_ok = True
+for (k1, n1, k2, n2), p, z, pi in _R06['rtests']:
+    _sp = stats.binomtest(k1, k1 + k2, n1 / (n1 + n2)).pvalue; K = k1 + k2; _z = (k1 - K * pi) / np.sqrt(K * pi * (1 - pi))
+    _rt_ok &= _same06(p, _sp, 1e-6) and _same06(z, _z, 1e-9) and _same06(pi, n1 / (n1 + n2))
+_ra_ok = True
+for _r in _R06['rate']:
+    _c = _r[0]
+    if _c == 'ROOTUNIT': _d = _ru
+    else: _d = _cnt06[_c]
+    _o = _d[:30].sum() == _r[1] and _d[30:].sum() == _r[2]
+    _e1, _e2 = np.array(_R06['expo'])[:30].sum(), np.array(_R06['expo'])[30:].sum()
+    _o &= _same06(stats.binomtest(int(_r[1]), int(_r[1] + _r[2]), _e1 / (_e1 + _e2)).pvalue, _r[4], 1e-6)
+    if _r[3] is not None: _o &= _same06(stats.binomtest(int(_r[1]), int(_r[1] + _r[2]), 0.5).pvalue, _r[3], 1e-6)
+    _ra_ok &= _o
+_exp06 = np.array(_R06['expo'])
+chk('0502 포아송 확률(scipy.poisson.pmf)·이항 확률(binom.pmf) 5+3개 JS = scipy, 비율 검정 7개 사례(작은 건수·큰 건수·치우친 노출량·0건 포함)의 정확 p 값(scipy.stats.binomtest)·정규 근사 z·π JS = scipy, A 앞30일 vs 뒤30일 6코드 + LB-LINE 근본 사건 단위의 p(일수만·노출량 보정) JS = scipy, 노출량 = loss_hourly 의 line_out 날별 합',
+    _pm_ok and _rt_ok and _ra_ok and np.array_equal(_exp06, _hr06.groupby(np.arange(len(_hr06)) // 24)['line_out'].sum().to_numpy(float)), '비율 검정 %d개 사례 + A %d줄' % (len(_R06['rtests']), len(_R06['rate'])))
+_rd = {r[0]: r for r in _R06['rate']}
+
+# 7. S16 생성: 난수 줄기를 파이썬이 처음부터 다시 구현(FNV-1a 시드·mulberry32·Box-Muller·역변환 포아송·전날 X 마다 베르누이)해 시드 200개의 N·X·Y·Z 가 JS 와 한 칸도 다르지 않음
+M32 = 0xFFFFFFFF
+def _imul(a, b): return (a * b) & M32
+def _hs(*parts):
+    s = '|'.join(str(p) for p in parts); h = 2166136261
+    for ch in s: h ^= ord(ch); h = _imul(h, 16777619)
+    return h
+class _Rng:
+    def __init__(self, seed): self.a = seed & M32; self.spare = None
+    def u(self):
+        self.a = (self.a + 0x6D2B79F5) & M32; a = self.a
+        t = _imul(a ^ (a >> 15), 1 | a)
+        t = ((t + _imul(t ^ (t >> 7), 61 | t)) & M32) ^ t
+        return ((t ^ (t >> 14)) & M32) / 4294967296
+    def normal(self, m, s):
+        if self.spare is not None: z = self.spare; self.spare = None; return m + s * z
+        a = self.u() or 1e-12; b = self.u(); rad = np.sqrt(-2 * np.log(a)); self.spare = rad * np.sin(2 * np.pi * b)
+        return m + s * rad * np.cos(2 * np.pi * b)
+def _pd(r, mu):
+    u = r.u(); k = 0; p = np.exp(-mu); c = p
+    while u > c and k < 1000: k += 1; p *= mu / k; c += p
+    return k
+def _gen06(seed, xcut=0.0):
+    rn, rx, ry, rz = (_Rng(_hs('S16', seed, s)) for s in 'NXYZ'); N, X, Y, Z = [], [], [], []
+    for t in range(_C06['DAYS']):
+        n = int(np.floor(_C06['N0'] + _C06['SLOPE'] * t + rn.normal(0, _C06['SD_N']) + 0.5)); N.append(n)
+        X.append(_pd(rx, _C06['LAM_X'] * n / 1000 * (1 - xcut))); Y.append(_pd(ry, _C06['LAM_Y'] * n / 1000))
+        Z.append(sum(1 for _ in range(X[t - 1]) if rz.u() < _C06['P_CHAIN']) if t > 0 else 0)
+    return N, X, Y, Z
+_gok = True; _gbad = []
+_GP = {}
+for _s in _R06['seeds']:
+    _g = _gen06(_s['seed']); _GP[_s['seed']] = _g
+    if not (_g[0] == _s['N'] and _g[1] == _s['X'] and _g[2] == _s['Y'] and _g[3] == _s['Z']): _gok = False; _gbad.append(_s['seed'])
+_g193 = _GP[_R06['rep']['seed']]
+_csvrep = [list(_s16c06[c]) for c in ('glass_in', 'vx_jam', 'vy_src', 'vz_retry')]
+chk('0502 S16 생성: 난수 줄기 넷(N·X·Y·Z)을 파이썬이 처음부터 재구현(FNV-1a·mulberry32·Box-Muller·역변환 포아송·베르누이)해 시드 1~200 의 날별 N·X·Y·Z 가 JS 와 한 칸도 다르지 않고, 대표 시드 줄이 s16_common_trend.csv 와 같음(90줄·열 5개·정답 열 없음)',
+    _gok and [_g193[0], _g193[1], _g193[2], _g193[3]] == _csvrep and list(_s16c06.columns) == ['day', 'glass_in', 'vx_jam', 'vy_src', 'vz_retry'] and len(_s16c06) == 90 and list(_s16c06['day']) == list(range(1, 91)),
+    f"시드 200개 × 90일 · 불일치 {_gbad[:5]}")
+
+# 8. S16 지표: 파이썬이 numpy·scipy 로 다시 계산한 상관 셋·지연 상관·분산/평균·포아송 p 가 JS 와 같음(시드 200개 전부)
+def _corr(a, b): return float(np.corrcoef(a, b)[0, 1])
+def _res(y): t = np.arange(len(y)); return y - np.polyval(np.polyfit(t, y, 1), t)
+def _met06(g):
+    N, X, Y, Z = (np.array(v, float) for v in g); rx, ry, rz = 1000 * X / N, 1000 * Y / N, 1000 * Z / N; n = len(N); H = _C06['HALF']
+    mm = {'xy_raw': _corr(X, Y), 'xy_ratio': _corr(rx, ry), 'xy_resid': _corr(_res(X), _res(Y)), 'xz_same': _corr(X, Z), 'xz_lag': _corr(X[:-1], Z[1:]), 'xz_lag_ratio': _corr(rx[:-1], rz[1:]), 'xz_lag_resid': _corr(_res(X)[:-1], _res(Z)[1:]),
+          'xz_same_ratio': _corr(rx, rz), 'xz_same_resid': _corr(_res(X), _res(Z)), 'y_disp_raw': Y.var(ddof=1) / Y.mean(), 'x_disp_raw': X.var(ddof=1) / X.mean()}
+    for nm, v in (('y', Y), ('x', X)):
+        mu = N * v.sum() / N.sum(); mm[nm + '_disp_expo'] = float(((v - mu) ** 2 / mu).sum() / (n - 1))
+    k1, k2 = X[:H].sum(), X[H:].sum(); n1, n2 = N[:H].sum(), N[H:].sum()
+    mm['p_plain'] = stats.binomtest(int(k1), int(k1 + k2), 0.5).pvalue; mm['p_expo'] = stats.binomtest(int(k1), int(k1 + k2), n1 / (n1 + n2)).pvalue
+    return mm
+_MP = {s: _met06(_GP[s]) for s in _GP}
+_mok = True; _mmax = 0.0
+for _s in _R06['seeds']:
+    for _k, _v in _s['m'].items():
+        _d = abs(_v - _MP[_s['seed']][_k]) / max(1.0, abs(_v)); _mmax = max(_mmax, _d)
+        if _d > 1e-6: _mok = False
+chk('0502 S16 지표 열네 개(원·비율·추세를 뺀 잔차 상관, X–Z 같은 날 셋, 하루 지연 상관 셋, X·Y 분산/평균(그대로·노출량 보정), 앞/뒤 45일 포아송 p(노출량 없이·보정)) 시드 200개 JS = 파이썬 numpy·scipy 독립 계산',
+    _mok, f'열네 지표 × 200시드 · 가장 큰 상대 차 {_mmax:.1e}')
+
+# 9. 대표 시드: 지표 넷(원 X–Y 상관·비율 X–Y 상관·X→Z 지연 상관·Y 분산/평균) 백분위의 50 에서 떨어진 정도 합 최소 — 파이썬이 독립 선택해 JS 와 같음
+def _pct06(vals, v): vals = np.asarray(vals, float); return 100 * (((vals < v - 1e-9).sum() + 0.5 * (np.abs(vals - v) <= 1e-9).sum()) / len(vals))
+_keys = ['xy_raw', 'xy_ratio', 'xz_lag', 'y_disp_raw']
+_best = None
+for _s in range(1, 201):
+    _sc = sum(abs(_pct06([_MP[q][k] for q in range(1, 201)], _MP[_s][k]) - 50) for k in _keys)
+    if _best is None or _sc < _best[1] - 1e-12: _best = (_s, _sc)
+_pc = {k: _pct06([_MP[q][k] for q in range(1, 201)], _MP[_best[0]][k]) for k in _keys}
+chk('0502 S16 대표 시드(백분위 편차 합 최소): 파이썬 독립 선택 = JS(시드 %d), 지표 넷 백분위 JS = 파이썬, 네 백분위 모두 25~75%% 안(효과가 잘 보이는 시드로 거르지 않음)' % _R06['rep']['seed'],
+    _best[0] == _R06['rep']['seed'] and abs(_best[1] - _R06['rep']['score']) < 1e-9 and all(abs(_pc[k] - _R06['rep']['pcs'][k]) < 1e-9 for k in _keys) and all(25 <= v <= 75 for v in _pc.values()),
+    '시드 %d · ' % _best[0] + ' · '.join('%s %.1f%%' % (k, _pc[k]) for k in _keys) + ' · 합 %.2f' % _best[1])
+
+# 10. 설계 기대 — 시드 200개 분포로 말함: 비율·잔차 상관이 원 상관보다 0 에 가까움, 지연 상관 > 같은 날 상관, 노출량 보정 후 헛판정 비율이 5% 안팎, 노출량 없이는 전부 '늘었다'
+_ar = lambda k: np.array([_MP[s][k] for s in range(1, 201)])
+_nr = int((np.abs(_ar('xy_ratio')) < np.abs(_ar('xy_raw'))).sum()); _nd = int((np.abs(_ar('xy_resid')) < np.abs(_ar('xy_raw'))).sum())
+_lagbig = int((_ar('xz_lag') > _ar('xz_same')).sum()); _pe = int((_ar('p_expo') < 0.05).sum()); _pp = int((_ar('p_plain') < 0.05).sum())
+_qr = np.quantile(_ar('xy_ratio'), [0.1, 0.5, 0.9])
+chk('0502 설계 기대(시드 200개): 원 X–Y 상관은 전부 양(최소 0.4 이상), 비율 X–Y 상관이 원 상관보다 0 에 가까운 시드 200/200·잔차도 200/200(비율 상관 10~90% 구간이 ±0.2 안), X→Z 하루 지연 상관이 같은 날 상관보다 큰 시드 200/200(지연 비율·잔차 상관 중앙값 0.5 이상), 노출량 없이는 200/200 이 늘었다고 판정하고 보정 후에는 헛판정이 5% 안팎(1~10%)',
+    _nr == 200 and _nd == 200 and _ar('xy_raw').min() > 0.4 and _qr[0] > -0.2 and _qr[2] < 0.2 and _lagbig == 200 and np.median(_ar('xz_lag_ratio')) > 0.5 and np.median(_ar('xz_lag_resid')) > 0.5 and _pp == 200 and 2 <= _pe <= 20,
+    f'비율이 더 가까운 시드 {_nr}/200 · 잔차 {_nd}/200 · 비율 상관 10/50/90% {_qr[0]:.3f}/{_qr[1]:.3f}/{_qr[2]:.3f} · 지연>같은 날 {_lagbig}/200 · 보정 전 p<0.05 {_pp}/200 · 보정 후 {_pe}/200')
+
+# 11. 과산포의 정체(S16): Y 분산/평균은 건수 그대로 보면 과산포(전부 띠 위)이고 노출량 보정하면 1 근처(중앙값 0.9~1.1)
+_bd = 2 * np.sqrt(2 / 59)
+chk('0502 S16 분산/평균: Y·X 의 건수 그대로 값이 시드 200개 전부에서 띠(1+2√(2/59) = %.2f) 위이고 노출량 보정 후 중앙값은 0.9~1.1, 보정 후 띠 밖은 10%% 이하(공통 추세가 과산포의 정체)' % (1 + _bd),
+    _ar('y_disp_raw').min() > 1 + _bd and _ar('x_disp_raw').min() > 1 + _bd and 0.9 < np.median(_ar('y_disp_expo')) < 1.1 and 0.9 < np.median(_ar('x_disp_expo')) < 1.1 and (np.abs(_ar('y_disp_expo') - 1) > _bd).mean() < 0.1,
+    f"건수 그대로 Y {_ar('y_disp_raw').min():.2f}~{_ar('y_disp_raw').max():.2f} · 보정 후 Y 중앙값 {np.median(_ar('y_disp_expo')):.2f}")
+
+# 12. 반사실(성과 환산): xCut=0 이면 기본 출력과 같고, X 를 줄여 다시 만들면 Y·N 은 한 칸도 안 변하고 X 는 줄며 Z 는 따라 줌(파이썬도 같은 값)
+_cok = True
+for _c in _R06['cut']:
+    _N, _X, _Y, _Z = _gen06(_c['seed'], 0.3)
+    _cok &= _c['same0'] and _c['Yeq'] and _c['Neq'] and sum(_X) == _c['sXc'] and sum(_Z) == _c['sZc'] and _X == _c['Xc'] and _Z == _c['Zc'] and sum(_Y) == _c['sY'] and _c['sXc'] < _c['sX'] and _c['sZc'] < _c['sZ']
+_c0 = _R06['cut'][0]
+chk('0502 반사실(9절): X 평균을 30% 줄여 같은 시드로 다시 만들면 Y·N 은 한 칸도 안 바뀌고(원인 관계 없음) X·Z 는 줄며 파이썬 재구현과 같음, 줄이지 않으면(0) 기본 출력과 같음. 시드 3개',
+    _cok, f"시드 {_c0['seed']}: X {_c0['sX']}→{_c0['sXc']}(−{_c0['sX']-_c0['sXc']}) · Y {_c0['sY']}→{_c0['sYc']} · Z {_c0['sZ']}→{_c0['sZc']}(기대 −{_C06['P_CHAIN']*(_c0['sX']-_c0['sXc']):.0f})")
+
+# 13. 판정 규칙(문턱 0.3): 대표 시드에서 X–Y = 가짜 상관, X→Z = 연쇄 후보. 시드 200개의 비율
+def _verd(m): return (abs(m['xy_raw']) >= 0.3 and abs(m['xy_ratio']) < 0.3 and abs(m['xy_resid']) < 0.3, m['xz_lag_ratio'] >= 0.3 and m['xz_lag_resid'] >= 0.3 and m['xz_lag_ratio'] > abs(m['xz_same_ratio']) and m['xz_lag_resid'] > abs(m['xz_same_resid']))
+_vv = [_verd(_MP[s]) for s in range(1, 201)]
+chk('0502 판정 규칙(문턱 0.3): 대표 시드에서 X–Y 는 가짜 상관·X–Z 는 연쇄 후보로 판정되고, 시드 200개에서 가짜 상관 판정 비율·연쇄 후보 판정 비율을 기록(둘 다 95% 이상)',
+    _verd(_MP[_R06['rep']['seed']]) == (True, True) and np.mean([a for a, b in _vv]) >= 0.95 and np.mean([b for a, b in _vv]) >= 0.95, f'가짜 상관 {np.mean([a for a, b in _vv]):.1%} · 연쇄 후보 {np.mean([b for a, b in _vv]):.1%}')
+
+# 14. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 숫자가 JS 값에서 다시 쓴 줄과 같음
+_run06 = subprocess.run([sys.executable, '-I', 'lab0502.py'], cwd=_td06, capture_output=True, text=True); _L06 = _run06.stdout.strip().split('\n'); _L06set = set(_L06)
+def _ps(p): return 'p<0.001' if p < 0.001 else 'p=%.3f' % p
+_mr = _R06['seeds'][_R06['rep']['seed'] - 1]['m']; _gr = _R06['seeds'][_R06['rep']['seed'] - 1]
+_exp06 = ['기록 60일 · 사건 %d건 | 가상 램프업 라인 %d일' % (len(_ev06), _C06['DAYS']), '  EQ-BD %.2f · %.2f' % (_dp06['EQ-BD'][1], _dp06['EQ-BD'][3]), '  LB-LINE %.2f · %.2f' % (_dp06['LB-LINE'][1], _dp06['LB-LINE'][3]), '  CL-CAPA %.2f · %.2f' % (_dp06['CL-CAPA'][1], _dp06['CL-CAPA'][3]),
+          'A 날별 건수 상관: RUN-TRIPLE–EQ-PM %.3f · RUN-TRIPLE–EQ-BD %.3f · LB-LINE–EQ-PM %.3f' % (_cc('RUN-TRIPLE', 'EQ-PM'), _cc('RUN-TRIPLE', 'EQ-BD'), _cc('LB-LINE', 'EQ-PM')),
+          'LB-LINE 근본 사건 단위로 세면 날별 분산/평균 %.2f (사건 단위 %.2f)' % (_rud, _lbd),
+          '  Q-MASK %s건 → %s건 · 노출량 보정 %s · 분산/평균 %.2f' % (_fm06(_rd['Q-MASK'][1]), _fm06(_rd['Q-MASK'][2]), _ps(_rd['Q-MASK'][4]), _dp06['Q-MASK'][3]),
+          '  LB-LINE %s건 → %s건 · 노출량 보정 %s · 분산/평균 %.2f' % (_fm06(_rd['LB-LINE'][1]), _fm06(_rd['LB-LINE'][2]), _ps(_rd['LB-LINE'][4]), _dp06['LB-LINE'][3]),
+          '  LB-LINE 근본 사건 단위 %s건 → %s건 · 노출량 보정 %s' % (_fm06(_rd['ROOTUNIT'][1]), _fm06(_rd['ROOTUNIT'][2]), _ps(_rd['ROOTUNIT'][4])),
+          'CL-CAPA 사건 %d건 가운데 첫날에 시작한 것 %d건' % (_cl.sum(), _cl[0]),
+          '시간별: cassette_free → LG-CST 가장 큰 상관은 %+d시간 뒤 r=%.3f (같은 시간 r=%.3f)' % (int(np.argmax(np.abs(_cf))) - 3, _cf[int(np.argmax(np.abs(_cf)))], _cf[3]),
+          'S16 X–Y 상관: 원 %.3f · 비율 %.3f · 추세 뺀 잔차 %.3f' % (_mr['xy_raw'], _mr['xy_ratio'], _mr['xy_resid']),
+          'S16 X–Z 상관(같은 날): 원 %.3f · 비율 %.3f · 잔차 %.3f' % (_mr['xz_same'], _mr['xz_same_ratio'], _mr['xz_same_resid']),
+          'S16 X→Z 하루 지연 상관: 원 %.3f · 비율 %.3f · 잔차 %.3f' % (_mr['xz_lag'], _mr['xz_lag_ratio'], _mr['xz_lag_resid']),
+          'S16 Y 분산/평균: 건수 그대로 %.2f · 노출량 보정 %.2f' % (_mr['y_disp_raw'], _mr['y_disp_expo']),
+          'S16 X 앞 45일 %d건 → 뒤 45일 %d건: 노출량 무시 %s · 노출량 보정 %s' % (sum(_gr['X'][:45]), sum(_gr['X'][45:]), _ps(_mr['p_plain']), _ps(_mr['p_expo']))]
+chk('0502 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며, 분산/평균 줄·상관 줄·연쇄 줄·근본 사건 단위 줄·앞뒤 비교 줄·시간별 줄·S16 상관 셋·분산/평균·포아송 p 줄이 JS 값에서 다시 쓴 줄과 같고, 외부 통신 코드가 없음',
+    _run06.returncode == 0 and _run06.stdout.strip() == _out06 and all(e in _L06set for e in _exp06) and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code06, _re5.M),
+    (_run06.stderr[-300:] if _run06.returncode else f'{len(_L06)}줄 · 대조 {len(_exp06)}줄'))
+
+# 15. 페이지 구조
+_term06 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg06, _re5.S).group(1)))
+_nq06 = len(_re5.findall(r'<div class="qna" data-label=', _pg06)); _nsec06 = len(_re5.findall(r'<h2><span class="no">', _pg06))
+_fonts06 = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', _pg06)]
+_body06 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg06, flags=_re5.S); _body06 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body06))
+_endda06 = _re5.findall(r'[^니습]다[.]', _body06)
+_p501 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0501-loss-pareto.html'), encoding='utf-8').read(); _hub06 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_js06 = _re5.search(r'<script>\n\(function\(\)\{(.*?)\n</script>\n<script src="../tutor.js">', _pg06, _re5.S).group(1)
+_dv06 = set(_re5.findall(r'data-v="(\w+)"', _pg06)); _dvdef = set(_re5.findall(r'V\.(\w+)=', _js06))
+_slid06 = ['id="sSeed" min="1" max="200" step="1"', 'id="sHalf" min="15" max="45" step="5" value="45"', 'id="sRate" min="5" max="60" step="5" value="30"']
+_qna06 = ' '.join(_re5.findall(r'<div class="qna".*?</div>', _pg06, _re5.S))
+_js06s = open(os.path.join(_DATA10, 'loss05.js'), encoding='utf-8').read()
+chk('0502 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자를 넣지 않음) · 절 11개 · MathML 정의식 둘(포아송·비율 검정) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0501 쪽 0502 다음 링크(위·아래)와 0502 쪽 0501 이전 링크(위·아래) · 허브 등록(단계 5 묶음) · 본문 숫자는 span 주입(data-v 키 전부 정의) · 슬라이더 기본값 = 모듈 기본값 · 계산 모듈 새 부분에 Math.random·Date.now 없음',
+    _term06 == 6 and _nq06 == 4 and _nsec06 == 11 and _pg06.count('<math display="block">') == 2 and '<mfrac>' in _pg06 and min(_fonts06) >= 11 and not _endda06 and _p501.count('0502-loss-cascade-spurious.html') == 2 and _pg06.count('0501-loss-pareto.html') == 2
+     and 'labs/0502-loss-cascade-spurious.html' in _hub06 and _dv06 <= _dvdef and all(s in _pg06 for s in _slid06) and _C06['DAYS'] == 90 and _C06['SEEDS'] == 200 and not _re5.search(r'Math\.random|Date\.now|new Date', _js06s) and not _re5.search(r'\d+(?:\.\d+)?\s*%', _qna06),
+    f'용어 {_term06} · Q&A {_nq06} · 절 {_nsec06} · 캔버스 글자 최소 {min(_fonts06)}px({len(_fonts06)}곳) · -다 끝맺음 {len(_endda06)}건 · data-v 키 {len(_dv06)}개 미정의 {sorted(_dv06 - _dvdef)}')
+_cleanup06 = shutil.rmtree(_td06, ignore_errors=True)
+
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

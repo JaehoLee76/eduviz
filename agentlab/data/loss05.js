@@ -1,7 +1,7 @@
 /* Loss05 — 단계 5(생산 Loss) 실험실의 계산 모듈. 0501(분류 체계와 파레토)이 쓰고 0502·0503 도 이어 쓴다.
  * 브라우저: mfgsim.js 다음에 <script src="loss05.js"> → window.Loss05      node: require('./loss05.js')
  * simulateLoss 가 만든 Loss 사건(reason=직접 사유, root_cause=근본 원인, caused_by_block=원인 블록)을 읽어 집계만 한다.
- * 난수·시각 함수 없음. mfgsim.js 는 읽어서 부르기만 하고 고치지 않는다. 같은 규칙을 페이지의 Python 이 CSV 에서 독립으로 다시 구현하고 verify.py 가 대조한다. */
+ * 0501 부분은 난수·시각 함수 없음(0502 의 S16 은 mfgsim 의 hashSeed/rng 만 빌려 쓴다). mfgsim.js 는 읽어서 부르기만 하고 고치지 않는다. 같은 규칙을 페이지의 Python 이 CSV 에서 독립으로 다시 구현하고 verify.py 가 대조한다. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./mfgsim.js'));
   else root.Loss05 = factory(root.MfgSim);
@@ -201,10 +201,176 @@
     };
   }
 
+  /* ============================================================
+   * 0502 — Loss 연쇄와 가짜 상관. 날별 건수·분산/평균·상관·포아송 비율 검정·연쇄 확인(A: simulateLoss 기록)과
+   * 새 시나리오 S16 '공통 추세'(가상 램프업 라인 90일 · 새 난수 줄기 hashSeed('S16', 시드, 줄기)).
+   * 0501 의 계산은 한 줄도 바꾸지 않는다. 아래는 전부 새 함수다.
+   * ============================================================ */
+  var DAY_MIN = 1440;
+  function mean(a) { var s = 0, i; for (i = 0; i < a.length; i++) s += a[i]; return s / a.length; }
+  function variance(a) { var m = mean(a), s = 0, i; for (i = 0; i < a.length; i++) s += (a[i] - m) * (a[i] - m); return s / (a.length - 1); }   // 표본 분산(n−1)
+  function corr(a, b) {
+    var ma = mean(a), mb = mean(b), s = 0, x = 0, y = 0, i;
+    for (i = 0; i < a.length; i++) { s += (a[i] - ma) * (b[i] - mb); x += (a[i] - ma) * (a[i] - ma); y += (b[i] - mb) * (b[i] - mb); }
+    return s / Math.sqrt(x * y);
+  }
+  /* corr(a[t], b[t+lag]) — a 가 먼저, b 가 lag 칸 뒤. lag 0 이면 같은 날(시) 상관 */
+  function lagCorr(a, b, lag) {
+    var A = [], B = [], t;
+    for (t = 0; t < a.length; t++) if (t + lag >= 0 && t + lag < b.length) { A.push(a[t]); B.push(b[t + lag]); }
+    return corr(A, B);
+  }
+  /* 날 번호(0,1,2,…)에 대한 직선을 뺀 잔차 */
+  function detrend(y) {
+    var n = y.length, mt = (n - 1) / 2, my = mean(y), sxy = 0, sxx = 0, i;
+    for (i = 0; i < n; i++) { sxy += (i - mt) * (y[i] - my); sxx += (i - mt) * (i - mt); }
+    var b = sxy / sxx; return y.map(function (v, k) { return v - my - b * (k - mt); });
+  }
+  function detrendedCorr(a, b) { return corr(detrend(a), detrend(b)); }
+  /* 건수 ÷ 노출량 × 1000 */
+  function ratePerExposure(counts, expo) { return counts.map(function (k, i) { return 1000 * k / expo[i]; }); }
+  /* 분산/평균. 노출량을 주면 노출량에 비례하는 기대치로 본 값: Σ(k−μ)²/μ ÷ (n−1), μ = 노출량 × (건수 합 ÷ 노출량 합) */
+  function dispersion(counts, expo) {
+    var m = mean(counts);
+    if (!expo) return { mean: m, var: variance(counts), ratio: variance(counts) / m };
+    var K = 0, E = 0, i; for (i = 0; i < counts.length; i++) { K += counts[i]; E += expo[i]; }
+    var s = 0; for (i = 0; i < counts.length; i++) { var mu = expo[i] * K / E; s += (counts[i] - mu) * (counts[i] - mu) / mu; }
+    return { mean: m, var: variance(counts), ratio: s / (counts.length - 1) };
+  }
+  /* 포아송 확률 P(K=k) = μ^k e^−μ / k! (로그로 계산) */
+  function lgamma(x) {     // 로그 감마(란초스 근사, 상대 오차 1e-9 수준)
+    var c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5], y = x, t = x + 5.5;
+    t -= (x + 0.5) * Math.log(t); var s = 1.000000000190015; for (var j = 0; j < 6; j++) s += c[j] / ++y; return -t + Math.log(2.5066282746310005 * s / x);
+  }
+  function poissonPmf(k, mu) { return Math.exp(k * Math.log(mu) - mu - lgamma(k + 1)); }
+  function binomPmf(k, n, p) { if (p <= 0) return k === 0 ? 1 : 0; if (p >= 1) return k === n ? 1 : 0; return Math.exp(lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1) + k * Math.log(p) + (n - k) * Math.log(1 - p)); }
+  /* 두 기간의 건수 k1,k2 와 노출량 n1,n2 로 '비율이 같다'를 본다.
+   * 비율이 같으면 합 K=k1+k2 건 가운데 앞 기간에 떨어진 수 k1 은 이항 Bin(K, n1/(n1+n2)). 정확 양쪽 p 값 = 확률이 관측값 이하인 모든 결과의 확률 합(scipy.stats.binomtest 와 같은 규칙).
+   * 같이 정규 근사 z = (k1 − Kπ) / √(Kπ(1−π)) 도 낸다. */
+  function poissonRateTest(k1, n1, k2, n2) {
+    var K = k1 + k2, pi = n1 / (n1 + n2), p0 = binomPmf(k1, K, pi), p = 0, i, tol = 1 + 1e-7;
+    for (i = 0; i <= K; i++) { var q = binomPmf(i, K, pi); if (q <= p0 * tol) p += q; }
+    if (p > 1) p = 1;
+    var z = (K > 0 && pi > 0 && pi < 1) ? (k1 - K * pi) / Math.sqrt(K * pi * (1 - pi)) : 0;
+    return { k1: k1, n1: n1, k2: k2, n2: n2, K: K, pi: pi, r1: k1 / n1, r2: k2 / n2, ratio: (k2 / n2) / (k1 / n1), p: p, z: z };
+  }
+  /* A: 사건 → 날별 건수 */
+  function dailyCounts(ev, code, days, by) {
+    var c = []; for (var d = 0; d < days; d++) c.push(0);
+    ev.forEach(function (e) { if (e[by || 'reason'] === code) { var d2 = Math.floor(e.start_min / DAY_MIN); if (d2 >= 0 && d2 < days) c[d2]++; } });
+    return c;
+  }
+  function hourlyCounts(ev, code, hours) {
+    var c = []; for (var h = 0; h < hours; h++) c.push(0);
+    ev.forEach(function (e) { if (e.reason === code) { var h2 = Math.floor(e.start_min / 60); if (h2 >= 0 && h2 < hours) c[h2]++; } });
+    return c;
+  }
+  /* 시간별 표(hourly)를 날별로 더한다 */
+  function dailySum(hourly, key, days) { var o = []; for (var d = 0; d < days; d++) { var s = 0; for (var h = 0; h < 24; h++) s += hourly[d * 24 + h][key]; o.push(s); } return o; }
+  /* A: 연쇄 확인. child 코드의 사건 가운데 근본 원인이 다른 코드인 것(파생 사건)을 근본 사건에 잇는다.
+   * 근본 사건 = 원인 블록에서 근본 원인 코드로 일어난 자기 원인 사건(reason = root_cause = 그 코드) 가운데
+   *   파생 사건이 시작할 때 이미 시작했고 아직 안 끝난 것 중 가장 늦게 시작한 것(같으면 사건 번호가 앞선 것). */
+  function linkRoot(ev, d, byBlock) {
+    var best = null, list = byBlock[d.caused_by_block + '|' + d.root_cause] || [], i;
+    for (i = 0; i < list.length; i++) { var r = list[i]; if (r.start_min <= d.start_min && r.end_min > d.start_min && (!best || r.start_min > best.start_min || (r.start_min === best.start_min && r.event_id < best.event_id))) best = r; }
+    return best;
+  }
+  function selfIndex(ev) {
+    var ix = {}; ev.forEach(function (e) { if (e.reason === e.root_cause) { var k = e.block + '|' + e.reason; (ix[k] || (ix[k] = [])).push(e); } }); return ix;
+  }
+  function chainCheck(ev, child) {
+    var ix = selfIndex(ev), all = ev.filter(function (e) { return e.reason === child; });
+    var der = all.filter(function (e) { return e.root_cause !== child; });
+    var byRoot = {}, delays = [], per = {}, linked = 0, gl = 0;
+    der.forEach(function (d) {
+      var a = byRoot[d.root_cause] || (byRoot[d.root_cause] = { code: d.root_cause, n: 0, glass: 0 }); a.n++; a.glass += d.loss_glass; gl += d.loss_glass;
+      var r = linkRoot(ev, d, ix);
+      if (r) { linked++; delays.push(d.start_min - r.start_min); per[r.event_id] = (per[r.event_id] || 0) + 1; }
+    });
+    var roots = {}; der.forEach(function (d) { roots[d.root_cause] = 1; });
+    var rootEv = ev.filter(function (e) { return e.reason === e.root_cause && roots[e.reason]; });
+    var hist = {}; rootEv.forEach(function (r) { var k = per[r.event_id] || 0; hist[k] = (hist[k] || 0) + 1; });
+    var rows = Object.keys(byRoot).map(function (k) { var a = byRoot[k]; a.share = a.n / der.length; a.gshare = a.glass / gl; return a; });
+    rows.sort(function (a, b) { return b.n - a.n || (a.code < b.code ? -1 : 1); });
+    var dl = delays.slice().sort(function (a, b) { return a - b; });
+    var perVals = rootEv.map(function (r) { return per[r.event_id] || 0; });
+    return { child: child, nAll: all.length, nDerived: der.length, nLinked: linked, byRoot: rows, delays: dl, nRoots: rootEv.length, perRoot: perVals,
+             delayQ: dl.length ? [dl[0], quantile(dl, 0.25), quantile(dl, 0.5), quantile(dl, 0.75), dl[dl.length - 1]] : [], zeroShare: dl.length ? dl.filter(function (x) { return x === 0; }).length / dl.length : 0,
+             hist: hist, rootsUsed: Object.keys(per).length };
+  }
+  /* 근본 원인 코드마다: 자기 원인 사건(근본 사건) 수, 그 코드가 근본 원인인데 직접 사유가 다른 파생 사건 수와 잃은 장수 */
+  function fanOut(ev) {
+    var o = {};
+    ev.forEach(function (e) {
+      var a = o[e.root_cause] || (o[e.root_cause] = { code: e.root_cause, roots: 0, derived: 0, glassDerived: 0 });
+      if (e.reason === e.root_cause) a.roots++; else { a.derived++; a.glassDerived += e.loss_glass; }
+    });
+    return Object.keys(o).map(function (k) { var a = o[k]; a.per = a.roots ? a.derived / a.roots : 0; return a; }).sort(function (a, b) { return b.derived - a.derived || (a.code < b.code ? -1 : 1); });
+  }
+  /* 근본 사건 단위로 센 날별 건수: 파생 사건이 이은 근본 사건(중복 없이)을 근본 사건의 시작일에 센다 */
+  function rootUnitDaily(ev, child, days) {
+    var ix = selfIndex(ev), seen = {}, c = []; for (var d = 0; d < days; d++) c.push(0);
+    ev.forEach(function (e) {
+      if (e.reason === child && e.root_cause !== child) { var r = linkRoot(ev, e, ix); if (r && !seen[r.event_id]) { seen[r.event_id] = 1; var d2 = Math.floor(r.start_min / DAY_MIN); if (d2 >= 0 && d2 < days) c[d2]++; } }
+    });
+    return c;
+  }
+
+  /* ---------- S16 '공통 추세' ---------- */
+  var S16 = {
+    DAYS: 90, HALF: 45, SEEDS: 200, N0: 400, SLOPE: 12, SD_N: 30,        // 투입 유리 수 N(t) = N0 + SLOPE·t + 잡음(sd SD_N), 하루 장수
+    LAM_X: 18, LAM_Y: 15, P_CHAIN: 0.4, GLASS_PER_EVENT: 50,             // 1000장당 건수 비율(X·Y), X 한 건이 다음 날 Z 를 하나 더 낳을 확률, Loss 한 건당 잃은 유리(가정)
+    CODES: { X: 'VX-JAM', Y: 'VY-SRC', Z: 'VZ-RETRY' },
+    KO: { 'VX-JAM': '반송 걸림 — 가상 라인에서 유리 반송 중 걸려 서는 일', 'VY-SRC': '증발원 경보 — 가상 라인에서 증발원 상태 경보로 서는 일', 'VZ-RETRY': '재투입 지연 — 반송 걸림 다음 날 다시 넣느라 서는 일' }
+  };
+  function pdraw(r, mu) { var u = r.u(), k = 0, p = Math.exp(-mu), c = p; while (u > c && k < 1000) { k++; p *= mu / k; c += p; } return k; }
+  /* 시드 하나: 난수 줄기 넷(N·X·Y·Z)을 따로 쓴다. X·Y 는 서로 읽지 않는다 — 원인 관계 없음. Z 는 전날 X 한 건마다 확률 P_CHAIN 으로 하나. */
+  function s16Gen(seed, xCut) {   // xCut: 반사실 — X 의 평균만 (1−xCut) 배로 줄여 같은 난수로 다시 만든다(Y 줄기는 X 를 읽지 않으므로 그대로)
+    var rn = MS.rng(MS.hashSeed('S16', seed, 'N')), rx = MS.rng(MS.hashSeed('S16', seed, 'X')), ry = MS.rng(MS.hashSeed('S16', seed, 'Y')), rz = MS.rng(MS.hashSeed('S16', seed, 'Z'));
+    var N = [], X = [], Y = [], Z = [], t, i;
+    for (t = 0; t < S16.DAYS; t++) {
+      var n = Math.round(S16.N0 + S16.SLOPE * t + rn.normal(0, S16.SD_N));
+      N.push(n); X.push(pdraw(rx, S16.LAM_X * n / 1000 * (1 - (xCut || 0)))); Y.push(pdraw(ry, S16.LAM_Y * n / 1000));
+      var z = 0; if (t > 0) for (i = 0; i < X[t - 1]; i++) if (rz.u() < S16.P_CHAIN) z++;
+      Z.push(z);
+    }
+    return { seed: seed, N: N, X: X, Y: Y, Z: Z };
+  }
+  function sum(a, lo, hi) { var s = 0; for (var i = lo == null ? 0 : lo; i < (hi == null ? a.length : hi); i++) s += a[i]; return s; }
+  function ratio(a, N) { return a.map(function (v, i) { return v / N[i]; }); }
+  /* 시드 하나의 지표들 */
+  function s16Metrics(g) {
+    var N = g.N, X = g.X, Y = g.Y, Z = g.Z, H = S16.HALF, n = S16.DAYS, rx = ratio(X, N), ry = ratio(Y, N), rz = ratio(Z, N), m = {};
+    m.xy_raw = corr(X, Y); m.xy_ratio = corr(rx, ry); m.xy_resid = detrendedCorr(X, Y);
+    m.xz_same = corr(X, Z); m.xz_lag = lagCorr(X, Z, 1); m.xz_lag_ratio = lagCorr(rx, rz, 1); m.xz_lag_resid = corr(detrend(X).slice(0, n - 1), detrend(Z).slice(1)); m.xz_same_ratio = corr(rx, rz); m.xz_same_resid = detrendedCorr(X, Z);
+    m.y_disp_raw = dispersion(Y).ratio; m.y_disp_expo = dispersion(Y, N).ratio; m.x_disp_raw = dispersion(X).ratio; m.x_disp_expo = dispersion(X, N).ratio;
+    var k1 = sum(X, 0, H), k2 = sum(X, H, n), n1 = sum(N, 0, H), n2 = sum(N, H, n);
+    m.p_plain = poissonRateTest(k1, H, k2, n - H).p; m.p_expo = poissonRateTest(k1, n1, k2, n2).p;
+    return m;
+  }
+  /* 시드 목록 → 지표 목록, 지표별 값 목록 */
+  function s16Run(seeds) { var out = []; for (var i = 0; i < seeds.length; i++) { var g = s16Gen(seeds[i]); out.push({ g: g, m: s16Metrics(g) }); } return out; }
+  var S16_REP_KEYS = ['xy_raw', 'xy_ratio', 'xz_lag', 'y_disp_raw'];       // 대표 시드를 고르는 지표 넷
+  /* 대표 시드: 지표 넷의 백분위(%)에서 50 을 뺀 절댓값의 합이 가장 작은 시드(같으면 시드 번호가 작은 쪽) */
+  function s16Rep(runs) {
+    var best = null;
+    runs.forEach(function (r) {
+      var sc = 0, pcs = {};
+      S16_REP_KEYS.forEach(function (k) { var vals = runs.map(function (q) { return q.m[k]; }); var pc = 100 * percentile(vals, r.m[k]); pcs[k] = pc; sc += Math.abs(pc - 50); });
+      if (!best || sc < best.score - 1e-12) best = { seed: r.g.seed, score: sc, pcs: pcs };
+    });
+    return best;
+  }
+  function s16Rows(g) { return g.N.map(function (n, t) { return { day: t + 1, glass_in: n, vx_jam: g.X[t], vy_src: g.Y[t], vz_retry: g.Z[t] }; }); }
+
   return {
     DEFAULT_SEED: DEFAULT_SEED, DAYS: DAYS, SEEDS: SEEDS, WEEK_MIN: WEEK_MIN, CODES: CODES, CAT_ORDER: CAT_ORDER, BLOCKS: BLOCKS, N_TURN: N_TURN, METRICS: METRICS,
     info: info, catOf: catOf, pareto: pareto, paretoWith: paretoWith, fold: fold, barsFor: barsFor, cross: cross, reattribute: reattribute,
     codeSystem: codeSystem, weekly: weekly, seedRun: seedRun, seedRows: seedRows, quantile: quantile, percentile: percentile, rankStab: rankStab, rankOne: rankOne,
-    shareOf: shareOf, blockTable: blockTable, otherShare: otherShare, chain: chain, tasks: tasks
+    shareOf: shareOf, blockTable: blockTable, otherShare: otherShare, chain: chain, tasks: tasks,
+    /* 0502 */
+    DAY_MIN: DAY_MIN, S16: S16, mean: mean, variance: variance, corr: corr, lagCorr: lagCorr, detrend: detrend, detrendedCorr: detrendedCorr, ratePerExposure: ratePerExposure,
+    dispersion: dispersion, poissonPmf: poissonPmf, binomPmf: binomPmf, poissonRateTest: poissonRateTest, dailyCounts: dailyCounts, hourlyCounts: hourlyCounts, dailySum: dailySum,
+    chainCheck: chainCheck, rootUnitDaily: rootUnitDaily, fanOut: fanOut, s16Gen: s16Gen, s16Metrics: s16Metrics, s16Run: s16Run, s16Rep: s16Rep, s16Rows: s16Rows, S16_REP_KEYS: S16_REP_KEYS
   };
 });
