@@ -4021,6 +4021,290 @@ chk('0603 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절
 r3_cleanup = shutil.rmtree(r3_td, ignore_errors=True)
 
 
+# ============================================================
+# 0604 — 과거 로그로 새 규칙 평가하기(오프폴리시 평가). 시나리오 S20(세정 투입 결정의 가상 로그)의 로그 생성(난수 포함)·네 추정기·유효 표본 수·지원 점검·성향 점수 추정·
+# 결과 모델·후보 거르기·성과 환산·정답(상황 격자의 정확한 평균)을 파이썬이 따로 구현해 JS·CSV 와 대조하고, 시드 분포·페이지 Python 실행·숨은 값 비노출·기존 출력 불변·페이지 구조를 확인한다.
+# 설계서의 기대는 가설이라 결과가 다르면 본문 문장이 그 결과를 말하는지만 확인한다.
+# ============================================================
+import math as _m4, importlib.util as _ilu4
+o4_pg = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0604-off-policy-evaluation.html'), encoding='utf-8').read()
+o4_code = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', o4_pg, _re5.S).group(1)); o4_out = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', o4_pg, _re5.S).group(1)).strip()
+o4_td = _tf5.mkdtemp()
+for _f in ['s20_logged.csv', 's20_seed_summary.csv']: shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(o4_td, _f))
+open(os.path.join(o4_td, 'lab0604.py'), 'w', encoding='utf-8').write(o4_code)
+o4_log = pd.read_csv(os.path.join(o4_td, 's20_logged.csv')); o4_sd = pd.read_csv(os.path.join(o4_td, 's20_seed_summary.csv'))
+_EXPORT04 = r"""const fs=require('fs');const D=process.argv[2];const O=require(D+'/ope06.js'),T=require(D+'/ope06_tables.js');O.setCtx(T.ctx);
+const res={};res.consts={HID:O.HIDDEN,STAND:O.STAND,BEH:O.BEH,SF:O.S_FILL,DEF_EPS:O.DEF_EPS,DEF_N:O.DEF_N,EPS_GRID:O.EPS_GRID,SLIDER_EPS:O.SLIDER_EPS,N_GRID:O.N_GRID,SEEDS:O.SEEDS,PER_DAY:O.PER_DAY,MONTH:O.MONTH,RIDGE_Y:O.RIDGE_Y,RIDGE_P:O.RIDGE_P,NEWTON:O.NEWTON,P_FLOOR:O.P_FLOOR,ESS_MIN:O.ESS_MIN,COLS:O.COLS,REP_KEYS:O.REP_KEYS,TARGETS:O.TARGETS,RULES:O.RULES.map(r=>r.id)};
+res.ctx=T.ctx;res.rep=T.rep;res.score=T.score;
+const F=id=>O.ruleById(id).f;
+res.est=[];const sl=[1,7,58,T.rep,200];
+sl.forEach(s=>{O.SLIDER_EPS.forEach(e=>{[270,1080,2160].forEach(n=>{const rows=O.scenario(s,{eps:e,n:n}),fits=O.fitAll(rows);['urgent_all','urgent_s3'].forEach(rid=>{const x=O.estimate(rows,fits,F(rid),true);const o={seed:s,eps:e,n:n,rule:rid};['naive','ips','snips','dr','dr_bad','dm','dm_bad','ips_hat','dr_hat','ess','matched','maxw','sumw'].forEach(k=>{o[k]=isFinite(x[k])?x[k]:null;});o.sup=O.supportCheck(rows,F(rid));res.est.push(o);});});});});
+res.logs=[];[1,T.rep].forEach(s=>{O.SLIDER_EPS.forEach(e=>{const rows=O.scenario(s,{eps:e,n:1080});res.logs.push({seed:s,eps:e,rows:rows.map(r=>[r.q,r.c,r.s,r.a,r.p,r.y])});});});
+res.truth={fifo:O.truthRule(F('fifo'),'fifo'),urgent:O.truthRule(F('urgent_all'),'urgent_all'),cond:O.truthRule(F('urgent_s3'),'urgent_s3'),vb:{},gains:O.truthGains()};O.SLIDER_EPS.forEach(e=>{res.truth.vb[e]=O.truthBehavior(e);});
+res.perf={};[30,0,60].forEach(t=>{const P=O.perfBox(O.DEF_EPS,O.DEF_N,t);res.perf[t]={nbad:P.nbad,ngood:P.ngood,lineCost:P.lineCost,per:P.per};});
+const rows0=O.scenario(T.rep,{eps:O.DEF_EPS,n:O.DEF_N}),fits0=O.fitAll(rows0);res.screen={};[30,0,60].forEach(t=>{const sc=O.screen(rows0,fits0,t);res.screen[t]={base:sc.base,rows:sc.rows.map(r=>({id:r.id,gain:isFinite(r.gain)?r.gain:null,ess:r.ess,matched:r.matched,pass:r.pass,why:r.why}))};});
+res.pick=O.pickRep(T.seeds.filter(r=>r.target==='urgent'&&r.n===O.DEF_N&&r.eps===O.DEF_EPS));
+fs.writeFileSync(process.argv[3]+'/res0604.json',JSON.stringify(res));"""
+o4_js = os.path.join(o4_td, 'export0604.js'); open(o4_js, 'w').write(_EXPORT04)
+subprocess.run([_node, o4_js, _DATA10, o4_td], capture_output=True, text=True, check=True)
+O4 = json.load(open(os.path.join(o4_td, 'res0604.json'))); K4 = O4['consts']
+o4_close = lambda a, b, tol=1e-9: (a is None and b is None) or (a is not None and b is not None and abs(a - b) <= tol * max(1.0, abs(a), abs(b)))
+o4_r = lambda v, d: _m4.floor(v * 10 ** d + 0.5) / 10 ** d            # 자바스크립트 Math.round(v·10^d)/10^d
+
+# 1. 기존 출력 불변(이 장이 더한 파일은 새 파일): 저장소에 있던 CSV·모듈 전부가 HEAD 와 같은 바이트
+o4_unch = True; o4_n = 0; o4_lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js', 'data/loop06.js', 'data/loop06_tables.js', 'data/calib06.js', 'data/calib06_tables.js', 'data/r2r06.js', 'data/r2r06_tables.js', 'data/loss05.js', 'data/agent0401.js', 'data/eval0402.js'], capture_output=True, text=True)
+for _fn in (o4_lst.stdout.split() if o4_lst.returncode == 0 else []):
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        o4_n += 1; o4_unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk(f'0604 기존 출력 불변: mfgsim.js·loop06·calib06·r2r06·loss05·agent0401·eval0402 와 저장소에 있던 CSV 포함 {o4_n}개가 HEAD 와 같은 바이트(0601~0603 출력 불변)', o4_unch and o4_n >= 40, f'{o4_n}개 비교')
+
+# 2. 숨은 생성 모형 비노출: 새 CSV 에 숨은 열이 없고, 표 파일에 HIDDEN·SIGMA 낱말이 없고, 화면 본문(스크립트 밖)·페이지 Python 에 정답 숫자가 없고, 페이지 스크립트의 정답 읽기는 정답 열기 코드(loadTruth) 아래에만 있음
+o4_tb = open(os.path.join(_DATA10, 'ope06_tables.js'), encoding='utf-8').read()
+o4_body = _re5.sub(r'<script.*?</script>|<pre id="pyOut".*?</pre>', '', o4_pg, flags=_re5.S)
+o4_app = _re5.findall(r'<script>\n(.*?)\n</script>\n<script src="../tutor.js">', o4_pg, _re5.S)[0]
+o4_tr = O4['truth']; o4_trs = ['%.2f' % o4_tr[k] for k in ('fifo', 'urgent', 'cond')]
+o4_cols = all(c not in ('mu', 'mu_true', 'expected_loss', 'noise', 'sigma', 'true_loss') for f in ('s20_logged.csv', 's20_seed_summary.csv') for c in pd.read_csv(os.path.join(o4_td, f), nrows=1).columns)
+o4_cols &= 'HIDDEN' not in o4_tb and 'SIGMA' not in o4_tb and 'HIDDEN' not in o4_code and 'SIGMA' not in o4_code and 'HIDDEN' not in o4_pg
+o4_ti = o4_app.index('function loadTruth'); o4_tru = [m.start() for m in _re5.finditer(r'O\.truth', o4_app)]
+chk('0604 숨은 생성 모형 비노출: 새 CSV 에 숨은 열이 없고, 표 파일·페이지에 HIDDEN·SIGMA 가 없고, 화면 본문과 페이지 Python 에 정답 평균 숫자(%s)가 없고, 페이지 스크립트의 정답 읽기(O.truth*)는 정답 열기 코드 아래에만 있음' % ' · '.join(o4_trs),
+    o4_cols and all(s not in o4_body and s not in o4_code and s not in o4_out for s in o4_trs) and o4_tru and min(o4_tru) > o4_ti, f'열·표·코드 {o4_cols} · O.truth 호출 {len(o4_tru)}곳(모두 loadTruth 아래 {min(o4_tru) > o4_ti if o4_tru else None})')
+
+# 3. 상황 분포: 파이썬이 S17 시간별 CSV 에서 분위 값 100칸을 따로 만들어 표 파일(JS)과 같음
+o4_h = pd.read_csv(os.path.join(_DATA10, 'csv', 's17_real_hourly.csv'))
+def _o4_qv(v):
+    b = np.sort(np.asarray(v, float)); n = len(b); return [float(b[((2 * k + 1) * n) // 200]) for k in range(100)]
+o4_ctx = {'Q': _o4_qv(o4_h['cleaner_queue']), 'C': _o4_qv(np.maximum(0, o4_h['cassette_free'])),
+          'S': [o4_r(float(0.5 + 4 * (f - 58) / 42), 3) for f in _o4_qv(o4_h['stocker_fill'])]}
+o4_c_ok = all(o4_close(a, b, 1e-12) for k in 'QCS' for a, b in zip(o4_ctx[k], O4['ctx'][k]))
+chk('0604 상황 분포: 대기 수·카세트 여유·남은 시간의 분위 값 100칸이 파이썬이 S17 시간별 CSV 에서 따로 만든 값과 표 파일(JS)이 같음(남은 시간 = 0.5 + 4·(스토커 채움률 − 58)/42, 소수 셋째 자리)', o4_c_ok and len(O4['ctx']['Q']) == 100,
+    f'대기 수 {min(o4_ctx["Q"]):.0f}~{max(o4_ctx["Q"]):.0f} · 카세트 여유 {min(o4_ctx["C"]):.0f}~{max(o4_ctx["C"]):.0f} · 남은 시간 {min(o4_ctx["S"]):.3f}~{max(o4_ctx["S"]):.3f}')
+
+# 4. 로그 생성 독립 구현(난수 포함): 파이썬이 FNV-1a·mulberry32·Box-Muller 를 따로 구현해 JS 의 로그(상황·행동·고른 확률·결과)와 한 줄도 다르지 않음, 대표 시드의 기본 로그 = CSV
+def _o4_imul(a, b): return (a * b) & 0xFFFFFFFF
+def _o4_hash(*parts):
+    s = '|'.join(str(p) for p in parts); h = 2166136261
+    for ch in s: h ^= ord(ch); h = _o4_imul(h, 16777619)
+    return h
+class _O4Rng:
+    def __init__(self, seed): self.a = seed & 0xFFFFFFFF; self.spare = None
+    def u(self):
+        self.a = (self.a + 0x6D2B79F5) & 0xFFFFFFFF; a = self.a
+        t = _o4_imul(a ^ (a >> 15), 1 | a); t = ((t + _o4_imul(t ^ (t >> 7), 61 | t)) & 0xFFFFFFFF) ^ t
+        return ((t ^ (t >> 14)) & 0xFFFFFFFF) / 4294967296
+    def normal(self):
+        if self.spare is not None: z = self.spare; self.spare = None; return z
+        a = self.u() or 1e-12; b = self.u(); rad = _m4.sqrt(-2 * _m4.log(a)); self.spare = rad * _m4.sin(2 * _m4.pi * b); return rad * _m4.cos(2 * _m4.pi * b)
+    def int(self, n): return _m4.floor(self.u() * n)
+_o4_H, _o4_ST, _o4_B = K4['HID'], K4['STAND'], K4['BEH']
+_o4_sig = lambda z: 1 / (1 + _m4.exp(-z))
+def _o4_mu(q, c, s):
+    a, b, d = (q - _o4_ST['QM']) / _o4_ST['QS'], (c - _o4_ST['CM']) / _o4_ST['CS'], (s - _o4_ST['SM']) / _o4_ST['SS']
+    m0 = _o4_H['BASE'][0] + _o4_H['BASE'][1] * a + _o4_H['BASE'][2] * b + _o4_H['BASE'][3] * d
+    return [m0, m0 + _o4_H['E1'][0] + _o4_H['E1'][1] * d + _o4_H['E1'][2] * d * d + _o4_H['E1'][3] * a, m0 + _o4_H['E2'][0] + _o4_H['E2'][1] * a + _o4_H['E2'][2] * b]
+def _o4_beh(q, c, s, eps):
+    w = 2 * _o4_sig(-_o4_B['WQ'] * (q - _o4_ST['QM']) / _o4_ST['QS']); u = _o4_sig(-_o4_B['US'] * (s - _o4_ST['SM']) / _o4_ST['SS']); dev = eps * w
+    return [1 - dev, dev * u, dev * (1 - u)]
+def o4_gen(seed, eps, n):
+    rc, ra, rn = _O4Rng(_o4_hash('S20', seed, 'ctx')), _O4Rng(_o4_hash('S20', seed, 'act')), _O4Rng(_o4_hash('S20', seed, 'noise')); rows = []
+    for i in range(n):
+        q = o4_ctx['Q'][rc.int(100)]; c = o4_ctx['C'][rc.int(100)]; s = o4_ctx['S'][rc.int(100)]; p = _o4_beh(q, c, s, eps); u = ra.u()
+        a = 0 if u < p[0] else (1 if u < p[0] + p[1] else 2); z = rn.normal(); y = _o4_mu(q, c, s)[a] + _o4_H['SIGMA'] * z
+        rows.append((q, c, s, a, o4_r(p[a], 6), o4_r(y, 2)))
+    return rows
+o4_names = ['fifo', 'urgent', 'oldest']
+def o4_df(rows): return pd.DataFrame({'decision': range(1, len(rows) + 1), 'queue': [r[0] for r in rows], 'cassette_free': [r[1] for r in rows], 'slack_h': [r[2] for r in rows], 'action': [o4_names[r[3]] for r in rows], 'propensity': [r[4] for r in rows], 'loss_glass': [r[5] for r in rows]})
+o4_gen_ok = True; o4_nr = 0
+for lg in O4['logs']:
+    pr = o4_gen(lg['seed'], lg['eps'], 1080); o4_nr += len(pr)
+    o4_gen_ok &= all(all(o4_close(x, y, 1e-12) for x, y in zip(a, b)) for a, b in zip(pr, lg['rows'])) and len(pr) == len(lg['rows'])
+o4_csv_ok = True
+_cg = o4_df(o4_gen(O4['rep'], K4['DEF_EPS'], K4['DEF_N']))
+for c in ['queue', 'cassette_free', 'slack_h', 'propensity', 'loss_glass']: o4_csv_ok &= bool(np.allclose(_cg[c].to_numpy(float), o4_log[c].to_numpy(float), rtol=0, atol=1e-9))
+o4_csv_ok &= bool((_cg['action'] == o4_log['action']).all()) and list(o4_log.columns) == ['decision', 'queue', 'cassette_free', 'slack_h', 'action', 'propensity', 'loss_glass'] and len(o4_log) == K4['DEF_N']
+chk(f'0604 로그 생성 독립 구현: 시드 둘 × ε 일곱(0 포함) 로그 {len(O4["logs"])}개 {o4_nr}줄의 상황·행동·고른 확률·결과가 JS 와 같고, 대표 시드 {O4["rep"]} 의 기본 로그가 s20_logged.csv 와 한 줄도 다르지 않음, 열 이름·줄 수 확인', o4_gen_ok and o4_csv_ok, f'JS {o4_gen_ok} · CSV {o4_csv_ok}')
+
+# 5. 로그 성질: ε = 0 이면 급한 세트·오래된 마스크가 없음, 같은 시드는 ε 가 달라도 같은 상황·같은 잡음(앞 줄 유지), 고른 확률 합 = 1·하한, 로그 길이를 늘리면 앞 줄이 그대로
+_p0 = o4_gen(O4['rep'], 0, 400); _p1 = o4_gen(O4['rep'], 0.1, 400); _p2 = o4_gen(O4['rep'], 0.1, 100)
+_ps = [_o4_beh(r[0], r[1], r[2], e) for r in _p1[:200] for e in (0.3,)]
+o4_prop = all(abs(sum(p) - 1) < 1e-12 and p[0] > 0.3 for p in _ps)
+o4_prop &= all(r[3] == 0 and r[4] == 1.0 for r in _p0) and all(a[:3] == b[:3] for a, b in zip(_p0, _p1)) and _p1[:100] == _p2
+chk('0604 로그 성질: ε = 0 이면 로그에 먼저 온 순서만 있고 고른 확률이 1, 같은 시드는 ε 가 달라도 같은 상황, 로그를 짧게 자르면 앞 줄이 그대로, ε = 0.3 에서도 먼저 온 순서의 확률이 0.3 이상(합 1)', o4_prop, f'ε=0 의 다른 행동 {sum(r[3] != 0 for r in _p0)}줄')
+
+# 6. 정답: 상황 격자 100³ 곳의 정확한 평균을 파이썬이 따로 계산해 JS 와 같고, 후보 11개의 참 이득(좋은·나쁜 규칙)이 같음
+_Q, _C, _S = [np.array(o4_ctx[k], float) for k in 'QCS']
+_gq, _gc, _gs = [a.ravel() for a in np.meshgrid(_Q, _C, _S, indexing='ij')]
+_zq, _zc, _zs = (_gq - _o4_ST['QM']) / _o4_ST['QS'], (_gc - _o4_ST['CM']) / _o4_ST['CS'], (_gs - _o4_ST['SM']) / _o4_ST['SS']
+_m0 = _o4_H['BASE'][0] + _o4_H['BASE'][1] * _zq + _o4_H['BASE'][2] * _zc + _o4_H['BASE'][3] * _zs
+_MU = np.vstack([_m0, _m0 + _o4_H['E1'][0] + _o4_H['E1'][1] * _zs + _o4_H['E1'][2] * _zs ** 2 + _o4_H['E1'][3] * _zq, _m0 + _o4_H['E2'][0] + _o4_H['E2'][1] * _zq + _o4_H['E2'][2] * _zc])
+o4_rule = {'fifo': lambda q, c, s: np.zeros_like(q, int), 'urgent_all': lambda q, c, s: np.ones_like(q, int), 'urgent_s3': lambda q, c, s: np.where(s <= 3, 1, 0), 'urgent_s2': lambda q, c, s: np.where(s <= 2, 1, 0),
+           'urgent_s25': lambda q, c, s: np.where(s <= 2.5, 1, 0), 'urgent_s35': lambda q, c, s: np.where(s <= 3.5, 1, 0), 'urgent_s4': lambda q, c, s: np.where(s <= 4, 1, 0), 'oldest_all': lambda q, c, s: np.full_like(q, 2, int),
+           'oldest_qle25': lambda q, c, s: np.where(q <= 25, 2, 0), 'oldest_qge33': lambda q, c, s: np.where(q >= 33, 2, 0), 'urgent_sge35': lambda q, c, s: np.where(s >= 3.5, 1, 0), 'urgent_qge33': lambda q, c, s: np.where(q >= 33, 1, 0)}
+def o4_truth(rid): a = o4_rule[rid](_gq, _gc, _gs); return float(_MU[a, np.arange(len(_gq))].mean())
+o4_t = {k: o4_truth(k) for k in o4_rule}
+_pool = [r for r in K4['RULES'] if r != 'fifo']
+o4_gok = all(o4_close(o4_t['fifo'] - o4_t[g['id']], g['gain'], 1e-9) for g in o4_tr['gains']) and [g['id'] for g in o4_tr['gains']] == _pool
+o4_vb = {}
+for e in K4['SLIDER_EPS']:
+    w = 2 * 1 / (1 + np.exp(_o4_B['WQ'] * _zq)); u = 1 / (1 + np.exp(_o4_B['US'] * _zs)); dev = e * w
+    o4_vb[e] = float(((1 - dev) * _MU[0] + dev * u * _MU[1] + dev * (1 - u) * _MU[2]).mean())
+o4_tok = o4_close(o4_t['fifo'], o4_tr['fifo']) and o4_close(o4_t['urgent_all'], o4_tr['urgent']) and o4_close(o4_t['urgent_s3'], o4_tr['cond']) and all(o4_close(o4_vb[e], o4_tr['vb'][str(e)], 1e-9) for e in K4['SLIDER_EPS'])
+o4_nbad = sum(1 for g in o4_tr['gains'] if g['gain'] < 0); o4_ngood = sum(1 for g in o4_tr['gains'] if g['gain'] > 0)
+chk(f'0604 정답 독립 구현: 상황 격자 100³ 곳의 정확한 평균(지금 규칙·항상 급한 세트 먼저·조건부 규칙·기록 정책 ε 일곱)과 후보 {len(_pool)}개의 참 이득이 파이썬 재계산과 JS 가 같고, 좋은 규칙 {o4_ngood}개 · 나쁜 규칙 {o4_nbad}개', o4_tok and o4_gok and o4_nbad >= 2 and o4_ngood >= 2,
+    f'지금 규칙 {o4_tr["fifo"]:.3f} · 급한 세트 먼저 {o4_tr["urgent"]:.3f} · 조건부 {o4_tr["cond"]:.3f}(장/결정) · ε 0.1 기록 정책 {o4_vb[0.1]:.3f}')
+
+# 7. 추정기 독립 구현: 파이썬 로그에서 lab0604.py(페이지 코드)의 함수로 계산한 단순 평균·IPS·SNIPS·이중 강건(선형·상황 무시)·결과 모델만·추정 성향 점수 IPS·DR·유효 표본 수·일치한 줄·지원 점검이 JS 와 같음
+o4_spec = _ilu4.spec_from_file_location('lab0604', os.path.join(o4_td, 'lab0604.py')); o4_mod = _ilu4.module_from_spec(o4_spec); o4_spec.loader.exec_module(o4_mod)
+o4_tg = {'urgent_all': o4_mod.target_urgent, 'urgent_s3': o4_mod.target_slack(3)}
+o4_est_ok = True; o4_bad = []; o4_ncmp = 0; o4_cache = {}
+for e in O4['est']:
+    key = (e['seed'], e['eps'], e['n'])
+    if key not in o4_cache: o4_cache[key] = o4_df(o4_gen(*key))
+    lg = o4_cache[key]; tg = o4_tg[e['rule']]; M = o4_mod
+    sc = M.support_check(lg, tg); w = M.hit_weights(lg, tg)
+    py = {'matched': sc['matched'], 'ess': M.effective_sample_size(w) if sc['ok'] else 0.0, 'naive': M.naive_mean(lg, tg) if sc['ok'] else None, 'ips': M.ips(lg, tg) if sc['ok'] else None, 'snips': M.snips(lg, tg) if sc['ok'] else None,
+          'maxw': float(w.max()), 'sumw': float(w.sum())}
+    pa = M.fit_propensity(lg) if lg['action'].nunique() > 0 else None
+    for k, kind in (('dr', 'linear'), ('dr_bad', 'mean')):
+        try: v = M.dr_estimate(lg, tg, kind); py[k] = v if np.isfinite(v) else None
+        except Exception: py[k] = None
+    for k, kind in (('dm', 'linear'), ('dm_bad', 'mean')):
+        try: v = M.direct_method(lg, tg, kind); py[k] = v if np.isfinite(v) else None
+        except Exception: py[k] = None
+    if sc['ok']:
+        py['ips_hat'] = M.ips(lg, tg, pa); v = M.dr_estimate(lg, tg, 'linear', pa); py['dr_hat'] = v if np.isfinite(v) else None
+    else: py['ips_hat'] = None; py['dr_hat'] = None
+    for k in py:
+        o4_ncmp += 1
+        if not o4_close(py[k], e[k], 1e-7):
+            o4_est_ok = False; o4_bad.append((key, e['rule'], k, py[k], e[k]))
+    o4_est_ok &= sc['matched'] == e['sup']['matched'] and bool(sc['ok']) == bool(e['sup']['ok']) and o4_close(sc['share'], e['sup']['share'], 1e-12)
+chk(f'0604 추정기 독립 구현: 시드 5개 × ε 일곱 × 로그 길이 셋 × 목표 정책 둘({len(O4["est"])}줄) 모든 값 {o4_ncmp}개(단순 평균·IPS·SNIPS·이중 강건 선형·무시·결과 모델만 둘·추정 성향 점수 IPS·DR·유효 표본 수·일치한 줄·최대 무게·무게 합)와 지원 점검이 JS 와 같음 — ε = 0 은 지원 없음으로 빈 값', o4_est_ok and len(o4_bad) == 0,
+    f'{len(O4["est"])}줄 · ' + ('불일치 없음' if not o4_bad else str(o4_bad[:2])))
+
+# 8. 요약표 재현: 표 파일(JS)의 6,000줄 = CSV 줄, 시드 [1, 대표, 200] 의 모든 조건 줄(ε 여섯 × 로그 길이 · 목표 정책)을 파이썬 값으로 다시 계산해 CSV 와 같음(소수 넷째 자리 반올림)
+o4_cols_csv = ['target', 'n', 'eps', 'seed'] + K4['COLS']
+o4_shape = len(o4_sd) == 200 * (len(K4['N_GRID']) * len(K4['EPS_GRID']) + len(K4['EPS_GRID'])) and list(o4_sd.columns) == o4_cols_csv
+o4_tb_ok = True
+_tbl_js = json.loads(subprocess.run([_node, '-e', "const T=require(%s);console.log(JSON.stringify(T.seeds.map(r=>[r.target,r.n,r.eps,r.seed,r.naive,r.ips,r.snips,r.dr,r.dr_bad,r.dm,r.dm_bad,r.ips_hat,r.dr_hat,r.ess,r.matched])))" % json.dumps(os.path.join(_DATA10, 'ope06_tables.js'))], capture_output=True, text=True, check=True).stdout.replace('NaN', 'null'))
+o4_tb_ok = len(_tbl_js) == len(o4_sd) and all(r[0] == c0 and r[1] == c1 and abs(r[2] - c2) < 1e-12 and r[3] == c3 and all((a is None and (isinstance(b, float) and np.isnan(b))) or (a is not None and abs(a - b) < 1e-12) for a, b in zip(r[4:], rest)) for r, (c0, c1, c2, c3, *rest) in zip(_tbl_js, o4_sd[o4_cols_csv].itertuples(index=False, name=None)))
+o4_row_ok = True; o4_nrow = 0
+for tk, rid in K4['TARGETS'].items():
+    for n in (K4['N_GRID'] if tk == 'urgent' else [K4['DEF_N']]):
+        for e in K4['EPS_GRID']:
+            for s in (1, O4['rep'], 200):
+                lg = o4_df(o4_gen(s, e, n)); M = o4_mod; tg = o4_tg[rid]; w = M.hit_weights(lg, tg); pa = M.fit_propensity(lg)
+                py = {'naive': M.naive_mean(lg, tg), 'ips': M.ips(lg, tg), 'snips': M.snips(lg, tg), 'dr': M.dr_estimate(lg, tg), 'dr_bad': M.dr_estimate(lg, tg, 'mean'), 'dm': M.direct_method(lg, tg), 'dm_bad': M.direct_method(lg, tg, 'mean'),
+                      'ips_hat': M.ips(lg, tg, pa), 'dr_hat': M.dr_estimate(lg, tg, 'linear', pa), 'ess': M.effective_sample_size(w), 'matched': M.support_check(lg, tg)['matched']}
+                row = o4_sd[(o4_sd.target == tk) & (o4_sd.n == n) & (np.isclose(o4_sd.eps, e)) & (o4_sd.seed == s)]
+                o4_row_ok &= len(row) == 1
+                for k, v in py.items():
+                    o4_nrow += 1; c = row.iloc[0][k]
+                    o4_row_ok &= (bool(np.isnan(c)) if not np.isfinite(v) else abs(c - o4_r(v, 4)) < 1.01e-4)
+chk(f'0604 요약표 재현: CSV {len(o4_sd)}줄(대상 정책 2 × … = 200시드 × (4×6 + 6))의 열·줄 수, 표 파일(JS) 줄과 같음, 시드 1·대표·200 의 모든 조건({o4_nrow}개 값)을 파이썬 값으로 다시 계산해 CSV(소수 넷째 자리)와 같음', o4_shape and o4_tb_ok and o4_row_ok, f'모양 {o4_shape} · 표 파일 {o4_tb_ok} · 재계산 {o4_row_ok}')
+
+# 9. 기본 로그 대표 시드: 파이썬이 따로 지표 여섯(단순 평균·IPS·SNIPS·이중 강건·유효 표본 수·일치한 줄)의 Σ|백분위−50| 최소 시드를 구해 JS·표 파일과 같고, 화면의 로그(CSV)는 그 시드의 기본 로그
+_def = o4_sd[(o4_sd.target == 'urgent') & (o4_sd.n == K4['DEF_N']) & (np.isclose(o4_sd.eps, K4['DEF_EPS']))].reset_index(drop=True)
+def o4_pr(v, x): lt = (v < x - 1e-12).sum(); eq = (np.abs(v - x) <= 1e-12).sum(); return 100 * (lt + 0.5 * eq) / len(v)
+_sc4 = np.array([sum(abs(o4_pr(_def[k].to_numpy(float), r[k]) - 50) for k in K4['REP_KEYS']) for _, r in _def.iterrows()])
+o4_rep_py = int(_def['seed'][int(np.argmin(_sc4))])
+chk('0604 대표 시드: 파이썬이 따로 Σ|백분위−50| 최소 시드를 구해 %d 이고 JS·표 파일과 같고, 화면의 로그(CSV)는 그 시드의 기본 로그' % o4_rep_py, o4_rep_py == O4['rep'] == O4['pick']['seed'] and abs(_sc4.min() - O4['score']) < 1e-9 and len(_def) == 200, f'점수 {_sc4.min():.1f}')
+
+# 10. 후보 거르기와 성과 환산 독립 구현: 대표 로그에서 후보 11개의 이중 강건 이득·유효 표본 수·판정(문턱 0·30·60)이 JS 와 같고, 시드 200개의 성과 환산(시험 전에 걸러진 나쁜 규칙·막은 손실·잘못 거른 좋은 규칙·놓친 이득)이 JS 와 같음
+o4_rules_py = {'fifo': lambda d: pd.Series('fifo', index=d.index), 'urgent_all': o4_mod.target_urgent, 'urgent_s3': o4_mod.target_slack(3), 'urgent_s2': o4_mod.target_slack(2), 'urgent_s25': o4_mod.target_slack(2.5), 'urgent_s35': o4_mod.target_slack(3.5), 'urgent_s4': o4_mod.target_slack(4),
+               'oldest_all': lambda d: pd.Series('oldest', index=d.index), 'oldest_qle25': lambda d: pd.Series(np.where(d['queue'] <= 25, 'oldest', 'fifo'), index=d.index), 'oldest_qge33': lambda d: pd.Series(np.where(d['queue'] >= 33, 'oldest', 'fifo'), index=d.index),
+               'urgent_sge35': lambda d: pd.Series(np.where(d['slack_h'] >= 3.5, 'urgent', 'fifo'), index=d.index), 'urgent_qge33': lambda d: pd.Series(np.where(d['queue'] >= 33, 'urgent', 'fifo'), index=d.index)}
+o4_scr_ok = list(o4_rules_py) == K4['RULES']
+_rl = o4_df(o4_gen(O4['rep'], K4['DEF_EPS'], K4['DEF_N']))
+for t in ('30', '0', '60'):
+    pyr = o4_mod.screen_rules(_rl, o4_rules_py, int(t)); jr = O4['screen'][t]['rows']
+    o4_scr_ok &= len(pyr) == len(jr) and all(a[0] == b['id'] and o4_close(a[1], b['gain'], 1e-7) and o4_close(a[2], b['ess'], 1e-7) and a[3] == b['pass'] for a, b in zip(pyr, jr))
+o4_perf_ok = True; _byid = {g['id']: g['gain'] for g in o4_tr['gains']}
+for t in ('30', '0', '60'):
+    per = O4['perf'][t]['per']; pp = []
+    for s in range(1, 201):
+        rl = o4_df(o4_gen(s, K4['DEF_EPS'], K4['DEF_N'])); res_ = o4_mod.screen_rules(rl, o4_rules_py, int(t)); bf = gf = bp = gp = 0; av = mi = 0.0
+        for nm, g, ess, ok in res_:
+            tg_ = _byid[nm]
+            if tg_ < 0:
+                if ok: bp += 1
+                else: bf += 1; av += -tg_ * K4['MONTH']
+            elif tg_ > 0:
+                if ok: gp += 1
+                else: gf += 1; mi += tg_ * K4['MONTH']
+        pp.append((bf, gf, bp, gp, av, mi))
+    o4_perf_ok &= all(a[0] == b['bad_filtered'] and a[1] == b['good_filtered'] and a[2] == b['bad_pass'] and a[3] == b['good_pass'] and o4_close(a[4], b['avoided'], 1e-9) and o4_close(a[5], b['missed'], 1e-9) for a, b in zip(pp, per))
+_pm = np.array([[r['bad_filtered'], r['avoided'], r['good_filtered'], r['missed']] for r in O4['perf']['30']['per']])
+o4_line = O4['perf']['30']['lineCost']
+chk(f'0604 거르기·성과 환산 독립 구현: 대표 로그의 후보 {len(_pool)}개 이득·유효 표본 수·판정(문턱 0·30·60)과 시드 200개 × 문턱 셋의 성과 환산 여섯 값이 파이썬 재계산과 JS 가 같음', o4_scr_ok and o4_perf_ok,
+    f'문턱 30: 나쁜 규칙 {O4["perf"]["30"]["nbad"]}개 · 라인 시험 손실 {o4_line:.0f}장 · 거른 나쁜 규칙 중앙값 {np.median(_pm[:, 0]):.0f}개 · 막은 손실 중앙값 {np.median(_pm[:, 1]):.0f}장 · 잘못 거른 좋은 규칙 중앙값 {np.median(_pm[:, 2]):.0f}개 · 놓친 이득 중앙값 {np.median(_pm[:, 3]):.0f}장')
+
+# 11. 기대 점검(결과대로): 시드 200개의 치우침·흔들림이 본문이 말하는 방향과 같음
+def o4_s(tk, n, e): return o4_sd[(o4_sd.target == tk) & (o4_sd.n == n) & (np.isclose(o4_sd.eps, e))]
+o4_u = o4_t['urgent_all']; o4_cnd = o4_t['urgent_s3']
+def o4_bias(df, k, truth): v = df[k].dropna().to_numpy(float); return float(v.mean() - truth), float(v.std(ddof=1)), float(v.std(ddof=1) / np.sqrt(len(v)))
+_d = o4_s('urgent', 1080, 0.1)
+o4_exp = {k: o4_bias(_d, k, o4_u) for k in ('naive', 'ips', 'snips', 'dr', 'dr_bad', 'dm', 'dm_bad', 'ips_hat', 'dr_hat')}
+o4_w = {e: float(o4_s('urgent', 1080, e)['ips'].quantile(.9) - o4_s('urgent', 1080, e)['ips'].quantile(.1)) for e in K4['EPS_GRID']}
+o4_wd = {e: float(o4_s('urgent', 1080, e)['dr'].quantile(.9) - o4_s('urgent', 1080, e)['dr'].quantile(.1)) for e in K4['EPS_GRID']}
+o4_es = {e: float(o4_s('urgent', 1080, e)['ess'].median()) for e in K4['EPS_GRID']}
+o4_c3 = o4_s('cond', 1080, 0.1)
+_cs = o4_log[o4_log.action == 'urgent']
+o4_story = bool(_cs.queue.mean() < o4_log.queue.mean() and _cs.slack_h.mean() < o4_log.slack_h.mean() and _cs.loss_glass.mean() < o4_log[o4_log.action == 'fifo'].loss_glass.mean() and len(_cs) >= 20)   # 1·2절 문장: 급한 세트 줄은 대기·남은 시간이 짧은 쪽에 몰리고 평균 Loss 가 낮음
+o4_nv = all(abs(o4_bias(o4_s('urgent', n, 0.1), 'naive', o4_u)[0]) > 3 for n in K4['N_GRID'])                                     # 단순 평균의 어긋남은 로그를 늘려도 줄지 않음
+_d1 = o4_s('urgent', 1080, 0.01); o4_ipsb = o4_bias(_d1, 'ips', o4_u); o4_ipsmed = float(_d1['ips'].median() - o4_u)
+o4_dmeq = bool(np.allclose(_d['dm_bad'].to_numpy(float), _d['naive'].to_numpy(float), atol=1e-4))                                # 항상 급한 세트 규칙에서 상황 무시 결과 모델만 = 단순 평균
+o4_drw = all(o4_s('urgent', 1080, e)['dr_bad'].std() > o4_s('urgent', 1080, e)['dr'].std() for e in K4['EPS_GRID'])               # 틀린 모델 DR 이 흔들림 큼
+_pf = {t: np.array([[r['avoided'], r['missed']] for r in O4['perf'][t]['per']]) for t in ('0', '30', '60')}
+o4_mono = all(np.median(_pf[a][:, 0]) <= np.median(_pf[b][:, 0]) + 1e-9 and np.median(_pf[a][:, 1]) <= np.median(_pf[b][:, 1]) + 1e-9 for a, b in (('0', '30'), ('30', '60')))   # 문턱을 높이면 막는 손실 같거나 늘고 놓치는 이득 늘어남
+o4_scr_def = O4['screen']['30']['rows']; o4_pass = sum(r['pass'] for r in o4_scr_def)
+o4_ok11 = (abs(o4_exp['naive'][0]) > 3 * o4_exp['naive'][2] and abs(o4_exp['naive'][0]) > 2.0                             # 단순 평균은 크게 치우침
+           and abs(o4_exp['ips'][0]) < 3 * o4_exp['ips'][2] and abs(o4_exp['snips'][0]) < 1.0 and abs(o4_exp['dr'][0]) < 1.0       # IPS 는 치우침이 오차 범위 안, SNIPS·DR 은 작음
+           and o4_w[0.01] > o4_w[0.05] > o4_w[0.3] and o4_wd[0.01] > o4_wd[0.3] and all(o4_es[a] < o4_es[b] for a, b in zip(K4['EPS_GRID'][:-1], K4['EPS_GRID'][1:]))   # ε 작을수록 IPS 폭 커지고 유효 표본 수 작아짐
+           and o4_exp['ips'][1] > 2 * o4_exp['snips'][1] and o4_exp['snips'][1] > o4_exp['dr'][1]                                # IPS 가 가장 흔들리고 DR 이 가장 안정
+           and abs(o4_exp['dm_bad'][0]) > 2.0 and abs(o4_exp['dr_bad'][0]) < 1.0                                                  # 틀린 결과 모델만: 크게 치우침, DR 로 보정
+           and float(o4_c3['ess'].median()) > o4_es[0.1] and float((o4_c3['ips'].quantile(.9) - o4_c3['ips'].quantile(.1))) < o4_w[0.1]  # 가까운 규칙은 유효 표본 수 큼·폭 작음
+           and o4_story and o4_nv and abs(o4_ipsb[0]) < 3 * o4_ipsb[2] and o4_ipsmed < -3 and o4_dmeq and o4_drw and o4_mono and 0 < o4_pass < len(o4_scr_def) and O4['perf']['30']['nbad'] == 3)
+chk('0604 기대 점검(결과대로): 기본 조건(ε 0.1·석 달)에서 단순 평균은 정답에서 크게 어긋나고(평균 − 정답 %+.2f 장) IPS 의 치우침은 오차 범위 안(%+.2f ± %.2f) · SNIPS %+.2f · DR %+.2f · 흔들림은 IPS %.1f > SNIPS %.1f > DR %.1f · ε 가 작을수록 IPS 폭 커지고 유효 표본 수 작아짐 · 결과 모델만(틀린 모델)은 크게 치우치고 DR 로 보정(%+.2f → %+.2f) · 조건부 규칙은 유효 표본 수 더 큼 · 1·2절 문장(급한 세트 줄은 대기·남은 시간이 짧고 평균 Loss 가 낮음)·단순 평균의 어긋남은 로그를 늘려도 3장 이상·ε 0.01 에서 IPS 는 평균으로는 치우침이 오차 범위 안이나 중앙값은 정답보다 3장 넘게 낮음·상황 무시 결과 모델만 = 단순 평균·틀린 모델 DR 이 더 흔들림·문턱을 올리면 막는 손실 같거나 늘고 놓치는 이득 늘어남'
+    % (o4_exp['naive'][0], o4_exp['ips'][0], 2 * o4_exp['ips'][2], o4_exp['snips'][0], o4_exp['dr'][0], o4_exp['ips'][1], o4_exp['snips'][1], o4_exp['dr'][1], o4_exp['dm_bad'][0], o4_exp['dr_bad'][0]), o4_ok11,
+    f'IPS 폭 ε0.01 {o4_w[0.01]:.1f} · 0.05 {o4_w[0.05]:.1f} · 0.3 {o4_w[0.3]:.1f} · 유효 표본 수 중앙값 {" ".join(f"{o4_es[e]:.1f}" for e in K4["EPS_GRID"])} · 추정 확률 IPS 치우침 {o4_exp["ips_hat"][0]:+.2f}±{2*o4_exp["ips_hat"][2]:.2f} · DR(추정) {o4_exp["dr_hat"][0]:+.2f} · 조건부 유효 표본 수 {float(o4_c3["ess"].median()):.1f}')
+
+# 12. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 핵심 숫자가 독립 구현·JS 와 같음, 외부 통신 코드 없음
+o4_run = subprocess.run([sys.executable, '-I', 'lab0604.py'], cwd=o4_td, capture_output=True, text=True); o4_L = o4_run.stdout.strip().split('\n')
+_rep = O4['est'][0]; o4_cnt = o4_log['action'].value_counts()
+_ej = [e for e in O4['est'] if e['seed'] == O4['rep'] and e['eps'] == 0.1 and e['n'] == 1080 and e['rule'] == 'urgent_all'][0]
+o4_exp_lines = [
+    '로그: %d번의 결정 · 평균 Loss %.2f 장 · 먼저 온 순서 %d · 급한 세트 %d · 오래된 마스크 %d · 고른 확률 %.4f~%.4f' % (len(o4_log), o4_log['loss_glass'].mean(), o4_cnt['fifo'], o4_cnt['urgent'], o4_cnt['oldest'], o4_log['propensity'].min(), o4_log['propensity'].max()),
+    '지원 점검(급한 세트 먼저): 일치한 줄 %d(%.1f %%) · 가장 작은 고른 확률 %.4f · 지원 %s' % (_ej['sup']['matched'], 100 * _ej['sup']['share'], _ej['sup']['min_p'], '있음'),
+    '단순 평균 %.2f · IPS %.2f · SNIPS %.2f · 유효 표본 수 %.1f (일치한 줄 %d)' % (_ej['naive'], _ej['ips'], _ej['snips'], _ej['ess'], _ej['matched']),
+    '결과 모델만(선형) %.2f · DR(선형) %.2f · 결과 모델만(상황 무시) %.2f · DR(상황 무시) %.2f' % (_ej['dm'], _ej['dr'], _ej['dm_bad'], _ej['dr_bad']),
+    '성향 점수를 추정으로 대신하면: IPS %.2f · DR %.2f · 유효 표본 수 %.1f' % (_ej['ips_hat'], _ej['dr_hat'], o4_mod.effective_sample_size(o4_mod.hit_weights(o4_log, o4_mod.target_urgent, o4_mod.fit_propensity(o4_log))))]
+o4_ok12 = o4_run.returncode == 0 and o4_run.stdout.strip() == o4_out and all(x in o4_L for x in o4_exp_lines) and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', o4_code, _re5.M)
+chk('0604 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 로그 요약·지원 점검·네 추정·유효 표본 수·결과 모델·추정 성향 점수가 독립 구현·JS 와 같고, 외부 통신 코드가 없고, 코드의 문턱·상수가 모듈 기본값과 같음',
+    o4_ok12 and f'ESS_MIN = {K4["ESS_MIN"]}' in o4_code and f'RIDGE_Y = {K4["RIDGE_Y"]}' in o4_code and f'NEWTON = {K4["NEWTON"]}' in o4_code and f'MONTH = {K4["MONTH"]}' in o4_code,
+    (o4_run.stderr[-300:] if o4_run.returncode else f'{len(o4_L)}줄 · 대조 {len(o4_exp_lines)}줄' + ''.join('' if x in o4_L else ' · 불일치: ' + x[:70] for x in o4_exp_lines)))
+
+# 13. 페이지 구조
+o4_term = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', o4_pg, _re5.S).group(1)))
+o4_nq = len(_re5.findall(r'<div class="qna" data-label=', o4_pg)); o4_nsec = len(_re5.findall(r'<h2><span class="no">', o4_pg)); o4_nmath = o4_pg.count('<math display="block">')
+o4_fonts = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', o4_pg)]
+o4_bt = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', o4_pg, flags=_re5.S)))
+o4_endda = _re5.findall(r'[^니습]다[.]', o4_bt)
+o4_p603 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0603-run-to-run.html'), encoding='utf-8').read(); o4_hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+o4_dv = set(_re5.findall(r'data-v="(\w+)"', o4_pg)); o4_dvdef = set(_re5.findall(r'V\.(\w+)=', o4_app))
+o4_qna = ' '.join(_re5.findall(r'<div class="qna".*?</div>', o4_pg, _re5.S)); o4_mod_js = open(os.path.join(_DATA10, 'ope06.js'), encoding='utf-8').read()
+o4_slid = [f'id="sE4" min="0" max="6" step="1" value="{K4["SLIDER_EPS"].index(K4["DEF_EPS"])}"', f'id="sN4" min="0" max="3" step="1" value="{K4["N_GRID"].index(K4["DEF_N"])}"', f'id="sT8" min="0" max="100" step="5" value="{K4["ESS_MIN"]}"']
+o4_nums = [int(x) for x in _re5.findall(r'(\d+)절', o4_bt)]
+o4_ids = set(_re5.findall(r'\bid="(\w+)"', o4_pg)); o4_gets = set(_re5.findall(r"\$\('(\w+)'\)", o4_app)) | {x for lst in _re5.findall(r"\[((?:'\w+',?)+)\]\.forEach", o4_app) for x in _re5.findall(r"'(\w+)'", lst)}
+o4_sync = {i + 'o' for i in ('sE4', 'sE5', 'sE6', 'sE7', 'sE8', 'sN4', 'sT8')}
+chk('0604 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절 13개 · MathML 식 다섯(성향 점수·IPS·SNIPS·유효 표본 수·DR) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0603 쪽 0604 다음 링크(위·아래)와 0604 쪽 0603 이전 링크(위·아래) · 허브 등록(마지막 장 묶음) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~13 · 스크립트가 찾는 요소 id 전부 존재 · 모듈·표·페이지에 Math.random·Date.now 없음',
+    o4_term == 6 and o4_nq == 4 and o4_nsec == 13 and o4_nmath == 5 and o4_fonts and min(o4_fonts) >= 11 and not o4_endda and o4_p603.count('0604-off-policy-evaluation.html') == 2 and o4_pg.count('0603-run-to-run.html') == 2
+    and 'labs/0604-off-policy-evaluation.html' in o4_hub and '마지막 장 · 기둥 6' in o4_hub and o4_dv <= o4_dvdef and all(s in o4_pg for s in o4_slid) and not o4_qna.count('%') and o4_nums and max(o4_nums) <= 13 and min(o4_nums) >= 1
+    and (o4_gets | o4_sync) <= o4_ids and not _re5.search(r'Math\.random|Date\.now|new Date', o4_mod_js) and not _re5.search(r'Math\.random|Date\.now', o4_app) and not _re5.search(r'Math\.random|Date\.now', o4_tb),
+    f'용어 {o4_term} · Q&A {o4_nq} · 절 {o4_nsec} · MathML {o4_nmath} · 캔버스 글자 최소 {min(o4_fonts) if o4_fonts else None}px({len(o4_fonts)}곳) · -다 끝맺음 {len(o4_endda)}건({o4_endda[:3]}) · 0603 쪽 링크 {o4_p603.count("0604-off-policy-evaluation.html")}곳 · 미정의 data-v {sorted(o4_dv - o4_dvdef)} · 없는 id {sorted((o4_gets | o4_sync) - o4_ids)} · 절 참조 {sorted(set(o4_nums))}')
+o4_cleanup = shutil.rmtree(o4_td, ignore_errors=True)
+
+
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

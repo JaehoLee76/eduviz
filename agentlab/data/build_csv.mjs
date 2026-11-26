@@ -145,6 +145,23 @@ csv('s19_lambda_sweep.csv', T03.sweep, ['axis', 'value', 'lam', 'rms_p10', 'rms_
 fs.writeFileSync(path.join(dir, '..', 'r2r06_tables.js'), '/* 0603 이 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s19_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var T=' + JSON.stringify({ noise_turn: T03.noise_turn, lam: T03.lam, rep: T03.rep, log: T03.log, seeds: T03.seeds, sweep: T03.sweep }) + ';if(typeof module==="object"&&module.exports)module.exports=T;else window.R2R06_TABLES=T;})();\n');
 console.log('S19 representative seed', T03.rep, 'score', T03.score.toFixed(1), 'default lambda', T03.lam);
 
+// 실험실 0604: 과거 로그로 새 규칙 평가하기. 결과(Loss)는 학습용 생성 모형이라 숨은 값(상황·행동별 기대 Loss·잡음 크기)은 어떤 파일에도 넣지 않는다(ope06.js 안에만 있고 정답 열기·verify 가 읽는다).
+// 상황 분포(대기 수·카세트 여유·남은 시간)는 위에서 만든 s17_real_hourly.csv 의 분위 값으로 정한다. s20_logged = 대표 시드의 기록(결정마다 상황·고른 행동·고른 확률·결과 — 숨은 값 열 없음)
+// s20_seed_summary = 시드 200개 × (ε 여섯 × 로그 길이 넷 [급한 세트 먼저] + ε 여섯 [남은 시간 3시간 이하일 때만]) 의 추정기별 값·유효 표본 수·일치한 줄 수. 소수 넷째 자리 반올림, 지원이 없어 추정할 수 없으면 빈칸.
+const O06 = require('./ope06.js');
+const hr06 = fs.readFileSync(path.join(dir, 's17_real_hourly.csv'), 'utf8').trim().split('\n');
+const hk06 = hr06[0].split(',');
+const hrows06 = hr06.slice(1).map(l => { const v = l.split(','); const o = {}; hk06.forEach((k, i) => { o[k] = v[i]; }); return o; });
+const ctx06 = O06.ctxFromHourly(hrows06);
+O06.setCtx(ctx06);
+const sum06 = O06.summaryRows();
+csv('s20_seed_summary.csv', sum06, ['target', 'n', 'eps', 'seed'].concat(O06.COLS));
+const rep06 = O06.pickRep(sum06.filter(r => r.target === 'urgent' && r.n === O06.DEF_N && r.eps === O06.DEF_EPS));
+csv('s20_logged.csv', O06.logRows(O06.scenario(rep06.seed, { eps: O06.DEF_EPS, n: O06.DEF_N })), ['decision', 'queue', 'cassette_free', 'slack_h', 'action', 'propensity', 'loss_glass']);
+const pk06 = ['target', 'n', 'eps', 'seed'].concat(O06.COLS);
+fs.writeFileSync(path.join(dir, '..', 'ope06_tables.js'), '/* 0604 가 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s20_seed_summary.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var D=' + JSON.stringify({ ctx: ctx06, rep: rep06.seed, score: rep06.score, c: pk06, r: sum06.map(r => pk06.map(k => (r[k] === '' ? null : r[k]))) }) + ';var T={ctx:D.ctx,rep:D.rep,score:D.score,seeds:D.r.map(function(r){var o={};D.c.forEach(function(c,i){o[c]=r[i]===null?NaN:r[i];});return o;})};if(typeof module==="object"&&module.exports)module.exports=T;else window.OPE06_TABLES=T;})();\n');
+console.log('S20 representative seed', rep06.seed, 'score', rep06.score.toFixed(1));
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });
