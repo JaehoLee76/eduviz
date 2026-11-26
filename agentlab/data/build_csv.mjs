@@ -93,6 +93,13 @@ const s16rep = L05.s16Rep(s16runs);
 csv('s16_common_trend.csv', L05.s16Rows(s16runs[s16rep.seed - 1].g), ['day', 'glass_in', 'vx_jam', 'vy_src', 'vz_retry']);
 console.log('S16 representative seed', s16rep.seed, JSON.stringify(s16rep.pcs));
 
+// 실험실 0503: 기본 시드의 마스크 사용 이력(simT 의 전이 기록에서 사용 한 번 = 한 줄: 마스크·시작 분·나이(리페어 뒤 세정 횟수)·블록·FMM 여부·세트 평균 나이·결함 여부)과,
+// 시드(기본 + 1~40)마다 한 줄로 줄인 예측 요약(기본 지평 24시간·분할 40일·트리 깊이 3·점검 10%). 페이지가 브라우저에서 같은 시드를 다시 돌리고, 이 CSV 는 회사 PC 의 Python 이 읽는다.
+csv('mask_uses.csv', L05.maskRows(L05.maskUses(simT.transitions)), ['mask_id', 't', 'age', 'block', 'fmm', 'set_age', 'defect']);
+const f5 = L05.F5;
+const l503 = [L05.DEFAULT_SEED].concat(Array.from({ length: f5.SEEDS }, (_, i) => i + 1)).map(sd => L05.seed503(sd, f5.H, f5.SPLIT, f5.DEPTH, f5.K));
+csv('loss_forecast_seeds.csv', L05.seed503Rows(l503), Object.keys(l503[0]));
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

@@ -3003,6 +3003,361 @@ chk('0502 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자를 넣지 않�
 _cleanup06 = shutil.rmtree(_td06, ignore_errors=True)
 
 
+
+# ============================================================
+# 0503 — Loss 예측. 계산 모듈(loss05.js)의 출발 시각별 목표·특징(누설 표시 포함)·기준 예측·직선·포아송·회귀 트리 시험 점수·근본 원인별 개선률·분해 예측,
+# 무기억성(고장 간격·경과 시간별 위험률), 마스크 사용 표·로지스틱 회귀·포착률·보정도, 시드 요약 CSV 를 페이지의 Python 코드(lab0503.py, scikit-learn)와
+# 이 파일의 독립 구현(특징 직접 계산·브루트포스 회귀 트리·뉴턴법 로지스틱·묶음 확률 포착률)으로 다시 계산해 JS 와 대조한다.
+# ============================================================
+import warnings as _w07; _w07.filterwarnings('ignore', category=FutureWarning)
+_pg07 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0503-loss-forecast.html'), encoding='utf-8').read()
+_code07 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg07, _re5.S).group(1)); _out07 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg07, _re5.S).group(1)).strip()
+_td07 = _tf5.mkdtemp()
+for _f in ('loss_events.csv', 'loss_hourly.csv', 'mask_transitions.csv', 'loss_forecast_seeds.csv'): shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(_td07, _f))
+open(os.path.join(_td07, 'lab0503.py'), 'w', encoding='utf-8').write(_code07)
+_sp07 = _ilu01.spec_from_file_location('lab0503', os.path.join(_td07, 'lab0503.py')); _m07 = _ilu01.module_from_spec(_sp07); _sp07.loader.exec_module(_m07)
+_EXPORT07 = r"""const fs=require('fs'),path=require('path');
+const DATA=process.argv[2],OUT=process.argv[3];
+const MS=require(DATA+'/mfgsim.js'),L=require(DATA+'/loss05.js');
+const sim=MS.simulateLoss({trace:true}),res={};
+res.F5=L.F5;res.FEAT=L.FEAT5;res.G5=L.G5;res.NLEG=L.NLEG5;res.blockInfo=MS.BLOCK_INFO;res.nturn=MS.CFG.N_TURN;
+res.cfg={};
+[[24,40],[12,35],[48,30]].forEach(([H,sp])=>{
+  const ds=L.build503(sim,H,sp),o={period:ds.period,h:ds.rows.map(r=>r.h),y:ds.rows.map(r=>r.y),yg:ds.rows.map(r=>r.yg),pers:ds.rows.map(r=>r.pers),persg:ds.rows.map(r=>r.persg),X:ds.rows.map(r=>r.X),ev:{}};
+  const combos=(H===24&&sp===40)?[['time',[0,0,0],3,'tot'],['time',[1,1,0],3,'tot'],['time',[0,0,1],3,'tot'],['time',[1,0,0],3,'tot'],['time',[0,1,0],3,'tot'],['shuffle',[0,0,0],3,'tot'],['shuffle',[1,1,0],3,'tot'],['time',[0,0,0],1,'tot'],['time',[0,0,0],6,'tot'],['time',[0,0,0],3,0],['time',[0,0,0],3,1],['time',[0,0,0],3,2],['time',[0,0,0],3,3]]:[['time',[0,0,0],3,'tot'],['shuffle',[1,1,0],3,'tot'],['time',[0,0,0],3,0],['time',[0,0,0],3,2]];
+  combos.forEach(c=>{const r=L.eval503(ds,{mode:c[0],leak:c[1].map(Boolean),depth:c[2],target:c[3]});
+    o.ev[JSON.stringify(c)]={nTr:r.nTr,nTe:r.nTe,hte:r.hte,yte:r.yte,score:r.score,train:r.train,imp:r.imp,best:r.bestBase,pred:{linear:r.pred.linear,poisson:r.pred.poisson,tree:r.pred.tree,mean:r.pred.mean,persist:r.pred.persist},betaPois:r.betaPois,betaLin:r.betaLin,leaves:L.treeLeaves5(r.tree),nf:r.nf};});
+  o.byRoot=L.byRoot503(ds,3).map(g=>({id:g.id,meanTe:g.meanTe,mae:g.mae,imp:g.imp,best:g.bestBase}));const cp=L.composite503(ds);o.comp={imp:cp.imp,mae:cp.score.mae,rmse:cp.score.rmse,pred:cp.pred};
+  res.cfg[H+'|'+sp]=o;});
+// 무기억성
+res.mem={};[['EQ-BD',40],['Q-EVAP',40],['EQ-BD',30]].forEach(([c,d])=>{const g=L.gaps503(sim.events,c,d*1440),lt=L.lifeTable503(sim.events,c,d*1440,[0,72,144,240,336,504]);res.mem[c+'|'+d]={gaps:g,lt:lt,split:L.lifeSplit5(lt,3),wait:L.lifeMean5(lt)};});
+// 마스크
+const uses=L.maskUses(sim.transitions);res.uses=uses.map(u=>[u.mask_id,u.t,u.age,u.block,u.fmm,u.setAge,u.defect]);
+res.mask={};[40,30,45].forEach(sp=>{[0.1,0.02,0.3].forEach(k=>{const m=L.mask503(uses,sp,k,['full','add','fmm','set']);const o={nTr:m.nTr,nTe:m.nTe,dTr:m.dTr,dTe:m.dTe,base:{rate:m.base.rate,logloss:m.base.logloss,cap:m.base.capture},models:{}};
+  Object.keys(m.models).forEach(kd=>{const mm=m.models[kd];o.models[kd]={beta:mm.beta,ok:mm.ok,iter:mm.iter,logloss:mm.logloss,cap:mm.capture,p:(sp===40&&k===0.1)?mm.p:null,cal:[3,5,10].map(b=>L.calibTable5(mm.p,m.te.map(u=>u.defect),b))};});
+  res.mask[sp+'|'+k]=o;});});
+// 시드 요약(CSV 와 같은 호출)
+const f5=L.F5,seeds=[L.DEFAULT_SEED].concat(Array.from({length:f5.SEEDS},(_,i)=>i+1));res.seeds=L.seed503Rows(seeds.map(sd=>L.seed503(sd,f5.H,f5.SPLIT,f5.DEPTH,f5.K)));
+fs.writeFileSync(path.join(OUT,'res.json'),JSON.stringify(res));
+"""
+_jsf07 = os.path.join(_td07, 'export503.js'); open(_jsf07, 'w').write(_EXPORT07)
+subprocess.run([_node, _jsf07, _DATA10, _td07], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_R07 = json.load(open(os.path.join(_td07, 'res.json')))
+def _same07(a, b, tol=1e-9): return abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+def _arr07(a, b, tol=1e-9): a, b = np.asarray(a, float), np.asarray(b, float); return a.shape == b.shape and bool(np.all(np.abs(a - b) <= tol * np.maximum(1.0, np.maximum(np.abs(a), np.abs(b)))))
+_ev07 = _m07.load_events(os.path.join(_td07, 'loss_events.csv')); _hr07 = pd.read_csv(os.path.join(_td07, 'loss_hourly.csv')); _tr07 = pd.read_csv(os.path.join(_td07, 'mask_transitions.csv'), keep_default_na=False)
+_sd07 = pd.read_csv(os.path.join(_td07, 'loss_forecast_seeds.csv'))
+_F07 = _R07['F5']; _FE07 = _R07['FEAT']
+_NAMES07 = [f['id'] for f in _FE07]
+
+# 1. 기존 출력 불변: mfgsim.js 는 저장소 최신 커밋과 같은 글자, loss_hourly·mask_transitions 는 simulateLoss 기본 호출의 출력, 새 CSV 는 JS 와 같은 줄
+_gitm = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/data/mfgsim.js'], capture_output=True)
+_mfg_same = (_gitm.returncode != 0) or (_gitm.stdout == open(os.path.join(_DATA10, 'mfgsim.js'), 'rb').read())
+_u07 = _tr07  # 전이 기록 CSV(기존)
+_pu07 = _m07.mask_use_table(_u07)
+_csvu07 = pd.read_csv(os.path.join(_DATA10, 'csv', 'mask_uses.csv'))
+_js_u = pd.DataFrame(_R07['uses'], columns=['mask_id', 't', 'age', 'block', 'fmm', 'set_age', 'defect'])
+_ok = _mfg_same and len(_pu07) == len(_js_u) == len(_csvu07) == 12558 and int(_pu07['defect'].sum()) == int(_js_u['defect'].sum()) == int(_csvu07['defect'].sum()) == 99
+_ok &= bool((_pu07['mask_id'].to_numpy() == _js_u['mask_id'].to_numpy()).all() and (_pu07['t'].to_numpy() == _js_u['t'].to_numpy()).all() and (_pu07['age'].to_numpy() == _js_u['age'].to_numpy()).all() and (_pu07['defect'].to_numpy() == _js_u['defect'].to_numpy()).all() and (_pu07['fmm'].to_numpy() == _js_u['fmm'].to_numpy()).all())
+_ok &= _arr07(_pu07['set_age'], _js_u['set_age'], 1e-9) and _arr07(_csvu07['set_age'], _js_u['set_age'], 1e-5) and (_csvu07['mask_id'].to_numpy() == _js_u['mask_id'].to_numpy()).all() and (_csvu07['defect'].to_numpy() == _js_u['defect'].to_numpy()).all()
+_ok &= set(_m07.FMM_BLOCKS) == {b for b, i in _R07['blockInfo'].items() if i['fmm']}
+# 독립 집계: 마스크별 전이 줄을 훑어 사용 수·결함 수를 센다
+_nu = _nd = 0
+for _mid, _g in _tr07[_tr07['entity'] == 'mask'].groupby('id', sort=False):
+    _open = False
+    for _to, _tg in zip(_g['to'], _g['trigger']):
+        if _to == 'in_use': _nu += 1; _open = True
+        elif _to == 'repair' and _tg == 'turn_end_defect' and _open: _nd += 1; _open = False
+_ok &= _nu == 12558 and _nd == 99
+chk('0503 기존 출력 불변·새 CSV: mfgsim.js 가 저장소 최신 커밋과 같은 글자, 마스크 사용 표(JS = 페이지 Python mask_use_table = mask_uses.csv)가 12,558회·결함 99건이고 모든 열이 같으며 FMM 블록 집합 = 블록 표, 전이 줄을 직접 훑어 센 사용·결함 수와 같음',
+    _ok, f'mfgsim 같음 {_mfg_same} · 사용 {len(_pu07)} · 결함 {int(_pu07["defect"].sum())} · 독립 집계 {_nu}/{_nd}')
+
+# 2. 출발 시각별 목표·특징: JS = 페이지 Python make_horizon_target(세 가지 (H, 학습일)) = 이 파일의 직접 계산(알 수 있는 시각만 써서 열두 특징을 한 줄씩)
+_ok = True; _det = []
+_pidx07 = {}
+for _key, _cf in _R07['cfg'].items():
+    _H, _sp = [int(x) for x in _key.split('|')]
+    _t = _m07.make_horizon_target(_ev07, _hr07, _H, _sp)
+    _jx = np.array(_cf['X'], float)
+    _o = len(_t) == len(_cf['h']) and _arr07(_t['h'], _cf['h']) and _arr07(_t[_NAMES07].to_numpy(float), _jx, 1e-9) and _arr07(_t['y'], _cf['y']) and _arr07(_t['pers'], _cf['pers']) and _same07(_t.attrs['period'], _cf['period'])
+    _o &= all(_arr07(_t['y_' + g], np.array(_cf['yg'])[:, i]) and _arr07(_t['pers_' + g], np.array(_cf['persg'])[:, i]) for i, g in enumerate(('pm', 'mask', 'fault', 'other')))
+    _pidx07[_key] = _t
+    _ok &= _o
+    if not _o: _det.append(_key)
+chk('0503 목표·특징 표(세 설정 (H·학습일) = 24·40, 12·35, 48·30): 출발 시각·목표·근본 원인 묶음별 목표·지속 기준·특징 열네 개·PM 간격 추정(학습 기간 PM 시작 간격 중앙값) JS = 페이지 Python',
+    _ok, '세 설정 ' + ('불일치 ' + ','.join(_det) if _det else '일치') + f' · 줄 수 {[len(v) for v in _pidx07.values()]}')
+
+def _indep07(ev, hr, h, H, period):
+    t = h * 60; s, e, g = ev['start_min'].to_numpy(), ev['end_min'].to_numpy(), ev['loss_glass'].to_numpy(float)
+    rc, rs = ev['root_cause'].to_numpy(), ev['reason'].to_numpy()
+    grp = lambda c: 0 if c == 'EQ-PM' else 1 if c == 'Q-MASK' else 2 if c in ('EQ-BD', 'Q-EVAP') else 3
+    gi = np.array([grp(c) for c in rc])
+    f = []
+    due = 0
+    for (_b, _c), d in ev[(ev['reason'] == 'EQ-PM') & (ev['root_cause'] == 'EQ-PM')].groupby(['block', 'chamber']):
+        st = d['start_min'].to_numpy(); st = st[st <= t]
+        if len(st) and t <= st.max() + period < t + H * 60: due += 1
+    f.append(due)
+    for gx in range(4): f.append(g[(gi == gx) & (e > t - 1440) & (e <= t)].sum())
+    r = hr.iloc[h - 1]; f += [r['stocker_fill'], r['cleaner_queue'], r['cassette_free'], r['blocks_triple'], r['line_out']]
+    for c in ('EQ-BD', 'Q-EVAP'):
+        st = s[(rs == c) & (rc == c) & (s <= t)]; f.append((t - st.max()) / 60 if len(st) else t / 60)
+    win = (s >= t) & (s < t + H * 60)
+    f.append(hr['blocks_triple'].to_numpy(float)[h:h + H].mean()); f.append(((rc == 'EQ-PM') & win).sum() / win.sum() if win.sum() else 0.0)
+    return f, g[win].sum(), g[(e > t - H * 60) & (e <= t)].sum()
+_ok = True
+for _key, _cf in _R07['cfg'].items():
+    _H, _sp = [int(x) for x in _key.split('|')]
+    for _i in np.linspace(0, len(_cf['h']) - 1, 25).astype(int):
+        _f, _y, _p = _indep07(_ev07, _hr07, _cf['h'][_i], _H, _cf['period'])
+        _ok &= _arr07(_f, _cf['X'][_i], 1e-9) and _same07(_y, _cf['y'][_i]) and _same07(_p, _cf['pers'][_i])
+chk('0503 특징의 인과성: 출발 시각 25개×세 설정에서 직전 시간 상태·t 이전에 끝난 사건·t 이전 시작 고장·PM 달력(t 이전 PM 시작) 열두 개를 사건 표에서 직접 필터(끝 ≤ t, 시작 ≤ t)해 다시 계산한 값과 JS 가 같고, 목표·지속 기준도 같음',
+    _ok, '75개 출발 시각')
+_lk07 = _m07.leak_check(_m07.FEATURES)
+chk('0503 누설 점검: 페이지 leak_check = JS 특징표의 \'t 이전\' 아닌 열(fut_triple·fut_pmshare), 특징 14개 중 \'알려지는 시각 = t 이전\' 12개 = 모델에 들어가는 특징 수, 누설 특징은 구간 안 값(fut_triple = 구간 triple 평균, 시험 점수에 영향)',
+    _lk07 == [f['id'] for f in _FE07 if f['avail'] != 'before'] == ['fut_triple', 'fut_pmshare'] and len(_FE07) == 14 and sum(f['avail'] == 'before' for f in _FE07) == _R07['NLEG'] == 12 and [f['id'] for f in _FE07 if f.get('leak')] == _lk07,
+    f'누설 {_lk07}')
+
+# 3. 시험 점수: JS = 페이지 Python(scikit-learn) — 기준 둘·직선·포아송·회귀 트리, 시간순/섞어 나누기 × 누설 끔/켬 × 깊이 × 목표
+def _eval07(t, mode, lk, depth, target):
+    out = {}
+    for m in ('mean', 'persist', 'linear', 'poisson', 'tree'):
+        a, b, p = _m07.time_split_eval(t, m, depth=depth, leak=tuple(lk), mode=mode, target=target); out[m] = (a, b, p)
+    return out
+_ok = True; _det = []; _n = 0; _maxrel = 0.0
+for _key, _cf in _R07['cfg'].items():
+    _t = _pidx07[_key]
+    for _ck, _r in _cf['ev'].items():
+        _mode, _lk, _depth, _tg = json.loads(_ck)
+        _tgn = 'y' if _tg == 'tot' else 'y_' + ('pm', 'mask', 'fault', 'other')[_tg]
+        _e = _eval07(_t, _mode, [bool(x) for x in _lk], _depth, _tgn); _n += 1
+        for _m in ('mean', 'persist', 'linear', 'poisson', 'tree'):
+            _tol = 1e-5 if _m == 'poisson' else 1e-6
+            _o = _arr07([_e[_m][0], _e[_m][1]], [_r['score'][_m]['mae'], _r['score'][_m]['rmse']], _tol)
+            if _m in ('linear', 'tree'): _o &= _arr07(_e[_m][2], _r['pred'][_m], 1e-6)
+            if not _o: _ok = False; _det.append(_key + _ck + _m)
+chk('0503 시험 점수 JS = 페이지 Python(scikit-learn LinearRegression·PoissonRegressor·DecisionTreeRegressor): 기준 둘·직선·포아송·트리의 시험 MAE·RMSE(직선·트리는 예측값까지), %d개 시험(시간순·섞어 나누기, 누설 끔·켬, 깊이 1·3·6, 목표 전체·PM·마스크·고장 계열)' % _n,
+    _ok, f'{_n}개 시험 ' + ('불일치 ' + ','.join(_det[:4]) if _det else '전부 일치'))
+
+# 4. 독립 구현: 브루트포스 회귀 트리·numpy 최소제곱·포아송 점수 방정식
+def _cart07(X, y, depth, minleaf):
+    def node(ix, d):
+        v = y[ix].mean()
+        if d >= depth or len(ix) < 2 * minleaf: return ('leaf', v)
+        best = None; bs = -np.inf
+        for f in range(X.shape[1]):
+            o = ix[np.lexsort((ix, X[ix, f]))]; xs = X[o, f]; ys = y[o]; cs = np.cumsum(ys); tot = cs[-1]
+            for i in range(len(o) - 1):
+                nl = i + 1; nr = len(o) - nl
+                if xs[i + 1] <= xs[i] + 1e-7 or nl < minleaf or nr < minleaf: continue
+                sc = cs[i] ** 2 / nl + (tot - cs[i]) ** 2 / nr
+                if best is None or sc > bs * (1 + 1e-12): bs = sc; best = (f, xs[i] / 2 + xs[i + 1] / 2)
+        if best is None: return ('leaf', v)
+        f, thr = best; L_ = ix[X[ix, f] <= thr]; R_ = ix[X[ix, f] > thr]
+        return ('split', f, thr, node(L_, d + 1), node(R_, d + 1))
+    return node(np.arange(len(y)), 0)
+def _pred07(tr, x):
+    while tr[0] == 'split': tr = tr[3] if x[tr[1]] <= tr[2] else tr[4]
+    return tr[1]
+_ok = True; _det = []
+for _key, _cf in _R07['cfg'].items():
+    _H, _sp = [int(x) for x in _key.split('|')]; _t = _pidx07[_key]
+    for _ck, _r in _cf['ev'].items():
+        _mode, _lk, _depth, _tg = json.loads(_ck)
+        if _mode != 'time' and _ck.find('shuffle') < 0: continue
+        _tgn = 'y' if _tg == 'tot' else 'y_' + ('pm', 'mask', 'fault', 'other')[_tg]
+        _cols = _m07.LEGIT + (['fut_triple'] if _lk[0] else []) + (['fut_pmshare'] if _lk[1] else [])
+        _tr, _te = _m07.split_index(_t, _mode); _X = _t[_cols].to_numpy(float); _y = _t[_tgn].to_numpy(float)
+        _X32 = _X.astype(np.float32).astype(float)
+        _tree = _cart07(_X32[_tr], _y[_tr], _depth, _m07.MIN_LEAF)
+        _p = np.array([_pred07(_tree, x) for x in _X32[_te]])
+        _mu, _sd = (_X if _lk[2] else _X[_tr]).mean(0), (_X if _lk[2] else _X[_tr]).std(0); _sd[_sd == 0] = 1
+        _Z = (_X - _mu) / _sd; _A = np.c_[np.ones(len(_tr)), _Z[_tr]]
+        _bl = np.linalg.lstsq(_A, _y[_tr], rcond=None)[0]; _pl = np.c_[np.ones(len(_te)), _Z[_te]] @ _bl
+        _bp = np.array(_r['betaPois']); _mu_tr = np.exp(_A @ _bp); _score = _A.T @ (_y[_tr] - _mu_tr) / (np.abs(_A.T @ _y[_tr]).max() + 1)
+        _o = _arr07(_p, _r['pred']['tree'], 1e-9) and _arr07(_pl, _r['pred']['linear'], 1e-8) and np.abs(_score).max() < 1e-8 and _arr07(_bl, _r['betaLin'], 1e-8)
+        if not _o: _ok = False; _det.append(_key + _ck)
+chk('0503 독립 구현: 브루트포스 CART(제곱오차 최소·동점은 앞 특징·작은 문턱·잎 최소 표본)가 만든 트리의 시험 예측 = JS(1e-9), numpy 최소제곱(lstsq)의 계수·예측 = JS 직선(1e-8), JS 포아송 계수에서 점수 방정식 Σ(y−μ)x 의 잔차가 0(1e-8 아래)',
+    _ok, ('불일치 ' + ','.join(_det[:3])) if _det else f'{sum(len(c["ev"]) for c in _R07["cfg"].values())}개 시험 전부')
+
+# 5. 근본 원인별 개선률·분해 예측: JS = 페이지 Python error_by_root·composite
+_ok = True
+for _key, _cf in _R07['cfg'].items():
+    if _key != '24|40': continue
+    _ebr = _m07.error_by_root(_pidx07[_key])
+    for (_gid, _mte, _il, _it), _g in zip(_ebr, _cf['byRoot']):
+        _ok &= _gid == _g['id'] and _same07(_mte, _g['meanTe'], 1e-9) and _same07(_il, _g['imp']['linear'], 1e-6) and _same07(_it, _g['imp']['tree'], 1e-6)
+    _ok &= _same07(_m07.composite(_pidx07[_key]), _cf['comp']['imp'], 1e-6)
+_br = {g['id']: g for g in _R07['cfg']['24|40']['byRoot']}
+chk('0503 근본 원인별 개선률(정규 PM·마스크 불량·고장 계열·그 밖)과 분해 예측(PM 직선 + 나머지 평균) JS = 페이지 Python; 기대: PM 몫 개선 > 고장 계열 몫 개선, 분해 예측 전체 개선 > 0',
+    _ok and _br['pm']['imp']['linear'] > _br['fault']['imp']['linear'] and _R07['cfg']['24|40']['comp']['imp'] > 0,
+    f"PM 직선 {_br['pm']['imp']['linear']:+.1%} · 고장 계열 {_br['fault']['imp']['linear']:+.1%} · 분해 예측 {_R07['cfg']['24|40']['comp']['imp']:+.1%}")
+
+# 6. 누설·분할 기대(설계서): 시간순에서 누설 켬 > 끔(직선), 섞어 나누기 > 시간순(누설 끔, 직선·트리) — 아니면 본문을 결과대로
+_E = _R07['cfg']['24|40']['ev']
+def _i07(mode, lk, m, depth=3): return _E[json.dumps([mode, lk, depth, 'tot'], separators=(',', ':'))]['imp'][m]
+_exp_leak = _i07('time', [1, 1, 0], 'linear') > _i07('time', [0, 0, 0], 'linear')
+_exp_shuf = _i07('shuffle', [0, 0, 0], 'linear') > _i07('time', [0, 0, 0], 'linear') and _i07('shuffle', [0, 0, 0], 'tree') > _i07('time', [0, 0, 0], 'tree')
+_exp_tree_leak = _i07('time', [1, 1, 0], 'tree') > _i07('time', [0, 0, 0], 'tree')
+chk('0503 설계 기대: 직선 회귀는 시간순에서 누설을 켜면 개선률이 오르고, 누설을 꺼도 섞어 나누면 시간순보다 개선률이 큼(직선·트리). 회귀 트리는 누설을 켜도 시간순 점수가 오르지 않을 수 있음(본문은 계산된 값으로만 말함)',
+    _exp_leak and _exp_shuf, f"직선 시간순 {_i07('time', [0,0,0], 'linear'):+.1%} → 누설 켬 {_i07('time', [1,1,0], 'linear'):+.1%} · 섞어 나눔 {_i07('shuffle', [0,0,0], 'linear'):+.1%}/트리 {_i07('shuffle', [0,0,0], 'tree'):+.1%} (시간순 트리 {_i07('time', [0,0,0], 'tree'):+.1%}, 누설 켬 {_i07('time', [1,1,0], 'tree'):+.1%} — 설계 기대 {'충족' if _exp_tree_leak else '미충족, 본문은 계산값 그대로'})")
+
+# 7. 무기억성: 고장 간격·생명표·위험률 비·정확 이항 p — JS = 페이지 Python memoryless_check = 이 파일의 직접 계산
+_ok = True; _det = []
+for _k, _m in _R07['mem'].items():
+    _code, _d = _k.split('|'); _d = int(_d)
+    _mm = _m07.memoryless_check(_ev07, _code, _d * 1440)
+    _g = np.array(_m['gaps'])
+    # 직접 계산: 챔버마다 (끝 → 다음 시작) 간격, 경과 구간 노출·건수
+    _own = _ev07[(_ev07['reason'] == _code) & (_ev07['root_cause'] == _code)]; _edges = [0, 72, 144, 240, 336, 504]
+    _gg = []; _ex = np.zeros(6); _nn = np.zeros(6, int)
+    for _c, _dd in _own.groupby(['block', 'chamber']):
+        _dd = _dd.sort_values('start_min'); _ok2 = _dd[_dd['end_min'] <= _d * 1440]
+        _gg += list((_ok2['start_min'].to_numpy()[1:] - _ok2['end_min'].to_numpy()[:-1]) / 60)
+        _dd = _dd[_dd['start_min'] < _d * 1440]; _s, _e2 = _dd['start_min'].to_numpy(), _dd['end_min'].to_numpy()
+        for _i in range(len(_dd)):
+            _nx = _s[_i + 1] if _i + 1 < len(_dd) else None; _span = ((_nx if _nx is not None else _d * 1440) - _e2[_i]) / 60
+            if _span <= 0: continue
+            for _b in range(6):
+                _hi = _edges[_b + 1] if _b < 5 else 1e18; _ex[_b] += max(0, min(_span, _hi) - _edges[_b])
+            if _nx is not None: _nn[max(b for b in range(6) if _span >= _edges[b])] += 1
+    _gg = np.array(_gg); _n1, _n2, _e1, _e2 = _nn[:3].sum(), _nn[3:].sum(), _ex[:3].sum(), _ex[3:].sum()
+    _p = stats.binomtest(int(_n1), int(_n1 + _n2), _e1 / (_e1 + _e2)).pvalue
+    _o = _arr07(_gg, _g, 1e-9) and _mm['n_gap'] == len(_g) and _same07(_mm['mean_h'], _g.mean()) and _same07(_mm['sd_h'], _g.std(ddof=1)) and _arr07(_mm['expo'], [r['expo'] for r in _m['lt']], 1e-9) and (_mm['n'] == np.array([r['n'] for r in _m['lt']])).all()
+    _o &= _same07(_mm['wait_h'], _m['wait']) and _same07(_mm['p'], _m['split']['p'], 1e-9) and _same07(_mm['rate_ratio'], _m['split']['ratio']) and _same07(_p, _m['split']['p'], 1e-9) and _arr07(_ex, [r['expo'] for r in _m['lt']], 1e-9) and (_nn == np.array([r['n'] for r in _m['lt']])).all()
+    if not _o: _ok = False; _det.append(_k)
+_mb, _me = _R07['mem']['EQ-BD|40'], _R07['mem']['Q-EVAP|40']
+_cv = lambda m: np.std(m['gaps'], ddof=1) / np.mean(m['gaps'])
+chk('0503 무기억성(설비 고장 EQ-BD·증착기 불량 Q-EVAP, 학습 40일 + 고장 30일): 간격 평균·표준편차, 경과 구간별 노출 시간·건수, 노출 기준 평균 대기, 앞 세 구간 대 뒤 세 구간 위험률 비와 정확 이항 p JS = 페이지 Python = 직접 계산(scipy binomtest); 기대: 두 코드 모두 위험률 비 검정이 차이를 못 찾고(p>0.05) 변동계수 0.8~1.2',
+    _ok and _mb['split']['p'] > 0.05 and _me['split']['p'] > 0.05 and all(0.8 <= _cv(m) <= 1.2 for m in (_mb, _me)),
+    f"EQ-BD 간격 {len(_mb['gaps'])}개 CV {_cv(_mb):.2f} 비 {_mb['split']['ratio']:.2f} p={_mb['split']['p']:.3f} · Q-EVAP {len(_me['gaps'])}개 CV {_cv(_me):.2f} 비 {_me['split']['ratio']:.2f} p={_me['split']['p']:.3f}" + (' 불일치 ' + ','.join(_det) if _det else ''))
+
+# 8. 마스크 로지스틱: JS(뉴턴법) = scikit-learn(penalty=None) = 이 파일의 numpy 뉴턴법, 시험 로그 손실·포착률(묶음 확률 공식)·보정도 표
+def _newton07(X, y):
+    A = np.c_[np.ones(len(X)), X]; b = np.zeros(A.shape[1]); b[0] = np.log(y.mean() / (1 - y.mean()))
+    for _ in range(80):
+        p = 1 / (1 + np.exp(-A @ b)); w = p * (1 - p); d = np.linalg.solve(A.T @ (A * w[:, None]), A.T @ (y - p)); b = b + d
+        if np.abs(d).max() < 1e-12: break
+    return b
+def _cap07(p, y, k):
+    want = k * len(p); pr = np.round(p, 12); out = 0.0
+    for v in np.unique(pr):
+        m = pr == v; ng = (pr > v).sum(); nt = m.sum(); out += y[m].sum() * min(1.0, max(0.0, (want - ng) / nt))
+    return out
+def _cal07(p, y, bins):
+    df = pd.DataFrame({'p': np.round(p, 12), 'y': y, 'pp': p}).groupby('p').agg(n=('y', 'size'), d=('y', 'sum'), sp=('pp', 'sum')).reset_index().sort_values('p')
+    rows = []; cn = cd = cp = 0
+    for i, r in enumerate(df.itertuples()):
+        cn += r.n; cd += r.d; cp += r.sp
+        if (cn >= len(p) / bins - 1e-9 and len(rows) < bins - 1) or i == len(df) - 1: rows.append((cn, cp / cn, cd / cn, cd)); cn = cd = cp = 0
+    return rows
+_ok = True; _det = []
+_U = _pu07.assign(x=_pu07['age'] * _pu07['fmm'], xs=_pu07['set_age'] * _pu07['fmm'])
+_FM = {'full': ['age', 'fmm', 'x'], 'add': ['age', 'fmm'], 'fmm': ['fmm'], 'set': ['set_age', 'fmm', 'xs']}
+for _k, _m in _R07['mask'].items():
+    _sp, _kk = _k.split('|'); _sp = int(_sp); _kk = float(_kk)
+    _trn = _U[_U['t'] < _sp * 1440]; _tst = _U[_U['t'] >= _sp * 1440]; _yt = _tst['defect'].to_numpy(float); _ytr = _trn['defect'].to_numpy(float)
+    _o = _m['nTr'] == len(_trn) and _m['nTe'] == len(_tst) and _m['dTr'] == _ytr.sum() and _m['dTe'] == _yt.sum()
+    _o &= _same07(_m['base']['rate'], _ytr.mean()) and _same07(_m['base']['cap']['captured'], _kk * _yt.sum(), 1e-9)
+    for _kd, _mm in _m['models'].items():
+        _b = _newton07(_trn[_FM[_kd]].to_numpy(float), _ytr); _p = 1 / (1 + np.exp(-(np.c_[np.ones(len(_tst)), _tst[_FM[_kd]].to_numpy(float)] @ _b)))
+        _o &= _mm['ok'] and _arr07(_b, _mm['beta'], 1e-7) and _same07(-np.mean(_yt * np.log(_p) + (1 - _yt) * np.log(1 - _p)), _mm['logloss'], 1e-8) and _same07(_cap07(_p, _yt, _kk), _mm['cap']['captured'], 1e-8)
+        for _bins, _cj in zip((3, 5, 10), _mm['cal']):
+            _cc = _cal07(_p, _yt, _bins); _o &= len(_cc) == len(_cj) and all(a[0] == b['n'] and _same07(a[1], b['pred'], 1e-8) and _same07(a[2], b['rate'], 1e-8) and a[3] == b['defects'] for a, b in zip(_cc, _cj))
+        if _m['models'] and _sp == 40 and _kk == 0.1:
+            _lr, _pp, _yy, _ = _m07.fit_risk(_pu07, _sp, _kd)
+            _o &= _arr07(np.r_[_lr.intercept_, _lr.coef_[0]], _mm['beta'], 1e-5) and _arr07(_pp, _mm['p'], 1e-6)
+            _o &= _same07(_m07.risk_rank_capture(_pp, _yy, _kk)[0], _mm['cap']['captured'], 1e-6)
+            for _bins, _cj in zip((3, 5, 10), _mm['cal']):
+                _cc = _m07.calibration_table(_pp, _yy, _bins); _o &= len(_cc) == len(_cj) and all(a[0] == b['n'] and _same07(a[1], b['pred'], 1e-6) and _same07(a[2], b['rate'], 1e-6) and a[3] == b['defects'] for a, b in zip(_cc, _cj))
+    if not _o: _ok = False; _det.append(_k)
+_M40 = _R07['mask']['40|0.1']
+chk('0503 마스크 로지스틱 회귀(나이·FMM·나이×FMM / 나이·FMM / FMM 만 / 세트 평균 나이) 세 설정(학습 40·30·45일 × 점검 몫 10·2·30%): 계수·시험 로그 손실·포착률·보정도 표(3·5·10칸) JS = 이 파일의 numpy 뉴턴법·묶음 확률 포착률, 기본 설정은 scikit-learn(penalty=None)·페이지 Python risk_rank_capture·calibration_table 과도 일치',
+    _ok, f"학습 {_M40['nTr']}회 결함 {_M40['dTr']:.0f}건 / 시험 {_M40['nTe']}회 결함 {_M40['dTe']:.0f}건 · 포착률 {_M40['models']['full']['cap']['rate']:.1%}" + (' 불일치 ' + ','.join(_det) if _det else ''))
+_c = {kd: _M40['models'][kd]['cap']['rate'] for kd in _M40['models']}
+chk('0503 마스크 기대: 상위 10% 점검의 포착률이 무작위 기대(10%)보다 큼(나이·FMM·나이×FMM, 나이·FMM, FMM 만, 세트 평균 나이 전부), 나이를 넣으면 FMM 만보다 큼, 세트 평균 나이만 남으면 개체 id 모델보다 낮고, 모델 로그 손실이 기준(결함률 하나)보다 낮음',
+    all(v > 0.1 for v in _c.values()) and _c['full'] > _c['fmm'] and _c['set'] < _c['full'] and all(_M40['models'][kd]['logloss'] < _M40['base']['logloss'] for kd in _M40['models']),
+    ' · '.join(f"{kd} {v:.1%}" for kd, v in _c.items()) + f" · 로그 손실 {_M40['models']['full']['logloss']:.4f}(기준 {_M40['base']['logloss']:.4f})")
+
+# 9. 시드 요약 CSV(기본 + 1~40): CSV = JS 재실행(한 줄도 다르지 않음), 기본 시드 줄 = 페이지 Python(독립 계산) 값
+_jsd = pd.DataFrame(_R07['seeds'])
+_okc = list(_sd07.columns) == list(_jsd.columns) and len(_sd07) == len(_jsd) == 41 and int(_sd07['seed'].iloc[0]) == _F07['SEEDS'] * 0 + 20261011
+_okc &= all(_arr07(_sd07[c], _jsd[c], 1e-8) for c in _jsd.columns)
+_d0 = _sd07.iloc[0]; _t24 = _pidx07['24|40']
+_r1 = _eval07(_t24, 'time', [False, False, False], 3, 'y'); _r2 = _eval07(_t24, 'time', [True, True, False], 3, 'y')
+_base = min(_r1['mean'][0], _r1['persist'][0]); _base2 = min(_r2['mean'][0], _r2['persist'][0])
+_o = _same07(_d0['impLin'], 1 - _r1['linear'][0] / _base, 1e-6) and _same07(_d0['impTree'], 1 - _r1['tree'][0] / _base, 1e-6) and _same07(_d0['impTreeLeak'], 1 - _r2['tree'][0] / _base2, 1e-6)
+_ebr = {g: (il, it) for g, _m, il, it in _m07.error_by_root(_t24)}
+_o &= _same07(_d0['impPmLin'], _ebr['pm'][0], 1e-6) and _same07(_d0['impFaultLin'], _ebr['fault'][0], 1e-6) and _same07(_d0['impPm'], _ebr['pm'][1], 1e-6) and _same07(_d0['impFault'], _ebr['fault'][1], 1e-6) and _same07(_d0['impComp'], _m07.composite(_t24), 1e-6)
+_lrf, _pf, _yf, _ = _m07.fit_risk(_pu07, 40, 'full'); _lra, _pa, _ya, _ = _m07.fit_risk(_pu07, 40, 'add'); _lrs, _ps, _ys, _ = _m07.fit_risk(_pu07, 40, 'set'); _lrm, _pm_, _ym, _ = _m07.fit_risk(_pu07, 40, 'fmm')
+_o &= _same07(_d0['capFull'], _m07.risk_rank_capture(_pf, _yf, 0.1)[2], 1e-6) and _same07(_d0['capSet'], _m07.risk_rank_capture(_ps, _ys, 0.1)[2], 1e-6) and _same07(_d0['capFmm'], _m07.risk_rank_capture(_pm_, _ym, 0.1)[2], 1e-6) and _same07(_d0['capAdd'], _m07.risk_rank_capture(_pa, _ya, 0.1)[2], 1e-6)
+_o &= _same07(_d0['ageCoef'], _lra.coef_[0][0], 1e-5) and _same07(_d0['fmmCoef'], _lra.coef_[0][1], 1e-5) and _d0['uses'] == len(_pu07) and _d0['defects'] == _pu07['defect'].sum() and _d0['dTe'] == _yf.sum() and _same07(_d0['llFull'], -np.mean(_yf * np.log(_pf) + (1 - _yf) * np.log(1 - _pf)), 1e-6)
+_s40 = _sd07.iloc[1:]
+_share = lambda f: float(np.mean(f(_s40)))
+_sh_pm = _share(lambda s: s['impPmLin'] > s['impFaultLin']); _sh_cap = _share(lambda s: s['capFull'] > 0.1); _sh_leak = _share(lambda s: s['impTreeLeak'] > s['impTree']); _sh_cap_set = _share(lambda s: s['capSet'] < s['capFull'])
+chk('0503 시드 요약 CSV(기본 시드 + 1~40, 열 %d개): CSV = JS 재실행(한 줄도 다르지 않음), 기본 시드 줄의 개선률·포착률·계수·로그 손실 = 페이지 Python(scikit-learn) 독립 계산; 기대: PM 몫 개선 > 고장 몫 개선인 시드 90%% 이상, 포착률 > k 인 시드 90%% 이상' % len(_jsd.columns),
+    _okc and _o and _sh_pm >= 0.9 and _sh_cap >= 0.9,
+    f'PM>고장 {_sh_pm:.0%} · 포착률>10% {_sh_cap:.0%} · 누설 켠 트리가 더 나음 {_sh_leak:.0%} · 세트 평균이 더 낮음 {_sh_cap_set:.0%}')
+
+# 10. 대표 시드(기본 시드 20261011) 백분위: 페이지 Python 의 백분위 줄 = JS, 25~75% 밖 지표를 기록(그 지표는 본문이 분포로 말함)
+_pct = lambda col: 100 * (((_s40[col] < _d0[col] - 1e-9).sum() + 0.5 * (np.abs(_s40[col] - _d0[col]) <= 1e-9).sum()) / len(_s40))
+_outs = [c for c in ('capFull', 'capSet', 'capFmm', 'defects', 'ageCoef', 'impLin', 'impPmLin', 'impFaultLin', 'impComp') if not 25 <= _pct(c) <= 75]
+chk('0503 기본 시드 백분위(시드 40개 중): 지표 아홉 개 모두 유한값이며 25~75%% 밖 지표를 기록(그 지표는 본문이 시드 분포로 말함)', all(np.isfinite(_pct(c)) for c in ('capFull', 'capSet', 'capFmm', 'defects', 'ageCoef', 'impLin', 'impPmLin', 'impFaultLin', 'impComp')),
+    '밖: ' + ', '.join(f'{c} {_pct(c):.0f}%' for c in _outs) + ' · 안: ' + ', '.join(f'{c} {_pct(c):.0f}%' for c in ('capFull', 'capSet', 'capFmm', 'defects', 'ageCoef', 'impLin', 'impPmLin', 'impFaultLin', 'impComp') if c not in _outs))
+
+# 11. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 숫자가 JS 값에서 다시 쓴 줄과 같음
+_run07 = subprocess.run([sys.executable, '-I', 'lab0503.py'], cwd=_td07, capture_output=True, text=True); _L07 = _run07.stdout.strip().split('\n'); _L07set = set(_L07)
+_E24 = _R07['cfg']['24|40']['ev']; _g = lambda mode, lk, d=3, t='tot': _E24[json.dumps([mode, lk, d, t], separators=(',', ':'))]
+_s_ = _g('time', [0, 0, 0])
+_exp07 = ['기록 60일 · 사건 %s건 · 마스크 사용 %s회 · 결함 %d건' % (format(len(_ev07), ','), format(len(_js_u), ','), _js_u['defect'].sum()),
+          '지평 H=%d시간 · 출발 시각 %s개(첫 %d시간 뒤부터) · 학습 %d개 / 시험 %d개 · PM 간격 중앙값 %.1f일' % (_F07['H'], format(len(_R07['cfg']['24|40']['h']), ','), _R07['cfg']['24|40']['h'][0], _s_['nTr'], _s_['nTe'], _R07['cfg']['24|40']['period'] / 1440),
+          '시험 MAE(장수, 시간순·누설 끔): 평균 기준 %.1f · 지속 기준 %.1f · 직선 %.1f · 포아송 %.1f · 트리(깊이 %d) %.1f' % tuple([_s_['score'][m]['mae'] for m in ('mean', 'persist', 'linear', 'poisson')] + [_F07['DEPTH'], _s_['score']['tree']['mae']]),
+          '기준 대비 개선률: 직선 %+.1f%% · 포아송 %+.1f%% · 트리 %+.1f%%' % tuple(100 * _s_['imp'][m] for m in ('linear', 'poisson', 'tree')),
+          '개선률 섞어 나눔·누설 끔: 직선 %+.1f%% · 트리 %+.1f%%' % (100 * _g('shuffle', [0, 0, 0])['imp']['linear'], 100 * _g('shuffle', [0, 0, 0])['imp']['tree']),
+          '개선률 섞어 나눔·누설 켬: 직선 %+.1f%% · 트리 %+.1f%%' % (100 * _g('shuffle', [1, 1, 0])['imp']['linear'], 100 * _g('shuffle', [1, 1, 0])['imp']['tree']),
+          '개선률 시간순·누설 끔: 직선 %+.1f%% · 트리 %+.1f%%' % (100 * _s_['imp']['linear'], 100 * _s_['imp']['tree']),
+          '개선률 시간순·누설 켬: 직선 %+.1f%% · 트리 %+.1f%%' % (100 * _g('time', [1, 1, 0])['imp']['linear'], 100 * _g('time', [1, 1, 0])['imp']['tree'])]
+for _gx in _R07['cfg']['24|40']['byRoot']:
+    _exp07.append('근본 원인 %s: 시험 평균 %.1f장 · 직선 %+.1f%% · 트리 %+.1f%%' % (_gx['id'], _gx['meanTe'], 100 * _gx['imp']['linear'], 100 * _gx['imp']['tree']))
+_exp07.append('분해 예측(PM 직선 + 나머지 평균) 전체 개선률 %+.1f%%' % (100 * _R07['cfg']['24|40']['comp']['imp']))
+for _cd in ('EQ-BD', 'Q-EVAP'):
+    _mv = _R07['mem'][_cd + '|40']; _ga = np.array(_mv['gaps'])
+    _exp07.append('무기억성 %s: 간격 %d개 평균 %.1f시간 표준편차 %.1f · 평균 대기 %.1f시간 · 위험률 뒤/앞 %.2f p=%.3f' % (_cd, len(_ga), _ga.mean(), _ga.std(ddof=1), _mv['wait'], _mv['split']['ratio'], _mv['split']['p']))
+_exp07.append('마스크 학습 %s회 결함 %d건 / 시험 %s회 결함 %d건' % (format(_M40['nTr'], ','), _M40['dTr'], format(_M40['nTe'], ','), _M40['dTe']))
+for _kd in ('full', 'add', 'fmm', 'set'):
+    _mm = _M40['models'][_kd]
+    _exp07.append('로지스틱 %s: 계수 %s · 로그 손실 %.4f(기준 %.4f) · 상위 %d%% 점검 포착 %.1f/%d건 = %.1f%%' % (_kd, ' '.join('%.4g' % c for c in _mm['beta']), _mm['logloss'], _M40['base']['logloss'], 10, _mm['cap']['captured'], _M40['dTe'], 100 * _mm['cap']['rate']))
+for _r in _M40['models']['full']['cal'][1]:
+    _exp07.append('  보정도 사용 %d회 · 예측 평균 %.2f%% · 실제 %.2f%% (결함 %d건)' % (_r['n'], 100 * _r['pred'], 100 * _r['rate'], _r['defects']))
+_q = _s40['defects'].quantile([0.1, 0.5, 0.9]).to_numpy(); _qc = _s40['capFull'].quantile([0.1, 0.5, 0.9]).to_numpy()
+_exp07.append('시드 %d개: 결함 수 %.0f~%.0f(중앙값 %.0f) · 상위 10%% 포착률 %.1f%%/%.1f%%/%.1f%% (10·50·90%%) · 세트 평균 나이만 남으면 %.1f%%' % (len(_s40), _q[0], _q[2], _q[1], 100 * _qc[0], 100 * _qc[1], 100 * _qc[2], 100 * _s40['capSet'].median()))
+_exp07.append('시드 %d개: 정규 PM 몫 직선 개선률 중앙값 %+.1f%% · 고장 계열 몫 %+.1f%% · 기본 시드 PM 몫 백분위 %.0f%%' % (len(_s40), 100 * _s40['impPmLin'].median(), 100 * _s40['impFaultLin'].median(), _pct('impPmLin')))
+chk('0503 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며, 설정·시험 MAE·개선률 여섯 줄·근본 원인 넷·분해 예측·무기억성 둘·마스크 학습/시험·로지스틱 넷과 보정도·시드 두 줄이 JS 값에서 다시 쓴 줄과 같고, 외부 통신 코드가 없음',
+    _run07.returncode == 0 and _run07.stdout.strip() == _out07 and all(e in _L07set for e in _exp07) and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code07, _re5.M),
+    (_run07.stderr[-300:] if _run07.returncode else f'{len(_L07)}줄 · 대조 {len(_exp07)}줄' + ''.join('' if e in _L07set else ' · 불일치: ' + e[:50] for e in _exp07[:40])))
+
+# 12. 페이지 구조
+_term07 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg07, _re5.S).group(1)))
+_nq07 = len(_re5.findall(r'<div class="qna" data-label=', _pg07)); _nsec07 = len(_re5.findall(r'<h2><span class="no">', _pg07))
+_fonts07 = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', _pg07)]
+_body07 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg07, flags=_re5.S); _body07 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body07))
+_endda07 = _re5.findall(r'[^니습]다[.]', _body07)
+_p502 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0502-loss-cascade-spurious.html'), encoding='utf-8').read(); _hub07 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_js07 = _re5.search(r'<script>\n\(function\(\)\{(.*?)\n</script>\n<script src="../tutor.js">', _pg07, _re5.S).group(1)
+_dv07 = set(_re5.findall(r'data-v="(\w+)"', _pg07)); _dvdef = set(_re5.findall(r'V\.(\w+)=', _js07))
+_slid07 = ['id="sH" min="6" max="48" step="6" value="%d"' % _F07['H'], 'id="sSplit" min="30" max="45" step="1" value="%d"' % _F07['SPLIT'], 'id="sDepth" min="1" max="6" step="1" value="%d"' % _F07['DEPTH'],
+           'id="sK" min="2" max="30" step="1" value="%d"' % round(_F07['K'] * 100), 'id="sBins" min="3" max="10" step="1" value="%d"' % _F07['BINS'], 'id="sSplit6" min="30" max="45" step="1" value="%d"' % _F07['SPLIT']]
+_qna07 = ' '.join(_re5.findall(r'<div class="qna".*?</div>', _pg07, _re5.S))
+_js07s = open(os.path.join(_DATA10, 'loss05.js'), encoding='utf-8').read(); _new07 = _js07s[_js07s.index('0503 — Loss 예측'):]
+_nmath = _pg07.count('<math display="block">')
+chk('0503 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자를 넣지 않음) · 절 11개 · MathML 정의식 둘(무기억성·로지스틱) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0502 쪽 0503 다음 링크(위·아래)와 0503 쪽 0502 이전 링크(위·아래) · 허브 등록(단계 5 묶음) · 본문 숫자는 span 주입(data-v 키 전부 정의) · 슬라이더 기본값 = 모듈 기본값 · 모듈 0503 부분에 Math.random·Date.now 없음 · 페이지에 시뮬레이터 상수(PM_PERIOD·MTBF) 인용 없음',
+    _term07 == 6 and _nq07 == 4 and _nsec07 == 11 and _nmath == 2 and '<mfrac>' in _pg07 and min(_fonts07) >= 11 and not _endda07 and _p502.count('0503-loss-forecast.html') == 2 and _pg07.count('0502-loss-cascade-spurious.html') == 2
+    and 'labs/0503-loss-forecast.html' in _hub07 and _dv07 <= _dvdef and all(s in _pg07 for s in _slid07) and not _re5.search(r'Math\.random|Date\.now|new Date', _new07) and not _re5.search(r'Math\.random|Date\.now|new Date', _js07)
+    and not _re5.search(r'PM_PERIOD|MTBF|P_MASK|FILL_BASE', _pg07) and not _re5.search(r'\d+(?:\.\d+)?\s*%', _qna07),
+    f'용어 {_term07} · Q&A {_nq07} · 절 {_nsec07} · MathML {_nmath} · 캔버스 글자 최소 {min(_fonts07)}px({len(_fonts07)}곳) · -다 끝맺음 {len(_endda07)}건 · data-v 키 {len(_dv07)}개 미정의 {sorted(_dv07 - _dvdef)} · 0502 쪽 링크 {_p502.count("0503-loss-forecast.html")}곳')
+_cleanup07 = shutil.rmtree(_td07, ignore_errors=True)
+
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

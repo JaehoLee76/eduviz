@@ -1,0 +1,1208 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>Loss 예측</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="다음 H 시간의 Loss 를 맞히는 실험실. 예측 지평과 기준 예측을 먼저 세우고, 예측 시각에 알 수 없던 값이 특징에 섞이는 누설을 시간순 시험으로 가르며, 근본 원인별로 정규 PM 은 달력으로 맞고 고장은 무기억성이라 시각을 맞힐 수 없음을 확인하고, 마스크 사용 이력으로 결함 위험 순위를 매겨 상위 몫을 미리 점검할 때 잡히는 결함과 보정도를 시드 분포와 함께 잽니다. 회사 PC용 Python과 Loss 예측 모델 카드 양식을 남깁니다.">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+
+td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+table.nw1 td:first-child,table.nw1 th:first-child{white-space:nowrap}
+table.nwall td{white-space:nowrap}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 5 · 기둥 5 · 실험실 0503</p>
+  <h1>Loss 예측</h1>
+  <p class="sub">내일의 Loss 를 미리 맞히려면 기준 예측을 먼저 세우고, 그 시각에 알 수 없던 값을 가려내고, 원래 맞힐 수 없는 몫이 무엇인지 알아야 합니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0502-loss-cascade-spurious.html">← 이전: Loss 연쇄와 가짜 상관</a><span class="sp"></span></nav>
+
+<p><b>내일의 Loss 를 미리 알려 주는 모델은 모델부터 고르는 일이 아닙니다.</b> 먼저 몇 시간 뒤까지 맞힐지를 정하고, 모델 없이 세울 수 있는 가장 단순한 예측을 기준으로 둔 뒤, 예측하는 시각에는 아직 알 수 없던 정보가 특징에 섞이지 않게 시간순으로 재서 그 기준을 이기는지 봅니다. 그다음에 Loss 를 원인별로 갈라 보면 정규 PM 처럼 달력에 적힌 Loss 는 달력만으로도 맞고, 고장처럼 지난 시간과 무관하게 일어나는 Loss 는 시각을 맞힐 수 없다는 것을 알게 됩니다. 마지막으로 마스크 한 장 한 장의 사용 이력을 따라가면 결함 위험이 높은 사용을 미리 골라 점검할 수 있습니다. 같은 가상 공장 <span data-v="days"></span>일의 시간별 기록 <span data-v="nhr"></span>줄과 Loss 사건 <span data-v="nev"></span>건, 마스크 사용 <span data-v="nuse"></span>회로 전부 직접 해 봅니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0305 의 시간순 분할·섞어 나누기가 만드는 낙관 편향·RMSE·직선과 트리의 비교·포착률, 0306 의 예측 구간, 0400 의 늦게 들어오는 자료와 되돌아보기, 0402 의 일치율의 함정(늘 &lsquo;없음&rsquo;이라 해도 높게 나오는 일치율), 0501 의 근본 원인과 파레토, 0502 의 노출량·포아송·과산포·연쇄, 0206 의 마스크 상태 전이(in_use → to_clean → … → repair).</p>
+  <ul class="chips known"><li>시간순 분할·낙관 편향·RMSE (0305)</li><li>예측 구간 (0306)</li><li>늦은 자료 (0400)</li><li>일치율의 함정 (0402)</li><li>근본 원인·파레토 (0501)</li><li>노출량·포아송·연쇄 (0502)</li><li>마스크 상태 전이 (0206)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(MAE · 개선률 · 로그 손실 · 위험률)은 쓰는 자리에서 문장이나 식으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>예측 지평 (forecast horizon)</li><li>기준 예측 (baseline forecast)</li><li>미래 정보 누설 (look-ahead leakage)</li><li>무기억성 (memorylessness)</li><li>제품 공정 추적 (product genealogy)</li><li>보정도 (calibration)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 내일·다음 교대의 Loss 를 미리 보고 세정 순서와 예비 카세트와 사전 점검을 정하는 것, 그리고 어떤 Loss 는 원래 예측이 안 된다는 것을 알아 예측 과제에 헛힘을 쓰지 않는 것(1~8절).</li>
+    <li><b>손으로 연습</b> — 기준 예측을 세우고 모델이 그것을 이기는지 시간순 시험으로 재기, 미래 정보가 섞인 특징을 넣었다 빼며 점수가 얼마나 부풀어 오르는지 보기, 근본 원인별로 오차를 갈라 PM 은 맞히고 고장은 못 맞히는 것 보기, 마스크 사용 이력으로 위험 순위를 매겨 상위 몫을 미리 점검할 때 잡히는 결함 수 보기(1~7절).</li>
+    <li><b>다음 날 산출물</b> — <code>make_horizon_target</code>·<code>baseline_forecast</code>·<code>time_split_eval</code>·<code>leak_check</code>·<code>error_by_root</code>·<code>mask_use_table</code>·<code>risk_rank_capture</code>·<code>calibration_table</code> Python 함수(10절), <b>Loss 예측 모델 카드</b>(11절).</li>
+    <li><b>기록할 데이터</b> — 시간별 상태를 &lsquo;그 시각에 알 수 있었던 값&rsquo;으로만 저장하는 스냅숏, PM 계획표 원본, 마스크 개체 id 로 이은 사용 이력(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 지평과 용도의 결정·점검 실행·모델 승인은 사람, 시간순 시험·누설 점검·기준 대비 판정은 규칙, 매일의 특징 생성·예측·오차 추적·모델 카드 초안은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 마스크 사전 점검으로 막는 Loss 장수와 점검 비용을 뺀 순이익, 예측 오차가 기준 대비 줄어든 장수(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 생산 계획 담당이 이렇게 요청했습니다. <b>&ldquo;내일 24시간의 Loss 를 미리 알려 주시면 세정 순서와 예비 카세트를 조정하겠습니다. 그리고 다음 잡 체인지 전에 점검할 마스크를 전체의 10% 만 골라 주십시오.&rdquo;</b> 지난 <span data-v="days"></span>일의 기록이 있습니다. 이 요청을 받아들일 수 있습니까? 받아들인다면 어느 몫을 어느 정도로, 받아들일 수 없다면 어느 몫이 왜 안 되는지 숫자로 말하십시오.
+  <p class="note" style="margin:.5rem 0 0">1절에서 있는 특징을 모두 넣고 한 번 재 보고, 2절에서 그 점수를 믿어도 되는지 막히고, 3절에서 이름을 붙여 다시 재고, 4절에서 모델을 기준과 견주고, 5절에서 원인별로 가르고, 6절에서 마스크 사용 이력으로 위험 순위를 매기고, 7절에서 시드마다의 흔들림을 보고, 8절에서 이 요청으로 돌아옵니다. 모델과 기준과 분할은 현장 값으로 바꿔야 할 설정입니다(1·3·9절).</p>
+</div>
+
+<div class="solban">여기서부터 가상 라인의 기록으로 푸는 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>첫 시도 — 있는 특징을 모두 넣고 섞어 나눠 재 봅니다</h2>
+<p>맞히려는 값은 <b>지금 시각 이후 다음 <span class="lv" data-lv="H"></span>시간 안에 시작한 Loss 사건이 잃게 한 유리 장수의 합</b>입니다. 사건이 그 시간 안에 시작하면 끝이 구간 밖으로 걸쳐도 잃은 장수 전부를 시작한 시각의 칸에 넣습니다. 출발 시각은 한 시간 간격으로 모두 쓰고, 출발 시각마다 한 줄이 생깁니다.</p>
+<p>특징은 가진 것을 모두 넣었습니다. 시간별 상태(stocker 채움·세정 대기·빈 카세트·triple 운전 블록 수·라인 출력), 지난 24시간에 끝난 사건의 장수(근본 원인 묶음별), PM 달력, 마지막 고장 뒤 경과 시간, 그리고 같은 시간 구간 안의 상태와 사건에서 뽑은 값들입니다. 아래 3절에서 이 특징을 하나씩 따져 봅니다.</p>
+<div class="tbwrap"><table class="mt" id="tabFeat1"></table></div>
+<p>행을 무작위처럼 섞어 세 칸 중 한 칸을 시험으로 떼어 놓고(번호에 정수 해시를 곱해 나머지로 나눕니다), 직선 회귀와 깊이 <span data-v="d0"></span> 회귀 트리를 맞춥니다. 오차는 <b>MAE</b> — 예측과 실제의 차이의 절댓값을 평균한 것이며 단위는 유리 장수입니다. 비교 대상으로 아무 모델 없이 학습 구간의 평균 하나만 말했을 때의 MAE 를 옆에 둡니다. 이 비교 대상에는 3절에서 이름을 붙입니다.</p>
+<div class="lab">
+  <div class="labtitle">섞어 나눈 시험 점수 — 모델이 평균만 말하는 것보다 얼마나 나은가</div>
+  <canvas id="cv1"></canvas>
+  <div class="readout" id="ro1"></div>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>막힘 — 이 점수를 믿어도 됩니까</h2>
+<p>1절의 직선 회귀 점수는 <span class="lv" data-lv="j1"></span>. 그런데 의심이 두 가지 듭니다.</p>
+<ol style="margin:.2rem 0 .8rem 1.2rem;padding:0">
+  <li><b>특징 중 일부는 내일이 되어야 알 수 있는 값입니다.</b> &lsquo;같은 구간 안의 triple 운전 블록 수 평균&rsquo;은 구간이 다 지나야 계산됩니다. &lsquo;구간 안 사건 가운데 근본 원인이 PM 인 비율&rsquo;은 사건이 끝나고 근본 원인 칸이 채워져야 만들 수 있습니다. 내일의 Loss 를 맞히는 자리에서는 둘 다 손에 없습니다.</li>
+  <li><b>섞어 나누면 시험 행이 학습 행과 이웃합니다.</b> 한 시간 간격의 출발 시각은 다음 구간이 거의 겹쳐서 이웃한 두 행이 닮았습니다. 시험 행 바로 옆의 학습 행이 답을 알려 주는 셈이라는 것은 0305 에서 본 낙관 편향입니다.</li>
+</ol>
+<p>아래 그림은 한 출발 시각 t 에서 무엇을 이미 알고 무엇을 아직 모르는지 나눈 것입니다. 오른쪽 칸에 든 특징은 t 에서 만들 수 없습니다.</p>
+<div class="lab">
+  <div class="labtitle">예측하는 시각 t 에서 알 수 있는 것과 없는 것</div>
+  <canvas id="cvTL"></canvas>
+</div>
+<p><b>막힘.</b> 점수가 좋은 것이 모델이 좋아서인지, 오른쪽 칸의 특징이나 이웃 행이 답을 새게 했기 때문인지 1절의 숫자만으로는 가를 수 없습니다. 가르려면 이 구별에 이름을 붙이고, 특징마다 &lsquo;그 시각에 알 수 있었나&rsquo;를 표로 가르고, 비교할 기준을 세워야 합니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 예측 지평·기준 예측·미래 정보 누설</h2>
+<ul class="termdef">
+  <li><b>예측 지평 (forecast horizon)</b> — 지금 시각에서 몇 시간 뒤까지의 Loss 를 맞히려는지입니다. 이 실험실에서는 다음 <b>H</b> 시간 안에 시작한 사건의 잃은 유리 장수이며 H 는 아래 슬라이더로 바꿉니다. 정하는 것은 쓰는 사람의 몫이고, 세정 순서를 조정하는 데에는 하루가, 교대 인계에는 열두 시간이 맞는 식으로 용도가 정합니다.</li>
+  <li><b>기준 예측 (baseline forecast)</b> — 모델 없이 세우는 가장 단순한 예측입니다. 둘을 씁니다. <b>평균 예측</b>은 학습 기간의 목표 평균 하나를 늘 말하고, <b>지속 예측</b>은 &lsquo;지난 H 시간에 끝난 사건의 장수와 같다&rsquo;고 말합니다. 모델은 이 둘 가운데 더 나은 쪽을 이겨야 쓸모가 있습니다. 이 실험실은 모델의 <b>개선률</b>을 1 − (모델의 시험 MAE ÷ 더 나은 기준의 시험 MAE)로 적습니다.</li>
+  <li><b>미래 정보 누설 (look-ahead leakage)</b> — 예측하는 시각에는 아직 알 수 없던 값이 특징에 섞여 시험 점수가 부풀어 오르는 것입니다. 0305 의 섞어 나누기 낙관 편향과는 다른 일입니다. 그쪽은 <b>시험 행이 학습 행과 이웃해 닮은</b> 문제이고 시간순 분할로 막습니다. 이쪽은 <b>특징 안에 그 시각에 모를 값이 든</b> 문제이고 특징표의 &lsquo;알려지는 시각&rsquo; 열로 막습니다. 둘은 따로 일어나고 따로 막아야 합니다.</li>
+</ul>
+<p>시간순 분할은 0305 와 같이 앞쪽을 학습, 뒤쪽을 시험으로 씁니다. 여기서는 목표 구간까지 학습 기간 안에서 끝나는 출발 시각만 학습에 넣어, 학습의 정답과 시험 기간이 겹치지 않게 합니다. 특징은 아래 표와 같습니다.</p>
+<div class="tbwrap"><table class="mt" id="tabFeat"></table></div>
+<p class="note">PM 달력 특징은 챔버마다 지난 PM 시작 시각에 학습 기간 PM 시작 간격의 중앙값(<span class="lv" data-lv="period"></span>)을 더한 시각이 다음 H 시간 안에 드는 챔버 수입니다. 이 간격은 기록에서 추정한 값입니다. 모든 챔버의 첫 PM 을 아직 못 본 처음 <span class="lv" data-lv="skip"></span>시간은 출발 시각에서 뺍니다. 지난 24시간의 사건 장수는 이미 끝난 사건만 셉니다. 고장 계열은 설비 고장과 증착기 불량을 묶은 이름으로 5절에서 다시 정의합니다.</p>
+<p>이제 조작해 봅니다. 시험 방식, 누설 특징, 지평, 분할 지점을 바꾸면 점수가 어떻게 움직이는지 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">누설을 켜고 끄며 점수 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 시험 방식을 섞어 나누기에서 시간순으로 바꿀 때 개선률이 어디로 가는지, 2) 시간순에서 누설 특징을 켜면 개선률이 얼마나 오르는지(운영에서는 그 값이 없으므로 쓸 수 없는 점수입니다), 3) 같은 설정에서 모델마다 반응이 다른지 보십시오. 아래 네 칸 표가 두 가지를 한눈에 모아 보여 줍니다.</div>
+  <div class="row"><button class="btn ghost" data-mode="shuffle" type="button">섞어 나누기</button><button class="btn ghost" data-mode="time" type="button">시간순 분할</button></div>
+  <div class="row"><button class="btn ghost" data-lk="0" type="button">구간 안 triple 평균 넣기</button><button class="btn ghost" data-lk="1" type="button">구간 안 PM 비율 넣기</button><button class="btn ghost" data-lk="2" type="button">표준화에 시험 기간 포함</button></div>
+  <div class="row"><button class="btn ghost" data-model="linear" type="button">직선 회귀</button><button class="btn ghost" data-model="poisson" type="button">포아송 회귀</button><button class="btn ghost" data-model="tree" type="button">회귀 트리</button></div>
+  <div class="ctrl"><label for="sH">예측 지평 H (시간)</label><input type="range" id="sH" min="6" max="48" step="6" value="24"><output id="sHo"></output></div>
+  <div class="ctrl"><label for="sSplit">학습 기간 (일, 시간순 분할 지점)</label><input type="range" id="sSplit" min="30" max="45" step="1" value="40"><output id="sSplito"></output></div>
+  <div class="row"><button class="btn ghost" id="rA" type="button">기본 설정으로 되돌리기</button></div>
+  <div class="state" id="st3"></div>
+  <canvas id="cv3"></canvas>
+  <div class="legend"><span><span class="sw" style="border-top-style:dashed;border-top-color:var(--warn)"></span>더 나은 기준의 시험 MAE</span><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>선택한 모델</span></div>
+  <div class="readout" id="ro3"></div>
+  <div class="tbwrap"><table class="mt num" id="tab3"></table></div>
+  <div class="labtitle" style="margin-top:.8rem">선택한 모델의 개선률 — 시험 방식 × 누설 (구간 안 특징 둘을 함께 켠 경우)</div>
+  <div class="tbwrap"><table class="mt num" id="tabMat"></table></div>
+  <div class="readout" id="roMat"></div>
+</div>
+<p><b>누설을 걸러낸 점수만이 운영 점수입니다.</b> 누설 특징을 뺀 시간순 시험이 &lsquo;내일 실제로 낼 수 있는 점수&rsquo;이고, 4절부터는 이 조건으로 고정해 모델을 견줍니다. 표준화에 시험 기간을 포함하는 셋째 누설은 모델이 직선·포아송일 때만 영향을 줍니다. 트리는 값의 크기가 아니라 순서만 쓰기 때문입니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>모델 견주기 — 기준을 이기는가</h2>
+<p>조건은 운영과 같게 고정합니다. 시간순 분할, 누설 특징 없음, 지평 H = <span class="lv" data-lv="H"></span>시간, 학습 <span class="lv" data-lv="split"></span>일입니다(3절의 슬라이더를 따라갑니다). 모델 넷을 견줍니다. 기준 둘은 3절에서 정했습니다. <b>직선 회귀</b>는 특징의 가중합입니다. <b>포아송 회귀</b>는 0502 의 포아송을 회수해 평균이 특징의 지수 함수가 되게 맞춥니다. 목표가 건수가 아니라 장수여서 정수 건수의 분포라는 가정은 쓸 수 없지만, 계수는 &lsquo;예측 평균과 실제 평균이 특징마다 맞게&rsquo;라는 조건만으로 구할 수 있어 직선 회귀와 견줄 수 있습니다. <b>회귀 트리</b>는 특징을 문턱으로 갈라 구간마다 평균을 말합니다. 깊이는 슬라이더로 바꿉니다.</p>
+<div class="lab">
+  <div class="labtitle">기준 둘과 모델 셋의 시험 점수, 트리 깊이</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 모델이 기준 가운데 더 나은 쪽의 MAE 를 이기는지, 2) 트리 깊이를 올리면 학습 MAE 와 시험 MAE 가 어떻게 따로 움직이는지, 3) 시험 기간의 실제 장수와 예측을 겹친 그림에서 모델이 따라가는 것이 무엇인지 보십시오.</div>
+  <div class="row"><button class="btn ghost" data-model="linear" type="button">직선 회귀</button><button class="btn ghost" data-model="poisson" type="button">포아송 회귀</button><button class="btn ghost" data-model="tree" type="button">회귀 트리</button></div>
+  <div class="ctrl"><label for="sDepth">트리 깊이</label><input type="range" id="sDepth" min="1" max="6" step="1" value="3"><output id="sDeptho"></output></div>
+  <div class="row"><button class="btn ghost" id="rDepth" type="button">깊이를 기본값으로 되돌리기</button></div>
+  <div class="state" id="st4"></div>
+  <div class="tbwrap"><table class="mt num" id="tab4"></table></div>
+  <canvas id="cv4"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>실제</span><span><i class="dot" style="background:var(--c8)"></i>더 나은 기준</span><span><i class="dot" style="background:var(--accent)"></i>선택한 모델</span></div>
+  <canvas id="cv4b"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>학습 MAE</span><span><i class="dot" style="background:var(--accent)"></i>시험 MAE</span><span><span class="sw" style="border-top-style:dashed"></span>더 나은 기준의 시험 MAE</span></div>
+  <div class="readout" id="ro4"></div>
+</div>
+
+<div class="qna" data-label="기준 예측을 못 이기면 모델을 버려야 하나요?" data-q="기준 예측을 못 이기면 모델을 버려야 하나요?">
+  <p><b>그렇습니다. 그때는 기준이 곧 운영안입니다.</b> 시간순 시험에서 모델이 더 나은 기준의 MAE 를 못 이기면, 모델을 쓰는 것은 복잡함만 더하고 얻는 것이 없습니다. 평균 예측은 만드는 비용이 없고 설명도 필요 없으니 그것을 쓰고, 모델은 이길 수 있는 몫(5절의 PM 몫)에만 씁니다.</p>
+  <p>다만 한 번의 시험으로 버리지는 않습니다. 7절처럼 시드나 기간이 바뀌면 개선률이 얼마나 흔들리는지 함께 보고, 흔들림 폭 안에서만 이기거나 지는 모델이면 기준으로 갑니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>근본 원인별로 가르기 — 맞는 몫과 못 맞히는 몫</h2>
+<p>전체 Loss 를 한 값으로 맞히면 어느 몫이 맞고 어느 몫이 안 맞는지 보이지 않습니다. 0501 의 근본 원인으로 시험 기간의 목표를 넷으로 가릅니다. 정규 PM, 마스크 불량, <b>고장 계열</b>(설비 고장과 증착기 불량 — 둘 다 챔버가 일하다 언제 갑자기 서는 일), 그 밖입니다. 몫마다 따로 같은 모델을 맞추고 같은 방식으로 개선률을 잽니다(시간순, 누설 없음).</p>
+<div class="lab">
+  <div class="labtitle">근본 원인 몫별 시험 점수</div>
+  <canvas id="cvRoot"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>직선 회귀의 개선률</span><span><i class="dot" style="background:var(--c8)"></i>회귀 트리의 개선률</span><span>↓ = 막대를 −60% 에서 잘라 그렸음(값은 아래 표)</span></div>
+  <div class="tbwrap"><table class="mt num" id="tabRoot"></table></div>
+  <div class="readout" id="roRoot"></div>
+</div>
+<p>정규 PM 몫과 고장 계열 몫의 개선률이 이렇게 다른 이유가 모델의 한계인지 입력에 정보가 없기 때문인지를 기록으로 확인합니다. 먼저 이름을 붙입니다.</p>
+<ul class="termdef">
+  <li><b>무기억성 (memorylessness)</b> — 마지막 고장 뒤 얼마나 지났든 다음 고장까지 남은 시간의 분포가 같은 성질입니다. 이런 사건은 &lsquo;언제&rsquo;를 맞힐 수 없고 &lsquo;얼마나 자주&rsquo;만 말할 수 있습니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">무기억성 — 다음 고장까지의 시간 T</span>
+  <math display="block"><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>T</mi><mo>&gt;</mo><mi>s</mi><mo>+</mo><mi>t</mi><mo>&#x2223;</mo><mi>T</mi><mo>&gt;</mo><mi>s</mi><mo stretchy="false">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false">(</mo><mi>T</mi><mo>&gt;</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">s 시간을 이미 버텼다는 조건이 붙어도 앞으로 t 시간 더 버틸 확률이 같습니다. 이 성질을 가진 시간의 분포는 평균 = 표준편차이고, 시간당 고장 확률(위험률)이 경과 시간과 무관하게 일정합니다.</span>
+</div>
+<p>두 가지로 확인합니다. 1) 같은 챔버의 고장 간격이 평균 ≈ 표준편차인가. 2) 마지막 고장이 끝난 뒤 경과 시간 구간마다 시간당 위험률(그 구간에서 다음 고장이 시작한 건수 ÷ 구간에 머문 챔버·시간)이 평평한가. 학습 기간 안의 기록만 씁니다.</p>
+<div class="lab">
+  <div class="labtitle">고장 간격과 경과 시간별 위험률</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 간격의 평균과 표준편차가 가까운지, 2) 위험률 막대가 경과 시간이 길어져도 오르내림 없이 평평한지, 3) 앞 세 구간과 뒤 세 구간의 위험률 비가 1 근처이고 정확 검정이 차이를 못 찾는지 보십시오. 코드를 바꿔 같은 점검을 해 보십시오.</div>
+  <div class="ctrl"><label for="selCode">사건 코드</label><select id="selCode"></select><output id="selCodeO"></output></div>
+  <div class="labtitle" style="margin-top:.6rem">같은 챔버의 고장 간격(끝 → 다음 시작)의 분포 — 막대 위 숫자는 개수</div>
+  <canvas id="cvGap"></canvas>
+  <div class="labtitle" style="margin-top:.8rem">마지막 고장이 끝난 뒤 경과 시간 구간별 위험률(챔버·일당 건수)</div>
+  <canvas id="cvHaz"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>구간별 위험률(검은 선 = 건수의 ±1 표준오차)</span><span><span class="sw" style="border-top-style:dashed;border-top-color:var(--warn)"></span>전체 평균 위험률</span></div>
+  <div class="readout" id="roMem"></div>
+</div>
+<p><b>비율로만 계획에 넣습니다.</b> 시간당 위험률이 일정하면 다음 H 시간에 고장이 시작할 건수는 위험률 × 챔버 수 × H 로 기대할 수 있습니다. 어느 챔버가 언제 서는지는 맞히지 못해도 세정 순서의 여유나 예비 인력의 총량은 이 기대값으로 잡습니다(0502 의 포아송). 진동·온도 같은 전조 신호를 기록하면 이야기가 달라지지만, 그 신호가 기록에 없는 한 이 기록으로는 시각을 맞힐 수 없습니다.</p>
+<div class="qna" data-label="딥러닝을 쓰면 고장도 맞힐 수 있지 않나요?" data-q="딥러닝을 쓰면 고장도 맞힐 수 있지 않나요?">
+  <p><b>이 기록으로는 아닙니다.</b> 5절의 위험률이 경과 시간과 무관하게 평평하다면, 지난 시간이 알려 주는 정보가 없습니다. 모델을 아무리 크게 만들어도 입력에 정보가 없으면 평균 이상을 말할 수 없습니다. 깊이를 올린 트리가 학습 오차만 내리고 시험 오차를 올리는 4절의 모습이 그 작은 예입니다.</p>
+  <p>다른 이야기는 있습니다. 고장 전에 진동이나 온도 같은 신호가 달라지는 설비라면, 그 신호를 시간별로 기록해 두는 것이 먼저입니다. 신호가 쌓여 있어야 모델이 그것을 배울 수 있습니다. 시각이 아니라 신호를 기록하는 쪽이 경쟁력입니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>제품 공정 추적으로 마스크 결함 예측</h2>
+<p>마스크 결함은 챔버가 아니라 <b>마스크 한 장</b>의 이력에 따라 위험이 달라지는 Loss 입니다. 그 이력을 따라가려면 마스크 하나가 어디서 몇 번 쓰이고 몇 번 세정과 리페어를 거쳤는지를 개체 단위로 이은 기록이 있어야 합니다.</p>
+<ul class="termdef">
+  <li><b>제품 공정 추적 (product genealogy / traceability)</b> — 제품이나 소모품(여기서는 마스크) 하나가 어느 블록에서 몇 번 쓰이고 몇 번 세정·리페어됐는지를 개체 단위로 잇는 기록입니다. 이 기록이 있어야 &lsquo;이 마스크는 지금 몇 번째 세정이고 어느 블록에 들어가는가&rsquo;를 사용 하나하나에 붙일 수 있습니다.</li>
+  <li><b>보정도 (calibration)</b> — 예측 확률이 실제 빈도와 맞는 정도입니다. &ldquo;결함 확률 1% 라고 한 사용들 가운데 실제로 약 1% 가 결함이었나&rdquo;를 묻습니다. 순위만 맞히는 모델과 확률까지 맞히는 모델은 다릅니다.</li>
+</ul>
+<p>0206 의 전이 기록(<code>mask_transitions.csv</code>)에서 마스크의 전이만 뽑으면 아래와 같은 줄이 나옵니다. 사용 한 번은 <code>to=in_use</code> 인 행이고, 그 행의 <code>cause</code> 에 <b>나이</b>(마지막 리페어 뒤 세정 횟수)가 적힙니다. 사용이 결함이었는지는 다음 사용이 시작되기 전에 <code>to=repair</code> 이고 <code>trigger=turn_end_defect</code> 인 행이 있었는지로 정합니다(끝나지 않은 사용은 결함 없음으로 셉니다). 처음으로 결함이 난 마스크의 기록입니다.</p>
+<div class="tbwrap"><table class="mt" id="tabTr"></table></div>
+<p>이렇게 사용 한 번당 한 줄로 만든 표가 <b>마스크 사용 표</b>입니다. 블록의 FMM 여부는 블록 표에서 읽습니다. 같은 세트가 같은 시각에 시작한 사용들의 평균 나이도 붙입니다(7절에서 쓰입니다).</p>
+<div class="tbwrap"><table class="mt num" id="tabUse"></table></div>
+<div class="readout" id="roUse"></div>
+<p>결함은 드뭅니다. 나이 구간마다 결함률을 세어 봅니다. 학습 기간의 사용으로만 셉니다.</p>
+<div class="lab">
+  <div class="labtitle">나이 구간별 결함률 (학습 기간)</div>
+  <canvas id="cvAge"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>FMM 블록</span><span><i class="dot" style="background:var(--c8);border-radius:2px"></i>그 밖의 블록</span></div>
+  <div class="tbwrap"><table class="mt num" id="tabAge"></table></div>
+  <div class="readout" id="roAge"></div>
+</div>
+<p>구간마다 결함이 이 정도 건수뿐이면 막대 하나하나를 믿기 어렵습니다. 그래서 점 하나하나를 보지 않고 선 하나로 요약하는 <b>로지스틱 회귀</b>를 씁니다. 결함 확률 p 를 나이와 FMM 여부로 설명합니다. 규제 없이 맞춥니다.</p>
+<div class="eq">
+  <span class="eqlab">로지스틱 회귀 — 사용 한 번의 결함 확률</span>
+  <math display="block"><mrow><mi>p</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mo>&#x2212;</mo><mi>z</mi></mrow></msup></mrow></mfrac><mspace width="2em"/><mi>z</mi><mo>=</mo><msub><mi>&#x03B2;</mi><mn>0</mn></msub><mo>+</mo><msub><mi>&#x03B2;</mi><mn>1</mn></msub><mo>&#x22C5;</mo><mtext>나이</mtext><mo>+</mo><msub><mi>&#x03B2;</mi><mn>2</mn></msub><mo>&#x22C5;</mo><mtext>FMM</mtext><mo>+</mo><msub><mi>&#x03B2;</mi><mn>3</mn></msub><mo>&#x22C5;</mo><mtext>나이</mtext><mo>&#x22C5;</mo><mtext>FMM</mtext></mrow></math>
+  <span class="note">FMM 블록이면 FMM = 1, 아니면 0 입니다. β 는 학습 기간의 사용으로 구하고 시험 기간에 확률을 매깁니다. 계수의 부호와 크기가 곧 &lsquo;나이가 한 번 오를 때 위험의 오즈가 몇 배가 되는가&rsquo;입니다.</span>
+</div>
+<p>모델 넷을 견줍니다. <b>기준</b>은 학습 기간 전체의 결함률 하나를 모든 사용에 같게 매깁니다. <b>FMM 만</b>은 블록 종류만 씁니다. <b>나이·FMM·나이×FMM</b>은 위 식입니다. <b>세트 평균 나이</b>는 마스크 개체 id 가 없고 세트 단위의 평균 나이만 남았다고 가정한 경우입니다. 시험 지표는 두 가지입니다. <b>로그 손실</b>은 시험 사용마다 실제가 결함이면 −ln p, 아니면 −ln(1−p) 를 평균한 값으로 작을수록 좋습니다. <b>포착률</b>은 0305 의 것을 회수합니다 — 위험 점수가 높은 순으로 상위 k 몫의 사용을 미리 점검했을 때 잡히는 시험 기간 결함의 몫이며, 무작위로 점검하면 기대 포착률은 k 그대로입니다. 같은 점수가 여럿이면 경계에서 비례로 셉니다.</p>
+<div class="lab">
+  <div class="labtitle">상위 k 를 미리 점검하면 잡히는 결함</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 나이를 넣은 모델이 FMM 만 쓰는 모델보다 같은 점검 수에서 얼마나 더 잡는지, 2) 점검 몫 k 를 올릴 때 포착률이 얼마나 가파르게 오르는지, 3) 보정도 표의 칸 수를 늘리면 칸마다 결함이 몇 건이 되어 실제 비율이 어떻게 흔들리는지 보십시오.</div>
+  <div class="ctrl"><label for="sK">점검 몫 k (%)</label><input type="range" id="sK" min="2" max="30" step="1" value="10"><output id="sKo"></output></div>
+  <div class="ctrl"><label for="sBins">보정도 표 칸 수</label><input type="range" id="sBins" min="3" max="10" step="1" value="5"><output id="sBinso"></output></div>
+  <div class="ctrl"><label for="sSplit6">학습 기간 (일, 3절과 같은 값)</label><input type="range" id="sSplit6" min="30" max="45" step="1" value="40"><output id="sSplit6o"></output></div>
+  <div class="row"><button class="btn ghost" id="rK" type="button">점검 몫·칸 수·학습 기간을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <div class="tbwrap"><table class="mt num" id="tabFit"></table></div>
+  <canvas id="cvCap"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>나이·FMM·나이×FMM</span><span><i class="dot" style="background:var(--c10)"></i>FMM 만</span><span><i class="dot" style="background:var(--c9)"></i>세트 평균 나이</span><span><span class="sw" style="border-top-style:dashed"></span>무작위 점검</span></div>
+  <div class="readout" id="roCap"></div>
+  <div class="labtitle" style="margin-top:.8rem">보정도 표 — 예측 확률 낮은 쪽부터 같은 사용 수로 나눈 칸 (나이·FMM·나이×FMM 모델)</div>
+  <div class="tbwrap"><table class="mt num" id="tabCal"></table></div>
+  <canvas id="cvCal"></canvas>
+  <div class="readout" id="roCal"></div>
+</div>
+<div class="qna" data-label="결함이 몇 건뿐인데 학습이 되나요?" data-q="결함이 몇 건뿐인데 학습이 되나요?">
+  <p><b>기울기 하나짜리 단순한 모델이면 됩니다.</b> 6절의 나이별 결함률은 구간마다 건수가 몇 건이라 점 하나하나로는 믿을 수 없었습니다. 그래서 계수 서너 개로 전체를 요약하는 로지스틱 회귀를 썼고, 그 계수가 시드마다 얼마나 흔들리는지는 7절에서 봅니다.</p>
+  <p>반대로 칸이 수십 개인 표나 깊은 트리는 결함 몇 건에 맞춰져 버립니다. 결함이 드물수록 모델은 단순해야 하고, 보정도 표의 칸도 적어야 합니다.</p>
+</div>
+<div class="qna" data-label="예측 확률이 어느 정도면 점검하나요?" data-q="예측 확률이 어느 정도면 점검하나요?">
+  <p><b>확률만으로는 정하지 않습니다.</b> 점검 비용과 막는 장수로 문턱을 정합니다. 확률 p 인 사용 하나를 점검하면 기대로 p × (그 결함이 일으킬 Loss 장수) 만큼 막고, 점검 한 번이 챔버 시간을 씁니다. 막는 장수가 비용을 넘는 사용부터 점검하는 것이 맞습니다.</p>
+  <p>9절의 환산 상자가 그 계산입니다. 점검 몫을 올리면 포착률은 늘지만 점검마다 드는 비용이 쌓여 순이익이 줄어드는 지점이 생깁니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>흔들림과 추적 끊김 — 시드마다, 그리고 이력이 끊기면</h2>
+<p>6절의 시험 기간 결함은 몇십 건입니다. 같은 가정으로 시드(난수 번호)만 바꿔 라인을 다시 돌리면 이 숫자가 얼마나 달라지는지를 봅니다. 시드 1~<span data-v="nseeds"></span> 의 결과를 모았습니다. 아래 분포는 <b>기본 설정</b>(H = <span data-v="h0"></span>시간, 학습 <span data-v="s0"></span>일, 트리 깊이 <span data-v="d0"></span>)의 라인 지표와 6절의 점검 몫 k 로 만든 마스크 지표입니다. 분포는 지평·학습 기간·트리 깊이 슬라이더를 움직여도 바뀌지 않고(고정한 값이라는 뜻입니다), 포착률만 점검 몫 k 슬라이더를 따라갑니다.</p>
+<div class="lab">
+  <div class="labtitle">시드 <span data-v="nseeds"></span>개의 분포와 기본 시드의 자리</div>
+  <div class="state" id="seedProg"></div>
+  <div class="ctrl"><label for="selMet">지표</label><select id="selMet"></select><output id="selMetO"></output></div>
+  <canvas id="cvSeed"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>시드 수</span><span><i class="dot" style="background:var(--warn);border-radius:0;transform:rotate(45deg)"></i>기본 시드</span></div>
+  <div class="readout" id="roSeed"></div>
+  <div class="tbwrap"><table class="mt num" id="tabSeed"></table></div>
+</div>
+<p><b>추적이 끊기면.</b> 마스크 id 대신 세트 단위 평균 나이만 남았다고 가정하고 다시 학습한 결과가 표의 &lsquo;세트 평균 나이&rsquo; 줄입니다. 개체의 나이가 세트 평균에 묻히면 위험한 개체를 가려내기 어렵습니다.</p>
+<div class="readout" id="roSet"></div>
+<p>개체 단위로 잇지 않으면 이 모델은 만들 수 없다는 뜻이고, 11절에서 기록할 데이터를 정하는 근거가 됩니다.</p>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 요청에 숫자로 답합니다</h2>
+<p>맨 앞의 요청으로 돌아옵니다. <b>&ldquo;내일 24시간의 Loss 를 미리 알려 주십시오. 그리고 점검할 마스크 10% 를 골라 주십시오.&rdquo;</b></p>
+<div class="concl" id="conc8"></div>
+<div class="cols3">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">사람</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>예측 지평과 용도를 정합니다</li><li>점검 비용과 문턱을 정하고 점검을 실행합니다</li><li>모델 카드를 읽고 승인합니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">규칙</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>시험은 시간순으로만 합니다</li><li>특징표의 &lsquo;알려지는 시각&rsquo; 열로 누설을 걸러냅니다</li><li>모델은 기준을 이길 때만 씁니다</li><li>무기억성 사건은 시각이 아니라 비율로 계획합니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">에이전트</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>매일 특징을 만들고 예측을 냅니다</li><li>예측과 실제의 오차를 추적합니다</li><li>모델 카드의 초안을 갱신합니다(사실 목록 방식, 0411)</li></ul></div>
+</div>
+<p><b>0601 로 가는 다리.</b> 예측이 맞는지 계속 확인하고, 틀릴 때 무엇이 바뀌었는지 추적하다 보면 이 가상 공장 자체를 실제 라인에 더 가깝게 맞춰 가는 일로 이어집니다. 예측과 확인과 보정이 닫힌 고리가 되는 모습은 마지막 장에서 다룹니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>두 가지를 환산합니다. <b>마스크 사전 점검</b> — 시험 기간의 마스크 불량 Loss(근본 원인이 마스크인 사건의 잃은 유리 장수) 가운데 상위 k 를 점검해 막는 장수와, 무작위로 k 를 점검했을 때의 장수입니다. 점검으로 결함을 잡으면 그 사건이 없어진다고 가정합니다. 점검 한 번은 챔버를 정해진 분 동안 세워 두는 비용이 든다고 가정하고(슬라이더), 챔버 1분의 Loss 는 기록에서 잰 값(유리 장수 합 ÷ 챔버 분 합)으로 바꿉니다. <b>라인 예측</b> — 예측 오차가 기준 대비 줄어든 장수입니다.</p>
+<div class="lab">
+  <div class="labtitle">사전 점검으로 막는 장수와 순이익 (시험 기간 <span class="lv" data-lv="tdays"></span>일 기준)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 점검 비용을 올릴 때 순이익이 어디서 0 을 지나는지, 점검 몫 k 를 바꿀 때 막는 장수와 비용이 어느 쪽이 더 가파르게 늘어나는지 보십시오.</div>
+  <div class="ctrl"><label for="sCost">점검 한 번의 비용 (챔버 분, 가정)</label><input type="range" id="sCost" min="0" max="60" step="5" value="10"><output id="sCosto"></output></div>
+  <div class="row"><button class="btn ghost" id="rCost" type="button">비용을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table class="mt num" id="tab9"></table></div>
+  <div class="concl" id="conc9"></div>
+</div>
+<p class="note">월 환산은 시험 기간의 값을 30일로 맞춘 것이고, 한 턴은 챔버 한 곳이 마스크 한 장으로 만드는 유리 <span data-v="nturn"></span>장입니다. 라인 예측의 줄어든 장수는 &lsquo;계획 오차가 이만큼 줄었다&rsquo;는 뜻이지 Loss 가 줄었다는 뜻이 아닙니다. 회사에서는 같은 식에 유리 한 장의 생산 손실 단가와 점검 한 번의 실제 비용을 넣어 금액으로 적습니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>pandas</code>·<code>numpy</code>·<code>scipy</code>·<code>scikit-learn</code> 을 씁니다. 입력은 Loss 사건 표(<code>loss_events.csv</code>), 시간별 표(<code>loss_hourly.csv</code>), 마스크 전이 기록(<code>mask_transitions.csv</code>), 시드 요약 표(<code>loss_forecast_seeds.csv</code>)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 마스크 사용 표는 전이 기록에서 만들며, 참고용으로 같은 표를 저장한 <code>mask_uses.csv</code> 도 내려받을 수 있습니다.</p>
+<div class="row"><a class="btn" href="../data/csv/loss_events.csv" download>loss_events.csv</a><a class="btn" href="../data/csv/loss_hourly.csv" download>loss_hourly.csv</a><a class="btn" href="../data/csv/mask_transitions.csv" download>mask_transitions.csv</a><a class="btn" href="../data/csv/loss_forecast_seeds.csv" download>loss_forecast_seeds.csv</a><a class="btn" href="../data/csv/mask_uses.csv" download>mask_uses.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 섞어 나눈 점수로 운영 성능을 말하지 마십시오. 무기억성 사건에 &lsquo;다음 고장 시각&rsquo;을 맞히는 모델을 만들지 마십시오. 결함이 수십 건뿐일 때 보정도 표를 10칸으로 자르지 마십시오. 사건 끝에 채워지는 근본 원인 칸을 사건이 끝나기 전 시각의 특징으로 쓰지 마십시오.</p>
+<pre id="pyCode">import warnings
+import numpy as np
+import pandas as pd
+from scipy import stats
+from sklearn.linear_model import LinearRegression, LogisticRegression, PoissonRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeRegressor
+
+warnings.filterwarnings("ignore", category=FutureWarning)   # 규제 없음을 지정하는 방식이 scikit-learn 버전마다 달라 나오는 경고
+
+# ---- 가정·설정: 회사 값으로 바꿀 곳 --------------------------------------------------
+START = pd.Timestamp("2026-01-05 00:00")   # 기록 시작 시각
+H = 24                            # 예측 지평(시간): 지금부터 다음 H 시간
+SPLIT_DAY = 40                    # 앞 40일 학습 / 나머지 시험(시간순 분할)
+DEPTH, MIN_LEAF = 3, 20           # 회귀 트리 깊이와 잎 하나의 최소 표본
+ORIGIN0 = 48                      # 지난 24시간 특징과 지속 기준을 쓰려면 출발 시각이 이 시간(h) 뒤여야 한다
+K, BINS = 0.10, 5                 # 마스크: 위험 상위 K 를 미리 점검 · 보정도 표 칸 수
+FMM_BLOCKS = {"B02", "B03", "B04", "B05", "B06", "B07"}   # 마스크 FMM 을 쓰는 블록(공정 표에서 읽어 채울 값)
+SHUF_MUL, SHUF_MOD = 2654435761, 3          # 섞어 나누기: 번호 × 곱수 의 나머지가 0 이면 시험(세 칸 중 한 칸)
+GROUPS = [("pm", ["EQ-PM"]), ("mask", ["Q-MASK"]), ("fault", ["EQ-BD", "Q-EVAP"]), ("other", None)]   # 근본 원인 묶음(마지막 = 그 밖)
+# 특징표: 값이 알려지는 시각. before = 예측 시각 t 이전, inside = 예측 구간 안, after = 구간이 끝난 뒤
+FEATURES = [("pm_due", "before"), ("l24_pm", "before"), ("l24_mask", "before"), ("l24_fault", "before"), ("l24_other", "before"),
+            ("stocker_fill", "before"), ("cleaner_queue", "before"), ("cassette_free", "before"), ("blocks_triple", "before"), ("line_out", "before"),
+            ("since_bd", "before"), ("since_ev", "before"), ("fut_triple", "inside"), ("fut_pmshare", "after")]
+LEGIT = [f for f, a in FEATURES if a == "before"]
+
+
+def group_of(code):
+    for gi, (_, codes) in enumerate(GROUPS[:-1]):
+        if code in codes:
+            return gi
+    return len(GROUPS) - 1
+
+
+# ---- 1. 불러오기 ------------------------------------------------------------------------
+def load_events(path="loss_events.csv"):
+    """Loss 사건 표. 시작·끝 시각을 기록 시작부터 분으로 바꾸고, 근본 원인 묶음 번호(grp)를 붙인다."""
+    df = pd.read_csv(path, keep_default_na=False)
+    for c in ("start", "end"):
+        df[c + "_min"] = ((pd.to_datetime(df[c + "_ts"]) - START) / pd.Timedelta(minutes=1)).round().astype(int)
+    df["grp"] = df["root_cause"].map(group_of)
+    return df
+
+
+def cum(a):
+    return np.concatenate([[0.0], np.cumsum(a)])
+
+
+# ---- 2. 목표와 특징 ------------------------------------------------------------------------
+def make_horizon_target(ev, hr, H, split_day):
+    """출발 시각 t = 60h 분마다 한 줄: 목표 y = t 이후 H 시간 안에 '시작한' 사건의 잃은 유리 합(걸친 사건도 시작 시각 칸에 전부),
+    y_pm·y_mask·y_fault·y_other = 근본 원인 묶음별 합, pers = 지난 H 시간에 '끝난' 사건 합(지속 기준), 특징 열(FEATURES 와 같은 이름).
+    특징은 t 에 알 수 있던 값만: 직전 시간 상태, 지난 24시간에 끝난 사건 합, PM 달력(챔버의 지난 PM 시작 + 학습 기간 PM 간격의 중앙값),
+    마지막 고장 뒤 경과 시간. fut_ 열 둘은 예측 구간 안에서야 알 수 있는 '누설 특징'이다.
+    쓰면 안 되는 때: 사건 끝에 채워지는 근본 원인 칸을 사건이 아직 안 끝난 시각의 특징으로 쓸 때."""
+    n, ng = len(hr), len(GROUPS)
+    sb = (ev["start_min"] // 60).to_numpy()
+    eb = np.ceil(ev["end_min"].to_numpy() / 60).astype(int)
+    g, glass = ev["grp"].to_numpy(), ev["loss_glass"].to_numpy(float)
+    S = np.zeros((ng, n)); E = np.zeros((ng, n))
+    for k in range(len(ev)):
+        if 0 &lt;= sb[k] &lt; n:
+            S[g[k], sb[k]] += glass[k]
+        if 0 &lt;= eb[k] &lt; n:
+            E[g[k], eb[k]] += glass[k]
+    cnt = np.bincount(sb[(sb &gt;= 0) &amp; (sb &lt; n)], minlength=n).astype(float)
+    pm_mask = (ev["root_cause"] == "EQ-PM").to_numpy()
+    cpm = np.bincount(sb[pm_mask &amp; (sb &gt;= 0) &amp; (sb &lt; n)], minlength=n).astype(float)
+    CS, CE, Ccnt, Ccpm = [cum(r) for r in S], [cum(r) for r in E], cum(cnt), cum(cpm)
+    CSt, CEt = cum(S.sum(0)), cum(E.sum(0))
+    Ctri = cum(hr["blocks_triple"].to_numpy(float))
+    own = ev[ev["reason"] == ev["root_cause"]]
+    pm_starts = [np.sort(d["start_min"].to_numpy()) for _, d in own[own["reason"] == "EQ-PM"].groupby(["block", "chamber"])]
+    bd, evp = (np.sort(own[own["reason"] == c]["start_min"].to_numpy()) for c in ("EQ-BD", "Q-EVAP"))
+    split_h = split_day * 24
+    gaps = np.concatenate([np.diff(a)[a[1:] &lt; split_h * 60] for a in pm_starts])
+    period = float(np.median(gaps))
+    h0 = max(ORIGIN0, int(np.ceil(period / 60)))
+    rows = []
+    for h in range(h0, n - H + 1):
+        t = h * 60
+        due = 0
+        for a in pm_starts:
+            i = np.searchsorted(a, t, side="right") - 1
+            if i &gt;= 0 and t &lt;= a[i] + period &lt; t + H * 60:
+                due += 1
+        r = hr.iloc[h - 1]
+        ib, ie = np.searchsorted(bd, t, side="right") - 1, np.searchsorted(evp, t, side="right") - 1
+        nc, npm = Ccnt[h + H] - Ccnt[h], Ccpm[h + H] - Ccpm[h]
+        row = {"h": h, "y": CSt[h + H] - CSt[h], "pers": CEt[h + 1] - CEt[h - H + 1],
+               "pm_due": due, "stocker_fill": r["stocker_fill"], "cleaner_queue": r["cleaner_queue"], "cassette_free": r["cassette_free"],
+               "blocks_triple": r["blocks_triple"], "line_out": r["line_out"],
+               "since_bd": (t - bd[ib]) / 60 if ib &gt;= 0 else t / 60, "since_ev": (t - evp[ie]) / 60 if ie &gt;= 0 else t / 60,
+               "fut_triple": (Ctri[h + H] - Ctri[h]) / H, "fut_pmshare": npm / nc if nc &gt; 0 else 0.0}
+        for gi, (gid, _) in enumerate(GROUPS):
+            row["y_" + gid] = CS[gi][h + H] - CS[gi][h]
+            row["pers_" + gid] = CE[gi][h + 1] - CE[gi][h - H + 1]
+            row["l24_" + gid] = CE[gi][h + 1] - CE[gi][h - 23]
+        rows.append(row)
+    tab = pd.DataFrame(rows)
+    tab.attrs.update(H=H, split_h=split_h, period=period)
+    return tab
+
+
+def leak_check(features):
+    """특징표(이름, 알려지는 시각)에서 예측 시각 t 에 쓸 수 없는 것을 골라낸다. 쓰면 안 되는 때: 시각 열을 사람이 채우지 않은 특징표."""
+    return [name for name, avail in features if avail != "before"]
+
+
+# ---- 3. 기준 예측과 시간순 시험 --------------------------------------------------------------
+def baseline_forecast(tab, idx_train, idx_test, kind, target="y"):
+    """'mean' = 학습 기간 평균 · 'persist' = 지난 H 시간에 끝난 사건 합(지속). target 은 'y' 또는 'y_pm' 같은 열 이름."""
+    if kind == "mean":
+        return np.full(len(idx_test), tab[target].to_numpy()[idx_train].mean())
+    return tab[target.replace("y", "pers", 1)].to_numpy()[idx_test]
+
+
+def split_index(tab, mode):
+    h, H, sh = tab["h"].to_numpy(), tab.attrs["H"], tab.attrs["split_h"]
+    if mode == "shuffle":
+        te = (h * SHUF_MUL) % 4294967296 % SHUF_MOD == 0
+        return np.where(~te)[0], np.where(te)[0]
+    return np.where(h + H &lt;= sh)[0], np.where(h &gt;= sh)[0]
+
+
+def time_split_eval(tab, model, depth=DEPTH, leak=(False, False, False), mode="time", target="y"):
+    """한 번의 시험. model = 'linear'|'poisson'|'tree'|'mean'|'persist'. leak = (예측 구간 안 triple, 구간 안 PM 비율, 표준화에 시험 기간 포함).
+    시간순 분할은 목표 구간이 분할 시각 안에서 끝난 출발 시각만 학습에 쓴다. 반환: (시험 MAE, 시험 RMSE, 예측값).
+    쓰면 안 되는 때: 섞어 나눈 점수로 운영 성능을 말할 때."""
+    cols = LEGIT + (["fut_triple"] if leak[0] else []) + (["fut_pmshare"] if leak[1] else [])
+    tr, te = split_index(tab, mode)
+    X, y = tab[cols].to_numpy(float), tab[target].to_numpy(float)
+    if model in ("mean", "persist"):
+        p = baseline_forecast(tab, tr, te, model, target)
+    elif model == "tree":
+        p = DecisionTreeRegressor(max_depth=depth, min_samples_leaf=MIN_LEAF, random_state=0).fit(X[tr], y[tr]).predict(X[te])
+    else:
+        sc = StandardScaler().fit(X if leak[2] else X[tr])
+        Ztr, Zte = sc.transform(X[tr]), sc.transform(X[te])
+        if model == "linear":
+            p = LinearRegression().fit(Ztr, y[tr]).predict(Zte)
+        else:
+            p = PoissonRegressor(alpha=0, solver="newton-cholesky", tol=1e-12, max_iter=1000).fit(Ztr, y[tr]).predict(Zte)
+    return np.abs(y[te] - p).mean(), np.sqrt(((y[te] - p) ** 2).mean()), p
+
+
+def improvement(tab, model, **kw):
+    """시험 MAE 로 잰 기준 대비 개선률: 1 − (모델 MAE ÷ 더 나은 기준의 MAE)."""
+    t = kw.get("target", "y")
+    base = min(time_split_eval(tab, b, target=t, mode=kw.get("mode", "time"))[0] for b in ("mean", "persist"))
+    return 1 - time_split_eval(tab, model, **kw)[0] / base
+
+
+def error_by_root(tab, depth=DEPTH):
+    """근본 원인 묶음마다 따로 맞춘 시험 오차와 기준 대비 개선률(시간순, 누설 끔).
+    쓰면 안 되는 때: 시험 기간 평균이 아주 작은 묶음(그 밖)의 개선률로 결론을 낼 때."""
+    out = []
+    for gid, _ in GROUPS:
+        t = "y_" + gid
+        out.append((gid, tab[t].to_numpy()[split_index(tab, "time")[1]].mean(), improvement(tab, "linear", target=t), improvement(tab, "tree", target=t, depth=depth)))
+    return out
+
+
+def composite(tab):
+    """분해 예측: 정규 PM 몫은 직선 회귀, 나머지 몫은 학습 기간 평균으로 맞춰 더한 전체 예측의 개선률."""
+    te = split_index(tab, "time")[1]
+    p = time_split_eval(tab, "linear", target="y_pm")[2] + sum(time_split_eval(tab, "mean", target="y_" + g)[2] for g, _ in GROUPS[1:])
+    y = tab["y"].to_numpy()[te]
+    base = min(time_split_eval(tab, b)[0] for b in ("mean", "persist"))
+    return 1 - np.abs(y - p).mean() / base
+
+
+# ---- 4. 무기억성: 고장 간격과 경과 시간별 위험 ----------------------------------------------------
+def memoryless_check(ev, code, tmax_min, edges_h=(0, 72, 144, 240, 336, 504)):
+    """같은 챔버의 '끝 → 다음 시작' 간격(시간)의 평균·표준편차·변동계수와, 마지막 고장이 끝난 뒤 경과 시간 구간별 위험률(건/시간).
+    위험률이 구간마다 비슷하면(앞 3구간 대 뒤 3구간을 정확 이항 검정) 지난 시간이 다음 고장 확률에 영향이 없는 무기억성에 가깝다.
+    쓰면 안 되는 때: 고장이 수십 건 안쪽일 때(구간별 위험률이 건수 몇 개로 흔들린다)."""
+    own = ev[(ev["reason"] == code) &amp; (ev["root_cause"] == code)]
+    gaps, expo, n = [], np.zeros(len(edges_h)), np.zeros(len(edges_h), int)
+    for _, d in own.groupby(["block", "chamber"]):
+        d = d.sort_values("start_min")
+        done = d[d["end_min"] &lt;= tmax_min]
+        gaps += list(((done["start_min"].to_numpy()[1:] - done["end_min"].to_numpy()[:-1]) / 60))
+        d = d[d["start_min"] &lt; tmax_min]      # 관찰창 끝(학습 기간 끝) 뒤에 시작한 고장은 아직 모르는 것
+        s, e = d["start_min"].to_numpy(), d["end_min"].to_numpy()
+        for i in range(len(d)):
+            nxt = s[i + 1] if i + 1 &lt; len(d) else None
+            span = ((nxt if nxt is not None else tmax_min) - e[i]) / 60
+            if span &lt;= 0:
+                continue
+            for b, lo in enumerate(edges_h):
+                hi = edges_h[b + 1] if b + 1 &lt; len(edges_h) else np.inf
+                if min(span, hi) - lo &gt; 0:
+                    expo[b] += min(span, hi) - lo
+            if nxt is not None:
+                n[max(b for b, lo in enumerate(edges_h) if span &gt;= lo)] += 1
+    gaps = np.array(gaps)
+    e1, e2, n1, n2 = expo[:3].sum(), expo[3:].sum(), n[:3].sum(), n[3:].sum()
+    p = stats.binomtest(int(n1), int(n1 + n2), e1 / (e1 + e2)).pvalue
+    return {"n_gap": len(gaps), "mean_h": gaps.mean(), "sd_h": gaps.std(ddof=1), "wait_h": expo.sum() / n.sum(), "rate_ratio": (n2 / e2) / (n1 / e1), "p": p, "expo": expo, "n": n}
+
+
+# ---- 5. 제품 공정 추적: 마스크 사용 이력 ---------------------------------------------------------
+def mask_use_table(trans, fmm_blocks=FMM_BLOCKS):
+    """전이 기록에서 마스크 사용 한 번 = 한 줄(in_use 로 들어간 행). 나이 = 리페어 뒤 세정 횟수(cause 'age=N'), 결함 = 다음 사용 전에
+    to='repair' &amp; trigger='turn_end_defect' 행이 있음. 같은 세트가 같은 시각에 시작한 사용의 평균 나이(set_age)도 붙인다.
+    쓰면 안 되는 때: 마스크 개체 id 가 기록에 없고 세트 단위로만 남은 이력(그때는 set_age 만 쓸 수 있고 포착률이 떨어진다)."""
+    m = trans[trans["entity"] == "mask"]
+    uses, cur = [], {}
+    for t, mid, to, trig, cause in zip(m["t"], m["id"], m["to"], m["trigger"], m["cause"]):
+        if to == "in_use":
+            cur[mid] = {"mask_id": mid, "t": int(t), "age": int(str(cause).replace("age=", "")), "block": mid[:3], "fmm": int(mid[:3] in fmm_blocks), "set": mid[:5], "defect": 0}
+            uses.append(cur[mid])
+        elif to == "repair" and trig == "turn_end_defect" and mid in cur:
+            cur[mid]["defect"] = 1
+    df = pd.DataFrame(uses)
+    df["set_age"] = df.groupby(["set", "t"])["age"].transform("mean")
+    return df
+
+
+def fit_risk(df, split_day, kind="full"):
+    """로지스틱 회귀(규제 없음). kind: full = 나이·FMM·나이×FMM · add = 나이·FMM · fmm = FMM 만 · set = 세트 평균 나이 쪽."""
+    a = "set_age" if kind == "set" else "age"
+    feats = {"full": [a, "fmm", "x"], "set": [a, "fmm", "x"], "add": [a, "fmm"], "fmm": ["fmm"]}[kind]
+    df = df.assign(x=df[a] * df["fmm"])
+    tr, te = df[df["t"] &lt; split_day * 1440], df[df["t"] &gt;= split_day * 1440]
+    lr = LogisticRegression(penalty=None, solver="newton-cholesky", tol=1e-12, max_iter=1000).fit(tr[feats], tr["defect"])
+    return lr, lr.predict_proba(te[feats])[:, 1], te["defect"].to_numpy(float), tr["defect"].mean()
+
+
+def _ties(p, y):
+    """예측 확률이 같은 사용은 한 묶음으로(큰 쪽부터). 반환: [확률, 사용 수, 결함 수]."""
+    o = np.lexsort((np.arange(len(p)), -p))
+    gs = []
+    for i in o:
+        if gs and abs(gs[-1][0] - p[i]) &lt;= 1e-12 * max(1, abs(p[i])):
+            gs[-1][1] += 1; gs[-1][2] += y[i]
+        else:
+            gs.append([p[i], 1, y[i]])
+    return gs
+
+
+def risk_rank_capture(p, y, k):
+    """위험 상위 k 몫을 미리 점검했을 때 잡히는 결함 몫(포착률). 같은 점수 묶음이 경계에 걸리면 묶음 안에서 비례로 센다.
+    쓰면 안 되는 때: 점검 대상 수(k × 사용 수)가 결함 수보다 훨씬 작을 때 잡힌 수만으로 순위의 질을 말할 때."""
+    want, taken, cap = k * len(p), 0.0, 0.0
+    for q, n, d in _ties(p, y):
+        if taken &gt;= want - 1e-12:
+            break
+        take = min(n, want - taken)
+        cap += d * take / n; taken += take
+    return cap, y.sum(), cap / y.sum()
+
+
+def calibration_table(p, y, bins):
+    """보정도 표: 확률이 같은 묶음은 쪼개지 않고 낮은 쪽부터 쌓아 한 칸이 n/bins 이상이면 자른다. 반환: [(사용 수, 예측 평균, 실제 비율, 결함 수)].
+    쓰면 안 되는 때: 결함이 수십 건뿐인데 10칸으로 자를 때(칸마다 결함 서너 건이라 실제 비율이 건수 하나에 흔들린다)."""
+    gs, rows, cn, cd, cp = _ties(p, y)[::-1], [], 0, 0.0, 0.0
+    for i, (q, n, d) in enumerate(gs):
+        cn += n; cd += d; cp += q * n
+        if (cn &gt;= len(p) / bins - 1e-9 and len(rows) &lt; bins - 1) or i == len(gs) - 1:
+            rows.append((cn, cp / cn, cd / cn, cd)); cn, cd, cp = 0, 0.0, 0.0
+    return rows
+
+
+if __name__ == "__main__":
+    ev, hr = load_events(), pd.read_csv("loss_hourly.csv")
+    trans, seeds = pd.read_csv("mask_transitions.csv", keep_default_na=False), pd.read_csv("loss_forecast_seeds.csv")
+    uses = mask_use_table(trans)
+    tab = make_horizon_target(ev, hr, H, SPLIT_DAY)
+    tr, te = split_index(tab, "time")
+    print("기록 %d일 · 사건 %s건 · 마스크 사용 %s회 · 결함 %d건" % (len(hr) // 24, format(len(ev), ","), format(len(uses), ","), uses["defect"].sum()))
+    print("지평 H=%d시간 · 출발 시각 %s개(첫 %d시간 뒤부터) · 학습 %d개 / 시험 %d개 · PM 간격 중앙값 %.1f일" % (H, format(len(tab), ","), tab["h"].min(), len(tr), len(te), tab.attrs["period"] / 1440))
+    bad = leak_check(FEATURES)
+    print("누설 점검: 특징 %d개 중 예측 시각에 쓸 수 없는 것 %d개 → %s" % (len(FEATURES), len(bad), ", ".join(bad)))
+    sc = {m: time_split_eval(tab, m) for m in ("mean", "persist", "linear", "poisson", "tree")}
+    print("시험 MAE(장수, 시간순·누설 끔): 평균 기준 %.1f · 지속 기준 %.1f · 직선 %.1f · 포아송 %.1f · 트리(깊이 %d) %.1f" % (sc["mean"][0], sc["persist"][0], sc["linear"][0], sc["poisson"][0], DEPTH, sc["tree"][0]))
+    print("기준 대비 개선률: 직선 %+.1f%% · 포아송 %+.1f%% · 트리 %+.1f%%" % tuple(100 * improvement(tab, m) for m in ("linear", "poisson", "tree")))
+    for mode, lab in (("shuffle", "섞어 나눔"), ("time", "시간순")):
+        for lk, ll in (((False, False, False), "누설 끔"), ((True, True, False), "누설 켬")):
+            print("개선률 %s·%s: 직선 %+.1f%% · 트리 %+.1f%%" % (lab, ll, 100 * improvement(tab, "linear", mode=mode, leak=lk), 100 * improvement(tab, "tree", mode=mode, leak=lk)))
+    for gid, mte, il, it in error_by_root(tab):
+        print("근본 원인 %s: 시험 평균 %.1f장 · 직선 %+.1f%% · 트리 %+.1f%%" % (gid, mte, 100 * il, 100 * it))
+    print("분해 예측(PM 직선 + 나머지 평균) 전체 개선률 %+.1f%%" % (100 * composite(tab)))
+    for code in ("EQ-BD", "Q-EVAP"):
+        r = memoryless_check(ev, code, SPLIT_DAY * 1440)
+        print("무기억성 %s: 간격 %d개 평균 %.1f시간 표준편차 %.1f · 평균 대기 %.1f시간 · 위험률 뒤/앞 %.2f p=%.3f" % (code, r["n_gap"], r["mean_h"], r["sd_h"], r["wait_h"], r["rate_ratio"], r["p"]))
+    cut = SPLIT_DAY * 1440
+    print("마스크 학습 %s회 결함 %d건 / 시험 %s회 결함 %d건" % (format((uses["t"] &lt; cut).sum(), ","), uses[uses["t"] &lt; cut]["defect"].sum(), format((uses["t"] &gt;= cut).sum(), ","), uses[uses["t"] &gt;= cut]["defect"].sum()))
+    for kind in ("full", "add", "fmm", "set"):
+        lr, p, y, base = fit_risk(uses, SPLIT_DAY, kind)
+        cap = risk_rank_capture(p, y, K)
+        ll = -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))
+        print("로지스틱 %s: 계수 %s · 로그 손실 %.4f(기준 %.4f) · 상위 %d%% 점검 포착 %.1f/%d건 = %.1f%%" % (kind, " ".join("%.4g" % c for c in np.r_[lr.intercept_, lr.coef_[0]]), ll, -np.mean(y * np.log(base) + (1 - y) * np.log(1 - base)), K * 100, cap[0], cap[1], 100 * cap[2]))
+        if kind == "full":
+            for n, pm, rt, d in calibration_table(p, y, BINS):
+                print("  보정도 사용 %d회 · 예측 평균 %.2f%% · 실제 %.2f%% (결함 %d건)" % (n, 100 * pm, 100 * rt, d))
+    s = seeds[seeds["seed"] != 20261011]
+    q = lambda c: s[c].quantile([0.1, 0.5, 0.9]).to_numpy()
+    print("시드 %d개: 결함 수 %.0f~%.0f(중앙값 %.0f) · 상위 10%% 포착률 %.1f%%/%.1f%%/%.1f%% (10·50·90%%) · 세트 평균 나이만 남으면 %.1f%%" % (len(s), *q("defects")[[0, 2, 1]], *(100 * q("capFull")), 100 * s["capSet"].median()))
+    print("시드 %d개: 정규 PM 몫 직선 개선률 중앙값 %+.1f%% · 고장 계열 몫 %+.1f%% · 기본 시드 PM 몫 백분위 %.0f%%" % (len(s), 100 * s["impPmLin"].median(), 100 * s["impFaultLin"].median(), 100 * (s["impPmLin"] &lt; seeds.loc[seeds["seed"] == 20261011, "impPmLin"].iloc[0]).mean()))
+</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 넷과 같은 폴더에서 <code>python3 lab0503.py</code> 로 돌렸고, 위 1~7절의 숫자와 같은 값이 나옵니다. 시드 줄은 위 시드 요약 표를 읽은 것입니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">기록 60일 · 사건 4,748건 · 마스크 사용 12,558회 · 결함 99건
+지평 H=24시간 · 출발 시각 1,081개(첫 336시간 뒤부터) · 학습 601개 / 시험 457개 · PM 간격 중앙값 14.0일
+누설 점검: 특징 14개 중 예측 시각에 쓸 수 없는 것 2개 → fut_triple, fut_pmshare
+시험 MAE(장수, 시간순·누설 끔): 평균 기준 1083.4 · 지속 기준 1721.7 · 직선 993.9 · 포아송 1114.5 · 트리(깊이 3) 1060.6
+기준 대비 개선률: 직선 +8.3% · 포아송 -2.9% · 트리 +2.1%
+개선률 섞어 나눔·누설 끔: 직선 +25.6% · 트리 +25.2%
+개선률 섞어 나눔·누설 켬: 직선 +31.8% · 트리 +28.0%
+개선률 시간순·누설 끔: 직선 +8.3% · 트리 +2.1%
+개선률 시간순·누설 켬: 직선 +15.6% · 트리 +2.1%
+근본 원인 pm: 시험 평균 1969.8장 · 직선 +48.8% · 트리 +39.5%
+근본 원인 mask: 시험 평균 1979.9장 · 직선 -7.4% · 트리 -12.2%
+근본 원인 fault: 시험 평균 1639.5장 · 직선 -9.9% · 트리 -14.2%
+근본 원인 other: 시험 평균 50.6장 · 직선 -97.4% · 트리 -68.5%
+분해 예측(PM 직선 + 나머지 평균) 전체 개선률 +12.8%
+무기억성 EQ-BD: 간격 77개 평균 210.7시간 표준편차 194.4 · 평균 대기 340.5시간 · 위험률 뒤/앞 0.93 p=0.815
+무기억성 Q-EVAP: 간격 100개 평균 197.1시간 표준편차 189.1 · 평균 대기 301.2시간 · 위험률 뒤/앞 1.04 p=0.831
+마스크 학습 8,401회 결함 61건 / 시험 4,157회 결함 38건
+로지스틱 full: 계수 -7.104 0.01593 2.075 0.0006989 · 로그 손실 0.0482(기준 0.0522) · 상위 10% 점검 포착 15.0/38건 = 39.5%
+  보정도 사용 842회 · 예측 평균 0.28% · 실제 0.36% (결함 3건)
+  보정도 사용 833회 · 예측 평균 0.55% · 실제 0.36% (결함 3건)
+  보정도 사용 854회 · 예측 평균 0.76% · 실제 0.35% (결함 3건)
+  보정도 사용 843회 · 예측 평균 1.13% · 실제 0.83% (결함 7건)
+  보정도 사용 785회 · 예측 평균 2.84% · 실제 2.80% (결함 22건)
+로지스틱 add: 계수 -7.138 0.01654 2.113 · 로그 손실 0.0483(기준 0.0522) · 상위 10% 점검 포착 15.0/38건 = 39.5%
+로지스틱 fmm: 계수 -6.309 1.887 · 로그 손실 0.0504(기준 0.0522) · 상위 10% 점검 포착 5.9/38건 = 15.6%
+로지스틱 set: 계수 -7.082 0.01579 2.08 0.001174 · 로그 손실 0.0493(기준 0.0522) · 상위 10% 점검 포착 12.0/38건 = 31.6%
+시드 40개: 결함 수 96~117(중앙값 106) · 상위 10% 포착률 20.1%/30.5%/43.1% (10·50·90%) · 세트 평균 나이만 남으면 24.1%
+시드 40개: 정규 PM 몫 직선 개선률 중앙값 +27.8% · 고장 계열 몫 -6.4% · 기본 시드 PM 몫 백분위 95%</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>Loss 예측 모델 카드</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 라인으로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>모델을 운영에 쓰기 전과 재학습할 때마다 기준 대비 점수와 누설 점검을 확인하고 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>시간별 상태 스냅숏</b> — 그 시각에 알 수 있었던 값으로만 저장합니다. 나중에 고친 값은 별도 열로 둡니다(0400 의 늦은 자료).</li>
+      <li><b>PM 계획표 원본</b> — 실행 전에 세운 계획 그대로. 실행 뒤에 고쳐 쓰면 달력 특징이 누설이 됩니다.</li>
+      <li><b>사건의 근본 원인</b> — 사건이 끝난 시각과 근본 원인을 채운 시각을 함께(0501). 채운 시각이 있어야 특징으로 써도 되는 시점을 알 수 있습니다.</li>
+      <li><b>마스크 사용 이력</b> — 마스크 개체 id 로 이은 사용 시작 시각·나이(리페어 뒤 세정 횟수)·쓴 블록·결과(결함 여부).</li>
+    </ul>
+    <p class="note" style="margin:.5rem 0 0">이 기록이 없으면 3절의 누설 점검과 6절의 모델을 만들 수 없습니다. 7절에서 보았듯 세트 평균만 남으면 위험한 개체를 못 가립니다. 회사 기록은 회사 안에만 둡니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0400 의 파이프라인에서 모델 카드까지 부르는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0502-loss-cascade-spurious.html">← 이전: Loss 연쇄와 가짜 상관</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/loss05.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var L=Loss05,MS=MfgSim,F=L.F5,GR=L.G5,FE=L.FEAT5;
+var SIM=MS.simulateLoss({trace:true}),EV=SIM.events,HR=SIM.hourly,TRN=SIM.transitions;
+var USES=L.maskUses(TRN),DAYSA=SIM.days,NHR=HR.length;
+var PRE=L.pre5(SIM),NCH=PRE.keys.length;
+var ST={H:F.H,split:F.SPLIT,mode:'time',lk:[false,false,false],model:'linear',depth:F.DEPTH,k:F.K,bins:F.BINS,cost:10,code:'EQ-BD',met:'capFull'};
+var DEF={H:F.H,split:F.SPLIT,mode:'time',lk:[false,false,false],model:'linear',depth:F.DEPTH,k:F.K,bins:F.BINS,cost:10};
+var V={},LV={};
+var DSC={},EVC={},MFC={},GCC={},SEEDS=[],SEED0=null,SEEDDONE=false;
+function $(id){return document.getElementById(id);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fm(x){return x!=null&&isFinite(x)?String(Math.floor(Math.abs(x)+0.5+1e-6)*(x<0?-1:1)).replace(/\B(?=(\d{3})+(?!\d))/g,',').replace('-','−'):'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1).replace('-','−'):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2).replace('-','−'):'—';}
+function f3(x){return x!=null&&isFinite(x)?x.toFixed(3).replace('-','−'):'—';}
+function f4(x){return x!=null&&isFinite(x)?x.toFixed(4).replace('-','−'):'—';}
+function pc(x,d){return x!=null&&isFinite(x)?(100*x).toFixed(d==null?1:d).replace('-','−')+'%':'—';}
+function sp(x,d){return x!=null&&isFinite(x)?(x>=0?'+':'−')+(100*Math.abs(x)).toFixed(d==null?1:d)+'%':'—';}
+function cf(x){return x!=null&&isFinite(x)?Number(x.toPrecision(3)).toString().replace('-','−'):'—';}
+function pv(p){return p==null||!isFinite(p)?'—':(p<0.001?'p&lt;0.001':'p='+p.toFixed(3));}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?(typeof cls[i]==='function'?cls[i](c):cls[i]):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function lc(){return 'l';}
+function niceStep(range,n){var raw=range/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;return (r<=1?1:r<=2?2:r<=5?5:10)*mag;}
+function ticks(lo,hi,n){var st=niceStep(hi-lo||1,n),a=Math.ceil(lo/st-1e-9)*st,o=[];for(var v=a;v<=hi+1e-9;v+=st)o.push(Math.abs(v)<1e-9?0:v);return o;}
+function fmt(v){return Math.abs(v)>=100?String(Math.round(v)):(Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):v.toFixed(Math.abs(v)<1?2:1));}
+function sum(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s;}
+function mapY(a,k){return a.map(function(r){return r[k];});}
+
+/* ---------- 계산 묶음(모두 캐시) ---------- */
+function ds(){var k=ST.H+'|'+ST.split;return DSC[k]||(DSC[k]=L.build503(SIM,ST.H,ST.split));}
+function ev(o){var k=ST.H+'|'+ST.split+'|'+(o.mode||'time')+'|'+(o.leak||[0,0,0]).map(Number).join('')+'|'+(o.depth==null?ST.depth:o.depth)+'|'+(o.target==null?'t':o.target);
+  return EVC[k]||(EVC[k]=L.eval503(ds(),{mode:o.mode||'time',leak:o.leak||[false,false,false],depth:o.depth==null?ST.depth:o.depth,target:o.target==null?'tot':o.target}));}
+function opr(){return ev({mode:'time',leak:[false,false,false]});}
+function roots(){var k='R|'+ST.H+'|'+ST.split+'|'+ST.depth;return EVC[k]||(EVC[k]=L.byRoot503(ds(),ST.depth));}
+function comp(){var k='C|'+ST.H+'|'+ST.split;return EVC[k]||(EVC[k]=L.composite503(ds()));}
+function mfit(){var k=ST.split;return MFC[k]||(MFC[k]=L.mask503(USES,k,ST.k,['full','add','fmm','set']));}
+function yte(){return mfit().te.map(function(u){return u.defect;});}
+function capOf(p,k){return L.riskCapture5(p,yte(),k);}
+function gains(){var k=ST.split;if(GCC[k])return GCC[k];var m=mfit(),y=yte(),xs=[],g={full:[],fmm:[],set:[]},i;for(i=0;i<=50;i++){var x=i/50;xs.push(x);['full','fmm','set'].forEach(function(n){g[n].push(x===0?0:L.riskCapture5(m.models[n].p,y,x).rate);});}
+  return GCC[k]={x:xs,g:g};}
+var MODN={mean:'평균 예측',persist:'지속 예측',linear:'직선 회귀',poisson:'포아송 회귀',tree:'회귀 트리'};
+function judge(x){return x>=0.15?'꽤 좋아 보입니다':x>=0.05?'좋아 보입니다':x>0.005?'조금 나아 보입니다':x>-0.005?'나아지지 않습니다':'기준보다 나쁩니다';}
+function ratio(r,k){return 1-r.score[k].mae/r.score.mean.mae;}
+
+/* ---------- 본문 속 숫자 ---------- */
+function buildV(){
+  V.days=String(DAYSA);V.nhr=fm(NHR);V.nev=fm(EV.length);V.nuse=fm(USES.length);V.nseeds=String(F.SEEDS);V.h0=String(F.H);V.s0=String(F.SPLIT);V.d0=String(F.DEPTH);V.nturn=String(MS.CFG.N_TURN);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');e.textContent=V[k]!=null?V[k]:'?';});
+}
+function liveSpans(){
+  var d=ds();LV.H=String(ST.H);LV.split=String(ST.split);LV.period=f1(d.period/1440)+'일';LV.skip=String(d.rows[0].h);LV.tdays=String(DAYSA-ST.split);LV.j1=judge(ratio(ev({mode:'shuffle',leak:[true,true,false],depth:F.DEPTH}),'linear'));
+  Array.prototype.forEach.call(document.querySelectorAll('[data-lv]'),function(e){e.textContent=LV[e.getAttribute('data-lv')];});
+}
+
+/* ---------- 그리기 ---------- */
+function drawBars(cv,labels,vals,o){
+  o=o||{};var c=setup(cv,o.h||210),x=c.x,W=c.w,H=c.h,n=vals.length,ml=o.ml||48,mr=12,mt=14,mb=o.mb||40,pw=W-ml-mr,ph=H-mt-mb;
+  var ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),warn=css('--warn');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var lo=o.lo!=null?o.lo:Math.min(0,Math.min.apply(null,vals)),hi=o.hi!=null?o.hi:Math.max(0.0001,Math.max.apply(null,vals));if(hi<=lo)hi=lo+1;
+  var pad=(hi-lo)*0.08;if(o.lo==null&&lo<0)lo-=pad;if(o.hi==null)hi+=pad;
+  function Y_(v){return mt+ph*(1-(v-lo)/(hi-lo));}
+  ticks(lo,hi,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText((o.suf?fmt(v)+o.suf:fmt(v)),ml-6,Y_(v));});
+  var bw=pw/n,bwi=Math.max(3,Math.min(bw*0.62,60));
+  vals.forEach(function(v,i){var bx=ml+bw*i+(bw-bwi)/2,y0=Y_(0),y1=Y_(v);x.fillStyle=o.col?o.col(i,v):acc;x.fillRect(bx,Math.min(y0,y1),bwi,Math.max(1,Math.abs(y1-y0)));
+    if(o.val){x.fillStyle=ink;x.textAlign='center';x.fillText(o.val(v,i),bx+bwi/2,v>=0?Y_(v)-8:Y_(v)+9);}});
+  x.strokeStyle=ink;x.globalAlpha=0.5;x.beginPath();x.moveTo(ml,Y_(0));x.lineTo(ml+pw,Y_(0));x.stroke();x.globalAlpha=1;
+  if(o.line!=null){x.setLineDash([5,4]);x.strokeStyle=warn;x.lineWidth=2;x.beginPath();x.moveTo(ml,Y_(o.line));x.lineTo(ml+pw,Y_(o.line));x.stroke();x.setLineDash([]);x.lineWidth=1;if(o.lineLab){x.fillStyle=warn;x.textAlign='right';x.fillText(o.lineLab,ml+pw-2,Y_(o.line)-8);}}
+  var every=Math.max(1,Math.ceil(n/(pw/(o.lw||64))));labels.forEach(function(t,i){if(i%every===0){x.fillStyle=soft;x.textAlign='center';var parts=String(t).split('|');parts.forEach(function(s,j){x.fillText(s,ml+bw*i+bw/2,mt+ph+13+j*13);});}});
+  return {x:x,ml:ml,bw:bw,Y_:Y_,pw:pw,ph:ph,mt:mt};
+}
+function drawLinesXY(cv,series,o){
+  o=o||{};var c=setup(cv,o.h||230),x=c.x,W=c.w,H=c.h,ml=o.ml||48,mr=o.mr||14,mt=12,mb=34,pw=W-ml-mr,ph=H-mt-mb;
+  var ink=css('--ink'),soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var xl=Infinity,xh=-Infinity,yl=o.ylo!=null?o.ylo:Infinity,yh=o.yhi!=null?o.yhi:-Infinity;
+  series.forEach(function(s){s.x.forEach(function(v){if(v<xl)xl=v;if(v>xh)xh=v;});if(o.ylo==null||o.yhi==null)s.y.forEach(function(v){if(o.ylo==null&&v<yl)yl=v;if(o.yhi==null&&v>yh)yh=v;});});
+  if(o.ylo==null&&yl>0)yl=0;if(yh<=yl)yh=yl+1;if(o.yhi==null)yh+=(yh-yl)*0.06;if(xh<=xl)xh=xl+1;
+  function X_(v){return ml+pw*(v-xl)/(xh-xl);}function Y_(v){return mt+ph*(1-(v-yl)/(yh-yl));}
+  ticks(yl,yh,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(o.ysuf?fmt(v*(o.yscale||1))+o.ysuf:fmt(v),ml-6,Y_(v));});
+  ticks(xl,xh,6).forEach(function(v){x.fillStyle=soft;x.textAlign='center';x.fillText((o.xfmt?o.xfmt(v):fmt(v)),X_(v),mt+ph+13);});
+  if(o.xlab){x.fillStyle=ink;x.textAlign='center';x.fillText(o.xlab,ml+pw/2,mt+ph+28);}
+  series.forEach(function(s){x.strokeStyle=s.color;x.lineWidth=s.w||2;x.setLineDash(s.dash||[]);x.beginPath();s.x.forEach(function(v,i){if(i===0)x.moveTo(X_(v),Y_(s.y[i]));else x.lineTo(X_(v),Y_(s.y[i]));});x.stroke();x.setLineDash([]);if(s.dots){x.fillStyle=s.color;s.x.forEach(function(v,i){x.beginPath();x.arc(X_(v),Y_(s.y[i]),3.2,0,6.2832);x.fill();});}});
+  if(o.vline!=null){x.setLineDash([4,4]);x.strokeStyle=css('--warn');x.lineWidth=1.5;x.beginPath();x.moveTo(X_(o.vline),mt);x.lineTo(X_(o.vline),mt+ph);x.stroke();x.setLineDash([]);}
+  return {X_:X_,Y_:Y_,x:x,ph:ph,mt:mt,ml:ml,pw:pw};
+}
+
+/* ---------- 1절 ---------- */
+function upd1(){
+  var feat=FE.map(function(f){return [f.id,esc(f.ko).replace(/H 시간/g,ST.H+'시간')];});
+  tbl('tabFeat1',['열 이름','뜻'],feat,[lc,lc]);
+  var r=ev({mode:'shuffle',leak:[true,true,false],depth:F.DEPTH}),lin=ratio(r,'linear'),tre=ratio(r,'tree');
+  drawBars($('cv1'),['평균만 말함|(기준)','직선 회귀','회귀 트리'],[r.score.mean.mae,r.score.linear.mae,r.score.tree.mae],{h:220,col:function(i){return i===0?css('--grey'):i===1?css('--accent'):css('--c8');},val:function(v){return fm(v)+'장';},lo:0});
+  $('ro1').innerHTML='지평 H = <b>'+ST.H+'시간</b>. 학습 '+fm(r.nTr)+'줄 · 시험 '+fm(r.nTe)+'줄(섞어 나눔), 특징 '+r.nf+'개 전부. 시험 MAE 는 평균만 말할 때 <b>'+fm(r.score.mean.mae)+'장</b>, 직선 회귀 <b>'+fm(r.score.linear.mae)+'장</b>(평균만 말할 때보다 '+pc(Math.abs(lin))+(lin>=0?' 작음':' 큼')+'), 회귀 트리 <b>'+fm(r.score.tree.mae)+'장</b>('+pc(Math.abs(tre))+(tre>=0?' 작음':' 큼')+')입니다. 직선 회귀는 평균만 말하는 것보다 오차가 작아 <b>'+judge(lin)+'</b>.';
+}
+/* ---------- 2절: 시간 칸 ---------- */
+function drawTL(){
+  var c=setup($('cvTL'),230),x=c.x,W=c.w,H=c.h,ink=css('--ink'),soft=css('--soft'),acc=css('--accent'),bad=css('--bad'),rule=css('--rule'),card=css('--code');
+  x.clearRect(0,0,W,H);x.font='12px sans-serif';x.textBaseline='middle';
+  var m=10,mid=W*0.5,ty=H*0.5;
+  x.fillStyle=card;x.fillRect(m,m,mid-m-4,H-2*m);x.fillRect(mid+4,m,W-mid-m-4,H-2*m);
+  x.strokeStyle=rule;x.strokeRect(m,m,mid-m-4,H-2*m);x.strokeRect(mid+4,m,W-mid-m-4,H-2*m);
+  x.fillStyle=acc;x.textAlign='left';x.font='bold 12px sans-serif';x.fillText('t 이전 — 이미 알고 있음',m+8,m+16);
+  x.fillStyle=bad;x.fillText('t 이후 — 아직 모름',mid+12,m+16);
+  x.font='12px sans-serif';x.fillStyle=ink;
+  var L1=['직전 시간 상태','지난 24시간에 끝난 사건 장수','PM 달력(지난 PM + 간격)','마지막 고장 뒤 경과'];
+  var R1=['구간 안 triple 평균','구간 안 사건의 근본 원인 비율','구간 안 사건이 잃게 하는 장수(정답)'];
+  var narrow=W<420,fs=narrow?11:12;x.font=fs+'px sans-serif';
+  L1.forEach(function(s,i){x.fillStyle=ink;x.fillText('· '+s,m+8,m+42+i*24);});
+  R1.forEach(function(s,i){x.fillStyle=i===2?soft:bad;x.fillText('· '+s,mid+12,m+42+i*24);});
+  x.strokeStyle=ink;x.lineWidth=2;x.beginPath();x.moveTo(m+8,H-46);x.lineTo(W-m-8,H-46);x.stroke();
+  x.beginPath();x.moveTo(mid,H-56);x.lineTo(mid,H-36);x.stroke();
+  x.fillStyle=ink;x.textAlign='center';x.fillText('t',mid,H-24);
+  x.textAlign='left';x.fillStyle=soft;x.fillText('과거',m+8,H-24);x.textAlign='right';x.fillText('다음 '+ST.H+'시간 → t+H',W-m-8,H-24);
+  x.fillStyle=bad;x.globalAlpha=0.28;x.fillRect(mid,H-52,W-mid-m-8,12);x.globalAlpha=1;
+}
+/* ---------- 3절 ---------- */
+var AV={before:'예측 시각 t 이전',inside:'예측 구간 안(t ~ t+H)',after:'구간이 끝난 뒤(근본 원인이 붙은 뒤)'};
+function used(f){return !f.leak||(f.id==='fut_triple'?ST.lk[0]:ST.lk[1]);}
+function upd3(){
+  var d=ds(),o={mode:ST.mode,leak:ST.lk.slice()},r=ev(o);
+  $('sH').value=String(ST.H);$('sHo').textContent=ST.H+'시간';$('sSplit').value=String(ST.split);$('sSplito').textContent=ST.split+'일';
+  var atDef=ST.H===DEF.H&&ST.split===DEF.split&&ST.mode===DEF.mode&&ST.lk.join()===DEF.lk.join()&&ST.model===DEF.model;
+  $('st3').className=atDef?'state':'state moved';
+  $('st3').textContent=atDef?'지금은 기본 설정입니다(H '+DEF.H+'시간 · 학습 '+DEF.split+'일 · 시간순 · 누설 없음 · 직선 회귀).':'지금은 기본 설정에서 옮겨 놓은 값입니다. 기본은 H '+DEF.H+'시간 · 학습 '+DEF.split+'일 · 시간순 · 누설 없음 · 직선 회귀입니다. 되돌리기 단추를 누르십시오.';
+  tbl('tabFeat',['특징','알려지는 시각','예측 시각에 쓸 수 있나','지금 시험에 넣었나'],FE.map(function(f){var ok=!f.leak;return [esc(f.ko),AV[f.avail],ok?'<b style="color:var(--good)">예</b>':'<b style="color:var(--bad)">아니오</b>',used(f)?'넣음':'뺌'];}),[lc,lc,null,null]);
+  var best=r.bestBase,bm=r.score[best];
+  var rows=['mean','persist','linear','poisson','tree'].map(function(k){var base=k==='mean'||k==='persist';var imp=base?null:r.imp[k];return [MODN[k]+(k===best?' (더 나은 기준)':''),base?'—':fm(r.train[k].mae),fm(r.score[k].mae),fm(r.score[k].rmse),base?'—':sp(imp)];});
+  tbl('tab3',['방법','학습 MAE(장)','시험 MAE(장)','시험 RMSE(장)','개선률'],rows,[lc,null,null,null,function(c){return c.indexOf('+')===0?'good':c.indexOf('−')===0?'hit':'';}]);
+  drawBars($('cv3'),['평균 예측','지속 예측','직선 회귀','포아송 회귀','회귀 트리'],['mean','persist','linear','poisson','tree'].map(function(k){return r.score[k].mae;}),{h:210,lo:0,col:function(i){return i<2?css('--grey'):(['linear','poisson','tree'][i-2]===ST.model?css('--accent'):css('--c10'));},val:function(v){return fm(v);},line:bm.mae,lw:70});
+  var lkN=ST.lk.filter(Boolean).length;
+  $('ro3').innerHTML='시험 방식 <b>'+(ST.mode==='time'?'시간순 분할':'섞어 나누기')+'</b> · 누설 특징 <b>'+lkN+'</b>개 켬 · 학습 '+fm(r.nTr)+'줄 / 시험 '+fm(r.nTe)+'줄 · 특징 '+r.nf+'개. 선택한 <b>'+MODN[ST.model]+'</b>의 개선률은 <b>'+sp(r.imp[ST.model])+'</b>입니다(더 나은 기준은 '+MODN[best]+', 시험 MAE '+fm(bm.mae)+'장). PM 달력 간격 추정값은 '+f1(d.period/1440)+'일, 출발 시각은 처음 '+d.rows[0].h+'시간 뒤부터입니다.';
+  var cells={};['shuffle','time'].forEach(function(m){[false,true].forEach(function(l){cells[m+l]=ev({mode:m,leak:[l,l,false]}).imp[ST.model];});});
+  function cell(m,l){var v=cells[m+l],cur=ST.mode===m&&ST.lk[0]===l&&ST.lk[1]===l&&!ST.lk[2];return '<td'+(cur?' class="warn"':'')+'>'+sp(v)+'</td>';}
+  $('tabMat').innerHTML='<tr><th>시험 방식</th><th>누설 끔</th><th>누설 켬(구간 안 특징 둘)</th><th>차이(켬 − 끔)</th></tr>'
+    +['shuffle','time'].map(function(m){return '<tr><td class="rowh">'+(m==='time'?'시간순 분할':'섞어 나누기')+'</td>'+cell(m,false)+cell(m,true)+'<td>'+sp(cells[m+true]-cells[m+false])+'</td></tr>';}).join('');
+  var inf=cells['shuffle'+false]-cells['time'+false],leakGap=cells['time'+true]-cells['time'+false];
+  $('roMat').innerHTML=MODN[ST.model]+': 누설 없이 재도 섞어 나누면 개선률이 <b>'+sp(inf)+'p</b> '+(inf>0.005?'부풀어 나오고':inf<-0.005?'낮게 나오고':'거의 같게 나오고')+'(이웃 행 효과), 시간순에서 누설을 켜면 <b>'+sp(leakGap)+'p</b> '+(leakGap>0.005?'더 좋아 보입니다':leakGap<-0.005?'나빠집니다':'바뀌지 않습니다')+'. 운영에서 쓸 수 있는 점수는 시간순·누설 끔 칸(<b>'+sp(cells['time'+false])+'</b>)입니다. 노란 칸이 지금 설정입니다.';
+}
+/* ---------- 4절 ---------- */
+function upd4(){
+  var r=opr(),bm=r.score[r.bestBase];
+  $('sDepth').value=String(ST.depth);$('sDeptho').textContent=String(ST.depth);
+  var atDef=ST.depth===DEF.depth;$('st4').className=atDef?'state':'state moved';
+  $('st4').textContent=atDef?'지금은 기본 깊이('+DEF.depth+')입니다.':'지금은 깊이를 '+ST.depth+'로 옮겨 놓았습니다. 기본은 '+DEF.depth+'입니다. 되돌리기 단추를 누르십시오.';
+  var rows=['mean','persist','linear','poisson','tree'].map(function(k){var base=k==='mean'||k==='persist';return [MODN[k]+(k==='tree'?'(깊이 '+ST.depth+')':'')+(k===r.bestBase?' ◂ 더 나은 기준':''),base?'—':fm(r.train[k].mae),fm(r.score[k].mae),fm(r.score[k].rmse),base?'—':sp(r.imp[k])];});
+  tbl('tab4',['방법','학습 MAE(장)','시험 MAE(장)','시험 RMSE(장)','개선률'],rows,[lc,null,null,null,function(c){return c.indexOf('+')===0?'good':c.indexOf('−')===0?'hit':'';}]);
+  var hs=r.hte,bestP=r.pred[r.bestBase],mP=r.pred[ST.model];
+  drawLinesXY($('cv4'),[{x:hs.map(function(h){return h/24;}),y:r.yte,color:css('--grey'),w:1.6},{x:hs.map(function(h){return h/24;}),y:bestP,color:css('--c8'),w:1.6,dash:[5,4]},{x:hs.map(function(h){return h/24;}),y:mP,color:css('--accent'),w:2}],{h:240,xfmt:function(v){return Math.round(v)+'일';},ylo:0});
+  var ds_=[1,2,3,4,5,6],trn=[],tst=[];
+  ds_.forEach(function(d){var q=ev({mode:'time',leak:[false,false,false],depth:d});trn.push(q.train.tree.mae);tst.push(q.score.tree.mae);});
+  var lo=Math.min.apply(null,trn.concat(tst,[bm.mae]))*0.9,hi=Math.max.apply(null,trn.concat(tst,[bm.mae]))*1.05;
+  var g=drawLinesXY($('cv4b'),[{x:ds_,y:trn,color:css('--c10'),w:2,dots:true},{x:ds_,y:tst,color:css('--accent'),w:2,dots:true},{x:[1,6],y:[bm.mae,bm.mae],color:css('--ink'),w:1.4,dash:[5,4]}],{h:200,mr:26,xfmt:function(v){return '깊이 '+Math.round(v);},ylo:lo,yhi:hi,xlab:'트리 깊이(깊을수록 학습 MAE 가 내려가는지, 시험 MAE 는 어떤지)'});
+  g.x.strokeStyle=css('--warn');g.x.lineWidth=2;g.x.beginPath();g.x.arc(g.X_(ST.depth),g.Y_(tst[ST.depth-1]),7,0,6.2832);g.x.stroke();
+  var d1=tst[0],dd=tst[ST.depth-1];
+  $('ro4').innerHTML='선택한 <b>'+MODN[ST.model]+'</b>의 시험 MAE 는 <b>'+fm(r.score[ST.model].mae)+'장</b>으로 더 나은 기준('+MODN[r.bestBase]+', '+fm(bm.mae)+'장)보다 <b>'+sp(r.imp[ST.model])+'</b>입니다. 트리는 깊이 1일 때 학습 MAE '+fm(trn[0])+'장 · 시험 MAE '+fm(d1)+'장이고, 깊이 '+ST.depth+'일 때 학습 MAE '+fm(trn[ST.depth-1])+'장 · 시험 MAE '+fm(dd)+'장입니다. 깊이를 올려 시험 MAE 가 '+(dd>d1+0.5?'오르면 학습 구간의 우연까지 외운 것입니다.':dd<d1-0.5?'내려가면 깊은 트리가 실제 구조를 더 잡은 것입니다.':'거의 그대로이면 깊이가 득이 되지 않은 것입니다.')+' 지속 예측('+fm(r.score.persist.mae)+'장)은 평균 예측('+fm(r.score.mean.mae)+'장)보다 '+(r.score.persist.mae>r.score.mean.mae?'나쁩니다 — 어제의 Loss 는 오늘의 Loss 를 잘 말해 주지 않습니다.':'낫습니다.');
+}
+/* ---------- 5절 ---------- */
+function upd5(){
+  var rt=roots(),cp=comp();
+  var rows=rt.map(function(g){return [g.ko,fm(g.meanTe),fm(g.mae.mean),fm(g.mae.persist),fm(g.mae.linear),fm(g.mae.tree),sp(g.imp.linear),sp(g.imp.tree)];});
+  tbl('tabRoot',['근본 원인 몫','시험 기간 평균(장)','평균 기준 MAE','지속 기준 MAE','직선 MAE','트리 MAE','직선 개선률','트리 개선률'],rows,[lc,null,null,null,null,null,function(c){return c.indexOf('+')===0?'good':'hit';},function(c){return c.indexOf('+')===0?'good':'hit';}]);
+  var lab=rt.map(function(g){return g.ko;}),vals=[];rt.forEach(function(g){vals.push(g.imp.linear);});
+  var c=setup($('cvRoot'),230),x=c.x,W=c.w,H=c.h,ml=52,mr=12,mt=14,mb=34,pw=W-ml-mr,ph=H-mt-mb,ink=css('--ink'),soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var all=[];rt.forEach(function(g){all.push(g.imp.linear,g.imp.tree);});var hi=Math.max(0.1,Math.max.apply(null,all)),lo=Math.min(-0.1,Math.min.apply(null,all));
+  lo=Math.max(lo,-0.6);function Y_(v){v=Math.max(lo,Math.min(hi,v));return mt+ph*(1-(v-lo)/(hi-lo));}
+  ticks(lo,hi,5).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText((v<0?'−':'')+Math.abs(Math.round(v*100))+'%',ml-6,Y_(v));});
+  var bw=pw/rt.length;
+  rt.forEach(function(g,i){[['linear',css('--accent')],['tree',css('--c8')]].forEach(function(p,j){var v=g.imp[p[0]],bx=ml+bw*i+bw*0.14+j*bw*0.36,wd=bw*0.32;x.fillStyle=p[1];x.fillRect(bx,Math.min(Y_(0),Y_(v)),wd,Math.max(1,Math.abs(Y_(v)-Y_(0))));var clip=v<=lo+1e-9;x.fillStyle=clip?'#fff':ink;x.textAlign='center';x.fillText((clip?'↓':(v<0?'−':'')+Math.abs(Math.round(v*100))+'%'),bx+wd/2,v>=0?Y_(v)-8:(clip?Y_(0)+12:Y_(v)+9));});x.fillStyle=soft;x.textAlign='center';x.fillText(g.ko,ml+bw*i+bw/2,mt+ph+16);});
+  x.strokeStyle=ink;x.globalAlpha=0.5;x.beginPath();x.moveTo(ml,Y_(0));x.lineTo(ml+pw,Y_(0));x.stroke();x.globalAlpha=1;
+  var pm=rt[0],fa=rt[2];
+  $('roRoot').innerHTML='정규 PM 몫은 직선 회귀로 <b>'+sp(pm.imp.linear)+'</b>(트리 '+sp(pm.imp.tree)+'), 고장 계열 몫은 <b>'+sp(fa.imp.linear)+'</b>(트리 '+sp(fa.imp.tree)+')입니다. '+(pm.imp.linear>fa.imp.linear+0.05?'달력 특징이 있는 몫만 기준을 이기고, 고장 계열은 '+(fa.imp.linear<=0.02?'기준을 이기지 못합니다.':'거의 개선이 없습니다.'):'두 몫의 차이가 크지 않습니다.')+' 마스크 불량 몫은 '+sp(rt[1].imp.linear)+', 그 밖 몫은 시험 기간 평균이 '+fm(rt[3].meanTe)+'장으로 작아 개선률로 말하기 어렵습니다. PM 몫만 모델로, 나머지는 학습 기간 평균으로 맞춰 더한 <b>분해 예측</b>의 전체 개선률은 <b>'+sp(cp.imp)+'</b>입니다(전체를 한 모델로 맞춘 직선 회귀는 '+sp(opr().imp.linear)+').';
+  updMem();
+}
+function memData(){var k='M|'+ST.code+'|'+ST.split;if(EVC[k])return EVC[k];var tmax=ST.split*1440,g=L.gaps503(EV,ST.code,tmax),edges=[0,3,6,10,14,21].map(function(d){return d*24;}),lt=L.lifeTable503(EV,ST.code,tmax,edges);return EVC[k]={gaps:g,lt:lt,edges:edges,split:L.lifeSplit5(lt,3)};}
+function updMem(){
+  var m=memData(),g=m.gaps,mu=L.mean(g),sd=L.sd5(g),lt=m.lt,sp3=m.split;
+  var h=g.length?Math.max.apply(null,g):0,w=72,nb=Math.max(4,Math.ceil((h+1)/w)),cnt=[];for(var i=0;i<nb;i++)cnt.push(0);g.forEach(function(v){cnt[Math.min(nb-1,Math.floor(v/w))]++;});
+  drawBars($('cvGap'),cnt.map(function(_,i){return (i*3)+'일~';}),cnt,{h:190,lo:0,col:function(){return css('--accent');},val:function(v){return v?String(v):'';},mb:36,lw:44});
+  var rates=lt.map(function(r){return r.rate*24;}),err=lt.map(function(r){return r.n>0?Math.sqrt(r.n)/r.expo*24:0;}),tot=L.lifeMean5(lt);
+  var c=setup($('cvHaz'),230),x=c.x,W=c.w,H=c.h,ml=52,mr=12,mt=14,mb=40,pw=W-ml-mr,ph=H-mt-mb,ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),warn=css('--warn');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var top=Math.max.apply(null,rates.map(function(v,i){return v+err[i];}).concat([1/(tot/24)*1.3]))*1.1;function Y_(v){return mt+ph*(1-v/top);}
+  ticks(0,top,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(fmt(v),ml-6,Y_(v));});
+  var bw=pw/lt.length;
+  lt.forEach(function(r,i){var bx=ml+bw*i+bw*0.2,wd=bw*0.6;x.fillStyle=acc;x.fillRect(bx,Y_(rates[i]),wd,Y_(0)-Y_(rates[i]));x.strokeStyle=ink;x.lineWidth=1.5;x.beginPath();x.moveTo(bx+wd/2,Y_(rates[i]+err[i]));x.lineTo(bx+wd/2,Y_(Math.max(0,rates[i]-err[i])));x.stroke();
+    x.fillStyle=soft;x.textAlign='center';x.fillText((r.lo/24)+(r.hi==null?'일 이상':'~'+(r.hi/24)+'일'),ml+bw*i+bw/2,mt+ph+13);x.fillText('건수 '+r.n+'·노출 '+fm(r.expo),ml+bw*i+bw/2,mt+ph+27);});
+  x.setLineDash([5,4]);x.strokeStyle=warn;x.lineWidth=2;x.beginPath();x.moveTo(ml,Y_(24/tot));x.lineTo(ml+pw,Y_(24/tot));x.stroke();x.setLineDash([]);
+  x.save();x.translate(12,mt+ph/2);x.rotate(-Math.PI/2);x.fillStyle=ink;x.textAlign='center';x.fillText('챔버·일당 고장 시작(건)',0,0);x.restore();
+  var perH=24/tot,exp=perH*NCH*ST.H/24,tstart=ST.split*1440,tn=0;EV.forEach(function(e){if(e.reason===ST.code&&e.root_cause===ST.code&&e.start_min>=tstart)tn++;});
+  var tdays=DAYSA-ST.split,act=tn/(tdays*24/ST.H);
+  $('selCodeO').textContent='';$('selCode').value=ST.code;
+  $('roMem').innerHTML='<b>'+L.info(ST.code).ko+'</b>(<code>'+ST.code+'</code>) · 학습 기간 '+ST.split+'일. 같은 챔버의 고장 간격 <b>'+g.length+'개</b>: 평균 <b>'+f1(mu)+'시간</b>, 표준편차 <b>'+f1(sd)+'시간</b>(변동계수 '+f2(sd/mu)+', 평균 = 표준편차이면 1). 관찰 끝에 걸린 간격은 빠지기 때문에 간격만의 평균은 실제보다 작게 나옵니다. 노출 시간으로 센 평균 대기는 <b>'+f1(tot/24)+'일</b>입니다. 앞 세 구간 대 뒤 세 구간의 위험률 비는 <b>'+f2(sp3.ratio)+'</b>(앞 '+f3(sp3.r1*24)+' → 뒤 '+f3(sp3.r2*24)+' 건/챔버·일), 정확 이항 검정 <b>'+pv(sp3.p)+'</b>로 '+(sp3.p>=0.05?'차이를 찾지 못합니다 — 무기억성과 맞습니다.':'차이가 있습니다 — 이 코드는 시간이 지날수록 위험률이 달라 무기억성으로 보기 어렵습니다.')+' 이 위험률로 기대하는 다음 '+ST.H+'시간의 고장 시작은 챔버 '+NCH+'곳 합쳐 <b>'+f1(exp)+'건</b>이고, 시험 기간의 실제 평균은 '+f1(act)+'건입니다.';
+}
+/* ---------- 6절 ---------- */
+function upd6a(){
+  var first=null;for(var i=0;i<USES.length;i++)if(USES[i].defect){first=USES[i];break;}
+  var rows=TRN.filter(function(x){return x.entity==='mask'&&x.id===first.mask_id;}),ix=-1,prev=-1;
+  rows.forEach(function(x,i){if(x.to==='in_use'){if(x.t===first.t)ix=i;else if(x.t<first.t)prev=i;}});
+  var ri=ix;for(var j=ix;j<rows.length;j++)if(rows[j].to==='repair'){ri=j;break;}
+  var seg=rows.slice(prev>=0?prev:ix,Math.min(rows.length,ri+3));
+  tbl('tabTr',['시작부터 분','마스크','전이','trigger','cause','이 줄의 뜻'],seg.map(function(x){var mean='';if(x.to==='in_use')mean='<b>사용 시작</b> — 나이 '+String(x.cause).replace('age=','');else if(x.to==='repair'&&x.trigger==='turn_end_defect')mean='<b>결함</b> — 이 사용의 결과 = 결함';else if(x.to==='repair')mean='리페어';else mean='세정·보관 경로';return [fm(x.t),x.id,x.from+' → '+x.to,x.trigger,esc(x.cause||''),mean];}),[null,null,lc,lc,lc,lc]);
+  var mine=USES.filter(function(u){return u.mask_id===first.mask_id;}),k0=mine.indexOf(first),sl=mine.slice(Math.max(0,k0-2),k0+2);
+  tbl('tabUse',['mask_id','t(분)','나이','블록','FMM','세트 평균 나이','결함'],sl.map(function(u){return [u.mask_id,fm(u.t),u.age,u.block,u.fmm,f1(u.setAge),u.defect];}),[null,null,null,null,null,null,function(c){return c===1?'hit':'';}]);
+  var n=USES.length,nd=sum(mapY(USES,'defect')),fu=USES.filter(function(u){return u.fmm;}),fd=sum(mapY(fu,'defect')),ages=USES.map(function(u){return u.age;}),old=ages.filter(function(a){return a>=20;}).length;
+  $('roUse').innerHTML='사용 <b>'+fm(n)+'회</b> 가운데 결함 <b>'+nd+'건</b>(결함률 '+pc(nd/n,2)+'). FMM 블록의 사용은 '+fm(fu.length)+'회 중 결함 '+fd+'건, 그 밖의 블록은 '+fm(n-fu.length)+'회 중 '+(nd-fd)+'건입니다. 나이의 중앙값은 '+fm(L.quantile(ages,0.5))+'이고 사용의 '+pc(old/n,0)+'가 나이 20 이상입니다.';
+}
+var AGEB=[[0,10,'0~9'],[10,20,'10~19'],[20,40,'20~39'],[40,80,'40~79'],[80,1e9,'80 이상']];
+function upd6b(){
+  var tr=USES.filter(function(u){return u.t<ST.split*1440;});
+  var rows=AGEB.map(function(b){var a=tr.filter(function(u){return u.age>=b[0]&&u.age<b[1];}),fa=a.filter(function(u){return u.fmm;}),na=a.filter(function(u){return !u.fmm;}),fd=sum(mapY(fa,'defect')),nd=sum(mapY(na,'defect'));return {lab:b[2],n:a.length,fn:fa.length,fd:fd,nn:na.length,nd:nd};});
+  var fd_=rows.map(function(r){return r.fd;}),mnf=Math.min.apply(null,fd_),mxf=Math.max.apply(null,fd_),inc=true;rows.forEach(function(r,i){if(i>0&&r.fn&&rows[i-1].fn&&r.fd/r.fn<rows[i-1].fd/rows[i-1].fn)inc=false;});
+  $('roAge').innerHTML='FMM 블록의 구간별 결함은 <b>'+mnf+'~'+mxf+'건</b>입니다. 건수의 우연한 흔들림은 대략 √건수여서 결함 '+mnf+'건인 구간은 ±'+pc(Math.sqrt(mnf)/Math.max(1,mnf),0)+'쯤 흔들립니다. 막대는 '+(inc?'나이가 오를수록 결함률이 오르는 모양이지만':'나이를 따라 한 방향으로 오르지 않고')+', 한 구간에 결함 서너 건이 더하거나 빠지면 모양이 바뀔 수 있는 크기입니다.';
+  tbl('tabAge',['나이 구간','사용 수','FMM 사용·결함','결함률(FMM)','그 밖 사용·결함','결함률(그 밖)'],rows.map(function(r){return [r.lab,fm(r.n),fm(r.fn)+' · '+r.fd,r.fn?pc(r.fd/r.fn,2):'—',fm(r.nn)+' · '+r.nd,r.nn?pc(r.nd/r.nn,2):'—'];}),[null,null,null,null,null,null]);
+  var c=setup($('cvAge'),220),x=c.x,W=c.w,H=c.h,ml=50,mr=12,mt=14,mb=34,pw=W-ml-mr,ph=H-mt-mb,ink=css('--ink'),soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var vals=[];rows.forEach(function(r){vals.push(r.fn?r.fd/r.fn:0,r.nn?r.nd/r.nn:0);});var top=Math.max(0.005,Math.max.apply(null,vals))*1.2;function Y_(v){return mt+ph*(1-v/top);}
+  ticks(0,top,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText((v*100).toFixed(1)+'%',ml-6,Y_(v));});
+  var bw=pw/rows.length;rows.forEach(function(r,i){[[r.fn?r.fd/r.fn:0,css('--accent'),r.fn],[r.nn?r.nd/r.nn:0,css('--c8'),r.nn]].forEach(function(p,j){var bx=ml+bw*i+bw*0.14+j*bw*0.36,wd=bw*0.32;x.fillStyle=p[1];x.fillRect(bx,Y_(p[0]),wd,Math.max(1,Y_(0)-Y_(p[0])));});x.fillStyle=soft;x.textAlign='center';x.fillText('나이 '+r.lab,ml+bw*i+bw/2,mt+ph+16);});
+}
+function fitRows(k){
+  var m=mfit(),y=yte(),res=[];
+  var base=m.base,pb=m.te.map(function(){return base.rate;});
+  res.push({name:'기준(학습 기간 결함률 하나)',coef:'절편 '+cf(Math.log(base.rate/(1-base.rate))),ll:base.logloss,cap:L.riskCapture5(pb,y,k)});
+  [['fmm','FMM 만'],['add','나이·FMM'],['full','나이·FMM·나이×FMM'],['set','세트 평균 나이(개체 id 없음)']].forEach(function(p){var mm=m.models[p[0]];res.push({name:p[1],key:p[0],coef:mm.beta.map(function(b,i){return (i===0?'절편 ':mm.names[i-1]+' ')+cf(b);}).join(' · '),ll:mm.logloss,cap:L.riskCapture5(mm.p,y,k)});});
+  return res;
+}
+function upd6c(){
+  $('sK').value=String(Math.round(ST.k*100));$('sKo').textContent=Math.round(ST.k*100)+'%';$('sBins').value=String(ST.bins);$('sBinso').textContent=ST.bins+'칸';$('sSplit6').value=String(ST.split);$('sSplit6o').textContent=ST.split+'일';
+  var atDef=ST.k===DEF.k&&ST.bins===DEF.bins&&ST.split===DEF.split;$('st6').className=atDef?'state':'state moved';
+  $('st6').textContent=atDef?'지금은 기본 설정입니다(점검 '+Math.round(DEF.k*100)+'% · 보정도 '+DEF.bins+'칸 · 학습 '+DEF.split+'일).':'지금은 기본 설정에서 옮겨 놓은 값입니다. 기본은 점검 '+Math.round(DEF.k*100)+'% · 보정도 '+DEF.bins+'칸 · 학습 '+DEF.split+'일입니다. 되돌리기 단추를 누르십시오.';
+  var m=mfit(),y=yte(),rows=fitRows(ST.k);
+  tbl('tabFit',['모델','계수','시험 로그 손실','상위 '+Math.round(ST.k*100)+'% 포착(결함 수)','포착률','무작위 대비 배율'],rows.map(function(r){return [r.name,esc(r.coef),f4(r.ll),f1(r.cap.captured)+' / '+r.cap.total,pc(r.cap.rate),f2(r.cap.rate/ST.k)+'배'];}),[lc,lc,null,null,null,null]);
+  var g=gains(),pt=drawLinesXY($('cvCap'),[{x:g.x,y:g.g.full,color:css('--accent'),w:2.4},{x:g.x,y:g.g.fmm,color:css('--c10'),w:1.8},{x:g.x,y:g.g.set,color:css('--c9'),w:1.8},{x:[0,1],y:[0,1],color:css('--grey'),w:1.5,dash:[5,4]}],{h:260,ylo:0,yhi:1.02,xfmt:function(v){return Math.round(v*100)+'%';},ysuf:'%',yscale:100,xlab:'점검하는 사용의 몫(위험 점수 높은 순) → 잡히는 결함의 몫'});
+  var cf_=rows[3].cap.rate;pt.x.fillStyle=css('--warn');pt.x.beginPath();pt.x.arc(pt.X_(ST.k),pt.Y_(cf_),6,0,6.2832);pt.x.fill();
+  var rr=rows[3].cap,rf=rows[1].cap;
+  $('roCap').innerHTML='시험 기간 사용 <b>'+fm(m.nTe)+'회</b>, 결함 <b>'+m.dTe+'건</b>. 위험 상위 <b>'+Math.round(ST.k*100)+'%</b>('+fm(Math.round(rr.check))+'회)를 미리 점검하면 결함 <b>'+f1(rr.captured)+'건</b>, 곧 <b>'+pc(rr.rate)+'</b>가 잡힙니다. 무작위로 같은 수를 점검하면 기대 '+f1(ST.k*m.dTe)+'건('+pc(ST.k,0)+')이라 <b>'+f2(rr.rate/ST.k)+'배</b>입니다. 블록 종류(FMM)만 쓰면 '+pc(rf.rate)+'이고, 나이를 넣어 '+(rr.rate>rf.rate+0.005?'<b>'+sp(rr.rate-rf.rate)+'p</b> 더 잡습니다.':rr.rate<rf.rate-0.005?'오히려 '+sp(rr.rate-rf.rate)+'p 덜 잡습니다.':'더 잡지 못합니다.')+' 개체 id 없이 세트 평균 나이만 쓰면 '+pc(rows[4].cap.rate)+'입니다. 로그 손실은 나이를 넣은 모델이 '+f4(rows[3].ll)+', 기준이 '+f4(rows[0].ll)+'입니다.';
+  var cal=L.calibTable5(m.models.full.p,y,ST.bins);
+  tbl('tabCal',['칸(낮은 쪽부터)','사용 수','예측 평균','실제 결함률','결함 수'],cal.map(function(r,i){return [i+1,fm(r.n),pc(r.pred,2),pc(r.rate,2),r.defects];}),[null,null,null,null,function(c){return c<5?'warn':'';}]);
+  var cp=drawLinesXY($('cvCal'),[{x:cal.map(function(r){return r.pred*100;}),y:cal.map(function(r){return r.rate*100;}),color:css('--accent'),w:2,dots:true},{x:[0,Math.max.apply(null,cal.map(function(r){return Math.max(r.pred,r.rate);}))*100*1.1],y:[0,Math.max.apply(null,cal.map(function(r){return Math.max(r.pred,r.rate);}))*100*1.1],color:css('--grey'),w:1.5,dash:[5,4]}],{h:230,xfmt:function(v){return fmt(v)+'%';},ysuf:'%',xlab:'예측 평균 → 실제 결함률(점선 = 정확히 맞음)',ylo:0});
+  var mn=Math.min.apply(null,cal.map(function(r){return r.defects;})),mx=0,err=0;cal.forEach(function(r){err+=Math.abs(r.pred-r.rate)*r.n;});err/=m.nTe;
+  $('roCal').innerHTML=ST.bins+'칸으로 나눴을 때 칸마다 결함이 <b>'+f1(mn)+'~'+f1(Math.max.apply(null,cal.map(function(r){return r.defects;})))+'건</b>입니다. 예측 평균과 실제 비율의 차이를 사용 수로 가중 평균하면 <b>'+pc(err,2)+'p</b>입니다. '+(mn<5?'결함이 5건 미만인 칸(노란 표시)은 실제 비율이 건수 한두 개에 흔들려서 칸 수를 줄이지 않으면 보정이 맞는지 틀린지 말할 수 없습니다.':'칸마다 결함이 어느 정도 있어 비율을 읽을 수 있습니다. 칸을 더 늘리면 건수가 얇아집니다.');
+}
+/* ---------- 7절 ---------- */
+var MET=[
+  {id:'capFull',name:'상위 k 포착률 — 나이·FMM·나이×FMM',cap:'p'},
+  {id:'capSet',name:'상위 k 포착률 — 세트 평균 나이만 남은 경우',cap:'pSet'},
+  {id:'capFmm',name:'상위 k 포착률 — FMM 만',cap:'pFmm'},
+  {id:'defects',name:'60일 결함 수(건)',key:'defects',f:function(v){return fm(v);}},
+  {id:'ageCoef',name:'나이 계수(나이·FMM 모델)',key:'ageCoef',f:f4},
+  {id:'impLin',name:'라인 전체 — 직선 회귀 개선률',key:'impLin',pct:true},
+  {id:'impPmLin',name:'정규 PM 몫 — 직선 개선률',key:'impPmLin',pct:true},
+  {id:'impFaultLin',name:'고장 계열 몫 — 직선 개선률',key:'impFaultLin',pct:true},
+  {id:'impComp',name:'분해 예측 — 전체 개선률',key:'impComp',pct:true}];
+function metVal(r,m){if(m.cap)return L.riskCapture5(r.keep[m.cap],r.keep.y,ST.k).rate;return r[m.key];}
+function metFmt(m,v){return m.cap||m.pct?pc(v):m.f(v);}
+function updSeed(){
+  var sel=$('selMet');if(!sel.options.length){MET.forEach(function(m){var o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o);});}
+  sel.value=ST.met;
+  var ready=SEED0&&SEEDS.length===F.SEEDS;
+  $('seedProg').className=ready?'state':'state moved';
+  $('seedProg').textContent=ready?'시드 '+F.SEEDS+'개를 모두 다시 돌렸습니다.':'시드를 다시 돌리는 중입니다 — '+(SEEDS.length+(SEED0?1:0))+' / '+(F.SEEDS+1)+'. 끝나면 분포가 나타납니다.';
+  if(!ready){var c=setup($('cvSeed'),150);c.x.clearRect(0,0,c.w,c.h);$('roSeed').textContent='';$('roSet').textContent='';$('tabSeed').innerHTML='';return;}
+  var m=MET.filter(function(q){return q.id===ST.met;})[0],vals=SEEDS.map(function(r){return metVal(r,m);}),v0=metVal(SEED0,m);
+  var lo=Math.min.apply(null,vals.concat([v0])),hi=Math.max.apply(null,vals.concat([v0])),nb=10,w=(hi-lo)/nb||1,cnt=[],i;for(i=0;i<nb;i++)cnt.push(0);vals.forEach(function(v){cnt[Math.min(nb-1,Math.floor((v-lo)/w))]++;});
+  var b=drawBars($('cvSeed'),cnt.map(function(_,j){var a=lo+j*w;return m.cap||m.pct?(100*a).toFixed(0)+'%':(m.id==='ageCoef'?a.toFixed(3):fmt(a));}),cnt,{h:210,lo:0,val:function(v){return v?String(v):'';},lw:50});
+  var xc=b.ml+b.bw*Math.min(nb-0.01,(v0-lo)/w),yy=b.mt+b.ph-6;b.x.fillStyle=css('--warn');b.x.beginPath();b.x.moveTo(xc,yy-9);b.x.lineTo(xc+8,yy);b.x.lineTo(xc,yy+9);b.x.lineTo(xc-8,yy);b.x.closePath();b.x.fill();
+  var capF=SEEDS.map(function(r){return L.riskCapture5(r.keep.p,r.keep.y,ST.k).rate;}),capS=SEEDS.map(function(r){return L.riskCapture5(r.keep.pSet,r.keep.y,ST.k).rate;}),dn=0;capS.forEach(function(v,ii){if(v<capF[ii])dn++;});
+  $('roSet').innerHTML='상위 '+Math.round(ST.k*100)+'% 점검의 포착률 중앙값은 개체 id 로 이은 모델이 <b>'+pc(L.quantile(capF,0.5))+'</b>, 세트 평균 나이만 남은 경우가 <b>'+pc(L.quantile(capS,0.5))+'</b>이며, 시드 '+F.SEEDS+'개 가운데 세트 평균 쪽이 더 낮은 시드는 <b>'+dn+'개</b>입니다.';
+  var pct=L.percentile(vals,v0);
+  $('roSeed').innerHTML='<b>'+m.name+'</b> — 시드 '+F.SEEDS+'개의 10·50·90% 는 <b>'+metFmt(m,L.quantile(vals,0.1))+' · '+metFmt(m,L.quantile(vals,0.5))+' · '+metFmt(m,L.quantile(vals,0.9))+'</b>이고, 기본 시드는 <b>'+metFmt(m,v0)+'</b>로 시드 분포의 <b>'+(100*pct).toFixed(0)+'%</b> 자리입니다'+(pct<0.25||pct>0.75?'(25~75% 밖 — 기본 시드의 값만 믿지 말고 분포로 말합니다).':'(25~75% 안).');
+  var rows=MET.map(function(q){var vs=SEEDS.map(function(r){return metVal(r,q);}),v=metVal(SEED0,q),p=L.percentile(vs,v);return [q.name,metFmt(q,L.quantile(vs,0.1)),metFmt(q,L.quantile(vs,0.5)),metFmt(q,L.quantile(vs,0.9)),metFmt(q,v),(100*p).toFixed(0)+'%',p<0.25||p>0.75?'분포로 말함':'안쪽'];});
+  tbl('tabSeed',['지표','10%','50%','90%','기본 시드','기본 시드의 자리','판정'],rows,[lc,null,null,null,null,null,function(c){return c==='분포로 말함'?'warn':'';}]);
+}
+/* ---------- 8절 ---------- */
+function upd8(){
+  var r=opr(),rt=roots(),cp=comp(),m=mfit(),rows=fitRows(ST.k),rr=rows[3].cap;
+  var ready=SEED0&&SEEDS.length===F.SEEDS;
+  function q(key,p){return L.quantile(SEEDS.map(function(s){return s[key];}),p);}
+  var sTxt=ready?' 시드 '+F.SEEDS+'개로 다시 재면 직선 회귀의 전체 개선률은 중앙값 '+sp(q('impLin',0.5))+'(10~90% '+sp(q('impLin',0.1))+' ~ '+sp(q('impLin',0.9))+')이고, 정규 PM 몫은 중앙값 '+sp(q('impPmLin',0.5))+', 고장 계열 몫은 '+sp(q('impFaultLin',0.5))+'입니다.':'';
+  var cs=ready?SEEDS.map(function(s){return L.riskCapture5(s.keep.p,s.keep.y,ST.k).rate;}):null;
+  var cTxt=ready?' 시드 '+F.SEEDS+'개에서 포착률은 중앙값 '+pc(L.quantile(cs,0.5))+'(10~90% '+pc(L.quantile(cs,0.1))+' ~ '+pc(L.quantile(cs,0.9))+')이며, 무작위 점검 기대 '+pc(ST.k,0)+'보다 낮은 시드는 '+cs.filter(function(v){return v<=ST.k;}).length+'개입니다.':'';
+  var lin=r.imp.linear,pmI=rt[0].imp.linear,faI=rt[2].imp.linear,medL=ready?q('impLin',0.5):null;
+  var head1='1) 내일 H = '+ST.H+'시간의 Loss — 전체 개선률 '+sp(lin)+(ready?'(시드 '+F.SEEDS+'개 중앙값 '+sp(medL)+')':'')+', 정규 PM 몫 '+sp(pmI)+', 고장 계열 몫 '+sp(faI)+'입니다.';
+  var verdict=pmI>faI+0.05?(faI<=0.02?' 달력 특징이 있는 몫(정규 PM)만 기준을 이기고 고장 계열은 기준을 이기지 못합니다.':' 달력 특징이 있는 몫(정규 PM)에서 개선이 가장 큽니다.'):' 몫 사이의 개선 차이가 크지 않습니다.';
+  $('conc8').innerHTML='<p><b>'+head1+'</b>'+verdict+' 누설 없이 시간순으로 잰 값이며 더 나은 기준은 '+MODN[r.bestBase]+'입니다. 고장은 시각이 아니라 비율로 계획에 넣습니다(다음 '+ST.H+'시간 기대 약 '+f1(24/L.lifeMean5(L.lifeTable503(EV,'EQ-BD',ST.split*1440,[0,72,144,240,336,504]))*NCH*ST.H/24)+'건). PM 몫만 모델로 맞춘 분해 예측의 전체 개선률은 '+sp(cp.imp)+'입니다.'+sTxt+' 이 숫자는 시험 기간 '+(DAYSA-ST.split)+'일에서 나온 것이라, 모델을 계획에 쓸 때는 기준보다 나은 몫에만 쓰고 시드 분포의 흔들림 폭도 함께 보고합니다.</p>'
+    +'<p><b>2) 점검할 마스크 '+Math.round(ST.k*100)+'% — 결함의 '+pc(rr.rate)+'를 잡습니다.</b> 시험 기간 결함 '+m.dTe+'건 가운데 위험 상위 '+Math.round(ST.k*100)+'%를 점검하면 '+f1(rr.captured)+'건이 잡혀 무작위 점검 기대 '+pc(ST.k,0)+'의 '+f2(rr.rate/ST.k)+'배입니다.'+cTxt+' 개체 id 로 이은 사용 이력이 없고 세트 평균 나이만 남으면 포착률이 '+pc(rows[4].cap.rate)+'로 바뀝니다. 결함이 몇십 건뿐이라 포착률의 구간이 넓다는 점을 숫자와 함께 보고합니다.</p>';
+
+}
+/* ---------- 9절 ---------- */
+function upd9(){
+  $('sCost').value=String(ST.cost);$('sCosto').textContent=ST.cost+'분';
+  var atDef=ST.cost===DEF.cost;$('st9').className=atDef?'state':'state moved';
+  $('st9').textContent=atDef?'지금은 기본 비용('+DEF.cost+'분)입니다.':'지금은 점검 비용을 '+ST.cost+'분으로 옮겨 놓은 가정입니다. 기본은 '+DEF.cost+'분입니다. 되돌리기 단추를 누르십시오.';
+  var m=mfit(),rows=fitRows(ST.k),rr=rows[3].cap,tdays=DAYSA-ST.split,tstart=ST.split*1440,Gm=0,tg=0,tm=0;
+  EV.forEach(function(e){tg+=e.loss_glass;tm+=e.loss_chamber_min;if(e.root_cause==='Q-MASK'&&e.start_min>=tstart)Gm+=e.loss_glass;});
+  var gpm=tg/tm,checks=ST.k*m.nTe,costG=checks*ST.cost*gpm,NT=MS.CFG.N_TURN,mo=30/tdays;
+  var avM=Gm*rr.rate,avR=Gm*ST.k,r=opr(),dm=r.score[r.bestBase].mae-r.score[ST.model].mae,nperiod=r.nTe/ST.H,lineG=dm*nperiod;
+  function row(n,v){return [n,fm(v),fm(v*mo),f1(v/NT*mo)];}
+  tbl('tab9',['항목','시험 기간 '+tdays+'일 (장)','월(30일) 환산 (장)','월 챔버 턴 수'],[
+    row('시험 기간 마스크 불량 Loss(근본 원인 마스크) 전체',Gm),
+    row('위험 순위 상위 '+Math.round(ST.k*100)+'% 점검으로 막는 장수(포착률 '+pc(rr.rate)+')',avM),
+    row('무작위 '+Math.round(ST.k*100)+'% 점검으로 막는 장수(기대)',avR),
+    row('점검 비용 — '+fm(checks)+'회 × '+ST.cost+'분 × 챔버 1분의 Loss '+f2(gpm)+'장',-costG),
+    row('순이익(순위 점검 − 비용)',avM-costG),
+    row('순위 점검이 무작위보다 더 막는 장수(비용은 같음)',avM-avR),
+    row('라인 예측 — 계획 오차가 기준 대비 줄어든 장수('+MODN[ST.model]+', MAE 차 × 구간 수 '+f1(nperiod)+')',lineG)],[lc,null,null,null]);
+  $('conc9').innerHTML='<b>점검 한 번이 '+ST.cost+'분일 때 순위 점검의 순이익은 '+(avM-costG>=0?'시험 기간 '+fm(avM-costG)+'장(월 '+fm((avM-costG)*mo)+'장)':'−'+fm(costG-avM)+'장으로 손해')+'입니다.</b> 무작위 점검 대비 순위 점검이 더 막는 장수는 '+fm(avM-avR)+'장입니다. '+(avM-costG<0?'점검 비용이 막는 장수보다 크므로 이 비용에서는 점검 몫을 줄이거나 점검 비용을 낮춰야 합니다. ':'')+'라인 예측은 &lsquo;계획 오차&rsquo;가 '+(lineG>=0?'줄어든 장수 '+fm(lineG)+'장':'기준보다 '+fm(-lineG)+'장 늘어난 것')+'이고 이것이 곧 Loss 의 증감은 아닙니다.';
+}
+/* ---------- 11절 ---------- */
+function fillReport(){
+  var d=ds(),r=opr(),rt=roots();
+  $('rp_fields').innerHTML='용도·지평 · 목표 정의 · 특징 목록과 각 &lsquo;알려지는 시각&rsquo; · 학습/시험 기간 · 기준 예측과 점수 · 모델 점수(기준 대비) · 근본 원인별 오차 · 예측이 안 되는 몫과 대신 쓰는 비율 · 보정도 · 재학습 주기·감시 지표 · 승인';
+  $('rp_ex').innerHTML='<ul style="margin:.2rem 0 .2rem 1.1rem;padding:0"><li><b>용도·지평</b> 세정 순서·예비 카세트 조정, H = '+ST.H+'시간 · <b>목표</b> 출발 시각 이후 H 시간 안에 시작한 사건의 잃은 유리 장수 합 · <b>특징</b> '+L.NLEG5+'개 모두 t 이전에 알 수 있는 값, 누설 점검에서 '+FE.filter(function(f){return f.leak;}).length+'개 제외 · <b>기간</b> 학습 '+ST.split+'일 / 시험 '+(DAYSA-ST.split)+'일</li>'
+   +'<li><b>기준과 점수</b> 평균 예측 '+fm(r.score.mean.mae)+'장 · 지속 예측 '+fm(r.score.persist.mae)+'장(시험 MAE) · <b>모델</b> 직선 '+fm(r.score.linear.mae)+'장('+sp(r.imp.linear)+') · 포아송 '+sp(r.imp.poisson)+' · 트리 '+sp(r.imp.tree)+'</li>'
+   +'<li><b>근본 원인별</b> PM 몫 직선 '+sp(rt[0].imp.linear)+' · 마스크 몫 '+sp(rt[1].imp.linear)+' · 고장 계열 몫 '+sp(rt[2].imp.linear)+' · <b>예측이 안 되는 몫</b> 고장 계열 — 시각이 아니라 위험률로 계획 · <b>보정도</b> 6절 표를 첨부 · <b>재학습·감시</b> 재학습 주기는 사람이 정하고, 감시 지표는 주간 시험 MAE 와 기준 MAE 의 비</li></ul>';
+  tbl('tabTool',['순서','함수','하는 일'],[['1','0400 파이프라인·0501 <code>reattribute</code>','늦은 자료를 반영한 기록, 근본 원인 칸 확인'],['2','<code>make_horizon_target</code>','출발 시각별 목표와 특징 표'],['3','<code>leak_check</code>','특징의 알려지는 시각으로 누설 점검'],['4','<code>baseline_forecast</code>·<code>time_split_eval</code>','기준 둘과 모델의 시간순 시험'],['5','<code>error_by_root</code>','근본 원인 몫별 개선률'],['6','<code>mask_use_table</code>','전이 기록 → 마스크 사용 표'],['7','<code>risk_rank_capture</code>·<code>calibration_table</code>','상위 k 포착률과 보정도 표'],['8','0411 방식 보고','모델 카드 초안']],[null,lc,lc]);
+}
+
+/* ---------- 새로 그리기 ---------- */
+function refresh(){
+  liveSpans();upd1();drawTL();upd3();upd4();upd5();upd6b();upd6c();updSeed();upd8();upd9();syncBars();
+}
+var BARS=[];
+function wireButtons(){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'),function(b){var id=b.getAttribute('data-mode');b.addEventListener('click',function(){ST.mode=id;refresh();});BARS.push({b:b,on:function(){return ST.mode===id;}});});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-lk]'),function(b){var i=+b.getAttribute('data-lk');b.addEventListener('click',function(){ST.lk[i]=!ST.lk[i];refresh();});BARS.push({b:b,on:function(){return ST.lk[i];}});});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-model]'),function(b){var id=b.getAttribute('data-model');b.addEventListener('click',function(){ST.model=id;refresh();});BARS.push({b:b,on:function(){return ST.model===id;}});});
+}
+function syncBars(){BARS.forEach(function(o){o.b.setAttribute('aria-pressed',String(!!o.on()));});}
+function bind(id,fn){$(id).addEventListener('input',function(){fn(+this.value);refresh();});}
+bind('sH',function(v){ST.H=v;});bind('sSplit',function(v){ST.split=v;});bind('sSplit6',function(v){ST.split=v;});bind('sDepth',function(v){ST.depth=v;});bind('sK',function(v){ST.k=v/100;});bind('sBins',function(v){ST.bins=v;});bind('sCost',function(v){ST.cost=v;});
+$('rA').addEventListener('click',function(){ST.H=DEF.H;ST.split=DEF.split;ST.mode=DEF.mode;ST.lk=DEF.lk.slice();ST.model=DEF.model;refresh();});
+$('rDepth').addEventListener('click',function(){ST.depth=DEF.depth;refresh();});
+$('rK').addEventListener('click',function(){ST.k=DEF.k;ST.bins=DEF.bins;ST.split=DEF.split;refresh();});
+$('rCost').addEventListener('click',function(){ST.cost=DEF.cost;refresh();});
+(function(){var s=$('selCode');['EQ-BD','Q-EVAP'].forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=L.info(c).ko+' ('+c+')';s.appendChild(o);});s.value=ST.code;s.addEventListener('change',function(){ST.code=this.value;refresh();});})();
+$('selMet').addEventListener('change',function(){ST.met=this.value;refresh();});
+window.addEventListener('resize',function(){refresh();});
+
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildV();wireButtons();upd6a();fillReport();refresh();
+/* 시드를 하나씩 다시 돌린다(몇 초 걸리므로 화면이 먼저 뜨고 뒤에서 채운다) */
+(function(){
+  var list=[L.DEFAULT_SEED],i;for(i=1;i<=F.SEEDS;i++)list.push(i);var at=0;
+  function step(){
+    if(at>=list.length){SEEDDONE=true;refresh();return;}
+    var r=L.seed503(list[at],F.H,F.SPLIT,F.DEPTH,F.K,true);if(at===0)SEED0=r;else SEEDS.push(r);at++;
+    $('seedProg').textContent='시드를 다시 돌리는 중입니다 — '+at+' / '+list.length+'. 끝나면 분포가 나타납니다.';
+    setTimeout(step,0);
+  }
+  setTimeout(step,60);
+})();
+window.__l3={st:ST,refresh:refresh,def:DEF,V:V,seeds:function(){return SEEDS;},seed0:function(){return SEED0;}};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
