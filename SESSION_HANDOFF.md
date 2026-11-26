@@ -7,14 +7,13 @@
 2026-11-26
 
 ## 무엇을 하던 중
-**Agent Lab 연속 제작 중**(기존 방식). 0605 배포 완료. 다음 0606 트랙 마지막 편 — Sonnet 위임. 0013 판정 대기.
+제조 AI Agent Lab 트랙 0606(마지막 실험실) 검증·배포. 트랙 WORKLIST 표 21줄 전부 ✅.
 
 ## 정확한 위치
-- 0606 설계 = `p6_spec.md` §6(준비됨). 환경은 `rl06.js`(step·arrival·train·policyFromQ·evalPolicy·runMethod 내보냄) 회수, 지금 규칙+ε 로그 생성은 새로. 제작물 예정 `agentlab/labs/0606-offline-rl-frontier.html` · `agentlab/data/off06.js`.
+`agentlab/labs/0606-offline-rl-frontier.html` · `agentlab/data/off06.js` · `_content/FDC/_teach/WORKLIST.md` 21줄 ✅
 
 ## 다음 한 걸음
-1. 0606 결과 검증(verify 직접 재실행, 지어낸 논문·제품·수치 없는지 Opus 직접 훑기) → 배포.
-2. WORKLIST 표 끝 — 다음 묶음은 사령관과 정함.
+WORKLIST 표가 끝남 → 다음 묶음은 사령관과 정한다(권장: 0401 report·0402 run_agent 처럼 도구 상자 표에만 있고 def 없는 함수 정리 → 트랙 통독 감사 → 회사 데이터 적용 준비).
 
 ## 열린 질문
 - 기둥 1 현행 "3시그마 비교법" 정의 확정(권장: "이전 평균 ±3σ 안에 이후 데이터가 드는지").

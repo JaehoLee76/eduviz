@@ -1,0 +1,1094 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>지금 닿을 수 있는 한계선</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="트윈 없이 쌓인 로그만으로 정책을 배우는 오프라인 강화학습의 함정(로그에 드문 행동의 가치를 부풀리는 것)과 횟수 기반 벌점의 보수적 학습, 로그 다양성(ε)과 크기의 효과를 계산으로 보고, LLM 에이전트 강화학습이 어느 단계인지 확립과 연구 단계로 가르고, 우리 부서의 단계 점검표와 트랙 전체의 기록·도구 총괄표를 남기는 마지막 실험실입니다.">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+
+td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+table.nw1 td:first-child,table.nw1 th:first-child{white-space:nowrap}
+table.nwall td{white-space:nowrap}
+
+.loopmap{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .4rem}
+.lp{display:flex;flex-direction:column;gap:.1rem;min-width:8.5rem;padding:.5rem .7rem;border:1.5px solid var(--accent);border-radius:10px;background:var(--card);font-size:.9rem}
+.lp b{color:var(--ink)}
+.lp span{font-size:.85rem;color:var(--soft)}
+.lp.mine{background:color-mix(in srgb,var(--accent) 20%,var(--card));border-width:3px}
+.lpa{font-size:1.2rem;color:var(--accent);font-weight:800}
+.lpa.back{flex:1 1 100%;font-size:.9rem;font-weight:700;color:var(--soft);padding:.2rem 0}
+[hidden]{display:none!important}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">마지막 장 · 기둥 6 · 실험실 0606 · 이 트랙의 마지막 실험실</p>
+  <h1>지금 닿을 수 있는 한계선 — 오프라인 강화학습과 LLM 에이전트</h1>
+  <p class="sub">트윈을 믿을 수 없을 때 남는 길은 쌓인 로그만으로 정책을 배우는 것입니다. 그 길의 함정을 계산으로 보고, LLM 에이전트 강화학습이 어디까지 와 있는지를 &lsquo;확립&rsquo;과 &lsquo;연구 단계&rsquo;로 가르고, 우리 부서가 오늘 어느 단계에 서 있는지 점검합니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0605-policy-learning-in-twin.html">← 이전: 트윈 안에서 정책 학습</a><span class="sp"></span></nav>
+
+<p><b>0605 는 트윈이 있다는 전제에서 정책을 배웠습니다.</b> 이 실험실은 그 전제를 걷어 냅니다. 트윈이 없거나 믿을 수 없고, 있는 것은 라인에서 쌓인 판단 기록(로그)뿐일 때 무엇을 배울 수 있고 무엇은 배울 수 없는가를 다룹니다. 예는 0605 와 같은 세트 교체 시점입니다. 다음 세트가 늦을 때 대기 중인 다른 세트로 먼저 바꿀지, 끝까지 기다릴지를 정하는 일입니다. 이 장은 트랙의 마지막이어서 두 가지를 더 합니다. LLM 에이전트를 강화학습으로 키우는 일이 지금 어느 단계인지 가르고, 지금까지 만든 모든 도구와 기록 목록을 한 장에 모아 우리 부서의 단계 점검표를 완성합니다.</p>
+
+<div class="watch"><b>이 실험실의 환경은 0605 와 같은 학습용 작은 모형입니다.</b> 한 판의 구조(상태 390칸·행동 둘·잃는 장수)와 실제 판 기록은 0605 의 것을 그대로 가져옵니다. 새로 만드는 것은 로그입니다. 실제 라인에서 지금 규칙으로 운영되며 쌓인 판단 기록을 가정하고, 그 위에서 정책을 배우는 세 가지 방법을 견줍니다. 로그를 쌓는 방식·벌점 세기·교체 비용 같은 숫자는 가정이며 슬라이더로 바꿔 봅니다.</div>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0401·0411 의 에이전트 구조(숫자는 도구, 판정은 규칙, 문장은 LLM, 승인은 사람)와 검증 설계, 0601 의 닫힌 고리 점검표, 0604 의 기록 정책(로그에 남기는 행동 규칙)·성향 점수(고른 행동의 확률)·지원(평가할 규칙이 고를 행동이 로그에 실제로 있는 것)·탐색 ε, 0605 의 Q(칸·행동마다 판이 끝날 때까지 받을 보상의 합의 기댓값)·보상·정책·시뮬-실제 전이 손실.</p>
+  <ul class="chips known"><li>에이전트 구조·검증 설계 (0401·0411)</li><li>닫힌 고리 점검표 (0601)</li><li>성향 점수·지원 (0604)</li><li>탐색 ε (0604)</li><li>Q · 보상 · 정책 (0605)</li><li>전이 손실 (0605)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(경험 모형·벌점 β·횟수표)은 쓰는 자리에서 문장이나 식으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>오프라인 강화학습 (offline RL)</li><li>분포 밖 행동 (out-of-distribution action)</li><li>가치 과대평가 (overestimation)</li><li>보수적 학습 (pessimism / conservative Q)</li><li>행동 복제 (behavior cloning)</li><li>연구 단계 (open problem)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — &ldquo;로그가 많으니 AI 가 알아서 최적 운영을 배우게 하자&rdquo;는 제안을 들었을 때 오늘 약속할 수 있는 일과 연구인 일을 가르고, 우리 부서가 시작할 단계를 고르는 것(1~8절, 15절).</li>
+    <li><b>손으로 연습</b> — 로그의 횟수표를 읽기(1절), 행동 복제가 왜 개선을 못 주는지 보기(2절), 로그만으로 만든 Q 가 로그에 없던 행동을 부풀리는 것 보기(3절), 벌점으로 바로잡고 벌점 한 칸을 손으로 따라가기(4절), ε 와 로그 크기를 바꿔 결과가 달라지는 것 보기(5절), 트윈 학습과 견주기(6절), 부서 점검표 체크(8절).</li>
+    <li><b>다음 날 산출물</b> — <code>count_table</code>·<code>behavior_clone</code>·<code>offline_q</code>·<code>conservative_q</code>·<code>ood_check</code> Python 함수(12절)와 <b>우리 부서 단계 점검표</b>(8절), 그리고 트랙 전체의 기록 총괄표(9절)·도구 총괄표(10절).</li>
+    <li><b>기록할 데이터</b> — 오프라인 학습의 재료가 되는 결정 기록(상태·고른 행동·고른 확률·결과)과 탐색 ε 의 운영 기록(13절). 트랙 전체의 기록 목록은 9절에 하나로 모았습니다.</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 보상과 벌점 세기·승인은 사람, 근거 없는 선택이 있으면 중단하는 것은 규칙, 학습·점검·보고서 초안은 에이전트(13절).</li>
+    <li><b>성과 환산</b> — 단순 오프라인 Q 를 그대로 썼을 때의 손해와 보수적 Q 가 줄이는 Loss(장수·월 환산, 11절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 회사에서 이런 제안이 나왔습니다. <b>&ldquo;세트 교체 기록이 이만큼 쌓였으니, AI 가 이 기록에서 알아서 최적 운영 방식을 배워 지금 규칙을 대체하게 하면 어떻습니까. 트윈은 필요 없고 로그만 있으면 됩니다.&rdquo;</b> 승인 담당자로서 다음 셋에 답해 주십시오. 1) 이 제안에서 오늘 약속할 수 있는 것과 약속할 수 없는 것은 무엇입니까. 2) 그 기록에 무엇이 들어 있어야 합니까. 3) 우리 부서는 지금 몇 단계에 서 있고 다음 걸음은 무엇입니까.
+  <p class="note" style="margin:.5rem 0 0">로그는 0605 와 같은 환경에서 쌓인 것으로 가정합니다. 지금 규칙(끝까지 기다림)에 작은 확률 ε 로 일부러 다른 행동을 섞었고(0604), 고른 확률도 함께 적었습니다. 판 수·ε·로그 시드는 슬라이더로 바꿉니다. 정책의 성적은 0605 와 같은 실제 판 기록 <span data-v="nreal"></span>개에 다시 돌려 재고, 숨은 값은 14절 &lsquo;정답 열기&rsquo; 뒤에만 나옵니다. 로그 하나로 단정하지 않고 로그 시드 <span data-v="nseed"></span>개의 분포를 함께 봅니다. 1절에서 로그를 읽고, 2~4절에서 로그만으로 배우는 방법 셋을 견주고, 5절에서 로그의 다양성과 크기를 바꾸고, 6절에서 트윈과 견주고, 7~10절에서 LLM 에이전트의 현재 위치와 부서 점검표·총괄표를 만들고, 15절에서 처음 제안에 답합니다.</p>
+</div>
+
+<div class="solban">여기서부터 가상 공장의 로그와 실제 판 기록으로 푸는 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>로그 읽기 — 칸과 행동마다 몇 번 있는가</h2>
+<p>로그의 한 줄은 판단 한 번입니다. <b>그때의 상태</b>(남은 유리 r, 아직 안 왔으면 시작부터 지난 간격 수 k, 이미 왔으면 온 뒤 기다린 간격 수 w), <b>고른 행동</b>(기다림 0 · 지금 교체 1), <b>고른 확률</b>(0604 의 성향 점수), <b>그 뒤 잃은 장수</b>를 적습니다. 기록 정책은 지금 규칙입니다. 늘 기다리되, 판단마다 확률 ε 로 두 행동 가운데 하나를 같은 확률로 무작위로 고릅니다. 그래서 교체를 고를 확률은 ε/2, 기다림을 고를 확률은 1 − ε/2 입니다. 다음 세트가 오는 시각은 우리가 무엇을 고르든 달라지지 않습니다(0605 와 같은 가정).</p>
+<p>이 로그에서 가장 먼저 만들 것은 <b>횟수표</b>입니다. 상태 칸마다 행동을 몇 번 골랐는지 세어 둔 표이고, 0604 의 지원을 칸 단위로 본 것입니다. 이 장의 모든 판단은 이 표에서 출발합니다.</p>
+<div class="lab">
+  <div class="labtitle">로그의 설정과 횟수표</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> ε 를 0 으로 내리면 교체를 본 칸이 어떻게 되는지, 판 수를 늘리면 어느 칸부터 채워지는지 보십시오. 회색 칸은 로그가 그 상태에 한 번도 가 보지 못한 곳이고, 주황 테두리는 기다림은 봤는데 교체는 한 번도 못 본 칸입니다.</div>
+  <div class="ctrl"><label for="sE1">기록 정책의 탐색 ε</label><input id="sE1" type="range" min="0" max="4" step="1" value="3"><output id="sE1o"></output></div>
+  <div class="ctrl"><label for="sN1">로그의 판 수</label><input id="sN1" type="range" min="0" max="3" step="1" value="1"><output id="sN1o"></output></div>
+  <div class="ctrl"><label for="sS1">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS1" type="range" min="1" max="200" step="1" value="130"><output id="sS1o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL1" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL1"></div>
+  <canvas id="cvC1"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>교체를 본 횟수(진할수록 많음)</span><span><i class="dot" style="background:var(--code);border:2px solid var(--c8)"></i>기다림만 본 칸</span><span><i class="dot" style="background:var(--grey)"></i>한 번도 안 가 본 칸</span></div>
+  <div class="readout" id="ro1"></div>
+  <div class="tbwrap"><table class="mt" id="tab1"></table></div>
+</div>
+<p class="note">위 그림은 도착 전 상태(세로 남은 유리 r, 가로 시작부터 지난 간격 수 k)만 보입니다. 도착 뒤 상태도 같은 방식으로 셉니다. 로그가 한 줄도 가 보지 못한 곳이 있다는 것, 그리고 교체를 본 칸이 기다림을 본 칸보다 훨씬 적다는 것이 다음 절들의 출발점입니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도와 막힘 — 로그를 그대로 따라 하면</h2>
+<p>로그가 있으니 가장 쉬운 학습은 로그의 행동을 그대로 따라 하는 것입니다. 칸마다 로그에서 더 자주 고른 행동을 정책으로 삼는 방법을 <b>행동 복제(behavior cloning)</b>라 하겠습니다. 비교의 기준으로도 씁니다.</p>
+<div class="lab">
+  <div class="labtitle">행동 복제의 성적: 실제 판 기록에 다시 돌려서</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 복제한 정책이 지금 규칙과 얼마나 다른지, ε 를 키우거나 판 수를 줄이면 달라지는지 보십시오.</div>
+  <div class="ctrl"><label for="sE2">기록 정책의 탐색 ε</label><input id="sE2" type="range" min="0" max="4" step="1" value="3"><output id="sE2o"></output></div>
+  <div class="ctrl"><label for="sN2">로그의 판 수</label><input id="sN2" type="range" min="0" max="3" step="1" value="1"><output id="sN2o"></output></div>
+  <div class="ctrl"><label for="sS2">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS2" type="range" min="1" max="200" step="1" value="130"><output id="sS2o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL2" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL2"></div>
+  <div class="tbwrap"><table class="mt num" id="tab2"></table></div>
+  <div class="readout" id="ro2"></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<p><b>막힘:</b> 로그는 &lsquo;무엇을 했는가&rsquo;를 알려 줄 뿐 &lsquo;그것이 좋았는가&rsquo;는 알려 주지 않습니다. 좋았는지는 로그의 보상(그 뒤 잃은 장수)에 있습니다. 개선을 얻으려면 행동만이 아니라 보상까지 써서 칸마다 &lsquo;이 행동을 하면 끝까지 얼마나 잃는가&rsquo;를 만들어야 합니다. 그것이 0605 의 Q 입니다. 이번에는 트윈 안 판이 아니라 로그의 줄에서 만듭니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>로그로 Q 를 만들면 — 오프라인 강화학습과 가치 과대평가</h2>
+<p>새로 시도하지 않고 이미 쌓인 로그만으로 정책을 배우는 것을 <b>오프라인 강화학습(offline reinforcement learning)</b>이라 합니다. 만드는 법은 이렇습니다. 로그에 있는 (칸, 행동)마다 평균 보상과 &lsquo;다음에 어느 칸으로 갔는가&rsquo;의 비율을 세어 <b>경험 모형</b>을 만들고, 그 위에서 Q 를 정합니다. 값은 판이 끝나는 쪽부터 <span data-v="sweeps"></span>번 되풀이해 갱신합니다. 로그에 한 번도 없는 (칸, 행동)은 Q 를 0 에서 출발해 그대로 둡니다. 보상이 모두 0 이하이므로 0 점은 가능한 가장 좋은 값입니다. 0605 에서는 이것이 도움이었습니다. 안 해 본 행동이 0 점으로 가장 좋아 보여서 트윈 안에서 직접 해 보게 됐으니까요. 로그만 있으면 해 볼 수 없으므로, 그 0 점이 그대로 정책에 들어갑니다.</p>
+<p>로그에서 그 상태에 거의 골라지지 않은 행동(이 장에서는 로그에서 <span data-v="nmin"></span>번 미만 본 행동)을 <b>분포 밖 행동(out-of-distribution action)</b>이라 부르겠습니다. 분포 밖 행동의 Q 가 근거 없이 커져 정책이 그쪽을 고르는 현상을 <b>가치 과대평가(overestimation)</b>라 합니다. 크기는 아래 식입니다. 이 모형에서 &lsquo;지금 교체&rsquo;의 참 값은 보상 규칙에서 바로 나옵니다. 교체하면 판이 끝나므로 교체 손실 하나뿐이기 때문입니다. 남은 유리가 있으면 교체 세 번(−<span data-v="sw3"></span>), 없으면 두 번(−<span data-v="sw2"></span>)입니다.</p>
+<div class="eq">
+  <span class="eqlab">가치 과대평가의 크기: 로그로 만든 Q 와 참 값의 차</span>
+  <math display="block"><mrow><mi>&#x0394;</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>=</mo><mover><mi>Q</mi><mo>&#x02C6;</mo></mover><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>&#x2212;</mo><msup><mi>Q</mi><mo>&#x2217;</mo></msup><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">Q̂ 는 로그로 만든 값, Q* 는 실제 라인의 참 값입니다. Δ 가 0 보다 크게 양수인 칸을 정책이 고르면 근거 없이 부풀린 값을 믿은 것입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">로그만으로 만든 단순 오프라인 Q 의 정책</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 교체를 본 적 없는 칸에서 Q̂(교체) 가 0 이어서 참 값보다 얼마나 높은지, 그 칸을 정책이 고르는지(주황) 보십시오. 그렇게 만든 정책의 성적이 지금 규칙·행동 복제와 어떻게 다른지, 판 중에 근거 없는 선택이 얼마나 자주 끼는지도 보십시오.</div>
+  <div class="ctrl"><label for="sE3">기록 정책의 탐색 ε</label><input id="sE3" type="range" min="0" max="4" step="1" value="3"><output id="sE3o"></output></div>
+  <div class="ctrl"><label for="sN3">로그의 판 수</label><input id="sN3" type="range" min="0" max="3" step="1" value="1"><output id="sN3o"></output></div>
+  <div class="ctrl"><label for="sS3">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS3" type="range" min="1" max="200" step="1" value="130"><output id="sS3o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL3" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL3"></div>
+  <div class="two"><div><canvas id="cvN3a"></canvas></div><div><canvas id="cvN3b"></canvas></div></div>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>기다림(근거 있음)</span><span><i class="dot" style="background:var(--c8)"></i>교체(근거 있음)</span><span><i class="dot" style="background:var(--bad)"></i>교체인데 로그에서 거의 못 본 행동(분포 밖)</span><span><i class="dot" style="background:var(--grey)"></i>한 번도 안 가 본 칸(지금 규칙으로 되돌림)</span></div>
+  <div class="tbwrap"><table class="mt num" id="tab3"></table></div>
+  <div class="readout" id="ro3"></div>
+  <div class="concl" id="conc3"></div>
+</div>
+<p>이 결과를 읽을 때 조심할 점이 있습니다. 단순 오프라인 Q 의 정책이 지금 규칙보다 훨씬 낮은 Loss 를 낸다고 해서 로그가 그 정책을 뒷받침한다는 뜻은 아닙니다. 지금 규칙이 이 환경에서 너무 비싸서(끝까지 기다리면 블록이 오래 섭니다), 근거 없이 아무 때나 바꾸는 선택도 우연히 이득으로 나온 것입니다. 그 선택이 손해인 칸이 있는지는 14절에서 숨은 값으로 확인합니다. 판 중에 근거 없는 선택이 끼는 비율이 큰 정책은 승인 대상이 아니라는 규칙은, 성적이 좋아 보일 때 더 필요합니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>보수적 학습 — 로그에 드문 행동은 깎아서 고릅니다</h2>
+<p>근거 없는 선택을 막으려면, 로그에서 드물게 본 행동일수록 Q 를 깎아서 비교하면 됩니다. 이렇게 드문 행동의 가치를 일부러 낮춰 잡는 학습을 <b>보수적 학습(pessimism / conservative Q)</b>이라 합니다. 이 장에서는 횟수 기반 벌점을 씁니다. n(s, a) 는 로그에서 칸 s 의 행동 a 를 본 횟수이고, β 는 벌점 세기(장)입니다.</p>
+<div class="eq">
+  <span class="eqlab">횟수 기반 벌점: 정책이 비교하는 값</span>
+  <math display="block"><mrow><mover><mi>Q</mi><mo>&#x02DC;</mo></mover><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>=</mo><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>&#x2212;</mo><mfrac><mi>&#x03B2;</mi><msqrt><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>+</mo><mn>1</mn></mrow></msqrt></mfrac></mrow></math>
+  <span class="note">한 번도 못 본 행동은 n = 0 이라 벌점이 β 그대로이고, 본 횟수가 늘수록 1/√(n+1) 로 줄어듭니다(3번 보면 절반, 8번 보면 3분의 1). 정책은 Q̃ 가 더 큰 행동을 고릅니다. β = 0 이면 3절의 단순 오프라인 Q 입니다.</span>
+</div>
+<p>벌점은 <b>고르는 순간에만</b> 씁니다. 값을 판의 앞 칸으로 이어받을 때는 고른 행동의 벌점 전 Q 를 씁니다. 벌점 뒤 값을 이어받게 하면 칸마다 깎인 벌점이 판의 길이만큼 쌓여서, 길게 가는 &lsquo;기다림&rsquo;이 불리해지고 정책이 &lsquo;바로 교체&rsquo;로 치우칩니다. 아래 체크 상자로 확인해 보십시오. β 의 기본값 <span data-v="beta"></span>장은 교체 한 번(<span data-v="csw"></span>장)의 세 배, 곧 도착 전에 대기 중인 다른 세트로 바꿀 때의 최대 교체 손실입니다. 보상식과 마찬가지로 사람이 정하는 가정이고, 로그만으로는 이 값을 고를 근거가 없습니다(13절).</p>
+<div class="lab">
+  <div class="labtitle">벌점 세기 β 에 따른 정책과 성적</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> β 가 너무 작으면 3절과 같아지고 너무 크면 지금 규칙 쪽으로 되돌아가는지, 그 사이에서 근거 없는 선택(빨강)이 사라지는지 보십시오. 체크 상자를 켜면 벌점이 쌓여 정책이 어떻게 치우치는지도 보십시오.</div>
+  <div class="ctrl"><label for="sE4">기록 정책의 탐색 ε</label><input id="sE4" type="range" min="0" max="4" step="1" value="3"><output id="sE4o"></output></div>
+  <div class="ctrl"><label for="sN4">로그의 판 수</label><input id="sN4" type="range" min="0" max="3" step="1" value="1"><output id="sN4o"></output></div>
+  <div class="ctrl"><label for="sS4">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS4" type="range" min="1" max="200" step="1" value="130"><output id="sS4o"></output></div>
+  <div class="ctrl"><label for="sB4">벌점 세기 β (장)</label><input id="sB4" type="range" min="0" max="7" step="1" value="4"><output id="sB4o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL4" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL4"></div>
+  <div class="row"><button class="btn ghost" id="rB4" type="button">벌점 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stB4"></div>
+  <label class="chk"><input type="checkbox" id="cStack"> 벌점을 값 이어받기에도 쌓기(권하지 않는 방식, 비교용)</label>
+  <canvas id="cvB4"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>보수적 Q 의 실제 Loss (로그 시드 <span data-v="nlive"></span>개 중앙값과 10~90 % 띠)</span><span><i class="dot" style="background:var(--grey)"></i>벌점이 없는 단순 오프라인 Q(β = 0)의 중앙값, 점선</span></div>
+  <div class="two"><div><canvas id="cvN4a"></canvas></div><div><canvas id="cvN4b"></canvas></div></div>
+  <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>기다림(근거 있음)</span><span><i class="dot" style="background:var(--c8)"></i>교체(근거 있음)</span><span><i class="dot" style="background:var(--bad)"></i>교체인데 로그에서 거의 못 본 행동(분포 밖)</span><span><i class="dot" style="background:var(--grey)"></i>한 번도 안 가 본 칸</span></div>
+  <div class="tbwrap"><table class="mt num" id="tab4"></table></div>
+  <div class="readout" id="ro4"></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<p><b>벌점 한 칸을 손으로 따라가기.</b> 아래에서 도착 전 칸 하나를 고르면, 그 칸에서 로그가 본 횟수·Q·벌점·벌점 뒤 값이 한 줄로 나옵니다. 어느 행동이 이기는지 직접 계산해 보고 맞는지 견주십시오.</p>
+<div class="lab">
+  <div class="labtitle">한 칸의 벌점 계산 (도착 전 상태, 지금 로그와 β)</div>
+  <div class="ctrl"><label for="sR4">남은 유리 r</label><input id="sR4" type="range" min="0" max="12" step="1" value="0"><output id="sR4o"></output></div>
+  <div class="ctrl"><label for="sK4">시작부터 지난 간격 수 k</label><input id="sK4" type="range" min="0" max="23" step="1" value="5"><output id="sK4o"></output></div>
+  <div class="row"><button class="btn ghost" id="rC4" type="button">기본 칸(r = 0, k = 5)으로 되돌리기</button></div>
+  <div class="state" id="stC4"></div>
+  <div class="tbwrap"><table class="mt num" id="tabC4"></table></div>
+  <div class="readout" id="roC4"></div>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>로그의 다양성(ε)과 크기가 결과를 정합니다</h2>
+<p>같은 방법도 로그가 어떻게 쌓였느냐에 따라 전혀 다른 결과를 냅니다. 아래 두 표는 ε 다섯 가지 × 로그 판 수 네 가지의 스무 조합을 로그 시드 <span data-v="nseed"></span>개씩 돌려 낸 중앙값입니다(벌점 세기는 기본값). 첫 표는 실제 Loss(왼쪽이 단순 오프라인 Q, 오른쪽이 보수적 Q), 둘째 표는 판당 근거 없는 선택의 수입니다. ε = 0 줄은 교체를 한 번도 고르지 않은 로그입니다. 0604 의 &lsquo;지원이 없다&rsquo;와 같은 상태이며, 이 줄의 숫자는 로그가 말해 준 것이 아니라 벌점과 기본값이 정한 것입니다.</p>
+<div class="lab">
+  <div class="labtitle">ε × 로그 판 수: 단순 오프라인 Q → 보수적 Q (로그 시드 <span data-v="nseed"></span>개 중앙값)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 판 수를 늘려도 줄어들지 않는 곳이 어디인지, 두 방법의 차이가 가장 큰 칸과 사라지는 칸이 어디인지, 보수적 Q 가 오히려 불리한 칸(로그가 작을 때)이 있는지 보십시오. 지금 슬라이더의 칸이 강조됩니다.</div>
+  <div class="ctrl"><label for="sE5">기록 정책의 탐색 ε</label><input id="sE5" type="range" min="0" max="4" step="1" value="3"><output id="sE5o"></output></div>
+  <div class="ctrl"><label for="sN5">로그의 판 수</label><input id="sN5" type="range" min="0" max="3" step="1" value="1"><output id="sN5o"></output></div>
+  <div class="ctrl"><label for="sS5">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS5" type="range" min="1" max="200" step="1" value="130"><output id="sS5o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL5" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL5"></div>
+  <div class="tbwrap"><table class="mt num" id="tab5a"></table></div>
+  <div class="tbwrap"><table class="mt num" id="tab5b"></table></div>
+  <canvas id="cvS5"></canvas>
+  <div class="legend"><span>지금 슬라이더 설정에서 로그 시드 <span data-v="nseed"></span>개의 실제 Loss 분포(10~90 % 막대와 중앙값 선)</span></div>
+  <div class="readout" id="ro5"></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<p>이 표에서 가져갈 것은 두 가지입니다. 하나는 <b>로그에 탐색이 없으면 로그에서 배울 것이 없다</b>는 것입니다(ε = 0). 다른 하나는 <b>로그가 클수록 순진한 방법과 보수적인 방법의 차가 줄지만, 로그가 작을수록 방법 선택이 더 중요하다</b>는 것입니다. 그리고 로그가 아주 작으면(위 표의 맨 왼쪽 열) 보수적 방법도 순진한 방법 못지않게 근거 없는 선택을 합니다. 벌점이 데이터의 부족을 대신해 주지는 못합니다.</p>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>트윈이 있을 때와 없을 때 — 0605 와 견줍니다</h2>
+<p>0605 는 트윈 안에서 학습했고, 트윈을 얼마나 믿을 수 있느냐에 따라 결과가 크게 달랐습니다. 같은 실제 판 기록 위에서 두 길을 견줍니다. 막대는 로그 또는 학습 시드의 10~90 % 범위이고 선은 중앙값입니다. 0605 쪽은 기본 학습 설정에서 학습 시드 <span data-v="nseed6"></span>개, 이 장의 쪽은 아래 슬라이더 설정의 로그 시드 <span data-v="nseed"></span>개입니다.</p>
+<div class="lab">
+  <div class="labtitle">같은 실제 판 기록에서의 성적: 트윈 안 학습과 로그만의 학습</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 트윈 판 0(0601 이전의 어긋난 트윈)에서 배운 정책이 로그 300판의 보수적 Q 보다 나쁜지, 보정된 트윈에서 배운 정책과 로그만의 정책이 어디서 만나는지, 로그 판 수를 늘리면 어떻게 되는지 보십시오. 가장 아래 점선은 실제 판 기록을 보고 고른 문턱 하나의 값이어서 참고선일 뿐 승인 후보가 아닙니다.</div>
+  <div class="ctrl"><label for="sE6">기록 정책의 탐색 ε</label><input id="sE6" type="range" min="0" max="4" step="1" value="3"><output id="sE6o"></output></div>
+  <div class="ctrl"><label for="sN6">로그의 판 수</label><input id="sN6" type="range" min="0" max="3" step="1" value="1"><output id="sN6o"></output></div>
+  <div class="ctrl"><label for="sS6">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS6" type="range" min="1" max="200" step="1" value="130"><output id="sS6o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL6" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL6"></div>
+  <canvas id="cvR6" class="pick"></canvas>
+  <div class="readout" id="ro6"></div>
+</div>
+<p><b>그래서 무엇을 먼저 할까요?</b> 아래 표는 위 숫자에서 나오는 선택 기준입니다. 상황마다 &lsquo;지금 할 일&rsquo;이 다릅니다.</p>
+<div class="tbwrap"><table class="mt" id="tab6"></table></div>
+<div class="concl" id="conc6"></div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>LLM 에이전트는 어디까지 — 확립된 것과 연구 단계</h2>
+<p>이 트랙의 에이전트(0401)는 숫자를 도구가 내고, 판정은 규칙이 하고, 문장만 LLM 이 쓰고, 승인은 사람이 하는 구조였습니다(0411). 그렇다면 LLM 에이전트를 업무 보상으로 강화학습시켜 스스로 일을 잘하게 만드는 것은 어디까지 와 있을까요. 이 질문에는 &lsquo;이 트랙이 직접 계산해 보인 것&rsquo;과 &lsquo;이름만 아는 것&rsquo;을 가르는 것으로 답합니다. 방법이 제안돼 있으나 현장 표준·검증 절차가 아직 없는 일을 <b>연구 단계(open problem)</b>라 부르겠습니다. 이 트랙은 연구 단계의 일을 직접 계산해 보이지 않았으므로, 그 일에 대해 성능 수치나 사례를 적지 않습니다.</p>
+<div class="tbwrap"><table class="mt" id="tab7"></table></div>
+<p class="note">이 구분은 이 실험실을 만든 때의 것이고, 시간이 지나면 연구 단계였던 일이 표준이 될 수 있습니다. 회사에서 새 방법을 들으면 이 표의 기준으로 칸을 옮겨 보십시오. 1) 계산해 보였는가, 2) 검증 절차가 있는가, 3) 사람 승인 단계가 있는가. 셋 중 하나라도 아니면 아직 연구 단계로 두고 권고만 받습니다.</p>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>우리 부서 단계 점검표</h2>
+<p>0601 의 닫힌 고리 점검표를 여기서 마무리합니다. 닫힌 고리는 한꺼번에 만들 수 없고, 아래 여섯 단계를 순서대로 밟아야 다음 단계의 재료가 생깁니다. 각 단계의 선행 조건 세 가지를 우리 부서 기준으로 체크해 보십시오. 체크한 것만으로 지금 서 있는 단계와 다음 걸음이 계산됩니다. &lsquo;확립&rsquo;은 이 트랙이 가상 공장에서 계산해 보인 방법, &lsquo;미완&rsquo;은 회사 데이터로 다시 확인해야 하거나 연구 단계인 것입니다.</p>
+<div class="lab">
+  <div class="labtitle">우리 부서의 선행 조건 체크 (열여덟 칸)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 앞 단계의 조건이 비어 있는데 뒤 단계를 체크하면 &lsquo;지금 서 있는 단계&rsquo;가 어떻게 계산되는지 보십시오. 단계는 앞에서부터 모든 조건이 채워진 데까지만 인정합니다.</div>
+  <div class="row"><button class="btn ghost" id="rStage" type="button">모두 해제 (처음 상태)</button></div>
+  <div class="state" id="stStage"></div>
+  <div id="stageList"></div>
+  <div class="readout" id="roStage"></div>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>트랙 전체 &lsquo;앞으로 기록해 둘 데이터&rsquo; 총괄표</h2>
+<p>각 실험실 끝에는 &lsquo;앞으로 기록해 둘 데이터&rsquo; 절이 있었습니다. 아래 표는 실험실 <span data-v="nlabs"></span>개의 그 절에서 항목 이름을 그대로 모아 한 표로 만든 것입니다. 무엇을 쌓아야 하는가의 완성본이며, 8절의 1단계 조건이 곧 이 표를 채우는 일입니다.</p>
+<div class="tbwrap"><table class="mt" id="tab9"></table></div>
+<div class="readout" id="ro9"></div>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>에이전트 도구 상자 총괄</h2>
+<p>각 실험실이 남긴 검증된 함수입니다. 실험실마다 도구 상자에 이름이 오른 함수 가운데 그 실험실의 Python 코드가 정의한 것만 모았습니다. 이름을 누르면 그 실험실로 갑니다. 0401 의 에이전트는 이 함수들을 관찰→점검→분석→결정→요청→보고의 단계마다 부르고, 이 장의 함수는 0605 의 정책 학습 다음, 사람 승인 앞에 들어옵니다.</p>
+<div class="tbwrap"><table class="mt" id="tab10"></table></div>
+<div class="readout" id="ro10"></div>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>현장에서 환산하면 — 함정을 피하는 값</h2>
+<p>이 환경의 한 판은 &lsquo;다음 세트가 늦어 블록이 서게 될지도 모르는 한 번의 기회&rsquo;이고, 0605 의 60일 기록에서 블록이 다음 세트를 기다려 선 사건(CL-CAPA)이 <span data-v="clN"></span>건이므로 한 달에 약 <span data-v="jobsd"></span>건이라 보고 아래 슬라이더의 기본값으로 둡니다(가정). 판당 Loss 의 차에 한 달 판 수를 곱하면 한 달에 줄어드는 장수입니다. 블록 하나가 한 턴(챔버 <span data-v="chb"></span>개 × 한 챔버 <span data-v="nturn"></span>장 = <span data-v="turnglass"></span>장)에 만드는 유리 수로 나누면 블록-턴으로도 읽힙니다. 로그의 설정은 위 절들과 같은 슬라이더입니다.</p>
+<div class="lab">
+  <div class="labtitle">지금 규칙 · 단순 오프라인 Q · 보수적 Q 의 한 달 Loss (로그 시드 <span data-v="nseed"></span>개 중앙값)</div>
+  <div class="ctrl"><label for="sE11">기록 정책의 탐색 ε</label><input id="sE11" type="range" min="0" max="4" step="1" value="3"><output id="sE11o"></output></div>
+  <div class="ctrl"><label for="sN11">로그의 판 수</label><input id="sN11" type="range" min="0" max="3" step="1" value="1"><output id="sN11o"></output></div>
+  <div class="ctrl"><label for="sS11">로그 시드 (같은 설정의 서로 다른 로그)</label><input id="sS11" type="range" min="1" max="200" step="1" value="130"><output id="sS11o"></output></div>
+  <div class="row"><button class="btn ghost" id="rL11" type="button">로그 설정을 기본으로 되돌리기</button></div>
+  <div class="state" id="stL11"></div>
+  <div class="ctrl"><label for="sJ11">한 달에 세트가 늦는 판 수 (가정)</label><input id="sJ11" type="range" min="0" max="60" step="1" value="6"><output id="sJ11o"></output></div>
+  <div class="row"><button class="btn ghost" id="rJ11" type="button">판 수 기본값으로 되돌리기</button></div>
+  <div class="state" id="stJ11"></div>
+  <div class="tbwrap"><table class="mt num" id="tab11"></table></div>
+  <div class="concl" id="conc11"></div>
+</div>
+<p class="note">이 값은 가상 공장의 장수입니다. 회사에서는 같은 식에 유리 한 장의 생산 손실 단가를 곱해 금액으로 적고, 한 달에 세트가 늦는 판 수는 회사 기록(세트 요청 시각과 도착 시각)에서 셉니다. 단순 오프라인 Q 도 지금 규칙보다 낮은 Loss 를 내므로 &lsquo;함정을 피하는 값&rsquo;은 지금 규칙 대비 감소가 아니라 두 방법의 차입니다. 다만 단순 방법의 감소는 근거 없는 선택에서 나온 것이어서 승인할 수 있는 감소가 아닙니다(3절).</p>
+
+<!-- ===================== 12 ===================== -->
+<h2><span class="no">12</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리(<code>csv</code>·<code>math</code>)만 씁니다. 입력은 아래 CSV 세 개이고 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 <code>s21_offline_log.csv</code> 자리에 회사의 결정 기록(판 번호·판 안의 순서·남은 유리·도착 여부·경과 또는 대기 간격·고른 행동·고른 확률·그 뒤 잃은 장수·판이 끝났는지), <code>s21_real_episodes.csv</code> 자리에 회사의 세트 교체 기록(그때 남은 유리·다음 세트가 도착한 간격 수)을 넣습니다.</p>
+<div class="row"><a class="btn" href="../data/csv/s21_offline_log.csv" download>s21_offline_log.csv</a><a class="btn" href="../data/csv/s21_real_episodes.csv" download>s21_real_episodes.csv</a><a class="btn" href="../data/csv/s21_offline_seed_summary.csv" download>s21_offline_seed_summary.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 로그 다양성(ε)이 없는 로그로 오프라인 정책을 만들지 마십시오(<code>count_table</code> 의 교체 칸이 비어 있으면 배울 것이 없습니다). 분포 밖 행동을 고르는 정책을 승인하지 마십시오(<code>ood_check</code> 의 판당 개수가 0 에 가까워야 승인을 검토할 수 있습니다). 벌점 세기와 보상식을 바꿔 원하는 정책이 나오게 하지 마십시오. 다음 세트의 도착 시각이 우리 결정의 영향을 받는 상황에서는 지난 판을 다시 돌려 평가하는 것이 맞지 않습니다.</p>
+<pre id="pyCode">import csv
+import math
+
+# ---- 가정·설정: 회사 값으로 바꿀 곳 ------------------------------------------------------------------
+EP, TR = 30, 20                 # 판단 간격(분) · 세정이 끝난 뒤 반송에 걸리는 분
+KMAX, WMAX, RMAX = 23, 5, 12    # 상태 칸: 도착 전 경과 0..23 · 도착 뒤 대기 0..5 · 남은 유리 0..12
+NS = KMAX + 1 + WMAX + 1        # 남은 유리 값 하나당 도착 상태 칸 수
+NSTATE = (RMAX + 1) * NS
+IDLE, CSW, HOLD = 48.0, 48.0, 6.0   # 블록이 한 간격 서는 손실 · 교체 한 번 · 도착한 세트가 기다릴 때 간격당 단위(장)
+SWEEPS = 80                     # 값 갱신 횟수(고정)
+BETA = 144.0                    # 보수적 학습의 벌점 세기(장): 교체 한 번의 3배 = 도착 전에 대기 세트로 바꿀 때의 최대 교체 손실(가정)
+NMIN = 3                        # 로그에서 이 횟수보다 적게 본 행동은 '분포 밖'으로 본다
+
+# ---- 입력 읽기(같은 폴더의 CSV) -------------------------------------------------------------------------
+def read(name): return list(csv.DictReader(open(name, encoding="utf-8")))
+REAL = [(int(r["remaining_glass"]), int(r["arrive_epoch"])) for r in read("s21_real_episodes.csv")]   # 실제 판 기록: (남은 유리, 도착 간격 수)
+
+def state(r, arrived, k, w): return r * NS + (KMAX + 1 + min(w, WMAX) if arrived else min(k, KMAX))
+def step(r, k, arrived, w, a, D):  # 반환: 굶음 · 막힘 · 교체 손실, 끝났는가, 다음 상태
+    idle = hold = sw = 0.0; done = False; nr, nk, na, nw = r, k, arrived, w
+    if not arrived:
+        if a == 1: sw = CSW * (2 + (1 if r &gt; 0 else 0)); done = True          # 대기 중인 다른 세트로 지금 교체(나중에 다시 바꿈)
+        else:
+            idle = 0.0 if r &gt; 0 else IDLE; nr = r - 1 if r &gt; 0 else 0; nk = k + 1
+            if nk &gt;= D:
+                na, nw = True, 0
+                if nr == 0: sw = CSW; done = True                              # 도착 뒤 곧바로 교체
+    else:
+        if a == 1: sw = 2 * CSW; done = True
+        else:
+            hold = HOLD * (w + 1); nr = r - 1; nw = w + 1
+            if nr == 0: sw = CSW; done = True
+    return idle, hold, sw, done, nr, nk, na, nw
+
+def load_log(path):
+    """로그 CSV → 줄 목록. 줄마다 상태 칸 s · 행동 a · 보상 rew · 끝났는가 · 다음 상태 칸 s2(같은 판의 다음 줄의 상태)"""
+    rows = read(path); log = []
+    for i, x in enumerate(rows):
+        arrived = int(x["arrived"]) == 1; v = int(x["elapsed_or_wait"])
+        s = state(int(x["remaining_glass"]), arrived, 0 if arrived else v, v if arrived else 0)
+        log.append({"s": s, "a": int(x["action"]), "rew": float(x["reward"]), "done": int(x["done"]) == 1, "s2": -1})
+    for i, x in enumerate(rows):
+        if not log[i]["done"]:
+            y = rows[i + 1]; arrived = int(y["arrived"]) == 1; v = int(y["elapsed_or_wait"])
+            log[i]["s2"] = state(int(y["remaining_glass"]), arrived, 0 if arrived else v, v if arrived else 0)
+    return log
+
+# ---- 도구 상자 ---------------------------------------------------------------------------------------------
+def count_table(log):
+    """칸 s 에서 행동 a 를 로그에서 몇 번 봤는가: N[2*s + a]"""
+    N = [0] * (2 * NSTATE)
+    for L in log: N[2 * L["s"] + L["a"]] += 1
+    return N
+
+def behavior_clone(log):
+    """칸마다 로그에서 더 자주 고른 행동(같거나 본 적 없으면 기다림 = 지금 규칙)"""
+    N = count_table(log)
+    return [1 if N[2 * s + 1] &gt; N[2 * s] else 0 for s in range(NSTATE)]
+
+def offline_q(log, beta=0.0, sweeps=SWEEPS, stack=False):
+    """로그만으로 만든 경험 모형(칸·행동마다 평균 보상과 다음 칸의 비율) 위의 Q.
+    beta = 0 이 단순 오프라인 Q, beta &gt; 0 이면 벌점 Q~ = Q - beta / sqrt(n + 1) 로 정책을 고른다(보수적 Q).
+    값을 이어받을 때는 고른 행동의 벌점 전 Q 를 쓴다(stack=True 면 벌점 뒤 Q: 벌점이 판 길이만큼 쌓임).
+    본 적 없는 (칸, 행동)은 Q = 0 에서 출발해 그대로 둔다. 반환: Q, 벌점 뒤 Q~, 횟수 N"""
+    N = count_table(log); RS = [0.0] * (2 * NSTATE); nxt = {}
+    for L in log:
+        x = 2 * L["s"] + L["a"]; RS[x] += L["rew"]
+        if not L["done"]: nxt[(x, L["s2"])] = nxt.get((x, L["s2"]), 0) + 1
+    pairs = [(x, s2, c) for (x, s2), c in nxt.items()]
+    pen = [beta / math.sqrt(N[x] + 1) if N[x] &gt; 0 else beta for x in range(2 * NSTATE)]
+    Q = [0.0] * (2 * NSTATE); Qp = [-p for p in pen]
+    for _ in range(sweeps):
+        V = [0.0] * NSTATE
+        for s in range(NSTATE):
+            a1 = 1 if Qp[2 * s + 1] &gt; Qp[2 * s] else 0
+            V[s] = Qp[2 * s + a1] if stack else Q[2 * s + a1]
+        acc = [0.0] * (2 * NSTATE)
+        for x, s2, c in pairs: acc[x] += c * V[s2]
+        for x in range(2 * NSTATE):
+            Q[x] = (RS[x] + acc[x]) / N[x] if N[x] &gt; 0 else 0.0
+            Qp[x] = Q[x] - pen[x]
+    return Q, Qp, N
+
+def policy_of(Qp):
+    """칸마다 벌점 뒤 Q~ 가 더 큰 행동(같으면 기다림)"""
+    return [1 if Qp[2 * s + 1] &gt; Qp[2 * s] else 0 for s in range(NSTATE)]
+
+def conservative_q(log, penalty=BETA, stack=False):
+    return offline_q(log, beta=penalty, stack=stack)
+
+def evaluate_policy(pol, episodes):         # episodes = [(남은 유리, 도착 간격 수)]. 판당 평균 Loss
+    tot = idle_t = hold_t = sw_t = 0.0
+    for r, D in episodes:
+        k, arrived, w = 0, False, 0
+        while True:
+            idle, hold, sw, done, r, k, arrived, w = step(r, k, arrived, w, pol[state(r, arrived, k, w)], D)
+            idle_t += idle; hold_t += hold; sw_t += sw
+            if done: break
+    n = len(episodes); return (idle_t + hold_t + sw_t) / n
+
+def ood_check(pol, N, episodes, min_count=NMIN):
+    """정책이 로그에서 min_count 번 미만 본 행동을 고르는 판단: 판당 평균 개수와, 그런 판단이 하나라도 있는 판의 비율. 0 에 가까워야 승인을 검토할 수 있다"""
+    cnt = hit = 0
+    for r, D in episodes:
+        k, arrived, w, any_ = 0, False, 0, 0
+        while True:
+            s = state(r, arrived, k, w); a = pol[s]
+            if N[2 * s + a] &lt; min_count: any_ += 1
+            idle, hold, sw, done, r, k, arrived, w = step(r, k, arrived, w, a, D)
+            if done: break
+        cnt += any_; hit += 1 if any_ else 0
+    return cnt / len(episodes), hit / len(episodes)
+
+def quant(a, p):
+    b = sorted(a); pos = (len(b) - 1) * p; lo = math.floor(pos); f = pos - lo
+    return b[lo] + (b[lo + 1] - b[lo]) * f if lo + 1 &lt; len(b) else b[lo]
+
+if __name__ == "__main__":
+    log = load_log("s21_offline_log.csv"); N = count_table(log)
+    eps = 2 * min(float(r["propensity"]) for r in read("s21_offline_log.csv"))
+    n_ep = sum(1 for L in log if L["done"]); n_rep = sum(1 for L in log if L["a"] == 1)
+    seen1 = sum(1 for s in range(NSTATE) if N[2 * s + 1] &gt; 0); seen0 = sum(1 for s in range(NSTATE) if N[2 * s] &gt; 0)
+    print("로그 %d줄 · 판 %d개 · 탐색 ε %.2f · 교체를 고른 줄 %d (%.1f %%) · 기다림을 본 칸 %d · 교체를 본 칸 %d" % (len(log), n_ep, eps, n_rep, 100.0 * n_rep / len(log), seen0, seen1))
+    rule = [0] * NSTATE
+    Q0, Qp0, _ = offline_q(log); Qc, Qpc, _ = conservative_q(log)
+    pols = [("지금 규칙(끝까지 기다림)", rule), ("행동 복제", behavior_clone(log)), ("단순 오프라인 Q", policy_of(Qp0)), ("보수적 Q (β = %d)" % BETA, policy_of(Qpc))]
+    for name, pol in pols:
+        per, share = ood_check(pol, N, REAL)
+        print("%-22s 실제 판 %d개 판당 Loss %6.1f 장 · 근거 없는 선택 판당 %.3f 번 (그런 판 %4.1f %%)" % (name, len(REAL), evaluate_policy(pol, REAL), per, 100.0 * share))
+    print("벌점 세기 β 를 바꾸면(같은 로그): " + " · ".join("β %d → %.1f" % (b, evaluate_policy(policy_of(conservative_q(log, b)[1]), REAL)) for b in (0, 48, 96, 144, 192, 288)))
+    sm = [r for r in read("s21_offline_seed_summary.csv") if abs(float(r["eps"]) - eps) &lt; 1e-9 and int(r["n"]) == n_ep]
+    for key, nm in (("bc", "행동 복제"), ("naive", "단순 오프라인 Q"), ("cons", "보수적 Q")):
+        v = [float(r[key]) for r in sm]
+        print("로그 시드 %d개 실제 Loss 10 / 50 / 90 %%  %-10s %6.1f / %6.1f / %6.1f" % (len(v), nm, quant(v, .1), quant(v, .5), quant(v, .9)))
+</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 세 개와 같은 폴더에서 <code>python3 lab0606.py</code> 로 돌렸고, 위 3~5절의 대표 시드 로그(시드 <span data-v="rep"></span>, ε <span data-v="epsdef"></span>, 판 <span data-v="ndef"></span>개)와 같은 값이 나옵니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">로그 3123줄 · 판 300개 · 탐색 ε 0.10 · 교체를 고른 줄 151 (4.8 %) · 기다림을 본 칸 102 · 교체를 본 칸 66
+지금 규칙(끝까지 기다림)         실제 판 4000개 판당 Loss  383.4 장 · 근거 없는 선택 판당 0.076 번 (그런 판  3.2 %)
+행동 복제                  실제 판 4000개 판당 Loss  383.4 장 · 근거 없는 선택 판당 0.076 번 (그런 판  3.2 %)
+단순 오프라인 Q              실제 판 4000개 판당 Loss  136.7 장 · 근거 없는 선택 판당 0.915 번 (그런 판 91.0 %)
+보수적 Q (β = 144)        실제 판 4000개 판당 Loss  111.4 장 · 근거 없는 선택 판당 0.433 번 (그런 판 41.0 %)
+벌점 세기 β 를 바꾸면(같은 로그): β 0 → 136.7 · β 48 → 136.8 · β 96 → 137.0 · β 144 → 111.4 · β 192 → 112.8 · β 288 → 135.7
+로그 시드 200개 실제 Loss 10 / 50 / 90 %  행동 복제       383.4 /  383.4 /  383.5
+로그 시드 200개 실제 Loss 10 / 50 / 90 %  단순 오프라인 Q   129.0 /  136.3 /  142.0
+로그 시드 200개 실제 Loss 10 / 50 / 90 %  보수적 Q       103.9 /  110.4 /  116.4</pre>
+
+<!-- ===================== 13 ===================== -->
+<h2><span class="no">13</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>오프라인 정책 검토서</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 공장으로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>로그의 범위와 기록 정책(ε)·보상식과 벌점 세기의 근거·칸별 횟수 요약·근거 없는 선택의 비율·실제 추정 성적과 구간·적용 범위와 되돌리기 방법을 확인하고 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>결정 기록</b> — 결정마다 상태(남은 유리·경과 또는 대기)·고를 수 있던 행동·고른 행동·고른 확률·그 뒤 잃은 장수를 같은 키로. 0604·0605 의 결정 기록과 같은 형식이고, 이 장의 모든 학습의 재료입니다.</li>
+      <li><b>탐색 ε 의 운영 기록</b> — 언제부터 어느 상태에서 몇 퍼센트로 일부러 벗어났는지, 어떤 행동을 섞었는지, 중단한 날과 사유. 이것이 없으면 로그에 다양성이 있었는지 알 수 없습니다.</li>
+      <li><b>보상식과 벌점 세기의 변경 기록</b> — 교체 비용·굶음 손실·β 의 값이 바뀐 날과 근거.</li>
+      <li><b>학습 이력</b> — 학습에 쓴 로그의 기간과 판 수·횟수표 요약·학습 날짜·시드·승인 여부.</li>
+    </ul>
+    <p class="note" style="margin:.5rem 0 0">탐색을 섞는 일은 라인의 손실을 감수하는 일이어서 사람이 범위와 크기를 정합니다. 회사 기록은 회사 안에만 둡니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0605 의 <code>evaluate_policy</code> 와 함께 쓰고, 0401 의 승인 대기열 앞에 이 장의 함수가 들어옵니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+<div class="qna" data-label="큰 회사들은 이미 다 하고 있지 않나요?" data-q="큰 회사들은 이미 다 하고 있지 않나요?">
+  <p><b>이 트랙은 다른 곳이 무엇을 하는지 확인한 것이 없어서 그 사실을 적지 않습니다.</b> 확인할 수 있는 것은 이 장에서 계산한 것뿐입니다. 누가 하고 있다는 말을 들으면 같은 질문 셋을 던지십시오. 1) 학습에 쓴 로그에 탐색이 있었는가(없으면 3절과 5절의 ε = 0 줄입니다). 2) 근거 없는 선택이 없다는 것을 어떻게 점검하는가(<code>ood_check</code>). 3) 라인에 쓰기 전 사람 승인 단계와 되돌리는 방법이 있는가. 세 답이 모두 구체적이면 따라 볼 만하고, 하나라도 비어 있으면 아직 연구 단계로 두는 것이 안전합니다.</p>
+</div>
+<div class="qna" data-label="LLM 에게 로그를 주면 알아서 배우지 않나요?" data-q="LLM 에게 로그를 주면 알아서 배우지 않나요?">
+  <p><b>로그를 읽고 글로 요약하는 것과, 로그로 정책을 배우는 것은 다른 일입니다.</b> 0410 에서 LLM 은 계산 과제의 숫자를 잘 맞혔지만 문장 속 관계·원인·기준을 틀렸고, 0411 에서는 숫자를 도구가 내고 LLM 은 문장만 쓰게 나눠야 했습니다. 로그로 정책을 배우는 일은 이 장의 계산(횟수표·Q·벌점·실제 판 기록 평가)이 필요한 일이어서, 그 계산은 검증된 함수가 합니다. LLM 에게 맡길 수 있는 것은 그 결과를 사람 말로 요약하고 검토서 초안을 쓰는 데까지이고, 그 숫자는 사실 목록에서만 가져오게 해 0411 의 검사를 거칩니다.</p>
+</div>
+<div class="qna" data-label="어디서부터 시작하나요?" data-q="어디서부터 시작하나요?">
+  <p><b>8절 점검표의 1단계, 기록입니다.</b> 결정마다 상태·행동·고른 확률·결과를 같은 키로 남기는 것이 모든 단계의 재료이고, 오프라인 학습도 사전 평가(0604)도 이 기록이 없으면 시작할 수 없습니다. 그다음은 탐색 ε 를 아주 작게라도 심는 일입니다. 5절에서 보았듯 ε 가 0 인 로그에서는 어떤 방법도 배울 것이 없습니다. 사람이 승인한 좁은 범위(한 블록·한 시간대)에서 작은 ε 로 시작하고 중단 기준을 정해 두십시오.</p>
+</div>
+<div class="qna" data-label="트윈과 오프라인 중 무엇을 먼저 하나요?" data-q="트윈과 오프라인 중 무엇을 먼저 하나요?">
+  <p><b>6절의 표를 따릅니다. 트윈을 믿을 수 있게 맞출 수 있으면 트윈 쪽이, 그렇지 않으면 로그 쪽이 먼저입니다.</b> 이 장의 숫자에서는 0601·0602 로 보정한 트윈에서 배운 정책이 로그 수백 판의 보수적 Q 보다 낮은 Loss 였습니다. 그러나 보정하지 않은 트윈은 같은 학습에서 크게 나빴고, 트윈이 믿을 만한지는 실제 기록과의 gap 으로만 알 수 있습니다. 어느 쪽이든 먼저 할 일은 같습니다. 결정과 도착 시각을 기록하는 것입니다. 그 기록이 트윈을 맞추는 재료이자 로그로 배우는 재료입니다.</p>
+</div>
+
+<!-- ===================== 14 ===================== -->
+<h2><span class="no">14</span>정답 열기</h2>
+<p>여기까지 실제 라인의 숨은 세정 시간은 숨겨져 있었고, 정책의 성적은 실제 판 기록 <span data-v="nreal"></span>개로만 쟀습니다. 열기 전에 3절의 단순 오프라인 Q 가 고른 &lsquo;근거 없는 교체&rsquo; 가운데 정말 손해인 칸이 있을지, 그리고 실제 판 기록에서 잰 성적이 숨은 값으로 계산한 정확한 기댓값과 얼마나 다를지 가늠해 보십시오. 연 뒤에는 위 로그의 정책 넷의 정확한 기대 Loss, 달성할 수 있는 가장 좋은 값, 그리고 근거 없이 고른 교체가 참으로 손해인 칸의 수가 나옵니다.</p>
+<div class="lab">
+  <div class="row"><button class="btn" id="btnReveal" type="button" aria-expanded="false">정답 열기</button></div>
+  <div class="readout" id="roAns" hidden></div>
+  <div class="tbwrap"><table class="mt num" id="tabAns" hidden></table></div>
+  <div class="concl" id="concAns" hidden></div>
+</div>
+
+<!-- ===================== 15 ===================== -->
+<h2><span class="no">15</span>착지 — 제안에 답하고 트랙을 닫습니다</h2>
+<p>맨 앞의 제안으로 돌아옵니다. <b>&ldquo;로그가 이만큼 쌓였으니 AI 가 알아서 최적 운영을 배우게 하자.&rdquo;</b> 기본 설정(ε <span data-v="epsdef"></span>, 로그 <span data-v="ndef"></span>판, 벌점 <span data-v="beta"></span>장)에서 이 장의 숫자로 답합니다.</p>
+<div class="concl" id="conc15"></div>
+<div class="two">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">오늘 약속할 수 있는 것</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>결정마다 상태·행동·고른 확률·결과를 같은 키로 기록하고 작은 ε 로 탐색을 심는 일(1단계)</li><li>그 기록으로 새 규칙을 사전에 평가하는 일(0604)과, 표 크기의 상태에서 보수적 Q 로 정책 후보를 만드는 일</li><li>정책 후보를 근거 없는 선택 점검(<code>ood_check</code>)·실제 기록 평가·사람 승인 뒤에 좁은 범위에서 권고로 내는 일</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">오늘 약속할 수 없는 것</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>탐색이 없는 로그에서 AI 가 알아서 개선을 찾는 것(5절의 ε = 0)</li><li>성적이 좋아 보이는 정책을 근거 점검 없이 승인하는 것(3절)</li><li>LLM 에이전트를 업무 보상으로 강화학습시키거나 트윈 보정·정책 학습·배포를 사람 없이 이어 돌리는 것(연구 단계, 7절)</li></ul></div>
+</div>
+<p class="note">이 트랙의 숫자는 모두 가상 공장의 것입니다. 회사에서는 같은 함수를 회사 기록에 돌려 같은 질문에 다시 답해야 합니다.</p>
+<p>이 트랙은 <a href="0101-pm-mean-shift.html">0101</a> 에서 &lsquo;3σ 띠만 보면 변화가 없다던 같은 자료에서 평균을 제대로 재니 PM 후에 평균이 옮겨 가 있었다&rsquo;는 한 번의 비교로 시작해, 숫자는 계산으로 내고 판정은 근거로 하고 승인은 사람이 한다는 같은 자세로 여기까지 왔으니, 내일 부서에서 할 일도 결국 0101 처럼 PM 전후의 평균을 기록으로 정확히 재는 일로 되돌아갑니다.</p>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0605-policy-learning-in-twin.html">← 이전: 트윈 안에서 정책 학습</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/rl06_tables.js"></script>
+<script src="../data/rl06.js"></script>
+<script src="../data/off06_tables.js"></script>
+<script src="../data/off06.js"></script>
+<script src="../data/loop06.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+/* ---------- 설정·상태 ---------- */
+var OF=window.OFF06,RL=window.RL06,TAB=window.OFF06_TABLES,RT=window.RL06_TABLES,MSIM=window.MfgSim;
+var C0=RL.COST,REAL=RL.realEpisodes(),EPSG=OF.EPS_GRID,NG=OF.N_GRID,BG=OF.BETA_GRID,NSEED=OF.SEEDS,NLIVE=30,NMIN=OF.NMIN,NS0605=20;
+var DEF={ei:EPSG.indexOf(OF.EPS_DEF),ni:NG.indexOf(OF.N_DEF),seed:TAB.rep.seed,bi:BG.indexOf(OF.BETA_DEF),stack:false,r4:0,k4:5,jobs:Math.round(RT.sim.clCapaPerMonth)};
+var ST={ei:DEF.ei,ni:DEF.ni,seed:DEF.seed,bi:DEF.bi,stack:DEF.stack,r4:DEF.r4,k4:DEF.k4,jobs:DEF.jobs,chk:[]};
+var i0;for(i0=0;i0<18;i0++)ST.chk.push(false);
+var V={},REV=false,TRV=null,LC={},PC={},LV={},SC={},TKC=null;
+var MNAME={rule:'지금 규칙 (끝까지 기다림)',bc:'행동 복제',naive:'단순 오프라인 Q',cons:'보수적 Q'};
+function $(id){return document.getElementById(id);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fm(x){return x!=null&&isFinite(x)?String(Math.floor(Math.abs(x)+0.5+1e-6)*(x<0?-1:1)).replace(/\B(?=(\d{3})+(?!\d))/g,',').replace('-','−'):'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1).replace('-','−'):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2).replace('-','−'):'—';}
+function f3(x){return x!=null&&isFinite(x)?x.toFixed(3).replace('-','−'):'—';}
+function sg(x,d){d=d==null?1:d;var r=Math.abs(x).toFixed(d);return (+r===0?'':(x>=0?'+':'−'))+r;}
+function pc(x){return x!=null&&isFinite(x)?(x*100).toFixed(1)+' %':'—';}
+function q(a,p){return OF.quantile(a,p);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?(typeof cls[i]==='function'?cls[i](c):cls[i]):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function lc(){return 'l';}
+function niceStep(range,n){var raw=range/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;return (r<=1?1:r<=2?2:r<=5?5:10)*mag;}
+function ticks(lo,hi,n){var st=niceStep(hi-lo||1,n),a=Math.ceil(lo/st-1e-9)*st,o=[];for(var v=a;v<=hi+1e-9;v+=st)o.push(Math.abs(v)<1e-9?0:v);return o;}
+function fmt(v){return Math.abs(v)>=100?String(Math.round(v)):(Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):v.toFixed(Math.abs(v)<1?2:1));}
+function nf(v){return fmt(v).replace('-','−');}
+function setS(id,m,txt){$(id).textContent=txt;$(id).className='state'+(m?' moved':'');}
+function vals(rs,k){return rs.map(function(r){return r[k];});}
+function P3(a){return [q(a,.1),q(a,.5),q(a,.9)];}
+function rng3(a,d){var p=P3(a),f=d===2?f2:f1;return f(p[1])+' ('+f(p[0])+' ~ '+f(p[2])+')';}
+function epsTxt(i){return i===0?'0 (탐색 없음)':String(EPSG[i]);}
+function lab(id){return '<a href="'+id+'" style="color:var(--accent);font-weight:700">'+id+'</a>';}
+
+/* ---------- 계산 묶음(저장) ---------- */
+function getLog(seed,ei,ni){var k=seed+'|'+ei+'|'+ni;if(LC[k])return LC[k];var log=OF.makeLog(seed,{eps:EPSG[ei],n:NG[ni]});return LC[k]={log:log,N:OF.countTable(log)};}
+function curLog(){return getLog(ST.seed,ST.ei,ST.ni);}
+function policy(id,seed,ei,ni,beta,stack){
+  var k=[id,seed,ei,ni,id==='cons'?beta:'',id==='cons'&&stack?'S':''].join('|');if(PC[k])return PC[k];
+  var L=getLog(seed,ei,ni),res={};
+  if(id==='rule'){res.pol=RL.rulePolicy();}
+  else if(id==='bc'){res.pol=OF.behaviorClone(L.log);}
+  else{var oq=OF.offlineQ(L.log,id==='naive'?0:beta,null,id==='cons'&&stack);res.q=oq;res.pol=OF.policyFromPen(oq.Qp);}
+  var ev=OF.realLoss(res.pol),od=OF.oodCheck(res.pol,L.N);res.loss=ev.mean;res.ood=od.per;res.share=od.share;res.ev=ev;
+  return PC[k]=res;
+}
+function pcur(id){return policy(id,ST.seed,ST.ei,ST.ni,BG[ST.bi],ST.stack);}
+/* 로그 시드 1..NLIVE 의 세 방식 결과(지금 ε·판 수·벌점·쌓기) */
+function live(beta,stack,ei,ni){
+  ei=ei==null?ST.ei:ei;ni=ni==null?ST.ni:ni;var k=[ei,ni,beta,stack?'S':''].join('|');if(LV[k])return LV[k];
+  var out=[],s;for(s=1;s<=NLIVE;s++){var b=policy('bc',s,ei,ni),n=policy('naive',s,ei,ni),c=policy('cons',s,ei,ni,beta,stack);out.push({seed:s,bc:b.loss,naive:n.loss,cons:c.loss,naive_ood:n.ood,cons_ood:c.ood});}
+  return LV[k]=out;
+}
+/* 임베드된 시드 요약표(시드 200 × ε × 판 수, 기본 벌점)의 한 설정 */
+function seedsAt(ei,ni){var k='t|'+ei+'|'+ni;if(SC[k])return SC[k];var e=EPSG[ei],n=NG[ni];return SC[k]=TAB.seeds.filter(function(r){return r.eps===e&&r.n===n;});}
+var RULE=OF.realLoss(RL.rulePolicy()).mean;
+var HANDBEST=(function(){var b=Infinity,t;for(t=0;t<=16;t++){var v=OF.realLoss(RL.handPolicy(t)).mean;if(v<b)b=v;}return b;})();
+var DRAWS=RL.evalDraws();
+var R5=null;function run0605(id){if(!R5)R5={};if(!R5[id])R5[id]=RL.seedRuns(id,{seeds:NS0605,realEps:REAL,draws:DRAWS});return R5[id];}
+
+/* ---------- 그리기 도구 ---------- */
+function drawXY(cv,series,o){
+  var c=setup(cv,o.h||230),x=c.x,W=c.w,H=c.h,ml=o.ml||52,mr=22,mt=24,mb=36,pw=W-ml-mr,ph=H-mt-mb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var xl=o.xlo,xh=o.xhi,yl=o.ylo!=null?o.ylo:Infinity,yh=o.yhi!=null?o.yhi:-Infinity;
+  series.forEach(function(s){s.y.forEach(function(v){if(isFinite(v)){if(o.ylo==null&&v<yl)yl=v;if(o.yhi==null&&v>yh)yh=v;}});if(s.band){s.band.hi.forEach(function(v){if(o.yhi==null&&v>yh)yh=v;});s.band.lo.forEach(function(v){if(o.ylo==null&&v<yl)yl=v;});}});
+  if(o.ylo==null&&yl>0&&!o.nozero)yl=0;if(yh<=yl)yh=yl+1;if(o.yhi==null)yh+=(yh-yl)*0.06;
+  function X_(v){return ml+pw*(v-xl)/(xh-xl);}function Y_(v){return mt+ph*(1-(v-yl)/(yh-yl));}
+  ticks(yl,yh,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(nf(v),ml-6,Y_(v));});
+  (o.xticks||ticks(xl,xh,6)).forEach(function(v){x.fillStyle=soft;x.textAlign='center';x.fillText(nf(v),X_(v),mt+ph+14);});
+  if(o.xlab){x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab,ml+pw/2,mt+ph+28);}
+  (o.hlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||1.5;x.beginPath();x.moveTo(ml,Y_(v.y));x.lineTo(ml+pw,Y_(v.y));x.stroke();x.setLineDash([]);});
+  (o.vlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||2;x.beginPath();x.moveTo(X_(v.x),mt);x.lineTo(X_(v.x),mt+ph);x.stroke();x.setLineDash([]);});
+  x.save();x.beginPath();x.rect(ml-2,mt-4,pw+4,ph+8);x.clip();
+  series.forEach(function(s){
+    if(s.band){x.globalAlpha=s.band.a||0.16;x.fillStyle=s.band.col||s.col;x.beginPath();s.x.forEach(function(v,i){var px=X_(v),py=Y_(s.band.hi[i]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});for(var i=s.x.length-1;i>=0;i--)x.lineTo(X_(s.x[i]),Y_(s.band.lo[i]));x.closePath();x.fill();x.globalAlpha=1;}
+    x.globalAlpha=s.alpha==null?1:s.alpha;x.strokeStyle=s.col;x.lineWidth=s.lw||2;
+    if(s.dash)x.setLineDash([5,4]);
+    x.beginPath();var st=false;s.x.forEach(function(v,i){if(!isFinite(s.y[i]))return;var px=X_(v),py=Y_(s.y[i]);if(!st){x.moveTo(px,py);st=true;}else x.lineTo(px,py);});x.stroke();x.setLineDash([]);
+    if(s.dots){x.fillStyle=s.col;s.x.forEach(function(v,i){if(!isFinite(s.y[i]))return;x.beginPath();x.arc(X_(v),Y_(s.y[i]),s.dr||3.5,0,6.2832);x.fill();});}
+    (s.marks||[]).forEach(function(m){x.fillStyle=m.col||s.col;x.beginPath();x.arc(X_(m.x),Y_(m.y),m.r||6,0,6.2832);x.fill();x.strokeStyle=css('--card');x.lineWidth=2;x.stroke();});
+    x.globalAlpha=1;});
+  x.restore();
+  return {X_:X_,Y_:Y_,x:x,pw:pw,ph:ph,ml:ml,mt:mt};
+}
+function ylab(r,t){r.x.fillStyle=css('--soft');r.x.font='11px sans-serif';r.x.textAlign='left';r.x.textBaseline='middle';r.x.fillText(t,r.ml+2,9);}
+/* 막대(10~90 %)와 중앙값 선, 점 하나짜리(pt) */
+function drawRanges(cv,items,o){
+  o=o||{};var rowH=30,top=10,h=items.length*rowH+top+34,c=setup(cv,h),x=c.x,W=c.w,ml=o.ml||(W<520?150:230),mr=22,pw=W-ml-mr,soft=css('--soft'),rule=css('--rule'),ink=css('--ink'),lo=Infinity,hi=-Infinity;
+  items.forEach(function(it){[it.lo,it.hi,it.pt].forEach(function(v){if(isFinite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}});});
+  if(!isFinite(lo)){lo=0;hi=100;}
+  var pad=(hi-lo)*0.06+0.5;lo-=pad;hi+=pad;
+  function X(v){return ml+pw*(v-lo)/(hi-lo);}
+  x.clearRect(0,0,W,h);x.font='11px sans-serif';x.textBaseline='middle';
+  ticks(lo,hi,6).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(X(v),top-4);x.lineTo(X(v),top+items.length*rowH);x.stroke();x.fillStyle=soft;x.textAlign='center';x.fillText(nf(v),X(v),top+items.length*rowH+12);});
+  x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab||'',ml+pw/2,top+items.length*rowH+27);
+  items.forEach(function(it,i){
+    var y=top+rowH*(i+0.5);x.fillStyle=ink;x.textAlign='right';x.font='11px sans-serif';x.fillText(it.label,ml-8,y);
+    if(isFinite(it.lo)&&isFinite(it.hi)){x.globalAlpha=0.5;x.strokeStyle=it.col;x.lineWidth=11;x.lineCap='round';x.beginPath();x.moveTo(X(it.lo),y);x.lineTo(X(it.hi),y);x.stroke();x.lineCap='butt';x.globalAlpha=1;x.lineWidth=2.5;x.beginPath();x.moveTo(X(it.mid),y-8);x.lineTo(X(it.mid),y+8);x.stroke();}
+    else if(isFinite(it.pt)){x.fillStyle=it.col;x.beginPath();x.arc(X(it.pt),y,6,0,6.2832);x.fill();x.strokeStyle=css('--card');x.lineWidth=2;x.stroke();}
+  });
+}
+/* 상태 격자: cellFn(r, c) → {fill, stroke, alpha} 또는 null(빈 칸) */
+function drawGrid(cv,o){
+  var cell=o.cell,nr=o.rows.length,nc=o.ncols,ch=o.ch||15,c0=setup(cv,nr*ch+46),x=c0.x,W=c0.w,ml=34,mr=8,mt=20,pw=W-ml-mr,cw=pw/nc,soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,c0.h);x.font='11px sans-serif';x.textBaseline='middle';
+  x.fillStyle=soft;x.textAlign='left';x.fillText(o.title,2,8);
+  o.rows.forEach(function(r,i){var y=mt+(nr-1-i)*ch;
+    if(r%2===0||nr<=8){x.fillStyle=soft;x.textAlign='right';x.fillText(String(r),ml-4,y+ch/2);}
+    var cc;for(cc=0;cc<nc;cc++){var d=cell(r,cc);x.fillStyle=css('--code');x.fillRect(ml+cc*cw+0.5,y+0.5,cw-1,ch-1);
+      if(d){x.globalAlpha=d.alpha==null?1:d.alpha;if(d.fill){x.fillStyle=d.fill;x.fillRect(ml+cc*cw+0.5,y+0.5,cw-1,ch-1);}x.globalAlpha=1;if(d.stroke){x.strokeStyle=d.stroke;x.lineWidth=2;x.strokeRect(ml+cc*cw+1.5,y+1.5,cw-3,ch-3);}}}});
+  (o.xt||[]).forEach(function(t){x.fillStyle=soft;x.textAlign='center';x.fillText(String(t),ml+t*cw+cw/2,mt+nr*ch+10);});
+  x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab,ml+pw/2,mt+nr*ch+24);
+}
+var ROWS_PRE=[0,1,2,3,4,5,6,7,8,9,10,11,12],ROWS_POST=[1,2,3,4,5,6,7,8,9,10,11,12];
+function cellPre(N,fn){return function(r,k){var s=RL.sidx(r,false,k,0);return fn(N[2*s],N[2*s+1],s);};}
+function cellPost(N,fn){return function(r,w){var s=RL.sidx(r,true,0,w);return fn(N[2*s],N[2*s+1],s);};}
+function polCell(pol){return function(n0,n1,s){if(n0+n1===0)return {fill:css('--grey')};var a=pol[s];if(a===1)return {fill:n1<NMIN?css('--bad'):css('--c8')};return {fill:css('--c10')};};}
+function drawPolGrids(cva,cvb,pol,N){
+  drawGrid(cva,{rows:ROWS_PRE,ncols:RL.KMAX+1,cell:cellPre(N,polCell(pol)),xt:[0,5,10,15,20],title:'도착 전: 세로 남은 유리 r · 가로 시작부터 지난 간격 수 k',xlab:'경과 k (간격)'});
+  drawGrid(cvb,{rows:ROWS_POST,ncols:RL.WMAX+1,cell:cellPost(N,polCell(pol)),xt:[0,1,2,3,4,5],title:'도착 뒤: 세로 남은 유리 r · 가로 기다린 간격 수 w',xlab:'대기 w (간격)'});
+}
+function validCells(){var a=[],s;for(s=0;s<RL.NSTATE;s++)if(OF.validState(s))a.push(s);return a;}
+var VALID=validCells();
+
+/* ---------- 본문 속 숫자 ---------- */
+function buildV(){
+  V.nreal=fm(REAL.length);V.nseed=String(NSEED);V.sweeps=String(OF.SWEEPS);V.nmin=String(NMIN);V.sw3=String(3*C0.csw);V.sw2=String(2*C0.csw);V.beta=String(OF.BETA_DEF);V.csw=String(C0.csw);V.nlive=String(NLIVE);
+  V.nseed6=String(NS0605);V.clN=String(RT.sim.clCapaN);V.jobsd=String(DEF.jobs);V.chb=String(RL.CH_PER_BLOCK);V.nturn=String(MSIM.CFG.N_TURN);V.turnglass=fm(MSIM.CFG.N_TURN*RL.CH_PER_BLOCK);
+  V.rep=String(TAB.rep.seed);V.epsdef=String(OF.EPS_DEF);V.ndef=fm(OF.N_DEF);V.nlabs=String(TAB.track.length);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');e.textContent=V[k]!=null?V[k]:'?';});
+}
+function stateTxt(){return '로그 설정: 탐색 ε '+epsTxt(ST.ei)+' · 로그 '+fm(NG[ST.ni])+'판 · 로그 시드 '+ST.seed;}
+function isDef(){return ST.ei===DEF.ei&&ST.ni===DEF.ni&&ST.seed===DEF.seed;}
+function setLogState(p){setS('stL'+p,!isDef(),isDef()?'기본 설정입니다: ε '+EPSG[DEF.ei]+' · 로그 '+fm(NG[DEF.ni])+'판 · 대표 로그 시드 '+DEF.seed+'.':'기본에서 옮겨 놓았습니다. '+stateTxt()+' (기본은 ε '+EPSG[DEF.ei]+' · '+fm(NG[DEF.ni])+'판 · 시드 '+DEF.seed+').');}
+
+/* ---------- 1절 ---------- */
+function cellStats(N){
+  var st={seen0:0,seen1:0,only0:0,none:0,rare1:0},i;
+  VALID.forEach(function(s){var n0=N[2*s],n1=N[2*s+1];if(n0>0)st.seen0++;if(n1>0)st.seen1++;if(n0>0&&n1===0)st.only0++;if(n0+n1===0)st.none++;if(n0>0&&n1<NMIN)st.rare1++;});
+  return st;
+}
+function upd1(){
+  var L=curLog(),N=L.N,log=L.log,st=cellStats(N),nrep=log.filter(function(x){return x.a===1;}).length;
+  var maxn1=1;VALID.forEach(function(s){if(N[2*s+1]>maxn1)maxn1=N[2*s+1];});
+  drawGrid($('cvC1'),{rows:ROWS_PRE,ncols:RL.KMAX+1,cell:cellPre(N,function(n0,n1){if(n0+n1===0)return {fill:css('--grey')};if(n1===0)return {stroke:css('--c8')};return {fill:css('--c10'),alpha:0.3+0.7*Math.log(1+n1)/Math.log(1+maxn1)};}),xt:[0,5,10,15,20],title:'도착 전: 세로 남은 유리 r · 가로 시작부터 지난 간격 수 k · 색은 교체를 본 횟수',xlab:'경과 k (간격)'});
+  var rows=[],i,shown=0;
+  for(i=0;i<log.length&&shown<5;i++){rows.push(logRow(log[i]));shown++;}
+  var firstRep=log.filter(function(x){return x.a===1;}).slice(0,2);firstRep.forEach(function(x){rows.push(logRow(x,true));});
+  tbl('tab1',['판','순서','남은 유리 r','도착 상태','고른 행동','고른 확률','그 뒤 잃은 장수'],rows,[null,null,null,lc,lc,null,null]);
+  $('ro1').innerHTML='<b>로그 '+fm(log.length)+'줄 · 판 '+fm(NG[ST.ni])+'개.</b> 교체를 고른 줄 '+fm(nrep)+'개('+pc(nrep/log.length)+', 기대 ε/2 = '+pc(EPSG[ST.ei]/2)+'). 갈 수 있는 칸 '+fm(VALID.length)+'개 중 기다림을 한 번이라도 본 칸 <b>'+fm(st.seen0)+'</b>, 교체를 한 번이라도 본 칸 <b>'+fm(st.seen1)+'</b>, 기다림은 봤는데 교체는 한 번도 못 본 칸 <b>'+fm(st.only0)+'</b>, 둘 다 못 본 칸 '+fm(st.none)+'. 교체를 '+NMIN+'번 미만 본 칸은 기다림을 본 칸 중 '+fm(st.rare1)+'개입니다.';
+  setLogState(1);
+}
+function logRow(x,rep){var r=x.arrived?'도착 뒤 · 대기 '+x.w:'도착 전 · 경과 '+x.k;return [String(x.ep),String(x.t),String(x.r),r,(x.a===1?'지금 교체':'기다림')+(rep?' (처음 본 교체)':''),f3(x.p),fm(-x.rew)];}
+
+/* ---------- 2절 ---------- */
+function upd2(){
+  var b=pcur('bc'),ru=pcur('rule'),L=curLog(),bcCells=0;for(var i=0;i<VALID.length;i++)if(b.pol[VALID[i]]===1)bcCells++;
+  var sd=seedsAt(ST.ei,ST.ni),bs=vals(sd,'bc');
+  tbl('tab2',['방식','이 로그의 실제 Loss (판당 장)','지금 규칙과의 차','교체로 복제한 칸 수','로그 시드 '+NSEED+'개 중앙값 (10~90 %)'],[
+    [MNAME.rule,f1(ru.loss),'—','0',f1(RULE)+' (고정)'],
+    [MNAME.bc,f1(b.loss),sg(b.loss-ru.loss),fm(bcCells),rng3(bs)]],[lc,null,null,null,null]);
+  $('ro2').innerHTML='행동 복제의 판당 Loss <b>'+f1(b.loss)+'</b> 장, 지금 규칙 <b>'+f1(ru.loss)+'</b> 장.';
+  var diff=Math.abs(b.loss-ru.loss);
+  $('conc2').innerHTML='<b>'+(diff<0.05?'행동 복제는 지금 규칙과 같은 정책입니다.':'행동 복제가 지금 규칙과 '+f1(diff)+' 장 다릅니다.')+'</b> '+(bcCells===0?'로그에서 칸마다 가장 흔한 행동이 모두 &lsquo;기다림&rsquo;이어서(교체는 ε/2 = '+pc(EPSG[ST.ei]/2)+'만 섞였습니다), 로그를 따라 한 정책은 지금 규칙 그대로입니다.':'교체로 복제한 칸이 '+bcCells+'개 있습니다. 로그가 작아 어떤 칸을 한두 번밖에 못 봤는데 그때 우연히 교체가 나온 칸입니다. 그런 칸의 복제는 근거가 아니라 우연을 따라 한 것입니다.')+' 시드 '+NSEED+'개에서 복제 정책의 중앙값은 '+f1(q(bs,.5))+' 장입니다. 로그만 따라 하면 개선은 나오지 않습니다.';
+  setLogState(2);
+}
+
+/* ---------- 3절 ---------- */
+function oodStats(){
+  var L=curLog(),g=OF.oodGrid(L.log,0),unseen=g.filter(function(c){return c.n0>0&&c.n1<NMIN;}),picks=unseen.filter(function(c){return c.pick===1;}),over=unseen.map(function(c){return c.over;});
+  var m=over.length?over.reduce(function(a,b){return a+b;},0)/over.length:NaN;
+  return {unseen:unseen.length,picks:picks.length,over:m,grid:g,t1min:unseen.length?Math.min.apply(null,unseen.map(function(c){return c.truth1;})):NaN,t1max:unseen.length?Math.max.apply(null,unseen.map(function(c){return c.truth1;})):NaN};
+}
+function upd3(){
+  var nv=pcur('naive'),L=curLog();drawPolGrids($('cvN3a'),$('cvN3b'),nv.pol,L.N);
+  var os=oodStats(),ru=pcur('rule'),bc=pcur('bc'),sd=seedsAt(ST.ei,ST.ni);
+  tbl('tab3',['방식','이 로그의 실제 Loss','로그 시드 '+NSEED+'개 중앙값 (10~90 %)','판당 근거 없는 선택(번)','근거 없는 선택이 낀 판의 비율'],[
+    [MNAME.rule,f1(ru.loss),f1(RULE)+' (고정)',f3(ru.ood),pc(ru.share)],
+    [MNAME.bc,f1(bc.loss),rng3(vals(sd,'bc')),f3(bc.ood),pc(bc.share)],
+    [MNAME.naive,f1(nv.loss),rng3(vals(sd,'naive')),f3(nv.ood),pc(nv.share)]],[lc,null,null,null,null]);
+  $('ro3').innerHTML='<b>가치 과대평가.</b> '+(os.unseen?'기다림은 봤지만 교체를 '+NMIN+'번 미만 본 칸 <b>'+fm(os.unseen)+'</b>개에서 Q̂(교체)는 로그가 말해 준 값이 아니라 출발값 그대로이고, 참 값(−'+C0.csw*2+' 또는 −'+C0.csw*3+')과의 차 Δ 의 평균은 <b>'+sg(os.over,0)+'</b> 장입니다. 그 가운데 단순 Q 가 교체를 고른 칸은 <b>'+fm(os.picks)+'</b>개입니다.':'이 로그에는 기다림은 봤지만 교체를 '+NMIN+'번 미만 본 칸이 없어 부풀릴 칸이 없습니다. 로그가 충분히 크고 다양하면 3절의 함정이 사라집니다.');
+  var gap=nv.loss-HANDBEST;
+  $('conc3').innerHTML='<b>단순 오프라인 Q 의 정책은 지금 규칙보다 '+f1(ru.loss-nv.loss)+' 장 낮지만, 판의 '+pc(nv.share)+'에 근거 없는 선택이 끼어 있습니다.</b> 실제 판 기록을 보고 고른 문턱 하나(참고선 '+f1(HANDBEST)+')와 견주면 '+f1(gap)+' 장을 더 잃습니다. 로그만으로 만든 Q 가 행동 복제보다 나쁠 것이라 예상하기 쉽지만 이 환경에서는 그렇지 않습니다. 지금 규칙이 비싸서 근거 없는 교체도 이득이기 때문입니다. 과대평가의 위험은 성적이 아니라 &lsquo;근거를 보증할 수 없다&rsquo;는 데 있습니다.';
+  setLogState(3);
+}
+
+/* ---------- 4절 ---------- */
+function upd4(){
+  var beta=BG[ST.bi],L=curLog(),cn=pcur('cons'),nv=pcur('naive');drawPolGrids($('cvN4a'),$('cvN4b'),cn.pol,L.N);
+  var xs=BG.slice(),mids=[],los=[],his=[],i;
+  xs.forEach(function(b){var rs=live(b,ST.stack).map(function(r){return r.cons;});var p=P3(rs);los.push(p[0]);mids.push(p[1]);his.push(p[2]);});
+  var n0=live(0,false).map(function(r){return r.naive;}),nmed=q(n0,.5);
+  var rr=drawXY($('cvB4'),[{x:xs,y:mids,col:css('--accent'),lw:2.5,dots:true,band:{lo:los,hi:his,a:0.2},marks:[{x:beta,y:mids[ST.bi],col:css('--c8'),r:7}]}],{h:230,xlo:0,xhi:BG[BG.length-1],xticks:[0,96,192,288,384,480],xlab:'벌점 세기 β (장)',hlines:[{y:nmed,col:css('--grey')}]});ylab(rr,'실제 Loss (판당 장)');
+  var lv=live(beta,ST.stack),lvN=live(0,false);
+  tbl('tab4',['방식','이 로그의 실제 Loss','로그 시드 '+NLIVE+'개 중앙값 (10~90 %)','판당 근거 없는 선택(번)','근거 없는 선택이 낀 판의 비율'],[
+    [MNAME.naive+' (β = 0)',f1(nv.loss),rng3(vals(lvN,'naive')),f3(nv.ood),pc(nv.share)],
+    ['보수적 Q (β = '+beta+(ST.stack?', 벌점 쌓기':'')+')',f1(cn.loss),rng3(vals(lv,'cons')),f3(cn.ood),pc(cn.share)]],[lc,null,null,null,null]);
+  var better=lv.filter(function(r,i){return r.cons<lvN[i].naive-1e-9;}).length;
+  $('ro4').innerHTML='이 로그에서 보수적 Q 는 단순 Q 보다 <b>'+sg(cn.loss-nv.loss)+'</b> 장, 로그 시드 '+NLIVE+'개 중 <b>'+better+'</b>개에서 더 낮습니다. 근거 없는 선택은 판당 '+f3(nv.ood)+'번에서 '+f3(cn.ood)+'번으로 바뀝니다.';
+  var verdict=beta===0?'β = 0 이라 3절의 단순 오프라인 Q 와 같습니다.':(cn.loss<nv.loss-0.05?'벌점이 근거 없는 선택을 줄이고 Loss 도 낮춥니다.':(cn.loss>nv.loss+0.05?'이 설정에서는 벌점이 오히려 Loss 를 높입니다. 로그가 작거나 β 가 지나치게 큰 곳입니다.':'이 설정에서는 벌점이 거의 차이를 만들지 못합니다.'));
+  $('conc4').innerHTML='<b>'+verdict+'</b> '+(ST.stack?'벌점을 값 이어받기에도 쌓으면 판이 길어질수록 벌점이 누적돼 기다림이 불리해지고, 정책이 바로 교체하는 쪽으로 치우칩니다(교체로 고른 칸이 '+VALID.filter(function(s){return cn.pol[s]===1;}).length+'개).':'β 의 알맞은 값은 로그 크기에 따라 달라서(위 곡선), 로그만으로 정할 수 없고 가정으로 적습니다.');
+  setLogState(4);setS('stB4',beta!==OF.BETA_DEF||ST.stack,(beta===OF.BETA_DEF&&!ST.stack)?'기본 설정입니다: β '+OF.BETA_DEF+'장, 벌점은 고르는 순간에만.':'기본에서 옮겨 놓았습니다: β '+beta+'장'+(ST.stack?', 벌점 쌓기 켬':'')+' (기본은 β '+OF.BETA_DEF+'장, 쌓지 않음).');
+  var s=RL.sidx(ST.r4,false,ST.k4,0),Qo=cn.q,Nn=L.N,p0=beta/Math.sqrt(Nn[2*s]+1),p1=beta/Math.sqrt(Nn[2*s+1]+1),a=Qo.Qp[2*s+1]>Qo.Qp[2*s]?1:0;
+  tbl('tabC4',['행동','로그에서 본 횟수 n','Q (벌점 전)','벌점 β/√(n+1)','Q̃ (벌점 뒤)','고름'],[
+    ['기다림',String(Nn[2*s]),f1(Qo.Q[2*s]),f1(p0),f1(Qo.Qp[2*s]),a===0?'예':'아니오'],
+    ['지금 교체',String(Nn[2*s+1]),f1(Qo.Q[2*s+1]),f1(p1),f1(Qo.Qp[2*s+1]),a===1?'예':'아니오']],[lc,null,null,null,null,null]);
+  var truth=OF.trueReplace(s),na=nv.q.Qp[2*s+1]>nv.q.Qp[2*s]?1:0;
+  $('roC4').innerHTML='이 칸에서 로그는 기다림을 <b>'+Nn[2*s]+'</b>번, 교체를 <b>'+Nn[2*s+1]+'</b>번 봤습니다. 교체의 벌점 '+beta+' ÷ √('+Nn[2*s+1]+' + 1) = <b>'+f1(p1)+'</b>, 벌점 뒤 값 '+f1(Qo.Q[2*s+1])+' − '+f1(p1)+' = <b>'+f1(Qo.Qp[2*s+1])+'</b>. 기다림은 '+f1(Qo.Q[2*s])+' − '+f1(p0)+' = <b>'+f1(Qo.Qp[2*s])+'</b>. 그래서 보수적 Q 는 <b>'+(a===1?'지금 교체</b>를':'기다림</b>을')+', 벌점 없는 단순 Q 는 <b>'+(na===1?'지금 교체</b>를':'기다림</b>을')+' 고릅니다. 교체의 참 값은 '+sg(truth,0)+' 입니다(교체하면 판이 끝나므로 교체 손실 하나).';
+  setS('stC4',ST.r4!==DEF.r4||ST.k4!==DEF.k4,(ST.r4===DEF.r4&&ST.k4===DEF.k4)?'기본 칸입니다: r = 0, k = 5.':'기본 칸에서 옮겨 놓았습니다: r = '+ST.r4+', k = '+ST.k4+' (기본은 r = 0, k = 5).');
+}
+
+/* ---------- 5절 ---------- */
+function upd5(){
+  var head=['ε \\ 로그 판 수'].concat(NG.map(function(n){return fm(n)+'판';})),rowsA=[],rowsB=[],ei,ni;
+  for(ei=0;ei<EPSG.length;ei++){var ra=[epsTxt(ei)],rb=[epsTxt(ei)];for(ni=0;ni<NG.length;ni++){var sd=seedsAt(ei,ni);ra.push(f1(q(vals(sd,'naive'),.5))+' → '+f1(q(vals(sd,'cons'),.5)));rb.push(f3(q(vals(sd,'naive_ood'),.5))+' → '+f3(q(vals(sd,'cons_ood'),.5)));}rowsA.push(ra);rowsB.push(rb);}
+  tbl('tab5a',head,rowsA,[lc,null,null,null,null]);tbl('tab5b',['판당 근거 없는 선택 \\ 로그 판 수'].concat(head.slice(1)),rowsB,[lc,null,null,null,null]);
+  ['tab5a','tab5b'].forEach(function(id){var tr=$(id).rows[ST.ei+1];if(tr)tr.cells[ST.ni+1].className='sel';});
+  var sd=seedsAt(ST.ei,ST.ni);
+  drawRanges($('cvS5'),[{label:MNAME.bc,lo:q(vals(sd,'bc'),.1),mid:q(vals(sd,'bc'),.5),hi:q(vals(sd,'bc'),.9),col:css('--grey')},{label:MNAME.naive,lo:q(vals(sd,'naive'),.1),mid:q(vals(sd,'naive'),.5),hi:q(vals(sd,'naive'),.9),col:css('--bad')},{label:'보수적 Q (β = '+OF.BETA_DEF+')',lo:q(vals(sd,'cons'),.1),mid:q(vals(sd,'cons'),.5),hi:q(vals(sd,'cons'),.9),col:css('--accent')}],{xlab:'실제 Loss (판당 장)'});
+  var win=sd.filter(function(r){return r.cons<r.naive-1e-9;}).length,tie=sd.filter(function(r){return Math.abs(r.cons-r.naive)<=1e-9;}).length;
+  $('ro5').innerHTML='ε '+epsTxt(ST.ei)+' · 로그 '+fm(NG[ST.ni])+'판에서 보수적 Q 가 더 낮은 로그 시드는 '+NSEED+'개 중 <b>'+win+'</b>개, 같은 시드 '+tie+'개, 더 높은 시드 '+(NSEED-win-tie)+'개입니다. 중앙값은 단순 '+f1(q(vals(sd,'naive'),.5))+' → 보수적 '+f1(q(vals(sd,'cons'),.5))+' 장입니다.';
+  var big=NG.length-1,s0=seedsAt(DEF.ei,0),s3=seedsAt(DEF.ei,big);
+  $('conc5').innerHTML='<b>같은 ε '+EPSG[DEF.ei]+'에서 로그를 '+fm(NG[0])+'판에서 '+fm(NG[big])+'판으로 늘리면 단순 Q 는 '+f1(q(vals(s0,'naive'),.5))+' → '+f1(q(vals(s3,'naive'),.5))+', 보수적 Q 는 '+f1(q(vals(s0,'cons'),.5))+' → '+f1(q(vals(s3,'cons'),.5))+' 장으로 내려와 두 방법이 거의 만납니다.</b> 반대로 ε 를 '+EPSG[1]+'로 낮추면 같은 '+fm(NG[big])+'판에서도 단순 Q 는 '+f1(q(vals(seedsAt(1,big),'naive'),.5))+' 장에 머뭅니다. 로그를 쌓는 양보다 탐색을 심는 것이 먼저입니다.';
+  setLogState(5);
+}
+
+/* ---------- 6절 ---------- */
+function upd6(){
+  var sd=seedsAt(ST.ei,ST.ni),v0=vals(run0605('v0'),'real'),dr=vals(run0605('dr'),'real'),cal=vals(run0605('cal'),'real');
+  function it(label,a,col){var p=P3(a);return {label:label,lo:p[0],mid:p[1],hi:p[2],col:col};}
+  drawRanges($('cvR6'),[{label:MNAME.rule,pt:RULE,col:css('--bad')},it('이 장: '+MNAME.bc,vals(sd,'bc'),css('--grey')),it('이 장: '+MNAME.naive,vals(sd,'naive'),css('--c8')),it('이 장: '+MNAME.cons,vals(sd,'cons'),css('--accent')),it('0605: 트윈 판 0 에서 학습',v0,css('--c9')),it('0605: 0601 보정 트윈에서 학습',cal,css('--c10')),it('0605: 사후분포 무작위화',dr,css('--c10')),{label:'참고: 실제 기록으로 고른 문턱',pt:HANDBEST,col:css('--good')}],{xlab:'실제 판 기록에서의 판당 Loss (장)'});
+  var cm=q(vals(sd,'cons'),.5),nm=q(vals(sd,'naive'),.5);
+  $('ro6').innerHTML='설정 ε '+epsTxt(ST.ei)+' · 로그 '+fm(NG[ST.ni])+'판의 로그 시드 '+NSEED+'개 중앙값: 단순 <b>'+f1(nm)+'</b> · 보수적 <b>'+f1(cm)+'</b>. 0605 학습 시드 '+NS0605+'개 중앙값: 트윈 판 0 <b>'+f1(q(v0,.5))+'</b> · 0601 보정 <b>'+f1(q(cal,.5))+'</b> · 사후 무작위화 <b>'+f1(q(dr,.5))+'</b>. 지금 규칙 '+f1(RULE)+'.';
+  var big=NG.length-1,c1=seedsAt(DEF.ei,2),c3=seedsAt(DEF.ei,big),c0=seedsAt(DEF.ei,DEF.ni);
+  tbl('tab6',['우리 상황','지금 할 일','이 장의 숫자(중앙값)'],[
+    ['보정된 트윈이 있고 실제와의 gap 을 계속 재고 있다','트윈 안 학습(0605)에 사전 평가를 거쳐 권고','0601 보정 '+f1(q(cal,.5))+' · 사후 무작위화 '+f1(q(dr,.5))],
+    ['트윈이 없거나 못 믿겠고, 로그에 ε 탐색이 있고 판이 수천 개다','보수적 Q + 근거 없는 선택 점검을 통과하면 좁은 범위에서 권고','로그 '+fm(NG[big])+'판: 보수적 '+f1(q(vals(c3,'cons'),.5))+', 근거 없는 선택 판당 '+f3(q(vals(c3,'cons_ood'),.5))],
+    ['로그가 수백 판이다','정책을 만들지 말고 로그를 더 쌓으면서 ε 운영 범위를 정함','로그 '+fm(NG[DEF.ni])+'판: 보수적 '+f1(q(vals(c0,'cons'),.5))+', 근거 없는 선택 판당 '+f3(q(vals(c0,'cons_ood'),.5))],
+    ['로그가 ε = 0 이다(늘 같은 규칙으로만 운영)','배울 것이 없음: 먼저 작은 ε 를 심어 로그를 다양하게 만듦','ε 0 · '+fm(NG[big])+'판: 보수적 '+f1(q(vals(seedsAt(0,big),'cons'),.5))+', 근거 없는 선택 판당 '+f3(q(vals(seedsAt(0,big),'cons_ood'),.5))],
+    ['트윈이 있지만 보정하지 않았다','그 트윈에서 학습하지 않음: 먼저 0602 로 보정','트윈 판 0 학습 '+f1(q(v0,.5))+' (로그 보수적 '+f1(cm)+')']],[lc,lc,lc]);
+  var cc=q(vals(sd,'cons'),.5),drm=q(dr,.5),v0m=q(v0,.5);
+  $('conc6').innerHTML='<b>이 설정에서 보정된 트윈에서 학습한 정책('+f1(drm)+')은 로그만의 보수적 Q('+f1(cc)+')보다 '+(drm<cc-0.5?'낮은 Loss 를 냅니다':(drm>cc+0.5?'높은 Loss 를 냅니다':'거의 같은 Loss 를 냅니다'))+'. 보정하지 않은 트윈(판 0)에서 학습한 정책('+f1(v0m)+')은 '+(v0m>cc?'로그만의 보수적 Q 보다 나쁩니다':'로그만의 보수적 Q 보다 낫습니다')+'.</b> 트윈이 믿을 만한지는 실제 기록과의 gap 으로만 알 수 있으므로, 어느 길이든 먼저 할 일은 결정과 도착 시각의 기록입니다.';
+  setLogState(6);
+}
+
+/* ---------- 7절 ---------- */
+function upd7(){
+  var E='<span class="badge ok">확립</span>',O='<span class="badge wait">연구 단계</span>';
+  tbl('tab7',['일','상태','이 트랙에서 한 것 · 근거'],[
+    ['숫자 계산·검정·예측·평가를 검증된 함수로 하기',E,'0101~0503 의 도구 상자 함수. 가상 공장의 숨은 정답과 대조해 검증했습니다.'],
+    ['LLM 은 문장만 쓰고 숫자는 도구가 내며, 자동 대조와 검사를 거치기',E,'0410 의 실제 답 18개·0411 의 실제 답 6개 기록과 검사 V1~V6.'],
+    ['관찰 → 점검 → 분석 → 결정 → 요청 → 보고 구조와 사람 승인 대기열',E,'0401 시제품과 0402 평가(놓침·헛요청을 따로 셈).'],
+    ['과거 로그로 새 규칙을 쓰기 전에 평가하기(고른 확률이 있을 때)',E,'0604 의 IPS·SNIPS·이중 강건과 지원 점검.'],
+    ['작은 표 크기의 상태에서 트윈 안 Q 학습과 전이 손실 점검',E,'0605: 가상 공장에서 계산해 보였고 회사 데이터로는 다시 확인해야 합니다.'],
+    ['작은 표 크기의 상태에서 로그만으로 정책을 배우고 근거 없는 선택을 점검하기',E,'이 장 3~5절: 횟수표·오프라인 Q·보수적 Q·<code>ood_check</code>. 가상 공장 기록에서만 확인했습니다.'],
+    ['상태가 크고 연속인 공정에서 신경망으로 Q 를 근사하는 오프라인 강화학습',O,'방법이 제안돼 있으나 현장 표준·검증 절차가 아직 없습니다. 이 트랙은 계산해 보이지 않았으므로 성능 수치를 적지 않습니다.'],
+    ['LLM 에이전트를 업무 보상으로 강화학습시켜 스스로 개선하게 하기',O,'방법이 제안돼 있으나 현장 표준·검증 절차가 아직 없습니다. 이 트랙은 계산해 보이지 않았습니다.'],
+    ['트윈 보정·정책 학습·배포를 사람 승인 없이 이어 도는 완전 자동 닫힌 고리',O,'0601 점검표의 미완 항목입니다. 현장 표준·검증 절차가 아직 없고, 이 트랙의 구조는 늘 사람 승인을 거칩니다.']],[lc,null,lc]);
+}
+
+/* ---------- 8절: 부서 단계 점검표 ---------- */
+var STAGES=[
+ {t:'기록',d:'결정과 사건을 같은 키로 쌓아 둡니다. 이후 모든 단계의 재료입니다.',
+  pre:['유리 ID·챔버·마스크 세트·턴으로 FDC·PPA·이벤트를 이을 수 있다 (0201~0203)','PM·부품 교체·리페어·마스크 이동이 시각·종류와 함께 기록돼 있다 (0206·0501)','결정마다 고를 수 있던 행동·고른 행동·고른 확률·결과가 같은 키로 기록된다 (0604)'],
+  labs:['0201','0206','0501','0604'],rec:['0201','0206','0604'],
+  est:'기록 양식을 가상 데이터로 정했고, 항목은 9절 표에 모두 있습니다.',open:'회사 기록의 빠진 비율·키가 맞는 비율은 이 트랙이 알지 못합니다. 회사 기록으로 처음 재 봐야 합니다.'},
+ {t:'파이프라인과 검정 도구',d:'기록에서 정해진 시각에 표를 뽑고 점검하고, 변경점과 알람 한계를 검증된 함수로 판정합니다.',
+  pre:['사내 DB 에서 정해진 시각에 표를 뽑고 점검 규칙을 통과한 표만 분석한다 (0400)','변경점 전후 비교를 검증된 검정 함수로 하고 교란·자기상관을 점검한다 (0101~0104)','알람 한계를 과거 재현과 시간순 분할로 점검한다 (0202~0205)'],
+  labs:['0400','0101','0102','0103','0104','0202','0203','0204','0205'],rec:['0400','0101','0205'],
+  est:'점검 일곱 규칙과 검정·한계 함수를 가상 공장의 숨은 정답과 대조해 검증했습니다.',open:'회사 DB 연결과 스키마 변경 대응은 회사에서 다시 만들어야 합니다.'},
+ {t:'예측과 감시',d:'PPA 성분·마스크 수명·Loss 를 예측하고 에이전트가 감시하며, 결정과 사람 결론을 견줍니다.',
+  pre:['예측 모델을 시간순으로 나눠 평가하고 섞어 나눈 낙관 편향을 점검한다 (0305·0503)','예측값과 그 뒤 실제 측정을 같은 유리 번호로 기록한다 (0305)','에이전트 결정과 사람 결론을 같은 칸에 기록해 일치율과 놓침·헛요청을 따로 잰다 (0402)'],
+  labs:['0301','0302','0303','0304','0305','0306','0503','0401','0402'],rec:['0305','0402','0503'],
+  est:'직선·트리·로지스틱 예측과 에이전트 평가를 가상 데이터에서 검증했습니다.',open:'실제 센서 드리프트에서의 장기 성능은 이 트랙이 확인하지 못했습니다.'},
+ {t:'트윈과 보정',d:'시뮬레이터를 실제에 맞추고, 어긋남을 계속 재며, 가장 단순한 닫힌 고리(런투런)를 돌립니다.',
+  pre:['트윈 출력과 실제 기록의 gap 을 정기적으로 잰다 (0402·0601)','트윈 파라미터의 보정 이력(날짜·값·구간·쓴 로그 기간)이 있다 (0602)','공장 변경 사건(세정액 교체·설비 개조)의 날짜가 기록된다 (0602)'],
+  labs:['0601','0602','0603'],rec:['0601','0602','0603'],
+  est:'격자 보정·베이즈 보정·칼만 필터를 숨은 정답과 대조해 검증했습니다.',open:'실제 공장에는 숨은 정답이 없어서 gap 이 보정의 유일한 근거입니다. 보정이 맞는지는 계속 재야 합니다.'},
+ {t:'정책 학습과 사전 평가',d:'새 규칙을 쓰기 전에 지난 기록으로 평가하고, 트윈 안이나 로그에서 정책 후보를 만들되 근거를 점검합니다.',
+  pre:['정책 후보를 쓰기 전에 고른 확률이 있는 지난 기록으로 평가한다 (0604)','학습한 정책이 로그에서 거의 못 본 행동을 고르는지 점검하는 단계가 있다 (이 장 3~4절)','보상식과 벌점 세기의 근거와 변경 기록이 있다 (0605·이 장 13절)'],
+  labs:['0604','0605','0606'],rec:['0604','0605'],
+  est:'표 크기의 상태에서 트윈 안 학습·사전 평가·보수적 Q 를 가상 공장에서 계산해 보였습니다.',open:'상태가 크거나 연속인 경우와 보상 설계의 일반적 방법은 연구 단계입니다.'},
+ {t:'승인된 닫힌 고리',d:'에이전트가 권고를 내고 사람이 승인하며, 결과를 다시 기록해 재평가합니다. 사람 승인 단계는 빠지지 않습니다.',
+  pre:['에이전트의 모든 전이 요청이 사람 승인 대기열을 거친다 (0401)','학습 정책의 승인 요청서에 적용 범위와 되돌리는 방법(지금 규칙으로 즉시 복귀)이 적혀 있다 (0605)','결정 뒤 실제 결과를 같은 키로 모아 정기적으로 재평가한다 (0601)'],
+  labs:['0401','0601','0605'],rec:['0401','0601'],
+  est:'승인 대기열 구조와 권고만 내는 구조를 0401·0601·0605 에서 보였습니다.',open:'에이전트가 스스로 정책을 갱신해 배포하는 완전 자동 고리는 연구 단계입니다. 이 트랙의 어느 단계도 그 일을 승인 없이 하지 않습니다.'}
+];
+function shortTitle(t){return String(t).replace(/^(실험실\s*)?\d{4}\s*[·—-]?\s*/,'').split(' · ')[0];}
+function trackOf(id){for(var i=0;i<TAB.track.length;i++)if(TAB.track[i].id===id)return TAB.track[i];return null;}
+function recText(ids){return ids.map(function(id){var t=trackOf(id);return t?id+' — '+t.records.slice(0,2).map(esc).join(' · '):'';}).join('<br>');}
+function labLinks(ids){return ids.map(function(id){var t=trackOf(id);return t?'<a href="'+t.file+'" style="color:var(--accent);font-weight:700">'+id+'</a>':(id==='0606'?'<b>0606</b>':id);}).join(' · ');}
+function stageDone(){var d=0,i;for(i=0;i<STAGES.length;i++){var ok=true,j;for(j=0;j<3;j++)if(!ST.chk[i*3+j])ok=false;if(ok)d=i+1;else break;}return d;}
+function renderStageList(){
+  var h='';STAGES.forEach(function(s,i){
+    h+='<div class="qitem" id="stg'+i+'"><div class="qt">단계 '+(i+1)+' · '+s.t+' <span class="badge off" id="bg'+i+'"></span></div><p class="note" style="margin:.2rem 0">'+s.d+'</p>';
+    s.pre.forEach(function(p,j){h+='<label class="chk"><input type="checkbox" id="c'+i+j+'" data-i="'+(i*3+j)+'"> '+p+'</label>';});
+    h+='<p class="note" style="margin:.4rem 0 0"><b>이 트랙의 실험실</b> '+labLinks(s.labs)+'</p><p class="note" style="margin:.2rem 0 0"><b>필요한 기록</b> (9절 표에서 가져온 항목)<br>'+recText(s.rec)+'</p>';
+    h+='<p class="note" style="margin:.3rem 0 0"><span class="badge ok">확립</span> '+s.est+'</p><p class="note" style="margin:.2rem 0 0"><span class="badge wait">미완</span> '+s.open+'</p></div>';});
+  $('stageList').innerHTML=h;
+  Array.prototype.forEach.call($('stageList').querySelectorAll('input[type=checkbox]'),function(c){c.addEventListener('change',function(){ST.chk[+c.getAttribute('data-i')]=c.checked;upd8();});});
+}
+function upd8(){
+  var done=stageDone(),n=ST.chk.filter(function(x){return x;}).length,skipped=0,i,j;
+  for(i=done+1;i<STAGES.length;i++)for(j=0;j<3;j++)if(ST.chk[i*3+j])skipped++;
+  STAGES.forEach(function(s,i){for(var j=0;j<3;j++)$('c'+i+j).checked=ST.chk[i*3+j];var b=$('bg'+i);b.className='badge '+(i<done?'ok':(i===done?'wait':'off'));b.textContent=i<done?'조건 충족':(i===done?'다음 단계':'아직 아님');});
+  var txt;
+  if(n===0)txt='처음 상태입니다: 체크한 조건이 없습니다.';else txt='체크 '+n+'칸 / 18칸'+(skipped?' (앞 단계가 비어 있어 인정하지 않는 칸 '+skipped+'개)':'')+'.';
+  setS('stStage',n!==0,txt);
+  var out;
+  if(done===STAGES.length){out='<b>여섯 단계의 선행 조건이 모두 채워졌습니다.</b> 남은 일은 연구 단계(7절)이며, 어느 것도 사람 승인 없이 라인에 적용하지 않습니다.';}
+  else{var s=STAGES[done],first=-1;for(j=0;j<3;j++)if(!ST.chk[done*3+j]){first=j;break;}
+    out='<b>지금 서 있는 곳: '+(done===0?'1단계를 시작하기 전':done+'단계까지 선행 조건 충족')+'.</b> 다음 단계는 <b>'+(done+1)+'단계 '+s.t+'</b>이고, 다음 걸음은 &ldquo;'+s.pre[first]+'&rdquo;를 갖추는 것입니다.';}
+  $('roStage').innerHTML=out;
+}
+
+/* ---------- 9·10절: 총괄표 ---------- */
+function upd9(){
+  var rows=TAB.track.map(function(t){return ['<a href="'+t.file+'" style="color:var(--accent);font-weight:700">'+t.id+'</a> '+esc(shortTitle(t.title)),t.records.length?t.records.map(esc).join(' · '):'—'];});
+  tbl('tab9',['실험실','앞으로 기록해 둘 데이터 (항목)'],rows,[lc,lc]);
+  var fam=[['유리·챔버·마스크·턴 같은 이을 키',/유리 ID|유리 번호|챔버|마스크|턴|고유 번호/],['이벤트·이력·사건(PM·교체·리페어)',/이벤트|이력|사건|교체|리페어/],['라벨·판정·사후 결과·확인',/라벨|판정|결과|확인|결론/],['시각·날짜·순서',/시각|날짜|시간|순서|일자|처리 순/],['판(버전)·변경 기록',/판|변경|바꾼/]];
+  var parts=fam.map(function(f){var c=TAB.track.filter(function(t){return f[1].test(t.records.join(' '));}).length;return f[0]+' <b>'+c+'</b>개';});
+  $('ro9').innerHTML='<b>실험실 '+TAB.track.length+'개 가운데</b> 기록 항목에 다음이 나오는 곳의 수: '+parts.join(' · ')+'. 어느 실험실을 만나도 같은 이을 키(유리·챔버·마스크·턴)와 이벤트 이력이 되풀이됩니다. 그것이 1단계 기록입니다.';
+}
+function upd10(){
+  var tot=0,nl=0;
+  var rows=TAB.track.map(function(t){if(t.tools.length){tot+=t.tools.length;nl++;}return ['<a href="'+t.file+'" style="color:var(--accent);font-weight:700">'+t.id+'</a> '+esc(shortTitle(t.title)),t.tools.length?t.tools.map(function(n){return '<code>'+n+'</code>';}).join(' · '):'—'];});
+  tbl('tab10',['실험실','도구 상자 함수 (그 실험실 Python 코드에 정의된 것)'],rows,[lc,lc]);
+  $('ro10').innerHTML='함수 이름 '+tot+'개가 실험실 '+nl+'개에서 나옵니다(같은 이름을 두 실험실이 정의했으면 둘 다 셉니다). 이 장이 더하는 함수는 <code>count_table</code>·<code>behavior_clone</code>·<code>offline_q</code>·<code>conservative_q</code>·<code>ood_check</code> 다섯입니다.';
+}
+
+/* ---------- 11절 ---------- */
+function upd11(){
+  var sd=seedsAt(ST.ei,ST.ni),nm=q(vals(sd,'naive'),.5),cm=q(vals(sd,'cons'),.5),J=ST.jobs,TG=MSIM.CFG.N_TURN*RL.CH_PER_BLOCK;
+  function row(nm_,per,ood){return [nm_,f1(per),fm(per*J),per===RULE?'—':fm((RULE-per)*J),per===RULE?'—':f2((RULE-per)*J/TG),ood==null?'—':f3(ood)];}
+  tbl('tab11',['방식','판당 Loss (장)','한 달 Loss (장)','지금 규칙 대비 줄어든 장수/월','블록-턴/월','판당 근거 없는 선택(번)'],[
+    row(MNAME.rule,RULE,null),row(MNAME.naive,nm,q(vals(sd,'naive_ood'),.5)),row(MNAME.cons+' (β '+OF.BETA_DEF+')',cm,q(vals(sd,'cons_ood'),.5))],[lc,null,null,null,null,null]);
+  var gain=(nm-cm)*J;
+  $('conc11').innerHTML='<b>보수적 Q 는 단순 Q 보다 한 달에 '+fm(gain)+' 장('+f2(gain/TG)+' 블록-턴)을 덜 잃습니다.</b> 이것이 함정을 피하는 값입니다. 지금 규칙 대비로는 단순 Q 가 '+fm((RULE-nm)*J)+' 장, 보수적 Q 가 '+fm((RULE-cm)*J)+' 장 줄이는 것으로 나오지만, 단순 Q 의 감소에는 판당 '+f3(q(vals(sd,'naive_ood'),.5))+'번의 근거 없는 선택이 섞여 있습니다(ε '+epsTxt(ST.ei)+' · 로그 '+fm(NG[ST.ni])+'판의 로그 시드 '+NSEED+'개 중앙값).';
+  setLogState(11);setS('stJ11',ST.jobs!==DEF.jobs,ST.jobs===DEF.jobs?'기본값입니다: 한 달 '+DEF.jobs+'판.':'기본에서 옮겨 놓았습니다: 한 달 '+ST.jobs+'판 (기본은 '+DEF.jobs+'판).');
+}
+
+/* ---------- 13절 ---------- */
+function fillReport(){
+  $('rp_fields').innerHTML='<code>로그의 범위·기록 정책과 ε 운영 기간 · 상태 정의와 보상식·근거 · 학습 방식과 벌점 세기·근거 · 칸별 횟수 요약(본 칸·못 본 칸) · 근거 없는 선택 점검 결과 · 실제(또는 사전 평가) 추정 성적과 시드 분포 · 지금 규칙 대비 감소와 월 환산 · 적용 범위와 되돌리기 방법 · 승인</code>';
+  tbl('tabTool',['함수','하는 일','앞 단계','다음 단계'],[['count_table','칸·행동마다 로그에서 본 횟수','결정 기록(0604)','behavior_clone · offline_q'],['behavior_clone','로그에서 더 자주 고른 행동을 따라 하는 정책(비교 기준)','count_table','evaluate_policy'],['offline_q','로그만으로 만든 경험 모형 위의 Q(벌점 0 이 단순)','결정 기록','ood_check'],['conservative_q','횟수 기반 벌점으로 드문 행동을 깎아 고르는 Q','count_table · 벌점 세기(사람)','ood_check'],['ood_check','정책이 로그에서 거의 못 본 행동을 고르는 판단 수','정책 · count_table','승인 요청서(근거 없는 선택이 0 에 가까울 때만)'],['evaluate_policy','실제 판 기록에 정책을 다시 돌려 성적을 잼(0605)','정책 표 · 판 기록(0400)','승인 요청서']],[lc,lc,lc,lc]);
+}
+function upd13(){
+  var cn=pcur('cons'),L=curLog(),st=cellStats(L.N);
+  $('rp_ex').innerHTML='<code>'+esc(['로그 시드 '+ST.seed+' · ε '+epsTxt(ST.ei)+' · '+fm(NG[ST.ni])+'판 ('+fm(L.log.length)+'줄)','보상: 굶음+막힘+교체 손실(0605), 교체 '+C0.csw+'장','보수적 Q · β '+BG[ST.bi]+'장'+(ST.stack?' · 벌점 쌓기':''),'기다림을 본 칸 '+st.seen0+' · 교체를 본 칸 '+st.seen1+' · 교체를 '+NMIN+'번 미만 본 칸 '+st.rare1,'근거 없는 선택 판당 '+f3(cn.ood)+'번 (판 '+pc(cn.share)+')','실제 판 '+fm(REAL.length)+'개 판당 Loss '+f1(cn.loss)+' (지금 규칙 '+f1(RULE)+')','승인 ____'].join(' | '))+'</code>';
+}
+
+/* ---------- 14절 ---------- */
+function loadTruth(){
+  var clean=window.Loop06.HIDDEN.CLEAN,L=curLog(),ids=['rule','bc','naive','cons'],ex={};
+  ids.forEach(function(id){ex[id]=OF.exactTrue(clean,RT.wq,pcur(id).pol).loss;});
+  var opt=OF.exactTrue(clean,RT.wq,null),os=oodStats(),harm=0,tot=0,gain=0;
+  os.grid.forEach(function(c){if(c.pick===1&&c.n1<NMIN){tot++;var d=opt.Q0[c.r][c.k]-opt.Q1[c.r][c.k];if(d>1e-9){harm++;gain+=d;}}});
+  TRV={ex:ex,opt:opt.loss,harm:harm,tot:tot,harmMean:harm?gain/harm:NaN};
+}
+function fillReveal(){
+  var t=TRV,rows=[];
+  ['rule','bc','naive','cons'].forEach(function(id){var smp=pcur(id).loss;rows.push([MNAME[id],f1(smp),f1(t.ex[id]),sg(smp-t.ex[id]),f1(t.ex[id]-t.opt)]);});
+  tbl('tabAns',['방식 (지금 로그의 정책)','실제 판 기록 '+fm(REAL.length)+'개로 잰 Loss','정확한 기대 Loss','잰 값 − 정확한 값','달성할 수 있는 가장 좋은 값과의 차'],rows,[lc,null,null,null,null]);
+  $('roAns').innerHTML='<b>달성할 수 있는 가장 좋은 정책의 정확한 기대 Loss 는 '+f1(t.opt)+' 장입니다.</b> 실제 판 기록 '+fm(REAL.length)+'개로 잰 값과 정확한 값의 차는 판을 뽑은 표본의 오차이고, 지금 규칙에서 '+sg(pcur('rule').loss-t.ex.rule)+' 장으로 가장 큽니다. 정책끼리 견주는 순서는 둘 다 같습니다.';
+  $('concAns').innerHTML='<b>단순 오프라인 Q 가 근거 없이 고른 교체 '+fm(t.tot)+'칸 가운데 '+fm(t.harm)+'칸은 참으로 손해입니다.</b> 그 칸에서는 기다리다가 남은 유리가 0 이 된 뒤에 바꾸는 편이 평균 '+(t.harm?f1(t.harmMean):'0')+' 장 낫습니다. 나머지 '+fm(t.tot-t.harm)+'칸은 우연히 옳았습니다. 정책의 성적만 보고는 둘을 가를 수 없고, 로그의 횟수(근거 점검)만이 가릅니다. 보수적 Q 의 정확한 기대 Loss 는 단순 Q 보다 '+f1(Math.abs(t.ex.naive-t.ex.cons))+' 장 '+(t.ex.naive>=t.ex.cons?'낮고':'높고')+' 가장 좋은 값과의 차는 '+f1(t.ex.cons-t.opt)+' 장입니다.';
+}
+function reveal(){if(!TRV)loadTruth();REV=true;$('btnReveal').disabled=true;$('btnReveal').setAttribute('aria-expanded','true');['roAns','tabAns','concAns'].forEach(function(id){$(id).hidden=false;});fillReveal();}
+
+/* ---------- 15절 ---------- */
+function upd15(){
+  var sd=seedsAt(DEF.ei,DEF.ni),nm=q(vals(sd,'naive'),.5),cm=q(vals(sd,'cons'),.5),no=q(vals(sd,'naive_ood'),.5),co=q(vals(sd,'cons_ood'),.5),dr=q(vals(run0605('dr'),'real'),.5);
+  $('conc15').innerHTML='<b>승인할 수 없습니다. 오늘 약속할 수 있는 것은 정책 후보를 만들어 점검하고 권고로 내는 데까지입니다.</b> 로그 '+fm(OF.N_DEF)+'판(시드 '+NSEED+'개 중앙값)에서 로그만 따라 한 정책은 지금 규칙 '+f1(RULE)+' 장 그대로이고, 단순 오프라인 Q 는 '+f1(nm)+' 장이지만 판당 근거 없는 선택이 '+f3(no)+'번 끼고, 보수적 Q 는 '+f1(cm)+' 장에 '+f3(co)+'번입니다. 보정된 트윈에서 학습한 0605 의 정책은 '+f1(dr)+' 장이어서 로그 수백 판의 정책은 아직 거기에 못 미칩니다. 로그가 수천 판이고 탐색이 있으면 두 길이 만납니다(5절).';
+}
+
+/* ---------- 새로 그리기 ---------- */
+function syncCtl(){
+  [1,2,3,4,5,6,11].forEach(function(p){
+    $('sE'+p).value=ST.ei;$('sE'+p+'o').textContent=epsTxt(ST.ei);
+    $('sN'+p).value=ST.ni;$('sN'+p+'o').textContent=fm(NG[ST.ni])+' 판';
+    $('sS'+p).value=ST.seed;$('sS'+p+'o').textContent='시드 '+ST.seed;});
+  $('sB4').value=ST.bi;$('sB4o').textContent=BG[ST.bi]+' 장';$('cStack').checked=ST.stack;
+  $('sR4').value=ST.r4;$('sR4o').textContent=String(ST.r4);$('sK4').value=ST.k4;$('sK4o').textContent=String(ST.k4);
+  $('sJ11').value=ST.jobs;$('sJ11o').textContent=ST.jobs+' 판';
+}
+var PEND=null;
+function refresh(){syncCtl();upd1();upd2();upd3();upd4();upd5();upd6();upd7();upd8();upd9();upd10();upd11();upd13();upd15();if(REV)fillReveal();}
+function sched(){if(PEND)clearTimeout(PEND);PEND=setTimeout(function(){PEND=null;refresh();},40);}
+function bindI(id,fn){$(id).addEventListener('input',function(){fn(+this.value);sched();});}
+[1,2,3,4,5,6,11].forEach(function(p){
+  bindI('sE'+p,function(v){ST.ei=v;});bindI('sN'+p,function(v){ST.ni=v;});bindI('sS'+p,function(v){ST.seed=v;});
+  $('rL'+p).addEventListener('click',function(){ST.ei=DEF.ei;ST.ni=DEF.ni;ST.seed=DEF.seed;refresh();});});
+bindI('sB4',function(v){ST.bi=v;});bindI('sR4',function(v){ST.r4=v;});bindI('sK4',function(v){ST.k4=v;});bindI('sJ11',function(v){ST.jobs=v;});
+$('cStack').addEventListener('change',function(){ST.stack=this.checked;sched();});
+$('rB4').addEventListener('click',function(){ST.bi=DEF.bi;ST.stack=DEF.stack;refresh();});
+$('rC4').addEventListener('click',function(){ST.r4=DEF.r4;ST.k4=DEF.k4;refresh();});
+$('rJ11').addEventListener('click',function(){ST.jobs=DEF.jobs;refresh();});
+$('rStage').addEventListener('click',function(){var i;for(i=0;i<18;i++)ST.chk[i]=false;upd8();});
+$('btnReveal').addEventListener('click',reveal);
+renderStageList();
+window.addEventListener('resize',function(){refresh();});
+
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildV();fillReport();refresh();
+window.__r6={st:ST,refresh:refresh,def:DEF,V:V,reveal:reveal,of:OF,rl:RL,tab:TAB};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

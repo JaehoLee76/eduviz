@@ -223,6 +223,63 @@ csv('s21_real_episodes.csv', O21.csvReal, ['episode', 'remaining_glass', 'arrive
 csv('s21_seed_summary.csv', O21.csvSeeds, ['seed', 'method', 'real_loss', 'twin_loss', 'spare_rate', 'early_rate']);
 console.log('S21 representative training seed', O21.tabs.rep.seed, 'score', O21.tabs.rep.score.toFixed(1), 'posterior rep log', O21.tabs.cal.rep);
 
+// 실험실 0606: 지금 닿을 수 있는 한계선(오프라인 강화학습과 LLM 에이전트). 0605 의 환경(S21)에서 지금 규칙 + 작은 탐색 ε 로 쌓인 로그를 만들고(off06.js), 로그만으로 배운 정책을 실제 판 기록(s21_real_episodes)에서 잰다.
+// off06_tables.js = 도착 시각 문턱표(숨은 값 비노출) + 시드 1~200 × ε × 로그 크기 요약 + 대표 시드 + 트랙 총괄(각 실험실 페이지에서 읽은 '앞으로 기록해 둘 데이터' 항목과 도구 함수 이름).
+// s21_offline_log = 대표 시드·기본 설정의 로그 줄 · s21_offline_seed_summary = 같은 요약표.
+const OFF06 = require('./off06.js');
+function build0606(OFF, RL, L06, wq, MS) {
+  const r4 = v => Math.round(v * 1e4) / 1e4;
+  const thr = OFF.buildThr(L06.HIDDEN.CLEAN, wq);
+  const rows = [];
+  for (let ei = 0; ei < OFF.EPS_GRID.length; ei++) for (let ni = 0; ni < OFF.N_GRID.length; ni++) for (let s = 1; s <= OFF.SEEDS; s++) {
+    const r = OFF.runSeed(s, { eps: OFF.EPS_GRID[ei], n: OFF.N_GRID[ni], thr });
+    rows.push({ seed: s, eps: OFF.EPS_GRID[ei], n: OFF.N_GRID[ni], bc: r4(r.bc), naive: r4(r.naive), cons: r4(r.cons), naive_ood: r4(r.naive_ood), cons_ood: r4(r.cons_ood) });
+  }
+  const def = rows.filter(r => r.eps === OFF.EPS_DEF && r.n === OFF.N_DEF);
+  const rep = OFF.pickRep(def);
+  const log = OFF.makeLog(rep.seed, { eps: OFF.EPS_DEF, n: OFF.N_DEF, thr });
+  // 트랙 총괄: 각 실험실 페이지(0101~0605)에서 '앞으로 기록해 둘 데이터' 항목과 도구 상자 함수 이름을 읽는다(손으로 옮겨 적지 않음)
+  const labsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'labs');
+  const strip = h => h.replace(/<[^>]+>/g, '').replace(/&ldquo;|&rdquo;/g, '"').replace(/&lsquo;|&rsquo;/g, "'").replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&mdash;/g, '—').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  const track = [];
+  fs.readdirSync(labsDir).filter(f => /^0[1-6]\d\d-.*\.html$/.test(f) && !f.startsWith('0606')).sort().forEach(f => {
+    const h = fs.readFileSync(path.join(labsDir, f), 'utf8'), id = f.slice(0, 4);
+    const t = (h.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '';
+    const mi = h.search(/<h[23][^>]*>(?:<span[^>]*>[^<]*<\/span>)?\s*앞으로 기록해 둘 데이터/);
+    let heads = [];
+    if (mi >= 0) {
+      const rest = h.slice(mi), me = rest.search(/에이전트 도구 상자/), seg = me > 0 ? rest.slice(0, me) : rest.slice(0, 4000);
+      const items = [...seg.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/g)].map(m => strip(m[1]));
+      heads = items.map(tx => {
+        let cut = tx, i = -1, re = /: |— /g, m;
+        while ((m = re.exec(tx))) { if (!/\(예$/.test(tx.slice(0, m.index))) { i = m.index; break; } }
+        if (i >= 4 && i <= 80) cut = tx.slice(0, i);
+        cut = cut.replace(/[.。]\s*$/, '');
+        const sp = cut.indexOf('. '); if (sp > 10) cut = cut.slice(0, sp);
+        return cut;
+      });
+    }
+    // 도구 상자: 이 페이지의 Python 이 정의한 함수(def) 가운데, 도구 상자 구역(제목 뒤 3,500자)이나 도구 표(tbl('tab…Tool…') 앞뒤)의 <code> 안이나 표 첫 칸에 이름이 나오는 것
+    const defs = new Set([...h.matchAll(/^def ([A-Za-z_][A-Za-z0-9_]*)\(/gm)].map(m => m[1]));
+    const ti = h.indexOf('에이전트 도구 상자');
+    let zone = ti >= 0 ? h.slice(ti, ti + 3500) : '';
+    for (const m of h.matchAll(/tbl\('tab\w*Tool\w*'/g)) zone += h.slice(Math.max(0, m.index - 1500), m.index + 900);
+    const mentioned = new Set();
+    for (const m of zone.matchAll(/<code>([^<]*)<\/code>/g)) for (const w of m[1].matchAll(/[A-Za-z_][A-Za-z0-9_]{2,}/g)) mentioned.add(w[0]);
+    for (const m of zone.matchAll(/\[\s*'([A-Za-z_][A-Za-z0-9_]*)'\s*,/g)) mentioned.add(m[1]);
+    const tools = [...defs].filter(n => mentioned.has(n) && !n.startsWith('_'));
+    track.push({ id, file: f, title: strip(t), records: heads, tools });
+  });
+  return { thr, rows, rep, log, track };
+}
+const Q06 = build0606(OFF06, RL06, L06, O21.tabs.wq, M);
+const pack06o = t => '/* 0606 이 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s21_offline_seed_summary.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var D=' + JSON.stringify(t) + ';var T={thr:D.thr,rep:D.rep,eps:D.eps,n:D.n,c:D.c,seeds:D.r.map(function(r){var o={};D.c.forEach(function(c,i){o[c]=r[i];});return o;}),track:D.track};if(typeof module==="object"&&module.exports)module.exports=T;else window.OFF06_TABLES=T;})();\n';
+const COLQ06 = ['seed', 'eps', 'n', 'bc', 'naive', 'cons', 'naive_ood', 'cons_ood'];
+fs.writeFileSync(path.join(dir, '..', 'off06_tables.js'), pack06o({ thr: Q06.thr, rep: Q06.rep, eps: OFF06.EPS_GRID, n: OFF06.N_GRID, c: COLQ06, r: Q06.rows.map(r => COLQ06.map(k => r[k])), track: Q06.track }));
+csv('s21_offline_log.csv', OFF06.logCsv(Q06.log), ['episode', 'step', 'remaining_glass', 'arrived', 'elapsed_or_wait', 'action', 'propensity', 'reward', 'done']);
+csv('s21_offline_seed_summary.csv', Q06.rows, COLQ06);
+console.log('S21 offline representative seed', Q06.rep.seed, 'score', Q06.rep.score.toFixed(1));
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

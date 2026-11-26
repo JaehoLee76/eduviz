@@ -4643,6 +4643,281 @@ chk('0605 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절
 o5_cleanup = shutil.rmtree(o5_td, ignore_errors=True)
 
 
+
+
+# ============================================================
+# 0606 — 지금 닿을 수 있는 한계선(오프라인 강화학습과 LLM 에이전트). 0605 환경(S21) 위의 로그 생성(난수 포함)·횟수표·행동 복제·단순/보수적 오프라인 Q·근거 없는 선택 점검을
+# 파이썬이 따로 구현해 JS·CSV 와 대조하고, 정답 열기의 정확한 기대 Loss 를 도착 분포를 일일이 더하는 다른 방법과 뒤에서부터 푸는 값 갱신으로 다시 구하고,
+# 시드 분포·페이지 Python 실행·숨은 값 비노출·기존 출력 불변·페이지 구조, 그리고 총괄표의 실험실 번호·함수 이름·기록 항목이 실제 페이지에 있는지 자동으로 확인한다.
+# ============================================================
+o6_pgf = os.path.join(os.path.dirname(_DATA10), 'labs', '0606-offline-rl-frontier.html')
+o6_pg = open(o6_pgf, encoding='utf-8').read()
+o6_code = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', o6_pg, _re5.S).group(1)); o6_out = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', o6_pg, _re5.S).group(1)).strip()
+o6_td = _tf5.mkdtemp()
+_F06 = ['s21_offline_log.csv', 's21_real_episodes.csv', 's21_offline_seed_summary.csv']
+for _f in _F06: shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(o6_td, _f))
+shutil.copy(os.path.join(_DATA10, 'csv', 's21_wait_table.csv'), os.path.join(o6_td, 's21_wait_table.csv'))
+open(os.path.join(o6_td, 'lab0606.py'), 'w', encoding='utf-8').write(o6_code)
+_EXPORT06 = r"""const fs=require('fs');const D=process.argv[2];
+const OF=require(D+'/off06.js'),RL=require(D+'/rl06.js'),L6=require(D+'/loop06.js'),T=require(D+'/off06_tables.js'),RT=require(D+'/rl06_tables.js'),MS=require(D+'/mfgsim.js');
+const res={};
+res.consts={SWEEPS:OF.SWEEPS,NMIN:OF.NMIN,EPS_DEF:OF.EPS_DEF,N_DEF:OF.N_DEF,BETA_DEF:OF.BETA_DEF,EPS_GRID:OF.EPS_GRID,N_GRID:OF.N_GRID,BETA_GRID:OF.BETA_GRID,SEEDS:OF.SEEDS,NSTATE:RL.NSTATE,COST:RL.COST};
+res.hidden=L6.HIDDEN.CLEAN;res.thr=T.thr;res.rep=T.rep;res.track=T.track;
+let bad=0;const g=MS.rng(MS.hashSeed('chk06'));for(let i=0;i<200000;i++){const e1=g.exp(1),e2=g.exp(1);if(OF.dOf(e1+e2,T.thr)!==RL.arrival(L6.HIDDEN.CLEAN,e1,e2,RT.wq))bad++;}res.dmis=bad;
+const cfgs=[[130,0.1,300,144,false],[1,0.01,100,144,false],[7,0,1000,144,false],[200,0.3,3000,24,false],[5,0.03,1000,144,true],[130,0.1,300,0,false],[9,0.1,300,480,false],[2,0.01,3000,144,false]];
+res.runs=cfgs.map(c=>{const log=OF.makeLog(c[0],{eps:c[1],n:c[2]}),N=OF.countTable(log),nv=OF.offlineQ(log,0),cn=OF.offlineQ(log,c[3],null,c[4]),pols={rule:RL.rulePolicy(),bc:OF.behaviorClone(log),naive:OF.policyFromPen(nv.Qp),cons:OF.policyFromPen(cn.Qp)},o={};
+ Object.keys(pols).forEach(k=>{const e=OF.realLoss(pols[k]),d=OF.oodCheck(pols[k],N);o[k]={pol:Array.from(pols[k]),loss:e.mean,ood:d.per,share:d.share};});
+ return {cfg:c,s:log.map(x=>x.s),a:log.map(x=>x.a),rew:log.map(x=>x.rew),done:log.map(x=>x.done),N:Array.from(N),Qn:Array.from(nv.Q),Qc:Array.from(cn.Q),Qpc:Array.from(cn.Qp),o:o};});
+const lg=OF.makeLog(T.rep.seed,{});const Nn=OF.countTable(lg);const og=OF.oodGrid(lg,0);
+res.exact={};['rule','bc','naive','cons'].forEach(k=>{res.exact[k]=OF.exactTrue(L6.HIDDEN.CLEAN,RT.wq,OF.methodPolicy(k,lg)).loss;});
+const ot=OF.exactTrue(L6.HIDDEN.CLEAN,RT.wq,null);res.opt=ot.loss;res.optQ=[[0,0],[0,5],[0,14],[5,0],[8,3],[12,10]].map(p=>({r:p[0],k:p[1],q0:ot.Q0[p[0]][p[1]],q1:ot.Q1[p[0]][p[1]]}));
+let harm=0,tot=0;og.forEach(c=>{if(c.pick===1&&c.n1<OF.NMIN){tot++;if(ot.Q0[c.r][c.k]-ot.Q1[c.r][c.k]>1e-9)harm++;}});res.harm={harm:harm,tot:tot};
+res.oq=og.filter(c=>c.n0>0&&c.n1<OF.NMIN).length;
+res.seeds=[];for(let ei=0;ei<OF.EPS_GRID.length;ei++)for(let ni=0;ni<OF.N_GRID.length;ni++)for(let s=1;s<=OF.SEEDS;s++){const r=OF.runSeed(s,{eps:OF.EPS_GRID[ei],n:OF.N_GRID[ni]});res.seeds.push({seed:s,eps:OF.EPS_GRID[ei],n:OF.N_GRID[ni],bc:OF.r4(r.bc),naive:OF.r4(r.naive),cons:OF.r4(r.cons),naive_ood:OF.r4(r.naive_ood),cons_ood:OF.r4(r.cons_ood)});}
+const defrows=res.seeds.filter(r=>r.eps===OF.EPS_DEF&&r.n===OF.N_DEF);res.rep2=OF.pickRep(defrows);
+res.hand=[];for(let t=0;t<=16;t++)res.hand.push(OF.realLoss(RL.handPolicy(t)).mean);
+res.nreal=RT.real.r0.length;res.sim=RT.sim;
+fs.writeFileSync(process.argv[3]+'/res0606.json',JSON.stringify(res));"""
+o6_js = os.path.join(o6_td, 'export0606.js'); open(o6_js, 'w').write(_EXPORT06)
+subprocess.run([_node, o6_js, _DATA10, o6_td], capture_output=True, text=True, check=True)
+O6 = json.load(open(os.path.join(o6_td, 'res0606.json'))); K6 = O6['consts']
+_spec6 = _ilu5.spec_from_file_location('lab0606', os.path.join(o6_td, 'lab0606.py')); L06 = _ilu5.module_from_spec(_spec6); _cwd6 = os.getcwd(); os.chdir(o6_td); _spec6.loader.exec_module(L06); os.chdir(_cwd6)
+o6_close = lambda a, b, tol=1e-9: abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+_r46 = lambda v: _m5.floor(v * 1e4 + 0.5) / 1e4
+o6_hid = str(O6['hidden'])
+
+# 1. 기존 출력 불변: 저장소에 있던 CSV·모듈이 HEAD 와 같은 바이트(0605 까지의 출력 불변)
+o6_unch = True; o6_n = 0; o6_lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js', 'data/loop06.js', 'data/loop06_tables.js', 'data/calib06.js', 'data/calib06_tables.js', 'data/r2r06.js', 'data/r2r06_tables.js', 'data/ope06.js', 'data/ope06_tables.js', 'data/loss05.js', 'data/agent0401.js', 'data/eval0402.js', 'data/rl06.js', 'data/rl06_tables.js'], capture_output=True, text=True)
+for _fn in (o6_lst.stdout.split() if o6_lst.returncode == 0 else []):
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        o6_n += 1; o6_unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk(f'0606 기존 출력 불변: mfgsim.js·loop06·calib06·r2r06·ope06·rl06·loss05·agent0401·eval0402 와 저장소에 있던 CSV 포함 {o6_n}개가 HEAD 와 같은 바이트(0601~0605 출력 불변)', o6_unch and o6_n >= 40, f'{o6_n}개 비교')
+
+# 2. 숨은 실제 세정 시간 비노출
+o6_tb = open(os.path.join(_DATA10, 'off06_tables.js'), encoding='utf-8').read(); o6_mod = open(os.path.join(_DATA10, 'off06.js'), encoding='utf-8').read()
+o6_body = _re5.sub(r'<script.*?</script>|<pre id="pyOut".*?</pre>', '', o6_pg, flags=_re5.S)
+o6_app = _re5.findall(r'<script>\n(.*?)\n</script>\n<script src="../tutor.js">', o6_pg, _re5.S)[0]
+o6_hre = _re5.compile(r'(?<![\d.])' + o6_hid + r'(?![\d.])')
+o6_cols = all(c.lower() not in ('clean', 'hidden', 'true_clean', 'real_clean', 'clean_true') for f in ('s21_offline_log.csv', 's21_offline_seed_summary.csv') for c in pd.read_csv(os.path.join(o6_td, f), nrows=1).columns)
+o6_nums_tb = [x for x in _re5.findall(r'-?\d+\.?\d*', o6_tb) if x == o6_hid]
+o6_nums_csv = any(o6_hre.search(open(os.path.join(o6_td, f), encoding='utf-8').read()) for f in ('s21_offline_log.csv',))
+o6_hidread = len(_re5.findall(r'Loop06\.HIDDEN', o6_app)); o6_lt = _re5.search(r'function loadTruth\(\)\{.*?\n\}', o6_app, _re5.S).group(0)
+chk('0606 숨은 실제 세정 시간 비노출: 새 CSV 에 숨은 열이 없고, 로그 CSV·표 파일·페이지 본문·페이지 Python·출력에 숨은 값(%s)이 숫자로 없고, 표 파일에 HIDDEN 낱말이 없고, Loop06.HIDDEN 읽기는 정답 열기 코드(loadTruth) 안 한 곳뿐' % o6_hid,
+    o6_cols and 'HIDDEN' not in o6_tb and '"clean"' not in o6_tb and not o6_hre.search(o6_body) and not o6_hre.search(o6_code) and not o6_hre.search(o6_out) and o6_hidread == 1 and 'Loop06.HIDDEN' in o6_lt and 'HIDDEN' not in _re5.sub(r'/\*.*?\*/', '', o6_mod, flags=_re5.S).replace('Loop06.HIDDEN.CLEAN', ''),
+    f'HIDDEN 읽기 {o6_hidread}곳(loadTruth 안 {int("Loop06.HIDDEN" in o6_lt)}) · 숨은 열 없음 {o6_cols}')
+
+# 3. 로그 생성 독립 구현: 같은 난수열(FNV-1a + mulberry32)로 파이썬이 로그를 만들어 JS 와 줄 단위로 같고, 도착 간격 수 문턱표가 실제 세정 시간의 도착 규칙과 20만 번 한 번도 안 다르고, 대표 로그가 CSV 와 같음
+M32 = 0xFFFFFFFF
+def _imul(a, b): return (a * b) & M32
+def _hash6(*parts):
+    h = 2166136261
+    for ch in '|'.join(str(p) for p in parts): h = _imul(h ^ ord(ch), 16777619)
+    return h
+class _Rng6:
+    def __init__(self, seed): self.a = seed & M32
+    def u(self):
+        self.a = (self.a + 0x6D2B79F5) & M32; a = self.a
+        t = _imul(a ^ (a >> 15), 1 | a); t = ((t + _imul(t ^ (t >> 7), 61 | t)) & M32) ^ t
+        return ((t ^ (t >> 14)) & M32) / 4294967296
+    def int(self, n): return _m5.floor(self.u() * n)
+    def exp(self, mean): return -mean * _m5.log(1 - self.u())
+def make_log6(seed, eps, n, thr):
+    log = []
+    for i in range(n):
+        g = _Rng6(_hash6('S21off', seed, i)); r0 = 3 + g.int(10); e1 = g.exp(1.0); e2 = g.exp(1.0); e = e1 + e2
+        D = 1
+        for j in range(2, 61):
+            if e > thr[j - 2]: D = j
+            else: break
+        r, k, arrived, w, t = r0, 0, False, 0, 0
+        while True:
+            s = L06.state(r, arrived, k, w); u = g.u(); c = g.int(2); a = c if u < eps else 0
+            idle, hold, sw, done, nr, nk, na, nw = L06.step(r, k, arrived, w, a, D)
+            log.append({'s': s, 'a': a, 'rew': -(idle + hold + sw), 'done': done, 's2': -1 if done else L06.state(nr, na, nk, nw), 'ep': i + 1})
+            if done: break
+            r, k, arrived, w = nr, nk, na, nw; t += 1
+    return log
+o6_ok3 = O6['dmis'] == 0 and len(O6['thr']) == 59; o6_nlog = 0
+for run in O6['runs']:
+    sd, eps, n = run['cfg'][0], run['cfg'][1], run['cfg'][2]; lg = make_log6(sd, eps, n, O6['thr'])
+    same = len(lg) == len(run['s']) and all(L['s'] == s_ and L['a'] == a_ and o6_close(L['rew'], r_, 1e-12) and bool(L['done']) == bool(d_) for L, s_, a_, r_, d_ in zip(lg, run['s'], run['a'], run['rew'], run['done']))
+    o6_ok3 &= same; o6_nlog += len(lg); run['pylog'] = lg
+_rep6 = L06.load_log(os.path.join(o6_td, 's21_offline_log.csv')); _py_rep = make_log6(O6['rep']['seed'], K6['EPS_DEF'], K6['N_DEF'], O6['thr'])
+_csv_rep = pd.read_csv(os.path.join(o6_td, 's21_offline_log.csv'))
+o6_ok3 &= len(_rep6) == len(_py_rep) and all(a['s'] == b['s'] and a['a'] == b['a'] and a['rew'] == b['rew'] and a['done'] == b['done'] and a['s2'] == b['s2'] for a, b in zip(_rep6, _py_rep))
+o6_ok3 &= abs(float(_csv_rep.propensity[_csv_rep.action == 1].iloc[0]) - K6['EPS_DEF'] / 2) < 1e-9 and abs(float(_csv_rep.propensity[_csv_rep.action == 0].iloc[0]) - (1 - K6['EPS_DEF'] / 2)) < 1e-9
+chk(f'0606 로그 생성 독립 구현(같은 난수열): 파이썬이 설정 {len(O6["runs"])}가지(ε 0·0.01·0.03·0.1·0.3, 판 100~3000, 시드 달리)의 로그 {o6_nlog}줄을 판마다 따로 뽑은 난수로 만들어 상태 칸·행동·보상·끝남이 JS 와 한 줄도 다르지 않음, 대표 로그 CSV(%d줄)가 같은 규칙으로 다시 만든 줄과 같고 고른 확률이 ε/2 · 1 − ε/2, 도착 간격 수 문턱표(59개)가 세정 시간의 도착 규칙과 난수 20만 개에서 불일치 %d' % (len(_rep6), O6['dmis']), o6_ok3, f'로그 {o6_nlog}줄 · 대표 {len(_rep6)}줄')
+
+# 4. 횟수표·행동 복제·오프라인 Q(단순·보수적·쌓기)·정책·실제 판 평가·근거 없는 선택 독립 비교
+o6_real = [(int(r['remaining_glass']), int(r['arrive_epoch'])) for r in pd.read_csv(os.path.join(o6_td, 's21_real_episodes.csv')).to_dict('records')]
+o6_ok4 = True; o6_mxq = 0.0; o6_nrun = 0
+for run in O6['runs']:
+    lg = run['pylog']; sd, eps, n, beta, stk = run['cfg']
+    Nn = L06.count_table(lg); o6_ok4 &= Nn == run['N']
+    Qn, Qpn, _ = L06.offline_q(lg); Qc, Qpc, _ = L06.conservative_q(lg, beta, stack=stk)
+    o6_mxq = max(o6_mxq, max(abs(a - b) for a, b in zip(Qn, run['Qn'])), max(abs(a - b) for a, b in zip(Qc, run['Qc'])), max(abs(a - b) for a, b in zip(Qpc, run['Qpc'])))
+    pols = {'rule': [0] * K6['NSTATE'], 'bc': L06.behavior_clone(lg), 'naive': L06.policy_of(Qpn), 'cons': L06.policy_of(Qpc)}
+    for k, p in pols.items():
+        jo = run['o'][k]; per, share = L06.ood_check(p, Nn, o6_real)
+        o6_ok4 &= p == jo['pol'] and o6_close(L06.evaluate_policy(p, o6_real), jo['loss'], 1e-9) and o6_close(per, jo['ood'], 1e-9) and o6_close(share, jo['share'], 1e-9)
+    o6_nrun += 1
+chk(f'0606 횟수표·행동 복제·오프라인 Q 독립 구현: 위 {o6_nrun}가지 로그에서 파이썬이 따로 구한 횟수표(칸 780)·단순 Q·보수적 Q(β 0·24·144·480, 벌점 쌓기 한 가지 포함)·정책 표·실제 판 4000개 평가·근거 없는 선택(판당 개수·판 비율)이 JS 와 같음(Q 최대 차 %.1e)' % o6_mxq, o6_ok4 and o6_mxq < 1e-9, f'Q 최대 차 {o6_mxq:.1e} · 설정 {o6_nrun}')
+
+# 5. 시드 요약표: JS 재계산 4000줄 = CSV = 표 파일, 파이썬이 따로 만든 8개 조합이 CSV 와 같고, 대표 시드를 파이썬이 따로 구해 JS·표 파일과 같음
+o6_sd = pd.read_csv(os.path.join(o6_td, 's21_offline_seed_summary.csv')); o6_js = pd.DataFrame(O6['seeds'])
+o6_ok5 = len(o6_sd) == 4000 == len(o6_js) and all(o6_close(float(a), float(b), 1e-9) for c in ('bc', 'naive', 'cons', 'naive_ood', 'cons_ood') for a, b in zip(o6_sd[c], o6_js[c])) and list(o6_sd.seed) == list(o6_js.seed)
+o6_tbj = json.loads(_re5.search(r'var D=(\{.*?\});var T=', o6_tb, _re5.S).group(1)); o6_ok5 &= len(o6_tbj['r']) == 4000 and all(o6_close(a[3], float(b), 1e-9) for a, b in zip(o6_tbj['r'], o6_sd.bc)) and o6_tbj['rep'] == O6['rep']
+o6_combos = [(1, 0.1, 300), (130, 0.1, 300), (200, 0.01, 100), (17, 0.3, 1000), (3, 0.03, 3000), (88, 0, 300), (45, 0.01, 1000), (150, 0.3, 100)]; o6_ok5py = True
+for sd, eps, n in o6_combos:
+    lg = make_log6(sd, eps, n, O6['thr']); Nn = L06.count_table(lg); Qn, Qpn, _ = L06.offline_q(lg); Qc, Qpc, _ = L06.conservative_q(lg, K6['BETA_DEF'])
+    row = o6_sd[(o6_sd.seed == sd) & (o6_sd.eps == eps) & (o6_sd.n == n)].iloc[0]; got = {}
+    for k, p in (('bc', L06.behavior_clone(lg)), ('naive', L06.policy_of(Qpn)), ('cons', L06.policy_of(Qpc))):
+        got[k] = _r46(L06.evaluate_policy(p, o6_real))
+        if k != 'bc': got[k + '_ood'] = _r46(L06.ood_check(p, Nn, o6_real)[0])
+    o6_ok5py &= all(abs(got[k] - float(row[k])) < 1e-9 for k in got)
+def _pick6(rows):
+    def pct(v, x): return 100 * (sum(1 for y in v if y < x - 1e-9) + 0.5 * sum(1 for y in v if abs(y - x) <= 1e-9)) / len(v)
+    cols = [[r['naive'] for r in rows], [r['cons'] for r in rows], [r['naive'] - r['cons'] for r in rows], [r['naive_ood'] for r in rows]]; best = None
+    for i, r in enumerate(rows):
+        vs = [cols[0][i], cols[1][i], cols[2][i], cols[3][i]]; sc = sum(abs(pct(cols[j], vs[j]) - 50) for j in range(4))
+        if best is None or sc < best[1] - 1e-9: best = (r['seed'], sc)
+    return best
+o6_dr = o6_sd[(o6_sd.eps == K6['EPS_DEF']) & (o6_sd.n == K6['N_DEF'])].to_dict('records'); o6_pk = _pick6(o6_dr)
+chk(f'0606 요약표·대표 시드: 시드 200 × ε 5 × 판 수 4 = 4000줄(JS 재계산 = CSV = 표 파일)이 한 줄도 다르지 않고, 파이썬이 설정 {len(o6_combos)}개의 세 방식 성적·근거 없는 선택을 따로 만들어 CSV 와 같고, 대표 로그 시드 {O6["rep"]["seed"]}(Σ|백분위−50| = {O6["rep"]["score"]:.1f})를 파이썬이 따로 구해 JS·표 파일과 같음', o6_ok5 and o6_ok5py and o6_pk[0] == O6['rep']['seed'] == O6['rep2']['seed'] and abs(o6_pk[1] - O6['rep']['score']) < 1e-6, f'대표 시드 {O6["rep"]["seed"]} · 줄 {len(o6_sd)} · 독립 구현 {len(o6_combos)}개')
+
+# 6. 정답 열기: 정확한 기대 Loss 를 파이썬이 (가) 도착 간격 수 분포를 일일이 더하는 방법과 (나) 뒤에서부터 푸는 값 갱신으로 따로 구해 JS 와 같음
+o6_wait = pd.read_csv(os.path.join(o6_td, 's21_wait_table.csv'))
+def _wq6(c):
+    cs = list(o6_wait.clean); ws = list(o6_wait.wait_min)
+    if c <= cs[0]: return ws[0]
+    if c >= cs[-1]: return ws[-1]
+    i = 0
+    while c > cs[i + 1]: i += 1
+    f = (c - cs[i]) / (cs[i + 1] - cs[i]); return ws[i] * (1 - f) + ws[i + 1] * f
+def _surv6(x): return 1.0 if x <= 0 else (1 + x) * _m5.exp(-x)
+_w6 = _wq6(O6['hidden']); _T6 = {d: (30 * (d - 1) - O6['hidden'] - 20) / (0.5 * _w6) for d in range(2, 61)}
+_PGE = {1: 1.0}; _PGE.update({d: _surv6(_T6[d]) for d in range(2, 61)}); _PGE[61] = 0.0
+o6_PD = {d: _PGE[d] - _PGE[d + 1] for d in range(1, 61)}
+def exact_by_enum(pol):                      # 방법 가: 판의 시작 남은 유리 10가지 × 도착 간격 수 60가지를 확률로 더함
+    tot = 0.0
+    for r0 in range(3, 13):
+        for d in range(1, 61):
+            if o6_PD[d] <= 1e-15: continue
+            r, k, arrived, w, loss = r0, 0, False, 0, 0.0
+            while True:
+                idle, hold, sw, done, r, k, arrived, w = L06.step(r, k, arrived, w, pol[L06.state(r, arrived, k, w)], d); loss += idle + hold + sw
+                if done: break
+            tot += o6_PD[d] * loss / 10
+    return tot
+def exact_dp(pol):                            # 방법 나: 도착 전 칸마다 '아직 안 왔다'는 조건의 도착 확률(해저드)로 뒤에서부터 풂. pol 이 None 이면 가장 좋은 행동(같으면 기다림)
+    Va = {}; Q0a = {}; Q1a = {}
+    for r in range(1, 13):
+        for w in range(0, 25):
+            q1 = -2 * 48.0; q0 = (-(6.0 * (w + 1) + 48.0)) if r == 1 else (-6.0 * (w + 1) + Va[(r - 1, min(w + 1, 24))])
+            a = (pol[L06.state(r, True, 0, w)] if pol else (1 if q1 > q0 else 0)); Va[(r, w)] = q1 if a == 1 else q0
+    S = {d: sum(o6_PD[x] for x in range(d, 61)) for d in range(1, 62) if d <= 60}; S[61] = 0.0
+    VN = {}; Q0 = {}; Q1 = {}
+    for k in range(59, -1, -1):
+        for r in range(0, 13):
+            idle = 0.0 if r > 0 else 48.0; nr = r - 1 if r > 0 else 0; h = o6_PD[k + 1] / S[k + 1] if S[k + 1] > 0 else 1.0
+            qa = -48.0 * (3 if r > 0 else 2); vA = -(idle + 48.0) if nr == 0 else -idle + Va[(nr, 0)]
+            vN = (-idle + VN[(nr, k + 1)]) if k + 1 < 60 else vA; q0 = h * vA + (1 - h) * vN
+            a = (pol[L06.state(r, False, min(k, 23), 0)] if pol else (1 if qa > q0 else 0)); VN[(r, k)] = qa if a == 1 else q0; Q0[(r, k)] = q0; Q1[(r, k)] = qa
+    return -sum(VN[(r, 0)] for r in range(3, 13)) / 10, Q0, Q1
+o6_lgrep = _py_rep; Nrep = L06.count_table(o6_lgrep); Qn_, Qpn_, _ = L06.offline_q(o6_lgrep); Qc_, Qpc_, _ = L06.conservative_q(o6_lgrep)
+o6_pr = {'rule': [0] * K6['NSTATE'], 'bc': L06.behavior_clone(o6_lgrep), 'naive': L06.policy_of(Qpn_), 'cons': L06.policy_of(Qpc_)}
+o6_ok6 = True; o6_mx6 = 0.0
+for k, p in o6_pr.items():
+    a = exact_by_enum(p); b = exact_dp(p)[0]; o6_mx6 = max(o6_mx6, abs(a - O6['exact'][k]), abs(b - O6['exact'][k])); o6_ok6 &= abs(a - O6['exact'][k]) < 1e-6 and abs(b - O6['exact'][k]) < 1e-6
+o6_opt, o6_Q0, o6_Q1 = exact_dp(None); o6_ok6 &= abs(o6_opt - O6['opt']) < 1e-6 and all(abs(o6_Q0[(x['r'], x['k'])] - x['q0']) < 1e-5 and abs(o6_Q1[(x['r'], x['k'])] - x['q1']) < 1e-5 for x in O6['optQ']) and o6_opt <= min(O6['exact'].values()) + 1e-9
+# 해로운 칸 수: 파이썬이 칸별로 다시 셈
+o6_og = []; _N = Nrep
+for r in range(13):
+    for k in range(24):
+        s = L06.state(r, False, k, 0)
+        if _N[2 * s] > 0 and _N[2 * s + 1] < 3: o6_og.append((r, k, s))
+o6_tot = sum(1 for r, k, s in o6_og if o6_pr['naive'][s] == 1); o6_harm = sum(1 for r, k, s in o6_og if o6_pr['naive'][s] == 1 and o6_Q0[(r, k)] - o6_Q1[(r, k)] > 1e-9)
+o6_ok6 &= (o6_harm, o6_tot) == (O6['harm']['harm'], O6['harm']['tot']) and len(o6_og) == O6['oq']
+chk(f'0606 정답 열기 값: 숨은 세정 시간으로 낸 정확한 기대 Loss(지금 규칙 {O6["exact"]["rule"]:.1f}·행동 복제 {O6["exact"]["bc"]:.1f}·단순 Q {O6["exact"]["naive"]:.1f}·보수적 Q {O6["exact"]["cons"]:.1f}·가장 좋은 값 {O6["opt"]:.2f})를 파이썬이 도착 분포를 일일이 더하는 방법과 뒤에서부터 푸는 값 갱신 두 가지로 따로 구해 JS 와 같고, 가장 좋은 값이 모든 정책 이하이며, 단순 Q 가 근거 없이 고른 교체 {o6_tot}칸 가운데 참으로 손해인 칸 {o6_harm}개를 파이썬이 다시 세어 JS 와 같음', o6_ok6, f'최대 차 {o6_mx6:.1e} · 손해 칸 {o6_harm}/{o6_tot}')
+
+# 7. 기대 점검(결과대로): 설계서의 기대는 가설이라 실제 분포가 말하는 대로 확인
+o6_def = o6_sd[(o6_sd.eps == K6['EPS_DEF']) & (o6_sd.n == K6['N_DEF'])]; o6_rule = O6['runs'][0]['o']['rule']['loss']
+o6_q = lambda s, p: float(np.quantile(s, p))
+o6_bc_eq = all(abs(o6_q(o6_sd[o6_sd.n == n].bc, .5) - o6_rule) < 1e-6 for n in (100, 300, 1000, 3000))
+o6_bc_eps = all(abs(o6_q(o6_sd[(o6_sd.n == 3000) & (o6_sd.eps == e)].bc, .5) - o6_rule) < 1e-6 for e in K6['EPS_GRID'])
+o6_n_med = o6_q(o6_def.naive, .5); o6_c_med = o6_q(o6_def.cons, .5); o6_wins = int((o6_def.cons < o6_def.naive - 1e-9).sum())
+o6_big = o6_sd[(o6_sd.eps == 0.1) & (o6_sd.n == 3000)]; o6_big_n = o6_q(o6_big.naive, .5); o6_big_c = o6_q(o6_big.cons, .5)
+o6_e0 = o6_sd[(o6_sd.eps == 0) & (o6_sd.n == 3000)]; o6_e0n = o6_q(o6_e0.naive, .5); o6_e001 = o6_sd[(o6_sd.eps == 0.01) & (o6_sd.n == 3000)]
+o6_small = o6_sd[(o6_sd.eps == 0.01) & (o6_sd.n == 100)]; o6_small_c = o6_q(o6_small.cons, .5); o6_small_n = o6_q(o6_small.naive, .5)
+o6_hand = min(O6['hand'])
+chk('0606 기대 점검(결과대로): 행동 복제는 모든 ε·판 수의 중앙값이 지금 규칙(%.1f)과 같고(설계서 기대 \'단순 Q 가 행동 복제보다 나쁨\'은 틀림: 단순 Q %.1f 가 훨씬 낮음) · 기본 설정에서 보수적 Q(%.1f)가 단순 Q(%.1f)보다 낮은 시드 %d/200 · 로그가 커지면(ε 0.1·3000판) 둘 다 가장 좋은 값(%.1f) 근처(%.1f·%.1f) · ε 0.01 은 3000판에서도 단순 Q %.1f 에 머묾 · ε 0 이면 교체를 못 봄 · ε 0.01·로그 100판에서는 보수적 Q(%.1f)가 단순 Q(%.1f)보다 나쁨 · 단순 Q 는 판의 대부분에 근거 없는 선택(판당 %.2f번)' % (
+    o6_rule, o6_n_med, o6_c_med, o6_n_med, o6_wins, O6['opt'], o6_big_n, o6_big_c, o6_q(o6_e001.naive, .5), o6_small_c, o6_small_n, o6_q(o6_def.naive_ood, .5)),
+    o6_bc_eq and o6_bc_eps and o6_n_med < o6_rule - 100 and o6_c_med < o6_n_med and o6_wins >= 190 and o6_big_n < O6['opt'] + 1 and o6_big_c < O6['opt'] + 1 and o6_q(o6_e001.naive, .5) > O6['opt'] + 30 and o6_q(o6_e0.naive_ood, .5) > 0.99 and o6_small_c > o6_small_n and o6_q(o6_def.naive_ood, .5) > 0.9 and o6_hand > O6['opt'] - 1,
+    f'기본 설정 단순 {o6_n_med:.1f} · 보수적 {o6_c_med:.1f} · 시드 우위 {o6_wins}/200 · 손으로 고른 문턱 최저 {o6_hand:.1f}')
+
+# 8. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 같고 JS 값과 같음
+o6_run = subprocess.run([sys.executable, '-I', 'lab0606.py'], cwd=o6_td, capture_output=True, text=True); o6_L = o6_run.stdout.strip().split('\n')
+_r0 = O6['runs'][0]['o']; _ps = lambda k: '%.1f' % _r0[k]['loss']
+o6_exp = [_ps('rule'), _ps('bc'), _ps('naive'), _ps('cons')]
+o6_got = [_re5.search(r'판당 Loss\s+([\d.]+) 장', o6_L[i + 1]).group(1) for i in range(4)] if o6_run.returncode == 0 and len(o6_L) >= 9 else []
+chk('0606 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 네 방식의 실제 Loss·근거 없는 선택·벌점 세기 훑기·시드 200개 분포가 JS·CSV 와 같고, 외부 통신 코드가 없고, 상수가 모듈 기본값과 같음',
+    o6_run.returncode == 0 and o6_run.stdout.strip() == o6_out and o6_got == o6_exp and not _re5.search(r'import (requests|urllib|socket|http)|open\([^)]*https?://', o6_code) and L06.SWEEPS == K6['SWEEPS'] and L06.NMIN == K6['NMIN'] and L06.BETA == K6['BETA_DEF'] and L06.NSTATE == K6['NSTATE'] and (L06.IDLE, L06.CSW, L06.HOLD) == (K6['COST']['idle'], K6['COST']['csw'], K6['COST']['hold'])
+    and all('%.3f' % _r0[k]['ood'] in o6_L[i + 1] for i, k in enumerate(('rule', 'bc', 'naive', 'cons'))),
+    (o6_run.stderr[-300:] if o6_run.returncode else f'{len(o6_L)}줄 · 출력 {o6_got} · JS {o6_exp}'))
+
+# 9. 총괄표: 표 파일의 기록 항목·도구 함수·실험실 번호가 실제 페이지에 있고, 페이지가 인용한 모든 실험실 번호·함수 이름이 실존
+o6_labdir = os.path.join(os.path.dirname(_DATA10), 'labs'); o6_files = sorted(f for f in os.listdir(o6_labdir) if _re5.match(r'^0\d{3}-.*\.html$', f)); o6_ids = {f[:4] for f in o6_files}
+_norm6 = lambda t: _re5.sub(r'\s+', ' ', _html5.unescape(_re5.sub(r'<[^>]+>', '', t))).strip()
+o6_bad_rec = []; o6_bad_tool = []; o6_nrec = 0; o6_ntool = 0
+for t in O6['track']:
+    h = open(os.path.join(o6_labdir, t['file']), encoding='utf-8').read(); txt = _norm6(h).replace('“', '"').replace('”', '"').replace('‘', "'").replace('’', "'")
+    for x in t['records']:
+        o6_nrec += 1
+        if _norm6(x).replace('“', '"').replace('”', '"').replace('‘', "'").replace('’', "'") not in txt: o6_bad_rec.append((t['id'], x[:30]))
+    defs = set(_re5.findall(r'^def ([A-Za-z_]\w*)\(', h, _re5.M))
+    for fn in t['tools']:
+        o6_ntool += 1
+        if fn not in defs: o6_bad_tool.append((t['id'], fn))
+o6_labs_ok = {t['id'] for t in O6['track']} == o6_ids - {'0606'} and len(O6['track']) == 29
+o6_cited = set(_re5.findall(r'(?<![\w.])(0[1-6]\d\d)(?!\d)', o6_body + ' ' + o6_app)); o6_bad_cite = sorted(c for c in o6_cited if c not in o6_ids)
+o6_pyfn = set(_re5.findall(r'^def ([A-Za-z_]\w*)\(', o6_code, _re5.M)); o6_page_fn = ['count_table', 'behavior_clone', 'offline_q', 'conservative_q', 'ood_check', 'evaluate_policy']
+o6_bad_fn = [f for f in o6_page_fn if f not in o6_pyfn]
+o6_stage_ids = set(_re5.findall(r"labs:\[([^\]]*)\]", o6_app)); o6_stage_ids = set(_re5.findall(r"'(\d{4})'", ' '.join(o6_stage_ids)))
+o6_with_rec = sum(1 for t in O6['track'] if t['records']); o6_with_tool = sum(1 for t in O6['track'] if t['tools'])
+chk(f'0606 총괄표 실존 확인: 표 파일의 기록 항목 {o6_nrec}개가 해당 실험실 페이지 본문에 그대로 있고({len(o6_bad_rec)}건 없음), 도구 함수 {o6_ntool}개가 그 페이지 Python 에 def 로 있고({len(o6_bad_tool)}건 없음), 0101~0605 실험실 29개가 모두 표에 있으며, 페이지가 인용한 실험실 번호({len(o6_cited)}개)가 모두 실제 파일이고, 이 장 도구 함수 여섯이 페이지 Python 에 정의돼 있고, 단계 점검표의 실험실 번호가 실존',
+    not o6_bad_rec and not o6_bad_tool and o6_labs_ok and not o6_bad_cite and not o6_bad_fn and o6_stage_ids <= o6_ids and o6_with_rec == 29 and o6_with_tool >= 28 and o6_nrec >= 110 and o6_ntool >= 120,
+    f'기록 {o6_nrec}개 · 함수 {o6_ntool}개 · 기록 있는 실험실 {o6_with_rec} · 도구 있는 실험실 {o6_with_tool} · 없는 기록 {o6_bad_rec[:3]} · 없는 함수 {o6_bad_tool[:3]} · 없는 번호 {o6_bad_cite} · 없는 함수 {o6_bad_fn}')
+
+# 10. 페이지 구조
+o6_term = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', o6_pg, _re5.S).group(1)))
+o6_nq = len(_re5.findall(r'<div class="qna" data-label=', o6_pg)); o6_nsec = len(_re5.findall(r'<h2><span class="no">', o6_pg)); o6_nmath = o6_pg.count('<math display="block">')
+o6_fonts = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', o6_pg)]
+o6_bt = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', o6_pg, flags=_re5.S)))
+o6_endda = _re5.findall(r'[^니습]다[.]', o6_bt)
+o6_p605 = open(os.path.join(o6_labdir, '0605-policy-learning-in-twin.html'), encoding='utf-8').read(); o6_hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+o6_dv = set(_re5.findall(r'data-v="(\w+)"', o6_pg)); o6_dvdef = set(_re5.findall(r'V\.(\w+)=', o6_app))
+o6_qna = ' '.join(_re5.findall(r'<div class="qna".*?</div>', o6_pg, _re5.S))
+o6_rd = lambda i, a: f'id="{i}" type="range" min="{a[0]}" max="{a[1]}" step="{a[2]}" value="{a[3]}"'
+o6_slid = [o6_rd('s%s%d' % (c, p), a) for p in (1, 2, 3, 4, 5, 6, 11) for c, a in (('E', (0, 4, 1, K6['EPS_GRID'].index(K6['EPS_DEF']))), ('N', (0, 3, 1, K6['N_GRID'].index(K6['N_DEF']))), ('S', (1, 200, 1, O6['rep']['seed'])))] + [o6_rd('sB4', (0, 7, 1, K6['BETA_GRID'].index(K6['BETA_DEF']))), o6_rd('sR4', (0, 12, 1, 0)), o6_rd('sK4', (0, 23, 1, 5)), o6_rd('sJ11', (0, 60, 1, int(round(O6['sim']['clCapaPerMonth']))))]
+o6_nums = [int(x) for x in _re5.findall(r'(\d+)절', o6_bt)]
+o6_ids_pg = set(_re5.findall(r'\bid="(\w+)"', o6_pg)); o6_gets = set(_re5.findall(r"\$\('(\w+)'\)", o6_app))
+o6_gen = {'cvC1', 'cvN3a', 'cvN3b'}
+o6_dyn = {'c%d%d' % (i, j) for i in range(6) for j in range(3)} | {'bg%d' % i for i in range(6)} | {'stg%d' % i for i in range(6)}
+o6_sync = {'sE%d' % p + 'o' for p in (1, 2, 3, 4, 5, 6, 11)} | {'sN%d' % p + 'o' for p in (1, 2, 3, 4, 5, 6, 11)} | {'sS%d' % p + 'o' for p in (1, 2, 3, 4, 5, 6, 11)} | {'sB4o', 'sR4o', 'sK4o', 'sJ11o'}
+o6_hub6 = 'labs/0606-offline-rl-frontier.html' in o6_hub and '이 트랙의 마지막 실험실' in o6_hub
+o6_unsure_ref = [m for m in _re5.findall(r'(\d+)절', o6_bt)]
+o6_src = o6_mod + o6_app + o6_tb[:2000]
+chk('0606 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절 15개 · MathML 식 둘(가치 과대평가·벌점 Q̃) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0605 쪽 0606 다음 링크(위·아래)와 0606 쪽 0605 이전 링크(위·아래) · 허브 등록(마지막 장 묶음, 트랙의 마지막 실험실 표시) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~15 · 스크립트가 찾는 요소 id 전부 존재 · 모듈·표·페이지에 Math.random·Date.now 없음 · 마지막 문장에 0101 링크',
+    o6_term == 6 and o6_nq == 4 and o6_nsec == 15 and o6_nmath == 2 and o6_fonts and min(o6_fonts) >= 11 and not o6_endda and o6_p605.count('0606-offline-rl-frontier.html') == 2 and o6_pg.count('0605-policy-learning-in-twin.html') == 2
+    and o6_hub6 and o6_dv <= o6_dvdef and all(s in o6_pg for s in o6_slid) and not o6_qna.count('%') and o6_nums and max(o6_nums) <= 15 and min(o6_nums) >= 1
+    and (o6_gets | o6_sync) <= (o6_ids_pg | o6_dyn) and not _re5.search(r'Math\.random|Date\.now|new Date', o6_mod) and not _re5.search(r'Math\.random|Date\.now', o6_app) and not _re5.search(r'Math\.random|Date\.now', o6_tb[:3000])
+    and _re5.search(r'<p>이 트랙은 <a href="0101-pm-mean-shift\.html">0101</a>.*?되돌아갑니다\.</p>\s*\n\s*<nav class="labnav bot">', o6_pg, _re5.S) is not None,
+    f'용어 {o6_term} · Q&A {o6_nq} · 절 {o6_nsec} · MathML {o6_nmath} · 캔버스 글자 최소 {min(o6_fonts) if o6_fonts else None}px({len(o6_fonts)}곳) · -다 끝맺음 {len(o6_endda)}건({o6_endda[:3]}) · 0605 쪽 링크 {o6_p605.count("0606-offline-rl-frontier.html")}곳 · 미정의 data-v {sorted(o6_dv - o6_dvdef)} · 없는 id {sorted((o6_gets | o6_sync) - (o6_ids_pg | o6_dyn))} · 슬라이더 어긋남 {[s[:12] for s in o6_slid if s not in o6_pg]} · 절 참조 {sorted(set(o6_nums))}')
+o6_cleanup = shutil.rmtree(o6_td, ignore_errors=True)
+
+
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')
