@@ -143,8 +143,9 @@
     for (i = 0; i < list.length; i++) { if (fam && list[i].fam !== fam) continue; d = Math.abs(v - list[i].v); if (d <= tol && (!b || d < b.diff - 1e-12)) b = { diff: d, got: list[i].v, label: list[i].label, fam: list[i].fam }; }
     return b;
   }
-  function classify(text, ti, tolK) {
-    var K = tolK == null ? TOLK : tolK, c = ctxOf(ti), nums = extract(text), counts = { n: nums.length, has: 0, calc: 0, none: 0, loose: 0 };
+  function classify(text, ti, tolK) { return classifyCtx(text, ctxOf(ti), tolK, FAM_ORDER); }
+  function classifyCtx(text, c, tolK, famOrder) {            // 0411 이 같은 대조를 다른 계산 목록(사실 목록 문맥)으로 쓰도록 문맥을 받는 꼴
+    var K = tolK == null ? TOLK : tolK, nums = extract(text), counts = { n: nums.length, has: 0, calc: 0, none: 0, loose: 0 };
     nums.forEach(function (x) {
       var tol = K * Math.pow(10, -x.dec) + EPS, hit = null, bc = null, bd = null, fi;
       x.tol = tol; x.coarse = tol >= 0.05 - 1e-12;
@@ -153,7 +154,7 @@
         bc = bestOf(c.cells, x.v, tol, null);
         if (bc && bc.diff <= EPS) hit = { cls: 'has', b: bc };
         else {
-          for (fi = 0; fi < FAM_ORDER.length && !bd; fi++) bd = bestOf(c.der, x.v, tol, FAM_ORDER[fi]);
+          for (fi = 0; fi < famOrder.length && !bd; fi++) bd = bestOf(c.der, x.v, tol, famOrder[fi]);
           if (bc && bd) hit = bd.diff < bc.diff - 1e-12 ? { cls: 'calc', b: bd } : { cls: 'has', b: bc };
           else if (bc) hit = { cls: 'has', b: bc }; else if (bd) hit = { cls: 'calc', b: bd };
         }
@@ -294,7 +295,7 @@
   return {
     keys: KEYS, params: P, t1: T1TEXT, t2: T2TEXT, t3: T3TEXT, t6: T6TEXT, mx: MXV, mxs: MXS, ex: EXV, raw: RAW, spec3: SPEC3, mask: MASK, st1: ST1,
     tasks: TASKS, answers: ANS, fam: FAM, famOrder: FAM_ORDER, meta: { model: RUNS.model, date: RUNS.date, about: RUNS.about },
-    tableChecks: tableChecks, extract: extract, ctx: ctxOf, classify: classify, summary: summary, chanceRate: chanceRate,
+    tableChecks: tableChecks, extract: extract, ctx: ctxOf, classify: classify, classifyCtx: classifyCtx, summary: summary, chanceRate: chanceRate,
     truthT2: truthT2, truthT5: truthT5, truthT6: truthT6, scoreCalc: scoreCalc, verdicts: verdicts, causes: causes, overlapT1: overlapT1, ansText: ansText, pairJac: pairJac, tsMin: tsMin, TOLK: TOLK
   };
 });

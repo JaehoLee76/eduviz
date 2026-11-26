@@ -1864,6 +1864,217 @@ chk('0410 페이지: 새 용어 6개 · Q&A 4개 · 절 11개 · 캔버스 글�
     f'용어 {_term10} · Q&A {_nq10} · 절 {_nsec10} · 캔버스 글자 최소 {min(_fonts10)}px({len(_fonts10)}곳) · -다 끝맺음 {len(_endda)}건 · 0400 링크 {_p00.count("0410-llm-strengths-limits.html")}곳')
 _cleanup10 = shutil.rmtree(_td10, ignore_errors=True)
 
+# ============================================================
+# 0411 — LLM에게 일을 맡기는 법: 검증 설계. 실제 LLM 답 6개(llm_runs_0411.json)를 검사기(V1~V6)에 넣은 결과.
+# 페이지의 Python 코드(lab0411.py)를 꺼내 JS(llmverify.js)와 대조하고, 사실 목록·관계 사실·표지 근거를 CSV 에서 독립 계산으로 확인한다
+# ============================================================
+import datetime as _dt11
+_pg11 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0411-llm-verification-design.html'), encoding='utf-8').read()
+_code11 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg11, _re5.S).group(1)); _out11 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg11, _re5.S).group(1)).strip()
+_jp11 = os.path.join(_DATA10, 'llm_runs_0411.json'); _wrap11 = os.path.join(_DATA10, 'llm_runs_0411.js'); _lv11 = os.path.join(_DATA10, 'llmverify.js')
+_jraw11 = open(_jp11, 'rb').read(); _runs11 = json.loads(_jraw11.decode('utf-8'))
+_CASES11 = [   # (이름, 문장들, 켠 규칙 밖에 V6 도 켬, 기대 실패 규칙)
+    ('정상', [('초과는 {{f4}}건입니다.', ['f4'], '사실')], ()),
+    ('자리 밖 숫자', [('초과는 17건입니다.', [], '사실')], ('V2',)),
+    ('날 이름·이름은 허용', [('7일 B03-CH2 의 값은 {{f1}} 입니다.', ['f1'], '사실')], ()),
+    ('날짜를 직접 씀', [('교체는 2026-03-07 에 있었습니다.', [], '사실')], ('V2',)),
+    ('없는 번호', [('값은 {{f11}} 입니다.', ['f11'], '사실')], ('V3', 'V4')),
+    ('식에 다른 글자', [('비율은 {{calc: f4/f5*sqrt(100)}} 입니다.', ['f4', 'f5'], '사실')], ('V3',)),
+    ('0 으로 나눔', [('비율은 {{calc: f4/(f1-f1)}} 입니다.', ['f4', 'f1'], '사실')], ('V3',)),
+    ('닫히지 않은 자리', [('값은 {{f1 입니다.', [], '사실')], ('V3',)),
+    ('숫자가 아닌 사실을 식에', [('값은 {{calc: f7+1}} 입니다.', ['f7'], '사실')], ('V3',)),
+    ('cites 빠짐', [('초과는 {{f4}}건입니다.', [], '사실')], ('V4',)),
+    ('원인인데 cites 없음', [('원인은 모릅니다.', [], '원인')], ('V4', 'V5')),
+    ('원인인데 사건 없음', [('초과는 {{f4}}건입니다.', ['f4'], '원인')], ('V5',)),
+    ('원인 + 사건 인용', [('교체는 {{f7}} 에 있었습니다.', ['f7'], '원인')], ()),
+    ('시점 낱말 + 사건, 관계 없음', [('같은 기간 {{f7}} 에 교체했습니다.', ['f7'], '원인 미확인')], ('V6',)),
+    ('시점 낱말 + 사건 + 관계 인용', [('같은 기간 {{f7}} 에 교체했고 {{f9}} 에 듭니다.', ['f7', 'f9'], '원인 미확인')], ()),
+    ('시점 낱말만, 사건 없음', [('같은 기간 {{f4}} 건이었습니다.', ['f4'], '사실')], ()),
+]
+def _mk11(sents): return json.dumps({'sentences': [{'text': t, 'cites': c, 'type': ty} for t, c, ty in sents]}, ensure_ascii=False)
+_cases11 = [(n, _mk11(s)) for n, s, _ in _CASES11] + [('코드 울타리', '```json\n' + _mk11([('초과는 {{f4}}건입니다.', ['f4'], '사실')]) + '\n```'), ('type 이 네 가지가 아님', _mk11([('초과는 {{f4}}건입니다.', ['f4'], '결론')])), ('JSON 이 아님', '초과는 17건입니다.')]
+_exp11 = [set(e) for _, _, e in _CASES11] + [{'V1'}, {'V1'}, {'V1'}]
+_EXPORT11 = r"""const V=require(%s);const L=require(%s);const M=require(%s);
+const cases=%s, allOn={V1:true,V2:true,V3:true,V4:true,V5:true,V6:true};
+const fr=r=>Object.keys(r.rules).filter(k=>r.rules[k].fails.length>0);
+const rn=V.runAll(allOn,false), rw=V.runAll(allOn,true), r5=V.runAll({V1:true,V2:true,V3:true,V4:true,V5:true,V6:false},false);
+const slotsB=V.answersB.map(t=>{const p=V.parseAnswer(t);return p.obj.sentences.map(x=>V.slotsOf(x.text,Object.fromEntries(V.facts.map(f=>[f.id,f]))).filter(o=>o.kind==='calc').map(o=>({expr:o.raw,val:o.val,used:V.fmtCalc(o.val)})));});
+const out={
+ wrapEq:JSON.stringify(require(%s))===JSON.stringify(JSON.parse(require('fs').readFileSync(%s,'utf8'))),
+ fc:V.factsCheck().map(x=>[x.id,x.ok]), facts:V.facts.map(f=>[f.id,f.value,f.unit,f.kind]), pc:V.promptCheck(),
+ cases:cases.map(c=>fr(V.validate(c,V.facts,{on:allOn}))),
+ fails:rn.map(r=>({id:r.id,rules:Object.fromEntries(Object.keys(r.v.rules).map(k=>[k,[r.v.rules[k].on,r.v.rules[k].ran,r.v.rules[k].fails.map(f=>f.s)]])),fs:r.v.failSentences,pass:r.v.pass})),
+ wide:rw.map(r=>r.v.rules.V6.fails.map(f=>f.s)), off5:r5.map(r=>r.v.rules.V6.ran),
+ render:V.answersB.map(t=>V.render(t).map(s=>s.text)), calc:slotsB,
+ chkA:V.answersA.map(t=>{const r=V.checkA(t,0.5);return {c:r.counts,a:V.askedOf(t).map(x=>x.ok),none:r.nums.filter(x=>x.cls==='none').length};}),
+ rendB:V.answersB.map(t=>{const r=V.checkA(V.render(t).map(s=>s.text).join(' '),0.5);return r.counts;}),
+ marks:V.marks().map(m=>({id:m.id,found:m.found,mark:m.mark,ev:m.ev&&Object.fromEntries(Object.entries(m.ev).filter(([k,v])=>typeof v!=='object'))})),
+ read:V.readCounts({V1:true,V2:true,V3:true,V4:true,V5:true,V6:false},false), types:V.causeTypes(), causeA:V.causeA(),
+ win:[1,4,5,7].map(k=>V.win(k).short), tc0:V.tc0-V.base, relAt:[0,6924,10074].map(m=>{const r=V.relFacts(V.base+m);return [r.f7.value,r.f9.value,r.f10.value];}),
+ tools:{calc:[ '1+2*3','(1+2)*3','-f1*2','f4/f5*100','f4/(f1-f1)','2**3','f4/'].map(e=>{const r=V.calc(e,Object.fromEntries(V.facts.map(f=>[f.id,f])));return r.err?'ERR':r.val;})},
+ ctxEq:L.answers.map(a=>JSON.stringify(L.classify(a.text,a.ti,0.5).counts)===JSON.stringify(L.classifyCtx(a.text,L.ctx(a.ti),0.5,L.famOrder).counts)),
+ schema:V.types, relWords:V.relWords.length
+};
+console.log(JSON.stringify(out));"""
+_j11 = json.loads(subprocess.run([_node, '-e', _EXPORT11 % (json.dumps(_lv11), json.dumps(os.path.join(_DATA10, 'llmcheck.js')), json.dumps(_mf), json.dumps([t for _, t in _cases11], ensure_ascii=False), json.dumps(_wrap11), json.dumps(_jp11))], capture_output=True, text=True, check=True).stdout)
+_sha11 = _hl5.sha256(_jraw11).hexdigest()
+chk('0411 llm_runs_0411.json 바이트 불변(작업 전 sha256 9925d15d…) 이고 script 로 읽는 llm_runs_0411.js 의 내용이 JSON 과 같으며, 기록은 모델·날짜·사실 8줄·설계 둘 × 답 셋 + 프롬프트 전문을 가짐',
+    _sha11 == '9925d15d69c3908dadab329f12d750d0771c02f6b5dae25a1f134465e0336c87' and _j11['wrapEq'] and len(_runs11['facts']) == 8 and [len(d['answers']) for d in _runs11['designs']] == [3, 3] and all(d['prompt'] for d in _runs11['designs']),
+    f'sha256 {_sha11[:12]}… · 모델 {_runs11["model"]} {_runs11["date"]} · 설계 {[d["id"] for d in _runs11["designs"]]}')
+
+# 독립 재계산: CSV → pandas 로 사실 목록 f1~f10
+_fd11 = pd.read_csv(os.path.join(D, 's15_clean_fdc_glass.csv')); _pp11 = pd.read_csv(os.path.join(D, 's15_clean_ppa_coef.csv')); _mh11 = pd.read_csv(os.path.join(D, 's15_mask_hist.csv'))
+_B11 = _dt11.datetime(2026, 3, 2, 6, 0); _slope11 = -1.975908993542295; _spec11 = 5.712791
+_fd11['key'] = _fd11.block + '-' + _fd11.chamber
+def _day11(k):
+    s = _B11 + _dt11.timedelta(days=k - 1); a, b = s.strftime('%Y-%m-%d %H:%M'), (s + _dt11.timedelta(days=1)).strftime('%Y-%m-%d %H:%M')
+    j = _fd11[(_fd11.ts >= a) & (_fd11.ts < b)].merge(_pp11[(_pp11.ts >= a) & (_pp11.ts < b)], on='glass_id', suffixes=('', '_p'))
+    j['mc'] = j.Mx - _slope11 * (j.chamber_temp - 80); return j
+_d4, _d7 = _day11(4), _day11(7)
+_g = lambda j, k: j[j.key == k]
+_i1 = round(float(f'{_g(_d7, "B03-CH2").mc.mean():.3f}'), 3); _i2 = round(float(f'{_g(_d4, "B03-CH2").mc.mean():.3f}'), 3)
+_i4 = int((_g(_d7, 'B03-CH2').ppa_metric > _spec11).sum()); _i5 = len(_g(_d7, 'B03-CH2')); _i6 = int(sum((_g(_d7, k).ppa_metric > _spec11).sum() for k in sorted(_d7.key.unique())))
+_wash11 = _mh11[_mh11.state == 'WASH'].iloc[0]; _tc11 = _dt11.datetime.strptime(_wash11.from_ts, '%Y-%m-%d %H:%M')
+_ind11 = {'f1': _i1, 'f2': _i2, 'f3': round(_i1 - _i2, 3), 'f4': _i4, 'f5': _i5, 'f6': _i6, 'f7': _wash11.from_ts, 'f8': round(_spec11, 3)}
+_rec11 = {f['id']: f['value'] for f in _runs11['facts']}; _js11 = {r[0]: r[1] for r in _j11['facts']}
+chk('0411 사실 목록 f1~f8: 기록(프롬프트에 준 값) = JS 가 정답본에서 다시 계산한 값 = 이 검사가 CSV 에서 pandas 로 따로 계산한 값, f3 = f1 − f2, 기록 대조 8/8',
+    all(_rec11[k] == _js11[k] == _ind11[k] for k in _ind11) and all(ok for _, ok in _j11['fc']) and len(_j11['fc']) == 8 and abs(_ind11['f3'] - (_ind11['f1'] - _ind11['f2'])) < 1e-9,
+    ' · '.join(f'{k}={_ind11[k]}' for k in _ind11))
+# 관계 사실 + 하루 구간
+_w11 = lambda k: ((_B11 + _dt11.timedelta(days=k - 1)), (_B11 + _dt11.timedelta(days=k)))
+_f9i = int((_tc11 - _B11).total_seconds() // 86400) + 1; _f10i = round((_w11(7)[0] - _tc11).total_seconds() / 3600, 1)
+_wt = lambda k: _w11(k)[0].strftime('%m-%d %H:%M') + ' ~ ' + _w11(k)[1].strftime('%m-%d %H:%M')
+_rel11 = {r[0]: r for r in _j11['facts']}
+chk('0411 관계 사실: 교체 시각이 드는 날 f9 = 5, 7일 구간 시작 − 교체 = f10 = 28.6시간(양수 = 7일 자료는 전부 교체 뒤), 하루 구간 경계(5일 03-06 06:00~03-07 06:00, 7일 03-08 06:00~03-09 06:00) JS = datetime 독립 계산, 교체 시각을 옮기면 f9·f10 이 함께 움직임',
+    _rel11['f9'][1] == _f9i == 5 and _rel11['f10'][1] == _f10i == 28.6 and _j11['win'] == [_wt(1), _wt(4), _wt(5), _wt(7)] and _wt(5) == '03-06 06:00 ~ 03-07 06:00' and _wt(7) == '03-08 06:00 ~ 03-09 06:00' and _j11['tc0'] == int((_tc11 - _B11).total_seconds() // 60)
+    and all(r[1] == int(((_B11 + _dt11.timedelta(minutes=m)) - _B11).total_seconds() // 86400) + 1 and r[2] == round((_w11(7)[0] - (_B11 + _dt11.timedelta(minutes=m))).total_seconds() / 3600, 1) for r, m in zip(_j11['relAt'], [0, 6924, 10074])),
+    f'f9 {_f9i}일 · f10 {_f10i}시간 · 5일 {_wt(5)} · 7일 {_wt(7)}')
+
+# 페이지 Python 코드를 꺼내 모듈로 로드
+_td11 = _tf5.mkdtemp()
+for _n in ('s15_clean_fdc_glass.csv', 's15_clean_ppa_coef.csv', 's15_mask_hist.csv'): shutil.copy(os.path.join(D, _n), os.path.join(_td11, _n))
+shutil.copy(_jp11, os.path.join(_td11, 'llm_runs_0411.json'))
+open(os.path.join(_td11, 'lab0411.py'), 'w', encoding='utf-8').write(_code11)
+_sp11 = _ilu.spec_from_file_location('lab0411', os.path.join(_td11, 'lab0411.py')); _m0411 = _ilu.module_from_spec(_sp11); _sp11.loader.exec_module(_m0411)
+_tb11 = _m0411.load_tables(_td11); _fa11 = _m0411.build_facts(_tb11)
+_A11 = next(d for d in _runs11['designs'] if d['id'] == 'A'); _Bd11 = next(d for d in _runs11['designs'] if d['id'] == 'B')
+chk('0411 프롬프트 틀: 사실 목록 표를 끼운 글이 기록의 프롬프트(설계 A·B 전문)와 글자 단위로 같음 — JS = 파이썬(페이지 코드), 파이썬 사실 목록 f1~f10 = JS',
+    all(p['ok'] for p in _j11['pc']) and _m0411.make_prompt(_fa11[:8], _m0411.TEMPLATES['A']) == _A11['prompt'] and _m0411.make_prompt(_fa11[:8], _m0411.TEMPLATES['B']) == _Bd11['prompt']
+    and [(f['id'], f['value'], f['unit']) for f in _fa11] == [(r[0], r[1], r[2]) for r in _j11['facts']],
+    f'설계 A {len(_A11["prompt"])}자 · 설계 B {len(_Bd11["prompt"])}자')
+
+# 검사기 단위 시험
+_RULES11 = ('V1', 'V2', 'V3', 'V4', 'V5', 'V6'); _all11 = {r: True for r in _RULES11}
+_pyc = []
+for _n, _t in _cases11:
+    _res, _bad, _o = _m0411.validate(_t, _fa11, _all11); _pyc.append([r for r in _RULES11 if _res[r]])
+chk('0411 검사기 단위 시험 %d건(정상·자리 밖 숫자·날 이름 허용·날짜 직접·없는 번호·식의 다른 글자·0 으로 나눔·닫히지 않은 자리·숫자 아닌 사실·cites 빠짐·원인+cites 없음·원인+사건 없음·시점 낱말 세 가지·코드 울타리·type·JSON 아님): 기대한 걸린 규칙 = JS = 파이썬(페이지 코드)' % len(_cases11),
+    all(set(a) == set(b) == e for a, b, e in zip(_j11['cases'], _pyc, _exp11)) and len(_j11['cases']) == len(_exp11),
+    ' · '.join(f'{n}:{"/".join(e) or "통과"}' for (n, _), e in zip(_cases11[:6], _j11['cases'])) + ' …')
+
+# 기록 6답
+_ans11 = list(_A11['answers']) + list(_Bd11['answers']); _names11 = [f'A-{i}' for i in (1, 2, 3)] + [f'B-{i}' for i in (1, 2, 3)]
+_pyr = [_m0411.validate(t, _fa11, _all11) for t in _ans11]
+_okfmt = lambda r: tuple(len(r[0][x]) if (r[0][x] is not None and (x == 'V1' or r[2] is not None)) else None for x in _RULES11)
+_jsfmt = lambda f: tuple(len(f['rules'][x][2]) if f['rules'][x][1] else None for x in _RULES11)
+_jsf = _j11['fails']
+_expect11 = [(1, None, None, None, None, None)] * 3 + [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 1), (0, 0, 0, 0, 0, 0)]
+chk('0411 기록 6답의 검사 결과: A 세 답은 V1 에서 실패(JSON 아님, V2~V6 은 돌리지 않음), B 세 답은 V1~V5 전부 통과, V6 은 B 답 2 의 문장 3 한 건 — 파이썬(페이지 코드) = JS, 규칙별 실패 수와 실패 문장 번호까지 같음',
+    [_okfmt(r) for r in _pyr] == [_jsfmt(f) for f in _jsf] == _expect11 and [sorted(set(s for v in r[0].values() if v for s, _ in v if s is not None)) for r in _pyr] == [f['fs'] for f in _jsf] and _jsf[4]['fs'] == [2] and [f['pass'] for f in _jsf] == [False] * 3 + [True, False, True],
+    ' · '.join(f'{n} {"/".join(str(x) if x is not None else "-" for x in _okfmt(r))}' for n, r in zip(_names11, _pyr)))
+_pyw = [len(_m0411.validate(t, _fa11, _all11, v6wide=True)[0]['V6']) for t in _Bd11['answers']]
+_pyn = [len(_m0411.validate(t, _fa11, _all11)[0]['V6']) for t in _Bd11['answers']]
+chk('0411 V6 을 사건 사실을 인용한 문장에 한정하면 B 답별 실패 0·1·0, 낱말만 보고 넓게 잡으면 0·3·0(사건과 상관없는 문장 2개가 헛경보) — JS = 파이썬; V6 을 끄면 돌지 않음',
+    [len(x) for x in _j11['wide']][3:] == _pyw == [0, 3, 0] and _pyn == [0, 1, 0] and _j11['off5'] == [False] * 6,
+    f'좁게 {_pyn} · 넓게 {_pyw}')
+
+# render
+_pyrend = [_m0411.render(t, _fa11) for t in _Bd11['answers']]
+_f_ = {f['id']: f for f in _fa11}
+_ex1 = f'{_i4 / _i5 * 100:.1f}%'; _ex2 = f'{_i4 / _i6 * 100:.1f}%'
+_allr = ' '.join(' '.join(r) for r in _pyrend)
+chk('0411 render: B 답 3개 12문장의 렌더 결과 JS = 파이썬(페이지 코드), 자리의 값은 사실 목록의 값(−1.095·0.963·−2.058·17건·28장·18건·5.713 µm·교체 시각), 비율은 17÷28×100 = 60.7% · 17÷18×100 = 94.4%, 자리 괄호가 남지 않음, 조사가 받침에 맞음(17건이)',
+    _pyrend == _j11['render'] and _ex1 == '60.7%' and _ex2 == '94.4%' and _ex1 in _pyrend[0][0] and _ex2 in _pyrend[0][1] and '4일 0.963 ppm에서 7일 -1.095 ppm으로' in _pyrend[0][2] and '-2.058 ppm' in _pyrend[0][2] and '28장 가운데 17건이' in _pyrend[1][0] + _pyrend[2][1]
+    and '{{' not in _allr and '2026-03-07 01:24에 B03-A2에서 B03-B2로' in _pyrend[0][3] and '5.713 µm' in _pyrend[1][0],
+    _pyrend[0][0] + ' / ' + _pyrend[1][0][:40] + '…')
+_cx = {}
+for _bi, _t in enumerate(_Bd11['answers']):
+    for _x in json.loads(_t)['sentences']:
+        for _m in _m0411.SLOT.finditer(_x['text']):
+            if _m.group(1).strip().startswith('calc'):
+                _v, _ids, _e = _m0411.calc_expr(_re5.sub(r'^calc\s*:', '', _m.group(1).strip()), {f['id']: f for f in _fa11})
+                _cx.setdefault(_re5.sub(r'\s+', '', _re5.sub(r'^calc\s*:\s*', '', _m.group(1).strip())), []).append(_v)
+_js_calc = [round(s['val'], 9) for a in _j11['calc'] for x in a for s in x]
+chk('0411 calc 식 6개(f4/f5*100 · f4/f6*100): 도구가 계산한 값 = 파이썬 = 17÷28×100 · 17÷18×100 의 독립 값, 소수 첫째 자리로 렌더한 값 = 60.7 · 94.4, 식 해석기 시험(1+2*3=7 · (1+2)*3=9 · −f1*2 · 0 으로 나눔·**·끝맺지 않은 식은 오류) JS = 파이썬',
+    sorted(_cx) == ['f4/f5*100', 'f4/f6*100'] and all(abs(v - _i4 / _i5 * 100) < 1e-9 for v in _cx['f4/f5*100']) and all(abs(v - _i4 / _i6 * 100) < 1e-9 for v in _cx['f4/f6*100']) and len(_js_calc) == 6 and sorted(_js_calc) == sorted(round(v, 9) for vs in _cx.values() for v in vs)
+    and _j11['tools']['calc'][:4] == [7, 9, 2.19, _i4 / _i5 * 100] and _j11['tools']['calc'][4:] == ['ERR', 'ERR', 'ERR']
+    and [_m0411.calc_expr(e, _f_)[0] for e in ('1+2*3', '(1+2)*3', '-f1*2', 'f4/f5*100')] == [7, 9, 2.19, _i4 / _i5 * 100] and all(_m0411.calc_expr(e, _f_)[0] is None for e in ('f4/(f1-f1)', '2**3', 'f4/')),
+    f'60.7={_i4 / _i5 * 100:.3f} · 94.4={_i4 / _i6 * 100:.3f}')
+
+# 설계 A 숫자 대조
+_cA, _dA = _m0411.fact_context(_fa11)
+_pyA = []
+for _t in _A11['answers']:
+    _r = _m0411.check_numbers(_t, _cA, _dA); _pyA.append((len(_r), sum(c == 'has' for c, _ in _r), sum(c == 'calc' for c, _ in _r), sum(c == 'none' for c, _ in _r), sum(l for _, l in _r), _m0411.asked_ok(_t, _fa11)))
+_jsA = [(x['c']['n'], x['c']['has'], x['c']['calc'], x['c']['none'], x['c']['loose'], all(x['a'])) for x in _j11['chkA']]
+chk('0411 설계 A 답 3개의 숫자 대조(0410 방식, 사실 목록 문맥): 숫자 수·있음·계산됨·근거 없음·거친 일치 JS = 파이썬(페이지 코드), 근거 없음 0 개, 질문한 두 퍼센트(17÷28 = 60.7 · 17÷18 = 94.4)가 3답 모두 정답과 같고, B 답 렌더 글의 숫자도 근거 없음 0 개, 0410 classify 와 문맥판 classifyCtx 가 18답에서 같은 결과',
+    _pyA == _jsA and all(x[3] == 0 and x[5] for x in _pyA) and all(x['none'] == 0 for x in _j11['chkA']) and all(r['none'] == 0 for r in _j11['rendB']) and all(_j11['ctxEq']) and len(_j11['ctxEq']) == 18,
+    ' · '.join(f'A-{i} 숫자 {x[0]} 있음 {x[1]} 계산됨 {x[2]} 근거 없음 {x[3]}' for i, x in enumerate(_pyA, 1)))
+
+# 사람 표지 근거
+_mk = {m['id']: m for m in _j11['marks']}
+_quotes_ok = all(m['found'] for m in _j11['marks'])
+_prev_b2 = json.loads(_Bd11['answers'][1])['sentences']; _ix = next(i for i, x in enumerate(_prev_b2) if x['text'].startswith('같은 기간 B03-CH2에서는'))
+chk('0411 사람이 붙인 표지의 근거 계산: A 답 1 "7일 구간 안" 틀림(교체 03-07 01:24 는 7일 구간 03-08 06:00~03-09 06:00 밖, 5일 구간 안) · A 답 2 "5일 구간(03-06 06:00 ~ 03-07 06:00)" 맞음 · A 답 3 "4일과 7일 구간 사이" 맞음 · B 답 2 "같은 기간" 문장은 앞 문장이 7일을 말하는데 교체는 5일 — 인용한 대목이 답 원문에 그대로 있고 JS = datetime 독립 계산',
+    _quotes_ok and _mk['a1']['mark'] == '틀림' and _mk['a1']['ev']['in7'] is False and _mk['a1']['ev']['in5'] is True and not (_w11(7)[0] <= _tc11 < _w11(7)[1]) and (_w11(5)[0] <= _tc11 < _w11(5)[1])
+    and _mk['a2']['mark'] == '맞음' and _mk['a2']['ev']['quoteHasW5'] and _mk['a2']['ev']['all7After'] and _tc11 < _w11(7)[0] and _mk['a2']['ev']['f10'] == _f10i
+    and _mk['a3']['mark'] == '맞음' and _mk['a3']['ev']['between'] and (_w11(4)[1] <= _tc11 < _w11(7)[0]) and _mk['b2']['mark'] == '틀림' and _mk['b2']['ev']['prevMentions7'] and _mk['b2']['ev']['idx'] == _ix + 1 == 3 and '7일' in _prev_b2[_ix - 1]['text'] and not _mk['b2']['ev']['in7'] and _mk['b2']['ev']['in5'],
+    f'교체 {_wash11.from_ts} · 5일 {_wt(5)} · 7일 {_wt(7)} · B 답 2 문장 {_ix + 1} 의 앞 문장이 7일을 말함')
+
+# 읽을 문장 수·원인 type
+_split_py = [len(_m0411.split_sent(t)) for t in _A11['answers']]
+_readpy = []
+for t in _Bd11['answers']:
+    _r, _bad, _o = _m0411.validate(t, _fa11, {**_all11, 'V6': False}); _readpy.append((len(_o['sentences']), len(set(_bad) | {i for i, x in enumerate(_o['sentences']) if x['type'] != '사실'})))
+_types_py = [{k: sum(x['type'] == k for x in json.loads(t)['sentences']) for k in ('사실', '원인', '원인 미확인', '권고')} for t in _Bd11['answers']]
+_rd = _j11['read']
+chk('0411 사람이 읽을 문장 수: 설계 A = 답마다 전 문장(4·4·4, 평균 4.0), 설계 B = 검사 실패 문장 + type 이 사실이 아닌 문장(1·2·1 / 전체 4·4·4, 평균 1.3) — JS = 파이썬; B 세 답의 type 은 모두 원인 미확인 1문장·원인 0문장(원인 규칙 3/3), A 답의 원인 대목 세 곳이 원문에 있음',
+    _split_py == _rd['A'] == [4, 4, 4] and [(x['n'], x['read']) for x in _rd['B']] == _readpy == [(4, 1), (4, 2), (4, 1)] and [{k: c.get(k, 0) for k in ('사실', '원인', '원인 미확인', '권고')} for c in _j11['types']] == _types_py
+    and all(t['원인 미확인'] == 1 and t['원인'] == 0 for t in _types_py) and all(c['found'] and c['holds'] for c in _j11['causeA']) and round(sum(_split_py) / 3, 1) == 4.0 and round(sum(r for _, r in _readpy) / 3, 1) == 1.3,
+    f'A {_split_py} · B 읽을 문장 {[r for _, r in _readpy]} / 전체 {[n for n, _ in _readpy]} · type {_types_py[1]}')
+
+# 페이지 Python 실행
+_run11 = subprocess.run([sys.executable, '-I', 'lab0411.py'], cwd=_td11, capture_output=True, text=True)
+chk('0411 Python 코드가 오류 없이 돌고 출력이 페이지의 출력 상자와 한 글자도 다르지 않으며, 사내 모델 호출 함수 ask_internal_model 은 호출하지 않고(자리만), 외부 통신 코드(requests·urllib·socket·http·openai 등)가 없음',
+    _run11.returncode == 0 and _run11.stdout.strip() == _out11 and 'ask_internal_model(' in _code11 and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code11, _re5.M) and _code11.count('ask_internal_model(') == 1 and 'NotImplementedError' in _code11,
+    (_run11.stderr[-200:] if _run11.returncode else f'{len(_out11.splitlines())}줄'))
+_lines11 = _out11.splitlines()
+_pyexp = [f'{n} · ' + ' · '.join('-' if (n[0] == 'A' and r != 'V1') else ('통과' if not _jsf[i]['rules'][r][2] else f'실패 {len(_jsf[i]["rules"][r][2])}') for r in _RULES11) for i, n in enumerate(_names11)]
+_wl = [l for l in _lines11 if l.startswith('V6 를 낱말만')][0]
+_rl = [l for l in _lines11 if l.startswith('사람이 읽을 문장 수')][0]
+_ml = [l for l in _lines11 if l.startswith('교체 시각')][0]
+chk('0411 Python 출력의 숫자(사실 f1~f10 · 검사 6답 · 넓게 잡은 V6 · 렌더 12문장 · A 답 숫자 대조 · 교체 5일/7일 구간과 28.6시간 · 읽을 문장 수)가 JS 값과 같음',
+    all(e in _lines11 for e in _pyexp) and all(f'{r[0]} · {_m0411.fmt_val(_f_[r[0]])} ·' in '\n'.join(_lines11) for r in _j11['facts']) and _wl.endswith('B-1 0 · B-2 3 · B-3 0')
+    and all(f'렌더 B-{i + 1} 문장 {k + 1}: {s}' in _lines11 for i, r in enumerate(_j11['render']) for k, s in enumerate(r))
+    and all(f'A-{i + 1} · {x["c"]["n"]} · {x["c"]["has"]} · {x["c"]["calc"]} · {x["c"]["none"]} · {x["c"]["loose"]} · 예' in _lines11 for i, x in enumerate(_j11['chkA']))
+    and '든 날 5일(03-06 06:00 ~ 03-07 06:00)' in _ml and '7일 구간 03-08 06:00 ~ 03-09 06:00' in _ml and '= 28.6시간' in _ml and '7일 구간 안에 듦: 아니오' in _ml
+    and '설계 A 4 · 4 · 4 → 4.0' in _rl and '설계 B 1 · 2 · 1 (전체 4 · 4 · 4) → 1.3' in _rl,
+    _ml[:70] + '…')
+
+# 페이지 구조
+_term11 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg11, _re5.S).group(1)))
+_nq11 = len(_re5.findall(r'<div class="qna" data-label=', _pg11)); _nsec11 = len(_re5.findall(r'<h2><span class="no">', _pg11))
+_fonts11 = [int(x) for x in _re5.findall(r"(?:x\.font|\.font)\s*=\s*'[^']*?(\d+)px", _pg11)] + [int(x) for x in _re5.findall(r'fitFont\([^)]*?,\s*\d+\s*,\s*(\d+)\s*,', _pg11)]
+_body11 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg11, flags=_re5.S); _body11 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body11))
+_endda11 = _re5.findall(r'[^니습]다[.]', _body11)
+_p10 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0410-llm-strengths-limits.html'), encoding='utf-8').read(); _hub11 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_js11 = open(_lv11, encoding='utf-8').read()
+chk('0411 페이지: 새 용어 6개 · Q&A 4개 · 절 11개 · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0410 의 위·아래 다음 링크 · 허브 등록(단계 4 묶음) · 계산 모듈에 난수·시각 함수 없음 · 프롬프트 틀·JSON 스키마 블록이 있고 스키마의 type 목록 = 검사기의 type 네 가지',
+    _term11 == 6 and _nq11 == 4 and _nsec11 == 11 and min(_fonts11) >= 11 and not _endda11 and _p10.count('0411-llm-verification-design.html') == 2 and 'labs/0411-llm-verification-design.html' in _hub11 and _hub11.index('0411-llm-verification-design.html') > _hub11.index('단계 4 · 기둥 4')
+    and 'Math.random' not in _js11 and 'Date.now' not in _js11 and 'new Date' not in _js11 and 'id="tplCode"' in _pg11 and 'id="schemaCode"' in _pg11 and _j11['schema'] == ['사실', '원인', '원인 미확인', '권고'],
+    f'용어 {_term11} · Q&A {_nq11} · 절 {_nsec11} · 캔버스 글자 최소 {min(_fonts11)}px({len(_fonts11)}곳) · -다 끝맺음 {len(_endda11)}건 · 0410 링크 {_p10.count("0411-llm-verification-design.html")}곳')
+_cleanup11 = shutil.rmtree(_td11, ignore_errors=True)
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

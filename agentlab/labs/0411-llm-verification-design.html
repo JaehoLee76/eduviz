@@ -1,0 +1,1313 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>LLM에게 일을 맡기는 법 — 검증 설계</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="0410 에서 틀림이 문장에 있었으므로 맡기는 법을 바꿉니다. 도구가 계산한 사실 목록의 번호로만 숫자를 쓰게 하고, 출력을 JSON 으로 고정하고, 문장마다 근거 번호를 달게 해 검사기가 자동으로 확인하는 설계를 실제 LLM 답 6개로 해 보고, 검사기가 못 잡는 문장까지 찾는 실험실. 회사 PC용 Python과 검사 결과 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 4 · 기둥 4 · 실험실 0411</p>
+  <h1>LLM에게 일을 맡기는 법 — 검증 설계</h1>
+  <p class="sub">숫자는 도구가, 문장은 LLM 이, 대조는 자동으로 — 두 가지 방법으로 맡겨 본 실제 답 6개</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0410-llm-strengths-limits.html">← 이전: LLM이 잘하는 것과 틀리는 것</a><span class="sp"></span></nav>
+
+<p><b>0410 에서 틀림은 숫자가 아니라 문장에 있었으므로, 맡기는 법을 바꿉니다.</b> 숫자는 도구가 계산한 사실 목록의 번호로만 쓰게 하고(계산이 필요하면 식만 쓰게 하고 도구가 계산합니다), 출력을 정해 둔 JSON 형식으로 고정하고, 문장마다 근거 사실 번호를 달게 합니다. 그러면 검사기가 &lsquo;숫자를 직접 쓰지 않았는가 · 번호가 실제로 있는가 · 식이 허용된 모양인가 · 원인 문장에 근거가 달렸는가&rsquo;를 자동으로 확인합니다. 그래도 &lsquo;언제·어느 날에 일어났나&rsquo; 같은 관계를 담은 문장은 이 검사기가 보지 못하므로, 그런 관계도 도구가 사실로 만들어 목록에 넣고 사람이 마지막으로 봅니다. 사내 자료는 밖으로 보내지 않고 사내 모델로만 다룹니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0400 의 표와 지문, 0410 의 숫자 대조(표에 있음 / 계산됨 / 근거 없음)·근거·지어내기·재현성, 0206 의 마스크 이력, 0103·0304 의 교체 전후 비교.</p>
+  <ul class="chips known"><li>파이프라인 표 · 지문 (0400)</li><li>숫자 대조 · 근거 (0410)</li><li>지어내기 · 재현성 (0410)</li><li>마스크 이력 (0206)</li><li>교체 전후 비교 (0103·0304)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 검사 규칙의 이름(V1~V6)과 관계 사실은 쓰는 자리에서 문장으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>사실 목록 (fact list)</li><li>자리 채우기 (slot filling)</li><li>출력 형식 고정 (structured output)</li><li>스키마 (schema)</li><li>근거 인용 (citation)</li><li>사내 모델 (internal model)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 0400 파이프라인의 표와 0410 의 확인표를 하나로 묶어, 숫자는 도구가 내고 문장은 LLM 이 쓰고 대조는 자동으로 하는 아침 보고 구조(2~8절).</li>
+    <li><b>손으로 연습</b> — 같은 사실 목록에 두 가지 맡기는 법으로 받은 실제 답 6개를 검사기에 넣어 보고(4절), 검사 규칙을 하나씩 켜고 끄며 무엇이 걸리는지 보고, 답을 직접 고쳐 넣어 걸리게 해 보고, 검사기가 못 잡는 문장을 찾습니다(6절).</li>
+    <li><b>다음 날 산출물</b> — <code>build_facts</code> · <code>make_prompt</code> · <code>validate</code> · <code>render</code> Python 함수(10절), 프롬프트 틀과 출력 형식(JSON 스키마)(11절), <b>검사 결과 기록지</b>(11절).</li>
+    <li><b>기록할 데이터</b> — 사실 목록 판·프롬프트 판·모델·답 원문·검사 결과·사람이 고친 곳(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 원인·판단 승인과 모델·정책은 사람, V1~V6 은 규칙, 초안·렌더·검사 요약은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 보고 하나에서 사람이 읽을 문장 수가 설계 A 와 설계 B 에서 얼마나 다른지(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0400 파이프라인이 매일 아침 표를 만듭니다. 0410 처럼 LLM 에게 그냥 쓰게 하면 사람이 문장을 전부 읽어야 합니다. <b>(1) 사람이 읽을 곳을 &lsquo;검사기가 못 잡는 문장&rsquo;으로만 줄이려면 어떻게 맡겨야 합니까. (2) 그렇게 맡겨도 남는 틀림은 무엇입니까.</b> 같은 사실 목록을 두 가지 방법으로 모델 <span class="v_model"></span>(<span class="v_date"></span>)에게 맡겨 받은 답이 6개 있습니다. 같은 질문을 서로 독립된 대화에서 방법마다 세 번씩 물었고, 모델은 도구(계산기·코드 실행·파일 읽기)를 쓰지 않았습니다(대화 기록으로 확인했습니다).
+  <p class="note" style="margin:.5rem 0 0">2~7절에서 답을 읽고 검사해 보고, 8절에서 이 두 물음으로 돌아옵니다. 문장 하나를 확인하는 시간·한 달 보고 수는 현장 값으로 바꿔야 할 가정입니다(9절).</p>
+</div>
+
+<div class="solban">여기서부터 위 기록 6개를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 사실 목록과 두 가지 맡기는 법</h2>
+<ul class="termdef">
+  <li><b>사실 목록 (fact list)</b> — 도구(검증된 함수)가 계산한 값에 번호·내용·단위·출처를 붙인 표입니다. LLM 은 이 번호로만 숫자를 씁니다.</li>
+</ul>
+<p>LLM 에게 준 사실 목록은 8줄(f1~f8)이고, 0410 의 가상 공장 14일 가운데 1~7일(하루는 그날 06:00 부터 다음 날 06:00 까지)의 정답본에서 도구가 계산한 값입니다. 아래 표의 &lsquo;다시 계산한 값&rsquo;은 이 페이지가 같은 정답본에서 다시 계산한 것이고, &lsquo;기록 속 값&rsquo;은 LLM 에게 준 프롬프트에 적힌 값입니다.</p>
+<div class="lab">
+  <div class="labtitle">사실 목록 f1~f8 — 다시 계산한 값과 프롬프트 속 값</div>
+  <div class="tbwrap"><table id="tabF" class="mt"></table></div>
+  <div class="state" id="stF"></div>
+</div>
+<p>같은 사실 목록으로 같은 질문을 두 가지 방법으로 맡겼습니다. 질문은 아래와 같고(프롬프트의 질문 부분 그대로), 방법 B 에는 규칙 네 개가 더 붙습니다.</p>
+<div class="llmq ask"><span class="qh">질문 (설계 A·B 공통, 프롬프트에서 그대로)</span><span class="qb" id="askQ"></span></div>
+<div class="tbwrap"><table id="tabD" class="mt"></table></div>
+<div class="state" id="stP"></div>
+<p class="note">인용 상자 안의 답은 원문 그대로입니다. 인용 상자 바깥의 글만 이 실험실의 설명입니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 설계 A (자유 서술)</h2>
+<p>먼저 0410 에서 하던 대로, 사실 목록을 주고 문장을 자유롭게 쓰게 한 답 세 개를 봅니다. 0410 의 숫자 대조를 그대로 돌리되, 대조할 &lsquo;표&rsquo; 자리에 이번에는 사실 목록을 놓았습니다. 계산 목록은 두 사실의 차·합·비·비×100 입니다.</p>
+<div class="lab">
+  <div class="labtitle">설계 A 의 답 — 하나씩 읽고 숫자 대조 결과를 보십시오</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 답을 고르고 색칠된 숫자를 보십시오(초록 실선 = 사실 목록에 그대로 있음, 파랑 점선 = 계산됨, 빨강 = 근거 없음, 주황 점선 테두리 = 거친 일치). 2) 빨간 숫자가 있는지 세어 보십시오. 3) 그다음 &lsquo;7일 구간&rsquo;·&lsquo;5일 구간&rsquo;처럼 시점을 말하는 대목을 찾아, 아래 표지 표와 견주어 보십시오.</div>
+  <div class="row picks" role="group" aria-label="설계 A 답 고르기"><button class="btn ansa" data-a="0" type="button" aria-pressed="true">A 답 1</button><button class="btn ansa" data-a="1" type="button" aria-pressed="false">A 답 2</button><button class="btn ansa" data-a="2" type="button" aria-pressed="false">A 답 3</button></div>
+  <div class="llmq"><span class="qh" id="qhA"></span><span class="qb" id="qbA"></span></div>
+  <div class="legend"><span><i class="dot" style="background:var(--good);border-radius:2px"></i>사실 목록에 있음</span><span><i class="dot" style="background:var(--c10);border-radius:2px"></i>계산됨</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>근거 없음</span><span><i class="dot" style="background:transparent;border:2px dotted var(--warn);border-radius:2px"></i>거친 일치</span></div>
+  <div class="readout" id="roA"></div>
+</div>
+<div class="tbwrap"><table id="tabA" class="mt num"></table></div>
+<div class="concl" id="concA"></div>
+<p><b>여기서 막힙니다.</b> 세 답의 숫자는 모두 사실 목록에서 왔고 묻지 않은 계산도 없습니다. 그런데 시점을 말한 문장 하나가 틀렸고, 숫자 대조는 그것을 통과시켰습니다. 교체 시각이 사실 목록에 있으므로 숫자로는 &lsquo;표에 있음&rsquo;이기 때문입니다. 게다가 문장이 자유로워서 기계는 어느 문장이 원인을 주장하는 문장인지조차 알지 못하고, 사람은 한 답의 문장 <span class="v_ns"></span>개를 전부 읽어야 합니다.</p>
+<div class="tbwrap"><table id="tabAM" class="mt"></table></div>
+<p>표지의 &lsquo;틀림·맞음&rsquo;은 사람이 읽고 붙인 것이고, 오른쪽 열의 숫자와 구간은 이 페이지가 하루 구간(06:00 ~ 다음 날 06:00)으로 다시 계산한 것입니다. 이 막힘을 풀려면 맡기는 법을 바꿔야 합니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 자리 채우기</h2>
+<ul class="termdef">
+  <li><b>자리 채우기 (slot filling)</b> — 문장 속 숫자 자리에 값을 직접 쓰지 않고 <code>{{f1}}</code> 같은 번호를 쓰게 한 뒤, 도구가 값을 넣는 방식입니다.</li>
+</ul>
+<p>번호로만 쓰게 하면 LLM 이 숫자를 베껴 쓰다 틀릴 일이 없고, 문장 속에 숫자가 직접 나타나면 곧 규칙 위반이라 기계가 찾아낼 수 있습니다. 사실 목록에 없는 숫자(비율·몫)가 필요하면 값을 직접 계산하지 말고 <code>{{calc: 식}}</code> 으로 쓰게 합니다. 식에는 번호·숫자 상수·<code>+ − * / ( )</code> 만 쓸 수 있고, 계산은 도구가 합니다.</p>
+<div class="tbwrap"><table id="tabR" class="mt"></table></div>
+<div class="lab">
+  <div class="labtitle">설계 B 의 답 — 자리가 값으로 바뀌는 모습</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 답을 고르고 왼쪽의 자리 표시(<code>{{…}}</code>)와 오른쪽의 렌더 결과를 문장마다 견주십시오. 2) 식 표에서 도구가 계산한 값과 정답을 견주십시오. 3) 맨 아래 같은 번호의 설계 A 답과 렌더 결과를 나란히 읽어 보십시오.</div>
+  <div class="row picks" role="group" aria-label="설계 B 답 고르기"><button class="btn ansb" data-a="0" type="button" aria-pressed="true">B 답 1</button><button class="btn ansb" data-a="1" type="button" aria-pressed="false">B 답 2</button><button class="btn ansb" data-a="2" type="button" aria-pressed="false">B 답 3</button></div>
+  <div class="tbwrap"><table id="tabB" class="mt"></table></div>
+  <div class="tbwrap"><table id="tabCalc" class="mt num"></table></div>
+  <div class="two">
+    <div class="llmq"><span class="qh" id="qhBA"></span><span class="qb" id="qbBA"></span></div>
+    <div class="llmq"><span class="qh" id="qhB"></span><span class="qb" id="qbB"></span></div>
+  </div>
+  <details><summary>B 답 원문(JSON) 그대로 보기</summary><div class="llmq"><span class="qh" id="qhBR"></span><span class="qb" id="qbBR"></span></div></details>
+  <div class="readout" id="roB"></div>
+</div>
+<div class="qna" data-label="calc 식도 틀릴 수 있지 않나요?" data-q="calc 식도 틀릴 수 있지 않나요?">
+  <p><b>식의 계산은 도구가 하므로 계산이 틀릴 일은 없습니다. 틀릴 수 있는 것은 식의 뜻입니다.</b> 예를 들어 초과 비율을 <code>f4/f5*100</code> 이 아니라 <code>f4/f6*100</code> 으로 쓰면 도구는 아무 문제 없이 계산하지만 다른 비율이 됩니다.</p>
+  <p>그래서 검사기는 식이 허용된 글자만 쓰는지와 쓴 번호가 cites 에 달려 있는지만 확인하고, 식의 뜻이 맞는지는 사실 이름(&ldquo;7일 잰 유리 수&rdquo; 등)과 함께 사람이 한 번 보는 칸으로 남깁니다. 이 기록의 식 <span class="q3_n"></span>개는 모두 <span class="q3_ok"></span>개가 정답과 같았습니다.</p>
+</div>
+<p>렌더 결과가 설계 A 의 문장만큼 자연스럽다는 점에 주목하십시오. 숫자가 도구의 값으로 채워졌을 뿐 문장은 LLM 이 쓴 그대로입니다. 렌더는 자리 바로 뒤 조사(이/가·은/는·을/를)를 받침에 맞추는 일만 하고, 그 밖의 어색함(예: &lsquo;ppm였으며&rsquo;)은 고치지 않고 그대로 둡니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>출력 형식 고정 · 스키마 · 근거 인용</h2>
+<ul class="termdef">
+  <li><b>출력 형식 고정 (structured output)</b> — 답을 정해 둔 꼴로만 내게 하는 것입니다. 여기서는 JSON(칸 이름과 값을 중괄호로 묶어 쓰는 글의 꼴)과 그 칸들입니다. 기계가 읽고 검사할 수 있게 됩니다.</li>
+  <li><b>스키마 (schema)</b> — 출력 형식의 약속입니다. 어떤 칸이 있고 각 칸에 무엇이 올 수 있는지를 적습니다.</li>
+  <li><b>근거 인용 (citation)</b> — 문장마다 그 문장이 기대는 사실 번호를 다는 것입니다. 이 실험실에서는 <code>cites</code> 칸입니다.</li>
+</ul>
+<div class="tbwrap"><table id="tabS" class="mt"></table></div>
+<p>이 약속을 지켰는지 확인하는 검사 규칙이 V1~V5 입니다. 규칙에 이름(V1~V6)을 붙이는 것은 &lsquo;어느 규칙에 걸렸는가&rsquo;를 기록으로 남기기 위해서입니다. V6 은 6절에서 틀림을 만난 뒤 제안하는 규칙이라 7절에서 다룹니다.</p>
+<div class="tbwrap"><table id="tabV" class="mt"></table></div>
+<div class="lab">
+  <div class="labtitle">답 6개를 검사기에 넣은 결과 — 규칙을 켜고 끄면 표시와 집계가 함께 움직입니다</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) V1 을 끄면 설계 A 답 세 개가 어떻게 보이는지 보십시오(V2~V6 은 JSON 으로 읽혀야만 돌 수 있어서 설계 A 에는 &lsquo;검사 안 함&rsquo;입니다). 2) 규칙을 하나씩 꺼 보며 어느 칸이 회색으로 바뀌는지 보십시오. 3) V6 을 켜면 어느 답의 어느 칸이 빨갛게 되는지 보십시오(7절). 4) 칸을 눌러 답을 고르면 아래에 규칙별 이유가 나옵니다.</div>
+  <div class="row" id="ruleBox" role="group" aria-label="검사 규칙 켜기"></div>
+  <div class="row"><button class="btn ghost" id="rRule" type="button">규칙을 처음 상태(V1~V5 켬, V6 끔)로 되돌리기</button></div>
+  <div class="state" id="stRule"></div>
+  <canvas id="cv4" class="pick"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--good);border-radius:2px"></i>통과</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>실패</span><span><i class="dot" style="background:var(--grey);border-radius:2px"></i>꺼짐 또는 검사 안 함(좁은 화면에서는 —)</span></div>
+  <div class="readout" id="roRule"></div>
+  <div class="tbwrap"><table id="tabRule" class="mt"></table></div>
+</div>
+<div class="concl" id="conc4"></div>
+
+<div class="lab">
+  <div class="labtitle">직접 고쳐 넣어 걸리게 해 보기 — 답 원문을 고치면 검사 결과가 바로 바뀝니다</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 기준이 되는 설계 B 답을 고르십시오. 2) 아래 단추를 눌러 일부러 틀리게 고치고, 어느 규칙이 걸리는지 보십시오. 3) 상자 안 글을 직접 고쳐도 됩니다. 4) &lsquo;기록 원문으로 되돌리기&rsquo;로 돌아옵니다.</div>
+  <div class="ctrl"><label for="selBase">기준 답</label><select id="selBase"><option value="0">B 답 1</option><option value="1">B 답 2</option><option value="2">B 답 3</option></select><output></output></div>
+  <div class="row" id="presetBox" role="group" aria-label="일부러 틀리게 고치기"></div>
+  <textarea class="ed" id="edTxt" spellcheck="false" aria-label="설계 B 답 원문 고치기"></textarea>
+  <div class="state" id="stEd"></div>
+  <div class="row" id="chipEd" role="group" aria-label="규칙별 결과"></div>
+  <div class="readout" id="roEd"></div>
+</div>
+<div class="qna" data-label="JSON 으로 고정하면 글이 딱딱해지지 않나요?" data-q="JSON 으로 고정하면 글이 딱딱해지지 않나요?">
+  <p><b>딱딱해지지 않습니다. 형식은 그릇이고 문장은 그 안에 자유롭게 씁니다.</b> JSON 에서 고정하는 것은 text·cites·type 이라는 칸이고, text 칸의 문장은 설계 A 와 똑같이 LLM 이 자유롭게 쓴 글입니다.</p>
+  <p>3절에서 본 렌더 결과가 그 증거입니다. 설계 B 의 답 1 의 첫 문장은 &ldquo;<span class="q4_s"></span>&rdquo; 로, 보통 보고 문장과 다르지 않습니다.</p>
+</div>
+<div class="qna" data-label="LLM 이 형식을 안 지키면 어떻게 하나요?" data-q="LLM 이 형식을 안 지키면 어떻게 하나요?">
+  <p><b>V1 에서 실패로 잡히므로, 다시 요청하거나 사람에게 넘기고 실패한 횟수를 기록합니다.</b> 이 기록에서는 설계 B 답 세 개가 모두 형식을 지켰습니다(<span class="q4_f"></span>/<span class="q4_n"></span>). 세 번의 결과라 앞으로도 지킨다고는 말할 수 없습니다.</p>
+  <p>형식을 어긴 답은 V2~V6 을 돌릴 수 없으므로, 그 답은 &lsquo;검사 못 함&rsquo;으로 따로 세어 둡니다. 실패 횟수가 쌓이면 프롬프트 틀을 고칠 근거가 됩니다(11절 기록).</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>원인 규칙이 한 일</h2>
+<p>설계 B 의 규칙 3번은 &ldquo;원인 문장은 그 원인을 가리키는 사실 번호가 목록에 있을 때만 쓰고, 없으면 type 을 &lsquo;원인 미확인&rsquo;으로 하라&rdquo;는 것입니다. 사실 목록에는 교체 시각(f7)이 있을 뿐, 그 교체가 초과를 일으켰다는 사실은 없습니다. 두 설계의 원인 표현을 견줍니다.</p>
+<div class="tbwrap"><table id="tabC" class="mt"></table></div>
+<div class="concl" id="concC"></div>
+<p>같은 기간 B03-CH2 의 하루 값은 아래와 같습니다. 교체가 든 날의 앞뒤로 Mx 가 내려가고 초과가 늘었습니다.</p>
+<div class="tbwrap"><table id="tabDay" class="mt num"></table></div>
+<p><b>시기가 맞는다는 것과 원인이라는 것은 다른 말입니다.</b> 규칙 3번이 한 일은 &lsquo;근거가 없으면 미확인이라고 말하게&rsquo; 만든 것까지이고, 교체가 실제 원인인지는 사람이 0103·0304 의 전후 비교로 확인할 일입니다.</p>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>검사기가 못 잡는 것</h2>
+<p>설계 B 의 답 2 에서 검사 규칙 V1~V5 를 모두 통과한 한 문장을 봅니다. 앞 문장과 함께 읽어 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">B 답 2 의 두 문장 (원문의 text 칸 그대로)</div>
+  <div class="llmq"><span class="qh" id="qh6a"></span><span class="qb" id="qb6a"></span></div>
+  <div class="llmq"><span class="qh" id="qh6b"></span><span class="qb" id="qb6b"></span></div>
+  <div class="tbwrap"><table id="tab6" class="mt"></table></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent2);border-radius:2px"></i>교체가 든 날 구간</span><span><i class="dot" style="background:var(--warn);border-radius:2px"></i>7일 구간</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>교체 시각</span></div>
+</div>
+<div class="concl" id="conc6"></div>
+<p>&lsquo;같은 기간&rsquo;이 앞 문장의 7일을 가리키므로, 읽는 사람은 교체가 7일에 있었다고 이해합니다. 자리 채우기로도 이 틀림은 막지 못합니다. 날짜와 시각은 번호(f7)로 정확히 들어갔고, 틀린 것은 그 시각과 &lsquo;같은 기간&rsquo;이라는 말의 연결이기 때문입니다. <b>관계(언제·어느 날·전후)는 문장 속에 숨어 있습니다.</b></p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>관계도 사실로 — V6</h2>
+<p>해법은 관계도 도구가 계산해 사실 목록에 넣는 것입니다. <b>관계 사실</b>은 사건 시각과 하루 구간 사이의 관계(어느 날에 드는가, 구간 시작과 몇 시간 차이인가)를 도구가 계산해 번호를 붙인 사실입니다. 아래 f9·f10 이 그것이고, 사건 시각 f7 과 함께 다음 표에 있습니다.</p>
+<div class="lab">
+  <div class="labtitle">교체 시각을 옮겨 보기 — 관계 사실이 함께 움직입니다</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 슬라이더를 옮겨 f9(든 날)와 f10(7일 구간 시작과의 차)이 어떻게 바뀌는지 보십시오. 2) 교체 시각이 7일 구간 안으로 들어오는 순간 f10 의 부호가 어떻게 되는지 보십시오. 3) 아래 두 문장 &ldquo;교체가 7일 구간 안에 있었다&rdquo;, &ldquo;7일 자료는 전부 교체 뒤다&rdquo;가 지금 참인지 보십시오. 4) &lsquo;실제 값으로 되돌리기&rsquo;를 누르십시오.</div>
+  <div class="ctrl"><label for="sTc">교체 시각 (1일 06:00 에서 몇 분 뒤)</label><input type="range" id="sTc" min="0" max="10074" step="6" value="6924"><output id="sTcO"></output></div>
+  <div class="row"><button class="btn ghost" id="rTc" type="button">실제 값(기록의 교체 시각)으로 되돌리기</button></div>
+  <div class="state" id="stTc"></div>
+  <div class="tbwrap"><table id="tabRel" class="mt"></table></div>
+  <canvas id="cv7"></canvas>
+  <div class="readout" id="roTc"></div>
+</div>
+<p>이제 LLM 은 관계가 필요할 때 이 번호를 인용하면 됩니다. 검사기에 규칙을 하나 더합니다.</p>
+<div class="tbwrap"><table id="tabV6" class="mt"></table></div>
+<div class="row"><button class="btn" id="bV6" type="button" aria-pressed="false">V6 켜기</button></div>
+<div class="state" id="stV6"></div>
+<div class="tbwrap"><table id="tabV6r" class="mt num"></table></div>
+<div class="concl" id="conc7"></div>
+<p><b>정직하게 말해 둘 것이 있습니다.</b> 이 기록의 답 6개는 V6 이라는 규칙도 f9·f10 이라는 사실도 알기 전에 받은 것입니다. 목록에 f9·f10 이 있었다면 LLM 이 그 번호를 인용했을지는 이 기록으로는 알 수 없고, 목록을 바꿔 다시 맡겨 봐야 압니다. V6 으로도 못 보는 것은 번호를 인용한 채 해석을 잘못 쓴 문장입니다. 그런 문장은 사람이 봅니다.</p>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 보고 구조 한 장</h2>
+<p>맨 앞의 두 물음으로 돌아갑니다.</p>
+<div class="concl" id="conc8"></div>
+<p>그래서 아침 보고는 이렇게 흘러갑니다. 오른쪽 열은 그 단계를 누가 맡는지입니다.</p>
+<div class="tbwrap"><table id="tabFlow" class="mt"></table></div>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>원인·판단 문장 승인 · V6 이 건 문장과 원인·관계 문장 확인 · 식의 뜻 확인 · 어느 자료를 어느 모델에 넣어도 되는지와 모델·정책 결정(회사 정책)</td></tr>
+  <tr><td class="rowh">규칙</td><td>V1~V6 검사 · 렌더 · 실패 문장 표시 · 프롬프트 판·사실 목록 판·답 원문·검사 결과 저장</td></tr>
+  <tr><td class="rowh">에이전트</td><td>사실 목록 만들기·프롬프트 채우기·초안 받기·검사 돌리기·렌더·사람이 볼 문장 요약</td></tr>
+</table></div>
+<ul class="termdef">
+  <li><b>사내 모델 (internal model)</b> — 회사 안 서버에서 돌고 입력이 밖으로 나가지 않는 LLM 입니다. 실제 FDC·PPA 를 넣어도 되는 것은 이것뿐입니다(회사 정책이 정합니다).</li>
+</ul>
+<p><b>사내 자료는 사외 서비스에 넣지 않습니다.</b> 이 실험실의 기록은 가상 공장의 자료라서 사외 모델로 만들 수 있었을 뿐이고, 실제 표·마스크 이력은 승인된 사내 모델과 도구에만 넣습니다. 이 구조는 에이전트 편(0401)에서 에이전트의 &lsquo;설명·보고&rsquo; 층으로 쓰입니다.</p>
+<div class="qna" data-label="사내 모델이 없으면 어떻게 하나요?" data-q="사내 모델이 없으면 어떻게 하나요?">
+  <p><b>가상 자료나 이름·수치를 지운 익명 자료로 구조만 연습하고, 실제 자료는 승인된 뒤에 넣습니다.</b> 이 실험실이 그런 경우입니다. 사실 목록의 번호와 검사기는 어느 모델 위에서든 같게 돌아갑니다.</p>
+  <p>어떤 모델이 승인되어 있는지, 입력이 저장되거나 학습에 쓰이는지는 IT·보안 부서의 정책이 정합니다. 정책을 확인하기 전에는 실제 자료를 사외 서비스에 넣지 마십시오. 승인된 사내 모델이 생기면 10절의 호출 자리만 채우면 됩니다.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>얻는 것은 보고 하나에서 사람이 읽어야 할 문장이 줄어드는 시간이고, 치르는 것은 프롬프트 틀·사실 목록·검사기를 처음 만드는 시간입니다. 작으면 작다고 적습니다. 문장 수는 이 기록 6개에서 구한 값(답 세 개의 평균)이고, 아래 세 값은 가정이니 현장 값으로 바꾸십시오.</p>
+<div class="lab">
+  <div class="labtitle">보고 하나에서 사람이 읽을 문장</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;문장 하나를 확인하는 시간&rsquo;을 올려 두 방법의 차가 어떻게 벌어지는지 보십시오. 2) &lsquo;처음 만드는 시간&rsquo;을 올려 본전을 되찾는 달 수가 어떻게 달라지는지 보십시오. 3) 4절에서 V1~V6 을 끄면 설계 B 의 읽을 문장 수가 어떻게 되는지도 보십시오.</div>
+  <div class="ctrl"><label for="sPs">문장 하나를 확인하는 시간 (분, 가정)</label><input type="range" id="sPs" min="0.5" max="3" step="0.5" value="1"><output id="sPsO"></output></div>
+  <div class="ctrl"><label for="sRn">한 달 보고 수 (건, 가정)</label><input type="range" id="sRn" min="10" max="60" step="5" value="20"><output id="sRnO"></output></div>
+  <div class="ctrl"><label for="sBd">처음 만드는 시간 (시간, 가정)</label><input type="range" id="sBd" min="2" max="40" step="2" value="8"><output id="sBdO"></output></div>
+  <div class="row"><button class="btn ghost" id="rM" type="button">세 값을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 사람 시간의 단가를 곱해 금액으로 적습니다. 설계 B 의 &lsquo;읽을 문장&rsquo;은 검사에 실패한 문장과 type 이 사실이 아닌 문장(원인·원인 미확인·권고)입니다. 답 세 개라는 작은 기록이므로 평균을 단정하지 마십시오.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 LLM 답 기록(<code>llm_runs_0411.json</code>)과 정답본 CSV 셋(<code>s15_clean_fdc_glass.csv</code> · <code>s15_clean_ppa_coef.csv</code> · <code>s15_mask_hist.csv</code>)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 정답본이 없으므로 <code>load_tables</code> 대신 0400 의 <code>run_daily</code> 가 낸 표를 받아 <code>build_facts</code> 에 넣으십시오. 사내 모델을 부르는 <code>ask_internal_model</code> 은 자리만 있고 호출하지 않습니다.</p>
+<div class="row"><a class="btn" href="../data/llm_runs_0411.json" download>llm_runs_0411.json</a><a class="btn" href="../data/csv/s15_clean_fdc_glass.csv" download>s15_clean_fdc_glass.csv</a><a class="btn" href="../data/csv/s15_clean_ppa_coef.csv" download>s15_clean_ppa_coef.csv</a><a class="btn" href="../data/csv/s15_mask_hist.csv" download>s15_mask_hist.csv</a></div>
+<pre id="pyCode">import json, math, os, re
+from datetime import datetime, timedelta
+import pandas as pd
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SLOPE = -1.975908993542295        # 열 기울기 (ppm/K, 0303 에서 구한 값)
+T_REF = 80                        # 기준 온도 (°C)
+SPEC = 5.712791                   # PPA 지표 한계 (µm, 가정)
+BASE = datetime(2026, 3, 2, 6, 0)
+KEYS = [b + "-CH" + str(c) for b in ("B02", "B03") for c in (1, 2, 3, 4)]
+EPS = 1e-9
+TOL_K = 0.5                       # 허용 오차 = 쓴 자릿수의 반 칸 (0410 과 같은 규칙)
+TYPES = ("사실", "원인", "원인 미확인", "권고")
+REL_WORDS = ("같은 기간", "같은 시기", "그 기간", "이후", "이전", "전후", "직전", "직후", "사이", "동안", "앞서", "뒤에", "전에", "후에", "구간 안", "구간 속")
+RULES = ("V1", "V2", "V3", "V4", "V5", "V6")
+SLOT = re.compile(r"\{\{([^{}]*)\}\}")
+
+# 프롬프트 틀: 사실 목록 표를 끼워 넣어 보냅니다 (A = 숫자를 직접 쓰게 함, B = 자리 채우기 + JSON)
+HEAD = "도구를 하나도 쓰지 마십시오(파일 읽기·계산·실행 금지). 아래 글만 읽고 답만 쓰십시오. 최종 보고에는 답 본문만 쓰고 다른 설명은 붙이지 마십시오.\n\n(가상 공장 자료입니다. 하루 = 그날 06:00 부터 다음 날 06:00 까지, 1일 = 2026-03-02 06:00 시작.)\n\n사실 목록 (도구가 계산한 값)\nid | 내용 | 값 | 출처\n"
+TASK = "\n위 사실 목록으로 7일 아침 보고를 네 문장으로 쓰십시오. B03-CH2 의 7일 초과 비율(초과 건수 ÷ 잰 유리 수, %)과, B03-CH2 가 7일 전체 초과에서 차지하는 몫(%)도 넣고, 원인이 있으면 함께 쓰십시오.\n"
+RULES_TXT = '''
+반드시 지킬 규칙
+1) 숫자·시각을 직접 쓰지 마십시오. 사실 목록의 값은 {{f1}} 처럼 id 로만 쓰십시오.
+2) 목록에 없는 숫자(비율·몫 등)가 필요하면 직접 계산하지 말고 {{calc: 식}} 으로 쓰십시오. 예: {{calc: (f1+f2)/2}}. 식에는 id 와 + − * / ( ) 숫자 상수만 씁니다.
+3) 원인 문장은 그 원인을 가리키는 사실 id 가 목록에 있을 때만 쓰고, cites 에 그 id 를 넣으십시오. 근거 사실이 없으면 type 을 "원인 미확인" 으로 하고 추측하지 마십시오.
+4) 출력은 아래 JSON 하나뿐이어야 합니다. 앞뒤에 다른 글, 코드 울타리(```)를 쓰지 마십시오.
+{"sentences":[{"text":"…","cites":["f1"],"type":"사실|원인|원인 미확인|권고"}]}
+'''
+TEMPLATES = {"A": HEAD + "{facts}\n" + TASK, "B": HEAD + "{facts}\n" + TASK + RULES_TXT}
+
+
+def load_runs(path):
+    """LLM 답 기록을 읽습니다. 모델 이름·날짜·프롬프트 전문·답 원문이 들어 있습니다.
+    쓰면 안 되는 때: 회사 자료로 만든 기록은 사외로 내보내지 말고, 원문을 고쳐 쓰지 마십시오(원문이 곧 증거입니다)."""
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def window(k):
+    s = BASE + timedelta(days=k - 1)
+    return s, s + timedelta(days=1)
+
+
+def wtxt(k):
+    s, e = window(k)
+    return s.strftime("%m-%d %H:%M") + " ~ " + e.strftime("%m-%d %H:%M")
+
+
+def f3(x):
+    s = f"{x:.3f}"
+    return "0.000" if s == "-0.000" else s
+
+
+def load_tables(csv_dir):
+    """S15 정답본(고장 없는 자료)에서 하루 평균 보정 후 Mx(표 1)·초과 건수(표 2)·7일에 PPA 를 잰 유리 수·마스크 교체 시각을 모읍니다.
+    쓰면 안 되는 때: 고장이 섞인 적재본에 쓰지 마십시오. 이 표는 '정답이 있는 가상 공장'에서만 만들 수 있습니다."""
+    fdc = pd.read_csv(os.path.join(csv_dir, "s15_clean_fdc_glass.csv"))
+    ppa = pd.read_csv(os.path.join(csv_dir, "s15_clean_ppa_coef.csv"))
+    fdc["key"] = fdc.block + "-" + fdc.chamber
+    mx, ex, nglass = {k: [] for k in KEYS}, {k: [] for k in KEYS}, 0
+    for k in range(1, 8):
+        s, e = (t.strftime("%Y-%m-%d %H:%M") for t in window(k))
+        a = fdc[(fdc.ts &gt;= s) &amp; (fdc.ts &lt; e)]
+        b = ppa[(ppa.ts &gt;= s) &amp; (ppa.ts &lt; e)]
+        j = a.merge(b, on="glass_id", suffixes=("", "_p"))
+        j["mx_comp"] = j.Mx - SLOPE * (j.chamber_temp - T_REF)
+        for key in KEYS:
+            g = j[j.key == key]
+            mx[key].append(float(f3(g.mx_comp.mean())))
+            ex[key].append(int((g.ppa_metric &gt; SPEC).sum()))
+        if k == 7:
+            nglass = int((j.key == "B03-CH2").sum())
+    mh = pd.read_csv(os.path.join(csv_dir, "s15_mask_hist.csv"))
+    wash = mh[mh.state == "WASH"].iloc[0]
+    return {"mx": mx, "ex": ex, "nglass": nglass, "mask_ts": wash.from_ts}
+
+
+def build_facts(tb):
+    """사실 목록 f1~f10 을 만듭니다. f1~f8 은 표에서, f9·f10 은 교체 시각과 하루 구간의 관계를 계산한 관계 사실입니다.
+    쓰면 안 되는 때: 사실 목록의 값을 LLM 에게 계산시켜 채우지 마십시오. 번호·값·단위·출처는 도구가 정합니다."""
+    mv = tb["mx"]["B03-CH2"]
+    f1, f2 = mv[6], mv[3]
+    tc = datetime.strptime(tb["mask_ts"], "%Y-%m-%d %H:%M")
+    day = int((tc - BASE).total_seconds() // 86400) + 1
+    gap = (window(7)[0] - tc).total_seconds() / 3600
+
+    def F(i, what, value, unit, source, kind, dec):
+        return {"id": i, "what": what, "value": value, "unit": unit, "source": source, "kind": kind, "dec": dec}
+    return [
+        F("f1", "B03-CH2 7일 하루 평균 보정 후 Mx", f1, "ppm", "표 1", "value", 3),
+        F("f2", "B03-CH2 4일 하루 평균 보정 후 Mx", f2, "ppm", "표 1", "value", 3),
+        F("f3", "B03-CH2 4일→7일 Mx 변화량", round(f1 - f2, 3), "ppm", "계산: f1 − f2", "value", 3),
+        F("f4", "B03-CH2 7일 PPA 지표 초과 건수", tb["ex"]["B03-CH2"][6], "건", "표 2", "value", 0),
+        F("f5", "B03-CH2 7일 잰 유리 수", tb["nglass"], "장", "표 2 집계", "value", 0),
+        F("f6", "7일 전체 챔버 초과 건수 합", sum(tb["ex"][k][6] for k in KEYS), "건", "표 2", "value", 0),
+        F("f7", "B03-CH2 마스크 교체(B03-A2 → B03-B2) 시각", tb["mask_ts"], "", "마스크 이력", "event", 0),
+        F("f8", "PPA 지표 초과 판정 기준(spec)", round(SPEC, 3), "µm", "0400 파이프라인 설정", "value", 3),
+        F("f9", "B03-CH2 마스크 교체가 든 날", day, "일", "계산: f7 이 어느 하루 구간(06:00~06:00)에 드는가", "relation", 0),
+        F("f10", "7일 구간 시작 − 교체 시각 (양수면 7일 자료는 전부 교체 뒤)", round(gap, 1), "시간", "계산: 7일 구간 시작 − f7", "relation", 1),
+    ]
+
+
+def fmt_val(f, plain=False):
+    if isinstance(f["value"], str):
+        return f["value"]
+    s = f"{f['value']:.{f['dec']}f}"
+    if float(s) == 0:
+        s = s.replace("-", "")
+    if plain or not f["unit"]:
+        return s
+    return s + ("" if len(f["unit"]) == 1 and f["unit"] in "건장일" else " ") + f["unit"]
+
+
+def make_prompt(facts, template):
+    """프롬프트 틀에 사실 목록 표를 끼웁니다. 쓰면 안 되는 때: 회사 자료가 든 사실 목록을 사외 LLM 에 보내는 곳에 쓰지 마십시오."""
+    rows = "\n".join(f"{f['id']} | {f['what']} | {fmt_val(f, True)} {f['unit']} | 출처: {f['source']}" for f in facts)
+    return template.replace("{facts}", rows)
+
+
+# --- 자리 {{…}} 와 식 ------------------------------------------------------------
+TOK = re.compile(r"\s*(?:(f\d+)|(\d+(?:\.\d+)?)|([+\-*/()]))")
+
+
+def calc_expr(expr, fb):
+    """{{calc: 식}} 의 식을 도구가 계산합니다. 허용 글자는 번호·숫자 상수·+ − * / ( ) 뿐입니다. 돌려주는 값 = (값 또는 None, 쓴 번호 목록, 오류 글)"""
+    s = expr.replace("−", "-")
+    toks, pos = [], 0
+    while pos &lt; len(s):
+        m = TOK.match(s, pos)
+        if not m:
+            if s[pos:].strip() == "":
+                break
+            return None, [], "허용하지 않는 글자"
+        toks.append(("id", m.group(1)) if m.group(1) else ("num", float(m.group(2))) if m.group(2) else ("op", m.group(3)))
+        pos = m.end()
+    if not toks:
+        return None, [], "식이 비어 있음"
+    ids, p = [], [0]
+
+    def peek():
+        return toks[p[0]] if p[0] &lt; len(toks) else None
+
+    def prim():
+        x = peek()
+        if x is None:
+            raise ValueError("식이 끝나지 않음")
+        p[0] += 1
+        if x[0] == "num":
+            return x[1]
+        if x[0] == "id":
+            f = fb.get(x[1])
+            if f is None:
+                raise ValueError("목록에 없는 번호")
+            if not isinstance(f["value"], (int, float)):
+                raise ValueError("숫자가 아님")
+            if x[1] not in ids:
+                ids.append(x[1])
+            return f["value"]
+        if x[1] == "(":
+            v = add()
+            y = peek()
+            if y is None or y[1] != ")":
+                raise ValueError("괄호가 닫히지 않음")
+            p[0] += 1
+            return v
+        if x[1] == "-":
+            return -prim()
+        raise ValueError("식 모양이 맞지 않음")
+
+    def mul():
+        v = prim()
+        while peek() and peek()[1] in ("*", "/") and peek()[0] == "op":
+            o = toks[p[0]][1]
+            p[0] += 1
+            r = prim()
+            if o == "/" and r == 0:
+                raise ValueError("0 으로 나눔")
+            v = v * r if o == "*" else v / r
+        return v
+
+    def add():
+        v = mul()
+        while peek() and peek()[1] in ("+", "-") and peek()[0] == "op":
+            o = toks[p[0]][1]
+            p[0] += 1
+            r = mul()
+            v = v + r if o == "+" else v - r
+        return v
+    try:
+        val = add()
+        if p[0] &lt; len(toks):
+            raise ValueError("식 모양이 맞지 않음")
+        if not math.isfinite(val):
+            raise ValueError("값이 유한하지 않음")
+        return val, ids, None
+    except ValueError as e:
+        return None, [], str(e)
+
+
+def slots_of(text, fb):
+    """문장 속 자리를 읽습니다. 돌려주는 값 = ([(종류, 쓴 번호들, 값, 오류)], 닫히지 않은 괄호 여부)"""
+    out = []
+    for m in SLOT.finditer(text):
+        c = m.group(1).strip()
+        if re.match(r"calc\s*:", c):
+            v, ids, err = calc_expr(re.sub(r"^calc\s*:", "", c), fb)
+            out.append(("calc", ids, v, err, m))
+        elif re.fullmatch(r"f\d+", c):
+            out.append(("fact", [c], None, None if c in fb else "목록에 없는 번호", m))
+        else:
+            out.append(("bad", [], None, "알 수 없는 자리 모양", m))
+    return out, bool(re.search(r"\{\{|\}\}", SLOT.sub("", text)))
+
+
+NAME = re.compile(r"[A-Za-z][A-Za-z0-9_]*\d[A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*")
+
+
+def nums_outside(text):
+    """V2: 자리 밖에 쓴 숫자. 챔버·마스크 이름과 '7일' 같은 날 이름만 허용합니다."""
+    s = SLOT.sub(" ", text)
+    s = NAME.sub(lambda m: " " * len(m.group(0)), s)
+    s = re.sub(r"\d+일(?:간)?", lambda m: " " * len(m.group(0)), s, flags=re.A)
+    return re.findall(r"\d+(?:[.,]\d+)*", s, flags=re.A)
+
+
+def rel_word(text):
+    return next((w for w in REL_WORDS if w in text), None)
+
+
+def parse_answer(raw):
+    """V1: 답이 약속한 JSON 꼴인가. 돌려주는 값 = (JSON 또는 None, 어긋난 이유 또는 None)"""
+    s = raw.strip()
+    if not s.startswith("{"):
+        return None, "JSON 이 아니라 보통 글"
+    try:
+        o = json.loads(s)
+    except ValueError:
+        return None, "JSON 으로 읽히지 않음"
+    if not isinstance(o, dict) or not isinstance(o.get("sentences"), list) or not o["sentences"]:
+        return None, "sentences 배열이 없음"
+    for i, x in enumerate(o["sentences"], 1):
+        if not isinstance(x, dict) or not isinstance(x.get("text"), str) or not isinstance(x.get("cites"), list) \
+                or any(not isinstance(c, str) for c in x["cites"]) or x.get("type") not in TYPES:
+            return None, f"{i}번째 문장이 text·cites·type 약속과 다름"
+    return o, None
+
+
+def validate(raw, facts, on=None, v6wide=False):
+    """검사기 V1~V6. 돌려주는 값 = {규칙: 실패 목록 또는 None(검사 안 함)}, 실패한 문장 번호(0부터).
+    쓰면 안 되는 때: 통과를 '맞음'으로 읽지 마십시오. 이 검사는 형식·번호·식·근거 달기만 봅니다(문장의 뜻과 사실 관계는 보지 않습니다)."""
+    on = on or {}
+    fb = {f["id"]: f for f in facts}
+    res = {r: ([] if on.get(r, True) else None) for r in RULES}
+    obj, why = parse_answer(raw)
+    if res["V1"] is not None and why:
+        res["V1"].append((None, why))
+    if obj is None:
+        return res, [], None
+    for si, x in enumerate(obj["sentences"]):
+        sl, openb = slots_of(x["text"], fb)
+        used = {i for s in sl for i in s[1]}
+        if res["V2"] is not None and nums_outside(x["text"]):
+            res["V2"].append((si, "자리 밖 숫자"))
+        if res["V3"] is not None:
+            res["V3"] += [(si, s[3]) for s in sl if s[3]]
+            if openb:
+                res["V3"].append((si, "닫히지 않은 자리 괄호"))
+        if res["V4"] is not None:
+            res["V4"] += [(si, i + " 가 cites 에 없음") for i in sorted(used) if i in fb and i not in x["cites"]]
+            res["V4"] += [(si, c + " 가 목록에 없음") for c in x["cites"] if c not in fb]
+            if x["type"] == "원인" and not x["cites"]:
+                res["V4"].append((si, "원인 문장인데 cites 가 비어 있음"))
+        if res["V5"] is not None and x["type"] == "원인" and not any(c in fb and fb[c]["kind"] == "event" for c in x["cites"]):
+            res["V5"].append((si, "원인 문장에 사건 사실이 없음"))
+        if res["V6"] is not None:
+            w = rel_word(x["text"])
+            has_ev = any(c in fb and fb[c]["kind"] == "event" for c in x["cites"])
+            has_rel = any(c in fb and fb[c]["kind"] == "relation" for c in x["cites"])
+            if w and (v6wide or has_ev) and not has_rel:
+                res["V6"].append((si, "시점 관계 낱말(" + w + ")에 관계 사실이 없음"))
+    bad = sorted({s for v in res.values() if v for s, _ in v if s is not None})
+    return res, bad, obj
+
+
+# --- render -----------------------------------------------------------------------
+def has_batchim(s):
+    c = s[-1]
+    if "가" &lt;= c &lt;= "힣":
+        return (ord(c) - 0xAC00) % 28 != 0
+    if c.isdigit():
+        return c in "013678"
+    return c in "lmnLMN"
+
+
+JOSA = {"이": "이가", "가": "이가", "은": "은는", "는": "은는", "을": "을를", "를": "을를"}
+
+
+def render_text(text, facts):
+    """자리를 값으로 바꿉니다. {{fN}} = 값 + 단위(뒤에 같은 단위가 이미 있으면 값만), {{calc: 식}} = 소수 첫째 자리, 자리 바로 뒤 조사(이/가·은/는·을/를)는 받침에 맞춥니다."""
+    fb = {f["id"]: f for f in facts}
+    sl, _ = slots_of(text, fb)
+    out, pos = "", 0
+    for kind, ids, val, err, m in sl:
+        out += text[pos:m.start()]
+        pos = m.end()
+        rest = text[m.end():]
+        if err:
+            out += m.group(0)
+            continue
+        if kind == "calc":
+            piece = f"{val:.1f}"
+            if float(piece) == 0:
+                piece = piece.replace("-", "")
+        else:
+            f = fb[ids[0]]
+            plain = (not f["unit"]) or rest.lstrip().startswith(f["unit"])
+            piece = fmt_val(f, plain)
+        j = re.match(r"([이가은는을를])(?=$|[\s.,;)])", rest)
+        if j:
+            pair = JOSA[j.group(1)]
+            out += piece + (pair[0] if has_batchim(piece) else pair[1])
+            pos = m.end() + 1
+        else:
+            out += piece
+    return out + text[pos:]
+
+
+def render(raw, facts):
+    obj, why = parse_answer(raw)
+    return None if obj is None else [render_text(x["text"], facts) for x in obj["sentences"]]
+
+
+# --- 설계 A: 보통 글 속 숫자를 사실 목록과 견주기 (0410 의 숫자 대조와 같은 규칙) ----------
+MASKS = [
+    (r"[A-Za-z][A-Za-z0-9_]*\d[A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*", 0),
+    (r"\d{4}-\d{2}-\d{2}", 0),
+    (r"(^|[^0-9-])(\d{2}-\d{2})(?![0-9-])", 2),
+    (r"\d{1,2}:\d{2}", 0),
+    (r"표[ \t]*\d+", 0),
+    (r"\d+[ \t]*[~∼][ \t]*\d+[ \t]*일(?:간)?", 0),
+    (r"\d+[ \t]*일(?:간)?", 0),
+    (r"\d+[ \t]*월", 0),
+    (r"\d+[ \t]*시(?!간)(?:[ \t]*\d+[ \t]*분)?", 0),
+    (r"(^|[^0-9.])(\d+\))", 2),
+]
+NUM = re.compile(r"([+\-−])?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?([ \t]*%)?", re.A)
+
+
+def extract_numbers(text):
+    """보통 글에서 숫자를 뽑습니다(날짜·시각·이름·번호는 먼저 지움). 돌려주는 값 = [(절댓값, 소수 자릿수, % 여부), ...]"""
+    s = text
+    for pat, g in MASKS:
+        s = re.sub(pat, lambda m, g=g: m.group(0)[:len(m.group(0)) - len(m.group(g))] + " " * len(m.group(g)), s, flags=re.A)
+    out = []
+    for m in NUM.finditer(s):
+        dec = len(m.group(3)) - 1 if m.group(3) else 0
+        out.append((float(m.group(2).replace(",", "") + (m.group(3) or "")), dec, bool(m.group(4))))
+    return out
+
+
+def fact_context(facts):
+    """설계 A 의 숫자 대조용 목록: 사실 목록의 숫자(cells)와 두 사실의 차·합·비·비×100(der)."""
+    nf = [f for f in facts[:8] if isinstance(f["value"], (int, float))]
+    cells = [abs(f["value"]) for f in nf]
+    der = []
+    for a in nf:
+        for b in nf:
+            if a is b:
+                continue
+            if a["id"] &lt; b["id"]:
+                der += [("diff", abs(a["value"] - b["value"])), ("sum", a["value"] + b["value"])]
+            if b["value"] != 0:
+                der += [("ratio", abs(a["value"] / b["value"])), ("pct", abs(a["value"] / b["value"]) * 100)]
+    return cells, der
+
+
+def _best(vals, v, tol):
+    b = None
+    for c in vals:
+        d = abs(v - c)
+        if d &lt;= tol and (b is None or d &lt; b - 1e-12):
+            b = d
+    return b
+
+
+def check_numbers(text, cells, der, tol_k=TOL_K):
+    """숫자마다 '있음 / 계산됨 / 근거 없음'으로 나눕니다. 돌려주는 값 = (분류, 거친 일치 여부) 목록.
+    쓰면 안 되는 때: '근거 없음'을 곧 틀림으로 읽지 마십시오. 통과도 '맞음'이 아닙니다(숫자가 엉뚱한 곳에 붙어도 통과합니다)."""
+    out = []
+    for v, dec, pct in extract_numbers(text):
+        tol = tol_k * 10 ** (-dec) + EPS
+        coarse = tol &gt;= 0.05 - 1e-12
+        cls, diff = "none", None
+        if pct:
+            bd = _best([x for f, x in der if f == "pct"], v, tol)
+            if bd is not None:
+                cls, diff = "calc", bd
+        else:
+            bc = _best(cells, v, tol)
+            if bc is not None and bc &lt;= EPS:
+                cls, diff = "has", bc
+            else:
+                bd = None
+                for fam in ("diff", "sum", "ratio"):
+                    bd = _best([x for f, x in der if f == fam], v, tol)
+                    if bd is not None:
+                        break
+                if bc is not None and bd is not None:
+                    cls, diff = ("calc", bd) if bd &lt; bc - 1e-12 else ("has", bc)
+                elif bc is not None:
+                    cls, diff = "has", bc
+                elif bd is not None:
+                    cls, diff = "calc", bd
+        out.append((cls, diff is not None and diff &gt; EPS and coarse))
+    return out
+
+
+def asked_ok(text, facts):
+    """A 답이 쓴 두 퍼센트(초과 비율 = f4÷f5, 몫 = f4÷f6)가 정답(소수 첫째 자리 반올림)과 같은가."""
+    fb = {f["id"]: f["value"] for f in facts}
+    got = [f"{v:g}" for v, d, pct in extract_numbers(text) if pct]
+    want = [f"{fb['f4'] / fb['f5'] * 100:.1f}", f"{fb['f4'] / fb['f6'] * 100:.1f}"]
+    return all(w in got for w in want)
+
+
+def split_sent(t):
+    return [s.strip() for s in re.findall(r"[\s\S]+?다\.(?=\s|$)", t)]
+
+
+def ask_internal_model(prompt):
+    """사내 모델을 부르는 자리입니다. 주소와 인증은 회사 방식으로 채우십시오(이 코드는 호출하지 않습니다).
+    쓰면 안 되는 때: 회사 자료가 든 프롬프트를 사외 서비스로 보내지 마십시오. 계정·비밀번호를 코드에 적지 말고 회사의 비밀 보관 방식을 쓰십시오."""
+    raise NotImplementedError("사내 모델 주소·인증은 회사 방식으로 채우십시오")
+
+
+def split_answers(runs):
+    """기록의 답 6개를 설계별로 가릅니다. B 는 V1~V6 으로 검사하고, A 는 V1 이 실패하므로 숫자 대조만 합니다."""
+    A = next(d for d in runs["designs"] if d["id"] == "A")
+    B = next(d for d in runs["designs"] if d["id"] == "B")
+    return A["answers"], B["answers"]
+
+
+if __name__ == "__main__":
+    runs = load_runs(os.path.join(HERE, "llm_runs_0411.json"))
+    tb = load_tables(HERE)
+    facts = build_facts(tb)
+    A, B = split_answers(runs)
+    kinds = {d["id"]: d["kind"] for d in runs["designs"]}
+    print(f"모델 {runs['model']} · 날짜 {runs['date']} · 설계 A({kinds['A']}) 답 {len(A)}개 · 설계 B({kinds['B']}) 답 {len(B)}개")
+    rec = {f["id"]: f for f in runs["facts"]}
+    same = sum(rec[f["id"]]["value"] == f["value"] and rec[f["id"]]["unit"] == f["unit"] for f in facts[:8])
+    print(f"사실 목록을 정답본에서 다시 계산 — 기록 속 f1~f8 과 같음: {same} / 8")
+    for f in facts:
+        print(f"{f['id']} · {fmt_val(f)} · {f['what']}")
+    ok_p = {d["id"]: make_prompt(facts[:8], TEMPLATES[d["id"]]) == d["prompt"] for d in runs["designs"]}
+    print("프롬프트 틀로 만든 글 = 기록의 프롬프트(글자 단위): " + " · ".join(f"설계 {k} {'예' if v else '아니오'}" for k, v in ok_p.items()))
+    print("답 · " + " · ".join(RULES))
+    answers = [(f"A-{i}", t) for i, t in enumerate(A, 1)] + [(f"B-{i}", t) for i, t in enumerate(B, 1)]
+    for name, t in answers:
+        res, bad, _ = validate(t, facts)
+        print(name + " · " + " · ".join("-" if res[r] is None or (name[0] == "A" and r != "V1") else ("통과" if not res[r] else f"실패 {len(res[r])}") for r in RULES))
+    wide = []
+    for i, t in enumerate(B, 1):
+        res, _, _ = validate(t, facts, v6wide=True)
+        wide.append(f"B-{i} {len(res['V6'])}")
+    print("V6 를 낱말만 보고 넓게 잡으면 실패 수: " + " · ".join(wide))
+    for i, t in enumerate(B, 1):
+        for k, s in enumerate(render(t, facts), 1):
+            print(f"렌더 B-{i} 문장 {k}: {s}")
+    print("설계 A 답의 숫자를 사실 목록과 견준 결과 · 숫자 · 표에 있음 · 계산됨 · 근거 없음 · 거친 일치 · 퍼센트 두 값이 정답과 같음")
+    cells, der = fact_context(facts)
+    for i, t in enumerate(A, 1):
+        r = check_numbers(t, cells, der)
+        print(f"A-{i} · {len(r)} · {sum(c == 'has' for c, _ in r)} · {sum(c == 'calc' for c, _ in r)} · {sum(c == 'none' for c, _ in r)} · {sum(l for _, l in r)} · {'예' if asked_ok(t, facts) else '아니오'}")
+    fb = {f["id"]: f for f in facts}
+    tc = datetime.strptime(fb["f7"]["value"], "%Y-%m-%d %H:%M")
+    s7, e7 = window(7)
+    s5, e5 = window(5)
+    print(f"교체 시각 {fb['f7']['value']} · 든 날 {fb['f9']['value']}일({wtxt(5)}) · 7일 구간 {wtxt(7)} · 7일 구간 안에 듦: {'예' if s7 &lt;= tc &lt; e7 else '아니오'} · 7일 구간 시작 − 교체 = {fb['f10']['value']}시간")
+    nb = [len(split_sent(t)) for t in A]
+    read, tot = [], []
+    for t in B:
+        res, bad, obj = validate(t, facts)
+        read.append(len(set(bad) | {i for i, x in enumerate(obj["sentences"]) if x["type"] != "사실"}))
+        tot.append(len(obj["sentences"]))
+    print(f"사람이 읽을 문장 수(답 셋의 평균): 설계 A {' · '.join(map(str, nb))} → {sum(nb) / 3:.1f} · 설계 B {' · '.join(map(str, read))} (전체 {' · '.join(map(str, tot))}) → {sum(read) / 3:.1f}")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">모델 claude-haiku-5-5 · 날짜 2026-11-26 · 설계 A(자유 서술) 답 3개 · 설계 B(자리 채우기 + JSON) 답 3개
+사실 목록을 정답본에서 다시 계산 — 기록 속 f1~f8 과 같음: 8 / 8
+f1 · -1.095 ppm · B03-CH2 7일 하루 평균 보정 후 Mx
+f2 · 0.963 ppm · B03-CH2 4일 하루 평균 보정 후 Mx
+f3 · -2.058 ppm · B03-CH2 4일→7일 Mx 변화량
+f4 · 17건 · B03-CH2 7일 PPA 지표 초과 건수
+f5 · 28장 · B03-CH2 7일 잰 유리 수
+f6 · 18건 · 7일 전체 챔버 초과 건수 합
+f7 · 2026-03-07 01:24 · B03-CH2 마스크 교체(B03-A2 → B03-B2) 시각
+f8 · 5.713 µm · PPA 지표 초과 판정 기준(spec)
+f9 · 5일 · B03-CH2 마스크 교체가 든 날
+f10 · 28.6 시간 · 7일 구간 시작 − 교체 시각 (양수면 7일 자료는 전부 교체 뒤)
+프롬프트 틀로 만든 글 = 기록의 프롬프트(글자 단위): 설계 A 예 · 설계 B 예
+답 · V1 · V2 · V3 · V4 · V5 · V6
+A-1 · 실패 1 · - · - · - · - · -
+A-2 · 실패 1 · - · - · - · - · -
+A-3 · 실패 1 · - · - · - · - · -
+B-1 · 통과 · 통과 · 통과 · 통과 · 통과 · 통과
+B-2 · 통과 · 통과 · 통과 · 통과 · 통과 · 실패 1
+B-3 · 통과 · 통과 · 통과 · 통과 · 통과 · 통과
+V6 를 낱말만 보고 넓게 잡으면 실패 수: B-1 0 · B-2 3 · B-3 0
+렌더 B-1 문장 1: B03-CH2의 7일 PPA 지표 초과 비율은 60.7%입니다.
+렌더 B-1 문장 2: 7일 전체 챔버 초과 건수 중 B03-CH2가 차지하는 몫은 94.4%입니다.
+렌더 B-1 문장 3: B03-CH2의 하루 평균 보정 후 Mx는 4일 0.963 ppm에서 7일 -1.095 ppm으로 바뀌어 변화량은 -2.058 ppm입니다.
+렌더 B-1 문장 4: B03-CH2의 마스크는 2026-03-07 01:24에 B03-A2에서 B03-B2로 교체되었으나, 이 교체가 초과를 일으켰다고 볼 근거는 목록에 없어 원인은 미확인입니다.
+렌더 B-2 문장 1: B03-CH2의 7일 PPA 지표 초과 판정 기준은 5.713 µm이며, 같은 기간 잰 유리 28장 가운데 17건이 이 기준을 넘었습니다.
+렌더 B-2 문장 2: B03-CH2의 7일 초과 비율은 60.7%이고, 7일 전체 챔버 초과 18건의 94.4%를 이 챔버 하나가 차지합니다.
+렌더 B-2 문장 3: 같은 기간 B03-CH2에서는 2026-03-07 01:24에 마스크가 B03-A2에서 B03-B2로 교체되었지만, 이 교체가 초과를 일으켰다고 볼 근거는 아직 확인되지 않았습니다.
+렌더 B-2 문장 4: 교체 전후 기간의 PPA 지표를 나눠 비교하면 교체가 초과와 관련이 있는지 가려낼 수 있습니다.
+렌더 B-3 문장 1: B03-CH2의 7일 하루 평균 보정 후 Mx는 -1.095 ppm이고, 4일은 0.963 ppm였으며, 4일에서 7일로 넘어가며 -2.058 ppm 변했습니다.
+렌더 B-3 문장 2: B03-CH2는 7일에 잰 유리 28장 가운데 17건이 PPA 지표 초과로 판정되어, 초과 비율은 60.7%입니다(판정 기준 5.713 µm).
+렌더 B-3 문장 3: 7일 전체 챔버의 초과 18건 중 B03-CH2가 차지하는 몫은 94.4%입니다.
+렌더 B-3 문장 4: B03-CH2는 2026-03-07 01:24에 마스크를 B03-A2에서 B03-B2로 교체했지만, 이 교체가 초과를 낳았다는 근거는 현재 사실 목록에 없어 원인은 미확인입니다.
+설계 A 답의 숫자를 사실 목록과 견준 결과 · 숫자 · 표에 있음 · 계산됨 · 근거 없음 · 거친 일치 · 퍼센트 두 값이 정답과 같음
+A-1 · 10 · 8 · 2 · 0 · 2 · 예
+A-2 · 11 · 9 · 2 · 0 · 2 · 예
+A-3 · 12 · 10 · 2 · 0 · 2 · 예
+교체 시각 2026-03-07 01:24 · 든 날 5일(03-06 06:00 ~ 03-07 06:00) · 7일 구간 03-08 06:00 ~ 03-09 06:00 · 7일 구간 안에 듦: 아니오 · 7일 구간 시작 − 교체 = 28.6시간
+사람이 읽을 문장 수(답 셋의 평균): 설계 A 4 · 4 · 4 → 4.0 · 설계 B 1 · 2 · 1 (전체 4 · 4 · 4) → 1.3</pre>
+<p class="note">&lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 더하면, 검사를 통과했다고 문장이 맞다고 읽지 마십시오(6절). 회사 자료를 사외 API 에 넣지 마십시오(8절). 사내 모델의 주소·계정·비밀번호를 코드에 적어 두지 마십시오(회사의 비밀 보관 방식을 쓰십시오). 운영 시스템에서 가져오는 표는 읽기 전용 사본에서 정해진 시각에 뽑으십시오(0400).</p>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>검사 결과 기록지</h3>
+  <dl>
+    <dt>칸 (보고 하나 = 한 줄)</dt><dd id="rp_fields"></dd>
+    <dt>이 기록의 한 줄로 채운 예 (B 답 2)</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>사실 목록 판(지문)과 프롬프트 판, 모델 이름·판·날짜를 적었는가</li>
+      <li>답 원문을 한 글자도 고치지 않고 남겼는가</li>
+      <li>V1~V6 결과와 실패한 문장을 적었는가(검사 못 한 답은 이유와 함께)</li>
+      <li>사람이 본 문장(원인·관계)과 판정을 적었는가</li>
+      <li>고친 곳과 승인자를 적었는가(고친 곳은 다음 규칙 V7 … 의 근거가 되는 원료입니다)</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>확인자 ____________ · 확인 일자 ____________ (<b>원인·판단·관계 문장은 사람이 승인한 뒤에 보고에 씁니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">다시 물으면 다른 답이 나오므로 아래를 남깁니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>프롬프트 판과 사실 목록 판</b>(바꾼 날 포함), <b>답 원문</b>.</li>
+      <li><b>검사 결과</b> — 규칙별 통과·실패와 실패한 문장.</li>
+      <li><b>사람이 고친 곳</b> — 쌓이면 다음 규칙의 근거가 됩니다.</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0400 의 <code>run_daily</code> 에서 보고까지 가는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+<h3>프롬프트 틀</h3>
+<p class="note">틀에 사실 목록 표를 끼우면 기록의 프롬프트와 글자 단위로 같은 글이 됩니다(설계 B 는 규칙 부분이 더 붙습니다).</p>
+<pre id="tplCode"></pre>
+<h3>출력 형식 (JSON 스키마)</h3>
+<pre id="schemaCode"></pre>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0410-llm-strengths-limits.html">← 이전: LLM이 잘하는 것과 틀리는 것</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/llm_runs_0410.js"></script>
+<script src="../data/llmcheck.js"></script>
+<script src="../data/llm_runs_0411.js"></script>
+<script src="../data/llmverify.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var V=LlmVerify,L=LlmCheck,MS=MfgSim,TL=MS.s15tools,FACTS=V.facts,RL=V.rules,TC0=V.tc0,BASE=V.base;
+var ON0={V1:true,V2:true,V3:true,V4:true,V5:true,V6:false};
+var DEF={ps:1,rn:20,bd:8};
+function copyOn(o){var r={};Object.keys(o).forEach(function(k){r[k]=o[k];});return r;}
+var ST={a:0,b:0,sel:0,on:copyOn(ON0),tc:TC0,base:0,ed:V.answersB[0],ps:DEF.ps,rn:DEF.rn,bd:DEF.bd};
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return v!=null&&isFinite(v)?v.toFixed(d):'—';}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function yn(b){return b?'예':'아니오';}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?cls[i](c):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function fitFont(x,txt,maxW,px,minPx,weight){var s=px;x.font=(weight||'')+' '+s+'px sans-serif';while(s>minPx&&x.measureText(txt).width>maxW){s--;x.font=(weight||'')+' '+s+'px sans-serif';}return s;}
+function L_(){return 'l';}
+function mean(a){var s=0;a.forEach(function(v){s+=v;});return a.length?s/a.length:0;}
+function relTs(tc){return V.relFacts(tc).f7.value;}
+
+var KEYS=L.keys,CI=KEYS.indexOf('B03-CH2'),FB={};FACTS.forEach(function(f){FB[f.id]=f;});
+var NAMES=['A 답 1','A 답 2','A 답 3','B 답 1','B 답 2','B 답 3'];
+function fv(f){return V.fmtVal(f);}
+
+/* ---- 고정 값 ---- */
+setAll('v_model',V.meta.model);setAll('v_date',V.meta.date);
+setAll('v_ns',String(Math.round(mean(V.readCounts(ST.on).A))));
+
+/* ---- 1절 ---- */
+function upd1(){
+  var fc=V.factsCheck(),ok=0;
+  var rows=fc.map(function(r,i){var f=FB[r.id];if(r.ok)ok++;
+    var rec=typeof r.rec==='string'?r.rec:V.fmtVal({value:r.rec,unit:r.unit,dec:f.dec});
+    return [r.id,esc(r.what),fv(f),rec,r.ok?'일치':'불일치',esc(f.source)];});
+  tbl('tabF',['번호','내용','다시 계산한 값','프롬프트 속 값','일치','출처'],rows,[null,L_,null,null,function(c){return c==='일치'?'good':'hit';},L_]);
+  var st=$('stF');st.className=ok===fc.length?'state':'state moved';
+  st.textContent='이 페이지가 정답본에서 다시 계산한 값과 프롬프트에 적힌 값을 견준 결과: '+ok+' / '+fc.length+'줄 일치';
+  $('askQ').textContent=V.pTask.trim();
+  var D=V.designs;
+  tbl('tabD',['설계','이름','맡기는 법','답 수'],[
+    ['A',esc(D[0].kind),'사실 목록을 보고 네 문장으로 쓰게 합니다. 숫자를 직접 써도 됩니다.',D[0].answers.length+'개'],
+    ['B',esc(D[1].kind),'숫자·시각은 <code>{{f1}}</code> 처럼 번호로만, 계산은 <code>{{calc: 식}}</code> 으로, 원인은 근거 번호가 있을 때만 쓰게 하고, 답은 JSON 하나로만 내게 합니다.',D[1].answers.length+'개']
+  ],[null,null,L_]);
+  var pc=V.promptCheck(),s=$('stP');s.className=pc.every(function(x){return x.ok;})?'state':'state moved';
+  s.textContent='프롬프트 틀에 사실 목록 표를 끼워 만든 글과 기록의 프롬프트를 글자 단위로 견준 결과: '+pc.map(function(x){return '설계 '+x.id+' '+(x.ok?'일치':'불일치');}).join(' · ');
+}
+/* ---- 2절 ---- */
+function colorize(text,r){var out='',pos=0;r.nums.forEach(function(x){out+=esc(text.slice(pos,x.start));out+='<span class="nm '+x.cls+(x.loose?' loose':'')+'" title="'+esc(x.label||'사실 목록에 근거가 없음')+'">'+esc(text.slice(x.start,x.end))+'</span>';pos=x.end;});return out+esc(text.slice(pos));}
+function evText(m){var e=m.ev,ts=V.mask.ts;
+  if(m.id==='a1')return '7일 구간 '+e.w7+' · 교체 '+ts+' 는 7일 구간 안인가: <b>'+yn(e.in7)+'</b> · 5일 구간 '+e.w5+' 안인가: <b>'+yn(e.in5)+'</b>';
+  if(m.id==='a2')return '인용한 5일 구간이 계산한 구간 '+e.w5+' 과 같은가: <b>'+yn(e.quoteHasW5)+'</b> · 7일 구간 시작이 교체보다 <b>'+fmt(e.f10,1)+'시간</b> 늦음(7일 자료는 전부 교체 뒤: <b>'+yn(e.all7After)+'</b>)';
+  if(m.id==='a3')return '4일 구간 끝 '+e.endDay4+' ≤ 교체 '+ts+' &lt; 7일 구간 시작 '+e.startDay7+' : <b>'+yn(e.between)+'</b>';
+  return '앞 문장이 7일을 말함: <b>'+yn(e.prevMentions7)+'</b> · 교체가 7일 구간 안인가: <b>'+yn(e.in7)+'</b> · 5일 구간 안인가: <b>'+yn(e.in5)+'</b>';}
+function markCls(c){return c==='틀림'?'hit':(c==='맞음'?'good':'');}
+function upd2(){
+  var a=ST.a,t=V.answersA[a],r=V.checkA(t,0.5),ak=V.askedOf(t),c=r.counts;
+  $('qhA').textContent='설계 A · 답 '+(a+1)+' · 모델 '+V.meta.model+' · '+V.meta.date;$('qbA').innerHTML=colorize(t,r);
+  $('roA').innerHTML='숫자 <b>'+c.n+'개</b> = 사실 목록에 있음 <b>'+c.has+'</b> · 계산됨 <b>'+c.calc+'</b> · 근거 없음 <b>'+c.none+'</b> (거친 일치 '+c.loose+'). 질문한 두 퍼센트: '+ak.map(function(x){return esc(x.name)+' = '+x.want+' → 답이 쓴 값과 같은가 <b>'+yn(x.ok)+'</b>';}).join(' · ');
+  Array.prototype.forEach.call(document.querySelectorAll('.ansa'),function(b){b.setAttribute('aria-pressed',String(+b.getAttribute('data-a')===a));});
+  var rows=[],tn=0,tno=0,okk=0,tk=0;
+  V.answersA.forEach(function(x,i){var rr=V.checkA(x,0.5).counts,k=V.askedOf(x);tn+=rr.n;tno+=rr.none;k.forEach(function(q){tk++;if(q.ok)okk++;});
+    rows.push(['A 답 '+(i+1),String(rr.n),String(rr.has),String(rr.calc),String(rr.none),String(rr.loose),k.filter(function(q){return q.ok;}).length+' / '+k.length]);});
+  tbl('tabA',['답','숫자','있음','계산됨','근거 없음','거친 일치','두 퍼센트 정답'],rows,[null,null,null,null,function(c){return +c>0?'hit':'good';},null,null]);
+  $('concA').innerHTML='<b>세 답의 숫자 '+tn+'개 가운데 근거 없음은 '+tno+'개였고, 질문한 두 퍼센트는 '+okk+' / '+tk+'개가 정답과 같았습니다.</b> 숫자만 보면 잘 맡긴 것입니다. 거친 일치는 소수 첫째 자리로 반올림해 쓴 퍼센트('+fmt(FB.f4.value/FB.f5.value*100,3)+' → '+fmt(FB.f4.value/FB.f5.value*100,1)+')이고, 계산 목록의 값과 반 칸 안에서 맞았다는 뜻입니다.';
+  var mk=V.marks().filter(function(m){return m.d==='A';});
+  tbl('tabAM',['답','사람이 읽은 대목 (원문 그대로)','표지','이 페이지가 계산한 근거'],mk.map(function(m){return ['A 답 '+m.ai,'<span class="qs">'+esc(m.quote)+'</span>'+(m.found?'':' (답 원문에서 찾지 못함)'),m.mark,evText(m)];}),[null,L_,markCls,L_]);
+}
+/* ---- 3절 ---- */
+var SLOTRE=/\{\{[^{}]*\}\}/g;
+function hiSlots(t){return esc(t).replace(/\{\{[^{}]*\}\}/g,function(m){return '<span class="slot">'+m+'</span>';});}
+function calcRows(){var out=[];
+  var want={'f4/f5*100':FB.f4.value/FB.f5.value*100,'f4/f6*100':FB.f4.value/FB.f6.value*100};
+  V.answersB.forEach(function(t,bi){var p=V.parseAnswer(t);(p.obj?p.obj.sentences:[]).forEach(function(x,si){V.slotsOf(x.text,FB).forEach(function(o){if(o.kind!=='calc')return;
+    var expr=o.raw.replace(/^\{\{\s*calc\s*:\s*/,'').replace(/\}\}$/,'').trim(),w=want[expr.replace(/\s+/g,'')],used=V.fmtCalc(o.val),ans=w==null?null:V.fmtCalc(w);
+    out.push({b:bi+1,s:si+1,expr:expr,val:o.val,used:used,want:ans,ok:ans!=null&&ans===used});});});});
+  return out;}
+function upd3(){
+  var b=ST.b,t=V.answersB[b],p=V.parseAnswer(t),rend=V.render(t)||[];
+  tbl('tabR',['자리 모양','도구가 하는 일','값을 만드는 규칙'],[
+    ['<code>{{f1}}</code>','사실 목록 f1 의 값을 넣습니다','숫자는 목록에 정해 둔 소수 자릿수로 쓰고 단위(ppm·µm·건·장)를 붙입니다. 바로 뒤에 같은 단위가 이미 있으면 값만 넣습니다.'],
+    ['<code>{{calc: 식}}</code>','번호·숫자 상수·<code>+ − * / ( )</code> 로 된 식을 계산해 넣습니다','결과는 소수 첫째 자리까지 쓰고, 허용하지 않는 글자가 있거나 목록에 없는 번호를 쓰면 계산하지 않고 검사기에 실패로 알립니다.'],
+    ['자리 바로 뒤 조사','값의 받침에 맞춥니다','이/가 · 은/는 · 을/를 만 맞추고, 다른 어색함은 고치지 않고 그대로 둡니다.']
+  ],[null,L_,L_]);
+  var rows=(p.obj?p.obj.sentences:[]).map(function(x,i){return [String(i+1),esc(x.type),esc(x.cites.join(' '))||'—','<span class="qs" style="margin:0">'+hiSlots(x.text)+'</span>',esc(rend[i]?rend[i].text:'')];});
+  tbl('tabB',['문장','type','cites','자리가 있는 문장 (원문 text 칸)','렌더 결과'],rows,[null,null,null,L_,L_]);
+  var cr=calcRows(),okn=cr.filter(function(x){return x.ok;}).length;
+  tbl('tabCalc',['답·문장','식','도구가 계산한 값','렌더에 쓴 값','정답(같은 식의 반올림)','일치'],cr.map(function(x){return ['B 답 '+x.b+' · 문장 '+x.s,'<code>'+esc(x.expr)+'</code>',fmt(x.val,3),x.used,x.want==null?'—':x.want,x.ok?'일치':'불일치'];}),[null,null,null,null,null,function(c){return c==='일치'?'good':'hit';}]);
+  setAll('q3_n',String(cr.length));setAll('q3_ok',String(okn));
+  var rt=rend.map(function(x){return x.text;}).join(' ');
+  $('qhBA').textContent='설계 A · 답 '+(b+1)+' · 원문';$('qbBA').textContent=V.answersA[b];
+  $('qhB').textContent='설계 B · 답 '+(b+1)+' · 자리를 값으로 바꾼 글(문장의 text 를 이어 붙임)';$('qbB').textContent=rt;
+  $('qhBR').textContent='설계 B · 답 '+(b+1)+' · 모델 '+V.meta.model+' · '+V.meta.date;$('qbBR').textContent=t;
+  var cc=V.checkA(rt,0.5).counts;
+  $('roB').innerHTML='렌더한 B 글의 숫자 <b>'+cc.n+'개</b>를 사실 목록과 견준 결과: 있음 <b>'+cc.has+'</b> · 계산됨 <b>'+cc.calc+'</b> · 근거 없음 <b>'+cc.none+'</b>. 설계 A 같은 번호의 답은 숫자 '+V.checkA(V.answersA[b],0.5).counts.n+'개입니다.';
+  Array.prototype.forEach.call(document.querySelectorAll('.ansb'),function(x){x.setAttribute('aria-pressed',String(+x.getAttribute('data-a')===b));});
+  var r1=V.render(V.answersB[0]);setAll('q4_s',r1?r1[0].text:'');
+}
+/* ---- 4절 ---- */
+function ruleLabel(r){return r.id+' '+r.name;}
+function buildRuleBox(){
+  $('ruleBox').innerHTML=RL.map(function(r){return '<button class="btn rulebtn" data-r="'+r.id+'" type="button" aria-pressed="true">'+ruleLabel(r)+'</button>';}).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('.rulebtn'),function(b){b.addEventListener('click',function(){ST.on[b.getAttribute('data-r')]=!ST.on[b.getAttribute('data-r')];updRules();});});
+  tbl('tabS',['칸','뜻','올 수 있는 값'],[
+    ['sentences','보고 문장들의 배열(답 전체가 이 칸 하나를 가진 JSON)','문장 객체의 배열, 1개 이상'],
+    ['text','문장 한 줄. 숫자 자리는 <code>{{fN}}</code>·<code>{{calc: 식}}</code>','글'],
+    ['cites','이 문장이 기대는 사실 번호들(근거 인용)','사실 목록에 있는 번호의 배열(비어 있을 수 있음)'],
+    ['type','문장의 종류','<code>'+V.types.join('</code> · <code>')+'</code> 중 하나']
+  ],[null,L_,L_]);
+  tbl('tabV',['규칙','이름','무엇을 확인하는가'],RL.filter(function(r){return r.id!=='V6';}).map(function(r){return [r.id,r.name,esc(r.desc)];}),[null,null,L_]);
+}
+function cellState(rr){if(!rr.on)return {t:'꺼짐',k:'off'};if(!rr.ran)return {t:'검사 안 함',k:'off'};if(rr.ok)return {t:'통과',k:'ok'};return {t:'실패 '+rr.fails.length,k:'bad'};}
+function updRuleBtns(){Array.prototype.forEach.call(document.querySelectorAll('.rulebtn'),function(b){b.setAttribute('aria-pressed',String(!!ST.on[b.getAttribute('data-r')]));});
+  $('bV6').setAttribute('aria-pressed',String(!!ST.on.V6));$('bV6').textContent=ST.on.V6?'V6 끄기':'V6 켜기';}
+function updRules(){
+  updRuleBtns();var res=V.runAll(ST.on),sel=res[ST.sel];
+  var nOn=RL.filter(function(r){return ST.on[r.id];}).length,fa=0,na=0,pb=0;
+  res.forEach(function(r){var ran=RL.some(function(x){return r.v.rules[x.id].ran;});
+    if(r.d==='A'){if(r.v.rules.V1.ok===false)fa++;else if(!ran)na++;}else if(r.v.pass&&ran)pb++;});
+  $('stRule').className=nOn===RL.length||nOn===5?'state':'state moved';
+  $('stRule').textContent=(ST.on.V1&&ST.on.V2&&ST.on.V3&&ST.on.V4&&ST.on.V5&&!ST.on.V6)?'지금은 처음 상태(V1~V5 켬, V6 끔)입니다.':'지금은 처음 상태와 다릅니다. 켠 규칙 '+nOn+'개: '+RL.filter(function(r){return ST.on[r.id];}).map(function(r){return r.id;}).join(' ')+'.';
+  $('roRule').innerHTML='설계 A: V1 에서 실패 <b>'+fa+'</b> / 3, 검사할 규칙이 없어 검사 안 함 <b>'+na+'</b> / 3 · 설계 B: 켠 규칙을 모두 통과 <b>'+pb+'</b> / 3';
+  drawRules(res);
+  var rows=RL.map(function(r){var rr=sel.v.rules[r.id],cs=cellState(rr),why=rr.fails.map(function(f){return (f.s==null?'':'문장 '+(f.s+1)+': ')+esc(f.msg);}).join('<br>');
+    if(cs.k==='off'&&rr.on)why='JSON 으로 읽을 수 없어 이 규칙을 돌릴 수 없습니다';
+    return [ruleLabel(r),cs.t,why||'—'];});
+  tbl('tabRule',['규칙 ('+NAMES[ST.sel]+')','결과','이유'],rows,[null,function(c){return /^통과/.test(c)?'good':(/^실패/.test(c)?'hit':'dim');},L_]);
+  var d=V.runAll(ON0),a1=d.filter(function(r){return r.d==='A';}).filter(function(r){return r.v.rules.V1.ok===false;}).length,b5=d.filter(function(r){return r.d==='B'&&r.v.pass;}).length;
+  $('conc4').innerHTML='<b>설계 A 의 세 답은 V1 에서 '+a1+' / 3 이 실패했고(JSON 이 아닌 보통 글), 설계 B 의 세 답은 V1~V5 를 '+b5+' / 3 이 통과했습니다.</b> 통과는 형식·번호·식·근거 달기가 약속대로라는 뜻일 뿐, 문장이 맞다는 뜻이 아닙니다(6절).';
+  updAll9();
+}
+function drawRules(res){
+  var cv=$('cv4'),W=cv.clientWidth||320,lw=Math.min(78,W*0.2),hh=30,rh=34,H=hh+rh*6+8,c=setup(cv,H),x=c.x,cw=(W-lw-4)/6,i,j;
+  x.clearRect(0,0,W,H);var ink=css('--ink'),soft=css('--soft'),good=css('--good'),bad=css('--bad'),grey=css('--grey'),acc=css('--accent'),card=css('--card');
+  x.textAlign='center';RL.forEach(function(r,k){fitFont(x,r.id,cw-4,13,11,'bold');x.fillStyle=ST.on[r.id]?ink:soft;x.fillText(r.id,lw+k*cw+cw/2,hh-10);});
+  cv._rows={top:hh,rh:rh,n:6};
+  res.forEach(function(r,i2){var y=hh+i2*rh;
+    x.textAlign='left';fitFont(x,NAMES[i2],lw-8,13,11,'bold');x.fillStyle=ink;x.fillText(NAMES[i2],4,y+rh/2+4);
+    RL.forEach(function(ru,k){var cs=cellState(r.v.rules[ru.id]),px=lw+k*cw+2,col=cs.k==='ok'?good:(cs.k==='bad'?bad:grey);
+      x.globalAlpha=cs.k==='off'?0.22:0.9;x.fillStyle=col;x.fillRect(px,y+3,cw-4,rh-6);x.globalAlpha=1;
+      var tt=(cs.t==='검사 안 함'&&cw<64)?'—':cs.t;x.textAlign='center';fitFont(x,tt,cw-8,12,11,'bold');x.fillStyle=cs.k==='off'?soft:'#ffffff';x.fillText(tt,px+(cw-4)/2,y+rh/2+4);});
+    if(i2===ST.sel){x.strokeStyle=acc;x.lineWidth=2.5;x.strokeRect(1,y+1,W-2,rh-2);}});
+  x.textAlign='left';
+}
+/* ---- 4절: 직접 고쳐 넣기 ---- */
+var PRESETS=[
+ ['자리 밖에 숫자 쓰기',function(t){return t.replace(/\{\{calc:[^}]*\}\}/,'60.7');}],
+ ['없는 번호 쓰기',function(t){return t.replace(/\{\{f\d+\}\}/,'{{f11}}');}],
+ ['식에 다른 글자 넣기',function(t){return t.replace(/\{\{calc:[^}]*\}\}/,'{{calc: f4/f5*sqrt(100)}}');}],
+ ['cites 에서 번호 하나 지우기',function(t){return t.replace(/"cites":\["[^"]*",?/,'"cites":[');}],
+ ['사실 문장을 원인으로 바꾸기',function(t){return t.replace('"type":"사실"','"type":"원인"');}],
+ ['앞뒤에 코드 울타리 붙이기',function(t){return '```json\n'+t+'\n```';}]
+];
+function buildPresets(){
+  $('presetBox').innerHTML=PRESETS.map(function(p,i){return '<button class="btn pre" data-i="'+i+'" type="button">'+p[0]+'</button>';}).join('')+'<button class="btn ghost" id="rEd" type="button">기록 원문으로 되돌리기</button>';
+  Array.prototype.forEach.call(document.querySelectorAll('.pre'),function(b){b.addEventListener('click',function(){ST.ed=PRESETS[+b.getAttribute('data-i')][1](V.answersB[ST.base]);updEd();});});
+  $('rEd').addEventListener('click',function(){ST.ed=V.answersB[ST.base];updEd();});
+}
+function updEd(){
+  var tx=$('edTxt');if(tx.value!==ST.ed)tx.value=ST.ed;
+  var orig=V.answersB[ST.base],same=ST.ed===orig,v=V.validate(ST.ed,FACTS,{on:ST.on});
+  var st=$('stEd');st.className=same?'state':'state moved';
+  st.textContent=same?'지금 글은 B 답 '+(ST.base+1)+' 의 기록 원문 그대로입니다.':'지금 글은 기록 원문에서 고친 것입니다(글자 수 '+orig.length+' → '+ST.ed.length+'). 위의 되돌리기 단추로 원문으로 돌아갑니다.';
+  $('chipEd').innerHTML=RL.map(function(r){var rr=v.rules[r.id],cs=cellState(rr);return '<span class="rc '+cs.k+'">'+r.id+' '+esc(r.name)+' · '+cs.t+'</span>';}).join('');
+  var lines=[];RL.forEach(function(r){v.rules[r.id].fails.forEach(function(f){lines.push(r.id+(f.s==null?'':' · 문장 '+(f.s+1))+': '+esc(f.msg));});});
+  var rr=V.render(ST.ed),rd=rr?'<br>렌더 결과: '+rr.map(function(x,i){return (i+1)+') '+esc(x.text);}).join(' '):'';
+  $('roEd').innerHTML=(lines.length?'걸린 곳 '+lines.length+'건<br>'+lines.join('<br>'):'걸린 곳이 없습니다(켠 규칙 기준).')+rd;
+}
+/* ---- 5절 ---- */
+function upd5(){
+  var ca=V.causeA(),ct=V.causeTypes(),rows=[];
+  ca.forEach(function(c){rows.push(['A 답 '+c.ai,'<span class="qs">…'+esc(c.quote)+'…</span>',(c.holds?'인과는 확정되지 않았다고 유보했지만, 원인 쪽으로 기울어 쓴 표현':'원인을 확정해 쓴 표현'),'type 칸이 없어 기계는 어느 문장이 원인 주장인지 알 수 없습니다']);});
+  ct.forEach(function(c,i){var oc=c['원인 미확인']||0,ok=c['원인']||0,s=V.render(V.answersB[i]),un=V.parseAnswer(V.answersB[i]).obj.sentences.map(function(x,k){return x.type==='원인 미확인'?s[k].text:null;}).filter(Boolean)[0];
+    rows.push(['B 답 '+(i+1),'<span class="qs">'+esc(un||'')+'</span>','type 분포: '+Object.keys(c).map(function(k){return esc(k)+' '+c[k];}).join(' · ')+' (원인 '+ok+'문장)','기계가 type 으로 분류할 수 있고, 원인 미확인 문장은 사람이 봅니다']);});
+  tbl('tabC',['답','원인을 말한 대목 (렌더 결과 또는 원문)','읽는 법','기계가 할 수 있는 일'],rows,[null,L_,L_,L_]);
+  var un3=ct.filter(function(c){return (c['원인 미확인']||0)>=1;}).length,or0=ct.reduce(function(s,c){return s+(c['원인']||0);},0);
+  $('concC').innerHTML='<b>설계 B 의 세 답은 모두('+un3+' / 3) 원인 문장을 type &lsquo;원인 미확인&rsquo;으로 썼고, type &lsquo;원인&rsquo;으로 쓴 문장은 '+or0+'개였습니다.</b> 설계 A 의 세 답은 모두 인과는 유보하면서 원인 쪽으로 기울어 썼고, 기계는 이를 분류할 수 없었습니다. 규칙 3번이 &lsquo;근거가 없으면 미확인&rsquo;을 말하게 만든 것입니다.';
+  var hd=['항목','1일','2일','3일','4일','5일','6일','7일'],cls=[null],k;for(k=0;k<7;k++)cls.push(null);
+  var mk=['교체'].concat([1,2,3,4,5,6,7].map(function(d){return d===V.mask.day?'교체가 든 날':'';}));
+  tbl('tabDay',hd,[['보정 후 Mx (ppm)'].concat(L.mxs[CI].map(function(s){return s.replace('-','−');})),['초과 건수 (건)'].concat(L.ex[CI].map(String)),mk],cls);
+}
+/* ---- 타임라인 (6·7절) ---- */
+function drawTL(cv,tc){
+  var W=cv.clientWidth||320,H=170,c=setup(cv,H),x=c.x,pad=10,span=7*1440,w7=V.win(7),day=Math.floor((tc-BASE)/1440)+1;
+  function X(m){return pad+(m-BASE)/span*(W-2*pad);}
+  x.clearRect(0,0,W,H);var ink=css('--ink'),soft=css('--soft'),track=css('--track'),acc=css('--accent2'),warn=css('--warn'),bad=css('--bad'),rule=css('--rule');
+  x.font='12px sans-serif';x.fillStyle=soft;x.textAlign='left';x.fillText(V.win(1).ss.slice(5),pad,16);x.textAlign='right';x.fillText(V.win(7).es.slice(5),W-pad,16);x.textAlign='center';x.fillText('하루 구간 = 06:00 ~ 다음 날 06:00',W/2,16);
+  var y0=28,bh=44;
+  for(var k=1;k<=7;k++){var w=V.win(k),x1=X(w.s),x2=X(w.e);
+    x.fillStyle=k===day?acc:track;x.globalAlpha=k===day?0.55:0.8;x.fillRect(x1+1,y0,x2-x1-2,bh);x.globalAlpha=1;
+    if(k===7){x.strokeStyle=warn;x.lineWidth=2.5;x.strokeRect(x1+1.5,y0+1.5,x2-x1-3,bh-3);}
+    x.textAlign='center';fitFont(x,k+'일',x2-x1-4,14,11,'bold');x.fillStyle=ink;x.fillText(k+'일',(x1+x2)/2,y0+bh/2+5);}
+  var mx=X(tc);x.strokeStyle=bad;x.lineWidth=2.5;x.beginPath();x.moveTo(mx,y0-6);x.lineTo(mx,y0+bh+14);x.stroke();
+  var lab='교체 '+relTs(tc).slice(5);fitFont(x,lab,W-8,13,11,'bold');var lw=x.measureText(lab).width,lx=Math.max(4+lw/2,Math.min(W-4-lw/2,mx));x.textAlign='center';x.fillStyle=bad;x.fillText(lab,lx,y0+bh+30);
+  var gh=(w7.s-tc)/60,txt=gh>0?'7일 구간 시작까지 '+fmt(gh,1)+'시간':'7일 구간 안 — 시작에서 '+fmt(-gh,1)+'시간 뒤';
+  var gx1=X(Math.min(tc,w7.s)),gx2=X(Math.max(tc,w7.s)),gy=y0+bh+46;x.strokeStyle=warn;x.lineWidth=2;x.beginPath();x.moveTo(gx1,gy);x.lineTo(gx2,gy);x.stroke();
+  x.beginPath();x.moveTo(gx1,gy-4);x.lineTo(gx1,gy+4);x.moveTo(gx2,gy-4);x.lineTo(gx2,gy+4);x.stroke();
+  fitFont(x,txt,W-8,13,11,'bold');var tw=x.measureText(txt).width,tx=Math.max(4+tw/2,Math.min(W-4-tw/2,(gx1+gx2)/2));x.fillStyle=warn;x.fillText(txt,tx,gy+20);
+  x.textAlign='left';
+}
+/* ---- 6절 ---- */
+function upd6(){
+  var p=V.parseAnswer(V.answersB[1]).obj,mk=V.marks().filter(function(m){return m.id==='b2';})[0],ix=mk.ev.idx-1;
+  $('qh6a').textContent='B 답 2 · 문장 '+ix+' · type '+p.sentences[ix-1].type+' · cites '+p.sentences[ix-1].cites.join(' ');$('qb6a').textContent=p.sentences[ix-1].text;
+  $('qh6b').textContent='B 답 2 · 문장 '+(ix+1)+' · type '+p.sentences[ix].type+' · cites '+p.sentences[ix].cites.join(' ');$('qb6b').textContent=p.sentences[ix].text;
+  var all=copyOn({V1:true,V2:true,V3:true,V4:true,V5:true,V6:true}),v=V.validate(V.answersB[1],FACTS,{on:all});
+  tbl('tab6',['규칙','B 답 2 의 결과'],RL.map(function(r){var rr=v.rules[r.id],cs=cellState(rr);return [ruleLabel(r)+(r.id==='V6'?' (제안, 7절)':''),cs.t+(rr.fails.length?' — 문장 '+rr.fails.map(function(f){return f.s+1;}).join(', '):'')];}),[null,function(c){return /^통과/.test(c)?'good':'hit';}]);
+  var st=$('st6');st.className='state moved';st.innerHTML='사람이 붙인 표지: <b>'+mk.mark+'</b> ('+esc(mk.kind)+') · '+evText(mk);
+  var w5=V.win(V.mask.day),w7=V.win(7);
+  $('conc6').innerHTML='<b>이 문장은 V1~V5 를 모두 통과했지만 사람이 읽으면 틀렸습니다.</b> 교체는 '+V.mask.day+'일 구간('+w5.short+')에 있었고, 7일 구간은 '+w7.short+' 입니다.';
+  drawTL($('cv6'),TC0);
+}
+/* ---- 7절 ---- */
+function upd7(){
+  var tc=ST.tc,rf=V.relFacts(tc),f7=rf.f7,f9=rf.f9,f10=rf.f10,same=tc===TC0;
+  $('sTc').value=String(tc-BASE);$('sTcO').textContent=f7.value.slice(5);
+  var st=$('stTc');st.className=same?'state':'state moved';
+  st.textContent=same?'지금 이 값이 실제 값입니다(기록의 교체 시각 '+TC0v()+').':'지금은 실제 교체 시각 '+TC0v()+' 에서 '+fmt(Math.abs(tc-TC0)/60,1)+'시간 '+(tc>TC0?'뒤로':'앞으로')+' 옮겨 놓은 가정입니다. 아래 되돌리기 단추로 돌아갑니다.';
+  tbl('tabRel',['번호','내용','값','출처'],[f7,f9,f10].map(function(f){return [f.id,esc(f.what),V.fmtVal(f),esc(f.source)];}),[null,L_,null,L_]);
+  var in7=V.inWin(tc,7),after=tc<V.win(7).s;
+  $('roTc').innerHTML='문장 &ldquo;교체가 7일 구간 안에 있었다&rdquo; 는 지금 <b>'+(in7?'참':'거짓')+'</b> · 문장 &ldquo;7일 자료는 전부 교체 뒤다&rdquo; 는 지금 <b>'+(after?'참':'거짓')+'</b> · f9 = '+V.fmtVal(f9)+' · f10 = '+V.fmtVal(f10);
+  drawTL($('cv7'),tc);
+}
+function TC0v(){return V.relFacts(TC0).f7.value;}
+function upd7b(){
+  tbl('tabV6',['규칙','무엇을 확인하는가','왜 이렇게 정했는가'],[[ 'V6 시점 관계 근거 (제안)','사건 사실(시각을 값으로 가진 사실)을 인용한 문장에 시점 관계 낱말이 있으면 관계 사실(f9·f10 같은 것)도 인용했는가','시점 관계 낱말: '+V.relWords.join(' · ')+'. 사건과 상관없는 문장은 낱말만으로 걸지 않습니다(헛경보를 줄이기 위해).']],[null,L_,L_]);
+  var on=copyOn({V1:true,V2:true,V3:true,V4:true,V5:true,V6:true}),rn=V.runAll(on,false),rw=V.runAll(on,true),rows=[],nb=0,nw=0;
+  [0,1,2].forEach(function(i){var a=rn[3+i].v.rules.V6.fails,w=rw[3+i].v.rules.V6.fails;nb+=a.length;nw+=w.length;
+    rows.push(['B 답 '+(i+1),a.length?'실패 '+a.length+' (문장 '+a.map(function(f){return f.s+1;}).join(', ')+')':'통과',w.length?'실패 '+w.length+' (문장 '+w.map(function(f){return f.s+1;}).join(', ')+')':'통과']);});
+  tbl('tabV6r',['답','V6 (사건을 인용한 문장만)','낱말만 보고 넓게 잡으면'],rows,[null,function(c){return /^통과/.test(c)?'good':'hit';},function(c){return /^통과/.test(c)?'good':'warn';}]);
+  var s=$('stV6');s.className=ST.on.V6?'state moved':'state';s.textContent=ST.on.V6?'V6 을 켰습니다. 4절의 표에서 설계 B 답 2 의 V6 칸이 빨갛게 바뀝니다.':'V6 은 꺼져 있습니다(처음 상태). 4절의 표에서는 V6 칸이 회색입니다.';
+  $('conc7').innerHTML='<b>V6 은 B 답 2 의 문장 3 을 잡고 다른 두 답은 통과시킵니다(걸린 문장 '+nb+'개).</b> 낱말만 보고 넓게 잡으면 '+nw+'문장이 걸리는데, 그 가운데 사건과 상관없는 '+(nw-nb)+'문장은 헛경보입니다. 그래서 사건 사실을 인용한 문장에 한정했습니다.';
+}
+/* ---- 8절 ---- */
+function upd8(){
+  var rc=V.readCounts(ST.on),a=mean(rc.A),b=mean(rc.B.map(function(x){return x.read;})),n=mean(rc.B.map(function(x){return x.n;}));
+  var b2=V.runAll(copyOn({V1:true,V2:true,V3:true,V4:true,V5:true,V6:true}),false)[4].v,pass15=['V1','V2','V3','V4','V5'].every(function(r){return b2.rules[r].ok;});
+  $('conc8').innerHTML='<b>(1) 설계 B 로 맡기면 사람이 읽을 문장은 보고 하나에서 평균 '+fmt(a,1)+'개에서 '+fmt(b,1)+'개로 줄었습니다</b>(이 기록 6답, 세 답의 평균). 숫자는 검사기가 확인하고, 사람은 원인 미확인·권고 문장과 검사에 걸린 문장만 봅니다. <b>(2) 남는 틀림은 관계를 담은 문장입니다.</b> B 답 2 의 한 문장이 V1~V5 를 '+(pass15?'모두 통과했고':'통과하지 못했고')+', V6 이 잡지만 이 기록은 V6 을 알기 전의 답이라 관계 사실을 인용했을지는 확인되지 않았습니다.';
+  tbl('tabFlow',['순서','단계','쓰는 것','누가'],[
+    ['1','표 만들기','0400 <code>run_daily</code> (점검을 통과한 표)','에이전트 · 규칙'],
+    ['2','사실 목록 만들기','<code>build_facts</code> (f1~f10, 관계 사실 포함)','에이전트'],
+    ['3','프롬프트 채우기','<code>make_prompt</code> (사실 목록 + 프롬프트 틀)','에이전트'],
+    ['4','초안 받기','사내 모델 (<code>ask_internal_model</code> 자리)','에이전트 · 사내 모델'],
+    ['5','검사','<code>validate</code> V1~V6 (실패하면 다시 요청하거나 사람에게)','규칙'],
+    ['6','렌더','<code>render</code> (자리를 값으로)','규칙'],
+    ['7','사람 확인','실패 문장 · 원인 · 관계 문장','사람'],
+    ['8','보고와 기록','검사 결과 기록지 저장, 승인 뒤 보고','사람 승인 · 규칙']
+  ],[null,null,L_,L_]);
+}
+/* ---- 9절 ---- */
+function updAll9(){upd9();}
+function upd9(){
+  var rc=V.readCounts(ST.on),a=mean(rc.A),b=mean(rc.B.map(function(x){return x.read;})),ps=ST.ps,rn=ST.rn,bd=ST.bd;
+  $('sPsO').textContent=fmt(ps,1)+'분';$('sRnO').textContent=rn+'건';$('sBdO').textContent=bd+'시간';
+  var ma=a*ps,mb=b*ps,ha=ma*rn/60,hb=mb*rn/60,sv=ha-hb,pay=sv>0?bd/sv:null;
+  var mv=ps!==DEF.ps||rn!==DEF.rn||bd!==DEF.bd,st=$('st9');st.className=mv?'state moved':'state';
+  st.textContent=mv?'지금은 기본값에서 옮겨 놓은 가정입니다. 아래 되돌리기 단추로 기본값(문장 '+DEF.ps+'분 · 보고 '+DEF.rn+'건 · 구축 '+DEF.bd+'시간)에 돌아갑니다.':'지금 값은 기본 가정입니다(문장 하나 '+DEF.ps+'분 · 한 달 보고 '+DEF.rn+'건 · 처음 만드는 시간 '+DEF.bd+'시간).';
+  tbl('tab9',['맡기는 법','보고 하나에서 읽을 문장','보고 하나 (분)','한 달 (시간)'],[
+    ['설계 A (자유 서술)',fmt(a,1)+'개',fmt(ma,1),fmt(ha,1)],
+    ['설계 B (자리 채우기 + JSON + 검사)',fmt(b,1)+'개',fmt(mb,1),fmt(hb,1)],
+    ['줄어드는 몫',fmt(a-b,1)+'개',fmt(ma-mb,1),fmt(sv,1)]],[null,null,null,null]);
+  $('con9').innerHTML='<b>한 달에 줄어드는 확인 시간은 '+fmt(sv,1)+'시간이고, 처음 만드는 '+bd+'시간을 되찾는 데 '+(pay==null?'—':fmt(pay,1))+'달이 걸립니다.</b> 작은 값입니다. 이 구조의 이득은 시간보다, 숫자 틀림을 사람 눈에 맡기지 않는다는 점과 검사 기록이 남는다는 점에 있습니다.';
+}
+/* ---- 11절 ---- */
+function upd11(){
+  $('rp_fields').textContent='사실 목록 판(지문) · 프롬프트 판 · 모델 이름·판 · 날짜 · 답 원문 · V1~V6 결과와 실패 문장 · 사람이 본 문장과 판정 · 고친 곳 · 승인';
+  var fp=TL.fp(FACTS.slice(0,8).map(V.factRow).join('\n')),v=V.validate(V.answersB[1],FACTS,{on:copyOn({V1:true,V2:true,V3:true,V4:true,V5:true,V6:true})}),mk=V.marks().filter(function(m){return m.id==='b2';})[0];
+  $('rp_ex').innerHTML='사실 목록 지문 <b>'+fp+'</b> (f1~f8 표 글자) · 프롬프트 판 B · 모델 '+esc(V.meta.model)+' · '+V.meta.date+' · V1~V5 '+(['V1','V2','V3','V4','V5'].every(function(r){return v.rules[r].ok;})?'통과':'실패 있음')+' · V6(제안) 실패 '+v.rules.V6.fails.length+'문장 (문장 '+v.rules.V6.fails.map(function(f){return f.s+1;}).join(', ')+') · 사람이 본 문장: <span class="qs">'+esc(mk.quote)+'</span> → '+mk.mark+' · 고친 곳 ____ · 확인자 ____';
+  tbl('tabTool',['순서','하는 일'],[
+    ['1)','0400 <code>run_daily</code> 가 점검을 통과한 표를 만듭니다'],
+    ['2)','<code>build_facts</code> 로 사실 목록(관계 사실 포함)을 만듭니다'],
+    ['3)','<code>make_prompt</code> 로 프롬프트를 채우고 사내 모델에 보냅니다'],
+    ['4)','<code>validate</code> 로 V1~V6 을 검사합니다'],
+    ['5)','<code>render</code> 로 자리를 값으로 바꿉니다(자유 서술이 섞였으면 0410 의 <code>check_numbers</code> 를 더합니다)'],
+    ['6)','사람이 실패 문장·원인·관계 문장을 확인하고, 기록지를 남긴 뒤 보고합니다']
+  ],[null,L_]);
+  $('tplCode').textContent=V.pHead+'{사실 목록: 한 줄에 번호 | 내용 | 값 단위 | 출처 }\n'+V.pTask+'\n(설계 B 는 이 아래가 더 붙습니다)'+V.pRules;
+  $('schemaCode').textContent=JSON.stringify({type:'object',required:['sentences'],properties:{sentences:{type:'array',minItems:1,items:{type:'object',required:['text','cites','type'],properties:{text:{type:'string'},cites:{type:'array',items:{type:'string',pattern:'^f[0-9]+$'}},type:{enum:V.types}}}}}},null,2);
+  var pb=V.answersB.map(function(t){return V.parseAnswer(t).obj?1:0;}).reduce(function(s,x){return s+x;},0);setAll('q4_f',String(pb));setAll('q4_n',String(V.answersB.length));
+}
+/* ---- 이벤트 ---- */
+Array.prototype.forEach.call(document.querySelectorAll('.ansa'),function(b){b.addEventListener('click',function(){ST.a=+b.getAttribute('data-a');upd2();});});
+Array.prototype.forEach.call(document.querySelectorAll('.ansb'),function(b){b.addEventListener('click',function(){ST.b=+b.getAttribute('data-a');upd3();});});
+$('rRule').addEventListener('click',function(){ST.on=copyOn(ON0);updRules();upd7b();});
+$('bV6').addEventListener('click',function(){ST.on.V6=!ST.on.V6;updRules();upd7b();});
+$('cv4').addEventListener('click',function(ev){var r=this.getBoundingClientRect(),y=ev.clientY-r.top,rw=this._rows;if(!rw)return;var i=Math.floor((y-rw.top)/rw.rh);if(i>=0&&i<rw.n){ST.sel=i;updRules();}});
+$('selBase').addEventListener('change',function(){ST.base=+this.value;ST.ed=V.answersB[ST.base];updEd();});
+$('edTxt').addEventListener('input',function(){ST.ed=this.value;updEd();});
+$('sTc').addEventListener('input',function(){ST.tc=BASE+(+this.value);upd7();});
+$('rTc').addEventListener('click',function(){ST.tc=TC0;upd7();});
+function onM(k,id){$(id).addEventListener('input',function(){ST[k]=+this.value;upd9();});}
+onM('ps','sPs');onM('rn','sRn');onM('bd','sBd');
+$('rM').addEventListener('click',function(){ST.ps=DEF.ps;ST.rn=DEF.rn;ST.bd=DEF.bd;$('sPs').value=String(DEF.ps);$('sRn').value=String(DEF.rn);$('sBd').value=String(DEF.bd);upd9();});
+function redraw(){drawRules(V.runAll(ST.on));drawTL($('cv6'),TC0);drawTL($('cv7'),ST.tc);}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+buildRuleBox();buildPresets();
+upd1();upd2();upd3();updRules();updEd();upd5();upd6();upd7();upd7b();upd8();upd9();upd11();
+window.__ml={st:ST,setA:function(i){ST.a=i;upd2();},setB:function(i){ST.b=i;upd3();},rule:function(id,v){ST.on[id]=!!v;updRules();upd7b();},selAns:function(i){ST.sel=i;updRules();},
+  setTc:function(m){ST.tc=BASE+m;upd7();},preset:function(i){ST.ed=PRESETS[i][1](V.answersB[ST.base]);updEd();},setBase:function(i){ST.base=i;$('selBase').value=String(i);ST.ed=V.answersB[i];updEd();},resetEd:function(){ST.ed=V.answersB[ST.base];updEd();},
+  setM:function(a,b,c){ST.ps=a;ST.rn=b;ST.bd=c;$('sPs').value=String(a);$('sRn').value=String(b);$('sBd').value=String(c);upd9();},typeEd:function(t){ST.ed=t;updEd();}};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+
+</script>
+<script src="../tutor.js"></script>
+</body></html>
