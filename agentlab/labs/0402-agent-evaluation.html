@@ -1,0 +1,1086 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>에이전트 평가</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="0401 에이전트의 판단을 사람 결론(가상 공장에서는 정답)과 맞대어 혼동표·일치율·윌슨 구간을 내고, 계획에 쓰는 단순 모델의 예측을 실제 상태 전이 기록과 견주어 sim-real gap 을 재는 실험실. 정책별 놓침·헛요청, 시드 200개의 분포, 회사 PC용 Python과 에이전트 평가 보고서 양식">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 4 · 기둥 4 · 실험실 0402</p>
+  <h1>에이전트 평가</h1>
+  <p class="sub">사람 결론과 맞대어 일치율과 구간을 재고, 계획 모델의 예측을 실제 전이와 견주어 — 얼마나 믿을 수 있는지를 숫자로</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0401-agent-prototype.html">← 이전: 에이전트 구조 시제품</a><span class="sp"></span></nav>
+
+<p><b>에이전트를 라인에 쓰기 전에, 그리고 쓰는 동안, &lsquo;얼마나 믿을 수 있나&rsquo;를 숫자로 말해야 합니다.</b> &lsquo;14일 돌려 보니 괜찮더라&rsquo;는 근거가 되지 않습니다. 이 실험실은 두 숫자로 답합니다. 하나는 같은 날 같은 자료에서 사람이 내린 결론과 에이전트의 결정이 얼마나 일치하는가(판단의 질)이고, 다른 하나는 에이전트가 계획에 쓰는 단순한 모델의 예측이 실제 상태 전이와 얼마나 어긋나는가(계획의 질)입니다. 둘 다 실행 기록이 쌓여야만 잴 수 있습니다. 무대는 0401 과 같은 가상 공장 <span class="v_days"></span>일(대표 시드 <span class="v_seed"></span>, 챔버 <span class="v_nch"></span>개)입니다. 이 공장에서는 어느 날 어떤 고장이 들었고 어느 챔버의 마스크가 언제 바뀌었는지를 우리가 알고 있으므로, <b>그 정답이 사람 결론을 대신합니다.</b> 현장에는 이 정답이 없고 사람도 틀립니다(2절).</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0401 의 에이전트·정책·실행 기록·승인 대기열, 0400 의 점검과 주입 고장, 0202 의 놓침과 헛알람의 맞바꿈, 0206 의 전이 기록(simulateLoss trace)과 체류 시간, 0205 의 시간순 분할, 0101 의 신뢰구간.</p>
+  <ul class="chips known"><li>에이전트·정책·실행 기록 (0401)</li><li>점검 · 주입 고장 (0400)</li><li>놓침 · 헛알람 (0202)</li><li>전이 기록 · 체류 시간 (0206)</li><li>시간순 분할 (0205)</li><li>신뢰구간 (0101)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <ul class="chips" id="termList"><li>사람 결론 (human label)</li><li>평가 단위 (evaluation unit)</li><li>일치율 (agreement rate)</li><li>윌슨 구간 (Wilson interval)</li><li>계획 모델 (planning model)</li><li>sim-real gap</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 에이전트를 라인에 시범 적용할지, 확대할지, 멈출지를 정하는 근거(2~7절).</li>
+    <li><b>손으로 연습</b> — 에이전트의 결정과 사람 결론을 맞대어 혼동표·일치율·구간을 내 보고, 날 수와 시드 수를 늘리면 구간이 좁아지는 것을 보고, 계획 모델의 예측과 실제 전이의 차이를 재 봅니다(2~6절).</li>
+    <li><b>다음 날 산출물</b> — <code>agreement_table</code>·<code>wilson_ci</code>·<code>sim_real_gap</code> Python 함수(9절)와 <b>에이전트 평가 보고서 양식</b>(10절).</li>
+    <li><b>기록할 데이터</b> — 에이전트 결정과 사람 결론을 같은 (날, 챔버) 칸에, 결론을 낸 사람과 시각, 계획 예측값과 실제값(10절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 시범 승인과 중단 기준·사람 결론 쓰기는 사람, 평가 단위·혼동표·구간 계산은 규칙, 실행 기록과 예측 남기기는 에이전트(7절).</li>
+    <li><b>성과 환산</b> — 놓침과 헛요청의 비용을 가정해 에이전트와 사람만 할 때의 기대 비용을 견줍니다(8절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0401 에이전트를 실제 라인에 시범 적용할지 정해야 합니다. <b>(1) &lsquo;가상 공장 <span class="v_days"></span>일을 돌려 보니 괜찮았다&rsquo;는 근거가 됩니까. 근거를 숫자로 내십시오. (2) 에이전트가 계획에 쓰는 단순 모델은 실제 상태 전이와 얼마나 어긋납니까.</b>
+  <p class="note" style="margin:.5rem 0 0">1절에서 막히는 곳을 확인하고, 2~6절에서 재는 법을 만들고, 7절에서 이 두 물음으로 돌아옵니다. 비용·사람의 오류율은 현장 값으로 바꿔야 할 가정입니다(8절).</p>
+</div>
+
+<div class="solban">여기서부터 가상 공장의 정답과 맞댄 평가입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>첫 시도 — 14일 기록을 훑으면 그럴듯합니다</h2>
+<p>0401 에이전트가 대표 시드의 <span class="v_days"></span>일을 돈 기록입니다. 점검 허용 수가 다른 정책 셋 가운데 하나를 골라 훑어 보십시오. 어느 정책이든 기록은 말이 됩니다 — 점검에 걸린 날은 멈추고, 분석한 날에는 이유가 붙은 요청이 나갑니다.</p>
+<div class="lab">
+  <div class="labtitle">14일 실행 기록 — 정책을 골라 훑어 보기</div>
+  <div class="row polbar" data-id="p1"></div>
+  <div class="tbwrap"><table class="mt" id="tabLog"></table></div>
+  <div class="readout" id="ro1"></div>
+</div>
+<p><b>막힘.</b> 기록이 그럴듯한 것과 믿을 수 있는 것은 다릅니다. 세 가지가 정해져 있지 않습니다.</p>
+<ol style="margin:.2rem 0 .8rem 1.2rem;padding:0">
+  <li><b>무엇과 견주는가.</b> &lsquo;괜찮다&rsquo;는 말에는 견줄 기준이 없습니다. 같은 날 같은 자료를 사람이 보았다면 어떤 결론을 냈을지가 있어야 합니다.</li>
+  <li><b>어느 칸을 세는가.</b> 날을 세는지, 챔버를 세는지, 요청을 세는지에 따라 &lsquo;맞았다&rsquo;의 뜻이 달라집니다.</li>
+  <li><b>14일은 많은가.</b> 이 14일에 마스크 교체가 든 챔버는 <span id="v_nsw"></span>개뿐이고, 그것을 알아챘는지 가릴 수 있는 칸은 그만큼뿐입니다.</li>
+</ol>
+<p>그래서 먼저 기준(사람 결론)과 셈의 단위(평가 단위)를 정합니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>이름 — 사람 결론 · 평가 단위 · 일치율</h2>
+<ul class="termdef">
+  <li><b>사람 결론 (human label)</b> — 같은 날 같은 자료를 사람이 보고 내린 판정(조치가 필요한지·원인이 무엇인지)입니다. 평가의 기준선입니다. 이 가상 공장에서는 주입한 고장과 마스크 교체라는 정답이 사람 결론을 대신합니다. 현장에서는 사람도 틀립니다.</li>
+  <li><b>평가 단위 (evaluation unit)</b> — 맞았는지 셀 한 칸입니다. 여기서는 <b>날 판정</b>(날 하나), <b>변경점</b>((날, 챔버) 하나), <b>요청</b>((날, 챔버) 하나와 전체에 대한 spec 칸 하나) 셋입니다. 단위를 정하지 않으면 일치율이 무엇의 비율인지 알 수 없습니다.</li>
+  <li><b>일치율 (agreement rate)</b> — 평가 단위 가운데 에이전트의 결정과 사람 결론이 같은 칸의 비율입니다. 대부분의 칸이 &lsquo;없음&rsquo;이면 높게 나오기 쉬우므로, 놓침과 헛요청을 나눈 혼동표와 함께 씁니다.</li>
+</ul>
+<p>셋의 사람 결론 규칙은 다음과 같습니다. 정답은 모두 이 공장이 만든 사실입니다.</p>
+<div class="tbwrap"><table class="mt" id="tabRule">
+  <tr><th>평가 단위</th><th>칸 하나</th><th>사람 결론(정답)</th><th>에이전트 결정</th><th>이 14일의 칸 수</th></tr>
+  <tr><td class="rowh">날 판정</td><td>날 하나</td><td>그날 적재된 표에 고장이 들었으면 &lsquo;멈춰야 하는 날&rsquo;, 아니면 &lsquo;분석해도 되는 날&rsquo;</td><td>점검에서 멈췄으면 &lsquo;멈춤&rsquo;, 분석했으면 &lsquo;분석&rsquo;</td><td id="r_nday"></td></tr>
+  <tr><td class="rowh">변경점</td><td>(날, 챔버) 하나</td><td>그 챔버에 마스크 교체가 있었고, 고장 없는 자료로 잰 교체 전후 보정 후 Mx 평균 차의 크기가 <span class="v_dh"></span> ppm 이상이면 교체가 든 날의 칸이 &lsquo;변경 있음&rsquo;. 그 밖의 칸은 &lsquo;없음&rsquo;</td><td>그 챔버를 새 변경점으로 올렸으면 &lsquo;있음&rsquo;. 올린 날이 교체일부터 허용 지연 안이면 일치</td><td id="r_nchg"></td></tr>
+  <tr><td class="rowh">요청</td><td>(날, 챔버) 하나, 그리고 전체(spec) 하나</td><td>마스크 교체마다(크기와 무관) 교체가 든 날의 칸이 &lsquo;기준 측정 필요&rsquo;. 리페어·마스크 제외·보정값 입력·spec 변경은 이 공장에 그럴 사정을 심지 않았으므로 어느 칸이든 &lsquo;불필요&rsquo;</td><td>기준 측정 요청이 교체일부터 허용 지연 안에 나가면 일치. 나머지 요청은 모두 헛요청</td><td id="r_nreq"></td></tr>
+</table></div>
+<p class="note">셈의 세부 규칙입니다. 1) <b>허용 지연</b> — 에이전트는 마스크 이력을 점검을 통과한 날에만 읽으므로 교체를 며칠 뒤에 알아챌 수 있습니다. 교체일부터 허용 지연(일) 안에 나간 신호만 &lsquo;일치&rsquo;로 셉니다. 2) 허용 지연을 넘겨 늦게 나간 신호는 놓침 한 칸으로만 세고, 그 신호가 나간 날을 헛으로 또 세지 않습니다. 3) 판정 기한(교체일 + 허용 지연)이 14일을 넘는 교체는 아직 판정할 수 없어 칸에서 뺍니다. 4) 날 판정은 고장이 든 날 모두를 &lsquo;멈춰야 하는 날&rsquo;로 둡니다. 고장이 들었어도 결과는 정답과 같았던 날이 있었지만(0400), 그것을 알아보려면 정답본이 필요하므로 에이전트가 쓸 수 있는 기준이 아닙니다.</p>
+<div class="watch"><b>정직하게 먼저.</b> 이 정답은 가상 공장이 알려 주는 것이고, 현장에는 없습니다. 현장에서는 담당자가 같은 날 같은 자료를 보고 결론을 쓰는데, 그 사람도 틀리고 사람마다 다릅니다. 그래서 현장 평가에서는 사람 결론을 낸 사람과 시각을 함께 적고, 사람끼리의 일치율도 따로 잽니다(10절). 아래 숫자는 &lsquo;정답이 있는 세계에서의 평가&rsquo;이며, 현장에서는 이만큼 후하게 나오지 않습니다.</div>
+<div class="lab">
+  <div class="labtitle">대표 시드 14일의 혼동표 셋</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 정책을 바꿔 가며 &lsquo;변경점&rsquo; 표의 일치율과 아래쪽 &lsquo;늘 없음이라고만 답하면&rsquo; 숫자를 견주십시오. 2) 허용 지연을 0 에서 5 로 올려 보십시오. 늦게 나간 신호가 놓침에서 일치로 옮겨 가는 것을 볼 수 있습니다.</div>
+  <div class="row polbar" data-id="p2"></div>
+  <div class="ctrl"><label for="sG">허용 지연 (일, 가정)</label><input type="range" id="sG" min="0" max="5" step="1" value="2"><output id="sGO"></output></div>
+  <div class="row"><button class="btn ghost" id="rG" type="button">허용 지연을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stG"></div>
+  <div class="cols3" id="confBox"></div>
+  <div class="tbwrap"><table class="mt" id="tabSw"></table></div>
+  <div class="concl" id="conc2"></div>
+</div>
+<div class="qna" data-label="일치율 95% 면 충분한가요?" data-q="일치율 95% 면 충분한가요?">
+  <p><b>충분한지는 일치율만으로 알 수 없습니다.</b> 칸의 대부분이 &lsquo;없음&rsquo;이면 아무것도 하지 않고 늘 &lsquo;없음&rsquo;이라고만 답해도 일치율이 높게 나옵니다. 그래서 위 표에는 &lsquo;늘 없음이라고만 답하면&rsquo; 숫자를 나란히 두었습니다. 에이전트의 일치율이 그 숫자와 같거나 낮으면, 일치율은 에이전트가 쓸모 있다는 증거가 못 됩니다.</p>
+  <p>그다음에 볼 것은 놓침과 헛요청의 건수입니다. 놓침은 마스크 교체를 기준 측정 없이 넘기는 일이고, 헛요청은 사람이 쓸데없이 승인·반려를 처리하게 만드는 일입니다. 둘의 비용이 다르므로 일치율 하나로 합쳐 말하지 않고 따로 적습니다(8절). 3절에서 이 숫자가 얼마나 흔들리는지(윌슨 구간)를 봅니다.</p>
+</div>
+<div class="qna" data-label="사람 결론이 틀리면 어떻게 하나요?" data-q="사람 결론이 틀리면 어떻게 하나요?">
+  <p><b>틀릴 수 있다고 보고, 사람 결론 자체도 재 둡니다.</b> 같은 날 같은 자료를 두 사람에게 따로 보여 주고 두 사람의 일치율을 잽니다. 사람끼리 일치율이 80% 라면 에이전트가 사람 결론과 90% 일치한다는 말은 &lsquo;사람보다 낫다&rsquo;도 &lsquo;맞다&rsquo;도 뜻하지 못합니다. 에이전트와 사람의 일치율이 사람끼리의 일치율에 가까우면 그것이 이 평가가 줄 수 있는 가장 좋은 결과입니다.</p>
+  <p>그래서 사람 결론을 쓸 때 결론을 낸 사람·시각·근거 자료를 같은 칸에 적고, 에이전트가 만든 자료를 사람 결론으로 쓰지 않습니다. 같은 실수를 공유하기 때문입니다(10절).</p>
+</div>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>윌슨 구간 — 14일로 어디까지 말할 수 있나</h2>
+<ul class="termdef">
+  <li><b>윌슨 구간 (Wilson interval)</b> — 비율(여기서는 일치율)의 신뢰구간입니다. 평가 단위가 적을 때, 또 비율이 0 이나 1 에 가까울 때 &lsquo;비율 ± 2 표준오차&rsquo;(0101 의 방식을 비율에 그대로 쓴 것)보다 덜 틀립니다.</li>
+</ul>
+<p>일치한 칸이 k 개, 전체 칸이 n 개이면 일치율은 <span class="ph">p̂</span> = k/n 이고, 신뢰도 95% 에서 z = <span id="v_z"></span> 입니다(표준정규분포의 값).</p>
+<div class="eq">
+  <span class="eqlab">윌슨 구간 — 일치율 p̂ 의 95% 구간</span>
+  <math display="block">
+    <mrow>
+      <mfrac>
+        <mrow><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo>+</mo><mfrac><msup><mi>z</mi><mn>2</mn></msup><mrow><mn>2</mn><mi>n</mi></mrow></mfrac></mrow>
+        <mrow><mn>1</mn><mo>+</mo><mfrac><msup><mi>z</mi><mn>2</mn></msup><mi>n</mi></mfrac></mrow>
+      </mfrac>
+      <mo>±</mo>
+      <mfrac>
+        <mi>z</mi>
+        <mrow><mn>1</mn><mo>+</mo><mfrac><msup><mi>z</mi><mn>2</mn></msup><mi>n</mi></mfrac></mrow>
+      </mfrac>
+      <msqrt>
+        <mfrac><mrow><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo stretchy="false">)</mo></mrow><mi>n</mi></mfrac>
+        <mo>+</mo>
+        <mfrac><msup><mi>z</mi><mn>2</mn></msup><mrow><mn>4</mn><msup><mi>n</mi><mn>2</mn></msup></mrow></mfrac>
+      </msqrt>
+    </mrow>
+  </math>
+  <span class="note">앞 덩어리가 구간의 가운데, 뒤 덩어리가 반쪽 폭입니다. 단순 구간은 p̂ ± z·√(p̂(1−p̂)/n) 로, p̂ 가 1 이면 폭이 0 이 되어 &lsquo;틀릴 수 없다&rsquo;는 말이 됩니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">같은 정책의 일치율 — 대표 시드의 14일 vs 시드를 모은 것</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;날 수&rsquo;를 14 에서 1 로 줄이면 대표 시드의 구간이 얼마나 넓어지는지, 2) &lsquo;시드 수&rsquo;를 1 에서 늘리면 모은 구간이 좁아지는 것을 보십시오. 14일 한 번의 구간이 모은 구간보다 훨씬 넓습니다. 시드 200개의 계산은 이 화면이 열린 뒤 조금씩 진행됩니다.</div>
+  <div class="row polbar" data-id="p3"></div>
+  <div class="row"><span style="align-self:center;font-size:.9rem">평가 단위</span><span class="unitbar"></span></div>
+  <div class="ctrl"><label for="sD">대표 시드의 날 수</label><input type="range" id="sD" min="1" max="14" step="1" value="14"><output id="sDO"></output></div>
+  <div class="ctrl"><label for="sS">모으는 시드 수</label><input type="range" id="sS" min="1" max="200" step="1" value="200"><output id="sSO"></output></div>
+  <div class="row"><button class="btn ghost" id="rDS" type="button">날 수·시드 수를 기본값으로 되돌리기</button></div>
+  <div class="state" id="sdSt"></div>
+  <canvas id="cv3"></canvas>
+  <div class="tbwrap"><table class="mt num" id="tab3"></table></div>
+  <div class="readout" id="ro3"></div>
+  <div class="concl" id="conc3"></div>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>정책별 평가 — 일치율은 비슷한데 놓침과 헛요청이 다릅니다</h2>
+<p>0401 에서 점검 허용 수를 바꾸면 에이전트의 행동이 달라졌습니다. 그 맞바꿈을 이제 숫자로 봅니다. 아래 그림은 단위마다 정책 셋의 일치율과 윌슨 구간이고, 세로 눈금은 &lsquo;늘 없음이라고만 답하면&rsquo; 나오는 일치율입니다. 시드 수와 허용 지연은 2·3절의 슬라이더와 같은 값이고, 여기서도 옮길 수 있습니다.</p>
+<div class="lab">
+  <div class="labtitle">정책 셋 × 평가 단위 셋 — 일치율과 놓침·헛요청</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 변경점과 요청 두 단위에서 세 정책의 막대가 얼마나 비슷한지, 2) 그런데 아래 표의 놓침과 헛요청 건수가 정책마다 얼마나 다른지 견주십시오. 3) 허용 지연을 줄이면 &lsquo;엄격&rsquo;의 놓침이 어떻게 변하는지 보십시오.</div>
+  <div class="ctrl"><label for="sG4">허용 지연 (일, 가정)</label><input type="range" id="sG4" min="0" max="5" step="1" value="2"><output id="sG4O"></output></div>
+  <div class="ctrl"><label for="sS4">모으는 시드 수</label><input type="range" id="sS4" min="1" max="200" step="1" value="200"><output id="sS4O"></output></div>
+  <div class="row"><button class="btn ghost" id="rG4" type="button">허용 지연·시드 수를 기본값으로 되돌리기</button></div>
+  <div class="state" id="st4"></div>
+  <canvas id="cv4"></canvas>
+  <div class="tbwrap"><table class="mt num" id="tab4"></table></div>
+  <p class="note" id="note4"></p>
+  <h3>헛 칸은 어떤 신호였나 (시드당 건수)</h3>
+  <div class="tbwrap"><table class="mt num" id="tabFP"></table></div>
+  <h3>대표 시드는 시드 분포의 어디쯤인가</h3>
+  <div class="row polbar" data-id="p4"></div>
+  <div class="tbwrap"><table class="mt num" id="tabPct"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>이름 — 계획 모델과 sim-real gap</h2>
+<ul class="termdef">
+  <li><b>계획 모델 (planning model)</b> — 에이전트가 &lsquo;마스크가 언제 돌아오나, 대기가 얼마나 되나&rsquo;를 미리 셀 때 쓰는 단순 모델입니다(평균 시간·고정 순서).</li>
+  <li><b>sim-real gap</b> — 계획 모델의 예측과 실제 상태 전이 기록의 차이입니다. 평균 차(치우침)와 흩어짐, 차가 큰 상황을 함께 봅니다. 이 실험실에서는 <b>예측 시각 − 실제 시각</b>(분)이고, 음수이면 실제가 예측보다 늦었다는 뜻입니다.</li>
+</ul>
+<p>&lsquo;실제&rsquo;는 0206 의 상태 전이 기록(<code>simulateLoss</code> 의 trace, 가상 공장 <span id="v_gdays"></span>일)입니다. 마스크 한 장이 증착을 마치고 <b>in_use 를 떠난 시각</b>에서 <b>다시 stock 에 들어오는 시각</b>까지가 한 경로이고, 경로마다 실제 입고 시각이 기록에 있습니다. 계획 모델은 같은 시뮬레이터 설정의 평균값만 씁니다.</p>
+<div class="eq">
+  <span class="eqlab">계획 모델 판 1 — 평균값만 더함 (세정 대기·짝 대기·고장은 무시)</span>
+  <math display="block">
+    <mtable>
+      <mtr><mtd columnalign="right"><mtext>정상 경로</mtext></mtd><mtd columnalign="left"><mrow><msub><mi>t</mi><mtext>예측</mtext></msub><mo>=</mo><msub><mi>t</mi><mtext>떠남</mtext></msub><mo>+</mo><mtext>TR</mtext><mo>+</mo><mtext>CLEAN</mtext><mo>+</mo><mtext>TOSTK</mtext></mrow></mtd></mtr>
+      <mtr><mtd columnalign="right"><mtext>리페어 경로</mtext></mtd><mtd columnalign="left"><mrow><msub><mi>t</mi><mtext>예측</mtext></msub><mo>=</mo><msub><mi>t</mi><mtext>떠남</mtext></msub><mo>+</mo><mtext>TR</mtext><mo>+</mo><mtext>REPAIR_MED</mtext><mo>+</mo><mtext>CLEAN</mtext></mrow></mtd></mtr>
+    </mtable>
+  </math>
+  <span class="note">TR = <span id="m_tr"></span>분(세정기로 반송), CLEAN = <span id="m_cl"></span>분(세정), TOSTK = <span id="m_ts"></span>분(stocker 로 반송), REPAIR_MED = <span id="m_rm"></span>분(리페어 중앙값). 정상 경로 예측은 <span id="m_norm"></span>분, 리페어 경로 예측은 <span id="m_repp"></span>분입니다.</span>
+</div>
+<p><b>판 2</b>는 거기에 세정기 대기열을 넣은 것입니다. 마스크가 떠나는 순간의 세정기 상태(세정 중인 마스크와 끝날 시각, 줄 선 마스크, 오는 중인 마스크)를 보고, 세정기 <span id="m_cap"></span>대가 먼저 온 순서대로 비는 대로 마스크를 받는다고 계산해 이 마스크가 세정을 시작할 시각을 구합니다. 앞으로 새로 떠날 마스크는 모르므로, 그것까지는 반영하지 못합니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 한 장의 실제 경로와 두 판의 예측</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;중앙 경로&rsquo;에서 판 1 과 판 2 의 세로선이 실제 도착(오른쪽 끝)에서 얼마나 떨어져 있는지, 2) &lsquo;세정 대기가 긴 경로&rsquo;에서 판 1 은 크게 빗나가는데 판 2 는 얼마나 따라가는지, 3) &lsquo;리페어 경로&rsquo;에서는 두 판이 같고 둘 다 빗나가는 것을 보십시오.</div>
+  <div class="row gbar"></div>
+  <div class="ctrl"><label for="sGi">그 그룹에서 몇 번째 경로</label><input type="range" id="sGi" min="1" max="10" step="1" value="1"><output id="sGiO"></output></div>
+  <canvas id="cv5"></canvas>
+  <div class="readout" id="ro5"></div>
+  <div class="tbwrap"><table class="mt num" id="tabPath"></table></div>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>gap 이 큰 곳 — 기록이 계획 모델을 고칠 곳을 가리킵니다</h2>
+<p>경로 하나가 아니라 전체 경로의 gap 분포를 봅니다(대표 설정 <span id="v_gdays2"></span>일). 아래 그림은 정상 경로의 gap 이고, 리페어 경로는 흩어짐이 너무 커서 표로 따로 둡니다.</p>
+<div class="lab">
+  <div class="labtitle">gap 분포 · 구성 · 큰 gap 의 공통점</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 판 2 를 겹쳐 보면 분포가 왼쪽에서 오른쪽으로 얼마나 옮겨 오는지(치우침)와, 폭은 얼마나 줄어드는지(흩어짐)를 보십시오. 2) &lsquo;큰 gap 기준&rsquo;을 올려 가며 큰 gap 경로에 어떤 경로가 몰려 있는지 보십시오.</div>
+  <label class="chk"><input type="checkbox" id="cV2" checked>판 2(세정 대기열 반영)를 겹쳐 보기</label>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>판 1</span><span><span class="dot" style="background:var(--c8)"></span>판 2</span></div>
+  <div class="tbwrap"><table class="mt num" id="tabGrp"></table></div>
+  <div class="ctrl"><label for="sBig">큰 gap 기준: 판 1 의 gap 크기 상위 몇 %를 큰 gap 으로 볼까</label><input type="range" id="sBig" min="1" max="50" step="1" value="10"><output id="sBigO"></output></div>
+  <div class="row"><button class="btn ghost" id="rBig" type="button">기본값(상위 10%)으로 되돌리기</button></div>
+  <div class="tbwrap"><table class="mt num" id="tabBig"></table></div>
+  <h3>설정이 다른 시뮬레이션 여러 번에서도 같은가</h3>
+  <div class="state" id="stGs"></div>
+  <div class="tbwrap"><table class="mt num" id="tabGs"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<div class="qna" data-label="시뮬레이터로 평가한 결과를 현장에서도 믿나요?" data-q="시뮬레이터로 평가한 결과를 현장에서도 믿나요?">
+  <p><b>sim-real gap 만큼 덜 믿습니다.</b> 시뮬레이터 안에서 잰 일치율은 시뮬레이터가 에이전트에게 준 자료와 정답 위의 숫자입니다. 현장은 시뮬레이터에 없는 일(자료 고장의 종류, 사람이 다르게 부르는 사유, 설비의 예외)이 섞이므로 같은 숫자가 나오지 않습니다. 계획 모델의 gap 은 그 &lsquo;시뮬레이터와 현실의 거리&rsquo;를 하나의 숫자로 재는 연습이고, 6절은 그 거리가 어디에서 큰지 기록으로 가리킬 수 있음을 보였습니다.</p>
+  <p>그래서 현장에서는 시범 기간의 실행 기록과 사람 결론으로 이 평가를 다시 돌립니다. 시뮬레이터 평가는 라인에 쓰기 전에 &lsquo;이 정도면 시범을 해 볼 만한가&rsquo;를 거르는 용도입니다(7절).</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>착지 — 평가 보고서 한 장과 사람·규칙·에이전트</h2>
+<p>맨 앞의 두 물음으로 돌아갑니다. 아래 보고서는 화면의 정책과 허용 지연 값에서 나온 숫자로 채웠습니다.</p>
+<div class="row polbar" data-id="p7"></div>
+<div class="report" id="rep7"></div>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>시범 적용의 승인과 중단 기준 정하기 · 사람 결론 쓰기(결론을 낸 사람과 시각 기록) · 사람끼리 일치율 재기 · 평가 단위와 허용 지연의 정의 승인 · 승인 대기열 처리</td></tr>
+  <tr><td class="rowh">규칙</td><td>평가 단위·혼동표·일치율·윌슨 구간의 계산 방식 · 판정 기한 규칙 · 계획 모델의 식과 설정값 · 평가를 다시 돌리는 조건(정책·공정이 바뀔 때)</td></tr>
+  <tr><td class="rowh">에이전트</td><td>실행 기록과 계획 예측을 같은 키로 남기기 · 평가표 초안 만들기 · 놓침·헛요청 사례 목록 모으기 · 사람이 볼 항목 요약</td></tr>
+</table></div>
+<h3>단계 4 마무리 — 에이전트가 쓸 손발을 다섯 편으로 만들었습니다</h3>
+<div class="tbwrap"><table class="mt" id="tabEnd"></table></div>
+<p><b>단계 5(Loss)로 가는 다리.</b> 지금까지는 에이전트가 하루 한 번 자료를 보고 조치를 요청하는 일을 평가했습니다. 단계 5 에서는 Loss(라인에서 잃는 시간과 장수)를 같은 틀로 다룹니다. Loss 사유를 분류하고 예측하는 모델도 사람 결론과 맞댄 혼동표·구간과, 시뮬레이터와 실제의 gap 으로 재는 것이 이 실험실의 방식 그대로 쓰입니다.</p>
+<div class="qna" data-label="평가는 한 번이면 되나요?" data-q="평가는 한 번이면 되나요?">
+  <p><b>한 번으로 끝나지 않습니다. 정책이나 공정이 바뀔 때마다, 그리고 실행 기록이 쌓이는 대로 다시 돌립니다.</b> 점검 허용 수나 변경점 문턱을 바꾸면 같은 자료에서도 행동이 바뀌므로 지난 평가는 그 정책에만 맞습니다. 공정이 바뀌어도(마스크 종류, 세정 시간, 센서 교정) 계획 모델의 gap 이 달라집니다.</p>
+  <p>0305 의 드리프트 감시와 같은 생각입니다. 모델의 오차가 서서히 커지는 것을 알아채려면 평가를 정기적으로 다시 하고, 지난 평가와 이번 평가의 구간을 나란히 둡니다. 평가 기간과 개발 기간을 섞지 않도록 시간순으로 나눕니다(0205).</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>현장에서 환산하면</h2>
+<p>얻는 것은 에이전트가 사람보다 놓침이 적고 헛요청이 적을 때 줄어드는 비용이고, 치르는 것은 에이전트와 평가를 만들고 유지하는 시간입니다. 놓침 한 건(마스크 교체를 기준 측정 없이 넘김)·헛요청 한 건(쓸데없는 승인 처리)·고장 든 날을 분석해 버린 하루(틀린 표 위에서 결정을 내림)의 비용을 가정해, 시드를 모은 평균 건수와 곱합니다. 점검을 풀면 앞의 둘은 줄고 셋째는 늘어나므로 셋을 함께 넣습니다. 작으면 작다고 적습니다. 아래 다섯 값은 가정이니 현장 값으로 바꾸십시오.</p>
+<div class="lab">
+  <div class="labtitle">에이전트 vs 사람만 — 14일당 기대 비용 (분)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 표의 세 에이전트 열에서 기대 비용이 가장 낮은 정책이 비용 가정을 바꾸면 달라지는지, 2) 사람이 놓치는 비율을 바꾸면 사람만 할 때와 에이전트의 순서가 어디서 뒤바뀌는지 보십시오.</div>
+  <div class="row polbar" data-id="p8"></div>
+  <div class="ctrl"><label for="sCm">놓침 한 건의 비용 (분, 가정)</label><input type="range" id="sCm" min="30" max="600" step="30" value="240"><output id="sCmO"></output></div>
+  <div class="ctrl"><label for="sCf">헛요청 한 건의 비용 (분, 가정)</label><input type="range" id="sCf" min="2" max="60" step="2" value="10"><output id="sCfO"></output></div>
+  <div class="ctrl"><label for="sCd">고장 든 날을 분석해 버린 날 하루의 비용 (분, 가정)</label><input type="range" id="sCd" min="0" max="240" step="10" value="60"><output id="sCdO"></output></div>
+  <div class="ctrl"><label for="sHm">사람이 놓치는 비율 (%, 가정)</label><input type="range" id="sHm" min="0" max="40" step="1" value="10"><output id="sHmO"></output></div>
+  <div class="ctrl"><label for="sHf">사람이 내는 헛요청 (건/14일, 가정)</label><input type="range" id="sHf" min="0" max="5" step="0.5" value="1"><output id="sHfO"></output></div>
+  <div class="row"><button class="btn ghost" id="rC" type="button">다섯 값을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st8"></div>
+  <div class="tbwrap"><table class="mt num" id="tab8"></table></div>
+  <div class="concl" id="conc8"></div>
+</div>
+<p class="note">사람만 할 때의 건수는 같은 14일 동안 사람이 같은 칸을 보고 낼 건수의 가정입니다. 이 숫자는 &lsquo;사람은 틀리지 않는다&rsquo;는 가정을 깨기 위한 칸이며, 실제 값은 사람끼리의 일치율과 사례 기록으로 채웁니다. 회사에서는 같은 식에 단가를 곱해 금액으로 적습니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 0401 에이전트 실행 기록의 요약(<code>s15_agent_log_115.csv</code>)과 사람 결론(<code>s15_human_labels_115.csv</code>), 0206 의 전이 기록(<code>mask_transitions.csv</code>) 셋이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 에이전트 기록과 사람 결론을 따로 둔 것은 에이전트가 만든 자료를 사람 결론으로 쓰지 않기 위해서입니다. 구간은 <code>wilson_ci</code> 로 직접 계산합니다.</p>
+<div class="row"><a class="btn" href="../data/csv/s15_agent_log_115.csv" download>s15_agent_log_115.csv</a><a class="btn" href="../data/csv/s15_human_labels_115.csv" download>s15_human_labels_115.csv</a><a class="btn" href="../data/csv/mask_transitions.csv" download>mask_transitions.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 사람 결론을 에이전트가 만든 자료로 채우지 마십시오(같은 실수를 공유합니다). 평가 기간과 개발 기간을 섞지 마십시오(정책을 평가 기간 안의 결과를 보고 고치면 일치율이 부풀어 오릅니다 — 0205 의 시간순 분할). 일치율 하나만 보고하지 말고 놓침·헛요청을 함께 적으십시오. 계획 모델의 설정값(<code>PLAN</code>)은 현장의 실제 평균으로 바꾸십시오.</p>
+<pre id="pyCode">import math, os
+from statistics import NormalDist
+import pandas as pd
+
+# ---- 가정·설정: 현장 값으로 바꿀 곳 ------------------------------------------------
+DELTA_H = 0.5          # 사람이 '변경 있음'으로 보는 교체 전후 보정 후 Mx 차 문턱 (ppm)
+GRACE = 2              # 허용 지연(일): 교체가 든 날부터 이만큼 안에 알아채야 '일치'
+DAYS = 14              # 평가 기간(일)
+CHAMBERS = [b + "-CH" + str(c) for b in ("B02", "B03") for c in (1, 2, 3, 4)]
+POLICIES = [("strict", "엄격"), ("two", "2개 허용"), ("off", "점검 끔")]
+UNITS = [("day", "날 판정"), ("change", "변경점"), ("request", "요청")]
+PLAN = {"CAP": 27, "TR": 30, "CLEAN": 180, "TOSTK": 20, "REPAIR_MED": 600}   # 계획 모델의 평균값(분). 세정기 27대·반송 30·세정 180·입고 20·리페어 중앙값 600
+
+
+# ---- 1. 평가 단위와 혼동표 ----------------------------------------------------------
+def load_inputs(folder="."):
+    log = pd.read_csv(os.path.join(folder, "s15_agent_log_115.csv"), keep_default_na=False)
+    labels = pd.read_csv(os.path.join(folder, "s15_human_labels_115.csv"), keep_default_na=False)
+    return log, labels
+
+
+def _first(items, used, ch, lo, hi):
+    """아직 안 쓴 기록 가운데 챔버가 같고 날이 [lo, hi] 안인 첫 번째의 번호. 없으면 -1."""
+    for i, (d, c) in enumerate(items):
+        if i not in used and c == ch and lo &lt;= d &lt;= hi:
+            return i
+    return -1
+
+
+def _pending(items, used, ch, day):
+    for i, (d, c) in enumerate(items):
+        if c == ch and d &gt;= day:
+            used.add(i)
+
+
+def agreement_table(log, labels, unit, policy, grace=GRACE, days=DAYS):
+    """평가 단위 하나의 혼동표. 사람 결론(labels)과 에이전트 행동(log)을 같은 (날, 챔버) 칸에서 맞댄다.
+    지연 허용: 교체가 든 날부터 grace 일 안에 알아채면 일치, 그 뒤면 놓침(그 신호는 헛으로 세지 않음). 판정 기한이 아직 안 지난 교체는 칸에서 뺀다."""
+    L = log[log["policy"] == policy]
+    c = {"tp": 0, "fn": 0, "fp": 0, "tn": 0, "late": 0}
+    if unit == "day":
+        stopped = {int(r.day) for r in L[(L["event"] == "day") &amp; (L["detail"] == "stopped")].itertuples()}
+        fault = {int(d) for d in labels[labels["kind"] == "fault"]["day"]}
+        for d in range(1, days + 1):
+            f, s = d in fault, d in stopped
+            c["tp" if f and s else "fn" if f else "fp" if s else "tn"] += 1
+        n = days
+    else:
+        sw = sorted((int(r.day), r.chamber, float(r.value)) for r in labels[labels["kind"] == "swap"].itertuples() if int(r.day) &lt;= days)
+        flags = sorted((int(r.day), r.chamber) for r in L[L["event"] == "flag"].itertuples() if int(r.day) &lt;= days)
+        base = sorted((int(r.day), r.chamber) for r in L[(L["event"] == "request") &amp; (L["detail"] == "baseline")].itertuples() if int(r.day) &lt;= days)
+        other = {(int(r.day), r.chamber or "전체") for r in L[(L["event"] == "request") &amp; (L["detail"] != "baseline")].itertuples() if int(r.day) &lt;= days}
+        ufl, ubs, ex = set(), set(), 0
+        for d, ch, eff in sw:
+            pos = abs(eff) &gt;= DELTA_H
+            if d + grace &gt; days:                      # 판정 기한 전: 칸에서 빼고 이 챔버의 이후 신호도 헛으로 세지 않음
+                if unit == "request" or pos:
+                    ex += 1
+                _pending(flags, ufl, ch, d)
+                _pending(base, ubs, ch, d)
+                continue
+            if unit == "change":
+                if not pos:
+                    continue
+                j = _first(flags, ufl, ch, d, d + grace)
+                if j &gt;= 0:
+                    ufl.add(j)
+                    c["tp"] += 1
+                else:
+                    c["fn"] += 1
+                    k = _first(flags, ufl, ch, d + grace + 1, days)
+                    if k &gt;= 0:
+                        ufl.add(k)
+                        c["late"] += 1
+            else:
+                j = _first(base, ubs, ch, d, d + grace)
+                if j &gt;= 0:
+                    ubs.add(j)
+                    c["tp"] += 1
+                else:
+                    c["fn"] += 1
+                    k = _first(base, ubs, ch, d + grace + 1, days)
+                    if k &gt;= 0:
+                        ubs.add(k)
+                        c["late"] += 1
+        if unit == "change":
+            c["fp"] = len({(d, ch) for i, (d, ch) in enumerate(flags) if i not in ufl})
+            n = days * len(CHAMBERS) - ex
+        else:
+            c["fp"] = len({(d, ch) for i, (d, ch) in enumerate(base) if i not in ubs} | other)
+            n = days * (len(CHAMBERS) + 1) - ex
+        c["tn"] = n - c["tp"] - c["fn"] - c["fp"]
+    pos = c["tp"] + c["fn"]
+    c.update(n=n, pos=pos, agree=(c["tp"] + c["tn"]) / n, all_no=(n - pos) / n)
+    return c
+
+
+def wilson_ci(k, n, conf=0.95):
+    """비율 k/n 의 윌슨 구간 (낮은 끝, 높은 끝)."""
+    z = NormalDist().inv_cdf(1 - (1 - conf) / 2)
+    p = k / n
+    den = 1 + z * z / n
+    ctr = (p + z * z / (2 * n)) / den
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+    return max(0.0, ctr - half), min(1.0, ctr + half)
+
+
+def eval_policies(log, labels, grace=GRACE, days=DAYS):
+    rows = []
+    for pid, pname in POLICIES:
+        for uid, uname in UNITS:
+            c = agreement_table(log, labels, uid, pid, grace, days)
+            lo, hi = wilson_ci(c["tp"] + c["tn"], c["n"])
+            rows.append({"policy": pname, "unit": uname, **c, "lo": lo, "hi": hi})
+    return pd.DataFrame(rows)
+
+
+# ---- 2. 계획 모델과 sim-real gap ------------------------------------------------------
+def plan_model(leave, repair, params, system=None):
+    """마스크가 in_use 를 떠난 시각 leave 에서 '다시 stock 에 들어오는 시각'을 미리 센다.
+    system=None: 평균값만(세정 대기·짝 대기·고장 무시). system=(세정 중 끝날 시각 목록, 대기 줄, 오는 중 목록): 세정기 대기열을 먼저 따져 본다."""
+    cap, tr, cl, ts, rm = (params[k] for k in ("CAP", "TR", "CLEAN", "TOSTK", "REPAIR_MED"))
+    if system is None:
+        return leave + tr + (rm + cl if repair else cl + ts)
+    running, waiting, transit = system
+    own = leave + tr + (rm if repair else 0)
+    items = sorted([(leave, t) for t in waiting] + list(transit) + [(own, 10 ** 12)])
+    free = list(running) + [leave] * max(0, cap - len(running))
+    start = None
+    for arrive, order in items:
+        free.sort()
+        s = max(arrive, free[0])
+        free[0] = s + cl
+        if order == 10 ** 12:
+            start = s
+    return start + cl + (0 if repair else ts)
+
+
+def sim_real_gap(trace, params):
+    """실제 전이 기록(0206 trace)의 마스크 경로마다 계획 모델 두 판의 예측과 실제 stock 입고 시각의 차(예측 − 실제, 분)."""
+    tr, cl, rm = params["TR"], params["CLEAN"], params["REPAIR_MED"]
+    m = trace[trace["entity"] == "mask"]
+    state, open_, rows = {}, {}, []
+    for t, i, a, b in zip(m["t"], m["id"], m["from"], m["to"]):
+        t = int(t)
+        if a == "in_use" and b in ("to_clean", "repair"):
+            rep = b == "repair"
+            running, waiting, transit = [], [], []
+            for k, (s, t_in) in state.items():
+                if k == i:
+                    continue
+                if s == "cleaning":
+                    running.append(max(t, t_in + cl))
+                elif s == "clean_wait":
+                    waiting.append(t_in)
+                elif s == "to_clean":
+                    transit.append((t_in + tr, t_in))
+                elif s == "repair":
+                    transit.append((t_in + tr + rm, t_in))
+            open_[i] = {"id": i, "kind": "리페어" if rep else "정상", "t0": t, "plan1": plan_model(t, rep, params), "plan2": plan_model(t, rep, params, (running, waiting, transit)), "wait": 0, "held": 0}
+            rows.append(open_[i])
+        o = open_.get(i)
+        if o:
+            if a == "clean_wait" and b == "cleaning":
+                o["wait"] = t - state[i][1]
+            if a == "held" and b == "to_stock":
+                o["held"] = t - state[i][1]
+            if b == "stock":
+                o["actual"] = t
+                del open_[i]
+        state[i] = (b, t)
+    df = pd.DataFrame([r for r in rows if "actual" in r])
+    df["gap1"] = df["plan1"] - df["actual"]
+    df["gap2"] = df["plan2"] - df["actual"]
+    return df
+
+
+def gap_summary(g):
+    out = {}
+    for name, sub in (("전체", g), ("정상", g[g["kind"] == "정상"]), ("리페어", g[g["kind"] == "리페어"])):
+        for v in ("gap1", "gap2"):
+            x = sub[v]
+            out[(name, v)] = (len(x), x.mean(), x.std(ddof=1), x.abs().quantile(0.5), x.abs().quantile(0.9))
+    return out
+
+
+if __name__ == "__main__":
+    here = os.path.dirname(os.path.abspath(__file__))
+    log, labels = load_inputs(here)
+    print("평가 기간 %d일 · 허용 지연 %d일 · 사람이 '변경 있음'으로 보는 문턱 %.1f ppm" % (DAYS, GRACE, DELTA_H))
+    ev = eval_policies(log, labels)
+    for r in ev.itertuples():
+        print("%s · %s: 일치 %d/%d = %.1f%% (95%% 구간 %.1f~%.1f%%) · 놓침 %d · 헛 %d · 모두 '없음'이면 %.1f%%"
+              % (r.policy, r.unit, r.tp + r.tn, r.n, 100 * r.agree, 100 * r.lo, 100 * r.hi, r.fn, r.fp, 100 * r.all_no))
+    trace = pd.read_csv(os.path.join(here, "mask_transitions.csv"), keep_default_na=False)
+    g = sim_real_gap(trace, PLAN)
+    print("마스크 경로 %d개(리페어 %d개): 예측 − 실제(분)" % (len(g), (g["kind"] == "리페어").sum()))
+    for (name, v), (n, mu, sd, q50, q90) in gap_summary(g).items():
+        print("  %s · %s: 평균 %.1f · 표준편차 %.1f · 절댓값 중앙 %.0f · 상위 10%% 경계 %.0f" % (name, "판 1(평균값만)" if v == "gap1" else "판 2(세정 대기열 반영)", mu, sd, q50, q90))</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 셋과 같은 폴더에서 <code>python3 lab0402.py</code> 로 돌렸고, 위 2절의 혼동표와 6절의 gap 표(허용 지연 2일, 대표 설정)와 같은 숫자가 나옵니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">평가 기간 14일 · 허용 지연 2일 · 사람이 '변경 있음'으로 보는 문턱 0.5 ppm
+엄격 · 날 판정: 일치 14/14 = 100.0% (95% 구간 78.5~100.0%) · 놓침 0 · 헛 0 · 모두 '없음'이면 14.3%
+엄격 · 변경점: 일치 111/112 = 99.1% (95% 구간 95.1~99.8%) · 놓침 1 · 헛 0 · 모두 '없음'이면 99.1%
+엄격 · 요청: 일치 124/126 = 98.4% (95% 구간 94.4~99.6%) · 놓침 1 · 헛 1 · 모두 '없음'이면 99.2%
+2개 허용 · 날 판정: 일치 7/14 = 50.0% (95% 구간 26.8~73.2%) · 놓침 7 · 헛 0 · 모두 '없음'이면 14.3%
+2개 허용 · 변경점: 일치 111/112 = 99.1% (95% 구간 95.1~99.8%) · 놓침 1 · 헛 0 · 모두 '없음'이면 99.1%
+2개 허용 · 요청: 일치 125/126 = 99.2% (95% 구간 95.6~99.9%) · 놓침 0 · 헛 1 · 모두 '없음'이면 99.2%
+점검 끔 · 날 판정: 일치 2/14 = 14.3% (95% 구간 4.0~39.9%) · 놓침 12 · 헛 0 · 모두 '없음'이면 14.3%
+점검 끔 · 변경점: 일치 111/112 = 99.1% (95% 구간 95.1~99.8%) · 놓침 1 · 헛 0 · 모두 '없음'이면 99.1%
+점검 끔 · 요청: 일치 125/126 = 99.2% (95% 구간 95.6~99.9%) · 놓침 0 · 헛 1 · 모두 '없음'이면 99.2%
+마스크 경로 12478개(리페어 98개): 예측 − 실제(분)
+  전체 · 판 1(평균값만): 평균 -38.3 · 표준편차 39.7 · 절댓값 중앙 33 · 상위 10% 경계 73
+  전체 · 판 2(세정 대기열 반영): 평균 -14.1 · 표준편차 37.5 · 절댓값 중앙 17 · 상위 10% 경계 47
+  정상 · 판 1(평균값만): 평균 -38.0 · 표준편차 27.9 · 절댓값 중앙 33 · 상위 10% 경계 72
+  정상 · 판 2(세정 대기열 반영): 평균 -13.6 · 표준편차 24.1 · 절댓값 중앙 17 · 상위 10% 경계 46
+  리페어 · 판 1(평균값만): 평균 -79.3 · 표준편차 319.3 · 절댓값 중앙 186 · 상위 10% 경계 594
+  리페어 · 판 2(세정 대기열 반영): 평균 -79.3 · 표준편차 319.3 · 절댓값 중앙 186 · 상위 10% 경계 594</pre>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>에이전트 평가 보고서 양식</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 공장 14일로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>평가 기간과 평가 단위(날 판정·변경점·요청)를 적었는가</li>
+      <li>사람 결론의 규칙과 결론을 낸 사람·시각을 적었는가(사람끼리의 일치율도)</li>
+      <li>정책 판(점검 허용 수·문턱)과 허용 지연을 적었는가</li>
+      <li>일치율을 윌슨 구간과 함께, 놓침과 헛요청을 따로 적었는가</li>
+      <li>놓침·헛요청 사례 목록과, 허용 지연을 넘겨 늦은 신호를 적었는가</li>
+      <li>sim-real gap 을 치우침·흩어짐·꼬리와 큰 상황으로 적었는가</li>
+      <li>시범 적용 범위와 중단 기준, 승인란을 적었는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>시범 적용 범위를 넓히거나 중단 기준을 바꿀 때마다 다시 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>에이전트 결정과 사람 결론을 같은 (날, 챔버) 칸에</b> — 두 기록을 따로 두고 키로만 잇습니다.</li>
+      <li><b>사람 결론을 낸 사람과 시각</b> — 사람끼리도 다를 수 있어서 같은 칸을 두 사람이 따로 쓴 기록이 필요합니다.</li>
+      <li><b>계획 예측값과 실제값</b> — 마스크마다 떠난 시각, 예측한 입고 시각, 실제 입고 시각.</li>
+      <li><b>정책 판과 평가 날짜</b> — 문턱을 바꾼 날이 쌓여야 평가를 정책별로 나눌 수 있습니다.</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0401 의 실행 기록에서 평가까지 부르는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0401-agent-prototype.html">← 이전: 에이전트 구조 시제품</a></nav>
+</main>
+<script src="../data/mfgsim.js"></script>
+<script src="../data/llm_runs_0410.js"></script>
+<script src="../data/llmcheck.js"></script>
+<script src="../data/llm_runs_0411.js"></script>
+<script src="../data/llmverify.js"></script>
+<script src="../data/agent0401.js"></script>
+<script src="../data/eval0402.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var E=Eval0402,A=Agent0401,MS=MfgSim,LV=LlmVerify,LC=LlmCheck,SC=A.SC,CH=A.CH,DAYS=A.DAYS;
+var POLS=E.POLS,UN=E.UNITS;
+var ST={pol:'strict',G:E.G0,D:DAYS,S:E.SEEDS,unit:'chg',gg:'mid',gi:1,big:10,v2:true,cm:240,cf:10,cd:60,hm:10,hf:1};
+var DEF={G:E.G0,D:DAYS,S:E.SEEDS,big:10,cm:240,cf:10,cd:60,hm:10,hf:1};
+var REP=E.seedRaw(E.REP),RAWS=[],GAPS=[],SWEEP_DONE=false,GAPS_DONE=false;
+var GAP=E.gapSeed(null),PATHS=GAP.paths,NORM=PATHS.filter(function(p){return !p.rep;}),REPP=PATHS.filter(function(p){return p.rep;});
+var RUN={};POLS.forEach(function(p){RUN[p.id]=A.run({tol:p.tol});});
+function $(id){return document.getElementById(id);}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?cls[i](c):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function fitFont(x,txt,maxW,px,minPx,weight){var s=px;x.font=(weight||'')+' '+s+'px sans-serif';while(s>minPx&&x.measureText(txt).width>maxW){s--;x.font=(weight||'')+' '+s+'px sans-serif';}return s;}
+function L_(){return 'l';}
+function pc(x,d){return x!=null&&isFinite(x)?(100*x).toFixed(d==null?1:d)+'%':'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2):'—';}
+function fi(x){return x!=null&&isFinite(x)?String(Math.round(x)):'—';}
+function sg(x){return x!=null&&isFinite(x)?(x>0?'+':(x<0?'−':''))+Math.abs(x).toFixed(1):'—';}
+function polOf(id){return POLS.filter(function(p){return p.id===id;})[0];}
+function unitOf(id){return UN.filter(function(u){return u.id===id;})[0];}
+function wl(c){var w=E.wilson(c.tp+c.tn,c.n);return w;}
+function isDefault(){return ST.G===DEF.G;}
+
+/* ---------- 고정 값 ---------- */
+setAll('v_days',String(DAYS));setAll('v_seed',String(SC.params.seed));setAll('v_nch',String(CH.length));setAll('v_dh',String(E.DELTA_H));
+$('v_gdays').textContent=String(GAP.days);$('v_gdays2').textContent=String(GAP.days);
+$('v_z').textContent=E.zOf(0.95).toFixed(2);
+$('m_tr').textContent=GAP.par.TR;$('m_cl').textContent=GAP.par.CLEAN;$('m_ts').textContent=GAP.par.TOSTK;$('m_rm').textContent=GAP.par.REPAIR_MED;$('m_cap').textContent=GAP.par.CAP;
+$('m_norm').textContent=GAP.par.TR+GAP.par.CLEAN+GAP.par.TOSTK;$('m_repp').textContent=GAP.par.TR+GAP.par.REPAIR_MED+GAP.par.CLEAN;
+$('v_nsw').textContent=String(REP.swaps.length);
+
+/* ---------- 평가 캐시 ---------- */
+var MEMO={};
+function EV(i,pol){var key=ST.G+'|'+pol,m=MEMO[key]||(MEMO[key]=[]);if(!m[i])m[i]=E.evalRaw(RAWS[i],pol,ST.G,DAYS);return m[i];}
+function nS(){return Math.max(0,Math.min(ST.S,RAWS.length));}
+function pooled(pol,unit,n){var cs=[];for(var i=0;i<n;i++)cs.push(EV(i,pol)[unit]);return {cells:cs,P:E.pool(cs)};}
+function seedAgree(pol,unit,n){var a=[];for(var i=0;i<n;i++)a.push(EV(i,pol)[unit].agree);return a;}
+function repEval(pol,D){return E.evalRaw(REP,pol,ST.G,D==null?DAYS:D);}
+function mid(a,v){var lt=0,eq=0;a.forEach(function(x){if(x<v-1e-12)lt++;else if(Math.abs(x-v)<=1e-12)eq++;});return (lt+eq/2)/a.length;}
+
+/* ---------- 정책·단위·그룹 단추 ---------- */
+var BARS=[];
+function mkBar(cont,items,get,set){cont.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.type='button';b.className='btn ghost';b.textContent=it.label;b.addEventListener('click',function(){set(it.id);refresh();});cont.appendChild(b);BARS.push({b:b,id:it.id,get:get});});}
+function buildBars(){
+  Array.prototype.forEach.call(document.querySelectorAll('.polbar'),function(c){mkBar(c,POLS.map(function(p){return {id:p.id,label:p.name};}),function(){return ST.pol;},function(v){ST.pol=v;});});
+  Array.prototype.forEach.call(document.querySelectorAll('.unitbar'),function(c){mkBar(c,UN.map(function(u){return {id:u.id,label:u.name};}),function(){return ST.unit;},function(v){ST.unit=v;});});
+  Array.prototype.forEach.call(document.querySelectorAll('.gbar'),function(c){mkBar(c,GROUPS.map(function(g){return {id:g.id,label:g.label};}),function(){return ST.gg;},function(v){ST.gg=v;ST.gi=1;});});
+}
+function syncBars(){BARS.forEach(function(o){o.b.setAttribute('aria-pressed',String(o.get()===o.id));});}
+
+/* ---------- 1절 ---------- */
+function upd1(){
+  var r=RUN[ST.pol],p=polOf(ST.pol);
+  tbl('tabLog',['날','점검','분석','새 변경점','요청(판정)'],r.days.map(function(d){
+    return [d.day+'일',d.nfail?'실패 '+d.nfail+'('+d.fails.join('+')+')':'통과',d.analyzed?'분석':'멈춤',d.flagged.join('·')||'-',d.requests.map(function(q){return q.id+' '+A.KIND_KO[q.kind]+' '+A.VERDICT_KO[q.verdict];}).join(', ')||'-'];}),[null,null,null,L_,L_]);
+  var s=r.summary;
+  $('ro1').innerHTML='<b>'+p.name+'</b> — 분석한 날 <b>'+s.analyzed+'</b>일 · 멈춘 날 <b>'+s.stopped+'</b>일 · 요청 <b>'+s.requests+'</b>건(허용 '+s.ok+' · 거절 '+s.refused+' · 승인 대기 '+s.queued+'). 어느 쪽이 &lsquo;괜찮은&rsquo; 기록입니까 — 이 표만으로는 말할 수 없습니다.';
+}
+
+/* ---------- 2절 ---------- */
+function cellTbl(title,u,c,labs){
+  function td(v,cl){return '<td class="'+cl+'">'+v+'</td>';}
+  return '<div class="card" style="margin:0;padding:.7rem"><div class="labtitle">'+title+'</div><div class="tbwrap"><table class="mt num"><tr><th></th><th>'+labs[2]+'</th><th>'+labs[3]+'</th></tr>'+
+    '<tr><td class="rowh">'+labs[0]+'</td>'+td(c.tp,'good')+td(c.fn,c.fn?'hit':'')+'</tr><tr><td class="rowh">'+labs[1]+'</td>'+td(c.fp,c.fp?'warn':'')+td(c.tn,'')+'</tr></table></div>'+
+    '<p class="note" style="margin:.3rem 0 0">일치 <b>'+(c.tp+c.tn)+'/'+c.n+' = '+pc(c.agree)+'</b> · 놓침 '+c.fn+' · 헛 '+c.fp+'<br>늘 &lsquo;없음&rsquo;이라고만 답하면 <b>'+pc(c.allno)+'</b></p></div>';
+}
+function upd2(){
+  var e=repEval(ST.pol),p=polOf(ST.pol);
+  $('sGO').textContent=ST.G+'일';
+  $('stG').className=isDefault()?'state':'state moved';
+  $('stG').textContent=isDefault()?'지금은 기본 허용 지연('+DEF.G+'일)입니다.':'지금은 허용 지연을 '+ST.G+'일로 옮겨 놓은 가정입니다. 기본값은 '+DEF.G+'일입니다. 되돌리기 단추를 누르십시오.';
+  $('r_nday').textContent=e.day.n+'칸';$('r_nchg').textContent=e.chg.n+'칸(8 챔버 × '+DAYS+'일'+(e.chg.n<CH.length*DAYS?' − 판정 기한 전 '+(CH.length*DAYS-e.chg.n):'')+')';$('r_nreq').textContent=e.req.n+'칸(9 칸 × '+DAYS+'일'+(e.req.n<(CH.length+1)*DAYS?' − 판정 기한 전 '+((CH.length+1)*DAYS-e.req.n):'')+')';
+  $('confBox').innerHTML=cellTbl('날 판정','day',e.day,['멈춰야 하는 날','분석해도 되는 날','멈춤','분석'])+cellTbl('변경점','chg',e.chg,['변경 있음','변경 없음','올림','안 올림'])+cellTbl('요청','req',e.req,['요청 필요','요청 불필요','요청함','안 함']);
+  var rows=e.items.map(function(it){return [it.ch+' · '+it.day+'일',f2(Math.abs(it.eff)),it.posC?'변경 있음':'없음(문턱 미만)',it.chg==null?'—':it.chg,'필요',it.req];});
+  if(!rows.length)rows=[['이 기간에 교체가 든 챔버 없음','—','—','—','—','—']];
+  tbl('tabSw',['교체가 든 챔버·날','교체 전후 Mx 차 크기(ppm)','사람 결론: 변경점','에이전트: 변경점','사람 결론: 기준 측정','에이전트: 기준 측정'],rows,[null,null,null,null,null,null]);
+  var c=e.chg,r=e.req;
+  var cmp=function(c0,nm){return nm+' 칸의 일치율은 '+pc(c0.agree)+'로, 늘 &lsquo;없음&rsquo;이라고만 답하는 일치율 '+pc(c0.allno)+(c0.agree>c0.allno+1e-12?'보다 높습니다':(Math.abs(c0.agree-c0.allno)<1e-12?'와 같습니다':'보다 낮습니다'));};
+  $('conc2').innerHTML='<b>'+p.name+' 정책 — '+cmp(c,'변경점')+'.</b> '+cmp(r,'요청')+'. 칸의 대부분이 &lsquo;없음&rsquo;이라서, 일치율은 에이전트가 무엇을 했는지를 거의 말해 주지 않습니다. 말해 주는 것은 놓침(변경점 '+c.fn+' · 요청 '+r.fn+')과 헛(변경점 '+c.fp+' · 요청 '+r.fp+')입니다. 허용 지연을 넘겨 늦게 나간 신호는 변경점 '+e.lateC+'건·요청 '+e.lateR+'건이고, 놓침에 이미 들어 있습니다.';
+}
+
+/* ---------- 3절 ---------- */
+function wald(k,n){var p=k/n,z=E.zOf(0.95),h=z*Math.sqrt(p*(1-p)/n);return [Math.max(0,p-h),Math.min(1,p+h)];}
+function upd3(){
+  var u=ST.unit,un=unitOf(u),ns=nS(),p=polOf(ST.pol);
+  $('sDO').textContent=ST.D+'일';$('sSO').textContent=ST.S+'개';
+  var e=repEval(ST.pol,ST.D)[u],wr=wl(e),rows=[];
+  var pl=ns?pooled(ST.pol,u,ns):null,wp=pl?wl(pl.P):null,sa=ns?seedAgree(ST.pol,u,ns).sort(function(a,b){return a-b;}):[];
+  var q10=ns?E.quantile(sa,0.1):NaN,q90=ns?E.quantile(sa,0.9):NaN;
+  rows.push(['대표 시드 '+ST.D+'일',String(e.n),String(e.tp+e.tn),pc(e.agree),pc(wr.lo),pc(wr.hi),f1(100*(wr.hi-wr.lo))+'%p']);
+  rows.push(['시드 '+ns+'개 모음',pl?String(pl.P.n):'—',pl?String(pl.P.tp+pl.P.tn):'—',pl?pc(pl.P.agree):'—',wp?pc(wp.lo):'—',wp?pc(wp.hi):'—',wp?f1(100*(wp.hi-wp.lo))+'%p':'—']);
+  rows.push(['시드 한 개씩(10%~90% 범위)','시드마다 '+(pl?Math.round(pl.P.n/ns):'—'),'—','가운데 '+(ns?pc(E.quantile(sa,0.5)):'—'),ns?pc(q10):'—',ns?pc(q90):'—','—']);
+  tbl('tab3',['','칸 수 n','일치 k','일치율','구간 낮은 끝','구간 높은 끝','폭'],rows,[null,null,null,null,null,null,null]);
+  var sd=$('sdSt');
+  if(RAWS.length<E.SEEDS){sd.className='state moved';sd.textContent='시드 분포를 계산하고 있습니다… '+RAWS.length+'/'+E.SEEDS+' (지금까지 계산한 시드로 먼저 보여 드립니다)';}
+  else{sd.className=ST.S===DEF.S&&ST.D===DEF.D?'state':'state moved';sd.textContent=ST.S===DEF.S&&ST.D===DEF.D?'시드 200개의 계산이 끝났습니다. 날 수·시드 수 모두 기본값입니다.':'날 수 또는 시드 수를 옮겨 놓았습니다. 기본값은 날 14·시드 200 입니다.';}
+  drawIv(e,wr,pl,wp,q10,q90,ns);
+  var wk=wald(e.tp+e.tn,e.n);
+  $('ro3').innerHTML='대표 시드 '+ST.D+'일의 '+un.name+': 단순 구간(p̂ ± z·표준오차)은 <b>'+pc(wk[0])+' ~ '+pc(wk[1])+'</b>(폭 '+f1(100*(wk[1]-wk[0]))+'%p), 윌슨 구간은 <b>'+pc(wr.lo)+' ~ '+pc(wr.hi)+'</b>(폭 '+f1(100*(wr.hi-wr.lo))+'%p).'+(e.agree>=1-1e-12?' 일치율이 100% 라서 단순 구간은 폭이 0 이 되어 &lsquo;틀릴 수 없다&rsquo;는 말이 됩니다. 윌슨 구간은 칸이 '+e.n+'개뿐이라는 것을 폭으로 말해 줍니다.':'');
+  var rel='';
+  if(wp&&pl){var a0=pl.P.allno;rel=wp.hi<a0?'모은 구간 전체가 늘 &lsquo;없음&rsquo;이라고만 답하는 일치율 '+pc(a0)+'보다 <b>아래</b>입니다 — 이 단위의 일치율로는 에이전트가 그 기준선을 못 넘습니다.':(wp.lo>a0?'모은 구간 전체가 늘 &lsquo;없음&rsquo;이라고만 답하는 일치율 '+pc(a0)+'보다 <b>위</b>입니다.':'모은 구간이 늘 &lsquo;없음&rsquo;이라고만 답하는 일치율 '+pc(a0)+'를 품고 있어, 이 단위의 일치율만으로는 에이전트와 &lsquo;아무것도 안 하기&rsquo;를 가를 수 없습니다.');}
+  $('conc3').innerHTML=wp?'<b>'+p.name+' · '+un.name+': 대표 시드 '+ST.D+'일의 일치율 구간은 '+pc(wr.lo)+' ~ '+pc(wr.hi)+', 시드 '+ns+'개를 모으면 '+pc(wp.lo)+' ~ '+pc(wp.hi)+'입니다.</b> 폭이 '+f1(100*(wr.hi-wr.lo))+'%p 에서 '+f1(100*(wp.hi-wp.lo))+'%p 로 '+f1((wr.hi-wr.lo)/Math.max(1e-9,wp.hi-wp.lo))+'배 좁아집니다. 14일 한 번의 운전으로는 일치율을 이 폭까지만 말할 수 있고, 시드마다 일치율이 '+pc(q10)+' ~ '+pc(q90)+'(10%~90%)로 흩어지므로 한 번 본 14일이 평균이라고 가정하지 않습니다. '+rel:'시드 계산이 시작되는 중입니다.';
+}
+function drawIv(e,wr,pl,wp,q10,q90,ns){
+  var cv=$('cv3'),w=cv.clientWidth||320,rowsN=3,rh=58,s=setup(cv,rowsN*rh+34),x=s.x,L=8,R=w-8,vals=[wr.lo,wr.hi];
+  if(wp){vals.push(wp.lo,wp.hi,q10,q90,pl.P.allno);}
+  var lo=Math.max(0,Math.min.apply(null,vals)-0.01),hi=Math.min(1,Math.max.apply(null,vals)+0.01);if(hi-lo<0.05){lo=Math.max(0,lo-0.02);hi=Math.min(1,hi+0.02);}
+  function X(v){return L+(R-L)*(v-lo)/(hi-lo);}
+  var rows=[{t:'대표 시드 '+ST.D+'일  '+pc(e.agree)+'  ['+pc(wr.lo)+' ~ '+pc(wr.hi)+']',lo:wr.lo,hi:wr.hi,p:e.agree,c:css('--c10')}];
+  if(wp)rows.push({t:'시드 '+ns+'개 모음  '+pc(pl.P.agree)+'  ['+pc(wp.lo)+' ~ '+pc(wp.hi)+']',lo:wp.lo,hi:wp.hi,p:pl.P.agree,c:css('--accent')});
+  if(wp)rows.push({t:'시드 한 개씩의 일치율 10%~90%  ['+pc(q10)+' ~ '+pc(q90)+']',lo:q10,hi:q90,p:null,c:css('--grey')});
+  rows.forEach(function(r,i){
+    var y=10+i*rh;x.fillStyle=css('--ink');fitFont(x,r.t,w-16,13,11,'700');x.fillText(r.t,L,y+12);
+    var by=y+34;x.strokeStyle=r.c;x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(X(r.lo),by);x.lineTo(X(r.hi),by);x.stroke();
+    if(r.p!=null){x.fillStyle=css('--ink');x.beginPath();x.arc(X(r.p),by,5,0,6.283);x.fill();}
+  });
+  if(wp){var ax=X(pl.P.allno);x.strokeStyle=css('--bad');x.lineWidth=2;x.setLineDash([5,4]);x.beginPath();x.moveTo(ax,6);x.lineTo(ax,rowsN*rh+8);x.stroke();x.setLineDash([]);x.fillStyle=css('--bad');x.font='700 12px sans-serif';var lab='늘 없음 '+pc(pl.P.allno);var tw=x.measureText(lab).width;x.fillText(lab,Math.min(Math.max(2,ax-tw/2),w-tw-2),rowsN*rh+22);}
+  x.fillStyle=css('--soft');x.font='600 11px sans-serif';
+  for(var k=0;k<=4;k++){var v=lo+(hi-lo)*k/4,tx=X(v),lb=pc(v,1);x.textAlign=k===0?'left':(k===4?'right':'center');x.fillText(lb,tx,rowsN*rh+(wp?34:34));}
+  x.textAlign='start';
+}
+
+/* ---------- 4절 ---------- */
+function upd4(){
+  var ns=nS();$('sG4O').textContent=ST.G+'일';$('sS4O').textContent=ST.S+'개';
+  $('st4').className=(isDefault()&&ST.S===DEF.S)?'state':'state moved';$('st4').textContent=(isDefault()&&ST.S===DEF.S)?'허용 지연과 시드 수가 기본값입니다.':'허용 지연 또는 시드 수를 옮겨 놓았습니다. 기본값은 허용 지연 '+DEF.G+'일·시드 200개입니다.';
+  var data={};POLS.forEach(function(p){data[p.id]={};UN.forEach(function(u){if(ns){var q=pooled(p.id,u.id,ns);data[p.id][u.id]={P:q.P,w:wl(q.P)};}});});
+  drawIv4(data,ns);
+  var rows=[];
+  UN.forEach(function(u){POLS.forEach(function(p){var d=data[p.id][u.id],nm=u.name+' · '+p.short;if(!d){rows.push([nm,'—','—','—','—','—']);return;}
+    rows.push([nm,pc(d.P.agree)+'<br><span class="cl">'+pc(d.w.lo)+' ~ '+pc(d.w.hi)+'</span>',pc(d.P.allno),f2(d.P.fn/ns),f2(d.P.fp/ns),d.P.pos?pc(d.P.tp/d.P.pos):'—']);});});
+  tbl('tab4',['단위 · 정책','일치율 [95% 구간]','늘 없음이면','놓침 /시드','헛 /시드','결론 있는 칸 중 일치'],rows,[null,null,null,null,null,null]);
+  $('note4').innerHTML=ns?'시드당 칸 수: 날 판정 '+f1(pooled('strict','day',ns).P.n/ns)+' · 변경점 '+f1(pooled('strict','chg',ns).P.n/ns)+' · 요청 '+f1(pooled('strict','req',ns).P.n/ns)+'(판정 기한 전 교체는 뺀 평균). &lsquo;결론 있는 칸 중 일치&rsquo;는 사람 결론이 &lsquo;있음&rsquo;인 칸 가운데 에이전트도 일치한 비율입니다.':'';
+  var kinds=['chg','repair','scrap','correct','spec'],kn={chg:'변경점 신호(변경점 단위)',repair:'리페어',scrap:'마스크 제외',correct:'보정값 입력',spec:'spec 변경'},frows=[];
+  POLS.forEach(function(p){var c={};kinds.forEach(function(k){c[k]=0;});for(var i=0;i<ns;i++)EV(i,p.id).fp.forEach(function(x){if(c[x.kind]!=null)c[x.kind]++;});
+    frows.push([p.short].concat(kinds.map(function(k){return ns?f2(c[k]/ns):'—';})));});
+  tbl('tabFP',['정책'].concat(kinds.map(function(k){return kn[k]+' (건/시드)';})),frows,null);
+  /* 대표 시드의 위치 */
+  var mets=[['날 판정 일치율','day',function(c){return c.agree;},true],['변경점 놓침(칸)','chg',function(c){return c.fn;},false],['변경점 헛(칸)','chg',function(c){return c.fp;},false],['요청 일치율','req',function(c){return c.agree;},true],['요청 놓침(칸)','req',function(c){return c.fn;},false],['요청 헛(칸)','req',function(c){return c.fp;},false]];
+  var prow=[],inside=0;
+  if(RAWS.length>=E.SEEDS){
+    var re=repEval(ST.pol);
+    mets.forEach(function(m){var vals=[];for(var i=0;i<RAWS.length;i++)vals.push(m[2](EV(i,ST.pol)[m[1]]));var v=m[2](re[m[1]]),pcn=mid(vals,v),tag=pcn>=0.25&&pcn<=0.75;if(tag)inside++;
+      var isR=m[3];prow.push([m[0],isR?pc(v):String(v),isR?pc(E.quantile(vals,0.5)):f1(E.quantile(vals,0.5)),isR?pc(E.quantile(vals,0.1))+' ~ '+pc(E.quantile(vals,0.9)):f1(E.quantile(vals,0.1))+' ~ '+f1(E.quantile(vals,0.9)),Math.round(100*pcn)+'%',tag?'분포 가운데(25~75%)':'분포 바깥쪽']);});
+  } else prow.push(['시드 200개 계산이 끝나면 채워집니다','—','—','—','—','—']);
+  tbl('tabPct',['지표','대표 시드 값','200 시드 중앙값','10% ~ 90%','대표 시드의 백분위','위치'],prow,[null,null,null,null,null,null]);
+  var dd=data.strict&&data.strict.req;
+  if(ns&&dd){
+    var rq=POLS.map(function(p){return data[p.id].req.P;}),cg=POLS.map(function(p){return data[p.id].chg.P;});
+    var spread=function(arr){var v=arr.map(function(c){return c.agree;});return 100*(Math.max.apply(null,v)-Math.min.apply(null,v));};
+    var fnv=rq.map(function(c){return c.fn/ns;}),bigDiff=Math.max.apply(null,fnv)-Math.min.apply(null,fnv)>=0.5&&Math.max(spread(cg),spread(rq))<1;
+    $('conc4').innerHTML='<b>변경점·요청 두 단위에서 정책 셋의 일치율은 '+f1(spread(cg))+'%p·'+f1(spread(rq))+'%p 안에서만 다르'+(bigDiff?'지만, 놓침과 헛요청 건수는 크게 다릅니다.':'고, 놓침과 헛요청 건수는 아래와 같습니다.')+'</b> 요청 단위의 놓침은 시드당 엄격 '+f2(rq[0].fn/ns)+' · 2개 허용 '+f2(rq[1].fn/ns)+' · 점검 끔 '+f2(rq[2].fn/ns)+'건이고 헛요청은 '+f2(rq[0].fp/ns)+' · '+f2(rq[1].fp/ns)+' · '+f2(rq[2].fp/ns)+'건입니다. 날 판정에서는 점검을 풀수록 고장이 든 날을 멈추지 못합니다(놓침 시드당 '+f2(data.strict.day.P.fn/ns)+' → '+f2(data.two.day.P.fn/ns)+' → '+f2(data.off.day.P.fn/ns)+'일). 정책을 고르는 근거는 일치율이 아니라 이 두 건수의 맞바꿈입니다(0202).'+(RAWS.length>=E.SEEDS?' 대표 시드는 위 여섯 지표 가운데 '+inside+'개가 시드 분포의 25~75% 안에 있습니다. 바깥쪽인 지표는 대표 시드 한 번의 값으로 말하지 않고 분포로 말합니다.':'');
+  } else $('conc4').textContent='시드 계산이 시작되는 중입니다.';
+}
+function drawIv4(data,ns){
+  var cv=$('cv4'),w=cv.clientWidth||320,bh=26,blk=18+3*bh+30,s=setup(cv,UN.length*blk+4),x=s.x,labW=w<460?64:84,L=labW+4,R=w-10;
+  UN.forEach(function(u,ui){
+    var y0=2+ui*blk;x.fillStyle=css('--accent');x.font='800 13px sans-serif';x.fillText(u.name,2,y0+13);
+    var vals=[];POLS.forEach(function(p){var d=data[p.id][u.id];if(d)vals.push(d.w.lo,d.w.hi,d.P.allno);});
+    if(!vals.length){x.fillStyle=css('--soft');x.font='600 12px sans-serif';x.fillText('계산 중',L,y0+40);return;}
+    var lo=Math.max(0,Math.min.apply(null,vals)-0.01),hi=Math.min(1,Math.max.apply(null,vals)+0.01);if(hi-lo<0.05){lo=Math.max(0,lo-0.02);hi=Math.min(1,hi+0.02);}
+    function X(v){return L+(R-L)*(v-lo)/(hi-lo);}
+    POLS.forEach(function(p,pi){var d=data[p.id][u.id],by=y0+18+pi*bh+bh/2;x.fillStyle=css('--ink');x.font='700 12px sans-serif';x.fillText(p.short,2,by+4);
+      x.strokeStyle=[css('--accent'),css('--c8'),css('--c9')][pi];x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(X(d.w.lo),by);x.lineTo(X(d.w.hi),by);x.stroke();x.fillStyle=css('--ink');x.beginPath();x.arc(X(d.P.agree),by,4.5,0,6.283);x.fill();});
+    var ref=data.strict[u.id].P.allno,rx=X(ref);x.strokeStyle=css('--bad');x.lineWidth=2;x.setLineDash([5,4]);x.beginPath();x.moveTo(rx,y0+16);x.lineTo(rx,y0+18+3*bh);x.stroke();x.setLineDash([]);
+    x.fillStyle=css('--bad');x.font='700 11px sans-serif';var lb='늘 없음 '+pc(ref),tw=x.measureText(lb).width;x.fillText(lb,Math.min(Math.max(L,rx-tw/2),R-tw),y0+18+3*bh+13);
+    x.fillStyle=css('--soft');x.font='600 11px sans-serif';for(var k=0;k<=4;k++){var v=lo+(hi-lo)*k/4;x.textAlign=k===0?'left':(k===4?'right':'center');x.fillText(pc(v,1),X(v),y0+18+3*bh+27);}x.textAlign='start';
+  });
+}
+
+/* ---------- 5절: 경로 그룹 ---------- */
+function by(a,f,desc){return a.slice().sort(function(p,q){return desc?f(q)-f(p):f(p)-f(q);});}
+var absG=function(p){return Math.abs(p.v1-p.act);};
+var mids=by(NORM,absG,false);var midStart=Math.floor(mids.length/2);
+var GROUPS=[
+  {id:'mid',label:'중앙 경로(정상)',list:mids.slice(midStart,midStart+10)},
+  {id:'worst',label:'가장 어긋난 정상 경로',list:by(NORM,absG,true).slice(0,10)},
+  {id:'wait',label:'세정 대기가 긴 경로',list:by(NORM,function(p){return p.wait;},true).slice(0,10)},
+  {id:'rep',label:'리페어 경로',list:by(REPP,absG,false).filter(function(p,i,a){return i>=Math.floor(a.length/2)&&i<Math.floor(a.length/2)+10;})}
+];
+var NAMES_N=['세정기로 반송','세정 대기','세정 중','짝 대기(held)','stocker 로 반송'],NAMES_R=['리페어(반송 포함)','세정 대기','세정 중'];
+function drawPath(){
+  var g=GROUPS.filter(function(q){return q.id===ST.gg;})[0],p=g.list[Math.min(ST.gi,g.list.length)-1],cv=$('cv5'),w=cv.clientWidth||320,s=setup(cv,200),x=s.x;
+  $('sGiO').textContent=ST.gi+'번째';
+  var t0=p.tl[0],ends=[p.act-t0,p.v1-t0,p.v2-t0],maxT=Math.max.apply(null,ends)*1.04,L=10,R=w-10;
+  function X(t){return L+(R-L)*(t-t0)/maxT;}
+  var names=p.rep?NAMES_R:NAMES_N,cols=p.rep?[css('--bad'),css('--warn'),css('--accent')]:[css('--grey'),css('--warn'),css('--accent'),css('--c9'),css('--grey')];
+  var yb=70,bh=30;
+  for(var i=0;i<names.length;i++){var a=p.tl[i],b=p.tl[i+1];x.fillStyle=cols[i];x.fillRect(X(a),yb,Math.max(1,X(b)-X(a)),bh);}
+  /* 구간 이름 (좁으면 아래 줄로 번갈아) */
+  x.font='700 11px sans-serif';
+  for(var j=0;j<names.length;j++){var a2=p.tl[j],b2=p.tl[j+1],cx=(X(a2)+X(b2))/2,wd=X(b2)-X(a2),nm=names[j]+' '+(b2-a2)+'분';
+    if(wd>x.measureText(nm).width+6){x.fillStyle='#fff';x.textAlign='center';x.fillText(nm,cx,yb+bh/2+4);}
+    else{x.fillStyle=css('--ink');x.textAlign='center';var ty=yb+bh+16+(j%2)*14,tw2=x.measureText(nm).width;x.fillText(nm,Math.min(Math.max(cx,tw2/2+2),w-tw2/2-2),ty);}}
+  x.textAlign='start';
+  function mark(t,lab,col,ly){var mx=X(t);x.strokeStyle=col;x.lineWidth=2;x.setLineDash([5,3]);x.beginPath();x.moveTo(mx,ly+4);x.lineTo(mx,yb+bh+2);x.stroke();x.setLineDash([]);x.fillStyle=col;x.font='700 12px sans-serif';var tw=x.measureText(lab).width;x.textAlign='left';x.fillText(lab,Math.min(Math.max(2,mx-tw/2),w-tw-2),ly);}
+  var m1=X(p.v1),m2=X(p.v2),ma=X(p.act),ly1=14,ly2=14;
+  if(p.v1!==p.v2){mark(p.v1,'판 1 '+(p.v1-p.act>0?'+':'−')+Math.abs(p.v1-p.act)+'분',css('--accent'),14);mark(p.v2,'판 2 '+(p.v2-p.act>0?'+':(p.v2-p.act<0?'−':''))+Math.abs(p.v2-p.act)+'분',css('--c8'),32);}
+  else mark(p.v1,'판 1 = 판 2 ('+(p.v1-p.act>0?'+':'−')+Math.abs(p.v1-p.act)+'분)',css('--accent'),14);
+  mark(p.act,'실제 도착',css('--ink'),50);
+  x.fillStyle=css('--soft');x.font='600 11px sans-serif';x.textAlign='start';x.fillText('떠난 시각 = 0',L,196);x.textAlign='right';x.fillText('+'+Math.round(maxT)+'분',R,196);x.textAlign='start';
+  $('ro5').innerHTML='<b>'+g.label+' '+ST.gi+'번째</b> — 마스크 '+p.id+', 떠난 시각 '+p.t0+'분. 실제 입고까지 <b>'+(p.act-p.t0)+'분</b>, 판 1 예측 '+(p.v1-p.t0)+'분(gap <b>'+sg(p.v1-p.act)+'</b>분), 판 2 예측 '+(p.v2-p.t0)+'분(gap <b>'+sg(p.v2-p.act)+'</b>분). 세정 대기 '+p.wait+'분'+(p.rep?'':' · 짝 대기 '+p.held+'분')+'.';
+  var rows=[];for(var k=0;k<names.length;k++)rows.push([names[k],String(p.tl[k]),String(p.tl[k+1]),String(p.tl[k+1]-p.tl[k])]);
+  tbl('tabPath',['구간(실제 전이 기록)','시작(분)','끝(분)','걸린 분'],rows,[null,null,null,null]);
+}
+
+/* ---------- 6절 ---------- */
+function drawHist(){
+  var cv=$('cv6'),w=cv.clientWidth||320,s=setup(cv,230),x=s.x,lo=-250,hi=100,bw=10,nb=(hi-lo)/bw,c1=[],c2=[],i;
+  for(i=0;i<nb;i++){c1.push(0);c2.push(0);}
+  NORM.forEach(function(p){var a=Math.min(nb-1,Math.max(0,Math.floor((p.v1-p.act-lo)/bw))),b=Math.min(nb-1,Math.max(0,Math.floor((p.v2-p.act-lo)/bw)));c1[a]++;c2[b]++;});
+  var mx=Math.max.apply(null,c1.concat(ST.v2?c2:[])),L=44,R=w-8,T=10,B=190;
+  function X(v){return L+(R-L)*(v-lo)/(hi-lo);}function Y(c){return B-(B-T)*c/mx;}
+  x.fillStyle=css('--accent');x.globalAlpha=0.55;for(i=0;i<nb;i++){x.fillRect(X(lo+i*bw)+1,Y(c1[i]),(R-L)/nb-2,B-Y(c1[i]));}x.globalAlpha=1;
+  if(ST.v2){x.strokeStyle=css('--c8');x.lineWidth=2;x.beginPath();for(i=0;i<nb;i++){var xa=X(lo+i*bw),xb=X(lo+(i+1)*bw);if(i===0)x.moveTo(xa,Y(c2[i]));else x.lineTo(xa,Y(c2[i]));x.lineTo(xb,Y(c2[i]));}x.stroke();}
+  x.strokeStyle=css('--rule');x.lineWidth=1;x.beginPath();x.moveTo(L,B);x.lineTo(R,B);x.stroke();
+  x.strokeStyle=css('--ink');x.lineWidth=1.5;x.setLineDash([4,3]);x.beginPath();x.moveTo(X(0),T);x.lineTo(X(0),B);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--soft');x.font='600 11px sans-serif';for(var v=lo;v<=hi;v+=50){x.textAlign=v===hi?'right':'center';x.fillText(String(v),X(v),B+14);}x.textAlign='center';
+  x.fillText('gap = 예측 − 실제 (분) · 0 이 맞게 예측한 것, 왼쪽은 실제가 더 늦은 것',(L+R)/2,B+30);
+  x.textAlign='right';x.fillText(String(mx),L-4,T+8);x.fillText('0',L-4,B);x.textAlign='start';
+  var s1=E.gapStats(NORM,'v1'),s2=E.gapStats(NORM,'v2');
+  x.fillStyle=css('--accent');x.font='700 12px sans-serif';x.fillText('판 1 평균 '+sg(s1.bias)+'분',L+6,T+14);if(ST.v2){x.fillStyle=css('--c8');x.fillText('판 2 평균 '+sg(s2.bias)+'분',L+6,T+30);}
+}
+function grpStats(list){var g1=list.map(function(p){return p.v1-p.act;}),g2=list.map(function(p){return p.v2-p.act;});return {n:list.length,b1:E.mean(g1),s1:list.length>1?E.sd(g1):NaN,b2:E.mean(g2),s2:list.length>1?E.sd(g2):NaN,h:E.mean(list.map(function(p){return p.held;})),w:E.mean(list.map(function(p){return p.wait;}))};}
+function bigStats(){
+  var ab=PATHS.map(function(p){return Math.abs(p.v1-p.act);}),thr=E.quantile(ab,1-ST.big/100),big=PATHS.filter(function(p){return Math.abs(p.v1-p.act)>=thr;});
+  function share(f,l){return l.length?l.filter(f).length/l.length:NaN;}
+  var feats=[['리페어 경로',function(p){return p.rep;}],['세정 대기가 있음(1분 이상)',function(p){return p.wait>0;}],['세정 대기 60분 이상',function(p){return p.wait>=60;}],['짝 대기 60분 이상',function(p){return p.held>=60;}]];
+  var l0=feats.map(function(f){var a=share(f[1],PATHS),b=share(f[1],big);return {n:f[0],a:a,b:b,l:b/Math.max(1e-9,a)};});
+  return {thr:thr,big:big,feats:feats,share:share,lifts0:l0,lifts:l0.slice().sort(function(p,q){return q.l-p.l;})};
+}
+function upd6(){
+  $('cV2').checked=ST.v2;drawHist();
+  var nw=NORM.filter(function(p){return p.wait===0;}),ww=NORM.filter(function(p){return p.wait>0;});
+  var G=[['정상 · 세정 대기 없음',grpStats(nw)],['정상 · 세정 대기 있음',grpStats(ww)],['리페어',grpStats(REPP)],['전체',grpStats(PATHS)]];
+  tbl('tabGrp',['경로 구분','경로 수','판 1 평균 gap','판 1 표준편차','판 2 평균 gap','판 2 표준편차'],G.map(function(g){return [g[0],String(g[1].n),sg(g[1].b1),f1(g[1].s1),sg(g[1].b2),f1(g[1].s2)];}),[null,null,null,null,null,null]);
+  $('sBigO').textContent='상위 '+ST.big+'%';
+  var BG=bigStats(),thr=BG.thr,big=BG.big,feats=BG.feats,share=BG.share;
+  tbl('tabBig',['특징','전체 경로 중 비중','큰 gap 경로 중 비중','몰린 정도(배)'],BG.lifts0.map(function(l){return [l.n,pc(l.a),pc(l.b),f1(l.l)];}),[null,null,null,null]);
+  var gm1=E.mean(big.map(function(p){return Math.abs(p.v1-p.act);})),gm2=E.mean(big.map(function(p){return Math.abs(p.v2-p.act);}));
+  var ns1=E.gapStats(NORM,'v1'),ns2=E.gapStats(NORM,'v2'),hm=E.mean(NORM.map(function(p){return p.held;}));
+  /* 여러 번의 시뮬레이션 */
+  var gs=GAPS;
+  if(gs.length){
+    function mn(x){return x<0?'−'+Math.abs(x).toFixed(1):x.toFixed(1);}
+    function qs(f){var a=gs.map(f);return mn(E.quantile(a,0.5))+' ['+mn(E.quantile(a,0.1))+' ~ '+mn(E.quantile(a,0.9))+']';}
+    tbl('tabGs',['시뮬레이션 '+gs.length+'번 · 중앙값 [10% ~ 90%]','판 1','판 2'],[
+      ['정상 경로 평균 gap(분)',qs(function(g){return g.n1.bias;}),qs(function(g){return g.n2.bias;})],
+      ['정상 경로 표준편차(분)',qs(function(g){return g.n1.sd;}),qs(function(g){return g.n2.sd;})],
+      ['정상 경로 |gap| 상위 10% 경계(분)',qs(function(g){return g.n1.q90;}),qs(function(g){return g.n2.q90;})],
+      ['전체 경로 표준편차(분, 리페어 포함)',qs(function(g){return g.s1.sd;}),qs(function(g){return g.s2.sd;})]],[null,null,null]);
+  } else tbl('tabGs',['시뮬레이션 여러 번','판 1','판 2'],[['계산 대기 중','—','—']],[null,null,null]);
+  var sdd=$('stGs');
+  if(GAPS_DONE){sdd.className='state';sdd.textContent='시드 1~'+gs.length+' 의 시뮬레이션 '+gs.length+'번의 계산이 끝났습니다(한 번에 '+GAP.days+'일).';}
+  else{sdd.className='state moved';sdd.textContent=(RAWS.length<E.SEEDS?'앞의 시드 200개 평가가 끝나면 이어서 ':'')+'설정이 다른 시뮬레이션을 하나씩 돌리고 있습니다… '+gs.length+'/'+E.GAP_SEEDS;}
+  var shrink=1-ns2.sd/ns1.sd,diffH=Math.abs(Math.abs(ns2.bias)-hm);
+  var lifts=BG.lifts,rp=BG.lifts0[0];
+  $('conc6').innerHTML='<b>판 2(세정 대기열 반영)는 치우침을 크게 줄이지만 흩어짐은 조금만 줄입니다: 정상 경로의 평균 gap 이 '+sg(ns1.bias)+'분에서 '+sg(ns2.bias)+'분으로 옮겨 오고, 표준편차는 '+f1(ns1.sd)+'분에서 '+f1(ns2.sd)+'분('+Math.round(100*shrink)+'% 감소)입니다.</b> 남은 평균 차 '+sg(ns2.bias)+'분은 이 기록의 짝 대기 평균 '+f1(hm)+'분과 '+(diffH<3?'거의 같습니다 — 세트의 마스크 넷이 다 끝나야 함께 돌아가는 기다림을 계획 모델이 모르기 때문입니다.':'차이가 '+f1(diffH)+'분입니다.')+' 큰 gap(판 1 의 gap 크기 상위 '+ST.big+'%, '+f1(thr)+'분 이상) 경로에서 가장 두드러지게 몰린 특징은 &lsquo;'+lifts[0].n+'&rsquo;입니다(전체 '+pc(lifts[0].a)+' → 큰 gap 경로 '+pc(lifts[0].b)+'). 리페어 경로는 큰 gap 경로의 '+pc(rp.b)+'를 차지하지만 전체에서는 '+pc(rp.a)+'뿐이라, 큰 gap 의 대부분은 리페어가 아닌 정상 경로의 세정 대기에서 나옵니다. 판 2 로 바꾸면 큰 gap 경로의 평균 gap 크기가 '+f1(gm1)+'분에서 '+f1(gm2)+'분이 됩니다. 리페어 경로는 두 판이 같고 표준편차가 '+f1(grpStats(REPP).s1)+'분이라 평균값 하나로는 예측할 수 없습니다. <b>계획 모델을 고칠 곳은 기록이 가리킵니다: 세정 대기, 짝 대기, 그리고 리페어 시간의 분포입니다.</b>';
+}
+
+/* ---------- 7절 ---------- */
+function bigTxt(){var BG=bigStats(),t=BG.lifts[0],r=BG.lifts0[0];return '큰 gap(판 1 의 gap 크기 상위 '+ST.big+'%)에 가장 몰린 특징은 &lsquo;'+t.n+'&rsquo;(전체 '+pc(t.a)+' → '+pc(t.b)+')이고, 리페어 경로는 큰 gap 의 '+pc(r.b)+'입니다(6절).';}
+function fixTxt(ns){var P=pooled('strict','req',ns).P,late=0;for(var i=0;i<ns;i++)late+=EV(i,'strict').lateR;return '엄격 정책의 요청 놓침은 시드당 '+f2(P.fn/ns)+'칸이고, 그 가운데 허용 지연('+ST.G+'일)을 넘겨서라도 결국 알아챈 것이 '+f2(late/ns)+'칸('+pc(P.fn?late/P.fn:NaN)+')입니다. 마스크 이력 표를 점검을 통과한 날에만 읽기 때문입니다. 점검 실패일에도 읽을 수 있는 이력 읽기를 점검과 떼어 낸 뒤 같은 평가를 다시 돌립니다.';}
+
+function upd7(){
+  var p=polOf(ST.pol),ns=nS(),e=repEval(ST.pol),P={};
+  UN.forEach(function(u){if(ns)P[u.id]=pooled(ST.pol,u.id,ns).P;});
+  var Pq=ns?P:null;
+  function line(u){var c=e[u],w=wl(c),d=Pq?Pq[u]:null,wp=Pq?wl(Pq[u]):null;return '<li><b>'+unitOf(u).name+'</b> — 대표 시드 14일: 일치 '+(c.tp+c.tn)+'/'+c.n+' = '+pc(c.agree)+' [<span>'+pc(w.lo)+' ~ '+pc(w.hi)+'</span>], 놓침 '+c.fn+' · 헛 '+c.fp+'. 시드 '+ns+'개 모음: '+(wp?pc(d.agree)+' ['+pc(wp.lo)+' ~ '+pc(wp.hi)+'], 놓침 시드당 '+f2(d.fn/ns)+' · 헛 시드당 '+f2(d.fp/ns):'계산 중')+'. 늘 &lsquo;없음&rsquo;이라고만 답하면 '+pc(c.allno)+'.</li>';}
+  var sI=E.gapStats(NORM,'v1'),sJ=E.gapStats(NORM,'v2'),rq=Pq?Pq.req:null;
+  var ex=[];e.fp.slice(0,6).forEach(function(x){ex.push(x.ch+' '+x.day+'일 '+(x.kind==='chg'?'변경점 신호':(A.KIND_KO[x.kind]||x.kind)));});
+  var stop=rq&&ns?'14일 동안 요청 놓침이 '+Math.max(1,Math.ceil(E.quantile(seedMetric('req','fn'),0.9)))+'칸을 넘거나 헛요청이 '+Math.max(1,Math.ceil(E.quantile(seedMetric('req','fp'),0.9)))+'칸을 넘으면(이 평가의 시드 분포 90% 경계)':'시범 기간의 놓침·헛요청이 이 평가의 분포 바깥으로 나가면';
+  $('rep7').innerHTML='<h3>에이전트 평가 보고서 (정책: '+p.name+' · 허용 지연 '+ST.G+'일)</h3><dl>'+
+    '<dt>평가 기간·평가 단위·사람 결론</dt><dd>가상 공장 '+DAYS+'일(대표 시드 '+SC.params.seed+'), 날 판정 '+e.day.n+' · 변경점 '+e.chg.n+' · 요청 '+e.req.n+'칸. 사람 결론 = 주입한 고장과 마스크 교체(정답, 2절 규칙). 현장에서는 담당자의 결론으로 바꾸고 사람끼리의 일치율을 함께 잽니다.</dd>'+
+    '<dt>혼동표·일치율·구간</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">'+line('day')+line('chg')+line('req')+'</ul></dd>'+
+    '<dt>놓침·헛요청 사례(대표 시드)</dt><dd>놓침: '+(e.items.filter(function(it){return /놓침/.test((it.chg||'')+(it.req||''));}).map(function(it){return it.ch+' '+it.day+'일 교체 — 변경점 '+(it.chg||'—')+' · 기준 측정 '+it.req;}).join(' / ')||'없음')+'. 헛요청: '+(ex.join(', ')||'없음')+'.</dd>'+
+    '<dt>sim-real gap</dt><dd>정상 경로 '+sI.n+'개: 판 1 평균 '+sg(sI.bias)+'분·표준편차 '+f1(sI.sd)+'분·|gap| 상위 10% 경계 '+f1(sI.q90)+'분, 판 2 평균 '+sg(sJ.bias)+'분·표준편차 '+f1(sJ.sd)+'분. 리페어 경로 '+REPP.length+'개는 표준편차 '+f1(grpStats(REPP).s1)+'분으로 계획 모델이 맞히지 못합니다. '+bigTxt()+'</dd>'+
+    '<dt>시범 적용 범위·중단 기준(제안, 사람이 승인)</dt><dd>범위: 설비 상태를 바꾸지 않는 요청(기준 측정·보정값 입력)까지만 에이전트가 내고, 마스크 제외와 spec 변경은 사람 승인 대기열을 그대로 둡니다. 중단 기준: '+stop+' 시범을 멈추고 사람이 정책 문턱을 다시 봅니다. 시뮬레이터 안의 평가이므로 시범 기간의 실제 기록으로 이 평가를 다시 돌립니다.</dd>'+
+    '<dt>이 평가가 가리키는 고칠 곳</dt><dd>'+(ns&&rq?fixTxt(ns):'시드 계산이 끝나면 채워집니다.')+'</dd>'+
+    '<dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________</dd></dl>';
+  /* 단계 4 마무리 표 */
+  var m0=MS.s15tools.metrics(SC),sum=LC.summary(),nn=0,none=0;sum.forEach(function(r){nn+=r.n;none+=r.none;});
+  var rc=LV.readCounts(),aa=0,bb=0;rc.A.forEach(function(v){aa+=v;});rc.B.forEach(function(v){bb+=v.read;});
+  var s01=RUN.strict.summary,pS=Pq?pooled('strict','req',ns).P:null;
+  tbl('tabEnd',['실험실','에이전트의 어느 층','가상 공장에서 잰 숫자','남은 한계'],[
+    ['0400 사내 데이터 파이프라인','손발 — 뽑기·잇기·점검·지문','점검이 고장 난 '+m0.n_fault_days+'일 가운데 '+Math.round(m0.caught_ratio*m0.n_fault_days)+'일을 잡음 · 점검 없이는 '+m0.wrong+'일이 정답과 다름','점검은 규칙에 있는 고장만 거름'],
+    ['0410 LLM이 잘하는 것과 틀리는 것','기본기 — 맡길 일과 사람이 볼 일','답 '+sum.length+'개의 숫자 '+nn+'개 중 근거 없음 '+none+'개','틀림은 문장의 관계와 원인에 있고 숫자 대조로 못 잡음'],
+    ['0411 LLM에게 일을 맡기는 법','설명·보고 층 — 사실 목록·검사기','사람이 읽을 문장 평균 '+f1(aa/rc.A.length)+' → '+f1(bb/rc.B.length)+'개','검사 통과가 맞음은 아니고 관계 문장은 사람이 봄'],
+    ['0401 에이전트 구조 시제품','뼈대 — 하루 한 바퀴·가드·승인 대기열','엄격 정책: 분석한 날 '+s01.analyzed+' · 멈춘 날 '+s01.stopped+' · 요청 '+s01.requests+'건','조치 판정은 단순 규칙이고, 마스크 이력을 점검 통과일에만 읽음'],
+    ['0402 에이전트 평가','믿을 수 있는지 재는 틀 — 일치율·구간·gap','엄격 정책의 요청 단위 일치율 '+(pS?pc(pS.agree):'계산 중')+'(늘 없음 '+(pS?pc(pS.allno):'—')+') · 정상 경로 gap '+sg(sI.bias)+'분','시뮬레이터 안의 평가라 현장 기록으로 다시 돌려야 함']],[null,null,null,null]);
+}
+function seedMetric(u,k){var a=[];for(var i=0;i<nS();i++)a.push(EV(i,ST.pol)[u][k]);return a;}
+
+/* ---------- 8절 ---------- */
+function upd8(){
+  $('sCmO').textContent=ST.cm+'분';$('sCfO').textContent=ST.cf+'분';$('sCdO').textContent=ST.cd+'분';$('sHmO').textContent=ST.hm+'%';$('sHfO').textContent=ST.hf+'건';
+  var def=ST.cm===DEF.cm&&ST.cf===DEF.cf&&ST.cd===DEF.cd&&ST.hm===DEF.hm&&ST.hf===DEF.hf;$('st8').className=def?'state':'state moved';$('st8').textContent=def?'다섯 값 모두 기본 가정입니다(현장 값이 아닙니다).':'다섯 값을 기본 가정에서 옮겨 놓았습니다.';
+  var ns=nS();if(!ns){tbl('tab8',['','사람만'],[['계산 중','—']],[null,null]);$('conc8').textContent='시드 계산이 시작되는 중입니다.';return;}
+  var ag={};POLS.forEach(function(p){var Q=pooled(p.id,'req',ns).P,D=pooled(p.id,'day',ns).P;ag[p.id]={fn:Q.fn/ns,fp:Q.fp/ns,dn:D.fn/ns,pos:Q.pos/ns,dpos:D.pos/ns};ag[p.id].c=ag[p.id].fn*ST.cm+ag[p.id].fp*ST.cf+ag[p.id].dn*ST.cd;});
+  var h0=ag.strict,hfn=ST.hm/100*h0.pos,hdn=ST.hm/100*h0.dpos,hfp=ST.hf,ch=hfn*ST.cm+hfp*ST.cf+hdn*ST.cd;
+  tbl('tab8',['14일당 (시드 '+ns+'개 평균)','사람만(가정)'].concat(POLS.map(function(p){return '에이전트 '+p.short;})),[
+    ['기준 측정 놓침(건)',f2(hfn)].concat(POLS.map(function(p){return f2(ag[p.id].fn);})),
+    ['헛요청(건)',f2(hfp)].concat(POLS.map(function(p){return f2(ag[p.id].fp);})),
+    ['고장 든 날을 분석한 날(일)',f2(hdn)].concat(POLS.map(function(p){return f2(ag[p.id].dn);})),
+    ['기대 비용(분)',f1(ch)].concat(POLS.map(function(p){return f1(ag[p.id].c);})),
+    ['하루 환산(분)',f1(ch/DAYS)].concat(POLS.map(function(p){return f1(ag[p.id].c/DAYS);}))],[null,null,null,null,null]);
+  var cur=ag[ST.pol],ca=cur.c,p=polOf(ST.pol),small=Math.abs(ca-ch)<0.1*Math.max(ca,ch);
+  var best=POLS.slice().sort(function(a,b){return ag[a.id].c-ag[b.id].c;})[0];
+  var be=(ca-hfp*ST.cf)/Math.max(1e-9,(h0.pos*ST.cm+h0.dpos*ST.cd))*100;
+  $('conc8').innerHTML='<b>'+p.short+' 정책의 14일당 기대 비용은 '+f1(ca)+'분, 사람만 할 때는 '+f1(ch)+'분'+(small?'으로 차이가 작습니다.':(ca<ch?'으로 에이전트가 '+f1(ch-ca)+'분 낮습니다.':'으로 에이전트가 '+f1(ca-ch)+'분 높습니다.'))+'</b> 기대 비용이 가장 낮은 에이전트 정책은 &lsquo;'+best.short+'&rsquo;('+f1(ag[best.id].c)+'분)입니다. '+p.short+' 정책에서는 '+(cur.fn*ST.cm>=Math.max(cur.fp*ST.cf,cur.dn*ST.cd)?'기준 측정 놓침':(cur.dn*ST.cd>=cur.fp*ST.cf?'고장 든 날을 분석한 날':'헛요청'))+'이 비용을 가장 크게 정합니다. '+(be>0&&be<100?'사람의 놓침 비율이 '+f1(be)+'% 일 때 이 정책과 사람만 할 때의 비용이 같아집니다(지금 가정 '+ST.hm+'%).':'사람의 놓침 비율을 0~100% 어디에 두어도 이 정책과 사람만 할 때의 비용은 같아지지 않습니다.')+' 14일이라는 작은 기록의 평균이므로 차이를 단정하지 않습니다.';
+}
+
+/* ---------- 10절 ---------- */
+function upd10(){
+  $('rp_fields').innerHTML='<code>평가 기간 · 평가 단위 · 사람 결론의 규칙과 결론을 낸 사람·시각 · 정책 판 · 허용 지연 · 혼동표(단위마다) · 일치율과 윌슨 구간 · 놓침·헛요청 사례 목록 · sim-real gap(치우침·흩어짐·꼬리·큰 상황) · 시범 적용 범위·중단 기준 · 승인</code>';
+  var e=repEval(ST.pol),c=e.req,w=wl(c);
+  $('rp_ex').innerHTML='<code>'+esc(['대표 시드 '+SC.params.seed+' · '+DAYS+'일','요청 '+c.n+'칸','사람 결론: 정답(주입 고장·마스크 교체)','정책 '+polOf(ST.pol).name,'허용 지연 '+ST.G+'일','일치 '+(c.tp+c.tn)+'/'+c.n+' = '+pc(c.agree)+' ['+pc(w.lo)+' ~ '+pc(w.hi)+']','놓침 '+c.fn+' · 헛 '+c.fp,'gap 판 1 '+sg(E.gapStats(NORM,'v1').bias)+'분 / 판 2 '+sg(E.gapStats(NORM,'v2').bias)+'분','승인 ____'].join(' | '))+'</code>';
+  var rows=[['실행 기록 읽기','<code>run_agent</code>','0401'],['사람 결론과 맞대기','<code>agreement_table</code>','0402'],['일치율의 구간','<code>wilson_ci</code>','0402'],['정책별 평가','<code>eval_policies</code>','0402'],['계획 예측','<code>plan_model</code>','0402'],['예측 − 실제','<code>sim_real_gap</code>','0206 기록 + 0402']];
+  tbl('tabTool',['할 일','도구','출처'],rows,[null,L_,L_]);
+}
+
+/* ---------- 전체 ---------- */
+function refresh(){syncBars();upd1();upd2();upd3();upd4();drawPath();upd6();upd7();upd8();upd10();syncCtl();}
+function syncCtl(){$('sG').value=String(ST.G);$('sG4').value=String(ST.G);$('sD').value=String(ST.D);$('sS').value=String(ST.S);$('sS4').value=String(ST.S);$('sGi').value=String(ST.gi);$('sBig').value=String(ST.big);$('sCm').value=String(ST.cm);$('sCf').value=String(ST.cf);$('sCd').value=String(ST.cd);$('sHm').value=String(ST.hm);$('sHf').value=String(ST.hf);}
+function bind(id,fn){$(id).addEventListener('input',function(){fn(+this.value);refresh();});}
+bind('sG',function(v){ST.G=v;});bind('sG4',function(v){ST.G=v;});bind('sD',function(v){ST.D=v;});bind('sS',function(v){ST.S=v;});bind('sS4',function(v){ST.S=v;});bind('sGi',function(v){ST.gi=v;});bind('sBig',function(v){ST.big=v;});
+bind('sCm',function(v){ST.cm=v;});bind('sCf',function(v){ST.cf=v;});bind('sCd',function(v){ST.cd=v;});bind('sHm',function(v){ST.hm=v;});bind('sHf',function(v){ST.hf=v;});
+$('rG').addEventListener('click',function(){ST.G=DEF.G;refresh();});$('rG4').addEventListener('click',function(){ST.G=DEF.G;ST.S=DEF.S;refresh();});$('rDS').addEventListener('click',function(){ST.D=DEF.D;ST.S=DEF.S;refresh();});$('rBig').addEventListener('click',function(){ST.big=DEF.big;refresh();});
+$('rC').addEventListener('click',function(){ST.cm=DEF.cm;ST.cf=DEF.cf;ST.cd=DEF.cd;ST.hm=DEF.hm;ST.hf=DEF.hf;refresh();});
+$('cV2').addEventListener('change',function(){ST.v2=this.checked;refresh();});
+window.addEventListener('resize',function(){upd3();upd4();drawPath();drawHist();});
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+/* ---------- 시드 1~200 평가와 gap 시뮬레이션 여러 번: 한 번에 한 개씩 뒤에서 ---------- */
+RAWS.push(E.seedRaw(1));
+buildBars();refresh();
+(function loop(){
+  var s=RAWS.length+1;
+  if(s<=E.SEEDS){RAWS.push(E.seedRaw(s));if(s%20===0||s===E.SEEDS){upd3();upd4();upd7();upd8();upd6();}setTimeout(loop,0);return;}
+  SWEEP_DONE=true;refresh();
+  (function gl(){var g=GAPS.length+1;if(g>E.GAP_SEEDS){GAPS_DONE=true;upd6();return;}GAPS.push(E.slim(E.gapSeed(g)));if(g%5===0)upd6();setTimeout(gl,0);})();
+})();
+window.__ev={st:ST,refresh:refresh,raws:function(){return RAWS;},gaps:function(){return GAPS;},done:function(){return SWEEP_DONE&&GAPS_DONE;},rep:REP,gap:GAP};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+
+</script>
+<script src="../tutor.js"></script>
+</body></html>

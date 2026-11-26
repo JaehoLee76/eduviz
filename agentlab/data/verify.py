@@ -2276,6 +2276,264 @@ chk('0401 페이지: 새 용어 6개 · Q&A 4개 · 절 11개 · 캔버스 글�
     f'용어 {_term01} · Q&A {_nq01} · 절 {_nsec01} · 캔버스 글자 최소 {min(_fonts01)}px({len(_fonts01)}곳) · -다 끝맺음 {len(_endda01)}건 · 0411 링크 {_p11.count("0401-agent-prototype.html")}곳')
 _cleanup01 = shutil.rmtree(_td01, ignore_errors=True)
 
+# ============================================================
+# 0402 — 에이전트 평가. 사람 결론(정답)과 맞댄 혼동표·일치율·윌슨 구간(eval0402.js)을 페이지의 Python 코드(lab0402.py)가 독립 구현으로 다시 세고,
+# 다른 시드의 에이전트 행동은 0401 페이지의 Python 에이전트(lab0401.py)가 다시 돌려 JS 와 대조하며, 사람 결론(고장이 든 날·마스크 교체와 그 크기)도 CSV 에서 파이썬이 독립으로 다시 만든다.
+# 계획 모델 두 판과 sim-real gap 은 0206 전이 기록(CSV)에서 파이썬이 다시 계산해 JS 경로별 값과 대조한다.
+# ============================================================
+import datetime as _dt02
+_pg02 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0402-agent-evaluation.html'), encoding='utf-8').read()
+_code02 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg02, _re5.S).group(1)); _out02 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg02, _re5.S).group(1)).strip()
+_ev02 = os.path.join(_DATA10, 'eval0402.js'); _js02s = open(_ev02, encoding='utf-8').read(); _ag02s = open(os.path.join(_DATA10, 'agent0401.js'), encoding='utf-8').read()
+_td02 = _tf5.mkdtemp()
+for _f in ('s15_agent_log_115.csv', 's15_human_labels_115.csv', 'mask_transitions.csv'): shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(_td02, _f))
+open(os.path.join(_td02, 'lab0402.py'), 'w', encoding='utf-8').write(_code02)
+_sp02 = _ilu01.spec_from_file_location('lab0402', os.path.join(_td02, 'lab0402.py')); _m02 = _ilu01.module_from_spec(_sp02); _sp02.loader.exec_module(_m02)
+_EXPORT02 = r"""const fs=require('fs'),path=require('path');
+const DATA=process.argv[2],OUT=process.argv[3];
+const MS=require(DATA+'/mfgsim.js'),A0=require(DATA+'/agent0401.js'),E=require(DATA+'/eval0402.js');
+const SEEDS=JSON.parse(process.argv[4]);       // 전체 CSV·행동 기록을 내보낼 시드
+const res={};
+function csv(fn,rows,cols){cols=cols||Object.keys(rows[0]);const esc=v=>(v==null?'':String(v).includes(',')?'"'+String(v).replace(/"/g,'""')+'"':String(v));fs.writeFileSync(fn,[cols.join(',')].concat(rows.map(r=>cols.map(c=>esc(r[c])).join(','))).join('\n')+'\n');}
+res.seeds={};
+SEEDS.forEach(seed=>{
+  const S=MS.scenario('S15',{seed});const d=path.join(OUT,'seed'+seed);fs.mkdirSync(d,{recursive:true});
+  ['fdc_glass','ppa_coef','events','mask_hist'].forEach(n=>csv(path.join(d,'s15_'+n+'.csv'),S.csvRows(n),S.cols[n]));
+  csv(path.join(d,'s15_clean_fdc_glass.csv'),S.csvRows('clean_fdc_glass'),S.cols.fdc);csv(path.join(d,'s15_clean_ppa_coef.csv'),S.csvRows('clean_ppa_coef'),S.cols.ppa);csv(path.join(d,'s15_faults.csv'),S.csvRows('faults'),['day','kind','detail']);
+  const A=seed===A0.seed?A0:A0.forSeed(seed),raw=E.seedRaw(seed),o={spec:S.params.spec,thermal:S.params.thermal,raw:raw,runs:{},ev:{}};
+  E.POLS.forEach(p=>{const r=A.run({tol:p.tol});o.runs[p.id]=r.days.map(x=>({day:x.day,an:x.analyzed,fails:x.fails,fl:x.flagged,req:x.requests.map(q=>[q.id,q.kind,q.ch,q.mask,q.verdict])}));
+    o.ev[p.id]={};[0,1,2,4].forEach(G=>[14,9].forEach(D=>{const e=E.evalRaw(raw,p.id,G,D);o.ev[p.id][G+'|'+D]={day:e.day,chg:e.chg,req:e.req,lateC:e.lateC,lateR:e.lateR};}));});
+  res.seeds[seed]=o;
+});
+// 기본 호출 = forSeed(대표 시드)
+const same=[{},{tol:2},{tol:7},{tol:4,delta:0.2,bonf:false}].every(p=>JSON.stringify(A0.run(p).days.map(d=>[d.day,d.analyzed,d.fails,d.flagged,d.requests.map(q=>[q.id,q.kind,q.ch,q.verdict,q.text]),d.report.raw]))===JSON.stringify(A0.forSeed(A0.seed).run(p).days.map(d=>[d.day,d.analyzed,d.fails,d.flagged,d.requests.map(q=>[q.id,q.kind,q.ch,q.verdict,q.text]),d.report.raw])));
+res.forSeedSame=same;res.keys=Object.keys(A0).sort();res.defaults={G0:E.G0,SEEDS:E.SEEDS,DAYS:E.DAYS,GAP_SEEDS:E.GAP_SEEDS,DELTA_H:E.DELTA_H,REP:E.REP};
+res.repw={};E.POLS.forEach(p=>{res.repw[p.id]={};['day','chg','req'].forEach(u=>{const c=E.evalRaw(E.seedRaw(E.REP),p.id,2,14)[u];res.repw[p.id][u]=E.wilson(c.tp+c.tn,c.n);});});
+// 윌슨
+res.wilson=[[0,14,.95],[14,14,.95],[111,112,.95],[1,10,.95],[5,10,.95],[21834,22400,.95],[0,1,.95],[1,1,.95],[3,7,.95],[50,200,.9],[50,200,.99],[7,12,.99]].map(a=>({k:a[0],n:a[1],c:a[2],w:E.wilson(a[0],a[1],a[2])}));
+// 200 시드 원자료와 합산 칸
+const raws=E.sweepSync(1,200);res.raws=raws.map(r=>({seed:r.seed,swaps:r.swaps,fault:r.fault,kinds:r.kinds,pol:Object.fromEntries(E.POLS.map(p=>[p.id,{an:r.pol[p.id].an,flags:r.pol[p.id].flags,base:r.pol[p.id].base,other:r.pol[p.id].other}]))}));
+res.pool={};E.POLS.forEach(p=>{res.pool[p.id]={};['day','chg','req'].forEach(u=>{res.pool[p.id][u]=raws.map(r=>{const e=E.evalRaw(r,p.id,2,14)[u];return [e.tp,e.fn,e.fp,e.tn];});});});
+res.late={};E.POLS.forEach(p=>{res.late[p.id]=raws.map(r=>{const e=E.evalRaw(r,p.id,2,14);return [e.lateC,e.lateR];});});
+// gap: 기본 시뮬레이션(CSV 와 같은 것), 시드 1·2(60일), 시드 3(20일, CSV 로 내보내 파이썬이 읽음)
+const g=E.gapSeed(null);res.gap={par:g.par,days:g.days,paths:g.paths.map(p=>[p.id,p.rep?1:0,p.t0,p.v1,p.v2,p.act,p.wait,p.held]),s1:g.s1,s2:g.s2,n1:g.n1,n2:g.n2};
+res.gapSeeds={};[1,2].forEach(s=>{const sm=MS.simulateLoss({trace:true,seed:s});csv(path.join(OUT,'trace'+s+'.csv'),sm.transitions,['t','entity','id','from','to','trigger','cause']);const x=E.gapSeed(s);res.gapSeeds[s]={n:x.n,nrep:x.nrep,s1:x.s1,s2:x.s2,n1:x.n1,n2:x.n2};});
+const sim3=MS.simulateLoss({trace:true,seed:3,days:20});csv(path.join(OUT,'trace3.csv'),sim3.transitions,['t','entity','id','from','to','trigger','cause']);
+const g3=E.gapPaths(sim3.transitions,E.planParams(sim3));res.gap3={par:E.planParams(sim3),paths:g3.map(p=>[p.id,p.rep?1:0,p.t0,p.v1,p.v2,p.act,p.wait,p.held])};
+fs.writeFileSync(path.join(OUT,'res.json'),JSON.stringify(res));
+"""
+_SEEDS02 = [115, 7, 60, 150, 199]
+_jsf02 = os.path.join(_td02, 'export402.js'); open(_jsf02, 'w').write(_EXPORT02)
+subprocess.run([_node, _jsf02, _DATA10, _td02, json.dumps(_SEEDS02)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_R02 = json.load(open(os.path.join(_td02, 'res.json')))
+_POL02 = [('strict', 0), ('two', 2), ('off', 7)]; _UMAP02 = {'day': 'day', 'change': 'chg', 'request': 'req'}
+
+# 1. 0401 에이전트를 시드로 넓혀도 기본 호출은 그대로: forSeed(대표 시드) = 기본 호출(정책 넷 × 14일의 분석 여부·점검 실패·변경점·요청·보고 원문), 기존 열쇠는 전부 남음
+_old_keys = ['POLICY0', 'RULE_KO', 'KIND_KO', 'VERDICT_KO', 'CH', 'DAYS', 'OBS', 'MIN_N', 'REPAIR_DAYS', 'ALPHA', 'SPEC_GAP', 'SC', 'run', 'logRows', 'queueRows', 'summarize', 'snapshot', 'baseState', 'tp2', 'lag1']
+chk('0402 agent0401 시드 확장: 시드 인자 없는 기본 호출 = forSeed(대표 시드 115)(정책 넷 × 14일의 분석 여부·점검 실패·변경점·요청·보고 원문 일치), 기존 공개 열쇠 20개 그대로, mfgsim.js 를 부르기만 함',
+    _R02['forSeedSame'] is True and all(k in _R02['keys'] for k in _old_keys) and 'forSeed' in _R02['keys'] and not _re5.search(r'\bMS\.[A-Za-z0-9_]+\s*=(?!=)', _ag02s) and not _re5.search(r'\bMS\.[A-Za-z0-9_]+\s*=(?!=)', _js02s),
+    f"공개 열쇠 {len(_R02['keys'])}개(새 열쇠 seed·forSeed)")
+
+# 2. 다른 시드의 에이전트 행동: 0401 페이지의 Python 에이전트(독립 구현)가 CSV 에서 다시 돌려 JS 와 대조
+def _loadpy02(sd): return os.path.join(_td02, 'seed%d' % sd)
+_bad02, _nd02, _specbad02 = [], 0, []
+_PYREC02 = {}
+for _sd in _SEEDS02:
+    _dd = _loadpy02(_sd)
+    _clean = pd.read_csv(os.path.join(_dd, 's15_clean_ppa_coef.csv')); _spec = round(float(np.quantile(_clean['ppa_metric'], 0.9)), 6)
+    if abs(_spec - _R02['seeds'][str(_sd)]['spec']) > 1e-9: _specbad02.append(_sd)
+    _tb = _m01.load_tables(_dd); _old = _m01.SPEC; _m01.SPEC = _spec
+    try:
+        _PYREC02[_sd] = {pid: _m01.run_agent(_tb, {'tol': tol})[0] for pid, tol in _POL02}
+    finally: _m01.SPEC = _old
+    for pid, tol in _POL02:
+        for _a, _b in zip(_R02['seeds'][str(_sd)]['runs'][pid], _PYREC02[_sd][pid]):
+            _nd02 += 1
+            _pb = {'day': _b['day'], 'an': _b['analyzed'], 'fails': _b['fails'], 'fl': _b['flagged'], 'req': [[q['id'], q['kind'], q['ch'], q['mask'], q['verdict']] for q in _b['requests']]}
+            if _a != _pb: _bad02.append((_sd, pid, _a['day']))
+chk(f'0402 시드 5개(대표 115 + 7·60·150·199) × 정책 셋 × 14일: JS 에이전트(forSeed) = 0401 페이지 Python 에이전트가 그 시드의 CSV 에서 다시 돌린 결과(분석 여부·점검 실패 규칙·새 변경점·요청 번호·종류·대상·판정), spec = 정답본 지표의 90% 분위(numpy)',
+    not _bad02 and not _specbad02 and _nd02 == 5 * 3 * 14, f'{_nd02}일 기록 대조, 불일치 {len(_bad02)}, spec 불일치 {len(_specbad02)}' + (f' 예: {_bad02[:2]}' if _bad02 else ''))
+
+# 3. 사람 결론(정답)을 CSV 에서 파이썬이 독립으로 다시 만든다: 고장이 든 날 · 마스크 교체(날·챔버)와 교체 전후 보정 후 Mx 평균 차
+def _labels02(dd):
+    fa = pd.read_csv(os.path.join(dd, 's15_faults.csv'), keep_default_na=False)
+    rows = [{'kind': 'fault', 'day': int(d), 'chamber': '', 'value': '+'.join(g['kind'])} for d, g in fa.groupby('day')]
+    mh = pd.read_csv(os.path.join(dd, 's15_mask_hist.csv'), keep_default_na=False)
+    cp = pd.read_csv(os.path.join(dd, 's15_clean_ppa_coef.csv'), keep_default_na=False); cf = pd.read_csv(os.path.join(dd, 's15_clean_fdc_glass.csv'))
+    m = cp.merge(cf[['glass_id', 'block', 'chamber', 'chamber_temp']], on='glass_id')
+    T0 = _dt02.datetime(2026, 3, 2, 6, 0)
+    for (blk, ch), g in mh[mh['state'] == 'IN_USE'].groupby(['block', 'chamber']):
+        g = g.sort_values('from_ts')
+        if len(g) < 2: continue
+        ts = g.iloc[1]['from_ts']; mins = (_dt02.datetime.strptime(ts, '%Y-%m-%d %H:%M') - T0).total_seconds() / 60; day = int(mins // 1440) + 1
+        if day > 14: continue
+        sub = m[(m['block'] == blk) & (m['chamber'] == ch)].dropna(subset=['chamber_temp']); comp = sub['Mx'] - _m01.SLOPE * (sub['chamber_temp'] - _m01.T_REF)
+        eff = float(comp[sub['ts'] >= ts].mean() - comp[sub['ts'] < ts].mean())
+        rows.append({'kind': 'swap', 'day': day, 'chamber': blk + '-' + ch, 'value': '%.6f' % eff})
+    return pd.DataFrame(rows, columns=['kind', 'day', 'chamber', 'value'])
+_LAB02 = {sd: _labels02(_loadpy02(sd)) for sd in _SEEDS02}
+_lbad02 = []
+for _sd in _SEEDS02:
+    _raw = _R02['seeds'][str(_sd)]['raw']; _L = _LAB02[_sd]
+    _fd = sorted(int(d) for d in _L[_L['kind'] == 'fault']['day']); _jf = [i + 1 for i, f in enumerate(_raw['fault']) if f]
+    _sw = sorted((int(r.day), r.chamber, float(r.value)) for r in _L[_L['kind'] == 'swap'].itertuples()); _jsw = sorted((s['day'], s['ch'], s['eff']) for s in _raw['swaps'])
+    if _fd != _jf or len(_sw) != len(_jsw) or any(a[:2] != b[:2] or abs(a[2] - b[2]) > 1e-5 for a, b in zip(_sw, _jsw)): _lbad02.append(_sd)
+chk('0402 사람 결론: 시드 5개에서 고장이 든 날(주입 목록 CSV)·마스크 교체의 날과 챔버(마스크 이력 CSV)·교체 전후 보정 후 Mx 평균 차(정답본 CSV, pandas)를 파이썬이 독립으로 다시 만든 것 = JS 의 사람 결론',
+    not _lbad02, f'시드 {len(_SEEDS02)}개 · 교체 합계 {sum(len(_R02["seeds"][str(s)]["raw"]["swaps"]) for s in _SEEDS02)}건 · 불일치 시드 {_lbad02}')
+
+# 4. 평가: 페이지 Python 의 agreement_table(독립 구현) = JS evalRaw — 파이썬이 다시 돌린 에이전트 기록과 파이썬이 다시 만든 사람 결론으로, 시드 5 × 정책 3 × 단위 3 × 허용 지연 4 × 기간 2
+def _log02(recs):
+    rows = []
+    for pid, rr in recs.items():
+        for r in rr:
+            rows.append({'policy': pid, 'day': r['day'], 'event': 'day', 'chamber': '', 'detail': 'analyzed' if r['analyzed'] else 'stopped'})
+            for c in r['flagged']: rows.append({'policy': pid, 'day': r['day'], 'event': 'flag', 'chamber': c, 'detail': ''})
+            for q in r['requests']: rows.append({'policy': pid, 'day': r['day'], 'event': 'request', 'chamber': q['ch'] or '', 'detail': q['kind']})
+    return pd.DataFrame(rows)
+_ebad02, _nc02 = [], 0
+for _sd in _SEEDS02:
+    _lg = _log02(_PYREC02[_sd])
+    for pid, _ in _POL02:
+        for G in (0, 1, 2, 4):
+            for D in (14, 9):
+                _je = _R02['seeds'][str(_sd)]['ev'][pid][f'{G}|{D}']
+                for un, uj in _UMAP02.items():
+                    _c = _m02.agreement_table(_lg, _LAB02[_sd], un, pid, G, D); _j = _je[uj]; _nc02 += 1
+                    _late = _je['lateC'] if un == 'change' else (_je['lateR'] if un == 'request' else 0)
+                    if (_c['tp'], _c['fn'], _c['fp'], _c['tn']) != (_j['tp'], _j['fn'], _j['fp'], _j['tn']) or (un != 'day' and _c['late'] != _late) or abs(_c['agree'] - _j['agree']) > 1e-12 or abs(_c['all_no'] - _j['allno']) > 1e-12:
+                        _ebad02.append((_sd, pid, G, D, un))
+chk(f'0402 평가 단위 셋의 혼동표(맞음·놓침·헛·없음·늦은 신호·일치율·늘 없음 일치율): 페이지 Python agreement_table = JS evalRaw — 시드 5 × 정책 3 × 단위 3 × 허용 지연 {{0,1,2,4}} × 기간 {{14,9}}',
+    not _ebad02 and _nc02 == 5 * 3 * 3 * 4 * 2, f'{_nc02}칸 대조, 불일치 {len(_ebad02)}' + (f' 예: {_ebad02[:2]}' if _ebad02 else ''))
+
+# 5. 윌슨 구간: JS = 페이지 Python = scipy(binomtest().proportion_ci(method='wilson')) (1e-9), 극단(0/n·n/n)·95/90/99%, 정확한 이항 포함 확률(범위 0.9 이상)과 단순 구간과의 비교
+_wbad02 = []
+for w in _R02['wilson']:
+    lo, hi = _m02.wilson_ci(w['k'], w['n'], w['c']); ci = stats.binomtest(w['k'], w['n']).proportion_ci(confidence_level=w['c'], method='wilson')
+    if max(abs(lo - w['w']['lo']), abs(hi - w['w']['hi']), abs(lo - ci.low), abs(hi - ci.high)) > 1e-9: _wbad02.append((w['k'], w['n'], w['c']))
+def _cov02(n, p, kind):
+    ks = np.arange(0, n + 1); pm = stats.binom.pmf(ks, n, p); z = stats.norm.ppf(0.975); ph = ks / n
+    if kind == 'wilson':
+        den = 1 + z * z / n; ctr = (ph + z * z / (2 * n)) / den; h = z * np.sqrt(ph * (1 - ph) / n + z * z / (4 * n * n)) / den; lo, hi = ctr - h, ctr + h
+    else:
+        h = z * np.sqrt(ph * (1 - ph) / n); lo, hi = ph - h, ph + h
+    return float(pm[(lo <= p) & (p <= hi)].sum())
+_covW = [_cov02(112, p, 'wilson') for p in (0.9, 0.95, 0.975, 0.99)]; _covD = [_cov02(112, p, 'wald') for p in (0.9, 0.95, 0.975, 0.99)]
+_w14 = _m02.wilson_ci(14, 14)
+chk('0402 윌슨 구간: JS = 페이지 Python = scipy proportion_ci(wilson)(오차 < 1e-9, 12가지: 0/14·14/14·111/112·0/1·1/1 등, 신뢰도 95·90·99%), n = 112 에서 정확한 포함 확률 > 0.90(p = 0.9~0.99)이고 p = 0.99 에서 단순 구간보다 높음, 14/14 는 단순 구간 폭 0 인데 윌슨은 구간 낮은 끝 < 0.85',
+    not _wbad02 and min(_covW) > 0.90 and _covW[3] > _covD[3] and _w14[0] < 0.85 and _w14[1] == 1.0, f'윌슨 포함 확률 {[round(x, 3) for x in _covW]} · 단순 {[round(x, 3) for x in _covD]} · 14/14 = [{_w14[0]:.3f}, {_w14[1]:.3f}]')
+
+# 6. 시드 1~200 모으기: JS 가 낸 시드별 에이전트 기록(정책 셋)을 파이썬 agreement_table 이 다시 센 칸 = JS evalRaw(허용 지연 2·14일), 대표 시드 백분위·정책 맞바꿈의 사실
+def _rawlog02(r):
+    rows = []
+    for pid, _ in _POL02:
+        P = r['pol'][pid]
+        for d in range(1, 15): rows.append({'policy': pid, 'day': d, 'event': 'day', 'chamber': '', 'detail': 'analyzed' if P['an'][d - 1] else 'stopped'})
+        for x in P['flags']: rows.append({'policy': pid, 'day': x['day'], 'event': 'flag', 'chamber': x['ch'], 'detail': ''})
+        for x in P['base']: rows.append({'policy': pid, 'day': x['day'], 'event': 'request', 'chamber': x['ch'], 'detail': 'baseline'})
+        for x in P['other']: rows.append({'policy': pid, 'day': x['day'], 'event': 'request', 'chamber': x['ch'] or '', 'detail': x['kind']})
+    return pd.DataFrame(rows)
+def _rawlab02(r):
+    rows = [{'kind': 'fault', 'day': i + 1, 'chamber': '', 'value': '+'.join(r['kinds'][i])} for i, f in enumerate(r['fault']) if f]
+    rows += [{'kind': 'swap', 'day': s['day'], 'chamber': s['ch'], 'value': '%.6f' % s['eff']} for s in r['swaps']]
+    return pd.DataFrame(rows, columns=['kind', 'day', 'chamber', 'value'])
+_pbad02, _pyc02 = [], {pid: {u: [] for u in _UMAP02} for pid, _ in _POL02}
+for _i, _r in enumerate(_R02['raws']):
+    _lg, _lb = _rawlog02(_r), _rawlab02(_r)
+    for pid, _ in _POL02:
+        for un, uj in _UMAP02.items():
+            _c = _m02.agreement_table(_lg, _lb, un, pid, 2, 14); _pyc02[pid][un].append(_c)
+            if [_c['tp'], _c['fn'], _c['fp'], _c['tn']] != _R02['pool'][pid][uj][_i]: _pbad02.append((_i + 1, pid, un))
+            if un != 'day' and _c['late'] != _R02['late'][pid][_i][0 if un == 'change' else 1]: _pbad02.append((_i + 1, pid, un, 'late'))
+_rawlow = [r for r in _R02['raws'] if r['seed'] == 115][0]
+_pcts02 = {}
+for pid, _ in _POL02:
+    for un, nm, key, hi_good in (('day', '날 일치율', 'agree', True), ('change', '변경점 놓침', 'fn', False), ('change', '변경점 헛', 'fp', False), ('request', '요청 일치율', 'agree', True), ('request', '요청 놓침', 'fn', False), ('request', '요청 헛', 'fp', False)):
+        vals = np.array([c[key] for c in _pyc02[pid][un]]); v = vals[114]; _pcts02[(pid, nm)] = float(((vals < v - 1e-12).sum() + 0.5 * (np.abs(vals - v) <= 1e-12).sum()) / len(vals))
+def _poolc(pid, un):
+    cs = _pyc02[pid][un]; return {k: sum(c[k] for c in cs) for k in ('tp', 'fn', 'fp', 'tn', 'n', 'pos')}
+_pl = {(pid, un): _poolc(pid, un) for pid, _ in _POL02 for un in _UMAP02}
+_agr = {(pid, un): (_pl[(pid, un)]['tp'] + _pl[(pid, un)]['tn']) / _pl[(pid, un)]['n'] for pid, _ in _POL02 for un in _UMAP02}
+_fnr = [_pl[(pid, 'request')]['fn'] / 200 for pid, _ in _POL02]; _fpr = [_pl[(pid, 'request')]['fp'] / 200 for pid, _ in _POL02]
+_spr = {un: max(_agr[(pid, un)] for pid, _ in _POL02) - min(_agr[(pid, un)] for pid, _ in _POL02) for un in ('change', 'request')}
+_allno_chg = {pid: 1 - _pl[(pid, 'change')]['pos'] / _pl[(pid, 'change')]['n'] for pid, _ in _POL02}
+chk('0402 시드 1~200 모으기: 시드 200 × 정책 3 × 단위 3(허용 지연 2·14일)에서 페이지 Python 이 다시 센 혼동표·늦은 신호 = JS, 정책 맞바꿈의 사실(변경점·요청 두 단위의 정책별 일치율 차이 1%p 미만 · 요청 놓침 시드당 엄격 ≥ 5 × 점검 끔 · 점검을 풀수록 날 판정 놓침 증가 · 변경점 일치율은 세 정책 모두 늘 없음이라고만 답하는 기준 아래), 대표 시드 백분위 기록',
+    not _pbad02 and _spr['change'] < 0.01 and _spr['request'] < 0.01 and _fnr[0] >= 5 * max(_fnr[2], 1e-9) and _fnr[0] > _fnr[1] > _fnr[2]
+    and _pl[('strict', 'day')]['fn'] < _pl[('two', 'day')]['fn'] < _pl[('off', 'day')]['fn'] and all(_agr[(pid, 'change')] < _allno_chg[pid] for pid, _ in _POL02) and all(0 <= v <= 1 for v in _pcts02.values()),
+    f'칸 대조 불일치 {len(_pbad02)} · 정책 일치율 차이 변경점 {100*_spr["change"]:.2f}%p·요청 {100*_spr["request"]:.2f}%p · 요청 놓침/시드 {[round(x,2) for x in _fnr]} · 헛/시드 {[round(x,2) for x in _fpr]} · 대표 시드 백분위(엄격) '
+    + ' '.join(f'{nm} {100*_pcts02[("strict", nm)]:.0f}%' for nm in ('날 일치율', '변경점 놓침', '변경점 헛', '요청 일치율', '요청 놓침', '요청 헛')))
+
+# 7. 허용 지연을 늘리면 늦게 나간 신호가 놓침에서 일치로 옮겨 감(대표 시드, 정책 3 × 지연 0~5), 14일 한 번의 구간 폭 > 시드 200개 모음 폭의 5배
+_mono02 = True; _moved02 = False
+for pid, _ in _POL02:
+    for un in ('change', 'request'):
+        _tp = [_m02.agreement_table(pd.read_csv(os.path.join(_td02, 's15_agent_log_115.csv'), keep_default_na=False), pd.read_csv(os.path.join(_td02, 's15_human_labels_115.csv'), keep_default_na=False), un, pid, G, 14)['tp'] for G in range(6)]
+        if any(b < a for a, b in zip(_tp, _tp[1:])): _mono02 = False
+        if _tp[-1] > _tp[0]: _moved02 = True
+_wide02 = all((lambda c, P: (_m02.wilson_ci(c['tp'] + c['tn'], c['n'])[1] - _m02.wilson_ci(c['tp'] + c['tn'], c['n'])[0]) > 5 * (_m02.wilson_ci(P['tp'] + P['tn'], P['n'])[1] - _m02.wilson_ci(P['tp'] + P['tn'], P['n'])[0]))(_R02['seeds']['115']['ev'][pid]['2|14'][uj], _pl[(pid, un)]) for pid, _ in _POL02 for un, uj in _UMAP02.items())
+chk('0402 조작의 사실: 허용 지연 0~5 에서 일치(맞음) 칸은 줄지 않고 늘어나는 경우가 있으며(대표 시드), 대표 시드 14일 구간 폭이 시드 200개 모음 폭의 5배를 넘음(정책 3 × 단위 3)', _mono02 and _moved02 and _wide02, f'단조 {_mono02} · 지연 변화 {_moved02} · 폭 {_wide02}')
+
+# 8. 계획 모델 두 판과 sim-real gap: 0206 전이 기록 CSV 에서 파이썬이 다시 계산 = JS 경로별(식별·떠난 시각·판 1·판 2·실제·세정 대기·짝 대기 12,478개), 두 번째 기록(시드 3, 20일)도, 불변식
+_tr = pd.read_csv(os.path.join(_td02, 'mask_transitions.csv'), keep_default_na=False)
+_g = _m02.sim_real_gap(_tr, _m02.PLAN)
+_jp = _R02['gap']['paths']
+_gbad = sum(1 for a, row in zip(_jp, _g.itertuples()) if (a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]) != (row.id, int(row.kind == '리페어'), row.t0, row.plan1, row.plan2, row.actual, row.wait, row.held))
+_g3 = _m02.sim_real_gap(pd.read_csv(os.path.join(_td02, 'trace3.csv'), keep_default_na=False), _R02['gap3']['par'])
+_gbad3 = sum(1 for a, row in zip(_R02['gap3']['paths'], _g3.itertuples()) if (a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]) != (row.id, int(row.kind == '리페어'), row.t0, row.plan1, row.plan2, row.actual, row.wait, row.held))
+_rp = _g[_g['kind'] == '리페어']; _nm = _g[_g['kind'] == '정상']
+chk(f'0402 sim-real gap: 파이썬이 전이 기록 CSV 에서 다시 센 마스크 경로({len(_g)}개)의 판 1·판 2 예측·실제 입고·세정 대기·짝 대기 = JS(경로마다 일치), 다른 기록(시드 3·20일 {len(_g3)}개)도 일치, 계획 설정값 = 시뮬레이터 설정값, 불변식(판 2 ≥ 판 1 · 리페어 경로는 두 판이 같음 · 실제 입고는 떠난 시각보다 뒤)',
+    len(_g) == len(_jp) and _gbad == 0 and len(_g3) == len(_R02['gap3']['paths']) and _gbad3 == 0 and _m02.PLAN == {k: _R02['gap']['par'][k] for k in _m02.PLAN} and bool((_g['plan2'] >= _g['plan1']).all()) and bool((_rp['plan1'] == _rp['plan2']).all()) and bool((_g['actual'] > _g['t0']).all()),
+    f'경로 {len(_g)}(리페어 {len(_rp)}) · 불일치 {_gbad} · 시드 3: {len(_g3)}경로 불일치 {_gbad3}')
+
+# 9. gap 통계: 평균·표준편차(자유도 n−1)·절댓값 분위(선형 보간) JS = numpy, 시드 1·2 의 60일 기록도, 사실(판 2 는 치우침을 줄이고 표준편차는 조금 줄임 · 남은 평균 차 ≈ 짝 대기 평균 · 리페어 경로의 표준편차가 큼)
+def _st02(x):
+    x = np.asarray(x, float); a = np.abs(x); return {'n': len(x), 'bias': float(x.mean()), 'sd': float(x.std(ddof=1)), 'q50': float(np.quantile(a, .5)), 'q90': float(np.quantile(a, .9)), 'q99': float(np.quantile(a, .99))}
+def _same02(a, b): return a['n'] == b['n'] and all(abs(a[k] - b[k]) < 1e-9 * max(1, abs(a[k])) for k in ('bias', 'sd', 'q50', 'q90', 'q99'))
+_sbad = []
+for _lab, _js, _df in (('전체1', _R02['gap']['s1'], _g.assign(g=_g['gap1'])), ('전체2', _R02['gap']['s2'], _g.assign(g=_g['gap2'])), ('정상1', _R02['gap']['n1'], _nm.assign(g=_nm['gap1'])), ('정상2', _R02['gap']['n2'], _nm.assign(g=_nm['gap2']))):
+    if not _same02(_js, _st02(_df['g'])): _sbad.append(_lab)
+for _s in (1, 2):
+    _gs = _m02.sim_real_gap(pd.read_csv(os.path.join(_td02, f'trace{_s}.csv'), keep_default_na=False), _m02.PLAN); _nn = _gs[_gs['kind'] == '정상']; _J = _R02['gapSeeds'][str(_s)]
+    for _lab, _js, _x in (('s1', _J['s1'], _gs['gap1']), ('s2', _J['s2'], _gs['gap2']), ('n1', _J['n1'], _nn['gap1']), ('n2', _J['n2'], _nn['gap2'])):
+        if not _same02(_js, _st02(_x)): _sbad.append((_s, _lab))
+_b1, _b2 = _st02(_nm['gap1']), _st02(_nm['gap2']); _held = float(_nm['held'].mean()); _rsd = float(_rp['gap1'].std(ddof=1))
+chk('0402 gap 통계: 평균·표준편차·절댓값 중앙·상위 10%·1% 경계(전체·정상 경로 × 판 1·2, 시드 1·2 의 60일 기록 포함) JS = numpy, 사실(판 2 의 정상 경로 평균 gap 이 판 1 보다 0 에 가깝고 표준편차는 줄되 25% 안쪽 · 판 2 의 남은 평균 차 ≈ 짝 대기 평균(차이 3분 미만) · 리페어 경로 표준편차가 정상의 5배 이상)',
+    not _sbad and abs(_b2['bias']) < abs(_b1['bias']) and _b2['sd'] < _b1['sd'] and _b2['sd'] > 0.75 * _b1['sd'] and abs(abs(_b2['bias']) - _held) < 3 and _rsd > 5 * _b1['sd'],
+    f'불일치 {_sbad} · 정상 경로 평균 {_b1["bias"]:.1f} → {_b2["bias"]:.1f}분 · 표준편차 {_b1["sd"]:.1f} → {_b2["sd"]:.1f}분 · 짝 대기 평균 {_held:.1f}분 · 리페어 표준편차 {_rsd:.1f}분')
+
+# 10. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며, 혼동표·구간·gap 숫자가 JS 와 같음
+_run02 = subprocess.run([sys.executable, '-I', 'lab0402.py'], cwd=_td02, capture_output=True, text=True); _L02 = _run02.stdout.strip().split('\n')
+_exp02 = []
+for pid, pname in (('strict', '엄격'), ('two', '2개 허용'), ('off', '점검 끔')):
+    for un, uname in (('day', '날 판정'), ('chg', '변경점'), ('req', '요청')):
+        c = _R02['seeds']['115']['ev'][pid]['2|14'][un]; w = _R02['repw'][pid][un]
+        _exp02.append("%s · %s: 일치 %d/%d = %.1f%% (95%% 구간 %.1f~%.1f%%) · 놓침 %d · 헛 %d · 모두 '없음'이면 %.1f%%" % (pname, uname, c['tp'] + c['tn'], c['n'], 100 * c['agree'], 100 * w['lo'], 100 * w['hi'], c['fn'], c['fp'], 100 * c['allno']))
+_gl = []
+for name, sub in (('전체', _g), ('정상', _nm), ('리페어', _rp)):
+    for v, vn in (('gap1', '판 1(평균값만)'), ('gap2', '판 2(세정 대기열 반영)')):
+        x = sub[v]; _gl.append("  %s · %s: 평균 %.1f · 표준편차 %.1f · 절댓값 중앙 %.0f · 상위 10%% 경계 %.0f" % (name, vn, x.mean(), x.std(ddof=1), x.abs().quantile(0.5), x.abs().quantile(0.9)))
+chk('0402 페이지 Python 코드가 오류 없이 돌고 출력이 페이지의 출력 상자와 한 글자도 다르지 않으며, 출력의 혼동표 9줄(JS 값과 윌슨 구간 포함)과 gap 요약 6줄이 JS 경로 값에서 numpy 로 다시 낸 값과 같고, 외부 통신 코드와 사내 모델 호출이 없음',
+    _run02.returncode == 0 and _run02.stdout.strip() == _out02 and all(e in _L02 for e in _exp02) and all(g in _L02 for g in _gl) and f'마스크 경로 {len(_g)}개(리페어 {len(_rp)}개)' in _run02.stdout
+    and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code02, _re5.M) and 'ask_internal_model' not in _code02,
+    (_run02.stderr[-300:] if _run02.returncode else f'{len(_L02)}줄'))
+
+# 11. 페이지 구조
+_term02 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg02, _re5.S).group(1)))
+_nq02 = len(_re5.findall(r'<div class="qna" data-label=', _pg02)); _nsec02 = len(_re5.findall(r'<h2><span class="no">', _pg02))
+_fonts02 = [int(x) for x in _re5.findall(r"(?:x\.font|\.font)\s*=\s*'[^']*?(\d+)px", _pg02)] + [int(x) for x in _re5.findall(r'fitFont\([^)]*?,\s*\d+\s*,\s*(\d+)\s*,', _pg02)]
+_body02 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg02, flags=_re5.S); _body02 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body02))
+_endda02 = _re5.findall(r'[^니습]다[.]', _body02)
+_p01 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0401-agent-prototype.html'), encoding='utf-8').read(); _hub02 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_slid02 = ['id="sG" min="0" max="5" step="1" value="2"', 'id="sG4" min="0" max="5" step="1" value="2"', 'id="sD" min="1" max="14" step="1" value="14"', 'id="sS" min="1" max="200" step="1" value="200"', 'id="sS4" min="1" max="200" step="1" value="200"', 'id="sBig" min="1" max="50" step="1" value="10"',
+           'id="sCm" min="30" max="600" step="30" value="240"', 'id="sCf" min="2" max="60" step="2" value="10"', 'id="sCd" min="0" max="240" step="10" value="60"', 'id="sHm" min="0" max="40" step="1" value="10"', 'id="sHf" min="0" max="5" step="0.5" value="1"']
+_df02 = _R02['defaults']
+chk('0402 페이지: 새 용어 6개 · Q&A 4개 · 절 10개 · 윌슨 구간 MathML · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0401 의 위·아래 다음 링크와 0401 로 가는 위·아래 이전 링크 · 허브 등록(단계 4 묶음) · 계산 모듈에 난수·시각 함수 없음 · 슬라이더 기본값 = 모듈 기본값(허용 지연 2·시드 200·문턱 0.5) · 평가 단위 셋·시드 분포 지표 문구',
+    _term02 == 6 and _nq02 == 4 and _nsec02 == 10 and '<math display="block">' in _pg02 and '<mfrac>' in _pg02 and min(_fonts02) >= 11 and not _endda02 and _p01.count('0402-agent-evaluation.html') == 2 and _pg02.count('0401-agent-prototype.html') == 2
+    and 'labs/0402-agent-evaluation.html' in _hub02 and all(not _re5.search(r'Math\.random|Date\.now|new Date', t) for t in (_js02s, _ag02s)) and all(s in _pg02 for s in _slid02)
+    and _df02['G0'] == 2 and _df02['SEEDS'] == 200 and _df02['DAYS'] == 14 and _df02['DELTA_H'] == 0.5 and _df02['REP'] == 115 and 'src="../data/eval0402.js"' in _pg02 and 'mfgsim.js' in _pg02 and 'agent0401.js' in _pg02,
+    f'용어 {_term02} · Q&A {_nq02} · 절 {_nsec02} · 캔버스 글자 최소 {min(_fonts02)}px({len(_fonts02)}곳) · -다 끝맺음 {len(_endda02)}건 · 0401 링크 {_pg02.count("0401-agent-prototype.html")}곳 · 0401 쪽 0402 링크 {_p01.count("0402-agent-evaluation.html")}곳')
+_cleanup02 = shutil.rmtree(_td02, ignore_errors=True)
+
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

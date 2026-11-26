@@ -72,6 +72,13 @@ csv('s15_clean_fdc_glass.csv', S15.csvRows('clean_fdc_glass'), S15.cols.fdc);
 csv('s15_clean_ppa_coef.csv', S15.csvRows('clean_ppa_coef'), S15.cols.ppa);
 csv('s15_faults.csv', S15.csvRows('faults'), ['day', 'kind', 'detail']);
 
+// 실험실 0402: 대표 시드 115 에서 0401 에이전트가 한 행동(정책 셋: 엄격·2개 허용·점검 끔)과 사람 결론(가상 공장에서는 정답: 고장이 든 날·마스크 교체와 그 크기).
+// s15_agent_log_115 = 에이전트 행동 기록(날마다 분석 여부 + 새 변경점 + 요청), s15_human_labels_115 = 사람 결론. 에이전트가 만든 자료를 사람 결론으로 쓰지 않도록 두 파일을 따로 둔다.
+const E402 = require('./eval0402.js');
+const raw402 = E402.seedRaw(E402.REP);
+csv('s15_agent_log_115.csv', E402.logRows(raw402), ['policy', 'day', 'event', 'chamber', 'detail']);
+csv('s15_human_labels_115.csv', E402.labelRows(raw402), ['kind', 'day', 'chamber', 'value']);
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

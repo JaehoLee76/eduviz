@@ -8,7 +8,9 @@
   else root.Agent0401 = factory(root.MfgSim, root.LlmVerify);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (MS, LV) {
   'use strict';
-  var SC = MS.scenario('S15'), T = MS.s15tools, P = SC.params, CHK = T.CH.map(function (c) { return c.key; }), DAYS = P.days, DAYMIN = T.DAY_MIN;
+  /* 시드를 받습니다: Agent0401.forSeed(seed) 가 같은 뼈대를 그 시드의 가상 공장 위에 새로 만듭니다(0402 평가용). 인자 없이 쓰면 대표 시드(기본 동작·출력은 그대로). */
+  function make(seed) {
+  var SC = MS.scenario('S15', seed == null ? undefined : { seed: seed }), T = MS.s15tools, P = SC.params, CHK = T.CH.map(function (c) { return c.key; }), DAYS = P.days, DAYMIN = T.DAY_MIN;
   var MIN_N = 6, REPAIR_DAYS = 3, ALPHA = 0.05, SPEC_GAP = 3;
   var POLICY0 = { tol: 0, k: 2, m: 3, delta: 0.5, bonf: true, ex_n: 6, repair_cap: 2, repair_human: false, spec_reject: false, scrap_ratio: 0.5, spec_share: 0.1 };
   var RULE_KO = { rows: '행 수', dup: 'glass_id 중복', cols: '필수 열 존재', blank: '빈칸 비율', join: '이음 비율', ts: 'ts 범위·순서', model: 'model_ver 종류' };
@@ -281,5 +283,8 @@
     });
   }
 
-  return { POLICY0: POLICY0, RULE_KO: RULE_KO, KIND_KO: KIND_KO, VERDICT_KO: VERDICT_KO, CH: CHK, DAYS: DAYS, OBS: OBS, MIN_N: MIN_N, REPAIR_DAYS: REPAIR_DAYS, ALPHA: ALPHA, SPEC_GAP: SPEC_GAP, SC: SC, run: run, logRows: logRows, queueRows: queueRows, summarize: summarize, snapshot: snapshot, baseState: baseState, tp2: tp2, lag1: lag1 };
+  return { seed: SC.params.seed, POLICY0: POLICY0, RULE_KO: RULE_KO, KIND_KO: KIND_KO, VERDICT_KO: VERDICT_KO, CH: CHK, DAYS: DAYS, OBS: OBS, MIN_N: MIN_N, REPAIR_DAYS: REPAIR_DAYS, ALPHA: ALPHA, SPEC_GAP: SPEC_GAP, SC: SC, run: run, logRows: logRows, queueRows: queueRows, summarize: summarize, snapshot: snapshot, baseState: baseState, tp2: tp2, lag1: lag1 };
+  }
+  var base = make(null); base.forSeed = make;
+  return base;
 });

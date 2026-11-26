@@ -1,0 +1,14 @@
+kind,day,chamber,value
+fault,1,,dup
+fault,2,,gap+model
+fault,3,,late
+fault,4,,dup
+fault,5,,dup
+fault,6,,rename
+fault,7,,gap+rename
+fault,10,,shift+model
+fault,11,,late
+fault,12,,dup+gap
+fault,13,,dup
+fault,14,,dup+shift
+swap,5,B03-CH2,-2.453200
