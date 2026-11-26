@@ -1,0 +1,997 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>마스크 수명 예측</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="온도를 걷어 낸 배율의 턴 기울기를 앞으로 이어 그어 마스크의 잔여 수명을 예측 구간으로 말하고, 공통 기울기와 이질성 검정으로 구간을 줄이고, 리페어 직후 기준이 기록되어 있지 않으면 수명을 알 수 없다는 것을 확인하며, 리페어 능력 한도 안의 예방 리페어 일정으로 바꾸는 실험실. 회사 PC용 Python과 마스크 수명 판정 기록지">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+textarea{width:100%;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85rem;padding:.5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical;min-height:90px}
+td.hit{white-space:normal}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+table.mt td,table.mt th{overflow-wrap:normal;word-break:keep-all}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.maps2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.6rem 0}
+.maps2 .labtitle{font-size:.85rem}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.stk{background:var(--card)}
+.ctrl select{grid-column:span 1}
+label.cb{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.2rem .7rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);font-size:.9rem;font-weight:700;cursor:pointer}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
+.qcard{margin:.9rem 0}
+.mixtag{background:var(--warn);color:#fff;border-radius:999px;padding:.05rem .6rem;font-size:.8rem}
+.qres{margin-top:.5rem}
+.shbars{margin:.3rem 0}
+.sh{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:.5rem;align-items:center;font-size:.85rem;margin:.15rem 0}
+.sh .shb{height:.7rem;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+.sh .shb i{display:block;height:100%;background:var(--accent2)}
+.sh.dom .shb i{background:var(--good)}
+.sh.dom .shl,.sh.dom .shv{font-weight:800;color:var(--good)}
+.sh .shv{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .maps2{grid-template-columns:1fr}
+  .ctrl{grid-template-columns:1fr auto}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .stk{position:sticky;top:var(--tb,56px);z-index:6;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+}
+
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.maps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+table.mt td.hit{white-space:normal}
+
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+.qna{margin:.9rem 0}
+@media(max-width:700px){.maps3{grid-template-columns:1fr}}
+select{width:auto;max-width:100%}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+td.dim{color:var(--soft)}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 3 · 실험실 6</p>
+  <h1>마스크 수명 예측</h1>
+  <p class="sub">보정한 배율의 턴 기울기를 앞으로 이어 그어, 리페어할 턴을 구간으로 말하고 일정으로 바꾸는 법</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0305-virtual-metrology.html">← 이전: 가상 계측</a><span class="sp"></span></nav>
+
+<p><b>온도를 걷어 낸 배율의 턴 기울기를 앞으로 이어 그으면 한계에 닿는 턴, 곧 잔여 수명이 나오지만, 마스크 한 장의 몇 턴치 기록으로 잰 기울기는 흔들림이 커서 수명의 폭이 넓습니다.</b> 마스크들이 같은 속도로 닳는지 확인한 뒤 공통 기울기를 쓰면 폭이 크게 줄고(4절), 무엇보다 &lsquo;리페어 직후의 기준 배율&rsquo;이 기록되어 있지 않으면 지금이 수명의 어디쯤인지 알 수 없으며(5절), 이 예측을 리페어 능력 한도 안의 일정으로 바꾸는 것이 마지막 단계입니다(7절).</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0303의 열변형·턴 누적·온도 보정·기준선·마스크별 절편·다중 회귀, 0305의 시간순 시험과 외삽·모델 드리프트, 0304의 리페어 판단, 0101의 표준오차와 신뢰구간, 0204의 감시, 0206의 사례 기록.</p>
+  <ul class="chips known"><li>온도 보정 · 턴 기울기 (0303)</li><li>마스크별 절편 · 기준선 (0303)</li><li>시간순 시험 · 외삽 (0305)</li><li>리페어 판단 (0304)</li><li>표준오차 · 신뢰구간 (0101)</li><li>감시 (0204)</li><li>사례 기록 (0206)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(한계 · 규칙 A·B·C · 마감 · 버린 수명)은 쓰는 자리에서 문장으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>리페어 직후 기준 (post-repair baseline)</li><li>잔여 수명 (remaining life)</li><li>예측 구간 (prediction interval)</li><li>공통 기울기 (pooled slope)</li><li>기울기 이질성 검정 (slope heterogeneity test)</li><li>예방 리페어 일정 (preventive repair schedule)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 마스크마다 &lsquo;몇 턴 뒤에 리페어해야 하나&rsquo;를 미리 알아 리페어·세정 일정을 짜는 일(2~7절).</li>
+    <li><b>손으로 연습</b> — 보정한 배율로 턴 기울기를 마스크별로 맞춰 보고 한계에 닿는 턴과 그 폭을 읽고(2~3절), 마스크별과 공통 기울기를 바꿔 구간이 줄어드는 것을 보고(4절), 한계를 옮기며 구간이 참 수명을 담는 비율을 보고(6절), 리페어 능력과 빠지는 턴을 옮기며 일정 규칙 셋을 견줍니다(7절).</li>
+    <li><b>다음 날 산출물</b> — <code>life_fit</code>·<code>remaining_life</code>·<code>plan_repairs</code> Python 함수(10절)와 마스크 수명 판정 기록지(11절).</li>
+    <li><b>기록할 데이터</b> — 리페어 직후 첫 턴의 보정 후 배율과 리페어 일자·종류, 마스크 이력, 일정과 실제 리페어 시점의 배율(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 일정 승인과 능력 배정은 사람, 이질성 검정과 구간 계산과 능력 한도는 규칙, 보정·회귀·구간·일정 초안·기록지는 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 사후 대응 대신 예측으로 줄이는 한계 초과 유리, 고정 주기와의 맞바꿈, 빠지는 턴(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 마스크 <b class="v_nm"></b>장이 지금 각각 마지막 리페어 뒤 몇 턴째 쓰이고 있습니다. 손에 있는 것은 마스크마다 <b>최근 <span class="v_W"></span>턴</b>의 보정 후 배율(턴마다 유리 <span class="v_ng"></span>장의 평균)이고, 마스크 가운데 일부만 리페어 직후 첫 턴의 배율이 기록되어 있습니다. 보정 후 배율이 리페어 직후 기준보다 한계(<i>L</i>, 가정으로 시작해 6절에서 옮김)만큼 내려가면 마스크를 리페어합니다. 리페어는 턴마다 <i>c</i>장까지 할 수 있고, 리페어에 들어간 마스크는 <i>R</i>턴 동안 증착에서 빠집니다.<br>
+  <b>(1) 마스크마다 몇 턴 뒤에 빼야 하는지와 그 근거를 말하십시오. (2) 그 숫자를 얼마나 믿어도 됩니까. (3) 리페어 직후 기준이 기록되어 있지 않은 마스크는 어떻게 합니까. (4) 앞으로 <span class="v_H"></span>턴의 리페어 일정을 짜서 다음 10턴의 순서를 내십시오.</b>
+  <p class="note" style="margin:.5rem 0 0">2~7절에서 숫자를 만들고 8절에서 이 네 물음으로 돌아옵니다. <i>c</i>·<i>R</i>·<i>L</i> 은 현장 값으로 바꿔야 할 가정입니다.</p>
+</div>
+
+<div class="solban">여기서부터 위 기록을 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 마스크 <span class="v_nm"></span>장의 최근 <span class="v_W"></span>턴</h2>
+<p>표 한 줄이 마스크 한 장의 한 턴입니다. <code>Mx_comp</code> 는 그 턴 유리 <span class="v_ng"></span>장의 장변 배율 <i>M̂<sub>x</sub></i>(0302의 방법으로 77점에서 뽑은 값)에서 열변형 몫을 걷어 낸 값의 턴 평균입니다. 0303의 온도 보정 그대로, <i>M̂<sub>x</sub></i> − (열 기울기) × (FDC 온도 − <span class="v_T0"></span> °C) 이고, 열 기울기는 0303에서 구한 <span class="v_bT"></span> ppm/K 를 받아 씁니다.</p>
+<div class="tbwrap"><table id="tab1a" class="mt"></table></div>
+<p>마스크 한 장(<b class="v_mk1"></b>)의 줄을 보면 이렇습니다.</p>
+<div class="tbwrap"><table id="tab1b" class="mt num"></table></div>
+<p>이제 이 실험실이 쓰는 첫 낱말입니다. 리페어를 마친 마스크가 처음 증착한 턴의 배율을 어디에 두느냐에 따라 한계선이 달라지기 때문입니다.</p>
+<ul class="termdef">
+  <li><b>리페어 직후 기준 (post-repair baseline)</b> — 리페어를 마친 마스크가 처음 증착한 턴의 보정 후 배율(그 턴 유리 <span class="v_ng"></span>장의 평균)입니다. 수명의 0점입니다. <b>한계선 = 기준 − <i>L</i></b> 이고, 보정 후 배율이 이 선 아래로 내려가는 순간이 &lsquo;한계에 닿는 때&rsquo;입니다. 위 표의 <code>baseline</code> 칸이 기준이고, 기록이 없는 마스크는 칸이 비어 있습니다.</li>
+</ul>
+<p>기준이 기록된 마스크는 <b class="v_nrec"></b>장, 기록이 없는 마스크는 <b class="v_nun"></b>장입니다. 기록이 있는 마스크는 <code>age_known</code> 으로 &lsquo;마지막 리페어 뒤 몇 턴째인가&rsquo;도 압니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 <span class="v_nm"></span>장의 보정 후 배율 (각 마스크의 <span class="v_W"></span>턴 평균을 뺀 값, ppm)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 대부분의 선이 오른쪽으로 갈수록 내려가는지 보십시오. 2) 선마다 기울기가 꽤 다른 것이 진짜 마스크 차이인지 잡음인지는 이 그림으로는 가릴 수 없다는 것을 보십시오(4절에서 가립니다). 3) 굵은 선이 2절에서 쓸 마스크입니다.</div>
+  <canvas id="cv1"></canvas>
+  <div class="legend"><span><span class="sw" style="border-top:2px solid var(--grey)"></span>마스크 한 장</span><span><span class="sw" style="border-top:4px solid var(--accent)"></span>2절에서 쓸 마스크</span></div>
+</div>
+<div class="concl" id="conc1"></div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 마스크 한 장의 직선을 앞으로 이어 그어 보기</h2>
+<p>기준이 기록된 마스크 가운데, 마스크별 기울기의 표준오차가 가장 큰 마스크(<b class="v_mk2"></b>)를 골랐습니다. 가장 불리한 경우를 먼저 보려는 규칙입니다. 이 마스크의 보정 후 턴 평균 <span class="v_W"></span>개에 직선을 맞춥니다. 직선의 현재(턴 <span class="v_W"></span>) 값에서 한계선까지 내려가는 데 걸리는 턴이 &lsquo;한계에 닿는 턴&rsquo;입니다. 기울기는 점 <span class="v_W"></span>개로 정해지므로 표준오차가 있고, 기울기를 표준오차의 2배만큼 더 가파르게(또는 더 완만하게) 잡았을 때 닿는 턴도 함께 구해 보겠습니다.</p>
+<div class="lab">
+  <div class="labtitle">직선을 앞으로 이어 그어 한계선과 만나는 턴 찾기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 점 <span class="v_W"></span>개가 직선에서 얼마나 흩어져 있는지 보십시오. 2) 기울기를 ±2 표준오차 바꾼 두 점선이 한계선과 만나는 턴이 서로 얼마나 먼지 보십시오. 3) 완만한 쪽 점선이 한계선에 닿기는 하는지 보십시오.</div>
+  <canvas id="cv2"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>관측한 턴 평균</span><span><span class="sw" style="border-top:3px solid var(--accent)"></span>직선</span><span><span class="sw" style="border-top:2px dashed var(--c8)"></span>기울기 ±2 표준오차</span><span><span class="sw" style="border-top:2px solid var(--bad)"></span>한계선</span></div>
+  <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc2"></div>
+<p><b>여기서 막힙니다.</b> 기울기의 표준오차가 기울기 자체에 견줄 만하면, 한계에 닿는 턴이 &lsquo;곧&rsquo;에서 &lsquo;닿지 않음&rsquo;까지 벌어집니다. 이 숫자로는 리페어 일정을 짤 수 없습니다. 게다가 위 두 점선은 기울기만 흔든 것이고, 직선이 놓인 높이의 불확실성과 턴마다의 잡음은 아직 넣지 않았습니다. 이 모두를 한꺼번에 담는 구간에 이름이 필요합니다. 3절에서 붙입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 잔여 수명과 예측 구간</h2>
+<ul class="termdef">
+  <li><b>잔여 수명 (remaining life)</b> — 지금(턴 <span class="v_W"></span>)부터 보정 후 배율이 한계선에 닿을 때까지 남은 턴 수입니다. 점 하나로 말하면 직선이 한계선과 만나는 턴이고, 구간으로 말하면 아래 예측 구간이 한계선과 만나는 두 턴(이른 끝·늦은 끝)입니다.</li>
+  <li><b>예측 구간 (prediction interval)</b> — 앞으로의 <b>한 값</b>이 들어갈 범위입니다. 직선의 기울기·절편의 불확실성과 턴마다의 잡음을 함께 담으므로, 0101의 신뢰구간(직선이 놓인 자리, 곧 평균의 범위)보다 넓습니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">잔여 수명 (점 추정)</span>
+  <math display="block"><mrow><mover><mi>k</mi><mo>^</mo></mover><mo>=</mo><mfrac><mrow><mrow><mo stretchy="false">(</mo><mi>기준</mi><mo>−</mo><mi>L</mi><mo stretchy="false">)</mo></mrow><mo>−</mo><mover><mi>y</mi><mo>^</mo></mover><mo stretchy="false">(</mo><mi>W</mi><mo stretchy="false">)</mo></mrow><mover><mi>b</mi><mo>^</mo></mover></mfrac></mrow></math>
+  <span class="note"><i>ŷ</i>(<i>W</i>) 는 직선의 현재 값, <i>b̂</i> 는 턴 기울기(ppm/턴, 내려가므로 음수)입니다. <i>b̂</i> 가 0 이상이면 이 기간 안에는 닿지 않습니다.</span>
+</div>
+<div class="eq">
+  <span class="eqlab">예측 구간 (턴 <i>x</i> 에서 한 값의 범위)</span>
+  <math display="block"><mrow><mover><mi>y</mi><mo>^</mo></mover><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>±</mo><msub><mi>t</mi><mrow><mn>0.975</mn><mo>,</mo><mi>df</mi></mrow></msub><mo>·</mo><mi>s</mi><msqrt><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mi>W</mi></mfrac><mo>+</mo><mfrac><msup><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mover><mi>x</mi><mo>¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><msub><mi>S</mi><mrow><mi>x</mi><mi>x</mi></mrow></msub></mfrac></mrow></msqrt></mrow></math>
+  <span class="note"><i>s</i> 는 직선 둘레 턴 평균의 흩어짐(잔차 표준편차), df 는 그 자유도, <i>S<sub>xx</sub></i> 는 턴 번호가 평균에서 벗어난 제곱합입니다. 루트 안의 1 이 턴마다의 잡음 몫이고, 나머지 둘이 직선의 불확실성 몫입니다. 신뢰구간은 이 1 을 뺀 구간입니다. 이 구간의 아래 가장자리가 한계선과 만나는 턴이 <b>이른 끝</b>, 위 가장자리가 만나는 턴이 <b>늦은 끝</b>입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">같은 마스크(<span class="v_mk2"></span>)의 신뢰구간과 예측 구간</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 안쪽 띠(신뢰구간)와 바깥 띠(예측 구간) 가운데 어느 쪽이 한계선과 훨씬 이르게, 훨씬 늦게 만나는지 보십시오. 2) 두 띠 모두 앞으로 갈수록 벌어지는 이유를 식의 마지막 항에서 찾아 보십시오. 3) 이른 끝이 0 이면 지금 이미 구간의 아래쪽이 한계선 아래에 있다는 뜻입니다.</div>
+  <canvas id="cv3"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>관측한 턴 평균</span><span><span class="sw" style="border-top:3px solid var(--accent)"></span>직선</span><span><i class="dot" style="background:var(--c10);border-radius:2px"></i>신뢰구간(평균의 범위)</span><span><i class="dot" style="background:var(--c8);border-radius:2px"></i>예측 구간(한 값의 범위)</span><span><span class="sw" style="border-top:2px solid var(--bad)"></span>한계선</span></div>
+  <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc3"></div>
+<div class="qna" data-label="신뢰구간으로 수명을 말하면 안 되나요?" data-q="신뢰구간으로 수명을 말하면 안 되나요?">
+  <p><b>안 됩니다. 신뢰구간은 직선이 놓인 자리의 범위일 뿐이고, 마스크가 실제로 한계에 닿는 턴은 잡음이 얹힌 한 값이 한계선을 넘는 턴이기 때문입니다.</b> 이 마스크(<span class="q3_mk"></span>)의 지금(턴 <span class="v_W"></span>) 한 점이 들어갈 범위는 신뢰구간으로 ± <span class="q3_ci"></span> ppm, 예측 구간으로 ± <span class="q3_pi"></span> ppm 입니다.</p>
+  <p>신뢰구간으로 수명을 말하면 구간이 실제보다 좁아 보여서, 한계를 넘은 채 증착하는 마스크가 생깁니다. 수명처럼 &lsquo;앞으로의 한 값&rsquo;을 말할 때는 예측 구간을 씁니다. 6절에서 이 구간이 참 수명을 얼마나 담는지 직접 셉니다.</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>공통 기울기와 이질성 검정 — 마스크 <span class="v_nm"></span>장을 함께 놓기</h2>
+<p>마스크 한 장의 직선은 점 <span class="v_W"></span>개로 정해지니 기울기가 흔들립니다. 마스크 <span class="v_nm"></span>장이 같은 속도로 닳는다면 기울기를 하나로 합쳐 점 <span class="v_Ntot"></span>개로 정할 수 있고 흔들림이 크게 줄어듭니다. 합치는 것의 이름과, 합쳐도 되는지 확인하는 방법이 필요합니다.</p>
+<ul class="termdef">
+  <li><b>공통 기울기 (pooled slope)</b> — 마스크마다 절편은 따로 두고 턴 기울기는 하나로 맞춘 것입니다. <b>마스크들이 같은 속도로 닳는다는 가정</b> 위에 섭니다. 이 가정이 틀리면 공통 기울기는 느리게 닳는 마스크의 수명을 짧게, 빠르게 닳는 마스크의 수명을 길게 말합니다.</li>
+  <li><b>기울기 이질성 검정 (slope heterogeneity test)</b> — 마스크마다 기울기를 따로 둔 모델이 공통 기울기 모델보다 의미 있게 나은지 보는 F 검정입니다. 공통 기울기를 쓰기 전에 하는 확인입니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">기울기 이질성 검정의 <i>F</i></span>
+  <math display="block"><mrow><mi>F</mi><mo>=</mo><mfrac><mrow><mo stretchy="false">(</mo><msub><mtext>RSS</mtext><mtext>공통</mtext></msub><mo>−</mo><msub><mtext>RSS</mtext><mtext>따로</mtext></msub><mo stretchy="false">)</mo><mo>/</mo><mo stretchy="false">(</mo><mi>M</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mrow><msub><mtext>RSS</mtext><mtext>따로</mtext></msub><mo>/</mo><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>2</mn><mi>M</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math>
+  <span class="note">RSS 는 직선 둘레 잔차의 제곱합, <i>M</i> 은 마스크 수, <i>N</i> 은 점의 총수입니다. 두 모델이 비슷하면 <i>F</i> 는 1 근처이고, 마스크마다 기울기가 정말 다르면 커집니다. <i>p</i> 는 모두 같은 속도로 닳는데도 이만큼 커질 확률입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">마스크별 기울기와 공통 기울기, 그리고 마스크 하나의 구간</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 위 그림에서 마스크별 기울기 막대(±2 표준오차)가 공통 기울기 띠에 대부분 걸치는지 보십시오. 2) 모델을 바꿀 때 아래 그림의 예측 구간 폭이 얼마나 달라지는지 보십시오. 3) 이질성 검정 <i>p</i> 가 큰 것이 &lsquo;같다&rsquo;는 증명인지 &lsquo;쓸 수 있다&rsquo;는 허가인지 생각해 보십시오.</div>
+  <div class="row" role="group" aria-label="기울기 모델 고르기"><button class="btn mdl" data-model="mask" type="button" aria-pressed="false">마스크별 기울기</button><button class="btn mdl" data-model="pool" type="button" aria-pressed="true">공통 기울기</button></div>
+  <div class="ctrl"><label for="selMk">구간을 볼 마스크 (기준 기록이 있는 마스크)</label><select id="selMk"></select><output id="selMkO"></output></div>
+  <div class="state" id="st4"></div>
+  <div class="labtitle">마스크별 턴 기울기 ±2 표준오차 (ppm/턴)와 공통 기울기</div>
+  <canvas id="cv4a"></canvas>
+  <div class="labtitle" style="margin-top:.6rem">고른 마스크의 예측 구간</div>
+  <canvas id="cv4b"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>관측한 턴 평균</span><span><i class="dot" style="background:var(--c8);border-radius:2px"></i>예측 구간</span><span><span class="sw" style="border-top:2px solid var(--bad)"></span>한계선</span><span><span class="sw" style="border-top:2px solid var(--good)"></span>공통 기울기와 그 ±2 표준오차</span></div>
+  <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<p><b>이 가정이 어디서 오는가.</b> 이 가상 라인은 모든 마스크가 같은 속도(턴당 <span class="v_ageSlope"></span> ppm)로 닳도록 정해 두었습니다. 현장은 마스크 재질·제작 로트마다 다를 수 있으니 이 검정을 먼저 합니다. 그리고 검정은 공통 기울기를 &lsquo;쓸 수 있다&rsquo;는 허가이지 &lsquo;같다&rsquo;는 증명이 아닙니다. 0305에서 시험 오차가 작다는 것이 모델이 옳다는 증명이 아니었던 것과 같습니다. 검정에 쓴 점이 마스크당 <span class="v_W"></span>개뿐이라 작은 차이는 잡지 못할 수 있습니다.</p>
+<div class="qna" data-label="기울기가 마스크마다 다르면 어떻게 하나요?" data-q="기울기가 마스크마다 다르면 어떻게 하나요?">
+  <p><b>이질성 검정의 <i>p</i> 가 작으면 공통 기울기를 쓰지 말고 마스크별 기울기로 가며, 폭이 넓어지는 것은 기록을 더 모아 줄입니다.</b> 이 라인의 <i>p</i> 는 <span class="q4_p"></span> 이므로 공통 기울기를 쓸 수 있습니다(5% 보다 큼).</p>
+  <p>마스크별로 가면 이 라인에서는 구간 폭(중앙값)이 공통 기울기의 <span class="q4_wr"></span>배가 됩니다. 점 <span class="v_W"></span>개만으로 기울기를 정하기 때문입니다. 줄이는 길은 관측 턴을 늘리는 것입니다. 재질·로트가 같은 마스크끼리 묶어 공통 기울기를 따로 두는 길도 있습니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>리페어 직후 기준이 없으면 — 수명의 어디쯤인지 알 수 없습니다</h2>
+<p>지금까지는 기준이 있는 마스크였습니다. 기록이 없는 <span class="v_nun"></span>장은 무엇이 막힐까요. 잔여 수명 식(3절)에는 기준이 들어 있습니다. 지금의 직선 값만 알아서는 한계선이 어디인지 모릅니다. 리페어 직후 값을 직선을 거슬러 올라가 추정하려 해도, 마지막 리페어가 몇 턴 전인지(<code>age_known</code>)를 모르면 얼마나 거슬러 올라갈지 정할 수 없습니다.</p>
+<p>기준이 마스크마다 얼마나 다른지가 핵심입니다. 마스크마다 제작 때의 배율 차이가 있어, 기록 있는 마스크의 기준 <span class="v_nrec"></span>개는 표준편차 <span class="v_sdBase"></span> ppm 으로 흩어져 있고, 이것은 한계 <i>L</i> = <span class="v_L"></span> ppm 의 <span id="v_sdr"></span>배입니다. 다른 마스크들의 기준 평균을 대신 쓰면 한계선이 이만큼 틀어집니다.</p>
+<div class="lab">
+  <div class="labtitle">마스크 <span class="v_nm"></span>장의 현재 수준과 한계선</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 속이 찬 점(기록 있음)마다 리페어 직후 기준(짧은 가로선)과 한계선(붉은 가로선)이 높이가 서로 다른 것을 보십시오. 2) 속이 빈 점(기록 없음)에는 한계선이 없습니다. 3) 아래 단추로 &lsquo;다른 마스크들의 평균 기준&rsquo;을 쓰면 잔여 수명 오차가 얼마나 커지는지 보십시오.</div>
+  <div class="row" role="group" aria-label="기준 고르기"><button class="btn bs" data-base="rec" type="button" aria-pressed="true">기록된 기준 쓰기</button><button class="btn bs" data-base="avg" type="button" aria-pressed="false">다른 마스크들의 평균 기준 쓰기</button></div>
+  <div class="state" id="st5"></div>
+  <canvas id="cv5"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>현재 수준(기록 있음)</span><span><i class="dot" style="background:transparent;border:2px solid var(--grey)"></i>현재 수준(기록 없음)</span><span><span class="sw" style="border-top:3px solid var(--ink)"></span>리페어 직후 기준</span><span><span class="sw" style="border-top:3px solid var(--bad)"></span>한계선</span></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<p>기준이 없는 마스크는 &lsquo;수명이 얼마 남았는지 모른다&rsquo;가 정직한 답입니다. 이 실험실은 그런 마스크를 <b>판단 불가</b>로 표시하고, 7절에서 그 마스크의 기준을 새로 잡는 길을 다룹니다. 이 일이 이 트랙의 데이터 자산 이야기의 핵심입니다. 리페어 직후 첫 턴의 배율을 한 줄 기록하지 않으면, 수명을 아는 마스크와 모르는 마스크의 차이가 영영 생깁니다.</p>
+<div class="qna" data-label="기준 기록이 없는 마스크는 어떻게 하나요?" data-q="기준 기록이 없는 마스크는 어떻게 하나요?">
+  <p><b>수명을 내지 말고, 다음 리페어 때 그 직후 첫 턴의 배율을 기록해 기준을 새로 잡은 뒤 그때부터 쌓습니다.</b> 이 라인에서 기준이 없는 마스크는 <span class="q5_nun"></span>장이고, 다른 마스크들의 평균 기준을 대신 쓰면 잔여 수명의 오차(중앙값)가 <span class="q5_e1"></span>턴에서 <span class="q5_e2"></span>턴으로 커집니다.</p>
+  <p>일정에서는 이런 마스크를 가장 이른 빈 리페어 자리에 넣어 먼저 리페어하고, 리페어 직후 첫 턴의 배율을 기록합니다(7절). 한 번 그렇게 기준을 잡으면 그 마스크는 그 뒤로 수명을 말할 수 있습니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>예측 구간의 정직성 — 참 수명을 얼마나 담는가</h2>
+<p>이 가상 라인에는 정답이 있습니다. 마스크가 한계에 닿는 나이는 1 + <i>L</i> / <span class="v_ageAbs"></span> 이고, 지금 나이(기록 있는 마스크의 <code>age_known</code> 마지막 값)를 빼면 참 잔여 수명입니다. 구간이 이 값을 담았는지 마스크마다 세어 보겠습니다. 예측 구간을 95% 로 잡았으니 담는 비율이 95% 근처여야 합니다. 한계 <i>L</i> 을 옮기면 참 수명도, 구간의 기준선도 함께 움직입니다.</p>
+<div class="lab">
+  <div class="labtitle">기록 있는 마스크의 잔여 수명 예측 구간과 참 수명</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 다이아몬드(참 수명)가 구간 밖에 놓인 마스크를 세어 보십시오. 2) 한계를 낮추면 이미 넘은 마스크(참 잔여 수명이 0 보다 작은 쪽)가 생기고 구간이 그것을 담지 못하는 것을 보십시오. 3) 모델을 마스크별로 바꾸면 구간이 훨씬 넓어지는 대신 담는 비율이 어떻게 되는지 보십시오.</div>
+  <div class="row" role="group" aria-label="기울기 모델 고르기"><button class="btn mdl" data-model="mask" type="button" aria-pressed="false">마스크별 기울기</button><button class="btn mdl" data-model="pool" type="button" aria-pressed="true">공통 기울기</button></div>
+  <div class="ctrl"><label for="sL">한계 <i>L</i> (ppm, 가정)</label><input type="range" id="sL" min="0.3" max="0.8" step="0.05" value="0.5"><output id="sLO"></output></div>
+  <div class="row"><button class="btn ghost" id="rL" type="button">기본 한계로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><span class="sw" style="border-top:5px solid var(--c8)"></span>예측 구간(이른 끝~늦은 끝)</span><span><i class="dot" style="background:var(--good);border-radius:1px;transform:rotate(45deg)"></i>참 수명이 구간 안</span><span><i class="dot" style="background:var(--bad);border-radius:1px;transform:rotate(45deg)"></i>참 수명이 구간 밖</span></div>
+  <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>일정으로 바꾸기 — 리페어 능력 한도 안에서</h2>
+<p>구간은 마스크마다 &lsquo;언제까지 빼야 하는가&rsquo;를 줍니다. 그러나 리페어는 턴마다 <i>c</i>장까지만 할 수 있고, 마스크 <span class="v_nm"></span>장 가운데 여럿이 비슷한 때에 한계에 닿으면 한꺼번에 못 뺍니다. 그래서 순서와 시점을 정해야 합니다.</p>
+<ul class="termdef">
+  <li><b>예방 리페어 일정 (preventive repair schedule)</b> — 한계에 닿기 전에, 리페어 능력 한도 안에서 마스크를 미리 빼는 순서와 시점입니다.</li>
+</ul>
+<p>일정을 짜는 규칙 세 가지를 앞으로 <span class="v_H"></span>턴 동안 모의로 견줍니다. 모든 규칙에서 마스크는 이 기간에 한 번만 리페어합니다. 리페어에 들어간 마스크는 <i>R</i>턴 빠졌다가 나이 1 로 돌아옵니다.</p>
+<ul class="termdef">
+  <li><b>규칙 A (고정 주기)</b> — 마스크의 나이가 <i>N</i> 턴이 되면 리페어합니다. <i>N</i> 은 참 수명(한계에 닿는 나이)보다 작은 가장 큰 정수입니다. 수명을 정확히 아는 가장 유리한 고정 주기이며, 나이를 모르는 마스크(기준 기록이 없는 마스크)는 가장 이른 빈 자리에서 먼저 리페어합니다. 능력이 모자라 기다리는 마스크는 나이가 많은 순서로 뺍니다.</li>
+  <li><b>규칙 B (사후 대응)</b> — 감시가 &lsquo;한계를 넘었다&rsquo;고 본 뒤에 리페어합니다. 감시는 턴마다 보정 후 배율을 기준과 견주는 0303의 경보 방식이며, 잰 값에는 턴 평균의 잡음(3절의 <i>s</i>)이 있습니다. 기준 기록이 없는 마스크는 관측 첫 턴을 기준으로 삼습니다.</li>
+  <li><b>규칙 C (예측)</b> — 예측 구간의 이른 끝이 가까운 순서로, 능력 한도 안에서 미리 뺍니다. <b>마감</b>은 &lsquo;그 턴에는 이미 빠져 있어야 하는 턴&rsquo;(이른 끝의 정수부 + 1)이며, 마감이 이른 마스크부터 마감 이전의 가장 늦은 빈 자리에 넣고, 자리가 없으면 마감 뒤 가장 이른 빈 자리에 넣습니다. 기준 기록이 없는 마스크는 마감을 1 로 두어 가장 이른 빈 자리에서 먼저 리페어하고 그 직후 첫 턴의 배율을 기록해 기준을 새로 잡습니다.</li>
+</ul>
+<p>지표는 넷입니다. <b>한계 초과 유리 수</b>(참 한계를 넘은 나이로 증착한 유리, 마스크 한 장이 한 턴에 증착하는 <span class="v_npt"></span>장씩), <b>리페어 횟수</b>, <b>버린 수명</b>(리페어하는 턴에 마스크에 남아 있던 참 잔여 수명의 합, 이미 넘었으면 0), <b>빠진 턴 수</b>입니다.</p>
+<div class="lab">
+  <div class="labtitle">앞으로 <span class="v_H"></span>턴의 마스크 × 턴 상태 (규칙을 골라 보기)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 규칙을 바꿔 가며 붉은 칸(한계 초과)이 어느 마스크, 어느 턴에 몰리는지 보십시오. 2) 능력 <i>c</i> 를 1 에서 3 으로 올릴 때 붉은 칸이 얼마나 줄어드는지 보십시오. 3) 규칙 A 와 C 가 같은 마스크를 같은 순서로 빼는지, 다른 순서로 빼는지 보십시오.</div>
+  <div class="row" role="group" aria-label="규칙 고르기"><button class="btn rl" data-rule="A" type="button" aria-pressed="false">규칙 A 고정 주기</button><button class="btn rl" data-rule="B" type="button" aria-pressed="false">규칙 B 사후 대응</button><button class="btn rl" data-rule="C" type="button" aria-pressed="true">규칙 C 예측</button></div>
+  <div class="ctrl"><label for="sC">리페어 능력 <i>c</i> (장/턴, 가정)</label><input type="range" id="sC" min="1" max="3" step="1" value="1"><output id="sCO"></output></div>
+  <div class="ctrl"><label for="sR">리페어하는 동안 빠지는 턴 <i>R</i> (가정)</label><input type="range" id="sR" min="1" max="4" step="1" value="2"><output id="sRO"></output></div>
+  <div class="row"><button class="btn ghost" id="r7" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="st7"></div>
+  <canvas id="cv7"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey);border-radius:2px"></i>증착(한계 안)</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>증착(한계 초과)</span><span><i class="dot" style="background:var(--c10);border-radius:2px"></i>리페어 중</span><span>이름 뒤 * = 기준 기록 없음</span></div>
+  <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
+  <div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
+  <div class="concl" id="conc7"></div>
+</div>
+<p>규칙 A 의 <i>N</i> 은 정답 수명으로 정했으니 가장 유리한 고정 주기입니다. 이 가상 라인의 마스크는 모두 같은 속도로 닳아 수명이 같으므로 고정 주기에 특히 유리하기도 합니다. 현장에서 그 수명은 이 분석을 해야 알 수 있고, 나이 기록이 없는 마스크에는 고정 주기를 적용할 수도 없습니다. 규칙 B 는 한계를 넘은 것을 본 뒤에 움직이므로 구조상 한 턴 이상 늦고, 능력이 모자라면 줄 선 마스크가 한계 밖에서 더 오래 증착합니다.</p>
+<div class="qna" data-label="고정 주기 리페어가 더 단순하지 않나요?" data-q="고정 주기 리페어가 더 단순하지 않나요?">
+  <p><b>단순하지만 수명을 정확히 알아야 하고 나이를 아는 마스크에만 쓸 수 있어서, 이 분석이 해 주는 일을 먼저 해야 합니다.</b> 이 라인에서 규칙 A 의 한계 초과 유리는 <span class="q7_a"></span>장, 규칙 C 는 <span class="q7_c"></span>장, 규칙 B 는 <span class="q7_b"></span>장입니다.</p>
+  <p>규칙 A 의 주기 <i>N</i>(<span class="q7_n"></span>턴)을 수명보다 크게 잘못 잡으면 한계를 넘은 채 증착하는 유리가 늘고, 작게 잡으면 버린 수명이 늘어납니다. 이것이 고정 주기의 맞바꿈입니다. 예측은 마스크마다 구간을 주므로 이 맞바꿈을 마스크 단위로 합니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 네 물음에 숫자로 답하기</h2>
+<p>이 실험실을 시작한 네 물음으로 돌아갑니다. 4절의 모델, 6절의 한계 <i>L</i>, 7절의 <i>c</i>·<i>R</i> 이 반영됩니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt"></table></div>
+<div class="concl" id="land"></div>
+<h3>다음 10턴의 리페어 순서 (규칙 C)</h3>
+<div class="tbwrap"><table id="tab8b" class="mt num"></table></div>
+<p>숫자를 만드는 일은 규칙과 에이전트가 하지만, 이 일정을 쓸지는 사람이 정합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>일정 승인 · 리페어 능력 배정(<i>c</i>) · 한계(<i>L</i>)를 현장 기준으로 정하기 · 공통 기울기를 써도 되는지의 최종 판단 · 기준 기록이 없는 마스크를 먼저 리페어할지 승인</td></tr>
+  <tr><td class="rowh">규칙</td><td>기울기 이질성 검정 · 예측 구간이 한계선과 만나는 턴 계산 · 능력 한도 안에서 마감이 이른 순서로 배치 · 기준이 없으면 &lsquo;판단 불가&rsquo;로 표시</td></tr>
+  <tr><td class="rowh">에이전트</td><td>온도 보정 · 마스크별·공통 회귀 · 구간 계산 · 일정 초안 · 마스크 수명 판정 기록지 초안 · 예측과 실제 리페어 시점의 배율 대조</td></tr>
+</table></div>
+<h3>단계 3 한눈에 — 0301에서 0306까지가 하나의 흐름이었습니다</h3>
+<div class="tbwrap"><table class="mt" id="tabFlow">
+  <tr><th>실험실</th><th>묻는 것</th><th>넘겨 주는 것</th></tr>
+  <tr><td class="rowh">0301 맵</td><td>PPA 의 어긋남이 어떤 모양으로 퍼져 있는가</td><td>화살표 맵과 성분 다섯의 이름</td></tr>
+  <tr><td class="rowh">0302 성분</td><td>그 모양의 크기를 숫자로 어떻게 뽑는가</td><td>77점에서 뽑은 계수 표와 표준오차(<i>M̂<sub>x</sub></i> 포함)</td></tr>
+  <tr><td class="rowh">0303 원인</td><td>배율이 내려가는 것이 열인가 마모인가</td><td>열 기울기와 턴 기울기, 온도 보정</td></tr>
+  <tr><td class="rowh">0304 조치</td><td>보정으로 끝낼 몫과 리페어할 몫은 무엇인가</td><td>마스크 기인 판정과 리페어 효과의 확인법</td></tr>
+  <tr><td class="rowh">0305 예측</td><td>재지 않은 유리의 배율을 FDC 로 미리 맞힐 수 있는가</td><td>시간순 시험, 외삽의 한계, 모델 드리프트 감시</td></tr>
+  <tr><td class="rowh">0306 수명</td><td>마스크가 언제 한계에 닿고 그 전에 어떻게 뺄 것인가</td><td>잔여 수명 구간과 예방 리페어 일정, 그리고 리페어 직후 기준을 기록하는 습관</td></tr>
+</table></div>
+<p>맵으로 보고(0301), 성분으로 뽑고(0302), 원인을 가르고(0303), 조치를 정하고(0304), 미리 맞히고(0305), 수명으로 일정을 짭니다(0306). 이어서 단계 4에서는 이 모든 계산을 사내 데이터에서 자동으로 돌리는 데이터 파이프라인(0400)을 다룹니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>이 일정이 줄이는 것은 세 가지입니다. 사후 대응(규칙 B) 대신 예측(규칙 C)을 쓰면 줄어드는 <b>한계 초과 유리 수</b>(품질 위험), 고정 주기(규칙 A) 대신 예측을 쓸 때 달라지는 <b>버린 수명</b>(리페어 비용), 그리고 리페어 때문에 <b>빠지는 턴 × 턴당 유리 장수</b>입니다. 7절의 <i>c</i>·<i>R</i>·<i>L</i> 과 4절의 모델이 그대로 반영됩니다. 리페어 한 번의 비용은 가정입니다.</p>
+<div class="lab">
+  <div class="labtitle">규칙을 바꿔 얻는 것과 치르는 것</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 규칙 B 에서 C 로 바꿀 때 줄어드는 한계 초과 유리 수를 보십시오. 2) 리페어 한 번의 비용을 바꿀 때 규칙 A·B·C 의 총비용 순서가 바뀌는지 보십시오. 3) 시드 200개에서 이 차이가 늘 같은 방향인지 10~90% 범위로 보십시오. 차이가 작으면 작다고 적습니다.</div>
+  <div class="ctrl"><label for="sK">리페어 한 번의 비용 (유리 장으로 환산, 가정)</label><input type="range" id="sK" min="0" max="600" step="50" value="200"><output id="sKO"></output></div>
+  <div class="row"><button class="btn ghost" id="rK" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stK"></div>
+  <div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="tbwrap"><table id="tab9b" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 &lsquo;유리 한 장의 값&rsquo;과 &lsquo;리페어 한 번의 실비&rsquo;를 곱해 금액으로 적습니다. 위 표의 총비용은 한계 초과 유리 수 + 리페어 횟수 × 리페어 비용 + 빠진 턴 × 턴당 유리 장수를 모두 유리 장으로 환산해 더한 값입니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy</code>·<code>pandas</code>·<code>scipy</code>를 씁니다. 입력은 마스크마다 턴 평균 표(0303의 온도 보정을 거친 <code>Mx_comp</code>, 기록이 있으면 <code>baseline</code>·<code>age_known</code>)이고, 코드와 같은 폴더의 <code>life_s14.csv</code>로 그대로 돌아갑니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다.</p>
+<div class="row"><button class="btn" id="csvBtn1" type="button">CSV 내려받기 (life_s14.csv)</button></div>
+<div class="state" id="csvState"></div>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+from scipy import stats
+
+ALPHA = 0.05                   # 예측 구간의 유의수준 (95%)
+LIMIT = 0.5                    # 한계(ppm, 가정): 보정 후 배율이 리페어 직후 기준보다 이만큼 내려가면 리페어
+CAPACITY, OUT_TURNS = 1, 2     # 리페어 능력(턴당 장 수, 가정) · 리페어하는 동안 빠지는 턴 수(가정)
+HORIZON, K_MAX = 30, 100       # 일정을 짜는 앞으로의 턴 수 · 구간이 한계와 만나는 턴을 찾는 최대 범위
+
+
+def life_fit(df, pooled=True):
+    """마스크마다 턴 번호(1~W)에 직선을 맞춥니다. pooled=True 면 마스크별 절편 + 모두 같은 기울기(공통 기울기)로 맞춥니다.
+    반환: 마스크별 직선(a: 절편, b: 기울기, se: 기울기 표준오차, s: 잔차 표준편차, df: 자유도)과, 마스크별 기울기를 따로 둔 모델이 공통 기울기 모델보다 나은지 보는 F 검정(het_F, het_p).
+    쓰면 안 되는 때: 이질성 검정 p 가 작은데 공통 기울기를 쓸 때 · 마스크마다 턴 수가 다르거나 빠진 턴이 있을 때(이 코드는 모든 마스크가 같은 W 턴이라고 가정합니다)."""
+    ids = sorted(df.mask_id.unique())
+    Y = np.array([df[df.mask_id == m].sort_values("turn")["Mx_comp"].to_numpy() for m in ids])
+    M, W = Y.shape
+    x = np.arange(1, W + 1, dtype=float)
+    xb = x.mean()
+    sxx = float(((x - xb) ** 2).sum())
+    yb = Y.mean(axis=1)
+    b = ((Y - yb[:, None]) * (x - xb)).sum(axis=1) / sxx
+    a = yb - b * xb
+    rss = ((Y - (a[:, None] + b[:, None] * x)) ** 2).sum(axis=1)
+    out = {"ids": ids, "W": W, "xbar": xb}
+    if pooled:
+        bp = float(b.mean())                        # 모든 마스크의 x 가 같으므로 공통 기울기 = 마스크별 기울기의 평균
+        ap = yb - bp * xb
+        rp = float(((Y - (ap[:, None] + bp * x)) ** 2).sum())
+        dfp = M * W - (M + 1)
+        sp = np.sqrt(rp / dfp)
+        out.update(a=ap, b=np.full(M, bp), s=np.full(M, sp), se=np.full(M, sp / np.sqrt(M * sxx)), df=dfp, sxx_eff=M * sxx)
+        dfs = M * W - 2 * M
+        F = ((rp - rss.sum()) / (M - 1)) / (rss.sum() / dfs)
+        out.update(het_F=float(F), het_p=float(stats.f.sf(F, M - 1, dfs)), het_df=(M - 1, dfs))
+    else:
+        s = np.sqrt(rss / (W - 2))
+        out.update(a=a, b=b, s=s, se=s / np.sqrt(sxx), df=W - 2, sxx_eff=sxx)
+    return out
+
+
+def _cross(fn, line):
+    """k = 0, 0.25, 0.5, … 중 fn(k) 가 line 이하가 되는 처음 구간을 찾아 이분법으로 좁힙니다. 없으면 None."""
+    if fn(0.0) &lt;= line:
+        return 0.0
+    for k in np.arange(0.25, K_MAX + 1e-9, 0.25):
+        if fn(float(k)) &lt;= line:
+            lo, hi = float(k) - 0.25, float(k)
+            for _ in range(60):
+                mid = (lo + hi) / 2
+                lo, hi = (lo, mid) if fn(mid) &lt;= line else (mid, hi)
+            return hi
+    return None
+
+
+def remaining_life(fit, i, baseline, limit, now, alpha=ALPHA):
+    """i 번째 마스크의 잔여 수명(보정 후 배율이 한계선에 닿기까지 남은 턴)과, 그 예측 구간의 이른 끝·늦은 끝.
+    한계선 = 리페어 직후 기준 − limit. 구간은 앞으로 한 턴의 값이 들어갈 범위(t 분포)이며, 그 구간의 아래·위 가장자리가 한계선과 만나는 턴이 이른 끝·늦은 끝입니다.
+    쓰면 안 되는 때: 리페어 직후 기준(baseline)이 없을 때(비어 있으면 None 을 돌려줍니다 — 수명의 어디쯤인지 알 수 없습니다) · 관측 범위(마지막 W 턴)보다 훨씬 먼 미래(외삽)까지 구간을 믿을 때."""
+    if baseline is None or not np.isfinite(baseline):
+        return None
+    a, b, s, df, sxx = fit["a"][i], fit["b"][i], fit["s"][i], fit["df"], fit["sxx_eff"]
+    tq, xb, line = float(stats.t.ppf(1 - alpha / 2, df)), fit["xbar"], baseline - limit
+    mid = lambda k: a + b * (now + k)
+    hw = lambda k: tq * s * np.sqrt(1 + 1 / fit["W"] + (now + k - xb) ** 2 / sxx)
+    point = (line - mid(0.0)) / b if b &lt; 0 else None          # 기울기가 0 이상이면 이 기간 안에는 닿지 않음
+    return {"point": point, "early": _cross(lambda k: mid(k) - hw(k), line), "late": _cross(lambda k: mid(k) + hw(k), line)}
+
+
+def plan_repairs(lives, capacity, out_turns, horizon=HORIZON):
+    """규칙 C: 예측 구간의 이른 끝이 가까운 마스크부터, 리페어 능력(턴당 capacity 장) 안에서 미리 뺍니다.
+    lives 는 {마스크: 이른 끝(턴, 없으면 None)} 입니다. 마감 = 이른 끝의 정수부 + 1 턴째에는 이미 빠져 있어야 하는 턴이며, 기준이 없는 마스크(None)는 마감 1 로 두어 가장 이른 빈 자리에서 리페어해 기준을 새로 잡습니다.
+    반환: {마스크: 리페어를 시작하는 턴}, out_turns 턴 동안 빠졌다가 돌아옵니다.
+    쓰면 안 되는 때: 능력이 마스크 수보다 훨씬 작은데 모든 마스크가 제때 빠질 것이라고 보고할 때(마감을 넘겨 늦어지는 마스크가 반드시 나옵니다 — 늦어진 수를 함께 보고하십시오)."""
+    jobs = sorted(((1 if v is None else max(1, int(np.floor(v)) + 1), m) for m, v in lives.items()), key=lambda t: (t[0], str(t[1])))
+    slots, plan = {}, {}
+    for d, m in jobs:
+        if d &gt; horizon:
+            continue
+        pick = next((u for u in range(d, 0, -1) if slots.get(u, 0) &lt; capacity), None)
+        if pick is None:
+            pick = next((u for u in range(d + 1, horizon + 1) if slots.get(u, 0) &lt; capacity), None)
+        if pick is not None:
+            slots[pick] = slots.get(pick, 0) + 1
+            plan[m] = pick
+    return plan
+
+
+def show(v):
+    return f"{v:.1f}턴" if v is not None else f"{K_MAX}턴 안에 닿지 않음"
+
+
+df = pd.read_csv("life_s14.csv")
+fit_m, fit_p = life_fit(df, pooled=False), life_fit(df, pooled=True)
+ids, M, W = fit_p["ids"], len(fit_p["ids"]), fit_p["W"]
+base = df.groupby("mask_id")["baseline"].first().reindex(ids)
+known = base.notna().to_numpy()
+print(f"마스크 {M}장 · 관측 {W}턴 · 리페어 직후 기준 기록 있음 {int(known.sum())}장 · 없음 {M - int(known.sum())}장")
+print(f"기울기 표준오차: 마스크별 중앙값 {np.median(fit_m['se']):.4f} · 공통 기울기 {fit_p['b'][0]:+.4f} ± {fit_p['se'][0]:.4f} ppm/턴 (비 {np.median(fit_m['se']) / fit_p['se'][0]:.2f})")
+print(f"기울기 이질성 검정: F({fit_p['het_df'][0]}, {fit_p['het_df'][1]}) = {fit_p['het_F']:.3f} · p = {fit_p['het_p']:.3f}")
+k = max((i for i in range(M) if known[i]), key=lambda i: fit_m["se"][i])
+for name, ft in (("마스크별", fit_m), ("공통", fit_p)):
+    r = remaining_life(ft, k, base.iloc[k], LIMIT, W)
+    print(f"{ids[k]} ({name} 기울기 {ft['b'][k]:+.4f}): 잔여 수명 {show(r['point'])} · 예측 구간 이른 끝 {show(r['early'])} ~ 늦은 끝 {show(r['late'])}")
+lives = {}
+for i in range(M):
+    r = remaining_life(fit_p, i, base.iloc[i] if known[i] else None, LIMIT, W)
+    lives[ids[i]] = None if r is None else r["early"]
+print(f"판단 불가(기준 기록 없음) {sum(v is None for v in lives.values())}장")
+plan = plan_repairs(lives, CAPACITY, OUT_TURNS)
+print(f"예방 리페어 일정(능력 {CAPACITY}장/턴, 리페어 {OUT_TURNS}턴) 다음 10턴: " + " ".join(f"{t}턴 {m}" for t, m in sorted((t, m) for m, t in plan.items() if t &lt;= 10)))</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력">마스크 24장 · 관측 8턴 · 리페어 직후 기준 기록 있음 16장 · 없음 8장
+기울기 표준오차: 마스크별 중앙값 0.0077 · 공통 기울기 -0.0206 ± 0.0019 ppm/턴 (비 4.14)
+기울기 이질성 검정: F(23, 144) = 1.123 · p = 0.328
+B02-A4 (마스크별 기울기 -0.0167): 잔여 수명 12.7턴 · 예측 구간 이른 끝 0.0턴 ~ 늦은 끝 100턴 안에 닿지 않음
+B02-A4 (공통 기울기 -0.0206): 잔여 수명 9.7턴 · 예측 구간 이른 끝 3.5턴 ~ 늦은 끝 16.7턴
+판단 불가(기준 기록 없음) 8장
+예방 리페어 일정(능력 1장/턴, 리페어 2턴) 다음 10턴: 1턴 B02-A1 2턴 B02-A2 3턴 B02-A3 4턴 B03-A1 5턴 B03-A4 6턴 B04-A2 7턴 B05-A3 8턴 B06-A1 9턴 B06-A2 10턴 B07-A1</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>마스크 수명 판정 기록지</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 화면의 마스크로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>마지막 리페어 일자·종류와 리페어 직후 기준을 적었는가(없으면 &lsquo;판단 불가&rsquo;로 적고 수명을 내지 않았는가)</li>
+      <li>관측 기간(턴 수)과 모델 판(공통/마스크별), 이질성 검정 <i>p</i> 를 적었는가</li>
+      <li>기울기 ± 표준오차와 잔여 수명 점 추정, 예측 구간의 이른 끝·늦은 끝을 적었는가</li>
+      <li>한계(<i>L</i>)와 그것이 가정임을, 구간을 관측 범위보다 먼 미래까지 믿지 않았음을 적었는가</li>
+      <li>일정 제안(순서·시점·능력)과 승인을 적었는가</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>마스크를 리페어에 보내는 일은 사람의 승인 뒤에 실행합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">이 예측을 감시하고 개선하려면 아래를 마스크 번호와 같은 키로 남겨야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>리페어 직후 첫 턴의 보정 후 배율(기준)과 리페어 일자·종류</b> — 이것이 없으면 이 실험실 전체가 성립하지 않습니다. 5절의 &lsquo;판단 불가&rsquo;가 곧 이 기록의 빈칸입니다.</li>
+      <li><b>마스크 이력</b> — 턴 번호가 리페어마다 0 으로 돌아가는지, 어느 챔버에서 썼는지.</li>
+      <li><b>일정과 실제 리페어 시점, 그때의 실제 배율</b> — 예측이 맞았는지 검증하는 원료입니다.</li>
+      <li><b>재질·제작 로트</b> — 기울기가 마스크마다 다른지(이질성)를 로트별로 가를 때 필요합니다.</li>
+    </ul>
+    <p>일정만 남기고 그때의 배율을 남기지 않으면, 몇 달 뒤에 예측 구간이 참 수명을 얼마나 담았는지 셀 수 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실의 함수를 0302·0303·0304 의 함수와 이어, 순서대로 부르게 묶었습니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>부르는 함수</th></tr>
+      <tr><td class="rowh">1) 계수 뽑기</td><td>0302의 <code>fit_ppa</code></td></tr>
+      <tr><td class="rowh">2) 온도 보정</td><td>0303의 <code>compensate</code></td></tr>
+      <tr><td class="rowh">3) 직선 맞추기</td><td><code>life_fit</code></td></tr>
+      <tr><td class="rowh">4) 잔여 수명 구간</td><td><code>remaining_life</code></td></tr>
+      <tr><td class="rowh">5) 일정 초안</td><td><code>plan_repairs</code></td></tr>
+      <tr><td class="rowh">6) 리페어 뒤 확인</td><td>0304의 <code>repair_effect</code></td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0305-virtual-metrology.html">← 이전: 가상 계측</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var P0=performance.now(),T_INIT=0;
+var MS=MfgSim,TL=MS.s14tools,CF=MS.CFG,TREF=CF.T0;
+var SS=MS.scenario('S14'),PRM=SS.params,SEED=PRM.seed,TAB=SS.table,IDS=TL.IDS,W=TL.W,M=IDS.length,H=TL.HORIZON,NPT=TL.GLASS_PER_TURN,MASKS=SS.masks;
+var FIT=TL.fit(TAB);
+var L0=TL.LIMIT,C0=TL.CAP,R0=TL.OUT,K0=200,AGE=CF.AGE_PPM_PER_TURN;
+var ST={model:'pool',L:L0,c:C0,R:R0,rule:'C',base:'rec',cost:K0,mk:0};
+var REC=[];MASKS.forEach(function(m,i){if(m.record)REC.push(i);});
+var NREC=REC.length,NUN=M-NREC;
+var PICK=REC.reduce(function(b,i){return FIT.per[IDS[i]].se_b>FIT.per[IDS[b]].se_b?i:b;},REC[0]);
+ST.mk=PICK;
+var SEEDREC=[],DIST={},DKEY='',DTOKEN=0;
+
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function stateBox(el,base,okTxt,movedTxt){el.className=base?'state':'state moved';el.textContent=base?okTxt:movedTxt;}
+function quant(a,p){var b=a.filter(isFinite).sort(function(x,y){return x-y;});if(!b.length)return NaN;var pos=(b.length-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1<b.length?b[lo]*(1-f)+b[lo+1]*f:b[lo];}
+function z0(v,d){return Math.abs(v)<0.5*Math.pow(10,-d);}
+function sg0(v,d){return (v<0&&!z0(v,d)?'−':'')+fmt(Math.abs(v),d);}
+function sgn(v,d){if(z0(v,d))return fmt(0,d);return (v<0?'−':'+')+fmt(Math.abs(v),d);}
+function c3(a,d){var f=function(v){return d===0?(v<-0.5?'−':'')+fmtN(Math.abs(v)):sg0(v,d);};return f(quant(a,.5))+' ('+f(quant(a,.1))+'~'+f(quant(a,.9))+')';}
+function mean(a){var s=0,i;for(i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sdev(a){var m=mean(a),s=0,i;for(i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function med(a){var b=a.filter(function(v){return v!=null&&isFinite(v);});return b.length?quant(b,.5):NaN;}
+function fK(v,d){return v==null?'닿지 않음':fmt(v,d==null?1:d);}
+function Lr(v){return Math.round(v*100)/100;}
+function tbl(id,head,rows){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){return '<td'+(i===0?' class="rowh"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function niceTicks(lo,hi,n){var rg=hi-lo,raw=rg/n,mg=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),st=mg,c=[1,2,5,10],i;for(i=0;i<c.length;i++){st=c[i]*mg;if(st>=raw)break;}var out=[],v=Math.ceil(lo/st-1e-9)*st;for(;v<=hi+1e-9;v+=st)out.push(Math.round(v/st)*st);return out;}
+function tickFmt(st){var d=0;while(d<4&&Math.abs(st*Math.pow(10,d)-Math.round(st*Math.pow(10,d)))>1e-6)d++;return d;}
+function xfFor(ticks){var d=tickFmt(ticks.length>1?ticks[1]-ticks[0]:1);return function(v){return sg0(v,d);};}
+/* 축이 있는 그림 틀. o = {h,x0,x1,y0,y1,xt,xf,yl,xl,pl,noY} */
+function frame(cv,o){
+  var Wd=cv.clientWidth||320,c=setup(cv,o.h),x=c.x,pl=o.pl||50,pr=14,pt=14,pb=36,gw=Wd-pl-pr,gh=o.h-pt-pb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,Wd,o.h);
+  function PX(v){return pl+(v-o.x0)/(o.x1-o.x0)*gw;}function PY(v){return pt+gh-(v-o.y0)/(o.y1-o.y0)*gh;}
+  x.font='11px sans-serif';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  if(!o.noY){var yt=niceTicks(o.y0,o.y1,5),yd=tickFmt(yt.length>1?yt[1]-yt[0]:1);
+    yt.forEach(function(v){var y=PY(v);x.beginPath();x.moveTo(pl,y);x.lineTo(pl+gw,y);x.stroke();x.textAlign='right';x.fillText(sg0(v,yd),pl-5,y+4);});}
+  (o.xt||[]).forEach(function(v){var xx=PX(v);x.beginPath();x.moveTo(xx,pt+gh);x.lineTo(xx,pt+gh+4);x.stroke();x.textAlign='center';x.fillText(o.xf?o.xf(v):String(v),xx,pt+gh+16);});
+  x.strokeStyle=soft;x.beginPath();x.moveTo(pl,pt);x.lineTo(pl,pt+gh);x.lineTo(pl+gw,pt+gh);x.stroke();
+  if(o.xl){x.textAlign='center';x.fillText(o.xl,pl+gw/2,pt+gh+32);}
+  if(o.yl){x.save();x.translate(11,pt+gh/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText(o.yl,0,0);x.restore();}
+  return {x:x,PX:PX,PY:PY,pl:pl,pt:pt,gw:gw,gh:gh,W:Wd};
+}
+function clipTo(f,fn){var x=f.x;x.save();x.beginPath();x.rect(f.pl,f.pt,f.gw,f.gh);x.clip();fn(x);x.restore();}
+function hline(f,v,col,dash,label,left,w){var x=f.x;clipTo(f,function(){x.strokeStyle=col;x.lineWidth=w||1.5;x.setLineDash(dash||[5,4]);x.beginPath();x.moveTo(f.pl,f.PY(v));x.lineTo(f.pl+f.gw,f.PY(v));x.stroke();});if(label){x.fillStyle=col;x.font='11px sans-serif';x.textAlign=left?'left':'right';x.fillText(label,left?f.pl+6:f.pl+f.gw-4,f.PY(v)-4);}}
+function vline(f,v,col,dash,label,y0){var x=f.x;clipTo(f,function(){x.strokeStyle=col;x.lineWidth=1.5;x.setLineDash(dash||[5,4]);x.beginPath();x.moveTo(f.PX(v),f.pt);x.lineTo(f.PX(v),f.pt+f.gh);x.stroke();});if(label){x.fillStyle=col;x.font='11px sans-serif';x.textAlign='left';x.fillText(label,Math.min(f.PX(v)+4,f.pl+f.gw-60),f.pt+(y0||12));}}
+function dotAt(x,px,py,r,col,al){x.globalAlpha=al==null?1:al;x.fillStyle=col;x.beginPath();x.arc(px,py,r,0,6.2832);x.fill();x.globalAlpha=1;}
+function band(f,k0,k1,lo,hi,col,al){var x=f.x,k,st=(k1-k0)/120;clipTo(f,function(){x.globalAlpha=al;x.fillStyle=col;x.beginPath();for(k=k0;k<=k1+1e-9;k+=st)x.lineTo(f.PX(W+k),f.PY(hi(k)));for(k=k1;k>=k0-1e-9;k-=st)x.lineTo(f.PX(W+k),f.PY(lo(k)));x.closePath();x.fill();x.globalAlpha=1;});}
+function curve(f,k0,k1,fn,col,lw,dash){var x=f.x,k,st=(k1-k0)/120;clipTo(f,function(){x.strokeStyle=col;x.lineWidth=lw||2;x.setLineDash(dash||[]);x.beginPath();for(k=k0;k<=k1+1e-9;k+=st){var px=f.PX(W+k),py=f.PY(fn(k));if(k===k0)x.moveTo(px,py);else x.lineTo(px,py);}x.stroke();});}
+
+/* ---- 자료와 모델 ---- */
+var Y=function(i){return TAB.y[IDS[i]];};
+var BASE=function(i){return TAB.baseline[IDS[i]];};
+var A0=function(i){return MASKS[i].a0;};
+var _est={},_sim={};
+function est(model,L){var k=model+'|'+L;return _est[k]||(_est[k]=TL.estimates(SS,FIT,{model:model,limit:L}));}
+function sim(model,L,c,R){var k=[model,L,c,R].join('|');return _sim[k]||(_sim[k]=TL.sim(SS,FIT,{model:model,limit:L,capacity:c,out:R}));}
+function fitOf(model,i){return (model==='mask'?FIT.per:FIT.pool)[IDS[i]];}
+function covStats(model,L){var e=est(model,L).filter(function(x){return x.covered!==null;}),c=e.filter(function(x){return x.covered;}).length;
+  return {n:e.length,c:c,w:med(e.map(function(x){return x.width;})),err:med(e.map(function(x){return x.err;})),open:e.filter(function(x){return x.width==null;}).length};}
+var BASEREC=REC.map(BASE),SDBASE=sdev(BASEREC);
+function y8(model,i){var f=fitOf(model,i);return f.a+f.b*W;}
+function avgBase(i){var o=[];REC.forEach(function(j){if(j!==i)o.push(BASE(j));});return mean(o);}
+function avgEst(model,L,i){var f=fitOf(model,i),B=avgBase(i),k=f.b<0?((B-L)-(f.a+f.b*W))/f.b:null,tk=TL.life(L)-A0(i);return {B:B,k:k,truth:tk,err:k==null?null:Math.abs(k-tk)};}
+
+/* ---- 머리말·문제 ---- */
+setAll('v_mk2',IDS[PICK]);setAll('v_nm',String(M));setAll('v_W',String(W));setAll('v_ng',String(TL.GITS.length));setAll('v_H',String(H));setAll('v_T0',String(TREF));setAll('v_bT',sg0(PRM.thermal,3));
+setAll('v_nrec',String(NREC));setAll('v_nun',String(NUN));setAll('v_npt',String(NPT));setAll('v_Ntot',String(M*W));setAll('v_ageSlope',sg0(AGE,2));setAll('v_ageAbs',Math.abs(AGE).toFixed(2));setAll('v_sdBase',fmt(SDBASE,2));
+
+/* ---- 1절 ---- */
+function upd1(){
+  var rows=TAB.rows,yy=rows.map(function(r){return r.Mx_comp;}),ag=rows.filter(function(r){return r.age_known!=null;}).map(function(r){return r.age_known;});
+  var h='<tr><th>열</th><th>뜻</th><th>이 표의 범위</th></tr>';
+  [['mask_id','마스크 번호(마스크 '+M+'장)',IDS[0]+' ~ '+IDS[M-1]],['turn','최근 '+W+'턴 가운데 몇 번째 턴인가(턴 '+W+' 이 지금)','1 ~ '+W],['age_known','마지막 리페어 뒤 몇 턴째인가(기록이 있는 마스크만, 없으면 빈칸)',Math.min.apply(null,ag)+' ~ '+Math.max.apply(null,ag)],
+   ['Mx_comp','보정 후 배율의 턴 평균 (ppm)',sg0(Math.min.apply(null,yy),2)+' ~ '+sg0(Math.max.apply(null,yy),2)],['baseline','리페어 직후 첫 턴의 보정 후 배율 (ppm, 기록이 있는 마스크만)',sg0(Math.min.apply(null,BASEREC),2)+' ~ '+sg0(Math.max.apply(null,BASEREC),2)]].forEach(function(r){h+='<tr><td class="rowh"><code>'+r[0]+'</code></td><td style="text-align:left">'+r[1]+'</td><td>'+r[2]+'</td></tr>';});
+  $('tab1a').innerHTML=h;
+  setAll('v_mk1',IDS[PICK]);
+  h='<tr><th><code>mask_id</code></th><th><code>turn</code></th><th><code>age_known</code></th><th><code>Mx_comp</code> (ppm)</th><th><code>baseline</code> (ppm)</th></tr>';
+  TAB.rows.filter(function(r){return r.mask_id===IDS[PICK];}).forEach(function(r){h+='<tr><td>'+r.mask_id+'</td><td>'+r.turn+'</td><td>'+(r.age_known==null?'—':r.age_known)+'</td><td>'+sg0(r.Mx_comp,3)+'</td><td>'+(r.baseline==null?'—':sg0(r.baseline,3))+'</td></tr>';});
+  $('tab1b').innerHTML=h;
+  var sl=IDS.map(function(id){return FIT.per[id].b;});
+  $('conc1').innerHTML='<b>마스크 '+M+'장 가운데 '+sl.filter(function(b){return b<0;}).length+'장의 직선이 내려가고, 마스크별로 맞춘 기울기는 '+sg0(Math.min.apply(null,sl),4)+' ~ '+sgn(Math.max.apply(null,sl),4)+' ppm/턴 으로 꽤 넓게 흩어집니다.</b> 이 흩어짐이 마스크 사이의 진짜 차이인지 한 마스크 안의 잡음인지는 4절에서 가립니다. 지금은 기울기를 앞으로 이어 그으면 한계에 닿는 턴이 나온다는 것을 한 마스크로 해 봅니다.';
+}
+function draw1(){
+  var cv=$('cv1'),dev=IDS.map(function(id){var m=mean(TAB.y[id]);return TAB.y[id].map(function(v){return v-m;});}),lo=Infinity,hi=-Infinity;
+  dev.forEach(function(a){a.forEach(function(v){lo=Math.min(lo,v);hi=Math.max(hi,v);});});var pad=(hi-lo)*0.06;lo-=pad;hi+=pad;
+  var f=frame(cv,{h:260,x0:1,x1:W,y0:lo,y1:hi,xt:[1,2,3,4,5,6,7,8].filter(function(v){return v<=W;}),xl:'턴 (최근 '+W+'턴, '+W+' = 지금)',yl:'보정 후 배율 − 마스크 평균 (ppm)'}),x=f.x;
+  dev.forEach(function(a,i){if(i===PICK)return;x.strokeStyle=css('--grey');x.globalAlpha=.55;x.lineWidth=1.2;x.beginPath();a.forEach(function(v,k){var px=f.PX(k+1),py=f.PY(v);if(k===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();x.globalAlpha=1;});
+  x.strokeStyle=css('--accent');x.lineWidth=3;x.beginPath();dev[PICK].forEach(function(v,k){var px=f.PX(k+1),py=f.PY(v);if(k===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();
+  dev[PICK].forEach(function(v,k){dotAt(x,f.PX(k+1),f.PY(v),3.5,css('--accent'));});
+}
+
+/* ---- 직선을 앞으로 이어 그어 보기(2·3·4절 공통) ---- */
+function kView(r){var m=[r.early,r.late,r.ci_early,r.ci_late,r.k_hat].filter(function(v){return v!=null&&isFinite(v);}),mx=m.length?Math.max.apply(null,m):20,v=Math.max(20,Math.ceil(mx*1.15/5)*5);if(r.late==null||r.ci_late==null)v=Math.max(v,40);return Math.min(v,80);}
+function lifeAxis(cv,i,r,kv,extraLo){
+  var y=Y(i),ymin=Math.min.apply(null,y),ymax=Math.max.apply(null,y),base=r.line+ST.L;
+  var lo=Math.min(r.line-0.15,ymin-0.05,r.mid(kv)-0.05,extraLo==null?Infinity:extraLo),hi=Math.max(ymax+0.05,base+0.06);
+  var x1=W+kv,xt=niceTicks(1,x1,6);
+  return frame(cv,{h:300,x0:1,x1:x1,y0:lo,y1:hi,xt:xt,xf:xfFor(xt),xl:'턴 (지금 = '+W+', 오른쪽은 앞으로)',yl:'보정 후 배율 (ppm)'});
+}
+function drawPts(f,i){var x=f.x,y=Y(i);y.forEach(function(v,k){dotAt(x,f.PX(k+1),f.PY(v),4,css('--accent'));});}
+
+function draw2(){
+  var i=PICK,f0=FIT.per[IDS[i]],r=TL.remaining(f0,BASE(i),ST.L,W),kv=kView(r),cv=$('cv2');
+  var yc=f0.a+f0.b*W,se=f0.se_b,line=r.line,bs=f0.b-2*se,bl=f0.b+2*se;
+  var lo=Math.min(line-0.15,Math.min.apply(null,Y(i))-0.05,yc+bs*kv-0.02),f=lifeAxis(cv,i,r,kv,lo),x=f.x;
+  hline(f,line,css('--bad'),[],'한계선',false,2);hline(f,line+ST.L,css('--ink'),[2,4],'리페어 직후 기준',true,1.2);
+  curve(f,0,kv,function(k){return yc+bs*k;},css('--c8'),1.8,[6,4]);curve(f,0,kv,function(k){return yc+bl*k;},css('--c8'),1.8,[6,4]);
+  curve(f,-(W-1),kv,function(k){return f0.a+f0.b*(W+k);},css('--accent'),3);
+  drawPts(f,i);
+  var ks=[{k:kOf(f0.b),col:css('--accent'),lab:'직선'},{k:kOf(bs),col:css('--c8'),lab:'가파른 쪽'},{k:kOf(bl),col:css('--c8'),lab:'완만한 쪽'}];
+  function kOf(s){return s<0?Math.max(0,(line-yc)/s):null;}
+  ks.forEach(function(m,n){if(m.k!=null&&m.k<=kv)vline(f,W+m.k,m.col,[3,3],m.lab,12+n*14);});
+  var ok=kOf(f0.b),oe=kOf(bs),ol=kOf(bl);
+  tbl('tab2',['기울기를 이렇게 잡으면','기울기 (ppm/턴)','한계에 닿는 턴 (지금부터)'],[['표준오차의 2배만큼 가파르게',sg0(bs,4),fK(oe)],['직선 그대로 (<i>b̂</i>)',sg0(f0.b,4),fK(ok)],['표준오차의 2배만큼 완만하게',sg0(bl,4),fK(ol)]]);
+  $('conc2').innerHTML='<b>마스크 '+IDS[i]+' 의 기울기는 '+sg0(f0.b,4)+' ± '+fmt(se,4)+' ppm/턴 으로, 표준오차가 기울기의 '+fmt(100*se/Math.abs(f0.b),0)+'% 입니다.</b> 직선 그대로면 한계(<i>L</i> = '+fmt(ST.L,2)+' ppm)에 '+fK(ok)+'턴 뒤 닿는데, 기울기만 ±2 표준오차 흔들어도 '+fK(oe)+'턴 뒤부터 '+(ol==null?'아예 닿지 않는 경우':fK(ol)+'턴 뒤')+'까지 벌어집니다.';
+}
+
+function drawLife3(cv,i,model,showCI){
+  var f0=fitOf(model,i),r=TL.remaining(f0,BASE(i),ST.L,W),kv=kView(r),f=lifeAxis(cv,i,r,kv),x=f.x,tq=r.t;
+  function cw(k){return tq*f0.s*Math.sqrt(1/W+Math.pow(W+k-(W+1)/2,2)/f0.sxx_eff);}
+  hline(f,r.line,css('--bad'),[],'한계선',false,2);
+  band(f,0,kv,function(k){return r.mid(k)-r.hw(k);},function(k){return r.mid(k)+r.hw(k);},css('--c8'),.2);
+  curve(f,0,kv,function(k){return r.mid(k)-r.hw(k);},css('--c8'),1.6,[5,3]);curve(f,0,kv,function(k){return r.mid(k)+r.hw(k);},css('--c8'),1.6,[5,3]);
+  if(showCI){band(f,0,kv,function(k){return r.mid(k)-cw(k);},function(k){return r.mid(k)+cw(k);},css('--c10'),.3);
+    curve(f,0,kv,function(k){return r.mid(k)-cw(k);},css('--c10'),1.6,[2,3]);curve(f,0,kv,function(k){return r.mid(k)+cw(k);},css('--c10'),1.6,[2,3]);}
+  curve(f,-(W-1),kv,function(k){return f0.a+f0.b*(W+k);},css('--accent'),3);drawPts(f,i);
+  var list=[{k:r.early,col:css('--c8'),lab:'이른 끝'},{k:r.late,col:css('--c8'),lab:'늦은 끝'}];
+  list.forEach(function(m,n){if(m.k!=null&&m.k<=kv)vline(f,W+m.k,m.col,[3,3],m.lab+' '+fmt(m.k,1),12+n*14);});
+  return r;
+}
+function upd3(){
+  var i=PICK,f0=FIT.per[IDS[i]],r=drawLife3($('cv3'),i,'mask',true),kk=10;
+  var cwAt=function(k){return r.t*f0.s*Math.sqrt(1/W+Math.pow(W+k-(W+1)/2,2)/f0.sxx_eff);};
+  tbl('tab3',['구간','이른 끝 (턴)','점 추정 (턴)','늦은 끝 (턴)','지금 한 점의 범위 (ppm)',kk+'턴 뒤 한 점의 범위 (ppm)'],[
+    ['신뢰구간 (평균의 범위)',fK(r.ci_early),fK(r.k_hat),fK(r.ci_late),sg0(r.mid(0),3)+' ± '+fmt(cwAt(0),3),sg0(r.mid(kk),3)+' ± '+fmt(cwAt(kk),3)],
+    ['예측 구간 (한 값의 범위)',fK(r.early),fK(r.k_hat),fK(r.late),sg0(r.mid(0),3)+' ± '+fmt(r.hw(0),3),sg0(r.mid(kk),3)+' ± '+fmt(r.hw(kk),3)]]);
+  $('conc3').innerHTML='<b>같은 마스크('+IDS[i]+')에서 잔여 수명의 점 추정은 '+fK(r.k_hat)+'턴이지만, 예측 구간으로 말하면 이른 끝 '+fK(r.early)+'턴, 늦은 끝 '+(r.late==null?'닿지 않음(구간이 열려 있음)':fK(r.late)+'턴')+'입니다.</b> 지금(턴 '+W+')의 한 점이 들어갈 범위는 신뢰구간이 ± '+fmt(cwAt(0),3)+' ppm 인데 예측 구간은 ± '+fmt(r.hw(0),3)+' ppm 으로 '+fmt(r.hw(0)/cwAt(0),1)+'배이고, '+kk+'턴 뒤에는 ± '+fmt(cwAt(kk),3)+' 대 ± '+fmt(r.hw(kk),3)+' ppm 으로 '+fmt(r.hw(kk)/cwAt(kk),1)+'배입니다. 가까운 곳에서는 턴마다의 잡음 몫이 차이를 만들고, 멀어질수록 기울기의 불확실성이 두 구간을 함께 벌려 놓습니다. 한계 <i>L</i> = '+fmt(ST.L,2)+' ppm 기준입니다.';
+}
+
+/* ---- 4절 ---- */
+function upd4(){
+  var i=ST.mk,id=IDS[i],model=ST.model,r=drawLife3($('cv4b'),i,model,false);
+  setAll('v_L',fmt(ST.L,2));
+  stateBox($('st4'),model==='pool','지금 기본 모델(공통 기울기)입니다.','지금은 마스크별 기울기로 옮겨 놓았습니다(기본은 공통 기울기).');
+  $('selMkO').textContent='현재 '+A0(i)+'턴째';
+  Array.prototype.forEach.call(document.querySelectorAll('.mdl'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-model')===model?'true':'false');});
+  /* 위 그림: 마스크별 기울기 ±2 표준오차 + 공통 */
+  var cv=$('cv4a'),fp=FIT.pool[IDS[0]],lo=Infinity,hi=-Infinity;
+  IDS.forEach(function(d){var p=FIT.per[d];lo=Math.min(lo,p.b-2*p.se_b);hi=Math.max(hi,p.b+2*p.se_b);});lo=Math.min(lo,fp.b-2*fp.se_b,AGE-0.002);hi=Math.max(hi,fp.b+2*fp.se_b,AGE+0.002);var pad=(hi-lo)*0.06;lo-=pad;hi+=pad;
+  var f=frame(cv,{h:260,x0:0,x1:M+1,y0:lo,y1:hi,xt:[1,5,10,15,20,24].filter(function(v){return v<=M;}),xl:'마스크 (표의 순서)',yl:'턴 기울기 (ppm/턴)'}),x=f.x;
+  clipTo(f,function(){x.globalAlpha=.18;x.fillStyle=css('--good');x.fillRect(f.pl,f.PY(fp.b+2*fp.se_b),f.gw,f.PY(fp.b-2*fp.se_b)-f.PY(fp.b+2*fp.se_b));x.globalAlpha=1;});
+  hline(f,fp.b,css('--good'),[],'공통 기울기',true,2);hline(f,AGE,css('--soft'),[2,4],'참 기울기 '+sg0(AGE,2),false,1.2);
+  IDS.forEach(function(d,k){var p=FIT.per[d],px=f.PX(k+1),on=k===i;x.strokeStyle=on?css('--accent'):css('--grey');x.lineWidth=on?3:1.6;x.beginPath();x.moveTo(px,f.PY(p.b-2*p.se_b));x.lineTo(px,f.PY(p.b+2*p.se_b));x.stroke();
+    if(MASKS[k].record)dotAt(x,px,f.PY(p.b),on?5:3.4,on?css('--accent'):css('--grey'));else{x.strokeStyle=on?css('--accent'):css('--grey');x.lineWidth=1.6;x.beginPath();x.arc(px,f.PY(p.b),on?5:3.4,0,6.2832);x.stroke();}});
+  var pm=FIT.per[id],pp=FIT.pool[id],rm=TL.remaining(pm,BASE(i),ST.L,W),rp=TL.remaining(pp,BASE(i),ST.L,W);
+  var wm=rm.late==null?null:rm.late-rm.early,wp=rp.late==null?null:rp.late-rp.early;
+  tbl('tab4',['항목 ('+id+')','마스크별 기울기','공통 기울기'],[
+    ['턴 기울기 ± 표준오차 (ppm/턴)',sg0(pm.b,4)+' ± '+fmt(pm.se_b,4),sg0(pp.b,4)+' ± '+fmt(pp.se_b,4)],
+    ['직선 둘레 잔차 표준편차 <i>s</i> (ppm) · 자유도',fmt(pm.s,3)+' · '+pm.df,fmt(pp.s,3)+' · '+pp.df],
+    ['잔여 수명 점 추정 (턴)',fK(rm.k_hat),fK(rp.k_hat)],
+    ['예측 구간 이른 끝 ~ 늦은 끝 (턴)',fK(rm.early)+' ~ '+fK(rm.late),fK(rp.early)+' ~ '+fK(rp.late)],
+    ['예측 구간 폭 (턴)',wm==null?'열림':fmt(wm,1),wp==null?'열림':fmt(wp,1)],
+    ['마스크 '+M+'장의 기울기 표준오차 중앙값 (ppm/턴)',fmt(med(IDS.map(function(d){return FIT.per[d].se_b;})),4),fmt(FIT.se_pool,4)]]);
+  var rej=FIT.p<0.05;
+  $('conc4').innerHTML='<b>기울기 이질성 검정은 <i>F</i>('+FIT.df1+', '+FIT.df_sep+') = '+fmt(FIT.F,3)+', <i>p</i> = '+fmt(FIT.p,3)+' 이므로 5% 수준에서 '+(rej?'기각됩니다. 마스크마다 기울기가 다르다는 뜻이니 공통 기울기를 쓰지 마십시오.':'기각되지 않고, 공통 기울기를 써도 좋다는 허가가 납니다.')+'</b> 공통 기울기는 '+sg0(FIT.b_pool,4)+' ± '+fmt(FIT.se_pool,4)+' ppm/턴 이고, 마스크별 기울기 표준오차의 중앙값은 이것의 '+fmt(med(IDS.map(function(d){return FIT.per[d].se_b;}))/FIT.se_pool,2)+'배입니다. 고른 마스크의 구간 폭은 '+(wm==null?'마스크별에서 열려 있고':'마스크별 '+fmt(wm,1)+'턴')+', 공통에서 '+(wp==null?'열려 있습니다.':fmt(wp,1)+'턴입니다.')+(sdOK()?' 시드 200개로 다시 뽑으면 기울기 표준오차의 비는 '+c3(SEREC('se_ratio'),2)+', 이질성 검정이 5% 수준에서 기각되는 시드는 '+fmt(100*SEREC('het_p').filter(function(v){return v<0.05;}).length/SEEDREC.length,1)+'% 입니다.':'');
+}
+function sdOK(){return SEEDREC.length===200;}
+function SEREC(k){return SEEDREC.map(function(r){return r.base[k];});}
+
+/* ---- 5절 ---- */
+function upd5(){
+  var model=ST.model,L=ST.L,mode=ST.base,es=est(model,L);
+  $('v_sdr').textContent=fmt(SDBASE/L,1);
+  Array.prototype.forEach.call(document.querySelectorAll('.bs'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-base')===mode?'true':'false');});
+  stateBox($('st5'),mode==='rec','지금 기록된 기준을 쓰고 있습니다(기본).','지금은 다른 마스크들의 평균 기준으로 옮겨 놓았습니다(기본은 기록된 기준).');
+  var cv=$('cv5'),lo=Infinity,hi=-Infinity,rows=[];
+  IDS.forEach(function(d,i){var yc=y8(model,i),B=mode==='rec'?BASE(i):avgEst(model,L,i).B;if(B==null&&mode==='avg')B=mean(BASEREC);lo=Math.min(lo,yc,B==null?yc:B-L);hi=Math.max(hi,yc,B==null?yc:B);});var pad=(hi-lo)*0.08;lo-=pad;hi+=pad;
+  var f=frame(cv,{h:300,x0:0,x1:M+1,y0:lo,y1:hi,xt:[1,5,10,15,20,24].filter(function(v){return v<=M;}),xl:'마스크 (표의 순서)',yl:'보정 후 배율 (ppm)'}),x=f.x;
+  IDS.forEach(function(d,i){var px=f.PX(i+1),yc=y8(model,i),B=mode==='rec'?BASE(i):avgEst(model,L,i).B;
+    if(B!=null&&(mode==='avg'||MASKS[i].record)){x.strokeStyle=css('--grey');x.globalAlpha=.7;x.lineWidth=1.5;x.beginPath();x.moveTo(px,f.PY(B));x.lineTo(px,f.PY(B-L));x.stroke();x.globalAlpha=1;
+      x.strokeStyle=css('--ink');x.lineWidth=3;x.beginPath();x.moveTo(px-5,f.PY(B));x.lineTo(px+5,f.PY(B));x.stroke();x.strokeStyle=css('--bad');x.beginPath();x.moveTo(px-5,f.PY(B-L));x.lineTo(px+5,f.PY(B-L));x.stroke();}
+    if(MASKS[i].record)dotAt(x,px,f.PY(yc),4.2,css('--accent'));else{x.strokeStyle=css('--grey');x.lineWidth=2;x.beginPath();x.arc(px,f.PY(yc),4.2,0,6.2832);x.stroke();}});
+  var e1=[],e2=[];
+  IDS.forEach(function(d,i){var e=es[i],ae=avgEst(model,L,i);
+    if(MASKS[i].record){if(e.err!=null)e1.push(e.err);if(ae.err!=null)e2.push(ae.err);}
+    var use=mode==='rec'?(MASKS[i].record?{B:BASE(i),k:e.r.k_hat,err:e.err}:null):{B:ae.B,k:ae.k,err:ae.err};
+    rows.push([d+(MASKS[i].record?'':'*'),MASKS[i].record?'있음':'없음',sg0(y8(model,i),3),use?sg0(use.B,3):'—',use?fK(use.k):'판단 불가',sg0(es[i].truth_k,1)+(es[i].truth_k<0?' (이미 넘음)':''),use&&use.err!=null?fmt(use.err,1):'—']);});
+  tbl('tab5',['마스크 (* = 기록 없음)','기준 기록','현재 수준 (ppm)','쓴 기준 (ppm)','잔여 수명 점 추정 (턴)','참 잔여 수명 (턴)','오차 (턴)'],rows);
+  var m1=med(e1),m2=med(e2),eAll=[];IDS.forEach(function(d,i){if(!MASKS[i].record){var a=avgEst(model,L,i);if(a.err!=null)eAll.push(a.err);}});
+  $('conc5').innerHTML=mode==='rec'
+    ?'<b>기록된 기준으로 잔여 수명을 내는 마스크는 '+NREC+'장이고 점 추정의 오차는 중앙값 '+fmt(m1,1)+'턴이며, 기록이 없는 '+NUN+'장은 판단 불가입니다.</b> 위 단추로 &lsquo;다른 마스크들의 평균 기준&rsquo;으로 바꾸면 같은 '+NREC+'장의 오차가 중앙값 '+fmt(m2,1)+'턴으로 '+fmt(m2/m1,1)+'배가 됩니다. 한계 <i>L</i> = '+fmt(L,2)+' ppm 기준입니다.'
+    :'<b>평균 기준으로 바꾸면 기록 있는 '+NREC+'장의 잔여 수명 오차(중앙값)가 '+fmt(m1,1)+'턴에서 '+fmt(m2,1)+'턴으로 '+fmt(m2/m1,1)+'배가 됩니다.</b> 기록이 없던 '+NUN+'장에 같은 방식을 쓰면 오차 중앙값은 '+fmt(med(eAll),1)+'턴입니다. 평균 기준은 마스크마다의 제작 차이를 지울 수 없어, 점 하나로는 믿기 어렵습니다.';
+}
+
+/* ---- 6절 ---- */
+function upd6(){
+  var model=ST.model,L=ST.L,es=est(model,L),cs=covStats(model,L),cm=covStats('mask',L),cp=covStats('pool',L);
+  $('sLO').textContent=fmt(L,2)+' ppm';setAll('v_L',fmt(L,2));
+  stateBox($('st6'),Math.abs(L-L0)<1e-9,'지금 이 값이 기본 한계입니다(0.5 ppm).','지금은 기본 한계에서 옮겨 놓은 가정입니다(기본 '+fmt(L0,2)+' ppm). 참 수명도 함께 바뀝니다.');
+  var rows=es.filter(function(e){return e.covered!==null;}).sort(function(a,b){return a.truth_k-b.truth_k;});
+  var cv=$('cv6'),lo=0,hi=-Infinity,i;
+  rows.forEach(function(e){lo=Math.min(lo,e.truth_k);hi=Math.max(hi,e.truth_k,e.r.late==null?0:Math.min(e.r.late,80),e.r.early==null?0:e.r.early);});
+  hi=Math.min(80,Math.max(hi,20))*1.05;lo=lo<0?lo-1:0;
+  var h=Math.max(260,rows.length*17+54),xt=niceTicks(lo,hi,6);
+  var f=frame(cv,{h:h,x0:lo,x1:hi,y0:0,y1:1,pl:62,noY:true,xt:xt,xf:xfFor(xt),xl:'지금부터의 잔여 수명 (턴)'}),x=f.x,rh=f.gh/rows.length;
+  if(lo<0)vline(f,0,css('--soft'),[2,3],'',12);
+  rows.forEach(function(e,k){var cy=f.pt+rh*(k+0.5),xe=e.r.early==null?hi:Math.max(lo,e.r.early),xl=e.r.late==null?hi:Math.min(hi,e.r.late);
+    x.fillStyle=css('--soft');x.font='11px sans-serif';x.textAlign='right';x.fillText(e.mask_id,f.pl-6,cy+4);
+    x.globalAlpha=.55;x.fillStyle=css('--c8');x.fillRect(f.PX(xe),cy-5,Math.max(2,f.PX(xl)-f.PX(xe)),10);x.globalAlpha=1;
+    if(e.r.late==null){x.fillStyle=css('--c8');x.beginPath();x.moveTo(f.PX(hi)-1,cy-6);x.lineTo(f.PX(hi)+0,cy);x.lineTo(f.PX(hi)-1,cy+6);x.fill();}
+    var tx=f.PX(Math.min(hi,Math.max(lo,e.truth_k)));x.fillStyle=e.covered?css('--good'):css('--bad');x.save();x.translate(tx,cy);x.rotate(Math.PI/4);x.fillRect(-4.5,-4.5,9,9);x.restore();});
+  var pct=function(c){return fmt(100*c.c/c.n,0)+'%';};
+  var d=getD();
+  tbl('tab6',['모델 (기준 기록이 있는 '+cs.n+'장)','참 수명을 담은 마스크','담은 비율','구간 폭 중앙값 (턴)','점 추정 오차 중앙값 (턴)','시드 1~200 담은 비율 중앙값 (10~90%)'],[
+    ['공통 기울기',cp.c+'장',pct(cp),cp.w==null?'—':fmt(cp.w,1),fmt(cp.err,1),d?c3(d.map(function(r){return 100*r.cover;}),0)+'%':'계산 중…'],
+    ['마스크별 기울기',cm.c+'장',pct(cm),cm.w==null?'—':fmt(cm.w,1),fmt(cm.err,1),d?c3(d.map(function(r){return 100*r.coverM;}),0)+'%':'계산 중…']]);
+  $('conc6').innerHTML='<b>지금 고른 모델('+(model==='pool'?'공통':'마스크별')+')에서 예측 구간은 기록 있는 '+cs.n+'장 가운데 '+cs.c+'장('+pct(cs)+')의 참 수명을 담았습니다.</b> 한계 <i>L</i> = '+fmt(L,2)+' ppm 에서 참 수명이 0 보다 작은(이미 한계를 넘은) 마스크는 '+rows.filter(function(e){return e.truth_k<0;}).length+'장입니다. 구간 폭(턴)의 중앙값은 공통 '+(cp.w==null?'—':fmt(cp.w,1))+', 마스크별 '+(cm.w==null?'—':fmt(cm.w,1))+'이고, 열려 있는(늦은 끝이 없는) 구간은 공통 '+cp.open+'장·마스크별 '+cm.open+'장입니다.'+(d?' 시드 200개로 다시 뽑으면 담는 비율의 중앙값은 공통 '+c3(d.map(function(r){return 100*r.cover;}),0)+'%, 마스크별 '+c3(d.map(function(r){return 100*r.coverM;}),0)+'% 입니다.':'');
+}
+
+/* ---- 7절 ---- */
+var RULES={A:'규칙 A 고정 주기',B:'규칙 B 사후 대응',C:'규칙 C 예측'};
+function upd7(){
+  var s=sim(ST.model,ST.L,ST.c,ST.R),rule=ST.rule,G=s[rule].grid;
+  $('sCO').textContent=ST.c+'장';$('sRO').textContent=ST.R+'턴';
+  Array.prototype.forEach.call(document.querySelectorAll('.rl'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-rule')===rule?'true':'false');});
+  stateBox($('st7'),ST.c===C0&&ST.R===R0,'지금 이 값이 기본값입니다(능력 '+C0+'장/턴, 빠지는 턴 '+R0+').','지금은 기본값에서 옮겨 놓은 가정입니다(능력 '+ST.c+'장/턴, 빠지는 턴 '+ST.R+'. 기본은 '+C0+'장·'+R0+'턴).');
+  var order=IDS.map(function(d,i){return i;}).sort(function(a,b){return s.est[a].truth_k-s.est[b].truth_k||a-b;});
+  var cv=$('cv7'),h=24*13+52,xt=[1,5,10,15,20,25,30].filter(function(v){return v<=H;});
+  var f=frame(cv,{h:h,x0:0.5,x1:H+0.5,y0:0,y1:1,pl:62,noY:true,xt:xt,xl:'앞으로의 턴 (1 = 다음 턴)'}),x=f.x,rh=f.gh/M,cw=f.gw/H;
+  order.forEach(function(i,r){var cy=f.pt+rh*r;x.fillStyle=css('--soft');x.font='11px sans-serif';x.textAlign='right';x.fillText(IDS[i]+(MASKS[i].record?'':'*'),f.pl-6,cy+rh*0.5+4);
+    G[i].forEach(function(c,k){x.fillStyle=c==='o'?css('--c10'):c==='x'?css('--bad'):css('--grey');x.globalAlpha=c==='u'?.5:.9;x.fillRect(f.pl+k*cw+0.5,cy+0.5,cw-1,rh-1);x.globalAlpha=1;});});
+  var d=getD();
+  var rr=['A','B','C'];
+  tbl('tab7',['규칙 (대표 시드 '+SEED+')','한계 초과 유리 (장)','리페어 횟수','버린 수명 (턴)','빠진 턴 수'],rr.map(function(k){return [RULES[k]+(k===rule?' ◀':''),fmtN(s[k].exceed),s[k].repairs,fmt(s[k].waste,1),s[k].out_turns];}));
+  tbl('tab7b',['시드 1~200 중앙값 (10~90%)','한계 초과 유리 (장)','리페어 횟수','버린 수명 (턴)','빠진 턴 수'],rr.map(function(k){var g=function(f){return d.map(function(r){return r[k+f];});};return [RULES[k],d?c3(g('ex'),0):'계산 중…',d?c3(g('rp'),0):'계산 중…',d?c3(g('wa'),1):'계산 중…',d?c3(g('ou'),0):'계산 중…'];}));
+  var cb=s.C.exceed-s.B.exceed,ca=s.C.waste-s.A.waste;
+  $('conc7').innerHTML='<b>대표 시드에서 규칙 C 의 한계 초과 유리는 '+fmtN(s.C.exceed)+'장으로 규칙 B('+fmtN(s.B.exceed)+'장)보다 '+(cb===0?'같고':fmtN(Math.abs(cb))+'장 '+(cb<0?'적고':'많고'))+', 규칙 A('+fmtN(s.A.exceed)+'장)'+(s.C.exceed===s.A.exceed?'와 같습니다':'와는 '+fmtN(Math.abs(s.C.exceed-s.A.exceed))+'장 '+(s.C.exceed<s.A.exceed?'적습니다':'많습니다'))+'.</b> 버린 수명은 '+(z0(ca,1)?'규칙 C 와 A 가 같습니다':'규칙 C 가 A 보다 '+fmt(Math.abs(ca),1)+'턴 '+(ca>0?'많습니다':'적습니다'))+'. 능력 '+ST.c+'장/턴, 빠지는 턴 '+ST.R+', 한계 <i>L</i> = '+fmt(ST.L,2)+' ppm 기준이고, 마스크는 이 기간에 한 번만 리페어합니다.'+(d?' 시드 200개로 다시 뽑으면 C − B 한계 초과 유리는 '+c3(d.map(function(r){return r.Cex-r.Bex;}),0)+'장, C − A 버린 수명은 '+c3(d.map(function(r){return r.Cwa-r.Awa;}),1)+'턴(중앙값, 10~90%)입니다.':'');
+}
+
+/* ---- 8절 ---- */
+function upd8(){
+  var model=ST.model,L=ST.L,cs=covStats(model,L),s=sim(model,L,ST.c,ST.R),es=s.est,d=getD();
+  var lives=REC.map(function(i){return es[i].r.k_hat;}).filter(function(v){return v!=null;}),eo=function(i){return es[i].r.early==null?1e9:es[i].r.early;};
+  var first=REC.slice().sort(function(a,b){return eo(a)-eo(b)||a-b;})[0];
+  tbl('tab8',['물음','이 화면의 숫자로 한 답'],[
+    ['(1) 마스크마다 몇 턴 뒤에 빼야 하는가','기준이 기록된 '+NREC+'장의 잔여 수명 점 추정은 '+fmt(Math.min.apply(null,lives),1)+' ~ '+fmt(Math.max.apply(null,lives),1)+'턴이고, 예측 구간의 이른 끝이 가장 이른 마스크는 '+IDS[first]+'('+fK(es[first].r.early)+'턴)입니다. 근거는 보정 후 배율의 턴 기울기를 앞으로 이어 그은 직선이 한계선(기준 − '+fmt(L,2)+' ppm)과 만나는 턴입니다.'],
+    ['(2) 얼마나 믿어도 되는가','예측 구간이 참 수명을 담은 마스크가 '+cs.n+'장 중 '+cs.c+'장('+fmt(100*cs.c/cs.n,0)+'%)이고 구간 폭은 중앙값 '+(cs.w==null?'—':fmt(cs.w,1))+'턴입니다. 점 추정 오차의 중앙값은 '+fmt(cs.err,1)+'턴입니다.'+(d?' 시드 200개에서 담는 비율은 중앙값 '+c3(d.map(function(r){return 100*(model==='pool'?r.cover:r.coverM);}),0)+'%입니다.':'')],
+    ['(3) 기준 기록이 없는 마스크는','기준이 없는 '+NUN+'장은 판단 불가입니다. 평균 기준으로 대신하면 오차가 커지므로(5절), 일정에서 가장 이른 빈 자리에 넣어 리페어하고 그 직후 첫 턴의 배율을 기록해 기준을 새로 잡습니다.'],
+    ['(4) 앞으로 '+H+'턴의 일정','능력 '+ST.c+'장/턴, 빠지는 턴 '+ST.R+' 에서 규칙 C 의 한계 초과 유리는 '+fmtN(s.C.exceed)+'장, 리페어 '+s.C.repairs+'회, 빠진 턴 '+s.C.out_turns+'입니다(규칙 B 는 한계 초과 '+fmtN(s.B.exceed)+'장).']]);
+  $('land').innerHTML='<b>1) 점으로 말하면 마스크마다 이르면 '+fmt(Math.min.apply(null,lives),0)+'턴 뒤부터 리페어가 필요하고, 구간으로 말하면 가장 이른 마스크는 '+fK(es[first].r.early)+'턴 뒤입니다. 2) 구간이 참 수명을 담은 비율은 '+fmt(100*cs.c/cs.n,0)+'% 입니다. 3) 기록이 없는 '+NUN+'장은 수명을 말할 수 없어 먼저 리페어해 기준을 잡습니다. 4) 능력 한도 안에서 규칙 C 가 한계 초과 유리를 '+fmtN(s.B.exceed-s.C.exceed)+'장 줄입니다(규칙 B 대비).</b>';
+  var G=s.C.grid,pulls=[];
+  IDS.forEach(function(id,i){var k=G[i].indexOf('o');if(k>=0&&k+1<=10)pulls.push({t:k+1,i:i});});
+  pulls.sort(function(a,b){return a.t-b.t||a.i-b.i;});
+  var rows=pulls.map(function(p){return [p.t+'턴째',IDS[p.i]+(MASKS[p.i].record?'':'*'),MASKS[p.i].record?'예측 구간의 이른 끝 '+fK(es[p.i].r.early)+'턴':'기준 기록 없음 — 리페어 직후 첫 턴의 배율을 기록해 기준을 새로 잡음'];});
+  if(!rows.length)rows=[['—','—','다음 10턴에 리페어할 마스크가 없습니다']];
+  tbl('tab8b',['리페어에 넣는 턴','마스크 (* = 기록 없음)','근거'],rows);
+}
+
+/* ---- 9절 ---- */
+function upd9(){
+  var s=sim(ST.model,ST.L,ST.c,ST.R),K=ST.cost,rr=['A','B','C'],d=getD();
+  $('sKO').textContent=K+'장';
+  stateBox($('stK'),K===K0,'지금 이 값이 기본값입니다(리페어 한 번 = 유리 '+K0+'장).','지금은 기본값에서 옮겨 놓은 가정입니다(리페어 한 번 = 유리 '+K+'장, 기본 '+K0+'장).');
+  var tot=function(k){return s[k].exceed+s[k].repairs*K+s[k].out_turns*NPT;};
+  var rows=[['한계 초과 유리 (장)'].concat(rr.map(function(k){return fmtN(s[k].exceed);})).concat([fmtN(s.B.exceed-s.C.exceed),fmtN(s.A.exceed-s.C.exceed)]),
+    ['리페어 비용 (횟수 × '+K+'장)'].concat(rr.map(function(k){return fmtN(s[k].repairs*K);})).concat([fmtN((s.B.repairs-s.C.repairs)*K),fmtN((s.A.repairs-s.C.repairs)*K)]),
+    ['빠진 턴 × '+NPT+'장'].concat(rr.map(function(k){return fmtN(s[k].out_turns*NPT);})).concat([fmtN((s.B.out_turns-s.C.out_turns)*NPT),fmtN((s.A.out_turns-s.C.out_turns)*NPT)]),
+    ['총비용 (유리 장 환산)'].concat(rr.map(function(k){return '<b>'+fmtN(tot(k))+'</b>';})).concat(['<b>'+fmtN(tot('B')-tot('C'))+'</b>','<b>'+fmtN(tot('A')-tot('C'))+'</b>']),
+    ['버린 수명 (턴, 참고)'].concat(rr.map(function(k){return fmt(s[k].waste,1);})).concat([fmt(s.B.waste-s.C.waste,1),fmt(s.A.waste-s.C.waste,1)])];
+  tbl('tab9',['항목 (대표 시드 '+SEED+')','규칙 A','규칙 B','규칙 C','B − C (C 로 바꿔 줄어드는 양)','A − C'],rows);
+  var tt=function(r,k){return r[k+'ex']+r[k+'rp']*K+r[k+'ou']*NPT;};
+  tbl('tab9b',['시드 1~200 중앙값 (10~90%)','B − C','A − C'],[
+    ['한계 초과 유리 (장)',d?c3(d.map(function(r){return r.Bex-r.Cex;}),0):'계산 중…',d?c3(d.map(function(r){return r.Aex-r.Cex;}),0):'계산 중…'],
+    ['총비용 (유리 장 환산)',d?c3(d.map(function(r){return tt(r,'B')-tt(r,'C');}),0):'계산 중…',d?c3(d.map(function(r){return tt(r,'A')-tt(r,'C');}),0):'계산 중…'],
+    ['버린 수명 (턴)',d?c3(d.map(function(r){return r.Bwa-r.Cwa;}),1):'계산 중…',d?c3(d.map(function(r){return r.Awa-r.Cwa;}),1):'계산 중…']]);
+  var mn=Math.min(tot('A'),tot('B'),tot('C')),best=rr.filter(function(k){return tot(k)-mn<1e-9;}).map(function(k){return RULES[k];}),dAC=tot('A')-tot('C');
+  $('con9').innerHTML='<b>규칙 B 에서 C 로 바꾸면 한계 초과 유리가 '+fmtN(s.B.exceed-s.C.exceed)+'장 줄고, 리페어 한 번을 유리 '+K+'장으로 칠 때 총비용은 B 가 C 보다 '+fmtN(Math.abs(tot('B')-tot('C')))+'장 '+(tot('B')>=tot('C')?'큽니다':'작습니다')+'.</b> 총비용이 가장 작은 쪽은 '+best.join(' · ')+' 입니다. '+(Math.abs(dAC)<1e-9?'규칙 A 와 C 의 총비용은 같습니다.':Math.abs(dAC)<NPT?'규칙 A 와 C 의 차이('+fmtN(Math.abs(dAC))+'장)는 한 턴의 유리 장수('+NPT+'장)보다 작으니, 차이가 없다고 말하는 것이 정직합니다.':'규칙 A 와 C 사이에는 '+fmtN(Math.abs(dAC))+'장의 차이가 있어, 규칙 A 의 주기와 능력을 같이 따져야 합니다.')+(d?' 시드 200개에서 B − C 의 한계 초과 유리는 중앙값 '+c3(d.map(function(r){return r.Bex-r.Cex;}),0)+'장입니다.':'');
+}
+
+/* ---- 분포 계산 ---- */
+function seedBase(sd){var S=MS.scenario('S14',{seed:sd}),fit=TL.fit(S.table),ps=S.masks.map(function(m){return fit.per[m.mask_id].se_b;});
+  return {S:{masks:S.masks,table:S.table,params:{seed:sd}},fit:fit,base:{se_ratio:med(ps)/fit.se_pool,het_p:fit.p}};}
+function buildSeeds(done){var sd=1;function step(){var t=Date.now();while(sd<=200&&Date.now()-t<30){SEEDREC.push(seedBase(sd));sd++;}
+  $('sdSt').textContent=sd<=200?'시드 '+(sd-1)+' / 200 만드는 중입니다.':'시드 200개를 만들었습니다. 지금 설정의 분포를 계산합니다…';
+  if(sd<=200)setTimeout(step,0);else done();}step();}
+function key(){return [ST.model,ST.L,ST.c,ST.R].join('|');}
+function getD(){var d=DIST[key()];return d&&d.done?d.rows:null;}
+function oneSeed(rec,model,L,c,R){
+  var ep=TL.estimates(rec.S,rec.fit,{limit:L,model:'pool'}),em=TL.estimates(rec.S,rec.fit,{limit:L,model:'mask'});
+  function cov(e){var a=e.filter(function(x){return x.covered!==null;});return a.length?a.filter(function(x){return x.covered;}).length/a.length:NaN;}
+  var sm=TL.sim(rec.S,rec.fit,{model:model,limit:L,capacity:c,out:R});
+  return {cover:cov(ep),coverM:cov(em),Aex:sm.A.exceed,Bex:sm.B.exceed,Cex:sm.C.exceed,Arp:sm.A.repairs,Brp:sm.B.repairs,Crp:sm.C.repairs,Awa:sm.A.waste,Bwa:sm.B.waste,Cwa:sm.C.waste,Aou:sm.A.out_turns,Bou:sm.B.out_turns,Cou:sm.C.out_turns};
+}
+function runDist(){
+  if(SEEDREC.length<200)return;var k=key();if(DIST[k]&&DIST[k].done){refreshD();return;}
+  var tk=++DTOKEN,rec=DIST[k]={rows:[],done:false},i=0,model=ST.model,L=ST.L,c=ST.c,R=ST.R;
+  function step(){if(tk!==DTOKEN)return;var t=Date.now();while(i<200&&Date.now()-t<30){rec.rows.push(oneSeed(SEEDREC[i],model,L,c,R));i++;}
+    if(i<200)setTimeout(step,0);else{rec.done=true;$('sdSt').textContent='시드 200개의 분포를 계산했습니다.';refreshD();}}
+  step();
+}
+function refreshD(){upd4();upd6();upd7();upd8();upd9();}
+var _dt=null;function schedDist(){if(_dt)clearTimeout(_dt);_dt=setTimeout(runDist,120);}
+function updAll(){upd2c();upd3();upd4();upd5();upd6();upd7();upd8();upd9();schedDist();}
+function upd2c(){draw2();}
+
+/* ---- 조작 ---- */
+Array.prototype.forEach.call(document.querySelectorAll('.mdl'),function(b){b.addEventListener('click',function(){ST.model=this.getAttribute('data-model');updAll();});});
+Array.prototype.forEach.call(document.querySelectorAll('.bs'),function(b){b.addEventListener('click',function(){ST.base=this.getAttribute('data-base');upd5();});});
+Array.prototype.forEach.call(document.querySelectorAll('.rl'),function(b){b.addEventListener('click',function(){ST.rule=this.getAttribute('data-rule');upd7();});});
+(function(){var sel=$('selMk');REC.forEach(function(i){var o=document.createElement('option');o.value=String(i);o.textContent=IDS[i];sel.appendChild(o);});sel.value=String(PICK);sel.addEventListener('change',function(){ST.mk=+this.value;upd4();});})();
+$('sL').addEventListener('input',function(){ST.L=Lr(+this.value);updAll();});
+$('rL').addEventListener('click',function(){ST.L=L0;$('sL').value=String(L0);updAll();});
+$('sC').addEventListener('input',function(){ST.c=+this.value;upd7();upd8();upd9();schedDist();});
+$('sR').addEventListener('input',function(){ST.R=+this.value;upd7();upd8();upd9();schedDist();});
+$('r7').addEventListener('click',function(){ST.c=C0;ST.R=R0;$('sC').value=String(C0);$('sR').value=String(R0);upd7();upd8();upd9();schedDist();});
+$('sK').addEventListener('input',function(){ST.cost=+this.value;upd9();});
+$('rK').addEventListener('click',function(){ST.cost=K0;$('sK').value=String(K0);upd9();});
+
+/* ---- Q&A 에 들어가는 값(대표 시드 기본 설정, 비동기 값 없음) ---- */
+(function(){
+  var f0=FIT.per[IDS[PICK]],r=TL.remaining(f0,BASE(PICK),L0,W);
+  setAll('q3_mk',IDS[PICK]);setAll('q3_ci',fmt(r.t*f0.s*Math.sqrt(1/W+Math.pow(W-(W+1)/2,2)/f0.sxx_eff),3));setAll('q3_pi',fmt(r.hw(0),3));
+  setAll('q4_p',fmt(FIT.p,3));
+  var em=est('mask',L0),ep=est('pool',L0),ws=[];REC.forEach(function(i){if(em[i].width!=null&&ep[i].width!=null)ws.push(em[i].width/ep[i].width);});
+  setAll('q4_wr',fmt(med(ws),1));
+  setAll('q5_nun',String(NUN));var e1=[],e2=[];REC.forEach(function(i){if(ep[i].err!=null)e1.push(ep[i].err);var a=avgEst('pool',L0,i);if(a.err!=null)e2.push(a.err);});setAll('q5_e1',fmt(med(e1),1));setAll('q5_e2',fmt(med(e2),1));
+  var s=sim('pool',L0,C0,R0);setAll('q7_a',fmtN(s.A.exceed));setAll('q7_b',fmtN(s.B.exceed));setAll('q7_c',fmtN(s.C.exceed));setAll('q7_n',String(s.N));
+})();
+
+/* ---- 10·11절 ---- */
+(function(){
+  function dl(name,rows,st){
+    var cols=Object.keys(rows[0]);
+    try{var txt=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){return r[c]==null?'':r[c];}).join(',');}).join('\n')+'\n',blob=new Blob([txt],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
+      st.className='state';st.textContent='파일을 내려받았습니다: '+name+' ('+fmtN(rows.length)+'행, 열 '+cols.length+'개).';
+    }catch(e){st.className='state moved';st.textContent='이 브라우저에서는 파일 내려받기가 막혀 있습니다. 코드 블록의 숫자를 그대로 쓰십시오.';}
+  }
+  $('csvBtn1').addEventListener('click',function(){dl('life_s14.csv',SS.csvRows(),$('csvState'));});
+  var f=['마스크 번호 · 마지막 리페어 일자와 종류 · 리페어 직후 기준(첫 턴의 보정 후 배율)','관측 기간(턴 수)과 모델 판(공통/마스크별) · 기울기 이질성 검정 <i>p</i>','턴 기울기 ± 표준오차','잔여 수명의 점 추정과 예측 구간(이른 끝·늦은 끝)','한계 <i>L</i> 과 그것이 가정이라는 표시','일정 제안(순서·시점·능력)과 승인'];
+  $('rp_fields').innerHTML=f.map(function(s){return '· '+s;}).join('<br>');
+  var i=PICK,id=IDS[i],pp=FIT.pool[id],rp=TL.remaining(pp,BASE(i),L0,W),s=sim('pool',L0,C0,R0),k=s.C.grid[i].indexOf('o');
+  $('rp_ex').innerHTML='마스크 <code>'+id+'</code> · 마지막 리페어 뒤 '+A0(i)+'턴째, 리페어 일자·종류는 기록칸(미기재) · 리페어 직후 기준 '+sg0(BASE(i),3)+' ppm · 관측 '+W+'턴, 모델 판 공통 기울기(이질성 <i>F</i> '+fmt(FIT.F,2)+', <i>p</i> '+fmt(FIT.p,3)+') · 기울기 '+sg0(pp.b,4)+' ± '+fmt(pp.se_b,4)+' ppm/턴 · 잔여 수명 '+fK(rp.k_hat)+'턴, 예측 구간 '+fK(rp.early)+' ~ '+fK(rp.late)+'턴 · 한계 '+fmt(L0,2)+' ppm(가정) · 일정 제안 '+(k>=0?'규칙 C 로 '+(k+1)+'턴째에 리페어':'이 기간에는 리페어 없음')+'(능력 '+C0+'장/턴, 리페어 '+R0+'턴) · 승인자 미기재.';
+})();
+
+/* ---- 다시 그리기 ---- */
+function redraw(){draw1();draw2();upd3();upd4();upd5();upd6();upd7();}
+window.addEventListener('resize',redraw);
+
+/* ---- 테마·상단바 ---- */
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+upd1();draw1();draw2();upd3();upd4();upd5();upd6();upd7();upd8();upd9();
+T_INIT=performance.now()-P0;
+var T0MS=Date.now();
+setTimeout(function(){buildSeeds(function(){runDist();});},50);
+window.__ml={ready:function(){var d=DIST[key()];return SEEDREC.length===200&&!!(d&&d.done);},ms:function(){return Date.now()-T0MS;},init:function(){return T_INIT;},st:ST,setL:function(v){ST.L=Lr(v);$('sL').value=String(ST.L);updAll();},setC:function(v){ST.c=v;$('sC').value=String(v);upd7();upd8();upd9();schedDist();},setR:function(v){ST.R=v;$('sR').value=String(v);upd7();upd8();upd9();schedDist();},setModel:function(m){ST.model=m;updAll();},setBase:function(b){ST.base=b;upd5();},setRule:function(r){ST.rule=r;upd7();},setCost:function(v){ST.cost=v;upd9();},setMk:function(i){ST.mk=i;upd4();}};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+
+</script>
+<script src="../tutor.js"></script>
+</body></html>

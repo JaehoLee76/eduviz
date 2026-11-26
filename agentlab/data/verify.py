@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html, S12 는 labs/0304-correct-or-repair.html, S13 은 labs/0305-virtual-metrology.html 의 Python 블록도 읽는다)"""
+"""숨은 성질 검증 (scipy). 사용: node build_csv.mjs && python3 verify.py  (S11 은 labs/0303-thermal-turn.html, S12 는 labs/0304-correct-or-repair.html, S13 은 labs/0305-virtual-metrology.html, S14 는 labs/0306-mask-life.html 의 Python 블록도 읽는다)"""
 import os, sys, json
 import numpy as np, pandas as pd
 from scipy import stats
@@ -1236,6 +1236,210 @@ _exp13 = ['유리 1728장 · 마스크 12장 · 턴 1~24 · 센서 교정 이력
 _lit13 = lambda nm: float(_re3.search(r'^' + nm + r' = ([0-9.]+)', _code13, _re3.M).group(1))
 _miss13 = [e for e in _exp13 if e not in _run13.stdout]
 chk('0305 Python 출력의 숫자(직선의 같은 자료·섞어 나눈·시간순 RMSE와 계수, 트리 검증 RMSE·고른 깊이·세 가지 방식, 학습 온도 범위와 범위 밖 비율, 포착률, 교정 변화 뒤 RMSE, 헛알람·첫 알람 지연) = JS 대표 시드와 일치, 코드 속 한계·먼저 잴 비율·λ·L·교정 이력 = JS 값', not _miss13 and f"LIMIT, Q = {_k13['limit']}, {_k13['q']}" in _code13 and abs(_pj13['L'] - 2.8599) < 5e-5 and 'CAL_TURN, CAL_SHIFT = %d, %s' % (_k13['calTurn'], _k13['calDelta']) in _code13, ' · '.join(_exp13[1:2]) + ('' if not _miss13 else ' · 불일치: ' + ' | '.join(_miss13)))
+
+
+# ============================================================
+# S14 (0306) — 마스크 수명 예측: 보정 후 턴 평균·마스크별/공통 기울기·이질성 F·예측 구간·잔여 수명·일정 모의 세 규칙·시드 분포를 numpy·scipy 로 독립 구현해 JS 와 대조한다
+# ============================================================
+_S14_EXPORT = r"""const M=require(%s);const T=M.s14tools;const C=M.CFG;const crypto=require('crypto');
+const out=[];let ref=null,same=true;
+function pack(S,o){const fit=T.fit(S.table),sim=T.sim(S,fit,o||{});return {fit:fit,sim:sim};}
+for(let sd=1;sd<=200;sd++){const S=M.scenario('S14',{seed:sd});const key=S.glass.map(r=>r.mask_id+'/'+r.turn+'/'+r.glass_in_turn).join();if(ref===null)ref=key;else if(key!==ref)same=false;
+ const P=pack(S),m=T.metrics(S);
+ out.push({seed:sd,masks:S.masks.map(k=>[k.a0,k.record?1:0,k.age_base]),y:S.masks.map(k=>S.table.y[k.mask_id]),base:S.masks.map(k=>S.table.baseline[k.mask_id]),js:m,noise:P.sim.noise,
+  early:P.sim.est.map(e=>e.r.judged?e.r.early:null),late:P.sim.est.map(e=>e.r.judged?e.r.late:null),khat:P.sim.est.map(e=>e.r.judged?e.r.k_hat:null),
+  A:[P.sim.A.exceed,P.sim.A.repairs,P.sim.A.waste,P.sim.A.out_turns],B:[P.sim.B.exceed,P.sim.B.repairs,P.sim.B.waste,P.sim.B.out_turns],Cc:[P.sim.C.exceed,P.sim.C.repairs,P.sim.C.waste,P.sim.C.out_turns],
+  fit:{bp:P.fit.b_pool,sep:P.fit.se_pool,F:P.fit.F,p:P.fit.p,sp:P.fit.s_pool,df:P.fit.df_pool}});}
+const def=M.SEEDS.S14,S0=M.scenario('S14'),fit0=T.fit(S0.table);
+const variants=[];[[0.5,1,2],[0.5,2,2],[0.5,3,2],[0.3,1,2],[0.8,1,2],[0.5,1,4],[0.5,2,1],[0.65,3,3]].forEach(v=>{const sm=T.sim(S0,fit0,{limit:v[0],capacity:v[1],out:v[2]});
+ variants.push({v:v,A:[sm.A.exceed,sm.A.repairs,sm.A.waste,sm.A.out_turns,sm.A.grid.map(g=>g.join(''))],B:[sm.B.exceed,sm.B.repairs,sm.B.waste,sm.B.out_turns,sm.B.grid.map(g=>g.join(''))],C:[sm.C.exceed,sm.C.repairs,sm.C.waste,sm.C.out_turns,sm.C.grid.map(g=>g.join(''))],N:sm.N,life:sm.life,
+  early:sm.est.map(e=>e.r.judged?e.r.early:null),noise:sm.noise});});
+const mask=T.sim(S0,fit0,{model:'mask'}),maskEst=mask.est.map(e=>e.r.judged?{early:e.r.early,late:e.r.late,k:e.r.k_hat,ciE:e.r.ci_early,ciL:e.r.ci_late}:null),poolEst=T.sim(S0,fit0,{}).est.map(e=>e.r.judged?{early:e.r.early,late:e.r.late,k:e.r.k_hat,ciE:e.r.ci_early,ciL:e.r.ci_late}:null);
+const grids=[];[1,def].forEach(sd=>{const S=M.scenario('S14',{seed:sd});S.glass.forEach((r,i)=>{if(i%%48!==0)return;const mk=M.makeMask(r.mask_id,null,'S14-'+sd),pm=M.parseMaskId(r.mask_id);mk.age_base=S.masks.find(x=>x.mask_id===r.mask_id).age_base;
+ const ctx={glass_id:r.glass_id,block:mk.block,chamber:mk.chamber,mask_set:mk.set,turn:r.cal_turn,glass_in_turn:r.glass_in_turn,chamber_temp:S.truth[r.glass_id].T_true};const g=M.ppa(ctx,mk).grid;grids.push({dx:g.map(q=>q.dx_um),dy:g.map(q=>q.dy_um),mx:r.Mx_hat});});
+ S.base.forEach((r,i)=>{if(i%%16!==0)return;const mk=M.makeMask(r.mask_id,null,'S14-'+sd),pm=M.parseMaskId(r.mask_id);mk.age_base=S.masks.find(x=>x.mask_id===r.mask_id).age_base;
+ const ctx={glass_id:r.glass_id,block:mk.block,chamber:mk.chamber,mask_set:mk.set,turn:r.cal_turn,glass_in_turn:r.glass_in_turn,chamber_temp:S.truth[r.glass_id].T_true};const g=M.ppa(ctx,mk).grid;grids.push({dx:g.map(q=>q.dx_um),dy:g.map(q=>q.dy_um),mx:r.Mx_hat});});});
+const g0=S0.glass.map(r=>[r.mask_id,r.turn,r.glass_in_turn,r.fdc_temp,r.Mx_hat,r.Mx_comp]),b0=S0.base.map(r=>[r.mask_id,r.fdc_temp,r.Mx_hat,r.Mx_comp]);
+const tr={};S0.glass.slice(0,60).concat(S0.base).forEach(r=>{tr[r.glass_id]=S0.truth[r.glass_id];});
+const tinv={};[6,10,50,167,500].forEach(d=>[0.05,0.01,0.2].forEach(a=>{tinv[d+'_'+a]=T.tinv(d,a);}));
+const h=s=>crypto.createHash('sha256').update(s).digest('hex'),hs={};for(let i=1;i<=13;i++)hs['S'+i]=h(JSON.stringify(M.scenario('S'+i)));hs.loss=h(JSON.stringify(M.simulateLoss()));
+console.log(JSON.stringify({seeds:out,same:same,def:def,variants:variants,maskEst:maskEst,poolEst:poolEst,grids:grids,g0:g0,b0:b0,truth:tr,tinv:tinv,hs:hs,thermal:S0.params.thermal,params:S0.params,masks0:S0.masks.map(k=>({id:k.mask_id,a0:k.a0,rec:k.record,ab:k.age_base})),
+  cfg:{age:C.AGE_PPM_PER_TURN,clean:C.CLEAN_STEP_PPM,T0:C.T0,N_TURN:C.N_TURN,am:C.ALPHA_M,ag:C.ALPHA_G},ids:T.IDS,gits:T.GITS,W:T.W,hz:T.HORIZON,tab0:S0.table.rows.map(r=>[r.mask_id,r.turn,r.age_known,r.Mx_comp,r.baseline])}));"""
+_s14 = json.loads(subprocess.run([_node, '-e', _S14_EXPORT % json.dumps(_mf)], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096')).stdout)
+_d14 = _s14['def']; _P14 = _s14['params']; _c14 = _s14['cfg']; _W14 = _s14['W']; _H14 = _s14['hz']; _X14 = np.arange(1, _W14 + 1, dtype=float); _xb14 = _X14.mean(); _sxx14 = float(((_X14 - _xb14) ** 2).sum())
+_ge14 = lambda a, i: a[i]
+def py14_tinv(df, a): return float(stats.t.ppf(1 - a / 2, df))
+def py14_fit(Y):                                                                  # Y (M,8): 마스크별 직선, 공통 기울기 + 마스크별 절편(numpy lstsq), 이질성 F·p(scipy)
+    M_ = Y.shape[0]; yb = Y.mean(1); b_ = ((Y - yb[:, None]) * (_X14 - _xb14)).sum(1) / _sxx14; a_ = yb - b_ * _xb14
+    rss_ = ((Y - (a_[:, None] + b_[:, None] * _X14)) ** 2).sum(1); s_ = np.sqrt(rss_ / (_W14 - 2)); se_ = s_ / np.sqrt(_sxx14)
+    Xd = np.column_stack([np.kron(np.eye(M_), np.ones((_W14, 1))), np.tile(_X14, M_)]); yv = Y.reshape(-1); bb = np.linalg.lstsq(Xd, yv, rcond=None)[0]; rp = float(((yv - Xd @ bb) ** 2).sum())
+    dfp = M_ * _W14 - (M_ + 1); sp = np.sqrt(rp / dfp); dfs = M_ * _W14 - 2 * M_; F = ((rp - rss_.sum()) / (M_ - 1)) / (rss_.sum() / dfs)
+    return {'a': a_, 'b': b_, 's': s_, 'se': se_, 'bp': float(bb[-1]), 'ap': bb[:-1], 'sp': float(sp), 'sep': float(sp / np.sqrt(M_ * _sxx14)), 'dfp': dfp, 'F': float(F), 'p': float(stats.f.sf(F, M_ - 1, dfs)), 'M': M_}
+def py14_cross(fn, line, kmax=100.0):
+    if fn(0.0) <= line: return 0.0
+    from scipy.optimize import brentq
+    ks = np.arange(0.25, kmax + 1e-9, 0.25)
+    for k in ks:
+        if fn(float(k)) <= line: return float(brentq(lambda z: fn(z) - line, k - 0.25, float(k), xtol=1e-13, rtol=1e-13))
+    return None
+def py14_rem(a, b, s, df, sxx_eff, base, L, alpha=0.05):                          # 잔여 수명과 예측 구간·신뢰구간(미래 평균)의 이른·늦은 끝
+    tq = py14_tinv(df, alpha); line = base - L; ycur = a + b * _W14
+    hw = lambda k: tq * s * np.sqrt(1 + 1 / _W14 + (_W14 + k - _xb14) ** 2 / sxx_eff); mid = lambda k: a + b * (_W14 + k)
+    cw = lambda k: tq * s * np.sqrt(1 / _W14 + (_W14 + k - _xb14) ** 2 / sxx_eff)
+    return {'k': (line - ycur) / b if b < 0 else None, 'early': py14_cross(lambda k: mid(k) - hw(k), line), 'late': py14_cross(lambda k: mid(k) + hw(k), line), 'ciE': py14_cross(lambda k: mid(k) - cw(k), line), 'ciL': py14_cross(lambda k: mid(k) + cw(k), line)}
+def py14_life(L): return round(1 + L / -_c14['age'], 9)
+def py14_sim(a0, rec, early, noise, sig, L, cap, R, H):                            # 규칙 A·B·C 일정 모의(JS 와 같은 규칙을 파이썬으로 다시)
+    life = py14_life(L); N = int(np.ceil(life)) - 1; Mn = len(a0); mage = lambda a: _c14['age'] * a + _c14['clean']; res = {}
+    for rule in 'ABC':
+        age = [a + 1 for a in a0]; outu = [0] * Mn; done = [False] * Mn; alarmed = []; grid = [[] for _ in range(Mn)]; ex = rp = outT = 0; wa = 0.0; plan = {}
+        if rule == 'C':
+            slots = {}; jobs = sorted([(1 if not rec[i] else max(1, (np.inf if early[i] is None else int(np.floor(early[i])) + 1)), i) for i in range(Mn)])
+            for d, i in jobs:
+                if d > H: continue
+                pick = None
+                for u in range(int(d), 0, -1):
+                    if slots.get(u, 0) < cap: pick = u; break
+                if pick is None:
+                    for u in range(int(d) + 1, H + 1):
+                        if slots.get(u, 0) < cap: pick = u; break
+                if pick is not None: slots[pick] = slots.get(pick, 0) + 1; plan[i] = pick
+        for j in range(1, H + 1):
+            for i in range(Mn):
+                if outu[i] == j: age[i] = 1
+            if rule == 'A':
+                el = [i for i in range(Mn) if not done[i] and outu[i] <= j and (not rec[i] or age[i] >= N)]
+                el.sort(key=lambda i: (-(age[i] if rec[i] else np.inf) if rec[i] else -np.inf, i)); pulls = el[:cap]
+            elif rule == 'B':
+                alarmed.sort(key=lambda q: (q[1], q[2], q[0])); pulls = [q[0] for q in alarmed[:cap]]; alarmed = alarmed[cap:]
+            else:
+                pulls = [i for i in range(Mn) if plan.get(i) == j and not done[i]]
+            for i in pulls: done[i] = True; rp += 1; wa += max(0.0, life - (age[i] - 1)); outu[i] = j + R
+            for i in range(Mn):
+                if outu[i] > j and done[i]: grid[i].append('o'); outT += 1; continue
+                x = age[i] > life + 1e-9
+                if x: ex += _c14['N_TURN']
+                grid[i].append('x' if x else 'u')
+                if rule == 'B' and not done[i] and all(q[0] != i for q in alarmed):
+                    ref = 1 if rec[i] else a0[i] - _W14 + 1; z = mage(age[i]) - mage(ref) + noise[i][j] - noise[i][0]
+                    if z < -L: alarmed.append((i, j, z))
+                age[i] += 1
+        res[rule] = (ex, rp, wa, outT, [''.join(g) for g in grid])
+    return res, N, life
+_HASH14 = {'S1': '6405b8f8b4cecff0f036f157d6d35b63a8dd5162feb057b1b6784e95be7b6118', 'S2': 'e351c3d283503a99cd200ed93b1a73aae6efd4cbe76f97b077415b008326bc6b', 'S3': '464bdb5daee0de53386801addffaa4f0c71e3922e9613d9e3fdbbc360b6532c5', 'S4': '24a3dd2540e2d9d8ff806e7988e40fe55e497fd52b8aa2717158ea2687667f98',
+           'S5': 'ae609729e01e2c28293f4bc04aafe69dd8df73739fbec3303f91a98f87668161', 'S6': '669fd8d1a949d8e0cff131e41935d347829b69ea01906ffa7617de156e621eb0', 'S7': '8565a5431868afa81430f142c48b7535ff0c3003b8e77a11d5993df4bc5abe00', 'S8': '346ab31d422cc58c1c4437273a34dc3bf232b5f0ac501b0edef268a8a4f93979',
+           'S9': '7bc8b2d06c72ffc0bf5a3150c00a877e1616d930eaa698c4b4ee8fe7ad4dec11', 'S10': '3a3f56628487eb661458a765eb2bfdd67c64a6c3984167f2785c382545631980', 'S11': '8aa5ff2731ee8fb341b768e06e1825b62ade6feeabdb9f140bef2002028a7799', 'S12': 'c2359805d59f9f7e774aa1c750e06cb5ebbffb8a1465dba0d176eb1455b591cc',
+           'S13': '4eb3c883acb601578ec11ae9fd811255ef1a620edd904e0aa5ac12c78ac904c5', 'loss': 'a920ec0936eb4236c01c1a527d11013785cf1e7f7465971bef0b3e306a47f147'}   # 0306 작업 전에 떠 둔 기본 출력 해시(기존 함수 불변 확인)
+chk('S14 기존 출력 불변: scenario("S1"~"S13") 기본 출력과 simulateLoss 기본 출력의 sha256 이 0306 작업 전에 떠 둔 값과 같음(S14 는 새 난수 줄기만 쓰고 기존 함수를 고치지 않음)', _s14['hs'] == _HASH14, f'일치 {sum(_s14["hs"][k] == v for k, v in _HASH14.items())}/{len(_HASH14)}')
+_g14 = _s14['g0']; _ids14 = _s14['ids']; _M14 = len(_ids14)
+chk('S14 구조: 마스크 24장(B02~B07 × 세트 A × 챔버 1~4) × 최근 8턴 × 유리 6장 = 1152장, 시드마다 같은 순서, 마지막 리페어 뒤 쓴 턴 a0 는 8~20 정수, 기록 있는 마스크 비율은 시드 평균 2/3 근처(0.60~0.73), 기록 있으면 기준 유리 6장(없으면 0), 모든 시드에서 마스크 수 24',
+    len(_g14) == 1152 and _M14 == 24 and _s14['same'] and all(8 <= m[0] <= 20 for X in _s14['seeds'] for m in X['masks']) and 0.60 <= np.mean([m[1] for X in _s14['seeds'] for m in X['masks']]) <= 0.73 and len(_s14['b0']) == 6 * sum(m['rec'] for m in _s14['masks0']) and all(len(X['y']) == 24 for X in _s14['seeds']),
+    f'유리 {len(_g14)}장 · 기준 유리 {len(_s14["b0"])}장 · 기록 있는 마스크 평균 비율 {np.mean([m[1] for X in _s14["seeds"] for m in X["masks"]]):.3f} · a0 {min(m[0] for X in _s14["seeds"] for m in X["masks"])}~{max(m[0] for X in _s14["seeds"] for m in X["masks"])}')
+_gd14 = max(abs(py11_fit(np.array(g['dx']), np.array(g['dy']))[0][3] - g['mx']) for g in _s14['grids'])
+chk('S14 격자 → Mx̂: 두 시드(1·대표)의 관측 유리·기준 유리 일부를 77점 격자에서 numpy lstsq 로 다시 푼 Mx 가 표의 Mx̂ 와 같음(소수 6자리 반올림 안: 5e-6)', len(_s14['grids']) >= 30 and _gd14 < 5e-6, f'{len(_s14["grids"])}장 · 최대 차 {_gd14:.1e}')
+chk('S14 온도 보정 기울기: S14 가 받아 쓰는 열 기울기(0303 대표 시드 다중 회귀)가 0303 의 CSV 두 개에서 numpy 로 독립 구한 값과 같음(CSV 반올림 오차 1e-4)', abs(_s14['thermal'] - _bt12) < 1e-4 and abs(_s14['thermal'] - _P14['thermal']) < 1e-15,
+    f'S14 {_s14["thermal"]:+.4f} ppm/K · CSV 독립 {_bt12:+.4f}')
+_gdf14 = pd.DataFrame(_g14, columns=['mask', 'turn', 'git', 'fdc', 'mx', 'comp']); _gdf14['c2'] = _gdf14.mx - _s14['thermal'] * (_gdf14.fdc - _c14['T0'])
+_tm14 = _gdf14.groupby(['mask', 'turn']).c2.mean().unstack().reindex(_ids14).values; _bs14 = pd.DataFrame(_s14['b0'], columns=['mask', 'fdc', 'mx', 'comp']); _bs14['c2'] = _bs14.mx - _s14['thermal'] * (_bs14.fdc - _c14['T0']); _bm14 = _bs14.groupby('mask').c2.mean()
+_tab14 = pd.DataFrame(_s14['tab0'], columns=['mask', 'turn', 'age', 'comp', 'base']); _ty14 = _tab14.pivot(index='mask', columns='turn', values='comp').reindex(_ids14).values
+_dm14 = float(np.abs(_tm14 - _ty14).max()); _bf14 = _tab14.drop_duplicates('mask'); _db14 = max(abs(_bm14[m] - b) for m, b in zip(_bf14['mask'], _bf14['base']) if b is not None and not pd.isna(b))
+_age14 = _tab14.dropna(subset=['age']); _am14 = {m['id']: m for m in _s14['masks0']}
+chk('S14 보정 후 턴 평균·기준: 유리 표에서 파이썬이 다시 낸 보정 후 턴 평균(마스크 24 × 턴 8)·기록 있는 마스크의 기준(기준 유리 6장 평균)이 표와 1e-9, age_known = a0 − 8 + 턴(기록 있는 마스크만)',
+    _dm14 < 1e-9 and _db14 < 1e-9 and all(r.age == _am14[r.mask]['a0'] - _W14 + r.turn and _am14[r.mask]['rec'] for r in _age14.itertuples()) and len(_age14) == 8 * sum(m['rec'] for m in _s14['masks0']), f'턴 평균 최대 차 {_dm14:.1e} · 기준 최대 차 {_db14:.1e} · 나이 기록 {len(_age14)}행')
+_tr14 = _s14['truth']; _dev14 = [abs(_tr14[k]['Mx_age'] - (_c14['age'] * _tr14[k]['age'] + _c14['clean'])) for k in _tr14]
+chk('S14 정답 표: 참 Mx_age = −0.02 × 나이 − 0.05 (나이 ≥ 1) 1e-12, 나이 = 달력 턴 − age_base, 참 수명(한계에 닿는 나이) = 1 + L/0.02, 기본 한계 0.5 에서 26',
+    max(_dev14) < 1e-12 and min(_tr14[k]['age'] for k in _tr14) >= 1 and abs(py14_life(0.5) - 26) < 1e-9 and abs(_P14['limit'] - 0.5) < 1e-15, f'정답 유리 {len(_tr14)}장 · 최대 차 {max(_dev14):.1e} · 나이 {min(_tr14[k]["age"] for k in _tr14)}~{max(_tr14[k]["age"] for k in _tr14)}')
+_ti14 = _s14['tinv']; _tdev14 = max(abs(v - py14_tinv(int(k.split('_')[0]), float(k.split('_')[1]))) for k, v in _ti14.items())
+chk('S14 t 임계값: JS 의 이분법 역함수(기존 tp2 재사용)가 scipy.stats.t.ppf 와 1e-9 (자유도 6·10·50·167·500, 양측 0.2·0.05·0.01)', _tdev14 < 1e-9, f'최대 차 {_tdev14:.1e}')
+_fd14 = {'b': 0.0, 'se': 0.0, 'F': 0.0, 'p': 0.0, 'sp': 0.0}; _PF14 = []
+for X in _s14['seeds']:
+    Y = np.array(X['y']); f = py14_fit(Y); _PF14.append(f)
+    _fd14['b'] = max(_fd14['b'], abs(f['bp'] - X['fit']['bp'])); _fd14['se'] = max(_fd14['se'], abs(f['sep'] - X['fit']['sep'])); _fd14['F'] = max(_fd14['F'], abs(f['F'] - X['fit']['F'])); _fd14['p'] = max(_fd14['p'], abs(f['p'] - X['fit']['p'])); _fd14['sp'] = max(_fd14['sp'], abs(f['sp'] - X['fit']['sp']))
+chk('S14 회귀·이질성 검정: 시드 1~200 전부에서 공통 기울기 + 마스크별 절편(numpy lstsq)의 기울기·표준오차·잔차 표준편차와 기울기 이질성 F·p(scipy.stats.f.sf)가 JS 와 1e-9', max(_fd14.values()) < 1e-9, ' · '.join(f'{k} {v:.1e}' for k, v in _fd14.items()))
+_Y0 = np.array([X['y'] for X in _s14['seeds'] if X['seed'] == _d14][0]); _f0 = py14_fit(_Y0); _B0 = [X['base'] for X in _s14['seeds'] if X['seed'] == _d14][0]
+_rd14 = {'k': 0.0, 'e': 0.0, 'l': 0.0, 'nn': 0, 'n': 0}
+for which, est in (('pool', _s14['poolEst']), ('mask', _s14['maskEst'])):
+    for i in range(_M14):
+        if _B0[i] is None: _rd14['nn'] += int(est[i] is not None); continue
+        if which == 'pool': r = py14_rem(_f0['ap'][i], _f0['bp'], _f0['sp'], _f0['dfp'], _M14 * _sxx14, _B0[i], 0.5)
+        else: r = py14_rem(_f0['a'][i], _f0['b'][i], _f0['s'][i], _W14 - 2, _sxx14, _B0[i], 0.5)
+        j = est[i]; _rd14['n'] += 1
+        if r['k'] is None or j['k'] is None: _rd14['e'] += int((r['k'] is None) != (j['k'] is None))
+        else: _rd14['k'] = max(_rd14['k'], abs(r['k'] - j['k']))
+        for key in ('early', 'late', 'ciE', 'ciL'):
+            a_, b_ = r[key], j[key]
+            if (a_ is None) != (b_ is None): _rd14['e'] += 1
+            elif a_ is not None: _rd14['l'] = max(_rd14['l'], abs(a_ - b_))
+chk('S14 잔여 수명·구간: 대표 시드의 기록 있는 마스크 전부(공통·마스크별 두 판)에서 (기준 − 한계 − 현재 예측)/기울기, t 분포 예측 구간과 평균 신뢰구간이 한계선과 만나는 이른·늦은 끝(scipy t.ppf + brentq)이 JS 와 같음(1e-6), 끝이 없는 쪽도 같음, 기록 없는 마스크는 판단 불가',
+    _rd14['n'] > 20 and _rd14['k'] < 1e-9 and _rd14['l'] < 1e-6 and _rd14['e'] == 0 and _rd14['nn'] == 0, f'비교 {_rd14["n"]}건 · 점 추정 차 {_rd14["k"]:.1e} · 구간 끝 차 {_rd14["l"]:.1e} · 끝 유무 불일치 {_rd14["e"]} · 판단 불가 위반 {_rd14["nn"]}')
+_vm14 = 0; _vd14 = 0.0
+_a0s14 = [m['a0'] for m in _s14['masks0']]; _rcs14 = [bool(m['rec']) for m in _s14['masks0']]
+for V in _s14['variants']:
+    L_, c_, R_ = V['v']; r_, N_, life_ = py14_sim(_a0s14, _rcs14, V['early'], V['noise'], _f0['sp'], L_, c_, R_, _H14)
+    for rule, key in (('A', 'A'), ('B', 'B'), ('C', 'C')):
+        j = V[key]; p = r_[rule]; _vm14 += int(p[0] != j[0] or p[1] != j[1] or p[3] != j[3] or p[4] != j[4]); _vd14 = max(_vd14, abs(p[2] - j[2]))
+    _vm14 += int(N_ != V['N'])
+chk('S14 일정 모의: 규칙 A(고정 주기)·B(사후 대응)·C(예측)를 한계 L·능력 c·빠지는 턴 R 여덟 조합(대표 시드)에서 파이썬으로 다시 돌린 한계 초과 유리 수·리페어 횟수·빠진 턴·마스크 × 턴 상태표가 JS 와 일치, 버린 수명 1e-9',
+    _vm14 == 0 and _vd14 < 1e-9, f'조합 {len(_s14["variants"])} × 규칙 3 · 불일치 {_vm14} · 버린 수명 차 {_vd14:.1e}')
+_MM14 = ['se_ratio', 'het_p', 'life_err', 'cover', 'c_minus_b', 'c_minus_a_waste']; _NM14 = ['마스크별 기울기 SE 중앙값 ÷ 공통 SE', '이질성 검정 p', '잔여 수명 예측 오차(기록 있는 마스크)', '예측 구간 포함률', '규칙 C − B 한계 초과 유리 수', '규칙 C − A 버린 수명']
+_A14 = {m: np.zeros(200) for m in _MM14}; _md14 = {m: 0.0 for m in _MM14}; _ed14 = 0.0; _sim14 = 0; _wd14 = 0.0
+for X, f in zip(_s14['seeds'], _PF14):
+    a0 = [m[0] for m in X['masks']]; rec = [bool(m[1]) for m in X['masks']]; er = []; cv = []; early = []
+    for i in range(_M14):
+        if not rec[i]: early.append(None); continue
+        r = py14_rem(f['ap'][i], f['bp'], f['sp'], f['dfp'], _M14 * _sxx14, X['base'][i], 0.5); tk = 26.0 - a0[i]; early.append(r['early'])
+        jl = X['late'][i]
+        _ed14 = max(_ed14, abs(r['early'] - X['early'][i]), (0 if r['late'] is None and jl is None else (abs(r['late'] - jl) if (r['late'] is not None and jl is not None) else 1e9)))
+        er.append(abs(r['k'] - tk)); cv.append(int(r['early'] is not None and tk >= r['early'] - 1e-9 and (r['late'] is None or tk <= r['late'] + 1e-9)))
+    sm, _, _ = py14_sim(a0, rec, early, X['noise'], f['sp'], 0.5, 1, 2, _H14)
+    _sim14 += int(sm['A'][0] != X['A'][0] or sm['B'][0] != X['B'][0] or sm['C'][0] != X['Cc'][0] or sm['A'][1] != X['A'][1] or sm['C'][1] != X['Cc'][1] or sm['B'][1] != X['B'][1] or sm['A'][3] != X['A'][3] or sm['B'][3] != X['B'][3] or sm['C'][3] != X['Cc'][3]); _wd14 = max(_wd14, abs(sm['A'][2] - X['A'][2]), abs(sm['B'][2] - X['B'][2]), abs(sm['C'][2] - X['Cc'][2]))
+    vals = {'se_ratio': float(np.median(f['se']) / f['sep']), 'het_p': f['p'], 'life_err': float(np.median(er)), 'cover': float(np.mean(cv)), 'c_minus_b': sm['C'][0] - sm['B'][0], 'c_minus_a_waste': sm['C'][2] - sm['A'][2]}
+    for m in _MM14: _A14[m][X['seed'] - 1] = vals[m]; _md14[m] = max(_md14[m], abs(vals[m] - X['js'][m]))
+chk('S14 시드 1~200 지표 재계산(여섯 지표 + 세 규칙의 한계 초과·리페어·빠진 턴·버린 수명): 표만 받아 numpy·scipy 로 독립 구현한 값이 JS 와 같음(연속값 1e-6, 일정 모의 정수 일치, 구간 끝 1e-6)',
+    max(_md14.values()) < 1e-6 and _ed14 < 1e-6 and _sim14 == 0 and _wd14 < 1e-9, ' · '.join(f'{m} {v:.1e}' for m, v in _md14.items()) + f' · 구간 끝 차 {_ed14:.1e} · 일정 모의 불일치 {_sim14} · 버린 수명 차 {_wd14:.1e}')
+def _rk14(m, i): a = _A14[m]; return float(((a < a[i]).sum() + 0.5 * (a == a[i]).sum()) / len(a))
+_sc14 = np.array([sum(abs(_rk14(m, i) * 100 - 50) for m in _MM14) for i in range(200)])
+chk('S14 대표 시드(SEEDS.S14): 여섯 지표 백분위의 Σ|백분위−50| 이 시드 1~200 중 가장 작은 시드이고(파이썬 독립 계산), 25~75% 밖 지표를 기록(본문은 그 지표를 분포로 말해야 함)', int(np.argmin(_sc14)) == _d14 - 1,
+    f'SEEDS.S14 = {_d14}, Σ = {_sc14[_d14 - 1]:.1f} · 25~75% 밖: ' + (' · '.join(f'{n} {_rk14(m, _d14 - 1) * 100:.0f}%' for m, n in zip(_MM14, _NM14) if not 0.25 <= _rk14(m, _d14 - 1) <= 0.75) or '없음'))
+_pc14 = lambda a: f'중앙 {np.median(a):.4g} (10~90%: {np.percentile(a, 10):.4g}~{np.percentile(a, 90):.4g})'
+chk('S14 분포(시드 200) 기록: 여섯 지표의 중앙값·10~90%', all(np.isfinite(_A14[m]).all() for m in _MM14), ' · '.join(f'{n} {_pc14(_A14[m])}' for m, n in zip(_MM14, _NM14)))
+_het14 = float(np.mean(_A14['het_p'] < 0.05)); _cvm14 = float(np.mean(_A14['cover'])); _cw14 = float(np.median([X['js']['width_pool'] for X in _s14['seeds']])); _cwm14 = float(np.median([X['js']['width_mask'] for X in _s14['seeds']]))
+chk('S14 설계 기대 1 — 공통 기울기 표준오차가 마스크별보다 작음: 모든 시드에서 마스크별 기울기 표준오차 중앙값 ÷ 공통 표준오차 > 1(중앙값은 이상적인 √24 ≈ 4.9 보다 작게 나옴: 마스크마다 잡음 크기가 달라 공통 모델의 이점이 일부 깎임)', bool((_A14['se_ratio'] > 1).all()) and 2.5 < np.median(_A14['se_ratio']) < 5.2, f'비 중앙값 {np.median(_A14["se_ratio"]):.2f} (최소 {_A14["se_ratio"].min():.2f})')
+chk('S14 설계 기대 2 — 예측 구간 포함률이 95% 근처: 시드 평균 포함률(공통 판)이 0.90~0.99, 마스크별 판 평균도 0.90~0.99, 공통 구간 폭 중앙값 < 마스크별', 0.90 <= _cvm14 <= 0.99 and 0.90 <= np.mean([X['js']['cover_mask'] for X in _s14['seeds']]) <= 0.99 and _cw14 < _cwm14,
+    f'포함률 공통 {_cvm14:.3f} · 마스크별 {np.mean([X["js"]["cover_mask"] for X in _s14["seeds"]]):.3f} · 구간 폭(턴) 중앙값 공통 {_cw14:.1f} · 마스크별 {_cwm14:.1f}')
+chk('S14 설계 기대 3 — 이질성 검정은 같은 속도로 닳는 가상 공정에서 드물게 기각: 5% 수준 기각 시드 비율이 0.02~0.20(이상적 5% 보다 높음: 불량 스틱이 있는 마스크는 유리마다 잡음이 커서 잔차 분산이 마스크마다 같지 않음 — 있는 그대로 기록)', 0.02 <= _het14 <= 0.20, f'기각 시드 비율 {_het14:.3f} ({int((_A14["het_p"] < 0.05).sum())}/200) · 대표 시드 p {_A14["het_p"][_d14 - 1]:.3f}')
+_cb14 = _A14['c_minus_b']; _cwa14 = _A14['c_minus_a_waste']
+chk('S14 설계 기대 4 — 규칙 C(예측)는 B(사후 대응)보다 한계 초과 유리가 적음(시드의 95% 이상에서 C − B < 0, 중앙값 < 0; 일부 시드에서는 반대 — 있는 그대로 기록), 규칙 C − A 버린 수명은 양·음 둘 다 나옴(A 는 정답 수명으로 정한 가장 유리한 고정 주기이고 모든 마스크 수명이 같아 C 가 A 를 일관되게 앞서지 못함)', float((_cb14 < 0).mean()) >= 0.95 and np.median(_cb14) < 0 and (_cwa14 > 0).any() and (_cwa14 < 0).any(),
+    f'C−B < 0 인 시드 {int((_cb14 < 0).sum())}/200 (> 0: {int((_cb14 > 0).sum())}, = 0: {int((_cb14 == 0).sum())}) · C−B 한계 초과 유리 중앙값 {np.median(_cb14):.0f}장 (최댓값 {_cb14.max():.0f}) · C−A 버린 수명 중앙값 {np.median(_cwa14):.1f}턴 · 양 {int((_cwa14 > 0).sum())} · 0 {int((_cwa14 == 0).sum())} · 음 {int((_cwa14 < 0).sum())}')
+_cs14 = rd('life_s14.csv'); _tj14 = _tab14.copy()
+chk('S14 CSV: life_s14.csv 192행 = JS 표(소수 6자리 반올림), 열 mask_id·turn·age_known·Mx_comp·baseline, 기록 없는 마스크는 age_known·baseline 이 빈칸', len(_cs14) == 192 and list(_cs14.columns) == ['mask_id', 'turn', 'age_known', 'Mx_comp', 'baseline'] and float(np.abs(_cs14.Mx_comp.values - _tj14.comp.values).max()) < 6e-7
+    and (_cs14.age_known.isna().values == _tj14.age.isna().values).all() and (_cs14.baseline.isna().values == _tj14.base.isna().values).all() and float(np.nanmax(np.abs(_cs14.baseline.values - _tj14.base.astype(float).values))) < 6e-7, f'{len(_cs14)}행 · 기록 없는 행 {int(_cs14.baseline.isna().sum())}')
+
+# --- 0306 페이지의 Python 블록: 그대로 실행한 출력 = 페이지에 적힌 출력, 출력의 숫자 = JS 대표 시드의 값 ---
+_pg14 = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'labs', '0306-mask-life.html'), encoding='utf-8').read()
+_code14 = _html3.unescape(_re3.search(r'<pre id="pyCode">(.*?)</pre>', _pg14, _re3.S).group(1)); _out14 = _html3.unescape(_re3.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg14, _re3.S).group(1)).strip()
+with _tf3.TemporaryDirectory() as _td14:
+    shutil.copy(os.path.join(D, 'life_s14.csv'), _td14); open(os.path.join(_td14, 'lab0306.py'), 'w', encoding='utf-8').write(_code14)
+    _run14 = subprocess.run([sys.executable, '-I', 'lab0306.py'], cwd=_td14, capture_output=True, text=True)
+chk('0306 페이지의 Python 블록을 CSV 에 그대로 실행한 출력 = 페이지에 적힌 출력', _run14.returncode == 0 and _run14.stdout.strip() == _out14, f'종료 {_run14.returncode} · 출력 {len(_run14.stdout.splitlines())}줄' + ('' if _run14.stdout.strip() == _out14 else ' · 다름: ' + (_run14.stderr[-200:] or _run14.stdout[-200:])))
+_PG14_JS = r"""const M=require(%s);const T=M.s14tools;const S=M.scenario('S14');const fit=T.fit(S.table),ids=T.IDS,W=T.W;
+const rec=S.masks.map((m,i)=>m.record?i:-1).filter(i=>i>=0);let k=rec[0];rec.forEach(i=>{if(fit.per[ids[i]].se_b>fit.per[ids[k]].se_b)k=i;});
+const med=a=>{const b=a.slice().sort((x,y)=>x-y),n=b.length;return n%%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;};
+const R=(f,i)=>{const r=T.remaining(f,S.table.baseline[ids[i]],T.LIMIT,W);return {k:r.k_hat,e:r.early,l:r.late};};
+const sm=T.sim(S,fit,{});const pulls=[];ids.forEach((id,i)=>{const t=sm.C.grid[i].indexOf('o');if(t>=0&&t+1<=10)pulls.push([t+1,id]);});pulls.sort((a,b)=>a[0]-b[0]||(a[1]<b[1]?-1:1));
+console.log(JSON.stringify({M:ids.length,W:W,nrec:rec.length,medse:med(ids.map(d=>fit.per[d].se_b)),bp:fit.b_pool,sep:fit.se_pool,F:fit.F,df1:fit.df1,df2:fit.df_sep,p:fit.p,id:ids[k],bm:fit.per[ids[k]].b,bpk:fit.pool[ids[k]].b,rm:R(fit.per[ids[k]],k),rp:R(fit.pool[ids[k]],k),nun:ids.length-rec.length,pulls:pulls,
+ lim:T.LIMIT,cap:T.CAP,out:T.OUT,kmax:T.KMAX}));"""
+_pj14 = json.loads(subprocess.run([_node, '-e', _PG14_JS % json.dumps(_mf)], capture_output=True, text=True, check=True).stdout)
+_sh14 = lambda v: f'{v:.1f}턴' if v is not None else f'{_pj14["kmax"]}턴 안에 닿지 않음'
+_exp14 = [f'마스크 {_pj14["M"]}장 · 관측 {_pj14["W"]}턴 · 리페어 직후 기준 기록 있음 {_pj14["nrec"]}장 · 없음 {_pj14["nun"]}장',
+          f'기울기 표준오차: 마스크별 중앙값 {_pj14["medse"]:.4f} · 공통 기울기 {_pj14["bp"]:+.4f} ± {_pj14["sep"]:.4f} ppm/턴 (비 {_pj14["medse"] / _pj14["sep"]:.2f})',
+          f'기울기 이질성 검정: F({_pj14["df1"]}, {_pj14["df2"]}) = {_pj14["F"]:.3f} · p = {_pj14["p"]:.3f}',
+          f'{_pj14["id"]} (마스크별 기울기 {_pj14["bm"]:+.4f}): 잔여 수명 {_sh14(_pj14["rm"]["k"])} · 예측 구간 이른 끝 {_sh14(_pj14["rm"]["e"])} ~ 늦은 끝 {_sh14(_pj14["rm"]["l"])}',
+          f'{_pj14["id"]} (공통 기울기 {_pj14["bpk"]:+.4f}): 잔여 수명 {_sh14(_pj14["rp"]["k"])} · 예측 구간 이른 끝 {_sh14(_pj14["rp"]["e"])} ~ 늦은 끝 {_sh14(_pj14["rp"]["l"])}',
+          f'판단 불가(기준 기록 없음) {_pj14["nun"]}장',
+          f'예방 리페어 일정(능력 {_pj14["cap"]}장/턴, 리페어 {_pj14["out"]}턴) 다음 10턴: ' + ' '.join(f'{t}턴 {m}' for t, m in _pj14['pulls'])]
+_miss14 = [e for e in _exp14 if e not in _run14.stdout]
+chk('0306 Python 출력의 숫자(마스크 수·기준 기록 수, 기울기 표준오차와 공통 기울기, 이질성 F·p, 대표 마스크의 마스크별·공통 잔여 수명과 구간 끝, 판단 불가 수, 다음 10턴 일정) = JS 대표 시드와 일치, 코드 속 한계·능력·빠지는 턴 = JS 값', not _miss14 and f'LIMIT = {_pj14["lim"]}' in _code14 and f'CAPACITY, OUT_TURNS = {_pj14["cap"]}, {_pj14["out"]}' in _code14 and f'HORIZON, K_MAX = {_s14["hz"]}, {_pj14["kmax"]}' in _code14,
+    ' · '.join(_exp14[1:3]) + ('' if not _miss14 else ' · 불일치: ' + ' | '.join(_miss14)))
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

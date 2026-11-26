@@ -1019,8 +1019,8 @@
 
   function scenario(name, params) {
     params = params || {};
-    var key = /^S13/i.test(String(name)) ? 'S13' : /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
-    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12, S13: S13 }[key];
+    var key = /^S14/i.test(String(name)) ? 'S14' : /^S13/i.test(String(name)) ? 'S13' : /^S12/i.test(String(name)) ? 'S12' : /^S11/i.test(String(name)) ? 'S11' : String(name).toUpperCase().slice(0, String(name).length > 2 && /^S10/i.test(String(name)) ? 3 : 2);
+    var fn = { S1: S1, S2: S2, S3: S3, S4: S4, S5: S5, S6: S6, S7: S7, S8: S8, S9: S9, S10: S10, S11: S11, S12: S12, S13: S13, S14: S14 }[key];
     if (!fn) throw new Error('unknown scenario ' + name);
     return fn(params);
   }
@@ -2408,12 +2408,173 @@
     DEP_SD: S13_DEP_SD, P_BASE: S13_P_BASE, P_UNIT: S13_P_UNIT, P_RHO: S13_P_RHO };
   SEEDS.S13 = 20;                                       // 대표 시드: 시드 1~200 의 여섯 지표(직선 시험 RMSE·트리−직선 시험 RMSE·섞어 나누기÷시간순 RMSE·무관 특징 시험 RMSE 변화·우선순위 포착률−무작위·드리프트 첫 알람 지연) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드(verify.py 가 독립 계산으로 확인)
 
+  /* ============================================================
+   * S14 mask_life — 마스크 수명 예측(실험실 0306). 마스크 24장(B02~B07 × 세트 A × 챔버 1~4). 마스크마다 마지막 리페어 뒤 지금까지 쓴 턴 수 a0 를
+   * 8~20 균등(hash)으로 두고(mask.age_base = 24 − a0, turn − age_base = age) 최근 8턴(달력 턴 17~24, 턴마다 유리 6장)을 관측한다. 0303 레시피(계절 가정·FDC 측정 온도 잡음)대로
+   * 유리마다 ppa() 77점 → 전부 항 최소제곱으로 Mx̂ → 0303 열 기울기(s12bT, S11 기본 시드)로 온도 보정 → 턴 평균.
+   * 약 2/3 마스크만 '리페어 직후 첫 턴(age 1) 6장'의 보정 후 평균(기준)이 기록돼 있다. 마스크 집단은 makeMask(id, null, 'S14-'+seed), 새 난수는 전부 hashSeed('S14', …).
+   * 한계: 보정 후 배율이 기준보다 L ppm 내려가면 리페어. 정답: 참 Mx_age(age) = AGE·age + CLEAN 이 Mx_age(1) − L 아래로 내려가는 나이 = 1 + L/|AGE|.
+   * 기존 함수·S1~S13 출력은 건드리지 않는다. 대표 시드 = 시드 1~200 의 여섯 지표 백분위에서 Σ|백분위−50| 최소(verify.py 가 독립 계산으로 확인).
+   * ============================================================ */
+  var S14_GITS = [5, 20, 40, 60, 90, 120], S14_W = 8, S14_NOW = 24, S14_SEASON_K = 0.3, S14_FDC_NOISE = 0.04, S14_A0_MIN = 8, S14_A0_SPAN = 13, S14_P_REC = 2 / 3;
+  var S14_LIMIT = 0.5, S14_ALPHA = 0.05, S14_KMAX = 100, S14_HORIZON = 30, S14_CAP = 1, S14_OUT = 2, S14_GLASS_PER_TURN = CFG.N_TURN, S14_P_HET = 0.05;
+  var S14_IDS = S12_IDS.slice();
+  function S14(p) {
+    var seed = p.seed == null ? SEEDS.S14 : p.seed, K = p.season_K == null ? S14_SEASON_K : p.season_K, bt = s12bT(), slope = bt.thermal;
+    var glass = [], base = [], truth = {}, masks = [], W = S14_W;
+    S14_IDS.forEach(function (id) {
+      var mk = makeMask(id, null, 'S14-' + seed), pm = parseMaskId(id);
+      var a0 = S14_A0_MIN + rng(hashSeed('S14', seed, id, 'a0')).int(S14_A0_SPAN), rec = rng(hashSeed('S14', seed, id, 'rec')).u() < S14_P_REC;
+      mk.age_base = S14_NOW - a0;
+      masks.push({ mask_id: id, block: mk.block, chamber: mk.chamber, a0: a0, record: rec, age_base: mk.age_base, bad_stick: mk.bad_stick });
+      function one(cal, tag, rows, t) {
+        var season = K * (cal - 1) / (S14_NOW - 1);
+        S14_GITS.forEach(function (git) {
+          var rt = rng(hashSeed('S14', seed, id, tag, git, 'fdc')), gid = 'S14-' + seed + '-' + id + '-' + tag + '-G' + pad(git, 3);
+          var tTrue = chamberTemp(pm.chamber, git, { season: season }), tFdc = chamberTemp(pm.chamber, git, { season: season, rng: rt, noise: S14_FDC_NOISE });
+          var ctx = { glass_id: gid, block: mk.block, chamber: mk.chamber, mask_set: mk.set, turn: cal, glass_in_turn: git, chamber_temp: tTrue };
+          var res = ppa(ctx, mk), f = s11fit(res.grid);
+          rows.push({ glass_id: gid, mask_id: id, turn: t, cal_turn: cal, glass_in_turn: git, fdc_temp: tFdc, Mx_hat: f.coef.Mx, Mx_comp: f.coef.Mx - slope * (tFdc - CFG.T0) });
+          truth[gid] = { T_true: tTrue, Mx_true: res.truth.Mx, Mx_age: res.truth.Mx_age, Mx_mask: res.truth.Mx_mask, age: cal - mk.age_base };
+        });
+      }
+      for (var t = 1; t <= W; t++) one(S14_NOW - W + t, 'T' + pad(t, 2), glass, t);
+      if (rec) one(mk.age_base + 1, 'R01', base, 0);
+    });
+    var out = { id: 'S14', name: 'mask_life', params: { seed: seed, season_K: K, n_mask: masks.length, window: W, now_turn: S14_NOW, gits: S14_GITS.slice(), fdc_noise: S14_FDC_NOISE, a0_min: S14_A0_MIN, a0_max: S14_A0_MIN + S14_A0_SPAN - 1,
+        p_rec: S14_P_REC, limit: S14_LIMIT, alpha: S14_ALPHA, horizon: S14_HORIZON, capacity: S14_CAP, out_turns: S14_OUT, thermal: slope, thermal_seed: bt.seed, T_ref: CFG.T0 },
+      masks: masks, glass: glass, base: base, truth: truth };
+    out.table = s14table(out);
+    out.csvRows = function () { return out.table.rows.map(function (r) { return { mask_id: r.mask_id, turn: r.turn, age_known: r.age_known, Mx_comp: +r.Mx_comp.toFixed(6), baseline: r.baseline == null ? null : +r.baseline.toFixed(6) }; }); };
+    return out;
+  }
+  function s14table(S) {                                // 학습자가 가진 표: 마스크마다 턴 평균 8개 + (기록 있으면) 기준·나이
+    var by = {}, bb = {}, rows = [], W = S.params.window;
+    S.glass.forEach(function (r) { var m = by[r.mask_id] || (by[r.mask_id] = {}); (m[r.turn] || (m[r.turn] = [])).push(r.Mx_comp); });
+    S.base.forEach(function (r) { (bb[r.mask_id] || (bb[r.mask_id] = [])).push(r.Mx_comp); });
+    var ids = [], y = {}, baseline = {}, a0 = {};
+    S.masks.forEach(function (mk) {
+      var id = mk.mask_id; ids.push(id); y[id] = []; baseline[id] = mk.record ? mean(bb[id]) : null; a0[id] = mk.record ? mk.a0 : null;
+      for (var t = 1; t <= W; t++) { y[id].push(mean(by[id][t])); rows.push({ mask_id: id, turn: t, age_known: mk.record ? mk.a0 - W + t : null, Mx_comp: y[id][t - 1], baseline: baseline[id] }); }
+    });
+    return { ids: ids, y: y, baseline: baseline, a0: a0, rows: rows, W: W };
+  }
+  function s14tinv(df, alpha) {                         // 양측 임계값: tp2(t, df) = alpha 인 t (이분법, 기존 tp2 재사용)
+    alpha = alpha == null ? S14_ALPHA : alpha; var lo = 0, hi = 1, i; while (tp2(hi, df) > alpha) hi *= 2;
+    for (i = 0; i < 200; i++) { var mid = (lo + hi) / 2; if (tp2(mid, df) > alpha) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+  function s14fit(tab) {                                // 마스크별 직선(8점)과 공통 기울기 + 마스크별 절편, 기울기 이질성 F
+    var ids = tab.ids, M = ids.length, W = tab.W, xb = (W + 1) / 2, sxx = 0, x, per = {}, rssS = 0, num = 0, rssP = 0, pool = {};
+    for (x = 1; x <= W; x++) sxx += (x - xb) * (x - xb);
+    ids.forEach(function (id) {
+      var y = tab.y[id], yb = mean(y), sxy = 0; for (x = 1; x <= W; x++) sxy += (x - xb) * (y[x - 1] - yb);
+      var b = sxy / sxx, a = yb - b * xb, rss = 0; for (x = 1; x <= W; x++) { var e = y[x - 1] - (a + b * x); rss += e * e; }
+      per[id] = { a: a, b: b, rss: rss, df: W - 2, s: Math.sqrt(rss / (W - 2)), se_b: Math.sqrt(rss / (W - 2) / sxx), sxx_eff: sxx, ybar: yb }; rssS += rss; num += sxy;
+    });
+    var bp = num / (M * sxx), dfP = M * W - (M + 1);
+    ids.forEach(function (id) { var y = tab.y[id], yb = per[id].ybar, a = yb - bp * xb; for (x = 1; x <= W; x++) { var e = y[x - 1] - (a + bp * x); rssP += e * e; } });
+    var sP = Math.sqrt(rssP / dfP);
+    ids.forEach(function (id) { pool[id] = { a: per[id].ybar - bp * xb, b: bp, rss: null, df: dfP, s: sP, se_b: sP / Math.sqrt(M * sxx), sxx_eff: M * sxx, ybar: per[id].ybar }; });
+    var dfS = M * W - 2 * M, F = ((rssP - rssS) / (M - 1)) / (rssS / dfS);
+    return { ids: ids, M: M, W: W, xbar: xb, sxx: sxx, per: per, pool: pool, b_pool: bp, se_pool: sP / Math.sqrt(M * sxx), s_pool: sP, df_pool: dfP, rss_pool: rssP, rss_sep: rssS, df_sep: dfS, F: F, df1: M - 1, p: fsf(F, M - 1, dfS) };
+  }
+  function s14cross(fn, line, kmax) {                    // x = W + k 에서 fn(x) ≤ line 이 처음 되는 k ≥ 0 (없으면 null). fn 은 x(턴 번호) 의 함수
+    var step = 0.25, k0 = 0, k, v0 = fn(k0);
+    if (v0 <= line) return 0;
+    for (k = step; k <= kmax + 1e-9; k += step) {
+      if (fn(k) <= line) { var lo = k - step, hi = k, i; for (i = 0; i < 60; i++) { var mid = (lo + hi) / 2; if (fn(mid) <= line) hi = mid; else lo = mid; } return hi; }
+    }
+    return null;
+  }
+  function s14remaining(f, baseline, limit, W, alpha) {  // f = fit.per[id] 또는 fit.pool[id]. 기준이 없으면 판단 불가
+    limit = limit == null ? S14_LIMIT : limit; alpha = alpha == null ? S14_ALPHA : alpha;
+    if (baseline == null) return { judged: false };
+    var tq = s14tinv(f.df, alpha), xb = (W + 1) / 2, line = baseline - limit, ycur = f.a + f.b * W;
+    function mid(k) { return f.a + f.b * (W + k); }
+    function hw(k) { var x = W + k; return tq * f.s * Math.sqrt(1 + 1 / W + (x - xb) * (x - xb) / f.sxx_eff); }
+    var khat = f.b < 0 ? (line - ycur) / f.b : null;
+    return { judged: true, line: line, y_now: ycur, t: tq, k_hat: khat, reach: f.b < 0,
+      early: s14cross(function (k) { return mid(k) - hw(k); }, line, S14_KMAX), late: s14cross(function (k) { return mid(k) + hw(k); }, line, S14_KMAX),
+      ci_early: s14cross(function (k) { return mid(k) - tq * f.s * Math.sqrt(1 / W + (W + k - xb) * (W + k - xb) / f.sxx_eff); }, line, S14_KMAX),
+      ci_late: s14cross(function (k) { return mid(k) + tq * f.s * Math.sqrt(1 / W + (W + k - xb) * (W + k - xb) / f.sxx_eff); }, line, S14_KMAX), mid: mid, hw: hw };
+  }
+  function s14life(limit) { limit = limit == null ? S14_LIMIT : limit; return Math.round((1 + limit / -CFG.AGE_PPM_PER_TURN) * 1e9) / 1e9; }   // 참 수명(한계에 닿는 나이)
+  function s14estimates(S, fit, o) {                     // 마스크마다 모델 판 하나의 잔여 수명 추정과 정답. o.model = 'pooled'(기본)|'mask'
+    o = o || {}; var lim = o.limit == null ? S14_LIMIT : o.limit, which = o.model === 'mask' ? 'per' : 'pool', life = s14life(lim), tab = S.table, out = [];
+    S.masks.forEach(function (mk) {
+      var id = mk.mask_id, f = fit[which][id], r = s14remaining(f, tab.baseline[id], lim, fit.W, o.alpha), truthK = life - mk.a0;
+      out.push({ mask_id: id, a0: mk.a0, record: mk.record, truth_k: truthK, r: r, fit: f,
+        err: r.judged && r.k_hat != null ? Math.abs(r.k_hat - truthK) : null, covered: r.judged ? (r.early != null && truthK >= r.early - 1e-9 && (r.late == null || truthK <= r.late + 1e-9)) : null,
+        width: r.judged ? (r.late == null ? null : r.late - r.early) : null });
+    });
+    return out;
+  }
+  function s14sim(S, fit, o) {                           // 앞으로 horizon 턴 모의: 규칙 A·B·C. 반환 규칙마다 {exceed, repairs, waste, out_turns, grid}
+    o = o || {}; var P = S.params, lim = o.limit == null ? S14_LIMIT : o.limit, cap = o.capacity == null ? S14_CAP : o.capacity, R = o.out == null ? S14_OUT : o.out, H = o.horizon == null ? S14_HORIZON : o.horizon;
+    var life = s14life(lim), est = s14estimates(S, fit, { limit: lim, model: o.model, alpha: o.alpha }), M = S.masks.length, sig = fit.s_pool, N = Math.ceil(life) - 1;
+    var noise = S.masks.map(function (mk) { var r = rng(hashSeed('S14', P.seed, 'B', mk.mask_id)), a = [r.normal(0, sig)], j; for (j = 1; j <= H; j++) a.push(r.normal(0, sig)); return a; });
+    function mage(a) { return CFG.AGE_PPM_PER_TURN * a + CFG.CLEAN_STEP_PPM; }
+    function run(rule) {
+      var age = S.masks.map(function (mk) { return mk.a0 + 1; }), outUntil = S.masks.map(function () { return 0; }), done = S.masks.map(function () { return false; }), alarmed = [];
+      var grid = S.masks.map(function () { return []; }), exceed = 0, repairs = 0, waste = 0, outT = 0, plan = null, j, i;
+      if (rule === 'C') {                                // 마감(그 턴에는 이미 빼 있어야 하는 턴)이 이른 순서로, 마감 이전의 가장 늦은 빈 자리에(없으면 마감 뒤 가장 이른 빈 자리)
+        var slots = {}, jobs = S.masks.map(function (mk, i2) { var e = est[i2]; return { i: i2, d: !mk.record ? 1 : Math.max(1, e.r.early == null ? Infinity : Math.floor(e.r.early) + 1) }; });
+        jobs.sort(function (a, b) { return a.d - b.d || a.i - b.i; }); plan = {};
+        jobs.forEach(function (jb) {
+          if (jb.d > H) return; var t = jb.d, pick = null, u;
+          for (u = t; u >= 1; u--) if ((slots[u] || 0) < cap) { pick = u; break; }
+          if (pick === null) for (u = jb.d + 1; u <= H; u++) if ((slots[u] || 0) < cap) { pick = u; break; }
+          if (pick !== null) { slots[pick] = (slots[pick] || 0) + 1; plan[jb.i] = pick; }
+        });
+      }
+      for (j = 1; j <= H; j++) {
+        for (i = 0; i < M; i++) if (outUntil[i] === j) age[i] = 1;      // 리페어를 마치고 돌아온 마스크는 나이 1 에서 다시 시작
+        var pulls = [];
+        if (rule === 'A') {
+          var el = []; S.masks.forEach(function (mk, i2) { if (!done[i2] && outUntil[i2] <= j && (!mk.record || age[i2] >= N)) el.push(i2); });
+          el.sort(function (a, b) { var ka = S.masks[a].record ? age[a] : Infinity, kb = S.masks[b].record ? age[b] : Infinity; return kb - ka || a - b; }); pulls = el.slice(0, cap);
+        } else if (rule === 'B') {
+          alarmed.sort(function (a, b) { return a.t - b.t || a.z - b.z || a.i - b.i; }); pulls = alarmed.slice(0, cap).map(function (x) { return x.i; }); alarmed = alarmed.slice(cap);
+        } else {
+          for (i = 0; i < M; i++) if (plan[i] === j && !done[i]) pulls.push(i);
+        }
+        pulls.forEach(function (i2) { done[i2] = true; repairs++; waste += Math.max(0, life - (age[i2] - 1)); outUntil[i2] = j + R; });
+        for (i = 0; i < M; i++) {
+          if (outUntil[i] > j && done[i]) { grid[i].push('o'); outT++; continue; }
+          var ex = age[i] > life + 1e-9; if (ex) exceed += S14_GLASS_PER_TURN; grid[i].push(ex ? 'x' : 'u');
+          if (rule === 'B' && !done[i] && !alarmed.some(function (q) { return q.i === i; })) {
+            var mk = S.masks[i], refAge = mk.record ? 1 : mk.a0 - S14_W + 1, z = mage(age[i]) - mage(refAge) + noise[i][j] - noise[i][0];
+            if (z < -lim) alarmed.push({ i: i, t: j, z: z });
+          }
+          age[i]++;
+        }
+      }
+      return { exceed: exceed, repairs: repairs, waste: waste, out_turns: outT, grid: grid };
+    }
+    return { A: run('A'), B: run('B'), C: run('C'), est: est, life: life, N: N, cap: cap, out: R, horizon: H, limit: lim, noise: noise };
+  }
+  function s14metrics(S, o) {                            // 시드 하나의 지표 여섯 + 부수 값(학습자 쪽 도구만. 정답은 truth_k 로만)
+    o = o || {}; var fit = s14fit(S.table), sim = s14sim(S, fit, o), est = sim.est;
+    var recs = est.filter(function (e) { return e.record && e.err != null; }), cov = est.filter(function (e) { return e.covered !== null; });
+    var ps = S.masks.map(function (mk) { return fit.per[mk.mask_id].se_b; });
+    var perM = s14estimates(S, fit, { limit: o.limit, model: 'mask', alpha: o.alpha }), covM = perM.filter(function (e) { return e.covered !== null; });
+    return { se_ratio: median(ps) / fit.se_pool, het_p: fit.p, het_F: fit.F, life_err: recs.length ? median(recs.map(function (e) { return e.err; })) : NaN,
+      cover: cov.length ? cov.filter(function (e) { return e.covered; }).length / cov.length : NaN, cover_mask: covM.length ? covM.filter(function (e) { return e.covered; }).length / covM.length : NaN,
+      c_minus_b: sim.C.exceed - sim.B.exceed, c_minus_a_waste: sim.C.waste - sim.A.waste, n_rec: S.masks.filter(function (m) { return m.record; }).length,
+      width_pool: median(cov.filter(function (e) { return e.width != null; }).map(function (e) { return e.width; })), width_mask: median(covM.filter(function (e) { return e.width != null; }).map(function (e) { return e.width; })),
+      b_pool: fit.b_pool, se_pool: fit.se_pool, s_pool: fit.s_pool, exceed: [sim.A.exceed, sim.B.exceed, sim.C.exceed], repairs: [sim.A.repairs, sim.B.repairs, sim.C.repairs], waste: [sim.A.waste, sim.B.waste, sim.C.waste] };
+  }
+  S14.tools = { table: s14table, tinv: s14tinv, fit: s14fit, cross: s14cross, remaining: s14remaining, life: s14life, estimates: s14estimates, sim: s14sim, metrics: s14metrics,
+    IDS: S14_IDS, GITS: S14_GITS, W: S14_W, NOW: S14_NOW, SEASON_K: S14_SEASON_K, FDC_NOISE: S14_FDC_NOISE, A0_MIN: S14_A0_MIN, A0_SPAN: S14_A0_SPAN, P_REC: S14_P_REC, LIMIT: S14_LIMIT, ALPHA: S14_ALPHA, KMAX: S14_KMAX, HORIZON: S14_HORIZON, CAP: S14_CAP, OUT: S14_OUT, GLASS_PER_TURN: S14_GLASS_PER_TURN, P_HET: S14_P_HET };
+  SEEDS.S14 = 181;                                      // 대표 시드: 시드 1~200 의 여섯 지표(마스크별 기울기 표준오차 중앙값 ÷ 공통 기울기 표준오차·기울기 이질성 검정 p·기록 있는 마스크의 잔여 수명 예측 오차 중앙값·예측 구간이 참 수명을 담은 비율·규칙 C − B 한계 초과 유리 수·규칙 C − A 버린 수명) 백분위에서 Σ|백분위 − 50| 이 가장 작은 시드(verify.py 가 독립 계산으로 확인)
+
   return {
     version: 2, BLOCKS: BLOCKS, BLOCK_INFO: BLOCK_INFO, CHAMBERS: CHAMBERS, SETS: SETS, CFG: CFG, LOSS_CODES: LOSS_CODES, LOSS_META: LOSS_META,
     rng: rng, hashSeed: hashSeed, mulberry32: mulberry32, isoTs: isoTs, isFMM: isFMM,
     makeMask: makeMask, repairMask: repairMask, replaceStick: replaceStick, maskId: maskId, parseMaskId: parseMaskId, chamberTemp: chamberTemp,
     ppa: ppa, ppaField: ppaField, ppaComponents: ppaComponents, ppaMetric: ppaMetric, ppaFit: ppaFit,
     stepTrace: stepTrace, tempSeries: tempSeries, rateSeries: rateSeries, ar1Series: ar1Series, eventFlags: eventFlags, features: features,
-    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools, s13tools: S13.tools
+    simulateLoss: simulateLoss, ESTC: ESTC, estcCheck: estcCheck, dwell: dwell, trajectory: trajectory, stateAt: stateAt, requestTransition: requestTransition, CASE_SCHEMA: CASE_SCHEMA, validateCase: validateCase, caseRecords: caseRecords, estcMetrics: estcMetrics, featuredCase: featuredCase, glassHistory: glassHistory, fdcTable: fdcTable, scenario: scenario, stats: stats, SEEDS: SEEDS, qnorm: qnorm, qinv: qinv, s7tools: S7.tools, s8tools: S8.tools, s9tools: S9.tools, s10tools: S10.tools, s11tools: S11.tools, s12tools: S12.tools, s13tools: S13.tools, s14tools: S14.tools
   };
 });
