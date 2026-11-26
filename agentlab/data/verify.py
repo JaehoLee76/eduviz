@@ -3515,6 +3515,298 @@ chk('0601 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절
     f'용어 {_term08} · Q&A {_nq08} · 절 {_nsec08} · MathML {_nmath08} · 캔버스 글자 최소 {min(_fonts08) if _fonts08 else None}px({len(_fonts08)}곳) · -다 끝맺음 {len(_endda08)}건 · 0503 쪽 링크 {_p503.count("0601-closed-loop-blueprint.html")}곳 · 미정의 data-v {sorted(_dv08 - _dvdef)}')
 _cleanup08 = shutil.rmtree(_td08, ignore_errors=True)
 
+# ============================================================
+# 0602 — 시뮬레이터를 실제에 맞추기. 에뮬레이터·사후·신용구간·사후 결정·2차원 사후(능선)·칼만 추적을 파이썬이 CSV 만으로 독립 구현해 JS 와 대조하고,
+# 시드 분포(포함률·구간 폭·대표 시드)·기대 점검·페이지 Python 실행·페이지 구조를 확인한다. 숨은 값은 어떤 CSV·화면 본문에도 없어야 한다.
+# ============================================================
+_pg09 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0602-twin-calibration.html'), encoding='utf-8').read()
+_code09 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg09, _re5.S).group(1)); _out09 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg09, _re5.S).group(1)).strip()
+_td09 = _tf5.mkdtemp()
+_F09 = ['s17_fine_grid.csv', 's17_calib_logs.csv', 's17_fine_policy.csv', 's17_policy_table.csv', 's17_seed_summary.csv', 's17_ridge_grid.csv', 's18_chunk_grid.csv', 's18_daily.csv', 's18_events.csv']
+for _f in _F09: shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(_td09, _f))
+open(os.path.join(_td09, 'lab0602.py'), 'w', encoding='utf-8').write(_code09)
+_fg = pd.read_csv(os.path.join(_td09, 's17_fine_grid.csv')); _cl = pd.read_csv(os.path.join(_td09, 's17_calib_logs.csv')); _fp = pd.read_csv(os.path.join(_td09, 's17_fine_policy.csv'))
+_rg = pd.read_csv(os.path.join(_td09, 's17_ridge_grid.csv')); _ch = pd.read_csv(os.path.join(_td09, 's18_chunk_grid.csv')); _dy = pd.read_csv(os.path.join(_td09, 's18_daily.csv')); _ev9 = pd.read_csv(os.path.join(_td09, 's18_events.csv'))
+_EXPORT09 = r"""const fs=require('fs');const C=require(process.argv[2]+'/calib06.js'),L=require(process.argv[2]+'/loop06.js'),MS=require(process.argv[2]+'/mfgsim.js');
+const T=require(process.argv[2]+'/calib06_tables.js');const tj=fs.readFileSync(process.argv[2]+'/loop06_tables.js','utf8');const T0=JSON.parse(tj.slice(tj.indexOf('=')+1).replace(/;\s*$/,''));
+const res={};const S=C.S18;
+res.consts={FINE:C.FINE,EMU:C.EMU_SEEDS,WIN:C.WINDOWS,NB:C.NB1,NODES:C.POL_NODES,COVER:C.COVER_SEEDS,RC:C.RIDGE_C,RT:C.RIDGE_T,DC:C.DC,DT:C.DT,S18:{DAYS:S.DAYS,REPLACE:S.REPLACE,CHUNK:S.CHUNK,SKIP:S.SKIP,TUNE:S.TUNE,EVAL:S.EVAL,CS:S.CHUNK_SEEDS,QS:S.QS,RS:S.RS,FIRST:S.FIRST,FIXN:S.FIXN,MAN:S.MAN,AFTER:S.AFTER},LOGS:L.REAL_LOG_SEEDS,CAPS:L.CAPS,HID:L.HIDDEN.CLEAN,TT:C.HIDDEN2.TT,SLOPE:S.SLOPE,BASE:S.BASE,COST:L.DEFAULT_COST};
+const emus={};C.WINDOWS.forEach(d=>emus[d]=C.emuFine(T,d));const tb=C.polTable(T.pol);const fm={};C.WINDOWS.forEach(d=>fm[d]=C.fineMeans(T,d));
+const PS=[2,5,10,30,null];res.post={};
+L.REAL_LOG_SEEDS.forEach(s=>C.WINDOWS.forEach(d=>PS.forEach(sd=>{const p=C.post1(T,emus,s,d,sd);res.post[s+'|'+d+'|'+sd]=[p.mean,p.mode,p.sd,p.lo,p.hi];})));
+res.postFull=C.post1(T,emus,218,60,30).post;
+res.dec={};[0,500,1200,1700,3000].forEach(k=>L.REAL_LOG_SEEDS.forEach(s=>C.WINDOWS.forEach(d=>{const r=C.decide(T0,T,emus,tb,s,d,k,30,fm[d]);res.dec[k+'|'+s+'|'+d]=[r.chatGrid,r.capGrid,r.regGrid,r.chatFine,r.capFine,r.regFine,r.capMean,r.regMean,r.capPost,r.regPost,r.best];})));
+res.cover={};C.WINDOWS.forEach(d=>PS.forEach(sd=>{let n=0,w=0,b=0;C.COVER_SEEDS.forEach(s=>{const p=C.post1(T,emus,s,d,sd);if(p.lo<=L.HIDDEN.CLEAN&&L.HIDDEN.CLEAN<=p.hi)n++;w+=p.width;b+=p.mean-L.HIDDEN.CLEAN;});res.cover[d+'|'+sd]=[n,w/C.COVER_SEEDS.length,b/C.COVER_SEEDS.length];}));
+res.ridge={};Object.keys(C.RIDGE_SETS).forEach(k=>{const e=C.buildEmu2(T.ridge,C.RIDGE_SETS[k],1);L.REAL_LOG_SEEDS.concat(C.COVER_SEEDS).forEach(s=>{const po=C.post2(e,C.logRow(T.logs,s,60)),st=C.stats2(po);const f=[];po.P.forEach(r=>r.forEach(v=>f.push(v)));f.sort((a,b)=>b-a);let cum=0,j=0;while(j<f.length&&cum<0.95-1e-12){cum+=f[j];j++;}const thr=f[j-1];const ci=Math.round((L.HIDDEN.CLEAN-C.RIDGE_C[0])/C.DC),tj=Math.round((C.HIDDEN2.TT-C.RIDGE_T[0])/C.DT);res.ridge[k+'|'+s]=[st.ciC[0],st.ciC[1],st.ciT[0],st.ciT[1],st.cor,st.hpdCells,po.P[ci][tj]>=thr?1:0,st.meanC,st.meanT];});});
+const emuC=C.emuChunk(T.chunk);const SER={};S.TUNE.concat(S.EVAL).forEach(se=>SER[se]=C.seriesOf(T,emuC,se));
+res.zR={};[601,607,613,510].forEach(se=>res.zR[se]=[SER[se].z,SER[se].R]);
+const tq=C.tuneQ(S.TUNE.map(se=>SER[se]));res.tuneQ=tq;res.innov={};S.QS.forEach(q=>{let v=0;S.TUNE.forEach(se=>v+=C.innovLL(SER[se].z,SER[se].R,q*q,S.REPLACE));res.innov[q]=v;});
+res.kal={};[[6,2,1],[0,0,1],[7,4,0],[3,1,0]].forEach(a=>{const o=SER[613],q=S.QS[a[0]],rs=S.RS[a[1]],Rm=o.R.map(v=>v*rs*rs),k=C.kalmanTrack(o.z,Rm,q*q,o.z[0],Rm[0],a[2]?S.REPLACE:[]);res.kal[a.join(',')]=[k.x,k.P,k.K];});
+res.track={};S.EVAL.forEach(se=>{const r=C.trackAll(SER[se],S.QS[tq.q===undefined?6:S.QS.indexOf(tq.q)],1);res.track[se]=r.stat;});
+res.trackAlt={};S.EVAL.forEach(se=>{const r=C.trackAll(SER[se],S.QS[2],S.RS[3]);res.trackAlt[se]=r.stat;});
+res.truth=C.truthSeries();
+const info=L.REAL_LOG_SEEDS.map(s=>({seed:s,p60:C.post1(T,emus,s,60,30),p7:C.post1(T,emus,s,7,30),dec:C.decide(T0,T,emus,tb,s,60,L.DEFAULT_COST,30,fm[60])}));
+const rep=C.pickRep(info,[i=>i.p60.mean,i=>i.p60.width,i=>i.p7.width,i=>i.dec.regPost,i=>i.dec.regGrid]);res.repLog=[rep.item.seed,rep.score];
+const items=S.EVAL.map(se=>({series:se,r:C.trackAll(SER[se],S.QS[S.QS.indexOf(tq.q)],1)}));
+const rep2=C.pickRep(items,[i=>i.r.stat.kalmanReset.rmse,i=>i.r.stat.kalman.rmse,i=>i.r.stat.fixed.rmse,i=>i.r.stat.ma.rmse,i=>i.r.stat.kalmanReset.rec]);res.repSer=[rep2.item.series,rep2.score];{const o=SER[rep2.item.series],q=S.QS[S.QS.indexOf(tq.q)],k=C.kalmanTrack(o.z,o.R,q*q,o.z[0],o.R[0],S.REPLACE);res.kalRep=[k.x,k.P,k.K];}
+// 스팟: 시뮬레이터를 다시 돌려 CSV 와 대조
+const sp=[];{let s=MS.simulateLoss({seed:104,params:{CLEAN:190,CAP:27}});let m=C.metOf(s,30);sp.push(['fine',m.q,m.busy,m.L]);
+s=MS.simulateLoss({seed:105,params:{CLEAN:196,CAP:30}});sp.push(['pol',L.totalLoss(s)]);
+s=L.realSim(450,27);m=C.metOf(s,14);sp.push(['log',m.q,m.busy,m.L,m.out,m.tr]);
+s=MS.simulateLoss({seed:107,params:{CLEAN:205,CAP:27,T_TURN:320}});m=C.metOf(s,60);sp.push(['ridge',m.q,m.L,m.out,m.tr]);
+m=C.chunkMetrics(C.s18Seed(607,44),C.s18Clean(44));sp.push(['s18',m.q,m.L]);m=C.chunkMetrics(109,200);sp.push(['chunk',m.q,m.L]);}
+res.spot=sp;
+fs.writeFileSync(process.argv[3]+'/res0602.json',JSON.stringify(res));"""
+_jsf09 = os.path.join(_td09, 'export0602.js'); open(_jsf09, 'w').write(_EXPORT09)
+subprocess.run([_node, _jsf09, _DATA10, _td09], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_R09 = json.load(open(os.path.join(_td09, 'res0602.json'))); _K09 = _R09['consts']
+_same09 = lambda a, b, tol=1e-9: abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+_FINE09 = np.array(_K09['FINE'], float); _LOG09 = _K09['LOGS']; _W09 = _K09['WIN']; _HID9 = _K09['HID']
+
+# 1. 기존 출력 불변: mfgsim.js·loop06.js·loop06_tables.js 와 저장소에 있던 CSV 전부가 HEAD 와 같은 바이트, 이 장이 더한 파일은 새 파일
+_unch = True; _nchk = 0; _lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js', 'data/loop06.js', 'data/loop06_tables.js', 'data/loss05.js', 'data/agent0401.js', 'data/eval0402.js'], capture_output=True, text=True)
+for _fn in (_lst.stdout.split() if _lst.returncode == 0 else []):
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        _nchk += 1; _unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk('0602 기존 출력 불변: mfgsim.js·loop06.js·loop06_tables.js 와 저장소에 있던 CSV 포함 %d개가 HEAD 와 같은 바이트(0601·S17 출력 불변)' % _nchk, _unch and _nchk >= 40, f'{_nchk}개 비교')
+
+# 2. 숨은 값 비노출: 새 CSV 에 숨은 세정 시간·한 턴 길이·S18 식이 없고(칸 후보 열 clean·tt 는 에뮬레이터 후보값), 표 파일·화면 본문(스크립트 밖)·페이지 코드에 숨은 값이 없음
+_hid_tt = _K09['TT']; _tb09 = open(os.path.join(_DATA10, 'calib06_tables.js'), encoding='utf-8').read()
+_body09 = _re5.sub(r'<script.*?</script>|<pre id="pyOut".*?</pre>', '', _pg09, flags=_re5.S)   # 페이지 Python 출력에는 계산한 추정값(사후 평균 196.0 등)이 나오므로 숨은 값 노출 검사에서 뺀다(출력 칸 자체는 코드와 같은 값인지 10번 검사가 본다)
+_js_app9 = _re5.findall(r'<script>\n(.*?)\n</script>\n<script src="../tutor.js">', _pg09, _re5.S)[0]
+_leak9 = _re5.search(r'(?<![\d,.])%d(?![\d,])' % _HID9, _body09) or _re5.search(r'(?<![\d,.])%d(?![\d,])' % _hid_tt, _body09) or _re5.search(r'하루에 0\.8분|0\.8 ?분씩', _body09)
+_cols09 = all(c not in pd.read_csv(os.path.join(_td09, f), nrows=1).columns for f, cs in (('s17_calib_logs.csv', ('clean', 'tt')), ('s18_daily.csv', ('clean', 'tt')), ('s18_events.csv', ('clean', 'tt'))) for c in cs)
+_cols09 &= 'tt' not in _fg.columns and 'tt' not in _ch.columns and 'HIDDEN' not in _tb09
+chk('0602 숨은 값 비노출: 실제 쪽 CSV(로그 지표·S18 날별 관측·교체 사건)에 세정 시간·한 턴 길이 열이 없고, 표 파일에 HIDDEN 낱말이 없고, 화면 본문(스크립트 밖)에 숨은 값 %d·%d·S18 기울기가 없고, 페이지 코드(Python)·스크립트에 %d 숫자가 없음' % (_HID9, _hid_tt, _HID9),
+    _cols09 and not _leak9 and not _re5.search(r'(?<![\d,.])%d(?![\d,])' % _HID9, _code09) and not _re5.search(r'(?<![\d,.])%d(?![\d,])' % _HID9, _js_app9), f'열 {_cols09} · 본문 노출 {bool(_leak9)}')
+
+# 3. 표 모양과 시드 목록(트윈 쪽·로그 쪽·결과 쪽·S18 계열이 서로 겹치지 않음)
+_S18 = _K09['S18']; _TW9 = set(_K09['EMU']) | set(_S18['CS']); _LG9 = set(_LOG09) | set(_K09['COVER'])
+_ok = (len(_fg) == 41 * 8 * 4 and len(_fp) == 11 * 13 * 8 and len(_cl) == 120 * 4 and len(_rg) == 13 * 9 * 8 and len(_ch) == 41 * 16 and len(_dy) == 30 * 90 and len(_ev9) == 2
+       and not (_TW9 & _LG9) and not (_TW9 & set(range(301, 309))) and not (_LG9 & set(range(301, 309))) and not (set(_S18['TUNE']) & set(_S18['EVAL'])) and not ((set(_S18['TUNE']) | set(_S18['EVAL'])) & (_TW9 | _LG9))
+       and list(_ev9['day']) == [d + 1 for d in _S18['REPLACE']])
+chk('0602 표 모양: 촘촘한 격자 41 × 시드 8 × 기간 4 = %d행 · 결정 표 %d행 · 로그 지표 %d행 · 능선 격자 %d행 · 하루 관측 에뮬레이터 %d행 · S18 날별 %d행 · 교체 사건 %d줄 · 시드 목록 겹침 없음' % (len(_fg), len(_fp), len(_cl), len(_rg), len(_ch), len(_dy), len(_ev9)), _ok, f'트윈 시드 {len(_TW9)} · 로그 시드 {len(_LG9)}')
+
+# 4. 표 파일(calib06_tables.js) = CSV, CSV = 시뮬레이터를 다시 돌린 값(스팟 여섯 칸)
+_Tn = subprocess.run([_node, '-e', "const T=require(process.argv[1]);process.stdout.write(JSON.stringify({n:Object.keys(T).map(k=>[k,T[k].length]),a:T.fine[100],b:T.pol[500],c:T.logs[300],d:T.ridge[700],e:T.s18[1500]}))", os.path.join(_DATA10, 'calib06_tables.js')], capture_output=True, text=True, check=True); _Tj9 = json.loads(_Tn.stdout)
+_nmap = dict((k, v) for k, v in _Tj9['n'])
+_okt = _nmap == {'fine': len(_fg), 'pol': len(_fp), 'logs': len(_cl), 'ridge': len(_rg), 'chunk': len(_ch), 's18': len(_dy)}
+_okt &= all(_same09(_Tj9['a'][k], _fg.iloc[100][k], 1e-12) for k in ('clean', 'seed', 'days', 'q', 'busy', 'L')) and all(_same09(_Tj9['c'][k], _cl.iloc[300][k], 1e-12) for k in ('seed', 'days', 'q', 'busy', 'L', 'out', 'tr')) and all(_same09(_Tj9['d'][k], _rg.iloc[700][k], 1e-12) for k in ('clean', 'tt', 'seed', 'q', 'L', 'out', 'tr')) and all(_same09(_Tj9['e'][k], _dy.iloc[1500][k], 1e-12) for k in ('series', 'day', 'q', 'L'))
+_sp = {r[0]: r[1:] for r in _R09['spot']}; _r4 = lambda v: round(v * 1e4) / 1e4
+_a = _fg[(_fg['clean'] == 190) & (_fg['seed'] == 104) & (_fg['days'] == 30)].iloc[0]; _okp = all(_same09(_a[k], _r4(v), 1e-9) for k, v in zip(('q', 'busy', 'L'), _sp['fine']))
+_a = _fp[(_fp['clean'] == 196) & (_fp['seed'] == 105) & (_fp['cap'] == 30)].iloc[0]; _okp &= _same09(_a['loss'], _r4(_sp['pol'][0]), 1e-9)
+_a = _cl[(_cl['seed'] == 450) & (_cl['days'] == 14)].iloc[0]; _okp &= all(_same09(_a[k], _r4(v), 1e-9) for k, v in zip(('q', 'busy', 'L', 'out', 'tr'), _sp['log']))
+_a = _rg[(_rg['clean'] == 205) & (_rg['tt'] == 320) & (_rg['seed'] == 107)].iloc[0]; _okp &= all(_same09(_a[k], _r4(v), 1e-9) for k, v in zip(('q', 'L', 'out', 'tr'), _sp['ridge']))
+_a = _dy[(_dy['series'] == 607) & (_dy['day'] == 45)].iloc[0]; _okp &= all(_same09(_a[k], _r4(v), 1e-9) for k, v in zip(('q', 'L'), _sp['s18']))
+_a = _ch[(_ch['clean'] == 200) & (_ch['seed'] == 109)].iloc[0]; _okp &= all(_same09(_a[k], _r4(v), 1e-9) for k, v in zip(('q', 'L'), _sp['chunk']))
+chk('0602 CSV 재현: 표 파일 = CSV 줄(여섯 표), 촘촘한 격자·결정 표·로그 지표·능선 격자·S18 날 관측·하루 관측 에뮬레이터 각 한 칸 = 시뮬레이터 다시 실행', _okt and _okp, f'표 {_okt} · 스팟 {_okp}')
+
+# 5. 독립 구현(CSV 만으로): 에뮬레이터·사후·신용구간
+def _emu9(df, keys, nb=3, cell='clean'):
+    cells = np.array(sorted(df[cell].unique()), float); n = df.groupby(cell).size().iloc[0]
+    X = [np.log(df[df[cell] == c][keys].to_numpy(float) + 1) for c in cells]; mu = np.array([x.mean(0) for x in X]); cov = []
+    for i in range(len(cells)):
+        r = np.concatenate([X[a] - mu[a] for a in range(max(0, i - nb), min(len(cells), i + nb + 1))]); k = min(len(cells), i + nb + 1) - max(0, i - nb)
+        cov.append((r.T @ r) / (len(r) - k) * (1 + 1 / n))
+    return cells, mu, np.array(cov)
+def _post9(cells, mu, cov, obs, prior=None):
+    y = np.log(np.asarray(obs, float) + 1); d = y - mu; inv = np.linalg.inv(cov); ld = np.linalg.slogdet(cov)[1]
+    ll = -0.5 * np.einsum('ij,ijk,ik->i', d, inv, d) - 0.5 * ld
+    if prior: ll = ll - 0.5 * ((cells - prior[0]) / prior[1]) ** 2
+    p = np.exp(ll - ll.max()); return p / p.sum()
+def _ci9(p, x, lv=0.95):
+    st = x[1] - x[0]; cm = np.cumsum(p); o = []
+    for tg in ((1 - lv) / 2, 1 - (1 - lv) / 2):
+        i = int(np.argmax(cm >= tg - 1e-15)); o.append(x[i] - st / 2 + st * (tg - (cm[i] - p[i])) / p[i])
+    return o
+_E9 = {d: _emu9(_fg[_fg['days'] == d], ['q', 'L']) for d in _W09}
+_lg9 = lambda s, d: _cl[(_cl['seed'] == s) & (_cl['days'] == d)].iloc[0]
+_ok = True; _mxd = 0.0
+for _k, _v in _R09['post'].items():
+    s, d, sd = _k.split('|'); s, d = int(s), int(d); sd = None if sd == 'null' else float(sd)
+    c, mu, cov = _E9[d]; p = _post9(c, mu, cov, _lg9(s, d)[['q', 'L']].to_numpy(float), None if sd is None else (180, sd)); lo, hi = _ci9(p, c); m = (p * c).sum(); sdv = np.sqrt((p * (c - m) ** 2).sum()); md = c[int(np.argmax(p))]
+    _ok &= _same09(m, _v[0], 1e-8) and md == _v[1] and _same09(sdv, _v[2], 1e-8) and _same09(lo, _v[3], 1e-8) and _same09(hi, _v[4], 1e-8)
+c, mu, cov = _E9[60]; _pf = _post9(c, mu, cov, _lg9(218, 60)[['q', 'L']].to_numpy(float), (180, 30)); _ok &= np.allclose(_pf, _R09['postFull'], atol=1e-10)
+chk('0602 에뮬레이터·사후·신용구간 독립 구현: 로그 시드 20개 × 기간 4개 × 사전 5가지(%d줄)의 사후 평균·최빈·표준편차·95%% 구간이 파이썬 재계산과 같고, 한 사후분포 전체(41칸)도 같음' % len(_R09['post']), _ok, f'{len(_R09["post"])}줄 대조')
+
+# 6. 사후 결정·결정 손해: 0601 10분 격자·2분 격자 점 추정·사후 평균 한 값·사후 기대 비용 (비용 가정 5개 × 로그 20개 × 기간 4개)
+_tb9 = _fp.groupby(['clean', 'cap'])['loss'].mean().unstack() / 60; _nodes9 = np.array(_K09['NODES'], float); _caps9 = _K09['CAPS']
+def _argbest9(costs):
+    b = 0
+    for i in range(1, len(costs)):
+        if costs[i] < costs[b] - 1e-9: b = i
+    return _caps9[b]
+def _lossc9(c): return np.array([np.interp(c, _nodes9, _tb9[cap].to_numpy()) for cap in _caps9])
+def _pdec9(c, k): return _argbest9(_lossc9(c) + k * np.array(_caps9))
+def _postdec9(p, cells, k):
+    el = np.array([float((p * np.interp(cells, _nodes9, _tb9[cap].to_numpy())).sum()) for cap in _caps9]); return _argbest9(el + k * np.array(_caps9))
+_gm9 = {d: _fg[_fg['days'] == d].groupby('clean')[['q', 'busy', 'L']].mean() for d in _W09}
+_ok = True
+for _k, _v in _R09['dec'].items():
+    k, s, d = (int(x) for x in _k.split('|')); real = _lg9(s, d); r0601 = _rl08[(_rl08['seed'] == s) & (_rl08['days'] == d)].iloc[0]
+    chg, _g = _cal08(r0601, d); cg = int(_cost08('twin', chg, k).idxmin())
+    gs = [_gap08(_gm9[d].loc[c], real) for c in _FINE09]; best = 0
+    for i in range(1, len(gs)):
+        if gs[i] < gs[best] - 1e-12: best = i
+    chf = int(_FINE09[best]); cf = _pdec9(chf, k)
+    c, mu, cov = _E9[d]; p = _post9(c, mu, cov, real[['q', 'L']].to_numpy(float), (180, 30)); mean_ = float((p * c).sum()); cm = _pdec9(mean_, k); cp = _postdec9(p, c, k)
+    bst = _reg08(cg, k)[0]
+    _ok &= chg == _v[0] and cg == _v[1] and _same09(_reg08(cg, k)[1], _v[2], 1e-6) and chf == _v[3] and cf == _v[4] and _same09(_reg08(cf, k)[1], _v[5], 1e-6) and cm == _v[6] and _same09(_reg08(cm, k)[1], _v[7], 1e-6) and cp == _v[8] and _same09(_reg08(cp, k)[1], _v[9], 1e-6) and bst == _v[10]
+chk('0602 사후 결정 독립 구현: 비용 5개 × 로그 20개 × 기간 4개(%d줄)의 0601 10분 격자·2분 격자 점 추정·사후 평균 한 값·사후 기대 비용의 권고 대수와 결정 손해가 파이썬(결정 표 직선 보간·실제 결과표)과 같음' % len(_R09['dec']), _ok, f'{len(_R09["dec"])}줄 대조')
+
+# 7. 포함률(시드 로그 100개): 파이썬이 숨은 값을 읽어 센 값 = JS
+_ok = True; _cov9 = {}
+for _k, _v in _R09['cover'].items():
+    d, sd = _k.split('|'); d = int(d); sd = None if sd == 'null' else float(sd); c, mu, cov = _E9[d]; n = 0; w = 0.0; b = 0.0
+    for s in _K09['COVER']:
+        p = _post9(c, mu, cov, _lg9(s, d)[['q', 'L']].to_numpy(float), None if sd is None else (180, sd)); lo, hi = _ci9(p, c); n += int(lo <= _HID9 <= hi); w += hi - lo; b += (p * c).sum() - _HID9
+    _cov9[(d, sd)] = n; _ok &= n == _v[0] and _same09(w / 100, _v[1], 1e-8) and _same09(b / 100, _v[2], 1e-8)
+chk('0602 포함률 독립 구현: 로그 100개 × 기간 4개 × 사전 5가지 의 95% 구간 포함 개수·평균 폭·평균 편향이 파이썬과 같음', _ok, f'평평한 사전 포함 {[_cov9[(d, None)] for d in _W09]}')
+
+# 8. 2차원 사후(능선): scipy 보간으로 다시 계산한 세 지표 묶음 × 로그 120개의 구간·상관·95% 영역·숨은 점 포함
+_Cg, _Tg = np.array(_K09['RC'], float), np.array(_K09['RT'], float); from scipy.interpolate import RegularGridInterpolator as _RGI9
+_sets9 = {'one': ['q'], 'three': ['q', 'L', 'out'], 'four': ['q', 'L', 'out', 'tr']}
+def _ridge9(keys):
+    X = {(i, j): np.log(_rg[(_rg['clean'] == c) & (_rg['tt'] == t)][keys].to_numpy(float) + 1) for i, c in enumerate(_Cg) for j, t in enumerate(_Tg)}
+    mu = {k: v.mean(0) for k, v in X.items()}; n = len(X[(0, 0)]); inv = {}; ld = {}
+    for i in range(len(_Cg)):
+        for j in range(len(_Tg)):
+            nb = [(a, b) for a in range(max(0, i - 1), min(len(_Cg), i + 2)) for b in range(max(0, j - 1), min(len(_Tg), j + 2))]
+            r = np.concatenate([X[k] - mu[k] for k in nb]); S = r.T @ r / (len(r) - len(nb)) * (1 + 1 / n); inv[(i, j)] = np.linalg.inv(S); ld[(i, j)] = np.linalg.slogdet(S)[1]
+    fc = np.arange(_Cg[0], _Cg[-1] + 1e-9, _K09['DC']); ft = np.arange(_Tg[0], _Tg[-1] + 1e-9, _K09['DT'])
+    itp = [_RGI9((_Cg, _Tg), np.array([[mu[(i, j)][m] for j in range(len(_Tg))] for i in range(len(_Cg))])) for m in range(len(keys))]
+    CC, TT = np.meshgrid(fc, ft, indexing='ij'); M = np.stack([f(np.stack([CC.ravel(), TT.ravel()], 1)) for f in itp], 1).reshape(len(fc), len(ft), len(keys))
+    ci = np.clip(np.floor((fc - _Cg[0]) / 5 + 0.5).astype(int), 0, len(_Cg) - 1); tj = np.clip(np.floor((ft - _Tg[0]) / 10 + 0.5).astype(int), 0, len(_Tg) - 1)
+    INV = np.array([[inv[(a, b)] for b in tj] for a in ci]); LD = np.array([[ld[(a, b)] for b in tj] for a in ci]); return fc, ft, M, INV, LD
+def _ridgepost9(R, obs):
+    fc, ft, M, INV, LD = R; d = np.log(np.asarray(obs, float) + 1) - M; ll = -0.5 * np.einsum('abi,abij,abj->ab', d, INV, d) - 0.5 * LD
+    p = np.exp(ll - ll.max()); return p / p.sum()
+_ok = True; _rcov9 = {}
+for _kk, _keys in _sets9.items():
+    _R = _ridge9(_keys); fc, ft = _R[0], _R[1]; _ninh = 0
+    for s in _LOG09 + _K09['COVER']:
+        p = _ridgepost9(_R, _lg9(s, 60)[_keys].to_numpy(float)); mc, mt = p.sum(1), p.sum(0); cc = _ci9(mc, fc); tc = _ci9(mt, ft); mC, mT = (mc * fc).sum(), (mt * ft).sum()
+        cor = (p * np.outer(fc - mC, ft - mT)).sum() / np.sqrt((mc * (fc - mC) ** 2).sum() * (mt * (ft - mT) ** 2).sum()); fl = np.sort(p.ravel())[::-1]; hp = int((np.cumsum(fl) < 0.95 - 1e-12).sum() + 1); thr = fl[hp - 1]
+        inh = int(p[int(np.floor((_HID9 - fc[0]) / _K09['DC'] + 0.5)), int(np.floor((_hid_tt - ft[0]) / _K09['DT'] + 0.5))] >= thr); _ninh += inh
+        v = _R09['ridge'][_kk + '|' + str(s)]; _ok &= _same09(cc[0], v[0], 1e-6) and _same09(cc[1], v[1], 1e-6) and _same09(tc[0], v[2], 1e-6) and _same09(tc[1], v[3], 1e-6) and _same09(cor, v[4], 1e-6) and hp == v[5] and inh == v[6] and _same09(mC, v[7], 1e-6) and _same09(mT, v[8], 1e-6)
+    _rcov9[_kk] = _ninh
+chk('0602 능선 독립 구현(scipy 보간): 지표 묶음 셋 × 로그 120개(%d줄)의 세정 시간·한 턴 길이 95%% 구간·상관·95%% 영역 칸 수·숨은 점 포함·가장자리 평균이 파이썬과 같음' % len(_R09['ridge']), _ok, f'숨은 점이 95% 영역에 든 로그(120개): 지표 1개 {_rcov9["one"]} · 3개 {_rcov9["three"]} · 4개 {_rcov9["four"]}')
+
+# 9. S18: 하루 관측 z·R, 혁신 우도로 고른 Q, 칼만 추적(numpy 직접 구현), 비교 방식, 추적 오차·예측 오차·교체 뒤 오차, 계열 스무 개
+_emc, _muc, _covc = _emu9(_ch, ['q', 'L'])
+def _zr9(se):
+    d = _dy[_dy['series'] == se].sort_values('day'); z = []; R = []
+    for _, r in d.iterrows():
+        p = _post9(_emc, _muc, _covc, r[['q', 'L']].to_numpy(float)); m = (p * _emc).sum(); z.append(m); R.append((p * (_emc - m) ** 2).sum())
+    return np.array(z), np.array(R)
+_ok = True
+for se, (zj, Rj) in _R09['zR'].items():
+    z, R = _zr9(int(se)); _ok &= np.allclose(z, zj, atol=1e-8) and np.allclose(R, Rj, atol=1e-8)
+def _kal9(z, R, Q, resets):
+    x = np.zeros(len(z)); P = np.zeros(len(z)); K = np.zeros(len(z)); xs, Ps = z[0], R[0]
+    for t in range(len(z)):
+        if t == 0 or t in resets: xs, Ps, k = z[t], R[t], 1.0
+        else: Pm = Ps + Q; k = Pm / (Pm + R[t]); xs = xs + k * (z[t] - xs); Ps = (1 - k) * Pm
+        x[t], P[t], K[t] = xs, Ps, k
+    return x, P, K
+_REP9 = _S18['REPLACE']; _QS9 = _S18['QS']; _RS9 = _S18['RS']; _z613, _R613 = _zr9(613); _okk = True
+for kk, (xj, Pj, Kj) in _R09['kal'].items():
+    qi, ri, rst = (int(v) for v in kk.split(',')); x, P, K = _kal9(_z613, _R613 * _RS9[ri] ** 2, _QS9[qi] ** 2, _REP9 if rst else [])
+    _okk &= np.allclose(x, xj, atol=1e-8) and np.allclose(P, Pj, atol=1e-8) and np.allclose(K, Kj, atol=1e-8)
+def _innov9(z, R, Q):
+    x, P, K = _kal9(z, R, Q, _REP9); s = 0.0; xs = z[0]; Ps = R[0]
+    for t in range(1, len(z)):
+        if t in _REP9: xs, Ps = z[t], R[t]; continue
+        Pm = Ps + Q; S_ = Pm + R[t]; v = z[t] - xs; s += -0.5 * (np.log(S_) + v * v / S_); k = Pm / S_; xs = xs + k * v; Ps = (1 - k) * Pm
+    return s
+_tz = {se: _zr9(se) for se in _S18['TUNE']}; _inn = {q: sum(_innov9(z, R, q * q) for z, R in _tz.values()) for q in _QS9}; _qbest = None
+for q in _QS9:
+    if _qbest is None or _inn[q] > _inn[_qbest] + 1e-9: _qbest = q
+_okq = _qbest == _R09['tuneQ']['q'] and all(_same09(_inn[q], _R09['innov'][str(q)], 1e-6) for q in _QS9)
+_tr9 = np.array([_K09['BASE'] + _K09['SLOPE'] * (d - max([r for r in _REP9 if d >= r] + [0])) for d in range(_S18['DAYS'])]); _okt2 = np.allclose(_tr9, _R09['truth'])
+def _track9(z, R, q, rs):
+    Rm = R * rs * rs; f = _S18['FIRST']
+    fx = np.full(len(z), np.sum(z[:_S18['FIXN']] / R[:_S18['FIXN']]) / np.sum(1 / R[:_S18['FIXN']])); cb = np.cumsum(z / R) / np.cumsum(1 / R); ma = np.array([z[max(0, t - _S18['MAN'] + 1):t + 1].mean() for t in range(len(z))])
+    est = {'kalmanReset': _kal9(z, Rm, q * q, _REP9)[0], 'kalman': _kal9(z, Rm, q * q, [])[0], 'fixed': fx, 'cum': cb, 'ma': ma, 'raw': z}; out = {}
+    for k, e in est.items():
+        pred = float(np.sqrt(np.mean((z[f:] - e[f - 1:-1]) ** 2))) if k != 'raw' else None
+        out[k] = {'rmse': float(np.sqrt(np.mean((e[f:] - _tr9[f:]) ** 2))), 'pred': pred, 'rec': float(np.mean([np.mean(np.abs(e[r:r + _S18['AFTER']] - _tr9[r:r + _S18['AFTER']])) for r in _REP9]))}
+    return out
+_okr = True; _allst = {}
+for se in _S18['EVAL']:
+    z, R = _zr9(se); _allst[se] = _track9(z, R, _qbest, 1.0)
+    for alt, (q_, rs_) in (('track', (_qbest, 1.0)), ('trackAlt', (_QS9[2], _RS9[3]))):
+        st = _track9(z, R, q_, rs_)
+        for k in st: _okr &= _same09(st[k]['rmse'], _R09[alt][str(se)][k]['rmse'], 1e-7) and _same09(st[k]['rec'], _R09[alt][str(se)][k]['rec'], 1e-7) and (st[k]['pred'] is None or _same09(st[k]['pred'], _R09[alt][str(se)][k]['pred'], 1e-7))
+chk('0602 S18 독립 구현(numpy 직접 구현): 날 관측 z·R, 혁신 우도로 고른 Q(%s), 칼만 추정·분산·이득(네 설정), 비교 방식, 계열 스무 개의 추적 오차·예측 오차·교체 뒤 오차(두 설정)가 파이썬과 같고, 실제 세정 시간 식이 JS 와 같음' % _qbest, _ok and _okk and _okq and _okt2 and _okr, f'z·R {_ok} · 칼만 {_okk} · Q {_okq} · 식 {_okt2} · 추적 {_okr}')
+
+# 10. 대표 시드: 파이썬이 따로 Σ|백분위−50| 최소를 구해 JS 와 같음(로그 시드·S18 계열)
+_pc9 = lambda vals, v: 100 * ((np.asarray(vals) < v - 1e-9).sum() + 0.5 * (np.abs(np.asarray(vals) - v) <= 1e-9).sum()) / len(vals)
+_info = []
+for s in _LOG09:
+    c60, mu60, cv60 = _E9[60]; p60 = _post9(c60, mu60, cv60, _lg9(s, 60)[['q', 'L']].to_numpy(float), (180, 30)); c7, mu7, cv7 = _E9[7]; p7 = _post9(c7, mu7, cv7, _lg9(s, 7)[['q', 'L']].to_numpy(float), (180, 30)); l6, h6 = _ci9(p60, c60); l7, h7 = _ci9(p7, c7); dd = _R09['dec']['500|%d|60' % s]
+    _info.append((s, float((p60 * c60).sum()), h6 - l6, h7 - l7, dd[9], dd[2]))
+_scs = {r[0]: sum(abs(_pc9([x[j] for x in _info], r[j]) - 50) for j in range(1, 6)) for r in _info}; _rl9 = min(_scs, key=lambda s: (_scs[s], s))
+_scs2 = {se: sum(abs(_pc9([_allst[x][k]['rmse' if m == 'rmse' else 'rec'] for x in _S18['EVAL']], _allst[se][k]['rmse' if m == 'rmse' else 'rec']) - 50) for k, m in (('kalmanReset', 'rmse'), ('kalman', 'rmse'), ('fixed', 'rmse'), ('ma', 'rmse'), ('kalmanReset', 'rec'))) for se in _S18['EVAL']}; _rs9 = min(_scs2, key=lambda s: (_scs2[s], s))
+chk('0602 대표 시드: 파이썬이 따로 Σ|백분위−50| 최소를 구해 로그 시드 %d(지표: 60일 사후 평균·60일 구간 폭·7일 구간 폭·사후 결정 손해·10분 격자 손해)와 S18 계열 %d(지표: 두 칼만·고정·이동 평균의 추적 오차, 칼만의 교체 뒤 오차)가 JS 와 같고, 화면의 로그·계열 = 그 시드' % (_rl9, _rs9), _rl9 == _R09['repLog'][0] and _rs9 == _R09['repSer'][0] and _same09(_scs[_rl9], _R09['repLog'][1], 1e-6) and _same09(_scs2[_rs9], _R09['repSer'][1], 1e-6), f'로그 점수 {_scs[_rl9]:.1f} · 계열 점수 {_scs2[_rs9]:.1f}')
+_REPLOG9, _REPSER9 = _rl9, _rs9
+
+# 11. 기대 점검(설계서의 가설 — 아니면 본문을 결과대로): 로그가 길수록 구간 폭 감소 · 사후 기대 비용 손해 ≤ 0601 점 추정 · 칼만 추적 오차 < 고정 보정 · 포함률 90~100% · 능선은 지표를 늘려도 남다가 넷째 지표에서 풀림
+_w9 = {}
+for d in _W09:
+    _ws = []
+    for s_ in _LOG09:
+        c_, mu_, cv_ = _E9[d]; lo_, hi_ = _ci9(_post9(c_, mu_, cv_, _lg9(s_, d)[['q', 'L']].to_numpy(float), (180, 30)), c_); _ws.append(hi_ - lo_)
+    _w9[d] = float(np.median(_ws))
+_avgreg = {}
+for _kidx, nm in ((2, 'grid'), (5, 'fine'), (7, 'mean'), (9, 'post')):
+    for d in _W09: _avgreg[(nm, d)] = float(np.mean([_R09['dec']['%d|%d|%d' % (k, s, d)][_kidx] for k in (0, 500, 1200, 1700, 3000) for s in _LOG09]))
+_kr = [_allst[s]['kalmanReset']['rmse'] for s in _S18['EVAL']]; _fx = [_allst[s]['fixed']['rmse'] for s in _S18['EVAL']]; _mv = [_allst[s]['ma']['rmse'] for s in _S18['EVAL']]; _rw = [_allst[s]['raw']['rmse'] for s in _S18['EVAL']]
+_ridw = {k: float(np.mean([_R09['ridge'][k + '|' + str(s)][1] - _R09['ridge'][k + '|' + str(s)][0] for s in _LOG09])) for k in _sets9}; _ridc = {k: float(np.mean([_R09['ridge'][k + '|' + str(s)][4] for s in _LOG09])) for k in _sets9}
+_covall = [_cov9[(d, None)] for d in _W09]
+chk('0602 기대 점검: 로그 7<14<30 일 구간 폭 감소(60일은 30일 이하) · 모든 기간에서 사후 기대 비용 평균 손해 < 0601 10분 격자 · 칼만(교체 알림) 추적 오차 < 고정·이동 평균·관측 그대로(계열 20/20) · 평평한 사전 포함률 90~100개 · 능선: 지표 1·3개 상관 ≥ 0.9 · 4개 < 0.5 · 구간 폭 1개 > 3개 > 4개',
+    _w9[7] > _w9[14] > _w9[30] >= _w9[60] - 1e-9 and all(_avgreg[('post', d)] < _avgreg[('grid', d)] for d in _W09) and all(a < b and a < c and a < e for a, b, c, e in zip(_kr, _fx, _mv, _rw)) and all(90 <= v <= 100 for v in _covall)
+    and _ridc['one'] >= 0.9 and _ridc['three'] >= 0.9 and _ridc['four'] < 0.5 and _ridw['one'] > _ridw['three'] > _ridw['four'],
+    '구간 폭 중앙값 %s · 평균 손해(10분/2분/사후 평균/사후 기대) 7일 %.0f/%.0f/%.0f/%.0f · 60일 %.0f/%.0f/%.0f/%.0f · 칼만 추적 오차 중앙값 %.2f(고정 %.2f·이동 평균 %.2f·관측 %.2f) · 포함 %s · 능선 상관 %s 폭 %s' % (
+        {d: round(v, 1) for d, v in _w9.items()}, _avgreg[('grid', 7)], _avgreg[('fine', 7)], _avgreg[('mean', 7)], _avgreg[('post', 7)], _avgreg[('grid', 60)], _avgreg[('fine', 60)], _avgreg[('mean', 60)], _avgreg[('post', 60)],
+        float(np.median(_kr)), float(np.median(_fx)), float(np.median(_mv)), float(np.median(_rw)), _covall, {k: round(v, 2) for k, v in _ridc.items()}, {k: round(v, 1) for k, v in _ridw.items()}))
+
+# 12. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 사후·구간·결정·능선·칼만 숫자가 독립 구현·JS 와 같음, 외부 통신 코드 없음
+_run09 = subprocess.run([sys.executable, '-I', 'lab0602.py'], cwd=_td09, capture_output=True, text=True); _L09 = _run09.stdout.strip().split('\n')
+_rpl = {d: _R09['post']['%d|%d|30' % (_REPLOG9, d)] for d in _W09}; _rp = _rpl[60]
+_dd9 = _R09['dec']['500|%d|60' % _REPLOG9]; _exp09 = [
+    '사후(사전 180±30분, 로그 60일): 평균 %.1f분 · 최빈 %d분 · 95%% 신용구간 [%.1f, %.1f] (폭 %.1f분)' % (_rp[0], _rp[1], _rp[3], _rp[4], _rp[4] - _rp[3]),
+    '로그 기간별 95% 신용구간 폭(분): ' + ' · '.join('%d일 %.1f' % (d, _rpl[d][4] - _rpl[d][3]) for d in _W09),
+    '비용 가정 500장/일: 0601 격자 권고 %d대 · 사후 기대 비용 권고 %d대 · 실제 결과로 가장 좋았던 %d대' % (_dd9[1], _dd9[8], _dd9[10]),
+    '결정 손해(장/일): 0601 격자 %.0f · 사후 기대 비용 %.0f' % (_dd9[2], _dd9[9])]
+for _kk, _nm in (('one', '지표 1개'), ('three', '지표 3개'), ('four', '지표 4개')):
+    _v = _R09['ridge'][_kk + '|' + str(_REPLOG9)]; _exp09.append('능선(%s): 세정 시간 [%.1f, %.1f] · 한 턴 길이 [%.1f, %.1f] · 상관 %.2f · 95%% 영역 %d칸' % (_nm, _v[0], _v[1], _v[2], _v[3], _v[4], _v[5]))
+_kp = _R09['kalRep']
+_exp09.append('움직이는 공장 계열 %d: 마지막 날 칼만 추정 %.1f분(±%.1f)' % (_REPSER9, _kp[0][-1], 1.96 * np.sqrt(_kp[1][-1])))
+_run_ok = _run09.returncode == 0 and _run09.stdout.strip() == _out09 and all(any(l.startswith(e) or e in l for l in _L09) for e in _exp09) and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code09, _re5.M)
+chk('0602 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 사후 평균·최빈·구간·기간별 폭·결정 권고와 손해·능선 구간과 상관·칼만 추정이 독립 구현·JS 와 같고, 대표 로그·계열이 코드 설정과 같고, 외부 통신 코드가 없음',
+    _run_ok and ('LOG_SEED = %d' % _REPLOG9) in _code09 and ('SERIES, Q_SD, R_SCALE = %d, %s,' % (_REPSER9, repr(float(_qbest)))) in _code09,
+    (_run09.stderr[-300:] if _run09.returncode else f'{len(_L09)}줄 · 대조 {len(_exp09)}줄' + ''.join('' if any(e in l for l in _L09) else ' · 불일치: ' + e[:60] for e in _exp09)))
+
+# 13. 페이지 구조
+_term09 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg09, _re5.S).group(1)))
+_nq09 = len(_re5.findall(r'<div class="qna" data-label=', _pg09)); _nsec09 = len(_re5.findall(r'<h2><span class="no">', _pg09)); _nmath09 = _pg09.count('<math display="block">')
+_fonts09 = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', _pg09)]
+_bt09 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg09, flags=_re5.S)))
+_endda09 = _re5.findall(r'[^니습]다[.]', _bt09)
+_p601 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0601-closed-loop-blueprint.html'), encoding='utf-8').read(); _hub09 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_dv09 = set(_re5.findall(r'data-v="(\w+)"', _pg09)); _dvdef9 = set(_re5.findall(r'V\.(\w+)=', _js_app9))
+_qna09 = ' '.join(_re5.findall(r'<div class="qna".*?</div>', _pg09, _re5.S)); _jsm09 = open(os.path.join(_DATA10, 'calib06.js'), encoding='utf-8').read()
+_slid09 = ['id="sDays1" min="0" max="3" step="1" value="3"', 'id="sPr3" min="0" max="4" step="1" value="3"', 'id="sCost4" min="0" max="3000" step="100" value="%d"' % _K09['COST'], 'id="sQ" min="0" max="7" step="1" value="%d"' % _QS9.index(_qbest), 'id="sR" min="0" max="4" step="1" value="2"']
+chk('0602 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절 12개 · MathML 식 여섯(우도·사후·기대 비용·칼만 예측·갱신·정상 상태 이득) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0601 쪽 0602 다음 링크(위·아래)와 0602 쪽 0601 이전 링크(위·아래) · 허브 등록(마지막 장 묶음) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 모듈·표·페이지에 Math.random·Date.now 없음',
+    _term09 == 6 and _nq09 == 4 and _nsec09 == 12 and _nmath09 == 6 and _fonts09 and min(_fonts09) >= 11 and not _endda09 and _p601.count('0602-twin-calibration.html') == 2 and _pg09.count('0601-closed-loop-blueprint.html') == 2
+    and 'labs/0602-twin-calibration.html' in _hub09 and '마지막 장 · 기둥 6' in _hub09 and _dv09 <= _dvdef9 and all(s in _pg09 for s in _slid09) and not _qna09.count('%')
+    and not _re5.search(r'Math\.random|Date\.now|new Date', _jsm09) and not _re5.search(r'Math\.random|Date\.now', _js_app9) and not _re5.search(r'Math\.random|Date\.now', _tb09),
+    f'용어 {_term09} · Q&A {_nq09} · 절 {_nsec09} · MathML {_nmath09} · 캔버스 글자 최소 {min(_fonts09) if _fonts09 else None}px({len(_fonts09)}곳) · -다 끝맺음 {len(_endda09)}건 · 0601 쪽 링크 {_p601.count("0602-twin-calibration.html")}곳 · 미정의 data-v {sorted(_dv09 - _dvdef9)}')
+_cleanup09 = shutil.rmtree(_td09, ignore_errors=True)
+
+
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

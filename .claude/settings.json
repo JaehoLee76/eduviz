@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(shasum *)",
+      "Bash(launchctl list)",
+      "Bash(launchctl list *)",
+      "Bash(launchctl print *)",
+      "Bash(pmset -g)",
+      "Bash(pmset -g *)",
+      "Bash(plutil -lint *)",
+      "Bash(plutil -p *)",
+      "mcp__Claude_Preview__preview_screenshot",
+      "mcp__Claude_Preview__preview_console_logs",
+      "mcp__ccd_session_mgmt__get_usage"
+    ]
+  }
+}

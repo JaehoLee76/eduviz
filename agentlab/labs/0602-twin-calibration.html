@@ -1,0 +1,1002 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>트윈 보정과 칼만 필터</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="트윈의 파라미터를 실제 로그에 맞추되 값 하나가 아니라 불확실성까지 냅니다. 에뮬레이터와 우도로 사후분포와 95% 신용구간을 만들고, 사후 기대 비용으로 결정을 고르고, 두 값을 함께 모를 때의 식별 불가능 능선을 지표를 더해 풀고, 세정 시간이 움직이는 공장을 칼만 필터로 따라갑니다. 회사 PC용 Python과 파라미터 보정 기록지 양식을 남깁니다.">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+
+td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+table.nw1 td:first-child,table.nw1 th:first-child{white-space:nowrap}
+table.nwall td{white-space:nowrap}
+
+.loopmap{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .4rem}
+.lp{display:flex;flex-direction:column;gap:.1rem;min-width:8.5rem;padding:.5rem .7rem;border:1.5px solid var(--accent);border-radius:10px;background:var(--card);font-size:.9rem}
+.lp b{color:var(--ink)}
+.lp span{font-size:.85rem;color:var(--soft)}
+.lp.mine{background:color-mix(in srgb,var(--accent) 20%,var(--card));border-width:3px}
+.lpa{font-size:1.2rem;color:var(--accent);font-weight:800}
+.lpa.back{flex:1 1 100%;font-size:.9rem;font-weight:700;color:var(--soft);padding:.2rem 0}
+[hidden]{display:none!important}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">마지막 장 · 기둥 6 · 실험실 0602</p>
+  <h1>시뮬레이터를 실제에 맞추기 — 베이즈 보정과 칼만 필터</h1>
+  <p class="sub">맞춘 값은 한 숫자가 아니라 &lsquo;이 범위 안일 가능성&rsquo;입니다. 그 범위까지 함께 내고, 공장이 움직이면 날마다 따라가는 법을 익힙니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0601-closed-loop-blueprint.html">← 이전: 닫힌 고리 청사진</a><span class="sp"></span></nav>
+
+<p><b>0601 은 세정 시간을 10분 간격 격자에서 gap 이 가장 작은 한 값으로 맞췄습니다.</b> 그런데 로그가 말해 주는 것은 한 값이 아니라 &lsquo;이 범위 안일 가능성이 얼마&rsquo;입니다. 이 실험실에서는 세 가지를 합니다. 첫째, 후보마다 트윈을 시드 여러 개로 돌려 두고 각 후보가 지금 로그를 낼 가능성을 재서 믿음의 분포(사후분포)를 만듭니다. 둘째, 결정을 한 값이 아니라 그 분포 전체의 기대 비용으로 고릅니다. 셋째, 공장이 움직이면 어제의 추정과 오늘의 관측을 섞어 날마다 따라갑니다(칼만 필터). 로그가 구분해 주지 못하는 두 값의 쌍(능선)도 만납니다. 0601 과 같은 가상 공장의 <span data-v="days"></span>일 로그로 전부 직접 해 봅니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0601 의 트윈·gap·결정 손해·검증 영역과 숨은 값을 가진 가상 공장(로그 시드 20개, 그대로 이어받습니다), 0402 의 윌슨 구간과 sim-real gap, 0306 의 예측 구간, 0204 의 EWMA(칼만 필터의 정상 상태가 같은 꼴임을 6절에서 만납니다), 0503 의 보정도(이 실험실의 &lsquo;보정&rsquo;과는 다른 말입니다. 0601 에서 구분한 그대로입니다).</p>
+  <ul class="chips known"><li>트윈 · gap · 결정 손해 (0601)</li><li>숨은 값을 가진 가상 공장 (0601)</li><li>윌슨 구간 · sim-real gap (0402)</li><li>예측 구간 (0306)</li><li>EWMA (0204)</li><li>보정도 (0503)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(사전 폭·칼만 이득·Q·R·추적 오차)은 쓰는 자리에서 식이나 문장으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>에뮬레이터 (emulator)</li><li>우도 (likelihood)</li><li>사전분포 / 사후분포 (prior / posterior)</li><li>신용구간 (credible interval)</li><li>식별 불가능 능선 (non-identifiable ridge)</li><li>칼만 필터 (Kalman filter)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 트윈이나 계획 모델의 파라미터(세정 시간·고장률 등)를 &lsquo;한 번 맞추고 끝&rsquo;이 아니라 맞춘 값의 불확실성과 함께 내고, 공장이 바뀌면 따라가게 하는 것. 0601 결정 손해의 원인이 10분 격자로 찍은 한 값이었는지 가려 보는 판단(1~4절).</li>
+    <li><b>손으로 연습</b> — 사전분포와 로그 기간을 바꿔 사후분포가 좁아지는 것 보기(3절), 사후분포로 결정을 고르고 손해를 재기(4절), 두 값이 로그로 구분되지 않는 능선을 보고 지표를 더해 풀기(5절), 칼만 필터의 Q 와 R 을 바꿔 따라가는 속도와 흔들림을 맞바꾸기(6절).</li>
+    <li><b>다음 날 산출물</b> — <code>emulator_table</code>·<code>grid_posterior</code>·<code>credible_interval</code>·<code>posterior_decision</code>·<code>kalman_track</code> Python 함수(10절), <b>파라미터 보정 기록지</b> 양식(11절).</li>
+    <li><b>기록할 데이터</b> — 트윈 파라미터의 보정 이력(날짜·값·구간·쓴 로그 기간), 공장 변경 사건(세정액 교체·설비 개조)의 날짜, 같은 정의로 매일 재는 요약 지표(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 사전분포와 Q 의 근거가 되는 공장 변경 정보·승인은 사람, 구간과 함께 보고하기·능선이면 따로 재기·교체 사건 기록 시 리셋은 규칙, 매일 관측과 칼만 갱신과 보정 기록지는 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 0601 의 점 추정 결정과 사후 기대 비용 결정의 결정 손해 차(장수와 턴, 9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0601 에서 세정 시간을 <span data-v="chat0601"></span>분으로 맞추고 세정기 <span data-v="cap0601"></span>대를 권했습니다. 그런데 비용 가정에 따라 그 권고가 손해였고, 다음 달에는 세정액이 낡아 세정 시간이 늘어날 수도 있습니다. <b>맞춘 값을 얼마나 믿어도 되고, 공장이 움직이면 어떻게 따라가야 합니까?</b> 같은 가상 공장의 실제 로그(시드 <span data-v="seed"></span>, <span data-v="days"></span>일)로 숫자로 답하십시오.
+  <p class="note" style="margin:.5rem 0 0">1절에서 격자를 촘촘히 해도 답이 한 숫자뿐임을 보고, 2절에서 이름을 붙여 후보마다 로그가 나올 가능성을 재고, 3절에서 믿음의 분포와 구간을 만들고, 4절에서 결정을 다시 고르고, 5절에서 두 값을 함께 모르는 경우를 만나고, 6절에서 움직이는 공장을 따라가고, 7절에서 구간을 믿을 만한지 점검하고, 8절에서 처음 물음으로 돌아옵니다. 비용 가정·로그 기간·사전 폭·Q 와 R 은 현장 값으로 바꿔야 할 설정입니다.</p>
+</div>
+
+<div class="solban">여기서부터 가상 공장의 기록으로 푸는 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>첫 시도 — 격자를 촘촘히 하면</h2>
+<p>0601 의 보정은 세정 시간 후보를 10분 간격 12개로 두었기 때문에 보정 최소점이 10분 단위로만 나왔고, 그 때문에 권고가 한 대 어긋나기도 했습니다. 후보 간격을 2분으로 촘촘히 하면(<span data-v="ncell"></span>칸, <span data-v="lo"></span>~<span data-v="hi"></span>분) 해결될까요? 후보마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 지표 평균으로 0601 의 gap(세 지표의 로그 비 평균)을 똑같이 재서, gap 이 가장 작은 후보를 찾습니다.</p>
+<div class="lab">
+  <div class="labtitle">후보별 gap — 굵은 선이 이 화면의 로그, 연한 선은 다른 로그 시드 열아홉 개</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 로그 기간을 7일로 줄일 때 굵은 선의 바닥이 어디로 옮겨 가는지, 그리고 연한 선들의 바닥이 얼마나 흩어지는지 보십시오. 곡선의 바닥이 얼마나 뾰족한지도 보십시오.</div>
+  <div class="ctrl"><label for="sDays1">로그 기간 (일)</label><input type="range" id="sDays1" min="0" max="3" step="1" value="3"><output id="sDays1o"></output></div>
+  <div class="row"><button class="btn ghost" id="rDays1" type="button">로그 기간을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stDays1"></div>
+  <canvas id="cvG1"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>이 화면의 로그</span><span><i class="dot" style="background:var(--grey)"></i>다른 로그 시드 열아홉 개</span></div>
+  <div class="readout" id="ro1"></div>
+  <div class="tbwrap"><table class="mt num" id="tab1"></table></div>
+</div>
+<p>촘촘히 하니 최소점이 10분 단위의 틀에서 벗어났습니다. 그래도 답은 <b>여전히 숫자 하나</b>입니다. 이 숫자를 얼마나 믿어야 하는지는 이 곡선이 말해 주지 않습니다. 위의 연한 선 열아홉 개로 최소점의 흩어짐을 볼 수 있는 것은 이 가상 공장에서 로그를 스무 벌 만들 수 있기 때문이고, 현장에는 로그가 한 벌뿐입니다. 이유가 둘 있습니다. 첫째, gap 은 세 지표를 같은 무게로 평균합니다. 세정 중 평균은 거의 흔들리지 않고 Loss 는 시드마다 크게 흔들리는데도 같은 무게입니다. 둘째, 최소점 하나만 남기고 &lsquo;다른 후보는 얼마나 덜 그럴듯한가&rsquo;를 버립니다.</p>
+<p><b>막힘:</b> 후보마다 &lsquo;이 로그가 나올 가능성&rsquo;을 지표 자신의 흔들림을 단위로 재고, 모든 후보의 가능성을 함께 들고 가야 합니다. 먼저 후보마다의 평균과 흔들림을 적어 둔 표에 이름을 붙입니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>이름 — 에뮬레이터와 우도</h2>
+<p>후보마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 결과를 다시 정리합니다. <b>에뮬레이터(emulator)</b> 는 비싼 시뮬레이터를 다시 돌리지 않고 쓰려고, 후보 칸마다 트윈 시드 묶음의 지표 평균과 흔들림(표준편차와 지표 사이의 상관)을 적어 둔 값표입니다. 지표는 ln(x+1) 로 바꿔 씁니다(0601 gap 과 같은 척도입니다). 세정 중 평균은 운전 대수 <span data-v="cap0"></span>대 근처의 상한에 붙어 후보 대부분에서 값이 같고 흔들림이 거의 0 이라 정규 분포로 다루기에 맞지 않아, <b>세정 대기열 평균(q)과 Loss 총 장수(L) 둘</b>만 씁니다.</p>
+<div class="lab">
+  <div class="labtitle">에뮬레이터: 후보별 평균과 ±1.96 표준편차 띠, 그리고 이 로그의 실제 값</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 가로선(이 로그의 값)이 띠 안에 드는 후보의 범위가 q 와 L 에서 각각 어디서 어디까지인지, 로그 기간을 줄이면 띠가 어떻게 넓어지는지 보십시오.</div>
+  <div class="ctrl"><label for="sDays2">로그 기간 (일)</label><input type="range" id="sDays2" min="0" max="3" step="1" value="3"><output id="sDays2o"></output></div>
+  <div class="row"><button class="btn ghost" id="rDays2" type="button">로그 기간을 기본값으로 되돌리기</button><button class="btn" id="mQ" type="button" aria-pressed="true">세정 대기열 평균 q</button><button class="btn" id="mL" type="button" aria-pressed="false">Loss 총 장수 L</button></div>
+  <div class="state" id="stDays2"></div>
+  <canvas id="cvEmu"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>에뮬레이터 평균</span><span><i class="dot" style="background:var(--c10)"></i>±1.96 표준편차 띠</span><span><i class="dot" style="background:var(--c9)"></i>이 로그의 값</span></div>
+  <div class="readout" id="ro2"></div>
+  <div class="tbwrap"><table class="mt num" id="tab2"></table></div>
+</div>
+<p>가로선이 띠에 드는 후보는 그 지표 하나로는 &lsquo;그럴듯한&rsquo; 후보입니다. 두 지표를 함께 쓰려면 후보마다 &lsquo;이 로그가 나올 가능성&rsquo;이라는 숫자 하나가 필요합니다. 그것이 우도입니다. <b>우도(likelihood)</b> 는 파라미터가 어떤 값일 때 지금 가진 로그가 나올 가능성입니다. 여기서는 로그의 지표 묶음 y 가 후보 θ 의 에뮬레이터 평균에서 시드 흔들림의 몇 배 떨어졌는지로 재는 정규 근사를 씁니다.</p>
+<div class="eq">
+  <span class="eqlab">정규 우도 (θ = 세정 시간 후보)</span>
+  <math display="block"><mrow><mi>p</mi><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2223;</mo><mi>&#x03B8;</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><msup><mrow><mo stretchy="false">(</mo><mn>2</mn><mi>&#x03C0;</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo stretchy="false">|</mo><msub><mi>S</mi><mi>&#x03B8;</mi></msub><mo stretchy="false">|</mo></mrow></msqrt></mfrac><mo>&#x00B7;</mo><mi>exp</mi><mo stretchy="false">(</mo><mo>&#x2212;</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mrow><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2212;</mo><msub><mi>&#x03BC;</mi><mi>&#x03B8;</mi></msub><mo stretchy="false">)</mo></mrow><mi>T</mi></msup><msubsup><mi>S</mi><mi>&#x03B8;</mi><mrow><mo>&#x2212;</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2212;</mo><msub><mi>&#x03BC;</mi><mi>&#x03B8;</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">y 는 로그의 두 지표(q 와 L)에 ln(x+1) 을 씌운 값, μ 는 그 후보의 에뮬레이터 평균, S 는 시드 간 공분산을 이웃 칸 양쪽 3개씩(7칸)에서 합친 뒤 (1 + 1/<span data-v="nemu"></span>) 배 한 것입니다. 에뮬레이터 평균 자체가 시드 <span data-v="nemu"></span>개로 만든 값이라서 생기는 불확실성까지 넣은 것입니다. 로그가 짧을수록 지표가 더 흔들리므로 S 는 로그 기간마다 따로 만든 에뮬레이터에서 가져옵니다.</span>
+</div>
+<div class="watch"><b>이 근사가 기대는 것.</b> 1) 지표를 ln(x+1) 로 바꾸면 흔들림이 정규 분포에 가깝다고 봅니다(Loss 의 긴 꼬리와 q 의 상한은 어긋나는 곳입니다). 2) 실제 로그 쪽의 흔들림이 같은 시뮬레이터의 시드 간 흔들림과 같다고 봅니다. 이 가상 공장에서는 로그도 같은 시뮬레이터가 만들었기 때문에 성립합니다. 회사에서는 시뮬레이터와 실제의 구조 차이가 이 흔들림에 들어오지 않으므로, 구조 차이는 우도로 잡히지 않습니다. 3) 세정 시간 말고 다른 값은 알려진 값으로 둡니다(5절에서 하나를 풉니다). 정규 근사가 얼마나 맞는지는 7절에서 시드를 바꿔 가며 확인합니다.</div>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>사전분포와 사후분포 — 로그를 본 뒤의 믿음</h2>
+<p>우도는 후보마다 하나씩 있는 &lsquo;가능성&rsquo;이고 합이 1 이 아닙니다. 로그를 보기 전의 믿음을 곱하고 합이 1 이 되게 나누면 믿음의 분포가 됩니다. <b>사전분포(prior)</b> 는 로그를 보기 전 파라미터에 대한 믿음, <b>사후분포(posterior)</b> 는 로그를 본 뒤의 믿음입니다. 둘을 잇는 것이 아래 식, 곧 베이즈 규칙입니다.</p>
+<div class="eq">
+  <span class="eqlab">사후 ∝ 우도 × 사전</span>
+  <math display="block"><mrow><mi>p</mi><mo stretchy="false">(</mo><mi>&#x03B8;</mi><mo>&#x2223;</mo><mi>y</mi><mo stretchy="false">)</mo><mo>&#x221D;</mo><mi>p</mi><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2223;</mo><mi>&#x03B8;</mi><mo stretchy="false">)</mo><mo>&#x00B7;</mo><mi>p</mi><mo stretchy="false">(</mo><mi>&#x03B8;</mi><mo stretchy="false">)</mo></mrow></math>
+  <span class="note">θ 는 세정 시간(분)입니다. 사전은 0601 트윈 판 0 의 값 <span data-v="v0"></span>분을 가운데로 둔 정규분포(폭 s)이거나 평평한 분포입니다. 후보 <span data-v="ncell"></span>칸에서 곱한 뒤 합이 1 이 되게 나눕니다.</span>
+</div>
+<p>사후분포가 있으면 값 하나가 아니라 범위로 말할 수 있습니다. <b>신용구간(credible interval)</b> 은 사후분포에서 확률 95% 가 들어 있는 파라미터 범위입니다. 0402 의 신뢰구간과 뜻이 다릅니다. 신뢰구간은 &lsquo;같은 일을 되풀이하면 구간의 95% 가 참값을 덮는다&rsquo;는 말이고, 신용구간은 &lsquo;로그를 본 뒤 값이 이 안에 있을 확률이 95%&rsquo;라는 말입니다. 다만 이 신용구간은 정규 근사 위에 서 있으므로, 시드를 바꿔 가며 실제로 95% 근처를 덮는지를 7절에서 확인합니다.</p>
+<div class="lab">
+  <div class="labtitle">세정 시간의 사후분포 — 사전 폭과 로그 기간을 바꿔 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 로그 기간을 줄이면 사후 막대가 어떻게 넓어지는지, 사전 폭을 2분으로 줄일 때 사후의 가운데가 사전의 중심으로 끌려가는지, 로그를 60일로 늘리면 그 끌림이 줄어드는지 보십시오.</div>
+  <div class="ctrl"><label for="sPr3">사전 폭 s (분)</label><input type="range" id="sPr3" min="0" max="4" step="1" value="3"><output id="sPr3o"></output></div>
+  <div class="ctrl"><label for="sDays3">로그 기간 (일)</label><input type="range" id="sDays3" min="0" max="3" step="1" value="3"><output id="sDays3o"></output></div>
+  <div class="row"><button class="btn ghost" id="rPost3" type="button">사전 폭과 로그 기간을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stPost3"></div>
+  <canvas id="cvPost"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>사후분포</span><span><i class="dot" style="background:var(--c10)"></i>우도만 (평평한 사전)</span><span><i class="dot" style="background:var(--warn)"></i>사전분포</span><span><i class="dot" style="background:var(--good)"></i>95% 신용구간</span></div>
+  <div class="readout" id="ro3"></div>
+  <div class="tbwrap"><table class="mt num" id="tab3"></table></div>
+  <div class="labtitle" style="margin-top:.8rem">로그 시드 스무 개에 걸친 분포 (지금의 사전 폭)</div>
+  <div class="tbwrap"><table class="mt num" id="tab3b"></table></div>
+  <div class="concl" id="conc3"></div>
+</div>
+<div class="qna" data-label="사전분포를 내 마음대로 정하면 결과도 마음대로 아닌가요?" data-q="사전분포를 내 마음대로 정하면 결과도 마음대로 아닌가요?">
+  <p><b>로그가 짧을 때는 그렇습니다.</b> 3절 슬라이더로 사전 폭을 2분까지 줄이면 로그 7일의 사후 가운데가 사전의 중심 쪽으로 끌려가는 것을 볼 수 있습니다. 로그를 60일로 늘리면 같은 사전이어도 끌림이 줄어듭니다. 그래서 두 가지를 합니다. 첫째, 사전의 중심과 폭과 그 근거(지난 보정값·설비 사양)를 보정 기록지에 적습니다. 둘째, 평평한 사전의 결과를 옆에 함께 적어 사전이 결과를 얼마나 움직였는지 보입니다. 사전이 결과를 많이 움직이는 로그는 아직 짧다는 신호입니다.</p>
+</div>
+<div class="qna" data-label="신용구간과 신뢰구간은 같은 것 아닌가요?" data-q="신용구간과 신뢰구간은 같은 것 아닌가요?">
+  <p><b>숫자는 비슷하게 나올 수 있지만 말이 다릅니다.</b> 0402 의 신뢰구간은 &lsquo;같은 방법으로 로그를 계속 새로 만들어 구간을 구하면 그 구간 20개 가운데 19개가 참값을 덮는다&rsquo;는, 방법에 대한 약속입니다. 신용구간은 &lsquo;지금 가진 로그와 사전을 합친 믿음에서 참값이 이 안에 있을 확률이 20번 중 19번 꼴&rsquo;이라는, 지금 이 값에 대한 말입니다. 현장에서 보고서에 적는 문장은 보통 후자의 꼴이라 신용구간이 읽기 쉽습니다. 다만 사전을 바꾸면 신용구간도 바뀌므로 사전을 함께 적고, 정규 근사가 맞는지는 7절처럼 따로 확인합니다.</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>사후로 결정하기 — 기대 비용</h2>
+<p>사후분포는 후보마다 &lsquo;얼마나 그럴듯한가&rsquo;를 가집니다. 0601 은 맞춘 값 하나를 트윈에 넣어 운전 대수를 골랐습니다. 사후분포가 있으면 후보마다의 결정 표(세정 시간이 θ 일 때 운전 대수 c 의 하루 Loss)를 사후 가중치로 평균해, <b>사후 기대 비용</b>이 가장 작은 c 를 고를 수 있습니다.</p>
+<div class="eq">
+  <span class="eqlab">사후 기대 총 비용 (장/일)</span>
+  <math display="block"><mrow><mover><mi>C</mi><mo>&#x00AF;</mo></mover><mo stretchy="false">(</mo><mi>c</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo>&#x2211;</mo><mi>j</mi></munder><msub><mi>w</mi><mi>j</mi></msub><mo>&#x00B7;</mo><mi>l</mi><mo stretchy="false">(</mo><mi>c</mi><mo>;</mo><msub><mi>&#x03B8;</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mi>k</mi><mo>&#x00B7;</mo><mi>c</mi></mrow></math>
+  <span class="note">w 는 후보 θ 의 사후 가중치(합이 1), l(c; θ) 는 세정 시간 θ 인 트윈에서 운전 대수가 c 일 때 하루에 잃는 유리 장수(트윈 시드 <span data-v="nemu"></span>개 평균), k 는 0601 의 한 대 하루 운영비(가정)입니다. 결정 표는 θ 를 4분 간격 11칸(<span data-v="plo"></span>~<span data-v="phi"></span>분)에서 돌려 두었고 칸 사이는 직선으로 이었으며 범위 밖은 끝값을 씁니다.</span>
+</div>
+<p>비교는 넷입니다. 1) 0601 의 10분 격자 점 추정, 2) 같은 방식을 2분 격자로 한 점 추정(1절), 3) 사후 평균 한 값에서 고른 결정, 4) 사후 기대 비용. 2)를 넣은 것은 손해가 줄었을 때 그 까닭이 베이즈 때문인지 격자를 촘촘히 한 것 때문인지 가르기 위해서입니다. 결정 손해는 0601 에서 정의한 대로, 결정 값마다 시드 8개를 돌려 둔 실제 결과표로 잽니다.</p>
+<div class="lab">
+  <div class="labtitle">운전 대수별 총 비용과 네 결정의 손해 (이 화면의 로그)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> k 를 올릴 때 세 곡선의 가장 낮은 점이 어디로 옮겨 가는지, 아래 띠에서 10분 격자의 손해가 0 이 아닌 k 가 얼마나 되는지, 그리고 로그 기간을 7일로 줄이면 네 결정의 순서가 어떻게 달라지는지 보십시오.</div>
+  <div class="ctrl"><label for="sCost4">k: 세정기 한 대의 하루 운영비 (장/일, 가정)</label><input type="range" id="sCost4" min="0" max="3000" step="100" value="500"><output id="sCost4o"></output></div>
+  <div class="ctrl"><label for="sDays4">로그 기간 (일)</label><input type="range" id="sDays4" min="0" max="3" step="1" value="3"><output id="sDays4o"></output></div>
+  <div class="ctrl"><label for="sPr4">사전 폭 s (분)</label><input type="range" id="sPr4" min="0" max="4" step="1" value="3"><output id="sPr4o"></output></div>
+  <div class="row"><button class="btn ghost" id="rDec4" type="button">k·로그 기간·사전 폭을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stDec4"></div>
+  <canvas id="cvCost"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--warn)"></i>사후 평균 한 값의 트윈</span><span><i class="dot" style="background:var(--accent)"></i>사후 기대 비용</span><span><i class="dot" style="background:var(--c9)"></i>실제 결과(결정을 적용한 뒤 잰 값)</span></div>
+  <div class="tbwrap"><table class="mt num" id="tabDec"></table></div>
+  <div class="readout" id="ro4"></div>
+  <div class="labtitle" style="margin-top:.8rem">k 에 따른 결정 손해 — 네 결정</div>
+  <canvas id="cvReg"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>0601 10분 격자 점 추정</span><span><i class="dot" style="background:var(--warn)"></i>2분 격자 점 추정</span><span><i class="dot" style="background:var(--c10)"></i>사후 평균 한 값</span><span><i class="dot" style="background:var(--accent)"></i>사후 기대 비용</span></div>
+  <div class="labtitle" style="margin-top:.8rem">로그 시드 스무 개 × k 0~3,000 (100 간격 31곳)의 평균 결정 손해 (지금의 로그 기간·사전 폭)</div>
+  <div class="tbwrap"><table class="mt num" id="tabDec20"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>능선 — 두 값을 함께 모를 때</h2>
+<p>지금까지는 세정 시간 하나만 모르고 나머지는 알려진 값이라고 두었습니다. 세정기로 돌아오는 마스크의 양을 정하는 <b>한 턴 길이</b>(증착 한 턴이 걸리는 시간, 분)도 정확히는 모른다면 어떻게 됩니까? 세정기가 받는 부하는 세정 시간이 길수록, 한 턴이 짧을수록(마스크가 더 자주 돌아오므로) 커집니다. 그래서 세정 시간을 늘리고 한 턴 길이도 함께 늘리면 두 효과가 서로 거슬러 세정 대기열 평균이 거의 같을 수 있습니다. 이렇게 두 파라미터를 함께 바꿔도 요약 지표가 거의 같아서 사후분포가 길쭉한 띠가 되는 것이 <b>식별 불가능 능선(non-identifiable ridge)</b> 입니다. 이 절에서는 세정 시간을 170~230분, 한 턴 길이를 260~340분 사이로만 안다고 두고(둘 다 평평한 사전) 60일 로그를 씁니다. 세정 시간·한 턴 길이 두 값이 정해지는 점마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 값표(13 × 9칸)에서 칸 사이는 직선으로 이어 사후를 만듭니다.</p>
+<div class="lab">
+  <div class="labtitle">세정 시간 × 한 턴 길이의 사후분포 — 쓰는 지표의 수에 따라</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 지표 하나일 때 사후가 길쭉한 띠인지, 지표를 셋으로 늘려도 띠가 남는지, 넷째 지표를 더하면 띠가 풀리는지 보십시오. 그리고 아래 표에서 넷째 지표(시간당 반송 요청)가 세정 시간에는 크게, 한 턴 길이에는 거의 움직이지 않는지 보십시오.</div>
+  <div class="row" role="group" aria-label="지표 묶음 고르기"><button class="btn" id="rsOne" type="button" aria-pressed="true">지표 1개: 세정 대기열 평균</button><button class="btn" id="rsThree" type="button" aria-pressed="false">지표 3개: + Loss 총 장수 + 시간당 완성 유리</button><button class="btn" id="rsFour" type="button" aria-pressed="false">지표 4개: + 시간당 반송 요청</button><button class="btn ghost" id="rRidge" type="button">지표 1개로 되돌리기</button></div>
+  <div class="state" id="stRidge"></div>
+  <canvas id="cvRidge"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>95% 가 들어 있는 가장 그럴듯한 영역</span><span><i class="dot" style="background:var(--tint);border:1px solid var(--rule)"></i>그 밖</span></div>
+  <div class="readout" id="ro5"></div>
+  <div class="tbwrap"><table class="mt num" id="tab5"></table></div>
+  <div class="labtitle" style="margin-top:.8rem">지표는 어느 값에 움직이나 — 세정 시간 +10분, 한 턴 길이 +20분일 때 지표의 변화 (시드 흔들림 표준편차의 몇 배)</div>
+  <div class="tbwrap"><table class="mt num" id="tab5b"></table></div>
+  <div class="concl" id="conc5"></div>
+</div>
+<div class="qna" data-label="능선이면 시뮬레이터가 틀린 것인가요?" data-q="능선이면 시뮬레이터가 틀린 것인가요?">
+  <p><b>아닙니다.</b> 시뮬레이터는 두 값을 모두 정확히 쓰고 있습니다. 로그가 두 값을 구분해 주지 못할 뿐입니다. 해법은 시뮬레이터를 고치는 것이 아니라, 두 값을 다르게 움직이는 지표를 로그에 더하거나, 한쪽 값을 따로 재는 것입니다. 예를 들어 한 턴 길이는 설비 기록에서 바로 읽을 수 있다면 그 값을 알려진 값으로 두고 세정 시간만 맞추면 됩니다. 능선이 보이는데 사후 평균 하나만 보고서에 적으면, 길쭉한 띠 위의 아무 점이나 적은 것과 같습니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>움직이는 공장 — 칼만 필터</h2>
+<p>지금까지 공장의 세정 시간은 고정된 한 값이었습니다. 실제 공장에서는 세정액이 낡아 세정 시간이 날마다 조금씩 늘고, 세정액을 교체하면 처음 값으로 돌아옵니다. 90일을 보는 새 가상 공장 S18 에서 이 문제를 다룹니다.</p>
+<div class="watch"><b>S18 의 가정과 한계.</b> 세정 시간이 날마다 조금씩 늘다가 세정액을 교체한 날(<span data-v="rep1"></span>일째와 <span data-v="rep2"></span>일째, 공장 변경 사건으로 기록에 있습니다) 처음 값으로 돌아갑니다. 늘어나는 속도와 값은 숨겨져 있고 12절에서 엽니다. 시뮬레이터는 한 번 돌리는 동안 파라미터를 바꾸지 못하므로, 날마다 그날의 세정 시간으로 3일을 따로 돌리고 앞 하루(데우기)를 버린 뒤 남은 이틀의 지표를 그날의 관측으로 씁니다. 그래서 날마다의 관측은 서로 이어지지 않는 독립 실행입니다. 실제 라인에서는 어제의 대기열이 오늘로 이어지므로 관측 사이에 상관이 생기는데, 이 가정은 그것을 담지 못합니다.</div>
+<p>하루의 관측을 세정 시간으로 바꿉니다. 하루 관측용 에뮬레이터(같은 3일 실행 방식, 세정 시간 <span data-v="ncell"></span>칸 × 트윈 시드 <span data-v="nchunk"></span>개)로 그날의 두 지표(q 와 L)를 평평한 사전에서 뒤집은 사후를 만들고, 그 평균을 그날의 관측 z, 분산을 관측 잡음 R 로 씁니다. 하루 관측의 R 은 표준편차로 중앙값 약 <span data-v="rsd"></span>분입니다. 3절의 로그 한 벌(60일)보다 훨씬 거칠다는 뜻입니다.</p>
+<p>2~3절 방식을 날마다 다시 하면 어떻게 될까요? 오늘까지의 모든 관측을 하나의 상수 세정 시간으로 합친 사후(<b>전체 기간 고정 베이즈</b>)는 교체 뒤에도 옛 값을 기억해 늦게 따라옵니다. 처음 14일로 한 번 맞추고 고정하면 값이 올라갈수록 틀립니다. 움직이는 값을 따라가려면 오래된 관측의 무게를 줄여야 합니다. 7일 이동 평균은 가장 단순한 방법이지만 무게를 얼마나 줄일지, 추정이 얼마나 믿을 만한지는 말해 주지 않습니다.</p>
+<p><b>칼만 필터(Kalman filter)</b> 는 움직이는 상태(여기서는 세정 시간)를 &lsquo;어제의 추정 + 오늘의 관측&rsquo;의 가중 평균으로 갱신하는 방법입니다. 가중치인 <b>칼만 이득</b> K 는 상태가 하루에 움직이는 크기 Q 와 관측 잡음 R 로 정해집니다. 상태가 많이 움직이면(Q 가 크면) 오늘 관측에 무게를 더 주고, 관측이 거칠면(R 이 크면) 어제 추정에 무게를 더 줍니다. 여기서는 상태를 &lsquo;하루에 평균 0, 분산 Q 로 랜덤하게 움직이는 값&rsquo;으로 단순하게 봅니다. 실제 움직임은 일정한 기울기와 교체이므로 이것도 근사입니다.</p>
+<div class="eq">
+  <span class="eqlab">칼만 필터: 예측 (어제 → 오늘)</span>
+  <math display="block"><mrow><msubsup><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi><mo>&#x2212;</mo></msubsup><mo>=</mo><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mspace width="1.2em"></mspace><msubsup><mi>P</mi><mi>t</mi><mo>&#x2212;</mo></msubsup><mo>=</mo><msub><mi>P</mi><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo>+</mo><mi>Q</mi></mrow></math>
+  <span class="note">x̂ 는 세정 시간의 추정, P 는 그 추정의 분산(불확실성), 위첨자 − 는 &lsquo;오늘 관측을 보기 전&rsquo;입니다. 하루가 지나는 동안 추정은 그대로이고 불확실성만 Q 만큼 커집니다.</span>
+</div>
+<div class="eq">
+  <span class="eqlab">칼만 필터: 갱신 (오늘 관측 z, 잡음 R)</span>
+  <math display="block"><mrow><msub><mi>K</mi><mi>t</mi></msub><mo>=</mo><mfrac><msubsup><mi>P</mi><mi>t</mi><mo>&#x2212;</mo></msubsup><mrow><msubsup><mi>P</mi><mi>t</mi><mo>&#x2212;</mo></msubsup><mo>+</mo><msub><mi>R</mi><mi>t</mi></msub></mrow></mfrac><mspace width="1.2em"></mspace><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi></msub><mo>=</mo><msubsup><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi><mo>&#x2212;</mo></msubsup><mo>+</mo><msub><mi>K</mi><mi>t</mi></msub><mo stretchy="false">(</mo><msub><mi>z</mi><mi>t</mi></msub><mo>&#x2212;</mo><msubsup><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi><mo>&#x2212;</mo></msubsup><mo stretchy="false">)</mo><mspace width="1.2em"></mspace><msub><mi>P</mi><mi>t</mi></msub><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>&#x2212;</mo><msub><mi>K</mi><mi>t</mi></msub><mo stretchy="false">)</mo><msubsup><mi>P</mi><mi>t</mi><mo>&#x2212;</mo></msubsup></mrow></math>
+  <span class="note">추정은 어제 추정에서 (관측 − 어제 추정)의 K 배만큼만 옮겨 갑니다. K 가 1 이면 오늘 관측을 그대로 믿고, 0 에 가까우면 어제 추정을 거의 그대로 둡니다. 세정액 교체를 아는 날은 추정을 그날 관측으로 다시 시작합니다(리셋).</span>
+</div>
+<div class="eq">
+  <span class="eqlab">정상 상태의 이득 — 0204 의 EWMA 와 같은 꼴</span>
+  <math display="block"><mrow><mi>K</mi><mo>=</mo><mfrac><msup><mi>P</mi><mo>&#x2212;</mo></msup><mrow><msup><mi>P</mi><mo>&#x2212;</mo></msup><mo>+</mo><mi>R</mi></mrow></mfrac><mo>,</mo><mspace width="1.2em"></mspace><msup><mi>P</mi><mo>&#x2212;</mo></msup><mo>=</mo><mfrac><mrow><mi>Q</mi><mo>+</mo><msqrt><mrow><msup><mi>Q</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn><mi>Q</mi><mi>R</mi></mrow></msqrt></mrow><mn>2</mn></mfrac><mo>,</mo><mspace width="1.2em"></mspace><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi></msub><mo>=</mo><mi>&#x03BB;</mi><msub><mi>z</mi><mi>t</mi></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>&#x2212;</mo><mi>&#x03BB;</mi><mo stretchy="false">)</mo><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="0.6em"></mspace><mi>&#x03BB;</mi><mo>=</mo><mi>K</mi></mrow></math>
+  <span class="note">관측 잡음 R 이 날마다 같으면 이득은 시간이 지나며 한 값 K 로 가라앉습니다. 그 뒤의 갱신식은 0204 의 EWMA 의 u<sub>t</sub> = λ z<sub>t</sub> + (1−λ) u<sub>t−1</sub> 과 같고, K 가 곧 평활 계수 λ 입니다. 차이는 EWMA 가 λ 를 사람이 정하는 반면 칼만은 Q 와 R 에서 λ 가 나온다는 점입니다.</span>
+</div>
+<div class="lab">
+  <div class="labtitle">S18 의 90일 — 관측, 칼만 추정, 이동 평균, 고정값</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> Q 를 올리면 칼만 이득이 어떻게 변하고 추정선이 관측 점을 더 따라가며 흔들리는지, R 의 배율을 올리면 어떻게 달라지는지 보십시오. 교체 알림을 끄고 켤 때 점선(교체일) 뒤의 추정이 어떻게 달라지는지도 보십시오.</div>
+  <div class="ctrl"><label for="sQ">Q: 세정 시간이 하루에 움직이는 크기 (표준편차, 분)</label><input type="range" id="sQ" min="0" max="7" step="1" value="6"><output id="sQo"></output></div>
+  <div class="ctrl"><label for="sR">R 의 배율 (관측 잡음을 몇 배로 볼지)</label><input type="range" id="sR" min="0" max="4" step="1" value="2"><output id="sRo"></output></div>
+  <label class="chk"><input type="checkbox" id="ckReset" checked> 세정액 교체일을 알려 준다 (그날 관측으로 추정을 다시 시작)</label>
+  <div class="row"><button class="btn ghost" id="rKal" type="button">Q·R·교체 알림을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stKal"></div>
+  <canvas id="cvKal"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>날마다의 관측 z</span><span><i class="dot" style="background:var(--accent)"></i>칼만 추정 (띠 = ±1.96 √P)</span><span><i class="dot" style="background:var(--c10)"></i>7일 이동 평균</span><span><i class="dot" style="background:var(--warn)"></i>처음 14일로 고정</span><span id="lgTruth" hidden><i class="dot" style="background:var(--c9)"></i>실제 세정 시간</span></div>
+  <div class="readout" id="ro6"></div>
+  <div class="tbwrap"><table class="mt num" id="tabKal"></table></div>
+  <div class="labtitle" style="margin-top:.8rem">평가 계열 스무 개의 중앙값 (지금의 Q·R·교체 알림)</div>
+  <div class="tbwrap"><table class="mt num" id="tabKal20"></table></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<div class="qna" data-label="칼만 필터는 EWMA 와 무엇이 다른가요?" data-q="칼만 필터는 EWMA 와 무엇이 다른가요?">
+  <p><b>정상 상태에서는 같은 식입니다.</b> 이득 K 가 한 값에 가라앉은 뒤의 칼만 갱신은 EWMA 와 같고 K 가 곧 λ 입니다. 다른 점은 둘입니다. 첫째, EWMA 는 λ 를 사람이 정하지만 칼만은 상태가 움직이는 크기 Q 와 관측 잡음 R 에서 λ 가 나오므로 &lsquo;왜 이 값인가&rsquo;를 공장 정보(세정액이 얼마나 빨리 낡는가, 관측이 얼마나 거친가)로 설명할 수 있습니다. 둘째, 추정이 얼마나 불확실한지(P)를 날마다 함께 냅니다. 교체 직후에는 P 가 커지고 관측이 쌓이면 줄어드는 것이 띠로 보입니다. 관측마다 R 이 다르면 이득도 그날에 맞춰 달라집니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>신용구간은 믿을 만한가</h2>
+<p>3절의 구간은 우도를 정규로 근사해서 만든 것이라, 95% 라고 불러도 실제로 95% 를 덮는지는 확인해야 합니다(0503 의 보정도와 같은 생각입니다). 방법은 이렇습니다. 시드가 다른 로그 <span data-v="ncov"></span>개마다 같은 방식으로 95% 신용구간을 만들고, 숨은 세정 시간이 그 안에 든 로그의 비율을 셉니다. 숨은 값이 필요한 점검이라 12절의 [정답 열기] 뒤에 채워집니다. 여기서 바로 열어도 같은 결과가 나옵니다.</p>
+<div class="lab">
+  <div class="row"><button class="btn" id="btnReveal7" type="button">정답 열기 (12절과 같은 단추)</button></div>
+  <div class="readout" id="ro7">정답을 열면 이 자리에 포함률 표가 채워집니다.</div>
+  <div class="tbwrap"><table class="mt num" id="tabCov" hidden></table></div>
+  <div class="concl" id="conc7" hidden></div>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 처음 물음에 숫자로 답합니다</h2>
+<p>맨 앞의 물음으로 돌아옵니다. <b>&ldquo;맞춘 값을 얼마나 믿어도 되고, 공장이 움직이면 어떻게 따라가야 합니까?&rdquo;</b></p>
+<div class="concl" id="conc8"></div>
+<div class="cols3">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">사람</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>사전분포의 중심과 폭, 그 근거를 정합니다</li><li>세정액 교체·설비 개조 같은 공장 변경 정보를 Q 와 리셋의 근거로 줍니다</li><li>보정한 값과 결정을 승인하거나 반려합니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">규칙</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>보정값은 반드시 구간과 로그 기간과 함께 보고합니다</li><li>능선이 보이면(두 값의 상관이 큼) 사후 평균 하나를 보고하지 않고 따로 잽니다</li><li>공장 변경 사건이 기록되면 칼만 추정을 그날 리셋합니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">에이전트</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>매일 같은 정의의 요약 지표를 뽑고 칼만 추정을 갱신합니다</li><li>보정 이력과 구간 폭을 기록하고 폭이 커지면 알립니다</li><li>파라미터 보정 기록지의 초안을 씁니다(사실 목록 방식, 0411)</li></ul></div>
+</div>
+<p><b>0603 으로 가는 다리.</b> 이 실험실은 세정 시간이라는 상태를 추정했습니다. 추정한 상태로 공정 자체를 한 턴마다 보정해 되먹임하는 가장 단순한 닫힌 고리가 런투런 제어이고, 다음 실험실의 주제입니다. 그때도 칼만 이득과 EWMA 의 λ 는 같은 자리에서 다시 나옵니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>4절의 결정 손해 차를 한 달(30일)로 환산합니다. 한 턴은 챔버 한 곳이 마스크 한 장으로 만드는 유리 <span data-v="nturn"></span>장이라 턴 수로도 바꿉니다. 비용 가정 k·로그 기간·사전 폭은 4절의 값을 씁니다. 움직이는 공장(S18)은 값마다 실제 결과표를 따로 만들지 않아 결정 손해는 재지 않았고, 세정 시간의 추적 오차(분)로 갈음합니다. 그 선택 때문에 아래 장수 환산은 S17 공장에만 해당합니다.</p>
+<div class="lab">
+  <div class="labtitle">결정 손해의 월 환산 (k·로그 기간·사전 폭은 4절의 값)</div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table class="mt num" id="tab9"></table></div>
+  <div class="concl" id="conc9"></div>
+</div>
+<p class="note">손해가 0 이면 환산도 0 입니다. 회사에서는 같은 식에 유리 한 장의 생산 손실 단가와 세정기 한 대의 실제 운영비를 넣어 금액으로 적습니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>pandas</code>·<code>numpy</code> 만 씁니다. 입력은 아래 CSV 아홉 개이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에는 시뮬레이터가 없을 수 있으므로 트윈 시드 묶음의 지표 표(<code>s17_fine_grid.csv</code> 같은 꼴)만 있으면 되도록 짰습니다.</p>
+<div class="row"><a class="btn" href="../data/csv/s17_fine_grid.csv" download>s17_fine_grid.csv</a><a class="btn" href="../data/csv/s17_calib_logs.csv" download>s17_calib_logs.csv</a><a class="btn" href="../data/csv/s17_fine_policy.csv" download>s17_fine_policy.csv</a><a class="btn" href="../data/csv/s17_policy_table.csv" download>s17_policy_table.csv</a><a class="btn" href="../data/csv/s17_seed_summary.csv" download>s17_seed_summary.csv</a><a class="btn" href="../data/csv/s17_ridge_grid.csv" download>s17_ridge_grid.csv</a><a class="btn" href="../data/csv/s18_chunk_grid.csv" download>s18_chunk_grid.csv</a><a class="btn" href="../data/csv/s18_daily.csv" download>s18_daily.csv</a><a class="btn" href="../data/csv/s18_events.csv" download>s18_events.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 에뮬레이터 격자 밖의 값을 사후로 말하지 마십시오(구간이 격자 끝에 닿으면 격자를 넓혀 다시 만듭니다). 능선이 보이면(두 값의 상관이 큼) 사후 평균 하나를 보고하지 마십시오. 공장 변경을 모른 채 Q 를 아주 작게 두지 마십시오(교체 뒤 오래 따라오지 못합니다). 포함률(7절)을 같은 방법으로 확인하지 않은 채 구간에 95% 라는 이름을 붙이지 마십시오. 보정에 쓴 로그와 결정 손해를 재는 로그를 같은 것으로 쓰지 마십시오.</p>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+
+# ---- 가정·설정: 회사 값으로 바꿀 곳 --------------------------------------------------
+LOG_SEED = 218         # 이 가상 공장의 로그 시드(회사에서는 로그 한 벌의 지표 값을 직접 넣음)
+LOG_DAYS = 60          # 보정에 쓸 실제 로그 기간(일)
+PRIOR = (180, 30)      # 사전분포: 지금 믿는 세정 시간과 그 폭(분). None 이면 평평
+COST = 500             # 세정기 한 대의 하루 운영비(유리 장수로 환산, 가정)
+HORIZON = 60           # 결정 표의 Loss 가 재어진 기간(일)
+NB = 3                 # 공분산을 합치는 이웃 칸(양쪽 NB 칸)
+KEYS = ["q", "L"]      # 우도에 쓰는 지표: 세정 대기열 평균, Loss 총 장수
+SERIES, Q_SD, R_SCALE = 613, 2.0, 1.0   # 움직이는 공장: 계열, 하루에 움직이는 크기(분), 관측 잡음 배율
+
+def emulator_table(grid_runs, keys=KEYS, nb=NB):
+    """칸(세정 시간 후보)마다 트윈 시드 묶음의 ln(x+1) 평균과, 이웃 칸을 합친 예측 공분산."""
+    cells = np.array(sorted(grid_runs["clean"].unique()), float)
+    X = [np.log(grid_runs[grid_runs["clean"] == c][keys].to_numpy(float) + 1) for c in cells]
+    mu = np.array([x.mean(0) for x in X])
+    n, cov = len(X[0]), []
+    for i in range(len(cells)):
+        lo, hi = max(0, i - nb), min(len(cells) - 1, i + nb)
+        res = np.vstack([X[a] - mu[a] for a in range(lo, hi + 1)])
+        cov.append(res.T @ res / (len(res) - (hi - lo + 1)) * (1 + 1 / n))
+    return {"cells": cells, "mu": mu, "cov": np.array(cov)}
+
+def grid_posterior(obs, emu, prior=None):
+    """사후 ∝ 우도 × 사전. 우도 = 로그 지표가 칸의 에뮬레이터 평균에서 얼마나 떨어졌는가(정규)."""
+    y = np.log(np.asarray(obs, float) + 1)
+    ll = np.array([-0.5 * (y - m) @ np.linalg.solve(S, y - m) - 0.5 * np.linalg.slogdet(S)[1] for m, S in zip(emu["mu"], emu["cov"])])
+    if prior is not None:
+        ll = ll - 0.5 * ((emu["cells"] - prior[0]) / prior[1]) ** 2
+    p = np.exp(ll - ll.max())
+    return p / p.sum()
+
+def credible_interval(post, cells, level=0.95):
+    """가운데 level 몫이 들어 있는 구간(칸 안에서는 직선으로 이은 누적분포)."""
+    step, cum, out = cells[1] - cells[0], np.cumsum(post), []
+    for target in ((1 - level) / 2, 1 - (1 - level) / 2):
+        i = int(np.argmax(cum &gt;= target - 1e-15))
+        out.append(float(cells[i] - step / 2 + step * (target - (cum[i] - post[i])) / post[i]))
+    return out
+
+def policy_table(pol):
+    """결정 표: 세정 시간 격자 × 운전 대수의 하루 Loss(트윈 시드 평균)."""
+    return pol.groupby(["clean", "cap"])["loss"].mean().unstack() / HORIZON
+
+def posterior_decision(post, cells, tb, cost):
+    """사후 전체에 걸친 기대 총 비용이 가장 작은 운전 대수. 세정 시간 격자 사이는 직선으로 잇는다."""
+    nodes, tot = tb.index.to_numpy(float), {}
+    for cap in tb.columns:
+        tot[cap] = float((post * np.interp(cells, nodes, tb[cap].to_numpy())).sum()) + cost * cap
+    best = None
+    for cap in tb.columns:
+        if best is None or tot[cap] &lt; tot[best] - 1e-9:
+            best = cap
+    return int(best)
+
+def real_regret(real_pol, choice, cost):
+    """결정을 실제에 썼을 때, 실제에서 가장 좋았을 결정보다 더 잃는 몫(장/일)."""
+    c = real_pol.groupby("cap")["loss"].mean() / HORIZON + cost * real_pol["cap"].drop_duplicates().sort_values().to_numpy()
+    best = int(c.idxmin())
+    return best, float(c[choice] - c[best])
+
+def kalman_track(z, R, Q, x0, P0, resets=()):
+    """1차원 칼만 필터(상태 = 세정 시간, 하루에 Q 만큼 랜덤하게 움직임). resets = 교체를 아는 날."""
+    x, P, K, xs, Ps = [], [], [], x0, P0
+    for t in range(len(z)):
+        if t == 0 or t in resets:
+            xs, Ps, k = z[t], R[t], 1.0
+        else:
+            Pm = Ps + Q; k = Pm / (Pm + R[t]); xs = xs + k * (z[t] - xs); Ps = (1 - k) * Pm
+        x.append(xs); P.append(Ps); K.append(k)
+    return np.array(x), np.array(P), np.array(K)
+
+def ridge_posterior(grid, obs, keys, dc=0.5, dt=1.0):
+    """세정 시간 × 한 턴 길이의 사후(평평한 사전). 에뮬레이터 평균은 격자 사이를 직선으로 잇는다."""
+    C, T = np.array(sorted(grid["clean"].unique()), float), np.array(sorted(grid["tt"].unique()), float)
+    X = {(i, j): np.log(grid[(grid["clean"] == c) &amp; (grid["tt"] == t)][keys].to_numpy(float) + 1) for i, c in enumerate(C) for j, t in enumerate(T)}
+    mu = {k: v.mean(0) for k, v in X.items()}
+    n, inv, ld = len(X[(0, 0)]), {}, {}
+    for i in range(len(C)):
+        for j in range(len(T)):
+            nb = [(a, b) for a in range(max(0, i - 1), min(len(C) - 1, i + 1) + 1) for b in range(max(0, j - 1), min(len(T) - 1, j + 1) + 1)]
+            res = np.vstack([X[k] - mu[k] for k in nb])
+            S = res.T @ res / (len(res) - len(nb)) * (1 + 1 / n)
+            inv[(i, j)], ld[(i, j)] = np.linalg.inv(S), np.linalg.slogdet(S)[1]
+    fc, ft, y = np.arange(C[0], C[-1] + 1e-9, dc), np.arange(T[0], T[-1] + 1e-9, dt), np.log(np.asarray(obs, float) + 1)
+    ll = np.zeros((len(fc), len(ft)))
+    for a, c in enumerate(fc):
+        u = min(max((c - C[0]) / 5, 0), len(C) - 1 - 1e-9); i = int(u); u -= i
+        for b, t in enumerate(ft):
+            v = min(max((t - T[0]) / 10, 0), len(T) - 1 - 1e-9); j = int(v); v -= j
+            m = mu[(i, j)] * (1 - u) * (1 - v) + mu[(i + 1, j)] * u * (1 - v) + mu[(i, j + 1)] * (1 - u) * v + mu[(i + 1, j + 1)] * u * v
+            k = (min(int((c - C[0]) / 5 + 0.5), len(C) - 1), min(int((t - T[0]) / 10 + 0.5), len(T) - 1))   # 가장 가까운 격자 칸(반올림)
+            ll[a, b] = -0.5 * (y - m) @ inv[k] @ (y - m) - 0.5 * ld[k]
+    p = np.exp(ll - ll.max())
+    return fc, ft, p / p.sum()
+
+if __name__ == "__main__":
+    fine, logs = pd.read_csv("s17_fine_grid.csv"), pd.read_csv("s17_calib_logs.csv")
+    pol, real, summ = pd.read_csv("s17_fine_policy.csv"), pd.read_csv("s17_policy_table.csv"), pd.read_csv("s17_seed_summary.csv")
+    ridge, chunk, daily = pd.read_csv("s17_ridge_grid.csv"), pd.read_csv("s18_chunk_grid.csv"), pd.read_csv("s18_daily.csv")
+    resets = [d - 1 for d in pd.read_csv("s18_events.csv")["day"]]
+    row = lambda d: logs[(logs["seed"] == LOG_SEED) &amp; (logs["days"] == d)].iloc[0]
+
+    lg = row(LOG_DAYS)
+    print("실제 로그 시드 %d · %d일: 세정 대기열 평균 %.2f대 · Loss 총 %s장" % (LOG_SEED, LOG_DAYS, lg["q"], format(int(round(lg["L"])), ",")))
+    emus = {d: emulator_table(fine[fine["days"] == d]) for d in (7, 14, 30, 60)}
+    e = emus[LOG_DAYS]
+    print("에뮬레이터: 세정 시간 %d칸(%d~%d분, 2분 간격) · 트윈 시드 %d개 · 지표 %d개(세정 대기열·Loss)" % (len(e["cells"]), e["cells"][0], e["cells"][-1], fine["seed"].nunique(), len(KEYS)))
+    post = grid_posterior(lg[KEYS], e, PRIOR)
+    lo, hi = credible_interval(post, e["cells"])
+    print("사후(사전 %d±%d분, 로그 %d일): 평균 %.1f분 · 최빈 %d분 · 95%% 신용구간 [%.1f, %.1f] (폭 %.1f분)" % (PRIOR[0], PRIOR[1], LOG_DAYS, (post * e["cells"]).sum(), e["cells"][post.argmax()], lo, hi, hi - lo))
+    w = []
+    for d in (7, 14, 30, 60):
+        p = grid_posterior(row(d)[KEYS], emus[d], PRIOR); a, b = credible_interval(p, emus[d]["cells"]); w.append("%d일 %.1f" % (d, b - a))
+    print("로그 기간별 95% 신용구간 폭(분): " + " · ".join(w))
+    w = []
+    for sd in (2, 10, 30, None):
+        p = grid_posterior(lg[KEYS], e, None if sd is None else (PRIOR[0], sd)); w.append("%s %.1f" % ("평평" if sd is None else "폭 %d" % sd, (p * e["cells"]).sum()))
+    print("사전 폭에 따른 사후 평균(분, 로그 %d일): " % LOG_DAYS + " · ".join(w))
+
+    tb = policy_table(pol)
+    c_post = posterior_decision(post, e["cells"], tb, COST)
+    c_mean = posterior_decision(np.eye(len(post))[np.abs(e["cells"] - (post * e["cells"]).sum()).argmin()], e["cells"], tb, COST)
+    s0 = summ[(summ["seed"] == LOG_SEED) &amp; (summ["days"] == LOG_DAYS)].iloc[0]
+    best, r_post = real_regret(real[real["side"] == "real"], c_post, COST)
+    print("비용 가정 %d장/일: 0601 격자 권고 %d대 · 사후 기대 비용 권고 %d대 · 실제 결과로 가장 좋았던 %d대" % (COST, s0["cap_cal"], c_post, best))
+    print("결정 손해(장/일): 0601 격자 %.0f · 사후 기대 비용 %.0f" % (s0["regret_cal"], r_post))
+
+    for name, keys in (("지표 1개", ["q"]), ("지표 3개", ["q", "L", "out"]), ("지표 4개", ["q", "L", "out", "tr"])):
+        fc, ft, p = ridge_posterior(ridge, lg[keys], keys)
+        mc, mt = p.sum(1), p.sum(0)
+        (c0, c1), (t0, t1) = credible_interval(mc, fc), credible_interval(mt, ft)
+        mC, mT = (mc * fc).sum(), (mt * ft).sum()
+        cor = (p * np.outer(fc - mC, ft - mT)).sum() / np.sqrt((mc * (fc - mC) ** 2).sum() * (mt * (ft - mT) ** 2).sum())
+        area = int((np.cumsum(np.sort(p.ravel())[::-1]) &lt; 0.95 - 1e-12).sum() + 1)
+        print("능선(%s): 세정 시간 [%.1f, %.1f] · 한 턴 길이 [%.1f, %.1f] · 상관 %.2f · 95%% 영역 %d칸" % (name, c0, c1, t0, t1, cor, area))
+
+    ec = emulator_table(chunk)
+    d = daily[daily["series"] == SERIES].sort_values("day")
+    zs, Rs = [], []
+    for _, r in d.iterrows():
+        p = grid_posterior(r[KEYS], ec); m = (p * ec["cells"]).sum(); zs.append(m); Rs.append((p * (ec["cells"] - m) ** 2).sum())
+    z, R = np.array(zs), np.array(Rs) * R_SCALE ** 2
+    x, P, K = kalman_track(z, R, Q_SD ** 2, z[0], R[0], resets)
+    ma = np.array([z[max(0, t - 6):t + 1].mean() for t in range(len(z))])
+    fx = np.full(len(z), np.sum(z[:14] / R[:14]) / np.sum(1 / R[:14]))
+    pe = lambda est: float(np.sqrt(np.mean((z[14:] - est[13:-1]) ** 2)))
+    Pm = (Q_SD ** 2 + np.sqrt(Q_SD ** 4 + 4 * Q_SD ** 2 * np.median(R))) / 2
+    print("움직이는 공장 계열 %d: 마지막 날 칼만 추정 %.1f분(±%.1f) · 관측 %.1f분" % (SERIES, x[-1], 1.96 * np.sqrt(P[-1]), z[-1]))
+    print("칼만 이득: 정상 상태 %.2f (EWMA 의 λ 와 같은 자리)" % (Pm / (Pm + np.median(R))))
+    print("내일 관측을 어제 추정으로 맞힌 오차(분): 칼만 %.2f · 7일 이동 평균 %.2f · 처음 14일 고정 %.2f" % (pe(x), pe(ma), pe(fx)))</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 아홉 개와 같은 폴더에서 <code>python3 lab0602.py</code> 로 돌렸고, 위 3~6절의 숫자와 같은 값이 나옵니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">실제 로그 시드 218 · 60일: 세정 대기열 평균 28.19대 · Loss 총 420,914장
+에뮬레이터: 세정 시간 41칸(160~240분, 2분 간격) · 트윈 시드 8개 · 지표 2개(세정 대기열·Loss)
+사후(사전 180±30분, 로그 60일): 평균 196.0분 · 최빈 196분 · 95% 신용구간 [193.4, 198.6] (폭 5.2분)
+로그 기간별 95% 신용구간 폭(분): 7일 12.4 · 14일 7.9 · 30일 5.6 · 60일 5.2
+사전 폭에 따른 사후 평균(분, 로그 60일): 폭 2 193.0 · 폭 10 195.9 · 폭 30 196.0 · 평평 196.0
+비용 가정 500장/일: 0601 격자 권고 29대 · 사후 기대 비용 권고 28대 · 실제 결과로 가장 좋았던 28대
+결정 손해(장/일): 0601 격자 92 · 사후 기대 비용 0
+능선(지표 1개): 세정 시간 [174.6, 221.0] · 한 턴 길이 [261.2, 338.7] · 상관 0.98 · 95% 영역 1449칸
+능선(지표 3개): 세정 시간 [194.4, 217.7] · 한 턴 길이 [297.8, 331.9] · 상관 1.00 · 95% 영역 112칸
+능선(지표 4개): 세정 시간 [195.5, 197.0] · 한 턴 길이 [298.4, 302.5] · 상관 0.27 · 95% 영역 14칸
+움직이는 공장 계열 613: 마지막 날 칼만 추정 198.6분(±5.1) · 관측 198.0분
+칼만 이득: 정상 상태 0.45 (EWMA 의 λ 와 같은 자리)
+내일 관측을 어제 추정으로 맞힌 오차(분): 칼만 5.56 · 7일 이동 평균 7.22 · 처음 14일 고정 10.88</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>파라미터 보정 기록지</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 공장으로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>보정값을 트윈에 반영하기 전에 구간과 로그 기간과 사전의 근거와 능선 점검과 다음 보정일을 확인하고 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>보정 이력</b> — 날짜·파라미터 값·95% 구간·쓴 로그 기간·사전. 보정할 때마다 한 줄씩 늘립니다.</li>
+      <li><b>공장 변경 사건</b> — 세정액 교체·설비 개조·PM 주기 변경의 날짜. 칼만 필터의 리셋과 Q 를 정하는 근거입니다. 없으면 Q 를 정할 근거가 없습니다.</li>
+      <li><b>매일의 요약 지표</b> — 같은 정의(기간·상태 제외 규칙)로 매일 잰 값. 정의가 날마다 달라지면 칼만 필터의 관측이 뒤섞입니다.</li>
+      <li><b>결정 기록</b> — 0601 에서 이어서, 결정마다 대안·고른 이유·고를 확률·결과를 같은 키로 둡니다.</li>
+    </ul>
+    <p class="note" style="margin:.5rem 0 0">이 기록이 없으면 칼만 필터의 Q 와 리셋을 정할 근거도, 0604 의 평가도 없습니다. 회사 기록은 회사 안에만 둡니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0601 의 <code>twin_gap</code> 에서 승인 대기열까지 부르는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+
+<!-- ===================== 12 ===================== -->
+<h2><span class="no">12</span>정답 열기</h2>
+<p>여기까지 실제 공장의 세정 시간과 S18 의 세정 시간 식은 숨겨져 있었습니다. 열기 전에 3절의 사후 구간이 숨은 값을 덮는지, 칼만 추정이 실제를 얼마나 따라갔는지 가늠해 보십시오.</p>
+<div class="lab">
+  <div class="row"><button class="btn" id="btnReveal" type="button" aria-expanded="false">정답 열기</button></div>
+  <div class="readout" id="roAns" hidden></div>
+  <div class="tbwrap"><table class="mt num" id="tabAns" hidden></table></div>
+  <div class="tbwrap"><table class="mt num" id="tabAns2" hidden></table></div>
+  <div class="concl" id="concAns" hidden></div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0601-closed-loop-blueprint.html">← 이전: 닫힌 고리 청사진</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/loop06.js"></script>
+<script src="../data/loop06_tables.js"></script>
+<script src="../data/calib06_tables.js"></script>
+<script src="../data/calib06.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var C=Calib06,L=Loop06,MS=MfgSim,T=window.CALIB06_TABLES,T0=window.LOOP06_TABLES;
+var DEFC=L.DEFAULT_COST,CAPS=L.CAPS,CAP0=L.CAP0,V0=L.V0_CLEAN,LOGS=L.REAL_LOG_SEEDS,DW=C.WINDOWS,FINE=C.FINE,S18=C.S18;
+var PSD=[2,5,10,30,null];                                   /* 사전 폭(분), null = 평평 */
+var KS=[];for(var kk=0;kk<=3000;kk+=100)KS.push(kk);
+var V={},CACHE={},REV=false;
+function $(id){return document.getElementById(id);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fm(x){return x!=null&&isFinite(x)?String(Math.floor(Math.abs(x)+0.5+1e-6)*(x<0?-1:1)).replace(/\B(?=(\d{3})+(?!\d))/g,',').replace('-','−'):'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1).replace('-','−'):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2).replace('-','−'):'—';}
+function sg(x,d){d=d==null?1:d;var r=Math.abs(x).toFixed(d);return (+r===0?'':(x>=0?'+':'−'))+r;}
+function f3(x){return x!=null&&isFinite(x)?x.toFixed(3).replace('-','−'):'—';}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function q(a,p){return L.quantile(a,p);}
+function mean(a){return C.mean(a);}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?(typeof cls[i]==='function'?cls[i](c):cls[i]):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function lc(){return 'l';}
+function niceStep(range,n){var raw=range/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;return (r<=1?1:r<=2?2:r<=5?5:10)*mag;}
+function ticks(lo,hi,n){var st=niceStep(hi-lo||1,n),a=Math.ceil(lo/st-1e-9)*st,o=[];for(var v=a;v<=hi+1e-9;v+=st)o.push(Math.abs(v)<1e-9?0:v);return o;}
+function fmt(v){return Math.abs(v)>=100?String(Math.round(v)):(Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):v.toFixed(Math.abs(v)<1?2:1));}
+function hex(c){c=c.trim();if(c[0]==='#'){if(c.length===4)c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];return [parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)];}var m=c.match(/\d+/g);return m?[+m[0],+m[1],+m[2]]:[0,0,0];}
+
+/* ---------- 그리기 도구 ---------- */
+function drawXY(cv,series,o){
+  var c=setup(cv,o.h||230),x=c.x,W=c.w,H=c.h,ml=o.ml||52,mr=22,mt=12,mb=36,pw=W-ml-mr,ph=H-mt-mb;
+  var soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var xl=o.xlo,xh=o.xhi,yl=o.ylo!=null?o.ylo:Infinity,yh=o.yhi!=null?o.yhi:-Infinity;
+  series.forEach(function(s){s.y.forEach(function(v){if(o.ylo==null&&v<yl)yl=v;if(o.yhi==null&&v>yh)yh=v;});if(s.band)s.band.hi.forEach(function(v){if(o.yhi==null&&v>yh)yh=v;});if(s.band)s.band.lo.forEach(function(v){if(o.ylo==null&&v<yl)yl=v;});});
+  if(o.ylo==null&&yl>0&&!o.nozero)yl=0;if(yh<=yl)yh=yl+1;if(o.yhi==null)yh+=(yh-yl)*0.06;
+  function X_(v){return ml+pw*(v-xl)/(xh-xl);}function Y_(v){return mt+ph*(1-(v-yl)/(yh-yl));}
+  (o.bands||[]).forEach(function(b){x.fillStyle=b.col;x.globalAlpha=b.a||0.14;x.fillRect(X_(b.x0),mt,Math.max(1,X_(b.x1)-X_(b.x0)),ph);x.globalAlpha=1;});
+  ticks(yl,yh,4).forEach(function(v){x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,Y_(v));x.lineTo(ml+pw,Y_(v));x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(fmt(v*(o.yscale||1))+(o.ysuf||''),ml-6,Y_(v));});
+  (o.xticks||[]).forEach(function(v){x.fillStyle=soft;x.textAlign='center';x.fillText(String(v),X_(v),mt+ph+14);});
+  if(o.xlab){x.fillStyle=soft;x.textAlign='center';x.fillText(o.xlab,ml+pw/2,mt+ph+28);}
+  (o.vlines||[]).forEach(function(v){x.setLineDash(v.dash===false?[]:[5,4]);x.strokeStyle=v.col;x.lineWidth=v.lw||2;x.beginPath();x.moveTo(X_(v.x),mt);x.lineTo(X_(v.x),mt+ph);x.stroke();x.setLineDash([]);});
+  x.save();x.beginPath();x.rect(ml-2,mt-4,pw+4,ph+8);x.clip();
+  series.forEach(function(s){
+    if(s.band){x.globalAlpha=s.band.a||0.16;x.fillStyle=s.band.col||s.col;x.beginPath();s.x.forEach(function(v,i){var px=X_(v),py=Y_(s.band.hi[i]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});for(var i=s.x.length-1;i>=0;i--)x.lineTo(X_(s.x[i]),Y_(s.band.lo[i]));x.closePath();x.fill();x.globalAlpha=1;}
+    x.globalAlpha=s.alpha==null?1:s.alpha;x.strokeStyle=s.col;x.lineWidth=s.lw||2;
+    if(!s.noline){x.beginPath();s.x.forEach(function(v,i){var px=X_(v),py=Y_(s.y[i]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();}
+    if(s.dots){x.fillStyle=s.col;s.x.forEach(function(v,i){x.beginPath();x.arc(X_(v),Y_(s.y[i]),s.dr||3.5,0,6.2832);x.fill();});}
+    (s.marks||[]).forEach(function(m){x.fillStyle=m.col||s.col;x.beginPath();x.arc(X_(m.x),Y_(m.y),m.r||6,0,6.2832);x.fill();x.strokeStyle=css('--card');x.lineWidth=2;x.stroke();});
+    x.globalAlpha=1;});
+  x.restore();
+  return {X_:X_,Y_:Y_,x:x,pw:pw,ph:ph,ml:ml,mt:mt};
+}
+
+/* ---------- 계산 묶음 ---------- */
+var EMU={},FM={};DW.forEach(function(d){EMU[d]=C.emuFine(T,d);FM[d]=C.fineMeans(T,d);});
+var TB=C.polTable(T.pol);
+var DEF={wi:3,pi:3,cost:DEFC,rs:0,ri:2,rst:true,em:'q'};
+var EMUC=C.emuChunk(T.chunk);
+var SER={};S18.TUNE.concat(S18.EVAL).forEach(function(se){SER[se]=C.seriesOf(T,EMUC,se);});
+var TQ=C.tuneQ(S18.TUNE.map(function(se){return SER[se];}));
+DEF.qi=S18.QS.indexOf(TQ.q);
+var ST={wi:DEF.wi,pi:DEF.pi,cost:DEF.cost,rs:DEF.rs,qi:DEF.qi,ri:DEF.ri,rst:DEF.rst,em:DEF.em};
+function DAYN(){return DW[ST.wi];}
+function P1(seed,d,pi){var k='p'+seed+'|'+d+'|'+pi;return CACHE[k]||(CACHE[k]=C.post1(T,EMU,seed,d,PSD[pi]));}
+function DEC(seed,d,cost,pi){var k='d'+seed+'|'+d+'|'+cost+'|'+pi;return CACHE[k]||(CACHE[k]=C.decide(T0,T,EMU,TB,seed,d,cost,PSD[pi],FM[d]));}
+function GF(seed,d){var k='g'+seed+'|'+d;return CACHE[k]||(CACHE[k]=C.gapFine(FM[d],C.logRow(T.logs,seed,d)));}
+function LOOP(seed,d,cost){var k='l'+seed+'|'+d+'|'+cost;return CACHE[k]||(CACHE[k]=L.loopFor(T0,seed,d,cost));}
+var INFO=LOGS.map(function(s){return {seed:s,p60:P1(s,60,DEF.pi),p7:P1(s,7,DEF.pi),dec:DEC(s,60,DEFC,DEF.pi)};});
+var REPL=C.pickRep(INFO,[function(i){return i.p60.mean;},function(i){return i.p60.width;},function(i){return i.p7.width;},function(i){return i.dec.regPost;},function(i){return i.dec.regGrid;}]);
+var SEED=REPL.item.seed;
+function TRK(se,qi,ri){var k='t'+se+'|'+qi+'|'+ri;return CACHE[k]||(CACHE[k]=C.trackAll(SER[se],S18.QS[qi],S18.RS[ri]));}
+var ITEMS=S18.EVAL.map(function(se){return {series:se,r:TRK(se,DEF.qi,DEF.ri)};});
+var REPS=C.pickRep(ITEMS,[function(i){return i.r.stat.kalmanReset.rmse;},function(i){return i.r.stat.kalman.rmse;},function(i){return i.r.stat.fixed.rmse;},function(i){return i.r.stat.ma.rmse;},function(i){return i.r.stat.kalmanReset.rec;}]);
+var SERIES=REPS.item.series;
+var E2={};function emu2(k){return E2[k]||(E2[k]=C.buildEmu2(T.ridge,C.RIDGE_SETS[k],1));}
+var RSETS=['one','three','four'];
+var PO2={};function po2(k,seed){var kk=k+'|'+seed;return PO2[kk]||(PO2[kk]=C.post2(emu2(k),C.logRow(T.logs,seed,60)));}
+
+/* ---------- 본문 속 숫자 ---------- */
+function buildV(){
+  var lp=LOOP(SEED,60,DEFC),rr=[];S18.EVAL.forEach(function(se){SER[se].R.forEach(function(v){rr.push(v);});});
+  V.days=String(L.DAYS);V.cap0=String(CAP0);V.v0=String(V0);V.seed=String(SEED);V.chat0601=String(lp.chat);V.cap0601=String(lp.cap1);
+  V.ncell=String(FINE.length);V.lo=String(FINE[0]);V.hi=String(FINE[FINE.length-1]);V.nemu=String(C.EMU_SEEDS.length);V.plo=String(C.POL_NODES[0]);V.phi=String(C.POL_NODES[C.POL_NODES.length-1]);
+  V.rep1=String(S18.REPLACE[0]+1);V.rep2=String(S18.REPLACE[1]+1);V.nchunk=String(S18.CHUNK_SEEDS.length);V.rsd=f1(Math.sqrt(q(rr,.5)));V.ncov=String(C.COVER_SEEDS.length);V.nturn=String(MS.CFG.N_TURN);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');e.textContent=V[k]!=null?V[k]:'?';});
+}
+function pdesc(pi){return PSD[pi]==null?'평평한 사전':'180분 중심 정규, 폭 '+PSD[pi]+'분';}
+function movedWin(){return ST.wi!==DEF.wi;}
+function syncCtl(){
+  ['sDays1','sDays2','sDays3','sDays4'].forEach(function(id){$(id).value=ST.wi;$(id+'o').textContent=DAYN()+'일';});
+  ['sPr3','sPr4'].forEach(function(id){$(id).value=ST.pi;$(id+'o').textContent=PSD[ST.pi]==null?'평평':PSD[ST.pi]+'분';});
+  $('sCost4').value=ST.cost;$('sCost4o').textContent=fm(ST.cost)+' 장/일';
+  $('sQ').value=ST.qi;$('sQo').textContent=S18.QS[ST.qi]+' 분/일';$('sR').value=ST.ri;$('sRo').textContent='× '+S18.RS[ST.ri];$('ckReset').checked=ST.rst;
+  var sd=ST.wi===DEF.wi?'지금 로그 기간은 기본값('+DW[DEF.wi]+'일, 가진 로그 전부)입니다.':'지금 로그 기간은 기본값('+DW[DEF.wi]+'일)에서 '+DAYN()+'일로 줄여 본 것입니다. 로그가 짧으면 구간이 넓어지는 것을 보기 위한 조작이며 되돌리기 단추로 돌아갑니다.';
+  [$('stDays1'),$('stDays2')].forEach(function(e){e.textContent=sd;e.className='state'+(ST.wi===DEF.wi?'':' moved');});
+  var s3=(ST.pi===DEF.pi?'지금 사전은 기본값(180분 중심 정규, 폭 '+PSD[DEF.pi]+'분)입니다. 판 0 의 값이 크게 틀렸을 수 있다고 인정한 믿음입니다.':'지금 사전은 기본값에서 옮겨 놓은 가정('+pdesc(ST.pi)+')입니다. ')+' '+sd;
+  $('stPost3').textContent=s3;$('stPost3').className='state'+(ST.pi===DEF.pi&&ST.wi===DEF.wi?'':' moved');
+  var s4=(ST.cost===DEF.cost?'지금 k 는 기본값('+fm(DEF.cost)+' 장/일)입니다.':'지금 k 는 기본값에서 '+fm(ST.cost)+' 장/일로 옮겨 놓은 가정입니다.')+' 로그 기간 '+DAYN()+'일'+(ST.wi===DEF.wi?'(기본값)':'(기본값 아님)')+' · 사전 '+pdesc(ST.pi)+(ST.pi===DEF.pi?'(기본값)':'(기본값 아님)')+'. 되돌리기 단추로 모두 기본값으로 돌아갑니다.';
+  $('stDec4').textContent=s4;$('stDec4').className='state'+(ST.cost===DEF.cost&&ST.wi===DEF.wi&&ST.pi===DEF.pi?'':' moved');
+  var s5=ST.rs===0?'지금은 기본값(지표 1개: 세정 대기열 평균)입니다. 이 로그의 60일 지표를 씁니다.':'지금은 지표를 '+['1','3','4'][ST.rs]+'개로 늘려 본 상태입니다. 되돌리기 단추로 지표 1개로 돌아갑니다.';
+  $('stRidge').textContent=s5;$('stRidge').className='state'+(ST.rs===0?'':' moved');
+  ['rsOne','rsThree','rsFour'].forEach(function(id,i){$(id).setAttribute('aria-pressed',ST.rs===i?'true':'false');});
+  $('mQ').setAttribute('aria-pressed',ST.em==='q'?'true':'false');$('mL').setAttribute('aria-pressed',ST.em==='L'?'true':'false');
+  var mk=ST.qi===DEF.qi&&ST.ri===DEF.ri&&ST.rst===DEF.rst;
+  $('stKal').textContent=mk?'지금 Q 는 기본값('+S18.QS[DEF.qi]+' 분/일)이고 R 의 배율은 기본값(× '+S18.RS[DEF.ri]+')이며 교체 알림은 켜져 있습니다. 기본 Q 는 평가에 쓰지 않은 계열 '+S18.TUNE.length+'개에서 어제 추정이 오늘 관측을 가장 잘 맞힌 값이며, 숨은 값 없이 정한 것입니다.':'Q·R·교체 알림이 기본값에서 옮겨져 있습니다(기본값은 Q '+S18.QS[DEF.qi]+' 분/일, R × '+S18.RS[DEF.ri]+', 교체 알림 켬). 되돌리기 단추로 돌아갑니다.';
+  $('stKal').className='state'+(mk?'':' moved');
+}
+
+/* ---------- 1절 ---------- */
+function upd1(){
+  var d=DAYN(),gf=GF(SEED,d),ser=[],mins=[];
+  LOGS.forEach(function(s){var g=GF(s,d);mins.push(g.best);if(s!==SEED)ser.push({x:FINE,y:g.curve.map(function(p){return p.gap;}),col:css('--grey'),lw:1.5,alpha:0.55});});
+  var mine={x:FINE,y:gf.curve.map(function(p){return p.gap;}),col:css('--accent'),lw:3,marks:[{x:gf.best,y:gf.gapMin,r:7}]};
+  var ymax=0;ser.concat([mine]).forEach(function(s){s.y.forEach(function(v){if(v>ymax)ymax=v;});});
+  drawXY($('cvG1'),ser.concat([mine]),{h:250,xlo:FINE[0],xhi:FINE[FINE.length-1],ylo:0,yhi:Math.min(ymax,1.4)*1.02,xticks:[160,170,180,190,200,210,220,230,240],xlab:'세정 시간 후보 θ (분)'});
+  var l0=LOOP(SEED,d,DEFC);
+  $('ro1').innerHTML='<b>이 로그(앞 '+d+'일)의 gap 최소점은 '+gf.best+'분입니다.</b> gap 은 그때 '+f3(gf.gapMin)+'입니다. 0601 의 10분 격자에서는 '+l0.chat+'분이었습니다. 스무 개 로그의 2분 격자 최소점은 '+Math.min.apply(null,mins)+'~'+Math.max.apply(null,mins)+'분에 흩어집니다(10 / 50 / 90 % = '+f1(q(mins,.1))+' / '+f1(q(mins,.5))+' / '+f1(q(mins,.9))+'분).';
+  var rows=DW.map(function(dd){var m=LOGS.map(function(s){return GF(s,dd).best;});return [dd+'일',String(GF(SEED,dd).best)+'분',String(LOOP(SEED,dd,DEFC).chat)+'분',Math.min.apply(null,m)+' ~ '+Math.max.apply(null,m)+'분',f1(q(m,.1))+' / '+f1(q(m,.5))+' / '+f1(q(m,.9))];});
+  tbl('tab1',['로그 기간','이 로그의 2분 격자 최소점','이 로그의 10분 격자 최소점(0601)','스무 개 로그의 2분 격자 최소점 범위','10 / 50 / 90 %'],rows,[null,null,null,null,null]);
+}
+
+/* ---------- 2절 ---------- */
+function bandRange(emu,j,v){var a=[];FINE.forEach(function(c,i){var s=Math.sqrt(emu.cov[i][j][j]);if(v>=Math.exp(emu.mu[i][j]-1.96*s)-1&&v<=Math.exp(emu.mu[i][j]+1.96*s)-1)a.push(c);});return a.length?[Math.min.apply(null,a),Math.max.apply(null,a)]:null;}
+function upd2(){
+  var d=DAYN(),emu=EMU[d],j=ST.em==='q'?0:1,ob=C.logRow(T.logs,SEED,d),v=ob[ST.em];
+  var mu=emu.mu.map(function(r){return Math.exp(r[j])-1;}),lo=emu.mu.map(function(r,i){return Math.exp(r[j]-1.96*Math.sqrt(emu.cov[i][j][j]))-1;}),hi=emu.mu.map(function(r,i){return Math.exp(r[j]+1.96*Math.sqrt(emu.cov[i][j][j]))-1;});
+  drawXY($('cvEmu'),[{x:FINE,y:hi,col:css('--c10'),lw:1.5},{x:FINE,y:lo,col:css('--c10'),lw:1.5},{x:FINE,y:mu,col:css('--accent'),lw:3},{x:[FINE[0],FINE[FINE.length-1]],y:[v,v],col:css('--c9'),lw:2.5}],{h:240,xlo:FINE[0],xhi:FINE[FINE.length-1],ylo:0,ml:ST.em==='q'?52:64,xticks:[160,170,180,190,200,210,220,230,240],xlab:'세정 시간 후보 θ (분) — 세로: '+(ST.em==='q'?'세정 대기열 평균 (대)':'Loss 총 장수 (장)'),yscale:ST.em==='q'?1:0.001,ysuf:ST.em==='q'?'':'천'});
+  var rq=bandRange(emu,0,ob.q),rl=bandRange(emu,1,ob.L);
+  function rg(r){return r?r[0]+'~'+r[1]+'분':'없음';}
+  var both=(rq&&rl)?[Math.max(rq[0],rl[0]),Math.min(rq[1],rl[1])]:null;
+  $('ro2').innerHTML='<b>이 로그(앞 '+d+'일)의 값은 q '+f2(ob.q)+'대, L '+fm(ob.L)+'장입니다.</b> 띠 안에 드는 후보는 q 만 보면 '+rg(rq)+', L 만 보면 '+rg(rl)+'이고, 둘이 겹치는 곳은 '+(both&&both[0]<=both[1]?both[0]+'~'+both[1]+'분':'없음')+'입니다.';
+  var cells=[170,180,190,200,210,220],rows=cells.map(function(c){var i=FINE.indexOf(c),s0=Math.sqrt(emu.cov[i][0][0]),s1=Math.sqrt(emu.cov[i][1][1]),rho=emu.cov[i][0][1]/(s0*s1);
+    return [c+'분',f2(Math.exp(emu.mu[i][0])-1)+' ('+f2(Math.exp(emu.mu[i][0]-1.96*s0)-1)+' ~ '+f2(Math.exp(emu.mu[i][0]+1.96*s0)-1)+')',fm(Math.exp(emu.mu[i][1])-1)+' ('+fm(Math.exp(emu.mu[i][1]-1.96*s1)-1)+' ~ '+fm(Math.exp(emu.mu[i][1]+1.96*s1)-1)+')',f2(rho)];});
+  tbl('tab2',['후보 θ','q 평균 (띠)','L 평균 (띠)','q 와 L 의 상관(로그 척도)'],rows,[null,null,null,null]);
+}
+
+/* ---------- 3절 ---------- */
+function priorCurve(sd){var p=FINE.map(function(c){return sd?Math.exp(-0.5*Math.pow((c-V0)/sd,2)):1;}),s=0;p.forEach(function(v){s+=v;});return p.map(function(v){return v/s;});}
+function upd3(){
+  var d=DAYN(),p=P1(SEED,d,ST.pi),pf=P1(SEED,d,4),sd=PSD[ST.pi];
+  var ser=[{x:FINE,y:pf.post,col:css('--c10'),lw:2},{x:FINE,y:priorCurve(sd),col:css('--warn'),lw:2},{x:FINE,y:p.post,col:css('--accent'),lw:3,dots:true,dr:3}];
+  var ymax=0;ser.forEach(function(s){s.y.forEach(function(v){if(v>ymax)ymax=v;});});
+  drawXY($('cvPost'),ser,{h:250,xlo:FINE[0],xhi:FINE[FINE.length-1],ylo:0,yhi:ymax*1.1,ml:56,xticks:[160,170,180,190,200,210,220,230,240],xlab:'세정 시간 θ (분) — 세로: 칸 하나가 갖는 확률',yscale:100,ysuf:'%',bands:[{x0:p.lo,x1:p.hi,col:css('--good'),a:0.18}],vlines:[{x:p.mean,col:css('--accent'),dash:false,lw:1.5}]});
+  var lp=LOOP(SEED,d,DEFC);
+  $('ro3').innerHTML='<b>사후 평균 '+f1(p.mean)+'분 · 최빈 '+p.mode+'분 · 95% 신용구간 ['+f1(p.lo)+', '+f1(p.hi)+'] (폭 '+f1(p.width)+'분).</b> 사전은 '+pdesc(ST.pi)+'입니다. 평평한 사전이면 평균이 '+f1(pf.mean)+'분이므로 사전이 평균을 '+f1(Math.abs(p.mean-pf.mean))+'분 옮겼습니다. 0601 의 10분 격자 보정은 같은 로그에서 한 값('+lp.chat+'분)만 말했습니다.';
+  var rows=DW.map(function(dd){var a=P1(SEED,dd,ST.pi),b=P1(SEED,dd,4);return [dd+'일',f1(a.mean)+'분','['+f1(a.lo)+', '+f1(a.hi)+']',f1(a.width)+'분',f1(b.mean)+'분',f1(Math.abs(a.mean-b.mean))+'분'];});
+  tbl('tab3',['로그 기간','사후 평균','95% 신용구간','구간 폭','평평한 사전의 평균','사전이 옮긴 몫'],rows,[null,null,null,null,null,null]);
+  var r2=DW.map(function(dd){var ms=LOGS.map(function(s){return P1(s,dd,ST.pi).mean;}),ws=LOGS.map(function(s){return P1(s,dd,ST.pi).width;});return [dd+'일',f1(q(ms,.1))+' / '+f1(q(ms,.5))+' / '+f1(q(ms,.9)),f1(q(ws,.5)),f1(q(ws,.1))+' ~ '+f1(q(ws,.9))];});
+  tbl('tab3b',['로그 기간','사후 평균 10 / 50 / 90 %','구간 폭 중앙값 (분)','구간 폭 10 ~ 90 %'],r2,[null,null,null,null]);
+  var w7=P1(SEED,7,ST.pi).width,w60=P1(SEED,60,ST.pi).width,s7=Math.abs(P1(SEED,7,ST.pi).mean-P1(SEED,7,4).mean),s60=Math.abs(P1(SEED,60,ST.pi).mean-P1(SEED,60,4).mean);
+  $('conc3').innerHTML='<b>로그가 길수록 구간이 좁아지고 사전의 영향이 줄어듭니다.</b> 이 로그에서 구간 폭은 7일 '+f1(w7)+'분에서 60일 '+f1(w60)+'분이 됩니다. 지금 사전에서는 사전이 사후 평균을 7일 로그에서 '+f1(s7)+'분, 60일 로그에서 '+f1(s60)+'분 옮겼습니다. 폭이 줄어드는 속도는 로그 길이에 비례하지 않아서(7일 → 60일, 길이 '+f1(60/7)+'배에 폭은 '+f1(w7/w60)+'배) 30일과 60일의 폭 차이는 작습니다.';
+}
+
+/* ---------- 4절 ---------- */
+function regAvg(d,pi,key){var a=[];KS.forEach(function(k){LOGS.forEach(function(s){a.push(DEC(s,d,k,pi)[key]);});});return a;}
+function upd4(){
+  var d=DAYN(),cost=ST.cost,dec=DEC(SEED,d,cost,ST.pi),p=dec.post;
+  var ptm=C.pointSweep(TB,p.mean,cost),pst=C.postSweep(TB,p.post,cost),rs=L.policySweep(T0.pol,'real',null,cost);
+  function mk(sw,col){var b=L.argBest(sw),pp=sw[CAPS.indexOf(b)];return {x:CAPS,y:sw.map(function(z){return z.cost;}),col:col,lw:2.5,marks:[{x:b,y:pp.cost,col:col,r:6}]};}
+  var ss=[mk(ptm,css('--warn')),mk(pst,css('--accent')),mk(rs,css('--c9'))],ymin=Infinity,ymax=0;ss.forEach(function(s){s.y.forEach(function(v){if(v<ymin)ymin=v;if(v>ymax)ymax=v;});});
+  drawXY($('cvCost'),ss,{h:250,xlo:CAPS[0],xhi:CAPS[CAPS.length-1],ylo:ymin-(ymax-ymin)*0.12,yhi:Math.min(ymax,ymin+(ymax-ymin)*0.8),xticks:CAPS,xlab:'세정기 운전 대수 c (대) — 세로: 총 비용 (장/일)',vlines:[{x:CAP0,col:css('--grey')}]});
+  var re=rs;function rc(c){return re[CAPS.indexOf(c)].cost;}
+  tbl('tabDec',['결정 방식','쓴 세정 시간','권고 운전 대수','실제 결과의 총 비용 (장/일)','결정 손해 (장/일)'],[
+    ['0601 10분 격자 점 추정',dec.chatGrid+'분',dec.capGrid+'대',fm(rc(dec.capGrid)),'<b>'+fm(dec.regGrid)+'</b>'],
+    ['2분 격자 점 추정 (1절)',dec.chatFine+'분',dec.capFine+'대',fm(rc(dec.capFine)),'<b>'+fm(dec.regFine)+'</b>'],
+    ['사후 평균 한 값',f1(p.mean)+'분',dec.capMean+'대',fm(rc(dec.capMean)),'<b>'+fm(dec.regMean)+'</b>'],
+    ['사후 기대 비용','구간 ['+f1(p.lo)+', '+f1(p.hi)+']분',dec.capPost+'대',fm(rc(dec.capPost)),'<b>'+fm(dec.regPost)+'</b>'],
+    ['실제에서 가장 좋았던 결정','',dec.best+'대',fm(rc(dec.best)),'0']],[null,null,null,null,null]);
+  $('ro4').innerHTML='<b>k = '+fm(cost)+' 장/일, 로그 '+d+'일:</b> 결정 손해는 10분 격자 하루 '+fm(dec.regGrid)+'장, 2분 격자 '+fm(dec.regFine)+'장, 사후 평균 '+fm(dec.regMean)+'장, 사후 기대 비용 '+fm(dec.regPost)+'장입니다(월 환산 '+fm(30*dec.regGrid)+'장 → '+fm(30*dec.regPost)+'장).';
+  var g=[],f=[],m=[],po=[];KS.forEach(function(k){var x=DEC(SEED,d,k,ST.pi);g.push(x.regGrid);f.push(x.regFine);m.push(x.regMean);po.push(x.regPost);});
+  drawXY($('cvReg'),[{x:KS,y:g,col:css('--grey'),lw:2.5},{x:KS,y:f,col:css('--warn'),lw:2},{x:KS,y:m,col:css('--c10'),lw:2},{x:KS,y:po,col:css('--accent'),lw:2.5}],{h:220,xlo:0,xhi:3000,ylo:0,xticks:[0,500,1000,1500,2000,2500,3000],xlab:'k: 세정기 한 대의 하루 운영비 (장/일) — 세로: 결정 손해 (장/일)',vlines:[{x:cost,col:css('--grey')}]});
+  var keys=[['regGrid','0601 10분 격자 점 추정'],['regFine','2분 격자 점 추정'],['regMean','사후 평균 한 값'],['regPost','사후 기대 비용']];
+  var avg={},rows=keys.map(function(kv){var a=regAvg(d,ST.pi,kv[0]),cur=LOGS.map(function(s){return DEC(s,d,cost,ST.pi)[kv[0]];});avg[kv[0]]=mean(a);
+    return [kv[1],fm(mean(a)),fm(q(cur,.5)),String(Math.round(100*a.filter(function(v){return v<1e-9;}).length/a.length))+'%'];});
+  tbl('tabDec20',['결정 방식','평균 결정 손해 (장/일)','지금 k 의 중앙값 (장/일)','손해가 0 인 몫'],rows,[null,null,null,null]);
+  var nG=g.filter(function(v){return v>1e-9;}).length,nP=po.filter(function(v){return v>1e-9;}).length;
+  var tot=avg.regGrid-avg.regPost,shareFine=tot>1e-9?(avg.regGrid-avg.regFine)/tot:0;
+  function cmp(a,b,last){return Math.abs(a-b)<0.05?(last?'과 같습니다':'과 같고'):'보다 하루 '+f1(Math.abs(a-b))+'장 '+(a<b?(last?'작습니다':'작고'):(last?'큽니다':'크고'));}
+  $('conc4').innerHTML='<b>'+(tot>1e-9?'10분 격자에서 사후 기대 비용으로 줄어든 손해의 '+Math.round(100*shareFine)+'% 는 격자를 2분으로 촘촘히 한 데서 옵니다.':'이 설정에서는 10분 격자에서 사후 기대 비용으로 가도 손해가 줄지 않습니다.')+'</b> 스무 개 로그와 k 31곳의 평균 결정 손해는 10분 격자 '+fm(avg.regGrid)+', 2분 격자 '+fm(avg.regFine)+', 사후 평균 한 값 '+fm(avg.regMean)+', 사후 기대 비용 '+fm(avg.regPost)+' 장/일입니다(로그 '+d+'일, 사전 '+pdesc(ST.pi)+'). 사후 기대 비용의 평균 손해는 2분 격자 점 추정'+cmp(avg.regPost,avg.regFine)+' 사후 평균 한 값'+cmp(avg.regPost,avg.regMean,true)+'. 사후분포가 좁아지면 이 둘이 같아지므로 로그가 길수록 차이가 줄고, 짧을수록(7일) 사후 전체를 쓰는 몫이 커집니다. 이 로그에서 k 0~3,000 의 31곳 중 10분 격자 권고의 손해가 0 이 아닌 곳은 '+nG+'곳, 사후 기대 비용은 '+nP+'곳입니다.';
+}
+
+/* ---------- 5절 ---------- */
+function hpdThr(P){var f=[];P.forEach(function(r){r.forEach(function(v){f.push(v);});});f.sort(function(a,b){return b-a;});var cum=0,k=0;while(k<f.length&&cum<0.95-1e-12){cum+=f[k];k++;}return f[k-1];}
+function drawRidge(po){
+  var cv=$('cvRidge'),c=setup(cv,310),x=c.x,W=c.w,H=c.h,ml=58,mr=14,mt=10,mb=40,pw=W-ml-mr,ph=H-mt-mb,g=po.g,P=po.P;
+  var soft=css('--soft'),rule=css('--rule');x.clearRect(0,0,W,H);x.font='11px sans-serif';x.textBaseline='middle';
+  var thr=hpdThr(P),pmax=0;P.forEach(function(r){r.forEach(function(v){if(v>pmax)pmax=v;});});
+  var nc=g.c.length,nt=g.t.length,off=document.createElement('canvas');off.width=nc;off.height=nt;var ox=off.getContext('2d'),im=ox.createImageData(nc,nt),ac=hex(css('--accent')),tn=hex(css('--tint')),i,j;
+  for(i=0;i<nc;i++)for(j=0;j<nt;j++){var inn=P[i][j]>=thr,u=Math.pow(P[i][j]/pmax,0.5),k=((nt-1-j)*nc+i)*4,col=inn?ac:tn,al=inn?0.35+0.65*u:1;im.data[k]=col[0];im.data[k+1]=col[1];im.data[k+2]=col[2];im.data[k+3]=Math.round(255*al);}
+  ox.putImageData(im,0,0);x.imageSmoothingEnabled=false;x.drawImage(off,ml,mt,pw,ph);
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(ml,mt,pw,ph);
+  function X_(v){return ml+pw*(v-g.c[0])/(g.c[nc-1]-g.c[0]);}function Y_(v){return mt+ph*(1-(v-g.t[0])/(g.t[nt-1]-g.t[0]));}
+  x.fillStyle=soft;x.textAlign='center';[170,180,190,200,210,220,230].forEach(function(v){x.fillText(String(v),X_(v),mt+ph+14);});x.fillText('세정 시간 θ (분)',ml+pw/2,mt+ph+30);
+  x.textAlign='right';[260,280,300,320,340].forEach(function(v){x.fillText(String(v),ml-6,Y_(v));});
+  x.save();x.translate(14,mt+ph/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('한 턴 길이 τ (분)',0,0);x.restore();
+  if(REV){var h=L.HIDDEN.CLEAN,t=C.HIDDEN2.TT;x.strokeStyle=css('--c9');x.fillStyle=css('--c9');x.lineWidth=2;x.beginPath();x.arc(X_(h),Y_(t),7,0,6.2832);x.stroke();x.beginPath();x.moveTo(X_(h)-11,Y_(t));x.lineTo(X_(h)+11,Y_(t));x.moveTo(X_(h),Y_(t)-11);x.lineTo(X_(h),Y_(t)+11);x.stroke();}
+}
+function upd5(){
+  var k=RSETS[ST.rs],po=po2(k,SEED),s=C.stats2(po);drawRidge(po);
+  var names=['지표 1개','지표 3개','지표 4개'];
+  $('ro5').innerHTML='<b>'+names[ST.rs]+': 세정 시간 95% 신용구간 ['+f1(s.ciC[0])+', '+f1(s.ciC[1])+'] (폭 '+f1(s.ciC[1]-s.ciC[0])+'분), 한 턴 길이 ['+f1(s.ciT[0])+', '+f1(s.ciT[1])+'] (폭 '+f1(s.ciT[1]-s.ciT[0])+'분), 두 값의 상관 '+f2(s.cor)+'.</b> 95% 가 들어 있는 가장 그럴듯한 영역의 넓이는 '+fm(s.hpdArea)+' (분 × 분)입니다.';
+  var rows=RSETS.map(function(kk,i){var sp=C.stats2(po2(kk,SEED)),mk=i===ST.rs?' ◀ 지금':'';return [names[i]+mk,C.RIDGE_SETS[kk].map(function(m){return C.RIDGE_KO[m];}).join(' · '),'['+f1(sp.ciC[0])+', '+f1(sp.ciC[1])+']','['+f1(sp.ciT[0])+', '+f1(sp.ciT[1])+']',f2(sp.cor),fm(sp.hpdArea)];});
+  tbl('tab5',['지표 묶음','쓰는 지표','세정 시간 95% 구간','한 턴 길이 95% 구간','두 값의 상관','95% 영역 넓이'],rows,[null,lc,null,null,null,null]);
+  var em=emu2('four'),i=Math.round((200-C.RIDGE_C[0])/5),j=Math.round((300-C.RIDGE_T[0])/10),r2=C.RIDGE_SETS.four.map(function(m,mi){var sd=Math.sqrt(em.cov[i][j][mi][mi]),b=C.bilin(em,200,300,mi),dc=(C.bilin(em,210,300,mi)-b)/sd,dt=(C.bilin(em,200,320,mi)-b)/sd;return [C.RIDGE_KO[m],(dc>=0?'+':'−')+f1(Math.abs(dc))+' 배',(dt>=0?'+':'−')+f1(Math.abs(dt))+' 배'];});
+  tbl('tab5b',['지표','세정 시간 +10분 (한 턴 길이 300분 고정)','한 턴 길이 +20분 (세정 시간 200분 고정)'],r2,[null,null,null]);
+  var s1=C.stats2(po2('one',SEED)),s3=C.stats2(po2('three',SEED)),s4=C.stats2(po2('four',SEED));
+  $('conc5').innerHTML='<b>지표 1개로는 두 값을 가를 수 없고, 지표를 셋으로 늘려도 띠가 남지만 넷째 지표를 더하면 풀립니다.</b> 세정 시간 신용구간 폭은 지표 1개 '+f1(s1.ciC[1]-s1.ciC[0])+'분, 3개 '+f1(s3.ciC[1]-s3.ciC[0])+'분, 4개 '+f1(s4.ciC[1]-s4.ciC[0])+'분이고 두 값의 상관은 '+f2(s1.cor)+' → '+f2(s3.cor)+' → '+f2(s4.cor)+'입니다. 시간당 반송 요청은 세정 시간이 오를 때 크게 움직이고 한 턴 길이는 거의 움직이지 않는 지표라 둘을 갈랐습니다(위 표의 마지막 줄). 이 성질은 세정기가 꽉 차서 일하는 로그에서 성립하는 것이고, 세정기에 여유가 있는 라인에서는 다른 지표를 찾아야 합니다. 능선이면 사후 평균 하나를 보고서에 적지 않습니다.';
+}
+
+/* ---------- 6절 ---------- */
+function wiggle(x){var d=[];for(var t=S18.FIRST+1;t<x.length;t++){if(S18.REPLACE.indexOf(t)>=0)continue;d.push(x[t]-x[t-1]);}var m=mean(d),s=0;d.forEach(function(v){s+=Math.pow(v-m,2);});return Math.sqrt(s/(d.length-1));}
+function upd6(){
+  var o=SER[SERIES],Qs=S18.QS[ST.qi],rs=S18.RS[ST.ri],Rm=o.R.map(function(v){return v*rs*rs;}),n=o.z.length,days=[];for(var i=0;i<n;i++)days.push(i+1);
+  var kr=C.kalmanTrack(o.z,Rm,Qs*Qs,o.z[0],Rm[0],S18.REPLACE),kn=C.kalmanTrack(o.z,Rm,Qs*Qs,o.z[0],Rm[0],[]),k=ST.rst?kr:kn;
+  var ma=C.movAvg(o.z,S18.MAN),fx=C.fixedFirst(o.z,o.R,S18.FIXN),cb=C.cumBayes(o.z,o.R),tr=C.truthSeries();
+  var ser=[{x:days,y:o.z,col:css('--grey'),noline:true,dots:true,dr:2.5,alpha:0.8},{x:days,y:fx,col:css('--warn'),lw:2},{x:days,y:ma,col:css('--c10'),lw:2},{x:days,y:k.x,col:css('--accent'),lw:3,band:{lo:k.x.map(function(v,t){return v-1.96*Math.sqrt(k.P[t]);}),hi:k.x.map(function(v,t){return v+1.96*Math.sqrt(k.P[t]);}),col:css('--accent'),a:0.18}}];
+  if(REV)ser.splice(1,0,{x:days,y:tr,col:css('--c9'),lw:2.5});
+  drawXY($('cvKal'),ser,{h:270,xlo:1,xhi:n,ylo:170,yhi:215,xticks:[1,10,20,30,40,50,60,70,80,90],xlab:'기록 일차 — 세로: 세정 시간 (분)',vlines:S18.REPLACE.map(function(r){return {x:r+1,col:css('--good'),lw:1.5};}),nozero:true});
+  $('lgTruth').hidden=!REV;
+  var Rmed=q(Rm,.5),Kss=C.steadyK(Qs*Qs,Rmed);
+  $('ro6').innerHTML='<b>칼만 이득은 정상 상태에서 K = '+f2(Kss)+'</b>(R 의 중앙값 '+f1(Rmed)+' 분²·Q = '+f2(Qs*Qs)+' 분²/일 기준)이고, 0204 의 EWMA 로 읽으면 λ = '+f2(Kss)+'입니다. 오늘(90일째)의 추정은 '+f1(k.x[n-1])+'분 ± '+f1(1.96*Math.sqrt(k.P[n-1]))+'분이고 오늘의 관측은 '+f1(o.z[n-1])+'분입니다.';
+  var M=[['칼만 (교체 알림 있음)',kr.x],['칼만 (교체 알림 없음)',kn.x],['7일 이동 평균',ma],['처음 14일로 한 번 맞춰 고정',fx],['전체 기간 고정 베이즈 (오늘까지 전부 한 상수)',cb],['어제 관측 그대로',o.z]];
+  var tk=TRK(SERIES,ST.qi,ST.ri).stat,sk=['kalmanReset','kalman','ma','fixed','cum','raw'];
+  var rows=M.map(function(m,i){var pe=i===5?C.predErr(o.z,o.z,S18.FIRST):C.predErr(o.z,m[1],S18.FIRST),st=tk[sk[i]];return [m[0],f2(pe),f2(wiggle(m[1])),REV?f2(st.rmse):'정답 열기 뒤',REV?f2(st.rec):'정답 열기 뒤'];});
+  tbl('tabKal',['방식','내일 관측을 어제 추정으로 맞힌 오차 (분)','추정이 하루에 움직이는 크기의 표준편차 (분)','추적 오차 (분)','교체 뒤 5일의 평균 오차 (분)'],rows,[null,null,null,null,null]);
+  var all=S18.EVAL.map(function(se){return TRK(se,ST.qi,ST.ri).stat;}),r20=M.map(function(m,i){var key=sk[i];return [m[0],i===5?f2(q(S18.EVAL.map(function(se){return C.predErr(SER[se].z,SER[se].z,S18.FIRST);}),.5)):f2(q(all.map(function(a){return a[key].pred;}),.5)),REV?f2(q(all.map(function(a){return a[key].rmse;}),.5)):'정답 열기 뒤',REV?f2(q(all.map(function(a){return a[key].rmse;}),.1))+' ~ '+f2(q(all.map(function(a){return a[key].rmse;}),.9)):'정답 열기 뒤'];});
+  tbl('tabKal20',['방식','내일 예측 오차 중앙값 (분)','추적 오차 중앙값 (분)','추적 오차 10 ~ 90 % (분)'],r20,[null,null,null,null]);
+  var pk=q(all.map(function(a){return a.kalmanReset.pred;}),.5),pm=q(all.map(function(a){return a.ma.pred;}),.5),pf=q(all.map(function(a){return a.fixed.pred;}),.5);
+  $('conc6').innerHTML='<b>Q 가 작으면 추정이 부드럽지만 늦게 따라오고, 크면 빨리 따라오지만 관측의 잡음을 더 싣습니다.</b> 지금의 Q·R 에서 스무 계열의 내일 예측 오차 중앙값은 칼만(교체 알림 있음) '+f2(pk)+'분, 7일 이동 평균 '+f2(pm)+'분, 처음 14일 고정 '+f2(pf)+'분입니다'+(pk<pm&&pm<pf?'. 칼만이 가장 작습니다. ':'. ')+'교체 알림을 끄면 교체일 뒤 추정이 옛 값 쪽에 머무는 날이 늘어납니다(표의 두 칼만 줄). 정답을 열면 같은 표에 실제 세정 시간과의 추적 오차가 채워집니다.';
+}
+
+/* ---------- 8절 ---------- */
+function upd8(){
+  var d=60,pi=DEF.pi,p=P1(SEED,d,pi),p7=P1(SEED,7,pi),dec=DEC(SEED,d,DEFC,pi),s1=C.stats2(po2('one',SEED)),s4=C.stats2(po2('four',SEED)),tk=TRK(SERIES,DEF.qi,DEF.ri).stat;
+  var all=S18.EVAL.map(function(se){return TRK(se,DEF.qi,DEF.ri).stat;}),pk=q(all.map(function(a){return a.kalmanReset.pred;}),.5),pm=q(all.map(function(a){return a.ma.pred;}),.5),pf=q(all.map(function(a){return a.fixed.pred;}),.5);
+  $('conc8').innerHTML='<b>값 하나가 아니라 구간으로 믿고, 움직이면 날마다 갱신합니다.</b> 이 로그의 세정 시간은 로그 '+d+'일로 사후 평균 '+f1(p.mean)+'분, 95% 신용구간 ['+f1(p.lo)+', '+f1(p.hi)+']분(폭 '+f1(p.width)+'분)이고 7일 로그에서는 ['+f1(p7.lo)+', '+f1(p7.hi)+']분(폭 '+f1(p7.width)+'분)입니다. 이 구간의 포함률은 7절에서 확인합니다. 결정은 k = '+fm(DEFC)+' 장/일일 때 0601 의 10분 격자가 '+dec.capGrid+'대(결정 손해 하루 '+fm(dec.regGrid)+'장), 사후 기대 비용이 '+dec.capPost+'대(하루 '+fm(dec.regPost)+'장)를 권했습니다. 다만 개선의 큰 몫은 격자를 2분으로 한 데서 왔고(4절), 사후 전체를 쓰는 이득은 로그가 짧을 때 큽니다. 두 값을 함께 모르면 지표 1개의 세정 시간 구간은 ['+f1(s1.ciC[0])+', '+f1(s1.ciC[1])+']분으로 넓어지고, 반송 요청을 더한 지표 4개에서 ['+f1(s4.ciC[0])+', '+f1(s4.ciC[1])+']분으로 풀립니다(5절). 움직이는 공장에서 스무 계열의 내일 예측 오차 중앙값은 칼만 '+f2(pk)+'분, 7일 이동 평균 '+f2(pm)+'분, 처음 14일 고정 '+f2(pf)+'분입니다(6절).';
+}
+
+/* ---------- 9절 ---------- */
+function upd9(){
+  var d=DAYN(),cost=ST.cost,nt=MS.CFG.N_TURN,dec=DEC(SEED,d,cost,ST.pi);
+  var r0=LOGS.map(function(s){return DEC(s,d,cost,ST.pi).regGrid;}),r1=LOGS.map(function(s){return DEC(s,d,cost,ST.pi).regPost;}),m0=q(r0,.5),m1=q(r1,.5);
+  tbl('tab9',['','하루 (장)','한 달 (장)','한 달 (턴)'],[
+    ['0601 10분 격자 점 추정의 결정 손해 (이 화면의 로그)',fm(dec.regGrid),fm(30*dec.regGrid),fm(30*dec.regGrid/nt)],
+    ['사후 기대 비용의 결정 손해 (이 화면의 로그)',fm(dec.regPost),fm(30*dec.regPost),fm(30*dec.regPost/nt)],
+    ['줄어든 손해 (이 화면의 로그)',fm(dec.regGrid-dec.regPost),fm(30*(dec.regGrid-dec.regPost)),fm(30*(dec.regGrid-dec.regPost)/nt)],
+    ['줄어든 손해 (스무 개 로그 중앙값의 차)',fm(m0-m1),fm(30*(m0-m1)),fm(30*(m0-m1)/nt)]],[null,null,null,null]);
+  var def=ST.cost===DEF.cost&&ST.wi===DEF.wi&&ST.pi===DEF.pi;
+  $('st9').textContent=def?'k·로그 기간·사전 폭이 기본값입니다.':'k·로그 기간·사전 폭이 기본값에서 옮겨져 있습니다(4절의 단추로 되돌립니다).';$('st9').className='state'+(def?'':' moved');
+  var dd=dec.regGrid-dec.regPost;
+  $('conc9').innerHTML='<b>k = '+fm(cost)+' 장/일, 로그 '+d+'일일 때 '+(dd>1e-9?'사후 기대 비용으로 한 달에 '+fm(30*dd)+'장('+fm(30*dd/nt)+'턴)의 손해를 줄입니다.':dd<-1e-9?'사후 기대 비용의 권고가 10분 격자보다 한 달에 '+fm(-30*dd)+'장 더 손해입니다. 이 비용에서는 이득이 아닙니다.':'두 권고의 손해가 같아 줄어드는 몫이 0 입니다.')+'</b> 줄어든 몫의 대부분은 격자를 촘촘히 한 데서 오므로(4절), 사후분포 자체의 몫은 4절의 2분 격자 줄과 견주어 읽습니다. 이 값은 가상 공장의 장수이며 회사에서는 같은 식에 단가를 넣어 금액으로 적습니다.';
+}
+
+/* ---------- 11절 ---------- */
+function fillReport(){
+  var d=60,pi=DEF.pi,p=P1(SEED,d,pi),dec=DEC(SEED,d,DEFC,pi),s4=C.stats2(po2('four',SEED)),Qs=S18.QS[DEF.qi],Kss=C.steadyK(Qs*Qs,q(SER[SERIES].R,.5));
+  $('rp_fields').innerHTML='파라미터 · 사전분포와 근거 · 로그 기간 · 요약 지표 · 사후 평균과 95% 구간 · 능선 점검(두 값의 상관·지표 수) · 결정(사후 기대 비용) · 추적 방식(Q·R·리셋 사건) · 다음 보정일 · 승인';
+  $('rp_ex').innerHTML='<ul style="margin:.2rem 0 .2rem 1.1rem;padding:0"><li><b>파라미터</b> 세정 시간(분) · <b>사전</b> '+pdesc(pi)+' (근거: 트윈 판 0 의 값) · <b>로그 기간</b> '+d+'일 · <b>요약 지표</b> 세정 대기열 평균·Loss 총 장수</li>'
+   +'<li><b>사후</b> 평균 '+f1(p.mean)+'분, 95% 구간 ['+f1(p.lo)+', '+f1(p.hi)+'] · <b>능선 점검</b> 한 턴 길이와 함께 모르면 지표 4개에서 상관 '+f2(s4.cor)+'(지표 1개에서는 '+f2(C.stats2(po2('one',SEED)).cor)+')</li>'
+   +'<li><b>결정</b> 비용 가정 k = '+fm(DEFC)+' 장/일에서 사후 기대 비용 '+dec.capPost+'대 · <b>추적 방식</b> 칼만, Q = '+Qs+' 분/일, R 은 하루 관측의 사후 분산, 정상 상태 이득 '+f2(Kss)+', 세정액 교체일('+V.rep1+'일·'+V.rep2+'일째)에 리셋 · <b>다음 보정일</b> 교체 뒤 14일</li></ul>';
+  tbl('tabTool',['순서','함수','하는 일'],[['1','0601 · <code>twin_gap</code>','트윈과 실제의 gap 재기'],['2','<code>emulator_table</code>','후보 칸마다 평균·공분산 표 만들기'],['3','<code>grid_posterior</code>','사후분포 만들기'],['4','<code>credible_interval</code>','95% 신용구간'],['5','<code>posterior_decision</code>','사후 기대 비용으로 결정 고르기'],['6','<code>kalman_track</code> (매일)','움직이는 값 따라가기'],['7','0411 사실 목록 방식','보정 기록지 초안'],['8','0401 승인 대기열','사람 승인 후 반영']],[null,null,lc]);
+}
+
+/* ---------- 7·12절: 정답 열기 ---------- */
+function hpdHas(po,ci,tj){return po.P[ci][tj]>=(po.thr||(po.thr=hpdThr(po.P)));}
+function reveal(){
+  REV=true;
+  ['btnReveal','btnReveal7'].forEach(function(id){$(id).disabled=true;});$('btnReveal').setAttribute('aria-expanded','true');
+  ['roAns','tabAns','tabAns2','concAns','tabCov','conc7'].forEach(function(id){$(id).hidden=false;});
+  refresh();
+}
+function fillReveal(){
+  var h=L.HIDDEN.CLEAN,tt=C.HIDDEN2.TT,pi=ST.pi;
+  var rows=DW.map(function(dd){var p=P1(SEED,dd,pi);return [dd+'일',f1(p.mean)+'분','['+f1(p.lo)+', '+f1(p.hi)+']',(p.lo<=h&&h<=p.hi)?'덮음':'못 덮음',sg(p.mean-h)+'분'];});
+  tbl('tabAns',['로그 기간','이 로그의 사후 평균','95% 신용구간','숨은 값을 덮었나','사후 평균 − 숨은 값'],rows,[null,null,null,function(c){return c==='덮음'?'good':'hit';},null]);
+  var cvRows=DW.map(function(dd){var a=[],b=[];C.COVER_SEEDS.forEach(function(s){a.push(P1(s,dd,pi));b.push(P1(s,dd,4));});
+    var ca=a.filter(function(p){return p.lo<=h&&h<=p.hi;}).length,cb=b.filter(function(p){return p.lo<=h&&h<=p.hi;}).length;
+    return {d:dd,ca:ca,cb:cb,w:mean(a.map(function(p){return p.width;})),bias:mean(a.map(function(p){return p.mean-h;})),n:a.length};});
+  tbl('tabCov',['로그 기간','95% 구간이 숨은 값을 덮은 로그 (지금 사전)','평균 구간 폭 (분)','사후 평균 − 숨은 값의 평균 (분)','덮은 로그 (평평한 사전)'],cvRows.map(function(r){return [r.d+'일',r.ca+' / '+r.n,f1(r.w),sg(r.bias,2),r.cb+' / '+r.n];}),[null,null,null,null,null]);
+  var lo=Math.min.apply(null,cvRows.map(function(r){return r.cb;})),hi=Math.max.apply(null,cvRows.map(function(r){return r.cb;}));
+  $('ro7').innerHTML='시드가 다른 로그 '+C.COVER_SEEDS.length+'개마다 95% 신용구간을 만들어 숨은 값이 안에 든 로그를 세었습니다.';
+  var c2=C.COVER_SEEDS.filter(function(sd){var p=P1(sd,60,0);return p.lo<=h&&h<=p.hi;}).length;
+  $('conc7').innerHTML='<b>평평한 사전에서 95% 구간이 숨은 값을 덮은 로그는 '+C.COVER_SEEDS.length+'개 중 '+lo+'~'+hi+'개입니다.</b> 목표인 95% 보다 조금 높아, 구간이 필요보다 약간 넓은 쪽으로 어긋났습니다. 로그 '+C.COVER_SEEDS.length+'개를 한 번 센 값이라 몇 %p 는 흔들립니다. 사전이 로그를 이기면 구간은 틀어집니다. 사전 폭을 2분으로 좁히면(중심 '+V0+'분) 같은 60일 로그에서도 덮은 로그가 '+c2+'개로 떨어집니다. 사전의 중심과 폭과 근거를 보정 기록지에 적는 이유입니다. 이 점검은 이 가상 공장의 숨은 값에서 잰 것이고, 회사에서는 숨은 값을 모르므로 시뮬레이터로 만든 가상 로그에 같은 점검을 해서 정규 근사가 맞는지 봅니다.';
+  /* 능선: 숨은 점이 95% 영역 안에 든 로그 (스무 개) */
+  var ci=Math.round((h-C.RIDGE_C[0])/C.DC),tj=Math.round((tt-C.RIDGE_T[0])/C.DT),r2=RSETS.map(function(k,i){var n=0;LOGS.forEach(function(s){var po=po2(k,s);if(hpdHas(po,ci,tj))n++;});return ['지표 '+['1','3','4'][i]+'개',n+' / '+LOGS.length,f1(h)+' 분 · '+f1(tt)+' 분'];});
+  tbl('tabAns2',['능선: 지표 묶음','숨은 점(세정 시간·한 턴 길이)이 95% 영역에 든 로그','숨은 점'],r2,[null,null,null]);
+  /* 칼만 */
+  var tk=TRK(SERIES,DEF.qi,DEF.ri).stat,all=S18.EVAL.map(function(se){return TRK(se,DEF.qi,DEF.ri).stat;});
+  var med=function(k,m){return q(all.map(function(a){return a[k][m];}),.5);};
+  $('roAns').innerHTML='<b>실제 공장(S17)의 세정 시간은 '+h+'분, 한 턴 길이는 '+tt+'분이었습니다.</b> 3절 사후 평균은 이 로그(60일)에서 '+f1(P1(SEED,60,pi).mean)+'분이었습니다. 움직이는 공장(S18)의 세정 시간은 교체한 날 '+C.s18Clean(S18.REPLACE[0])+'분에서 시작해 하루에 '+S18.SLOPE+'분씩 늘다가 다음 교체일에 처음 값으로 돌아오는 식이었습니다(90일 동안 '+C.s18Clean(0)+'분에서 '+f1(C.s18Clean(S18.REPLACE[0]-1))+'분 사이).';
+  $('concAns').innerHTML='<b>칼만(교체 알림 있음)의 추적 오차 중앙값은 '+f2(med('kalmanReset','rmse'))+'분으로, 7일 이동 평균 '+f2(med('ma','rmse'))+'분, 전체 기간 고정 베이즈 '+f2(med('cum','rmse'))+'분, 처음 14일 고정 '+f2(med('fixed','rmse'))+'분보다 작았고 관측을 그대로 쓴 값('+f2(med('raw','rmse'))+'분)보다도 작았습니다.</b> 교체 알림이 없는 칼만은 '+f2(med('kalman','rmse'))+'분입니다. 교체 뒤 5일의 평균 오차는 알림 있는 칼만 '+f2(med('kalmanReset','rec'))+'분, 알림 없는 칼만 '+f2(med('kalman','rec'))+'분, 처음 14일 고정 '+f2(med('fixed','rec'))+'분으로 고정값이 의외로 작은데, 처음 14일이 막 교체한 세정액의 날이어서 교체 직후와 값이 비슷하기 때문입니다. 그 고정값은 교체 뒤 몇 주가 지나면 크게 어긋납니다(추적 오차 열).';
+}
+
+/* ---------- 새로 그리기 ---------- */
+function refresh(){syncCtl();upd1();upd2();upd3();upd4();upd5();upd6();upd9();if(REV)fillReveal();}
+function bindI(id,fn){$(id).addEventListener('input',function(){fn(+this.value);refresh();});}
+['sDays1','sDays2','sDays3','sDays4'].forEach(function(id){bindI(id,function(v){ST.wi=v;});});
+['sPr3','sPr4'].forEach(function(id){bindI(id,function(v){ST.pi=v;});});
+bindI('sCost4',function(v){ST.cost=v;});bindI('sQ',function(v){ST.qi=v;});bindI('sR',function(v){ST.ri=v;});
+$('ckReset').addEventListener('change',function(){ST.rst=this.checked;refresh();});
+$('rDays1').addEventListener('click',function(){ST.wi=DEF.wi;refresh();});
+$('rDays2').addEventListener('click',function(){ST.wi=DEF.wi;refresh();});
+$('rPost3').addEventListener('click',function(){ST.wi=DEF.wi;ST.pi=DEF.pi;refresh();});
+$('rDec4').addEventListener('click',function(){ST.wi=DEF.wi;ST.pi=DEF.pi;ST.cost=DEF.cost;refresh();});
+$('rKal').addEventListener('click',function(){ST.qi=DEF.qi;ST.ri=DEF.ri;ST.rst=DEF.rst;refresh();});
+$('mQ').addEventListener('click',function(){ST.em='q';refresh();});$('mL').addEventListener('click',function(){ST.em='L';refresh();});
+$('rsOne').addEventListener('click',function(){ST.rs=0;refresh();});$('rsThree').addEventListener('click',function(){ST.rs=1;refresh();});$('rsFour').addEventListener('click',function(){ST.rs=2;refresh();});$('rRidge').addEventListener('click',function(){ST.rs=0;refresh();});
+$('btnReveal').addEventListener('click',reveal);$('btnReveal7').addEventListener('click',reveal);
+window.addEventListener('resize',function(){refresh();});
+
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildV();fillReport();upd8();refresh();
+window.__l6={st:ST,refresh:refresh,def:DEF,V:V,rep:SEED,series:SERIES,reveal:reveal};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>

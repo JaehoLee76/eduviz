@@ -117,6 +117,23 @@ csv('s17_seed_summary.csv', L06.seedSummary(T06, L06.DEFAULT_COST), ['seed', 'da
 fs.writeFileSync(path.join(dir, '..', 'loop06_tables.js'), '/* 0601 이 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s17_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\nwindow.LOOP06_TABLES=' + JSON.stringify({ grid: T06.grid, pol: T06.pol, reallog: T06.reallog }) + ';\n');
 console.log('S17 representative real-log seed', rs06.seed, 'score', rs06.score.toFixed(1));
 
+// 실험실 0602: 시뮬레이터를 실제에 맞추기. 숨은 값(세정 시간·한 턴 길이·S18 의 세정 시간 식)은 어떤 파일에도 넣지 않는다(calib06.js·loop06.js 안에만 있고 정답 열기·verify 가 읽는다).
+// s17_fine_grid = 촘촘한 세정 시간 격자(2분 간격 41칸) × 트윈 시드 8개 × 로그 기간 4개의 지표(에뮬레이터의 재료) · s17_fine_policy = 결정 값별 60일 Loss(세정 시간 격자 4분 간격 11칸 × 트윈 시드 8개)
+// s17_calib_logs = 로그 시드(0601 의 20개 + 포함률을 재는 100개) × 기간 4개의 지표(세정 대기열·세정 중·Loss·시간당 완성 유리·시간당 반송 요청) · s17_ridge_grid = 세정 시간 × 한 턴 길이 격자의 60일 지표
+// s18_chunk_grid = S18 의 하루 관측(3일을 돌려 앞 하루를 버림)을 뒤집는 에뮬레이터 재료 · s18_daily = S18 계열(Q 를 고르는 10개 + 평가 20개) 날마다의 관측 · s18_events = 세정액을 교체한 날(공장 변경 사건 기록)
+const C06 = require('./calib06.js');
+const T02 = C06.buildTables();
+csv('s17_fine_grid.csv', T02.fine, ['clean', 'seed', 'days', 'q', 'busy', 'L']);
+csv('s17_fine_policy.csv', T02.pol, ['clean', 'seed', 'cap', 'loss']);
+csv('s17_calib_logs.csv', T02.logs, ['seed', 'days', 'q', 'busy', 'L', 'out', 'tr']);
+csv('s17_ridge_grid.csv', T02.ridge, ['clean', 'tt', 'seed', 'q', 'L', 'out', 'tr']);
+csv('s18_chunk_grid.csv', T02.chunk, ['clean', 'seed', 'q', 'L']);
+csv('s18_daily.csv', T02.s18, ['series', 'day', 'q', 'L']);
+csv('s18_events.csv', C06.S18.REPLACE.map(d => ({ day: d + 1, event: 'liquid_replaced' })), ['day', 'event']);
+const pack06 = (rows, cols) => ({ c: cols, r: rows.map(r => cols.map(k => r[k])) });
+fs.writeFileSync(path.join(dir, '..', 'calib06_tables.js'), '/* 0602 가 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s17_fine_*.csv·s17_calib_logs.csv·s17_ridge_grid.csv·s18_*.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var D=' + JSON.stringify({ fine: pack06(T02.fine, ['clean', 'seed', 'days', 'q', 'busy', 'L']), pol: pack06(T02.pol, ['clean', 'seed', 'cap', 'loss']), logs: pack06(T02.logs, ['seed', 'days', 'q', 'busy', 'L', 'out', 'tr']), ridge: pack06(T02.ridge, ['clean', 'tt', 'seed', 'q', 'L', 'out', 'tr']), chunk: pack06(T02.chunk, ['clean', 'seed', 'q', 'L']), s18: pack06(T02.s18, ['series', 'day', 'q', 'L']) }) + ';var T={};Object.keys(D).forEach(function(k){T[k]=D[k].r.map(function(r){var o={};D[k].c.forEach(function(c,i){o[c]=r[i];});return o;});});if(typeof module==="object"&&module.exports)module.exports=T;else window.CALIB06_TABLES=T;})();\n');
+console.log('0602 tables ready');
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });
