@@ -2533,6 +2533,211 @@ chk('0402 페이지: 새 용어 6개 · Q&A 4개 · 절 10개 · 윌슨 구간 M
     f'용어 {_term02} · Q&A {_nq02} · 절 {_nsec02} · 캔버스 글자 최소 {min(_fonts02)}px({len(_fonts02)}곳) · -다 끝맺음 {len(_endda02)}건 · 0401 링크 {_pg02.count("0401-agent-prototype.html")}곳 · 0401 쪽 0402 링크 {_p01.count("0402-agent-evaluation.html")}곳')
 _cleanup02 = shutil.rmtree(_td02, ignore_errors=True)
 
+# ============================================================
+# 0501 — Loss 분류 체계와 파레토. 계산 모듈(loss05.js)의 파레토·교차표·재귀속·코드 합치기·주 단위·시드 분포를 페이지의 Python 코드(lab0501.py, 독립 구현)가
+# loss_events.csv·loss_seed_summary.csv 에서 다시 계산해 JS 와 대조한다. 시드 분포는 JS 가 시뮬레이터를 다시 돌린 요약과 CSV 를, 일부 시드는 사건 CSV 로 파이썬이 독립 집계.
+# ============================================================
+_pg05 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0501-loss-pareto.html'), encoding='utf-8').read()
+_code05 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg05, _re5.S).group(1)); _out05 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg05, _re5.S).group(1)).strip()
+_js05s = open(os.path.join(_DATA10, 'loss05.js'), encoding='utf-8').read()
+_td05 = _tf5.mkdtemp()
+for _f in ('loss_events.csv', 'loss_seed_summary.csv'): shutil.copy(os.path.join(_DATA10, 'csv', _f), os.path.join(_td05, _f))
+open(os.path.join(_td05, 'lab0501.py'), 'w', encoding='utf-8').write(_code05)
+_sp05 = _ilu01.spec_from_file_location('lab0501', os.path.join(_td05, 'lab0501.py')); _m05 = _ilu01.module_from_spec(_sp05); _sp05.loader.exec_module(_m05)
+_EXPORT05 = r"""const fs=require('fs'),path=require('path');
+const DATA=process.argv[2],OUT=process.argv[3];
+const MS=require(DATA+'/mfgsim.js'),L=require(DATA+'/loss05.js');
+const sim=MS.simulateLoss(),ev=sim.events,res={};
+function csv(fn,rows,cols){const esc=v=>(v==null?'':String(v).includes(',')?'"'+String(v).replace(/"/g,'""')+'"':String(v));fs.writeFileSync(fn,[cols.join(',')].concat(rows.map(r=>cols.map(c=>esc(r[c])).join(','))).join('\n')+'\n');}
+const slim=p=>({total:p.total,n:p.n,items:p.items.map(x=>[x.key,x.n,x.v,x.share,x.cum])});
+res.csvLoss=['event_id','start_ts','end_ts','block','chamber','reason','root_cause','caused_by_block','run_mode','mask_set','turn','loss_chamber_min','loss_glass'];
+{const esc=v=>(v==null?'':String(v).includes(',')?'"'+String(v).replace(/"/g,'""')+'"':String(v));res.lossText=[res.csvLoss.join(',')].concat(ev.map(r=>res.csvLoss.map(c=>esc(r[c])).join(','))).join('\n')+'\n';}
+res.par={};['glass','min'].forEach(v=>{res.par[v]={};['reason','root_cause','caused_by_block','block','cat_reason','cat_root'].forEach(b=>{res.par[v][b]=slim(L.pareto(ev,b,v));});});
+const X=L.cross(ev);res.cross={rows:X.rows,cols:X.cols,m:X.m,rowTot:X.rowTot,colTot:X.colTot,total:X.total};
+res.reat={};X.rows.forEach(r=>{res.reat[r]=slim(L.reattribute(ev,r));});
+const cat=c=>L.CODES.filter(x=>L.info(x).cat===c);
+const cfgs=[[[],null,0],[[{name:'설비',codes:cat('설비')}],null,0],[[{name:'품질',codes:cat('품질')}],null,0],[[{name:'물류',codes:cat('물류')}],null,0],[[{name:'설비',codes:cat('설비')},{name:'품질',codes:cat('품질')},{name:'물류',codes:cat('물류')}],null,0],
+ [[],['EQ-PM'],0],[[],['Q-MASK'],0.02],[[],'*',0],[[],'*',0.05],[[{name:'설비',codes:cat('설비')}],['Q-MASK'],0.03],[[],null,0.1],[[{name:'품질',codes:cat('품질')}],'*',0.02],[[{name:'설비',codes:cat('설비')},{name:'품질',codes:cat('품질')}],null,0],[[],['EQ-PM','Q-MASK'],0.02]];
+res.cfg=cfgs.map(c=>({merges:c[0].map(g=>[g.name,g.codes]),split:c[1],thr:c[2],out:slim(L.codeSystem(ev,c[0],c[1],c[2]))}));
+res.wk={};['root_cause','reason'].forEach(b=>{res.wk[b]=L.weekly(ev,60,b).map(w=>({week:w.week,par:slim(w.par)}));});
+const bt=L.blockTable(ev);res.bt=bt;res.os=L.otherShare(ev);
+const ch=L.chain(ev);res.chain={lb:ch.lb.event_id,causes:ch.causes.map(e=>e.event_id)};
+res.tasks=L.tasks(ev);res.nturn=L.N_TURN;
+res.cell=slim(L.paretoWith(ev,e=>e.root_cause+'@'+e.caused_by_block));
+// 시드 요약: CSV 와 같은 시드 목록
+const list=[L.DEFAULT_SEED].concat(Array.from({length:L.SEEDS},(_,i)=>i+1)).map(s=>L.seedRun(s));
+res.seedRows=L.seedRows(list).map(r=>[r.seed,r.kind,r.code,r.n,r.glass,r.min]);
+const use=list.slice(1),dflt=list[0];
+res.rs={};['root','direct'].forEach(k=>{const S=L.rankStab(use,k);res.rs[k]=S.codes.map(q=>({code:q.code,top1:q.top1,top3:q.top3,r25:q.r25,r50:q.r50,r75:q.r75,rmin:q.rmin,rmax:q.rmax,s10:q.s10,s50:q.s50,s90:q.s90}));});
+res.met=L.METRICS.map(m=>{const v=use.map(m.f);return {id:m.id,def:m.f(dflt),pct:L.percentile(v,m.f(dflt)),med:L.quantile(v,0.5)};});
+res.dflt={root:Object.fromEntries(Object.entries(dflt.root).map(([k,v])=>[k,v.glass])),total:dflt.total};
+res.topByseed=use.map(r=>[Object.entries(r.root).sort((a,b)=>b[1].glass-a[1].glass||(a[0]<b[0]?-1:1))[0][0],Object.entries(r.direct).sort((a,b)=>b[1].glass-a[1].glass||(a[0]<b[0]?-1:1))[0][0]]);
+// 일부 시드의 사건 CSV(파이썬이 독립 집계)
+[1,2,7].forEach(s=>{const sm=MS.simulateLoss({seed:s});csv(path.join(OUT,'ev'+s+'.csv'),sm.events,res.csvLoss);});
+res.defaults={days:L.DAYS,seeds:L.SEEDS,seed:L.DEFAULT_SEED};
+res.wkSeed=[];
+fs.writeFileSync(path.join(OUT,'res.json'),JSON.stringify(res));
+"""
+_jsf05 = os.path.join(_td05, 'export501.js'); open(_jsf05, 'w').write(_EXPORT05)
+subprocess.run([_node, _jsf05, _DATA10, _td05], capture_output=True, text=True, check=True, env=dict(os.environ, NODE_OPTIONS='--max-old-space-size=4096'))
+_R05 = json.load(open(os.path.join(_td05, 'res.json')))
+def _fm05(x): return format(int(x + 0.5 + 1e-6), ',')
+_ev05 = _m05.load_events(os.path.join(_td05, 'loss_events.csv'))
+def _same05(a, b, tol=1e-6): return abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+def _par_eq05(jp, pdf, key, col='value'):
+    if len(jp['items']) != len(pdf): return False
+    return all(it[0] == r[key] and it[1] == r['n'] and _same05(it[2], r[col]) and _same05(it[3], r['share'], 1e-9) and _same05(it[4], r['cum'], 1e-9) for it, (_, r) in zip(jp['items'], pdf.iterrows()))
+
+# 1. 기존 출력 불변: 사건 CSV 는 simulateLoss() 의 출력과 같은 글자, 사건 수·합
+_csvtxt05 = open(os.path.join(_DATA10, 'csv', 'loss_events.csv'), encoding='utf-8').read()
+chk('0501 기존 출력 불변: loss_events.csv 가 simulateLoss() 기본 호출의 출력과 같은 글자이고, 사건 4748건·유리 합 = 근본 원인 파레토 합 = 직접 사유 파레토 합(귀속만 바뀌고 합은 같음)',
+    _csvtxt05 == _R05['lossText'] and len(_ev05) == 4748 and _same05(_R05['par']['glass']['reason']['total'], _R05['par']['glass']['root_cause']['total']) and _same05(_ev05['loss_glass'].sum(), _R05['par']['glass']['reason']['total']),
+    f'{len(_ev05)}건 · 합 {_ev05["loss_glass"].sum():,.1f}장')
+
+# 2. 파레토: 직접 사유·근본 원인·원인 블록·분류, 값 = 장수/챔버 분
+_cat05 = _m05.CATEGORY
+_ev05['cat_reason'] = _ev05['reason'].map(_cat05); _ev05['cat_root'] = _ev05['root_cause'].map(_cat05)
+_ok05 = True; _det05 = []
+for _v, _col in (('glass', 'loss_glass'), ('min', 'loss_chamber_min')):
+    for _b in ('reason', 'root_cause', 'caused_by_block', 'block', 'cat_reason', 'cat_root'):
+        _p = _m05.pareto(_ev05, _b, _col); _o = _par_eq05(_R05['par'][_v][_b], _p, _b); _ok05 &= _o
+        if not _o: _det05.append(_v + '/' + _b)
+chk('0501 파레토 JS = 페이지 Python(pandas): 직접 사유·근본 원인·원인 블록·블록·분류(직접·근본) × 잃은 장수·챔버 분, 사건 수·몫·누적 비율까지', _ok05, f'{12}개 파레토' + (' 불일치 ' + ','.join(_det05) if _det05 else ''))
+
+# 3. 교차표와 재귀속
+_ct05 = _m05.crosstab_direct_root(_ev05); _X05 = _R05['cross']
+_ok = list(_ct05.index) == _X05['rows'] and list(_ct05.columns) == _X05['cols'] and all(_same05(_ct05.iloc[i, j], _X05['m'][i][j]) for i in range(len(_X05['rows'])) for j in range(len(_X05['cols']))) and _same05(_ct05.values.sum(), _X05['total'])
+_rok = all(_par_eq05(_R05['reat'][r], _m05.pareto(_ev05[_ev05['reason'] == r], 'root_cause'), 'root_cause') for r in _X05['rows'])
+chk('0501 직접 × 근본 교차표와 재귀속(직접 사유별 근본 원인 몫) JS = 페이지 Python, 교차표 전체 합 = 전체 장수', _ok and _rok, f'{len(_X05["rows"])}×{len(_X05["cols"])}칸')
+
+# 4. 코드 합치기·나누기·기타 문턱: 열네 설정
+_cok = True; _cd05 = []
+for _i, _c in enumerate(_R05['cfg']):
+    _mp = {code: nm for nm, codes in _c['merges'] for code in codes}; _sp = _c['split']
+    _spl = [] if _sp is None else (sorted(_ev05['root_cause'].unique()) if _sp == '*' else _sp)
+    _p = _m05.merge_codes(_ev05, _mp, split=_spl, min_share=_c['thr'])
+    _o = len(_p) == len(_c['out']['items']) and all(it[0] == r['label'] and it[1] == r['n'] and _same05(it[2], r['value']) and _same05(it[3], r['share'], 1e-9) and _same05(it[4], r['cum'], 1e-9) for it, (_, r) in zip(_c['out']['items'], _p.iterrows()))
+    _cok &= _o
+    if not _o: _cd05.append(_i)
+_p0 = _R05['cfg'][0]['out']; _pm = _R05['cfg'][1]['out']; _ps = _R05['cfg'][7]['out']
+chk('0501 코드 체계 열네 설정(합치기·블록별 나누기·기타 문턱) JS = 페이지 Python, 모든 설정의 막대 합 = 전체 장수, 기준 설정 = 근본 원인 파레토',
+    _cok and all(_same05(sum(it[2] for it in c['out']['items']), _R05['par']['glass']['reason']['total']) for c in _R05['cfg']) and [it[:3] for it in _p0['items']] == [it[:3] for it in _R05['par']['glass']['root_cause']['items']],
+    f'막대 수 기준 {len(_p0["items"])} · 설비 합침 {len(_pm["items"])} · 모두 블록별 {len(_ps["items"])}' + (f' 불일치 {_cd05}' if _cd05 else ''))
+
+# 5. 주 단위 파레토(근본·직접)
+_wok = True
+for _b in ('root_cause', 'reason'):
+    _w = _m05.weekly_pareto(_ev05, _b)
+    _wok &= len(_w) == len(_R05['wk'][_b]) == 8 and all(_par_eq05(_R05['wk'][_b][k]['par'], _w[k], _b) for k in range(8))
+_wk05 = [w['par']['items'][0][0] for w in _R05['wk']['root_cause']]; _top05 = _R05['par']['glass']['root_cause']['items'][0][0]
+chk('0501 주 단위 파레토(7일이 찬 8주, 시작 시각의 주에 넣음) JS = 페이지 Python: 근본 원인·직접 사유 모두, 그 주의 1위가 전체 1위와 다른 주 수를 기록', _wok and sum(len(_ev05[_ev05['week'] == k]) for k in range(8)) <= len(_ev05),
+    f'근본 원인 1위가 전체({_top05})와 다른 주 {sum(1 for k in _wk05 if k != _top05)}/8 · 직접 사유 1위가 다른 주 {sum(1 for w in _R05["wk"]["reason"] if w["par"]["items"][0][0] != _R05["par"]["glass"]["reason"]["items"][0][0])}/8')
+
+# 6. 시드 요약 CSV: JS 가 시뮬레이터를 다시 돌린 요약 = 파일, 일부 시드는 사건 CSV 로 파이썬이 독립 집계
+_sm05 = pd.read_csv(os.path.join(_DATA10, 'csv', 'loss_seed_summary.csv'), keep_default_na=False)
+_jr = _R05['seedRows']
+_same_rows = len(_jr) == len(_sm05) and all(r[0] == s.seed and r[1] == s.kind and r[2] == s.code and r[3] == s.n and abs(round(r[4], 4) - s.glass) < 1e-9 and abs(round(r[5], 4) - s['min']) < 1e-9 for r, (_, s) in zip(_jr, _sm05.iterrows()))
+_ind = True
+for _sd in (1, 2, 7):
+    _e = pd.read_csv(os.path.join(_td05, f'ev{_sd}.csv'), keep_default_na=False)
+    for _kind, _col in (('direct', 'reason'), ('root', 'root_cause')):
+        _g = _e.groupby(_col).agg(n=('loss_glass', 'count'), glass=('loss_glass', 'sum'), mn=('loss_chamber_min', 'sum'))
+        _s = _sm05[(_sm05['seed'] == _sd) & (_sm05['kind'] == _kind)].set_index('code')
+        _ind &= sorted(_g.index) == sorted(_s.index) and all(_g.loc[c, 'n'] == _s.loc[c, 'n'] and abs(_g.loc[c, 'glass'] - _s.loc[c, 'glass']) < 1e-3 and abs(_g.loc[c, 'mn'] - _s.loc[c, 'min']) < 1e-3 for c in _g.index)
+_dflt05 = _sm05[(_sm05['seed'] == _R05['defaults']['seed']) & (_sm05['kind'] == 'root')].set_index('code')['glass']
+chk('0501 시드 요약 CSV(기본 시드 + 시드 1~40) = JS 재실행 요약(한 줄도 다르지 않음), 시드 1·2·7 은 사건 CSV 에서 파이썬이 독립 집계한 직접 사유·근본 원인 코드별 사건 수·장수·챔버 분과 일치, 기본 시드 줄 = 기본 파레토',
+    _same_rows and _ind and _sm05['seed'].nunique() == 41 and all(_same05(_dflt05[k], v) for k, v in {c: it for c, _, it, _, _ in _R05['par']['glass']['root_cause']['items']}.items()), f'{len(_sm05)}줄 · 시드 {_sm05["seed"].nunique()}개')
+
+# 7. 순위 흔들림: 페이지 Python rank_stability = JS rankStab, 시드 40 × 근본 원인·직접 사유
+_frames05 = {}
+for _kind, _by in (('root', 'root_cause'), ('direct', 'reason')):
+    _frames05[_kind] = [g.rename(columns={'code': _by, 'glass': 'loss_glass'}) for _, g in _sm05[(_sm05['kind'] == _kind) & (_sm05['seed'] != _R05['defaults']['seed'])].groupby('seed')]
+_rok = True
+for _kind, _by in (('root', 'root_cause'), ('direct', 'reason')):
+    _r = _m05.rank_stability(_frames05[_kind], _by)
+    _js = {q['code']: q for q in _R05['rs'][_kind]}
+    _rok &= len(_r) == len(_js) and all(_same05(_js[r['code']]['top1'], r['top1'], 1e-9) and _same05(_js[r['code']]['r25'], r['r25'], 1e-9) and _same05(_js[r['code']]['r50'], r['r50'], 1e-9) and _same05(_js[r['code']]['r75'], r['r75'], 1e-9) and _same05(_js[r['code']]['s50'], r['s50'], 1e-9) for _, r in _r.iterrows())
+    _rok &= list(_r['code']) == [q['code'] for q in _R05['rs'][_kind]]
+_top1 = {q['code']: q['top1'] for q in _R05['rs']['root']}
+chk('0501 순위 흔들림(시드 40 × 60일): 페이지 Python rank_stability(1위 비율·순위 25/50/75%·몫 중앙값, 코드 순서까지) = JS rankStab — 근본 원인·직접 사유 모두',
+    _rok, '근본 원인 1위 비율 ' + ' · '.join(f'{k} {100*v:.1f}%' for k, v in sorted(_top1.items(), key=lambda x: -x[1]) if v > 0) + ' / 직접 사유 1위 ' + ' · '.join(f'{q["code"]} {100*q["top1"]:.0f}%' for q in _R05['rs']['direct'] if q['top1'] > 0))
+
+# 8. 대표 시드(기본 시드)의 백분위: 페이지 Python percentile = JS, 25~75% 밖 지표를 기록(본문은 그 지표를 분포로 말함)
+_gp = []
+for _c in _frames05['root']:
+    _v = _c.groupby('root_cause')['loss_glass'].sum().sort_values(ascending=False); _gp.append(100 * (_v.iloc[0] - _v.iloc[1]) / _v.sum())
+_dv = _dflt05.sort_values(ascending=False); _dg = 100 * (_dv.iloc[0] - _dv.iloc[1]) / _dv.sum()
+_mj = {m['id']: m for m in _R05['met']}
+_outs = [m['id'] for m in _R05['met'] if m['pct'] < 0.25 or m['pct'] > 0.75]
+chk('0501 대표 시드 백분위: 1위·2위 몫 차의 백분위 JS = 페이지 Python percentile, 여섯 지표의 백분위 전부 유한값, 25~75% 밖 지표를 기록(그 지표는 본문이 분포로 말함)',
+    _same05(_mj['rootGap']['pct'], _m05.percentile(_gp, _dg), 1e-9) and all(0 <= m['pct'] <= 1 for m in _R05['met']) and len(_R05['met']) == 6, '25~75% 밖: ' + (', '.join(f"{i}({100*_mj[i]['pct']:.0f}%)" for i in _outs) or '없음') + ' · 나머지 ' + ' '.join(f"{m['id']}={100*m['pct']:.0f}%" for m in _R05['met'] if m['id'] not in _outs))
+
+# 9. 설계 기대: 직접 1위 ≠ 근본 1위(기본 시드와 시드 40개 모두), LB-LINE 은 근본 원인에 없음, 다른 블록 때문에 잃은 몫 = LB-LINE 의 몫
+_dtop = _R05['par']['glass']['reason']['items'][0][0]; _rtop = _R05['par']['glass']['root_cause']['items'][0][0]
+_rcodes = [it[0] for it in _R05['par']['glass']['root_cause']['items']]
+chk('0501 설계 기대: 기본 시드의 직접 사유 1위 ≠ 근본 원인 1위, 시드 40개 모두에서도 그렇고, 근본 원인 코드에 LB-LINE 이 없으며, 다른 블록 때문에 잃은 몫 = 직접 사유 LB-LINE 의 몫(다른 블록이 원인인 사건은 LB-LINE 으로만 기록)',
+    _dtop != _rtop and all(a != b for a, b in _R05['topByseed']) and 'LB-LINE' not in _rcodes and _same05(_R05['os']['other'], [it[2] for it in _R05['par']['glass']['reason']['items'] if it[0] == 'LB-LINE'][0]) and all(r.caused_by_block == r.block for r in _ev05[_ev05['reason'] != 'LB-LINE'].itertuples()),
+    f'직접 1위 {_dtop} {100*_R05["par"]["glass"]["reason"]["items"][0][3]:.1f}% · 근본 1위 {_rtop} {100*_R05["par"]["glass"]["root_cause"]["items"][0][3]:.1f}%')
+
+# 10. 원인 블록 표: 합계 항등식, 파이썬이 독립 집계
+_bt = _R05['bt']['rows']
+_own = _ev05.groupby('block')['loss_glass'].sum(); _oth = _ev05[_ev05['caused_by_block'] != _ev05['block']].groupby('block')['loss_glass'].sum(); _cau = _ev05[_ev05['caused_by_block'] != _ev05['block']].groupby('caused_by_block')['loss_glass'].sum()
+chk('0501 원인 블록 표: 블록별 내가 잃은 것·그중 남 때문·남에게 잃게 한 것 JS = 파이썬 독립 집계, 남 때문에 잃은 합 = 남에게 잃게 한 합 = 다른 블록 때문에 잃은 몫, 블록별 잃은 것의 합 = 전체',
+    all(_same05(r['lost'], _own[r['block']]) and _same05(r['lostByOthers'], _oth.get(r['block'], 0.0)) and _same05(r['causedOthers'], _cau.get(r['block'], 0.0)) for r in _bt) and _same05(sum(r['lostByOthers'] for r in _bt), sum(r['causedOthers'] for r in _bt)) and _same05(sum(r['lost'] for r in _bt), _ev05['loss_glass'].sum()),
+    f'블록 {len(_bt)}개 · 남 때문 {sum(r["lostByOthers"] for r in _bt):,.0f}장')
+
+# 11. 대표 사건 연쇄: 파이썬이 같은 규칙(LB-LINE 중 잃은 장수 최대·같으면 먼저 시작, 같은 원인 블록의 같은 코드 근본 사건 중 겹치는 것)으로 다시 고름
+_e05 = _ev05.assign(sm=pd.to_datetime(_ev05['start_ts']), em=pd.to_datetime(_ev05['end_ts']))
+_lb = _e05[_e05['reason'] == 'LB-LINE'].sort_values(['loss_glass', 'sm'], ascending=[False, True]).iloc[0]
+_ca = _e05[(_e05['block'] == _lb['caused_by_block']) & (_e05['reason'] == _lb['root_cause']) & (_e05['root_cause'] == _lb['root_cause']) & (_e05['sm'] < _lb['em']) & (_e05['em'] > _lb['sm'])].sort_values('sm')
+chk('0501 대표 사건 연쇄: 파이썬이 같은 규칙으로 다시 고른 사건 = JS(굶은 사건 1건 + 원인 블록의 근본 사건 목록), 근본 사건은 모두 원인 블록의 사건이고 굶은 사건의 근본 원인과 코드가 같음',
+    _lb['event_id'] == _R05['chain']['lb'] and list(_ca['event_id']) == _R05['chain']['causes'] and len(_ca) >= 1, f"{_lb['event_id']}({_lb['block']}, {_lb['loss_glass']:.0f}장, 원인 {_lb['caused_by_block']} {_lb['root_cause']}) ← 근본 사건 {len(_ca)}건")
+
+# 12. 과제별 고칠 수 있는 장수(개선율 30%): 파이썬 fixable_glass = JS tasks × 0.3, 챔버 턴 = 장수 ÷ N_TURN
+_fx = _m05.fixable_glass(_ev05, 0.3); _tk = _R05['tasks']
+chk('0501 성과 환산: 과제 A(증상 1위에 건 과제가 닿는 근본 원인 하나)·B(자기 원인 1위의 직접 사유 몫)·C(근본 원인 1위) JS = 페이지 Python fixable_glass(개선율 0.3), 챔버 턴 환산에 쓰는 N_TURN = 120, C > A·B',
+    _fx['A'][:2] == (_tk['A']['code'], _tk['A']['reachCode']) and _same05(_fx['A'][2], 0.3 * _tk['A']['reach']) and _fx['B'][0] == _tk['B']['code'] and _same05(_fx['B'][1], 0.3 * _tk['B']['glass']) and _fx['C'][0] == _tk['C']['code'] and _same05(_fx['C'][1], 0.3 * _tk['C']['glass']) and _R05['nturn'] == 120 == _m05.N_TURN and _tk['C']['glass'] > _tk['A']['reach'] > _tk['B']['glass'],
+    f"A {_fx['A'][2]:,.0f} · B {_fx['B'][1]:,.0f} · C {_fx['C'][1]:,.0f}장 (챔버 {_fx['C'][1]/120:.0f}턴)")
+
+# 13. 페이지 Python 실행: 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며 숫자가 JS 와 같음
+_run05 = subprocess.run([sys.executable, '-I', 'lab0501.py'], cwd=_td05, capture_output=True, text=True); _L05 = _run05.stdout.strip().split('\n')
+_dpar = _R05['par']['glass']['reason']['items']; _rpar = _R05['par']['glass']['root_cause']['items']
+_exp05 = ['기간 60일 · 사건 %d건 · 잃은 유리 %s장 · 챔버 %s분' % (len(_ev05), _fm05(_R05['par']['glass']['reason']['total']), _fm05(_R05['par']['min']['reason']['total']))]
+for _t, _it in (('직접 사유', _dpar), ('근본 원인', _rpar)):
+    _exp05.append('%s 파레토 상위 4' % _t)
+    for x in _it[:4]: _exp05.append('  %s %s장 %.1f%% 누적 %.1f%%' % (x[0], _fm05(x[2]), 100 * x[3], 100 * x[4]))
+_lbr = _R05['reat'][_dtop]['items'][:3]
+_exp05.append('직접 사유 %s 의 근본 원인: %s' % (_dtop, ' · '.join('%s %s장' % (x[0], _fm05(x[2])) for x in _lbr)))
+_cm = _R05['cfg'][12]['out']['items']; _cs = _R05['cfg'][13]['out']['items']
+_exp05.append('코드 합치기(설비·품질): 1위 %s %.1f%% · 막대 %d개' % (_cm[0][0], 100 * _cm[0][3], len(_cm)))
+_exp05.append('EQ-PM·Q-MASK 를 블록별로 나누고 2%% 미만은 기타로: 1위 %s %.1f%% · 막대 %d개' % (_cs[0][0], 100 * _cs[0][3], len(_cs)))
+_exp05 += ['  %d주 %s' % (k + 1, ' > '.join(it[0] for it in _R05['wk']['root_cause'][k]['par']['items'][:3])) for k in range(8)]
+_L05set = set(_L05)
+_rs05 = _R05['rs']['root'][:3]
+_exp05b = ['  %s 1위 %.1f%% · 순위 25~75%% %.2f~%.2f · 몫 중앙값 %.1f%%' % (q['code'], 100 * q['top1'], q['r25'], q['r75'], 100 * q['s50']) for q in _rs05]
+_exp05c = '기본 시드의 1위·2위 몫 차 %.1f%%p 는 시드 분포의 %.0f%% 자리(중앙값 %.1f%%p)' % (_dg, 100 * _mj['rootGap']['pct'], _mj['rootGap']['med'])
+_exp05d = '개선율 30%% 로 고칠 수 있는 유리 장수(60일): A 증상 %s→%s %s장 · B 직접 사유 %s %s장 · C 근본 원인 %s %s장(챔버 %.0f턴)' % (_fx['A'][0], _fx['A'][1], _fm05(_fx['A'][2]), _fx['B'][0], _fm05(_fx['B'][1]), _fx['C'][0], _fm05(_fx['C'][1]), _fx['C'][1] / 120)
+chk('0501 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며, 파레토 줄·재귀속 줄·주 단위 8줄·순위 흔들림 3줄·백분위 줄·성과 환산 줄이 JS 값에서 다시 쓴 줄과 같고, 외부 통신 코드가 없음',
+    _run05.returncode == 0 and _run05.stdout.strip() == _out05 and all(e in _L05set for e in _exp05) and all(e in _L05set for e in _exp05b) and _exp05c in _L05set and _exp05d in _L05set
+    and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code05, _re5.M),
+    (_run05.stderr[-300:] if _run05.returncode else f'{len(_L05)}줄'))
+
+# 14. 페이지 구조
+_term05 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg05, _re5.S).group(1)))
+_nq05 = len(_re5.findall(r'<div class="qna" data-label=', _pg05)); _nsec05 = len(_re5.findall(r'<h2><span class="no">', _pg05))
+_fonts05 = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', _pg05)]
+_body05 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg05, flags=_re5.S); _body05 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body05))
+_endda05 = _re5.findall(r'[^니습]다[.]', _body05)
+_p402 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0402-agent-evaluation.html'), encoding='utf-8').read(); _hub05 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_slid05 = ['id="sThr" min="0" max="10" step="0.5" value="0"', 'id="sN" min="3" max="40" step="1" value="40"', 'id="sRate" min="5" max="60" step="5" value="30"']
+_qna05 = ' '.join(_re5.findall(r'<div class="qna".*?</div>', _pg05, _re5.S))
+chk('0501 페이지: 새 용어 6개 · Q&A 4개(시드 분포 숫자를 넣지 않음) · 절 11개 · 정의식 MathML · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0402 의 위·아래 다음 링크와 0402 로 가는 위·아래 이전 링크 · 허브 등록(단계 5 묶음 머리글) · 계산 모듈에 난수·시각 함수 없음 · 슬라이더 기본값 = 모듈 기본값(시드 40·개선율 30·기타 문턱 0) · 모든 표시 수치는 span 주입',
+    _term05 == 6 and _nq05 == 4 and _nsec05 == 11 and '<math display="block">' in _pg05 and '<mfrac>' in _pg05 and min(_fonts05) >= 11 and not _endda05 and _p402.count('0501-loss-pareto.html') == 2 and _pg05.count('0402-agent-evaluation.html') == 2
+    and 'labs/0501-loss-pareto.html' in _hub05 and '단계 5 · 기둥 5' in _hub05 and not _re5.search(r'Math\.random|Date\.now|new Date', _js05s) and all(s in _pg05 for s in _slid05)
+    and _R05['defaults']['seeds'] == 40 and _R05['defaults']['days'] == 60 and not _re5.search(r'\d+(?:\.\d+)?\s*%', _qna05),
+    f'용어 {_term05} · Q&A {_nq05} · 절 {_nsec05} · 캔버스 글자 최소 {min(_fonts05)}px({len(_fonts05)}곳) · -다 끝맺음 {len(_endda05)}건 · 0402 쪽 0501 링크 {_p402.count("0501-loss-pareto.html")}곳')
+_cleanup05 = shutil.rmtree(_td05, ignore_errors=True)
+
 
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)

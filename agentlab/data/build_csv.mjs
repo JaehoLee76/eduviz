@@ -79,6 +79,13 @@ const raw402 = E402.seedRaw(E402.REP);
 csv('s15_agent_log_115.csv', E402.logRows(raw402), ['policy', 'day', 'event', 'chamber', 'detail']);
 csv('s15_human_labels_115.csv', E402.labelRows(raw402), ['kind', 'day', 'chamber', 'value']);
 
+// 실험실 0501: 시드 1~40 의 60일 Loss 를 코드별 합으로 줄인 요약(시드·종류(direct 직접 사유 / root 근본 원인)·코드·사건 수·잃은 유리 장수·챔버 분) + 기본 시드(20261011) 한 묶음.
+// 페이지가 브라우저에서 같은 시드를 다시 돌려 순위 분포를 만들고, 이 CSV 는 회사 PC 의 Python 이 읽는다.
+const L05 = require('./loss05.js');
+const l05 = [L05.DEFAULT_SEED].concat(Array.from({ length: L05.SEEDS }, (_, i) => i + 1)).map(sd => L05.seedRun(sd));
+const r4 = v => Math.round(v * 1e4) / 1e4;
+csv('loss_seed_summary.csv', L05.seedRows(l05).map(r => ({ seed: r.seed, kind: r.kind, code: r.code, n: r.n, glass: r4(r.glass), min: r4(r.min) })), ['seed', 'kind', 'code', 'n', 'glass', 'min']);
+
 // 정답(숨은 진실): 실험실이 대조용으로 쓴다. 학습자에게 보이기 전에는 열지 않는다.
 const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });

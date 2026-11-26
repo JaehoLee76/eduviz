@@ -1,0 +1,980 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>Loss 분류 체계와 파레토</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="같은 Loss 기록을 직접 사유와 근본 원인으로 각각 파레토로 그려 순위가 뒤바뀌는 것을 보고, 사유 코드를 합치고 나누며, 주 단위와 시드 분포로 파레토 순위의 흔들림을 재는 실험실. 원인이 된 블록 표, 개선 과제별 고칠 수 있는 유리 장수, 회사 PC용 Python과 주간 Loss 보고 양식·사유 코드 설계 점검표">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+code{overflow-wrap:anywhere}
+
+td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+table.nw1 td:first-child,table.nw1 th:first-child{white-space:nowrap}
+table.nwall td{white-space:nowrap}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 5 · 기둥 5 · 실험실 0501</p>
+  <h1>Loss 분류 체계와 파레토</h1>
+  <p class="sub">무엇을 먼저 고칠지 고르는 막대그래프는, 사건에 어떤 이름을 붙였느냐에 따라 1위가 바뀝니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0402-agent-evaluation.html">← 이전: 에이전트 평가</a><span class="sp"></span></nav>
+
+<p><b>매주 Loss 보고에서 &lsquo;무엇을 먼저 고칠까&rsquo;를 고르는 도구가 파레토 그림입니다. 그런데 그 그림은 사건마다 붙인 이름(사유 코드)이 어떻게 설계되었느냐에 따라 1위가 전혀 다른 것이 됩니다.</b> 이 실험실은 같은 가상 공장 <span data-v="days"></span>일의 Loss 기록 <span data-v="nev"></span>건(잃은 유리 <span data-v="glassTot"></span>장)을 두 가지 이름으로 각각 그려 순위가 뒤바뀌는 것을 보고, 사유 코드를 합치고 나누면 그림이 어떻게 달라지는지 만져 보고, 기간과 시드를 바꿔 한 달 파레토의 1위가 우연으로도 바뀌는 정도를 잽니다. 마지막에 다음 달 개선 과제 하나를 숫자로 고릅니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0206 의 상태·전이와 Loss 사건을 만든 시뮬레이터(<code>simulateLoss</code>), 0400 의 파이프라인과 실행 기록, 0402 의 평가 단위와 구간, 블록 한 곳이 챔버 4개로 4대·3대 운전을 한다는 것(0206), 막대그래프와 누적 비율.</p>
+  <ul class="chips known"><li>상태·전이·Loss 사건 (0206)</li><li>파이프라인·실행 기록 (0400)</li><li>평가 단위·구간 (0402)</li><li>블록·챔버·4대/3대 운전 (0206)</li><li>막대그래프·누적 비율</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <ul class="chips" id="termList"><li>Loss</li><li>사유 코드 (reason code)</li><li>파레토 (Pareto chart)</li><li>직접 사유 (direct reason)</li><li>근본 원인 (root cause)</li><li>순위 흔들림 (rank instability)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 매주 Loss 보고에서 개선 과제를 고르는 파레토, 그리고 그 파레토가 기대는 사유 코드 체계의 설계(1~8절).</li>
+    <li><b>손으로 연습</b> — 같은 기록을 직접 사유와 근본 원인으로 각각 그려 순위가 뒤바뀌는 것 보기, 코드를 합치고 나누며 그림이 달라지는 것 보기, 주 단위와 시드를 바꿔 순위가 얼마나 흔들리는지 보기(4·6·7절).</li>
+    <li><b>다음 날 산출물</b> — <code>pareto</code>·<code>merge_codes</code>·<code>rank_stability</code> 등 Python 함수(10절), <b>주간 Loss 보고 양식</b>과 <b>사유 코드 설계 점검표</b>(11절).</li>
+    <li><b>기록할 데이터</b> — 사건마다 직접 사유·근본 원인·원인 블록·시작과 끝·잃은 장수·사유를 붙인 사람이나 규칙과 시각, 그리고 코드 체계의 판(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 과제 선택과 코드 체계 승인은 사람, 사유를 붙이는 규칙과 재귀속은 규칙, 집계·파레토·순위 흔들림·보고 초안은 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 증상에 과제를 걸었을 때와 근본 원인에 걸었을 때 고칠 수 있는 유리 장수와 챔버 턴 수(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 지난 <span data-v="days"></span>일의 Loss 기록을 보고 <b>다음 달 개선 과제 하나를 고르십시오. 고른 이유를 숫자로 말하고, 그 선택이 한 달치 기록의 우연에 얼마나 기대고 있는지도 말하십시오.</b>
+  <p class="note" style="margin:.5rem 0 0">1절에서 지금 보고서의 파레토가 어디서 막히는지 확인하고, 3~6절에서 다시 그리는 법을 만들고, 7절에서 순위의 흔들림을 재고, 8절에서 이 물음으로 돌아옵니다. 개선율은 현장 값으로 바꿔야 할 가정입니다(9절).</p>
+</div>
+
+<div class="solban">여기서부터 가상 공장의 Loss 기록으로 푸는 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>첫 시도 — 지금의 보고서에 있는 파레토</h2>
+<ul class="termdef">
+  <li><b>Loss</b> — 설비가 유리를 만들 수 있었는데 만들지 못한 몫입니다. 여기서는 <b>잃은 유리 장수</b>(<code>loss_glass</code>)와 <b>잃은 챔버 분</b>(<code>loss_chamber_min</code>) 두 가지로 잽니다. 챔버 한 곳이 1분 서면 챔버 1분을 잃은 것이고, 이를 한 장 만드는 데 걸리는 시간(<span data-v="ct"></span>분)으로 나누면 잃은 유리 장수가 됩니다.</li>
+  <li><b>사유 코드 (reason code)</b> — Loss 사건 하나에 붙이는 분류 이름입니다. <b>코드 체계</b>는 코드의 목록과 그 코드를 붙이는 규칙을 합친 말입니다. 현장의 기록은 보통 사건마다 이름 하나를 붙입니다.</li>
+  <li><b>파레토 (Pareto chart)</b> — 사유 코드별 Loss 를 큰 순서로 늘어놓은 막대에 누적 비율의 선을 겹친 그림입니다. 앞의 몇 개 막대가 전체의 대부분을 차지하는지 보고, 그 막대를 개선 과제로 삼습니다.</li>
+</ul>
+<div class="eq">
+  <span class="eqlab">파레토의 두 숫자 — 막대의 몫과 누적 비율</span>
+  <math display="block"><mrow><msub><mi>s</mi><mi>i</mi></msub><mo>=</mo><mfrac><msub><mi>L</mi><mi>i</mi></msub><mrow><munder><mo>&#x2211;</mo><mi>j</mi></munder><msub><mi>L</mi><mi>j</mi></msub></mrow></mfrac><mspace width="2em"/><msub><mi>C</mi><mi>i</mi></msub><mo>=</mo><munderover><mo>&#x2211;</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>i</mi></munderover><msub><mi>s</mi><mi>j</mi></msub></mrow></math>
+  <span class="note">L(i)는 큰 순서로 i번째 사유 코드의 Loss(유리 장수나 챔버 분), s(i)는 그 몫, C(i)는 1위부터 i위까지 더한 누적 비율입니다. 누적 비율이 80% 에 닿는 막대까지가 &lsquo;앞의 몇 개&rsquo;입니다.</span>
+</div>
+<p>가상 공장 <span data-v="days"></span>일의 Loss 사건 <span data-v="nev"></span>건에는 사건마다 사유 코드가 하나씩 붙어 있습니다. 코드 체계는 시뮬레이터의 코드 <span data-v="ncodeD"></span>개이고, 코드의 뜻은 아래 3절의 표에 있습니다. 이 기록을 지금 보고서의 방식대로 사유 코드별로 모아 파레토를 그립니다. 막대의 높이를 잃은 유리 장수로 볼지 챔버 분으로 볼지 골라 보십시오.</p>
+<div class="lab">
+  <div class="labtitle">사유 코드별 Loss 파레토 — 지금 보고서의 그림</div>
+  <div class="row valbar"></div>
+  <canvas id="cvD1"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--warn)"></i>1위 막대</span><span><i class="dot" style="background:var(--accent)"></i>그 밖의 막대</span><span><i class="dot" style="background:var(--c10)"></i>누적 비율(오른쪽 축)</span></div>
+  <div class="readout" id="ro1"></div>
+</div>
+<p><b>막힘.</b> 1위는 압도적입니다. 그런데 1위 막대 <b data-v="dTop"></b>(<span data-v="dTopKo"></span>)를 개선 과제로 받은 사람은 무엇을 고쳐야 합니까. 이 코드의 뜻을 보면 &lsquo;다른 블록의 사정 때문에 굶거나 막혔다&rsquo;는 것이라 그 자체는 고칠 대상이 아닙니다. 다음 절에서 이 막대의 사건들을 열어 봅니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>막힘 — 1위 막대를 열어 보면 이유가 없습니다</h2>
+<p>1위 사유 코드 <b data-v="dTop"></b> 의 사건 <span data-v="lbN"></span>건 가운데 잃은 장수가 큰 다섯 건을 보고서에 있는 그대로 펼친 것입니다. 보고서에 있는 칸은 사건·블록·시작·끝·사유 코드·잃은 장수가 전부입니다.</p>
+<div class="tbwrap"><table class="mt num" id="tab2"></table></div>
+<p>이 표로는 &lsquo;그 블록은 왜 굶었는가&rsquo;를 알 수 없습니다. 블록이 그 시간 동안 일을 못 한 것은 사실이지만, 어느 블록의 무슨 일 때문인지는 사유 칸이 말해 주지 않습니다. 그래서 막대 하나로는 과제를 만들 수 없고, 사건마다 &lsquo;그 멈춤을 처음 일으킨 일&rsquo;을 따로 적어야 합니다. 이름을 붙입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — 직접 사유와 근본 원인</h2>
+<ul class="termdef">
+  <li><b>직접 사유 (direct reason)</b> — 그 자리에서 눈에 보이는 멈춘 이유입니다. 지금까지 본 사유 코드가 바로 직접 사유입니다. 예를 들어 앞 블록이 유리를 안 줘서 굶었다면 직접 사유는 <b data-v="dTop"></b> 입니다.</li>
+  <li><b>근본 원인 (root cause)</b> — 그 멈춤을 처음 일으킨 사건의 코드입니다. 직접 사유에서 거슬러 올라가 붙이며, 그 사건이 일어난 블록(<b>원인 블록</b>)도 함께 적습니다. 예를 들어 앞 블록의 한 챔버가 <span data-v="chRootKo"></span>(<span data-v="chRoot"></span>)로 멈춰 뒤 블록이 굶었다면 근본 원인은 <b data-v="chRoot"></b> 이고 원인 블록은 그 챔버가 있는 블록입니다.</li>
+</ul>
+<p>기록에는 사유 말고 두 칸이 더 있었습니다. 직접 사유가 &lsquo;무엇이 보였나&rsquo;의 기록이라면 근본 원인과 원인 블록은 &lsquo;무엇을 고쳐야 하나&rsquo;의 기록입니다. 2절에서 본 가장 큰 사건에 이 두 칸을 채워 시간 축에 놓습니다. 사건을 고르는 규칙은 &lsquo;<b data-v="dTop"></b> 사건 가운데 잃은 장수가 가장 큰 것 하나와, 그 사건의 원인 블록에서 같은 시간에 일어난 근본 사건들&rsquo;입니다.</p>
+<div class="lab">
+  <div class="labtitle">대표 사건 하나의 연쇄 — 근본 사건이 먼저, 굶음이 뒤따릅니다</div>
+  <canvas id="cvChain"></canvas>
+  <div class="tbwrap"><table class="mt num" id="tabChain"></table></div>
+  <div class="readout" id="roChain"></div>
+</div>
+<div class="qna" data-label="근본 원인은 누가 붙이나요?" data-q="근본 원인은 누가 붙이나요?">
+  <p><b>규칙으로 거슬러 올라갈 수 있는 것은 규칙이 붙이고, 그럴 수 없는 것만 사람이 붙입니다.</b> 앞 블록의 챔버가 PM 으로 서 있는 동안 뒤 블록이 굶었다는 사실은 두 사건의 시각과 블록 순서만으로 찾을 수 있습니다. 이런 연쇄는 규칙이 붙이고, 사람은 규칙이 붙인 결과를 확인합니다.</p>
+  <p>규칙이 못 찾는 경우는 사람이 붙입니다. 예를 들어 서로 다른 원인이 겹쳤거나 기록에 없는 일(수작업 조치)이 끼었을 때입니다. 이때는 <b>붙인 사람과 시각</b>을 같은 줄에 남깁니다. 나중에 근본 원인의 신뢰도를 사람이 붙인 줄과 규칙이 붙인 줄로 나누어 볼 수 있어야 하기 때문입니다(11절).</p>
+</div>
+<p>이어서 모든 사유 코드를 한 표에 놓습니다. 코드의 분류와 뜻은 시뮬레이터가 가진 코드 설명표를 그대로 읽은 것입니다. 오른쪽 두 열은 같은 기록을 직접 사유로 센 장수와 근본 원인으로 센 장수입니다.</p>
+<div class="tbwrap"><table class="mt num nw1" id="tabCodes"></table></div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>근본 원인으로 다시 그리기</h2>
+<p>같은 사건 <span data-v="nev"></span>건, 같은 잃은 장수를 이번에는 근본 원인으로 모읍니다. 합계는 달라질 수 없고(<span data-v="glassTot"></span>장), 장수가 어느 막대로 옮겨 가는지만 달라집니다. 막대의 값을 바꾸면 두 그림이 함께 움직입니다.</p>
+<div class="lab">
+  <div class="labtitle">같은 기록, 두 가지 이름 — 직접 사유 파레토와 근본 원인 파레토</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 두 그림의 1위가 같은 코드인지, 2) 직접 사유에서 3위 안에 들지 못하던 코드가 근본 원인에서는 몇 위인지, 3) 오른쪽 선택 상자에서 직접 사유를 바꿔 가며 그 사유의 근본 원인이 몇 개 코드로 흩어지는지 보십시오.</div>
+  <div class="row valbar"></div>
+  <div class="two">
+    <div><div class="labtitle">직접 사유</div><canvas id="cvD4"></canvas></div>
+    <div><div class="labtitle">근본 원인</div><canvas id="cvR4"></canvas></div>
+  </div>
+  <div class="readout" id="ro4"></div>
+</div>
+<div class="lab">
+  <div class="labtitle">직접 × 근본 교차표 — 직접 사유 한 줄이 어느 근본 원인으로 나뉘는가 (유리 천 장)</div>
+  <div class="tbwrap"><table class="mt num" id="tabX"></table></div>
+  <div class="ctrl"><label for="selDir">나누어 볼 직접 사유</label><select id="selDir"></select><output id="selDirO"></output></div>
+  <div class="tbwrap"><table class="mt num" id="tabDrill"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<div class="qna" data-label="직접 사유 파레토는 버려야 하나요?" data-q="직접 사유 파레토는 버려야 하나요?">
+  <p><b>버리지 않습니다. 근본 원인과 짝으로 둡니다.</b> 직접 사유는 현장에서 무엇이 보였는지의 기록이고, 그 자리에서 사람이 바로 붙일 수 있는 이름입니다. 근본 원인은 거슬러 올라간 뒤에야 붙으므로 늦거나 비어 있을 수 있습니다. 근본 원인이 비어 있는 사건은 직접 사유 파레토에라도 남아 있어야 Loss 가 누락되지 않습니다.</p>
+  <p>다만 개선 과제를 고르는 막대는 근본 원인 쪽에서 고르고, 직접 사유 파레토는 &lsquo;지금 라인에서 무엇이 보이는가&rsquo;를 알려 주는 참고 그림으로 보고서에 같이 싣습니다(11절의 보고서 양식).</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>원인이 된 블록 — 남 때문에 잃은 몫과 남에게 잃게 한 몫</h2>
+<p>블록마다 두 가지를 셉니다. <b>내가 잃은 것</b>은 그 블록이 서 있던 Loss 이고, <b>남에게 잃게 한 것</b>은 그 블록에서 일어난 일이 다른 블록에서 잃게 만든 Loss 입니다(원인 블록 칸으로 셉니다). 직접 사유만 보면 앞의 것만 보이므로, 앞 블록 때문에 손해를 본 뒤 블록이 개선 대상처럼 보입니다.</p>
+<div class="lab">
+  <div class="labtitle">블록별 Loss — 잃은 것과 잃게 한 것 (유리 장수, <span data-v="days"></span>일)</div>
+  <canvas id="cvBlk"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--grey)"></i>그 블록이 다른 블록 때문에 잃은 것</span><span><i class="dot" style="background:var(--warn)"></i>그 블록이 다른 블록에게 잃게 한 것</span></div>
+  <div class="tbwrap"><table class="mt num nw1" id="tabBlk"></table></div>
+  <div class="readout" id="ro5"></div>
+</div>
+<p>블록 단위 과제의 근거는 근본 원인 코드와 원인 블록을 같이 본 표에서 나옵니다. 아래는 (근본 원인 코드, 원인 블록) 칸을 큰 순으로 다섯 개 늘어놓은 것입니다. 이 칸 하나가 곧 &lsquo;어느 블록의 어느 일을 고치면 얼마가 줄어드나&rsquo;입니다.</p>
+<div class="tbwrap"><table class="mt num" id="tabCell"></table></div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>코드 체계 설계 — 합치기와 나누기</h2>
+<p>근본 원인을 붙이기로 했다면 이제 코드를 어떻게 설계하느냐가 남습니다. 같은 사건에 다른 코드 체계를 입히면 막대가 달라지고, 1위도 달라질 수 있습니다. 아래 근본 원인 파레토에서 코드를 합치거나 블록별로 쪼개 보십시오. 합계 <span data-v="glassTot"></span>장은 변하지 않습니다.</p>
+<div class="lab">
+  <div class="labtitle">근본 원인 코드 체계 만지기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 설비 두 코드를 하나로 합치면 1위가 무엇이 되는지, 2) 코드를 블록별로 잘게 나누면 1위의 몫과 이름이 어떻게 되는지, 3) 기타 문턱을 올리면 기타 막대가 어디까지 커지는지 보십시오. 너무 잘게 나누면 1위가 흩어져 사라지고, 너무 크게 묶으면 어느 설비를 고칠지가 안 보입니다.</div>
+  <div class="row">
+    <label class="chk"><input type="checkbox" id="mEq"> 설비 합치기 (<span data-v="eqCodes"></span>)</label>
+    <label class="chk"><input type="checkbox" id="mQ"> 품질 합치기 (<span data-v="qCodes"></span>)</label>
+    <label class="chk"><input type="checkbox" id="mLg"> 물류 합치기 (<span data-v="lgCodes"></span>)</label>
+  </div>
+  <div class="ctrl"><label for="selSplit">블록별로 나눌 코드</label><select id="selSplit"></select><output id="selSplitO"></output></div>
+  <div class="ctrl"><label for="sThr">기타로 묶는 문턱 (몫 %)</label><input type="range" id="sThr" min="0" max="10" step="0.5" value="0"><output id="sThrO"></output></div>
+  <div class="row"><button class="btn ghost" id="rCode" type="button">기준 코드 체계로 되돌리기</button></div>
+  <div class="state" id="st6"></div>
+  <canvas id="cvM6"></canvas>
+  <div class="readout" id="ro6"></div>
+</div>
+<p><b>좋은 코드 체계의 점검표.</b> 아래 여섯 가지를 코드 체계를 정하거나 바꿀 때마다 확인합니다. 마지막 칸의 값은 위 조작에 따라 함께 바뀝니다.</p>
+<div class="tbwrap"><table class="mt" id="tabChk"></table></div>
+<div class="qna" data-label="코드는 몇 개가 적당한가요?" data-q="코드는 몇 개가 적당한가요?">
+  <p><b>정해진 개수는 없고, 두 가지로 판단합니다.</b> 하나는 기타의 몫입니다. 어느 코드에도 못 넣은 사건이 많아 기타가 커지면 코드 목록에 빠진 일이 있다는 신호이니 코드를 더하거나 나눕니다. 다른 하나는 순위의 흔들림입니다. 막대 둘의 몫이 비슷한데 기간만 바꿔도 1, 2위가 뒤바뀐다면 그 둘은 판단에 쓰기에 너무 잘게 나눈 것일 수 있습니다(7절).</p>
+  <p>또 과제의 주인이 다른 코드는 합치지 않습니다. 설비 PM 과 마스크 불량은 담당 부서와 개선 방법이 다르므로 합치면 막대는 커져도 과제는 만들 수 없습니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>순위 흔들림 — 한 달 파레토의 1위는 우연일 수 있습니다</h2>
+<ul class="termdef">
+  <li><b>순위 흔들림 (rank instability)</b> — 기간이나 표본이 바뀔 때 파레토의 순위가 우연으로 바뀌는 정도입니다. 흔들림이 크면 한 번 본 순위로 과제를 정하기 어렵습니다. 0402 에서 일치율에 구간을 붙인 것과 같은 생각으로, 순위에도 구간을 붙입니다.</li>
+</ul>
+<h3>7-1. 같은 <span data-v="days"></span>일을 주 단위로 자르면</h3>
+<p>같은 기록을 월요일부터 7일씩 잘라 주마다 파레토를 그립니다(<span data-v="nw"></span>주. 끝에 남는 <span data-v="restDays"></span>일은 7일이 안 차서 뺍니다). 사건은 시작한 시각이 속한 주에 넣습니다. 기준으로 삼은 순위는 전체 <span data-v="days"></span>일의 순위입니다.</p>
+<div class="lab">
+  <div class="labtitle">주마다 파레토 1~3위</div>
+  <div class="row wkbar"></div>
+  <canvas id="cvWk"></canvas>
+  <div class="legend" id="lgWk"></div>
+  <div class="tbwrap"><table class="mt num nwall" id="tabWk"></table></div>
+  <div class="readout" id="roWk"></div>
+</div>
+<h3>7-2. 다른 시드로 같은 공장을 다시 돌리면</h3>
+<p>주 단위는 한 번 돌린 기록 안의 흔들림이고, 같은 공장을 다른 우연으로 다시 돌린 기록이 따로 있습니다. <span data-v="days"></span>일씩 시드 1부터 <span data-v="nSeedMax"></span>까지 이 페이지가 시뮬레이터를 다시 돌려 시드마다 파레토를 만들고, 코드마다 &lsquo;1위가 된 비율&rsquo;과 순위·몫의 분포를 냅니다. 이 대표 기록(기본 시드)이 그 분포 안 어디에 놓이는지도 함께 봅니다.</p>
+<p class="note">시드 수와 기간의 선택: 시드 하나에 <span data-v="msPerSeed"></span>밀리초 안팎이 걸려서(이 페이지가 처음 열릴 때 잰 값) <span data-v="days"></span>일짜리 <span data-v="nSeedMax"></span>개를 한 번에 돌리면 화면이 얼어붙지 않도록 두 개씩 끊어 돌립니다. 기간을 줄이지 않고 기본 <span data-v="days"></span>일을 그대로 쓴 것은 대표 기록과 같은 조건으로 견주기 위해서이고, 시드 수 <span data-v="nSeedMax"></span>는 몇 초 안에 끝나는 한도로 정했습니다. 더 많이 돌리면 구간이 조금 좁아집니다.</p>
+<div class="lab">
+  <div class="labtitle">시드별 파레토의 순위 분포</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 근본 원인에서 1위가 된 비율이 가장 높은 코드가 매 시드 1위는 아닌지, 2) 표본 시드 수를 줄이면 1위가 된 비율이 얼마나 출렁이는지, 3) 기본 시드의 1위·2위 몫 차가 분포의 어디쯤인지 보십시오.</div>
+  <div class="row"><button class="btn ghost kbar" data-k="root" type="button">근본 원인</button><button class="btn ghost kbar" data-k="direct" type="button">직접 사유</button></div>
+  <div class="ctrl"><label for="sN">표본 시드 수</label><input type="range" id="sN" min="3" max="40" step="1" value="40"><output id="sNO"></output></div>
+  <div class="row"><button class="btn ghost" id="rN" type="button">시드 수를 끝까지 되돌리기</button></div>
+  <div class="state" id="st7"></div>
+  <canvas id="cvSd"></canvas>
+  <div class="legend"><span><span class="sw" style="border-top-color:var(--grey)"></span>몫의 10~90%</span><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>25~75%(상자)</span><span><i class="dot" style="background:var(--warn);border-radius:0;transform:rotate(45deg)"></i>기본 시드의 몫</span></div>
+  <div class="tbwrap"><table class="mt num nw1" id="tabSd"></table></div>
+  <div class="tbwrap"><table class="mt num" id="tabMet"></table></div>
+  <div class="concl" id="conc7"></div>
+</div>
+<div class="qna" data-label="한 달 1위가 바뀌면 과제를 바꿔야 하나요?" data-q="한 달 1위가 바뀌면 과제를 바꿔야 하나요?">
+  <p><b>1위가 바뀌어도 흔들림 구간 안이면 과제를 바꾸지 않습니다.</b> 막대 둘의 몫이 비슷하면 어느 달에는 앞의 것이, 어느 달에는 뒤의 것이 1위가 됩니다. 그때마다 과제를 바꾸면 어느 것도 끝내지 못합니다. 위 7-2 의 분포에서 둘이 서로의 순위 구간 안에 있다면 둘을 한 묶음 과제로 두고, 순서는 개선하기 쉬운 쪽이나 효과를 검증하기 쉬운 쪽부터 정합니다.</p>
+  <p>반대로 몫의 차가 분포의 바깥으로 벗어난 달에는 라인에서 무슨 일이 있었는지 먼저 봅니다. 1위가 바뀐 것이 우연이 아니라 설비 교체나 제품 변경 같은 구조적 변화일 수 있기 때문입니다.</p>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 다음 달 개선 과제 하나</h2>
+<p>맨 앞의 물음으로 돌아옵니다. <b>다음 달 개선 과제 하나를 고르고, 그 이유를 숫자로 말하며, 그 선택이 우연에 얼마나 기대는지 말하십시오.</b></p>
+<div class="concl" id="conc8"></div>
+<div class="cols3">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">사람</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>다음 달 과제를 고르고 주인을 정합니다</li><li>코드 체계의 판을 올리거나 바꾸는 것을 승인합니다</li><li>규칙이 못 찾은 근본 원인을 붙입니다</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">규칙</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>직접 사유에서 근본 원인으로 거슬러 올라가는 규칙</li><li>(근본 원인, 원인 블록)으로 다시 모으는 재귀속</li><li>기타 몫·빈칸 비율 같은 체계 점검의 문턱</li></ul></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">에이전트</h3><ul style="margin:.2rem 0 0 1.1rem;padding:0"><li>집계와 파레토, 주 단위 순위 변화 표</li><li>시드·기간 분포로 순위 구간 계산</li><li>주간 Loss 보고의 초안(사실 목록 방식, 0411)</li></ul></div>
+</div>
+<p><b>0502 로 가는 다리.</b> 여기까지는 사유마다 따로 합계를 냈습니다. 그런데 근본 원인 코드끼리 같은 날 함께 늘고 줄거나 서로를 부르는 모습이 보일 수 있습니다. 그것이 정말 연쇄인지, 공통의 시간 추세 때문에 생긴 가짜 상관인지는 0502 에서 가립니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>과제를 걸었을 때 줄어드는 Loss 를 세 경우로 견줍니다. 과제가 개선율만큼 해당 Loss 를 줄인다고 가정합니다(슬라이더). <b>A</b>는 직접 사유 1위(증상)에 과제를 건 경우로, 한 과제가 닿는 곳은 그 사유 사건들의 근본 원인 가운데 하나뿐이라고 보고 가장 큰 근본 원인의 몫만 셉니다. <b>B</b>는 직접 사유 순위에서 자기 원인인 사건(직접 사유와 근본 원인이 같은 코드)이 가장 큰 코드의 직접 사유 몫에 건 경우입니다. <b>C</b>는 근본 원인 1위에 건 경우로, 그 원인이 다른 블록·다른 사유로 일으킨 Loss 까지 센 근본 원인 몫입니다. 작으면 작다고 적습니다.</p>
+<div class="lab">
+  <div class="labtitle">과제별로 고칠 수 있는 Loss (<span data-v="days"></span>일 기준)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 개선율을 올리고 내려도 세 경우의 순서가 바뀌는지, 같은 코드를 직접 사유로만 센 B 와 근본 원인으로 센 C 의 차이가 어디서 나오는지 보십시오.</div>
+  <div class="ctrl"><label for="sRate">과제의 개선율 (%, 가정)</label><input type="range" id="sRate" min="5" max="60" step="5" value="30"><output id="sRateO"></output></div>
+  <div class="row"><button class="btn ghost" id="rRate" type="button">개선율을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table class="mt num" id="tab9"></table></div>
+  <div class="concl" id="conc9"></div>
+</div>
+<p class="note">챔버 한 턴 = 챔버 한 곳이 마스크 한 장으로 만드는 유리 <span data-v="nturn"></span>장입니다. 월 환산은 <span data-v="days"></span>일 값을 30일로 맞춘 것입니다. 회사에서는 같은 식에 유리 한 장의 생산 손실 단가를 곱해 금액으로 적습니다. 개선율은 지난 과제에서 실제로 줄어든 폭으로 채웁니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>pandas</code> 와 <code>numpy</code> 만 씁니다. 입력은 Loss 사건 표(<code>loss_events.csv</code>)와 시드 분포 요약(<code>loss_seed_summary.csv</code>)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 요약 CSV 는 시드마다 직접 사유·근본 원인 코드별 사건 수와 잃은 장수를 한 줄씩 적은 것으로, 위 7-2 에서 브라우저가 다시 돌린 것과 같은 시드입니다.</p>
+<div class="row"><a class="btn" href="../data/csv/loss_events.csv" download>loss_events.csv</a><a class="btn" href="../data/csv/loss_seed_summary.csv" download>loss_seed_summary.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 직접 사유만 있는 기록으로 근본 원인 파레토를 그리지 마십시오(비어 있는 칸을 추정으로 채우는 일입니다). 사유 코드 체계가 바뀐 기간끼리는 파레토를 견주지 마십시오(막대의 뜻이 달라집니다). 한 주 사건이 수십 건도 안 되는 곳에서는 주 단위 순위를 보지 마십시오. 개선율은 근거 없이 정해 금액으로 바로 바꾸지 마십시오.</p>
+<pre id="pyCode">import os
+import numpy as np
+import pandas as pd
+
+# ---- 가정·설정: 회사 값으로 바꿀 곳 --------------------------------------------------
+DAYS = 60                         # 기록 기간(일)
+START = pd.Timestamp("2026-01-05 00:00")   # 기록 시작 시각(월요일 0시)
+N_TURN = 120                      # 챔버 한 턴이 만드는 유리 장수(챔버 한 턴 환산에 씀)
+RATE = 0.30                       # 과제의 개선율(가정)
+DEFAULT_SEED = 20261011           # 이 가상 공장의 기본 시드(분포 요약에서 따로 떼어 본다)
+CATEGORY = {"EQ-BD": "설비", "EQ-PM": "설비", "Q-MASK": "품질", "Q-EVAP": "품질", "LG-TRANS": "물류", "LG-STK": "물류",
+            "LG-CST": "물류", "LG-JC": "물류", "CL-CAPA": "세정", "JC-EARLY": "운영", "RUN-TRIPLE": "운영", "LB-LINE": "라인"}   # 사유 코드 → 분류
+
+
+def fm(x):
+    """천 단위 쉼표를 붙인 정수(반올림은 0.5 에서 올림)."""
+    return format(int(x + 0.5 + 1e-6), ",")
+
+
+# ---- 1. 불러오기와 파레토 ---------------------------------------------------------------
+def load_events(path="loss_events.csv"):
+    """Loss 사건 표. 시작 시각에서 기록 시작부터 몇 번째 주인지(week)도 붙인다."""
+    df = pd.read_csv(path, keep_default_na=False)
+    df["week"] = ((pd.to_datetime(df["start_ts"]) - START) // pd.Timedelta(days=7)).astype(int)
+    return df
+
+
+def pareto(df, by, value="loss_glass"):
+    """by 열의 값마다 사건 수·합·몫·누적 몫. 큰 순(같으면 이름 순).
+    쓰면 안 되는 때: 사유 코드 체계가 바뀐 기간의 기록을 한 표에 섞어 견줄 때."""
+    g = df.groupby(by)[value].agg(["count", "sum"]).reset_index()
+    g.columns = [by, "n", "value"]
+    g = g.sort_values(["value", by], ascending=[False, True]).reset_index(drop=True)
+    tot = g["value"].sum()
+    g["share"] = g["value"] / tot
+    g["cum"] = g["value"].cumsum() / tot
+    return g
+
+
+def crosstab_direct_root(df, value="loss_glass"):
+    """행 = 직접 사유, 열 = 근본 원인, 칸 = 잃은 유리 장수. 행·열은 합이 큰 순.
+    쓰면 안 되는 때: 근본 원인 칸이 비었거나 추정으로 채운 기록으로 만들 때(빈칸은 비어 있는 채로 두십시오)."""
+    t = pd.crosstab(df["reason"], df["root_cause"], values=df[value], aggfunc="sum").fillna(0.0)
+    return t.loc[t.sum(axis=1).sort_values(ascending=False, kind="stable").index, t.sum(axis=0).sort_values(ascending=False, kind="stable").index]
+
+
+def merge_codes(df, mapping, split=(), by="root_cause", min_share=0.0, value="loss_glass"):
+    """코드를 합치고(mapping: 코드 → 새 이름) 나눈 뒤(split: 블록별로 쪼갤 코드) 파레토를 다시 낸다.
+    min_share 보다 작은 막대는 '기타' 하나로 묶는다. 쓰면 안 되는 때: 합친 체계로 과거 기록의 순위를 지난 체계의 순위와 견줄 때."""
+    lab = df[by].map(mapping).fillna(df[by])
+    for c in split:
+        lab = lab.where(~((df[by] == c) &amp; ~df[by].isin(mapping.keys())), df[by] + "@" + df["caused_by_block"])
+    p = pareto(df.assign(label=lab), "label", value)
+    small = p["share"] &lt; min_share
+    if min_share &gt; 0 and small.any():
+        p = pd.concat([p[~small], pd.DataFrame({"label": ["기타"], "n": [p.loc[small, "n"].sum()], "value": [p.loc[small, "value"].sum()]})], ignore_index=True)
+        p["share"] = p["value"] / p["value"].sum()
+        p["cum"] = p["value"].cumsum() / p["value"].sum()
+    return p
+
+
+def weekly_pareto(df, by, days=DAYS):
+    """주마다 파레토(일곱 일이 다 찬 주만). 쓰면 안 되는 때: 한 주 사건이 수십 건 미만인 설비 한 대의 기록 — 주마다 순위가 우연으로 뒤바뀝니다."""
+    return {w: pareto(df[df["week"] == w], by) for w in range(days // 7)}
+
+
+# ---- 2. 순위 흔들림 ---------------------------------------------------------------------
+def rank_stability(frames, by, value="loss_glass"):
+    """frames: 시드(또는 기간) 하나당 표 하나. 코드마다 1위가 된 비율과 순위·몫의 분포(25·50·75%).
+    쓰면 안 되는 때: 표본(시드·기간)이 서너 개뿐일 때 — 비율이 몇 개 값밖에 못 가집니다."""
+    sums = [f.groupby(by)[value].sum() for f in frames]
+    codes = sorted(set().union(*[set(s.index) for s in sums]))
+    mat = pd.DataFrame([[s.get(c, 0.0) for c in codes] for s in sums], columns=codes)
+    rk = np.zeros(mat.shape, dtype=int)
+    for i, row in mat.iterrows():
+        order = sorted(codes, key=lambda c: (-row[c], c))
+        for j, c in enumerate(order):
+            rk[i, codes.index(c)] = j + 1
+    share = mat.div(mat.sum(axis=1), axis=0)
+    out = pd.DataFrame({"code": codes, "top1": (rk == 1).mean(axis=0), "r25": np.quantile(rk, 0.25, axis=0), "r50": np.quantile(rk, 0.5, axis=0),
+                        "r75": np.quantile(rk, 0.75, axis=0), "s50": share.median().values})
+    return out.sort_values(["top1", "r50", "s50"], ascending=[False, True, False]).reset_index(drop=True)
+
+
+def percentile(values, v):
+    """v 가 values 안에서 몇 % 자리인가(같은 값은 반씩)."""
+    x = np.asarray(values, dtype=float)
+    return ((x &lt; v - 1e-9).sum() + 0.5 * (np.abs(x - v) &lt;= 1e-9).sum()) / len(x)
+
+
+# ---- 3. 과제를 걸었을 때 고칠 수 있는 장수 -----------------------------------------------
+def fixable_glass(df, rate=RATE):
+    """개선율 rate 로 세 과제를 걸었을 때 줄어드는 유리 장수.
+    A: 직접 사유 1위(증상)에 건 과제 — 한 과제가 닿는 곳은 그 사유의 근본 원인 하나뿐이라 가장 큰 근본 원인의 몫만 센다.
+    B: 직접 사유 가운데 자기 원인(직접 사유 = 근본 원인)인 1위에 건 과제.   C: 근본 원인 1위에 건 과제.
+    쓰면 안 되는 때: rate 를 근거 없이 정하고 금액으로 바로 바꿀 때 — 먼저 지난 과제의 실제 줄어든 폭을 적어 두십시오."""
+    d = pareto(df, "reason")
+    a_top = d.loc[0, "reason"]
+    a_reach = pareto(df[df["reason"] == a_top], "root_cause").loc[0]
+    selfev = df[df["reason"] == df["root_cause"]]
+    b_code = pareto(selfev, "reason").loc[0, "reason"]
+    b_glass = d.loc[d["reason"] == b_code, "value"].iloc[0]
+    r = pareto(df, "root_cause").loc[0]
+    return {"A": (a_top, a_reach["root_cause"], rate * a_reach["value"]), "B": (b_code, rate * b_glass), "C": (r["root_cause"], rate * r["value"])}
+
+
+if __name__ == "__main__":
+    here = os.path.dirname(os.path.abspath(__file__))
+    ev = load_events(os.path.join(here, "loss_events.csv"))
+    print("기간 %d일 · 사건 %d건 · 잃은 유리 %s장 · 챔버 %s분" % (DAYS, len(ev), fm(ev["loss_glass"].sum()), fm(ev["loss_chamber_min"].sum())))
+    for title, by in (("직접 사유", "reason"), ("근본 원인", "root_cause")):
+        p = pareto(ev, by)
+        print("%s 파레토 상위 4" % title)
+        for _, r in p.head(4).iterrows():
+            print("  %s %s장 %.1f%% 누적 %.1f%%" % (r[by], fm(r["value"]), 100 * r["share"], 100 * r["cum"]))
+    ct = crosstab_direct_root(ev)
+    top = ct.index[0]
+    print("직접 사유 %s 의 근본 원인: %s" % (top, " · ".join("%s %s장" % (c, fm(v)) for c, v in ct.loc[top].sort_values(ascending=False, kind="stable").head(3).items())))
+    mg = merge_codes(ev, {"EQ-BD": "설비", "EQ-PM": "설비", "Q-MASK": "품질", "Q-EVAP": "품질"})
+    print("코드 합치기(설비·품질): 1위 %s %.1f%% · 막대 %d개" % (mg.loc[0, "label"], 100 * mg.loc[0, "share"], len(mg)))
+    sp = merge_codes(ev, {}, split=["EQ-PM", "Q-MASK"], min_share=0.02)
+    print("EQ-PM·Q-MASK 를 블록별로 나누고 2%% 미만은 기타로: 1위 %s %.1f%% · 막대 %d개" % (sp.loc[0, "label"], 100 * sp.loc[0, "share"], len(sp)))
+    wk = weekly_pareto(ev, "root_cause")
+    print("주 단위 근본 원인 1~3위")
+    for w, p in wk.items():
+        print("  %d주 %s" % (w + 1, " &gt; ".join(p["root_cause"].head(3))))
+    sm = pd.read_csv(os.path.join(here, "loss_seed_summary.csv"), keep_default_na=False)
+    rs = sm[(sm["kind"] == "root") &amp; (sm["seed"] != DEFAULT_SEED)]
+    frames = [g.rename(columns={"code": "root_cause", "glass": "loss_glass"}) for _, g in rs.groupby("seed")]
+    st = rank_stability(frames, "root_cause")
+    print("순위 흔들림(시드 %d개 × %d일): 근본 원인 1위가 된 비율" % (len(frames), DAYS))
+    for _, r in st.head(3).iterrows():
+        print("  %s 1위 %.1f%% · 순위 25~75%% %.2f~%.2f · 몫 중앙값 %.1f%%" % (r["code"], 100 * r["top1"], r["r25"], r["r75"], 100 * r["s50"]))
+    dflt = sm[(sm["kind"] == "root") &amp; (sm["seed"] == DEFAULT_SEED)].set_index("code")["glass"]
+    gaps = []
+    for f in frames:
+        v = f.groupby("root_cause")["loss_glass"].sum().sort_values(ascending=False)
+        gaps.append(100 * (v.iloc[0] - v.iloc[1]) / v.sum())
+    dv = dflt.sort_values(ascending=False)
+    dg = 100 * (dv.iloc[0] - dv.iloc[1]) / dv.sum()
+    print("기본 시드의 1위·2위 몫 차 %.1f%%p 는 시드 분포의 %.0f%% 자리(중앙값 %.1f%%p)" % (dg, 100 * percentile(gaps, dg), np.median(gaps)))
+    fx = fixable_glass(ev)
+    print("개선율 %.0f%% 로 고칠 수 있는 유리 장수(%d일): A 증상 %s→%s %s장 · B 직접 사유 %s %s장 · C 근본 원인 %s %s장(챔버 %.0f턴)"
+          % (100 * RATE, DAYS, fx["A"][0], fx["A"][1], fm(fx["A"][2]), fx["B"][0], fm(fx["B"][1]), fx["C"][0], fm(fx["C"][1]), fx["C"][1] / N_TURN))</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 둘과 같은 폴더에서 <code>python3 lab0501.py</code> 로 돌렸고, 위 1·4·6·7·9절의 숫자와 같은 값이 나옵니다. 7절의 분포는 이 페이지가 브라우저에서 계산한 시드 수와 같은 요약으로 다시 냈기 때문에 일치합니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">기간 60일 · 사건 4748건 · 잃은 유리 329,820장 · 챔버 824,537분
+직접 사유 파레토 상위 4
+  LB-LINE 224,908장 68.2% 누적 68.2%
+  EQ-PM 28,148장 8.5% 누적 76.7%
+  Q-MASK 22,346장 6.8% 누적 83.5%
+  RUN-TRIPLE 18,707장 5.7% 누적 89.2%
+근본 원인 파레토 상위 4
+  EQ-PM 122,510장 37.1% 누적 37.1%
+  Q-MASK 107,513장 32.6% 누적 69.7%
+  EQ-BD 62,449장 18.9% 누적 88.7%
+  Q-EVAP 23,976장 7.3% 누적 95.9%
+직접 사유 LB-LINE 의 근본 원인: EQ-PM 82,424장 · Q-MASK 79,888장 · EQ-BD 42,389장
+코드 합치기(설비·품질): 1위 설비 56.1% · 막대 5개
+EQ-PM·Q-MASK 를 블록별로 나누고 2% 미만은 기타로: 1위 EQ-BD 18.9% · 막대 18개
+주 단위 근본 원인 1~3위
+  1주 EQ-PM &gt; Q-MASK &gt; EQ-BD
+  2주 Q-MASK &gt; EQ-PM &gt; EQ-BD
+  3주 EQ-PM &gt; Q-MASK &gt; EQ-BD
+  4주 EQ-PM &gt; Q-MASK &gt; EQ-BD
+  5주 EQ-PM &gt; Q-MASK &gt; EQ-BD
+  6주 Q-MASK &gt; EQ-PM &gt; EQ-BD
+  7주 EQ-PM &gt; Q-MASK &gt; EQ-BD
+  8주 Q-MASK &gt; EQ-BD &gt; EQ-PM
+순위 흔들림(시드 40개 × 60일): 근본 원인 1위가 된 비율
+  EQ-PM 1위 75.0% · 순위 25~75% 1.00~1.25 · 몫 중앙값 36.2%
+  Q-MASK 1위 25.0% · 순위 25~75% 1.75~2.00 · 몫 중앙값 33.9%
+  EQ-BD 1위 0.0% · 순위 25~75% 3.00~3.00 · 몫 중앙값 18.5%
+기본 시드의 1위·2위 몫 차 4.5%p 는 시드 분포의 78% 자리(중앙값 2.6%p)
+개선율 30% 로 고칠 수 있는 유리 장수(60일): A 증상 LB-LINE→EQ-PM 24,727장 · B 직접 사유 EQ-PM 8,445장 · C 근본 원인 EQ-PM 36,753장(챔버 306턴)</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>주간 Loss 보고 양식</h3>
+  <dl>
+    <dt>칸</dt><dd id="rp_fields"></dd>
+    <dt>이 가상 공장 <span data-v="days"></span>일 가운데 한 주로 채운 예(<span data-v="exWeek"></span>주)</dt><dd id="rp_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ (<b>코드 체계의 판을 올릴 때와 이번 주 과제를 확정할 때마다 승인합니다.</b>)</dd>
+  </dl>
+</div>
+<div class="report">
+  <h3>사유 코드 설계 점검표</h3>
+  <ol style="margin:.2rem 0 .2rem 1.2rem;padding:0">
+    <li><b>서로 겹치지 않는가</b> — 한 사건이 두 코드에 동시에 들지 않고, 같은 일을 사람마다 다른 코드로 적지 않습니까.</li>
+    <li><b>빠짐없는가</b> — 모든 사건이 어떤 코드에든 들어갑니까. 기타의 몫이 5% 를 넘으면 목록을 다시 봅니다.</li>
+    <li><b>근본 원인 칸이 필수인가</b> — 비어 있는 채로 저장되는 줄이 없습니까. 직접 사유만 남은 줄은 따로 셉니다.</li>
+    <li><b>원인 블록 칸이 있는가</b> — 근본 원인이 일어난 블록을 적습니다. 같은 블록이면 자기 자신을 적습니다.</li>
+    <li><b>붙이는 규칙과 붙인 사람이 남는가</b> — 규칙으로 붙였는지 사람이 붙였는지, 붙인 시각과 함께.</li>
+    <li><b>판이 있는가</b> — 코드 체계를 바꾼 날짜가 남아 있어, 바뀐 기간끼리 순위를 견주지 않습니다.</li>
+    <li><b>한 코드에 한 주인이 있는가</b> — 코드마다 개선을 맡을 부서나 사람이 정해져 있습니다. 주인을 못 정하는 코드는 나눕니다.</li>
+  </ol>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>Loss 사건마다</b> — 직접 사유 · 근본 원인 · 원인 블록 · 시작과 끝 시각 · 잃은 유리 장수(와 챔버 분).</li>
+      <li><b>사유를 붙인 사람이나 규칙과 그 시각</b> — 규칙이 붙인 줄과 사람이 붙인 줄을 나누어 볼 수 있어야 합니다.</li>
+      <li><b>코드 체계의 판과 바꾼 날</b> — 판이 다른 기간의 파레토는 견주지 않습니다.</li>
+      <li><b>과제와 결과</b> — 어느 (근본 원인, 원인 블록)에 어떤 과제를 걸었고 몇 주 뒤 몫이 얼마나 줄었는지(개선율의 근거).</li>
+    </ul>
+    <p class="note" style="margin:.5rem 0 0">근본 원인 칸이 비어 있으면 몇 달을 쌓아도 4절의 그림을 그릴 수 없습니다. 회사 기록은 회사 안에만 둡니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0400 파이프라인에서 보고 초안까지 부르는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0402-agent-evaluation.html">← 이전: 에이전트 평가</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/loss05.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var L=Loss05,MS=MfgSim;
+var T0=performance.now();
+var EV=MS.simulateLoss().events;
+var MSBASE=performance.now()-T0;
+var DAYS=L.DAYS,SEEDN=L.SEEDS,NTURN=L.N_TURN;
+var ST={val:'glass',mEq:false,mQ:false,mLg:false,split:'none',thr:0,wkBy:'root_cause',dir:null,sn:SEEDN,kind:'root',rate:30};
+var DEF={thr:0,sn:SEEDN,rate:30};
+var LIST=[],DEFRUN=L.seedRun(L.DEFAULT_SEED),SEED_DONE=false;
+var PAR={};['glass','min'].forEach(function(v){PAR[v]={reason:L.pareto(EV,'reason',v),root:L.pareto(EV,'root_cause',v)};});
+var PD=PAR.glass.reason,PR=PAR.glass.root,X=L.cross(EV),BT=L.blockTable(EV),CH=L.chain(EV),TK=L.tasks(EV);
+var WKR=L.weekly(EV,DAYS,'root_cause'),WKD=L.weekly(EV,DAYS,'reason');
+var CELL=L.paretoWith(EV,function(e){return e.root_cause+'@'+e.caused_by_block;});
+var BYBLK=L.pareto(EV,'caused_by_block');
+var V={};
+function $(id){return document.getElementById(id);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fm(x){return x!=null&&isFinite(x)?String(Math.floor(x+0.5+1e-6)).replace(/\B(?=(\d{3})+(?!\d))/g,','):'—';}
+function p1(x){return x!=null&&isFinite(x)?(100*x).toFixed(1)+'%':'—';}
+function f1(x){return x!=null&&isFinite(x)?x.toFixed(1):'—';}
+function f2(x){return x!=null&&isFinite(x)?x.toFixed(2):'—';}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function info(c){return L.info(c);}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?cls[i](c):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function lc(){return 'l';}
+function codeKo(c){return info(c).ko;}
+function unitOf(v){return v==='min'?'챔버 분':'유리 장수';}
+function top3(par){return par.items.slice(0,3);}
+
+/* ---------- 본문 속 숫자·이름: 계산에서 받아 쓴다 ---------- */
+function buildV(){
+  var d=PD.items,r=PR.items,tk=TK,nw=WKR.length;
+  var rootTop=r[0].key,wkTopDiff=0,wkTops={};
+  WKR.forEach(function(w){var k=w.par.items[0].key;wkTops[k]=1;if(k!==rootTop)wkTopDiff++;});
+  V.days=String(DAYS);V.nev=fm(EV.length);V.glassTot=fm(PD.total);V.ct=String(MS.CFG.CT);V.nturn=String(NTURN);
+  V.ncodeD=String(d.length);V.dTop=d[0].key;V.dTopKo=codeKo(d[0].key);
+  V.lbN=fm(EV.filter(function(e){return e.reason===d[0].key;}).length);
+  V.chRoot=CH.lb.root_cause;V.chRootKo=codeKo(CH.lb.root_cause);
+  function codesOf(cat){return L.CODES.filter(function(c){return info(c).cat===cat;});}
+  V.eqCodes=codesOf('설비').join('+');V.qCodes=codesOf('품질').join('+');V.lgCodes=codesOf('물류').join('+');
+  V.nw=String(nw);V.restDays=String(DAYS-7*nw);V.exWeek=String(WKR.length);
+  V.nSeedMax=String(SEEDN);V.msPerSeed=String(Math.round(MSBASE));
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');e.textContent=V[k]!=null?V[k]:'?';});
+}
+
+/* ---------- 파레토 그림 ---------- */
+function drawPareto(cv,par,o){
+  o=o||{};var c=setup(cv,o.h||300),x=c.x,W=c.w,H=c.h;x.clearRect(0,0,W,H);
+  var items=par.items,n=items.length,ml=62,mr=44,mt=14,mb=64,pw=W-ml-mr,ph=H-mt-mb,tot=par.total||1;
+  var ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),warn=css('--warn'),c10=css('--c10');
+  x.font='11px sans-serif';x.textBaseline='middle';
+  for(var g=0;g<=4;g++){var yy=mt+ph*(1-g/4);x.strokeStyle=rule;x.lineWidth=1;x.beginPath();x.moveTo(ml,yy);x.lineTo(ml+pw,yy);x.stroke();
+    x.fillStyle=soft;x.textAlign='right';x.fillText(fm(tot*g/4),ml-6,yy);x.textAlign='left';x.fillText(g*25+'%',ml+pw+6,yy);}
+  var bw=pw/Math.max(n,1),bwi=Math.max(2,bw*0.68);
+  var hl=o.hl||[items[0]&&items[0].key];
+  items.forEach(function(it,i){
+    var bx=ml+bw*i+(bw-bwi)/2,bh=ph*it.v/tot,by=mt+ph-bh;
+    x.fillStyle=hl.indexOf(it.key)>=0?warn:acc;x.fillRect(bx,by,bwi,bh);
+    if(bwi>=26&&it.share>=0.02){x.textAlign='center';if(bh>=24){x.fillStyle='#fff';x.fillText((100*it.share).toFixed(1)+'%',bx+bwi/2,by+12);}else{x.fillStyle=ink;x.fillText((100*it.share).toFixed(1)+'%',bx+bwi/2,Math.max(mt+6,by-8));}}
+    x.save();x.translate(ml+bw*i+bw/2,mt+ph+8);x.rotate(-Math.PI/4);x.fillStyle=ink;x.textAlign='right';x.fillText(it.key,0,0);x.restore();
+  });
+  x.strokeStyle=c10;x.lineWidth=2;x.beginPath();
+  items.forEach(function(it,i){var px=ml+bw*i+bw/2,py=mt+ph*(1-it.cum);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();
+  x.fillStyle=c10;items.forEach(function(it,i){x.beginPath();x.arc(ml+bw*i+bw/2,mt+ph*(1-it.cum),3,0,6.2832);x.fill();});
+  var y80=mt+ph*0.2;x.setLineDash([5,4]);x.strokeStyle=soft;x.lineWidth=1;x.beginPath();x.moveTo(ml,y80);x.lineTo(ml+pw,y80);x.stroke();x.setLineDash([]);
+  x.fillStyle=soft;x.textAlign='left';x.fillText('80%',ml+4,y80-8);
+}
+
+/* ---------- 1절 ---------- */
+var BARS=[];
+function mkBar(cont,items,get,set){cont.innerHTML='';items.forEach(function(it){var b=document.createElement('button');b.type='button';b.className='btn ghost';b.textContent=it.label;b.addEventListener('click',function(){set(it.id);refresh();});cont.appendChild(b);BARS.push({b:b,id:it.id,get:get});});}
+function buildBars(){
+  Array.prototype.forEach.call(document.querySelectorAll('.valbar'),function(c){mkBar(c,[{id:'glass',label:'잃은 유리 장수'},{id:'min',label:'잃은 챔버 분'}],function(){return ST.val;},function(v){ST.val=v;});});
+  Array.prototype.forEach.call(document.querySelectorAll('.wkbar'),function(c){mkBar(c,[{id:'root_cause',label:'근본 원인'},{id:'reason',label:'직접 사유'}],function(){return ST.wkBy;},function(v){ST.wkBy=v;});});
+}
+function syncBars(){BARS.forEach(function(o){o.b.setAttribute('aria-pressed',String(o.get()===o.id));});
+  Array.prototype.forEach.call(document.querySelectorAll('.kbar'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-k')===ST.kind));});}
+function upd1(){
+  var p=PAR[ST.val].reason,it=p.items;
+  drawPareto($('cvD1'),p,{h:300});
+  $('ro1').innerHTML='<b>'+unitOf(ST.val)+'</b> 기준 합계 <b>'+fm(p.total)+'</b> — 1위 <b>'+it[0].key+'</b>('+codeKo(it[0].key)+') <b>'+p1(it[0].share)+'</b>, 2위 '+it[1].key+' '+p1(it[1].share)+', 3위 '+it[2].key+' '+p1(it[2].share)+'. 상위 3개의 누적 <b>'+p1(it[2].cum)+'</b>. 막대는 모두 '+it.length+'개입니다.';
+}
+/* ---------- 2절 ---------- */
+function upd2(){
+  var lb=EV.filter(function(e){return e.reason===PD.items[0].key;}).sort(function(a,b){return b.loss_glass-a.loss_glass||a.start_min-b.start_min;}).slice(0,5);
+  tbl('tab2',['사건','블록','시작','끝','사유 코드','잃은 장수'],lb.map(function(e){return [e.event_id,e.block,e.start_ts,e.end_ts,e.reason,fm(e.loss_glass)];}),[null,null,null,null,null,null]);
+}
+/* ---------- 3절 ---------- */
+function drawChain(){
+  var cv=$('cvChain'),c=setup(cv,230),x=c.x,W=c.w,H=c.h;x.clearRect(0,0,W,H);
+  var lb=CH.lb,cs=CH.causes,t0=Math.min(lb.start_min,cs.length?cs[0].start_min:lb.start_min)-60,t1=Math.max(lb.end_min,cs.length?cs[cs.length-1].end_min:lb.end_min)+60;
+  var ml=84,mr=12,pw=W-ml-mr,ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),warn=css('--warn'),acc=css('--accent'),grey=css('--grey');
+  function X_(t){return ml+pw*(t-t0)/(t1-t0);}
+  x.font='11px sans-serif';x.textBaseline='middle';
+  var step=60*(Math.ceil((t1-t0)/60/8)),k;
+  for(k=Math.ceil((t0-lb.start_min)/step);lb.start_min+k*step<=t1;k++){var tt=lb.start_min+k*step,px=X_(tt);x.strokeStyle=rule;x.beginPath();x.moveTo(px,22);x.lineTo(px,H-26);x.stroke();x.fillStyle=soft;x.textAlign='center';x.fillText((k>=0?'+':'')+(k*step/60)+'시간',px,H-12);}
+  x.textAlign='right';x.fillStyle=ink;
+  x.fillText('원인 블록 '+lb.caused_by_block,ml-8,62);x.fillText('굶은 블록 '+lb.block,ml-8,150);
+  x.fillStyle=soft;x.textAlign='left';x.fillText('위: 근본 사건(원인 블록의 챔버) · 아래: 직접 사유 사건(다른 블록의 굶음)',ml,12);
+  cs.forEach(function(e,i){var a=X_(e.start_min),b=X_(e.end_min);x.fillStyle=i%2?acc:warn;x.fillRect(a,44,Math.max(2,b-a-1),36);x.fillStyle='#fff';x.textAlign='center';
+    if(b-a>70)x.fillText(e.reason+' '+e.chamber+' '+fm(e.loss_chamber_min)+'분',(a+b)/2,62);});
+  var a=X_(lb.start_min),b=X_(lb.end_min);x.fillStyle=grey;x.fillRect(a,132,Math.max(2,b-a),36);x.fillStyle='#fff';x.textAlign='center';
+  if(b-a>110)x.fillText(lb.reason+' '+fm(lb.loss_chamber_min)+' 챔버 분 → '+fm(lb.loss_glass)+'장',(a+b)/2,150);
+}
+function upd3(){
+  var lb=CH.lb,rows=CH.causes.concat([lb]);
+  tbl('tabChain',['사건','블록·챔버','직접 사유','근본 원인','원인 블록','시작','끝','챔버 분','잃은 장수'],rows.map(function(e){return [e.event_id,e.block+' '+e.chamber,e.reason,e.root_cause,e.caused_by_block,e.start_ts,e.end_ts,fm(e.loss_chamber_min),fm(e.loss_glass)];}),[null,null,null,null,null,null,null,null,null]);
+  var cg=0;CH.causes.forEach(function(e){cg+=e.loss_glass;});
+  $('roChain').innerHTML='굶은 블록 <b>'+lb.block+'</b> 은 <b>'+fm(lb.end_min-lb.start_min)+'분</b> 동안 <b>'+fm(lb.loss_glass)+'장</b>을 잃었고, 이 줄의 직접 사유는 <b>'+lb.reason+'</b> 입니다. 같은 시간 원인 블록 <b>'+lb.caused_by_block+'</b> 의 챔버에서는 근본 사건 <b>'+CH.causes.length+'</b>건이 이어졌고(근본 원인 <b>'+lb.root_cause+'</b>), 그 사건들이 직접 잃은 것은 <b>'+fm(cg)+'장</b>입니다. 굶은 블록이 잃은 장수는 근본 사건이 직접 잃은 장수의 <b>'+f1(lb.loss_glass/cg)+'배</b>입니다.';
+  var tk=PD.items.map(function(x){return x.key;}),codes=L.CODES.slice();
+  var rd={},rr={};PD.items.forEach(function(x){rd[x.key]=x;});PR.items.forEach(function(x){rr[x.key]=x;});
+  codes.sort(function(a,b){return (rd[b]?rd[b].v:0)-(rd[a]?rd[a].v:0)||(a<b?-1:1);});
+  tbl('tabCodes',['코드','분류','뜻','직접 사유로 센 장수','몫','근본 원인으로 센 장수','몫'],codes.map(function(c){var a=rd[c],b=rr[c];return [c,info(c).cat,info(c).ko,a?fm(a.v):'0',a?p1(a.share):'—',b?fm(b.v):'0',b?p1(b.share):'—'];}),[null,null,lc,null,null,null,null]);
+}
+/* ---------- 4절 ---------- */
+function upd4(){
+  var pd=PAR[ST.val].reason,pr=PAR[ST.val].root;
+  drawPareto($('cvD4'),pd,{h:290});drawPareto($('cvR4'),pr,{h:290});
+  var dk=pd.items.map(function(x){return x.key;}),rk=pr.items.map(function(x){return x.key;});
+  var third=rk[0]===dk[0]?'같은':'다른';
+  var rk2=pr.items.filter(function(x){return dk.indexOf(x.key)>=0&&dk.indexOf(x.key)>=3;});
+  var up=rk.map(function(k){return {k:k,dr:dk.indexOf(k)+1,rr:rk.indexOf(k)+1};}).filter(function(o){return o.dr>3&&o.rr<=3;}).sort(function(a,b){return (b.dr-b.rr)-(a.dr-a.rr);})[0];
+  $('ro4').innerHTML='<b>'+unitOf(ST.val)+'</b> 기준. 직접 사유의 1위는 <b>'+dk[0]+'</b>('+p1(pd.items[0].share)+'), 근본 원인의 1위는 <b>'+rk[0]+'</b>('+p1(pr.items[0].share)+')로 <b>'+third+' 코드</b>입니다. 합계는 둘 다 '+fm(pd.total)+'로 같습니다. '+(up?'직접 사유에서 3위 안에 들지 못했던 <b>'+up.k+'</b> 는 직접 사유 '+up.dr+'위에서 근본 원인 '+up.rr+'위가 됩니다.':'직접 사유 3위 밖에 있다가 근본 원인 3위 안으로 들어온 코드는 없습니다.');
+  var sel=$('selDir');
+  if(!sel.options.length){X.rows.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k+' — '+codeKo(k);sel.appendChild(o);});sel.value=PD.items[0].key;ST.dir=sel.value;}
+  function wb(t){return t.replace(/-/g,'-<wbr>');}
+  var cols=X.cols,hdr=['직접 \\ 근본'].concat(cols.map(wb)).concat(['합계']);
+  function k1(v){return v<500?'&lt;1':fm(v/1000);}
+  var rows=X.rows.map(function(r,i){return [wb(r)].concat(X.m[i].map(function(v){return v>0?k1(v):'·';})).concat([k1(X.rowTot[i])]);});
+  rows.push(['합계'].concat(X.colTot.map(k1)).concat([k1(X.total)]));
+  $('tabX').innerHTML='<tr>'+hdr.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>'+rows.map(function(r,i){return '<tr>'+r.map(function(c,j){var cl=j===0?'rowh':'',ri=i,cj=j-1;
+    if(i<X.rows.length&&j>=1&&j<=cols.length&&X.m[ri][cj]>0){var s=X.m[ri][cj]/X.total;cl=s>=0.1?'hit':(s>=0.03?'warn':'');if(X.rows[ri]===ST.dir)cl+=' sel';}
+    return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';}).join('');
+  var rp=L.reattribute(EV,ST.dir),tot=rp.total;
+  $('selDirO').textContent=fm(tot)+'장';
+  tbl('tabDrill',['직접 사유 '+ST.dir+' 의 근본 원인','사건 수','잃은 장수','이 사유 안의 몫'],rp.items.map(function(x){return [x.key+' — '+codeKo(x.key),fm(x.n),fm(x.v),p1(x.share)];}),[lc,null,null,null]);
+  var self=rp.items.filter(function(x){return x.key===ST.dir;})[0];
+  $('conc4').innerHTML='<b>직접 사유 '+ST.dir+' 는 근본 원인 '+rp.items.length+'개 코드로 나뉩니다.</b> 가장 큰 근본 원인은 '+rp.items[0].key+'('+p1(rp.items[0].share)+')이고, '+(self?'자기 자신('+ST.dir+')이 근본 원인인 몫은 '+p1(self.share)+'입니다.':'자기 자신이 근본 원인인 사건은 없습니다.')+' '+(rp.items.length>1?'이 직접 사유에 과제를 걸면 닿는 곳이 이만큼 흩어져 있습니다.':'이 직접 사유는 그 자체가 근본 원인이라 과제를 바로 걸 수 있습니다.');
+}
+/* ---------- 5절 ---------- */
+function drawBlk(){
+  var cv=$('cvBlk'),c=setup(cv,280),x=c.x,W=c.w,H=c.h;x.clearRect(0,0,W,H);
+  var rows=BT.rows,ml=58,mr=10,mt=12,mb=30,pw=W-ml-mr,ph=H-mt-mb,mx=0;
+  rows.forEach(function(r){mx=Math.max(mx,r.lostByOthers,r.causedOthers);});
+  var step=Math.pow(10,Math.floor(Math.log10(mx/3))),nice=[1,2,5,10].map(function(m){return m*step;}).filter(function(s){return mx/s<=6;})[0]||step*10,top=Math.ceil(mx/nice)*nice;
+  var ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),warn=css('--warn'),grey=css('--grey');
+  x.font='11px sans-serif';x.textBaseline='middle';
+  for(var v=0;v<=top+1e-9;v+=nice){var yy=mt+ph*(1-v/top);x.strokeStyle=rule;x.beginPath();x.moveTo(ml,yy);x.lineTo(ml+pw,yy);x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText(fm(v),ml-6,yy);}
+  var gw=pw/rows.length;
+  rows.forEach(function(r,i){var bw=gw*0.34,gx=ml+gw*i+gw*0.14;
+    var h1=ph*r.lostByOthers/top,h2=ph*r.causedOthers/top;
+    x.fillStyle=grey;x.fillRect(gx,mt+ph-h1,bw,h1);x.fillStyle=warn;x.fillRect(gx+bw+1,mt+ph-h2,bw,h2);
+    x.fillStyle=ink;x.textAlign='center';x.fillText(r.block,ml+gw*i+gw/2,mt+ph+14);});
+}
+function upd5(){
+  drawBlk();
+  var rows=BT.rows;
+  var big=rows.slice().sort(function(a,b){return b.causedOthers-a.causedOthers;}).slice(0,3).map(function(r){return r.block;});
+  tbl('tabBlk',['블록','내가 잃은 것(전체)','그중 남 때문','남에게 잃게 한 것','잃게 한 것 − 남 때문'],rows.map(function(r){var cl=big.indexOf(r.block)>=0;return [r.block,fm(r.lost),fm(r.lostByOthers),fm(r.causedOthers)+(cl?' ▲':''),(r.net>=0?'+':'−')+fm(Math.abs(r.net))];}),null);
+  var os=L.otherShare(EV);
+  $('ro5').innerHTML='전체 Loss 가운데 <b>다른 블록 때문에 잃은 몫은 '+p1(os.share)+'</b>(<b>'+fm(os.other)+'장</b>)입니다. 직접 사유 <b>'+PD.items[0].key+'</b> 의 몫과 같은 값입니다 — 다른 블록이 원인인 사건은 이 직접 사유로만 기록되기 때문입니다. 남에게 잃게 한 것이 큰 블록은 <b>'+big.join(' · ')+'</b>(▲)이고, 원인 블록 1위는 <b>'+BYBLK.items[0].key+'</b>('+p1(BYBLK.items[0].share)+')입니다.';
+  tbl('tabCell',['순위','(근본 원인 @ 원인 블록)','사건 수','잃은 장수','전체 몫'],CELL.items.slice(0,5).map(function(x,i){return [String(i+1),x.key,fm(x.n),fm(x.v),p1(x.share)];}),[null,null,null,null,null]);
+}
+/* ---------- 6절 ---------- */
+function mergesNow(){var m=[];function g(name,cat){return {name:name,codes:L.CODES.filter(function(c){return info(c).cat===cat;})};}
+  if(ST.mEq)m.push(g('설비','설비'));if(ST.mQ)m.push(g('품질','품질'));if(ST.mLg)m.push(g('물류','물류'));return m;}
+function splitNow(){return ST.split==='none'?null:(ST.split==='*'?'*':[ST.split]);}
+function sysNow(){return L.codeSystem(EV,mergesNow(),splitNow(),ST.thr/100,'glass');}
+function isRef(){return !ST.mEq&&!ST.mQ&&!ST.mLg&&ST.split==='none'&&ST.thr===DEF.thr;}
+function upd6(){
+  var sel=$('selSplit');
+  if(!sel.options.length){[['none','나누지 않음'],['*','모든 코드를 블록별로']].concat(PR.items.slice(0,3).map(function(x){return [x.key,x.key+' 를 블록별로'];})).forEach(function(a){var o=document.createElement('option');o.value=a[0];o.textContent=a[1];sel.appendChild(o);});}
+  sel.value=ST.split;$('mEq').checked=ST.mEq;$('mQ').checked=ST.mQ;$('mLg').checked=ST.mLg;
+  $('sThr').value=String(ST.thr);$('sThrO').textContent=ST.thr+'%';$('selSplitO').textContent=ST.split==='none'?'기준':(ST.split==='*'?'모두':ST.split);
+  var s=sysNow(),it=s.items,ref=PR.items,oth=it.filter(function(x){return x.key==='기타';})[0];
+  var named=it.filter(function(x){return x.key!=='기타';}),first=named[0];
+  $('st6').className=isRef()?'state':'state moved';
+  $('st6').textContent=isRef()?'지금은 기준 코드 체계입니다 — 합치기도 나누기도 없고 기타 문턱은 0% 입니다.':'지금은 기준에서 옮겨 놓은 코드 체계입니다. 기준 코드 체계의 1위는 '+ref[0].key+'('+p1(ref[0].share)+')입니다. 되돌리기 단추를 누르십시오.';
+  drawPareto($('cvM6'),s,{h:300,hl:[first.key]});
+  var gap=named.length>1?(first.share-named[1].share):first.share;
+  $('ro6').innerHTML='막대 <b>'+it.length+'개</b> · 1위 <b>'+first.key+'</b> <b>'+p1(first.share)+'</b> · 2위와의 차 <b>'+f1(100*gap)+'%p</b> · 누적 80% 에 필요한 막대 <b>'+L.barsFor(s,0.8)+'개</b> · 기타 몫 <b>'+(oth?p1(oth.share):'0.0%')+'</b>';
+  var othShare=oth?oth.share:0;
+  tbl('tabChk',['점검','무엇을 보나','이 화면의 값'],[
+    ['1. 서로 겹치지 않는가','한 사건이 두 코드에 동시에 들지 않습니다','이 화면: 사건 '+fm(EV.length)+'건이 막대 하나씩에만 들어갑니다'],
+    ['2. 빠짐없는가','모든 사건이 어느 코드에든 들어갑니다','이 화면: 막대 합 '+fm(s.items.reduce(function(a,b){return a+b.v;},0))+'장 = 전체 '+fm(PD.total)+'장'],
+    ['3. 근본 원인 칸이 필수인가','비어 있는 줄이 없습니다','이 화면: 근본 원인 빈칸 '+fm(EV.filter(function(e){return !e.root_cause;}).length)+'줄'],
+    ['4. 원인 블록 칸이 있는가','근본 원인이 일어난 블록을 적습니다','이 화면: 원인 블록 빈칸 '+fm(EV.filter(function(e){return !e.caused_by_block;}).length)+'줄'],
+    ['5. 규칙과 사람이 남는가','붙인 주체와 시각이 기록됩니다','이 가상 기록에는 없는 칸입니다(11절의 기록할 데이터)'],
+    ['6. 기타의 몫이 작은가','5% 를 넘으면 목록을 다시 봅니다','이 화면: 기타 몫 '+p1(othShare)+(othShare>0.05?' — 5% 를 넘어 목록을 다시 봅니다':' — 5% 이하입니다')]
+  ],[null,lc,lc]);
+}
+/* ---------- 7절 ---------- */
+function drawWk(){
+  var cv=$('cvWk'),c=setup(cv,260),x=c.x,W=c.w,H=c.h;x.clearRect(0,0,W,H);
+  var wk=ST.wkBy==='reason'?WKD:WKR,by=ST.wkBy,ref=L.pareto(EV,by),codes=ref.items.slice(0,4).map(function(i){return i.key;});
+  var cols=[css('--accent'),css('--c8'),css('--c9'),css('--c10')],ml=46,mr=10,mt=14,mb=28,pw=W-ml-mr,ph=H-mt-mb,mx=0;
+  wk.forEach(function(w){w.par.items.forEach(function(i){if(codes.indexOf(i.key)>=0)mx=Math.max(mx,i.share);});});
+  var top=Math.min(1,Math.ceil(mx*10)/10);if(top<=0)top=1;var nt=Math.round(top*10);
+  var ink=css('--ink'),soft=css('--soft'),rule=css('--rule');x.font='11px sans-serif';x.textBaseline='middle';
+  for(var g=0;g<=nt;g++){var yy=mt+ph*(1-g/nt);x.strokeStyle=rule;x.beginPath();x.moveTo(ml,yy);x.lineTo(ml+pw,yy);x.stroke();x.fillStyle=soft;x.textAlign='right';x.fillText((10*g)+'%',ml-6,yy);}
+  function X_(i){return ml+pw*(wk.length>1?i/(wk.length-1):0.5);}
+  wk.forEach(function(w,i){x.fillStyle=soft;x.textAlign='center';x.fillText((i+1)+'주',X_(i),mt+ph+14);});
+  codes.forEach(function(code,ci){
+    x.strokeStyle=cols[ci];x.lineWidth=2;x.beginPath();
+    wk.forEach(function(w,i){var it=w.par.items.filter(function(q){return q.key===code;})[0],v=it?it.share:0,px=X_(i),py=mt+ph*(1-v/top);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();
+    wk.forEach(function(w,i){var it=w.par.items.filter(function(q){return q.key===code;})[0],v=it?it.share:0,px=X_(i),py=mt+ph*(1-v/top),first=w.par.items[0].key===code;
+      x.fillStyle=cols[ci];x.beginPath();x.arc(px,py,first?6:3,0,6.2832);x.fill();if(first){x.strokeStyle=ink;x.lineWidth=1.5;x.stroke();}});
+  });
+  $('lgWk').innerHTML=codes.map(function(cd,i){return '<span><i class="dot" style="background:'+cols[i]+'"></i>'+cd+'</span>';}).join('')+'<span>큰 점(테두리) = 그 주의 1위</span>';
+}
+function upd7a(){
+  var by=ST.wkBy,wk=by==='reason'?WKD:WKR,ref=L.pareto(EV,by),r1=ref.items[0].key,diff=0,tops={};
+  drawWk();
+  tbl('tabWk',['주','1위','2위','3위','1위의 몫'],wk.map(function(w){var it=w.par.items,t1=it[0].key;if(t1!==r1)diff++;tops[t1]=1;return [(w.week+1)+'주',t1,it[1].key,it[2].key,p1(it[0].share)];}),[null,function(c){return c!==r1?'hit':'';},null,null,null]);
+  var ord=wk.filter(function(w){var it=w.par.items;return it[0].key!==ref.items[0].key||it[1].key!==ref.items[1].key||it[2].key!==ref.items[2].key;}).length;
+  $('roWk').innerHTML=(by==='reason'?'직접 사유':'근본 원인')+' 기준. 전체 '+DAYS+'일의 1위는 <b>'+r1+'</b>('+p1(ref.items[0].share)+') 입니다. 주 '+wk.length+'개 가운데 <b>'+diff+'개</b>에서 그 주의 1위가 전체 1위와 다르고(붉은 칸), 1위~3위의 순서까지 모두 같은 주는 <b>'+(wk.length-ord)+'개</b>뿐입니다. 한 주에 등장한 서로 다른 1위 코드는 <b>'+Object.keys(tops).length+'개</b>입니다.';
+}
+function seedsUsed(){return LIST.slice(0,Math.min(ST.sn,LIST.length));}
+function drawSd(S){
+  var cv=$('cvSd'),c=setup(cv,Math.max(170,56+S.codes.slice(0,5).length*38)),x=c.x,W=c.w,H=c.h;x.clearRect(0,0,W,H);
+  var rows=S.codes.filter(function(q){return q.s90>0;}).slice(0,5),ml=96,mr=14,mt=10,mb=26,pw=W-ml-mr,ph=H-mt-mb,mx=0;
+  rows.forEach(function(q){mx=Math.max(mx,q.s90,L.shareOf(DEFRUN,ST.kind,q.code));});
+  var top=Math.max(0.1,Math.ceil(mx*20)/20);
+  var ink=css('--ink'),soft=css('--soft'),rule=css('--rule'),acc=css('--accent'),warn=css('--warn'),grey=css('--grey');
+  x.font='11px sans-serif';x.textBaseline='middle';
+  for(var g=0;g<=4;g++){var px=ml+pw*g/4;x.strokeStyle=rule;x.beginPath();x.moveTo(px,mt);x.lineTo(px,mt+ph);x.stroke();x.fillStyle=soft;x.textAlign='center';x.fillText((100*top*g/4).toFixed(0)+'%',px,mt+ph+14);}
+  var rh=ph/Math.max(rows.length,1);
+  rows.forEach(function(q,i){var cy=mt+rh*i+rh/2;
+    function X_(v){return ml+pw*v/top;}
+    x.fillStyle=ink;x.textAlign='right';x.fillText(q.code,ml-8,cy);
+    x.strokeStyle=grey;x.lineWidth=2;x.beginPath();x.moveTo(X_(q.s10),cy);x.lineTo(X_(q.s90),cy);x.stroke();
+    x.fillStyle=acc;x.fillRect(X_(q.s25),cy-9,Math.max(2,X_(q.s75)-X_(q.s25)),18);
+    x.strokeStyle=ink;x.lineWidth=2;x.beginPath();x.moveTo(X_(q.s50),cy-11);x.lineTo(X_(q.s50),cy+11);x.stroke();
+    var dv=L.shareOf(DEFRUN,ST.kind,q.code),dx=X_(dv);x.fillStyle=warn;x.beginPath();x.moveTo(dx,cy-9);x.lineTo(dx+7,cy);x.lineTo(dx,cy+9);x.lineTo(dx-7,cy);x.closePath();x.fill();
+  });
+}
+function upd7b(){
+  var ns=seedsUsed(),n=ns.length,mx=Math.min(SEEDN,LIST.length);
+  $('sN').value=String(ST.sn);$('sNO').textContent=ST.sn+'개';
+  var atRef=ST.sn===DEF.sn;
+  $('st7').className=atRef&&SEED_DONE?'state':'state moved';
+  $('st7').textContent=!SEED_DONE?'시드를 계산하는 중입니다 — '+LIST.length+'/'+SEEDN+' 개가 끝났고, 지금은 끝난 만큼으로 보여 줍니다.':(atRef?'지금은 끝까지 쓴 표본('+SEEDN+'개)입니다.':'지금은 표본을 '+ST.sn+'개로 줄여 본 것입니다. 끝까지 쓴 값은 '+SEEDN+'개입니다. 되돌리기 단추를 누르십시오.');
+  if(n<3){return;}
+  var S=L.rankStab(ns,ST.kind);drawSd(S);
+  var uni=S.codes.map(function(q){return q.code;}),dr=L.rankOne(DEFRUN,ST.kind,uni);
+  tbl('tabSd',['코드','1위가 된 비율','3위 안에 든 비율','순위 25~75%','가장 높은·낮은 순위','몫 중앙값','기본 시드의 순위'],S.codes.filter(function(q){return q.s90>0;}).slice(0,6).map(function(q){return [q.code,p1(q.top1),p1(q.top3),f2(q.r25)+'~'+f2(q.r75),q.rmin+'위~'+q.rmax+'위',p1(q.s50),(dr[q.code]||'—')+'위'];}),[null,null,null,null,null,null,null]);
+  var mets=L.METRICS.filter(function(m){return ST.kind==='root'?m.id!=='lb':m.id==='lb';});
+  var outside=[];
+  var rowsM=mets.map(function(m){var vals=ns.map(m.f),dv=m.f(DEFRUN),pc=L.percentile(vals,dv),out=pc<0.25||pc>0.75;if(out)outside.push(m.name);var isP=/%p/.test(m.name);
+    return [m.name,isP?f1(dv)+'%p':p1(dv),isP?f1(L.quantile(vals,0.5))+'%p':p1(L.quantile(vals,0.5)),(100*pc).toFixed(0)+'% 자리',out?'<b>25~75% 밖</b>':'안'];});
+  tbl('tabMet',['기본 시드(대표 기록)의 지표','대표 기록의 값','시드 분포의 중앙값','분포 안의 자리','25~75% 안인가'],rowsM,[null,null,null,null,function(c){return /밖/.test(c)?'warn':'';}]);
+  var tc=S.codes[0],t2=S.codes[1];
+  $('conc7').innerHTML='<b>시드 '+n+'개에서 '+(ST.kind==='root'?'근본 원인':'직접 사유')+' 1위가 된 비율은 '+tc.code+' '+p1(tc.top1)+(t2&&t2.top1>0?', '+t2.code+' '+p1(t2.top1):'')+' 입니다.</b> '+(t2&&t2.top1>0?'1위가 한 코드에 몰리지 않으므로 한 달 파레토의 1위만으로는 과제를 단정하지 않고 두 코드를 한 묶음으로 봅니다. ':'1위가 한 코드에 거의 몰려 있어 이 판단은 우연에 크게 기대지 않습니다. ')+(outside.length?'대표 기록은 다음 지표에서 분포의 25~75% 밖에 있습니다 — '+outside.join(', ')+'. 이 값들은 대표 기록 하나의 숫자가 아니라 분포로 말합니다.':'대표 기록의 지표는 모두 분포의 25~75% 안에 있어 전형적인 기록입니다.');
+}
+function upd7(){upd7a();upd7b();}
+/* ---------- 8절 ---------- */
+function upd8(){
+  var tk=TK,r=PR.items,cellTop=L.paretoWith(EV.filter(function(e){return e.root_cause===r[0].key;}),function(e){return e.caused_by_block;}).items[0];
+  var ns=LIST,S=ns.length>=5?L.rankStab(ns,'root'):null,rt=S?S.codes.filter(function(q){return q.code===r[0].key;})[0]:null,rt2=S?S.codes.filter(function(q){return q.code===r[1].key;})[0]:null;
+  var wkd=0;WKR.forEach(function(w){if(w.par.items[0].key!==r[0].key)wkd++;});
+  $('conc8').innerHTML='<ol style="margin:.2rem 0 0 1.2rem;padding:0"><li><b>고른 과제 후보</b> — 근본 원인 1위 <b>'+r[0].key+'</b>('+codeKo(r[0].key)+')의 원인 블록 1위 <b>'+cellTop.key+'</b>. 근거: 직접 사유 파레토의 1위 <b>'+PD.items[0].key+'</b>('+p1(PD.items[0].share)+')가 고칠 곳을 가리키지 못해 근본 원인으로 다시 그렸더니 1위가 <b>'+r[0].key+' '+p1(r[0].share)+'</b>('+fm(r[0].v)+'장), 그 안에서 원인 블록 <b>'+cellTop.key+'</b> 가 <b>'+fm(cellTop.v)+'장</b>('+p1(cellTop.v/PR.total)+')입니다.</li>'
+   +'<li><b>직접 사유로만 보았다면</b> — '+r[0].key+' 는 직접 사유 '+(PD.items.map(function(x){return x.key;}).indexOf(r[0].key)+1)+'위, '+fm(TK.B.glass)+'장(근본 원인 몫의 '+p1(TK.B.glass/r[0].v)+')으로 작게 보였을 것입니다.</li>'
+   +'<li><b>이 선택이 우연에 기대는 정도</b> — 같은 '+DAYS+'일을 주 '+WKR.length+'개로 자르면 그 주의 1위가 '+r[0].key+' 가 아닌 주가 '+wkd+'개입니다. '+(rt?'시드 '+ns.length+'개에서 '+r[0].key+' 가 근본 원인 1위인 비율은 '+p1(rt.top1)+(rt2?', '+r[1].key+' 는 '+p1(rt2.top1):'')+' 입니다. 두 코드가 서로의 순위 구간 안에 있으므로 둘을 한 묶음으로 두고 '+r[0].key+' 부터 시작합니다.':'시드 분포는 계산이 끝나면 여기에 채워집니다.')+'</li></ol>';
+}
+/* ---------- 9절 ---------- */
+function upd9(){
+  var r=ST.rate/100,tk=TK;
+  $('sRateO').textContent=ST.rate+'%';
+  $('st9').className=ST.rate===DEF.rate?'state':'state moved';
+  $('st9').textContent=ST.rate===DEF.rate?'지금은 기본 개선율('+DEF.rate+'%)입니다.':'지금은 개선율을 '+ST.rate+'%로 옮겨 놓은 가정입니다. 기본값은 '+DEF.rate+'% 입니다. 되돌리기 단추를 누르십시오.';
+  var rows=[
+    ['A 증상 — 직접 사유 1위 '+tk.A.code,'장부 몫 '+fm(tk.A.book)+'장 중 닿는 곳은 근본 원인 하나('+tk.A.reachCode+', '+fm(tk.A.reach)+'장, 근본 원인 '+tk.A.nRoots+'개에 흩어짐)',tk.A.reach*r],
+    ['B 직접 사유 — 자기 원인 1위 '+tk.B.code,'직접 사유로 센 몫 '+fm(tk.B.glass)+'장',tk.B.glass*r],
+    ['C 근본 원인 1위 '+tk.C.code,'근본 원인으로 센 몫 '+fm(tk.C.glass)+'장(다른 블록·다른 사유로 일으킨 것 포함)',tk.C.glass*r]];
+  tbl('tab9',['과제를 건 곳','기준이 되는 Loss','고칠 수 있는 유리(장)','챔버 턴 수','월(30일) 환산 장수'],rows.map(function(x){return [x[0],x[1],fm(x[2]),f1(x[2]/NTURN),fm(x[2]*30/DAYS)];}),[lc,lc,null,null,null]);
+  var a=tk.A.reach*r,b=tk.B.glass*r,c=tk.C.glass*r;
+  $('conc9').innerHTML='<b>개선율 '+ST.rate+'% 에서 C(근본 원인 1위)가 B(직접 사유로만 센 같은 코드)보다 '+f1(c/b)+'배 큽니다.</b> 같은 코드인데 차이가 나는 것은, 직접 사유로 센 B 가 그 설비가 서 있던 Loss 만 세고 C 는 그 설비 때문에 다른 블록이 굶은 Loss 까지 세기 때문입니다. A 는 장부상 '+fm(tk.A.book*r)+'장으로 가장 커 보이지만 한 과제가 닿는 곳은 근본 원인 하나('+tk.A.reachCode+')뿐이어서 실제로 고칠 수 있는 것은 C 의 '+p1(a/c)+'입니다. 그것도 팀이 근본 원인까지 거슬러 올라가 그 하나를 겨냥했을 때의 이야기이고, 사유 칸만 보면 어디를 겨냥할지조차 알 수 없습니다. 월 환산으로 C 는 약 '+fm(c*30/DAYS)+'장, 챔버 '+f1(c/NTURN)+'턴입니다.';
+}
+/* ---------- 11절 ---------- */
+function fillReport(){
+  var r=PR.items,w=WKR[WKR.length-1],it=w.par.items,wd=WKD[WKD.length-1].par.items,cellTop=L.paretoWith(EV.filter(function(e){return e.root_cause===it[0].key;}),function(e){return e.caused_by_block;}).items[0];
+  $('rp_fields').innerHTML='기간 · 코드 체계 판 · 근본 원인 파레토(상위와 누적 비율) · 직접 사유 파레토(참고) · 원인 블록 표 · 순위 흔들림(주 단위 1~3위) · 이번 주 과제와 근거 · 승인';
+  $('rp_ex').innerHTML='<ul style="margin:.2rem 0 .2rem 1.1rem;padding:0"><li><b>기간</b> '+(w.week+1)+'주차(월요일부터 7일) · <b>코드 체계 판</b> 1(기준 코드 '+PD.items.length+'개)</li>'
+   +'<li><b>근본 원인 파레토</b> '+it.slice(0,3).map(function(x){return x.key+' '+p1(x.share)+'(누적 '+p1(x.cum)+')';}).join(' · ')+'</li>'
+   +'<li><b>직접 사유 파레토(참고)</b> '+wd.slice(0,3).map(function(x){return x.key+' '+p1(x.share);}).join(' · ')+'</li>'
+   +'<li><b>원인 블록 표</b> 이 주 근본 원인 1위 '+it[0].key+' 의 원인 블록 1위 '+cellTop.key+' '+fm(cellTop.v)+'장</li>'
+   +'<li><b>순위 흔들림</b> 최근 '+WKR.length+'주의 근본 원인 1위: '+WKR.map(function(x){return x.par.items[0].key;}).join(' · ')+'</li>'
+   +'<li><b>이번 주 과제와 근거</b> '+it[0].key+' @ '+cellTop.key+' — 같은 주 근본 원인 몫 '+p1(it[0].share)+'(직접 사유 파레토 1위는 '+wd[0].key+')</li></ul>';
+  tbl('tabTool',['순서','함수','하는 일'],[['1','0400 파이프라인','Loss 사건 표를 정해진 시각에 뽑고 점검'],['2','<code>load_events</code>','사건 표를 읽고 주(week) 열 붙임'],['3','<code>crosstab_direct_root</code>·<code>merge_codes</code>','재귀속과 코드 체계 입히기'],['4','<code>pareto</code>·<code>weekly_pareto</code>','파레토와 주 단위 순위'],['5','<code>rank_stability</code>·<code>percentile</code>','순위 구간과 대표 기록의 자리'],['6','<code>fixable_glass</code>','과제별 고칠 수 있는 장수'],['7','0411 방식 보고','사실 목록으로 주간 보고 초안']],[null,lc,lc]);
+}
+
+/* ---------- 새로 그리기·조작 ---------- */
+function refresh(){upd1();upd4();upd5();upd6();upd7();upd8();upd9();syncBars();}
+function bind(id,fn){$(id).addEventListener('input',function(){fn(+this.value);refresh();});}
+bind('sThr',function(v){ST.thr=v;});bind('sN',function(v){ST.sn=v;});bind('sRate',function(v){ST.rate=v;});
+$('mEq').addEventListener('change',function(){ST.mEq=this.checked;refresh();});$('mQ').addEventListener('change',function(){ST.mQ=this.checked;refresh();});$('mLg').addEventListener('change',function(){ST.mLg=this.checked;refresh();});
+$('selSplit').addEventListener('change',function(){ST.split=this.value;refresh();});$('selDir').addEventListener('change',function(){ST.dir=this.value;refresh();});
+$('rCode').addEventListener('click',function(){ST.mEq=ST.mQ=ST.mLg=false;ST.split='none';ST.thr=DEF.thr;refresh();});
+$('rN').addEventListener('click',function(){ST.sn=SEEDN;refresh();});$('rRate').addEventListener('click',function(){ST.rate=DEF.rate;refresh();});
+Array.prototype.forEach.call(document.querySelectorAll('.kbar'),function(b){b.addEventListener('click',function(){ST.kind=this.getAttribute('data-k');refresh();});});
+window.addEventListener('resize',function(){refresh();drawChain();});
+
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+
+buildV();buildBars();upd2();upd3();fillReport();refresh();drawChain();
+/* ---------- 시드 1~N: 한 번에 두 개씩 뒤에서 ---------- */
+(function loop(){
+  if(LIST.length>=SEEDN){SEED_DONE=true;refresh();return;}
+  for(var k=0;k<2&&LIST.length<SEEDN;k++)LIST.push(L.seedRun(LIST.length+1));
+  if(LIST.length%4===0||LIST.length>=SEEDN){if(LIST.length>=SEEDN)SEED_DONE=true;refresh();}
+  setTimeout(loop,0);
+})();
+window.__l5={st:ST,refresh:refresh,list:function(){return LIST;},done:function(){return SEED_DONE;},def:DEFRUN,V:V};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
