@@ -2075,6 +2075,207 @@ chk('0411 페이지: 새 용어 6개 · Q&A 4개 · 절 11개 · 캔버스 글�
     f'용어 {_term11} · Q&A {_nq11} · 절 {_nsec11} · 캔버스 글자 최소 {min(_fonts11)}px({len(_fonts11)}곳) · -다 끝맺음 {len(_endda11)}건 · 0410 링크 {_p10.count("0411-llm-verification-design.html")}곳')
 _cleanup11 = shutil.rmtree(_td11, ignore_errors=True)
 
+
+# ============================================================
+# 0401 — 에이전트 구조 시제품. S15 적재본 14일 위에서 도는 에이전트(agent0401.js)를 페이지의 Python 코드(lab0401.py)가 독립 구현으로 다시 돌려 대조한다.
+# 정책 격자·승인 결정까지 JS = Python, 점검 결과·지문 = 0400, 변경점 통계 = scipy, 요청 판정 = ESTC 표, 보고 검사 = 0411 규칙
+# ============================================================
+import importlib.util as _ilu01, itertools as _it01
+_pg01 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0401-agent-prototype.html'), encoding='utf-8').read()
+_code01 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg01, _re5.S).group(1)); _out01 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg01, _re5.S).group(1)).strip()
+_ag01 = os.path.join(_DATA10, 'agent0401.js')
+_td01 = _tf5.mkdtemp()
+for _n in ('fdc_glass', 'ppa_coef', 'events', 'mask_hist'): shutil.copy(os.path.join(_DATA10, 'csv', f's15_{_n}.csv'), os.path.join(_td01, f's15_{_n}.csv'))
+open(os.path.join(_td01, 'lab0401.py'), 'w', encoding='utf-8').write(_code01)
+_sp01 = _ilu01.spec_from_file_location('lab0401', os.path.join(_td01, 'lab0401.py')); _m01 = _ilu01.module_from_spec(_sp01); _sp01.loader.exec_module(_m01)
+_tb01 = _m01.load_tables(_td01)
+
+# 정책 격자: 기본 + 점검 허용 수·k·m·문턱·다중 비교 조합 + 승인 결정이 있는 경우
+_grid01 = [{'policy': {}, 'decisions': None}, {'policy': {'tol': 2}, 'decisions': None}]
+for _tol, _k, _m, _dl in _it01.product((0, 1, 2, 3, 4, 7), (1, 2, 3, 4), (1, 3, 5), (0.2, 0.5)):
+    _grid01.append({'policy': {'tol': _tol, 'k': _k, 'm': _m, 'delta': _dl, 'bonf': bool((_tol + _k) % 2)}, 'decisions': None})
+_grid01 += [{'policy': {'tol': 2}, 'decisions': {'R-02': 'approve'}}, {'policy': {'tol': 2}, 'decisions': {'R-02': 'reject'}}, {'policy': {}, 'decisions': {'R-02': 'approve'}},
+            {'policy': {'tol': 4, 'k': 1, 'm': 3, 'delta': 0.2}, 'decisions': {'R-01': 'approve', 'R-02': 'reject', 'R-03': 'approve', 'R-04': 'approve', 'R-05': 'approve'}},
+            {'policy': {'tol': 4, 'k': 2, 'm': 3, 'delta': 0.2, 'repair_cap': 1, 'repair_human': True}, 'decisions': {'R-03': 'approve', 'R-04': 'approve', 'R-05': 'reject', 'R-06': 'approve', 'R-07': 'approve', 'R-08': 'approve'}},
+            {'policy': {'spec_reject': True, 'tol': 7, 'delta': 0.3, 'ex_n': 2, 'scrap_ratio': 0.3}, 'decisions': None}]
+for _cap, _rh in _it01.product((1, 2, 3, 4), (False, True)):
+    _grid01.append({'policy': {'tol': 4, 'k': 2, 'm': 3, 'delta': 0.2, 'bonf': False, 'repair_cap': _cap, 'repair_human': _rh}, 'decisions': {'R-04': 'approve', 'R-05': 'approve', 'R-06': 'approve', 'R-07': 'approve'} if _rh else None})
+_EXPORT01 = r"""const A=require(%s);const grid=JSON.parse(require('fs').readFileSync(process.argv[2],'utf8'));
+const r9=x=>x==null?null:Math.round(x*1e9)/1e9;
+console.log(JSON.stringify(grid.map(g=>{const r=A.run(g.policy,g.decisions);return r.days.map(d=>({day:d.day,an:d.analyzed,fails:d.fails,fl:d.flagged,
+ req:d.requests.map(q=>[q.id,q.kind,q.ch,q.mask,q.verdict,q.text]),dec:d.decided.map(q=>[q.id,q.verdict]),spec:r9(d.spec),
+ rows:d.det?d.det.rows.map(x=>[x.key,x.skip?1:0,r9(x.eff),x.p==null?null:Math.min(1,+x.p.toPrecision(6))]):[],render:d.report.render.map(x=>x.text),valid:d.report.v.pass,decisions:d.decisions.map(x=>x.text),fp:d.fp})).concat([{summary:r.summary}]);})));"""
+open(os.path.join(_td01, 'grid.json'), 'w').write(json.dumps(_grid01))
+_jsf01 = os.path.join(_td01, 'cmp.js'); open(_jsf01, 'w').write(_EXPORT01 % json.dumps(_ag01))
+_js01 = json.loads(subprocess.run([_node, _jsf01, os.path.join(_td01, 'grid.json')], capture_output=True, text=True, check=True).stdout)
+def _r9(x): return None if x is None else round(x * 1e9) / 1e9
+_pyres01, _bad01, _nd01 = [], [], 0
+for _gi, _g in enumerate(_grid01):
+    _recs, _queue, _pol = _m01.run_agent(_tb01, _g['policy'], _g['decisions'])
+    _pyres01.append((_recs, _queue, _pol))
+    _days = []
+    for _r in _recs:
+        _rows = [[x['key'], 1 if x.get('skip') else 0, None if x.get('skip') else _r9(x['eff']), None if x.get('skip') else min(1, float('%.6g' % x['p']))] for x in _r['finding'].get('rows', [])]
+        _days.append({'day': _r['day'], 'an': _r['analyzed'], 'fails': _r['fails'], 'fl': _r['flagged'], 'req': [[q['id'], q['kind'], q['ch'], q['mask'], q['verdict'], q['text']] for q in _r['requests']],
+                      'dec': [[q['id'], q['verdict']] for q in _r['decided']], 'spec': _r9(_r['spec']), 'rows': _rows, 'render': _r['render'], 'valid': _r['valid'], 'decisions': [x['text'] for x in _r['decisions']], 'fp': _r['fp']})
+    _days.append({'summary': _m01.summarize(_recs, _queue)})
+    for _a, _b in zip(_js01[_gi], _days):
+        _nd01 += 1
+        if _a != _b: _bad01.append((_gi, _a.get('day'), [k for k in _a if _a[k] != _b.get(k)]))
+chk(f'0401 정책 {len(_grid01)}가지(점검 허용 수 × k × m × 문턱 × 다중 비교 + 리페어 한도·리페어 사람 승인·spec 자동 반려·승인 결정 조합) × 14일: JS 에이전트 = 페이지 Python 코드(독립 구현) — 분석 여부·점검 실패 규칙·새 변경점·요청(번호·종류·대상·판정·문장)·승인 결과·spec·챔버별 효과(1e-9)·p·보고 문장·입력 지문·요약',
+    not _bad01 and _nd01 == len(_grid01) * 15, f'{_nd01}일 기록 대조, 불일치 {len(_bad01)}' + (f' 예: {_bad01[:2]}' if _bad01 else ''))
+
+# 점검 결과·입력 지문 = 0400(sqlite3 로 돌린 verify 의 _s15 와 같은 JS 출력)
+_d0 = _pyres01[0][0]
+_pass00 = [d['pass'] for d in _s15['days']]
+chk('0401 기본 정책(점검 엄격)의 분석 여부·실패 규칙 = 0400 의 점검 결과(통과한 날만 분석), 입력 지문 14개 = 0400 의 입력 지문, 분석한 날은 8·9일뿐',
+    [r['analyzed'] for r in _d0] == _pass00 and all(sorted(r['fails']) == sorted(c['id'] for c in d['checks'] if not c['pass']) for r, d in zip(_d0, _s15['days'])) and all(r['fp'] == d['fp_in'] for r, d in zip(_d0, _s15['days'])) and [r['day'] for r in _d0 if r['analyzed']] == [8, 9],
+    f'분석한 날 {[r["day"] for r in _d0 if r["analyzed"]]} · 멈춘 날 {sum(not r["analyzed"] for r in _d0)}')
+
+# B03-CH2: 교체 시각은 CSV 에서, 변경점 통계는 scipy 로 독립 계산
+_mh01 = pd.read_csv(os.path.join(_td01, 's15_mask_hist.csv')); _sw01 = _mh01[(_mh01.mask_id == 'B03-B2')].iloc[0]
+_swm = int((pd.Timestamp(_sw01.from_ts) - pd.Timestamp('2026-03-02 06:00')).total_seconds() // 60); _swday = _swm // 1440 + 1
+_rec_t2, _q_t2, _ = _m01.run_agent(_tb01, {'tol': 2}, None)
+_fl2 = [(r['day'], c) for r in _rec_t2 for c in r['flagged']]
+_bq2 = [q for q in _q_t2 if q['kind'] == 'baseline']
+_nb2 = [q for q in _q_t2 if q['ch'] == 'B03-CH2' and q['kind'] in ('repair', 'scrap', 'correct')]
+_ev2 = [d for r in _rec_t2 for d in r['decisions'] if 'B03-CH2' in d['text'] and '원인 후보 = 마스크 교체' in d['text']]
+_dd0, _qq0, _ = _pyres01[0]
+_bq0 = [q for q in _qq0 if q['kind'] == 'baseline']
+chk(f'0401 B03-CH2: 마스크 교체 시각(CSV {_sw01.from_ts}, 정답 {_swday}일) — 기본 정책은 점검에 막혀 변경점을 못 잡고 8일에 이력 표로 교체를 알아채 새 마스크 기준 측정을 요청(리페어 아님), 점검 허용 2 에서는 8일 판정에서 B03-CH2 만 변경점으로 잡히고 원인 후보 = 마스크 교체라 기준 측정만(리페어·제외·보정값 요청 없음)',
+    not [c for r in _dd0 for c in r['flagged']] and len(_bq0) == 1 and _bq0[0]['day'] == 8 and _bq0[0]['mask'] == 'B03-B2' and _fl2 == [(8, 'B03-CH2')] and len(_bq2) == 1 and _bq2[0]['day'] == 5 and not _nb2 and len(_ev2) == 1 and _swday == 5,
+    f'기본: 변경점 0 · 기준 측정 {len(_bq0)}건({_bq0[0]["day"] if _bq0 else "-"}일) / 허용 2: 변경점 {_fl2} · 기준 측정 {[(q["day"]) for q in _bq2]}일')
+
+# 변경점 통계: pandas + scipy 로 독립 계산(챔버 8개 × 대표 날 몇 개)
+from scipy import stats as _st01
+_f01 = pd.read_csv(os.path.join(_td01, 's15_fdc_glass.csv')); _p01 = pd.read_csv(os.path.join(_td01, 's15_ppa_coef.csv'))
+for _d in (_f01, _p01):
+    _d['ts_m'] = ((pd.to_datetime(_d.ts) - pd.Timestamp('2026-03-02 06:00')).dt.total_seconds() // 60).astype(int)
+_p01['meas_m'] = ((pd.to_datetime(_p01.measured_ts) - pd.Timestamp('2026-03-02 06:00')).dt.total_seconds() // 60).astype(int)
+_CH01 = [b + '-CH' + str(c) for b in ('B02', 'B03') for c in (1, 2, 3, 4)]
+_SLOPE01, _TREF01 = _P15['thermal'], _P15['T_ref']
+def _vals01(day):
+    f = _f01[(_f01.ts_m >= (day - 1) * 1440) & (_f01.ts_m < day * 1440)]; p = _p01[(_p01.ts_m >= (day - 1) * 1440) & (_p01.ts_m < day * 1440) & (_p01.meas_m <= day * 1440)]
+    j = f.merge(p, on='glass_id'); out = {}
+    for c in _CH01:
+        jj = j[(j.block + '-' + j.chamber) == c].sort_values('glass_id', kind='stable'); jj = jj[jj.chamber_temp.notna()]
+        out[c] = (jj.Mx.to_numpy() - _SLOPE01 * (jj.chamber_temp.to_numpy() - _TREF01))
+    return out
+_V01 = {d: _vals01(d) for d in range(1, 15)}
+def _lag01(x):
+    m = x.mean(); den = ((x - m) ** 2).sum(); return 0.0 if den == 0 else float(((x[1:] - m) * (x[:-1] - m)).sum() / den)
+def _did01(c, day, k, m, an):
+    rec = [j for j in an if day - k < j <= day]; bef = [j for j in an if day - k - m < j <= day - k]
+    if not rec or not bef: return None
+    def ctrl(j): ms = [_V01[j][c2].mean() for c2 in _CH01 if c2 != c and len(_V01[j][c2])]; return float(np.median(ms)) if ms else None
+    rR = np.concatenate([_V01[j][c] - ctrl(j) for j in rec]); rB = np.concatenate([_V01[j][c] - ctrl(j) for j in bef])
+    if len(rR) < 6 or len(rB) < 6: return None
+    phi = max(0.0, (_lag01(rR) + _lag01(rB)) / 2); neR, neB = max(len(rR) * (1 - phi) / (1 + phi), 2), max(len(rB) * (1 - phi) / (1 + phi), 2)
+    vR, vB = rR.var(ddof=1) / neR, rB.var(ddof=1) / neB; eff = rR.mean() - rB.mean(); t = eff / np.sqrt(vR + vB); df = (vR + vB) ** 2 / (vR ** 2 / (neR - 1) + vB ** 2 / (neB - 1))
+    return eff, float(2 * _st01.t.sf(abs(t), df)), phi
+_mx01, _mp01, _n01, _skip01 = 0.0, 0.0, 0, 0
+_rec7, _q7, _ = _m01.run_agent(_tb01, {'tol': 7})
+for _r in _rec7:
+    for _row in _r['finding'].get('rows', []):
+        _o = _did01(_row['key'], _r['day'], 2, 3, list(range(1, _r['day'] + 1)))
+        _sk = _row.get('skip', False)
+        if _sk or _o is None:
+            if _sk != (_o is None): _mx01 = 9
+            _skip01 += 1
+            continue
+        _n01 += 1; _mx01 = max(_mx01, abs(_o[0] - _row['eff'])); _mp01 = max(_mp01, abs(_o[1] - _row['p']) / max(_row['p'], 1e-300) if _row['p'] > 1e-12 else abs(_o[1] - _row['p']))
+chk('0401 변경점 통계: 점검 끔 정책의 14일 × 챔버 8개 판정(효과·p)을 pandas + scipy(t.sf)로 독립 계산한 값과 비교(효과 차 < 1e-9, p 상대 차 < 1e-6, 판정 안 함인 칸도 같음)', _mx01 < 1e-9 and _mp01 < 1e-6 and _n01 > 20, f'비교 {_n01}칸 · 판정 안 한 칸 {_skip01} · 효과 최대 차 {_mx01:.1e} · p 최대 상대 차 {_mp01:.1e}')
+
+# 요청 판정 = 0206 전이 표 (JS requestTransition 과 ESTC 표를 node 로 꺼내 파이썬 표와 견줌)
+_EXP01B = r"""const M=require(%s);const rows=M.ESTC.transitions.filter(t=>t.entity==='mask').map(t=>[t.from,t.to,t.needs_human?1:0]);
+const states=['init','stock','to_clean','clean_wait','cleaning','held','to_stock','in_use','repair','scrapped'];const out={};
+states.forEach(s=>['repair','scrapped'].forEach(to=>{const r=M.requestTransition({states:{'mask:B03-A2':s},repairPath:{},cleaning:0,clean_wait:0},'mask','B03-A2',to);out[s+'>'+to]=r.kind;}));
+console.log(JSON.stringify({rows:rows,out:out}));"""
+_e01 = json.loads(subprocess.run([_node, '-e', _EXP01B % json.dumps(_mf5)], capture_output=True, text=True, check=True).stdout)
+_tbl01 = {(a, b): bool(h) for a, b, h in _e01['rows']}
+_pk = {'ok': 'ok', 'needs_human': 'needs_human', 'not_in_table': 'not_in_table'}
+chk('0401 요청 판정: 파이썬의 마스크 전이 표 = ESTC 마스크 전이 16줄(사람 승인 표시까지), 상태 10개 × 리페어·제외 20가지에서 파이썬 판정(표에 없음·사람 승인·허용) = JS requestTransition',
+    _tbl01 == _m01.MASK_TRANS and all(_m01.request_transition(k.split('>')[0], k.split('>')[1]) == v for k, v in _e01['out'].items()) and len(_e01['out']) == 20 and len(_tbl01) == 16
+    and _e01['out']['in_use>repair'] == 'ok' and _e01['out']['in_use>scrapped'] == 'needs_human' and _e01['out']['repair>scrapped'] == 'needs_human' and _e01['out']['repair>repair'] == 'not_in_table',
+    f'전이 {len(_tbl01)}줄 · 사람 승인 필요 {sum(_tbl01.values())}줄')
+
+# 보고 검사 단위 시험: 사실 목록은 파이썬이 만든 한 날의 것, 검사 결과는 JS(LlmVerify.validate) = 파이썬
+_facts01 = [r for r in _rec_t2 if r['day'] == 8][0]['facts']
+_ev_id = [f['id'] for f in _facts01 if f['kind'] == 'event'][0]; _val_id = [f['id'] for f in _facts01 if f['kind'] == 'value'][0]
+def _mk01(sents): return json.dumps({'sentences': [{'text': t, 'cites': c, 'type': ty} for t, c, ty in sents]}, ensure_ascii=False)
+_cases01 = [('정상', [(f'값은 {{{{{_val_id}}}}}입니다.', [_val_id], '사실')]), ('자리 밖 숫자', [('초과는 17건입니다.', [], '사실')]), ('이름·날 이름은 허용', [(f'7일 B03-CH2 의 값은 {{{{{_val_id}}}}}입니다.', [_val_id], '사실')]),
+            ('없는 번호', [('값은 {{f99}}입니다.', ['f99'], '사실')]), ('cites 빠짐', [(f'값은 {{{{{_val_id}}}}}입니다.', [], '사실')]), ('원인인데 cites 없음', [('원인은 모릅니다.', [], '원인')]),
+            ('원인인데 사건 없음', [(f'값은 {{{{{_val_id}}}}}입니다.', [_val_id], '원인')]), ('원인 + 사건 인용', [(f'교체는 {{{{{_ev_id}}}}}에 있었습니다.', [_ev_id], '원인')]),
+            ('시점 낱말 + 사건, 관계 없음', [(f'같은 기간 {{{{{_ev_id}}}}}에 교체했습니다.', [_ev_id], '원인')]), ('type 이 네 가지가 아님', [(f'값은 {{{{{_val_id}}}}}입니다.', [_val_id], '결론')])]
+_raws01 = [_mk01(s) for _, s in _cases01] + ['초과는 17건입니다.', '```json\n' + _mk01([('초과는 {{f1}}건입니다.', ['f1'], '사실')]) + '\n```']
+_EXP01C = r"""const V=require(%s);const facts=%s,raws=%s;console.log(JSON.stringify(raws.map(t=>{const r=V.validate(t,facts);return Object.keys(r.rules).filter(k=>r.rules[k].fails.length>0);})));"""
+_jv01 = json.loads(subprocess.run([_node, '-e', _EXP01C % (json.dumps(os.path.join(_DATA10, 'llmverify.js')), json.dumps(_facts01, ensure_ascii=False), json.dumps(_raws01, ensure_ascii=False))], capture_output=True, text=True, check=True).stdout)
+_pv01 = [[k for k, v in _m01.validate(t, _facts01).items() if v] for t in _raws01]
+_want01 = [[], ['V2'], [], ['V3', 'V4'], ['V4'], ['V4', 'V5'], ['V5'], [], ['V6'], ['V1'], ['V1'], ['V1']]
+chk('0401 보고 검사 단위 시험 12건(정상·자리 밖 숫자·이름 허용·없는 번호·cites 빠짐·원인+cites 없음·원인+사건 없음·원인+사건·시점 낱말+사건·type·JSON 아님·코드 울타리): 걸린 규칙 = 기대 = JS(LlmVerify.validate) = 파이썬',
+    _jv01 == _pv01 == _want01, f'JS {_jv01[:4]}… = 파이썬 {_pv01[:4]}…')
+_allvalid = all(d['valid'] for g in _pyres01 for d in g[0])
+chk(f'0401 모든 정책의 보고 검사(V1~V6) 통과: {len(_grid01)}가지 × 14일 보고 가운데 실패 0건(틀로 만든 문장이라 형식 검사는 통과해야 함), 보고마다 사실 목록이 있고 문장의 숫자 자리는 전부 번호',
+    _allvalid and all(len(d['facts']) >= 1 for g in _pyres01 for d in g[0]), f'{sum(len(g[0]) for g in _pyres01)}개 보고')
+
+# 승인 결정이 다음 날 상태에 반영
+_a_rec, _a_q, _ = _m01.run_agent(_tb01, None, {'R-02': 'approve'}); _r_rec, _r_q, _ = _m01.run_agent(_tb01, None, {'R-02': 'reject'}); _n_rec, _n_q, _ = _m01.run_agent(_tb01, None, None)
+_sp = [q for q in _n_q if q['kind'] == 'spec'][0]
+chk('0401 승인 대기열: 기본 정책의 8일 spec 변경 요청(R-02, 사람 승인 필요·되돌릴 수 없음)은 결정이 없으면 14일까지 대기이고 spec 은 그대로, 승인하면 다음 날(9일) 아침 spec 이 제안값으로 바뀌고 반려하면 그대로, 마스크 제외는 어떤 정책에서도 자동 허용되지 않음(전 격자)',
+    _sp['day'] == 8 and _sp['human'] and not _sp['reversible'] and _sp['status'] == 'pending' and all(r['spec'] == _m01.SPEC for r in _n_rec)
+    and _a_rec[7]['spec'] == _m01.SPEC and _a_rec[8]['spec'] == _sp['proposed'] and _a_rec[8]['decided'][0]['verdict'] == 'applied' and all(r['spec'] == _m01.SPEC for r in _r_rec) and _r_rec[8]['decided'][0]['verdict'] == 'rejected'
+    and all(q['verdict'] in ('queue', 'rejected', 'applied', 'guardlate', 'table') for g in _pyres01 for q in g[1] if q['kind'] == 'scrap') and any(q['kind'] == 'scrap' for g in _pyres01 for q in g[1]),
+    f'제안 {_m01.SPEC:.3f} → {_sp["proposed"]:.3f} µm · 승인 후 9일 {_a_rec[8]["spec"]:.3f}')
+
+# 불변식: 리페어 동시 한도, 점검 허용 수에 따른 분석 일수, 유한값, 결정성
+_viol01, _cap_ok = 0, 0
+for (_recs, _queue, _pol) in _pyres01:
+    _okr = [(q['day']) for r in _recs for q in r['requests'] if q['kind'] == 'repair' and q['verdict'] == 'ok'] + [q['decided_day'] for q in _queue if q['kind'] == 'repair' and q.get('verdict') == 'applied']
+    for d in range(1, 15):
+        if sum(1 for s in _okr if s <= d < s + _m01.REPAIR_DAYS) > _pol['repair_cap']: _viol01 += 1
+    _cap_ok += len(_okr)
+_an01 = {t: sum(r['analyzed'] for r in _m01.run_agent(_tb01, {'tol': t})[0]) for t in range(0, 8)}
+_fin01 = all(np.isfinite(x[k]) for g in _js01 for d in g if 'rows' in d for x in d['rows'] if x[1] == 0 for k in (2, 3))
+_again = [[r['render'] for r in _m01.run_agent(_tb01, {'tol': 4, 'delta': 0.2})[0]] for _ in range(2)]
+chk('0401 불변식: (1) 어떤 정책에서도 같은 날 리페어 중인 마스크 수 ≤ 리페어 동시 한도 (2) 점검 허용 수를 올리면 분석한 날이 줄지 않음(0~7) (3) 모든 효과·p 값이 유한 (4) 같은 입력은 같은 결과(결정성) (5) 점검을 끄면 14일 전부 분석',
+    _viol01 == 0 and _cap_ok > 0 and list(_an01.values()) == sorted(_an01.values()) and _an01[7] == 14 and _an01[0] == 2 and _fin01 and _again[0] == _again[1],
+    f'허용 수별 분석한 날 {list(_an01.values())} · 허용된 리페어 {_cap_ok}건 · 한도 위반 {_viol01}')
+
+# 실행 기록·승인 대기열 양식(CSV 줄 수)
+_lg = _m01.log_rows(_dd0); _qr = _m01.queue_rows(_qq0); _jl = len(_dd0) * 2 + sum(len(r['decisions']) + len(r['requests']) for r in _dd0)
+chk('0401 실행 기록 양식: 단계 줄 = 날마다 (관찰·점검 + 보고) 2줄 + 결정 + 요청, 열 9개(day·step·tool·input·output·decision·request·verdict·reason), 승인 대기열 양식은 사람 승인이 필요한 요청만 9칸으로(기본 정책 1줄: 승인자·결정 칸은 비어 있음)',
+    len(_lg) == _jl and set(_lg[0]) == {'day', 'step', 'tool', 'input', 'output', 'decision', 'request', 'verdict', 'reason'} and len(_qr) == 1 and _qr[0]['approver'] == '' and _qr[0]['reversible'] == '아니오' and len(_qr[0]) == 9,
+    f'실행 기록 {len(_lg)}줄 · 승인 대기열 {len(_qr)}줄')
+
+# 페이지 Python 실행 = 출력 상자, 출력의 숫자 = JS
+_run01 = subprocess.run([sys.executable, '-I', 'lab0401.py'], cwd=_td01, capture_output=True, text=True)
+_L01 = _run01.stdout.strip().splitlines() if _run01.returncode == 0 else []
+_jsd = _js01[0]; _js2 = [g for g, gg in zip(_js01, _grid01) if gg['policy'] == {'tol': 2} and gg['decisions'] is None][0]; _jsa = [g for g, gg in zip(_js01, _grid01) if gg['policy'] == {} and gg['decisions'] == {'R-02': 'approve'}][0]
+_sm = _jsd[-1]['summary']; _sm2 = _js2[-1]['summary']
+_exp_sum = f"요약: 분석한 날 {_sm['analyzed']} · 멈춘 날 {_sm['stopped']} · 결정 {_sm['decisions']} · 요청 {_sm['requests']}(허용 {_sm['ok']} · 거절 {_sm['refused']} · 대기 {_sm['queued']}) · 보고 검사 통과 {_sm['report_pass']}/14"
+_exp_t2 = f"점검 허용 수 2: 분석한 날 {_sm2['analyzed']} · 멈춘 날 {_sm2['stopped']} · 새 변경점 " + ' '.join(f"{d['day']}일 {c}" for d in _js2[:14] for c in d['fl'])
+chk('0401 페이지 Python 코드가 오류 없이 돌고 출력이 페이지의 출력 상자와 한 글자도 다르지 않으며, 출력의 14일 표·요약·점검 허용 2 결과·R-02 승인 결과가 JS 값과 같고, 외부 통신 코드와 사내 모델 호출이 없음',
+    _run01.returncode == 0 and _run01.stdout.strip() == _out01 and _exp_sum in _L01 and _exp_t2 in _L01
+    and all(f"{d['day']}일 · " + (f"실패 {len(d['fails'])}({'+'.join(d['fails'])})" if d['fails'] else '통과') + ' · ' + ('분석' if d['an'] else '건너뜀') in _out01 for d in _jsd[:14])
+    and f"{_jsa[8]['spec']:.3f}" in _out01 and not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', _code01, _re5.M) and 'ask_internal_model' not in _code01,
+    (_run01.stderr[-300:] if _run01.returncode else f'{len(_L01)}줄'))
+
+# 페이지 구조
+_term01 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg01, _re5.S).group(1)))
+_nq01 = len(_re5.findall(r'<div class="qna" data-label=', _pg01)); _nsec01 = len(_re5.findall(r'<h2><span class="no">', _pg01))
+_fonts01 = [int(x) for x in _re5.findall(r"(?:x\.font|\.font)\s*=\s*'[^']*?(\d+)px", _pg01)] + [int(x) for x in _re5.findall(r'fitFont\([^)]*?,\s*\d+\s*,\s*(\d+)\s*,', _pg01)]
+_body01 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg01, flags=_re5.S); _body01 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body01))
+_endda01 = _re5.findall(r'[^니습]다[.]', _body01)
+_p11 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0411-llm-verification-design.html'), encoding='utf-8').read(); _hub01 = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+_js01s = open(_ag01, encoding='utf-8').read()
+chk('0401 페이지: 새 용어 6개 · Q&A 4개 · 절 11개 · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0411 의 위·아래 다음 링크 · 허브 등록(단계 4 묶음) · 계산 모듈에 난수·시각 함수 없음 · 승인 대기열의 scrap 고정 표시(비활성 체크박스) · 정책 슬라이더 값 기본값 = 모듈 기본 정책 · mfgsim.js 를 부르기만 함',
+    _term01 == 6 and _nq01 == 4 and _nsec01 == 11 and min(_fonts01) >= 11 and not _endda01 and _p11.count('0401-agent-prototype.html') == 2 and 'labs/0401-agent-prototype.html' in _hub01
+    and 'Math.random' not in _js01s and 'Date.now' not in _js01s and 'new Date' not in _js01s and 'type="checkbox" checked disabled' in _pg01 and 'mfgsim.js' in _pg01 and 'agent0401.js' in _pg01
+    and 'id="sTol" min="0" max="7" step="1" value="0"' in _pg01 and 'id="sK" min="1" max="4" step="1" value="2"' in _pg01 and 'id="sM" min="1" max="6" step="1" value="3"' in _pg01 and 'id="sDelta" min="0.1" max="1.5" step="0.1" value="0.5"' in _pg01
+    and 'id="sExn" min="1" max="20" step="1" value="6"' in _pg01 and 'id="sCap" min="1" max="4" step="1" value="2"' in _pg01 and 'id="sShare" min="2" max="40" step="1" value="10"' in _pg01,
+    f'용어 {_term01} · Q&A {_nq01} · 절 {_nsec01} · 캔버스 글자 최소 {min(_fonts01)}px({len(_fonts01)}곳) · -다 끝맺음 {len(_endda01)}건 · 0411 링크 {_p11.count("0401-agent-prototype.html")}곳')
+_cleanup01 = shutil.rmtree(_td01, ignore_errors=True)
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

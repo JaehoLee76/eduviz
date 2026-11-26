@@ -1,0 +1,1490 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>에이전트 구조 시제품</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="지금까지 만든 함수를 하루 한 바퀴(관찰, 점검, 분석, 결정, 요청, 보고)의 정해진 순서로 묶고, 상태를 바꾸는 일은 허용된 전이만, 되돌릴 수 없는 일은 사람 승인 대기열로 보내는 에이전트의 뼈대를 가상 공장 14일 위에서 돌려 보는 실험실. 회사 PC용 Python과 실행 기록·승인 대기열 양식">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+
+.slot{background:color-mix(in srgb,var(--c10) 18%,transparent);border-bottom:2px dashed var(--c10);border-radius:3px;padding:0 .1em;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.85em}
+textarea.ed{width:100%;min-height:11rem;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.82rem;line-height:1.5;padding:.55rem .65rem;border:1px solid var(--rule);border-radius:9px;background:var(--code);color:var(--ink);resize:vertical;margin:.4rem 0}
+.rc{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--rule)}
+.rc.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.rc.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.rc.off{background:var(--tint);color:var(--soft)}
+td .qs{margin:0}
+details>.llmq{margin:.4rem 0}
+
+.stage-note{font-size:.86rem;color:var(--soft)}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--rule);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:var(--good)}
+.badge.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-color:var(--bad)}
+.badge.wait{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border-color:var(--warn)}
+.badge.off{background:var(--tint);color:var(--soft)}
+.qitem{border:1px solid var(--rule);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:var(--card)}
+.qitem .qt{font-weight:700}
+.qitem .row{margin:.4rem 0 0}
+label.chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.3rem 0;min-height:36px}
+label.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:700px){.cols3{grid-template-columns:1fr}}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 4 · 기둥 4 · 실험실 0401</p>
+  <h1>에이전트 구조 시제품</h1>
+  <p class="sub">하루 한 바퀴를 규칙으로 묶고, 위험한 일은 사람 승인 대기열로 — 가상 공장 14일 위에서 돌려 보기</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0411-llm-verification-design.html">← 이전: LLM에게 일을 맡기는 법 — 검증 설계</a><span class="sp"></span></nav>
+
+<p><b>지금까지 만든 함수를 매일 아침 사람이 차례로 부르고 있습니다.</b> 이 순서를 정해 두고 스스로 돌게 하되, 상태를 바꾸는 일은 0206 의 전이 표에 있는 전이만 가드를 통과할 때 하게 하고, 되돌릴 수 없는 일은 사람 승인 대기열로 보내고, 자료 점검이 실패한 날은 분석하지 않고 알리기만 하게 만든 &lsquo;규칙으로 묶인 실행자&rsquo;가 이 실험실의 에이전트입니다. 매 단계가 기록으로 남으므로 틀렸을 때 어느 단계가 틀렸는지 찾을 수 있습니다. 무대는 0400 의 가상 공장 <span class="v_days"></span>일(대표 시드 <span class="v_seed"></span>, 챔버 <span class="v_nch"></span>개)이고, 에이전트는 날마다 0400 이 낸 표를 받습니다. 보고 문장은 정해 둔 틀로 만들며 LLM 을 부르지 않습니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0400 의 점검 일곱 규칙과 지문, 0104 의 변경점 전후 비교(자기상관·대조 챔버 이중차분), 0202 의 다중 비교, 0206 의 전이 표와 요청 판정, 0304·0306 의 리페어 판단과 리페어 직후 기준 측정, 0411 의 사실 목록과 검사기(V1~V6).</p>
+  <ul class="chips known"><li>점검 일곱 · 지문 (0400)</li><li>변경점 판정 흐름 (0104)</li><li>다중 비교 (0202)</li><li>전이 표 · 요청 판정 (0206)</li><li>리페어 판단 (0304·0306)</li><li>사실 목록 · 검사기 (0411)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 이 글이 쓰는 &lsquo;요청&rsquo;·&lsquo;판정&rsquo;·&lsquo;가드&rsquo;는 쓰는 자리에서 문장으로 풀어 둡니다.</p>
+  <ul class="chips" id="termList"><li>에이전트 (agent)</li><li>도구 (tool)</li><li>실행 단계 (step)</li><li>정책 (policy)</li><li>승인 대기열 (approval queue)</li><li>실행 기록 (agent log)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 매일 아침 자료를 보고 판단 초안·조치 요청·보고를 내는 에이전트의 뼈대(2~7절). 지금까지 만든 함수를 정해진 순서로 부르는 것이 전부입니다.</li>
+    <li><b>손으로 연습</b> — 14일을 하루씩 돌려 에이전트가 무엇을 보고 무엇을 요청했고 무엇이 거절·대기됐는지 읽고, 점검 허용 수·문턱·승인 정책을 바꿔 행동이 어떻게 바뀌는지 보고, 승인 대기열의 요청을 직접 승인·반려해 다음 날 상태가 어떻게 달라지는지 봅니다(3~6절).</li>
+    <li><b>다음 날 산출물</b> — <code>agent_step</code> 을 중심으로 한 Python 뼈대(관찰·점검·분석·결정·요청·보고 함수 묶음)(10절)와 <b>에이전트 실행 기록·승인 대기열 양식</b>(11절).</li>
+    <li><b>기록할 데이터</b> — 에이전트가 내린 모든 결정과 근거·요청한 전이·거절 이유·사람의 승인과 반려, 정책을 바꾼 날(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 승인·반려와 정책 문턱은 사람, 점검·가드·승인 필요 여부는 규칙, 도구 부르기·결정 초안·요청·보고는 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 사람이 매일 함수를 부르고 붙이는 시간과 에이전트 기록만 보는 시간의 차(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 지금까지 만든 함수(0101~0411)를 매일 아침 사람이 차례로 부르고 있습니다. <b>(1) 이것을 스스로 돌게 하되, 위험한 일은 못 하게 하려면 어떻게 묶어야 합니까. (2) 가상 공장 <span class="v_days"></span>일에 돌려 보고, 에이전트가 무엇을 보았고 무엇을 요청했고 무엇이 거절·보류됐는지 설명하십시오.</b>
+  <p class="note" style="margin:.5rem 0 0">2~7절에서 묶는 법과 정책을 만져 보고, 8절에서 이 두 물음으로 돌아옵니다. 사람이 함수를 부르는 데 드는 시간은 현장 값으로 바꿔야 할 가정입니다(9절).</p>
+</div>
+
+<div class="solban">여기서부터 14일 가상 운전을 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>첫 시도 — 함수 목록을 주고 알아서 하라고 하면</h2>
+<ul class="termdef">
+  <li><b>에이전트 (agent)</b> — 정해진 목표를 위해 관찰·판단·행동을 스스로 되풀이하는 프로그램입니다. 이 실험실에서는 하루에 한 번 도는 정해진 순서의 묶음을 가리킵니다.</li>
+</ul>
+<p>가장 쉬운 첫 시도는 LLM 에게 함수 목록을 주고 &ldquo;알아서 하라&rdquo;고 하는 것입니다(여기서 실행하지는 않습니다). 0410·0411 에서 받아 본 실제 답이 이 방식의 근거입니다. 같은 질문에도 문장의 틀이 달라졌고, 숫자는 맞아도 &lsquo;어느 날에 일어났나&rsquo; 같은 관계 문장이 틀렸습니다. 사람이 붙인 틀림 표지는 0411 기록의 답 6개 가운데 <span class="v_nwrong"></span>곳이었습니다.</p>
+<div class="tbwrap"><table class="mt" id="tab1">
+  <tr><th>정해져 있지 않은 것</th><th>그래서 생기는 일</th></tr>
+  <tr><td class="rowh">누가 무엇을 언제 부르는가</td><td>같은 자료에서도 부르는 함수와 순서가 매번 달라져, 어제와 오늘의 결과를 견줄 수 없습니다.</td></tr>
+  <tr><td class="rowh">상태를 바꾸는 일을 막는 장치</td><td>마스크 제외 같은 되돌릴 수 없는 일이 &lsquo;그럴듯한 다음 낱말&rsquo;로 일어날 수 있습니다. 표에서 사람 승인이 필요한 마스크 전이는 <span class="v_nhuman"></span>개(<span class="v_human_list"></span>)입니다.</td></tr>
+  <tr><td class="rowh">틀렸을 때 어느 단계인지 찾는 길</td><td>부른 함수·입력·받은 값이 남지 않으면 틀린 곳을 찾을 수 없습니다.</td></tr>
+</table></div>
+<p><b>막힘:</b> 누가 무엇을 언제 할 수 있는지가 정해져 있지 않습니다. 능력(함수)은 이미 있으므로, 필요한 것은 더 똑똑한 모델이 아니라 순서와 허가의 규칙입니다.</p>
+<div class="qna" data-label="LLM 이 알아서 도구를 고르게 하면 더 똑똑하지 않나요?" data-q="LLM 이 알아서 도구를 고르게 하면 더 똑똑하지 않나요?">
+  <p><b>고르는 이유가 기록되지 않고 다시 재현되지 않으면, 그 똑똑함은 틀렸을 때 고칠 수 없습니다.</b> 같은 자료에서 어제는 A 함수를, 오늘은 B 함수를 불렀다면 두 날의 결과를 견줄 수 없고, 어느 쪽이 맞는지도 가릴 수 없습니다.</p>
+  <p>위험한 전이(마스크 제외·spec 변경)는 더 그렇습니다. 그런 일은 모델의 판단에 맡기지 않고 표(허용된 전이)와 가드와 사람 승인이 막아야 합니다. 이 실험실은 고르는 일 자체를 규칙으로 만들어, 어떤 선택이 왜 일어났는지를 단계마다 남깁니다. 모델은 정해진 자리(보고 문장 초안)에만 쓰고, 그 문장도 0411 의 검사를 통과해야 합니다.</p>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>이름 — 도구와 하루 한 바퀴</h2>
+<ul class="termdef">
+  <li><b>도구 (tool)</b> — 에이전트가 부를 수 있는 검증된 함수 하나입니다(예: <code>run_checks</code>, <code>analyze</code>, <code>request</code>). 도구 목록 밖의 일은 하지 못합니다.</li>
+  <li><b>실행 단계 (step)</b> — 하루 한 번의 &lsquo;관찰 → 점검 → 분석 → 결정 → 요청 → 보고&rsquo; 한 바퀴입니다.</li>
+</ul>
+<p>한 바퀴의 칸마다 이미 만든 실험실의 함수가 들어갑니다. 아래 그림은 하루를 골라 그날 각 칸이 무엇을 했는지 보여 줍니다. 어두운 칸은 그날 건너뛴 단계입니다.</p>
+<div class="lab">
+  <div class="labtitle">하루 한 바퀴 — 도구와 그날 한 일</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1일부터 &lsquo;다음 날&rsquo;을 눌러 8일까지 가 보십시오. 대부분의 날은 &lsquo;점검&rsquo; 칸에서 멈추고, 8일에는 &lsquo;분석&rsquo;부터 &lsquo;보고&rsquo;까지 모두 돕니다.</div>
+  <canvas id="cv2"></canvas>
+  <div class="row"><button class="btn ghost" id="bFirst" type="button">1일로</button><button class="btn ghost" id="bPrev" type="button">◀ 이전 날</button><button class="btn" id="bNext" type="button">다음 날 ▶</button></div>
+  <div class="readout" id="ro2"></div>
+  <div class="tbwrap"><table class="mt" id="tabSteps"></table></div>
+</div>
+<div class="tbwrap"><table class="mt" id="tabTools"></table></div>
+<p class="note">&lsquo;요청&rsquo;은 에이전트가 설비 상태를 바꾸자고 내놓는 한 건이고, &lsquo;판정&rsquo;은 그 요청이 허용·거절·승인 대기 가운데 어디로 가는지입니다. 5절에서 규칙을 풉니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>점검이 먼저</h2>
+<p>0400 의 점검 일곱 규칙이 실패하면 그날은 분석하지 않고 알림만 냅니다. 14일 달력에 그날 점검 결과와 주입된 고장(가상이라 정답이 있습니다)을 함께 놓았습니다. 칸을 누르면 그날 규칙별 값이 아래 표에 나옵니다. 마스크 이력 표에는 점검 규칙이 없으므로, 점검이 실패한 날에는 그 표도 읽지 않고 다음 통과한 날에 한꺼번에 읽는다고 정했습니다.</p>
+<div class="lab">
+  <div class="labtitle">14일 달력 — 분석한 날과 멈춘 날</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 아래 슬라이더로 &lsquo;허용하는 점검 실패 수&rsquo;를 0 에서 끝까지 올려 보십시오. 분석하는 날이 늘어나는 만큼, 고장이 든 채로 분석한 날과 정답과 달라진 날도 함께 늘어납니다.</div>
+  <div class="ctrl"><label for="sTol">허용하는 점검 실패 수 (끝 값 = 점검 끔)</label><input type="range" id="sTol" min="0" max="7" step="1" value="0"><output id="sTolO"></output></div>
+  <div class="row"><button class="btn ghost" id="pStrict" type="button">엄격(기본)</button><button class="btn ghost" id="pTwo" type="button">실패 2개까지 허용</button><button class="btn ghost" id="pOff" type="button">점검 끄기(탐구)</button></div>
+  <div class="state" id="stTol"></div>
+  <canvas id="cv3" class="pick"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--good)"></span>분석함</span><span><span class="dot" style="background:var(--bad)"></span>멈춤(알림만)</span><span><span class="dot" style="background:var(--warn)"></span>주입된 고장(정답)</span></div>
+  <div class="readout" id="ro3"></div>
+  <div class="tbwrap"><table class="mt num" id="tabRules"></table></div>
+  <div class="concl" id="conc3"></div>
+</div>
+<p><b>정직하게 말해 둘 것이 있습니다.</b> 점검이 엄격하면 분석할 날이 모자라 변경점 판정이 비교할 날을 찾지 못합니다. 점검을 풀면 분석하는 날이 늘지만 고장이 든 표로 결정을 내리게 됩니다. 어느 쪽이 나은지는 점검 문턱을 정하는 사람의 몫이고(0400·0202 의 맞바꿈), 자료를 빨리 고치는 파이프라인이 이 문제의 근본 해결입니다.</p>
+<div class="qna" data-label="점검이 실패한 날은 보고를 아예 안 하나요?" data-q="점검이 실패한 날은 보고를 아예 안 하나요?">
+  <p><b>알림은 냅니다. 멈추는 것은 분석과 결정입니다.</b> 실패한 날의 보고는 &lsquo;점검에서 실패한 규칙 이름과 입력 지문&rsquo;까지만 말합니다(7절에서 그날 보고를 열어 볼 수 있습니다).</p>
+  <p>이렇게 하는 이유는, 고장 난 표로 낸 결과는 값이 그럴듯해서 사람이 틀린 줄 모르기 때문입니다. 알림을 받은 사람이 실행 기록의 입력 지문과 행 수부터 보고 자료를 고친 뒤 같은 날을 다시 돌립니다(0400).</p>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>정책과 결정</h2>
+<ul class="termdef">
+  <li><b>정책 (policy)</b> — 어떤 관찰에서 어떤 결정·요청을 내는지 정한 규칙 표(문턱 포함)입니다. 정책이 바뀌면 같은 자료에서도 행동이 바뀝니다.</li>
+</ul>
+<p>분석은 0104 의 판정 흐름을 따릅니다. 챔버마다 &lsquo;최근 k일&rsquo;과 &lsquo;그 전 m일&rsquo;(분석한 날만)의 보정 후 Mx 를 비교하되, 같은 날 다른 챔버들의 중앙값을 빼서(대조 챔버 이중차분) 모두가 같이 움직이는 몫을 걷어 내고, 이웃 유리가 닮은 정도(자기상관)를 실효 표본 수로 반영한 Welch 검정을 쓰고, 챔버 여덟 개를 한꺼번에 보므로 0202 의 본페로니 보정(유의수준 0.05 를 챔버 수로 나눔)을 겁니다. 변경점은 &lsquo;효과가 문턱 이상이고 p 가 보정한 수준 이하&rsquo;일 때입니다. 변경점이 잡히면 시각 근처의 사건을 원인 <b>후보</b>로 붙이고(마스크 교체·이벤트), 없으면 원인 미확인으로 둡니다.</p>
+<div class="lab">
+  <div class="labtitle">정책 표 — 만져 보면 아래 결정·요청이 함께 바뀝니다</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 3절의 &lsquo;실패 2개까지 허용&rsquo; 단추를 누른 뒤 k·m·문턱을 바꿔 보십시오. 엄격한 기본 상태에서는 분석한 날이 몇 안 되어 k·m·문턱을 바꿔도 결정이 달라지지 않습니다. 분석할 날을 정하는 것이 점검 허용 수이기 때문입니다. 이어서 문턱을 낮춰 보고, 아래 비교표에서 점검을 끈 줄에 B03-CH2 말고 다른 챔버의 변경점이 생기는지 확인하십시오.</div>
+  <div class="ctrl"><label for="sK">최근 구간 k (일)</label><input type="range" id="sK" min="1" max="4" step="1" value="2"><output id="sKO"></output></div>
+  <div class="ctrl"><label for="sM">그 전 구간 m (일)</label><input type="range" id="sM" min="1" max="6" step="1" value="3"><output id="sMO"></output></div>
+  <div class="ctrl"><label for="sDelta">변경점 문턱 (ppm)</label><input type="range" id="sDelta" min="0.1" max="1.5" step="0.1" value="0.5"><output id="sDeltaO"></output></div>
+  <div class="ctrl"><label for="sExn">리페어 후보 지표 초과 건수 (장)</label><input type="range" id="sExn" min="1" max="20" step="1" value="6"><output id="sExnO"></output></div>
+  <div class="ctrl"><label for="sScr">제외 후보 초과 비율 (%)</label><input type="range" id="sScr" min="10" max="100" step="10" value="50"><output id="sScrO"></output></div>
+  <div class="ctrl"><label for="sShare">spec 변경 제안 비율 (% , 전체 유리 중 초과)</label><input type="range" id="sShare" min="2" max="40" step="1" value="10"><output id="sShareO"></output></div>
+  <label class="chk"><input type="checkbox" id="cBonf" checked>다중 비교 보정(본페로니) 적용</label>
+  <div class="row"><button class="btn ghost" id="rPol" type="button">정책을 기본값으로 되돌리기</button></div>
+  <div class="state" id="stPol"></div>
+  <h3>변경점 판정 — 보는 날을 골라 챔버별로</h3>
+  <div class="ctrl"><label for="sSel4">보는 날</label><input type="range" id="sSel4" min="1" max="14" step="1" value="8"><output id="sSel4O"></output></div>
+  <canvas id="cv4"></canvas>
+  <div class="readout" id="ro4"></div>
+  <h3>정책 세 가지를 나란히</h3>
+  <p class="note">위의 k·m·문턱과 승인 정책은 그대로 두고 점검 허용 수만 0 · 2 · 끝 값으로 바꿔 세 번 돌린 결과입니다.</p>
+  <div class="tbwrap"><table class="mt num" id="tabCmp"></table></div>
+</div>
+<div class="lab">
+  <div class="labtitle">날마다 낸 결정</div>
+  <div class="tbwrap"><table class="mt" id="tabDec"></table></div>
+  <div class="concl" id="conc4"></div>
+</div>
+<p><b>한계 둘을 적어 둡니다.</b> 1) 이 가상 공장 표에는 PPA 77점 격자가 없어 0304 의 &lsquo;보정만으로 spec 안에 드는가&rsquo; 판단을 근사하지 못합니다. 그래서 조치 판정은 &lsquo;측정 지표 초과 건수&rsquo;만으로 리페어·제외 후보를 고르는 단순 규칙이며, 0304 의 3단 규칙을 대신하지 못합니다. 2) 대조 챔버와 같이 움직이는 변화(모든 마스크의 노후 같은 것)는 이중차분이 걷어 내므로 변경점으로 잡히지 않습니다. 그런 변화는 spec 초과 비율로 따로 봅니다(5절의 spec 변경 요청).</p>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>전이 요청과 가드</h2>
+<p>결정이 서면 에이전트는 &lsquo;요청&rsquo;을 냅니다. 요청 한 건의 판정은 순서대로 세 가지를 봅니다. 1) 0206 의 전이 표에 그 전이가 있는가(없으면 거절). 2) 표에 있어도 사람 승인이 필요한 전이인가(마스크 제외가 그렇습니다 — 되돌릴 수 없으므로 바꿀 수 없는 규칙입니다). 3) 가드를 통과하는가 — 리페어는 &lsquo;동시에 리페어 중인 마스크 수가 한도 미만&rsquo;이어야 합니다(한도는 가정값). 기준 측정 요청·보정값 입력은 설비 상태를 바꾸지 않고 기록만 남기므로 바로 허용되고, spec 변경은 전이 표 밖의 일이지만 되돌릴 수 없으므로 사람 승인으로 둡니다.</p>
+<div class="lab">
+  <div class="labtitle">요청과 판정 — 가드와 승인 정책</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 가드를 보려면 아래 &lsquo;가드 시험 정책&rsquo;을 누르십시오. 점검 허용 수와 문턱이 옮겨져 리페어 요청이 여러 건 생깁니다. 이어서 리페어 동시 한도를 1 로 내리면 거절이 늘고, &lsquo;리페어도 사람 승인&rsquo;을 켜면 허용이 승인 대기로 옮겨 갑니다.</div>
+  <div class="ctrl"><label for="sCap">리페어 동시 한도 (장, 가정)</label><input type="range" id="sCap" min="1" max="4" step="1" value="2"><output id="sCapO"></output></div>
+  <label class="chk"><input type="checkbox" id="cRepH">리페어도 사람 승인</label>
+  <label class="chk"><input type="checkbox" id="cSpecR">spec 변경은 자동 반려</label>
+  <label class="chk"><input type="checkbox" checked disabled>마스크 제외(scrap)는 늘 사람 승인 — 바꿀 수 없음</label>
+  <p class="note" style="margin:.1rem 0 .4rem">마스크 제외는 되돌릴 수 없는 전이라 자동으로 허용하는 선택지를 두지 않았습니다. 사람 승인이 필요한 전이는 전이 표의 표시(needs_human)가 정하고, 정책은 그 표시를 끌 수 없습니다.</p>
+  <div class="row"><button class="btn ghost" id="pGuard" type="button">가드 시험 정책</button><button class="btn ghost" id="rReq" type="button">승인 정책을 기본값으로</button></div>
+  <div class="state" id="stReq"></div>
+  <div class="tbwrap"><table class="mt" id="tabReq"></table></div>
+  <div class="concl" id="conc5"></div>
+  <h3>요청 하나를 직접 시험해 보기</h3>
+  <p class="note">14일째 아침의 마스크 상태 표에서, 고른 마스크를 고른 상태로 옮겨 달라고 요청하면 어떻게 판정되는지 봅니다(요청 판정 함수 <code>requestTransition</code> 을 그대로 부릅니다).</p>
+  <div class="row"><select id="selMask" aria-label="마스크"></select><select id="selTo" aria-label="옮길 상태"></select><button class="btn" id="bProbe" type="button">요청해 보기</button></div>
+  <div class="state" id="stProbe"></div>
+</div>
+<div class="qna" data-label="실제 설비에 바로 명령을 보내도 되나요?" data-q="실제 설비에 바로 명령을 보내도 되나요?">
+  <p><b>안 됩니다. 에이전트는 요청과 기록까지만 하고, 설비를 움직이는 쓰기 권한은 따로 두지 않습니다.</b> 이 실험실의 &lsquo;실행&rsquo;도 상태 표에 기록을 바꾸는 것이고 설비 제어 시스템을 부르지 않습니다.</p>
+  <p>현장 제어 시스템에 연결하려면 회사의 정보보안·설비 담당 승인과 별도 안전 절차가 먼저입니다. 연결하더라도 가드를 통과한 가역 전이부터, 사람의 확인을 거치는 방식으로 시작합니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>승인 대기열</h2>
+<ul class="termdef">
+  <li><b>승인 대기열 (approval queue)</b> — 사람 승인이 필요한 요청(되돌릴 수 없는 전이·spec 변경)을 쌓아 두는 곳입니다. 사람이 승인·반려하기 전에는 실행되지 않습니다.</li>
+</ul>
+<p>아래 대기열의 요청을 직접 처리해 보십시오. 학습자의 결정은 요청한 다음 날 아침에 반영되고(그날까지 사람이 보았다고 가정), 승인한 요청은 그날 실행됩니다. 승인된 spec 변경은 그날부터 지표 초과 건수의 기준이 되어 이후 결정에 영향을 줍니다. 14일째에 올라온 요청은 15일 아침에 반영되므로 이 실행 안에서는 대기로 남습니다.</p>
+<div class="lab">
+  <div class="labtitle">승인 대기열 — 승인·반려가 다음 날 상태에 반영됩니다</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 요청을 승인하거나 반려해 보십시오. 아래 그래프의 막대(대기 길이)와 선(spec)이 함께 바뀌고, 요청한 다음 날 보고에 처리 결과 문장이 붙습니다.</div>
+  <div id="queueBox"></div>
+  <div class="row"><button class="btn ghost" id="rDec" type="button">승인·반려를 모두 지우기</button></div>
+  <canvas id="cv6"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--warn)"></span>그날 끝의 승인 대기 길이</span><span><span class="sw" style="border-top-color:var(--accent)"></span>spec (오른쪽 눈금)</span></div>
+  <div class="concl" id="conc6"></div>
+</div>
+<div class="qna" data-label="승인 대기열이 쌓이면 어떻게 하나요?" data-q="승인 대기열이 쌓이면 어떻게 하나요?">
+  <p><b>쌓이는 것은 정책 문턱을 다시 볼 때라는 신호입니다.</b> 사람이 처리하지 못할 만큼 요청이 올라온다면, 문턱이 너무 낮아 사소한 일까지 사람에게 올리고 있는 것입니다.</p>
+  <p>이때 해서는 안 되는 일은 승인을 자동으로 바꾸는 것입니다. 대기열의 목적이 사람의 확인이므로, 쌓였다는 이유로 확인을 없애면 안 됩니다. 문턱을 올리거나 같은 종류의 요청을 하나로 묶고, 승인에 걸리는 시간을 실행 기록에 남겨 본인의 처리 능력에 맞게 정합니다.</p>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>보고와 실행 기록</h2>
+<ul class="termdef">
+  <li><b>실행 기록 (agent log)</b> — 단계마다 무엇을 보고 어떤 도구를 어떤 입력으로 불러 무엇을 받았고 무엇을 결정했는지 남긴 줄입니다. 0402 의 평가에 쓰는 원료입니다.</li>
+</ul>
+<p>하루의 보고는 0411 의 방식을 그대로 씁니다. 도구가 계산한 값에 번호를 붙인 사실 목록을 만들고, 정해 둔 문장 틀에 번호 자리를 채워 문장을 만들고, 검사기(V1~V6)를 통과해야 보고로 나갑니다. 실제 운용에서는 틀 대신 사내 모델이 문장 칸을 쓰되 같은 검사를 통과해야 합니다.</p>
+<div class="lab">
+  <div class="labtitle">하루 보고 — 사실 목록 · 문장 · 검사</div>
+  <div class="ctrl"><label for="sSel7">보는 날</label><input type="range" id="sSel7" min="1" max="14" step="1" value="8"><output id="sSel7O"></output></div>
+  <div class="state" id="st7"></div>
+  <div class="tbwrap"><table class="mt num" id="tabFacts"></table></div>
+  <div class="tbwrap"><table class="mt" id="tabSent"></table></div>
+  <div id="vbox"></div>
+  <div class="row"><button class="btn ghost" id="bRaw" type="button" aria-pressed="false">이 보고의 JSON 원문 보기</button></div>
+  <pre id="rawJson" class="pyout" style="white-space:pre-wrap;display:none"></pre>
+  <div class="concl" id="conc7"></div>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 14일 요약과 사람·규칙·에이전트</h2>
+<p>맨 앞의 두 물음으로 돌아갑니다.</p>
+<div class="concl" id="conc8"></div>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>승인·반려 · 정책 문턱과 리페어 한도·점검 허용 수 승인 · 자료 점검 알림 처리(자료 고치기) · 원인 후보의 확인 · 설비 제어 권한 허가</td></tr>
+  <tr><td class="rowh">규칙</td><td>점검 일곱 규칙 · 전이 표(허용된 전이) · 승인 필요 표시 · 리페어 동시 한도 가드 · 보고 검사 V1~V6 · 실행 기록 저장</td></tr>
+  <tr><td class="rowh">에이전트</td><td>도구 부르기 · 변경점 판정 · 결정 초안 · 요청 · 보고 초안 만들기와 검사 · 사람이 볼 항목 요약</td></tr>
+</table></div>
+<p><b>0402 로 가는 다리.</b> 이 실행 기록은 정답과 견주어야 비로소 &lsquo;이 에이전트를 얼마나 믿을 수 있나&rsquo;가 됩니다. 가상 공장에는 정답이 있습니다. 0402 에서 할 일을 미리 보이면 이렇습니다.</p>
+<div class="tbwrap"><table class="mt num" id="tab402"></table></div>
+<p class="note">위 표는 정답과 에이전트의 날짜만 나란히 놓았을 뿐 일치율을 재지 않습니다. 사람 결론과의 일치율과 시뮬레이터 예측과 실제 상태 전이의 차이는 0402 에서 잽니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>얻는 것은 매일 함수를 차례로 부르고 결과를 붙이는 시간이 에이전트 기록과 승인 대기열만 보는 시간으로 줄어드는 것이고, 치르는 것은 에이전트 뼈대와 정책·가드를 처음 만들고 점검하는 시간입니다. 작으면 작다고 적습니다. 사람이 볼 항목 수는 이 14일 기록에서 센 값이고, 아래 세 값은 가정이니 현장 값으로 바꾸십시오.</p>
+<div class="lab">
+  <div class="labtitle">사람이 쓰는 시간 — 손으로 부르기 vs 기록만 보기</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;손으로 하는 시간&rsquo;을 올리면 차가 어떻게 벌어지는지, 2) 3절의 점검 허용 수를 올려 &lsquo;사람이 볼 항목&rsquo;이 어떻게 바뀌는지 보십시오(점검 알림이 줄지만 원인 문장과 승인 항목은 늘 수 있습니다).</div>
+  <div class="ctrl"><label for="sHand">손으로 함수를 부르고 붙이는 시간 (분/일, 가정)</label><input type="range" id="sHand" min="5" max="90" step="5" value="30"><output id="sHandO"></output></div>
+  <div class="ctrl"><label for="sItem">항목 하나를 보는 시간 (분, 가정)</label><input type="range" id="sItem" min="1" max="15" step="1" value="5"><output id="sItemO"></output></div>
+  <div class="ctrl"><label for="sWork">한 달 근무일 (일, 가정)</label><input type="range" id="sWork" min="15" max="25" step="1" value="20"><output id="sWorkO"></output></div>
+  <div class="row"><button class="btn ghost" id="rM" type="button">세 값을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table class="mt num" id="tab9"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 사람 시간의 단가를 곱해 금액으로 적습니다. 사람이 볼 항목은 자료 점검 알림(분석하지 않은 날) · 사람 승인이 필요한 요청 · 원인 후보와 원인 미확인 문장의 합입니다. 14일이라는 작은 기록이므로 평균을 단정하지 마십시오.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 0400 이 낸 네 표의 CSV 이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 점검 일곱 규칙과 입력 지문은 0400 의 <code>run_daily</code> 와 같은 규칙을 이 파일 안에 줄여 넣은 것이므로, 회사에서는 0400 의 함수를 불러 쓰는 쪽이 낫습니다. 승인 대기열의 결정은 <code>run_agent</code> 의 세 번째 인자(요청 번호 → 승인 또는 반려)로 넣습니다. 사내 모델은 부르지 않고 보고 문장은 정해 둔 틀로 만듭니다.</p>
+<div class="row"><a class="btn" href="../data/csv/s15_fdc_glass.csv" download>s15_fdc_glass.csv</a><a class="btn" href="../data/csv/s15_ppa_coef.csv" download>s15_ppa_coef.csv</a><a class="btn" href="../data/csv/s15_events.csv" download>s15_events.csv</a><a class="btn" href="../data/csv/s15_mask_hist.csv" download>s15_mask_hist.csv</a></div>
+<p class="note"><b>쓰면 안 되는 때:</b> 승인 대기열을 자동 승인으로 바꾸지 마십시오. 도구 목록 밖의 함수를 부르게 하지 마십시오. 실제 설비 제어 시스템에 쓰기 권한을 주지 마십시오(요청과 기록까지만). 회사 계정과 비밀번호를 코드에 적지 마십시오.</p>
+<pre id="pyCode">import json, math, os, re, statistics
+from datetime import datetime
+import pandas as pd
+
+# ---- 가정·설정: 현장 값으로 바꿀 곳 ------------------------------------------------
+SLOPE = -1.975908993542295        # 0303 에서 구한 열 기울기 (ppm/K)
+T_REF = 80                        # 기준 온도 (°C)
+SPEC = 5.712791                   # PPA 지표 한계 (µm): 이보다 크면 '초과'
+SPEC_Q = 0.9                      # spec 을 새로 제안할 때 쓰는 분위
+RULES = {"rows_min": 0.8, "blank_max": 0.02, "join_min": 0.98}   # 0400 의 점검 문턱
+HIST = 7                          # 행 수 기준 = 지난 이만큼 실행의 중앙값
+MIN_N = 6                         # 변경점을 판정하려면 한쪽에 필요한 유리 수
+REPAIR_DAYS = 3                   # 리페어가 자리를 차지하는 일수(가정)
+ALPHA = 0.05                      # 유의수준 (본페로니면 챔버 수로 나눔)
+SPEC_GAP = 3                      # spec 변경을 다시 제안하기까지 최소 일수
+T0 = datetime(2026, 3, 2, 6, 0)   # 첫 날 06:00
+DAY = 1440                        # 하루(분)
+CHAMBERS = [b + "-CH" + str(c) for b in ("B02", "B03") for c in (1, 2, 3, 4)]
+POLICY = {"tol": 0, "k": 2, "m": 3, "delta": 0.5, "bonf": True, "ex_n": 6, "repair_cap": 2,
+          "repair_human": False, "spec_reject": False, "scrap_ratio": 0.5, "spec_share": 0.1}
+RULE_KO = {"rows": "행 수", "dup": "glass_id 중복", "cols": "필수 열 존재", "blank": "빈칸 비율", "join": "이음 비율", "ts": "ts 범위·순서", "model": "model_ver 종류"}
+VERDICT_KO = {"ok": "허용", "guard": "가드 거절", "table": "표에 없음 거절", "queue": "승인 대기", "auto": "정책 자동 반려", "applied": "승인·실행", "rejected": "반려", "guardlate": "승인했으나 가드 거절"}
+KIND_KO = {"baseline": "새 마스크 기준 측정", "correct": "보정값 입력", "repair": "리페어", "scrap": "마스크 제외(scrap)", "spec": "spec 변경"}
+
+# 0206 ESTC 전이 표의 마스크 부분: (지금 상태, 가려는 상태) → 사람 승인이 필요한가
+MASK_TRANS = {("init", "stock"): False, ("init", "to_clean"): False, ("init", "in_use"): False, ("stock", "in_use"): False, ("in_use", "to_clean"): False,
+              ("stock", "to_clean"): False, ("in_use", "repair"): False, ("to_clean", "clean_wait"): False, ("repair", "clean_wait"): False,
+              ("clean_wait", "cleaning"): False, ("cleaning", "held"): False, ("cleaning", "stock"): False, ("held", "to_stock"): False,
+              ("to_stock", "stock"): False, ("repair", "scrapped"): True, ("in_use", "scrapped"): True}
+
+
+# ---- 통계: 0104 의 판정 흐름에 쓰는 것만 --------------------------------------------
+def mean(a):
+    return sum(a) / len(a)
+
+
+def sd(a):
+    m = mean(a)
+    return math.sqrt(sum((x - m) * (x - m) for x in a) / (len(a) - 1))
+
+
+def median(a):
+    return statistics.median(a)
+
+
+def quantile(x, p):
+    b = sorted(x)
+    pos = (len(b) - 1) * p
+    lo = math.floor(pos)
+    f = pos - lo
+    return b[lo] + (b[lo + 1] - b[lo]) * f if lo + 1 &lt; len(b) else b[lo]
+
+
+def lag1(x):
+    m = mean(x)
+    num = den = 0.0
+    for i, v in enumerate(x):
+        den += (v - m) * (v - m)
+        if i:
+            num += (v - m) * (x[i - 1] - m)
+    return 0.0 if den == 0 else num / den
+
+
+def _gammln(x):
+    c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5]
+    y, t = x, x + 5.5
+    t -= (x + 0.5) * math.log(t)
+    s = 1.000000000190015
+    for cj in c:
+        y += 1
+        s += cj / y
+    return -t + math.log(2.5066282746310005 * s / x)
+
+
+def _betacf(a, b, x):
+    qab, qap, qam = a + b, a + 1, a - 1
+    c, d = 1.0, 1 - qab * x / qap
+    d = 1e-30 if abs(d) &lt; 1e-30 else d
+    d = 1 / d
+    h = d
+    for m in range(1, 301):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1 + aa * d
+        d = 1e-30 if abs(d) &lt; 1e-30 else d
+        c = 1 + aa / c
+        c = 1e-30 if abs(c) &lt; 1e-30 else c
+        d = 1 / d
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1 + aa * d
+        d = 1e-30 if abs(d) &lt; 1e-30 else d
+        c = 1 + aa / c
+        c = 1e-30 if abs(c) &lt; 1e-30 else c
+        d = 1 / d
+        de = d * c
+        h *= de
+        if abs(de - 1) &lt; 3e-14:
+            break
+    return h
+
+
+def _betai(a, b, x):
+    if x &lt;= 0:
+        return 0.0
+    if x &gt;= 1:
+        return 1.0
+    bt = math.exp(_gammln(a + b) - _gammln(a) - _gammln(b) + a * math.log(x) + b * math.log(1 - x))
+    return bt * _betacf(a, b, x) / a if x &lt; (a + 1) / (a + b + 2) else 1 - bt * _betacf(b, a, 1 - x) / b
+
+
+def t_p2(t, df):
+    """t 분포의 양측 p 값 (불완전 베타 함수)."""
+    return _betai(df / 2, 0.5, df / (df + t * t))
+
+
+def r3(x):
+    return math.floor(x * 1000 + 0.5) / 1000
+
+
+# ---- 지문 (0400 과 같은 방식) --------------------------------------------------------
+def fnv1a(text):
+    h = 2166136261
+    for ch in text:
+        h = ((h ^ ord(ch)) * 16777619) &amp; 0xFFFFFFFF
+    return format(h, "08x")
+
+
+def canon(v, d):
+    if v is None or v != v:
+        return ""
+    if isinstance(v, str):
+        return v
+    if isinstance(v, int):
+        return str(v)
+    s = f"{v:.{d}f}"
+    return s[1:] if s.startswith("-") and float(s) == 0 else s
+
+
+def fingerprint(f, p):
+    a = f.sort_values(["glass_id", "ts"], kind="stable")
+    b = p.sort_values(["glass_id", "measured_ts"], kind="stable")
+    la = ["|".join([r.glass_id, r.ts, r.block, r.chamber, r.mask_id, str(r.turn), str(r.glass_in_turn), canon(r.chamber_temp, 4), canon(r.ch_temp, 4), canon(r.p_steady_mean, 3), canon(r.rate, 4)]) for r in a.itertuples()]
+    lb = ["|".join([r.glass_id, r.ts, r.measured_ts, canon(r.Tx, 6), canon(r.Ty, 6), canon(r.theta, 6), canon(r.Mx, 6), canon(r.My, 6), canon(r.K, 6), r.model_ver, canon(r.ppa_metric, 6)]) for r in b.itertuples()]
+    return fnv1a("\n".join(la) + "\n#\n" + "\n".join(lb))
+
+
+# ---- 1. 표 읽기 · 관찰 (0400 run_daily 와 같은 규칙) -----------------------------------
+def minutes(col):
+    return ((pd.to_datetime(col) - pd.Timestamp(T0)).dt.total_seconds() // 60).astype(int)
+
+
+def load_tables(csv_dir):
+    t = {n: pd.read_csv(os.path.join(csv_dir, "s15_" + n + ".csv")) for n in ("fdc_glass", "ppa_coef", "events", "mask_hist")}
+    t["fdc_glass"]["ts_m"] = minutes(t["fdc_glass"].ts)
+    t["ppa_coef"]["ts_m"] = minutes(t["ppa_coef"].ts)
+    t["ppa_coef"]["meas_m"] = minutes(t["ppa_coef"].measured_ts)
+    t["events"]["start_m"] = minutes(t["events"].start_ts)
+    t["mask_hist"]["from_m"] = minutes(t["mask_hist"].from_ts)
+    t["mask_hist"]["to_m"] = minutes(t["mask_hist"].to_ts)
+    t["events"]["key"] = t["events"].block + "-" + t["events"].chamber
+    t["mask_hist"]["key"] = t["mask_hist"].block + "-" + t["mask_hist"].chamber
+    return t
+
+
+def run_checks(f, p, joined, hist):
+    """0400 의 점검 일곱 규칙: 규칙마다 (이름, 값, 통과 여부)."""
+    nf, npp = len(f), len(p)
+    out = []
+    if hist:
+        ratio = min(nf / median([h[0] for h in hist]), npp / median([h[1] for h in hist]))
+        out.append(("rows", ratio, ratio &gt;= RULES["rows_min"]))
+    else:
+        out.append(("rows", None, True))
+    dup = (nf - f.glass_id.nunique()) + (npp - p.glass_id.nunique())
+    out.append(("dup", dup, dup == 0))
+    empty = sum(f[c].notna().sum() == 0 for c in ("glass_id", "ts", "chamber", "mask_id", "chamber_temp"))
+    out.append(("cols", int(empty), empty == 0))
+    blank = 1.0 if nf == 0 else float(f.chamber_temp.isna().sum()) / nf
+    out.append(("blank", blank, blank &lt;= RULES["blank_max"]))
+    ids = set(f.glass_id)
+    jr = 0.0 if npp == 0 else sum(g in ids for g in p.glass_id) / npp
+    out.append(("join", jr, jr &gt;= RULES["join_min"]))
+    bad = int((joined.ts_m_x &gt; joined.meas_m).sum()) if len(joined) else 0
+    out.append(("ts", bad, bad == 0))
+    nv = p.model_ver.nunique()
+    out.append(("model", int(nv), nv &lt;= 1))
+    return out
+
+
+def mask_at(tables, key, t):
+    h = tables["mask_hist"]
+    h = h[(h.state == "IN_USE") &amp; (h.key == key) &amp; (h.from_m &lt;= t - 1) &amp; (t - 1 &lt; h.to_m)]
+    return None if h.empty else (h.iloc[0].mask_id, int(h.iloc[0].from_m))
+
+
+def observe(tables, day, hist):
+    """관찰: 하루 창의 표를 뽑아 잇고(0400), 점검 일곱을 돌리고, 챔버별 보정 후 Mx·PPA 지표와 걸린 마스크를 읽습니다."""
+    s, e = (day - 1) * DAY, day * DAY
+    f = tables["fdc_glass"]
+    f = f[(f.ts_m &gt;= s) &amp; (f.ts_m &lt; e)]
+    p = tables["ppa_coef"]
+    p = p[(p.ts_m &gt;= s) &amp; (p.ts_m &lt; e) &amp; (p.meas_m &lt;= e)]
+    joined = f.merge(p, on="glass_id", how="inner")
+    checks = run_checks(f, p, joined, hist)
+    ch = {}
+    for c in CHAMBERS:
+        j = joined[(joined.block + "-" + joined.chamber) == c].sort_values("glass_id", kind="stable")
+        temp = j[j.chamber_temp.notna()]
+        ch[c] = {"vals": [float(m - SLOPE * (t - T_REF)) for m, t in zip(temp.Mx, temp.chamber_temp)], "mets": [float(x) for x in j.ppa_metric]}
+    return {"day": day, "t": e, "fails": [c[0] for c in checks if not c[2]], "n_fdc": len(f), "n_ppa": len(p), "fp": fingerprint(f, p), "ch": ch,
+            "mask": {c: mask_at(tables, c, e) for c in CHAMBERS}}
+
+
+# ---- 2. 분석: 변경점 판정 (0104 흐름 + 0202 다중 비교) ----------------------------------
+def day_mean(o):
+    return mean(o["vals"]) if o and o["vals"] else None
+
+
+def analyze(state, day, pol):
+    """최근 k일 vs 그 전 m일(분석한 날만), 대조 = 다른 챔버의 하루 중앙값, 이웃 닮음(자기상관)을 감안한 Welch, 다중 비교."""
+    an = state["an"]
+    rec = [x for x in an if day - pol["k"] &lt; x &lt;= day]
+    bef = [x for x in an if day - pol["k"] - pol["m"] &lt; x &lt;= day - pol["k"]]
+    out = {"enough": bool(rec and bef), "rows": [], "alpha": ALPHA / len(CHAMBERS) if pol["bonf"] else ALPHA, "flagged": [], "rec": rec, "bef": bef}
+    if not out["enough"]:
+        return out
+
+    def ctrl(c, j):
+        ms = [m for c2 in CHAMBERS if c2 != c for m in [day_mean(state["data"][j][c2])] if m is not None]
+        return median(ms) if ms else None
+
+    for c in CHAMBERS:
+        rR, rB, row = [], [], {"key": c}
+        for j in rec:
+            cc = ctrl(c, j)
+            rR += [v - cc for v in state["data"][j][c]["vals"] if cc is not None]
+        for j in bef:
+            cc = ctrl(c, j)
+            rB += [v - cc for v in state["data"][j][c]["vals"] if cc is not None]
+        if len(rR) &lt; MIN_N or len(rB) &lt; MIN_N:
+            row["skip"] = True
+            out["rows"].append(row)
+            continue
+        phi = max(0.0, (lag1(rR) + lag1(rB)) / 2)
+        neR, neB = max(len(rR) * (1 - phi) / (1 + phi), 2), max(len(rB) * (1 - phi) / (1 + phi), 2)
+        vR, vB = sd(rR) * sd(rR) / neR, sd(rB) * sd(rB) / neB
+        se = math.sqrt(vR + vB)
+        eff = mean(rR) - mean(rB)
+        t = eff / se
+        df = (vR + vB) * (vR + vB) / (vR * vR / (neR - 1) + vB * vB / (neB - 1))
+        p = t_p2(t, df)
+        row.update(phi=phi, eff=eff, se=se, t=t, df=df, p=p, flag=abs(eff) &gt;= pol["delta"] and p &lt;= out["alpha"])
+        out["rows"].append(row)
+        if row["flag"]:
+            out["flagged"].append(c)
+    return out
+
+
+def find_causes(tables, state, c, day, pol):
+    """원인 후보: 마스크 교체(이력 표, 비교한 구간 전체) · 이벤트(이벤트 표, 최근 구간과 그 하루 전). 후보일 뿐 확정이 아닙니다."""
+    wm, we, w1 = (day - pol["k"] - pol["m"]) * DAY, (day - pol["k"]) * DAY - DAY, day * DAY
+    out = [{"kind": "마스크 교체", "ts": r["ts"], "rank": 0} for r in state["reps"] if r["ch"] == c and wm &lt;= r["ts"] &lt;= w1]
+    rk = {"센서 교정": 1, "PM": 2, "세정": 3, "인터락": 4}
+    ev = tables["events"]
+    for r in ev[(ev.key == c) &amp; (ev.start_m &gt;= we) &amp; (ev.start_m &lt;= w1)].itertuples():
+        out.append({"kind": r.kind, "ts": int(r.start_m), "rank": rk[r.kind]})
+    return sorted(out, key=lambda x: (x["rank"], x["ts"]))
+
+
+# ---- 3. 요청: 표 → 사람 승인 → 가드(리페어 동시 한도) → 정책 ----------------------------
+def base_state(tables, mid, t):
+    s = "stock"
+    for r in tables["mask_hist"][tables["mask_hist"].mask_id == mid].itertuples():
+        if r.from_m &lt;= t - 1 &lt; r.to_m:
+            s = "in_use" if r.state == "IN_USE" else "cleaning" if r.state == "WASH" else "stock"
+    return s
+
+
+def request_transition(cur, to):
+    """0206 requestTransition 의 판정: 표에 있는가 → 사람 승인이 필요한가."""
+    if (cur, to) not in MASK_TRANS:
+        return "not_in_table"
+    return "needs_human" if MASK_TRANS[(cur, to)] else "ok"
+
+
+def n_repair(state):
+    return sum(1 for s in state["mstate"].values() if s == "repair")
+
+
+def new_req(state, day, kind, ch, mask, text, rev, extra=None):
+    state["req_n"] += 1
+    r = {"id": "R-" + ("0" if state["req_n"] &lt; 10 else "") + str(state["req_n"]), "day": day, "kind": kind, "ch": ch, "mask": mask, "text": text,
+         "reversible": rev, "human": False, "verdict": None, "reason": "", "status": None}
+    r.update(extra or {})
+    return r
+
+
+def request(tables, state, req, pol, day):
+    """요청 한 건을 판정합니다. 기록만 하는 요청은 허용, 표에 없으면 거절, 사람 승인이 필요하면 대기열, 리페어는 동시 한도 가드."""
+    if req["kind"] in ("baseline", "correct"):
+        req.update(verdict="ok", status="done", reason="기록만 남기는 요청이라 설비 상태를 바꾸지 않습니다")
+        return req
+    if req["kind"] == "spec":
+        req["human"] = True
+        if pol["spec_reject"]:
+            req.update(verdict="auto", status="rejected", reason="정책: spec 변경은 자동 반려")
+        else:
+            req.update(verdict="queue", status="pending", reason="ESTC 표 밖의 일이며 spec 은 사람이 정합니다")
+        return req
+    cur = state["mstate"].get(req["mask"]) or base_state(tables, req["mask"], day * DAY)
+    rt = request_transition(cur, "repair" if req["kind"] == "repair" else "scrapped")
+    if rt == "not_in_table":
+        req.update(verdict="table", status="rejected", reason=f"표에 {cur} → 이 전이가 없습니다")
+    elif rt == "needs_human":
+        req.update(human=True, verdict="queue", status="pending", reason="되돌릴 수 없는 전이라 사람의 승인이 있어야 합니다")
+    elif n_repair(state) &gt;= pol["repair_cap"]:
+        req.update(verdict="guard", status="rejected", reason=f"리페어 동시 한도 {n_repair(state)}/{pol['repair_cap']} 가 찼습니다")
+    elif pol["repair_human"]:
+        req.update(human=True, verdict="queue", status="pending", reason="정책: 리페어도 사람 승인")
+    else:
+        state["mstate"][req["mask"]] = "repair"
+        state["repair_until"][req["mask"]] = day + REPAIR_DAYS
+        req.update(verdict="ok", status="done", reason="표에 있고 가드를 통과했습니다")
+    return req
+
+
+def apply_decisions(state, day, pol, decisions):
+    """어제 올린 요청에 대한 사람의 결정을 오늘 아침에 반영합니다."""
+    done = []
+    for r in state["queue"]:
+        if r["status"] != "pending" or r["day"] != day - 1 or r["id"] not in (decisions or {}):
+            continue
+        r["decided_day"], r["decision"] = day, decisions[r["id"]]
+        if r["decision"] == "reject":
+            r.update(status="rejected", verdict="rejected", reason="학습자가 반려했습니다")
+        elif r["kind"] == "repair" and n_repair(state) &gt;= pol["repair_cap"]:
+            r.update(status="rejected", verdict="guardlate", reason="리페어 동시 한도가 차서 실행하지 못했습니다")
+        else:
+            if r["kind"] == "repair":
+                state["mstate"][r["mask"]] = "repair"
+                state["repair_until"][r["mask"]] = day + REPAIR_DAYS
+            elif r["kind"] == "scrap":
+                state["mstate"][r["mask"]] = "scrapped"
+            elif r["kind"] == "spec":
+                state["spec"] = r["proposed"]
+            r.update(status="done", verdict="applied", reason=f"학습자가 승인해 {day}일 아침에 실행했습니다")
+        done.append(r)
+    return done
+
+
+# ---- 4. 결정 ---------------------------------------------------------------------------
+def decide(tables, state, day, finding, pol):
+    """결정: 마스크 교체는 기준 측정, 변경점은 원인 후보와 지표 초과 건수로 조치 후보를 고릅니다.
+    S15 표에는 77점 격자가 없어 보정 후 지표를 근사하지 못하므로 '측정 지표 초과 건수'만으로 리페어·제외 후보를 고르는 단순 규칙입니다."""
+    decs, reqs = [], []
+    for r in state["reps"]:
+        if r["to"] in state["base_req"]:
+            continue
+        state["base_req"][r["to"]] = 1
+        state["mstate"].setdefault(r["to"], "in_use")
+        q = new_req(state, day, "baseline", r["ch"], r["to"], f"{r['ch']} 의 새 마스크 {r['to']} 기준 측정을 요청", True)
+        reqs.append(request(tables, state, q, pol, day))
+        decs.append({"ch": r["ch"], "text": f"마스크 교체({r['from']} → {r['to']})를 이력 표에서 확인 → 기준이 없는 마스크로 수명을 내지 않고 기준 측정을 요청"})
+    causes = {}
+    flagged_new = []
+    for c in CHAMBERS:
+        if c not in finding["flagged"]:
+            state["open"].pop(c, None)
+            continue
+        if c in state["open"]:
+            continue
+        state["open"][c] = day
+        flagged_new.append(c)
+        cs = find_causes(tables, state, c, day, pol)
+        causes[c] = cs
+        row = [x for x in finding["rows"] if x["key"] == c][0]
+        mask = state["known"][c]
+        E = N = 0
+        for j in finding["rec"]:
+            mets = state["data"][j][c]["mets"]
+            N += len(mets)
+            E += sum(1 for m in mets if m &gt; state["spec"])
+        if cs and cs[0]["kind"] == "마스크 교체":
+            decs.append({"ch": c, "text": f"{c} 변경점의 원인 후보 = 마스크 교체 → 리페어가 아니라 기준 측정(위 요청)으로"})
+            continue
+        share = E / N if N else 0
+        if E &gt;= pol["ex_n"] and share &gt;= pol["scrap_ratio"]:
+            decs.append({"ch": c, "text": f"{c} 지표 초과 {E}/{N}장({round_half(share * 100)}%) — 되돌릴 수 없는 마스크 제외 후보"})
+            reqs.append(request(tables, state, new_req(state, day, "scrap", c, mask, f"{c} 마스크 {mask} 제외를 요청", False), pol, day))
+        elif E &gt;= pol["ex_n"]:
+            decs.append({"ch": c, "text": f"{c} 지표 초과 {E}/{N}장 → 리페어 후보"})
+            reqs.append(request(tables, state, new_req(state, day, "repair", c, mask, f"{c} 마스크 {mask} 리페어를 요청", True), pol, day))
+        else:
+            decs.append({"ch": c, "text": f"{c} 지표 초과 {E}/{N}장 — 리페어까지는 아님 → 보정값 입력 후보"})
+            sign = "−" if row["eff"] &gt;= 0 else "+"
+            reqs.append(request(tables, state, new_req(state, day, "correct", c, mask, f"{c} 보정값 {sign}{abs(row['eff']):.3f} ppm 입력을 요청", True, {"corr": -row["eff"]}), pol, day))
+    # spec 변경 제안
+    rcs = [x for x in state["an"] if day - pol["k"] &lt; x &lt;= day]
+    all_m = [m for j in rcs for c in CHAMBERS for m in state["data"][j][c]["mets"]]
+    ex2 = sum(1 for m in all_m if m &gt; state["spec"])
+    share_all = ex2 / len(all_m) if all_m else 0
+    pend = any(q["kind"] == "spec" and q["status"] == "pending" for q in state["queue"])
+    if share_all &gt;= pol["spec_share"] and not pend and state["last_spec"] + SPEC_GAP &lt;= day:
+        prop = r3(quantile(all_m, SPEC_Q))
+        state["last_spec"] = day
+        top, top_e = None, -1
+        for c in CHAMBERS:
+            e3 = sum(1 for j in rcs for m in state["data"][j][c]["mets"] if m &gt; state["spec"])
+            if e3 &gt; top_e:
+                top, top_e = c, e3
+        if prop &gt; state["spec"]:
+            q = new_req(state, day, "spec", None, None, f"spec 을 {state['spec']:.3f} → {prop:.3f} µm 으로 올리자고 요청", False,
+                        {"proposed": prop, "spec0": state["spec"]})
+            decs.append({"ch": None, "text": f"최근 {len(rcs)}일 전체 유리의 {round_half(share_all * 100)}%가 spec 을 넘음(그 가운데 {round_half(100 * top_e / ex2)}%가 {top}) → spec 변경 요청(되돌릴 수 없음)"})
+            reqs.append(request(tables, state, q, pol, day))
+    return decs, reqs, causes, flagged_new
+
+
+def round_half(x):
+    return math.floor(x + 0.5)
+
+
+# ---- 5. 보고: 사실 목록 + 정해 둔 문장 틀 → 검사(V1~V6) → 렌더 (0411) --------------------
+REL_WORDS = ["같은 기간", "같은 시기", "그 기간", "이후", "이전", "전후", "직전", "직후", "사이", "동안", "앞서", "뒤에", "전에", "후에", "구간 안", "구간 속"]
+SLOT = re.compile(r"\{\{([^{}]*)\}\}")
+NAME_RE = re.compile(r"[A-Za-z][A-Za-z0-9_]*\d[A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*")
+TYPES = ["사실", "원인", "원인 미확인", "권고"]
+
+
+def fmt_val(f, plain=False):
+    if isinstance(f["value"], str):
+        return f["value"]
+    s = f"{f['value']:.{f['dec']}f}"
+    if float(s) == 0:
+        s = s.replace("-", "")
+    if plain or not f["unit"]:
+        return s
+    return s + ("" if len(f["unit"]) == 1 and f["unit"] in "건장일" else " ") + f["unit"]
+
+
+def build_report(state, day, obs, analyzed, finding, flagged_new, causes, reqs, decided):
+    f, sent = [], []
+
+    def add(what, value, unit, kind, dec, src):
+        f.append({"id": f"f{len(f) + 1}", "what": what, "value": value, "unit": unit, "source": src, "kind": kind, "dec": dec})
+        return "{{" + f"f{len(f)}" + "}}"
+
+    sf = add(f"{day}일 점검에서 실패한 규칙 수", len(obs["fails"]), "개", "value", 0, "자료 점검")
+    names = ", ".join(RULE_KO[x] for x in obs["fails"])
+    sent.append({"text": f"점검에서 실패한 규칙은 {sf}개입니다" + (f"({names})." if obs["fails"] else "."), "cites": ["f1"], "type": "사실"})
+    if not analyzed:
+        i2 = add(f"{day}일 입력 지문", obs["fp"], "", "value", 0, "0400 run_daily")
+        sent.append({"text": f"자료 점검이 허용 수를 넘어 분석하지 않고 알림만 냅니다. 입력 지문은 {i2}입니다.", "cites": ["f1", f"f{len(f)}"], "type": "사실"})
+    else:
+        if not finding["enough"]:
+            sent.append({"text": "비교할 날이 모자라 변경점을 판정하지 않았습니다.", "cites": [], "type": "사실"})
+        elif not flagged_new:
+            fa = add("새로 잡힌 변경점 수", 0, "곳", "value", 0, "변경점 판정")
+            sent.append({"text": f"새로 잡힌 변경점은 {fa}곳입니다.", "cites": [f"f{len(f)}"], "type": "사실"})
+        for c in flagged_new:
+            row = [x for x in finding["rows"] if x["key"] == c][0]
+            a = add(f"{c} 보정 후 Mx 변화(대조 챔버 대비)", r3(row["eff"]), "ppm", "value", 3, "변경점 판정")
+            b = add(f"{c} 변경점 p 값", "0.0001 미만" if row["p"] &lt; 0.0001 else f"{row['p']:.4f}", "", "value", 0, "변경점 판정")
+            sent.append({"text": f"{c} 의 보정 후 Mx 가 대조 챔버 대비 {a} 달라졌습니다(p {b}).", "cites": [f"f{len(f) - 1}", f"f{len(f)}"], "type": "사실"})
+            cs = causes.get(c, [])
+            if cs and cs[0]["kind"] == "마스크 교체":
+                e = add(f"{c} 마스크 교체 시각", minute_text(cs[0]["ts"]), "", "event", 0, "마스크 이력")
+                sent.append({"text": f"마스크 이력에 교체 {e}가 있어 원인 후보입니다. 확정은 아닙니다.", "cites": [f"f{len(f)}"], "type": "원인"})
+            elif cs:
+                e2 = add(f"{c} {cs[0]['kind']} 시작 시각", minute_text(cs[0]["ts"]), "", "event", 0, "이벤트 표")
+                sent.append({"text": f"{cs[0]['kind']} 이벤트 시작 {e2}가 있어 원인 후보입니다. 확정은 아닙니다.", "cites": [f"f{len(f)}"], "type": "원인"})
+            else:
+                sent.append({"text": "원인으로 볼 사건을 찾지 못했습니다.", "cites": [], "type": "원인 미확인"})
+    for q in reqs:
+        if q["kind"] == "spec":
+            s0 = add("현재 spec", r3(q["spec0"]), "µm", "value", 3, "spec")
+            s1 = add("제안한 spec", q["proposed"], "µm", "value", 3, "최근 유리의 지표 분포")
+            sv = add(f"{q['id']} 요청 판정", VERDICT_KO[q["verdict"]], "", "value", 0, "요청 판정")
+            sent.append({"text": f"spec 을 {s0} 에서 {s1} 로 올리자고 요청했고 판정은 {sv}입니다.", "cites": [x[2:-2] for x in (s0, s1, sv)], "type": "권고"})
+        elif q["kind"] == "correct":
+            cv = add(f"{q['ch']} 보정값", r3(q["corr"]), "ppm", "value", 3, "변경점 판정")
+            v2 = add(f"{q['id']} 요청 판정", VERDICT_KO[q["verdict"]], "", "value", 0, "요청 판정")
+            sent.append({"text": f"{q['ch']} 에 보정값 {cv} 입력을 요청했고 판정은 {v2}입니다.", "cites": [x[2:-2] for x in (cv, v2)], "type": "권고"})
+        else:
+            v = add(f"{q['id']} 요청 판정", VERDICT_KO[q["verdict"]], "", "value", 0, "요청 판정")
+            sent.append({"text": f"{q['text']}했고 판정은 {v}입니다.", "cites": [f"f{len(f)}"], "type": "권고"})
+    for q in decided:
+        v = add(f"{q['id']} 사람의 결정 결과", VERDICT_KO[q["verdict"]], "", "value", 0, "승인 대기열")
+        sent.append({"text": f"어제 올린 요청의 처리 결과는 {v}입니다.", "cites": [f"f{len(f)}"], "type": "사실"})
+    raw = json.dumps({"sentences": sent}, ensure_ascii=False, separators=(",", ":"))
+    return f, raw
+
+
+def minute_text(m):
+    return (pd.Timestamp(T0) + pd.Timedelta(minutes=int(m))).strftime("%Y-%m-%d %H:%M")
+
+
+def validate(raw, facts):
+    """0411 의 검사 V1~V6. 반환 = {규칙: 실패한 문장 번호 목록}."""
+    fb = {x["id"]: x for x in facts}
+    res = {k: [] for k in ("V1", "V2", "V3", "V4", "V5", "V6")}
+    try:
+        obj = json.loads(raw)
+        ss = obj["sentences"]
+        assert ss and all(isinstance(x["text"], str) and isinstance(x["cites"], list) and x["type"] in TYPES for x in ss)
+    except Exception:
+        res["V1"].append(None)
+        return res
+    for i, x in enumerate(ss):
+        used = set()
+        for m in SLOT.finditer(x["text"]):
+            c = m.group(1).strip()
+            if re.fullmatch(r"f\d+", c) and c in fb:
+                used.add(c)
+            else:
+                res["V3"].append(i)
+        rest = SLOT.sub(" ", x["text"])
+        rest = NAME_RE.sub(lambda m: " " * len(m.group(0)), rest)
+        rest = re.sub(r"\d+일(?:간)?", lambda m: " " * len(m.group(0)), rest)
+        if re.search(r"\d+(?:[.,]\d+)*", rest):
+            res["V2"].append(i)
+        if any(u not in x["cites"] for u in used) or any(c not in fb for c in x["cites"]) or (x["type"] == "원인" and not x["cites"]):
+            res["V4"].append(i)
+        has_ev = any(c in fb and fb[c]["kind"] == "event" for c in x["cites"])
+        has_rel = any(c in fb and fb[c]["kind"] == "relation" for c in x["cites"])
+        if x["type"] == "원인" and not has_ev:
+            res["V5"].append(i)
+        if has_ev and not has_rel and any(w in x["text"] for w in REL_WORDS):
+            res["V6"].append(i)
+    return res
+
+
+def has_batchim(s):
+    c = s[-1]
+    if "가" &lt;= c &lt;= "힣":
+        return (ord(c) - 0xAC00) % 28 != 0
+    if c.isdigit():
+        return c in "013678"
+    return c in "lmnLMN"
+
+
+def render(raw, facts):
+    """자리 {{fN}} 를 값으로 바꿉니다(조사 이·가·은·는·을·를 는 받침에 맞춰 고침)."""
+    fb = {x["id"]: x for x in facts}
+    out = []
+    for x in json.loads(raw)["sentences"]:
+        text, res, pos = x["text"], "", 0
+        for m in SLOT.finditer(text):
+            res += text[pos:m.start()]
+            pos = m.end()
+            fct = fb[m.group(1).strip()]
+            rest = text[m.end():]
+            plain = (not fct["unit"]) or rest.lstrip().startswith(fct["unit"])
+            piece = fmt_val(fct, plain)
+            if not plain and len(fct["unit"]) == 1 and fct["unit"] in "건장일":
+                piece = fmt_val(fct, True) + fct["unit"]
+            j = re.match(r"([이가은는을를])(?=$|[\s.,;)])", rest)
+            if j:
+                pair = {"이": "이가", "가": "이가", "은": "은는", "는": "은는", "을": "을를", "를": "을를"}[j.group(1)]
+                piece += pair[0] if has_batchim(piece) else pair[1]
+                pos = m.end() + 1
+            res += piece
+        out.append(res + text[pos:])
+    return out
+
+
+# ---- 6. 한 바퀴 · 14일 ---------------------------------------------------------------------
+def agent_step(tables, state, day, pol, decisions, hist):
+    """하루 한 바퀴: 관찰 → 점검 → 분석 → 결정 → 요청 → 보고. 점검이 허용 수를 넘게 실패하면 분석하지 않고 알림만 냅니다."""
+    for mid in [m for m, d in state["repair_until"].items() if d == day and state["mstate"].get(m) == "repair"]:
+        del state["mstate"][mid]
+        del state["repair_until"][mid]
+    decided = apply_decisions(state, day, pol, decisions)
+    obs = observe(tables, day, hist)
+    hist.append((obs["n_fdc"], obs["n_ppa"]))
+    analyzed = len(obs["fails"]) &lt;= pol["tol"]
+    finding, decs, reqs, causes, flagged_new = {"enough": False, "flagged": []}, [], [], {}, []
+    if analyzed:
+        state["data"][day] = obs["ch"]
+        state["an"].append(day)
+        for c in CHAMBERS:
+            cur = obs["mask"][c]
+            if cur and cur[0] != state["known"][c]:
+                state["reps"].append({"ch": c, "from": state["known"][c], "to": cur[0], "ts": cur[1], "seen": day})
+                state["known"][c] = cur[0]
+        finding = analyze(state, day, pol)
+        decs, reqs, causes, flagged_new = decide(tables, state, day, finding, pol)
+        state["queue"].extend(reqs)
+    facts, raw = build_report(state, day, obs, analyzed, finding, flagged_new, causes, reqs, decided)
+    v = validate(raw, facts)
+    return {"day": day, "fails": obs["fails"], "analyzed": analyzed, "flagged": flagged_new, "decisions": decs, "requests": reqs, "decided": decided,
+            "fp": obs["fp"], "n_fdc": obs["n_fdc"], "n_ppa": obs["n_ppa"], "spec": state["spec"], "facts": facts, "raw": raw, "valid": all(not x for x in v.values()),
+            "render": render(raw, facts), "finding": finding}
+
+
+def run_agent(tables, policy=None, decisions=None):
+    """14일을 하루씩 돌립니다. decisions = {요청 id: 'approve' 또는 'reject'} — 사람의 결정은 요청 다음 날 아침에 반영됩니다."""
+    pol = dict(POLICY, **(policy or {}))
+    first = {c: mask_at(tables, c, 1)[0] for c in CHAMBERS}
+    state = {"spec": SPEC, "data": {}, "mstate": {}, "repair_until": {}, "known": dict(first), "reps": [], "open": {}, "base_req": {}, "queue": [], "req_n": 0, "last_spec": -99, "an": []}
+    hist, recs = [], []
+    for day in range(1, 15):
+        recs.append(agent_step(tables, state, day, pol, decisions, hist))
+    return recs, state["queue"], pol
+
+
+def log_rows(recs):
+    """실행 기록: 단계 한 줄씩(날짜·단계·도구·입력·출력·결정·요청·판정·이유)."""
+    rows = []
+    for r in recs:
+        rows.append({"day": r["day"], "step": "관찰·점검", "tool": "observe · run_checks", "input": f"입력 지문 {r['fp']} · FDC {r['n_fdc']} / PPA {r['n_ppa']}",
+                     "output": ("실패 " + "·".join(RULE_KO[x] for x in r["fails"])) if r["fails"] else "전부 통과", "decision": "분석" if r["analyzed"] else "건너뜀(알림)", "request": "", "verdict": "", "reason": ""})
+        for d in r["decisions"]:
+            rows.append({"day": r["day"], "step": "결정", "tool": "decide", "input": d["ch"] or "전체", "output": d["text"], "decision": d["text"], "request": "", "verdict": "", "reason": ""})
+        for q in r["requests"]:
+            rows.append({"day": r["day"], "step": "요청", "tool": "request", "input": q["text"], "output": q["id"], "decision": KIND_KO[q["kind"]], "request": q["id"], "verdict": VERDICT_KO[q["verdict"]], "reason": q["reason"]})
+        rows.append({"day": r["day"], "step": "보고", "tool": "report · validate", "input": f"사실 {len(r['facts'])}개", "output": "검사 통과" if r["valid"] else "검사 실패", "decision": "", "request": "", "verdict": "", "reason": ""})
+    return rows
+
+
+def queue_rows(queue):
+    """승인 대기열 양식: 요청 id·내용·가역 여부·근거·요청한 날·승인자·결정·결정한 날."""
+    return [{"id": q["id"], "request": q["text"], "kind": KIND_KO[q["kind"]], "reversible": "예" if q["reversible"] else "아니오", "basis": q["reason"], "requested_day": q["day"],
+             "approver": "학습자" if q.get("decision") else "", "decision": {"approve": "승인", "reject": "반려"}.get(q.get("decision"), ""), "decided_day": q.get("decided_day", "")}
+            for q in queue if q["human"] or q.get("decision")]
+
+
+def summarize(recs, queue):
+    reqs = [q for r in recs for q in r["requests"]]
+    cause_n = sum(1 for r in recs for s in json.loads(r["raw"])["sentences"] if s["type"] in ("원인", "원인 미확인"))
+    an = sum(r["analyzed"] for r in recs)
+    hum = sum(1 for q in reqs if q["human"])
+    return {"analyzed": an, "stopped": len(recs) - an, "decisions": sum(len(r["decisions"]) for r in recs), "requests": len(reqs), "ok": sum(q["verdict"] == "ok" for q in reqs),
+            "refused": sum(q["verdict"] in ("guard", "table", "auto") for q in reqs), "queued": sum(q["verdict"] == "queue" for q in reqs), "pending_end": sum(q["status"] == "pending" for q in queue),
+            "report_pass": sum(r["valid"] for r in recs), "alerts": len(recs) - an, "approvals": hum, "cause_sentences": cause_n, "human_items": len(recs) - an + hum + cause_n}
+
+
+if __name__ == "__main__":
+    import tempfile
+    here = os.path.dirname(os.path.abspath(__file__))
+    tables = load_tables(here)
+    recs, queue, pol = run_agent(tables)
+    print("정책: 점검 허용 실패 수 %d · 최근 %d일 vs 그 전 %d일 · 문턱 %.1f ppm · 다중 비교 %s" % (pol["tol"], pol["k"], pol["m"], pol["delta"], "본페로니" if pol["bonf"] else "없음"))
+    print("날짜 · 점검 · 분석 · 새 변경점 · 요청(판정)")
+    for r in recs:
+        print(f"{r['day']}일 · " + (f"실패 {len(r['fails'])}({'+'.join(r['fails'])})" if r["fails"] else "통과") + " · " + ("분석" if r["analyzed"] else "건너뜀") + " · " + ("·".join(r["flagged"]) or "-") + " · "
+              + (", ".join(f"{q['id']} {KIND_KO[q['kind']]} {VERDICT_KO[q['verdict']]}" for q in r["requests"]) or "-"))
+    s = summarize(recs, queue)
+    print(f"요약: 분석한 날 {s['analyzed']} · 멈춘 날 {s['stopped']} · 결정 {s['decisions']} · 요청 {s['requests']}(허용 {s['ok']} · 거절 {s['refused']} · 대기 {s['queued']}) · 보고 검사 통과 {s['report_pass']}/14")
+    first_req = [r for r in recs if r["requests"]][0]
+    print(f"보고 {first_req['day']}일(사람이 읽는 글, 검사 {'통과' if first_req['valid'] else '실패'}):")
+    for line in first_req["render"]:
+        print("  " + line)
+    out_dir = tempfile.mkdtemp()
+    pd.DataFrame(log_rows(recs)).to_csv(os.path.join(out_dir, "agent_log.csv"), index=False)
+    pd.DataFrame(queue_rows(queue)).to_csv(os.path.join(out_dir, "approval_queue.csv"), index=False)
+    print(f"실행 기록 {len(log_rows(recs))}줄 · 승인 대기열 {len(queue_rows(queue))}줄 → agent_log.csv · approval_queue.csv")
+    # 같은 14일을 다른 정책으로: 점검 실패 두 개까지 허용
+    recs2, queue2, _ = run_agent(tables, {"tol": 2})
+    s2 = summarize(recs2, queue2)
+    ch = [(r["day"], c) for r in recs2 for c in r["flagged"]]
+    print(f"점검 허용 수 2: 분석한 날 {s2['analyzed']} · 멈춘 날 {s2['stopped']} · 새 변경점 " + (" ".join(f"{d}일 {c}" for d, c in ch) or "없음"))
+    # 학습자가 R-02 를 승인하면 다음 날 spec 이 바뀐다
+    q2 = [q for q in queue if q["kind"] == "spec"][0]
+    recs3, _, _ = run_agent(tables, None, {q2["id"]: "approve"})
+    nxt = recs3[q2["day"]]
+    print(f"{q2['id']} 승인: {q2['day'] + 1}일 아침 spec {recs3[q2['day'] - 1]['spec']:.3f} → {nxt['spec']:.3f} µm · 보고: {nxt['render'][-1]}")</pre>
+<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 네 개와 같은 폴더에서 <code>python3 lab0401.py</code> 로 돌렸고, 위 14일 표와 같은 숫자가 나옵니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">정책: 점검 허용 실패 수 0 · 최근 2일 vs 그 전 3일 · 문턱 0.5 ppm · 다중 비교 본페로니
+날짜 · 점검 · 분석 · 새 변경점 · 요청(판정)
+1일 · 실패 1(dup) · 건너뜀 · - · -
+2일 · 실패 3(rows+join+model) · 건너뜀 · - · -
+3일 · 실패 1(rows) · 건너뜀 · - · -
+4일 · 실패 1(dup) · 건너뜀 · - · -
+5일 · 실패 1(dup) · 건너뜀 · - · -
+6일 · 실패 3(rows+cols+blank) · 건너뜀 · - · -
+7일 · 실패 3(cols+blank+join) · 건너뜀 · - · -
+8일 · 통과 · 분석 · - · R-01 새 마스크 기준 측정 허용, R-02 spec 변경 승인 대기
+9일 · 통과 · 분석 · - · -
+10일 · 실패 4(rows+join+ts+model) · 건너뜀 · - · -
+11일 · 실패 1(rows) · 건너뜀 · - · -
+12일 · 실패 2(dup+join) · 건너뜀 · - · -
+13일 · 실패 1(dup) · 건너뜀 · - · -
+14일 · 실패 3(dup+join+ts) · 건너뜀 · - · -
+요약: 분석한 날 2 · 멈춘 날 12 · 결정 2 · 요청 2(허용 1 · 거절 0 · 대기 1) · 보고 검사 통과 14/14
+보고 8일(사람이 읽는 글, 검사 통과):
+  점검에서 실패한 규칙은 0개입니다.
+  비교할 날이 모자라 변경점을 판정하지 않았습니다.
+  B03-CH2 의 새 마스크 B03-B2 기준 측정을 요청했고 판정은 허용입니다.
+  spec 을 5.713 µm 에서 5.750 µm 로 올리자고 요청했고 판정은 승인 대기입니다.
+실행 기록 32줄 · 승인 대기열 1줄 → agent_log.csv · approval_queue.csv
+점검 허용 수 2: 분석한 날 9 · 멈춘 날 5 · 새 변경점 8일 B03-CH2
+R-02 승인: 9일 아침 spec 5.713 → 5.750 µm · 보고: 어제 올린 요청의 처리 결과는 승인·실행입니다.</pre>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>에이전트 실행 기록 양식</h3>
+  <dl>
+    <dt>칸 (단계 한 줄 = 한 줄)</dt><dd id="rp_fields"></dd>
+    <dt>이 14일 기록의 한 줄로 채운 예</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>날짜·단계·부른 도구를 적었는가</li>
+      <li>입력 요약(입력 지문·행 수)과 출력 요약을 적었는가</li>
+      <li>결정과 근거 사실 번호를 적었는가(결정은 근거 없이 쓰지 않습니다)</li>
+      <li>요청의 판정(허용·거절·승인 대기)과 이유를 적었는가</li>
+      <li>점검에서 멈춘 날은 멈춘 규칙 이름을 적었는가</li>
+    </ul></dd>
+  </dl>
+</div>
+<div class="report">
+  <h3>승인 대기열 양식</h3>
+  <dl>
+    <dt>칸 (요청 한 건 = 한 줄)</dt><dd id="rq_fields"></dd>
+    <dt>이 14일 기록의 한 줄로 채운 예</dt><dd id="rq_ex"></dd>
+    <dt>승인란</dt><dd>승인자 ____________ · 결정 일자 ____________ (<b>되돌릴 수 없는 전이와 spec 변경은 사람이 승인하기 전에 실행하지 않습니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">0402 에서 에이전트를 평가하려면 아래가 쌓여 있어야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>실행 기록 전부</b> — 단계마다 도구·입력·출력·결정·요청·판정.</li>
+      <li><b>승인과 반려</b> — 사람의 판단이 쌓이면 0402 의 &lsquo;사람 결론&rsquo;이 됩니다.</li>
+      <li><b>정책 판</b> — 문턱을 바꾼 날과 바꾼 사람.</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">단계마다 부르는 함수와 그 실험실입니다.</p>
+    <div class="tbwrap"><table class="mt" id="tabTool"></table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0411-llm-verification-design.html">← 이전: LLM에게 일을 맡기는 법 — 검증 설계</a></nav>
+</main>
+<script src="../data/mfgsim.js"></script>
+<script src="../data/llm_runs_0410.js"></script>
+<script src="../data/llmcheck.js"></script>
+<script src="../data/llm_runs_0411.js"></script>
+<script src="../data/llmverify.js"></script>
+<script src="../data/agent0401.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var A=Agent0401,MS=MfgSim,LV=LlmVerify,SC=A.SC,CH=A.CH,OBS=A.OBS,P0=A.POLICY0,DAYS=A.DAYS;
+function copy(o){var r={};Object.keys(o).forEach(function(k){r[k]=o[k];});return r;}
+var ST={pol:copy(P0),dec:{},sel:1,sel3:8,sel4:8,sel7:8,hand:30,item:5,work:20};
+var RES=null;
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return v!=null&&isFinite(v)?v.toFixed(d):'—';}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?cls[i](c):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function fitFont(x,txt,maxW,px,minPx,weight){var s=px;x.font=(weight||'')+' '+s+'px sans-serif';while(s>minPx&&x.measureText(txt).width>maxW){s--;x.font=(weight||'')+' '+s+'px sans-serif';}return s;}
+function L_(){return 'l';}
+function badge(v){var c=v==='ok'||v==='applied'?'ok':(v==='queue'?'wait':(v==='rejected'?'off':'no'));return '<span class="badge '+c+'">'+A.VERDICT_KO[v]+'</span>';}
+function yn(b){return b?'예':'아니오';}
+function dayOf(ts){return Math.floor(ts/1440)+1;}
+function iso(ts){return MS.s15tools.iso(ts);}
+var KO=A.KIND_KO,RK=A.RULE_KO;
+var FAULT_KO=MS.s15tools.KIND_KO;
+
+/* ---------- 고정 값(정책과 무관) ---------- */
+setAll('v_days',String(DAYS));setAll('v_seed',String(SC.params.seed));setAll('v_nch',String(CH.length));
+setAll('v_nwrong',String(LV.marks().filter(function(m){return m.mark==='틀림';}).length));
+var HUM=MS.ESTC.transitions.filter(function(t){return t.entity==='mask'&&t.needs_human;});
+setAll('v_nhuman',String(HUM.length));setAll('v_human_list',HUM.map(function(t){return t.from+' → '+t.to;}).join(', '));
+
+function recompute(){RES=A.run(ST.pol,ST.dec);}
+function sameStep(v,d,step){return Math.abs(v-d)<step/2;}
+
+/* ---------- 2절 ---------- */
+var STAGES=[['관찰','observe'],['점검','run_checks'],['분석','analyze'],['결정','decide'],['요청','request'],['보고','report']];
+function drawCycle(){
+  var cv=$('cv2'),w=cv.clientWidth||320,wide=w>=560,s=setup(cv,wide?112:206),x=s.x,D=RES.days[ST.sel-1];
+  var per=wide?6:3,gap=wide?16:12,bw=(w-gap*(per-1)-4)/per,bh=wide?66:76;
+  STAGES.forEach(function(st,i){
+    var col=i%per,row=Math.floor(i/per),bx=2+col*(bw+gap),by=4+row*(bh+30),out=D.steps[i].out,idle=/건너뜀|^없음$|^—$/.test(out);
+    x.fillStyle=idle?css('--track'):css('--accent');x.strokeStyle=css('--rule');x.lineWidth=1;
+    x.beginPath();x.rect(bx,by,bw,bh);x.fill();x.stroke();
+    x.textAlign='center';x.fillStyle=idle?css('--soft'):css('--accent-ink');
+    fitFont(x,st[0],bw-10,17,12,'800');x.fillText(st[0],bx+bw/2,by+bh*0.42);
+    fitFont(x,st[1],bw-8,12,11,'600');x.fillText(st[1],bx+bw/2,by+bh*0.78);
+    x.fillStyle=css('--soft');x.font='600 12px sans-serif';x.fillText((i+1)+'단계',bx+bw/2,by+bh+16);
+    if(col<per-1){x.fillStyle=css('--soft');x.font='700 16px sans-serif';x.fillText('›',bx+bw+gap/2,by+bh/2+5);}
+  });
+  x.textAlign='start';
+}
+function upd2(){
+  var D=RES.days[ST.sel-1];
+  $('ro2').innerHTML='<b>'+ST.sel+'일</b> 아침 실행 — '+(D.analyzed?'점검 허용 수 안이라 끝까지 돌았습니다.':'점검 규칙 <b>'+D.nfail+'개</b> 실패(허용 '+(ST.pol.tol>=7?'제한 없음':ST.pol.tol+'개')+')라 분석하지 않고 알림만 냈습니다.')+' 그날 주입된 고장(정답): '+(D.truth.length?D.truth.map(function(k){return FAULT_KO[k];}).join('·'):'없음')+'.';
+  tbl('tabSteps',['단계','도구','입력','출력'],D.steps.map(function(s,i){return [(i+1)+') '+s.step,'<code>'+esc(s.tool)+'</code>',esc(s.inp),esc(s.out)];}),[null,L_,L_,L_]);
+  drawCycle();
+}
+function buildTools(){
+  var rows=[
+    ['관찰','<code>observe(day)</code>','0400 — 창으로 뽑기·glass_id 로 잇기'],
+    ['점검','<code>run_checks</code>','0400 — 행 수·중복·열·빈칸·이음·시각·모델 판'],
+    ['분석','<code>analyze → detect_change</code>','0104 판정 흐름 + 0202 다중 비교, 0303 온도 보정 Mx'],
+    ['결정','<code>decide</code>','0304 단순판(지표 초과 → 리페어 후보) · 0306 리페어 직후 기준'],
+    ['요청','<code>request → requestTransition</code>','0206 — 전이 표·사람 승인·가드'],
+    ['보고','<code>report → validate · render</code>','0411 — 사실 목록·자리 채우기·검사 V1~V6']
+  ];
+  tbl('tabTools',['단계','도구','출처 실험실'],rows,[null,L_,L_]);
+  tbl('tabTool',['단계','도구','출처'],rows.map(function(r){return [r[0],r[1],r[2].split(' — ')[0].split(' + ')[0].replace(/ .*$/,'')];}),[null,L_,L_]);
+}
+
+/* ---------- 3절 ---------- */
+function upd3(){
+  var t=ST.pol.tol;
+  $('sTolO').textContent=t>=7?'끔(7)':String(t);
+  var an=RES.days.filter(function(d){return d.analyzed;}),tainted=an.filter(function(d){return d.truth.length>0;}).length,wr=an.filter(function(d){return OBS[d.day-1].wrong;}).length,fd=RES.days.filter(function(d){return d.truth.length>0;}).length;
+  $('stTol').className=t===0?'state':'state moved';
+  $('stTol').textContent=t===0?'지금은 기본 정책(엄격)입니다. 점검 규칙이 하나라도 실패한 날은 분석하지 않습니다.':'지금은 점검 실패 '+(t>=7?'일곱 개를 모두 허용(점검 끔)':t+'개까지 허용')+'하도록 옮겨 놓은 정책입니다. 기본값으로는 엄격 단추를 누르십시오.';
+  $('ro3').innerHTML='분석한 날 <b>'+an.length+'</b>일 · 멈춘 날 <b>'+(DAYS-an.length)+'</b>일 · 분석한 날 가운데 고장이 든 날 <b>'+tainted+'</b>일 · 분석한 날 가운데 0400 이 정답과 다르다고 본 날 <b>'+wr+'</b>일 (고장이 든 날은 모두 '+fd+'일).';
+  var o=OBS[ST.sel3-1];
+  tbl('tabRules',[ST.sel3+'일 규칙','값','문턱','통과'],o.checks.map(function(c){var v=c.value;var vs=v==null?'—':(c.id==='rows'||c.id==='blank'||c.id==='join'?fmt(v,3):String(v));var th=c.id==='rows'?'≥ '+c.thr:(c.id==='blank'?'≤ '+c.thr:(c.id==='join'?'≥ '+c.thr:(c.id==='model'?'≤ '+c.thr:'= '+c.thr)));return [RK[c.id],vs,th,c.pass?'<span class="badge ok">통과</span>':'<span class="badge no">실패</span>'];}),[null,null,null,null]);
+  var stop=DAYS-an.length;
+  $('conc3').innerHTML='<b>이 정책에서 에이전트는 '+DAYS+'일 가운데 '+an.length+'일을 분석했고 '+stop+'일은 알림만 냈습니다.</b> '+(t===0?'점검을 통과한 날만 분석하므로 분석에 쓴 날 가운데 정답과 다른 날은 '+wr+'일입니다. 대신 멈춘 날이 많아 변경점을 비교할 날이 모자랍니다.':'허용 수를 올리면 분석한 날이 '+an.length+'일로 늘지만, 그 가운데 고장이 든 날이 '+tainted+'일이고 0400 이 정답과 다르다고 본 날이 '+wr+'일입니다. 틀린 표 위에서 결정을 내린 날이 그만큼 생깁니다.');
+  drawCal();
+}
+var CAL=null;
+function drawCal(){
+  var cv=$('cv3'),w=cv.clientWidth||320,per=w>=620?7:(w>=440?5:3),rows=Math.ceil(DAYS/per),ch=84,s=setup(cv,rows*(ch+6)),x=s.x,cw=(w-(per-1)*6)/per;
+  CAL={per:per,ch:ch,cw:cw};
+  RES.days.forEach(function(d,i){
+    var col=i%per,row=Math.floor(i/per),bx=col*(cw+6),by=row*(ch+6);
+    x.globalAlpha=.2;x.fillStyle=d.analyzed?css('--good'):css('--bad');x.fillRect(bx+1,by+1,cw-2,ch-2);x.globalAlpha=1;
+    x.strokeStyle=ST.sel3===d.day?css('--accent'):css('--rule');x.lineWidth=ST.sel3===d.day?3:1;
+    x.beginPath();x.rect(bx+1,by+1,cw-2,ch-2);x.stroke();
+    x.fillStyle=css('--ink');fitFont(x,d.day+'일',cw-8,14,12,'800');x.fillText(d.day+'일',bx+6,by+17);
+    x.fillStyle=d.analyzed?css('--good'):css('--bad');var stx=(d.analyzed?'분석':'멈춤')+' · 실패 '+d.nfail;fitFont(x,stx,cw-8,12,11,'700');x.fillText(stx,bx+6,by+34);
+    x.fillStyle=css('--warn');
+    var ft=d.truth.map(function(k){return FAULT_KO[k];});
+    if(!ft.length){x.fillStyle=css('--soft');fitFont(x,'고장 없음',cw-8,11,11,'600');x.fillText('고장 없음',bx+6,by+52);}
+    else ft.forEach(function(t,j){fitFont(x,t,cw-10,12,11,'600');x.fillText(t,bx+6,by+52+j*15);});
+  });
+}
+
+/* ---------- 4절 ---------- */
+function polDefault(){var o=true;Object.keys(P0).forEach(function(k){if(P0[k]!==ST.pol[k])o=false;});return o;}
+function updPolState(){
+  var diff=[];function d(k,l){if(P0[k]!==ST.pol[k])diff.push(l);}
+  d('tol','점검 허용 수');d('k','k');d('m','m');d('delta','문턱');d('ex_n','리페어 후보');d('scrap_ratio','제외 후보 비율');d('spec_share','spec 제안 비율');d('bonf','다중 비교');d('repair_cap','리페어 한도');d('repair_human','리페어 승인');d('spec_reject','spec 자동 반려');
+  var el=$('stPol');el.className=diff.length?'state moved':'state';
+  el.textContent=diff.length?'지금은 기본 정책에서 옮겨 놓은 가정입니다(바꾼 것: '+diff.join(', ')+'). 기본값으로 되돌리는 단추가 있습니다.':'지금은 기본 정책입니다.';
+}
+function drawDet(){
+  var D=RES.days[ST.sel4-1],det=D.det,cv=$('cv4'),s=setup(cv,236),x=s.x,w=s.w,h=s.h;
+  var pL=46,pR=10,pT=14,pB=52,pw=w-pL-pR,ph=h-pT-pB;
+  x.fillStyle=css('--ink');
+  if(!det||!det.enough){x.fillStyle=css('--soft');fitFont(x,'이 날은 비교할 수 있는 분석한 날이 모자라 판정하지 않았습니다',w-20,14,11,'600');x.fillText('이 날은 비교할 수 있는 분석한 날이 모자라 판정하지 않았습니다',10,h/2);return;}
+  var mx=0.6;det.rows.forEach(function(r){if(r.eff!=null)mx=Math.max(mx,Math.abs(r.eff));});mx=Math.max(mx,ST.pol.delta)*1.15;
+  var step=mx>3?1:(mx>1.4?0.5:0.25);mx=Math.ceil(mx/step)*step;
+  function Y(v){return pT+ph*(1-(v+mx)/(2*mx));}
+  x.strokeStyle=css('--rule');x.lineWidth=1;x.font='11px sans-serif';x.fillStyle=css('--soft');x.textAlign='right';
+  for(var v=-mx;v<=mx+1e-9;v+=step){x.beginPath();x.moveTo(pL,Y(v));x.lineTo(w-pR,Y(v));x.stroke();x.fillText(v.toFixed(step<1?2:1),pL-5,Y(v)+4);}
+  x.textAlign='start';
+  x.strokeStyle=css('--ink');x.lineWidth=1.5;x.beginPath();x.moveTo(pL,Y(0));x.lineTo(w-pR,Y(0));x.stroke();
+  x.setLineDash([5,4]);x.strokeStyle=css('--warn');[ST.pol.delta,-ST.pol.delta].forEach(function(v){x.beginPath();x.moveTo(pL,Y(v));x.lineTo(w-pR,Y(v));x.stroke();});x.setLineDash([]);
+  x.fillStyle=css('--warn');x.font='11px sans-serif';x.textAlign='right';x.fillText('문턱 ±'+ST.pol.delta.toFixed(1)+' ppm',w-pR-2,Y(ST.pol.delta)-4);x.textAlign='start';
+  var n=det.rows.length,bw=pw/n;
+  det.rows.forEach(function(r,i){
+    var cx=pL+bw*i+bw/2;
+    if(r.skip){x.fillStyle=css('--soft');x.font='11px sans-serif';x.textAlign='center';x.fillText('판정 안 함',cx,Y(0)-6);x.textAlign='start';}
+    else{x.fillStyle=r.flag?css('--bad'):css('--accent');var y0=Y(0),y1=Y(r.eff);x.fillRect(cx-bw*0.28,Math.min(y0,y1),bw*0.56,Math.max(2,Math.abs(y1-y0)));
+      x.fillStyle=css('--ink');x.font='11px sans-serif';x.textAlign='center';x.fillText(r.eff.toFixed(2),cx,r.eff>=0?y1-4:y1+13);x.textAlign='start';}
+    x.fillStyle=css('--soft');x.font='11px sans-serif';x.textAlign='center';x.fillText(r.key.slice(0,3),cx,h-pB+16);x.fillText(r.key.slice(4),cx,h-pB+30);x.textAlign='start';
+  });
+  x.fillStyle=css('--soft');x.font='11px sans-serif';x.fillText('세로축: 대조 챔버 대비 보정 후 Mx 변화(ppm) · 빨강 = 변경점',pL,h-4);
+}
+function upd4(){
+  var sp=ST.pol;
+  $('sKO').textContent=sp.k+'일';$('sMO').textContent=sp.m+'일';$('sDeltaO').textContent=sp.delta.toFixed(1)+' ppm';$('sExnO').textContent=sp.ex_n+'장';$('sScrO').textContent=Math.round(sp.scrap_ratio*100)+'%';$('sShareO').textContent=Math.round(sp.spec_share*100)+'%';
+  $('sSel4O').textContent=ST.sel4+'일';
+  updPolState();
+  var D=RES.days[ST.sel4-1],det=D.det;
+  $('ro4').innerHTML=!det?'<b>'+ST.sel4+'일</b>은 점검 때문에 분석하지 않은 날입니다.':(!det.enough?'<b>'+ST.sel4+'일</b>: 최근 '+sp.k+'일('+(det.rec.join('·')||'분석한 날 없음')+')과 그 전 '+sp.m+'일('+(det.bef.join('·')||'분석한 날 없음')+') 가운데 한쪽이 비어 판정하지 않았습니다.':'<b>'+ST.sel4+'일</b>: 최근 '+sp.k+'일('+det.rec.join('·')+')과 그 전 '+sp.m+'일('+det.bef.join('·')+')을 견줬습니다. 유의수준 '+det.alpha.toExponential(2)+(sp.bonf?'(0.05 를 챔버 수로 나눔)':'(보정 없음)')+' · 변경점으로 잡힌 챔버: <b>'+(det.flagged.join(', ')||'없음')+'</b>'+(det.flagged.length?' · 이웃 닮음 계수 φ̂ = '+det.rows.filter(function(r){return r.flag;}).map(function(r){return r.key+' '+fmt(r.phi,2);}).join(', '):'')+'.');
+  drawDet();
+  var rows=[];
+  RES.days.forEach(function(d){if(!d.analyzed)return;
+    if(!d.decisions.length)rows.push([d.day+'일',d.det&&d.det.enough?'없음':'판정 안 함','결정 없음']);
+    else d.decisions.forEach(function(x){rows.push([d.day+'일',d.flagged.length?d.flagged.join(', '):'—',esc(x.text)]);});});
+  if(!rows.length)rows.push(['—','—','분석한 날이 없습니다']);
+  tbl('tabDec',['날','새 변경점','결정과 이유'],rows,[null,L_,L_]);
+  var rp=RES.S.reps.filter(function(r){return r.ch==='B03-CH2';})[0],fd=null,rq=null;
+  RES.days.forEach(function(d){if(!fd&&d.flagged.indexOf('B03-CH2')>=0)fd=d;});
+  if(rp)RES.queue.forEach(function(q){if(!rq&&q.kind==='baseline'&&q.ch==='B03-CH2')rq=q;});
+  var cs=fd&&fd.causes['B03-CH2']?fd.causes['B03-CH2']:[];
+  var swap=SC.masks.filter(function(m){return m.chamber==='CH2'&&m.block==='B03';})[0];
+  $('conc4').innerHTML='<b>B03-CH2 에서 일어난 일.</b> 마스크 이력 표에서 '+(rp?rp.from+' → '+rp.to+' 교체(실제 시각 '+iso(rp.ts)+', '+dayOf(rp.ts)+'일)를 에이전트가 <b>'+rp.seen+'일</b> 아침에 알아챘습니다.':'교체를 이 정책에서는 아직 알아채지 못했습니다(점검을 통과한 날이 없기 때문입니다).')+' '
+   +(rq?'새 마스크의 기준 측정을 요청했습니다(요청 '+rq.id+', 판정 '+A.VERDICT_KO[rq.verdict]+'). 기준이 없는 마스크로 수명을 내지 않는다는 0306 의 규칙입니다. ':'')
+   +(fd?'자료로는 <b>'+fd.day+'일</b> 판정에서 변경점으로 잡혔고(대조 챔버 대비 '+fmt(fd.det.rows.filter(function(r){return r.key==='B03-CH2';})[0].eff,2)+' ppm), 원인 후보는 '+(cs.length?cs.map(function(c){return c.kind;}).join('·')+' ('+cs[0].kind+' 우선)':'없음(원인 미확인)')+'이라 결정은 리페어가 아니라 기준 측정이었습니다.':'자료로는 변경점으로 잡히지 않았습니다. 교체한 날(정답 '+dayOf(swap.swap_ts)+'일)과 그 뒤를 비교할 분석한 날이 모자라기 때문입니다.')+' 원인은 후보일 뿐이며, 교체가 지표를 바꿨는지의 확정은 0103·0304 의 전후 비교로 합니다.';
+  /* 정책 세 가지 비교 */
+  var rows3=[[0,'엄격(0)'],[2,'2개까지'],[7,'점검 끔']].map(function(a){
+    var pp=copy(ST.pol);pp.tol=a[0];var r=A.run(pp,ST.dec),f=null,other=0,taint=0;
+    r.days.forEach(function(d){d.flagged.forEach(function(c){if(c==='B03-CH2'){if(!f)f=d.day;}else other++;});if(d.analyzed&&d.truth.length&&d.decisions.length)taint++;});
+    return [a[1],String(r.summary.analyzed),f?f+'일':'잡지 못함',String(other),String(taint),String(r.summary.requests)];});
+  tbl('tabCmp',['점검 허용','분석한 날','B03-CH2 변경점','다른 챔버 변경점','고장 든 날의 결정 수','요청 수'],rows3,[null,null,null,null,null,null]);
+}
+
+/* ---------- 5절 ---------- */
+function updReq(){
+  var sp=ST.pol;$('sCapO').textContent=sp.repair_cap+'장';
+  $('cRepH').checked=sp.repair_human;$('cSpecR').checked=sp.spec_reject;
+  var def=sp.repair_cap===P0.repair_cap&&sp.repair_human===P0.repair_human&&sp.spec_reject===P0.spec_reject;
+  $('stReq').className=def?'state':'state moved';
+  $('stReq').textContent=def?'지금은 기본 승인 정책입니다(리페어 동시 한도 '+P0.repair_cap+'장, 리페어는 가드만 통과하면 자동 허용, spec 변경은 사람 승인).':'지금은 승인 정책을 기본에서 옮겨 놓은 가정입니다. 기본값 단추로 되돌릴 수 있습니다.';
+  var rows=[];
+  RES.days.forEach(function(d){d.requests.forEach(function(q){rows.push([q.id,d.day+'일',KO[q.kind],q.ch?q.ch+(q.mask?' · '+q.mask:''):'전체',q.reversible?'가역':'<b>되돌릴 수 없음</b>',badge(q.verdict),esc(q.reason)]);});});
+  if(!rows.length)rows.push(['—','—','요청이 없습니다','—','—','—','이 정책에서는 낸 요청이 없습니다']);
+  tbl('tabReq',['번호','날','종류','대상','가역','판정','이유'],rows,[null,null,L_,L_,null,null,L_]);
+  var s=RES.summary;
+  $('conc5').innerHTML='<b>요청 '+s.requests+'건 — 허용 '+s.ok+' · 거절 '+s.refused+' · 승인 대기 '+s.queued+'.</b> 거절은 표에 없는 전이거나 리페어 동시 한도를 넘은 경우이고, 승인 대기는 사람이 결정하기 전에는 실행하지 않습니다.';
+}
+function buildProbe(){
+  var ids={};SC.loaded.mask_hist.forEach(function(r){ids[r.mask_id]=1;});
+  var m=$('selMask');m.innerHTML=Object.keys(ids).sort().map(function(i){return '<option value="'+i+'">'+i+'</option>';}).join('');m.value='B03-B2';
+  $('selTo').innerHTML=[['repair','리페어(repair)'],['scrapped','제외(scrapped)'],['to_clean','세정기 반송(to_clean)'],['cleaning','세정 중(cleaning)']].map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>';}).join('');
+}
+function probe(){
+  var id=$('selMask').value,to=$('selTo').value,snap=A.snapshot({mstate:RES.S.mstate},DAYS*1440),rt=MS.requestTransition(snap,'mask',id,to);
+  var cur=snap.states['mask:'+id],msg;
+  if(!rt.ok)msg='<b>'+({not_in_table:'표에 없음 → 거절',needs_human:'사람 승인 필요 → 승인 대기열',guard_fail:'가드 실패 → 거절'}[rt.kind]||rt.kind)+'</b> — '+esc(rt.reason)+' (지금 '+cur+' → '+to+')';
+  else if(to==='repair'){var n=Object.keys(RES.S.mstate).filter(function(k){return RES.S.mstate[k]==='repair';}).length;msg=n>=ST.pol.repair_cap?'<b>가드 실패 → 거절</b> — 표에는 있지만 리페어 동시 한도 '+n+'/'+ST.pol.repair_cap+' 가 찼습니다.':'<b>허용</b> — '+esc(rt.reason)+' (리페어 중 '+n+'/'+ST.pol.repair_cap+')';}
+  else msg='<b>허용</b> — '+esc(rt.reason)+' (지금 '+cur+' → '+to+')';
+  $('stProbe').className='state moved';$('stProbe').innerHTML=msg;
+}
+
+/* ---------- 6절 ---------- */
+function updQueue(){
+  var items=RES.queue.filter(function(q){return q.human||q.decision;}),h='';
+  items.forEach(function(q){
+    var st=q.status==='pending'?'<span class="badge wait">대기</span>':badge(q.verdict);
+    var eff=q.status==='pending'?(q.day>=DAYS?'요청이 '+DAYS+'일째라 반영일('+(q.day+1)+'일 아침)이 이 실행 밖입니다.':'승인하면 '+(q.day+1)+'일 아침에 실행됩니다.'):(q.decision?(q.decided_day+'일 아침 반영: '+esc(q.reason)):esc(q.reason));
+    h+='<div class="qitem"><div class="qt">'+q.id+' · '+q.day+'일 요청 · '+KO[q.kind]+' '+st+' '+(q.reversible?'':'<span class="badge no">되돌릴 수 없음</span>')+'</div>'
+      +'<div>'+esc(q.text)+(q.kind==='spec'?' (최근 유리의 '+Math.round(q.share*100)+'%가 spec 을 넘었고, 그 가운데 '+Math.round(q.top_share*100)+'%가 '+q.top+' 한 챔버입니다)':'')+'</div><div class="note">'+eff+'</div>'
+      +(q.day<DAYS?'<div class="row"><button class="btn'+(ST.dec[q.id]==='approve'?'':' ghost')+'" data-d="approve" data-id="'+q.id+'" aria-pressed="'+(ST.dec[q.id]==='approve')+'" type="button">승인</button><button class="btn'+(ST.dec[q.id]==='reject'?'':' ghost')+'" data-d="reject" data-id="'+q.id+'" aria-pressed="'+(ST.dec[q.id]==='reject')+'" type="button">반려</button></div>':'')+'</div>';
+  });
+  $('queueBox').innerHTML=h||'<div class="state">이 정책에서는 사람 승인이 필요한 요청이 없습니다. 정책에서 점검 허용 수나 spec 제안 비율을 바꾸면 생깁니다.</div>';
+  Array.prototype.forEach.call($('queueBox').querySelectorAll('button[data-d]'),function(b){b.onclick=function(){var id=b.getAttribute('data-id'),d=b.getAttribute('data-d');if(ST.dec[id]===d)delete ST.dec[id];else ST.dec[id]=d;refresh();};});
+  var pend=RES.queue.filter(function(q){return q.status==='pending';}).length,dn=RES.queue.filter(function(q){return q.decision;}).length,last=RES.days[DAYS-1];
+  $('conc6').innerHTML='<b>사람 승인이 필요한 요청 '+items.length+'건 가운데 결정한 것 '+dn+'건, 남은 대기 '+pend+'건.</b> 마지막 날의 spec 은 '+fmt(last.spec,3)+' µm(처음 '+fmt(SC.params.spec,3)+' µm)입니다.'+(Object.keys(ST.dec).some(function(k){return !RES.queue.some(function(q){return q.id===k;});})?' 정책이 바뀌어 사라진 요청에 대한 결정은 무시했습니다.':'');
+  drawQ();
+}
+function drawQ(){
+  var cv=$('cv6'),s=setup(cv,190),x=s.x,w=s.w,h=s.h,pL=40,pR=52,pT=14,pB=34,pw=w-pL-pR,ph=h-pT-pB,days=RES.days,mxp=1;
+  days.forEach(function(d){mxp=Math.max(mxp,d.pending);});mxp=Math.max(2,mxp);
+  var sp0=SC.params.spec,lo=sp0*0.98,hi=sp0,days2=days.map(function(d){return d.spec;});days2.forEach(function(v){hi=Math.max(hi,v);});hi=hi*1.02;
+  function Y1(v){return pT+ph*(1-v/mxp);}function Y2(v){return pT+ph*(1-(v-lo)/(hi-lo));}
+  var bw=pw/days.length;
+  x.font='11px sans-serif';x.strokeStyle=css('--rule');x.lineWidth=1;x.fillStyle=css('--soft');
+  x.beginPath();x.moveTo(pL,pT+ph);x.lineTo(w-pR,pT+ph);x.stroke();
+  x.textAlign='right';x.fillText('0',pL-5,pT+ph+4);x.fillText(String(mxp),pL-5,pT+10);x.textAlign='start';
+  x.textAlign='left';x.fillText(hi.toFixed(2),w-pR+5,pT+10);x.fillText(lo.toFixed(2),w-pR+5,pT+ph+4);x.textAlign='start';
+  days.forEach(function(d,i){var bx=pL+bw*i+bw*0.2;x.fillStyle=css('--warn');var y=Y1(d.pending);x.fillRect(bx,y,bw*0.6,pT+ph-y);x.fillStyle=css('--soft');x.textAlign='center';x.fillText(String(d.day),pL+bw*i+bw/2,h-pB+14);x.textAlign='start';});
+  x.strokeStyle=css('--accent');x.lineWidth=2.5;x.beginPath();days.forEach(function(d,i){var cx=pL+bw*i+bw/2,y=Y2(d.spec);if(i)x.lineTo(cx,y);else x.moveTo(cx,y);});x.stroke();
+  x.fillStyle=css('--soft');x.fillText('날',pL,h-4);
+}
+
+/* ---------- 7절 ---------- */
+function upd7(){
+  var D=RES.days[ST.sel7-1],r=D.report,v=r.v;$('sSel7O').textContent=ST.sel7+'일';
+  $('st7').className=v.pass?'state':'state moved';
+  $('st7').textContent=ST.sel7+'일 보고: 사실 '+r.facts.length+'개 · 문장 '+r.render.length+'개 · 검사 V1~V6 '+(v.pass?'모두 통과':'실패 '+v.failSentences.length+'문장')+(D.analyzed?'':' · 점검에서 멈춘 날의 알림 보고')+'.';
+  tbl('tabFacts',['번호','내용','값','출처'],r.facts.map(function(f){return [f.id,esc(f.what),esc(LV.fmtVal(f)),esc(f.source)];}),[null,L_,null,L_]);
+  var ss=JSON.parse(r.raw).sentences;
+  tbl('tabSent',['종류','근거','문장(사람이 읽는 글)'],ss.map(function(s,i){return [s.type,s.cites.join(', ')||'—',esc(r.render[i].text)];}),[null,null,L_]);
+  $('vbox').innerHTML='<div class="row">'+LV.rules.map(function(R){var o=v.rules[R.id];return '<span class="rc '+(o.ok===false?'bad':'ok')+'" title="'+esc(R.desc)+'">'+R.id+' '+R.name+' '+(o.ok===false?'실패':'통과')+'</span>';}).join('')+'</div>';
+  $('rawJson').textContent=r.raw;
+  var np=RES.days.filter(function(d){return d.report.v.pass;}).length;
+  $('conc7').innerHTML='<b>14일 보고 가운데 검사를 통과한 것 '+np+' / '+DAYS+'.</b> 틀로 만든 문장이라 형식 검사는 통과하는 것이 정상입니다. 이 검사가 하는 일은 에이전트가 내놓는 문장에 번호 없는 숫자나 근거 없는 원인이 섞이지 않았는지 늘 확인하는 것입니다. 통과가 &lsquo;맞음&rsquo;을 뜻하지는 않습니다. 원인 후보 문장의 인과는 사람이 봅니다.';
+}
+
+/* ---------- 8절 ---------- */
+function upd8(){
+  var s=RES.summary,swap=SC.masks.filter(function(m){return m.chamber==='CH2'&&m.block==='B03';})[0],rp=RES.S.reps.filter(function(r){return r.ch==='B03-CH2';})[0];
+  $('conc8').innerHTML='<b>(1) 묶는 법</b> — 하루 한 바퀴를 여섯 단계로 정해 두고, 각 단계에서 이미 만든 함수만 부르고, 점검이 실패한 날은 분석하지 않고, 상태를 바꾸는 요청은 전이 표·사람 승인·가드를 차례로 통과해야 허용되고, 모든 단계를 실행 기록으로 남깁니다.<br><b>(2) 이 정책으로 14일을 돌린 결과</b> — 분석한 날 '+s.analyzed+'일, 점검 때문에 멈춘 날 '+s.stopped+'일, 결정 '+s.decisions+'건, 요청 '+s.requests+'건(허용 '+s.ok+' · 거절 '+s.refused+' · 승인 대기 '+s.queued+'), 마지막에 남은 승인 대기 '+s.pending_end+'건, 보고 검사 통과 '+s.report_pass+' / '+DAYS+'. 사람이 볼 항목은 알림 '+s.alerts+' + 승인 요청 '+s.approvals+' + 원인 문장 '+s.cause_sentences+' = '+s.human_items+'개입니다.';
+  var rows=[['마스크 교체(B03-CH2)',dayOf(swap.swap_ts)+'일 ('+iso(swap.swap_ts)+')',rp?rp.seen+'일 아침':'알아채지 못함',rp?String(rp.seen-dayOf(swap.swap_ts))+'일':'—']];
+  var firstFl=null;RES.days.forEach(function(d){if(!firstFl&&d.flagged.indexOf('B03-CH2')>=0)firstFl=d.day;});
+  rows.push(['Mx 변경점(B03-CH2)',dayOf(swap.swap_ts)+'일(교체와 같은 날)',firstFl?firstFl+'일 판정':'잡지 못함',firstFl?String(firstFl-dayOf(swap.swap_ts))+'일':'—']);
+  var fd=SC.faults.filter(function(f){return f.kinds.length;}).map(function(f){return f.day;});
+  var an=RES.days.filter(function(d){return d.analyzed;}).map(function(d){return d.day;});
+  rows.push(['자료 고장이 든 날(주입)',fd.length+'일: '+fd.join('·')+'일','분석한 날: '+(an.join('·')||'없음')+'일','고장 든 날을 분석한 수: '+an.filter(function(d){return fd.indexOf(d)>=0;}).length]);
+  tbl('tab402',['정답에 있는 것','정답','에이전트','늦은 정도'],rows,[null,L_,L_,L_]);
+}
+
+/* ---------- 9절 ---------- */
+function upd9(){
+  var s=RES.summary;$('sHandO').textContent=ST.hand+'분';$('sItemO').textContent=ST.item+'분';$('sWorkO').textContent=ST.work+'일';
+  var hand=ST.hand*DAYS,ag=s.human_items*ST.item,diff=hand-ag,mo=ST.hand*ST.work,moAg=Math.round(s.human_items*ST.item*ST.work/DAYS);
+  var def=ST.hand===30&&ST.item===5&&ST.work===20;$('st9').className=def?'state':'state moved';$('st9').textContent=def?'세 값 모두 기본 가정입니다(현장 값이 아닙니다).':'세 값을 기본 가정에서 옮겨 놓았습니다.';
+  tbl('tab9',['','손으로 부르기','에이전트 기록 보기','차'],[
+    ['사람이 보는 것','매일 함수를 차례로 부르고 붙임',s.human_items+'개(알림 '+s.alerts+' · 승인 '+s.approvals+' · 원인 문장 '+s.cause_sentences+')','—'],
+    [DAYS+'일 시간(분)',String(hand),String(ag),String(diff)],
+    ['한 달 환산(분)',String(mo),String(moAg),String(mo-moAg)]],[null,null,null,null]);
+  $('con9').innerHTML='<b>가정한 값으로는 '+DAYS+'일에 손으로 '+hand+'분, 기록을 보는 데 '+ag+'분이 들어 '+(diff>=0?'차이는 '+diff+'분입니다.':'오히려 '+(-diff)+'분이 더 듭니다.')+'</b> '+(diff<0||Math.abs(diff)<hand*0.15?'차이가 작거나 반대입니다. 점검이 엄격하면 알림이 많아 사람이 볼 항목이 늘기 때문입니다. 자료를 빨리 고치는 쪽이 이 환산을 바꿉니다.':'점검 알림이 대부분이면 그 처리는 자료를 고치는 일이므로, 기록을 본다고 일이 사라지는 것은 아닙니다.');
+}
+
+/* ---------- 11절 ---------- */
+function upd11(){
+  $('rp_fields').innerHTML='<code>day · step · tool · input · output · decision · cites · request · verdict · reason</code>';
+  var lr=A.logRows(RES),ex=lr.filter(function(r){return r.step==='요청';})[0]||lr[0];
+  $('rp_ex').innerHTML='<code>'+esc([ex.day,ex.step,ex.tool,ex.input,ex.output,ex.decision,ex.cites,ex.request,ex.verdict,ex.reason].join(' | '))+'</code>';
+  $('rq_fields').innerHTML='<code>id · request · kind · reversible · basis · requested_day · approver · decision · decided_day</code>';
+  var qr=A.queueRows(RES),q=qr[0];
+  $('rq_ex').innerHTML=q?'<code>'+esc([q.id,q.request,q.kind,q.reversible,q.basis,q.requested_day,q.approver||'(대기)',q.decision||'(대기)',q.decided_day||'—'].join(' | '))+'</code>':'<code>이 정책에서는 사람 승인이 필요한 요청이 없습니다</code>';
+}
+
+/* ---------- 전체 ---------- */
+function syncControls(){
+  var p=ST.pol;$('sTol').value=String(p.tol);$('sK').value=String(p.k);$('sM').value=String(p.m);$('sDelta').value=String(p.delta);$('sExn').value=String(p.ex_n);$('sScr').value=String(Math.round(p.scrap_ratio*100));$('sShare').value=String(Math.round(p.spec_share*100));$('cBonf').checked=p.bonf;$('sCap').value=String(p.repair_cap);
+  $('sSel4').value=String(ST.sel4);$('sSel7').value=String(ST.sel7);$('sHand').value=String(ST.hand);$('sItem').value=String(ST.item);$('sWork').value=String(ST.work);
+}
+function refresh(){recompute();syncControls();upd2();upd3();upd4();updReq();updQueue();upd7();upd8();upd9();upd11();}
+function bind(id,fn){$(id).addEventListener('input',function(){fn(+this.value);refresh();});}
+bind('sTol',function(v){ST.pol.tol=v;});bind('sK',function(v){ST.pol.k=v;});bind('sM',function(v){ST.pol.m=v;});bind('sDelta',function(v){ST.pol.delta=Math.round(v*10)/10;});bind('sExn',function(v){ST.pol.ex_n=v;});
+bind('sScr',function(v){ST.pol.scrap_ratio=v/100;});bind('sShare',function(v){ST.pol.spec_share=v/100;});bind('sCap',function(v){ST.pol.repair_cap=v;});
+bind('sSel4',function(v){ST.sel4=v;});bind('sSel7',function(v){ST.sel7=v;});bind('sHand',function(v){ST.hand=v;});bind('sItem',function(v){ST.item=v;});bind('sWork',function(v){ST.work=v;});
+$('cBonf').addEventListener('change',function(){ST.pol.bonf=this.checked;refresh();});
+$('cRepH').addEventListener('change',function(){ST.pol.repair_human=this.checked;refresh();});
+$('cSpecR').addEventListener('change',function(){ST.pol.spec_reject=this.checked;refresh();});
+$('pStrict').addEventListener('click',function(){ST.pol.tol=0;refresh();});$('pTwo').addEventListener('click',function(){ST.pol.tol=2;refresh();});$('pOff').addEventListener('click',function(){ST.pol.tol=7;refresh();});
+$('rPol').addEventListener('click',function(){['tol','k','m','delta','bonf','ex_n','scrap_ratio','spec_share'].forEach(function(k){ST.pol[k]=P0[k];});refresh();});
+$('pGuard').addEventListener('click',function(){ST.pol.tol=4;ST.pol.k=2;ST.pol.m=3;ST.pol.delta=0.2;ST.pol.bonf=false;refresh();});
+$('rReq').addEventListener('click',function(){ST.pol.repair_cap=P0.repair_cap;ST.pol.repair_human=P0.repair_human;ST.pol.spec_reject=P0.spec_reject;refresh();});
+$('rDec').addEventListener('click',function(){ST.dec={};refresh();});
+$('rM').addEventListener('click',function(){ST.hand=30;ST.item=5;ST.work=20;refresh();});
+$('bFirst').addEventListener('click',function(){ST.sel=1;upd2();});$('bPrev').addEventListener('click',function(){ST.sel=ST.sel>1?ST.sel-1:DAYS;upd2();});$('bNext').addEventListener('click',function(){ST.sel=ST.sel<DAYS?ST.sel+1:1;upd2();});
+$('bProbe').addEventListener('click',probe);
+$('bRaw').addEventListener('click',function(){var p=$('rawJson'),on=p.style.display==='none';p.style.display=on?'block':'none';this.setAttribute('aria-pressed',String(on));this.textContent=on?'JSON 원문 숨기기':'이 보고의 JSON 원문 보기';});
+$('cv3').addEventListener('click',function(ev){var r=this.getBoundingClientRect(),x=ev.clientX-r.left,y=ev.clientY-r.top;if(!CAL)return;var col=Math.floor(x/(CAL.cw+6)),row=Math.floor(y/(CAL.ch+6)),i=row*CAL.per+col;if(col>=0&&col<CAL.per&&i>=0&&i<DAYS){ST.sel3=i+1;upd3();}});
+window.addEventListener('resize',function(){if(!RES)return;drawCycle();drawCal();drawDet();drawQ();});
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+buildTools();buildProbe();refresh();
+window.__ag={st:ST,refresh:refresh,res:function(){return RES;},pol:function(o){Object.keys(o).forEach(function(k){ST.pol[k]=o[k];});refresh();},dec:function(id,d){ST.dec[id]=d;refresh();},sel:function(a,b,c,d){ST.sel=a;ST.sel3=b;ST.sel4=c;ST.sel7=d;refresh();},probe:probe};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
