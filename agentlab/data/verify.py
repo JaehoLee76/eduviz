@@ -1689,6 +1689,181 @@ _sqlok = all(_html5.unescape(t).strip() in _code15 for _, t in _sqls) and len(_s
 chk('0400 페이지 3절에 보여 주는 SQL(뽑기·잇기와 챔버별 집계·구간 이음)이 Python 코드 속 SQL 과 글자 그대로 같음', _sqlok, f'SQL 블록 {len(_sqls)}개')
 _cleanup15 = [shutil.rmtree(p, ignore_errors=True) for p in (_td15, _tdc15, _outd15, _tdp15)]
 
+# ============================================================
+# 0410 — LLM이 잘하는 것과 틀리는 것: 실제 LLM 답 18개의 기록(llm_runs_0410.json)과 S15 정답본 표.
+# 페이지의 Python 코드(lab0410.py)를 꺼내 JS(llmcheck.js)와 대조하고, 표 재생성·정답·숫자 대조·판정 근거 숫자를 독립 계산으로 확인한다
+# ============================================================
+import importlib.util as _ilu, math as _m10
+_DATA10 = os.path.dirname(D)
+_pg10 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0410-llm-strengths-limits.html'), encoding='utf-8').read()
+_code10 = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', _pg10, _re5.S).group(1)); _out10 = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', _pg10, _re5.S).group(1)).strip()
+_jraw10 = open(os.path.join(_DATA10, 'llm_runs_0410.json'), 'rb').read(); _runs10 = json.loads(_jraw10.decode('utf-8'))
+_EXPORT10 = r"""const L=require(%s);const M=require(%s);
+const sum=[0.25,0.5,1,1.5].map(k=>L.summary(k));
+const cls=(t,ti)=>L.classify(t,ti).nums.map(x=>[x.cls,x.loose,x.v]);
+const tests=['2026-03-07 01:24에 B03-CH2 와 B03-B2 가 1) 표 1·표 2 의 5일 5~6일 3월 7일 01시 24분 6일 0.963 17건 93%% -1.5 2,000 1.1'];
+const out={t1:L.t1,t2:L.t2,t3:L.t3,t6:L.t6,sum:sum,mask:L.mask,tc:L.tableChecks(),
+ calc:[1,4,5].map(ti=>L.tasks[ti].answers.map(a=>{const r=L.scoreCalc(ti,a);return [r.ok,r.total];})),
+ truth:{t2:L.truthT2(),t5:L.truthT5(),t6:L.truthT6()},
+ verd:L.verdicts().map(v=>({id:v.id,found:v.found,ev:v.ev})),causes:(c=>({sets:c.sets,pairs:c.pairs,all:c.pairs.all,t3Mask:c.t3Mask,t4Mask:c.t4Mask,t3Hold:c.t3Hold,t4Hold:c.t4Hold,inP:c.inPrompt}))(L.causes()),
+ ov:(o=>({ch:o.ch,nm:o.nm,chp:o.chPairs,chall:o.chPairs.all,nmp:o.nmPairs,nall:o.nmPairs.all}))(L.overlapT1()),
+ chance:L.chanceRate(0.5),chance1:L.chanceRate(1),unit:L.extract(tests[0]).map(x=>[x.raw.trim(),x.v,x.dec,x.pct]),
+ fp:M.s15tools.fp(L.t1+'\n'+L.t2),spec:L.spec3,params:{thermal:L.params.thermal,T_ref:L.params.T_ref,spec:L.params.spec},
+ ctxsizes:[0,1,2,3,4,5].map(ti=>[L.ctx(ti).cells.length,L.ctx(ti).der.length]),
+ wrapEq:JSON.stringify(require(%s))===JSON.stringify(JSON.parse(require('fs').readFileSync(%s,'utf8')))};
+console.log(JSON.stringify(out));"""
+_lc10 = os.path.join(_DATA10, 'llmcheck.js'); _wrap10 = os.path.join(_DATA10, 'llm_runs_0410.js'); _jp10 = os.path.join(_DATA10, 'llm_runs_0410.json')
+_j10 = json.loads(subprocess.run([_node, '-e', _EXPORT10 % (json.dumps(_lc10), json.dumps(_mf), json.dumps(_wrap10), json.dumps(_jp10))], capture_output=True, text=True, check=True).stdout)
+
+chk('0410 llm_runs_0410.json 바이트 불변(작업 전 sha256 3f6793bd…) 이고 script 로 읽는 llm_runs_0410.js 의 내용이 JSON 과 같음', _hl5.sha256(_jraw10).hexdigest() == '3f6793bdc96b691544edce289f92bc5aa73a6a8b09472b7084b5c09b58d76dcd' and _j10['wrapEq'],
+    f'sha256 {_hl5.sha256(_jraw10).hexdigest()[:12]}… · 과제 {len(_runs10["tasks"])}개 × 답 {len(_runs10["tasks"][0]["answers"])}개 · 모델 {_runs10["model"]} {_runs10["date"]}')
+
+_td10 = _tf5.mkdtemp()
+for _n in ('s15_clean_fdc_glass.csv', 's15_clean_ppa_coef.csv', 's15_mask_hist.csv'): shutil.copy(os.path.join(D, _n), os.path.join(_td10, _n))
+shutil.copy(_jp10, os.path.join(_td10, 'llm_runs_0410.json'))
+open(os.path.join(_td10, 'lab0410.py'), 'w', encoding='utf-8').write(_code10)
+_sp10 = _ilu.spec_from_file_location('lab0410', os.path.join(_td10, 'lab0410.py')); _m0410 = _ilu.module_from_spec(_sp10); _sp10.loader.exec_module(_m0410)
+_tb10 = _m0410.build_tables(_td10)
+
+# 1) 표 재생성
+_need10 = {'T1': ('t1', 't2'), 'T2': ('t1', 't2'), 'T3': ('t1', 't2'), 'T4': ('t1', 't2', 't3'), 'T5': ('t1',), 'T6': ('t6',)}
+_in10 = [(t['id'], n, _tb10[n] in t['prompt']) for t in _runs10['tasks'] for n in _need10[t['id']]]
+chk('0410 표 1·표 2·표 3·원자료(정답본 1~7일, 06:00 창)를 CSV 에서 pandas 로 다시 만든 글이 LLM 에게 준 프롬프트 속 표와 글자 단위로 같고(11곳), JS 로 다시 만든 글과도 같음',
+    all(x[2] for x in _in10) and len(_in10) == 11 and all(_tb10[n] == _j10[n] for n in ('t1', 't2', 't3', 't6')) and len(_j10['tc']) == 11 and all(x['ok'] for x in _j10['tc']),
+    f'{sum(x[2] for x in _in10)}/{len(_in10)}곳 일치 · 표 1 {len(_tb10["t1"].splitlines())}줄 · 원자료 {len(_tb10["raw"])}줄')
+
+# 2) 계산 과제 정답: CSV 표 글자에서 numpy 로 독립 계산
+_v1 = np.array([[float(x) for x in ln.split('\t')[1:]] for ln in _tb10['t1'].splitlines()[1:]])
+_keys10 = [ln.split('\t')[0] for ln in _tb10['t1'].splitlines()[1:]]
+_mean3 = [f'{round(float(np.sum(np.round(r * 1000)) / 7) / 1000 + 0, 12):.3f}' for r in _v1]
+_dl3 = [f'{(round(r[6] * 1000) - round(r[0] * 1000)) / 1000:.3f}' for r in _v1]
+_t2j = _j10['truth']['t2']
+_sd = float(np.std(_v1.ravel(), ddof=1)); _md = float(np.median(_v1.ravel()))
+_raw10 = _tb10['raw']; _mx6 = np.array([r[2] for r in _raw10]); _pm6 = np.array([r[3] for r in _raw10]); _b6 = int(np.argmax(_pm6))
+_t5j, _t6j = _j10['truth']['t5'], _j10['truth']['t6']
+_cmp2 = all(r['mean'] == m and r['delta'] == d for r, m, d in zip(_t2j['rows'], _mean3, _dl3)) and _t2j['maxKey'] == _keys10[int(np.argmax(np.abs(np.array([float(x) for x in _dl3]))))]
+_cmp5 = abs(_t5j['sd'] - _sd) < 1e-12 and abs(_t5j['med'] - _md) < 1e-12 and _t5j['sd4'] == f'{round(_sd, 4)}' and _t5j['med4'] == f'{round(_md, 4)}'
+_cmp6 = abs(_t6j['mean'] - float(_mx6.mean())) < 1e-12 and _t6j['over'] == int((_pm6 > round(_P15['spec'], 3)).sum()) and _t6j['over'] == _t6j['overFull'] and abs(_t6j['max'] - float(_pm6[_b6])) < 1e-12 and _t6j['id'] == _raw10[_b6][0]
+chk('0410 T2·T5·T6 정답(챔버별 평균·변화량·최대 변화 챔버, 56칸 표본 표준편차·중앙값, 원자료 29줄 평균·기준 초과 수·최댓값·glass_id)을 표 글자에서 numpy 로 독립 계산한 값 = JS, 초과 수는 반올림한 표값과 원값이 같음',
+    _cmp2 and _cmp5 and _cmp6, f'변화 최대 {_t2j["maxKey"]} {_t2j["rows"][5]["delta"]} · 표준편차 {_t5j["sd4"]} 중앙값 {_t5j["med4"]} · 평균 {_t6j["mean4"]} 초과 {_t6j["over"]} 최댓값 {_t6j["max"]}')
+
+# 3) 아홉 답 채점
+_sc10 = {ti: [_m0410.score_calc(ti, a, _tb10) for a in _runs10['tasks'][ti]['answers']] for ti in (1, 4, 5)}
+_pyc = [[list(x) for x in _sc10[ti]] for ti in (1, 4, 5)]
+chk('0410 계산 과제 아홉 답(T2·T5·T6)의 항목별 채점: 파이썬(페이지 코드) = JS, 이번 기록은 전 항목 일치(기록 그대로 보고하되 어긋난 게 있으면 본문이 바뀌어야 함)',
+    _pyc == _j10['calc'] and all(a == b for ti in _sc10 for a, b in _sc10[ti]) and sum(b for ti in _sc10 for a, b in _sc10[ti]) == 17 * 3 + 2 * 3 + 4 * 3,
+    ' · '.join(f'{_runs10["tasks"][ti]["id"]} ' + '/'.join(f'{a}/{b}' for a, b in _sc10[ti]) for ti in (1, 4, 5)))
+
+# 4) 숫자 대조 18답
+def _py_sum10(tk):
+    rows = []
+    for ti, t in enumerate(_runs10['tasks']):
+        cells, der = _m0410.derived_for(ti, _tb10, t['prompt'])
+        for ai, a in enumerate(t['answers']):
+            r = _m0410.check_numbers(a, cells, der, tk)
+            rows.append([len(r), sum(c == 'has' for c, _ in r), sum(c == 'calc' for c, _ in r), sum(c == 'none' for c, _ in r), sum(l for _, l in r)])
+    return rows
+_sj10 = [[[q['n'], q['has'], q['calc'], q['none'], q['loose']] for q in s] for s in _j10['sum']]
+_sp_all = [_py_sum10(k) for k in (0.25, 0.5, 1, 1.5)]
+_tot = lambda rows, j: sum(r[j] for r in rows)
+chk('0410 숫자 대조 18답: 숫자 수·표에 있음·계산됨·근거 없음·거친 일치를 파이썬(페이지 코드, 허용 오차 0.25·0.5·1·1.5칸)이 JS 와 한 답도 빠짐없이 같게 냄, 합이 숫자 수와 같음',
+    _sp_all == _sj10 and all(r[1] + r[2] + r[3] == r[0] for rows in _sp_all for r in rows) and len(_sj10[1]) == 18,
+    f'0.5칸: 숫자 {_tot(_sj10[1], 0)}개 = 있음 {_tot(_sj10[1], 1)} + 계산됨 {_tot(_sj10[1], 2)} + 근거 없음 {_tot(_sj10[1], 3)} (거친 일치 {_tot(_sj10[1], 4)})')
+_none_by_tol = [_tot(s, 3) for s in _sj10]
+chk('0410 허용 오차 슬라이더(0.25~1.5칸)를 키우면 근거 없음이 늘지 않고, 모든 값이 유한(조작 끝에서 끝까지)', _none_by_tol == sorted(_none_by_tol, reverse=True) and all(np.isfinite(np.array(s)).all() for s in _sj10),
+    '근거 없음 합계 ' + ' → '.join(map(str, _none_by_tol)) + ' (0.25·0.5·1·1.5칸)')
+
+# 5) 숫자 뽑기 제외 규칙 단위 검사 (JS = 파이썬 = 기대)
+_txt10 = '2026-03-07 01:24에 B03-CH2 와 B03-B2 가 1) 표 1·표 2 의 5일 5~6일 3월 7일 01시 24분 6일 0.963 17건 93% -1.5 2,000 1.1'
+_pyu = [(x[0], x[1], x[2]) for x in _m0410.extract_numbers(_txt10)]
+_jsu = [(x[1], x[2]) for x in _j10['unit']]
+chk('0410 숫자 뽑기의 제외 규칙(날짜·시각·챔버/마스크/유리 이름·날 번호·월·시·분·표 번호·목록 번호는 세지 않고, 그 밖의 0.963 · 17 · 93% · 1.5 · 2,000 · 1.1 만 셈): 파이썬 = JS = 기대', [(v, d) for v, d, _ in _pyu] == _jsu == [(0.963, 3), (17.0, 0), (93.0, 0), (1.5, 1), (2000.0, 0), (1.1, 1)],
+    f'세어진 숫자 {len(_pyu)}개: ' + ' '.join(x[0] for x in _j10['unit']))
+
+# 6) 판정 근거 숫자 (독립 계산)
+_mk = _j10['mask']; _mv = list(_v1[5])           # B03-CH2 = 6번째 행
+_hb = (24 * 60 - 6 * 60 + 60 + 24) / 60 if False else ((__import__('datetime').datetime(2026, 3, 7, 1, 24) - __import__('datetime').datetime(2026, 3, 6, 6, 0)).total_seconds() / 3600)
+_vnew = (_mv[4] * 24 - _mv[3] * _hb) / (24 - _hb); _vold = (_mv[4] - (24 - _hb) / 24 * _mv[5]) / (_hb / 24)
+_ev = {v['id']: v['ev'] for v in _j10['verd']}
+_cnt = lambda p, w: len(_re5.findall(w, p))
+_p4 = _runs10['tasks'][3]['prompt']; _p1 = _runs10['tasks'][0]['prompt']
+_ok_v = (abs(_ev['v1']['vNew'] - _vnew) < 1e-12 and abs(_ev['v3']['vOld'] - _vold) < 1e-12 and abs(_ev['v1']['d6'] - abs(_vnew - _mv[5])) < 1e-12 and abs(_ev['v1']['d7'] - abs(_vnew - _mv[6])) < 1e-12
+         and abs(_ev['v1']['times'] - abs(_vnew - _mv[6]) / abs(_mv[6] - _mv[5])) < 1e-9 and abs(_mk['hb'] - 19.4) < 1e-12 and _mk['day'] == 5 and abs(_hb - 19.4) < 1e-12
+         and _ev['v2']['pattern'] == _cnt(_p4, '패턴') == 0 and _ev['v4']['crit'] == _cnt(_p1, '기준|한계|spec|허용|규격') == 0 and _ev['v5']['adjVal'] == _cnt(_p1, '보정 값') == 0
+         and _ev['v4']['small'] == int((np.abs(_v1) < 0.2).sum()) and abs(_ev['v3']['gap'] - abs(0.86 - _vold)) < 1e-12 and all(v['found'] for v in _j10['verd']) and len(_j10['verd']) == 8)
+chk('0410 문장 판정의 근거 숫자(−1.474 · 6일·7일과의 차 0.454·0.379 · 하루 변화의 5.0배 · 옛 마스크만의 값 0.855 · 교체 앞 19.4시간 · 프롬프트 속 \'패턴\' 0번 · 기준 낱말 0번 · |값|<0.2 칸 수)를 표에서 독립 계산한 값 = JS, 인용한 문장 8개가 답 원문에 그대로 있음',
+    _ok_v, f'새 마스크 몫의 평균 {_vnew:.3f} · 6일과 {abs(_vnew - _mv[5]):.3f} · 7일과 {abs(_vnew - _mv[6]):.3f} · 하루 변화 {abs(_mv[6] - _mv[5]):.3f}의 {abs(_vnew - _mv[6]) / abs(_mv[6] - _mv[5]):.1f}배 · 옛 마스크만 {_vold:.3f} · |값|<0.2 {_ev["v4"]["small"]}칸')
+_v4c = _m0410.check_numbers('절댓값이 0.2ppm 미만이라 현재로서는 이상으로 보기 어렵습니다', *_m0410.derived_for(0, _tb10, _p1))
+chk('0410 숫자 대조가 못 잡는 틀림(기준 없이 정한 0.2)을 정직하게 확인: 0.2 는 표 1 칸 또는 계산으로 일치(거친 일치)해 근거 없음이 아님 — 파이썬 = JS', _v4c[0][0] != 'none' and _v4c[0][1] and _ev['v4']['cls'] != 'none' and _ev['v4']['loose'], f'0.2 → {_ev["v4"]["cls"]} (거친 일치) 가까운 후보 {_ev["v4"]["label"]} {_ev["v4"]["got"]}')
+
+# 7) 원인 문장·겹침
+_cz = _j10['causes']; _MASKRE = _re5.compile(r'마스크[ \t]*교체|마스크를[ \t]*바꾼|새[ \t]*마스크')
+_t3m = [bool(_MASKRE.search(a)) for a in _runs10['tasks'][2]['answers']]; _t4m = [bool(_MASKRE.search(a)) for a in _runs10['tasks'][3]['answers']]
+_CAND = [r'위치|정렬', r'계측|보정값|보정 값|영점', r'부품 교체|정비|재장착', r'레시피', r'챔버 조건']
+_inm = [[bool(_re5.search(c, a)) for a in _runs10['tasks'][2]['answers']] for c in _CAND]
+_sets = [{i for i in range(5) if _inm[i][a]} for a in range(3)]
+_jac = lambda a, b: len(a & b) / len(a | b)
+chk('0410 원인 문장: 이력을 주지 않은 T3 은 마스크 교체를 짚은 답 0/3, 준 T4 는 3/3, 후보 묶음의 겹침(교/합)과 T1 세 답의 챔버·숫자 겹침을 집합 연산으로 독립 계산한 값 = JS',
+    _t3m == _cz['t3Mask'] == [False] * 3 and _t4m == _cz['t4Mask'] == [True] * 3 and all(abs(p['jac'] - _jac(_sets[p['a'] - 1], _sets[p['b'] - 1])) < 1e-12 for p in _cz['pairs']) and _cz['all']['inter'] == len(_sets[0] & _sets[1] & _sets[2]) and _cz['all']['union'] == len(_sets[0] | _sets[1] | _sets[2])
+    and not any(_cz['inP']),
+    f'T3 후보 묶음 교/합 {_cz["all"]["inter"]}/{_cz["all"]["union"]} · 쌍 ' + ' '.join(f'{p["inter"]}/{p["union"]}' for p in _cz['pairs']))
+_ov = _j10['ov']
+_chs = []
+for a in _runs10['tasks'][0]['answers']:
+    s_ = set(_re5.findall(r'B0[23]-CH[1-4]', a))
+    if any(_re5.search(g, a) for g in (r'B02[ \t]*챔버[ \t]*네[ \t]*개', r'B02의[ \t]*네[ \t]*챔버', r'B02-CH1부터[ \t]*CH4')): s_ |= {f'B02-CH{i}' for i in range(1, 5)}
+    _chs.append(s_)
+_nms = []
+_cells1, _der1 = _m0410.derived_for(0, _tb10, _p1)
+_jsn = lambda x: str(int(x)) if x == int(x) else repr(x)
+for a in _runs10['tasks'][0]['answers']: _nms.append({_jsn(x[0]) for x in _m0410.extract_numbers(a)})
+chk('0410 T1 세 답의 겹침: 언급한 챔버·인용한 서로 다른 숫자의 교집합/합집합(쌍과 세 답 모두)을 파이썬이 따로 센 값 = JS',
+    all(sorted(_chs[i]) == _ov['ch'][i] for i in range(3)) and all(sorted(_nms[i], key=float) == _ov['nm'][i] for i in range(3))
+    and all((p['inter'], p['union']) == (len(_chs[p['a'] - 1] & _chs[p['b'] - 1]), len(_chs[p['a'] - 1] | _chs[p['b'] - 1])) for p in _ov['chp'])
+    and all((p['inter'], p['union']) == (len(_nms[p['a'] - 1] & _nms[p['b'] - 1]), len(_nms[p['a'] - 1] | _nms[p['b'] - 1])) for p in _ov['nmp'])
+    and (_ov['nall']['inter'], _ov['nall']['union']) == (len(_nms[0] & _nms[1] & _nms[2]), len(_nms[0] | _nms[1] | _nms[2])),
+    f'숫자 세 답 모두 {_ov["nall"]["inter"]}/{_ov["nall"]["union"]} ({_ov["nall"]["inter"] / _ov["nall"]["union"] * 100:.0f}%) · 챔버 {_ov["chall"]["inter"]}/{_ov["chall"]["union"]}')
+
+# 8) 우연 일치율
+def _chance10(tk):
+    out = []
+    for d in (1, 2, 3):
+        step = 10 ** -d; N = round(2 / step); has = calc = 0
+        cells, der = _m0410.derived_for(0, _tb10, _p1)
+        for i in range(1, N + 1):
+            x = i * step; tol = tk * step + 1e-9
+            if any(abs(x - c) <= tol for c in cells): has += 1
+            elif any(abs(x - v) <= tol for _, v in der): calc += 1
+        out.append({'d': d, 'n': N, 'has': has, 'calc': calc})
+    return out
+chk('0410 우연 일치율(0.1~2.0 을 쓴 자릿수대로 모두 넣어 본 비율)을 파이썬이 따로 센 값 = JS (허용 오차 0.5·1칸), 자릿수가 적을수록 우연히 맞는 비율이 커짐', _chance10(0.5) == _j10['chance'] and _chance10(1) == _j10['chance1'] and [(r['has'] + r['calc']) / r['n'] for r in _j10['chance']] == sorted([(r['has'] + r['calc']) / r['n'] for r in _j10['chance']], reverse=True),
+    ' · '.join(f'{r["d"]}자리 {(r["has"] + r["calc"]) / r["n"] * 100:.0f}%' for r in _j10['chance']))
+
+# 9) 페이지 Python 실행
+_run10 = subprocess.run([sys.executable, '-I', 'lab0410.py'], cwd=_td10, capture_output=True, text=True)
+chk('0410 Python 코드가 오류 없이 돌고 출력이 페이지의 출력 상자와 한 글자도 다르지 않음', _run10.returncode == 0 and _run10.stdout.strip() == _out10, (_run10.stderr[-200:] if _run10.returncode else f'{len(_out10.splitlines())}줄'))
+_lines10 = _out10.splitlines()
+_exp10 = [' · '.join(str(x) for x in ['%s-%d' % (t['id'], ai + 1)] + _sj10[1][i * 3 + ai]) for i, t in enumerate(_runs10['tasks']) for ai in range(3)]
+_lit10 = lambda nm: _re5.search(r'^' + nm + r' = ([^ \n#]+)', _code10, _re5.M).group(1)
+_mline = next(l for l in _lines10 if l.startswith('마스크 교체'))
+chk('0410 Python 출력의 숫자(답 18개의 숫자·있음·계산됨·근거 없음·거친 일치, 계산 과제 채점, 마스크 교체 5일의 앞뒤 시간·두 가정의 값, 6일→7일 비교)와 코드 속 열 기울기·기준 온도·한계·허용 오차 = JS 값',
+    all(e in _lines10 for e in _exp10) and f'{_j10["mask"]["hb"]:.1f}시간' in _mline and f'{_j10["mask"]["vOld"]:.3f}' in _mline and f'{_j10["mask"]["vNew"]:.3f}' in _mline and _j10['mask']['ts'] in _mline
+    and abs(float(_lit10('SLOPE')) - _j10['params']['thermal']) < 1e-15 and int(_lit10('T_REF')) == _j10['params']['T_ref'] and abs(float(_lit10('SPEC')) - _j10['params']['spec']) < 1e-12 and float(_lit10('TOL_K')) == 0.5
+    and any(l.startswith('T2 17/17 · 17/17 · 17/17') for l in _lines10),
+    f'답 18개 줄 일치 · {_mline[:60]}…')
+
+# 10) 페이지 구조
+_term10 = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', _pg10, _re5.S).group(1)))
+_nq10 = len(_re5.findall(r'<div class="qna" data-label=', _pg10)); _nsec10 = len(_re5.findall(r'<h2><span class="no">', _pg10))
+_fonts10 = [int(x) for x in _re5.findall(r"(?:x\.font|\.font)\s*=\s*'[^']*?(\d+)px", _pg10)] + [int(x) for x in _re5.findall(r'fitFont\([^)]*?,\s*\d+\s*,\s*(\d+)\s*,', _pg10)]
+_body10 = _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', _pg10, flags=_re5.S); _body10 = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _body10))
+_endda = _re5.findall(r'[^니습]다[.]', _body10)
+_p00 = open(os.path.join(os.path.dirname(_DATA10), 'labs', '0400-data-pipeline.html'), encoding='utf-8').read(); _hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+chk('0410 페이지: 새 용어 6개 · Q&A 4개 · 절 11개 · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0400 의 위·아래 다음 링크 · 허브 등록',
+    _term10 == 6 and _nq10 == 4 and _nsec10 == 11 and min(_fonts10) >= 11 and not _endda and _p00.count('0410-llm-strengths-limits.html') == 2 and 'labs/0410-llm-strengths-limits.html' in _hub,
+    f'용어 {_term10} · Q&A {_nq10} · 절 {_nsec10} · 캔버스 글자 최소 {min(_fonts10)}px({len(_fonts10)}곳) · -다 끝맺음 {len(_endda)}건 · 0400 링크 {_p00.count("0410-llm-strengths-limits.html")}곳')
+_cleanup10 = shutil.rmtree(_td10, ignore_errors=True)
+
 w = max(len(r[0]) for r in res)
 for n, ok, d in res: print(('OK  ' if ok else 'FAIL'), n.ljust(w), ' ', d)
 print(f'\n{sum(r[1] for r in res)}/{len(res)} 통과')

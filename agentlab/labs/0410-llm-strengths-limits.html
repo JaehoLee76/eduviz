@@ -1,0 +1,1042 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>LLM이 잘하는 것과 틀리는 것</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="LLM 은 표를 읽어 정리하는 일은 잘하지만 표에 없는 원인을 덧붙이고 기준 없는 판단을 내리고 같은 질문에 다른 답을 합니다. 같은 표와 질문으로 모델에게 맡겨 본 실제 답 18개의 숫자를 하나씩 표와 견주고, 맡길 일과 도구로 확인할 일과 사람이 볼 일을 가르는 실험실. 회사 PC용 Python과 LLM이 쓴 보고 확인표">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);font-weight:800}
+td.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr auto;gap:.2rem .6rem}
+  .ctrl input[type=range],.ctrl select{grid-column:1/-1;grid-row:2}
+  .ctrl output{text-align:right}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+table.mt td.n,table.mt th.n{white-space:nowrap}
+table.mt td.l{text-align:left}
+@media(max-width:520px){table.mt td,table.mt th{padding:.25rem .2rem;font-size:.74rem}}
+.termdef{margin:.2rem 0 .9rem 1.1rem;padding:0}
+.termdef li{margin:.45rem 0}
+.sw{display:inline-block;width:1.6em;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:.3em}
+.qna{margin:.9rem 0}
+.picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+canvas.pick{cursor:pointer;touch-action:manipulation}
+.legend .dot{vertical-align:baseline}
+.ctrl label{line-height:1.35}
+select{width:auto;max-width:100%}
+td.dim{color:var(--soft)}
+
+/* LLM 답 원문 인용 상자 */
+.llmq{margin:.7rem 0;padding:.6rem .9rem .7rem;border:1px solid var(--rule);border-left:4px solid var(--c10);border-radius:0 10px 10px 0;background:var(--code);font-size:.9rem;line-height:1.65}
+.llmq .qh{display:block;font-size:.8rem;font-weight:800;color:var(--c10);margin-bottom:.25rem}
+.llmq .qb{display:block;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+.llmq.ask{border-left-color:var(--grey)}
+.llmq.ask .qh{color:var(--soft)}
+.qs{display:block;margin:.4rem 0;padding:.35rem .6rem;border-left:3px solid var(--warn);background:var(--code);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.nm{border-radius:3px;padding:0 .12em;font-variant-numeric:tabular-nums}
+.nm.has{background:color-mix(in srgb,var(--good) 20%,transparent);border-bottom:2px solid var(--good)}
+.nm.calc{background:color-mix(in srgb,var(--c10) 20%,transparent);border-bottom:2px dashed var(--c10)}
+.nm.none{background:color-mix(in srgb,var(--bad) 28%,transparent);border-bottom:2px solid var(--bad);font-weight:800}
+.nm.loose{outline:2px dotted var(--warn);outline-offset:1px}
+.cl{font-size:.78rem;color:var(--soft);font-weight:700;margin:0 .15em}
+.pyout{white-space:pre}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+
+</head><body>
+
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">단계 4 · 기둥 4 · 실험실 0410</p>
+  <h1>LLM이 잘하는 것과 틀리는 것</h1>
+  <p class="sub">맡기기 전에 무엇을 확인할지, 실제로 맡겨 본 답 18개로 정하기</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0400-data-pipeline.html">← 이전: 사내 데이터 파이프라인</a><span class="sp"></span></nav>
+
+<p><b>LLM 은 앞 낱말들 다음에 올 낱말을 고르는 방식으로 글을 쓰므로, 표를 읽어 정리하는 일은 아주 잘하고 이번 기록에서는 계산 과제 아홉 답을 모두 맞혔습니다.</b> 그러나 표에 없는 원인을 그럴듯하게 덧붙이고, 기준이 주어지지 않은 판단을 내리고, 숫자 두 개를 &lsquo;같다&rsquo;고 잘못 잇는 일은 이력 같은 자료를 함께 주어도 생기며, 같은 질문에 다른 답을 합니다. 그러므로 숫자는 도구로 표와 견주고, 원인·판단 문장은 그 말이 표에서 나왔는지를 사람이 봅니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 0400 의 표 1·표 2 꼴(챔버별 하루 평균 보정 후 Mx, 하루 PPA 지표 초과 건수)과 지문, 0303 의 열 보정 후 Mx, 0301 의 PPA 지표와 초과 건수, 0206 의 마스크 이력, 0202 의 헛알람과 놓침의 맞바꿈.</p>
+  <ul class="chips known"><li>보정 후 Mx · 열 보정 (0303)</li><li>PPA 지표 · 초과 건수 (0301)</li><li>마스크 이력 (0206)</li><li>파이프라인 표 · 지문 (0400)</li><li>헛알람과 놓침 (0202)</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(계산 목록 · 거친 일치 · 사람이 볼 목록)은 쓰는 자리에서 문장으로 정의합니다.</p>
+  <ul class="chips" id="termList"><li>대형 언어 모델 (LLM)</li><li>다음 낱말 예측 (next-token prediction)</li><li>근거 (grounding)</li><li>지어내기 (confabulation)</li><li>재현성 (reproducibility)</li><li>숫자 대조 (numeric cross-check)</li></ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">이 실험실에서 가져가는 것</h3>
+  <ol style="margin:.2rem 0 0 1.2rem;padding:0">
+    <li><b>실무에서 쓰는 곳</b> — 0400 파이프라인이 낸 표로 아침 보고 문장을 LLM 에게 쓰게 하기 전에, 무엇을 맡기고 무엇을 도구·사람이 확인할지 정하는 일(2~8절).</li>
+    <li><b>손으로 연습</b> — LLM 이 실제로 쓴 답 18개에서 숫자를 하나씩 표와 견주고(5절), 표에 없는 원인·판단 문장을 골라내고(6절), 같은 질문에 나온 세 답을 견줍니다(7절).</li>
+    <li><b>다음 날 산출물</b> — 숫자 대조 함수 <code>check_numbers</code> 와 Python 코드(10절), <b>LLM 이 쓴 보고 확인표</b>(11절), 사람이 반드시 직접 볼 곳 표(8절).</li>
+    <li><b>기록할 데이터</b> — LLM 에게 준 입력 전문·모델 이름과 판·날짜·답 원문·확인 결과를 같은 키로(11절).</li>
+    <li><b>사람·규칙·에이전트의 몫</b> — 원인·판정 문장 승인은 사람, 숫자 대조와 &lsquo;근거 없음&rsquo; 표시는 규칙, 초안 쓰기와 대조 돌리기는 에이전트(8절).</li>
+    <li><b>성과 환산</b> — 보고 하나를 처음부터 쓰는 시간과, LLM 초안에 대조를 붙이고 사람이 볼 곳만 보는 시간의 차이(9절).</li>
+  </ol>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0400 파이프라인이 낸 두 표, 곧 <b>표 1(챔버별 하루 평균 보정 후 장변 배율 Mx)</b>과 <b>표 2(챔버별 하루 PPA 지표 초과 건수)</b>로 아침 보고 문장을 LLM 에게 쓰게 하려 합니다. <b>(1) 보내기 전에 무엇을 확인해야 합니까. (2) 무엇은 맡겨도 됩니까.</b> 같은 표와 같은 질문을 모델 <span class="v_model"></span>(<span class="v_date"></span>)에게 실제로 맡겨 본 기록이 있습니다. 질문 여섯 가지를 서로 독립된 대화 세 번에서 한 번씩 물어 <b>답 <span class="v_nans"></span>개</b>이고, 계산기·코드 실행·파일 읽기 같은 도구는 쓰지 않게 했습니다(대화 기록으로 도구를 쓰지 않았음을 확인했습니다). 모든 자료는 가상 공장의 것입니다.
+  <p class="note" style="margin:.5rem 0 0">2~7절에서 답을 읽고 숫자를 만들고, 8절에서 이 두 물음으로 돌아옵니다. 보고 하나를 직접 쓰는 시간·숫자 하나를 견주는 시간은 현장 값으로 바꿔야 할 가정입니다(9절).</p>
+</div>
+
+<div class="solban">여기서부터 위 기록 18개를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>손에 쥔 것 — 표 둘, 질문 여섯, 답 열여덟</h2>
+<p>LLM 에게 준 표는 가상 공장 14일 가운데 1~7일을 고장 없는 자료(정답본)에서 모은 것입니다. 하루는 그날 06:00 부터 다음 날 06:00 까지이고, 챔버 8개(블록 B02·B03 × 챔버 1~4)마다 보정 후 Mx = Mx − (열 기울기) × (챔버 온도 − 기준 온도)를 하루 평균했습니다(열 기울기 <span class="v_slope"></span> ppm/K, 기준 온도 <span class="v_t0"></span> °C, 0303 과 0400 에서 쓴 값). 초과 건수는 그날 <code>ppa_metric</code> 이 <span class="v_spec"></span> µm 를 넘은 유리 수입니다. 아래는 같은 규칙으로 다시 모은 표입니다.</p>
+<div class="lab">
+  <div class="labtitle">표 1. 챔버별 하루 평균 보정 후 Mx (ppm)</div>
+  <div class="tbwrap"><table id="tabT1" class="mt num"></table></div>
+  <div class="labtitle">표 2. 챔버별 하루 PPA 지표 초과 건수 (건)</div>
+  <div class="tbwrap"><table id="tabT2" class="mt num"></table></div>
+  <div class="state" id="stTab"></div>
+  <div class="row"><button class="btn ghost" id="bMore" type="button" aria-pressed="false">표 3(마스크 이력, 과제 T4 에만 줌)과 원자료 29줄(과제 T6 에만 줌) 보기</button></div>
+  <div id="moreBox" style="display:none">
+    <div class="labtitle">표 3. 마스크 이력</div>
+    <div class="tbwrap"><table id="tabT3" class="mt"></table></div>
+    <div class="labtitle">원자료. 6일 B03-CH2 에서 PPA 를 잰 유리 (T6)</div>
+    <div class="tbwrap"><table id="tabT6" class="mt num"></table></div>
+  </div>
+</div>
+<p>질문은 여섯 가지이고, 각각 독립된 대화에서 세 번씩 물었습니다. 아래 &lsquo;무엇을 시켰나&rsquo;는 프롬프트의 마지막 질문을 줄인 것입니다.</p>
+<div class="tbwrap"><table id="tabTasks" class="mt"></table></div>
+<p class="note">인용 상자 안의 답은 원문 그대로입니다. 인용 상자 바깥의 글만 이 실험실의 설명입니다.</p>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>첫 시도 — 요약을 맡겨 보기</h2>
+<p>가장 흔한 일부터 맡겨 봅니다. 두 표를 주고 이렇게 시켰습니다.</p>
+<div class="llmq ask"><span class="qh">질문 T1 (프롬프트 마지막 줄 그대로)</span><span class="qb" id="askT1"></span></div>
+<div class="lab">
+  <div class="labtitle">세 번의 독립된 대화가 낸 답 — 하나씩 읽어 보십시오</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 먼저 숫자는 보지 말고 글만 읽으십시오. 매끄럽고 설득력이 있는지 느껴 보십시오. 2) 그다음 이 답에 숫자가 몇 개 들어 있는지 읽어 보십시오. 3) 이 답을 공정 엔지니어에게 그대로 보내도 되는지 스스로 물어보십시오.</div>
+  <div class="row picks" role="group" aria-label="T1 답 고르기"><button class="btn ansb" data-a="0" type="button" aria-pressed="true">답 1</button><button class="btn ansb" data-a="1" type="button" aria-pressed="false">답 2</button><button class="btn ansb" data-a="2" type="button" aria-pressed="false">답 3</button></div>
+  <div class="llmq"><span class="qh" id="qhT1"></span><span class="qb" id="qbT1"></span></div>
+  <div class="readout" id="ro2"></div>
+</div>
+<p><b>여기서 막힙니다.</b> 세 답 모두 매끄럽고 숫자도 많습니다. 그런데 이 답이 맞는지는 글이 매끄러운지로는 알 수 없고, 숫자 하나하나를 표에서 찾아 견줘야만 압니다. 한 답에 숫자가 <span class="v_n2"></span>개이고, 하나에 <span class="v_per"></span>분(9절에서 옮길 수 있는 가정)씩 잡으면 <span class="v_t2"></span>분입니다. 그러면 직접 쓰는 시간(<span class="v_wr"></span>분, 가정)에 가까워져 맡긴 보람이 줄어듭니다. 먼저 이 도구가 어떻게 글을 쓰는지부터 짚고, 그 다음에 숫자를 어떻게 견줄지 정합니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>이름 — LLM 과 다음 낱말 예측</h2>
+<ul class="termdef">
+  <li><b>대형 언어 모델 (LLM, large language model)</b> — 엄청난 양의 글로 &lsquo;다음 낱말 맞히기&rsquo;를 연습한 모델입니다.</li>
+  <li><b>다음 낱말 예측 (next-token prediction)</b> — 앞까지의 글을 보고 다음에 올 낱말(토큰)을 확률로 골라 한 개씩 이어 쓰는 방식입니다. 계산기가 아니라 글쓴이입니다.</li>
+</ul>
+<p>그림으로 보면 이렇습니다. 앞 글이 주어지면, 다음에 올 수 있는 낱말마다 점수가 있고 그 점수가 확률이 됩니다. 한 낱말이 뽑히면 앞 글에 붙고, 같은 일이 다시 일어납니다. <b>아래 막대의 점수는 작동 원리를 보이기 위해 정한 가상 예시이며, 실제 모델이 낸 확률이 아닙니다.</b></p>
+<div class="lab">
+  <div class="labtitle">가상 예시 — 앞 글 다음에 올 낱말의 확률 (실제 모델의 확률이 아님)</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 앞 글을 바꿔 보며 가장 높은 막대와 낮은 막대의 차이를 보십시오. 2) &lsquo;한 낱말 뽑기&rsquo;를 같은 앞 글에서 여러 번 눌러, 매번 같은 낱말이 나오는지 보십시오. 3) 첫째·셋째 앞 글에서는 표와 맞는 후보가 어느 막대인지 보십시오. 맞는 후보가 가장 높다는 보장이 없습니다. 둘째 앞 글은 표에 원인이 없어 초록 후보가 없습니다.</div>
+  <div class="ctrl"><label for="selP">앞 글</label><select id="selP"></select><output id="selPO"></output></div>
+  <div class="row"><button class="btn" id="bDraw" type="button">한 낱말 뽑기</button><button class="btn ghost" id="bDrawR" type="button">뽑은 기록 지우기</button></div>
+  <div class="state" id="stP"></div>
+  <canvas id="cv3"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent2);border-radius:2px"></i>후보 낱말의 확률</span><span><i class="dot" style="background:var(--good);border-radius:2px"></i>표와 맞는 후보(첫째·셋째 앞 글에서만)</span><span><i class="dot" style="background:var(--warn);border-radius:2px"></i>방금 뽑힌 낱말</span></div>
+</div>
+<p>이 작동 원리에서 미리 말할 수 있는 것이 둘 있습니다. 하나는 <b>잘할 일</b>입니다. 표에 있는 숫자를 문장으로 옮기고, 비슷한 것끼리 묶고, 읽기 좋게 다듬는 일은 &lsquo;그럴듯한 다음 낱말&rsquo;을 고르는 일과 결이 같습니다. 다른 하나는 <b>조심할 일</b>입니다. 계산은 계산기가 하는 것이 아니라 &lsquo;계산 결과처럼 보이는 낱말&rsquo;을 쓰는 것이고, 앞 글에 없는 내용도 다음 낱말로 이어 쓰면 빈칸이 채워집니다. 다만 이것은 <b>예측이지 확인이 아닙니다.</b> 4~7절에서 실제 기록으로 하나씩 확인합니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>계산 — 기록으로 확인</h2>
+<p>계산을 시킨 질문은 셋이고 답은 아홉 개입니다. T2 는 챔버마다 1~7일 Mx 의 평균(소수 셋째 자리)과 7일 − 1일의 변화량을 표로 쓰고 변화량이 가장 큰 챔버를 말하게 했고, T5 는 표 1 의 값 56개 전체의 표본 표준편차(분모 n−1, 소수 넷째 자리)와 중앙값을, T6 은 원자료 29줄에서 Mx_comp 평균·기준(<span class="v_spec3"></span>)을 넘는 유리 수·ppa_metric 최댓값과 그 glass_id 를 묻게 했습니다. 정답은 같은 표에서 다시 계산한 값이고, 아홉 답을 항목마다 견줍니다.</p>
+<div class="lab">
+  <div class="labtitle">T2 정답 — 챔버별 1~7일 평균과 7일 − 1일 변화량 (ppm)</div>
+  <div class="tbwrap"><table id="tabT2ans" class="mt num"></table></div>
+  <div class="labtitle">아홉 답의 항목별 일치</div>
+  <div class="tbwrap"><table id="tabCalc" class="mt num"></table></div>
+  <div class="state" id="stCalc"></div>
+</div>
+<div class="concl" id="conc4"></div>
+<p><b>그래도 계산을 LLM 에게 맡기지 않는 이유는 세 가지입니다.</b></p>
+<ol style="margin:.2rem 0 .8rem 1.2rem;padding:0">
+  <li><b>맞았는지 알려면 결국 다시 계산해야 합니다.</b> T5 는 56칸을 하나로 모아 합·제곱합·편차제곱합을 거쳐 표준편차를 냅니다. 세 답이 모두 맞았지만, 그 사실은 도구로 다시 계산한 뒤에야 말할 수 있습니다.</li>
+  <li><b>현장 표는 글로 넣을 수 있는 크기가 아닙니다.</b> 이 가상 공장의 정답본만 해도 FDC <span class="v_nfdc"></span>줄, PPA <span class="v_nppa"></span>줄(14일)이고 유리 10장 가운데 1장만 적은 표본입니다. 이번 질문은 56칸과 29줄이라 글로 넣을 수 있었을 뿐입니다.</li>
+  <li><b>한 번 맞은 것이 다음에도 맞는다는 보장이 없습니다.</b> 같은 질문을 다시 물으면 답이 달라질 수 있습니다(7절에서 세 답을 견줍니다).</li>
+</ol>
+<div class="qna" data-label="계산을 다 맞혔는데 왜 맡기지 않나요?" data-q="계산을 다 맞혔는데 왜 맡기지 않나요?">
+  <p><b>이번 기록에서 맞았다는 사실이 다음 번에도 맞는다는 뜻은 아니기 때문입니다.</b> 아홉 답에서 확인한 항목은 모두 <span class="q4_ok"></span>개이고 전부 맞았지만, 그것은 표 한 장과 질문 하나에서 얻은 아홉 번의 결과입니다.</p>
+  <p>도구가 낸 숫자는 같은 표에 몇 번을 돌려도 같습니다. LLM 이 낸 숫자는 맞았는지 알려면 다시 계산해야 하고, 표가 커지면 글로 넣을 수도 없고, 다시 물으면 달라질 수 있습니다. 계산은 도구가 내고 LLM 은 그 숫자를 받아 문장을 쓰게 나누는 방법은 0411 에서 다룹니다.</p>
+</div>
+<p>정리하면, 숫자는 도구가 내고 LLM 은 그 숫자를 받아 문장을 씁니다. 그렇다면 LLM 이 쓴 문장 속 숫자는 어떻게 믿을 수 있는지가 다음 절의 질문입니다.</p>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>숫자 대조와 근거</h2>
+<p>요약(T1)처럼 계산이 필요 없는 글에도 숫자가 많이 들어 있었습니다. 그 숫자가 어디에서 왔는지를 가리킬 수 있으면 믿을 수 있고, 가리킬 수 없으면 확인해야 합니다. 이 두 낱말이 필요합니다.</p>
+<ul class="termdef">
+  <li><b>근거 (grounding)</b> — 답의 각 주장이 입력으로 준 자료 어디에서 왔는지 가리킬 수 있는 것입니다.</li>
+  <li><b>숫자 대조 (numeric cross-check)</b> — 답 속 숫자를 하나씩 입력 표·정해 둔 계산과 견주어 <b>&lsquo;표에 있음 / 계산됨 / 근거 없음&rsquo;</b> 으로 나누는 확인입니다.</li>
+</ul>
+<h3>숫자를 뽑는 규칙과 견주는 규칙</h3>
+<p><b>뽑기.</b> 답 글에서 숫자(부호·소수·쉼표·%)를 뽑되, 아래는 먼저 지우고 셉니다 — 날짜·시각(<code>2026-03-02</code> · <code>03-07</code> · <code>01:24</code> · <code>01시 24분</code>), 날 번호(<code>5일</code> · <code>5~6일</code> · <code>3월</code>), 이름 속 숫자(<code>B03-CH2</code> · <code>B03-B2</code> · <code>G115-…</code>), 표 번호(<code>표 1</code>), 목록 번호(<code>1)</code>). 그 밖의 숫자는 전부 셉니다. 부호는 보지 않고 크기만 견줍니다.</p>
+<p><b>견주기.</b> 숫자를 쓴 자릿수의 <b>반 칸</b>을 허용 오차로 삼습니다. 소수 셋째 자리로 쓴 1.516 은 ±0.0005, 정수로 쓴 17 은 ±0.5 입니다. 1) 표 칸(또는 문제 글에 있던 숫자)과 허용 오차 안에서 같으면 <b>표에 있음</b>, 2) 아니면 아래 <b>계산 목록</b>에서 만든 값과 같으면 <b>계산됨</b>(어느 계산인지 표시), 3) 둘 다 아니면 <b>근거 없음</b> 입니다. 계산 목록은 이 실험실에서 미리 정한 것입니다.</p>
+<div class="tbwrap"><table id="tabFam" class="mt"></table></div>
+<p><b>거친 일치.</b> 쓴 자릿수가 적으면(허용 오차가 ±0.05 이상) 우연히 맞을 수 있어서, 허용 오차 끝에서 맞은 숫자를 &lsquo;거친 일치&rsquo;라고 따로 세어 둡니다. <b>&lsquo;근거 없음&rsquo;이 곧 틀림은 아닙니다.</b> 목록에 없는 계산일 수 있습니다. 그래서 이 확인의 결과는 사람이 볼 목록(근거 없음 + 거친 일치)이지 합격 판정이 아닙니다. 또 이 확인은 숫자가 표에 있는지만 볼 뿐, 그 숫자가 올바른 챔버·날에 붙어 있는지는 보지 못합니다.</p>
+
+<div class="lab">
+  <div class="labtitle">답 18개의 숫자 대조 — 답을 고르면 표시와 집계가 함께 움직입니다</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 막대에서 답을 골라 색칠된 숫자를 읽으십시오(초록 실선 = 표에 있음, 파랑 점선 = 계산됨, 빨강 = 근거 없음, 주황 점선 테두리 = 거친 일치). 2) &lsquo;후보 공개&rsquo;를 누르기 전에 각 숫자가 표의 어느 칸인지·어떤 계산인지 먼저 맞혀 보십시오. 3) 허용 오차 슬라이더를 키우면 근거 없음이 어떻게 줄어드는지 보십시오. 4) 맨 아래 칸에 직접 숫자를 넣어 &lsquo;근거 없음&rsquo;이 나오게 해 보십시오.</div>
+  <div class="ctrl"><label for="selAns">보는 답</label><select id="selAns"></select><output id="selAnsO"></output></div>
+  <div class="ctrl"><label for="sTol">허용 오차 (쓴 자릿수의 몇 칸)</label><input type="range" id="sTol" min="0.25" max="1.5" step="0.25" value="0.5"><output id="sTolO"></output></div>
+  <div class="row"><button class="btn" id="bRev" type="button" aria-pressed="false">후보 공개</button><button class="btn ghost" id="rTol" type="button">허용 오차를 반 칸으로 되돌리기</button></div>
+  <div class="state" id="stTol"></div>
+  <canvas id="cv5" class="pick"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--good);border-radius:2px"></i>표에 있음</span><span><i class="dot" style="background:var(--c10);border-radius:2px"></i>계산됨</span><span><i class="dot" style="background:var(--bad);border-radius:2px"></i>근거 없음</span><span><i class="dot" style="background:var(--warn);border-radius:2px"></i>거친 일치(막대 아래 가는 줄)</span></div>
+  <div class="llmq"><span class="qh" id="qh5"></span><span class="qb" id="qb5"></span></div>
+  <div class="readout" id="ro5"></div>
+  <div class="tbwrap"><table id="tabLoose" class="mt"></table></div>
+  <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
+</div>
+<div class="concl" id="conc5"></div>
+
+<div class="lab">
+  <div class="labtitle">직접 넣어 보기 — 이 숫자는 위에서 고른 답의 표에 근거가 있는가</div>
+  <div class="ctrl"><label for="inNum">숫자(여러 개는 띄어쓰기)</label><input type="text" id="inNum" value="0.737 0.496 1.983" autocomplete="off"><output></output></div>
+  <div class="readout" id="roIn"></div>
+</div>
+<div class="tbwrap"><table id="tabChance" class="mt num"></table></div>
+<p class="note" id="noteChance"></p>
+
+<div class="qna" data-label="근거 없음이 나오면 틀린 것인가요?" data-q="근거 없음이 나오면 틀린 것인가요?">
+  <p><b>아닙니다. 근거 없음은 틀림의 판정이 아니라 사람이 볼 목록입니다.</b> 이 확인은 정해 둔 계산 목록으로만 숫자를 만들어 보기 때문에, 목록에 없는 계산(예를 들어 세 날의 가중 평균)에서 나온 맞는 숫자도 &lsquo;근거 없음&rsquo;으로 나올 수 있습니다.</p>
+  <p>반대로 &lsquo;표에 있음&rsquo;이나 &lsquo;계산됨&rsquo;이라고 맞는 문장이라는 뜻도 아닙니다. 그 숫자가 엉뚱한 챔버 옆에 붙어 있어도 이 확인은 통과시킵니다. 그래서 결과는 &lsquo;합격·불합격&rsquo;이 아니라 &lsquo;누가 어디를 볼지&rsquo;를 정하는 데 씁니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>지어내기 — 근거가 없는 곳에서 생기는 것</h2>
+<ul class="termdef">
+  <li><b>지어내기 (confabulation, 흔히 hallucination)</b> — 입력에 근거가 없는 사실·원인·작동 원리를 그럴듯한 문장으로 채우는 것입니다. 거짓말이 아니라 &lsquo;다음 낱말 예측&rsquo;이 빈칸을 메우는 방식입니다.</li>
+</ul>
+<p>T3 과 T4 는 같은 표 1·2 와 같은 질문(&ldquo;B03-CH2 는 5~6일에 Mx 가 크게 내려가고 초과 건수가 늘었습니다. 원인이 무엇입니까?&rdquo;)입니다. 다른 것은 하나뿐입니다. T4 는 표 3(마스크 이력)을 함께 줬습니다. 표 1·2 에는 원인이 들어 있지 않으므로, T3 에서 정답(마스크 교체)을 맞힐 수는 없었습니다.</p>
+<div class="tbwrap"><table id="tab6a" class="mt num"></table></div>
+<div class="tbwrap"><table id="tab6b" class="mt num"></table></div>
+<div class="llmq"><span class="qh">T3-1 의 첫 문장 (이력을 주지 않았을 때)</span><span class="qb" id="f31"></span></div>
+<div class="llmq"><span class="qh">T4-1 의 첫 문장 (이력을 줬을 때)</span><span class="qb" id="f41"></span></div>
+<div class="concl" id="conc6a"></div>
+<h3>근거를 줘도 생기는 틀림</h3>
+<p>이력을 주면 원인은 맞힙니다. 그래도 아래 문장들이 나왔습니다. 오른쪽 열의 숫자는 표에서 다시 계산한 값이고, 가운데 &lsquo;표지&rsquo;는 사람이 같은 기준(그 말이 표에 근거가 있는가)으로 붙였습니다.</p>
+<div class="tbwrap"><table id="tabV" class="mt"></table></div>
+<div class="concl" id="conc6b"></div>
+<p><b>그래서 숫자 대조로는 이 틀림들을 잡지 못합니다.</b> 위 문장에서 따온 숫자는 모두 표에 있거나 계산으로 만들어지기 때문입니다.</p>
+<div class="tbwrap"><table id="tabV2" class="mt num"></table></div>
+<p>이런 문장은 숫자가 아니라 <b>말의 연결과 출처</b>에 있습니다. 사람이 볼 곳은 &lsquo;원인·판정을 말하는 문장이 표의 어느 줄에서 나왔는가&rsquo;입니다.</p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>재현성 — 같은 질문에 다른 답</h2>
+<ul class="termdef">
+  <li><b>재현성 (reproducibility)</b> — 같은 입력에 같은 답이 나오는 성질입니다. LLM 은 보통 낱말을 확률로 뽑으므로 대화마다 답이 달라집니다.</li>
+</ul>
+<p>T1 은 같은 표·같은 질문을 서로 독립된 대화 세 번에 물은 것입니다. 세 답이 언급한 챔버와, 인용한 숫자가 얼마나 겹치는지 셉니다. 교집합은 세 답(또는 두 답)에 모두 있는 것, 합집합은 어느 한 답에라도 있는 것입니다.</p>
+<div class="tbwrap"><table id="tab7a" class="mt num"></table></div>
+<div class="concl" id="conc7a"></div>
+<p>T3 은 원인 후보를 어떻게 나열했는지가 다릅니다. 6절의 후보 묶음 표에서 세 답이 같은 묶음 셋을 공통으로 냈고(교집합), 한 답에만 있는 묶음이 달랐습니다.</p>
+<div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
+<div class="qna" data-label="같은 질문에 늘 같은 답이 나오게 할 수 없나요?" data-q="같은 질문에 늘 같은 답이 나오게 할 수 없나요?">
+  <p><b>설정으로 흔들림을 줄일 수는 있어도 늘 같게는 만들 수 없습니다.</b> 낱말을 확률로 뽑는 정도를 줄이면 답이 덜 달라지지만, 모델이나 판이 바뀌면 같은 설정에서도 답이 달라집니다.</p>
+  <p>그래서 같은 답을 다시 만들려고 애쓰기보다, 한 번 나온 답의 원문과 그때의 입력·모델·날짜를 남깁니다. 원문이 없으면 무엇을 믿고 조치했는지 나중에 되짚을 수 없습니다(11절 확인표).</p>
+</div>
+<p>한 번 물어본 답을 보고서에 그대로 쓰면, 다시 물었을 때 다른 보고서가 나올 수 있습니다. 그래서 입력·모델·날짜·답 원문을 같은 키로 남겨야 합니다.</p>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>착지 — 사람이 반드시 직접 볼 곳</h2>
+<p>맨 앞의 두 물음으로 돌아갑니다. 이 기록이 보여 준 것을 일의 종류별로 정리하면 아래와 같습니다. 이 기록에 없는 일은 없다고 적었고, 그 칸은 같은 방식으로 기록을 쌓아 정해야 합니다.</p>
+<div class="tbwrap"><table id="tab8" class="mt"></table></div>
+<div class="concl" id="conc8"></div>
+<p>그래서 이 아침 보고에서 일은 이렇게 나뉩니다. 숫자는 도구가, 문장은 LLM 이, 대조는 자동으로 하고, 원인과 판정은 사람이 정합니다.</p>
+<div class="tbwrap"><table class="mt" id="tabH">
+  <tr><th>누가</th><th>맡는 일</th></tr>
+  <tr><td class="rowh">사람</td><td>원인·판정 문장 승인(표의 어느 줄에서 나온 말인지 확인) · &lsquo;근거 없음&rsquo;과 &lsquo;거친 일치&rsquo; 숫자 확인 · 어느 자료를 어느 LLM 에 넣어도 되는지 결정(회사 정책)</td></tr>
+  <tr><td class="rowh">규칙</td><td>숫자 대조(있음 / 계산됨 / 근거 없음)와 거친 일치 표시 · 입력·모델·날짜·답 원문의 저장 · 원인·판정 문장에 &lsquo;사람 확인 전&rsquo; 표시</td></tr>
+  <tr><td class="rowh">에이전트</td><td>표를 받아 보고 초안 쓰기 · 숫자 대조 돌리기 · 사람이 볼 목록 만들기</td></tr>
+</table></div>
+<div class="qna" data-label="회사 자료를 넣어도 되나요?" data-q="회사 자료를 넣어도 되나요?">
+  <p><b>사외 서비스에는 넣지 않습니다. 사내에서 쓰기로 승인된 모델·도구에만 넣습니다.</b> 이 실험실의 표는 가상 공장의 것이라 어디에 넣어도 문제가 없었지만, 실제 FDC·PPA·마스크 이력은 회사 자료입니다.</p>
+  <p>어떤 도구가 승인된 것인지, 입력이 저장·학습에 쓰이는지는 IT·보안 부서의 정책이 정합니다. 정책을 확인하기 전에는 가상 자료나 이름·수치를 지운 자료로만 연습하십시오. 사내 모델에 맡기는 구조는 0411 에서 다룹니다.</p>
+</div>
+<p><b>0411 로 가는 다리.</b> 숫자는 0400 의 함수가 내고 문장은 LLM 이 쓰게 나누고, 대조를 자동으로 붙이는 구조를 0411 에서 만듭니다. 이 절의 표가 그 구조에서 사람이 서는 자리입니다.</p>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>현장에서 환산하면</h2>
+<p>얻는 것은 보고 하나를 처음부터 쓰는 시간이고, 치르는 것은 LLM 초안을 읽고 사람이 볼 숫자와 문장을 확인하는 시간입니다. 작으면 작다고 적습니다. 아래 네 값은 가정이며 현장 값으로 바꾸십시오. 숫자 개수와 &lsquo;볼 문장&rsquo; 수는 T1 세 답에서 구한 평균입니다.</p>
+<div class="lab">
+  <div class="labtitle">보고 하나를 쓰는 세 가지 방법의 시간</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 1) &lsquo;숫자 하나를 견주는 시간&rsquo;을 올리면 직접 대조 방법만 급격히 느려지는지 보십시오. 2) &lsquo;원인·판단 문장 하나를 확인하는 시간&rsquo;을 올리면 대조를 붙인 방법의 시간이 얼마나 따라 오르는지 보십시오. 3) 이 값들을 옮기면 2절의 &lsquo;막힘&rsquo; 문장의 시간도 함께 바뀝니다.</div>
+  <div class="ctrl"><label for="sWr">보고를 처음부터 쓰는 시간 (분, 가정)</label><input type="range" id="sWr" min="10" max="90" step="5" value="40"><output id="sWrO"></output></div>
+  <div class="ctrl"><label for="sPer">숫자 하나를 표와 견주는 시간 (분, 가정)</label><input type="range" id="sPer" min="0.1" max="1.5" step="0.1" value="0.5"><output id="sPerO"></output></div>
+  <div class="ctrl"><label for="sPj">원인·판단 문장 하나를 확인하는 시간 (분, 가정)</label><input type="range" id="sPj" min="1" max="10" step="1" value="3"><output id="sPjO"></output></div>
+  <div class="ctrl"><label for="sRd">초안을 읽고 고치는 시간 (분, 가정)</label><input type="range" id="sRd" min="2" max="20" step="1" value="5"><output id="sRdO"></output></div>
+  <div class="row"><button class="btn ghost" id="rM" type="button">네 값을 기본값으로 되돌리기</button></div>
+  <div class="state" id="st9"></div>
+  <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
+  <div class="concl" id="con9"></div>
+</div>
+<p class="note">회사에서는 같은 식에 근무일 수와 사람 시간의 단가를 곱해 금액으로 적습니다. 위 한 달은 근무일 20일, 하루 보고 1건이라는 가정입니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 LLM 답 기록(<code>llm_runs_0410.json</code>)과 정답본 CSV 셋(<code>s15_clean_fdc_glass.csv</code> · <code>s15_clean_ppa_coef.csv</code> · <code>s15_mask_hist.csv</code>)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 정답본이 없으므로 <code>build_tables</code> 대신 0400 의 <code>run_daily</code> 가 낸 표를 받습니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 적었습니다.</p>
+<div class="row"><a class="btn" href="../data/llm_runs_0410.json" download>llm_runs_0410.json</a><a class="btn" href="../data/csv/s15_clean_fdc_glass.csv" download>s15_clean_fdc_glass.csv</a><a class="btn" href="../data/csv/s15_clean_ppa_coef.csv" download>s15_clean_ppa_coef.csv</a><a class="btn" href="../data/csv/s15_mask_hist.csv" download>s15_mask_hist.csv</a></div>
+<pre id="pyCode">import json, math, os, re
+from datetime import datetime, timedelta
+import pandas as pd
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SLOPE = -1.975908993542295        # 열 기울기 (ppm/K, 0303 에서 구한 값)
+T_REF = 80                        # 기준 온도 (°C)
+SPEC = 5.712791                   # PPA 지표 한계 (µm, 가정)
+BASE = datetime(2026, 3, 2, 6, 0)
+KEYS = [b + "-CH" + str(c) for b in ("B02", "B03") for c in (1, 2, 3, 4)]
+EPS = 1e-9
+TOL_K = 0.5                       # 허용 오차 = 쓴 자릿수의 반 칸 (소수 셋째 자리로 썼으면 ±0.0005)
+
+
+def load_runs(path):
+    """LLM 답 기록을 읽습니다. 모델 이름·날짜·프롬프트 전문·답 원문이 들어 있습니다.
+    쓰면 안 되는 때: 회사 자료로 만든 기록은 사외로 내보내지 말고, 원문을 고쳐 쓰지 마십시오(원문이 곧 증거입니다)."""
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def window(k):
+    s = BASE + timedelta(days=k - 1)
+    return s.strftime("%Y-%m-%d %H:%M"), (s + timedelta(days=1)).strftime("%Y-%m-%d %H:%M")
+
+
+def f3(x):
+    s = f"{x:.3f}"
+    return "0.000" if s == "-0.000" else s
+
+
+def build_tables(csv_dir):
+    """S15 정답본(고장 없는 자료)에서 표 1·2·3 과 원자료를 다시 만듭니다.
+    쓰면 안 되는 때: 고장이 섞인 적재본에 쓰지 마십시오. 이 표는 '정답이 있는 가상 공장'에서만 만들 수 있습니다."""
+    fdc = pd.read_csv(os.path.join(csv_dir, "s15_clean_fdc_glass.csv"))
+    ppa = pd.read_csv(os.path.join(csv_dir, "s15_clean_ppa_coef.csv"))
+    fdc["key"] = fdc.block + "-" + fdc.chamber
+    mx, ex, raw = {k: [] for k in KEYS}, {k: [] for k in KEYS}, None
+    for k in range(1, 8):
+        s, e = window(k)
+        a = fdc[(fdc.ts &gt;= s) &amp; (fdc.ts &lt; e)]
+        b = ppa[(ppa.ts &gt;= s) &amp; (ppa.ts &lt; e)]
+        j = a.merge(b, on="glass_id", suffixes=("", "_p"))
+        j["mx_comp"] = j.Mx - SLOPE * (j.chamber_temp - T_REF)
+        for key in KEYS:
+            g = j[j.key == key]
+            mx[key].append(float(f3(g.mx_comp.mean())))
+            ex[key].append(int((g.ppa_metric &gt; SPEC).sum()))
+        if k == 6:
+            g = j[j.key == "B03-CH2"].sort_values("ts")
+            raw = [(r.glass_id, r.ts, float(repr(round(r.mx_comp, 4))), float(repr(round(r.ppa_metric, 3)))) for r in g.itertuples()]
+    head = "챔버\t1일\t2일\t3일\t4일\t5일\t6일\t7일"
+    t1 = head + "\n" + "\n".join(k + "\t" + "\t".join(f3(v) for v in mx[k]) for k in KEYS)
+    t2 = head + "\n" + "\n".join(k + "\t" + "\t".join(str(v) for v in ex[k]) for k in KEYS)
+    mh = pd.read_csv(os.path.join(csv_dir, "s15_mask_hist.csv"))
+    t3 = "mask_id,from_ts,to_ts,chamber,block,state\n" + "\n".join(",".join(str(v) for v in r) for r in mh.itertuples(index=False))
+    t6 = "glass_id,ts,Mx_comp,ppa_metric\n" + "\n".join(f"{i},{t},{m!r},{p!r}" for i, t, m, p in raw)
+    wash = mh[mh.state == "WASH"].iloc[0]
+    tc = datetime.strptime(wash.from_ts, "%Y-%m-%d %H:%M")
+    day = (tc - BASE).days + 1
+    hb = (tc - (BASE + timedelta(days=day - 1))).total_seconds() / 3600
+    ci = KEYS.index(wash.block + "-" + wash.chamber)
+    mv = mx[KEYS[ci]]
+    mask = {"ts": wash.from_ts, "day": day, "hb": hb, "ha": 24 - hb, "key": KEYS[ci],
+            "vold": (mv[day - 1] - (24 - hb) / 24 * mv[day]) / (hb / 24),      # 가정: 교체 뒤 값 = 다음 날 값
+            "vnew": (mv[day - 1] * 24 - mv[day - 2] * hb) / (24 - hb)}         # 가정: 교체 앞 몫 = 전날 값
+    return {"mx": mx, "ex": ex, "raw": raw, "t1": t1, "t2": t2, "t3": t3, "t6": t6, "mask": mask}
+
+
+# --- 숫자 뽑기: 날짜·시각·이름·번호는 먼저 지우고 남은 숫자만 셉니다 -------------------------
+MASKS = [
+    (r"[A-Za-z][A-Za-z0-9_]*\d[A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*", 0),   # 챔버·마스크·유리 이름
+    (r"\d{4}-\d{2}-\d{2}", 0),                                          # 날짜
+    (r"(^|[^0-9-])(\d{2}-\d{2})(?![0-9-])", 2),                         # 월-일
+    (r"\d{1,2}:\d{2}", 0),                                              # 시각
+    (r"표[ \t]*\d+", 0),                                                # 표 번호
+    (r"\d+[ \t]*[~∼][ \t]*\d+[ \t]*일(?:간)?", 0),                       # n~m일
+    (r"\d+[ \t]*일(?:간)?", 0),                                          # n일
+    (r"\d+[ \t]*월", 0),                                                # n월
+    (r"\d+[ \t]*시(?!간)(?:[ \t]*\d+[ \t]*분)?", 0),                     # 01시 24분
+    (r"(^|[^0-9.])(\d+\))", 2),                                         # 1) 번호
+]
+NUM = re.compile(r"([+\-−])?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?([ \t]*%)?", re.A)
+
+
+def extract_numbers(text):
+    """답 글에서 숫자를 뽑습니다. 돌려주는 값 = [(절댓값, 소수 자릿수, % 여부), ...]"""
+    s = text
+    for pat, g in MASKS:
+        s = re.sub(pat, lambda m, g=g: m.group(0)[:len(m.group(0)) - len(m.group(g))] + " " * len(m.group(g)), s, flags=re.A)
+    out = []
+    for m in NUM.finditer(s):
+        dec = len(m.group(3)) - 1 if m.group(3) else 0
+        out.append((float(m.group(2).replace(",", "") + (m.group(3) or "")), dec, bool(m.group(4))))
+    return out
+
+
+FAM_ORDER = ["mask", "stat", "col", "diff", "diffc", "rowmean", "rowsum", "colsum", "slope", "pct", "ratio"]
+
+
+def stat_of(vals):
+    n = len(vals)
+    s = sum(vals)
+    m = s / n
+    sq = sum(v * v for v in vals)
+    sxx = sum((v - m) ** 2 for v in vals)
+    b = sorted(vals)
+    vr = sxx / (n - 1)
+    return {"n": n, "sum": s, "mean": m, "sq": sq, "sxx": sxx, "sqm": sq - s * s / n, "vr": vr, "sd": math.sqrt(vr),
+            "med": (b[n // 2 - 1] + b[n // 2]) / 2, "neg": sum(v &lt; 0 for v in vals), "pos": sum(v &gt; 0 for v in vals)}
+
+
+def derived_for(ti, tb, prompt):
+    """과제마다 '표에 그대로 있는 값(cells)'과 '정해 둔 계산으로 만든 값(der)'의 목록을 만듭니다."""
+    q = prompt
+    for t in (tb["t1"], tb["t2"], tb["t3"], tb["t6"]):
+        q = q.replace(t, "")
+    cells = [abs(v) for v, _, _ in extract_numbers(q)]
+    der = []
+    mx, ex = tb["mx"], tb["ex"]
+    if ti &lt; 5:
+        for k in KEYS:
+            cells += [abs(v) for v in mx[k]]
+        if ti &lt; 4:
+            for k in KEYS:
+                cells += [abs(v) for v in ex[k]]
+        for k in KEYS:
+            der += [("diff", abs(mx[k][e] - mx[k][d])) for d in range(7) for e in range(d + 1, 7)]
+        if ti &lt; 4:
+            for k in KEYS:
+                der += [("diffc", abs(ex[k][e] - ex[k][d])) for d in range(7) for e in range(d + 1, 7)]
+        der += [("rowmean", abs(sum(mx[k]) / 7)) for k in KEYS]
+        tot2 = sum(sum(ex[k]) for k in KEYS)
+        if ti &lt; 4:
+            der += [("rowsum", sum(ex[k])) for k in KEYS]
+            der += [("colsum", sum(ex[k][j] for k in KEYS)) for j in range(7)] + [("colsum", tot2)]
+        der += [("slope", abs((mx[k][6] - mx[k][0]) / 6)) for k in KEYS]
+        if ti &lt; 4:
+            der += [("pct", sum(ex[k]) / tot2 * 100) for k in KEYS]
+        dl = {k: mx[k][6] - mx[k][0] for k in KEYS}
+        der += [("ratio", abs(dl[a] / dl[b])) for a in KEYS for b in KEYS if a != b and abs(dl[b]) &gt; 0]
+        if ti == 4:
+            st = stat_of([v for k in KEYS for v in mx[k]])
+            der += [("stat", abs(v)) for v in (st["n"], st["n"] - 1, st["sum"], st["mean"], st["sq"], st["sxx"], st["sqm"], st["vr"], st["sd"], st["med"], st["neg"], st["pos"], st["n"] / 2, st["n"] / 2 + 1)]
+        if ti == 3:
+            m = tb["mask"]
+            der += [("mask", abs(v)) for v in (m["hb"], m["ha"], m["vold"], m["vnew"])]
+    else:
+        raw = tb["raw"]
+        for _, _, a, b in raw:
+            cells += [abs(a), abs(b)]
+        xs, ys = [r[2] for r in raw], [r[3] for r in raw]
+        over = sum(y &gt; round(SPEC, 3) for y in ys)
+        der += [("col", abs(v)) for v in (len(raw), sum(xs), sum(xs) / len(xs), max(xs), min(xs), sum(ys), sum(ys) / len(ys), max(ys), min(ys), over, len(raw) - over)]
+    return cells, der
+
+
+def _best(vals, v, tol):
+    b = None
+    for c in vals:
+        d = abs(v - c)
+        if d &lt;= tol and (b is None or d &lt; b - 1e-12):
+            b = d
+    return b
+
+
+def check_numbers(text, cells, der, tol_k=TOL_K):
+    """숫자마다 '있음 / 계산됨 / 근거 없음'으로 나눕니다. 돌려주는 값 = (분류, 거친 일치 여부) 목록.
+    쓰면 안 되는 때: '근거 없음'을 곧 틀림으로 읽지 마십시오. 계산 목록 밖의 계산일 수 있어, 사람이 볼 목록일 뿐입니다."""
+    out = []
+    for v, dec, pct in extract_numbers(text):
+        tol = tol_k * 10 ** (-dec) + EPS
+        coarse = tol &gt;= 0.05 - 1e-12
+        cls, diff = "none", None
+        if pct:
+            bd = _best([x for f, x in der if f == "pct"], v, tol)
+            if bd is not None:
+                cls, diff = "calc", bd
+        else:
+            bc = _best(cells, v, tol)
+            if bc is not None and bc &lt;= EPS:
+                cls, diff = "has", bc
+            else:
+                bd = None
+                for fam in FAM_ORDER:
+                    bd = _best([x for f, x in der if f == fam], v, tol)
+                    if bd is not None:
+                        break
+                if bc is not None and bd is not None:
+                    cls, diff = ("calc", bd) if bd &lt; bc - 1e-12 else ("has", bc)
+                elif bc is not None:
+                    cls, diff = "has", bc
+                elif bd is not None:
+                    cls, diff = "calc", bd
+        out.append((cls, diff is not None and diff &gt; EPS and coarse))
+    return out
+
+
+def summary(runs, tb):
+    """답 18개를 하나씩 대조해 (과제-번호, 숫자 수, 있음, 계산됨, 근거 없음, 거친 일치) 로 모읍니다."""
+    rows = []
+    for ti, t in enumerate(runs["tasks"]):
+        cells, der = derived_for(ti, tb, t["prompt"])
+        for ai, a in enumerate(t["answers"], 1):
+            r = check_numbers(a, cells, der)
+            rows.append((f"{t['id']}-{ai}", len(r), sum(c == "has" for c, _ in r), sum(c == "calc" for c, _ in r), sum(c == "none" for c, _ in r), sum(l for _, l in r)))
+    return rows
+
+
+def score_calc(ti, text, tb):
+    """계산 과제(T2·T5·T6)의 답을 정답과 견줍니다. 돌려주는 값 = (맞은 항목 수, 전체 항목 수)."""
+    ok = tot = 0
+    mx, raw = tb["mx"], tb["raw"]
+    if ti == 1:
+        got = {m.group(1): (float(m.group(2).replace("−", "-")), float(m.group(3).replace("−", "-")))
+               for m in re.finditer(r"\|[ \t]*(B0[23]-CH[1-4])[ \t]*\|[ \t]*([-−]?\d+\.\d+)[ \t]*\|[ \t]*([-−]?\d+\.\d+)[ \t]*\|", text)}
+        dl = {}
+        for k in KEYS:
+            ints = [round(v * 1000) for v in mx[k]]
+            dl[k] = (float(f"{sum(ints) / 7 / 1000:.3f}"), float(f"{(ints[6] - ints[0]) / 1000:.3f}"))
+            for i in (0, 1):
+                tot += 1
+                ok += k in got and abs(got[k][i] - dl[k][i]) &lt; EPS
+        best = max(KEYS, key=lambda k: abs(dl[k][1]))
+        m = re.search(r"변화량의 크기가 가장 큰 챔버는 (B0[23]-CH[1-4])", text)
+        tot += 1
+        ok += bool(m) and m.group(1) == best
+    elif ti == 4:
+        st = stat_of([v for k in KEYS for v in mx[k]])
+        m1 = re.search(r"표준편차[^\n]*?:[ \t]*(\d+\.\d+)", text)
+        m2 = re.search(r"중앙값:[ \t]*(\d+\.\d+)", text)
+        tot += 2
+        ok += bool(m1) and abs(float(m1.group(1)) - round(st["sd"], 4)) &lt; EPS
+        ok += bool(m2) and abs(float(m2.group(1)) - round(st["med"], 4)) &lt; EPS
+    elif ti == 5:
+        xs = [r[2] for r in raw]
+        bi = max(range(len(raw)), key=lambda i: raw[i][3])
+        a1 = re.search(r"(?:^|\n)1\)[^\n]*?([-−]?\d+\.\d{4})", text)
+        a2 = re.search(r"5\.713[ \t]*을?[ \t]*넘는[^\d\n]*(\d+)장", text)
+        a3 = re.search(r"최댓값[^\n]*?(\d+\.\d+)", text)
+        a4 = re.search(r"(G115-[A-Z0-9-]+)", text[text.find("최댓값"):])
+        tot += 4
+        ok += bool(a1) and abs(float(a1.group(1).replace("−", "-")) - round(sum(xs) / len(xs), 4)) &lt; EPS
+        ok += bool(a2) and int(a2.group(1)) == sum(r[3] &gt; round(SPEC, 3) for r in raw)
+        ok += bool(a3) and abs(float(a3.group(1)) - raw[bi][3]) &lt; EPS
+        ok += bool(a4) and a4.group(1) == raw[bi][0]
+    return ok, tot
+
+
+if __name__ == "__main__":
+    runs = load_runs(os.path.join(HERE, "llm_runs_0410.json"))
+    tb = build_tables(HERE)
+    print(f"모델 {runs['model']} · 날짜 {runs['date']} · 과제 {len(runs['tasks'])}개 × 답 {len(runs['tasks'][0]['answers'])}개")
+    need = {"T1": "t1 t2", "T2": "t1 t2", "T3": "t1 t2", "T4": "t1 t2 t3", "T5": "t1", "T6": "t6"}
+    for t in runs["tasks"]:
+        print(f"{t['id']} 프롬프트 속 표와 글자 단위로 같음: " + " · ".join(f"{n} {'예' if tb[n] in t['prompt'] else '아니오'}" for n in need[t["id"]].split()))
+    print("과제-답 · 숫자 · 표에 있음 · 계산됨 · 근거 없음 · 거친 일치")
+    for r in summary(runs, tb):
+        print(" · ".join(str(x) for x in r))
+    print("계산 과제 아홉 답의 정답 일치 (맞은 항목/전체)")
+    for ti in (1, 4, 5):
+        t = runs["tasks"][ti]
+        print(t["id"] + " " + " · ".join("{}/{}".format(*score_calc(ti, a, tb)) for a in t["answers"]))
+    m = tb["mask"]
+    print(f"마스크 교체 {m['ts']} ({m['key']}) · {m['day']}일의 앞 {m['hb']:.1f}시간·뒤 {m['ha']:.1f}시간 · 옛 마스크만의 값(가정) {m['vold']:.3f} · 새 마스크 몫의 평균(가정) {m['vnew']:.3f}")
+    d6 = abs(m["vnew"] - tb["mx"][m["key"]][m["day"]])
+    d7 = abs(m["vnew"] - tb["mx"][m["key"]][m["day"] + 1])
+    st = abs(tb["mx"][m["key"]][m["day"] + 1] - tb["mx"][m["key"]][m["day"]])
+    print(f"T4-3 '6일과 7일 수준과 같다': 차 {d6:.3f}(6일) · {d7:.3f}(7일), 6일→7일 하루 변화 {st:.3f}의 {d7 / st:.1f}배")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 앞의 숫자들과 같은 값입니다.</p>
+<pre id="pyOut" class="pyout" aria-label="Python 출력">모델 claude-haiku-5-5 · 날짜 2026-11-26 · 과제 6개 × 답 3개
+T1 프롬프트 속 표와 글자 단위로 같음: t1 예 · t2 예
+T2 프롬프트 속 표와 글자 단위로 같음: t1 예 · t2 예
+T3 프롬프트 속 표와 글자 단위로 같음: t1 예 · t2 예
+T4 프롬프트 속 표와 글자 단위로 같음: t1 예 · t2 예 · t3 예
+T5 프롬프트 속 표와 글자 단위로 같음: t1 예
+T6 프롬프트 속 표와 글자 단위로 같음: t6 예
+과제-답 · 숫자 · 표에 있음 · 계산됨 · 근거 없음 · 거친 일치
+T1-1 · 26 · 24 · 2 · 0 · 0
+T1-2 · 24 · 18 · 6 · 0 · 1
+T1-3 · 25 · 19 · 6 · 0 · 2
+T2-1 · 25 · 9 · 16 · 0 · 0
+T2-2 · 22 · 5 · 17 · 0 · 1
+T2-3 · 24 · 8 · 16 · 0 · 0
+T3-1 · 9 · 8 · 1 · 0 · 1
+T3-2 · 12 · 9 · 3 · 0 · 2
+T3-3 · 9 · 8 · 1 · 0 · 1
+T4-1 · 12 · 8 · 4 · 0 · 3
+T4-2 · 10 · 7 · 3 · 0 · 1
+T4-3 · 17 · 12 · 5 · 0 · 1
+T5-1 · 27 · 11 · 16 · 0 · 0
+T5-2 · 17 · 6 · 11 · 0 · 2
+T5-3 · 21 · 8 · 13 · 0 · 0
+T6-1 · 8 · 4 · 4 · 0 · 0
+T6-2 · 7 · 4 · 3 · 0 · 0
+T6-3 · 6 · 3 · 3 · 0 · 0
+계산 과제 아홉 답의 정답 일치 (맞은 항목/전체)
+T2 17/17 · 17/17 · 17/17
+T5 2/2 · 2/2 · 2/2
+T6 4/4 · 4/4 · 4/4
+마스크 교체 2026-03-07 01:24 (B03-CH2) · 5일의 앞 19.4시간·뒤 4.6시간 · 옛 마스크만의 값(가정) 0.855 · 새 마스크 몫의 평균(가정) -1.474
+T4-3 '6일과 7일 수준과 같다': 차 0.454(6일) · 0.379(7일), 6일→7일 하루 변화 0.075의 5.0배</pre>
+<p class="note">&lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 더하면, <code>check_numbers</code> 의 &lsquo;근거 없음&rsquo;을 곧 틀림으로 읽지 마십시오. 회사 자료를 사외 LLM 에 넣어 연습하지 마십시오(0411). 계산 목록 밖의 계산은 &lsquo;근거 없음&rsquo;으로 나오니 목록을 현장 질문에 맞게 늘려 쓰십시오.</p>
+
+<!-- ===================== 11 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>LLM 이 쓴 보고 확인표</h3>
+  <dl>
+    <dt>칸 (보고 하나 = 한 줄)</dt><dd id="rp_fields"></dd>
+    <dt>이 기록의 한 줄로 채운 예 (T1 답 1)</dt><dd id="rp_ex"></dd>
+    <dt>작성 체크리스트</dt><dd><ul style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li>입력 자료(표)의 지문과 모델 이름·판·날짜를 적었는가</li>
+      <li>프롬프트 전문과 답 원문을 한 글자도 고치지 않고 남겼는가</li>
+      <li>숫자 대조의 있음·계산됨·근거 없음 개수와 거친 일치 목록을 적었는가</li>
+      <li>원인·판단 문장을 따로 뽑아 표의 어느 줄에서 나왔는지 적었는가</li>
+      <li>사람 확인자와 고친 곳을 적었는가(고친 곳은 나중에 LLM 이 어디서 자주 틀리는지 세는 원료입니다)</li>
+    </ul></dd>
+    <dt>승인란</dt><dd>확인자 ____________ · 확인 일자 ____________ (<b>원인·판정 문장은 사람이 승인한 뒤에 보고에 씁니다.</b>)</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">다시 물으면 다른 답이 나오므로 아래를 남겨야 합니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><b>입력 전문 또는 지문</b>과 모델 이름·판·날짜, <b>답 원문</b>.</li>
+      <li><b>숫자 대조 결과</b> — 개수와 목록.</li>
+      <li><b>사람이 고친 곳</b> — 나중에 LLM 이 어디서 자주 틀리는지 세는 원료입니다.</li>
+    </ul>
+    <p>원문을 남기지 않으면 어떤 근거로 조치했는지 재현할 수 없습니다.</p>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">0400 의 <code>run_daily</code> 에서 보고까지 가는 순서입니다.</p>
+    <div class="tbwrap"><table class="mt">
+      <tr><th>순서</th><th>하는 일</th></tr>
+      <tr><td class="rowh">1)</td><td>0400 <code>run_daily</code> 가 점검을 통과한 표를 만듭니다</td></tr>
+      <tr><td class="rowh">2)</td><td>표를 LLM 에게 주고 초안을 받습니다</td></tr>
+      <tr><td class="rowh">3)</td><td><code>check_numbers</code> 로 숫자를 대조합니다</td></tr>
+      <tr><td class="rowh">4)</td><td>사람이 &lsquo;볼 목록&rsquo;과 원인·판정 문장을 확인합니다</td></tr>
+      <tr><td class="rowh">5)</td><td>보고하고 확인표를 남깁니다</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0400-data-pipeline.html">← 이전: 사내 데이터 파이프라인</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/llm_runs_0410.js"></script>
+<script src="../data/llmcheck.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var L=LlmCheck,MS=MfgSim,TL=MS.s15tools,PR=L.params,KEYS=L.keys,TK=L.tasks;
+var DEF={wr:40,per:0.5,pj:3,rd:5,tol:0.5};
+var ST={a:0,p:0,draws:[],dk:0,tol:DEF.tol,sel:0,rev:false,wr:DEF.wr,per:DEF.per,pj:DEF.pj,rd:DEF.rd};
+var U=[0.37,0.81,0.12,0.58,0.93,0.26,0.64,0.05,0.71,0.44];
+function $(id){return document.getElementById(id);}
+function fmt(v,d){return v!=null&&isFinite(v)?v.toFixed(d):'—';}
+function fmtN(v){return Math.round(v).toLocaleString('en-US');}
+function pct(v,d){return v==null||!isFinite(v)?'—':(v*100).toFixed(d==null?0:d)+'%';}
+function setAll(cls,t){Array.prototype.forEach.call(document.querySelectorAll('.'+cls),function(e){e.textContent=t;});}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function sg0(v,d){var s=fmt(Math.abs(v),d);return (v<0&&+s!==0?'−':'')+s;}
+function fmtDec(d){return d;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth||320;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function tbl(id,head,rows,cls){var h='<tr>'+head.map(function(t){return '<th>'+t+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(c,i){var cl=cls&&cls[i]?cls[i](c):(i===0?'rowh':'');return '<td'+(cl?' class="'+cl+'"':'')+'>'+c+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+function frac(a,b){return a+' / '+b+(b?' ('+pct(a/b,0)+')':'');}
+function fitFont(x,txt,maxW,px,minPx,weight){var s=px;x.font=(weight||'')+' '+s+'px sans-serif';while(s>minPx&&x.measureText(txt).width>maxW){s--;x.font=(weight||'')+' '+s+'px sans-serif';}return s;}
+
+var ANS=L.answers;
+function sumNow(){return L.summary(ST.tol);}
+function t1avg(){var s=L.summary(DEF.tol).slice(0,3),n=0,no=0,lo=0;s.forEach(function(r){n+=r.n;no+=r.none;lo+=r.loose;});return {n:n/3,none:no/3,loose:lo/3};}
+var BAD={v1:1,v2:1,v4:1,v5:1};
+function verdT1(){return L.verdicts().filter(function(v){return v.task==='T1'&&BAD[v.id];}).length/3;}
+
+/* ---- 고정 값 ---- */
+setAll('v_model',L.meta.model);setAll('v_date',L.meta.date);setAll('v_nans',String(ANS.length));
+setAll('v_slope',sg0(PR.thermal,3));setAll('v_t0',String(PR.T_ref));setAll('v_spec',fmt(PR.spec,3));setAll('v_spec3',fmt(L.spec3,3));
+var SS=MS.scenario('S15');setAll('v_nfdc',fmtN(SS.clean.fdc.length));setAll('v_nppa',fmtN(SS.clean.ppa.length));
+
+/* ---- 1절 ---- */
+var TDESC={T1:'두 표를 공정 엔지니어에게 보낼 다섯 줄 요약으로 쓰되 각 줄에 근거 숫자를 넣을 것',T2:'챔버마다 1~7일 Mx 평균(소수 셋째 자리)과 7일 − 1일 변화량을 표로 쓰고, 변화량이 가장 큰 챔버를 말할 것',T3:'B03-CH2 의 5~6일 Mx 하락과 초과 건수 증가의 원인을 한 문단으로 (표 1·2 만 줌)',T4:'T3 과 같은 질문, 표 3(마스크 이력)을 함께 줌',T5:'표 1 의 값 56개 전체의 표본 표준편차(분모 n−1, 소수 넷째 자리)와 중앙값',T6:'원자료 29줄에서 Mx_comp 평균(소수 넷째 자리), ppa_metric 이 '+fmt(L.spec3,3)+' 을 넘는 유리 수, 최댓값과 그 glass_id'};
+var TGIVEN={T1:'표 1 · 표 2',T2:'표 1 · 표 2',T3:'표 1 · 표 2',T4:'표 1 · 표 2 · 표 3',T5:'표 1',T6:'원자료 29줄'};
+function upd1(){
+  var hd=['챔버','1일','2일','3일','4일','5일','6일','7일'];
+  tbl('tabT1',hd,L.keys.map(function(k,i){return [k].concat(L.mxs[i]);}),[null].concat(hd.slice(1).map(function(){return function(c){return +c<0?'warn':'';};})));
+  tbl('tabT2',hd,L.keys.map(function(k,i){return [k].concat(L.ex[i]);}),[null].concat(hd.slice(1).map(function(){return function(c){return +c>0?'hit':'';};})));
+  var tc=L.tableChecks(),ok=tc.filter(function(x){return x.ok;}).length,by={};
+  tc.forEach(function(x){(by[x.task]=by[x.task]||[]).push(x.table+(x.ok?' 일치':' 불일치'));});
+  var st=$('stTab');st.className=ok===tc.length?'state':'state moved';
+  st.textContent='LLM 에게 준 프롬프트 속 표와 글자 단위로 견준 결과: '+ok+' / '+tc.length+'곳 일치 ('+Object.keys(by).map(function(k){return k+' '+by[k].join('·');}).join(' · ')+')';
+  var t3=L.t3.split('\n').map(function(l){return l.split(',');});
+  tbl('tabT3',t3[0],t3.slice(1),[function(){return 'l';}]);
+  var t6=L.raw.map(function(r,i){return [String(i+1),r.id,r.ts,sg0(r.mx,4),fmt(r.pm,3)];});
+  tbl('tabT6',['#','glass_id','ts','Mx_comp (ppm)','ppa_metric (µm)'],t6,[null]);
+  tbl('tabTasks',['질문','종류','무엇을 시켰나','준 자료'],TK.map(function(t){return [t.id,t.kind,TDESC[t.id],TGIVEN[t.id]];}),[null,function(){return 'l';},function(){return 'l';}]);
+}
+/* ---- 2절 ---- */
+function upd2(){
+  $('askT1').textContent=TK[0].prompt.split(/\n\n/).pop().trim();
+  var a=ST.a,r=L.classify(L.ansText(1,a+1),0,DEF.tol),n=r.counts.n;
+  $('qhT1').textContent='T1 답 '+(a+1)+' · 모델 '+L.meta.model+' · '+L.meta.date;$('qbT1').textContent=L.ansText(1,a+1);
+  $('ro2').innerHTML='이 답에는 숫자가 <b>'+n+'개</b> 들어 있습니다. 하나에 '+fmt(ST.per,1)+'분이면 <b>'+fmt(n*ST.per,1)+'분</b>입니다.';
+  setAll('v_n2',String(n));setAll('v_per',fmt(ST.per,1));setAll('v_t2',fmt(n*ST.per,1));setAll('v_wr',String(ST.wr));
+  Array.prototype.forEach.call(document.querySelectorAll('.ansb'),function(b){b.setAttribute('aria-pressed',String(+b.getAttribute('data-a')===a));});
+}
+/* ---- 3절: 가상 예시 막대 ---- */
+function smx(a){var m=Math.max.apply(null,a),e=a.map(function(v){return Math.exp(v-m);}),s=e.reduce(function(x,y){return x+y;},0);return e.map(function(v){return v/s;});}
+var MV=L.mx[KEYS.indexOf('B03-CH2')],d4=MV[3],d5=MV[4],d6=MV[5],dif=d4-d6;
+var PF=[
+ {t:'1) 낱말 고르기',l:['B03-CH2 의 5일 평균 Mx 는','4일 평균보다'],c:['낮습니다','높습니다','비슷합니다','알 수 없습니다'],g:[2.2,0.2,0.7,-0.3],ok:d5<d4?0:1},
+ {t:'2) 표에 없는 것 묻기',l:['이 하락의 원인은'],c:['챔버 설비의 변화','마스크 교체','센서 교정 오차','확인이 필요합니다'],g:[1.6,1.2,0.9,1.0],ok:-1},
+ {t:'3) 숫자 쓰기',l:['B03-CH2 의 4일 평균 '+sg0(d4,3),'− 6일 평균 ('+sg0(d6,3)+') ='],c:[fmt(dif,3),fmt(dif-0.09,3),fmt(dif+0.047,3),fmt(dif-0.003,3)],g:[2.0,1.4,0.6,1.1],ok:0}
+];
+PF.forEach(function(p){p.p=smx(p.g);});
+function draw3(){
+  var cv=$('cv3'),p=PF[ST.p],W=cv.clientWidth||320,H=Math.max(190,52+p.l.length*18+p.c.length*34+10),c=setup(cv,H),x=c.x,i;
+  x.clearRect(0,0,W,H);
+  var ink=css('--ink'),soft=css('--soft'),acc=css('--accent2'),good=css('--good'),warn=css('--warn'),track=css('--track');
+  x.textAlign='left';x.font='bold 12px sans-serif';x.fillStyle=css('--bad');x.fillText('가상 예시 — 실제 모델의 확률이 아님',8,18);
+  var y=38;p.l.forEach(function(t,k){var s=fitFont(x,t,W-16,14,11,'');x.fillStyle=ink;x.fillText(t,8,y+k*18);});
+  y+=p.l.length*18+4;
+  var lab=0;p.c.forEach(function(t){x.font='13px sans-serif';lab=Math.max(lab,x.measureText(t).width);});lab=Math.min(lab+10,W*0.44);
+  var bx=8+lab,bw=W-bx-52,last=ST.draws.length?ST.draws[ST.draws.length-1]:-1;
+  p.c.forEach(function(t,k){
+    var yy=y+k*34;x.font='13px sans-serif';fitFont(x,t,lab-6,13,11,'');x.fillStyle=ink;x.textAlign='left';x.fillText(t,8,yy+17);
+    x.fillStyle=track;x.fillRect(bx,yy+4,bw,18);
+    x.fillStyle=k===last?warn:(k===p.ok?good:acc);x.fillRect(bx,yy+4,bw*p.p[k],18);
+    x.font='bold 12px sans-serif';x.fillStyle=ink;x.textAlign='right';x.fillText(fmt(p.p[k]*100,0)+'%',W-6,yy+18);
+  });
+  x.textAlign='left';
+}
+function upd3(){
+  var p=PF[ST.p],s=$('selP');if(!s.options.length)s.innerHTML=PF.map(function(q,i){return '<option value="'+i+'">'+q.t+'</option>';}).join('');
+  s.value=String(ST.p);$('selPO').textContent='';
+  var words=ST.draws.map(function(k){return p.c[k];});
+  $('stP').innerHTML=ST.draws.length?'앞 글 <b>'+esc(p.l.join(' '))+'</b> 다음으로 지금까지 뽑힌 낱말('+ST.draws.length+'번): '+words.map(function(w){return '<b>'+esc(w)+'</b>';}).join(' · ')+(new Set(ST.draws).size>1?' — 같은 앞 글에서도 뽑을 때마다 달라졌습니다.':''):'앞 글 <b>'+esc(p.l.join(' '))+'</b> 다음에 올 낱말의 확률입니다. 단추를 누르면 이 확률대로 한 낱말이 뽑힙니다.';
+  draw3();
+}
+function doDraw(){var p=PF[ST.p],u=U[ST.dk%U.length],c=0,k=0;ST.dk++;for(k=0;k<p.p.length;k++){c+=p.p[k];if(u<c||k===p.p.length-1)break;}ST.draws.push(k);upd3();}
+/* ---- 4절 ---- */
+function upd4(){
+  var t=L.truthT2();
+  tbl('tabT2ans',['챔버','1~7일 평균 (ppm)','7일 − 1일 변화량 (ppm)'],t.rows.map(function(r){return [r.key,sg0(+r.mean,3),sg0(+r.delta,3)];}),[null]);
+  var rows=[],okT=0,totT=0,t5=L.truthT5(),t6=L.truthT6(),bad=[];
+  [1,4,5].forEach(function(ti){TK[ti].answers.forEach(function(a,ai){var r=L.scoreCalc(ti,a);okT+=r.ok;totT+=r.total;r.items.forEach(function(it){if(!it.ok)bad.push(TK[ti].id+'-'+(ai+1)+' '+it.name);});
+    rows.push([TK[ti].id+'-'+(ai+1),r.total+'개',r.ok+'개',r.total-r.ok+'개']);});});
+  tbl('tabCalc',['답','확인한 항목','정답과 일치','어긋난 항목'],rows,[null,null,function(c){return '';},function(c){return parseInt(c,10)>0?'hit':'good';}]);
+  var sd=$('stCalc');sd.className='state';
+  sd.innerHTML='정답(표에서 다시 계산) — T2: 변화량이 가장 큰 챔버 <b>'+t.maxKey+'</b> ('+sg0(+t.rows.filter(function(r){return r.key===t.maxKey;})[0].delta,3)+' ppm) · T5: 표본 표준편차 <b>'+t5.sd4+'</b>, 중앙값 <b>'+t5.med4+'</b> · T6: Mx_comp 평균 <b>'+sg0(+t6.mean4,4)+'</b>, '+fmt(L.spec3,3)+' 을 넘는 유리 <b>'+t6.over+'장</b>, ppa_metric 최댓값 <b>'+fmt(t6.max,3)+'</b> ('+t6.id+', '+t6.ts+')';
+  $('conc4').innerHTML=okT===totT?'<b>이번 기록에서는 계산 과제 아홉 답이 확인한 항목 '+totT+'개를 모두 맞혔습니다.</b> 계산은 틀린다는 말이 이 기록의 결론이 아닙니다.':'<b>아홉 답에서 확인한 항목 '+totT+'개 가운데 '+(totT-okT)+'개가 어긋났습니다</b> ('+bad.join(', ')+').';
+  setAll('q4_ok',String(totT));
+}
+/* ---- 5절 ---- */
+var FAMN=L.fam;
+function updFam(){
+  var c=L.ctx(0),n={};c.der.forEach(function(d){n[d.fam]=(n[d.fam]||0)+1;});
+  var rows=[['표 칸 · 문제 글 속 숫자 ('+c.cells.length+'개)','표 1·표 2 의 칸과 질문 글에 있던 숫자 그대로 → 표에 있음','—']];
+  ['diff','diffc','rowmean','rowsum','colsum','slope','pct','ratio'].forEach(function(f){rows.push([FAMN[f],'계산됨',String(n[f]||0)]);});
+  rows.push(['(T4 만) '+FAMN.mask,'계산됨',String(L.ctx(3).der.filter(function(d){return d.fam==='mask';}).length)]);
+  rows.push(['(T5 만) '+FAMN.stat,'계산됨',String(L.ctx(4).der.filter(function(d){return d.fam==='stat';}).length)]);
+  rows.push(['(T6 만) '+FAMN.col,'계산됨',String(L.ctx(5).der.filter(function(d){return d.fam==='col';}).length)]);
+  tbl('tabFam',['계산 목록 (T1~T3 기준 후보 수)','분류','후보 수'],rows,[function(){return 'l';},null,null]);
+}
+function markHtml(text,nums,rev){
+  var h='',p=0;nums.forEach(function(x){h+=esc(text.slice(p,x.start))+'<span class="nm '+x.cls+(x.loose?' loose':'')+'">'+esc(text.slice(x.start,x.end))+'</span>'+(rev&&x.cls!=='none'?'<span class="cl">['+esc(x.label)+']</span>':'');p=x.end;});
+  return h+esc(text.slice(p));
+}
+function fillSelAns(){var s=$('selAns');if(s.options.length)return;s.innerHTML=ANS.map(function(a,i){return '<option value="'+i+'">'+a.id+' · '+a.kind+'</option>';}).join('');}
+function upd5(){
+  fillSelAns();$('selAns').value=String(ST.sel);var a=ANS[ST.sel],r=L.classify(a.text,a.ti,ST.tol),cc=r.counts;
+  $('selAnsO').textContent='';$('sTolO').textContent=fmt(ST.tol,2)+' 칸';
+  $('qh5').textContent=a.id+' · '+a.kind+' · 답 원문 위에 숫자를 색칠함';$('qb5').innerHTML=markHtml(a.text,r.nums,ST.rev);
+  $('bRev').setAttribute('aria-pressed',String(ST.rev));
+  var st=$('stTol');st.className=Math.abs(ST.tol-DEF.tol)<1e-9?'state':'state moved';
+  st.textContent=Math.abs(ST.tol-DEF.tol)<1e-9?'지금은 기준값(자릿수의 반 칸)입니다.':'지금은 기준값(반 칸)에서 '+fmt(ST.tol,2)+'칸으로 옮겨 놓은 가정입니다. 아래 되돌리기 단추로 반 칸으로 돌아갑니다.';
+  $('ro5').innerHTML='<b>'+a.id+'</b> — 숫자 <b>'+cc.n+'개</b>: 표에 있음 <b>'+cc.has+'</b> · 계산됨 <b>'+cc.calc+'</b> · 근거 없음 <b>'+cc.none+'</b> (거친 일치 '+cc.loose+'개 포함)';
+  var lo=r.nums.filter(function(x){return x.cls==='none'||x.loose;});
+  if(!lo.length)$('tabLoose').innerHTML='<tr><td class="l">이 답에는 사람이 볼 숫자(근거 없음 · 거친 일치)가 없습니다.</td></tr>';
+  else tbl('tabLoose',['사람이 볼 숫자','분류','가장 가까운 후보','후보 값','차이','허용 오차'],lo.map(function(x){return [x.raw.trim(),x.cls==='none'?'근거 없음':(x.cls==='has'?'표에 있음':'계산됨')+' (거친 일치)',ST.rev?(x.label||'—'):'후보 공개를 누르면 보입니다',ST.rev&&x.got!=null?fmt(x.got,4):'—',ST.rev&&x.got!=null?fmt(Math.abs(x.v-x.got),4):'—','±'+fmt(x.tol,4)];}),[null,function(c){return /근거 없음/.test(c)?'hit':'warn';},function(){return 'l';}]);
+  var s=sumNow(),tot={n:0,has:0,calc:0,none:0,loose:0};
+  s.forEach(function(q){['n','has','calc','none','loose'].forEach(function(k){tot[k]+=q[k];});});
+  tbl('tab5',['답','숫자','표에 있음','계산됨','근거 없음','거친 일치'],s.map(function(q,i){return [q.id+(i===ST.sel?' ◀':''),q.n,q.has,q.calc,q.none,q.loose];}).concat([['18개 합계',tot.n,tot.has,tot.calc,tot.none,tot.loose]]),[null,null,null,null,function(c){return +c>0?'hit':'';},function(c){return +c>0?'warn':'';}]);
+  var s0=L.summary(DEF.tol),n0=0,l0=0;s0.forEach(function(q){n0+=q.none;l0+=q.loose;});
+  $('conc5').innerHTML='<b>18개 답의 숫자 '+tot.n+'개를 허용 오차 '+fmt(ST.tol,2)+'칸으로 견주면 표에 있음 '+tot.has+'개, 계산됨 '+tot.calc+'개, 근거 없음 '+tot.none+'개이고, 그 가운데 거친 일치가 '+tot.loose+'개입니다.</b> '+(n0===0?'기준값(반 칸)에서 표에 근거가 없는 숫자는 한 개도 없었습니다. 이 기록에서 틀림은 숫자를 지어낸 데가 아니라 문장에 있었습니다(6절).':'기준값(반 칸)에서 근거 없음은 '+n0+'개였습니다.');
+  draw5();upd9();upd2();
+  var ro=$('roIn'),toks=$('inNum').value.trim().split(/\s+/).filter(Boolean).slice(0,12);
+  ro.innerHTML=toks.length?toks.map(function(t){var q=L.classify(t,a.ti,ST.tol).nums[0];if(!q)return esc(t)+' → 숫자가 아님';return '<b>'+esc(t)+'</b> → '+(q.cls==='none'?'<b style="color:var(--bad)">근거 없음</b>':(q.cls==='has'?'표에 있음':'계산됨')+' ('+esc(q.label)+(q.loose?', 거친 일치':'')+')');}).join('<br>'):'숫자를 하나 이상 넣어 보십시오.';
+}
+function draw5(){
+  var cv=$('cv5'),s=sumNow(),RH=22,TOP=26,W=cv.clientWidth||320,H=TOP+RH*s.length+4,c=setup(cv,H),x=c.x,mx=Math.max.apply(null,s.map(function(q){return q.n;}));
+  x.clearRect(0,0,W,H);var ink=css('--ink'),soft=css('--soft'),good=css('--good'),c10=css('--c10'),bad=css('--bad'),warn=css('--warn'),acc=css('--accent'),track=css('--track');
+  x.font='11px sans-serif';x.fillStyle=soft;x.textAlign='left';x.fillText('막대 길이 = 답에 든 숫자 수 (막대를 누르면 그 답을 봅니다)',6,15);
+  var lx=6,bx=52,bw=W-bx-40;
+  s.forEach(function(q,i){
+    var y=TOP+i*RH;if(i===ST.sel){x.strokeStyle=acc;x.lineWidth=2;x.strokeRect(1,y-1,W-2,RH-2);}
+    x.font='12px sans-serif';x.fillStyle=ink;x.textAlign='left';x.fillText(q.id,lx,y+13);
+    var u=bw/mx,px=bx;[[q.has,good],[q.calc,c10],[q.none,bad]].forEach(function(p){x.fillStyle=p[1];x.fillRect(px,y+2,p[0]*u,13);px+=p[0]*u;});
+    if(q.loose){x.fillStyle=warn;x.fillRect(bx,y+16,q.loose*u,3);}
+    x.font='11px sans-serif';x.fillStyle=soft;x.textAlign='right';x.fillText(String(q.n),W-6,y+13);
+  });
+  x.textAlign='left';cv._rows={top:TOP,rh:RH,n:s.length};
+}
+function updChance(){
+  var cr=L.chanceRate(ST.tol);
+  tbl('tabChance',['쓴 소수 자릿수','훑은 숫자 수','표에 있음','계산됨','우연히 맞는 비율'],cr.map(function(r){return [r.d+'자리',r.n,r.has,r.calc,pct((r.has+r.calc)/r.n,0)];}),[null]);
+  $('noteChance').textContent='위 표는 표 1·표 2 와 아무 상관 없이 0 보다 크고 2 이하인 숫자를 쓴 자릿수대로 모두 넣어 본 결과입니다(허용 오차 '+fmt(ST.tol,2)+'칸). 소수 한 자리로 쓴 숫자는 거의 다 맞는 것으로 나오므로, 자릿수가 적은 숫자의 일치는 &lsquo;거친 일치&rsquo;로 따로 세는 것입니다.'.replace(/&lsquo;|&rsquo;/g,function(m){return m==='&lsquo;'?'‘':'’';});
+}
+/* ---- 6절 ---- */
+function upd6(){
+  var c=L.causes(),vs=L.verdicts(),m=L.mask;
+  tbl('tab6a',['','T3 (이력을 주지 않음)','T4 (이력을 줌)'],[
+    ['원인으로 마스크 교체를 짚은 답',c.t3Mask.filter(Boolean).length+' / 3',c.t4Mask.filter(Boolean).length+' / 3'],
+    ['스스로 한계를 밝힌 답(확정할 수 없다 · 구분할 수 없다 등)',c.t3Hold.filter(Boolean).length+' / 3',c.t4Hold.filter(Boolean).length+' / 3']],
+    [null,function(v){return /^0/.test(v)?'hit':'good';},function(v){return /^3/.test(v)?'good':'';}]);
+  var rows=c.rows.map(function(r,i){return [r.name].concat(r.in.map(function(b){return b?'●':'—';})).concat([c.inPrompt[i]?'있음':'없음']);});
+  tbl('tab6b',['T3 의 원인 후보 묶음','답 1','답 2','답 3','프롬프트에 있던 말인가'],rows,[function(){return 'l';}]);
+  $('f31').textContent=c.t3First[0];$('f41').textContent=c.t4First[0];
+  $('conc6a').innerHTML='<b>근거를 주면 맞히고, 안 주면 그럴듯하게 채웁니다.</b> 표 1·2 만 받은 세 답은 모두 &lsquo;확정할 수 없다&rsquo;고 물러서면서도 위치가 틀어졌다·계측 보정이 바뀌었다·부품을 교체했다 같은 후보를 줄줄이 내놓았고, 그 말은 프롬프트에 한 번도 나오지 않았습니다. 이력을 받은 T4 는 세 답 모두 마스크 교체를 짚었고, 그 시각 '+esc(m.ts)+' 이 5일 창 안(앞 '+fmt(m.hb,1)+'시간 · 뒤 '+fmt(m.ha,1)+'시간)임을 정확히 말했습니다.'.replace(/&lsquo;|&rsquo;/g,function(x){return x==='&lsquo;'?'‘':'’';});
+  var K={v1:'숫자는 맞고 잇는 말이 틀림',v2:'표에 없는 작동 원리 (지어내기)',v3:'가정을 밝힌 계산 — 맞음',v4:'기준 없이 문턱을 정한 판단',v5:'근거 없는 추측 (약함)'};
+  var ev=function(v){var e=v.ev,o='';
+    if(v.id==='v1')o='가정(앞 몫 '+fmt(m.hb,1)+'시간이 4일 값 '+sg0(m.prev,3)+' 을 유지)으로 풀면 뒤 '+fmt(m.ha,1)+'시간의 평균은 <b>'+sg0(e.vNew,3)+'</b>. 6일 '+sg0(e.v6,3)+' 과의 차 '+fmt(e.d6,3)+', 7일 '+sg0(e.v7,3)+' 과의 차 '+fmt(e.d7,3)+' — 6일→7일 하루 변화 '+fmt(e.step,3)+' 의 <b>'+fmt(e.times,1)+'배</b>. 계산(\u2212'+fmt(e.said,1)+')은 맞고 &lsquo;같다&rsquo;는 말이 틀림.';
+    else if(v.id==='v2')o='프롬프트에 &lsquo;패턴&rsquo;이라는 낱말 <b>'+e.pattern+'번</b>. 표 3 의 열 '+e.cols+'개(mask_id … state)에 마스크의 배율·배치 특성을 담은 열 <b>'+e.spec+'개</b>.';
+    else if(v.id==='v3')o='답이 밝힌 가정(교체 뒤 값 = 6일 값 '+sg0(m.next,3)+', 하루를 시간 비례로 나눔)으로 풀면 옛 마스크만의 값은 <b>'+fmt(e.vOld,3)+'</b> → 답의 '+fmt(e.said,2)+' 과 '+fmt(e.gap,3)+' 차이.';
+    else if(v.id==='v4')o='프롬프트에 기준·한계·spec 낱말 <b>'+e.crit+'번</b>. 같은 답 2번 줄이 &lsquo;초과 판정 기준값도 자료에 없어&rsquo;라고 쓰고도('+(e.sameAnsNoCrit?'확인':'미확인')+') 5번 줄이 '+fmt(e.said,1)+' 을 문턱으로 씀. 표 1 56칸 가운데 |값| &lt; '+fmt(e.said,1)+' 는 <b>'+e.small+'칸</b>. 숫자 대조는 이 '+fmt(e.said,1)+' 을 &lsquo;'+(e.cls==='has'?'표에 있음':'계산됨')+(e.loose?' (거친 일치)':'')+': '+esc(e.label)+'&rsquo;로 분류함 — 못 잡음.';
+    else o='프롬프트에 &lsquo;보정 값&rsquo;이라는 낱말 <b>'+e.adjVal+'번</b>. 표 1 은 &lsquo;보정 후&rsquo; 값('+e.afterCorr+'번 나옴)뿐이고 보정량을 담은 열이 <b>'+e.cols+'개</b>.';
+    return o.replace(/&lsquo;|&rsquo;/g,function(x){return x==='&lsquo;'?'‘':'’';});};
+  var vr=vs.filter(function(v){return K[v.id];}).map(function(v){return [v.task+'-'+v.ai,'<span class="qs">'+esc(v.quote)+'</span>',K[v.id],ev(v)];});
+  var okc=vs.filter(function(v){return /^v[678]$/.test(v.id);}),sh=okc.every(function(v){return v.ev.inDay;});
+  vr.push(['T4-1·2·3','<span class="qs">'+okc.map(function(v){return esc(v.quote);}).join('\n')+'</span>','교체 시각이 5일 안 — 세 답 모두 맞음','교체 시각 '+esc(m.ts)+' − 5일 시작 = <b>'+fmt(m.hb,1)+'시간</b>(0~24 안 '+(sh?'맞음':'아님')+'), 뒤 몫 '+fmt(m.ha,1)+'시간.']);
+  tbl('tabV',['답','문장 (답 원문 그대로)','표지 (사람이 붙임)','근거 숫자 (표에서 계산)'],vr,[null,function(){return 'l';},function(c){return /맞음/.test(c)?'good':'warn';},function(){return 'l';}]);
+  var bad=vs.filter(function(v){return BAD[v.id];}).length,mis=vs.filter(function(v){return !v.found;}).length;
+  $('conc6b').innerHTML='<b>근거를 줘도 생기는 틀림이 문장 '+bad+'개에서 나왔고</b>, 모두 숫자가 틀린 것이 아닙니다. 하나는 맞는 계산 뒤에 틀린 말을 잇는 것, 하나는 표에 없는 작동 원리를 덧붙이는 것, 둘은 기준이 없는데 판단을 내리거나 확인할 거리를 지어내는 것입니다.'+(mis?' (인용 문장 '+mis+'개를 원문에서 찾지 못함)':'');
+  var tv=vs.filter(function(v){return BAD[v.id]||v.id==='v3';}).map(function(v){var r=L.classify(v.quote,v.task==='T1'?0:3,DEF.tol).counts;return [v.task+'-'+v.ai+' · '+K[v.id],r.n,r.has,r.calc,r.none,r.loose];});
+  tbl('tabV2',['문장','숫자','표에 있음','계산됨','근거 없음','거친 일치'],tv,[function(){return 'l';}]);
+}
+/* ---- 7절 ---- */
+function upd7(){
+  var o=L.overlapT1(),rows=[],names=['답 1·답 2','답 1·답 3','답 2·답 3'];
+  o.chPairs.forEach(function(p,i){rows.push([names[i],frac(p.inter,p.union),frac(o.nmPairs[i].inter,o.nmPairs[i].union)]);});
+  rows.push(['세 답 모두',frac(o.chPairs.all.inter,o.chPairs.all.union),frac(o.nmPairs.all.inter,o.nmPairs.all.union)]);
+  rows.unshift(['한 답이 언급한 챔버 수 · 서로 다른 숫자 수',o.ch.map(function(c,i){return '답 '+(i+1)+' '+c.length+'개';}).join(' · '),o.nm.map(function(c,i){return '답 '+(i+1)+' '+c.length+'개';}).join(' · ')]);
+  tbl('tab7a',['T1 세 답','언급한 챔버 (교집합 / 합집합)','인용한 서로 다른 숫자 (교집합 / 합집합)'],rows,[null,function(){return '';}]);
+  $('conc7a').innerHTML='<b>같은 표·같은 질문인데 세 답이 인용한 숫자 가운데 세 답에 모두 나온 것은 '+o.nmPairs.all.inter+'개로, 한 번이라도 나온 숫자 '+o.nmPairs.all.union+'개의 '+pct(o.nmPairs.all.jac,0)+'뿐입니다.</b> 언급한 챔버는 '+pct(o.chPairs.all.jac,0)+' 겹치지만(한 답은 B03-CH4 를 빼 먹음) 무엇을 골라 쓸지는 대화마다 달랐습니다. 한 번 물어본 답을 보고서에 그대로 쓰면, 다시 물었을 때 다른 보고서가 나옵니다.';
+  var c=L.causes(),r2=c.pairs.map(function(p,i){return ['답 '+p.a+'·답 '+p.b,frac(p.inter,p.union)];});
+  r2.push(['세 답 모두',frac(c.pairs.all.inter,c.pairs.all.union)]);
+  tbl('tab7b',['T3 세 답','원인 후보 묶음 (교집합 / 합집합)'],r2,[null]);
+}
+/* ---- 8절 ---- */
+function upd8(){
+  var s=L.summary(DEF.tol),t={n:0,none:0,loose:0};s.slice(0,3).forEach(function(q){t.n+=q.n;t.none+=q.none;t.loose+=q.loose;});
+  var okT=0,totT=0;[1,4,5].forEach(function(ti){TK[ti].answers.forEach(function(a){var r=L.scoreCalc(ti,a);okT+=r.ok;totT+=r.total;});});
+  var c=L.causes(),vs=L.verdicts(),bad=vs.filter(function(v){return BAD[v.id];}),v4=vs.filter(function(v){return v.id==='v4';})[0];
+  var no='이 기록에는 없는 일입니다. 같은 방식으로 기록을 쌓은 뒤 정합니다.';
+  tbl('tab8',['일','맡겨도 됨','도구로 확인','사람이 봄','이 기록에서 나온 근거'],[
+    ['표를 읽어 요약·정리','●','숫자 대조','판단·원인 문장','T1 세 답에 든 숫자 '+t.n+'개 가운데 근거 없음 '+t.none+'개, 거친 일치 '+t.loose+'개. 요약 글은 쓸 만했지만 판단·추측 문장 '+bad.filter(function(v){return v.task==='T1';}).length+'개에는 표지가 붙음(6절).'],
+    ['분류·묶기','잠정','잠정','',no],
+    ['문장 다듬기','잠정','','잠정',no],
+    ['코드 초안','잠정','실행해 봄','잠정',no],
+    ['계산','','●','','계산 과제 아홉 답: 확인한 항목 '+totT+'개 중 '+okT+'개 맞음. 그래도 4절의 세 이유로 맡기지 않고 도구가 냅니다.'],
+    ['원인 추정','','','●','이력을 주지 않은 T3: 마스크 교체를 짚은 답 '+c.t3Mask.filter(Boolean).length+'/3, 준 T4: '+c.t4Mask.filter(Boolean).length+'/3. 그래도 T4 에서 표에 없는 설명이 '+vs.filter(function(v){return v.id==='v2';}).length+'건 나옴.'],
+    ['판정(이상인가·기준을 넘었나)','','','●','T1-3 이 기준값이 자료에 없다고 쓰고도 '+fmt(v4.ev.said,1)+' 을 문턱으로 정해 \u2018이상 아님\u2019이라 판단함.']
+  ],[null,function(c){return c==='●'?'good':'dim';},function(c){return c==='●'?'good':'dim';},function(c){return c==='●'?'good':'dim';},function(){return 'l';}]);
+  $('conc8').innerHTML='<b>사람이 반드시 직접 볼 곳은 원인·판정 문장입니다.</b> 이 기록에서 표에 근거가 없는 문장은 답 18개 가운데 '+new Set(bad.map(function(v){return v.task+'-'+v.ai;})).size+'개 답에서 '+bad.length+'건 나왔고, 숫자 대조로는 한 건도 잡히지 않았습니다. 숫자는 도구로, 문장은 출처를 사람이 봅니다.';
+}
+/* ---- 9절 ---- */
+function upd9(){
+  var a=t1avg(),J=verdT1(),W=ST.wr,per=ST.per,pj=ST.pj,rd=ST.rd;
+  var B=rd+a.n*per+J*pj,C=rd+(a.none+a.loose)*per+J*pj;
+  $('sWrO').textContent=ST.wr+'분';$('sPerO').textContent=fmt(ST.per,1)+'분';$('sPjO').textContent=ST.pj+'분';$('sRdO').textContent=ST.rd+'분';
+  var mv=Math.abs(ST.wr-DEF.wr)+Math.abs(ST.per-DEF.per)+Math.abs(ST.pj-DEF.pj)+Math.abs(ST.rd-DEF.rd)>1e-9,st=$('st9');
+  st.className=mv?'state moved':'state';st.textContent=mv?'지금은 기본 가정(40분·0.5분·3분·5분)에서 옮겨 놓은 값입니다. 되돌리기 단추로 돌아갑니다.':'지금은 기본 가정입니다. T1 세 답 평균: 숫자 '+fmt(a.n,1)+'개, 그 가운데 근거 없음 '+fmt(a.none,1)+'개 · 거친 일치 '+fmt(a.loose,1)+'개, 볼 원인·판단 문장 '+fmt(J,1)+'개.';
+  var mo=20;
+  tbl('tab9',['방법','사람이 보는 숫자 (개)','사람이 보는 문장 (개)','보고 한 건 (분)','한 달 20건 (시간)','처음부터 쓰기와의 차 (분/건)'],[
+    ['A. 처음부터 쓰기','—','—',fmt(W,1),fmt(W*mo/60,1),'0.0'],
+    ['B. LLM 초안 + 숫자를 전부 직접 견주기',fmt(a.n,1),fmt(J,1),fmt(B,1),fmt(B*mo/60,1),sg0(B-W,1)],
+    ['C. LLM 초안 + 숫자 대조 + 볼 곳만 확인',fmt(a.none+a.loose,1),fmt(J,1),fmt(C,1),fmt(C*mo/60,1),sg0(C-W,1)]],[null,null,null,null,null,function(c){var v=parseFloat(c.replace('−','-'));return v<0?'good':(v>0?'hit':'');}]);
+  $('con9').innerHTML='<b>'+(C<W?'대조를 붙이면 보고 한 건이 처음부터 쓰는 것보다 '+fmt(W-C,1)+'분 짧고':'대조를 붙여도 보고 한 건이 처음부터 쓰는 것보다 '+fmt(C-W,1)+'분 깁니다')+(B<W?', 직접 견주기도 '+fmt(W-B,1)+'분 짧습니다.':', 직접 견주기는 '+fmt(B-W,1)+'분 깁니다.')+'</b> 대조로 사람이 볼 숫자는 '+fmt(a.n,1)+'개에서 '+fmt(a.none+a.loose,1)+'개로 줍니다. 다만 이 절약은 &lsquo;볼 곳이 아닌 숫자는 맞다&rsquo;는 믿음 위에 서 있고, 그 믿음은 숫자가 올바른 챔버에 붙었는지 보지 못하는 대조의 한계(5절)를 같이 가집니다.'.replace(/&lsquo;|&rsquo;/g,function(x){return x==='&lsquo;'?'‘':'’';});
+  upd2b();
+}
+function upd2b(){var n=L.classify(L.ansText(1,ST.a+1),0,DEF.tol).counts.n;setAll('v_n2',String(n));setAll('v_per',fmt(ST.per,1));setAll('v_t2',fmt(n*ST.per,1));setAll('v_wr',String(ST.wr));var r=$('ro2');if(r)r.innerHTML='이 답에는 숫자가 <b>'+n+'개</b> 들어 있습니다. 하나에 '+fmt(ST.per,1)+'분이면 <b>'+fmt(n*ST.per,1)+'분</b>입니다.';}
+/* ---- 11절 ---- */
+function upd11(){
+  $('rp_fields').textContent='입력 지문 · 모델 이름 · 판 · 날짜 · 프롬프트 · 답 원문 · 숫자 수 · 표에 있음 / 계산됨 / 근거 없음 개수 · 거친 일치 목록 · 원인·판단 문장과 근거 여부 · 사람 확인자 · 고친 곳';
+  var r=L.classify(L.ansText(1,1),0,DEF.tol).counts,fp=TL.fp(L.t1+'\n'+L.t2),v=L.verdicts().filter(function(x){return x.task==='T1'&&x.ai===1&&BAD[x.id];})[0];
+  $('rp_ex').innerHTML='입력 지문 <b>'+fp+'</b> (표 1·표 2 글자) · 모델 '+esc(L.meta.model)+' · '+L.meta.date+' · 프롬프트 T1 · 숫자 '+r.n+'개 = 표에 있음 '+r.has+' / 계산됨 '+r.calc+' / 근거 없음 '+r.none+' (거친 일치 '+r.loose+') · 원인·판단 문장: <span class="qs">'+esc(v?v.quote:'—')+'</span> → 표에 근거 없음(약한 추측) · 확인자 ____ · 고친 곳 ____';
+}
+/* ---- 이벤트 ---- */
+function updAll(){upd2();upd3();upd5();upd9();}
+Array.prototype.forEach.call(document.querySelectorAll('.ansb'),function(b){b.addEventListener('click',function(){ST.a=+b.getAttribute('data-a');upd2();});});
+$('selP').addEventListener('change',function(){ST.p=+this.value;ST.draws=[];ST.dk=0;upd3();});
+$('bMore').addEventListener('click',function(){var o=$('moreBox').style.display==='none';$('moreBox').style.display=o?'block':'none';this.setAttribute('aria-pressed',String(o));});
+$('bDraw').addEventListener('click',doDraw);$('bDrawR').addEventListener('click',function(){ST.draws=[];ST.dk=0;upd3();});
+$('selAns').addEventListener('change',function(){ST.sel=+this.value;upd5();});
+$('sTol').addEventListener('input',function(){ST.tol=+this.value;upd5();updChance();});
+$('rTol').addEventListener('click',function(){ST.tol=DEF.tol;$('sTol').value=String(DEF.tol);upd5();updChance();});
+$('bRev').addEventListener('click',function(){ST.rev=!ST.rev;upd5();});
+$('inNum').addEventListener('input',function(){upd5();});
+$('cv5').addEventListener('click',function(ev){var r=this.getBoundingClientRect(),y=ev.clientY-r.top,rw=this._rows;if(!rw)return;var i=Math.floor((y-rw.top)/rw.rh);if(i>=0&&i<rw.n){ST.sel=i;upd5();}});
+function onM(k,id){$(id).addEventListener('input',function(){ST[k]=+this.value;upd9();upd2b();});}
+onM('wr','sWr');onM('per','sPer');onM('pj','sPj');onM('rd','sRd');
+$('rM').addEventListener('click',function(){ST.wr=DEF.wr;ST.per=DEF.per;ST.pj=DEF.pj;ST.rd=DEF.rd;$('sWr').value=String(DEF.wr);$('sPer').value=String(DEF.per);$('sPj').value=String(DEF.pj);$('sRd').value=String(DEF.rd);upd9();upd2b();});
+function redraw(){draw3();draw5();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';document.documentElement.style.setProperty('--tb',bar.offsetHeight+'px');}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+upd1();updFam();upd3();upd4();upd5();updChance();upd6();upd7();upd8();upd9();upd11();
+window.__ml={st:ST,setAns:function(i){ST.sel=i;upd5();},setTol:function(v){ST.tol=v;$('sTol').value=String(v);upd5();updChance();},setP:function(i){ST.p=i;ST.draws=[];ST.dk=0;upd3();},draw:doDraw,rev:function(v){ST.rev=v;upd5();},
+  setM:function(a,b,c,d){ST.wr=a;ST.per=b;ST.pj=c;ST.rd=d;$('sWr').value=String(a);$('sPer').value=String(b);$('sPj').value=String(c);$('sRd').value=String(d);upd9();upd2b();},setA:function(i){ST.a=i;upd2();}};
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
