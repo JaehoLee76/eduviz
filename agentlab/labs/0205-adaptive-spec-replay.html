@@ -160,7 +160,7 @@ table.mt td.n,table.mt th.n{white-space:nowrap}
   <h3 style="margin-top:0">시작하기 전에</h3>
   <p><b>이미 아시는 것</b> — 3σ 한계와 헛알람·놓침의 맞바꿈(0202), 중앙값과 1.4826×MAD로 하는 로버스트 추정(0203), 평균 런 길이 ARL과 CUSUM(0204), PM 뒤 평균 이동 검정(0101). 이 실험실에서는 현장 말대로 이상이 없는데 난 인터락을 <b>가성 인터락</b>(0202의 헛알람과 같은 것), 진짜 이상에 난 인터락을 <b>진성 인터락</b>이라 부릅니다.</p>
   <ul class="chips known"><li>3σ 한계</li><li>헛알람·놓침 맞바꿈</li><li>중앙값·1.4826×MAD</li><li>ARL·CUSUM</li><li>PM 뒤 평균 이동 검정</li></ul>
-  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다.</p>
+  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 위 다섯과 함께 쓰는 부속 낱말(확인 보류·C<sub>FA</sub>·C<sub>miss</sub>·<i>r</i>·Δmax·<i>τ</i>)도 쓰는 자리에서 한 줄로 풉니다.</p>
   <ul class="chips" id="termList"><li>적응형 한계 (adaptive limit)</li><li>안정화 구간 (burn-in window)</li><li>비용 함수 (cost function)</li><li>과거 재현 (historical replay)</li><li>시간순 분할 (time-ordered split)</li></ul>
 </div>
 
@@ -210,14 +210,14 @@ table.mt td.n,table.mt th.n{white-space:nowrap}
   <math display="block"><mrow><msub><mi>c</mi><mtext>새</mtext></msub><mo>=</mo><mi>중앙값</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mrow><mn>1</mn><mo>…</mo><msub><mi>n</mi><mi>b</mi></msub></mrow></msub><mo stretchy="false">)</mo><mo>,</mo><mspace width="1em"></mspace><msub><mi>w</mi><mtext>새</mtext></msub><mo>=</mo><mn>1.4826</mn><mo>×</mo><mi>MAD</mi><mo>,</mo><mspace width="1em"></mspace><mtext>한계</mtext><mo>=</mo><msub><mi>c</mi><mtext>새</mtext></msub><mo>±</mo><mi>k</mi><msub><mi>w</mi><mtext>새</mtext></msub></mrow></math>
   <span class="note"><i>x</i><sub>1…<i>n</i><sub>b</sub></sub>는 PM 직후 <i>n</i><sub>b</sub>장의 값입니다. 안정화 구간 안에서는 옛 중심 <i>c</i> ± (<i>k</i> + Δmax)·<i>w</i>(옛 폭)를 씁니다.</span>
 </div>
-<p>함정이 하나 있습니다. 안정화 구간에 진짜 이상이 들어오면 새 기준이 그 이상을 정상으로 삼켜 버립니다. 그래서 <b>새 중심이 옛 중심에서 Δmax × 옛 폭보다 멀리 옮겨 가면 자동으로 받아들이지 않고 사람 확인 1건으로 셉니다.</b> 확인했더니 구간 안에 진성 이상이 있었다면 옛 기준을 유지하고 그 이상을 잡은 것으로 셉니다. 이상이 없었다면 새 정상으로 받아들이되 불필요한 확인이었으므로 가성 1건으로 셉니다. 이 확인 단계를 이하 &lsquo;가드&rsquo;라 부르며, 끌 수도 있습니다.</p>
+<p>함정이 하나 있습니다. 안정화 구간에 진짜 이상이 들어오면 새 기준이 그 이상을 정상으로 삼켜 버립니다. 그래서 <b>새 중심이 옛 중심에서 Δmax × 옛 폭보다 멀리 옮겨 가면 자동으로 받아들이지 않고 사람 확인 1건으로 셉니다.</b> 확인했더니 구간 안에 진성 이상이 있었다면 옛 기준을 유지하고 그 이상을 잡은 것으로 셉니다. 이상이 없었다면 새 정상으로 받아들이되 불필요한 확인이었으므로 가성 1건으로 셉니다. 이 확인 단계를 이하 &lsquo;확인 보류 (hold)&rsquo;라 부르며, 끌 수도 있습니다.</p>
 <div class="lab">
-  <div class="labtitle">안정화 구간 길이 <i>n</i><sub>b</sub> · 허용 이동폭 Δmax · 가드 · 폭 <i>k</i> — 적응형 한계와 현행 고정 한계(같은 <i>k</i>)</div>
-  <div class="watch"><b>이렇게 해 보세요.</b> 그림의 PM을 고르고 <i>n</i><sub>b</sub>를 10까지 줄여 보십시오. 새 폭을 적은 값으로 추정하니 흔들려 가성이 늘어납니다. 이어서 가드를 껐다 켜 보십시오. 가드는 안정화 구간에 이상이 들어온 PM에서만 효과가 나므로, 이 기록에서는 차이가 거의 안 보이고 가드를 켠 쪽의 사람 확인만 늘 수 있습니다. 가드가 얼마나 자주 효과를 내는지는 기록마다 달라서 9절의 반복 실험에서 함께 봅니다. 가드를 켠 채 Δmax를 1로 낮추면 불필요한 사람 확인이 늘어납니다.</div>
+  <div class="labtitle">안정화 구간 길이 <i>n</i><sub>b</sub> · 허용 이동폭 Δmax · 확인 보류 · 폭 <i>k</i> — 적응형 한계와 현행 고정 한계(같은 <i>k</i>)</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 그림의 PM을 고르고 <i>n</i><sub>b</sub>를 10까지 줄여 보십시오. 새 폭을 적은 값으로 추정하니 흔들려 가성이 늘어납니다. 이어서 확인 보류를 껐다 켜 보십시오. 확인 보류는 안정화 구간에 이상이 들어온 PM에서만 효과가 나므로, 이 기록에서는 차이가 거의 안 보이고 확인 보류를 켠 쪽의 사람 확인만 늘 수 있습니다. 확인 보류가 얼마나 자주 효과를 내는지는 기록마다 달라서 9절의 반복 실험에서 함께 봅니다. 확인 보류를 켠 채 Δmax를 1로 낮추면 불필요한 사람 확인이 늘어납니다.</div>
   <div class="ctrl"><label for="nb2">안정화 구간 길이 <i>n</i><sub>b</sub> (장)</label><input type="range" id="nb2" min="10" max="200" step="5" value="100"><output id="nb2o"></output></div>
   <div class="ctrl"><label for="dm2">허용 이동폭 Δmax (옛 폭의 배수)</label><input type="range" id="dm2" min="1" max="6" step="0.5" value="3"><output id="dm2o"></output></div>
   <div class="ctrl"><label for="k2">한계의 폭 <i>k</i> (현행·적응형 공통)</label><input type="range" id="k2" min="2" max="6" step="0.05" value="3"><output id="k2o"></output></div>
-  <div class="row" role="group" aria-label="가드 켜고 끄기"><button class="btn" id="g2on" type="button" aria-pressed="true">가드 켬</button><button class="btn" id="g2off" type="button" aria-pressed="false">가드 끔</button>
+  <div class="row" role="group" aria-label="확인 보류 켜고 끄기"><button class="btn" id="g2on" type="button" aria-pressed="true">확인 보류 켬</button><button class="btn" id="g2off" type="button" aria-pressed="false">확인 보류 끔</button>
     <label for="pm2" style="display:flex;align-items:center;gap:.4rem;font-size:.9rem;font-weight:700">그림에 볼 PM</label><select id="pm2" style="width:auto;min-width:11rem"></select>
     <button class="btn ghost" id="r2" type="button">기준 설정으로 되돌리기</button></div>
   <div class="state" id="st2"></div>
@@ -265,12 +265,13 @@ table.mt td.n,table.mt th.n{white-space:nowrap}
   <div class="row"><button class="btn ghost" id="r4" type="button">기준 설정으로 되돌리기</button></div>
   <div class="state" id="st4"></div>
   <canvas id="cv4" height="270"></canvas>
-  <div class="legend"><span><span class="sw" style="border-color:var(--c10)"></span>고정 한계 (현행 + <i>k</i> 최적화)</span><span><span class="sw" style="border-color:var(--c9)"></span>적응형 한계 (<i>n</i><sub>b</sub> = <span id="s4_nb"></span>, Δmax = <span id="s4_dm"></span>, 가드 켬)</span><span><span class="dot" style="background:var(--ink)"></span>최소점 · 세로선은 현행 <i>k</i> = 3</span></div>
+  <div class="legend"><span><span class="sw" style="border-color:var(--c10)"></span>고정 한계 (현행 + <i>k</i> 최적화)</span><span><span class="sw" style="border-color:var(--c9)"></span>적응형 한계 (<i>n</i><sub>b</sub> = <span id="s4_nb"></span>, Δmax = <span id="s4_dm"></span>, 확인 보류 켬)</span><span><span class="dot" style="background:var(--ink)"></span>최소점 · 세로선은 현행 <i>k</i> = 3</span></div>
   <div class="tbwrap"><table id="tab4" class="mt num"></table></div>
   <div class="concl" id="concl4"></div>
 </div>
 <p>두 곡선의 최소점이 각 한계 방식에서 비용이 가장 작은 <i>k</i>입니다. 다만 이 점수는 <b>같은 180일로 k를 고르고 같은 180일로 점수를 매긴 값</b>입니다. 이 값이 곧 &lsquo;앞으로의 성적&rsquo;이라고 믿어도 되는지가 다음 물음입니다.</p>
-<p>그 전에, 적응형 한계가 고정 한계보다 낮지 않게 나오는 까닭을 봅니다. 적응형 한계는 PM마다 안정화 구간 값만으로 중심과 폭을 새로 추정하므로, 수준의 이동이 작으면 그 이동을 바로잡는 이득보다 추정의 흔들림이 더 클 수 있습니다. 이동의 크기를 <b>PM 이동폭 <i>τ</i></b>(새 정상 수준의 표준편차, 정상 산포 σ 단위)라 하고 키워 보십시오. 같은 기록을 <i>τ</i>만 바꿔 다시 뽑아, 앞 90일로 고른 <i>k</i>의 확인 90일 비용을 견줍니다.</p>
+<h3>적응형 한계가 늘 이기지는 않는 까닭 — PM 이동폭 실험</h3>
+<p>먼저 한 가지를 짚고 넘어갑니다. 적응형 한계가 고정 한계보다 늘 낫지는 않습니다. 적응형 한계는 PM마다 안정화 구간 값만으로 중심과 폭을 새로 추정하므로, 수준의 이동이 작으면 그 이동을 바로잡는 이득보다 추정의 흔들림이 더 클 수 있습니다. 이동의 크기를 <b>PM 이동폭 <i>τ</i></b>(새 정상 수준의 표준편차, 정상 산포 σ 단위)라 하고 키워 보십시오. 같은 기록을 <i>τ</i>만 바꿔 다시 뽑아, 앞 90일로 고른 <i>k</i>의 확인 90일 비용을 견줍니다.</p>
 <div class="lab">
   <div class="labtitle">PM 이동폭 <i>τ</i> — 고정 한계와 적응형 한계의 확인 90일 비용</div>
   <div class="watch"><b>이렇게 해 보세요.</b> <i>τ</i>를 기준값에서 1.5까지 올려 보십시오. 고정 한계는 PM마다 가성을 쌓아 비용이 커지고 적응형 한계의 비용은 거의 그대로여서 두 비용의 차이가 뒤집히는 지점이 보입니다. <i>τ</i>를 0으로 두면 PM이 수준을 안 바꾸는 설비입니다.</div>
@@ -284,6 +285,7 @@ table.mt td.n,table.mt th.n{white-space:nowrap}
 
 <!-- ===================== 5 ===================== -->
 <h2><span class="no">5</span>고르는 기간과 확인하는 기간을 나눈다 — 시간순 분할</h2>
+<p>용어를 먼저 정합니다. <b>라벨</b>은 현장 장부에 적힌 진성·가성 판정이고, <b>참값</b>은 이 가상 기록이 알고 있는 정답입니다(현장 기록에는 참값이 없습니다). 아래 표 2는 고르는 기간은 라벨로, 확인하는 기간은 참값으로 비용을 셉니다.</p>
 <p>같은 기록으로 고르고 같은 기록으로 평가하면 점수가 후하게 나옵니다. 고른 <i>k</i>가 이 기록의 우연(어떤 날 어떤 이상이 어떤 길이로 왔는지)에까지 맞춰져 있기 때문입니다. 그래서 앞 90일로 <i>k</i>를 고르고, 한 번도 보지 않은 뒤 90일에서 성능을 확인합니다. 이렇게 앞뒤로 나누는 것을 <b>시간순 분할 (time-ordered split)</b>이라 부릅니다. 실제로 spec은 과거 기록으로 고르고 미래에 쓰므로, 앞으로 나누는 것이 쓰는 방식과 같습니다.</p>
 <p>섞어서 나누면 어떻게 될까요. 유리를 무작위로 절반씩 나누면 같은 PM 구간과 같은 이상 사건의 유리가 학습과 확인 양쪽에 들어갑니다. 학습에서 어떤 사건을 잡도록 맞춘 <i>k</i>가 확인에서도 같은 사건의 나머지 유리를 만나므로 확인 점수가 좋게 나오기 쉽습니다. 미래 정보가 새어 들어간 것입니다. 아래 표의 마지막 줄이 그 차이를 재며, 새는 정도는 기록마다 달라서 이 표는 한 벌의 결과입니다. 전형적인 크기는 9절의 반복 실험에서 봅니다. 두 방식 모두 고른 <i>k</i>를 <b>배포 뒤 <span id="s5_fd"></span>일</b>에 돌린 비용과 자신의 확인 점수를 견줍니다.</p>
 <div class="lab">
@@ -328,7 +330,7 @@ table.mt td.n,table.mt th.n{white-space:nowrap}
     <tr><td class="rowh">1</td><td>인터락마다 진성·가성 판정, 판정 근거, PM·부품 교체 이벤트, 놓친 이상의 역추적 기록을 남깁니다. 라벨 점검 함수로 빈 칸과 엇갈린 라벨의 비율을 확인합니다.</td><td>사람이 기록, 에이전트가 점검</td></tr>
     <tr><td class="rowh">2</td><td><b>비용 비율 <i>r</i></b>(정지 1분과 불량 1장의 값)와 <b>PM 뒤 허용 이동폭 Δmax</b>를 정합니다. <i>r</i>은 여러 값으로 민감도를 함께 봅니다.</td><td>사람</td></tr>
     <tr><td class="rowh">3</td><td>후보 spec(고정·적응형, <i>k</i> 격자)을 라벨 붙은 과거 기록에 다시 돌려 비용 곡선과 최적 <i>k</i>를 구합니다. 앞 기간으로 고르고 뒤 기간으로 확인합니다.</td><td>에이전트</td></tr>
-    <tr><td class="rowh">4</td><td>확인 기간의 가성·놓침·비용을 현행과 견주고, 놓침이 늘었는지, 가드로 사람 확인이 필요했던 PM이 몇 번이었는지를 담아 spec 변경 제안 보고서를 씁니다.</td><td>에이전트</td></tr>
+    <tr><td class="rowh">4</td><td>확인 기간의 가성·놓침·비용을 현행과 견주고, 놓침이 늘었는지, 확인 보류로 사람 확인이 필요했던 PM이 몇 번이었는지를 담아 spec 변경 제안 보고서를 씁니다.</td><td>에이전트</td></tr>
     <tr><td class="rowh">5</td><td>보고서를 검토해 spec 변경을 승인하거나 반려합니다. 적용한 뒤에도 같은 재현을 달마다 돌려 최적 <i>k</i>가 움직이는지 다시 봅니다.</td><td>사람이 승인, 에이전트가 달마다 재현</td></tr>
   </table></div>
 </div>
@@ -559,7 +561,7 @@ print(f"라벨 점검(현행 학습 90일 인터락 {a['n']}건): 판정 칸 비
     <dt>라벨 수와 라벨 점검 결과</dt><dd id="rp_label"></dd>
     <dt>비용 가정 (사람 승인 값)</dt><dd id="rp_cost"></dd>
     <dt>확인 기간 결과 (가성·놓침·비용)</dt><dd id="rp_res"></dd>
-    <dt>가드로 사람 확인이 필요했던 PM</dt><dd id="rp_guard"></dd>
+    <dt>확인 보류로 사람 확인이 필요했던 PM</dt><dd id="rp_guard"></dd>
     <dt>위험</dt><dd id="rp_risk"></dd>
     <dt>승인란</dt><dd>승인자 ____________ · 승인 일자 ____________ · 적용 개시일 ____________ (<b>spec 변경은 사람의 승인 뒤에 적용합니다.</b> 적용한 뒤에도 같은 재현을 달마다 돌려 다시 봅니다.)</dd>
   </dl>
@@ -717,13 +719,13 @@ function upd2(){
   hh+='<tr><td class="rowh">가성 인터락 (건)</td><td class="hit">'+fmtN(f0)+'</td><td><b>'+fmtN(f2)+'</b></td></tr>';
   hh+='<tr><td class="rowh">진성 인터락 (건)</td><td>'+fmtN(h0)+'</td><td>'+fmtN(h2)+'</td></tr>';
   hh+='<tr><td class="rowh">놓친 유리 (장)</td><td>'+fmtN(m0)+'</td><td><b>'+fmtN(m2)+'</b></td></tr>';
-  hh+='<tr><td class="rowh">가드가 요구한 사람 확인 (건)</td><td>—</td><td>'+ck+'</td></tr>';
+  hh+='<tr><td class="rowh">확인 보류가 요구한 사람 확인 (건)</td><td>—</td><td>'+ck+'</td></tr>';
   hh+='<tr><td class="rowh">안정화 구간 안에서 시작한 진성 이상 (건) · 그중 알람이 한 번도 안 난 것 (삼켜진 사건)</td><td>—</td><td>'+be.length+' · <b>'+sw.length+'</b></td></tr>';
   hh+='<tr><td class="rowh">그 이상들의 놓친 유리 (장)</td><td>—</td><td>'+fmtN(swm)+'</td></tr>';
   $('tab2').innerHTML=hh;
   var same=st.nb===DEF.nb&&isBase(st.dm,DEF.dmax)&&st.guard===true&&isBase(st.k,3);
-  stateBox($('st2'),same,'지금 이 값이 기준 설정입니다. 안정화 구간 '+DEF.nb+'장, Δmax '+num(DEF.dmax)+'배, 가드 켬, k = 3.00(현행과 같은 폭).','지금은 기준 설정에서 옮겨 놓은 가정입니다. 안정화 구간 '+DEF.nb+' → '+st.nb+'장, Δmax '+num(DEF.dmax)+' → '+num(st.dm)+'배, 가드 '+(st.guard?'켬':'끔')+', k 3.00 → '+fmt(st.k,2)+'.');
-  $('concl2').innerHTML='<b>같은 <i>k</i> = '+fmt(st.k,2)+'에서 가성 인터락이 현행 '+fmtN(f0)+'건, 적응형 '+fmtN(f2)+'건입니다.</b> 놓친 유리는 '+fmtN(m0)+'장에서 '+fmtN(m2)+'장으로 바뀌었습니다. 가드 '+(st.guard?'켬':'끔')+' · 안정화 구간 '+st.nb+'장에서 사람 확인 '+ck+'건, 삼켜진 사건 '+sw.length+'건입니다.'+(st.guard?'':' 가드를 끄면 안정화 구간에 들어온 이상이 새 기준에 섞여 들어가므로 가드를 켠 때와 놓친 장수를 견줘 보십시오.');
+  stateBox($('st2'),same,'지금 이 값이 기준 설정입니다. 안정화 구간 '+DEF.nb+'장, Δmax '+num(DEF.dmax)+'배, 확인 보류 켬, k = 3.00(현행과 같은 폭).','지금은 기준 설정에서 옮겨 놓은 가정입니다. 안정화 구간 '+DEF.nb+' → '+st.nb+'장, Δmax '+num(DEF.dmax)+' → '+num(st.dm)+'배, 확인 보류 '+(st.guard?'켬':'끔')+', k 3.00 → '+fmt(st.k,2)+'.');
+  $('concl2').innerHTML='<b>같은 <i>k</i> = '+fmt(st.k,2)+'에서 가성 인터락이 현행 '+fmtN(f0)+'건, 적응형 '+fmtN(f2)+'건입니다.</b> 놓친 유리는 '+fmtN(m0)+'장에서 '+fmtN(m2)+'장으로 바뀌었습니다. 확인 보류 '+(st.guard?'켬':'끔')+' · 안정화 구간 '+st.nb+'장에서 사람 확인 '+ck+'건, 삼켜진 사건 '+sw.length+'건입니다.'+(st.guard?'':' 확인 보류를 끄면 안정화 구간에 들어온 이상이 새 기준에 섞여 들어가므로 확인 보류를 켠 때와 놓친 장수를 견줘 보십시오.');
   /* 그림 */
   var p=PMH[st.pm],a=Math.max(0,p-250),b=Math.min(NH,p+750),xs=[],hi=[],lo=[],i,ymin,ymax;
   for(i=a;i<b;i++){xs.push(i);hi.push(pol.c[i]+(st.k+pol.add[i])*pol.w[i]);lo.push(pol.c[i]-(st.k+pol.add[i])*pol.w[i]);}
@@ -898,7 +900,7 @@ function updG(){
   stateBox($('stG'),same,'지금 이 값이 기본 설정입니다. 특징 '+GDEF.f+'개, C_FA '+GDEF.a+'분, C_miss '+GDEF.m+'분.','지금은 현장 숫자를 옮겨 놓은 가정입니다.');
   function d(c,key,u){var v=mo(c[key])-mo(g[key==='f'?'f0':'m0']);return (v<=0?fmtN(Math.abs(v))+u+' 줄고':fmtN(v)+u+' 늘고');}
   var best=t(g.fixed)<=t(g.adaptive)?'고정 한계':'적응형 한계',bc=t(g.fixed)<=t(g.adaptive)?g.fixed:g.adaptive,fa0=mo(g.f0)*sg.a/60;
-  $('conclG').innerHTML='<b>해석.</b> 확인 90일의 결과를 한 달로 환산하면, 비용이 더 작은 쪽은 '+best+'입니다. 현행 대비 가성 인터락은 한 달에 '+d(bc,'f','건')+' 정지·확인 시간은 '+fmtN(Math.abs(mo(bc.f)-mo(g.f0))*sg.a/60)+'시간 '+(bc.f<=g.f0?'줄고':'늘고')+', 놓친 유리는 한 달에 '+fmtN(Math.abs(mo(bc.m)-mo(g.m0)))+'장 '+(bc.m>g.m0?'늘어납니다(정직하게 +로 적습니다)':bc.m<g.m0?'줄어듭니다':'그대로입니다')+'. 총비용은 한 달에 '+fmtN(Math.abs(mo(t(bc))-mo(t(cols[0]))))+'분 '+(t(bc)<=t(cols[0])?'줄어듭니다':'늘어납니다')+'. 이 값은 가상 기록 한 벌이라 흔들림이 큽니다(9절).'+(fa0>720?' 특징 '+F+'개의 정지 시간을 그대로 더하면 한 달(720시간)을 넘습니다. 같은 시각에 여러 특징이 함께 서므로 실제 정지 시간은 이 합보다 작습니다. 이 값은 확인에 드는 설비·사람 시간의 총량으로 읽으십시오.':'');
+  $('conclG').innerHTML='<b>해석.</b> 확인 90일의 결과를 한 달로 환산하면, 비용이 더 작은 쪽은 '+best+'입니다. 현행 대비 가성 인터락은 한 달에 '+d(bc,'f','건')+' 정지·확인 시간은 '+fmtN(Math.abs(mo(bc.f)-mo(g.f0))*sg.a/60)+'시간 '+(bc.f<=g.f0?'줄고':'늘고')+', 놓친 유리는 한 달에 '+fmtN(Math.abs(mo(bc.m)-mo(g.m0)))+'장 '+(bc.m>g.m0?'늘어납니다(+로 적습니다)':bc.m<g.m0?'줄어듭니다':'그대로입니다')+'. 총비용은 한 달에 '+fmtN(Math.abs(mo(t(bc))-mo(t(cols[0]))))+'분 '+(t(bc)<=t(cols[0])?'줄어듭니다':'늘어납니다')+'. 이 값은 가상 기록 한 벌이라 흔들림이 큽니다(9절).'+(fa0>720?' 특징 '+F+'개의 정지 시간을 그대로 더하면 한 달(720시간)을 넘습니다. 같은 시각에 여러 특징이 함께 서므로 실제 정지 시간은 이 합보다 작습니다. 이 값은 확인에 드는 설비·사람 시간의 총량으로 읽으십시오.':'');
 }
 [['gF','f'],['gA','a'],['gM','m']].forEach(function(a){$(a[0]).addEventListener('input',function(){sg[a[1]]=+this.value;updG();});});
 $('rG').addEventListener('click',function(){sg={f:GDEF.f,a:GDEF.a,m:GDEF.m};$('gF').value=String(GDEF.f);$('gA').value=String(GDEF.a);$('gM').value=String(GDEF.m);updG();});
@@ -916,7 +918,7 @@ var SEL=(function(){var p1=BA.P1.time.tr.cost,p2=BA.P2.time.tr.cost;return p2<p1
     h+=row(q[0]+fmt(q[2].pick.k,2)+(q[2]===SEL.obj?' (제안)':''),c.fa,c.miss,perCount(r.hits,'ck'),c.cost,'good');});
   var sc=SEL.obj.time.ck,rs=runAt(SEL.kind,DEF.nb,DEF.dmax,DEF.guard,SEL.obj.pick.k),hs=perCount(rs.hits,'ck');
   h+='<tr><td class="rowh">제안의 변화</td><td>'+sgn(sc.fa+hs-p0.fa-hit0,0)+'</td><td><b>'+sgn(sc.fa-p0.fa,0)+'</b></td><td>'+sgn(sc.miss-p0.miss,0)+'</td><td><b>'+sgn(sc.cost-p0.cost,0)+'</b></td></tr>';
-  h+='<tr><td class="rowh">가드로 사람 확인 (건, 적응형의 가성에 포함)</td><td colspan="4">'+checksIn(T9.policy(D,'adaptive',DEF.nb,DEF.dmax,DEF.guard),HALF,NH)+'</td></tr>';
+  h+='<tr><td class="rowh">확인 보류로 사람 확인 (건, 적응형의 가성에 포함)</td><td colspan="4">'+checksIn(T9.policy(D,'adaptive',DEF.nb,DEF.dmax,DEF.guard),HALF,NH)+'</td></tr>';
   $('tab9').innerHTML=h;
   setT('l_pc',pct(P0H.fa/(P0H.fa+P0H.hit),0));
   $('landing').innerHTML='<b>제안은 '+SEL.nm+'(<i>k</i> = '+fmt(SEL.obj.pick.k,2)+')입니다. 확인 90일의 가성 인터락이 '+fmtN(p0.fa)+'건에서 '+fmtN(sc.fa)+'건으로, 놓친 유리는 '+fmtN(p0.miss)+'장에서 '+fmtN(sc.miss)+'장으로 바뀌었습니다.</b> 총비용은 '+fmtN(p0.cost)+'분에서 '+fmtN(sc.cost)+'분입니다. 제안은 학습 90일의 비용이 더 작은 쪽(학습 비용 고정 '+fmtN(BA.P1.time.tr.cost)+'분, 적응형 '+fmtN(BA.P2.time.tr.cost)+'분)을 골랐고, 확인 90일은 고르는 데 한 번도 쓰지 않았습니다. 확인 기간의 진성 사건은 '+EVH.filter(function(e){return e.start>=HALF;}).length+'건뿐이라 놓친 장수의 변화는 크게 흔들립니다.'+(BA.P2.time.ck.cost>BA.P1.time.ck.cost?' 이 기록에서 적응형이 고정 한계보다 비용이 낮지 않은 것은 PM 이동폭이 작은 설비에서 흔한 일입니다(4절의 <i>τ</i> 실험).':'');
@@ -933,7 +935,7 @@ $('rpBtn').addEventListener('click',function(){
       h+=rpRow('고정 한계 + 최적 <i>k</i>의 확인 90일 비용 ÷ 현행의 확인 90일 비용',R.c1c0,P);h+=rpRow('적응형 + 최적 <i>k</i>의 확인 90일 비용 ÷ 현행의 확인 90일 비용',R.c2c0,P);h+=rpRow('적응형 비용 ÷ 고정 한계 + 최적 <i>k</i>의 비용 (확인 90일)',R.c2c1,P);
       h+=rpRow('적응형의 가성 인터락 변화율 (확인 90일, 현행 대비)',R.fa,Pc);h+=rpRow('적응형의 놓친 유리 변화 (확인 90일, 현행 대비)',R.ms,Pm);
       h+=rpRow('확인 비용 ÷ 학습 비용 (시간순)',R.ckTr,P);h+=rpRow('확인 점수의 낙관 정도 (시간순, 미래 ÷ 확인 − 1)',R.bt,Pc);h+=rpRow('확인 점수의 낙관 정도 (섞어 나누기)',R.bs,Pc);
-      h+=rpRow('가드를 끄면 더 놓치는, 안정화 구간에서 시작한 진성 이상의 유리 (같은 <i>k</i>, 그런 사건이 있는 기록만)',R.gd,Pm);h+=rpRow('놓친 이상의 기록이 없을 때 고른 <i>k</i>의 이동',R.unk,Pk);h+=rpRow('그때의 참값 비용 손해 (분/90일)',R.unl,Pn);
+      h+=rpRow('확인 보류를 끄면 더 놓치는, 안정화 구간에서 시작한 진성 이상의 유리 (같은 <i>k</i>, 그런 사건이 있는 기록만)',R.gd,Pm);h+=rpRow('놓친 이상의 기록이 없을 때 고른 <i>k</i>의 이동',R.unk,Pk);h+=rpRow('그때의 참값 비용 손해 (분/90일)',R.unl,Pn);
       $('tabR').innerHTML=h;$('rpSt').className='state';$('rpSt').textContent='가상 기록 '+N+'벌을 돌렸습니다. 마지막 두 줄은 놓친 이상의 역추적 기록이 없다고 가정한 경우입니다. 범위가 넓은 줄은 기록 한 벌의 숫자를 그대로 믿으면 안 된다는 뜻입니다.';btn.disabled=false;rpRun=false;return;
     }
     sd++;var s=MS.scenario('S9',{seed:sd}),A=s.analysis,un=s.analyze({miss_traced:false});
@@ -983,14 +985,14 @@ $('rpBtn').addEventListener('click',function(){
   /* 11절 보고서 */
   var rw=function(id,h){$(id).innerHTML=h;},pol2=T9.policy(D,'adaptive',DEF.nb,DEF.dmax,DEF.guard),p0c=BA.P0.ck,p2c=SEL.obj.time.ck,e1=EVH.filter(function(e){return e.start<HALF;}).length,e2=EVH.length-e1;
   rw('rp_feat','챔버 압력(안정 구간 평균, 정상 산포 σ = 1로 맞춘 가상 단위)');
-  rw('rp_spec','현행: PM 전 첫 '+fmtN(BASE.n)+'장의 평균 ± 3.00 표준편차(고정) · 제안: '+(SEL.kind==='adaptive'?'적응형 한계, <i>k</i> = '+fmt(BA.P2.pick.k,2)+', 안정화 구간 <i>n</i><sub>b</sub> = '+DEF.nb+'장, Δmax = '+num(DEF.dmax)+'배, 가드 켬':'고정 한계, <i>k</i> = '+fmt(BA.P1.pick.k,2))+'(학습 90일 비용이 작은 쪽)');
+  rw('rp_spec','현행: PM 전 첫 '+fmtN(BASE.n)+'장의 평균 ± 3.00 표준편차(고정) · 제안: '+(SEL.kind==='adaptive'?'적응형 한계, <i>k</i> = '+fmt(BA.P2.pick.k,2)+', 안정화 구간 <i>n</i><sub>b</sub> = '+DEF.nb+'장, Δmax = '+num(DEF.dmax)+'배, 확인 보류 켬':'고정 한계, <i>k</i> = '+fmt(BA.P1.pick.k,2))+'(학습 90일 비용이 작은 쪽)');
   rw('rp_period','학습 1~'+(HALF/PD)+'일(<i>k</i> 선택, 진성 사건 '+e1+'건) · 확인 '+(HALF/PD+1)+'~'+NDAY+'일(성능 확인, 진성 사건 '+e2+'건). 사건이 적어 놓친 장수의 추정은 흔들립니다.');
   rw('rp_label','현행 학습 90일 인터락 '+il.length+'건에 판정이 붙어 있고(판정 칸 비어 있음 0%), 같은 값대에서 라벨이 엇갈린 인터락이 '+Math.round(conf*100)+'%입니다. 이 값대에서는 값만으로 진성·가성이 갈리지 않으므로 판정 근거 칸이 필요합니다.');
   rw('rp_cost','C<sub>FA</sub> = '+CFA+'분, C<sub>miss</sub> = '+CM0+'분(<i>r</i> = '+fmt(CM0/CFA,2)+'). <b>사람이 승인한 값을 적습니다</b>(여러 <i>r</i>로 본 민감도 표 첨부).');
   rw('rp_res','가성 '+fmtN(p0c.fa)+' → '+fmtN(p2c.fa)+'건 · 놓친 유리 '+fmtN(p0c.miss)+' → '+fmtN(p2c.miss)+'장 · 총비용 '+fmtN(p0c.cost)+' → '+fmtN(p2c.cost)+'분 (현행 → 제안, 확인 90일 참값)');
   var gl=(SEL.kind!=='adaptive'?[]:pol2.moves).filter(function(m){return m.checked&&m.pm<NH;}).map(function(m){return 'PM '+(PMH.indexOf(m.pm)+1)+'(유리 '+fmtN(m.pm)+'번째): 새 중심이 옛 중심에서 '+fmt(Math.abs(m.new_c-m.old_c)/m.old_w,1)+'폭 이동 → '+(m.anom_in_window?'구간 안에 진성 이상 있음, 옛 기준 유지':'이상 없음, 새 기준 채택(가성 1건으로 셈)');});
-  rw('rp_guard',SEL.kind!=='adaptive'?'제안이 고정 한계이므로 해당 없음':gl.length?gl.join('<br>'):'기록 구간에서 가드가 걸린 PM은 없었습니다.');
-  rw('rp_risk','확인 기간에서 놓친 유리가 '+fmtN(p0c.miss)+'장에서 '+fmtN(p2c.miss)+'장으로 '+(p2c.miss>p0c.miss?'<b>늘었습니다.</b> 승인 전에 확인합니다.':p2c.miss<p0c.miss?'줄었지만 사건이 '+e2+'건뿐이라 이 차이를 확정하기는 어렵습니다.':'그대로입니다.')+(SEL.kind==='adaptive'?' 안정화 구간에 든 진성 이상은 새 기준에 섞일 수 있어 가드·Δmax를 함께 승인합니다.':''));
+  rw('rp_guard',SEL.kind!=='adaptive'?'제안이 고정 한계이므로 해당 없음':gl.length?gl.join('<br>'):'기록 구간에서 확인 보류가 걸린 PM은 없었습니다.');
+  rw('rp_risk','확인 기간에서 놓친 유리가 '+fmtN(p0c.miss)+'장에서 '+fmtN(p2c.miss)+'장으로 '+(p2c.miss>p0c.miss?'<b>늘었습니다.</b> 승인 전에 확인합니다.':p2c.miss<p0c.miss?'줄었지만 사건이 '+e2+'건뿐이라 이 차이를 확정하기는 어렵습니다.':'그대로입니다.')+(SEL.kind==='adaptive'?' 안정화 구간에 든 진성 이상은 새 기준에 섞일 수 있어 확인 보류·Δmax를 함께 승인합니다.':''));
 })();
 
 /* ---- 테마·상단바 ---- */

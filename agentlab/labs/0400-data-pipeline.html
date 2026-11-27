@@ -194,13 +194,13 @@ td.dim{color:var(--soft)}
 
 <nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0306-mask-life.html">← 이전: 마스크 수명 예측</a><span class="sp"></span><a href="0410-llm-strengths-limits.html">다음: LLM이 잘하는 것과 틀리는 것 →</a></nav>
 
-<p><b>분석 함수가 맞아도 그 함수에 들어가는 표가 틀리면 결과가 조용히 틀립니다.</b> 그래서 파이프라인은 1) 정해진 시간 창으로 자료를 뽑고, 2) <code>glass_id</code>·마스크·챔버 같은 키로 잇되 이벤트는 &lsquo;챔버가 같고 시각이 구간 안&rsquo;으로 붙이고, 3) 매 실행마다 행 수·키 중복·빈칸 비율·이음 비율·늦게 온 자료·열 구성을 점검해 통과할 때만 결과를 내고, 4) 같은 입력이면 언제 다시 돌려도 같은 결과(입력 지문·코드 판·출력 지문)가 나오게 만듭니다. 그래야 에이전트가 이 결과 위에서 판단할 수 있습니다.</p>
+<p><b>분석 함수가 맞아도 그 함수에 들어가는 표가 틀리면 결과가 조용히 틀립니다.</b> 그래서 파이프라인은 1) 정해진 시간 창으로 자료를 뽑고, 2) <code>glass_id</code>·마스크·챔버 같은 키로 잇되 이벤트는 &lsquo;챔버가 같고 시각이 구간 안&rsquo;으로 붙이고, 3) 매 실행마다 행 수·키 중복·열 구성·빈칸 비율·이음 비율·시각 범위·모델 판의 일곱 규칙으로 점검해 통과할 때만 결과를 내고(늦게 온 자료는 점검과 별개로 알림만 줍니다), 4) 같은 입력이면 언제 다시 돌려도 같은 결과(입력 지문·코드 판·출력 지문)가 나오게 만듭니다. 그래야 에이전트가 이 결과 위에서 판단할 수 있습니다.</p>
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
   <p><b>이미 아시는 것</b> — 0101의 FDC 요약값, 0201의 궤적에서 특징 뽑기, 0206의 상태·전이·사례 기록(<code>links</code>·<code>trace</code>), 0302의 계수 표, 0303의 <code>join_fdc_ppa</code>(못 이은 행 수)와 온도 보정, 0305의 모델 판·센서 판·드리프트 감시. 표·열·행과 CSV 파일.</p>
   <ul class="chips known"><li>FDC 요약값 (0101)</li><li>궤적 → 특징 (0201)</li><li>사례 기록 · links (0206)</li><li>계수 표 (0302)</li><li>FDC·PPA 잇기 · 온도 보정 (0303)</li><li>모델 판 · 센서 판 · 드리프트 감시 (0305)</li></ul>
-  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(되돌아보기 창 · 늦게 온 자료 · 점검 문턱 · 실행 기록)은 쓰는 자리에서 문장으로 정의합니다. SQL 의 네 가지 말(SELECT · WHERE · JOIN · GROUP BY)은 처음 쓰는 자리에서 한 줄로 풀어 둡니다.</p>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(되돌아보기 창 · 늦게 온 자료 · 점검 문턱 · 실행 기록)은 쓰는 자리에서 문장으로 정의합니다. SQL 의 핵심 네 마디(SELECT · WHERE · JOIN · GROUP BY)와 집계 함수 COUNT · AVG · SUM, 정렬 ORDER BY, 구간 BETWEEN 은 처음 쓰는 자리에서 한 줄로 풀어 둡니다.</p>
   <ul class="chips" id="termList"><li>파이프라인 (pipeline)</li><li>시간 창 (time window)</li><li>구간 이음 (interval join)</li><li>자료 점검 (data check)</li><li>지문 (fingerprint)</li><li>멱등 (idempotent)</li></ul>
 </div>
 
@@ -226,7 +226,7 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 1 ===================== -->
 <h2><span class="no">1</span>손에 쥔 것 — 사내 시스템이 내놓는 표 네 장</h2>
-<p>가상 공장은 블록 <b>B02·B03</b>의 챔버 1~4, 곧 <b><span class="v_nch"></span>개 챔버</b>입니다. 유리는 챔버마다 <span class="v_ct"></span>분에 한 장씩 증착하고, 턴(<span class="v_nturn"></span>장)이 되풀이됩니다. 모든 유리를 적으면 표가 너무 커지므로, FDC 는 턴 안 순번을 <span class="v_every"></span>으로 나눈 나머지가 <span class="v_rem"></span>인 유리(5·15·…·115번)를 표본으로 적재하고, PPA 는 그 가운데 턴마다 <span class="v_gpt"></span>장(<span class="v_gits"></span>번)만 잽니다. PPA 표의 <code>ppa_metric</code> 은 0301 의 지표(|평균| + 3σ)를 dx·dy 로 구해 큰 쪽입니다. 아래 네 장이 사내 DB 가 실제로 받은 모습입니다(가상 이름).</p>
+<p>가상 공장은 블록 <b>B02·B03</b>의 챔버 1~4, 곧 <b><span class="v_nch"></span>개 챔버</b>입니다. 유리는 챔버마다 <span class="v_ct"></span>분에 한 장씩 증착하고, 턴(<span class="v_nturn"></span>장)이 되풀이됩니다. 모든 유리를 적으면 표가 너무 커지므로, FDC 는 턴 안 순번을 <span class="v_every"></span>으로 나눈 나머지가 <span class="v_rem"></span>인 유리(5·15·…·115번)를 표본으로 적재하고, PPA 는 그 가운데 턴마다 <span class="v_gpt"></span>장(<span class="v_gits"></span>번)만 잽니다. PPA 표의 <code>ppa_metric</code> 은 0301 의 지표(|평균| + 3σ)를 dx 와 dy 각각 구해 큰 쪽입니다(0304 는 dx 만 썼지만 이 가상 공장 표는 둘 중 큰 쪽을 쓰는 약속입니다). 아래 네 장이 사내 DB 가 실제로 받은 모습입니다(가상 이름).</p>
 <div class="tbwrap"><table id="tab1a" class="mt"></table></div>
 <p>표 두 장의 앞부분을 보면 이렇습니다. <code>glass_id</code> 가 두 표를 잇는 키이고, <code>ts</code> 는 유리를 증착한 시각, <code>measured_ts</code> 는 PPA 를 잰 시각입니다. 측정은 증착한 뒤에 합니다(분포 가정: 증착 뒤 <span class="v_dmin"></span>분 + 평균 <span class="v_dmean"></span>분의 지수 분포 지연).</p>
 <div class="tbwrap"><table id="tab1b" class="mt num"></table></div>
@@ -258,7 +258,7 @@ td.dim{color:var(--soft)}
   <li><b>파이프라인 (pipeline)</b> — 뽑기 → 잇기 → 점검 → 분석 → 남기기를 정해진 순서로 묶어, 사람이 손대지 않고 되풀이해 돌리는 작업입니다. 어느 칸이든 실패하면 그 뒤 칸으로 넘어가지 않습니다.</li>
   <li><b>시간 창 (time window)</b> — 한 번의 실행이 다루는 자료의 시작·끝 시각입니다. 창이 겹치거나 비면 같은 유리를 두 번 세거나 빠뜨립니다. 이 실험실의 창은 <code>[시작, 끝)</code> 로, 시작은 포함하고 끝은 포함하지 않습니다.</li>
 </ul>
-<p>사내 DB 에서 표를 꺼내는 공통어가 SQL 입니다. 이 실험실은 네 마디만 씁니다. <b>SELECT</b> 는 어떤 열을 꺼낼지, <b>WHERE</b> 는 어떤 줄만 남길지(여기서는 시간 창으로 자르기), <b>JOIN</b> 은 키가 같은 줄끼리 옆으로 붙이기, <b>GROUP BY</b> 는 같은 값끼리 묶어 계산하기입니다. 아래 글은 보여 주는 글이고, 이 화면의 숫자는 같은 일을 하는 계산이 만듭니다. 10절의 Python 은 같은 SQL 을 sqlite3 로 실제로 돌려 같은 숫자를 냅니다.</p>
+<p>사내 DB 에서 표를 꺼내는 공통어가 SQL 입니다. 이 실험실의 핵심은 네 마디입니다. <b>SELECT</b> 는 어떤 열을 꺼낼지, <b>WHERE</b> 는 어떤 줄만 남길지(여기서는 시간 창으로 자르기), <b>JOIN</b> 은 키가 같은 줄끼리 옆으로 붙이기, <b>GROUP BY</b> 는 같은 값끼리 묶어 계산하기입니다. 여기에 집계 함수 <b>COUNT</b>(줄 수 세기)·<b>SUM</b>(합)·<b>AVG</b>(평균)와 <b>ORDER BY</b>(정렬)가 곁들여집니다. 아래 글은 보여 주는 글입니다. 10절의 Python 은 같은 SQL 을 sqlite3 로 실제로 돌려 같은 숫자를 냅니다.</p>
 <pre class="sql" id="sqlFdc">SELECT * FROM fdc_glass WHERE ts &gt;= :s AND ts &lt; :e</pre>
 <pre class="sql" id="sqlPpa">SELECT * FROM ppa_coef WHERE ts &gt;= :s AND ts &lt; :e AND measured_ts &lt;= :a</pre>
 <p>위 둘이 &lsquo;뽑기&rsquo;입니다. <code>:s</code> 는 창 시작, <code>:e</code> 는 창 끝, <code>:a</code> 는 실행 시각(이 시각까지 도착한 PPA 만 봅니다). 이어서 &lsquo;잇기&rsquo;와 챔버별 집계입니다.</p>
@@ -271,7 +271,7 @@ WHERE f.ts &gt;= :s AND f.ts &lt; :e AND p.ts &gt;= :s AND p.ts &lt; :e AND p.me
 GROUP BY f.block, f.chamber ORDER BY f.block, f.chamber</pre>
 <p><code>AVG</code> 는 빈칸(NULL)을 건너뛰고 평균하므로, FDC 온도가 비어 있는 유리는 보정할 수 없어 평균에서 빠집니다(0303 과 같은 규칙).</p>
 <div class="qna" data-label="SQL 을 꼭 배워야 하나요?" data-q="SQL 을 꼭 배워야 하나요?">
-  <p><b>뽑기와 잇기는 사내 DB 와 말하는 공통어가 SQL 이라 최소한은 알아야 하고, 분석은 Python 에 맡겨 나눠 쓰면 됩니다.</b> 이 실험실에서 쓴 것은 SELECT · WHERE · JOIN · GROUP BY 네 마디뿐이고, 아래 화면의 챔버별 표는 그 네 마디가 한 번에 돌려주는 표 한 장입니다.</p>
+  <p><b>뽑기와 잇기는 사내 DB 와 말하는 공통어가 SQL 이라 최소한은 알아야 하고, 분석은 Python 에 맡겨 나눠 쓰면 됩니다.</b> 이 실험실에서 쓴 핵심은 SELECT · WHERE · JOIN · GROUP BY 네 마디이고, 아래 화면의 챔버별 표는 그 네 마디가 한 번에 돌려주는 표 한 장입니다.</p>
   <p>SQL 문장은 AI 가 대신 써 줄 수 있지만, 창의 끝을 포함하는지(<code>&lt;</code> 인지 <code>&lt;=</code> 인지)와 JOIN 키가 맞는지는 사람이 읽고 확인해야 합니다. 같은 유리를 두 번 세는 일이 바로 그 자리에서 생깁니다(3절 슬라이더).</p>
 </div>
 <div class="lab">
@@ -296,6 +296,7 @@ GROUP BY f.block, f.chamber ORDER BY f.block, f.chamber</pre>
 <pre class="sql" id="sqlEvents">SELECT COUNT(DISTINCT f.glass_id) FROM fdc_glass f
 JOIN events e ON e.block = f.block AND e.chamber = f.chamber AND f.ts BETWEEN e.start_ts AND e.end_ts
 WHERE f.ts &gt;= :s AND f.ts &lt; :e</pre>
+<p>여기서 <b>BETWEEN</b> 은 값이 두 끝 사이(양 끝 포함)에 드는 줄만 고르고, <b>DISTINCT</b> 는 같은 유리가 여러 번 나와도 한 번만 세게 합니다.</p>
 <p>세정·센서 교정 뒤에 증착된 유리를 이렇게 표시해 두면, 0303 의 열변형·0305 의 센서 판 이야기가 바로 이어집니다. 어느 유리가 교정 직후였는지가 표에 있기 때문입니다.</p>
 <div class="lab">
   <div class="labtitle">고른 날의 챔버별 시간 축 — 이벤트 띠와 유리 점</div>
@@ -313,7 +314,7 @@ WHERE f.ts &gt;= :s AND f.ts &lt; :e</pre>
 <h2><span class="no">5</span>자료 점검 — 결과가 나오기 전에 표를 보기</h2>
 <p>2절에서 막힌 이유는 결과만 봤기 때문입니다. 결과가 나오기 전의 표가 약속대로 왔는지는 규칙으로 볼 수 있습니다. 이 일에 이름을 붙입니다.</p>
 <ul class="termdef">
-  <li><b>자료 점검 (data check)</b> — 분석 전에 표가 약속대로 왔는지 보는 규칙입니다(행 수 · 키 중복 · 빈칸 비율 · 이음 비율 · 늦게 온 자료 · 열 구성). 한 규칙이라도 실패하면 결과를 내지 않고 알립니다.</li>
+  <li><b>자료 점검 (data check)</b> — 분석 전에 표가 약속대로 왔는지 보는 규칙입니다(행 수 · 키 중복 · 열 구성 · 빈칸 비율 · 이음 비율 · 시각 범위 · 모델 판의 일곱 규칙). 한 규칙이라도 실패하면 결과를 내지 않고 알립니다.</li>
 </ul>
 <p>점검 규칙은 아래 일곱 가지이고, 문턱(<b>점검 문턱</b>, 통과와 실패를 가르는 값)은 가운데 세 가지가 조절 가능합니다. 나머지 넷은 0이어야 하거나 하나여야 하는 규칙이라 문턱을 두지 않습니다.</p>
 <div class="tbwrap"><table class="mt" id="tabRules">
@@ -367,7 +368,7 @@ WHERE f.ts &gt;= :s AND f.ts &lt; :e</pre>
 <h2><span class="no">7</span>지문과 멱등 — 같은 입력이면 같은 결과</h2>
 <p>에이전트가 이 결과 위에서 판단하려면, 결과가 어느 입력에서 나왔는지를 짧게 증명할 수 있어야 합니다. 이름 두 개가 필요합니다.</p>
 <ul class="termdef">
-  <li><b>지문 (fingerprint)</b> — 입력 자료나 출력 결과를 정해진 방식으로 줄인 짧은 문자열(해시)입니다. 같으면 같은 자료이고, 다르면 무언가 바뀐 것입니다. 이 실험실은 줄을 <code>glass_id</code> 순으로 정렬해 이은 글자에 FNV-1a 32비트 해시를 씁니다(보안용이 아니라 &lsquo;같은 자료인가&rsquo; 확인용이어서 단순한 해시로 충분합니다).</li>
+  <li><b>지문 (fingerprint)</b> — 입력 자료나 출력 결과를 정해진 방식으로 줄인 짧은 문자열(해시)입니다. 다르면 반드시 무언가 바뀐 것이고, 같으면 같은 자료일 가능성이 매우 높습니다(우연히 같아지는 충돌은 드물지만 있을 수 있습니다). 이 실험실은 줄을 <code>glass_id</code> 순으로 정렬해 이은 글자에 FNV-1a 32비트 해시를 씁니다(보안용이 아니라 &lsquo;같은 자료인가&rsquo; 확인용이어서 단순한 해시로 충분합니다).</li>
   <li><b>멱등 (idempotent)</b> — 같은 날짜로 몇 번을 다시 돌려도 결과 표가 한 벌만 남고 내용이 같은 성질입니다. 덮어쓰기 키는 보고 날짜(<code>run_date</code>)입니다.</li>
 </ul>
 <p>한 번 돌릴 때마다 한 줄씩 남기는 <b>실행 기록</b>(보고 날짜 · 시간 창 · 행 수 · 지문 · 코드 판 · 점검 결과 · 알림 · 사유)이 이 지문들을 담는 그릇입니다. 0206 의 사례 기록이 <code>links</code> 로 이벤트와 턴을 가리켰듯, 실행 기록은 입력 표의 범위와 지문을 가리킵니다. 이 이름들을 확인하는 방법은 단추 두 개입니다. <b>같은 날 다시 돌리기</b>는 입력이 그대로이니 지문도 결과도 같고 결과 표는 여전히 한 벌이어야 합니다. <b>늦은 자료가 들어온 뒤 다시 돌리기</b>는 입력이 바뀌었으니 지문이 달라지고, 무엇이 바뀌었는지가 보여야 합니다. 두 번째는 6절의 되돌아보기 창(지금 <span class="v_L"></span>일)만큼 뒤의 시각 기준으로 돌립니다.</p>

@@ -120,7 +120,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
 
 <section id="intro">
   <p><b>지난 실험실과의 다리.</b> 0102 에서는 불량 스틱을 바꾸기 전 유리 20장과 바꾼 뒤 유리 20장을 비교했습니다. 두 묶음이 서로 다른 유리였으니 독립 두 표본이었고, 평균이 아니라 산포가 달라졌는지를 물었습니다. 이번에는 같은 마스크의 같은 77개 점을 리페어 전과 후에 두 번 쟀습니다. 짝이 지어진 자료라는 이 한 가지 차이가 검정을 바꿉니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
-  <div class="know"><b>이미 아시는 것</b> — 평균·표준편차와 3σ 관리 한계, Welch t검정과 p값·신뢰구간(0101), 순위로 바꿔 비교하는 맨-휘트니(0102), 정규성을 확인하는 Q-Q 그림.</div>
+  <div class="know"><b>이미 아시는 것</b> — 평균·표준편차와 3σ 관리 한계, Welch t검정과 p값·신뢰구간(0101), 순위로 바꿔 비교하는 맨-휘트니(0102).</div>
   <h3>이번에 새로 배우는 용어 아홉 개</h3>
   <div class="tbwrap"><table>
     <tr><th class="l">용어</th><th class="l">한 줄 뜻</th></tr>
@@ -131,9 +131,10 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
     <tr><td class="l">윌콕슨 부호순위 검정 (Wilcoxon signed-rank test)</td><td class="l">점별 차이의 크기를 순위로 바꿔, 부호별 순위 합을 견주는 검정.</td></tr>
     <tr><td class="l">단측검정 (one-sided test)</td><td class="l">한쪽 방향만 묻는 검정. 지금까지의 양측검정은 양쪽을 다 물었습니다.</td></tr>
     <tr><td class="l">동등성 검정 (equivalence test)</td><td class="l">&ldquo;차이가 있다&rdquo;가 아니라 &ldquo;차이가 허용폭 안이다&rdquo;를 증명하려는 검정.</td></tr>
-    <tr><td class="l">허용폭 δ (equivalence margin)</td><td class="l">이 정도 평균 차이까지는 같다고 보겠다는 폭. 공정 쪽이 정합니다.</td></tr>
+    <tr><td class="l">허용폭 δ (equivalence margin)</td><td class="l">0101 의 허용폭(spec)을 두 평균의 차이에 적용한 것. 이 정도 평균 차이까지는 같다고 보겠다는 폭이며 공정 쪽이 정합니다.</td></tr>
     <tr><td class="l">TOST (two one-sided tests)</td><td class="l">단측검정 두 번으로 동등성을 보이는 방법.</td></tr>
   </table></div>
+  <p class="note">위 아홉 개와 함께 쓰는 부속 낱말인 상관계수·공분산·비열등성은 쓰는 자리에서 한 줄로 풉니다.</p>
 </section>
 
 <div class="banner q"><span class="pill">[문제]</span><span>주어진 자료와 두 가지 질문</span></div>
@@ -188,7 +189,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
     <canvas id="cvPair" height="300" aria-label="리페어 전후 같은 점을 이은 선 그래프"></canvas>
     <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>오차가 줄어든 점 <span data-k="nImp" data-f="i"></span>개</span><span><span class="dot" style="background:var(--warn)"></span>오차가 늘어난 점 <span data-k="nWor" data-f="i"></span>개</span><span>굵은 선은 평균</span></div>
   </div>
-  <p>선들이 거의 나란한 이유가 위치 효과입니다. 전 오차와 후 오차를 점끼리 짝지어 상관계수를 구하면 <b>r = <span data-k="r" data-f="s3"></span></b> 입니다. 독립 비교는 이 높낮이(점 오차의 표준편차 약 <span data-k="bSd" data-f="s1"></span> µm)를 잡음으로 계산합니다. 하지만 우리가 알고 싶은 것은 선의 높낮이가 아니라 <b>기울기</b>입니다.</p>
+  <p>선들이 거의 나란한 이유가 위치 효과입니다. 전 오차와 후 오차를 점끼리 짝지어 상관계수(전과 후가 직선으로 함께 오르내리는 정도를 −1 에서 1 사이로 나타낸 값)를 구하면 <b>r = <span data-k="r" data-f="s3"></span></b> 입니다. 독립 비교는 이 높낮이(점 오차의 표준편차 약 <span data-k="bSd" data-f="s1"></span> µm)를 잡음으로 계산합니다. 하지만 우리가 알고 싶은 것은 선의 높낮이가 아니라 <b>기울기</b>입니다.</p>
   <div class="stuck"><b class="h">그러면 어떻게 하나.</b> 점마다 (후 − 전)을 먼저 계산하면 점이 원래 가진 몫이 뺄셈에서 사라집니다. 남는 것은 &ldquo;리페어가 그 점을 얼마나 바꿨는가&rdquo; 뿐입니다.</div>
   <div class="qna" data-q="점마다 원래 다른 몫이 있다는 것은 어떻게 알아보나요?"><p>전 값과 후 값을 점끼리 짝지어 산점도를 그리거나 상관계수 r 을 구합니다. 점들이 오른쪽 위로 곧게 서 있으면(r 이 1에 가까우면) 위치 효과가 큰 것입니다. 이 자료의 r 은 <span data-k="r" data-f="s2"></span> 입니다. r 이 0 에 가까우면 위치 효과가 없다는 뜻이고, 그때는 짝지어도 얻는 것이 거의 없습니다.</p></div>
   <div class="qna" data-q="전과 후가 같은 점이라는 것은 어떻게 보장하나요?"><p>점마다 고유 번호와 좌표를 남겨 두고, 전·후 자료를 그 번호로 합칩니다(행 순서가 같다고 믿고 나란히 붙이지 않습니다). 측정 위치가 어긋났거나 점 개수가 달라진 칸이 있으면 그 점은 짝을 만들 수 없으니 빼야 합니다. 짝지음이 틀리면 대응 검정은 의미가 없습니다.</p></div>
@@ -200,14 +201,14 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
   <div class="eq"><span class="eqlab">대응 t 검정통계량 (자유도 n − 1)</span>
     <math display="block"><mi>t</mi><mo>=</mo><mfrac><mover accent="true"><mi>d</mi><mo stretchy="false">¯</mo></mover><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac><mo>=</mo><mfrac><mn data-k="dMean" data-f="s3"></mn><mrow><mn data-k="dSd" data-f="s3"></mn><mo>/</mo><msqrt><mn data-k="n" data-f="i"></mn></msqrt></mrow></mfrac><mo>=</mo><mn data-k="p_t" data-f="s3"></mn>
     </math>
-    <span class="eqnote">d̄ 는 점별 차이의 평균, s 는 점별 차이의 표준편차, n 은 점의 수입니다. 이 검정에는 가정이 하나 들어 있습니다. 점별 차이가 서로 독립이고 대략 정규분포를 따른다는 것입니다. 정규성은 5절에서 확인합니다.</span></div>
+    <span class="eqnote">d̄ 는 점별 차이의 평균, s 는 점별 차이의 표준편차, n 은 점의 수입니다. 이 검정에는 가정이 둘 들어 있습니다. 점별 차이가 대략 정규분포를 따른다는 것과, 점별 차이끼리 서로 독립이라는 것입니다. 정규성은 5절에서 확인합니다. 독립은 이 페이지에서 따로 확인하지 않았습니다. 0102 에서 보셨듯 한 유리 위의 이웃한 점들은 서로 닮을 수 있고, 위치 효과를 빼고 남은 차이에도 그런 닮음이 남아 있으면 77개 점이 실제보다 많은 정보를 주는 것처럼 계산되어 p 가 실제보다 작게(낙관적으로) 나올 수 있습니다. 독립 약속이 깨지는 경우는 0104 에서 다룹니다.</span></div>
   <p><b>같은 데이터, 같은 평균 차이, 다른 표준오차.</b> 두 방법의 결과를 나란히 놓았습니다.</p>
   <div class="tbwrap"><table>
     <tr><th class="l">방법</th><th>평균 차이 (µm)</th><th>표준오차 (µm)</th><th>t</th><th>자유도</th><th>p</th></tr>
     <tr><td class="l">독립 비교 (Welch)</td><td><span data-k="w_diff" data-f="s3"></span></td><td><span data-k="w_se" data-f="s3"></span></td><td><span data-k="w_t" data-f="s3"></span></td><td><span data-k="w_df" data-f="s1"></span></td><td><span data-k="w_p" data-f="p"></span></td></tr>
     <tr><td class="l">대응 비교</td><td><span data-k="dMean" data-f="s3"></span></td><td><span data-k="p_se" data-f="s3"></span></td><td><span data-k="p_t" data-f="s3"></span></td><td><span data-k="p_df" data-f="i"></span></td><td><span data-k="p_p" data-f="p"></span></td></tr>
   </table></div>
-  <p><b>표준오차가 왜 달라지나.</b> 두 표준오차는 이름이 같지만 &ldquo;무엇이 흔들린다고 보는가&rdquo;가 다릅니다. 독립 비교는 점마다 다른 오차의 높낮이까지 흔들림으로 칩니다. 대응 비교는 점별 차이만의 흔들림만 봅니다. 차이의 분산은 이렇게 쪼개집니다.</p>
+  <p><b>표준오차가 왜 달라지나.</b> 두 표준오차는 이름이 같지만 &ldquo;무엇이 흔들린다고 보는가&rdquo;가 다릅니다. 독립 비교는 점마다 다른 오차의 높낮이까지 흔들림으로 칩니다. 대응 비교는 점별 차이만의 흔들림만 봅니다. 차이의 분산은 이렇게 쪼개집니다. 식에 처음 나오는 <b>공분산</b>(covariance)은 전과 후가 함께 움직이는 정도입니다. 전 오차가 큰 점에서 후 오차도 크면 양수이고, 이 값을 두 표준편차로 나눈 것이 상관계수 r 입니다.</p>
   <div class="eq"><span class="eqlab">차이의 분산</span>
     <math display="block"><mtext>분산(후−전)</mtext><mo>=</mo><mtext>분산(전)</mtext><mo>+</mo><mtext>분산(후)</mtext><mo>−</mo><mn>2</mn><mo>·</mo><mtext>공분산(전, 후)</mtext></math>
     <span class="eqnote">이 자료에서는 분산(전) = <span data-k="varB" data-f="s3"></span>, 분산(후) = <span data-k="varA" data-f="s3"></span>, 공분산 = <span data-k="cov" data-f="s3"></span> 이므로 분산(후−전) = <span data-k="varD" data-f="s3"></span> 입니다. 독립 비교는 공분산 항을 버리고 앞의 두 분산을 그대로 더합니다. 그래서 표준오차가 <span data-k="w_se" data-f="s3"></span> 로 큽니다. 대응 비교는 위치 효과가 큰 만큼 공분산이 커서 뺄셈 결과가 <span data-k="varD" data-f="s3"></span> 까지 줄어듭니다. 자유도는 <span data-k="n2" data-f="i"></span>개 점 대신 <span data-k="p_df" data-f="i"></span>로 줄지만 표준오차가 <span data-k="ratio" data-f="s1"></span>배 작아지는 이득이 훨씬 큽니다.</span></div>
@@ -235,7 +236,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
 <section id="s5">
   <h2><span class="no">5</span>전제 점검과 순위로 확인하기</h2>
   <p><span class="stepno">답안 2단계</span><b>전제.</b> 대응 t 가 믿을 만하려면 점별 차이 d <span data-k="n" data-f="i"></span>개가 대략 정규분포에서 나왔어야 합니다. 샤피로–윌크 검정으로 확인합니다. 결과는 W = <span data-k="sw_W" data-f="s3"></span>, p = <span data-k="sw_p" data-f="s3"></span>, 왜도(치우친 정도) <span data-k="skew" data-f="s2"></span> 입니다.</p>
-  <p>p 가 0.05 보다 작으므로 정규성이 조금 깨졌습니다. 점이 <span data-k="n" data-f="i"></span>개로 적지 않아 t 검정은 어느 정도 견디지만, 확인 삼아 정규성을 요구하지 않는 검정을 한 번 더 합니다. 이름은 <b>윌콕슨 부호순위 검정</b>입니다. 0102 에서 값을 순위로 바꾸면 이상치와 비대칭에 덜 흔들린다는 것을 보셨습니다. 그 발상을 점별 차이에 적용한 것입니다.</p>
+  <p>p 가 0.05 보다 작으므로 정규성이 조금 깨졌습니다. 점이 <span data-k="n" data-f="i"></span>개로 적지 않아 t 검정은 어느 정도 견디지만, 확인 삼아 정규성을 요구하지 않는 검정을 한 번 더 합니다. 다만 이 검정도 점별 차이가 0 을 둘레로 좌우 대칭으로 흩어져 있다고 가정합니다. 이름은 <b>윌콕슨 부호순위 검정</b>입니다. 0102 에서 값을 순위로 바꾸면 이상치와 비대칭에 덜 흔들린다는 것을 보셨습니다. 그 발상을 점별 차이에 적용한 것입니다.</p>
   <h3>부호순위 검정을 만드는 법</h3>
   <p>1) 차이가 0 인 점은 뺍니다. 2) 남은 d 를 부호를 떼고 크기(절댓값)로만 작은 것부터 순위를 매깁니다(같은 값은 평균 순위). 3) 원래 부호가 양수였던 점의 순위를 모두 더해 W+, 음수였던 점의 순위를 더해 W− 로 둡니다. 4) 둘 중 작은 쪽이 W 입니다. 변화가 없었다면 W+ 와 W− 가 비슷해야 합니다.</p>
   <div class="tbwrap"><table>
@@ -252,7 +253,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
     <math display="block"><mi>z</mi><mo>=</mo><mfrac><mrow><mi>W</mi><mo>−</mo><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>4</mn></mfrac></mrow><msqrt><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>24</mn></mfrac></msqrt></mfrac></math>
     <span class="eqnote">n 은 0 이 아닌 점의 수입니다. 같은 값이 있으면 분모에서 약간 보정합니다. 변화가 없으면 W 의 기댓값은 n(n+1)/4 = <span data-k="wx_mu" data-f="s1"></span> 인데, 실제 W 는 <span data-k="wx_W" data-f="s1"></span> 로 훨씬 작아서 z 가 <span data-k="wx_z" data-f="s3"></span> 입니다.</span></div>
   <p>정규성이 약간 깨졌어도 두 검정이 같은 결론에 닿았습니다. 대응 t 의 p = <span data-k="p_p" data-f="p"></span>, 윌콕슨의 p = <span data-k="wx_p" data-f="p"></span> 입니다.</p>
-  <div class="qna" data-q="정규성이 조금 깨졌는데 대응 t 결과를 버려야 하나요?"><p>두 검정의 결론이 같으면 t 결과를 그대로 쓰셔도 됩니다. 차이의 분포가 크게 치우쳤거나 극단값이 있고 두 검정의 결론이 갈리면, 윌콕슨 쪽을 기준으로 삼고 극단값이 왜 생겼는지 점별로 확인하십시오. 이 자료는 왜도 <span data-k="skew" data-f="s2"></span> 로 약하게 치우친 정도이고 두 검정이 일치합니다.</p></div>
+  <div class="qna" data-q="정규성이 조금 깨졌는데 대응 t 결과를 버려야 하나요?"><p>두 검정의 결론이 같으면 t 결과를 그대로 쓰셔도 됩니다. 차이의 분포가 크게 치우쳤거나 극단값이 있고 두 검정의 결론이 갈리면, 윌콕슨 쪽을 기준으로 삼고 극단값이 왜 생겼는지 점별로 확인하십시오. 다만 윌콕슨도 차이의 분포가 0 둘레로 대칭이라는 가정을 하므로, 분포가 심하게 치우쳤으면 이 검정이 묻는 내용이 평균 차이와 달라질 수 있습니다. 이 자료는 왜도 <span data-k="skew" data-f="s2"></span> 로 약하게 치우친 정도이고 두 검정이 일치합니다.</p></div>
   <div class="qna" data-q="윌콕슨은 t검정보다 약한가요?"><p>정규분포에 가까운 자료에서는 t 검정이 조금 더 강하지만(대략 95% 수준으로 알려져 있습니다), 치우치거나 극단값이 있는 자료에서는 윌콕슨이 같거나 더 강할 수 있습니다. 그래서 차이의 정규성이 의심되면 윌콕슨을 함께 보는 것이 안전합니다.</p></div>
 </section>
 
@@ -265,7 +266,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
 
 <section id="s7">
   <h2><span class="no">7</span>질문 2: 세정 후 &lsquo;나빠지지 않았다&rsquo;를 보이려면</h2>
-  <p>이번에는 세정 전후 같은 <span data-k="n" data-f="i"></span>점입니다. 앞에서 배운 도구를 그대로 씁니다. <span class="stepno">답안 2단계</span> 점별 차이는 평균 <span data-k="c_dMean" data-f="s3"></span> µm, 표준편차 <span data-k="c_dSd" data-f="s3"></span> µm 입니다. 대응 t 는 t = <span data-k="c_t" data-f="s3"></span>, 자유도 <span data-k="c_df" data-f="i"></span>, <b>p = <span data-k="c_p" data-f="s3"></span></b> 이고, 윌콕슨 p = <span data-k="c_wx_p" data-f="s3"></span> 입니다. 차이의 정규성은 샤피로–윌크 p = <span data-k="c_sw_p" data-f="s3"></span> 로 문제가 없습니다.</p>
+  <p>이번에는 세정 전후 같은 <span data-k="n" data-f="i"></span>점입니다. 앞에서 배운 도구를 그대로 씁니다. <span class="stepno">먼저 앞의 도구로</span> 점별 차이는 평균 <span data-k="c_dMean" data-f="s3"></span> µm, 표준편차 <span data-k="c_dSd" data-f="s3"></span> µm 입니다. 대응 t 는 t = <span data-k="c_t" data-f="s3"></span>, 자유도 <span data-k="c_df" data-f="i"></span>, <b>p = <span data-k="c_p" data-f="s3"></span></b> 이고, 윌콕슨 p = <span data-k="c_wx_p" data-f="s3"></span> 입니다. 차이의 정규성은 샤피로–윌크 p = <span data-k="c_sw_p" data-f="s3"></span> 로 문제가 없습니다.</p>
   <div class="verdict keep">p 가 0.05 보다 훨씬 큽니다. 세정 전후 차이를 찾지 못했습니다.</div>
   <div class="stuck"><b class="h">막힘: 유의하지 않다는 같다는 말이 아닙니다.</b> p = <span data-k="c_p" data-f="s3"></span> 는 &ldquo;차이가 있다는 증거가 모자란다&rdquo; 일 뿐 &ldquo;차이가 없다는 증거&rdquo;가 아닙니다. 점 수가 적거나 산포가 크면 큰 차이도 p 가 큽니다. 지금 평균은 <span data-k="c_dMean" data-f="s3"></span> µm 올랐고 95% 신뢰구간은 <span data-k="c_lo" data-f="s3"></span> ~ <span data-k="c_hi" data-f="s3"></span> µm 입니다. 이 구간 안의 어떤 값도 데이터와 모순되지 않습니다. 우리가 보이고 싶은 것은 &ldquo;차이가 허용 범위 안이다&rdquo; 입니다. 방향이 반대입니다.</div>
 
@@ -273,7 +274,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
   <p>그래서 &ldquo;차이가 있다&rdquo;를 증명하는 대신 &ldquo;차이가 작다&rdquo;를 증명합니다. 이를 <b>동등성 검정</b>(equivalence test)이라 합니다. 이 검정에는 먼저 <b>허용폭 δ</b>가 필요합니다. 평균 차이가 −δ 와 +δ 사이이면 같다고 보겠다는 폭입니다.</p>
   <div class="look"><b>δ 는 데이터를 보기 전에 정합니다.</b> 데이터를 본 뒤에 δ 를 고르면 어떤 결과든 &ldquo;동등&rdquo;으로 만들 수 있기 때문입니다. 아래 슬라이더로 직접 확인하실 수 있습니다. 이 실험실에서는 데이터를 보기 전에 공정 쪽이 &ldquo;평균 변화 <span data-k="delta0" data-f="s2"></span> µm 까지는 품질에 영향이 없다&rdquo;고 정했다고 가정하며, 이 값을 기준값으로 둡니다.</div>
 
-  <p><span class="stepno">답안 1단계</span><b>가설이 뒤집힙니다.</b> 지금까지는 &ldquo;차이가 없다&rdquo;를 버리려 했습니다. 동등성 검정에서는 버리려는 쪽이 &ldquo;평균 차이의 크기가 δ 이상이다&rdquo;이고, 증명하려는 쪽이 &ldquo;평균 차이가 −δ 와 +δ 사이다&rdquo;입니다.</p>
+  <p><span class="stepno">답안 1·2단계</span><b>가설이 뒤집힙니다.</b> 지금까지는 &ldquo;차이가 없다&rdquo;를 버리려 했습니다. 동등성 검정에서는 버리려는 쪽이 &ldquo;평균 차이의 크기가 δ 이상이다&rdquo;이고, 증명하려는 쪽이 &ldquo;평균 차이가 −δ 와 +δ 사이다&rdquo;입니다. 전제(정규성)는 위에서 확인한 대로 문제가 없습니다.</p>
   <h3>TOST: 단측검정 두 번</h3>
   <p><b>단측검정</b>은 한쪽 방향만 묻는 검정입니다. 동등성은 두 방향을 모두 막아야 하므로 단측검정을 두 번 합니다. 이름이 TOST(Two One-Sided Tests)입니다. d = 후 − 전 의 평균을 μ차 라 하면 이렇습니다.</p>
   <p>검정 A: &ldquo;μ차 ≤ −δ&rdquo; (오차가 δ 이상 줄었다)는 주장을 기각할 수 있는가.<br>검정 B: &ldquo;μ차 ≥ +δ&rdquo; (오차가 δ 이상 늘었다)는 주장을 기각할 수 있는가.</p>
@@ -321,7 +322,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
     <tr><td class="l">리페어로 좋아졌나</td><td class="l">같은 점의 전·후 (대응)</td><td class="l">점별 차이의 t, 비정규 확인 후 윌콕슨</td><td class="l"><span data-k="dMeanAbs" data-f="s3"></span> µm 감소 (p = <span data-k="p_p" data-f="p"></span>)</td></tr>
     <tr><td class="l">세정이 나쁘게 만들었나</td><td class="l">같은 점의 전·후 (대응)</td><td class="l">동등성 검정 TOST (δ = <span data-k="delta0" data-f="s2"></span> µm)</td><td class="l">허용폭 안 (TOST p = <span data-k="tost0_p" data-f="p"></span>)</td></tr>
   </table></div>
-  <p>1단계에서 3σ 비교법은 &ldquo;변화 없음&rdquo;이라 했고 독립 Welch 도 못 찾았는데, 짝지어 점별 차이를 보니 같은 자료에서 리페어의 효과가 선명하게 나왔습니다. 그리고 &ldquo;못 찾았다&rdquo;로 끝나는 세정 쪽은 &ldquo;허용폭 안&rdquo;이라는 적극적인 결론으로 바뀌었습니다. 검정 선택의 규칙 하나가 이렇게 정해집니다. <b>같은 대상을 전후로 쟀으면 대응으로 비교하고, 나빠지지 않았음을 보이려면 허용폭을 먼저 정해 동등성 검정을 합니다.</b></p>
+  <p>1절에서 3σ 비교법은 &ldquo;변화 없음&rdquo;이라 했고 독립 Welch 도 못 찾았는데, 짝지어 점별 차이를 보니 같은 자료에서 리페어의 효과가 선명하게 나왔습니다. 그리고 &ldquo;못 찾았다&rdquo;로 끝나는 세정 쪽은 &ldquo;허용폭 안&rdquo;이라는 적극적인 결론으로 바뀌었습니다. 검정 선택의 규칙 하나가 이렇게 정해집니다. <b>같은 대상을 전후로 쟀으면 대응으로 비교하고, 나빠지지 않았음을 보이려면 허용폭을 먼저 정해 동등성 검정을 합니다.</b></p>
   <div class="stuck"><b class="h">다음 실험실로.</b> 그런데 전후 비교가 유의하게 나왔다고 해서 변경점 때문이라고 말할 수는 없습니다. 이웃한 값이 서로 닮은 센서 자료(자기상관)와, 같은 시기에 다른 것도 변해 버린 경우(교란)에서는 유의해도 가짜일 수 있습니다. 0104 에서 다룹니다.</div>
 </section>
 

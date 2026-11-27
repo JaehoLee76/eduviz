@@ -206,8 +206,8 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — 0400 의 점검 일곱 규칙과 지문, 0104 의 변경점 전후 비교(자기상관·대조 챔버 이중차분), 0202 의 다중 비교, 0206 의 전이 표와 요청 판정, 0304·0306 의 리페어 판단과 리페어 직후 기준 측정, 0411 의 사실 목록과 검사기(V1~V6).</p>
-  <ul class="chips known"><li>점검 일곱 · 지문 (0400)</li><li>변경점 판정 흐름 (0104)</li><li>다중 비교 (0202)</li><li>전이 표 · 요청 판정 (0206)</li><li>리페어 판단 (0304·0306)</li><li>사실 목록 · 검사기 (0411)</li></ul>
+  <p><b>이미 아시는 것</b> — 0400 의 점검 일곱 규칙과 지문, 0104 의 변경점 전후 비교(자기상관·대조 챔버 이중차분), 0202 의 가족 오류율과 본페로니 보정, 0206 의 전이 표와 요청 판정, 0304·0306 의 리페어 판단과 리페어 직후 기준 측정, 0411 의 사실 목록과 검사기(V1~V6).</p>
+  <ul class="chips known"><li>점검 일곱 · 지문 (0400)</li><li>변경점 판정 흐름 (0104)</li><li>가족 오류율 · 본페로니 (0202)</li><li>전이 표 · 요청 판정 (0206)</li><li>리페어 판단 (0304·0306)</li><li>사실 목록 · 검사기 (0411)</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 이 글이 쓰는 &lsquo;요청&rsquo;·&lsquo;판정&rsquo;·&lsquo;가드&rsquo;는 쓰는 자리에서 문장으로 풀어 둡니다.</p>
   <ul class="chips" id="termList"><li>에이전트 (agent)</li><li>도구 (tool)</li><li>실행 단계 (step)</li><li>정책 (policy)</li><li>승인 대기열 (approval queue)</li><li>실행 기록 (agent log)</li></ul>
 </div>
@@ -282,7 +282,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
   <div class="tbwrap"><table class="mt num" id="tabRules"></table></div>
   <div class="concl" id="conc3"></div>
 </div>
-<p><b>정직하게 말해 둘 것이 있습니다.</b> 점검이 엄격하면 분석할 날이 모자라 변경점 판정이 비교할 날을 찾지 못합니다. 점검을 풀면 분석하는 날이 늘지만 고장이 든 표로 결정을 내리게 됩니다. 어느 쪽이 나은지는 점검 문턱을 정하는 사람의 몫이고(0400·0202 의 맞바꿈), 자료를 빨리 고치는 파이프라인이 이 문제의 근본 해결입니다.</p>
+<p><b>짚어 둘 것이 있습니다.</b> 점검이 엄격하면 분석할 날이 모자라 변경점 판정이 비교할 날을 찾지 못합니다. 점검을 풀면 분석하는 날이 늘지만 고장이 든 표로 결정을 내리게 됩니다. 어느 쪽이 나은지는 점검 문턱을 정하는 사람의 몫이고(0400·0202 의 맞바꿈), 자료를 빨리 고치는 파이프라인이 이 문제의 근본 해결입니다.</p>
 <div class="qna" data-label="점검이 실패한 날은 보고를 아예 안 하나요?" data-q="점검이 실패한 날은 보고를 아예 안 하나요?">
   <p><b>알림은 냅니다. 멈추는 것은 분석과 결정입니다.</b> 실패한 날의 보고는 &lsquo;점검에서 실패한 규칙 이름과 입력 지문&rsquo;까지만 말합니다(7절에서 그날 보고를 열어 볼 수 있습니다).</p>
   <p>이렇게 하는 이유는, 고장 난 표로 낸 결과는 값이 그럴듯해서 사람이 틀린 줄 모르기 때문입니다. 알림을 받은 사람이 실행 기록의 입력 지문과 행 수부터 보고 자료를 고친 뒤 같은 날을 다시 돌립니다(0400).</p>
@@ -300,6 +300,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
   <div class="ctrl"><label for="sK">최근 구간 k (일)</label><input type="range" id="sK" min="1" max="4" step="1" value="2"><output id="sKO"></output></div>
   <div class="ctrl"><label for="sM">그 전 구간 m (일)</label><input type="range" id="sM" min="1" max="6" step="1" value="3"><output id="sMO"></output></div>
   <div class="ctrl"><label for="sDelta">변경점 문턱 (ppm)</label><input type="range" id="sDelta" min="0.1" max="1.5" step="0.1" value="0.5"><output id="sDeltaO"></output></div>
+  <p class="note"><b>리페어 후보 규칙에 대해.</b> 이 14일 기록만으로는 0304 의 &lsquo;보정만으로 spec 안에 드는가&rsquo;를 가릴 수 없어, 아래 슬라이더의 리페어 후보는 지표 초과 건수만 세는 규칙으로 정합니다. 0304 에서 보았듯 지표만으로 리페어하면 쓸데없는 리페어가 생기므로, 현장에서는 77점 격자로 보정한 뒤의 판정(0304 의 3단 규칙)으로 바꿔 씁니다.</p>
   <div class="ctrl"><label for="sExn">리페어 후보 지표 초과 건수 (장)</label><input type="range" id="sExn" min="1" max="20" step="1" value="6"><output id="sExnO"></output></div>
   <div class="ctrl"><label for="sScr">제외 후보 초과 비율 (%)</label><input type="range" id="sScr" min="10" max="100" step="10" value="50"><output id="sScrO"></output></div>
   <div class="ctrl"><label for="sShare">spec 변경 제안 비율 (% , 전체 유리 중 초과)</label><input type="range" id="sShare" min="2" max="40" step="1" value="10"><output id="sShareO"></output></div>
@@ -337,7 +338,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
   <div class="tbwrap"><table class="mt" id="tabReq"></table></div>
   <div class="concl" id="conc5"></div>
   <h3>요청 하나를 직접 시험해 보기</h3>
-  <p class="note">14일째 아침의 마스크 상태 표에서, 고른 마스크를 고른 상태로 옮겨 달라고 요청하면 어떻게 판정되는지 봅니다(요청 판정 함수 <code>requestTransition</code> 을 그대로 부릅니다).</p>
+  <p class="note">14일째 아침의 마스크 상태 표에서, 고른 마스크를 고른 상태로 옮겨 달라고 요청하면 어떻게 판정되는지 봅니다(판정 규칙은 0206 의 요청 판정 <code>requestTransition</code> 과 같습니다).</p>
   <div class="row"><select id="selMask" aria-label="마스크"></select><select id="selTo" aria-label="옮길 상태"></select><button class="btn" id="bProbe" type="button">요청해 보기</button></div>
   <div class="state" id="stProbe"></div>
 </div>
@@ -1087,7 +1088,7 @@ if __name__ == "__main__":
     recs3, _, _ = run_agent(tables, None, {q2["id"]: "approve"})
     nxt = recs3[q2["day"]]
     print(f"{q2['id']} 승인: {q2['day'] + 1}일 아침 spec {recs3[q2['day'] - 1]['spec']:.3f} → {nxt['spec']:.3f} µm · 보고: {nxt['render'][-1]}")</pre>
-<p><b>이 코드를 실제로 돌린 출력입니다.</b> 위 CSV 네 개와 같은 폴더에서 <code>python3 lab0401.py</code> 로 돌렸고, 위 14일 표와 같은 숫자가 나옵니다.</p>
+<p><b>아래는 이 코드의 출력입니다.</b> 위 CSV 네 개와 같은 폴더에서 <code>python3 lab0401.py</code> 로 돌리면 위 14일 표와 같은 숫자가 나옵니다.</p>
 <pre id="pyOut" class="pyout" aria-label="Python 출력">정책: 점검 허용 실패 수 0 · 최근 2일 vs 그 전 3일 · 문턱 0.5 ppm · 다중 비교 본페로니
 날짜 · 점검 · 분석 · 새 변경점 · 요청(판정)
 1일 · 실패 1(dup) · 건너뜀 · - · -

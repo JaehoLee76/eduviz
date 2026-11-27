@@ -193,7 +193,7 @@ table.mt td.hit{white-space:normal}
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — 0302의 계수·모델·잔차·최소제곱·설계 행렬·누설·식별과, 유리마다 계수 한 줄(<i>M̂<sub>x</sub></i> 포함)을 쌓는 기록. 0301의 배율 성분(장변 <i>M<sub>x</sub></i>, 단변 <i>M<sub>y</sub></i>, 단위 ppm). FDC 챔버 온도와 FDC·PPA를 잇는 키(<code>glass_id</code>), 마스크 번호, 턴과 턴 안 유리 순번(0101·0206). 표준오차와 점들에 가장 잘 맞는 직선의 기울기(0101).</p>
+  <p><b>이미 아시는 것</b> — 0302의 계수·모델·잔차·최소제곱·설계 행렬·누설·식별과, 유리마다 계수 한 줄(<i>M̂<sub>x</sub></i> 포함)을 쌓는 기록. 0301의 배율 성분(장변 <i>M<sub>x</sub></i>, 단변 <i>M<sub>y</sub></i>, 단위 ppm). FDC 챔버 온도와 FDC·PPA를 잇는 키(<code>glass_id</code>), 마스크 번호, 턴(0206)과 턴 안 유리 순번(0102). 표준오차(0101)와 점들에 가장 잘 맞는 직선의 기울기(0302 2절).</p>
   <ul class="chips known"><li>계수 · 잔차 · 최소제곱</li><li>장변·단변 배율 (Mx·My)</li><li>FDC 챔버 온도와 glass_id 키</li><li>턴 · 유리 순번</li><li>표준오차 · 직선의 기울기</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 일곱 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 일곱 개 말고 계산에 붙인 이름(절편·상관계수·기준선·한계·경보·헛경보·놓침)은 쓰는 자리에서 식이나 문장으로 정의합니다.</p>
   <ul class="chips" id="termList"><li>열팽창 계수 (thermal expansion coefficient)</li><li>열변형 (thermal deformation)</li><li>턴 누적 (turn accumulation)</li><li>다중 회귀 (multiple regression)</li><li>교란 (confounding)</li><li>온도 보정 (temperature compensation)</li><li>기준 온도 (reference temperature)</li></ul>
@@ -320,7 +320,7 @@ table.mt td.hit{white-space:normal}
 
 <!-- ===================== 6 ===================== -->
 <h2><span class="no">6</span>두 번째 증거 — 단변 배율 My</h2>
-<p>회귀 하나로 갈랐다고 바로 믿기는 이릅니다. 독립된 증거가 하나 더 필요합니다. 열변형은 장변과 단변에 모두 들어가지만, 턴 누적(장력이 풀리는 것)은 장변에만 들어간다고 하면 <b>단변 배율 <i>M<sub>y</sub></i>의 온도 기울기는 있고 턴 기울기는 0 근처</b>여야 합니다. 같은 회귀를 <i>M̂<sub>y</sub></i>에 해 봅니다.</p>
+<p>회귀 하나로 갈랐다고 바로 믿기는 이릅니다. 같은 구조 가정 위에서 한 번 더 확인하는 증거가 필요합니다. 열변형은 장변과 단변에 모두 들어가지만, 턴 누적(장력이 풀리는 것)은 장변에만 들어간다고 하면 <b>단변 배율 <i>M<sub>y</sub></i>의 온도 기울기는 있고 턴 기울기는 0 근처</b>여야 합니다. 같은 회귀를 <i>M̂<sub>y</sub></i>에 해 봅니다.</p>
 <p><b>이 절의 전제(가정)</b>는 두 가지입니다. 열변형이 <i>M<sub>y</sub></i>에 들어가는 크기는 <i>M<sub>x</sub></i>의 <span class="v_half"></span>로 둔 가상 공정의 약속이고, 턴 누적은 장변에만 있다고 둔 약속입니다. 현장 마스크에서는 이 비와 방향을 먼저 재 두어야 이 증거를 쓸 수 있습니다.</p>
 <div class="maps2">
   <div><div class="labtitle"><i>M̂<sub>x</sub></i> — 절편과 턴 몫을 뺀 값</div><canvas id="cvMx6"></canvas></div>
