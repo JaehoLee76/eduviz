@@ -1225,7 +1225,7 @@ function buildTools(){
     ['분석','<code>analyze → detect_change</code>','0104 판정 흐름 + 0202 다중 비교, 0303 온도 보정 Mx'],
     ['결정','<code>decide</code>','0304 단순판(지표 초과 → 리페어 후보) · 0306 리페어 직후 기준'],
     ['요청','<code>request → requestTransition</code>','0206 — 전이 표·사람 승인·가드'],
-    ['보고','<code>report → validate · render</code>','0411 — 사실 목록·자리 채우기·검사 V1~V6']
+    ['보고','<code>build_report → validate · render</code>','0411 — 사실 목록·자리 채우기·검사 V1~V6']
   ];
   tbl('tabTools',['단계','도구','출처 실험실'],rows,[null,L_,L_]);
   tbl('tabTool',['단계','도구','출처'],rows.map(function(r){return [r[0],r[1],r[2].split(' — ')[0].split(' + ')[0].replace(/ .*$/,'')];}),[null,L_,L_]);

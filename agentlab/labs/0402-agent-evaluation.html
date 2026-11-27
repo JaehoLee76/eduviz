@@ -1029,7 +1029,7 @@ function upd10(){
   $('rp_fields').innerHTML='<code>평가 기간 · 평가 단위 · 사람 결론의 규칙과 결론을 낸 사람·시각 · 정책 판 · 허용 지연 · 혼동표(단위마다) · 일치율과 윌슨 구간 · 놓침·헛요청 사례 목록 · sim-real gap(치우침·흩어짐·꼬리·큰 상황) · 시범 적용 범위·중단 기준 · 승인</code>';
   var e=repEval(ST.pol),c=e.req,w=wl(c);
   $('rp_ex').innerHTML='<code>'+esc(['대표 시드 '+SC.params.seed+' · '+DAYS+'일','요청 '+c.n+'칸','사람 결론: 정답(주입 고장·마스크 교체)','정책 '+polOf(ST.pol).name,'허용 지연 '+ST.G+'일','일치 '+(c.tp+c.tn)+'/'+c.n+' = '+pc(c.agree)+' ['+pc(w.lo)+' ~ '+pc(w.hi)+']','놓침 '+c.fn+' · 헛 '+c.fp,'gap 판 1 '+sg(E.gapStats(NORM,'v1').bias)+'분 / 판 2 '+sg(E.gapStats(NORM,'v2').bias)+'분','승인 ____'].join(' | '))+'</code>';
-  var rows=[['실행 기록 읽기','<code>run_agent</code>','0401'],['사람 결론과 맞대기','<code>agreement_table</code>','0402'],['일치율의 구간','<code>wilson_ci</code>','0402'],['정책별 평가','<code>eval_policies</code>','0402'],['계획 예측','<code>plan_model</code>','0402'],['예측 − 실제','<code>sim_real_gap</code>','0206 기록 + 0402']];
+  var rows=[['실행 기록 읽기','<code>load_inputs</code>','0402'],['사람 결론과 맞대기','<code>agreement_table</code>','0402'],['일치율의 구간','<code>wilson_ci</code>','0402'],['정책별 평가','<code>eval_policies</code>','0402'],['계획 예측','<code>plan_model</code>','0402'],['예측 − 실제','<code>sim_real_gap</code>','0206 기록 + 0402']];
   tbl('tabTool',['할 일','도구','출처'],rows,[null,L_,L_]);
 }
 
