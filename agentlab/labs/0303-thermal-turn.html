@@ -193,7 +193,7 @@ table.mt td.hit{white-space:normal}
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — 0302의 계수·모델·잔차·최소제곱·설계 행렬·누설·식별과, 유리마다 계수 한 줄(<i>M̂<sub>x</sub></i> 포함)을 쌓는 기록. 0301의 배율 성분(장변 <i>M<sub>x</sub></i>, 단변 <i>M<sub>y</sub></i>, 단위 ppm). FDC 챔버 온도와 FDC·PPA를 잇는 키(<code>glass_id</code>), 마스크 번호, 턴(0206)과 턴 안 유리 순번(0102). 표준오차(0101)와 점들에 가장 잘 맞는 직선의 기울기(0302 2절).</p>
+  <p><b>이미 아시는 것</b> — 0302의 계수·모델·잔차·최소제곱·설계 행렬·누설·식별과, 유리마다 계수 한 줄(<i>M̂<sub>x</sub></i> 포함)을 쌓는 기록. 0301의 배율 성분(장변 <i>M<sub>x</sub></i>, 단변 <i>M<sub>y</sub></i>, 단위 ppm). FDC 챔버 온도와 FDC·PPA를 잇는 키(<code>glass_id</code>), 마스크 번호, 턴(0206)과 턴 안 유리 순번(0102). 표준오차(0101)와 점들에 가장 잘 맞는 직선의 기울기(0302 3절의 최소제곱).</p>
   <ul class="chips known"><li>계수 · 잔차 · 최소제곱</li><li>장변·단변 배율 (Mx·My)</li><li>FDC 챔버 온도와 glass_id 키</li><li>턴 · 유리 순번</li><li>표준오차 · 직선의 기울기</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 일곱 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 일곱 개 말고 계산에 붙인 이름(절편·상관계수·기준선·한계·경보·헛경보·놓침)은 쓰는 자리에서 식이나 문장으로 정의합니다.</p>
   <ul class="chips" id="termList"><li>열팽창 계수 (thermal expansion coefficient)</li><li>열변형 (thermal deformation)</li><li>턴 누적 (turn accumulation)</li><li>다중 회귀 (multiple regression)</li><li>교란 (confounding)</li><li>온도 보정 (temperature compensation)</li><li>기준 온도 (reference temperature)</li></ul>
@@ -241,7 +241,7 @@ table.mt td.hit{white-space:normal}
   <div class="legend"><span><i class="dot" style="background:var(--c10)"></i>유리 한 장의 <i>M̂<sub>x</sub></i></span><span><i class="dot" style="background:var(--accent)"></i>턴 평균</span><span><i class="sw" style="border-top:2px dashed var(--soft)"></i>기준선</span><span><i class="sw" style="border-top:2px dashed var(--bad)"></i>기준선 − 한계</span></div>
   <div class="concl" id="conc2"></div>
 </div>
-<p><b>여기서 막힙니다.</b> 턴 평균만 그리면 톱니는 사라지지만, 남은 길게 내려가는 선이 마모인지 다른 것인지 알 수 없습니다. 다만 단서가 하나 있습니다. 한 턴 안에서 마모가 일어날 리는 없는데도 점들이 내려갔다 올라옵니다. 턴 안에서 같은 모양으로 오르내리는 다른 양이 있어야 하고, 그 후보가 챔버 온도입니다. 온도가 어떻게 배율을 움직이는지에 이름을 붙이겠습니다.</p>
+<p><b>여기서 막힙니다.</b> 턴 평균만 그리면 톱니는 사라지지만, 남은 길게 내려가는 선이 마모인지 다른 것인지 알 수 없습니다. 다만 단서가 하나 있습니다. 한 턴은 몇 시간이고 장력은 턴이 쌓이며 서서히 풀리므로 한 턴 안에서는 마모가 일어나지 않는다고 두면(가상 공정의 약속), 점들이 내려갔다 올라오는 것은 마모가 아닙니다. 이 약속이 깨져 턴 안에서도 장력이 풀린다면 그 몫이 열변형 기울기에 섞이는 교란이 생깁니다(5절과 같은 구조). 턴 안에서 같은 모양으로 오르내리는 다른 양이 있어야 하고, 그 후보가 챔버 온도입니다. 온도가 어떻게 배율을 움직이는지에 이름을 붙이겠습니다.</p>
 
 <!-- ===================== 3 ===================== -->
 <h2><span class="no">3</span>이름 — 열변형과 턴 누적, 그리고 FDC 온도 붙이기</h2>
@@ -253,7 +253,7 @@ table.mt td.hit{white-space:normal}
 <div class="eq">
   <span class="eqlab">열변형이 만드는 장변 배율 (ppm)</span>
   <math display="block"><mrow><msub><mi>M</mi><mtext>열변형</mtext></msub><mo>=</mo><mo stretchy="false">(</mo><msub><mi>α</mi><mtext>마스크</mtext></msub><mo>−</mo><msub><mi>α</mi><mtext>유리</mtext></msub><mo stretchy="false">)</mo><mo>×</mo><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>×</mo><msup><mn>10</mn><mn>6</mn></msup></mrow></math>
-  <span class="note">α는 열팽창 계수(1/K), <i>T</i>는 증착 때의 챔버 온도(°C), <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C입니다. 이 가상 공정의 마스크는 α<sub>마스크</sub> = <span class="v_am"></span>×10<sup>−6</sup>/K, 유리는 α<sub>유리</sub> = <span class="v_ag"></span>×10<sup>−6</sup>/K로 두었으므로, 온도가 1 K 오를 때마다 장변 배율이 <b><span class="v_slope"></span> ppm</b>씩 달라집니다(현장에서는 장비에서 직접 재야 하는 값).</span>
+  <span class="note">α는 열팽창 계수(1/K), <i>T</i>는 증착 때의 챔버 온도(°C), <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C입니다. 이 가상 공정의 마스크는 α<sub>마스크</sub> = <span class="v_am"></span>×10<sup>−6</sup>/K, 유리는 α<sub>유리</sub> = <span class="v_ag"></span>×10<sup>−6</sup>/K로 두었으므로, 온도가 1 K 오를 때마다 장변 배율이 <b><span class="v_slope"></span> ppm</b>씩 달라집니다(현장에서는 장비에서 직접 재야 하는 값). <b>부호 읽기</b>: 데워지면 유리가 마스크보다 더 늘어나(α<sub>유리</sub> &gt; α<sub>마스크</sub>) 괄호가 음수가 됩니다. PPA는 유리 위의 목표 자리에서 증착이 벗어난 정도이므로(0301), 목표 자리는 유리와 함께 바깥으로 가는데 마스크가 찍는 자리는 덜 가서 바깥쪽 점일수록 안쪽으로 모자랍니다. dx가 <i>x</i>와 반대 부호로 커지므로 0301의 약속(<i>M<sub>x</sub></i> 양수 = 바깥으로 뻗음)에서 <i>M<sub>x</sub></i>는 음수, 곧 내려갑니다.</span>
 </div>
 <div class="eq">
   <span class="eqlab">턴 누적이 만드는 장변 배율 (ppm), <i>n</i>은 턴 번호</span>
@@ -269,6 +269,7 @@ table.mt td.hit{white-space:normal}
 <!-- ===================== 4 ===================== -->
 <h2><span class="no">4</span>다중 회귀 — 변수를 넣고 빼며 기울기 보기</h2>
 <p>0302의 최소제곱을 &lsquo;점 77개에 모양을 맞추는 일&rsquo;에서 &lsquo;유리 1,715장의 <i>M̂<sub>x</sub></i>를 설명하는 일&rsquo;로 옮깁니다. 설명하는 변수가 하나면 직선의 기울기이고, 둘 이상을 한 설계 행렬에 함께 넣으면 <b>다중 회귀 (multiple regression)</b>입니다. 각 변수의 기울기는 <b>다른 변수를 그대로 둘 때</b>의 변화로 읽습니다.</p>
+<p><b>이 회귀가 두는 약속 둘.</b> 1) 열변형 기울기와 턴 기울기는 마스크 12장 모두에서 같고 마스크마다 다른 것은 절편뿐입니다(재질·두께·클램프가 같은 가상 공정의 약속). 마스크마다 기울기가 다르면 이 마스크의 열변형 몫은 합쳐 구한 기울기와 달라지므로, 현장에서는 마스크별로 따로 회귀해 합친 값과 견주어 봐야 합니다. 2) 유리의 잔차는 서로 독립이라고 둡니다. 같은 턴에 잰 6장은 서로 닮을 수 있어 실제 불확실성은 아래 표준오차보다 클 수 있습니다. <i>M̂<sub>x</sub></i> 자체가 0302의 추정값이라 가진 흔들림은 잔차 안으로 들어가 표준오차를 키울 뿐, 기울기를 한쪽으로 치우치게 하지는 않습니다.</p>
 <p>마스크마다 처음부터 배율이 다릅니다(제작 때 정해진 값). 그래서 마스크마다 <b>절편 (intercept)</b>, 곧 온도가 <i>T</i><sub>0</sub>이고 턴이 0일 때의 <i>M̂<sub>x</sub></i>를 따로 둡니다.</p>
 <div class="eq">
   <span class="eqlab">다중 회귀 모형 (유리 <i>i</i>, 그 유리의 마스크 <i>m</i>(<i>i</i>))</span>
@@ -310,7 +311,7 @@ table.mt td.hit{white-space:normal}
   <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
   <div class="concl" id="conc5"></div>
 </div>
-<p>표의 두 줄을 이어 읽으면 교란이 정확히 어디서 오는지 보입니다. 턴만 넣은 기울기는 둘 다 넣은 턴 기울기에 <b>열변형 기울기 × (턴이 1 늘 때 오르는 온도)</b>를 더한 값과 같습니다. 온도를 뺀 모델이 그 몫을 모두 턴에 씌우기 때문입니다. 그래서 12장 가운데 이 몫에 가장 크게 속는 마스크, 곧 턴만 넣은 기울기가 정답에서 가장 멀리 벗어난 마스크를 위 [문제]에 골랐습니다.</p>
+<p>표의 두 줄을 이어 읽으면 교란이 정확히 어디서 오는지 보입니다. 턴만 넣은 기울기는 둘 다 넣은 턴 기울기에 <b>열변형 기울기 × (턴이 1 늘 때 오르는 온도)</b>를 더한 값과 같습니다. 온도를 뺀 모델이 그 몫을 모두 턴에 씌우기 때문입니다. 이 관계는 우연히 맞는 것이 아니라 최소제곱의 일반식입니다. 빠뜨린 변수(여기서는 온도)의 기울기가 <i>b</i>이고 그 변수를 넣은 변수(턴)에 맞춘 기울기가 δ(턴이 1 늘 때 오르는 온도, 마스크별 절편을 뺀 뒤의 값)이면, 넣은 변수만으로 구한 기울기는 둘 다 넣은 기울기에 <i>b</i> × δ를 더한 값이 됩니다. 그래서 12장 가운데 이 몫에 가장 크게 속는 마스크, 곧 턴만 넣은 기울기가 정답에서 가장 멀리 벗어난 마스크를 위 [문제]에 골랐습니다.</p>
 <div class="labtitle">마스크 12장의 턴만 넣은 기울기와 정답의 차이 (기본 계절)</div>
 <div class="tbwrap"><table id="tab5b" class="mt num"></table></div>
 <div class="qna" data-label="그냥 턴 평균만 보면 되지 않나요?" data-q="그냥 턴 평균만 보면 되지 않나요?">
@@ -320,7 +321,7 @@ table.mt td.hit{white-space:normal}
 
 <!-- ===================== 6 ===================== -->
 <h2><span class="no">6</span>두 번째 증거 — 단변 배율 My</h2>
-<p>회귀 하나로 갈랐다고 바로 믿기는 이릅니다. 같은 구조 가정 위에서 한 번 더 확인하는 증거가 필요합니다. 열변형은 장변과 단변에 모두 들어가지만, 턴 누적(장력이 풀리는 것)은 장변에만 들어간다고 하면 <b>단변 배율 <i>M<sub>y</sub></i>의 온도 기울기는 있고 턴 기울기는 0 근처</b>여야 합니다. 같은 회귀를 <i>M̂<sub>y</sub></i>에 해 봅니다.</p>
+<p>회귀 하나로 갈랐다고 바로 믿기는 이릅니다. 같은 구조 가정 위에서 한 번 더 확인하는 증거가 필요합니다. 열변형은 장변과 단변에 모두 들어가지만, 턴 누적(장력이 풀리는 것)은 장변에만 들어간다고 하면 <b>단변 배율 <i>M<sub>y</sub></i>의 온도 기울기는 있고 턴 기울기는 0 근처</b>여야 합니다. 같은 회귀를 <i>M̂<sub>y</sub></i>에 해 봅니다. 이것은 독립된 증명이 아니라 구조 가정 위의 일관성 확인입니다. <i>M<sub>y</sub></i>의 턴 기울기가 0이 아니게 나오면(표준오차의 몇 배 이상) 턴 누적이 단변에도 있거나 온도 쪽 자료가 열변형과 턴 누적을 제대로 가르지 못한다는 뜻이므로, 판정을 보류하고 두 가정부터 의심합니다.</p>
 <p><b>이 절의 전제(가정)</b>는 두 가지입니다. 열변형이 <i>M<sub>y</sub></i>에 들어가는 크기는 <i>M<sub>x</sub></i>의 <span class="v_half"></span>로 둔 가상 공정의 약속이고, 턴 누적은 장변에만 있다고 둔 약속입니다. 현장 마스크에서는 이 비와 방향을 먼저 재 두어야 이 증거를 쓸 수 있습니다.</p>
 <div class="maps2">
   <div><div class="labtitle"><i>M̂<sub>x</sub></i> — 절편과 턴 몫을 뺀 값</div><canvas id="cvMx6"></canvas></div>
@@ -342,7 +343,7 @@ table.mt td.hit{white-space:normal}
   <math display="block"><mrow><msub><mi>M</mi><mrow><mtext>보정</mtext><mo>,</mo><mi>i</mi></mrow></msub><mo>=</mo><msub><mover><mi>M</mi><mo>^</mo></mover><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>b</mi><mo>^</mo></mover><mi>T</mi></msub><mo stretchy="false">(</mo><msub><mi>T</mi><mi>i</mi></msub><mo>−</mo><msub><mi>T</mi><mtext>기준</mtext></msub><mo stretchy="false">)</mo></mrow></math>
   <span class="note"><i>b̂<sub>T</sub></i>는 4절의 다중 회귀로 구한 열변형 기울기(<span class="v_bT"></span> ppm/K), <i>T</i><sub>기준</sub>는 기준 온도입니다.</span>
 </div>
-<p>경보를 평가하려면 말을 더 정해야 합니다. 마스크의 판정이 <b>정답</b>(가상 자료에서 턴 누적 몫만으로 같은 판정을 한 것)과 같으면 맞고, 다르면 틀립니다. 틀림에는 두 가지가 있습니다. <b>헛경보</b>는 방법은 경보인데 정답은 경보가 아닌 마스크이고, <b>놓침</b>은 정답은 경보인데 방법은 경보가 아닌 마스크입니다. 헛경보 한 건은 멀쩡한 마스크를 리페어하러 빼는 일이고, 놓침 한 건은 닳은 마스크를 계속 쓰는 일입니다.</p>
+<p>경보를 평가하려면 말을 더 정해야 합니다. 마스크의 판정이 <b>정답</b>(가상 자료에서 턴 누적 몫만으로 같은 판정을 한 것)과 같으면 맞고, 다르면 틀립니다. 틀림에는 두 가지가 있습니다. <b>헛경보</b>는 방법은 경보인데 정답은 경보가 아닌 마스크이고, <b>놓침</b>은 정답은 경보인데 방법은 경보가 아닌 마스크입니다. 헛경보 한 건은 멀쩡한 마스크를 리페어하러 빼는 일이고, 놓침 한 건은 닳은 마스크를 계속 쓰는 일입니다. 정답은 가상 자료라서 있는 기준입니다. 현장에는 정답이 없으므로, 보정 뒤 경보가 맞았는지는 다음 측정에서 보정 후 턴 기울기가 계속 내려가는지로 사후에 확인합니다. 아래 한계와 점검 턴은 이 실험실이 정한 가정이며, 현장에서는 보정 장비가 맞출 수 있는 배율 범위와 spec으로 정합니다. [문제]의 마스크는 속기 가장 쉬운 것을 골랐으므로 그 한 장의 결과는 평균적인 마스크의 근거가 아닙니다. 평균적인 마스크에 대한 근거는 아래 12장 표와 9절의 시드 분포입니다.</p>
 <div class="lab">
   <div class="labtitle">보정 전과 후의 경보 — 한계와 점검 턴을 바꿔 보기</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 보정 전 그림에서 초록 선(보정 후)과 붉은 한계선 중 어느 쪽이 먼저 닿는지 보십시오. 2) 한계를 낮출수록 헛경보와 놓침이 어떻게 달라지는지 보십시오. 3) 점검 턴을 늘리면 정답 쪽 경보가 언제부터 생기는지 보십시오. 아래 마스크 12장의 표와 그림이 함께 움직입니다.</div>

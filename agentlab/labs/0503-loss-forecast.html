@@ -214,7 +214,7 @@ table.nwall td{white-space:nowrap}
   <h3 style="margin-top:0">시작하기 전에</h3>
   <p><b>이미 아시는 것</b> — 0305 의 시간순 분할·섞어 나누기가 만드는 낙관 편향·RMSE·직선과 트리의 비교·포착률, 0306 의 예측 구간, 0400 의 늦게 들어오는 자료와 되돌아보기, 0402 의 일치율의 함정(늘 &lsquo;없음&rsquo;이라 해도 높게 나오는 일치율), 0501 의 근본 원인과 파레토, 0502 의 노출량·포아송·과산포·연쇄, 0206 의 마스크 상태 전이(in_use → to_clean → … → repair).</p>
   <ul class="chips known"><li>시간순 분할·낙관 편향·RMSE (0305)</li><li>예측 구간 (0306)</li><li>늦은 자료 (0400)</li><li>일치율의 함정 (0402)</li><li>근본 원인·파레토 (0501)</li><li>노출량·포아송·연쇄 (0502)</li><li>마스크 상태 전이 (0206)</li></ul>
-  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(MAE · 개선률 · 로그 손실 · 위험률)과 6절의 부속 낱말(FMM 블록 · 오즈)은 쓰는 자리에서 문장이나 식으로 정의합니다. 이 편의 <b>개선률</b>은 모델의 시험 MAE 가 기준보다 줄어든 비율이며, 0501·0502 에서 과제가 줄이는 비율을 부른 &lsquo;개선율&rsquo;과는 다른 양입니다.</p>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(MAE · 개선률 · 로그 손실 · 위험률)과 6절의 부속 낱말(로지스틱 회귀 · 시그모이드 · 규제 · FMM 블록 · 오즈)은 쓰는 자리에서 문장이나 식으로 정의합니다. 이 편의 <b>개선률</b>은 모델의 시험 MAE 가 기준보다 줄어든 비율이며, 0501·0502 에서 과제가 줄이는 비율을 부른 &lsquo;개선율&rsquo;과는 다른 양입니다.</p>
   <ul class="chips" id="termList"><li>예측 지평 (forecast horizon)</li><li>기준 예측 (baseline forecast)</li><li>미래 정보 누설 (look-ahead leakage)</li><li>무기억성 (memorylessness)</li><li>제품 공정 추적 (product genealogy)</li><li>보정도 (calibration)</li></ul>
 </div>
 
@@ -240,7 +240,7 @@ table.nwall td{white-space:nowrap}
 <!-- ===================== 1 ===================== -->
 <h2><span class="no">1</span>첫 시도 — 있는 특징을 모두 넣고 섞어 나눠 재 봅니다</h2>
 <p>맞히려는 값은 <b>지금 시각 이후 다음 <span class="lv" data-lv="H"></span>시간 안에 시작한 Loss 사건이 잃게 한 유리 장수의 합</b>입니다. 사건이 그 시간 안에 시작하면 끝이 구간 밖으로 걸쳐도 잃은 장수 전부를 시작한 시각의 칸에 넣습니다. 출발 시각은 한 시간 간격으로 모두 쓰고, 출발 시각마다 한 줄이 생깁니다.</p>
-<p>특징은 가진 것을 모두 넣었습니다. 시간별 상태(stocker 채움·세정 대기·빈 카세트·triple 운전 블록 수·라인 출력), 지난 24시간에 끝난 사건의 장수(근본 원인 묶음별), PM 달력, 마지막 고장 뒤 경과 시간, 그리고 같은 시간 구간 안의 상태와 사건에서 뽑은 값들입니다. 아래 3절에서 이 특징을 하나씩 따져 봅니다.</p>
+<p>특징은 가진 것을 모두 넣었습니다. 시간별 상태(stocker 채움·세정 대기·빈 카세트·triple 운전 블록 수·라인 출력), 지난 24시간에 끝난 사건의 장수(근본 원인 묶음별), PM 달력, 마지막 고장 뒤 경과 시간, 그리고 같은 시간 구간 안의 상태와 사건에서 뽑은 값들입니다. 아래 3절에서 이 특징을 하나씩 따져 봅니다. 이 가운데 triple 운전 블록 수는 챔버 하나가 서서 나머지 3개로 돌고 있는 블록의 수로, 0501 의 RUN-TRIPLE 이 잃게 하는 3대 운전과 같은 상태입니다. 챔버가 이미 선 블록이 많다는 뜻이라 뒤따르는 Loss 의 앞선 신호가 됩니다.</p>
 <div class="tbwrap"><table class="mt" id="tabFeat1"></table></div>
 <p>행을 무작위처럼 섞어 세 칸 중 한 칸을 시험으로 떼어 놓고(번호에 정수 해시를 곱해 나머지로 나눕니다), 직선 회귀와 깊이 <span data-v="d0"></span> 회귀 트리를 맞춥니다. 오차는 <b>MAE</b> — 예측과 실제의 차이의 절댓값을 평균한 것이며 단위는 유리 장수입니다. 비교 대상으로 아무 모델 없이 학습 구간의 평균 하나만 말했을 때의 MAE 를 옆에 둡니다. 이 비교 대상에는 3절에서 이름을 붙입니다.</p>
 <div class="lab">
@@ -267,7 +267,7 @@ table.nwall td{white-space:nowrap}
 <h2><span class="no">3</span>이름 — 예측 지평·기준 예측·미래 정보 누설</h2>
 <ul class="termdef">
   <li><b>예측 지평 (forecast horizon)</b> — 지금 시각에서 몇 시간 뒤까지의 Loss 를 맞히려는지입니다. 이 실험실에서는 다음 <b>H</b> 시간 안에 시작한 사건의 잃은 유리 장수이며 H 는 아래 슬라이더로 바꿉니다. 정하는 것은 쓰는 사람의 몫이고, 세정 순서를 조정하는 데에는 하루가, 교대 인계에는 열두 시간이 맞는 식으로 용도가 정합니다.</li>
-  <li><b>기준 예측 (baseline forecast)</b> — 모델 없이 세우는 가장 단순한 예측입니다. 둘을 씁니다. <b>평균 예측</b>은 학습 기간의 목표 평균 하나를 늘 말하고, <b>지속 예측</b>은 &lsquo;지난 H 시간에 끝난 사건의 장수와 같다&rsquo;고 말합니다. 모델은 이 둘 가운데 더 나은 쪽을 이겨야 쓸모가 있습니다. 이 실험실은 모델의 <b>개선률</b>을 1 − (모델의 시험 MAE ÷ 더 나은 기준의 시험 MAE)로 적습니다.</li>
+  <li><b>기준 예측 (baseline forecast)</b> — 모델 없이 세우는 가장 단순한 예측입니다. 둘을 씁니다. <b>평균 예측</b>은 학습 기간의 목표 평균 하나를 늘 말하고, <b>지속 예측</b>은 &lsquo;지난 H 시간에 끝난 사건의 장수와 같다&rsquo;고 말합니다. 지난 H 시간에 시작한 사건은 아직 진행 중이면 잃은 장수가 확정되지 않아서, 예측하는 시각에 알 수 있는 것은 이미 끝난 사건뿐입니다. 시작과 끝이 어긋나므로 지속 예측은 맞히기 어려운 약한 기준이고, 평균 예측보다 나쁠 수도 있습니다. 모델은 이 둘 가운데 더 나은 쪽을 이겨야 쓸모가 있습니다. 이 실험실은 모델의 <b>개선률</b>을 1 − (모델의 시험 MAE ÷ 더 나은 기준의 시험 MAE)로 적습니다.</li>
   <li><b>미래 정보 누설 (look-ahead leakage)</b> — 예측하는 시각에는 아직 알 수 없던 값이 특징에 섞여 시험 점수가 부풀어 오르는 것입니다. 0305 의 섞어 나누기 낙관 편향과는 다른 일입니다. 그쪽은 <b>시험 행이 학습 행과 이웃해 닮은</b> 문제이고 시간순 분할로 막습니다. 이쪽은 <b>특징 안에 그 시각에 모를 값이 든</b> 문제이고 특징표의 &lsquo;알려지는 시각&rsquo; 열로 막습니다. 둘은 따로 일어나고 따로 막아야 합니다.</li>
 </ul>
 <p>시간순 분할은 0305 와 같이 앞쪽을 학습, 뒤쪽을 시험으로 씁니다. 여기서는 목표 구간까지 학습 기간 안에서 끝나는 출발 시각만 학습에 넣어, 학습의 정답과 시험 기간이 겹치지 않게 합니다. 특징은 아래 표와 같습니다.</p>
@@ -292,7 +292,7 @@ table.nwall td{white-space:nowrap}
   <div class="tbwrap"><table class="mt num" id="tabMat"></table></div>
   <div class="readout" id="roMat"></div>
 </div>
-<p><b>누설을 걸러낸 점수만이 운영 점수입니다.</b> 누설 특징을 뺀 시간순 시험이 &lsquo;내일 실제로 낼 수 있는 점수&rsquo;이고, 4절부터는 이 조건으로 고정해 모델을 견줍니다. 표준화에 시험 기간을 포함하는 셋째 누설은 모델이 직선·포아송일 때만 영향을 줍니다. 트리는 값의 크기가 아니라 순서만 쓰기 때문입니다.</p>
+<p><b>누설을 걸러낸 점수만이 운영 점수입니다.</b> 누설 특징을 뺀 시간순 시험이 &lsquo;내일 실제로 낼 수 있는 점수&rsquo;이고, 4절부터는 이 조건으로 고정해 모델을 견줍니다. 표준화에 시험 기간을 포함하는 셋째 누설은 모델이 직선·포아송일 때만 영향을 줍니다. 트리는 값의 크기가 아니라 순서만 쓰기 때문입니다. 시간순에서 구간 안 특징 둘을 켜도 기본 깊이의 트리 개선률이 그대로인 것은, 그 깊이의 트리가 학습 기간에서 그 두 특징으로 한 번도 가르지 않았기 때문입니다. 섞어 나누면 이웃 행이 그 특징의 값을 알려 주므로 트리의 점수도 달라집니다.</p>
 
 <!-- ===================== 4 ===================== -->
 <h2><span class="no">4</span>모델 견주기 — 기준을 이기는가</h2>
@@ -348,6 +348,7 @@ table.nwall td{white-space:nowrap}
   <div class="legend"><span><i class="dot" style="background:var(--accent);border-radius:2px"></i>구간별 위험률(검은 선 = 건수의 ±1 표준오차)</span><span><span class="sw" style="border-top-style:dashed;border-top-color:var(--warn)"></span>전체 평균 위험률</span></div>
   <div class="readout" id="roMem"></div>
 </div>
+<p><b>두 확인을 읽는 기준.</b> 첫째, &lsquo;평균 ≈ 표준편차&rsquo;의 ≈ 는 변동계수(표준편차 ÷ 평균)가 1 에서 우연히 벗어나는 폭으로 가립니다. 무기억성을 가진 간격 n 개의 변동계수는 1 둘레에서 대략 1/√n 만큼 흔들리므로(지수분포에서 간격 n 개를 뽑아 변동계수를 반복해 재어 본 시뮬레이션으로 확인한 어림이며, 100개이면 약 0.1), 그 안에 들어오면 평균 = 표준편차와 어긋나지 않는다고 봅니다. 이 성질을 가진 시간의 분포가 지수분포이고, 무기억성은 그 분포의 성질입니다. 둘째, 위험률 비의 p 값이 크다는 것은 &lsquo;차이가 없다&rsquo;의 증거가 아니라 &lsquo;이 건수로는 차이를 못 찾았다&rsquo;입니다. 고장 간격이 수십~백 개뿐이라 작은 차이는 놓칠 수 있으므로, 이 확인이 말하는 것은 위험률이 경과 시간에 따라 크게 오르내리지 않는다는 데까지입니다.</p>
 <p><b>비율로만 계획에 넣습니다.</b> 시간당 위험률이 일정하면 다음 H 시간에 고장이 시작할 건수는 위험률 × 챔버 수 × H 로 기대할 수 있습니다. 어느 챔버가 언제 서는지는 맞히지 못해도 세정 순서의 여유나 예비 인력의 총량은 이 기대값으로 잡습니다(0502 의 포아송). 진동·온도 같은 전조 신호를 기록하면 이야기가 달라지지만, 그 신호가 기록에 없는 한 이 기록으로는 시각을 맞힐 수 없습니다.</p>
 <div class="qna" data-label="딥러닝을 쓰면 고장도 맞힐 수 있지 않나요?" data-q="딥러닝을 쓰면 고장도 맞힐 수 있지 않나요?">
   <p><b>이 기록으로는 아닙니다.</b> 근거는 둘로 나뉩니다. 첫째, 5절에서 잰 위험률은 마지막 고장 뒤 경과 시간 하나에 대한 것인데, 그것이 평평하므로 지난 시간은 다음 고장 시각에 대해 알려 주는 정보가 없습니다. 둘째, 경과 시간 말고 다른 특징(stocker·세정 대기·가동 블록 수 등)에 정보가 있는지는 같은 시간순 시험의 개선률로 따로 잽니다. 고장 계열 몫은 직선 회귀와 트리 모두 개선률이 음수여서 기준을 이기지 못했습니다(5절 표). 모델을 아무리 크게 만들어도 입력에 정보가 없으면 평균 이상을 말할 수 없습니다. 깊이를 올린 트리가 학습 오차만 내리고 시험 오차를 올리는 4절의 모습이 그 작은 예입니다.</p>
@@ -361,7 +362,7 @@ table.nwall td{white-space:nowrap}
   <li><b>제품 공정 추적 (product genealogy / traceability)</b> — 제품이나 소모품(여기서는 마스크) 하나가 어느 블록에서 몇 번 쓰이고 몇 번 세정·리페어됐는지를 개체 단위로 잇는 기록입니다. 이 기록이 있어야 &lsquo;이 마스크는 지금 몇 번째 세정이고 어느 블록에 들어가는가&rsquo;를 사용 하나하나에 붙일 수 있습니다.</li>
   <li><b>보정도 (calibration)</b> — 예측 확률이 실제 빈도와 맞는 정도입니다. &ldquo;결함 확률 1% 라고 한 사용들 가운데 실제로 약 1% 가 결함이었나&rdquo;를 묻습니다. 순위만 맞히는 모델과 확률까지 맞히는 모델은 다릅니다.</li>
 </ul>
-<p>0206 의 전이 기록(<code>mask_transitions.csv</code>)에서 마스크의 전이만 뽑으면 아래와 같은 줄이 나옵니다. 사용 한 번은 <code>to=in_use</code> 인 행이고, 그 행의 <code>cause</code> 에 <b>나이</b>(마지막 리페어 뒤 세정 횟수)가 적힙니다. 사용이 결함이었는지는 다음 사용이 시작되기 전에 <code>to=repair</code> 이고 <code>trigger=turn_end_defect</code> 인 행이 있었는지로 정합니다(끝나지 않은 사용은 결함 없음으로 셉니다). 처음으로 결함이 난 마스크의 기록입니다.</p>
+<p>0206 의 전이 기록(<code>mask_transitions.csv</code>)에서 마스크의 전이만 뽑으면 아래와 같은 줄이 나옵니다. 사용 한 번은 <code>to=in_use</code> 인 행이고, 그 행의 <code>cause</code> 에 <b>나이</b>(마지막 리페어 뒤 세정 횟수)가 적힙니다. 사용이 결함이었는지는 다음 사용이 시작되기 전에 <code>to=repair</code> 이고 <code>trigger=turn_end_defect</code> 인 행이 있었는지로 정합니다(끝나지 않은 사용은 결함 없음으로 셉니다. 기록 끝 무렵에 아직 끝나지 않은 사용의 결함은 놓치므로 결함 수는 실제보다 조금 작게 나옵니다. 0400 의 늦게 들어오는 자료와 같은 종류의 문제이고, 이 기록에서는 끝나지 않은 사용이 전체의 1% 안쪽이라 영향이 작습니다. 현장에서는 결함 표시가 늦게 확정되므로 나중에 다시 채워 셉니다.) 처음으로 결함이 난 마스크의 기록입니다.</p>
 <div class="tbwrap"><table class="mt" id="tabTr"></table></div>
 <p>이렇게 사용 한 번당 한 줄로 만든 표가 <b>마스크 사용 표</b>입니다. <b>FMM 블록</b>은 화소(픽셀)를 만드는 마스크를 쓰는 여섯 블록(B02~B07)이고, 공통층과 오픈 마스크 블록(B01·B08~B11)은 FMM 블록이 아닙니다. 사용마다 그 블록이 FMM 블록이면 1, 아니면 0 인 칸(FMM)을 붙입니다. 같은 세트가 같은 시각에 시작한 사용들의 평균 나이도 붙입니다(7절에서 쓰입니다).</p>
 <div class="tbwrap"><table class="mt num" id="tabUse"></table></div>
@@ -374,7 +375,7 @@ table.nwall td{white-space:nowrap}
   <div class="tbwrap"><table class="mt num" id="tabAge"></table></div>
   <div class="readout" id="roAge"></div>
 </div>
-<p>구간마다 결함이 이 정도 건수뿐이면 막대 하나하나를 믿기 어렵습니다. 그래서 점 하나하나를 보지 않고 선 하나로 요약하는 <b>로지스틱 회귀</b>를 씁니다. 결함 확률 p 를 나이와 FMM 여부로 설명합니다. 규제 없이 맞춥니다.</p>
+<p>구간마다 결함이 이 정도 건수뿐이면 막대 하나하나를 믿기 어렵습니다. 그래서 점 하나하나를 보지 않고 선 하나로 요약하려 합니다. 그런데 3절의 직선 회귀를 그대로 쓰면 예측값이 0 아래나 1 위로 나갈 수 있어 확률이 될 수 없습니다. 직선의 값 z 를 0 과 1 사이로 눌러 담는 함수를 한 번 더 씌우면 됩니다. 이 함수가 <b>시그모이드 (sigmoid)</b>로, 큰 양수는 1 에, 큰 음수는 0 에 가까워지는 S 자 곡선입니다. <b>직선에 시그모이드를 씌워 결함 확률 p 를 내는 모델이 로지스틱 회귀 (logistic regression)</b>입니다. 결함 확률 p 를 나이와 FMM 여부로 설명합니다. 계수가 커지지 않도록 벌점을 붙여 누르는 방법(<b>규제</b>)은 쓰지 않고 맞춥니다.</p>
 <div class="eq">
   <span class="eqlab">로지스틱 회귀 — 사용 한 번의 결함 확률</span>
   <math display="block"><mrow><mi>p</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mo>&#x2212;</mo><mi>z</mi></mrow></msup></mrow></mfrac><mspace width="2em"/><mi>z</mi><mo>=</mo><msub><mi>&#x03B2;</mi><mn>0</mn></msub><mo>+</mo><msub><mi>&#x03B2;</mi><mn>1</mn></msub><mo>&#x22C5;</mo><mtext>나이</mtext><mo>+</mo><msub><mi>&#x03B2;</mi><mn>2</mn></msub><mo>&#x22C5;</mo><mtext>FMM</mtext><mo>+</mo><msub><mi>&#x03B2;</mi><mn>3</mn></msub><mo>&#x22C5;</mo><mtext>나이</mtext><mo>&#x22C5;</mo><mtext>FMM</mtext></mrow></math>
@@ -994,7 +995,7 @@ function upd5(){
   rt.forEach(function(g,i){[['linear',css('--accent')],['tree',css('--c8')]].forEach(function(p,j){var v=g.imp[p[0]],bx=ml+bw*i+bw*0.14+j*bw*0.36,wd=bw*0.32;x.fillStyle=p[1];x.fillRect(bx,Math.min(Y_(0),Y_(v)),wd,Math.max(1,Math.abs(Y_(v)-Y_(0))));var clip=v<=lo+1e-9;x.fillStyle=clip?'#fff':ink;x.textAlign='center';x.fillText((clip?'↓':(v<0?'−':'')+Math.abs(Math.round(v*100))+'%'),bx+wd/2,v>=0?Y_(v)-8:(clip?Y_(0)+12:Y_(v)+9));});x.fillStyle=soft;x.textAlign='center';x.fillText(g.ko,ml+bw*i+bw/2,mt+ph+16);});
   x.strokeStyle=ink;x.globalAlpha=0.5;x.beginPath();x.moveTo(ml,Y_(0));x.lineTo(ml+pw,Y_(0));x.stroke();x.globalAlpha=1;
   var pm=rt[0],fa=rt[2];
-  $('roRoot').innerHTML='정규 PM 몫은 직선 회귀로 <b>'+sp(pm.imp.linear)+'</b>(트리 '+sp(pm.imp.tree)+'), 고장 계열 몫은 <b>'+sp(fa.imp.linear)+'</b>(트리 '+sp(fa.imp.tree)+')입니다. '+(pm.imp.linear>fa.imp.linear+0.05?'달력 특징이 있는 몫만 기준을 이기고, 고장 계열은 '+(fa.imp.linear<=0.02?'기준을 이기지 못합니다.':'거의 개선이 없습니다.'):'두 몫의 차이가 크지 않습니다.')+' 마스크 불량 몫은 '+sp(rt[1].imp.linear)+', 그 밖 몫은 시험 기간 평균이 '+fm(rt[3].meanTe)+'장으로 작아 개선률로 말하기 어렵습니다. PM 몫만 모델로, 나머지는 학습 기간 평균으로 맞춰 더한 <b>분해 예측</b>의 전체 개선률은 <b>'+sp(cp.imp)+'</b>입니다(전체를 한 모델로 맞춘 직선 회귀는 '+sp(opr().imp.linear)+').';
+  $('roRoot').innerHTML='정규 PM 몫은 직선 회귀로 <b>'+sp(pm.imp.linear)+'</b>(트리 '+sp(pm.imp.tree)+'), 고장 계열 몫은 <b>'+sp(fa.imp.linear)+'</b>(트리 '+sp(fa.imp.tree)+')입니다. '+(pm.imp.linear>fa.imp.linear+0.05?'달력 특징이 있는 몫만 기준을 이기고, 고장 계열은 '+(fa.imp.linear<=0.02?'기준을 이기지 못합니다.':'거의 개선이 없습니다.'):'두 몫의 차이가 크지 않습니다.')+' 마스크 불량 몫은 '+sp(rt[1].imp.linear)+', 그 밖 몫은 시험 기간 평균이 '+fm(rt[3].meanTe)+'장으로 작고 더 나은 기준의 오차도 '+fm(Math.min(rt[3].mae.mean,rt[3].mae.persist))+'장뿐이라, 오차가 조금만 달라져도 개선률이 크게 움직여 개선률로 말하기 어렵습니다. 그 몫의 모델 오차는 직선 '+fm(rt[3].mae.linear)+'장·트리 '+fm(rt[3].mae.tree)+'장으로, 다른 몫의 오차보다 절대 크기는 작습니다. PM 몫만 모델로, 나머지는 학습 기간 평균으로 맞춰 더한(시험 시각마다 PM 몫의 직선 예측에 나머지 세 몫의 학습 기간 평균을 더한 값) <b>분해 예측</b>의 전체 개선률은 <b>'+sp(cp.imp)+'</b>입니다(전체를 한 모델로 맞춘 직선 회귀는 '+sp(opr().imp.linear)+').';
   updMem();
 }
 function memData(){var k='M|'+ST.code+'|'+ST.split;if(EVC[k])return EVC[k];var tmax=ST.split*1440,g=L.gaps503(EV,ST.code,tmax),edges=[0,3,6,10,14,21].map(function(d){return d*24;}),lt=L.lifeTable503(EV,ST.code,tmax,edges);return EVC[k]={gaps:g,lt:lt,edges:edges,split:L.lifeSplit5(lt,3)};}
@@ -1105,10 +1106,18 @@ function upd8(){
   var sTxt=ready?' 시드 '+F.SEEDS+'개로 다시 재면 직선 회귀의 전체 개선률은 중앙값 '+sp(q('impLin',0.5))+'(10~90% '+sp(q('impLin',0.1))+' ~ '+sp(q('impLin',0.9))+')이고, 정규 PM 몫은 중앙값 '+sp(q('impPmLin',0.5))+', 고장 계열 몫은 '+sp(q('impFaultLin',0.5))+'입니다.':'';
   var cs=ready?SEEDS.map(function(s){return L.riskCapture5(s.keep.p,s.keep.y,ST.k).rate;}):null;
   var cTxt=ready?' 시드 '+F.SEEDS+'개에서 포착률은 중앙값 '+pc(L.quantile(cs,0.5))+'(10~90% '+pc(L.quantile(cs,0.1))+' ~ '+pc(L.quantile(cs,0.9))+')이며, 무작위 점검 기대 '+pc(ST.k,0)+'보다 낮은 시드는 '+cs.filter(function(v){return v<=ST.k;}).length+'개입니다.':'';
+  var ruleTxt='';
+  if(ready){
+    var l10=q('impLin',0.1),p10=q('impPmLin',0.1),c10=q('impComp',0.1);
+    ruleTxt=' <b>4절의 규칙(시드를 바꿔도 기준을 이기는 쪽에만 모델을 씁니다)으로 읽으면</b> 전체를 한 모델로 맞춘 직선 회귀는 시드 '+F.SEEDS+'개의 10% 분위가 '+sp(l10)+'이어서 '+(l10>0?'0 위에 있으므로 모델을 씁니다.':'0 아래로 내려가므로 운영안은 기준(평균 예측)입니다.')
+      +' 정규 PM 몫은 시드 '+F.SEEDS+'개의 10% 분위가 '+sp(p10)+'로 '+(p10>0?'0 위에 있어 모델로 맞춥니다.':'0 아래라 기준으로 갑니다.')
+      +' PM 몫만 모델로 맞춘 분해 예측의 전체 개선률은 위 '+sp(cp.imp)+'가 대표 시드 하나의 값이고, 시드 '+F.SEEDS+'개의 10% 분위는 '+sp(c10)+'이므로, '+(c10>0?'전체로 말해도 됩니다.':'전체 숫자 하나로는 약속하지 않고 몫별로 말합니다.')
+      +(l10<=0&&p10>0?' 계획 담당에게 하는 약속은 &ldquo;정규 PM 몫은 모델로, 나머지는 기준과 비율로&rdquo;입니다.':'');
+  }
   var lin=r.imp.linear,pmI=rt[0].imp.linear,faI=rt[2].imp.linear,medL=ready?q('impLin',0.5):null;
   var head1='1) 내일 H = '+ST.H+'시간의 Loss — 전체 개선률 '+sp(lin)+(ready?'(시드 '+F.SEEDS+'개 중앙값 '+sp(medL)+')':'')+', 정규 PM 몫 '+sp(pmI)+', 고장 계열 몫 '+sp(faI)+'입니다.';
   var verdict=pmI>faI+0.05?(faI<=0.02?' 달력 특징이 있는 몫(정규 PM)만 기준을 이기고 고장 계열은 기준을 이기지 못합니다.':' 달력 특징이 있는 몫(정규 PM)에서 개선이 가장 큽니다.'):' 몫 사이의 개선 차이가 크지 않습니다.';
-  $('conc8').innerHTML='<p><b>'+head1+'</b>'+verdict+' 누설 없이 시간순으로 잰 값이며 더 나은 기준은 '+MODN[r.bestBase]+'입니다. 고장은 시각이 아니라 비율로 계획에 넣습니다(다음 '+ST.H+'시간 기대 약 '+f1(24/L.lifeMean5(L.lifeTable503(EV,'EQ-BD',ST.split*1440,[0,72,144,240,336,504]))*NCH*ST.H/24)+'건). PM 몫만 모델로 맞춘 분해 예측의 전체 개선률은 '+sp(cp.imp)+'입니다.'+sTxt+' 이 숫자는 시험 기간 '+(DAYSA-ST.split)+'일에서 나온 것이라, 모델을 계획에 쓸 때는 기준보다 나은 몫에만 쓰고 시드 분포의 흔들림 폭도 함께 보고합니다.</p>'
+  $('conc8').innerHTML='<p><b>'+head1+'</b>'+verdict+' 누설 없이 시간순으로 잰 값이며 더 나은 기준은 '+MODN[r.bestBase]+'입니다. 고장은 시각이 아니라 비율로 계획에 넣습니다(다음 '+ST.H+'시간 기대 약 '+f1(24/L.lifeMean5(L.lifeTable503(EV,'EQ-BD',ST.split*1440,[0,72,144,240,336,504]))*NCH*ST.H/24)+'건). PM 몫만 모델로 맞춘 분해 예측의 전체 개선률은 '+sp(cp.imp)+'입니다.'+sTxt+' 이 숫자는 시험 기간 '+(DAYSA-ST.split)+'일에서 나온 것이라, 모델을 계획에 쓸 때는 기준보다 나은 몫에만 쓰고 시드 분포의 흔들림 폭도 함께 보고합니다.'+ruleTxt+'</p>'
     +'<p><b>2) 점검할 마스크 '+Math.round(ST.k*100)+'% — 결함의 '+pc(rr.rate)+'를 잡습니다.</b> 시험 기간 결함 '+m.dTe+'건 가운데 위험 상위 '+Math.round(ST.k*100)+'%를 점검하면 '+f1(rr.captured)+'건이 잡혀 무작위 점검 기대 '+pc(ST.k,0)+'의 '+f2(rr.rate/ST.k)+'배입니다.'+cTxt+' 개체 id 로 이은 사용 이력이 없고 세트 평균 나이만 남으면 포착률이 '+pc(rows[4].cap.rate)+'로 바뀝니다. 결함이 몇십 건뿐이라 포착률의 구간이 넓다는 점을 숫자와 함께 보고합니다.</p>';
 
 }

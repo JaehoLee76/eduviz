@@ -272,10 +272,11 @@ td.dim{color:var(--soft)}
   <div class="state" id="stCalc"></div>
 </div>
 <div class="concl" id="conc4"></div>
+<p>3절이 예고한 &ldquo;계산이 약하다&rdquo;는 이 기록에서 틀린 답으로는 나타나지 않았습니다. 그래서 계산을 맡기지 않는 이유는 틀렸기 때문이 아닙니다. 맞았는데도 맡기지 않는 이유가 아래 세 가지입니다.</p>
 <p><b>그래도 계산을 LLM 에게 맡기지 않는 이유는 세 가지입니다.</b></p>
 <ol style="margin:.2rem 0 .8rem 1.2rem;padding:0">
   <li><b>맞았는지 알려면 결국 다시 계산해야 합니다.</b> T5 는 56칸을 하나로 모아 합·제곱합·편차제곱합을 거쳐 표준편차를 냅니다. 세 답이 모두 맞았지만, 그 사실은 도구로 다시 계산한 뒤에야 말할 수 있습니다.</li>
-  <li><b>현장 표는 글로 넣을 수 있는 크기가 아닙니다.</b> 이 가상 공장의 정답본만 해도 FDC <span class="v_nfdc"></span>줄, PPA <span class="v_nppa"></span>줄(14일)이고 유리 10장 가운데 1장만 적은 표본입니다. 이번 질문은 56칸과 29줄이라 글로 넣을 수 있었을 뿐입니다.</li>
+  <li><b>현장 표는 글로 넣을 수 있는 크기가 아닙니다.</b> 이 가상 공장의 정답본만 해도 FDC <span class="v_nfdc"></span>줄, PPA <span class="v_nppa"></span>줄(14일)입니다. 0400 1절에서 본 FDC <span class="v_lfdc"></span>줄, PPA <span class="v_lppa"></span>줄은 고장이 섞인 적재본의 값이라 다릅니다. 두 표 모두 유리 10장 가운데 1장만 적은 표본입니다. 이번 질문은 56칸과 29줄이라 글로 넣을 수 있었을 뿐입니다.</li>
   <li><b>한 번 맞은 것이 다음에도 맞는다는 보장이 없습니다.</b> 같은 질문을 다시 물으면 답이 달라질 수 있습니다(7절에서 세 답을 견줍니다).</li>
 </ol>
 <div class="qna" data-label="계산을 다 맞혔는데 왜 맡기지 않나요?" data-q="계산을 다 맞혔는데 왜 맡기지 않나요?">
@@ -295,7 +296,7 @@ td.dim{color:var(--soft)}
 <p><b>뽑기.</b> 답 글에서 숫자(부호·소수·쉼표·%)를 뽑되, 아래는 먼저 지우고 셉니다 — 날짜·시각(<code>2026-03-02</code> · <code>03-07</code> · <code>01:24</code> · <code>01시 24분</code>), 날 번호(<code>5일</code> · <code>5~6일</code> · <code>3월</code>), 이름 속 숫자(<code>B03-CH2</code> · <code>B03-B2</code> · <code>G115-…</code>), 표 번호(<code>표 1</code>), 목록 번호(<code>1)</code>). 그 밖의 숫자는 전부 셉니다. 부호는 보지 않고 크기만 견줍니다.</p>
 <p><b>견주기.</b> 숫자를 쓴 자릿수의 <b>반 칸</b>을 허용 오차로 삼습니다. 소수 셋째 자리로 쓴 1.516 은 ±0.0005, 정수로 쓴 17 은 ±0.5 입니다. 1) 표 칸(또는 문제 글에 있던 숫자)과 허용 오차 안에서 같으면 <b>표에 있음</b>, 2) 아니면 아래 <b>계산 목록</b>에서 만든 값과 같으면 <b>계산됨</b>(어느 계산인지 표시), 3) 둘 다 아니면 <b>근거 없음</b> 입니다. 계산 목록은 이 실험실에서 미리 정한 것입니다.</p>
 <div class="tbwrap"><table id="tabFam" class="mt"></table></div>
-<p><b>거친 일치.</b> 쓴 자릿수가 적으면(허용 오차가 ±0.05 이상) 우연히 맞을 수 있어서, 허용 오차 끝에서 맞은 숫자를 &lsquo;거친 일치&rsquo;라고 따로 세어 둡니다. <b>&lsquo;근거 없음&rsquo;이 곧 틀림은 아닙니다.</b> 목록에 없는 계산일 수 있습니다. 그래서 이 확인의 결과는 사람이 볼 목록(근거 없음 + 거친 일치)이지 합격 판정이 아닙니다. 또 이 확인은 숫자가 표에 있는지만 볼 뿐, 그 숫자가 올바른 챔버·날에 붙어 있는지는 보지 못합니다.</p>
+<p><b>거친 일치.</b> 쓴 자릿수가 적으면(허용 오차가 ±0.05 이상) 우연히 맞을 수 있어서, 허용 오차 끝에서 맞은 숫자를 &lsquo;거친 일치&rsquo;라고 따로 세어 둡니다. <b>&lsquo;근거 없음&rsquo;이 곧 틀림은 아닙니다.</b> 목록에 없는 계산일 수 있습니다. 그래서 이 확인의 결과는 사람이 볼 목록(근거 없음 + 거친 일치)이지 합격 판정이 아닙니다. 또 이 확인은 숫자가 표에 있는지만 볼 뿐, 그 숫자가 올바른 챔버·날에 붙어 있는지는 보지 못합니다. 그러므로 이 대조가 막는 것은 표에도 계산에도 없는 숫자(지어낸 숫자, 소수점이 밀린 숫자 등)입니다. 다른 챔버의 숫자를 붙이는 틀림은 막지 못해 문장을 사람이 보고, 그 틀림을 줄이는 구조(숫자 자리를 비워 두고 도구가 값을 채우는 방식)는 0411 에서 만듭니다.</p>
 
 <div class="lab">
   <div class="labtitle">답 18개의 숫자 대조 — 답을 고르면 표시와 집계가 함께 움직입니다</div>
@@ -319,6 +320,7 @@ td.dim{color:var(--soft)}
   <div class="readout" id="roIn"></div>
 </div>
 <div class="tbwrap"><table id="tabChance" class="mt num"></table></div>
+<div class="tbwrap"><table id="tabDec" class="mt num"></table></div>
 <p class="note" id="noteChance"></p>
 
 <div class="qna" data-label="근거 없음이 나오면 틀린 것인가요?" data-q="근거 없음이 나오면 틀린 것인가요?">
@@ -333,6 +335,7 @@ td.dim{color:var(--soft)}
 </ul>
 <p>T3 과 T4 는 같은 표 1·2 와 같은 질문(&ldquo;B03-CH2 는 5~6일에 Mx 가 크게 내려가고 초과 건수가 늘었습니다. 원인이 무엇입니까?&rdquo;)입니다. 다른 것은 하나뿐입니다. T4 는 표 3(마스크 이력)을 함께 줬습니다. 표 1·2 에는 원인이 들어 있지 않으므로, T3 에서 정답(마스크 교체)을 맞힐 수는 없었습니다.</p>
 <div class="tbwrap"><table id="tab6a" class="mt num"></table></div>
+<p>지어내기를 세는 기준은 말투가 아니라 &ldquo;그 말이 입력 표에 근거가 있는가&rdquo;입니다. 한계를 밝히고 원인 후보를 나열한 답도, 그 후보가 표에 없으면 표에 없는 원인을 담은 것으로 셉니다. 다만 한계를 밝힌 점은 따로 좋은 점으로 셉니다(위 표 둘째 줄). 아래 표는 후보 묶음마다 프롬프트에 있던 말인지 보입니다.</p>
 <div class="tbwrap"><table id="tab6b" class="mt num"></table></div>
 <div class="llmq"><span class="qh">T3-1 의 첫 문장 (이력을 주지 않았을 때)</span><span class="qb" id="f31"></span></div>
 <div class="llmq"><span class="qh">T4-1 의 첫 문장 (이력을 줬을 때)</span><span class="qb" id="f41"></span></div>
@@ -353,6 +356,7 @@ td.dim{color:var(--soft)}
 <p>T1 은 같은 표·같은 질문을 서로 독립된 대화 세 번에 물은 것입니다. 세 답이 언급한 챔버와, 인용한 숫자가 얼마나 겹치는지 셉니다. 교집합은 세 답(또는 두 답)에 모두 있는 것, 합집합은 어느 한 답에라도 있는 것입니다.</p>
 <div class="tbwrap"><table id="tab7a" class="mt num"></table></div>
 <div class="concl" id="conc7a"></div>
+<p>인용한 숫자가 서로 달라도 모두 표에 있으면 틀린 보고는 아닙니다. 겹침이 낮다는 것이 뜻하는 것은 &ldquo;틀린 보고서가 나온다&rdquo;가 아니라 &ldquo;물을 때마다 다른 보고서가 나온다&rdquo;입니다. 그래서 어느 판이 근거로 쓰였는지 되짚으려면 답 원문을 남겨야 합니다. 틀린 문장이 나오는 문제는 6절에서 따로 다뤘습니다.</p>
 <p>T3 은 원인 후보를 어떻게 나열했는지가 다릅니다. 6절의 후보 묶음 표에서 세 답이 같은 묶음 셋을 공통으로 냈고(교집합), 한 답에만 있는 묶음이 달랐습니다.</p>
 <div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
 <div class="qna" data-label="같은 질문에 늘 같은 답이 나오게 할 수 없나요?" data-q="같은 질문에 늘 같은 답이 나오게 할 수 없나요?">
@@ -363,10 +367,11 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 8 ===================== -->
 <h2><span class="no">8</span>착지 — 사람이 반드시 직접 볼 곳</h2>
-<p>맨 앞의 두 물음으로 돌아갑니다. 이 기록이 보여 준 것을 일의 종류별로 정리하면 아래와 같습니다. 이 기록에 없는 일은 없다고 적었고, 그 칸은 같은 방식으로 기록을 쌓아 정해야 합니다.</p>
+<p>맨 앞의 두 물음으로 돌아갑니다. 이 기록이 보여 준 것을 일의 종류별로 정리하면 아래와 같습니다. 이 기록에 없는 일은 없다고 적었고, 그 칸은 같은 방식으로 기록을 쌓아 정해야 합니다. 또 이 기록은 모델 하나(<span class="v_model"></span>), 하루(<span class="v_date"></span>), 질문 여섯 개에서 얻은 것입니다. 아래 표의 &ldquo;이 기록에서 나온 근거&rdquo;는 이 모델·이 표 크기에서의 관찰이고, 다른 모델이나 회사 PC 의 모델로 넓혀 말할 수 있는 것이 아닙니다. 다른 모델에도 통하는 것은 &ldquo;낱말을 이어 쓰는 방식이라 표에 없는 말이 섞일 수 있다&rdquo;는 구조이며, 그 정도는 모델마다 같은 방식으로 기록을 쌓아 다시 재야 합니다.</p>
 <div class="tbwrap"><table id="tab8" class="mt"></table></div>
 <div class="concl" id="conc8"></div>
 <p>그래서 이 아침 보고에서 일은 이렇게 나뉩니다. 숫자는 도구가, 문장은 LLM 이, 대조는 자동으로 하고, 원인과 판정은 사람이 정합니다.</p>
+<p>규칙이 원인·판정 문장에 &ldquo;사람 확인 전&rdquo;을 붙이는 방법은, 문장에 원인·판정을 뜻하는 낱말(…때문, 원인, 의심, 추정, 가능성, 정상, 이상, 필요)이 있는지 보는 낱말 규칙입니다. 이 규칙은 표에 근거가 있는 문장까지 넉넉하게 표시하므로, 표시되는 문장 수는 사람이 읽고 표에 근거 없다고 센 문장 수보다 많습니다. T1 세 답에서 규칙이 표시하는 문장 수는 9절 표에 있습니다. 규칙의 몫은 사람이 읽어야 할 문장을 빠뜨리지 않는 것입니다.</p>
 <div class="tbwrap"><table class="mt" id="tabH">
   <tr><th>누가</th><th>맡는 일</th></tr>
   <tr><td class="rowh">사람</td><td>원인·판정 문장 승인(표의 어느 줄에서 나온 말인지 확인) · &lsquo;근거 없음&rsquo;과 &lsquo;거친 일치&rsquo; 숫자 확인 · 어느 자료를 어느 LLM 에 넣어도 되는지 결정(회사 정책)</td></tr>
@@ -782,7 +787,7 @@ function verdT1(){return L.verdicts().filter(function(v){return v.task==='T1'&&B
 /* ---- 고정 값 ---- */
 setAll('v_model',L.meta.model);setAll('v_date',L.meta.date);setAll('v_nans',String(ANS.length));
 setAll('v_slope',sg0(PR.thermal,3));setAll('v_t0',String(PR.T_ref));setAll('v_spec',fmt(PR.spec,3));setAll('v_spec3',fmt(L.spec3,3));
-var SS=MS.scenario('S15');setAll('v_nfdc',fmtN(SS.clean.fdc.length));setAll('v_nppa',fmtN(SS.clean.ppa.length));
+var SS=MS.scenario('S15');setAll('v_nfdc',fmtN(SS.clean.fdc.length));setAll('v_nppa',fmtN(SS.clean.ppa.length));setAll('v_lfdc',fmtN(SS.loaded.fdc.length));setAll('v_lppa',fmtN(SS.loaded.ppa.length));
 
 /* ---- 1절 ---- */
 var TDESC={T1:'두 표를 공정 엔지니어에게 보낼 다섯 줄 요약으로 쓰되 각 줄에 근거 숫자를 넣을 것',T2:'챔버마다 1~7일 Mx 평균(소수 셋째 자리)과 7일 − 1일 변화량을 표로 쓰고, 변화량이 가장 큰 챔버를 말할 것',T3:'B03-CH2 의 5~6일 Mx 하락과 초과 건수 증가의 원인을 한 문단으로 (표 1·2 만 줌)',T4:'T3 과 같은 질문, 표 3(마스크 이력)을 함께 줌',T5:'표 1 의 값 56개 전체의 표본 표준편차(분모 n−1, 소수 넷째 자리)와 중앙값',T6:'원자료 29줄에서 Mx_comp 평균(소수 넷째 자리), ppa_metric 이 '+fmt(L.spec3,3)+' 을 넘는 유리 수, 최댓값과 그 glass_id'};
@@ -888,7 +893,7 @@ function upd5(){
   s.forEach(function(q){['n','has','calc','none','loose'].forEach(function(k){tot[k]+=q[k];});});
   tbl('tab5',['답','숫자','표에 있음','계산됨','근거 없음','거친 일치'],s.map(function(q,i){return [q.id+(i===ST.sel?' ◀':''),q.n,q.has,q.calc,q.none,q.loose];}).concat([['18개 합계',tot.n,tot.has,tot.calc,tot.none,tot.loose]]),[null,null,null,null,function(c){return +c>0?'hit':'';},function(c){return +c>0?'warn':'';}]);
   var s0=L.summary(DEF.tol),n0=0,l0=0;s0.forEach(function(q){n0+=q.none;l0+=q.loose;});
-  $('conc5').innerHTML='<b>18개 답의 숫자 '+tot.n+'개를 허용 오차 '+fmt(ST.tol,2)+'칸으로 견주면 표에 있음 '+tot.has+'개, 계산됨 '+tot.calc+'개, 근거 없음 '+tot.none+'개이고, 그 가운데 거친 일치가 '+tot.loose+'개입니다.</b> '+(n0===0?'기준값(반 칸)에서 표에 근거가 없는 숫자는 한 개도 없었습니다. 이 기록에서 틀림은 숫자를 지어낸 데가 아니라 문장에 있었습니다(6절).':'기준값(반 칸)에서 근거 없음은 '+n0+'개였습니다.');
+  $('conc5').innerHTML='<b>18개 답의 숫자 '+tot.n+'개를 허용 오차 '+fmt(ST.tol,2)+'칸으로 견주면 표에 있음 '+tot.has+'개, 계산됨 '+tot.calc+'개, 근거 없음 '+tot.none+'개이고, 그 가운데 거친 일치가 '+tot.loose+'개입니다.</b> 쓴 자릿수별 개수는 아래 둘째 표이고, 정수나 소수 한 자리로 쓴 숫자는 우연히 맞을 수 있어 근거 없음이 적다는 말의 무게가 약합니다. 무게는 소수 둘째·셋째 자리로 쓴 숫자에 실리며, 그 숫자도 우연히 맞는 비율이 0이 아닙니다(아래 첫째 표). '+(n0===0?'기준값(반 칸)에서 표에 근거가 없는 숫자는 한 개도 없었습니다. 이 기록에서 틀림은 숫자를 지어낸 데가 아니라 문장에 있었습니다(6절).':'기준값(반 칸)에서 근거 없음은 '+n0+'개였습니다.');
   draw5();upd9();upd2();
   var ro=$('roIn'),toks=$('inNum').value.trim().split(/\s+/).filter(Boolean).slice(0,12);
   ro.innerHTML=toks.length?toks.map(function(t){var q=L.classify(t,a.ti,ST.tol).nums[0];if(!q)return esc(t)+' → 숫자가 아님';return '<b>'+esc(t)+'</b> → '+(q.cls==='none'?'<b style="color:var(--bad)">근거 없음</b>':(q.cls==='has'?'표에 있음':'계산됨')+' ('+esc(q.label)+(q.loose?', 거친 일치':'')+')');}).join('<br>'):'숫자를 하나 이상 넣어 보십시오.';
@@ -909,6 +914,9 @@ function draw5(){
 }
 function updChance(){
   var cr=L.chanceRate(ST.tol);
+  (function(){var g=[0,1,2,3].map(function(){return {n:0,m:0,z:0};});
+    ANS.forEach(function(a){L.classify(a.text,a.ti,ST.tol).nums.forEach(function(x){var k=Math.min(x.dec,3);g[k].n++;if(x.cls==='none')g[k].z++;else g[k].m++;});});
+    tbl('tabDec',['답 18개에서 쓴 소수 자릿수','숫자 수','표에 있음·계산됨','근거 없음'],g.map(function(r,i){return [i===0?'정수':(i===3?'3자리 이상':i+'자리'),r.n,r.m,r.z];}),[null]);})();
   tbl('tabChance',['쓴 소수 자릿수','훑은 숫자 수','표에 있음','계산됨','우연히 맞는 비율'],cr.map(function(r){return [r.d+'자리',r.n,r.has,r.calc,pct((r.has+r.calc)/r.n,0)];}),[null]);
   $('noteChance').textContent='위 표는 표 1·표 2 와 아무 상관 없이 0 보다 크고 2 이하인 숫자를 쓴 자릿수대로 모두 넣어 본 결과입니다(허용 오차 '+fmt(ST.tol,2)+'칸). 소수 한 자리로 쓴 숫자는 거의 다 맞는 것으로 나오므로, 자릿수가 적은 숫자의 일치는 &lsquo;거친 일치&rsquo;로 따로 세는 것입니다.'.replace(/&lsquo;|&rsquo;/g,function(m){return m==='&lsquo;'?'‘':'’';});
 }
@@ -970,18 +978,20 @@ function upd8(){
   $('conc8').innerHTML='<b>사람이 반드시 직접 볼 곳은 원인·판정 문장입니다.</b> 이 기록에서 표에 근거가 없는 문장은 답 18개 가운데 '+new Set(bad.map(function(v){return v.task+'-'+v.ai;})).size+'개 답에서 '+bad.length+'건 나왔고, 숫자 대조로는 한 건도 잡히지 않았습니다. 숫자는 도구로, 문장은 출처를 사람이 봅니다.';
 }
 /* ---- 9절 ---- */
+/* 낱말 규칙이 '사람 확인 전'을 붙이는 문장 수: T1 세 답의 문장 가운데 원인·판정 낱말이 든 문장의 평균 */
+function markAvg(){var rx=/때문|원인|의심|추정|가능성|정상|이상|필요/,t=0,k=0;ANS.filter(function(a){return a.task==='T1';}).forEach(function(a){t++;a.text.split(/(?<=[.!?。])\s+|\n+/).forEach(function(x){if(x.trim()&&rx.test(x))k++;});});return t?k/t:0;}
 function upd9(){
   var a=t1avg(),J=verdT1(),W=ST.wr,per=ST.per,pj=ST.pj,rd=ST.rd;
-  var B=rd+a.n*per+J*pj,C=rd+(a.none+a.loose)*per+J*pj;
+  var Mk=markAvg(),B=rd+a.n*per+J*pj,C=rd+(a.none+a.loose)*per+Mk*pj;
   $('sWrO').textContent=ST.wr+'분';$('sPerO').textContent=fmt(ST.per,1)+'분';$('sPjO').textContent=ST.pj+'분';$('sRdO').textContent=ST.rd+'분';
   var mv=Math.abs(ST.wr-DEF.wr)+Math.abs(ST.per-DEF.per)+Math.abs(ST.pj-DEF.pj)+Math.abs(ST.rd-DEF.rd)>1e-9,st=$('st9');
-  st.className=mv?'state moved':'state';st.textContent=mv?'지금은 기본 가정(40분·0.5분·3분·5분)에서 옮겨 놓은 값입니다. 되돌리기 단추로 돌아갑니다.':'지금은 기본 가정입니다. T1 세 답 평균: 숫자 '+fmt(a.n,1)+'개, 그 가운데 근거 없음 '+fmt(a.none,1)+'개 · 거친 일치 '+fmt(a.loose,1)+'개, 볼 원인·판단 문장 '+fmt(J,1)+'개.';
+  st.className=mv?'state moved':'state';st.textContent=mv?'지금은 기본 가정(40분·0.5분·3분·5분)에서 옮겨 놓은 값입니다. 되돌리기 단추로 돌아갑니다.':'지금은 기본 가정입니다. T1 세 답 평균: 숫자 '+fmt(a.n,1)+'개, 그 가운데 근거 없음 '+fmt(a.none,1)+'개 · 거친 일치 '+fmt(a.loose,1)+'개, 사람이 읽고 센 근거 없는 문장 '+fmt(J,1)+'개, 낱말 규칙이 표시하는 문장 '+fmt(Mk,1)+'개(C 의 시간은 표시된 문장을 모두 읽는 값).';
   var mo=20;
   tbl('tab9',['방법','사람이 보는 숫자 (개)','사람이 보는 문장 (개)','보고 한 건 (분)','한 달 20건 (시간)','처음부터 쓰기와의 차 (분/건)'],[
     ['A. 처음부터 쓰기','—','—',fmt(W,1),fmt(W*mo/60,1),'0.0'],
     ['B. LLM 초안 + 숫자를 전부 직접 견주기',fmt(a.n,1),fmt(J,1),fmt(B,1),fmt(B*mo/60,1),sg0(B-W,1)],
-    ['C. LLM 초안 + 숫자 대조 + 볼 곳만 확인',fmt(a.none+a.loose,1),fmt(J,1),fmt(C,1),fmt(C*mo/60,1),sg0(C-W,1)]],[null,null,null,null,null,function(c){var v=parseFloat(c.replace('−','-'));return v<0?'good':(v>0?'hit':'');}]);
-  $('con9').innerHTML='<b>'+(C<W?'대조를 붙이면 보고 한 건이 처음부터 쓰는 것보다 '+fmt(W-C,1)+'분 짧고':'대조를 붙여도 보고 한 건이 처음부터 쓰는 것보다 '+fmt(C-W,1)+'분 깁니다')+(B<W?', 직접 견주기도 '+fmt(W-B,1)+'분 짧습니다.':', 직접 견주기는 '+fmt(B-W,1)+'분 깁니다.')+'</b> 대조로 사람이 볼 숫자는 '+fmt(a.n,1)+'개에서 '+fmt(a.none+a.loose,1)+'개로 줍니다. 다만 이 절약은 &lsquo;볼 곳이 아닌 숫자는 맞다&rsquo;는 믿음 위에 서 있고, 그 믿음은 숫자가 올바른 챔버에 붙었는지 보지 못하는 대조의 한계(5절)를 같이 가집니다.'.replace(/&lsquo;|&rsquo;/g,function(x){return x==='&lsquo;'?'‘':'’';});
+    ['C. LLM 초안 + 숫자 대조 + 볼 곳만 확인',fmt(a.none+a.loose,1),fmt(Mk,1),fmt(C,1),fmt(C*mo/60,1),sg0(C-W,1)]],[null,null,null,null,null,function(c){var v=parseFloat(c.replace('−','-'));return v<0?'good':(v>0?'hit':'');}]);
+  $('con9').innerHTML='<b>'+(C<W?'대조를 붙이면 보고 한 건이 처음부터 쓰는 것보다 '+fmt(W-C,1)+'분 짧고':'대조를 붙여도 보고 한 건이 처음부터 쓰는 것보다 '+fmt(C-W,1)+'분 깁니다')+(B<W?', 직접 견주기도 '+fmt(W-B,1)+'분 짧습니다.':', 직접 견주기는 '+fmt(B-W,1)+'분 깁니다.')+'</b> 대조로 사람이 볼 숫자는 '+fmt(a.n,1)+'개에서 '+fmt(a.none+a.loose,1)+'개로 줍니다. 다만 이 절약은 &lsquo;볼 곳이 아닌 숫자는 맞다&rsquo;는 믿음 위에 서 있고, 그 믿음은 숫자가 올바른 챔버에 붙었는지 보지 못하는 대조의 한계(5절)를 같이 가집니다. 낱말 규칙이 표시하는 문장은 8절의 규칙이 붙이는 것이고, C 의 시간은 그 문장을 모두 읽는 값입니다. B 는 사람이 근거 없는 문장을 스스로 찾는다고 보고 근거 없다고 센 문장만 셉니다.'.replace(/&lsquo;|&rsquo;/g,function(x){return x==='&lsquo;'?'‘':'’';});
   upd2b();
 }
 function upd2b(){var n=L.classify(L.ansText(1,ST.a+1),0,DEF.tol).counts.n;setAll('v_n2',String(n));setAll('v_per',fmt(ST.per,1));setAll('v_t2',fmt(n*ST.per,1));setAll('v_wr',String(ST.wr));var r=$('ro2');if(r)r.innerHTML='이 답에는 숫자가 <b>'+n+'개</b> 들어 있습니다. 하나에 '+fmt(ST.per,1)+'분이면 <b>'+fmt(n*ST.per,1)+'분</b>입니다.';}

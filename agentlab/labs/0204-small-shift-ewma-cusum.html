@@ -220,7 +220,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
   <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
   <div class="concl" id="concl2"></div>
 </div>
-<p>한 장만 보는 한 이 맞바꿈에서 벗어날 수 없습니다. 선을 낮추면 알람은 빨라지지만 0202에서 본 헛알람이 쌓입니다. 출구는 여러 장을 모아 보는 것입니다. 0101에서 본 대로 <i>n</i>장을 평균하면 흔들림(표준오차)이 √<i>n</i>배 작아지므로 작은 평균 이동이 선명해집니다. 다음 두 절이 그 방법 둘입니다.</p>
+<p>한 장만 보는 한 이 맞바꿈에서 벗어날 수 없습니다. 선을 낮추면 알람은 빨라지지만 0202에서 본 헛알람이 쌓입니다. 출구는 여러 장을 모아 보는 것입니다. 0101에서 본 대로 <i>n</i>장을 평균하면 그 평균의 흔들림, 곧 표준오차(표준편차 ÷ √<i>n</i>)가 한 장일 때의 1/√<i>n</i>로 줄어드므로 작은 평균 이동이 선명해집니다. 다음 두 절이 그 방법 둘입니다.</p>
 
 <!-- ===================== 3 ===================== -->
 <h2><span class="no">3</span>EWMA — 최근 값에 큰 무게를 주는 평균</h2>
@@ -230,7 +230,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
   <span class="eqlab">EWMA 값과 한계</span>
   <math display="block"><mrow><msub><mi>u</mi><mi>t</mi></msub><mo>=</mo><mi>λ</mi><msub><mi>z</mi><mi>t</mi></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>λ</mi><mo stretchy="false">)</mo><msub><mi>u</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="1em"></mspace><msub><mi>u</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></mrow></math>
   <math display="block"><mrow><mo>|</mo><msub><mi>u</mi><mi>t</mi></msub><mo>|</mo><mo>&gt;</mo><mi>L</mi><msqrt><mfrac><mi>λ</mi><mrow><mn>2</mn><mo>−</mo><mi>λ</mi></mrow></mfrac></msqrt><mspace width="0.6em"></mspace><mo>⟹</mo><mspace width="0.6em"></mspace><mtext>알람</mtext></mrow></math>
-  <span class="note">정상일 때 <i>u</i>의 표준편차는 √(<i>λ</i>/(2−<i>λ</i>))입니다(<i>λ</i>=1이면 1, <i>λ</i>가 작을수록 여러 장을 평균한 것처럼 작아집니다). <i>L</i>은 그 표준편차의 몇 배 위치에 한계를 둘지입니다.</span>
+  <span class="note">정상일 때 <i>u</i>의 표준편차는 √(<i>λ</i>/(2−<i>λ</i>))입니다(<i>λ</i>=1이면 1, <i>λ</i>가 작을수록 여러 장을 평균한 것처럼 작아집니다). 이유는 이렇습니다. <i>u</i>는 지난 <i>z</i>들의 가중합이고 무게는 <i>λ</i>, <i>λ</i>(1−<i>λ</i>), <i>λ</i>(1−<i>λ</i>)², …이며, 정상일 때 <i>z</i>들은 서로 독립이고 분산이 1입니다. 독립인 값의 가중합의 분산은 무게를 제곱해 더한 값이므로 <i>λ</i>² ÷ (1−(1−<i>λ</i>)²) = <i>λ</i>/(2−<i>λ</i>)입니다(여러 장이 쌓인 뒤의 값). <i>L</i>은 그 표준편차의 몇 배 위치에 한계를 둘지입니다.</span>
 </div>
 <p><i>L</i>은 얼마로 둘까요? 3으로 두면 <i>λ</i>마다 정상 때 헛알람 간격이 달라져 방법끼리 공정하게 견줄 수 없습니다. 그래서 세 방식 모두 <b>정상 때 ARL0 = <span id="s3_t"></span></b>(3σ 선 양쪽의 헛알람 간격)로 맞춥니다. <i>L</i>은 슬라이더로 정하는 값이 아니라 <i>λ</i>가 정해지면 이 약속에서 자동으로 나옵니다.</p>
 <details><summary>ARL과 <i>L</i>은 어떻게 계산하나</summary>
@@ -259,7 +259,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
   <math display="block"><mrow><msubsup><mi>S</mi><mi>t</mi><mo>+</mo></msubsup><mo>=</mo><mo>max</mo><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mspace width="0.3em"></mspace><msubsup><mi>S</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mo>+</mo></msubsup><mo>+</mo><msub><mi>z</mi><mi>t</mi></msub><mo>−</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
   <span class="note"><i>S</i>₀ = 0에서 시작하고, <i>S</i><sup>−</sup> 또는 <i>S</i><sup>+</sup>가 <i>h</i>를 넘으면 알람입니다.</span>
 </div>
-<p><i>k</i>의 뜻은 이렇습니다. 정상일 때 <i>z</i>의 평균은 0이므로 매번 <i>k</i>를 빼면 합이 0 쪽으로 돌아옵니다. 반대로 평균이 <i>δ</i>* 내려앉았다면 한 장마다 <i>δ</i>* − <i>k</i>만큼 쌓입니다. 그래서 <i>k</i>는 <b>잡고 싶은 최소 변화 <i>δ</i>*의 절반</b>으로 정합니다(<i>k</i> = 0.5이면 <i>δ</i>* = 1σ). <i>h</i>는 <i>k</i>가 정해지면 EWMA의 <i>L</i>처럼 정상 때 ARL0이 <span id="s4_t"></span>가 되도록 자동으로 나옵니다.</p>
+<p><i>k</i>의 뜻은 이렇습니다. 정상일 때 <i>z</i>의 평균은 0이므로 매번 <i>k</i>를 빼면 합이 0 쪽으로 돌아옵니다. 반대로 평균이 <i>δ</i>* 내려앉았다면 한 장마다 <i>δ</i>* − <i>k</i>만큼 쌓입니다. 그래서 <i>k</i>는 <b>잡고 싶은 최소 변화 <i>δ</i>*의 절반</b>으로 정합니다(<i>k</i> = 0.5이면 <i>δ</i>* = 1σ). 절반인 까닭은 양쪽의 균형입니다. <i>k</i>를 <i>δ</i>*보다 훨씬 작게 잡으면 정상 때 0 쪽으로 돌아가는 힘이 약해져, 같은 ARL0에 맞추려면 <i>h</i>가 커지고 알람이 늦어집니다. <i>k</i>를 크게 잡으면 <i>δ</i>* 변화에서 한 장마다 쌓이는 양 <i>δ</i>*−<i>k</i>가 줄어듭니다. 절반에서는 정상 때 되돌아가는 양과 변화 때 쌓이는 양이 같은 크기(<i>δ</i>*/2)이고, 통계학에서 &ldquo;정상이냐 <i>δ</i>* 이동이냐&rdquo;를 가장 잘 가르는 누적 점수가 정확히 이 꼴이기도 합니다. 아래 슬라이더에서 <i>k</i>를 움직여 확인해 보십시오. <i>h</i>는 <i>k</i>가 정해지면 EWMA의 <i>L</i>처럼 정상 때 ARL0이 <span id="s4_t"></span>가 되도록 자동으로 나옵니다.</p>
 <p>알람이 났을 때 <b>합이 마지막으로 0이었던 바로 다음 유리</b>가 변화가 시작된 자리의 추정입니다. 이것을 <b>변화 시작점 추정 (change-point estimate)</b>이라 부릅니다. 그 지점부터 합이 계속 올라갔기 때문입니다.</p>
 <div class="lab">
   <div class="labtitle">허용량 <i>k</i> · 변화 크기 <i>δ</i> — CUSUM의 합과 변화 시작점 추정</div>
@@ -305,7 +305,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
 <div class="lab">
   <div class="labtitle">표 2 · 식으로 계산한 ARL과 직접 돌려 본 평균</div>
   <div class="tbwrap"><table id="tab5" class="mt num"></table></div>
-  <p class="note" style="margin:.4rem 0 0">&ldquo;직접 돌려 본 평균&rdquo;은 기준 설정(<i>λ</i> = <span id="s5_lam0"></span>, <i>k</i> = <span id="s5_k0"></span>)에서 같은 가상 공정을 각 칸마다 <span id="s5_nr"></span>번 끝까지 돌려 첫 알람까지의 유리 수를 평균한 값입니다(몬테카를로). 오른쪽의 ±는 그 평균의 표준오차(표준편차 ÷ √<span id="s5_nr2"></span>)입니다. 식 값이 이 범위(±3 표준오차) 안에 들면 계산식과 직접 센 값이 서로 맞는 것입니다.</p>
+  <p class="note" style="margin:.4rem 0 0">&ldquo;직접 돌려 본 평균&rdquo;은 기준 설정(<i>λ</i> = <span id="s5_lam0"></span>, <i>k</i> = <span id="s5_k0"></span>)에서 같은 가상 공정을 각 칸마다 <span id="s5_nr"></span>번 끝까지 돌려 첫 알람까지의 유리 수를 평균한 값입니다(몬테카를로). 오른쪽의 ±는 그 평균의 표준오차(표준편차 ÷ √<span id="s5_nr2"></span>)입니다. 식 값이 이 범위(±3 표준오차) 안에 들면 계산식과 직접 센 값이 서로 맞는 것입니다. 이 표의 ARL0과 한계 L·h는 정상 평균과 표준편차를 정확히 안다고 놓은 값입니다. 기준 장수가 적어 이 둘을 추정해 쓰면 현장의 ARL0은 약속에서 벗어나며, 이 트랙에서는 그 정도를 계산해 보이지 않으므로 수치를 적지 않습니다(11절 질문).</p>
 </div>
 <div class="concl" id="concl5"></div>
 <p>같은 평균이라도 한 번의 지연은 크게 흔들립니다. 아래 막대그림은 같은 <span id="s5_nr3"></span>번의 런 길이를 세어 쌓은 분포입니다. <i>δ</i>를 골라 보십시오.</p>
@@ -321,7 +321,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
 <!-- ===================== 6 ===================== -->
 <h2><span class="no">6</span>자기상관이 있으면 — 0203의 숙제</h2>
 <p>0203의 잔차 관리도는 이웃 유리가 닮은 값(자기상관)의 헛알람을 약속값으로 되돌렸지만, 작은 변화가 오래 이어질 때는 잔차가 다시 잦아들어 놓칠 수 있다고 했습니다. 그 장면을 다시 보고, 잔차에 CUSUM을 쓰면 잡히는지 확인합니다.</p>
-<p>이웃과의 닮은 정도 <i>φ</i>인 값의 평균이 한 번에 −<i>δ</i> 내려앉으면 잔차(직전 값으로 예측한 값과의 차이)는 이렇게 움직입니다. 아래 슬라이더가 가리키는 <i>φ</i>에서는 변화 직후 한 장에서 잔차 표준편차의 <span id="s6_first"></span>배만큼 크게 튀고, 그다음부터는 예측이 새 평균에 맞춰지면서 <span id="s6_pers"></span>배만큼만 계속 밀립니다. 일회성 큰 튐은 잔차의 3σ 선이 잡을 수 있지만, 못 잡으면 남는 것은 작은 지속 변화입니다. 그런 변화를 잡는 방법이 위 4절의 CUSUM이며, 이번에는 원값이 아니라 <b>잔차</b>에 씁니다. 이때 <i>k</i>는 잔차에 남은 지속 변화 크기의 절반으로 정합니다.</p>
+<p>이웃과의 닮은 정도 <i>φ</i>인 값의 평균이 한 번에 −<i>δ</i> 내려앉으면 잔차(직전 값으로 예측한 값과의 차이)는 이렇게 움직입니다. 아래 슬라이더가 가리키는 <i>φ</i>에서는 변화 직후 한 장에서 잔차 표준편차의 <span id="s6_first"></span>배만큼 크게 튀고, 그다음부터는 예측이 새 평균에 맞춰지면서 <span id="s6_pers"></span>배만큼만 계속 밀립니다. 일회성 큰 튐은 잔차의 3σ 선이 잡을 수 있지만, 못 잡으면 남는 것은 작은 지속 변화입니다. 그런 변화를 잡는 방법이 위 4절의 CUSUM이며, 이번에는 원값이 아니라 <b>잔차</b>에 씁니다. 이때 <i>k</i>는 잔차에 남은 지속 변화 크기의 절반으로 정합니다. 남는 크기는 이렇게 나옵니다. 잔차는 (이번 값 − 평균) − <i>φ</i>(직전 값 − 평균)인데, 변화가 자리 잡은 뒤에는 두 값이 모두 <i>δ</i>만큼 내려가 있으므로 −<i>δ</i> + <i>φ</i><i>δ</i> = −(1−<i>φ</i>)<i>δ</i>가 남습니다. 이 값을 잔차 표준편차의 몇 배인지로 바꾸어 쓰므로, 코드의 <code>k_res</code>는 원값 표준편차 단위의 최소 변화에 (1−<i>φ</i>)를 곱하고 잔차 표준편차(<code>sdr</code>)로 나눈 것의 절반입니다.</p>
 <div class="lab">
   <div class="labtitle">닮은 정도 <i>φ</i> — 잔차 3σ 선과 잔차 CUSUM, 그리고 원값 CUSUM</div>
   <div class="watch"><b>이렇게 해 보세요.</b> <i>φ</i> = 0.9에서 아래 그림의 세 칸을 위에서 아래로 읽으십시오. 첫 칸에서는 변화 직후 잔차가 크게 튀고 곧 잦아듭니다. 둘째 칸의 잔차 CUSUM은 그 뒤 계속 쌓여 알람에 닿습니다. 셋째 칸의 원값 CUSUM은 변화 전에도 알람이 납니다. 이제 <i>φ</i>를 0까지 내리면 세 방식의 차이가 어떻게 달라지는지 보십시오.</div>
@@ -343,7 +343,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
   <div class="tbwrap"><table class="mt">
     <tr><th>단계</th><th>할 일</th><th>누가</th></tr>
     <tr><td class="rowh">1</td><td>0203의 세 진단(정규성·독립성·깨끗한 기준)을 먼저 합니다. 가정이 깨져 있으면 그쪽 처방이 먼저입니다. 자기상관이면 잔차에 감시를 겁니다(6절).</td><td>에이전트가 진단, 사람이 기준 구간의 타당성 판정</td></tr>
-    <tr><td class="rowh">2</td><td><b>잡을 최소 변화 <i>δ</i>*</b>(두께·PPA spec에서 거꾸로 따져 공정에 의미 있는 최소 변화)와 <b>감내할 ARL0</b>(하루 헛알람 예산, 0202)을 정합니다.</td><td>사람</td></tr>
+    <tr><td class="rowh">2</td><td><b>잡을 최소 변화 <i>δ</i>*</b>(두께·PPA spec에서 거꾸로 따져 공정에 의미 있는 최소 변화. PPA는 0102·0103에서 본 화소 위치가 목표에서 벗어난 정도이고, 두께 변화가 PPA spec의 여유를 다 쓰기 전에 잡아야 하는 크기를 σ의 배수로 바꾼 것입니다)와 <b>감내할 ARL0</b>(하루 헛알람 예산, 0202)을 정합니다.</td><td>사람</td></tr>
     <tr><td class="rowh">3</td><td><i>k</i> = <i>δ</i>*/2, <i>h</i>(또는 <i>λ</i>와 <i>L</i>)를 ARL0에 맞춰 구하고 감시합니다. 알람이 나면 <b>변화 시작점 추정</b>과 함께 보고합니다.</td><td>에이전트</td></tr>
     <tr><td class="rowh">4</td><td>큰 변화용 3σ 선을 함께 둘 때는 헛알람이 더해지므로 합친 ARL0을 다시 맞춥니다. 예를 들어 합친 목표가 <span id="t3_tot"></span>이면 CUSUM과 3σ 선 각각의 ARL0은 <span id="t3_each"></span>이어야 합니다. 이렇게 맞추면 CUSUM의 ARL1(<i>δ</i> = 1)이 <span id="t3_a"></span>장에서 <span id="t3_b"></span>장으로 늘어납니다.</td><td>에이전트가 계산, 사람이 승인</td></tr>
   </table></div>
@@ -377,11 +377,11 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
   <div class="tbwrap"><table id="tab9" class="mt num"></table></div>
 </div>
 <div class="concl" id="landing"></div>
-<p>1절의 물음에 답합니다. 3σ 선은 평균 <span id="l_s"></span>장이 지나야 알립니다. EWMA와 CUSUM은 같은 헛알람 간격에서 평균 <span id="l_e"></span>장·<span id="l_c"></span>장으로 줄입니다. 대가는 두 가지입니다. 3σ 이상의 큰 변화(그림 2의 오른쪽 끝)에서는 3σ 선이 가장 빠르고, 두 방법은 자기상관이 있는 값에 그대로 쓸 수 없습니다.</p>
+<p>1절의 물음에 답합니다. 3σ 선은 평균 <span id="l_s"></span>장이 지나야 알립니다. EWMA와 CUSUM은 같은 헛알람 간격에서 평균 <span id="l_e"></span>장·<span id="l_c"></span>장으로 줄입니다. 이 평균은 세 방식을 각각 따로 정상 때 ARL0 약속에 맞추어 견준 값(비교용 ARL1)입니다. 3σ 선을 함께 두는 현장에서 실제로 얻는 값은 7절 표 3의 4단계에서 합친 ARL0을 다시 맞춘 뒤의 ARL1이며, 비교용보다 조금 큽니다. 대가는 두 가지입니다. 3σ 이상의 큰 변화(그림 2의 오른쪽 끝)에서는 3σ 선이 가장 빠르고, 두 방법은 자기상관이 있는 값에 그대로 쓸 수 없습니다.</p>
 
 <!-- ===================== 10 ===================== -->
 <h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
-<p>아래 코드는 <code>numpy, scipy</code>만 씁니다. 함수 여섯 개(ARL 계산 셋, 한계 맞춤 하나, 감시 둘)가 이 실험실의 도구입니다. 가상 데이터를 파일로 받으려면 단추를 누르십시오. 받은 파일 <code>s8_small_shift.csv</code>를 코드와 같은 폴더에 두면 맨 아래 부분이 그대로 돌아갑니다. 파일의 <code>truth_flag</code> 열은 가상 데이터의 정답 표시(변화 뒤 유리 = 1)이며, 현장 데이터에는 없습니다.</p>
+<p>아래 코드는 <code>numpy, scipy</code>만 씁니다. 함수 여섯 개(ARL 계산 셋, 한계 맞춤 하나, 감시 둘)가 이 실험실의 도구입니다. 감시 함수는 부를 때마다 EWMA 값과 CUSUM 합을 0에서 시작합니다. 그래서 알람이 나고 설비를 확인해 재가동한 뒤에는 그다음 유리부터의 값을 새로 잘라 함수를 다시 부르면 되고, 그 호출이 곧 통계량의 초기화입니다. 설비 조치로 정상 평균이 바뀌었으면 <code>mu0</code>도 새 기준으로 넣습니다. 가상 데이터를 파일로 받으려면 단추를 누르십시오. 받은 파일 <code>s8_small_shift.csv</code>를 코드와 같은 폴더에 두면 맨 아래 부분이 그대로 돌아갑니다. 파일의 <code>truth_flag</code> 열은 가상 데이터의 정답 표시(변화 뒤 유리 = 1)이며, 현장 데이터에는 없습니다.</p>
 <div class="row"><button class="btn" id="csvBtn" type="button">CSV 내려받기 (s8_small_shift.csv)</button></div>
 <div class="state" id="csvState"></div>
 <pre id="pyCode">import csv

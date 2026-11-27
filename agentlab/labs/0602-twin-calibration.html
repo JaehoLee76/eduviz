@@ -217,7 +217,7 @@ table.nwall td{white-space:nowrap}
 
 <nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0601-closed-loop-blueprint.html">← 이전: 닫힌 고리 청사진</a><span class="sp"></span><a href="0603-run-to-run.html">다음: 런투런 제어 →</a></nav>
 
-<p><b>0601 은 세정 시간을 10분 간격 격자에서 gap 이 가장 작은 한 값으로 맞췄습니다.</b> 그런데 로그가 말해 주는 것은 한 값이 아니라 &lsquo;이 범위 안일 가능성이 얼마&rsquo;입니다. 이 실험실에서는 세 가지를 합니다. 첫째, 후보마다 트윈을 시드 여러 개로 돌려 두고 각 후보가 지금 로그를 낼 가능성을 재서 믿음의 분포(사후분포)를 만듭니다. 둘째, 결정을 한 값이 아니라 그 분포 전체의 기대 비용으로 고릅니다. 셋째, 공장이 움직이면 어제의 추정과 오늘의 관측을 섞어 날마다 따라갑니다(칼만 필터). 로그가 구분해 주지 못하는 두 값의 쌍(능선)도 만납니다. 0601 과 같은 가상 공장의 <span data-v="days"></span>일 로그로 전부 직접 해 봅니다.</p>
+<p><b>0601 은 세정 시간을 10분 간격 격자에서 gap 이 가장 작은 한 값으로 맞췄습니다.</b> 그런데 로그가 말해 주는 것은 한 값이 아니라 &lsquo;이 범위 안일 가능성이 얼마&rsquo;입니다. 이 실험실에서는 세 가지를 합니다. 첫째, 후보마다 트윈을 시드 여러 개로 돌려 두고 각 후보가 지금 로그를 낼 가능성을 재서 믿음의 분포(사후분포)를 만듭니다. 둘째, 결정을 한 값이 아니라 그 분포 전체의 기대 비용으로 고릅니다. 셋째, 공장이 움직이면 어제의 추정과 오늘의 관측을 섞어 날마다 따라갑니다(칼만 필터). 로그가 구분해 주지 못하는 두 값의 쌍(능선)도 만납니다. 0601 과 같은 가상 공장의 <span data-v="days"></span>일 로그로 전부 직접 해 봅니다. 같은 스무 벌의 로그 가운데 이 실험실은 다른 시드를 고정해 쓰므로, 같은 이름의 지표(세정 대기열 평균·Loss 총 장수)가 0601 과 조금 다르게 나옵니다. 같은 공장의 다른 로그일 뿐입니다.</p>
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
@@ -265,7 +265,7 @@ table.nwall td{white-space:nowrap}
 
 <!-- ===================== 2 ===================== -->
 <h2><span class="no">2</span>이름 — 에뮬레이터와 우도</h2>
-<p>후보마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 결과를 다시 정리합니다. <b>에뮬레이터(emulator)</b> 는 비싼 시뮬레이터를 다시 돌리지 않고 쓰려고, 후보 칸마다 트윈 시드 묶음의 지표 평균과 흔들림(표준편차와 지표 사이의 상관)을 적어 둔 값표입니다. 지표는 ln(x+1) 로 바꿔 씁니다(0601 gap 과 같은 척도입니다). 세정 중 평균은 운전 대수 <span data-v="cap0"></span>대 근처의 상한에 붙어 후보 대부분에서 값이 같고 흔들림이 거의 0 이라 정규 분포로 다루기에 맞지 않아, <b>세정 대기열 평균(q)과 Loss 총 장수(L) 둘</b>만 씁니다.</p>
+<p>후보마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 결과를 다시 정리합니다. <b>에뮬레이터(emulator)</b> 는 비싼 시뮬레이터를 다시 돌리지 않고 쓰려고, 후보 칸마다 트윈 시드 묶음의 지표 평균과 흔들림(표준편차와 지표 사이의 상관)을 적어 둔 값표입니다. 지표는 ln(x+1) 로 바꿔 씁니다. 이유는 둘입니다. 하나는 0601 gap 과 같은 비의 척도라 단위가 다른 지표를 같은 저울에 올릴 수 있다는 것이고, 다른 하나는 Loss 처럼 오른쪽으로 긴 꼬리를 가진 값이 로그를 씌우면 정규 분포에 가까워져 아래 우도의 정규 근사가 덜 틀린다는 것입니다. 세정 중 평균은 운전 대수 <span data-v="cap0"></span>대 근처의 상한에 붙어 후보 대부분에서 값이 같고 흔들림이 거의 0 이라 정규 분포로 다루기에 맞지 않아, <b>세정 대기열 평균(q)과 Loss 총 장수(L) 둘</b>만 씁니다.</p>
 <div class="lab">
   <div class="labtitle">에뮬레이터: 후보별 평균과 ±1.96 표준편차 띠, 그리고 이 로그의 실제 값</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 가로선(이 로그의 값)이 띠 안에 드는 후보의 범위가 q 와 L 에서 각각 어디서 어디까지인지, 로그 기간을 줄이면 띠가 어떻게 넓어지는지 보십시오.</div>
@@ -277,7 +277,7 @@ table.nwall td{white-space:nowrap}
   <div class="readout" id="ro2"></div>
   <div class="tbwrap"><table class="mt num" id="tab2"></table></div>
 </div>
-<p>가로선이 띠에 드는 후보는 그 지표 하나로는 &lsquo;그럴듯한&rsquo; 후보입니다. 두 지표를 함께 쓰려면 후보마다 &lsquo;이 로그가 나올 가능성&rsquo;이라는 숫자 하나가 필요합니다. 그것이 우도입니다. <b>우도(likelihood)</b> 는 파라미터가 어떤 값일 때 지금 가진 로그가 나올 가능성입니다. 여기서는 로그의 지표 묶음 y 가 후보 θ 의 에뮬레이터 평균에서 시드 흔들림의 몇 배 떨어졌는지로 재는 정규 근사를 씁니다.</p>
+<p>가로선이 띠에 드는 후보는 그 지표 하나로는 &lsquo;그럴듯한&rsquo; 후보입니다. 두 지표를 함께 쓰려면 후보마다 &lsquo;이 로그가 나올 가능성&rsquo;이라는 숫자 하나가 필요합니다. 그것이 우도입니다. <b>우도(likelihood)</b> 는 파라미터가 어떤 값일 때 지금 가진 로그가 나올 가능성입니다. 여기서는 로그의 지표 묶음 y 가 후보 θ 의 에뮬레이터 평균에서 시드 흔들림의 몇 배 떨어졌는지로 재는 정규 근사를 씁니다. 지표가 둘(q 와 L)이라 두 지표의 차이를 따로따로 재면 두 지표가 함께 움직이는 모양을 놓칩니다. 그래서 둘의 흔들림과 상관을 한 덩어리로 담은 공분산 S 를 쓰고, 아래 식의 S 의 역행렬과 전치(T)는 &lsquo;평균에서 흔들림의 몇 배 떨어졌나&rsquo;를 두 지표에서 한꺼번에 재는 계산일 뿐입니다. 읽을 때 필요한 것은 &lsquo;평균에서 멀수록 가능성이 급히 줄어든다&rsquo;는 한 가지이고, 행렬 계산 자체는 <code>grid_posterior</code> 가 합니다.</p>
 <div class="eq">
   <span class="eqlab">정규 우도 (θ = 세정 시간 후보)</span>
   <math display="block"><mrow><mi>p</mi><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2223;</mo><mi>&#x03B8;</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><msup><mrow><mo stretchy="false">(</mo><mn>2</mn><mi>&#x03C0;</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo stretchy="false">|</mo><msub><mi>S</mi><mi>&#x03B8;</mi></msub><mo stretchy="false">|</mo></mrow></msqrt></mfrac><mo>&#x00B7;</mo><mi>exp</mi><mo stretchy="false">(</mo><mo>&#x2212;</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mrow><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2212;</mo><msub><mi>&#x03BC;</mi><mi>&#x03B8;</mi></msub><mo stretchy="false">)</mo></mrow><mi>T</mi></msup><msubsup><mi>S</mi><mi>&#x03B8;</mi><mrow><mo>&#x2212;</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2212;</mo><msub><mi>&#x03BC;</mi><mi>&#x03B8;</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></math>
@@ -291,7 +291,7 @@ table.nwall td{white-space:nowrap}
 <div class="eq">
   <span class="eqlab">사후 ∝ 우도 × 사전</span>
   <math display="block"><mrow><mi>p</mi><mo stretchy="false">(</mo><mi>&#x03B8;</mi><mo>&#x2223;</mo><mi>y</mi><mo stretchy="false">)</mo><mo>&#x221D;</mo><mi>p</mi><mo stretchy="false">(</mo><mi>y</mi><mo>&#x2223;</mo><mi>&#x03B8;</mi><mo stretchy="false">)</mo><mo>&#x00B7;</mo><mi>p</mi><mo stretchy="false">(</mo><mi>&#x03B8;</mi><mo stretchy="false">)</mo></mrow></math>
-  <span class="note">θ 는 세정 시간(분)입니다. 사전은 0601 트윈 판 0 의 값 <span data-v="v0"></span>분을 가운데로 둔 정규분포(폭 s)이거나 평평한 분포입니다. 후보 <span data-v="ncell"></span>칸에서 곱한 뒤 합이 1 이 되게 나눕니다.</span>
+  <span class="note">θ 는 세정 시간(분)입니다. 사전은 0601 트윈 판 0 의 값 <span data-v="v0"></span>분을 가운데로 둔 정규분포(폭 s)이거나 평평한 분포입니다. 후보 <span data-v="ncell"></span>칸에서 곱한 뒤 합이 1 이 되게 나눕니다. 0601 에서 같은 로그로 이 값이 어긋났음을 이미 보았으므로, 여기서 이 값을 사전의 중심으로 두는 것은 &lsquo;어긋났을 수 있는 지난 값&rsquo;을 일부러 사전으로 두고 사전이 결과를 얼마나 끌고 가는지 재 보는 설정입니다. 현장에서 사전의 중심과 폭은 이 로그와 겹치지 않는 정보(지난 보정값·설비 사양·공정 담당의 판단)에서 정하고, 그 근거를 보정 기록지에 적습니다.</span>
 </div>
 <p>사후분포가 있으면 값 하나가 아니라 범위로 말할 수 있습니다. <b>신용구간(credible interval)</b> 은 사후분포에서 확률 95% 가 들어 있는 파라미터 범위입니다. 0101 의 신뢰구간(0402 의 윌슨 구간도 같은 종류)과 뜻이 다릅니다. 신뢰구간은 &lsquo;같은 일을 되풀이하면 구간의 95% 가 참값을 덮는다&rsquo;는 말이고, 신용구간은 &lsquo;로그를 본 뒤 값이 이 안에 있을 확률이 95%&rsquo;라는 말입니다. 다만 이 신용구간은 정규 근사 위에 서 있으므로, 시드를 바꿔 가며 실제로 95% 근처를 덮는지를 7절에서 확인합니다.</p>
 <div class="lab">
@@ -347,10 +347,10 @@ table.nwall td{white-space:nowrap}
 
 <!-- ===================== 5 ===================== -->
 <h2><span class="no">5</span>능선 — 두 값을 함께 모를 때</h2>
-<p>지금까지는 세정 시간 하나만 모르고 나머지는 알려진 값이라고 두었습니다. 세정기로 돌아오는 마스크의 양을 정하는 <b>한 턴 길이</b>(증착 한 턴이 걸리는 시간, 분)도 정확히는 모른다면 어떻게 됩니까? 세정기가 받는 부하는 세정 시간이 길수록, 한 턴이 짧을수록(마스크가 더 자주 돌아오므로) 커집니다. 그래서 세정 시간을 늘리고 한 턴 길이도 함께 늘리면 두 효과가 서로 거슬러 세정 대기열 평균이 거의 같을 수 있습니다. 이렇게 두 파라미터를 함께 바꿔도 요약 지표가 거의 같아서 사후분포가 길쭉한 띠가 되는 것이 <b>식별 불가능 능선(non-identifiable ridge)</b> 입니다. 이 절에서는 세정 시간을 170~230분, 한 턴 길이를 260~340분 사이로만 안다고 두고(둘 다 평평한 사전) 60일 로그를 씁니다. 세정 시간·한 턴 길이 두 값이 정해지는 점마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 값표(13 × 9칸)에서 칸 사이는 직선으로 이어 사후를 만듭니다.</p>
+<p>지금까지는 세정 시간 하나만 모르고 나머지는 알려진 값이라고 두었습니다. 세정기로 돌아오는 마스크의 양을 정하는 <b>한 턴 길이</b>(증착 한 턴이 걸리는 시간, 분)도 정확히는 모른다면 어떻게 됩니까? 여기서 한 턴은 마스크 한 장이 증착을 한 번 돌리는 한 회차이고(0303·0603 의 턴), 한 턴 길이는 그 회차가 걸리는 시간입니다. 0601 이 한 턴을 유리 장수로 센 것은 같은 회차가 만드는 유리의 수이니 같은 대상의 다른 면입니다. 세정기가 받는 부하는 세정 시간이 길수록, 한 턴이 짧을수록(마스크가 더 자주 돌아오므로) 커집니다. 그래서 세정 시간을 늘리고 한 턴 길이도 함께 늘리면 두 효과가 서로 거슬러 세정 대기열 평균이 거의 같을 수 있습니다. 이렇게 두 파라미터를 함께 바꿔도 요약 지표가 거의 같아서 사후분포가 길쭉한 띠가 되는 것이 <b>식별 불가능 능선(non-identifiable ridge)</b> 입니다. 이 절에서는 세정 시간을 170~230분, 한 턴 길이를 260~340분 사이로만 안다고 두고(둘 다 평평한 사전) 60일 로그를 씁니다. 세정 시간·한 턴 길이 두 값이 정해지는 점마다 트윈을 시드 <span data-v="nemu"></span>개로 돌려 둔 값표(13 × 9칸)에서 칸 사이는 직선으로 이어 사후를 만듭니다.</p>
 <div class="lab">
   <div class="labtitle">세정 시간 × 한 턴 길이의 사후분포 — 쓰는 지표의 수에 따라</div>
-  <div class="watch"><b>무엇을 볼지 먼저.</b> 지표 하나일 때 사후가 길쭉한 띠인지, 지표를 셋으로 늘려도 띠가 남는지, 넷째 지표를 더하면 띠가 풀리는지 보십시오. 그리고 아래 표에서 넷째 지표(시간당 반송 요청)가 세정 시간에는 크게, 한 턴 길이에는 거의 움직이지 않는지 보십시오.</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 지표 하나일 때 사후가 길쭉한 띠인지, 지표를 셋으로 늘려도 띠가 남는지, 넷째 지표를 더하면 띠가 풀리는지 보십시오. 그리고 아래 표에서 넷째 지표(시간당 반송 요청)가 세정 시간에는 크게, 한 턴 길이에는 거의 움직이지 않는지 보십시오. 셋째·넷째 지표는 시간별 기록에서 가져옵니다. 시간당 완성 유리는 시간마다 라인이 끝내 내보낸 유리 장수의 평균(0601 의 시간별 기록의 line_out)이고, 시간당 반송 요청은 시간마다 올라온 반송 요청 수의 평균(transport_requests)입니다.</div>
   <div class="row" role="group" aria-label="지표 묶음 고르기"><button class="btn" id="rsOne" type="button" aria-pressed="true">지표 1개: 세정 대기열 평균</button><button class="btn" id="rsThree" type="button" aria-pressed="false">지표 3개: + Loss 총 장수 + 시간당 완성 유리</button><button class="btn" id="rsFour" type="button" aria-pressed="false">지표 4개: + 시간당 반송 요청</button><button class="btn ghost" id="rRidge" type="button">지표 1개로 되돌리기</button></div>
   <div class="state" id="stRidge"></div>
   <canvas id="cvRidge"></canvas>
@@ -369,13 +369,13 @@ table.nwall td{white-space:nowrap}
 <h2><span class="no">6</span>움직이는 공장 — 칼만 필터</h2>
 <p>지금까지 공장의 세정 시간은 고정된 한 값이었습니다. 실제 공장에서는 세정액이 낡아 세정 시간이 날마다 조금씩 늘고, 세정액을 교체하면 처음 값으로 돌아옵니다. 90일을 보는 새 가상 공장 S18 에서 이 문제를 다룹니다.</p>
 <div class="watch"><b>S18 의 가정과 한계.</b> 세정 시간이 날마다 조금씩 늘다가 세정액을 교체한 날(<span data-v="rep1"></span>일째와 <span data-v="rep2"></span>일째, 공장 변경 사건으로 기록에 있습니다) 처음 값으로 돌아갑니다. 늘어나는 속도와 값은 숨겨져 있고 12절에서 엽니다. 시뮬레이터는 한 번 돌리는 동안 파라미터를 바꾸지 못하므로, 날마다 그날의 세정 시간으로 3일을 따로 돌리고 앞 하루(데우기)를 버린 뒤 남은 이틀의 지표를 그날의 관측으로 씁니다. 그래서 날마다의 관측은 서로 이어지지 않는 독립 실행입니다. 실제 라인에서는 어제의 대기열이 오늘로 이어지므로 관측 사이에 상관이 생기는데, 이 가정은 그것을 담지 못합니다.</div>
-<p>하루의 관측을 세정 시간으로 바꿉니다. 하루 관측용 에뮬레이터(같은 3일 실행 방식, 세정 시간 <span data-v="ncell"></span>칸 × 트윈 시드 <span data-v="nchunk"></span>개)로 그날의 두 지표(q 와 L)를 평평한 사전에서 뒤집은 사후를 만들고, 그 평균을 그날의 관측 z, 분산을 관측 잡음 R 로 씁니다. 하루 관측의 R 은 표준편차로 중앙값 약 <span data-v="rsd"></span>분입니다. 3절의 로그 한 벌(60일)보다 훨씬 거칠다는 뜻입니다.</p>
+<p>하루의 관측을 세정 시간으로 바꿉니다. 하루 관측용 에뮬레이터(같은 3일 실행 방식, 세정 시간 <span data-v="ncell"></span>칸 × 트윈 시드 <span data-v="nchunk"></span>개)로 그날의 두 지표(q 와 L)를 평평한 사전에서 뒤집은 사후를 만들고, 그 평균을 그날의 관측 z, 분산을 관측 잡음 R 로 씁니다. 하루 관측을 &lsquo;값 하나와 그 흔들림&rsquo;으로 줄여야 칼만 필터가 받을 수 있어서, 사후분포를 정규로 보고 평균과 분산으로 요약한 근사입니다. 하루 관측의 R 은 표준편차로 중앙값 약 <span data-v="rsd"></span>분입니다. 3절의 로그 한 벌(60일)보다 훨씬 거칠다는 뜻입니다.</p>
 <p>2~3절 방식을 날마다 다시 하면 어떻게 될까요? 오늘까지의 모든 관측을 하나의 상수 세정 시간으로 합친 사후(<b>전체 기간 고정 베이즈</b>)는 교체 뒤에도 옛 값을 기억해 늦게 따라옵니다. 처음 14일로 한 번 맞추고 고정하면 값이 올라갈수록 틀립니다. 움직이는 값을 따라가려면 오래된 관측의 무게를 줄여야 합니다. 7일 이동 평균은 가장 단순한 방법이지만 무게를 얼마나 줄일지, 추정이 얼마나 믿을 만한지는 말해 주지 않습니다.</p>
 <p><b>칼만 필터(Kalman filter)</b> 는 움직이는 상태(여기서는 세정 시간)를 &lsquo;어제의 추정 + 오늘의 관측&rsquo;의 가중 평균으로 갱신하는 방법입니다. 가중치인 <b>칼만 이득</b> K 는 상태가 하루에 움직이는 크기 Q 와 관측 잡음 R 로 정해집니다. 상태가 많이 움직이면(Q 가 크면) 오늘 관측에 무게를 더 주고, 관측이 거칠면(R 이 크면) 어제 추정에 무게를 더 줍니다. 여기서는 상태를 &lsquo;하루에 평균 0, 분산 Q 로 랜덤하게 움직이는 값&rsquo;으로 단순하게 봅니다. 실제 움직임은 일정한 기울기와 교체이므로 이것도 근사입니다.</p>
 <div class="eq">
   <span class="eqlab">칼만 필터: 예측 (어제 → 오늘)</span>
   <math display="block"><mrow><msubsup><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi><mo>&#x2212;</mo></msubsup><mo>=</mo><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mspace width="1.2em"></mspace><msubsup><mi>P</mi><mi>t</mi><mo>&#x2212;</mo></msubsup><mo>=</mo><msub><mi>P</mi><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo>+</mo><mi>Q</mi></mrow></math>
-  <span class="note">x̂ 는 세정 시간의 추정, P 는 그 추정의 분산(불확실성), 위첨자 − 는 &lsquo;오늘 관측을 보기 전&rsquo;입니다. 하루가 지나는 동안 추정은 그대로이고 불확실성만 Q 만큼 커집니다.</span>
+  <span class="note">x̂ 는 세정 시간의 추정, P 는 그 추정의 분산(불확실성), 위첨자 − 는 &lsquo;오늘 관측을 보기 전&rsquo;입니다. 하루가 지나는 동안 추정은 그대로이고 불확실성만 Q 만큼 커집니다. 식에서 Q 는 하루에 움직이는 크기의 분산이고, 아래 슬라이더와 코드의 Q 는 그 표준편차입니다(식에 넣을 때 제곱합니다).</span>
 </div>
 <div class="eq">
   <span class="eqlab">칼만 필터: 갱신 (오늘 관측 z, 잡음 R)</span>
@@ -385,7 +385,7 @@ table.nwall td{white-space:nowrap}
 <div class="eq">
   <span class="eqlab">정상 상태의 이득 — 0204 의 EWMA 와 같은 꼴</span>
   <math display="block"><mrow><mi>K</mi><mo>=</mo><mfrac><msup><mi>P</mi><mo>&#x2212;</mo></msup><mrow><msup><mi>P</mi><mo>&#x2212;</mo></msup><mo>+</mo><mi>R</mi></mrow></mfrac><mo>,</mo><mspace width="1.2em"></mspace><msup><mi>P</mi><mo>&#x2212;</mo></msup><mo>=</mo><mfrac><mrow><mi>Q</mi><mo>+</mo><msqrt><mrow><msup><mi>Q</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn><mi>Q</mi><mi>R</mi></mrow></msqrt></mrow><mn>2</mn></mfrac><mo>,</mo><mspace width="1.2em"></mspace><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mi>t</mi></msub><mo>=</mo><mi>&#x03BB;</mi><msub><mi>z</mi><mi>t</mi></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>&#x2212;</mo><mi>&#x03BB;</mi><mo stretchy="false">)</mo><msub><mover><mi>x</mi><mo>&#x02C6;</mo></mover><mrow><mi>t</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="0.6em"></mspace><mi>&#x03BB;</mi><mo>=</mo><mi>K</mi></mrow></math>
-  <span class="note">관측 잡음 R 이 날마다 같으면 이득은 시간이 지나며 한 값 K 로 가라앉습니다. 그 뒤의 갱신식은 0204 의 EWMA 의 u<sub>t</sub> = λ z<sub>t</sub> + (1−λ) u<sub>t−1</sub> 과 같고, K 가 곧 평활 계수 λ 입니다. 차이는 EWMA 가 λ 를 사람이 정하는 반면 칼만은 Q 와 R 에서 λ 가 나온다는 점입니다.</span>
+  <span class="note">관측 잡음 R 이 날마다 같으면 이득은 시간이 지나며 한 값 K 로 가라앉습니다. 그 뒤의 갱신식은 0204 의 EWMA 의 u<sub>t</sub> = λ z<sub>t</sub> + (1−λ) u<sub>t−1</sub> 과 같고, K 가 곧 평활 계수 λ 입니다. 차이는 EWMA 가 λ 를 사람이 정하는 반면 칼만은 Q 와 R 에서 λ 가 나온다는 점입니다. 위 P⁻ 식은 이렇게 나옵니다. 가라앉은 뒤에는 어제의 P 가 P⁻R/(P⁻+R) 이고 P⁻ = P + Q 이므로, P⁻ = P⁻R/(P⁻+R) + Q 를 정리하면 P⁻² − Q·P⁻ − Q·R = 0 이 되고 그 양의 근이 위의 식입니다.</span>
 </div>
 <p>방식끼리 견주려면 잣대가 하나 필요합니다. <b>추적 오차</b>는 추정이 실제 세정 시간에서 벗어난 정도로, 날마다의 (추정 − 실제 세정 시간)을 제곱해 평균한 뒤 제곱근을 취한 값(RMSE, 분)입니다. 실제 세정 시간은 정답을 연 뒤에만 알 수 있어서 이 값도 그때 표에 채워집니다. 표의 &lsquo;내일 관측을 어제 추정으로 맞힌 오차&rsquo;와는 다릅니다. 그것은 내일 들어올 관측 z 를 어제까지의 추정으로 미리 맞혔을 때의 오차이고, 실제 세정 시간 없이도 잴 수 있습니다.</p>
 <div class="lab">
@@ -410,7 +410,7 @@ table.nwall td{white-space:nowrap}
 
 <!-- ===================== 7 ===================== -->
 <h2><span class="no">7</span>신용구간은 믿을 만한가</h2>
-<p>3절의 구간은 우도를 정규로 근사해서 만든 것이라, 95% 라고 불러도 실제로 95% 를 덮는지는 확인해야 합니다(0503 의 보정도와 같은 생각입니다). 방법은 이렇습니다. 시드가 다른 로그 <span data-v="ncov"></span>개마다 같은 방식으로 95% 신용구간을 만들고, 숨은 세정 시간이 그 안에 든 로그의 비율을 셉니다. 숨은 값이 필요한 점검이라 12절의 [정답 열기] 뒤에 채워집니다. 여기서 바로 열어도 같은 결과가 나옵니다.</p>
+<p>3절의 구간은 우도를 정규로 근사해서 만든 것이라, 95% 라고 불러도 실제로 95% 를 덮는지는 확인해야 합니다(0503 의 보정도와 같은 생각입니다). 방법은 이렇습니다. 시드가 다른 로그 <span data-v="ncov"></span>개마다 같은 방식으로 95% 신용구간을 만들고, 숨은 세정 시간이 그 안에 든 로그의 비율을 셉니다. 숨은 값이 필요한 점검이라 12절의 [정답 열기] 뒤에 채워집니다. 아래 단추와 12절의 단추는 같은 하나의 상태여서, 여기서 열면 12절에서도 열려 있고 같은 표가 채워집니다. 회사에서는 숨은 값을 모르므로 이 점검을 그대로 할 수 없습니다. 대신 이 방법이 가상 공장에서 95% 근처를 덮는지 한 번 확인해 두었다고 읽고, 회사에서는 보정 뒤 새로 쌓이는 로그의 지표가 2절의 예측 띠 안에 드는지를 날마다 점검합니다.</p>
 <div class="lab">
   <div class="row"><button class="btn" id="btnReveal7" type="button">정답 열기 (12절과 같은 단추)</button></div>
   <div class="readout" id="ro7">정답을 열면 이 자리에 포함률 표가 채워집니다.</div>

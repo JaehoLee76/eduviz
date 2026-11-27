@@ -140,9 +140,9 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
 <div class="banner q"><span class="pill">[문제]</span><span>주어진 자료와 두 가지 질문</span></div>
 <section id="problem">
   <div class="prob">
-    <p>마스크 <b>B03-A2</b>(블록 B03, 마스크 세트 A, 챔버 CH2 전용)를 리페어했습니다. 리페어 전과 후에 같은 유리 위 <b><span data-k="n" data-f="i"></span>개 점</b>(가로 <span data-k="gx" data-f="i"></span> × 세로 <span data-k="gy" data-f="i"></span> 격자)에서 PPA 어긋남의 크기 |오차| = √(dx² + dy²) 를 µm 로 쟀습니다. 작을수록 좋습니다. 그 뒤 마스크를 세정하고 같은 <span data-k="n" data-f="i"></span>점을 다시 전후로 쟀습니다.</p>
+    <p>마스크 <b>B03-A2</b>(블록 B03, 마스크 세트 A, 챔버 CH2 전용)를 리페어했습니다. 리페어 전과 후에 각각 유리 한 장을 처리해, 그 유리 위 같은 위치 <b><span data-k="n" data-f="i"></span>개 점</b>(가로 <span data-k="gx" data-f="i"></span> × 세로 <span data-k="gy" data-f="i"></span> 격자)에서 PPA 어긋남의 크기 |오차| = √(dx² + dy²) 를 µm 로 쟀습니다. 작을수록 좋습니다. 그 뒤 마스크를 세정하고 같은 <span data-k="n" data-f="i"></span>개 위치를 다시 전후로 쟀습니다. 유리는 한 번 증착하면 다시 쓰지 않으므로 전과 후는 서로 다른 유리입니다. 짝이 되는 것은 유리가 아니라 마스크 위의 같은 번호 위치입니다.</p>
     <p><b>질문 1.</b> 리페어로 점 오차가 좋아졌습니까?<br><b>질문 2.</b> 세정이 점 오차를 나쁘게 만들지는 않았습니까?</p>
-    <p class="note"><span data-k="n" data-f="i"></span>점은 이 마스크 위에서 정해 둔 측정 위치입니다. 우리가 알고 싶은 것은 &ldquo;이 마스크의 점 오차가 평균적으로 얼마나 바뀌었는가&rdquo;이고, 이 점들이 마스크 전체를 고르게 덮는 대표 위치라고 봅니다.</p>
+    <p class="note"><span data-k="n" data-f="i"></span>점은 이 마스크 위에서 정해 둔 측정 위치입니다. 우리가 알고 싶은 것은 &ldquo;이 마스크의 점 오차가 평균적으로 얼마나 바뀌었는가&rdquo;이고, 이 점들이 마스크 전체를 고르게 덮는 대표 위치라고 봅니다. 리페어는 마스크의 국소 결함 몇 곳을 없애고 전체 어긋남도 조금 줄이는 작업이라서, 질문 1 은 점 전체의 평균을 봅니다. 결함이 있던 점만의 변화는 전체 평균에 묻히므로 따로 확인합니다(자료의 defect_before 열이 1 인 점).</p>
   </div>
   <div class="tbwrap"><table>
     <tr><th class="l">자료 (µm)</th><th>점 수</th><th>평균</th><th>표준편차</th><th>최솟값</th><th>최댓값</th></tr>
@@ -201,7 +201,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
   <div class="eq"><span class="eqlab">대응 t 검정통계량 (자유도 n − 1)</span>
     <math display="block"><mi>t</mi><mo>=</mo><mfrac><mover accent="true"><mi>d</mi><mo stretchy="false">¯</mo></mover><mrow><mi>s</mi><mo>/</mo><msqrt><mi>n</mi></msqrt></mrow></mfrac><mo>=</mo><mfrac><mn data-k="dMean" data-f="s3"></mn><mrow><mn data-k="dSd" data-f="s3"></mn><mo>/</mo><msqrt><mn data-k="n" data-f="i"></mn></msqrt></mrow></mfrac><mo>=</mo><mn data-k="p_t" data-f="s3"></mn>
     </math>
-    <span class="eqnote">d̄ 는 점별 차이의 평균, s 는 점별 차이의 표준편차, n 은 점의 수입니다. 이 검정에는 가정이 둘 들어 있습니다. 점별 차이가 대략 정규분포를 따른다는 것과, 점별 차이끼리 서로 독립이라는 것입니다. 정규성은 5절에서 확인합니다. 독립은 이 페이지에서 따로 확인하지 않았습니다. 0102 에서 보셨듯 한 유리 위의 이웃한 점들은 서로 닮을 수 있고, 위치 효과를 빼고 남은 차이에도 그런 닮음이 남아 있으면 77개 점이 실제보다 많은 정보를 주는 것처럼 계산되어 p 가 실제보다 작게(낙관적으로) 나올 수 있습니다. 독립 약속이 깨지는 경우는 0104 에서 다룹니다.</span></div>
+    <span class="eqnote">d̄ 는 점별 차이의 평균, s 는 점별 차이의 표준편차, n 은 점의 수입니다. 이 검정에는 가정이 둘 들어 있습니다. 점별 차이가 대략 정규분포를 따른다는 것과, 점별 차이끼리 서로 독립이라는 것입니다. 정규성은 5절에서 확인합니다. 독립은 이 페이지에서 따로 확인하지 않았습니다. 0102 의 1절에서 한 유리 안의 점들이 같은 유리·같은 마스크 배치·같은 온도를 공유해 서로 닮는다고 했듯, 이 마스크 위의 이웃한 점들도 서로 닮을 수 있습니다. 위치 효과를 빼고 남은 차이에도 그런 닮음이 남아 있으면 점들이 실제보다 많은 정보를 주는 것처럼 계산되어 p 가 실제보다 작게(낙관적으로) 나올 수 있습니다. 독립 약속이 깨지는 경우는 0104 에서 다룹니다.</span></div>
   <p><b>같은 데이터, 같은 평균 차이, 다른 표준오차.</b> 두 방법의 결과를 나란히 놓았습니다.</p>
   <div class="tbwrap"><table>
     <tr><th class="l">방법</th><th>평균 차이 (µm)</th><th>표준오차 (µm)</th><th>t</th><th>자유도</th><th>p</th></tr>
@@ -209,6 +209,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
     <tr><td class="l">대응 비교</td><td><span data-k="dMean" data-f="s3"></span></td><td><span data-k="p_se" data-f="s3"></span></td><td><span data-k="p_t" data-f="s3"></span></td><td><span data-k="p_df" data-f="i"></span></td><td><span data-k="p_p" data-f="p"></span></td></tr>
   </table></div>
   <p><b>표준오차가 왜 달라지나.</b> 두 표준오차는 이름이 같지만 &ldquo;무엇이 흔들린다고 보는가&rdquo;가 다릅니다. 독립 비교는 점마다 다른 오차의 높낮이까지 흔들림으로 칩니다. 대응 비교는 점별 차이만의 흔들림만 봅니다. 차이의 분산은 이렇게 쪼개집니다. 식에 처음 나오는 <b>공분산</b>(covariance)은 전과 후가 함께 움직이는 정도입니다. 전 오차가 큰 점에서 후 오차도 크면 양수이고, 이 값을 두 표준편차로 나눈 것이 상관계수 r 입니다.</p>
+  <p>식이 이런 모양인 까닭은 0101 에서 본 규칙의 연장입니다. 서로 독립인 두 값의 차이는 분산이 그냥 더해졌습니다. 그러나 전과 후가 함께 움직이면, 차이 (후−전) 에서 한쪽이 커진 만큼 다른 쪽도 커져 서로 상쇄됩니다. 상쇄되는 만큼이 빠집니다. 빼기인데 2 가 붙는 것은 차이를 제곱해 전개하면 (후−전)² = 후² + 전² − 2·후·전 이 되고, 가운데 항 −2·후·전 의 평균(평균에서 잰 값)이 곧 −2·공분산이기 때문입니다. 공분산이 0 이면 0101 의 규칙, 곧 분산을 그냥 더하는 경우로 돌아갑니다.</p>
   <div class="eq"><span class="eqlab">차이의 분산</span>
     <math display="block"><mtext>분산(후−전)</mtext><mo>=</mo><mtext>분산(전)</mtext><mo>+</mo><mtext>분산(후)</mtext><mo>−</mo><mn>2</mn><mo>·</mo><mtext>공분산(전, 후)</mtext></math>
     <span class="eqnote">이 자료에서는 분산(전) = <span data-k="varB" data-f="s3"></span>, 분산(후) = <span data-k="varA" data-f="s3"></span>, 공분산 = <span data-k="cov" data-f="s3"></span> 이므로 분산(후−전) = <span data-k="varD" data-f="s3"></span> 입니다. 독립 비교는 공분산 항을 버리고 앞의 두 분산을 그대로 더합니다. 그래서 표준오차가 <span data-k="w_se" data-f="s3"></span> 로 큽니다. 대응 비교는 위치 효과가 큰 만큼 공분산이 커서 뺄셈 결과가 <span data-k="varD" data-f="s3"></span> 까지 줄어듭니다. 자유도는 <span data-k="n2" data-f="i"></span>개 점 대신 <span data-k="p_df" data-f="i"></span>로 줄지만 표준오차가 <span data-k="ratio" data-f="s1"></span>배 작아지는 이득이 훨씬 큽니다.</span></div>
@@ -262,11 +263,12 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
   <p><span class="stepno">답안 3·4단계</span><b>검정통계량과 판정.</b> 대응 t = <span data-k="p_t" data-f="s3"></span> (자유도 <span data-k="p_df" data-f="i"></span>), p = <span data-k="p_p" data-f="p"></span>. 윌콕슨 p = <span data-k="wx_p" data-f="p"></span>. 둘 다 0.05 보다 훨씬 작으므로 &ldquo;리페어 전후 점 오차가 같다&rdquo;는 가설을 버립니다. 같은 자료를 독립 비교로 보았을 때의 p = <span data-k="w_p" data-f="p"></span> 와 크게 다릅니다.</p>
   <p><span class="stepno">답안 5단계</span><b>결론 서술.</b></p>
   <div class="concl">리페어 후 <span data-k="n" data-f="i"></span>점의 오차 평균은 <span data-k="bMean" data-f="s3"></span> µm 에서 <span data-k="aMean" data-f="s3"></span> µm 로 <b><span data-k="dMeanAbs" data-f="s3"></span> µm(<span data-k="relRed" data-f="s1"></span>%) 줄었습니다</b>. 95% 신뢰구간은 <span data-k="p_lo" data-f="s3"></span> ~ <span data-k="p_hi" data-f="s3"></span> µm 입니다. 점 <span data-k="n" data-f="i"></span>개 중 <span data-k="nImp" data-f="i"></span>개가 좋아졌고 <span data-k="nWor" data-f="i"></span>개가 나빠졌습니다. 변화의 크기가 공정에서 의미 있는 크기인지는 통계가 아니라 spec 이 정합니다.</div>
+  <p>이 결론에는 세 조건이 붙습니다. 첫째, p 는 점별 차이끼리 독립이라는 전제 아래의 값입니다. 이웃한 점이 닮으면 p 는 실제보다 작게 나오며, 닮음을 실효 표본 수로 재는 법은 0104 에서 만듭니다. 이 자료의 점별 차이는 그 점검을 거치지 않았으므로 보고서에는 &ldquo;독립 미확인&rdquo;이라고 적습니다. 둘째, 이 결론이 답하는 것은 질문 1, 곧 &ldquo;평균 차이가 0 인가&rdquo;입니다. 7절의 허용폭 δ 가 묻는 &ldquo;차이가 허용 범위 안인가&rdquo;와는 다른 질문입니다. 줄어든 크기 <span data-k="dMeanAbs" data-f="s3"></span> µm 는 7절에서 가정하는 허용폭 <span data-k="delta0" data-f="s2"></span> µm 와 견주어 보아야 합니다. 허용폭 안이라면 리페어의 개선은 통계로는 분명하지만 공정에서는 영향 없는 크기의 변화일 수 있습니다. 그 판단은 공정 쪽의 몫입니다. 셋째, 리페어 전과 후는 서로 다른 유리 한 장씩입니다. 대응 t 는 마스크 위 같은 번호의 위치를 짝짓는 검정이라 77개 위치가 한결같이 줄었음은 보여 주지만, 유리 한 장과 다른 한 장 사이의 차이는 재지 못합니다. 그래서 줄어든 <span data-k="dMeanAbs" data-f="s3"></span> µm 에는 리페어의 효과와 유리 간 차이가 섞여 있어, p 가 작아도 둘을 가를 수 없습니다. 가르려면 전과 후 각각 여러 장을 재야 합니다.</p>
 </section>
 
 <section id="s7">
   <h2><span class="no">7</span>질문 2: 세정 후 &lsquo;나빠지지 않았다&rsquo;를 보이려면</h2>
-  <p>이번에는 세정 전후 같은 <span data-k="n" data-f="i"></span>점입니다. 앞에서 배운 도구를 그대로 씁니다. <span class="stepno">먼저 앞의 도구로</span> 점별 차이는 평균 <span data-k="c_dMean" data-f="s3"></span> µm, 표준편차 <span data-k="c_dSd" data-f="s3"></span> µm 입니다. 대응 t 는 t = <span data-k="c_t" data-f="s3"></span>, 자유도 <span data-k="c_df" data-f="i"></span>, <b>p = <span data-k="c_p" data-f="s3"></span></b> 이고, 윌콕슨 p = <span data-k="c_wx_p" data-f="s3"></span> 입니다. 차이의 정규성은 샤피로–윌크 p = <span data-k="c_sw_p" data-f="s3"></span> 로 문제가 없습니다.</p>
+  <p>이번에는 세정 전후 같은 <span data-k="n" data-f="i"></span>점입니다. 앞에서 배운 도구를 그대로 씁니다. 먼저 눈에 띄는 것이 있습니다. 세정 전 평균 <span data-k="c_bMean" data-f="s3"></span> µm 은 리페어 후 평균 <span data-k="aMean" data-f="s3"></span> µm 과 다릅니다. 둘 다 리페어를 마친 같은 마스크 상태이지만 서로 다른 유리 한 장씩에서 잰 별개의 측정이라, 같은 마스크라도 한 쌍의 측정이 이만큼 다릅니다. 세정 전후의 차이도 이 흔들림과 견주어 읽어야 합니다. <span class="stepno">먼저 앞의 도구로</span> 점별 차이는 평균 <span data-k="c_dMean" data-f="s3"></span> µm, 표준편차 <span data-k="c_dSd" data-f="s3"></span> µm 입니다. 대응 t 는 t = <span data-k="c_t" data-f="s3"></span>, 자유도 <span data-k="c_df" data-f="i"></span>, <b>p = <span data-k="c_p" data-f="s3"></span></b> 이고, 윌콕슨 p = <span data-k="c_wx_p" data-f="s3"></span> 입니다. 차이의 정규성은 샤피로–윌크 p = <span data-k="c_sw_p" data-f="s3"></span> 로 문제가 없습니다.</p>
   <div class="verdict keep">p 가 0.05 보다 훨씬 큽니다. 세정 전후 차이를 찾지 못했습니다.</div>
   <div class="stuck"><b class="h">막힘: 유의하지 않다는 같다는 말이 아닙니다.</b> p = <span data-k="c_p" data-f="s3"></span> 는 &ldquo;차이가 있다는 증거가 모자란다&rdquo; 일 뿐 &ldquo;차이가 없다는 증거&rdquo;가 아닙니다. 점 수가 적거나 산포가 크면 큰 차이도 p 가 큽니다. 지금 평균은 <span data-k="c_dMean" data-f="s3"></span> µm 올랐고 95% 신뢰구간은 <span data-k="c_lo" data-f="s3"></span> ~ <span data-k="c_hi" data-f="s3"></span> µm 입니다. 이 구간 안의 어떤 값도 데이터와 모순되지 않습니다. 우리가 보이고 싶은 것은 &ldquo;차이가 허용 범위 안이다&rdquo; 입니다. 방향이 반대입니다.</div>
 
@@ -288,7 +290,7 @@ pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;paddin
 
   <div class="lab">
     <div class="labtitle">탐구: 허용폭 δ 를 움직이면 판정이 바뀌는 경계</div>
-    <div class="look"><b>무엇을 볼지.</b> 막대는 평균 차이의 90% 신뢰구간이고 δ 를 움직여도 막대는 그대로입니다. 초록 띠(±δ)가 좁아지다가 막대가 띠 밖으로 삐져나오는 순간 판정이 바뀝니다. 위쪽 세정 막대와 아래쪽 리페어 막대가 각자 다른 δ 에서 바뀌는 것도 보십시오.</div>
+    <div class="look"><b>무엇을 볼지.</b> 이 패널은 δ 를 고르는 도구가 아니라, 데이터를 본 뒤에 δ 를 움직이면 판정을 마음대로 만들 수 있음을 보이는 장치입니다. 현장에서 δ 를 모르면 공정 담당에게 정해 달라고 요청하고, 그 전까지 판정란은 비워 둡니다(0101). 막대는 평균 차이의 90% 신뢰구간이고 δ 를 움직여도 막대는 그대로입니다. 초록 띠(±δ)가 좁아지다가 막대가 띠 밖으로 삐져나오는 순간 판정이 바뀝니다. 위쪽 세정 막대와 아래쪽 리페어 막대가 각자 다른 δ 에서 바뀌는 것도 보십시오.</div>
     <div class="ctrl"><label for="sD">허용폭 δ (µm)</label><input type="range" id="sD" min="0.05" max="0.6" step="0.01" value="0.3"><output id="oD">0.30</output></div>
     <div class="state"><span id="stD"></span><button class="btn" id="rstD" type="button">기준값 0.30 µm 으로 되돌리기</button></div>
     <canvas id="cvTost" height="260" aria-label="세정과 리페어의 90% 신뢰구간과 허용폭 띠"></canvas>
@@ -791,7 +793,7 @@ var LAB=(function(){
   var v=document.getElementById('vT');
   v.textContent='세정: '+(tc.equiv?'TOST p = '+F(tc.p,'p')+' < 0.05 → 평균 차이가 ±'+dl.toFixed(2)+' µm 안이라고 판정합니다 (동등).':'TOST p = '+F(tc.p,'p')+' ≥ 0.05 → 평균 차이가 ±'+dl.toFixed(2)+' µm 안이라고 말할 수 없습니다 (동등 아님).');
   v.className='verdict '+(tc.equiv?'rej':'keep');
-  document.getElementById('tNote').textContent='참고: 같은 허용폭에서 리페어 전후는 '+(tr.equiv?'TOST p = '+F(tr.p,'p')+' 로 동등이라고 판정됩니다. 허용폭이 리페어의 개선 폭보다 느슨하면 개선조차 허용 범위 안의 변화가 됩니다.':'동등이 아닙니다(TOST p = '+F(tr.p,'p')+'). 평균 차이가 허용폭 밖에 있기 때문입니다.')+' 세정이 동등으로 남는 가장 작은 δ 는 '+tc.dmin.toFixed(3)+' µm, 리페어가 동등이 되는 가장 작은 δ 는 '+tr.dmin.toFixed(3)+' µm 입니다.';
+  document.getElementById('tNote').textContent='참고: 같은 허용폭에서 리페어 전후는 '+(tr.equiv?'TOST p = '+F(tr.p,'p')+' 로 동등이라고 판정됩니다. 허용폭이 리페어의 개선 폭보다 느슨하면 개선조차 허용 범위 안의 변화가 됩니다.':'동등이 아닙니다(TOST p = '+F(tr.p,'p')+'). 90% 신뢰구간이 허용폭 밖으로 걸쳐 있기 때문입니다(평균 차이 자체가 허용폭 안이어도 구간의 끝이 밖으로 나가면 동등을 증명하지 못합니다).')+' 세정이 동등으로 남는 가장 작은 δ 는 '+tc.dmin.toFixed(3)+' µm, 리페어가 동등이 되는 가장 작은 δ 는 '+tr.dmin.toFixed(3)+' µm 입니다.';
   drawTost(dl,tc,tr);
  }
  function sgn2(x){ return (x>0?'+':'−')+Math.abs(x).toFixed(2); }

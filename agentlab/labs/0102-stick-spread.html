@@ -139,14 +139,15 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
     <ul>
       <li>평균·중앙값·표준편차, 정규분포, 평균 ±3σ 로 그은 관리선</li>
       <li>p값과 유의수준 5%, 귀무가설, 자유도</li>
-      <li>웰치 t검정 (실험실 0101), 분산분석의 제곱합</li>
+      <li>웰치 t검정 (실험실 0101), 분산(표준편차의 제곱)</li>
     </ul>
-    <h3>이번에 새로 배우는 말 (다섯 개)</h3>
+    <h3>이번에 새로 배우는 말 (여섯 개)</h3>
     <table class="terms">
       <tr><th>말</th><th>한 줄 뜻</th></tr>
       <tr><td>분산비와 F검정</td><td>두 집단의 분산(표준편차의 제곱)을 나눈 값 F 로 산포가 같은지 보는 검정</td></tr>
       <tr><td>레빈 검정 (Levene test)</td><td>각 값이 자기 집단의 중심에서 떨어진 거리를 새 자료로 만들어, 그 평균을 비교하는 산포 검정</td></tr>
       <tr><td>브라운-포사이스 (Brown–Forsythe)</td><td>레빈 검정에서 중심을 평균 대신 중앙값으로 잡은 형태</td></tr>
+      <tr><td>제곱합 (sum of squares)</td><td>값들이 기준점에서 떨어진 거리를 제곱해 모두 더한 것</td></tr>
       <tr><td>순위 (rank)</td><td>두 집단을 섞어 작은 값부터 1등, 2등 &hellip; 으로 줄을 세운 등수</td></tr>
       <tr><td>맨-휘트니 U (Mann–Whitney U)</td><td>순위만 써서 한쪽이 전체적으로 더 큰 경향이 있는지 보는 검정</td></tr>
     </table>
@@ -180,7 +181,8 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
   <canvas id="cvField" height="520"></canvas>
   <div class="legend"><span><i class="sq" style="background:rgba(214,96,77,.7)"></i>x 방향으로 +쪽 오차</span><span><i class="sq" style="background:rgba(38,166,154,.7)"></i>−쪽 오차</span><span>칸 안 숫자 = dx (µm), 아래 막대 = 열 평균</span></div>
   <div class="verdict" id="fldRead"></div>
-  <p>한 유리만 보아서는 알 수 없지만, 20장을 모아 열마다 평균을 내고 그 평균이 유리마다 얼마나 흔들렸는지(표준편차)를 보면 이렇습니다. 교체 전에는 스틱 4 열이 <b data-k="colsd_b4"></b> µm 로 흔들리고 나머지 열은 가장 큰 것이 <b data-k="colsd_bother"></b> µm 입니다. 교체 후에는 스틱 4 열이 <b data-k="colsd_a4"></b> µm, 나머지 열의 최대가 <b data-k="colsd_aother"></b> µm 로 모든 열이 비슷해졌습니다. 불량 스틱은 중심을 옮긴 것이 아니라 <b>유리마다 다른 방향으로 흔들리게</b> 만들고 있었습니다. 유리 20장의 지표 평균이 비슷한데도 흩어짐이 다른 까닭이 여기 있습니다.</p>
+  <p>한 유리만 보아서는 알 수 없지만, 20장을 모아 열마다 평균을 내고 그 평균이 유리마다 얼마나 흔들렸는지(표준편차)를 보면 이렇습니다. 교체 전에는 스틱 4 열이 <b data-k="colsd_b4"></b> µm 로 흔들리고 나머지 열은 가장 큰 것이 <b data-k="colsd_bother"></b> µm 입니다. 교체 후에는 스틱 4 열이 <b data-k="colsd_a4"></b> µm, 나머지 열의 최대가 <b data-k="colsd_aother"></b> µm 로 모든 열이 비슷해졌습니다. 불량 스틱은 중심을 옮긴 것이 아니라 <b>유리마다 다른 방향으로 흔들리게</b> 만들고 있었습니다. 유리마다 흔들리는 열이 하나 있었던 것이 유리 사이 흩어짐이 컸던 까닭입니다.</p>
+  <p>그런데 열 평균이 이만큼 흔들렸는데도 유리 20장의 지표 평균은 교체 전 <b data-k="idx_mb"></b>, 교체 후 <b data-k="idx_ma"></b> µm 로 비슷합니다. 지표가 두 몫의 합이기 때문입니다. 유리 안 흩어짐 몫 3s 는 교체 전 평균 <b data-k="m3s_b"></b> 에서 교체 후 <b data-k="m3s_a"></b> 로 줄었습니다. 반면 중심이 어긋난 몫 |x̄| 은 새 스틱을 끼운 뒤 <b data-k="mxb_b"></b> 에서 <b data-k="mxb_a"></b> 로 늘었습니다. 줄어든 몫과 늘어난 몫이 서로 상쇄해서 평균 지표가 그대로로 보인 것입니다. 줄어든 것은 평균이 아니라 유리마다 지표가 들쭉날쭉한 정도, 곧 지표의 표준편차이며 지표의 가장 큰 값은 <b data-k="idx_xb"></b> 에서 <b data-k="idx_xa"></b> µm 로 내려왔습니다.</p>
 
   <h3>주어진 데이터</h3>
   <p>유리별 지표 <code>dx_metric_um</code> (µm) 입니다. 번호는 처리 순서입니다.</p>
@@ -250,13 +252,13 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
   </div>
   <div class="stuck">
     <p><b class="t">그런데 이 결과를 그대로 믿어도 될까요?</b> F검정은 정규분포에서 조금만 벗어나도 흔들립니다. 특히 한쪽으로 긴 꼬리가 있으면 &ldquo;산포가 다르다&rdquo;는 거짓 경보를 자주 냅니다. 같은 분포에서 뽑은 표본 두 개는 산포가 같으므로 검정이 5% 기준으로 경보를 울린다면 그것은 모두 거짓 경보여야 합니다. 그 비율을 직접 세어 봅니다.</p>
-    <p>두 종류의 분포를 정합니다. 하나는 좌우 대칭인 정규분포, 다른 하나는 오른쪽 꼬리가 긴 치우친 분포(로그정규분포)입니다. 각각에서 20개씩 두 표본을 <b data-k="sim_trials"></b>번 뽑아, 두 표본은 언제나 같은 분포에서 나왔으므로 정답은 항상 &ldquo;산포가 같다&rdquo;입니다.</p>
+    <p>두 종류의 분포를 정합니다. 하나는 좌우 대칭인 정규분포, 다른 하나는 오른쪽 꼬리가 긴 치우친 분포(로그정규분포: 값의 로그가 평균 1, 표준편차 0.8 인 정규분포를 따르며 왜도는 약 <b data-k="sim_sk"></b>)입니다. 각각에서 20개씩 두 표본을 <b data-k="sim_trials"></b>번 뽑아, 두 표본은 언제나 같은 분포에서 나왔으므로 정답은 항상 &ldquo;산포가 같다&rdquo;입니다.</p>
     <canvas id="cvDist" height="230"></canvas>
     <div class="tblw"><table><thead><tr><th>모집단 모양</th><th>F검정이 거짓 경보를 낸 비율</th><th>레빈 검정(중앙값 기준, §4)이 거짓 경보를 낸 비율</th></tr></thead><tbody>
       <tr><td>정규분포 (대칭)</td><td data-k="sim_n_F"></td><td data-k="sim_n_L"></td></tr>
       <tr><td>치우친 분포 (꼬리가 긺)</td><td data-k="sim_s_F"></td><td data-k="sim_s_L"></td></tr>
     </tbody></table></div>
-    <p>유의수준을 5% 로 정했으므로 거짓 경보는 5% 안팎이어야 합니다. 정규분포에서는 F검정이 그 약속을 지키지만, 꼬리가 긴 분포에서는 약속이 깨집니다. 이 자료가 정규에 가까운지 20개로는 확신할 수 없으므로 <b>정규성에 기대지 않는 산포 검정</b>이 필요합니다. 거짓 경보 비율은 이 쪽의 고정된 난수 열로 센 값이므로 난수를 달리 쓰면 몇 퍼센트포인트는 달라집니다.</p>
+    <p>유의수준을 5% 로 정했으므로 거짓 경보는 5% 안팎이어야 합니다. 정규분포에서는 F검정이 그 약속을 지키지만, 꼬리가 긴 분포에서는 약속이 깨집니다. 이 자료가 정규에 가까운지 20개로는 확신할 수 없으므로 <b>정규성에 기대지 않는 산포 검정</b>이 필요합니다. 이 표는 &ldquo;F검정이 이 자료에서 틀렸다&rdquo;는 뜻이 아닙니다. 위 단계 2 에서 본 이 자료의 왜도는 표의 치우친 분포보다 훨씬 작습니다. 표가 보이는 것은 모양이 크게 치우치면 F검정의 약속이 깨진다는 것이고, 20개로는 이 자료가 그런 모양이 아니라고 확인할 수 없으니 처음부터 버티는 검정을 쓴다는 것입니다. 거짓 경보 비율은 이 쪽의 고정된 난수 열로 센 값이므로 난수를 달리 쓰면 몇 퍼센트포인트는 달라집니다.</p>
   </div>
   <div class="qrow">
     <div class="qna" data-label="양측 p값은 왜 두 배로 하나요?" data-q="F검정에서 양측 p값을 한쪽 꼬리의 두 배로 하는 이유가 무엇인가요? F가 1보다 작게 나와도 되나요?"><p>대립가설이 &ldquo;전의 산포가 더 크다&rdquo;가 아니라 &ldquo;다르다&rdquo;이므로, F 가 아주 크거나 아주 작은 두 경우를 모두 치우친 것으로 칩니다. F 가 1 보다 작아도 분모가 더 큰 것뿐이므로 문제없습니다.</p><p>한쪽 꼬리 확률(F 보다 더 극단적인 쪽)에 2 를 곱하고, 1 이 넘으면 1 로 자릅니다. 분자·분모를 바꾸어 F 를 거꾸로 해도 같은 p값이 나옵니다.</p></div>
@@ -267,20 +269,21 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
 <section id="s4">
   <h2><span class="no">4</span>꼬리에 속지 않는 산포 검정: 레빈 검정 (중앙값 기준)</h2>
   <p><b>왜 필요한가.</b> F검정은 분산을 직접 비교해서 꼬리에 흔들렸습니다. 발상을 바꿉니다. 산포 비교를 우리가 이미 잘 아는 <b>평균 비교</b>로 바꾸는 것입니다. 각 값이 자기 집단의 중심에서 얼마나 떨어져 있는지를 새 자료 z 로 만들면, 산포가 큰 집단은 z 의 평균이 큽니다. 그 z 들의 평균을 비교하면 됩니다. 이 방법이 <b>레빈 검정</b>이고, 중심을 평균 대신 <b>중앙값</b>으로 잡은 형태가 <b>브라운-포사이스</b>입니다. 평균은 꼬리 쪽 값에 끌려가 중심이 이동하지만 중앙값은 끌려가지 않아서 치우친 자료에서 훨씬 안정적입니다.</p>
+  <p>z 의 평균 두 개가 멀다고 말하려면 &ldquo;우연히 이 정도는 벌어질 수 있다&rdquo;의 폭이 필요합니다. 이 폭을 <b>제곱합 (sum of squares)</b> 두 개의 비로 잽니다. 제곱합은 값들이 기준점에서 떨어진 거리를 제곱해 모두 더한 것입니다. <b>집단 사이 제곱합</b>은 두 집단의 z 평균이 전체 z 평균에서 떨어진 정도로, 두 평균이 멀수록 커집니다. <b>집단 안 제곱합</b>은 각 z 가 자기 집단의 z 평균에서 떨어진 정도로, 집단 안이 들쭉날쭉할수록 커집니다. 사이가 안에 비해 크지 않으면 평균 차이는 집단 안의 들쭉날쭉함 수준이라 우연으로 볼 수 있고, 사이가 안에 비해 크면 우연으로 보기 어렵습니다. 이 비에 자유도를 맞춰 곱한 것이 아래 W 이고, 이렇게 평균 차이를 제곱합의 비로 재서 F분포와 견주는 방법을 분산분석이라 부릅니다.</p>
   <div class="eq">
     <span class="eqlab">1) 새 자료 만들기 &nbsp;&nbsp; 2) 그 평균을 분산분석 F 로 비교</span>
     <math display="block"><mi>z</mi><mo>=</mo><mrow><mo stretchy="false">|</mo><mi>x</mi><mo>&#x2212;</mo><mtext>자기 집단의 중앙값</mtext><mo stretchy="false">|</mo></mrow></math>
     <math display="block"><mi>W</mi><mo>=</mo><mo stretchy="false">(</mo><mi>N</mi><mo>&#x2212;</mo><mn>2</mn><mo stretchy="false">)</mo><mo>&#x22C5;</mo><mfrac><mtext>집단 사이 제곱합</mtext><mtext>집단 안 제곱합</mtext></mfrac></math>
     <math display="block"><mtext>집단 사이 제곱합</mtext><mo>=</mo><msub><mi>n</mi><mtext>전</mtext></msub><msup><mrow><mo stretchy="false">(</mo><msub><mover><mi>z</mi><mo stretchy="false">¯</mo></msub><mtext>전</mtext></msub><mo>&#x2212;</mo><mover><mi>z</mi><mo stretchy="false">¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>+</mo><msub><mi>n</mi><mtext>후</mtext></msub><msup><mrow><mo stretchy="false">(</mo><msub><mover><mi>z</mi><mo stretchy="false">¯</mo></msub><mtext>후</mtext></msub><mo>&#x2212;</mo><mover><mi>z</mi><mo stretchy="false">¯</mo></mover><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></math>
     <math display="block"><mtext>집단 안 제곱합</mtext><mo>=</mo><mo>&#x2211;</mo><msup><mrow><mo stretchy="false">(</mo><mi>z</mi><mo>&#x2212;</mo><mtext>자기 집단의 z 평균</mtext><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></math>
-    <span class="note">z̄ 에 &lsquo;전&rsquo;·&lsquo;후&rsquo;가 붙은 것은 그 집단의 z 평균이고, 붙지 않은 것은 40개 전체 z 의 평균입니다. 분산분석의 F 와 같은 모양이고 자유도는 (1, N − 2)입니다.</span>
+    <span class="note">z̄ 에 &lsquo;전&rsquo;·&lsquo;후&rsquo;가 붙은 것은 그 집단의 z 평균이고, 붙지 않은 것은 40개 전체 z 의 평균입니다. W 를 F분포와 견주며 자유도는 (1, N − 2)입니다.</span>
   </div>
   <div class="card solb">
     <span class="ban sol">풀이</span>
     <h3>단계 1 · 가설</h3>
     <p>H0: 교체 전후 지표의 산포는 같다. H1: 다르다 (§3 과 같음).</p>
     <h3>단계 2 · 전제 점검</h3>
-    <p>원자료가 정규분포라는 가정에는 직접 기대지 않습니다. 대신 z 값들이 서로 독립이라는 가정이 남습니다(유리끼리 독립이라는 §1 의 전제와 같습니다).</p>
+    <p>원자료가 정규분포라는 가정에는 직접 기대지 않습니다. 대신 z 값들이 서로 독립이라는 가정이 남습니다(유리끼리 독립이라는 §1 의 전제와 같습니다). z 는 0 이상이라 정규분포는 아니지만, 20개씩의 평균을 비교하므로 정규에 가까운 평균끼리의 비교로 작동합니다. 실제로 §3 표의 레빈 열은 치우친 분포에서도 거짓 경보가 약속한 5% 근처에 머뭅니다.</p>
     <h3>단계 3 · 계산</h3>
     <canvas id="cvZ" height="350"></canvas>
     <div class="legend"><span><i style="background:var(--gB)"></i>교체 전</span><span><i style="background:var(--gA)"></i>교체 후</span><span>위 그림 = 원래 값과 각 집단의 중앙값(세로 눈금), 점에서 중앙값까지의 선 길이가 z &nbsp; 아래 그림 = 그 z 들과 평균(굵은 세로선)</span></div>
@@ -308,7 +311,7 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
 
 <section id="s5">
   <h2><span class="no">5</span>위치를 확인하는 도구: 순위로 바꾸는 맨-휘트니 U</h2>
-  <p><b>왜 필요한가.</b> §2 의 웰치 t검정은 평균을 비교하므로, 이 지표처럼 값이 한쪽으로 쏠릴 수 있는 자료에서는 극단값 몇 개에 끌려갈 수 있습니다. 값의 크기를 버리고 <b>순서만</b> 쓰면 극단값의 영향이 사라집니다. 40개 값을 교체 전후 구분 없이 섞어 작은 것부터 1등, 2등 &hellip; 40등으로 줄 세우고(같은 값이면 등수의 평균), 각 집단이 받은 등수를 더합니다. 이것이 <b>순위(rank)</b>입니다.</p>
+  <p><b>왜 필요한가.</b> §2 의 웰치 t검정은 평균을 비교하므로, 이 지표처럼 값이 한쪽으로 쏠릴 수 있는 자료에서는 극단값 몇 개에 끌려갈 수 있습니다. 값의 크기를 버리고 <b>순서만</b> 쓰면 극단값의 영향이 사라집니다. 이 자료에는 두드러진 극단값이 없으므로 웰치와 같은 결론이 나오는 것이 자연스럽고, 이 절의 몫은 새 발견이 아니라 &ldquo;평균이 그대로라는 결론이 극단값 때문이 아니다&rdquo;를 확인하는 방법과 그 한계(산포를 못 본다)를 익히는 것입니다. 40개 값을 교체 전후 구분 없이 섞어 작은 것부터 1등, 2등 &hellip; 40등으로 줄 세우고(같은 값이면 등수의 평균), 각 집단이 받은 등수를 더합니다. 이것이 <b>순위(rank)</b>입니다.</p>
   <div class="eq">
     <span class="eqlab">맨-휘트니 U</span>
     <math display="block"><msub><mi>U</mi><mtext>전</mtext></msub><mo>=</mo><msub><mi>R</mi><mtext>전</mtext></msub><mo>&#x2212;</mo><mfrac><mrow><msub><mi>n</mi><mtext>전</mtext></msub><mo stretchy="false">(</mo><msub><mi>n</mi><mtext>전</mtext></msub><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac><mo>=</mo><mn data-k="mw_Rb"></mn><mo>&#x2212;</mo><mn data-k="mw_minR"></mn><mo>=</mo><mn data-k="mw_U1"></mn></math>
@@ -366,10 +369,10 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
     </tbody></table></div>
     <ol>
       <li><b>가설</b>: 평균 비교 H0 &ldquo;전후 평균 같다&rdquo;, 산포 비교 H0 &ldquo;전후 산포 같다&rdquo;.</li>
-      <li><b>전제 점검</b>: 20개로는 정규성을 확인할 수 없고, 지표가 양수라 꼬리가 길 수 있습니다. 그래서 정규성에 기대는 F검정 대신 중앙값 기준 레빈 검정을 산포 검정으로 삼고, 위치는 웰치 t와 맨-휘트니 둘로 확인합니다.</li>
+      <li><b>전제 점검</b>: 20개로는 정규성을 확인할 수 없고, 지표가 양수라 꼬리가 길 수 있습니다. 그래서 정규성에 기대는 F검정 대신 중앙값 기준 레빈 검정을 산포 검정으로 삼고, 위치는 웰치 t와 맨-휘트니 둘로 확인합니다. 결론을 정하는 주 검정은 이 물음(산포가 줄었는가)에 맞는 레빈 하나이고, 웰치·맨-휘트니는 평균·위치가 그대로임을 확인하는 보조, F검정은 참고입니다. 검정 네 개를 돌려 되는 것만 고르면 헛알람이 늘어나는데, 그 문제(다중성)는 실험실 0202 에서 다룹니다.</li>
       <li><b>검정통계량</b>: 위 표.</li>
       <li><b>판정</b>: 평균은 5% 에서 차이를 잡지 못하고(두 검정 모두), 산포는 레빈 p = <span data-k="lm_p"></span> 로 차이가 유의합니다.</li>
-      <li><b>결론</b>: 스틱 교체는 평균을 옮기지 않고 흩어짐을 줄였습니다. PPA 의 품질이 산포이므로 교체는 효과가 있었다고 보고합니다.</li>
+      <li><b>결론</b>: 스틱 교체는 유리 사이 지표의 평균을 바꾸지 않고 지표의 흩어짐을 줄였습니다. 다만 유리 안 중심의 어긋남 |x̄| 은 교체 후 <span data-k="mxb_b"></span> 에서 <span data-k="mxb_a"></span> 로 커졌습니다. 이 어긋남이 허용 범위 안인지는 지표의 허용 범위(spec)가 정하므로 이 페이지는 판정하지 않으며, 밖이라면 새 스틱의 장착 위치를 보정해야 합니다. PPA 의 품질이 산포이므로 교체는 효과가 있었다고 보고합니다. 산포가 줄었다는 것은 지표가 나쁘게 높이 튀는 유리가 줄었다는 뜻이며(§1 의 가장 큰 지표 값), 평균이 같아도 다음 유리의 지표를 가늠하기 쉬워진다는 이득입니다.</li>
     </ol>
   </div>
   <p><b>처음 물음으로 돌아갑니다.</b> &ldquo;평균은 그대로인데 산포가 줄었다&rdquo;를 숫자로 말하라는 물음이었습니다. §2 에서 평균은 그대로(p = <span data-k="w_p"></span>)이고, §4 에서 산포는 줄었음(p = <span data-k="lm_p"></span>)이 확인되었습니다. 이것이 바로 그 줄입니다.</p>
@@ -380,7 +383,7 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
   <div class="card expb">
     <span class="ban exp">탐구 모드</span>
     <p>여기부터는 주어진 문제가 아니라 &ldquo;만약 불량이 이 정도였다면&rdquo;를 시험하는 가정 놀이입니다. 슬라이더는 <b>교체 전 불량 스틱이 정상 스틱보다 몇 배 흔들리는가</b>(배율)를 바꿉니다. 교체한 새 스틱은 정상이므로 교체 후 값은 배율과 무관하게 그대로입니다. 장 수 20 + 20 은 이미 모은 자료의 크기라 고정입니다.</p>
-    <p><b>먼저 볼 것.</b> 슬라이더를 1 로 내려 보세요. 불량이 사라지면 산포 검정이 잠잠해지는 대신, 교체 전후 평균 차이가 새로 잡히는 것을 볼 수 있습니다. 교체 전후 평균은 원래 아주 조금 어긋나 있기 때문입니다. 스틱을 새로 장착하면 위치가 조금 옮겨질 수 있는데, 불량 스틱이 크게 흔들릴 때는 이 작은 어긋남이 흔들림에 묻혀 평균 비교로 잡히지 않았다가 불량이 사라지면 드러납니다. 반대로 올리면 산포 검정이 점점 더 강하게 반응합니다. 아래 곡선에서 각 검정이 5% 선(점선) 아래로 내려가는 배율을 비교해 보세요.</p>
+    <p><b>먼저 볼 것.</b> 슬라이더를 1 로 내려 보세요. 불량이 사라지면 산포 검정이 잠잠해지는 대신, 교체 전후 평균 차이가 새로 잡히는 것을 볼 수 있습니다. 교체 전후 평균은 원래 아주 조금 어긋나 있기 때문입니다(§1 에서 본 중심 어긋남 몫 |x̄| 이 교체 후 늘어난 것이 이 어긋남입니다). 스틱을 새로 장착하면 위치가 조금 옮겨질 수 있는데, 불량 스틱이 크게 흔들릴 때는 이 작은 어긋남이 흔들림에 묻혀 평균 비교로 잡히지 않았다가 불량이 사라지면 드러납니다. 반대로 올리면 산포 검정이 점점 더 강하게 반응합니다. 아래 곡선에서 각 검정이 5% 선(점선) 아래로 내려가는 배율을 비교해 보세요.</p>
     <div class="ctrls one"><div class="ctrl">
       <label for="bm">불량 스틱의 흔들림 배율 <span class="val" id="bmo">4</span></label>
       <input type="range" id="bm" min="1" max="6" step="0.5" value="4">
@@ -412,8 +415,8 @@ canvas{display:block;width:100%;background:var(--card);border:1px solid var(--ru
     <p><b>무엇을</b>: 마스크 B05-B3 의 불량 스틱 교체 전 <span data-k="n_b"></span>장·교체 후 <span data-k="n_a"></span>장에서 유리별 PPA dx 지표(|평균|+3σ)가 달라졌는지 검토했습니다.</p>
     <p><b>왜 이 검정</b>: 품질이 산포이므로 산포 비교가 핵심입니다. 지표가 양수이고 20개로 정규성을 확인할 수 없어 정규성에 기대지 않는 레빈 검정(중앙값 기준)을 썼고, 평균은 웰치 t와 순위 기반 맨-휘트니로 확인했습니다. 분산비 F검정은 참고로만 계산했습니다.</p>
     <p><b>결과</b>: 지표 평균 <span data-k="mean_b"></span> → <span data-k="mean_a"></span> µm (웰치 p = <span data-k="w_p"></span>, 맨-휘트니 p = <span data-k="mw_p"></span>). 표준편차 <span data-k="sd_b"></span> → <span data-k="sd_a"></span> µm (레빈 W = <span data-k="lm_W"></span>, p = <span data-k="lm_p"></span>; 분산비 F = <span data-k="f_F"></span>, p = <span data-k="f_p"></span>).</p>
-    <p><b>결론</b>: 평균은 <span data-k="w_verdict"></span>(차이 없음으로 보되 같음을 증명한 것은 아님). 산포는 교체 후 줄었고 그 차이는 5% 에서 <span data-k="lm_verdict"></span>.</p>
-    <p><b>조치</b>: 교체 효과를 인정합니다. 이후 유리에서도 산포가 유지되는지 일정 장 수마다 레빈 검정으로 확인하고, 같은 마스크 세트의 다른 마스크에서 특정 스틱 열만 유리마다 크게 흔들리는 패턴이 있는지 열 평균의 유리 간 표준편차로 점검합니다.</p>
+    <p><b>결론</b>: 유리 사이 지표의 평균은 <span data-k="w_verdict"></span>(차이 없음으로 보되 같음을 증명한 것은 아님). 산포는 교체 후 줄었고 그 차이는 5% 에서 <span data-k="lm_verdict"></span>.</p>
+    <p><b>조치</b>: 교체 효과를 인정합니다. 이후 유리에서도 산포가 유지되는지 확인합니다. 이 실험실의 비교가 20장씩이었으므로 20장이 쌓일 때마다 레빈 검정으로 보는 것을 기본으로 하고, 20장이 쌓이기 전에는 이어서 적은 열 평균 점검으로 불량 열이 다시 나타나는지 먼저 봅니다. 같은 마스크 세트의 다른 마스크에서 특정 스틱 열만 유리마다 크게 흔들리는 패턴이 있는지 열 평균의 유리 간 표준편차로 점검합니다.</p>
   </div>
 </section>
 
@@ -886,6 +889,13 @@ print(f"보고: 평균은 {same}, 산포는 교체 후 {disp} (레빈 p={lev['p'
   (function(){
     var cb=colSDs(0,GIVEN),ca=colSDs(1,GIVEN),oB=0,oA=0;
     cb.forEach(function(v,j){if(j!==3)oB=Math.max(oB,v);});ca.forEach(function(v,j){if(j!==3)oA=Math.max(oA,v);});
+    (function(){
+      function pm(ph){var m3=0,mx=0;for(var i=0;i<20;i++){var g=grid(ph,i,GIVEN).map(function(q){return q.dx_um;});m3+=3*sd(g);mx+=Math.abs(mean(g));}return [m3/20,mx/20];}
+      var pb=pm(0),pa=pm(1);
+      setK('m3s_b',f(pb[0],2));setK('m3s_a',f(pa[0],2));setK('mxb_b',f(pb[1],2));setK('mxb_a',f(pa[1],2));
+      setK('idx_mb',f(mean(G.b),2));setK('idx_ma',f(mean(G.a),2));
+      setK('idx_xb',f(Math.max.apply(null,G.b),2));setK('idx_xa',f(Math.max.apply(null,G.a),2));
+    })();
     setK('colsd_b4',f(cb[3],2));setK('colsd_bother',f(oB,2));setK('colsd_a4',f(ca[3],2));setK('colsd_aother',f(oA,2));
   })();
   (function(){
@@ -900,7 +910,7 @@ print(f"보고: 평균은 {same}, 산포는 교체 후 {disp} (레빈 p={lev['p'
     document.getElementById('v3s').innerHTML='교체 전 평균 <b>'+f(G.mb,3)+'</b>, 표준편차 <b>'+f(G.sb,3)+'</b> 이므로 3σ 관리선은 <b>'+f(G.lo3,3)+' ~ '+f(G.hi3,3)+'</b> µm 입니다. 교체 후 '+G.a.length+'장 가운데 관리선 안은 <b>'+G.inside+'장</b>, 밖은 <b>'+(G.a.length-G.inside)+'장</b> → 3σ 비교법의 판정: <b>'+(G.inside===G.a.length?'변화 없음':'변화 있음')+'</b>.';
   })();
   SIM=simulate();
-  setK('sim_trials',SIM.T);
+  setK('sim_trials',SIM.T);setK('sim_sk',f((Math.exp(0.64)+2)*Math.sqrt(Math.exp(0.64)-1),1));
   function pc(x){return f(x*100,1)+'%';}
   setK('sim_n_F',pc(SIM.n.F));setK('sim_n_L',pc(SIM.n.L));setK('sim_s_F',pc(SIM.s.F));setK('sim_s_L',pc(SIM.s.L));
 

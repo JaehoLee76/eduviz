@@ -189,7 +189,7 @@ table.mt td.hit{white-space:normal}
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — 0301의 벡터장과 성분 다섯(평행이동·회전·배율·직교도·고차 성분)의 식, 스틱 무늬와 국소 결함, 열 단면과 튀는 점 찾기, 성분 몫, |평균|+3σ 지표(0102·0103). 표준오차(추정값이 잡음 때문에 흔들리는 폭을 나타내는 표준편차)와 점들에 가장 잘 맞는 직선의 기울기를 구하는 일. 표준오차는 0101에서, 직선 맞추기는 0104에서 다룹니다.</p>
+  <p><b>이미 아시는 것</b> — 0301의 벡터장과 성분 다섯(평행이동·회전·배율·직교도·고차 성분)의 식, 스틱 무늬와 국소 결함, 열 단면과 튀는 점 찾기, 성분 몫, |평균|+3σ 지표(0102·0103). 표준오차(추정값이 잡음 때문에 흔들리는 폭을 나타내는 표준편차)와 점들에 가장 잘 맞는 직선의 기울기를 구하는 일. 표준오차는 0101에서 다뤘고, 점들에 직선을 맞추는 일은 0104의 자기상관 띠와 챔버 안 온도 직선에서 써 봤습니다. &lsquo;가장 잘 맞는&rsquo;이 무슨 뜻인지 정하는 최소제곱이라는 이름과 식은 이 편 3절에서 처음 만듭니다.</p>
   <ul class="chips known"><li>벡터장과 성분 다섯</li><li>열 단면 · 튀는 점 찾기</li><li>|평균|+3σ 지표</li><li>표준오차</li><li>직선의 기울기 구하기</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 일곱 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 일곱 개 말고, 계산에 붙인 이름(단순 평균법·잔차 제곱합·위치 오차·독립인 열의 수·누설 경고)은 쓰는 자리에서 식으로 정의합니다.</p>
   <ul class="chips" id="termList"><li>계수 (coefficient)</li><li>모델 (model)</li><li>잔차 (residual)</li><li>최소제곱 (least squares)</li><li>설계 행렬 (design matrix)</li><li>누설 (leakage)</li><li>식별 (identifiability)</li></ul>
@@ -233,7 +233,7 @@ table.mt td.hit{white-space:normal}
 <div class="eq">
   <span class="eqlab">단순 평균법</span>
   <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em"><mtr><mtd><msub><mover><mi>T</mi><mo>^</mo></mover><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mtext>dx의 평균</mtext><mo>,</mo><mspace width="1em"></mspace><msub><mover><mi>T</mi><mo>^</mo></mover><mi>y</mi></msub><mo>=</mo><mtext>dy의 평균</mtext></mtd></mtr><mtr><mtd><msub><mover><mi>M</mi><mo>^</mo></mover><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mfrac><mrow><mo>∑</mo><mi>x</mi><mo>·</mo><msub><mi>d</mi><mi>x</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>,</mo><mspace width="1em"></mspace><msub><mover><mi>M</mi><mo>^</mo></mover><mi>y</mi></msub><mo>=</mo><mfrac><mrow><mo>∑</mo><mi>y</mi><mo>·</mo><msub><mi>d</mi><mi>y</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></mtd></mtr><mtr><mtd><mover><mi>θ</mi><mo>^</mo></mover></mtd><mtd><mo>=</mo></mtd><mtd><mfrac><mrow><mo>∑</mo><mi>x</mi><mo>·</mo><msub><mi>d</mi><mi>y</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>,</mo><mspace width="1em"></mspace><mover><mi>K</mi><mo>^</mo></mover><mo>=</mo><mfrac><mrow><mo>∑</mo><mi>y</mi><mo>·</mo><msub><mi>d</mi><mi>x</mi></msub></mrow><mrow><mo>∑</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mover><mi>θ</mi><mo>^</mo></mover></mtd></mtr></mtable></math>
-  <span class="note"><i>d<sub>x</sub></i>·<i>d<sub>y</sub></i>는 점마다의 dx·dy입니다. <i>K̂</i>에 θ̂를 더하는 것은 dx를 <i>y</i>에 맞춘 기울기가 <i>K</i> − θ이기 때문입니다.</span>
+  <span class="note"><i>d<sub>x</sub></i>·<i>d<sub>y</sub></i>는 점마다의 dx·dy입니다. <i>K̂</i>에 θ̂를 더하는 것은 dx를 <i>y</i>에 맞춘 기울기가 <i>K</i> − θ이기 때문입니다. θ̂은 dy 줄(θ<i>x</i>)에서 따로 구하므로 θ와 <i>K</i>는 갈립니다. 갈리는 까닭이 dy 줄이 θ를 따로 알려 주기 때문이라는 점은 8절 Q&amp;A에서 독립인 열의 수로 확인합니다.</span>
 </div>
 <p>이 식은 점이 유리 가운데에 대해 대칭으로 놓여 있어서 Σ<i>x</i> = 0, Σ<i>y</i> = 0, Σ<i>xy</i> = 0이어야 성분끼리 서로 끼어들지 않는다는 약속 위에서 나온 것입니다. 점이 하나도 빠지지 않은 77점에서는 이 약속이 지켜집니다. 그런데 현장의 측정 레시피에서는 점이 빠지는 일이 흔합니다. 아래에서 점을 눌러 빼 보십시오.</p>
 <div class="lab">
@@ -272,7 +272,7 @@ table.mt td.hit{white-space:normal}
   <math display="block"><mrow><mtext>RSS</mtext><mo>=</mo><munder><mo>∑</mo><mtext>점 i</mtext></munder><mrow><msup><mrow><mo stretchy="false">(</mo><msub><mi>d</mi><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>d</mi><mo>^</mo></mover><mrow><mi>x</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="false">(</mo><msub><mi>d</mi><mrow><mi>y</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>d</mi><mo>^</mo></mover><mrow><mi>y</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></mrow></math>
   <span class="note"><i>d<sub>x,i</sub></i>는 점 <i>i</i>에서 측정한 dx이고 <i>d̂<sub>x,i</sub></i>는 모델이 그린 값입니다. 최소제곱은 계수 여덟 개(또는 넣은 항의 계수)를 움직여 이 RSS를 가장 작게 만드는 값을 고르는 방법입니다.</span>
 </div>
-<p>모델의 값은 계수에 곱해져 더해지는 꼴이므로 설계 행렬 <i>X</i>와 계수 모음 <i>β</i>의 곱 <i>Xβ</i>로 154개 전부를 한 번에 적을 수 있습니다. 위 RSS를 가장 작게 하는 계수는 연립방정식의 해로 닫힌 식이 나옵니다(푸는 일은 함수가 합니다).</p>
+<p>모델의 값은 계수에 곱해져 더해지는 꼴이므로 설계 행렬 <i>X</i>와 계수 모음 <i>β</i>의 곱 <i>Xβ</i>로 154개 전부를 한 번에 적을 수 있습니다. RSS가 가장 작은 자리에서는 어느 계수를 조금 움직여도 RSS가 더 줄지 않으므로, 잔차가 설계 행렬의 모든 칸과 직각이 됩니다. 이 조건을 계수에 대해 정리한 연립방정식의 해가 닫힌 식으로 나옵니다(이 식의 유도를 이 트랙에서 따라가지는 않고, 푸는 일은 함수가 합니다).</p>
 <div class="eq">
   <span class="eqlab">계수의 해</span>
   <math display="block"><mrow><mover><mi mathvariant="bold">β</mi><mo>^</mo></mover><mo>=</mo><msup><mrow><mo stretchy="false">(</mo><msup><mi mathvariant="bold">X</mi><mo>⊤</mo></msup><mi mathvariant="bold">X</mi><mo stretchy="false">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><msup><mi mathvariant="bold">X</mi><mo>⊤</mo></msup><mi mathvariant="bold">d</mi></mrow></math>
@@ -296,7 +296,7 @@ table.mt td.hit{white-space:normal}
   <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
   <div class="concl" id="conc3"></div>
 </div>
-<p>점이 온전하면 두 방법이 같은 값을 내므로(위 표의 &lsquo;온전한 77점&rsquo; 열은 두 방법에 공통입니다) 최소제곱은 단순 평균법을 일반화한 것입니다. 점이 빠져 비대칭이 되면 단순 평균법은 성분끼리 서로 끼어들고, 최소제곱은 남은 점이 허락하는 만큼 그 끼어듦을 계산 안에서 갈라 줍니다. 대칭으로 빠지면 갈라 줄 것이 없어 둘이 같습니다. θ와 <i>K</i>는 dx 줄에서 <i>y</i> 열이 합쳐져 있어(−θ<i>y</i> + <i>Ky</i>) dx 줄만으로는 갈리지 않고, dy 줄의 θ<i>x</i>가 θ를 따로 정해 줍니다. 그래서 dx와 dy 154줄을 한 행렬로 함께 풉니다.</p>
+<p>점이 온전하면 두 방법이 같은 값을 내므로(위 표의 &lsquo;온전한 77점&rsquo; 열은 두 방법에 공통입니다) 최소제곱은 단순 평균법을 일반화한 것입니다. 두 방법 모두 여섯 계수(고차 성분 없음)만 쓰므로, 고차 성분이 있는 유리에서도 그 몫은 두 방법에 똑같이 Ty 등으로 섞여 들어가 같은 값이 나옵니다(고차 항을 넣는 것은 4절). 점이 빠져 비대칭이 되면 단순 평균법은 성분끼리 서로 끼어들고, 최소제곱은 남은 점이 허락하는 만큼 그 끼어듦을 계산 안에서 갈라 줍니다. 대칭으로 빠지면 갈라 줄 것이 없어 둘이 같습니다. θ와 <i>K</i>는 dx 줄에서 <i>y</i> 열이 합쳐져 있어(−θ<i>y</i> + <i>Ky</i>) dx 줄만으로는 갈리지 않고, dy 줄의 θ<i>x</i>가 θ를 따로 정해 줍니다. 그래서 dx와 dy 154줄을 한 행렬로 함께 풉니다.</p>
 
 <!-- ===================== 4 ===================== -->
 <h2><span class="no">4</span>연습 — 항을 하나씩 넣어 잔차 줄이기</h2>
@@ -322,7 +322,7 @@ table.mt td.hit{white-space:normal}
 </div>
 <div class="qna" data-label="고차 항은 늘 넣어야 하나요?" data-q="고차 항은 늘 넣어야 하나요?">
   <p><b>아닙니다.</b> 고차 항(<i>C<sub>x</sub></i>·<i>C<sub>y</sub></i>)을 넣으면 잔차는 줄지만 계수 하나하나는 더 흔들립니다. 이 유리 A에서 항을 넣기 전후를 보면 RSS는 <span class="q4_r0"></span>에서 <span class="q4_r1"></span>로 줄지만, Ty의 표준오차는 <span class="q4_s0"></span>에서 <span class="q4_s1"></span> µm로 커집니다. 고차 성분이 큰 유리(프레임 휨)가 아니면 넣어서 얻는 것이 작습니다.</p>
-  <p>판단 기준은 &lsquo;그 항을 넣어 줄어드는 RSS가 흔들림 증가를 갚느냐&rsquo;입니다. 고차 성분을 넣을지는 모델의 판으로 기록해 두고, 판이 다른 계수끼리는 섞어 비교하지 않습니다.</p>
+  <p>판단 기준은 &lsquo;그 항을 넣어 줄어드는 RSS가 흔들림 증가를 갚느냐&rsquo;입니다. 숫자로는 이렇게 읽습니다. 잡음뿐인 항을 하나 넣어도 RSS는 평균적으로 σ̂² 만큼 줄어듭니다. 그러므로 줄어든 RSS를 σ̂²로 나눈 값이 넣은 항의 수(여기서는 Cx·Cy 둘)와 비슷하면 잡음 몫만 줄인 것이어서 갚지 못한 것이고, 그보다 훨씬 크면 갚은 것입니다. 시간순 시험 오차로 고르는 더 엄격한 방법은 0305에서 다룹니다. 고차 성분을 넣을지는 모델의 판으로 기록해 두고, 판이 다른 계수끼리는 섞어 비교하지 않습니다.</p>
 </div>
 
 <!-- ===================== 5 ===================== -->
@@ -333,7 +333,7 @@ table.mt td.hit{white-space:normal}
   <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em"><mtr><mtd><mover><mi>σ</mi><mo>^</mo></mover></mtd><mtd><mo>=</mo></mtd><mtd><msqrt><mfrac><mtext>RSS</mtext><mrow><mi>n</mi><mo>−</mo><mi>p</mi></mrow></mfrac></msqrt></mtd></mtr><mtr><mtd><mi>se</mi><mo stretchy="false">(</mo><msub><mover><mi>β</mi><mo>^</mo></mover><mi>j</mi><mo stretchy="false">)</mo></mtd><mtd><mo>=</mo></mtd><mtd><mover><mi>σ</mi><mo>^</mo></mover><msqrt><msub><mrow><mo stretchy="false">[</mo><msup><mrow><mo stretchy="false">(</mo><msup><mi mathvariant="bold">X</mi><mo>⊤</mo></msup><mi mathvariant="bold">X</mi><mo stretchy="false">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">]</mo></mrow><mrow><mi>j</mi><mi>j</mi></mrow></msub></msqrt></mtd></mtr></mtable></math>
   <span class="note">잡음만의 표준오차는 <i>σ̂</i> 자리에 측정 반복성 σ를 넣은 값입니다. <i>j</i>번째 계수의 표준오차는 설계 행렬이 만드는 (<b>X</b>⊤<b>X</b>)<sup>−1</sup>의 <i>j</i>번째 대각 성분에 비례합니다.</span>
 </div>
-<p>이 표준오차는 <b>모델이 완전하고 잔차가 잡음뿐이라는 약속</b> 위에서 성립합니다. 약속이 깨지면 추정은 이 폭보다 더 벗어날 수 있습니다.</p>
+<p>이 표준오차는 <b>모델이 완전하고 잔차가 잡음뿐이라는 약속</b> 위에서 성립합니다. 약속이 깨지면 추정은 이 폭보다 더 벗어날 수 있습니다. 잔차가 점마다 서로 독립이고 퍼짐이 같으며 dx와 dy 잔차가 같은 점에서 서로 상관이 없다는 약속도 함께 들어 있습니다. 이웃 점의 잔차가 닮으면 실제 흔들림은 이 표준오차보다 커서 표준오차가 실제보다 작게 나옵니다. σ̂ 식에서 n이 아니라 n − p로 나누는 것은, 계수 p개를 정하는 데 이미 자료 p개 몫을 썼기 때문입니다(자유도). n으로 나누면 σ를 실제보다 작게 어림합니다.</p>
 <div class="lab">
   <div class="labtitle">추정 − 정답이 표준오차의 몇 배인지 보기</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 먼저 유리 A에서 차이/잡음만의 표준오차 열을 보고 3배가 넘는 계수를 찾으십시오. 2) 불량 스틱 마스크로 바꿔 같은 열을 비교하십시오. 3) 둘째 표의 스틱 누설·국소 결함 누설 열이 그 차이를 얼마나 설명하는지 보십시오.</div>
@@ -344,7 +344,7 @@ table.mt td.hit{white-space:normal}
   <div class="tbwrap"><table id="tab5c" class="mt num"></table></div>
   <div class="concl" id="conc5"></div>
 </div>
-<p>차이가 잡음 폭을 훌쩍 넘는 계수가 있는 이유가 <b>누설 (leakage)</b>입니다. 누설은 모델에 넣지 않은 성분이, 모양이 닮은 다른 계수의 추정값으로 섞여 들어가는 것입니다. 스틱 오프셋(스틱 한 열이 통째로 같은 양만큼 밀린 것)은 열마다 같은 값이어서 평행이동(모든 열 같은 값)과 장변 배율(열 위치에 비례)과 모양이 닮았고, 스틱 피치(스틱 길이 방향으로 간격이 늘거나 줄어든 것)는 단변 배율과 닮았습니다. 둘째 표의 스틱 누설 열은 스틱 무늬만 따로 같은 모델에 맞춘 계수이고, 국소 결함 누설 열은 결함 점만 따로 맞춘 계수입니다. 모델이 식에서 선형이므로 &lsquo;차이 = 스틱 누설 + 국소 결함 누설 + 잡음에서 오는 몫&rsquo;이 정확히 성립합니다.</p>
+<p>차이가 잡음 폭을 훌쩍 넘는 계수가 있는 이유가 <b>누설 (leakage)</b>입니다. 누설은 모델에 넣지 않은 성분이, 모양이 닮은 다른 계수의 추정값으로 섞여 들어가는 것입니다. 스틱 오프셋(스틱 한 열이 통째로 같은 양만큼 밀린 것)은 열마다 같은 값이어서 평행이동(모든 열 같은 값)과 장변 배율(열 위치에 비례)과 모양이 닮았고, 스틱 피치(스틱 길이 방향으로 간격이 늘거나 줄어든 것)는 단변 배율과 닮았습니다. 둘째 표의 스틱 누설 열은 스틱 무늬만 따로 같은 모델에 맞춘 계수이고, 국소 결함 누설 열은 결함 점만 따로 맞춘 계수입니다. 계수를 구하는 식은 측정값 d에 곱셈 한 번으로 들어가는 선형이어서, 측정값이 세 묶음(스틱 무늬·국소 결함·성분과 잡음)의 합이면 계수도 각 묶음만 같은 식에 넣어 구한 값의 합이 됩니다. 그래서 &lsquo;차이 = 스틱 누설 + 국소 결함 누설 + 잡음에서 오는 몫&rsquo;이 정확히 성립하고, 둘째 표의 누설 열은 그 묶음만 측정값 자리에 넣어 구한 계수입니다.</p>
 <p>누설은 점을 늘려도 줄지 않습니다. 열은 11개로 정해져 있어 점이 많아져도 같은 열을 더 많이 재는 것일 뿐입니다(Q&amp;A에서 숫자로 보입니다). 72장 전체에서 계수마다 정답과 추정이 얼마나 어긋나는지 봅니다.</p>
 <div class="lab">
   <div class="labtitle">72장 — 정답 대 추정</div>
@@ -376,7 +376,7 @@ table.mt td.hit{white-space:normal}
   <div class="tbwrap"><table id="tab6" class="mt num"></table></div>
   <div class="concl" id="conc6"></div>
 </div>
-<p>약속을 걸면 해가 하나로 정해지지만, <b>평행이동의 뜻이 약속에 따라 바뀝니다.</b> &lsquo;오프셋의 합 0&rsquo; 약속에서 <i>T̂<sub>x</sub></i>는 스틱 평균까지 품은 평행이동이고, &lsquo;양 끝 열 0&rsquo; 약속에서는 양 끝 열을 기준으로 한 평행이동입니다. 같은 데이터에서 같은 &lsquo;Tx&rsquo;라는 이름이 다른 숫자를 가리키므로, <b>어떤 약속으로 구했는지를 모델의 판과 함께 기록</b>해야 합니다. 기록이 없으면 서로 다른 날의 Tx를 나란히 놓고 비교할 수 없습니다.</p>
+<p>약속을 걸면 해가 하나로 정해지지만, <b>평행이동의 뜻이 약속에 따라 바뀝니다.</b> &lsquo;오프셋의 합 0&rsquo; 약속에서 <i>T̂<sub>x</sub></i>는 스틱 평균까지 품은 평행이동이고, &lsquo;양 끝 열 0&rsquo; 약속에서는 양 끝 열을 기준으로 한 평행이동입니다. 얼라이너가 유리 전체를 한 번에 옮기는 보정값으로 쓴다면 스틱 평균까지 품은 &lsquo;오프셋의 합 0&rsquo; 약속의 값이 화살표 전체의 평균 쏠림에 대응하므로 이쪽을 기본으로 삼고, 양 끝 열을 기준으로 한 값은 정렬 표지가 양 끝 열에 있다고 측정 레시피에 적혀 있을 때만 씁니다. 어느 쪽이든 같은 데이터에서 같은 &lsquo;Tx&rsquo;라는 이름이 다른 숫자를 가리키므로, <b>어떤 약속으로 구했는지를 모델의 판과 함께 기록</b>해야 합니다. 기록이 없으면 서로 다른 날의 Tx를 나란히 놓고 비교할 수 없습니다.</p>
 
 <!-- ===================== 7 ===================== -->
 <h2><span class="no">7</span>잔차 읽기와 보정 효과</h2>
@@ -412,7 +412,7 @@ table.mt td.hit{white-space:normal}
 <p>유리마다 계수 한 줄을 쌓으면 다음과 같은 표가 되고, 이 표의 Mx 열을 챔버 온도·턴 열과 나란히 놓는 것이 0303의 출발점입니다. 아래는 유리 A를 포함한 다섯 장의 첫 모습입니다.</p>
 <div class="tbwrap"><table id="tabQ" class="mt num"></table></div>
 <div class="qna" data-label="dx와 dy를 따로 풀면 안 되나요?" data-q="dx와 dy를 따로 풀면 안 되나요?">
-  <p><b>따로 풀면 θ와 <i>K</i>를 가를 수 없습니다.</b> dx 줄만 보면 θ의 열(−<i>y</i>)과 <i>K</i>의 열(<i>y</i>)이 부호만 다른 같은 열이어서, 두 열을 합친 독립인 열의 수가 <span class="q8_a"></span>입니다. 열은 둘인데 독립인 것은 하나뿐이라 해가 무수히 많습니다.</p>
+  <p><b>dx 줄만 따로 풀면 θ와 <i>K</i>를 가를 수 없습니다.</b> dx 줄만 보면 θ의 열(−<i>y</i>)과 <i>K</i>의 열(<i>y</i>)이 부호만 다른 같은 열이어서, 두 열을 합친 독립인 열의 수가 <span class="q8_a"></span>입니다. 열은 둘인데 독립인 것은 하나뿐이라 해가 무수히 많습니다.</p>
   <p>dx 줄과 dy 줄을 한 행렬로 함께 놓으면 dy 줄의 θ<i>x</i>가 더해져 독립인 열의 수가 <span class="q8_b"></span>가 되고 θ와 <i>K</i>가 갈립니다. 기존의 따로 푸는 방법은 dx에서 (<i>K</i> − θ)를, dy에서 θ를 구해 더해 같은 답을 얻지만, 점을 빼거나 항을 바꾸는 순간 같은 틀로 다룰 수 없어서 이 실험실은 처음부터 함께 풉니다.</p>
 </div>
 

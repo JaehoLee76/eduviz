@@ -198,7 +198,7 @@ td.dim{color:var(--soft)}
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — 0101의 FDC 요약값, 0201의 궤적에서 특징 뽑기, 0206의 상태·전이·사례 기록(<code>links</code>·<code>trace</code>), 0302의 계수 표, 0303의 <code>join_fdc_ppa</code>(못 이은 행 수)와 온도 보정, 0305의 모델 판·센서 판·드리프트 감시. 표·열·행과 CSV 파일.</p>
+  <p><b>이미 아시는 것</b> — 0101 에서 본 장별 정상구간 압력 평균처럼 FDC 곡선을 장마다 한 숫자로 줄인 요약값, 0201의 궤적에서 특징 뽑기, 0206의 상태·전이·사례 기록(<code>links</code>·<code>trace</code>), 0302의 계수 표, 0303의 <code>join_fdc_ppa</code>(못 이은 행 수)와 온도 보정, 0305의 모델 판·센서 판·드리프트 감시. 표·열·행과 CSV 파일.</p>
   <ul class="chips known"><li>FDC 요약값 (0101)</li><li>궤적 → 특징 (0201)</li><li>사례 기록 · links (0206)</li><li>계수 표 (0302)</li><li>FDC·PPA 잇기 · 온도 보정 (0303)</li><li>모델 판 · 센서 판 · 드리프트 감시 (0305)</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 계산에 붙인 이름(되돌아보기 창 · 늦게 온 자료 · 점검 문턱 · 실행 기록)은 쓰는 자리에서 문장으로 정의합니다. SQL 의 핵심 네 마디(SELECT · WHERE · JOIN · GROUP BY)와 집계 함수 COUNT · AVG · SUM, 정렬 ORDER BY, 구간 BETWEEN 은 처음 쓰는 자리에서 한 줄로 풀어 둡니다.</p>
   <ul class="chips" id="termList"><li>파이프라인 (pipeline)</li><li>시간 창 (time window)</li><li>구간 이음 (interval join)</li><li>자료 점검 (data check)</li><li>지문 (fingerprint)</li><li>멱등 (idempotent)</li></ul>
@@ -228,6 +228,7 @@ td.dim{color:var(--soft)}
 <h2><span class="no">1</span>손에 쥔 것 — 사내 시스템이 내놓는 표 네 장</h2>
 <p>가상 공장은 블록 <b>B02·B03</b>의 챔버 1~4, 곧 <b><span class="v_nch"></span>개 챔버</b>입니다. 유리는 챔버마다 <span class="v_ct"></span>분에 한 장씩 증착하고, 턴(<span class="v_nturn"></span>장)이 되풀이됩니다. 모든 유리를 적으면 표가 너무 커지므로, FDC 는 턴 안 순번을 <span class="v_every"></span>으로 나눈 나머지가 <span class="v_rem"></span>인 유리(5·15·…·115번)를 표본으로 적재하고, PPA 는 그 가운데 턴마다 <span class="v_gpt"></span>장(<span class="v_gits"></span>번)만 잽니다. PPA 표의 <code>ppa_metric</code> 은 0301 의 지표(|평균| + 3σ)를 dx 와 dy 각각 구해 큰 쪽입니다(0304 는 dx 만 썼지만 이 가상 공장 표는 둘 중 큰 쪽을 쓰는 약속입니다). 아래 네 장이 사내 DB 가 실제로 받은 모습입니다(가상 이름).</p>
 <div class="tbwrap"><table id="tab1a" class="mt"></table></div>
+<p class="note">&lsquo;적재본&rsquo;은 고장이 섞인 채 사내 DB 가 받은 표입니다. 고장이 없는 정답본은 FDC <span class="v_cnfdc"></span>줄, PPA <span class="v_cnppa"></span>줄이라 줄 수가 다릅니다(0410 이 쓰는 표가 이 정답본입니다).</p>
 <p>표 두 장의 앞부분을 보면 이렇습니다. <code>glass_id</code> 가 두 표를 잇는 키이고, <code>ts</code> 는 유리를 증착한 시각, <code>measured_ts</code> 는 PPA 를 잰 시각입니다. 측정은 증착한 뒤에 합니다(분포 가정: 증착 뒤 <span class="v_dmin"></span>분 + 평균 <span class="v_dmean"></span>분의 지수 분포 지연).</p>
 <div class="tbwrap"><table id="tab1b" class="mt num"></table></div>
 <div class="tbwrap"><table id="tab1c" class="mt num"></table></div>
@@ -246,7 +247,7 @@ td.dim{color:var(--soft)}
   <div class="tbwrap"><table id="tab2" class="mt num"></table></div>
 </div>
 <div class="concl" id="conc2"></div>
-<p><b>여기서 막힙니다.</b> 정답을 겹쳐 보기 전에는 어느 날이 틀렸는지 결과만으로는 가를 수 없습니다. 값이 튄 날이 있어도 그것이 고장 때문인지 공정이 실제로 바뀐 것인지(0101 의 PM 뒤 이동처럼) 알 수 없기 때문입니다. 현장에는 정답이 없습니다. 그러니 결과가 아니라 <b>결과가 나오기 전의 표</b>를 보는 방법이 필요합니다. 먼저 이 일 전체에 이름을 붙이고, 자료를 어떻게 자르고 잇는지부터 짚습니다.</p>
+<p><b>여기서 막힙니다.</b> 정답을 겹쳐 보기 전에는 어느 날이 틀렸는지 결과만으로는 가를 수 없습니다. 값이 튄 날이 있어도 그것이 고장 때문인지 공정이 실제로 바뀐 것인지(0101 의 PM 뒤 이동처럼) 알 수 없기 때문입니다. 현장에는 정답이 없습니다. 0201~0204 의 방법은 값이 평소 흩어짐에서 벗어났는지를 볼 뿐, 튄 까닭이 자료의 고장인지 공정의 변화인지는 가르지 못합니다. 그러니 결과가 아니라 <b>결과가 나오기 전의 표</b>가 약속대로 왔는지를 보는 방법이 필요합니다. 표 점검은 원인이 자료 쪽인지를 분석 전에 못 박아 줍니다. 먼저 이 일 전체에 이름을 붙이고, 자료를 어떻게 자르고 잇는지부터 짚습니다.</p>
 <div class="qna" data-label="엑셀로 잘 하고 있는데 왜 바꾸나요?" data-q="엑셀로 잘 하고 있는데 왜 바꾸나요?">
   <p><b>엑셀로 하는 일이 틀려서가 아니라, 틀린 날을 알아볼 방법이 없기 때문입니다.</b> 이 모의 운전에서 점검 없이 낸 결과는 <span class="q2_w"></span>일이 정답과 달랐는데, 그 가운데 열 이름이 바뀌어 칸이 비었던 날을 빼면, 값이 튀어 보여도 고장 때문인지 공정이 바뀐 것인지 눈으로는 가려지지 않습니다.</p>
   <p>손으로 붙이는 사람도 같은 표를 받으니 같은 고장을 만납니다. 다만 사람은 그날 이상하다고 느낀 것을 기억에만 남기고, 몇 달 뒤에는 &lsquo;언제부터 자료가 이상했나&rsquo;를 답할 기록이 없습니다. 파이프라인은 같은 일을 하되 점검과 실행 기록을 남깁니다.</p>
@@ -327,6 +328,7 @@ WHERE f.ts &gt;= :s AND f.ts &lt; :e</pre>
   <tr><td class="rowh"><code>ts</code> ts 범위·순서</td><td>창 밖 줄 수 + 증착 시각이 측정 시각보다 늦은 줄 수 (0이어야 함, 증착이 측정보다 늦을 수 없음)</td><td>시각대가 어긋남</td></tr>
   <tr><td class="rowh"><code>model</code> 모델 판</td><td>PPA 표의 <code>model_ver</code> 가 몇 종류인가 (1이어야 함)</td><td>계수를 만든 모델이 섞임</td></tr>
 </table></div>
+<p>rows 의 기준(지난 실행의 중앙값)에는 점검에 실패한 날의 행 수도 들어갑니다. 중앙값은 지난 실행 가운데 절반 미만이 이상할 때만 정상 값을 지킵니다. <span id="rowsNote"></span> 비교할 지난 실행이 아직 없는 첫날에는 rows 규칙을 건너뜁니다.</p>
 <p>여덟째는 점검이 아니라 <b>알림</b>입니다. <b>늦게 온 자료</b>란 자기 날 창의 끝(06시)을 지나서 도착한 PPA 줄이고, 지난 실행 뒤에 도착한 이전 날 줄 수를 세어, 되돌아보기 재집계가 필요하다는 신호를 줍니다. 오늘 결과를 막지는 않습니다. 6절에서 다룹니다.</p>
 <div class="lab">
   <div class="labtitle">고른 날의 점검 표와 14일 달력</div>
@@ -369,7 +371,7 @@ WHERE f.ts &gt;= :s AND f.ts &lt; :e</pre>
 <p>에이전트가 이 결과 위에서 판단하려면, 결과가 어느 입력에서 나왔는지를 짧게 증명할 수 있어야 합니다. 이름 두 개가 필요합니다.</p>
 <ul class="termdef">
   <li><b>지문 (fingerprint)</b> — 입력 자료나 출력 결과를 정해진 방식으로 줄인 짧은 문자열(해시)입니다. 다르면 반드시 무언가 바뀐 것이고, 같으면 같은 자료일 가능성이 매우 높습니다(우연히 같아지는 충돌은 드물지만 있을 수 있습니다). 이 실험실은 줄을 <code>glass_id</code> 순으로 정렬해 이은 글자에 FNV-1a 32비트 해시를 씁니다(보안용이 아니라 &lsquo;같은 자료인가&rsquo; 확인용이어서 단순한 해시로 충분합니다).</li>
-  <li><b>멱등 (idempotent)</b> — 같은 날짜로 몇 번을 다시 돌려도 결과 표가 한 벌만 남고 내용이 같은 성질입니다. 덮어쓰기 키는 보고 날짜(<code>run_date</code>)입니다.</li>
+  <li><b>멱등 (idempotent)</b> — 같은 날짜로 몇 번을 다시 돌려도 결과 표가 한 벌만 남고 내용이 같은 성질입니다. 덮어쓰기 키는 보고 날짜(<code>run_date</code>)입니다. 결과 표는 덮어쓰지만 바뀐 사실은 남습니다. 다시 돌릴 때마다 실행 기록에 한 줄이 늘어 입력 지문·출력 지문·사유가 쌓이므로, 이미 읽은 보고의 숫자가 바뀌었는지는 같은 보고 날짜의 앞뒤 출력 지문을 견주면 압니다.</li>
 </ul>
 <p>한 번 돌릴 때마다 한 줄씩 남기는 <b>실행 기록</b>(보고 날짜 · 시간 창 · 행 수 · 지문 · 코드 판 · 점검 결과 · 알림 · 사유)이 이 지문들을 담는 그릇입니다. 0206 의 사례 기록이 <code>links</code> 로 이벤트와 턴을 가리켰듯, 실행 기록은 입력 표의 범위와 지문을 가리킵니다. 이 이름들을 확인하는 방법은 단추 두 개입니다. <b>같은 날 다시 돌리기</b>는 입력이 그대로이니 지문도 결과도 같고 결과 표는 여전히 한 벌이어야 합니다. <b>늦은 자료가 들어온 뒤 다시 돌리기</b>는 입력이 바뀌었으니 지문이 달라지고, 무엇이 바뀌었는지가 보여야 합니다. 두 번째는 6절의 되돌아보기 창(지금 <span class="v_L"></span>일)만큼 뒤의 시각 기준으로 돌립니다.</p>
 <div class="lab">
@@ -760,6 +762,7 @@ function mxDiff(a,b){var m=0,e=false;a.ch.forEach(function(c,i){var t=b.ch[i];if
 
 /* ---- 자료 설명(고정 값) ---- */
 var NF=SS.loaded.fdc.length,NP=SS.loaded.ppa.length,NE=SS.loaded.events.length,NM=SS.loaded.mask_hist.length;
+setAll('v_cnfdc',fmtN(SS.clean.fdc.length));setAll('v_cnppa',fmtN(SS.clean.ppa.length));
 setAll('v_days',String(D));setAll('v_nch',String(NCH));setAll('v_ct',String(CF.CT));setAll('v_nturn',String(CF.N_TURN));setAll('v_every',String(TL.FDC_MOD));setAll('v_rem',String(TL.FDC_REM));
 setAll('v_gpt',String(TL.PPA_GITS.length));setAll('v_gits',TL.PPA_GITS.join('·'));setAll('v_dmin',String(PRM.delay_min));setAll('v_dmean',String(PRM.delay_mean));setAll('v_t0',String(PRM.T_ref));
 setAll('v_slope',sg0(PRM.thermal,3));setAll('v_spec',fmt(PRM.spec,2));setAll('v_hist',String(PRM.hist));setAll('v_man',String(DEF.man));
@@ -891,6 +894,14 @@ function ft(c,r){
 }
 function upd5(){
   var Rn=R(),d=Rn.days[ST.day-1],M=MET(),days=Rn.days,r=Rn.rules;
+  (function(){
+    function md(a){var b=a.slice().sort(function(x,y){return x-y;}),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;}
+    var cl=days.filter(function(x){return x.faults.length===0;}).map(function(x){return x.n_fdc;}),nf=days.filter(function(x){return x.faults.length>0;}).length;
+    if(!cl.length){$('rowsNote').textContent='';return;}
+    var cm=md(cl),worst=0,wk=0;
+    for(var k=2;k<=D;k++){var h=histOf(k).fdc;if(!h.length)continue;var dv=Math.abs(md(h)/cm-1);if(dv>worst){worst=dv;wk=k;}}
+    $('rowsNote').textContent='이 모의 운전은 고장이 든 날이 '+nf+'/'+D+'일이라, 고장 없는 날의 FDC 행 수(중앙값 '+fmtN(cm)+'줄)와 견줄 때 지난 실행의 중앙값이 최대 '+pct(worst,0)+' 어긋난 날('+wk+'일째)이 있습니다. 고장이 이렇게 잦은 현장에서는 지난 실행 대신 사람이 정상이라 확인한 날의 행 수를 기준으로 고정하고, 기준을 바꿀 때는 사람이 승인합니다.';
+  })();
   var rows=d.checks.map(function(c){return [c.name,fv(c),ft(c,r),c.pass?'통과':'<b>실패</b>'];});
   rows.push(['알림: 늦게 온 자료',fmtN(d.late_notice)+'줄','—','되돌아보기 재집계 신호']);
   tbl('tab5',['규칙','이 날의 값','문턱','결과'],rows,[null,null,null,function(c){return c.indexOf('실패')>=0?'hit':(c==='통과'?'good':'');}]);
@@ -933,7 +944,9 @@ function upd6(){
   $('sLO').textContent=L+'일';var moved=L!==DEF.L,st=$('st6');st.className=moved?'state moved':'state';st.textContent=moved?'지금은 기본 되돌아보기 창('+DEF.L+'일)에서 옮겨 놓은 값입니다.':'지금 되돌아보기 창은 기본값입니다('+DEF.L+'일).';
   var rows=[];for(var i=0;i<=7;i++){var a=TL.late4(SS,i),r=R(i),w=r.days.filter(function(d){return d.wrong_final;}).length;rows.push([i+'일'+(i===L?' ◀':''),pct(a.ratio,1),fmtN(reruns(i)),w0+' → '+w]);}
   tbl('tab6',['되돌아보기 창','바로잡힌 늦은 줄 비율','다시 돌리는 하루치 실행 수(14일 동안)','정답과 다른 날: 첫 실행 → 되돌아보기 뒤'],rows);
-  $('conc6').innerHTML='<b>창 끝을 지나 도착한 PPA 줄은 '+fmtN(l4.late)+'줄이고, 되돌아보기 창 '+L+'일이면 그 가운데 '+pct(l4.ratio,1)+'를 바로잡습니다.</b> 그 값은 하루치를 '+fmtN(reruns(L))+'번 더 돌리는 값입니다. 정답과 다른 날은 첫 실행 '+w0+'일에서 되돌아보기 뒤 '+wf+'일이 됩니다. 되돌아보기는 도착 지연이 창 안에 드는 줄만 구하고, 며칠 뒤에 오는 줄은 창을 늘려도 비용만 늘어납니다.';
+  var rt=[],wt=[];for(var q=0;q<=7;q++){rt.push(TL.late4(SS,q).ratio);wt.push(R(q).days.filter(function(d){return d.wrong_final;}).length);}
+  var Ld=0;while(Ld<7&&wt[Ld]>wt[7])Ld++;var Lr=0;while(Lr<7&&rt[Lr]<0.9)Lr++;
+  $('conc6').innerHTML='<b>창 끝을 지나 도착한 PPA 줄은 '+fmtN(l4.late)+'줄이고, 되돌아보기 창 '+L+'일이면 그 가운데 '+pct(l4.ratio,1)+'를 바로잡습니다.</b> 그 값은 하루치를 '+fmtN(reruns(L))+'번 더 돌리는 값입니다. 정답과 다른 날은 첫 실행 '+w0+'일에서 되돌아보기 뒤 '+wf+'일이 됩니다. 되돌아보기는 도착 지연이 창 안에 드는 줄만 구하고, 며칠 뒤에 오는 줄은 창을 늘려도 비용만 늘어납니다. 창을 고르는 기준은 두 가지입니다. 정답과 다른 날 수가 더는 줄지 않는 가장 작은 창은 '+Ld+'일('+reruns(Ld)+'번)이고, 바로잡힌 줄 비율이 90% 를 넘는 가장 작은 창은 '+Lr+'일('+reruns(Lr)+'번)입니다. 날 수는 하루 단위의 거친 자라서 '+Ld+'일에서 멈추지만, 줄 비율은 보고 숫자가 정답에 가까워지는 정도를 보여 줍니다. 어느 쪽을 쓸지는 보고 숫자를 얼마나 정확히 믿어야 하는지에 달려 있어 현장이 정하며, 이 실험실의 기본값은 줄 비율 쪽입니다.';
 }
 function draw6(){
   var cv=$('cv6'),L=ST.L,NB=22,bw=6,cnt=[],ok=[],i,mx=1;
@@ -992,7 +1005,7 @@ function upd8(){
     ['3) 사람이 볼 실패 알림',nfail+'건 / '+D+'일',pa('n_fail',0)+'건'],
     ['부수) 되돌아보기 창 '+ST.L+'일이 바로잡은 늦은 자료',pct(M.late_fixed,0),DIST?pct(quant(dcol('late_fixed'),.5),0)+' ('+pct(quant(dcol('late_fixed'),.1),0)+'~'+pct(quant(dcol('late_fixed'),.9),0)+')':'계산 중']]);
   var ok=days.filter(function(d){return d.pass;}),okw=ok.filter(function(d){return d.wrong;}).length;
-  $('land').innerHTML='<b>이 자동 보고는 &lsquo;점검을 통과한 날의 것만&rsquo; 믿으십시오.</b> 점검 없이는 '+D+'일 가운데 '+M.wrong+'일이 틀렸는데 어느 날인지 알 수 없었습니다. 점검을 붙이면 통과한 '+ok.length+'일 가운데 틀린 날이 '+okw+'일이고, 사람은 실패 알림 '+nfail+'건('+D+'일 중)만 처리하면 됩니다. 다만 점검이 모든 고장을 알아보는 것은 아닙니다. 고장이 든 날 중 점검이 못 잡은 날이 '+(M.n_fault_days-Math.round(M.caught_ratio*M.n_fault_days))+'일 있고, 시드 200개로 보면 놓친 날이 0이 아닌 시드도 있습니다. 이 모의 운전은 고장을 일부러 많이(고장이 든 날 '+days.filter(function(d){return d.faults.length>0;}).length+'/'+D+'일) 넣어서 알림도 많습니다. 현장에서 알림이 이만큼 오면 점검 문턱보다 자료를 보내는 쪽을 먼저 고칩니다. 이 숫자는 이 가상 공장의 고장 여섯 가지에 대한 값이고, 현장의 고장은 다르게 생길 수 있어 실행 기록을 쌓으며 규칙을 늘립니다.';
+  $('land').innerHTML='<b>이 자동 보고는 &lsquo;점검을 통과한 날의 것만&rsquo; 믿으십시오.</b> 점검 없이는 '+D+'일 가운데 '+M.wrong+'일이 틀렸는데 어느 날인지 알 수 없었습니다. 점검을 붙이면 통과한 '+ok.length+'일 가운데 틀린 날이 '+okw+'일이고, 사람은 실패 알림 '+nfail+'건('+D+'일 중)만 처리하면 됩니다. 다만 점검이 모든 고장을 알아보는 것은 아닙니다. 고장이 든 날 중 점검이 못 잡은 날이 '+(M.n_fault_days-Math.round(M.caught_ratio*M.n_fault_days))+'일 있고, 시드 200개로 보면 놓친 날이 0이 아닌 시드도 있습니다. 놓침은 통과한 '+ok.length+'일 가운데서만 나올 수 있으므로, 통과한 날이 적을수록 놓침이 나올 기회도 적습니다. 현장에서는 실행 기록을 몇 달 쌓은 뒤에 다시 세어 보아야 합니다. 이 모의 운전은 고장을 일부러 많이(고장이 든 날 '+days.filter(function(d){return d.faults.length>0;}).length+'/'+D+'일) 넣어서 알림도 많습니다. 현장에서 알림이 이만큼 오면 점검 문턱보다 자료를 보내는 쪽을 먼저 고칩니다. 그 쪽은 실패한 규칙이 가리키는 표(cols 는 열 이름이 바뀐 표, model 은 PPA 표 등)를 적재하는 시스템의 담당자입니다. 요구할 것은 열 이름·단위·모델 판을 바꾸기 전에 날짜가 적힌 공지와, 늦게 오는 자료의 도착 시한입니다. 담당 부서의 이름은 회사마다 달라 사내 조직도에서 찾습니다. 이 숫자는 이 가상 공장의 고장 여섯 가지에 대한 값이고, 현장의 고장은 다르게 생길 수 있어 실행 기록을 쌓으며 규칙을 늘립니다.';
 }
 
 /* ---- 9절 ---- */
@@ -1007,7 +1020,7 @@ function upd9(){
     ['점검이 막은 틀린 보고',wrongFail+'일 × '+ST.loss+'장',fmtN(wrongFail*ST.loss)+'장'],
     ['점검 없이 냈다면 틀린 보고',M.wrong+'일 × '+ST.loss+'장',fmtN(M.wrong*ST.loss)+'장'],
     ['점검을 통과하고도 틀린 보고(놓침)',M.missed+'일 × '+ST.loss+'장',fmtN(M.missed*ST.loss)+'장']]);
-  $('con9').innerHTML='<b>'+D+'일 동안 사람 손 '+fmt(saved,1)+'시간을 아끼고 알림 처리에 '+fmt(spent,1)+'시간을 씁니다(순 '+sgn(saved-spent,1)+'시간). 점검이 막은 틀린 보고는 '+wrongFail+'일, 점검을 통과하고도 남은 틀린 보고는 '+M.missed+'일입니다.</b> '+(M.missed===0?'이 가상 공장에서는 놓친 날이 없습니다. ':'')+'알림이 온 '+nfail+'일 가운데 결과가 정답과 같았던 날이 '+days.filter(function(d){return !d.pass&&!d.wrong;}).length+'일 있어, 그 알림은 확인만 하고 다시 돌립니다. 시드 200개로 보면 놓친 날의 분포는 '+(DIST?c3(dcol('missed'),0)+'일':'계산 중')+'입니다.';
+  $('con9').innerHTML='<b>'+D+'일 동안 사람 손 '+fmt(saved,1)+'시간을 아끼고 알림 처리에 '+fmt(spent,1)+'시간을 씁니다(순 '+sgn(saved-spent,1)+'시간). 점검이 막은 틀린 보고는 '+wrongFail+'일, 점검을 통과하고도 남은 틀린 보고는 '+M.missed+'일입니다.</b> '+(M.missed===0?'이 가상 공장에서는 놓친 날이 없습니다. ':'')+'알림이 온 '+nfail+'일 가운데 결과가 정답과 같았던 날이 '+days.filter(function(d){return !d.pass&&!d.wrong;}).length+'일 있어, 그 알림은 확인만 하고 다시 돌립니다. 그 날들도 알림 처리 시간(위 표의 '+nfail+'건)에는 들어 있지만, 확인하고 다시 돌릴 때까지 보고가 늦어지는 비용은 이 표에 따로 적지 않았으니 현장 값으로 더해 읽으십시오. 시드 200개로 보면 놓친 날의 분포는 '+(DIST?c3(dcol('missed'),0)+'일':'계산 중')+'입니다.';
 }
 
 /* ---- 11절 ---- */

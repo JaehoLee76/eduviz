@@ -4912,7 +4912,7 @@ chk('0606 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절
     o6_term == 6 and o6_nq == 4 and o6_nsec == 15 and o6_nmath == 2 and o6_fonts and min(o6_fonts) >= 11 and not o6_endda and o6_p605.count('0606-offline-rl-frontier.html') == 2 and o6_pg.count('0605-policy-learning-in-twin.html') == 2
     and o6_hub6 and o6_dv <= o6_dvdef and all(s in o6_pg for s in o6_slid) and not o6_qna.count('%') and o6_nums and max(o6_nums) <= 15 and min(o6_nums) >= 1
     and (o6_gets | o6_sync) <= (o6_ids_pg | o6_dyn) and not _re5.search(r'Math\.random|Date\.now|new Date', o6_mod) and not _re5.search(r'Math\.random|Date\.now', o6_app) and not _re5.search(r'Math\.random|Date\.now', o6_tb[:3000])
-    and _re5.search(r'<p>이 트랙은 <a href="0101-pm-mean-shift\.html">0101</a>.*?되돌아갑니다\.</p>\s*\n\s*<nav class="labnav bot">', o6_pg, _re5.S) is not None,
+    and _re5.search(r'<p>이 트랙은 <a href="0101-pm-mean-shift\.html">0101</a>[^<]*(?:<(?!/p>)[^<]*)*0101 처럼[^<]*</p>\s*\n\s*<nav class="labnav bot">', o6_pg, _re5.S) is not None,
     f'용어 {o6_term} · Q&A {o6_nq} · 절 {o6_nsec} · MathML {o6_nmath} · 캔버스 글자 최소 {min(o6_fonts) if o6_fonts else None}px({len(o6_fonts)}곳) · -다 끝맺음 {len(o6_endda)}건({o6_endda[:3]}) · 0605 쪽 링크 {o6_p605.count("0606-offline-rl-frontier.html")}곳 · 미정의 data-v {sorted(o6_dv - o6_dvdef)} · 없는 id {sorted((o6_gets | o6_sync) - (o6_ids_pg | o6_dyn))} · 슬라이더 어긋남 {[s[:12] for s in o6_slid if s not in o6_pg]} · 절 참조 {sorted(set(o6_nums))}')
 o6_cleanup = shutil.rmtree(o6_td, ignore_errors=True)
 

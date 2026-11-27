@@ -184,8 +184,8 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — PPA(증착된 화소가 목표 자리에서 벗어난 정도, 점마다 가로 dx·세로 dy, 단위 µm)와 그 품질 지표 |평균|+3σ(0102·0103), 불량 스틱(스틱 한 줄이 통째로 어긋난 마스크, 0102), 같은 77점을 리페어 전후로 맞대어 보는 대응 비교(0103), 마스크 번호·턴·챔버를 잇는 연결 키(0206 사례 기록의 <code>links</code>).</p>
-  <ul class="chips known"><li>PPA와 |평균|+3σ 지표</li><li>불량 스틱</li><li>리페어 전후 대응 비교</li><li>마스크·턴·챔버 연결 키</li></ul>
+  <p><b>이미 아시는 것</b> — PPA(증착된 화소가 목표 자리에서 벗어난 정도, 점마다 가로 dx·세로 dy, 단위 µm)와 그 품질 지표 |평균|+3σ(0102·0103), 불량 스틱(스틱 한 줄이 통째로 어긋난 마스크, 0102), 같은 77점을 리페어 전후로 맞대어 보는 대응 비교(0103), 사례 기록을 마스크의 상태 궤적에 붙이는 이벤트 번호·턴 연결(0206 사례 기록의 <code>links</code>).</p>
+  <ul class="chips known"><li>PPA와 |평균|+3σ 지표</li><li>불량 스틱</li><li>리페어 전후 대응 비교</li><li>사례 기록의 이벤트·턴 연결</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 여덟 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여덟 개 말고, 계산 방법에 붙인 이름(성분 몫·열 단면·튀는 점 찾기·크기 지도)은 쓰는 자리에서 계산식으로 정의합니다.</p>
   <ul class="chips" id="termList"><li>벡터장 (vector field)</li><li>화살표 배율 (arrow scale)</li><li>성분 (component)</li><li>평행이동 (translation)</li><li>회전 (rotation)</li><li>배율 (magnification)</li><li>직교도 (orthogonality)</li><li>고차 성분 (higher-order component)</li></ul>
 </div>
@@ -203,7 +203,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
 </div>
 
 <div class="prob">
-  <b class="tg">[문제]</b> 두 마스크의 측정 유리 <b>A(<span id="p_ia"></span>)</b>와 <b>B(<span id="p_ib"></span>)</b>가 있습니다. 같은 77점 격자를 쟀고, dx의 |평균|+3σ 지표는 A가 <b><span id="p_ma"></span> µm</b>, B가 <b><span id="p_mb"></span> µm</b>로 거의 같습니다. 이 가상 공장의 spec(8절에서 만듭니다)에서는 둘 다 안에 듭니다.<br>
+  <b class="tg">[문제]</b> 두 마스크의 측정 유리 <b>A(<span id="p_ia"></span>)</b>와 <b>B(<span id="p_ib"></span>)</b>가 있습니다. 같은 77점 격자를 쟀고, dx의 |평균|+3σ 지표는 A가 <b><span id="p_ma"></span> µm</b>, B가 <b><span id="p_mb"></span> µm</b>로 거의 같습니다. 이 가상 공장의 spec은 <b><span id="p_sp"></span> µm</b>이고 둘 다 그 안에 듭니다. spec은 불량 스틱이 없는 마스크의 지표 분포에서 뽑은 값이므로(정하는 법은 8절), 판정을 받는 유리 A·B가 아니라 정상 마스크 집단이 정합니다.<br>
   <b>(1) 두 유리에 같은 조치를 해도 됩니까? (2) 둘 다 같은 이유로 이 값이 되었습니까? (3) 각각 누가 손을 대야 합니까?</b>
   <p class="note" style="margin:.5rem 0 0">지표 두 숫자만으로는 답할 수 없다는 것을 1절에서 확인하고, 화살표로 그린 맵으로 2~6절에서 답을 만든 뒤, 7절에서 이 물음으로 돌아옵니다.</p>
 </div>
@@ -251,7 +251,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
 
 <!-- ===================== 3 ===================== -->
 <h2><span class="no">3</span>무늬에 이름을 붙이면 — 성분 다섯과 고차</h2>
-<p>77개의 화살표를 눈으로 훑어서는 &lsquo;무엇이 원인인가&rsquo;가 나오지 않습니다. 그런데 어긋남의 원인은 대개 유리 전체에 걸친 규칙적인 무늬를 만듭니다. <b>성분 (component)</b>은 하나의 원인이 만드는, 유리 전체에 걸친 규칙적인 화살표 무늬입니다. 실제 맵은 성분들을 더한 것에 측정 잡음이 얹힌 모양입니다. 점의 위치를 가운데에서 잰 <i>x</i>(장변 방향)·<i>y</i>(단변 방향)를 m 단위로 쓰면 성분 다섯의 합은 다음과 같습니다.</p>
+<p>77개의 화살표를 눈으로 훑어서는 &lsquo;무엇이 원인인가&rsquo;가 나오지 않습니다. 그런데 어긋남의 원인은 대개 유리 전체에 걸친 규칙적인 무늬를 만듭니다. <b>성분 (component)</b>은 하나의 원인이 만드는, 유리 전체에 걸친 규칙적인 화살표 무늬입니다. 실제 맵은 성분들에 4절의 스틱·국소 결함을 더하고 측정 잡음이 얹힌 모양입니다. 점의 위치를 가운데에서 잰 <i>x</i>(장변 방향)·<i>y</i>(단변 방향)를 m 단위로 쓰면 성분 다섯의 합은 다음과 같습니다.</p>
 <div class="eq">
   <span class="eqlab">성분의 합 (µm)</span>
   <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em">
@@ -260,6 +260,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
   </mtable></math>
   <span class="note">T는 µm, θ·M·K는 µm/m, C는 µm/m²입니다. M의 µm/m는 ppm과 같은 뜻이고, 유리 1 m당 몇 µm 늘어났는가를 말합니다.</span>
 </div>
+<p><b>이 식은 어디서 왔을까요?</b> 증명한 식이 아니라 77점의 위치 <i>x</i>·<i>y</i>에 대해 낮은 차수부터 무늬를 세워 원인의 이름을 붙인 약속입니다. 위치에 상관없이 같은 값이면 평행이동, 위치에 비례하면서 가운데를 도는 방향(−<i>y</i>, <i>x</i>)이면 회전, 위치에 비례해 바깥으로 뻗으면 배율, 한 방향이 <i>y</i>에만 비례해 기울면 직교도입니다. 이 넷으로 설명되지 않는 휨은 가장 낮은 차수 둘, 곧 dx가 <i>x·y</i>에 비례하는 사다리꼴과 dy가 <i>x</i>²에 비례하는 휨만 고차 성분으로 두었습니다(이 가상 공정이 정한 두 무늬이고 더 높은 차수는 두지 않았습니다). 이 다섯으로 모자라는 맵이 나오면 항을 늘려야 하고, 모자란지는 0302에서 잔차로 확인합니다.</p>
 <p>식의 항마다 이름과 무늬가 있습니다.</p>
 <ul class="termdef">
   <li><b>평행이동 (translation)</b> <i>T<sub>x</sub></i>·<i>T<sub>y</sub></i> — 모든 화살표가 같은 방향·같은 크기입니다. 마스크를 유리에 맞추는 얼라인이나 챔버 정렬이 한쪽으로 쏠렸을 때 생깁니다.</li>
@@ -296,7 +297,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
   <div class="concl" id="conC"></div>
 </div>
 <p>화면의 화살표 배율은 2절의 기준값으로 고정되어 있어 슬라이더를 움직여도 눈금자가 바뀌지 않습니다. 맵의 모양이 바뀌는 것은 성분 값이 바뀌어서입니다. 이 슬라이더 화면은 스틱 무늬·국소 결함·측정 잡음이 없는 &lsquo;깨끗한 성분 합&rsquo;이어서 위쪽 단추로 불러온 유리 A·B의 값에서도 1절의 측정 지표와 다소 다릅니다.</p>
-<p>마지막으로 한 가지 더 필요합니다. 맵 하나에서 어느 성분이 얼마나 큰지를 말하려면 크기를 재야 합니다. 성분 하나만으로 77점의 어긋남 제곱합 Σ(dx²+dy²)을 구하고, 일곱 묶음(성분 다섯과 4절의 스틱·국소 결함)의 제곱합을 모두 더한 값으로 나눈 것을 그 성분의 <b>성분 몫</b>이라 부릅니다. 몫의 합은 1이고, 몫이 가장 큰 성분을 그 맵의 <b>주된 성분</b>이라 합니다. 성분끼리 겹치는 부분(교차항)은 따로 세지 않습니다.</p>
+<p>마지막으로 한 가지 더 필요합니다. 맵 하나에서 어느 성분이 얼마나 큰지를 말하려면 크기를 재야 합니다. 성분 하나만으로 77점의 어긋남 제곱합 Σ(dx²+dy²)을 구하고, 일곱 묶음(성분 다섯과 4절의 스틱·국소 결함)의 제곱합을 모두 더한 값으로 나눈 것을 그 성분의 <b>성분 몫</b>이라 부릅니다. 몫의 합은 1이고, 몫이 가장 큰 성분을 그 맵의 <b>주된 성분</b>이라 합니다. 성분끼리 겹치는 부분(교차항)은 따로 세지 않으므로, 이 몫은 &lsquo;실제 전체 제곱합 가운데 성분이 차지한 비율&rsquo;이 아니라 &lsquo;일곱 묶음끼리 나눠 가진 비율&rsquo;입니다. 스틱과 국소 결함은 성분 식이 없지만, 가상 데이터라서 정답을 알기 때문에 그 묶음만으로 화살표를 만들 수 있습니다(스틱은 열마다 같은 값만큼 민 dx와 길이 방향 늘어남 dy, 국소 결함은 결함 점의 어긋남).</p>
 <div class="eq">
   <span class="eqlab">성분 몫</span>
   <math display="block"><mrow><msub><mi>s</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mtext>77점</mtext></munder><mo stretchy="false">(</mo><msubsup><mi>d</mi><mrow><mi>x</mi><mo>,</mo><mi>c</mi></mrow><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>d</mi><mrow><mi>y</mi><mo>,</mo><mi>c</mi></mrow><mn>2</mn></msubsup><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mtext>성분 </mtext><msup><mi>c</mi><mo>′</mo></msup></mrow></munder><munder><mo>∑</mo><mtext>77점</mtext></munder><mo stretchy="false">(</mo><msubsup><mi>d</mi><mrow><mi>x</mi><mo>,</mo><msup><mi>c</mi><mo>′</mo></msup></mrow><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>d</mi><mrow><mi>y</mi><mo>,</mo><msup><mi>c</mi><mo>′</mo></msup></mrow><mn>2</mn></msubsup><mo stretchy="false">)</mo></mrow></mfrac></mrow></math>
@@ -306,7 +307,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
 <!-- ===================== 4 ===================== -->
 <h2><span class="no">4</span>한 열만, 한 점만 — 스틱과 국소 결함</h2>
 <p>성분 다섯은 유리 전체에 걸친 무늬였습니다. 0102·0103에서 만난 두 가지는 모양이 다릅니다. 스틱은 마스크의 세로줄이어서 불량 스틱 하나가 맵의 <b>한 열</b>을 통째로 같이 밀고, 국소 결함은 <b>한 점</b>만 튑니다. 둘 다 몇 점 안 되어서 77점으로 줄인 지표에는 거의 묻힙니다. 아래 두 계산이 각각의 모양을 찾습니다.</p>
-<p><b>열 단면</b>은 열마다 dx 평균 <i>c<sub>j</sub></i>(세로 7점의 평균)를 구하고, 이웃 열로 예측한 값과의 차를 로버스트 z로 바꾼 것입니다. 안쪽 열은 양쪽 이웃 열의 평균으로, 바깥 열은 안쪽 두 열을 직선으로 이어 예측합니다(배율 같은 완만한 기울기는 예측에 이미 들어 있습니다). 잔차의 퍼짐은 열마다 다르므로 안쪽 열은 √1.5, 바깥 열은 √6으로 나눠 같은 눈금으로 맞춥니다. 로버스트 z는 중앙값과 중앙값 절대편차(MAD)로 구해 한두 열이 튀어도 척도가 끌려가지 않게 합니다.</p>
+<p><b>열 단면</b>은 열마다 dx 평균 <i>c<sub>j</sub></i>(세로 7점의 평균)를 구하고, 이웃 열로 예측한 값과의 차를 로버스트 z로 바꾼 것입니다. 안쪽 열은 양쪽 이웃 열의 평균으로, 바깥 열은 안쪽 두 열을 직선으로 이어 예측합니다(배율 같은 완만한 기울기는 예측에 이미 들어 있습니다). 잔차의 퍼짐은 열마다 다르므로 안쪽 열은 √1.5, 바깥 열은 √6으로 나눠 같은 눈금으로 맞춥니다. 1.5와 6은 이렇게 나옵니다. 열 평균마다 잡음의 분산이 같은 <i>v</i>라면, 안쪽 열과 양 이웃 평균의 차는 분산이 <i>v</i> + <i>v</i>/2 = 1.5<i>v</i>이고, 바깥 열과 직선 연장 예측(2<i>c</i><sub>1</sub> − <i>c</i><sub>2</sub>)의 차는 <i>v</i> + 4<i>v</i> + <i>v</i> = 6<i>v</i>입니다. 로버스트 z는 중앙값과 중앙값 절대편차(MAD)로 구해 한두 열이 튀어도 척도가 끌려가지 않게 합니다.</p>
 <div class="eq">
   <span class="eqlab">열 단면의 로버스트 z</span>
   <math display="block"><mtable columnalign="right center left" columnspacing="0.3em" rowspacing="0.7em">
@@ -365,7 +366,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
 
 <!-- ===================== 7 ===================== -->
 <h2><span class="no">7</span>착지 — 처음 물음으로 돌아가서</h2>
-<p>이 실험실을 시작한 물음은 지표가 같은 두 유리 A·B였습니다. 5~6절의 성분 몫으로 답을 채웁니다.</p>
+<p>이 실험실을 시작한 물음은 지표가 같은 두 유리 A·B였습니다. 3절에서 정의한 성분 몫을 A·B의 정답 성분에 적용해 답을 채웁니다. 5~6절은 같은 읽기를 다른 유리로 연습한 곳이어서 A·B는 거기서 뺐습니다.</p>
 <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
 <div class="concl" id="land"></div>
 <p>맵을 읽어 얻은 결론은 조치와 담당으로 이어져야 쓸모가 있습니다. 무늬마다 누가 손을 대는지를 표로 둡니다.</p>
@@ -386,7 +387,7 @@ label.cb .cbv{font-weight:400;color:var(--soft);font-size:.82rem}
   <tr><td class="rowh">규칙</td><td>지표의 spec 판정 · 열 단면 기준(|z| ≥ 3.5) · 튀는 점 기준(z ≥ 4) · 비교하는 맵의 화살표 배율을 같게 두기</td></tr>
   <tr><td class="rowh">에이전트</td><td>맵 그리기 · 성분 몫 계산 · 판독 초안 쓰기 · 판독 결과를 사례 기록으로 정리</td></tr>
 </table></div>
-<p>0206의 사례 기록과도 이어집니다. 판독 결과는 사례 기록의 <code>evidence</code>(맵 배율과 성분 몫, 열 단면·튀는 점 결과)와 <code>decision</code>(조치와 담당)이 되고, <code>links</code>의 마스크 번호·유리 번호·턴·챔버로 그 마스크의 상태 궤적에 붙습니다.</p>
+<p>0206의 사례 기록과도 이어집니다. 판독 결과는 사례 기록의 <code>evidence</code>(맵 배율과 성분 몫, 열 단면·튀는 점 결과)와 <code>decision</code>(조치와 담당)이 되고, <code>links</code>의 이벤트 번호와 턴(블록·세트·턴)으로 그 마스크의 상태 궤적에 붙습니다. 유리 번호와 챔버 온도는 0206의 <code>links</code>에 없는 칸이므로, PPA 표와 FDC 표를 같은 <code>glass_id</code>로 이어 따로 붙여야 합니다(10절).</p>
 
 <!-- ===================== 8 ===================== -->
 <h2><span class="no">8</span>현장에서 환산하면</h2>
@@ -579,6 +580,7 @@ Mx=2 만: dx 지표 2.865 · K=3.077 만: dx 지표 2.865</pre>
       <li><b>연결</b> — 유리–마스크–턴–챔버–챔버 온도.</li>
       <li><b>판독 라벨과 조치·결과</b> — 무늬 종류(성분 이름), 권한 조치, 다음 측정에서 확인한 결과.</li>
     </ul>
+    <p>연결 항목의 앞쪽(마스크·턴)은 0206의 <code>links</code>가 이미 갖고 있고, 유리 번호와 챔버 온도는 이 실험실이 새로 요구하는 칸입니다.</p>
     <p>부호 약속이 기록마다 다르면 수백 장을 쌓아도 평균을 낼 수 없습니다. 이 72장의 dx 평균을 마스크마다 구해 평균하면 <b id="sg_a"></b> µm인데, 홀수 번째 마스크의 부호만 반대로 적었다면 <b id="sg_b"></b> µm가 되어 평행이동이 어느 쪽으로 쏠리는지 알 수 없게 됩니다.</p>
   </div>
   <div class="card" style="margin:0">
@@ -698,7 +700,7 @@ function popCount(pq,zt){
 var P0=popCount(95,3.5);
 (function(){
   setT('i_n',IT.length);setT('i_d',fmt(Math.abs(PA.metric.dx_metric-PB.metric.dx_metric),3));setT('i_b',P0.bad);setT('i_m',P0.miss);
-  setT('p_ia',PA.mask_id);setT('p_ib',PB.mask_id);setT('p_ma',fmt(PA.metric.dx_metric,3));setT('p_mb',fmt(PB.metric.dx_metric,3));
+  setT('p_ia',PA.mask_id);setT('p_ib',PB.mask_id);setT('p_ma',fmt(PA.metric.dx_metric,3));setT('p_sp',fmt(P0.spec,3));setT('p_mb',fmt(PB.metric.dx_metric,3));
 })();
 
 /* ---- 1절 ---- */
@@ -822,7 +824,7 @@ function updF(){
     '<tr><td class="rowh">그중 dx 지표가 spec 안</td><td>'+r.defIn+'</td></tr>'+
     '<tr><td class="rowh">그중 튀는 점 찾기(z ≥ 4)가 결함 점을 표시</td><td>'+r.defFound+'</td></tr>'+
     '<tr><td class="rowh">결함 없는 마스크 한 장당 튀는 점 헛표시 (평균, 개)</td><td>'+fmt(r.ptFalse/Math.max(1,r.nNoDef),2)+'</td></tr>';
-  $('conF').innerHTML='<b>불량 스틱 마스크 '+r.bad+'장 가운데 '+r.miss+'장은 지표가 spec 안이어서 지표만 보면 지나가고, 열 단면은 그중 '+r.caught+'장의 스틱 열을 짚습니다.</b> 열 단면이 정상 마스크 '+r.falseC+'장에도 열을 표시하므로 표시는 &lsquo;확인할 마스크 후보&rsquo;입니다. 국소 결함은 '+r.nDef+'장 가운데 '+r.defIn+'장이 지표 spec 안인데, 튀는 점 찾기가 그중 '+r.defFound+'장(전체 기준)에서 결함 점을 짚습니다.';
+  $('conF').innerHTML='<b>불량 스틱 마스크 '+r.bad+'장 가운데 '+r.miss+'장은 지표가 spec 안이어서 지표만 보면 지나가고, 열 단면은 그중 '+r.caught+'장의 스틱 열을 짚습니다.</b> 열 단면이 정상 마스크 '+r.falseC+'장에도 열을 표시하므로 표시는 &lsquo;확인할 마스크 후보&rsquo;입니다. 내일 쓰는 법은 이렇습니다. 표시를 자동 판정에 쓰지 말고, 지표가 spec 안인 마스크에서 표시된 열의 맵을 사람이 한 번 더 보는 확인 목록으로만 씁니다. 헛표시 '+r.falseC+'장은 맵을 한 번씩 더 보는 비용이고, 그 대가로 불량 스틱 '+r.caught+'장을 더 잡습니다. 이 비용이 크면 위의 기준 |z| 슬라이더를 올려 헛표시를 줄입니다(잡는 수도 함께 줄어듭니다). 국소 결함은 '+r.nDef+'장 가운데 '+r.defIn+'장이 지표 spec 안인데, 튀는 점 찾기가 그중 '+r.defFound+'장(전체 기준)에서 결함 점을 짚습니다.';
   setAll('qb_n',IT.length);setAll('qb_b',r.bad);setAll('qb_m',r.miss);setAll('qb_d',r.nDef);setAll('qb_di',r.defIn);setAll('qb_c',r.caught);setAll('qb_f',r.falseC);
 }
 fillSel('gSel',ST.g4,true);

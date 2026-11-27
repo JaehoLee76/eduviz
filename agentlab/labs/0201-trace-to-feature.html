@@ -140,7 +140,7 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
 
 <main class="wrap">
 
-<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><span class="sp"></span><a href="0202-false-alarm-multiplicity.html">다음: 헛알람은 왜 쌓이나 →</a></nav>
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0104-autocorr-did.html">← 이전: 유의한데 가짜다</a><span class="sp"></span><a href="0202-false-alarm-multiplicity.html">다음: 헛알람은 왜 쌓이나 →</a></nav>
 
 <p><b>센서 곡선을 어떤 숫자로 요약할지 고르는 일이 곧 공정 지식입니다.</b> 평균만 보면 놓치는 이상이 있고, 무엇을 더 재야 하는지는 공정을 아는 사람만 압니다. 이 실험실에서 그 말을 직접 확인합니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
 
@@ -195,7 +195,7 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
   <p style="margin:.6rem 0 0">한 로트의 숫자 = <span class="big" id="n2total"></span> 개</p>
   <p class="note" id="n2per"></p>
 </div>
-<p>이 숫자를 전부 모델에 넣으면 되지 않느냐는 생각이 드실 겁니다. 두 가지가 막습니다. 첫째, 스텝 길이가 유리마다 조금씩 달라서 같은 초에 같은 일이 일어난다고 가정할 수 없습니다. 둘째, 위에서 보듯 유리 한 장보다 숫자가 훨씬 많으면 모델은 규칙이 아니라 우연을 외웁니다.</p>
+<p>이 숫자를 전부 모델에 넣으면 되지 않느냐는 생각이 드실 겁니다. 두 가지가 막습니다. 첫째, 스텝 길이가 유리마다 조금씩 달라서 같은 초에 같은 일이 일어난다고 가정할 수 없습니다. 둘째, 위에서 보듯 유리 한 장보다 숫자가 훨씬 많습니다. 숫자들로 이상을 가르는 규칙을 컴퓨터가 배우게 하는 프로그램(모델)은 유리 10장에 숫자가 수천 개이면, 이상 유리와 우연히 맞아떨어지는 숫자를 하나쯤은 반드시 찾아냅니다. 그것은 규칙이 아니라 우연입니다.</p>
 <p><b>그래서 분석은 &ldquo;유리 한 장 = 표 한 줄&rdquo;이 되어야 시작됩니다.</b> 곡선 하나를 숫자 몇 개로 줄이는 방법이 필요합니다.</p>
 <div class="qna" data-label="웨이퍼마다 스텝 길이가 다르면 어떻게 하나요?" data-q="유리마다 스텝 길이가 다르면 어떻게 하나요?">
   <p>시간 정렬 문제입니다. 가장 단순한 길은 스텝 시작 시각을 기준(0초)으로 맞추고, 필요한 구간만 잘라 쓰는 것입니다. 이 실험실이 그 방식입니다.</p>
@@ -235,7 +235,7 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
 <!-- ===================== 4 ===================== -->
 <h2><span class="no">4</span>평균만으로는 못 잡습니다</h2>
 <h3>먼저 약속 하나 — 무엇을 이상이라 부를까</h3>
-<p>이상을 찾으려면 기준이 있어야 합니다. 여기서는 <b>W01~W07을 정상 유리로 놓습니다.</b> 이 일곱 장의 특징 평균을 <i>m</i>, 표준편차를 <i>s</i>라 하고, 어떤 유리의 특징 값 <i>x</i>가 이 일곱 장에서 얼마나 떨어졌는지를 z값으로 잽니다. 평균을 빼고 표준편차로 나누는 그 표준화입니다. <b>|z|가 3을 넘으면 이상으로 봅니다.</b></p>
+<p>이상을 찾으려면 기준이 있어야 합니다. 여기서는 <b>W01~W07을 정상 유리로 놓습니다.</b> 이 일곱 장은 같은 챔버·같은 레시피에서 최근 PM 이후에 곡선을 눈으로 보고 이상이 없다고 확인한 유리입니다(고르는 법은 아래 질문 팝업에 있습니다). 이 일곱 장의 특징 평균을 <i>m</i>, 표준편차를 <i>s</i>라 하고, 어떤 유리의 특징 값 <i>x</i>가 이 일곱 장에서 얼마나 떨어졌는지를 z값으로 잽니다. 평균을 빼고 표준편차로 나누는 그 표준화입니다. <b>|z|가 3을 넘으면 이상으로 봅니다.</b></p>
 <div class="eq">
   <span class="eqlab">z값 — 정상 7장을 기준으로 한 표준화</span>
   <math display="block"><mrow><mi>z</mi><mo>=</mo><mfrac><mrow><mi>x</mi><mo>−</mo><mi>m</mi></mrow><mi>s</mi></mfrac></mrow></math>
@@ -255,12 +255,12 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
 <h3>네 특징의 정의</h3>
 <dl>
   <dt><b>정착 시간 (settling time)</b></dt>
-  <dd>스텝이 시작된 뒤, 압력이 정상 구간 중앙값(L)의 ±2% 띠 안에 처음 들어와 정상 구간이 시작될 때까지 다시 나가지 않는 시각까지 걸린 시간(초). 늦게 도착하는 이상을 잽니다.</dd>
+  <dd>스텝이 시작된 뒤, 압력이 정상 구간 중앙값(L)의 ±2% 띠 밖에 마지막으로 있던 시각 바로 다음 초까지 걸린 시간(초)입니다. 띠 안에 들어왔다가 다시 나갔다면 마지막으로 나간 뒤에 들어온 시각을 잽니다. 늦게 도착하는 이상을 잽니다.</dd>
 </dl>
 <div class="eq">
   <span class="eqlab">±2% 띠 (L = 정상 구간 중앙값)</span>
   <math display="block"><mrow><mo stretchy="false">|</mo><mi>y</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>−</mo><mi>L</mi><mo stretchy="false">|</mo><mo>≤</mo><mn>0.02</mn><mo>⋅</mo><mi>L</mi></mrow></math>
-  <span class="note">정착 시간 = 이 식이 처음 성립한 뒤 정상 구간 시작까지 계속 성립하는 시각 − 스텝 시작(5초)</span>
+  <span class="note">정착 시간 = 이 식이 정상 구간 시작까지 끊기지 않고 성립하게 되는 첫 시각 − 스텝 시작(5초)</span>
 </div>
 <dl>
   <dt><b>최대 편차</b></dt>
@@ -268,7 +268,7 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
   <dt><b>정상 구간 표준편차</b></dt>
   <dd>정상 구간 값의 흔들림 크기(mTorr). 잡음이 커지는 이상을 잽니다.</dd>
   <dt><b>오버슈트 (overshoot)</b></dt>
-  <dd>올라가는 동안(스텝 시작부터 정상 구간 직전까지) 목표를 넘어갔다 돌아오는 정도입니다. 최댓값이 정상 구간 중앙값 L보다 몇 % 높았는지로 잽니다. 응답의 모양을 잽니다.</dd>
+  <dd>올라가는 동안(스텝 시작부터 정상 구간 직전까지) 목표를 넘어갔다 돌아오는 정도입니다. 정상 구간에서는 압력이 레시피 목표 둘레에 머무르므로 그 중앙값 L을 목표 대신 기준선으로 삼고, 최댓값이 L보다 몇 % 높았는지로 잽니다. 올라가는 동안의 최댓값이 L에 못 미치면 음수가 나오며, 그것은 목표를 넘긴 적이 없다는 뜻입니다. 응답의 모양을 잽니다.</dd>
 </dl>
 <div class="eq">
   <span class="eqlab">오버슈트 (%)</span>
@@ -290,13 +290,13 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
 </div>
 <div class="qna" data-label="기준 유리(정상 7장)는 어떻게 고르나요?" data-q="기준 유리(정상 7장)는 어떻게 고르나요?">
   <p>같은 챔버·같은 레시피·같은 마스크 세트에서 최근 PM 이후에 이상 없이 나온 유리를 쓰는 것이 기본입니다. 기준에 이상이 섞이면 m과 s가 오염되므로, 먼저 눈으로 곡선을 확인하고 중앙값 기반(로버스트) 추정으로 한 번 더 걸러내는 방법이 있습니다.</p>
-  <p>기준 유리의 수가 너무 적으면 s가 불안정하므로, 현장에서는 수십 장을 쓰는 것이 좋습니다. 이 실험실은 학습용이라 일곱 장입니다.</p>
+  <p>기준 유리의 수가 너무 적으면 s가 불안정하므로, 현장에서는 수십 장을 쓰는 것이 좋습니다. 이 실험실은 학습용이라 일곱 장입니다. 일곱 장으로 구한 s로 긋는 &ldquo;|z|가 3&rdquo;는 이상을 가르는 거친 눈금이며, 이 일곱 장 기준의 선은 확률로 읽지 않습니다. 일곱 장의 s는 불안정해서 선을 넘을 확률이 정확히 얼마인지 말할 수 없기 때문입니다. 3σ와 확률의 관계는 기준이 충분히 많을 때를 다루는 0202에서 봅니다.</p>
 </div>
 
 <!-- ===================== 5 ===================== -->
 <h2><span class="no">5</span>표 완성 — 어느 이상이 어느 특징에서 드러나는가</h2>
 <p>앞 절에서 열 하나씩 더하던 표를 이제 z값으로 완성합니다. 같은 특징 다섯 개를 모두 놓고, 칸마다 정상 7장을 기준으로 한 z값을 적습니다.</p>
-<p><b>한 가지 주의가 있습니다.</b> 정착 시간은 정상 7장이 모두 같은 값이어서 표준편차가 0입니다. 0으로 나눌 수 없으므로 측정 간격 한 칸인 1초를 표준편차의 하한으로 둡니다. 실제 현장에서도 정수로 기록되는 값에는 같은 문제가 생깁니다.</p>
+<p><b>한 가지 주의가 있습니다.</b> 정착 시간은 정상 7장이 모두 같은 값이어서 표준편차가 0입니다. 0으로 나눌 수 없으므로 측정 간격 한 칸인 1초를 표준편차의 하한으로 둡니다. 실제 현장에서도 정수로 기록되는 값에는 같은 문제가 생깁니다. 이 하한을 반으로 줄이거나 두 배로 늘려도 W08의 z는 경계 3을 넘은 채로 남으므로, W08을 이상으로 가르는 판정은 이 선택에 좌우되지 않습니다.</p>
 <div class="lab">
   <div class="labtitle">z값 표와 점그림 — 이상으로 볼 경계를 바꿔 보기</div>
   <div class="watch"><b>이렇게 해 보세요.</b> 경계 슬라이더를 기본 3에서 가장 왼쪽(1.5)까지 내려 보세요. 이상 유리뿐 아니라 정상 7장 가운데서도 붉어지는 칸이 생기는지 봅니다. 세 이상 유리가 서로 다른 특징 행에서 멀리 벗어나는지도 점그림에서 확인하세요.</div>
@@ -317,7 +317,7 @@ summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;displ
 
 <!-- ===================== 6 ===================== -->
 <h2><span class="no">6</span>Python — 회사 PC에 가져갈 코드</h2>
-<p>FDC 화면에서 내보낸 CSV는 보통 <b>긴 형식 (long format)</b>입니다. 측정값 하나가 한 줄이고, 그 값이 어느 유리·스텝·센서·시각의 것인지가 열로 붙습니다. 이 실험실의 파일은 <code>wafer, t, pressure</code> 세 열입니다. 실제 내보내기에는 <code>step, sensor</code> 열이 더 붙고, 아래 코드의 <code>keys</code>에 그 열 이름을 더하면 됩니다.</p>
+<p>FDC 화면에서 내보낸 CSV는 보통 <b>긴 형식 (long format)</b>입니다. 측정값 하나가 한 줄이고, 그 값이 어느 유리·스텝·센서·시각의 것인지가 열로 붙습니다. 이 실험실의 파일은 <code>wafer, t, pressure</code> 세 열입니다. 실제 내보내기에는 <code>step, sensor</code> 열이 더 붙고, 아래 코드의 <code>keys</code>에 그 열 이름을 더하면 됩니다. 아래 코드는 모든 유리가 같은 시각(5초)에 스텝을 시작하고 같은 구간(35~50초)을 정상 구간으로 쓴다고 놓습니다. 유리마다 스텝 시작이 다르면, 레시피 이벤트의 시작 시각을 유리별로 읽어 시간 열 <code>t</code>를 &ldquo;시작 시각을 0으로 한 초&rdquo;로 바꾼 열을 먼저 만든 뒤 이 함수에 넣습니다.</p>
 <pre id="pyCode">import numpy as np
 import pandas as pd
 
@@ -411,7 +411,7 @@ for w in feat.index[hit.any(axis=1)]:
   </div>
 </div>
 
-<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0202-false-alarm-multiplicity.html">다음: 헛알람은 왜 쌓이나 →</a></nav>
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0104-autocorr-did.html">← 이전: 유의한데 가짜다</a><a href="0202-false-alarm-multiplicity.html">다음: 헛알람은 왜 쌓이나 →</a></nav>
 </main>
 
 <script src="../data/mfgsim.js"></script>

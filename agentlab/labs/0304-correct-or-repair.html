@@ -221,7 +221,7 @@ td.dim{color:var(--soft)}
 <div class="prob">
   <b class="tg">[문제]</b> 이번 주 PPA 측정 결과입니다. 마스크 <b class="v_nm"></b>장을 각각 같은 턴 안에서 유리 8장씩(그 턴의 15·30·45·…·120번째 유리, 표본 측정 레시피의 가정) 재고, 8장의 77점을 점마다 평균한 장으로 마스크의 지표를 냈습니다. spec 은 <span class="v_spec"></span> µm이고, 지표가 spec 을 넘은 마스크가 <b class="v_over"></b>장 나왔습니다.<br>
   <b>&ldquo;spec 을 넘은 마스크는 전부 빼서 리페어하라&rdquo;는 초안이 올라왔습니다.</b> 리페어 한 번에 마스크가 빠지는 턴 수는 가정(9절의 슬라이더)입니다.<br>
-  <b>(1) 이 초안을 승인해도 됩니까? (2) 리페어를 해야 하는 마스크는 몇 장이고, 그 가운데 이물을 제거하는 작업을 함께 걸 마스크는 몇 장입니까?</b>
+  <b>(1) 이 초안을 승인해도 됩니까? (2) 리페어 판정이 나는 마스크는 몇 장이고, 이물을 제거하는 작업을 거는 마스크는 모두 몇 장입니까?</b>
   <p class="note" style="margin:.5rem 0 0">spec 은 불량 스틱이 없는 마스크 <span class="v_ngood"></span>장의 지표 가운데 95 백분위입니다(0301과 같은 방식). 보정 전 지표와 보정 후 지표를 <b>같은 spec 하나</b>로 견주는 것은 이 실험실의 약속이며, 4절에서 spec 을 옮겨 봅니다. 2~7절에서 숫자를 만들고 8절에서 이 물음으로 돌아옵니다.</p>
 </div>
 
@@ -232,7 +232,7 @@ td.dim{color:var(--soft)}
 <p>마스크마다 8장의 측정 격자(77점)가 있습니다. 8장을 점마다 평균한 장을 <b>8장 평균 장</b>이라 부르고, 마스크의 지표는 이 평균 장의 <i>dx</i>로 잰 |평균|+3σ입니다. 아래는 지표가 spec(<span class="v_spec"></span> µm)을 넘은 마스크입니다.</p>
 <div class="tbwrap"><table id="tab1" class="mt num"></table></div>
 <div class="concl" id="conc1"></div>
-<p>초안의 근거는 이 표 하나입니다. 넘었으니 빼라는 것인데, 이 숫자가 <b>마스크 탓의 크기</b>인지는 아직 모릅니다. 먼저 가장 쉬운 방법으로 들여다보겠습니다.</p>
+<p>초안의 근거는 이 표 하나입니다. 넘었으니 빼라는 것인데, 이 숫자가 <b>마스크 탓의 크기</b>인지는 아직 모릅니다. 또 spec이 정상 마스크 지표의 95 백분위이므로 정상 마스크의 약 5%는 정의상 spec을 넘습니다. 마스크 24장이면 한 장 안팎이 넘는 것이 정상이어서, 넘은 마스크가 있다는 사실은 조치 대상이 있다는 뜻이 아니라 마스크 탓인지 가릴 후보가 있다는 신호입니다. 먼저 가장 쉬운 방법으로 들여다보겠습니다.</p>
 
 <!-- ===================== 2 ===================== -->
 <h2><span class="no">2</span>첫 시도 — 지표만으로 판정하고, 맵을 한 장 들여다보기</h2>
@@ -249,14 +249,14 @@ td.dim{color:var(--soft)}
 <!-- ===================== 3 ===================== -->
 <h2><span class="no">3</span>이름 — 보정 가능 몫과 보정 후 지표</h2>
 <ul class="termdef">
-  <li><b>보정 가능 몫 (correctable part)</b> — 마스크를 빼지 않고 장비 설정값으로 지울 수 있는 성분의 합입니다. 이 가상 공정의 약속은 <b>평행이동·회전(얼라이너가 유리마다 맞춤)과 열변형(0303의 온도 보정)</b>입니다. 현장에서는 장비가 실제로 고칠 수 있는 항목으로 바꿔 적어야 합니다.</li>
+  <li><b>보정 가능 몫 (correctable part)</b> — 마스크를 빼지 않고 장비 설정값으로 지울 수 있는 성분의 합입니다. 이 가상 공정의 약속은 <b>평행이동·회전(얼라이너가 유리마다 맞춤)과 열변형(0303의 온도 보정)</b>입니다. 0303의 온도 보정은 계산으로 열변형 몫을 빼는 것이어서, 이 몫을 장비 설정값으로 지울 수 있다는 것은 이 가상 공정의 약속입니다. 현장에서는 장비가 실제로 고칠 수 있는 항목으로 바꿔 적고, 보정값을 넣은 뒤 다음 측정에서 그 몫이 정말 줄었는지로 확인합니다(11절의 &lsquo;넣은 보정값과 그 뒤 첫 측정&rsquo;).</li>
   <li><b>보정 후 지표 (post-correction metric)</b> — 측정 장에서 보정 가능 몫을 뺀 장의 지표입니다. 리페어 판단은 이 값으로 합니다.</li>
 </ul>
 <div class="eq">
   <span class="eqlab">보정 후 장 (유리 한 장, 점 위치 <i>x</i>·<i>y</i>는 mm)</span>
   <math display="block"><mrow><msubsup><mi>d</mi><mi>x</mi><mtext>후</mtext></msubsup><mo>=</mo><msub><mi>d</mi><mi>x</mi></msub><mo>−</mo><mo stretchy="false">(</mo><msub><mi>T</mi><mi>x</mi></msub><mo>−</mo><mi>θ</mi><mi>y</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo>+</mo><msub><mover><mi>b</mi><mo>^</mo></mover><mi>T</mi></msub><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mi>x</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>
   <math display="block"><mrow><msubsup><mi>d</mi><mi>y</mi><mtext>후</mtext></msubsup><mo>=</mo><msub><mi>d</mi><mi>y</mi></msub><mo>−</mo><mo stretchy="false">(</mo><msub><mi>T</mi><mi>y</mi></msub><mo>+</mo><mi>θ</mi><mi>x</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo>+</mo><mi>r</mi><msub><mover><mi>b</mi><mo>^</mo></mover><mi>T</mi></msub><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><msub><mi>T</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mi>y</mi><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>
-  <span class="note"><i>T<sub>x</sub></i>·<i>T<sub>y</sub></i>·<i>θ</i>는 그 유리의 77점을 0302의 방법으로 푼 평행이동과 회전 계수, <i>T</i>는 그 유리의 FDC 온도, <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C입니다. <i>b̂<sub>T</sub></i>는 <b>0303의 다중 회귀가 잰 열변형 기울기 <span class="v_bT"></span> ppm/K</b>, <i>r</i>는 같은 회귀로 잰 단변 대 장변 비(<span class="v_r"></span>)입니다. 이 두 값은 0303의 대표 시드에서 받아 쓴 것이며, 현장에서는 우리 장비에서 직접 잰 값으로 바꿉니다. 마스크의 지표는 유리마다 이렇게 보정한 장 8장을 점마다 평균해 냅니다.</span>
+  <span class="note"><i>T<sub>x</sub></i>·<i>T<sub>y</sub></i>·<i>θ</i>는 그 유리의 77점을 0302의 방법으로 푼 평행이동과 회전 계수, <i>T</i>는 그 유리의 FDC 온도, <i>T</i><sub>0</sub> = <span class="v_T0"></span> °C입니다. <i>b̂<sub>T</sub></i>는 <b>0303의 다중 회귀가 잰 열변형 기울기 <span class="v_bT"></span> ppm/K</b>, <i>r</i>는 같은 회귀로 잰 단변 대 장변 비(<span class="v_r"></span>)입니다. 이 두 값은 0303의 대표 시드에서 받아 쓴 것입니다. 이 편의 자료(유리 192장)와 0303의 자료(유리 1,728장)는 서로 다른 가상 자료이지만 같은 마스크 재질·같은 열변형 약속의 공정에서 뽑았다는 약속 위에서 받아 씁니다. 이 약속이 맞지 않으면 열변형 몫이 어긋나 보정 후 지표와 판정이 흔들리므로, 현장에서는 우리 장비에서 이 편의 자료로 직접 잰 값으로 바꿉니다. 마스크의 지표는 유리마다 이렇게 보정한 장 8장을 점마다 평균해 냅니다.</span>
 </div>
 <p>마스크 <b class="v_mkA"></b>의 8장이 각각 얼라이너와 온도로 얼마씩 보정되는지는 아래 표입니다. 단위는 <i>T<sub>x</sub></i>·<i>T<sub>y</sub></i> µm, <i>θ</i> µm/m(곧 µrad), 열변형 몫은 장변 배율에 들어가는 ppm입니다.</p>
 <div class="tbwrap"><table id="tab3a" class="mt num"></table></div>
@@ -288,7 +288,7 @@ td.dim{color:var(--soft)}
   <tr><td class="rowh">2)</td><td>측정 지표 &gt; spec, 보정 후 지표 ≤ spec</td><td class="rowh">보정만</td><td>얼라이너·온도 보정값을 넣고 계속 씁니다.</td></tr>
   <tr><td class="rowh">3)</td><td>보정 후 지표 &gt; spec</td><td class="rowh">리페어</td><td>마스크를 뺍니다. 종류는 보정 후 남은 몫 가운데 가장 큰 것: 배율 노화·직교도·고차는 장력·프레임 리페어, 스틱은 스틱 교체, 마스크 기인 결함은 이물 제거.</td></tr>
 </table></div>
-<p><b>이 규칙의 약속 하나.</b> 보정 전 지표와 보정 후 지표를 같은 spec 하나와 견줍니다. 보정 후 지표는 보통 보정 전보다 작으므로 따로 spec 을 잡으면 일부러 엄격해집니다. 현장 spec 은 장비·제품이 정한 값이고, 이 화면의 spec 은 가상 공정의 값입니다. 가상 자료에는 <b>정답 판정</b>도 있습니다. 같은 규칙을 잡음과 유리 기인 결함이 없는 참 성분의 장에 적용한 것입니다.</p>
+<p><b>이 규칙의 약속.</b> 첫째, 이물 제거는 리페어의 한 종류(장력·프레임 리페어, 스틱 교체와 나란한 종류)입니다. 다만 같은 위치가 반복되는 마스크 기인 결함은 판정이 &lsquo;보정만&rsquo;이어도 이물 제거를 걸 수 있어서(5~7절), 이 실험실은 &lsquo;리페어 판정 마스크&rsquo;와 &lsquo;이물 제거를 거는 마스크&rsquo;를 따로 세어 적습니다. 둘째, 보정 전 지표와 보정 후 지표를 같은 spec 하나와 견줍니다. 보정 후 지표는 보통 보정 전보다 작으므로 따로 spec 을 잡으면 일부러 엄격해집니다. 현장 spec 은 장비·제품이 정한 값이고, 이 화면의 spec 은 가상 공정의 값입니다. 가상 자료에는 <b>정답 판정</b>도 있습니다. 같은 규칙을 잡음과 유리 기인 결함이 없는 참 성분의 장에 적용한 것입니다.</p>
 <div class="lab">
   <div class="labtitle">spec 을 옮기며 24장의 판정 보기 (탐구 모드)</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 1) spec 을 내릴수록 &lsquo;리페어&rsquo; 칸이 언제부터 생기는지 보십시오. 2) 그때 규칙의 판정과 정답 판정이 갈리는 마스크가 있는지 보십시오. 3) 아래 혼동표(방법 대 정답)와 위 초안의 리페어 장 수가 함께 어떻게 움직이는지 보십시오.</div>
@@ -350,7 +350,7 @@ td.dim{color:var(--soft)}
 <div class="eq">
   <span class="eqlab">우연 반복 확률</span>
   <math display="block"><mrow><mi>P</mi><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mi>k</mi></mrow><mi>n</mi></munderover><mrow><mo>(</mo><mfrac linethickness="0"><mi>n</mi><mi>j</mi></mfrac><mo>)</mo></mrow><msup><mi>p</mi><mi>j</mi></msup><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><mrow><mi>n</mi><mo>−</mo><mi>j</mi></mrow></msup><mo>)</mo></mrow><mn>77</mn></msup></mrow></math>
-  <span class="note"><i>n</i> = <span class="v_n"></span>장(이 자료가 정한 수), 77은 위치 수, <i>p</i>는 이 자료에서 센 값입니다. 마스크마다 &lsquo;한 장당 튄 점 수의 평균 ÷ 77&rsquo;을 구하고 24장의 중앙값을 잡았더니 <b class="v_p"></b>입니다(마스크 기인 결함이 있는 마스크가 중앙값을 끌지 않도록 평균이 아닌 중앙값). <b>기본 <i>k</i>는 <i>P</i>가 1% 아래로 내려가는 가장 작은 <i>k</i>입니다.</b></span>
+  <span class="note"><i>n</i> = <span class="v_n"></span>장(이 자료가 정한 수), 77은 위치 수, <i>p</i>는 이 자료에서 센 값입니다. 마스크마다 &lsquo;한 장당 튄 점 수의 평균 ÷ 77&rsquo;을 구하고 24장의 중앙값을 잡았더니 <b class="v_p"></b>입니다(마스크 기인 결함이 있는 마스크가 중앙값을 끌지 않도록 평균이 아닌 중앙값). <b>기본 <i>k</i>는 <i>P</i>가 1% 아래로 내려가는 가장 작은 <i>k</i>입니다.</b> 1%는 이 가상 공정이 정한 기준이고, 77곳 어디엔가 생길 확률을 한 위치의 확률에서 키운 것이므로 0202의 다중 비교와 같은 생각입니다. 이 식은 장마다 튄 점이 서로 독립이고 위치마다 같은 <i>p</i>로 떨어진다는 약속 위에 있습니다. 튄 점이 이웃에 몰려 떨어지는 공정에서는 우연 반복이 더 쉽게 일어나 이 확률이 실제보다 작게 나오므로 쓰면 안 됩니다(코드의 &lsquo;쓰면 안 되는 때&rsquo;도 같은 말입니다).</span>
 </div>
 <div class="lab">
   <div class="labtitle">반복 기준 <i>k</i>를 옮기며 잡힘과 헛잡힘 세기</div>
@@ -371,7 +371,7 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 7 ===================== -->
 <h2><span class="no">7</span>리페어 전후 확인 — 0103의 대응 비교를 다시</h2>
-<p>이제 조치할 마스크를 정합니다. <b>조치 대상</b>은 3단 판정이 리페어이거나 기본 <i>k</i> 에서 반복 위치가 잡힌 마스크입니다(이물 제거를 겁니다). 조치 대상 마스크마다 <b>리페어한 뒤 같은 레시피(턴 안 15~120번째 8장)로 다시 재서</b> 전후를 견줍니다. 이 화면의 기본 spec 과 기본 <i>k</i> 에서 조치 대상은 <b class="v_nt"></b>장입니다. 이 가운데 보정 후 지표가 가장 큰 마스크 <b class="v_mkC"></b>를 자세히 봅니다.</p>
+<p>이제 조치할 마스크를 정합니다. <b>조치 대상</b>은 3단 판정이 리페어이거나 기본 <i>k</i> 에서 반복 위치가 잡힌 마스크입니다(반복 위치가 잡힌 마스크는 판정이 리페어가 아니어도 이물 제거를 겁니다). 리페어 판정이 나는 마스크가 없으면 조치 대상은 모두 반복 위치로 잡힌 마스크이고, 이 절의 &lsquo;리페어 전후&rsquo; 비교는 그 마스크들의 이물 제거 전후로 연습합니다. 조치 대상 마스크마다 <b>리페어한 뒤 같은 레시피(턴 안 15~120번째 8장)로 다시 재서</b> 전후를 견줍니다. 이 화면의 기본 spec 과 기본 <i>k</i> 에서 조치 대상은 <b class="v_nt"></b>장입니다. 이 가운데 보정 후 지표가 가장 큰 마스크 <b class="v_mkC"></b>를 자세히 봅니다.</p>
 <p>견주는 방법은 0103과 같습니다. 점마다 |<i>d</i>| = √(<i>dx</i>² + <i>dy</i>²)를 구하고 8장 평균을 낸 77쌍으로 <b>점별 대응 비교</b>, 유리별 지표 8장 대 8장으로 <b>Welch 검정</b>을 합니다. 둘은 답이 다를 수 있습니다. 점별 비교는 같은 점끼리 짝지어 마스크 자체의 모양 차이를 지우지만, 점들은 서로 독립이 아니라서 p 값이 지나치게 작게 나올 수 있고, Welch 는 유리 8장만 쓰므로 힘이 약합니다.</p>
 <div class="lab">
   <div class="labtitle">마스크 <span class="v_mkC"></span> — 리페어 전과 후 (보정 후 장, 8장 평균)</div>
@@ -387,7 +387,7 @@ td.dim{color:var(--soft)}
 <div class="tbwrap"><table id="tab7b" class="mt num"></table></div>
 <div class="qna" data-label="점별 대응 비교 p 가 유리별 Welch 보다 훨씬 작은데 어느 쪽을 믿나요?" data-q="점별 대응 비교 p 가 유리별 Welch 보다 훨씬 작은데 어느 쪽을 믿나요?">
   <p><b>두 숫자는 다른 질문에 답하므로 하나만 믿지 말고 둘을 함께 적습니다.</b> 점별 대응 비교는 &lsquo;77개 점이 평균적으로 줄었는가&rsquo;를 묻는데, 이웃한 점들이 같은 모양(배율·스틱 등)을 공유해 독립이 아니므로 77쌍이라는 표본 수만큼 믿을 근거가 없고 p 가 작게 나옵니다. Welch 는 &lsquo;유리 8장의 지표가 줄었는가&rsquo;를 묻고 독립인 유리를 단위로 하지만 표본이 8장뿐입니다.</p>
-  <p>이 자료에서 조치 대상 전체(<span class="q7_n"></span>장)를 보면 점별 대응 p 의 중앙값은 <span class="q7_pp"></span>, Welch p 의 중앙값은 <span class="q7_wp"></span>이고, 대응 p 가 더 작은 마스크가 <span class="q7_frac"></span>입니다. 둘이 같은 방향(개선)을 가리키는지, 차의 크기가 의미 있는 크기인지를 함께 보고 리페어 결과를 적으십시오.</p>
+  <p>이 자료에서 조치 대상 전체(<span class="q7_n"></span>장)를 보면 점별 대응 p 의 중앙값은 <span class="q7_pp"></span>, Welch p 의 중앙값은 <span class="q7_wp"></span>이고, 대응 p 가 더 작은 마스크가 <span class="q7_frac"></span>입니다. 둘이 같은 방향(개선)을 가리키는지, 차의 크기가 의미 있는 크기인지를 함께 보고 리페어 결과를 적으십시오. 리페어가 잘 되었다는 근거로는 독립 단위가 맞는 유리별 Welch p를 앞에 두고, 점별 대응 p는 77점의 모양이 줄었는지 보여 주는 참고로 적습니다. 점별 p만 작고 Welch p가 크면 &lsquo;모양은 줄었으나 유리 8장으로는 확신이 부족하다&rsquo;고 적습니다.</p>
 </div>
 <div class="qna" data-label="유리 기인 결함이 계속 반복되면 어떻게 하나요?" data-q="유리 기인 결함이 계속 반복되면 어떻게 하나요?">
   <p><b>같은 위치에서 마스크를 바꿔도 반복되면 마스크가 아니라 반송·스테이지 같은 공통 원인입니다.</b> 이 자료에서 24장의 마스크 가운데 같은 위치가 둘 이상의 마스크에서 반복 위치로 잡힌 곳은 <span class="q7_cross"></span>곳입니다(우연히 생길 곳은 <span class="q7_exp"></span>곳 안팎). 둘 이상의 마스크에서 같은 위치가 반복되면 마스크 기인이 아니라 공통 원인을 의심합니다.</p>
@@ -396,7 +396,7 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 8 ===================== -->
 <h2><span class="no">8</span>착지 — 초안을 승인할까</h2>
-<p>이 실험실을 시작한 물음은 &lsquo;spec 을 넘은 마스크를 전부 빼서 리페어하라&rsquo;는 초안을 승인해도 되는가, 리페어할 마스크는 몇 장이고 이물 제거를 함께 걸 마스크는 몇 장인가였습니다. 4절의 spec 슬라이더 값(<span class="v_specNow"></span> µm)이 반영됩니다.</p>
+<p>이 실험실을 시작한 물음은 &lsquo;spec 을 넘은 마스크를 전부 빼서 리페어하라&rsquo;는 초안을 승인해도 되는가, 리페어 판정 마스크는 몇 장이고 이물 제거를 거는 마스크는 모두 몇 장인가였습니다. 4절의 spec 슬라이더 값(<span class="v_specNow"></span> µm)이 반영됩니다.</p>
 <div class="tbwrap"><table id="tab8" class="mt num"></table></div>
 <div class="concl" id="land"></div>
 <p>숫자를 만드는 일은 규칙과 에이전트가 하지만, 그 숫자로 마스크를 뺄지는 사람이 정합니다. 리페어는 되돌릴 수 없는 조치이므로 0206에서 정한 대로 사람의 승인 뒤에 실행합니다.</p>
@@ -410,7 +410,7 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 9 ===================== -->
 <h2><span class="no">9</span>현장에서 환산하면</h2>
-<p>지표만으로 리페어하면 <b>쓸데없는 리페어</b>(규칙은 리페어가 아니라는데 초안은 빼는 마스크)가 생깁니다. 쓸데없는 리페어 수 × 리페어 한 번에 마스크가 빠지는 턴 수 × 턴당 유리 장수(<span class="v_nt2"></span>장)가 <b>지키는 생산량</b>입니다. 반대로 <b>놓침</b>은 정답은 리페어인데 규칙이 리페어로 판정하지 않은 마스크입니다. 같은 표에 정직하게 적습니다. 마스크 집단을 시드 1~200으로 다시 뽑은 분포도 함께 셉니다.</p>
+<p>지표만으로 리페어하면 <b>쓸데없는 리페어</b>(규칙은 리페어가 아니라는데 초안은 빼는 마스크)가 생깁니다. 쓸데없는 리페어 수 × 리페어 한 번에 마스크가 빠지는 턴 수 × 턴당 유리 장수(<span class="v_nt2"></span>장)가 <b>지키는 생산량</b>입니다. 이 계산은 3단 판정이 리페어인 마스크만 셉니다. 판정은 &lsquo;보정만&rsquo;이어도 반복 위치로 이물 제거를 거는 마스크도 마스크를 라인에서 빼는 작업이므로 되돌릴 수 없는 전이로서 사람 승인(0206)을 거치지만, 그 마스크들은 여기 생산량에 넣지 않았습니다. 반대로 <b>놓침</b>은 정답은 리페어인데 규칙이 리페어로 판정하지 않은 마스크입니다. 같은 표에 정직하게 적습니다. 마스크 집단을 시드 1~200으로 다시 뽑은 분포도 함께 셉니다.</p>
 <div class="lab">
   <div class="labtitle">지표만으로 리페어할 때 쓸데없이 빠지는 마스크와 지키는 생산량</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 1) 쓸데없는 리페어 마스크 수와 놓침 수를 함께 보십시오. 2) 빠지는 턴 수를 늘릴 때 지키는 생산량이 어떻게 커지는지 보십시오. 3) 4절에서 spec 을 낮추면 이 표가 어떻게 바뀌는지 오가며 보십시오. 차이가 작으면 작다고 적습니다.</div>
@@ -427,7 +427,7 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 10 ===================== -->
 <h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
-<p>아래 코드는 <code>numpy</code>·<code>pandas</code>와 p 값을 위한 <code>scipy.stats</code>를 씁니다. 0302의 <code>fit_ppa</code>를 그대로 두고 이 실험실의 도구 <code>post_correction</code>·<code>residual_parts</code>·<code>decide_action</code>·<code>repeat_positions</code>·<code>chance_repeat</code>·<code>repair_effect</code>를 붙였습니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다. 입력은 유리 192장의 측정 격자 <code>ppa_s12.csv</code>이고 코드와 같은 폴더에 두면 그대로 돌아갑니다. <code>repair_effect</code> 는 리페어 뒤 다시 잰 장이 있어야 쓸 수 있으므로, 이 파일로는 아무 조치도 하지 않은 같은 마스크의 앞 4장과 뒤 4장을 넣은 <b>대조</b>로 &lsquo;차이가 없을 때 p 가 크게 나오는지&rsquo;만 확인합니다.</p>
+<p>아래 코드는 <code>numpy</code>·<code>pandas</code>와 p 값을 위한 <code>scipy.stats</code>를 씁니다. 0302의 <code>fit_ppa</code>와 같은 최소제곱을 x·y를 mm로 받고 (계수, 잔차)를 돌려주는 형식으로 이 파일에 다시 적어 두고(0302 파일의 <code>fit_ppa</code>는 m 단위에 딕셔너리를 돌려주므로 한 파일에 붙이면 이름이 겹칩니다. 이 편의 함수들은 이 편의 형식으로 부르므로, 이 편의 것을 <code>fit_ppa_mm</code>으로 이름을 바꿔 두고 0302의 <code>fit_ppa</code>는 그대로 두십시오) 이 실험실의 도구 <code>post_correction</code>·<code>residual_parts</code>·<code>decide_action</code>·<code>repeat_positions</code>·<code>chance_repeat</code>·<code>repair_effect</code>를 붙였습니다. 각 함수에 &lsquo;쓰면 안 되는 때&rsquo;를 한 줄씩 적었습니다. 입력은 유리 192장의 측정 격자 <code>ppa_s12.csv</code>이고 코드와 같은 폴더에 두면 그대로 돌아갑니다. <code>repair_effect</code> 는 리페어 뒤 다시 잰 장이 있어야 쓸 수 있으므로, 이 파일로는 아무 조치도 하지 않은 같은 마스크의 앞 4장과 뒤 4장을 넣은 <b>대조</b>로 &lsquo;차이가 없을 때 p 가 크게 나오는지&rsquo;만 확인합니다.</p>
 <div class="row"><button class="btn" id="csvBtn1" type="button">CSV 내려받기 (ppa_s12.csv)</button></div>
 <div class="state" id="csvState"></div>
 <pre id="pyCode">import numpy as np
@@ -899,7 +899,7 @@ function upd8(){
   $('tab8').innerHTML=h;
   var mxp=0;IT.forEach(function(it){if(it.metric>sp&&it.post_metric>mxp)mxp=it.post_metric;});
   $('land').innerHTML='<p style="margin:0 0 .5rem"><b>(1) 승인 여부 — 초안은 승인하지 않습니다.'+(rep.length?' 리페어 판정 '+rep.length+'장만 승인 대상으로 올립니다.':' 리페어 판정이 나온 마스크가 없어 승인 대상으로 올릴 마스크가 없습니다.')+'</b> 초안이 빼라는 '+over+'장 가운데 '+(over-rep.length)+'장은 얼라이너와 온도 보정으로 spec '+fmt(sp,2)+' µm 안으로 들어오므로(보정 후 지표 최대 '+fmt(mxp,2)+' µm) 리페어가 아니라 보정입니다.</p>'+
-    '<p style="margin:0 0 .5rem"><b>(2) 리페어할 마스크는 '+rep.length+'장이고, 그 가운데 이물 제거를 함께 걸 마스크는 '+repWith+'장입니다.</b> 이와 별개로 리페어 판정은 아니지만 같은 위치가 '+KD+'장 이상 반복되어 이물 제거를 거는 마스크가 '+alone+'장 있습니다(우연 반복 확률 '+fmtP(TL.chance(S.p_single,NG,KD).any)+'). 정답과 견주면 규칙이 놓친 리페어 마스크는 '+miss+'장입니다.</p>'+
+    '<p style="margin:0 0 .5rem"><b>(2) 리페어 판정 마스크는 '+rep.length+'장이고, 이물 제거를 거는 마스크는 모두 '+(repWith+alone)+'장입니다.</b> 이물 제거를 거는 마스크는 리페어 판정이 난 마스크 가운데 반복 위치가 있는 '+repWith+'장과, 리페어 판정은 아니지만 같은 위치가 '+KD+'장 이상 반복되는 '+alone+'장입니다(우연 반복 확률 '+fmtP(TL.chance(S.p_single,NG,KD).any)+'). 정답과 견주면 규칙이 놓친 리페어 마스크는 '+miss+'장입니다.</p>'+
     '<p style="margin:0">보정만으로 끝나는 '+cor+'장에는 넣을 보정값(얼라이너 <i>T<sub>x</sub></i>·<i>T<sub>y</sub></i>·<i>θ</i>, 온도 보정 기울기 '+sg0(BT.thermal,3)+' ppm/K)을 기록지에 적어 넘깁니다.</p>';
 }
 

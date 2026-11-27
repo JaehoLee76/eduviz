@@ -189,13 +189,13 @@ details>.llmq{margin:.4rem 0}
 
 <nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0410-llm-strengths-limits.html">← 이전: LLM이 잘하는 것과 틀리는 것</a><span class="sp"></span><a href="0401-agent-prototype.html">다음: 에이전트 구조 시제품 →</a></nav>
 
-<p><b>0410 에서 틀림은 숫자가 아니라 문장에 있었으므로, 맡기는 법을 바꿉니다.</b> 숫자는 도구가 계산한 사실 목록의 번호로만 쓰게 하고(계산이 필요하면 식만 쓰게 하고 도구가 계산합니다), 출력을 정해 둔 JSON 형식으로 고정하고, 문장마다 근거 사실 번호를 달게 합니다. 그러면 검사기가 &lsquo;숫자를 직접 쓰지 않았는가 · 번호가 실제로 있는가 · 식이 허용된 모양인가 · 원인 문장에 근거가 달렸는가&rsquo;를 자동으로 확인합니다. 그래도 &lsquo;언제·어느 날에 일어났나&rsquo; 같은 관계를 담은 문장은 이 검사기가 보지 못하므로, 그런 관계도 도구가 사실로 만들어 목록에 넣고 사람이 마지막으로 봅니다. 사내 자료는 밖으로 보내지 않고 사내 모델(회사 안 서버에서 돌아 입력이 밖으로 나가지 않는 LLM, 8절에서 정의합니다)로만 다룹니다.</p>
+<p><b>0410 에서 틀림은 숫자가 아니라 문장에 있었으므로, 맡기는 법을 바꿉니다.</b> 숫자는 도구가 계산한 사실 목록의 번호로만 쓰게 하고(계산이 필요하면 식만 쓰게 하고 도구가 계산합니다), 출력을 정해 둔 JSON 형식으로 고정하고, 문장마다 근거 사실 번호를 달게 합니다(그 번호를 다는 칸의 이름이 cites 이고, 문장의 종류를 적는 칸이 type 입니다. 4절에서 정의합니다). 그러면 검사기가 &lsquo;숫자를 직접 쓰지 않았는가 · 번호가 실제로 있는가 · 식이 허용된 모양인가 · 원인 문장에 근거가 달렸는가&rsquo;를 자동으로 확인합니다. 그래도 &lsquo;언제·어느 날에 일어났나&rsquo; 같은 관계를 담은 문장은 이 검사기가 보지 못하므로, 그런 관계도 도구가 사실로 만들어 목록에 넣고 사람이 마지막으로 봅니다. 사내 자료는 밖으로 보내지 않고 사내 모델(회사 안 서버에서 돌아 입력이 밖으로 나가지 않는 LLM, 8절에서 정의합니다)로만 다룹니다.</p>
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
   <p><b>이미 아시는 것</b> — 0400 의 표와 지문, 0410 의 숫자 대조(표에 있음 / 계산됨 / 근거 없음)·근거·지어내기·재현성, 0206 의 마스크 이력, 0103·0304 의 교체 전후 비교.</p>
   <ul class="chips known"><li>파이프라인 표 · 지문 (0400)</li><li>숫자 대조 · 근거 (0410)</li><li>지어내기 · 재현성 (0410)</li><li>마스크 이력 (0206)</li><li>교체 전후 비교 (0103·0304)</li></ul>
-  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 검사 규칙의 이름(V1~V6)과 관계 사실은 쓰는 자리에서 문장으로 정의합니다.</p>
+  <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 JSON 의 칸 이름(text·cites·type), 검사 규칙의 이름(V1~V6), 관계 사실은 쓰는 자리에서 문장으로 정의합니다.</p>
   <ul class="chips" id="termList"><li>사실 목록 (fact list)</li><li>자리 채우기 (slot filling)</li><li>출력 형식 고정 (structured output)</li><li>스키마 (schema)</li><li>근거 인용 (citation)</li><li>사내 모델 (internal model)</li></ul>
 </div>
 
@@ -257,7 +257,7 @@ details>.llmq{margin:.4rem 0}
 <ul class="termdef">
   <li><b>자리 채우기 (slot filling)</b> — 문장 속 숫자 자리에 값을 직접 쓰지 않고 <code>{{f1}}</code> 같은 번호를 쓰게 한 뒤, 도구가 값을 넣는 방식입니다.</li>
 </ul>
-<p>번호로만 쓰게 하면 LLM 이 숫자를 베껴 쓰다 틀릴 일이 없고, 문장 속에 숫자가 직접 나타나면 곧 규칙 위반이라 기계가 찾아낼 수 있습니다. 사실 목록에 없는 숫자(비율·몫)가 필요하면 값을 직접 계산하지 말고 <code>{{calc: 식}}</code> 으로 쓰게 합니다. 식에는 번호·숫자 상수·<code>+ − * / ( )</code> 만 쓸 수 있고, 계산은 도구가 합니다.</p>
+<p>0410 의 답에서 숫자는 틀리지 않았고, 이 편의 설계 A 의 숫자도 모두 근거가 있었습니다. 그래도 번호로만 쓰게 하는 까닭은 틀림을 막으려는 것보다, 문장 속에 숫자가 직접 나타나면 곧 규칙 위반이 되어 기계가 숫자 자리를 검사할 수 있게 되기 때문입니다. 계산이 길어지면 베껴 쓰다 틀릴 수 있다는 점은 덤입니다. 사실 목록에 없는 숫자(비율·몫)가 필요하면 값을 직접 계산하지 말고 <code>{{calc: 식}}</code> 으로 쓰게 합니다. 식에는 번호·숫자 상수·<code>+ − * / ( )</code> 만 쓸 수 있고, 계산은 도구가 합니다. 자주 쓰는 비율(초과 비율·몫)은 이름 붙인 사실로 목록에 미리 넣어 두는 쪽이 더 낫습니다. 이 기록의 f1~f8 에는 비율이 없어서 모델이 식을 썼고, 식은 목록에 없는 조합이 필요할 때를 위한 출구입니다. 같은 식이 자주 나오면 사실 줄로 올립니다. 식은 도구가 계산해 주지만 식의 뜻이 맞는지는 사실 이름과 함께 사람이 봅니다.</p>
 <div class="tbwrap"><table id="tabR" class="mt"></table></div>
 <div class="lab">
   <div class="labtitle">설계 B 의 답 — 자리가 값으로 바뀌는 모습</div>
@@ -364,6 +364,7 @@ details>.llmq{margin:.4rem 0}
 <div class="tbwrap"><table id="tabV6r" class="mt num"></table></div>
 <div class="concl" id="conc7"></div>
 <p><b>짚어 둘 것이 있습니다.</b> 이 기록의 답 6개는 V6 이라는 규칙도 f9·f10 이라는 사실도 알기 전에 받은 것입니다. 목록에 f9·f10 이 있었다면 LLM 이 그 번호를 인용했을지는 이 기록으로는 알 수 없고, 목록을 바꿔 다시 맡겨 봐야 압니다. V6 으로도 못 보는 것은 번호를 인용한 채 해석을 잘못 쓴 문장입니다. 그런 문장은 사람이 봅니다.</p>
+<p>검사기에는 구멍이 둘 더 있습니다. 첫째, V6 은 사건 사실(f7)을 인용한 문장만 보므로 시점 낱말을 쓰면서 f7 을 아예 인용하지 않은 문장은 지나갑니다. 둘째, type 은 모델이 스스로 붙이는 칸이라 원인을 주장하는 문장에 &lsquo;사실&rsquo;을 붙이면 V4·V5 는 그 문장을 원인으로 보지 않고 통과시킵니다. 이 기록의 설계 B 답은 모두 규칙대로 type 을 붙였지만 세 번 물은 결과일 뿐이고, 어느 구멍이 더 흔한지는 이 기록으로는 알 수 없습니다. 9절의 &lsquo;읽을 문장&rsquo; 줄어듦도 모델이 type 을 규칙대로 붙인다는 가정 위의 숫자입니다.</p>
 
 <!-- ===================== 8 ===================== -->
 <h2><span class="no">8</span>착지 — 보고 구조 한 장</h2>
@@ -404,7 +405,7 @@ details>.llmq{margin:.4rem 0}
 
 <!-- ===================== 10 ===================== -->
 <h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
-<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 LLM 답 기록(<code>llm_runs_0411.json</code>)과 정답본 CSV 셋(<code>s15_clean_fdc_glass.csv</code> · <code>s15_clean_ppa_coef.csv</code> · <code>s15_mask_hist.csv</code>)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 정답본이 없으므로 <code>load_tables</code> 대신 0400 의 <code>run_daily</code> 가 낸 표를 받아 <code>build_facts</code> 에 넣으십시오. 사내 모델을 부르는 <code>ask_internal_model</code> 은 자리만 있고 호출하지 않습니다.</p>
+<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 LLM 답 기록(<code>llm_runs_0411.json</code>)과 정답본 CSV 셋(<code>s15_clean_fdc_glass.csv</code> · <code>s15_clean_ppa_coef.csv</code> · <code>s15_mask_hist.csv</code>)이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 회사에서는 정답본이 없으므로 <code>load_tables</code> 대신 0400 의 <code>run_daily</code> 가 낸 표를 받아 <code>build_facts</code> 에 넣으십시오. 사내 모델을 부르는 <code>ask_internal_model</code> 은 자리만 있고 호출하지 않습니다. 사실 줄로 올릴 것을 고르는 기준은 이렇습니다. 보고 문장이 쓸 숫자 전부(건수, 비율의 분자와 분모, 변화량), 문장이 말할 사건의 시각, 그 시각과 하루 구간의 관계입니다. 사내 모델이 아직 없어도 오늘 할 수 있는 연습은, 사람이 보고 문장 몇 개를 JSON 으로 직접 옮겨 쓰고 <code>validate</code> 에 넣어 어느 규칙에 걸리는지 보는 것입니다.</p>
 <div class="row"><a class="btn" href="../data/llm_runs_0411.json" download>llm_runs_0411.json</a><a class="btn" href="../data/csv/s15_clean_fdc_glass.csv" download>s15_clean_fdc_glass.csv</a><a class="btn" href="../data/csv/s15_clean_ppa_coef.csv" download>s15_clean_ppa_coef.csv</a><a class="btn" href="../data/csv/s15_mask_hist.csv" download>s15_mask_hist.csv</a></div>
 <pre id="pyCode">import json, math, os, re
 from datetime import datetime, timedelta
@@ -954,7 +955,7 @@ A-3 · 12 · 10 · 2 · 0 · 2 · 예
 <div class="two">
   <div class="card" style="margin:0">
     <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
-    <p class="note">다시 물으면 다른 답이 나오므로 아래를 남깁니다. 회사 기록은 회사 안에만 둡니다.</p>
+    <p class="note">다시 물으면 다른 답이 나오므로 아래를 남깁니다. 형식 어김(V1 실패)이 하루 몇 번인지는 이 기록을 날마다 쌓아 규칙별 실패 횟수를 세고, 한 달 모은 뒤 규칙별 실패 비율을 보면 압니다. 회사 기록은 회사 안에만 둡니다.</p>
     <ul style="margin:.3rem 0 0 1.1rem;padding:0">
       <li><b>프롬프트 판과 사실 목록 판</b>(바꾼 날 포함), <b>답 원문</b>.</li>
       <li><b>검사 결과</b> — 규칙별 통과·실패와 실패한 문장.</li>

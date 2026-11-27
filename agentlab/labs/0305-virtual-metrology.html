@@ -217,7 +217,7 @@ td.dim{color:var(--soft)}
 
 <div class="prob">
   <b class="tg">[문제]</b> 마스크 <b class="v_nm"></b>장이 <b class="v_nt"></b>턴 동안 증착한 기록입니다. PPA 는 마스크마다 한 턴에 <b class="v_ng"></b>장(턴 안 <span class="v_gits"></span>번째 유리)만 재므로 잰 유리는 <b class="v_n"></b>장이고, 마스크 한 장이 한 턴에 증착하는 유리는 <span class="v_npt"></span>장이라 나머지는 PPA 를 재지 않습니다. 유리마다 FDC 에는 챔버 온도 센서 표시값·턴·턴 안 순번·증착률·챔버 압력이 있습니다.<br>
-  <b>(1) 이 FDC 로 재지 않은 유리의 장변 배율 <i>M<sub>x</sub></i> 를 맞히는 모델을 만들고, 그 실력을 숫자 하나로 보고하십시오. (2) 직선과 트리 가운데 무엇을 씁니까. (3) 예측으로 순위를 매겨 한계를 넘었을 법한 유리부터 재면, 같은 측정 장 수로 한계를 넘은 유리를 얼마나 더 잡습니까. (4) 온도 센서 교정이 바뀌어도 이 모델을 계속 믿어도 됩니까. 바뀐 것은 어떻게 압니까.</b>
+  <b>(1) 이 FDC 로 재지 않은 유리의 장변 배율 <i>M<sub>x</sub></i> 를 맞히는 모델을 만들고, 그 실력을 숫자 하나로 보고하십시오(센서 교정 이력이 있을 때와 없을 때의 숫자는 8절에서 갈라 적습니다). (2) 직선과 트리 가운데 무엇을 씁니까. (3) 예측으로 순위를 매겨 한계를 넘었을 법한 유리부터 재면, 같은 측정 장 수로 한계를 넘은 유리를 얼마나 더 잡습니까. (4) 온도 센서 교정이 바뀌어도 이 모델을 계속 믿어도 됩니까. 바뀐 것은 어떻게 압니까.</b>
   <p class="note" style="margin:.5rem 0 0">한계는 6절에서 가정으로 정하고, 센서 교정 변화는 이 가상 라인에 일어나는 사건입니다(7절). 2~7절에서 숫자를 만들고 8절에서 이 네 물음으로 돌아옵니다.</p>
 </div>
 
@@ -234,7 +234,7 @@ td.dim{color:var(--soft)}
 
 <!-- ===================== 2 ===================== -->
 <h2><span class="no">2</span>첫 시도 — 전부 맞추고 같은 자료로 오차 재기</h2>
-<p>0303 의 모델 판(<i>M<sub>x</sub></i> = 마스크별 절편 + 열변형 기울기 × (온도 − <span class="v_T0"></span>) + 턴 기울기 × 턴)을 유리 <span class="v_n"></span>장 전부에 맞추고, 같은 <span class="v_n"></span>장에서 오차를 재 보겠습니다. 오차는 <b>RMSE</b>(root mean squared error)로 잽니다. 유리마다 (측정 − 예측)을 제곱해 평균하고 제곱근을 씌운 값이며 단위는 ppm 입니다.</p>
+<p>0303 의 모델 판(<i>M<sub>x</sub></i> = 마스크별 절편 + 열변형 기울기 × (온도 − <span class="v_T0"></span>) + 턴 기울기 × 턴)을 유리 <span class="v_n"></span>장 전부에 맞추고, 같은 <span class="v_n"></span>장에서 오차를 재 보겠습니다. 이 모델의 계수는 0303에서 구한 값과 똑같지 않습니다. 0303은 다른 가상 라인(자료 s11)의 24턴 전체로, 이 편은 이 라인(자료 s13)의 학습 구간 턴만으로 구하므로 장 수와 표본이 달라, 같은 모델 판이어도 계수가 표준오차 몇 배 안에서 다르게 나옵니다. 오차는 <b>RMSE</b>(root mean squared error)로 잽니다. 유리마다 (측정 − 예측)을 제곱해 평균하고 제곱근을 씌운 값이며 단위는 ppm 입니다.</p>
 <div class="eq">
   <span class="eqlab">RMSE (유리 <i>n</i>장)</span>
   <math display="block"><mrow><mtext>RMSE</mtext><mo>=</mo><msqrt><mrow><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo stretchy="false">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mover><mi>y</mi><mo>^</mo></mover><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow></math>
@@ -269,7 +269,7 @@ td.dim{color:var(--soft)}
 <div class="state" id="sdSt">시드 분포를 계산하고 있습니다…</div>
 <div class="tbwrap"><table id="tab3" class="mt num"></table></div>
 <div class="concl" id="conc3"></div>
-<p>직선 모델에서는 세 값이 거의 같습니다. 직선에는 이웃 유리에서 외울 것이 없기 때문입니다. 5절의 회귀 트리에서는 이 차이가 크게 벌어집니다. 먼저 4절에서 어떤 특징을 넣을지 가려 보겠습니다.</p>
+<p>직선 모델에서는 세 값이 거의 같습니다. 직선의 계수는 마스크별 절편과 온도·턴 기울기 둘뿐이고, 절편은 그 마스크 유리 전체의 평균 높이 하나여서 이웃 유리 한 장 한 장을 기억하지 못합니다. 반면 트리는 칸마다 평균을 따로 두어, 같은 턴·같은 마스크의 이웃 유리를 한 칸에 묶어 외울 수 있습니다. 5절의 회귀 트리에서는 이 차이가 크게 벌어집니다. 먼저 4절에서 어떤 특징을 넣을지 가려 보겠습니다.</p>
 
 <!-- ===================== 4 ===================== -->
 <h2><span class="no">4</span>특징 넣고 빼기 — 학습 오차는 늘 줄고, 시험 오차는 그렇지 않다</h2>
@@ -296,7 +296,7 @@ td.dim{color:var(--soft)}
 <div class="concl" id="conc4b"></div>
 <div class="qna" data-label="특징은 많을수록 좋은가요?" data-q="특징은 많을수록 좋은가요?">
   <p><b>아닙니다. 학습 RMSE 는 특징을 넣을수록 늘 줄지만, 시험 RMSE 는 일하는 특징일 때만 줄고 일하지 않는 특징은 거의 바꾸지 못합니다.</b> 이 라인에서 증착률을 더하면 학습 RMSE 가 <span class="q4_trA"></span> → <span class="q4_trB"></span>, 시험 RMSE 가 <span class="q4_teA"></span> → <span class="q4_teB"></span> ppm 으로 변합니다.</p>
-  <p>상관이 있는 특징은 서로 일을 나눠 갖습니다. 온도를 뺀 모델(턴 + 마스크별 절편)의 시험 RMSE <span class="q4_a"></span> ppm 은 압력을 넣으면 <span class="q4_b"></span>, 턴 안 순번을 넣으면 <span class="q4_c"></span> 로 줄지만, 온도를 넣은 <span class="q4_d"></span> 에는 못 미칩니다. 압력과 턴 안 순번이 줄이는 것은 이 둘이 온도와 같이 움직이기 때문이지 열변형을 직접 설명해서가 아닙니다(0303의 교란과 같은 원리). 특징은 많이 넣는 것이 아니라, 시험 구간에서 오차를 줄이는 것만 남기는 것입니다.</p>
+  <p>상관이 있는 특징은 서로 일을 나눠 갖습니다. 온도를 뺀 모델(턴 + 마스크별 절편)의 시험 RMSE <span class="q4_a"></span> ppm 은 압력을 넣으면 <span class="q4_b"></span>, 턴 안 순번을 넣으면 <span class="q4_c"></span> 로 줄지만, 온도를 넣은 <span class="q4_d"></span> 에는 못 미칩니다. 압력과 턴 안 순번이 줄이는 것은 이 둘이 온도와 같이 움직이기 때문이지 열변형을 직접 설명해서가 아닙니다(0303의 교란과 같은 원리). 특징은 많이 넣는 것이 아니라, 시험 구간에서 오차를 줄이는 것만 남기는 것입니다. 남길지 버릴지는 세 가지로 가립니다. 1) 시간순 시험 구간의 RMSE 를 줄이는가. 2) 줄이는 까닭이 열변형을 직접 설명해서인가, 온도와 같이 움직이는 덕인가. 3) 모델을 쓸 시점에 그 값이 있는가. 압력과 턴 안 순번은 2)에서 걸리므로 평소 모델에는 넣지 않고, 온도 센서가 고장 났을 때를 위한 대체 모델로 모델 판을 따로 두어 기록하는 것은 쓸 만합니다(온도 모델보다 시험 RMSE 가 크다는 것을 적고 씁니다).</p>
 </div>
 
 <!-- ===================== 5 ===================== -->
@@ -386,7 +386,7 @@ td.dim{color:var(--soft)}
   <div class="tbwrap"><table id="tab7" class="mt num"></table></div>
   <div class="concl" id="conc7"></div>
 </div>
-<p>알람이 나면 규칙은 두 가지 일을 합니다. 센서 교정 이력(날짜·전후 값)이 있으면 표시값을 되돌려 쓰고, 이력이 없으면 새 센서 판으로 모델을 다시 맞춥니다. 위 표의 &lsquo;교정 이력으로 되돌린 표시값의 시험 RMSE&rsquo;가 이력이 있을 때 얻는 것입니다.</p>
+<p>알람이 나면 규칙은 두 가지 일을 합니다. 센서 교정 이력(날짜·전후 값)이 있으면 표시값을 되돌려 쓰고, 이력이 없으면 새 센서 판으로 모델을 다시 맞춥니다. 위 표의 &lsquo;교정 이력으로 되돌린 표시값의 시험 RMSE&rsquo;가 이력이 있을 때 얻는 것입니다. 알람이 센서 때문인지 공정이 변해서인지는 EWMA 만으로 가려지지 않습니다. 첫 단서는 교정 이력의 날짜가 알람 시점과 맞는지이고, 맞으면 표시값을 되돌린 모델의 예측 오차가 0 근처로 돌아오는지로 확인합니다. 되돌려도 오차가 남거나 이력이 없는 알람은 재학습으로 덮지 말고 사람이 점검 대상으로 올립니다. 재학습한 모델은 8절의 표대로 사람의 승인을 받습니다.</p>
 <div class="qna" data-label="측정을 아예 없애도 되나요?" data-q="측정을 아예 없애도 되나요?">
   <p><b>아닙니다. 예측 오차는 잰 유리에서만 알 수 있어서, 측정을 0 으로 줄이면 모델이 틀려져도 알 방법이 없어집니다.</b> 이 라인에서 교정 변화(<span class="q7_d"></span> K)가 일어난 뒤 모델의 시험 RMSE 는 <span class="q7_a"></span> ppm 에서 <span class="q7_b"></span> ppm 으로 올라갔고, 이것을 알아차린 것은 잰 유리의 예측 오차였습니다.</p>
   <p>측정은 줄일 수 있어도 0 으로 만들 수는 없습니다. 가상 계측이 하는 일은 &lsquo;어느 유리를 먼저 잴지&rsquo;를 고르는 것이지, 재는 일을 대신하는 것이 아닙니다. 잰 유리의 수가 줄수록 같은 변화를 알아차리기까지 오래 걸린다는 점은 감시 설정(λ·<i>L</i>)과 함께 정해야 합니다.</p>
@@ -839,7 +839,7 @@ function upd5(){
   [['학습 온도 범위 안',inn],['범위 밖(더 따뜻함)',out]].forEach(function(q){h+='<tr><td class="rowh">'+q[0]+'</td><td>'+q[1].length+'</td><td>'+sg0(bias(q[1],LIN1.pred),3)+'</td><td>'+fmt(rm(q[1],LIN1.pred),3)+'</td><td>'+sg0(bias(q[1],tp),3)+'</td><td>'+fmt(rm(q[1],tp),3)+'</td></tr>';});
   $('tab5c').innerHTML=h;
   var bi=bias(inn,tp),bo=bias(out,tp),li=bias(inn,LIN1.pred),lo=bias(out,LIN1.pred);
-  $('conc5c').innerHTML='<b>범위 밖의 따뜻한 유리 '+out.length+'장에서 트리의 평균 오차는 '+sg0(bo,3)+' ppm'+(Math.abs(bo)>Math.abs(bi)?'으로 범위 안('+sg0(bi,3)+')보다 한쪽으로 더 치우칩니다':'으로 범위 안('+sg0(bi,3)+')과 비슷합니다')+'.</b> 직선은 범위 밖 '+sg0(lo,3)+' ppm, 범위 안 '+sg0(li,3)+' ppm 으로 '+(Math.abs(lo)<Math.abs(bo)?'기울기를 이어 가므로 치우침이 작습니다':'치우침이 비슷합니다')+'. 오차가 음수이면 트리가 더 높게(덜 내려가게) 예측한 것입니다. 트리는 온도뿐 아니라 턴도 학습 범위 밖이면 가장자리 칸의 평균에 머뭅니다.';
+  $('conc5c').innerHTML='<b>범위 밖의 따뜻한 유리 '+out.length+'장에서 트리의 평균 오차는 '+sg0(bo,3)+' ppm'+(Math.abs(bo)>Math.abs(bi)?'으로 범위 안('+sg0(bi,3)+')보다 한쪽으로 더 치우칩니다':'으로 범위 안('+sg0(bi,3)+')과 비슷합니다')+'.</b> 직선은 범위 밖 '+sg0(lo,3)+' ppm, 범위 안 '+sg0(li,3)+' ppm 으로 '+(Math.abs(lo)<Math.abs(bo)?'기울기를 이어 가므로 치우침이 작습니다':'치우침이 비슷합니다')+'. 오차가 음수이면 트리가 더 높게(덜 내려가게) 예측한 것입니다. 트리는 온도뿐 아니라 턴도 학습 범위 밖이면 가장자리 칸의 평균에 머뭅니다. 범위 안의 시험 유리만 보아도 트리 RMSE 는 '+fmt(rm(inn,tp),3)+' ppm 으로 직선 '+fmt(rm(inn,LIN1.pred),3)+' ppm 보다 '+(rm(inn,tp)>rm(inn,LIN1.pred)?'큽니다. 그래서 트리가 진 주된 까닭은 외삽만이 아니라 학습 구간의 이웃 유리를 칸마다 외운 과적합이고, 범위 밖은 그 위에 더해지는 약점입니다':'작습니다')+'.';
   draw5a();draw5b();
 }
 $('sD').addEventListener('input',function(){ST.d=+this.value;upd5();});
@@ -870,9 +870,12 @@ function upd6(){
   h+='<tr><td class="rowh">우선순위로 잡은 수 · 포착률</td><td>'+p.hit+' · <b>'+fmt(100*p.capture,1)+'%</b></td><td>'+dd(function(c){return c.cap;},1,true)+' %</td></tr>';
   h+='<tr><td class="rowh">무작위의 기대 포착률</td><td>'+fmt(100*p.random,1)+'%</td><td>'+fmt(100*p.random,1)+'%</td></tr>';
   h+='<tr><td class="rowh">완벽한 순서의 포착률</td><td>'+fmt(100*p.oracle,1)+'%</td><td>'+dd(function(c){return Math.min(c.m,c.nEx)/c.nEx;},1,true)+' %</td></tr>';
+  var pT=TL.priority(TE,function(r){return BASE[r.mask_id]+r.turn;},BASE,ST.lim,ST.q/100),pU=TL.priority(TE,function(r){return BASE[r.mask_id]+r.temp;},BASE,ST.lim,ST.q/100);
+  h+='<tr><td class="rowh">모델 없는 단순 규칙 — 턴이 늦은 유리부터 잼 · 포착률</td><td>'+fmt(100*pT.capture,1)+'%</td><td>대표 시드만</td></tr>';
+  h+='<tr><td class="rowh">모델 없는 단순 규칙 — FDC 온도가 높은 유리부터 잼 · 포착률</td><td>'+fmt(100*pU.capture,1)+'%</td><td>대표 시드만</td></tr>';
   h+='<tr><td class="rowh">우선순위 − 무작위 (%p)</td><td><b>'+sgn(100*(p.capture-p.random),1)+'</b></td><td>'+dd(function(c){return c.gain;},1,true)+'</td></tr>';
   $('tab6').innerHTML=h;
-  $('conc6').innerHTML='<b>시험 유리 '+p.n+'장 가운데 한계('+fmt(ST.lim,1)+' ppm)를 넘은 '+p.n_exceed+'장 중, 예측 순위로 상위 '+ST.q+'%('+p.m+'장)만 재면 '+p.hit+'장('+fmt(100*p.capture,1)+'%)을 잡습니다.</b> 무작위로 같은 장 수를 재면 기대 '+fmt(100*p.random,1)+'%이므로 '+fmt(100*(p.capture-p.random),1)+'%p 앞섭니다.';
+  $('conc6').innerHTML='<b>시험 유리 '+p.n+'장 가운데 한계('+fmt(ST.lim,1)+' ppm)를 넘은 '+p.n_exceed+'장 중, 예측 순위로 상위 '+ST.q+'%('+p.m+'장)만 재면 '+p.hit+'장('+fmt(100*p.capture,1)+'%)을 잡습니다.</b> 무작위로 같은 장 수를 재면 기대 '+fmt(100*p.random,1)+'%이므로 '+fmt(100*(p.capture-p.random),1)+'%p 앞섭니다. 모델 없이 턴이나 FDC 온도만으로 순서를 매긴 단순 규칙의 포착률(위 표)과 견주어, 예측 순위가 그보다 앞서는지 읽습니다. 단순 규칙 두 행은 대표 시드만 계산했고 시드 1~200 분포가 없어서 이 차이가 시드마다 유지되는지는 이 표로 알 수 없습니다. 또 예측 순위는 마스크별 기준까지 쓰고 단순 규칙은 쓰지 않으므로, 앞선 몫이 온도·턴의 효과인지 마스크별 절편 덕인지도 이 비교만으로는 가르지 못합니다.';
   draw6();
 }
 $('sQ').addEventListener('input',function(){ST.q=+this.value;upd6();upd9();upd8();});
@@ -917,7 +920,7 @@ function upd7(){
   h+='<tr><td class="rowh">시험 RMSE — 교정 이력으로 되돌린 표시값 (ppm)</td><td>'+fmt(LINTE,3)+'</td><td>'+dd(function(r){return r.m.lin_test;},3)+'</td></tr>';
   $('tab7').innerHTML=h;
   $('conc7').innerHTML=de<=0?'<b>교정 변화가 0 이면 예측 오차의 평균이 달라지지 않습니다.</b> 이때 교정 변화 뒤에 알람이 난다면(대표 시드 '+(delay==null?'없음':delay+'번째 유리')+') 변화가 없는데 난 헛알람입니다. 감시 한계는 변화가 없어도 평균 약 370장에 한 번 알람이 나도록 정한 값입니다.':
-    '<b>교정 변화 '+fmt(de,2)+' K 로 교정 변화 뒤 예측 오차의 평균이 '+sg0(D.mean_before,3)+' 에서 '+sg0(D.mean_after,3)+' ppm 으로 올랐고, '+(delay==null?'EWMA 는 알람을 내지 않았습니다':'EWMA 는 교정 변화 뒤 '+delay+'번째 잰 유리에서 알람을 냈습니다')+'.</b> 표시값을 그대로 쓰면 시험 RMSE 가 '+fmt(LINTE,3)+' 에서 '+fmt(rec,3)+' ppm 으로 커지고, 교정 이력으로 되돌리면 '+fmt(LINTE,3)+' 로 돌아옵니다. 변화 전 헛알람은 '+D.pre.length+'건이었습니다.';
+    '<b>교정 변화 '+fmt(de,2)+' K 로 교정 변화 뒤 예측 오차의 평균이 '+sg0(D.mean_before,3)+' 에서 '+sg0(D.mean_after,3)+' ppm 으로 올랐고, '+(delay==null?'EWMA 는 알람을 내지 않았습니다':'EWMA 는 교정 변화 뒤 '+delay+'번째 잰 유리에서 알람을 냈습니다')+'.</b> 표시값을 그대로 쓰면 시험 RMSE 가 '+fmt(LINTE,3)+' 에서 '+fmt(rec,3)+' ppm 으로 커지고, 교정 이력으로 되돌리면 '+fmt(LINTE,3)+' 로 돌아옵니다. 변화 전 헛알람은 '+D.pre.length+'건이었습니다. 이 건수는 감시 한계가 정한 기대(오차가 서로 독립이고 정규분포일 때 약 370장에 한 번)와 다를 수 있습니다. 표준화에 쓴 평균·표준편차가 검증 구간 몇 턴의 추정이어서, 이후 턴에서 오차의 퍼짐이 커지거나 꼬리가 두꺼우면 한계를 더 자주 넘기 때문입니다. 이 시드에서 검증 구간의 예측 오차 표준편차는 '+fmt(D.sd,3)+' ppm 이고, 검증 구간 뒤부터 교정 변화 전까지(턴 '+(VA[VA.length-1].turn+1)+'~'+(CALT-1)+')는 '+fmt(sdev(D.err.filter(function(e,i){return D.rows[i].turn>VA[VA.length-1].turn&&i<D.shift_at-1;})),3)+' ppm 입니다. 이 한 비교는 원인 후보를 보이는 것이고, 헛알람이 많은 이유 전부를 밝힌 것은 아닙니다. 대표 시드가 유난한지는 위 표의 시드 1~200 중앙값과 10~90% 구간으로 봅니다.';
   draw7(D);
 }
 $('sDe').addEventListener('input',function(){ST.de=+this.value;upd7();upd8();});
@@ -928,7 +931,7 @@ $('rDe').addEventListener('click',function(){ST.de=CAL0;$('sDe').value=String(CA
 function upd8(){
   var d=ST.d,p=pri(ST.q,ST.lim),D=TL.drift(SS,LIN1.pred,{delta:ST.de}),delay=D.first==null?null:D.first-(D.shift_at-1),recS=TL.rmse(TL.range(TL.view(SS,{recorded:true,delta:ST.de}),TE0[0],TE0[1]),LIN1.pred);
   var h='<tr><th>물음</th><th>답</th><th>숫자</th></tr>';
-  h+='<tr><td class="rowh">(1) 모델의 실력</td><td>시간순 시험 구간의 RMSE 로 보고합니다.</td><td><b>'+fmt(LINTE,3)+' ppm</b> (턴 '+TE0[0]+'~'+TE0[1]+', 섞어 나누기 '+fmt(RMSH,3)+'는 참고)</td></tr>';
+  h+='<tr><td class="rowh">(1) 모델의 실력</td><td>시간순 시험 구간의 RMSE 로 보고합니다. 센서 교정 이력이 있어 표시값을 되돌린 값이면 앞의 숫자, 이력이 없어 표시값 그대로이면 뒤의 숫자이고, 어느 쪽인지 함께 적습니다.</td><td><b>'+fmt(LINTE,3)+' ppm</b>(되돌린 값) · '+fmt(recS,3)+' ppm(표시값 그대로) (턴 '+TE0[0]+'~'+TE0[1]+', 섞어 나누기 '+fmt(RMSH,3)+'는 참고)</td></tr>';
   h+='<tr><td class="rowh">(2) 직선과 트리</td><td>'+(TT[d]>LINTE?'직선을 씁니다.':'트리를 견줘 볼 만합니다.')+'</td><td>시험 RMSE 직선 '+fmt(LINTE,3)+' · 트리(깊이 '+d+') '+fmt(TT[d],3)+'</td></tr>';
   h+='<tr><td class="rowh">(3) 우선순위 측정</td><td>예측 순위로 먼저 재면 같은 장 수로 더 잡습니다.</td><td>상위 '+ST.q+'%(한계 '+fmt(ST.lim,1)+' ppm): 포착률 '+fmt(100*p.capture,1)+'% 대 무작위 '+fmt(100*p.random,1)+'%</td></tr>';
   h+='<tr><td class="rowh">(4) 센서 교정 변화</td><td>계속 믿어서는 안 됩니다. 예측 오차를 감시해 알아냅니다.</td><td>교정 변화 '+fmt(ST.de,2)+' K: '+(delay==null?'알람 없음':delay+'번째 잰 유리에서 알람')+' · 표시값 그대로의 시험 RMSE '+fmt(recS,3)+'</td></tr>';

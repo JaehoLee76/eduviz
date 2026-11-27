@@ -202,11 +202,11 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 
 <nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0411-llm-verification-design.html">← 이전: LLM에게 일을 맡기는 법 — 검증 설계</a><span class="sp"></span><a href="0402-agent-evaluation.html">다음: 에이전트 평가 →</a></nav>
 
-<p><b>지금까지 만든 함수를 매일 아침 사람이 차례로 부르고 있습니다.</b> 이 순서를 정해 두고 스스로 돌게 하되, 상태를 바꾸는 일은 0206 의 전이 표에 있는 전이만 가드를 통과할 때 하게 하고, 되돌릴 수 없는 일은 사람 승인 대기열로 보내고, 자료 점검이 실패한 날은 분석하지 않고 알리기만 하게 만든 &lsquo;규칙으로 묶인 실행자&rsquo;가 이 실험실의 에이전트입니다. 매 단계가 기록으로 남으므로 틀렸을 때 어느 단계가 틀렸는지 찾을 수 있습니다. 무대는 0400 의 가상 공장 <span class="v_days"></span>일(대표 시드 <span class="v_seed"></span>, 챔버 <span class="v_nch"></span>개)이고, 에이전트는 날마다 0400 이 낸 표를 받습니다. 보고 문장은 정해 둔 틀로 만들며 LLM 을 부르지 않습니다.</p>
+<p><b>지금까지 만든 함수를 매일 아침 사람이 차례로 부르고 있습니다.</b> 이 순서를 정해 두고 스스로 돌게 하되, 상태를 바꾸는 일은 0206 의 전이 표에 있는 전이만 가드를 통과할 때 하게 하고, 되돌릴 수 없는 일은 사람 승인 대기열로 보내고, 자료 점검이 실패한 날은 분석하지 않고 알리기만 하게 만든 &lsquo;규칙으로 묶인 실행자&rsquo;가 이 실험실의 에이전트입니다. 매 단계가 기록으로 남으므로 틀렸을 때 어느 단계가 틀렸는지 찾을 수 있습니다. 무대는 0400 의 가상 공장 <span class="v_days"></span>일(대표 시드 <span class="v_seed"></span>, 챔버 <span class="v_nch"></span>개)이고, 에이전트는 날마다 0400 이 낸 표를 받습니다. 보고 문장은 정해 둔 틀로 만들며 LLM 을 부르지 않습니다. LLM 은 이 뼈대의 보고 칸에 들어올 자리이고(7절), 이 편은 그 뼈대만 만듭니다. 하루 한 번 도는 스크립트와 다른 점은 도구 목록 안에서만 일하고, 상태를 바꾸는 일이 가드와 승인 대기열을 거치며, 매 단계가 실행 기록에 남는다는 것입니다.</p>
 
 <div class="card">
   <h3 style="margin-top:0">시작하기 전에</h3>
-  <p><b>이미 아시는 것</b> — 0400 의 점검 일곱 규칙과 지문, 0104 의 변경점 전후 비교(자기상관·대조 챔버 이중차분), 0202 의 가족 오류율과 본페로니 보정, 0206 의 전이 표와 요청 판정, 0304·0306 의 리페어 판단과 리페어 직후 기준 측정, 0411 의 사실 목록과 검사기(V1~V6).</p>
+  <p><b>이미 아시는 것</b> — 0400 의 점검 일곱 규칙과 지문, 0104 의 변경점 전후 비교(자기상관·대조 챔버 이중차분), 0202 의 가족 오류율과 본페로니 보정, 0206 의 전이 표와 요청 판정, 0304·0306 의 리페어 판단과 새 마스크의 기준 배율(0306 5절), 0411 의 사실 목록과 검사기(V1~V6).</p>
   <ul class="chips known"><li>점검 일곱 · 지문 (0400)</li><li>변경점 판정 흐름 (0104)</li><li>가족 오류율 · 본페로니 (0202)</li><li>전이 표 · 요청 판정 (0206)</li><li>리페어 판단 (0304·0306)</li><li>사실 목록 · 검사기 (0411)</li></ul>
   <p><b>새로 이름을 붙이는 낱말은 여섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 여섯 개 말고 이 글이 쓰는 &lsquo;요청&rsquo;·&lsquo;판정&rsquo;·&lsquo;가드&rsquo;는 쓰는 자리에서 문장으로 풀어 둡니다.</p>
   <ul class="chips" id="termList"><li>에이전트 (agent)</li><li>도구 (tool)</li><li>실행 단계 (step)</li><li>정책 (policy)</li><li>승인 대기열 (approval queue)</li><li>실행 기록 (agent log)</li></ul>
@@ -269,10 +269,10 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 
 <!-- ===================== 3 ===================== -->
 <h2><span class="no">3</span>점검이 먼저</h2>
-<p>0400 의 점검 일곱 규칙이 실패하면 그날은 분석하지 않고 알림만 냅니다. 14일 달력에 그날 점검 결과와 주입된 고장(가상이라 정답이 있습니다)을 함께 놓았습니다. 칸을 누르면 그날 규칙별 값이 아래 표에 나옵니다. 마스크 이력 표에는 점검 규칙이 없으므로, 점검이 실패한 날에는 그 표도 읽지 않고 다음 통과한 날에 한꺼번에 읽는다고 정했습니다.</p>
+<p>0400 의 점검 일곱 규칙이 실패하면 그날은 분석하지 않고 알림만 냅니다. 14일 달력에 그날 점검 결과와 주입된 고장(가상이라 정답이 있습니다)을 함께 놓았습니다. 칸을 누르면 그날 규칙별 값이 아래 표에 나옵니다. 마스크 이력 표에는 점검 규칙이 없습니다. 이 시제품은 그 표를 읽는 일을 &lsquo;점검을 통과한 날의 분석 단계&rsquo; 안에 넣어 두었습니다. 점검이 실패한 날은 분석·결정·요청 단계 전체를 건너뛰므로 그날의 이력은 읽히지 않고 다음 통과한 날에 한꺼번에 읽힙니다. 이 표는 점검과 상관없이 읽어도 되므로, 이것은 구조를 단순하게 둔 시제품의 한계입니다. 그 대가가 5일의 교체를 8일에야 알아채는 일이고, 0402 의 7절이 고칠 곳으로 다시 짚습니다.</p>
 <div class="lab">
   <div class="labtitle">14일 달력 — 분석한 날과 멈춘 날</div>
-  <div class="watch"><b>무엇을 볼지 먼저.</b> 아래 슬라이더로 &lsquo;허용하는 점검 실패 수&rsquo;를 0 에서 끝까지 올려 보십시오. 분석하는 날이 늘어나는 만큼, 고장이 든 채로 분석한 날과 정답과 달라진 날도 함께 늘어납니다.</div>
+  <div class="watch"><b>무엇을 볼지 먼저.</b> 아래 슬라이더로 &lsquo;허용하는 점검 실패 수&rsquo;를 0 에서 끝까지 올려 보십시오. 분석하는 날이 늘어나는 만큼, 고장이 든 채로 분석한 날과 정답과 달라진 날도 함께 늘어납니다. 두 수는 달력 아래 한 줄 요약에 나옵니다. &lsquo;정답과 달라진 날&rsquo;은 그날의 고장 든 표로 낸 분석 결과가, 고장이 없는 정답본으로 낸 결과와 달랐던 날입니다(0400).</div>
   <div class="ctrl"><label for="sTol">허용하는 점검 실패 수 (끝 값 = 점검 끔)</label><input type="range" id="sTol" min="0" max="7" step="1" value="0"><output id="sTolO"></output></div>
   <div class="row"><button class="btn ghost" id="pStrict" type="button">엄격(기본)</button><button class="btn ghost" id="pTwo" type="button">실패 2개까지 허용</button><button class="btn ghost" id="pOff" type="button">점검 끄기(탐구)</button></div>
   <div class="state" id="stTol"></div>
@@ -293,7 +293,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 <ul class="termdef">
   <li><b>정책 (policy)</b> — 어떤 관찰에서 어떤 결정·요청을 내는지 정한 규칙 표(문턱 포함)입니다. 정책이 바뀌면 같은 자료에서도 행동이 바뀝니다.</li>
 </ul>
-<p>분석은 0104 의 판정 흐름을 따릅니다. 챔버마다 &lsquo;최근 k일&rsquo;과 &lsquo;그 전 m일&rsquo;(분석한 날만)의 보정 후 Mx 를 비교하되, 같은 날 다른 챔버들의 중앙값을 빼서(대조 챔버 이중차분) 모두가 같이 움직이는 몫을 걷어 내고, 이웃 유리가 닮은 정도(자기상관)를 실효 표본 수로 반영한 Welch 검정을 쓰고, 챔버 여덟 개를 한꺼번에 보므로 0202 의 본페로니 보정(유의수준 0.05 를 챔버 수로 나눔)을 겁니다. 변경점은 &lsquo;효과가 문턱 이상이고 p 가 보정한 수준 이하&rsquo;일 때입니다. 변경점이 잡히면 시각 근처의 사건을 원인 <b>후보</b>로 붙이고(마스크 교체·이벤트), 없으면 원인 미확인으로 둡니다.</p>
+<p>이 절의 분석은 새 도구가 아니라 앞 편의 도구를 한 줄로 이어 붙인 것입니다(0104 의 판정 흐름). 순서는 이렇습니다. 1) <b>k·m</b> — 챔버마다 &lsquo;최근 k일&rsquo;과 &lsquo;그 전 m일&rsquo;(분석한 날만)의 보정 후 Mx 를 모읍니다. 2) 같은 날 다른 챔버들의 중앙값을 빼서(0104 의 대조 챔버 이중차분) 모두가 같이 움직이는 몫을 걷어 냅니다. 3) 이웃 유리가 닮은 정도(자기상관)를 실효 표본 수로 반영한 Welch 검정(0104)으로 두 구간의 차이를 검정하고, 챔버 여덟 개를 한꺼번에 보므로 0202 의 본페로니 보정(유의수준 0.05 를 챔버 수로 나눔)을 겁니다. 4) <b>문턱</b> — 변경점은 &lsquo;효과(두 구간의 차)가 문턱 이상이고 p 가 보정한 수준 이하&rsquo;일 때입니다. 변경점이 잡히면 시각 근처의 사건을 원인 <b>후보</b>로 붙이고(마스크 교체·이벤트), 없으면 원인 미확인으로 둡니다.</p>
 <div class="lab">
   <div class="labtitle">정책 표 — 만져 보면 아래 결정·요청이 함께 바뀝니다</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 3절의 &lsquo;실패 2개까지 허용&rsquo; 단추를 누른 뒤 k·m·문턱을 바꿔 보십시오. 엄격한 기본 상태에서는 분석한 날이 몇 안 되어 k·m·문턱을 바꿔도 결정이 달라지지 않습니다. 분석할 날을 정하는 것이 점검 허용 수이기 때문입니다. 이어서 문턱을 낮춰 보고, 아래 비교표에서 점검을 끈 줄에 B03-CH2 말고 다른 챔버의 변경점이 생기는지 확인하십시오.</div>
@@ -305,7 +305,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
   <div class="ctrl"><label for="sScr">제외 후보 초과 비율 (%)</label><input type="range" id="sScr" min="10" max="100" step="10" value="50"><output id="sScrO"></output></div>
   <div class="ctrl"><label for="sShare">spec 변경 제안 비율 (% , 전체 유리 중 초과)</label><input type="range" id="sShare" min="2" max="40" step="1" value="10"><output id="sShareO"></output></div>
   <label class="chk"><input type="checkbox" id="cBonf" checked>다중 비교 보정(본페로니) 적용</label>
-  <div class="row"><button class="btn ghost" id="rPol" type="button">정책을 기본값으로 되돌리기</button></div>
+  <div class="row"><button class="btn ghost" id="pTwoB" type="button">먼저 점검 허용을 실패 2개까지로 올리기</button><button class="btn ghost" id="rPol" type="button">정책을 기본값으로 되돌리기</button></div>
   <div class="state" id="stPol"></div>
   <h3>변경점 판정 — 보는 날을 골라 챔버별로</h3>
   <div class="ctrl"><label for="sSel4">보는 날</label><input type="range" id="sSel4" min="1" max="14" step="1" value="8"><output id="sSel4O"></output></div>
@@ -324,7 +324,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 
 <!-- ===================== 5 ===================== -->
 <h2><span class="no">5</span>전이 요청과 가드</h2>
-<p>결정이 서면 에이전트는 &lsquo;요청&rsquo;을 냅니다. 요청 한 건의 판정은 순서대로 세 가지를 봅니다. 1) 0206 의 전이 표에 그 전이가 있는가(없으면 거절). 2) 표에 있어도 사람 승인이 필요한 전이인가(마스크 제외가 그렇습니다 — 되돌릴 수 없으므로 바꿀 수 없는 규칙입니다). 3) 가드를 통과하는가 — 리페어는 &lsquo;동시에 리페어 중인 마스크 수가 한도 미만&rsquo;이어야 합니다(한도는 가정값). 기준 측정 요청·보정값 입력은 설비 상태를 바꾸지 않고 기록만 남기므로 바로 허용되고, spec 변경은 전이 표 밖의 일이지만 되돌릴 수 없으므로 사람 승인으로 둡니다.</p>
+<p>결정이 서면 에이전트는 &lsquo;요청&rsquo;을 냅니다. 요청 한 건의 판정은 순서대로 세 가지를 봅니다. 1) 0206 의 전이 표에 그 전이가 있는가(없으면 거절). 2) 표에 있어도 사람 승인이 필요한 전이인가(마스크 제외가 그렇습니다 — 되돌릴 수 없으므로 바꿀 수 없는 규칙입니다). 3) 가드를 통과하는가 — 리페어는 &lsquo;동시에 리페어 중인 마스크 수가 한도 미만&rsquo;이어야 합니다(한도는 가정값). <b>기준 측정</b>은 마스크를 새로 끼운 직후 그 마스크의 배율을 한 번 재어 기준으로 남기는 일입니다(0306 5절의 &lsquo;기준 배율&rsquo;). 기준이 있어야 이후의 배율이 수명의 어디쯤인지 읽히므로 마스크 교체 때마다 요청합니다. 기준 측정 요청·보정값 입력은 설비 상태를 바꾸지 않고 기록만 남기므로 바로 허용되고, spec 변경은 전이 표 밖의 일이지만 되돌릴 수 없으므로 사람 승인으로 둡니다.</p>
 <div class="lab">
   <div class="labtitle">요청과 판정 — 가드와 승인 정책</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 가드를 보려면 아래 &lsquo;가드 시험 정책&rsquo;을 누르십시오. 점검 허용 수와 문턱이 옮겨져 리페어 요청이 여러 건 생깁니다. 이어서 리페어 동시 한도를 1 로 내리면 거절이 늘고, &lsquo;리페어도 사람 승인&rsquo;을 켜면 허용이 승인 대기로 옮겨 갑니다.</div>
@@ -352,7 +352,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 <ul class="termdef">
   <li><b>승인 대기열 (approval queue)</b> — 사람 승인이 필요한 요청(되돌릴 수 없는 전이·spec 변경)을 쌓아 두는 곳입니다. 사람이 승인·반려하기 전에는 실행되지 않습니다.</li>
 </ul>
-<p>아래 대기열의 요청을 직접 처리해 보십시오. 학습자의 결정은 요청한 다음 날 아침에 반영되고(그날까지 사람이 보았다고 가정), 승인한 요청은 그날 실행됩니다. 승인된 spec 변경은 그날부터 지표 초과 건수의 기준이 되어 이후 결정에 영향을 줍니다. 14일째에 올라온 요청은 15일 아침에 반영되므로 이 실행 안에서는 대기로 남습니다.</p>
+<p>아래 대기열의 요청을 직접 처리해 보십시오. 학습자의 결정은 요청한 다음 날 아침에 반영되고(그날까지 사람이 보았다고 가정), 승인한 요청은 그날 실행됩니다. 승인된 spec 변경은 그날부터 지표 초과 건수의 기준이 되어 이후 결정에 영향을 줍니다. 14일째에 올라온 요청은 15일 아침에 반영되므로 이 실행 안에서는 대기로 남습니다. spec 변경을 승인할지는 제안 문장 괄호에 적힌 초과의 분포부터 봅니다. 초과한 유리가 한 챔버에 몰려 있으면 spec 이 아니라 그 챔버의 문제일 가능성이 크고, spec 을 올리면 불량을 숨기게 되므로 반려하고 그 챔버의 점검과 기준 측정을 먼저 봅니다. 여러 챔버에 고르게 퍼진 초과(모든 마스크의 노후 같은 것)라면 spec 자체를 다시 정할지 사람이 검토합니다.</p>
 <div class="lab">
   <div class="labtitle">승인 대기열 — 승인·반려가 다음 날 상태에 반영됩니다</div>
   <div class="watch"><b>무엇을 볼지 먼저.</b> 요청을 승인하거나 반려해 보십시오. 아래 그래프의 막대(대기 길이)와 선(spec)이 함께 바뀌고, 요청한 다음 날 보고에 처리 결과 문장이 붙습니다.</div>
@@ -417,7 +417,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--accent)}
 
 <!-- ===================== 10 ===================== -->
 <h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
-<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 0400 이 낸 네 표의 CSV 이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 점검 일곱 규칙과 입력 지문은 0400 의 <code>run_daily</code> 와 같은 규칙을 이 파일 안에 줄여 넣은 것이므로, 회사에서는 0400 의 함수를 불러 쓰는 쪽이 낫습니다. 승인 대기열의 결정은 <code>run_agent</code> 의 세 번째 인자(요청 번호 → 승인 또는 반려)로 넣습니다. 사내 모델은 부르지 않고 보고 문장은 정해 둔 틀로 만듭니다.</p>
+<p>아래 코드는 표준 라이브러리와 <code>pandas</code> 만 씁니다. 입력은 0400 이 낸 네 표의 CSV 이고, 코드와 같은 폴더에 두면 그대로 돌아갑니다. 점검 일곱 규칙과 입력 지문은 0400 의 <code>run_daily</code> 와 같은 규칙을 이 파일 안에 줄여 넣은 것이므로, 회사에서는 0400 의 함수를 불러 쓰는 쪽이 낫습니다. 내일 가장 먼저 만들 것은 0400 의 출력에 없는 부분, 곧 정책 표(문턱과 점검 허용 수)와 요청 함수(전이 표 확인·승인 필요 표시·가드)와 실행 기록 저장입니다. 관찰과 점검은 0400 의 <code>run_daily</code> 출력을 그대로 받으면 됩니다. 승인 대기열의 결정은 <code>run_agent</code> 의 세 번째 인자(요청 번호 → 승인 또는 반려)로 넣습니다. 사내 모델은 부르지 않고 보고 문장은 정해 둔 틀로 만듭니다.</p>
 <div class="row"><a class="btn" href="../data/csv/s15_fdc_glass.csv" download>s15_fdc_glass.csv</a><a class="btn" href="../data/csv/s15_ppa_coef.csv" download>s15_ppa_coef.csv</a><a class="btn" href="../data/csv/s15_events.csv" download>s15_events.csv</a><a class="btn" href="../data/csv/s15_mask_hist.csv" download>s15_mask_hist.csv</a></div>
 <p class="note"><b>쓰면 안 되는 때:</b> 승인 대기열을 자동 승인으로 바꾸지 마십시오. 도구 목록 밖의 함수를 부르게 하지 마십시오. 실제 설비 제어 시스템에 쓰기 권한을 주지 마십시오(요청과 기록까지만). 회사 계정과 비밀번호를 코드에 적지 마십시오.</p>
 <pre id="pyCode">import json, math, os, re, statistics
@@ -1361,7 +1361,7 @@ function updQueue(){
     var st=q.status==='pending'?'<span class="badge wait">대기</span>':badge(q.verdict);
     var eff=q.status==='pending'?(q.day>=DAYS?'요청이 '+DAYS+'일째라 반영일('+(q.day+1)+'일 아침)이 이 실행 밖입니다.':'승인하면 '+(q.day+1)+'일 아침에 실행됩니다.'):(q.decision?(q.decided_day+'일 아침 반영: '+esc(q.reason)):esc(q.reason));
     h+='<div class="qitem"><div class="qt">'+q.id+' · '+q.day+'일 요청 · '+KO[q.kind]+' '+st+' '+(q.reversible?'':'<span class="badge no">되돌릴 수 없음</span>')+'</div>'
-      +'<div>'+esc(q.text)+(q.kind==='spec'?' (최근 유리의 '+Math.round(q.share*100)+'%가 spec 을 넘었고, 그 가운데 '+Math.round(q.top_share*100)+'%가 '+q.top+' 한 챔버입니다)':'')+'</div><div class="note">'+eff+'</div>'
+      +'<div>'+esc(q.text)+(q.kind==='spec'?' (최근 유리의 '+Math.round(q.share*100)+'%가 spec 을 넘었고, 그 가운데 '+Math.round(q.top_share*100)+'%가 '+q.top+' 한 챔버입니다)':'')+'</div>'+(q.kind==='spec'?'<div class="note"><b>이 예시의 맞는 판정:</b> '+(q.top_share>=0.5?'반려입니다. 초과의 '+Math.round(q.top_share*100)+'%가 '+q.top+' 한 챔버에 몰려 있어 spec 이 아니라 그 챔버의 문제이고, spec 을 올리면 불량을 숨기게 됩니다. 반려한 뒤 그 챔버의 점검과 기준 측정을 먼저 봅니다.':'여러 챔버에 퍼진 초과라 spec 재검토 대상이므로 사람이 근거를 더 보고 정합니다.')+'</div>':'')+'<div class="note">'+eff+'</div>'
       +(q.day<DAYS?'<div class="row"><button class="btn'+(ST.dec[q.id]==='approve'?'':' ghost')+'" data-d="approve" data-id="'+q.id+'" aria-pressed="'+(ST.dec[q.id]==='approve')+'" type="button">승인</button><button class="btn'+(ST.dec[q.id]==='reject'?'':' ghost')+'" data-d="reject" data-id="'+q.id+'" aria-pressed="'+(ST.dec[q.id]==='reject')+'" type="button">반려</button></div>':'')+'</div>';
   });
   $('queueBox').innerHTML=h||'<div class="state">이 정책에서는 사람 승인이 필요한 요청이 없습니다. 정책에서 점검 허용 수나 spec 제안 비율을 바꾸면 생깁니다.</div>';
@@ -1447,7 +1447,7 @@ bind('sSel4',function(v){ST.sel4=v;});bind('sSel7',function(v){ST.sel7=v;});bind
 $('cBonf').addEventListener('change',function(){ST.pol.bonf=this.checked;refresh();});
 $('cRepH').addEventListener('change',function(){ST.pol.repair_human=this.checked;refresh();});
 $('cSpecR').addEventListener('change',function(){ST.pol.spec_reject=this.checked;refresh();});
-$('pStrict').addEventListener('click',function(){ST.pol.tol=0;refresh();});$('pTwo').addEventListener('click',function(){ST.pol.tol=2;refresh();});$('pOff').addEventListener('click',function(){ST.pol.tol=7;refresh();});
+$('pStrict').addEventListener('click',function(){ST.pol.tol=0;refresh();});$('pTwo').addEventListener('click',function(){ST.pol.tol=2;refresh();});$('pTwoB').addEventListener('click',function(){ST.pol.tol=2;refresh();});$('pOff').addEventListener('click',function(){ST.pol.tol=7;refresh();});
 $('rPol').addEventListener('click',function(){['tol','k','m','delta','bonf','ex_n','scrap_ratio','spec_share'].forEach(function(k){ST.pol[k]=P0[k];});refresh();});
 $('pGuard').addEventListener('click',function(){ST.pol.tol=4;ST.pol.k=2;ST.pol.m=3;ST.pol.delta=0.2;ST.pol.bonf=false;refresh();});
 $('rReq').addEventListener('click',function(){ST.pol.repair_cap=P0.repair_cap;ST.pol.repair_human=P0.repair_human;ST.pol.spec_reject=P0.spec_reject;refresh();});
