@@ -4879,14 +4879,14 @@ for t in O6['track']:
     for fn in t['tools']:
         o6_ntool += 1
         if fn not in defs: o6_bad_tool.append((t['id'], fn))
-o6_labs_ok = {t['id'] for t in O6['track']} == o6_ids - {'0606'} and len(O6['track']) == 29
+o6_labs_ok = {t['id'] for t in O6['track']} == o6_ids - {'0606'} and len(O6['track']) == 30
 o6_cited = set(_re5.findall(r'(?<![\w.])(0[1-6]\d\d)(?!\d)', o6_body + ' ' + o6_app)); o6_bad_cite = sorted(c for c in o6_cited if c not in o6_ids)
 o6_pyfn = set(_re5.findall(r'^def ([A-Za-z_]\w*)\(', o6_code, _re5.M)); o6_page_fn = ['count_table', 'behavior_clone', 'offline_q', 'conservative_q', 'ood_check', 'evaluate_policy']
 o6_bad_fn = [f for f in o6_page_fn if f not in o6_pyfn]
 o6_stage_ids = set(_re5.findall(r"labs:\[([^\]]*)\]", o6_app)); o6_stage_ids = set(_re5.findall(r"'(\d{4})'", ' '.join(o6_stage_ids)))
 o6_with_rec = sum(1 for t in O6['track'] if t['records']); o6_with_tool = sum(1 for t in O6['track'] if t['tools'])
-chk(f'0606 총괄표 실존 확인: 표 파일의 기록 항목 {o6_nrec}개가 해당 실험실 페이지 본문에 그대로 있고({len(o6_bad_rec)}건 없음), 도구 함수 {o6_ntool}개가 그 페이지 Python 에 def 로 있고({len(o6_bad_tool)}건 없음), 0101~0605 실험실 29개가 모두 표에 있으며, 페이지가 인용한 실험실 번호({len(o6_cited)}개)가 모두 실제 파일이고, 이 장 도구 함수 여섯이 페이지 Python 에 정의돼 있고, 단계 점검표의 실험실 번호가 실존',
-    not o6_bad_rec and not o6_bad_tool and o6_labs_ok and not o6_bad_cite and not o6_bad_fn and o6_stage_ids <= o6_ids and o6_with_rec == 29 and o6_with_tool >= 28 and o6_nrec >= 110 and o6_ntool >= 120,
+chk(f'0606 총괄표 실존 확인: 표 파일의 기록 항목 {o6_nrec}개가 해당 실험실 페이지 본문에 그대로 있고({len(o6_bad_rec)}건 없음), 도구 함수 {o6_ntool}개가 그 페이지 Python 에 def 로 있고({len(o6_bad_tool)}건 없음), 0101~0605 실험실 30개가 모두 표에 있으며, 페이지가 인용한 실험실 번호({len(o6_cited)}개)가 모두 실제 파일이고, 이 장 도구 함수 여섯이 페이지 Python 에 정의돼 있고, 단계 점검표의 실험실 번호가 실존',
+    not o6_bad_rec and not o6_bad_tool and o6_labs_ok and not o6_bad_cite and not o6_bad_fn and o6_stage_ids <= o6_ids and o6_with_rec == 30 and o6_with_tool >= 28 and o6_nrec >= 110 and o6_ntool >= 120,
     f'기록 {o6_nrec}개 · 함수 {o6_ntool}개 · 기록 있는 실험실 {o6_with_rec} · 도구 있는 실험실 {o6_with_tool} · 없는 기록 {o6_bad_rec[:3]} · 없는 함수 {o6_bad_tool[:3]} · 없는 번호 {o6_bad_cite} · 없는 함수 {o6_bad_fn}')
 
 # 10. 페이지 구조
@@ -4916,6 +4916,172 @@ chk('0606 페이지: 새 용어 6개 · Q&A 4개(퍼센트 숫자 없음) · 절
     f'용어 {o6_term} · Q&A {o6_nq} · 절 {o6_nsec} · MathML {o6_nmath} · 캔버스 글자 최소 {min(o6_fonts) if o6_fonts else None}px({len(o6_fonts)}곳) · -다 끝맺음 {len(o6_endda)}건({o6_endda[:3]}) · 0605 쪽 링크 {o6_p605.count("0606-offline-rl-frontier.html")}곳 · 미정의 data-v {sorted(o6_dv - o6_dvdef)} · 없는 id {sorted((o6_gets | o6_sync) - (o6_ids_pg | o6_dyn))} · 슬라이더 어긋남 {[s[:12] for s in o6_slid if s not in o6_pg]} · 절 참조 {sorted(set(o6_nums))}')
 o6_cleanup = shutil.rmtree(o6_td, ignore_errors=True)
 
+
+
+# ============================================================
+# 0210 — 잡고 싶은 이상에서 거꾸로 특징 고르기. 시나리오 S22(센서 118 × 특징 5, 기준 300·정상 500·고장 모드 넷 × 40·새 모드 E 40·라벨 유리 모드마다 48)의
+# 반응표·선정·예산 나누기·설계 다섯의 검출률과 실측 가족 오류율을 파이썬이 CSV 에서 따로 구현해 JS 와 대조하고, 시드 200 분포·페이지 Python 실행·숨은 값 비노출·기존 출력 불변·페이지 구조를 확인한다.
+# 설계서의 기대는 가설이라 결과가 다르면 본문 문장이 그 결과를 말하는지만 확인한다.
+# ============================================================
+s22_labdir = os.path.join(os.path.dirname(_DATA10), 'labs')
+s22_pg = open(os.path.join(s22_labdir, '0210-signature-feature-selection.html'), encoding='utf-8').read()
+s22_code = _html5.unescape(_re5.search(r'<pre id="pyCode">(.*?)</pre>', s22_pg, _re5.S).group(1)); s22_out = _html5.unescape(_re5.search(r'<pre id="pyOut"[^>]*>(.*?)</pre>', s22_pg, _re5.S).group(1)).strip()
+s22_td = _tf5.mkdtemp()
+_EXPORT22 = r"""const fs=require('fs');const D=process.argv[2];const S=require(D+'/sel02.js'),T=require(D+'/sel02_tables.js');
+const res={};res.c={M:S.M,N:S.N,N0:S.N0,NM:S.NM,NLAB:S.NLAB,ALPHA:S.ALPHA,R:S.R_RAND,SEEDS:S.SEEDS,LG:S.L_GRID,LD:S.L_DEF,TD:S.THR_DEF,SD:S.S_DEF,TMIN:S.THR_MIN,TMAX:S.THR_MAX,TST:S.THR_STEP,SMIN:S.S_MIN,SMAX:S.S_MAX,SST:S.S_STEP,DL:S.D_LO,DH:S.D_HI,EL:S.E_LO,EH:S.E_HI,KEYS:S.SUM_KEYS,REPK:S.REP_KEYS};
+res.rep=T.rep;res.score=T.score;res.modes=S.MODES;res.truth=S.truthSet();
+const P=S.prep(T.rep);res.ecol=P.g.eCol;res.perms=P.g.perms;
+res.delta={};Object.keys(P.g.delta).forEach(k=>{res.delta[k]=[Math.min(...P.g.delta[k]),Math.max(...P.g.delta[k]),P.g.delta[k].reduce((a,b)=>a+b,0)/P.g.delta[k].length];});
+res.rows={ref0:Array.from(P.g.ref[0]),nor0:Array.from(P.g.normal[0]),lab0:Array.from(P.g.label.A[0]),fe0:Array.from(P.g.fault.E[39])};
+function pk(R){const o={msel:R.msel,feats:R.feats,kAll:R.kAll,k1:R.k1,kSel:R.kSel,kRest:R.kRest,k4:R.k4,q:R.quality,des:{}};S.DESIGNS.forEach(d=>{o.des[d]={famN:R.des[d].famN,det:R.des[d].det,ad:R.des[d].ad};});o.by=R.by;return o;}
+res.runs=[];[[12,1.5,0.8],[3,1.5,0.8],[6,1.5,0.5],[24,0.5,0.8],[48,3.0,1.0],[3,3.0,0.65],[12,2.5,0.95]].forEach(a=>{res.runs.push({a:a,r:pk(S.run(P,{L:a[0],thr:a[1],share:a[2]}))});});
+res.sum=[1,7,100,T.rep,200].map(s=>S.summary(s));
+res.tab=T.seeds.filter(r=>r.seed===T.rep)[0];res.pick=S.pickRep(T.seeds);
+fs.writeFileSync(process.argv[3]+'/res0210.json',JSON.stringify(res));"""
+s22_js = os.path.join(s22_td, 'export0210.js'); open(s22_js, 'w').write(_EXPORT22)
+subprocess.run([_node, s22_js, _DATA10, s22_td], capture_output=True, text=True, check=True)
+O22 = json.load(open(os.path.join(s22_td, 'res0210.json'))); K22 = O22['c']
+s22_close = lambda a, b, tol=1e-9: abs(a - b) <= tol * max(1.0, abs(a), abs(b))
+
+# 1. 기존 출력 불변(저장소에 있던 CSV·모듈이 HEAD 와 같은 바이트. 0606 표 파일은 실험실 하나가 늘어 달라지므로 제외)
+s22_unch = True; s22_n = 0; s22_lst = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'ls-files', 'data/csv', 'data/mfgsim.js', 'data/loop06.js', 'data/loop06_tables.js', 'data/calib06.js', 'data/calib06_tables.js', 'data/r2r06.js', 'data/r2r06_tables.js', 'data/ope06.js', 'data/ope06_tables.js', 'data/rl06.js', 'data/rl06_tables.js', 'data/loss05.js', 'data/agent0401.js', 'data/eval0402.js'], capture_output=True, text=True)
+for _fn in (s22_lst.stdout.split() if s22_lst.returncode == 0 else []):
+    if _fn.startswith('data/csv/s22_'): continue
+    _g = subprocess.run(['git', '-C', os.path.dirname(_DATA10), 'show', 'HEAD:agentlab/' + _fn], capture_output=True)
+    if _g.returncode == 0:
+        s22_n += 1; s22_unch &= (_g.stdout == open(os.path.join(os.path.dirname(_DATA10), _fn), 'rb').read())
+chk(f'0210 기존 출력 불변: mfgsim.js·0601~0606 모듈·표 파일·저장소에 있던 CSV {s22_n}개가 HEAD 와 같은 바이트', s22_unch and s22_n >= 40, f'{s22_n}개 비교')
+
+# 2. CSV 구조·성질: 열 이름, 줄 수, 숨은 열 없음, 표준 척도, 같은 센서 안 상관 0.6·센서끼리 무상관, 고장 유리의 이동 위치·크기
+s22_df = pd.read_csv(os.path.join(_DATA10, 'csv', 's22_features.csv')); s22_F = [c for c in s22_df.columns if c not in ('glass_id', 'group')]
+s22_G = lambda g: s22_df[s22_df.group == g][s22_F].to_numpy()
+s22_names = ['s%03d_%s' % (i // 5 + 1, ['steady_mean', 'steady_std', 'max_dev', 'settle_s', 'overshoot_pct'][i % 5]) for i in range(590)]
+s22_ref, s22_nor = s22_G('ref'), s22_G('normal'); s22_mu, s22_sd = s22_ref.mean(axis=0), s22_ref.std(axis=0, ddof=1)
+s22_Z = lambda X: (X - s22_mu) / s22_sd
+s22_base = np.vstack([s22_ref, s22_nor]); s22_cc = np.corrcoef(s22_base.T)
+s22_in = np.mean([s22_cc[s * 5 + a, s * 5 + b] for s in range(118) for a in range(5) for b in range(a + 1, 5)])
+s22_out_c = np.array([s22_cc[a, b] for a in range(0, 590, 5) for b in range(a + 5, 590, 5)]).mean() if False else np.mean([s22_cc[s1 * 5, s2 * 5] for s1 in range(118) for s2 in range(s1 + 1, 118)])
+s22_shape = [len(s22_G(g)) for g in ['ref', 'normal'] + ['label_' + m for m in 'ABCD'] + ['fault_' + m for m in 'ABCDE']] == [300, 500] + [48] * 4 + [40] * 5 and s22_F == s22_names and list(s22_df.columns[:2]) == ['glass_id', 'group']
+s22_scale = s22_close(abs(s22_base.mean(axis=0)).max(), abs(s22_base.mean(axis=0)).max()) and abs(s22_base.mean(axis=0)).max() < 0.25 and 0.85 < s22_base.std(axis=0).min() and s22_base.std(axis=0).max() < 1.15
+s22_shift_ok = True; s22_det = []
+for _i, _m in enumerate('ABCD'):
+    _cols = [(c[0] - 1) * 5 + c[1] for c in O22['modes'][_i]['cells']]
+    for _g in ('label_', 'fault_'):
+        _mz = s22_Z(s22_G(_g + _m)).mean(axis=0); _oth = np.delete(_mz, _cols)
+        s22_shift_ok &= all(2.5 < _mz[c] < 4.5 for c in _cols) and abs(_oth).max() < 0.9; s22_det.append(round(float(np.mean([_mz[c] for c in _cols])), 2))
+_ez = s22_Z(s22_G('fault_E')).mean(axis=0); s22_ec = O22['ecol']
+s22_e_ok = int(np.argmax(np.abs(_ez))) == s22_ec and 4 < _ez[s22_ec] < 7 and abs(np.delete(_ez, s22_ec)).max() < 0.9 and (s22_ec // 5 + 1) not in (7, 23, 41, 58)
+s22_dl = O22['delta']; s22_dok = all(K22['DL'] <= s22_dl[m][0] and s22_dl[m][1] <= K22['DH'] and abs(s22_dl[m][2] - 3.5) < 0.35 for m in 'ABCD') and K22['EL'] <= s22_dl['E'][0] and s22_dl['E'][1] <= K22['EH'] and abs(s22_dl['E'][2] - 5.5) < 0.7
+s22_rows_ok = np.array_equal(s22_df[s22_df.group == 'ref'].iloc[0][s22_F].to_numpy(dtype=float), np.array(O22['rows']['ref0'])) and np.array_equal(s22_G('normal')[0], np.array(O22['rows']['nor0'])) and np.array_equal(s22_G('label_A')[0], np.array(O22['rows']['lab0'])) and np.array_equal(s22_G('fault_E')[39], np.array(O22['rows']['fe0']))
+chk('0210 CSV 구조·성질: 590열·줄 수(기준 300·정상 500·라벨 4×48·고장 4×40+E 40)·열 이름, 정답 이동 크기(δ) 열 없음, 표준 척도, 같은 센서 안 상관 0.6 · 센서끼리 0, 라벨·고장 유리의 평균 z 가 정해진 특징에서만 2.5~4.5, 새 모드 E 는 한 특징·4~7·A~D 센서 밖, 첫 줄들이 JS 와 같음, 이동 크기 범위',
+    s22_shape and s22_scale and abs(s22_in - 0.6) < 0.03 and abs(s22_out_c) < 0.02 and s22_shift_ok and s22_e_ok and s22_dok and s22_rows_ok and 'delta' not in ' '.join(s22_df.columns),
+    f'모양 {s22_shape} · 척도 {s22_scale} · 센서 안 상관 {s22_in:.3f} · 센서 간 {s22_out_c:.3f} · 평균 이동 {s22_det} · E {s22_e_ok} · δ 범위 {s22_dok} · 첫 줄 {s22_rows_ok}')
+
+# 3. 독립 구현: 반응표·선정·한계·설계 다섯(대표 시드, 변형 7개)이 JS 와 같음
+def s22_k(a): return stats.norm.isf(a / 2) if a < 1 else 0.0
+def s22_alarm(X, groups):
+    z = np.abs(s22_Z(X)); a = np.zeros(len(X), bool)
+    for cols, k in groups:
+        if len(cols): a |= (z[:, cols] > k).any(axis=1)
+    return a
+def s22_design(groups):
+    fam = int(s22_alarm(s22_nor, groups).sum()); det = {m: float(s22_alarm(s22_G('fault_' + m), groups).mean()) for m in 'ABCDE'}
+    return fam, det, sum(det[m] for m in 'ABCD') / 4
+s22_ALL = list(range(590)); s22_cmp_n = 0; s22_run_ok = True; s22_bad = []
+for _rr in O22['runs']:
+    L, thr, sh = _rr['a']; R = _rr['r']
+    sig = {m: np.mean([s22_Z(s22_G('label_' + m)[:L])], axis=1)[0] if False else s22_Z(s22_G('label_' + m)[:L]).mean(axis=0) for m in 'ABCD'}
+    sel = sorted({j for m in 'ABCD' for j in range(590) if abs(sig[m][j]) >= thr - 1e-12}); ms = len(sel); rest = [j for j in s22_ALL if j not in set(sel)]
+    if ms == 0: kS, kR = np.inf, s22_k(0.0027 / 590)
+    elif len(rest) == 0 or sh >= 1: kS, kR = s22_k(0.0027 / ms), np.inf
+    else: kS, kR = s22_k(sh * 0.0027 / ms), s22_k((1 - sh) * 0.0027 / len(rest))
+    tr = O22['truth']; k0 = s22_k(0.0027 / 590); k1 = s22_k(0.0027 / ms) if ms else np.inf; k4 = s22_k(0.0027 / len(tr))
+    ok = sel == R['feats'] and ms == R['msel'] and s22_close(k0, R['kAll']) and s22_close(k1, R['k1']) and (s22_close(kS, R['kSel']) if np.isfinite(kS) else R['kSel'] is None) and (s22_close(kR, R['kRest']) if np.isfinite(kR) else R['kRest'] is None) and s22_close(k4, R['k4'])
+    ok &= R['q']['inclN'] == len(set(sel) & set(tr)) and R['q']['extra'] == len(set(sel) - set(tr))
+    des = {'D0': [(s22_ALL, k0)], 'D1': [(sel, k1)], 'D3': [(sel, kS), (rest, kR)], 'D4': [(tr, k4)]}
+    for d, g in des.items():
+        fam, det, ad = s22_design(g); J = R['des'][d]; s22_cmp_n += 3 + 5
+        ok &= fam == J['famN'] and s22_close(ad, J['ad']) and all(s22_close(det[m], J['det'][m]) for m in 'ABCDE')
+    # D2: 무작위 순열(JS 가 내보낸 것)의 앞 ms 개를 R 번 되풀이한 평균
+    acc = [0.0, {m: 0.0 for m in 'ABCDE'}]
+    for pm in O22['perms']:
+        fam, det, ad = s22_design([(pm[:ms], k1)]); acc[0] += fam
+        for m in 'ABCDE': acc[1][m] += det[m]
+    J2 = R['des']['D2']; ok &= s22_close(acc[0] / K22['R'], J2['famN']) and all(s22_close(acc[1][m] / K22['R'], J2['det'][m]) for m in 'ABCDE'); s22_cmp_n += 6
+    s22_run_ok &= ok
+    if not ok: s22_bad.append(_rr['a'])
+chk(f'0210 독립 구현: 대표 시드 {O22["rep"]} 의 (라벨 장수, 문턱, 몫) 조합 {len(O22["runs"])}개에서 반응표 평균 z·고른 특징 목록·정답 포함·엉뚱·두 한계·설계 다섯(D0·D1·D2 무작위 {K22["R"]}번·D3·D4)의 정상 알람 수·모드별 검출률이 파이썬 재계산과 JS 가 같음 — 값 {s22_cmp_n}개',
+    s22_run_ok and len(O22['runs']) == 7, f'어긋난 조합 {s22_bad}')
+
+# 4. 시드 요약: 표 파일(JS)·CSV·새로 계산한 값이 같고, 대표 시드는 Σ|백분위−50| 최소
+s22_sd = pd.read_csv(os.path.join(_DATA10, 'csv', 's22_seed_summary.csv'))
+s22_tb_js = json.loads(subprocess.run([_node, '-e', "const T=require(%s);console.log(JSON.stringify(T.seeds.map(r=>%s.map(k=>r[k]))))" % (json.dumps(os.path.join(_DATA10, 'sel02_tables.js')), json.dumps(K22['KEYS']))], capture_output=True, text=True, check=True).stdout)
+s22_tb_ok = np.allclose(np.array(s22_tb_js, float), s22_sd[K22['KEYS']].to_numpy(float), atol=1e-12) and len(s22_sd) == 200 and list(s22_sd.columns) == K22['KEYS']
+s22_fresh_ok = all(all(s22_close(float(s22_sd[s22_sd.seed == x['seed']].iloc[0][k]), x[k]) for k in K22['KEYS']) for x in O22['sum'])
+s22_cols = [s22_sd[k].to_numpy(float) for k in K22['REPK']]
+def s22_pct(v, x): return 100 * (np.sum(v < x - 1e-12) + 0.5 * np.sum(np.abs(v - x) <= 1e-12)) / len(v)
+s22_sc = np.array([sum(abs(s22_pct(c, c[i]) - 50) for c in s22_cols) for i in range(200)]); s22_rep_py = int(s22_sd.seed.iloc[int(np.argmin(s22_sc))])
+chk(f'0210 시드 요약: CSV {len(s22_sd)}줄·표 파일(JS)·시드 다섯의 새 계산이 같고, 대표 시드가 파이썬이 따로 구한 Σ|백분위−50| 최소 시드 {s22_rep_py} 와 같고 화면의 특징 CSV 가 그 시드',
+    s22_tb_ok and s22_fresh_ok and s22_rep_py == O22['rep'] == O22['pick']['seed'] and abs(s22_sc.min() - O22['score']) < 1e-9, f'표 {s22_tb_ok} · 새 계산 {s22_fresh_ok} · 점수 {s22_sc.min():.2f}')
+
+# 5. 시드 분포 성질(본문 문장이 말하는 것) — 한 번 뽑은 값이 아니라 분포로
+s22_q = lambda k, p: float(np.quantile(s22_sd[k].to_numpy(float), p)); s22_m = lambda k: float(s22_sd[k].mean())
+s22_pool = {d: s22_m('f%d' % i) / 500 for i, d in enumerate(['D0', 'D1', 'D2', 'D3', 'D4'])}
+s22_prop = (s22_q('d1ad', .5) > 2 * s22_q('d0ad', .5) and (s22_sd.d1ad > s22_sd.d0ad).all() and s22_q('d2ad', .9) < 0.05 and s22_q('d0ad', .9) < 0.45
+    and s22_q('d1e', .9) <= 0.05 and s22_q('d0e', .1) >= 0.5 and s22_q('d3e', .5) >= 0.5 and s22_q('d3e', .1) > s22_q('d1e', .9) + 0.3
+    and (s22_sd.d3ad <= s22_sd.d1ad + 1e-9).mean() >= 0.95 and s22_q('d3ad', .5) > 2 * s22_q('d0ad', .5) and s22_q('d1ad', .5) - s22_q('d3ad', .5) < 0.1
+    and (s22_sd.msel == 6).all() and (s22_sd.incl12 == 1).all() and all(v <= 0.005 for v in s22_pool.values()) and s22_pool['D0'] > 0.0027
+    and (s22_sd.i3 >= 0.8).all() and s22_q('x3', .1) >= 10 and s22_q('x6', .5) <= 2 and (s22_sd.x12 == 0).all() and (s22_sd.i6 == 1).all() and s22_q('a3', .9) < s22_q('a12', .1))
+chk('0210 시드 분포 성질(200개): D1 평균 검출률이 D0 의 두 배 넘고 모든 시드에서 D0 보다 큼 · D2(무작위)는 사실상 못 잡음 · D1 은 새 고장 E 를 거의 못 잡고 D0 은 잡음 · D3 은 E 를 D1 보다 크게 잡으면서 네 모드 검출률은 D1 에 거의 못 미치지 않음(차 0.1 미만) · 합친 실측 가족 오류율은 다섯 설계 모두 0.005 이하이고 D0 은 목표 0.0027 보다 높음(기준 300장 추정) · 고른 묶음 6개·라벨 12장 이상은 정답 특징을 모두 고름 · 라벨 3장은 엉뚱한 특징이 10개 이상 섞여 D1 검출률이 내려감',
+    s22_prop, f'D0 {s22_q("d0ad",.1):.3f}/{s22_q("d0ad",.5):.3f}/{s22_q("d0ad",.9):.3f} · D1 {s22_q("d1ad",.1):.3f}/{s22_q("d1ad",.5):.3f}/{s22_q("d1ad",.9):.3f} · D3 {s22_q("d3ad",.5):.3f} · E: D0 {s22_q("d0e",.5):.3f} D1 {s22_q("d1e",.5):.3f} D3 {s22_q("d3e",.5):.3f} · 합친 가족 오류율 {" ".join("%s %.4f" % kv for kv in s22_pool.items())} · 라벨 3장 엉뚱 {s22_q("x3",.1):.0f}~{s22_q("x3",.9):.0f} 검출률 {s22_q("a3",.5):.3f}')
+
+# 6. 페이지 Python: 그대로 실행한 출력이 페이지 출력 상자와 한 글자도 다르지 않고, 숫자가 JS 와 같고, 외부 통신이 없음
+s22_py = os.path.join(s22_td, 'lab0210.py'); open(s22_py, 'w', encoding='utf-8').write(s22_code)
+s22_run = subprocess.run([sys.executable, '-I', s22_py], cwd=os.path.dirname(os.path.dirname(_DATA10)), capture_output=True, text=True); s22_L = s22_run.stdout.strip().split('\n')
+_R0 = O22['runs'][0]['r']; s22_num = lambda ln: [float(x) for x in _re5.findall(r'(?<![\w_])-?\d+\.\d+', ln)]
+s22_py_ok = s22_run.returncode == 0 and s22_run.stdout.strip() == s22_out and len(s22_L) == 15 and ('m_sel = %d개' % _R0['msel']) in s22_L[1] and ('%d/6개 포함' % _R0['q']['inclN']) in s22_L[1]
+s22_py_ok &= all(abs(a - b) < 1e-3 for a, b in zip(s22_num(s22_L[6]), [_R0['kAll'], _R0['k1'], 0.8, _R0['kSel'], _R0['kRest']]))
+for _ln, _d in zip(s22_L[7:10], ['D0', 'D1', 'D3']):
+    _J = _R0['des'][_d]; _v = s22_num(_ln)
+    s22_py_ok &= ('정상 알람 %d/500장' % _J['famN']) in _ln and abs(_v[0] - _J['ad']) < 6e-4 and abs(_v[1] - _J['det']['E']) < 6e-4
+s22_py_ok &= not _re5.search(r'^\s*(?:import|from)\s+(?:requests|urllib|socket|http|openai|anthropic|httpx)', s22_code, _re5.M)
+for _ln, _L in zip(s22_L[10:], K22['LG']):
+    _r = O22['sum'][3] if False else None
+chk('0210 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며, 고른 묶음·두 한계·설계 셋의 알람 수·검출률이 JS 와 같고, 외부 통신 코드가 없음', s22_py_ok, (s22_run.stderr[-300:] if s22_run.returncode else f'{len(s22_L)}줄'))
+_lab = {}
+for _ln in s22_L[10:]:
+    _m = _re5.match(r'라벨\s+(\d+)장: 고른\s+(\d+)개 · 정답 포함 (\d)/6 · 엉뚱\s*(\d+)개', _ln)
+    if _m: _lab[int(_m.group(1))] = tuple(int(x) for x in _m.groups()[1:])
+_rep_row = O22['tab']
+s22_lab_ok = sorted(_lab) == K22['LG'] and all(_lab[L][1] == round(_rep_row['i%d' % L] * 6) and _lab[L][2] == _rep_row['x%d' % L] for L in K22['LG'])
+chk('0210 페이지 Python 의 라벨 장수별 선정(정답 포함·엉뚱한 특징)이 대표 시드의 표 파일 값과 같음', s22_lab_ok, str(_lab))
+
+# 7. 숨은 값 비노출: 이동 크기 정답은 CSV·표 파일·본문에 없음(모듈·정답 읽기만)
+s22_body = _html5.unescape(_re5.sub(r'<[^>]+>', ' ', _re5.sub(r'<script.*?</script>|<pre.*?</pre>|<style.*?</style>', '', s22_pg, flags=_re5.S)))
+s22_tbtxt = open(os.path.join(_DATA10, 'sel02_tables.js'), encoding='utf-8').read(); s22_mod = open(os.path.join(_DATA10, 'sel02.js'), encoding='utf-8').read()
+chk('0210 모듈·표·페이지에 Math.random·Date.now 없음, 표 파일에 이동 크기(delta) 없음, 페이지는 mfgsim.js 를 고치지 않고 부르기만 함', not _re5.search(r'Math\.random|Date\.now|new Date', s22_mod + s22_tbtxt + s22_pg) and 'delta' not in s22_tbtxt.lower(), 'ok')
+
+# 8. 페이지 구조
+s22_term = len(_re5.findall(r'<li>', _re5.search(r'<ul class="chips" id="termList">(.*?)</ul>', s22_pg, _re5.S).group(1)))
+s22_nq = len(_re5.findall(r'<div class="qna" data-label=', s22_pg)); s22_nsec = len(_re5.findall(r'<h2><span class="no">', s22_pg)); s22_nmath = s22_pg.count('<math display="block">')
+s22_fonts = [int(x) for x in _re5.findall(r'font\s*=\s*[\'"][^\'"]*?(\d+)px', s22_pg)]
+s22_endda = _re5.findall(r'[^니습]다[.]', s22_body)
+s22_app = _re5.findall(r'<script>\n(.*?)\n</script>\n<script src="../tutor.js">', s22_pg, _re5.S)[0]
+s22_dv = set(_re5.findall(r'data-v="(\w+)"', s22_pg)); s22_dvdef = set(_re5.findall(r'V\.(\w+)=', s22_app))
+s22_qna = ' '.join(_re5.findall(r'<div class="qna".*?</div>', s22_pg, _re5.S))
+s22_nums = [int(x) for x in _re5.findall(r'(\d+)절', s22_body)]
+s22_ids = set(_re5.findall(r'\bid="(\w+)"', s22_pg)); s22_gets = set(_re5.findall(r"\$\('(\w+)'\)", s22_app))
+s22_slid = ['id="sS" min="%s" max="%s" step="%s" value="%s"' % (K22['SMIN'], K22['SMAX'], K22['SST'], K22['SD']), 'id="sT" min="%s" max="%s" step="%s" value="%s"' % (K22['TMIN'], K22['TMAX'], K22['TST'], K22['TD']), 'id="sL" min="0" max="%d" step="1" value="%d"' % (len(K22['LG']) - 1, K22['LG'].index(K22['LD']))]
+s22_p02 = open(os.path.join(s22_labdir, '0202-false-alarm-multiplicity.html'), encoding='utf-8').read(); s22_p03 = open(os.path.join(s22_labdir, '0203-three-hidden-assumptions.html'), encoding='utf-8').read(); s22_p01 = open(os.path.join(s22_labdir, '0201-trace-to-feature.html'), encoding='utf-8').read()
+s22_hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
+s22_hub_ok = s22_hub.find('labs/0202-false-alarm') < s22_hub.find('labs/0210-signature-feature-selection.html') < s22_hub.find('labs/0203-three-hidden')
+chk('0210 페이지: 새 용어 5개 · Q&A 5개(퍼센트 숫자 없음) · 절 11개 · MathML 식 셋(반응표 칸·예산 나누기·합이 한도 이하) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0202 쪽 0210 다음 링크(위·아래)와 0203 쪽 0210 이전 링크(위·아래), 0210 쪽 0202 이전·0203 다음 링크(위·아래) · 0201·0202 의 0210 참조 문장 · 허브 등록(0202 와 0203 사이) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~11 · 스크립트가 찾는 요소 id 전부 존재',
+    s22_term == 5 and s22_nq == 5 and s22_nsec == 11 and s22_nmath == 3 and s22_fonts and min(s22_fonts) >= 11 and not s22_endda
+    and s22_p02.count('0210-signature-feature-selection.html') == 2 and s22_p03.count('0210-signature-feature-selection.html') == 2 and s22_pg.count('0202-false-alarm-multiplicity.html') == 2 and s22_pg.count('0203-three-hidden-assumptions.html') == 2
+    and '0210 에서 직접 해 봅니다' in s22_p01 and '0210 에서 직접 해 봅니다' in s22_p02 and s22_hub_ok and s22_dv <= s22_dvdef and all(s in s22_pg for s in s22_slid) and not s22_qna.count('%') and s22_nums and max(s22_nums) <= 11 and min(s22_nums) >= 1
+    and s22_gets <= s22_ids and not _re5.search(r'[①-⑳ᵢⱼₖₙ]', s22_pg),
+    f'용어 {s22_term} · Q&A {s22_nq} · 절 {s22_nsec} · MathML {s22_nmath} · 캔버스 글자 최소 {min(s22_fonts) if s22_fonts else None}px({len(s22_fonts)}곳) · -다 끝맺음 {len(s22_endda)}건({s22_endda[:3]}) · 허브 {s22_hub_ok} · 미정의 data-v {sorted(s22_dv - s22_dvdef)} · 없는 id {sorted(s22_gets - s22_ids)} · 절 참조 {sorted(set(s22_nums))}')
+s22_cleanup = shutil.rmtree(s22_td, ignore_errors=True)
 
 
 w = max(len(r[0]) for r in res)

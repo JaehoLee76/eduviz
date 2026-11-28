@@ -149,7 +149,7 @@ table.mt td,table.mt th{overflow-wrap:anywhere}
 
 <main class="wrap">
 
-<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0202-false-alarm-multiplicity.html">← 이전: 헛알람은 왜 쌓이나</a><span class="sp"></span><a href="0204-small-shift-ewma-cusum.html">다음: 작은 변화 감지 →</a></nav>
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0210-signature-feature-selection.html">← 이전: 잡고 싶은 이상에서 거꾸로 특징 고르기</a><span class="sp"></span><a href="0204-small-shift-ewma-cusum.html">다음: 작은 변화 감지 →</a></nav>
 
 <p><b>평균 ± 3σ 선이 &ldquo;정상인데 넘을 확률 0.27%&rdquo;(위쪽 선 하나만 보면 0.135%)를 지키려면 세 가지가 맞아야 합니다. 값이 종 모양(정규분포)이어야 하고, 유리끼리 서로 독립이어야 하고, 선을 긋는 기준 데이터가 깨끗해야 합니다.</b> 하나라도 깨지면 헛알람이 열 배 넘게 늘거나 진짜 이상을 놓치고, 깨진 가정마다 처방이 따로 있습니다. 이 실험실에서 세 가정을 하나씩 일부러 깨 보고, 어느 가정이 깨졌는지 알아내는 진단과 고치는 함수를 손에 쥡니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
 
@@ -512,7 +512,7 @@ for b, name in (("A", "A 압력 스파이크 최고값"), ("B", "B 챔버 온도
   <p>앞 단계가 안 끝난 채 뒤 단계를 진단하면 수치가 엉킵니다. 예를 들어 오염이 있으면 치우친 정도도 함께 커져 &ldquo;정규가 아니다&rdquo;로만 읽히기 쉽습니다. 가정이 둘 이상 함께 깨졌으면 위 순서대로 한 단계씩 고칩니다. 진단 함수가 돌려주는 처방은 지금 먼저 할 한 단계입니다. 그 처방으로 기준을 고친 뒤 같은 진단을 다시 돌려 다음 단계로 가며, 한 단계의 처방이 나머지 가정까지 고쳐 주지는 않으므로 둘 이상이 깨진 채로는 어느 한계도 약속을 지키지 못합니다. 처방 뒤에는 5000장 같은 검증 구간에서 실제 헛알람률을 다시 재어 확인합니다.</p>
 </div>
 
-<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0202-false-alarm-multiplicity.html">← 이전: 헛알람은 왜 쌓이나</a><a href="0204-small-shift-ewma-cusum.html">다음: 작은 변화 감지 →</a></nav>
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0210-signature-feature-selection.html">← 이전: 잡고 싶은 이상에서 거꾸로 특징 고르기</a><a href="0204-small-shift-ewma-cusum.html">다음: 작은 변화 감지 →</a></nav>
 </main>
 
 <script src="../data/mfgsim.js"></script>

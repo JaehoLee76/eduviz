@@ -285,3 +285,14 @@ const truth = {};
 Object.keys(S).forEach(k => { truth[k] = { name: S[k].name, params: S[k].params, truth: S[k].truth, check: S[k].check }; });
 fs.writeFileSync(path.join(dir, 'truth.json'), JSON.stringify(truth, null, 1));
 console.log('truth.json written');
+
+// S22 (0210 잡고 싶은 이상에서 거꾸로 특징 고르기): 시드 200개 요약(s22_seed_summary.csv·sel02_tables.js)과 대표 시드의 특징 표(s22_features.csv, z 척도).
+// 이동 크기 δ 는 CSV 에 넣지 않는다. 대표 시드 = 핵심 지표 여섯의 Σ|백분위 − 50| 최소 시드.
+const SEL22 = require('./sel02.js');
+const rows22 = [];
+for (let s = 1; s <= SEL22.SEEDS; s++) rows22.push(SEL22.summary(s));
+const rep22 = SEL22.pickRep(rows22);
+csv('s22_seed_summary.csv', rows22, SEL22.SUM_KEYS);
+csv('s22_features.csv', SEL22.csvRows(SEL22.prep(rep22.seed)));
+fs.writeFileSync(path.join(dir, '..', 'sel02_tables.js'), '/* 0210 이 읽는 미리 계산한 표(build_csv.mjs 가 만듭니다). 같은 내용이 csv/s22_seed_summary.csv 에 있습니다. 숨은 값은 들어 있지 않습니다. */\n(function(){var D=' + JSON.stringify({ rep: rep22.seed, score: rep22.score, c: SEL22.SUM_KEYS, r: rows22.map(r => SEL22.SUM_KEYS.map(k => r[k])) }) + ';var T={rep:D.rep,score:D.score,seeds:D.r.map(function(r){var o={};D.c.forEach(function(c,i){o[c]=r[i];});return o;})};if(typeof module==="object"&&module.exports)module.exports=T;else window.SEL02_TABLES=T;})();\n');
+console.log('S22 representative seed', rep22.seed, 'score', rep22.score.toFixed(1));

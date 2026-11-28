@@ -1,0 +1,753 @@
+<!doctype html><html lang="ko" data-theme="light"><head>
+<meta charset="utf-8">
+<title>잡고 싶은 이상에서 거꾸로 특징 고르기 · 같은 헛알람 예산으로 더 많이 잡기</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="가족 오류율을 0.0027 로 똑같이 지켜도, 590개 전부에 한계를 긋는 것보다 고장 모드에 반응하는 특징 몇 개만 골라 긋는 쪽이 작은 이상을 훨씬 많이 잡습니다. 반응표 만들기, 예산 나누기, 전체 감시망, 라벨 장수의 값을 가상 FDC 데이터로 직접 해 보는 실험실">
+<meta name="theme-color" content="#0f7c86">
+<style>
+:root{
+  --accent:#0f7c86; --accent2:#2a9fa8; --accent-ink:#ffffff;
+  --ink:#1f2f35; --soft:#546a72; --paper:#f4fafa; --card:#ffffff; --code:#eef7f7;
+  --rule:#cfe3e5; --good:#1f9d6b; --warn:#b8681f; --bad:#c43d3d; --track:#dcefef; --tint:#e6f4f4;
+  --c8:#d9822b; --c9:#c2489a; --c10:#3b73d6; --grey:#9aa9ad;
+}
+@media(prefers-color-scheme:dark){:root[data-theme="auto"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }}
+:root[data-theme="dark"]{
+    --accent:#4fd1c5; --accent2:#7fe3d9; --accent-ink:#06282b;
+    --ink:#e4f1f2; --soft:#a0b6ba; --paper:#0e1a1c; --card:#162629; --code:#122326;
+    --rule:#2a4549; --good:#5fd6a8; --warn:#e0a35a; --bad:#f07c7c; --track:#213b3f; --tint:#1a2f32;
+    --c8:#f0a35a; --c9:#f08ac8; --c10:#7fa8f5; --grey:#6f8a8f;
+  }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",sans-serif;
+  line-height:1.65;font-size:16px;padding:0 0 3rem;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.1rem}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;padding:.45rem .8rem;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .tb-title{font-weight:800;font-size:1rem;color:var(--ink)}
+.topbar .tb-home,.topbar .tb-theme{display:inline-flex;align-items:center;min-height:38px;padding:.25rem .7rem;
+  border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--accent);
+  text-decoration:none;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.topbar .tb-grow{flex:1 1 12px}
+
+header.hero{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);color:var(--accent-ink);
+  padding:2rem 0 1.8rem;border-radius:0 0 26px 26px;margin-bottom:1.4rem}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;font-weight:800;margin:0 0 .4rem;opacity:.92}
+h1{font-size:2rem;margin:0 0 .3rem;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.sub{font-size:1.08rem;font-weight:600;margin:0;opacity:.96}
+
+h2{font-size:1.35rem;margin:2.4rem 0 .4rem;letter-spacing:-.01em;line-height:1.3;border-bottom:2px solid var(--rule);padding-bottom:.3rem}
+h2 .no{color:var(--accent);margin-right:.4rem}
+h3{font-size:1.05rem;margin:1.4rem 0 .35rem;color:var(--accent)}
+p{margin:0 0 .8rem}
+.note{font-size:.9rem;color:var(--soft)}
+.lead{color:var(--soft);margin:0 0 1rem}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.05rem;margin:1rem 0}
+.prob{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0}
+.prob b.tg{color:var(--accent)}
+.solban{display:flex;align-items:center;gap:.6rem;margin:1.8rem 0 .4rem;font-weight:800;color:var(--good)}
+.solban::before{content:"[풀이]";background:var(--good);color:#fff;border-radius:20px;padding:.15rem .7rem;font-size:.85rem;white-space:nowrap;flex:none}
+.solban::after{content:"";flex:1;height:2px;background:var(--good);opacity:.4;border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .6rem;padding:0;list-style:none}
+.chips li{background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:.15rem .7rem;font-size:.85rem}
+.chips.known li{background:transparent}
+
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem;margin:1.1rem 0}
+.labtitle{font-weight:800;font-size:.9rem;color:var(--accent);margin:.1rem 0 .5rem}
+.watch{background:var(--code);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:.6rem .9rem;margin:.6rem 0;font-size:.93rem}
+.watch b{color:var(--warn)}
+canvas{width:100%;display:block;border-radius:8px;touch-action:pan-y}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.btn{min-height:40px;padding:.3rem .85rem;border:1px solid var(--rule);border-radius:9px;background:var(--card);color:var(--ink);
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.readout{font-size:.9rem;color:var(--ink);background:var(--code);border-radius:8px;padding:.45rem .7rem;margin:.5rem 0;font-variant-numeric:tabular-nums;min-height:2.4rem}
+.state{font-size:.88rem;margin:.4rem 0;padding:.4rem .7rem;border-radius:8px;background:var(--tint);color:var(--ink)}
+.state.moved{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-weight:700}
+.ctrl{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:.6rem;font-size:.9rem;margin:.35rem 0}
+.ctrl output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],select{font-family:inherit;font-size:1rem;padding:.3rem .5rem;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-height:40px}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:.5rem 0 0}
+.dot{display:inline-block;width:.75em;height:.75em;border-radius:50%;margin-right:.3em;vertical-align:baseline}
+
+.tbwrap{overflow-x:auto;margin:.6rem 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:.3rem .45rem;text-align:center;white-space:nowrap}
+th{background:var(--code);color:var(--accent);white-space:normal;word-break:keep-all}
+td.hit{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:800}
+td.rowh{font-weight:800}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.eq{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.9rem .8rem;overflow-x:auto;text-align:center;line-height:1.7;margin:.7rem 0}
+.eq .eqlab{display:block;font-size:.85rem;font-weight:800;color:var(--accent);margin-bottom:.3rem}
+.eq .note{display:block;margin-top:.3rem}
+math{font-size:1.25rem;color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--rule);border-radius:9px;padding:.85rem;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.5;margin:.7rem 0}
+.report{background:var(--card);border:1px solid var(--accent2);border-radius:12px;padding:.9rem 1.1rem;margin:1rem 0}
+.report h3{margin-top:0}
+.report dl{margin:0}
+.report dt{font-weight:800;color:var(--accent);margin-top:.5rem}
+.report dd{margin:0 0 .2rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.concl{background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid var(--accent2);border-radius:10px;padding:.8rem 1rem;margin:1rem 0}
+details{margin:.6rem 0}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:40px;display:flex;align-items:center}
+
+.labnav{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin:0 0 1rem;flex-wrap:wrap}
+.labnav.bot{margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.labnav a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:9px;background:var(--card);color:var(--accent);text-decoration:none;font-weight:700}
+.labnav .sp{flex:1}
+.labnav.bot a{flex:1 1 200px;justify-content:center;text-align:center}
+
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .ctrl{grid-template-columns:1fr;gap:.2rem}
+  .ctrl output{text-align:left}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:520px){th,td{padding:.25rem .25rem;font-size:.78rem}.topbar{padding:.4rem .6rem}.wrap{padding:0 1rem}}
+table.mt td,table.mt th{white-space:normal;word-break:keep-all}
+table.mt td.rowh{text-align:left}
+.mt td:last-child{text-align:left}
+table.mt.num td:last-child{text-align:center}
+</style>
+<script>try{var _t=localStorage.getItem("agentlab_theme");if(_t==="dark"||_t==="auto"||_t==="light")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+</head><body>
+<header class="topbar" id="topbar">
+  <a class="tb-home" href="../index.html#labs">← 허브</a>
+  <span class="tb-title">Manufacturing Agent Lab</span>
+  <span class="tb-grow"></span>
+  <button class="tb-theme" id="themeBtn" type="button" aria-label="테마 바꾸기" title="누를 때마다 라이트 → 다크 → 기기 설정 순서로 바뀝니다">☀ 라이트</button>
+</header>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">기둥 2 · 0202 와 0203 사이에 끼워 넣은 편</p>
+  <h1>잡고 싶은 이상에서 거꾸로 특징 고르기</h1>
+  <p class="sub">같은 헛알람 예산으로 작은 고장을 더 많이 잡습니다</p>
+</div></header>
+
+<main class="wrap">
+
+<nav class="labnav"><a href="../index.html#labs">← 실험실 목록</a><a href="0202-false-alarm-multiplicity.html">← 이전: 헛알람은 왜 쌓이나</a><span class="sp"></span><a href="0203-three-hidden-assumptions.html">다음: 3σ의 숨은 가정 셋 →</a></nav>
+
+<p><b>가족 오류율을 0.0027 로 똑같이 지켜도, 590개 특징 전부에 한계를 긋는 것과 잡고 싶은 고장에 반응하는 특징 몇 개만 골라 긋는 것은 잡는 양이 전혀 다릅니다.</b> 원인이 다른 작은 고장 네 가지(정상에서 2.5~4.5σ 옮겨 간 유리)를 590개 전부로 감시하면 평균 <span data-v="d0ad"></span>밖에 잡지 못하는데, 반응하는 특징 <span data-v="msel"></span>개만 고르면 <span data-v="d1ad"></span>를 잡습니다. 대신 목록에 없는 새 고장은 보지 못하므로, 예산 일부를 나머지 특징 전체에 남겨 두는 법까지 이 실험실에서 직접 해 봅니다. 이 실험실의 데이터는 학습용 가상 데이터입니다.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">시작하기 전에</h3>
+  <p><b>이미 아시는 것</b> — 평균, 표준편차, z값, 한계 <i>k</i>, 특징(0201의 다섯 특징), 1종 오류·2종 오류, 가족 오류율, 본페로니 보정(0202), 유의수준 α(0101).</p>
+  <ul class="chips known"><li>평균·표준편차·z값</li><li>한계 <i>k</i></li><li>특징 다섯 (0201)</li><li>1종 오류·2종 오류</li><li>가족 오류율</li><li>본페로니 보정</li></ul>
+  <p><b>새로 이름을 붙이는 낱말은 다섯 개입니다.</b> 쓰이는 자리에서 하나씩 정의하고, 정의한 뜻 그대로만 씁니다. 이 다섯 개와 함께 쓰는 부속 낱말인 라벨·고른 묶음 <i>m</i><sub>sel</sub>·정답 반응 특징은 쓰는 자리에서 한 줄로 풉니다.</p>
+  <ul class="chips" id="termList"><li>고장 모드 (failure mode)</li><li>반응표 (signature table)</li><li>검정력 (power)</li><li>α 예산 나누기 (alpha allocation)</li><li>전체 감시망 (catch-all guard)</li></ul>
+</div>
+
+<div class="prob">
+  <b class="tg">[문제]</b> 0202 7절의 처방 1)은 &ldquo;특징을 거꾸로 고릅니다. 잡고 싶은 이상에서 출발해 필요한 특징만 남깁니다&rdquo;였습니다. 이번에는 그것을 실제로 해 봅니다.<br>
+  가상의 증착 라인에서 센서 118개 × 특징 5개(steady_mean·steady_std·max_dev·settle_s·overshoot_pct) = <b>590</b>개를 유리마다 뽑았습니다. 같은 센서 안의 특징끼리는 상관 0.6으로 함께 움직이고 센서끼리는 무관합니다(0202와 같은 구조). 먼저 <b>기준 유리 300장</b>으로 특징마다 평균과 표준편차를 구하고, <b>정상 유리 500장</b>으로 헛알람을 셉니다. 유리 한 장의 감시하는 특징 가운데 하나라도 자기 한계를 넘으면 그 유리에 인터락(알람)이 걸린다고 하겠습니다. 가족 오류율은 0202와 같은 <b>0.0027</b>로 지킵니다.<br>
+  잡고 싶은 것은 <b>원인이 다른 작은 고장 네 가지</b>입니다. 각각 고장 유리 40장이 있고, 정해진 센서의 정해진 특징이 장마다 기준 평균에서 표준편차의 2.5~4.5배만큼 옮겨 갑니다. 이것은 0202의 5σ 이상보다 훨씬 작은 이상입니다. 별도로 <b>예전에 인터락이 걸린 뒤 사람이 원인을 판정해 꼬리표(라벨)를 붙인 고장 유리</b>가 모드마다 있습니다.<br>
+  <b>(1) 네 가지 고장 160장 가운데 몇 장을 잡을 수 있습니까? (2) 590개 중 어느 특징에 한계를 그어야 많이 잡습니까? (3) 이 네 가지에 없는 새 고장이 나오면 어떻게 됩니까?</b>
+</div>
+<div class="solban">여기서부터 위 데이터를 이용한 풀이입니다</div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="no">1</span>먼저 짐작해 보십시오</h2>
+<p>0202에서 만든 방법은 590개 전체에 본페로니 한계를 긋는 것이었습니다. 가족 오류율은 0.0027로 지켜집니다. 그 한계로 네 가지 고장 유리 160장(모드마다 40장)을 감시하면 몇 장에서 알람이 날까요?</p>
+<div class="lab">
+  <div class="labtitle">590개 전부 본페로니 한계로 고장 유리 160장 중 잡는 수는?</div>
+  <div class="ctrl"><label for="guess">내 짐작 (0~160장)</label><input type="number" id="guess" min="0" max="160" step="1" placeholder="예: 100"><span></span></div>
+  <div class="row"><button class="btn" id="guessBtn" type="button">이 짐작으로 정하기</button></div>
+  <div class="state" id="guessState">아직 짐작을 정하지 않으셨습니다. 9절에서 실제 숫자와 견줍니다.</div>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="no">2</span>막힘 — 590개 본페로니로는 작은 고장이 숨습니다</h2>
+<p>0202의 처방을 그대로 쓰겠습니다. 가족 오류율 0.0027을 590개 특징에 똑같이 나누면 특징마다 허용하는 헛알람 확률은 <span data-v="a0"></span>이고, 한계는 <i>k</i> = <b data-v="k0"></b>σ입니다. 이 설계를 <b>D0</b>이라 부르겠습니다. 정상 500장에 대 보면 알람이 걸린 유리는 <b data-v="f0n"></b>장(실측 가족 오류율 <span data-v="f0r"></span>)입니다. 헛알람은 목표 근처로 지켜집니다. 다만 장수가 적어 숫자 하나는 흔들리므로, 시드 <span data-v="nseed"></span>개를 합친 실측 가족 오류율을 보면 D0은 <span data-v="fpool0"></span>, D1은 <span data-v="fpool1"></span>입니다. 목표 0.0027보다 조금 높은데, 한계를 기준 유리 300장에서 추정한 평균과 표준편차로 긋기 때문에 추정 오차만큼 한계가 실제보다 낮게 그어지는 일이 있어서입니다.</p>
+<p>그런데 고장 유리는 어떨까요? 유리에서 알람이 나면 그 고장 유리를 <b>잡았다</b>고 세고, 고장 유리 중 잡은 비율을 <b>검출률</b>이라 부르겠습니다(0202에서는 한 특징 기준의 확률을 이렇게 불렀고, 여기서는 유리 한 장 기준의 실측 비율입니다). 통계에서는 이 비율의 바탕이 되는 확률, 곧 1 − (2종 오류 확률)을 <b>검정력 (power)</b>이라 합니다. 검출률과 검정력은 같은 것의 이름만 다릅니다. D0의 검출률은 아래와 같습니다.</p>
+<div class="lab">
+  <div class="labtitle">D0 — 590개 전부, 본페로니 한계의 모드별 검출률</div>
+  <div class="tbwrap"><table id="tabD0" class="mt num"></table></div>
+</div>
+<p>네 모드의 평균 검출률은 <b data-v="d0ad"></b>입니다(시드 <span data-v="nseed"></span>개에서 중앙값 <span data-v="d0ad_med"></span>, 10~90% 구간 <span data-v="d0ad_lo"></span>~<span data-v="d0ad_hi"></span>). 고장 유리의 <b data-v="d0miss"></b>를 놓칩니다. 까닭은 크기입니다. 옮겨 가는 크기의 평균은 3.5σ(2.5와 4.5의 한가운데)인데 한계가 <span data-v="k0b"></span>σ이므로, 3.5σ 옮겨 간 특징이 한계 밖으로 나가려면 잡음이 도와줘야 합니다. 한 특징만 볼 때 평균 3.5σ 이동을 잡을 확률은 0202의 식으로 <span data-v="det0_35"></span>입니다.</p>
+<p>그러면 한계를 낮추면 되는데, 헛알람 예산을 지키면서 한계를 낮추는 방법은 <b>검사 개수 <i>m</i>을 줄이는 것</b>입니다. 한계는 <i>m</i>으로 정해지기 때문입니다. 0202의 본페로니 식에 <i>m</i>만 바꿔 넣어 보겠습니다.</p>
+<div class="lab">
+  <div class="labtitle">감시하는 특징 수 <i>m</i>과 한계 <i>k</i>, 한 특징만 볼 때 평균 3.5σ 이동의 검출률</div>
+  <div class="tbwrap"><table id="tabMK" class="mt num"></table></div>
+</div>
+<p>개수를 590에서 <span data-v="msel"></span>로 줄이면 한계가 <span data-v="k0b"></span>에서 <span data-v="k1"></span>로 내려가고 같은 3.5σ 이동의 검출률이 <span data-v="det0_35"></span>에서 <span data-v="det1_35"></span>로 오릅니다. 헛알람 예산은 그대로이고 한계만 내려갔습니다. 문제는 <b>어느 <span data-v="msel"></span>개를 남기느냐</b>입니다.</p>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="no">3</span>아무렇게나 줄이면?</h2>
+<p>가장 쉬운 방법은 무작위로 <span data-v="msel"></span>개를 고르는 것입니다. 한계는 방금 본 <span data-v="k1"></span>σ로 내려가니 검출률이 오를 것 같습니다. 이 설계를 <b>D2</b>라 하겠습니다. 한 번 뽑은 무작위는 운에 좌우되므로 무작위 <span data-v="rrand"></span>번을 되풀이한 평균을 씁니다.</p>
+<div class="lab">
+  <div class="labtitle">D2 — 같은 개수를 무작위로 고른 설계 (무작위 되풀이의 평균)</div>
+  <div class="tbwrap"><table id="tabD2" class="mt num"></table></div>
+</div>
+<p>한계는 내려갔는데 네 모드의 평균 검출률은 <b data-v="d2ad"></b>로 사실상 0입니다. 헛알람은 같이 줄었지만 이상도 잡지 못합니다. 까닭은 단순합니다. 네 가지 고장이 실제로 옮기는 특징은 590개 중 <span data-v="ntruth"></span>개뿐인데, 무작위로 집은 <span data-v="msel"></span>개 안에 그 특징이 하나라도 들어 있을 확률이 <span data-v="pany"></span>이기 때문입니다. 줄이는 <b>기준</b>이 없으면 줄이는 것이 아니라 눈을 감는 것입니다.</p>
+
+<!-- ===================== 4 ===================== -->
+<h2><span class="no">4</span>이름 — 고장 모드와 반응표</h2>
+<p>기준은 &ldquo;어떤 고장을 잡고 싶은가&rdquo;입니다. 이상을 곡선의 <b>모양</b>(압력이 올라갔다)이 아니라 <b>원인</b>(진공이 샌다)으로 묶고, 원인이 같은 이상의 한 갈래를 <b>고장 모드 (failure mode)</b>라 부르겠습니다. 모양은 원인이 같아도 장마다 다르지만 원인은 같은 곳(같은 센서의 같은 특징)을 건드리기 때문에 특징을 고르는 기준이 됩니다. 이 가상 라인의 네 고장 모드와, 물리를 아는 사람이 적을 수 있는 <b>예상 반응 특징</b>은 아래와 같습니다. 이 칸은 사람이 적는 칸입니다.</p>
+<div class="lab">
+  <div class="labtitle">고장 모드 네 가지 — 물리 근거와 예상 반응 특징 (사람이 적는 칸)</div>
+  <div class="tbwrap"><table id="tabMode" class="mt"></table></div>
+</div>
+<p>사람의 예상은 틀릴 수 있습니다. 센서마다 특징 다섯이 모두 움직이는 것은 아니고, 어느 것이 얼마나 움직이는지는 데이터로 확인해야 합니다. 그래서 과거에 인터락이 걸린 뒤 사람이 원인을 판정해 붙인 <b>라벨</b>(여기서는 &ldquo;이 유리는 모드 A였다&rdquo;)이 붙은 고장 유리를 씁니다. 모드마다 이런 유리가 <b data-v="ldef"></b>장씩 있다고 하겠습니다. 이 유리들이 590개 특징을 각각 기준 평균에서 몇 σ 옮겼는지의 평균을 모드별로 적은 표가 <b>반응표 (signature table)</b>입니다. 행이 고장 모드, 열이 특징, 칸이 평균 z입니다.</p>
+<div class="eq">
+  <span class="eqlab">반응표의 한 칸 — 모드 <i>g</i>의 라벨 유리 <i>L</i>장이 특징 <i>j</i>를 옮긴 평균 z</span>
+  <math display="block"><mrow><msub><mi>T</mi><mrow><mi>g</mi><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>L</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>L</mi></munderover><mfrac><mrow><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mover><mi>x</mi><mo>¯</mo></mover><mrow><mi>ref</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><msub><mi>s</mi><mrow><mi>ref</mi><mo>,</mo><mi>j</mi></mrow></msub></mfrac></mrow></math>
+  <span class="note">기준 유리 300장의 평균과 표준편차로 z를 만들고(0202와 같은 방법), 라벨 유리 <i>L</i>장에서 평균을 냅니다. 이 계산에는 옮겨 간 크기의 정답이 들어가지 않습니다. 실제 현장과 같은 조건입니다.</span>
+</div>
+<p>반응표에서 <b>평균 z의 크기가 문턱 이상인 특징만 모아</b> 감시할 묶음을 만듭니다. 문턱의 기본값은 1.5σ, 라벨은 모드마다 <span data-v="ldef"></span>장을 씁니다. 이렇게 고른 묶음이 <b>고른 묶음 <i>m</i><sub>sel</sub></b>이고, 이 개수만으로 가족 오류율 0.0027을 나눈 설계가 <b>D1</b>입니다. 반응표 라벨 유리와 정상 유리는 다른 유리이므로 고르는 일에 정상 유리를 쓰지 않았고, 그래서 한계의 보장이 깨지지 않습니다. 아래 줄무늬는 모드마다 590개 특징의 |평균 z|를 진하게 칠한 것이고, 아래 막대가 고른 특징입니다.</p>
+<div class="lab">
+  <div class="labtitle">반응표 — 모드 네 줄 × 특징 590칸 (진할수록 평균 z가 큽니다)</div>
+  <canvas id="cvH" height="170"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>|평균 z|가 큰 칸</span><span><span class="dot" style="background:var(--ink)"></span>문턱을 넘어 고른 특징</span><span>가로 = 특징 590개(센서 번호 순)</span></div>
+  <div class="tbwrap"><table id="tabSel" class="mt"></table></div>
+</div>
+<p>네 모드가 실제로 옮기는 특징은 모두 <span data-v="ntruth"></span>개입니다. 이 가상 데이터에서만 아는 &ldquo;정답&rdquo;이라 <b>정답 반응 특징</b>이라 부르겠습니다(현장에서는 모릅니다). 고른 특징은 <b data-v="msel"></b>개이고 그중 정답 반응 특징이 <b data-v="inclN"></b>개 들어 있으며 엉뚱하게 섞인 특징은 <b data-v="extra"></b>개입니다. 모드 A와 모드 D가 같은 특징(<span data-v="shared"></span>)을 함께 쓰는데, 겹치면 한 번만 세므로 묶음은 <span data-v="msel"></span>개입니다.</p>
+<p>이 묶음에 가족 오류율 0.0027을 나누면 한계는 <b data-v="k1"></b>σ, 정상 500장 중 알람은 <b data-v="f1n"></b>장입니다. 검출률은 아래와 같습니다. 참고로 <b>D4</b>는 정답 반응 특징 <span data-v="ntruth"></span>개를 처음부터 알고 고른 이상적인 설계(라벨이 완벽하다면)로, 상한을 보는 용도입니다.</p>
+<div class="lab">
+  <div class="labtitle">D1 — 반응표로 고른 묶음의 모드별 검출률 (D0 와 견주기)</div>
+  <div class="tbwrap"><table id="tabD1" class="mt num"></table></div>
+</div>
+<p>네 모드의 평균 검출률이 D0의 <b data-v="d0ad"></b>에서 D1의 <b data-v="d1ad"></b>로 오릅니다. 시드 <span data-v="nseed"></span>개에서 D1이 D0보다 낮았던 시드는 <span data-v="d1lt0"></span>개이고, D1의 중앙값은 <span data-v="d1ad_med"></span>(10~90% 구간 <span data-v="d1ad_lo"></span>~<span data-v="d1ad_hi"></span>)입니다. 헛알람 예산은 같은 0.0027이고 잡는 양이 이만큼 늘었습니다.</p>
+<div class="qna" data-label="반응표 문턱 1.5는 왜 1.5인가요?" data-q="반응표 문턱 1.5는 왜 1.5인가요?">
+  <p>문턱은 &ldquo;반응이 있다&rdquo;와 &ldquo;잡음이다&rdquo;를 가르는 선이고, 이 가상 데이터에서는 어디에 두어도 거의 같은 묶음이 나옵니다. 라벨 유리 열두 장의 평균 z는 진짜 반응이 3 근처, 잡음이 0 근처(0.3 안팎)로 크게 벌어져 있기 때문입니다. 아래 6절의 문턱 슬라이더로 직접 확인할 수 있습니다.</p>
+  <p>현장의 반응은 이렇게 깨끗하게 갈리지 않습니다. 문턱을 낮추면 엉뚱한 특징이 섞여 <i>m</i><sub>sel</sub>이 커지고 한계가 올라가며, 문턱을 높이면 약한 반응을 놓칩니다. 그래서 문턱은 숫자 하나로 정하기보다 &ldquo;라벨 장수가 늘면 문턱 근처 특징이 어느 쪽으로 가는가&rdquo;를 보고 정합니다(7절).</p>
+</div>
+<div class="qna" data-label="모드끼리 같은 특징을 쓰면 어떻게 되나요?" data-q="모드끼리 같은 특징을 쓰면 어떻게 되나요?">
+  <p>고른 묶음은 합집합이라 겹친 특징은 한 번만 셉니다. 그만큼 <i>m</i><sub>sel</sub>이 작아져 한계가 내려가므로 검출률에는 이득입니다. 이 데이터에서 모드 A와 모드 D가 같은 특징 하나를 씁니다.</p>
+  <p>손해는 다른 데서 납니다. 그 특징에서 알람이 나면 A인지 D인지 그 특징만으로는 가르지 못합니다. 원인을 가르려면 모드마다 다른 특징(A는 그 센서의 평균, D는 밸브 위치의 안정 시간)을 함께 봐야 합니다. 감시 묶음을 정하는 일과 원인을 판정하는 일은 별개입니다.</p>
+</div>
+<div class="qna" data-label="라벨이 틀리면(가성을 진성으로 붙이면) 어떻게 되나요?" data-q="라벨이 틀리면(가성을 진성으로 붙이면) 어떻게 되나요?">
+  <p>모드 A의 라벨 유리 열두 장 가운데 가성 인터락(실제로는 정상인 유리)이 섞여 있으면 평균 z가 묽어집니다. 진짜 고장 유리의 평균 반응이 3.5라면, 열두 장 중 가성이 <span id="qa_bad"></span>장이면 평균은 <span id="qa_mean"></span>까지 내려가 문턱 1.5 밑으로 떨어집니다.</p>
+  <p>그러면 그 모드의 반응 특징이 묶음에서 빠지고 그 고장은 감시 목록 밖으로 밀려납니다. 이것이 &ldquo;인터락마다 진짜인지 가성인지, 진짜면 어느 모드인지 라벨을 남기는 일&rdquo;이 자산인 까닭입니다. 라벨이 틀린 만큼 반응표가 틀립니다.</p>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="no">5</span>막힘 둘 — 목록에 없는 고장, 그리고 예산 나누기</h2>
+<p>D1은 헛알람 예산을 고른 묶음에 전부 썼습니다. 그렇다면 목록에 없는 고장은 어떻게 될까요? 새 고장 <b>E</b>를 만들었습니다. 네 모드가 쓰는 센서가 아닌 센서의 특징 하나(<span data-v="ecol"></span>)가 장마다 4~7σ 옮겨 가는 고장 유리 40장입니다. 라벨이 있어 본 적이 있는 모드가 아니라 처음 보는 고장입니다.</p>
+<div class="lab">
+  <div class="labtitle">D0 · D1 의 새 고장 E 검출률</div>
+  <div class="tbwrap"><table id="tabE" class="mt num"></table></div>
+</div>
+<p>D1은 E를 거의 잡지 못합니다(<span data-v="d1e"></span>). 감시하는 특징 안에 E가 옮기는 특징이 없기 때문입니다. D0은 590개 전부를 보므로 4~7σ의 큰 이동은 한계 <span data-v="k0b"></span>σ 밖으로 나가 <span data-v="d0e"></span>를 잡습니다. D1을 쓰면 <b>작은 알려진 고장을 더 잡는 대신 큰 새 고장을 잃습니다.</b></p>
+<p>해법은 예산을 전부 쓰지 않고 일부를 남겨 두는 것입니다. 고른 묶음 밖의 모든 특징에 엄격한 한계를 따로 걸어, 목록에 없는 고장이라도 크게 벗어날 때만이라도 잡는 장치를 <b>전체 감시망 (catch-all guard)</b>이라 부르겠습니다. 가족 오류율 한도 α<sub>가족</sub>을 묶음별로 나눠 주는 일이 <b>α 예산 나누기 (alpha allocation)</b>입니다. 고른 묶음에 몫 <i>s</i>를, 나머지에 몫 1 − <i>s</i>를 줍니다. 이 설계가 <b>D3</b>입니다.</p>
+<div class="eq">
+  <span class="eqlab">α 예산 나누기 — 묶음마다 특징 하나가 쓸 수 있는 헛알람 확률</span>
+  <math display="block"><mrow><msub><mi>α</mi><mtext>고른</mtext></msub><mo>=</mo><mfrac><mrow><mi>s</mi><mo>⋅</mo><msub><mi>α</mi><mtext>가족</mtext></msub></mrow><msub><mi>m</mi><mtext>sel</mtext></msub></mfrac><mo>,</mo><mspace width="1.2em"></mspace><msub><mi>α</mi><mtext>나머지</mtext></msub><mo>=</mo><mfrac><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>s</mi><mo stretchy="false">)</mo><mo>⋅</mo><msub><mi>α</mi><mtext>가족</mtext></msub></mrow><mrow><mi>m</mi><mo>−</mo><msub><mi>m</mi><mtext>sel</mtext></msub></mrow></mfrac></mrow></math>
+  <span class="note">각 묶음의 한계는 0202의 본페로니 식과 같습니다: <i>k</i> = Φ<sup>&minus;1</sup>(1 − α′/2), α′에 위 값을 넣습니다.</span>
+</div>
+<div class="eq">
+  <span class="eqlab">합이 한도를 넘지 않는 이유 (본페로니와 같은 논리)</span>
+  <math display="block"><mrow><msub><mi>m</mi><mtext>sel</mtext></msub><msub><mi>α</mi><mtext>고른</mtext></msub><mo>+</mo><mo stretchy="false">(</mo><mi>m</mi><mo>−</mo><msub><mi>m</mi><mtext>sel</mtext></msub><mo stretchy="false">)</mo><msub><mi>α</mi><mtext>나머지</mtext></msub><mo>=</mo><mi>s</mi><msub><mi>α</mi><mtext>가족</mtext></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>s</mi><mo stretchy="false">)</mo><msub><mi>α</mi><mtext>가족</mtext></msub><mo>=</mo><msub><mi>α</mi><mtext>가족</mtext></msub></mrow></math>
+  <span class="note">&ldquo;하나라도 넘을 확률&rdquo;은 특징마다 넘을 확률의 합보다 크지 않으므로, 합이 α<sub>가족</sub>이면 전체 가족 오류율은 α<sub>가족</sub> 이하입니다. 어느 묶음에 얼마를 주든 합만 지키면 됩니다.</span>
+</div>
+<p>기본값 <i>s</i> = <span data-v="sdef"></span>이면 고른 묶음의 한계는 <b data-v="ksel"></b>σ, 감시망(나머지 <span data-v="mrest"></span>개)의 한계는 <b data-v="krest"></b>σ입니다. 고른 묶음의 한계는 D1의 <span data-v="k1"></span>σ에서 조금만 올라가고, 감시망의 한계는 D0의 <span data-v="k0b"></span>σ보다 높습니다. 감시망은 아주 큰 이동만 잡는 대신 헛알람 예산을 거의 쓰지 않습니다.</p>
+<div class="lab">
+  <div class="labtitle">D3 — 예산 나누기 설계의 모드별 검출률 (D0 · D1 과 견주기)</div>
+  <div class="tbwrap"><table id="tabD3" class="mt num"></table></div>
+</div>
+<p>D3의 네 모드 평균 검출률은 <b data-v="d3ad"></b>로 D1의 <span data-v="d1ad"></span>보다 조금 낮고(감시망에 몫을 떼어 준 값), D0의 <span data-v="d0ad"></span>보다는 훨씬 높습니다. 새 고장 E는 D3이 <b data-v="d3e"></b>를 잡아 D0의 <span data-v="d0e"></span>에 가깝습니다. 정상 500장 중 알람은 <span data-v="f3n"></span>장으로 가족 오류율은 여전히 목표 근처입니다.</p>
+<div class="qna" data-label="본페로니 대신 시닥을 써도 되나요?" data-q="본페로니 대신 시닥을 써도 되나요?">
+  <p>써도 됩니다. 0202에서 본 대로 α가 작으면 두 식은 거의 같은 값을 줍니다. 이 실험실의 고른 묶음(<span data-v="msel"></span>개)에서 두 한계의 차이는 <span data-v="skdiff"></span>σ입니다.</p>
+  <p>다만 시닥은 특징이 서로 독립이라고 가정해야 정확합니다. 이 데이터는 같은 센서 안에서 상관 0.6이라 독립이 아니고, 고른 묶음에는 같은 센서의 특징이 둘씩 들어 있습니다. 본페로니는 독립 여부와 상관없이 한도를 보장하므로, 예산을 나눌 때는 본페로니가 안전한 기본값입니다.</p>
+</div>
+<div class="qna" data-label="새 고장이 감시망 한계보다 작으면 어떻게 되나요?" data-q="새 고장이 감시망 한계보다 작으면 어떻게 되나요?">
+  <p>못 잡습니다. 전체 감시망은 한계가 높은 대신 큰 이동만 잡는 장치입니다. 감시망 한계가 <span data-v="krest"></span>σ일 때 새 고장이 3σ 옮겨 갔다면 한 특징의 검출률은 <span data-v="detRest3"></span>에 불과해서, 고장 유리 100장 중 <span data-v="detRest3n"></span>장 정도만 알람이 납니다.</p>
+  <p>그래서 감시망이 하는 일은 &ldquo;목록 밖에서도 큰 고장은 놓치지 않는다&rdquo;이지 &ldquo;새 고장을 다 잡는다&rdquo;가 아닙니다. 새 고장이 한 번 나오면 그 유리에 원인 라벨을 붙여 카탈로그에 새 모드로 넣고, 다음부터는 그 모드를 위한 특징을 고른 묶음에 넣는 것이 정답입니다.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<h2><span class="no">6</span>조작 — 예산 몫, 문턱, 라벨 장수</h2>
+<p>세 슬라이더가 서로 다른 일을 합니다. 예산 몫 <i>s</i>는 고른 묶음과 감시망 사이의 나눔을 바꾸고, 문턱은 반응표에서 고르는 특징 수를 바꾸고, 라벨 장수는 반응표 자체의 정확도를 바꿉니다. 아래 표와 그림이 함께 움직입니다.</p>
+<div class="lab">
+  <div class="labtitle">예산 몫 · 반응표 문턱 · 라벨 장수 — 설계 다섯의 검출률과 가족 오류율</div>
+  <div class="watch"><b>이렇게 해 보세요.</b> 먼저 몫 <i>s</i>를 1.0까지 올려 보십시오. D3이 D1과 같아지고 새 고장 E를 잃습니다. 0.5까지 내리면 E를 되찾지만 네 모드 검출률이 내려갑니다. 그다음 문턱을 0.5까지 내려 엉뚱한 특징이 섞이면 <i>m</i><sub>sel</sub>이 커지고 D1·D3의 한계가 올라가 검출률이 떨어지는 것을 보십시오. 마지막으로 라벨 장수를 3장으로 줄여 같은 일이 일어나는지 보십시오.</div>
+  <div class="ctrl"><label for="sS">고른 묶음의 예산 몫 <i>s</i></label><input type="range" id="sS" min="0.5" max="1" step="0.05" value="0.8"><output id="sSo"></output></div>
+  <div class="ctrl"><label for="sT">반응표 문턱 (|평균 z|)</label><input type="range" id="sT" min="0.5" max="3" step="0.1" value="1.5"><output id="sTo"></output></div>
+  <div class="ctrl"><label for="sL">라벨 유리 장수 (모드마다)</label><input type="range" id="sL" min="0" max="4" step="1" value="2"><output id="sLo"></output></div>
+  <div class="row"><button class="btn ghost" id="btReset" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="stB"></div>
+  <div class="tbwrap"><table id="tabB" class="mt num"></table></div>
+  <canvas id="cvBars" height="260"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>네 모드(A~D) 평균 검출률</span><span><span class="dot" style="background:var(--c9)"></span>새 고장 E 검출률</span><span>막대 위 숫자는 검출률(0~100)</span></div>
+  <canvas id="cvTrade" height="230"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>D3의 네 모드 평균 검출률</span><span><span class="dot" style="background:var(--c9)"></span>D3의 새 고장 E 검출률</span><span><span class="dot" style="background:var(--ink)"></span>지금 슬라이더의 <i>s</i></span><span>가로 = 예산 몫 <i>s</i> (문턱·라벨은 지금 값)</span></div>
+  <div class="concl" id="conclB"></div>
+</div>
+<p>표의 D4는 슬라이더와 무관합니다. 정답 반응 특징을 알 때의 상한이라 문턱·라벨의 영향을 받지 않고, 몫 <i>s</i>는 D3에만 씁니다. 표에서 D2의 한계는 D1과 같고 검출률만 크게 낮습니다.</p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="no">7</span>라벨의 값 — 쌓일수록 선정이 정확해집니다</h2>
+<p>반응표는 라벨 유리에서 추정한 값이므로 라벨이 적으면 잡음이 섞입니다. 평균 z의 잡음 크기는 라벨 장수의 제곱근에 반비례해 줄어듭니다. 라벨 3장이면 한 칸의 잡음이 약 <span data-v="nz3"></span>, 열두 장이면 약 <span data-v="nz12"></span>입니다. 아래 표는 라벨 장수를 바꿔 문턱 1.5로 고른 결과를 시드 <span data-v="nseed"></span>개에서 낸 중앙값과 10~90% 구간으로 보인 것입니다(예산 몫은 기본값).</p>
+<div class="lab">
+  <div class="labtitle">라벨 장수별 선정 결과 — 시드 200개의 중앙값 (10~90% 구간)</div>
+  <div class="tbwrap"><table id="tabL" class="mt num"></table></div>
+</div>
+<p>이 가상 데이터에서는 진짜 반응이 3 안팎으로 커서 라벨 <span data-v="Lknee"></span>장이면 정답 반응 특징을 빠짐없이 고르고 엉뚱한 특징이 거의 섞이지 않습니다. 반면 <b>3장이면 엉뚱한 특징이 중앙값 <span data-v="x3"></span>개나 섞여</b> <i>m</i><sub>sel</sub>이 커지고 한계가 올라가 D1 검출률이 <span data-v="a3"></span>로 내려갑니다. 라벨이 적으면 반응 특징을 놓치는 것이 아니라 <b>잡음이 반응처럼 보여 묶음이 불어납니다.</b></p>
+<p>이것이 이 가상 데이터가 가르쳐 주는 한계이기도 합니다. 반응이 3 안팎으로 큰 고장은 라벨 몇 장이면 충분하지만, 현장의 약한 반응(예: 1 안팎)은 문턱 근처에서 잡음과 겹쳐 라벨이 더 필요합니다. 아래 표는 대표 시드에서 라벨 장수와 문턱의 조합마다 정답 반응 특징을 몇 개 골랐고(왼쪽) 엉뚱한 특징이 몇 개 섞였는지(오른쪽)를 보입니다. 문턱을 정답의 크기(3.5 안팎) 가까이 올리면 놓치기 시작합니다.</p>
+<div class="lab">
+  <div class="labtitle">대표 시드: 라벨 장수 × 문턱 — (정답 반응 특징 선택 수 / 엉뚱한 특징 수)</div>
+  <div class="tbwrap"><table id="tabLT" class="mt num"></table></div>
+</div>
+<p>라벨을 쌓는 일은 지금 당장은 표 한 줄을 더하는 일이지만, 모드마다 쌓일수록 반응표가 정확해지고 그만큼 묶음이 작아져 같은 예산으로 더 많이 잡습니다. 현장에서 값이 되는 자산이 &ldquo;인터락마다 원인 모드 라벨&rdquo;인 까닭입니다.</p>
+
+<!-- ===================== 8 ===================== -->
+<h2><span class="no">8</span>현장에서 환산하면</h2>
+<p>같은 헛알람 예산(가족 오류율 0.0027)에서 D0을 D3으로 바꾸면 하루에 고장 유리를 얼마나 더 잡고 무엇을 잃는지 환산합니다. 검출률은 위 가상 자료의 값(기본 설정의 D0과 D3, 슬라이더와 무관)이고, 움직이는 것은 현장 쪽 숫자 세 개입니다.</p>
+<div class="lab">
+  <div class="labtitle">성과 환산 상자 — D0 → D3</div>
+  <div class="ctrl"><label for="cG">하루 검사 유리 수</label><input type="range" id="cG" min="50" max="600" step="10" value="200"><output id="cGo"></output></div>
+  <div class="ctrl"><label for="cF">고장 유리 비율 (가정)</label><input type="range" id="cF" min="0.1" max="2" step="0.1" value="0.5"><output id="cFo"></output></div>
+  <div class="ctrl"><label for="cW">고장 유리 하나를 놓치면 뒤에서 버리는 장수</label><input type="range" id="cW" min="1" max="20" step="1" value="6"><output id="cWo"></output></div>
+  <div class="row"><button class="btn ghost" id="cReset" type="button">기본값으로 되돌리기</button></div>
+  <div class="state" id="cState"></div>
+  <div class="tbwrap"><table id="tabC" class="mt num"></table></div>
+  <div class="concl" id="conclC"></div>
+  <p class="note">하루 검사 유리 수의 기본값 200장은 0202와 같은 가정이고, 고장 유리 비율 0.5%와 버리는 장수 6장도 가정입니다. 검출률은 이 가상 자료의 값이므로 회사에서는 10절의 코드에 내 라인의 기준 유리와 라벨 고장 유리를 넣어 다시 재십시오. 같은 식에 고장 유리 한 장의 손실 금액과 새 고장 한 장의 손실 금액을 곱하면 금액이 됩니다.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="no">9</span>착지 — 잡고 싶은 이상에서 거꾸로</h2>
+<p>1절과 문제의 세 물음으로 돌아가겠습니다.</p>
+<div class="concl" id="landing"></div>
+<p>0201의 &ldquo;특징은 어떤 이상을 잡고 싶은가에서 거꾸로 고른다&rdquo;의 실체는 두 가지였습니다. <b>반응표</b>(라벨이 붙은 과거 고장에서 모드마다 반응하는 특징을 추정)와 <b>α 예산 나누기</b>(고른 묶음과 전체 감시망 사이에 같은 헛알람 한도를 나눔)입니다. 둘이 있어야 같은 가족 오류율에서 작은 고장을 더 잡으면서 새 고장에 문을 닫지 않습니다.</p>
+<p>다만 이 실험실의 한계는 모두 정규분포·독립·깨끗한 기준 유리를 가정해서 그은 것입니다. 실제 특징이 한쪽으로 치우치거나 시간에 따라 흐르거나 기준 유리에 이미 이상이 섞여 있으면 선언한 0.0027은 지켜지지 않습니다. 다음 0203이 그 세 가정을 하나씩 깨 봅니다.</p>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="no">10</span>Python — 회사 PC에 가져갈 코드</h2>
+<p>아래 코드는 <code>numpy, pandas, scipy</code>만 씁니다. 네 함수가 이 실험실의 도구입니다. 고장 모드 목록과 모드별 예상 반응 특징(<code>EXPECT</code>)은 사람이 적는 칸입니다. 반응표 계산·선정·한계 산출·감사는 에이전트가 맡습니다. <code>group</code> 열에서 <code>label_*</code> 줄은 인터락 사후 판정 기록에, <code>fault_*</code> 줄은 새로 들어오는 고장 유리에 해당합니다.</p>
+<pre id="pyCode">import numpy as np
+import pandas as pd
+from scipy import stats
+
+# 열: glass_id, group(ref / normal / label_A~D / fault_A~E), 그 뒤로 특징 590개 (z 척도)
+df = pd.read_csv("agentlab/data/csv/s22_features.csv")   # 내려받은 위치에 맞게 경로를 바꾸세요
+FEATS = [c for c in df.columns if c not in ("glass_id", "group")]
+G = lambda g: df[df.group == g][FEATS].to_numpy()
+X_ref, X_nor = G("ref"), G("normal")                     # 한계를 긋는 기준 유리 · 이상 없음이 확인된 유리
+LABELED = {m: G("label_" + m) for m in "ABCD"}            # 과거 라벨된 고장 유리 (모드마다 48장)
+FAULT = {m: G("fault_" + m) for m in "ABCDE"}             # 새로 들어온 고장 유리 (검출률을 재는 용도)
+FAMILY_ALPHA = 0.0027
+
+# 사람이 적는 칸: 고장 모드마다 물리 근거로 예상한 반응 특징
+EXPECT = {"A": ["s007_steady_mean", "s007_max_dev"],      # 진공 누설: 챔버 압력의 평균과 최대 편차
+          "B": ["s023_settle_s", "s023_overshoot_pct"],   # 히터 열화: 히터 온도의 안정 시간과 넘침
+          "C": ["s041_steady_std"],                       # MFC 흔들림: 가스 유량의 흩어짐
+          "D": ["s058_settle_s", "s007_max_dev"]}         # 밸브 응답 지연: 밸브 위치 안정 시간과 압력 최대 편차
+EXP = {f for v in EXPECT.values() for f in v}            # 예상 반응 특징 전체(모드끼리 겹치면 한 번만)
+
+
+def zscore(X_ref, X):
+    """기준 유리의 평균·표준편차로 표준화."""
+    return (X - X_ref.mean(axis=0)) / X_ref.std(axis=0, ddof=1)
+
+
+def signature_table(X_ref, labeled):
+    """반응표: 모드(행) x 특징(열), 칸 = 라벨된 고장 유리의 평균 z."""
+    return pd.DataFrame({m: zscore(X_ref, X).mean(axis=0) for m, X in labeled.items()}, index=FEATS).T
+
+
+def select_by_mode(table, thr=1.5):
+    """|평균 z| >= thr 인 특징을 모아 (고른 특징 목록, 모드별 근거)를 돌려줍니다."""
+    basis = {m: [f for f in table.columns if abs(table.loc[m, f]) >= thr] for m in table.index}
+    feats = sorted({f for fs in basis.values() for f in fs}, key=FEATS.index)
+    return feats, basis
+
+
+def split_alpha(m_sel, m_all, alpha_family=FAMILY_ALPHA, share=0.8):
+    """고른 묶음에 share, 나머지에 1-share 를 나눠 준 두 한계 (k_sel, k_rest). 합은 alpha_family."""
+    k = lambda a: stats.norm.isf(a / 2)
+    if m_sel == 0:
+        return np.inf, k(alpha_family / m_all)
+    if m_sel == m_all or share >= 1:
+        return k(alpha_family / m_sel), np.inf
+    return k(share * alpha_family / m_sel), k((1 - share) * alpha_family / (m_all - m_sel))
+
+
+def detect_audit(X_ref, X_new, feats_sel, k_sel, k_rest):
+    """유리마다 알람: 고른 특징은 k_sel, 나머지는 k_rest 를 넘으면 알람."""
+    z = np.abs(zscore(X_ref, X_new))
+    sel = np.array([f in set(feats_sel) for f in FEATS])
+    alarm = (z[:, sel] &gt; k_sel).any(axis=1) | (z[:, ~sel] &gt; k_rest).any(axis=1)
+    return {"alarm": alarm, "rate": alarm.mean(), "count": int(alarm.sum())}
+
+
+def run_design(feats, k_sel, k_rest):
+    """한 설계의 정상 500장 알람 수와 모드별 검출률."""
+    fam = detect_audit(X_ref, X_nor, feats, k_sel, k_rest)["count"]
+    det = {m: detect_audit(X_ref, X, feats, k_sel, k_rest)["rate"] for m, X in FAULT.items()}
+    return fam, sum(det[m] for m in "ABCD") / 4, det["E"]
+
+
+L, THR, SHARE = 12, 1.5, 0.8
+tab = signature_table(X_ref, {m: X[:L] for m, X in LABELED.items()})
+feats, basis = select_by_mode(tab, THR)
+m_all, m_sel = len(FEATS), len(feats)
+k_all = split_alpha(0, m_all)[1]
+k1 = split_alpha(m_sel, m_all, share=1.0)[0]
+k_sel, k_rest = split_alpha(m_sel, m_all, share=SHARE)
+print(f"특징 {m_all}개 · 기준 {len(X_ref)}장 · 정상 {len(X_nor)}장 · 라벨 모드마다 {L}장 · 문턱 {THR}")
+print(f"고른 묶음 m_sel = {m_sel}개, 정답 반응 특징 {len(EXP &amp; set(feats))}/{len(EXP)}개 포함, 엉뚱한 특징 {len(set(feats) - EXP)}개")
+for m in "ABCD":
+    print(f"  모드 {m}: " + " ".join(f"{f}({tab.loc[m, f]:.2f})" for f in basis[m]))
+print(f"한계: 전체 본페로니 k = {k_all:.3f} · 고른 묶음만 k = {k1:.3f} · 나눈 몫 {SHARE} → k_sel = {k_sel:.3f}, k_rest = {k_rest:.3f}")
+for name, f, a, b in (("D0 590개 전부", [], np.inf, k_all), ("D1 고른 묶음만", feats, k1, np.inf), ("D3 고른 묶음+감시망", feats, k_sel, k_rest)):
+    fam, ad, e = run_design(f, a, b)
+    print(f"{name:<18} 정상 알람 {fam}/{len(X_nor)}장 · A~D 평균 검출률 {ad:.3f} · E 검출률 {e:.3f}")
+for L2 in (3, 6, 12, 24, 48):
+    f2, _ = select_by_mode(signature_table(X_ref, {m: X[:L2] for m, X in LABELED.items()}), THR)
+    print(f"라벨 {L2:>2}장: 고른 {len(f2):>3}개 · 정답 포함 {len(EXP &amp; set(f2))}/{len(EXP)} · 엉뚱 {len(set(f2) - EXP)}개")</pre>
+<p>이 코드를 실행하면 아래 출력이 나옵니다. 위 4~7절의 대표 시드 숫자와 같은 값입니다.</p>
+<pre id="pyOut" aria-label="Python 출력 예시">특징 590개 · 기준 300장 · 정상 500장 · 라벨 모드마다 12장 · 문턱 1.5
+고른 묶음 m_sel = 6개, 정답 반응 특징 6/6개 포함, 엉뚱한 특징 0개
+  모드 A: s007_steady_mean(3.95) s007_max_dev(2.98)
+  모드 B: s023_settle_s(2.98) s023_overshoot_pct(2.84)
+  모드 C: s041_steady_std(3.70)
+  모드 D: s007_max_dev(3.78) s058_settle_s(3.40)
+한계: 전체 본페로니 k = 4.583 · 고른 묶음만 k = 3.509 · 나눈 몫 0.8 → k_sel = 3.568, k_rest = 4.907
+D0 590개 전부         정상 알람 3/500장 · A~D 평균 검출률 0.237 · E 검출률 0.750
+D1 고른 묶음만          정상 알람 4/500장 · A~D 평균 검출률 0.600 · E 검출률 0.025
+D3 고른 묶음+감시망       정상 알람 3/500장 · A~D 평균 검출률 0.594 · E 검출률 0.675
+라벨  3장: 고른  34개 · 정답 포함 6/6 · 엉뚱 28개
+라벨  6장: 고른   6개 · 정답 포함 6/6 · 엉뚱 0개
+라벨 12장: 고른   6개 · 정답 포함 6/6 · 엉뚱 0개
+라벨 24장: 고른   6개 · 정답 포함 6/6 · 엉뚱 0개
+라벨 48장: 고른   6개 · 정답 포함 6/6 · 엉뚱 0개</pre>
+
+<!-- ===================== 보고서·기록·도구 ===================== -->
+<h2><span class="no">11</span>보고서 양식과 앞으로의 기록</h2>
+<div class="report">
+  <h3>특징 선정 근거표</h3>
+  <dl>
+    <dt>고장 모드 · 물리 근거 (사람이 적음)</dt><dd>모드마다 한 줄. 예: 진공 누설 — 챔버 압력의 평균과 최대 편차가 올라감. 목록은 <span data-v="nmodes"></span>개.</dd>
+    <dt>반응 특징과 평균 z (라벨 장수)</dt><dd id="rp_sig"></dd>
+    <dt>고른 묶음 <i>m</i><sub>sel</sub> · 예산 몫 · 두 한계</dt><dd id="rp_lim"></dd>
+    <dt>실측 가족 오류율</dt><dd id="rp_fam"></dd>
+    <dt>모드별 검출률</dt><dd id="rp_det"></dd>
+    <dt>감시망이 잡는 새 고장의 최소 크기</dt><dd id="rp_min"></dd>
+    <dt>권고</dt><dd>목록에 있는 고장은 고른 묶음에서, 목록에 없는 큰 고장은 전체 감시망에서 지킵니다. 감시망에 걸린 새 고장은 원인 라벨을 붙여 모드 카탈로그에 추가하고, 라벨이 쌓이면 반응표를 다시 만듭니다. 모드를 추가한 날짜를 함께 기록합니다.</dd>
+  </dl>
+</div>
+<div class="two">
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">앞으로 기록해 둘 데이터</h3>
+    <p class="note">에이전트가 특징을 스스로 고르게 하려면 현장에서 아래를 남겨야 합니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li>인터락마다 고장 모드 라벨: 진성이면 원인 모드, 가성이면 가성</li>
+      <li>그 순간의 590 특징 z 스냅숏: 반응표의 재료이므로 인터락 시점의 값을 그대로 남김</li>
+      <li>새 모드를 카탈로그에 추가한 날짜: 모드 목록이 언제 어떻게 바뀌었는지</li>
+      <li>유리 ID, 챔버, 마스크 세트, 턴: 데이터를 잇는 키</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:0">
+    <h3 style="margin-top:0">에이전트 도구 상자</h3>
+    <p class="note">이 실험실이 남기는 검증된 함수입니다.</p>
+    <ul style="margin:.3rem 0 0 1.1rem;padding:0">
+      <li><code>signature_table(X_ref, labeled)</code> — 모드 × 특징의 평균 z 반응표</li>
+      <li><code>select_by_mode(table, thr)</code> — 문턱으로 특징을 고르고 모드별 근거를 남김</li>
+      <li><code>split_alpha(m_sel, m_all, alpha_family, share)</code> — 예산을 나눈 두 한계</li>
+      <li><code>detect_audit(X_ref, X_new, feats_sel, k_sel, k_rest)</code> — 유리별 알람과 검출률·가족 오류율</li>
+    </ul>
+    <p class="note" style="margin-top:.5rem">사람 판단 칸: 고장 모드 목록, 모드별 물리 근거와 예상 반응 특징, 예산 몫 <i>s</i>. 사용 조건: 한계는 기준 유리의 평균·표준편차 추정 위에 있고, 가정(정규·독립·깨끗한 기준)은 0203에서 점검합니다.</p>
+  </div>
+</div>
+
+<nav class="labnav bot"><a href="../index.html#labs">← 실험실 목록 (허브)</a><a href="0202-false-alarm-multiplicity.html">← 이전: 헛알람은 왜 쌓이나</a><a href="0203-three-hidden-assumptions.html">다음: 3σ의 숨은 가정 셋 →</a></nav>
+</main>
+
+<script src="../data/mfgsim.js"></script>
+<script src="../data/sel02_tables.js"></script>
+<script src="../data/sel02.js"></script>
+<script src="../../adp/qna.js"></script>
+<script>
+(function(){
+var SE=SEL02, TB=SEL02_TABLES, MS=MfgSim, Qn=MS.qnorm, QI=MS.qinv;
+var M=SE.M, N=SE.N, NM=SE.NM, ALPHA=SE.ALPHA, SEEDS=TB.seeds, NSEED=SEEDS.length, LG=SE.L_GRID, MODES=SE.MODES;
+var P=SE.prep(TB.rep);
+var R0=SE.run(P);
+var TRUTH=SE.truthSet(), NT=TRUTH.length;
+var DMEAN=(SE.D_LO+SE.D_HI)/2;
+var NAMES={D0:'590개 전부',D1:'고른 묶음만',D2:'무작위로 같은 개수',D3:'고른 묶음 + 감시망',D4:'정답 반응 특징을 아는 경우'};
+
+function $(id){return document.getElementById(id);}
+function f1(v){return v.toFixed(1);}
+function f2(v){return v.toFixed(2);}
+function f3(v){return v.toFixed(3);}
+function f4(v){return v.toFixed(4);}
+function fp(v){return (v*100).toFixed(1)+'%';}
+function sup(n){var m={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};return String(n).split('').map(function(c){return m[c]||c;}).join('');}
+function fmtP(p){if(p===0)return '0';if(p<0.0001){var e=p.toExponential(1).split('e');return e[0]+'×10'+sup(+e[1]);}return p.toFixed(p<0.01?4:3);}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function setup(cv,h){var dpr=window.devicePixelRatio||1,w=cv.clientWidth;cv.style.height=h+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return {x:x,w:w,h:h};}
+function detF(k,d){return Qn(k-d)+Qn(k+d);}
+function col(k){return SEEDS.map(function(r){return +r[k];});}
+function qs(k,p){return SE.quantile(col(k),p);}
+function fix(v){return v===Infinity?'—':f3(v);}
+var ID={A:'A',B:'B',C:'C',D:'D'};
+function modeName(m){return m.id+' '+m.name;}
+function colList(cols,tbl,mid){return cols.map(function(c){return SE.colName(c)+' ('+f2(tbl[mid][c])+')';}).join(', ');}
+
+/* ---- 정적 숫자(data-v) ---- */
+var V={};
+(function(){
+  var d=R0.des, k1=R0.k1, sp=R0.split, qd=R0.quality;
+  var sh=MODES[0].cells.map(SE.colOf).filter(function(c){return SE.modeCols(3).indexOf(c)>=0;});
+  var pany=1,i;for(i=0;i<R0.msel;i++)pany*=(M-NT-i)/(M-i);pany=1-pany;
+  var L0=SE.L_GRID.filter(function(L){return qs('i'+L,.5)>=1-1e-9&&qs('x'+L,.5)<=1;})[0];
+  var ms=R0.msel, kb=R0.kAll, kS=QI((1-Math.pow(1-ALPHA,1/ms))/2), kB=SE.kOfAlpha(ALPHA/ms);
+  V.d0ad=fp(d.D0.ad);V.d1ad=fp(d.D1.ad);V.d2ad=fp(d.D2.ad);V.d3ad=fp(d.D3.ad);V.d0e=fp(d.D0.det.E);V.d1e=fp(d.D1.det.E);V.d3e=fp(d.D3.det.E);
+  V.msel=String(ms);V.k1=f3(k1);V.k0=f3(kb);V.k0b=f3(kb);V.a0=fmtP(ALPHA/M);
+  V.f0n=String(d.D0.famN);V.f0r=f3(d.D0.fam);V.f1n=String(d.D1.famN);V.f3n=String(d.D3.famN);
+  V.det0_35=fp(detF(kb,3.5));V.det1_35=fp(detF(k1,3.5));
+  V.ntruth=String(NT);V.nseed=String(NSEED);V.rrand=String(SE.R_RAND);V.pany=fp(pany);V.d0miss=fp(1-d.D0.ad);
+  V.d0ad_med=fp(qs('d0ad',.5));V.d0ad_lo=fp(qs('d0ad',.1));V.d0ad_hi=fp(qs('d0ad',.9));
+  V.d1ad_med=fp(qs('d1ad',.5));V.d1ad_lo=fp(qs('d1ad',.1));V.d1ad_hi=fp(qs('d1ad',.9));
+  V.d1lt0=String(SEEDS.filter(function(r){return r.d1ad<r.d0ad;}).length);
+  V.ldef=String(SE.L_DEF);V.shared=sh.map(SE.colName).join(', ');V.inclN=String(qd.inclN);V.extra=String(qd.extra);
+  V.ecol=SE.colName(P.g.eCol);V.sdef=String(SE.S_DEF);V.mrest=String(M-ms);V.ksel=f3(R0.kSel);V.krest=f3(R0.kRest);
+  V.fpool0=f4(col('f0').reduce(function(x,y){return x+y;},0)/NSEED/N);V.fpool1=f4(col('f1').reduce(function(x,y){return x+y;},0)/NSEED/N);
+  V.skdiff=f4(Math.abs(kS-kB));
+  V.detRest3=f3(detF(R0.kRest,3));V.detRest3n=f1(detF(R0.kRest,3)*100);
+  V.nz3=f2(1/Math.sqrt(3));V.nz12=f2(1/Math.sqrt(12));V.nmodes=String(MODES.length);
+  V.x3=String(Math.round(qs('x3',.5)));V.a3=fp(qs('a3',.5));V.Lknee=String(L0);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(e){var k=e.getAttribute('data-v');if(V[k]!=null)e.textContent=V[k];});
+})();
+
+/* ---- 표 만들기 ---- */
+function tbl(id,head,rows){var h='<tr>'+head.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr>';rows.forEach(function(r){h+='<tr>'+r.map(function(x,i){return '<td'+(i===0?' class="rowh"':'')+'>'+x+'</td>';}).join('')+'</tr>';});$(id).innerHTML=h;}
+/* 설계 비교 표: designs = ['D0','D2'], R = run 결과. withE = 새 고장 줄 포함, onlyE = E 줄만 */
+function cmp(id,R,designs,o){
+  o=o||{};var head=['고장 모드'].concat(designs.map(function(d){return 'D'+d.charAt(1)+' ('+NAMES[d]+')';})),rows=[];
+  if(!o.onlyE){
+    MODES.forEach(function(m){rows.push([modeName(m)].concat(designs.map(function(d){var v=R.des[d].det[m.id];return fp(v)+' ('+Math.round(v*NM)+'/'+NM+')';})));});
+    rows.push(['<b>네 모드 평균</b>'].concat(designs.map(function(d){return '<b>'+fp(R.des[d].ad)+'</b>';})));
+  }
+  if(o.withE||o.onlyE)rows.push(['E 새 고장 (목록에 없음)'].concat(designs.map(function(d){var v=R.des[d].det.E;return fp(v)+' ('+Math.round(v*NM)+'/'+NM+')';})));
+  if(!o.onlyE){
+    rows.push(['한계 <i>k</i>'].concat(designs.map(function(d){return d==='D0'?f3(R.kAll):(d==='D3'?f3(R.kSel)+' / '+fix(R.kRest):f3(R.k1));})));
+    rows.push(['정상 500장 중 알람'].concat(designs.map(function(d){var n=R.des[d].famN;return (d==='D2'?f1(n):String(n))+'장 ('+f4(n/N)+')';})));
+  }
+  tbl(id,head,rows);
+}
+cmp('tabD0',R0,['D0']);
+(function(){
+  var ms=R0.msel,list=[M,100,20,ms,1],seen={},rows=[];
+  list.forEach(function(m){if(seen[m])return;seen[m]=1;var a=ALPHA/m,k=SE.kOfAlpha(a);rows.push([String(m)+(m===ms?' (고른 묶음 개수)':''),fmtP(a),f3(k),fp(detF(k,3.5))]);});
+  rows.sort(function(a,b){return parseInt(b[0])-parseInt(a[0]);});
+  tbl('tabMK',['검사 개수 <i>m</i>','특징 하나의 허용 α′ (본페로니)','한계 <i>k</i>','한 특징만 볼 때 3.5σ 이동의 검출률'],rows);
+})();
+cmp('tabD2',R0,['D0','D2']);
+(function(){
+  var PHYS={
+    A:'챔버로 공기가 새면 압력이 평소보다 높게 자리 잡고(steady_mean) 압력이 흔들리는 최대 폭이 커집니다(max_dev).',
+    B:'히터가 낡아 열이 덜 오르면 목표 온도에 자리 잡기까지 걸리는 시간이 늘고(settle_s) 목표를 넘는 정도도 달라집니다(overshoot_pct).',
+    C:'가스 유량 조절기(MFC)가 흔들리면 유량이 평소보다 크게 흩어집니다(steady_std).',
+    D:'밸브가 늦게 반응하면 밸브 위치가 자리 잡는 시간이 늘고(settle_s) 압력의 최대 편차도 커집니다(max_dev).'};
+  tbl('tabMode',['고장 모드','센서','물리 근거 (사람)','예상 반응 특징'],MODES.map(function(m){
+    var ss=m.cells.map(function(c){return 's'+('00'+c[0]).slice(-3)+' '+SE.SENSORS[c[0]];}).filter(function(v,i,a){return a.indexOf(v)===i;}).join(', ');
+    return [modeName(m),ss,PHYS[m.id],m.cells.map(function(c){return SE.colName(SE.colOf(c));}).join(', ')];
+  }));
+  $('tabMode').className='mt';
+})();
+(function(){
+  var rows=MODES.map(function(m){return [modeName(m),R0.by[m.id].length?colList(R0.by[m.id],R0.tbl,m.id):'(문턱을 넘은 특징 없음)'];});
+  rows.push(['<b>고른 묶음 (합집합)</b>','<b>'+R0.msel+'개</b>: '+R0.feats.map(SE.colName).join(', ')]);
+  tbl('tabSel',['고장 모드','문턱(1.5) 이상인 특징 (평균 z)'],rows);$('tabSel').className='mt';
+})();
+cmp('tabD1',R0,['D0','D1']);
+cmp('tabE',R0,['D0','D1'],{onlyE:true});
+cmp('tabD3',R0,['D0','D1','D3'],{withE:true});
+
+/* ---- 4절 반응표 줄무늬 ---- */
+function drawHeat(){
+  var cv=$('cvH'),c=setup(cv,170),x=c.x,W=c.w,acc=css('--accent'),ink=css('--ink'),soft=css('--soft'),code=css('--code'),rule=css('--rule');
+  x.clearRect(0,0,W,c.h);
+  var lx=22,gw=W-lx-4,cw=gw/M,rh=24,gap=6,top=18,i,j;
+  x.font='11px sans-serif';x.textBaseline='middle';
+  MODES.forEach(function(m,mi){
+    var y=top+mi*(rh+gap);x.fillStyle=code;x.fillRect(lx,y,gw,rh);
+    x.fillStyle=soft;x.textAlign='left';x.fillText(m.id,6,y+rh/2);
+    x.fillStyle=acc;
+    for(j=0;j<M;j++){var a=Math.min(1,Math.abs(R0.tbl[m.id][j])/4);if(a<0.04)continue;x.globalAlpha=a;x.fillRect(lx+j*cw,y,Math.max(cw,1),rh);}
+    x.globalAlpha=1;
+  });
+  var by=top+4*(rh+gap),sel={};R0.feats.forEach(function(f){sel[f]=1;});
+  x.fillStyle=ink;
+  R0.feats.forEach(function(f){x.fillRect(lx+f*cw-0.5,by,Math.max(cw,2),12);});
+  var last=-99,seen={};x.fillStyle=soft;x.textAlign='center';
+  R0.feats.forEach(function(f){var s=Math.floor(f/SE.PER)+1;if(seen[s])return;seen[s]=1;var px=lx+(s-0.5)*SE.PER*cw;if(px-last<34)return;last=px;x.fillText('s'+('00'+s).slice(-3),px,by+24);});
+  x.textAlign='left';x.fillStyle=soft;x.fillText('고른 특징',lx,10);
+  x.strokeStyle=rule;x.lineWidth=1;x.strokeRect(lx+.5,top-.5,gw-1,4*(rh+gap)-gap+1);
+}
+
+/* ---- 6절 조작 ---- */
+var sS=SE.S_DEF,sT=SE.THR_DEF,iL=LG.indexOf(SE.L_DEF),cur=R0;
+function snapEq(a,b,st){return Math.abs(a-b)<st/2;}
+function drawBars(){
+  var c=setup($('cvBars'),260),x=c.x,W=c.w,H=c.h,acc=css('--accent'),c9=css('--c9'),ink=css('--ink'),soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);
+  var pl=34,pr=8,pt=12,pb=30,pw=W-pl-pr,ph=H-pt-pb,ds=['D0','D1','D2','D3','D4'],gw=pw/ds.length,bw=Math.min(26,gw/2.6),i;
+  function Y(v){return pt+ph-v*ph;}
+  x.font='11px sans-serif';x.textBaseline='middle';x.textAlign='right';x.fillStyle=soft;x.strokeStyle=rule;x.lineWidth=1;
+  [0,0.25,0.5,0.75,1].forEach(function(v){x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.stroke();x.fillText(String(Math.round(v*100)),pl-5,Y(v));});
+  ds.forEach(function(d,k){
+    var cx=pl+gw*(k+.5),a=cur.des[d].ad,e=cur.des[d].det.E;
+    x.fillStyle=acc;x.fillRect(cx-bw-1,Y(a),bw,Y(0)-Y(a));x.fillStyle=c9;x.fillRect(cx+1,Y(e),bw,Y(0)-Y(e));
+    x.fillStyle=ink;x.textAlign='center';x.font='bold 11px sans-serif';
+    x.fillText(String(Math.round(a*100)),cx-bw/2-1,Y(a)-8);x.fillText(String(Math.round(e*100)),cx+bw/2+1,Y(e)-8);
+    x.font='bold 12px sans-serif';x.fillText(d,cx,H-pb+16);x.font='11px sans-serif';
+  });
+}
+function drawTrade(){
+  var c=setup($('cvTrade'),230),x=c.x,W=c.w,H=c.h,acc=css('--accent'),c9=css('--c9'),ink=css('--ink'),soft=css('--soft'),rule=css('--rule');
+  x.clearRect(0,0,W,H);
+  var pl=34,pr=14,pt=12,pb=34,pw=W-pl-pr,ph=H-pt-pb,L=LG[iL],pts=[],s;
+  for(s=SE.S_MIN;s<=SE.S_MAX+1e-9;s+=SE.S_STEP){var r=SE.run(P,{L:L,thr:sT,share:Math.round(s*100)/100});pts.push({s:Math.round(s*100)/100,a:r.des.D3.ad,e:r.des.D3.det.E});}
+  function X(v){return pl+(v-SE.S_MIN)/(SE.S_MAX-SE.S_MIN)*pw;}
+  function Y(v){return pt+ph-v*ph;}
+  x.font='11px sans-serif';x.textBaseline='middle';x.strokeStyle=rule;x.lineWidth=1;x.fillStyle=soft;x.textAlign='right';
+  [0,0.25,0.5,0.75,1].forEach(function(v){x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.stroke();x.fillText(String(Math.round(v*100)),pl-5,Y(v));});
+  x.textAlign='center';[0.5,0.6,0.7,0.8,0.9,1].forEach(function(v){x.fillText(f1(v),X(v),H-pb+14);});
+  x.textAlign='left';x.fillText('예산 몫 s (고른 묶음에 주는 몫)',pl,H-5);
+  function line(key,colr){x.strokeStyle=colr;x.lineWidth=2;x.beginPath();pts.forEach(function(p,i){var px=X(p.s),py=Y(p[key]);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();x.fillStyle=colr;pts.forEach(function(p){x.beginPath();x.arc(X(p.s),Y(p[key]),2.5,0,6.2832);x.fill();});}
+  line('a',acc);line('e',c9);
+  x.strokeStyle=ink;x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(sS),pt);x.lineTo(X(sS),pt+ph);x.stroke();x.setLineDash([]);
+}
+function updB(){
+  var L=LG[iL];cur=SE.run(P,{L:L,thr:sT,share:sS});
+  $('sSo').textContent=f2(sS);$('sTo').textContent=f1(sT)+'σ';$('sLo').textContent=L+'장';
+  var d=cur.des,ms=cur.msel,h='<tr><th>설계</th><th>감시 특징 수 · 한계 <i>k</i></th><th>정상 500장 중 알람</th><th>A · B · C · D 검출률</th><th>네 모드 평균</th><th>새 고장 E</th></tr>';
+  function modes(x){return MODES.map(function(m){return Math.round(x.det[m.id]*100);}).join(' · ');}
+  var info={D0:M+'개 · '+f3(cur.kAll),D1:ms+'개 · '+(ms?f3(cur.k1):'—'),D2:ms+'개(무작위) · '+(ms?f3(cur.k1):'—'),D3:ms+' + '+(M-ms)+'개 · '+fix(cur.kSel)+' / '+fix(cur.kRest),D4:cur.ntruth+'개 · '+f3(cur.k4)};
+  ['D0','D1','D2','D3','D4'].forEach(function(k){var x=d[k],n=k==='D2'?f1(x.famN):String(x.famN);h+='<tr><td class="rowh">'+k+' '+NAMES[k]+'</td><td>'+info[k]+'</td><td>'+n+'장 ('+f4(x.famN/N)+')</td><td>'+modes(x)+'</td><td><b>'+fp(x.ad)+'</b></td><td>'+fp(x.det.E)+'</td></tr>';});
+  $('tabB').innerHTML=h;$('tabB').className='mt num';
+  var st=$('stB'),base=snapEq(sS,SE.S_DEF,SE.S_STEP)&&snapEq(sT,SE.THR_DEF,SE.THR_STEP)&&LG[iL]===SE.L_DEF;
+  if(base){st.className='state';st.textContent='지금 이 값이 기준 설정입니다. 예산 몫 0.8, 문턱 1.5, 라벨 12장.';}
+  else{var pr=[];if(!snapEq(sS,SE.S_DEF,SE.S_STEP))pr.push('몫 0.8 → '+f2(sS));if(!snapEq(sT,SE.THR_DEF,SE.THR_STEP))pr.push('문턱 1.5 → '+f1(sT));if(LG[iL]!==SE.L_DEF)pr.push('라벨 12장 → '+L+'장');
+    st.className='state moved';st.textContent='지금은 기준에서 옮겨 놓은 가정입니다. '+pr.join(', ')+'. 고른 묶음 '+ms+'개 중 정답 반응 특징 '+cur.quality.inclN+'/'+cur.ntruth+'개, 엉뚱한 특징 '+cur.quality.extra+'개.';}
+  $('conclB').innerHTML='<b>이 설정에서</b> D3은 네 모드를 평균 <b>'+fp(d.D3.ad)+'</b> 잡고(D0 '+fp(d.D0.ad)+', D1 '+fp(d.D1.ad)+') 새 고장 E는 <b>'+fp(d.D3.det.E)+'</b> 잡습니다(D0 '+fp(d.D0.det.E)+', D1 '+fp(d.D1.det.E)+'). 정상 500장 중 알람은 D0 '+d.D0.famN+'장 · D1 '+d.D1.famN+'장 · D3 '+d.D3.famN+'장입니다. 고른 묶음은 '+ms+'개이고 그중 정답 반응 특징이 '+cur.quality.inclN+'개, 엉뚱한 특징이 '+cur.quality.extra+'개입니다.';
+  drawBars();drawTrade();
+}
+$('sS').addEventListener('input',function(){sS=+this.value;updB();});
+$('sT').addEventListener('input',function(){sT=+this.value;updB();});
+$('sL').addEventListener('input',function(){iL=+this.value;updB();});
+$('btReset').addEventListener('click',function(){sS=SE.S_DEF;sT=SE.THR_DEF;iL=LG.indexOf(SE.L_DEF);$('sS').value=String(sS);$('sT').value=String(sT);$('sL').value=String(iL);updB();});
+
+/* ---- 7절 ---- */
+(function(){
+  var rows=[],rp=TB.seeds.filter(function(r){return r.seed===TB.rep;})[0];
+  function rg(k,sc){var a=qs(k,.1)*sc,b=qs(k,.5)*sc,c=qs(k,.9)*sc;return [a,b,c];}
+  LG.forEach(function(L){
+    var i=rg('i'+L,NT),x=rg('x'+L,1),a=rg('a'+L,100);
+    rows.push([L+'장',Math.round(i[1])+' / '+NT+' ('+Math.round(i[0])+'~'+Math.round(i[2])+')',Math.round(x[1])+'개 ('+Math.round(x[0])+'~'+Math.round(x[2])+')',f1(a[1])+'% ('+f1(a[0])+'~'+f1(a[2])+')',Math.round(rp['i'+L]*NT)+' / '+NT+' · 엉뚱 '+rp['x'+L]+'개 · '+fp(rp['a'+L])]);
+  });
+  tbl('tabL',['라벨 장수 (모드마다)','정답 반응 특징 선택 수 (10~90% 구간)','엉뚱한 특징 수','D1 네 모드 평균 검출률','대표 시드'],rows);
+  var thrs=[0.5,1,1.5,2,2.5,3],h='<tr><th>라벨 장수 \\ 문턱</th>'+thrs.map(function(t){return '<th>'+f1(t)+'σ</th>';}).join('')+'</tr>';
+  LG.forEach(function(L){
+    var tb=SE.table(P,L);h+='<tr><td class="rowh">'+L+'장</td>'+thrs.map(function(t){var s=SE.select(tb,t),q=SE.quality(s.feats);return '<td>'+q.inclN+'/'+q.ntruth+' · '+q.extra+'</td>';}).join('')+'</tr>';
+  });
+  $('tabLT').innerHTML=h;$('tabLT').className='mt num';
+})();
+
+/* ---- 8절 성과 환산 ---- */
+var cg=200,cf=0.5,cw=6;
+function updC(){
+  $('cGo').textContent=cg+'장';$('cFo').textContent=f1(cf)+'%';$('cWo').textContent=cw+'장';
+  var d=R0.des,nf=cg*cf/100,a0=d.D0.ad,a3=d.D3.ad,e0=d.D0.det.E,e3=d.D3.det.E,f0=d.D0.famN/N,f3_=d.D3.famN/N;
+  var more=nf*(a3-a0),lossCut=more*cw,eLoss=nf*(e0-e3),eLossG=eLoss*cw;
+  var h='<tr><th></th><th>D0 (590개 전부)</th><th>D3 (고른 묶음 + 감시망)</th><th>차이</th></tr>';
+  h+='<tr><td class="rowh">하루 헛알람 예산 (정상 유리 '+cg+'장, 목표 0.0027)</td><td>'+f2(cg*ALPHA)+'건</td><td>'+f2(cg*ALPHA)+'건</td><td>같음</td></tr>';
+  h+='<tr><td class="rowh">이 가상 자료의 실측 헛알람 (정상 500장 기준)</td><td>'+f2(cg*f0)+'건</td><td>'+f2(cg*f3_)+'건</td><td>'+f2(cg*(f3_-f0))+'건</td></tr>';
+  h+='<tr><td class="rowh">하루 섞인 알려진 고장 유리 (A~D)</td><td>'+f2(nf)+'장</td><td>'+f2(nf)+'장</td><td>같음</td></tr>';
+  h+='<tr><td class="rowh">그중 하루 잡는 장수</td><td>'+f2(nf*a0)+'장</td><td>'+f2(nf*a3)+'장</td><td><b>'+f2(more)+'장 더 잡음</b></td></tr>';
+  h+='<tr><td class="rowh">하루 줄어드는 Loss (놓친 유리마다 뒤에서 '+cw+'장 버림)</td><td>—</td><td>—</td><td><b>'+f2(lossCut)+'장 감소</b></td></tr>';
+  h+='<tr><td class="rowh">대가: 새 고장 E가 같은 비율로 섞여 있다면 하루 잡는 장수</td><td>'+f2(nf*e0)+'장</td><td>'+f2(nf*e3)+'장</td><td>'+f2(eLoss)+'장 덜 잡음 (Loss '+f2(eLossG)+'장)</td></tr>';
+  $('tabC').innerHTML=h;
+  var st=$('cState');
+  if(cg===200&&snapEq(cf,0.5,0.1)&&cw===6){st.className='state';st.textContent='지금 이 값이 기본 설정입니다. 하루 200장, 고장 유리 비율 0.5%, 놓친 유리마다 6장.';}
+  else{st.className='state moved';st.textContent='지금은 현장 숫자를 옮겨 놓은 가정입니다.';}
+  $('conclC').innerHTML='<b>해석.</b> 같은 헛알람 예산에서 D0을 D3으로 바꾸면 알려진 고장 유리를 하루 <b>'+f2(more)+'장</b> 더 잡고 뒤에서 버리는 유리가 <b>'+f2(lossCut)+'장</b> 줄어듭니다. 대가로 새 고장 E는 하루 <b>'+f2(eLoss)+'장</b> 덜 잡습니다(같은 비율로 섞여 있다고 가정했을 때). 고장 유리가 더 자주 나오는 라인일수록 이득도 대가도 비례해 커집니다. 회사에서는 이 장수에 유리 한 장의 손실 금액을 곱해 금액으로 보고하십시오.';
+}
+$('cG').addEventListener('input',function(){cg=+this.value;updC();});
+$('cF').addEventListener('input',function(){cf=+this.value;updC();});
+$('cW').addEventListener('input',function(){cw=+this.value;updC();});
+$('cReset').addEventListener('click',function(){cg=200;cf=0.5;cw=6;$('cG').value='200';$('cF').value='0.5';$('cW').value='6';updC();});
+
+/* ---- 1절 짐작과 9절 착지 ---- */
+var guess=null;
+function landing(){
+  var d=R0.des,g=guess==null?'':' 처음 짐작은 <b>'+guess+'장</b>이었습니다.',n0=Math.round(d.D0.ad*4*NM),n1=Math.round(d.D1.ad*4*NM),n3=Math.round(d.D3.ad*4*NM);
+  $('landing').innerHTML='<b>(1) 590개 전부 본페로니(D0)로는 고장 유리 160장 중 '+n0+'장('+fp(d.D0.ad)+')을 잡습니다.</b>'+g+' 한계가 '+f3(R0.kAll)+'σ로 높아 2.5~4.5σ의 작은 이동이 숨습니다.<br><b>(2) 반응표로 고른 '+R0.msel+'개(D1)로 바꾸면 '+n1+'장('+fp(d.D1.ad)+')을 잡고</b>, 가족 오류율 목표는 같은 0.0027입니다(정상 500장 중 알람 D0 '+d.D0.famN+'장 · D1 '+d.D1.famN+'장).<br><b>(3) 새 고장은 D1이 '+fp(d.D1.det.E)+'만 잡고 D0은 '+fp(d.D0.det.E)+'를 잡습니다.</b> 예산을 '+Math.round(SE.S_DEF*10)+' 대 '+Math.round((1-SE.S_DEF)*10)+'로 나눈 D3은 네 모드 '+n3+'장('+fp(d.D3.ad)+')과 새 고장 '+fp(d.D3.det.E)+'를 함께 지킵니다.';
+}
+$('guessBtn').addEventListener('click',function(){
+  var v=parseInt($('guess').value,10);
+  if(isNaN(v)||v<0||v>160){$('guessState').className='state moved';$('guessState').textContent='0에서 160 사이의 숫자를 적어 주십시오.';return;}
+  guess=v;$('guessState').className='state';$('guessState').textContent='짐작 '+v+'장으로 정했습니다. 9절에서 실제 숫자와 견줍니다.';landing();
+});
+
+/* ---- 5절 Q&A 숫자 ---- */
+(function(){
+  var b=Math.floor(SE.L_DEF*(1-SE.THR_DEF/DMEAN))+1;
+  $('qa_bad').textContent=String(b);$('qa_mean').textContent=f2(DMEAN*(SE.L_DEF-b)/SE.L_DEF);
+})();
+
+/* ---- 11절: 보고서 ---- */
+(function(){
+  var d=R0.des;
+  $('rp_sig').innerHTML=MODES.map(function(m){return '<b>'+modeName(m)+'</b>: '+(R0.by[m.id].length?colList(R0.by[m.id],R0.tbl,m.id):'없음');}).join('<br>')+'<br>(라벨 모드마다 '+SE.L_DEF+'장, 문턱 '+SE.THR_DEF+')';
+  $('rp_lim').innerHTML='<i>m</i><sub>sel</sub> = <b>'+R0.msel+'</b>개 · 예산 몫 고른 묶음 '+SE.S_DEF+' / 나머지 '+f2(1-SE.S_DEF)+' · <i>k</i><sub>고른</sub> = <b>'+f3(R0.kSel)+'</b>σ, <i>k</i><sub>나머지</sub> = <b>'+f3(R0.kRest)+'</b>σ';
+  $('rp_fam').innerHTML='정상 '+N+'장 중 D3 알람 <b>'+d.D3.famN+'장('+f4(d.D3.famN/N)+')</b>. 목표 0.0027이고, 장수가 적어 숫자 하나로 단정하지 않고 같은 점검을 시드 '+NSEED+'개로 되풀이한 분포와 함께 읽습니다.';
+  $('rp_det').innerHTML=MODES.map(function(m){return m.id+' '+fp(d.D3.det[m.id]);}).join(' · ')+' · <b>평균 '+fp(d.D3.ad)+'</b> · 새 고장 E '+fp(d.D3.det.E)+' (D0: 평균 '+fp(d.D0.ad)+', E '+fp(d.D0.det.E)+')';
+  $('rp_min').innerHTML='감시망 한계 <b>'+f3(R0.kRest)+'σ</b>. 새 고장이 한 특징을 이만큼 옮기면 그 특징의 검출률이 약 '+fp(detF(R0.kRest,R0.kRest))+'이고, 3σ만 옮기면 '+fp(detF(R0.kRest,3))+'에 그칩니다.';
+})();
+
+/* ---- 테마·상단바 ---- */
+function redraw(){drawHeat();updB();}
+window.addEventListener('resize',redraw);
+(function(){
+  var THEMES=[{v:"light",t:"☀ 라이트"},{v:"dark",t:"🌙 다크"},{v:"auto",t:"🖥 기기"}];
+  var btn=$('themeBtn'), root=document.documentElement;
+  function get(){var v=root.getAttribute('data-theme');return v||'light';}
+  function apply(v){
+    root.setAttribute('data-theme',v);
+    for(var i=0;i<THEMES.length;i++)if(THEMES[i].v===v)btn.textContent=THEMES[i].t;
+    var m=document.querySelector('meta[name=theme-color]');
+    if(m)m.setAttribute('content',v==='dark'?'#0e1a1c':'#0f7c86');
+    window.dispatchEvent(new Event('resize'));
+  }
+  btn.onclick=function(){
+    var cur=get(),i=0;for(var k=0;k<THEMES.length;k++)if(THEMES[k].v===cur)i=k;
+    var nv=THEMES[(i+1)%THEMES.length].v;
+    try{localStorage.setItem('agentlab_theme',nv);}catch(e){}
+    apply(nv);
+  };
+  var bar=$('topbar');
+  function reserve(){document.body.style.paddingTop=bar.offsetHeight+'px';}
+  reserve();
+  if(window.ResizeObserver)new ResizeObserver(reserve).observe(bar);
+  window.addEventListener('resize',reserve);
+  apply(get());
+})();
+drawHeat();updB();updC();landing();
+if(location.search.indexOf('uicheck')>=0){var u=document.createElement('script');u.src='../../adp/uicheck.js';document.head.appendChild(u);}
+})();
+</script>
+<script src="../tutor.js"></script>
+</body></html>
