@@ -92,7 +92,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 </div>
 
 <div class="concl">
-  <b>상식을 깨는 직관</b> — 검사 정확도가 95%라는 말을 들으면 누구나 "양성이 나왔으니 95% 확률로 불량이겠지"라고 생각하기 쉽습니다. 그러나 실제 계산 결과는 <b>겨우 <span data-v="post1">16.10</span>%</b>입니다. 왜 양성 판정의 <span data-v="fake1_0">84</span>%가 사실은 멀쩡한 부품('가짜 양성')인지, 그 원리를 10만 개 부품의 분할표로 먼저 확인해 보겠습니다.
+  <b>상식을 깨는 직관</b> — 검사 정확도가 95%라는 말을 들으면 누구나 "양성이 나왔으니 95% 확률로 불량이겠지"라고 생각하기 쉽습니다. 그러나 실제 계산 결과는 <b>겨우 <span data-v="post1">16.10</span>%</b>입니다. 왜 양성 판정의 <span data-v="fake1_0">84</span>%가 사실은 멀쩡한 부품('가짜 양성')인지, 그 원리를 10만 개 부품의 분할표로 먼저 확인해 보겠습니다. 이 16.10%는 §1 표에서 <span data-v="tpN">950</span> ÷ <span data-v="posN">5,900</span>으로 한 번, §2 3)의 베이즈 정리로 한 번 더 직접 만들어 보입니다.
 </div>
 
 <h2><span class="step">§1</span>직관 — 100,000개 부품 분할표로 보기</h2>
@@ -122,6 +122,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="solban">물음 1 공식 풀이</div>
 
 <h3>1) 사건 정의 및 주어진 확률</h3>
+<p>두 사건에 이름을 붙입니다. <b>A = "그 부품이 불량이다"</b>, <b>B = "센서가 양성(불량 판정)을 냈다"</b>입니다. A<sup>c</sup>는 A의 여집합(complement), 곧 "A가 아니다 = 정상 부품"입니다. P(B | A)는 "A가 사실일 때 B가 일어날 확률"이라는 조건부확률(conditional probability)을 뜻합니다. 문제문의 불량률 1%는 P(A), 민감도 95%는 P(B | A)입니다.</p>
 <table>
   <tr><th class="l" style="width:28%">기호</th><th class="l">통계학적 명칭</th><th style="width:20%">문제의 값</th></tr>
   <tr><td class="l">P(A)</td><td class="l">사전확률 (Prior: 검사 전 불량률)</td><td>0.01 (1%)</td></tr>
@@ -143,6 +144,8 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 </div>
 
 <h3>3) 베이즈 정리 — 사후확률 P(A | B) 계산</h3>
+<p>이 식은 조건부확률의 정의에서 나옵니다. "B가 일어났을 때 A일 확률"은 "A와 B가 함께 일어날 확률"을 "B가 일어날 확률"로 나눈 것이고, P(A | B) = P(A ∩ B) ÷ P(B)입니다. 그런데 "A와 B가 함께"는 "먼저 A이고(P(A)), 그다음 A일 때 B(P(B | A))"이므로 P(A ∩ B) = P(B | A) P(A)입니다. 이것을 분자에 넣고, 분모 P(B)는 위 2)의 전확률 정리로 채운 것이 아래 베이즈 정리입니다.</p>
+<p>§1 표와 같은 계산입니다. 분자 P(B | A) P(A) = 0.0095는 10만 개 중 진짜 양성 <span data-v="tpN">950</span>개를 10만으로 나눈 값이고, 분모 P(B) = 0.0590은 양성 <span data-v="posN">5,900</span>개를 10만으로 나눈 값이므로, 10만이 약분되어 <span data-v="tpN">950</span> ÷ <span data-v="posN">5,900</span>이 됩니다.</p>
 <div class="eq">
   <span class="eqlab">베이즈 정리 (Bayes' Theorem)</span>
   <math display="block">
@@ -169,6 +172,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <div class="btnrow"><button class="btn on" id="bReset">↺ 문제 원래 값(1% · 95% · 95%)</button></div>
   <div id="roBayes" class="readout"></div>
 </div>
+<p id="pRead3"></p>
 
 <h2><span class="step">§4</span>물음 2 풀이 — 순차적 베이즈 갱신 (Bayesian Update)</h2>
 
@@ -192,6 +196,9 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   </math>
 </div>
 
+<p>왜 이렇게 이어 붙여도 되는지는 처음부터 "두 번 연속 양성"을 한 덩어리 사건으로 보면 확인됩니다. 불량이면 두 번 모두 양성일 확률은 0.95 × 0.95, 정상이면 0.05 × 0.05(두 검사가 독립이라는 가정입니다)이므로 다음이 나옵니다.</p>
+<pre id="preOnce"></pre>
+<p>1차의 분모 P(B₁)이 2차 계산의 분자와 분모에서 서로 약분되기 때문에 순서대로 갱신한 값과 한 번에 계산한 값이 같은 수가 됩니다.</p>
 <p><b>[답안 2]</b> 2차 재검사에서도 다시 양성이 나왔을 때 실제로 불량일 확률은 <b><span data-v="post2">78.48</span>%</b> (약 <span data-v="post2_3">0.785</span>) 로 껑충 뜁니다.</p>
 
 <div class="lab">
@@ -221,13 +228,32 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="qna" data-label="왜 병원에서는 1차 검사 양성만으로 확진 판정을 내리지 않나요?"
      data-q="왜 병원에서는 1차 검사 양성만으로 확진 판정을 내리지 않나요?">
   <p><b>기저율(유병률)이 낮은 질환일수록 1차 검사 양성의 대다수가 '가짜 양성'이기 때문입니다.</b></p>
-  <p>유병률이 1%인 질환에서 정확도 95% 검사로 양성이 나와도 실제 환자일 확률은 16%에 불과합니다. 만약 1회 양성만으로 위험한 수술이나 독한 약물 치료를 시작한다면 10명 중 8명 이상의 건강한 사람이 억울한 피해를 보게 됩니다. 따라서 의학계에서는 1차 검사로 고위험군을 좁힌 뒤(1% → 16%), 독립적인 2차 정밀 검사를 통해 사후확률을 80%~99% 이상으로 끌어올린 후에 비로소 최종 확진을 내립니다.</p>
+  <p>유병률이 1%인 질환에서 민감도·특이도가 각각 95%인 검사로 양성이 나와도 실제 환자일 확률은 16%에 불과합니다. 만약 1회 양성만으로 위험한 수술이나 독한 약물 치료를 시작한다면 10명 중 8명 이상의 건강한 사람이 억울한 피해를 보게 됩니다. 따라서 의학계에서는 1차 검사로 고위험군을 좁힌 뒤(1% → 16%), 독립적인 2차 정밀 검사를 통해 사후확률을 80%~99% 이상으로 끌어올린 후에 비로소 최종 확진을 내립니다.</p>
 </div>
 
 <div class="qna" data-label="1차 검사와 2차 검사가 독립이 아니라면 어떻게 되나요?"
      data-q="1차 검사와 2차 검사가 서로 독립이 아니라면 어떻게 되나요?">
   <p><b>베이즈 갱신 공식이 사후확률을 실제보다 과대평가하게 됩니다.</b></p>
   <p>2차 검사에서 확률이 78.5%로 뛰어오르는 계산은 "1차 검사의 오류 원인과 2차 검사의 오류 원인이 서로 독립"이라는 전제 위에 성립합니다. 만약 특정 정상 부품이 가진 독특한 화학 성분 때문에 1차에서 센서가 오작동했다면, 같은 센서로 다시 검사해도 똑같이 오작동할 확률이 높습니다. 따라서 실전에서는 같은 키트로 반복하기보다 <b>원리가 다른 검사법(예: 신속항원검사 후 PCR 검사)</b>을 교차 적용하여 독립성을 확보합니다.</p>
+</div>
+
+<div class="qna" data-label="독립이 아니면 숫자가 얼마나 달라지나요? 시험 답안에는 어떻게 쓰나요?"
+     data-q="독립이 아니면 사후확률이 78%에서 실제로 얼마까지 내려가나요? 문제에 독립이라는 말이 없으면 가정해도 되나요?">
+  <p><b>예를 들어 정상 부품의 <span data-v="qq">2</span>%가 "항상 오작동하는 체질"이라면 2차 양성 후 사후확률은 <span data-v="postDep">30.4</span>%까지 내려갑니다.</b> 독립을 가정한 <span data-v="post2">78.48</span>%와 큰 차이가 납니다.</p>
+  <p>계산은 이렇습니다. 센서가 정상 부품에서 한 번 양성을 낼 확률은 여전히 5%가 되도록, 체질 부품은 매번 양성, 나머지 정상 부품은 <span data-v="qx">3.06</span>%씩 독립으로 양성을 낸다고 둡니다. 그러면 정상 부품이 두 번 연속 양성일 확률은 <span data-v="pAc2">0.0209</span>로 독립일 때의 0.05 × 0.05 = 0.0025보다 훨씬 커집니다. 이 가정 수치(2%)는 설명을 위해 둔 예이고 문제에서 주어지는 값이 아닙니다.</p>
+  <p>시험 문제에 "독립"이라는 말이 없으면, 답안에 <b>"두 검사는 독립이라고 가정한다(실제 부품의 상태가 정해지면 1차와 2차 판정은 서로 영향을 주지 않는다)"</b>고 한 줄 적고 계산합니다. 가정을 적지 않은 채 곱하면 근거 없는 계산으로 읽힙니다.</p>
+</div>
+
+<div class="qna" data-label="'정확도 95%'만 주어지면 민감도·특이도를 같다고 놓아도 되나요? 몇째 자리까지 쓰나요?"
+     data-q="시험에서 '정확도 95%'만 주어지면 민감도와 특이도를 둘 다 95%로 놓아도 되나요? 사후확률은 소수 몇째 자리까지, 0.161과 16.10% 중 무엇으로 쓰나요?">
+  <p><b>놓아도 되지만, 그렇게 놓았다는 가정을 답안에 적어야 합니다.</b> 정확도는 민감도와 특이도를 불량률로 섞은 값이라 엄밀히는 둘이 같다고 알려 주지 않습니다. 이 문제는 두 값이 각각 95%로 따로 주어졌으므로 가정이 필요 없습니다.</p>
+  <p>자릿수는 문제가 지정하면 그대로 따르고, 없으면 이 편의 코드 출력처럼 소수 넷째 자리(0.1610) 또는 소수 둘째 자리 백분율(16.10%) 중 하나를 쓰고 같은 값임을 보이면 됩니다. 어느 쪽이 표준이라고 정해져 있지는 않으며, 한 답안 안에서 한 가지로 통일하십시오.</p>
+</div>
+
+<div class="qna" data-label="베이즈 유형은 시험에서 어떤 순서로 쓰나요?"
+     data-q="베이즈 유형은 가설검정이 아닌데 시험 답안은 어떤 순서로 써야 점수를 받나요?">
+  <p><b>이 유형은 가설검정이 아니라 확률 계산이라, 가설·전제검정 단계 없이 다음 순서로 씁니다.</b> 1) 사건 정의(A, B)와 주어진 확률 나열 2) 전확률 정리로 P(B) 3) 베이즈 정리로 사후확률 4) 갱신이 요구되면 사후확률을 새 사전확률로 넣어 반복 5) 결론 서술(사전 1%가 양성 한 번에 16.10%로 오르고, 재검사 후 78.48%가 되었다는 해석과 독립 가정).</p>
+  <p>t검정·분산분석 편의 다섯 단계(가설 → 전제 → 통계량 → 판정 → 결론)와 모양은 다르지만 "근거를 단계별로 보이고 마지막에 문장으로 결론을 쓴다"는 점은 같습니다. 별개 유형으로 보고 공식과 사건 정의를 정확히 외우는 쪽이 안전합니다.</p>
 </div>
 
 <div class="ask">
@@ -242,7 +268,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <nav class="labnav bot">
   <a href="./0007-ttest-lab.html">← t검정 (대응·독립)</a>
   <a class="ghost" href="../index.html">홈</a>
-  <a href="./0002-anova-lab.html">분산분석 (ANOVA) →</a>
+  <a href="./0010-two-way-anova-lab.html">이원배치 분산분석 →</a>
 </nav>
 
 </div>
@@ -382,14 +408,19 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
  /* ── 문제 수치(1% · 95% · 95%)로 본문 숫자 전부 계산해 채우기 ── */
  var P0=0.01, SE=0.95, SP=0.95, N=100000;
  var r1 = calcBayes(P0, SE, SP), r2 = calcBayes(r1.post, SE, SP);
+ var qDep=0.02, xDep=(1-SP-qDep)/(1-qDep), pAc2=qDep+(1-qDep)*xDep*xDep, postDep=(SE*SE*P0)/(SE*SE*P0+pAc2*(1-P0));
+ var s99=calcBayes(P0,0.99,SP).post, sp99=calcBayes(P0,SE,0.99).post, fpBase=(1-P0)*(1-SP), tpBase=P0*SE, tpS=P0*0.99, fpS=(1-P0)*(1-0.99);
+ var once=(SE*SE*P0)/(SE*SE*P0+(1-SP)*(1-SP)*(1-P0));
  var CHAIN = [P0]; (function(){ var pr=P0; for(var k=0;k<4;k++){ pr=calcBayes(pr,SE,SP).post; CHAIN.push(pr); } })();
  function n0(v){ return Math.round(v).toLocaleString('en-US'); }
- var V = { disN:n0(N*P0), hltN:n0(N*(1-P0)), tpN:n0(N*r1.tp), fpN:n0(N*r1.fp), fnN:n0(N*r1.fn), tnN:n0(N*r1.tn),
+ var V = { qq:f(qDep*100,0), qx:f(xDep*100,2), pAc2:f(pAc2,4), postDep:f(postDep*100,1), disN:n0(N*P0), hltN:n0(N*(1-P0)), tpN:n0(N*r1.tp), fpN:n0(N*r1.fp), fnN:n0(N*r1.fn), tnN:n0(N*r1.tn),
    posN:n0(N*r1.pB), negN:n0(N*(1-r1.pB)), tp4:f(r1.tp,4), pB1_4:f(r1.pB,4),
    post1:f(r1.post*100,2), post1_0:f(r1.post*100,0), post1_3:f(r1.post,3), post1_4:f(r1.post,4), post1_6:f(r1.post,6),
    fake1_0:f((1-r1.post)*100,0), mult1:f(r1.post/P0,1), pB2_6:f(r2.pB,6),
    post2:f(CHAIN[2]*100,2), post2_3:f(CHAIN[2],3), post2_4:f(CHAIN[2],4), post3:f(CHAIN[3]*100,2), post4:f(CHAIN[4]*100,2) };
  [].forEach.call(document.querySelectorAll('[data-v]'), function(el){ var k=el.getAttribute('data-v'); if(k in V) el.textContent=V[k]; });
+ document.getElementById('preOnce').textContent='두 번 연속 양성일 때 불량일 확률\n  = ('+SE+'² × '+P0+') ÷ ('+SE+'² × '+P0+' + '+f(1-SP,2)+'² × '+f(1-P0,2)+')\n  = '+f(SE*SE*P0,6)+' ÷ '+f(SE*SE*P0+(1-SP)*(1-SP)*(1-P0),6)+' = '+f(once,4)+' ('+f(once*100,2)+'%)  ← 순서대로 갱신한 '+f(CHAIN[2]*100,2)+'%와 같은 값';
+ document.getElementById('pRead3').innerHTML='<b>읽는 법.</b> 민감도를 95%에서 99%로 올려도 사후확률은 '+f(r1.post*100,2)+'%에서 '+f(s99*100,2)+'%로 거의 그대로입니다. 올라가는 것은 분자의 진짜 양성(전체의 '+f(tpBase*100,2)+'% → '+f(tpS*100,2)+'%)뿐이고, 분모의 대부분을 차지하는 가짜 양성(전체의 '+f(fpBase*100,2)+'%)은 그대로이기 때문입니다. 반대로 특이도를 99%로 올리면 가짜 양성이 '+f(fpBase*100,2)+'%에서 '+f(fpS*100,2)+'%로 줄어 사후확률이 '+f(sp99*100,2)+'%로 뜁니다. 사전 불량률을 0.2%까지 내리면 왼쪽 가는 띠(녹색)가 거의 보이지 않는데, 이것이 불량이 드물수록 양성의 대부분이 가짜가 되는 기저율 오류의 모습입니다.';
  document.getElementById('preKey').textContent = '실제 불량 확률 = '+V.tpN+' ÷ '+V.posN+' = '+f(r1.post,6)+'... ≈ '+V.post1+'%';
  document.getElementById('noteB1').innerHTML = 'P(B) = ('+SE+' × '+P0+') + ('+f(1-SP,2)+' × '+f(1-P0,2)+') = '+f(r1.tp,4)+' + '+f(r1.fp,4)+' = <b>'+f(r1.pB,4)+' ('+f(r1.pB*100,2)+'%)</b>';
  document.getElementById('noteB2').innerHTML = '새로운 사전확률 P(A) = <b>'+f(r1.post,6)+'</b> · P(A<sup>c</sup>) = <b>'+f(1-r1.post,6)+'</b><br>민감도 = '+SE+' · 위양성률 = '+f(1-SP,2)+

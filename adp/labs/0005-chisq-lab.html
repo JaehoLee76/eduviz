@@ -105,17 +105,22 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
     <li><b>독립성 검정 (test of independence)</b> — 학생 960명을 한 번에 뽑은 다음, 각자의 <b>학과</b>와 <b>성적 구간</b>을 동시에 기록합니다. 묻는 것은 "이 두 특성이 서로 관련 있는가"입니다. 이번 문제가 이 경우입니다 — 학과도 성적도 미리 정해 둔 게 아니라 뽑고 보니 그렇게 나온 것입니다.</li>
     <li><b>동질성 검정 (test of homogeneity)</b> — 학과별로 <b>표본 크기를 먼저 정해서</b>(예: 각 학과 160명씩) 따로 뽑은 다음, 성적 구간 비율이 학과마다 같은지를 봅니다. 행(또는 열) 합계가 <b>설계로 고정</b>되어 있다는 점이 다릅니다.</li>
   </ul>
-  <p>공교롭게도 이 문제는 여섯 학과 모두 합계가 정확히 160명이라, 계산 결과만 보면 동질성 검정과 똑같아 보입니다. 하지만 <b>표본을 뽑은 방식</b>(학과를 미리 정해 각 160명을 뽑았는지, 그냥 960명을 뽑았는지)이 둘을 가릅니다. 실기에서는 문제 지문에 "각 학과에서 n명씩 조사하였다"처럼 표본설계가 명시되면 동질성, 그냥 "조사하였더니 이런 표가 나왔다"면 독립성으로 서술하면 됩니다. 검정통계량 식과 자유도 (행수−1)(열수−1)은 두 경우 모두 같습니다.</p>
+  <p>공교롭게도 이 문제는 여섯 학과 모두 합계가 정확히 160명이라, 계산 결과만 보면 동질성 검정과 똑같아 보입니다. 하지만 <b>표본을 뽑은 방식</b>(학과를 미리 정해 각 160명을 뽑았는지, 그냥 960명을 뽑았는지)이 둘을 가릅니다. 실기에서는 문제 지문에 "각 학과에서 n명씩 조사하였다"처럼 표본설계가 명시되면 동질성, 그냥 "조사하였더니 이런 표가 나왔다"면 독립성으로 서술하면 됩니다. 이 문제의 지문은 "입학 성적 분포를 조사"하고 "서로 관련이 있는가"를 묻고 있어 <b>독립성으로 쓰는 것이 문장과 맞습니다</b>. 어느 쪽 이름으로 적어도 χ²·자유도·p값은 같으므로 계산 점수는 달라지지 않고, 달라지는 것은 결론 문장의 표현("관련이 있다" 대 "비율이 학과마다 다르다")뿐입니다. 채점 기준이 공개된 것은 아니니, 문제가 쓴 낱말(여기서는 "관련")을 그대로 따라 적는 것이 안전합니다.</p>
 </div>
 <div class="qna" data-label="기대도수 5 미만 규칙은 왜 있나요?" data-q="기대도수 5 미만 칸이 있으면 왜 문제가 되나요?">
   <p><b>카이제곱 검정은 근사(approximation)입니다.</b> 관측도수는 원래 이산적인 값(포아송·이항 성질)인데, 검정통계량 Σ(관측−기대)²/기대 가 <b>연속인 카이제곱 분포를 따른다고 가정</b>하고 p값을 구합니다. 이 근사가 성립하려면 각 칸의 기대도수가 충분히 커야 합니다 — 표본이 커야 이산 분포가 연속 분포에 가까워지기 때문입니다(중심극한정리(central limit theorem)와 같은 이치).</p>
   <p><b>관행적 기준</b>은 "기대도수 5 미만인 칸이 전체의 20%를 넘지 않아야 한다"는 것입니다(Cochran의 규칙). 이 문제는 3×6=18칸 중 <b>0칸</b>이 5 미만이라 전제를 넉넉히 만족합니다 — 아래 2) 전제 확인에서 직접 세어 보여드립니다.</p>
-  <p><b>깨졌을 때는</b> 1) 범주를 합쳐 칸 수를 줄이거나 2) 2×2 표라면 <b>연속성 수정(Yates' correction)</b>을 적용하거나 3) 표가 작으면 <b>피셔의 정확검정 (Fisher's exact test)</b>으로 갈아탑니다. 피셔 정확검정은 근사 없이 초기하분포(hypergeometric distribution)로 정확한 확률을 구하므로 표본이 작을 때 안전하지만, 칸 수가 많은 표(이번처럼 3×6)로는 계산량이 커져 잘 쓰지 않습니다.</p>
+  <p><b>깨졌을 때는</b> 1) 인접한 범주를 합쳐 칸 수를 줄이고(이번 표라면 이웃한 점수 구간이나 이웃한 학과를 하나로 묶어) 카이제곱 검정을 다시 하거나 2) 2×2 표라면 <b>연속성 수정(Yates' correction)</b>을 적용하거나 3) 2×2 표가 작으면 <b>피셔의 정확검정 (Fisher's exact test)</b>으로 갈아탑니다. 피셔 정확검정은 근사 없이 초기하분포(hypergeometric distribution)로 정확한 확률을 구하므로 표본이 작을 때 안전하지만, scipy 의 <code>stats.fisher_exact</code> 는 2×2 표만 받습니다. 그래서 <b>3×6 표에서 기대도수 5 미만이 20%를 넘으면 시험에서는 범주 합치기를 쓰십시오.</b></p>
 </div>
 <div class="qna" data-label="표본이 커지면 왜 다 유의해지나요?" data-q="탐구 모드에서 표본을 키우기만 해도 왜 카이제곱과 유의성이 커지나요?">
   <p><b>검정통계량 식 자체에 표본 크기가 곱해져 들어가기 때문입니다.</b> 비율을 그대로 두고 전체 인원만 k배로 늘리면, 관측도수도 기대도수도 똑같이 k배가 됩니다. 그런데 카이제곱 기여도는</p>
   <pre>(관측−기대)² / 기대  =  (k·관측₀ − k·기대₀)² / (k·기대₀)  =  k · (관측₀−기대₀)² / 기대₀</pre>
   <p>즉 <b>카이제곱 통계량 전체가 정확히 k배로 커집니다.</b> 비율 차이는 조금도 안 바뀌었는데 말입니다. 그래서 통계적 유의성(p&lt;0.05)은 "차이가 실제로 크다"가 아니라 "<b>이 정도 차이가 우연히 생길 확률이 낮다</b>"는 뜻일 뿐이고, 표본이 크면 아주 작은 차이도 우연으로 보기 어려워져 쉽게 유의해집니다. 그래서 실기 답안에서는 p값만 보고할 게 아니라 <b>기여도가 큰 칸이 어디인지, 실질적으로 의미 있는 차이인지</b>를 함께 서술해야 합니다(통계적 유의성과 실질적 중요성은 다릅니다).</p>
+</div>
+
+<div class="qna" data-label="p값은 어떻게 적고 효과크기는 무엇인가요?" data-q="p=2.04e-11 은 시험에서 어떻게 적고, 얼마나 큰 관련인지는 어떻게 서술하나요?">
+  <p><b>p값 표기.</b> 지수 표기 그대로(2.04e-11) 적고 괄호로 "&lt;0.001"을 함께 적으면 어느 쪽 채점 기준에도 맞습니다. 채점 기준이 공개된 것은 아니라서, 둘을 병기하는 것이 안전합니다.</p>
+  <p><b>관련의 크기.</b> p값은 "우연이 아니다"만 말하고 "얼마나 큰가"는 말하지 않으므로 효과크기를 따로 적습니다. 분할표의 효과크기는 <b>Cramér의 V = √(χ² ÷ (N × (작은 쪽 범주 수 − 1)))</b> 이고, 0이면 관련 없음, 1이면 완전한 관련입니다. 이 표는 χ²=71.749, N=960, 행 수 3이므로 V=√(71.749÷(960×2))=0.193이며, 뚜렷하지만 강하지는 않은 관련입니다. Python 에서는 <code>stats.contingency.association(o, method="cramer")</code> 한 줄입니다. 위 결론 문장에도 이 값이 들어 있습니다.</p>
 </div>
 
 <h2><span class="step">1</span>가설 설정</h2>
@@ -127,8 +132,9 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div id="assumpV"></div>
 
 <h2><span class="step">3</span>검정통계량 — 관측·기대·기여도 <span style="font-size:.75rem;color:var(--soft)">(위 도수표 기준)</span></h2>
-<div class="chk">기대도수 = 행합계 × 열합계 ÷ 전체합계. 기여도 = (관측−기대)²÷기대 를 18칸 모두 계산해 더한 것이 카이제곱 통계량입니다.</div>
+<div class="chk">기대도수 = 행합계 × 열합계 ÷ 전체합계. 기여도 = (관측−기대)²÷기대 를 18칸 모두 계산해 더한 것이 카이제곱 통계량입니다. <b>제곱</b>은 관측이 기대보다 많은 칸과 적은 칸이 서로 상쇄되지 않게 부호를 없애려는 것이고, <b>기대로 나누는 것</b>은 같은 차이도 기대가 작은 칸에서는 크게 벗어난 것이고 기대가 큰 칸에서는 사소하므로 칸의 크기에 비춰 차이를 재려는 것입니다(0008 에서 χ²를 만든 순서와 같은 이치).</div>
 <table id="exp"></table>
+<p id="expNote" style="font-size:.9rem;color:var(--soft)"></p>
 <table id="contrib"></table>
 <div id="verdict"></div>
 
@@ -141,7 +147,8 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="explore">
   <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관)</div>
   <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">비율은 그대로 두고 <b>표본 크기만</b> 배수로 늘리거나 줄여, 카이제곱과 p값이 어떻게 바뀌는지 보세요. <b>1.0배 = 주어진 원본 데이터</b>.</div>
-  <div class="ctrl"><label>표본 크기 배수</label><input id="sN" type="range" min="0.5" max="3" step="0.1" value="1"><output id="oN"></output></div>
+  <div class="ctrl"><label>표본 크기 배수</label><input id="sN" type="range" min="0.1" max="3" step="0.1" value="1"><output id="oN"></output></div>
+  <div id="expV" style="font-size:.88rem;margin-top:.5rem"></div>
 </div>
 
 <h2>Python 답안</h2>
@@ -150,7 +157,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="ask">
   <b>물으세요 — 근본까지.</b>
   <ul>
-    <li>탐구 슬라이더로 배수를 0.5배까지 내리면 판정이 바뀌나요? 왜 그런가요?</li>
+    <li>탐구 슬라이더로 배수를 0.1배까지 내리면 판정이 어디서 바뀌나요? 왜 그런가요?</li>
     <li>자유도가 왜 (행수−1)×(열수−1) = 10인가요? 행 합계·열 합계가 고정된다는 것과 무슨 관계인가요?</li>
     <li>어느 학과, 어느 성적 구간이 가장 크게 벗어났나요? 그 칸의 잔차 부호(관측&gt;기대인지 &lt;인지)는 무엇을 의미하나요?</li>
     <li>기대도수가 모든 학과에서 똑같이 나온 이유는 무엇인가요? (열 합계를 확인해 보세요)</li>
@@ -174,10 +181,11 @@ var DATA=[[90,35,45,40,50,60],[50,55,55,50,45,40],[20,70,60,70,65,60]];
 var ROWN=['50–66','67–83','84–100'],COLN=['A','B','C','D','E','F'],COL=['--gA','--gB','--gC','--gD','--gE','--gF'];
 var R3=DATA.length,C6=DATA[0].length;
 function compute(mult){
- var o=DATA.map(function(r){return r.map(function(v){return v*mult;})});
- var rowSum=o.map(function(r){return r.reduce(function(a,b){return a+b},0);});
- var colSum=COLN.map(function(_,j){var s=0;for(var i=0;i<R3;i++)s+=o[i][j];return s;});
- var N=rowSum.reduce(function(a,b){return a+b},0);
+ var r2=function(v){return Math.round(v*100)/100;};
+ var o=DATA.map(function(r){return r.map(function(v){return r2(v*mult);})});
+ var rowSum=o.map(function(r){return r2(r.reduce(function(a,b){return a+b},0));});
+ var colSum=COLN.map(function(_,j){var s=0;for(var i=0;i<R3;i++)s+=o[i][j];return r2(s);});
+ var N=r2(rowSum.reduce(function(a,b){return a+b},0));
  var exp=o.map(function(r,i){return r.map(function(_,j){return rowSum[i]*colSum[j]/N;});});
  var contrib=o.map(function(r,i){return r.map(function(v,j){return Math.pow(v-exp[i][j],2)/exp[i][j];});});
  var chi2=0;for(var i=0;i<R3;i++)for(var j=0;j<C6;j++)chi2+=contrib[i][j];
@@ -228,6 +236,9 @@ function render(){
  var mult=+sN.value;oN.textContent='×'+fmt(mult,1);
  var R=compute(mult);drawMain(R);
 
+ // 표본 크기만 바꿀 때 판정이 뒤집히는 배수: χ²가 배수에 정확히 비례하므로 임계값 ÷ 원본 χ²
+ var R1=compute(1),kStar=R1.fc/R1.chi2;
+ document.getElementById('expV').innerHTML='원본 χ²='+fmt(R1.chi2,2)+', 임계값 '+fmt(R1.fc,2)+' → 비율을 그대로 두고 표본을 <b>×'+(Math.floor(kStar*1000)/1000).toFixed(3)+' 아래</b>(경계 계산값 '+kStar.toFixed(4)+')로 줄이면 판정이 뒤집혀 기각하지 못하게 됩니다. 슬라이더 눈금(0.1 간격)에서는 ×'+(Math.floor(kStar*10-1e-9)/10).toFixed(1)+' 이하가 여기에 해당합니다. 지금 ×'+fmt(mult,1)+'에서는 '+(R.p<0.05?'<b>기각</b>':'<b>기각하지 못함</b>')+'입니다. (도수가 소수가 되는 것은 비율을 유지하려는 모의 조작이며, 실제 자료의 도수는 정수입니다.)';
  // 2) 전제 확인
  var rowsHtml='<tr><th>기대도수(행\\열)</th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>';
  document.getElementById('assump').innerHTML=
@@ -237,9 +248,9 @@ function render(){
  var okE=R.below5/R.total<=0.2;
  document.getElementById('assumpV').innerHTML='<div class="verdict '+(okE?'keep':'rej')+'">'+
   '기대도수 5 미만 칸: '+R.below5+' / '+R.total+'칸 ('+fmt(100*R.below5/R.total,1)+'%) '+
-  (okE?'→ 20% 이하이므로 카이제곱 근사를 그대로 사용 가능':'→ 20%를 넘어 근사가 불안정 — 범주를 합치거나 피셔 정확검정으로 갈아타야 함')+
+  (okE?'→ 20% 이하이므로 카이제곱 근사를 그대로 사용 가능':'→ 20%를 넘어 근사가 불안정 — 인접한 범주를 합쳐야 함(2×2 표라면 피셔 정확검정)')+
   '<br>최소 기대도수: '+fmt(Math.min.apply(null,[].concat.apply([],R.exp)),2)+
-  '<br>→ '+(okE?'전제를 만족하므로 <b>카이제곱 독립성 검정</b>을 그대로 적용합니다.':'전제가 깨졌습니다. 범주 병합 또는 <b>피셔의 정확검정</b>을 검토합니다.')+'</div>';
+  '<br>→ '+(okE?'전제를 만족하므로 <b>카이제곱 독립성 검정</b>을 그대로 적용합니다.':'전제가 깨졌습니다. 인접한 범주를 합치는 방법을 검토합니다(2×2 표라면 <b>피셔의 정확검정</b>).')+'</div>';
 
  // 3) 기대도수 표 + 기여도 표
  document.getElementById('exp').innerHTML=
@@ -247,6 +258,10 @@ function render(){
   '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>'+
   R.exp.map(function(row,i){return '<tr><td><b>'+ROWN[i]+'</b></td>'+row.map(function(v){return '<td>'+fmt(v,2)+'</td>'}).join('')+'</tr>';}).join('');
  var maxC=0;for(var i=0;i<R3;i++)for(var j=0;j<C6;j++)maxC=Math.max(maxC,R.contrib[i][j]);
+ var colEq=R.colSum.every(function(v){return Math.abs(v-R.colSum[0])<1e-9;});
+ document.getElementById('expNote').innerHTML=colEq
+  ?'<b>표를 읽는 법.</b> 열 합계가 모든 학과에서 '+fmt(R.colSum[0],R.colSum[0]%1?1:0)+'으로 같기 때문에, 기대도수는 같은 행 안에서 학과와 상관없이 같은 값('+R.exp.map(function(r){return fmt(r[0],2);}).join('·')+')으로 나옵니다. 기대도수 = 행합계 × 열합계 ÷ 전체이고, 열합계가 같으면 이 식에서 학과마다 달라질 것이 없습니다.'
+  :'<b>표를 읽는 법.</b> 학과마다 열 합계가 달라서 기대도수도 학과마다 다르게 나옵니다.';
  document.getElementById('contrib').innerHTML=
   '<tr><th colspan="'+(C6+1)+'" style="background:var(--card);color:var(--ink);text-align:left;border:none;font-weight:800;padding-top:.6rem">칸별 기여도 (관측−기대)² ÷ 기대</th></tr>'+
   '<tr><th></th>'+COLN.map(function(c){return '<th>'+c+'</th>'}).join('')+'</tr>'+
@@ -268,9 +283,18 @@ function render(){
  // 5) 결론 — 기여도 최댓값 칸을 찾아 서술
  var best={i:0,j:0,v:-1};
  for(i=0;i<R3;i++)for(j=0;j<C6;j++)if(R.contrib[i][j]>best.v)best={i:i,j:j,v:R.contrib[i][j]};
- var sign=R.o[best.i][best.j]>R.exp[best.i][best.j]?'훨씬 많고':'훨씬 적고';
- document.getElementById('concl').innerHTML='카이제곱 독립성 검정 결과 χ²('+R.df+') = '+fmt(R.chi2,2)+', p '+(R.p<0.0001?'= '+R.p.toExponential(2):'= '+fmt(R.p,4))+' 로 유의수준 0.05에서 '+
-  (rej?('귀무가설을 <b>기각한다</b> → 학과에 따라 성적 구간 분포에 <b>유의한 관련이 있다</b>. 기여도가 가장 큰 칸은 <b>'+COLN[best.j]+'학과 · '+ROWN[best.i]+'점 구간</b>(기여도 '+fmt(best.v,2)+')으로, 관측도수('+R.o[best.i][best.j]+')가 기대도수('+fmt(R.exp[best.i][best.j],1)+')보다 '+sign+' 있어, 이 칸이 전체 관련성을 주도한다고 볼 수 있다.')
+ var sign=R.o[best.i][best.j]>R.exp[best.i][best.j]?'훨씬 많다':'훨씬 적다';
+ var cells=[];for(i=0;i<R3;i++)for(j=0;j<C6;j++)cells.push({i:i,j:j,v:R.contrib[i][j]});
+ cells.sort(function(a,b){return b.v-a.v;});
+ var c1=cells[0],c2=cells[1],topShare=(c1.v+c2.v)/R.chi2*100;
+ var up1=R.o[c1.i][c1.j]>R.exp[c1.i][c1.j],up2=R.o[c2.i][c2.j]>R.exp[c2.i][c2.j];
+ var pairTxt=(c1.j===c2.j&&up1!==up2)
+  ?'기여도 상위 두 칸이 같은 '+COLN[c1.j]+'학과의 <b>'+ROWN[up1?c1.i:c2.i]+'점 구간은 기대보다 많고 '+ROWN[up1?c2.i:c1.i]+'점 구간은 기대보다 적은</b> 한 쌍(둘이 전체 χ²의 '+fmt(topShare,0)+'%)이라, '+COLN[c1.j]+'학과의 성적 분포가 다른 학과와 다르게 한쪽으로 쏠려 있다고 서술한다.'
+  :'기여도 상위 두 칸('+COLN[c1.j]+'학과·'+ROWN[c1.i]+'점, '+COLN[c2.j]+'학과·'+ROWN[c2.i]+'점)이 전체 χ²의 '+fmt(topShare,0)+'%를 차지한다.';
+ var cV=Math.sqrt(R.chi2/(R.N*(Math.min(R3,C6)-1)));
+ var cVtxt=cV<0.1?'약한':cV<0.3?'뚜렷하지만 강하지는 않은':'강한';
+ document.getElementById('concl').innerHTML='카이제곱 독립성 검정 결과 χ²('+R.df+') = '+fmt(R.chi2,2)+', p '+(R.p<0.0001?'= '+R.p.toExponential(2)+' (&lt;0.001)':'= '+fmt(R.p,4))+' 로 유의수준 0.05에서 '+
+  (rej?('귀무가설을 <b>기각한다</b> → 학과에 따라 성적 구간 분포에 <b>유의한 관련이 있다</b>. 기여도가 가장 큰 칸은 <b>'+COLN[best.j]+'학과 · '+ROWN[best.i]+'점 구간</b>(기여도 '+fmt(best.v,2)+')으로, 관측도수('+R.o[best.i][best.j]+')가 기대도수('+fmt(R.exp[best.i][best.j],1)+')보다 '+sign+'. '+pairTxt+' 관련의 크기를 재는 Cramér의 V는 '+fmt(cV,3)+'이며 '+cVtxt+' 관련이다.')
     :'귀무가설을 <b>기각하지 못한다</b> → 학과와 성적 구간 사이에 통계적으로 유의한 관련성이 확인되지 않는다.');
 
  document.getElementById('py').textContent=

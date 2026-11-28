@@ -96,7 +96,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
 <nav class="labnav"><a href="../index.html">← 홈</a><span class="pos">머신러닝 · 분할·교차검증</span></nav>
 
-<p class="eyebrow">봉우리 2) · 실기 머신러닝 파트 (60점 구간)</p>
+<p class="eyebrow">실기 머신러닝 파트 (60점 구간) · 첫 번째 편</p>
 <h1>과적합과 교차검증 — 훈련 점수로는 모델을 고를 수 없다<small>ADP 실기 머신러닝 풀이의 첫 관문: 모델을 얼마나 복잡하게 할지(차수·규제 세기)를 무엇으로 정하고, 그 성능을 어떻게 보고하는가. 같은 자료 48행 하나로 처음부터 끝까지 풉니다.</small></h1>
 
 <div class="prob">
@@ -106,7 +106,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
     <li>최종 모델의 <b>시험 세트 RMSE</b>를 보고하라.</li>
     <li>훈련 RMSE 로 차수를 정하면 어떤 일이 생기는지 설명하라.</li>
   </ol>
-  <p style="font-size:.92rem"><code>set</code> 열은 <b>훈련(train) 36행</b>과 <b>시험(test) 12행</b>을 가릅니다. 시험 세트는 모델을 다 만든 뒤 마지막 채점에만 쓰려고 떼어 둔 자료입니다. <code>fold</code> 열은 훈련 36행을 9행씩 1~4번으로 나눈 번호입니다(시험 12행은 비어 있습니다). RMSE 는 오차를 제곱해 평균한 뒤 제곱근을 취한 값으로, 예측이 평균적으로 몇 MPa 빗나갔는지를 뜻합니다(0003 회귀).</p>
+  <p style="font-size:.92rem"><code>set</code> 열은 <b>훈련(train) 36행</b>과 <b>시험(test) 12행</b>을 가릅니다. 시험 세트는 모델을 다 만든 뒤 마지막 채점에만 쓰려고 떼어 둔 자료입니다. <code>fold</code> 열은 훈련 36행을 9행씩 1~4번으로 나눈 번호입니다(시험 12행은 비어 있습니다). RMSE 는 오차를 제곱해 평균한 뒤 제곱근을 취한 값으로, 예측이 평균적으로 몇 MPa 빗나갔는지를 뜻합니다(0001 연비 사례에서 한 번 나왔던 값입니다).</p>
   <div class="fbrow"><button class="fb" id="togTb" type="button">자료 48행 표 펼치기</button><button class="fb" id="dlCsv" type="button">자료 내려받기 (kiln_strength.csv)</button></div>
   <div class="dtab" id="dtabBox" style="display:none"><table id="dataTb"></table></div>
   <div class="src">연습용 가상 자료이며 고정되어 있습니다. 아래 풀이의 모든 숫자는 이 48행에서 나온 것입니다. 실기 답안은 Python 으로 씁니다.</div>
@@ -122,7 +122,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
     <li>1-표준오차 규칙 (one-standard-error rule) — §6</li>
     <li>데이터 누설 (data leakage) — §8</li>
   </ol>
-  <div class="note">미리 알고 있어야 하는 것은 평균·표준편차·표준오차(0007)와 회귀의 RMSE(0003)뿐입니다.</div>
+  <div class="note">미리 알고 있어야 하는 것은 평균·표준편차·표준오차(0007)와 회귀의 RMSE(0001)뿐입니다.</div>
 </div>
 
 <div class="solban">여기서부터 위 자료를 이용한 풀이입니다 (§2→§7 = 실기 답안 흐름)</div>
@@ -165,8 +165,8 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <h2><span class="step">3</span>이름 붙이기 — 과적합 · 훈련/검증/시험 세트 · 하이퍼파라미터</h2>
 <p style="font-size:.94rem">방금 한 일에는 이름이 있습니다. 자료를 쓰임새에 따라 세 몫으로 나눈 것입니다.</p>
 <div class="terms">
-  <b>훈련 세트 (train set)</b> — 곡선의 계수를 맞추는 데 씁니다.<br>
-  <b>검증 세트 (validation set)</b> — 훈련 세트 안에서 떼어 두었다가, 후보(차수 등)를 고르는 데 씁니다.<br>
+  <b>훈련 세트 (train set)</b> — 곡선의 계수를 맞추는 데 쓰는 자료로, 이 문제에서는 처음부터 시험 12행과 갈라 둔 <b>훈련 36행</b>입니다.<br>
+  <b>검증 세트 (validation set)</b> — 훈련 36행 안에서 9행을 떼어 두었다가, 후보(차수 등)를 고르는 데 씁니다. 이 9행이 §4 의 폴드 하나이고, 네 폴드가 번갈아 검증 세트 역할을 합니다. 검증 세트를 떼면 훈련 36행에서 <b>맞추는 데 쓰는 행은 나머지 27행</b>이 됩니다(훈련 세트가 줄어든 것이 아니라, 36행 중 맞추는 데 쓰는 몫입니다).<br>
   <b>시험 세트 (test set)</b> — 모든 선택이 끝난 뒤 마지막 보고에 단 한 번 씁니다.<br>
   이 셋을 묶어 "세 세트"라 부르겠습니다. 한편 차수처럼 <b>사람이 정하고 데이터가 정하지 않는 값</b>을 <b>하이퍼파라미터 (hyperparameter)</b>라 합니다. 계수는 데이터가 정하고, 차수와 §5 의 규제 세기 α 는 사람이 정합니다.
 </div>
@@ -175,7 +175,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <div class="labtitle">폴드 1 을 검증으로 떼고, 27행에 차수 d 를 맞춘 모습</div>
   <canvas id="cvFit3" height="240"></canvas>
   <div class="legend">
-    <span><span class="dot" style="background:var(--grand)"></span>훈련 27행(맞추는 데 사용)</span>
+    <span><span class="dot" style="background:var(--grand)"></span>맞추는 27행(훈련 36행 중 검증 폴드를 뺀 나머지)</span>
     <span><span class="dot ring" style="border-color:var(--gA)"></span>검증 9행(폴드 1, 채점만 함)</span>
   </div>
   <div class="ctrl"><label for="sDeg3">차수 d</label><input id="sDeg3" type="range" min="1" max="8" step="1" value="2"><output id="oDeg3"></output></div>
@@ -212,12 +212,17 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <math display="block"><mrow><mtext>표준오차</mtext><mo>=</mo><mfrac><mtext>네 폴드 점수의 표준편차</mtext><msqrt><mn>4</mn></msqrt></mfrac></mrow></math>
   <span class="note">폴드들은 훈련 자료를 서로 나눠 쓰므로 완전히 독립은 아닙니다. 그래서 이 표준오차는 엄밀한 값이 아니라 "이 정도 흔들린다"는 어림값으로 읽습니다.</span>
 </div>
+<div class="qna" data-label="폴드 네 개로 만든 표준오차를 믿어도 되나요?" data-q="점수 네 개로 만든 표준오차를 얼마나 믿을 수 있나요? 시험에서는 어디까지 계산하라고 하나요?">
+  <p><b>정밀한 값이 아니라 "이 정도 흔들린다"는 눈금자입니다.</b> 점수가 4개뿐이라 표준편차 자체가 크게 흔들리고, 폴드들이 자료를 나눠 쓰므로 독립도 아닙니다.</p>
+  <p>그래서 1-표준오차 규칙은 "평균이 가장 낮은 칸과 흔들림 범위 안에서 구별되지 않으면, 더 단순한 쪽을 고른다"는 관습으로 읽습니다. 계산은 코드 한 줄(<code>np.std(점수, ddof=1) / np.sqrt(4)</code>)이므로, 문제가 규칙이나 표준오차를 요구하면 정확히 계산해 쓰고 경계선 값을 답안에 적으십시오. 요구하지 않으면 평균이 가장 작은 칸을 고르고 근거를 적는 것으로 충분합니다.</p>
+</div>
 <div class="lab">
   <div class="labtitle">차수별 교차검증 RMSE — 평균 ± 표준오차 (α≈0)</div>
   <canvas id="cvCv4" height="230"></canvas>
   <div class="tbwrap"><table id="cvTb4"></table></div>
   <div class="readout" id="ro4b"></div>
 </div>
+<p id="p4b" style="font-size:.94rem"></p>
 
 <div class="qna" data-label="k 는 왜 4·5·10 인가요?" data-q="k 는 왜 보통 4, 5, 10 인가요? 마음대로 정해도 되나요?">
   <p><b>이 문제는 훈련 36행을 9행씩 네 덩이로 나눠 놓았으니 k=4 입니다.</b> 일반적으로는 5 나 10 을 가장 많이 씁니다.</p>
@@ -277,7 +282,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
 <div class="qna" data-label="1-표준오차 규칙은 실기에서 꼭 써야 하나요?" data-q="1-표준오차 규칙은 시험에서 꼭 써야 하나요?">
   <p><b>문제가 요구하지 않으면 필수는 아닙니다.</b> 기본 답안은 교차검증 평균이 가장 작은 칸을 고르는 것이고, 1-표준오차 규칙은 "비슷하면 더 단순한 모델"을 고르는 한 가지 방식입니다.</p>
-  <p>이 자료에서는 두 방식이 <span class="qv-same"></span> 어느 쪽으로 답해도 결론이 같습니다. 쓴다면 두 가지를 답안에 적어야 합니다. 1) 경계선이 얼마인가(평균+표준오차) 2) 단순함의 순서를 무엇으로 정했는가(차수 낮은 것 → α 큰 것). 순서를 적지 않으면 같은 후보 중 무엇이 "가장 단순한가"가 불분명해집니다.</p>
+  <p>이 자료에서는 두 방식이 <span class="qv-same"></span> 어느 쪽으로 답해도 결론이 같습니다. 평균이 가장 작은 칸이 이미 가장 단순하면 규칙은 아무것도 바꾸지 못합니다. 규칙이 일을 하는 경우는 평균 최소 칸이 복잡한 모델(예: 8차)이고, 그보다 단순한 칸의 평균이 경계선 안에 들어올 때입니다. 그때는 최소 칸 대신 그 단순한 칸을 고르게 되고, 비슷한 점수라면 더 단순한 모델이 새 자료에서 덜 흔들려 안전합니다. 문제가 규칙을 요구하면 반드시 쓰고, 요구하지 않으면 안 써도 됩니다. 쓴다면 두 가지를 답안에 적어야 합니다. 1) 경계선이 얼마인가(평균+표준오차) 2) 단순함의 순서를 무엇으로 정했는가(차수 낮은 것 → α 큰 것). 순서를 적지 않으면 같은 후보 중 무엇이 "가장 단순한가"가 불분명해집니다.</p>
 </div>
 
 <h2><span class="step">7</span>시험 세트로 단 한 번 채점</h2>
@@ -301,7 +306,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
 <div class="qna" data-label="교차검증 점수와 시험 점수가 다르면 무엇을 보고하나요?" data-q="교차검증 점수와 시험 점수가 다르면 무엇을 보고해야 하나요?">
   <p><b>둘 다 보고하되 역할을 구분합니다.</b> 시험 RMSE 는 선택에 한 번도 쓰이지 않은 자료의 점수이므로 "최종 성능"으로 보고하고, 교차검증 RMSE 는 "이 하이퍼파라미터를 고른 근거"로 보고합니다.</p>
-  <p>이 자료에서는 교차검증 RMSE 가 <span class="qv-cv"></span>, 시험 RMSE 가 <span class="qv-test"></span> 로 <span class="qv-gap"></span> 만큼 차이가 납니다. 시험 세트는 12행뿐이라 점수 하나가 훈련 36행에 걸친 교차검증 평균보다 훨씬 크게 흔들립니다. 그렇다고 시험 점수를 보고 다시 튜닝하면 시험 세트가 검증 세트가 되므로 하지 않습니다. 답안에는 "시험 RMSE 는 교차검증보다 나쁘고, 시험 세트가 12행으로 작아 불확실성이 크다"고 적는 것이 정직한 서술입니다.</p>
+  <p>이 자료에서는 교차검증 RMSE 가 <span class="qv-cv"></span>, 시험 RMSE 가 <span class="qv-test"></span> 로 <span class="qv-gap"></span> 만큼 차이가 납니다. 시험 세트는 12행뿐이라 점수 하나가 훈련 36행에 걸친 교차검증 평균보다 훨씬 크게 흔들립니다. 실제로 오차가 가장 큰 네 행이 오차 제곱합의 <span class="qv-top4"></span>를 차지하고, 가장 오차가 큰 한 행을 빼고 다시 구한 RMSE 는 <span class="qv-wo"></span> 입니다. 한두 행에 따라 점수가 이만큼 움직이므로 두 점수의 차이를 모델의 결함으로 단정할 수 없습니다. 답안에는 "12행뿐이라 불확실하다"에 이 숫자 한 개를 곁들이면 근거가 됩니다. 그렇다고 시험 점수를 보고 다시 튜닝하면 시험 세트가 검증 세트가 되므로 하지 않습니다. 답안에는 "시험 RMSE 는 교차검증보다 나쁘고, 시험 세트가 12행으로 작아 불확실성이 크다"고 적는 것이 정직한 서술입니다.</p>
 </div>
 
 <h2><span class="step">8</span>데이터 누설 — 표준화를 먼저 해 버리면</h2>
@@ -317,6 +322,10 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <div class="readout" id="ro8"></div>
 </div>
 <p id="p8a" style="font-size:.94rem"></p>
+<div class="qna" data-label="누설이 안 보이는데 왜 파이프라인에 넣나요?" data-q="이 자료에서는 점수 차이가 거의 없는데 왜 굳이 파이프라인에 넣나요? 시험에서 가산점이 있나요?">
+  <p><b>점수가 같아 보이는 것은 규제가 없는 칸이기 때문이고, 파이프라인에 넣는 비용은 없습니다.</b> 규제가 있는 칸(위 그림에서 대각선에서 벗어난 점들)에서는 누설 쪽 점수가 더 좋아 보이는 칸이 많습니다. 이 자료에서는 누설 방식이 고르는 칸은 <span class="qv-plsame"></span> 점수는 최대 <span class="qv-mxbig"></span>까지 벌어집니다. 점수가 경계선 가까이 있는 자료라면 이 차이가 선택을 바꿀 수 있습니다.</p>
+  <p>가산점이 있는지는 알 수 없습니다. 분명한 것은 분할 전에 전처리를 해 두면 누설로 지적받을 수 있고, 파이프라인에 넣으면 그럴 일이 없다는 점입니다. 코드도 <code>Pipeline</code> 한 줄이 늘 뿐이므로 항상 넣는 쪽이 안전합니다.</p>
+</div>
 
 <h2><span class="step">9</span>Python 답안</h2>
 <p style="font-size:.94rem">위의 자료를 내려받아 <code>kiln_strength.csv</code> 로 두고 실행한 코드와 출력입니다. 이 문서의 값과 같습니다.</p>
@@ -504,6 +513,11 @@ var finalM=fitPipe(trX,trY,chD,chA);
 var testPred=predict(finalM,teX),testRm=rmse(teY,testPred),chTrainRm=rmse(trY,predict(finalM,trX));
 var W8=fitPipe(trX,trY,8,A0).w,WMAX=Math.max.apply(null,W8.map(Math.abs));
 (function(){function f(c,v){var e=document.querySelectorAll('.'+c);for(var i=0;i<e.length;i++)e[i].textContent=v;}f('qv-cv',G[P.chosen].mean.toFixed(2));f('qv-test',testRm.toFixed(2));f('qv-gap',(testRm-G[P.chosen].mean).toFixed(2));f('qv-same',P.best===P.chosen?'같은 칸('+chD+'차, α '+(chA<1e-3?'≈0':chA)+')을 고르므로':'다른 칸을 고르므로(최소 '+P.best.replace('_','차·α ')+' / 선택 '+P.chosen.replace('_','차·α ')+')');})();
+(function(){var sq=teY.map(function(y,i){return (y-testPred[i])*(y-testPred[i]);}).sort(function(a,b){return b-a;}),tot=sq.reduce(function(a,b){return a+b;},0),top=sq[0]+sq[1]+sq[2]+sq[3],wo=Math.sqrt((tot-sq[0])/(sq.length-1));
+ function g(c,v){var e=document.querySelectorAll('.'+c);for(var i=0;i<e.length;i++)e[i].textContent=v;}g('qv-top4',Math.round(top/tot*100)+'%');g('qv-wo',wo.toFixed(2)+' MPa');})();
+(function(){var mb=0;gKeys.forEach(function(k){if(+k.split('_')[1]>=1e-3)mb=Math.max(mb,Math.abs(GL[k].mean-G[k].mean));});
+ function g(c,v){var e=document.querySelectorAll('.'+c);for(var i=0;i<e.length;i++)e[i].textContent=v;}
+ g('qv-plsame',PL.chosen===P.chosen?PL.chosen.replace('_','차 α=')+' 로 같지만':PL.chosen.replace('_','차 α=')+' 로 달라지고');g('qv-mxbig',mb.toFixed(3)+' RMSE');})();
 var curFold=1,testShown=false;
 
 /* ── 그리기 도구 ── */
@@ -581,7 +595,7 @@ function draw2(){
 function text2(){
   var dec=0,i;for(i=1;i<8;i++)if(trainRm[i]<=trainRm[i-1]+1e-9)dec++;
   var dmin=trainRm.indexOf(Math.min.apply(null,trainRm))+1;
-  T('p2a','결과를 읽어 봅니다. 차수를 1에서 8로 올리는 일곱 번 가운데 '+dec+'번은 훈련 RMSE 가 줄거나 같았고, 가장 작은 값은 '+dmin+'차의 '+f(trainRm[dmin-1])+' MPa 입니다. 1차 직선은 '+f(trainRm[0])+', 8차는 '+f(trainRm[7])+' 입니다.'+(dec===7?' 한 번도 나빠지지 않았습니다.':' 나머지에서는 거의 같은 수준에서 소수 넷째 자리 안쪽의 오르내림만 있었습니다.'));
+  T('p2a','결과를 읽어 봅니다. 차수를 1에서 8로 올리는 일곱 번 가운데 '+dec+'번은 훈련 RMSE 가 줄거나 같았고, 가장 작은 값은 '+dmin+'차의 '+f(trainRm[dmin-1])+' MPa 입니다. 1차 직선은 '+f(trainRm[0])+', 8차는 '+f(trainRm[7])+' 입니다.'+(dec===7?' 한 번도 나빠지지 않았습니다.':' 나머지에서는 거의 같은 수준에서 소수 넷째 자리 안쪽의 오르내림만 있었습니다.')+' 2차 이후의 개선은 '+f(trainRm[1]-trainRm[dmin-1])+' MPa 에 그칩니다. 이 작은 개선이 처음 보는 자료에서도 이어지는지는 §4 에서 같은 차수들의 교차검증 점수로 확인합니다.');
 }
 /* ── §3 ── */
 function draw3(){
@@ -628,6 +642,7 @@ function draw4b(){
   c.forEach(function(x,i){h+='<tr'+(i===best?' style="font-weight:800;color:var(--good)"':'')+'><td>'+(i+1)+'차</td>'+x.folds.map(function(v){return '<td>'+f(v,2)+'</td>';}).join('')+'<td>'+f(x.mean)+'</td><td>'+f(x.se)+'</td></tr>';});
   $('cvTb4').innerHTML=h;
   var b=c[best];
+  (function(){var dm=trainRm.indexOf(Math.min.apply(null,trainRm))+1,cd=G[dm+'_'+A0];T('p4b','§2 의 물음으로 돌아갑니다. 훈련 RMSE 로 골랐던 '+dm+'차는 훈련 RMSE '+f(trainRm[dm-1])+' 로 2차('+f(trainRm[1])+')보다 '+f(trainRm[1]-trainRm[dm-1])+' 좋아 보였습니다. 그러나 교차검증 RMSE 는 '+dm+'차 '+f(cd.mean)+', 2차 '+f(G["2_"+A0].mean)+' 로 '+(cd.mean>G["2_"+A0].mean?f(cd.mean-G["2_"+A0].mean)+' 더 나쁩니다. 훈련 점수가 가리킨 방향이 처음 보는 자료에서는 거꾸로였다는 뜻입니다.':'차이가 거의 없습니다.'));})();
   H('ro4b','평균이 가장 작은 차수는 <b>'+(best+1)+'차</b>입니다. 폴드 점수 '+b.folds.map(function(v){return f(v,2);}).join(', ')+' → 평균 <b>'+f(b.mean)+'</b>, 표준편차 '+f(sdS(b.folds))+', 표준오차 = '+f(sdS(b.folds))+' ÷ √4 = <b>'+f(b.se)+'</b>. 점선 막대는 각 차수의 평균 ± 표준오차입니다.');
 }
 /* ── §5 ── */
@@ -707,8 +722,9 @@ function text8(){
   var mx=0,mk='',low=0,high=0;
   gKeys.forEach(function(k){var df=GL[k].mean-G[k].mean;if(Math.abs(df)>Math.abs(mx)){mx=df;mk=k;}if(df<-1e-9)low++;else if(df>1e-9)high++;});
   var cdf=GL[P.chosen].mean-G[P.chosen].mean;
+  var mxA0=0,mxBig=0;gKeys.forEach(function(k){var a=+k.split('_')[1],df=Math.abs(GL[k].mean-G[k].mean);if(a<1e-3)mxA0=Math.max(mxA0,df);else mxBig=Math.max(mxBig,df);});
   H('ro8','선택한 칸('+cellName(P.chosen)+'): 파이프라인 안 <b>'+f(G[P.chosen].mean,6)+'</b> · 전체 먼저 <b>'+f(GL[P.chosen].mean,6)+'</b> · 40칸 중 가장 크게 달라진 칸은 '+cellName(mk)+'(차이 '+f(Math.abs(mx))+', 누설 쪽이 '+(mx<0?'낮음':'높음')+')');
-  T('p8a','읽어 봅니다. 누설 쪽 점수가 더 낮은(좋아 보이는) 칸은 '+low+'개, 더 높은 칸은 '+high+'개입니다. 선택한 칸에서는 차이가 '+Math.abs(cdf).toExponential(1)+' 로 사실상 없고, 누설 방식으로도 같은 칸('+cellName(PL.chosen)+')이 선택됩니다'+(PL.chosen===P.chosen?'.':' (이번에는 선택이 달라집니다).')+' 이 자료에서는 누설의 영향이 작다는 뜻이지, 그래도 된다는 뜻이 아닙니다. 가장 크게 어긋난 칸의 차이가 '+f(Math.abs(mx))+' 이므로 자료·모델에 따라 선택 결과가 바뀔 수 있고, 시험 세트와 새 자료에는 훈련 쪽에서 구한 평균·표준편차를 그대로 가져다 써야 같은 방식으로 처리됩니다. 분할 전에 전처리를 해 두는 답안은 누설로 지적받기 쉬우므로, 전처리는 항상 파이프라인 안에 넣습니다.');
+  T('p8a','읽어 봅니다. 누설 쪽 점수가 더 낮은(좋아 보이는) 칸은 '+low+'개, 더 높은 칸은 '+high+'개입니다. 선택한 칸에서는 차이가 '+Math.abs(cdf).toExponential(1)+' 로 사실상 없고, 누설 방식으로도 같은 칸('+cellName(PL.chosen)+')이 선택됩니다'+(PL.chosen===P.chosen?'.':' (이번에는 선택이 달라집니다).')+' 규제가 없는 칸(α≈0)에서는 표준화의 기준이 바뀌어도 곡선이 거의 같아서 점수 차이가 최대 '+mxA0.toExponential(1)+' 에 그치고, 규제가 있는 칸에서는 최대 '+f(mxBig)+' 까지 벌어집니다. 그래서 규제 없는 칸을 고른 이 자료에서는 누설이 보이지 않습니다. 이 자료에서는 누설의 영향이 작다는 뜻이지, 그래도 된다는 뜻이 아닙니다. 가장 크게 어긋난 칸의 차이가 '+f(Math.abs(mx))+' 이므로 자료·모델에 따라 선택 결과가 바뀔 수 있고, 시험 세트와 새 자료에는 훈련 쪽에서 구한 평균·표준편차를 그대로 가져다 써야 같은 방식으로 처리됩니다. 분할 전에 전처리를 해 두는 답안은 누설로 지적받기 쉬우므로, 전처리는 항상 파이프라인 안에 넣습니다.');
 }
 
 /* ── 실행 ── */

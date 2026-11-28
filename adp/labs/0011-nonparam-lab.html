@@ -112,9 +112,9 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <h2><span class="step">§1</span>왜 비모수인가 — 극단값 하나가 평균 검정을 무너뜨릴 때</h2>
 <p>문제 2의 세 팀 자료로 먼저 분산분석(ANOVA, 셋 이상의 평균을 한꺼번에 비교하는 검정)을 돌려 보겠습니다. 결과는 F=<span data-v="anovaF"></span>, p=<span data-v="anovaP"></span>입니다 — 유의수준 0.05에서 <b>"세 팀의 수리 시간에 차이가 없다"</b>고 나옵니다.</p>
 <p>그런데 아래 점 그림을 보십시오. B팀의 점들은 확실히 위쪽에 몰려 있습니다. 분산분석은 왜 이 차이를 못 잡았을까요?</p>
-<p>원인은 A팀의 수리 건 하나, <b>58분</b>입니다. 이 값 하나가 A팀의 평균을 <span data-v="meanA"></span>분까지 끌어올리고, 흩어짐(분산)도 크게 부풀립니다. 분산분석은 평균과 분산으로 계산하므로, 극단값 하나에 전체 결과가 휘둘립니다.</p>
+<p>원인은 A팀의 수리 건 하나, <b>58분</b>입니다. 이 값 하나가 A팀의 평균을 <span data-v="meanA"></span>분까지 끌어올립니다(B팀 평균은 <span data-v="meanB"></span>분이라 A팀이 가장 높아지지는 않습니다). 더 큰 영향은 흩어짐(분산)에 있습니다. 분산분석의 F는 "팀 사이의 차이"를 "팀 안의 흩어짐"으로 나눈 값인데, 58분이 A팀 안의 흩어짐을 크게 부풀리면 분모가 커져 B팀이 위쪽에 몰려 있다는 사실이 묻힙니다. 분산분석은 평균과 분산으로 계산하므로, 극단값 하나에 전체 결과가 휘둘립니다.</p>
 <p><b>해결책은 값 대신 순위(rank, 작은 것부터 순서대로 매긴 등수)를 쓰는 것입니다.</b> 아래 '순위로 보기'를 눌러 보십시오. 58분은 더 이상 58이라는 큰 수가 아니라, 그냥 24개 중 <b>24등</b>일 뿐입니다. 아무리 더 크게 벌어져도 등수는 24등에서 더 올라갈 곳이 없습니다.</p>
-<p>이렇게 자료가 어떤 분포(정규분포인지 등)를 따른다고 가정하지 않고 순위만으로 비교하는 검정을 <b>비모수 검정(nonparametric test)</b>이라 부릅니다. 반대로 지금까지 써온 t검정·분산분석처럼 정규분포를 가정하는 검정은 모수 검정(parametric test)입니다. 이번 실험실에서는 비모수 검정의 두 대표 선수, <b>부호검정(sign test)</b>과 <b>크러스칼-월리스 검정(Kruskal-Wallis test)</b>을 끝까지 계산합니다.</p>
+<p>이렇게 자료가 어떤 분포(정규분포인지 등)를 따른다고 가정하지 않고 순위만으로 비교하는 검정을 <b>비모수 검정(nonparametric test)</b>이라 부릅니다. 반대로 지금까지 써온 t검정·분산분석처럼 정규분포를 가정하는 검정은 모수 검정(parametric test)입니다. 여기서 <b>모수(parameter)</b>란 모집단의 평균·분산처럼 분포의 모양을 정해 주는 수를 말합니다. 모수 검정은 "자료가 정규분포 같은 특정 분포를 따른다"고 가정한 뒤 그 모수(평균·분산)를 비교하기 때문에 붙은 이름이고, 비모수 검정은 그런 가정을 하지 않고 순위만 씁니다. 이번 실험실에서는 비모수 검정의 두 대표 선수, <b>부호검정(sign test)</b>과 <b>크러스칼-월리스 검정(Kruskal-Wallis test)</b>을 끝까지 계산합니다.</p>
 
 <div class="lab">
   <canvas id="cvScatter" height="300"></canvas>
@@ -132,7 +132,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
 <div class="explore">
   <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관, 문제 2 자료 기준으로 위 점 그림이 함께 바뀝니다)</div>
-  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">무엇을 볼지: 슬라이더로 A팀의 극단값(현재 58분)을 올리거나 내려 보십시오. 분산분석의 p와 크러스칼-월리스의 p가 서로 다르게 움직입니다 — 극단값을 아무리 키워도 크러스칼-월리스의 H는 거의 그대로이고, 분산분석의 p만 흔들리는 것을 확인해 보십시오. (극단값이 16 가까이 내려가면 다른 값들과 등수가 실제로 겹쳐 두 검정 모두 다시 계산됩니다.)</div>
+  <div style="font-size:.87rem;color:var(--soft);margin-top:.3rem">무엇을 볼지: 슬라이더로 A팀의 극단값(현재 58분)을 올리거나 내려 보십시오. 분산분석의 p와 크러스칼-월리스의 p가 서로 다르게 움직입니다 — 극단값을 키워도 크러스칼-월리스의 H는 그대로이고, 분산분석의 p만 흔들리는 것을 확인해 보십시오. 극단값이 다른 모든 값(최댓값 25분)보다 커지는 26분부터는 몇 분이든 24등으로 같아서 H가 정확히 같습니다. 16 가까이 내려가면 다른 값들과 등수가 실제로 겹쳐 두 검정 모두 다시 계산됩니다.</div>
   <div class="ctrl"><label for="sExt">A팀 극단값</label><input id="sExt" type="range" min="16" max="80" step="1" value="58"><output id="oExt"></output></div>
   <div class="btnrow"><button class="btn on" id="bExtReset">↺ 원래 값(58분)</button></div>
   <div id="roExplore" class="readout"></div>
@@ -149,11 +149,11 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <p>원인을 d 값에서 바로 찾을 수 있습니다 — 8번 작업자의 차이가 <b><span data-v="d8"></span>초</b>로, 다른 작업자들(대부분 −2~−5초)과 크기 자체가 다릅니다. 이 값 하나가 평균 기반 검정(대응 t검정)의 전제를 무너뜨립니다 → 평균 대신 <b>부호(+ 또는 −)만</b> 보는 부호검정으로 갈아탑니다.</p>
 
 <h3><span class="step">3</span>검정통계량</h3>
-<p>차이의 크기는 버리고 부호만 보면, 각 작업자는 '시간이 늘었다(+)' 또는 '줄었다(−)' 둘 중 하나입니다. 차이가 정확히 0인 작업자는 어느 쪽 증거도 아니므로 <b>제외</b>합니다.</p>
+<p>차이의 크기는 버리고 부호만 보면, 각 작업자는 '시간이 늘었다(+)' 또는 '줄었다(−)' 둘 중 하나입니다. 차이가 정확히 0인 작업자는 어느 쪽 증거도 아니므로 <b>제외</b>합니다. 이 검정이 묻는 것은 "변화가 있었던 사람들 중 어느 쪽으로 쏠렸는가"이고, 귀무가설 아래서는 변화가 있었던 사람 각각이 늘어날 확률과 줄어들 확률이 0.5씩이기 때문입니다. 0인 사람은 이 물음의 대상이 아니므로 버려도 계산의 전제(각자 + 또는 −가 반반)가 그대로 유지됩니다.</p>
 <div class="tbwrap"><table id="tbSign"></table></div>
 <p>0을 제외한 <b><span data-v="nSign"></span>명</b> 중 양(+)이 <b><span data-v="posN"></span>명</b>, 음(−)이 <b><span data-v="negN"></span>명</b>입니다. 공구가 아무 효과가 없다면(귀무가설), 각 사람이 늘어날지 줄어들지는 동전 던지기(확률 0.5)와 같아야 하므로, 양(+)의 개수는 이항분포 B(<span data-v="nSign"></span>, 0.5)를 따릅니다. 관찰된 결과(양(+) <span data-v="posN"></span>명)만큼 또는 그보다 더 한쪽으로 쏠릴 확률을 양쪽 꼬리에서 모두 더한 값이 p값입니다.</p>
 <div class="lab"><canvas id="cvBinom" height="220"></canvas></div>
-<p>양측 p값 = 2 × P(X ≤ <span data-v="minPN"></span>) = <b><span data-v="pSign"></span></b>입니다.</p>
+<p>양측 p값 = 2 × P(X ≤ <span data-v="minPN"></span>) = <b><span data-v="pSign"></span></b>입니다. B(n, 0.5)는 좌우 대칭이라서, 작은 쪽 꼬리 확률을 두 배 한 값은 "관찰된 것만큼 드문 경우를 양쪽 모두 더한 값"과 같은 수가 됩니다.</p>
 
 <div class="trap">
   <span class="v">흔한 함정 — 0도 그냥 n에 포함</span>
@@ -168,8 +168,9 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
 <div class="qna" data-label="부호검정 대신 윌콕슨 부호순위 검정은 언제 쓰나요?"
      data-q="부호검정 대신 윌콕슨 부호순위 검정은 언제 쓰나요?">
-  <p><b>차이의 크기 정보까지 쓸 수 있을 때 윌콕슨 부호순위 검정(Wilcoxon signed-rank test)으로 갈아탑니다 — 검정력(효과를 실제로 잡아낼 확률)이 더 큽니다.</b></p>
-  <p>부호검정은 차이가 +인지 −인지만 보고 크기는 버립니다. 8번 작업자의 −20초와 1번 작업자의 −3초를 똑같이 '−' 한 표로만 셉니다. 윌콕슨 부호순위 검정은 차이의 <b>절댓값에 순위를 매겨</b> 그 순위의 합을 비교하므로, 크기가 큰 차이에 더 큰 영향력을 줍니다. 그만큼 더 정교하지만, 대신 <b>차이값의 분포가 좌우 대칭</b>이라는 전제가 하나 더 필요합니다(부호검정은 이 전제가 필요 없습니다). 이번 자료처럼 극단값 하나(−20초)가 전체 모양을 한쪽으로 크게 기울이면 '대칭'이라는 전제도 의심받을 수 있으므로, 이런 경우에는 전제가 가장 적은 부호검정을 기본으로 삼는 것이 안전합니다.</p>
+  <p><b>둘 다 쓸 수 있고, 이 자료에서는 둘 다 귀무가설을 기각합니다(부호검정 p=<span data-v="pSign"></span>, 윌콕슨 p=<span data-v="pWil"></span>). 다른 점은 전제와 검정력입니다.</b></p>
+  <p>부호검정은 차이가 +인지 −인지만 보고 크기는 버립니다. 윌콕슨 부호순위 검정(Wilcoxon signed-rank test)은 차이의 <b>절댓값에 순위를 매겨</b> 그 순위의 합을 비교하므로 크기 정보까지 써서 검정력(효과를 실제로 잡아낼 확률)이 더 큽니다. 8번 작업자의 −20초는 순위로는 그냥 가장 큰 등수이므로 계산을 흔들지 않습니다. 대신 윌콕슨에는 <b>차이값이 중앙값을 중심으로 좌우 대칭</b>이라는 전제가 하나 더 붙습니다. 이번 자료는 대부분이 −2~−5초에 몰려 있고 한쪽 끝에 −20초가 멀리 떨어져 있어 대칭이라고 말하기 어렵습니다. 그래서 전제가 가장 적은 부호검정을 답안으로 삼았습니다.</p>
+  <p><b>대칭인지는 이렇게 판단합니다.</b> 차이값 d의 히스토그램(또는 점 그림)을 그려 한쪽으로 길게 늘어졌는지 보고, 숫자로는 평균과 중앙값이 많이 다른지, 표본 왜도(skewness, 0이면 좌우 대칭이고 절댓값이 클수록 한쪽으로 치우침)를 봅니다. 0을 뺀 d 11개는 중앙값 <span data-v="dMed"></span>초, 평균 <span data-v="dMean"></span>초, 왜도 <span data-v="dSkew"></span>로 한쪽(−쪽)으로 크게 늘어져 있어 대칭이라 보기 어렵습니다. 대칭이 의심되면 부호검정으로 갑니다. 시험에서는 문제가 검정 이름을 지정하면 그대로 따르고, 지정이 없으면 대칭에 가까울 때는 윌콕슨, 아닐 때는 부호검정을 쓰며 그 이유를 한 줄로 적으십시오.</p>
 </div>
 
 <h2><span class="step">§3</span>문제 2 풀이 — 크러스칼-월리스</h2>
@@ -193,6 +194,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <div class="tbwrap"><table id="tbRank"></table></div>
 <table id="tbRanksum"></table>
 <div class="lab"><canvas id="cvRanksum" height="180"></canvas></div>
+<p>위 표의 <b>순위합 R</b>은 한 팀 안의 순위를 모두 더한 값입니다(i팀의 순위합을 R<sub>i</sub>라 쓰겠습니다). 팀마다 평균 순위를 보면 되지 않느냐는 의문이 들 수 있습니다. 평균 순위는 팀마다 하나씩 모두 3개의 수일 뿐이라, 그 셋이 얼마나 벌어져야 "크다"고 할지 정할 기준이 있어야 합니다. 귀무가설이 맞다면 어느 팀의 평균 순위도 전체의 평균 순위 (N+1)/2 = <span data-v="midRank"></span> 근처에 머물러야 합니다. 그래서 <b>"각 팀 평균 순위가 그 값에서 벗어난 정도의 제곱을 팀 크기로 가중해 더한 것"</b>을 통계량으로 삼고, 이것을 H라 부릅니다. 이 식을 풀어 쓰면 아래 공식이 나옵니다. Σ(R²/n)은 팀별 순위합의 제곱을 팀 크기로 나눠 더한 값으로 순위가 한 팀에 치우칠수록 커지고, 12/(N(N+1))은 귀무가설 아래서 H가 카이제곱분포를 따르도록 맞추는 배율, −3(N+1)은 치우침이 없을 때를 0으로 맞추는 기준점 빼기입니다.</p>
 
 <div class="eq">
   <span class="eqlab">크러스칼-월리스 H (동점 보정 전)</span>
@@ -231,18 +233,32 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
 <h3>사후검정 — 짝별 맨-휘트니 + 본페로니</h3>
 <p>세 팀을 두 팀씩 세 번(A-B, A-C, B-C) 비교해야 합니다. 비교를 여러 번 하면 그중 하나가 우연히 유의하게 나올 가능성이 올라가므로, 각 비교의 p값에 비교 횟수(3)를 곱하는 본페로니 보정을 적용합니다(1을 넘으면 1로 자릅니다).</p>
+<div class="eq"><span class="eqlab">맨-휘트니 U</span><math display="block"><mi>U</mi><mo>=</mo><msub><mi>R</mi><mn>1</mn></msub><mo>−</mo><mfrac><mrow><msub><mi>n</mi><mn>1</mn></msub><mo stretchy="false">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac></math><span class="note">R₁ = 첫 팀의 순위합, n₁ = 첫 팀의 크기. A–B에서는 R₁ = <span data-v="mwR1"></span>, n₁ = 8이므로 U = <span data-v="mwR1"></span> − 36 = <span data-v="mwU"></span></span></div>
+<p><b>맨-휘트니 U 검정(Mann-Whitney U test)</b>은 두 팀만 놓고 하는 순위 검정으로, 크러스칼-월리스의 두 팀 버전입니다. 두 팀을 합쳐 순위를 매긴 뒤 한 팀의 순위합에서 가질 수 있는 최솟값을 뺀 값이 U이고, U가 기댓값(두 팀 크기의 곱 ÷ 2)에서 멀수록 두 팀의 위치가 다르다고 봅니다. 아래 표의 p는 U를 정규분포로 근사해 구한 값으로, 코드의 <code>method="asymptotic"</code>에 해당합니다. 이 인자를 빼면 파이썬은 표본이 작고 동점이 없는 쌍에 정확한 분포를 쓰는 방식(exact)을 자동으로 고릅니다. 이 자료에서 A–B 쌍은 정확 방식으로 p=<span data-v="exAB"></span>, 보정 후 <span data-v="exABb"></span>이 되어 숫자는 달라지지만 유의라는 결론은 같습니다. 이 화면과 코드 주석의 숫자는 근사 방식 기준입니다.</p>
 <div class="tbwrap"><table id="tbPost"></table></div>
 <div class="concl" id="conclPost"></div>
 
+<div class="qna" data-label="사후검정에 왜 Tukey가 아니라 맨-휘트니인가요?"
+     data-q="분산분석 뒤에는 Tukey를 썼는데, 여기서는 왜 맨-휘트니 + 본페로니인가요? 던(Dunn) 검정은요?">
+  <p><b>Tukey는 정규성·등분산을 전제로 평균을 비교하는 사후검정이라 순위 자료에는 맞지 않습니다.</b> 크러스칼-월리스 뒤에는 순위 기반의 짝별 비교를 해야 합니다.</p>
+  <p>정식 이름이 붙은 순위 기반 사후검정은 던 검정(Dunn's test)이지만, 파이썬에서는 scipy 외에 별도 패키지가 필요합니다. scipy만으로 할 수 있는 방법이 짝별 맨-휘트니 + 본페로니 보정이고, 두 방법 모두 "여러 번 비교하는 만큼 우연히 걸릴 확률을 눌러 준다"는 목적이 같습니다. 답안에는 사용한 방법과 보정 방식을 함께 적으십시오.</p>
+</div>
+
 <div class="trap">
   <span class="v">흔한 함정 — '평균이 더 높다'로 결론 쓰기</span>
-  <p>비모수 검정은 애초에 평균을 쓰지 않고 순위로 계산했습니다. 그런데 결론에서 "A팀 평균 <span data-v="meanA"></span>분으로 가장 높다"처럼 평균으로 서술하면 앞뒤가 맞지 않습니다 — A팀의 평균이 높아 보이는 것은 58분이라는 극단값 하나 때문이고(중앙값은 오히려 <span data-v="medA"></span>분으로 셋 중 가장 낮습니다), 검정 자체는 평균을 전혀 보지 않았습니다. 비모수 검정의 결론은 <b>중앙값 또는 분포 위치(location)</b>로 서술합니다.</p>
+  <p>비모수 검정은 애초에 평균을 쓰지 않고 순위로 계산했습니다. 그런데 결론에서 "A팀 평균 <span data-v="meanA"></span>분으로 C팀 평균 <span data-v="meanC"></span>분보다 길다"처럼 평균으로 서술하면 앞뒤가 맞지 않습니다 — A팀의 평균이 C팀보다 높아 보이는 것은 58분이라는 극단값 하나 때문이고(중앙값은 오히려 A팀 <span data-v="medA"></span>분, C팀 <span data-v="medC"></span>분으로 A팀이 셋 중 가장 낮습니다), 검정 자체는 평균을 전혀 보지 않았습니다. 비모수 검정의 결론은 <b>중앙값 또는 분포 위치(location)</b>로 서술합니다.</p>
 </div>
 
 <div class="qna" data-label="크러스칼-월리스는 '중앙값이 같다'를 검정하나요?"
      data-q="크러스칼-월리스는 엄밀히 말해 무엇을 검정하는 건가요? '중앙값이 같다'라고 해도 되나요?">
   <p><b>엄밀히는 '분포의 위치(location)가 같다'를 검정합니다. 세 집단의 모양(흩어진 정도·생김새)이 서로 비슷할 때만 '중앙값이 같다'로 바꿔 읽을 수 있습니다.</b></p>
   <p>크러스칼-월리스는 원래 값이 아니라 순위만 보기 때문에, 평균이나 분산 같은 특정 숫자를 직접 비교하는 검정이 아닙니다. 세 집단의 분포 모양이 서로 다르면(예: 한 집단은 좌우로 고르게 퍼지고 다른 집단은 한쪽으로 치우쳐 있으면), 순위가 치우쳐 기각이 나와도 그 원인이 '중앙값 차이'인지 '모양 차이'인지 바로 구분되지 않습니다. 다행히 이번 문제에서는 A팀의 분포만 58분 하나 때문에 삐뚤어졌을 뿐 나머지는 비슷한 모양이라, "세 팀의 수리 시간 <b>중앙값</b>이 같지 않다"라고 읽어도 무리가 없습니다. 실기 답안에서는 "분포(위치)가 다르다"라고 쓰고, 중앙값 표를 근거로 덧붙이는 것이 가장 안전합니다.</p>
+</div>
+
+<div class="qna" data-label="정규성이 통과하면 비모수를 써도 되나요?"
+     data-q="자료가 정규성을 통과해도 비모수 검정을 써도 되나요? 쓰면 손해는 얼마인가요?">
+  <p><b>써도 틀리지는 않지만, 정규성이 통과하면 모수 검정(t검정·분산분석)이 기본입니다.</b></p>
+  <p>자료가 정말 정규분포이면 순위 검정은 값의 크기 정보를 일부 버리는 만큼 검정력이 조금 낮습니다. 맨-휘트니·윌콕슨은 t검정의 약 95% 수준(같은 검정력을 내려면 표본이 약 5% 더 필요한 정도)이라 손해가 크지 않습니다. 반대로 정규성이 깨진 자료에 모수 검정을 쓰면 이 실험실의 §1처럼 결론이 흔들릴 수 있으므로, 시험 답안은 "전제 확인 → 통과하면 모수, 깨지면 비모수" 순서로 적는 것이 안전합니다.</p>
 </div>
 
 <h2><span class="step">§4</span>Python 답안 — 시험장 제출 형태</h2>
@@ -610,6 +626,17 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
  var pSign = 2*binomCDF(minPN, nSign, 0.5);
  var wrongPSign = 2*binomCDF(1, 12, 0.5); // 흔한 함정: 0을 n에 포함
  var tPaired = oneSampleT(D, 0);
+ /* 윌콕슨 부호순위 정확 p (0 제외, |d| 평균순위, 부분합 개수 세기) */
+ var dNz = D.filter(function(v){return v!==0;});
+ var dnM=mean(dNz), dnS=Math.sqrt(dNz.reduce(function(a,v){return a+(v-dnM)*(v-dnM);},0)/(dNz.length-1)), dnN=dNz.length;
+ var dSkew=dnN/((dnN-1)*(dnN-2))*dNz.reduce(function(a,v){return a+Math.pow((v-dnM)/dnS,3);},0);
+ var rAbs = ranks(dNz.map(Math.abs)).map(function(v){return Math.round(v*2);});
+ var wObs = 0; dNz.forEach(function(v,i){ if(v>0) wObs+=rAbs[i]; });
+ var wTot = rAbs.reduce(function(a,b){return a+b;},0), wCnt = new Array(wTot+1).fill(0); wCnt[0]=1;
+ rAbs.forEach(function(r){ for(var t=wTot; t>=r; t--) wCnt[t]+=wCnt[t-r]; });
+ var wAll = Math.pow(2,dNz.length), wLo=0, wHi=0;
+ for(var wi=0; wi<=wTot; wi++){ if(wi<=wObs) wLo+=wCnt[wi]; if(wi>=wObs) wHi+=wCnt[wi]; }
+ var pWil = Math.min(1, 2*Math.min(wLo,wHi)/wAll);
  var medBefore=median(BEFORE), medAfter=median(AFTER), medD=median(D);
 
  var tbSignRows = '<tr><th>작업자</th>'+BEFORE.map(function(v,i){return '<th>'+(i+1)+'</th>';}).join('')+'</tr>'+
@@ -713,6 +740,17 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
  var mwAB=mannWhitneyU(A0,B0), mwAC=mannWhitneyU(A0,C0), mwBC=mannWhitneyU(B0,C0);
  function bonf(p){ return Math.min(1, p*3); }
+ /* 맨-휘트니 정확 p (동점 없는 쌍 전용: 순위합의 부분집합 개수 세기) */
+ function mwExactP(x,y){
+  var n1=x.length, n2=y.length, N=n1+n2, r=ranks(x.concat(y)), R1=0;
+  for(var i=0;i<n1;i++) R1+=r[i];
+  var cnt=[]; for(var k=0;k<=n1;k++){ cnt.push(new Array(N*(N+1)/2+1).fill(0)); } cnt[0][0]=1;
+  for(var v=1; v<=N; v++){ for(var kk=n1; kk>=1; kk--){ for(var t=N*(N+1)/2; t>=v; t--) cnt[kk][t]+=cnt[kk-1][t-v]; } }
+  var tot=0, lo=0, hi=0;
+  for(var s2=0; s2<cnt[n1].length; s2++){ tot+=cnt[n1][s2]; if(s2<=R1) lo+=cnt[n1][s2]; if(s2>=R1) hi+=cnt[n1][s2]; }
+  return Math.min(1, 2*Math.min(lo,hi)/tot);
+ }
+ var exAB = mwExactP(A0,B0);
  var bAB=bonf(mwAB.p), bAC=bonf(mwAC.p), bBC=bonf(mwBC.p);
  function postRow(name,mw,b){
   var sig = b<0.05;
@@ -727,7 +765,8 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
  /* ══════════ data-v 주입 ══════════ */
  var V = {
   anovaF: f(fAN0.F,4), anovaP: f(fAN0.p,4),
-  meanA: f(meanA,2), medA: f(medA,1),
+  meanA: f(meanA,2), medA: f(medA,1), dMed: f(median(dNz),1), dMean: f(dnM,2), dSkew: f(dSkew,2), mwR1: f(mwAB.U1+36,1), mwU: f(mwAB.U1,1), meanB: f(meanB,2), meanC: f(meanC,2), medC: f(medC,1),
+  midRank: f((kw0.N+1)/2,1), pWil: f(pWil,4), exAB: f(exAB,4), exABb: f(bonf(exAB),4),
   swD_W: f(swD.W,5), swD_p: f(swD.p,6), d8: D[7],
   nSign: nSign, posN: posN, negN: negN, minPN: minPN, pSign: f(pSign,6),
   wrongPSign: f(wrongPSign,6),

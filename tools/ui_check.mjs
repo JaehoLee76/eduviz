@@ -48,11 +48,13 @@ async function ready(){
 }
 
 class Tab {
-  constructor(ws){ this.ws = ws; this.id = 0; this.waits = new Map(); this.events = [];
+  constructor(ws){ this.ws = ws; this.id = 0; this.waits = new Map(); this.events = []; this.errors = [];
     ws.addEventListener('message', e => {
       const m = JSON.parse(e.data);
       if(m.id && this.waits.has(m.id)){ this.waits.get(m.id)(m.result); this.waits.delete(m.id); }
-      else if(m.method) this.events.push(m.method);
+      else if(m.method){ this.events.push(m.method);
+        if(m.method === 'Runtime.exceptionThrown'){ const d = m.params.exceptionDetails || {};
+          this.errors.push(((d.exception && d.exception.description) || d.text || 'error').split('\n')[0] + (d.lineNumber != null ? ` (줄 ${d.lineNumber + 1})` : '')); } }
     });
   }
   send(method, params = {}){
@@ -76,6 +78,7 @@ for(const page of PAGES){
     const url = `http://localhost:${PORT}/${page}?uicheck=1`;
     const { tab, target } = await Tab.open('about:blank');
     await tab.send('Page.enable');
+    await tab.send('Runtime.enable');
     await tab.send('Emulation.setDeviceMetricsOverride', {
       width: s.width, height: s.height, deviceScaleFactor: s.dpr, mobile: s.mobile,
     });
@@ -90,12 +93,34 @@ for(const page of PAGES){
       }));
       if(result.value !== 'NO-REPORT') break;
     }
+    // 조작 검사(PC 한 번): 슬라이더를 끝에서 끝까지 움직여 스크립트 오류가 나는지, Q&A 팝업 안 계산 자리가 비어 있는지.
+    if(s.name === 'PC'){
+      const { result: pr } = await tab.send('Runtime.evaluate', { awaitPromise: true, returnByValue: true, expression: `(async()=>{
+        const w=ms=>new Promise(r=>setTimeout(r,ms)); const out={blank:[],err:[]}; addEventListener('error',ev=>out.err.push(String(ev.message)));
+        for(const el of document.querySelectorAll('input[type=range]')){ const v0=el.value;
+          for(const v of [el.min||0, el.max||100, v0]){ el.value=v; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); await w(30); } }
+        for(const b of document.querySelectorAll('.qna-btn')){ b.click(); await w(120);
+          const card=document.querySelector('.qna-card');
+          if(card) for(const e of card.querySelectorAll('span[id],mn[id],b[id],td[id]')) if(!e.textContent.trim()) out.blank.push((b.textContent||'').trim().slice(0,30)+' → #'+e.id);
+          document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); await w(60); }
+        return JSON.stringify(out); })()` });
+      try{ const o = JSON.parse(pr.value);
+        for(const x of o.err) tab.errors.push('조작 중 ' + x);
+        if(o.blank.length){ console.log(`❌ ${s.name}  ${page} — 팝업 안 빈 계산 자리 ${o.blank.length}건`); for(const x of o.blank.slice(0,8)) console.log(`     빈 자리: ${x}`); failed = 1; tab.probeFail = true; } }catch(e){ console.log(`⚠️  조작 검사 실행 실패: ${e.message}`); }
+    }
     const tag = `${page.replace(/[/.]/g, '_')}_${s.name}`;
     const shot = await tab.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     if(shot?.data) writeFileSync(`${OUT}/${tag}.png`, Buffer.from(shot.data, 'base64'));
 
     const text = result.value || 'NO-REPORT';
+    // 페이지 스크립트 오류(정의 없는 함수 등)는 겹침 검사로 잡히지 않는다 → 따로 실패 처리.
+    if(tab.errors.length){
+      console.log(`❌ ${s.name}  ${page} — 스크립트 오류 ${tab.errors.length}건`);
+      for(const e of tab.errors.slice(0, 5)) console.log(`     JS 오류: ${e}`);
+      failed = 1;
+    }
     if(text.startsWith('UICHECK OK')){
+      if(!tab.errors.length && !tab.probeFail)
       console.log(`✅ ${s.name}  ${page}`);
     } else if(text.startsWith('UICHECK FAIL')){
       console.log(`❌ ${s.name}  ${page}`);

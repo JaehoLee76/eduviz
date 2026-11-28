@@ -145,19 +145,20 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 <h2><span class="step">2</span>전제 확인</h2>
 <div class="chk">분산분석은 <b>1) 각 조가 정규분포에 가깝고 2) 조마다 흩어짐이 비슷하다</b>는 전제 위에 서 있습니다. 깨지면 다른 검정으로 갈아타야 하므로 <b>먼저</b> 확인합니다. 아래 값은 위 데이터에서 나온 것입니다.</div>
 <table id="assump"></table>
+<p style="font-size:.85rem;color:var(--soft)">정규성은 <b>샤피로-윌크 p</b>가 판정 수치이고(답안에 적는 것), Q-Q 상관 r 은 같은 것을 "그림이 얼마나 직선인가"로 보는 보조 눈입니다. r 의 경계 0.905 는 진짜 정규분포에서 8개를 뽑아 r 을 모의로 구했을 때 하위 5% 에 해당하는 값입니다. 탐구 슬라이더로 D 를 통째로 옮겨도(평행이동) 흩어진 모양은 그대로라서 이 표의 정규성·등분산 값은 변하지 않습니다.</p>
 <div id="assumpV"></div>
 
 <div class="qna" data-topic="qq-plot"></div>
 <div class="qna" data-topic="assumption-failure"></div>
 <div class="qna" data-label="전제 확인은 실제로 어떻게 하나요?" data-q="정규성·등분산 확인, 실기에서는 실제로 어떻게 하나요?">
   <p><b>무엇을 확인하나.</b> 분산분석은 세 가지를 전제합니다 — 1) 각 조가 정규분포에 가깝다 2) 조마다 흩어짐(분산)이 비슷하다 3) 관측값이 서로 독립이다. 3) 은 계산으로 보는 게 아니라 <b>설계로 보장</b>합니다(무작위 배정·서로 다른 개체). 그래서 실제로 검사하는 것은 1) 과 2) 입니다.</p>
-  <p><b>1) 정규성 — 샤피로-윌크 검정 + Q-Q 그림.</b> 귀무가설이 "정규분포다"이므로 <b>p가 크면(≥0.05) 통과</b>입니다. 평소와 방향이 반대라 헷갈리기 쉽습니다. 표본이 작으면 검정력이 약해 웬만하면 통과되므로 <b>그림을 함께</b> 봐야 합니다. 이 데이터의 값은 A 0.493 · B 0.761 · C 0.600 · D 0.622 로 전부 통과입니다. 화면의 Q-Q 상관 r도 같은 것을 봅니다 — 자료를 정규분포 눈금에 세웠을 때 얼마나 직선인지이고, 1에 가까울수록 정규에 가깝습니다.</p>
-  <p><b>2) 등분산 — 레빈 검정.</b> 각 값이 자기 조 <b>중앙값</b>에서 얼마나 떨어졌는지(|편차|)를 만들어, 그 평균이 조마다 다른지를 다시 분산분석으로 봅니다. 역시 <b>p가 크면 통과</b>. 이 데이터는 F=1.800, p=0.170 으로 통과입니다. 표준편차가 B는 3.62, C는 1.83으로 두 배 가까이 차이 나 보이지만, 8개씩뿐인 표본에서는 그 정도 차이가 우연히 생길 수 있다는 뜻입니다. (바틀렛 검정도 있지만 정규성이 조금만 어긋나도 예민하게 반응해, 실무에서는 레빈을 씁니다.)</p>
+  <p><b>1) 정규성 — 샤피로-윌크 검정 + Q-Q 그림.</b> 귀무가설이 "정규분포다"이므로 <b>p가 크면(≥0.05) 통과</b>입니다. 평소와 방향이 반대라 헷갈리기 쉽습니다. 표본이 작으면 검정력이 약해 웬만하면 통과되므로 <b>그림을 함께</b> 봐야 합니다. 원자료의 값은 A 0.493 · B 0.761 · C 0.600 · D 0.622 로 전부 통과입니다(위 표와 같은 값입니다). 답안에는 이 샤피로-윌크 p 를 적고, 화면의 Q-Q 상관 r 은 같은 것을 그림의 직선성으로 확인하는 보조 지표입니다 — 1에 가까울수록 정규에 가깝습니다.</p>
+  <p><b>2) 등분산 — 레빈 검정.</b> 각 값이 자기 조 <b>중앙값</b>에서 얼마나 떨어졌는지(|편차|)를 만들어, 그 평균이 조마다 다른지를 다시 분산분석으로 봅니다. 역시 <b>p가 크면 통과</b>. 원자료는 F=1.800, p=0.170 으로 통과입니다. 표준편차가 B는 3.62, C는 1.83으로 두 배 가까이(분산으로는 약 3.9배) 차이 나 보이지만, <b>통과는 "분산이 같다"는 증명이 아니라 "다르다고 말할 증거가 부족하다"는 뜻</b>입니다. 8개씩뿐인 표본은 그 정도 차이를 우연으로 볼 만큼 힘이 약합니다. 다행히 네 조의 크기가 모두 8로 같은 균형 설계에서는 분산분석이 분산 차이에 꽤 잘 견딥니다. 실제로 등분산을 요구하지 않는 웰치 분산분석으로 바꿔 돌려도 원자료 기준 F=8.84, p=0.0012 로 판정이 같습니다(전제를 확인하고도 결론이 안 바뀌는 것을 보이는 확인용이고, 답안은 위의 통과 경로로 씁니다). 이 팝업의 숫자는 모두 <b>원자료 기준 값</b>이라 탐구 슬라이더로 D 의 평균을 옮기면 웰치·알렉산더-고번 값은 따라 바뀝니다. 바뀐 값은 위 코드로 직접 구합니다. (바틀렛 검정도 있지만 정규성이 조금만 어긋나도 예민하게 반응해, 실무에서는 레빈을 씁니다.)</p>
   <p><b>깨졌을 때 어디로 가나 — 이게 실기 점수입니다.</b></p>
   <table>
     <tr><th>깨진 전제</th><th>갈아탈 검정</th><th>사후검정</th></tr>
-    <tr><td>정규성</td><td>크러스칼-월리스 (순위 기반)</td><td>던 검정 + 보정</td></tr>
-    <tr><td>등분산</td><td>웰치 분산분석</td><td>게임스-하웰</td></tr>
+    <tr><td>정규성</td><td>크러스칼-월리스 (순위 기반)</td><td>던 검정(또는 쌍별 맨-휘트니 + 보정)</td></tr>
+    <tr><td>등분산</td><td>웰치 분산분석</td><td>게임스-하웰(또는 쌍별 웰치 t + 보정)</td></tr>
     <tr><td>둘 다 만족</td><td>일원배치 분산분석</td><td>투키 HSD 또는 본페로니</td></tr>
   </table>
   <pre>from scipy import stats
@@ -175,11 +176,13 @@ print(stats.levene(*groups, center='median'))
 print(stats.f_oneway(*groups))
 # print(stats.kruskal(*groups))                      # 정규성이 깨진 경우
 # print(stats.alexandergovern(*groups))              # 등분산이 깨진 경우(웰치 계열)</pre>
+  <p><b>코드의 알렉산더-고번에 대해.</b> 알렉산더-고번(<code>stats.alexandergovern</code>)은 웰치 분산분석과 <b>다른 검정</b>입니다. 둘 다 등분산을 요구하지 않는다는 점만 같습니다(원자료 기준으로 알렉산더-고번은 통계량 14.96, p=0.0018). 웰치 분산분석 자체는 <code>stats.f_oneway(*groups, equal_var=False)</code> 로 돌리며, SciPy 버전에 이 인자가 없으면 알렉산더-고번을 대안으로 쓰되 <b>답안에는 쓴 검정의 이름을 그대로 적습니다</b>.</p>
+  <p><b>갈아탄 뒤의 사후검정도 같은 틀입니다.</b> 쌍마다 검정하고 여섯 번 한 값을 보정합니다. 정규성이 깨진 경우는 <code>stats.mannwhitneyu</code>, 등분산이 깨진 경우는 <code>stats.ttest_ind(x, y, equal_var=False)</code> 로 쌍별 p 를 구해 <code>multipletests(pvals, method="bonferroni")[1]</code>(<code>from statsmodels.stats.multitest import multipletests</code>)로 보정합니다. 던 검정·게임스-하웰은 별도 패키지가 필요해 시험 환경에서 쓸 수 있는지 불확실하므로, 이 쌍별 방법과 보정을 답안에 명시하면 같은 취지의 서술이 됩니다.</p>
   <p><b>답안 서술 요령.</b> "샤피로-윌크 p=0.49~0.76, 레빈 p=0.170 으로 정규성과 등분산을 모두 만족하여 모수적 일원배치 분산분석을 적용하였다." — 이 한 문장이 있고 없고가 점수를 가릅니다. 전제 확인 없이 바로 F검정만 돌린 답안은 감점입니다.</p>
 </div>
 <h2><span class="step">3</span>분산분석표 <span style="font-size:.75rem;color:var(--soft)">(위 자료 기준)</span></h2>
-<p style="font-size:.9rem;color:var(--soft)">표에 나오는 말부터 풀어 두겠습니다. 아이디어는 하나입니다 — <b>32개 값이 흩어진 전체 양을 두 몫으로 쪼갠다</b>는 것입니다.<br><br>
-<b>제곱합(SS)</b>은 흩어진 양을 재는 자입니다. 각 값이 기준에서 떨어진 거리를 제곱해 모두 더합니다. 제곱하는 이유는 위로 벗어난 것과 아래로 벗어난 것이 서로 상쇄되지 않게 하기 위해서입니다. 이때 <b>차종 간 제곱합</b>은 네 차종의 평균이 전체 평균에서 얼마나 벌어졌는지를 재고, <b>차종 내 제곱합</b>은 같은 차종 안에서 8번의 측정이 자기 평균 주위로 얼마나 튀는지를 잽니다. 앞의 것이 <b>신호</b>, 뒤의 것이 <b>잡음</b>입니다.<br><br>
+<p style="font-size:.9rem;color:var(--soft)">앞 편 「자유도와 분포의 계보」 §10 에서 이 자료로 이미 만들어 본 표를, 이번에는 <b>답안에 쓰는 형태</b>로 다시 읽습니다. 같은 수를 다시 세는 것이고 새 개념은 없습니다. 표에 나오는 말부터 짧게 되짚겠습니다. 아이디어는 하나입니다 — <b>32개 값이 흩어진 전체 양을 두 몫으로 쪼갠다</b>는 것입니다.<br><br>
+<b>제곱합(SS)</b>은 흩어진 양을 재는 자입니다. 각 값이 기준에서 떨어진 거리를 제곱해 모두 더합니다. 제곱하는 이유는 위로 벗어난 것과 아래로 벗어난 것이 서로 상쇄되지 않게 하기 위해서입니다. 이때 <b>차종 간 제곱합</b>은 네 차종의 평균이 전체 평균에서 얼마나 벌어졌는지를 재고, <b>차종 내 제곱합</b>은 같은 차종 안에서 8번의 측정이 자기 평균 주위로 얼마나 튀는지를 잽니다. 앞의 것이 <b>신호</b>, 뒤의 것이 <b>잡음</b>입니다. 차종 간 제곱합의 식은 Σ ( 8 × (차종 평균 − 전체 평균)² ) 입니다 — 차종 평균 하나가 8대를 대표하므로 그 벗어남을 8번 셉니다.<br><br>
 <b>자유도</b>는 "그 흩어짐을 만드는 데 실제로 쓰인 독립적인 정보의 개수"입니다. 차종 간은 평균이 4개인데 전체 평균이 이미 정해져 있으니 자유롭게 움직일 수 있는 건 3개(= 4 − 1)이고, 차종 내는 32개 값에서 차종마다 평균 하나씩 4개를 이미 썼으니 28개(= 32 − 4)가 남습니다.<br><br>
 <b>평균제곱(MS)</b>은 제곱합을 자유도로 나눈 값, 즉 <b>정보 하나당 평균적인 흩어짐</b>입니다. 나누지 않으면 조가 많을수록·자료가 많을수록 제곱합이 그냥 커져 버려서 비교가 안 됩니다.<br><br>
 그리고 <b>F는 이 둘의 비율</b>입니다 — 신호(차종 간 평균제곱)를 잡음(차종 내 평균제곱)으로 나눈 값이라, "차종이 달라서 벌어진 정도가 그냥 튀는 정도의 몇 배인가"를 뜻합니다. 차이가 없다면 둘 다 같은 우연을 재고 있으니 F는 1 근처에서 놉니다.</p>
@@ -188,9 +191,12 @@ print(stats.f_oneway(*groups))
 <div class="qna" data-topic="degrees-of-freedom"></div>
 <table id="anova"></table>
 <div id="verdict"></div>
+<div class="qna" data-label="왜 집단 간 제곱합에 n(=8)을 곱하나요?" data-q="왜 집단 간 제곱합에 n(=8)을 곱하나요?"><p>차종 평균 하나는 그 차종 8대를 대표합니다. 그 조의 8개 값은 모두 같은 양(조 평균 − 전체 평균)만큼 전체 평균에서 떨어져 있다고 세어지므로, (조 평균 − 전체 평균)² 이 8번 쌓입니다. 그래서 8을 곱하고, 이렇게 해야 차종 간 제곱합 + 차종 내 제곱합 = 전체 제곱합이 정확히 맞아떨어집니다(앞 편 §10 에서 숫자로 확인했습니다).</p></div>
 
 <h2><span class="step">4</span>사후검정 — 어느 차종끼리 다른가</h2>
 <p style="font-size:.87rem;color:var(--soft)">ANOVA는 "어딘가 다르다"까지만. 6쌍을 비교해 <b>어느 쌍</b>이 다른지 찾습니다(본페로니 보정 기준 p &lt; 0.05 ÷ 6 = 0.0083, 초록 = 유의).</p>
+<p style="font-size:.9rem"><b>쌍 비교의 분모.</b> 쌍마다 t 를 만들 때 표준오차는 두 조만이 아니라 <b>네 조 전체에서 구한 오차분산</b>(위 표의 차종 내 평균제곱 <span id="sp_msw"></span>, 자유도 <span id="sp_df"></span>)으로 만듭니다. 두 조 평균 차이의 표준오차는 √(<span id="sp_msw2"></span> × (1/8 + 1/8)) = <b><span id="sp_se"></span></b> 이고, 예를 들어 A − D 쌍은 t = <span id="sp_tad"></span>, p = <span id="sp_pad"></span> 가 나옵니다(보정 전 값). 앞 편 §1 에서 같은 A·D 를 두 조만으로 잴 때와 값이 다른 이유가 이것입니다. 그때는 두 조의 제곱합만 합쳐 자유도 14 로 구했고, 여기서는 등분산이 성립한다고 보고 네 조 전부를 합쳐 자유도 28 로 구했기 때문입니다. 등분산이 깨졌다면 이 합친 분모를 쓸 수 없으므로, 쌍마다 그 두 조의 분산만으로 만드는 웰치 t(2단계 갈아탈 표의 쌍별 웰치 t)로 바꾸고 여섯 번 한 값의 보정은 그대로 합니다. 같은 잡음 σ² 을 재는 조가 넷이니 전부 합친 추정이 더 단단하고, F 검정과 같은 분모를 써서 판정이 서로 어긋나지 않게 됩니다.</p>
+<p style="font-size:.9rem"><b>답안에는 어느 방법을 쓰나.</b> 사후검정의 이름과 숫자는 <b>코드가 낸 것과 일치</b>시킵니다. 이 과정의 기본은 코드 한 줄로 끝나는 <b>투키 HSD</b>이고, 화면의 6쌍 카드와 결론 문장 틀은 보정 원리를 손으로 따라가기 쉬운 <b>본페로니</b>로 만들었습니다. 두 방법은 모두 네 조 전체의 오차분산을 쓰고 결론도 같지만(D만 다르다), 투키는 "가장 큰 차이가 우연히 얼마나 벌어지나"를 정확히 반영해 덜 보수적이므로 보정 p 가 더 작게 나옵니다(예 C − D: 본페로니 0.0433, 투키 0.0343). 코드를 투키로 돌렸다면 문장에도 "사후검정(투키 HSD)"과 그 표의 p-adj 를 적고, 본페로니로 손계산했다면 "p × 6 보정"이라 적습니다. 한 답안 안에서 이름과 숫자가 서로 어긋나지 않는 것이 요점입니다.</p>
 <div class="qna" data-label="6쌍이면 6×5%=30% 아닌가요? 헛발의 정확한 이름은?" data-q="6쌍이면 6×5%=30% 아닌가요? 그리고 '헛발'의 정확한 이름은 무엇인가요?">
   <p><b>30%는 상한이지 실제 값이 아닙니다.</b> 단순 덧셈은 "두 쌍에서 동시에 헛발"인 경우를 두 번 세기 때문에 부풀려집니다. 겹침을 빼고 정확히 계산하면 1 − 0.95⁶ = <b>26.5%</b>입니다.</p>
   <p><b>왜 0.95를 여섯 번 곱하나.</b> "적어도 한 번 헛발"은 갈래가 많지만 그 반대는 하나뿐입니다 — <b>여섯 번 모두 무사</b>. 그래서 반대쪽을 세고 1에서 뺍니다. 이때 곱셈을 쓰는 근거가 <b>독립 (independence)</b> 입니다. 검정들이 서로 결과에 영향을 주지 않는다면 "1번도 무사하고 <b>그리고</b> 2번도 무사하고 …"가 동시에 일어날 확률은 각각의 확률을 곱한 값이 됩니다(독립사건의 곱셈법칙). 그래서 0.95⁶ = 0.735, 나머지 0.265가 답입니다(일반형 1 − (1−α)^m). 단순 덧셈이 큰 이유는 2번만으로 검산하면 바로 보입니다.</p>
@@ -246,6 +252,7 @@ p를 6으로 곱한다:     p = 0.0433  vs  기준 0.05      → 유의  (같은
 <h2><span class="step">5</span>결론 서술 (실기 답안)</h2>
 <p style="font-size:.9rem;color:var(--soft)">실기 답안은 숫자에서 끝나지 않습니다. <b>1) 어떤 검정을 왜 썼는지 2) 검정통계량과 자유도, p값 3) 그래서 무엇을 판단했는지 4) 사후검정으로 어느 쌍이 달랐는지</b>를 문장으로 적어야 점수가 됩니다. 아래가 그대로 옮겨 쓸 수 있는 형태입니다.</p>
 <div class="concl" id="concl"></div>
+<p style="font-size:.88rem;color:var(--soft)">위 문형은 사후검정을 본페로니로 쓴 예입니다. 코드의 투키 HSD 를 쓴 답안이면 괄호 안을 "투키 HSD"로 바꾸고 그 출력의 p-adj 를 적으십시오. <b>결론 표현은 "차이가 있다"와 "차이를 확인하지 못했다"를 구분</b>합니다. 못 꺾었다고 같다는 증명은 아니므로, 유의하지 않은 쌍은 "A·B·C 사이에는 유의한 차이가 없었다(차이를 확인하지 못했다)"로 쓰고 "A·B·C 는 같다"고 단정하지 않는 쪽이 안전합니다.</p>
 
 <div class="explore">
   <div class="t">🔬 탐구 모드 (이해용 — 채점과 무관)</div>
@@ -320,6 +327,26 @@ function invnorm(p){var a=[-3.969683028665376e+01,2.209460984245205e+02,-2.75928
 function qqr(a){var n=a.length,b=a.slice().sort(function(x,y){return x-y}),z=[],i;for(i=0;i<n;i++)z.push(invnorm((i+1-0.375)/(n+0.25)));
  var mx=0,mz=0;for(i=0;i<n;i++){mx+=b[i];mz+=z[i];}mx/=n;mz/=n;var sxz=0,sxx=0,szz=0;
  for(i=0;i<n;i++){var dx=b[i]-mx,dz=z[i]-mz;sxz+=dx*dz;sxx+=dx*dx;szz+=dz*dz;}return sxz/Math.sqrt(sxx*szz);}
+function normCdf(z){var t=1/(1+0.3275911*Math.abs(z)/Math.SQRT2),e=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z/2);return z>=0?0.5*(1+e):0.5*(1-e);}
+/* 정규성 검정: 샤피로-윌크 W 와 p(Royston 근사, 4~11개). 답안에 적는 수치가 이것이다. */
+function shapiroW(x0){
+ var n=x0.length,x=x0.slice().sort(function(a,b){return a-b;});
+ if(n<4||x[n-1]-x[0]<1e-12)return null;
+ function poly(c,nord,xx){var r=c[0];if(nord>1){var p=xx*c[nord-1];for(var j=nord-2;j>0;j--)p=(p+c[j])*xx;r+=p;}return r;}
+ var nn2=Math.floor(n/2),m=[],an25=n+0.25,summ2=0,i;
+ for(i=1;i<=nn2;i++){m[i]=invnorm((i-0.375)/an25);summ2+=m[i]*m[i];}
+ summ2*=2;var ss=Math.sqrt(summ2),rsn=1/Math.sqrt(n),a=[],c1=[0,0.221157,-0.147981,-2.07119,4.434685,-2.706056],c2=[0,0.042981,-0.293762,-1.752461,5.682633,-3.582633];
+ var a1=poly(c1,6,rsn)-m[1]/ss,i1,fac;
+ if(n>5){i1=3;var a2=-m[2]/ss+poly(c2,6,rsn);fac=Math.sqrt((summ2-2*m[1]*m[1]-2*m[2]*m[2])/(1-2*a1*a1-2*a2*a2));a[2]=a2;}
+ else{i1=2;fac=Math.sqrt((summ2-2*m[1]*m[1])/(1-2*a1*a1));}
+ a[1]=a1;for(i=i1;i<=nn2;i++)a[i]=-m[i]/fac;
+ var mean=0,ssq=0,num=0;for(i=0;i<n;i++)mean+=x[i];mean/=n;for(i=0;i<n;i++)ssq+=(x[i]-mean)*(x[i]-mean);
+ for(i=1;i<=nn2;i++)num+=a[i]*(x[n-i]-x[i-1]);
+ var W=num*num/ssq;if(W>1)W=1;
+ var y=Math.log(1-W),an=n,mm,s;
+ if(n<=11){var gam=-2.273+0.459*an;if(y>=gam)return {W:W,p:1e-99};y=-Math.log(gam-y);mm=poly([0.544,-0.39978,0.025054,-6.714e-4],4,an);s=Math.exp(poly([1.3822,-0.77857,0.062767,-0.0020322],4,an));}
+ else{var xl=Math.log(an);mm=poly([-1.5861,-0.31082,-0.083751,0.0038915],4,xl);s=Math.exp(poly([-0.4803,-0.082676,0.0030302],3,xl));}
+ return {W:W,p:1-normCdf((y-mm)/s)};}
 /* 등분산: 각 값이 자기 조 중앙값에서 얼마나 떨어졌는지(|편차|)를 만들어, 그 평균이 조마다 다른지 분산분석으로 본다. */
 function levene(vals){var K=vals.length,z=vals.map(function(v){var m=median(v);return v.map(function(x){return Math.abs(x-m)})});
  var all=[].concat.apply([],z),N=all.length,grand=all.reduce(function(a,b){return a+b})/N;
@@ -329,16 +356,19 @@ function levene(vals){var K=vals.length,z=vals.map(function(v){var m=median(v);r
 function render(){
  var dD=+sD.value;oD.textContent=(dD>0?'+':'')+fmt(dD,1);
  var R=compute(dD);drawMain(R);
- var L=levene(R.vals),qs=R.vals.map(qqr);
+ var L=levene(R.vals),qs=R.vals.map(qqr),sh=R.vals.map(shapiroW);
  var sds=R.vals.map(function(v){var m=v.reduce(function(a,b){return a+b})/v.length;var s2=0;for(var i=0;i<v.length;i++)s2+=(v[i]-m)*(v[i]-m);return Math.sqrt(s2/(v.length-1));});
  document.getElementById('assump').innerHTML=
   '<tr><th>확인 항목</th>'+NAME.map(function(n){return '<th>'+n+'</th>'}).join('')+'</tr>'+
   '<tr><td>표준편차 (흩어짐)</td>'+sds.map(function(v){return '<td>'+fmt(v,2)+'</td>'}).join('')+'</tr>'+
-  '<tr><td>Q-Q 상관 r (정규성)</td>'+qs.map(function(v){return '<td>'+fmt(v,3)+'</td>'}).join('')+'</tr>';
- var okN=qs.every(function(r){return r>=0.905}),okV=L.p>=0.05;
+  '<tr><td>샤피로-윌크 p (정규성 · 답안에 적는 수)</td>'+sh.map(function(v){return '<td>'+(v?fmt(v.p,3):'—')+'</td>'}).join('')+'</tr>'+
+  '<tr><td>Q-Q 상관 r (직선성 · 그림 보조)</td>'+qs.map(function(v){return '<td>'+fmt(v,3)+'</td>'}).join('')+'</tr>';
+ var okN=sh.every(function(v){return v&&v.p>=0.05}),okQ=qs.every(function(r){return r>=0.905}),okV=L.p>=0.05;
+ var shp=sh.map(function(v){return v?v.p:0});
  document.getElementById('assumpV').innerHTML='<div class="verdict '+((okN&&okV)?'keep':'rej')+'">'+
-  '정규성: 네 조의 r이 '+fmt(Math.min.apply(null,qs),3)+'~'+fmt(Math.max.apply(null,qs),3)+
-  (okN?' → 모두 경계 0.905 위, 정규성을 의심할 근거 없음':' → 경계 0.905 아래인 조가 있어 정규성 의심')+
+  '정규성: 샤피로-윌크 p가 '+fmt(Math.min.apply(null,shp),3)+'~'+fmt(Math.max.apply(null,shp),3)+
+  (okN?' → 네 조 모두 0.05 이상, 정규성을 의심할 근거 없음':' → 0.05 미만인 조가 있어 정규성 의심')+
+  '<br>그림 보조: Q-Q 상관 r '+fmt(Math.min.apply(null,qs),3)+'~'+fmt(Math.max.apply(null,qs),3)+(okQ?' (모두 경계 0.905 위)':' (경계 0.905 아래인 조 있음)')+
   '<br>등분산: 레빈 검정 F='+fmt(L.F,3)+', p='+fmt(L.p,4)+
   (okV?' ≥ 0.05 → 조마다 흩어짐이 다르다고 볼 근거 없음':' < 0.05 → 등분산 깨짐')+
   '<br>→ '+((okN&&okV)?'두 전제 모두 만족하므로 <b>모수적 일원배치 분산분석</b>을 그대로 적용합니다.'
@@ -348,6 +378,8 @@ function render(){
   '<tr><td>차종 간</td><td>'+fmt(R.ssB,2)+'</td><td>'+R.d1+'</td><td>'+fmt(R.msB,2)+'</td><td rowspan="2" style="font-weight:800;color:var(--accent)">'+fmt(R.F,3)+'</td><td rowspan="2">'+fmt(R.fc,3)+'</td><td rowspan="2" style="font-weight:800">'+(R.p<0.001?'<0.001':fmt(R.p,4))+'</td></tr>'+
   '<tr><td>차종 내(오차)</td><td>'+fmt(R.ssW,2)+'</td><td>'+R.d2+'</td><td>'+fmt(R.msW,2)+'</td></tr>'+
   '<tr><td>전체</td><td>'+fmt(R.ssT,2)+'</td><td>'+(R.N-1)+'</td><td colspan="4"></td></tr>';
+ (function(){var ad=R.pairs.filter(function(q){return q.a===0&&q.b===3})[0],se=Math.sqrt(R.msW*2/R.n);
+  [['sp_msw',fmt(R.msW,3)],['sp_msw2',fmt(R.msW,3)],['sp_se',fmt(se,3)],['sp_df',''+R.d2],['sp_tad',fmt(Math.abs(ad.t),2)],['sp_pad',(ad.p<0.001?'< 0.001':fmt(ad.p,4))]].forEach(function(kv){var e=document.getElementById(kv[0]);if(e)e.textContent=kv[1];});})();
  var rej=R.p<0.05;
  document.getElementById('verdict').innerHTML='<div class="verdict '+(rej?'rej':'keep')+'">'+
   (rej?'F='+fmt(R.F,2)+' > 임계값 '+fmt(R.fc,2)+', p='+(R.p<0.001?'<0.001':fmt(R.p,4))+' → H₀ 기각 : 차종에 따라 평균 손상지수가 다르다'

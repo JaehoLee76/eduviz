@@ -255,7 +255,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
   <div class="box key">한 줄로: <b>정리하고 · 고르고 · 판정하고 · 설명한다.</b> 네 동작을 시간 안에 반복하는 것이 실기입니다.</div>
 
   <h2>0.5 이해 점검 — 여기까지면 충분합니다</h2>
-  <p>통계 파트의 원리는 <b>뼈대 다섯 개</b>가 전부입니다. 아래 일곱 문장을 <b>화면을 덮고 자기 말로</b> 설명할 수 있으면 원리 학습은 손익분기점을 넘긴 것이고, 그때부터는 이해를 더 파는 것보다 <b>문제를 반복해 푸는 쪽이 점수에 훨씬 많이 돌아옵니다.</b></p>
+  <p>통계 파트의 뼈대는 3절 끝의 <b>다섯 단계</b>(가설 · 전제 확인 · 검정통계량 · 판정 · 결론 서술)가 전부이고, 아래 일곱 문장은 그 다섯 단계 속에서 "왜?"가 걸리는 자리를 모은 것입니다. <b>이 페이지를 처음 읽는 지금은 설명하지 못하는 것이 정상</b>입니다. 검정통계량·p값·자유도·전제·보정은 다음 편 「자유도와 분포의 계보」와 그다음 「일원배치 분산분석」에서 직접 계산하며 배우고, 그 두 편을 마친 뒤 이 점검으로 돌아오십시오. 일곱 문장을 <b>화면을 덮고 자기 말로</b> 설명할 수 있으면 원리 학습은 손익분기점을 넘긴 것이고, 그때부터는 이해를 더 파는 것보다 <b>문제를 반복해 푸는 쪽이 점수에 훨씬 많이 돌아옵니다.</b></p>
   <div class="box key">
     <span class="lab">자기 점검 (말로 설명해 보기)</span>
     <ol style="margin:.4rem 0 0 1.1rem;padding:0">
@@ -268,7 +268,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
       <li>여러 번 비교하면 왜 보정이 필요한가</li>
     </ol>
   </div>
-  <p>막히는 문장이 있으면 그 자리가 아직 안 넘어간 곳입니다. 해당 실험실의 <b>💬 질문 버튼</b>이나 개념 사전에서 그 항목만 다시 보시고, 곧바로 <b>🎲 새 문제 → 🙈 백지 훈련</b>으로 손에 붙이십시오. 읽어서 아는 것과 쓸 수 있는 것은 다릅니다.</p>
+  <p>막히는 문장이 있으면 그 자리가 아직 안 넘어간 곳입니다. 1~4번(통계량·자유도·p값)은 <b>「자유도와 분포의 계보」</b>, 5~7번(전제·갈아타기·보정)은 <b>「일원배치 분산분석」</b>의 해당 절에서 다시 보시고, 실험실의 <b>💬 질문 버튼</b>이나 개념 사전도 쓰십시오. 그다음 곧바로 <b>🎲 새 문제 → 🙈 백지 훈련</b>으로 손에 붙이십시오. 읽어서 아는 것과 쓸 수 있는 것은 다릅니다.</p>
 
   <h2>1. 시험은 이렇게 생겼습니다</h2>
   <div class="tbl-scroll">
@@ -322,7 +322,7 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
   <div class="box key">
     <span class="lab">숫자로 잡는 감각</span>
-    훈련 자료 <strong>1,107대</strong>, 봉인한 테스트 <strong>245대</strong>. 직선(선형회귀) 하나를 적합했더니 10-겹 교차검증(cross validation) <strong>RMSE ≈ 4.6 MPG</strong> — 예측이 평균적으로 약 4.6 연비만큼 빗나갔습니다.
+    이 사례의 자료는 처음부터 훈련용 <strong>1,107대</strong>와 따로 떼어 둔 테스트용 <strong>245대</strong>로 나뉘어 있습니다(테스트 비율 약 18%). 훈련 1,107대에 직선(선형회귀) 하나를 적합했더니 10-겹 교차검증(cross validation) <strong>RMSE ≈ 4.6 MPG</strong> — 예측이 평균적으로 약 4.6 연비만큼 빗나갔습니다. 이 수치와 이차 모델의 개선 폭은 이 사례를 돌려 얻은 보고값입니다. 이 페이지에는 그 자료 파일이 없어 다시 계산할 수 없으니, 아래 코드로 <b>자기 자료에서 똑같은 비교를 해 보는 틀</b>로 읽으십시오.
   </div>
 
   <p>그런데 산점도를 보면 배기량이 <em>아주 크거나 아주 작은</em> 양 끝에서 점들이 직선을 벗어나 <strong>휘어집니다</strong>. 관계가 직선이 아니라 곡선이었던 겁니다. 배기량의 제곱 항을 하나 더한 <strong>이차 모델</strong>로 바꾸자 그 휘어짐을 잡아내 오차가 줄었습니다. 이 작은 사건에 예측모델링의 핵심 교훈이 들어 있습니다.</p>
@@ -334,14 +334,14 @@ try{var _t=localStorage.getItem("adp_theme");if(_t==="dark"||_t==="auto")documen
 
   <ol class="flow">
     <li><b>문제 정의·데이터 이해</b> — 반응변수=고속도로 연비(수치)→회귀. 산점도로 관계를 먼저 본다.</li>
-    <li><b>데이터 분할</b> — 1,107 훈련 / 245 테스트. 테스트는 끝까지 봉인.</li>
+    <li><b>데이터 분할</b> — 이 사례는 1,107 훈련 / 245 테스트로 미리 나뉘어 있고, 하나로 받았다면 직접 나눕니다. 테스트는 끝까지 봉인.</li>
     <li><b>전처리</b> — 이 사례는 변수 하나라 가볍다(척도화·변환 정도). 사례가 커지면 여기가 커진다.</li>
     <li><b>모델 적합</b> — 먼저 직선(선형회귀)을 적합.</li>
     <li><b>리샘플링 검증</b> — 10-겹 교차검증으로 RMSE≈4.6 추정. 직선 vs 이차를 <em>여기서</em> 비교해 이차 선택.</li>
     <li><b>성능 평가·결론 서술</b> — 봉인한 245대로 최종 확인 → "배기량으로 연비를 평균 약 □ 오차로 예측한다"로 문장화.</li>
   </ol>
 
-  <p>실기 답안은 이 흐름을 코드로 그대로 옮기면 됩니다. 아래는 그대로 복사해 쓰는 뼈대입니다.</p>
+  <p>실기 답안은 이 흐름을 코드로 그대로 옮기면 됩니다. 아래는 그대로 복사해 쓰는 뼈대입니다. 자료가 파일 하나로 주어진 경우를 가정해 <code>test_size=0.3</code>(30%를 테스트로)으로 직접 나누었으므로, 위 사례의 1,107 / 245 분할과 비율이 다른 것은 정상입니다. 시험에서는 문제가 정해 준 분할이나 비율(보통 0.2~0.3)을 따릅니다.</p>
 
   <pre><code>import pandas as pd, numpy as np
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
@@ -402,6 +402,8 @@ print('테스트 R²  ', round(r2_score(y_te, pred), 3))</code></pre>
   </table>
   </div>
 
+  <p>아래 조각은 4절 코드에서 나눈 <code>X_tr, X_te, y_tr, y_te</code>를 이어 쓰되, 반응변수가 범주인 분류 문제라고 가정한 것입니다.</p>
+
   <pre><code>from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
 
@@ -433,7 +435,7 @@ print('AUC', round(roc_auc_score(y_te, proba), 3))</code></pre>
   </div>
 
   <h2>9. 최고 수준의 답안은 무엇이 다른가</h2>
-  <p>합격선은 75점이고, 최근 합격률은 1~3% 수준으로 알려져 있습니다. 그러니 이 시험에서 "최고 수준"은 만점을 뜻하지 않습니다. <strong>합격하는 답안이 곧 최고 수준</strong>입니다. 그 답안이 구체적으로 어떤 모습인지 봅니다.</p>
+  <p>합격선은 75점이고, 최근 합격률은 2~3%대(자료에 따라 1~3%)로 알려져 있습니다. 분모가 필기 응시자인지 실기 응시자인지는 자료가 밝히지 않으니 "합격자가 드물다"는 크기감으로 읽으십시오. 그러니 이 시험에서 "최고 수준"은 만점을 뜻하지 않습니다. <strong>합격하는 답안이 곧 최고 수준</strong>입니다. 그 답안이 구체적으로 어떤 모습인지 봅니다.</p>
 
   <h3>실제로 나오는 문제는 이 정도입니다</h3>
   <div class="box">
@@ -443,12 +445,13 @@ print('AUC', round(roc_auc_score(y_te, proba), 3))</code></pre>
     <p><strong>카이제곱</strong> — 여섯 학과(A~F) 학생 960명의 입학 성적 분포를 비교한다. 학과마다 정확히 160명씩이다.</p>
   </div>
   <p>계산 자체는 어렵지 않습니다. <strong>어려운 것은 문제가 숨겨 둔 갈림길</strong>입니다. 첫 문제는 "차이가 있는가"만 묻는 것이 아니라 <strong>어느 쌍이 다른지</strong>까지 요구하므로 사후검정이 필수입니다. 둘째 문제는 이항분포를 <strong>두 번 겹쳐</strong> 써야 합니다. 셋째 문제는 학과마다 표본 수를 연구자가 미리 정했으므로 <strong>독립성 검정이 아니라 동질성 검정</strong>입니다 — 계산은 같아도 결론 문장이 달라집니다.</p>
+  <div class="qna" data-q="독립성 검정과 동질성 검정은 결론 문장이 어떻게 다른가요?"><p>교차표와 카이제곱 계산은 똑같습니다. 다른 것은 <b>무엇을 고정하고 무엇을 비교하느냐</b>입니다. 독립성 검정은 한 집단에서 두 범주 변수를 함께 관찰해 "두 변수가 서로 관련 있는가"를 묻고, 결론은 "A와 B는 독립이 아니다(관련이 있다)"입니다. 동질성 검정은 학과별로 인원을 미리 정해 두고 "학과마다 성적 분포가 같은가"를 묻고, 결론은 "학과에 따라 성적 분포가 다르다"입니다. 이 문제는 학과마다 160명씩 정했으므로 뒤쪽 문장을 씁니다. 계산은 「카이제곱 독립성 검정」 편에서 직접 해 봅니다.</p><p>두 겹 이항분포 문제는 1단계로 Y ≥ 4의 확률 p₁을 이항분포에서 구하고, 2단계로 그 p₁을 새 성공확률로 삼아 B(5, p₁)에서 구합니다. 계산은 「이항분포 확률과 정규근사」 편에서 다룹니다.</p></div>
 
   <h3>같은 문제에서 점수가 갈리는 일곱 지점</h3>
   <div class="box warn">
     <span class="lab">여기서 갈립니다</span>
     <ol>
-      <li><strong>전제 확인 한 문장.</strong> "정규성(샤피로-윌크)과 등분산(레빈)을 모두 만족하여 모수적 분산분석을 적용하였다" — 이 한 줄이 있고 없고가 점수를 가릅니다.</li>
+      <li><strong>전제 확인 한 문장.</strong> "정규성(샤피로-윌크)과 등분산(레빈)을 모두 만족하여 모수적 분산분석을 적용하였다" — 이 한 줄이 있고 없고가 점수를 가릅니다. (샤피로-윌크·레빈·투키 HSD·본페로니·웰치 t검정은 처음 보는 이름이 정상입니다. 「일원배치 분산분석」 편에서 하나씩 정의하고 계산합니다.)</li>
       <li><strong>그림과 수치를 둘 다.</strong> 숫자만도, 그림만도 감점입니다.</li>
       <li><strong>눈으로 본 것은 근거가 아닙니다.</strong> "그래프상 D가 높아 보인다"는 인정되지 않고, F값·p값 같은 수치라야 근거입니다.</li>
       <li><strong>다중비교 보정.</strong> 네 집단이면 쌍이 여섯입니다. 보정 없이 쌍별 t검정을 여섯 번 돌리면 감점입니다(투키 HSD·본페로니).</li>
@@ -463,6 +466,7 @@ print('AUC', round(roc_auc_score(y_te, proba), 3))</code></pre>
     <span class="lab">첫째 — 정보가 새지 않게 막는 구조</span>
     <p>결측 대치와 스케일링을 <strong>분할하기 전에 전체 자료에 적용</strong>하면, 검증 자료의 정보가 학습에 새어 들어가 성능이 부풀려집니다. 답안에서 이것을 막는 방법은 파이프라인입니다 — 전처리를 모형과 한 덩어리로 묶어 <strong>교차검증의 각 조각 안에서만</strong> 학습되게 합니다.</p>
   </div>
+  <p>아래 조각을 쓰려면 먼저 <code>from sklearn.pipeline import Pipeline</code>, <code>from sklearn.compose import ColumnTransformer</code>, <code>from sklearn.impute import SimpleImputer</code>, <code>from sklearn.preprocessing import RobustScaler, OneHotEncoder</code>, <code>from sklearn.linear_model import LogisticRegression</code>, <code>from sklearn.model_selection import StratifiedKFold, cross_val_score</code>를 불러오고, <code>num_cols</code>·<code>cat_cols</code>는 수치형·범주형 열 이름 목록으로 직접 만들어 둡니다.</p>
   <pre><code>num = Pipeline([("imp", SimpleImputer(strategy="median")), ("sc", RobustScaler())])
 cat = Pipeline([("imp", SimpleImputer(strategy="most_frequent")),
                 ("oh",  OneHotEncoder(handle_unknown="ignore"))])
@@ -577,7 +581,7 @@ cross_val_score(model, X, y, cv=StratifiedKFold(5), scoring="average_precision")
   <nav class="labnav bot">
     <span class="sp"></span>
     <a class="ghost" href="../index.html">홈</a>
-    <a href="./0002-anova-lab.html">일원배치 분산분석 →</a>
+    <a href="./0008-distribution-family.html">자유도와 분포의 계보 →</a>
   </nav>
 </div>
 

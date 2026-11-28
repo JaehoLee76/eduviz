@@ -17,7 +17,7 @@ description: EduViz 학습자료를 "질문 많고 논리적인 학습자"와 "�
 ## 1. 기계 검사 먼저 (LLM 0토큰)
 토론은 비싸다. 기계가 잡을 것은 기계가 먼저 잡는다.
 - 화법: `node tools/voice_check.mjs`
-- 겹침: 페이지형(adp·agentlab) `until mkdir /tmp/uicheck.lockdir 2>/dev/null; do sleep 7; done; node tools/ui_check.mjs <파일>; rmdir /tmp/uicheck.lockdir` / 장면형 트랙은 CLAUDE.md §4 렌더 스캔
+- 겹침: 페이지형(adp·agentlab) `until mkdir /tmp/uicheck.lockdir 2>/dev/null; do sleep 7; done; node tools/ui_check.mjs <파일>; rmdir /tmp/uicheck.lockdir` / 장면형 트랙은 CLAUDE.md §4 렌더 스캔 — ui_check 는 스크립트 오류·슬라이더 조작 중 오류·팝업 안 빈 계산 자리도 잡는다. 교사가 인라인 JS 를 고쳤으면 반드시 다시 돌린다(겹침만 보고 통과시키면 화면이 멈춘 채 배포된다).
 - 숫자·참조 훑기: `python3 .claude/skills/learner-teacher-review/sweep.py <파일...>` — 본문 속 소수·퍼센트 리터럴(하드코딩 후보), `§N`·편 번호 참조, 반말 끝맺음, 정의 전 등장 후보를 뽑는다.
 - 자료 전용 검사가 있으면 함께(Agent Lab `python3 agentlab/data/verify.py`).
 여기서 나온 결함은 토론 전에 고친다(또는 교사 브리프에 넘긴다).
@@ -53,4 +53,4 @@ description: EduViz 학습자료를 "질문 많고 논리적인 학습자"와 "�
 ## 파일
 - `learner.md` · `teacher.md` · `round2.md` — 하위 에이전트 브리프 원본(자리표시 `{{…}}` 를 채워 그대로 붙여 넣는다).
 - `sweep.py` — 기계 훑기.
-- 실제 적용 기록: Agent Lab 30편(질문 239 → 2라운드 납득 228, 나머지 전부 보강, 허브 학습 순서 역전 발견), 0210(새 편 제작 직후 적용).
+- 실제 적용 기록: ADP Master 13편(질문 93 → 2라운드 납득 91, R+ 8 전부 처리, 교사가 넣은 JS 의 정의 없는 함수 호출을 학습자 2라운드가 발견, 교사 보고 수치 오류를 Advisor 재계산이 잡음), Agent Lab 30편(질문 239 → 2라운드 납득 228, 나머지 전부 보강, 허브 학습 순서 역전 발견), 0210(새 편 제작 직후 적용).
