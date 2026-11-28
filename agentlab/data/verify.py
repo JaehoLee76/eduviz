@@ -5050,7 +5050,7 @@ for _ln, _L in zip(s22_L[10:], K22['LG']):
 chk('0210 페이지 Python 코드가 오류 없이 돌고 출력이 페이지 출력 상자와 한 글자도 다르지 않으며, 고른 묶음·두 한계·설계 셋의 알람 수·검출률이 JS 와 같고, 외부 통신 코드가 없음', s22_py_ok, (s22_run.stderr[-300:] if s22_run.returncode else f'{len(s22_L)}줄'))
 _lab = {}
 for _ln in s22_L[10:]:
-    _m = _re5.match(r'라벨\s+(\d+)장: 고른\s+(\d+)개 · 정답 포함 (\d)/6 · 엉뚱\s*(\d+)개', _ln)
+    _m = _re5.match(r'라벨\s+(\d+)장: 고른\s+(\d+)개 · 예상 포함 (\d)/6 · 예상 밖\s*(\d+)개', _ln)
     if _m: _lab[int(_m.group(1))] = tuple(int(x) for x in _m.groups()[1:])
 _rep_row = O22['tab']
 s22_lab_ok = sorted(_lab) == K22['LG'] and all(_lab[L][1] == round(_rep_row['i%d' % L] * 6) and _lab[L][2] == _rep_row['x%d' % L] for L in K22['LG'])
@@ -5075,8 +5075,8 @@ s22_slid = ['id="sS" min="%s" max="%s" step="%s" value="%s"' % (K22['SMIN'], K22
 s22_p02 = open(os.path.join(s22_labdir, '0202-false-alarm-multiplicity.html'), encoding='utf-8').read(); s22_p03 = open(os.path.join(s22_labdir, '0203-three-hidden-assumptions.html'), encoding='utf-8').read(); s22_p01 = open(os.path.join(s22_labdir, '0201-trace-to-feature.html'), encoding='utf-8').read()
 s22_hub = open(os.path.join(os.path.dirname(_DATA10), 'index.html'), encoding='utf-8').read()
 s22_hub_ok = s22_hub.find('labs/0202-false-alarm') < s22_hub.find('labs/0210-signature-feature-selection.html') < s22_hub.find('labs/0203-three-hidden')
-chk('0210 페이지: 새 용어 5개 · Q&A 5개(퍼센트 숫자 없음) · 절 11개 · MathML 식 셋(반응표 칸·예산 나누기·합이 한도 이하) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0202 쪽 0210 다음 링크(위·아래)와 0203 쪽 0210 이전 링크(위·아래), 0210 쪽 0202 이전·0203 다음 링크(위·아래) · 0201·0202 의 0210 참조 문장 · 허브 등록(0202 와 0203 사이) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~11 · 스크립트가 찾는 요소 id 전부 존재',
-    s22_term == 5 and s22_nq == 5 and s22_nsec == 11 and s22_nmath == 3 and s22_fonts and min(s22_fonts) >= 11 and not s22_endda
+chk('0210 페이지: 새 용어 5개 · Q&A 5개(퍼센트 숫자 없음) · 절 11개 · MathML 식 넷(반응표 칸·예산 나누기·합이 한도 이하·성과 환산) · 캔버스 글자 11px 이상 · 인용 밖 본문에 -다 끝맺음 없음 · 0202 쪽 0210 다음 링크(위·아래)와 0203 쪽 0210 이전 링크(위·아래), 0210 쪽 0202 이전·0203 다음 링크(위·아래) · 0201·0202 의 0210 참조 문장 · 허브 등록(0202 와 0203 사이) · data-v 키 전부 정의 · 슬라이더 기본값 = 모듈 기본값 · 본문이 가리키는 절 번호가 모두 1~11 · 스크립트가 찾는 요소 id 전부 존재',
+    s22_term == 5 and s22_nq == 5 and s22_nsec == 11 and s22_nmath == 4 and s22_fonts and min(s22_fonts) >= 11 and not s22_endda
     and s22_p02.count('0210-signature-feature-selection.html') == 2 and s22_p03.count('0210-signature-feature-selection.html') == 2 and s22_pg.count('0202-false-alarm-multiplicity.html') == 2 and s22_pg.count('0203-three-hidden-assumptions.html') == 2
     and '0210 에서 직접 해 봅니다' in s22_p01 and '0210 에서 직접 해 봅니다' in s22_p02 and s22_hub_ok and s22_dv <= s22_dvdef and all(s in s22_pg for s in s22_slid) and not s22_qna.count('%') and s22_nums and max(s22_nums) <= 11 and min(s22_nums) >= 1
     and s22_gets <= s22_ids and not _re5.search(r'[①-⑳ᵢⱼₖₙ]', s22_pg),
